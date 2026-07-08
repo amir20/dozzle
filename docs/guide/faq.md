@@ -158,6 +158,12 @@ If you need a more opinionated experience with richer provider integrations (e.g
 
 For setting up webhooks with your preferred service, see the [Alerts & Webhooks](/guide/alerts-and-webhooks) guide — it includes built-in payload templates for Slack, Discord, and ntfy that you can use as-is or customize.
 
+## Why does Dozzle keep dockerd and containerd at slightly elevated CPU when no browser is connected?
+
+Dozzle keeps container stats streaming for up to 6 hours (2 hours on Kubernetes) after the last browser disconnects, then shuts the stats collector down on its own. This is intentional. Stats are streamed continuously so that when you reopen the UI you see historical CPU and memory history instead of a blank chart. If streaming stopped the moment you closed the tab, there would be no history to show.
+
+The cost is a small, steady amount of CPU in dockerd and containerd, since Docker's stats API is polling based. Restarting the Dozzle container resets the timer immediately, which is why a restart drops the host back to idle. This is not configurable by design. A small timeout would break other functionality that assumes stats are still streaming, so lowering it defeats the purpose of the stats history.
+
 ## My Dozzle instances are timing out in Swarm Mode or I'm not seeing all my Swarm nodes when behind a load balancer. How do I fix it?
 
 In Swarm Mode, Dozzle instances may require their own overlay network. If you see inconsistent behavior when connecting to different Dozzle nodes, consider adding a separate overlay network which only contains the Dozzle instances, as shown below:
