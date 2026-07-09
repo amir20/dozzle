@@ -8,7 +8,7 @@ import (
 )
 
 func (h *handler) debugStore(w http.ResponseWriter, r *http.Request) {
-	respone := make(map[string]interface{})
+	respone := make(map[string]any)
 	respone["hosts"] = h.hostService.Hosts()
 	containers, errors := h.hostService.ListAllContainers(container.ContainerLabels{})
 	respone["containers"] = containers

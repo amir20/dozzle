@@ -110,11 +110,6 @@
     "vue-component-type-helpers": "3.3.6",
     "vue-tsc": "3.3.6"
   },
-  "lint-staged": {
-    "*.{js,vue,css,ts,html,md}": [
-      "prettier --write"
-    ]
-  },
   "simple-git-hooks": {
     "pre-commit": "pnpm lint-staged --allow-empty"
   }

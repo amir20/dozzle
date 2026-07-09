@@ -32,7 +32,7 @@ func NewLogReader(r io.Reader, tty bool) *LogReader {
 		reader: bufio.NewReader(r),
 		tty:    tty,
 		pool: &sync.Pool{
-			New: func() interface{} {
+			New: func() any {
 				return bytes.NewBuffer(make([]byte, 0, 4096))
 			},
 		},

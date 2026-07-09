@@ -6,7 +6,9 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"maps"
 	"regexp"
+	"slices"
 	"strings"
 	"sync"
 	"time"
@@ -154,9 +156,7 @@ func (k *K8sClient) podToContainers(ctx context.Context, pod *corev1.Pod) []cont
 
 	// Build labels map with pod labels, namespace, and owner reference
 	labels := make(map[string]string)
-	for k, v := range pod.Labels {
-		labels[k] = v
-	}
+	maps.Copy(labels, pod.Labels)
 	labels["namespace"] = pod.Namespace
 	labels["@k8s.namespace"] = pod.Namespace
 
@@ -444,13 +444,7 @@ func matchesContainerLabels(labels map[string]string, filters container.Containe
 		if !ok {
 			return false
 		}
-		matched := false
-		for _, expected := range values {
-			if value == expected {
-				matched = true
-				break
-			}
-		}
+		matched := slices.Contains(values, value)
 		if !matched {
 			return false
 		}

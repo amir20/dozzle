@@ -117,8 +117,7 @@ func TestEventGenerator_doesNotStallOnSustainedLevellessStream(t *testing.T) {
 	// maxGroupTimeDelta, every line looks like an orphaned continuation, so the
 	// skip loop buffers forever and the UI shows "no logs". The generator must
 	// give up and emit instead.
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
+	ctx := t.Context()
 
 	reader := &steadyLevellessReader{ctx: ctx, base: time.Now(), step: time.Millisecond, delay: time.Millisecond}
 	// startedAt far in the past so the near-start short-circuit cannot fire

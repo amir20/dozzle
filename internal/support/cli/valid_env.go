@@ -8,16 +8,15 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-func ValidateEnvVars(types ...interface{}) {
+func ValidateEnvVars(types ...any) {
 	expectedEnvs := make(map[string]bool)
 	for _, t := range types {
 		typ := reflect.TypeOf(t)
 
-		for i := 0; i < typ.NumField(); i++ {
-			field := typ.Field(i)
-			for _, tag := range strings.Split(field.Tag.Get("arg"), ",") {
-				if strings.HasPrefix(tag, "env:") {
-					expectedEnvs[strings.TrimPrefix(tag, "env:")] = true
+		for field := range typ.Fields() {
+			for tag := range strings.SplitSeq(field.Tag.Get("arg"), ",") {
+				if after, ok := strings.CutPrefix(tag, "env:"); ok {
+					expectedEnvs[after] = true
 				}
 			}
 		}
