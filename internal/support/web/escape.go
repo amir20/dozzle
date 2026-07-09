@@ -34,7 +34,7 @@ func EscapeHTMLValues(logEvent *container.LogEvent) {
 	case *orderedmap.OrderedMap[string, string]:
 		escapeStringMap(value)
 
-	case map[string]interface{}:
+	case map[string]any:
 		panic("not implemented")
 
 	case map[string]string:
@@ -66,11 +66,11 @@ func escapeAnyMap(orderedMap *orderedmap.OrderedMap[string, any]) {
 			escapeAnyMap(value)
 		case *orderedmap.OrderedMap[string, string]:
 			escapeStringMap(value)
-		case map[string]interface{}:
+		case map[string]any:
 			escapeMapStringInterface(value)
 		case map[string]string:
 			escapeStringMapString(value)
-		case []interface{}:
+		case []any:
 			escapeSlice(value)
 			orderedMap.Set(pair.Key, value)
 		default:
@@ -85,16 +85,16 @@ func escapeStringMap(orderedMap *orderedmap.OrderedMap[string, string]) {
 	}
 }
 
-func escapeMapStringInterface(value map[string]interface{}) {
+func escapeMapStringInterface(value map[string]any) {
 	for key, val := range value {
 		switch val := val.(type) {
 		case string:
 			value[key] = escapeAndProcessMarkers(val)
-		case map[string]interface{}:
+		case map[string]any:
 			escapeMapStringInterface(val)
 		case map[string]string:
 			escapeStringMapString(val)
-		case []interface{}:
+		case []any:
 			escapeSlice(val)
 		}
 	}
@@ -106,7 +106,7 @@ func escapeStringMapString(value map[string]string) {
 	}
 }
 
-func escapeSlice(slice []interface{}) {
+func escapeSlice(slice []any) {
 	for i, val := range slice {
 		switch val := val.(type) {
 		case string:
@@ -115,11 +115,11 @@ func escapeSlice(slice []interface{}) {
 			escapeAnyMap(val)
 		case *orderedmap.OrderedMap[string, string]:
 			escapeStringMap(val)
-		case map[string]interface{}:
+		case map[string]any:
 			escapeMapStringInterface(val)
 		case map[string]string:
 			escapeStringMapString(val)
-		case []interface{}:
+		case []any:
 			escapeSlice(val)
 		}
 	}

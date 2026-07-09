@@ -162,9 +162,7 @@ func (ls *logStreamer) startReader(parent context.Context, c container.Container
 		return
 	}
 
-	ls.wg.Add(1)
-	go func() {
-		defer ls.wg.Done()
+	ls.wg.Go(func() {
 		defer func() {
 			ls.mu.Lock()
 			delete(ls.readers, key)
@@ -172,7 +170,7 @@ func (ls *logStreamer) startReader(parent context.Context, c container.Container
 			cancel()
 		}()
 		ls.runReader(readerCtx, cs, minRank)
-	}()
+	})
 }
 
 // runReader follows logs from a single container and pushes batches directly

@@ -269,7 +269,7 @@ func (h *handler) streamContainerLogs(w http.ResponseWriter, r *http.Request) {
 
 func (h *handler) streamLogsMerged(w http.ResponseWriter, r *http.Request) {
 	ids := make(map[string]bool)
-	for _, id := range strings.Split(chi.URLParam(r, "ids"), ",") {
+	for id := range strings.SplitSeq(chi.URLParam(r, "ids"), ",") {
 		ids[id] = true
 	}
 
@@ -285,7 +285,7 @@ func (h *handler) streamLogsWithLabels(w http.ResponseWriter, r *http.Request) {
 	labelFilters := make(map[string]string)
 
 	if labelsParam != "" {
-		for _, pair := range strings.Split(labelsParam, ",") {
+		for pair := range strings.SplitSeq(labelsParam, ",") {
 			parts := strings.SplitN(pair, ":", 2)
 			if len(parts) == 2 {
 				labelFilters[parts[0]] = parts[1]

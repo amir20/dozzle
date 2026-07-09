@@ -39,7 +39,7 @@ func (a *simpleAuthContext) CreateToken(username, password string) (string, erro
 		return "", ErrInvalidCredentials
 	}
 
-	claims := map[string]interface{}{"username": user.Username, "email": user.Email, "name": user.Name, "filter": user.Filter, "roles": user.Roles}
+	claims := map[string]any{"username": user.Username, "email": user.Email, "name": user.Name, "filter": user.Filter, "roles": user.Roles}
 	jwtauth.SetIssuedNow(claims)
 
 	if a.ttl > 0 {

@@ -46,7 +46,7 @@ func newVolumeMonitor(store *ContainerStore) *volumeMonitor {
 }
 
 func (v *volumeMonitor) start(ctx context.Context) {
-	for i := 0; i < volumeWorkerCount; i++ {
+	for range volumeWorkerCount {
 		go v.worker(ctx)
 	}
 }

@@ -99,19 +99,19 @@ func (container Container) ToProto() pb.Container {
 	}
 
 	return pb.Container{
-		Id:          container.ID,
-		Name:        container.Name,
-		Image:       container.Image,
-		Created:     timestamppb.New(container.Created),
-		State:       container.State,
-		Health:      container.Health,
-		Host:        container.Host,
-		Tty:         container.Tty,
-		Labels:      container.Labels,
-		Group:       container.Group,
-		Started:     timestamppb.New(container.StartedAt),
-		Finished:    timestamppb.New(container.FinishedAt),
-		Stats:       pbStats,
+		Id:            container.ID,
+		Name:          container.Name,
+		Image:         container.Image,
+		Created:       timestamppb.New(container.Created),
+		State:         container.State,
+		Health:        container.Health,
+		Host:          container.Host,
+		Tty:           container.Tty,
+		Labels:        container.Labels,
+		Group:         container.Group,
+		Started:       timestamppb.New(container.StartedAt),
+		Finished:      timestamppb.New(container.FinishedAt),
+		Stats:         pbStats,
 		Command:       container.Command,
 		MemoryLimit:   container.MemoryLimit,
 		CpuLimit:      container.CPULimit,
@@ -176,20 +176,20 @@ func FromProto(c *pb.Container) Container {
 	}
 
 	return Container{
-		ID:          c.Id,
-		Name:        c.Name,
-		Image:       c.Image,
-		Labels:      labels,
-		Group:       c.Group,
-		Created:     c.Created.AsTime(),
-		State:       c.State,
-		Health:      c.Health,
-		Host:        c.Host,
-		Tty:         c.Tty,
-		Command:     c.Command,
-		StartedAt:   c.Started.AsTime(),
-		FinishedAt:  c.Finished.AsTime(),
-		Stats:       utils.RingBufferFrom(300, stats),
+		ID:            c.Id,
+		Name:          c.Name,
+		Image:         c.Image,
+		Labels:        labels,
+		Group:         c.Group,
+		Created:       c.Created.AsTime(),
+		State:         c.State,
+		Health:        c.Health,
+		Host:          c.Host,
+		Tty:           c.Tty,
+		Command:       c.Command,
+		StartedAt:     c.Started.AsTime(),
+		FinishedAt:    c.Finished.AsTime(),
+		Stats:         utils.RingBufferFrom(300, stats),
 		MemoryLimit:   c.MemoryLimit,
 		CPULimit:      c.CpuLimit,
 		FullyLoaded:   c.FullyLoaded,
@@ -233,12 +233,12 @@ func ParseContainerFilter(commaValues string) (ContainerLabels, error) {
 	}
 
 	for val := range strings.SplitSeq(commaValues, ",") {
-		pos := strings.Index(val, "=")
-		if pos == -1 {
+		before, after, ok := strings.Cut(val, "=")
+		if !ok {
 			return nil, fmt.Errorf("invalid filter: %s", filter)
 		}
-		key := val[:pos]
-		val := val[pos+1:]
+		key := before
+		val := after
 		filter[key] = append(filter[key], val)
 	}
 

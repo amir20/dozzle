@@ -55,7 +55,7 @@ func (h *handler) executeTemplate(w http.ResponseWriter, req *http.Request) {
 		}
 	}
 
-	config := map[string]interface{}{
+	config := map[string]any{
 		"base": base,
 	}
 
@@ -100,7 +100,7 @@ func (h *handler) executeTemplate(w http.ResponseWriter, req *http.Request) {
 		config["profile"] = struct{}{}
 	}
 
-	data := map[string]interface{}{
+	data := map[string]any{
 		"Config":   config,
 		"Dev":      h.config.Dev,
 		"Manifest": h.readManifest(),
@@ -115,7 +115,7 @@ func (h *handler) executeTemplate(w http.ResponseWriter, req *http.Request) {
 		log.Fatal().Err(err).Msg("Could not read index.html")
 	}
 	tmpl, err := template.New("index.html").Funcs(template.FuncMap{
-		"marshal": func(v interface{}) template.JS {
+		"marshal": func(v any) template.JS {
 			var p []byte
 			if h.config.Dev {
 				p, _ = json.MarshalIndent(v, "", "  ")
@@ -136,20 +136,20 @@ func (h *handler) executeTemplate(w http.ResponseWriter, req *http.Request) {
 	}
 }
 
-func (h *handler) readManifest() map[string]interface{} {
+func (h *handler) readManifest() map[string]any {
 	if h.config.Dev {
-		return map[string]interface{}{}
+		return map[string]any{}
 	} else {
 		file, err := h.content.Open(".vite/manifest.json")
 		if err != nil {
 			// this should only happen during test. In production, the file is embedded in the binary and checked in main.go
-			return map[string]interface{}{}
+			return map[string]any{}
 		}
 		bytes, err := io.ReadAll(file)
 		if err != nil {
 			log.Fatal().Err(err).Msg("Could not read .vite/manifest.json")
 		}
-		var manifest map[string]interface{}
+		var manifest map[string]any
 		err = json.Unmarshal(bytes, &manifest)
 		if err != nil {
 			log.Fatal().Err(err).Msg("Could not unmarshal .vite/manifest.json")

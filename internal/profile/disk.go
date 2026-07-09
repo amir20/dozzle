@@ -13,8 +13,8 @@ import (
 )
 
 const (
-	profileFilename   = "profile.json"
-	DefaultUsername   = "__default__"
+	profileFilename = "profile.json"
+	DefaultUsername = "__default__"
 )
 
 var errMissingProfileErr = errors.New("Profile file does not exist")
@@ -39,11 +39,11 @@ type Settings struct {
 }
 
 type Profile struct {
-	Settings        *Settings     `json:"settings,omitempty"`
-	Pinned          []string      `json:"pinned"`
-	VisibleKeys     []interface{} `json:"visibleKeys,omitempty"`
-	ReleaseSeen     string        `json:"releaseSeen,omitempty"`
-	CollapsedGroups []string      `json:"collapsedGroups"`
+	Settings        *Settings `json:"settings,omitempty"`
+	Pinned          []string  `json:"pinned"`
+	VisibleKeys     []any     `json:"visibleKeys,omitempty"`
+	ReleaseSeen     string    `json:"releaseSeen,omitempty"`
+	CollapsedGroups []string  `json:"collapsedGroups"`
 }
 
 var dataPath string

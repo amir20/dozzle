@@ -54,7 +54,7 @@ func (Args) Version() string {
 	return Version
 }
 
-func ParseArgs() (Args, interface{}) {
+func ParseArgs() (Args, any) {
 	var args Args
 	parser := arg.MustParse(&args)
 

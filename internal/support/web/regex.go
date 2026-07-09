@@ -67,7 +67,7 @@ func (pm *PatternMatcher) MarkInLogEvent(logEvent *container.LogEvent) bool {
 	case *orderedmap.OrderedMap[string, string]:
 		return pm.markMapString(value)
 
-	case map[string]interface{}:
+	case map[string]any:
 		return pm.markMap(value)
 
 	case map[string]string:
@@ -105,7 +105,7 @@ func (pm *PatternMatcher) markMapAny(orderedMap *orderedmap.OrderedMap[string, a
 				found = true
 			}
 
-		case map[string]interface{}:
+		case map[string]any:
 			if pm.markMap(value) {
 				found = true
 			}
@@ -125,7 +125,7 @@ func (pm *PatternMatcher) markMapAny(orderedMap *orderedmap.OrderedMap[string, a
 	return found
 }
 
-func (pm *PatternMatcher) markMap(data map[string]interface{}) bool {
+func (pm *PatternMatcher) markMap(data map[string]any) bool {
 	found := false
 	for key, value := range data {
 		switch value := value.(type) {
@@ -139,7 +139,7 @@ func (pm *PatternMatcher) markMap(data map[string]interface{}) bool {
 				found = true
 			}
 
-		case map[string]interface{}:
+		case map[string]any:
 			if pm.markMap(value) {
 				found = true
 			}
@@ -188,7 +188,7 @@ func (pm *PatternMatcher) markArray(data []any) bool {
 			if pm.markArray(value) {
 				found = true
 			}
-		case map[string]interface{}:
+		case map[string]any:
 			if pm.markMap(value) {
 				found = true
 			}
