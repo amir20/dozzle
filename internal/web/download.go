@@ -177,7 +177,10 @@ func (h *handler) downloadLogs(w http.ResponseWriter, r *http.Request) {
 				if event.Type == container.LogTypeGroup {
 					if fragments, ok := event.Message.([]container.LogFragment); ok {
 						for _, fragment := range fragments {
-							_, err = fmt.Fprintf(f, "%s %s\n", timestamp, fragment.Message)
+							// Strip the search-highlight markers the regex filter
+							// injected into grouped fragments; otherwise they leak
+							// into the downloaded file as invisible characters.
+							_, err = fmt.Fprintf(f, "%s %s\n", timestamp, container.StripHighlightMarkers(fragment.Message))
 							if err != nil {
 								log.Error().Err(err).Msgf("error writing log for container %s", c.id)
 								return
