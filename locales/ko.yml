@@ -38,6 +38,8 @@ label:
   services: 서비스
   running-containers: 실행 중인 컨테이너
   all-containers: 전체 컨테이너
+  all-namespaces: 전체
+  namespaces: 네임스페이스
   host: 호스트
   hosts: 호스트
   password: 비밀번호
@@ -48,10 +50,13 @@ label:
   avg-cpu: 평균 CPU (%)
   avg-mem: 평균 메모리 (%)
   name: 이름
+  cpu: CPU
+  mem: 메모리
   pinned: 고정됨
   per-page: 페이지당 행 수
   host-menu: 호스트 및 컨테이너
   swarm-menu: 서비스 및 스택
+  k8s-menu: 쿠버네티스
   group-menu: 사용자 그룹
   no-logs: 아직 로그가 없습니다
   search-status:
@@ -113,6 +118,7 @@ title:
   login: 인증이 필요합니다
   dashboard: 컨테이너 1개 | 컨테이너 {count}개
   settings: 설정
+  notifications: 알림
 button:
   logout: 로그아웃
   login: 로그인
@@ -132,6 +138,7 @@ settings:
   options-desc: 언어, 탐색 및 그룹화 환경설정.
   cloud-desc: Dozzle Cloud로 로그를 스트리밍하여 AI 기반 조사 및 인스턴스 간 검색을 수행합니다.
   support-title: Dozzle 후원
+  support-help: 기부는 Dozzle을 무료로 유지하고 관리하는 데 도움이 됩니다. 감사합니다 🙏
   display: 화면 설정
   locale: 언어 변경
   small-scrollbars: 작은 스크롤바 사용
@@ -217,6 +224,8 @@ notifications:
   alerts: 알림
   add-alert: 알림 추가
   add: 추가
+  prefill-name: 오류 알림
+  prefill-expression: level == "error"
   filter:
     all: 전체 ({count})
     enabled: 활성화됨 ({count})
@@ -321,6 +330,8 @@ notifications:
   empty-state:
     title: 알림 시작하기
     description: 컨테이너에 문제가 생겼을 때 알림을 받을 방법을 선택하세요.
+    cloud-subtitle: AI 요약, 원격 제어 등
+    webhook-subtitle: 모든 엔드포인트로 알림 전송
   cloud-link-success:
     title: Dozzle Cloud 연결됨
     message: 인스턴스가 성공적으로 연결되었습니다. 설정에서 연결을 해제하거나 사용량을 언제든지 확인할 수 있습니다.
