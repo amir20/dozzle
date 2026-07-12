@@ -119,6 +119,80 @@ func TestContainerStore_die(t *testing.T) {
 	assert.Equal(t, containers[0].State, "exited")
 }
 
+func TestContainerStore_rename(t *testing.T) {
+	run := func(t *testing.T, initial Container, attributes map[string]string) Container {
+		client := new(mockedClient)
+		client.On("ListContainers", mock.Anything, mock.Anything).Return([]Container{initial}, nil)
+		client.On("FindContainer", mock.Anything, initial.ID).Return(initial, nil)
+		client.On("Host").Return(Host{ID: "localhost"})
+
+		ready := make(chan struct{})
+		client.On("ContainerEvents", mock.Anything, mock.AnythingOfType("chan<- container.ContainerEvent")).Return(nil).
+			Run(func(args mock.Arguments) {
+				ctx := args.Get(0).(context.Context)
+				events := args.Get(1).(chan<- ContainerEvent)
+				<-ready
+				events <- ContainerEvent{
+					Name:            "rename",
+					ActorID:         initial.ID,
+					Host:            "localhost",
+					ActorAttributes: attributes,
+				}
+				<-ctx.Done()
+			})
+
+		store := NewContainerStore(t.Context(), client, &fakeStatsCollector{}, ContainerLabels{})
+
+		events := make(chan ContainerEvent)
+		store.SubscribeEvents(t.Context(), events)
+		close(ready)
+		<-events
+
+		containers, err := store.ListContainers(ContainerLabels{})
+		assert.NoError(t, err)
+		assert.Len(t, containers, 1)
+		return containers[0]
+	}
+
+	t.Run("keeps custom name from dev.dozzle.name label", func(t *testing.T) {
+		initial := Container{
+			ID:          "1234",
+			Name:        "custom-name",
+			State:       "running",
+			FullyLoaded: true,
+			Labels:      map[string]string{"dev.dozzle.name": "custom-name"},
+			Stats:       utils.NewRingBuffer[ContainerStat](300),
+		}
+		result := run(t, initial, map[string]string{"name": "new-docker-name"})
+		assert.Equal(t, "custom-name", result.Name)
+	})
+
+	t.Run("keeps custom name from coolify.serviceName label", func(t *testing.T) {
+		initial := Container{
+			ID:          "1234",
+			Name:        "coolify-name",
+			State:       "running",
+			FullyLoaded: true,
+			Labels:      map[string]string{"coolify.serviceName": "coolify-name"},
+			Stats:       utils.NewRingBuffer[ContainerStat](300),
+		}
+		result := run(t, initial, map[string]string{"name": "new-docker-name"})
+		assert.Equal(t, "coolify-name", result.Name)
+	})
+
+	t.Run("follows rename when name comes from docker", func(t *testing.T) {
+		initial := Container{
+			ID:          "1234",
+			Name:        "old-docker-name",
+			State:       "running",
+			FullyLoaded: true,
+			Stats:       utils.NewRingBuffer[ContainerStat](300),
+		}
+		result := run(t, initial, map[string]string{"name": "new-docker-name"})
+		assert.Equal(t, "new-docker-name", result.Name)
+	})
+}
+
 type fakeStatsCollector struct{}
 
 func (f *fakeStatsCollector) Subscribe(_ context.Context, _ chan<- ContainerStat) {}
