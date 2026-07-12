@@ -39,6 +39,7 @@ label:
   running-containers: Container in esecuzione
   all-containers: Tutti i Container
   all-namespaces: Tutti i Namespace
+  namespaces: Namespace
   host: Host
   hosts: Hosts
   password: Password
@@ -49,10 +50,13 @@ label:
   avg-cpu: CPU (%)
   avg-mem: MEM (%)
   name: Nome
+  cpu: CPU
+  mem: MEM
   pinned: Fissato
   per-page: Righe per pagina
   host-menu: Host e Container
   swarm-menu: Servizi e Stack
+  k8s-menu: Kubernetes
   group-menu: Gruppi Personalizzati
   no-logs: Il container non ha ancora log
   search-status:
@@ -112,6 +116,7 @@ title:
   login: Autenticazione richiesta
   dashboard: 1 container | {count} container
   settings: Impostazioni
+  notifications: Notifiche
 button:
   logout: Logout
   login: Login
@@ -130,6 +135,7 @@ settings:
   options-desc: Preferenze di lingua, navigazione e raggruppamento.
   cloud-desc: Trasmetti i log a Dozzle Cloud per analisi basate su IA e ricerca tra le istanze.
   support-title: Sostieni Dozzle
+  support-help: Le donazioni aiutano a mantenere Dozzle gratuito e curato. Grazie 🙏
   display: Visualizza
   locale: Sovrascrivi Lingua
   small-scrollbars: Usa una scrollbars più piccola
@@ -213,6 +219,8 @@ notifications:
   add-destination: Aggiungi destinazione
   alerts: Avvisi
   add-alert: Aggiungi avviso
+  prefill-name: Avvisi di errore
+  prefill-expression: level == "error"
   add: Aggiungi
   filter:
     all: Tutti ({count})
@@ -318,6 +326,8 @@ notifications:
   empty-state:
     title: Inizia con le notifiche
     description: Scegli come vuoi ricevere avvisi quando i tuoi container richiedono attenzione.
+    cloud-subtitle: Riepiloghi AI, controllo remoto e altro
+    webhook-subtitle: Invia avvisi a qualsiasi endpoint
   cloud-link-success:
     title: Dozzle Cloud Collegato
     message: La tua istanza è stata connessa con successo. Puoi scollegarla nelle impostazioni o controllare il tuo utilizzo in qualsiasi momento.

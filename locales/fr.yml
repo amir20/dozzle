@@ -39,6 +39,7 @@ label:
   running-containers: Conteneurs en execution
   all-containers: Tous les conteneurs
   all-namespaces: Tous les espaces de noms
+  namespaces: Espaces de noms
   host: Hôte
   hosts: Hôtes
   password: Mot de passe
@@ -49,10 +50,13 @@ label:
   avg-cpu: Moyenne CPU (%)
   avg-mem: Moyenne MEM (%)
   name: Nom
+  cpu: CPU
+  mem: MEM
   pinned: Epinglé
   per-page: Colonnes par page
   host-menu: Hôtes et Conteneurs
   swarm-menu: Services et Stacks
+  k8s-menu: Kubernetes
   group-menu: Groupes Personnalisés
   no-logs: Le conteneur n'a pas encore de logs
   search-status:
@@ -112,6 +116,7 @@ title:
   login: Authentification requise
   dashboard: 1 conteneur | {count} conteneurs
   settings: Paramètres
+  notifications: Notifications
 button:
   logout: Déconnexion
   login: Connexion
@@ -130,6 +135,7 @@ settings:
   options-desc: Préférences de langue, de navigation et de regroupement.
   cloud-desc: Diffusez les logs vers Dozzle Cloud pour des analyses assistées par IA et la recherche entre instances.
   support-title: Soutenir Dozzle
+  support-help: Les dons aident à garder Dozzle gratuit et maintenu. Merci 🙏
   display: Afficher
   locale: Langue de remplacement
   small-scrollbars: Utiliser des barres de défilement plus petites
@@ -213,6 +219,8 @@ notifications:
   add-destination: Ajouter une destination
   alerts: Alertes
   add-alert: Ajouter une alerte
+  prefill-name: Alertes d'erreur
+  prefill-expression: level == "error"
   add: Ajouter
   filter:
     all: Tous ({count})
@@ -318,6 +326,8 @@ notifications:
   empty-state:
     title: Commencer avec les notifications
     description: Choisissez comment vous souhaitez recevoir des alertes lorsque vos conteneurs nécessitent une attention.
+    cloud-subtitle: Résumés IA, contrôle à distance et plus
+    webhook-subtitle: Envoyez des alertes vers n'importe quel endpoint
   cloud-link-success:
     title: Dozzle Cloud Lié
     message: Votre instance a été connectée avec succès. Vous pouvez la délier dans les paramètres ou consulter votre utilisation à tout moment.

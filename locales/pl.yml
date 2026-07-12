@@ -32,17 +32,14 @@ action:
   create-alert: Utwórz alert
 label:
   service: Brak usług | 1 usługa | {count} usług
+  services: Usługi
   host-count: Brak Hostów | 1 Host | {count} Hostów
-  total-containers: Całkowita liczba kontenerów
-  running: Uruchomione
-  total-cpu-usage: Całkowite użycie CPU
-  total-mem-usage: Całkowite użycie pamięci
-  dozzle-version: Wersja Dozzle
   containers: Kontenery
   container: Brak kontenerów | 1 kontener | {count} kontenerów
   running-containers: Działające kontenery
   all-containers: Wszystkie kontenery
   all-namespaces: Wszystkie przestrzenie nazw
+  namespaces: Przestrzenie nazw
   host: Host
   hosts: Hosty
   password: Hasło
@@ -53,10 +50,13 @@ label:
   avg-cpu: Średnie zużycie CPU (%)
   avg-mem: Średnie zużycie pamięci (%)
   name: Nazwa
+  cpu: CPU
+  mem: MEM
   pinned: Przypięte
   per-page: Wierszy na strone
   host-menu: Hosty i Kontenery
   swarm-menu: Usługi i Stosy
+  k8s-menu: Kubernetes
   group-menu: Grupy Niestandardowe
   no-logs: Kontener nie ma jeszcze logów
   search-status:
@@ -118,6 +118,7 @@ title:
   login: Wymagane uwierzytelnienie
   dashboard: 1 kontener | {count} kontenerów
   settings: Ustawienia
+  notifications: Powiadomienia
 button:
   logout: Wyloguj się
   login: Zaloguj się
@@ -136,6 +137,7 @@ settings:
   options-desc: Preferencje języka, nawigacji i grupowania.
   cloud-desc: Przesyłaj logi do Dozzle Cloud w celu analiz wspomaganych przez AI i wyszukiwania między instancjami.
   support-title: Wesprzyj Dozzle
+  support-help: Darowizny pomagają utrzymać Dozzle darmowym i rozwijanym. Dziękujemy 🙏
   display: Wyświetlanie
   locale: Nadpisz język
   small-scrollbars: Użyj mniejszych suwaków
@@ -220,6 +222,8 @@ notifications:
   add-destination: Dodaj miejsce docelowe
   alerts: Alerty
   add-alert: Dodaj alert
+  prefill-name: Alerty o błędach
+  prefill-expression: level == "error"
   add: Dodaj
   filter:
     all: Wszystkie ({count})
@@ -325,6 +329,8 @@ notifications:
   empty-state:
     title: Zacznij korzystać z powiadomień
     description: Wybierz, jak chcesz otrzymywać alerty, gdy Twoje kontenery wymagają uwagi.
+    cloud-subtitle: Podsumowania AI, zdalne sterowanie i więcej
+    webhook-subtitle: Wysyłaj alerty do dowolnego endpointu
   cloud-link-success:
     title: Dozzle Cloud Połączony
     message: Twoja instancja została pomyślnie połączona. Możesz rozłączyć ją w ustawieniach lub sprawdzić swoje użycie w dowolnym momencie.

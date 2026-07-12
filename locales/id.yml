@@ -40,6 +40,7 @@ label:
   running-containers: Kontainer Berjalan
   all-containers: Semua Kontainer
   all-namespaces: Semua Namespace
+  namespaces: Namespace
   host: Host
   hosts: Host
   password: Kata sandi
@@ -50,10 +51,13 @@ label:
   avg-cpu: Rata-rata CPU (%)
   avg-mem: Rata-rata MEM (%)
   name: Nama
+  cpu: CPU
+  mem: MEM
   pinned: Disematkan
   per-page: Baris per halaman
   host-menu: Host dan Kontainer
   swarm-menu: Layanan dan Stack
+  k8s-menu: Kubernetes
   group-menu: Grup Kustom
   no-logs: Kontainer belum memiliki log
   search-status:
@@ -117,6 +121,7 @@ title:
   login: Autentikasi Diperlukan
   dashboard: 1 kontainer | {count} kontainer
   settings: Pengaturan
+  notifications: Notifikasi
 
 button:
   logout: Keluar
@@ -138,6 +143,7 @@ settings:
   options-desc: Preferensi bahasa, navigasi, dan pengelompokan.
   cloud-desc: Streaming log ke Dozzle Cloud untuk investigasi bertenaga AI dan pencarian lintas instans.
   support-title: Dukung Dozzle
+  support-help: Donasi membantu menjaga Dozzle tetap gratis dan terawat. Terima kasih 🙏
   display: Tampilan
   locale: Ganti bahasa
   small-scrollbars: Gunakan scrollbar kecil
@@ -225,6 +231,8 @@ notifications:
   add-destination: Tambah tujuan
   alerts: Peringatan
   add-alert: Tambah peringatan
+  prefill-name: Peringatan kesalahan
+  prefill-expression: level == "error"
   add: Tambah
   filter:
     all: Semua ({count})
@@ -330,6 +338,8 @@ notifications:
   empty-state:
     title: Mulai dengan notifikasi
     description: Pilih cara Anda ingin menerima peringatan saat kontainer Anda membutuhkan perhatian.
+    cloud-subtitle: Ringkasan AI, kendali jarak jauh & lainnya
+    webhook-subtitle: Kirim peringatan ke endpoint mana pun
   cloud-link-success:
     title: Dozzle Cloud Tertaut
     message: Instans Anda telah berhasil terhubung. Anda dapat melepaskan tautan di pengaturan atau memeriksa penggunaan Anda kapan saja.
