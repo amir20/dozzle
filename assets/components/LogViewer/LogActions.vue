@@ -7,7 +7,7 @@
     @mouseenter="checkDropdownPosition"
   >
     <router-link
-      v-if="isSearching"
+      v-if="isFiltered"
       @click="resetSearch()"
       tabindex="0"
       class="btn btn-square btn-xs border-base-content/20 bg-base-100 pointer-events-auto! opacity-0 shadow-sm group-hover/entry:opacity-90"
@@ -31,7 +31,7 @@
       class="menu dropdown-content rounded-box bg-base-200 border-base-content/20 z-50 w-52 border p-1 text-sm shadow-sm"
       @click="hideMenu"
     >
-      <li v-if="isSearching">
+      <li v-if="isFiltered">
         <router-link
           @click="resetSearch()"
           :to="{
@@ -99,6 +99,11 @@ const { showToast } = useToast();
 const showDrawer = useDrawer();
 const router = useRouter();
 const { isSearching, resetSearch } = useSearchFilter();
+const { levels } = useLoggingContext();
+
+// Show "see in context" whenever the stream is narrowed, either by a text search
+// or by a log-level filter, so the entry can be inspected in the full log stream.
+const isFiltered = computed(() => isSearching.value || allLevels.some((level) => !levels.value.has(level)));
 
 const { copy, isSupported, copied } = useClipboard();
 const { t } = useI18n();
