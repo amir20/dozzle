@@ -36,6 +36,8 @@ label:
   service: Ni storitev | 1 storitev | {count} storitev
   running-containers: Delujoči zabojniki
   all-containers: Vsi zabojniki
+  all-namespaces: Vsi
+  namespaces: Imenski prostori
   host: Gostitelj
   hosts: Gostitelji
   password: Geslo
@@ -47,6 +49,7 @@ label:
   per-page: Vrstic na stran
   host-menu: Gostitelji in zabojniki
   swarm-menu: Storitve in skladi
+  k8s-menu: Kubernetes
   group-menu: Skupine po meri
   show-all-containers: Prikaži vse zabojnike
   collapse-all: Strni vse
@@ -57,6 +60,8 @@ label:
   services: Storitve
   avg-mem: Povprečje spomina (%)
   name: Ime
+  cpu: CPU
+  mem: MEM
   no-logs: Zabojnik še nima dnevnika
   search-status:
     searching: Iskanje po starejših dnevnikih…
@@ -113,6 +118,7 @@ title:
   login: Zahtevana overitev
   dashboard: 1 zabojnik| {count} zabojnikov
   settings: Nastavitve
+  notifications: Obvestila
 button:
   logout: Odjava
   cancel: Prekliči
@@ -129,6 +135,7 @@ settings:
   options-desc: Nastavitve jezika, navigacije in združevanja.
   cloud-desc: Pretakajte dnevnike v Dozzle Cloud za preiskave z umetno inteligenco in iskanje med instancami.
   support-title: Podprite Dozzle
+  support-help: Donacije pomagajo, da Dozzle ostane brezplačen in vzdrževan. Hvala 🙏
   display: Prikaz
   locale: Preglasi jezik
   small-scrollbars: Uporabite manjše drsne trakove
@@ -218,6 +225,8 @@ notifications:
   add-destination: Dodaj cilj
   alerts: Opozorila
   add-alert: Dodaj opozorilo
+  prefill-name: Opozorila o napakah
+  prefill-expression: level == "error"
   add: Dodaj
   filter:
     all: Vsi ({count})
@@ -323,6 +332,8 @@ notifications:
   empty-state:
     title: Začnite z obvestili
     description: Izberite, kako želite prejemati opozorila, ko vaši zabojniki potrebujejo pozornost.
+    cloud-subtitle: Povzetki UI, upravljanje na daljavo in več
+    webhook-subtitle: Pošiljajte opozorila na katero koli končno točko
   cloud-link-success:
     title: Dozzle Cloud Povezan
     message: Vaša instanca je bila uspešno povezana. Povezavo lahko prekinete v nastavitvah ali kadar koli preverite svojo uporabo.

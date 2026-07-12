@@ -39,6 +39,7 @@ label:
   running-containers: Kørende Containere
   all-containers: Alle Containere
   all-namespaces: Alle Navneområder
+  namespaces: Navneområder
   host: Vært
   hosts: Værter
   password: Kodeord
@@ -49,10 +50,13 @@ label:
   avg-cpu: Gns. CPU (%)
   avg-mem: Gns. MEM (%)
   name: Navn
+  cpu: CPU
+  mem: MEM
   pinned: Fastgjort
   per-page: Rækker per side
   host-menu: Værter og Containere
   swarm-menu: Tjenester og Stacks
+  k8s-menu: Kubernetes
   group-menu: Brugerdefinerede Grupper
   no-logs: Container har ingen logs endnu
   search-status:
@@ -112,6 +116,7 @@ title:
   login: Godkendelse Krævet
   dashboard: 1 container | {count} containere
   settings: Indstillinger
+  notifications: Notifikationer
 button:
   logout: Logout
   login: Login
@@ -130,6 +135,7 @@ settings:
   options-desc: Indstillinger for sprog, navigation og gruppering.
   cloud-desc: Stream logs til Dozzle Cloud for AI-drevne undersøgelser og søgning på tværs af installationer.
   support-title: Støt Dozzle
+  support-help: Donationer hjælper med at holde Dozzle gratis og vedligeholdt. Tak 🙏
   display: Visning
   locale: Overskriv sprog
   small-scrollbars: Brug mindre scrollbarer
@@ -213,6 +219,8 @@ notifications:
   add-destination: Tilføj destination
   alerts: Alarmer
   add-alert: Tilføj alarm
+  prefill-name: Fejlalarmer
+  prefill-expression: level == "error"
   add: Tilføj
   filter:
     all: Alle ({count})
@@ -318,6 +326,8 @@ notifications:
   empty-state:
     title: Kom i gang med notifikationer
     description: Vælg hvordan du vil modtage alarmer, når dine containere kræver opmærksomhed.
+    cloud-subtitle: AI-resuméer, fjernstyring og mere
+    webhook-subtitle: Send alarmer til ethvert endpoint
   cloud-link-success:
     title: Dozzle Cloud Linket
     message: Din instans er blevet tilsluttet. Du kan fjerne tilknytningen i indstillinger eller tjekke dit forbrug når som helst.
