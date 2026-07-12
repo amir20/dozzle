@@ -39,6 +39,7 @@ label:
   running-containers: 運作中的容器
   all-containers: 所有容器
   all-namespaces: 所有命名空間
+  namespaces: 命名空間
   no-logs: 容器尚無日誌
   search-status:
     searching: 正在搜尋較舊的日誌…
@@ -60,10 +61,13 @@ label:
   avg-cpu: 平均 CPU 使用率 (%)
   avg-mem: 平均記憶體使用率 (%)
   name: 名稱
+  cpu: CPU
+  mem: MEM
   pinned: 已釘選
   per-page: 每頁列數
   host-menu: 主機和容器
   swarm-menu: 服務和堆疊
+  k8s-menu: Kubernetes
   group-menu: 自訂群組
 tooltip:
   search: 搜尋容器 (⌘ + k, ⌃k)
@@ -114,6 +118,7 @@ title:
   login: 需要身份驗證
   dashboard: 1 個容器 | {count} 個容器
   settings: 設定
+  notifications: 通知
 button:
   logout: 登出
   login: 登入
@@ -132,6 +137,7 @@ settings:
   options-desc: 語言、導覽和群組偏好設定。
   cloud-desc: 將日誌串流至 Dozzle Cloud，進行 AI 驅動的調查和跨實例搜尋。
   support-title: 支持 Dozzle
+  support-help: 捐款有助於維持 Dozzle 免費並持續維護。謝謝 🙏
   display: 顯示
   locale: 變更語言
   small-scrollbars: 使用較小的捲軸
@@ -216,6 +222,8 @@ notifications:
   add-destination: 新增目標
   alerts: 警報
   add-alert: 新增警報
+  prefill-name: 錯誤警報
+  prefill-expression: level == "error"
   add: 新增
   filter:
     all: 全部 ({count})
@@ -321,6 +329,8 @@ notifications:
   empty-state:
     title: 開始使用通知
     description: 選擇當您的容器需要關注時，您希望如何接收警報。
+    cloud-subtitle: AI 摘要、遠端控制等功能
+    webhook-subtitle: 將警報傳送至任何端點
   cloud-link-success:
     title: Dozzle Cloud 已連結
     message: 您的實例已成功連線。您可以在設定中取消連結，或隨時查看使用量。

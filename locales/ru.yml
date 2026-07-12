@@ -39,6 +39,7 @@ label:
   running-containers: Запущенные контейнеры
   all-containers: Все контейнеры
   all-namespaces: Все пространства имён
+  namespaces: Пространства имён
   host: Хост
   hosts: Хосты
   password: Пароль
@@ -49,10 +50,13 @@ label:
   avg-cpu: средний процессор (%)
   avg-mem: средняя память (%)
   name: Имя
+  cpu: CPU
+  mem: MEM
   pinned: Закреплено
   per-page: Строк на странице
   host-menu: Хосты и Контейнеры
   swarm-menu: Сервисы и Стеки
+  k8s-menu: Kubernetes
   group-menu: Пользовательские Группы
   no-logs: У контейнера еще нет логов
   search-status:
@@ -112,6 +116,7 @@ title:
   login: Требуется авторизация
   dashboard: 1 контейнер | {count} контейнеров
   settings: Настройки
+  notifications: Уведомления
 button:
   logout: Выйти
   login: Войти
@@ -130,6 +135,7 @@ settings:
   options-desc: Настройки языка, навигации и группировки.
   cloud-desc: Передавайте логи в Dozzle Cloud для аналитики с использованием ИИ и поиска по экземплярам.
   support-title: Поддержать Dozzle
+  support-help: Пожертвования помогают сохранять Dozzle бесплатным и поддерживаемым. Спасибо 🙏
   display: Вид
   locale: Язык
   small-scrollbars: Уменьшенная полоса прокрутки
@@ -213,6 +219,8 @@ notifications:
   add-destination: Добавить назначение
   alerts: Оповещения
   add-alert: Добавить оповещение
+  prefill-name: Оповещения об ошибках
+  prefill-expression: level == "error"
   add: Добавить
   filter:
     all: Все ({count})
@@ -318,6 +326,8 @@ notifications:
   empty-state:
     title: Начните с уведомлений
     description: Выберите, как вы хотите получать оповещения, когда ваши контейнеры требуют внимания.
+    cloud-subtitle: Сводки на основе ИИ, удалённое управление и многое другое
+    webhook-subtitle: Отправляйте оповещения на любую конечную точку
   cloud-link-success:
     title: Dozzle Cloud Связан
     message: Ваш экземпляр успешно подключён. Вы можете отвязать его в настройках или проверить использование в любое время.

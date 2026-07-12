@@ -38,12 +38,8 @@ label:
   services: Servisler
   running-containers: Çalışan Konteynerlar
   all-containers: Tüm Konteynerlar
-  total-containers: Toplam Konteyner
-  running: Çalışıyor
-  total-cpu-usage: Toplam CPU Kullanımı
-  total-mem-usage: Toplam Bellek Kullanımı
-  dozzle-version: Dozzle Sürümü
-  all: Tümü
+  all-namespaces: Tümü
+  namespaces: Ad Alanları
   host: Sunucu
   hosts: Sunucular
   password: Şifre
@@ -54,10 +50,13 @@ label:
   avg-cpu: Ort. CPU (%)
   avg-mem: Ort. Bellek (%)
   name: Ad
+  cpu: CPU
+  mem: MEM
   pinned: Sabitlenmiş
   per-page: Sayfa başına satır
   host-menu: Sunucular ve Konteynerler
   swarm-menu: Servisler ve Yığınlar
+  k8s-menu: Kubernetes
   group-menu: Özel Gruplar
   no-logs: Konteyner henüz log içermiyor
   search-status:
@@ -120,6 +119,7 @@ title:
   login: Kimlik Doğrulama Gerekli
   dashboard: 1 konteyner | {count} konteyner
   settings: Ayarlar
+  notifications: Bildirimler
 button:
   logout: Çıkış Yap
   login: Giriş Yap
@@ -138,6 +138,7 @@ settings:
   options-desc: Dil, gezinme ve gruplama tercihleri.
   cloud-desc: AI destekli incelemeler ve örnekler arasında arama için logları Dozzle Cloud'a aktarın.
   support-title: Dozzle'ı Destekle
+  support-help: Bağışlar Dozzle'ın ücretsiz kalmasına ve bakımının sürmesine yardımcı olur. Teşekkürler 🙏
   display: Görünüm
   locale: Dili geçersiz kıl
   small-scrollbars: Daha küçük kaydırma çubukları kullan
@@ -178,6 +179,15 @@ settings:
     auto: Otomatik
     12: "12"
     24: "24"
+  log:
+    preview: Bu, logların bir önizlemesidir
+    warning: Bir uyarı logu böyle görünür
+    complex: Bu, json formatında karmaşık bir log girişidir
+    simple: Bu, varsayılan olarak kaydırılacak çok çok uzun bir mesajdır. Yumuşak kaydırmayı devre dışı bırakmak bunu devre dışı bırakır. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+    multi-line-error:
+      start-line: Bu, çok satırlı bir hata mesajıdır
+      middle-line: ikinci bir satırla
+      end-line: ve son olarak üçüncü satır.
 releases:
   features: bir yeni özellik | {count} özellik
   bugFixes: bir hata düzeltmesi | {count} düzeltme
@@ -213,6 +223,8 @@ notifications:
   add-destination: Hedef ekle
   alerts: Uyarılar
   add-alert: Uyarı ekle
+  prefill-name: Hata uyarıları
+  prefill-expression: level == "error"
   add: Ekle
   filter:
     all: Tümü ({count})
@@ -318,6 +330,8 @@ notifications:
   empty-state:
     title: Bildirimlerle başlayın
     description: Konteynerleriniz dikkat gerektirdiğinde nasıl uyarı almak istediğinizi seçin.
+    cloud-subtitle: AI özetleri, uzaktan kontrol ve daha fazlası
+    webhook-subtitle: Uyarıları herhangi bir uç noktaya gönder
   cloud-link-success:
     title: Dozzle Cloud Bağlandı
     message: Örneğiniz başarıyla bağlandı. Ayarlardan bağlantıyı kaldırabilir veya kullanımınızı istediğiniz zaman kontrol edebilirsiniz.

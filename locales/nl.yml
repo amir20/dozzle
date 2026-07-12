@@ -39,6 +39,7 @@ label:
   running-containers: Actieve containers
   all-containers: Alle containers
   all-namespaces: Alle Namespaces
+  namespaces: Namespaces
   host: Host
   hosts: Hosts
   password: Wachtwoord
@@ -49,10 +50,13 @@ label:
   avg-cpu: Gem. CPU (%)
   avg-mem: Gem. geheugen (%)
   name: Naam
+  cpu: CPU
+  mem: MEM
   pinned: Vastgezet
   per-page: Rijen per pagina
   host-menu: Hosts en Containers
   swarm-menu: Services en Stacks
+  k8s-menu: Kubernetes
   group-menu: Aangepaste groepen
   no-logs: Container heeft nog geen logbestanden
   search-status:
@@ -113,6 +117,7 @@ title:
   login: Aanmelding vereist
   dashboard: 1 container | {count} containers
   settings: Instellingen
+  notifications: Meldingen
 button:
   logout: Afmelden
   login: Aanmelden
@@ -131,6 +136,7 @@ settings:
   options-desc: Voorkeuren voor taal, navigatie en groepering.
   cloud-desc: Stream logs naar Dozzle Cloud voor AI-gestuurde analyses en zoeken over instanties heen.
   support-title: Steun Dozzle
+  support-help: Donaties houden Dozzle gratis en onderhouden. Bedankt 🙏
   display: Weergave
   locale: Taal aanpassen
   small-scrollbars: Kleinere scrollbalk gebruiken
@@ -214,6 +220,8 @@ notifications:
   add-destination: Bestemming toevoegen
   alerts: Waarschuwingen
   add-alert: Waarschuwing toevoegen
+  prefill-name: Foutwaarschuwingen
+  prefill-expression: level == "error"
   add: Toevoegen
   filter:
     all: Alle ({count})
@@ -319,6 +327,8 @@ notifications:
   empty-state:
     title: Aan de slag met meldingen
     description: Kies hoe je waarschuwingen wilt ontvangen wanneer je containers aandacht nodig hebben.
+    cloud-subtitle: AI-samenvattingen, bediening op afstand en meer
+    webhook-subtitle: Stuur waarschuwingen naar elk eindpunt
   cloud-link-success:
     title: Dozzle Cloud gekoppeld
     message: Je instantie is succesvol verbonden. Je kunt de koppeling ongedaan maken in de instellingen of je gebruik op elk moment bekijken.

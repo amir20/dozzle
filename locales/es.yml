@@ -39,6 +39,7 @@ label:
   running-containers: Contenedores en ejecución
   all-containers: Todos los contenedores
   all-namespaces: Todos los espacios de nombres
+  namespaces: Espacios de nombres
   host: Host
   hosts: Hosts
   password: Contraseña
@@ -49,10 +50,13 @@ label:
   avg-cpu: Promedio de CPU (%)
   avg-mem: Promedio de MEM (%)
   name: Nombre
+  cpu: CPU
+  mem: MEM
   pinned: Fijado
   per-page: Filas por página
   host-menu: Hosts y Contenedores
   swarm-menu: Servicios y Stacks
+  k8s-menu: Kubernetes
   group-menu: Grupos Personalizados
   no-logs: El contenedor aún no tiene registros
   search-status:
@@ -112,6 +116,7 @@ title:
   login: Autenticación requerida
   dashboard: 1 contenedor | {count} contenedores
   settings: Configuración
+  notifications: Notificaciones
 button:
   logout: Cerrar la sesión
   login: Iniciar sesión
@@ -158,6 +163,7 @@ settings:
   options-desc: Preferencias de idioma, navegación y agrupación.
   cloud-desc: Transmite logs a Dozzle Cloud para investigaciones con IA y búsqueda entre instancias.
   support-title: Apoya a Dozzle
+  support-help: Las donaciones ayudan a mantener Dozzle gratuito y actualizado. Gracias 🙏
   display: Vista
   locale: Sobrescribir idioma
   small-scrollbars: Utilizar barras de desplazamiento más pequeñas
@@ -241,6 +247,8 @@ notifications:
   add-destination: Añadir destino
   alerts: Alertas
   add-alert: Añadir alerta
+  prefill-name: Alertas de error
+  prefill-expression: level == "error"
   add: Añadir
   filter:
     all: Todos ({count})
@@ -346,6 +354,8 @@ notifications:
   empty-state:
     title: Comenzar con las notificaciones
     description: Elija cómo desea recibir alertas cuando sus contenedores necesiten atención.
+    cloud-subtitle: Resúmenes con IA, control remoto y más
+    webhook-subtitle: Envía alertas a cualquier endpoint
   cloud-link-success:
     title: Dozzle Cloud Vinculado
     message: Su instancia se ha conectado correctamente. Puede desvincularla en la configuración o consultar su uso en cualquier momento.

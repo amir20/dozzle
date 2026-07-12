@@ -39,6 +39,7 @@ label:
   running-containers: Laufende Container
   all-containers: Alle Container
   all-namespaces: Alle Namespaces
+  namespaces: Namespaces
   host: Host
   hosts: Hosts
   password: Passwort
@@ -49,10 +50,13 @@ label:
   avg-cpu: Avg. CPU (%)
   avg-mem: Avg. MEM (%)
   name: Name
+  cpu: CPU
+  mem: MEM
   pinned: Angepinnt
   per-page: Zeilen pro Seite
   host-menu: Hosts und Container
   swarm-menu: Services und Stacks
+  k8s-menu: Kubernetes
   group-menu: Benutzerdefinierte Gruppen
   no-logs: Container hat noch keine Logs
   search-status:
@@ -112,6 +116,7 @@ title:
   login: Authentifizierung erforderlich
   dashboard: 1 Container | {count} Container
   settings: Einstellungen
+  notifications: Benachrichtigungen
 button:
   logout: Ausloggen
   login: Anmeldung
@@ -130,6 +135,7 @@ settings:
   options-desc: Einstellungen für Sprache, Navigation und Gruppierung.
   cloud-desc: Streamen Sie Logs an Dozzle Cloud für KI-gestützte Analysen und Suche über Instanzen hinweg.
   support-title: Dozzle unterstützen
+  support-help: Spenden helfen, Dozzle kostenlos und gepflegt zu halten. Vielen Dank 🙏
   display: Anzeige
   locale: Sprache überschreiben
   small-scrollbars: Verwende kleinere Scrollbars
@@ -213,6 +219,8 @@ notifications:
   add-destination: Ziel hinzufügen
   alerts: Alarme
   add-alert: Alarm hinzufügen
+  prefill-name: Fehler-Alarme
+  prefill-expression: level == "error"
   add: Hinzufügen
   filter:
     all: Alle ({count})
@@ -318,6 +326,8 @@ notifications:
   empty-state:
     title: Erste Schritte mit Benachrichtigungen
     description: Wählen Sie aus, wie Sie Alarme erhalten möchten, wenn Ihre Container Aufmerksamkeit benötigen.
+    cloud-subtitle: KI-Zusammenfassungen, Fernsteuerung und mehr
+    webhook-subtitle: Alarme an jeden Endpunkt senden
   cloud-link-success:
     title: Dozzle Cloud verknüpft
     message: Ihre Instanz wurde erfolgreich verbunden. Sie können die Verknüpfung in den Einstellungen aufheben oder Ihre Nutzung jederzeit einsehen.
