@@ -16,8 +16,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
-      - uses: pnpm/action-setup@v6
-        name: Install pnpm
       - uses: actions/setup-node@v6
         name: Install Node
         with:
@@ -38,8 +36,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
-      - uses: pnpm/action-setup@v6
-        name: Install pnpm
+      - uses: actions/setup-node@v6
+        name: Install Node
+        with:
+          node-version: 24.18.0
       - run: corepack enable
       - run: pnpm --version
       - uses: actions/setup-node@v6
@@ -95,8 +95,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
-      - uses: pnpm/action-setup@v6
-        name: Install pnpm
       - uses: actions/setup-node@v6
         name: Install Node
         with:
