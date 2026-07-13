@@ -448,14 +448,21 @@ func (s *ContainerStore) init() {
 
 			case "rename":
 				s.containers.Compute(event.ActorID, func(c *Container, loaded bool) (*Container, xsync.ComputeOp) {
-					if loaded {
-						log.Debug().Str("id", event.ActorID).Str("name", event.ActorAttributes["name"]).Msg("container renamed")
-						copy := *c
-						copy.Name = event.ActorAttributes["name"]
-						return &copy, xsync.UpdateOp
-					} else {
+					if !loaded {
 						return c, xsync.CancelOp
 					}
+					// A dev.dozzle.name or coolify.serviceName label pins a custom
+					// display name (see newContainer). That name must survive a
+					// docker-level rename, so only follow the rename when the name
+					// actually comes from Docker.
+					if c.Labels["dev.dozzle.name"] != "" || c.Labels["coolify.serviceName"] != "" {
+						log.Debug().Str("id", event.ActorID).Msg("ignoring rename: container has a custom name label")
+						return c, xsync.CancelOp
+					}
+					log.Debug().Str("id", event.ActorID).Str("name", event.ActorAttributes["name"]).Msg("container renamed")
+					copy := *c
+					copy.Name = event.ActorAttributes["name"]
+					return &copy, xsync.UpdateOp
 				})
 			}
 			s.subscribers.Range(func(c context.Context, events chan<- ContainerEvent) bool {
