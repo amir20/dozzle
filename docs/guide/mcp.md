@@ -39,6 +39,7 @@ All tools are **read-only** and do not modify containers.
 | ---------------------- | ------------------------------------------------------------------------------------ |
 | `list_containers`      | List all containers across all hosts. Supports optional `state` filter.              |
 | `get_container_logs`   | Fetch structured logs with detected levels, JSON parsing, and multi-line grouping.   |
+| `search_container_logs`| Search container logs for a keyword or phrase. Returns only matching entries.        |
 | `list_hosts`           | List all connected Docker hosts.                                                     |
 | `get_container_stats`  | Get CPU and memory usage history for a container.                                    |
 

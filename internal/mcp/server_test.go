@@ -292,9 +292,10 @@ func TestNewServerRegistersTools(t *testing.T) {
 
 	assert.Contains(t, toolNames, "list_containers")
 	assert.Contains(t, toolNames, "get_container_logs")
+	assert.Contains(t, toolNames, "search_container_logs")
 	assert.Contains(t, toolNames, "list_hosts")
 	assert.Contains(t, toolNames, "get_container_stats")
-	assert.Len(t, tools.Tools, 4)
+	assert.Len(t, tools.Tools, 5)
 }
 
 func TestGetContainerLogs(t *testing.T) {
@@ -361,4 +362,141 @@ func TestGetContainerLogsInvalidStream(t *testing.T) {
 	assert.True(t, result.IsError)
 	text := result.Content[0].(*mcp.TextContent).Text
 	assert.Contains(t, text, "invalid stream")
+}
+
+func TestSearchContainerLogs(t *testing.T) {
+	now := time.Now()
+	svc := &mockHostService{
+		containers: []container.Container{
+			{ID: "abc123", Name: "web", Host: "local"},
+		},
+		logEvents: []*container.LogEvent{
+			{Timestamp: now.UnixMilli(), Level: "info", Stream: "stdout", Type: container.LogTypeSingle, RawMessage: "Request received for /home"},
+			{Timestamp: now.UnixMilli(), Level: "error", Stream: "stderr", Type: container.LogTypeSingle, RawMessage: "Failed to process payment"},
+			{Timestamp: now.UnixMilli(), Level: "info", Stream: "stdout", Type: container.LogTypeSingle, RawMessage: "Request received for /about"},
+			{Timestamp: now.UnixMilli(), Level: "error", Stream: "stderr", Type: container.LogTypeSingle, RawMessage: "payment gateway timeout"},
+		},
+	}
+
+	s := NewServer(svc, nil, "test")
+
+	ctx := context.Background()
+	ct, st := mcp.NewInMemoryTransports()
+
+	_, err := s.mcpServer.Connect(ctx, st, nil)
+	require.NoError(t, err)
+
+	client := mcp.NewClient(&mcp.Implementation{Name: "test-client", Version: "v0.0.1"}, nil)
+	session, err := client.Connect(ctx, ct, nil)
+	require.NoError(t, err)
+	defer session.Close()
+
+	result, err := session.CallTool(ctx, &mcp.CallToolParams{
+		Name:      "search_container_logs",
+		Arguments: map[string]any{"host": "local", "container_id": "abc123", "query": "payment"},
+	})
+	require.NoError(t, err)
+	assert.False(t, result.IsError)
+	text := result.Content[0].(*mcp.TextContent).Text
+	assert.Contains(t, text, "Failed to process payment")
+	assert.Contains(t, text, "payment gateway timeout")
+	assert.NotContains(t, text, "Request received for /home")
+	assert.Contains(t, text, "Found 2 matches")
+}
+
+func TestSearchContainerLogsCaseSensitive(t *testing.T) {
+	now := time.Now()
+	svc := &mockHostService{
+		containers: []container.Container{
+			{ID: "abc123", Name: "web", Host: "local"},
+		},
+		logEvents: []*container.LogEvent{
+			{Timestamp: now.UnixMilli(), Level: "info", Stream: "stdout", Type: container.LogTypeSingle, RawMessage: "Error: something went wrong"},
+			{Timestamp: now.UnixMilli(), Level: "info", Stream: "stdout", Type: container.LogTypeSingle, RawMessage: "error: lowercase message"},
+		},
+	}
+
+	s := NewServer(svc, nil, "test")
+
+	ctx := context.Background()
+	ct, st := mcp.NewInMemoryTransports()
+
+	_, err := s.mcpServer.Connect(ctx, st, nil)
+	require.NoError(t, err)
+
+	client := mcp.NewClient(&mcp.Implementation{Name: "test-client", Version: "v0.0.1"}, nil)
+	session, err := client.Connect(ctx, ct, nil)
+	require.NoError(t, err)
+	defer session.Close()
+
+	result, err := session.CallTool(ctx, &mcp.CallToolParams{
+		Name:      "search_container_logs",
+		Arguments: map[string]any{"host": "local", "container_id": "abc123", "query": "Error", "case_sensitive": true},
+	})
+	require.NoError(t, err)
+	assert.False(t, result.IsError)
+	text := result.Content[0].(*mcp.TextContent).Text
+	assert.Contains(t, text, "Error: something went wrong")
+	assert.NotContains(t, text, "error: lowercase message")
+	assert.Contains(t, text, "Found 1 match")
+}
+
+func TestSearchContainerLogsNoMatches(t *testing.T) {
+	now := time.Now()
+	svc := &mockHostService{
+		containers: []container.Container{
+			{ID: "abc123", Name: "web", Host: "local"},
+		},
+		logEvents: []*container.LogEvent{
+			{Timestamp: now.UnixMilli(), Level: "info", Stream: "stdout", Type: container.LogTypeSingle, RawMessage: "everything is fine"},
+			{Timestamp: now.UnixMilli(), Level: "info", Stream: "stdout", Type: container.LogTypeSingle, RawMessage: "all good here"},
+		},
+	}
+
+	s := NewServer(svc, nil, "test")
+
+	ctx := context.Background()
+	ct, st := mcp.NewInMemoryTransports()
+
+	_, err := s.mcpServer.Connect(ctx, st, nil)
+	require.NoError(t, err)
+
+	client := mcp.NewClient(&mcp.Implementation{Name: "test-client", Version: "v0.0.1"}, nil)
+	session, err := client.Connect(ctx, ct, nil)
+	require.NoError(t, err)
+	defer session.Close()
+
+	result, err := session.CallTool(ctx, &mcp.CallToolParams{
+		Name:      "search_container_logs",
+		Arguments: map[string]any{"host": "local", "container_id": "abc123", "query": "error"},
+	})
+	require.NoError(t, err)
+	assert.False(t, result.IsError)
+	text := result.Content[0].(*mcp.TextContent).Text
+	assert.Contains(t, text, "no matches")
+	assert.Contains(t, text, "2 log entries scanned")
+}
+
+func TestSearchContainerLogsRequiredParams(t *testing.T) {
+	svc := &mockHostService{}
+
+	s := NewServer(svc, nil, "test")
+
+	ctx := context.Background()
+	ct, st := mcp.NewInMemoryTransports()
+
+	_, err := s.mcpServer.Connect(ctx, st, nil)
+	require.NoError(t, err)
+
+	client := mcp.NewClient(&mcp.Implementation{Name: "test-client", Version: "v0.0.1"}, nil)
+	session, err := client.Connect(ctx, ct, nil)
+	require.NoError(t, err)
+	defer session.Close()
+
+	result, err := session.CallTool(ctx, &mcp.CallToolParams{
+		Name:      "search_container_logs",
+		Arguments: map[string]any{},
+	})
+	require.NoError(t, err)
+	assert.True(t, result.IsError)
 }

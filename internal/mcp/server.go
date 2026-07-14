@@ -68,6 +68,15 @@ type getContainerLogsParams struct {
 	Stream       *string `json:"stream,omitempty" jsonschema:"Which output stream to read: stdout, stderr, or all. Defaults to all."`
 }
 
+type searchContainerLogsParams struct {
+	Host          string  `json:"host" jsonschema:"The host ID where the container is running. Use list_containers to find this."`
+	ContainerID   string  `json:"container_id" jsonschema:"The container ID (or short ID) to search logs from. Use list_containers to find this."`
+	Query         string  `json:"query" jsonschema:"The search string to look for in log messages. Case-insensitive by default."`
+	SinceMinutes  *int    `json:"since_minutes,omitempty" jsonschema:"Search logs from the last N minutes. Defaults to 5."`
+	Stream        *string `json:"stream,omitempty" jsonschema:"Which output stream to search: stdout, stderr, or all. Defaults to all."`
+	CaseSensitive *bool   `json:"case_sensitive,omitempty" jsonschema:"Whether to perform a case-sensitive search. Defaults to false."`
+}
+
 type getContainerStatsParams struct {
 	Host        string `json:"host" jsonschema:"The host ID where the container is running. Use list_containers to find this."`
 	ContainerID string `json:"container_id" jsonschema:"The container ID to get stats for. Use list_containers to find this."`
@@ -85,6 +94,12 @@ func (s *Server) registerTools() {
 		Description: "Fetch processed logs from a Docker container. Returns structured log entries with detected log levels, JSON parsing, and multi-line grouping.",
 		Annotations: &mcp.ToolAnnotations{ReadOnlyHint: true},
 	}, s.handleGetContainerLogs)
+
+	mcp.AddTool(s.mcpServer, &mcp.Tool{
+		Name:        "search_container_logs",
+		Description: "Search container logs for a keyword or phrase. Returns only matching log entries, making it efficient for finding specific errors or events without downloading large volumes of logs.",
+		Annotations: &mcp.ToolAnnotations{ReadOnlyHint: true},
+	}, s.handleSearchContainerLogs)
 
 	mcp.AddTool(s.mcpServer, &mcp.Tool{
 		Name:        "list_hosts",
@@ -275,6 +290,169 @@ func (s *Server) handleGetContainerLogs(ctx context.Context, _ *mcp.CallToolRequ
 	return &mcp.CallToolResult{
 		Content: []mcp.Content{&mcp.TextContent{Text: strings.TrimRight(sb.String(), "\n")}},
 	}, nil, nil
+}
+
+func (s *Server) handleSearchContainerLogs(ctx context.Context, _ *mcp.CallToolRequest, params *searchContainerLogsParams) (*mcp.CallToolResult, any, error) {
+	if params.Host == "" || params.ContainerID == "" || params.Query == "" {
+		return &mcp.CallToolResult{
+			Content: []mcp.Content{&mcp.TextContent{Text: "host, container_id, and query are required"}},
+			IsError: true,
+		}, nil, nil
+	}
+
+	containerSvc, err := s.hostService.FindContainer(params.Host, params.ContainerID, s.labels)
+	if err != nil {
+		return &mcp.CallToolResult{
+			Content: []mcp.Content{&mcp.TextContent{Text: fmt.Sprintf("container not found: %v", err)}},
+			IsError: true,
+		}, nil, nil
+	}
+
+	stream := ""
+	if params.Stream != nil {
+		stream = *params.Stream
+	}
+	var stdType container.StdType
+	switch stream {
+	case "", "all":
+		stdType = container.STDALL
+	case "stdout":
+		stdType = container.STDOUT
+	case "stderr":
+		stdType = container.STDERR
+	default:
+		return &mcp.CallToolResult{
+			Content: []mcp.Content{&mcp.TextContent{Text: fmt.Sprintf("invalid stream %q: must be stdout, stderr, or all", stream)}},
+			IsError: true,
+		}, nil, nil
+	}
+
+	sinceMinutes := 5
+	if params.SinceMinutes != nil && *params.SinceMinutes > 0 {
+		sinceMinutes = *params.SinceMinutes
+	}
+
+	caseSensitive := false
+	if params.CaseSensitive != nil {
+		caseSensitive = *params.CaseSensitive
+	}
+
+	query := params.Query
+	if !caseSensitive {
+		query = strings.ToLower(query)
+	}
+
+	logCtx, cancel := context.WithCancel(ctx)
+	defer cancel()
+
+	since := time.Now().Add(-time.Duration(sinceMinutes) * time.Minute)
+	events, err := containerSvc.LogsBetweenDates(logCtx, since, time.Now(), stdType)
+	if err != nil {
+		return &mcp.CallToolResult{
+			Content: []mcp.Content{&mcp.TextContent{Text: fmt.Sprintf("failed to read logs: %v", err)}},
+			IsError: true,
+		}, nil, nil
+	}
+
+	type logEntry struct {
+		Timestamp string `json:"timestamp"`
+		Level     string `json:"level,omitempty"`
+		Stream    string `json:"stream,omitempty"`
+		Type      string `json:"type"`
+		Message   any    `json:"message"`
+	}
+
+	var entries []logEntry
+	totalSize := 0
+	const maxSize = 1024 * 1024 // 1MB limit
+	matchCount := 0
+	scanned := 0
+
+	for event := range events {
+		scanned++
+
+		var msg any
+		switch event.Type {
+		case container.LogTypeGroup:
+			if fragments, ok := event.Message.([]container.LogFragment); ok {
+				lines := make([]string, len(fragments))
+				for i, f := range fragments {
+					lines[i] = f.Message
+				}
+				msg = lines
+			} else {
+				msg = event.RawMessage
+			}
+		case container.LogTypeComplex:
+			msg = event.Message
+		default:
+			msg = event.RawMessage
+		}
+
+		searchStr := messageToSearchString(msg)
+		if caseSensitive {
+			if !strings.Contains(searchStr, query) {
+				continue
+			}
+		} else {
+			if !strings.Contains(strings.ToLower(searchStr), query) {
+				continue
+			}
+		}
+
+		matchCount++
+
+		entry := logEntry{
+			Timestamp: time.UnixMilli(event.Timestamp).UTC().Format(time.RFC3339Nano),
+			Level:     event.Level,
+			Stream:    event.Stream,
+			Type:      string(event.Type),
+			Message:   msg,
+		}
+
+		line, err := json.Marshal(entry)
+		if err != nil {
+			continue
+		}
+
+		totalSize += len(line) + 1
+		if totalSize > maxSize {
+			break
+		}
+
+		entries = append(entries, entry)
+	}
+
+	if len(entries) == 0 {
+		summary := fmt.Sprintf("(no matches for %q in %d log entries scanned)", params.Query, scanned)
+		return &mcp.CallToolResult{
+			Content: []mcp.Content{&mcp.TextContent{Text: summary}},
+		}, nil, nil
+	}
+
+	var sb strings.Builder
+	fmt.Fprintf(&sb, "Found %d matches for %q (scanned %d entries):\n", matchCount, params.Query, scanned)
+	encoder := json.NewEncoder(&sb)
+	for _, entry := range entries {
+		if err := encoder.Encode(entry); err != nil {
+			return nil, nil, fmt.Errorf("failed to encode log entry: %w", err)
+		}
+	}
+
+	return &mcp.CallToolResult{
+		Content: []mcp.Content{&mcp.TextContent{Text: strings.TrimRight(sb.String(), "\n")}},
+	}, nil, nil
+}
+
+func messageToSearchString(msg any) string {
+	switch v := msg.(type) {
+	case string:
+		return v
+	case []string:
+		return strings.Join(v, "\n")
+	default:
+		return fmt.Sprintf("%v", v)
+	}
 }
 
 func (s *Server) handleListHosts(ctx context.Context, _ *mcp.CallToolRequest, _ *struct{}) (*mcp.CallToolResult, any, error) {
