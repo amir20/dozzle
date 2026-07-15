@@ -15,7 +15,7 @@ var SupportedLogLevels map[string]struct{}
 var logLevels = [][]string{
 	{"error", "err"},
 	{"warn", "warning", "wrn"},
-	{"info", "inf"},
+	{"info", "inf", "information"},
 	{"debug", "dbg"},
 	{"trace", "verbose", "ver", "vbs"},
 	{"fatal", "sev", "severe", "crit", "critical"},
