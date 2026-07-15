@@ -115,6 +115,20 @@ func TestGuessLogLevel(t *testing.T) {
 		{"WARN: connection error: retrying", "warn"},
 		// Symmetric: an ERROR prefix still wins over a later info word.
 		{"ERROR: handler failed, info: will retry", "error"},
+		// .NET / Serilog / Microsoft.Extensions.Logging spell out "Information".
+		{"Information: service started", "info"},
+		{"[Information] service started", "info"},
+		{"2024-12-30T17:43:16Z Information starting up", "info"},
+		{orderedmap.New[string, string](
+			orderedmap.WithInitialData(
+				orderedmap.Pair[string, string]{Key: "level", Value: "Information"},
+			),
+		), "info"},
+		{orderedmap.New[string, any](
+			orderedmap.WithInitialData(
+				orderedmap.Pair[string, any]{Key: "@l", Value: "Information"},
+			),
+		), "info"},
 		// Equal confidence between two different levels -> unknown (don't guess).
 		{"saw info: here and error: there", "unknown"},
 		{"[INFO] [DEBUG] both bracketed", "unknown"},
