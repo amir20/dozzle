@@ -37,6 +37,11 @@ func RingBufferFrom[T any](size int, data []T) *RingBuffer[T] {
 func (r *RingBuffer[T]) Push(data T) {
 	r.mutex.Lock()
 	defer r.mutex.Unlock()
+	if r.Size <= 0 {
+		// A zero (or negative) capacity buffer holds nothing. Bail out before
+		// indexing r.data or taking a modulo by r.Size, both of which panic.
+		return
+	}
 	if len(r.data) == r.Size {
 		r.data[r.start] = data
 		r.start = (r.start + 1) % r.Size
