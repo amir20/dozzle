@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"io"
+	"strings"
 	"testing"
 	"time"
 
@@ -499,4 +500,39 @@ func TestSearchContainerLogsRequiredParams(t *testing.T) {
 	})
 	require.NoError(t, err)
 	assert.True(t, result.IsError)
+}
+
+func TestSearchContainerLogsTruncates(t *testing.T) {
+	now := time.Now()
+	big := strings.Repeat("match ", 200) // ~1.2KB per entry
+	events := make([]*container.LogEvent, 2000)
+	for i := range events {
+		events[i] = &container.LogEvent{Timestamp: now.UnixMilli(), Level: "info", Stream: "stdout", Type: container.LogTypeSingle, RawMessage: big}
+	}
+	svc := &mockHostService{
+		containers: []container.Container{{ID: "abc123", Name: "web", Host: "local"}},
+		logEvents:  events,
+	}
+
+	s := NewServer(svc, nil, "test")
+
+	ctx := context.Background()
+	ct, st := mcp.NewInMemoryTransports()
+
+	_, err := s.mcpServer.Connect(ctx, st, nil)
+	require.NoError(t, err)
+
+	client := mcp.NewClient(&mcp.Implementation{Name: "test-client", Version: "v0.0.1"}, nil)
+	session, err := client.Connect(ctx, ct, nil)
+	require.NoError(t, err)
+	defer session.Close()
+
+	result, err := session.CallTool(ctx, &mcp.CallToolParams{
+		Name:      "search_container_logs",
+		Arguments: map[string]any{"host": "local", "container_id": "abc123", "query": "match"},
+	})
+	require.NoError(t, err)
+	assert.False(t, result.IsError)
+	text := result.Content[0].(*mcp.TextContent).Text
+	assert.Contains(t, text, "results truncated")
 }
