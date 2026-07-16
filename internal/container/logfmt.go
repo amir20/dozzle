@@ -2,6 +2,8 @@ package container
 
 import (
 	"errors"
+	"strconv"
+	"strings"
 
 	orderedmap "github.com/wk8/go-ordered-map/v2"
 )
@@ -36,7 +38,7 @@ func ParseLogFmt(log string) (*orderedmap.OrderedMap[string, string], error) {
 				} else if char == '\\' {
 					escaping = true
 				} else if char == '"' {
-					value = log[start:i]
+					value = unescapeQuoted(log[start-1 : i+1])
 					result.Set(key, value)
 					inQuotes = false
 					isKey = true
@@ -76,4 +78,20 @@ func ParseLogFmt(log string) (*orderedmap.OrderedMap[string, string], error) {
 	}
 
 	return result, nil
+}
+
+// unescapeQuoted decodes a quoted logfmt value (including the surrounding
+// quotes) so escape sequences like \" and \\ produced by logfmt encoders
+// (logrus, go-kit, go-logfmt) yield the original text instead of leaking
+// backslashes into the parsed value. If the sequence is not decodable, the
+// raw content between the quotes is returned unchanged.
+func unescapeQuoted(quoted string) string {
+	raw := quoted[1 : len(quoted)-1]
+	if !strings.ContainsRune(raw, '\\') {
+		return raw
+	}
+	if unquoted, err := strconv.Unquote(quoted); err == nil {
+		return unquoted
+	}
+	return raw
 }
