@@ -88,7 +88,7 @@
     "@iconify-json/simple-icons": "^1.2.90",
     "@iconify-json/svg-spinners": "^1.2.4",
     "@iconify/vue": "^5.0.1",
-    "@pinia/testing": "^1.0.3",
+    "@pinia/testing": "^2.0.1",
     "@playwright/test": "^1.61.1",
     "@types/lodash.debounce": "^4.0.9",
     "@types/node": "^25.9.5",
