@@ -13,14 +13,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
-      - uses: actions/setup-node@v6
+      - uses: actions/setup-node@v7
         name: Install Node
         with:
           node-version: latest
       - run: npm install --global corepack@latest
       - run: corepack enable
       - run: pnpm --version
-      - uses: actions/setup-node@v6
+      - uses: actions/setup-node@v7
         with:
           node-version: latest
           cache: "pnpm"
@@ -54,14 +54,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
-      - uses: actions/setup-node@v6
+      - uses: actions/setup-node@v7
         name: Install Node
         with:
           node-version: latest
       - run: npm install --global corepack@latest
       - run: corepack enable
       - run: pnpm --version
-      - uses: actions/setup-node@v6
+      - uses: actions/setup-node@v7
         with:
           node-version: latest
           cache: "pnpm"
@@ -152,7 +152,7 @@ jobs:
         with:
           fetch-depth: 0
       - name: Install Node
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@v7
       - name: Release to Github
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
