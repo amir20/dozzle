@@ -181,8 +181,8 @@ importers:
         specifier: ^5.0.1
         version: 5.0.1(vue@3.5.39(typescript@6.0.3))
       '@pinia/testing':
-        specifier: ^1.0.3
-        version: 1.0.3(pinia@3.0.4(typescript@6.0.3)(vue@3.5.39(typescript@6.0.3)))
+        specifier: ^2.0.1
+        version: 2.0.1(pinia@3.0.4(typescript@6.0.3)(vue@3.5.39(typescript@6.0.3)))
       '@playwright/test':
         specifier: ^1.61.1
         version: 1.61.1
@@ -1115,10 +1115,10 @@ packages:
     cpu: [x64]
     os: [win32]
 
-  '@pinia/testing@1.0.3':
-    resolution: {integrity: sha512-g+qR49GNdI1Z8rZxKrQC3GN+LfnGTNf5Kk8Nz5Cz6mIGva5WRS+ffPXQfzhA0nu6TveWzPNYTjGl4nJqd3Cu9Q==}
+  '@pinia/testing@2.0.1':
+    resolution: {integrity: sha512-pQ4a4SCzdiLrhM4yv/TQG2ufNmktNlLZjjN6X/qMhXvZIiDN3L4L4WrChmcufX2LIarbl/ZPWOty1RB5KZIb2A==}
     peerDependencies:
-      pinia: '>=3.0.4'
+      pinia: '>=4.0.2'
 
   '@pkgjs/parseargs@0.11.0':
     resolution: {integrity: sha512-+1VkjdD0QBLPodGrJUeqarH8VAIvQODIbwh9XpP5Syisf7YoQgsJKPNFoqqLQlu+VQ/tVSshMR6loPMn8U+dPg==}
@@ -3089,6 +3089,9 @@ packages:
     engines: {node: ^14.17.0 || ^16.13.0 || >=18.0.0}
     hasBin: true
 
+  nostics@1.1.4:
+    resolution: {integrity: sha512-U4FApICSLCQ0dYiN59pxUCEZC053palQXi57yLaNdMaL6TBY4C4q3qZrJKUGcor2dGv8EhEwt8y5KvU2bo2kFg==}
+
   nth-check@2.1.1:
     resolution: {integrity: sha512-lqjrjmaOoAnWfMmBPL+XNnynZh2+swxiX3WUE0s4yEHI6m+AwrK2UZOimIRl3X/4QctVqS8AiZjFqyOGrMXb/w==}
 
@@ -4857,8 +4860,9 @@ snapshots:
   '@oxc-resolver/binding-win32-x64-msvc@4.2.0':
     optional: true
 
-  '@pinia/testing@1.0.3(pinia@3.0.4(typescript@6.0.3)(vue@3.5.39(typescript@6.0.3)))':
+  '@pinia/testing@2.0.1(pinia@3.0.4(typescript@6.0.3)(vue@3.5.39(typescript@6.0.3)))':
     dependencies:
+      nostics: 1.1.4
       pinia: 3.0.4(typescript@6.0.3)(vue@3.5.39(typescript@6.0.3))
 
   '@pkgjs/parseargs@0.11.0':
@@ -6815,6 +6819,8 @@ snapshots:
   nopt@7.2.1:
     dependencies:
       abbrev: 2.0.0
+
+  nostics@1.1.4: {}
 
   nth-check@2.1.1:
     dependencies:
