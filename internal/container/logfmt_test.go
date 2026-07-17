@@ -68,6 +68,28 @@ func TestParseLog(t *testing.T) {
 			wantErr: false,
 		},
 		{
+			name: "Escaped quotes and backslashes in quoted values",
+			log:  `level=info msg="failed to open \"config.yml\"" path="C:\\temp"`,
+			want: orderedmap.New[string, string](
+				orderedmap.WithInitialData(
+					orderedmap.Pair[string, string]{Key: "level", Value: "info"},
+					orderedmap.Pair[string, string]{Key: "msg", Value: `failed to open "config.yml"`},
+					orderedmap.Pair[string, string]{Key: "path", Value: `C:\temp`},
+				),
+			),
+			wantErr: false,
+		},
+		{
+			name: "Quoted value with undecodable escape is kept as-is",
+			log:  `msg="foo \q bar"`,
+			want: orderedmap.New[string, string](
+				orderedmap.WithInitialData(
+					orderedmap.Pair[string, string]{Key: "msg", Value: `foo \q bar`},
+				),
+			),
+			wantErr: false,
+		},
+		{
 			name:    "Broken format with unexpected quotes",
 			log:     `key1=value"1"= key2="value2"`,
 			want:    nil,
