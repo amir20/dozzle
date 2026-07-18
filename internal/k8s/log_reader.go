@@ -18,10 +18,9 @@ func NewLogReader(reader io.ReadCloser) *LogReader {
 }
 
 func (r *LogReader) Read() (string, container.StdType, error) {
+	// A final line without a trailing newline arrives together with EOF.
+	// Return the partial line with the error instead of dropping it; the
+	// event generator emits the message before handling the error.
 	line, err := r.reader.ReadString('\n')
-	if err != nil {
-		return "", 0, err
-	}
-
-	return line, container.STDOUT, nil
+	return line, container.STDOUT, err
 }
