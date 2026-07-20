@@ -96,7 +96,7 @@
     "@vue/compiler-sfc": "^3.5.39",
     "@vue/test-utils": "^2.4.11",
     "bumpp": "^11.1.0",
-    "c8": "^11.0.0",
+    "c8": "^12.0.0",
     "concurrently": "^10.0.3",
     "eventsourcemock": "^2.0.0",
     "jsdom": "^29.1.1",
