@@ -41,9 +41,6 @@ func NewLogReader(r io.Reader, tty bool) *LogReader {
 
 func (d *LogReader) Read() (string, container.StdType, error) {
 	message, stdType, err := d.readEvent()
-	if err != nil {
-		return "", 0, err
-	}
 
 	var std container.StdType
 	switch stdType {
@@ -53,10 +50,18 @@ func (d *LogReader) Read() (string, container.StdType, error) {
 		std = container.STDERR
 	}
 
+	// A final line without a trailing newline (e.g. a container's last write
+	// before exiting) arrives together with EOF. Return the partial message
+	// with the error instead of dropping it; the event generator emits the
+	// message before handling the error.
+	if err != nil {
+		return message, std, err
+	}
+
 	for !strings.HasSuffix(message, "\n") {
 		tail, _, err := d.readEvent()
 		if err != nil {
-			return "", std, err
+			return message, std, err
 		}
 
 		_, after, _ := strings.Cut(tail, " ")
