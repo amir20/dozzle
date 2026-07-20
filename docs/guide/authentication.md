@@ -189,6 +189,14 @@ docker run -it --rm amir20/dozzle generate admin --password password --email tes
 
 In this example, `admin` is the username. Email and name are optional but recommended to display accurate avatars. `docker run -it --rm amir20/dozzle generate --help` displays all options. The `--user-filter` flag is a comma-separated list of filters. The `--user-roles` flag is a comma-separated list of roles.
 
+If you omit `--password`, Dozzle prompts for it on stdin so the password never lands in your shell history. This requires an interactive terminal, so keep the `-it` flags:
+
+```sh
+docker run -it --rm amir20/dozzle generate admin --email test@email.net --name "John Doe" > users.yml
+```
+
+The prompt is written to stderr, so redirecting stdout to `users.yml` still works. You can also pipe the password in, for example `echo "$PASSWORD" | docker run -i --rm amir20/dozzle generate admin > users.yml`.
+
 ## <Icon icon="mdi:swap-horizontal" inline /> Forward Proxy
 
 Dozzle can be configured to read proxy headers by setting `--auth-provider` to `forward-proxy`.
