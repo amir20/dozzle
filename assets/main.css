@@ -57,6 +57,24 @@
   --color-error: var(--color-red);
   --color-error-content: oklch(98% 0.01 30);
 
+  /* ANSI log palette tuned for legibility on the dark background */
+  --ansi-black: oklch(45% 0 0);
+  --ansi-red: oklch(65% 0.2 25);
+  --ansi-green: oklch(72% 0.16 150);
+  --ansi-yellow: oklch(80% 0.13 85);
+  --ansi-blue: oklch(70% 0.14 250);
+  --ansi-magenta: oklch(68% 0.19 330);
+  --ansi-cyan: oklch(75% 0.11 200);
+  --ansi-white: oklch(89% 0 0);
+  --ansi-bright-black: oklch(60% 0 0);
+  --ansi-bright-red: oklch(72% 0.2 25);
+  --ansi-bright-green: oklch(82% 0.17 150);
+  --ansi-bright-yellow: oklch(88% 0.14 95);
+  --ansi-bright-blue: oklch(78% 0.13 250);
+  --ansi-bright-magenta: oklch(75% 0.19 330);
+  --ansi-bright-cyan: oklch(85% 0.11 200);
+  --ansi-bright-white: oklch(100% 0 0);
+
   --radius-selector: 1rem;
   --radius-field: 0.25rem;
   --radius-box: 0.5rem;
@@ -96,6 +114,24 @@
 
   --color-error: var(--color-red);
   --color-error-content: oklch(98% 0.01 30);
+
+  /* ANSI log palette tuned for legibility on the light background */
+  --ansi-black: oklch(25% 0 0);
+  --ansi-red: oklch(52% 0.2 25);
+  --ansi-green: oklch(52% 0.15 150);
+  --ansi-yellow: oklch(60% 0.13 75);
+  --ansi-blue: oklch(50% 0.17 255);
+  --ansi-magenta: oklch(50% 0.2 330);
+  --ansi-cyan: oklch(55% 0.1 210);
+  --ansi-white: oklch(70% 0 0);
+  --ansi-bright-black: oklch(45% 0 0);
+  --ansi-bright-red: oklch(58% 0.21 25);
+  --ansi-bright-green: oklch(58% 0.16 150);
+  --ansi-bright-yellow: oklch(62% 0.13 85);
+  --ansi-bright-blue: oklch(55% 0.16 255);
+  --ansi-bright-magenta: oklch(56% 0.2 330);
+  --ansi-bright-cyan: oklch(60% 0.1 210);
+  --ansi-bright-white: oklch(85% 0 0);
 
   --radius-selector: 1rem;
   --radius-field: 0.25rem;
