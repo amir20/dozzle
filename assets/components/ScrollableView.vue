@@ -26,31 +26,35 @@
       <div ref="scrollObserver" class="h-px"></div>
     </main>
 
-    <div class="fixed right-16 bottom-8 flex flex-row items-center gap-2" v-if="!historical">
-      <transition name="fade">
+    <transition name="fade">
+      <div
+        class="border-base-content/10 fixed right-8 bottom-8 z-10 flex flex-col overflow-hidden rounded-lg border shadow-md"
+        v-if="!historical"
+        v-show="!atTop || scrollContext.paused"
+      >
+        <!-- Go to top (tonal): loads all the way back to the first line. -->
         <button
-          class="btn btn-primary text-primary-content rounded-sm p-3 shadow-sm transition-colors"
+          class="btn btn-square btn-primary btn-soft rounded-none border-none shadow-none"
+          :class="{ 'pointer-events-none opacity-40': atTop && !goingToTop }"
           @click="scrollToTop()"
-          v-show="!atTop"
           :aria-label="$t('button.scroll-to-top')"
           :title="$t('button.scroll-to-top')"
         >
-          <mdi:chevron-double-up />
+          <span v-if="goingToTop" class="loading loading-spinner loading-sm"></span>
+          <mdi:chevron-double-up v-else />
         </button>
-      </transition>
-      <transition name="fade">
+        <!-- Go to bottom (contained): back to the live tail. -->
         <button
-          class="btn btn-primary text-primary-content rounded-sm p-3 shadow-sm transition-colors"
-          :class="hasMore ? 'btn-secondary animate-bounce-fast text-secondary-content' : ''"
+          class="btn btn-square btn-primary rounded-none border-none shadow-none"
+          :class="{ 'animate-bounce-fast': hasMore, 'pointer-events-none opacity-40': !scrollContext.paused }"
           @click="scrollToBottom()"
-          v-show="scrollContext.paused"
           :aria-label="$t('button.scroll-to-bottom')"
           :title="$t('button.scroll-to-bottom')"
         >
           <mdi:chevron-double-down />
         </button>
-      </transition>
-    </div>
+      </div>
+    </transition>
   </section>
 </template>
 
@@ -59,13 +63,14 @@ const { scrollable = false } = defineProps<{ scrollable?: boolean }>();
 
 const hasMore = ref(false);
 const atTop = ref(true);
+const goingToTop = ref(false);
 const scrollObserver = ref<HTMLElement>();
 const scrollTopObserver = ref<HTMLElement>();
 const scrollableContent = ref<HTMLElement>();
 
 const scrollContext = provideScrollContext();
 
-const { loadingMore, historical } = useLoggingContext();
+const { loadingMore, historical, loadOlderLogs } = useLoggingContext();
 if (!historical.value) {
   useIntersectionObserver(scrollObserver, ([entry]) => (scrollContext.paused = entry.intersectionRatio == 0), {
     threshold: [0, 1],
@@ -99,8 +104,23 @@ function scrollToBottom(behavior: "auto" | "smooth" = "auto") {
   hasMore.value = false;
 }
 
-function scrollToTop(behavior: "auto" | "smooth" = "auto") {
-  scrollTopObserver.value?.scrollIntoView({ behavior });
+async function scrollToTop() {
+  // Pull older batches until the loader reports there is nothing older left, so
+  // "go to top" lands on the very first line instead of just the loaded top.
+  const loadOlder = loadOlderLogs?.value;
+  if (loadOlder) {
+    goingToTop.value = true;
+    try {
+      let guard = 0;
+      while ((await loadOlder()) && guard++ < 1000) {
+        /* keep loading toward the first line */
+      }
+    } finally {
+      goingToTop.value = false;
+    }
+    await nextTick();
+  }
+  scrollTopObserver.value?.scrollIntoView({ behavior: "auto" });
 }
 </script>
 <style scoped>

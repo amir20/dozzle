@@ -187,6 +187,14 @@
   }
 }
 
+/* Reserve the document scrollbar gutter so the layout width stays constant when
+ * a page-level scrollbar appears (e.g. once a container's logs load). Without
+ * this, the width jump makes the percentage-based splitpanes recompute and the
+ * sidebar visibly flicks. */
+html {
+  scrollbar-gutter: stable;
+}
+
 body {
   padding-top: env(safe-area-inset-top);
   padding-bottom: env(safe-area-inset-bottom);
@@ -203,16 +211,6 @@ body {
 
 [class*="shadow-"] {
   @apply shadow-base-content/8;
-}
-
-/* Theme-aware focus ring. The browser default outline color is platform
- * dependent (near-black on macOS), which fails contrast on the dark theme.
- * Force a base-content outline for interactive elements that don't already
- * define their own, so it stays visible in both themes. Low specificity via
- * :where() lets components (e.g. daisyUI buttons) keep their own outline. */
-:where(a, button, [role="button"], summary, [tabindex]:not([tabindex="-1"])):focus-visible {
-  outline: 2px solid var(--color-base-content);
-  outline-offset: 2px;
 }
 
 .splitpanes--vertical .splitpanes__pane {

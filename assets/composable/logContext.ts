@@ -10,6 +10,9 @@ type LogContext = {
   showContainerName: boolean;
   showHostname: boolean;
   historical: boolean;
+  // Set by the log stream so the "go to top" button can drive the lazy loader
+  // all the way back to the first line. Returns true while older logs remain.
+  loadOlderLogs?: () => Promise<boolean>;
 };
 
 export const allLevels: Level[] = ["info", "debug", "warn", "error", "fatal", "trace", "unknown"];
@@ -35,6 +38,7 @@ export const provideLoggingContext = (
       showContainerName,
       showHostname,
       historical,
+      loadOlderLogs: undefined as LogContext["loadOlderLogs"],
     }),
   );
 };
@@ -51,6 +55,7 @@ export const useLoggingContext = () => {
       showContainerName: false,
       showHostname: false,
       historical: false,
+      loadOlderLogs: undefined as LogContext["loadOlderLogs"],
     }),
   );
 
