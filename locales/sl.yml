@@ -1,8 +1,13 @@
 toolbar:
   clear: Počisti
-  download: Prenesi
+  download: Prenesi Dnevnike
   download-filtered: Prenesi Filtrirane Dnevnike
   search: Iskanje
+  search-placeholder: "Iskanje / RegEx"
+  close: "Zapri"
+  more-actions: "Več dejanj"
+  reset-position: "Pridržite za ponastavitev položaja, povlecite za premikanje"
+  reset-sidebar-width: "Ponastavi širino stranske vrstice"
   inverse-on: Izključi ujemanja (obratno)
   inverse-off: Vključi ujemanja (običajno)
   show: Prikaži {std}
@@ -13,6 +18,7 @@ toolbar:
   shell: Lupina
   attach: Priloži
   copy-permalink: Kopiraj trajno povezavo
+  copy-image: "Kopiraj oznako slike"
   copy-logs: Kopiraj dnevnike
   copy-filtered-logs: Kopiraj filtrirane dnevnike
   copying-logs: Kopiranje dnevnikov...
@@ -124,6 +130,10 @@ button:
   cancel: Prekliči
   redirect: Preusmeritev
   retry: Retry
+  scroll-to-top: "Pomakni na vrh"
+  scroll-to-bottom: "Pomakni na dno"
+  show-sidebar: "Pokaži stransko vrstico"
+  hide-sidebar: "Skrij stransko vrstico"
   login: Prijava
   settings: Nastavitve
 placeholder:
@@ -146,6 +156,8 @@ settings:
   color-scheme: Barvna shema
   options: Možnosti
   show-stopped-containers: Prikaži ustavljene zabojnike
+  open-as-popup: Odpri nastavitve v pojavnem oknu
+  experimental: Poskusno
   group-containers: Združi zabojnike po imenskem prostoru
   about: O programu
   search: Omogočite iskanje z Dozzle z uporabo
@@ -153,6 +165,10 @@ settings:
     target="_blank" rel="noreferrer noopener">{nextVersion}</a>.
   show-std: Prikaži oznake stdout in stderr
   compact: Omogoči kompaktni način za dnevnike
+  cpu-display: "Prikaz porabe procesorja"
+  cpu:
+    utilization: "Celoten procesor (%)"
+    cores: "Na jedro (Linux)"
   size:
     small: Majhna
     medium: Srednja

@@ -1,8 +1,13 @@
 toolbar:
   clear: 清除
-  download: 下载
+  download: 下载日志
   download-filtered: 下载筛选的日志
   search: 搜索
+  search-placeholder: "搜索 / 正则表达式"
+  close: "关闭"
+  more-actions: "更多操作"
+  reset-position: "长按以重置位置，拖动以移动"
+  reset-sidebar-width: "重置侧边栏宽度"
   inverse-on: 排除匹配项（反向）
   inverse-off: 包含匹配项（正常）
   show: 显示 {std}
@@ -21,6 +26,7 @@ toolbar:
   shell: 终端
   attach: 附加
   copy-permalink: 复制永久链接
+  copy-image: "复制镜像标签"
   copy-logs: 复制日志
   copy-filtered-logs: 复制筛选日志
   copying-logs: 正在复制日志...
@@ -124,6 +130,10 @@ button:
   cancel: 取消
   redirect: 重定向
   retry: Retry
+  scroll-to-top: "滚动到顶部"
+  scroll-to-bottom: "滚动到底部"
+  show-sidebar: "显示侧边栏"
+  hide-sidebar: "隐藏侧边栏"
 placeholder:
   search-containers: 搜索容器 (⌘ + k, ⌃k)
   search: 搜索
@@ -146,6 +156,8 @@ settings:
   color-scheme: 颜色方案
   options: 选项
   show-stopped-containers: 显示已停止的容器
+  open-as-popup: 在弹出窗口中打开设置
+  experimental: 实验性
   group-containers: 按命名空间分组容器
   about: 关于
   search: 使用Dozzle启用搜索
@@ -155,6 +167,10 @@ settings:
   show-std: 显示stdout和stderr标签
   automatic-redirect: 自动重定向到同名的新容器
   compact: 紧凑模式
+  cpu-display: "CPU 使用率显示"
+  cpu:
+    utilization: "整颗 CPU (%)"
+    cores: "每核心 (Linux)"
   size:
     small: 小
     medium: 中

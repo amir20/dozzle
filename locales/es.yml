@@ -1,8 +1,13 @@
 toolbar:
   clear: Limpiar
-  download: Descargar
+  download: Descargar Logs
   download-filtered: Descargar Logs Filtrados
   search: Buscar
+  search-placeholder: "Buscar / RegEx"
+  close: "Cerrar"
+  more-actions: "Más acciones"
+  reset-position: "Mantén pulsado para restablecer la posición, arrastra para mover"
+  reset-sidebar-width: "Restablecer ancho de barra lateral"
   inverse-on: Excluir coincidencias (inverso)
   inverse-off: Incluir coincidencias (normal)
   show: Mostrar {std}
@@ -21,6 +26,7 @@ toolbar:
   shell: Shell
   attach: Conectar
   copy-permalink: Copiar enlace permanente
+  copy-image: "Copiar etiqueta de imagen"
   copy-logs: Copiar registros
   copy-filtered-logs: Copiar registros filtrados
   copying-logs: Copiando registros...
@@ -124,6 +130,10 @@ button:
   cancel: Cancelar
   redirect: Redirigir
   retry: Retry
+  scroll-to-top: "Desplazar arriba"
+  scroll-to-bottom: "Desplazar abajo"
+  show-sidebar: "Mostrar barra lateral"
+  hide-sidebar: "Ocultar barra lateral"
 placeholder:
   search-containers: Buscar contenedores (⌘ + K, CTRL + K)
   search: Buscar
@@ -174,6 +184,8 @@ settings:
   color-scheme: Esquema de colores
   options: Opciones
   show-stopped-containers: Mostrar contenedores parados
+  open-as-popup: Abrir ajustes en una ventana emergente
+  experimental: Experimental
   group-containers: Agrupar contenedores por namespace
   about: Acerca de
   search: Activar la búsqueda con Dozzle mediante
@@ -183,6 +195,10 @@ settings:
   show-std: Mostrar etiquetas de salida estándar y salida de error estándar
   automatic-redirect: Redireccionar automáticamente a nuevos contenedores con el mismo nombre
   compact: Modo compacto
+  cpu-display: "Visualización del uso de CPU"
+  cpu:
+    utilization: "CPU completa (%)"
+    cores: "Por núcleo (Linux)"
   size:
     small: Pequeño
     medium: Mediano

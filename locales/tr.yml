@@ -1,8 +1,13 @@
 toolbar:
   clear: Temizle
-  download: İndir
+  download: Logları İndir
   download-filtered: Filtrelenmiş Logları İndir
   search: Ara
+  search-placeholder: "Ara / RegEx"
+  close: "Kapat"
+  more-actions: "Diğer işlemler"
+  reset-position: "Konumu sıfırlamak için basılı tutun, taşımak için sürükleyin"
+  reset-sidebar-width: "Kenar çubuğu genişliğini sıfırla"
   inverse-on: Eşleşenleri hariç tut (ters)
   inverse-off: Eşleşenleri dahil et (normal)
   show: Sadece {std} göster
@@ -21,6 +26,7 @@ toolbar:
   shell: Kabuk
   attach: Bağla
   copy-permalink: Kalıcı bağlantıyı kopyala
+  copy-image: "İmaj etiketini kopyala"
   copy-logs: Günlükleri kopyala
   copy-filtered-logs: Filtrelenmiş günlükleri kopyala
   copying-logs: Günlükler kopyalanıyor...
@@ -127,6 +133,10 @@ button:
   cancel: İptal
   redirect: Yönlendir
   retry: Retry
+  scroll-to-top: "Yukarı kaydır"
+  scroll-to-bottom: "Aşağı kaydır"
+  show-sidebar: "Kenar çubuğunu göster"
+  hide-sidebar: "Kenar çubuğunu gizle"
 placeholder:
   search-containers: Konteynerlerde ara (⌘ + k, ⌃k)
   search: Ara
@@ -149,6 +159,8 @@ settings:
   color-scheme: Renk düzeni
   options: Seçenekler
   show-stopped-containers: Durdurulan konteynerleri göster
+  open-as-popup: Ayarları açılır pencerede aç
+  experimental: Deneysel
   group-containers: Konteynerleri ad alanına göre grupla
   about: Hakkında
   search: Dozzle kullanarak aramayı etkinleştir
@@ -159,6 +171,10 @@ settings:
   show-std: stdout ve stderr etiketlerini göster
   automatic-redirect: Aynı ada sahip yeni konteynerlere otomatik olarak yönlendir
   compact: Günlükler için kompakt modu etkinleştir
+  cpu-display: "CPU kullanımı görünümü"
+  cpu:
+    utilization: "Tüm CPU (%)"
+    cores: "Çekirdek başına (Linux)"
   size:
     small: Küçük
     medium: Orta

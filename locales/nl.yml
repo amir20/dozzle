@@ -1,8 +1,13 @@
 toolbar:
   clear: Wissen
-  download: Downloaden
+  download: Logs Downloaden
   download-filtered: Gefilterde Logs Downloaden
   search: Zoeken
+  search-placeholder: "Zoeken / RegEx"
+  close: "Sluiten"
+  more-actions: "Meer acties"
+  reset-position: "Ingedrukt houden om de positie te herstellen, sleep om te verplaatsen"
+  reset-sidebar-width: "Zijbalkbreedte herstellen"
   inverse-on: Overeenkomsten uitsluiten (omgekeerd)
   inverse-off: Overeenkomsten opnemen (normaal)
   show: Toon {std}
@@ -21,6 +26,7 @@ toolbar:
   shell: Shell
   attach: Koppelen
   copy-permalink: Permanente link kopiëren
+  copy-image: "Image-tag kopiëren"
   copy-logs: Logs kopiëren
   copy-filtered-logs: Gefilterde logs kopiëren
   copying-logs: Logs kopiëren...
@@ -125,6 +131,10 @@ button:
   cancel: Annuleren
   redirect: Doorsturen
   retry: Retry
+  scroll-to-top: "Naar boven scrollen"
+  scroll-to-bottom: "Naar beneden scrollen"
+  show-sidebar: "Zijbalk tonen"
+  hide-sidebar: "Zijbalk verbergen"
 placeholder:
   search-containers: Zoek containers (⌘ + k, ⌃k)
   search: Zoeken
@@ -147,6 +157,8 @@ settings:
   color-scheme: Kleurmodus
   options: Opties
   show-stopped-containers: Gestopte containers tonen
+  open-as-popup: Instellingen in een pop-up openen
+  experimental: Experimenteel
   group-containers: Groepeer containers op namespace
   about: Over
   search: Doorzoeken inschakelen via Dozzle
@@ -156,6 +168,10 @@ settings:
   show-std: Toon stdout- en stderr-labels
   automatic-redirect: Automatisch omleiden naar nieuwe containers met dezelfde naam
   compact: Compacte modus inschakelen voor logs
+  cpu-display: "Weergave van CPU-gebruik"
+  cpu:
+    utilization: "Volledige CPU (%)"
+    cores: "Per kern (Linux)"
   size:
     small: Klein
     medium: Middel

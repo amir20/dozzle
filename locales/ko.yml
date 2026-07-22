@@ -1,8 +1,13 @@
 toolbar:
   clear: 지우기
-  download: 다운로드
+  download: 로그 다운로드
   download-filtered: 필터링된 로그 다운로드
   search: 검색
+  search-placeholder: "찾기 / RegEx"
+  close: "닫기"
+  more-actions: "추가 작업"
+  reset-position: "길게 눌러 위치를 재설정하고, 드래그하여 이동하세요"
+  reset-sidebar-width: "사이드바 너비 초기화"
   inverse-on: 일치 항목 제외 (반전)
   inverse-off: 일치 항목 포함 (일반)
   show: "{std} 보기"
@@ -21,6 +26,7 @@ toolbar:
   shell: 셸
   attach: 연결
   copy-permalink: 영구 링크 복사
+  copy-image: "이미지 태그 복사"
   copy-logs: 로그 복사
   copy-filtered-logs: 필터된 로그 복사
   copying-logs: 로그 복사 중...
@@ -126,6 +132,10 @@ button:
   cancel: 취소
   redirect: 이동
   retry: Retry
+  scroll-to-top: "맨 위로"
+  scroll-to-bottom: "맨 아래로"
+  show-sidebar: "사이드바 표시"
+  hide-sidebar: "사이드바 숨기기"
 placeholder:
   search-containers: 컨테이너 검색 (⌘ + k, ⌃k)
   search: 검색
@@ -149,6 +159,8 @@ settings:
   color-scheme: 색상 테마
   options: 옵션
   show-stopped-containers: 중지된 컨테이너 보기
+  open-as-popup: 설정을 팝업으로 열기
+  experimental: 실험적 기능
   group-containers: 네임스페이스별로 컨테이너 그룹화
   about: 정보
   search: Dozzle 검색 기능 사용
@@ -159,6 +171,10 @@ settings:
   show-std: stdout 및 stderr 라벨 표시
   automatic-redirect: 같은 이름의 새 컨테이너로 자동 이동
   compact: 로그 간단하게 보기
+  cpu-display: "CPU 사용량 표시"
+  cpu:
+    utilization: "전체 CPU (%)"
+    cores: "코어당 (Linux)"
   size:
     small: 작게
     medium: 중간

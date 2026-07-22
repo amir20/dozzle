@@ -1,8 +1,13 @@
 toolbar:
   clear: Очистить
-  download: Скачать
+  download: Скачать Логи
   download-filtered: Скачать Отфильтрованные Логи
   search: Поиск
+  search-placeholder: "Поиск / RegEx"
+  close: "Закрыть"
+  more-actions: "Другие действия"
+  reset-position: "Удерживайте, чтобы сбросить позицию, перетащите, чтобы переместить"
+  reset-sidebar-width: "Сбросить ширину боковой панели"
   inverse-on: Исключить совпадения (инверсия)
   inverse-off: Включить совпадения (обычно)
   show: Показать только {std}
@@ -21,6 +26,7 @@ toolbar:
   shell: Оболочка
   attach: Подключить
   copy-permalink: Скопировать постоянную ссылку
+  copy-image: "Копировать тег образа"
   copy-logs: Скопировать логи
   copy-filtered-logs: Скопировать отфильтрованные логи
   copying-logs: Копирование логов...
@@ -124,6 +130,10 @@ button:
   cancel: Отмена
   redirect: Перенаправить
   retry: Retry
+  scroll-to-top: "Прокрутить вверх"
+  scroll-to-bottom: "Прокрутить вниз"
+  show-sidebar: "Показать боковую панель"
+  hide-sidebar: "Скрыть боковую панель"
 placeholder:
   search-containers: Поиск контейнеров (⌘ + k, ⌃k)
   search: Поиск
@@ -146,6 +156,8 @@ settings:
   color-scheme: Цветовая схема
   options: Опции
   show-stopped-containers: Показывать остановленные контейнеры
+  open-as-popup: Открывать настройки во всплывающем окне
+  experimental: Экспериментально
   group-containers: Группировать контейнеры по пространству имён
   about: Информация
   search: Включить поиск с помощью Dozzle, используя
@@ -155,6 +167,10 @@ settings:
   show-std: Показывать метки stdout и stderr
   automatic-redirect: Автоматическое перенаправление на новые контейнеры с тем же именем.
   compact: Компактный режим
+  cpu-display: "Отображение загрузки ЦП"
+  cpu:
+    utilization: "Весь ЦП (%)"
+    cores: "На ядро (Linux)"
   size:
     small: Маленький
     medium: Средний

@@ -1,8 +1,13 @@
 toolbar:
   clear: 清除
-  download: 下載
+  download: 下載日誌
   download-filtered: 下載篩選的日誌
   search: 搜尋
+  search-placeholder: "搜尋 / 正規表示式"
+  close: "關閉"
+  more-actions: "更多操作"
+  reset-position: "長按以重設位置，拖曳以移動"
+  reset-sidebar-width: "重設側邊欄寬度"
   inverse-on: 排除符合項目（反向）
   inverse-off: 包含符合項目（一般）
   show: 僅顯示 {std}
@@ -21,6 +26,7 @@ toolbar:
   shell: 終端機
   attach: 附加
   copy-permalink: 複製永久連結
+  copy-image: "複製映像標籤"
   copy-logs: 複製日誌
   copy-filtered-logs: 複製篩選日誌
   copying-logs: 正在複製日誌...
@@ -126,6 +132,10 @@ button:
   cancel: 取消
   redirect: 重新導向
   retry: Retry
+  scroll-to-top: "捲動至頂部"
+  scroll-to-bottom: "捲動至底部"
+  show-sidebar: "顯示側邊欄"
+  hide-sidebar: "隱藏側邊欄"
 placeholder:
   search-containers: 搜尋容器 (⌘ + k, ⌃k)
   search: 搜尋
@@ -148,6 +158,8 @@ settings:
   color-scheme: 顏色設定
   options: 選項
   show-stopped-containers: 顯示已停止的容器
+  open-as-popup: 在彈出視窗中開啟設定
+  experimental: 實驗性
   group-containers: 依命名空間分組容器
   about: 關於
   search: 啟用 Dozzle 搜尋功能
@@ -158,6 +170,10 @@ settings:
   show-std: 顯示標準輸出(stdout)與標準錯誤(stderr)標籤
   automatic-redirect: 自動重新導向至相同名稱的新容器
   compact: 啟用緊湊模式
+  cpu-display: "CPU 使用率顯示"
+  cpu:
+    utilization: "整體 CPU (%)"
+    cores: "每核心 (Linux)"
   size:
     small: 小
     medium: 中

@@ -1,8 +1,13 @@
 toolbar:
   clear: Effacer
-  download: Téléchargement
+  download: Télécharger les logs
   download-filtered: Télécharger Logs Filtrés
   search: Chercher
+  search-placeholder: "Rechercher / RegEx"
+  close: "Fermer"
+  more-actions: "Plus d'actions"
+  reset-position: "Maintenir pour réinitialiser la position, glisser pour déplacer"
+  reset-sidebar-width: "Réinitialiser la largeur de la barre latérale"
   inverse-on: Exclure les correspondances (inverse)
   inverse-off: Inclure les correspondances (normal)
   show: Montrer seulement {std}
@@ -21,6 +26,7 @@ toolbar:
   shell: Shell
   attach: Attacher
   copy-permalink: Copier le lien permanent
+  copy-image: "Copier le tag de l'image"
   copy-logs: Copier les journaux
   copy-filtered-logs: Copier les journaux filtrés
   copying-logs: Copie des journaux...
@@ -124,6 +130,10 @@ button:
   cancel: Annuler
   redirect: Rediriger
   retry: Retry
+  scroll-to-top: "Aller en haut"
+  scroll-to-bottom: "Aller en bas"
+  show-sidebar: "Afficher la barre latérale"
+  hide-sidebar: "Masquer la barre latérale"
 placeholder:
   search-containers: Recherche de conteneurs (⌘ + k, ⌃k)
   search: Recherche
@@ -146,6 +156,8 @@ settings:
   color-scheme: Schéma de couleurs
   options: Options
   show-stopped-containers: Afficher les conteneurs arrêtés
+  open-as-popup: Ouvrir les paramètres dans une fenêtre contextuelle
+  experimental: Expérimental
   group-containers: Regrouper les conteneurs par namespace
   about: A propos de
   search: Activer la recherche avec Dozzle en utilisant
@@ -155,6 +167,10 @@ settings:
   show-std: Afficher les étiquettes stdout et stderr
   automatic-redirect: Redirection automatique vers de nouveaux conteneurs portant le même nom
   compact: Activer le mode compact pour les journaux
+  cpu-display: "Affichage de l'utilisation du CPU"
+  cpu:
+    utilization: "CPU entier (%)"
+    cores: "Par cœur (Linux)"
   size:
     small: Petit
     medium: Moyen

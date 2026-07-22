@@ -156,6 +156,14 @@
   }
 }
 
+/* daisyUI darkens the ghost button's border on hover, which reads as a
+ * near-black ring on the dark theme. Use a theme-aware base-content tint so the
+ * hover ring stays visible and legible in both themes (light on dark, dark on
+ * light) instead of a fixed near-black. */
+.btn-ghost:hover {
+  border-color: color-mix(in oklab, var(--color-base-content) 40%, transparent) !important;
+}
+
 @utility menu-active {
   &,
   &:active {
@@ -186,11 +194,33 @@ body {
   padding-right: env(safe-area-inset-right);
 }
 
+/* Height of the mobile top nav (logo row + border). The container status bar
+ * sticks right below it and the log content is padded by the same amount, so
+ * they stay locked together. The safe-area inset is already handled by body. */
+:root {
+  --mobile-nav-height: 57px;
+}
+
 [class*="shadow-"] {
   @apply shadow-base-content/8;
 }
 
+/* Theme-aware focus ring. The browser default outline color is platform
+ * dependent (near-black on macOS), which fails contrast on the dark theme.
+ * Force a base-content outline for interactive elements that don't already
+ * define their own, so it stays visible in both themes. Low specificity via
+ * :where() lets components (e.g. daisyUI buttons) keep their own outline. */
+:where(a, button, [role="button"], summary, [tabindex]:not([tabindex="-1"])):focus-visible {
+  outline: 2px solid var(--color-base-content);
+  outline-offset: 2px;
+}
+
 .splitpanes--vertical .splitpanes__pane {
+  transition: width 0.3s cubic-bezier(0.2, 0, 0, 1);
+}
+/* Follow the pointer instantly while dragging; only animate programmatic width
+ * changes (collapse, expand, reset). */
+.splitpanes--vertical.splitpanes--dragging .splitpanes__pane {
   transition: none !important;
 }
 

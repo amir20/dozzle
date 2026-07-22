@@ -1,8 +1,13 @@
 toolbar:
   clear: Ryd
-  download: Download
+  download: Download Logs
   download-filtered: Download Filtrerede Logs
   search: Søg
+  search-placeholder: "Søg / RegEx"
+  close: "Luk"
+  more-actions: "Flere handlinger"
+  reset-position: "Hold nede for at nulstille position, træk for at flytte"
+  reset-sidebar-width: "Nulstil sidepanelbredde"
   inverse-on: Ekskluder matchende (inverteret)
   inverse-off: Inkluder matchende (normal)
   show: Vis kun {std}
@@ -21,6 +26,7 @@ toolbar:
   shell: Shell
   attach: Tilknyt
   copy-permalink: Kopiér permanent link
+  copy-image: "Kopiér image-tag"
   copy-logs: Kopiér logs
   copy-filtered-logs: Kopiér filtrerede logs
   copying-logs: Kopierer logs...
@@ -124,6 +130,10 @@ button:
   cancel: Annuller
   redirect: Omdiriger
   retry: Retry
+  scroll-to-top: "Rul til toppen"
+  scroll-to-bottom: "Rul til bunden"
+  show-sidebar: "Vis sidepanel"
+  hide-sidebar: "Skjul sidepanel"
 placeholder:
   search-containers: Søg containere (⌘ + k, ⌃k)
   search: Søg
@@ -146,6 +156,8 @@ settings:
   color-scheme: Farve skema
   options: Muligheder
   show-stopped-containers: Vis stoppet containere
+  open-as-popup: Åbn indstillinger i et pop op-vindue
+  experimental: Eksperimentel
   group-containers: Gruppér containere efter namespace
   about: Omkring
   search: Aktiver søgning med Dozzle ved brug af
@@ -155,6 +167,10 @@ settings:
   show-std: Vis stdout og stderr mærker
   automatic-redirect: Automatisk omdiriger til nye containere med det samme navn
   compact: Slå kompakt tilstand til for logs
+  cpu-display: "Visning af CPU-forbrug"
+  cpu:
+    utilization: "Hele CPU'en (%)"
+    cores: "Pr. kerne (Linux)"
   size:
     small: Lille
     medium: Mellem

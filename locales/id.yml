@@ -1,8 +1,13 @@
 toolbar:
   clear: Bersihkan
-  download: Unduh
+  download: Unduh Log
   download-filtered: Unduh Log yang Difilter
   search: Cari
+  search-placeholder: "Cari / RegEx"
+  close: "Tutup"
+  more-actions: "Tindakan lainnya"
+  reset-position: "Tekan dan tahan untuk mengatur ulang posisi, seret untuk memindahkan"
+  reset-sidebar-width: "Atur ulang lebar bilah sisi"
   inverse-on: Kecualikan yang cocok (inversi)
   inverse-off: Sertakan yang cocok (normal)
   show: Tampilkan {std}
@@ -21,6 +26,7 @@ toolbar:
   shell: Shell
   attach: Lampirkan
   copy-permalink: Salin tautan permanen
+  copy-image: "Salin tag image"
   copy-logs: Salin log
   copy-filtered-logs: Salin log terfilter
   copying-logs: Menyalin log...
@@ -130,6 +136,10 @@ button:
   cancel: Batal
   redirect: Alihkan
   retry: Retry
+  scroll-to-top: "Gulir ke atas"
+  scroll-to-bottom: "Gulir ke bawah"
+  show-sidebar: "Tampilkan bilah sisi"
+  hide-sidebar: "Sembunyikan bilah sisi"
 
 placeholder:
   search-containers: Cari kontainer (⌘ + k, ⌃k)
@@ -154,6 +164,8 @@ settings:
   color-scheme: Skema warna
   options: Opsi
   show-stopped-containers: Tampilkan kontainer yang dihentikan
+  open-as-popup: Buka pengaturan di popup
+  experimental: Eksperimental
   group-containers: Kelompokkan kontainer berdasarkan namespace
   about: Tentang
   search: Aktifkan pencarian dengan Dozzle menggunakan
@@ -163,6 +175,10 @@ settings:
   show-std: Tampilkan label stdout dan stderr
   automatic-redirect: Alihkan otomatis ke kontainer baru dengan nama yang sama
   compact: Aktifkan mode ringkas untuk log
+  cpu-display: "Tampilan penggunaan CPU"
+  cpu:
+    utilization: "Seluruh CPU (%)"
+    cores: "Per inti (Linux)"
   size:
     small: Kecil
     medium: Sedang

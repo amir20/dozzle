@@ -1,8 +1,13 @@
 toolbar:
   clear: Wyczyść
-  download: Pobierz
+  download: Pobierz Logi
   download-filtered: Pobierz Filtrowane Logi
   search: Szukaj
+  search-placeholder: "Szukaj / RegEx"
+  close: "Zamknij"
+  more-actions: "Więcej akcji"
+  reset-position: "Przytrzymaj, aby zresetować pozycję, przeciągnij, aby przenieść"
+  reset-sidebar-width: "Zresetuj szerokość paska bocznego"
   inverse-on: Wyklucz pasujące (odwrotnie)
   inverse-off: Uwzględnij pasujące (normalnie)
   show: Pokaż tylko {std}
@@ -21,6 +26,7 @@ toolbar:
   shell: Shell
   attach: Dołącz
   copy-permalink: Kopiuj link stały
+  copy-image: "Kopiuj tag obrazu"
   copy-logs: Kopiuj logi
   copy-filtered-logs: Kopiuj filtrowane logi
   copying-logs: Kopiowanie logów...
@@ -126,6 +132,10 @@ button:
   cancel: Anuluj
   redirect: Przekieruj
   retry: Retry
+  scroll-to-top: "Przewiń do góry"
+  scroll-to-bottom: "Przewiń w dół"
+  show-sidebar: "Pokaż pasek boczny"
+  hide-sidebar: "Ukryj pasek boczny"
 placeholder:
   search-containers: Przeszukaj kontery (⌘ + k, ⌃k)
   search: Szukaj
@@ -148,6 +158,8 @@ settings:
   color-scheme: Motyw
   options: Opcje
   show-stopped-containers: Pokaż zatrzymane kontenery
+  open-as-popup: Otwórz ustawienia w oknie wyskakującym
+  experimental: Eksperymentalne
   group-containers: Grupuj kontenery według przestrzeni nazw
   about: Informacje
   search: Włącz szukanie z dozzle
@@ -158,6 +170,10 @@ settings:
   show-std: Pokaż etykiety dla stdout i stderr
   automatic-redirect: Automatycznie przekieruj na kontener o tej samej nazwie
   compact: Włącz tryb kompaktowy dla logów
+  cpu-display: "Wyświetlanie użycia CPU"
+  cpu:
+    utilization: "Cały procesor (%)"
+    cores: "Na rdzeń (Linux)"
   size:
     small: Mały
     medium: Średni

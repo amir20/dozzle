@@ -1,8 +1,13 @@
 toolbar:
   clear: Clear
-  download: Download
+  download: Download Logs
   download-filtered: Download Filtered Logs
   search: Search
+  search-placeholder: Find / RegEx
+  close: Close
+  more-actions: More actions
+  reset-position: "Press and hold to reset position, drag to move"
+  reset-sidebar-width: Reset sidebar width
   inverse-on: Exclude matching (inverse)
   inverse-off: Include matching (normal)
   show: Show {std}
@@ -21,6 +26,7 @@ toolbar:
   shell: Shell
   attach: Attach
   copy-permalink: Copy permanent link
+  copy-image: Copy image tag
   copy-logs: Copy logs
   copy-filtered-logs: Copy Filtered Logs
   copying-logs: Copying logs...
@@ -128,6 +134,10 @@ button:
   cancel: Cancel
   redirect: Redirect
   retry: Retry
+  scroll-to-top: Scroll to top
+  scroll-to-bottom: Scroll to bottom
+  show-sidebar: Show sidebar
+  hide-sidebar: Hide sidebar
 placeholder:
   search-containers: Search containers (⌘ + k, ⌃k)
   search: Search
@@ -179,6 +189,8 @@ settings:
   color-scheme: Color scheme
   options: Options
   show-stopped-containers: Show stopped containers
+  open-as-popup: Open settings in a popup
+  experimental: Experimental
   group-containers: Group containers by namespace
   about: About
   search: Enable searching with Dozzle using
@@ -189,6 +201,10 @@ settings:
   show-std: Show stdout and stderr labels
   automatic-redirect: Automatically redirect to new containers with the same name
   compact: Enable compact mode for logs
+  cpu-display: CPU usage display
+  cpu:
+    utilization: Whole CPU (%)
+    cores: Per core (Linux)
   size:
     small: Small
     medium: Medium

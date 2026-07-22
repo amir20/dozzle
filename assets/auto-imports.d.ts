@@ -6,16 +6,19 @@
 // biome-ignore lint: disable
 export {}
 declare global {
+  const DEFAULT_MENU_WIDTH: typeof import('./stores/settings').DEFAULT_MENU_WIDTH
   const DEFAULT_SETTINGS: typeof import('./stores/settings').DEFAULT_SETTINGS
   const EffectScope: typeof import('vue').EffectScope
   const K8sNamespace: typeof import('./stores/k8s').K8sNamespace
   const K8sOwner: typeof import('./stores/k8s').K8sOwner
+  const MIN_MENU_WIDTH: typeof import('./stores/settings').MIN_MENU_WIDTH
   const acceptHMRUpdate: typeof import('pinia').acceptHMRUpdate
   const allLevels: typeof import('./composable/logContext').allLevels
   const arrayEquals: typeof import('./utils/index').arrayEquals
   const asyncComputed: typeof import('@vueuse/core').asyncComputed
   const autoResetRef: typeof import('@vueuse/core').autoResetRef
   const automaticRedirect: typeof import('./stores/settings').automaticRedirect
+  const canResetMenuWidth: typeof import('./stores/settings').canResetMenuWidth
   const collapseNav: typeof import('./stores/settings').collapseNav
   const colorize: typeof import('./utils/index').colorize
   const compact: typeof import('./stores/settings').compact
@@ -27,6 +30,8 @@ declare global {
   const config: typeof import('./stores/config').default
   const controlledComputed: typeof import('@vueuse/core').controlledComputed
   const controlledRef: typeof import('@vueuse/core').controlledRef
+  const cpuDisplayMode: typeof import('./stores/settings').cpuDisplayMode
+  const cpuDisplayValue: typeof import('./composable/cpuDisplay').cpuDisplayValue
   const createApp: typeof import('vue').createApp
   const createContainerHints: typeof import('./composable/exprEditor').createContainerHints
   const createDisposableDirective: typeof import('@vueuse/core').createDisposableDirective
@@ -72,6 +77,7 @@ declare global {
   const groupContainers: typeof import('./stores/settings').groupContainers
   const groupK8sOwners: typeof import('./stores/k8s').groupK8sOwners
   const h: typeof import('vue').h
+  const hasInlineSearch: typeof import('./composable/inlineSearch').hasInlineSearch
   const hashCode: typeof import('./utils/index').hashCode
   const highlightSubstringInHtml: typeof import('./utils/index').highlightSubstringInHtml
   const hourStyle: typeof import('./stores/settings').hourStyle
@@ -129,6 +135,7 @@ declare global {
   const provideLocal: typeof import('@vueuse/core').provideLocal
   const provideLoggingContext: typeof import('./composable/logContext').provideLoggingContext
   const provideScrollContext: typeof import('./composable/scrollContext').provideScrollContext
+  const publishDownloadUrl: typeof import('./composable/downloadUrl').publishDownloadUrl
   const reactify: typeof import('@vueuse/core').reactify
   const reactifyObject: typeof import('@vueuse/core').reactifyObject
   const reactive: typeof import('vue').reactive
@@ -143,6 +150,7 @@ declare global {
   const refManualReset: typeof import('@vueuse/core').refManualReset
   const refThrottled: typeof import('@vueuse/core').refThrottled
   const refWithControl: typeof import('@vueuse/core').refWithControl
+  const resetMenuWidth: typeof import('./stores/settings').resetMenuWidth
   const resolveComponent: typeof import('vue').resolveComponent
   const resolveRef: typeof import('@vueuse/core').resolveRef
   const scrollContextKey: typeof import('./composable/scrollContext').scrollContextKey
@@ -152,6 +160,7 @@ declare global {
   const setMapStoreSuffix: typeof import('pinia').setMapStoreSuffix
   const setTitle: typeof import('./composable/title').setTitle
   const settings: typeof import('./stores/settings').settings
+  const settingsAsPopup: typeof import('./stores/settings').settingsAsPopup
   const shallowReactive: typeof import('vue').shallowReactive
   const shallowReadonly: typeof import('vue').shallowReadonly
   const shallowRef: typeof import('vue').shallowRef
@@ -185,6 +194,7 @@ declare global {
   const unref: typeof import('vue').unref
   const unrefElement: typeof import('@vueuse/core').unrefElement
   const until: typeof import('@vueuse/core').until
+  const useActionsMenu: typeof import('./composable/actionsMenu').useActionsMenu
   const useActiveElement: typeof import('@vueuse/core').useActiveElement
   const useAlertForm: typeof import('./composable/alertForm').useAlertForm
   const useAnimate: typeof import('@vueuse/core').useAnimate
@@ -278,6 +288,7 @@ declare global {
   const useIdle: typeof import('@vueuse/core').useIdle
   const useImage: typeof import('@vueuse/core').useImage
   const useInfiniteScroll: typeof import('@vueuse/core').useInfiniteScroll
+  const useInlineSearchProvider: typeof import('./composable/inlineSearch').useInlineSearchProvider
   const useIntersectionObserver: typeof import('@vueuse/core').useIntersectionObserver
   const useInterval: typeof import('@vueuse/core').useInterval
   const useIntervalFn: typeof import('@vueuse/core').useIntervalFn
@@ -342,7 +353,9 @@ declare global {
   const useSeoMeta: typeof import('@vueuse/head').useSeoMeta
   const useServiceStream: typeof import('./composable/eventStreams').useServiceStream
   const useSessionStorage: typeof import('@vueuse/core').useSessionStorage
+  const useSettingsModal: typeof import('./composable/settingsModal').useSettingsModal
   const useShare: typeof import('@vueuse/core').useShare
+  const useSharedDownloadUrl: typeof import('./composable/downloadUrl').useSharedDownloadUrl
   const useSimpleRefHistory: typeof import('./utils/index').useSimpleRefHistory
   const useSlots: typeof import('vue').useSlots
   const useSorted: typeof import('@vueuse/core').useSorted
@@ -451,16 +464,19 @@ import { UnwrapRef } from 'vue'
 declare module 'vue' {
   interface GlobalComponents {}
   interface ComponentCustomProperties {
+    readonly DEFAULT_MENU_WIDTH: UnwrapRef<typeof import('./stores/settings')['DEFAULT_MENU_WIDTH']>
     readonly DEFAULT_SETTINGS: UnwrapRef<typeof import('./stores/settings')['DEFAULT_SETTINGS']>
     readonly EffectScope: UnwrapRef<typeof import('vue')['EffectScope']>
     readonly K8sNamespace: UnwrapRef<typeof import('./stores/k8s')['K8sNamespace']>
     readonly K8sOwner: UnwrapRef<typeof import('./stores/k8s')['K8sOwner']>
+    readonly MIN_MENU_WIDTH: UnwrapRef<typeof import('./stores/settings')['MIN_MENU_WIDTH']>
     readonly acceptHMRUpdate: UnwrapRef<typeof import('pinia')['acceptHMRUpdate']>
     readonly allLevels: UnwrapRef<typeof import('./composable/logContext')['allLevels']>
     readonly arrayEquals: UnwrapRef<typeof import('./utils/index')['arrayEquals']>
     readonly asyncComputed: UnwrapRef<typeof import('@vueuse/core')['asyncComputed']>
     readonly autoResetRef: UnwrapRef<typeof import('@vueuse/core')['autoResetRef']>
     readonly automaticRedirect: UnwrapRef<typeof import('./stores/settings')['automaticRedirect']>
+    readonly canResetMenuWidth: UnwrapRef<typeof import('./stores/settings')['canResetMenuWidth']>
     readonly collapseNav: UnwrapRef<typeof import('./stores/settings')['collapseNav']>
     readonly colorize: UnwrapRef<typeof import('./utils/index')['colorize']>
     readonly compact: UnwrapRef<typeof import('./stores/settings')['compact']>
@@ -472,6 +488,8 @@ declare module 'vue' {
     readonly config: UnwrapRef<typeof import('./stores/config')['default']>
     readonly controlledComputed: UnwrapRef<typeof import('@vueuse/core')['controlledComputed']>
     readonly controlledRef: UnwrapRef<typeof import('@vueuse/core')['controlledRef']>
+    readonly cpuDisplayMode: UnwrapRef<typeof import('./stores/settings')['cpuDisplayMode']>
+    readonly cpuDisplayValue: UnwrapRef<typeof import('./composable/cpuDisplay')['cpuDisplayValue']>
     readonly createApp: UnwrapRef<typeof import('vue')['createApp']>
     readonly createContainerHints: UnwrapRef<typeof import('./composable/exprEditor')['createContainerHints']>
     readonly createDisposableDirective: UnwrapRef<typeof import('@vueuse/core')['createDisposableDirective']>
@@ -516,6 +534,7 @@ declare module 'vue' {
     readonly groupContainers: UnwrapRef<typeof import('./stores/settings')['groupContainers']>
     readonly groupK8sOwners: UnwrapRef<typeof import('./stores/k8s')['groupK8sOwners']>
     readonly h: UnwrapRef<typeof import('vue')['h']>
+    readonly hasInlineSearch: UnwrapRef<typeof import('./composable/inlineSearch')['hasInlineSearch']>
     readonly hashCode: UnwrapRef<typeof import('./utils/index')['hashCode']>
     readonly hourStyle: UnwrapRef<typeof import('./stores/settings')['hourStyle']>
     readonly ignorableWatch: UnwrapRef<typeof import('@vueuse/core')['ignorableWatch']>
@@ -586,6 +605,7 @@ declare module 'vue' {
     readonly refManualReset: UnwrapRef<typeof import('@vueuse/core')['refManualReset']>
     readonly refThrottled: UnwrapRef<typeof import('@vueuse/core')['refThrottled']>
     readonly refWithControl: UnwrapRef<typeof import('@vueuse/core')['refWithControl']>
+    readonly resetMenuWidth: UnwrapRef<typeof import('./stores/settings')['resetMenuWidth']>
     readonly resolveComponent: UnwrapRef<typeof import('vue')['resolveComponent']>
     readonly scrollContextKey: UnwrapRef<typeof import('./composable/scrollContext')['scrollContextKey']>
     readonly search: UnwrapRef<typeof import('./stores/settings')['search']>
@@ -594,6 +614,7 @@ declare module 'vue' {
     readonly setMapStoreSuffix: UnwrapRef<typeof import('pinia')['setMapStoreSuffix']>
     readonly setTitle: UnwrapRef<typeof import('./composable/title')['setTitle']>
     readonly settings: UnwrapRef<typeof import('./stores/settings')['settings']>
+    readonly settingsAsPopup: UnwrapRef<typeof import('./stores/settings')['settingsAsPopup']>
     readonly shallowReactive: UnwrapRef<typeof import('vue')['shallowReactive']>
     readonly shallowReadonly: UnwrapRef<typeof import('vue')['shallowReadonly']>
     readonly shallowRef: UnwrapRef<typeof import('vue')['shallowRef']>
@@ -625,6 +646,7 @@ declare module 'vue' {
     readonly unref: UnwrapRef<typeof import('vue')['unref']>
     readonly unrefElement: UnwrapRef<typeof import('@vueuse/core')['unrefElement']>
     readonly until: UnwrapRef<typeof import('@vueuse/core')['until']>
+    readonly useActionsMenu: UnwrapRef<typeof import('./composable/actionsMenu')['useActionsMenu']>
     readonly useActiveElement: UnwrapRef<typeof import('@vueuse/core')['useActiveElement']>
     readonly useAlertForm: UnwrapRef<typeof import('./composable/alertForm')['useAlertForm']>
     readonly useAnimate: UnwrapRef<typeof import('@vueuse/core')['useAnimate']>
@@ -718,6 +740,7 @@ declare module 'vue' {
     readonly useIdle: UnwrapRef<typeof import('@vueuse/core')['useIdle']>
     readonly useImage: UnwrapRef<typeof import('@vueuse/core')['useImage']>
     readonly useInfiniteScroll: UnwrapRef<typeof import('@vueuse/core')['useInfiniteScroll']>
+    readonly useInlineSearchProvider: UnwrapRef<typeof import('./composable/inlineSearch')['useInlineSearchProvider']>
     readonly useIntersectionObserver: UnwrapRef<typeof import('@vueuse/core')['useIntersectionObserver']>
     readonly useInterval: UnwrapRef<typeof import('@vueuse/core')['useInterval']>
     readonly useIntervalFn: UnwrapRef<typeof import('@vueuse/core')['useIntervalFn']>
@@ -782,6 +805,7 @@ declare module 'vue' {
     readonly useSeoMeta: UnwrapRef<typeof import('@vueuse/head')['useSeoMeta']>
     readonly useServiceStream: UnwrapRef<typeof import('./composable/eventStreams')['useServiceStream']>
     readonly useSessionStorage: UnwrapRef<typeof import('@vueuse/core')['useSessionStorage']>
+    readonly useSettingsModal: UnwrapRef<typeof import('./composable/settingsModal')['useSettingsModal']>
     readonly useShare: UnwrapRef<typeof import('@vueuse/core')['useShare']>
     readonly useSimpleRefHistory: UnwrapRef<typeof import('./utils/index')['useSimpleRefHistory']>
     readonly useSlots: UnwrapRef<typeof import('vue')['useSlots']>
