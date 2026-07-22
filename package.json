@@ -81,7 +81,7 @@
     "vue-router": "^5.2.0"
   },
   "devDependencies": {
-    "@apache-arrow/esnext-esm": "^21.1.0",
+    "@apache-arrow/esnext-esm": "^21.2.0",
     "@iconify-json/ion": "^1.2.7",
     "@iconify-json/material-symbols-light": "^1.2.86",
     "@iconify-json/ri": "^1.2.10",
@@ -101,7 +101,7 @@
     "eventsourcemock": "^2.0.0",
     "jsdom": "^29.1.1",
     "lint-staged": "^17.1.0",
-    "prettier": "^3.9.5",
+    "prettier": "^3.9.6",
     "prettier-plugin-tailwindcss": "^0.8.1",
     "simple-git-hooks": "^2.13.1",
     "ts-node": "^10.9.2",
