@@ -214,6 +214,11 @@ body {
 }
 
 .splitpanes--vertical .splitpanes__pane {
+  transition: width 0.3s cubic-bezier(0.2, 0, 0, 1);
+}
+/* Follow the pointer instantly while dragging; only animate programmatic width
+ * changes (collapse, expand). */
+.splitpanes--vertical.splitpanes--dragging .splitpanes__pane {
   transition: none !important;
 }
 
