@@ -41,7 +41,7 @@ describe("<Search />", () => {
   test("toggles the inverse filter", async () => {
     const wrapper = mountSearch();
     expect(search.inverseFilter.value).toBe(false);
-    await wrapper.find("button").trigger("click");
+    await wrapper.find("[data-testid=inverse-filter]").trigger("click");
     expect(search.inverseFilter.value).toBe(true);
   });
 

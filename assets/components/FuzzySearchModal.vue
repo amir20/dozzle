@@ -35,7 +35,7 @@
         <div class="text-base-content/40 px-4 pt-3 pb-1.5 text-xs font-semibold tracking-wider uppercase">
           {{ $t("cloud-search.containers-section") }} · {{ data.length }}
         </div>
-        <ul class="pb-1">
+        <ul class="max-h-[50vh] overflow-y-auto overscroll-contain pb-1">
           <li v-for="(result, index) in data" ref="listItems">
             <a
               class="hover:bg-base-content/5 flex cursor-pointer items-center gap-3 px-4 py-2"

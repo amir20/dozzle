@@ -38,7 +38,9 @@
       <div class="grid grid-cols-2 gap-2 md:gap-3" v-if="stats">
         <MetricCard
           :icon="PhCpu"
-          :value="stats.weighted.movingAverage.totalCPU"
+          :value="
+            cpuDisplayValue(stats.weighted.movingAverage.totalCPU, stats.weighted.movingAverage.totalCPU * cpuScale)
+          "
           :chartData="cpuHistory"
           container-class="bg-primary/10"
           text-class="text-primary"
@@ -82,6 +84,18 @@ const hostContainers = computed(() =>
 );
 
 const runtimeLabel = computed(() => (props.host.runtime === "podman" ? "Podman" : "Docker"));
+
+// Scale factor to convert whole-CPU utilization into the per-core ("cores") display.
+const cpuScale = computed(() => {
+  let whole = 0;
+  let raw = 0;
+  for (const container of hostContainers.value) {
+    const cpu = Math.max(0, container.stat.cpu);
+    whole += cpu / toContainerCores(container);
+    raw += cpu;
+  }
+  return whole > 0 ? raw / whole : props.host.nCPU || 1;
+});
 
 function toContainerCores(container: Container): number {
   if (container.cpuLimit && container.cpuLimit > 0) {

@@ -11,11 +11,18 @@
       :icon="PhCpu"
       card-class="bg-primary/10 md:min-w-56"
       icon-class="text-primary"
-      :title="t('tooltip.cpu-usage', { cpu: totalStat.cpu.toFixed(2), cores: roundCPU(limits.cpu) })"
+      :title="
+        t('tooltip.cpu-usage', {
+          cpu: cpuDisplayValue(totalStat.cpu, rawCpuTotal).toFixed(2),
+          cores: roundCPU(limits.cpu),
+        })
+      "
     >
       <template #value="{ hoveredValue }">
         <span class="tabular-nums">
-          <span class="font-semibold"> {{ Math.max(0, hoveredValue ?? totalStat.cpu).toFixed(1) }}% </span>
+          <span class="font-semibold">
+            {{ cpuDisplayValue(hoveredValue ?? totalStat.cpu, (hoveredValue ?? totalStat.cpu) * cpuScale).toFixed(1) }}%
+          </span>
           <span class="text-base-content/60 max-md:hidden"> / {{ roundCPU(limits.cpu) }} CPU</span>
         </span>
       </template>
@@ -84,6 +91,17 @@ const networkRate = ref({ rx: 0, tx: 0 });
 const diskRate = ref({ read: 0, write: 0 });
 
 const roundCPU = (num: number) => (Number.isInteger(num) ? num.toFixed(0) : num.toFixed(1));
+
+// Raw per-core CPU total (100 == one core) used for the "cores" (Linux style) display.
+const rawCpuTotal = computed(() =>
+  Math.max(
+    0,
+    containers.reduce((acc, container) => acc + container.stat.cpu, 0),
+  ),
+);
+// Ratio between the per-core total and the whole-CPU utilization total, so historical
+// (hovered) utilization values can be rescaled to the per-core form.
+const cpuScale = computed(() => (totalStat.value.cpu > 0 ? rawCpuTotal.value / totalStat.value.cpu : 1));
 
 function toContainerCores(container: Container): number {
   if (container.cpuLimit && container.cpuLimit > 0) {

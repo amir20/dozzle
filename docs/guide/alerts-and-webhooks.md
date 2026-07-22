@@ -176,11 +176,11 @@ Metric alerts fire when a container's CPU or memory usage crosses a threshold. T
 
 Available properties:
 
-| Property      | Type   | Description                                   |
-| ------------- | ------ | --------------------------------------------- |
-| `cpu`         | number | CPU usage percentage (0–100), matching the UI |
-| `memory`      | number | Memory usage percentage (0–100)               |
-| `memoryUsage` | number | Memory usage in bytes                         |
+| Property      | Type   | Description                                           |
+| ------------- | ------ | ----------------------------------------------------- |
+| `cpu`         | number | CPU usage percentage (0–100 utilization of all cores) |
+| `memory`      | number | Memory usage percentage (0–100)                       |
+| `memoryUsage` | number | Memory usage in bytes                                 |
 
 ### Cooldown & Sample Window
 

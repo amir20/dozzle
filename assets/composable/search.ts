@@ -2,6 +2,9 @@ const searchQueryFilter = ref<string>("");
 const debouncedSearchFilter = refDebounced(searchQueryFilter);
 const showSearch = ref(false);
 const inverseFilter = ref(false);
+// true while the actions (three-dot) menu is open, so the search bar can move
+// aside to avoid overlapping it.
+const actionsMenuOpen = ref(false);
 
 const searchParams = new URLSearchParams(window.location.search);
 if (searchParams.get("search") !== null && searchParams.get("search") !== "") {
@@ -39,5 +42,6 @@ export function useSearchFilter() {
     isSearching,
     inverseFilter,
     toggleInverse,
+    actionsMenuOpen,
   };
 }

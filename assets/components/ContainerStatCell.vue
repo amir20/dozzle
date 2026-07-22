@@ -67,7 +67,7 @@ const averageValue = computed(() => {
 
 const displayValue = computed(() => {
   if (type === "cpu") {
-    return `${averageValue.value.toFixed(0)}%`;
+    return `${cpuDisplayValue(averageValue.value, container.movingAverage.cpu).toFixed(0)}%`;
   }
   return formatBytes(container.movingAverage.memoryUsage);
 });

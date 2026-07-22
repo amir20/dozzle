@@ -164,6 +164,14 @@ Dozzle keeps container stats streaming for up to 6 hours (2 hours on Kubernetes)
 
 The cost is a small, steady amount of CPU in dockerd and containerd, since Docker's stats API is polling based. Restarting the Dozzle container resets the timer immediately, which is why a restart drops the host back to idle. This is not configurable by design. A small timeout would break other functionality that assumes stats are still streaming, so lowering it defeats the purpose of the stats history.
 
+## Can I show CPU usage in the Linux `top` style where 100% equals one core?
+
+By default Dozzle reports CPU as utilization of all available cores, so the value stays between 0% and 100% regardless of how many cores the host has. A container pinning two cores on an eight-core host reads about 25%.
+
+If you prefer the Linux `top` convention where 100% equals one full core, open **Settings → Display** and set **CPU usage display** to **Per core (Linux)**. The same container then reads about 200%, and the value can climb above 100% when more than one core is in use. The preference is saved with your other settings and applies to the container table, the host cards, and the stats shown above the log viewer.
+
+Metric alerts are unaffected and always evaluate CPU as 0–100 utilization of all cores.
+
 ## My Dozzle instances are timing out in Swarm Mode or I'm not seeing all my Swarm nodes when behind a load balancer. How do I fix it?
 
 In Swarm Mode, Dozzle instances may require their own overlay network. If you see inconsistent behavior when connecting to different Dozzle nodes, consider adding a separate overlay network which only contains the Dozzle instances, as shown below:

@@ -1,9 +1,19 @@
 <template>
-  <div class="dropdown dropdown-end dropdown-hover z-20">
-    <label tabindex="0" class="btn btn-ghost btn-sm w-8 gap-0 px-0 md:gap-0.5">
-      <carbon:circle-solid class="text-red w-2 md:w-2.5" v-if="streamConfig.stderr" />
-      <carbon:circle-solid class="text-blue w-2 md:w-2.5" v-if="streamConfig.stdout" />
-    </label>
+  <div
+    class="dropdown dropdown-end z-20"
+    :class="{ 'dropdown-hover': canHover }"
+    @mouseenter="actionsMenuOpen = true"
+    @mouseleave="onLeave"
+  >
+    <div
+      tabindex="0"
+      role="button"
+      class="btn btn-ghost btn-sm w-8 px-0"
+      :aria-label="$t('toolbar.more-actions')"
+      @click="focusOnTap"
+    >
+      <mdi:dots-horizontal class="size-6" />
+    </div>
     <ul
       tabindex="0"
       class="menu dropdown-content rounded-box bg-base-200 border-base-content/20 z-50 w-52 border p-1 shadow-sm"
@@ -110,16 +120,28 @@
           {{ isFiltered ? $t("toolbar.download-filtered") : $t("toolbar.download") }}
         </a>
       </li>
-      <li v-if="isSupported">
-        <a @click="copyLogs()">
-          <mdi:content-copy />
-          {{ isFiltered ? $t("toolbar.copy-filtered-logs") : $t("toolbar.copy-logs") }}
-        </a>
-      </li>
       <li>
         <a @click="copyPermalink()">
           <material-symbols:link />
           {{ $t("toolbar.copy-permalink") }}
+        </a>
+      </li>
+
+      <li class="line"></li>
+      <li v-if="!isMobile">
+        <a @click="resetMenuWidth" :class="{ 'pointer-events-none opacity-40': !canResetMenuWidth }">
+          <mdi:arrow-collapse-horizontal />
+          {{ $t("toolbar.reset-sidebar-width") }}
+        </a>
+      </li>
+      <li>
+        <router-link v-if="!settingsAsPopup" :to="{ name: '/settings' }">
+          <mdi:cog />
+          {{ $t("title.settings") }}
+        </router-link>
+        <a v-else @click="openSettings">
+          <mdi:cog />
+          {{ $t("title.settings") }}
         </a>
       </li>
 
@@ -190,6 +212,8 @@ import LogAnalytics from "../LogViewer/LogAnalytics.vue";
 import Terminal from "@/components/Terminal.vue";
 
 const { showSearch } = useSearchFilter();
+const { actionsMenuOpen, canHover, focusOnTap, hideMenu, onLeave } = useActionsMenu();
+const { openSettings } = useSettingsModal();
 const { enableActions, enableShell, enableDownload } = config;
 const { streamConfig, hasComplexLogs, levels } = useLoggingContext();
 const showDrawer = useDrawer();
@@ -199,9 +223,9 @@ const clear = defineEmit();
 const { actionStates, start, stop, restart, update } = useContainerActions(toRef(() => container));
 
 const router = useRouter();
-const { copy, copied, isSupported } = useClipboard();
+const { copy, copied, isSupported } = useClipboard({ legacy: true });
 const { t } = useI18n();
-const { showToast, removeToast } = useToast();
+const { showToast } = useToast();
 
 async function copyPermalink() {
   const url = router.resolve({
@@ -235,68 +259,6 @@ async function copyPermalink() {
       { expire: 2000 },
     );
   }
-}
-
-async function copyLogs() {
-  const params = new URLSearchParams();
-  if (streamConfig.value.stdout) params.append("stdout", "1");
-  if (streamConfig.value.stderr) params.append("stderr", "1");
-  params.append("everything", "1");
-
-  const { debouncedSearchFilter } = useSearchFilter();
-  if (debouncedSearchFilter.value) {
-    params.append("filter", debouncedSearchFilter.value);
-  }
-
-  const selectedLevels = Array.from(levels.value);
-  if (selectedLevels.length > 0 && selectedLevels.length < allLevels.length) {
-    selectedLevels.forEach((level) => params.append("levels", level));
-  }
-
-  const url = withBase(`/api/hosts/${container.host}/containers/${container.id}/logs?${params.toString()}`);
-
-  const toastId = "copy-logs";
-  showToast(
-    {
-      id: toastId,
-      title: t("toolbar.copying-logs"),
-      message: "",
-      type: "info",
-    },
-    { once: true },
-  );
-
-  const blobPromise = fetch(url, { headers: { Accept: "text/plain" } })
-    .then((response) => {
-      if (!response.ok) throw new Error(response.statusText);
-      return response.blob();
-    })
-    .then((blob) => {
-      removeToast(toastId);
-      showToast(
-        {
-          title: t("toasts.copied.title"),
-          message: t("toasts.copied.message"),
-          type: "info",
-        },
-        { expire: 2000 },
-      );
-      return blob;
-    })
-    .catch((err) => {
-      removeToast(toastId);
-      showToast(
-        {
-          title: "Error",
-          message: err.message,
-          type: "error",
-        },
-        { expire: 5000 },
-      );
-      throw err;
-    });
-
-  await navigator.clipboard.write([new ClipboardItem({ "text/plain": blobPromise })]);
 }
 
 onKeyStroke(["f", "F"], (e) => {
@@ -343,16 +305,6 @@ const toggleAllLevels = computed({
     }
   },
 });
-
-const hideMenu = (e: MouseEvent) => {
-  if (e.target instanceof HTMLAnchorElement) {
-    setTimeout(() => {
-      if (document.activeElement instanceof HTMLElement) {
-        document.activeElement.blur();
-      }
-    }, 50);
-  }
-};
 </script>
 
 <style scoped>
@@ -366,10 +318,25 @@ a {
   @apply whitespace-nowrap;
 }
 
+/* daisyUI's .menu is width: fit-content, so nested submenus (Streams, Levels)
+ * shrink to their content and the hover highlight stops short. Stretch them to
+ * fill the dropdown so the row highlight spans the full width. */
 .menu li ul {
   margin-inline-start: 0;
+  width: 100%;
   &:before {
     display: none;
   }
+}
+
+/* Keep the solid level colors, but use white labels in the light theme so the
+ * text reads against the saturated chip backgrounds. warn is a light orange,
+ * where dark text has better contrast than white, so it keeps the default. */
+[data-theme="light"] .badge[data-level="info"],
+[data-theme="light"] .badge[data-level="debug"],
+[data-theme="light"] .badge[data-level="trace"],
+[data-theme="light"] .badge[data-level="error"],
+[data-theme="light"] .badge[data-level="fatal"] {
+  color: oklch(100% 0 0) !important;
 }
 </style>

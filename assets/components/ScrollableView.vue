@@ -2,11 +2,12 @@
   <section :class="{ 'h-screen min-h-0': scrollable }" class="flex flex-col">
     <header
       v-if="$slots.header"
-      class="border-base-content/10 bg-base-200 sticky top-[calc(55px+env(safe-area-inset-top))] z-20 border-b py-0.5 shadow-[1px_1px_2px_0_rgb(0,0,0,0.05)] md:top-0 md:py-2"
+      class="border-base-content/10 bg-base-200 sticky top-[var(--mobile-nav-height)] z-20 border-b py-0.5 shadow-[1px_1px_2px_0_rgb(0,0,0,0.05)] md:top-0 md:py-2"
     >
       <slot name="header"></slot>
     </header>
     <main :data-scrolling="scrollable ? true : undefined" class="min-h-[300px] snap-y overflow-auto">
+      <div ref="scrollTopObserver" class="h-px"></div>
       <div class="invisible relative md:visible" v-show="scrollContext.paused">
         <div class="absolute top-4 right-44">
           <ScrollProgress
@@ -25,13 +26,26 @@
       <div ref="scrollObserver" class="h-px"></div>
     </main>
 
-    <div class="mr-16 text-right" v-if="!historical">
+    <div class="fixed right-16 bottom-8 flex flex-row items-center gap-2" v-if="!historical">
       <transition name="fade">
         <button
-          class="btn btn-primary text-primary-content fixed bottom-8 rounded-sm p-3 shadow-sm transition-colors"
+          class="btn btn-primary text-primary-content rounded-sm p-3 shadow-sm transition-colors"
+          @click="scrollToTop()"
+          v-show="!atTop"
+          :aria-label="$t('button.scroll-to-top')"
+          :title="$t('button.scroll-to-top')"
+        >
+          <mdi:chevron-double-up />
+        </button>
+      </transition>
+      <transition name="fade">
+        <button
+          class="btn btn-primary text-primary-content rounded-sm p-3 shadow-sm transition-colors"
           :class="hasMore ? 'btn-secondary animate-bounce-fast text-secondary-content' : ''"
           @click="scrollToBottom()"
           v-show="scrollContext.paused"
+          :aria-label="$t('button.scroll-to-bottom')"
+          :title="$t('button.scroll-to-bottom')"
         >
           <mdi:chevron-double-down />
         </button>
@@ -44,7 +58,9 @@
 const { scrollable = false } = defineProps<{ scrollable?: boolean }>();
 
 const hasMore = ref(false);
+const atTop = ref(true);
 const scrollObserver = ref<HTMLElement>();
+const scrollTopObserver = ref<HTMLElement>();
 const scrollableContent = ref<HTMLElement>();
 
 const scrollContext = provideScrollContext();
@@ -52,6 +68,11 @@ const scrollContext = provideScrollContext();
 const { loadingMore, historical } = useLoggingContext();
 if (!historical.value) {
   useIntersectionObserver(scrollObserver, ([entry]) => (scrollContext.paused = entry.intersectionRatio == 0), {
+    threshold: [0, 1],
+    rootMargin: "40px 0px",
+  });
+
+  useIntersectionObserver(scrollTopObserver, ([entry]) => (atTop.value = entry.intersectionRatio != 0), {
     threshold: [0, 1],
     rootMargin: "40px 0px",
   });
@@ -76,6 +97,10 @@ if (!historical.value) {
 function scrollToBottom(behavior: "auto" | "smooth" = "auto") {
   scrollObserver.value?.scrollIntoView({ behavior });
   hasMore.value = false;
+}
+
+function scrollToTop(behavior: "auto" | "smooth" = "auto") {
+  scrollTopObserver.value?.scrollIntoView({ behavior });
 }
 </script>
 <style scoped>

@@ -1,9 +1,19 @@
 <template>
-  <div class="dropdown dropdown-end dropdown-hover z-20">
-    <label tabindex="0" class="btn btn-ghost btn-sm w-8 gap-0 px-0 md:gap-0.5">
-      <carbon:circle-solid class="text-red w-2 md:w-2.5" v-if="streamConfig.stderr" />
-      <carbon:circle-solid class="text-blue w-2 md:w-2.5" v-if="streamConfig.stdout" />
-    </label>
+  <div
+    class="dropdown dropdown-end z-20"
+    :class="{ 'dropdown-hover': canHover }"
+    @mouseenter="actionsMenuOpen = true"
+    @mouseleave="onLeave"
+  >
+    <div
+      tabindex="0"
+      role="button"
+      class="btn btn-ghost btn-sm w-8 px-0"
+      :aria-label="$t('toolbar.more-actions')"
+      @click="focusOnTap"
+    >
+      <mdi:dots-horizontal class="size-6" />
+    </div>
     <ul
       tabindex="0"
       class="menu dropdown-content rounded-box bg-base-200 border-base-content/20 z-50 w-52 border p-1 shadow-sm"
@@ -85,12 +95,31 @@
           {{ $t("toolbar.show-container-name") }}
         </a>
       </li>
+      <li class="line"></li>
+      <li v-if="!isMobile">
+        <a @click="resetMenuWidth" :class="{ 'pointer-events-none opacity-40': !canResetMenuWidth }">
+          <mdi:arrow-collapse-horizontal />
+          {{ $t("toolbar.reset-sidebar-width") }}
+        </a>
+      </li>
+      <li>
+        <router-link v-if="!settingsAsPopup" :to="{ name: '/settings' }">
+          <mdi:cog />
+          {{ $t("title.settings") }}
+        </router-link>
+        <a v-else @click="openSettings">
+          <mdi:cog />
+          {{ $t("title.settings") }}
+        </a>
+      </li>
     </ul>
   </div>
 </template>
 
 <script lang="ts" setup>
 const { showSearch } = useSearchFilter();
+const { actionsMenuOpen, canHover, focusOnTap, hideMenu, onLeave } = useActionsMenu();
+const { openSettings } = useSettingsModal();
 const { enableDownload } = config;
 const clear = defineEmit();
 
@@ -99,20 +128,11 @@ const { name } = defineProps<{ name?: string }>();
 const { streamConfig, showHostname, showContainerName, containers, levels } = useLoggingContext();
 
 const { downloadUrl, isFiltered } = useDownloadUrl(containers, streamConfig, levels, name);
-
-const hideMenu = (e: MouseEvent) => {
-  if (e.target instanceof HTMLAnchorElement) {
-    setTimeout(() => {
-      if (document.activeElement instanceof HTMLElement) {
-        document.activeElement.blur();
-      }
-    }, 50);
-  }
-};
 </script>
 
 <style scoped>
 @reference "@/main.css";
+
 li.line {
   @apply bg-base-content/20 h-px;
 }
