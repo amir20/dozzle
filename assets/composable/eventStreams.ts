@@ -14,7 +14,7 @@ import {
 } from "@/models/LogEntry";
 import { Service, Stack } from "@/models/Stack";
 import { Container, GroupedContainers } from "@/models/Container";
-import { parseMessage, loadBetween } from "@/composable/loadBetween";
+import { parseMessage, loadBetween, mergeLoadedLogs } from "@/composable/loadBetween";
 import { useLogLoader } from "@/composable/logLoader";
 import { loggingContextKey } from "@/composable/logContext";
 import { parseEventData } from "@/utils/events";
@@ -119,11 +119,7 @@ function useLogStream(url: Ref<string>, container?: Ref<Container>) {
       const results = await Promise.all(
         cs.map((c) => loadBetween(c, params, c.created, new Date(), { maxStart: perContainer })),
       );
-      const head = results
-        .filter(({ signal }) => !signal.aborted)
-        .flatMap(({ logs }) => logs)
-        .sort((a, b) => a.date.getTime() - b.date.getTime())
-        .slice(0, config.maxLogs);
+      const head = mergeLoadedLogs(results).slice(0, config.maxLogs);
       if (head.length === 0) return;
       scrollingPaused.value = true;
       messages.value = [new LoadMoreLogEntry(new Date(), loadOlderLogs), ...head];

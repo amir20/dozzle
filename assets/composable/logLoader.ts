@@ -1,7 +1,7 @@
 import { ShallowRef, type Ref } from "vue";
 import { type LogMessage, LogEntry, LoadMoreLogEntry, SkippedLogsEntry } from "@/models/LogEntry";
 import { Container } from "@/models/Container";
-import { loadBetween } from "@/composable/loadBetween";
+import { loadBetween, mergeLoadedLogs } from "@/composable/loadBetween";
 
 // Matches the rolling window size used for stats history
 const LOG_WINDOW_FOR_DELTA = 300;
@@ -54,10 +54,7 @@ export function useLogLoader(
         }),
       );
 
-      const allNewLogs = results
-        .filter(({ signal }) => !signal.aborted)
-        .flatMap(({ logs }) => logs)
-        .sort((a, b) => a.date.getTime() - b.date.getTime());
+      const allNewLogs = mergeLoadedLogs(results);
 
       if (allNewLogs.length > 0) {
         messages.value = [loader, ...allNewLogs, ...existingLogs];
@@ -84,10 +81,7 @@ export function useLogLoader(
           return loadBetween(c, params, from, to, { lastSeenId });
         }),
       );
-      const allLogs = results
-        .filter(({ signal }) => !signal.aborted)
-        .flatMap(({ logs }) => logs)
-        .sort((a, b) => a.date.getTime() - b.date.getTime());
+      const allLogs = mergeLoadedLogs(results);
 
       if (allLogs.length > 0) {
         const updated = messages.value.flatMap((log) => (log === entry ? allLogs : [log]));

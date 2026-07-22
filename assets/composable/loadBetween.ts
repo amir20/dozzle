@@ -7,6 +7,17 @@ export function parseMessage(data: string): LogEntry<LogMessage> {
   return asLogEntry(e);
 }
 
+// Flatten and time-order the logs from parallel loadBetween calls, dropping any
+// whose request was aborted (params changed mid-flight).
+export function mergeLoadedLogs(
+  results: { logs: LogEntry<LogMessage>[]; signal: AbortSignal }[],
+): LogEntry<LogMessage>[] {
+  return results
+    .filter(({ signal }) => !signal.aborted)
+    .flatMap(({ logs }) => logs)
+    .sort((a, b) => a.date.getTime() - b.date.getTime());
+}
+
 export async function loadBetween(
   container: Container | Ref<Container>,
   params: Ref<URLSearchParams>,
