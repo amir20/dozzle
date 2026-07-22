@@ -156,6 +156,14 @@
   }
 }
 
+/* daisyUI darkens the ghost button's border on hover, which reads as a
+ * near-black ring on the dark theme. Use a theme-aware base-content tint so the
+ * hover ring stays visible and legible in both themes (light on dark, dark on
+ * light) instead of a fixed near-black. */
+.btn-ghost:hover {
+  border-color: color-mix(in oklab, var(--color-base-content) 40%, transparent) !important;
+}
+
 @utility menu-active {
   &,
   &:active {
@@ -179,11 +187,26 @@
   }
 }
 
+/* Reserve the document scrollbar gutter so the layout width stays constant when
+ * a page-level scrollbar appears (e.g. once a container's logs load). Without
+ * this, the width jump makes the percentage-based splitpanes recompute and the
+ * sidebar visibly flicks. */
+html {
+  scrollbar-gutter: stable;
+}
+
 body {
   padding-top: env(safe-area-inset-top);
   padding-bottom: env(safe-area-inset-bottom);
   padding-left: env(safe-area-inset-left);
   padding-right: env(safe-area-inset-right);
+}
+
+/* Height of the mobile top nav (logo row + border). The container status bar
+ * sticks right below it and the log content is padded by the same amount, so
+ * they stay locked together. The safe-area inset is already handled by body. */
+:root {
+  --mobile-nav-height: 57px;
 }
 
 [class*="shadow-"] {

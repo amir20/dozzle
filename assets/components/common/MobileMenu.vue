@@ -1,6 +1,6 @@
 <template>
-  <nav class="border-base-content/20 bg-base-200 pt-safe fixed top-0 z-10 w-full border-b" data-testid="navigation">
-    <div class="p-2">
+  <nav class="border-base-content/20 bg-base-200 pt-safe fixed top-0 z-30 w-full border-b" data-testid="navigation">
+    <div class="px-4 py-2">
       <div class="flex items-center">
         <router-link :to="{ name: '/' }">
           <Logo class="h-10" />
