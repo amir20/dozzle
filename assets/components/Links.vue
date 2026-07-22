@@ -15,6 +15,7 @@
     <CloudPopover />
 
     <router-link
+      v-if="!settingsAsPopup"
       :to="{ name: '/settings' }"
       :aria-label="$t('title.settings')"
       data-testid="settings"
@@ -22,6 +23,16 @@
     >
       <mdi:cog class="size-6" />
     </router-link>
+    <button
+      v-else
+      type="button"
+      @click="openSettings"
+      :aria-label="$t('title.settings')"
+      data-testid="settings"
+      class="btn btn-circle btn-sm"
+    >
+      <mdi:cog class="size-6" />
+    </button>
 
     <dropdown class="dropdown-end" v-if="config.user">
       <template #trigger>
@@ -57,6 +68,10 @@
   </div>
 </template>
 <script lang="ts" setup>
+import { settingsAsPopup } from "@/stores/settings";
+import { useSettingsModal } from "@/composable/settingsModal";
+
+const { openSettings } = useSettingsModal();
 const { logoutUrl } = config;
 
 async function logout() {

@@ -1,6 +1,6 @@
 <template>
   <div v-if="ready" data-testid="side-menu" class="flex min-h-0 w-full flex-col">
-    <Carousel v-model="selectedCard" class="flex-1">
+    <Carousel v-model="selectedCard" class="flex-1" :hide-title="hideTitle">
       <CarouselItem v-if="config.mode === 'k8s'" :title="$t('label.k8s-menu')" id="k8s">
         <K8sMenu />
       </CarouselItem>
@@ -25,6 +25,8 @@
 </template>
 
 <script lang="ts" setup>
+const { hideTitle = false } = defineProps<{ hideTitle?: boolean }>();
+
 const containerStore = useContainerStore();
 const { ready } = storeToRefs(containerStore);
 const route = useRoute();

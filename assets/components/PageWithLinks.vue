@@ -11,3 +11,9 @@
     <slot></slot>
   </div>
 </template>
+
+<script lang="ts" setup>
+import { useInlineSearchProvider } from "@/composable/inlineSearch";
+
+useInlineSearchProvider();
+</script>

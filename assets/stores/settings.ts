@@ -1,3 +1,4 @@
+import { computed } from "vue";
 import { toRefs } from "@vueuse/core";
 
 export type Settings = {
@@ -17,12 +18,19 @@ export type Settings = {
   automaticRedirect: "instant" | "delayed" | "none";
   locale: string;
   groupContainers: "always" | "at-least-2" | "never";
+  cpuDisplayMode: "utilization" | "cores";
+  settingsAsPopup: boolean;
 };
+// Shared sidebar sizing (percent of the window width) used by the layout and
+// the "reset sidebar width" action so they always agree on one value.
+export const DEFAULT_MENU_WIDTH = 15;
+export const MIN_MENU_WIDTH = 10;
+
 export const DEFAULT_SETTINGS: Settings = {
   search: true,
   compact: false,
   size: "medium",
-  menuWidth: 15,
+  menuWidth: DEFAULT_MENU_WIDTH,
   smallerScrollbars: false,
   showTimestamp: true,
   showStd: false,
@@ -35,6 +43,8 @@ export const DEFAULT_SETTINGS: Settings = {
   automaticRedirect: "delayed",
   locale: "",
   groupContainers: "at-least-2",
+  cpuDisplayMode: "utilization",
+  settingsAsPopup: false,
 };
 
 export const settings = useProfileStorage("settings", DEFAULT_SETTINGS);
@@ -64,4 +74,17 @@ export const {
   locale,
   automaticRedirect,
   groupContainers,
+  cpuDisplayMode,
+  settingsAsPopup,
 } = toRefs(settings.value);
+
+// Reset the sidebar to its default width. Lives here because it operates purely
+// on this store's state, and is shared by the toolbars' "reset sidebar width"
+// action. Disabled while the sidebar is collapsed or already at the default.
+export const canResetMenuWidth = computed(
+  () => !collapseNav.value && Math.abs(menuWidth.value - DEFAULT_MENU_WIDTH) > 0.01,
+);
+
+export function resetMenuWidth() {
+  if (canResetMenuWidth.value) menuWidth.value = DEFAULT_MENU_WIDTH;
+}

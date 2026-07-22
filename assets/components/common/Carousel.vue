@@ -9,7 +9,7 @@
       </div>
     </div>
     <div class="flex flex-col gap-2">
-      <h3 class="text-center text-sm font-thin">
+      <h3 v-if="!hideTitle" class="text-center text-sm font-thin">
         {{ cards?.[activeIndex].title }}
       </h3>
       <div class="flex flex-none justify-center gap-2" v-if="providedCards.length > 1">
@@ -31,6 +31,9 @@
 
 <script lang="ts" setup>
 import CarouselItem from "./CarouselItem.vue";
+
+const { hideTitle = false } = defineProps<{ hideTitle?: boolean }>();
+
 const container = useTemplateRef<HTMLDivElement>("container");
 const activeIndex = ref(0);
 const activeId = defineModel<string>();

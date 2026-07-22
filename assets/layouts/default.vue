@@ -1,11 +1,15 @@
 <template>
   <div>
     <MobileMenu v-if="isMobile && !forceMenuHidden" @search="showFuzzySearch"></MobileMenu>
-    <Splitpanes @resized="onResized($event)">
-      <Pane min-size="10" :size="menuWidth" v-if="!isMobile && !collapseNav && !forceMenuHidden">
-        <SidePanel />
+    <Splitpanes @resized="onResized($event)" :class="{ 'nav-collapsed': collapseNav }">
+      <Pane
+        :min-size="collapseNav ? 0 : MIN_MENU_WIDTH"
+        :size="collapseNav ? 0 : menuWidth"
+        v-if="!isMobile && !forceMenuHidden"
+      >
+        <SidePanel v-show="!collapseNav" />
       </Pane>
-      <Pane min-size="10" :size="100 - menuWidth">
+      <Pane :min-size="MIN_MENU_WIDTH" :size="collapseNav ? 100 : 100 - menuWidth">
         <Splitpanes>
           <Pane class="router-view min-h-screen">
             <router-view></router-view>
@@ -25,17 +29,25 @@
       </Pane>
     </Splitpanes>
     <label
-      class="btn btn-circle swap bg-base-content/10 swap-rotate border-base-content/20 hover:border-primary fixed bottom-4 -left-12 w-16 shadow-sm transition-all hover:-left-4"
-      :class="{ '-left-6!': collapseNav }"
+      class="group border-base-content/20 bg-base-100 hover:border-primary fixed bottom-16 -left-px z-20 flex h-10 cursor-pointer items-center rounded-l-none rounded-r-lg border px-2.5 shadow-sm transition-colors duration-300 select-none"
       v-if="!isMobile && !forceMenuHidden"
+      :title="collapseNav ? $t('button.show-sidebar') : $t('button.hide-sidebar')"
     >
-      <input type="checkbox" v-model="collapseNav" />
-      <mdi:chevron-right class="swap-on" />
-      <mdi:chevron-left class="swap-off" />
+      <input type="checkbox" v-model="collapseNav" class="hidden" />
+      <mdi:chevron-left
+        class="size-5 shrink-0 transition-transform duration-300"
+        :class="{ 'rotate-180': collapseNav }"
+      />
+      <span
+        class="flex max-w-0 items-center gap-2 overflow-hidden text-sm font-medium whitespace-nowrap transition-all duration-300 group-hover:ml-2 group-hover:max-w-60"
+      >
+        {{ collapseNav ? $t("button.show-sidebar") : $t("button.hide-sidebar") }}
+        <KeyShortcut char="s" :modifiers="['meta', '^']" />
+      </span>
     </label>
   </div>
   <dialog ref="modal" class="modal bg-base-300/50! items-start backdrop-blur-md transition-none!" @close="closeSearch">
-    <div class="modal-box max-w-2xl bg-transparent pt-20 shadow-none">
+    <div class="modal-box max-w-2xl overflow-visible! bg-transparent pt-20 shadow-none">
       <FuzzySearchModal @close="closeSearch" v-if="open" />
     </div>
     <form method="dialog" class="modal-backdrop">
@@ -49,11 +61,12 @@
     </Suspense>
   </SideDrawer>
   <ToastModal />
+  <SettingsModal />
 </template>
 
 <script lang="ts" setup>
 import { Splitpanes, Pane } from "splitpanes";
-import { collapseNav } from "@/stores/settings";
+import { collapseNav, MIN_MENU_WIDTH } from "@/stores/settings";
 import SideDrawer from "@/components/common/SideDrawer.vue";
 
 const pinnedLogsStore = usePinnedLogsStore();
@@ -84,7 +97,16 @@ onKeyStroke("k", (e) => {
   }
 });
 
+onKeyStroke(["s", "S"], (e) => {
+  if (e.metaKey && e.ctrlKey && !isMobile.value && !forceMenuHidden.value) {
+    collapseNav.value = !collapseNav.value;
+    e.preventDefault();
+  }
+});
+
 function onResized({ panes }: { panes: { size: number }[] }) {
+  // Ignore the resize that collapsing/expanding triggers; only persist drags.
+  if (collapseNav.value) return;
   if (panes.length == 2) {
     menuWidth.value = Math.min(panes[0].size, 50);
   }
@@ -96,11 +118,18 @@ function onResized({ panes }: { panes: { size: number }[] }) {
 
 :deep(.splitpanes--vertical > .splitpanes__splitter) {
   @apply bg-base-100 hover:bg-secondary min-w-[5px];
+  transition: opacity 0.3s cubic-bezier(0.2, 0, 0, 1);
+}
+
+/* Hide (and disable) the resize handle while the sidebar is collapsed. */
+:deep(.splitpanes.nav-collapsed > .splitpanes__splitter) {
+  opacity: 0;
+  pointer-events: none;
 }
 
 @media screen and (max-width: 768px) {
   .router-view {
-    padding-top: 75px;
+    padding-top: var(--mobile-nav-height);
   }
 }
 </style>

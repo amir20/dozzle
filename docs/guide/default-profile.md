@@ -29,14 +29,16 @@ If the file does not exist, Dozzle starts with built-in defaults. You only need 
     "smallerScrollbars": false,
     "search": false,
     "compact": false,
-    "menuWidth": 250,
+    "menuWidth": 15,
     "size": "medium",
     "lightTheme": "auto",
     "hourStyle": "auto",
     "dateLocale": "auto",
     "locale": "en",
     "groupContainers": "stack",
-    "automaticRedirect": ""
+    "automaticRedirect": "",
+    "cpuDisplayMode": "utilization",
+    "settingsAsPopup": false
   },
   "pinned": [],
   "visibleKeys": [],
@@ -58,7 +60,7 @@ All fields are optional — include only the ones you want to override.
 | `smallerScrollbars` | boolean | Use thinner scrollbars                                               |
 | `search`            | boolean | Enable inline search by default                                      |
 | `compact`           | boolean | Compact log row spacing                                              |
-| `menuWidth`         | number  | Sidebar width in pixels                                              |
+| `menuWidth`         | number  | Sidebar width as a percentage of the window width (e.g. `15`)        |
 | `size`              | string  | Font size: `small`, `medium`, `large`                                |
 | `lightTheme`        | string  | Theme preference: `auto`, `light`, `dark`                            |
 | `hourStyle`         | string  | Time format: `auto`, `12`, `24`                                      |
@@ -66,6 +68,8 @@ All fields are optional — include only the ones you want to override.
 | `locale`            | string  | UI language (e.g. `en`, `fr`, `de`)                                  |
 | `groupContainers`   | string  | Default sidebar grouping (e.g. `stack`, `none`)                      |
 | `automaticRedirect` | string  | Path to redirect to on load                                          |
+| `cpuDisplayMode`    | string  | CPU display: `utilization` (whole-CPU %) or `cores` (per core, Linux) |
+| `settingsAsPopup`   | boolean | Open settings in a fullscreen popup instead of the page (experimental) |
 
 The top-level fields `pinned`, `visibleKeys`, and `collapsedGroups` accept arrays and let you pre-pin containers or pre-collapse groups for first-time visitors.
 
