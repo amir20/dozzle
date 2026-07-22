@@ -64,13 +64,14 @@ const { scrollable = false } = defineProps<{ scrollable?: boolean }>();
 const hasMore = ref(false);
 const atTop = ref(true);
 const goingToTop = ref(false);
+const jumpedToTop = ref(false);
 const scrollObserver = ref<HTMLElement>();
 const scrollTopObserver = ref<HTMLElement>();
 const scrollableContent = ref<HTMLElement>();
 
 const scrollContext = provideScrollContext();
 
-const { loadingMore, historical, loadOlderLogs } = useLoggingContext();
+const { loadingMore, historical, jumpToOldest, reconnect } = useLoggingContext();
 if (!historical.value) {
   useIntersectionObserver(scrollObserver, ([entry]) => (scrollContext.paused = entry.intersectionRatio == 0), {
     threshold: [0, 1],
@@ -99,22 +100,28 @@ if (!historical.value) {
   );
 }
 
-function scrollToBottom(behavior: "auto" | "smooth" = "auto") {
+async function scrollToBottom(behavior: "auto" | "smooth" = "auto") {
+  // If we jumped to the oldest window, reconnect to the live tail rather than
+  // scrolling within the head window.
+  if (jumpedToTop.value && reconnect?.value) {
+    jumpedToTop.value = false;
+    scrollContext.paused = false;
+    reconnect.value();
+    await nextTick();
+  }
   scrollObserver.value?.scrollIntoView({ behavior });
   hasMore.value = false;
 }
 
 async function scrollToTop() {
-  // Pull older batches until the loader reports there is nothing older left, so
-  // "go to top" lands on the very first line instead of just the loaded top.
-  const loadOlder = loadOlderLogs?.value;
-  if (loadOlder) {
+  // Jump straight to the first lines by loading only the oldest window, instead
+  // of lazily loading everything in between.
+  const jump = jumpToOldest?.value;
+  if (jump) {
     goingToTop.value = true;
     try {
-      let guard = 0;
-      while ((await loadOlder()) && guard++ < 1000) {
-        /* keep loading toward the first line */
-      }
+      await jump();
+      jumpedToTop.value = true;
     } finally {
       goingToTop.value = false;
     }

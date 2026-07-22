@@ -16,8 +16,6 @@
 
 <script lang="ts" setup generic="T">
 import { LogStreamSource } from "@/composable/eventStreams";
-import { loggingContextKey } from "@/composable/logContext";
-import { LoadMoreLogEntry } from "@/models/LogEntry";
 const route = useRoute();
 
 const { entity, streamSource } = $defineProps<{
@@ -28,19 +26,6 @@ const { entity, streamSource } = $defineProps<{
 const { historical } = useLoggingContext();
 
 const { messages, opened, loading, error, searchStatus } = streamSource(toRef(() => entity));
-
-// Expose the lazy loader to the logging context so the "go to top" button can
-// keep pulling older logs until the very first line (see ScrollableView).
-const loggingContext = inject(loggingContextKey);
-if (loggingContext) {
-  loggingContext.loadOlderLogs = async () => {
-    const first = messages.value[0];
-    if (!(first instanceof LoadMoreLogEntry)) return false;
-    const before = messages.value.length;
-    await first.loadMore();
-    return messages.value.length > before;
-  };
-}
 
 // While a search is running (or just finished), SearchStatus owns the empty
 // messaging, so suppress the generic "no logs" state to avoid the false signal.

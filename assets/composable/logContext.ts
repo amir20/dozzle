@@ -10,9 +10,11 @@ type LogContext = {
   showContainerName: boolean;
   showHostname: boolean;
   historical: boolean;
-  // Set by the log stream so the "go to top" button can drive the lazy loader
-  // all the way back to the first line. Returns true while older logs remain.
-  loadOlderLogs?: () => Promise<boolean>;
+  // Set by the log stream so the scroll widget can jump straight to the oldest
+  // window ("go to top") or reconnect to the live tail ("go to bottom"), without
+  // materializing every line in between.
+  jumpToOldest?: () => Promise<void>;
+  reconnect?: () => void;
 };
 
 export const allLevels: Level[] = ["info", "debug", "warn", "error", "fatal", "trace", "unknown"];
@@ -38,7 +40,8 @@ export const provideLoggingContext = (
       showContainerName,
       showHostname,
       historical,
-      loadOlderLogs: undefined as LogContext["loadOlderLogs"],
+      jumpToOldest: undefined as LogContext["jumpToOldest"],
+      reconnect: undefined as LogContext["reconnect"],
     }),
   );
 };
@@ -55,7 +58,8 @@ export const useLoggingContext = () => {
       showContainerName: false,
       showHostname: false,
       historical: false,
-      loadOlderLogs: undefined as LogContext["loadOlderLogs"],
+      jumpToOldest: undefined as LogContext["jumpToOldest"],
+      reconnect: undefined as LogContext["reconnect"],
     }),
   );
 
