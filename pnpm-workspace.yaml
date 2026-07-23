@@ -1,5 +1,7 @@
 packages:
   - docs
+overrides:
+  typescript: npm:typescript-native-bridge@6.0.3-bridge.1.tsgo.7.0.2
 allowBuilds:
   esbuild: true
   simple-git-hooks: true
