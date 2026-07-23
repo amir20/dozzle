@@ -4,6 +4,7 @@ import { mount } from "@vue/test-utils";
 import FuzzySearchModal from "./FuzzySearchModal.vue";
 
 import { Container } from "@/models/Container";
+import { lightTheme } from "@/stores/settings";
 import { beforeEach, describe, expect, test, vi } from "vitest";
 import { createI18n } from "vue-i18n";
 import { useRouter } from "vue-router";
@@ -118,5 +119,20 @@ describe("<FuzzySearchModal />", () => {
     await wrapper.find("input").setValue("baz");
     await wrapper.find("input").trigger("keydown.enter");
     expect(useRouter().push).toHaveBeenCalledWith({ name: "/container/[id]", params: { id: "567" } });
+  });
+
+  test("matches commands by keyword", async () => {
+    const wrapper = createFuzzySearchModal();
+    await wrapper.find("input").setValue("theme");
+    const items = wrapper.findAll("li").map((li) => li.text());
+    expect(items).toContain("command-palette.toggle-theme");
+  });
+
+  test("running a command toggles its setting", async () => {
+    lightTheme.value = "light";
+    const wrapper = createFuzzySearchModal();
+    await wrapper.find("input").setValue("theme");
+    await wrapper.find("input").trigger("keydown.enter");
+    expect(lightTheme.value).toBe("dark");
   });
 });
