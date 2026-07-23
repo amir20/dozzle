@@ -100,15 +100,15 @@
     "concurrently": "^10.0.3",
     "eventsourcemock": "^2.0.0",
     "jsdom": "^29.1.1",
-    "lint-staged": "^17.1.0",
+    "lint-staged": "^17.1.1",
     "prettier": "^3.9.6",
     "prettier-plugin-tailwindcss": "^0.8.1",
     "simple-git-hooks": "^2.13.1",
     "ts-node": "^10.9.2",
     "typescript": "^6.0.3",
     "vitest": "^4.1.10",
-    "vue-component-type-helpers": "3.3.7",
-    "vue-tsc": "3.3.7"
+    "vue-component-type-helpers": "3.3.8",
+    "vue-tsc": "3.3.8"
   },
   "simple-git-hooks": {
     "pre-commit": "pnpm lint-staged --allow-empty"
