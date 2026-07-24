@@ -8,6 +8,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/amir20/dozzle/internal/auth"
 	"github.com/amir20/dozzle/internal/container"
 	container_support "github.com/amir20/dozzle/internal/support/container"
 	"github.com/modelcontextprotocol/go-sdk/mcp"
@@ -46,6 +47,19 @@ func NewServer(hostService HostService, labels container.ContainerLabels, versio
 	s.registerTools()
 
 	return s
+}
+
+// resolveLabels returns the container label filter to apply for the requesting
+// user. When authentication is enabled the user's own filter is carried on the
+// request context; using it (instead of the server-global labels) keeps MCP
+// reads scoped to the same containers the user can see through the normal log
+// and stats paths. Falls back to the server-global labels when no per-user
+// filter is present (e.g. auth disabled).
+func (s *Server) resolveLabels(ctx context.Context) container.ContainerLabels {
+	if user := auth.UserFromContext(ctx); user != nil && user.ContainerLabels.Exists() {
+		return user.ContainerLabels
+	}
+	return s.labels
 }
 
 // Handler returns an http.Handler for the MCP streamable HTTP transport.
@@ -117,7 +131,7 @@ func (s *Server) registerTools() {
 // --- Tool Handlers ---
 
 func (s *Server) handleListContainers(ctx context.Context, _ *mcp.CallToolRequest, params *listContainersParams) (*mcp.CallToolResult, any, error) {
-	containers, errs := s.hostService.ListAllContainers(s.labels)
+	containers, errs := s.hostService.ListAllContainers(s.resolveLabels(ctx))
 	for _, err := range errs {
 		if err != nil {
 			log.Warn().Err(err).Msg("partial failure listing containers from a host")
@@ -216,7 +230,7 @@ func parseStream(stream *string) (container.StdType, *mcp.CallToolResult) {
 // sinceMinutes (defaulting to 5). On a user-facing failure it returns a non-nil
 // error result; otherwise the caller must call cancel when done.
 func (s *Server) fetchLogs(ctx context.Context, host, containerID string, stream *string, sinceMinutes *int) (<-chan *container.LogEvent, context.CancelFunc, *mcp.CallToolResult) {
-	containerSvc, err := s.hostService.FindContainer(host, containerID, s.labels)
+	containerSvc, err := s.hostService.FindContainer(host, containerID, s.resolveLabels(ctx))
 	if err != nil {
 		return nil, nil, errorResult(fmt.Sprintf("container not found: %v", err))
 	}
@@ -435,7 +449,7 @@ func (s *Server) handleGetContainerStats(ctx context.Context, _ *mcp.CallToolReq
 		}, nil, nil
 	}
 
-	containerSvc, err := s.hostService.FindContainer(params.Host, params.ContainerID, s.labels)
+	containerSvc, err := s.hostService.FindContainer(params.Host, params.ContainerID, s.resolveLabels(ctx))
 	if err != nil {
 		return &mcp.CallToolResult{
 			Content: []mcp.Content{&mcp.TextContent{Text: fmt.Sprintf("container not found: %v", err)}},

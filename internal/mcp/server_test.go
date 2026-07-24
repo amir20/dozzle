@@ -8,6 +8,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/amir20/dozzle/internal/auth"
 	"github.com/amir20/dozzle/internal/container"
 	container_support "github.com/amir20/dozzle/internal/support/container"
 	"github.com/amir20/dozzle/internal/utils"
@@ -23,6 +24,10 @@ type mockHostService struct {
 	listErrs   []error
 	logEvents  []*container.LogEvent
 	logErr     error
+
+	// gotLabels records the last label filter passed to a lookup so tests can
+	// assert the requesting user's filter is applied instead of the global one.
+	gotLabels container.ContainerLabels
 }
 
 type stubClientService struct {
@@ -54,6 +59,7 @@ func (s *stubClientService) RawLogs(context.Context, container.Container, time.T
 }
 
 func (m *mockHostService) FindContainer(host string, id string, labels container.ContainerLabels) (*container_support.ContainerService, error) {
+	m.gotLabels = labels
 	if m.findErr != nil {
 		return nil, m.findErr
 	}
@@ -67,11 +73,41 @@ func (m *mockHostService) FindContainer(host string, id string, labels container
 }
 
 func (m *mockHostService) ListAllContainers(labels container.ContainerLabels) ([]container.Container, []error) {
+	m.gotLabels = labels
 	return m.containers, m.listErrs
 }
 
 func (m *mockHostService) Hosts() []container.Host {
 	return m.hosts
+}
+
+func TestReadToolsUseRequestingUsersFilter(t *testing.T) {
+	svc := &mockHostService{
+		containers: []container.Container{{ID: "abc123", Name: "web", Host: "local"}},
+	}
+	// Server-global filter. A restricted user must NOT read through this.
+	global := container.ContainerLabels{"com.example.scope": {"admin"}}
+	s := NewServer(svc, global, "test")
+
+	userLabels := container.ContainerLabels{"com.example.scope": {"tenant-a"}}
+	ctx := auth.WithUser(context.Background(), auth.User{ContainerLabels: userLabels})
+
+	// list_containers scopes to the user's filter.
+	_, _, err := s.handleListContainers(ctx, nil, &listContainersParams{})
+	require.NoError(t, err)
+	assert.Equal(t, userLabels, svc.gotLabels, "list_containers should use the requesting user's filter")
+
+	// get_container_stats (FindContainer path) scopes to the user's filter.
+	svc.gotLabels = nil
+	_, _, err = s.handleGetContainerStats(ctx, nil, &getContainerStatsParams{Host: "local", ContainerID: "abc123"})
+	require.NoError(t, err)
+	assert.Equal(t, userLabels, svc.gotLabels, "get_container_stats should use the requesting user's filter")
+
+	// With no user on the context (e.g. auth disabled) it falls back to the global filter.
+	svc.gotLabels = nil
+	_, _, err = s.handleListContainers(context.Background(), nil, &listContainersParams{})
+	require.NoError(t, err)
+	assert.Equal(t, global, svc.gotLabels, "falls back to server-global filter when unauthenticated")
 }
 
 func TestListContainers(t *testing.T) {
