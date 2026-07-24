@@ -413,3 +413,19 @@ cloud-search:
   container-removed: "Vsebnik je bil izbrisan"
   cta-settings: "Nastavitve Cloud"
   container-removed-pill: "izbrisano"
+command-palette:
+  section-commands: Ukazi
+  restart-container: Znova zaženi {name}
+  stop-container: Ustavi {name}
+  start-container: Zaženi {name}
+  update-container: Posodobi {name}
+  theme-auto: Uporabi sistemsko temo
+  theme-light: Preklopi na svetlo temo
+  theme-dark: Preklopi na temno temo
+  toggle-compact: Preklopi strnjeni način
+  toggle-timestamps: Preklopi časovne žige
+  toggle-soft-wrap: Preklopi mehko prelamljanje
+  toggle-stopped: Preklopi ustavljene vsebnike
+  toggle-std: Preklopi oznake stdout/stderr
+  toggle-scrollbars: Preklopi manjše drsnike
+  open-settings: Odpri nastavitve

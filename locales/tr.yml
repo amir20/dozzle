@@ -411,3 +411,19 @@ cloud-search:
   container-removed: "Konteyner silindi"
   cta-settings: "Cloud ayarları"
   container-removed-pill: "silindi"
+command-palette:
+  section-commands: Komutlar
+  restart-container: "{name} yeniden başlat"
+  stop-container: "{name} durdur"
+  start-container: "{name} başlat"
+  update-container: "{name} güncelle"
+  theme-auto: Sistem temasını kullan
+  theme-light: Açık temaya geç
+  theme-dark: Koyu temaya geç
+  toggle-compact: Kompakt modu aç/kapat
+  toggle-timestamps: Zaman damgalarını aç/kapat
+  toggle-soft-wrap: Yumuşak kaydırmayı aç/kapat
+  toggle-stopped: Durdurulmuş konteynerleri aç/kapat
+  toggle-std: stdout/stderr etiketlerini aç/kapat
+  toggle-scrollbars: Daha küçük kaydırma çubuklarını aç/kapat
+  open-settings: Ayarları aç

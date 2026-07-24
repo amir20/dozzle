@@ -155,6 +155,22 @@ cloud-search:
   container-removed: "El contenedor ha sido eliminado"
   cta-settings: "Configuración de Cloud"
   container-removed-pill: "eliminado"
+command-palette:
+  section-commands: Comandos
+  restart-container: Reiniciar {name}
+  stop-container: Detener {name}
+  start-container: Iniciar {name}
+  update-container: Actualizar {name}
+  theme-auto: Usar tema del sistema
+  theme-light: Cambiar a tema claro
+  theme-dark: Cambiar a tema oscuro
+  toggle-compact: Alternar modo compacto
+  toggle-timestamps: Alternar marcas de tiempo
+  toggle-soft-wrap: Alternar ajuste de línea
+  toggle-stopped: Alternar contenedores detenidos
+  toggle-std: Alternar etiquetas stdout/stderr
+  toggle-scrollbars: Alternar barras de desplazamiento más pequeñas
+  open-settings: Abrir configuración
 settings:
   help-support: >
     Por favor, apoya a Dozzle donando o patrocinándonos en GitHub. Tus contribuciones nos ayudan a mejorar Dozzle para todos. ¡Gracias! 🙏🏼

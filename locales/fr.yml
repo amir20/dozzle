@@ -407,3 +407,19 @@ cloud-search:
   container-removed: "Le conteneur a été supprimé"
   cta-settings: "Paramètres Cloud"
   container-removed-pill: "supprimé"
+command-palette:
+  section-commands: Commandes
+  restart-container: Redémarrer {name}
+  stop-container: Arrêter {name}
+  start-container: Démarrer {name}
+  update-container: Mettre à jour {name}
+  theme-auto: Utiliser le thème du système
+  theme-light: Passer au thème clair
+  theme-dark: Passer au thème sombre
+  toggle-compact: Basculer le mode compact
+  toggle-timestamps: Basculer les horodatages
+  toggle-soft-wrap: Basculer le retour à la ligne
+  toggle-stopped: Basculer les conteneurs arrêtés
+  toggle-std: Basculer les étiquettes stdout/stderr
+  toggle-scrollbars: Basculer les barres de défilement réduites
+  open-settings: Ouvrir les paramètres

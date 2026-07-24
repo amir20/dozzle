@@ -411,3 +411,19 @@ cloud-search:
   container-removed: "컨테이너가 삭제되었습니다"
   cta-settings: "Cloud 설정"
   container-removed-pill: "삭제됨"
+command-palette:
+  section-commands: 명령
+  restart-container: "{name} 재시작"
+  stop-container: "{name} 중지"
+  start-container: "{name} 시작"
+  update-container: "{name} 업데이트"
+  theme-auto: 시스템 테마 사용
+  theme-light: 밝은 테마로 전환
+  theme-dark: 어두운 테마로 전환
+  toggle-compact: 컴팩트 모드 전환
+  toggle-timestamps: 타임스탬프 전환
+  toggle-soft-wrap: 자동 줄바꿈 전환
+  toggle-stopped: 중지된 컨테이너 전환
+  toggle-std: stdout/stderr 라벨 전환
+  toggle-scrollbars: 작은 스크롤바 전환
+  open-settings: 설정 열기

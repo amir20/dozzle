@@ -419,3 +419,19 @@ cloud-search:
   container-removed: "Kontainer telah dihapus"
   cta-settings: "Pengaturan Cloud"
   container-removed-pill: "dihapus"
+command-palette:
+  section-commands: Perintah
+  restart-container: Mulai ulang {name}
+  stop-container: Hentikan {name}
+  start-container: Jalankan {name}
+  update-container: Perbarui {name}
+  theme-auto: Gunakan tema sistem
+  theme-light: Beralih ke tema terang
+  theme-dark: Beralih ke tema gelap
+  toggle-compact: Alihkan mode ringkas
+  toggle-timestamps: Alihkan stempel waktu
+  toggle-soft-wrap: Alihkan bungkus lembut
+  toggle-stopped: Alihkan kontainer yang dihentikan
+  toggle-std: Alihkan label stdout/stderr
+  toggle-scrollbars: Alihkan bilah gulir lebih kecil
+  open-settings: Buka pengaturan

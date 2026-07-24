@@ -159,6 +159,22 @@ cloud-search:
   container-removed: Container has been deleted
   cta-settings: "Cloud settings"
   container-removed-pill: removed
+command-palette:
+  section-commands: Commands
+  restart-container: Restart {name}
+  stop-container: Stop {name}
+  start-container: Start {name}
+  update-container: Update {name}
+  theme-auto: Use system theme
+  theme-light: Switch to light theme
+  theme-dark: Switch to dark theme
+  toggle-compact: Toggle compact mode
+  toggle-timestamps: Toggle timestamps
+  toggle-soft-wrap: Toggle soft wrap
+  toggle-stopped: Toggle stopped containers
+  toggle-std: Toggle stdout/stderr labels
+  toggle-scrollbars: Toggle smaller scrollbars
+  open-settings: Open settings
 settings:
   help-support: >
     Please support Dozzle by donating or sponsoring us on GitHub. Your contributions help us improve Dozzle for
