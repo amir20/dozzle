@@ -407,3 +407,19 @@ cloud-search:
   container-removed: "容器已被删除"
   cta-settings: "Cloud 设置"
   container-removed-pill: "已删除"
+command-palette:
+  section-commands: 命令
+  restart-container: 重启 {name}
+  stop-container: 停止 {name}
+  start-container: 启动 {name}
+  update-container: 更新 {name}
+  theme-auto: 使用系统主题
+  theme-light: 切换到浅色主题
+  theme-dark: 切换到深色主题
+  toggle-compact: 切换紧凑模式
+  toggle-timestamps: 切换时间戳
+  toggle-soft-wrap: 切换软换行
+  toggle-stopped: 切换已停止的容器
+  toggle-std: 切换 stdout/stderr 标签
+  toggle-scrollbars: 切换更小的滚动条
+  open-settings: 打开设置

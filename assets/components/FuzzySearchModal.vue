@@ -13,7 +13,7 @@
         @keydown.up="selectedIndex = Math.max(selectedIndex - 1, 0)"
         @keydown.enter.exact="onEnter"
         @keydown.shift.enter.exact.prevent="runLogSearch"
-        @keydown.alt.enter="onPin"
+        @keydown.alt.enter.exact.prevent="onPin"
         v-model="query"
         :placeholder="placeholderCopy"
       />
@@ -332,8 +332,18 @@ const data = computed(() => {
 const containerEntries = computed(() => data.value);
 const totalCount = computed(() => commandEntries.value.length + containerEntries.value.length);
 
-watch([query, totalCount], () => {
+// Reset to the top only when the user types. Live SSE container add/remove
+// changes totalCount too, and resetting on that would snap the selection back
+// to 0 while the palette is open.
+watch(query, () => {
   selectedIndex.value = 0;
+});
+
+// Keep the selection in bounds when the result count shrinks underneath it.
+watch(totalCount, (count) => {
+  if (selectedIndex.value > count - 1) {
+    selectedIndex.value = Math.max(count - 1, 0);
+  }
 });
 
 watch(selectedIndex, () => {

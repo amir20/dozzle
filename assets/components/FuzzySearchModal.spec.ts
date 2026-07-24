@@ -17,7 +17,7 @@ vi.mock("vue-router");
 
 vi.mock("@/stores/config", () => ({
   __esModule: true,
-  default: { base: "", hosts: [{ name: "localhost", id: "localhost" }] },
+  default: { base: "", hosts: [{ name: "localhost", id: "localhost" }], enableActions: true },
   withBase: (path: string) => path,
 }));
 
@@ -125,14 +125,23 @@ describe("<FuzzySearchModal />", () => {
     const wrapper = createFuzzySearchModal();
     await wrapper.find("input").setValue("theme");
     const items = wrapper.findAll("li").map((li) => li.text());
-    expect(items).toContain("command-palette.toggle-theme");
+    expect(items).toContain("command-palette.theme-dark");
   });
 
-  test("running a command toggles its setting", async () => {
-    lightTheme.value = "light";
+  test("theme commands set the theme explicitly", async () => {
+    lightTheme.value = "auto";
     const wrapper = createFuzzySearchModal();
-    await wrapper.find("input").setValue("theme");
+
+    await wrapper.find("input").setValue("dark theme");
     await wrapper.find("input").trigger("keydown.enter");
     expect(lightTheme.value).toBe("dark");
+
+    await wrapper.find("input").setValue("light theme");
+    await wrapper.find("input").trigger("keydown.enter");
+    expect(lightTheme.value).toBe("light");
+
+    await wrapper.find("input").setValue("system theme");
+    await wrapper.find("input").trigger("keydown.enter");
+    expect(lightTheme.value).toBe("auto");
   });
 });

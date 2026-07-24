@@ -407,3 +407,19 @@ cloud-search:
   container-removed: "Containeren er slettet"
   cta-settings: "Cloud-indstillinger"
   container-removed-pill: "slettet"
+command-palette:
+  section-commands: Kommandoer
+  restart-container: Genstart {name}
+  stop-container: Stop {name}
+  start-container: Start {name}
+  update-container: Opdater {name}
+  theme-auto: Brug systemtema
+  theme-light: Skift til lyst tema
+  theme-dark: Skift til mørkt tema
+  toggle-compact: Skift kompakt tilstand
+  toggle-timestamps: Skift tidsstempler
+  toggle-soft-wrap: Skift blød ombrydning
+  toggle-stopped: Skift stoppede containere
+  toggle-std: Skift stdout/stderr-etiketter
+  toggle-scrollbars: Skift mindre rullepaneler
+  open-settings: Åbn indstillinger

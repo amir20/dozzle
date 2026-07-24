@@ -165,7 +165,9 @@ command-palette:
   stop-container: Stop {name}
   start-container: Start {name}
   update-container: Update {name}
-  toggle-theme: Toggle light/dark theme
+  theme-auto: Use system theme
+  theme-light: Switch to light theme
+  theme-dark: Switch to dark theme
   toggle-compact: Toggle compact mode
   toggle-timestamps: Toggle timestamps
   toggle-soft-wrap: Toggle soft wrap

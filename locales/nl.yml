@@ -408,3 +408,19 @@ cloud-search:
   container-removed: "Container is verwijderd"
   cta-settings: "Cloud-instellingen"
   container-removed-pill: "verwijderd"
+command-palette:
+  section-commands: Opdrachten
+  restart-container: "{name} opnieuw starten"
+  stop-container: "{name} stoppen"
+  start-container: "{name} starten"
+  update-container: "{name} bijwerken"
+  theme-auto: Systeemthema gebruiken
+  theme-light: Overschakelen naar licht thema
+  theme-dark: Overschakelen naar donker thema
+  toggle-compact: Compacte modus omschakelen
+  toggle-timestamps: Tijdstempels omschakelen
+  toggle-soft-wrap: Zachte terugloop omschakelen
+  toggle-stopped: Gestopte containers omschakelen
+  toggle-std: stdout/stderr-labels omschakelen
+  toggle-scrollbars: Kleinere schuifbalken omschakelen
+  open-settings: Instellingen openen

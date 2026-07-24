@@ -1,6 +1,7 @@
 import type { Component } from "vue";
 import { Container } from "@/models/Container";
 import { useContainerActions } from "@/composable/containerActions";
+import config from "@/stores/config";
 import {
   lightTheme,
   compact,
@@ -12,6 +13,8 @@ import {
 } from "@/stores/settings";
 
 import mdiThemeLightDark from "~icons/mdi/theme-light-dark";
+import mdiWhiteBalanceSunny from "~icons/mdi/white-balance-sunny";
+import mdiWeatherNight from "~icons/mdi/weather-night";
 import mdiFormatLineSpacing from "~icons/mdi/format-line-spacing";
 import mdiClockOutline from "~icons/mdi/clock-outline";
 import mdiWrap from "~icons/mdi/wrap";
@@ -52,16 +55,17 @@ export function useCommands() {
   const currentContainerRef = containerStore.currentContainer?.(currentId);
   const currentContainer = computed(() => currentContainerRef?.value as Container | undefined);
 
-  // Bound to the current container. The action handlers only read
-  // container.value when invoked, so this is safe to construct even when no
-  // container is active — we simply never expose the commands in that case.
+  // Bound to the current container. The cast is safe because the action
+  // handlers only read container.value when invoked, and container commands are
+  // only pushed into the list when currentContainer is truthy — so the handlers
+  // never run against an undefined container.
   const { start, stop, restart, update } = useContainerActions(currentContainer as Ref<Container>);
 
   const commands = computed<Command[]>(() => {
     const list: Command[] = [];
 
     const container = currentContainer.value;
-    if (container) {
+    if (container && config.enableActions) {
       const name = container.name;
       list.push({
         id: "container.restart",
@@ -101,15 +105,32 @@ export function useCommands() {
     }
 
     list.push(
+      // lightTheme is tri-state, so expose each value as its own command rather
+      // than a single toggle — that keeps "auto" (follow OS) reachable and makes
+      // the target theme explicit instead of depending on the current state.
       {
-        id: "settings.toggle-theme",
+        id: "settings.theme-auto",
         section: "settings",
         icon: mdiThemeLightDark,
-        title: t("command-palette.toggle-theme"),
-        keywords: "theme dark light color mode appearance",
-        perform: () => {
-          lightTheme.value = lightTheme.value === "light" ? "dark" : "light";
-        },
+        title: t("command-palette.theme-auto"),
+        keywords: "theme auto system color mode appearance",
+        perform: () => (lightTheme.value = "auto"),
+      },
+      {
+        id: "settings.theme-light",
+        section: "settings",
+        icon: mdiWhiteBalanceSunny,
+        title: t("command-palette.theme-light"),
+        keywords: "theme light color mode appearance",
+        perform: () => (lightTheme.value = "light"),
+      },
+      {
+        id: "settings.theme-dark",
+        section: "settings",
+        icon: mdiWeatherNight,
+        title: t("command-palette.theme-dark"),
+        keywords: "theme dark color mode appearance",
+        perform: () => (lightTheme.value = "dark"),
       },
       {
         id: "settings.toggle-compact",
