@@ -21,6 +21,7 @@ toolbar:
   shell: Shell
   attach: Attacher
   copy-permalink: Copier le lien permanent
+  copy-image: "Copier le tag de l'image"
   copy-logs: Copier les journaux
   copy-filtered-logs: Copier les journaux filtrés
   copying-logs: Copie des journaux...

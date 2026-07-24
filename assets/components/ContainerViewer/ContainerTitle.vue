@@ -46,8 +46,20 @@
     </div>
     <ContainerHealth :health="container.health" v-if="container.health" />
     <VolumeWarning :container="container" />
-    <Tag class="hidden! font-mono @xl:block!" size="small">
-      {{ container.image.replace(/@sha.*/, "") }}
+    <Tag
+      class="group hidden! cursor-pointer items-center gap-1.5 pr-1! font-mono @md:inline-flex!"
+      size="small"
+      role="button"
+      :title="$t('toolbar.copy-image')"
+      :aria-label="$t('toolbar.copy-image')"
+      @click="copyImage"
+    >
+      <span class="truncate">{{ imageTag }}</span>
+      <span
+        class="bg-base-content/10 text-base-content/40 group-hover:text-base-content/70 flex size-4 shrink-0 items-center justify-center rounded-sm transition-colors"
+      >
+        <mdi:content-copy class="size-3" />
+      </span>
     </Tag>
   </div>
 </template>
@@ -56,6 +68,21 @@
 import { Container } from "@/models/Container";
 
 const { container } = defineProps<{ container: Container }>();
+
+const { t } = useI18n();
+const { copy, copied, isSupported } = useClipboard({ legacy: true });
+const { showToast } = useToast();
+
+const imageTag = computed(() => container.image.replace(/@sha.*/, ""));
+
+async function copyImage() {
+  if (!isSupported.value) return;
+  await copy(imageTag.value);
+  if (copied.value) {
+    showToast({ title: t("toasts.copied.title"), message: t("toasts.copied.message"), type: "info" }, { expire: 2000 });
+  }
+}
+
 const pinned = computed({
   get: () => pinnedContainers.value.has(container.name),
   set: (value) => {
