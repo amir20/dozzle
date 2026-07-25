@@ -219,6 +219,7 @@ declare global {
   const useCloudConfig: typeof import('./composable/cloudConfig').useCloudConfig
   const useCloudLogSearch: typeof import('./composable/cloudLogSearch').useCloudLogSearch
   const useColorMode: typeof import('@vueuse/core').useColorMode
+  const useCommands: typeof import('./composable/commands').useCommands
   const useConfirmDialog: typeof import('@vueuse/core').useConfirmDialog
   const useContainerActions: typeof import('./composable/containerActions').useContainerActions
   const useContainerStore: typeof import('./stores/container').useContainerStore
@@ -422,6 +423,9 @@ declare global {
   // @ts-ignore
   export type { CloudLogHit } from './composable/cloudLogSearch'
   import('./composable/cloudLogSearch')
+  // @ts-ignore
+  export type { CommandSection, Command } from './composable/commands'
+  import('./composable/commands')
   // @ts-ignore
   export type { DrawerWidth } from './composable/drawer'
   import('./composable/drawer')
@@ -661,6 +665,7 @@ declare module 'vue' {
     readonly useCloudConfig: UnwrapRef<typeof import('./composable/cloudConfig')['useCloudConfig']>
     readonly useCloudLogSearch: UnwrapRef<typeof import('./composable/cloudLogSearch')['useCloudLogSearch']>
     readonly useColorMode: UnwrapRef<typeof import('@vueuse/core')['useColorMode']>
+    readonly useCommands: UnwrapRef<typeof import('./composable/commands')['useCommands']>
     readonly useConfirmDialog: UnwrapRef<typeof import('@vueuse/core')['useConfirmDialog']>
     readonly useContainerActions: UnwrapRef<typeof import('./composable/containerActions')['useContainerActions']>
     readonly useContainerStore: UnwrapRef<typeof import('./stores/container')['useContainerStore']>

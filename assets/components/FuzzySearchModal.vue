@@ -9,11 +9,11 @@
         tabindex="0"
         class="text-base-content placeholder:text-base-content/40 flex-1 bg-transparent text-base outline-none"
         ref="input"
-        @keydown.down="selectedIndex = Math.min(selectedIndex + 1, data.length - 1)"
+        @keydown.down="selectedIndex = Math.min(selectedIndex + 1, totalCount - 1)"
         @keydown.up="selectedIndex = Math.max(selectedIndex - 1, 0)"
         @keydown.enter.exact="onEnter"
         @keydown.shift.enter.exact.prevent="runLogSearch"
-        @keydown.alt.enter="addColumn(data[selectedIndex].item)"
+        @keydown.alt.enter.exact.prevent="onPin"
         v-model="query"
         :placeholder="placeholderCopy"
       />
@@ -29,51 +29,80 @@
 
     <!-- Body: results + log search CTA. Only renders when there is something
          to show — keeps the empty modal compact. -->
-    <div v-if="results.length || logSearchVisible" class="border-base-content/10 border-t">
-      <!-- Containers section -->
-      <template v-if="results.length">
-        <div class="text-base-content/40 px-4 pt-3 pb-1.5 text-xs font-semibold tracking-wider uppercase">
-          {{ $t("cloud-search.containers-section") }} · {{ data.length }}
-        </div>
-        <ul class="max-h-[50vh] overflow-y-auto overscroll-contain pb-1">
-          <li v-for="(result, index) in data" ref="listItems">
-            <a
-              class="hover:bg-base-content/5 flex cursor-pointer items-center gap-3 px-4 py-2"
-              :class="{ 'bg-base-content/10': index === selectedIndex }"
-              @click.prevent="selected(result.item)"
-            >
-              <div :class="result.item.state === 'running' ? 'text-primary' : 'text-base-content/50'">
-                <template v-if="result.item.type === 'container'">
-                  <octicon:container-24 class="size-4" />
-                </template>
-                <template v-else-if="result.item.type === 'service'">
-                  <ph:stack-simple class="size-4" />
-                </template>
-                <template v-else-if="result.item.type === 'stack'">
-                  <ph:stack class="size-4" />
-                </template>
-              </div>
-              <div class="min-w-0 flex-1 truncate text-sm">
-                <template v-if="config.hosts.length > 1 && result.item.host">
-                  <span class="text-base-content/50 font-light">{{ result.item.host }}</span>
-                  <span class="text-base-content/30"> / </span>
-                </template>
-                <span class="text-base-content" data-name v-html="matchedName(result)"></span>
-              </div>
-              <RelativeTime :date="result.item.created" class="text-base-content/40 text-xs" />
-              <span
-                @click.stop.prevent="addColumn(result.item)"
-                :title="$t('tooltip.pin-column')"
-                class="text-base-content/40 hover:text-secondary"
+    <div v-if="totalCount || logSearchVisible" class="border-base-content/10 border-t">
+      <!-- Scroll container spans both sections so the flat Commands + Containers
+           list scrolls as one, matching the unified selection index. -->
+      <div class="max-h-[50vh] overflow-y-auto overscroll-contain">
+        <!-- Commands section -->
+        <template v-if="commandEntries.length">
+          <div class="text-base-content/40 px-4 pt-3 pb-1.5 text-xs font-semibold tracking-wider uppercase">
+            {{ $t("command-palette.section-commands") }} · {{ commandEntries.length }}
+          </div>
+          <ul class="pb-1">
+            <li v-for="(command, index) in commandEntries" :ref="(el) => setItemRef(el, index)">
+              <a
+                class="hover:bg-base-content/5 flex cursor-pointer items-center gap-3 px-4 py-2"
+                :class="{ 'bg-base-content/10': index === selectedIndex }"
+                @click.prevent="runCommand(command)"
               >
-                <ic:sharp-keyboard-return v-if="index === selectedIndex" class="size-4" />
-                <cil:columns v-else-if="result.item.type === 'container'" class="size-4" />
-              </span>
-            </a>
-          </li>
-        </ul>
-      </template>
+                <component :is="command.icon" class="text-base-content/60 size-4 shrink-0" />
+                <span class="min-w-0 flex-1 truncate text-sm">{{ command.title }}</span>
+                <ic:sharp-keyboard-return v-if="index === selectedIndex" class="text-base-content/40 size-4" />
+              </a>
+            </li>
+          </ul>
+        </template>
 
+        <!-- Containers section -->
+        <template v-if="containerEntries.length">
+          <div
+            class="text-base-content/40 px-4 pt-3 pb-1.5 text-xs font-semibold tracking-wider uppercase"
+            :class="{ 'border-base-content/10 mt-1 border-t': commandEntries.length }"
+          >
+            {{ $t("cloud-search.containers-section") }} · {{ containerEntries.length }}
+          </div>
+          <ul class="pb-1">
+            <li
+              v-for="(result, index) in containerEntries"
+              :ref="(el) => setItemRef(el, commandEntries.length + index)"
+            >
+              <a
+                class="hover:bg-base-content/5 flex cursor-pointer items-center gap-3 px-4 py-2"
+                :class="{ 'bg-base-content/10': commandEntries.length + index === selectedIndex }"
+                @click.prevent="selected(result.item)"
+              >
+                <div :class="result.item.state === 'running' ? 'text-primary' : 'text-base-content/50'">
+                  <template v-if="result.item.type === 'container'">
+                    <octicon:container-24 class="size-4" />
+                  </template>
+                  <template v-else-if="result.item.type === 'service'">
+                    <ph:stack-simple class="size-4" />
+                  </template>
+                  <template v-else-if="result.item.type === 'stack'">
+                    <ph:stack class="size-4" />
+                  </template>
+                </div>
+                <div class="min-w-0 flex-1 truncate text-sm">
+                  <template v-if="config.hosts.length > 1 && result.item.host">
+                    <span class="text-base-content/50 font-light">{{ result.item.host }}</span>
+                    <span class="text-base-content/30"> / </span>
+                  </template>
+                  <span class="text-base-content" data-name v-html="matchedName(result)"></span>
+                </div>
+                <RelativeTime :date="result.item.created" class="text-base-content/40 text-xs" />
+                <span
+                  @click.stop.prevent="addColumn(result.item)"
+                  :title="$t('tooltip.pin-column')"
+                  class="text-base-content/40 hover:text-secondary"
+                >
+                  <ic:sharp-keyboard-return v-if="commandEntries.length + index === selectedIndex" class="size-4" />
+                  <cil:columns v-else-if="result.item.type === 'container'" class="size-4" />
+                </span>
+              </a>
+            </li>
+          </ul>
+        </template>
+      </div>
       <!-- Log search CTA -->
       <div
         v-if="logSearchVisible"
@@ -130,7 +159,7 @@
     <div
       class="bg-base-300/40 border-base-content/10 text-base-content/50 flex items-center gap-4 border-t px-4 py-2 text-xs"
     >
-      <span v-if="results.length" class="flex items-center gap-1.5">
+      <span v-if="totalCount" class="flex items-center gap-1.5">
         <kbd class="kbd kbd-xs">↵</kbd> {{ $t("cloud-search.open-container") }}
       </span>
       <span v-if="cloudSearch.available.value && logSearchVisible" class="flex items-center gap-1">
@@ -164,6 +193,7 @@ import { useFuse } from "@vueuse/integrations/useFuse";
 import { type FuseResult } from "fuse.js";
 import { useCloudConfig } from "@/composable/cloudConfig";
 import { useCloudLogSearch } from "@/composable/cloudLogSearch";
+import { useCommands, type Command } from "@/composable/commands";
 
 const close = defineEmit();
 
@@ -176,8 +206,14 @@ const route = useRoute();
 const initialQuery = route?.path === "/cloud/search" && typeof route.query?.q === "string" ? route.query.q : "";
 const query = ref(initialQuery);
 const input = ref<HTMLInputElement>();
-const listItems = ref<HTMLInputElement[]>();
+const listItems = ref<(Element | null)[]>([]);
 const selectedIndex = ref(0);
+
+// Function ref into a single flat array so Commands and Containers share one
+// selection index for arrow-key navigation and scroll-into-view.
+function setItemRef(el: any, index: number) {
+  listItems.value[index] = (el?.$el ?? el) as Element | null;
+}
 
 const containerStore = useContainerStore();
 const pinnedStore = usePinnedLogsStore();
@@ -268,6 +304,20 @@ const { results: fuseResults } = useFuse(query, list, {
 
 const results = computed(() => (query.value ? fuseResults.value : []));
 
+// Commands palette. Fuzzy-matched against title/keywords while typing; the
+// context commands (container actions) show up front on an empty query.
+const { commands, contextCommands } = useCommands();
+const { results: commandFuseResults } = useFuse(query, commands, {
+  fuseOptions: {
+    keys: ["title", "keywords"],
+    useExtendedSearch: true,
+    threshold: 0.3,
+  },
+});
+const commandEntries = computed<Command[]>(() =>
+  query.value ? commandFuseResults.value.map((r) => r.item) : contextCommands.value,
+);
+
 const data = computed(() => {
   return [...results.value].sort((a: FuseResult<Item>, b: FuseResult<Item>) => {
     if (a.score === b.score) {
@@ -284,14 +334,26 @@ const data = computed(() => {
   });
 });
 
-watch(query, (data) => {
-  if (data.length > 0) {
-    selectedIndex.value = 0;
+// Container hits, mirrors the previously named `data` list for the template.
+const containerEntries = computed(() => data.value);
+const totalCount = computed(() => commandEntries.value.length + containerEntries.value.length);
+
+// Reset to the top only when the user types. Live SSE container add/remove
+// changes totalCount too, and resetting on that would snap the selection back
+// to 0 while the palette is open.
+watch(query, () => {
+  selectedIndex.value = 0;
+});
+
+// Keep the selection in bounds when the result count shrinks underneath it.
+watch(totalCount, (count) => {
+  if (selectedIndex.value > count - 1) {
+    selectedIndex.value = Math.max(count - 1, 0);
   }
 });
 
 watch(selectedIndex, () => {
-  listItems.value?.[selectedIndex.value].scrollIntoView({ block: "end" });
+  listItems.value?.[selectedIndex.value]?.scrollIntoView({ block: "nearest" });
 });
 
 function selected(item: Item) {
@@ -305,14 +367,32 @@ function selected(item: Item) {
   close();
 }
 
+async function runCommand(command: Command) {
+  close();
+  await command.perform();
+}
+
 function onEnter() {
-  // Plain Enter prefers a container match if one is selected. With no
-  // container matches (cloud-only query like "OOM"), fall back to log search
-  // so the user isn't stuck on a popup that does nothing.
-  if (data.value.length > 0) {
-    selected(data.value[selectedIndex.value].item);
+  // Commands come first in the flat list, then containers. With nothing
+  // selectable (cloud-only query like "OOM"), fall back to log search so the
+  // user isn't stuck on a popup that does nothing.
+  const commandCount = commandEntries.value.length;
+  if (selectedIndex.value < commandCount) {
+    runCommand(commandEntries.value[selectedIndex.value]);
+  } else if (containerEntries.value.length > 0) {
+    selected(containerEntries.value[selectedIndex.value - commandCount].item);
   } else if (cloudSearch.available.value && logSearchVisible.value) {
     runLogSearch();
+  }
+}
+
+function onPin() {
+  // Alt+Enter pins a container column. Only meaningful when a container row is
+  // selected, not a command.
+  const commandCount = commandEntries.value.length;
+  if (selectedIndex.value >= commandCount) {
+    const entry = containerEntries.value[selectedIndex.value - commandCount];
+    if (entry?.item.type === "container") addColumn(entry.item);
   }
 }
 
