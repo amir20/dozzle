@@ -21,6 +21,7 @@ toolbar:
   shell: Shell
   attach: Anhängen
   copy-permalink: Permanentlink kopieren
+  copy-image: "Image-Tag kopieren"
   copy-logs: Logs kopieren
   copy-filtered-logs: Gefilterte Logs kopieren
   copying-logs: Logs werden kopiert...

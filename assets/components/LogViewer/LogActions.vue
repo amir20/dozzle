@@ -105,7 +105,7 @@ const { levels } = useLoggingContext();
 // or by a log-level filter, so the entry can be inspected in the full log stream.
 const isFiltered = computed(() => isSearching.value || allLevels.some((level) => !levels.value.has(level)));
 
-const { copy, isSupported, copied } = useClipboard();
+const { copy, isSupported, copied } = useClipboard({ legacy: true });
 const { t } = useI18n();
 
 async function copyLogMessage() {

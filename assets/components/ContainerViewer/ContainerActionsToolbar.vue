@@ -199,7 +199,7 @@ const clear = defineEmit();
 const { actionStates, start, stop, restart, update } = useContainerActions(toRef(() => container));
 
 const router = useRouter();
-const { copy, copied, isSupported } = useClipboard();
+const { copy, copied, isSupported } = useClipboard({ legacy: true });
 const { t } = useI18n();
 const { showToast, removeToast } = useToast();
 
@@ -366,10 +366,25 @@ a {
   @apply whitespace-nowrap;
 }
 
+/* daisyUI's .menu is width: fit-content, so nested submenus (Streams, Levels)
+ * shrink to their content and the hover highlight stops short. Stretch them to
+ * fill the dropdown so the row highlight spans the full width. */
 .menu li ul {
   margin-inline-start: 0;
+  width: 100%;
   &:before {
     display: none;
   }
+}
+
+/* Keep the solid level colors, but use white labels in the light theme so the
+ * text reads against the saturated chip backgrounds. warn is a light orange,
+ * where dark text has better contrast than white, so it keeps the default. */
+[data-theme="light"] .badge[data-level="info"],
+[data-theme="light"] .badge[data-level="debug"],
+[data-theme="light"] .badge[data-level="trace"],
+[data-theme="light"] .badge[data-level="error"],
+[data-theme="light"] .badge[data-level="fatal"] {
+  color: oklch(100% 0 0) !important;
 }
 </style>

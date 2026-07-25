@@ -21,6 +21,7 @@ toolbar:
   shell: Shell
   attach: Tilknyt
   copy-permalink: Kopiér permanent link
+  copy-image: "Kopiér image-tag"
   copy-logs: Kopiér logs
   copy-filtered-logs: Kopiér filtrerede logs
   copying-logs: Kopierer logs...

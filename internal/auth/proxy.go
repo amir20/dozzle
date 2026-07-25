@@ -15,6 +15,12 @@ type contextKey string
 
 const remoteUser contextKey = "remoteUser"
 
+// WithUser returns a copy of ctx carrying user so downstream handlers can
+// resolve it via UserFromContext.
+func WithUser(ctx context.Context, user User) context.Context {
+	return context.WithValue(ctx, remoteUser, user)
+}
+
 type proxyAuthContext struct {
 	headerUser   string
 	headerEmail  string
@@ -55,7 +61,7 @@ func (p *proxyAuthContext) AuthMiddleware(next http.Handler) http.Handler {
 				userRoles = ParseRole(r.Header.Get(p.headerRoles))
 			}
 			user := newUser(r.Header.Get(p.headerUser), r.Header.Get(p.headerEmail), r.Header.Get(p.headerName), containerFilter, userRoles)
-			ctx := context.WithValue(r.Context(), remoteUser, user)
+			ctx := WithUser(r.Context(), user)
 			next.ServeHTTP(w, r.WithContext(ctx))
 		} else {
 			next.ServeHTTP(w, r)

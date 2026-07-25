@@ -21,6 +21,7 @@ toolbar:
   shell: 终端
   attach: 附加
   copy-permalink: 复制永久链接
+  copy-image: "复制镜像标签"
   copy-logs: 复制日志
   copy-filtered-logs: 复制筛选日志
   copying-logs: 正在复制日志...

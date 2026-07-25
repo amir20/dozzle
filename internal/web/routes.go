@@ -216,6 +216,10 @@ func createRouter(h *handler) *chi.Mux {
 				r.Patch("/cloud/config", h.updateCloudConfig)
 				r.Delete("/cloud/config", h.deleteCloudConfig)
 				r.Post("/cloud/feedback", h.cloudFeedback)
+				// Cloud callback handles the OAuth-style code exchange. It must stay
+				// authenticated so an unauthenticated attacker cannot force-link the
+				// instance to their own cloud account via SetCloudConfig.
+				r.Get("/cloud/callback", h.cloudCallback)
 
 				// MCP (Model Context Protocol) endpoint
 				if h.config.EnableMCP {
@@ -229,9 +233,6 @@ func createRouter(h *handler) *chi.Mux {
 				r.Post("/token", h.createToken)
 				r.Delete("/token", h.deleteToken)
 			}
-
-			// Cloud callback (public, handles OAuth-style code exchange)
-			r.Get("/cloud/callback", h.cloudCallback)
 		})
 
 		r.Get("/healthcheck", h.healthcheck)

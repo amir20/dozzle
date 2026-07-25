@@ -68,6 +68,9 @@ func (h *handler) downloadLogs(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
+	// Inverse mode excludes lines matching the regex instead of keeping them.
+	inverse := r.URL.Query().Get("inverse") == "true"
+
 	// Parse level filters if provided
 	levels := make(map[string]struct{})
 	if r.URL.Query().Has("levels") {
@@ -158,8 +161,9 @@ func (h *handler) downloadLogs(w http.ResponseWriter, r *http.Request) {
 
 			// Filter and write events
 			for event := range events {
-				// Apply regex filter if provided
-				if regex != nil && !support_web.Search(regex, event) {
+				// Apply regex filter if provided. In inverse mode a match excludes
+				// the line, so skip when the match result equals the inverse flag.
+				if regex != nil && inverse == support_web.Search(regex, event) {
 					continue
 				}
 

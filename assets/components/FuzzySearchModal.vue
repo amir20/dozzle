@@ -30,73 +30,79 @@
     <!-- Body: results + log search CTA. Only renders when there is something
          to show — keeps the empty modal compact. -->
     <div v-if="totalCount || logSearchVisible" class="border-base-content/10 border-t">
-      <!-- Commands section -->
-      <template v-if="commandEntries.length">
-        <div class="text-base-content/40 px-4 pt-3 pb-1.5 text-xs font-semibold tracking-wider uppercase">
-          {{ $t("command-palette.section-commands") }} · {{ commandEntries.length }}
-        </div>
-        <ul class="pb-1">
-          <li v-for="(command, index) in commandEntries" :ref="(el) => setItemRef(el, index)">
-            <a
-              class="hover:bg-base-content/5 flex cursor-pointer items-center gap-3 px-4 py-2"
-              :class="{ 'bg-base-content/10': index === selectedIndex }"
-              @click.prevent="runCommand(command)"
-            >
-              <component :is="command.icon" class="text-base-content/60 size-4 shrink-0" />
-              <span class="min-w-0 flex-1 truncate text-sm">{{ command.title }}</span>
-              <ic:sharp-keyboard-return v-if="index === selectedIndex" class="text-base-content/40 size-4" />
-            </a>
-          </li>
-        </ul>
-      </template>
-
-      <!-- Containers section -->
-      <template v-if="containerEntries.length">
-        <div
-          class="text-base-content/40 px-4 pt-3 pb-1.5 text-xs font-semibold tracking-wider uppercase"
-          :class="{ 'border-base-content/10 mt-1 border-t': commandEntries.length }"
-        >
-          {{ $t("cloud-search.containers-section") }} · {{ containerEntries.length }}
-        </div>
-        <ul class="pb-1">
-          <li v-for="(result, index) in containerEntries" :ref="(el) => setItemRef(el, commandEntries.length + index)">
-            <a
-              class="hover:bg-base-content/5 flex cursor-pointer items-center gap-3 px-4 py-2"
-              :class="{ 'bg-base-content/10': commandEntries.length + index === selectedIndex }"
-              @click.prevent="selected(result.item)"
-            >
-              <div :class="result.item.state === 'running' ? 'text-primary' : 'text-base-content/50'">
-                <template v-if="result.item.type === 'container'">
-                  <octicon:container-24 class="size-4" />
-                </template>
-                <template v-else-if="result.item.type === 'service'">
-                  <ph:stack-simple class="size-4" />
-                </template>
-                <template v-else-if="result.item.type === 'stack'">
-                  <ph:stack class="size-4" />
-                </template>
-              </div>
-              <div class="min-w-0 flex-1 truncate text-sm">
-                <template v-if="config.hosts.length > 1 && result.item.host">
-                  <span class="text-base-content/50 font-light">{{ result.item.host }}</span>
-                  <span class="text-base-content/30"> / </span>
-                </template>
-                <span class="text-base-content" data-name v-html="matchedName(result)"></span>
-              </div>
-              <RelativeTime :date="result.item.created" class="text-base-content/40 text-xs" />
-              <span
-                @click.stop.prevent="addColumn(result.item)"
-                :title="$t('tooltip.pin-column')"
-                class="text-base-content/40 hover:text-secondary"
+      <!-- Scroll container spans both sections so the flat Commands + Containers
+           list scrolls as one, matching the unified selection index. -->
+      <div class="max-h-[50vh] overflow-y-auto overscroll-contain">
+        <!-- Commands section -->
+        <template v-if="commandEntries.length">
+          <div class="text-base-content/40 px-4 pt-3 pb-1.5 text-xs font-semibold tracking-wider uppercase">
+            {{ $t("command-palette.section-commands") }} · {{ commandEntries.length }}
+          </div>
+          <ul class="pb-1">
+            <li v-for="(command, index) in commandEntries" :ref="(el) => setItemRef(el, index)">
+              <a
+                class="hover:bg-base-content/5 flex cursor-pointer items-center gap-3 px-4 py-2"
+                :class="{ 'bg-base-content/10': index === selectedIndex }"
+                @click.prevent="runCommand(command)"
               >
-                <ic:sharp-keyboard-return v-if="commandEntries.length + index === selectedIndex" class="size-4" />
-                <cil:columns v-else-if="result.item.type === 'container'" class="size-4" />
-              </span>
-            </a>
-          </li>
-        </ul>
-      </template>
+                <component :is="command.icon" class="text-base-content/60 size-4 shrink-0" />
+                <span class="min-w-0 flex-1 truncate text-sm">{{ command.title }}</span>
+                <ic:sharp-keyboard-return v-if="index === selectedIndex" class="text-base-content/40 size-4" />
+              </a>
+            </li>
+          </ul>
+        </template>
 
+        <!-- Containers section -->
+        <template v-if="containerEntries.length">
+          <div
+            class="text-base-content/40 px-4 pt-3 pb-1.5 text-xs font-semibold tracking-wider uppercase"
+            :class="{ 'border-base-content/10 mt-1 border-t': commandEntries.length }"
+          >
+            {{ $t("cloud-search.containers-section") }} · {{ containerEntries.length }}
+          </div>
+          <ul class="pb-1">
+            <li
+              v-for="(result, index) in containerEntries"
+              :ref="(el) => setItemRef(el, commandEntries.length + index)"
+            >
+              <a
+                class="hover:bg-base-content/5 flex cursor-pointer items-center gap-3 px-4 py-2"
+                :class="{ 'bg-base-content/10': commandEntries.length + index === selectedIndex }"
+                @click.prevent="selected(result.item)"
+              >
+                <div :class="result.item.state === 'running' ? 'text-primary' : 'text-base-content/50'">
+                  <template v-if="result.item.type === 'container'">
+                    <octicon:container-24 class="size-4" />
+                  </template>
+                  <template v-else-if="result.item.type === 'service'">
+                    <ph:stack-simple class="size-4" />
+                  </template>
+                  <template v-else-if="result.item.type === 'stack'">
+                    <ph:stack class="size-4" />
+                  </template>
+                </div>
+                <div class="min-w-0 flex-1 truncate text-sm">
+                  <template v-if="config.hosts.length > 1 && result.item.host">
+                    <span class="text-base-content/50 font-light">{{ result.item.host }}</span>
+                    <span class="text-base-content/30"> / </span>
+                  </template>
+                  <span class="text-base-content" data-name v-html="matchedName(result)"></span>
+                </div>
+                <RelativeTime :date="result.item.created" class="text-base-content/40 text-xs" />
+                <span
+                  @click.stop.prevent="addColumn(result.item)"
+                  :title="$t('tooltip.pin-column')"
+                  class="text-base-content/40 hover:text-secondary"
+                >
+                  <ic:sharp-keyboard-return v-if="commandEntries.length + index === selectedIndex" class="size-4" />
+                  <cil:columns v-else-if="result.item.type === 'container'" class="size-4" />
+                </span>
+              </a>
+            </li>
+          </ul>
+        </template>
+      </div>
       <!-- Log search CTA -->
       <div
         v-if="logSearchVisible"
