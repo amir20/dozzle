@@ -12,10 +12,13 @@ export {}
 declare module 'vue' {
   export interface GlobalComponents {
     BuyMeCoffee: typeof import('./.vitepress/theme/components/BuyMeCoffee.vue')['default']
+    CloudPromo: typeof import('./.vitepress/theme/components/CloudPromo.vue')['default']
     Counter: typeof import('./.vitepress/theme/components/Counter.vue')['default']
     HeroVideo: typeof import('./.vitepress/theme/components/HeroVideo.vue')['default']
+    InstallCommand: typeof import('./.vitepress/theme/components/InstallCommand.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
+    SponsoredBy: typeof import('./.vitepress/theme/components/SponsoredBy.vue')['default']
     Stats: typeof import('./.vitepress/theme/components/Stats.vue')['default']
     Supported: typeof import('./.vitepress/theme/components/Supported.vue')['default']
   }

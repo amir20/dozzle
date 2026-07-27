@@ -154,8 +154,12 @@
   }
 }
 
+.VPHomeHero .text {
+  @apply text-3xl font-normal md:text-5xl;
+}
+
 .VPHomeHero .tagline {
-  @apply font-sans text-4xl font-light;
+  @apply font-sans text-lg font-light md:text-2xl;
   color: var(--tag-line-color);
 }
 
