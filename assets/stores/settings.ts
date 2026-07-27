@@ -18,16 +18,11 @@ export type Settings = {
   locale: string;
   groupContainers: "always" | "at-least-2" | "never";
 };
-// Shared sidebar sizing (percent of the window width) so the layout and the
-// collapse/expand handling always agree on one value.
-export const DEFAULT_MENU_WIDTH = 15;
-export const MIN_MENU_WIDTH = 10;
-
 export const DEFAULT_SETTINGS: Settings = {
   search: true,
   compact: false,
   size: "medium",
-  menuWidth: DEFAULT_MENU_WIDTH,
+  menuWidth: 15,
   smallerScrollbars: false,
   showTimestamp: true,
   showStd: false,
