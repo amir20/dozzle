@@ -23,7 +23,7 @@
       <mdi:cog class="size-6" />
     </router-link>
 
-    <dropdown class="dropdown-end" v-if="config.user">
+    <dropdown class="dropdown-end" data-testid="user-menu" v-if="config.user">
       <template #trigger>
         <template v-if="config.disableAvatars || !config.user.email">
           <material-symbols:person class="size-6" />
