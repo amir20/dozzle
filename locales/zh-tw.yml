@@ -216,6 +216,12 @@ analytics:
   example_all: 所有日誌
   example_count: 資料列數
   example_group: 依 {column} 計數
+  export: 匯出
+  export_csv: 下載 CSV
+  export_json: 下載 JSON
+drawer:
+  maximize: 最大化
+  restore: 還原
 notifications:
   title: 通知
   description: 設定接收警報的位置和時間

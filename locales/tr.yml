@@ -217,6 +217,12 @@ analytics:
   example_all: Tüm günlükler
   example_count: Satır sayısı
   example_group: "{column} bazında sayı"
+  export: Dışa aktar
+  export_csv: CSV indir
+  export_json: JSON indir
+drawer:
+  maximize: Büyüt
+  restore: Geri yükle
 notifications:
   title: Bildirimler
   description: Uyarıları nerede ve ne zaman alacağınızı yapılandırın

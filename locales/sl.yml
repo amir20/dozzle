@@ -219,6 +219,12 @@ analytics:
   example_all: Vsi dnevniki
   example_count: Število vrstic
   example_group: Štetje po {column}
+  export: Izvozi
+  export_csv: Prenesi CSV
+  export_json: Prenesi JSON
+drawer:
+  maximize: Maksimiraj
+  restore: Obnovi
 notifications:
   title: Obvestila
   description: Nastavite kje in kdaj prejemati opozorila

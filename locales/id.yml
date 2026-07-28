@@ -225,6 +225,12 @@ analytics:
   example_all: Semua log
   example_count: Jumlah baris
   example_group: Hitung berdasarkan {column}
+  export: Ekspor
+  export_csv: Unduh CSV
+  export_json: Unduh JSON
+drawer:
+  maximize: Maksimalkan
+  restore: Pulihkan
 notifications:
   title: Notifikasi
   description: Konfigurasikan di mana dan kapan menerima peringatan

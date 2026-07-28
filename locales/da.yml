@@ -213,6 +213,12 @@ analytics:
   example_all: Alle logfiler
   example_count: Antal rækker
   example_group: Antal efter {column}
+  export: Eksporter
+  export_csv: Download CSV
+  export_json: Download JSON
+drawer:
+  maximize: Maksimer
+  restore: Gendan
 notifications:
   title: Notifikationer
   description: Konfigurer hvor og hvornår du vil modtage alarmer
