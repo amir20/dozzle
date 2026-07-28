@@ -10,7 +10,6 @@ import BuyMeCoffee from "./components/BuyMeCoffee.vue";
 import Stats from "./components/Stats.vue";
 import Supported from "./components/Supported.vue";
 import InstallCommand from "./components/InstallCommand.vue";
-import CloudPromo from "./components/CloudPromo.vue";
 import SponsoredBy from "./components/SponsoredBy.vue";
 
 export default {
@@ -21,7 +20,7 @@ export default {
       "sidebar-nav-after": () => h(BuyMeCoffee),
       "home-hero-actions-after": () => h(Stats),
       "home-hero-after": () => [h(InstallCommand), h(Supported)],
-      "home-features-after": () => [h(CloudPromo), h(SponsoredBy)],
+      "home-features-after": () => h(SponsoredBy),
     });
   },
   enhanceApp(ctx) {

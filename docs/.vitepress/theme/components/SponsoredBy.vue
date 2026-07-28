@@ -3,7 +3,7 @@ import { withBase } from "vitepress";
 </script>
 
 <template>
-  <div class="mb-12 flex items-center justify-center px-6">
+  <div class="mt-16 mb-4 flex items-center justify-center px-6">
     <a
       class="flex items-center gap-2 text-sm text-(--vp-c-text-2) no-underline! transition-colors hover:text-(--vp-c-brand)"
       href="https://www.docker.com/blog/docker-sponsored-open-source-program/"
