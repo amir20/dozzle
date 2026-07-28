@@ -13,6 +13,14 @@ export default defineConfig({
   cleanUrls: true,
 
   head: [
+    ["meta", { property: "og:type", content: "website" }],
+    ["meta", { property: "og:site_name", content: "Dozzle" }],
+    ["meta", { property: "og:url", content: "https://dozzle.dev/" }],
+    ["meta", { property: "og:image", content: "https://dozzle.dev/og-image.png" }],
+    ["meta", { property: "og:image:width", content: "1200" }],
+    ["meta", { property: "og:image:height", content: "630" }],
+    ["meta", { name: "twitter:card", content: "summary_large_image" }],
+    ["meta", { name: "twitter:image", content: "https://dozzle.dev/og-image.png" }],
     [
       "script",
       {

@@ -2,10 +2,12 @@
 # https://vitepress.dev/reference/default-theme-home-page
 layout: home
 
-title: Home
+titleTemplate: Real-time Docker Log Viewer
+description: Dozzle is a lightweight, open-source log viewer for Docker, Swarm, and Kubernetes. Stream logs, watch live stats, and debug containers from your browser.
 
 hero:
   name: "Dozzle"
+  text: "See what your containers are doing"
   tagline: Real-time Docker logs, stats, and debugging — in your browser.
   actions:
     - theme: brand
@@ -22,12 +24,16 @@ features:
       src: /icons/document.svg
       width: 36
       height: 36
+    link: /guide/what-is-dozzle#advanced-log-handling
+    linkText: Learn More
   - title: Live Stats & Metrics
     details: Watch CPU, memory, and network usage update in real time, with rolling history charts on every container.
     icon:
       src: /icons/chart-line-data.svg
       width: 36
       height: 36
+    link: /guide/what-is-dozzle#real-time-monitoring
+    linkText: Learn More
   - title: SQL Log Analysis
     details: Query your logs with DuckDB and WebAssembly — full SQL, running entirely in the browser.
     icon:
@@ -52,12 +58,6 @@ features:
       height: 36
     link: /guide/remote-hosts
     linkText: Learn More
-  - title: Self-hosted & Private
-    details: Runs in your own infrastructure. Your logs never leave your network.
-    icon:
-      src: /icons/locked.svg
-      width: 36
-      height: 36
   - title: Shell & Exec Access
     details: Attach to running containers or exec commands directly from the browser when you need to dig deeper.
     icon:
@@ -66,12 +66,28 @@ features:
       height: 36
     link: /guide/shell
     linkText: Learn More
-  - title: Officially Sponsored by Docker
-    details: Open source and part of Docker's sponsored OSS program.
+  - title: dtop in Your Terminal
+    details: A command-line companion that gives you a live view of your containers, then jumps straight into Dozzle.
     icon:
-      src: /icons/docker-icon.svg
+      src: /icons/terminal-command.svg
       width: 36
       height: 36
-    link: https://hub.docker.com/r/amir20/dozzle
-    linkText: Docker Hub
+    link: /guide/dtop
+    linkText: Learn More
+  - title: MCP for AI Assistants
+    details: Expose containers, logs, and stats over the Model Context Protocol so your coding agent can debug alongside you.
+    icon:
+      src: /icons/ai.svg
+      width: 36
+      height: 36
+    link: /guide/mcp
+    linkText: Learn More
+  - title: Self-hosted & Private
+    details: Runs in your own infrastructure with simple or forward-proxy auth. Your logs never leave your network.
+    icon:
+      src: /icons/locked.svg
+      width: 36
+      height: 36
+    link: /guide/authentication
+    linkText: Learn More
 ---
