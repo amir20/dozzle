@@ -257,6 +257,12 @@ analytics:
   example_all: Todos los registros
   example_count: Número de filas
   example_group: Conteo por {column}
+  export: Exportar
+  export_csv: Descargar CSV
+  export_json: Descargar JSON
+drawer:
+  maximize: Maximizar
+  restore: Restaurar
 notifications:
   title: Notificaciones
   description: Configure dónde y cuándo recibir alertas

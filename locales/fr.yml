@@ -213,6 +213,12 @@ analytics:
   example_all: Tous les journaux
   example_count: Nombre de lignes
   example_group: Nombre par {column}
+  export: Exporter
+  export_csv: Télécharger le CSV
+  export_json: Télécharger le JSON
+drawer:
+  maximize: Agrandir
+  restore: Restaurer
 notifications:
   title: Notifications
   description: Configurez où et quand recevoir des alertes

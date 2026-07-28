@@ -216,6 +216,12 @@ analytics:
   example_all: Wszystkie logi
   example_count: Liczba wierszy
   example_group: Liczba według {column}
+  export: Eksportuj
+  export_csv: Pobierz CSV
+  export_json: Pobierz JSON
+drawer:
+  maximize: Maksymalizuj
+  restore: Przywróć
 notifications:
   title: Powiadomienia
   description: Skonfiguruj gdzie i kiedy otrzymywać alerty

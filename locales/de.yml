@@ -213,6 +213,12 @@ analytics:
   example_all: Alle Logs
   example_count: Anzahl Zeilen
   example_group: Anzahl nach {column}
+  export: Exportieren
+  export_csv: CSV herunterladen
+  export_json: JSON herunterladen
+drawer:
+  maximize: Maximieren
+  restore: Wiederherstellen
 notifications:
   title: Benachrichtigungen
   description: Konfigurieren Sie, wo und wann Sie Alarme erhalten möchten

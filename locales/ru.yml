@@ -213,6 +213,12 @@ analytics:
   example_all: Все логи
   example_count: Количество строк
   example_group: Количество по {column}
+  export: Экспорт
+  export_csv: Скачать CSV
+  export_json: Скачать JSON
+drawer:
+  maximize: Развернуть
+  restore: Восстановить
 notifications:
   title: Уведомления
   description: Настройте где и когда получать оповещения

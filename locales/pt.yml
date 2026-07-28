@@ -213,6 +213,12 @@ analytics:
   example_all: Todos os logs
   example_count: Número de linhas
   example_group: Contagem por {column}
+  export: Exportar
+  export_csv: Baixar CSV
+  export_json: Baixar JSON
+drawer:
+  maximize: Maximizar
+  restore: Restaurar
 notifications:
   title: Notificações
   description: Configure onde e quando receber alertas

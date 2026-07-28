@@ -217,6 +217,12 @@ analytics:
   example_all: 모든 로그
   example_count: 행 수
   example_group: "{column}별 개수"
+  export: 내보내기
+  export_csv: CSV 다운로드
+  export_json: JSON 다운로드
+drawer:
+  maximize: 최대화
+  restore: 복원
 notifications:
   title: 알림
   description: 알림을 받을 위치와 시간을 설정합니다
