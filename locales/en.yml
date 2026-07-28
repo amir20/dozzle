@@ -263,6 +263,12 @@ analytics:
   example_all: All logs
   example_count: Row count
   example_group: Count by {column}
+  export: Export
+  export_csv: Download CSV
+  export_json: Download JSON
+drawer:
+  maximize: Maximize
+  restore: Restore
 notifications:
   title: Notifications
   description: Configure where and when to receive alerts

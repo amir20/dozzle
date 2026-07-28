@@ -1,16 +1,28 @@
 <template>
   <dialog ref="panel" class="modal-right modal items-start outline-hidden backdrop:bg-none">
-    <div class="modal-box" :width="width">
+    <div class="modal-box" :width="maximized ? 'full' : width">
       <div class="pt-safe relative">
-        <form method="dialog" class="absolute right-0">
-          <button v-if="isMobile">
-            <mdi:close />
+        <div class="absolute right-0 flex items-center gap-3">
+          <button
+            v-if="!isMobile"
+            class="outline-hidden"
+            :title="maximized ? $t('drawer.restore') : $t('drawer.maximize')"
+            :aria-label="maximized ? $t('drawer.restore') : $t('drawer.maximize')"
+            @click="maximized = !maximized"
+          >
+            <mdi:arrow-collapse v-if="maximized" />
+            <mdi:arrow-expand v-else />
           </button>
-          <button v-else class="swap hover:swap-active outline-hidden">
-            <mdi:keyboard-esc class="swap-off" />
-            <mdi:close class="swap-on" />
-          </button>
-        </form>
+          <form method="dialog">
+            <button v-if="isMobile">
+              <mdi:close />
+            </button>
+            <button v-else class="swap hover:swap-active outline-hidden">
+              <mdi:keyboard-esc class="swap-off" />
+              <mdi:close class="swap-on" />
+            </button>
+          </form>
+        </div>
         <slot v-if="open" :close="close"></slot>
       </div>
     </div>
@@ -24,6 +36,7 @@ import { type DrawerWidth } from "@/composable/drawer";
 const panel = useTemplateRef<HTMLDialogElement>("panel");
 
 const open = ref(false);
+const maximized = ref(false);
 const { width } = defineProps<{
   width: DrawerWidth;
 }>();
@@ -35,6 +48,7 @@ function close() {
 defineExpose({
   open: () => {
     open.value = true;
+    maximized.value = false;
     panel.value?.showModal();
   },
   close,
@@ -54,6 +68,10 @@ useEventListener(panel, "close", () => (open.value = false));
 
   &[width="lg"] {
     @apply max-w-5xl;
+  }
+
+  &[width="full"] {
+    @apply w-full max-w-full;
   }
 }
 

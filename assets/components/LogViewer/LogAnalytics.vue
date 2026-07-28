@@ -48,6 +48,21 @@
             }}</template>
           </span>
         </div>
+
+        <div class="dropdown dropdown-end shrink-0" v-if="canExport">
+          <div tabindex="0" role="button" class="btn btn-xs btn-ghost gap-1">
+            <ph:download-simple class="size-4" />
+            {{ $t("analytics.export") }}
+          </div>
+          <ul tabindex="0" class="dropdown-content menu bg-base-200 rounded-box z-1 w-36 p-2 shadow-sm">
+            <li>
+              <a @click="exportResults('csv')">{{ $t("analytics.export_csv") }}</a>
+            </li>
+            <li>
+              <a @click="exportResults('json')">{{ $t("analytics.export_json") }}</a>
+            </li>
+          </ul>
+        </div>
       </div>
     </section>
 
@@ -238,5 +253,54 @@ whenever(evaluating, () => {
 const page = computed(() =>
   results.value.numRows > pageLimit ? results.value.slice(0, pageLimit) : results.value,
 ) as unknown as ComputedRef<Table<Record<string, any>>>;
+
+const canExport = computed(() => state.value === "ready" && !evaluating.value && results.value.numRows > 0);
+
+function stringify(value: unknown): string {
+  if (value === null || value === undefined) return "";
+  if (typeof value === "bigint") return value.toString();
+  if (typeof value === "object") return JSON.stringify(value, (_, v) => (typeof v === "bigint" ? v.toString() : v));
+  return String(value);
+}
+
+function toCSV(table: Table<Record<string, any>>, columns: string[]): string {
+  const escape = (value: string) => (/[",\n\r]/.test(value) ? `"${value.replaceAll('"', '""')}"` : value);
+  const lines = [columns.map(escape).join(",")];
+  for (const row of table) {
+    lines.push(columns.map((column) => escape(stringify((row as Record<string, any>)[column]))).join(","));
+  }
+  return lines.join("\n");
+}
+
+function toJSON(table: Table<Record<string, any>>, columns: string[]): string {
+  const rows = [];
+  for (const row of table) {
+    const record: Record<string, unknown> = {};
+    for (const column of columns) {
+      const value = (row as Record<string, any>)[column];
+      record[column] = typeof value === "bigint" ? value.toString() : value;
+    }
+    rows.push(record);
+  }
+  return JSON.stringify(rows, null, 2);
+}
+
+function exportResults(format: "csv" | "json") {
+  const table = results.value as unknown as Table<Record<string, any>>;
+  if (table.numRows === 0) return;
+
+  const columns = Object.keys(table.get(0) as Record<string, any>);
+  const content = format === "csv" ? toCSV(table, columns) : toJSON(table, columns);
+  const type = format === "csv" ? "text/csv;charset=utf-8" : "application/json";
+  const name = container.name.replace(/[^\w.-]+/g, "-");
+
+  const url = URL.createObjectURL(new Blob([content], { type }));
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = `${name}-query.${format}`;
+  link.click();
+  URL.revokeObjectURL(url);
+  (document.activeElement as HTMLElement | null)?.blur();
+}
 </script>
 <style scoped></style>
