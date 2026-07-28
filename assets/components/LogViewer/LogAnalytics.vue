@@ -50,16 +50,20 @@
         </div>
 
         <div class="dropdown dropdown-end shrink-0" v-if="canExport">
-          <div tabindex="0" role="button" class="btn btn-xs btn-ghost gap-1">
+          <div tabindex="0" role="button" class="btn btn-xs btn-ghost cursor-pointer gap-1">
             <ph:download-simple class="size-4" />
             {{ $t("analytics.export") }}
           </div>
-          <ul tabindex="0" class="dropdown-content menu bg-base-200 rounded-box z-1 w-36 p-2 shadow-sm">
+          <ul tabindex="0" class="dropdown-content menu bg-base-200 rounded-box z-30 w-44 p-2 shadow-sm">
             <li>
-              <a @click="exportResults('csv')">{{ $t("analytics.export_csv") }}</a>
+              <a class="cursor-pointer whitespace-nowrap" @click="exportResults('csv')">{{
+                $t("analytics.export_csv")
+              }}</a>
             </li>
             <li>
-              <a @click="exportResults('json')">{{ $t("analytics.export_json") }}</a>
+              <a class="cursor-pointer whitespace-nowrap" @click="exportResults('json')">{{
+                $t("analytics.export_json")
+              }}</a>
             </li>
           </ul>
         </div>
