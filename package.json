@@ -99,7 +99,7 @@
     "c8": "^12.0.0",
     "concurrently": "^10.0.4",
     "eventsourcemock": "^2.0.0",
-    "jsdom": "^29.1.1",
+    "jsdom": "^30.0.0",
     "lint-staged": "^17.2.0",
     "prettier": "^3.9.6",
     "prettier-plugin-tailwindcss": "^0.8.1",
