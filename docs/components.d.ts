@@ -13,6 +13,8 @@ declare module 'vue' {
   export interface GlobalComponents {
     BuyMeCoffee: typeof import('./.vitepress/theme/components/BuyMeCoffee.vue')['default']
     Counter: typeof import('./.vitepress/theme/components/Counter.vue')['default']
+    FinalCta: typeof import('./.vitepress/theme/components/FinalCta.vue')['default']
+    HeroTrust: typeof import('./.vitepress/theme/components/HeroTrust.vue')['default']
     HeroVideo: typeof import('./.vitepress/theme/components/HeroVideo.vue')['default']
     InstallCommand: typeof import('./.vitepress/theme/components/InstallCommand.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
@@ -20,5 +22,7 @@ declare module 'vue' {
     SponsoredBy: typeof import('./.vitepress/theme/components/SponsoredBy.vue')['default']
     Stats: typeof import('./.vitepress/theme/components/Stats.vue')['default']
     Supported: typeof import('./.vitepress/theme/components/Supported.vue')['default']
+    Testimonials: typeof import('./.vitepress/theme/components/Testimonials.vue')['default']
+    WhyDozzle: typeof import('./.vitepress/theme/components/WhyDozzle.vue')['default']
   }
 }

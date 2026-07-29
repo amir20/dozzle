@@ -2,6 +2,11 @@
 import { useClipboard } from "@vueuse/core";
 import { withBase } from "vitepress";
 
+const { hint = true, dense = false } = defineProps<{
+  hint?: boolean;
+  dense?: boolean;
+}>();
+
 const command =
   "docker run -d -v /var/run/docker.sock:/var/run/docker.sock -v dozzle_data:/data -p 8080:8080 amir20/dozzle:latest";
 
@@ -9,7 +14,7 @@ const { copy, copied } = useClipboard({ source: command, copiedDuring: 2000 });
 </script>
 
 <template>
-  <div class="mx-auto mb-14 flex max-w-[1152px] flex-col items-center gap-3 px-6">
+  <div class="mx-auto flex max-w-[1152px] flex-col items-center gap-3 px-6" :class="dense ? 'mb-0' : 'mb-14'">
     <div
       class="flex w-full max-w-4xl items-start gap-3 rounded-lg border border-solid border-(--vp-c-divider) bg-(--vp-c-bg-alt) py-3 pr-3 pl-4"
     >
@@ -27,7 +32,7 @@ const { copy, copied } = useClipboard({ source: command, copiedDuring: 2000 });
         {{ copied ? "Copied" : "Copy" }}
       </button>
     </div>
-    <p class="m-0! text-sm text-(--vp-c-text-2)">
+    <p v-if="hint" class="m-0! text-sm text-(--vp-c-text-2)">
       Then open <span class="font-mono">http://localhost:8080</span>. Prefer Compose, Swarm, or Kubernetes? See the
       <a :href="withBase('/guide/getting-started')">install guide</a>.
     </p>
