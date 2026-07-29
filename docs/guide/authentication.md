@@ -16,7 +16,7 @@ Dozzle has access to `docker.sock`, which — unless restricted — is equivalen
 - **Keep [actions](/guide/actions) and [shell access](/guide/shell) disabled** unless you need them. They allow starting, stopping, recreating, and executing arbitrary commands inside containers.
 - **Restrict users with [roles](#setting-specific-roles-for-users) and [filters](#setting-specific-filters-for-users)** in multi-user mode. Without explicit roles, a user can see every container the Dozzle instance can.
 - **Run TLS at the reverse proxy**. See [Reverse Proxy & Base Path](/guide/changing-base) for Nginx / Traefik / Caddy examples.
-- **Avoid mounting `docker.sock` read-write** if you don't need actions. A read-only mount (`/var/run/docker.sock:/var/run/docker.sock:ro`) still exposes most of the API but blocks container create/delete/update.
+- **Restrict `docker.sock` access with a proxy** if you don't need actions. Note that a read-only mount (`/var/run/docker.sock:/var/run/docker.sock:ro`) does _not_ limit the API: the `:ro` flag only marks the socket file read-only on disk, while API calls still pass through the socket normally, so create/delete/update remain possible. To actually restrict operations, put a socket proxy like [`tecnativa/docker-socket-proxy`](https://github.com/Tecnativa/docker-socket-proxy) in front of the daemon.
 
 ## <Icon icon="mdi:account-cog-outline" inline /> File-Based User Management
 
