@@ -30,13 +30,13 @@ require (
 	github.com/gorilla/websocket v1.5.4-0.20250319132907-e064f32e3674
 	github.com/moby/docker-image-spec v1.3.1
 	github.com/moby/moby/api v1.55.0
-	github.com/moby/moby/client v0.5.0
+	github.com/moby/moby/client v0.5.1
 	github.com/puzpuzpuz/xsync/v4 v4.5.0
 	github.com/rs/zerolog v1.35.1
 	github.com/samber/lo v1.53.0
 	github.com/wk8/go-ordered-map/v2 v2.1.8
-	github.com/yuin/goldmark v1.8.4
-	go.yaml.in/yaml/v3 v3.0.4
+	github.com/yuin/goldmark v1.8.5
+	go.yaml.in/yaml/v3 v3.0.5
 	golang.org/x/crypto v0.54.0
 	golang.org/x/sync v0.22.0
 	google.golang.org/grpc v1.82.1
@@ -48,14 +48,14 @@ require (
 )
 
 require (
-	github.com/modelcontextprotocol/go-sdk v1.6.1
+	github.com/modelcontextprotocol/go-sdk v1.7.0
 	golang.org/x/term v0.45.0
 )
 
 require (
 	dario.cat/mergo v1.0.2 // indirect
 	github.com/ProtonMail/go-crypto v1.4.1 // indirect
-	github.com/air-verse/air v1.67.2 // indirect
+	github.com/air-verse/air v1.67.3 // indirect
 	github.com/alexflint/go-scalar v1.2.0 // indirect
 	github.com/andybalholm/cascadia v1.3.3 // indirect
 	github.com/bahlo/generic-list-go v0.2.0 // indirect
