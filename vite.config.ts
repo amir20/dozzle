@@ -13,6 +13,7 @@ import svgLoader from "vite-svg-loader";
 import tailwindcss from "@tailwindcss/vite";
 
 export default defineConfig(() => ({
+  base: "./",
   define: {
     __CLOUD_URL__: JSON.stringify(process.env.CLOUD_URL || "https://cloud.dozzle.dev"),
   },
