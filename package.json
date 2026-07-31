@@ -59,7 +59,7 @@
     "@xterm/xterm": "^6.0.0",
     "ansi-to-html": "^0.7.2",
     "codemirror": "^6.0.2",
-    "daisyui": "5.7.8",
+    "daisyui": "5.7.9",
     "entities": "^8.0.0",
     "fuse.js": "^7.5.0",
     "lodash.debounce": "^4.0.8",
