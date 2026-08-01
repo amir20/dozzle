@@ -38,10 +38,10 @@
     "@codemirror/view": "^6.43.7",
     "@duckdb/duckdb-wasm": "1.33.1-dev57.0",
     "@fontsource/jetbrains-mono": "^5.3.0",
-    "@iconify-json/carbon": "^1.2.24",
+    "@iconify-json/carbon": "^1.2.25",
     "@iconify-json/cil": "^1.2.3",
     "@iconify-json/ic": "^1.2.4",
-    "@iconify-json/material-symbols": "^1.2.87",
+    "@iconify-json/material-symbols": "^1.2.88",
     "@iconify-json/mdi": "^1.2.3",
     "@iconify-json/mdi-light": "^1.2.2",
     "@iconify-json/octicon": "^1.2.30",
@@ -83,7 +83,7 @@
   "devDependencies": {
     "@apache-arrow/esnext-esm": "^21.2.0",
     "@iconify-json/ion": "^1.2.7",
-    "@iconify-json/material-symbols-light": "^1.2.87",
+    "@iconify-json/material-symbols-light": "^1.2.88",
     "@iconify-json/ri": "^1.2.10",
     "@iconify-json/simple-icons": "^1.2.92",
     "@iconify-json/svg-spinners": "^1.2.4",
@@ -100,15 +100,15 @@
     "concurrently": "^10.0.4",
     "eventsourcemock": "^2.0.0",
     "jsdom": "^30.0.1",
-    "lint-staged": "^17.2.0",
+    "lint-staged": "^17.3.0",
     "prettier": "^3.9.6",
     "prettier-plugin-tailwindcss": "^0.8.1",
     "simple-git-hooks": "^2.13.1",
     "ts-node": "^10.9.2",
     "typescript": "^6.0.3",
     "vitest": "^4.1.10",
-    "vue-component-type-helpers": "3.3.8",
-    "vue-tsc": "3.3.8"
+    "vue-component-type-helpers": "3.3.9",
+    "vue-tsc": "3.3.9"
   },
   "simple-git-hooks": {
     "pre-commit": "pnpm lint-staged --allow-empty"
