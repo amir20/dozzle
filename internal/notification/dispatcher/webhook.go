@@ -10,6 +10,7 @@ import (
 	"net"
 	"net/http"
 	"net/url"
+	"slices"
 	"strings"
 	"text/template"
 	"time"
@@ -30,6 +31,16 @@ var errBlockedAddress = errors.New("webhook target resolves to a blocked address
 var zeroNetV4 = &net.IPNet{IP: net.IP{0, 0, 0, 0}, Mask: net.CIDRMask(8, 32)}
 
 func isBlockedIP(ip net.IP) bool {
+	if isBlockedBaseIP(ip) {
+		return true
+	}
+	// IPv6 transition mechanisms (6to4, NAT64, Teredo, IPv4-compatible) embed an
+	// arbitrary IPv4 address that none of the checks above look at. Unwrap and
+	// re-check the embedded address so 2002:7f00:1::1 is treated as 127.0.0.1.
+	return slices.ContainsFunc(embeddedIPv4(ip), isBlockedBaseIP)
+}
+
+func isBlockedBaseIP(ip net.IP) bool {
 	if ip.IsLoopback() ||
 		ip.IsLinkLocalUnicast() ||
 		ip.IsLinkLocalMulticast() ||
@@ -48,6 +59,59 @@ func isBlockedIP(ip net.IP) bool {
 		return true
 	}
 	return false
+}
+
+// embeddedIPv4 returns the IPv4 addresses carried inside an IPv6 transition
+// address, or nil when the address carries none. Teredo yields two: the relay
+// server and the (obfuscated) client.
+func embeddedIPv4(ip net.IP) []net.IP {
+	if ip.To4() != nil {
+		return nil
+	}
+	ip16 := ip.To16()
+	if ip16 == nil {
+		return nil
+	}
+
+	switch {
+	// 6to4 — RFC 3056, 2002::/16, IPv4 in bytes 2-6
+	case ip16[0] == 0x20 && ip16[1] == 0x02:
+		return []net.IP{net.IPv4(ip16[2], ip16[3], ip16[4], ip16[5])}
+
+	// NAT64 well-known prefix — RFC 6052, 64:ff9b::/96, IPv4 in the low 32 bits
+	case ip16[0] == 0x00 && ip16[1] == 0x64 && ip16[2] == 0xff && ip16[3] == 0x9b &&
+		isZeros(ip16[4:12]):
+		return []net.IP{net.IPv4(ip16[12], ip16[13], ip16[14], ip16[15])}
+
+	// NAT64 local-use prefix — RFC 8215, 64:ff9b:1::/48. The embedded IPv4 sits
+	// at a position that depends on the operator's prefix length, so block the
+	// whole range rather than guess.
+	case ip16[0] == 0x00 && ip16[1] == 0x64 && ip16[2] == 0xff && ip16[3] == 0x9b && ip16[4] == 0x00 && ip16[5] == 0x01:
+		return []net.IP{net.IPv4zero}
+
+	// Teredo — RFC 4380, 2001::/32. Server IPv4 in bytes 4-8, client IPv4 in
+	// bytes 12-16 obfuscated by XOR with 0xff.
+	case ip16[0] == 0x20 && ip16[1] == 0x01 && ip16[2] == 0x00 && ip16[3] == 0x00:
+		return []net.IP{
+			net.IPv4(ip16[4], ip16[5], ip16[6], ip16[7]),
+			net.IPv4(ip16[12]^0xff, ip16[13]^0xff, ip16[14]^0xff, ip16[15]^0xff),
+		}
+
+	// IPv4-compatible — deprecated ::a.b.c.d, not unwrapped by net.IP.To4
+	case isZeros(ip16[0:12]):
+		return []net.IP{net.IPv4(ip16[12], ip16[13], ip16[14], ip16[15])}
+	}
+
+	return nil
+}
+
+func isZeros(b []byte) bool {
+	for _, x := range b {
+		if x != 0 {
+			return false
+		}
+	}
+	return true
 }
 
 func safeDialContext(ctx context.Context, network, addr string) (net.Conn, error) {

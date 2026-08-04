@@ -226,9 +226,21 @@ func TestIsBlockedIP(t *testing.T) {
 		"fe80::1",
 		"224.0.0.1",
 		"0.0.0.0",
-		"0.1.2.3",       // 0.0.0.0/8 — routes to localhost on Linux
-		"0.255.255.255", // top of 0.0.0.0/8
+		"0.1.2.3",         // 0.0.0.0/8 — routes to localhost on Linux
+		"0.255.255.255",   // top of 0.0.0.0/8
 		"255.255.255.255", // limited broadcast
+
+		// IPv6 transition addresses embedding a blocked IPv4
+		"2002:7f00:0001::1",                       // 6to4 -> 127.0.0.1
+		"2002:a9fe:a9fe::1",                       // 6to4 -> 169.254.169.254
+		"2002:0000:0001::1",                       // 6to4 -> 0.0.0.1
+		"64:ff9b::7f00:1",                         // NAT64 WKP -> 127.0.0.1
+		"64:ff9b::a9fe:a9fe",                      // NAT64 WKP -> 169.254.169.254
+		"64:ff9b:1::7f00:1",                       // NAT64 local-use prefix
+		"2001:0000:dead:beef:0000:0000:80ff:fffe", // Teredo -> client 127.0.0.1
+		"2001:0000:7f00:0001::1",                  // Teredo -> server 127.0.0.1
+		"::7f00:1",                                // IPv4-compatible -> 127.0.0.1
+		"::a9fe:a9fe",                             // IPv4-compatible -> 169.254.169.254
 	}
 	for _, s := range blocked {
 		ip := net.ParseIP(s)
@@ -242,6 +254,9 @@ func TestIsBlockedIP(t *testing.T) {
 		"172.16.5.10",
 		"8.8.8.8",
 		"2606:4700:4700::1111",
+		"2002:0808:0808::1", // 6to4 -> 8.8.8.8
+		"64:ff9b::808:808",  // NAT64 WKP -> 8.8.8.8
+		"2001:0:808:808::1", // Teredo with public server/client
 	}
 	for _, s := range allowed {
 		ip := net.ParseIP(s)
