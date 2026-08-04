@@ -6,7 +6,7 @@
   "bugs": {
     "url": "https://github.com/amir20/dozzle/issues"
   },
-  "packageManager": "pnpm@11.18.0+sha512.33d83c77da82f49fba836925c6f1b841181ec3132b670639bd012f7075f5c7cf634c5f870147c19aae7478fac01df09d8892e880454896edd23ee9b33757563c",
+  "packageManager": "pnpm@11.20.0+sha512.9a6f330a95b66446ea088faf1521405a8a01f07fde7124cc9958dfed52d4bb436737e65b08f85f37b46fcba375092558ac51262b816844b22f63406ed166bfee",
   "type": "module",
   "repository": {
     "type": "git",
@@ -59,7 +59,7 @@
     "@xterm/xterm": "^6.0.0",
     "ansi-to-html": "^0.7.2",
     "codemirror": "^6.0.2",
-    "daisyui": "5.7.11",
+    "daisyui": "5.7.14",
     "entities": "^8.0.0",
     "fuse.js": "^7.5.0",
     "lodash.debounce": "^4.0.8",
@@ -68,7 +68,7 @@
     "splitpanes": "^4.1.2",
     "strip-ansi": "^7.2.0",
     "tailwindcss": "4.3.3",
-    "unplugin-auto-import": "^21.0.0",
+    "unplugin-auto-import": "^21.1.0",
     "unplugin-icons": "^23.0.1",
     "unplugin-vue-components": "^32.1.0",
     "unplugin-vue-macros": "^2.14.5",
@@ -85,7 +85,7 @@
     "@iconify-json/ion": "^1.2.7",
     "@iconify-json/material-symbols-light": "^1.2.88",
     "@iconify-json/ri": "^1.2.10",
-    "@iconify-json/simple-icons": "^1.2.92",
+    "@iconify-json/simple-icons": "^1.2.93",
     "@iconify-json/svg-spinners": "^1.2.4",
     "@iconify/vue": "^5.0.1",
     "@pinia/testing": "^2.0.1",
