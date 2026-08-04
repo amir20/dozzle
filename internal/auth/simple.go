@@ -3,7 +3,9 @@ package auth
 import (
 	"crypto/sha256"
 	"errors"
+	"maps"
 	"net/http"
+	"slices"
 	"time"
 
 	"github.com/go-chi/jwtauth/v5"
@@ -18,8 +20,13 @@ type simpleAuthContext struct {
 var ErrInvalidCredentials = errors.New("invalid credentials")
 
 func NewSimpleAuth(userDatabase UserDatabase, ttl time.Duration) *simpleAuthContext {
+	// Hash the users in a stable order. Ranging over the map directly makes the
+	// digest depend on Go's randomized map iteration order, so any users.yml with
+	// more than one user derives a different signing key on every start and
+	// silently invalidates every session on restart.
 	h := sha256.New()
-	for _, user := range userDatabase.Users {
+	for _, username := range slices.Sorted(maps.Keys(userDatabase.Users)) {
+		user := userDatabase.Users[username]
 		h.Write([]byte(user.Password))
 		h.Write([]byte(user.RolesConfigured))
 	}
