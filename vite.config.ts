@@ -19,7 +19,7 @@ export default defineConfig(() => ({
   },
   resolve: {
     alias: {
-      "@/": `${path.resolve(__dirname, "assets")}/`,
+      "@/": `${path.resolve(import.meta.dirname, "assets")}/`,
     },
   },
   build: {
@@ -83,7 +83,7 @@ export default defineConfig(() => ({
     VueI18nPlugin({
       runtimeOnly: true,
       strictMessage: false,
-      include: [path.resolve(__dirname, "locales/**")],
+      include: [path.resolve(import.meta.dirname, "locales/**")],
     }),
     svgLoader({}),
     tailwindcss(),
