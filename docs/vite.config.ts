@@ -8,7 +8,7 @@ export default defineConfig({
   plugins: [
     tailwindcss(),
     Components({
-      dirs: [path.resolve(__dirname, ".vitepress/theme/components")],
+      dirs: [path.resolve(import.meta.dirname, ".vitepress/theme/components")],
       extensions: ["vue", "md"],
       include: [/\.vue$/, /\.vue\?vue/, /\.md$/],
       dts: true,
