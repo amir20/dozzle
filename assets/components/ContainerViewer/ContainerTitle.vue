@@ -32,6 +32,9 @@
                       ></div>
                       <div v-if="other.isSwarm">{{ other.swarmId }}</div>
                       <div v-else>{{ other.name }}</div>
+                      <div v-if="other.hostLabel !== container.hostLabel" class="text-base-content/50 text-xs">
+                        {{ other.hostLabel }}
+                      </div>
                       <div v-if="other.state === 'running'">running</div>
                       <div v-else-if="other.state === 'paused'">paused</div>
                       <RelativeTime :date="other.finishedAt" class="text-base-content/70 text-xs" v-else />
@@ -98,7 +101,7 @@ const { containers: allContainers } = storeToRefs(store);
 
 const otherContainers = computed(() =>
   allContainers.value
-    .filter((c) => c.name === container.name && c.id !== container.id)
+    .filter((c) => c.name === container.name && c.id !== container.id && c.customGroup === container.customGroup)
     .sort((a, b) => +b.created - +a.created),
 );
 </script>
