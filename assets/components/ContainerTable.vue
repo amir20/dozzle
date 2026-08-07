@@ -94,6 +94,9 @@
               <router-link :to="{ name: '/container/[id]', params: { id: container.id } }" :title="container.name">
                 {{ container.name }}
               </router-link>
+              <div v-if="container.customGroup" class="text-base-content/50 truncate text-xs">
+                {{ container.customGroup }}
+              </div>
             </td>
             <td v-if="isVisible('host')">{{ container.hostLabel }}</td>
             <td v-if="isVisible('state')">{{ container.state }}</td>
@@ -151,7 +154,8 @@ const fields: Record<
   name: {
     label: "label.container-name",
     mobileLabel: "label.name",
-    sortFunc: (a: Container, b: Container) => a.name.localeCompare(b.name) * direction.value,
+    sortFunc: (a: Container, b: Container) =>
+      (a.name.localeCompare(b.name) || (a.customGroup ?? "").localeCompare(b.customGroup ?? "")) * direction.value,
     mobileVisible: true,
   },
   host: {
