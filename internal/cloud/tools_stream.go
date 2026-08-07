@@ -84,9 +84,21 @@ func executeStreamLogs(ctx context.Context, requestID string, argsJSON string, d
 
 	events := make(chan *container.LogEvent, 100)
 
+	// Both backends already cap a follow stream at the last N lines (Docker
+	// Tail: 100, k8s TailLines: 500), so `from` only decides how many of those
+	// survive the since-filter. now-30s threw nearly all of them away, which
+	// left a quiet container showing an empty pane until it happened to log
+	// something. Anchoring at the container's start lets the tail cap do the
+	// work: last N lines, then live. Same value the web UI streams from, see
+	// streamLogs in internal/web/logs.go.
+	from := cs.Container.StartedAt
+	if from.IsZero() {
+		from = time.Now().Add(-30 * time.Second)
+	}
+
 	go func() {
 		defer close(events)
-		if err := cs.StreamLogs(ctx, time.Now().Add(-30*time.Second), container.STDOUT|container.STDERR, events); err != nil {
+		if err := cs.StreamLogs(ctx, from, container.STDOUT|container.STDERR, events); err != nil {
 			log.Debug().Err(err).Str("container", cs.Container.Name).Msg("StreamLogs ended with error")
 		}
 	}()

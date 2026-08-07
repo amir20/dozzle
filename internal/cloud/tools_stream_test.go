@@ -414,3 +414,55 @@ func TestExecuteStreamLogs_BatchingAt50(t *testing.T) {
 	assert.Len(t, firstBatch.Entries, 50)
 	assert.False(t, responses[0].GetCallTool().EndStream)
 }
+
+func TestExecuteStreamLogs_StreamsFromContainerStart(t *testing.T) {
+	// Docker caps the follow stream at the last 100 lines and k8s at 500, so
+	// `from` is what decides how many of them survive the since-filter. Passing
+	// a recent timestamp discarded the backlog and left the cloud dashboard on
+	// an empty pane until the container next logged. Anchor at StartedAt so the
+	// backend's tail cap delivers the tail it already fetched.
+	startedAt := time.Date(2026, 8, 1, 9, 0, 0, 0, time.UTC)
+
+	var gotFrom time.Time
+	mockClient := &StreamMockClientService{}
+	mockClient.streamFunc = func(_ context.Context, _ container.Container, from time.Time, _ container.StdType, events chan<- *container.LogEvent) error {
+		gotFrom = from
+		events <- &container.LogEvent{RawMessage: "backlog", Level: "info", Stream: "stdout", Timestamp: 1000}
+		return nil
+	}
+
+	c := container.Container{ID: "abc123", Name: "test-container", Host: "host1", StartedAt: startedAt}
+	mockHost := &MockHostService{}
+	withResolver(mockHost, c)
+	mockHost.On("FindContainer", "host1", "abc123", container.ContainerLabels(nil)).
+		Return(container_support.NewContainerService(mockClient, c), nil)
+
+	err := executeStreamLogs(context.Background(), "req1", `{"container_id":"abc123","host_id":"host1"}`,
+		ToolDeps{HostService: mockHost}, func(*pb.ToolResponse) error { return nil })
+	assert.NoError(t, err)
+	assert.Equal(t, startedAt, gotFrom)
+}
+
+func TestExecuteStreamLogs_FallsBackWhenStartedAtUnknown(t *testing.T) {
+	// A container with no StartedAt (agent gaps, odd backends) must still get a
+	// usable window rather than the zero time, which would ask the daemon for
+	// every line it has ever held.
+	var gotFrom time.Time
+	mockClient := &StreamMockClientService{}
+	mockClient.streamFunc = func(_ context.Context, _ container.Container, from time.Time, _ container.StdType, _ chan<- *container.LogEvent) error {
+		gotFrom = from
+		return nil
+	}
+
+	c := container.Container{ID: "abc123", Name: "test-container", Host: "host1"}
+	mockHost := &MockHostService{}
+	withResolver(mockHost, c)
+	mockHost.On("FindContainer", "host1", "abc123", container.ContainerLabels(nil)).
+		Return(container_support.NewContainerService(mockClient, c), nil)
+
+	err := executeStreamLogs(context.Background(), "req1", `{"container_id":"abc123","host_id":"host1"}`,
+		ToolDeps{HostService: mockHost}, func(*pb.ToolResponse) error { return nil })
+	assert.NoError(t, err)
+	assert.False(t, gotFrom.IsZero())
+	assert.WithinDuration(t, time.Now(), gotFrom, time.Minute)
+}
