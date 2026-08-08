@@ -76,5 +76,5 @@ jobs:
           tags: ${{ steps.meta-alpine.outputs.tags }}
           build-args: TAG=${{ steps.meta.outputs.version }}-${{ steps.sha.outputs.short }}
           labels: ${{ steps.meta-alpine.outputs.labels }}
+          # No cache-to. See the note in deploy.yml.
           cache-from: type=gha
-          cache-to: type=gha,mode=max

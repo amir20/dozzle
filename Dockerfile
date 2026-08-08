@@ -61,7 +61,7 @@ RUN mkdir /data
 # Optional variant published as :alpine for platforms that bind-mount a shell
 # wrapper over the entrypoint. Must stay above the scratch stage so that the
 # last stage remains the default build target.
-FROM alpine:3 AS alpine
+FROM alpine:3.24 AS alpine
 
 COPY --from=builder /data /data
 COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/ca-certificates.crt

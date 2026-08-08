@@ -164,8 +164,10 @@ jobs:
           tags: ${{ steps.meta-alpine.outputs.tags }}
           build-args: TAG=${{ steps.meta.outputs.version }}
           labels: ${{ steps.meta-alpine.outputs.labels }}
+          # No cache-to. This shares every stage up to the builder with the step
+          # above, which already exported them, and the alpine stage itself is
+          # three COPYs. Exporting again would only overwrite that step's index.
           cache-from: type=gha
-          cache-to: type=gha,mode=max
   git-release:
     needs: [buildx]
     name: Github Release
