@@ -125,6 +125,18 @@ jobs:
             type=semver,pattern={{version}},prefix=v
             type=semver,pattern={{major}}.{{minor}},prefix=v
             type=semver,pattern={{major}},prefix=v
+      - name: Docker meta for alpine variant
+        id: meta-alpine
+        uses: docker/metadata-action@dc802804100637a589fabce1cb79ff13a1411302 # v6.2.0
+        with:
+          images: |
+            amir20/dozzle
+            ghcr.io/amir20/dozzle
+          tags: |
+            type=raw,value=alpine
+            type=semver,pattern={{version}},prefix=v,suffix=-alpine
+            type=semver,pattern={{major}}.{{minor}},prefix=v,suffix=-alpine
+            type=semver,pattern={{major}},prefix=v,suffix=-alpine
       - name: Writing certs to file
         run: |
           echo "${{ secrets.TTL_KEY }}" > shared_key.pem
@@ -139,6 +151,19 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           build-args: TAG=${{ steps.meta.outputs.version }}
           labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+      - name: Build and push alpine variant
+        uses: docker/build-push-action@53b7df96c91f9c12dcc8a07bcb9ccacbed38856a # v7.3.0
+        with:
+          push: true
+          sbom: true
+          context: .
+          target: alpine
+          platforms: linux/amd64,linux/arm/v6,linux/arm/v7,linux/arm64/v8
+          tags: ${{ steps.meta-alpine.outputs.tags }}
+          build-args: TAG=${{ steps.meta.outputs.version }}
+          labels: ${{ steps.meta-alpine.outputs.labels }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
   git-release:
