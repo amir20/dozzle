@@ -27,13 +27,13 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 1
 
       - name: Run Claude Code Review
         id: claude-review
-        uses: anthropics/claude-code-action@v1
+        uses: anthropics/claude-code-action@6b082c41935b4c8a3b8b0ef85ba4ba4d9eeb8975 # v1.0.189
         with:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
           use_sticky_comment: true

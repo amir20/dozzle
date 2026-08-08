@@ -15,15 +15,15 @@ jobs:
     name: Typecheck
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v7
-      - uses: actions/setup-node@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         name: Install Node
         with:
           node-version: latest
       - run: npm install --global corepack@latest
       - run: corepack enable
       - run: pnpm --version
-      - uses: actions/setup-node@v7
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
           node-version: latest
           cache: "pnpm"
@@ -36,15 +36,15 @@ jobs:
     name: JavaScript Tests
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v7
-      - uses: actions/setup-node@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         name: Install Node
         with:
           node-version: latest
       - run: npm install --global corepack@latest
       - run: corepack enable
       - run: pnpm --version
-      - uses: actions/setup-node@v7
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
           node-version: latest
           cache: "pnpm"
@@ -58,14 +58,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Install Go
-        uses: actions/setup-go@v7
+        uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
         with:
           go-version: "1.26.5"
           check-latest: true
       - name: Checkout code
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: Install Protoc
-        uses: arduino/setup-protoc@v3
+        uses: arduino/setup-protoc@c65c819552d16ad3c9b72d9dfd5ba5237b9c906b # v3.0.0
         with:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
       - name: Install gRPC and Go
@@ -79,16 +79,16 @@ jobs:
     name: Go Staticcheck
     steps:
       - name: Checkout code
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: Setup Go
-        uses: actions/setup-go@v7
+        uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
         with:
           go-version: "1.26.5"
           check-latest: true
       - name: Generate dependencies
         run: make fake_assets shared_key.pem shared_cert.pem
       - name: Stactic checker
-        uses: dominikh/staticcheck-action@v1.4.1
+        uses: dominikh/staticcheck-action@9716614d4101e79b4340dd97b10e54d68234e431 # v1.4.1
         with:
           install-go: false
   int-test:
@@ -96,15 +96,15 @@ jobs:
     timeout-minutes: 60
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v7
-      - uses: actions/setup-node@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         name: Install Node
         with:
           node-version: latest
       - run: npm install --global corepack@latest
       - run: corepack enable
       - run: pnpm --version
-      - uses: actions/setup-node@v7
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
           node-version: latest
           cache: "pnpm"
@@ -112,11 +112,11 @@ jobs:
       - name: Install dependencies
         run: pnpm install
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v4
+        uses: docker/setup-buildx-action@bb05f3f5519dd87d3ba754cc423b652a5edd6d2c # v4.2.0
       - name: Generate certs
         run: make shared_key.pem shared_cert.pem
       - name: Build
-        uses: docker/bake-action@v7
+        uses: docker/bake-action@d3418bd7d0e9324001bca92fa8ba175ea7e6dc9b # v7.3.0
         with:
           source: .
           load: true
@@ -125,7 +125,7 @@ jobs:
             *.cache-to=type=gha,mode=max
       - name: Run Playwright tests
         run: docker compose up --exit-code-from playwright
-      - uses: actions/upload-artifact@v7
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         if: always()
         with:
           name: playwright-report
