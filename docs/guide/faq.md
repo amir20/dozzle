@@ -21,6 +21,27 @@ docker compose up -d dozzle
 
 User settings, notification rules, and other state are stored in `/data` (see below), so keep that volume mounted across upgrades. For production use, pin a specific tag (e.g. `amir20/dozzle:v8.14.1`) rather than `latest` so upgrades are deliberate. Release notes are published on the [GitHub releases page](https://github.com/amir20/dozzle/releases). Rolling back is as simple as redeploying an older tag.
 
+## My platform wraps the container entrypoint and Dozzle fails with `no such file or directory`
+
+The default image is built `FROM scratch`, so it contains the Dozzle binary and nothing else. No shell, no interpreter.
+
+Some platforms add optional features by bind-mounting a `#!/bin/sh` wrapper over the container entrypoint and re-exec'ing the original one. Unraid's per-container Tailscale toggle works this way, as do some sidecar and init injectors. Without `/bin/sh` in the image the wrapper cannot be executed and the container exits with an error naming the wrapper rather than the missing shell:
+
+```
+exec /opt/unraid/tailscale: no such file or directory
+```
+
+For these cases use the `alpine` variant, which is the same binary on an Alpine base:
+
+```sh
+docker run \
+  --volume=/var/run/docker.sock:/var/run/docker.sock \
+  -p 8080:8080 \
+  amir20/dozzle:alpine
+```
+
+Versioned tags follow the same pattern (`amir20/dozzle:v8.14.1-alpine`). The scratch-based `latest` stays the recommended image for everything else, since it has a much smaller footprint and no distro packages to patch.
+
 ## What is stored in `/data` and how do I back it up?
 
 The `/data` directory is where Dozzle persists anything that needs to survive a container restart:

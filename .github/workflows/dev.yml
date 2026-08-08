@@ -39,6 +39,15 @@ jobs:
           images: |
             amir20/dozzle
             ghcr.io/amir20/dozzle
+      - name: Docker meta for alpine variant
+        id: meta-alpine
+        uses: docker/metadata-action@dc802804100637a589fabce1cb79ff13a1411302 # v6.2.0
+        with:
+          images: |
+            amir20/dozzle
+            ghcr.io/amir20/dozzle
+          flavor: |
+            suffix=-alpine,onlatest=true
       - name: Short SHA
         id: sha
         run: echo "short=${GITHUB_SHA::7}" >> "$GITHUB_OUTPUT"
@@ -57,3 +66,15 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
+      - name: Build and push alpine variant
+        uses: docker/build-push-action@53b7df96c91f9c12dcc8a07bcb9ccacbed38856a # v7.3.0
+        with:
+          context: .
+          push: true
+          target: alpine
+          platforms: linux/amd64,linux/arm64/v8
+          tags: ${{ steps.meta-alpine.outputs.tags }}
+          build-args: TAG=${{ steps.meta.outputs.version }}-${{ steps.sha.outputs.short }}
+          labels: ${{ steps.meta-alpine.outputs.labels }}
+          # No cache-to. See the note in deploy.yml.
+          cache-from: type=gha
