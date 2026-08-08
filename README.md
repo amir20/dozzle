@@ -61,6 +61,25 @@ Here is a Docker Compose example:
 
 For advanced options like [authentication](https://dozzle.dev/guide/authentication), [remote hosts](https://dozzle.dev/guide/remote-hosts), or common [questions](https://dozzle.dev/guide/faq), see the documentation at [dozzle.dev](https://dozzle.dev/guide/getting-started).
 
+### Image Tags
+
+Images are published to both [Docker Hub](https://hub.docker.com/r/amir20/dozzle) and [ghcr.io](https://github.com/amir20/dozzle/pkgs/container/dozzle) with identical tags.
+
+| Tag                                             | Description                                                            |
+| ----------------------------------------------- | ---------------------------------------------------------------------- |
+| `latest`                                        | Most recent release. Recommended for most users.                       |
+| `v10.6.15`                                      | An exact release. Pin this for reproducible deployments.               |
+| `v10.6`                                         | Latest patch within that minor version. Picks up bug fixes only.       |
+| `v10`                                           | Latest release within that major version. Picks up new features too.   |
+| `alpine`                                        | Same as `latest`, but on an Alpine base instead of `scratch`.          |
+| `v10.6.15-alpine`, `v10.6-alpine`, `v10-alpine` | Alpine variants of the version tags above.                             |
+| `master`                                        | Built from the `master` branch on every push. Unreleased and unstable. |
+| `pr-1234`, `pr-1234-alpine`                     | Built from pull request #1234, for testing a fix before it ships.      |
+
+The default images are built `FROM scratch` and contain only the Dozzle binary, which is why they are around 7 MB compressed. That also means there is no shell inside them. Use the `alpine` variants only if something in your setup needs one, most commonly platforms that bind-mount a `#!/bin/sh` wrapper over the container entrypoint such as Unraid's per-container Tailscale toggle. See the [FAQ](https://dozzle.dev/guide/faq) for details.
+
+Avoid `latest` and `master` in production. `latest` moves on every release and `master` is unreleased code.
+
 ## Swarm Mode
 
 Dozzle works with Docker Swarm. You can run Dozzle as a global service:
