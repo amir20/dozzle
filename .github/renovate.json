@@ -1,6 +1,12 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "extends": ["config:recommended", "schedule:weekly", "group:allNonMajor", ":automergeMinor"],
+  "extends": [
+    "config:recommended",
+    "schedule:weekly",
+    "group:allNonMajor",
+    ":automergeMinor",
+    "helpers:pinGitHubActionDigests"
+  ],
   "rangeStrategy": "bump",
   "minimumReleaseAge": "24 hours",
   "ignoreDeps": [],
@@ -8,6 +14,12 @@
     {
       "matchPackageNames": ["@playwright/test", "mcr.microsoft.com/playwright"],
       "groupName": "playwright"
+    },
+    {
+      "matchManagers": ["github-actions"],
+      "matchUpdateTypes": ["digest", "pin"],
+      "groupName": "github actions",
+      "automerge": true
     }
   ]
 }
