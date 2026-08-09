@@ -188,22 +188,70 @@ function entryAt(index: number) {
   return { ...entry, id: index, date: `08/09/2026 ${time}` };
 }
 
+type Item = { name: string; active?: boolean; healthy?: boolean };
+type Group = { icon: "pin" | "stack" | "box"; label: string; items: Item[] };
+
+const GROUPS: Group[] = [
+  {
+    icon: "pin",
+    label: "Pinned",
+    items: [{ name: "media_sonarr.1", active: true }, { name: "media_jellyfin.1" }],
+  },
+  {
+    icon: "stack",
+    label: "media",
+    items: [
+      { name: "media_bazarr.1" },
+      { name: "media_lidarr.1" },
+      { name: "media_overseerr.1", healthy: true },
+      { name: "media_prowlarr.1", healthy: true },
+      { name: "media_qbittorrent.1" },
+      { name: "media_radarr.1" },
+      { name: "media_sabnzbd.1" },
+    ],
+  },
+  { icon: "box", label: "Running Containers", items: [{ name: "traefik_traefik.1" }] },
+];
+
 const cursor = ref(ROWS);
 const rows = computed(() => Array.from({ length: ROWS }, (_, i) => entryAt(cursor.value - ROWS + i)));
 
-// Deterministic pseudo-random bars for the CPU and memory sparklines.
-const bars = (seed: number, count: number, floor: number) =>
-  Array.from({ length: count }, (_, i) => {
+// Deterministic pseudo-random series. The sparklines scroll a window across
+// these instead of generating values, so the charts look live while staying
+// identical between SSR and hydration.
+const series = (seed: number, length: number, floor: number) =>
+  Array.from({ length }, (_, i) => {
     const n = Math.sin((i + 1) * seed) * 10000;
     return floor + (n - Math.floor(n)) * (100 - floor);
   });
 
-const cpuBars = bars(12.9898, 44, 18);
-const memBars = bars(78.233, 44, 55);
+const BARS = 44;
+const STAT_TICK_MS = 1000;
+// Lengths are coprime-ish so the three readouts don't visibly loop together.
+const CPU_SERIES = series(12.9898, 233, 12);
+const MEM_SERIES = series(78.233, 197, 62);
+const NET_SERIES = series(43.771, 149, 4);
+
+const stat = ref(0);
+
+const at = (src: number[], i: number) => src[i % src.length];
+const windowed = (src: number[], offset: number) => Array.from({ length: BARS }, (_, i) => at(src, offset + i));
+
+const cpuBars = computed(() => windowed(CPU_SERIES, stat.value));
+const memBars = computed(() => windowed(MEM_SERIES, stat.value));
+
+const rate = (kb: number) => (kb >= 1000 ? `${(kb / 1000).toFixed(1)}M/s` : `${kb.toFixed(1)}K/s`);
+
+const cpuPct = computed(() => (cpuBars.value[BARS - 1] * 0.045).toFixed(1));
+const memUsed = computed(() => (88 + memBars.value[BARS - 1] * 0.12).toFixed(1));
+const netTx = computed(() => rate(at(NET_SERIES, stat.value) * 3.2));
+const netRx = computed(() => rate(at(NET_SERIES, stat.value + 37) * 4.6));
+const diskRx = computed(() => rate(at(NET_SERIES, stat.value + 91) * 0.7));
 
 const list = ref<HTMLElement>();
 const reducedMotion = usePreferredReducedMotion();
 let timer: ReturnType<typeof setInterval> | undefined;
+let statTimer: ReturnType<typeof setInterval> | undefined;
 
 onMounted(() => {
   if (reducedMotion.value === "reduce") return;
@@ -219,9 +267,15 @@ onMounted(() => {
       easing: "cubic-bezier(0.22, 1, 0.36, 1)",
     });
   }, TICK_MS);
+
+  // Deliberately out of step with the log tick so the panel doesn't pulse.
+  statTimer = setInterval(() => stat.value++, STAT_TICK_MS);
 });
 
-onBeforeUnmount(() => clearInterval(timer));
+onBeforeUnmount(() => {
+  clearInterval(timer);
+  clearInterval(statTimer);
+});
 
 const alt = "The Dozzle interface streaming container logs in real time";
 </script>
@@ -242,31 +296,7 @@ const alt = "The Dozzle interface streaming container logs in real time";
           <span class="crumb-more">⋮</span>
         </div>
 
-        <div
-          class="group"
-          v-for="group in [
-            {
-              icon: 'pin',
-              label: 'Pinned',
-              items: [{ name: 'media_sonarr.1', active: true }, { name: 'media_jellyfin.1' }],
-            },
-            {
-              icon: 'stack',
-              label: 'media',
-              items: [
-                { name: 'media_bazarr.1' },
-                { name: 'media_lidarr.1' },
-                { name: 'media_overseerr.1', healthy: true },
-                { name: 'media_prowlarr.1', healthy: true },
-                { name: 'media_qbittorrent.1' },
-                { name: 'media_radarr.1' },
-                { name: 'media_sabnzbd.1' },
-              ],
-            },
-            { icon: 'box', label: 'Running Containers', items: [{ name: 'traefik_traefik.1' }] },
-          ]"
-          :key="group.label"
-        >
+        <div class="group" v-for="group in GROUPS" :key="group.label">
           <div class="group-head">
             <i class="i-group" :class="`i-${group.icon}`" />
             <span class="group-label">{{ group.label }} ({{ group.items.length }})</span>
@@ -294,16 +324,16 @@ const alt = "The Dozzle interface streaming container logs in real time";
           <div class="cards">
             <div class="io-card">
               <span class="io-icon">◇</span>
-              <span class="up">↑</span><span class="io-num">235.5K/s</span> <span class="down">↓</span
-              ><span class="io-num">355.1K/s</span>
+              <span class="up">↑</span><span class="io-num">{{ netTx }}</span> <span class="down">↓</span
+              ><span class="io-num">{{ netRx }}</span>
               <span class="io-icon">▤</span>
               <span class="up">↑</span><span class="io-num">0B/s</span> <span class="down">↓</span
-              ><span class="io-num">56K/s</span>
+              ><span class="io-num">{{ diskRx }}</span>
             </div>
 
             <div class="stat-card cpu">
               <div class="stat-head">
-                <span class="stat-icon">▢</span><b>1.7%</b><span class="stat-sub">/ 2 CPU</span>
+                <span class="stat-icon">▢</span><b>{{ cpuPct }}%</b><span class="stat-sub">/ 2 CPU</span>
               </div>
               <div class="chart">
                 <i v-for="(h, i) in cpuBars" :key="i" :style="{ height: `${h}%` }" />
@@ -312,7 +342,7 @@ const alt = "The Dozzle interface streaming container logs in real time";
 
             <div class="stat-card mem">
               <div class="stat-head">
-                <span class="stat-icon">▤</span><b>95.6M</b><span class="stat-sub">/ 1.9G</span>
+                <span class="stat-icon">▤</span><b>{{ memUsed }}M</b><span class="stat-sub">/ 1.9G</span>
               </div>
               <div class="chart">
                 <i v-for="(h, i) in memBars" :key="i" :style="{ height: `${h}%` }" />
@@ -376,6 +406,10 @@ const alt = "The Dozzle interface streaming container logs in real time";
 
   display: flex;
   aspect-ratio: 1280 / 760;
+  /* Decorative: the mock should not behave like selectable page text. */
+  user-select: none;
+  -webkit-user-select: none;
+  pointer-events: none;
   background: var(--page);
   color: var(--content);
   font-family: ui-monospace, SFMono-Regular, "SF Mono", Consolas, "Liberation Mono", Menlo, monospace;
@@ -599,11 +633,13 @@ const alt = "The Dozzle interface streaming container logs in real time";
 .name-btn {
   display: inline-flex;
   align-items: center;
+  height: calc(22 * var(--u));
   gap: calc(5 * var(--u));
-  padding: calc(3 * var(--u)) calc(8 * var(--u));
+  padding: 0 calc(8 * var(--u));
   border-radius: calc(4 * var(--u));
   background: var(--chip);
   font-size: calc(11 * var(--u));
+  line-height: 1;
 }
 
 .caret {
@@ -620,12 +656,14 @@ const alt = "The Dozzle interface streaming container logs in real time";
   overflow: hidden;
   align-items: center;
   min-width: 0;
+  height: calc(20 * var(--u));
   gap: calc(6 * var(--u));
   white-space: nowrap;
-  padding: calc(3 * var(--u)) calc(4 * var(--u)) calc(3 * var(--u)) calc(8 * var(--u));
+  padding: 0 calc(4 * var(--u)) 0 calc(8 * var(--u));
   border-radius: calc(3 * var(--u));
   background: var(--chip);
   font-size: calc(10.5 * var(--u));
+  line-height: 1;
 }
 
 .image-name {
@@ -731,6 +769,7 @@ const alt = "The Dozzle interface streaming container logs in real time";
 .chart i {
   flex: 1;
   min-height: 1px;
+  transition: height 200ms linear;
   border-radius: calc(2 * var(--u)) calc(2 * var(--u)) 0 0;
   opacity: 0.8;
 }
