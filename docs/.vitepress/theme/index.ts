@@ -5,7 +5,7 @@ import { Icon } from "@iconify/vue";
 
 import "@fontsource-variable/playfair-display";
 import "./style.css";
-import HeroVideo from "./components/HeroVideo.vue";
+import HeroDemo from "./components/HeroDemo.vue";
 import BuyMeCoffee from "./components/BuyMeCoffee.vue";
 import Stats from "./components/Stats.vue";
 import HeroTrust from "./components/HeroTrust.vue";
@@ -20,7 +20,7 @@ export default {
   ...DefaultTheme,
   Layout: () => {
     return h(DefaultTheme.Layout, null, {
-      "home-hero-image": () => h(HeroVideo),
+      "home-hero-image": () => h(HeroDemo),
       "sidebar-nav-after": () => h(BuyMeCoffee),
       "home-hero-actions-after": () => [h(Stats), h(HeroTrust)],
       "home-hero-after": () => [h(InstallCommand), h(Supported)],
