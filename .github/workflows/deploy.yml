@@ -120,6 +120,8 @@ jobs:
           images: |
             amir20/dozzle
             ghcr.io/amir20/dozzle
+          flavor: |
+            latest=false
           tags: |
             type=raw,value=latest
             type=semver,pattern={{version}},prefix=v
@@ -132,6 +134,10 @@ jobs:
           images: |
             amir20/dozzle
             ghcr.io/amir20/dozzle
+          # Without this, latest=auto adds a bare `latest` tag on semver pushes
+          # and the alpine build (which runs second) overwrites the real latest.
+          flavor: |
+            latest=false
           tags: |
             type=raw,value=alpine
             type=semver,pattern={{version}},prefix=v,suffix=-alpine
