@@ -116,6 +116,10 @@ alert:
     title: Kontainer serupa ditemukan
     message: >-
       Dozzle menemukan kontainer serupa {containerId} yang berjalan di host yang sama dan akan otomatis beralih kecuali Anda mengklik 'Batal'.
+  stale-ui:
+    title: Muat ulang untuk menyelesaikan pembaruan
+    message: >-
+      Dozzle telah diperbarui. Halaman ini masih menjalankan versi sebelumnya dan akan dimuat ulang otomatis saat Anda berpindah tab.
 
 title:
   page-not-found: Halaman tidak ditemukan
@@ -131,6 +135,7 @@ button:
   cancel: Batal
   redirect: Alihkan
   retry: Retry
+  refresh: Muat Ulang
 
 placeholder:
   search-containers: Cari kontainer (⌘ + k, ⌃k)

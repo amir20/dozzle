@@ -114,6 +114,10 @@ alert:
     message: >-
       Dozzle 在相同主機上找到一個相似的容器 {containerId}，
       除非您點選「取消」，否則系統將自動切換至該容器。
+  stale-ui:
+    title: 重新整理以完成更新
+    message: >-
+      Dozzle 已更新。此頁面仍在執行先前的版本，當您切換到其他分頁時將自動重新整理。
 title:
   page-not-found: 找不到頁面
   login: 需要身份驗證
@@ -127,6 +131,7 @@ button:
   cancel: 取消
   redirect: 重新導向
   retry: Retry
+  refresh: 重新整理
 placeholder:
   search-containers: 搜尋容器 (⌘ + k, ⌃k)
   search: 搜尋

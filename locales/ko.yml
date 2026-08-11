@@ -114,6 +114,10 @@ alert:
     message: >-
       Dozzle이 같은 호스트에서 실행 중인 비슷한 컨테이너 {containerId}를 찾았습니다.
       '취소'를 누르지 않으면 자동으로 해당 컨테이너로 전환됩니다.
+  stale-ui:
+    title: 새로고침하면 업데이트가 완료됩니다
+    message: >-
+      Dozzle이 업데이트되었습니다. 이 페이지는 아직 이전 버전으로 실행 중이며, 다른 탭으로 이동하면 자동으로 새로고침됩니다.
 title:
   page-not-found: 페이지를 찾을 수 없습니다
   login: 인증이 필요합니다
@@ -127,6 +131,7 @@ button:
   cancel: 취소
   redirect: 이동
   retry: Retry
+  refresh: 새로고침
 placeholder:
   search-containers: 컨테이너 검색 (⌘ + k, ⌃k)
   search: 검색

@@ -114,6 +114,10 @@ alert:
     message: >-
       Dozzle znalazł podobny kontener {containerId} który działa na tym samym
       hoście i przekieruje Cię na niego automatycznie jeżeli nie klikniesz 'Anuluj'
+  stale-ui:
+    title: Odśwież, aby dokończyć aktualizację
+    message: >-
+      Dozzle został zaktualizowany. Ta strona nadal działa na poprzedniej wersji i odświeży się sama, gdy przejdziesz do innej karty.
 title:
   page-not-found: Strona nie została znaleziona
   login: Wymagane uwierzytelnienie
@@ -127,6 +131,7 @@ button:
   cancel: Anuluj
   redirect: Przekieruj
   retry: Retry
+  refresh: Odśwież
 placeholder:
   search-containers: Przeszukaj kontery (⌘ + k, ⌃k)
   search: Szukaj

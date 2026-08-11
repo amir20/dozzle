@@ -20,10 +20,10 @@ export const useStaleUI = () => {
     showToast(
       {
         id: "stale-ui",
-        title: t("alert.new-version.title"),
-        message: t("alert.new-version.message"),
+        title: t("alert.stale-ui.title"),
+        message: t("alert.stale-ui.message"),
         type: "info",
-        action: { label: t("button.reload"), handler: reload },
+        action: { label: t("button.refresh"), handler: reload },
       },
       { once: true },
     );

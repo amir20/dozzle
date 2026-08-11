@@ -112,6 +112,10 @@ alert:
     title: 找到相似的容器
     message: >-
       Dozzle发现了一个相似的容器 {containerId}，它在同一主机上运行。您想切换到它吗？
+  stale-ui:
+    title: 刷新以完成更新
+    message: >-
+      Dozzle 已更新。此页面仍在运行旧版本，当您切换到其他标签页时将自动刷新。
 title:
   page-not-found: 页面未找到
   login: 需要身份验证
@@ -125,6 +129,7 @@ button:
   cancel: 取消
   redirect: 重定向
   retry: Retry
+  refresh: 刷新
 placeholder:
   search-containers: 搜索容器 (⌘ + k, ⌃k)
   search: 搜索

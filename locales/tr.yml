@@ -115,6 +115,10 @@ alert:
     message: >-
       Dozzle, aynı sunucuda çalışan benzer bir {containerId} konteyneri buldu ve
       'İptal'e tıklamadığınız sürece otomatik olarak ona geçecektir.
+  stale-ui:
+    title: Güncellemeyi tamamlamak için yenileyin
+    message: >-
+      Dozzle güncellendi. Bu sayfa hâlâ önceki sürümü çalıştırıyor ve başka bir sekmeye geçtiğinizde kendiliğinden yenilenecek.
 title:
   page-not-found: Sayfa bulunamadı
   login: Kimlik Doğrulama Gerekli
@@ -128,6 +132,7 @@ button:
   cancel: İptal
   redirect: Yönlendir
   retry: Retry
+  refresh: Yenile
 placeholder:
   search-containers: Konteynerlerde ara (⌘ + k, ⌃k)
   search: Ara

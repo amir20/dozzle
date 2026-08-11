@@ -112,6 +112,10 @@ alert:
     title: Lignende container fundet
     message: >-
       Dozzle fandt en lignende container {containerId} som kører på den samme host og vil automatisk skifte til den, med mindre du trykker 'Cancel'.
+  stale-ui:
+    title: Opdater for at fuldføre opdateringen
+    message: >-
+      Dozzle er blevet opdateret. Denne side kører stadig den tidligere version og opdateres automatisk, når du skifter væk.
 title:
   page-not-found: Side ikke fundet
   login: Godkendelse Krævet
@@ -125,6 +129,7 @@ button:
   cancel: Annuller
   redirect: Omdiriger
   retry: Retry
+  refresh: Opdater
 placeholder:
   search-containers: Søg containere (⌘ + k, ⌃k)
   search: Søg

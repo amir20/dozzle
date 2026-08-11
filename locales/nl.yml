@@ -113,6 +113,10 @@ alert:
     title: Vergelijkbare container gevonden
     message: >-
       Dozzle heeft een vergelijkbare container gevonden ({containerId}) op dezelfde host. Je wordt hier automatisch naartoe omgeleid, tenzij je op 'Annuleren' klikt.
+  stale-ui:
+    title: Vernieuw om de update af te ronden
+    message: >-
+      Dozzle is bijgewerkt. Deze pagina draait nog de vorige versie en wordt automatisch vernieuwd zodra je naar een ander tabblad gaat.
 title:
   page-not-found: Pagina niet gevonden
   login: Aanmelding vereist
@@ -126,6 +130,7 @@ button:
   cancel: Annuleren
   redirect: Doorsturen
   retry: Retry
+  refresh: Vernieuwen
 placeholder:
   search-containers: Zoek containers (⌘ + k, ⌃k)
   search: Zoeken

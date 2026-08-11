@@ -112,6 +112,10 @@ alert:
     title: Trovato un Container simile
     message: >-
       Dozzle ha trovato un Container simile {containerId} in esecuzione sullo stesso Host e passerà automaticamente ad esso se non premi 'Cancel'.
+  stale-ui:
+    title: Aggiorna per completare l'aggiornamento
+    message: >-
+      Dozzle è stato aggiornato. Questa pagina sta ancora usando la versione precedente e si ricaricherà da sola quando cambierai scheda.
 title:
   page-not-found: Pagina non trovata
   login: Autenticazione richiesta
@@ -125,6 +129,7 @@ button:
   cancel: Annulla
   redirect: Reindirizza
   retry: Retry
+  refresh: Aggiorna
 placeholder:
   search-containers: Ricerca container (⌘ + k, ⌃k)
   search: Cerca

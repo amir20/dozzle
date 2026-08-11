@@ -114,6 +114,10 @@ alert:
     message: Dozzle je našel podoben zabojnik {containerId}, ki se izvaja na
       istem gostitelju in bo samodejno preklopil nanj, razen če kliknete
       »Prekliči«.
+  stale-ui:
+    title: Osvežite, da dokončate posodobitev
+    message: >-
+      Dozzle je bil posodobljen. Ta stran še vedno uporablja prejšnjo različico in se bo samodejno osvežila, ko boste zamenjali zavihek.
 title:
   page-not-found: Strani ni bilo mogoče najti
   login: Zahtevana overitev
@@ -127,6 +131,7 @@ button:
   retry: Retry
   login: Prijava
   settings: Nastavitve
+  refresh: Osveži
 placeholder:
   search-containers: Iskanje zabojnikov (⌘ + k, ⌃k)
   search: Iskanje
