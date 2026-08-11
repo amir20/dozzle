@@ -114,6 +114,10 @@ alert:
     message: >-
       Dozzle이 같은 호스트에서 실행 중인 비슷한 컨테이너 {containerId}를 찾았습니다.
       '취소'를 누르지 않으면 자동으로 해당 컨테이너로 전환됩니다.
+  stale-ui:
+    title: 새로고침하면 업데이트가 완료됩니다
+    message: >-
+      Dozzle이 업데이트되었습니다. 이 페이지는 아직 이전 버전으로 실행 중이며, 다른 탭으로 이동하면 자동으로 새로고침됩니다.
 title:
   page-not-found: 페이지를 찾을 수 없습니다
   login: 인증이 필요합니다
@@ -126,7 +130,8 @@ button:
   settings: 설정
   cancel: 취소
   redirect: 이동
-  retry: Retry
+  retry: 다시 시도
+  refresh: 새로고침
 placeholder:
   search-containers: 컨테이너 검색 (⌘ + k, ⌃k)
   search: 검색
@@ -238,14 +243,14 @@ notifications:
     enabled: 활성화됨 ({count})
     paused: 일시정지됨 ({count})
   no-alerts: 아직 설정된 알림이 없습니다. 시작하려면 하나를 만드세요.
-  default-alert-created: "We created a default alert for you. You'll get notified when any container exits with an error. Edit or pause it anytime."
-  default-alert-failed: "Couldn't auto-create your alert — here's the form instead."
+  default-alert-created: 기본 알림을 만들어 두었습니다. 컨테이너가 오류로 종료되면 알려드립니다. 언제든지 수정하거나 일시중지할 수 있습니다.
+  default-alert-failed: 알림을 자동으로 만들지 못했습니다. 대신 아래 양식을 사용하세요.
   alert:
     paused: 일시정지됨
     containers: 컨테이너
     log-filter: 로그 필터
     metric-filter: 메트릭
-    event-filter: Event
+    event-filter: 이벤트
     cooldown: 대기 시간
     sample-window: 샘플 창
     destination: 목적지
@@ -285,13 +290,13 @@ notifications:
     sample-window-hint: "조건이 {duration} 동안 충족되면 알림이 트리거됩니다"
     cooldown-label: 대기 시간
     cooldown-hint: "컨테이너당 알림 간격 {duration}"
-    no-cooldown: No cooldown
+    no-cooldown: 대기 시간 없음
     alert-type: 알림 유형
     log-alert: 로그 알림
     metric-alert: 메트릭 알림
-    event-alert: Event Alert
-    event-filter: Event Expression
-    event-fields-hint: "Available fields: {fields}"
+    event-alert: 이벤트 알림
+    event-filter: 이벤트 표현식
+    event-fields-hint: "사용 가능한 필드: {fields}"
   destination-form:
     create-title: 목적지 추가
     edit-title: 목적지 편집
@@ -331,7 +336,7 @@ notifications:
     cloud-settings-link: Dozzle Cloud 설정
     cloud-checking: 클라우드 상태 확인 중...
     cloud-relink: API 키가 유효하지 않거나 만료되었습니다. 삭제 후 계정을 다시 연결해 주세요.
-    cloud-unavailable: Dozzle Cloud is temporarily unavailable. Please try again later.
+    cloud-unavailable: Dozzle Cloud를 일시적으로 사용할 수 없습니다. 나중에 다시 시도해 주세요.
     cloud-plan: 플랜
     cloud-usage: 이번 기간 이벤트
   empty-state:
@@ -354,7 +359,7 @@ cloud:
   dashboard: 대시보드
   settings: 설정
   error: 연결 오류. 인스턴스를 다시 연결해 주세요.
-  error-unavailable: Dozzle Cloud is temporarily unavailable. Please try again later.
+  error-unavailable: Dozzle Cloud를 일시적으로 사용할 수 없습니다. 나중에 다시 시도해 주세요.
   unlink: 연결 해제
   unlink-confirm: Dozzle Cloud 연결을 해제하시겠습니까? 모든 클라우드 알림 목적지가 삭제됩니다.
   stream-logs: 컨테이너 로그를 Dozzle Cloud로 전송

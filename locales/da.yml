@@ -112,6 +112,10 @@ alert:
     title: Lignende container fundet
     message: >-
       Dozzle fandt en lignende container {containerId} som kører på den samme host og vil automatisk skifte til den, med mindre du trykker 'Cancel'.
+  stale-ui:
+    title: Opdater for at fuldføre opdateringen
+    message: >-
+      Dozzle er blevet opdateret. Denne side kører stadig den tidligere version og opdateres automatisk, når du skifter væk.
 title:
   page-not-found: Side ikke fundet
   login: Godkendelse Krævet
@@ -124,7 +128,8 @@ button:
   settings: Indstillinger
   cancel: Annuller
   redirect: Omdiriger
-  retry: Retry
+  retry: Prøv igen
+  refresh: Opdater
 placeholder:
   search-containers: Søg containere (⌘ + k, ⌃k)
   search: Søg
@@ -234,14 +239,14 @@ notifications:
     enabled: Aktiveret ({count})
     paused: Pauset ({count})
   no-alerts: Ingen alarmer konfigureret endnu. Opret en for at komme i gang.
-  default-alert-created: "We created a default alert for you. You'll get notified when any container exits with an error. Edit or pause it anytime."
-  default-alert-failed: "Couldn't auto-create your alert — here's the form instead."
+  default-alert-created: Vi har oprettet en standardalarm for dig. Du får besked, når en container afsluttes med en fejl. Du kan redigere eller sætte den på pause når som helst.
+  default-alert-failed: Kunne ikke oprette din alarm automatisk. Her er formularen i stedet.
   alert:
     paused: Pauset
     containers: Containere
     log-filter: Log filter
     metric-filter: Metrik
-    event-filter: Event
+    event-filter: Hændelse
     cooldown: Afkøling
     sample-window: Prøvevindue
     destination: Destination
@@ -281,13 +286,13 @@ notifications:
     sample-window-hint: "Alarm udløses, når betingelsen er opfyldt i {duration}"
     cooldown-label: Afkøling
     cooldown-hint: "{duration} mellem alarmer pr. container"
-    no-cooldown: No cooldown
+    no-cooldown: Ingen afkøling
     alert-type: Alarmtype
     log-alert: Logalarm
     metric-alert: Metrikalarm
-    event-alert: Event Alert
-    event-filter: Event Expression
-    event-fields-hint: "Available fields: {fields}"
+    event-alert: Hændelsesalarm
+    event-filter: Hændelsesudtryk
+    event-fields-hint: "Tilgængelige felter: {fields}"
   destination-form:
     create-title: Tilføj Destination
     edit-title: Rediger Destination
@@ -327,7 +332,7 @@ notifications:
     cloud-settings-link: Dozzle Cloud Indstillinger
     cloud-checking: Kontrollerer cloud-status...
     cloud-relink: Din API-nøgle er ugyldig eller udløbet. Slet venligst og link din konto igen.
-    cloud-unavailable: Dozzle Cloud is temporarily unavailable. Please try again later.
+    cloud-unavailable: Dozzle Cloud er midlertidigt utilgængelig. Prøv igen senere.
     cloud-plan: Plan
     cloud-usage: Begivenheder i denne periode
   empty-state:
@@ -350,7 +355,7 @@ cloud:
   dashboard: Dashboard
   settings: Indstillinger
   error: Forbindelsesfejl. Gentilknyt venligst din instans.
-  error-unavailable: Dozzle Cloud is temporarily unavailable. Please try again later.
+  error-unavailable: Dozzle Cloud er midlertidigt utilgængelig. Prøv igen senere.
   unlink: Fjern tilknytning
   unlink-confirm: Er du sikker på, at du vil fjerne tilknytningen til Dozzle Cloud? Dette fjerner alle cloud-notifikationsdestinationer.
   stream-logs: Stream containerlogs til Dozzle Cloud

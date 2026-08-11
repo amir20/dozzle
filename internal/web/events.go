@@ -83,6 +83,11 @@ func (h *handler) streamEvents(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
+	// sent on every (re)connect so a long-lived tab can tell it is running UI from an older build
+	if err := sseWriter.Event("server-version", map[string]string{"version": h.config.Version}); err != nil {
+		log.Error().Err(err).Msg("error writing version to event stream")
+	}
+
 	if err := sseWriter.Event("containers-changed", allContainers); err != nil {
 		log.Error().Err(err).Msg("error writing containers to event stream")
 	}

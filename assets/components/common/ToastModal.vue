@@ -30,6 +30,12 @@
         >
           {{ toast.action?.label }}
         </TimedButton>
+        <template v-else-if="toast.action">
+          <button class="btn btn-primary btn-sm" @click="toast.action.handler()">{{ toast.action.label }}</button>
+          <button class="btn btn-circle btn-xs ml-1" @click="removeToast(toast.id)">
+            <mdi:close />
+          </button>
+        </template>
         <button class="btn btn-circle btn-xs" @click="removeToast(toast.id)" v-else>
           <mdi:close />
         </button>

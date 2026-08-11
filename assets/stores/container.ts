@@ -8,6 +8,7 @@ import { Host } from "./hosts";
 
 const { showToast, removeToast } = useToast();
 const { updateHost } = useHosts();
+const { markStale } = useStaleUI();
 // @ts-ignore
 const { t } = i18n.global;
 
@@ -52,6 +53,13 @@ export const useContainerStore = defineStore("container", () => {
             { once: true },
           );
         }, 5000);
+      }
+    });
+
+    es.addEventListener("server-version", (e) => {
+      const { version } = parseEventData<{ version: string }>(e);
+      if (version !== config.version) {
+        markStale();
       }
     });
 

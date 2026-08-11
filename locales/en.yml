@@ -116,6 +116,11 @@ alert:
     message: >-
       Dozzle found a similar container {containerId} that is running on the same
       host and will automatically switch to it unless you click 'Cancel'.
+  stale-ui:
+    title: Refresh to finish updating
+    message: >-
+      Dozzle has been updated. This page is still running the previous version
+      and will refresh on its own when you switch away.
 title:
   page-not-found: Page not found
   login: Authentication Required
@@ -129,6 +134,7 @@ button:
   cancel: Cancel
   redirect: Redirect
   retry: Retry
+  refresh: Refresh
 placeholder:
   search-containers: Search containers (⌘ + k, ⌃k)
   search: Search

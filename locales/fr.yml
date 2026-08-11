@@ -112,6 +112,10 @@ alert:
     title: Conteneur similaire trouvé
     message: >-
       Dozzle a trouvé un conteneur similaire {containerId} qui s'exécute sur le même hôte et basculera automatiquement vers lui à moins que vous ne cliquiez sur "Annuler".
+  stale-ui:
+    title: Actualisez pour terminer la mise à jour
+    message: >-
+      Dozzle a été mis à jour. Cette page utilise encore la version précédente et se rechargera d'elle-même lorsque vous changerez d'onglet.
 title:
   page-not-found: Page non trouvée
   login: Authentification requise
@@ -124,7 +128,8 @@ button:
   settings: Paramètres
   cancel: Annuler
   redirect: Rediriger
-  retry: Retry
+  retry: Réessayer
+  refresh: Actualiser
 placeholder:
   search-containers: Recherche de conteneurs (⌘ + k, ⌃k)
   search: Recherche
@@ -234,14 +239,14 @@ notifications:
     enabled: Activés ({count})
     paused: En pause ({count})
   no-alerts: Aucune alerte configurée. Créez-en une pour commencer.
-  default-alert-created: "We created a default alert for you. You'll get notified when any container exits with an error. Edit or pause it anytime."
-  default-alert-failed: "Couldn't auto-create your alert — here's the form instead."
+  default-alert-created: Nous avons créé une alerte par défaut pour vous. Vous serez notifié lorsqu'un conteneur se termine avec une erreur. Vous pouvez la modifier ou la mettre en pause à tout moment.
+  default-alert-failed: Impossible de créer votre alerte automatiquement. Voici le formulaire à la place.
   alert:
     paused: En pause
     containers: Conteneurs
     log-filter: Filtre de journal
     metric-filter: Métrique
-    event-filter: Event
+    event-filter: Événement
     cooldown: Temps d'attente
     sample-window: Fenêtre d'échantillonnage
     destination: Destination
@@ -281,13 +286,13 @@ notifications:
     sample-window-hint: "L'alerte se déclenche lorsque la condition est remplie pendant {duration}"
     cooldown-label: Temps d'attente
     cooldown-hint: "{duration} entre les alertes par conteneur"
-    no-cooldown: No cooldown
+    no-cooldown: Aucun temps d'attente
     alert-type: Type d'alerte
     log-alert: Alerte de journal
     metric-alert: Alerte de métrique
-    event-alert: Event Alert
-    event-filter: Event Expression
-    event-fields-hint: "Available fields: {fields}"
+    event-alert: Alerte d'événement
+    event-filter: Expression d'événement
+    event-fields-hint: "Champs disponibles : {fields}"
   destination-form:
     create-title: Ajouter une Destination
     edit-title: Modifier la Destination
@@ -327,7 +332,7 @@ notifications:
     cloud-settings-link: Paramètres Dozzle Cloud
     cloud-checking: Vérification du statut cloud...
     cloud-relink: Votre clé API est invalide ou expirée. Veuillez supprimer et relier votre compte.
-    cloud-unavailable: Dozzle Cloud is temporarily unavailable. Please try again later.
+    cloud-unavailable: Dozzle Cloud est temporairement indisponible. Veuillez réessayer plus tard.
     cloud-plan: Plan
     cloud-usage: Événements pour cette période
   empty-state:
@@ -350,7 +355,7 @@ cloud:
   dashboard: Tableau de bord
   settings: Paramètres
   error: Erreur de connexion. Veuillez relier votre instance.
-  error-unavailable: Dozzle Cloud is temporarily unavailable. Please try again later.
+  error-unavailable: Dozzle Cloud est temporairement indisponible. Veuillez réessayer plus tard.
   unlink: Délier
   unlink-confirm: Êtes-vous sûr de vouloir délier de Dozzle Cloud ? Cela supprimera toutes les destinations de notification cloud.
   stream-logs: Diffuser les journaux de conteneurs vers Dozzle Cloud
