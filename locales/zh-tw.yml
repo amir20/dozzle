@@ -130,7 +130,7 @@ button:
   settings: 設定
   cancel: 取消
   redirect: 重新導向
-  retry: Retry
+  retry: 重試
   refresh: 重新整理
 placeholder:
   search-containers: 搜尋容器 (⌘ + k, ⌃k)
@@ -242,14 +242,14 @@ notifications:
     enabled: 已啟用 ({count})
     paused: 已暫停 ({count})
   no-alerts: 尚未設定任何警報。建立一個以開始使用。
-  default-alert-created: "We created a default alert for you. You'll get notified when any container exits with an error. Edit or pause it anytime."
-  default-alert-failed: "Couldn't auto-create your alert — here's the form instead."
+  default-alert-created: 我們已為您建立預設警報。當容器以錯誤結束時，您會收到通知。您隨時可以編輯或暫停。
+  default-alert-failed: 無法自動建立警報，請改用下方的表單。
   alert:
     paused: 已暫停
     containers: 容器
     log-filter: 日誌篩選器
     metric-filter: 指標
-    event-filter: Event
+    event-filter: 事件
     cooldown: 冷卻時間
     sample-window: 取樣視窗
     destination: 目標
@@ -289,13 +289,13 @@ notifications:
     sample-window-hint: "當條件在 {duration} 內滿足時觸發警報"
     cooldown-label: 冷卻時間
     cooldown-hint: "每個容器警報間隔 {duration}"
-    no-cooldown: No cooldown
+    no-cooldown: 無冷卻時間
     alert-type: 警報類型
     log-alert: 日誌警報
     metric-alert: 指標警報
-    event-alert: Event Alert
-    event-filter: Event Expression
-    event-fields-hint: "Available fields: {fields}"
+    event-alert: 事件警報
+    event-filter: 事件運算式
+    event-fields-hint: 可用欄位：{fields}
   destination-form:
     create-title: 新增目標
     edit-title: 編輯目標
@@ -335,7 +335,7 @@ notifications:
     cloud-settings-link: Dozzle Cloud 設定
     cloud-checking: 正在檢查雲端狀態...
     cloud-relink: 您的 API 金鑰無效或已過期。請刪除並重新關聯您的帳戶。
-    cloud-unavailable: Dozzle Cloud is temporarily unavailable. Please try again later.
+    cloud-unavailable: Dozzle Cloud 暫時無法使用，請稍後再試。
     cloud-plan: 方案
     cloud-usage: 本期事件數
   empty-state:
@@ -358,7 +358,7 @@ cloud:
   dashboard: 儀表板
   settings: 設定
   error: 連線錯誤。請重新連結您的實例。
-  error-unavailable: Dozzle Cloud is temporarily unavailable. Please try again later.
+  error-unavailable: Dozzle Cloud 暫時無法使用，請稍後再試。
   unlink: 取消連結
   unlink-confirm: 確定要取消與 Dozzle Cloud 的連結嗎？這將移除所有雲端通知目標。
   stream-logs: 將容器日誌串流至 Dozzle Cloud

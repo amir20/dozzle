@@ -128,7 +128,7 @@ button:
   settings: Настройки
   cancel: Отмена
   redirect: Перенаправить
-  retry: Retry
+  retry: Повторить
   refresh: Обновить
 placeholder:
   search-containers: Поиск контейнеров (⌘ + k, ⌃k)
@@ -239,14 +239,14 @@ notifications:
     enabled: Включены ({count})
     paused: Приостановлены ({count})
   no-alerts: Оповещения ещё не настроены. Создайте одно для начала.
-  default-alert-created: "We created a default alert for you. You'll get notified when any container exits with an error. Edit or pause it anytime."
-  default-alert-failed: "Couldn't auto-create your alert — here's the form instead."
+  default-alert-created: Мы создали для вас оповещение по умолчанию. Вы получите уведомление, когда контейнер завершится с ошибкой. Его можно изменить или приостановить в любой момент.
+  default-alert-failed: Не удалось создать оповещение автоматически. Воспользуйтесь формой ниже.
   alert:
     paused: Приостановлено
     containers: Контейнеры
     log-filter: Фильтр логов
     metric-filter: Метрика
-    event-filter: Event
+    event-filter: Событие
     cooldown: Период ожидания
     sample-window: Окно выборки
     destination: Назначение
@@ -286,13 +286,13 @@ notifications:
     sample-window-hint: "Оповещение срабатывает, когда условие выполняется в течение {duration}"
     cooldown-label: Период ожидания
     cooldown-hint: "{duration} между оповещениями на контейнер"
-    no-cooldown: No cooldown
+    no-cooldown: Без периода ожидания
     alert-type: Тип оповещения
     log-alert: Оповещение журнала
     metric-alert: Оповещение метрики
-    event-alert: Event Alert
-    event-filter: Event Expression
-    event-fields-hint: "Available fields: {fields}"
+    event-alert: Оповещение о событии
+    event-filter: Выражение события
+    event-fields-hint: "Доступные поля: {fields}"
   destination-form:
     create-title: Добавить Назначение
     edit-title: Редактировать Назначение
@@ -332,7 +332,7 @@ notifications:
     cloud-settings-link: Настройки Dozzle Cloud
     cloud-checking: Проверка статуса облака...
     cloud-relink: Ваш API-ключ недействителен или истёк. Пожалуйста, удалите и привяжите аккаунт заново.
-    cloud-unavailable: Dozzle Cloud is temporarily unavailable. Please try again later.
+    cloud-unavailable: Dozzle Cloud временно недоступен. Попробуйте позже.
     cloud-plan: План
     cloud-usage: События за этот период
   empty-state:
@@ -355,7 +355,7 @@ cloud:
   dashboard: Панель управления
   settings: Настройки
   error: Ошибка подключения. Пожалуйста, привяжите экземпляр повторно.
-  error-unavailable: Dozzle Cloud is temporarily unavailable. Please try again later.
+  error-unavailable: Dozzle Cloud временно недоступен. Попробуйте позже.
   unlink: Отвязать
   unlink-confirm: Вы уверены, что хотите отвязать от Dozzle Cloud? Это удалит все облачные назначения уведомлений.
   stream-logs: Передавать логи контейнеров в Dozzle Cloud

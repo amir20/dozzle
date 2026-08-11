@@ -128,7 +128,7 @@ button:
   settings: Configurações
   cancel: Cancelar
   redirect: Redirecionar
-  retry: Retry
+  retry: Tentar novamente
   refresh: Atualizar
 placeholder:
   search-containers: Pesquisar containers (⌘ + k, ⌃k)
@@ -239,14 +239,14 @@ notifications:
     enabled: Habilitados ({count})
     paused: Pausados ({count})
   no-alerts: Nenhum alerta configurado ainda. Crie um para começar.
-  default-alert-created: "We created a default alert for you. You'll get notified when any container exits with an error. Edit or pause it anytime."
-  default-alert-failed: "Couldn't auto-create your alert — here's the form instead."
+  default-alert-created: Criamos um alerta padrão para você. Você será notificado quando um container encerrar com erro. Edite ou pause quando quiser.
+  default-alert-failed: Não foi possível criar seu alerta automaticamente. Use o formulário abaixo.
   alert:
     paused: Pausado
     containers: Containers
     log-filter: Filtro de log
     metric-filter: Métrica
-    event-filter: Event
+    event-filter: Evento
     cooldown: Tempo de espera
     sample-window: Janela de amostragem
     destination: Destino
@@ -286,13 +286,13 @@ notifications:
     sample-window-hint: "O alerta é acionado quando a condição é atendida por {duration}"
     cooldown-label: Tempo de espera
     cooldown-hint: "{duration} entre alertas por container"
-    no-cooldown: No cooldown
+    no-cooldown: Sem tempo de espera
     alert-type: Tipo de alerta
     log-alert: Alerta de log
     metric-alert: Alerta de métrica
-    event-alert: Event Alert
-    event-filter: Event Expression
-    event-fields-hint: "Available fields: {fields}"
+    event-alert: Alerta de evento
+    event-filter: Expressão de evento
+    event-fields-hint: "Campos disponíveis: {fields}"
   destination-form:
     create-title: Adicionar Destino
     edit-title: Editar Destino
@@ -332,7 +332,7 @@ notifications:
     cloud-settings-link: Configurações do Dozzle Cloud
     cloud-checking: Verificando status da nuvem...
     cloud-relink: Sua chave API é inválida ou expirou. Por favor, exclua e vincule sua conta novamente.
-    cloud-unavailable: Dozzle Cloud is temporarily unavailable. Please try again later.
+    cloud-unavailable: O Dozzle Cloud está temporariamente indisponível. Tente novamente mais tarde.
     cloud-plan: Plano
     cloud-usage: Eventos neste período
   empty-state:
@@ -355,7 +355,7 @@ cloud:
   dashboard: Painel
   settings: Configurações
   error: Erro de conexão. Por favor, revincule sua instância.
-  error-unavailable: Dozzle Cloud is temporarily unavailable. Please try again later.
+  error-unavailable: O Dozzle Cloud está temporariamente indisponível. Tente novamente mais tarde.
   unlink: Desvincular
   unlink-confirm: Tem certeza de que deseja desvincular do Dozzle Cloud? Isso removerá todos os destinos de notificação na nuvem.
   stream-logs: Transmitir logs de contêineres para o Dozzle Cloud

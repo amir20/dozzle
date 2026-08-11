@@ -128,7 +128,7 @@ button:
   settings: Configuración
   cancel: Cancelar
   redirect: Redirigir
-  retry: Retry
+  retry: Reintentar
   refresh: Actualizar
 placeholder:
   search-containers: Buscar contenedores (⌘ + K, CTRL + K)
@@ -238,8 +238,8 @@ releases:
   features: una nueva característica | {count} características
   bugFixes: una corrección de error | {count} correcciones
   breaking: un cambio importante | {count} cambios importantes
-  three_parts: "{features}, {bugFixes} y {breaking}"
-  two_parts: "{features} y {bugFixes}"
+  three_parts: "{first}, {second} y {third}"
+  two_parts: "{first} con {second}"
   latest: Último
   no_releases: No hay lanzamientos
 log_actions:
@@ -283,14 +283,14 @@ notifications:
     enabled: Habilitados ({count})
     paused: Pausados ({count})
   no-alerts: Aún no hay alertas configuradas. Cree una para comenzar.
-  default-alert-created: "We created a default alert for you. You'll get notified when any container exits with an error. Edit or pause it anytime."
-  default-alert-failed: "Couldn't auto-create your alert — here's the form instead."
+  default-alert-created: Hemos creado una alerta predeterminada para ti. Recibirás una notificación cuando un contenedor termine con un error. Puedes editarla o pausarla cuando quieras.
+  default-alert-failed: No se pudo crear tu alerta automáticamente. Aquí tienes el formulario.
   alert:
     paused: Pausado
     containers: Contenedores
     log-filter: Filtro de registro
     metric-filter: Métrica
-    event-filter: Event
+    event-filter: Evento
     cooldown: Tiempo de espera
     sample-window: Ventana de muestreo
     destination: Destino
@@ -330,13 +330,13 @@ notifications:
     sample-window-hint: "La alerta se activa cuando la condición se cumple durante {duration}"
     cooldown-label: Tiempo de espera
     cooldown-hint: "{duration} entre alertas por contenedor"
-    no-cooldown: No cooldown
+    no-cooldown: Sin tiempo de espera
     alert-type: Tipo de alerta
     log-alert: Alerta de registro
     metric-alert: Alerta de métrica
-    event-alert: Event Alert
-    event-filter: Event Expression
-    event-fields-hint: "Available fields: {fields}"
+    event-alert: Alerta de evento
+    event-filter: Expresión de evento
+    event-fields-hint: "Campos disponibles: {fields}"
   destination-form:
     create-title: Añadir Destino
     edit-title: Editar Destino
@@ -376,7 +376,7 @@ notifications:
     cloud-settings-link: Configuración de Dozzle Cloud
     cloud-checking: Verificando estado de la nube...
     cloud-relink: Su clave API es inválida o ha expirado. Por favor, elimine y vincule su cuenta de nuevo.
-    cloud-unavailable: Dozzle Cloud is temporarily unavailable. Please try again later.
+    cloud-unavailable: Dozzle Cloud no está disponible temporalmente. Inténtalo de nuevo más tarde.
     cloud-plan: Plan
     cloud-usage: Eventos en este período
   empty-state:
@@ -399,7 +399,7 @@ cloud:
   dashboard: Panel
   settings: Configuración
   error: Error de conexión. Por favor, revincule su instancia.
-  error-unavailable: Dozzle Cloud is temporarily unavailable. Please try again later.
+  error-unavailable: Dozzle Cloud no está disponible temporalmente. Inténtalo de nuevo más tarde.
   unlink: Desvincular
   unlink-confirm: ¿Está seguro de que desea desvincular de Dozzle Cloud? Esto eliminará todos los destinos de notificación en la nube.
   stream-logs: Transmitir registros de contenedores a Dozzle Cloud

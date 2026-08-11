@@ -128,7 +128,7 @@ button:
   logout: Odjava
   cancel: Prekliči
   redirect: Preusmeritev
-  retry: Retry
+  retry: Poskusi znova
   login: Prijava
   settings: Nastavitve
   refresh: Osveži
@@ -198,7 +198,7 @@ settings:
   automatic-redirect: Samodejna preusmeritev na nove zabojnike z istim imenom
 releases:
   features: ena nova funkcija | {count} funkcij
-  bugFixes: en popravek napake | {counr} popravkov
+  bugFixes: en popravek napake | {count} popravkov
   breaking: ena ključna sprememba | {count} ključnih sprememb
   three_parts: "{first}, {second} in {third}"
   two_parts: "{first} s/z {second}"
@@ -245,14 +245,14 @@ notifications:
     enabled: Omogočeni ({count})
     paused: Ustavljeni ({count})
   no-alerts: Opozorila še niso nastavljena. Ustvarite enega za začetek.
-  default-alert-created: "We created a default alert for you. You'll get notified when any container exits with an error. Edit or pause it anytime."
-  default-alert-failed: "Couldn't auto-create your alert — here's the form instead."
+  default-alert-created: Za vas smo ustvarili privzeto opozorilo. Obvestili vas bomo, ko se zabojnik konča z napako. Kadar koli ga lahko uredite ali začasno ustavite.
+  default-alert-failed: Opozorila ni bilo mogoče ustvariti samodejno. Uporabite spodnji obrazec.
   alert:
     paused: Ustavljeno
     containers: Zabojniki
     log-filter: Filter dnevnika
     metric-filter: Metrika
-    event-filter: Event
+    event-filter: Dogodek
     cooldown: Čas mirovanja
     sample-window: Vzorčno okno
     destination: Cilj
@@ -292,13 +292,13 @@ notifications:
     sample-window-hint: "Opozorilo se sproži, ko je pogoj izpolnjen za {duration}"
     cooldown-label: Čas mirovanja
     cooldown-hint: "{duration} med opozorili na zabojnik"
-    no-cooldown: No cooldown
+    no-cooldown: Brez časa mirovanja
     alert-type: Vrsta opozorila
     log-alert: Opozorilo dnevnika
     metric-alert: Opozorilo metrike
-    event-alert: Event Alert
-    event-filter: Event Expression
-    event-fields-hint: "Available fields: {fields}"
+    event-alert: Opozorilo o dogodku
+    event-filter: Izraz dogodka
+    event-fields-hint: "Polja na voljo: {fields}"
   destination-form:
     create-title: Dodaj Cilj
     edit-title: Uredi Cilj
@@ -338,7 +338,7 @@ notifications:
     cloud-settings-link: Nastavitve Dozzle Cloud
     cloud-checking: Preverjanje stanja oblaka...
     cloud-relink: Vaš API ključ je neveljaven ali potekel. Prosimo, izbrišite in ponovno povežite svoj račun.
-    cloud-unavailable: Dozzle Cloud is temporarily unavailable. Please try again later.
+    cloud-unavailable: Dozzle Cloud je začasno nedosegljiv. Poskusite znova pozneje.
     cloud-plan: Načrt
     cloud-usage: Dogodki v tem obdobju
   empty-state:
@@ -361,7 +361,7 @@ cloud:
   dashboard: Nadzorna plošča
   settings: Nastavitve
   error: Napaka povezave. Prosimo, ponovno povežite svojo instanco.
-  error-unavailable: Dozzle Cloud is temporarily unavailable. Please try again later.
+  error-unavailable: Dozzle Cloud je začasno nedosegljiv. Poskusite znova pozneje.
   unlink: Prekini povezavo
   unlink-confirm: Ali ste prepričani, da želite prekiniti povezavo z Dozzle Cloud? To bo odstranilo vse cilje obvestil v oblaku.
   stream-logs: Pretakanje dnevnikov vsebnikov v Dozzle Cloud
