@@ -118,7 +118,7 @@ func (sc *DockerStatsCollector) Start(parentCtx context.Context) bool {
 		defer close(events)
 		log.Debug().Str("host", sc.client.Host().Name).Msg("starting to listen to docker events")
 		err := sc.client.ContainerEvents(ctx, events)
-		if !errors.Is(err, context.Canceled) {
+		if err != nil && !errors.Is(err, context.Canceled) {
 			log.Error().Str("host", sc.client.Host().Name).Err(err).Msg("unexpected error while listening to docker events")
 		}
 		sc.forceStop()
