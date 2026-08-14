@@ -83,19 +83,57 @@
           </div>
         </div>
 
-        <label class="flex min-h-13 cursor-pointer items-center justify-between gap-4 p-4">
-          <div class="flex flex-col gap-0.5">
-            <span class="text-sm font-medium">{{ $t("cloud.stream-logs") }}</span>
-            <span class="text-base-content/60 text-xs">{{ $t("cloud.stream-logs-help") }}</span>
+        <!--
+          One toggle gates BOTH log lines and container metrics — they ride the
+          same connection, and opting out of shipping log contents implies
+          opting out of shipping resource usage. The copy has to spell out
+          everything that leaves the instance, or the toggle understates itself.
+        -->
+        <div class="p-4">
+          <label class="flex min-h-13 cursor-pointer items-center justify-between gap-4">
+            <div class="flex flex-col gap-0.5">
+              <span class="text-sm font-medium">{{ $t("cloud.privacy.toggle") }}</span>
+              <span class="text-base-content/60 text-xs">{{ $t("cloud.privacy.required-for") }}</span>
+            </div>
+            <input
+              type="checkbox"
+              class="toggle toggle-primary toggle-sm shrink-0"
+              :checked="streamLogs"
+              :disabled="isSavingStreamLogs"
+              @change="onStreamLogsChange(($event.target as HTMLInputElement).checked)"
+            />
+          </label>
+
+          <div class="border-base-content/10 mt-3 space-y-3 rounded-md border p-3 text-xs">
+            <div v-if="streamLogs">
+              <p class="text-base-content/70 font-medium">{{ $t("cloud.privacy.sends-heading") }}</p>
+              <ul class="text-base-content/60 mt-1.5 space-y-1">
+                <li class="flex items-start gap-1.5">
+                  <mdi:text-box-outline class="mt-0.5 shrink-0 text-sm" />
+                  <span>{{ $t("cloud.privacy.sends-logs") }}</span>
+                </li>
+                <li class="flex items-start gap-1.5">
+                  <mdi:chart-line class="mt-0.5 shrink-0 text-sm" />
+                  <span>{{ $t("cloud.privacy.sends-metrics") }}</span>
+                </li>
+              </ul>
+            </div>
+
+            <p v-else class="text-base-content/60">{{ $t("cloud.privacy.off-note") }}</p>
+
+            <div v-if="streamLogs" class="text-base-content/60 flex items-start gap-1.5">
+              <mdi:shield-check-outline class="text-success mt-0.5 shrink-0 text-sm" />
+              <span>
+                <span class="text-base-content/70 font-medium">{{ $t("cloud.privacy.never-heading") }}</span>
+                {{ $t("cloud.privacy.never-env") }}
+              </span>
+            </div>
+
+            <p v-if="streamLogs" class="text-base-content/45 border-base-content/10 border-t pt-2">
+              {{ $t("cloud.privacy.per-container") }}
+            </p>
           </div>
-          <input
-            type="checkbox"
-            class="toggle toggle-primary toggle-sm shrink-0"
-            :checked="streamLogs"
-            :disabled="isSavingStreamLogs"
-            @change="onStreamLogsChange(($event.target as HTMLInputElement).checked)"
-          />
-        </label>
+        </div>
 
         <div class="flex gap-2 p-4">
           <a :href="cloudUrl" target="_blank" rel="noreferrer noopener" class="btn btn-sm">

@@ -409,6 +409,7 @@ func (l *localCloudHostService) SubscribeStats(ctx context.Context, samples chan
 	hostIDs := l.resolveHostIDs()
 	// One inbound channel + forwarder goroutine per service, matching
 	// SubscribeContainersStarted: a burst on one service must not stall the others.
+	var dropWarn sync.Once
 	for i, s := range l.services {
 		hostID := hostIDs[i]
 		ch := make(chan container.ContainerStat, 64)
@@ -419,10 +420,18 @@ func (l *localCloudHostService) SubscribeStats(ctx context.Context, samples chan
 				case <-ctx.Done():
 					return
 				case stat := <-ch:
+					// Non-blocking on purpose. The stats collector dispatches to
+					// each subscriber with a blocking send, so if cloud ingest
+					// ever wedged, backpressure would travel all the way up and
+					// starve the live UI's stats subscriber on this host. Losing
+					// a sample only nudges a 30s average; stalling the UI is not
+					// an acceptable trade for that.
 					select {
 					case samples <- cloud.StatSample{Stat: stat, HostID: hostID}:
-					case <-ctx.Done():
-						return
+					default:
+						dropWarn.Do(func() {
+							log.Warn().Msg("cloud stats: consumer is not keeping up, dropping samples (further drops are silent)")
+						})
 					}
 				}
 			}

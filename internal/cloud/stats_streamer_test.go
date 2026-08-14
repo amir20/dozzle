@@ -2,6 +2,8 @@ package cloud
 
 import (
 	"context"
+	"sync"
+	"sync/atomic"
 	"testing"
 	"time"
 
@@ -18,6 +20,8 @@ import (
 type fakeStatsHostService struct {
 	containers []container.Container
 	hosts      []container.Host
+	// subscribed, when non-nil, hands the test the channel run() is draining.
+	subscribed chan chan<- StatSample
 }
 
 func (f *fakeStatsHostService) ListAllContainers(_ container.ContainerLabels) ([]container.Container, []error) {
@@ -30,7 +34,11 @@ func (f *fakeStatsHostService) FindContainer(_ string, _ string, _ container.Con
 
 func (f *fakeStatsHostService) Hosts() []container.Host { return f.hosts }
 
-func (f *fakeStatsHostService) SubscribeStats(_ context.Context, _ chan<- StatSample) {}
+func (f *fakeStatsHostService) SubscribeStats(_ context.Context, samples chan<- StatSample) {
+	if f.subscribed != nil {
+		f.subscribed <- samples
+	}
+}
 
 // newTestStreamer builds a streamer over one host with the given containers and
 // a capture func standing in for the gRPC send.
@@ -203,6 +211,7 @@ func TestStatsStreamer_EmitsOnceMetadataCatchesUp(t *testing.T) {
 	assert.Empty(t, sent)
 
 	hs.containers = []container.Container{testContainer("c1", "late-starter")}
+	ss.refreshMeta() // stands in for the async refresh run() kicks off each tick
 	ss.observe(StatSample{HostID: "host1", Stat: container.ContainerStat{ID: "c1", CPUPercent: 60}})
 	require.NoError(t, ss.flush(time.Unix(2, 0)))
 
@@ -239,4 +248,162 @@ func TestStatsStreamer_SeparatesSameNameOnDifferentHosts(t *testing.T) {
 	assert.InDelta(t, 10.0, entries[0].GetCpuPercent(), 0.001)
 	assert.Equal(t, "host2", entries[1].GetHostId())
 	assert.InDelta(t, 90.0, entries[1].GetCpuPercent(), 0.001)
+}
+
+// slowStatsHostService lets the first N ListAllContainers calls through, then
+// blocks — standing in for a multi-host setup where one peer goes unreachable
+// mid-run (each host costs a 5s timeout, sequentially).
+type slowStatsHostService struct {
+	fakeStatsHostService
+	blockAfter int32
+	calls      atomic.Int32
+	entered    chan struct{}
+	release    chan struct{}
+	once       sync.Once
+}
+
+func (f *slowStatsHostService) ListAllContainers(l container.ContainerLabels) ([]container.Container, []error) {
+	if f.calls.Add(1) > f.blockAfter {
+		f.once.Do(func() { close(f.entered) })
+		<-f.release
+	}
+	return f.fakeStatsHostService.ListAllContainers(l)
+}
+
+// A slow host must not stall the sample-draining loop.
+//
+// flush() used to call ListAllContainers inline, on the same goroutine that
+// drains samples. A hung host would block that drain; once the sample buffer
+// filled, backpressure reached the stats collector's blocking per-subscriber
+// dispatch and starved the LIVE UI stats broadcast on that host. Metrics
+// shipping must never be able to degrade the UI.
+//
+// The window is driven short here so flush() actually runs — that is where the
+// original bug lived.
+func TestStatsStreamer_SlowHostDoesNotStallSampleDrain(t *testing.T) {
+	hs := &slowStatsHostService{
+		fakeStatsHostService: fakeStatsHostService{
+			containers: []container.Container{testContainer("c1", "api")},
+			hosts:      []container.Host{{ID: "host1", NCPU: 1}},
+			subscribed: make(chan chan<- StatSample, 1),
+		},
+		blockAfter: 1, // let the startup refresh through, wedge the flush-time one
+		entered:    make(chan struct{}),
+		release:    make(chan struct{}),
+	}
+	ss := newStatsStreamer(hs, nil, func(*pb.ToolResponse) error { return nil })
+	ss.window = 20 * time.Millisecond
+
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+	done := make(chan struct{})
+	go func() { defer close(done); ss.run(ctx) }()
+
+	samples := <-hs.subscribed
+
+	// Wait for a refresh to wedge, which only happens once the ticker has fired.
+	select {
+	case <-hs.entered:
+	case <-time.After(5 * time.Second):
+		t.Fatal("host never blocked; test did not reach the interesting state")
+	}
+
+	// With a refresh wedged, the loop must still drain. Push well past the
+	// buffer: if the drain were blocked behind the host call this never finishes.
+	drained := make(chan struct{})
+	go func() {
+		defer close(drained)
+		for range statsSampleChanBuf * 3 {
+			select {
+			case samples <- StatSample{HostID: "host1", Stat: container.ContainerStat{ID: "c1", CPUPercent: 1}}:
+			case <-ctx.Done():
+				return
+			}
+		}
+	}()
+
+	select {
+	case <-drained:
+	case <-time.After(5 * time.Second):
+		t.Fatal("sample drain stalled behind a slow host — backpressure would reach the stats collector and starve the live UI stats broadcast")
+	}
+
+	close(hs.release)
+	cancel()
+	<-done
+}
+
+// The refreshed snapshot must actually be installed by the run loop — if it
+// weren't, names would never resolve and every window would be dropped. Asserted
+// through run()'s real ticker on observable output, rather than by reading
+// ss.meta, which the run goroutine owns.
+func TestStatsStreamer_AsyncRefreshInstallsSnapshot(t *testing.T) {
+	hs := &fakeStatsHostService{
+		containers: []container.Container{testContainer("c1", "api")},
+		hosts:      []container.Host{{ID: "host1", NCPU: 1}},
+		subscribed: make(chan chan<- StatSample, 1),
+	}
+	batches := make(chan *pb.StatsBatch, 4)
+	ss := newStatsStreamer(hs, nil, func(r *pb.ToolResponse) error {
+		batches <- r.GetStatsBatch()
+		return nil
+	})
+	ss.window = 50 * time.Millisecond
+
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+	done := make(chan struct{})
+	go func() { defer close(done); ss.run(ctx) }()
+
+	samples := <-hs.subscribed
+	samples <- StatSample{HostID: "host1", Stat: container.ContainerStat{ID: "c1", CPUPercent: 42}}
+
+	select {
+	case b := <-batches:
+		require.Len(t, b.GetEntries(), 1)
+		assert.Equal(t, "api", b.GetEntries()[0].GetContainerName(),
+			"name resolved, so the async snapshot was installed")
+		assert.InDelta(t, 42.0, b.GetEntries()[0].GetCpuPercent(), 0.001)
+	case <-time.After(5 * time.Second):
+		t.Fatal("no batch emitted — async refresh never installed its snapshot")
+	}
+
+	cancel()
+	<-done
+}
+
+// A refresh slower than the window must not queue up more refreshes.
+func TestStatsStreamer_OnlyOneRefreshInFlight(t *testing.T) {
+	hs := &slowStatsHostService{
+		fakeStatsHostService: fakeStatsHostService{
+			hosts: []container.Host{{ID: "host1", NCPU: 1}},
+		},
+		blockAfter: 0, // block immediately
+		entered:    make(chan struct{}),
+		release:    make(chan struct{}),
+	}
+	ss := newStatsStreamer(hs, nil, func(*pb.ToolResponse) error { return nil })
+	ctx := t.Context()
+
+	ss.startMetaRefresh(ctx)
+	<-hs.entered
+	// Every subsequent attempt while one is in flight is a no-op.
+	for range 5 {
+		ss.startMetaRefresh(ctx)
+	}
+	assert.True(t, ss.refreshing, "should still be marked in-flight")
+
+	close(hs.release)
+	select {
+	case m := <-ss.metaCh:
+		assert.NotNil(t, m, "exactly one snapshot delivered")
+	case <-time.After(2 * time.Second):
+		t.Fatal("refresh never completed")
+	}
+	// Nothing else queued behind it.
+	select {
+	case <-ss.metaCh:
+		t.Fatal("a second refresh was queued while one was in flight")
+	case <-time.After(100 * time.Millisecond):
+	}
 }
