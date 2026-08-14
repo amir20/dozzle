@@ -401,6 +401,35 @@ func (l *localCloudHostService) FindContainer(host string, id string, labels con
 	return nil, fmt.Errorf("host %s not local to this process", host)
 }
 
+// SubscribeStats fans stats in from every local client service, stamping the
+// originating host on each sample. container.ContainerStat has no host field,
+// so without this the cloud side could not tell two same-named containers on
+// different hosts apart.
+func (l *localCloudHostService) SubscribeStats(ctx context.Context, samples chan<- cloud.StatSample) {
+	hostIDs := l.resolveHostIDs()
+	// One inbound channel + forwarder goroutine per service, matching
+	// SubscribeContainersStarted: a burst on one service must not stall the others.
+	for i, s := range l.services {
+		hostID := hostIDs[i]
+		ch := make(chan container.ContainerStat, 64)
+		s.SubscribeStats(ctx, ch)
+		go func() {
+			for {
+				select {
+				case <-ctx.Done():
+					return
+				case stat := <-ch:
+					select {
+					case samples <- cloud.StatSample{Stat: stat, HostID: hostID}:
+					case <-ctx.Done():
+						return
+					}
+				}
+			}
+		}()
+	}
+}
+
 func (l *localCloudHostService) SubscribeContainersStarted(ctx context.Context, containers chan<- container.Container, filter container_support.ContainerFilter) {
 	// One inbound channel + forwarder goroutine per service so a slow consumer
 	// or a burst on one service can't cause the others to drop events.

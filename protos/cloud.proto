@@ -33,6 +33,10 @@ message ToolResponse {
     // Dozzle to Cloud for ingestion into VictoriaLogs. request_id is empty
     // for log batches — they are not replies to a ToolRequest.
     LogBatch log_batch = 4;
+    // Unsolicited server-push: 30s-windowed container resource metrics.
+    // request_id is empty for stats batches — like log batches, they are not
+    // replies to a ToolRequest.
+    StatsBatch stats_batch = 5;
   }
 }
 
@@ -57,6 +61,50 @@ message LogBatchEntry {
   // (/container/:id/time/:datetime?logId=...) that lands the user on
   // exactly the matching line in the local log viewer.
   uint32 log_id = 8;
+}
+
+// Batch of windowed container resource metrics. Dozzle aggregates raw ~1Hz
+// stats into fixed windows and pushes one batch per window while connected.
+// Cloud writes them to VictoriaMetrics scoped to the owning user (derived
+// from the connection's auth).
+message StatsBatch {
+  repeated StatsBatchEntry entries = 1;
+}
+
+// One container's metrics for one aggregation window.
+//
+// Series identity on the Cloud side is (host_id, container_name) — there is
+// deliberately no container_id. Container ids churn on every redeploy and each
+// new value would strand the old time series forever; keying on the name means
+// a redeploy continues the same series, which is what a resource chart wants.
+message StatsBatchEntry {
+  string host_id = 1;
+  string container_name = 2;
+  int64 timestamp_ns = 3;         // window END, unix nanoseconds
+
+  // Gauges — arithmetic mean over the window.
+  double cpu_percent = 4;         // normalised 0-100 across cores, NOT per-core
+  double memory_percent = 5;
+  double memory_usage_bytes = 6;
+  // Peak sample in the window. A 30s mean flattens spikes, and spikes are
+  // exactly what an incident chart is read for.
+  double cpu_percent_max = 7;
+  double memory_percent_max = 8;
+
+  // Monotonic counters — the LAST value observed in the window, not a delta.
+  // Cloud stores these as Prometheus counters so PromQL rate()/increase()
+  // handle the reset that happens when a container is recreated.
+  uint64 network_rx_total = 9;
+  uint64 network_tx_total = 10;
+  uint64 disk_read_total = 11;
+  uint64 disk_write_total = 12;
+
+  // Number of raw samples folded into this entry. Windows with zero samples
+  // are never emitted.
+  uint32 samples = 13;
+  // The core count cpu_percent was divided by, so the raw per-core figure
+  // Docker reports stays recoverable downstream.
+  double cpu_cores = 14;
 }
 
 message ListToolsRequest {}
