@@ -3,6 +3,7 @@ package cloud
 import (
 	"cmp"
 	"context"
+	"maps"
 	"slices"
 	"sync"
 	"time"
@@ -58,6 +59,14 @@ const (
 type seriesKey struct {
 	hostID      string
 	containerID string
+}
+
+// wireKey is how Cloud identifies a series: host plus container name, with no
+// ID (see the StatsBatchEntry comment in cloud.proto). Two accumulators can
+// collapse onto one of these when a container is replaced mid-window.
+type wireKey struct {
+	hostID string
+	name   string
 }
 
 // statAcc folds a window's samples for one container. Gauges accumulate a sum
@@ -220,7 +229,11 @@ func (ss *statsStreamer) observe(s StatSample) {
 // channel, and blocking here backs up into the stats collector (see
 // startMetaRefresh).
 func (ss *statsStreamer) flush(now time.Time) error {
-	entries := make([]*pb.StatsBatchEntry, 0, len(ss.acc))
+	// Keyed the way the wire is keyed, not the way the accumulators are: a
+	// redeploy inside one window leaves the dying and the starting container
+	// both holding samples under the same name, and emitting them as two
+	// entries would put two points on the same series at the same timestamp.
+	merged := make(map[wireKey]*pb.StatsBatchEntry, len(ss.acc))
 	tsNs := now.UnixNano()
 
 	for key, a := range ss.acc {
@@ -250,7 +263,7 @@ func (ss *statsStreamer) flush(now time.Time) error {
 		if cores <= 0 {
 			cores = 1
 		}
-		entries = append(entries, &pb.StatsBatchEntry{
+		entry := &pb.StatsBatchEntry{
 			HostId:        key.hostID,
 			ContainerName: m.name,
 			TimestampNs:   tsNs,
@@ -268,12 +281,21 @@ func (ss *statsStreamer) flush(now time.Time) error {
 			DiskWriteTotal:   a.diskWrite,
 			Samples:          a.samples,
 			CpuCores:         cores,
-		})
+		}
+
+		wk := wireKey{hostID: key.hostID, name: m.name}
+		if prev, ok := merged[wk]; ok {
+			mergeEntry(prev, entry)
+		} else {
+			merged[wk] = entry
+		}
 	}
 
-	if len(entries) == 0 {
+	if len(merged) == 0 {
 		return nil
 	}
+
+	entries := slices.Collect(maps.Values(merged))
 
 	// Sort before any truncation so a host over the cap reports a stable subset
 	// rather than a different random slice every window.
@@ -292,6 +314,41 @@ func (ss *statsStreamer) flush(now time.Time) error {
 	}
 
 	return ss.send(&pb.ToolResponse{Type: &pb.ToolResponse_StatsBatch{StatsBatch: &pb.StatsBatch{Entries: entries}}})
+}
+
+// mergeEntry folds src into dst for two accumulators that resolved to the same
+// (host, container name) — a container replaced mid-window. Means are
+// re-weighted by sample count; maxima take the larger.
+//
+// Counters take the larger rather than the sum: Docker names are unique per
+// host, so the two are never live at the same time, and the old container's
+// cumulative total is the one the series was already sitting at. Summing would
+// emit a total neither container ever reported. The next window drops back to
+// the new container's counters, which reads as a counter reset — exactly what
+// a restart is, and what rate() already knows how to handle.
+func mergeEntry(dst, src *pb.StatsBatchEntry) {
+	total := float64(dst.Samples) + float64(src.Samples)
+	if total == 0 {
+		return
+	}
+	weighted := func(a, b float64) float64 {
+		return (a*float64(dst.Samples) + b*float64(src.Samples)) / total
+	}
+
+	dst.CpuPercent = weighted(dst.CpuPercent, src.CpuPercent)
+	dst.MemoryPercent = weighted(dst.MemoryPercent, src.MemoryPercent)
+	dst.MemoryUsageBytes = weighted(dst.MemoryUsageBytes, src.MemoryUsageBytes)
+
+	dst.CpuPercentMax = max(dst.CpuPercentMax, src.CpuPercentMax)
+	dst.MemoryPercentMax = max(dst.MemoryPercentMax, src.MemoryPercentMax)
+
+	dst.NetworkRxTotal = max(dst.NetworkRxTotal, src.NetworkRxTotal)
+	dst.NetworkTxTotal = max(dst.NetworkTxTotal, src.NetworkTxTotal)
+	dst.DiskReadTotal = max(dst.DiskReadTotal, src.DiskReadTotal)
+	dst.DiskWriteTotal = max(dst.DiskWriteTotal, src.DiskWriteTotal)
+
+	dst.CpuCores = max(dst.CpuCores, src.CpuCores)
+	dst.Samples += src.Samples
 }
 
 // startMetaRefresh rebuilds the metadata snapshot on its own goroutine and

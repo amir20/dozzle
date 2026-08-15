@@ -250,6 +250,50 @@ func TestStatsStreamer_SeparatesSameNameOnDifferentHosts(t *testing.T) {
 	assert.InDelta(t, 90.0, entries[1].GetCpuPercent(), 0.001)
 }
 
+// A container redeployed inside one window keeps its name and gets a new ID, so
+// the dying and the starting container hold two accumulators that resolve to the
+// same series. They have to collapse into one entry — two points on the same
+// (host, name) series at the same timestamp is not something the wire format can
+// express, since StatsBatchEntry carries no container ID.
+func TestStatsStreamer_MergesRedeployedContainerWithinAWindow(t *testing.T) {
+	ss, sent := newTestStreamer(t, []container.Container{
+		testContainer("old", "api"),
+		testContainer("new", "api"),
+	}, 1)
+
+	// Old container: 3 samples, high counters from a long uptime.
+	for _, cpu := range []float64{10, 20, 30} {
+		ss.observe(StatSample{HostID: "host1", Stat: container.ContainerStat{
+			ID: "old", CPUPercent: cpu, MemoryPercent: 40, MemoryUsage: 100,
+			NetworkRxTotal: 9000, DiskReadTotal: 900,
+		}})
+	}
+	// Replacement: 1 sample, counters back near zero.
+	ss.observe(StatSample{HostID: "host1", Stat: container.ContainerStat{
+		ID: "new", CPUPercent: 80, MemoryPercent: 80, MemoryUsage: 300,
+		NetworkRxTotal: 5, DiskReadTotal: 1,
+	}})
+
+	require.NoError(t, ss.flush(time.Unix(1, 0)))
+
+	entries := (*sent)[0].GetEntries()
+	require.Len(t, entries, 1, "one series, not two points at the same timestamp")
+	e := entries[0]
+
+	assert.Equal(t, "api", e.GetContainerName())
+	assert.Equal(t, uint32(4), e.GetSamples())
+	// Means weighted by sample count, not a flat average of the two entries.
+	assert.InDelta(t, 35.0, e.GetCpuPercent(), 0.001, "(10+20+30+80)/4")
+	assert.InDelta(t, 50.0, e.GetMemoryPercent(), 0.001, "(40*3+80)/4")
+	assert.InDelta(t, 150.0, e.GetMemoryUsageBytes(), 0.001, "(100*3+300)/4")
+	assert.InDelta(t, 80.0, e.GetCpuPercentMax(), 0.001)
+	assert.InDelta(t, 80.0, e.GetMemoryPercentMax(), 0.001)
+	// Counters take the larger: the series was already sitting at the old
+	// container's total, and summing would report a value neither ever had.
+	assert.Equal(t, uint64(9000), e.GetNetworkRxTotal())
+	assert.Equal(t, uint64(900), e.GetDiskReadTotal())
+}
+
 // slowStatsHostService lets the first N ListAllContainers calls through, then
 // blocks — standing in for a multi-host setup where one peer goes unreachable
 // mid-run (each host costs a 5s timeout, sequentially).
