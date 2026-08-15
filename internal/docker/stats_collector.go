@@ -27,6 +27,37 @@ type DockerStatsCollector struct {
 
 var timeToStop = 6 * time.Hour
 
+// Retry bounds for the two Docker streams this collector depends on: a
+// container's stats stream and the host's event stream.
+//
+// Both used to be one-shot. That was survivable when the only subscribers were
+// UI tabs — a user looking at a dead chart reloads the page, which resubscribes
+// and rebuilds everything. It is not survivable now that Cloud metrics keep a
+// permanent subscription: nothing ever resubscribes, so a single transient
+// error meant that container (or the whole host) stopped reporting until the
+// process restarted, with no signal anywhere that it had.
+var (
+	streamRetryMin = 1 * time.Second
+	streamRetryMax = 30 * time.Second
+)
+
+// nextBackoff doubles up to the ceiling.
+func nextBackoff(d time.Duration) time.Duration {
+	return min(d*2, streamRetryMax)
+}
+
+// sleepOrDone waits out the backoff, returning false if ctx ended first.
+func sleepOrDone(ctx context.Context, d time.Duration) bool {
+	t := time.NewTimer(d)
+	defer t.Stop()
+	select {
+	case <-ctx.Done():
+		return false
+	case <-t.C:
+		return true
+	}
+}
+
 func NewDockerStatsCollector(client container.Client, labels container.ContainerLabels) *DockerStatsCollector {
 	return &DockerStatsCollector{
 		stream:      make(chan container.ContainerStat),
@@ -74,15 +105,47 @@ func (c *DockerStatsCollector) reset() {
 	c.timer = nil
 }
 
+// streamStats keeps one container's stats flowing for as long as its context
+// lives. ContainerStats returning — with an error OR cleanly — means the stream
+// broke, not that the container is gone: a container that actually stops
+// arrives as a `die` event, which cancels this context. So anything else is
+// retried with backoff. Without that, one hiccup left a single container
+// silently absent from every subsequent stats window while its neighbours
+// carried on, which is indistinguishable from a container that is simply idle.
 func streamStats(parent context.Context, sc *DockerStatsCollector, id string) {
 	ctx, cancel := context.WithCancel(parent)
 	sc.cancelers.Store(id, cancel)
-	log.Debug().Str("container", id).Str("host", sc.client.Host().Name).Msg("starting to stream stats")
-	if err := sc.client.ContainerStats(ctx, id, sc.stream); err != nil {
-		log.Debug().Str("container", id).Str("host", sc.client.Host().Name).Err(err).Msg("stopping to stream stats")
-		if !errors.Is(err, context.Canceled) && !errors.Is(err, io.EOF) {
-			log.Error().Str("container", id).Str("host", sc.client.Host().Name).Err(err).Msg("unexpected error while streaming stats")
+
+	backoff := streamRetryMin
+	for {
+		log.Debug().Str("container", id).Str("host", sc.client.Host().Name).Msg("starting to stream stats")
+		err := sc.client.ContainerStats(ctx, id, sc.stream)
+
+		// Cancelled = the container died or the collector shut down. Expected,
+		// and the only way out of this loop.
+		if ctx.Err() != nil {
+			log.Debug().Str("container", id).Str("host", sc.client.Host().Name).Msg("stopping to stream stats")
+			return
 		}
+
+		// Warn, not Debug: this is the failure that used to be permanent, and
+		// the whole point of the retry is that someone can see it happening.
+		ev := log.Warn()
+		if err == nil || errors.Is(err, io.EOF) {
+			// A clean end is ordinary (Docker closes idle stats streams), so it
+			// does not deserve a warning until it starts repeating.
+			ev = log.Debug()
+		}
+		ev.Str("container", id).
+			Str("host", sc.client.Host().Name).
+			Err(err).
+			Dur("retry_in", backoff).
+			Msg("container stats stream ended, retrying")
+
+		if !sleepOrDone(ctx, backoff) {
+			return
+		}
+		backoff = nextBackoff(backoff)
 	}
 }
 
@@ -114,20 +177,45 @@ func (sc *DockerStatsCollector) Start(parentCtx context.Context) bool {
 
 	events := make(chan container.ContainerEvent)
 
+	// The event stream is how new containers get a stats stream and dead ones
+	// lose theirs, so losing it degrades the collector even while the existing
+	// per-container streams keep running. It used to forceStop() the whole
+	// collector on any error, which bypasses the reference count entirely:
+	// every subscriber — including a Cloud connection that is never coming back
+	// to resubscribe — went silent at once and was never told. Now it
+	// reconnects, and only a cancelled context ends it.
 	go func() {
 		defer close(events)
-		log.Debug().Str("host", sc.client.Host().Name).Msg("starting to listen to docker events")
-		err := sc.client.ContainerEvents(ctx, events)
-		if !errors.Is(err, context.Canceled) {
-			log.Error().Str("host", sc.client.Host().Name).Err(err).Msg("unexpected error while listening to docker events")
+		backoff := streamRetryMin
+		for {
+			log.Debug().Str("host", sc.client.Host().Name).Msg("starting to listen to docker events")
+			err := sc.client.ContainerEvents(ctx, events)
+			if ctx.Err() != nil {
+				return
+			}
+			log.Warn().
+				Str("host", sc.client.Host().Name).
+				Err(err).
+				Dur("retry_in", backoff).
+				Msg("docker event stream ended, retrying")
+			if !sleepOrDone(ctx, backoff) {
+				return
+			}
+			backoff = nextBackoff(backoff)
 		}
-		sc.forceStop()
 	}()
 
 	go func() {
 		for event := range events {
 			switch event.Name {
 			case "start":
+				// Replace any stream still retrying for this id. Without this,
+				// a start that arrives without a matching die (a restart, a
+				// duplicate event) would leave two loops feeding sc.stream for
+				// one container, doubling its samples.
+				if cancel, ok := sc.cancelers.LoadAndDelete(event.ActorID); ok {
+					cancel()
+				}
 				go streamStats(ctx, sc, event.ActorID)
 
 			case "die":

@@ -4,6 +4,7 @@ import (
 	"cmp"
 	"context"
 	"slices"
+	"sync"
 	"time"
 
 	"github.com/amir20/dozzle/internal/container"
@@ -39,6 +40,10 @@ const (
 	// statsSampleChanBuf absorbs a tick's worth of samples from a busy host
 	// without blocking the collector's fan-out loop.
 	statsSampleChanBuf = 512
+	// statsMaxSendFailures is how many consecutive failed sends end the
+	// streamer. A wedged stream should not spin forever, but one bad send must
+	// not cost the connection every later window either.
+	statsMaxSendFailures = 5
 	// statsMaxStaleTicks is how many windows an accumulator may survive without
 	// its container resolving in the metadata snapshot before it is discarded.
 	// One tick of grace covers a container that started mid-window; beyond that
@@ -105,6 +110,10 @@ type statsStreamer struct {
 	// can drive real windows through run() instead of reaching into state the
 	// run goroutine owns.
 	window time.Duration
+
+	// listWarnOnce keeps a permanently unreachable host from warning every
+	// window. Touched only from buildMeta's goroutine chain.
+	listWarnOnce sync.Once
 }
 
 func newStatsStreamer(hostService StatsStreamHostService, labels container.ContainerLabels, send func(resp *pb.ToolResponse) error) *statsStreamer {
@@ -136,6 +145,10 @@ func (ss *statsStreamer) run(ctx context.Context) {
 	log.Debug().Dur("window", ss.window).Msg("stats streamer: started")
 	defer log.Debug().Msg("stats streamer: stopped")
 
+	// Consecutive failed sends. Reset by any success — this is for a stream
+	// that is wedged rather than merely unlucky.
+	failures := 0
+
 	for {
 		select {
 		case <-ctx.Done():
@@ -151,9 +164,21 @@ func (ss *statsStreamer) run(ctx context.Context) {
 			// last-good snapshot.
 			ss.startMetaRefresh(ctx)
 			if err := ss.flush(now); err != nil {
-				log.Debug().Err(err).Msg("stats streamer: send failed")
-				return
+				// A failed send is not proof the connection is gone, and this
+				// used to return — one transient error and the instance
+				// reported no metrics again until it reconnected, saying so
+				// only at Debug. A genuinely dead stream cancels ctx, which is
+				// the case above, so the honest response here is to log and
+				// keep windowing.
+				failures++
+				log.Warn().Err(err).Int("consecutive", failures).Msg("stats streamer: send failed")
+				if failures >= statsMaxSendFailures {
+					log.Error().Int("consecutive", failures).Msg("stats streamer: giving up until reconnect")
+					return
+				}
+				continue
 			}
+			failures = 0
 		}
 	}
 }
@@ -309,6 +334,15 @@ func (ss *statsStreamer) buildMeta() map[seriesKey]containerMeta {
 	containers, errs := ss.hostService.ListAllContainers(ss.labels)
 	for _, err := range errs {
 		if err != nil {
+			// Warned once, then quiet. A host that cannot be listed drops every
+			// one of its containers out of the batch two windows later (see
+			// flush) — silence that looks exactly like idle containers, which
+			// is precisely the confusion this whole retry pass exists to end.
+			// Repeating it every 30s for a permanently unreachable peer would
+			// bury everything else, so the rest go to Debug.
+			ss.listWarnOnce.Do(func() {
+				log.Warn().Err(err).Msg("stats streamer: error listing containers from host; its containers will not report metrics (further errors at debug level)")
+			})
 			log.Debug().Err(err).Msg("stats streamer: error listing containers from host")
 		}
 	}

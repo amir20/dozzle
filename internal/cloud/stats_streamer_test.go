@@ -407,3 +407,90 @@ func TestStatsStreamer_OnlyOneRefreshInFlight(t *testing.T) {
 	case <-time.After(100 * time.Millisecond):
 	}
 }
+
+// A failed send must not end the streamer. It used to `return`, so a single
+// transient error meant the instance reported no metrics at all until it
+// reconnected — the failure mode that made a live Cloud instance look idle for
+// hours.
+func TestStatsStreamer_SurvivesAFailedSend(t *testing.T) {
+	hs := &fakeStatsHostService{
+		containers: []container.Container{testContainer("c1", "api")},
+		hosts:      []container.Host{{ID: "host1", NCPU: 1}},
+		subscribed: make(chan chan<- StatSample, 1),
+	}
+	var failNext atomic.Bool
+	failNext.Store(true)
+	batches := make(chan *pb.StatsBatch, 4)
+	ss := newStatsStreamer(hs, nil, func(r *pb.ToolResponse) error {
+		if failNext.Swap(false) {
+			return assert.AnError
+		}
+		batches <- r.GetStatsBatch()
+		return nil
+	})
+	ss.window = 50 * time.Millisecond
+
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+	done := make(chan struct{})
+	go func() { defer close(done); ss.run(ctx) }()
+
+	samples := <-hs.subscribed
+	// Two windows' worth: the first send fails, the second must still happen.
+	samples <- StatSample{HostID: "host1", Stat: container.ContainerStat{ID: "c1", CPUPercent: 10}}
+	time.Sleep(80 * time.Millisecond)
+	samples <- StatSample{HostID: "host1", Stat: container.ContainerStat{ID: "c1", CPUPercent: 20}}
+
+	select {
+	case b := <-batches:
+		require.Len(t, b.GetEntries(), 1)
+		assert.Equal(t, "api", b.GetEntries()[0].GetContainerName())
+	case <-time.After(5 * time.Second):
+		t.Fatal("streamer stopped after one failed send")
+	}
+
+	cancel()
+	<-done
+}
+
+// ...but a stream that fails every single time is wedged, and spinning on it
+// forever helps nobody. It gives up after statsMaxSendFailures.
+func TestStatsStreamer_GivesUpOnAPermanentlyFailingSend(t *testing.T) {
+	hs := &fakeStatsHostService{
+		containers: []container.Container{testContainer("c1", "api")},
+		hosts:      []container.Host{{ID: "host1", NCPU: 1}},
+		subscribed: make(chan chan<- StatSample, 1),
+	}
+	var sends atomic.Int32
+	ss := newStatsStreamer(hs, nil, func(*pb.ToolResponse) error {
+		sends.Add(1)
+		return assert.AnError
+	})
+	ss.window = 20 * time.Millisecond
+
+	ctx := t.Context()
+	done := make(chan struct{})
+	go func() { defer close(done); ss.run(ctx) }()
+
+	samples := <-hs.subscribed
+	// Keep feeding so every window has something to send; run() exits once the
+	// failures reach the cap.
+	go func() {
+		for {
+			select {
+			case <-ctx.Done():
+				return
+			case samples <- StatSample{HostID: "host1", Stat: container.ContainerStat{ID: "c1", CPUPercent: 1}}:
+				time.Sleep(5 * time.Millisecond)
+			}
+		}
+	}()
+
+	select {
+	case <-done:
+		assert.Equal(t, int32(statsMaxSendFailures), sends.Load(),
+			"should stop exactly at the failure cap")
+	case <-time.After(5 * time.Second):
+		t.Fatal("streamer never gave up on a permanently failing send")
+	}
+}
