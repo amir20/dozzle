@@ -101,7 +101,7 @@ func (s *ContainerStore) checkConnectivity() error {
 		go func() {
 			log.Debug().Str("host", s.client.Host().Name).Msg("docker store subscribing docker events")
 			err := s.client.ContainerEvents(s.ctx, s.events)
-			if !errors.Is(err, context.Canceled) {
+			if err != nil && !errors.Is(err, context.Canceled) {
 				log.Error().Err(err).Str("host", s.client.Host().Name).Msg("docker store unexpectedly disconnected from docker events")
 			}
 			s.connected.Store(false)

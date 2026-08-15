@@ -113,6 +113,10 @@ alert:
     title: Vergelijkbare container gevonden
     message: >-
       Dozzle heeft een vergelijkbare container gevonden ({containerId}) op dezelfde host. Je wordt hier automatisch naartoe omgeleid, tenzij je op 'Annuleren' klikt.
+  stale-ui:
+    title: Vernieuw om de update af te ronden
+    message: >-
+      Dozzle is bijgewerkt. Deze pagina draait nog de vorige versie en wordt automatisch vernieuwd zodra je naar een ander tabblad gaat.
 title:
   page-not-found: Pagina niet gevonden
   login: Aanmelding vereist
@@ -125,7 +129,8 @@ button:
   settings: Instellingen
   cancel: Annuleren
   redirect: Doorsturen
-  retry: Retry
+  retry: Opnieuw proberen
+  refresh: Vernieuwen
 placeholder:
   search-containers: Zoek containers (⌘ + k, ⌃k)
   search: Zoeken
@@ -235,14 +240,14 @@ notifications:
     enabled: Ingeschakeld ({count})
     paused: Gepauzeerd ({count})
   no-alerts: Nog geen waarschuwingen geconfigureerd. Maak er een om te beginnen.
-  default-alert-created: "We created a default alert for you. You'll get notified when any container exits with an error. Edit or pause it anytime."
-  default-alert-failed: "Couldn't auto-create your alert — here's the form instead."
+  default-alert-created: We hebben een standaardwaarschuwing voor je aangemaakt. Je krijgt bericht wanneer een container met een fout stopt. Je kunt deze altijd aanpassen of pauzeren.
+  default-alert-failed: Je waarschuwing kon niet automatisch worden aangemaakt. Gebruik in plaats daarvan dit formulier.
   alert:
     paused: Gepauzeerd
     containers: Containers
     log-filter: Logfilter
     metric-filter: Metriek
-    event-filter: Event
+    event-filter: Gebeurtenis
     cooldown: Wachttijd
     sample-window: Steekproefvenster
     destination: Bestemming
@@ -282,13 +287,13 @@ notifications:
     sample-window-hint: "Waarschuwing wordt geactiveerd wanneer de voorwaarde gedurende {duration} is voldaan"
     cooldown-label: Wachttijd
     cooldown-hint: "{duration} tussen waarschuwingen per container"
-    no-cooldown: No cooldown
+    no-cooldown: Geen wachttijd
     alert-type: Waarschuwingstype
     log-alert: Logwaarschuwing
     metric-alert: Metrikwaarschuwing
-    event-alert: Event Alert
-    event-filter: Event Expression
-    event-fields-hint: "Available fields: {fields}"
+    event-alert: Gebeurteniswaarschuwing
+    event-filter: Gebeurtenisexpressie
+    event-fields-hint: "Beschikbare velden: {fields}"
   destination-form:
     create-title: Bestemming toevoegen
     edit-title: Bestemming bewerken
@@ -328,7 +333,7 @@ notifications:
     cloud-settings-link: Dozzle Cloud-instellingen
     cloud-checking: Cloudstatus controleren...
     cloud-relink: Uw API-sleutel is ongeldig of verlopen. Verwijder en koppel uw account opnieuw.
-    cloud-unavailable: Dozzle Cloud is temporarily unavailable. Please try again later.
+    cloud-unavailable: Dozzle Cloud is tijdelijk niet beschikbaar. Probeer het later opnieuw.
     cloud-plan: Plan
     cloud-usage: Gebeurtenissen deze periode
   empty-state:
@@ -351,7 +356,7 @@ cloud:
   dashboard: Dashboard
   settings: Instellingen
   error: Verbindingsfout. Koppel je instantie opnieuw.
-  error-unavailable: Dozzle Cloud is temporarily unavailable. Please try again later.
+  error-unavailable: Dozzle Cloud is tijdelijk niet beschikbaar. Probeer het later opnieuw.
   unlink: Ontkoppelen
   unlink-confirm: Weet je zeker dat je de koppeling met Dozzle Cloud wilt opheffen? Dit verwijdert alle cloudmeldingsbestemmingen.
   stream-logs: Containerlogs streamen naar Dozzle Cloud

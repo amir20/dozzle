@@ -193,7 +193,13 @@ func (sc *DockerStatsCollector) Start(parentCtx context.Context) bool {
 			if ctx.Err() != nil {
 				return
 			}
-			log.Warn().
+			// A clean exit is ordinary, so it only gets a warning once it starts
+			// repeating for a real reason.
+			ev := log.Warn()
+			if err == nil {
+				ev = log.Debug()
+			}
+			ev.
 				Str("host", sc.client.Host().Name).
 				Err(err).
 				Dur("retry_in", backoff).
