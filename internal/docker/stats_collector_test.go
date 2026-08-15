@@ -2,7 +2,9 @@ package docker
 
 import (
 	"context"
+	"errors"
 	"testing"
+	"time"
 
 	"github.com/amir20/dozzle/internal/container"
 	"github.com/stretchr/testify/assert"
@@ -112,4 +114,103 @@ func TestStop(t *testing.T) {
 	collector := startedCollector(ctx)
 	collector.Stop()
 	assert.Equal(t, int32(0), collector.totalStarted.Load(), "total started should be 1")
+}
+
+// fastRetries shrinks the backoff so a retry test finishes in milliseconds.
+func fastRetries(t *testing.T) {
+	t.Helper()
+	oldMin, oldMax := streamRetryMin, streamRetryMax
+	streamRetryMin, streamRetryMax = time.Millisecond, time.Millisecond
+	t.Cleanup(func() { streamRetryMin, streamRetryMax = oldMin, oldMax })
+}
+
+// A container's stats stream breaking is not the container going away — that
+// arrives as a `die` event. This used to be one-shot, so a single transient
+// error left one container permanently absent from stats while every other
+// container on the host carried on: indistinguishable from an idle container,
+// and unrecoverable without restarting the process.
+func TestStatsStreamRetriesAfterError(t *testing.T) {
+	fastRetries(t)
+	ctx, cancel := context.WithCancel(context.Background())
+	t.Cleanup(cancel)
+
+	client := new(mockedClient)
+	client.On("Host").Return(container.Host{ID: "localhost"})
+	client.On("ListContainers", mock.Anything, mock.Anything).Return([]container.Container{
+		{ID: "1234", Name: "test", State: "running"},
+	}, nil)
+	client.On("ContainerEvents", mock.Anything, mock.Anything).
+		Return(nil).
+		Run(func(args mock.Arguments) { <-args.Get(0).(context.Context).Done() })
+
+	// First attempt fails, every later attempt delivers.
+	client.On("ContainerStats", mock.Anything, mock.Anything, mock.Anything).
+		Return(errors.New("connection reset")).
+		Once()
+	client.On("ContainerStats", mock.Anything, mock.Anything, mock.Anything).
+		Return(nil).
+		Run(func(args mock.Arguments) {
+			args.Get(2).(chan<- container.ContainerStat) <- container.ContainerStat{ID: "1234"}
+		})
+
+	collector := NewDockerStatsCollector(client, container.ContainerLabels{})
+	stats := make(chan container.ContainerStat)
+	collector.Subscribe(ctx, stats)
+	go collector.Start(ctx)
+
+	select {
+	case s := <-stats:
+		assert.Equal(t, "1234", s.ID, "stats resumed after the stream errored")
+	case <-time.After(5 * time.Second):
+		t.Fatal("stats never resumed after a failed stream — the retry is gone")
+	}
+}
+
+// The event stream ending used to call forceStop(), which bypasses the
+// reference count: every subscriber went silent at once and none was told. A
+// Cloud connection holds a permanent subscription and never resubscribes, so
+// that was terminal for it. It must reconnect instead.
+func TestEventStreamRetriesInsteadOfStoppingTheCollector(t *testing.T) {
+	fastRetries(t)
+	ctx, cancel := context.WithCancel(context.Background())
+	t.Cleanup(cancel)
+
+	reconnected := make(chan struct{}, 1)
+	client := new(mockedClient)
+	client.On("Host").Return(container.Host{ID: "localhost"})
+	client.On("ListContainers", mock.Anything, mock.Anything).Return([]container.Container{}, nil)
+	client.On("ContainerStats", mock.Anything, mock.Anything, mock.Anything).Return(nil).Maybe()
+
+	client.On("ContainerEvents", mock.Anything, mock.Anything).
+		Return(errors.New("docker went away")).
+		Once()
+	client.On("ContainerEvents", mock.Anything, mock.Anything).
+		Return(nil).
+		Run(func(args mock.Arguments) {
+			select {
+			case reconnected <- struct{}{}:
+			default:
+			}
+			<-args.Get(0).(context.Context).Done()
+		})
+
+	collector := NewDockerStatsCollector(client, container.ContainerLabels{})
+	stopped := make(chan bool, 1)
+	go func() { stopped <- collector.Start(ctx) }()
+
+	select {
+	case <-reconnected:
+	case <-time.After(5 * time.Second):
+		t.Fatal("event stream was never re-established")
+	}
+
+	// And the collector itself is still up — the old behaviour tore it down.
+	select {
+	case <-stopped:
+		t.Fatal("collector stopped when the event stream failed")
+	case <-time.After(50 * time.Millisecond):
+	}
+	collector.mu.Lock()
+	assert.NotNil(t, collector.stopper, "collector should still be running")
+	collector.mu.Unlock()
 }

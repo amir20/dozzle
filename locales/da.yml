@@ -358,8 +358,16 @@ cloud:
   error-unavailable: Dozzle Cloud er midlertidigt utilgængelig. Prøv igen senere.
   unlink: Fjern tilknytning
   unlink-confirm: Er du sikker på, at du vil fjerne tilknytningen til Dozzle Cloud? Dette fjerner alle cloud-notifikationsdestinationer.
-  stream-logs: Stream containerlogs til Dozzle Cloud
-  stream-logs-help: Påkrævet for AI-drevne undersøgelser og logsøgning. Deaktiver for at holde alt logindhold på denne instans.
+  privacy:
+    toggle: "Stream logs og metrikker til Dozzle Cloud"
+    sends-heading: "Så længe dette er slået til, sender dine containere løbende:"
+    sends-logs: "Loglinjer, efterhånden som de skrives"
+    sends-metrics: "CPU-, hukommelses-, netværks- og diskforbrug, gennemsnitligt over 30 sekunder"
+    never-heading: "Sendes aldrig:"
+    never-env: "Miljøvariabler"
+    off-note: "Slå dette fra for at holde logs og metrikker på denne instans. Alarmer, du har opsat, leveres stadig, og fjernadgang til containere fungerer fortsat."
+    per-container: "Udelad en enkelt container med labelet: dev.dozzle.cloud.min_level=disabled"
+    required-for: "Påkrævet for AI-undersøgelser, logsøgning og ressourcehistorik."
   welcome:
     title: "Cloud er en intelligent triage for dine containere."
     subtitle: "Et startsæt af fejlsignaler er forhåndsvalgt — fortæl os, hvad der bragte dig hertil, så vi kan finjustere det."

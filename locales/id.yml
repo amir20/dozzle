@@ -370,8 +370,16 @@ cloud:
   error-unavailable: Dozzle Cloud sedang tidak tersedia. Silakan coba lagi nanti.
   unlink: Lepaskan tautan
   unlink-confirm: Apakah Anda yakin ingin melepaskan tautan dari Dozzle Cloud? Ini akan menghapus semua tujuan notifikasi cloud.
-  stream-logs: Streaming log kontainer ke Dozzle Cloud
-  stream-logs-help: Diperlukan untuk investigasi bertenaga AI dan pencarian log. Nonaktifkan untuk menyimpan seluruh konten log di instance ini.
+  privacy:
+    toggle: "Streaming log dan metrik ke Dozzle Cloud"
+    sends-heading: "Selama ini aktif, kontainer Anda terus mengirim:"
+    sends-logs: "Baris log, saat ditulis"
+    sends-metrics: "Penggunaan CPU, memori, jaringan, dan disk, dirata-ratakan selama 30 detik"
+    never-heading: "Tidak pernah dikirim:"
+    never-env: "Variabel lingkungan"
+    off-note: "Nonaktifkan untuk menyimpan log dan metrik di instance ini. Peringatan yang sudah Anda atur tetap dikirim, dan akses kontainer jarak jauh tetap berfungsi."
+    per-container: "Kecualikan satu kontainer dengan label: dev.dozzle.cloud.min_level=disabled"
+    required-for: "Diperlukan untuk investigasi AI, pencarian log, dan riwayat sumber daya."
   welcome:
     title: "Cloud adalah triage cerdas untuk kontainer Anda."
     subtitle: "Sekumpulan sinyal kegagalan awal sudah dipilih — beri tahu kami apa yang membawa Anda kemari agar bisa kami sesuaikan."

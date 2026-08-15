@@ -358,8 +358,16 @@ cloud:
   error-unavailable: Dozzle Cloud ist vorübergehend nicht verfügbar. Bitte versuche es später erneut.
   unlink: Verknüpfung aufheben
   unlink-confirm: Sind Sie sicher, dass Sie die Verknüpfung mit Dozzle Cloud aufheben möchten? Dies entfernt alle Cloud-Benachrichtigungsziele.
-  stream-logs: Container-Logs an Dozzle Cloud streamen
-  stream-logs-help: Erforderlich für KI-gestützte Analysen und Log-Suche. Deaktivieren, um sämtliche Log-Inhalte auf dieser Instanz zu behalten.
+  privacy:
+    toggle: "Logs und Metriken an Dozzle Cloud streamen"
+    sends-heading: "Solange dies aktiviert ist, senden Ihre Container fortlaufend:"
+    sends-logs: "Log-Zeilen, sobald sie geschrieben werden"
+    sends-metrics: "CPU-, Arbeitsspeicher-, Netzwerk- und Festplattennutzung, gemittelt über 30 Sekunden"
+    never-heading: "Wird nie gesendet:"
+    never-env: "Umgebungsvariablen"
+    off-note: "Deaktivieren Sie dies, um Logs und Metriken auf dieser Instanz zu behalten. Eingerichtete Benachrichtigungen werden weiterhin zugestellt und der Fernzugriff auf Container funktioniert weiterhin."
+    per-container: "Einen einzelnen Container ausschließen mit dem Label: dev.dozzle.cloud.min_level=disabled"
+    required-for: "Erforderlich für KI-Analysen, Log-Suche und Ressourcenverlauf."
   welcome:
     title: "Cloud ist eine intelligente Triage für Ihre Container."
     subtitle: "Ein Starter-Set an Fehlersignalen ist vorausgewählt — sagen Sie uns, was Sie hergeführt hat, damit wir es feinabstimmen können."

@@ -358,8 +358,16 @@ cloud:
   error-unavailable: Dozzle Cloud est temporairement indisponible. Veuillez réessayer plus tard.
   unlink: Délier
   unlink-confirm: Êtes-vous sûr de vouloir délier de Dozzle Cloud ? Cela supprimera toutes les destinations de notification cloud.
-  stream-logs: Diffuser les journaux de conteneurs vers Dozzle Cloud
-  stream-logs-help: Requis pour les investigations alimentées par IA et la recherche dans les journaux. Désactivez pour conserver tout le contenu des journaux sur cette instance.
+  privacy:
+    toggle: "Diffuser les journaux et les métriques vers Dozzle Cloud"
+    sends-heading: "Tant que cette option est activée, vos conteneurs envoient en continu :"
+    sends-logs: "Les lignes de journal, au fur et à mesure de leur écriture"
+    sends-metrics: "L'utilisation du processeur, de la mémoire, du réseau et du disque, moyennée sur 30 secondes"
+    never-heading: "Jamais envoyé :"
+    never-env: "Les variables d'environnement"
+    off-note: "Désactivez pour conserver les journaux et les métriques sur cette instance. Les alertes que vous avez configurées continuent d'être envoyées et l'accès distant aux conteneurs fonctionne toujours."
+    per-container: "Exclure un seul conteneur avec le label : dev.dozzle.cloud.min_level=disabled"
+    required-for: "Requis pour les investigations par IA, la recherche dans les journaux et l'historique des ressources."
   welcome:
     title: "Cloud est un triage intelligent pour vos conteneurs."
     subtitle: "Un ensemble initial de signaux de défaillance est présélectionné — dites-nous ce qui vous amène pour que nous puissions l'ajuster."

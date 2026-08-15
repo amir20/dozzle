@@ -358,8 +358,16 @@ cloud:
   error-unavailable: Dozzle Cloud 暂时不可用，请稍后重试。
   unlink: 取消关联
   unlink-confirm: 确定要取消与 Dozzle Cloud 的关联吗？这将移除所有云通知目标。
-  stream-logs: 将容器日志流式传输到 Dozzle Cloud
-  stream-logs-help: AI 调查和日志搜索所需。禁用后，所有日志内容将保留在此实例中。
+  privacy:
+    toggle: "将日志和指标流式传输到 Dozzle Cloud"
+    sends-heading: "启用期间，您的容器会持续发送："
+    sends-logs: "日志内容，写入时即发送"
+    sends-metrics: "CPU、内存、网络和磁盘使用率，按 30 秒取平均"
+    never-heading: "从不发送："
+    never-env: "环境变量"
+    off-note: "禁用后，日志和指标将保留在此实例中。已配置的告警仍会发送，远程容器访问也仍然可用。"
+    per-container: "如需排除单个容器，请使用标签：dev.dozzle.cloud.min_level=disabled"
+    required-for: "AI 调查、日志搜索和资源历史记录所需。"
   welcome:
     title: "Cloud 是为你的容器提供的智能分诊系统。"
     subtitle: "已为你预选了一组初始的故障信号 — 告诉我们你为何而来，我们好做调整。"

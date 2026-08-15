@@ -364,8 +364,16 @@ cloud:
   error-unavailable: Dozzle Cloud je začasno nedosegljiv. Poskusite znova pozneje.
   unlink: Prekini povezavo
   unlink-confirm: Ali ste prepričani, da želite prekiniti povezavo z Dozzle Cloud? To bo odstranilo vse cilje obvestil v oblaku.
-  stream-logs: Pretakanje dnevnikov vsebnikov v Dozzle Cloud
-  stream-logs-help: Potrebno za preiskave z umetno inteligenco in iskanje po dnevnikih. Onemogočite, da vsa vsebina dnevnikov ostane na tej instanci.
+  privacy:
+    toggle: "Pretakanje dnevnikov in meritev v Dozzle Cloud"
+    sends-heading: "Dokler je to vklopljeno, vaši vsebniki nenehno pošiljajo:"
+    sends-logs: "Vrstice dnevnika, takoj ko so zapisane"
+    sends-metrics: "Porabo CPE, pomnilnika, omrežja in diska, povprečeno v 30 sekundah"
+    never-heading: "Nikoli ni poslano:"
+    never-env: "Spremenljivke okolja"
+    off-note: "Izklopite, da dnevniki in meritve ostanejo na tej instanci. Nastavljena opozorila se še vedno dostavljajo, oddaljen dostop do vsebnikov pa še naprej deluje."
+    per-container: "Posamezen vsebnik izključite z oznako: dev.dozzle.cloud.min_level=disabled"
+    required-for: "Potrebno za preiskave z umetno inteligenco, iskanje po dnevnikih in zgodovino virov."
   welcome:
     title: "Cloud je inteligentna triaža za vaše vsebnike."
     subtitle: "Začetni nabor signalov napak je vnaprej izbran — povejte nam, kaj vas je pripeljalo sem, da ga lahko prilagodimo."

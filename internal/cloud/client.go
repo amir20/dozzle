@@ -24,13 +24,13 @@ import (
 )
 
 const (
-	initialBackoff         = 1 * time.Second
-	maxBackoff             = 30 * time.Second
-	backoffFactor          = 2
-	jitterFraction         = 0.1
-	maxConcurrent          = 5
-	maxConcurrentStreams   = 10
-	unauthenticatedPause   = 1 * time.Hour
+	initialBackoff       = 1 * time.Second
+	maxBackoff           = 30 * time.Second
+	backoffFactor        = 2
+	jitterFraction       = 0.1
+	maxConcurrent        = 5
+	maxConcurrentStreams = 10
+	unauthenticatedPause = 1 * time.Hour
 )
 
 // Client manages the gRPC connection to Dozzle Cloud
@@ -287,6 +287,20 @@ func (c *Client) connect(ctx context.Context, apiKey string) (wasConnected bool,
 		})
 	} else {
 		log.Debug().Msg("host service does not support log streaming; skipping")
+	}
+
+	// Container metrics ride the same connection and the same privacy toggle:
+	// a user who opted out of shipping log contents has opted out of shipping
+	// their containers' resource usage too.
+	if streamLogs {
+		if sshs, ok := c.deps.HostService.(StatsStreamHostService); ok {
+			stats := newStatsStreamer(sshs, c.deps.Labels, sendResp)
+			wg.Go(func() {
+				stats.run(streamLifetime)
+			})
+		} else {
+			log.Debug().Msg("host service does not support stats streaming; skipping")
+		}
 	}
 
 	defer func() {

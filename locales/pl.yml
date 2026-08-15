@@ -361,8 +361,16 @@ cloud:
   error-unavailable: Dozzle Cloud jest chwilowo niedostępny. Spróbuj ponownie później.
   unlink: Rozłącz
   unlink-confirm: Czy na pewno chcesz rozłączyć się z Dozzle Cloud? Spowoduje to usunięcie wszystkich miejsc docelowych powiadomień w chmurze.
-  stream-logs: Przesyłaj logi kontenerów do Dozzle Cloud
-  stream-logs-help: Wymagane do analiz wspieranych przez AI i wyszukiwania w logach. Wyłącz, aby zachować całą zawartość logów w tej instancji.
+  privacy:
+    toggle: "Przesyłaj logi i metryki do Dozzle Cloud"
+    sends-heading: "Gdy ta opcja jest włączona, kontenery stale wysyłają:"
+    sends-logs: "Wiersze logów, w miarę jak są zapisywane"
+    sends-metrics: "Zużycie CPU, pamięci, sieci i dysku, uśrednione z 30 sekund"
+    never-heading: "Nigdy nie jest wysyłane:"
+    never-env: "Zmienne środowiskowe"
+    off-note: "Wyłącz tę opcję, aby logi i metryki pozostały w tej instancji. Skonfigurowane alerty nadal będą dostarczane, a zdalny dostęp do kontenerów nadal działa."
+    per-container: "Wyklucz pojedynczy kontener etykietą: dev.dozzle.cloud.min_level=disabled"
+    required-for: "Wymagane do analiz AI, wyszukiwania w logach i historii zasobów."
   welcome:
     title: "Cloud to inteligentna triaż dla Twoich kontenerów."
     subtitle: "Startowy zestaw sygnałów awarii jest wstępnie wybrany — powiedz nam, co Cię tu sprowadziło, żebyśmy mogli go dostroić."
