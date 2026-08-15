@@ -358,8 +358,16 @@ cloud:
   error-unavailable: Dozzle Cloud non è temporaneamente disponibile. Riprova più tardi.
   unlink: Scollega
   unlink-confirm: Sei sicuro di voler scollegare da Dozzle Cloud? Questo rimuoverà tutte le destinazioni di notifica cloud.
-  stream-logs: Invia i log dei container a Dozzle Cloud
-  stream-logs-help: Necessario per le indagini basate sull'IA e la ricerca nei log. Disattiva per mantenere tutto il contenuto dei log su questa istanza.
+  privacy:
+    toggle: "Invia log e metriche a Dozzle Cloud"
+    sends-heading: "Finché questa opzione è attiva, i tuoi container inviano continuamente:"
+    sends-logs: "Le righe di log, man mano che vengono scritte"
+    sends-metrics: "Utilizzo di CPU, memoria, rete e disco, mediato su 30 secondi"
+    never-heading: "Non viene mai inviato:"
+    never-env: "Le variabili d'ambiente"
+    off-note: "Disattiva per mantenere log e metriche su questa istanza. Gli avvisi che hai configurato continuano a essere recapitati e l'accesso remoto ai container funziona ancora."
+    per-container: "Escludi un singolo container con l'etichetta: dev.dozzle.cloud.min_level=disabled"
+    required-for: "Necessario per le indagini con IA, la ricerca nei log e lo storico delle risorse."
   welcome:
     title: "Cloud è un triage intelligente per i tuoi container."
     subtitle: "Un set iniziale di segnali di errore è preselezionato — dicci cosa ti ha portato qui così possiamo affinarlo."

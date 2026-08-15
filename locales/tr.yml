@@ -362,8 +362,16 @@ cloud:
   error-unavailable: Dozzle Cloud geçici olarak kullanılamıyor. Lütfen daha sonra tekrar deneyin.
   unlink: Bağlantıyı kaldır
   unlink-confirm: Dozzle Cloud bağlantısını kaldırmak istediğinizden emin misiniz? Bu, tüm bulut bildirim hedeflerini kaldıracaktır.
-  stream-logs: Konteyner günlüklerini Dozzle Cloud'a yayınla
-  stream-logs-help: Yapay zeka destekli incelemeler ve günlük araması için gereklidir. Tüm günlük içeriğini bu örnekte tutmak için devre dışı bırakın.
+  privacy:
+    toggle: "Günlükleri ve metrikleri Dozzle Cloud'a yayınla"
+    sends-heading: "Bu açıkken konteynerleriniz sürekli olarak şunları gönderir:"
+    sends-logs: "Yazıldıkça günlük satırları"
+    sends-metrics: "30 saniyelik ortalamayla CPU, bellek, ağ ve disk kullanımı"
+    never-heading: "Asla gönderilmez:"
+    never-env: "Ortam değişkenleri"
+    off-note: "Günlükleri ve metrikleri bu örnekte tutmak için bunu kapatın. Kurduğunuz uyarılar yine iletilir ve uzaktan konteyner erişimi çalışmaya devam eder."
+    per-container: "Tek bir konteyneri şu etiketle hariç tutun: dev.dozzle.cloud.min_level=disabled"
+    required-for: "Yapay zeka incelemeleri, günlük araması ve kaynak geçmişi için gereklidir."
   welcome:
     title: "Cloud, container'larınız için akıllı bir triyajdır."
     subtitle: "Başlangıç arıza sinyalleri seti önceden seçili — sizi buraya getiren şeyi söyleyin de ince ayar yapalım."

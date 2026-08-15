@@ -362,8 +362,16 @@ cloud:
   error-unavailable: Dozzle Cloud를 일시적으로 사용할 수 없습니다. 나중에 다시 시도해 주세요.
   unlink: 연결 해제
   unlink-confirm: Dozzle Cloud 연결을 해제하시겠습니까? 모든 클라우드 알림 목적지가 삭제됩니다.
-  stream-logs: 컨테이너 로그를 Dozzle Cloud로 전송
-  stream-logs-help: AI 기반 분석 및 로그 검색에 필요합니다. 모든 로그 내용을 이 인스턴스에 유지하려면 비활성화하세요.
+  privacy:
+    toggle: "로그와 메트릭을 Dozzle Cloud로 전송"
+    sends-heading: "이 설정이 켜져 있는 동안 컨테이너는 다음을 계속 전송합니다:"
+    sends-logs: "기록되는 즉시 전송되는 로그 라인"
+    sends-metrics: "30초 동안 평균한 CPU, 메모리, 네트워크, 디스크 사용량"
+    never-heading: "전송하지 않는 항목:"
+    never-env: "환경 변수"
+    off-note: "로그와 메트릭을 이 인스턴스에만 유지하려면 이 설정을 끄세요. 설정한 알림은 계속 전달되며 원격 컨테이너 접근도 그대로 작동합니다."
+    per-container: "특정 컨테이너만 제외하려면 라벨을 사용하세요: dev.dozzle.cloud.min_level=disabled"
+    required-for: "AI 분석, 로그 검색, 리소스 기록에 필요합니다."
   welcome:
     title: "Cloud는 컨테이너를 위한 지능형 트리아지입니다."
     subtitle: "기본 장애 신호 세트가 미리 선택되어 있습니다 — 무엇 때문에 오셨는지 알려 주시면 맞춰 조정할게요."
