@@ -23,6 +23,8 @@ type DockerStatsCollector struct {
 	mu           sync.Mutex
 	totalStarted atomic.Int32
 	labels       container.ContainerLabels
+	retryMin     time.Duration
+	retryMax     time.Duration
 }
 
 var timeToStop = 6 * time.Hour
@@ -36,14 +38,17 @@ var timeToStop = 6 * time.Hour
 // permanent subscription: nothing ever resubscribes, so a single transient
 // error meant that container (or the whole host) stopped reporting until the
 // process restarted, with no signal anywhere that it had.
-var (
+//
+// They live on the collector rather than as package globals so tests can shrink
+// them for one instance without writing to state other running collectors read.
+const (
 	streamRetryMin = 1 * time.Second
 	streamRetryMax = 30 * time.Second
 )
 
 // nextBackoff doubles up to the ceiling.
-func nextBackoff(d time.Duration) time.Duration {
-	return min(d*2, streamRetryMax)
+func nextBackoff(d, ceiling time.Duration) time.Duration {
+	return min(d*2, ceiling)
 }
 
 // sleepOrDone waits out the backoff, returning false if ctx ended first.
@@ -65,6 +70,8 @@ func NewDockerStatsCollector(client container.Client, labels container.Container
 		client:      client,
 		cancelers:   xsync.NewMap[string, context.CancelFunc](),
 		labels:      labels,
+		retryMin:    streamRetryMin,
+		retryMax:    streamRetryMax,
 	}
 }
 
@@ -116,7 +123,7 @@ func streamStats(parent context.Context, sc *DockerStatsCollector, id string) {
 	ctx, cancel := context.WithCancel(parent)
 	sc.cancelers.Store(id, cancel)
 
-	backoff := streamRetryMin
+	backoff := sc.retryMin
 	for {
 		log.Debug().Str("container", id).Str("host", sc.client.Host().Name).Msg("starting to stream stats")
 		err := sc.client.ContainerStats(ctx, id, sc.stream)
@@ -145,7 +152,7 @@ func streamStats(parent context.Context, sc *DockerStatsCollector, id string) {
 		if !sleepOrDone(ctx, backoff) {
 			return
 		}
-		backoff = nextBackoff(backoff)
+		backoff = nextBackoff(backoff, sc.retryMax)
 	}
 }
 
@@ -186,7 +193,7 @@ func (sc *DockerStatsCollector) Start(parentCtx context.Context) bool {
 	// reconnects, and only a cancelled context ends it.
 	go func() {
 		defer close(events)
-		backoff := streamRetryMin
+		backoff := sc.retryMin
 		for {
 			log.Debug().Str("host", sc.client.Host().Name).Msg("starting to listen to docker events")
 			err := sc.client.ContainerEvents(ctx, events)
@@ -207,7 +214,7 @@ func (sc *DockerStatsCollector) Start(parentCtx context.Context) bool {
 			if !sleepOrDone(ctx, backoff) {
 				return
 			}
-			backoff = nextBackoff(backoff)
+			backoff = nextBackoff(backoff, sc.retryMax)
 		}
 	}()
 

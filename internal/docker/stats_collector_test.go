@@ -116,12 +116,12 @@ func TestStop(t *testing.T) {
 	assert.Equal(t, int32(0), collector.totalStarted.Load(), "total started should be 1")
 }
 
-// fastRetries shrinks the backoff so a retry test finishes in milliseconds.
-func fastRetries(t *testing.T) {
-	t.Helper()
-	oldMin, oldMax := streamRetryMin, streamRetryMax
-	streamRetryMin, streamRetryMax = time.Millisecond, time.Millisecond
-	t.Cleanup(func() { streamRetryMin, streamRetryMax = oldMin, oldMax })
+// fastRetries shrinks one collector's backoff so a retry test finishes in
+// milliseconds. It is set on the instance before Start, so it never races with
+// the goroutines of collectors other tests left running.
+func fastRetries(sc *DockerStatsCollector) *DockerStatsCollector {
+	sc.retryMin, sc.retryMax = time.Millisecond, time.Millisecond
+	return sc
 }
 
 // A container's stats stream breaking is not the container going away — that
@@ -130,7 +130,6 @@ func fastRetries(t *testing.T) {
 // container on the host carried on: indistinguishable from an idle container,
 // and unrecoverable without restarting the process.
 func TestStatsStreamRetriesAfterError(t *testing.T) {
-	fastRetries(t)
 	ctx, cancel := context.WithCancel(context.Background())
 	t.Cleanup(cancel)
 
@@ -153,7 +152,7 @@ func TestStatsStreamRetriesAfterError(t *testing.T) {
 			args.Get(2).(chan<- container.ContainerStat) <- container.ContainerStat{ID: "1234"}
 		})
 
-	collector := NewDockerStatsCollector(client, container.ContainerLabels{})
+	collector := fastRetries(NewDockerStatsCollector(client, container.ContainerLabels{}))
 	stats := make(chan container.ContainerStat)
 	collector.Subscribe(ctx, stats)
 	go collector.Start(ctx)
@@ -171,7 +170,6 @@ func TestStatsStreamRetriesAfterError(t *testing.T) {
 // Cloud connection holds a permanent subscription and never resubscribes, so
 // that was terminal for it. It must reconnect instead.
 func TestEventStreamRetriesInsteadOfStoppingTheCollector(t *testing.T) {
-	fastRetries(t)
 	ctx, cancel := context.WithCancel(context.Background())
 	t.Cleanup(cancel)
 
@@ -194,7 +192,7 @@ func TestEventStreamRetriesInsteadOfStoppingTheCollector(t *testing.T) {
 			<-args.Get(0).(context.Context).Done()
 		})
 
-	collector := NewDockerStatsCollector(client, container.ContainerLabels{})
+	collector := fastRetries(NewDockerStatsCollector(client, container.ContainerLabels{}))
 	stopped := make(chan bool, 1)
 	go func() { stopped <- collector.Start(ctx) }()
 
