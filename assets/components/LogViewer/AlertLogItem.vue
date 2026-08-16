@@ -18,21 +18,24 @@
       </div>
 
       <template v-else>
-        <div class="flex flex-wrap items-center gap-x-2.5 gap-y-1">
-          <span class="chip">{{ $t("label.alert") }}</span>
-          <span class="font-semibold">{{ alert.headline }}</span>
-          <!-- Only the count rides the one-line summary. Everything else —
-               containers, what triage held back, the investigation — sits behind
-               Details, so the row costs exactly one line until asked otherwise. -->
-          <span class="shrink-0 opacity-40">&middot;</span>
-          <span class="shrink-0 opacity-60">
-            {{ $t("label.alert-events", alert.eventCount) }}<template v-if="ranFor">, {{ ranFor }}</template>
-          </span>
+        <div class="flex flex-col gap-1.5 py-1">
+          <div class="flex flex-wrap items-center gap-x-2.5 gap-y-1">
+            <span class="chip">{{ $t("label.alert") }}</span>
+            <span class="font-semibold">{{ alert.headline }}</span>
+            <!-- Only the count rides the summary line. Everything else —
+                 containers, what triage held back, the investigation — sits
+                 behind Details. -->
+            <span class="shrink-0 opacity-40">&middot;</span>
+            <span class="shrink-0 opacity-60">
+              {{ $t("label.alert-events", alert.eventCount) }}<template v-if="ranFor">, {{ ranFor }}</template>
+            </span>
+          </div>
 
-          <!-- Right-aligned so the headline starts at the same x-position on
-               every alert down the stream, which is what makes a column of
-               them scannable. -->
-          <span class="ml-auto flex shrink-0 items-center gap-1.5">
+          <!-- Actions get their own line rather than riding the headline: at
+               the end of a long headline they were easy to miss, and a fixed
+               position means they land in the same place on every alert down
+               the stream. -->
+          <div class="flex items-center justify-end gap-1.5">
             <button v-if="hasDetail" type="button" class="act" @click="expanded = !expanded">
               {{ $t("label.alert-details") }}
               <span class="caret" :data-open="expanded">&rsaquo;</span>
@@ -40,7 +43,7 @@
             <a v-if="alert.url" :href="alert.url" target="_blank" rel="noopener" class="act act-tinted">
               {{ $t("label.alert-view-in-cloud") }}
             </a>
-          </span>
+          </div>
         </div>
 
         <div v-if="expanded" class="mt-1 flex flex-col gap-1 text-xs opacity-70">
