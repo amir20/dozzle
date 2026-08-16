@@ -18,25 +18,26 @@
       </div>
 
       <template v-else>
-        <div class="flex items-center gap-x-2">
+        <div class="flex flex-wrap items-center gap-x-2.5 gap-y-1">
           <span class="chip">{{ $t("label.alert") }}</span>
-          <span class="truncate font-medium">{{ alert.headline }}</span>
+          <span class="font-semibold">{{ alert.headline }}</span>
           <!-- Only the count rides the one-line summary. Everything else —
                containers, what triage held back, the investigation — sits behind
                Details, so the row costs exactly one line until asked otherwise. -->
-          <span class="shrink-0 text-xs opacity-60">
+          <span class="shrink-0 opacity-40">&middot;</span>
+          <span class="shrink-0 opacity-60">
             {{ $t("label.alert-events", alert.eventCount) }}<template v-if="ranFor">, {{ ranFor }}</template>
           </span>
 
           <!-- Right-aligned so the headline starts at the same x-position on
                every alert down the stream, which is what makes a column of
                them scannable. -->
-          <span class="ml-auto flex shrink-0 items-center gap-1">
-            <button v-if="hasDetail" type="button" class="btn btn-ghost btn-xs" @click="expanded = !expanded">
+          <span class="ml-auto flex shrink-0 items-center gap-1.5">
+            <button v-if="hasDetail" type="button" class="act" @click="expanded = !expanded">
               {{ $t("label.alert-details") }}
               <span class="caret" :data-open="expanded">&rsaquo;</span>
             </button>
-            <a v-if="alert.url" :href="alert.url" target="_blank" rel="noopener" class="btn btn-xs">
+            <a v-if="alert.url" :href="alert.url" target="_blank" rel="noopener" class="act act-tinted">
               {{ $t("label.alert-view-in-cloud") }}
             </a>
           </span>
@@ -145,12 +146,36 @@ const hasDetail = computed(
 .chip {
   background-color: var(--tint);
   color: var(--tint-content);
-  @apply shrink-0 rounded-xs px-1 text-[0.65rem] font-bold tracking-wider uppercase;
+  @apply shrink-0 rounded-xs px-1.5 py-px text-[0.62rem] font-bold tracking-wider uppercase;
 }
 
 .dot {
   background-color: var(--tint);
   @apply size-1.5 shrink-0 rounded-full;
+}
+
+/* Actions read as controls, not as more log text: a hairline button for the
+   secondary one and a tint of the level colour for the primary. Deliberately
+   not daisyUI's .btn — btn-ghost renders borderless (invisible as a control)
+   and plain .btn renders a heavy filled box that outweighs the row. */
+.act {
+  @apply inline-flex shrink-0 items-center gap-1 rounded border px-2 py-0.5 text-[0.7rem] leading-normal;
+  border-color: color-mix(in oklab, var(--color-base-content) 22%, transparent);
+}
+.act:hover {
+  background-color: color-mix(in oklab, var(--color-base-content) 10%, transparent);
+}
+.act:focus-visible {
+  @apply outline-primary outline-2 outline-offset-1;
+}
+.act-tinted {
+  border-color: transparent;
+  background-color: color-mix(in oklab, var(--tint) 20%, transparent);
+  color: var(--tint);
+  @apply font-semibold;
+}
+.act-tinted:hover {
+  background-color: color-mix(in oklab, var(--tint) 30%, transparent);
 }
 
 .caret {
