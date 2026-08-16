@@ -104,16 +104,16 @@ describe("<AlertLogItem />", () => {
   // ordinary log line, which is the one thing this row must not look like.
   describe("level styling", () => {
     test("treats an empty level as an error", () => {
-      expect(mountAlert({ level: "" }).find("[data-level='error']").exists()).toBe(true);
+      expect(mountAlert({ level: "" }).find("[data-alert-level='error']").exists()).toBe(true);
     });
 
     test("treats an unrecognised level as an error", () => {
-      expect(mountAlert({ level: "mystery" }).find("[data-level='error']").exists()).toBe(true);
+      expect(mountAlert({ level: "mystery" }).find("[data-alert-level='error']").exists()).toBe(true);
     });
 
     test("keeps warn and info distinct", () => {
-      expect(mountAlert({ level: "warning" }).find("[data-level='warn']").exists()).toBe(true);
-      expect(mountAlert({ level: "debug" }).find("[data-level='info']").exists()).toBe(true);
+      expect(mountAlert({ level: "warning" }).find("[data-alert-level='warn']").exists()).toBe(true);
+      expect(mountAlert({ level: "debug" }).find("[data-alert-level='info']").exists()).toBe(true);
     });
   });
 

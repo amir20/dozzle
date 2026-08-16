@@ -2,7 +2,6 @@
   <LogItem :logEntry>
     <div
       class="alert-row w-full border-l-3 pl-2"
-      :data-level="level"
       :data-origin="alert.isOrigin"
       :data-alert-id="alert.alertId"
       :data-alert-level="level"
@@ -113,19 +112,24 @@ const hasDetail = computed(
 
 /* No fill: a rail and a chip mark the row, and the log background is left
    alone. Colour is spent where the eye finds it fastest — a small,
-   high-contrast marker against a calm surface. */
+   high-contrast marker against a calm surface.
+
+   Keyed on data-alert-level, NOT data-level: LogLevel.vue ships a second,
+   UNSCOPED style block whose `[data-level="error"] { @apply !bg-red }` paints
+   any element in the app carrying that attribute, !important and all. Reusing
+   the name filled this row solid red and made every local rule unwinnable. */
 .alert-row {
   border-color: var(--tint);
 }
-.alert-row[data-level="error"] {
+.alert-row[data-alert-level="error"] {
   --tint: var(--color-error);
   --tint-content: var(--color-error-content);
 }
-.alert-row[data-level="warn"] {
+.alert-row[data-alert-level="warn"] {
   --tint: var(--color-warning);
   --tint-content: var(--color-base-300);
 }
-.alert-row[data-level="info"] {
+.alert-row[data-alert-level="info"] {
   --tint: var(--color-info);
   --tint-content: var(--color-info-content);
 }

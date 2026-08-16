@@ -15,7 +15,7 @@
       class="pointer-events-auto absolute right-0 h-1 rounded-l-xs opacity-70 transition-[width,opacity] hover:opacity-100"
       :class="tick.count > 1 ? 'w-2.5' : 'w-1.5'"
       :style="{ top: `${tick.offset * 100}%` }"
-      :data-level="tick.level"
+      :data-alert-level="tick.level"
       :title="tick.count > 1 ? `${tick.headline} (+${tick.count - 1})` : tick.headline"
       @click="scrollTo(tick.alertId)"
     />
@@ -74,20 +74,23 @@ function scrollTo(alertId: number) {
 
 <style scoped>
 @reference "@/main.css";
-[data-level="error"],
-[data-level="fatal"],
-[data-level="critical"],
-[data-level="severe"] {
+/* data-alert-level, not data-level — see AlertLogItem.vue. A tick carrying
+   data-level would be repainted by LogLevel.vue's global !important rules,
+   which would silently turn every info tick green. */
+[data-alert-level="error"],
+[data-alert-level="fatal"],
+[data-alert-level="critical"],
+[data-alert-level="severe"] {
   @apply bg-error;
 }
-[data-level="warn"],
-[data-level="warning"] {
+[data-alert-level="warn"],
+[data-alert-level="warning"] {
   @apply bg-warning;
 }
-[data-level="info"],
-[data-level="debug"],
-[data-level="trace"],
-[data-level="unknown"] {
+[data-alert-level="info"],
+[data-alert-level="debug"],
+[data-alert-level="trace"],
+[data-alert-level="unknown"] {
   @apply bg-base-content/40;
 }
 </style>
