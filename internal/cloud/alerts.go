@@ -38,9 +38,12 @@ type AlertHit struct {
 	SuppressedCount int32  `json:"suppressedCount,omitempty"`
 	// ContainerCount > 1 means the incident is wider than the container being
 	// viewed.
-	ContainerCount int32  `json:"containerCount,omitempty"`
-	Investigation  string `json:"investigation,omitempty"`
-	TriageAction   string `json:"triageAction,omitempty"`
+	ContainerCount int32 `json:"containerCount,omitempty"`
+	// Summary is the alert's description, shown in Details. Present even when
+	// triage wrote no investigation.
+	Summary       string `json:"summary,omitempty"`
+	Investigation string `json:"investigation,omitempty"`
+	TriageAction  string `json:"triageAction,omitempty"`
 
 	CreatedAt      int64 `json:"createdAt"`
 	LastActivityAt int64 `json:"lastActivityAt,omitempty"`
@@ -105,6 +108,7 @@ func (c *Client) GetAlerts(ctx context.Context, containerIDs []string, hostID st
 			EventCount:      h.GetEventCount(),
 			SuppressedCount: h.GetSuppressedCount(),
 			ContainerCount:  h.GetContainerCount(),
+			Summary:         h.GetSummary(),
 			Investigation:   h.GetInvestigation(),
 			TriageAction:    h.GetTriageAction(),
 			CreatedAt:       h.GetCreatedAtNs(),

@@ -391,6 +391,10 @@ message AlertHit {
   // cloud folds those into the incident's original row rather than inserting
   // one, so every hit is an incident, not a triage decision.
   string triage_action = 12;
+  // The alert's description — the same prose the Cloud alert page shows under
+  // the headline. Present even when triage wrote no investigation, so it is
+  // usually the only detail a non-triaged alert can offer.
+  string summary = 17;
   // True when this hit anchors where the incident FIRST fired. False for a
   // follow-up anchor: cloud appends every folded batch's events to the
   // original alert, so one incident can have activity in many scroll windows.

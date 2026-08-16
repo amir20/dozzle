@@ -2531,6 +2531,10 @@ type AlertHit struct {
 	// cloud folds those into the incident's original row rather than inserting
 	// one, so every hit is an incident, not a triage decision.
 	TriageAction string `protobuf:"bytes,12,opt,name=triage_action,json=triageAction,proto3" json:"triage_action,omitempty"`
+	// The alert's description — the same prose the Cloud alert page shows under
+	// the headline. Present even when triage wrote no investigation, so it is
+	// usually the only detail a non-triaged alert can offer.
+	Summary string `protobuf:"bytes,17,opt,name=summary,proto3" json:"summary,omitempty"`
 	// True when this hit anchors where the incident FIRST fired. False for a
 	// follow-up anchor: cloud appends every folded batch's events to the
 	// original alert, so one incident can have activity in many scroll windows.
@@ -2658,6 +2662,13 @@ func (x *AlertHit) GetInvestigation() string {
 func (x *AlertHit) GetTriageAction() string {
 	if x != nil {
 		return x.TriageAction
+	}
+	return ""
+}
+
+func (x *AlertHit) GetSummary() string {
+	if x != nil {
+		return x.Summary
 	}
 	return ""
 }
@@ -2954,7 +2965,7 @@ const file_cloud_proto_rawDesc = "" +
 	"from_ts_ns\x18\x03 \x01(\x03R\bfromTsNs\x12\x18\n" +
 	"\bto_ts_ns\x18\x04 \x01(\x03R\x06toTsNs\x12\x14\n" +
 	"\x05limit\x18\x05 \x01(\x05R\x05limit\x12,\n" +
-	"\x12include_follow_ups\x18\x06 \x01(\bR\x10includeFollowUps\"\x8e\x04\n" +
+	"\x12include_follow_ups\x18\x06 \x01(\bR\x10includeFollowUps\"\xa8\x04\n" +
 	"\bAlertHit\x12\x19\n" +
 	"\balert_id\x18\x01 \x01(\x03R\aalertId\x12!\n" +
 	"\fcontainer_id\x18\x02 \x01(\tR\vcontainerId\x12\x17\n" +
@@ -2970,7 +2981,8 @@ const file_cloud_proto_rawDesc = "" +
 	"\x0fcontainer_count\x18\n" +
 	" \x01(\x05R\x0econtainerCount\x12$\n" +
 	"\rinvestigation\x18\v \x01(\tR\rinvestigation\x12#\n" +
-	"\rtriage_action\x18\f \x01(\tR\ftriageAction\x12\x1b\n" +
+	"\rtriage_action\x18\f \x01(\tR\ftriageAction\x12\x18\n" +
+	"\asummary\x18\x11 \x01(\tR\asummary\x12\x1b\n" +
 	"\tis_origin\x18\x10 \x01(\bR\bisOrigin\x12\"\n" +
 	"\rcreated_at_ns\x18\r \x01(\x03R\vcreatedAtNs\x12-\n" +
 	"\x13last_activity_at_ns\x18\x0e \x01(\x03R\x10lastActivityAtNs\x12\x10\n" +

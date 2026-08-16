@@ -51,6 +51,10 @@
               {{ $t("label.alert-held-back", alert.suppressedCount) }}
             </span>
           </div>
+          <!-- summary is the alert's description and is usually all a
+               non-triaged alert has; investigation is triage's longer write-up
+               and exists only when triage actually ran. -->
+          <div v-if="alert.summary" class="max-w-prose whitespace-pre-wrap">{{ alert.summary }}</div>
           <div v-if="alert.investigation" class="max-w-prose whitespace-pre-wrap">
             {{ alert.investigation }}
           </div>
@@ -103,7 +107,11 @@ const level = computed(() => {
 });
 
 const hasDetail = computed(
-  () => !!alert.value.investigation || !!alert.value.suppressedCount || (alert.value.containerCount ?? 0) > 1,
+  () =>
+    !!alert.value.summary ||
+    !!alert.value.investigation ||
+    !!alert.value.suppressedCount ||
+    (alert.value.containerCount ?? 0) > 1,
 );
 </script>
 

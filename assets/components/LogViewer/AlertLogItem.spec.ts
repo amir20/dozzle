@@ -80,6 +80,15 @@ describe("<AlertLogItem />", () => {
       expect(mountAlert({ suppressedCount: 34 }).find("button").exists()).toBe(true);
       expect(mountAlert({ containerCount: 3 }).find("button").exists()).toBe(true);
     });
+
+    // summary is the description the Cloud alert page shows, and is usually all
+    // a non-triaged alert has to offer.
+    test("reveals the summary, not just the investigation", async () => {
+      const wrapper = mountAlert({ summary: "Container running with unknown health" });
+      expect(wrapper.text()).not.toContain("unknown health");
+      await wrapper.get("button").trigger("click");
+      expect(wrapper.text()).toContain("unknown health");
+    });
   });
 
   describe("incident extent", () => {

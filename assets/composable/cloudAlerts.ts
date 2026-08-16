@@ -23,6 +23,9 @@ export interface CloudAlert {
   suppressedCount?: number;
   /** > 1 means the incident is wider than the container being viewed. */
   containerCount?: number;
+  /** The alert's description, shown in Details. Present even when triage
+   *  wrote no investigation. */
+  summary?: string;
   investigation?: string;
   triageAction?: string;
   createdAt: number;
