@@ -2404,6 +2404,347 @@ func (x *SearchLogHit) GetLogId() uint32 {
 	return 0
 }
 
+// Cloud alert history, merged into the local log stream on scrollback.
+type GetAlertsRequest struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Containers currently in the viewer. Batched into one call because the
+	// viewer fans out over N containers per scroll and must not pay N round
+	// trips to cloud. Empty -> empty result.
+	ContainerIds []string `protobuf:"bytes,1,rep,name=container_ids,json=containerIds,proto3" json:"container_ids,omitempty"`
+	// Optional filter — narrow to a specific Docker host inside the instance.
+	// Empty = all hosts under this instance.
+	HostId string `protobuf:"bytes,2,opt,name=host_id,json=hostId,proto3" json:"host_id,omitempty"`
+	// Window to fetch, matching the [from, to] the viewer just loaded logs for.
+	FromTsNs int64 `protobuf:"varint,3,opt,name=from_ts_ns,json=fromTsNs,proto3" json:"from_ts_ns,omitempty"`
+	ToTsNs   int64 `protobuf:"varint,4,opt,name=to_ts_ns,json=toTsNs,proto3" json:"to_ts_ns,omitempty"`
+	// Result cap. Default 50, server-capped at 200. A single scroll window
+	// covering a noisy incident can legitimately hold many alerts, so this
+	// ceiling is higher than the log-search one.
+	Limit int32 `protobuf:"varint,5,opt,name=limit,proto3" json:"limit,omitempty"`
+	// Include follow-up anchors — points where an already-open incident was
+	// still firing, as opposed to where it first fired. See AlertHit.is_origin.
+	// Default false keeps a long-running incident to a single card.
+	IncludeFollowUps bool `protobuf:"varint,6,opt,name=include_follow_ups,json=includeFollowUps,proto3" json:"include_follow_ups,omitempty"`
+	unknownFields    protoimpl.UnknownFields
+	sizeCache        protoimpl.SizeCache
+}
+
+func (x *GetAlertsRequest) Reset() {
+	*x = GetAlertsRequest{}
+	mi := &file_cloud_proto_msgTypes[27]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetAlertsRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetAlertsRequest) ProtoMessage() {}
+
+func (x *GetAlertsRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_cloud_proto_msgTypes[27]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetAlertsRequest.ProtoReflect.Descriptor instead.
+func (*GetAlertsRequest) Descriptor() ([]byte, []int) {
+	return file_cloud_proto_rawDescGZIP(), []int{27}
+}
+
+func (x *GetAlertsRequest) GetContainerIds() []string {
+	if x != nil {
+		return x.ContainerIds
+	}
+	return nil
+}
+
+func (x *GetAlertsRequest) GetHostId() string {
+	if x != nil {
+		return x.HostId
+	}
+	return ""
+}
+
+func (x *GetAlertsRequest) GetFromTsNs() int64 {
+	if x != nil {
+		return x.FromTsNs
+	}
+	return 0
+}
+
+func (x *GetAlertsRequest) GetToTsNs() int64 {
+	if x != nil {
+		return x.ToTsNs
+	}
+	return 0
+}
+
+func (x *GetAlertsRequest) GetLimit() int32 {
+	if x != nil {
+		return x.Limit
+	}
+	return 0
+}
+
+func (x *GetAlertsRequest) GetIncludeFollowUps() bool {
+	if x != nil {
+		return x.IncludeFollowUps
+	}
+	return false
+}
+
+type AlertHit struct {
+	state       protoimpl.MessageState `protogen:"open.v1"`
+	AlertId     int64                  `protobuf:"varint,1,opt,name=alert_id,json=alertId,proto3" json:"alert_id,omitempty"`
+	ContainerId string                 `protobuf:"bytes,2,opt,name=container_id,json=containerId,proto3" json:"container_id,omitempty"`
+	HostId      string                 `protobuf:"bytes,3,opt,name=host_id,json=hostId,proto3" json:"host_id,omitempty"`
+	// FNV-32a hash of the log line that triggered this alert — the same id
+	// Dozzle stamps on LogEvent.Id. Lets the viewer splice the alert in
+	// directly after its trigger line instead of guessing from a timestamp.
+	// 0 when the alert is not log-anchored (metric and event alerts).
+	LogId uint32 `protobuf:"varint,4,opt,name=log_id,json=logId,proto3" json:"log_id,omitempty"`
+	// Timestamp to anchor on when log_id is 0, or when the trigger line isn't
+	// in the loaded window.
+	AnchorTsNs int64 `protobuf:"varint,5,opt,name=anchor_ts_ns,json=anchorTsNs,proto3" json:"anchor_ts_ns,omitempty"`
+	// Triage's one-line summary. Falls back to the alert title when no
+	// summarizer LLM was involved.
+	Headline string `protobuf:"bytes,6,opt,name=headline,proto3" json:"headline,omitempty"`
+	Level    string `protobuf:"bytes,7,opt,name=level,proto3" json:"level,omitempty"`
+	// Raw events folded into this alert, and follow-up batches triage absorbed
+	// silently after it was first sent.
+	EventCount      int32 `protobuf:"varint,8,opt,name=event_count,json=eventCount,proto3" json:"event_count,omitempty"`
+	SuppressedCount int32 `protobuf:"varint,9,opt,name=suppressed_count,json=suppressedCount,proto3" json:"suppressed_count,omitempty"`
+	// Distinct containers this alert spans. > 1 means the incident is wider
+	// than the container currently being viewed.
+	ContainerCount int32 `protobuf:"varint,10,opt,name=container_count,json=containerCount,proto3" json:"container_count,omitempty"`
+	// Triage's longer write-up. May be empty. Rendered collapsed.
+	Investigation string `protobuf:"bytes,11,opt,name=investigation,proto3" json:"investigation,omitempty"`
+	// 'send_new' | 'fallback' | ”. Never 'suppress' or 'update_existing':
+	// cloud folds those into the incident's original row rather than inserting
+	// one, so every hit is an incident, not a triage decision.
+	TriageAction string `protobuf:"bytes,12,opt,name=triage_action,json=triageAction,proto3" json:"triage_action,omitempty"`
+	// True when this hit anchors where the incident FIRST fired. False for a
+	// follow-up anchor: cloud appends every folded batch's events to the
+	// original alert, so one incident can have activity in many scroll windows.
+	// The viewer renders a full card at the origin and a compact "still
+	// happening" marker at follow-ups.
+	IsOrigin    bool  `protobuf:"varint,16,opt,name=is_origin,json=isOrigin,proto3" json:"is_origin,omitempty"`
+	CreatedAtNs int64 `protobuf:"varint,13,opt,name=created_at_ns,json=createdAtNs,proto3" json:"created_at_ns,omitempty"`
+	// Bumped every time a follow-up batch folds into this alert. Drives the
+	// "still happening" state on the card.
+	LastActivityAtNs int64 `protobuf:"varint,14,opt,name=last_activity_at_ns,json=lastActivityAtNs,proto3" json:"last_activity_at_ns,omitempty"`
+	// Deep link to the alert page in Dozzle Cloud, built from the API key's
+	// app_url. Empty when the key has no app_url configured.
+	Url           string `protobuf:"bytes,15,opt,name=url,proto3" json:"url,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *AlertHit) Reset() {
+	*x = AlertHit{}
+	mi := &file_cloud_proto_msgTypes[28]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *AlertHit) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*AlertHit) ProtoMessage() {}
+
+func (x *AlertHit) ProtoReflect() protoreflect.Message {
+	mi := &file_cloud_proto_msgTypes[28]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use AlertHit.ProtoReflect.Descriptor instead.
+func (*AlertHit) Descriptor() ([]byte, []int) {
+	return file_cloud_proto_rawDescGZIP(), []int{28}
+}
+
+func (x *AlertHit) GetAlertId() int64 {
+	if x != nil {
+		return x.AlertId
+	}
+	return 0
+}
+
+func (x *AlertHit) GetContainerId() string {
+	if x != nil {
+		return x.ContainerId
+	}
+	return ""
+}
+
+func (x *AlertHit) GetHostId() string {
+	if x != nil {
+		return x.HostId
+	}
+	return ""
+}
+
+func (x *AlertHit) GetLogId() uint32 {
+	if x != nil {
+		return x.LogId
+	}
+	return 0
+}
+
+func (x *AlertHit) GetAnchorTsNs() int64 {
+	if x != nil {
+		return x.AnchorTsNs
+	}
+	return 0
+}
+
+func (x *AlertHit) GetHeadline() string {
+	if x != nil {
+		return x.Headline
+	}
+	return ""
+}
+
+func (x *AlertHit) GetLevel() string {
+	if x != nil {
+		return x.Level
+	}
+	return ""
+}
+
+func (x *AlertHit) GetEventCount() int32 {
+	if x != nil {
+		return x.EventCount
+	}
+	return 0
+}
+
+func (x *AlertHit) GetSuppressedCount() int32 {
+	if x != nil {
+		return x.SuppressedCount
+	}
+	return 0
+}
+
+func (x *AlertHit) GetContainerCount() int32 {
+	if x != nil {
+		return x.ContainerCount
+	}
+	return 0
+}
+
+func (x *AlertHit) GetInvestigation() string {
+	if x != nil {
+		return x.Investigation
+	}
+	return ""
+}
+
+func (x *AlertHit) GetTriageAction() string {
+	if x != nil {
+		return x.TriageAction
+	}
+	return ""
+}
+
+func (x *AlertHit) GetIsOrigin() bool {
+	if x != nil {
+		return x.IsOrigin
+	}
+	return false
+}
+
+func (x *AlertHit) GetCreatedAtNs() int64 {
+	if x != nil {
+		return x.CreatedAtNs
+	}
+	return 0
+}
+
+func (x *AlertHit) GetLastActivityAtNs() int64 {
+	if x != nil {
+		return x.LastActivityAtNs
+	}
+	return 0
+}
+
+func (x *AlertHit) GetUrl() string {
+	if x != nil {
+		return x.Url
+	}
+	return ""
+}
+
+type GetAlertsResponse struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	Hits  []*AlertHit            `protobuf:"bytes,1,rep,name=hits,proto3" json:"hits,omitempty"`
+	// The window held more alerts than the limit allowed. The viewer shows a
+	// "more alerts in this range" affordance rather than paginating — unlike
+	// log search, scrollback windows are already small and bounded.
+	Truncated     bool `protobuf:"varint,2,opt,name=truncated,proto3" json:"truncated,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetAlertsResponse) Reset() {
+	*x = GetAlertsResponse{}
+	mi := &file_cloud_proto_msgTypes[29]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetAlertsResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetAlertsResponse) ProtoMessage() {}
+
+func (x *GetAlertsResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_cloud_proto_msgTypes[29]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetAlertsResponse.ProtoReflect.Descriptor instead.
+func (*GetAlertsResponse) Descriptor() ([]byte, []int) {
+	return file_cloud_proto_rawDescGZIP(), []int{29}
+}
+
+func (x *GetAlertsResponse) GetHits() []*AlertHit {
+	if x != nil {
+		return x.Hits
+	}
+	return nil
+}
+
+func (x *GetAlertsResponse) GetTruncated() bool {
+	if x != nil {
+		return x.Truncated
+	}
+	return false
+}
+
 var File_cloud_proto protoreflect.FileDescriptor
 
 const file_cloud_proto_rawDesc = "" +
@@ -2605,17 +2946,49 @@ const file_cloud_proto_rawDesc = "" +
 	"\amessage\x18\x05 \x01(\tR\amessage\x12\x16\n" +
 	"\x06stream\x18\x06 \x01(\tR\x06stream\x12\x14\n" +
 	"\x05level\x18\a \x01(\tR\x05level\x12\x15\n" +
-	"\x06log_id\x18\b \x01(\rR\x05logId*o\n" +
+	"\x06log_id\x18\b \x01(\rR\x05logId\"\xcc\x01\n" +
+	"\x10GetAlertsRequest\x12#\n" +
+	"\rcontainer_ids\x18\x01 \x03(\tR\fcontainerIds\x12\x17\n" +
+	"\ahost_id\x18\x02 \x01(\tR\x06hostId\x12\x1c\n" +
+	"\n" +
+	"from_ts_ns\x18\x03 \x01(\x03R\bfromTsNs\x12\x18\n" +
+	"\bto_ts_ns\x18\x04 \x01(\x03R\x06toTsNs\x12\x14\n" +
+	"\x05limit\x18\x05 \x01(\x05R\x05limit\x12,\n" +
+	"\x12include_follow_ups\x18\x06 \x01(\bR\x10includeFollowUps\"\x8e\x04\n" +
+	"\bAlertHit\x12\x19\n" +
+	"\balert_id\x18\x01 \x01(\x03R\aalertId\x12!\n" +
+	"\fcontainer_id\x18\x02 \x01(\tR\vcontainerId\x12\x17\n" +
+	"\ahost_id\x18\x03 \x01(\tR\x06hostId\x12\x15\n" +
+	"\x06log_id\x18\x04 \x01(\rR\x05logId\x12 \n" +
+	"\fanchor_ts_ns\x18\x05 \x01(\x03R\n" +
+	"anchorTsNs\x12\x1a\n" +
+	"\bheadline\x18\x06 \x01(\tR\bheadline\x12\x14\n" +
+	"\x05level\x18\a \x01(\tR\x05level\x12\x1f\n" +
+	"\vevent_count\x18\b \x01(\x05R\n" +
+	"eventCount\x12)\n" +
+	"\x10suppressed_count\x18\t \x01(\x05R\x0fsuppressedCount\x12'\n" +
+	"\x0fcontainer_count\x18\n" +
+	" \x01(\x05R\x0econtainerCount\x12$\n" +
+	"\rinvestigation\x18\v \x01(\tR\rinvestigation\x12#\n" +
+	"\rtriage_action\x18\f \x01(\tR\ftriageAction\x12\x1b\n" +
+	"\tis_origin\x18\x10 \x01(\bR\bisOrigin\x12\"\n" +
+	"\rcreated_at_ns\x18\r \x01(\x03R\vcreatedAtNs\x12-\n" +
+	"\x13last_activity_at_ns\x18\x0e \x01(\x03R\x10lastActivityAtNs\x12\x10\n" +
+	"\x03url\x18\x0f \x01(\tR\x03url\"V\n" +
+	"\x11GetAlertsResponse\x12#\n" +
+	"\x04hits\x18\x01 \x03(\v2\x0f.cloud.AlertHitR\x04hits\x12\x1c\n" +
+	"\ttruncated\x18\x02 \x01(\bR\ttruncated*o\n" +
 	"\tToolScope\x12\x1a\n" +
 	"\x16TOOL_SCOPE_UNSPECIFIED\x10\x00\x12\x17\n" +
 	"\x13TOOL_SCOPE_INSTANCE\x10\x01\x12\x13\n" +
 	"\x0fTOOL_SCOPE_HOST\x10\x02\x12\x18\n" +
-	"\x14TOOL_SCOPE_CONTAINER\x10\x032\x90\x01\n" +
+	"\x14TOOL_SCOPE_CONTAINER\x10\x032\xd0\x01\n" +
 	"\x10CloudToolService\x129\n" +
 	"\n" +
 	"ToolStream\x12\x13.cloud.ToolResponse\x1a\x12.cloud.ToolRequest(\x010\x01\x12A\n" +
 	"\n" +
-	"SearchLogs\x12\x18.cloud.SearchLogsRequest\x1a\x19.cloud.SearchLogsResponseB&Z$github.com/amir20/dozzle/proto/cloudb\x06proto3"
+	"SearchLogs\x12\x18.cloud.SearchLogsRequest\x1a\x19.cloud.SearchLogsResponse\x12>\n" +
+	"\tGetAlerts\x12\x17.cloud.GetAlertsRequest\x1a\x18.cloud.GetAlertsResponseB&Z$github.com/amir20/dozzle/proto/cloudb\x06proto3"
 
 var (
 	file_cloud_proto_rawDescOnce sync.Once
@@ -2630,7 +3003,7 @@ func file_cloud_proto_rawDescGZIP() []byte {
 }
 
 var file_cloud_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_cloud_proto_msgTypes = make([]protoimpl.MessageInfo, 28)
+var file_cloud_proto_msgTypes = make([]protoimpl.MessageInfo, 31)
 var file_cloud_proto_goTypes = []any{
 	(ToolScope)(0),                 // 0: cloud.ToolScope
 	(*ToolRequest)(nil),            // 1: cloud.ToolRequest
@@ -2660,7 +3033,10 @@ var file_cloud_proto_goTypes = []any{
 	(*SearchLogsRequest)(nil),      // 25: cloud.SearchLogsRequest
 	(*SearchLogsResponse)(nil),     // 26: cloud.SearchLogsResponse
 	(*SearchLogHit)(nil),           // 27: cloud.SearchLogHit
-	nil,                            // 28: cloud.InspectContainerResult.LabelsEntry
+	(*GetAlertsRequest)(nil),       // 28: cloud.GetAlertsRequest
+	(*AlertHit)(nil),               // 29: cloud.AlertHit
+	(*GetAlertsResponse)(nil),      // 30: cloud.GetAlertsResponse
+	nil,                            // 31: cloud.InspectContainerResult.LabelsEntry
 }
 var file_cloud_proto_depIdxs = []int32{
 	7,  // 0: cloud.ToolRequest.list_tools:type_name -> cloud.ListToolsRequest
@@ -2686,17 +3062,20 @@ var file_cloud_proto_depIdxs = []int32{
 	15, // 20: cloud.ListContainersResult.containers:type_name -> cloud.ContainerInfo
 	17, // 21: cloud.ContainerStatsResult.stats:type_name -> cloud.ContainerStatEntry
 	19, // 22: cloud.FetchLogsResult.entries:type_name -> cloud.LogEntry
-	28, // 23: cloud.InspectContainerResult.labels:type_name -> cloud.InspectContainerResult.LabelsEntry
+	31, // 23: cloud.InspectContainerResult.labels:type_name -> cloud.InspectContainerResult.LabelsEntry
 	27, // 24: cloud.SearchLogsResponse.hits:type_name -> cloud.SearchLogHit
-	2,  // 25: cloud.CloudToolService.ToolStream:input_type -> cloud.ToolResponse
-	25, // 26: cloud.CloudToolService.SearchLogs:input_type -> cloud.SearchLogsRequest
-	1,  // 27: cloud.CloudToolService.ToolStream:output_type -> cloud.ToolRequest
-	26, // 28: cloud.CloudToolService.SearchLogs:output_type -> cloud.SearchLogsResponse
-	27, // [27:29] is the sub-list for method output_type
-	25, // [25:27] is the sub-list for method input_type
-	25, // [25:25] is the sub-list for extension type_name
-	25, // [25:25] is the sub-list for extension extendee
-	0,  // [0:25] is the sub-list for field type_name
+	29, // 25: cloud.GetAlertsResponse.hits:type_name -> cloud.AlertHit
+	2,  // 26: cloud.CloudToolService.ToolStream:input_type -> cloud.ToolResponse
+	25, // 27: cloud.CloudToolService.SearchLogs:input_type -> cloud.SearchLogsRequest
+	28, // 28: cloud.CloudToolService.GetAlerts:input_type -> cloud.GetAlertsRequest
+	1,  // 29: cloud.CloudToolService.ToolStream:output_type -> cloud.ToolRequest
+	26, // 30: cloud.CloudToolService.SearchLogs:output_type -> cloud.SearchLogsResponse
+	30, // 31: cloud.CloudToolService.GetAlerts:output_type -> cloud.GetAlertsResponse
+	29, // [29:32] is the sub-list for method output_type
+	26, // [26:29] is the sub-list for method input_type
+	26, // [26:26] is the sub-list for extension type_name
+	26, // [26:26] is the sub-list for extension extendee
+	0,  // [0:26] is the sub-list for field type_name
 }
 
 func init() { file_cloud_proto_init() }
@@ -2731,7 +3110,7 @@ func file_cloud_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_cloud_proto_rawDesc), len(file_cloud_proto_rawDesc)),
 			NumEnums:      1,
-			NumMessages:   28,
+			NumMessages:   31,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

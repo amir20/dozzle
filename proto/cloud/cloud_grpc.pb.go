@@ -21,6 +21,7 @@ const _ = grpc.SupportPackageIsVersion9
 const (
 	CloudToolService_ToolStream_FullMethodName = "/cloud.CloudToolService/ToolStream"
 	CloudToolService_SearchLogs_FullMethodName = "/cloud.CloudToolService/SearchLogs"
+	CloudToolService_GetAlerts_FullMethodName  = "/cloud.CloudToolService/GetAlerts"
 )
 
 // CloudToolServiceClient is the client API for CloudToolService service.
@@ -34,6 +35,15 @@ type CloudToolServiceClient interface {
 	// to the (user_id, api_key_id) derived from the authenticated connection;
 	// Dozzle does NOT pass any identity fields in the request.
 	SearchLogs(ctx context.Context, in *SearchLogsRequest, opts ...grpc.CallOption) (*SearchLogsResponse, error)
+	// Dozzle-initiated unary call: fetch alerts that fired for these containers
+	// inside a time window, so the log viewer can merge them into the stream as
+	// the user scrolls back. Like SearchLogs, cloud scopes the query server-side
+	// to the (user_id, api_key_id) derived from the authenticated connection;
+	// Dozzle passes no identity fields. Unlike SearchLogs this does NOT require
+	// the streamLogs opt-in — alerts live in cloud's own database rather than
+	// the log store, so they exist for anyone who linked cloud and configured a
+	// subscription.
+	GetAlerts(ctx context.Context, in *GetAlertsRequest, opts ...grpc.CallOption) (*GetAlertsResponse, error)
 }
 
 type cloudToolServiceClient struct {
@@ -67,6 +77,16 @@ func (c *cloudToolServiceClient) SearchLogs(ctx context.Context, in *SearchLogsR
 	return out, nil
 }
 
+func (c *cloudToolServiceClient) GetAlerts(ctx context.Context, in *GetAlertsRequest, opts ...grpc.CallOption) (*GetAlertsResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetAlertsResponse)
+	err := c.cc.Invoke(ctx, CloudToolService_GetAlerts_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // CloudToolServiceServer is the server API for CloudToolService service.
 // All implementations must embed UnimplementedCloudToolServiceServer
 // for forward compatibility.
@@ -78,6 +98,15 @@ type CloudToolServiceServer interface {
 	// to the (user_id, api_key_id) derived from the authenticated connection;
 	// Dozzle does NOT pass any identity fields in the request.
 	SearchLogs(context.Context, *SearchLogsRequest) (*SearchLogsResponse, error)
+	// Dozzle-initiated unary call: fetch alerts that fired for these containers
+	// inside a time window, so the log viewer can merge them into the stream as
+	// the user scrolls back. Like SearchLogs, cloud scopes the query server-side
+	// to the (user_id, api_key_id) derived from the authenticated connection;
+	// Dozzle passes no identity fields. Unlike SearchLogs this does NOT require
+	// the streamLogs opt-in — alerts live in cloud's own database rather than
+	// the log store, so they exist for anyone who linked cloud and configured a
+	// subscription.
+	GetAlerts(context.Context, *GetAlertsRequest) (*GetAlertsResponse, error)
 	mustEmbedUnimplementedCloudToolServiceServer()
 }
 
@@ -93,6 +122,9 @@ func (UnimplementedCloudToolServiceServer) ToolStream(grpc.BidiStreamingServer[T
 }
 func (UnimplementedCloudToolServiceServer) SearchLogs(context.Context, *SearchLogsRequest) (*SearchLogsResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method SearchLogs not implemented")
+}
+func (UnimplementedCloudToolServiceServer) GetAlerts(context.Context, *GetAlertsRequest) (*GetAlertsResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method GetAlerts not implemented")
 }
 func (UnimplementedCloudToolServiceServer) mustEmbedUnimplementedCloudToolServiceServer() {}
 func (UnimplementedCloudToolServiceServer) testEmbeddedByValue()                          {}
@@ -140,6 +172,24 @@ func _CloudToolService_SearchLogs_Handler(srv interface{}, ctx context.Context, 
 	return interceptor(ctx, in, info, handler)
 }
 
+func _CloudToolService_GetAlerts_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetAlertsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CloudToolServiceServer).GetAlerts(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: CloudToolService_GetAlerts_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CloudToolServiceServer).GetAlerts(ctx, req.(*GetAlertsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // CloudToolService_ServiceDesc is the grpc.ServiceDesc for CloudToolService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -150,6 +200,10 @@ var CloudToolService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "SearchLogs",
 			Handler:    _CloudToolService_SearchLogs_Handler,
+		},
+		{
+			MethodName: "GetAlerts",
+			Handler:    _CloudToolService_GetAlerts_Handler,
 		},
 	},
 	Streams: []grpc.StreamDesc{
