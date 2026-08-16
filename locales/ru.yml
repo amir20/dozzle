@@ -34,6 +34,16 @@ action:
 label:
   containers: Контейнеры
   container: Нет контейнеров | 1 контейнер | {count} контейнеров
+  alert-events: Нет событий | 1 событие | {count} событий
+  alert-containers: 1 контейнер | {count} контейнеров
+  alert-held-back: "{count} похожих удержано"
+  alert-investigation: Анализ
+  alert-view-in-cloud: Открыть в Dozzle Cloud
+  alert-still-firing: всё ещё активно
+  alert-open: открыть
+  alert: Оповещение
+  alert-details: Подробности
+  alert-suppressed: Подавлено
   host-count: Нет Хостов | 1 Хост | {count} Хостов
   service: Нет сервисов | 1 сервис | {count} сервисов
   services: Сервисы

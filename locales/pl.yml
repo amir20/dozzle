@@ -37,6 +37,16 @@ label:
   host-count: Brak Hostów | 1 Host | {count} Hostów
   containers: Kontenery
   container: Brak kontenerów | 1 kontener | {count} kontenerów
+  alert-events: Brak zdarzeń | 1 zdarzenie | {count} zdarzeń
+  alert-containers: 1 kontener | {count} kontenerów
+  alert-held-back: "{count} podobnych wstrzymano"
+  alert-investigation: Analiza
+  alert-view-in-cloud: Zobacz w Dozzle Cloud
+  alert-still-firing: nadal aktywne
+  alert-open: otwórz
+  alert: Alert
+  alert-details: Szczegóły
+  alert-suppressed: Wstrzymane
   running-containers: Działające kontenery
   all-containers: Wszystkie kontenery
   all-namespaces: Wszystkie przestrzenie nazw

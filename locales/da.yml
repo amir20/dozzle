@@ -34,6 +34,16 @@ action:
 label:
   containers: Containere
   container: Ingen containere | 1 container | {count} containere
+  alert-events: Ingen hændelser | 1 hændelse | {count} hændelser
+  alert-containers: 1 container | {count} containere
+  alert-held-back: "{count} lignende tilbageholdt"
+  alert-investigation: Undersøgelse
+  alert-view-in-cloud: Vis i Dozzle Cloud
+  alert-still-firing: udløses stadig
+  alert-open: åbn
+  alert: Alarm
+  alert-details: Detaljer
+  alert-suppressed: Undertrykt
   host-count: Ingen Værter | 1 Vært | {count} Værter
   service: Ingen tjenester | 1 tjeneste | {count} tjenester
   services: Tjenester

@@ -34,6 +34,16 @@ action:
 label:
   containers: Contêineres
   container: Nenhum container | 1 container | {count} containers
+  alert-events: Nenhum evento | 1 evento | {count} eventos
+  alert-containers: 1 container | {count} containers
+  alert-held-back: "{count} semelhantes retidos"
+  alert-investigation: Investigação
+  alert-view-in-cloud: Ver no Dozzle Cloud
+  alert-still-firing: ainda ativo
+  alert-open: abrir
+  alert: Alerta
+  alert-details: Detalhes
+  alert-suppressed: Suprimido
   host-count: Nenhum Host | 1 Host | {count} Hosts
   service: Nenhum serviço | 1 serviço | {count} serviços
   services: Serviços

@@ -34,6 +34,16 @@ action:
 label:
   containers: Containers
   container: Geen containers | 1 container | {count} containers
+  alert-events: Geen gebeurtenissen | 1 gebeurtenis | {count} gebeurtenissen
+  alert-containers: 1 container | {count} containers
+  alert-held-back: "{count} vergelijkbare tegengehouden"
+  alert-investigation: Onderzoek
+  alert-view-in-cloud: Bekijk in Dozzle Cloud
+  alert-still-firing: nog steeds actief
+  alert-open: openen
+  alert: Melding
+  alert-details: Details
+  alert-suppressed: Onderdrukt
   host-count: Geen Hosts | 1 Host | {count} Hosts
   service: Geen services | 1 service | {count} services
   services: Services
