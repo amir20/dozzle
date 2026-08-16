@@ -1,6 +1,13 @@
 <template>
   <LogItem :logEntry>
-    <div class="alert-row w-full border-l-3 pl-2" :data-level="level" :data-origin="alert.isOrigin">
+    <div
+      class="alert-row w-full border-l-3 pl-2"
+      :data-level="level"
+      :data-origin="alert.isOrigin"
+      :data-alert-id="alert.alertId"
+      :data-alert-level="level"
+      :data-alert-headline="alert.headline"
+    >
       <!-- Follow-up anchor: the incident was already open and still firing
            here. One quiet line — a long incident must never draw two cards. -->
       <div v-if="!alert.isOrigin" class="flex items-center gap-2 text-xs opacity-60">
