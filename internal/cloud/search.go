@@ -45,14 +45,14 @@ type SearchLogHit struct {
 // is available (the user hasn't linked Cloud yet). Callers map this to a 503.
 var ErrNotConfigured = errors.New("cloud: no API key configured")
 
-// searchServiceClient returns a (lazily dialed) reusable gRPC client. The
-// underlying conn is shared across all SearchLogs calls so we pay the TLS
-// handshake once per process — not once per keystroke.
-func (c *Client) searchServiceClient() (pb.CloudToolServiceClient, error) {
-	c.searchConnMu.Lock()
-	defer c.searchConnMu.Unlock()
-	if c.searchClient != nil {
-		return c.searchClient, nil
+// unaryServiceClient returns a (lazily dialed) reusable gRPC client. The
+// underlying conn is shared across every Dozzle-initiated unary call so we pay
+// the TLS handshake once per process — not once per keystroke or scroll.
+func (c *Client) unaryServiceClient() (pb.CloudToolServiceClient, error) {
+	c.unaryConnMu.Lock()
+	defer c.unaryConnMu.Unlock()
+	if c.unaryClient != nil {
+		return c.unaryClient, nil
 	}
 	var creds grpc.DialOption
 	if c.plaintext {
@@ -64,9 +64,9 @@ func (c *Client) searchServiceClient() (pb.CloudToolServiceClient, error) {
 	if err != nil {
 		return nil, fmt.Errorf("cloud: dial: %w", err)
 	}
-	c.searchConn = conn
-	c.searchClient = pb.NewCloudToolServiceClient(conn)
-	return c.searchClient, nil
+	c.unaryConn = conn
+	c.unaryClient = pb.NewCloudToolServiceClient(conn)
+	return c.unaryClient, nil
 }
 
 // SearchLogs runs a Cloud-side log search against the existing gRPC service.
@@ -80,7 +80,7 @@ func (c *Client) SearchLogs(ctx context.Context, query string, limit int32, host
 		return nil, ErrNotConfigured
 	}
 
-	client, err := c.searchServiceClient()
+	client, err := c.unaryServiceClient()
 	if err != nil {
 		return nil, err
 	}
