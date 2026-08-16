@@ -43,6 +43,8 @@ label:
   alert-details: Details
   event-sent-hint: Dozzle Cloud heeft een melding verstuurd voor deze regel
   event-suppressed-hint: Dozzle Cloud herkende deze regel maar hield de melding tegen
+  event-metric: Metriek
+  event-container: Container
   host-count: Geen Hosts | 1 Host | {count} Hosts
   service: Geen services | 1 service | {count} services
   services: Services

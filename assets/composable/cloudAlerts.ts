@@ -1,5 +1,5 @@
 import { useCloudConfig } from "@/composable/cloudConfig";
-import { AlertLogEntry, LogEntry, type LogMessage } from "@/models/LogEntry";
+import { AlertLogEntry, CloudEventLogEntry, LogEntry, type LogMessage } from "@/models/LogEntry";
 
 /**
  * One alert anchored inside a scroll window, as returned by
@@ -47,6 +47,8 @@ export interface CloudEvent {
   level?: string;
   message?: string;
   type?: string;
+  /** Human-readable summary; the only renderable text a non-log event has. */
+  detail?: string;
   alertId?: number;
   suppressed: boolean;
 }
@@ -208,9 +210,12 @@ function anchorKey(alert: CloudAlert): string {
 export function attachEvents(logs: LogEntry<LogMessage>[], events: CloudEvent[]): boolean {
   if (events.length === 0) return false;
 
+  // Only suppressed log events are badged. One that produced an alert is
+  // already represented by the alert block, and a second marker on the same
+  // line would say the same thing twice.
   const byLogId = new Map<number, CloudEvent>();
   for (const e of events) {
-    if (e.logId) byLogId.set(e.logId, e);
+    if (e.logId && e.suppressed && isLogEvent(e)) byLogId.set(e.logId, e);
   }
   if (byLogId.size === 0) return false;
 
@@ -223,4 +228,51 @@ export function attachEvents(logs: LogEntry<LogMessage>[], events: CloudEvent[])
     changed = true;
   }
   return changed;
+}
+
+/** A log event has a line in the stream; metric and container events do not. */
+export function isLogEvent(event: CloudEvent): boolean {
+  return (event.type ?? "log") === "log";
+}
+
+/**
+ * Splices metric and container events into the stream as their own rows.
+ *
+ * These have no log line to badge — they are the notification itself — so
+ * unlike log events they cannot be shown by marking something already on
+ * screen. Positioned by timestamp, since there is no id to anchor to.
+ *
+ * Events that produced an alert are skipped: the alert block already stands
+ * for them.
+ */
+export function mergeCloudEvents(
+  logs: LogEntry<LogMessage>[],
+  events: CloudEvent[],
+  seen: Set<string>,
+): LogEntry<LogMessage>[] {
+  const fresh = events.filter((e) => !isLogEvent(e) && e.suppressed && !seen.has(eventKey(e)));
+  if (fresh.length === 0) return logs;
+
+  fresh.sort((a, b) => a.ts - b.ts);
+  const merged: LogEntry<LogMessage>[] = [];
+  let pending = 0;
+
+  const place = (event: CloudEvent) => {
+    seen.add(eventKey(event));
+    return new CloudEventLogEntry(event, new Date(event.ts / 1_000_000));
+  };
+
+  for (const log of logs) {
+    while (pending < fresh.length && fresh[pending].ts / 1_000_000 <= log.date.getTime()) {
+      merged.push(place(fresh[pending++]));
+    }
+    merged.push(log);
+  }
+  while (pending < fresh.length) merged.push(place(fresh[pending++]));
+
+  return merged;
+}
+
+function eventKey(event: CloudEvent): string {
+  return `event:${event.containerId}:${event.ts}`;
 }

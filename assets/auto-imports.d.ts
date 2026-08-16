@@ -85,6 +85,7 @@ declare global {
   const inject: typeof import('vue').inject
   const injectLocal: typeof import('@vueuse/core').injectLocal
   const isDefined: typeof import('@vueuse/core').isDefined
+  const isLogEvent: typeof import('./composable/cloudAlerts').isLogEvent
   const isMobile: typeof import('./composable/media').isMobile
   const isObject: typeof import('./utils/index').isObject
   const isProxy: typeof import('vue').isProxy
@@ -105,6 +106,7 @@ declare global {
   const markRaw: typeof import('vue').markRaw
   const menuWidth: typeof import('./stores/settings').menuWidth
   const mergeAlerts: typeof import('./composable/cloudAlerts').mergeAlerts
+  const mergeCloudEvents: typeof import('./composable/cloudAlerts').mergeCloudEvents
   const nextTick: typeof import('vue').nextTick
   const onActivated: typeof import('vue').onActivated
   const onBeforeMount: typeof import('vue').onBeforeMount
@@ -541,6 +543,7 @@ declare module 'vue' {
     readonly inject: UnwrapRef<typeof import('vue')['inject']>
     readonly injectLocal: UnwrapRef<typeof import('@vueuse/core')['injectLocal']>
     readonly isDefined: UnwrapRef<typeof import('@vueuse/core')['isDefined']>
+    readonly isLogEvent: UnwrapRef<typeof import('./composable/cloudAlerts')['isLogEvent']>
     readonly isMobile: UnwrapRef<typeof import('./composable/media')['isMobile']>
     readonly isObject: UnwrapRef<typeof import('./utils/index')['isObject']>
     readonly isProxy: UnwrapRef<typeof import('vue')['isProxy']>
@@ -561,6 +564,7 @@ declare module 'vue' {
     readonly markRaw: UnwrapRef<typeof import('vue')['markRaw']>
     readonly menuWidth: UnwrapRef<typeof import('./stores/settings')['menuWidth']>
     readonly mergeAlerts: UnwrapRef<typeof import('./composable/cloudAlerts')['mergeAlerts']>
+    readonly mergeCloudEvents: UnwrapRef<typeof import('./composable/cloudAlerts')['mergeCloudEvents']>
     readonly nextTick: UnwrapRef<typeof import('vue')['nextTick']>
     readonly onActivated: UnwrapRef<typeof import('vue')['onActivated']>
     readonly onBeforeMount: UnwrapRef<typeof import('vue')['onBeforeMount']>

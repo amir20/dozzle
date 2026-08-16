@@ -2,8 +2,15 @@
  * @vitest-environment jsdom
  */
 import { describe, expect, test, vi, beforeEach, afterEach } from "vitest";
-import { mergeAlerts, fetchAlerts, attachEvents, type CloudAlert, type CloudEvent } from "./cloudAlerts";
-import { AlertLogEntry, SimpleLogEntry, type LogEntry, type LogMessage } from "@/models/LogEntry";
+import {
+  mergeAlerts,
+  fetchAlerts,
+  attachEvents,
+  mergeCloudEvents,
+  type CloudAlert,
+  type CloudEvent,
+} from "./cloudAlerts";
+import { AlertLogEntry, CloudEventLogEntry, SimpleLogEntry, type LogEntry, type LogMessage } from "@/models/LogEntry";
 
 vi.mock("@/composable/cloudConfig", () => ({ useCloudConfig: () => ({ cloudConfig: { value: null } }) }));
 
@@ -222,13 +229,68 @@ describe("attachEvents", () => {
     expect(logs[0].matchedEvent).toBeUndefined();
   });
 
-  test("carries the delivered flag through", () => {
+  // An event that produced an alert is already represented by the alert block;
+  // badging its line too would say the same thing twice.
+  test("does not badge a line whose event produced an alert", () => {
     const logs = [log(10, 100)];
-    attachEvents(logs, [event({ suppressed: false, alertId: 7, level: "error" })]);
-    expect(logs[0].matchedEvent).toEqual({ alertId: 7, suppressed: false, level: "error" });
+    expect(attachEvents(logs, [event({ suppressed: false, alertId: 7 })])).toBe(false);
+    expect(logs[0].matchedEvent).toBeUndefined();
+  });
+
+  // Metric and container events have no line of their own — they get rows.
+  test("does not badge log lines with non-log events", () => {
+    const logs = [log(10, 100)];
+    expect(attachEvents(logs, [event({ type: "metric" })])).toBe(false);
+    expect(logs[0].matchedEvent).toBeUndefined();
   });
 
   test("reports no change when there is nothing to badge", () => {
     expect(attachEvents([log(10, 100)], [])).toBe(false);
+  });
+});
+
+describe("mergeCloudEvents", () => {
+  const cloudEvent = (overrides: Partial<CloudEvent> = {}): CloudEvent => ({
+    ts: ns(200),
+    containerId: "abc",
+    type: "metric",
+    detail: "CPU: 91.4%, Memory: 62.0%",
+    suppressed: true,
+    ...overrides,
+  });
+
+  const shape = (entries: LogEntry<LogMessage>[]) =>
+    entries.map((e) => (e instanceof CloudEventLogEntry ? `event:${e.event.type}` : `log:${e.id}`));
+
+  // A metric notification has no log line to badge — it IS the event — so
+  // unlike a log event it can only be shown as a row.
+  test("splices a metric event in by timestamp", () => {
+    const logs = [log(10, 100), log(11, 300)];
+    expect(shape(mergeCloudEvents(logs, [cloudEvent()], new Set()))).toEqual(["log:10", "event:metric", "log:11"]);
+  });
+
+  test("splices a container event in the same way", () => {
+    const logs = [log(10, 100)];
+    const merged = mergeCloudEvents(logs, [cloudEvent({ type: "event", ts: ns(400) })], new Set());
+    expect(shape(merged)).toEqual(["log:10", "event:event"]);
+  });
+
+  // Log events are badged on their own line; giving them a row too would
+  // duplicate a line already on screen.
+  test("leaves log events alone", () => {
+    const logs = [log(10, 100)];
+    expect(mergeCloudEvents(logs, [cloudEvent({ type: "log", logId: 10 })], new Set())).toBe(logs);
+  });
+
+  test("skips events that produced an alert", () => {
+    const logs = [log(10, 100)];
+    expect(mergeCloudEvents(logs, [cloudEvent({ suppressed: false })], new Set())).toBe(logs);
+  });
+
+  test("does not place the same event twice across overlapping windows", () => {
+    const seen = new Set<string>();
+    const logs = [log(10, 100)];
+    expect(shape(mergeCloudEvents(logs, [cloudEvent()], seen))).toHaveLength(2);
+    expect(mergeCloudEvents(logs, [cloudEvent()], seen)).toBe(logs);
   });
 });

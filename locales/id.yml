@@ -44,6 +44,8 @@ label:
   alert-details: Detail
   event-sent-hint: Dozzle Cloud mengirim peringatan untuk baris ini
   event-suppressed-hint: Dozzle Cloud mencocokkan baris ini tetapi menahan peringatannya
+  event-metric: Metrik
+  event-container: Kontainer
   host-count: Tidak ada Host | 1 Host | {count} Host
   service: Tidak ada layanan | 1 layanan | {count} layanan
   services: Layanan

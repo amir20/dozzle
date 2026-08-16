@@ -2,7 +2,7 @@ import { ShallowRef, type Ref } from "vue";
 import { type LogMessage, LogEntry, LoadMoreLogEntry, SkippedLogsEntry } from "@/models/LogEntry";
 import { Container } from "@/models/Container";
 import { loadBetween } from "@/composable/loadBetween";
-import { useCloudAlerts, mergeAlerts, attachEvents } from "@/composable/cloudAlerts";
+import { useCloudAlerts, mergeAlerts, attachEvents, mergeCloudEvents } from "@/composable/cloudAlerts";
 
 // Matches the rolling window size used for stats history
 const LOG_WINDOW_FOR_DELTA = 300;
@@ -130,7 +130,7 @@ export function useLogLoader(
         { events: true },
       );
       attachEvents(logs, events);
-      return mergeAlerts(logs, alerts, placedAlerts);
+      return mergeAlerts(mergeCloudEvents(logs, events, placedAlerts), alerts, placedAlerts);
     } catch (err) {
       console.error(err);
       return logs;
@@ -176,7 +176,8 @@ export function useLogLoader(
       // Badges mutate the entries in place, so the list has to be reassigned
       // for Vue to see it — messages is a shallowRef.
       const badged = attachEvents(logs, events);
-      const merged = mergeAlerts(logs, alerts, placedAlerts);
+      const withEvents = mergeCloudEvents(logs, events, placedAlerts);
+      const merged = mergeAlerts(withEvents, alerts, placedAlerts);
       if (!badged && merged === logs) return;
       messages.value = loader ? [loader, ...merged] : merged;
     } catch (err) {

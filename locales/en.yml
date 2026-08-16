@@ -43,6 +43,8 @@ label:
   alert-details: Details
   event-sent-hint: Dozzle Cloud sent an alert for this line
   event-suppressed-hint: Dozzle Cloud matched this line but held the alert back
+  event-metric: Metric
+  event-container: Container
   host-count: No Hosts | 1 Host | {count} Hosts
   service: No services | 1 service | {count} services
   services: Services

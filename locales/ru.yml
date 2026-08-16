@@ -43,6 +43,8 @@ label:
   alert-details: Подробности
   event-sent-hint: Dozzle Cloud отправил оповещение по этой строке
   event-suppressed-hint: Dozzle Cloud нашёл совпадение, но удержал оповещение
+  event-metric: Метрика
+  event-container: Контейнер
   host-count: Нет Хостов | 1 Хост | {count} Хостов
   service: Нет сервисов | 1 сервис | {count} сервисов
   services: Сервисы

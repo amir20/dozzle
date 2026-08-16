@@ -43,6 +43,8 @@ label:
   alert-details: Detaljer
   event-sent-hint: Dozzle Cloud sendte en alarm for denne linje
   event-suppressed-hint: Dozzle Cloud matchede denne linje, men holdt alarmen tilbage
+  event-metric: Metrik
+  event-container: Container
   host-count: Ingen Værter | 1 Vært | {count} Værter
   service: Ingen tjenester | 1 tjeneste | {count} tjenester
   services: Tjenester

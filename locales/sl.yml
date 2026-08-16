@@ -67,6 +67,8 @@ label:
   alert-details: Podrobnosti
   event-sent-hint: Dozzle Cloud je za to vrstico poslal opozorilo
   event-suppressed-hint: Dozzle Cloud je to vrstico zaznal, a zadržal opozorilo
+  event-metric: Metrika
+  event-container: Zabojnik
   services: Storitve
   avg-mem: Povprečje spomina (%)
   name: Ime

@@ -1,5 +1,5 @@
 import { Component, ComputedRef, Ref, ShallowRef } from "vue";
-import type { CloudAlert } from "@/composable/cloudAlerts";
+import type { CloudAlert, CloudEvent } from "@/composable/cloudAlerts";
 import { flattenJSON } from "@/utils";
 import ComplexLogItem from "@/components/LogViewer/ComplexLogItem.vue";
 import SimpleLogItem from "@/components/LogViewer/SimpleLogItem.vue";
@@ -8,6 +8,7 @@ import ContainerEventLogItem from "@/components/LogViewer/ContainerEventLogItem.
 import SkippedEntriesLogItem from "@/components/LogViewer/SkippedEntriesLogItem.vue";
 import LoadMoreLogItem from "@/components/LogViewer/LoadMoreLogItem.vue";
 import AlertLogItem from "@/components/LogViewer/AlertLogItem.vue";
+import CloudEventLogItem from "@/components/LogViewer/CloudEventLogItem.vue";
 
 export type JSONValue = string | number | boolean | JSONObject | Array<JSONValue>;
 export type JSONObject = { [x: string]: JSONValue };
@@ -243,6 +244,27 @@ export class AlertLogEntry extends LogEntry<string> {
 function alertLevel(level: string): Level {
   const known: Level[] = ["error", "warn", "warning", "info", "debug", "trace", "severe", "critical", "fatal"];
   return (known.find((l) => l === level) ?? "unknown") as Level;
+}
+
+/**
+ * A metric or container-lifecycle notification Dozzle raised.
+ *
+ * Unlike a log event, there is no line in the stream to badge — the
+ * notification *is* the event — so it gets a row of its own, positioned by
+ * time. Only ones that were held back appear: anything that produced an alert
+ * is already represented by the alert block.
+ */
+export class CloudEventLogEntry extends LogEntry<string> {
+  constructor(
+    public readonly event: CloudEvent,
+    date: Date,
+  ) {
+    super(event.detail ?? "", event.containerId, date.getTime(), date, "stderr", event.detail ?? "");
+  }
+
+  getComponent(): Component {
+    return CloudEventLogItem;
+  }
 }
 
 export class SkippedLogsEntry extends LogEntry<string> {
