@@ -1,27 +1,31 @@
 <template>
   <LogItem :logEntry>
-    <div class="w-full" :data-origin="alert.isOrigin">
+    <div class="alert-band w-full rounded-xs border-l-4 px-3 py-1.5" :data-level="level" :data-origin="alert.isOrigin">
       <!-- Follow-up anchor: the incident was already open and still firing
-           here. Deliberately a single quiet line — a full card at every
-           follow-up would bury the logs the user came to read. -->
-      <div v-if="!alert.isOrigin" class="text-base-content/60 flex items-center gap-2 text-xs">
-        <span class="iconify lucide--activity size-3.5 shrink-0"></span>
-        <span>{{ $t("label.alert-still-firing") }} &mdash; {{ alert.headline }}</span>
-        <a v-if="alert.url" :href="alert.url" target="_blank" rel="noopener" class="link">{{
-          $t("label.alert-open")
-        }}</a>
-      </div>
+           here. Deliberately one quiet line — a full card at every follow-up
+           would bury the logs the user came to read. -->
+      <template v-if="!alert.isOrigin">
+        <div class="flex items-center gap-2 text-xs">
+          <mdi:repeat class="accent size-3.5 shrink-0" />
+          <span class="accent font-semibold uppercase">{{ $t("label.alert-still-firing") }}</span>
+          <span class="opacity-70">{{ alert.headline }}</span>
+          <a v-if="alert.url" :href="alert.url" target="_blank" rel="noopener" class="link">
+            {{ $t("label.alert-open") }}
+          </a>
+        </div>
+      </template>
 
-      <div v-else class="border-l-3 pl-3" :data-level="alert.level">
+      <template v-else>
         <div class="flex flex-wrap items-center gap-x-2 gap-y-1">
-          <span class="iconify lucide--triangle-alert size-4 shrink-0"></span>
+          <mdi:alert class="accent size-4 shrink-0" />
+          <span class="accent text-xs font-bold tracking-wide uppercase">{{ $t("label.alert") }}</span>
           <span class="font-semibold">{{ alert.headline }}</span>
           <a v-if="alert.url" :href="alert.url" target="_blank" rel="noopener" class="link text-xs">
             {{ $t("label.alert-view-in-cloud") }}
           </a>
         </div>
 
-        <div class="text-base-content/60 mt-0.5 flex flex-wrap items-center gap-x-3 text-xs">
+        <div class="mt-0.5 flex flex-wrap items-center gap-x-3 text-xs opacity-70">
           <span>{{ $t("label.alert-events", alert.eventCount) }}</span>
           <span v-if="alert.containerCount && alert.containerCount > 1">
             {{ $t("label.alert-containers", alert.containerCount) }}
@@ -32,14 +36,14 @@
         </div>
 
         <details v-if="alert.investigation" class="mt-1">
-          <summary class="text-base-content/60 cursor-pointer text-xs select-none">
+          <summary class="cursor-pointer text-xs opacity-70 select-none">
             {{ $t("label.alert-investigation") }}
           </summary>
-          <div class="text-base-content/80 mt-1 max-w-prose text-xs whitespace-pre-wrap">
+          <div class="mt-1 max-w-prose text-xs whitespace-pre-wrap opacity-80">
             {{ alert.investigation }}
           </div>
         </details>
-      </div>
+      </template>
     </div>
   </LogItem>
 </template>
@@ -53,24 +57,42 @@ const { logEntry } = defineProps<{
 }>();
 
 const alert = computed(() => logEntry.alert);
+
+/**
+ * alerts.level is free text and defaults to '' — an alert that never went
+ * through a summarizer has no level at all. Falling back to a neutral grey
+ * made the common case indistinguishable from a log line, which is the one
+ * thing this row must not be. Unknown reads as error.
+ */
+const level = computed(() => {
+  const l = alert.value.level;
+  if (l === "warn" || l === "warning") return "warn";
+  if (l === "info" || l === "debug" || l === "trace") return "info";
+  return "error";
+});
 </script>
 
 <style scoped>
 @reference "@/main.css";
-[data-level="error"],
-[data-level="fatal"],
-[data-level="critical"],
-[data-level="severe"] {
-  @apply border-error;
+
+/* A tinted band plus a heavy rule, so the row reads as an alert at a glance
+   rather than as one more log line with slightly different text. */
+.alert-band[data-level="error"] {
+  @apply border-error bg-error/10 text-error;
+  .accent {
+    @apply text-error;
+  }
 }
-[data-level="warn"],
-[data-level="warning"] {
-  @apply border-warning;
+.alert-band[data-level="warn"] {
+  @apply border-warning bg-warning/10 text-warning;
+  .accent {
+    @apply text-warning;
+  }
 }
-[data-level="info"],
-[data-level="debug"],
-[data-level="trace"],
-[data-level="unknown"] {
-  @apply border-base-content/30;
+.alert-band[data-level="info"] {
+  @apply border-info bg-info/10 text-info;
+  .accent {
+    @apply text-info;
+  }
 }
 </style>

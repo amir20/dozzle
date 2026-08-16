@@ -41,6 +41,7 @@ label:
   alert-view-in-cloud: View in Dozzle Cloud
   alert-still-firing: still firing
   alert-open: open
+  alert: Alert
   host-count: No Hosts | 1 Host | {count} Hosts
   service: No services | 1 service | {count} services
   services: Services
