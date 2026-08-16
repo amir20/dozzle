@@ -39,11 +39,8 @@ label:
   alert-held-back: "{count} similares retenidos"
   alert-investigation: Investigación
   alert-view-in-cloud: Ver en Dozzle Cloud
-  alert-still-firing: sigue activo
-  alert-open: abrir
   alert: Alerta
   alert-details: Detalles
-  alert-suppressed: Suprimido
   event-sent-hint: Dozzle Cloud envió una alerta para esta línea
   event-suppressed-hint: Dozzle Cloud detectó esta línea pero retuvo la alerta
   host-count: Sin Hosts | 1 Host | {count} Hosts

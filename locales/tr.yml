@@ -39,11 +39,8 @@ label:
   alert-held-back: "{count} benzeri tutuldu"
   alert-investigation: İnceleme
   alert-view-in-cloud: Dozzle Cloud'da görüntüle
-  alert-still-firing: hâlâ etkin
-  alert-open: aç
   alert: Uyarı
   alert-details: Ayrıntılar
-  alert-suppressed: Bastırıldı
   event-sent-hint: Dozzle Cloud bu satır için uyarı gönderdi
   event-suppressed-hint: Dozzle Cloud bu satırı eşleştirdi ancak uyarıyı tuttu
   host-count: Ana Bilgisayar yok | 1 Ana Bilgisayar | {count} Ana Bilgisayar

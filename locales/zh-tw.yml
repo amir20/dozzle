@@ -39,11 +39,8 @@ label:
   alert-held-back: 已攔下 {count} 個類似事件
   alert-investigation: 調查
   alert-view-in-cloud: 在 Dozzle Cloud 中檢視
-  alert-still-firing: 仍在觸發
-  alert-open: 開啟
   alert: 警示
   alert-details: 詳細資訊
-  alert-suppressed: 已抑制
   event-sent-hint: Dozzle Cloud 已為這一行送出警示
   event-suppressed-hint: Dozzle Cloud 比對到這一行，但攔下了警示
   host-count: 無主機 | 1 個主機 | {count} 個主機

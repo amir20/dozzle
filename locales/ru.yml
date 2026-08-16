@@ -39,11 +39,8 @@ label:
   alert-held-back: "{count} похожих удержано"
   alert-investigation: Анализ
   alert-view-in-cloud: Открыть в Dozzle Cloud
-  alert-still-firing: всё ещё активно
-  alert-open: открыть
   alert: Оповещение
   alert-details: Подробности
-  alert-suppressed: Подавлено
   event-sent-hint: Dozzle Cloud отправил оповещение по этой строке
   event-suppressed-hint: Dozzle Cloud нашёл совпадение, но удержал оповещение
   host-count: Нет Хостов | 1 Хост | {count} Хостов

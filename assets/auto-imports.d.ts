@@ -21,7 +21,6 @@ declare global {
   const attachEvents: typeof import('./composable/cloudAlerts').attachEvents
   const autoResetRef: typeof import('@vueuse/core').autoResetRef
   const automaticRedirect: typeof import('./stores/settings').automaticRedirect
-  const buildTicks: typeof import('./utils/index').buildTicks
   const collapseNav: typeof import('./stores/settings').collapseNav
   const colorize: typeof import('./utils/index').colorize
   const compact: typeof import('./stores/settings').compact

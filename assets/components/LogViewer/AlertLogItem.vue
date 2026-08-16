@@ -1,75 +1,54 @@
 <template>
   <LogItem :logEntry>
-    <div
-      class="alert-row w-full min-w-0 border-l-3 pl-4 font-sans"
-      :data-origin="alert.isOrigin"
-      :data-alert-level="level"
-    >
-      <!-- Follow-up anchor: the incident was already open and still firing
-           here. One quiet line — a long incident must never draw two cards. -->
-      <div v-if="!alert.isOrigin" class="flex flex-wrap items-center gap-x-2 gap-y-1 py-0.5">
-        <span class="chip chip-quiet">
-          <mdi:bell-off class="size-3" />
-          {{ $t("label.alert-suppressed") }}
-        </span>
-        <span class="opacity-70">{{ alert.headline }}</span>
-        <span class="shrink-0 opacity-40">&middot;</span>
-        <span class="shrink-0 text-xs opacity-50">{{ $t("label.alert-still-firing") }}</span>
-        <a v-if="alert.url" :href="alert.url" target="_blank" rel="noopener" class="act ml-auto">
-          {{ $t("label.alert-open") }}
-        </a>
-      </div>
-
-      <template v-else>
-        <div class="flex flex-col gap-1.5 py-1">
-          <div class="flex flex-wrap items-center gap-x-2.5 gap-y-1">
-            <span class="chip">
-              <mdi:bell-alert class="size-3" />
-              {{ $t("label.alert") }}
-            </span>
-            <span class="font-semibold">{{ alert.headline }}</span>
-            <!-- Only the count rides the summary line. Everything else —
+    <div class="alert-row w-full min-w-0 border-l-3 pl-4 font-sans" :data-alert-level="level">
+      <div class="flex flex-col gap-1.5 py-1">
+        <div class="flex flex-wrap items-center gap-x-2.5 gap-y-1">
+          <span class="chip">
+            <mdi:bell-alert class="size-3" />
+            {{ $t("label.alert") }}
+          </span>
+          <span class="font-semibold">{{ alert.headline }}</span>
+          <!-- Only the count rides the summary line. Everything else —
                  containers, what triage held back, the investigation — sits
                  behind Details. -->
-            <span class="shrink-0 opacity-40">&middot;</span>
-            <span class="shrink-0 opacity-60">
-              {{ $t("label.alert-events", alert.eventCount) }}<template v-if="ranFor">, {{ ranFor }}</template>
-            </span>
-          </div>
+          <span class="shrink-0 opacity-40">&middot;</span>
+          <span class="shrink-0 opacity-60">
+            {{ $t("label.alert-events", alert.eventCount) }}<template v-if="ranFor">, {{ ranFor }}</template>
+          </span>
+        </div>
 
-          <!-- Actions get their own line rather than riding the headline: at
+        <!-- Actions get their own line rather than riding the headline: at
                the end of a long headline they were easy to miss, and a fixed
                position means they land in the same place on every alert down
                the stream. -->
-          <div class="flex items-center justify-end gap-1.5">
-            <button v-if="hasDetail" type="button" class="act" @click="expanded = !expanded">
-              {{ $t("label.alert-details") }}
-              <span class="caret" :data-open="expanded">&rsaquo;</span>
-            </button>
-            <a v-if="alert.url" :href="alert.url" target="_blank" rel="noopener" class="act act-tinted">
-              {{ $t("label.alert-view-in-cloud") }}
-            </a>
-          </div>
+        <div class="flex items-center justify-end gap-1.5">
+          <button v-if="hasDetail" type="button" class="act" @click="expanded = !expanded">
+            {{ $t("label.alert-details") }}
+            <span class="caret" :data-open="expanded">&rsaquo;</span>
+          </button>
+          <a v-if="alert.url" :href="alert.url" target="_blank" rel="noopener" class="act act-tinted">
+            {{ $t("label.alert-view-in-cloud") }}
+          </a>
         </div>
+      </div>
 
-        <div v-if="expanded" class="mt-1 flex flex-col gap-1 text-xs opacity-70">
-          <div class="flex flex-wrap gap-x-4 gap-y-0.5">
-            <span v-if="alert.containerCount && alert.containerCount > 1">
-              {{ $t("label.alert-containers", alert.containerCount) }}
-            </span>
-            <span v-if="alert.suppressedCount">
-              {{ $t("label.alert-held-back", alert.suppressedCount) }}
-            </span>
-          </div>
-          <!-- summary is the alert's description and is usually all a
+      <div v-if="expanded" class="mt-1 flex flex-col gap-1 text-xs opacity-70">
+        <div class="flex flex-wrap gap-x-4 gap-y-0.5">
+          <span v-if="alert.containerCount && alert.containerCount > 1">
+            {{ $t("label.alert-containers", alert.containerCount) }}
+          </span>
+          <span v-if="alert.suppressedCount">
+            {{ $t("label.alert-held-back", alert.suppressedCount) }}
+          </span>
+        </div>
+        <!-- summary is the alert's description and is usually all a
                non-triaged alert has; investigation is triage's longer write-up
                and exists only when triage actually ran. -->
-          <div v-if="alert.summary" class="max-w-prose whitespace-pre-wrap">{{ alert.summary }}</div>
-          <div v-if="alert.investigation" class="max-w-prose whitespace-pre-wrap">
-            {{ alert.investigation }}
-          </div>
+        <div v-if="alert.summary" class="max-w-prose whitespace-pre-wrap">{{ alert.summary }}</div>
+        <div v-if="alert.investigation" class="max-w-prose whitespace-pre-wrap">
+          {{ alert.investigation }}
         </div>
-      </template>
+      </div>
     </div>
   </LogItem>
 </template>
@@ -160,12 +139,6 @@ const hasDetail = computed(
   background-color: var(--tint);
   color: var(--tint-content);
   @apply inline-flex shrink-0 items-center gap-1 rounded-xs px-1.5 py-px text-[0.62rem] font-bold tracking-wider uppercase;
-}
-
-.chip-quiet {
-  background-color: transparent;
-  color: var(--tint);
-  border: 1px solid color-mix(in oklab, var(--tint) 45%, transparent);
 }
 
 /* Actions read as controls, not as more log text: a hairline button for the

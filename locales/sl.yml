@@ -63,11 +63,8 @@ label:
   alert-held-back: "{count} podobnih zadržanih"
   alert-investigation: Preiskava
   alert-view-in-cloud: Odpri v Dozzle Cloud
-  alert-still-firing: še vedno aktivno
-  alert-open: odpri
   alert: Opozorilo
   alert-details: Podrobnosti
-  alert-suppressed: Zadržano
   event-sent-hint: Dozzle Cloud je za to vrstico poslal opozorilo
   event-suppressed-hint: Dozzle Cloud je to vrstico zaznal, a zadržal opozorilo
   services: Storitve

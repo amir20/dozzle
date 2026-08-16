@@ -39,11 +39,8 @@ label:
   alert-held-back: "{count} lignende tilbageholdt"
   alert-investigation: Undersøgelse
   alert-view-in-cloud: Vis i Dozzle Cloud
-  alert-still-firing: udløses stadig
-  alert-open: åbn
   alert: Alarm
   alert-details: Detaljer
-  alert-suppressed: Undertrykt
   event-sent-hint: Dozzle Cloud sendte en alarm for denne linje
   event-suppressed-hint: Dozzle Cloud matchede denne linje, men holdt alarmen tilbage
   host-count: Ingen Værter | 1 Vært | {count} Værter

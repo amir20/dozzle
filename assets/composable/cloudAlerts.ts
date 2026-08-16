@@ -140,7 +140,10 @@ export function mergeAlerts(
 ): LogEntry<LogMessage>[] {
   if (alerts.length === 0) return logs;
 
-  const fresh = alerts.filter((a) => !seen.has(anchorKey(a)));
+  // Origins only. A follow-up anchor marks an incident that was already open,
+  // and the per-line badges say that with more precision — drawing a second
+  // block for it would claim a delivery that never happened.
+  const fresh = alerts.filter((a) => a.isOrigin && !seen.has(anchorKey(a)));
   if (fresh.length === 0) return logs;
 
   const byLogId = new Map<number, CloudAlert[]>();

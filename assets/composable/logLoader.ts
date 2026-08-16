@@ -163,16 +163,14 @@ export function useLogLoader(
     try {
       const from = logs[0].date;
       const to = new Date(logs[logs.length - 1].date.getTime() + 1);
-      // followUps on purpose. An incident that started an hour ago and is
-      // still firing has no *origin* inside the window the viewer opens on, so
-      // asking for origins only renders nothing — which is exactly the case
-      // where the user opened the container because something is happening
-      // right now. On scrollback the opposite is right: one card per incident.
+      // Origins only, like scrollback. An incident already running when this
+      // window opens shows through the per-line badges instead, which is both
+      // more precise and cheaper than a second block.
       const { alerts, events } = await fetchAlerts(
         containers.value.map((c) => c.id),
         from,
         to,
-        { followUps: true, events: true },
+        { events: true },
       );
 
       // Badges mutate the entries in place, so the list has to be reassigned

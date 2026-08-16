@@ -42,11 +42,8 @@ label:
   alert-held-back: "{count} podobnych wstrzymano"
   alert-investigation: Analiza
   alert-view-in-cloud: Zobacz w Dozzle Cloud
-  alert-still-firing: nadal aktywne
-  alert-open: otwórz
   alert: Alert
   alert-details: Szczegóły
-  alert-suppressed: Wstrzymane
   event-sent-hint: Dozzle Cloud wysłał alert dla tej linii
   event-suppressed-hint: Dozzle Cloud dopasował tę linię, ale wstrzymał alert
   running-containers: Działające kontenery

@@ -39,11 +39,8 @@ label:
   alert-held-back: "{count} vergelijkbare tegengehouden"
   alert-investigation: Onderzoek
   alert-view-in-cloud: Bekijk in Dozzle Cloud
-  alert-still-firing: nog steeds actief
-  alert-open: openen
   alert: Melding
   alert-details: Details
-  alert-suppressed: Onderdrukt
   event-sent-hint: Dozzle Cloud heeft een melding verstuurd voor deze regel
   event-suppressed-hint: Dozzle Cloud herkende deze regel maar hield de melding tegen
   host-count: Geen Hosts | 1 Host | {count} Hosts

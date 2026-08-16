@@ -118,6 +118,25 @@ describe("mergeAlerts", () => {
     });
   });
 
+  // A follow-up anchor marks an incident that was already open. The per-line
+  // badges say that with more precision, and a block here would claim a
+  // delivery that never happened.
+  test("drops follow-up anchors, keeping only origins", () => {
+    const logs = [log(10, 100)];
+    const merged = mergeAlerts(logs, [alert({ isOrigin: false, ts: ns(100) })], new Set());
+    expect(shapeOf(merged)).toEqual(["log:10"]);
+  });
+
+  test("still places the origin of the same incident", () => {
+    const logs = [log(10, 100)];
+    const merged = mergeAlerts(
+      logs,
+      [alert({ alertId: 1, isOrigin: false, ts: ns(50) }), alert({ alertId: 1, isOrigin: true, ts: ns(100) })],
+      new Set(),
+    );
+    expect(shapeOf(merged)).toEqual(["alert:1", "log:10"]);
+  });
+
   test("returns the original array when there is nothing to merge", () => {
     const logs = [log(10, 100)];
     expect(mergeAlerts(logs, [], new Set())).toBe(logs);
