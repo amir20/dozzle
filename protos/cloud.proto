@@ -13,6 +13,16 @@ service CloudToolService {
   // to the (user_id, api_key_id) derived from the authenticated connection;
   // Dozzle does NOT pass any identity fields in the request.
   rpc SearchLogs(SearchLogsRequest) returns (SearchLogsResponse);
+
+  // Dozzle-initiated unary call: fetch alerts that fired for these containers
+  // inside a time window, so the log viewer can merge them into the stream as
+  // the user scrolls back. Like SearchLogs, cloud scopes the query server-side
+  // to the (user_id, api_key_id) derived from the authenticated connection;
+  // Dozzle passes no identity fields. Unlike SearchLogs this does NOT require
+  // the streamLogs opt-in — alerts live in cloud's own database rather than
+  // the log store, so they exist for anyone who linked cloud and configured a
+  // subscription.
+  rpc GetAlerts(GetAlertsRequest) returns (GetAlertsResponse);
 }
 
 message ToolRequest {
@@ -328,4 +338,78 @@ message SearchLogHit {
   // and exposes via "Copy permalink". Lets the search-result row deep-link
   // straight to the matching line.
   uint32 log_id = 8;
+}
+
+// Cloud alert history, merged into the local log stream on scrollback.
+message GetAlertsRequest {
+  // Containers currently in the viewer. Batched into one call because the
+  // viewer fans out over N containers per scroll and must not pay N round
+  // trips to cloud. Empty -> empty result.
+  repeated string container_ids = 1;
+  // Optional filter — narrow to a specific Docker host inside the instance.
+  // Empty = all hosts under this instance.
+  string host_id = 2;
+  // Window to fetch, matching the [from, to] the viewer just loaded logs for.
+  int64 from_ts_ns = 3;
+  int64 to_ts_ns = 4;
+  // Result cap. Default 50, server-capped at 200. A single scroll window
+  // covering a noisy incident can legitimately hold many alerts, so this
+  // ceiling is higher than the log-search one.
+  int32 limit = 5;
+  // Include follow-up anchors — points where an already-open incident was
+  // still firing, as opposed to where it first fired. See AlertHit.is_origin.
+  // Default false keeps a long-running incident to a single card.
+  bool include_follow_ups = 6;
+}
+
+message AlertHit {
+  int64 alert_id = 1;
+  string container_id = 2;
+  string host_id = 3;
+  // FNV-32a hash of the log line that triggered this alert — the same id
+  // Dozzle stamps on LogEvent.Id. Lets the viewer splice the alert in
+  // directly after its trigger line instead of guessing from a timestamp.
+  // 0 when the alert is not log-anchored (metric and event alerts).
+  uint32 log_id = 4;
+  // Timestamp to anchor on when log_id is 0, or when the trigger line isn't
+  // in the loaded window.
+  int64 anchor_ts_ns = 5;
+  // Triage's one-line summary. Falls back to the alert title when no
+  // summarizer LLM was involved.
+  string headline = 6;
+  string level = 7;
+  // Raw events folded into this alert, and follow-up batches triage absorbed
+  // silently after it was first sent.
+  int32 event_count = 8;
+  int32 suppressed_count = 9;
+  // Distinct containers this alert spans. > 1 means the incident is wider
+  // than the container currently being viewed.
+  int32 container_count = 10;
+  // Triage's longer write-up. May be empty. Rendered collapsed.
+  string investigation = 11;
+  // 'send_new' | 'fallback' | ''. Never 'suppress' or 'update_existing':
+  // cloud folds those into the incident's original row rather than inserting
+  // one, so every hit is an incident, not a triage decision.
+  string triage_action = 12;
+  // True when this hit anchors where the incident FIRST fired. False for a
+  // follow-up anchor: cloud appends every folded batch's events to the
+  // original alert, so one incident can have activity in many scroll windows.
+  // The viewer renders a full card at the origin and a compact "still
+  // happening" marker at follow-ups.
+  bool is_origin = 16;
+  int64 created_at_ns = 13;
+  // Bumped every time a follow-up batch folds into this alert. Drives the
+  // "still happening" state on the card.
+  int64 last_activity_at_ns = 14;
+  // Deep link to the alert page in Dozzle Cloud, built from the API key's
+  // app_url. Empty when the key has no app_url configured.
+  string url = 15;
+}
+
+message GetAlertsResponse {
+  repeated AlertHit hits = 1;
+  // The window held more alerts than the limit allowed. The viewer shows a
+  // "more alerts in this range" affordance rather than paginating — unlike
+  // log search, scrollback windows are already small and bounded.
+  bool truncated = 2;
 }
