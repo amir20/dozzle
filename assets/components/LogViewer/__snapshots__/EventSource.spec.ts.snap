@@ -6,8 +6,8 @@ exports[`<ContainerEventSource /> > render html correctly > should render dates 
     <div data-v-cf9ff940="" class="flex min-h-[1px] flex-1 content-center justify-center"><span class="loading loading-bars loading-md text-primary m-2" style="display: none;"></span></div>
   </li>
   <li data-v-cf9ff940="" id="1" data-time="1560336942459" class="group/entry">
-    <div data-v-cf9ff940="" class="relative flex w-full items-start gap-x-2 group-[.compact]:items-stretch">
-      <div class="dropdown dropdown-hover absolute -left-2 z-10 font-sans dropdown-right dropdown-end"><a href="/container/abc/time/2019-06-12T10:55:42.459Z?logId=1" class="btn btn-square btn-xs border-base-content/20 bg-base-100 pointer-events-auto! opacity-0 shadow-sm group-hover/entry:opacity-90" tabindex="0"><svg viewBox="0 0 24 24" width="1.2em" height="1.2em">
+    <div data-v-1344ff3d="" data-v-cf9ff940="" class="relative flex w-full items-start gap-x-2 group-[.compact]:items-stretch">
+      <div data-v-1344ff3d="" class="dropdown dropdown-hover absolute -left-2 z-10 font-sans dropdown-right dropdown-end"><a href="/container/abc/time/2019-06-12T10:55:42.459Z?logId=1" class="btn btn-square btn-xs border-base-content/20 bg-base-100 pointer-events-auto! opacity-0 shadow-sm group-hover/entry:opacity-90" tabindex="0"><svg viewBox="0 0 24 24" width="1.2em" height="1.2em">
             <path fill="currentColor" d="M6 23H3q-.825 0-1.412-.587T1 21v-3h2v3h3zm12 0v-2h3v-3h2v3q0 .825-.587 1.413T21 23zm-6-4.5q-3 0-5.437-1.775T3 12q1.125-2.95 3.563-4.725T12 5.5t5.438 1.775T21 12q-1.125 2.95-3.562 4.725T12 18.5m0-3q1.45 0 2.475-1.025T15.5 12t-1.025-2.475T12 8.5T9.525 9.525T8.5 12t1.025 2.475T12 15.5m0-2q-.625 0-1.062-.437T10.5 12t.438-1.062T12 10.5t1.063.438T13.5 12t-.437 1.063T12 13.5M1 6V3q0-.825.588-1.412T3 1h3v2H3v3zm20 0V3h-3V1h3q.825 0 1.413.588T23 3v3z"></path>
           </svg></a>
         <ul tabindex="0" class="menu dropdown-content rounded-box bg-base-200 border-base-content/20 z-50 w-52 border p-1 text-sm shadow-sm">
@@ -27,13 +27,18 @@ exports[`<ContainerEventSource /> > render html correctly > should render dates 
         </ul>
       </div>
       <!--v-if-->
-      <div class="flex gap-x-2 gap-y-1 group-[.compact]:gap-y-0 has-[>_*:nth-of-type(2)]:flex-col-reverse md:flex-row!">
+      <div data-v-1344ff3d="" class="flex gap-x-2 gap-y-1 group-[.compact]:gap-y-0 has-[>_*:nth-of-type(2)]:flex-col-reverse md:flex-row!">
         <!--v-if-->
         <!--v-if-->
-        <div class="tag bg-base-100 inline-flex items-center justify-center rounded-sm px-2 py-[0.2em] [[size='small']]:text-[0.8rem] items-start! shrink-0 select-none">
-          <div class="inline-flex gap-2 text-blue whitespace-nowrap"><time datetime="2019-06-12T10:55:42.459Z" class="max-md:hidden">06/12/2019</time><time datetime="2019-06-12T10:55:42.459Z">10:55:42 AM</time></div>
+        <div data-v-1344ff3d="" class="tag bg-base-100 inline-flex items-center justify-center rounded-sm px-2 py-[0.2em] [[size='small']]:text-[0.8rem] items-start! shrink-0 select-none">
+          <div class="inline-flex gap-2 text-blue whitespace-nowrap"><time datetime="2019-06-12T10:55:42.459Z" class="max-md:hidden">06/12/2019</time><time datetime="2019-06-12T10:55:42.459Z">03:55:42 AM</time></div>
         </div>
       </div>
+      <!-- Cloud matched a notification on this exact line. Badged here rather
+         than inserted as its own row: the event IS this line, so a separate
+         marker would duplicate it — and during a storm would put one between
+         every pair of lines. -->
+      <!--v-if-->
       <div data-v-e625cddd="" class="mt-1.5 size-2.5 flex-none rounded-lg flex select-none"></div>
       <div class="[word-break:break-word] whitespace-pre-wrap group-[.disable-wrap]:whitespace-pre">foo bar</div>
     </div>
@@ -47,8 +52,8 @@ exports[`<ContainerEventSource /> > render html correctly > should render dates 
     <div data-v-cf9ff940="" class="flex min-h-[1px] flex-1 content-center justify-center"><span class="loading loading-bars loading-md text-primary m-2" style="display: none;"></span></div>
   </li>
   <li data-v-cf9ff940="" id="1" data-time="1560336942459" class="group/entry">
-    <div data-v-cf9ff940="" class="relative flex w-full items-start gap-x-2 group-[.compact]:items-stretch">
-      <div class="dropdown dropdown-hover absolute -left-2 z-10 font-sans dropdown-right dropdown-end"><a href="/container/abc/time/2019-06-12T10:55:42.459Z?logId=1" class="btn btn-square btn-xs border-base-content/20 bg-base-100 pointer-events-auto! opacity-0 shadow-sm group-hover/entry:opacity-90" tabindex="0"><svg viewBox="0 0 24 24" width="1.2em" height="1.2em">
+    <div data-v-1344ff3d="" data-v-cf9ff940="" class="relative flex w-full items-start gap-x-2 group-[.compact]:items-stretch">
+      <div data-v-1344ff3d="" class="dropdown dropdown-hover absolute -left-2 z-10 font-sans dropdown-right dropdown-end"><a href="/container/abc/time/2019-06-12T10:55:42.459Z?logId=1" class="btn btn-square btn-xs border-base-content/20 bg-base-100 pointer-events-auto! opacity-0 shadow-sm group-hover/entry:opacity-90" tabindex="0"><svg viewBox="0 0 24 24" width="1.2em" height="1.2em">
             <path fill="currentColor" d="M6 23H3q-.825 0-1.412-.587T1 21v-3h2v3h3zm12 0v-2h3v-3h2v3q0 .825-.587 1.413T21 23zm-6-4.5q-3 0-5.437-1.775T3 12q1.125-2.95 3.563-4.725T12 5.5t5.438 1.775T21 12q-1.125 2.95-3.562 4.725T12 18.5m0-3q1.45 0 2.475-1.025T15.5 12t-1.025-2.475T12 8.5T9.525 9.525T8.5 12t1.025 2.475T12 15.5m0-2q-.625 0-1.062-.437T10.5 12t.438-1.062T12 10.5t1.063.438T13.5 12t-.437 1.063T12 13.5M1 6V3q0-.825.588-1.412T3 1h3v2H3v3zm20 0V3h-3V1h3q.825 0 1.413.588T23 3v3z"></path>
           </svg></a>
         <ul tabindex="0" class="menu dropdown-content rounded-box bg-base-200 border-base-content/20 z-50 w-52 border p-1 text-sm shadow-sm">
@@ -68,13 +73,18 @@ exports[`<ContainerEventSource /> > render html correctly > should render dates 
         </ul>
       </div>
       <!--v-if-->
-      <div class="flex gap-x-2 gap-y-1 group-[.compact]:gap-y-0 has-[>_*:nth-of-type(2)]:flex-col-reverse md:flex-row!">
+      <div data-v-1344ff3d="" class="flex gap-x-2 gap-y-1 group-[.compact]:gap-y-0 has-[>_*:nth-of-type(2)]:flex-col-reverse md:flex-row!">
         <!--v-if-->
         <!--v-if-->
-        <div class="tag bg-base-100 inline-flex items-center justify-center rounded-sm px-2 py-[0.2em] [[size='small']]:text-[0.8rem] items-start! shrink-0 select-none">
-          <div class="inline-flex gap-2 text-blue whitespace-nowrap"><time datetime="2019-06-12T10:55:42.459Z" class="max-md:hidden">06/12/2019</time><time datetime="2019-06-12T10:55:42.459Z">10:55:42</time></div>
+        <div data-v-1344ff3d="" class="tag bg-base-100 inline-flex items-center justify-center rounded-sm px-2 py-[0.2em] [[size='small']]:text-[0.8rem] items-start! shrink-0 select-none">
+          <div class="inline-flex gap-2 text-blue whitespace-nowrap"><time datetime="2019-06-12T10:55:42.459Z" class="max-md:hidden">06/12/2019</time><time datetime="2019-06-12T10:55:42.459Z">03:55:42</time></div>
         </div>
       </div>
+      <!-- Cloud matched a notification on this exact line. Badged here rather
+         than inserted as its own row: the event IS this line, so a separate
+         marker would duplicate it — and during a storm would put one between
+         every pair of lines. -->
+      <!--v-if-->
       <div data-v-e625cddd="" class="mt-1.5 size-2.5 flex-none rounded-lg flex select-none"></div>
       <div class="[word-break:break-word] whitespace-pre-wrap group-[.disable-wrap]:whitespace-pre">foo bar</div>
     </div>
@@ -88,8 +98,8 @@ exports[`<ContainerEventSource /> > render html correctly > should render messag
     <div data-v-cf9ff940="" class="flex min-h-[1px] flex-1 content-center justify-center"><span class="loading loading-bars loading-md text-primary m-2" style="display: none;"></span></div>
   </li>
   <li data-v-cf9ff940="" id="1" data-time="1560336942459" class="group/entry">
-    <div data-v-cf9ff940="" class="relative flex w-full items-start gap-x-2 group-[.compact]:items-stretch">
-      <div class="dropdown dropdown-hover absolute -left-2 z-10 font-sans dropdown-right dropdown-end"><a href="/container/abc/time/2019-06-12T10:55:42.459Z?logId=1" class="btn btn-square btn-xs border-base-content/20 bg-base-100 pointer-events-auto! opacity-0 shadow-sm group-hover/entry:opacity-90" tabindex="0"><svg viewBox="0 0 24 24" width="1.2em" height="1.2em">
+    <div data-v-1344ff3d="" data-v-cf9ff940="" class="relative flex w-full items-start gap-x-2 group-[.compact]:items-stretch">
+      <div data-v-1344ff3d="" class="dropdown dropdown-hover absolute -left-2 z-10 font-sans dropdown-right dropdown-end"><a href="/container/abc/time/2019-06-12T10:55:42.459Z?logId=1" class="btn btn-square btn-xs border-base-content/20 bg-base-100 pointer-events-auto! opacity-0 shadow-sm group-hover/entry:opacity-90" tabindex="0"><svg viewBox="0 0 24 24" width="1.2em" height="1.2em">
             <path fill="currentColor" d="M6 23H3q-.825 0-1.412-.587T1 21v-3h2v3h3zm12 0v-2h3v-3h2v3q0 .825-.587 1.413T21 23zm-6-4.5q-3 0-5.437-1.775T3 12q1.125-2.95 3.563-4.725T12 5.5t5.438 1.775T21 12q-1.125 2.95-3.562 4.725T12 18.5m0-3q1.45 0 2.475-1.025T15.5 12t-1.025-2.475T12 8.5T9.525 9.525T8.5 12t1.025 2.475T12 15.5m0-2q-.625 0-1.062-.437T10.5 12t.438-1.062T12 10.5t1.063.438T13.5 12t-.437 1.063T12 13.5M1 6V3q0-.825.588-1.412T3 1h3v2H3v3zm20 0V3h-3V1h3q.825 0 1.413.588T23 3v3z"></path>
           </svg></a>
         <ul tabindex="0" class="menu dropdown-content rounded-box bg-base-200 border-base-content/20 z-50 w-52 border p-1 text-sm shadow-sm">
@@ -109,13 +119,18 @@ exports[`<ContainerEventSource /> > render html correctly > should render messag
         </ul>
       </div>
       <!--v-if-->
-      <div class="flex gap-x-2 gap-y-1 group-[.compact]:gap-y-0 has-[>_*:nth-of-type(2)]:flex-col-reverse md:flex-row!">
+      <div data-v-1344ff3d="" class="flex gap-x-2 gap-y-1 group-[.compact]:gap-y-0 has-[>_*:nth-of-type(2)]:flex-col-reverse md:flex-row!">
         <!--v-if-->
         <!--v-if-->
-        <div class="tag bg-base-100 inline-flex items-center justify-center rounded-sm px-2 py-[0.2em] [[size='small']]:text-[0.8rem] items-start! shrink-0 select-none">
-          <div class="inline-flex gap-2 text-blue whitespace-nowrap"><time datetime="2019-06-12T10:55:42.459Z" class="max-md:hidden">06/12/2019</time><time datetime="2019-06-12T10:55:42.459Z">10:55:42 AM</time></div>
+        <div data-v-1344ff3d="" class="tag bg-base-100 inline-flex items-center justify-center rounded-sm px-2 py-[0.2em] [[size='small']]:text-[0.8rem] items-start! shrink-0 select-none">
+          <div class="inline-flex gap-2 text-blue whitespace-nowrap"><time datetime="2019-06-12T10:55:42.459Z" class="max-md:hidden">06/12/2019</time><time datetime="2019-06-12T10:55:42.459Z">03:55:42 AM</time></div>
         </div>
       </div>
+      <!-- Cloud matched a notification on this exact line. Badged here rather
+         than inserted as its own row: the event IS this line, so a separate
+         marker would duplicate it — and during a storm would put one between
+         every pair of lines. -->
+      <!--v-if-->
       <div data-v-e625cddd="" class="mt-1.5 size-2.5 flex-none rounded-lg flex select-none"></div>
       <div class="[word-break:break-word] whitespace-pre-wrap group-[.disable-wrap]:whitespace-pre">This is a message.</div>
     </div>
