@@ -1,7 +1,7 @@
 <template>
   <ul class="group pt-4" :class="{ 'disable-wrap': !softWrap, [size]: true, compact }" data-logs>
     <li
-      v-for="item in rows"
+      v-for="item in messages"
       ref="list"
       :key="item.id"
       :id="item.id.toString()"
@@ -16,8 +16,6 @@
 
 <script lang="ts" setup>
 import type { LogEntry, LogMessage } from "@/models/LogEntry";
-// TEMPORARY dev harness — remove before merge.
-import { AlertLogEntry } from "@/models/LogEntry";
 
 const { progress, currentDate } = useScrollContext();
 
@@ -26,38 +24,6 @@ const { messages } = defineProps<{
 }>();
 
 const { containers } = useLoggingContext();
-
-// TEMPORARY dev harness — remove before merge.
-// Appends a synthetic alert as the LAST entry when ?alertPreview=1 is set, so
-// the row can be inspected in its real LogItem/LogList context without
-// scrolling back hours to find a real one.
-const previewAlert = computed(() => {
-  if (typeof location === "undefined" || !new URLSearchParams(location.search).has("alertPreview")) return null;
-  const now = Date.now();
-  return new AlertLogEntry(
-    {
-      alertId: 999999,
-      containerId: containers.value[0]?.id ?? "preview",
-      hostId: "preview",
-      ts: now * 1_000_000,
-      headline: "Container restarting on a failed health check",
-      level: "error",
-      eventCount: 35,
-      suppressedCount: 34,
-      containerCount: 3,
-      summary: "Container `worker` running on `orbstack` exited 137 (OOM) 35 times in 14 minutes.",
-      investigation:
-        "Health check has failed 35 times in 14 minutes. The container exits 137 each time, which is an OOM kill — the memory limit is 256Mi and RSS peaks at 251Mi just before each exit.",
-      createdAt: now * 1_000_000,
-      lastActivityAt: (now + 828_000) * 1_000_000,
-      isOrigin: true,
-      url: "https://cloud.dozzle.dev/alerts/999999",
-    },
-    new Date(now),
-  );
-});
-
-const rows = computed(() => (previewAlert.value ? [...messages, previewAlert.value] : messages));
 
 const route = useRoute();
 const permalinkLogId = computed(() => (typeof route.query.logId === "string" ? route.query.logId : ""));
