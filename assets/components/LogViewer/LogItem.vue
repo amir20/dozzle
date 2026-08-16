@@ -4,6 +4,19 @@
 
     <LogStd :std="logEntry.std" class="shrink-0 select-none" v-if="showStd" />
 
+    <div class="flex gap-x-2 gap-y-1 group-[.compact]:gap-y-0 has-[>_*:nth-of-type(2)]:flex-col-reverse md:flex-row!">
+      <RandomColorTag class="w-30 shrink-0 select-none md:w-40" :value="host.name" v-if="showHostname" />
+      <RandomColorTag
+        v-if="showContainerName"
+        class="w-30 shrink-0 select-none group-[.compact]:flex-1 md:w-40"
+        :value="container.id"
+        truncateRight
+      >
+        {{ container.name }}
+      </RandomColorTag>
+      <LogDate v-if="showTimestamp" :date="logEntry.date" class="shrink-0 select-none" />
+    </div>
+
     <!-- Cloud matched a notification on this exact line. Badged here rather
          than inserted as its own row: the event IS this line, so a separate
          marker would duplicate it — and during a storm would put one between
@@ -17,19 +30,6 @@
       <mdi:bell-off v-if="logEntry.matchedEvent.suppressed" class="size-3.5" />
       <mdi:bell-alert v-else class="size-3.5" />
     </span>
-
-    <div class="flex gap-x-2 gap-y-1 group-[.compact]:gap-y-0 has-[>_*:nth-of-type(2)]:flex-col-reverse md:flex-row!">
-      <RandomColorTag class="w-30 shrink-0 select-none md:w-40" :value="host.name" v-if="showHostname" />
-      <RandomColorTag
-        v-if="showContainerName"
-        class="w-30 shrink-0 select-none group-[.compact]:flex-1 md:w-40"
-        :value="container.id"
-        truncateRight
-      >
-        {{ container.name }}
-      </RandomColorTag>
-      <LogDate v-if="showTimestamp" :date="logEntry.date" class="shrink-0 select-none" />
-    </div>
     <slot />
   </div>
 </template>
