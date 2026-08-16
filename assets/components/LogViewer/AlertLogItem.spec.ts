@@ -38,7 +38,7 @@ function mountAlert(overrides: Partial<CloudAlert> = {}) {
 }
 
 describe("<AlertLogItem />", () => {
-  test("renders a full card at the origin", () => {
+  test("renders headline and event count on one line at the origin", () => {
     const wrapper = mountAlert();
     expect(wrapper.text()).toContain("Pool exhausted");
     expect(wrapper.text()).toContain("label.alert-events");
@@ -46,11 +46,40 @@ describe("<AlertLogItem />", () => {
   });
 
   // A long incident would bury the logs if every window it touched drew a full
-  // card, so follow-ups get one quiet line instead.
+  // row, so follow-ups get one quiet line instead.
   test("renders a compact line at a follow-up anchor", () => {
     const wrapper = mountAlert({ isOrigin: false });
     expect(wrapper.text()).toContain("label.alert-still-firing");
     expect(wrapper.text()).not.toContain("label.alert-events");
+  });
+
+  // The whole point of the one-line treatment: detail costs an interaction, so
+  // an alert never takes more than a row of the log stream uninvited.
+  describe("details", () => {
+    test("keeps the investigation collapsed until asked", async () => {
+      const wrapper = mountAlert({ investigation: "pool exhausted under retry storm" });
+      expect(wrapper.text()).not.toContain("retry storm");
+
+      await wrapper.get("button").trigger("click");
+      expect(wrapper.text()).toContain("retry storm");
+    });
+
+    test("collapses again on a second press", async () => {
+      const wrapper = mountAlert({ investigation: "pool exhausted under retry storm" });
+      await wrapper.get("button").trigger("click");
+      await wrapper.get("button").trigger("click");
+      expect(wrapper.text()).not.toContain("retry storm");
+    });
+
+    // A control that opens an empty panel is worse than no control.
+    test("offers no button when there is nothing to expand", () => {
+      expect(mountAlert().find("button").exists()).toBe(false);
+    });
+
+    test("offers the button for held-back counts and multi-container incidents", () => {
+      expect(mountAlert({ suppressedCount: 34 }).find("button").exists()).toBe(true);
+      expect(mountAlert({ containerCount: 3 }).find("button").exists()).toBe(true);
+    });
   });
 
   // alerts.level is free text and defaults to '' for anything that never went
@@ -71,14 +100,20 @@ describe("<AlertLogItem />", () => {
     });
   });
 
-  test("shows the container count only when the incident is wider than one", () => {
+  test("shows the container count only when the incident is wider than one", async () => {
     expect(mountAlert({ containerCount: 1 }).text()).not.toContain("label.alert-containers");
-    expect(mountAlert({ containerCount: 3 }).text()).toContain("label.alert-containers");
+
+    const wide = mountAlert({ containerCount: 3 });
+    await wide.get("button").trigger("click");
+    expect(wide.text()).toContain("label.alert-containers");
   });
 
-  test("shows held-back count only when triage suppressed follow-ups", () => {
+  test("shows held-back count only when triage suppressed follow-ups", async () => {
     expect(mountAlert({ suppressedCount: 0 }).text()).not.toContain("label.alert-held-back");
-    expect(mountAlert({ suppressedCount: 34 }).text()).toContain("label.alert-held-back");
+
+    const held = mountAlert({ suppressedCount: 34 });
+    await held.get("button").trigger("click");
+    expect(held.text()).toContain("label.alert-held-back");
   });
 
   test("links out to cloud only when the key has an app url", () => {

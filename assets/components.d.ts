@@ -147,7 +147,6 @@ declare module 'vue' {
     'Mdi:plus': typeof import('~icons/mdi/plus')['default']
     'Mdi:poll': typeof import('~icons/mdi/poll')['default']
     'Mdi:refresh': typeof import('~icons/mdi/refresh')['default']
-    'Mdi:repeat': typeof import('~icons/mdi/repeat')['default']
     'Mdi:satelliteVariant': typeof import('~icons/mdi/satellite-variant')['default']
     'Mdi:shieldCheckOutline': typeof import('~icons/mdi/shield-check-outline')['default']
     'Mdi:textBoxOutline': typeof import('~icons/mdi/text-box-outline')['default']
