@@ -18,7 +18,9 @@
           <!-- Only the count rides the one-line summary. Everything else —
                containers, what triage held back, the investigation — sits behind
                Details, so the row costs exactly one line until asked otherwise. -->
-          <span class="text-xs opacity-60">{{ $t("label.alert-events", alert.eventCount) }}</span>
+          <span class="text-xs opacity-60">
+            {{ $t("label.alert-events", alert.eventCount) }}<template v-if="ranFor">, {{ ranFor }}</template>
+          </span>
 
           <!-- Right-aligned so the headline starts at the same x-position on
                every alert down the stream, which is what makes a column of
@@ -62,6 +64,24 @@ const { logEntry } = defineProps<{
 
 const alert = computed(() => logEntry.alert);
 const expanded = ref(false);
+
+// Anything under a minute is one moment, not a duration — Cloud's aggregation
+// window is 15s, so sub-minute spans are an artefact of batching rather than a
+// real incident length.
+const MIN_REPORTABLE_MS = 60_000;
+
+/**
+ * How long the incident kept firing. Cloud folds follow-up batches into the
+ * original alert, so lastActivityAt is already on the row — without it a card
+ * reads as a single moment when the incident may have run for hours.
+ */
+const ranFor = computed(() => {
+  const { lastActivityAt, ts } = alert.value;
+  if (!lastActivityAt) return null;
+  const ms = (lastActivityAt - ts) / 1_000_000;
+  if (ms < MIN_REPORTABLE_MS) return null;
+  return formatDuration(Math.round(ms / 1000), locale.value === "" ? undefined : locale.value);
+});
 
 /**
  * alerts.level is free text and defaults to '' — an alert that never went

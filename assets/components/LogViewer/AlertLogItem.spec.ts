@@ -82,6 +82,23 @@ describe("<AlertLogItem />", () => {
     });
   });
 
+  describe("incident extent", () => {
+    test("reports how long the incident kept firing, inline on the summary", () => {
+      expect(mountAlert({ ts: ns(0), lastActivityAt: ns(40 * 60_000) }).text()).toMatch(/40/);
+    });
+
+    // Cloud's aggregation window is 15s, so a sub-minute span is an artefact of
+    // batching rather than a real incident length.
+    test("stays silent for a sub-minute span", () => {
+      expect(mountAlert({ ts: ns(0), lastActivityAt: ns(20_000) }).text()).not.toMatch(/\d+\s*(s|sec)/);
+    });
+
+    test("stays silent when there is no follow-up activity at all", () => {
+      // Only the event count on the summary — no trailing duration clause.
+      expect(mountAlert({ ts: ns(0), lastActivityAt: undefined }).text()).not.toMatch(/,\s*\d/);
+    });
+  });
+
   // alerts.level is free text and defaults to '' for anything that never went
   // through a summarizer. A neutral fallback made the common case look like an
   // ordinary log line, which is the one thing this row must not look like.
