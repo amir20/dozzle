@@ -73,26 +73,30 @@ const level = computed(() => {
 </script>
 
 <style scoped>
-@reference "@/main.css";
+/* Plain CSS rather than @apply: the opacity modifier in `@apply bg-error/10`
+   silently produced a SOLID fill, painting the row as a block of colour with
+   its text invisible on top. color-mix is what main.css already uses for
+   tinted surfaces, and it composes predictably here.
 
-/* A tinted band plus a heavy rule, so the row reads as an alert at a glance
-   rather than as one more log line with slightly different text. */
+   The band is tinted; the text is not. Only the icon and the ALERT label take
+   the level colour — colouring the headline too put red text on a red
+   background. */
+.alert-band {
+  border-color: var(--tint);
+  background-color: color-mix(in oklab, var(--tint) 14%, transparent);
+}
+
+.alert-band .accent {
+  color: var(--tint);
+}
+
 .alert-band[data-level="error"] {
-  @apply border-error bg-error/10 text-error;
-  .accent {
-    @apply text-error;
-  }
+  --tint: var(--color-error);
 }
 .alert-band[data-level="warn"] {
-  @apply border-warning bg-warning/10 text-warning;
-  .accent {
-    @apply text-warning;
-  }
+  --tint: var(--color-warning);
 }
 .alert-band[data-level="info"] {
-  @apply border-info bg-info/10 text-info;
-  .accent {
-    @apply text-info;
-  }
+  --tint: var(--color-info);
 }
 </style>
