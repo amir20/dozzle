@@ -44,6 +44,8 @@ label:
   alert: Оповещение
   alert-details: Подробности
   alert-suppressed: Подавлено
+  event-sent-hint: Dozzle Cloud отправил оповещение по этой строке
+  event-suppressed-hint: Dozzle Cloud нашёл совпадение, но удержал оповещение
   host-count: Нет Хостов | 1 Хост | {count} Хостов
   service: Нет сервисов | 1 сервис | {count} сервисов
   services: Сервисы

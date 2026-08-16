@@ -18,6 +18,7 @@ declare global {
   const allLevels: typeof import('./composable/logContext').allLevels
   const arrayEquals: typeof import('./utils/index').arrayEquals
   const asyncComputed: typeof import('@vueuse/core').asyncComputed
+  const attachEvents: typeof import('./composable/cloudAlerts').attachEvents
   const autoResetRef: typeof import('@vueuse/core').autoResetRef
   const automaticRedirect: typeof import('./stores/settings').automaticRedirect
   const buildTicks: typeof import('./utils/index').buildTicks
@@ -429,7 +430,7 @@ declare global {
   export type { AlertFormOptions, ContainerResult } from './composable/alertForm'
   import('./composable/alertForm')
   // @ts-ignore
-  export type { CloudAlert } from './composable/cloudAlerts'
+  export type { CloudAlert, CloudEvent } from './composable/cloudAlerts'
   import('./composable/cloudAlerts')
   // @ts-ignore
   export type { CloudLogHit } from './composable/cloudLogSearch'
@@ -476,6 +477,7 @@ declare module 'vue' {
     readonly allLevels: UnwrapRef<typeof import('./composable/logContext')['allLevels']>
     readonly arrayEquals: UnwrapRef<typeof import('./utils/index')['arrayEquals']>
     readonly asyncComputed: UnwrapRef<typeof import('@vueuse/core')['asyncComputed']>
+    readonly attachEvents: UnwrapRef<typeof import('./composable/cloudAlerts')['attachEvents']>
     readonly autoResetRef: UnwrapRef<typeof import('@vueuse/core')['autoResetRef']>
     readonly automaticRedirect: UnwrapRef<typeof import('./stores/settings')['automaticRedirect']>
     readonly collapseNav: UnwrapRef<typeof import('./stores/settings')['collapseNav']>

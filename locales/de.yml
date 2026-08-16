@@ -44,6 +44,8 @@ label:
   alert: Alarm
   alert-details: Details
   alert-suppressed: Unterdrückt
+  event-sent-hint: Dozzle Cloud hat für diese Zeile einen Alarm gesendet
+  event-suppressed-hint: Dozzle Cloud hat diese Zeile erkannt, den Alarm aber zurückgehalten
   host-count: Keine Hosts | 1 Host | {count} Hosts
   service: Kein Service | 1 Service | {count} Services
   services: Service

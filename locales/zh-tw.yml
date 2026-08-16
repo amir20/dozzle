@@ -44,6 +44,8 @@ label:
   alert: 警示
   alert-details: 詳細資訊
   alert-suppressed: 已抑制
+  event-sent-hint: Dozzle Cloud 已為這一行送出警示
+  event-suppressed-hint: Dozzle Cloud 比對到這一行，但攔下了警示
   host-count: 無主機 | 1 個主機 | {count} 個主機
   service: 無服務 | 1 個服務 | {count} 個服務
   services: 服務

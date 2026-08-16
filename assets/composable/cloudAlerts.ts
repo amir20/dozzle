@@ -39,8 +39,21 @@ export interface CloudAlert {
   url?: string;
 }
 
+/** One matched event, as returned by /api/cloud/alerts?events=1. */
+export interface CloudEvent {
+  ts: number;
+  logId?: number;
+  containerId: string;
+  level?: string;
+  message?: string;
+  type?: string;
+  alertId?: number;
+  suppressed: boolean;
+}
+
 interface CloudAlertsResponse {
   hits: CloudAlert[];
+  events?: CloudEvent[];
   truncated?: boolean;
 }
 
@@ -58,9 +71,15 @@ export async function fetchAlerts(
   containerIDs: string[],
   from: Date,
   to: Date,
-  { linked, signal, followUps }: { linked: boolean; signal?: AbortSignal; followUps?: boolean },
-): Promise<CloudAlert[]> {
-  if (!linked || containerIDs.length === 0) return [];
+  {
+    linked,
+    signal,
+    followUps,
+    events,
+  }: { linked: boolean; signal?: AbortSignal; followUps?: boolean; events?: boolean },
+): Promise<{ alerts: CloudAlert[]; events: CloudEvent[] }> {
+  const empty = { alerts: [], events: [] };
+  if (!linked || containerIDs.length === 0) return empty;
 
   const params = new URLSearchParams({
     containerIds: containerIDs.join(","),
@@ -68,14 +87,15 @@ export async function fetchAlerts(
     to: String(to.getTime() * 1_000_000),
   });
   if (followUps) params.set("followUps", "1");
+  if (events) params.set("events", "1");
 
   try {
     const res = await fetch(withBase(`/api/cloud/alerts?${params}`), { signal });
-    if (!res.ok) return [];
+    if (!res.ok) return empty;
     const body = (await res.json()) as CloudAlertsResponse;
-    return body.hits ?? [];
+    return { alerts: body.hits ?? [], events: body.events ?? [] };
   } catch {
-    return [];
+    return empty;
   }
 }
 
@@ -93,7 +113,7 @@ export function useCloudAlerts() {
       containerIDs: string[],
       from: Date,
       to: Date,
-      opts: { followUps?: boolean; signal?: AbortSignal } = {},
+      opts: { followUps?: boolean; events?: boolean; signal?: AbortSignal } = {},
     ) => fetchAlerts(containerIDs, from, to, { linked: available.value, ...opts }),
   };
 }
@@ -169,4 +189,35 @@ export function mergeAlerts(
 
 function anchorKey(alert: CloudAlert): string {
   return `${alert.alertId}:${alert.ts}`;
+}
+
+/**
+ * Marks the log lines Cloud reports an event on.
+ *
+ * Matching is by log id — the FNV-32a hash both sides stamp on the same raw
+ * line — so a line only gets badged when it really is the one that matched.
+ * Metric and event notifications carry no line and are skipped rather than
+ * guessed at by timestamp.
+ *
+ * Returns whether anything changed, so the caller can skip re-rendering the
+ * list when it did not.
+ */
+export function attachEvents(logs: LogEntry<LogMessage>[], events: CloudEvent[]): boolean {
+  if (events.length === 0) return false;
+
+  const byLogId = new Map<number, CloudEvent>();
+  for (const e of events) {
+    if (e.logId) byLogId.set(e.logId, e);
+  }
+  if (byLogId.size === 0) return false;
+
+  let changed = false;
+  for (const log of logs) {
+    if (log.matchedEvent) continue;
+    const event = byLogId.get(log.id);
+    if (!event || event.containerId !== log.containerID) continue;
+    log.matchedEvent = { alertId: event.alertId ?? 0, suppressed: event.suppressed, level: event.level ?? "" };
+    changed = true;
+  }
+  return changed;
 }

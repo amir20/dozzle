@@ -44,6 +44,8 @@ label:
   alert: 警报
   alert-details: 详情
   alert-suppressed: 已抑制
+  event-sent-hint: Dozzle Cloud 已为该行发送警报
+  event-suppressed-hint: Dozzle Cloud 匹配到该行，但拦下了警报
   host-count: 无主机 | 1 个主机 | {count} 个主机
   service: 无服务 | 1 个服务 | {count} 个服务
   services: 服务

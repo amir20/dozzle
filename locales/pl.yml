@@ -47,6 +47,8 @@ label:
   alert: Alert
   alert-details: Szczegóły
   alert-suppressed: Wstrzymane
+  event-sent-hint: Dozzle Cloud wysłał alert dla tej linii
+  event-suppressed-hint: Dozzle Cloud dopasował tę linię, ale wstrzymał alert
   running-containers: Działające kontenery
   all-containers: Wszystkie kontenery
   all-namespaces: Wszystkie przestrzenie nazw

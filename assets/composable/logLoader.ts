@@ -2,7 +2,7 @@ import { ShallowRef, type Ref } from "vue";
 import { type LogMessage, LogEntry, LoadMoreLogEntry, SkippedLogsEntry } from "@/models/LogEntry";
 import { Container } from "@/models/Container";
 import { loadBetween } from "@/composable/loadBetween";
-import { useCloudAlerts, mergeAlerts } from "@/composable/cloudAlerts";
+import { useCloudAlerts, mergeAlerts, attachEvents } from "@/composable/cloudAlerts";
 
 // Matches the rolling window size used for stats history
 const LOG_WINDOW_FOR_DELTA = 300;
@@ -123,7 +123,13 @@ export function useLogLoader(
     if (logs.length === 0) return logs;
     try {
       const ids = containers.value.map((c) => c.id);
-      const alerts = await fetchAlerts(ids, logs[0].date, new Date(logs[logs.length - 1].date.getTime() + 1));
+      const { alerts, events } = await fetchAlerts(
+        ids,
+        logs[0].date,
+        new Date(logs[logs.length - 1].date.getTime() + 1),
+        { events: true },
+      );
+      attachEvents(logs, events);
       return mergeAlerts(logs, alerts, placedAlerts);
     } catch (err) {
       console.error(err);
@@ -162,16 +168,18 @@ export function useLogLoader(
       // asking for origins only renders nothing — which is exactly the case
       // where the user opened the container because something is happening
       // right now. On scrollback the opposite is right: one card per incident.
-      const alerts = await fetchAlerts(
+      const { alerts, events } = await fetchAlerts(
         containers.value.map((c) => c.id),
         from,
         to,
-        { followUps: true },
+        { followUps: true, events: true },
       );
-      if (alerts.length === 0) return;
 
+      // Badges mutate the entries in place, so the list has to be reassigned
+      // for Vue to see it — messages is a shallowRef.
+      const badged = attachEvents(logs, events);
       const merged = mergeAlerts(logs, alerts, placedAlerts);
-      if (merged === logs) return;
+      if (!badged && merged === logs) return;
       messages.value = loader ? [loader, ...merged] : merged;
     } catch (err) {
       console.error(err);

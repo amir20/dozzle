@@ -20,6 +20,7 @@ type alertCall struct {
 	from, to         int64
 	limit            int32
 	includeFollowUps bool
+	includeEvents    bool
 }
 
 // alertHandler builds a handler wired to a stub GetAlerts, capturing what the
@@ -30,8 +31,8 @@ func alertHandler(t *testing.T, fn func(*alertCall) (*cloud.AlertResult, error))
 	got := &alertCall{}
 	h := &handler{config: &Config{}}
 	if fn != nil {
-		h.config.Cloud.GetAlerts = func(ctx context.Context, containerIDs []string, hostID string, fromNs, toNs int64, limit int32, includeFollowUps bool) (*cloud.AlertResult, error) {
-			*got = alertCall{containerIDs, hostID, fromNs, toNs, limit, includeFollowUps}
+		h.config.Cloud.GetAlerts = func(ctx context.Context, containerIDs []string, hostID string, fromNs, toNs int64, limit int32, includeFollowUps, includeEvents bool) (*cloud.AlertResult, error) {
+			*got = alertCall{containerIDs, hostID, fromNs, toNs, limit, includeFollowUps, includeEvents}
 			return fn(got)
 		}
 	}
@@ -74,6 +75,18 @@ func TestCloudAlerts_ForwardsParams(t *testing.T) {
 	require.Equal(t, int64(200), got.to)
 	require.Equal(t, int32(7), got.limit)
 	require.True(t, got.includeFollowUps)
+}
+
+// Events are opt-in: they are far more numerous than alerts, so a caller that
+// only wants incidents must not pay for them.
+func TestCloudAlerts_EventsAreOptIn(t *testing.T) {
+	h, got := alertHandler(t, okResult)
+
+	require.Equal(t, http.StatusOK, doAlerts(h, "containerIds=abc&from=1&to=2").Code)
+	require.False(t, got.includeEvents)
+
+	require.Equal(t, http.StatusOK, doAlerts(h, "containerIds=abc&from=1&to=2&events=1").Code)
+	require.True(t, got.includeEvents)
 }
 
 // An empty container list is a no-op, not an error: the caller's merge path

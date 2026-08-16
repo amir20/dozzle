@@ -13,6 +13,10 @@ import (
 // callers don't have to import the proto package directly.
 type AlertResult struct {
 	Hits []AlertHit `json:"hits"`
+	// Events is the individual matched events in the window, populated only
+	// when they were asked for. The viewer badges the log lines these
+	// correspond to rather than adding rows of its own.
+	Events []EventHit `json:"events,omitempty"`
 	// Truncated means the window held more anchors than the limit allowed, so
 	// the viewer is not seeing all of them.
 	Truncated bool `json:"truncated,omitempty"`
@@ -58,6 +62,23 @@ type AlertHit struct {
 	URL string `json:"url,omitempty"`
 }
 
+// EventHit is one matched event — a notification Dozzle raised because it hit a
+// subscription. Many events fold into one alert, so these are far more numerous
+// than hits.
+type EventHit struct {
+	Ts          int64  `json:"ts"`
+	LogID       uint32 `json:"logId,omitempty"`
+	ContainerID string `json:"containerId"`
+	HostID      string `json:"hostId,omitempty"`
+	Level       string `json:"level,omitempty"`
+	Message     string `json:"message,omitempty"`
+	Type        string `json:"type,omitempty"`
+	AlertID     int64  `json:"alertId,omitempty"`
+	// Suppressed means the event produced no notification of its own: it was
+	// folded into an alert already sent, or never reached one at all.
+	Suppressed bool `json:"suppressed"`
+}
+
 // GetAlerts fetches the alerts that fired on these containers inside a window,
 // for merging into the local log stream on scrollback. Reuses the long-lived
 // unary conn so a scroll doesn't pay a TLS handshake.
@@ -66,7 +87,7 @@ type AlertHit struct {
 // metadata; this client passes only the per-request fields below. Unlike
 // SearchLogs this does not depend on the streamLogs opt-in — alerts live in
 // Cloud's own database rather than the log store.
-func (c *Client) GetAlerts(ctx context.Context, containerIDs []string, hostID string, fromNs, toNs int64, limit int32, includeFollowUps bool) (*AlertResult, error) {
+func (c *Client) GetAlerts(ctx context.Context, containerIDs []string, hostID string, fromNs, toNs int64, limit int32, includeFollowUps, includeEvents bool) (*AlertResult, error) {
 	apiKey := c.apiKeyFunc()
 	if apiKey == "" {
 		return nil, ErrNotConfigured
@@ -90,6 +111,7 @@ func (c *Client) GetAlerts(ctx context.Context, containerIDs []string, hostID st
 		ToTsNs:           toNs,
 		Limit:            limit,
 		IncludeFollowUps: includeFollowUps,
+		IncludeEvents:    includeEvents,
 	})
 	if err != nil {
 		return nil, fmt.Errorf("cloud: alerts: %w", err)
@@ -117,5 +139,19 @@ func (c *Client) GetAlerts(ctx context.Context, containerIDs []string, hostID st
 			URL:             h.GetUrl(),
 		})
 	}
-	return &AlertResult{Hits: hits, Truncated: resp.GetTruncated()}, nil
+	events := make([]EventHit, 0, len(resp.GetEvents()))
+	for _, e := range resp.GetEvents() {
+		events = append(events, EventHit{
+			Ts:          e.GetTsNs(),
+			LogID:       e.GetLogId(),
+			ContainerID: e.GetContainerId(),
+			HostID:      e.GetHostId(),
+			Level:       e.GetLevel(),
+			Message:     e.GetMessage(),
+			Type:        e.GetType(),
+			AlertID:     e.GetAlertId(),
+			Suppressed:  e.GetSuppressed(),
+		})
+	}
+	return &AlertResult{Hits: hits, Events: events, Truncated: resp.GetTruncated()}, nil
 }

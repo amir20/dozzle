@@ -1,4 +1,4 @@
-import { Component, ComputedRef, Ref } from "vue";
+import { Component, ComputedRef, Ref, ShallowRef } from "vue";
 import type { CloudAlert } from "@/composable/cloudAlerts";
 import { flattenJSON } from "@/utils";
 import ComplexLogItem from "@/components/LogViewer/ComplexLogItem.vue";
@@ -33,8 +33,39 @@ export interface LogEvent {
   readonly rm: string;
 }
 
+/**
+ * The matched event behind a log line, when Cloud reports one. Attached to the
+ * entry rather than rendered as its own row: the event IS this line, so a
+ * separate marker would duplicate what is already on screen — and during a
+ * storm would put one between every pair of lines.
+ */
+export interface MatchedEvent {
+  alertId: number;
+  suppressed: boolean;
+  level: string;
+}
+
+/**
+ * Matched events live beside the entries rather than on them.
+ *
+ * They have to be ref-backed at all because entries are plain class instances
+ * inside a shallowRef array — assigning a plain field mutates an object Vue
+ * is not tracking, and the row never re-renders. Keeping the ref out here
+ * rather than in a field leaves the entry's own shape untouched, which matters
+ * because these objects get structurally snapshotted in tests.
+ */
+const matchedEvents = new WeakMap<LogEntry<LogMessage>, ShallowRef<MatchedEvent | undefined>>();
+
 export abstract class LogEntry<T extends LogMessage> {
   protected readonly _message: T;
+
+  /** The event Cloud matched on this line, once the alert loader reports it. */
+  public get matchedEvent(): MatchedEvent | undefined {
+    return matchedEventRef(this).value;
+  }
+  public set matchedEvent(event: MatchedEvent | undefined) {
+    matchedEventRef(this).value = event;
+  }
   constructor(
     message: T,
     public readonly containerID: string,
@@ -271,6 +302,15 @@ export class LoadMoreLogEntry extends LogEntry<string> {
   async loadMore(): Promise<void> {
     await this.loader(this);
   }
+}
+
+function matchedEventRef(entry: LogEntry<any>): ShallowRef<MatchedEvent | undefined> {
+  let existing = matchedEvents.get(entry);
+  if (!existing) {
+    existing = shallowRef<MatchedEvent | undefined>(undefined);
+    matchedEvents.set(entry, existing);
+  }
+  return existing;
 }
 
 export function asLogEntry(event: LogEvent): LogEntry<LogMessage> {

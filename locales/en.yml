@@ -44,6 +44,8 @@ label:
   alert: Alert
   alert-details: Details
   alert-suppressed: Suppressed
+  event-sent-hint: Dozzle Cloud sent an alert for this line
+  event-suppressed-hint: Dozzle Cloud matched this line but held the alert back
   host-count: No Hosts | 1 Host | {count} Hosts
   service: No services | 1 service | {count} services
   services: Services

@@ -2,7 +2,7 @@
  * @vitest-environment jsdom
  */
 import { describe, expect, test, vi, beforeEach, afterEach } from "vitest";
-import { mergeAlerts, fetchAlerts, type CloudAlert } from "./cloudAlerts";
+import { mergeAlerts, fetchAlerts, attachEvents, type CloudAlert, type CloudEvent } from "./cloudAlerts";
 import { AlertLogEntry, SimpleLogEntry, type LogEntry, type LogMessage } from "@/models/LogEntry";
 
 vi.mock("@/composable/cloudConfig", () => ({ useCloudConfig: () => ({ cloudConfig: { value: null } }) }));
@@ -136,7 +136,7 @@ describe("fetchAlerts", () => {
     const spy = vi.fn();
     global.fetch = spy;
 
-    expect(await fetchAlerts(["abc"], ms(0), ms(1), { linked: false })).toEqual([]);
+    expect(await fetchAlerts(["abc"], ms(0), ms(1), { linked: false })).toEqual({ alerts: [], events: [] });
     expect(spy).not.toHaveBeenCalled();
   });
 
@@ -144,7 +144,7 @@ describe("fetchAlerts", () => {
     const spy = vi.fn();
     global.fetch = spy;
 
-    expect(await fetchAlerts([], ms(0), ms(1), { linked: true })).toEqual([]);
+    expect(await fetchAlerts([], ms(0), ms(1), { linked: true })).toEqual({ alerts: [], events: [] });
     expect(spy).not.toHaveBeenCalled();
   });
 
@@ -152,10 +152,10 @@ describe("fetchAlerts", () => {
   // outage must cost the user their alerts, never their logs.
   test("degrades to no alerts when cloud fails", async () => {
     global.fetch = vi.fn().mockRejectedValue(new Error("cloud down"));
-    expect(await fetchAlerts(["abc"], ms(0), ms(1), { linked: true })).toEqual([]);
+    expect(await fetchAlerts(["abc"], ms(0), ms(1), { linked: true })).toEqual({ alerts: [], events: [] });
 
     global.fetch = vi.fn().mockResolvedValue({ ok: false, status: 502 });
-    expect(await fetchAlerts(["abc"], ms(0), ms(1), { linked: true })).toEqual([]);
+    expect(await fetchAlerts(["abc"], ms(0), ms(1), { linked: true })).toEqual({ alerts: [], events: [] });
   });
 
   test("sends the window as unix nanoseconds", async () => {
@@ -168,5 +168,48 @@ describe("fetchAlerts", () => {
     expect(url).toContain("containerIds=abc%2Cdef");
     expect(url).toContain(`from=${ns(1000)}`);
     expect(url).toContain(`to=${ns(2000)}`);
+  });
+});
+
+describe("attachEvents", () => {
+  const event = (overrides: Partial<CloudEvent> = {}): CloudEvent => ({
+    ts: ns(100),
+    logId: 10,
+    containerId: "abc",
+    suppressed: true,
+    ...overrides,
+  });
+
+  test("badges the line the event matched", () => {
+    const logs = [log(10, 100), log(11, 200)];
+    expect(attachEvents(logs, [event()])).toBe(true);
+    expect(logs[0].matchedEvent).toEqual({ alertId: 0, suppressed: true, level: "" });
+    expect(logs[1].matchedEvent).toBeUndefined();
+  });
+
+  // The FNV id is only unique within a container, so the same hash on another
+  // container must not steal the badge.
+  test("ignores a matching id on a different container", () => {
+    const logs = [log(10, 100, "other")];
+    expect(attachEvents(logs, [event()])).toBe(false);
+    expect(logs[0].matchedEvent).toBeUndefined();
+  });
+
+  // Metric and event notifications have no line to badge; guessing one from a
+  // timestamp would mark an unrelated log line.
+  test("skips events with no log line", () => {
+    const logs = [log(10, 100)];
+    expect(attachEvents(logs, [event({ logId: undefined })])).toBe(false);
+    expect(logs[0].matchedEvent).toBeUndefined();
+  });
+
+  test("carries the delivered flag through", () => {
+    const logs = [log(10, 100)];
+    attachEvents(logs, [event({ suppressed: false, alertId: 7, level: "error" })]);
+    expect(logs[0].matchedEvent).toEqual({ alertId: 7, suppressed: false, level: "error" });
+  });
+
+  test("reports no change when there is nothing to badge", () => {
+    expect(attachEvents([log(10, 100)], [])).toBe(false);
   });
 });
