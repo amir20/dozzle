@@ -2,6 +2,7 @@ import { ShallowRef, type Ref } from "vue";
 import { type LogMessage, LogEntry, LoadMoreLogEntry, SkippedLogsEntry } from "@/models/LogEntry";
 import { Container } from "@/models/Container";
 import { loadBetween } from "@/composable/loadBetween";
+import { useCloudAlerts, mergeAlerts } from "@/composable/cloudAlerts";
 
 // Matches the rolling window size used for stats history
 const LOG_WINDOW_FOR_DELTA = 300;
@@ -12,6 +13,15 @@ export function useLogLoader(
   params: Ref<URLSearchParams>,
   loadingMore: Ref<boolean>,
 ) {
+  const { fetchAlerts } = useCloudAlerts();
+  // Anchor keys already placed, so overlapping scroll windows don't duplicate.
+  // Keyed on (alertId, anchor) rather than alertId: one incident legitimately
+  // marks every window it was active in.
+  const placedAlerts = new Set<string>();
+  // The viewer clears its messages when the stream changes (container switch,
+  // filter change). Without this the seen-set would outlive the entries it was
+  // tracking, and alerts already scrolled past would never render again.
+  watch([params, containers], () => placedAlerts.clear());
   async function loadOlderLogs(entry: LoadMoreLogEntry) {
     if (!(messages.value[0] instanceof LoadMoreLogEntry)) throw new Error("No loadMoreLogEntry on first item");
     if (containers.value.length === 0) return;
@@ -60,7 +70,7 @@ export function useLogLoader(
         .sort((a, b) => a.date.getTime() - b.date.getTime());
 
       if (allNewLogs.length > 0) {
-        messages.value = [loader, ...allNewLogs, ...existingLogs];
+        messages.value = [loader, ...(await withAlerts(allNewLogs)), ...existingLogs];
       }
     } catch (err) {
       console.error(err);
@@ -90,13 +100,34 @@ export function useLogLoader(
         .sort((a, b) => a.date.getTime() - b.date.getTime());
 
       if (allLogs.length > 0) {
-        const updated = messages.value.flatMap((log) => (log === entry ? allLogs : [log]));
+        const withAlertsApplied = await withAlerts(allLogs);
+        const updated = messages.value.flatMap((log) => (log === entry ? withAlertsApplied : [log]));
         messages.value = updated.length > config.maxLogs ? updated.slice(-config.maxLogs) : updated;
       }
     } catch (err) {
       console.error(err);
     } finally {
       loadingMore.value = false;
+    }
+  }
+
+  /**
+   * Decorates a freshly loaded, time-sorted run of logs with any Dozzle Cloud
+   * alerts that fired inside it.
+   *
+   * fetchAlerts never rejects, but the guard is kept regardless: this runs on
+   * the scroll path, where the log lines have already been fetched. A cloud
+   * problem must degrade to "no alerts", never cost the user their logs.
+   */
+  async function withAlerts(logs: LogEntry<LogMessage>[]): Promise<LogEntry<LogMessage>[]> {
+    if (logs.length === 0) return logs;
+    try {
+      const ids = containers.value.map((c) => c.id);
+      const alerts = await fetchAlerts(ids, logs[0].date, new Date(logs[logs.length - 1].date.getTime() + 1));
+      return mergeAlerts(logs, alerts, placedAlerts);
+    } catch (err) {
+      console.error(err);
+      return logs;
     }
   }
 

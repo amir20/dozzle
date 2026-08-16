@@ -1,4 +1,5 @@
 import { Component, ComputedRef, Ref } from "vue";
+import type { CloudAlert } from "@/composable/cloudAlerts";
 import { flattenJSON } from "@/utils";
 import ComplexLogItem from "@/components/LogViewer/ComplexLogItem.vue";
 import SimpleLogItem from "@/components/LogViewer/SimpleLogItem.vue";
@@ -6,6 +7,7 @@ import GroupedLogItem from "@/components/LogViewer/GroupedLogItem.vue";
 import ContainerEventLogItem from "@/components/LogViewer/ContainerEventLogItem.vue";
 import SkippedEntriesLogItem from "@/components/LogViewer/SkippedEntriesLogItem.vue";
 import LoadMoreLogItem from "@/components/LogViewer/LoadMoreLogItem.vue";
+import AlertLogItem from "@/components/LogViewer/AlertLogItem.vue";
 
 export type JSONValue = string | number | boolean | JSONObject | Array<JSONValue>;
 export type JSONObject = { [x: string]: JSONValue };
@@ -14,16 +16,7 @@ export type LogType = "single" | "group" | "complex";
 export type Position = "start" | "end" | "middle" | undefined;
 export type LogMessage = string | string[] | JSONObject;
 export type Level =
-  | "error"
-  | "warn"
-  | "warning"
-  | "info"
-  | "debug"
-  | "trace"
-  | "severe"
-  | "critical"
-  | "fatal"
-  | "unknown";
+  "error" | "warn" | "warning" | "info" | "debug" | "trace" | "severe" | "critical" | "fatal" | "unknown";
 
 export interface LogFragment {
   readonly m: string;
@@ -174,6 +167,51 @@ export class ContainerEventLogEntry extends LogEntry<string> {
   getComponent(): Component {
     return ContainerEventLogItem;
   }
+}
+
+/**
+ * An alert from Dozzle Cloud, merged into the log stream at the point it fired.
+ *
+ * Cloud stores the FNV-32a hash of the line that triggered each alert — the
+ * same id LogEvent.Id carries — so where that line is on screen the alert can
+ * be spliced in directly after it rather than positioned by timestamp. Metric
+ * and event alerts have no triggering line and carry logId 0, falling back to
+ * their timestamp.
+ *
+ * An alert is an incident, not a single moment: Cloud folds follow-up batches
+ * into the original alert, so one incident can have activity across many
+ * windows. `isOrigin` distinguishes where it first fired from where it was
+ * merely still firing.
+ */
+export class AlertLogEntry extends LogEntry<string> {
+  constructor(
+    public readonly alert: CloudAlert,
+    date: Date,
+  ) {
+    // std/level feed the shared LogItem chrome. Alerts are not stream output,
+    // but they are unmistakably not stdout either, and the level is the one
+    // triage assigned.
+    super(alert.headline, alert.containerId, alert.alertId, date, "stderr", alert.headline, alertLevel(alert.level));
+  }
+
+  getComponent(): Component {
+    return AlertLogItem;
+  }
+
+  /**
+   * Stable identity for dedupe across overlapping scroll windows. Keyed on the
+   * ANCHOR as well as the alert: one incident legitimately marks every window
+   * it was active in, and keying on alertId alone would let a follow-up anchor
+   * loaded first swallow the origin loaded later.
+   */
+  public get anchorKey(): string {
+    return `${this.alert.alertId}:${this.alert.ts}`;
+  }
+}
+
+function alertLevel(level: string): Level {
+  const known: Level[] = ["error", "warn", "warning", "info", "debug", "trace", "severe", "critical", "fatal"];
+  return (known.find((l) => l === level) ?? "unknown") as Level;
 }
 
 export class SkippedLogsEntry extends LogEntry<string> {

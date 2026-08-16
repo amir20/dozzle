@@ -62,6 +62,7 @@ declare global {
   const effectScope: typeof import('vue').effectScope
   const escapeHtml: typeof import('./utils/index').escapeHtml
   const extendRef: typeof import('@vueuse/core').extendRef
+  const fetchAlerts: typeof import('./composable/cloudAlerts').fetchAlerts
   const flattenJSON: typeof import('./utils/index').flattenJSON
   const flattenJSONToMap: typeof import('./utils/index').flattenJSONToMap
   const formatBytes: typeof import('./utils/index').formatBytes
@@ -102,6 +103,7 @@ declare global {
   const mapWritableState: typeof import('pinia').mapWritableState
   const markRaw: typeof import('vue').markRaw
   const menuWidth: typeof import('./stores/settings').menuWidth
+  const mergeAlerts: typeof import('./composable/cloudAlerts').mergeAlerts
   const nextTick: typeof import('vue').nextTick
   const onActivated: typeof import('vue').onActivated
   const onBeforeMount: typeof import('vue').onBeforeMount
@@ -218,6 +220,7 @@ declare global {
   const useClipboard: typeof import('@vueuse/core').useClipboard
   const useClipboardItems: typeof import('@vueuse/core').useClipboardItems
   const useCloned: typeof import('@vueuse/core').useCloned
+  const useCloudAlerts: typeof import('./composable/cloudAlerts').useCloudAlerts
   const useCloudConfig: typeof import('./composable/cloudConfig').useCloudConfig
   const useCloudLogSearch: typeof import('./composable/cloudLogSearch').useCloudLogSearch
   const useColorMode: typeof import('@vueuse/core').useColorMode
@@ -425,6 +428,9 @@ declare global {
   export type { AlertFormOptions, ContainerResult } from './composable/alertForm'
   import('./composable/alertForm')
   // @ts-ignore
+  export type { CloudAlert } from './composable/cloudAlerts'
+  import('./composable/cloudAlerts')
+  // @ts-ignore
   export type { CloudLogHit } from './composable/cloudLogSearch'
   import('./composable/cloudLogSearch')
   // @ts-ignore
@@ -512,6 +518,7 @@ declare module 'vue' {
     readonly eagerComputed: UnwrapRef<typeof import('@vueuse/core')['eagerComputed']>
     readonly effectScope: UnwrapRef<typeof import('vue')['effectScope']>
     readonly extendRef: UnwrapRef<typeof import('@vueuse/core')['extendRef']>
+    readonly fetchAlerts: UnwrapRef<typeof import('./composable/cloudAlerts')['fetchAlerts']>
     readonly flattenJSON: UnwrapRef<typeof import('./utils/index')['flattenJSON']>
     readonly flattenJSONToMap: UnwrapRef<typeof import('./utils/index')['flattenJSONToMap']>
     readonly formatBytes: UnwrapRef<typeof import('./utils/index')['formatBytes']>
@@ -551,6 +558,7 @@ declare module 'vue' {
     readonly mapWritableState: UnwrapRef<typeof import('pinia')['mapWritableState']>
     readonly markRaw: UnwrapRef<typeof import('vue')['markRaw']>
     readonly menuWidth: UnwrapRef<typeof import('./stores/settings')['menuWidth']>
+    readonly mergeAlerts: UnwrapRef<typeof import('./composable/cloudAlerts')['mergeAlerts']>
     readonly nextTick: UnwrapRef<typeof import('vue')['nextTick']>
     readonly onActivated: UnwrapRef<typeof import('vue')['onActivated']>
     readonly onBeforeMount: UnwrapRef<typeof import('vue')['onBeforeMount']>
@@ -664,6 +672,7 @@ declare module 'vue' {
     readonly useClipboard: UnwrapRef<typeof import('@vueuse/core')['useClipboard']>
     readonly useClipboardItems: UnwrapRef<typeof import('@vueuse/core')['useClipboardItems']>
     readonly useCloned: UnwrapRef<typeof import('@vueuse/core')['useCloned']>
+    readonly useCloudAlerts: UnwrapRef<typeof import('./composable/cloudAlerts')['useCloudAlerts']>
     readonly useCloudConfig: UnwrapRef<typeof import('./composable/cloudConfig')['useCloudConfig']>
     readonly useCloudLogSearch: UnwrapRef<typeof import('./composable/cloudLogSearch')['useCloudLogSearch']>
     readonly useColorMode: UnwrapRef<typeof import('@vueuse/core')['useColorMode']>
