@@ -58,7 +58,7 @@ export async function fetchAlerts(
   containerIDs: string[],
   from: Date,
   to: Date,
-  { linked, signal }: { linked: boolean; signal?: AbortSignal },
+  { linked, signal, followUps }: { linked: boolean; signal?: AbortSignal; followUps?: boolean },
 ): Promise<CloudAlert[]> {
   if (!linked || containerIDs.length === 0) return [];
 
@@ -67,6 +67,7 @@ export async function fetchAlerts(
     from: String(from.getTime() * 1_000_000),
     to: String(to.getTime() * 1_000_000),
   });
+  if (followUps) params.set("followUps", "1");
 
   try {
     const res = await fetch(withBase(`/api/cloud/alerts?${params}`), { signal });
@@ -88,8 +89,12 @@ export function useCloudAlerts() {
 
   return {
     available,
-    fetchAlerts: (containerIDs: string[], from: Date, to: Date, signal?: AbortSignal) =>
-      fetchAlerts(containerIDs, from, to, { linked: available.value, signal }),
+    fetchAlerts: (
+      containerIDs: string[],
+      from: Date,
+      to: Date,
+      opts: { followUps?: boolean; signal?: AbortSignal } = {},
+    ) => fetchAlerts(containerIDs, from, to, { linked: available.value, ...opts }),
   };
 }
 

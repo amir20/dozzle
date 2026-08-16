@@ -7,10 +7,15 @@
     >
       <!-- Follow-up anchor: the incident was already open and still firing
            here. One quiet line — a long incident must never draw two cards. -->
-      <div v-if="!alert.isOrigin" class="flex items-center gap-2 text-xs opacity-60">
-        <span class="dot"></span>
-        <span>{{ $t("label.alert-still-firing") }} &mdash; {{ alert.headline }}</span>
-        <a v-if="alert.url" :href="alert.url" target="_blank" rel="noopener" class="link">
+      <div v-if="!alert.isOrigin" class="flex flex-wrap items-center gap-x-2 gap-y-1 py-0.5">
+        <span class="chip chip-quiet">
+          <mdi:bell-off class="size-3" />
+          {{ $t("label.alert-suppressed") }}
+        </span>
+        <span class="opacity-70">{{ alert.headline }}</span>
+        <span class="shrink-0 opacity-40">&middot;</span>
+        <span class="shrink-0 text-xs opacity-50">{{ $t("label.alert-still-firing") }}</span>
+        <a v-if="alert.url" :href="alert.url" target="_blank" rel="noopener" class="act ml-auto">
           {{ $t("label.alert-open") }}
         </a>
       </div>
@@ -18,7 +23,10 @@
       <template v-else>
         <div class="flex flex-col gap-1.5 py-1">
           <div class="flex flex-wrap items-center gap-x-2.5 gap-y-1">
-            <span class="chip">{{ $t("label.alert") }}</span>
+            <span class="chip">
+              <mdi:bell-alert class="size-3" />
+              {{ $t("label.alert") }}
+            </span>
             <span class="font-semibold">{{ alert.headline }}</span>
             <!-- Only the count rides the summary line. Everything else —
                  containers, what triage held back, the investigation — sits
@@ -151,12 +159,13 @@ const hasDetail = computed(
 .chip {
   background-color: var(--tint);
   color: var(--tint-content);
-  @apply shrink-0 rounded-xs px-1.5 py-px text-[0.62rem] font-bold tracking-wider uppercase;
+  @apply inline-flex shrink-0 items-center gap-1 rounded-xs px-1.5 py-px text-[0.62rem] font-bold tracking-wider uppercase;
 }
 
-.dot {
-  background-color: var(--tint);
-  @apply size-1.5 shrink-0 rounded-full;
+.chip-quiet {
+  background-color: transparent;
+  color: var(--tint);
+  border: 1px solid color-mix(in oklab, var(--tint) 45%, transparent);
 }
 
 /* Actions read as controls, not as more log text: a hairline button for the

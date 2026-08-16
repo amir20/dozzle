@@ -43,6 +43,7 @@ label:
   alert-open: open
   alert: Alert
   alert-details: Details
+  alert-suppressed: Suppressed
   host-count: No Hosts | 1 Host | {count} Hosts
   service: No services | 1 service | {count} services
   services: Services

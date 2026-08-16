@@ -111,6 +111,8 @@ declare module 'vue' {
     'Mdi:arrowUp': typeof import('~icons/mdi/arrow-up')['default']
     'Mdi:beer': typeof import('~icons/mdi/beer')['default']
     'Mdi:bell': typeof import('~icons/mdi/bell')['default']
+    'Mdi:bellAlert': typeof import('~icons/mdi/bell-alert')['default']
+    'Mdi:bellOff': typeof import('~icons/mdi/bell-off')['default']
     'Mdi:bellRingOutline': typeof import('~icons/mdi/bell-ring-outline')['default']
     'Mdi:chartBar': typeof import('~icons/mdi/chart-bar')['default']
     'Mdi:chartLine': typeof import('~icons/mdi/chart-line')['default']

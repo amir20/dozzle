@@ -131,5 +131,52 @@ export function useLogLoader(
     }
   }
 
-  return { loadOlderLogs, loadSkippedLogs };
+  /**
+   * Decorates the logs already on screen with any alerts that fired inside
+   * them.
+   *
+   * loadOlderLogs only runs when the user scrolls back, so without this an
+   * alert that fired inside the window the viewer *opens* on never appeared —
+   * the most common case there is, since "something just happened" is usually
+   * why the container got opened at all.
+   *
+   * Safe to call repeatedly: placedAlerts dedupes, and an unchanged window
+   * merges nothing.
+   */
+  async function loadAlertsForVisible() {
+    if (containers.value.length === 0) return;
+
+    // The loader pins to the top of the list and carries `now` as its date, so
+    // it must be held out of the merge — a time-anchored alert would otherwise
+    // sort ahead of it and push it off the top.
+    const [head, ...rest] = messages.value;
+    const loader = head instanceof LoadMoreLogEntry ? head : undefined;
+    const logs = loader ? rest : messages.value;
+    if (logs.length === 0) return;
+
+    try {
+      const from = logs[0].date;
+      const to = new Date(logs[logs.length - 1].date.getTime() + 1);
+      // followUps on purpose. An incident that started an hour ago and is
+      // still firing has no *origin* inside the window the viewer opens on, so
+      // asking for origins only renders nothing — which is exactly the case
+      // where the user opened the container because something is happening
+      // right now. On scrollback the opposite is right: one card per incident.
+      const alerts = await fetchAlerts(
+        containers.value.map((c) => c.id),
+        from,
+        to,
+        { followUps: true },
+      );
+      if (alerts.length === 0) return;
+
+      const merged = mergeAlerts(logs, alerts, placedAlerts);
+      if (merged === logs) return;
+      messages.value = loader ? [loader, ...merged] : merged;
+    } catch (err) {
+      console.error(err);
+    }
+  }
+
+  return { loadOlderLogs, loadSkippedLogs, loadAlertsForVisible };
 }
