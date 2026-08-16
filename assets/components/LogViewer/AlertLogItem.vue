@@ -1,6 +1,10 @@
 <template>
   <LogItem :logEntry>
-    <div class="alert-row w-full min-w-0 border-l-3 pl-4" :data-origin="alert.isOrigin" :data-alert-level="level">
+    <div
+      class="alert-row w-full min-w-0 border-l-3 pl-4 font-sans"
+      :data-origin="alert.isOrigin"
+      :data-alert-level="level"
+    >
       <!-- Follow-up anchor: the incident was already open and still firing
            here. One quiet line — a long incident must never draw two cards. -->
       <div v-if="!alert.isOrigin" class="flex items-center gap-2 text-xs opacity-60">
@@ -116,7 +120,11 @@ const hasDetail = computed(
 <style scoped>
 @reference "@/main.css";
 
-/* No fill: a rail and a chip mark the row, and the log background is left
+/* font-sans, not the monospace the log list sets on its <ul>: this row is
+   prose about the logs rather than log output, and monospace made a sentence
+   of it read as another line of the stream.
+
+   No fill: a rail and a chip mark the row, and the log background is left
    alone. Colour is spent where the eye finds it fastest — a small,
    high-contrast marker against a calm surface.
 
