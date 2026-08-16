@@ -1,7 +1,7 @@
 <template>
   <LogItem :logEntry>
     <div
-      class="alert-row w-full border-l-3 pl-2"
+      class="alert-row w-full min-w-0 border-l-3 pl-4"
       :data-origin="alert.isOrigin"
       :data-alert-id="alert.alertId"
       :data-alert-level="level"
@@ -18,13 +18,13 @@
       </div>
 
       <template v-else>
-        <div class="flex flex-wrap items-center gap-x-2 gap-y-1">
+        <div class="flex items-center gap-x-2">
           <span class="chip">{{ $t("label.alert") }}</span>
-          <span class="font-medium">{{ alert.headline }}</span>
+          <span class="truncate font-medium">{{ alert.headline }}</span>
           <!-- Only the count rides the one-line summary. Everything else —
                containers, what triage held back, the investigation — sits behind
                Details, so the row costs exactly one line until asked otherwise. -->
-          <span class="text-xs opacity-60">
+          <span class="shrink-0 text-xs opacity-60">
             {{ $t("label.alert-events", alert.eventCount) }}<template v-if="ranFor">, {{ ranFor }}</template>
           </span>
 
