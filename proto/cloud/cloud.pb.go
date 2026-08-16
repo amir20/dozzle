@@ -2731,7 +2731,12 @@ type EventHit struct {
 	// True when this event produced no delivered notification of its own: it
 	// arrived after its alert had already been sent and was folded in silently,
 	// or it never became an alert at all.
-	Suppressed    bool `protobuf:"varint,9,opt,name=suppressed,proto3" json:"suppressed,omitempty"`
+	Suppressed bool `protobuf:"varint,9,opt,name=suppressed,proto3" json:"suppressed,omitempty"`
+	// Human-readable summary Dozzle wrote when it raised the notification: the
+	// log line for a log event, "CPU: 45.2%, Memory: 61.0%" for a metric, the
+	// lifecycle description for a container event. The only renderable text a
+	// metric or event notification has, since neither carries a log line.
+	Detail        string `protobuf:"bytes,10,opt,name=detail,proto3" json:"detail,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -2827,6 +2832,13 @@ func (x *EventHit) GetSuppressed() bool {
 		return x.Suppressed
 	}
 	return false
+}
+
+func (x *EventHit) GetDetail() string {
+	if x != nil {
+		return x.Detail
+	}
+	return ""
 }
 
 type GetAlertsResponse struct {
@@ -3124,7 +3136,7 @@ const file_cloud_proto_rawDesc = "" +
 	"\tis_origin\x18\x10 \x01(\bR\bisOrigin\x12\"\n" +
 	"\rcreated_at_ns\x18\r \x01(\x03R\vcreatedAtNs\x12-\n" +
 	"\x13last_activity_at_ns\x18\x0e \x01(\x03R\x10lastActivityAtNs\x12\x10\n" +
-	"\x03url\x18\x0f \x01(\tR\x03url\"\xf1\x01\n" +
+	"\x03url\x18\x0f \x01(\tR\x03url\"\x89\x02\n" +
 	"\bEventHit\x12\x13\n" +
 	"\x05ts_ns\x18\x01 \x01(\x03R\x04tsNs\x12\x15\n" +
 	"\x06log_id\x18\x02 \x01(\rR\x05logId\x12!\n" +
@@ -3136,7 +3148,9 @@ const file_cloud_proto_rawDesc = "" +
 	"\balert_id\x18\b \x01(\x03R\aalertId\x12\x1e\n" +
 	"\n" +
 	"suppressed\x18\t \x01(\bR\n" +
-	"suppressed\"\x7f\n" +
+	"suppressed\x12\x16\n" +
+	"\x06detail\x18\n" +
+	" \x01(\tR\x06detail\"\x7f\n" +
 	"\x11GetAlertsResponse\x12#\n" +
 	"\x04hits\x18\x01 \x03(\v2\x0f.cloud.AlertHitR\x04hits\x12'\n" +
 	"\x06events\x18\x03 \x03(\v2\x0f.cloud.EventHitR\x06events\x12\x1c\n" +

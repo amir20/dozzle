@@ -433,6 +433,11 @@ message EventHit {
   // arrived after its alert had already been sent and was folded in silently,
   // or it never became an alert at all.
   bool suppressed = 9;
+  // Human-readable summary Dozzle wrote when it raised the notification: the
+  // log line for a log event, "CPU: 45.2%, Memory: 61.0%" for a metric, the
+  // lifecycle description for a container event. The only renderable text a
+  // metric or event notification has, since neither carries a log line.
+  string detail = 10;
 }
 
 message GetAlertsResponse {

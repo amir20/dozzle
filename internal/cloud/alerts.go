@@ -73,6 +73,7 @@ type EventHit struct {
 	Level       string `json:"level,omitempty"`
 	Message     string `json:"message,omitempty"`
 	Type        string `json:"type,omitempty"`
+	Detail      string `json:"detail,omitempty"`
 	AlertID     int64  `json:"alertId,omitempty"`
 	// Suppressed means the event produced no notification of its own: it was
 	// folded into an alert already sent, or never reached one at all.
@@ -149,6 +150,7 @@ func (c *Client) GetAlerts(ctx context.Context, containerIDs []string, hostID st
 			Level:       e.GetLevel(),
 			Message:     e.GetMessage(),
 			Type:        e.GetType(),
+			Detail:      e.GetDetail(),
 			AlertID:     e.GetAlertId(),
 			Suppressed:  e.GetSuppressed(),
 		})
