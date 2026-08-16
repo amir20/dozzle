@@ -47,9 +47,8 @@
       <li>
         <a
           @click="copyLogMessage()"
-          :disabled="!isSupported"
-          :title="!isSupported ? $t('error.copy-not-supported') : ''"
-          :class="{ 'cursor-not-allowed opacity-50': !isSupported }"
+          :disabled="isSupported ? undefined : true"
+          :title="isSupported ? undefined : $t('error.copy-not-supported')"
         >
           <material-symbols:content-copy />
           {{ $t("action.copy-log") }}
@@ -58,9 +57,8 @@
       <li>
         <a
           @click="copyPermalink()"
-          :disabled="!isSupported"
-          :title="!isSupported ? $t('error.copy-not-supported') : ''"
-          :class="{ 'cursor-not-allowed opacity-50': !isSupported }"
+          :disabled="isSupported ? undefined : true"
+          :title="isSupported ? undefined : $t('error.copy-not-supported')"
         >
           <material-symbols:link />
           {{ $t("action.copy-link") }}
