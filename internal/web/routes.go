@@ -70,6 +70,10 @@ type CloudHooks struct {
 	// SearchLogs proxies a substring/word-filter query to Doligence Cloud
 	// over the authenticated gRPC connection. Nil when cloud is not wired.
 	SearchLogs func(ctx context.Context, query string, limit int32, hostID, containerID string, before int64) (*cloud.SearchLogResult, error)
+	// GetAlerts fetches the alerts that fired on a set of containers inside a
+	// time window, so the log viewer can merge them into the stream on
+	// scrollback. Nil when cloud is not wired.
+	GetAlerts func(ctx context.Context, containerIDs []string, hostID string, fromNs, toNs int64, limit int32, includeFollowUps bool) (*cloud.AlertResult, error)
 }
 
 type Authorization struct {
@@ -212,6 +216,7 @@ func createRouter(h *handler) *chi.Mux {
 				// Cloud API
 				r.Get("/cloud/status", h.cloudStatus)
 				r.Get("/cloud/search/logs", h.cloudSearchLogs)
+				r.Get("/cloud/alerts", h.cloudAlerts)
 				r.Get("/cloud/config", h.cloudConfig)
 				r.Patch("/cloud/config", h.updateCloudConfig)
 				r.Delete("/cloud/config", h.deleteCloudConfig)

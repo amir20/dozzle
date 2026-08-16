@@ -175,6 +175,7 @@ func main() {
 		OnSetup:    cloudClient.Notify,
 		OnUpdate:   cloudClient.Reconnect,
 		SearchLogs: cloudClient.SearchLogs,
+		GetAlerts:  cloudClient.GetAlerts,
 	})
 
 	go func() {
