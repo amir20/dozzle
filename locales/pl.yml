@@ -40,7 +40,6 @@ label:
   alert-events: Brak zdarzeń | 1 zdarzenie | {count} zdarzeń
   alert-containers: 1 kontener | {count} kontenerów
   alert-held-back: "{count} podobnych wstrzymano"
-  alert-investigation: Analiza
   alert-view-in-cloud: Zobacz w Dozzle Cloud
   alert: Alert
   alert-details: Szczegóły

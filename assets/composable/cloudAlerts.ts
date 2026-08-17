@@ -224,14 +224,14 @@ export function attachEvents(logs: LogEntry<LogMessage>[], events: CloudEvent[])
     if (log.matchedEvent) continue;
     const event = byLogId.get(log.id);
     if (!event || event.containerId !== log.containerID) continue;
-    log.matchedEvent = { alertId: event.alertId ?? 0, suppressed: event.suppressed, level: event.level ?? "" };
+    log.matchedEvent = { suppressed: event.suppressed };
     changed = true;
   }
   return changed;
 }
 
 /** A log event has a line in the stream; metric and container events do not. */
-export function isLogEvent(event: CloudEvent): boolean {
+function isLogEvent(event: CloudEvent): boolean {
   return (event.type ?? "log") === "log";
 }
 

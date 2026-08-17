@@ -61,7 +61,6 @@ label:
   alert-events: Ni dogodkov | 1 dogodek | {count} dogodkov
   alert-containers: 1 zabojnik | {count} zabojnikov
   alert-held-back: "{count} podobnih zadržanih"
-  alert-investigation: Preiskava
   alert-view-in-cloud: Odpri v Dozzle Cloud
   alert: Opozorilo
   alert-details: Podrobnosti

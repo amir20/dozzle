@@ -13,7 +13,7 @@ export function useLogLoader(
   params: Ref<URLSearchParams>,
   loadingMore: Ref<boolean>,
 ) {
-  const { fetchAlerts } = useCloudAlerts();
+  const { fetchAlerts, available: alertsAvailable } = useCloudAlerts();
   // Anchor keys already placed, so overlapping scroll windows don't duplicate.
   // Keyed on (alertId, anchor) rather than alertId: one incident legitimately
   // marks every window it was active in.
@@ -185,5 +185,5 @@ export function useLogLoader(
     }
   }
 
-  return { loadOlderLogs, loadSkippedLogs, loadAlertsForVisible };
+  return { loadOlderLogs, loadSkippedLogs, loadAlertsForVisible, alertsAvailable };
 }

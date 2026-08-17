@@ -24,7 +24,6 @@
     <span
       v-if="logEntry.matchedEvent"
       class="event-badge shrink-0 select-none"
-      :data-suppressed="logEntry.matchedEvent.suppressed"
       :title="logEntry.matchedEvent.suppressed ? $t('label.event-suppressed-hint') : $t('label.event-sent-hint')"
     >
       <mdi:bell-off v-if="logEntry.matchedEvent.suppressed" class="size-3.5" />
@@ -58,8 +57,5 @@ const host = computed(() => hosts.value[container.value.host]);
 }
 .event-badge:hover {
   @apply opacity-100;
-}
-.event-badge[data-suppressed="false"] {
-  @apply text-error opacity-80;
 }
 </style>

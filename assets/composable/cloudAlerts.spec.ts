@@ -209,7 +209,7 @@ describe("attachEvents", () => {
   test("badges the line the event matched", () => {
     const logs = [log(10, 100), log(11, 200)];
     expect(attachEvents(logs, [event()])).toBe(true);
-    expect(logs[0].matchedEvent).toEqual({ alertId: 0, suppressed: true, level: "" });
+    expect(logs[0].matchedEvent).toEqual({ suppressed: true });
     expect(logs[1].matchedEvent).toBeUndefined();
   });
 

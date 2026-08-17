@@ -37,7 +37,6 @@ label:
   alert-events: Sin eventos | 1 evento | {count} eventos
   alert-containers: 1 contenedor | {count} contenedores
   alert-held-back: "{count} similares retenidos"
-  alert-investigation: Investigación
   alert-view-in-cloud: Ver en Dozzle Cloud
   alert: Alerta
   alert-details: Detalles

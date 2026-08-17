@@ -37,7 +37,6 @@ label:
   alert-events: Olay yok | 1 olay | {count} olay
   alert-containers: 1 konteyner | {count} konteyner
   alert-held-back: "{count} benzeri tutuldu"
-  alert-investigation: İnceleme
   alert-view-in-cloud: Dozzle Cloud'da görüntüle
   alert: Uyarı
   alert-details: Ayrıntılar
