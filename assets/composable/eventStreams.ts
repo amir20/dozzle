@@ -102,59 +102,14 @@ function useLogStream(url: Ref<string>, container?: Ref<Container>) {
   });
 
   const allContainers = computed(() => (container ? [container.value] : containers.value));
-  const { loadOlderLogs, loadSkippedLogs, loadAlertsForVisible, alertsAvailable } = useLogLoader(
+  // The alert layer — dedupe state, the 15s poll, and the merge itself — lives
+  // in useAlertMerger, shared with the historical view. All the stream has to
+  // do is say when it has assembled a new window.
+  const { loadOlderLogs, loadSkippedLogs, decorateWithAlerts } = useLogLoader(
     messages,
     allContainers,
     params,
     loadingMore,
-  );
-
-  // Cloud aggregates events on a 15s window before an alert can even exist, so
-  // asking more often than that cannot surface anything sooner — it only costs
-  // requests. Polling on a timer also decouples the rate from log volume: this
-  // used to be driven by the buffer flush, which meant a chatty container hit
-  // Cloud roughly once a second, per open tab.
-  const ALERT_POLL_MS = 15_000;
-
-  // The opening window is assembled from the stream, which knows nothing about
-  // alerts — only scrollback fetched them. Debounced because the first frames
-  // arrive as a burst (initial flush, then backfill) describing the same
-  // window.
-  const decorateWithAlerts = useDebounceFn(loadAlertsForVisible, 400);
-
-  // An alert's anchor is the timestamp of the event that triggered it, which is
-  // always older than the alert itself — so the poll re-asks the whole visible
-  // window rather than only the slice since the last call. A window that only
-  // moved forward would never see an alert land on a line already on screen.
-  const visible = useDocumentVisibility();
-  const alertPoll = useIntervalFn(
-    () => {
-      if (visible.value === "visible") loadAlertsForVisible();
-    },
-    ALERT_POLL_MS,
-    { immediate: false },
-  );
-
-  // Only runs when Cloud is actually linked. An unlinked Dozzle has no alerts
-  // to fetch, so a timer there is pure waste — and an unconditional interval
-  // also hangs any test that drains pending timers.
-  //
-  // The immediate pass on becoming linked matters twice. The cloud config is
-  // fetched asynchronously at boot, so on an ordinary load this flips true
-  // *after* the stream has already assembled its first window — without it the
-  // opening window would sit bare until the first tick. It also covers linking
-  // mid-session: alerts start appearing at once rather than up to a poll later.
-  watch(
-    alertsAvailable,
-    (linked) => {
-      if (!linked) {
-        alertPoll.pause();
-        return;
-      }
-      alertPoll.resume();
-      decorateWithAlerts();
-    },
-    { immediate: true },
   );
 
   function flushNow() {
