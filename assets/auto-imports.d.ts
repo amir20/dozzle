@@ -18,9 +18,9 @@ declare global {
   const allLevels: typeof import('./composable/logContext').allLevels
   const arrayEquals: typeof import('./utils/index').arrayEquals
   const asyncComputed: typeof import('@vueuse/core').asyncComputed
+  const attachEvents: typeof import('./composable/cloudAlerts').attachEvents
   const autoResetRef: typeof import('@vueuse/core').autoResetRef
   const automaticRedirect: typeof import('./stores/settings').automaticRedirect
-  const buildTicks: typeof import('./utils/index').buildTicks
   const collapseNav: typeof import('./stores/settings').collapseNav
   const colorize: typeof import('./utils/index').colorize
   const compact: typeof import('./stores/settings').compact
@@ -85,6 +85,7 @@ declare global {
   const inject: typeof import('vue').inject
   const injectLocal: typeof import('@vueuse/core').injectLocal
   const isDefined: typeof import('@vueuse/core').isDefined
+  const isLogEvent: typeof import('./composable/cloudAlerts').isLogEvent
   const isMobile: typeof import('./composable/media').isMobile
   const isObject: typeof import('./utils/index').isObject
   const isProxy: typeof import('vue').isProxy
@@ -105,6 +106,7 @@ declare global {
   const markRaw: typeof import('vue').markRaw
   const menuWidth: typeof import('./stores/settings').menuWidth
   const mergeAlerts: typeof import('./composable/cloudAlerts').mergeAlerts
+  const mergeCloudEvents: typeof import('./composable/cloudAlerts').mergeCloudEvents
   const nextTick: typeof import('vue').nextTick
   const onActivated: typeof import('vue').onActivated
   const onBeforeMount: typeof import('vue').onBeforeMount
@@ -429,7 +431,7 @@ declare global {
   export type { AlertFormOptions, ContainerResult } from './composable/alertForm'
   import('./composable/alertForm')
   // @ts-ignore
-  export type { CloudAlert } from './composable/cloudAlerts'
+  export type { CloudAlert, CloudEvent } from './composable/cloudAlerts'
   import('./composable/cloudAlerts')
   // @ts-ignore
   export type { CloudLogHit } from './composable/cloudLogSearch'
@@ -476,9 +478,9 @@ declare module 'vue' {
     readonly allLevels: UnwrapRef<typeof import('./composable/logContext')['allLevels']>
     readonly arrayEquals: UnwrapRef<typeof import('./utils/index')['arrayEquals']>
     readonly asyncComputed: UnwrapRef<typeof import('@vueuse/core')['asyncComputed']>
+    readonly attachEvents: UnwrapRef<typeof import('./composable/cloudAlerts')['attachEvents']>
     readonly autoResetRef: UnwrapRef<typeof import('@vueuse/core')['autoResetRef']>
     readonly automaticRedirect: UnwrapRef<typeof import('./stores/settings')['automaticRedirect']>
-    readonly buildTicks: UnwrapRef<typeof import('./utils/index')['buildTicks']>
     readonly collapseNav: UnwrapRef<typeof import('./stores/settings')['collapseNav']>
     readonly colorize: UnwrapRef<typeof import('./utils/index')['colorize']>
     readonly compact: UnwrapRef<typeof import('./stores/settings')['compact']>
@@ -541,6 +543,7 @@ declare module 'vue' {
     readonly inject: UnwrapRef<typeof import('vue')['inject']>
     readonly injectLocal: UnwrapRef<typeof import('@vueuse/core')['injectLocal']>
     readonly isDefined: UnwrapRef<typeof import('@vueuse/core')['isDefined']>
+    readonly isLogEvent: UnwrapRef<typeof import('./composable/cloudAlerts')['isLogEvent']>
     readonly isMobile: UnwrapRef<typeof import('./composable/media')['isMobile']>
     readonly isObject: UnwrapRef<typeof import('./utils/index')['isObject']>
     readonly isProxy: UnwrapRef<typeof import('vue')['isProxy']>
@@ -561,6 +564,7 @@ declare module 'vue' {
     readonly markRaw: UnwrapRef<typeof import('vue')['markRaw']>
     readonly menuWidth: UnwrapRef<typeof import('./stores/settings')['menuWidth']>
     readonly mergeAlerts: UnwrapRef<typeof import('./composable/cloudAlerts')['mergeAlerts']>
+    readonly mergeCloudEvents: UnwrapRef<typeof import('./composable/cloudAlerts')['mergeCloudEvents']>
     readonly nextTick: UnwrapRef<typeof import('vue')['nextTick']>
     readonly onActivated: UnwrapRef<typeof import('vue')['onActivated']>
     readonly onBeforeMount: UnwrapRef<typeof import('vue')['onBeforeMount']>

@@ -102,7 +102,18 @@ function useLogStream(url: Ref<string>, container?: Ref<Container>) {
   });
 
   const allContainers = computed(() => (container ? [container.value] : containers.value));
-  const { loadOlderLogs, loadSkippedLogs } = useLogLoader(messages, allContainers, params, loadingMore);
+  const { loadOlderLogs, loadSkippedLogs, loadAlertsForVisible } = useLogLoader(
+    messages,
+    allContainers,
+    params,
+    loadingMore,
+  );
+
+  // The opening window is assembled from the stream, which knows nothing about
+  // alerts — only scrollback fetched them. Debounced because the first frames
+  // arrive as a burst (initial flush, then backfill) and they all describe the
+  // same window.
+  const decorateWithAlerts = useDebounceFn(loadAlertsForVisible, 400);
 
   function flushNow() {
     if (messages.value.length + buffer.value.length > config.maxLogs) {
@@ -142,6 +153,7 @@ function useLogStream(url: Ref<string>, container?: Ref<Container>) {
       messages.value = [...messages.value, ...buffer.value];
       buffer.value = [];
     }
+    decorateWithAlerts();
   }
   const flushBuffer = debounce(flushNow, 250, { maxWait: 1000 });
   let es: EventSource | null = null;
@@ -192,6 +204,7 @@ function useLogStream(url: Ref<string>, container?: Ref<Container>) {
       const data = parseEventData<LogEvent[]>(e);
       const logs = data.map((e) => asLogEntry(e));
       messages.value = [...logs, ...messages.value];
+      decorateWithAlerts();
     });
 
     es.addEventListener("search-status", (e) => {

@@ -34,6 +34,17 @@ action:
 label:
   containers: Containers
   container: Geen containers | 1 container | {count} containers
+  alert-events: Geen gebeurtenissen | 1 gebeurtenis | {count} gebeurtenissen
+  alert-containers: 1 container | {count} containers
+  alert-held-back: "{count} vergelijkbare tegengehouden"
+  alert-investigation: Onderzoek
+  alert-view-in-cloud: Bekijk in Dozzle Cloud
+  alert: Melding
+  alert-details: Details
+  event-sent-hint: Dozzle Cloud heeft een melding verstuurd voor deze regel
+  event-suppressed-hint: Dozzle Cloud herkende deze regel maar hield de melding tegen
+  event-metric: Metriek
+  event-container: Container
   host-count: Geen Hosts | 1 Host | {count} Hosts
   service: Geen services | 1 service | {count} services
   services: Services

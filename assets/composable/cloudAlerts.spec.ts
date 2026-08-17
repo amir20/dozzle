@@ -2,8 +2,15 @@
  * @vitest-environment jsdom
  */
 import { describe, expect, test, vi, beforeEach, afterEach } from "vitest";
-import { mergeAlerts, fetchAlerts, type CloudAlert } from "./cloudAlerts";
-import { AlertLogEntry, SimpleLogEntry, type LogEntry, type LogMessage } from "@/models/LogEntry";
+import {
+  mergeAlerts,
+  fetchAlerts,
+  attachEvents,
+  mergeCloudEvents,
+  type CloudAlert,
+  type CloudEvent,
+} from "./cloudAlerts";
+import { AlertLogEntry, CloudEventLogEntry, SimpleLogEntry, type LogEntry, type LogMessage } from "@/models/LogEntry";
 
 vi.mock("@/composable/cloudConfig", () => ({ useCloudConfig: () => ({ cloudConfig: { value: null } }) }));
 
@@ -118,6 +125,25 @@ describe("mergeAlerts", () => {
     });
   });
 
+  // A follow-up anchor marks an incident that was already open. The per-line
+  // badges say that with more precision, and a block here would claim a
+  // delivery that never happened.
+  test("drops follow-up anchors, keeping only origins", () => {
+    const logs = [log(10, 100)];
+    const merged = mergeAlerts(logs, [alert({ isOrigin: false, ts: ns(100) })], new Set());
+    expect(shapeOf(merged)).toEqual(["log:10"]);
+  });
+
+  test("still places the origin of the same incident", () => {
+    const logs = [log(10, 100)];
+    const merged = mergeAlerts(
+      logs,
+      [alert({ alertId: 1, isOrigin: false, ts: ns(50) }), alert({ alertId: 1, isOrigin: true, ts: ns(100) })],
+      new Set(),
+    );
+    expect(shapeOf(merged)).toEqual(["alert:1", "log:10"]);
+  });
+
   test("returns the original array when there is nothing to merge", () => {
     const logs = [log(10, 100)];
     expect(mergeAlerts(logs, [], new Set())).toBe(logs);
@@ -136,7 +162,7 @@ describe("fetchAlerts", () => {
     const spy = vi.fn();
     global.fetch = spy;
 
-    expect(await fetchAlerts(["abc"], ms(0), ms(1), { linked: false })).toEqual([]);
+    expect(await fetchAlerts(["abc"], ms(0), ms(1), { linked: false })).toEqual({ alerts: [], events: [] });
     expect(spy).not.toHaveBeenCalled();
   });
 
@@ -144,7 +170,7 @@ describe("fetchAlerts", () => {
     const spy = vi.fn();
     global.fetch = spy;
 
-    expect(await fetchAlerts([], ms(0), ms(1), { linked: true })).toEqual([]);
+    expect(await fetchAlerts([], ms(0), ms(1), { linked: true })).toEqual({ alerts: [], events: [] });
     expect(spy).not.toHaveBeenCalled();
   });
 
@@ -152,10 +178,10 @@ describe("fetchAlerts", () => {
   // outage must cost the user their alerts, never their logs.
   test("degrades to no alerts when cloud fails", async () => {
     global.fetch = vi.fn().mockRejectedValue(new Error("cloud down"));
-    expect(await fetchAlerts(["abc"], ms(0), ms(1), { linked: true })).toEqual([]);
+    expect(await fetchAlerts(["abc"], ms(0), ms(1), { linked: true })).toEqual({ alerts: [], events: [] });
 
     global.fetch = vi.fn().mockResolvedValue({ ok: false, status: 502 });
-    expect(await fetchAlerts(["abc"], ms(0), ms(1), { linked: true })).toEqual([]);
+    expect(await fetchAlerts(["abc"], ms(0), ms(1), { linked: true })).toEqual({ alerts: [], events: [] });
   });
 
   test("sends the window as unix nanoseconds", async () => {
@@ -168,5 +194,103 @@ describe("fetchAlerts", () => {
     expect(url).toContain("containerIds=abc%2Cdef");
     expect(url).toContain(`from=${ns(1000)}`);
     expect(url).toContain(`to=${ns(2000)}`);
+  });
+});
+
+describe("attachEvents", () => {
+  const event = (overrides: Partial<CloudEvent> = {}): CloudEvent => ({
+    ts: ns(100),
+    logId: 10,
+    containerId: "abc",
+    suppressed: true,
+    ...overrides,
+  });
+
+  test("badges the line the event matched", () => {
+    const logs = [log(10, 100), log(11, 200)];
+    expect(attachEvents(logs, [event()])).toBe(true);
+    expect(logs[0].matchedEvent).toEqual({ alertId: 0, suppressed: true, level: "" });
+    expect(logs[1].matchedEvent).toBeUndefined();
+  });
+
+  // The FNV id is only unique within a container, so the same hash on another
+  // container must not steal the badge.
+  test("ignores a matching id on a different container", () => {
+    const logs = [log(10, 100, "other")];
+    expect(attachEvents(logs, [event()])).toBe(false);
+    expect(logs[0].matchedEvent).toBeUndefined();
+  });
+
+  // Metric and event notifications have no line to badge; guessing one from a
+  // timestamp would mark an unrelated log line.
+  test("skips events with no log line", () => {
+    const logs = [log(10, 100)];
+    expect(attachEvents(logs, [event({ logId: undefined })])).toBe(false);
+    expect(logs[0].matchedEvent).toBeUndefined();
+  });
+
+  // An event that produced an alert is already represented by the alert block;
+  // badging its line too would say the same thing twice.
+  test("does not badge a line whose event produced an alert", () => {
+    const logs = [log(10, 100)];
+    expect(attachEvents(logs, [event({ suppressed: false, alertId: 7 })])).toBe(false);
+    expect(logs[0].matchedEvent).toBeUndefined();
+  });
+
+  // Metric and container events have no line of their own — they get rows.
+  test("does not badge log lines with non-log events", () => {
+    const logs = [log(10, 100)];
+    expect(attachEvents(logs, [event({ type: "metric" })])).toBe(false);
+    expect(logs[0].matchedEvent).toBeUndefined();
+  });
+
+  test("reports no change when there is nothing to badge", () => {
+    expect(attachEvents([log(10, 100)], [])).toBe(false);
+  });
+});
+
+describe("mergeCloudEvents", () => {
+  const cloudEvent = (overrides: Partial<CloudEvent> = {}): CloudEvent => ({
+    ts: ns(200),
+    containerId: "abc",
+    type: "metric",
+    detail: "CPU: 91.4%, Memory: 62.0%",
+    suppressed: true,
+    ...overrides,
+  });
+
+  const shape = (entries: LogEntry<LogMessage>[]) =>
+    entries.map((e) => (e instanceof CloudEventLogEntry ? `event:${e.event.type}` : `log:${e.id}`));
+
+  // A metric notification has no log line to badge — it IS the event — so
+  // unlike a log event it can only be shown as a row.
+  test("splices a metric event in by timestamp", () => {
+    const logs = [log(10, 100), log(11, 300)];
+    expect(shape(mergeCloudEvents(logs, [cloudEvent()], new Set()))).toEqual(["log:10", "event:metric", "log:11"]);
+  });
+
+  test("splices a container event in the same way", () => {
+    const logs = [log(10, 100)];
+    const merged = mergeCloudEvents(logs, [cloudEvent({ type: "event", ts: ns(400) })], new Set());
+    expect(shape(merged)).toEqual(["log:10", "event:event"]);
+  });
+
+  // Log events are badged on their own line; giving them a row too would
+  // duplicate a line already on screen.
+  test("leaves log events alone", () => {
+    const logs = [log(10, 100)];
+    expect(mergeCloudEvents(logs, [cloudEvent({ type: "log", logId: 10 })], new Set())).toBe(logs);
+  });
+
+  test("skips events that produced an alert", () => {
+    const logs = [log(10, 100)];
+    expect(mergeCloudEvents(logs, [cloudEvent({ suppressed: false })], new Set())).toBe(logs);
+  });
+
+  test("does not place the same event twice across overlapping windows", () => {
+    const seen = new Set<string>();
+    const logs = [log(10, 100)];
+    expect(shape(mergeCloudEvents(logs, [cloudEvent()], seen))).toHaveLength(2);
+    expect(mergeCloudEvents(logs, [cloudEvent()], seen)).toBe(logs);
   });
 });

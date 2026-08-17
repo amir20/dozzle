@@ -73,7 +73,7 @@ type CloudHooks struct {
 	// GetAlerts fetches the alerts that fired on a set of containers inside a
 	// time window, so the log viewer can merge them into the stream on
 	// scrollback. Nil when cloud is not wired.
-	GetAlerts func(ctx context.Context, containerIDs []string, hostID string, fromNs, toNs int64, limit int32, includeFollowUps bool) (*cloud.AlertResult, error)
+	GetAlerts func(ctx context.Context, containerIDs []string, hostID string, fromNs, toNs int64, limit int32, includeFollowUps, includeEvents bool) (*cloud.AlertResult, error)
 }
 
 type Authorization struct {

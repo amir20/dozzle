@@ -38,19 +38,22 @@ function mountAlert(overrides: Partial<CloudAlert> = {}) {
 }
 
 describe("<AlertLogItem />", () => {
-  test("renders headline and event count on one line at the origin", () => {
+  test("renders the headline and event count", () => {
     const wrapper = mountAlert();
     expect(wrapper.text()).toContain("Pool exhausted");
     expect(wrapper.text()).toContain("label.alert-events");
-    expect(wrapper.find("[data-origin='true']").exists()).toBe(true);
+    expect(wrapper.find(".alert-row").exists()).toBe(true);
   });
 
-  // A long incident would bury the logs if every window it touched drew a full
-  // row, so follow-ups get one quiet line instead.
-  test("renders a compact line at a follow-up anchor", () => {
-    const wrapper = mountAlert({ isOrigin: false });
-    expect(wrapper.text()).toContain("label.alert-still-firing");
-    expect(wrapper.text()).not.toContain("label.alert-events");
+  // The row must never carry data-level: LogLevel.vue ships an unscoped
+  // `[data-level="error"] { @apply !bg-red }`, so reusing that attribute name
+  // fills the row solid red with !important and no local rule can win. This is
+  // the regression guard for that — the styling itself is not testable here,
+  // but the attribute that triggers it is.
+  test("does not carry the globally-styled data-level attribute", () => {
+    const wrapper = mountAlert({ level: "error" });
+    expect(wrapper.find("[data-level]").exists()).toBe(false);
+    expect(wrapper.find("[data-alert-level='error']").exists()).toBe(true);
   });
 
   // The whole point of the one-line treatment: detail costs an interaction, so
@@ -80,6 +83,15 @@ describe("<AlertLogItem />", () => {
       expect(mountAlert({ suppressedCount: 34 }).find("button").exists()).toBe(true);
       expect(mountAlert({ containerCount: 3 }).find("button").exists()).toBe(true);
     });
+
+    // summary is the description the Cloud alert page shows, and is usually all
+    // a non-triaged alert has to offer.
+    test("reveals the summary, not just the investigation", async () => {
+      const wrapper = mountAlert({ summary: "Container running with unknown health" });
+      expect(wrapper.text()).not.toContain("unknown health");
+      await wrapper.get("button").trigger("click");
+      expect(wrapper.text()).toContain("unknown health");
+    });
   });
 
   describe("incident extent", () => {
@@ -104,16 +116,16 @@ describe("<AlertLogItem />", () => {
   // ordinary log line, which is the one thing this row must not look like.
   describe("level styling", () => {
     test("treats an empty level as an error", () => {
-      expect(mountAlert({ level: "" }).find("[data-level='error']").exists()).toBe(true);
+      expect(mountAlert({ level: "" }).find("[data-alert-level='error']").exists()).toBe(true);
     });
 
     test("treats an unrecognised level as an error", () => {
-      expect(mountAlert({ level: "mystery" }).find("[data-level='error']").exists()).toBe(true);
+      expect(mountAlert({ level: "mystery" }).find("[data-alert-level='error']").exists()).toBe(true);
     });
 
     test("keeps warn and info distinct", () => {
-      expect(mountAlert({ level: "warning" }).find("[data-level='warn']").exists()).toBe(true);
-      expect(mountAlert({ level: "debug" }).find("[data-level='info']").exists()).toBe(true);
+      expect(mountAlert({ level: "warning" }).find("[data-alert-level='warn']").exists()).toBe(true);
+      expect(mountAlert({ level: "debug" }).find("[data-alert-level='info']").exists()).toBe(true);
     });
   });
 

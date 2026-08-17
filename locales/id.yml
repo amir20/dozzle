@@ -35,6 +35,17 @@ action:
 label:
   containers: Kontainer
   container: Tidak ada kontainer | 1 kontainer | {count} kontainer
+  alert-events: Tidak ada peristiwa | 1 peristiwa | {count} peristiwa
+  alert-containers: 1 kontainer | {count} kontainer
+  alert-held-back: "{count} serupa ditahan"
+  alert-investigation: Investigasi
+  alert-view-in-cloud: Lihat di Dozzle Cloud
+  alert: Peringatan
+  alert-details: Detail
+  event-sent-hint: Dozzle Cloud mengirim peringatan untuk baris ini
+  event-suppressed-hint: Dozzle Cloud mencocokkan baris ini tetapi menahan peringatannya
+  event-metric: Metrik
+  event-container: Kontainer
   host-count: Tidak ada Host | 1 Host | {count} Host
   service: Tidak ada layanan | 1 layanan | {count} layanan
   services: Layanan

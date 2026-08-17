@@ -58,6 +58,17 @@ label:
   expand-all: Razširi vse
   container-name: Ime zabojnika
   container: Ni zabojnikov | 1 zabojnik | {count} zabojnikov
+  alert-events: Ni dogodkov | 1 dogodek | {count} dogodkov
+  alert-containers: 1 zabojnik | {count} zabojnikov
+  alert-held-back: "{count} podobnih zadržanih"
+  alert-investigation: Preiskava
+  alert-view-in-cloud: Odpri v Dozzle Cloud
+  alert: Opozorilo
+  alert-details: Podrobnosti
+  event-sent-hint: Dozzle Cloud je za to vrstico poslal opozorilo
+  event-suppressed-hint: Dozzle Cloud je to vrstico zaznal, a zadržal opozorilo
+  event-metric: Metrika
+  event-container: Zabojnik
   services: Storitve
   avg-mem: Povprečje spomina (%)
   name: Ime

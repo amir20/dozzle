@@ -34,6 +34,17 @@ action:
 label:
   containers: Conteneurs
   container: Pas de conteneur | 1 conteneur | {count} conteneurs
+  alert-events: Aucun événement | 1 événement | {count} événements
+  alert-containers: 1 conteneur | {count} conteneurs
+  alert-held-back: "{count} similaires retenus"
+  alert-investigation: Investigation
+  alert-view-in-cloud: Voir dans Dozzle Cloud
+  alert: Alerte
+  alert-details: Détails
+  event-sent-hint: Dozzle Cloud a envoyé une alerte pour cette ligne
+  event-suppressed-hint: Dozzle Cloud a détecté cette ligne mais a retenu l'alerte
+  event-metric: Métrique
+  event-container: Conteneur
   host-count: Aucun Hôte | 1 Hôte | {count} Hôtes
   service: Pas de service | 1 service | {count} services
   services: Services

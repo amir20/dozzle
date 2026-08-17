@@ -360,6 +360,10 @@ message GetAlertsRequest {
   // still firing, as opposed to where it first fired. See AlertHit.is_origin.
   // Default false keeps a long-running incident to a single card.
   bool include_follow_ups = 6;
+  // Also return the individual matched events in the window, not just the
+  // alerts they were aggregated into. An alert means a notification was
+  // delivered; an event on its own may have been held back.
+  bool include_events = 7;
 }
 
 message AlertHit {
@@ -391,6 +395,10 @@ message AlertHit {
   // cloud folds those into the incident's original row rather than inserting
   // one, so every hit is an incident, not a triage decision.
   string triage_action = 12;
+  // The alert's description — the same prose the Cloud alert page shows under
+  // the headline. Present even when triage wrote no investigation, so it is
+  // usually the only detail a non-triaged alert can offer.
+  string summary = 17;
   // True when this hit anchors where the incident FIRST fired. False for a
   // follow-up anchor: cloud appends every folded batch's events to the
   // original alert, so one incident can have activity in many scroll windows.
@@ -406,8 +414,36 @@ message AlertHit {
   string url = 15;
 }
 
+// One matched event — a notification Dozzle raised because it matched a
+// subscription. Many events aggregate into one alert, so these are far more
+// numerous than hits and the viewer collapses runs of them.
+message EventHit {
+  int64 ts_ns = 1;
+  // FNV-32a hash of the line that matched, 0 for metric and event types.
+  uint32 log_id = 2;
+  string container_id = 3;
+  string host_id = 4;
+  string level = 5;
+  string message = 6;
+  // 'log' | 'metric' | 'event' — the notification's own type.
+  string type = 7;
+  // The incident that absorbed this event; 0 when it never reached an alert.
+  int64 alert_id = 8;
+  // True when this event produced no delivered notification of its own: it
+  // arrived after its alert had already been sent and was folded in silently,
+  // or it never became an alert at all.
+  bool suppressed = 9;
+  // Human-readable summary Dozzle wrote when it raised the notification: the
+  // log line for a log event, "CPU: 45.2%, Memory: 61.0%" for a metric, the
+  // lifecycle description for a container event. The only renderable text a
+  // metric or event notification has, since neither carries a log line.
+  string detail = 10;
+}
+
 message GetAlertsResponse {
   repeated AlertHit hits = 1;
+  // Populated only when include_events is set.
+  repeated EventHit events = 3;
   // The window held more alerts than the limit allowed. The viewer shows a
   // "more alerts in this range" affordance rather than paginating — unlike
   // log search, scrollback windows are already small and bounded.

@@ -94,7 +94,7 @@ func (h *handler) cloudAlerts(w http.ResponseWriter, r *http.Request) {
 	ctx, cancel := context.WithTimeout(r.Context(), cloudAlertsTimeout)
 	defer cancel()
 
-	result, err := h.config.Cloud.GetAlerts(ctx, containerIDs, q.Get("hostId"), from, to, limit, q.Get("followUps") == "1")
+	result, err := h.config.Cloud.GetAlerts(ctx, containerIDs, q.Get("hostId"), from, to, limit, q.Get("followUps") == "1", q.Get("events") == "1")
 	if err != nil {
 		if errors.Is(err, cloud.ErrNotConfigured) {
 			writeError(w, http.StatusServiceUnavailable, "cloud not configured")

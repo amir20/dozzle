@@ -34,6 +34,17 @@ action:
 label:
   containers: Containere
   container: Ingen containere | 1 container | {count} containere
+  alert-events: Ingen hændelser | 1 hændelse | {count} hændelser
+  alert-containers: 1 container | {count} containere
+  alert-held-back: "{count} lignende tilbageholdt"
+  alert-investigation: Undersøgelse
+  alert-view-in-cloud: Vis i Dozzle Cloud
+  alert: Alarm
+  alert-details: Detaljer
+  event-sent-hint: Dozzle Cloud sendte en alarm for denne linje
+  event-suppressed-hint: Dozzle Cloud matchede denne linje, men holdt alarmen tilbage
+  event-metric: Metrik
+  event-container: Container
   host-count: Ingen Værter | 1 Vært | {count} Værter
   service: Ingen tjenester | 1 tjeneste | {count} tjenester
   services: Tjenester

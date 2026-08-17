@@ -34,6 +34,17 @@ action:
 label:
   containers: 컨테이너
   container: 컨테이너가 없습니다 | 컨테이너 1개 | 컨테이너 {count}개
+  alert-events: 이벤트 없음 | 이벤트 1개 | 이벤트 {count}개
+  alert-containers: 컨테이너 1개 | 컨테이너 {count}개
+  alert-held-back: 유사 {count}건 보류됨
+  alert-investigation: 분석
+  alert-view-in-cloud: Dozzle Cloud에서 보기
+  alert: 알림
+  alert-details: 세부 정보
+  event-sent-hint: Dozzle Cloud가 이 줄에 대해 알림을 보냈습니다
+  event-suppressed-hint: Dozzle Cloud가 이 줄을 감지했지만 알림을 보류했습니다
+  event-metric: 메트릭
+  event-container: 컨테이너
   host-count: 호스트가 없습니다 | 호스트 1개 | 호스트 {count}개
   service: 서비스가 없습니다 | 서비스 1개 | 서비스 {count}개
   services: 서비스

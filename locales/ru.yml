@@ -34,6 +34,17 @@ action:
 label:
   containers: Контейнеры
   container: Нет контейнеров | 1 контейнер | {count} контейнеров
+  alert-events: Нет событий | 1 событие | {count} событий
+  alert-containers: 1 контейнер | {count} контейнеров
+  alert-held-back: "{count} похожих удержано"
+  alert-investigation: Анализ
+  alert-view-in-cloud: Открыть в Dozzle Cloud
+  alert: Оповещение
+  alert-details: Подробности
+  event-sent-hint: Dozzle Cloud отправил оповещение по этой строке
+  event-suppressed-hint: Dozzle Cloud нашёл совпадение, но удержал оповещение
+  event-metric: Метрика
+  event-container: Контейнер
   host-count: Нет Хостов | 1 Хост | {count} Хостов
   service: Нет сервисов | 1 сервис | {count} сервисов
   services: Сервисы

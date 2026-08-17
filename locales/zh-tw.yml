@@ -34,6 +34,17 @@ action:
 label:
   containers: 容器
   container: 無容器 | 1 個容器 | {count} 個容器
+  alert-events: 無事件 | 1 個事件 | {count} 個事件
+  alert-containers: 1 個容器 | {count} 個容器
+  alert-held-back: 已攔下 {count} 個類似事件
+  alert-investigation: 調查
+  alert-view-in-cloud: 在 Dozzle Cloud 中檢視
+  alert: 警示
+  alert-details: 詳細資訊
+  event-sent-hint: Dozzle Cloud 已為這一行送出警示
+  event-suppressed-hint: Dozzle Cloud 比對到這一行，但攔下了警示
+  event-metric: 指標
+  event-container: 容器
   host-count: 無主機 | 1 個主機 | {count} 個主機
   service: 無服務 | 1 個服務 | {count} 個服務
   services: 服務

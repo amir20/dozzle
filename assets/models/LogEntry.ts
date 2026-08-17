@@ -1,5 +1,5 @@
-import { Component, ComputedRef, Ref } from "vue";
-import type { CloudAlert } from "@/composable/cloudAlerts";
+import { Component, ComputedRef, Ref, ShallowRef } from "vue";
+import type { CloudAlert, CloudEvent } from "@/composable/cloudAlerts";
 import { flattenJSON } from "@/utils";
 import ComplexLogItem from "@/components/LogViewer/ComplexLogItem.vue";
 import SimpleLogItem from "@/components/LogViewer/SimpleLogItem.vue";
@@ -8,6 +8,7 @@ import ContainerEventLogItem from "@/components/LogViewer/ContainerEventLogItem.
 import SkippedEntriesLogItem from "@/components/LogViewer/SkippedEntriesLogItem.vue";
 import LoadMoreLogItem from "@/components/LogViewer/LoadMoreLogItem.vue";
 import AlertLogItem from "@/components/LogViewer/AlertLogItem.vue";
+import CloudEventLogItem from "@/components/LogViewer/CloudEventLogItem.vue";
 
 export type JSONValue = string | number | boolean | JSONObject | Array<JSONValue>;
 export type JSONObject = { [x: string]: JSONValue };
@@ -33,8 +34,39 @@ export interface LogEvent {
   readonly rm: string;
 }
 
+/**
+ * The matched event behind a log line, when Cloud reports one. Attached to the
+ * entry rather than rendered as its own row: the event IS this line, so a
+ * separate marker would duplicate what is already on screen — and during a
+ * storm would put one between every pair of lines.
+ */
+export interface MatchedEvent {
+  alertId: number;
+  suppressed: boolean;
+  level: string;
+}
+
+/**
+ * Matched events live beside the entries rather than on them.
+ *
+ * They have to be ref-backed at all because entries are plain class instances
+ * inside a shallowRef array — assigning a plain field mutates an object Vue
+ * is not tracking, and the row never re-renders. Keeping the ref out here
+ * rather than in a field leaves the entry's own shape untouched, which matters
+ * because these objects get structurally snapshotted in tests.
+ */
+const matchedEvents = new WeakMap<LogEntry<LogMessage>, ShallowRef<MatchedEvent | undefined>>();
+
 export abstract class LogEntry<T extends LogMessage> {
   protected readonly _message: T;
+
+  /** The event Cloud matched on this line, once the alert loader reports it. */
+  public get matchedEvent(): MatchedEvent | undefined {
+    return matchedEventRef(this).value;
+  }
+  public set matchedEvent(event: MatchedEvent | undefined) {
+    matchedEventRef(this).value = event;
+  }
   constructor(
     message: T,
     public readonly containerID: string,
@@ -214,6 +246,27 @@ function alertLevel(level: string): Level {
   return (known.find((l) => l === level) ?? "unknown") as Level;
 }
 
+/**
+ * A metric or container-lifecycle notification Dozzle raised.
+ *
+ * Unlike a log event, there is no line in the stream to badge — the
+ * notification *is* the event — so it gets a row of its own, positioned by
+ * time. Only ones that were held back appear: anything that produced an alert
+ * is already represented by the alert block.
+ */
+export class CloudEventLogEntry extends LogEntry<string> {
+  constructor(
+    public readonly event: CloudEvent,
+    date: Date,
+  ) {
+    super(event.detail ?? "", event.containerId, date.getTime(), date, "stderr", event.detail ?? "");
+  }
+
+  getComponent(): Component {
+    return CloudEventLogItem;
+  }
+}
+
 export class SkippedLogsEntry extends LogEntry<string> {
   private _totalSkipped = ref(0);
   private lastSkipped: LogEntry<string | JSONObject>;
@@ -271,6 +324,15 @@ export class LoadMoreLogEntry extends LogEntry<string> {
   async loadMore(): Promise<void> {
     await this.loader(this);
   }
+}
+
+function matchedEventRef(entry: LogEntry<any>): ShallowRef<MatchedEvent | undefined> {
+  let existing = matchedEvents.get(entry);
+  if (!existing) {
+    existing = shallowRef<MatchedEvent | undefined>(undefined);
+    matchedEvents.set(entry, existing);
+  }
+  return existing;
 }
 
 export function asLogEntry(event: LogEvent): LogEntry<LogMessage> {

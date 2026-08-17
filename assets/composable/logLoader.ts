@@ -2,7 +2,7 @@ import { ShallowRef, type Ref } from "vue";
 import { type LogMessage, LogEntry, LoadMoreLogEntry, SkippedLogsEntry } from "@/models/LogEntry";
 import { Container } from "@/models/Container";
 import { loadBetween } from "@/composable/loadBetween";
-import { useCloudAlerts, mergeAlerts } from "@/composable/cloudAlerts";
+import { useCloudAlerts, mergeAlerts, attachEvents, mergeCloudEvents } from "@/composable/cloudAlerts";
 
 // Matches the rolling window size used for stats history
 const LOG_WINDOW_FOR_DELTA = 300;
@@ -123,13 +123,67 @@ export function useLogLoader(
     if (logs.length === 0) return logs;
     try {
       const ids = containers.value.map((c) => c.id);
-      const alerts = await fetchAlerts(ids, logs[0].date, new Date(logs[logs.length - 1].date.getTime() + 1));
-      return mergeAlerts(logs, alerts, placedAlerts);
+      const { alerts, events } = await fetchAlerts(
+        ids,
+        logs[0].date,
+        new Date(logs[logs.length - 1].date.getTime() + 1),
+        { events: true },
+      );
+      attachEvents(logs, events);
+      return mergeAlerts(mergeCloudEvents(logs, events, placedAlerts), alerts, placedAlerts);
     } catch (err) {
       console.error(err);
       return logs;
     }
   }
 
-  return { loadOlderLogs, loadSkippedLogs };
+  /**
+   * Decorates the logs already on screen with any alerts that fired inside
+   * them.
+   *
+   * loadOlderLogs only runs when the user scrolls back, so without this an
+   * alert that fired inside the window the viewer *opens* on never appeared —
+   * the most common case there is, since "something just happened" is usually
+   * why the container got opened at all.
+   *
+   * Safe to call repeatedly: placedAlerts dedupes, and an unchanged window
+   * merges nothing.
+   */
+  async function loadAlertsForVisible() {
+    if (containers.value.length === 0) return;
+
+    // The loader pins to the top of the list and carries `now` as its date, so
+    // it must be held out of the merge — a time-anchored alert would otherwise
+    // sort ahead of it and push it off the top.
+    const [head, ...rest] = messages.value;
+    const loader = head instanceof LoadMoreLogEntry ? head : undefined;
+    const logs = loader ? rest : messages.value;
+    if (logs.length === 0) return;
+
+    try {
+      const from = logs[0].date;
+      const to = new Date(logs[logs.length - 1].date.getTime() + 1);
+      // Origins only, like scrollback. An incident already running when this
+      // window opens shows through the per-line badges instead, which is both
+      // more precise and cheaper than a second block.
+      const { alerts, events } = await fetchAlerts(
+        containers.value.map((c) => c.id),
+        from,
+        to,
+        { events: true },
+      );
+
+      // Badges mutate the entries in place, so the list has to be reassigned
+      // for Vue to see it — messages is a shallowRef.
+      const badged = attachEvents(logs, events);
+      const withEvents = mergeCloudEvents(logs, events, placedAlerts);
+      const merged = mergeAlerts(withEvents, alerts, placedAlerts);
+      if (!badged && merged === logs) return;
+      messages.value = loader ? [loader, ...merged] : merged;
+    } catch (err) {
+      console.error(err);
+    }
+  }
+
+  return { loadOlderLogs, loadSkippedLogs, loadAlertsForVisible };
 }

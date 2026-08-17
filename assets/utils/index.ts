@@ -3,4 +3,3 @@ export { getDeep, isObject, flattenJSON, flattenJSONToMap, arrayEquals } from ".
 export { useExponentialMovingAverage, useSimpleRefHistory } from "./reactive";
 export { formatBytes, stripVersion, hashCode } from "./format";
 export { colorize } from "./ansi";
-export { buildTicks, type AlertMeasurement, type GutterTick } from "./gutter";

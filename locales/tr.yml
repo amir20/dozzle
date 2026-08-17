@@ -34,6 +34,17 @@ action:
 label:
   containers: Konteynerlar
   container: Konteyner yok | 1 konteyner | {count} konteyner
+  alert-events: Olay yok | 1 olay | {count} olay
+  alert-containers: 1 konteyner | {count} konteyner
+  alert-held-back: "{count} benzeri tutuldu"
+  alert-investigation: İnceleme
+  alert-view-in-cloud: Dozzle Cloud'da görüntüle
+  alert: Uyarı
+  alert-details: Ayrıntılar
+  event-sent-hint: Dozzle Cloud bu satır için uyarı gönderdi
+  event-suppressed-hint: Dozzle Cloud bu satırı eşleştirdi ancak uyarıyı tuttu
+  event-metric: Metrik
+  event-container: Konteyner
   host-count: Ana Bilgisayar yok | 1 Ana Bilgisayar | {count} Ana Bilgisayar
   service: Servis yok | 1 servis | {count} servis
   services: Servisler

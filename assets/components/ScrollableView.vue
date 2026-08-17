@@ -7,12 +7,7 @@
     >
       <slot name="header"></slot>
     </header>
-    <main
-      ref="scrollableMain"
-      :data-scrolling="scrollable ? true : undefined"
-      class="min-h-[300px] snap-y overflow-auto"
-    >
-      <AlertGutter :container="scrollableMain" />
+    <main :data-scrolling="scrollable ? true : undefined" class="min-h-[300px] snap-y overflow-auto">
       <div class="invisible relative md:visible" v-show="scrollContext.paused">
         <div class="absolute top-4 right-44">
           <ScrollProgress
@@ -52,8 +47,6 @@ const { scrollable = false } = defineProps<{ scrollable?: boolean }>();
 const hasMore = ref(false);
 const scrollObserver = ref<HTMLElement>();
 const scrollableContent = ref<HTMLElement>();
-// Passed to AlertGutter, which pins its markers to this element's edge.
-const scrollableMain = ref<HTMLElement>();
 
 const scrollContext = provideScrollContext();
 
