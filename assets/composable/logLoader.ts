@@ -18,10 +18,20 @@ export function useLogLoader(
   // Keyed on (alertId, anchor) rather than alertId: one incident legitimately
   // marks every window it was active in.
   const placedAlerts = new Set<string>();
+  // Newest log timestamp the poll has already asked Cloud about. Events only
+  // describe lines, so a window that gained no lines cannot have gained
+  // events — and skipping them keeps a quiet container's poll from carrying a
+  // payload of up to a thousand rows the viewer would discard. Alerts are
+  // still requested every time: an alert's anchor is older than the alert, so
+  // one can land on a line that has been on screen for a while.
+  let polledThrough: number | undefined;
   // The viewer clears its messages when the stream changes (container switch,
   // filter change). Without this the seen-set would outlive the entries it was
   // tracking, and alerts already scrolled past would never render again.
-  watch([params, containers], () => placedAlerts.clear());
+  watch([params, containers], () => {
+    placedAlerts.clear();
+    polledThrough = undefined;
+  });
   async function loadOlderLogs(entry: LoadMoreLogEntry) {
     if (!(messages.value[0] instanceof LoadMoreLogEntry)) throw new Error("No loadMoreLogEntry on first item");
     if (containers.value.length === 0) return;
@@ -166,11 +176,15 @@ export function useLogLoader(
       // Origins only, like scrollback. An incident already running when this
       // window opens shows through the per-line badges instead, which is both
       // more precise and cheaper than a second block.
+      const newest = logs[logs.length - 1].date.getTime();
+      const wantEvents = polledThrough === undefined || newest > polledThrough;
+      polledThrough = newest;
+
       const { alerts, events } = await fetchAlerts(
         containers.value.map((c) => c.id),
         from,
         to,
-        { events: true },
+        { events: wantEvents },
       );
 
       // Badges mutate the entries in place, so the list has to be reassigned

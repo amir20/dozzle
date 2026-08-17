@@ -151,12 +151,18 @@ export function mergeAlerts(
   const fresh = alerts.filter((a) => a.isOrigin && !seen.has(anchorKey(a)));
   if (fresh.length === 0) return logs;
 
+  // Indexed once rather than scanned per alert: logs runs into the thousands
+  // after scrollback, so the nested `logs.some` this replaces was O(alerts x
+  // logs) on the main thread every time new alerts arrived.
+  const linesPresent = new Set<string>();
+  for (const l of logs) linesPresent.add(`${l.containerID}:${l.id}`);
+
   const byLogId = new Map<number, CloudAlert[]>();
   const byTime: CloudAlert[] = [];
   for (const alert of fresh) {
     // Only trust logId when that line is actually in this run; otherwise the
     // alert would silently vanish rather than fall back to its timestamp.
-    if (alert.logId && logs.some((l) => l.id === alert.logId && l.containerID === alert.containerId)) {
+    if (alert.logId && linesPresent.has(`${alert.containerId}:${alert.logId}`)) {
       const bucket = byLogId.get(alert.logId);
       if (bucket) bucket.push(alert);
       else byLogId.set(alert.logId, [alert]);
