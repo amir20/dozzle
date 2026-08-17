@@ -12,6 +12,7 @@ jobs:
     uses: ./.github/workflows/_tests.yml
     with:
       release-certs: true
+      skip-staticcheck: true
     secrets:
       TTL_KEY: ${{ secrets.TTL_KEY }}
       TTL_CERT: ${{ secrets.TTL_CERT }}

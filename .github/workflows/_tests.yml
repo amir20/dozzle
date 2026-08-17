@@ -11,6 +11,10 @@ on:
         description: Use the long-lived TTL certs from secrets instead of generating throwaway ones. Tag builds only.
         type: boolean
         default: false
+      skip-staticcheck:
+        description: Skip staticcheck. Tag builds set this so a lint failure cannot block a release, matching what deploy.yml gated on before these jobs were shared.
+        type: boolean
+        default: false
     secrets:
       TTL_KEY:
         required: false
@@ -65,6 +69,7 @@ jobs:
   staticcheck:
     name: Go Staticcheck
     runs-on: ubuntu-latest
+    if: ${{ !inputs.skip-staticcheck }}
     steps:
       - name: Checkout code
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
