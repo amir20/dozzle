@@ -17,9 +17,17 @@ fake_assets:
 	@mkdir -p dist
 	@echo "assets build was skipped" > dist/index.html
 
+GO_TEST := go test -cover -race -count 1 -timeout 40s ./...
+
 .PHONY: test
 test: fake_assets generate
-	go test -cover -race -count 1 -timeout 40s ./...
+	$(GO_TEST)
+
+# Same as test, but skips `go generate`. All generated code is committed, so CI
+# does not need protoc installed just to reproduce identical output.
+.PHONY: test-ci
+test-ci: fake_assets shared_key.pem shared_cert.pem
+	$(GO_TEST)
 
 .PHONY: test-update
 test-update: fake_assets generate
