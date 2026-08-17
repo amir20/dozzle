@@ -31,7 +31,7 @@ exports[`<ContainerEventSource /> > render html correctly > should render dates 
         <!--v-if-->
         <!--v-if-->
         <div data-v-1344ff3d="" class="tag bg-base-100 inline-flex items-center justify-center rounded-sm px-2 py-[0.2em] [[size='small']]:text-[0.8rem] items-start! shrink-0 select-none">
-          <div class="inline-flex gap-2 text-blue whitespace-nowrap"><time datetime="2019-06-12T10:55:42.459Z" class="max-md:hidden">06/12/2019</time><time datetime="2019-06-12T10:55:42.459Z">03:55:42 AM</time></div>
+          <div class="inline-flex gap-2 text-blue whitespace-nowrap"><time datetime="2019-06-12T10:55:42.459Z" class="max-md:hidden">06/12/2019</time><time datetime="2019-06-12T10:55:42.459Z">10:55:42 AM</time></div>
         </div>
       </div>
       <!-- Cloud matched a notification on this exact line. Badged here rather
@@ -77,7 +77,7 @@ exports[`<ContainerEventSource /> > render html correctly > should render dates 
         <!--v-if-->
         <!--v-if-->
         <div data-v-1344ff3d="" class="tag bg-base-100 inline-flex items-center justify-center rounded-sm px-2 py-[0.2em] [[size='small']]:text-[0.8rem] items-start! shrink-0 select-none">
-          <div class="inline-flex gap-2 text-blue whitespace-nowrap"><time datetime="2019-06-12T10:55:42.459Z" class="max-md:hidden">06/12/2019</time><time datetime="2019-06-12T10:55:42.459Z">03:55:42</time></div>
+          <div class="inline-flex gap-2 text-blue whitespace-nowrap"><time datetime="2019-06-12T10:55:42.459Z" class="max-md:hidden">06/12/2019</time><time datetime="2019-06-12T10:55:42.459Z">10:55:42</time></div>
         </div>
       </div>
       <!-- Cloud matched a notification on this exact line. Badged here rather
@@ -123,7 +123,7 @@ exports[`<ContainerEventSource /> > render html correctly > should render messag
         <!--v-if-->
         <!--v-if-->
         <div data-v-1344ff3d="" class="tag bg-base-100 inline-flex items-center justify-center rounded-sm px-2 py-[0.2em] [[size='small']]:text-[0.8rem] items-start! shrink-0 select-none">
-          <div class="inline-flex gap-2 text-blue whitespace-nowrap"><time datetime="2019-06-12T10:55:42.459Z" class="max-md:hidden">06/12/2019</time><time datetime="2019-06-12T10:55:42.459Z">03:55:42 AM</time></div>
+          <div class="inline-flex gap-2 text-blue whitespace-nowrap"><time datetime="2019-06-12T10:55:42.459Z" class="max-md:hidden">06/12/2019</time><time datetime="2019-06-12T10:55:42.459Z">10:55:42 AM</time></div>
         </div>
       </div>
       <!-- Cloud matched a notification on this exact line. Badged here rather
