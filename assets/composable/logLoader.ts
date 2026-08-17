@@ -120,7 +120,7 @@ export function useLogLoader(
    * problem must degrade to "no alerts", never cost the user their logs.
    */
   async function withAlerts(logs: LogEntry<LogMessage>[]): Promise<LogEntry<LogMessage>[]> {
-    if (logs.length === 0) return logs;
+    if (!alertsAvailable.value || logs.length === 0) return logs;
     try {
       const ids = containers.value.map((c) => c.id);
       const { alerts, events } = await fetchAlerts(
@@ -150,7 +150,7 @@ export function useLogLoader(
    * merges nothing.
    */
   async function loadAlertsForVisible() {
-    if (containers.value.length === 0) return;
+    if (!alertsAvailable.value || containers.value.length === 0) return;
 
     // The loader pins to the top of the list and carries `now` as its date, so
     // it must be held out of the merge — a time-anchored alert would otherwise

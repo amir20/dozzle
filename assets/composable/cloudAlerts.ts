@@ -81,6 +81,9 @@ export async function fetchAlerts(
   }: { linked: boolean; signal?: AbortSignal; followUps?: boolean; events?: boolean },
 ): Promise<{ alerts: CloudAlert[]; events: CloudEvent[] }> {
   const empty = { alerts: [], events: [] };
+  // Backstop, not the primary gate — callers check availability before doing
+  // any of the work of assembling a window. Kept so a new caller that forgets
+  // cannot put traffic on an unlinked instance.
   if (!linked || containerIDs.length === 0) return empty;
 
   const params = new URLSearchParams({
