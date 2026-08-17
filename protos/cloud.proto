@@ -367,7 +367,10 @@ message GetAlertsRequest {
 }
 
 message AlertHit {
-  int64 alert_id = 1;
+  // Opaque, sqids-encoded — never the raw BIGSERIAL, which would leak total
+  // alert counts to anything reading a response or a deep link. Decoding it is
+  // Cloud's business; to Dozzle it is a string to compare and nothing more.
+  string alert_id = 1;
   string container_id = 2;
   string host_id = 3;
   // FNV-32a hash of the log line that triggered this alert — the same id
@@ -428,7 +431,9 @@ message EventHit {
   // 'log' | 'metric' | 'event' — the notification's own type.
   string type = 7;
   // The incident that absorbed this event; 0 when it never reached an alert.
-  int64 alert_id = 8;
+  // Opaque, sqids-encoded — see AlertHit.alert_id. Empty when the event never
+  // reached an alert.
+  string alert_id = 8;
   // True when this event produced no delivered notification of its own: it
   // arrived after its alert had already been sent and was folded in silently,
   // or it never became an alert at all.

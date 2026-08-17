@@ -23,7 +23,7 @@ function log(id: number, at: number, containerID = "abc"): LogEntry<LogMessage> 
 
 function alert(overrides: Partial<CloudAlert> = {}): CloudAlert {
   return {
-    alertId: 1,
+    alertId: "1",
     containerId: "abc",
     hostId: "h",
     ts: ns(100),
@@ -91,7 +91,7 @@ describe("mergeAlerts", () => {
     const logs = [log(10, 500)];
     const merged = mergeAlerts(
       logs,
-      [alert({ alertId: 2, ts: ns(300) }), alert({ alertId: 1, ts: ns(100) })],
+      [alert({ alertId: "2", ts: ns(300) }), alert({ alertId: "1", ts: ns(100) })],
       new Set(),
     );
 
@@ -138,7 +138,7 @@ describe("mergeAlerts", () => {
     const logs = [log(10, 100)];
     const merged = mergeAlerts(
       logs,
-      [alert({ alertId: 1, isOrigin: false, ts: ns(50) }), alert({ alertId: 1, isOrigin: true, ts: ns(100) })],
+      [alert({ alertId: "1", isOrigin: false, ts: ns(50) }), alert({ alertId: "1", isOrigin: true, ts: ns(100) })],
       new Set(),
     );
     expect(shapeOf(merged)).toEqual(["alert:1", "log:10"]);
@@ -236,7 +236,7 @@ describe("attachEvents", () => {
   // badging its line too would say the same thing twice.
   test("does not badge a line whose event produced an alert", () => {
     const logs = [log(10, 100)];
-    expect(attachEvents(logs, [event({ suppressed: false, alertId: 7 })])).toBe(false);
+    expect(attachEvents(logs, [event({ suppressed: false, alertId: "7" })])).toBe(false);
     expect(logs[0].matchedEvent).toBeUndefined();
   });
 

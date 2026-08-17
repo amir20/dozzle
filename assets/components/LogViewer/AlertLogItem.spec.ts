@@ -17,7 +17,7 @@ const ns = (n: number) => n * 1_000_000;
 
 function mountAlert(overrides: Partial<CloudAlert> = {}) {
   const alert: CloudAlert = {
-    alertId: 1,
+    alertId: "6teOh3RH",
     containerId: "abc",
     hostId: "h",
     ts: ns(1_000_000),

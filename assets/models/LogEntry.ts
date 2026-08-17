@@ -227,7 +227,10 @@ export class AlertLogEntry extends LogEntry<string> {
     // std/level feed the shared LogItem chrome. Alerts are not stream output,
     // but they are unmistakably not stdout either, and the level is the one
     // triage assigned.
-    super(alert.headline, alert.containerId, alert.alertId, date, "stderr", alert.headline, alertLevel(alert.level));
+    // Keyed on the anchor timestamp rather than the alert id: ids from Cloud
+    // are opaque strings now, and LogList needs a number for its v-for key.
+    // The anchor is unique per row here — one block per incident per window.
+    super(alert.headline, alert.containerId, alert.ts, date, "stderr", alert.headline, alertLevel(alert.level));
   }
 
   getComponent(): Component {
@@ -237,7 +240,7 @@ export class AlertLogEntry extends LogEntry<string> {
   /**
    * Stable identity for dedupe across overlapping scroll windows. Keyed on the
    * ANCHOR as well as the alert: one incident legitimately marks every window
-   * it was active in, and keying on alertId alone would let a follow-up anchor
+   * it was active in, and keying on the alert alone would let a follow-up anchor
    * loaded first swallow the origin loaded later.
    */
   public get anchorKey(): string {

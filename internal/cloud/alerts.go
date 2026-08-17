@@ -26,7 +26,7 @@ type AlertResult struct {
 // server-side to the connecting instance's (user_id, api_key_id) — Cloud
 // derives those from the auth metadata, never the request body.
 type AlertHit struct {
-	AlertID     int64  `json:"alertId"`
+	AlertID     string `json:"alertId"`
 	ContainerID string `json:"containerId"`
 	HostID      string `json:"hostId"`
 	// LogID is Cloud's copy of Dozzle's FNV-32a hash of the line that
@@ -74,7 +74,7 @@ type EventHit struct {
 	Message     string `json:"message,omitempty"`
 	Type        string `json:"type,omitempty"`
 	Detail      string `json:"detail,omitempty"`
-	AlertID     int64  `json:"alertId,omitempty"`
+	AlertID     string `json:"alertId,omitempty"`
 	// Suppressed means the event produced no notification of its own: it was
 	// folded into an alert already sent, or never reached one at all.
 	Suppressed bool `json:"suppressed"`

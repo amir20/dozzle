@@ -15,7 +15,7 @@ export function useLogLoader(
 ) {
   const { fetchAlerts, available: alertsAvailable } = useCloudAlerts();
   // Anchor keys already placed, so overlapping scroll windows don't duplicate.
-  // Keyed on (alertId, anchor) rather than alertId: one incident legitimately
+  // Keyed on (alert, anchor) rather than the alert alone: one incident legitimately
   // marks every window it was active in.
   const placedAlerts = new Set<string>();
   // Newest log timestamp the poll has already asked Cloud about. Events only
