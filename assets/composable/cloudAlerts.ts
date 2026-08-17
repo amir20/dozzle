@@ -6,7 +6,8 @@ import { AlertLogEntry, CloudEventLogEntry, LogEntry, type LogMessage } from "@/
  * /api/cloud/alerts. Mirrors cloud.AlertHit on the Go side.
  */
 export interface CloudAlert {
-  alertId: number;
+  /** Opaque, sqids-encoded. Never a raw row id. */
+  alertId: string;
   containerId: string;
   hostId: string;
   /**
@@ -49,7 +50,8 @@ export interface CloudEvent {
   type?: string;
   /** Human-readable summary; the only renderable text a non-log event has. */
   detail?: string;
-  alertId?: number;
+  /** Opaque id of the alert this event reached, empty when it reached none. */
+  alertId?: string;
   suppressed: boolean;
 }
 

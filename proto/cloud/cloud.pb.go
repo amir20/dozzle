@@ -2513,10 +2513,13 @@ func (x *GetAlertsRequest) GetIncludeEvents() bool {
 }
 
 type AlertHit struct {
-	state       protoimpl.MessageState `protogen:"open.v1"`
-	AlertId     int64                  `protobuf:"varint,1,opt,name=alert_id,json=alertId,proto3" json:"alert_id,omitempty"`
-	ContainerId string                 `protobuf:"bytes,2,opt,name=container_id,json=containerId,proto3" json:"container_id,omitempty"`
-	HostId      string                 `protobuf:"bytes,3,opt,name=host_id,json=hostId,proto3" json:"host_id,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Opaque, sqids-encoded — never the raw BIGSERIAL, which would leak total
+	// alert counts to anything reading a response or a deep link. Decoding it is
+	// Cloud's business; to Dozzle it is a string to compare and nothing more.
+	AlertId     string `protobuf:"bytes,1,opt,name=alert_id,json=alertId,proto3" json:"alert_id,omitempty"`
+	ContainerId string `protobuf:"bytes,2,opt,name=container_id,json=containerId,proto3" json:"container_id,omitempty"`
+	HostId      string `protobuf:"bytes,3,opt,name=host_id,json=hostId,proto3" json:"host_id,omitempty"`
 	// FNV-32a hash of the log line that triggered this alert — the same id
 	// Dozzle stamps on LogEvent.Id. Lets the viewer splice the alert in
 	// directly after its trigger line instead of guessing from a timestamp.
@@ -2593,11 +2596,11 @@ func (*AlertHit) Descriptor() ([]byte, []int) {
 	return file_cloud_proto_rawDescGZIP(), []int{28}
 }
 
-func (x *AlertHit) GetAlertId() int64 {
+func (x *AlertHit) GetAlertId() string {
 	if x != nil {
 		return x.AlertId
 	}
-	return 0
+	return ""
 }
 
 func (x *AlertHit) GetContainerId() string {
@@ -2727,7 +2730,9 @@ type EventHit struct {
 	// 'log' | 'metric' | 'event' — the notification's own type.
 	Type string `protobuf:"bytes,7,opt,name=type,proto3" json:"type,omitempty"`
 	// The incident that absorbed this event; 0 when it never reached an alert.
-	AlertId int64 `protobuf:"varint,8,opt,name=alert_id,json=alertId,proto3" json:"alert_id,omitempty"`
+	// Opaque, sqids-encoded — see AlertHit.alert_id. Empty when the event never
+	// reached an alert.
+	AlertId string `protobuf:"bytes,8,opt,name=alert_id,json=alertId,proto3" json:"alert_id,omitempty"`
 	// True when this event produced no delivered notification of its own: it
 	// arrived after its alert had already been sent and was folded in silently,
 	// or it never became an alert at all.
@@ -2820,11 +2825,11 @@ func (x *EventHit) GetType() string {
 	return ""
 }
 
-func (x *EventHit) GetAlertId() int64 {
+func (x *EventHit) GetAlertId() string {
 	if x != nil {
 		return x.AlertId
 	}
-	return 0
+	return ""
 }
 
 func (x *EventHit) GetSuppressed() bool {
@@ -3117,7 +3122,7 @@ const file_cloud_proto_rawDesc = "" +
 	"\x12include_follow_ups\x18\x06 \x01(\bR\x10includeFollowUps\x12%\n" +
 	"\x0einclude_events\x18\a \x01(\bR\rincludeEvents\"\xa8\x04\n" +
 	"\bAlertHit\x12\x19\n" +
-	"\balert_id\x18\x01 \x01(\x03R\aalertId\x12!\n" +
+	"\balert_id\x18\x01 \x01(\tR\aalertId\x12!\n" +
 	"\fcontainer_id\x18\x02 \x01(\tR\vcontainerId\x12\x17\n" +
 	"\ahost_id\x18\x03 \x01(\tR\x06hostId\x12\x15\n" +
 	"\x06log_id\x18\x04 \x01(\rR\x05logId\x12 \n" +
@@ -3145,7 +3150,7 @@ const file_cloud_proto_rawDesc = "" +
 	"\x05level\x18\x05 \x01(\tR\x05level\x12\x18\n" +
 	"\amessage\x18\x06 \x01(\tR\amessage\x12\x12\n" +
 	"\x04type\x18\a \x01(\tR\x04type\x12\x19\n" +
-	"\balert_id\x18\b \x01(\x03R\aalertId\x12\x1e\n" +
+	"\balert_id\x18\b \x01(\tR\aalertId\x12\x1e\n" +
 	"\n" +
 	"suppressed\x18\t \x01(\bR\n" +
 	"suppressed\x12\x16\n" +

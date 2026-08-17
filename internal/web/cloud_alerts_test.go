@@ -46,7 +46,7 @@ func doAlerts(h *handler, query string) *httptest.ResponseRecorder {
 }
 
 func okResult(*alertCall) (*cloud.AlertResult, error) {
-	return &cloud.AlertResult{Hits: []cloud.AlertHit{{AlertID: 1, ContainerID: "abc"}}}, nil
+	return &cloud.AlertResult{Hits: []cloud.AlertHit{{AlertID: "6teOh3RH", ContainerID: "abc"}}}, nil
 }
 
 func TestCloudAlerts_UnwiredIs503(t *testing.T) {
