@@ -138,7 +138,24 @@ function useLogStream(url: Ref<string>, container?: Ref<Container>) {
   // Only runs when Cloud is actually linked. An unlinked Dozzle has no alerts
   // to fetch, so a timer there is pure waste — and an unconditional interval
   // also hangs any test that drains pending timers.
-  watch(alertsAvailable, (linked) => (linked ? alertPoll.resume() : alertPoll.pause()), { immediate: true });
+  //
+  // The immediate pass on becoming linked matters twice. The cloud config is
+  // fetched asynchronously at boot, so on an ordinary load this flips true
+  // *after* the stream has already assembled its first window — without it the
+  // opening window would sit bare until the first tick. It also covers linking
+  // mid-session: alerts start appearing at once rather than up to a poll later.
+  watch(
+    alertsAvailable,
+    (linked) => {
+      if (!linked) {
+        alertPoll.pause();
+        return;
+      }
+      alertPoll.resume();
+      decorateWithAlerts();
+    },
+    { immediate: true },
+  );
 
   function flushNow() {
     // Only the first assembly triggers an immediate alert pass; after that the
