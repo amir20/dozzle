@@ -81,6 +81,9 @@ export async function fetchAlerts(
   }: { linked: boolean; signal?: AbortSignal; followUps?: boolean; events?: boolean },
 ): Promise<{ alerts: CloudAlert[]; events: CloudEvent[] }> {
   const empty = { alerts: [], events: [] };
+  // Backstop, not the primary gate — callers check availability before doing
+  // any of the work of assembling a window. Kept so a new caller that forgets
+  // cannot put traffic on an unlinked instance.
   if (!linked || containerIDs.length === 0) return empty;
 
   const params = new URLSearchParams({
@@ -148,12 +151,18 @@ export function mergeAlerts(
   const fresh = alerts.filter((a) => a.isOrigin && !seen.has(anchorKey(a)));
   if (fresh.length === 0) return logs;
 
+  // Indexed once rather than scanned per alert: logs runs into the thousands
+  // after scrollback, so the nested `logs.some` this replaces was O(alerts x
+  // logs) on the main thread every time new alerts arrived.
+  const linesPresent = new Set<string>();
+  for (const l of logs) linesPresent.add(`${l.containerID}:${l.id}`);
+
   const byLogId = new Map<number, CloudAlert[]>();
   const byTime: CloudAlert[] = [];
   for (const alert of fresh) {
     // Only trust logId when that line is actually in this run; otherwise the
     // alert would silently vanish rather than fall back to its timestamp.
-    if (alert.logId && logs.some((l) => l.id === alert.logId && l.containerID === alert.containerId)) {
+    if (alert.logId && linesPresent.has(`${alert.containerId}:${alert.logId}`)) {
       const bucket = byLogId.get(alert.logId);
       if (bucket) bucket.push(alert);
       else byLogId.set(alert.logId, [alert]);
@@ -224,14 +233,14 @@ export function attachEvents(logs: LogEntry<LogMessage>[], events: CloudEvent[])
     if (log.matchedEvent) continue;
     const event = byLogId.get(log.id);
     if (!event || event.containerId !== log.containerID) continue;
-    log.matchedEvent = { alertId: event.alertId ?? 0, suppressed: event.suppressed, level: event.level ?? "" };
+    log.matchedEvent = { suppressed: event.suppressed };
     changed = true;
   }
   return changed;
 }
 
 /** A log event has a line in the stream; metric and container events do not. */
-export function isLogEvent(event: CloudEvent): boolean {
+function isLogEvent(event: CloudEvent): boolean {
   return (event.type ?? "log") === "log";
 }
 

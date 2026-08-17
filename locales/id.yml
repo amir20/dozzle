@@ -38,7 +38,6 @@ label:
   alert-events: Tidak ada peristiwa | 1 peristiwa | {count} peristiwa
   alert-containers: 1 kontainer | {count} kontainer
   alert-held-back: "{count} serupa ditahan"
-  alert-investigation: Investigasi
   alert-view-in-cloud: Lihat di Dozzle Cloud
   alert: Peringatan
   alert-details: Detail

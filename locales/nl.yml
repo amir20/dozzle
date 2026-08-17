@@ -37,7 +37,6 @@ label:
   alert-events: Geen gebeurtenissen | 1 gebeurtenis | {count} gebeurtenissen
   alert-containers: 1 container | {count} containers
   alert-held-back: "{count} vergelijkbare tegengehouden"
-  alert-investigation: Onderzoek
   alert-view-in-cloud: Bekijk in Dozzle Cloud
   alert: Melding
   alert-details: Details

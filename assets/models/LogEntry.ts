@@ -41,9 +41,13 @@ export interface LogEvent {
  * storm would put one between every pair of lines.
  */
 export interface MatchedEvent {
-  alertId: number;
+  /**
+   * Whether Dozzle Cloud held the alert back. Always true today — only
+   * suppressed events are badged, since a delivered one is represented by its
+   * alert block — but kept explicit so the badge cannot silently start
+   * claiming the wrong thing if that changes.
+   */
   suppressed: boolean;
-  level: string;
 }
 
 /**
@@ -259,7 +263,11 @@ export class CloudEventLogEntry extends LogEntry<string> {
     public readonly event: CloudEvent,
     date: Date,
   ) {
-    super(event.detail ?? "", event.containerId, date.getTime(), date, "stderr", event.detail ?? "");
+    // Keyed on the nanosecond timestamp, not date.getTime(): LogList uses
+    // entry.id as its v-for key, and two notifications inside the same
+    // millisecond — a metric and a lifecycle event fire together routinely —
+    // would collide and cost a row.
+    super(event.detail ?? "", event.containerId, event.ts, date, "stderr", event.detail ?? "");
   }
 
   getComponent(): Component {

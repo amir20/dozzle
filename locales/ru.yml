@@ -37,7 +37,6 @@ label:
   alert-events: Нет событий | 1 событие | {count} событий
   alert-containers: 1 контейнер | {count} контейнеров
   alert-held-back: "{count} похожих удержано"
-  alert-investigation: Анализ
   alert-view-in-cloud: Открыть в Dozzle Cloud
   alert: Оповещение
   alert-details: Подробности

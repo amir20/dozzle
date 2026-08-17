@@ -158,6 +158,9 @@ describe("fetchAlerts", () => {
     vi.unstubAllGlobals();
   });
 
+  // An unlinked Dozzle must put no traffic on the network at all — not a
+  // request that 503s, not one that returns empty. This is the backstop; the
+  // callers in logLoader check availability before assembling a window.
   test("does not call cloud when not linked", async () => {
     const spy = vi.fn();
     global.fetch = spy;
@@ -209,7 +212,7 @@ describe("attachEvents", () => {
   test("badges the line the event matched", () => {
     const logs = [log(10, 100), log(11, 200)];
     expect(attachEvents(logs, [event()])).toBe(true);
-    expect(logs[0].matchedEvent).toEqual({ alertId: 0, suppressed: true, level: "" });
+    expect(logs[0].matchedEvent).toEqual({ suppressed: true });
     expect(logs[1].matchedEvent).toBeUndefined();
   });
 

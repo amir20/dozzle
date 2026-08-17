@@ -37,7 +37,6 @@ label:
   alert-events: 无事件 | 1 个事件 | {count} 个事件
   alert-containers: 1 个容器 | {count} 个容器
   alert-held-back: 已拦下 {count} 个类似事件
-  alert-investigation: 调查
   alert-view-in-cloud: 在 Dozzle Cloud 中查看
   alert: 警报
   alert-details: 详情

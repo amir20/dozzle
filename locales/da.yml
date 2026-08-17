@@ -37,7 +37,6 @@ label:
   alert-events: Ingen hændelser | 1 hændelse | {count} hændelser
   alert-containers: 1 container | {count} containere
   alert-held-back: "{count} lignende tilbageholdt"
-  alert-investigation: Undersøgelse
   alert-view-in-cloud: Vis i Dozzle Cloud
   alert: Alarm
   alert-details: Detaljer

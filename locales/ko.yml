@@ -37,7 +37,6 @@ label:
   alert-events: 이벤트 없음 | 이벤트 1개 | 이벤트 {count}개
   alert-containers: 컨테이너 1개 | 컨테이너 {count}개
   alert-held-back: 유사 {count}건 보류됨
-  alert-investigation: 분석
   alert-view-in-cloud: Dozzle Cloud에서 보기
   alert: 알림
   alert-details: 세부 정보
