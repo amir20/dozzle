@@ -33,7 +33,7 @@ export function useHistoricalContainerLog(historicalContainer: Ref<HistoricalCon
   // Same alert layer the live stream uses: without it a deep link to an alert
   // landed on the one view that could not draw it.
   const containers = computed(() => [container.value]);
-  const { withAlerts, decorateVisible } = useAlertMerger(messages, containers, params);
+  const { withAlerts, decorateVisible, alertsAvailable } = useAlertMerger(messages, containers, params);
 
   const route = useRoute();
   async function loadLogs() {
@@ -57,12 +57,15 @@ export function useHistoricalContainerLog(historicalContainer: Ref<HistoricalCon
       ]);
       const loaderOlder = new LoadMoreLogEntry(new Date(), loadOlderLogs);
       const loadNewer = new LoadMoreLogEntry(new Date(), loadNewerLogs, false);
+      const wasLinked = alertsAvailable.value;
       messages.value = [loaderOlder, ...(await withAlerts([...before, ...after])), loadNewer];
       loading.value = false;
       opened.value = true;
-      // Covers the boot race: the cloud config arrives asynchronously, so
+      // Only for the boot race: the cloud config arrives asynchronously, so
       // withAlerts above may have run while the instance still looked unlinked.
-      decorateVisible();
+      // When it was already linked the window is decorated, and asking again
+      // would just spend a request on a window that cannot have changed.
+      if (!wasLinked && alertsAvailable.value) decorateVisible();
     } catch (error) {
       console.error(error);
     } finally {

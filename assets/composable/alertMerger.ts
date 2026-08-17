@@ -62,12 +62,16 @@ export function useAlertMerger(
   // still requested every time: an alert's anchor is older than the alert, so
   // one can land on a line that has been on screen for a while.
   let polledThrough: number | undefined;
+  // Bumped on every stream change so a response that was already in flight
+  // cannot merge into the window that replaced it.
+  let generation = 0;
   // The viewer clears its messages when the stream changes (container switch,
   // filter change). Without this the seen-set would outlive the entries it was
   // tracking, and alerts already scrolled past would never render again.
   watch([params, containers], () => {
     placedAlerts.clear();
     polledThrough = undefined;
+    generation++;
   });
 
   /**
@@ -133,7 +137,7 @@ export function useAlertMerger(
       // more precise and cheaper than a second block.
       const newest = logs[logs.length - 1].date.getTime();
       const wantEvents = polledThrough === undefined || newest > polledThrough;
-      polledThrough = newest;
+      const startedAt = generation;
 
       const { alerts, events } = await fetchAlerts(
         containers.value.map((c) => c.id),
@@ -141,6 +145,15 @@ export function useAlertMerger(
         to,
         { events: wantEvents },
       );
+
+      // The window can be replaced while the request is out — a container
+      // switch, or a live flush appending lines. Writing the old merge back
+      // would clobber it, so drop the response instead and let the next pass
+      // ask for the window that is actually on screen. Checked before merging:
+      // mergeAlerts records what it places in placedAlerts, so bailing after it
+      // would mark these alerts as drawn when they never were.
+      if (startedAt !== generation || messages.value !== current) return;
+      polledThrough = newest;
 
       // Badges mutate the entries in place, so the list has to be reassigned
       // for Vue to see it — messages is a shallowRef.

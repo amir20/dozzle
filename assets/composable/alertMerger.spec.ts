@@ -16,9 +16,16 @@ import {
 } from "@/models/LogEntry";
 import type { Container } from "@/models/Container";
 
-vi.mock("@/composable/cloudConfig", () => ({
-  useCloudConfig: () => ({ cloudConfig: { value: { linked: true } } }),
-}));
+// Reactive so tests can flip the instance between linked and unlinked, which is
+// what drives the poll and the boot-race decoration.
+type CloudLink = { linked: boolean };
+const holder = vi.hoisted(() => ({ cloudConfig: null as ReturnType<typeof import("vue").ref<CloudLink>> | null }));
+vi.mock("@/composable/cloudConfig", async () => {
+  const { ref: vueRef } = await import("vue");
+  holder.cloudConfig = vueRef<CloudLink>({ linked: true });
+  return { useCloudConfig: () => ({ cloudConfig: holder.cloudConfig }) };
+});
+const setLinked = (linked: boolean) => (holder.cloudConfig!.value = { linked });
 
 const ns = (n: number) => n * 1_000_000;
 
@@ -78,7 +85,10 @@ describe("isStreamLog", () => {
 });
 
 describe("useAlertMerger", () => {
-  beforeEach(() => vi.useFakeTimers());
+  beforeEach(() => {
+    vi.useFakeTimers();
+    setLinked(true);
+  });
   afterEach(() => {
     vi.useRealTimers();
     vi.restoreAllMocks();
@@ -123,6 +133,60 @@ describe("useAlertMerger", () => {
       respondWith([alert({ logId: 1, ts: ns(100) })]);
       await vi.advanceTimersByTimeAsync(15_000);
       expect(shapeOf(messages.value)).toEqual(["log:1", "alert:a1", "log:2"]);
+    });
+  });
+
+  test("asks cloud for nothing while the instance is unlinked", async () => {
+    respondWith([alert({ logId: 1, ts: ns(100) })]);
+    setLinked(false);
+    const messages = shallowRef<LogEntry<LogMessage>[]>([log(1, 100), log(2, 200)]);
+
+    await withMerger(messages, async ({ decorateVisible }) => {
+      decorateVisible();
+      await vi.advanceTimersByTimeAsync(60_000);
+      expect(global.fetch).not.toHaveBeenCalled();
+      expect(shapeOf(messages.value)).toEqual(["log:1", "log:2"]);
+    });
+  });
+
+  test("decorates the open window as soon as cloud links", async () => {
+    // The boot race: cloudConfig is fetched asynchronously, so the first window
+    // is usually assembled before the instance looks linked.
+    respondWith([alert({ logId: 1, ts: ns(100) })]);
+    setLinked(false);
+    const messages = shallowRef<LogEntry<LogMessage>[]>([log(1, 100), log(2, 200)]);
+
+    await withMerger(messages, async () => {
+      await vi.advanceTimersByTimeAsync(500);
+      expect(shapeOf(messages.value)).toEqual(["log:1", "log:2"]);
+
+      setLinked(true);
+      await vi.advanceTimersByTimeAsync(500);
+      expect(shapeOf(messages.value)).toEqual(["log:1", "alert:a1", "log:2"]);
+    });
+  });
+
+  test("drops a response whose window was replaced while it was in flight", async () => {
+    let release: (res: unknown) => void = () => {};
+    global.fetch = vi.fn().mockImplementation(() => new Promise((resolve) => (release = resolve)));
+    const messages = shallowRef<LogEntry<LogMessage>[]>([log(1, 100), log(2, 200)]);
+
+    await withMerger(messages, async ({ decorateVisible }) => {
+      decorateVisible();
+      await vi.advanceTimersByTimeAsync(500);
+
+      // Container switch (or a live flush) lands before cloud answers.
+      const replaced = [log(3, 300)];
+      messages.value = replaced;
+      release({ ok: true, json: async () => ({ hits: [alert({ logId: 1, ts: ns(100) })] }) });
+      await vi.advanceTimersByTimeAsync(0);
+
+      expect(messages.value).toBe(replaced);
+
+      // And the dropped alert is not marked as placed, so the next pass draws it.
+      respondWith([alert({ logId: 1, ts: ns(100) })]);
+      await vi.advanceTimersByTimeAsync(15_000);
+      expect(shapeOf(messages.value)).toEqual(["alert:a1", "log:3"]);
     });
   });
 
