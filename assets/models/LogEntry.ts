@@ -178,7 +178,7 @@ export class ComplexLogEntry extends LogEntry<JSONObject> {
   }
 
   static fromLogEvent(event: ComplexLogEntry, visibleKeys: Ref<Map<string[], boolean>>): ComplexLogEntry {
-    return new ComplexLogEntry(
+    const clone = new ComplexLogEntry(
       event._message,
       event.containerID,
       event.id,
@@ -188,6 +188,14 @@ export class ComplexLogEntry extends LogEntry<JSONObject> {
       event.rawMessage,
       visibleKeys,
     );
+    // The viewer re-clones every complex entry on each render, so the clone is
+    // what actually reaches the row component. Matched events live in a WeakMap
+    // keyed on the instance, so without carrying the ref across, a JSON log
+    // could never show its badge — the entry the alert loader marked was thrown
+    // away before it was drawn. Sharing the ref rather than copying the value
+    // also keeps a badge that arrives after this clone was made.
+    matchedEvents.set(clone, matchedEventRef(event));
+    return clone;
   }
 }
 

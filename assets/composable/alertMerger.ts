@@ -86,12 +86,20 @@ export function useAlertMerger(
     if (!alertsAvailable.value || logs.length === 0) return logs;
     try {
       const ids = containers.value.map((c) => c.id);
-      const { alerts, events } = await fetchAlerts(
-        ids,
-        logs[0].date,
-        new Date(logs[logs.length - 1].date.getTime() + 1),
-        { events: true },
-      );
+      // Scanned rather than read off the ends: the historical view assembles
+      // its opening window from two overlapping range queries, so the newest
+      // line is not reliably the last one. Taking logs[last] there could close
+      // the window early and drop every alert anchored past it.
+      let earliest = logs[0].date.getTime();
+      let latest = earliest;
+      for (const l of logs) {
+        const t = l.date.getTime();
+        if (t < earliest) earliest = t;
+        if (t > latest) latest = t;
+      }
+      const { alerts, events } = await fetchAlerts(ids, new Date(earliest), new Date(latest + 1), {
+        events: true,
+      });
       attachEvents(logs, events);
       return mergeAlerts(mergeCloudEvents(logs, events, placedAlerts), alerts, placedAlerts);
     } catch (err) {
@@ -130,12 +138,20 @@ export function useAlertMerger(
     if (logs.length === 0) return;
 
     try {
-      const from = logs[0].date;
-      const to = new Date(logs[logs.length - 1].date.getTime() + 1);
+      // Same scan as withAlerts, for the same reason: the ends of the list are
+      // not reliably the ends of its time range.
+      let earliest = logs[0].date.getTime();
+      let newest = earliest;
+      for (const l of logs) {
+        const t = l.date.getTime();
+        if (t < earliest) earliest = t;
+        if (t > newest) newest = t;
+      }
+      const from = new Date(earliest);
+      const to = new Date(newest + 1);
       // Origins only, like scrollback. An incident already running when this
       // window opens shows through the per-line badges instead, which is both
       // more precise and cheaper than a second block.
-      const newest = logs[logs.length - 1].date.getTime();
       const wantEvents = polledThrough === undefined || newest > polledThrough;
       const startedAt = generation;
 
