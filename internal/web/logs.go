@@ -499,7 +499,11 @@ func (h *handler) streamLogsForContainers(w http.ResponseWriter, r *http.Request
 					Host:    c.Host,
 					Time:    finishedAt,
 				}
-			} else if !errors.Is(err, context.Canceled) {
+			} else if errors.Is(err, context.Canceled) || r.Context().Err() != nil {
+				// the client went away; a read already in flight comes back as
+				// "use of closed network connection" instead of a cancellation
+				log.Debug().Err(err).Str("container", c.ID).Msg("streaming stopped after client disconnected")
+			} else {
 				log.Error().Err(err).Str("container", c.ID).Msg("unknown error while streaming logs")
 			}
 		}
