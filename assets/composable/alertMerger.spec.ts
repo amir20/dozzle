@@ -190,6 +190,19 @@ describe("useAlertMerger", () => {
     });
   });
 
+  test("covers the whole time range when the newest line is not the last one", async () => {
+    // The historical view builds its opening window from two overlapping range
+    // queries, so the list can end on a line older than one in the middle.
+    respondWith([]);
+    const messages = shallowRef<LogEntry<LogMessage>[]>([]);
+    await withMerger(messages, async ({ withAlerts }) => {
+      await withAlerts([log(1, 100), log(2, 900), log(3, 300)]);
+      const url = new URL((global.fetch as any).mock.calls[0][0], "http://localhost");
+      expect(url.searchParams.get("from")).toBe(String(ns(100)));
+      expect(url.searchParams.get("to")).toBe(String(ns(901)));
+    });
+  });
+
   test("does not place the same alert twice across overlapping windows", async () => {
     respondWith([alert({ logId: 2, ts: ns(200) })]);
     const messages = shallowRef<LogEntry<LogMessage>[]>([]);

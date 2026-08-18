@@ -116,3 +116,23 @@ describe("SkippedLogsEntry", () => {
     expect(entry.lastSkippedLog).toBe(newLast);
   });
 });
+
+describe("matchedEvent", () => {
+  const complex = () => new ComplexLogEntry({ msg: "hi" }, "abc", 1, new Date(1), "info", "stdout", '{"msg":"hi"}');
+
+  test("survives the re-clone the viewer does on every render", () => {
+    const entry = complex();
+    entry.matchedEvent = { suppressed: true };
+
+    const rendered = ComplexLogEntry.fromLogEvent(entry, ref(new Map()));
+    expect(rendered.matchedEvent).toEqual({ suppressed: true });
+  });
+
+  test("reaches a clone that was made before the alert loader marked the entry", () => {
+    const entry = complex();
+    const rendered = ComplexLogEntry.fromLogEvent(entry, ref(new Map()));
+
+    entry.matchedEvent = { suppressed: true };
+    expect(rendered.matchedEvent).toEqual({ suppressed: true });
+  });
+});
