@@ -27,7 +27,7 @@ ENV CLOUD_URL=$CLOUD_URL
 # Build assets
 RUN pnpm build
 
-FROM --platform=$BUILDPLATFORM golang:1.26-alpine AS builder
+FROM --platform=$BUILDPLATFORM golang:1.27-alpine AS builder
 
 RUN apk add --no-cache ca-certificates && mkdir /dozzle
 
