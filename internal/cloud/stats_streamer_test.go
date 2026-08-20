@@ -326,11 +326,9 @@ func (f *slowStatsHostService) ListAllContainers(l container.ContainerLabels) ([
 // original bug lived.
 func TestStatsStreamer_SlowHostDoesNotStallSampleDrain(t *testing.T) {
 	hs := &slowStatsHostService{
-		fakeStatsHostService: fakeStatsHostService{
-			containers: []container.Container{testContainer("c1", "api")},
-			hosts:      []container.Host{{ID: "host1", NCPU: 1}},
-			subscribed: make(chan chan<- StatSample, 1),
-		},
+		containers: []container.Container{testContainer("c1", "api")},
+		hosts:      []container.Host{{ID: "host1", NCPU: 1}},
+		subscribed: make(chan chan<- StatSample, 1),
 		blockAfter: 1, // let the startup refresh through, wedge the flush-time one
 		entered:    make(chan struct{}),
 		release:    make(chan struct{}),
@@ -419,9 +417,7 @@ func TestStatsStreamer_AsyncRefreshInstallsSnapshot(t *testing.T) {
 // A refresh slower than the window must not queue up more refreshes.
 func TestStatsStreamer_OnlyOneRefreshInFlight(t *testing.T) {
 	hs := &slowStatsHostService{
-		fakeStatsHostService: fakeStatsHostService{
-			hosts: []container.Host{{ID: "host1", NCPU: 1}},
-		},
+		hosts:      []container.Host{{ID: "host1", NCPU: 1}},
 		blockAfter: 0, // block immediately
 		entered:    make(chan struct{}),
 		release:    make(chan struct{}),

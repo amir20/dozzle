@@ -23,7 +23,7 @@ func ValidateEnvVars(types ...any) {
 	}
 
 	for _, env := range os.Environ() {
-		actual := strings.Split(env, "=")[0]
+		actual, _, _ := strings.Cut(env, "=")
 		if strings.HasPrefix(actual, "DOZZLE_") && !expectedEnvs[actual] {
 			log.Warn().Str("env", actual).Msg("Unexpected environment variable")
 		}
