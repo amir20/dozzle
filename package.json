@@ -59,7 +59,7 @@
     "@xterm/xterm": "^6.0.0",
     "ansi-to-html": "^0.7.2",
     "codemirror": "^6.0.2",
-    "daisyui": "5.7.17",
+    "daisyui": "5.7.19",
     "entities": "^8.0.0",
     "fuse.js": "^7.5.0",
     "lodash.debounce": "^4.0.8",
@@ -106,7 +106,7 @@
     "simple-git-hooks": "^2.13.1",
     "ts-node": "^10.9.2",
     "typescript": "npm:typescript-native-bridge@6.0.3-bridge.13.tsgo.7.0.2",
-    "vitest": "^4.1.10",
+    "vitest": "^4.1.11",
     "vue-component-type-helpers": "3.3.10",
     "vue-tsc": "3.3.10"
   },
