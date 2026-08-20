@@ -191,7 +191,7 @@ func TestManager_Remove_DeletesProjectAndCleansNetworks(t *testing.T) {
 	dir := t.TempDir()
 	cli := &fakeDockerClient{
 		networksOnList: []network.Summary{
-			{Network: network.Network{ID: "net-1", Name: "myapp_default", Labels: map[string]string{"com.docker.compose.project": "myapp"}}},
+			{ID: "net-1", Name: "myapp_default", Labels: map[string]string{"com.docker.compose.project": "myapp"}},
 		},
 		volumesOnList: []volume.Volume{
 			{Name: "myapp_data", Labels: map[string]string{"com.docker.compose.project": "myapp"}},

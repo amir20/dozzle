@@ -714,12 +714,10 @@ func buildContainerConfig(projectName, name string, svc composetypes.ServiceConf
 		Sysctls:        svc.Sysctls,
 		LogConfig:      logConfig,
 		Runtime:        svc.Runtime,
-		Resources: container.Resources{
-			NanoCPUs: int64(svc.CPUS * 1e9),
-			Memory:   int64(svc.MemLimit),
-			Ulimits:  ulimits,
-			Devices:  devices,
-		},
+		NanoCPUs:       int64(svc.CPUS * 1e9),
+		Memory:         int64(svc.MemLimit),
+		Ulimits:        ulimits,
+		Devices:        devices,
 	}
 
 	return config, hostConfig, networkingConfig

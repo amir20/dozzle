@@ -26,19 +26,17 @@ import (
 func TestPodToContainersAddsOwnerChainLabels(t *testing.T) {
 	client := newTestK8sClient(t,
 		&appsv1.ReplicaSet{
-			TypeMeta: metav1.TypeMeta{APIVersion: "apps/v1", Kind: "ReplicaSet"},
-			ObjectMeta: metav1.ObjectMeta{
-				Namespace: "default",
-				Name:      "api-6f88b977f4",
-				UID:       types.UID("rs-uid"),
-				OwnerReferences: []metav1.OwnerReference{
-					{APIVersion: "apps/v1", Kind: "Deployment", Name: "api", UID: types.UID("deploy-uid")},
-				},
+			APIVersion: "apps/v1", Kind: "ReplicaSet",
+			Namespace: "default",
+			Name:      "api-6f88b977f4",
+			UID:       types.UID("rs-uid"),
+			OwnerReferences: []metav1.OwnerReference{
+				{APIVersion: "apps/v1", Kind: "Deployment", Name: "api", UID: types.UID("deploy-uid")},
 			},
 		},
 		&appsv1.Deployment{
-			TypeMeta:   metav1.TypeMeta{APIVersion: "apps/v1", Kind: "Deployment"},
-			ObjectMeta: metav1.ObjectMeta{Namespace: "default", Name: "api", UID: types.UID("deploy-uid")},
+			APIVersion: "apps/v1", Kind: "Deployment",
+			Namespace: "default", Name: "api", UID: types.UID("deploy-uid"),
 		},
 	)
 
@@ -97,14 +95,12 @@ func TestPodToContainersDoesNotAddNodeOwner(t *testing.T) {
 func TestPodToContainersStopsBeforeNodeOwnerInChain(t *testing.T) {
 	client := newTestK8sClient(t,
 		&appsv1.ReplicaSet{
-			TypeMeta: metav1.TypeMeta{APIVersion: "apps/v1", Kind: "ReplicaSet"},
-			ObjectMeta: metav1.ObjectMeta{
-				Namespace: "default",
-				Name:      "api-6f88b977f4",
-				UID:       types.UID("rs-uid"),
-				OwnerReferences: []metav1.OwnerReference{
-					{APIVersion: "v1", Kind: "Node", Name: "node-1", UID: types.UID("node-uid")},
-				},
+			APIVersion: "apps/v1", Kind: "ReplicaSet",
+			Namespace: "default",
+			Name:      "api-6f88b977f4",
+			UID:       types.UID("rs-uid"),
+			OwnerReferences: []metav1.OwnerReference{
+				{APIVersion: "v1", Kind: "Node", Name: "node-1", UID: types.UID("node-uid")},
 			},
 		},
 	)
@@ -121,19 +117,17 @@ func TestPodToContainersStopsBeforeNodeOwnerInChain(t *testing.T) {
 func TestListContainersAppliesSyntheticOwnerFiltersAfterPodList(t *testing.T) {
 	client := newTestK8sClient(t,
 		&appsv1.ReplicaSet{
-			TypeMeta: metav1.TypeMeta{APIVersion: "apps/v1", Kind: "ReplicaSet"},
-			ObjectMeta: metav1.ObjectMeta{
-				Namespace: "default",
-				Name:      "api-6f88b977f4",
-				UID:       types.UID("rs-uid"),
-				OwnerReferences: []metav1.OwnerReference{
-					{APIVersion: "apps/v1", Kind: "Deployment", Name: "api", UID: types.UID("deploy-uid")},
-				},
+			APIVersion: "apps/v1", Kind: "ReplicaSet",
+			Namespace: "default",
+			Name:      "api-6f88b977f4",
+			UID:       types.UID("rs-uid"),
+			OwnerReferences: []metav1.OwnerReference{
+				{APIVersion: "apps/v1", Kind: "Deployment", Name: "api", UID: types.UID("deploy-uid")},
 			},
 		},
 		&appsv1.Deployment{
-			TypeMeta:   metav1.TypeMeta{APIVersion: "apps/v1", Kind: "Deployment"},
-			ObjectMeta: metav1.ObjectMeta{Namespace: "default", Name: "api", UID: types.UID("deploy-uid")},
+			APIVersion: "apps/v1", Kind: "Deployment",
+			Namespace: "default", Name: "api", UID: types.UID("deploy-uid"),
 		},
 	)
 	client.Clientset = k8sfake.NewSimpleClientset(podWithOwner())
@@ -246,8 +240,8 @@ func TestLookupOwnerReferencesCachesRealNegatives(t *testing.T) {
 func TestLookupOwnerReferencesRefetchesAfterTTL(t *testing.T) {
 	client := newTestK8sClient(t,
 		&appsv1.ReplicaSet{
-			TypeMeta:   metav1.TypeMeta{APIVersion: "apps/v1", Kind: "ReplicaSet"},
-			ObjectMeta: metav1.ObjectMeta{Namespace: "default", Name: "api-6f88b977f4", UID: types.UID("rs-uid")},
+			APIVersion: "apps/v1", Kind: "ReplicaSet",
+			Namespace: "default", Name: "api-6f88b977f4", UID: types.UID("rs-uid"),
 		},
 	)
 	dynamicClient := client.DynamicClient.(*dynamicfake.FakeDynamicClient)
@@ -323,14 +317,12 @@ func TestResetRESTMapperThrottles(t *testing.T) {
 
 func podWithOwner() *corev1.Pod {
 	return &corev1.Pod{
-		TypeMeta: metav1.TypeMeta{APIVersion: "v1", Kind: "Pod"},
-		ObjectMeta: metav1.ObjectMeta{
-			Namespace: "default",
-			Name:      "api-6f88b977f4-pod",
-			Labels:    map[string]string{"app": "api"},
-			OwnerReferences: []metav1.OwnerReference{
-				{APIVersion: "apps/v1", Kind: "ReplicaSet", Name: "api-6f88b977f4", UID: types.UID("rs-uid")},
-			},
+		APIVersion: "v1", Kind: "Pod",
+		Namespace: "default",
+		Name:      "api-6f88b977f4-pod",
+		Labels:    map[string]string{"app": "api"},
+		OwnerReferences: []metav1.OwnerReference{
+			{APIVersion: "apps/v1", Kind: "ReplicaSet", Name: "api-6f88b977f4", UID: types.UID("rs-uid")},
 		},
 		Spec: corev1.PodSpec{
 			NodeName: "node-1",

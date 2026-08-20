@@ -318,8 +318,7 @@ func createEvent(message string, streamType StdType) *LogEvent {
 			} else if json.Valid([]byte(message)) {
 				data := orderedmap.New[string, any]()
 				if err := json.Unmarshal([]byte(message), &data); err != nil {
-					var jsonErr *json.UnmarshalTypeError
-					if errors.As(err, &jsonErr) {
+					if jsonErr, ok := errors.AsType[*json.UnmarshalTypeError](err); ok {
 						if jsonErr.Value == "string" {
 							log.Warn().Err(err).Str("value", jsonErr.Value).Msg("failed to unmarshal json")
 						}
