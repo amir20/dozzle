@@ -137,6 +137,122 @@ func TestGuessLogLevel(t *testing.T) {
 				orderedmap.Pair[string, any]{Key: "@l", Value: "Information"},
 			),
 		), "info"},
+		// logfmt style key=value, used by logrus, go-kit, slog, Traefik, Grafana, containerd.
+		{`time="2024-01-01T00:00:00Z" level=error msg="failed to connect"`, "error"},
+		{`ts=2024-01-01T00:00:00.000Z caller=main.go:10 level=warn msg="disk almost full"`, "warn"},
+		{"time=2024-01-01T00:00:00Z level=INFO msg=\"server started\"", "info"},
+		{"2024-01-01 12:00:00 level=debug handling request", "debug"},
+		{`level="warning" some message`, "warn"},
+		{"lvl=trace some message", "trace"},
+		{"log_level=error something broke", "error"},
+		{"loglevel=fatal giving up", "fatal"},
+		{"severity: ERROR something broke", "error"},
+		{"levelname=INFO started", "info"},
+		// The key must hold the level, not just look like it.
+		{"level=whatever some message", "unknown"},
+		{"lowlevel=error is not a level key", "unknown"},
+		// An explicit key beats a level word in the message.
+		{`level=info msg="connection error: retrying"`, "info"},
+		// ...but a real prefix still beats the key/value pair.
+		{`ERROR: request failed level=info`, "error"},
+		// Syslog priority prefix (RFC 3164/5424), emitted by systemd and rsyslog.
+		{"<11>Jan  1 00:00:00 host app: connection refused", "error"},
+		{"<30>Jan  1 00:00:00 host app: listening on :80", "info"},
+		{"<28>Jan  1 00:00:00 host app: retrying", "warn"},
+		{"<7>Jan  1 00:00:00 host app: cache hit", "debug"},
+		{"<1>1 2024-01-01T00:00:00Z host app - - - shutting down", "fatal"},
+		{"<190>Jan  1 00:00:00 host app: local7 info message", "info"},
+		{"<999> is not a syslog priority", "unknown"},
+		{"<html> is not a syslog priority", "unknown"},
+		// Syslog level names, used by nginx, haproxy, php-fpm and postfix.
+		{"2023/01/01 12:00:00 [notice] 1#1: start worker process 30", "info"},
+		{"2023/01/01 12:00:00 [emerg] 1#1: bind() to 0.0.0.0:80 failed (98: Address in use)", "fatal"},
+		{"2023/01/01 12:00:00 [alert] 1#1: worker process 30 exited on signal 9", "fatal"},
+		{"NOTICE: fpm is running, pid 1", "info"},
+		{"panic: runtime error: invalid memory address", "fatal"},
+		{"level=alert disk is full", "fatal"},
+		// "alert" is an ordinary word, so it only counts where the shape is unambiguous.
+		{"alert sent to slack channel", "unknown"},
+		{"Alerts: 5 fired in the last hour", "unknown"},
+		{"Received notice from upstream server", "unknown"},
+		// bunyan / pino write numeric levels.
+		{orderedmap.New[string, any](
+			orderedmap.WithInitialData(
+				orderedmap.Pair[string, any]{Key: "level", Value: float64(30)},
+				orderedmap.Pair[string, any]{Key: "msg", Value: "started"},
+			),
+		), "info"},
+		{orderedmap.New[string, any](
+			orderedmap.WithInitialData(orderedmap.Pair[string, any]{Key: "level", Value: float64(10)}),
+		), "trace"},
+		{orderedmap.New[string, any](
+			orderedmap.WithInitialData(orderedmap.Pair[string, any]{Key: "level", Value: float64(20)}),
+		), "debug"},
+		{orderedmap.New[string, any](
+			orderedmap.WithInitialData(orderedmap.Pair[string, any]{Key: "level", Value: float64(40)}),
+		), "warn"},
+		{orderedmap.New[string, any](
+			orderedmap.WithInitialData(orderedmap.Pair[string, any]{Key: "level", Value: float64(50)}),
+		), "error"},
+		{orderedmap.New[string, any](
+			orderedmap.WithInitialData(orderedmap.Pair[string, any]{Key: "level", Value: float64(60)}),
+		), "fatal"},
+		// Custom levels land in the band below them.
+		{orderedmap.New[string, any](
+			orderedmap.WithInitialData(orderedmap.Pair[string, any]{Key: "level", Value: float64(35)}),
+		), "info"},
+		// Below 10 the numeric scales contradict each other, so don't guess.
+		{orderedmap.New[string, any](
+			orderedmap.WithInitialData(orderedmap.Pair[string, any]{Key: "level", Value: float64(3)}),
+		), "unknown"},
+		// A key that cannot be resolved falls through to the next one.
+		{orderedmap.New[string, any](
+			orderedmap.WithInitialData(
+				orderedmap.Pair[string, any]{Key: "level", Value: float64(3)},
+				orderedmap.Pair[string, any]{Key: "severity", Value: "error"},
+			),
+		), "error"},
+		{orderedmap.New[string, string](
+			orderedmap.WithInitialData(orderedmap.Pair[string, string]{Key: "level", Value: "50"}),
+		), "error"},
+		// A number under "severity" is a syslog or OpenTelemetry severity, which
+		// counts the other way around, so it is not read as a bunyan level.
+		{orderedmap.New[string, any](
+			orderedmap.WithInitialData(orderedmap.Pair[string, any]{Key: "severity", Value: float64(17)}),
+		), "unknown"},
+		// Level keys are matched case-insensitively and ignoring separators.
+		{orderedmap.New[string, string](
+			orderedmap.WithInitialData(orderedmap.Pair[string, string]{Key: "Level", Value: "Error"}),
+		), "error"},
+		{orderedmap.New[string, string](
+			orderedmap.WithInitialData(orderedmap.Pair[string, string]{Key: "log.level", Value: "debug"}),
+		), "debug"},
+		{orderedmap.New[string, string](
+			orderedmap.WithInitialData(orderedmap.Pair[string, string]{Key: "log_level", Value: "warn"}),
+		), "warn"},
+		{orderedmap.New[string, string](
+			orderedmap.WithInitialData(orderedmap.Pair[string, string]{Key: "logLevel", Value: "trace"}),
+		), "trace"},
+		{orderedmap.New[string, string](
+			orderedmap.WithInitialData(orderedmap.Pair[string, string]{Key: "lvl", Value: "info"}),
+		), "info"},
+		// Python's json logger writes levelname; OpenTelemetry writes severityText.
+		{orderedmap.New[string, string](
+			orderedmap.WithInitialData(orderedmap.Pair[string, string]{Key: "levelname", Value: "WARNING"}),
+		), "warn"},
+		{orderedmap.New[string, string](
+			orderedmap.WithInitialData(orderedmap.Pair[string, string]{Key: "severityText", Value: "ERROR"}),
+		), "error"},
+		// Syslog and GCP severity names.
+		{orderedmap.New[string, string](
+			orderedmap.WithInitialData(orderedmap.Pair[string, string]{Key: "severity", Value: "NOTICE"}),
+		), "info"},
+		{orderedmap.New[string, string](
+			orderedmap.WithInitialData(orderedmap.Pair[string, string]{Key: "severity", Value: "EMERGENCY"}),
+		), "fatal"},
+		{orderedmap.New[string, string](
+			orderedmap.WithInitialData(orderedmap.Pair[string, string]{Key: "severity", Value: "CRITICAL"}),
+		), "fatal"},
 		// Equal confidence between two different levels -> unknown (don't guess).
 		{"saw info: here and error: there", "unknown"},
 		{"[INFO] [DEBUG] both bracketed", "unknown"},
