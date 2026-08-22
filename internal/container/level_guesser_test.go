@@ -41,6 +41,14 @@ func TestGuessLogLevel(t *testing.T) {
 		{"inf Something went wrong", "info"},
 		{"crit: Something went wrong", "fatal"},
 		{"[21:01:45] [WRN] this is a test", "warn"},
+		// klog / glog format used across the Kubernetes toolchain
+		{"E0806 14:55:55.980915       1 fsHandler.go:121] failed to collect filesystem stats", "error"},
+		{"W0806 14:54:52.068675       1 info.go:52] Couldn't collect info from any of the files", "warn"},
+		{"I0808 13:37:10.853121       1 cadvisor.go:182] Starting cAdvisor version: v0.60.5", "info"},
+		{"F0806 14:55:55.980915       1 main.go:10] exiting", "fatal"},
+		// the level letter must be glued to a full klog timestamp, not just any capital
+		{"E0806 is not a klog line", "unknown"},
+		{"Warning0806 14:55:55.980915 not klog either", "warn"},
 		{"2026-01-05 12:13:24,566 - retry.api                        (7fd8ad34eb30) :  WARNING (api:40) - HTTPSConnectionPool(host='podnapisi.net', port=443): Max retries exceeded", "warn"},
 		{"2026-01-05 08:21:16,511 - root                             (7fd8bf822b30) :  INFO (get_providers:408) - Throttling podnapisi for 10 minutes", "info"},
 		{orderedmap.New[string, string](

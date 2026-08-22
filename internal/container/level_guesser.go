@@ -35,7 +35,7 @@ type levelMatcher struct {
 // levelTiers groups matchers by how confidently their shape identifies the log
 // level, highest confidence first:
 //
-//  1. ^<level>     start-of-line prefix: "ERROR: ...", "INF ..."
+//  1. ^<level>     start-of-line prefix: "ERROR: ...", "INF ...", "E0806 14:55:55.980915 ..."
 //  2. [<level>]    bracketed tag / single-letter: "[ERROR]", "[E]"
 //  3. <tag>:<level> structured prefix: "Zigbee2MQTT:info "
 //  4. "<LEVEL>"    quoted upper-case value: LL="ERROR"
@@ -51,6 +51,16 @@ var levelTiers [][]levelMatcher
 
 // singleLetterBracket matches single-letter levels in brackets, e.g. [I], [E], [W]
 var singleLetterBracket = regexp.MustCompile(`\[([EWIDFTV])\]`)
+
+// klogPrefix matches the Kubernetes klog/glog header, where the single-letter
+// level is glued straight onto the timestamp with no separator, e.g.
+//
+//	E0806 14:55:55.980915       1 fsHandler.go:121] failed to collect ...
+//
+// Used by the whole Kubernetes toolchain (kubelet, kube-*, cAdvisor, etcd
+// tooling). The full "Lmmdd hh:mm:ss.uuuuuu" shape is required so ordinary
+// prose starting with a capital letter cannot match.
+var klogPrefix = regexp.MustCompile(`^([EWIDFTV])\d{4} \d{2}:\d{2}:\d{2}\.\d{6}`)
 
 var timestampRegex = regexp.MustCompile(`^(?:\d{4}[-/]\d{2}[-/]\d{2}(?:[T ](?:\d{2}:\d{2}:\d{2}(?:\.\d+)?Z?|\d{2}:\d{2}(?:AM|PM)))?\s+)`)
 
@@ -76,7 +86,10 @@ func init() {
 	upper := strings.ToUpper(joined)
 
 	levelTiers = [][]levelMatcher{
-		{{re: regexp.MustCompile(`(?i)^(` + joined + `)[^a-z]`)}},
+		{
+			{re: regexp.MustCompile(`(?i)^(` + joined + `)[^a-z]`)},
+			{re: klogPrefix, single: true},
+		},
 		{
 			{re: regexp.MustCompile(`(?i)\[ ?(` + joined + `) ?\]`)},
 			{re: singleLetterBracket, single: true},
