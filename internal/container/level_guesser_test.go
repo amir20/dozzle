@@ -102,6 +102,16 @@ func TestGuessLogLevel(t *testing.T) {
 		{"Zigbee2MQTT:info  2025-12-22 12:00:00: started", "info"},
 		{"Zigbee2MQTT:warn  2025-12-22 12:00:00: queue full", "warn"},
 		{"Zigbee2MQTT:error  2025-12-22 12:00:00: failure", "error"},
+		// SABnzbd-style: "::" delimited level after a comma-millis timestamp.
+		{"2026-08-22 21:29:25,119::INFO::[newswrapper:229] Connecting 1@news.newshosting.com finished", "info"},
+		{"2026-08-22 21:29:25,119::ERROR::[newswrapper:229] Connecting 1@news.newshosting.com failed", "error"},
+		{"2026-08-22 21:29:25,119::WARNING::[newswrapper:229] Connecting slowly", "warn"},
+		{"2026-08-22 21:29:25,119::DEBUG::[newswrapper:229] Connecting", "debug"},
+		// Nginx Proxy Manager / signale: "[tag] \u203a <symbol>  <level>  message".
+		{"[8/21/2026] [9:58:28 PM] [SSL      ] \u203a \u2139  info      Renewing SSL certs expiring within 30 days ...", "info"},
+		{"[8/22/2026] [12:58:28 AM] [Nginx    ] \u203a \u26a0  warning   Reloading Nginx", "warn"},
+		{"[8/22/2026] [12:58:28 AM] [SSL      ] \u203a \u2716  error     Renew failed", "error"},
+		{"[8/22/2026] [12:58:28 AM] [SSL      ] \u203a \u2139  info      Fetch failed with error: timeout", "info"},
 		// Pipe-delimited
 		{"2024-01-01 12:00:00 | ERROR | something went wrong", "error"},
 		{"2024-01-01 12:00:00 | INFO | starting up", "info"},

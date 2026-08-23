@@ -37,10 +37,11 @@ type levelMatcher struct {
 //
 //  1. ^<level>     start-of-line prefix: "ERROR: ...", "INF ...", "E0806 14:55:55.980915 ..."
 //  2. [<level>]    bracketed tag / single-letter: "[ERROR]", "[E]"
-//  3. <tag>:<level> structured prefix: "Zigbee2MQTT:info "
-//  4. "<LEVEL>"    quoted upper-case value: LL="ERROR"
-//  5. <sp><level>[/|:-] separator: " error:", " info|"
-//  6. <sp><LEVEL><sp> bare upper-case token mid-line: "123 ERROR foo"
+//  3. > <level>    signale/consola marker: "› ℹ  info      started"
+//  4. <tag>:<level> structured prefix: "Zigbee2MQTT:info ", "::INFO::"
+//  5. "<LEVEL>"    quoted upper-case value: LL="ERROR"
+//  6. <sp><level>[/|:-] separator: " error:", " info|"
+//  7. <sp><LEVEL><sp> bare upper-case token mid-line: "123 ERROR foo"
 //
 // guessFromString walks the tiers in order and stops at the first that matches,
 // so a real level prefix at the front of the line always beats a level word
@@ -62,7 +63,7 @@ var singleLetterBracket = regexp.MustCompile(`\[([EWIDFTV])\]`)
 // prose starting with a capital letter cannot match.
 var klogPrefix = regexp.MustCompile(`^([EWIDFTV])\d{4} \d{2}:\d{2}:\d{2}\.\d{6}`)
 
-var timestampRegex = regexp.MustCompile(`^(?:\d{4}[-/]\d{2}[-/]\d{2}(?:[T ](?:\d{2}:\d{2}:\d{2}(?:\.\d+)?Z?|\d{2}:\d{2}(?:AM|PM)))?\s+)`)
+var timestampRegex = regexp.MustCompile(`^(?:\d{4}[-/]\d{2}[-/]\d{2}(?:[T ](?:\d{2}:\d{2}:\d{2}(?:[.,]\d+)?Z?|\d{2}:\d{2}(?:AM|PM)))?\s+)`)
 
 // JSON keys to check for log level (in priority order).
 var levelKeys = []string{"@l", "level", "log.level", "severity"}
@@ -94,7 +95,10 @@ func init() {
 			{re: regexp.MustCompile(`(?i)\[ ?(` + joined + `) ?\]`)},
 			{re: singleLetterBracket, single: true},
 		},
-		{{re: regexp.MustCompile(`(?i):(` + joined + `)\s`)}},
+		// Signale/consola: the level is the first word after the "›" marker. [^a-z]
+		// cannot cross a letter, so only that first word is considered.
+		{{re: regexp.MustCompile(`(?i)\x{203a}[^a-z]*(` + joined + `)(?:[^a-z]|$)`)}},
+		{{re: regexp.MustCompile(`(?i):(` + joined + `)(?:[^a-z]|$)`)}},
 		{{re: regexp.MustCompile(`"(` + upper + `)"`)}},
 		{{re: regexp.MustCompile(`(?i) (` + joined + `)[/|:-]`)}},
 		{{re: regexp.MustCompile(`\s(` + upper + `)\s`)}},
