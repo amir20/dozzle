@@ -266,37 +266,46 @@ async function copyLogs() {
     { once: true },
   );
 
-  const blobPromise = fetch(url, { headers: { Accept: "text/plain" } })
-    .then((response) => {
-      if (!response.ok) throw new Error(response.statusText);
-      return response.blob();
-    })
-    .then((blob) => {
-      removeToast(toastId);
-      showToast(
-        {
-          title: t("toasts.copied.title"),
-          message: t("toasts.copied.message"),
-          type: "info",
-        },
-        { expire: 2000 },
-      );
-      return blob;
-    })
-    .catch((err) => {
-      removeToast(toastId);
-      showToast(
-        {
-          title: "Error",
-          message: err.message,
-          type: "error",
-        },
-        { expire: 5000 },
-      );
-      throw err;
-    });
+  const fetchLogs = async () => {
+    const response = await fetch(url, { headers: { Accept: "text/plain" } });
+    if (!response.ok) throw new Error(response.statusText);
+    return await response.text();
+  };
 
-  await navigator.clipboard.write([new ClipboardItem({ "text/plain": blobPromise })]);
+  // navigator.clipboard is unavailable on insecure origins, which is how most people run Dozzle
+  const asyncClipboard = window.isSecureContext && typeof ClipboardItem !== "undefined" && !!navigator.clipboard?.write;
+
+  try {
+    if (asyncClipboard) {
+      // safari drops the user gesture if we await the fetch first, so hand write() a promise instead
+      // the response is "text/plain; charset=UTF-8" which some browsers reject as a clipboard type
+      const blob = fetchLogs().then((text) => new Blob([text], { type: "text/plain" }));
+      await navigator.clipboard.write([new ClipboardItem({ "text/plain": blob })]);
+    } else {
+      await copy(await fetchLogs());
+      if (!copied.value) throw new Error(t("error.copy-not-supported-hint"));
+    }
+
+    removeToast(toastId);
+    showToast(
+      {
+        title: t("toasts.copied.title"),
+        message: t("toasts.copied.message"),
+        type: "info",
+      },
+      { expire: 2000 },
+    );
+  } catch (err) {
+    removeToast(toastId);
+    showToast(
+      {
+        title: "Error",
+        message: err instanceof Error ? err.message : String(err),
+        type: "error",
+      },
+      { expire: 5000 },
+    );
+  }
 }
 
 onKeyStroke(["f", "F"], (e) => {
