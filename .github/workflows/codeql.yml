@@ -1,0 +1,75 @@
+name: CodeQL
+
+# Advanced setup, replacing GitHub's default setup. Default setup runs the Go
+# autobuilder with GOTOOLCHAIN=local against whatever Go the runner image ships,
+# which is still 1.26.x while go.mod requires 1.27, so every Go analysis failed
+# before it started. Here setup-go installs the version go.mod asks for and the
+# build is the same fake-assets + certs dance the staticcheck job uses.
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+  schedule:
+    - cron: "37 5 * * 1"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  analyze:
+    name: Analyze (${{ matrix.language }})
+    runs-on: ubuntu-latest
+    permissions:
+      security-events: write
+      packages: read
+      actions: read
+      contents: read
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - language: actions
+            build-mode: none
+          - language: go
+            build-mode: manual
+          - language: javascript-typescript
+            build-mode: none
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Install Go
+        if: matrix.language == 'go'
+        uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+        with:
+          go-version-file: go.mod
+          check-latest: true
+          # go-test in _tests.yml owns the module cache key; nothing to gain here.
+          cache: false
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@db488ddef3bf6cb639b32c2e9a7c0a7ea8271d28 # v4.37.8
+        with:
+          languages: ${{ matrix.language }}
+          build-mode: ${{ matrix.build-mode }}
+
+      # main.go embeds dist/ and the shared certs, so a bare `go build` cannot
+      # resolve the embeds. Generated protobuf code is committed, so no protoc.
+      - name: Build
+        if: matrix.build-mode == 'manual'
+        run: |
+          make fake_assets shared_key.pem shared_cert.pem
+          go build ./...
+
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@db488ddef3bf6cb639b32c2e9a7c0a7ea8271d28 # v4.37.8
+        with:
+          category: "/language:${{ matrix.language }}"
