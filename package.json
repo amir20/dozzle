@@ -107,8 +107,8 @@
     "ts-node": "^10.9.2",
     "typescript": "npm:typescript-native-bridge@6.0.3-bridge.13.tsgo.7.0.2",
     "vitest": "^4.1.11",
-    "vue-component-type-helpers": "3.3.10",
-    "vue-tsc": "3.3.10"
+    "vue-component-type-helpers": "3.3.11",
+    "vue-tsc": "3.3.11"
   },
   "simple-git-hooks": {
     "pre-commit": "pnpm lint-staged --allow-empty"
