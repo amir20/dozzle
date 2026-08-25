@@ -87,7 +87,7 @@
           <tr
             v-for="container in paginated"
             :key="container.id"
-            v-memo="[container.id, statMode, isMobile]"
+            v-memo="[container.id, container.state, container.health, statMode, isMobile]"
             class="hover:bg-base-100/80!"
           >
             <td v-if="isVisible('name')" class="max-w-80 truncate max-md:max-w-32">
@@ -99,7 +99,12 @@
               </div>
             </td>
             <td v-if="isVisible('host')">{{ container.hostLabel }}</td>
-            <td v-if="isVisible('state')">{{ container.state }}</td>
+            <td v-if="isVisible('state')">
+              <span class="inline-flex items-center gap-1.5">
+                <ContainerHealth :health="container.health" />
+                {{ container.health ?? container.state }}
+              </span>
+            </td>
             <td v-if="isVisible('created')">
               <RelativeTime :date="container.created" />
             </td>
@@ -166,7 +171,8 @@ const fields: Record<
   },
   state: {
     label: "label.status",
-    sortFunc: (a: Container, b: Container) => a.state.localeCompare(b.state) * direction.value,
+    sortFunc: (a: Container, b: Container) =>
+      (a.health ?? a.state).localeCompare(b.health ?? b.state) * direction.value,
     mobileVisible: false,
     customClass: "w-1",
   },
