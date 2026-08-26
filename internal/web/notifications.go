@@ -8,6 +8,7 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/amir20/dozzle/internal/auth"
 	"github.com/amir20/dozzle/internal/cache"
 	"github.com/amir20/dozzle/internal/container"
 	"github.com/amir20/dozzle/internal/notification"
@@ -500,6 +501,24 @@ func (h *handler) deleteDispatcher(w http.ResponseWriter, r *http.Request) {
 
 	h.hostService.RemoveDispatcher(id)
 	w.WriteHeader(http.StatusNoContent)
+}
+
+// requireNotificationsRole gates the notification rule and dispatcher APIs.
+// Rules stream log lines from whatever containers their expression matches and
+// dispatchers hold the destinations (and their secrets), neither of which is
+// scoped per user, so this is a role rather than a label check.
+func (h *handler) requireNotificationsRole(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if h.config.Authorization.Provider != NONE {
+			user := auth.UserFromContext(r.Context())
+			if user == nil || !user.Roles.Has(auth.Notifications) {
+				log.Warn().Msg("user is not permitted to manage notifications")
+				http.Error(w, http.StatusText(http.StatusForbidden), http.StatusForbidden)
+				return
+			}
+		}
+		next.ServeHTTP(w, r)
+	})
 }
 
 // Preview and test handlers

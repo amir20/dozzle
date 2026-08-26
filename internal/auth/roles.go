@@ -14,9 +14,10 @@ const (
 	Shell Role = 1 << iota
 	Actions
 	Download
+	Notifications
 )
 
-const All = Shell | Actions | Download
+const All = Shell | Actions | Download | Notifications
 
 // ParseRole parses a comma-separated string of roles and returns the corresponding Role.
 func ParseRole(input string) Role {
@@ -49,6 +50,8 @@ func ParseRole(input string) Role {
 			roles |= Actions
 		case "download", "dozzle_download":
 			roles |= Download
+		case "notifications", "dozzle_notifications":
+			roles |= Notifications
 		case "none", "dozzle_none":
 			return None
 		case "all", "dozzle_all":

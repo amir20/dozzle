@@ -4,6 +4,7 @@
     <Announcements />
 
     <router-link
+      v-if="config.enableNotifications"
       :to="{ name: '/notifications' }"
       :aria-label="$t('title.notifications')"
       data-testid="notifications"
