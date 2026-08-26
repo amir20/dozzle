@@ -193,6 +193,7 @@ func createRouter(h *handler) *chi.Mux {
 
 				// Notifications API
 				r.Route("/notifications", func(r chi.Router) {
+					r.Use(h.requireNotificationsRole)
 					r.Get("/rules", h.listNotificationRules)
 					r.Post("/rules", h.createNotificationRule)
 					r.Get("/rules/{id}", h.getNotificationRule)

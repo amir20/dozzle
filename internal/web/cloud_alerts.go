@@ -63,6 +63,23 @@ func (h *handler) cloudAlerts(w http.ResponseWriter, r *http.Request) {
 		writeAlerts(w, &cloud.AlertResult{Hits: []cloud.AlertHit{}})
 		return
 	}
+	// The client picks which containers to ask about, so run the list through
+	// the caller's label scope before handing it to Cloud.
+	if h.restrictedUser(r) {
+		visible := h.visibleContainerIDs(r)
+		allowed := make([]string, 0, len(containerIDs))
+		for _, id := range containerIDs {
+			if _, ok := visible[id]; ok {
+				allowed = append(allowed, id)
+			}
+		}
+		if len(allowed) == 0 {
+			writeAlerts(w, &cloud.AlertResult{Hits: []cloud.AlertHit{}})
+			return
+		}
+		containerIDs = allowed
+	}
+
 	if len(containerIDs) > maxAlertContainers {
 		writeError(w, http.StatusBadRequest, "too many containerIds")
 		return

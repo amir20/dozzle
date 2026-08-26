@@ -14,6 +14,9 @@ func TestParseRole(t *testing.T) {
 		{"Single shell role", "shell", Shell},
 		{"Single actions role", "actions", Actions},
 		{"Single download role", "download", Download},
+		{"Single notifications role", "notifications", Notifications},
+		{"Single dozzle_notifications role", "dozzle_notifications", Notifications},
+		{"All includes notifications", "all", Shell | Actions | Download | Notifications},
 		{"None role", "none", None},
 		{"All role", "all", All},
 
