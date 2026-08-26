@@ -569,7 +569,7 @@ func (h *handler) previewExpression(w http.ResponseWriter, r *http.Request) {
 
 	// Find matching running containers
 	if sub.ContainerProgram != nil {
-		containers, _ := h.hostService.ListAllContainers(container.ContainerLabels{})
+		containers, _ := h.hostService.ListAllContainers(h.resolveLabels(r))
 		for _, c := range containers {
 			if c.State != "running" {
 				continue
@@ -592,7 +592,7 @@ func (h *handler) previewExpression(w http.ResponseWriter, r *http.Request) {
 		keySet := make(map[string]struct{})
 
 		for _, c := range result.MatchedContainers {
-			containerService, err := h.hostService.FindContainer(c.Host, c.ID, container.ContainerLabels{})
+			containerService, err := h.hostService.FindContainer(c.Host, c.ID, h.resolveLabels(r))
 			if err != nil {
 				continue
 			}
