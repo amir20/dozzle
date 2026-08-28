@@ -25,11 +25,12 @@ const cloudSearchTimeout = 3 * time.Second
 // API key — this handler passes neither user nor instance ids.
 //
 // Status mapping:
-//   200 — hits returned (may be empty)
-//   204 — streamLogs is disabled; nothing to search
-//   503 — cloud not configured (no API key) or no SearchLogs func wired
-//   504 — cloud round-trip exceeded the search timeout
-//   502 — any other cloud-side error
+//
+//	200 — hits returned (may be empty)
+//	204 — streamLogs is disabled; nothing to search
+//	503 — cloud not configured (no API key) or no SearchLogs func wired
+//	504 — cloud round-trip exceeded the search timeout
+//	502 — any other cloud-side error
 func (h *handler) cloudSearchLogs(w http.ResponseWriter, r *http.Request) {
 	if h.config.Cloud.SearchLogs == nil {
 		writeError(w, http.StatusServiceUnavailable, "cloud not configured")
@@ -100,6 +101,21 @@ func (h *handler) cloudSearchLogs(w http.ResponseWriter, r *http.Request) {
 		log.Warn().Err(err).Msg("cloud search failed")
 		writeError(w, http.StatusBadGateway, "cloud search failed")
 		return
+	}
+
+	// Cloud scopes hits to the instance, not to the user. A label-restricted
+	// caller must not see lines from containers outside their scope, so drop
+	// anything the store wouldn't hand them. Fails closed: a container Cloud
+	// still has logs for but the store no longer knows about is dropped too.
+	if h.restrictedUser(r) && result != nil {
+		visible := h.visibleContainerIDs(r)
+		hits := make([]cloud.SearchLogHit, 0, len(result.Hits))
+		for _, hit := range result.Hits {
+			if _, ok := visible[hit.ContainerID]; ok {
+				hits = append(hits, hit)
+			}
+		}
+		result.Hits = hits
 	}
 
 	w.Header().Set("Content-Type", "application/json")

@@ -176,8 +176,12 @@ Dozzle supports the following roles:
 - **shell** - allows attach and exec in the container
 - **actions** - allows performing container actions (start, stop, restart)
 - **download** - allows downloading container logs
+- **notifications** - allows creating and editing notification rules and destinations
 - **none** - denies all actions
 - **all** - allows all actions (default)
+
+> [!WARNING]
+> Notification rules are instance wide. A rule matches containers by expression, not by the user's filter, so a user with the `notifications` role can create a rule for containers their filter otherwise hides and receive those log lines at a destination they control. Only grant it to users you trust with every container on the instance.
 
 Any role can be prefixed with `^` to exclude it. Exclusions are applied last, so order doesn't matter:
 

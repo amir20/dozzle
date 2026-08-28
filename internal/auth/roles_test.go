@@ -14,6 +14,9 @@ func TestParseRole(t *testing.T) {
 		{"Single shell role", "shell", Shell},
 		{"Single actions role", "actions", Actions},
 		{"Single download role", "download", Download},
+		{"Single notifications role", "notifications", Notifications},
+		{"Single dozzle_notifications role", "dozzle_notifications", Notifications},
+		{"All includes notifications", "all", Shell | Actions | Download | Notifications},
 		{"None role", "none", None},
 		{"All role", "all", All},
 
@@ -65,19 +68,20 @@ func TestParseRole(t *testing.T) {
 		{"Dozzle_all overrides others", "dozzle_shell,dozzle_all,dozzle_actions", All},
 
 		// Negated roles
-		{"All except shell", "all,^shell", Actions | Download},
-		{"All except shell with pipe", "all | ^shell", Actions | Download},
-		{"All except two", "all,^shell,^actions", Download},
+		{"All except shell", "all,^shell", All &^ Shell},
+		{"All except shell with pipe", "all | ^shell", All &^ Shell},
+		{"All except two", "all,^shell,^actions", All &^ (Shell | Actions)},
 		{"Negate everything", "all,^all", None},
-		{"Negation order does not matter", "^shell,all", Actions | Download},
+		{"Negation order does not matter", "^shell,all", All &^ Shell},
 		{"Negate unset role", "shell,^actions", Shell},
-		{"Negate with spaces", "all, ^ shell ", Actions | Download},
-		{"Negated dozzle prefixed role", "dozzle_all,^dozzle_shell", Actions | Download},
-		{"Negated uppercase", "ALL,^SHELL", Actions | Download},
+		{"Negate with spaces", "all, ^ shell ", All &^ Shell},
+		{"Negated dozzle prefixed role", "dozzle_all,^dozzle_shell", All &^ Shell},
+		{"Negated uppercase", "ALL,^SHELL", All &^ Shell},
 		{"Negated invalid role", "all,^invalid", All},
 		{"Negated none is ignored", "all,^none", All},
 		{"None still wins over negation", "all,^shell,none", None},
-		{"JSON with negation", `["all", "^shell"]`, Actions | Download},
+		{"All except notifications", "all,^notifications", All &^ Notifications},
+		{"JSON with negation", `["all", "^shell"]`, All &^ Shell},
 
 		// Invalid JSON
 		{"Invalid JSON format", `["shell"`, None},

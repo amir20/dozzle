@@ -51,6 +51,7 @@ const scrollableContent = ref<HTMLElement>();
 const scrollContext = provideScrollContext();
 
 const { loadingMore, historical } = useLoggingContext();
+const { isSearching } = useSearchFilter();
 if (!historical.value) {
   useIntersectionObserver(scrollObserver, ([entry]) => (scrollContext.paused = entry.intersectionRatio == 0), {
     threshold: [0, 1],
@@ -60,6 +61,7 @@ if (!historical.value) {
   useMutationObserver(
     scrollableContent,
     (records) => {
+      if (isMobile.value && isSearching.value) return;
       if (!scrollContext.paused) {
         scrollToBottom();
       } else {

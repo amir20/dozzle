@@ -8,6 +8,7 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/amir20/dozzle/internal/auth"
 	"github.com/amir20/dozzle/internal/cache"
 	"github.com/amir20/dozzle/internal/container"
 	"github.com/amir20/dozzle/internal/notification"
@@ -502,6 +503,24 @@ func (h *handler) deleteDispatcher(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusNoContent)
 }
 
+// requireNotificationsRole gates the notification rule and dispatcher APIs.
+// Rules stream log lines from whatever containers their expression matches and
+// dispatchers hold the destinations (and their secrets), neither of which is
+// scoped per user, so this is a role rather than a label check.
+func (h *handler) requireNotificationsRole(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if h.config.Authorization.Provider != NONE {
+			user := auth.UserFromContext(r.Context())
+			if user == nil || !user.Roles.Has(auth.Notifications) {
+				log.Warn().Msg("user is not permitted to manage notifications")
+				http.Error(w, http.StatusText(http.StatusForbidden), http.StatusForbidden)
+				return
+			}
+		}
+		next.ServeHTTP(w, r)
+	})
+}
+
 // Preview and test handlers
 func (h *handler) previewExpression(w http.ResponseWriter, r *http.Request) {
 	var input PreviewInput
@@ -569,7 +588,7 @@ func (h *handler) previewExpression(w http.ResponseWriter, r *http.Request) {
 
 	// Find matching running containers
 	if sub.ContainerProgram != nil {
-		containers, _ := h.hostService.ListAllContainers(container.ContainerLabels{})
+		containers, _ := h.hostService.ListAllContainers(h.resolveLabels(r))
 		for _, c := range containers {
 			if c.State != "running" {
 				continue
@@ -592,7 +611,7 @@ func (h *handler) previewExpression(w http.ResponseWriter, r *http.Request) {
 		keySet := make(map[string]struct{})
 
 		for _, c := range result.MatchedContainers {
-			containerService, err := h.hostService.FindContainer(c.Host, c.ID, container.ContainerLabels{})
+			containerService, err := h.hostService.FindContainer(c.Host, c.ID, h.resolveLabels(r))
 			if err != nil {
 				continue
 			}
