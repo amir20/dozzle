@@ -3,7 +3,7 @@
     <cil:check-circle v-if="health === 'healthy'" />
     <cil:x-circle v-else-if="health === 'unhealthy'" />
     <cil:media-pause v-else-if="state === 'paused'" />
-    <cil:circle v-else />
+    <mdi:circle-medium v-else />
   </div>
 </template>
 
