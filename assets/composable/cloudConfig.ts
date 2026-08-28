@@ -7,6 +7,12 @@ const cloudStatusError = ref<"auth" | "unavailable" | false>(false);
 const isLoadingCloudStatus = ref(false);
 
 async function fetchCloudConfig() {
+  // Cloud endpoints are gated by the cloud role, so a user without it would
+  // only ever get a 403 here. Skip the call and leave the state unlinked.
+  if (!config.enableCloud) {
+    cloudConfig.value = null;
+    return;
+  }
   try {
     const res = await fetch(withBase("/api/cloud/config"));
     if (!res.ok) {
@@ -24,7 +30,7 @@ async function fetchCloudConfig() {
 const initialLoad = fetchCloudConfig();
 
 async function fetchCloudStatus() {
-  if (!cloudConfig.value?.linked) return;
+  if (!config.enableCloud || !cloudConfig.value?.linked) return;
   isLoadingCloudStatus.value = true;
   cloudStatusError.value = false;
   try {

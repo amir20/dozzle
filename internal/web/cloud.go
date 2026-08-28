@@ -8,6 +8,7 @@ import (
 	"os"
 	"time"
 
+	"github.com/amir20/dozzle/internal/auth"
 	"github.com/amir20/dozzle/internal/notification"
 	"github.com/amir20/dozzle/internal/notification/dispatcher"
 	"github.com/rs/zerolog/log"
@@ -19,6 +20,25 @@ type exchangeTokenResponse struct {
 	Key       string  `json:"key"`
 	Prefix    string  `json:"prefix"`
 	ExpiresAt *string `json:"expiresAt,omitempty"`
+}
+
+// requireCloudRole gates every Dozzle Cloud endpoint. Linking is an
+// instance-wide operation: it stores a single API key that repoints alert
+// dispatch, log streaming and tool execution at one cloud account, and the
+// tool path runs with the instance filter rather than the caller's, so a
+// label-restricted user must not be able to link, unlink or reconfigure it.
+func (h *handler) requireCloudRole(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if h.config.Authorization.Provider != NONE {
+			user := auth.UserFromContext(r.Context())
+			if user == nil || !user.Roles.Has(auth.Cloud) {
+				log.Warn().Msg("user is not permitted to manage cloud")
+				http.Error(w, http.StatusText(http.StatusForbidden), http.StatusForbidden)
+				return
+			}
+		}
+		next.ServeHTTP(w, r)
+	})
 }
 
 func (h *handler) cloudCallback(w http.ResponseWriter, r *http.Request) {

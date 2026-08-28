@@ -13,7 +13,7 @@
       <mdi:bell class="size-6" />
     </router-link>
 
-    <CloudPopover />
+    <CloudPopover v-if="config.enableCloud" />
 
     <router-link
       :to="{ name: '/settings' }"

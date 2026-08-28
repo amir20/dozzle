@@ -15,9 +15,10 @@ const (
 	Actions
 	Download
 	Notifications
+	Cloud
 )
 
-const All = Shell | Actions | Download | Notifications
+const All = Shell | Actions | Download | Notifications | Cloud
 
 // ParseRole parses a comma-separated string of roles and returns the corresponding Role.
 // Roles prefixed with ^ are excluded after all other roles are applied, so "all,^shell"
@@ -61,6 +62,8 @@ func ParseRole(input string) Role {
 			bits = Download
 		case "notifications", "dozzle_notifications":
 			bits = Notifications
+		case "cloud", "dozzle_cloud":
+			bits = Cloud
 		case "all", "dozzle_all":
 			bits = All
 		case "none", "dozzle_none":
