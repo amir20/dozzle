@@ -19,8 +19,11 @@ const (
 const All = Shell | Actions | Download
 
 // ParseRole parses a comma-separated string of roles and returns the corresponding Role.
+// Roles prefixed with ^ are excluded after all other roles are applied, so "all,^shell"
+// grants everything except shell.
 func ParseRole(input string) Role {
 	var roles Role
+	var excluded Role
 	var parts []string
 
 	// Check if input is valid JSON
@@ -42,22 +45,40 @@ func ParseRole(input string) Role {
 
 	for _, r := range parts {
 		role := strings.TrimSpace(strings.ToLower(r))
+		negated := strings.HasPrefix(role, "^")
+		if negated {
+			role = strings.TrimSpace(strings.TrimPrefix(role, "^"))
+		}
+
+		var bits Role
 		switch role {
 		case "shell", "dozzle_shell":
-			roles |= Shell
+			bits = Shell
 		case "actions", "dozzle_actions":
-			roles |= Actions
+			bits = Actions
 		case "download", "dozzle_download":
-			roles |= Download
-		case "none", "dozzle_none":
-			return None
+			bits = Download
 		case "all", "dozzle_all":
-			return All
+			bits = All
+		case "none", "dozzle_none":
+			if negated {
+				log.Debug().Str("role", role).Msg("none cannot be negated")
+				continue
+			}
+			return None
 		default:
 			log.Debug().Str("role", role).Msg("invalid role")
+			continue
+		}
+
+		if negated {
+			excluded |= bits
+		} else {
+			roles |= bits
 		}
 	}
-	return roles
+
+	return roles &^ excluded
 }
 
 func (roles Role) Has(role Role) bool {

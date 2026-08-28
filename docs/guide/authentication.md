@@ -179,6 +179,12 @@ Dozzle supports the following roles:
 - **none** - denies all actions
 - **all** - allows all actions (default)
 
+Any role can be prefixed with `^` to exclude it. Exclusions are applied last, so order doesn't matter:
+
+```yaml
+roles: all,^shell # everything except shell
+```
+
 ## <Icon icon="mdi:file-document-edit-outline" inline /> Generating users.yml
 
 Dozzle has a built-in `generate` command to generate `users.yml`. Here is an example:
