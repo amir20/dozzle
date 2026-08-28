@@ -90,21 +90,25 @@
             v-memo="[container.id, container.state, container.health, statMode, isMobile]"
             class="hover:bg-base-100/80!"
           >
-            <td v-if="isVisible('name')" class="max-w-80 truncate max-md:max-w-32">
-              <router-link :to="{ name: '/container/[id]', params: { id: container.id } }" :title="container.name">
-                {{ container.name }}
-              </router-link>
-              <div v-if="container.customGroup" class="text-base-content/50 truncate text-xs">
-                {{ container.customGroup }}
+            <td v-if="isVisible('name')" class="max-w-80 max-md:max-w-32">
+              <div class="flex items-center gap-2">
+                <ContainerStatusIcon :state="container.state" :health="container.health" class="shrink-0" />
+                <div class="min-w-0">
+                  <router-link
+                    class="block truncate"
+                    :to="{ name: '/container/[id]', params: { id: container.id } }"
+                    :title="container.name"
+                  >
+                    {{ container.name }}
+                  </router-link>
+                  <div v-if="container.customGroup" class="text-base-content/50 truncate text-xs">
+                    {{ container.customGroup }}
+                  </div>
+                </div>
               </div>
             </td>
             <td v-if="isVisible('host')">{{ container.hostLabel }}</td>
-            <td v-if="isVisible('state')">
-              <span class="inline-flex items-center gap-1.5">
-                <ContainerHealth :health="container.health" />
-                {{ container.health ?? container.state }}
-              </span>
-            </td>
+            <td v-if="isVisible('state')">{{ container.health ?? container.state }}</td>
             <td v-if="isVisible('created')">
               <RelativeTime :date="container.created" />
             </td>
