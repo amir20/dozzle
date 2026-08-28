@@ -67,6 +67,22 @@ func TestParseRole(t *testing.T) {
 		{"Dozzle_none overrides others", "dozzle_shell,dozzle_none,dozzle_actions", None},
 		{"Dozzle_all overrides others", "dozzle_shell,dozzle_all,dozzle_actions", All},
 
+		// Negated roles
+		{"All except shell", "all,^shell", All &^ Shell},
+		{"All except shell with pipe", "all | ^shell", All &^ Shell},
+		{"All except two", "all,^shell,^actions", All &^ (Shell | Actions)},
+		{"Negate everything", "all,^all", None},
+		{"Negation order does not matter", "^shell,all", All &^ Shell},
+		{"Negate unset role", "shell,^actions", Shell},
+		{"Negate with spaces", "all, ^ shell ", All &^ Shell},
+		{"Negated dozzle prefixed role", "dozzle_all,^dozzle_shell", All &^ Shell},
+		{"Negated uppercase", "ALL,^SHELL", All &^ Shell},
+		{"Negated invalid role", "all,^invalid", All},
+		{"Negated none is ignored", "all,^none", All},
+		{"None still wins over negation", "all,^shell,none", None},
+		{"All except notifications", "all,^notifications", All &^ Notifications},
+		{"JSON with negation", `["all", "^shell"]`, All &^ Shell},
+
 		// Invalid JSON
 		{"Invalid JSON format", `["shell"`, None},
 		{"Malformed JSON", `{shell: "test"}`, None},

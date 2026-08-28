@@ -173,15 +173,25 @@ In this example, the `admin` user has no roles specified, so they have full acce
 
 Dozzle supports the following roles:
 
-- **shell** - allows attach and exec in the container
-- **actions** - allows performing container actions (start, stop, restart)
-- **download** - allows downloading container logs
-- **notifications** - allows creating and editing notification rules and destinations
-- **none** - denies all actions
-- **all** - allows all actions (default)
+| Role            | Also accepted          | Grants                                                                                    |
+| --------------- | ---------------------- | ----------------------------------------------------------------------------------------- |
+| `shell`         | `dozzle_shell`         | Attach to a container and open an exec session. The instance also needs `--enable-shell`. |
+| `actions`       | `dozzle_actions`       | Start, stop and restart containers. The instance also needs `--enable-actions`.           |
+| `download`      | `dozzle_download`      | Download container logs as a file.                                                        |
+| `notifications` | `dozzle_notifications` | Create and edit notification rules and destinations.                                      |
+| `all`           | `dozzle_all`           | Every role above. This is the default when `roles` is empty.                              |
+| `none`          | `dozzle_none`          | No roles. Logs are still viewable, subject to the user's filter. Overrides anything else. |
+
+Roles are separated by commas or pipes (`shell,actions` or `shell|actions`), and a JSON array works too (`["shell", "actions"]`). Names are case insensitive. The `dozzle_` prefixed aliases exist so group names from an identity provider can be passed through unchanged in forward proxy mode.
 
 > [!WARNING]
 > Notification rules are instance wide. A rule matches containers by expression, not by the user's filter, so a user with the `notifications` role can create a rule for containers their filter otherwise hides and receive those log lines at a destination they control. Only grant it to users you trust with every container on the instance.
+
+Any role can be prefixed with `^` to exclude it. Exclusions are applied last, so order doesn't matter:
+
+```yaml
+roles: all,^shell # everything except shell
+```
 
 ## <Icon icon="mdi:file-document-edit-outline" inline /> Generating users.yml
 
