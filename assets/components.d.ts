@@ -125,6 +125,7 @@ declare module 'vue' {
     'Mdi:chevronDown': typeof import('~icons/mdi/chevron-down')['default']
     'Mdi:chevronLeft': typeof import('~icons/mdi/chevron-left')['default']
     'Mdi:chevronRight': typeof import('~icons/mdi/chevron-right')['default']
+    'Mdi:circleMedium': typeof import('~icons/mdi/circle-medium')['default']
     'Mdi:close': typeof import('~icons/mdi/close')['default']
     'Mdi:cloud': typeof import('~icons/mdi/cloud')['default']
     'Mdi:cloudCheckOutline': typeof import('~icons/mdi/cloud-check-outline')['default']
