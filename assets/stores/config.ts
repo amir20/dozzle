@@ -16,6 +16,7 @@ export interface Config {
   enableShell: boolean;
   enableDownload: boolean;
   enableNotifications: boolean;
+  enableCloud: boolean;
   disableAvatars: boolean;
   releaseCheckMode: "automatic" | "manual";
   user?: {

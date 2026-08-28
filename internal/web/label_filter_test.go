@@ -143,3 +143,28 @@ func Test_requireNotificationsRole(t *testing.T) {
 	// Unset roles parse to All, which is what a user with only a filter gets.
 	assert.Equal(t, http.StatusTeapot, serve(auth.User{Roles: auth.All, ContainerLabels: devLabels}))
 }
+
+func Test_requireCloudRole(t *testing.T) {
+	h := restrictedHandler(t)
+	next := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) { w.WriteHeader(http.StatusTeapot) })
+
+	serve := func(ctx context.Context) int {
+		rr := httptest.NewRecorder()
+		req := httptest.NewRequest(http.MethodGet, "/api/cloud/callback?token=abc", nil).WithContext(ctx)
+		h.requireCloudRole(next).ServeHTTP(rr, req)
+		return rr.Code
+	}
+	withUser := func(user auth.User) context.Context {
+		return auth.WithUser(context.Background(), user)
+	}
+
+	// A filtered user without the role must not be able to link the instance.
+	assert.Equal(t, http.StatusForbidden, serve(withUser(auth.User{Roles: auth.Download, ContainerLabels: devLabels})))
+	assert.Equal(t, http.StatusForbidden, serve(withUser(auth.User{Roles: auth.None})))
+	// No user at all (auth enabled) fails closed.
+	assert.Equal(t, http.StatusForbidden, serve(context.Background()))
+
+	assert.Equal(t, http.StatusTeapot, serve(withUser(auth.User{Roles: auth.Cloud})))
+	// Unset roles parse to All, so existing users keep cloud access.
+	assert.Equal(t, http.StatusTeapot, serve(withUser(auth.User{Roles: auth.All, ContainerLabels: devLabels})))
+}

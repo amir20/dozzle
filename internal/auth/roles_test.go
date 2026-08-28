@@ -16,7 +16,9 @@ func TestParseRole(t *testing.T) {
 		{"Single download role", "download", Download},
 		{"Single notifications role", "notifications", Notifications},
 		{"Single dozzle_notifications role", "dozzle_notifications", Notifications},
-		{"All includes notifications", "all", Shell | Actions | Download | Notifications},
+		{"Single cloud role", "cloud", Cloud},
+		{"Single dozzle_cloud role", "dozzle_cloud", Cloud},
+		{"All includes notifications and cloud", "all", Shell | Actions | Download | Notifications | Cloud},
 		{"None role", "none", None},
 		{"All role", "all", All},
 
@@ -41,6 +43,7 @@ func TestParseRole(t *testing.T) {
 		{"Roles with spaces", "shell , actions , download", Shell | Actions | Download},
 		{"Dozzle roles with comma", "dozzle_shell,dozzle_actions", Shell | Actions},
 		{"Mixed dozzle and regular", "shell,dozzle_actions,download", Shell | Actions | Download},
+		{"Cloud with other roles", "shell,cloud", Shell | Cloud},
 
 		// Multiple roles with pipe separator
 		{"Shell and actions with pipe", "shell|actions", Shell | Actions},

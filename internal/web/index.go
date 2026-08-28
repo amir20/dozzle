@@ -77,12 +77,14 @@ func (h *handler) executeTemplate(w http.ResponseWriter, req *http.Request) {
 		config["enableActions"] = h.config.EnableActions
 		config["enableDownload"] = true
 		config["enableNotifications"] = true
+		config["enableCloud"] = true
 
 		if user != nil {
 			config["enableShell"] = h.config.EnableShell && user.Roles.Has(auth.Shell)
 			config["enableActions"] = h.config.EnableActions && user.Roles.Has(auth.Actions)
 			config["enableDownload"] = user.Roles.Has(auth.Download)
 			config["enableNotifications"] = user.Roles.Has(auth.Notifications)
+			config["enableCloud"] = user.Roles.Has(auth.Cloud)
 			config["user"] = user
 		}
 

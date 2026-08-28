@@ -179,6 +179,7 @@ Dozzle supports the following roles:
 | `actions`       | `dozzle_actions`       | Start, stop and restart containers. The instance also needs `--enable-actions`.           |
 | `download`      | `dozzle_download`      | Download container logs as a file.                                                        |
 | `notifications` | `dozzle_notifications` | Create and edit notification rules and destinations.                                      |
+| `cloud`         | `dozzle_cloud`         | Link, unlink and configure Dozzle Cloud.                                                  |
 | `all`           | `dozzle_all`           | Every role above. This is the default when `roles` is empty.                              |
 | `none`          | `dozzle_none`          | No roles. Logs are still viewable, subject to the user's filter. Overrides anything else. |
 
@@ -186,6 +187,9 @@ Roles are separated by commas or pipes (`shell,actions` or `shell|actions`), and
 
 > [!WARNING]
 > Notification rules are instance wide. A rule matches containers by expression, not by the user's filter, so a user with the `notifications` role can create a rule for containers their filter otherwise hides and receive those log lines at a destination they control. Only grant it to users you trust with every container on the instance.
+
+> [!WARNING]
+> Dozzle Cloud is also instance wide. Linking stores a single API key that repoints alert dispatch, log streaming and tool execution at one cloud account, and cloud tools run with the instance filter rather than the linking user's filter. A user with the `cloud` role can link the instance to their own cloud account and see every container through it, or unlink an existing connection. Only grant it to users you trust with every container on the instance.
 
 Any role can be prefixed with `^` to exclude it. Exclusions are applied last, so order doesn't matter:
 

@@ -71,7 +71,7 @@
     </section>
 
     <!-- CLOUD -->
-    <section class="flex flex-col gap-4">
+    <section class="flex flex-col gap-4" v-if="config.enableCloud">
       <div>
         <h2 class="text-xl font-semibold tracking-tight">{{ $t("cloud.title") }}</h2>
         <p class="text-base-content/60 mt-1 text-sm">{{ $t("settings.cloud-desc") }}</p>
