@@ -3,6 +3,7 @@ package notification
 import (
 	"fmt"
 	"strings"
+	"sync"
 	"sync/atomic"
 	"time"
 
@@ -145,6 +146,11 @@ type Subscription struct {
 
 	// Per-container cooldown tracking for event alerts (containerID -> last triggered time)
 	EventCooldowns *xsync.Map[string, time.Time] `json:"-" yaml:"-"`
+
+	// Open log suppression windows, keyed by container ID + log pattern hash.
+	// Keyed on the pattern rather than the container so a different error from
+	// the same container is never suppressed. See RecordLogMatch.
+	LogCooldowns *xsync.Map[string, *logWindow] `json:"-" yaml:"-"`
 
 	// Per-container sample buffers for windowed metric evaluation (containerID -> ring buffer of match results)
 	MetricSampleBuffers *xsync.Map[string, *utils.RingBuffer[bool]] `json:"-" yaml:"-"`
@@ -389,4 +395,147 @@ func (s *Subscription) RecordMetricSample(containerID string, matched bool) bool
 	}
 
 	return float64(trueCount)/float64(buf.Len()) >= 0.8
+}
+
+const (
+	// maxSuppressedPerWindow forces a rollup out early once this many repeats
+	// have piled up, so a genuine firehose is reported promptly instead of
+	// waiting out the full cooldown.
+	maxSuppressedPerWindow = 10000
+
+	// maxTrackedLogPatterns bounds the suppression map per subscription. Past
+	// this we stop tracking and dispatch every match, because dropping a line we
+	// cannot account for is worse than sending it.
+	maxTrackedLogPatterns = 5000
+
+	// logWindowSweepInterval is how often closed suppression windows are checked
+	// for rollups to send. It bounds how late a rollup can be, so keep it well
+	// under the shortest cooldown anyone would set.
+	logWindowSweepInterval = 5 * time.Second
+)
+
+// logWindow is an open suppression window for one (container, log pattern)
+// pair. The first line of a pattern always dispatches immediately and opens the
+// window; identical lines that follow are counted here rather than dropped, and
+// leave as a single rollup notification when the window closes.
+type logWindow struct {
+	mu        sync.Mutex
+	openedAt  time.Time
+	count     int64
+	container types.NotificationContainer
+	log       types.NotificationLog
+}
+
+// logRollup is a pending "this repeated N more times" notification, produced
+// when a suppression window closes with repeats recorded against it.
+type logRollup struct {
+	Container types.NotificationContainer
+	Log       types.NotificationLog
+	Count     int64
+}
+
+// logCooldownKey scopes a suppression window to one pattern on one container.
+func logCooldownKey(containerID, patternHash string) string {
+	return containerID + "|" + patternHash
+}
+
+// RecordLogMatch registers a matched log line and reports whether it should be
+// dispatched right now.
+//
+// The first sighting of a pattern always dispatches and opens a cooldown
+// window. Identical lines arriving while that window is open are counted for
+// the rollup instead, so nothing is lost, only deferred. A line with a
+// different pattern has its own window and is never held back by this one.
+//
+// Returns true (dispatch now) when the subscription has no cooldown configured,
+// when the message carries no usable pattern, or when we are already tracking
+// more patterns than we are willing to hold.
+func (s *Subscription) RecordLogMatch(c types.NotificationContainer, l types.NotificationLog) bool {
+	if s.GetCooldownSeconds() == 0 || s.LogCooldowns == nil {
+		return true
+	}
+
+	patternHash := HashPattern(ExtractPattern(MessageText(l.Message)))
+	if patternHash == "" {
+		return true
+	}
+
+	key := logCooldownKey(c.ID, patternHash)
+	if _, open := s.LogCooldowns.Load(key); !open && s.LogCooldowns.Size() >= maxTrackedLogPatterns {
+		return true
+	}
+
+	dispatch := false
+	s.LogCooldowns.Compute(key, func(w *logWindow, loaded bool) (*logWindow, xsync.ComputeOp) {
+		if !loaded {
+			dispatch = true
+			return &logWindow{openedAt: time.Now(), container: c, log: l}, xsync.UpdateOp
+		}
+		w.mu.Lock()
+		w.count++
+		// Keep the most recent line so the rollup quotes something current.
+		w.log = l
+		w.container = c
+		w.mu.Unlock()
+		return w, xsync.UpdateOp
+	})
+
+	return dispatch
+}
+
+// CollectLogRollups closes every suppression window that has run out its
+// cooldown or hit the suppression cap, and returns the rollups to dispatch.
+//
+// A window that closed with no repeats is deleted, so the next occurrence of
+// that pattern is treated as news again and dispatches immediately. A window
+// that closed with repeats is reset rather than deleted, so a pattern that
+// keeps firing costs one notification per cooldown for as long as it lasts.
+func (s *Subscription) CollectLogRollups() []logRollup {
+	if s.LogCooldowns == nil {
+		return nil
+	}
+
+	cooldown := time.Duration(s.GetCooldownSeconds()) * time.Second
+	now := time.Now()
+
+	var rollups []logRollup
+	var expired []string
+
+	s.LogCooldowns.Range(func(key string, w *logWindow) bool {
+		w.mu.Lock()
+		defer w.mu.Unlock()
+
+		if w.count < maxSuppressedPerWindow && now.Sub(w.openedAt) < cooldown {
+			return true
+		}
+
+		if w.count == 0 {
+			expired = append(expired, key)
+			return true
+		}
+
+		rollups = append(rollups, logRollup{Container: w.container, Log: w.log, Count: w.count})
+		w.openedAt = now
+		w.count = 0
+		return true
+	})
+
+	// Delete under Compute rather than outright: a repeat can land between the
+	// scan and the delete, and a plain Delete would drop a line we had already
+	// told the caller to suppress.
+	for _, key := range expired {
+		s.LogCooldowns.Compute(key, func(w *logWindow, loaded bool) (*logWindow, xsync.ComputeOp) {
+			if !loaded {
+				return nil, xsync.CancelOp
+			}
+			w.mu.Lock()
+			defer w.mu.Unlock()
+			if w.count > 0 {
+				return w, xsync.UpdateOp
+			}
+			return nil, xsync.DeleteOp
+		})
+	}
+
+	return rollups
 }

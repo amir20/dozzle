@@ -22,6 +22,12 @@ type Notification struct {
 	Event        *NotificationEvent    `json:"event,omitempty"`
 	Subscription SubscriptionConfig    `json:"subscription"`
 	Timestamp    time.Time             `json:"timestamp"`
+
+	// SuppressedCount is the number of additional identical log lines that were
+	// collapsed into this one while a log alert's cooldown window was open. Zero
+	// on a first sighting and on every non-log notification. Consumers should
+	// treat this notification as representing SuppressedCount+1 occurrences.
+	SuppressedCount int64 `json:"suppressedCount,omitempty"`
 }
 
 // NotificationContainer represents a simplified container structure for notifications

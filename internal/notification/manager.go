@@ -55,6 +55,9 @@ func NewManager(listener *ContainerLogListener, statsListener *ContainerStatsLis
 	// Start processing Docker events from the event listener
 	go m.processDockerEvents()
 
+	// Start flushing suppressed log rollups
+	go m.flushLogWindows()
+
 	return m
 }
 
@@ -88,6 +91,7 @@ func (m *Manager) AddSubscription(sub *Subscription) error {
 	sub.MetricCooldowns = xsync.NewMap[string, time.Time]()
 	sub.MetricSampleBuffers = xsync.NewMap[string, *utils.RingBuffer[bool]]()
 	sub.EventCooldowns = xsync.NewMap[string, time.Time]()
+	sub.LogCooldowns = xsync.NewMap[string, *logWindow]()
 
 	if err := sub.CompileExpressions(); err != nil {
 		return err
@@ -115,6 +119,7 @@ func (m *Manager) ReplaceSubscription(sub *Subscription) error {
 	sub.MetricCooldowns = xsync.NewMap[string, time.Time]()
 	sub.MetricSampleBuffers = xsync.NewMap[string, *utils.RingBuffer[bool]]()
 	sub.EventCooldowns = xsync.NewMap[string, time.Time]()
+	sub.LogCooldowns = xsync.NewMap[string, *logWindow]()
 
 	if err := sub.CompileExpressions(); err != nil {
 		return err
@@ -146,23 +151,24 @@ func (m *Manager) UpdateSubscription(id int, updates map[string]any) error {
 
 		// Clone the subscription
 		updated := &Subscription{
-			ID:                  sub.ID,
-			Name:                sub.Name,
-			Enabled:             sub.Enabled,
-			DispatcherID:        sub.DispatcherID,
-			ContainerExpression: sub.ContainerExpression,
-			ContainerProgram:    sub.ContainerProgram,
-			LogExpression:       sub.LogExpression,
-			LogProgram:          sub.LogProgram,
-			MetricExpression:    sub.MetricExpression,
-			MetricProgram:       sub.MetricProgram,
-			EventExpression:     sub.EventExpression,
-			EventProgram:        sub.EventProgram,
-			EventCooldowns:      sub.EventCooldowns,
-			Cooldown:            sub.Cooldown,
-			SampleWindow:        sub.SampleWindow,
-			MetricCooldowns:     sub.MetricCooldowns,
-			MetricSampleBuffers: sub.MetricSampleBuffers,
+			ID:                    sub.ID,
+			Name:                  sub.Name,
+			Enabled:               sub.Enabled,
+			DispatcherID:          sub.DispatcherID,
+			ContainerExpression:   sub.ContainerExpression,
+			ContainerProgram:      sub.ContainerProgram,
+			LogExpression:         sub.LogExpression,
+			LogProgram:            sub.LogProgram,
+			MetricExpression:      sub.MetricExpression,
+			MetricProgram:         sub.MetricProgram,
+			EventExpression:       sub.EventExpression,
+			EventProgram:          sub.EventProgram,
+			EventCooldowns:        sub.EventCooldowns,
+			LogCooldowns:          sub.LogCooldowns,
+			Cooldown:              sub.Cooldown,
+			SampleWindow:          sub.SampleWindow,
+			MetricCooldowns:       sub.MetricCooldowns,
+			MetricSampleBuffers:   sub.MetricSampleBuffers,
 			TriggeredContainerIDs: sub.TriggeredContainerIDs,
 		}
 
@@ -344,7 +350,6 @@ func (m *Manager) ResetCloudDispatcherBreaker() {
 		}
 	}
 }
-
 
 // getDispatcher resolves a dispatcher by subscription's DispatcherID.
 // DispatcherID == 0 means the cloud dispatcher; otherwise lookup in the dispatchers map.

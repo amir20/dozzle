@@ -160,6 +160,17 @@ func (m *Manager) HandleNotificationConfig(subscriptions []types.SubscriptionCon
 				})
 			}
 
+			// Carry open log suppression windows across the reload. Dropping them
+			// would make every pattern look new again and re-dispatch a line we
+			// already sent, and would lose the repeats counted so far.
+			s.LogCooldowns = xsync.NewMap[string, *logWindow]()
+			if old.LogCooldowns != nil {
+				old.LogCooldowns.Range(func(key string, w *logWindow) bool {
+					s.LogCooldowns.Store(key, w)
+					return true
+				})
+			}
+
 			// MetricSampleBuffers: start fresh since ring buffers can't be safely cloned
 		}
 
@@ -220,6 +231,9 @@ func (m *Manager) loadSubscription(sub *Subscription) error {
 	}
 	if sub.EventCooldowns == nil {
 		sub.EventCooldowns = xsync.NewMap[string, time.Time]()
+	}
+	if sub.LogCooldowns == nil {
+		sub.LogCooldowns = xsync.NewMap[string, *logWindow]()
 	}
 
 	m.subscriptions.Store(sub.ID, sub)

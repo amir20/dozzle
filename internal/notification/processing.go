@@ -63,7 +63,9 @@ func (m *Manager) processLogEvent(logEvent *container.LogEvent) {
 			return true
 		}
 
-		// Update stats
+		// Update stats. Suppressed lines still count here: the rule really did
+		// match, and hiding repeats would understate exactly the noisy case the
+		// user needs to see.
 		sub.AddTriggeredContainer(notificationContainer.ID)
 		sub.TriggerCount.Add(1)
 		now := time.Now()
@@ -71,28 +73,13 @@ func (m *Manager) processLogEvent(logEvent *container.LogEvent) {
 
 		log.Debug().Str("containerID", notificationContainer.ID).Interface("log", notificationLog.Message).Msg("Matched subscription")
 
-		// Create notification
-		notification := types.Notification{
-			ID:        fmt.Sprintf("%s-%d", c.ID, time.Now().UnixNano()),
-			Type:      types.LogNotification,
-			Detail:    formatLogMessage(notificationLog.Message),
-			Container: notificationContainer,
-			Log:       &notificationLog,
-			Subscription: types.SubscriptionConfig{
-				ID:                  sub.ID,
-				Name:                sub.Name,
-				Enabled:             sub.Enabled,
-				DispatcherID:        sub.DispatcherID,
-				LogExpression:       sub.LogExpression,
-				ContainerExpression: sub.ContainerExpression,
-			},
-			Timestamp: time.Now(),
+		// Hold back repeats of a line we already reported. A different pattern,
+		// even on the same container, opens its own window and goes out now.
+		if !sub.RecordLogMatch(notificationContainer, notificationLog) {
+			return true
 		}
 
-		// Send to the subscription's dispatcher
-		if d, ok := m.getDispatcher(sub.DispatcherID); ok {
-			go m.sendNotification(d, notification, sub.DispatcherID)
-		}
+		m.dispatchLogNotification(sub, notificationContainer, notificationLog, 0)
 		return true
 	})
 }
@@ -310,5 +297,59 @@ func (m *Manager) sendNotification(d dispatcher.Dispatcher, notification types.N
 
 	if err := d.Send(ctx, notification); err != nil {
 		log.Error().Err(err).Int("subscription", id).Msg("Failed to send notification")
+	}
+}
+
+// dispatchLogNotification sends one log notification for a subscription.
+// suppressedCount is the number of identical lines collapsed into this one:
+// zero for a first sighting, non-zero for a rollup closing a cooldown window.
+func (m *Manager) dispatchLogNotification(sub *Subscription, c types.NotificationContainer, l types.NotificationLog, suppressedCount int64) {
+	notification := types.Notification{
+		ID:        fmt.Sprintf("%s-%d", c.ID, time.Now().UnixNano()),
+		Type:      types.LogNotification,
+		Detail:    formatLogMessage(l.Message),
+		Container: c,
+		Log:       &l,
+		Subscription: types.SubscriptionConfig{
+			ID:                  sub.ID,
+			Name:                sub.Name,
+			Enabled:             sub.Enabled,
+			DispatcherID:        sub.DispatcherID,
+			LogExpression:       sub.LogExpression,
+			ContainerExpression: sub.ContainerExpression,
+			Cooldown:            sub.Cooldown,
+		},
+		Timestamp:       time.Now(),
+		SuppressedCount: suppressedCount,
+	}
+
+	if d, ok := m.getDispatcher(sub.DispatcherID); ok {
+		go m.sendNotification(d, notification, sub.DispatcherID)
+	}
+}
+
+// flushLogWindows periodically closes expired log suppression windows and sends
+// the rollups they accumulated.
+func (m *Manager) flushLogWindows() {
+	ticker := time.NewTicker(logWindowSweepInterval)
+	defer ticker.Stop()
+
+	for {
+		select {
+		case <-m.ctx.Done():
+			return
+		case <-ticker.C:
+			m.subscriptions.Range(func(_ int, sub *Subscription) bool {
+				for _, rollup := range sub.CollectLogRollups() {
+					log.Debug().
+						Str("containerID", rollup.Container.ID).
+						Str("subscription", sub.Name).
+						Int64("suppressed", rollup.Count).
+						Msg("Flushing suppressed log rollup")
+					m.dispatchLogNotification(sub, rollup.Container, rollup.Log, rollup.Count)
+				}
+				return true
+			})
+		}
 	}
 }
