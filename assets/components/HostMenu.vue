@@ -150,18 +150,13 @@
                     active-class="menu-active"
                     @click.alt.stop.prevent="pinnedStore.pinContainer(item)"
                     :title="item.name"
-                    class="group auto-cols-[max-content_minmax(0,1fr)_max-content_max-content]"
+                    class="group auto-cols-[max-content_minmax(0,1fr)_max-content]"
                   >
-                    <svg-spinners:ring-resize v-if="item.isNew" class="text-secondary w-2" />
-                    <div
-                      v-else
-                      class="status data-[state=exited]:status-error data-[state=running]:status-success data-[state=paused]:status-warning"
-                      :data-state="item.state"
-                    ></div>
+                    <svg-spinners:ring-resize v-if="item.isNew" class="text-secondary size-4" />
+                    <ContainerStatusIcon v-else :state="item.state" :health="item.health" class="shrink-0" />
                     <div class="truncate">
                       {{ item.name }}
                     </div>
-                    <ContainerHealth :health="item.health" />
                     <span
                       class="hover:text-secondary hidden group-hover:inline-block"
                       @click.stop.prevent="pinnedStore.pinContainer(item)"
