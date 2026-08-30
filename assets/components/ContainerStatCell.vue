@@ -1,6 +1,7 @@
 <template>
+  <div v-if="!isRunning" class="text-base-content/40 text-sm">&mdash;</div>
   <div
-    v-if="isMobile"
+    v-else-if="isMobile"
     class="flex w-fit items-center gap-1.5 rounded-md px-2 py-1 text-sm font-medium tabular-nums"
     :class="type === 'cpu' ? 'bg-primary/10 text-primary' : 'bg-secondary/10 text-secondary'"
   >
@@ -35,6 +36,8 @@ const {
   host: Host;
   mode?: "chart" | "progress";
 }>();
+
+const isRunning = computed(() => container.state === "running");
 
 function totalCores(): number {
   if (container.cpuLimit && container.cpuLimit > 0) {
