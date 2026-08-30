@@ -110,3 +110,13 @@ describe("<ContainerStatCell /> chart data", () => {
     expect(chartData.at(-1)).toEqual({ percent: 30, value: 2048 });
   });
 });
+
+describe("<ContainerStatCell /> stopped containers", () => {
+  test("renders a dash instead of stats", () => {
+    const container = makeContainer({ cpu: 100 });
+    container.state = "exited";
+    const wrapper = mountCell({ container, type: "cpu", host: host(4) });
+    expect(wrapper.find("progress").exists()).toBe(false);
+    expect(wrapper.text()).toBe("—");
+  });
+});

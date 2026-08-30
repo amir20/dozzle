@@ -15,14 +15,14 @@
     <section>
       <div class="mb-4 flex items-center justify-between">
         <h2 class="text-lg font-semibold">
-          {{ $t("label.container", { count: runningContainers.length }) }}
+          {{ $t("label.container", { count: dashboardContainers.length }) }}
         </h2>
         <button @click="containersCollapsed = !containersCollapsed" class="btn btn-ghost btn-sm">
           <mdi:chevron-down :class="{ 'rotate-180': !containersCollapsed }" class="transition-transform" />
         </button>
       </div>
       <Transition name="collapse">
-        <ContainerTable v-show="!containersCollapsed" :containers="runningContainers" />
+        <ContainerTable v-show="!containersCollapsed" :containers="dashboardContainers" />
       </Transition>
     </section>
   </PageWithLinks>
@@ -40,14 +40,16 @@ const { containers, ready } = storeToRefs(containerStore) as unknown as {
   ready: Ref<boolean>;
 };
 
-const runningContainers = computed(() => containers.value.filter((c) => c.state === "running"));
+const dashboardContainers = computed(() =>
+  containers.value.filter((c) => (showAllContainers.value ? c.state !== "deleted" : c.state === "running")),
+);
 
 const hostsCollapsed = useStorage("DOZZLE_HOSTS_COLLAPSED", false);
 const containersCollapsed = useStorage("DOZZLE_CONTAINERS_COLLAPSED", false);
 
 watchEffect(() => {
   if (ready.value) {
-    setTitle(t("title.dashboard", { count: runningContainers.value.length }));
+    setTitle(t("title.dashboard", { count: dashboardContainers.value.length }));
   }
 });
 </script>
