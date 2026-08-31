@@ -34,9 +34,10 @@ const i18n = createI18n({
             unhealthy: "Container became unhealthy",
             oom: "Killed by the kernel (OOM)",
             restart: "Container restarted",
-            disk: "Volume over 85% full",
             cpu: "CPU over 90% for 5 minutes",
             memory: "Memory over 90% for 5 minutes",
+            disk: "Volume over 85% full",
+            "disk-free": "Volume under 1 GB free",
             fatal: "Any fatal line",
             error: "Any error line",
           },
@@ -105,9 +106,9 @@ describe("<WelcomeModal /> starter alerts", () => {
     await flushPromises();
 
     const ruleCalls = fetchMock.mock.calls.filter((c) => String(c[0]).includes("/api/notifications/rules"));
-    // Lifecycle ships exited + unhealthy + oom (restart off), Metrics ships disk
-    // only, Logs is off as a category.
-    expect(ruleCalls).toHaveLength(4);
+    // Lifecycle ships exited + unhealthy + oom (restart off), Metrics ships cpu +
+    // memory + disk (absolute free space off), Logs is off as a category.
+    expect(ruleCalls).toHaveLength(6);
 
     const bodies = ruleCalls.map((c) => JSON.parse((c[1] as RequestInit).body as string));
 
@@ -118,7 +119,18 @@ describe("<WelcomeModal /> starter alerts", () => {
     expect(eventExpressions).not.toContain('name == "restart"');
 
     const metricExpressions = bodies.map((b) => b.metricExpression).filter(Boolean);
-    expect(metricExpressions).toEqual(["any(mounts, .usedPercent >= 85)"]);
+    expect(metricExpressions).toContain("cpu >= 90");
+    expect(metricExpressions).toContain("memory >= 90");
+    expect(metricExpressions).toContain("any(mounts, .usedPercent >= 85)");
+    expect(metricExpressions).not.toContain("any(mounts, .availableBytes < 1073741824)");
+
+    // Sustained CPU/memory must use the longest window the server allows, or the
+    // "for 5 minutes" label would overstate what the rule actually checks.
+    for (const b of bodies.filter(
+      (x) => x.metricExpression?.startsWith("cpu") || x.metricExpression?.startsWith("memory"),
+    )) {
+      expect(b).toMatchObject({ cooldown: 3600, sampleWindow: 300 });
+    }
 
     // Logs category is off by default, so no log rule is created.
     expect(bodies.map((b) => b.logExpression).filter(Boolean)).toHaveLength(0);
@@ -128,7 +140,7 @@ describe("<WelcomeModal /> starter alerts", () => {
       enabled: true,
       dispatcherId: 7,
       cooldown: 3600,
-      sampleWindow: 60,
+      sampleWindow: 15,
       containerExpression: "true",
       eventExpression: "",
       logExpression: "",
@@ -149,7 +161,7 @@ describe("<WelcomeModal /> starter alerts", () => {
     // Success keeps the user in the modal so step 3 can say where alerts land.
     const vm = wrapper.vm as unknown as ModalVm;
     expect(vm.step).toBe(3);
-    expect(vm.createdCount).toBe(4);
+    expect(vm.createdCount).toBe(6);
     expect(pushSpy).not.toHaveBeenCalled();
   });
 
@@ -172,7 +184,7 @@ describe("<WelcomeModal /> starter alerts", () => {
 
     // Only the fatal rule is on inside the logs category; "any error line" is off.
     expect(bodies.map((b) => b.logExpression).filter(Boolean)).toEqual(['level == "fatal"']);
-    expect(bodies).toHaveLength(5);
+    expect(bodies).toHaveLength(7);
   });
 
   test("skipping creates nothing and reports the final step as alert-free", async () => {

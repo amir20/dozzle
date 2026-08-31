@@ -300,10 +300,19 @@ interface Category {
   rules: StarterRule[];
 }
 
-// Metric rules re-fire at most hourly per container and require the threshold
-// to hold for a sample window; event and log rules fire per occurrence.
+// Metric rules re-fire at most hourly per container (Cooldown is clamped to
+// [0, 3600] server-side, so this is the longest quiet period available).
 const METRIC_COOLDOWN = 3600;
-const METRIC_SAMPLE_WINDOW = 60;
+
+// SampleWindow is a count of stat samples, and Docker's stats stream emits
+// roughly once a second, so this reads as seconds. The server clamps it to
+// [1, 300] and fires only when >=80% of a full buffer matched — 300 is the
+// longest "sustained" window the engine can express.
+const SUSTAINED_WINDOW = 300;
+
+// Disk usage does not oscillate, so a long window would only delay the first
+// notification. 15 is the server-side default.
+const DISK_WINDOW = 15;
 
 function buildCategories(): Category[] {
   return [
@@ -364,10 +373,35 @@ function buildCategories(): Category[] {
       id: "metrics",
       label: t("notifications.alert-form.metric-alert"),
       description: t("cloud.welcome.metrics-desc"),
+      caution: t("cloud.welcome.metrics-caution"),
       icon: MdiChartLine,
       recommended: false,
       enabled: true,
       rules: [
+        {
+          key: "cpu",
+          kind: "metric",
+          label: t("cloud.welcome.signals.cpu"),
+          ruleName: "Sustained high CPU",
+          // `cpu` is already normalized by core count server-side, so this is
+          // overall load, not per-core.
+          expression: "cpu >= 90",
+          enabled: true,
+          cooldown: METRIC_COOLDOWN,
+          sampleWindow: SUSTAINED_WINDOW,
+        },
+        {
+          key: "memory",
+          kind: "metric",
+          label: t("cloud.welcome.signals.memory"),
+          ruleName: "Sustained high memory",
+          // Percentage of the container's memory limit, or of host memory when
+          // no limit is set.
+          expression: "memory >= 90",
+          enabled: true,
+          cooldown: METRIC_COOLDOWN,
+          sampleWindow: SUSTAINED_WINDOW,
+        },
         {
           key: "disk",
           kind: "metric",
@@ -376,27 +410,20 @@ function buildCategories(): Category[] {
           expression: "any(mounts, .usedPercent >= 85)",
           enabled: true,
           cooldown: METRIC_COOLDOWN,
-          sampleWindow: METRIC_SAMPLE_WINDOW,
+          sampleWindow: DISK_WINDOW,
         },
         {
-          key: "cpu",
+          // Off by default so it never double-fires with the percentage rule.
+          // It is the better rule on large volumes, where 85% still leaves
+          // hundreds of gigabytes free.
+          key: "disk-free",
           kind: "metric",
-          label: t("cloud.welcome.signals.cpu"),
-          ruleName: "Sustained high CPU",
-          expression: "cpu >= 90",
+          label: t("cloud.welcome.signals.disk-free"),
+          ruleName: "Volume under 1 GB free",
+          expression: "any(mounts, .availableBytes < 1073741824)",
           enabled: false,
           cooldown: METRIC_COOLDOWN,
-          sampleWindow: METRIC_SAMPLE_WINDOW,
-        },
-        {
-          key: "memory",
-          kind: "metric",
-          label: t("cloud.welcome.signals.memory"),
-          ruleName: "Sustained high memory",
-          expression: "memory >= 90",
-          enabled: false,
-          cooldown: METRIC_COOLDOWN,
-          sampleWindow: METRIC_SAMPLE_WINDOW,
+          sampleWindow: DISK_WINDOW,
         },
       ],
     },

@@ -450,9 +450,10 @@ cloud:
     recommended: Recommended
     rule-count: "{on} of {total} rules"
     lifecycle-desc: Crashes, failed healthchecks, OOM kills and restarts.
-    metrics-desc: Disk, CPU and memory crossing a threshold and staying there.
+    metrics-desc: CPU, memory and disk crossing a threshold and staying there.
+    metrics-caution: CPU and memory must hold above the threshold for a full 5 minutes, and re-alert at most once an hour per container.
     logs-desc: Match error and fatal lines the moment they stream in.
-    logs-caution: The loudest category. Start with lifecycle, then add log alerts once you know which containers are noisy.
+    logs-caution: The loudest category, and the only one with no cooldown, so a crash-looping container notifies on every line. Start with lifecycle and add these once you know which containers are noisy.
     alerts-go-to: Alerts go to
     your-cloud-account: your Cloud account
     change: Change
@@ -478,8 +479,9 @@ cloud:
       unhealthy: Container became unhealthy
       oom: Killed by the kernel (OOM)
       restart: Container restarted
-      disk: Volume over 85% full
       cpu: CPU over 90% for 5 minutes
       memory: Memory over 90% for 5 minutes
+      disk: Volume over 85% full
+      disk-free: Volume under 1 GB free
       fatal: Any fatal line
       error: Any error line
