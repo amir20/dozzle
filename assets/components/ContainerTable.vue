@@ -98,32 +98,36 @@
                   class="shrink-0 max-md:mt-0.5"
                 />
                 <div class="min-w-0 flex-1">
-                  <router-link
-                    class="block truncate"
-                    :to="{ name: '/container/[id]', params: { id: container.id } }"
-                    :title="container.name"
-                  >
-                    {{ container.name }}
-                  </router-link>
+                  <div class="flex items-baseline gap-2">
+                    <router-link
+                      class="min-w-0 flex-1 truncate"
+                      :to="{ name: '/container/[id]', params: { id: container.id } }"
+                      :title="container.name"
+                    >
+                      {{ container.name }}
+                    </router-link>
+                    <RelativeTime
+                      v-if="isMobile"
+                      :date="container.created"
+                      class="text-base-content/50 shrink-0 text-xs"
+                    />
+                  </div>
                   <div v-if="container.customGroup" class="text-base-content/50 truncate text-xs">
                     {{ container.customGroup }}
                   </div>
-                  <div v-if="isMobile" class="mt-1.5 flex items-center gap-1.5">
-                    <template v-if="container.state === 'running'">
-                      <ContainerStatCell
-                        :container="container"
-                        type="cpu"
-                        :host="hosts[container.host]"
-                        :mode="statMode"
-                      />
-                      <ContainerStatCell
-                        :container="container"
-                        type="mem"
-                        :host="hosts[container.host]"
-                        :mode="statMode"
-                      />
-                    </template>
-                    <RelativeTime :date="container.created" class="text-base-content/50 truncate text-xs" />
+                  <div v-if="isMobile && container.state === 'running'" class="mt-1.5 flex items-center gap-1.5">
+                    <ContainerStatCell
+                      :container="container"
+                      type="cpu"
+                      :host="hosts[container.host]"
+                      :mode="statMode"
+                    />
+                    <ContainerStatCell
+                      :container="container"
+                      type="mem"
+                      :host="hosts[container.host]"
+                      :mode="statMode"
+                    />
                   </div>
                 </div>
               </div>
