@@ -65,6 +65,8 @@ label:
   mem: 메모리
   pinned: 고정됨
   per-page: 페이지당 행 수
+  sort-by: 정렬 기준
+  sort-direction: 정렬 순서 전환
   host-menu: 호스트 및 컨테이너
   swarm-menu: 서비스 및 스택
   k8s-menu: 쿠버네티스

@@ -3,7 +3,7 @@
     <header
       v-if="$slots.header"
       data-testid="scrollable-header"
-      class="border-base-content/10 bg-base-200 sticky top-[var(--mobile-nav-height)] z-20 border-b py-0.5 shadow-[1px_1px_2px_0_rgb(0,0,0,0.05)] md:top-0 md:py-2"
+      class="border-base-content/10 bg-base-200 sticky top-[var(--mobile-nav-offset)] z-20 border-b py-0.5 shadow-[1px_1px_2px_0_rgb(0,0,0,0.05)] md:top-0 md:py-2"
     >
       <slot name="header"></slot>
     </header>

@@ -76,6 +76,8 @@ label:
   mem: MEM
   pinned: 固定
   per-page: 每页行数
+  sort-by: 排序方式
+  sort-direction: 切换排序方向
   host-menu: 主机和容器
   swarm-menu: 服务和堆栈
   k8s-menu: Kubernetes

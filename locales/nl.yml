@@ -65,6 +65,8 @@ label:
   mem: MEM
   pinned: Vastgezet
   per-page: Rijen per pagina
+  sort-by: Sorteren op
+  sort-direction: Sorteervolgorde omkeren
   host-menu: Hosts en Containers
   swarm-menu: Services en Stacks
   k8s-menu: Kubernetes

@@ -207,6 +207,10 @@ body {
  * they stay locked together. The safe-area inset is already handled by body. */
 :root {
   --mobile-nav-height: 57px;
+  /* Viewport offset of the nav's bottom edge. The nav is fixed to the viewport
+   * so it sits above the body's safe-area padding, which means anything sticking
+   * to it must add the inset back in. */
+  --mobile-nav-offset: calc(var(--mobile-nav-height) + env(safe-area-inset-top));
 }
 
 [class*="shadow-"] {
