@@ -108,19 +108,22 @@
                   <div v-if="container.customGroup" class="text-base-content/50 truncate text-xs">
                     {{ container.customGroup }}
                   </div>
-                  <div v-if="isMobile && container.state === 'running'" class="mt-1.5 flex items-center gap-1.5">
-                    <ContainerStatCell
-                      :container="container"
-                      type="cpu"
-                      :host="hosts[container.host]"
-                      :mode="statMode"
-                    />
-                    <ContainerStatCell
-                      :container="container"
-                      type="mem"
-                      :host="hosts[container.host]"
-                      :mode="statMode"
-                    />
+                  <div v-if="isMobile" class="mt-1.5 flex items-center gap-1.5">
+                    <template v-if="container.state === 'running'">
+                      <ContainerStatCell
+                        :container="container"
+                        type="cpu"
+                        :host="hosts[container.host]"
+                        :mode="statMode"
+                      />
+                      <ContainerStatCell
+                        :container="container"
+                        type="mem"
+                        :host="hosts[container.host]"
+                        :mode="statMode"
+                      />
+                    </template>
+                    <RelativeTime :date="container.created" class="text-base-content/50 truncate text-xs" />
                   </div>
                 </div>
               </div>
