@@ -93,7 +93,7 @@ tooltip:
   volume-full: "{destination} est plein à {pct}"
 error:
   page-not-found: Cette page n'existe pas
-  host-group-not-found: 'Aucun hôte trouvé dans le groupe « {name} »'
+  host-group-not-found: "Aucun hôte trouvé dans le groupe « {name} »"
   invalid-auth: Nom d'utilisateur ou mot de passe non valides
   copy-not-supported: La copie dans le presse-papiers n'est pas prise en charge par votre navigateur
   copy-not-supported-hint: Presse-papiers indisponible. Copiez le lien ci-dessous
@@ -379,39 +379,62 @@ cloud:
     per-container: "Exclure un seul conteneur avec le label : dev.dozzle.cloud.min_level=disabled"
     required-for: "Requis pour les investigations par IA, la recherche dans les journaux et l'historique des ressources."
   welcome:
-    title: "Cloud est un triage intelligent pour vos conteneurs."
-    subtitle: "Un ensemble initial de signaux de défaillance est présélectionné — dites-nous ce qui vous amène pour que nous puissions l'ajuster."
-    question: "Une petite question avant de commencer — qu'attendez-vous principalement de Cloud ?"
-    placeholder: "ex. Je veux savoir quand mon conteneur Plex plante pendant la nuit..."
-    or-pick: "Ou choisissez :"
-    chip-alerts: Être notifié des problèmes
-    chip-assistant: Interroger l'Assistant sur mes logs
-    chip-search-logs: Rechercher dans tous mes logs
-    chip-remote-access: Accéder aux logs à distance
-    chip-digests: Recevoir des résumés quotidiens
-    chip-other: Autre chose
-    get-started: Commencer
-    skip: Passer pour l'instant
-    step2-title: "Choisissez les signaux que Cloud doit trier."
-    create-alert: Créer votre première alerte
-    step2-body: "Au lieu de transférer chaque événement, Cloud surveille ce qui semble cassé, l'investigue, et ne vous interrompt que lorsque c'est important. Pour bien faire cela, Cloud a besoin de signaux. Nous avons présélectionné ci-dessous un ensemble initial d'événements de défaillance — décochez tout ce que vous préférez garder en local."
-    footer: "Vous pouvez modifier à tout moment ce qui est partagé depuis la page Notifications. Cloud ne reçoit jamais de logs auxquels vous ne l'avez pas abonné."
+    watching-title: "Cloud surveille vos logs pour que vous n'ayez pas à le faire"
+    watching-body: "Chaque matin, l'analyse quotidienne lit les erreurs et avertissements produits par vos conteneurs, classe ce qui mérite d'être corrigé et publie les investigations. Rien à configurer."
+    scan-paused: "Analyse en pause"
+    paused-title: "Cloud pourra surveiller vos logs une fois le streaming activé"
+    paused-body: "L'analyse quotidienne lit vos erreurs et avertissements chaque matin et publie ce qui mérite d'être corrigé. Elle n'a rien à lire tant que le streaming des logs est désactivé."
+    streaming-off: "Le streaming des logs est désactivé, Cloud ne reçoit donc rien de cette instance."
+    privacy: "Les logs et les métriques des conteneurs quittent votre instance. Jamais les variables d'environnement, et vous pouvez exclure n'importe quel conteneur."
+    privacy-link: "Ce qui est envoyé"
+    beat-now: "Maintenant"
+    beat-now-detail: "Cloud commence à collecter les erreurs et avertissements de vos conteneurs."
+    beat-tomorrow: "{day} matin"
+    beat-tomorrow-detail: "Vos premières investigations apparaissent dans Cloud et dans votre boîte mail."
+    beat-after: "Chaque jour ensuite"
+    beat-after-detail: "Les investigations restent ouvertes jusqu'à ce que les erreurs sous-jacentes cessent."
+    next-alerts: "Suivant : alertes en temps réel"
+    push-title: "Soyez prévenu dès que quelque chose casse"
+    push-body: "L'analyse quotidienne est un résumé une fois par jour. Pour tout ce que vous voudriez savoir à 3 h du matin, activez les notifications push."
+    recommended: "Recommandé"
+    lifecycle-desc: "Plantages, healthchecks en échec, kills OOM et redémarrages."
+    metrics-desc: "CPU, mémoire et disque qui dépassent un seuil et y restent."
+    logs-desc: "Repérer les lignes error et fatal dès leur arrivée."
+    logs-caution: "La catégorie la plus bruyante, et la seule sans délai d'attente : un conteneur en boucle de plantage notifie à chaque ligne. Commencez par le cycle de vie et ajoutez celles-ci une fois que vous savez quels conteneurs sont bavards."
+    alerts-go-to: "Les alertes vont à"
+    your-cloud-account: "votre compte Cloud"
+    change: "Modifier"
+    turn-on: "Activer 1 alerte | Activer {count} alertes"
+    turn-on-short: "Activer"
+    continue-without: "Continuer sans alertes"
+    skip-alerts: "Pas maintenant, envoyez seulement les investigations quotidiennes"
+    ready: "Prêt"
+    done-title: "Tout est en place"
+    done-body: "Voici où apparaît chaque type de notification."
+    where-findings: "Investigations quotidiennes"
+    where-findings-detail: "Classées sur la page Investigations et envoyées par e-mail. Première analyse {day} matin."
+    open-findings: "Investigations"
+    where-alerts: "Alertes en temps réel"
+    where-alerts-detail: "{rules}, envoyées à {destination}."
+    rule-plural: "1 règle | {count} règles"
+    where-alerts-off: "Désactivé. Vous n'aurez de nouvelles de Cloud qu'une fois par jour."
+    where-tuning: "Réglage par conteneur"
+    where-tuning-detail: "Restreindre, mettre en sourdine ou supprimer une règle depuis la page Notifications."
+    done: "Terminé"
     signals:
       exited: "Conteneur terminé avec une erreur"
-      exited-desc: "Se déclenche quand un conteneur s'arrête avec un code de sortie non nul."
-      unhealthy: "Conteneur passé en unhealthy"
-      unhealthy-desc: "Se déclenche quand le healthcheck d'un conteneur passe en unhealthy."
-      oom: "Conteneur tué par le noyau (OOM)"
-      oom-desc: "Se déclenche quand Docker signale un kill par manque de mémoire."
+      unhealthy: "Conteneur devenu unhealthy"
+      oom: "Tué par le noyau (OOM)"
       restart: "Conteneur redémarré"
-      restart-desc: "Désactivé par défaut — bruyant seul ; Cloud l'utilise aussi pour détecter les boucles."
-      disk: "Espace disque faible sur un volume"
-      disk-desc: "Se déclenche quand un volume monté est rempli à plus de 85%."
-    create-alerts: "Activer les signaux sélectionnés"
-    later: "Je ferai ça plus tard"
+      cpu: "CPU au-dessus de 90% pendant 5 minutes"
+      memory: "Mémoire au-dessus de 90% pendant 5 minutes"
+      disk: "Volume rempli à plus de 85%"
+      disk-free: "Volume avec moins de 1 Go libre"
+      fatal: "Toute ligne fatal"
+      error: "Toute ligne error"
 cloud-search:
   containers-section: "Conteneurs"
-  search-logs-for: "Rechercher des logs pour \"{query}\""
+  search-logs-for: 'Rechercher des logs pour "{query}"'
   across-containers: "indexés sur tous vos conteneurs"
   connect-to-enable: "Connecter Dozzle Cloud pour rechercher des logs"
   enable-streaming-to-search: "Activer le streaming des logs vers le Cloud"

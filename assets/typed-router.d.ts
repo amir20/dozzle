@@ -62,8 +62,8 @@ declare module 'vue-router/auto-routes' {
     '/container/[id].time.[datetime]': RouteRecordInfo<
       '/container/[id].time.[datetime]',
       '/container/:id/time/:datetime',
-      { id: ParamValue<true>, datetime: ParamValue<true> },
-      { id: ParamValue<false>, datetime: ParamValue<false> },
+      { datetime: ParamValue<true>, id: ParamValue<true> },
+      { datetime: ParamValue<false>, id: ParamValue<false> },
       | never
     >,
     '/group/[name]': RouteRecordInfo<

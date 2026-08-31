@@ -430,33 +430,56 @@ cloud:
     per-container: "Exclude a single container with the label: dev.dozzle.cloud.min_level=disabled"
     required-for: Required for AI investigations, log search, and resource history.
   welcome:
-    title: "Cloud is an intelligent triage for your containers."
-    subtitle: "A starter set of failure signals is pre-selected — tell us what brought you here so we can tune it."
-    question: "One quick question before we get started — what's the main thing you're hoping Cloud helps with?"
-    placeholder: "e.g. I want to know when my Plex container crashes overnight..."
-    or-pick: "Or pick one:"
-    chip-alerts: Get notified about issues
-    chip-assistant: Ask Assistant about my logs
-    chip-search-logs: Search across my logs
-    chip-remote-access: Access logs remotely
-    chip-digests: Get daily log digests
-    chip-other: Something else
-    get-started: Get Started
-    skip: Skip for now
-    step2-title: "Pick the signals Cloud should triage."
-    step2-body: "Instead of forwarding every event, Cloud watches for things that look broken, investigates them, and only interrupts you when it matters. To do that well, Cloud needs signals. We've pre-selected a starter set of failure events below — uncheck anything you'd rather keep local."
-    footer: "You can change what's shared anytime from the Notifications page. Cloud never receives logs you haven't subscribed it to."
+    watching-title: Cloud watches your logs so you don't have to
+    watching-body: Every morning the daily scan reads the errors and warnings your containers produced, ranks what is worth fixing, and posts the findings. Nothing to configure.
+    scan-paused: Scan paused
+    paused-title: Cloud can watch your logs once streaming is on
+    paused-body: The daily scan reads your errors and warnings each morning and posts what is worth fixing. It has nothing to read while log streaming is off.
+    streaming-off: Log streaming is off, so Cloud receives nothing from this instance.
+    privacy: Logs and container metrics leave your instance. Environment variables never do, and you can exclude any container.
+    privacy-link: What gets sent
+    beat-now: Now
+    beat-now-detail: Cloud starts collecting errors and warnings from your containers.
+    beat-tomorrow: "{day} morning"
+    beat-tomorrow-detail: Your first findings appear in Cloud, and in your inbox.
+    beat-after: Every day after
+    beat-after-detail: Findings stay open until the errors behind them stop.
+    next-alerts: "Next: real-time alerts"
+    push-title: Get told the moment something breaks
+    push-body: The daily scan is a once-a-day summary. For anything you would want to know about at 3am, turn on push notifications.
+    recommended: Recommended
+    lifecycle-desc: Crashes, failed healthchecks, OOM kills and restarts.
+    metrics-desc: CPU, memory and disk crossing a threshold and staying there.
+    logs-desc: Match error and fatal lines the moment they stream in.
+    logs-caution: The loudest category, and the only one with no cooldown, so a crash-looping container notifies on every line. Start with lifecycle and add these once you know which containers are noisy.
+    alerts-go-to: Alerts go to
+    your-cloud-account: your Cloud account
+    change: Change
+    turn-on: "Turn on 1 alert | Turn on {count} alerts"
+    turn-on-short: Turn on
+    continue-without: Continue without alerts
+    skip-alerts: "Not now, just send the daily findings"
+    ready: Ready
+    done-title: You are set
+    done-body: Here is where each kind of notification shows up.
+    where-findings: Daily findings
+    where-findings-detail: "Ranked on the Findings page and emailed to you. First scan {day} morning."
+    open-findings: Findings
+    where-alerts: Real-time alerts
+    where-alerts-detail: "{rules}, sent to {destination}."
+    rule-plural: "1 rule | {count} rules"
+    where-alerts-off: "Off. You will only hear from Cloud once a day."
+    where-tuning: Per-container tuning
+    where-tuning-detail: Narrow, mute or delete any rule from the Notifications page.
+    done: Done
     signals:
       exited: Container exited with an error
-      exited-desc: "Fires when a container stops with a non-zero exit code."
       unhealthy: Container became unhealthy
-      unhealthy-desc: "Fires when a container's healthcheck transitions to unhealthy."
-      oom: Container was killed by the kernel (OOM)
-      oom-desc: "Fires when Docker reports an out-of-memory kill."
+      oom: Killed by the kernel (OOM)
       restart: Container restarted
-      restart-desc: "Off by default — noisy on its own; Cloud also uses this for loop detection."
-      disk: Disk space running low on any volume
-      disk-desc: "Fires when any mounted volume is over 85% full."
-    create-alert: Create Your First Alert
-    create-alerts: Turn on selected signals
-    later: "I'll do this later"
+      cpu: CPU over 90% for 5 minutes
+      memory: Memory over 90% for 5 minutes
+      disk: Volume over 85% full
+      disk-free: Volume under 1 GB free
+      fatal: Any fatal line
+      error: Any error line
