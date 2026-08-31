@@ -66,6 +66,8 @@ label:
   mem: MEM
   pinned: Disematkan
   per-page: Baris per halaman
+  sort-by: Urutkan menurut
+  sort-direction: Ubah arah pengurutan
   host-menu: Host dan Kontainer
   swarm-menu: Layanan dan Stack
   k8s-menu: Kubernetes

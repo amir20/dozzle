@@ -48,6 +48,8 @@ label:
   avg-cpu: CPE povprečje (%)
   pinned: Pripeto
   per-page: Vrstic na stran
+  sort-by: Razvrsti po
+  sort-direction: Zamenjaj vrstni red
   host-menu: Gostitelji in zabojniki
   swarm-menu: Storitve in skladi
   k8s-menu: Kubernetes

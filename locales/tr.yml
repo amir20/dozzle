@@ -65,6 +65,8 @@ label:
   mem: MEM
   pinned: Sabitlenmiş
   per-page: Sayfa başına satır
+  sort-by: Sırala
+  sort-direction: Sıralama yönünü değiştir
   host-menu: Sunucular ve Konteynerler
   swarm-menu: Servisler ve Yığınlar
   k8s-menu: Kubernetes
