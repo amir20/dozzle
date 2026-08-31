@@ -93,7 +93,7 @@ tooltip:
   volume-full: "{destination} zapełniony w {pct}"
 error:
   page-not-found: Ta strona nie istnieje
-  host-group-not-found: 'Nie znaleziono hostów w grupie „{name}”'
+  host-group-not-found: "Nie znaleziono hostów w grupie „{name}”"
   invalid-auth: Nazwa użytkownika lub hasło są niepoprawne
   copy-not-supported: Kopiowanie do schowka nie jest obsługiwane w twojej przeglądarce
   copy-not-supported-hint: Schowek niedostępny. Skopiuj poniższy link
@@ -382,39 +382,62 @@ cloud:
     per-container: "Wyklucz pojedynczy kontener etykietą: dev.dozzle.cloud.min_level=disabled"
     required-for: "Wymagane do analiz AI, wyszukiwania w logach i historii zasobów."
   welcome:
-    title: "Cloud to inteligentna triaż dla Twoich kontenerów."
-    subtitle: "Startowy zestaw sygnałów awarii jest wstępnie wybrany — powiedz nam, co Cię tu sprowadziło, żebyśmy mogli go dostroić."
-    question: "Szybkie pytanie zanim zaczniemy — do czego głównie chcesz używać Cloud?"
-    placeholder: "np. Chcę wiedzieć, gdy mój kontener Plex padnie w nocy..."
-    or-pick: "Lub wybierz:"
-    chip-alerts: Otrzymywać powiadomienia o problemach
-    chip-assistant: Zapytaj Asystenta o moje logi
-    chip-search-logs: Przeszukiwać wszystkie moje logi
-    chip-remote-access: Dostęp do logów zdalnie
-    chip-digests: Otrzymywać dzienne podsumowania logów
-    chip-other: Coś innego
-    get-started: Rozpocznij
-    skip: Pomiń na razie
-    step2-title: "Wybierz sygnały, którymi Cloud ma zarządzać."
-    create-alert: Utwórz pierwszy alert
-    step2-body: "Zamiast przekazywać każde zdarzenie, Cloud obserwuje rzeczy, które wyglądają na zepsute, bada je i przeszkadza Ci tylko wtedy, gdy to ważne. Żeby robić to dobrze, Cloud potrzebuje sygnałów. Wstępnie wybraliśmy poniżej startowy zestaw zdarzeń awaryjnych — odznacz wszystko, co wolisz trzymać lokalnie."
-    footer: "W każdej chwili możesz zmienić, co jest udostępniane, na stronie Powiadomień. Cloud nigdy nie otrzymuje logów, do których go nie zapisałeś."
+    watching-title: "Cloud pilnuje twoich logów, żebyś nie musiał tego robić"
+    watching-body: "Każdego ranka codzienne skanowanie czyta błędy i ostrzeżenia z twoich kontenerów, porządkuje to, co warto naprawić, i publikuje ustalenia. Nic do konfigurowania."
+    scan-paused: "Skanowanie wstrzymane"
+    paused-title: "Cloud będzie pilnował twoich logów, gdy włączysz streaming"
+    paused-body: "Codzienne skanowanie czyta twoje błędy i ostrzeżenia każdego ranka i publikuje to, co warto naprawić. Nie ma czego czytać, dopóki streaming logów jest wyłączony."
+    streaming-off: "Streaming logów jest wyłączony, więc Cloud nie otrzymuje nic z tej instancji."
+    privacy: "Logi i metryki kontenerów opuszczają twoją instancję. Zmienne środowiskowe nigdy, a każdy kontener możesz wykluczyć."
+    privacy-link: "Co jest wysyłane"
+    beat-now: "Teraz"
+    beat-now-detail: "Cloud zaczyna zbierać błędy i ostrzeżenia z twoich kontenerów."
+    beat-tomorrow: "{day} rano"
+    beat-tomorrow-detail: "Twoje pierwsze ustalenia pojawią się w Cloud i w twojej skrzynce."
+    beat-after: "Każdego kolejnego dnia"
+    beat-after-detail: "Ustalenia pozostają otwarte, dopóki stojące za nimi błędy nie ustaną."
+    next-alerts: "Dalej: alerty w czasie rzeczywistym"
+    push-title: "Dowiedz się w chwili, gdy coś się psuje"
+    push-body: "Codzienne skanowanie to podsumowanie raz dziennie. Dla wszystkiego, o czym chciałbyś wiedzieć o 3 w nocy, włącz powiadomienia push."
+    recommended: "Zalecane"
+    lifecycle-desc: "Awarie, nieudane healthchecki, zabicia OOM i restarty."
+    metrics-desc: "CPU, pamięć i dysk przekraczające próg i utrzymujące się powyżej niego."
+    logs-desc: "Wychwytuj linie error i fatal w chwili, gdy napływają."
+    logs-caution: "Najgłośniejsza kategoria i jedyna bez okresu wyciszenia, więc kontener w pętli awarii powiadamia przy każdej linii. Zacznij od cyklu życia i dodaj te, gdy będziesz wiedzieć, które kontenery są głośne."
+    alerts-go-to: "Alerty trafiają do"
+    your-cloud-account: "twoje konto Cloud"
+    change: "Zmień"
+    turn-on: "Włącz 1 alert | Włącz {count} alertów"
+    turn-on-short: "Włącz"
+    continue-without: "Kontynuuj bez alertów"
+    skip-alerts: "Nie teraz, wysyłaj tylko codzienne ustalenia"
+    ready: "Gotowe"
+    done-title: "Wszystko gotowe"
+    done-body: "Oto gdzie pojawia się każdy rodzaj powiadomienia."
+    where-findings: "Codzienne ustalenia"
+    where-findings-detail: "Uporządkowane na stronie Ustalenia i wysyłane mailem. Pierwsze skanowanie w {day} rano."
+    open-findings: "Ustalenia"
+    where-alerts: "Alerty w czasie rzeczywistym"
+    where-alerts-detail: "{rules}, wysyłane do {destination}."
+    rule-plural: "1 reguła | {count} reguł"
+    where-alerts-off: "Wyłączone. Usłyszysz od Cloud tylko raz dziennie."
+    where-tuning: "Dostrajanie per kontener"
+    where-tuning-detail: "Zawęź, wycisz lub usuń dowolną regułę na stronie Powiadomień."
+    done: "Gotowe"
     signals:
-      exited: "Kontener zakończony błędem"
-      exited-desc: "Wyzwala się, gdy kontener zatrzymuje się z kodem wyjścia różnym od zera."
-      unhealthy: "Kontener przeszedł w stan unhealthy"
-      unhealthy-desc: "Wyzwala się, gdy healthcheck kontenera przechodzi w unhealthy."
-      oom: "Kontener zabity przez jądro (OOM)"
-      oom-desc: "Wyzwala się, gdy Docker zgłasza zabicie z powodu braku pamięci."
+      exited: "Kontener zakończony z błędem"
+      unhealthy: "Kontener stał się unhealthy"
+      oom: "Zabity przez jądro (OOM)"
       restart: "Kontener zrestartowany"
-      restart-desc: "Domyślnie wyłączone — głośne samo w sobie; Cloud używa tego też do wykrywania pętli."
-      disk: "Mało miejsca na dysku na jednym z wolumenów"
-      disk-desc: "Wyzwala się, gdy jakikolwiek zamontowany wolumen jest zapełniony w ponad 85%."
-    create-alerts: "Włącz wybrane sygnały"
-    later: "Zrobię to później"
+      cpu: "CPU powyżej 90% przez 5 minut"
+      memory: "Pamięć powyżej 90% przez 5 minut"
+      disk: "Wolumin zapełniony powyżej 85%"
+      disk-free: "Wolumin z mniej niż 1 GB wolnego"
+      fatal: "Dowolna linia fatal"
+      error: "Dowolna linia error"
 cloud-search:
   containers-section: "Kontenery"
-  search-logs-for: "Przeszukaj logi pod kątem \"{query}\""
+  search-logs-for: 'Przeszukaj logi pod kątem "{query}"'
   across-containers: "zindeksowane we wszystkich Twoich kontenerach"
   connect-to-enable: "Połącz Dozzle Cloud, aby przeszukiwać logi"
   enable-streaming-to-search: "Włącz przesyłanie logów do Cloud"

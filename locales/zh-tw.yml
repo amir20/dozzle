@@ -93,7 +93,7 @@ tooltip:
   volume-full: "{destination} 已使用 {pct}"
 error:
   page-not-found: 此頁面不存在
-  host-group-not-found: '在群組「{name}」中找不到主機'
+  host-group-not-found: "在群組「{name}」中找不到主機"
   invalid-auth: 使用者名稱或密碼不正確
   copy-not-supported: 您的瀏覽器不支援複製到剪貼簿
   copy-not-supported-hint: 剪貼簿不可用。請複製下方連結
@@ -382,39 +382,62 @@ cloud:
     per-container: "若要排除單一容器，請使用標籤：dev.dozzle.cloud.min_level=disabled"
     required-for: "AI 分析、日誌搜尋與資源歷史記錄所需。"
   welcome:
-    title: "Cloud 是為你的容器提供的智慧分流系統。"
-    subtitle: "已為你預先選取了一組初始的故障訊號 — 告訴我們你為何而來，我們好做調整。"
-    question: "開始之前問個小問題——您最希望 Cloud 幫您做什麼？"
-    placeholder: "例如：我想知道我的 Plex 容器是否在夜間當機..."
-    or-pick: "或選擇一項："
-    chip-alerts: 取得問題通知
-    chip-assistant: 向助手詢問我的日誌
-    chip-search-logs: 搜尋我的所有日誌
-    chip-remote-access: 遠端查看日誌
-    chip-digests: 取得每日日誌摘要
-    chip-other: 其他
-    get-started: 開始使用
-    skip: 暫時跳過
-    step2-title: "選擇要交給 Cloud 分流的訊號。"
-    create-alert: 建立您的第一個警示
-    step2-body: "Cloud 不會轉發每個事件，而是注意看起來出問題的事情、進行調查，只在重要時才打擾你。要把這件事做好，Cloud 需要訊號。我們在下方預先選取了一組初始的故障事件 — 取消勾選你希望僅保留在本機的項目。"
-    footer: "你可以隨時在「通知」頁面變更要分享的內容。Cloud 絕不會收到你未訂閱的日誌。"
+    watching-title: "Cloud 替你盯著日誌"
+    watching-body: "每天早上，每日掃描會讀取容器產生的錯誤和警告，排出哪些值得修復，並發布這些發現。無需設定。"
+    scan-paused: "掃描已暫停"
+    paused-title: "開啟串流後，Cloud 就能盯著你的日誌"
+    paused-body: "每日掃描每天早上讀取你的錯誤和警告，並發布值得修復的內容。日誌串流關閉時，它沒有任何內容可讀。"
+    streaming-off: "日誌串流已關閉，Cloud 收不到此執行個體的任何內容。"
+    privacy: "日誌和容器指標會離開你的執行個體。環境變數永遠不會，而且你可以排除任何容器。"
+    privacy-link: "傳送了哪些內容"
+    beat-now: "現在"
+    beat-now-detail: "Cloud 開始從你的容器收集錯誤和警告。"
+    beat-tomorrow: "{day}早上"
+    beat-tomorrow-detail: "首批發現會出現在 Cloud 和你的收件匣中。"
+    beat-after: "此後每天"
+    beat-after-detail: "發現會一直保持開啟，直到背後的錯誤停止。"
+    next-alerts: "下一步：即時提醒"
+    push-title: "出問題的那一刻就知道"
+    push-body: "每日掃描是一天一次的彙總。凡是你凌晨三點也想知道的事，就開啟推播通知。"
+    recommended: "建議"
+    lifecycle-desc: "當機、健康檢查失敗、OOM 終止和重新啟動。"
+    metrics-desc: "CPU、記憶體和磁碟越過門檻並持續保持。"
+    logs-desc: "在 error 和 fatal 行進入時立即比對。"
+    logs-caution: "最吵的一類，也是唯一沒有冷卻時間的一類，因此反覆當機的容器會在每一行都發通知。先從生命週期開始，等你清楚哪些容器比較吵之後再加上這些。"
+    alerts-go-to: "提醒傳送至"
+    your-cloud-account: "你的 Cloud 帳戶"
+    change: "變更"
+    turn-on: "開啟 1 則提醒 | 開啟 {count} 則提醒"
+    turn-on-short: "開啟"
+    continue-without: "不啟用提醒，繼續"
+    skip-alerts: "暫時不用，只傳送每日發現"
+    ready: "就緒"
+    done-title: "已經設定好了"
+    done-body: "以下是每類通知出現的位置。"
+    where-findings: "每日發現"
+    where-findings-detail: "在「發現」頁面中排序，並透過電子郵件寄給你。首次掃描在{day}早上。"
+    open-findings: "發現"
+    where-alerts: "即時提醒"
+    where-alerts-detail: "{rules}，傳送至 {destination}。"
+    rule-plural: "1 條規則 | {count} 條規則"
+    where-alerts-off: "已關閉。你每天只會收到 Cloud 一次訊息。"
+    where-tuning: "依容器微調"
+    where-tuning-detail: "在「通知」頁面縮小範圍、靜音或刪除任何規則。"
+    done: "完成"
     signals:
       exited: "容器以錯誤結束"
-      exited-desc: "當容器以非零結束碼停止時觸發。"
       unhealthy: "容器變為 unhealthy"
-      unhealthy-desc: "當容器的健康檢查轉為 unhealthy 時觸發。"
-      oom: "容器被核心終止（OOM）"
-      oom-desc: "當 Docker 回報記憶體不足而終止時觸發。"
+      oom: "被核心終止（OOM）"
       restart: "容器已重新啟動"
-      restart-desc: "預設關閉 — 單獨使用會很吵；Cloud 也用它來偵測循環。"
-      disk: "某個磁碟區的磁碟空間即將用盡"
-      disk-desc: "當任一掛載的磁碟區使用率超過 85% 時觸發。"
-    create-alerts: "啟用所選訊號"
-    later: "稍後再說"
+      cpu: "CPU 超過 90% 持續 5 分鐘"
+      memory: "記憶體超過 90% 持續 5 分鐘"
+      disk: "磁碟區已用超過 85%"
+      disk-free: "磁碟區剩餘空間不足 1 GB"
+      fatal: "任何 fatal 行"
+      error: "任何 error 行"
 cloud-search:
   containers-section: "容器"
-  search-logs-for: "搜尋日誌 \"{query}\""
+  search-logs-for: '搜尋日誌 "{query}"'
   across-containers: "已在所有容器中建立索引"
   connect-to-enable: "連接 Dozzle Cloud 以搜尋日誌"
   enable-streaming-to-search: "啟用日誌串流到 Cloud"
