@@ -152,6 +152,11 @@ func FromProto(c *pb.Container) Container {
 		env = []string{}
 	}
 
+	networks := c.Networks
+	if networks == nil {
+		networks = []string{}
+	}
+
 	mounts := make([]Mount, 0, len(c.Mounts))
 	for _, m := range c.Mounts {
 		mounts = append(mounts, Mount{
@@ -201,7 +206,7 @@ func FromProto(c *pb.Container) Container {
 		MountStats:    mountStats,
 		RestartPolicy: c.RestartPolicy,
 		NetworkMode:   c.NetworkMode,
-		Networks:      c.Networks,
+		Networks:      networks,
 	}
 }
 

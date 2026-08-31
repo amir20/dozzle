@@ -23,3 +23,17 @@ func TestProto(t *testing.T) {
 	assert.Equal(t, expected, actual)
 
 }
+
+// Empty repeated fields decode from proto as nil; FromProto must normalize
+// them back so the round trip is lossless even when the slice is empty.
+func TestProtoEmptyNetworks(t *testing.T) {
+	expected := Container{
+		Networks: []string{},
+		Stats:    utils.NewRingBuffer[ContainerStat](300),
+	}
+
+	pb := expected.ToProto()
+	actual := FromProto(&pb)
+
+	assert.Equal(t, expected.Networks, actual.Networks)
+}
