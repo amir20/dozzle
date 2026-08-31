@@ -539,18 +539,36 @@ func newContainer(c docker.Summary, host string) container.Container {
 	} else if c.Labels["coolify.projectName"] != "" {
 		group = c.Labels["coolify.projectName"]
 	}
-	return container.Container{
-		ID:      c.ID[:12],
-		Name:    name,
-		Image:   c.Image,
-		Command: c.Command,
-		Created: time.Unix(c.Created, 0),
-		State:   string(c.State),
-		Host:    host,
-		Labels:  c.Labels,
-		Stats:   utils.NewRingBuffer[container.ContainerStat](300), // 300 seconds of stats
-		Group:   group,
+	var networks []string
+	if c.NetworkSettings != nil {
+		networks = networkNames(c.NetworkSettings.Networks)
 	}
+
+	return container.Container{
+		ID:       c.ID[:12],
+		Name:     name,
+		Image:    c.Image,
+		Command:  c.Command,
+		Created:  time.Unix(c.Created, 0),
+		State:    string(c.State),
+		Host:     host,
+		Labels:   c.Labels,
+		Stats:    utils.NewRingBuffer[container.ContainerStat](300), // 300 seconds of stats
+		Group:    group,
+		Networks: networks,
+	}
+}
+
+func networkNames(endpoints map[string]*network.EndpointSettings) []string {
+	if len(endpoints) == 0 {
+		return nil
+	}
+	names := make([]string, 0, len(endpoints))
+	for name := range endpoints {
+		names = append(names, name)
+	}
+	sort.Strings(names)
+	return names
 }
 
 func newContainerFromJSON(c docker.InspectResponse, host string) container.Container {
@@ -598,6 +616,11 @@ func newContainerFromJSON(c docker.InspectResponse, host string) container.Conta
 		restartPolicy = string(c.HostConfig.RestartPolicy.Name)
 	}
 
+	var networks []string
+	if c.NetworkSettings != nil {
+		networks = networkNames(c.NetworkSettings.Networks)
+	}
+
 	container := container.Container{
 		ID:            c.ID[:12],
 		Name:          name,
@@ -616,6 +639,7 @@ func newContainerFromJSON(c docker.InspectResponse, host string) container.Conta
 		Mounts:        mounts,
 		RestartPolicy: restartPolicy,
 		NetworkMode:   string(c.HostConfig.NetworkMode),
+		Networks:      networks,
 		FullyLoaded:   true,
 	}
 

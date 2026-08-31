@@ -37,6 +37,7 @@ message Container {
   string networkMode = 24;
   repeated MountStat mountStats = 25;
   repeated Mount mounts = 26;
+  repeated string networks = 27;
 }
 
 message ContainerStat {

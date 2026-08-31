@@ -44,6 +44,7 @@ export type ContainerJson = {
   readonly mountStats?: Record<string, MountStat>;
   readonly health?: ContainerHealth;
   readonly group?: string;
+  readonly networks?: string[];
 };
 
 export type ContainerState = "created" | "running" | "exited" | "dead" | "paused" | "restarting" | "deleted";

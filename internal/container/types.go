@@ -35,6 +35,7 @@ type Container struct {
 	MountStats    map[string]MountStat             `json:"mountStats,omitempty"`
 	RestartPolicy string                           `json:"-"`
 	NetworkMode   string                           `json:"-"`
+	Networks      []string                         `json:"networks,omitempty"`
 	FullyLoaded   bool                             `json:"-"`
 }
 
@@ -122,6 +123,7 @@ func (container Container) ToProto() pb.Container {
 		MountStats:    pbMountStats,
 		RestartPolicy: container.RestartPolicy,
 		NetworkMode:   container.NetworkMode,
+		Networks:      container.Networks,
 	}
 }
 
@@ -199,6 +201,7 @@ func FromProto(c *pb.Container) Container {
 		MountStats:    mountStats,
 		RestartPolicy: c.RestartPolicy,
 		NetworkMode:   c.NetworkMode,
+		Networks:      c.Networks,
 	}
 }
 

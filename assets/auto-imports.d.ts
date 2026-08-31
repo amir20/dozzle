@@ -11,6 +11,7 @@ declare global {
   const DEFAULT_MENU_WIDTH: typeof import('./stores/settings').DEFAULT_MENU_WIDTH
   const DEFAULT_SETTINGS: typeof import('./stores/settings').DEFAULT_SETTINGS
   const EffectScope: typeof import('vue').EffectScope
+  const GLYPH_PATHS: typeof import('./composable/graphModel').GLYPH_PATHS
   const K8sNamespace: typeof import('./stores/k8s').K8sNamespace
   const K8sOwner: typeof import('./stores/k8s').K8sOwner
   const MIN_MENU_WIDTH: typeof import('./stores/settings').MIN_MENU_WIDTH
@@ -60,6 +61,7 @@ declare global {
   const defineStore: typeof import('pinia').defineStore
   const drawerContext: typeof import('./composable/drawer').drawerContext
   const eagerComputed: typeof import('@vueuse/core').eagerComputed
+  const edgesForNetwork: typeof import('./composable/graphModel').edgesForNetwork
   const effectScope: typeof import('vue').effectScope
   const escapeHtml: typeof import('./utils/index').escapeHtml
   const extendRef: typeof import('@vueuse/core').extendRef
@@ -75,6 +77,8 @@ declare global {
   const getDeep: typeof import('./utils/index').getDeep
   const getK8sOwnerRefs: typeof import('./stores/k8s').getK8sOwnerRefs
   const globalShowPopup: typeof import('./composable/popup').globalShowPopup
+  const glyphFor: typeof import('./composable/graphModel').glyphFor
+  const graphBounds: typeof import('./composable/graphModel').graphBounds
   const groupContainers: typeof import('./stores/settings').groupContainers
   const groupK8sOwners: typeof import('./stores/k8s').groupK8sOwners
   const h: typeof import('vue').h
@@ -95,6 +99,7 @@ declare global {
   const isShallow: typeof import('vue').isShallow
   const isStreamLog: typeof import('./composable/alertMerger').isStreamLog
   const lightTheme: typeof import('./stores/settings').lightTheme
+  const linkableNetworks: typeof import('./composable/graphModel').linkableNetworks
   const loadBetween: typeof import('./composable/loadBetween').loadBetween
   const locale: typeof import('./stores/settings').locale
   const loggingContextKey: typeof import('./composable/logContext').loggingContextKey
@@ -155,8 +160,10 @@ declare global {
   const refWithControl: typeof import('@vueuse/core').refWithControl
   const resolveComponent: typeof import('vue').resolveComponent
   const resolveRef: typeof import('@vueuse/core').resolveRef
+  const runForceLayout: typeof import('./composable/graphModel').runForceLayout
   const scrollContextKey: typeof import('./composable/scrollContext').scrollContextKey
   const search: typeof import('./stores/settings').search
+  const seededRandom: typeof import('./composable/graphModel').seededRandom
   const sessionHost: typeof import('./composable/storage').sessionHost
   const setActivePinia: typeof import('pinia').setActivePinia
   const setMapStoreSuffix: typeof import('pinia').setMapStoreSuffix
@@ -281,6 +288,7 @@ declare global {
   const useFuzzySearch: typeof import('./composable/fuzzySearch').useFuzzySearch
   const useGamepad: typeof import('@vueuse/core').useGamepad
   const useGeolocation: typeof import('@vueuse/core').useGeolocation
+  const useGraphPanZoom: typeof import('./composable/graphPanZoom').useGraphPanZoom
   const useGroupedStream: typeof import('./composable/eventStreams').useGroupedStream
   const useHead: typeof import('@vueuse/head').useHead
   const useHistoricalContainerLog: typeof import('./composable/historicalLogs').useHistoricalContainerLog
@@ -451,6 +459,12 @@ declare global {
   export type { ExprEditorOptions } from './composable/exprEditor'
   import('./composable/exprEditor')
   // @ts-ignore
+  export type { NodeGlyph, GraphNode, GraphEdge, ForceLayoutOptions } from './composable/graphModel'
+  import('./composable/graphModel')
+  // @ts-ignore
+  export type { GraphBounds } from './composable/graphPanZoom'
+  import('./composable/graphPanZoom')
+  // @ts-ignore
   export type { TemplateEditorOptions } from './composable/templateEditor'
   import('./composable/templateEditor')
   // @ts-ignore
@@ -474,6 +488,7 @@ declare module 'vue' {
   interface ComponentCustomProperties {
     readonly DEFAULT_SETTINGS: UnwrapRef<typeof import('./stores/settings')['DEFAULT_SETTINGS']>
     readonly EffectScope: UnwrapRef<typeof import('vue')['EffectScope']>
+    readonly GLYPH_PATHS: UnwrapRef<typeof import('./composable/graphModel')['GLYPH_PATHS']>
     readonly K8sNamespace: UnwrapRef<typeof import('./stores/k8s')['K8sNamespace']>
     readonly K8sOwner: UnwrapRef<typeof import('./stores/k8s')['K8sOwner']>
     readonly acceptHMRUpdate: UnwrapRef<typeof import('pinia')['acceptHMRUpdate']>
@@ -522,6 +537,7 @@ declare module 'vue' {
     readonly defineStore: UnwrapRef<typeof import('pinia')['defineStore']>
     readonly drawerContext: UnwrapRef<typeof import('./composable/drawer')['drawerContext']>
     readonly eagerComputed: UnwrapRef<typeof import('@vueuse/core')['eagerComputed']>
+    readonly edgesForNetwork: UnwrapRef<typeof import('./composable/graphModel')['edgesForNetwork']>
     readonly effectScope: UnwrapRef<typeof import('vue')['effectScope']>
     readonly extendRef: UnwrapRef<typeof import('@vueuse/core')['extendRef']>
     readonly fetchAlerts: UnwrapRef<typeof import('./composable/cloudAlerts')['fetchAlerts']>
@@ -536,6 +552,8 @@ declare module 'vue' {
     readonly getDeep: UnwrapRef<typeof import('./utils/index')['getDeep']>
     readonly getK8sOwnerRefs: UnwrapRef<typeof import('./stores/k8s')['getK8sOwnerRefs']>
     readonly globalShowPopup: UnwrapRef<typeof import('./composable/popup')['globalShowPopup']>
+    readonly glyphFor: UnwrapRef<typeof import('./composable/graphModel')['glyphFor']>
+    readonly graphBounds: UnwrapRef<typeof import('./composable/graphModel')['graphBounds']>
     readonly groupContainers: UnwrapRef<typeof import('./stores/settings')['groupContainers']>
     readonly groupK8sOwners: UnwrapRef<typeof import('./stores/k8s')['groupK8sOwners']>
     readonly h: UnwrapRef<typeof import('vue')['h']>
@@ -554,6 +572,7 @@ declare module 'vue' {
     readonly isShallow: UnwrapRef<typeof import('vue')['isShallow']>
     readonly isStreamLog: UnwrapRef<typeof import('./composable/alertMerger')['isStreamLog']>
     readonly lightTheme: UnwrapRef<typeof import('./stores/settings')['lightTheme']>
+    readonly linkableNetworks: UnwrapRef<typeof import('./composable/graphModel')['linkableNetworks']>
     readonly loadBetween: UnwrapRef<typeof import('./composable/loadBetween')['loadBetween']>
     readonly locale: UnwrapRef<typeof import('./stores/settings')['locale']>
     readonly loggingContextKey: UnwrapRef<typeof import('./composable/logContext')['loggingContextKey']>
@@ -613,8 +632,10 @@ declare module 'vue' {
     readonly refThrottled: UnwrapRef<typeof import('@vueuse/core')['refThrottled']>
     readonly refWithControl: UnwrapRef<typeof import('@vueuse/core')['refWithControl']>
     readonly resolveComponent: UnwrapRef<typeof import('vue')['resolveComponent']>
+    readonly runForceLayout: UnwrapRef<typeof import('./composable/graphModel')['runForceLayout']>
     readonly scrollContextKey: UnwrapRef<typeof import('./composable/scrollContext')['scrollContextKey']>
     readonly search: UnwrapRef<typeof import('./stores/settings')['search']>
+    readonly seededRandom: UnwrapRef<typeof import('./composable/graphModel')['seededRandom']>
     readonly sessionHost: UnwrapRef<typeof import('./composable/storage')['sessionHost']>
     readonly setActivePinia: UnwrapRef<typeof import('pinia')['setActivePinia']>
     readonly setMapStoreSuffix: UnwrapRef<typeof import('pinia')['setMapStoreSuffix']>
@@ -737,6 +758,7 @@ declare module 'vue' {
     readonly useFuzzySearch: UnwrapRef<typeof import('./composable/fuzzySearch')['useFuzzySearch']>
     readonly useGamepad: UnwrapRef<typeof import('@vueuse/core')['useGamepad']>
     readonly useGeolocation: UnwrapRef<typeof import('@vueuse/core')['useGeolocation']>
+    readonly useGraphPanZoom: UnwrapRef<typeof import('./composable/graphPanZoom')['useGraphPanZoom']>
     readonly useGroupedStream: UnwrapRef<typeof import('./composable/eventStreams')['useGroupedStream']>
     readonly useHead: UnwrapRef<typeof import('@vueuse/head')['useHead']>
     readonly useHistoricalContainerLog: UnwrapRef<typeof import('./composable/historicalLogs')['useHistoricalContainerLog']>

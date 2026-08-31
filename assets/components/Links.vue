@@ -4,6 +4,24 @@
     <Announcements />
 
     <router-link
+      :to="{ name: '/topology' }"
+      aria-label="Network topology"
+      data-testid="topology"
+      class="btn btn-circle btn-sm"
+    >
+      <mdi:lan class="size-6" />
+    </router-link>
+
+    <router-link
+      :to="{ name: '/dependency-map' }"
+      aria-label="Dependency map"
+      data-testid="dependency-map"
+      class="btn btn-circle btn-sm"
+    >
+      <mdi:graph-outline class="size-6" />
+    </router-link>
+
+    <router-link
       v-if="config.enableNotifications"
       :to="{ name: '/notifications' }"
       :aria-label="$t('title.notifications')"

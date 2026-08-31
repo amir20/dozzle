@@ -66,6 +66,13 @@ declare module 'vue-router/auto-routes' {
       { datetime: ParamValue<false>, id: ParamValue<false> },
       | never
     >,
+    '/dependency-map': RouteRecordInfo<
+      '/dependency-map',
+      '/dependency-map',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
     '/group/[name]': RouteRecordInfo<
       '/group/[name]',
       '/group/:name',
@@ -150,6 +157,13 @@ declare module 'vue-router/auto-routes' {
       { name: ParamValue<false> },
       | never
     >,
+    '/topology': RouteRecordInfo<
+      '/topology',
+      '/topology',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
   }
 
   /**
@@ -203,6 +217,14 @@ declare module 'vue-router/auto-routes' {
       pathParamNames:
         | 'datetime'
         | 'id'
+    }
+    'assets/pages/dependency-map.vue': {
+      routes:
+        | '/dependency-map'
+      views:
+        | never
+      pathParamNames:
+        | never
     }
     'assets/pages/group/[name].vue': {
       routes:
@@ -299,6 +321,14 @@ declare module 'vue-router/auto-routes' {
         | never
       pathParamNames:
         | 'name'
+    }
+    'assets/pages/topology.vue': {
+      routes:
+        | '/topology'
+      views:
+        | never
+      pathParamNames:
+        | never
     }
   }
 

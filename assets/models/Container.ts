@@ -72,6 +72,7 @@ export class Container {
     public isNew: boolean = false,
     mounts: ContainerMount[] = [],
     mountStats: Record<string, MountStat> = {},
+    public readonly networks: string[] = [],
   ) {
     this.mounts = mounts;
     this.mountStats = mountStats;
@@ -198,6 +199,7 @@ export class Container {
       false,
       c.mounts ?? [],
       c.mountStats ?? {},
+      c.networks ?? [],
     );
   }
 }
