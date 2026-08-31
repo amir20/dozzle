@@ -45,6 +45,17 @@
             :options="pageSizes.map((i) => ({ label: i.toLocaleString(), value: i }))"
           />
         </div>
+        <div class="flex items-center gap-1 md:hidden">
+          {{ $t("label.sort-by") }}
+          <DropdownMenu class="dropdown-left btn-xs" v-model="mobileSortField" :options="sortOptions" />
+          <button
+            class="btn btn-square btn-ghost btn-xs"
+            @click="direction *= -1"
+            :aria-label="$t('label.sort-direction')"
+          >
+            <mdi:arrow-up :class="direction > 0 ? '' : 'rotate-180'" />
+          </button>
+        </div>
         <div class="join max-md:hidden">
           <button
             class="btn join-item btn-xs md:btn-sm"
@@ -65,7 +76,7 @@
     </div>
     <div class="rounded-box border-base-content/10 overflow-x-auto border">
       <table class="table-md md:table-lg table-zebra table">
-        <thead>
+        <thead class="max-md:hidden">
           <tr :data-direction="direction > 0 ? 'asc' : 'desc'">
             <th
               v-for="(value, key) in fields"
@@ -172,6 +183,7 @@
 import { Container } from "@/models/Container";
 import { toRefs } from "@vueuse/core";
 
+const { t } = useI18n();
 const { hosts } = useHosts();
 const selectedHost = ref(null);
 
@@ -260,6 +272,19 @@ const paginated = computed(() => {
   const end = start + perPage.value;
 
   return sortedContainers.value.slice(start, end);
+});
+
+const sortOptions = computed(() =>
+  Object.entries(fields)
+    .filter(([key]) => key !== "host" || Object.keys(hosts.value).length > 1)
+    .map(([key, value]) => ({ label: t(value.mobileLabel ?? value.label), value: key })),
+);
+
+const mobileSortField = computed({
+  get: () => sortField.value,
+  set: (field: keys) => {
+    if (field !== sortField.value) sort(field);
+  },
 });
 
 function sort(field: keys) {
