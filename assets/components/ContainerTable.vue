@@ -90,10 +90,14 @@
             v-memo="[container.id, container.state, container.health, statMode, isMobile]"
             class="hover:bg-base-100/80!"
           >
-            <td v-if="isVisible('name')" class="max-w-80 max-md:max-w-32">
-              <div class="flex items-center gap-2">
-                <ContainerStatusIcon :state="container.state" :health="container.health" class="shrink-0" />
-                <div class="min-w-0">
+            <td v-if="isVisible('name')" class="max-w-80 max-md:max-w-none">
+              <div class="flex items-center gap-2 max-md:items-start">
+                <ContainerStatusIcon
+                  :state="container.state"
+                  :health="container.health"
+                  class="shrink-0 max-md:mt-0.5"
+                />
+                <div class="min-w-0 flex-1">
                   <router-link
                     class="block truncate"
                     :to="{ name: '/container/[id]', params: { id: container.id } }"
@@ -103,6 +107,20 @@
                   </router-link>
                   <div v-if="container.customGroup" class="text-base-content/50 truncate text-xs">
                     {{ container.customGroup }}
+                  </div>
+                  <div v-if="isMobile && container.state === 'running'" class="mt-1.5 flex items-center gap-1.5">
+                    <ContainerStatCell
+                      :container="container"
+                      type="cpu"
+                      :host="hosts[container.host]"
+                      :mode="statMode"
+                    />
+                    <ContainerStatCell
+                      :container="container"
+                      type="mem"
+                      :host="hosts[container.host]"
+                      :mode="statMode"
+                    />
                   </div>
                 </div>
               </div>
@@ -190,7 +208,7 @@ const fields: Record<
     label: "label.avg-cpu",
     mobileLabel: "label.cpu",
     sortFunc: (a: Container, b: Container) => (a.movingAverage.cpu - b.movingAverage.cpu) * direction.value,
-    mobileVisible: true,
+    mobileVisible: false,
     customClass: "min-w-48 max-md:min-w-0",
   },
   mem: {
@@ -198,7 +216,7 @@ const fields: Record<
     mobileLabel: "label.mem",
     sortFunc: (a: Container, b: Container) =>
       (a.movingAverage.memoryUsage - b.movingAverage.memoryUsage) * direction.value,
-    mobileVisible: true,
+    mobileVisible: false,
     customClass: "min-w-48 max-md:min-w-0",
   },
 };
