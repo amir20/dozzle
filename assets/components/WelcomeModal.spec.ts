@@ -165,6 +165,30 @@ describe("<WelcomeModal /> starter alerts", () => {
     expect(pushSpy).not.toHaveBeenCalled();
   });
 
+  test("shows every starter rule without any interaction", async () => {
+    stubFetch();
+    const wrapper = mountModal();
+    await openOnAlertsStep(wrapper);
+
+    // Rules used to sit behind a disclosure that nobody noticed, which hid the
+    // CPU and memory alerts entirely. They must be on screen as soon as the
+    // step renders.
+    const ruleBoxes = wrapper.findAll("input.checkbox");
+    expect(ruleBoxes).toHaveLength(10);
+
+    const text = wrapper.text();
+    expect(text).toContain("CPU over 90% for 5 minutes");
+    expect(text).toContain("Memory over 90% for 5 minutes");
+    expect(text).toContain("Volume under 1 GB free");
+    expect(text).toContain("Any fatal line");
+
+    // Rules inside a disabled category stay readable but are not editable.
+    const logRuleBoxes = ruleBoxes.slice(8);
+    for (const box of logRuleBoxes) {
+      expect(box.attributes("disabled")).toBeDefined();
+    }
+  });
+
   test("enabling the logs category adds its default log rule", async () => {
     const fetchMock = stubFetch();
     const wrapper = mountModal();

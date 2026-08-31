@@ -448,10 +448,8 @@ cloud:
     push-title: Get told the moment something breaks
     push-body: The daily scan is a once-a-day summary. For anything you would want to know about at 3am, turn on push notifications.
     recommended: Recommended
-    rule-count: "{on} of {total} rules"
     lifecycle-desc: Crashes, failed healthchecks, OOM kills and restarts.
     metrics-desc: CPU, memory and disk crossing a threshold and staying there.
-    metrics-caution: CPU and memory must hold above the threshold for a full 5 minutes, and re-alert at most once an hour per container.
     logs-desc: Match error and fatal lines the moment they stream in.
     logs-caution: The loudest category, and the only one with no cooldown, so a crash-looping container notifies on every line. Start with lifecycle and add these once you know which containers are noisy.
     alerts-go-to: Alerts go to

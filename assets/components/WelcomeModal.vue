@@ -116,16 +116,6 @@
                   </span>
                 </div>
                 <p class="text-base-content/60 mt-0.5 text-xs">{{ category.description }}</p>
-                <button
-                  class="text-base-content/50 hover:text-primary mt-1.5 flex items-center gap-1 font-mono text-[0.68rem]"
-                  @click="toggleExpanded(category.id)"
-                >
-                  <mdi:chevron-right
-                    class="transition-transform"
-                    :class="expanded.has(category.id) ? 'rotate-90' : ''"
-                  />
-                  {{ $t("cloud.welcome.rule-count", { on: enabledIn(category), total: category.rules.length }) }}
-                </button>
               </div>
               <input
                 type="checkbox"
@@ -135,14 +125,27 @@
               />
             </div>
 
-            <div v-if="expanded.has(category.id)" class="space-y-1.5 pt-0 pr-3 pb-3 pl-10">
+            <!--
+              Always visible. These rows are what actually teach the category,
+              so hiding them behind a disclosure defeats the point of the screen
+              and buries rules people never discover.
+            -->
+            <div class="space-y-1.5 pt-0 pr-3 pb-3 pl-10">
               <label
                 v-for="rule in category.rules"
                 :key="rule.key"
-                class="flex cursor-pointer items-center gap-2 font-mono text-xs"
-                :class="rule.enabled ? '' : 'text-base-content/45'"
+                class="flex items-center gap-2 font-mono text-xs"
+                :class="[
+                  category.enabled ? 'cursor-pointer' : 'cursor-not-allowed',
+                  rule.enabled && category.enabled ? '' : 'text-base-content/45',
+                ]"
               >
-                <input v-model="rule.enabled" type="checkbox" class="checkbox checkbox-primary checkbox-xs" />
+                <input
+                  v-model="rule.enabled"
+                  type="checkbox"
+                  class="checkbox checkbox-primary checkbox-xs"
+                  :disabled="!category.enabled"
+                />
                 <span>{{ rule.label }}</span>
               </label>
               <p
@@ -272,7 +275,6 @@ const modal = ref<HTMLDialogElement>();
 const step = ref(1);
 const creating = ref(false);
 const createdCount = ref(0);
-const expanded = ref(new Set<string>());
 let usageReported = false;
 
 type AlertKind = "event" | "metric" | "log";
@@ -373,7 +375,6 @@ function buildCategories(): Category[] {
       id: "metrics",
       label: t("notifications.alert-form.metric-alert"),
       description: t("cloud.welcome.metrics-desc"),
-      caution: t("cloud.welcome.metrics-caution"),
       icon: MdiChartLine,
       recommended: false,
       enabled: true,
@@ -486,17 +487,6 @@ const timeline = computed(() => [
   },
   { when: t("cloud.welcome.beat-after"), what: t("cloud.welcome.beat-after-detail") },
 ]);
-
-function enabledIn(category: Category) {
-  return category.rules.filter((r) => r.enabled).length;
-}
-
-function toggleExpanded(id: string) {
-  const next = new Set(expanded.value);
-  if (next.has(id)) next.delete(id);
-  else next.add(id);
-  expanded.value = next;
-}
 
 const isSavingStreamLogs = ref(false);
 
@@ -612,7 +602,6 @@ function open() {
   step.value = 1;
   creating.value = false;
   createdCount.value = 0;
-  expanded.value = new Set();
   categories.value = buildCategories();
   usageReported = false;
   modal.value?.showModal();
