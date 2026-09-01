@@ -230,21 +230,14 @@ func (d *DockerClient) ContainerRemove(ctx context.Context, containerID string) 
 }
 
 func (d *DockerClient) ContainerCreate(ctx context.Context, inspectResp docker.InspectResponse, name string) (string, error) {
-	// Clear hostname when using network modes that don't support it (host, container:*)
-	// Docker always populates Hostname in inspect responses, but rejects it on create
-	// for these network modes.
-	if inspectResp.HostConfig != nil {
-		mode := string(inspectResp.HostConfig.NetworkMode)
-		if mode == "host" || strings.HasPrefix(mode, "container:") {
-			inspectResp.Config.Hostname = ""
-		}
-	}
+	sharesNamespace := sanitizeForRecreate(&inspectResp)
 
 	// Build clean EndpointsConfig with only network names and aliases,
 	// stripping runtime state (IPs, gateways, MAC addresses) that can
-	// cause conflicts when recreating.
+	// cause conflicts when recreating. A container that shares another
+	// namespace cannot be attached to networks at all.
 	var networkingConfig *network.NetworkingConfig
-	if inspectResp.NetworkSettings != nil && len(inspectResp.NetworkSettings.Networks) > 0 {
+	if !sharesNamespace && inspectResp.NetworkSettings != nil && len(inspectResp.NetworkSettings.Networks) > 0 {
 		endpointsConfig := make(map[string]*network.EndpointSettings, len(inspectResp.NetworkSettings.Networks))
 		for netName, ep := range inspectResp.NetworkSettings.Networks {
 			endpointsConfig[netName] = &network.EndpointSettings{
@@ -265,6 +258,52 @@ func (d *DockerClient) ContainerCreate(ctx context.Context, inspectResp docker.I
 		return "", err
 	}
 	return resp.ID, nil
+}
+
+// sanitizeForRecreate strips settings that Docker reports on inspect but
+// rejects on create. Inspect always fills in fields like Hostname and
+// ExposedPorts, even for containers whose network mode forbids them, so
+// replaying an inspect response verbatim fails on exactly the containers that
+// most need updating, such as anything behind a VPN sidecar
+// (network_mode: container:... or service:...).
+//
+// The rules mirror the daemon's own validateNetMode. Returns whether the
+// container shares another namespace, which also rules out attaching networks.
+func sanitizeForRecreate(inspectResp *docker.InspectResponse) bool {
+	if inspectResp.HostConfig == nil || inspectResp.Config == nil {
+		return false
+	}
+
+	hostConfig := inspectResp.HostConfig
+	config := inspectResp.Config
+	mode := string(hostConfig.NetworkMode)
+
+	isContainerMode := mode == "container" || strings.HasPrefix(mode, "container:")
+	isHostMode := mode == "host"
+
+	if isContainerMode {
+		// The namespace belongs to the other container, so none of this can
+		// be configured here.
+		config.Hostname = ""
+		config.ExposedPorts = nil
+		hostConfig.Links = nil
+		hostConfig.DNS = nil
+		hostConfig.ExtraHosts = nil
+		hostConfig.PortBindings = nil
+		hostConfig.PublishAllPorts = false
+	}
+
+	if isHostMode {
+		config.Hostname = ""
+		hostConfig.Links = nil
+	}
+
+	// A host UTS namespace owns the hostname regardless of network mode.
+	if hostConfig.UTSMode.IsHost() {
+		config.Hostname = ""
+	}
+
+	return isContainerMode || isHostMode
 }
 
 func (d *DockerClient) ServiceUpdate(ctx context.Context, serviceID string, imageName string) error {
