@@ -13,9 +13,6 @@ The `update` action pulls the latest image for the container and recreates it wi
 > [!WARNING]
 > `remove` and `update` recreate the container. Data written to **anonymous volumes** or the container's writable layer will be lost. Named volumes and bind mounts are preserved.
 
-> [!NOTE]
-> Enabling actions also unlocks Compose [Deployments](/guide/deployments) when using [Dozzle Cloud](/guide/dozzle-cloud).
-
 ::: code-group
 
 ```sh
