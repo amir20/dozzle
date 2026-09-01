@@ -254,7 +254,7 @@ func (m *Manager) processDockerEvent(event *ContainerEventEntry) {
 
 		detail := fmt.Sprintf("Container event: %s", event.Event.Name)
 		if exitCode, ok := event.Event.ActorAttributes["exitCode"]; ok && event.Event.Name == "die" {
-			detail = fmt.Sprintf("Container event: %s (exit code %s)", event.Event.Name, exitCode)
+			detail = fmt.Sprintf("Container event: %s (exit code %s)", event.Event.Name, describeExitCode(exitCode))
 		}
 
 		notification := types.Notification{
@@ -280,6 +280,38 @@ func (m *Manager) processDockerEvent(event *ContainerEventEntry) {
 		}
 		return true
 	})
+}
+
+// signalExitCodes maps the 128+N exit codes a container gets when a signal kills
+// it to that signal's name.
+//
+// A bare "exit code 137" is routinely misread as an out-of-memory kill, both by
+// people and by Dozzle Cloud's triage model, which was shipping headlines like
+// "exited with code 137 — likely OOM" for ordinary Watchtower update cycles.
+// 137 is SIGKILL: it is what `docker stop`, a host reboot, a redeploy, or an
+// image updater produces whenever a container does not exit on SIGTERM within
+// the grace period. A genuine out-of-memory kill arrives as its own "oom" event,
+// so naming the signal costs nothing and removes the ambiguity at the source.
+//
+// Only codes that mean the same signal everywhere Docker runs are listed; the
+// rest are returned unchanged rather than risking a wrong name.
+var signalExitCodes = map[string]string{
+	"129": "SIGHUP",
+	"130": "SIGINT",
+	"131": "SIGQUIT",
+	"134": "SIGABRT",
+	"137": "SIGKILL",
+	"139": "SIGSEGV",
+	"143": "SIGTERM",
+}
+
+// describeExitCode annotates a container exit code with its signal name when it
+// has one, and otherwise returns it unchanged.
+func describeExitCode(exitCode string) string {
+	if signal, ok := signalExitCodes[exitCode]; ok {
+		return exitCode + ", " + signal
+	}
+	return exitCode
 }
 
 func formatLogMessage(message any) string {
