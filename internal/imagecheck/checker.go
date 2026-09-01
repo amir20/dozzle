@@ -7,6 +7,9 @@ import (
 	"strings"
 	"sync"
 	"time"
+
+	"github.com/rs/zerolog/log"
+	"golang.org/x/sync/singleflight"
 )
 
 // Mode controls whether Dozzle contacts registries at all.
@@ -82,15 +85,30 @@ type digestEntry struct {
 	digest    string
 	err       error
 	fetchedAt time.Time
+	ttl       time.Duration
 }
+
+// errorTTL is how long a failed lookup is remembered. A registry that is
+// genuinely unreachable should not be retried on every page view, but a
+// transient blip must not silence checks for the whole success TTL.
+const errorTTL = 5 * time.Minute
 
 // Checker resolves remote digests with a TTL cache in front of the registry.
 // The cache holds only the remote digest, never the verdict, so a container
 // that is updated locally reports up-to-date immediately without waiting for
 // the entry to expire.
+// maxCacheEntries bounds the digest cache. Hosts churn through images over a
+// long uptime, and nothing else ever removes an entry.
+const maxCacheEntries = 500
+
 type Checker struct {
 	registry *Registry
 	ttl      time.Duration
+
+	// Collapses concurrent lookups for the same image into one request. The
+	// same image is often deployed across several hosts, which otherwise all
+	// miss the cache at once and each hit the registry.
+	group singleflight.Group
 
 	mu    sync.Mutex
 	cache map[string]digestEntry
@@ -113,18 +131,30 @@ func (c *Checker) Check(ctx context.Context, image string, localDigests []string
 
 	ref, err := ParseReference(image)
 	if err != nil {
+		log.Debug().Err(err).Str("image", image).Msg("image update check: unparsable reference")
 		result.Status = StatusUnknown
 		result.Reason = err.Error()
 		return result
 	}
 
+	log.Debug().
+		Str("image", image).
+		Str("registry", ref.Registry).
+		Str("repository", ref.Repository).
+		Str("tag", ref.Tag).
+		Bool("force", force).
+		Strs("localDigests", localDigests).
+		Msg("image update check: starting")
+
 	if ref.Pinned() {
+		log.Debug().Str("image", image).Msg("image update check: reference is digest pinned")
 		result.Status = StatusPinned
 		result.LocalDigest = ref.Digest
 		return result
 	}
 
 	if len(localDigests) == 0 {
+		log.Debug().Str("image", image).Msg("image update check: no local registry digest, likely built locally")
 		result.Status = StatusNotCheckable
 		result.Reason = "image has no registry digest locally"
 		return result
@@ -132,6 +162,7 @@ func (c *Checker) Check(ctx context.Context, image string, localDigests []string
 
 	remote, err := c.remoteDigest(ctx, image, ref, force)
 	if err != nil {
+		log.Debug().Err(err).Str("image", image).Msg("image update check: could not resolve remote digest")
 		switch {
 		case errors.Is(err, ErrAuthRequired):
 			result.Status = StatusAuthRequired
@@ -150,6 +181,11 @@ func (c *Checker) Check(ctx context.Context, image string, localDigests []string
 	// checked say anything about whether this container is current.
 	local := digestsForRepository(localDigests, ref)
 	if len(local) == 0 {
+		log.Debug().
+			Str("image", image).
+			Strs("localDigests", localDigests).
+			Str("repository", ref.Repository).
+			Msg("image update check: no local digest belongs to this repository")
 		result.Status = StatusNotCheckable
 		result.Reason = "image has no registry digest for " + ref.Repository
 		return result
@@ -163,7 +199,36 @@ func (c *Checker) Check(ctx context.Context, image string, localDigests []string
 		result.Status = StatusUpdateAvailable
 	}
 
+	log.Debug().
+		Str("image", image).
+		Strs("local", local).
+		Str("remote", remote).
+		Str("status", string(result.Status)).
+		Msg("image update check: compared digests")
+
 	return result
+}
+
+// evictLocked drops expired entries once the cache grows past its bound, and
+// falls back to clearing it entirely if everything is still live. Callers must
+// hold c.mu.
+func (c *Checker) evictLocked() {
+	if len(c.cache) < maxCacheEntries {
+		return
+	}
+
+	for key, entry := range c.cache {
+		if time.Since(entry.fetchedAt) >= entry.ttl {
+			delete(c.cache, key)
+		}
+	}
+
+	// Nothing had expired, so the cache is genuinely full of live entries.
+	// Dropping them costs a few HEAD requests, which is cheaper than growing
+	// without limit.
+	if len(c.cache) >= maxCacheEntries {
+		clear(c.cache)
+	}
 }
 
 // digestsForRepository keeps only the digests recorded for ref's repository.
@@ -197,18 +262,46 @@ func (c *Checker) remoteDigest(ctx context.Context, image string, ref Reference,
 		c.mu.Lock()
 		entry, ok := c.cache[image]
 		c.mu.Unlock()
-		if ok && time.Since(entry.fetchedAt) < c.ttl {
+		if ok && time.Since(entry.fetchedAt) < entry.ttl {
+			log.Debug().
+				Str("image", image).
+				Str("digest", entry.digest).
+				Dur("age", time.Since(entry.fetchedAt)).
+				Msg("image update check: serving remote digest from cache")
 			return entry.digest, entry.err
 		}
 	}
 
-	digest, err := c.registry.Digest(ctx, ref)
+	fetched, err, shared := c.group.Do(image, func() (any, error) {
+		return c.registry.Digest(ctx, ref)
+	})
+	digest, _ := fetched.(string)
+
+	if shared {
+		log.Debug().Str("image", image).Msg("image update check: joined an in-flight lookup")
+		return digest, err
+	}
 
 	// Cache failures too, so an unreachable or private registry is not retried
 	// on every page view.
+	// A private registry will keep refusing us, so that answer is worth
+	// keeping. Anything else may well be temporary.
+	ttl := c.ttl
+	if err != nil && !errors.Is(err, ErrAuthRequired) {
+		ttl = min(errorTTL, c.ttl)
+	}
+
 	c.mu.Lock()
-	c.cache[image] = digestEntry{digest: digest, err: err, fetchedAt: time.Now()}
+	c.evictLocked()
+	c.cache[image] = digestEntry{digest: digest, err: err, fetchedAt: time.Now(), ttl: ttl}
 	c.mu.Unlock()
+
+	log.Debug().
+		Err(err).
+		Str("image", image).
+		Str("digest", digest).
+		Dur("ttl", ttl).
+		Msg("image update check: cached remote digest")
 
 	return digest, err
 }

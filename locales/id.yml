@@ -16,6 +16,12 @@ toolbar:
   update-recreating: Membuat ulang kontainer...
   update-done: Kontainer berhasil diperbarui
   update-up-to-date: Sudah versi terbaru
+  update-available: 'Pembaruan tersedia'
+  check-for-updates: 'Periksa pembaruan'
+  checking-for-updates: 'Memeriksa pembaruan...'
+  no-updates: 'Tidak ada pembaruan'
+  dismiss-update: 'Abaikan pembaruan ini'
+  view-release-notes: 'Lihat catatan rilis'
   show-hostname: Tampilkan nama host
   show-container-name: Tampilkan nama kontainer
   shell: Shell
@@ -121,6 +127,11 @@ error:
       UI Dozzle gagal terhubung ke API karena waktu habis. Periksa koneksi jaringan dan coba lagi.
 
 alert:
+  image-update:
+    title: 'Pembaruan tersedia'
+    message: 'Image yang lebih baru telah dirilis untuk {image}.'
+    enable-actions: '<a href="https://dozzle.dev/guide/actions" target="_blank" rel="noreferrer noopener">Aktifkan aksi</a> untuk mengunduh dan membuat ulang kontainer dari sini.'
+    self: 'Dozzle tidak dapat memperbarui dirinya sendiri, mulai ulang untuk menerapkannya.'
   redirected:
     title: Dialihkan ke kontainer baru
     message: Dozzle secara otomatis mengalihkan Anda ke kontainer baru {containerId}.
@@ -154,6 +165,7 @@ placeholder:
   search: Cari
 
 settings:
+  show-image-update-alert: 'Tampilkan notifikasi saat kontainer memiliki pembaruan'
   help-support: >
     Silakan dukung Dozzle dengan berdonasi atau mensponsori kami di GitHub. Kontribusi Anda membantu kami meningkatkan Dozzle untuk semua orang. Terima kasih! 🙏🏼
   about-desc: Informasi tentang instalasi Dozzle Anda dan cara mendukung proyek ini.

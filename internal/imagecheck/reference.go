@@ -12,6 +12,14 @@ const (
 	defaultTag          = "latest"
 )
 
+// dockerHubAliases are the hostnames that all mean Docker Hub.
+var dockerHubAliases = map[string]struct{}{
+	"docker.io":               {},
+	"index.docker.io":         {},
+	"registry-1.docker.io":    {},
+	"registry.hub.docker.com": {},
+}
+
 // Reference is a parsed container image reference.
 type Reference struct {
 	// Registry is the hostname the manifest is served from.
@@ -104,6 +112,13 @@ func ParseReference(ref string) (Reference, error) {
 			registry = candidate
 			remainder = remainder[i+1:]
 		}
+	}
+
+	// Docker Hub answers to several names. They have to collapse to one, or a
+	// reference written as index.docker.io/library/nginx never lines up with
+	// the "nginx@sha256:..." that Docker records locally.
+	if _, aliased := dockerHubAliases[registry]; aliased {
+		registry = defaultRegistry
 	}
 
 	tag := ""

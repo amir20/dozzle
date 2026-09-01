@@ -16,6 +16,12 @@ toolbar:
   update-recreating: 컨테이너 재생성 중...
   update-done: 컨테이너가 성공적으로 업데이트되었습니다
   update-up-to-date: 이미 최신 버전입니다
+  update-available: '업데이트 사용 가능'
+  check-for-updates: '업데이트 확인'
+  checking-for-updates: '업데이트 확인 중...'
+  no-updates: '업데이트 없음'
+  dismiss-update: '이 업데이트 무시'
+  view-release-notes: '릴리스 노트 보기'
   show-hostname: 호스트 이름 보기
   show-container-name: 컨테이너 이름 보기
   shell: 셸
@@ -118,6 +124,11 @@ error:
     message: >-
       Dozzle UI가 API 연결 중에 시간 초과되었습니다. 네트워크 상태를 확인하고 다시 시도해 주세요.
 alert:
+  image-update:
+    title: '업데이트 사용 가능'
+    message: '{image}의 새로운 이미지가 게시되었습니다.'
+    enable-actions: '여기에서 내려받아 다시 생성하려면 <a href="https://dozzle.dev/guide/actions" target="_blank" rel="noreferrer noopener">액션을 활성화</a>하세요.'
+    self: 'Dozzle은 자기 자신을 업데이트할 수 없습니다. 적용하려면 다시 시작하세요.'
   redirected:
     title: 새 컨테이너로 이동했습니다
     message: Dozzle이 자동으로 새 컨테이너 {containerId}로 이동했습니다.
@@ -148,6 +159,7 @@ placeholder:
   search-containers: 컨테이너 검색 (⌘ + k, ⌃k)
   search: 검색
 settings:
+  show-image-update-alert: '컨테이너에 업데이트가 있을 때 알림 표시'
   help-support: >
     GitHub에서 후원하거나 기부로 Dozzle을 응원해 주세요. 여러분의 도움으로
     모두를 위한 더 나은 Dozzle을 만들 수 있습니다. 감사합니다! 🙏🏼

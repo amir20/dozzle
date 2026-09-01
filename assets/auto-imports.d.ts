@@ -530,6 +530,7 @@ declare module 'vue' {
     readonly drawerContext: UnwrapRef<typeof import('./composable/drawer')['drawerContext']>
     readonly eagerComputed: UnwrapRef<typeof import('@vueuse/core')['eagerComputed']>
     readonly effectScope: UnwrapRef<typeof import('vue')['effectScope']>
+    readonly escapeHtml: UnwrapRef<typeof import('./utils/index')['escapeHtml']>
     readonly extendRef: UnwrapRef<typeof import('@vueuse/core')['extendRef']>
     readonly fetchAlerts: UnwrapRef<typeof import('./composable/cloudAlerts')['fetchAlerts']>
     readonly flattenJSON: UnwrapRef<typeof import('./utils/index')['flattenJSON']>

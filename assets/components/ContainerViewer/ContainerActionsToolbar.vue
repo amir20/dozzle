@@ -159,7 +159,7 @@
             {{ $t("toolbar.restart") }}
           </button>
         </li>
-        <li v-if="imageUpdatable">
+        <li v-if="!isSelfContainer">
           <button @click="update()" :disabled="actionStates.update">
             <carbon:upgrade />
             {{ container.isSwarm ? $t("toolbar.update-service") : $t("toolbar.update") }}
@@ -251,13 +251,15 @@ const clear = defineEmit();
 const { actionStates, start, stop, restart, update } = useContainerActions(toRef(() => container));
 const {
   showAlert: showImageUpdateAlert,
-  updatable: imageUpdatable,
   isSelf: isSelfContainer,
   dismiss: dismissImageUpdate,
   check: checkImageUpdate,
   checking: checkingImageUpdate,
   result: imageUpdateResult,
-} = useImageUpdate(toRef(() => container));
+} = useImageUpdate(
+  toRef(() => container),
+  toRef(() => historical),
+);
 // What the menu should say about image updates. Anything not actionable
 // (pinned, locally built, private registry, a failed check) shows nothing
 // rather than adding a dead row to the menu.
@@ -320,7 +322,7 @@ async function copyImageReference() {
     showToast(
       {
         title: t("toasts.copied.title"),
-        message: container.image,
+        message: escapeHtml(container.image),
         type: "info",
       },
       { expire: 2000 },

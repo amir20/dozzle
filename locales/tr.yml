@@ -16,6 +16,12 @@ toolbar:
   update-recreating: Konteyner yeniden oluşturuluyor...
   update-done: Konteyner başarıyla güncellendi
   update-up-to-date: Zaten güncel
+  update-available: 'Güncelleme mevcut'
+  check-for-updates: 'Güncellemeleri denetle'
+  checking-for-updates: 'Güncellemeler denetleniyor...'
+  no-updates: 'Güncelleme yok'
+  dismiss-update: 'Bu güncellemeyi yoksay'
+  view-release-notes: 'Sürüm notlarını görüntüle'
   show-hostname: Sunucu adını göster
   show-container-name: Konteyner adını göster
   shell: Kabuk
@@ -119,6 +125,11 @@ error:
       Dozzle arayüzü API'ye bağlanırken zaman aşımına uğradı. Lütfen ağ
       bağlantısını kontrol edin ve tekrar deneyin.
 alert:
+  image-update:
+    title: 'Güncelleme mevcut'
+    message: '{image} için daha yeni bir imaj yayımlandı.'
+    enable-actions: 'Buradan indirip yeniden oluşturmak için <a href="https://dozzle.dev/guide/actions" target="_blank" rel="noreferrer noopener">eylemleri etkinleştirin</a>.'
+    self: 'Dozzle kendini güncelleyemez, uygulamak için yeniden başlatın.'
   redirected:
     title: Yeni konteynere yönlendirildi
     message: Dozzle sizi otomatik olarak yeni {containerId} konteynerine yönlendirdi.
@@ -149,6 +160,7 @@ placeholder:
   search-containers: Konteynerlerde ara (⌘ + k, ⌃k)
   search: Ara
 settings:
+  show-image-update-alert: 'Bir kapsayıcının güncellemesi olduğunda bildirim göster'
   help-support: >
     Lütfen GitHub'da bağış yaparak veya bizi sponsor olarak destekleyerek Dozzle'ı destekleyin. Katkılarınız Dozzle'ı herkes için geliştirmemize yardımcı oluyor. Teşekkürler! 🙏🏼
   about-desc: Dozzle kurulumunuz ve projeyi nasıl destekleyebileceğiniz hakkında bilgiler.

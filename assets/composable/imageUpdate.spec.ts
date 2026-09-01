@@ -7,7 +7,14 @@ import type { Container } from "@/models/Container";
 import type { ImageUpdateResult } from "./imageUpdate";
 
 const holder = vi.hoisted(() => ({
-  config: { imageCheckMode: "automatic", enableActions: true } as Record<string, unknown>,
+  config: {
+    imageCheckMode: "automatic",
+    enableActions: true,
+    hosts: [
+      { id: "localhost", type: "local" },
+      { id: "remote", type: "agent" },
+    ],
+  } as Record<string, unknown>,
   dismissed: null as ReturnType<typeof import("vue").ref<Set<string>>> | null,
   showAlertSetting: null as ReturnType<typeof import("vue").ref<boolean>> | null,
   toasts: [] as any[],
@@ -30,7 +37,12 @@ vi.mock("@/stores/settings", async () => {
   return { showImageUpdateAlert: holder.showAlertSetting };
 });
 vi.mock("./toast", () => ({
-  useToast: () => ({ showToast: (toast: any) => holder.toasts.push(toast) }),
+  useToast: () => ({
+    showToast: (toast: any) => holder.toasts.push(toast),
+    removeToast: (id: string) => {
+      holder.toasts = holder.toasts.filter((t) => t.id !== id);
+    },
+  }),
 }));
 vi.mock("./containerActions", () => ({
   useContainerActions: () => ({ update: holder.update }),
@@ -71,7 +83,12 @@ function mockCheck(result: Partial<ImageUpdateResult>) {
     "fetch",
     vi.fn().mockResolvedValue({
       ok: true,
-      json: async () => ({ status: "update-available", image: "nginx:latest", checkedAt: "", ...result }),
+      json: async () => ({
+        status: "update-available",
+        image: "nginx:latest",
+        checkedAt: new Date().toISOString(),
+        ...result,
+      }),
     }),
   );
 }
@@ -88,6 +105,10 @@ describe("useImageUpdate", () => {
   beforeEach(() => {
     holder.config.imageCheckMode = "automatic";
     holder.config.enableActions = true;
+    holder.config.hosts = [
+      { id: "localhost", type: "local" },
+      { id: "remote", type: "agent" },
+    ];
     holder.dismissed!.value = new Set();
     holder.showAlertSetting!.value = false;
     holder.toasts.length = 0;
@@ -160,6 +181,16 @@ describe("useImageUpdate", () => {
     expect(result.isSelf.value).toBe(true);
   });
 
+  // A Dozzle agent on another host is an ordinary container: updating it does
+  // not stop the instance doing the updating.
+  test("treats a Dozzle agent on a remote host as updatable", async () => {
+    mockCheck({ status: "update-available", remoteDigest: "sha256:new" });
+    const { result } = await run(container({ image: "amir20/dozzle:latest", host: "remote" }));
+
+    expect(result.isSelf.value).toBe(false);
+    expect(result.updatable.value).toBe(true);
+  });
+
   test("allows updating Dozzle when it runs as a swarm service", async () => {
     mockCheck({ status: "update-available", remoteDigest: "sha256:new" });
     const { result } = await run(container({ image: "amir20/dozzle:latest", isSwarm: true }));
@@ -183,6 +214,29 @@ describe("useImageUpdate", () => {
     expect(result.showAlert.value).toBe(true);
   });
 
+  // Historical logs describe a container that is gone.
+  test("does not check or notify for historical logs", async () => {
+    holder.showAlertSetting!.value = true;
+    const fetchSpy = vi.fn();
+    vi.stubGlobal("fetch", fetchSpy);
+
+    const scope = newScope();
+    scope.run(() => useImageUpdate(shallowRef(container()), true));
+
+    expect(fetchSpy).not.toHaveBeenCalled();
+    expect(holder.toasts).toHaveLength(0);
+  });
+
+  // An image name is arbitrary text and the notice is rendered as HTML.
+  test("escapes the image name in the notification", async () => {
+    holder.showAlertSetting!.value = true;
+    mockCheck({ status: "update-available", remoteDigest: "sha256:new" });
+    await run(container({ image: "<img src=x onerror=alert(1)>:latest" }));
+
+    expect(holder.toasts[0].message).not.toContain("<img");
+    expect(holder.toasts[0].message).toContain("&lt;img");
+  });
+
   test("a failed check does not surface an alert", async () => {
     vi.stubGlobal("fetch", vi.fn().mockRejectedValue(new Error("network down")));
 
@@ -197,7 +251,7 @@ describe("useImageUpdate", () => {
   test("shares one request across consumers", async () => {
     const fetchSpy = vi.fn().mockResolvedValue({
       ok: true,
-      json: async () => ({ status: "up-to-date", image: "nginx:latest", checkedAt: "" }),
+      json: async () => ({ status: "up-to-date", image: "nginx:latest", checkedAt: new Date().toISOString() }),
     });
     vi.stubGlobal("fetch", fetchSpy);
 
@@ -281,6 +335,18 @@ describe("useImageUpdate", () => {
 
       expect(result.showAlert.value).toBe(false);
       expect(holder.dismissed!.value!.has("nginx:latest@sha256:new")).toBe(true);
+    });
+
+    // A notice already on screen has to go when the update is dismissed from
+    // the toolbar menu, or it lingers with no way to act on it.
+    test("dismissing removes a notification that is already showing", async () => {
+      holder.showAlertSetting!.value = true;
+      mockCheck({ status: "update-available", remoteDigest: "sha256:new" });
+      const { result } = await run(container());
+
+      expect(holder.toasts).toHaveLength(1);
+      result.dismiss();
+      expect(holder.toasts).toHaveLength(0);
     });
 
     test("is not shown for a dismissed update", async () => {

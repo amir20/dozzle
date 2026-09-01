@@ -16,6 +16,12 @@ toolbar:
   update-recreating: Recriando container...
   update-done: Container atualizado com sucesso
   update-up-to-date: Já está atualizado
+  update-available: 'Atualização disponível'
+  check-for-updates: 'Procurar atualizações'
+  checking-for-updates: 'Procurando atualizações...'
+  no-updates: 'Sem atualizações'
+  dismiss-update: 'Dispensar esta atualização'
+  view-release-notes: 'Ver notas de lançamento'
   show-hostname: Mostrar nome do host
   show-container-name: Mostrar nome do container
   shell: Shell
@@ -117,6 +123,11 @@ error:
     message: >-
       A interface do Dozzle atingiu o tempo limite ao conectar-se à API. Verifique a conexão de rede e tente novamente.
 alert:
+  image-update:
+    title: 'Atualização disponível'
+    message: 'Uma imagem mais recente foi publicada para {image}.'
+    enable-actions: '<a href="https://dozzle.dev/guide/actions" target="_blank" rel="noreferrer noopener">Ative as ações</a> para baixá-la e recriar o contêiner aqui.'
+    self: 'O Dozzle não pode se atualizar sozinho, reinicie-o para aplicar a atualização.'
   redirected:
     title: Redirecionado para novo container
     message: O Dozzle redirecionou você automaticamente para o novo container {containerId}.
@@ -146,6 +157,7 @@ placeholder:
   search-containers: Pesquisar containers (⌘ + k, ⌃k)
   search: Pesquisar
 settings:
+  show-image-update-alert: 'Mostrar uma notificação quando um contêiner tiver uma atualização'
   help-support: >
     Por favor, apoie o Dozzle doando ou nos patrocinando no GitHub. Suas contribuições nos ajudam a melhorar o Dozzle para todos. Obrigado! 🙏🏼
   about-desc: Informações sobre sua instalação do Dozzle e como apoiar o projeto.

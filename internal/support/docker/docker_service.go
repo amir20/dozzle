@@ -123,11 +123,13 @@ type pullEvent struct {
 // one this container is running.
 func (d *DockerClientService) CheckImageUpdate(ctx context.Context, c container.Container, force bool) (imagecheck.Result, error) {
 	if imagecheck.Skipped(c.Labels) {
+		log.Debug().Str("container", c.Name).Msg("image update check: skipped by label")
 		return imagecheck.Result{Image: c.Image, Status: imagecheck.StatusSkipped, CheckedAt: time.Now()}, nil
 	}
 
 	inspect, err := d.client.ContainerInspect(ctx, c.ID)
 	if err != nil {
+		log.Debug().Err(err).Str("container", c.Name).Msg("image update check: inspect failed")
 		return imagecheck.Result{}, err
 	}
 
@@ -136,8 +138,15 @@ func (d *DockerClientService) CheckImageUpdate(ctx context.Context, c container.
 	// is still running the old image and should report an available update.
 	digests, err := d.client.ImageRepoDigests(ctx, inspect.Image)
 	if err != nil {
+		log.Debug().Err(err).Str("container", c.Name).Str("imageId", inspect.Image).Msg("image update check: image inspect failed")
 		return imagecheck.Result{}, err
 	}
+
+	log.Debug().
+		Str("container", c.Name).
+		Str("ref", inspect.Config.Image).
+		Str("imageId", inspect.Image).
+		Msg("image update check: resolved local image")
 
 	// Config.Image is the reference the container was created from, which is
 	// what the registry must be queried for.

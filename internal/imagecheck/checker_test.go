@@ -2,9 +2,11 @@ package imagecheck
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"strings"
+	"sync"
 	"sync/atomic"
 	"testing"
 	"time"
@@ -278,4 +280,97 @@ func TestMatchesOfficialImageDigests(t *testing.T) {
 
 	assert.Equal(t, []string{"sha256:aaa"}, digestsForRepository([]string{"alpine@sha256:aaa"}, ref))
 	_ = checker
+}
+
+// A transient failure must not silence checks for the full success TTL.
+func TestTransientFailuresUseAShortTTL(t *testing.T) {
+	var fail atomic.Bool
+	fail.Store(true)
+
+	checker, calls, host := newTestChecker(t, time.Hour, func(w http.ResponseWriter, r *http.Request) {
+		if fail.Load() {
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+		w.Header().Set("Docker-Content-Digest", "sha256:aaa")
+		w.WriteHeader(http.StatusOK)
+	})
+
+	image := host + "/app:latest"
+	local := []string{host + "/app@sha256:aaa"}
+
+	require.Equal(t, StatusUnknown, checker.Check(context.Background(), image, local, false).Status)
+	require.EqualValues(t, 1, calls.Load())
+
+	// Pretend the short error TTL has passed.
+	checker.mu.Lock()
+	entry := checker.cache[image]
+	entry.fetchedAt = time.Now().Add(-errorTTL - time.Second)
+	checker.cache[image] = entry
+	checker.mu.Unlock()
+
+	fail.Store(false)
+	assert.Equal(t, StatusUpToDate, checker.Check(context.Background(), image, local, false).Status)
+	assert.EqualValues(t, 2, calls.Load(), "a transient failure should be retried well before the success TTL")
+}
+
+// An auth failure is not transient, so it keeps the full TTL.
+func TestAuthFailuresKeepTheLongTTL(t *testing.T) {
+	checker, _, host := newTestChecker(t, time.Hour, func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusUnauthorized)
+	})
+
+	image := host + "/app:latest"
+	require.Equal(t, StatusAuthRequired, checker.Check(context.Background(), image, []string{host + "/app@sha256:aaa"}, false).Status)
+
+	checker.mu.Lock()
+	ttl := checker.cache[image].ttl
+	checker.mu.Unlock()
+
+	assert.Equal(t, time.Hour, ttl)
+}
+
+// The same image on many hosts misses the cache at once; only one request
+// should reach the registry.
+func TestConcurrentChecksShareOneRequest(t *testing.T) {
+	release := make(chan struct{})
+	checker, calls, host := newTestChecker(t, time.Minute, func(w http.ResponseWriter, r *http.Request) {
+		<-release
+		w.Header().Set("Docker-Content-Digest", "sha256:aaa")
+		w.WriteHeader(http.StatusOK)
+	})
+
+	var wg sync.WaitGroup
+	results := make([]Status, 8)
+	for i := range results {
+		wg.Go(func() {
+			results[i] = checker.Check(context.Background(), host+"/app:latest", []string{host + "/app@sha256:aaa"}, false).Status
+		})
+	}
+
+	// Let every goroutine reach the registry call before answering.
+	time.Sleep(50 * time.Millisecond)
+	close(release)
+	wg.Wait()
+
+	assert.EqualValues(t, 1, calls.Load(), "concurrent misses should collapse into one request")
+	for _, status := range results {
+		assert.Equal(t, StatusUpToDate, status)
+	}
+}
+
+// Nothing else ever removes a cache entry, so it has to be bounded.
+func TestCacheIsBounded(t *testing.T) {
+	checker, _, host := newTestChecker(t, time.Hour, manifestHandler("sha256:aaa"))
+
+	for i := range maxCacheEntries + 50 {
+		image := fmt.Sprintf("%s/app-%d:latest", host, i)
+		checker.Check(context.Background(), image, []string{fmt.Sprintf("%s/app-%d@sha256:aaa", host, i)}, false)
+	}
+
+	checker.mu.Lock()
+	size := len(checker.cache)
+	checker.mu.Unlock()
+
+	assert.LessOrEqual(t, size, maxCacheEntries)
 }

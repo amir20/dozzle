@@ -16,6 +16,12 @@ toolbar:
   update-recreating: Пересоздание контейнера...
   update-done: Контейнер успешно обновлён
   update-up-to-date: Уже обновлён
+  update-available: 'Доступно обновление'
+  check-for-updates: 'Проверить обновления'
+  checking-for-updates: 'Проверка обновлений...'
+  no-updates: 'Обновлений нет'
+  dismiss-update: 'Скрыть это обновление'
+  view-release-notes: 'Посмотреть примечания к выпуску'
   show-hostname: Показать имя хоста
   show-container-name: Показать имя контейнера
   shell: Оболочка
@@ -117,6 +123,11 @@ error:
     message: >-
       Dozzle UI превысил время ожидания при подключении к API. Пожалуйста, проверьте сетевое подключение и повторите попытку.
 alert:
+  image-update:
+    title: 'Доступно обновление'
+    message: 'Для {image} опубликован более новый образ.'
+    enable-actions: '<a href="https://dozzle.dev/guide/actions" target="_blank" rel="noreferrer noopener">Включите действия</a>, чтобы загрузить его и пересоздать контейнер отсюда.'
+    self: 'Dozzle не может обновить сам себя — перезапустите его, чтобы применить обновление.'
   redirected:
     title: Перенаправлен на новый контейнер
     message: Dozzle автоматически перенаправил вас на новый контейнер {containerId}.
@@ -146,6 +157,7 @@ placeholder:
   search-containers: Поиск контейнеров (⌘ + k, ⌃k)
   search: Поиск
 settings:
+  show-image-update-alert: 'Показывать уведомление, когда у контейнера есть обновление'
   help-support: >
     Пожалуйста, поддержите Dozzle, сделав пожертвование или спонсорство на GitHub. Ваши вклады помогают нам улучшать Dozzle для всех. Спасибо! 🙏🏼
   about-desc: Информация о вашей установке Dozzle и о том, как поддержать проект.

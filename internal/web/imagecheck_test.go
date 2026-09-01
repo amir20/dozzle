@@ -14,7 +14,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func imageCheckHandler(t *testing.T, mode imagecheck.Mode, labels map[string]string) *MockedClient {
+func imageCheckHandler(t *testing.T, labels map[string]string) *MockedClient {
 	t.Helper()
 
 	m := new(MockedClient)
@@ -46,7 +46,7 @@ func doImageCheck(t *testing.T, m *MockedClient, mode imagecheck.Mode, path stri
 // The endpoint must not exist at all when checks are off, so an operator can
 // verify Dozzle makes no outbound registry requests.
 func Test_handler_checkImageUpdate_off_removes_route(t *testing.T) {
-	m := imageCheckHandler(t, imagecheck.ModeOff, nil)
+	m := imageCheckHandler(t, nil)
 
 	rr := doImageCheck(t, m, imagecheck.ModeOff, "/api/hosts/localhost/containers/123/image/check")
 
@@ -55,7 +55,7 @@ func Test_handler_checkImageUpdate_off_removes_route(t *testing.T) {
 
 // Manual mode answers without contacting a registry unless force is set.
 func Test_handler_checkImageUpdate_manual_does_not_reach_registry(t *testing.T) {
-	m := imageCheckHandler(t, imagecheck.ModeManual, nil)
+	m := imageCheckHandler(t, nil)
 
 	rr := doImageCheck(t, m, imagecheck.ModeManual, "/api/hosts/localhost/containers/123/image/check")
 
@@ -66,7 +66,7 @@ func Test_handler_checkImageUpdate_manual_does_not_reach_registry(t *testing.T) 
 
 // A container can opt out of checks entirely with a label.
 func Test_handler_checkImageUpdate_respects_skip_label(t *testing.T) {
-	m := imageCheckHandler(t, imagecheck.ModeAutomatic, map[string]string{imagecheck.SkipLabel: "false"})
+	m := imageCheckHandler(t, map[string]string{imagecheck.SkipLabel: "false"})
 
 	rr := doImageCheck(t, m, imagecheck.ModeAutomatic, "/api/hosts/localhost/containers/123/image/check")
 
@@ -78,7 +78,7 @@ func Test_handler_checkImageUpdate_respects_skip_label(t *testing.T) {
 // A locally built image has no RepoDigest, so it is reported as uncheckable
 // rather than as an error or a false "up to date".
 func Test_handler_checkImageUpdate_locally_built_image(t *testing.T) {
-	m := imageCheckHandler(t, imagecheck.ModeAutomatic, nil)
+	m := imageCheckHandler(t, nil)
 	m.On("ContainerInspect", mock.Anything, "123").Return(docker_types.InspectResponse{
 		Image:  "sha256:local",
 		Config: &docker_types.Config{Image: "my-app:latest"},
@@ -94,7 +94,7 @@ func Test_handler_checkImageUpdate_locally_built_image(t *testing.T) {
 // The check must be answered even when actions are disabled: knowing an update
 // exists is useful when the user updates the container themselves.
 func Test_handler_checkImageUpdate_works_without_actions(t *testing.T) {
-	m := imageCheckHandler(t, imagecheck.ModeAutomatic, nil)
+	m := imageCheckHandler(t, nil)
 	m.On("ContainerInspect", mock.Anything, "123").Return(docker_types.InspectResponse{
 		Image:  "sha256:local",
 		Config: &docker_types.Config{Image: "my-app:latest"},
@@ -117,7 +117,7 @@ func Test_handler_checkImageUpdate_works_without_actions(t *testing.T) {
 }
 
 func Test_handler_checkImageUpdate_not_found(t *testing.T) {
-	m := imageCheckHandler(t, imagecheck.ModeAutomatic, nil)
+	m := imageCheckHandler(t, nil)
 
 	rr := doImageCheck(t, m, imagecheck.ModeAutomatic, "/api/hosts/localhost/containers/456/image/check")
 

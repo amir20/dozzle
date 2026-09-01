@@ -10,6 +10,8 @@ import (
 	"strings"
 	"sync"
 	"time"
+
+	"github.com/rs/zerolog/log"
 )
 
 // acceptManifests lists every manifest media type we are willing to receive.
@@ -58,8 +60,11 @@ func NewRegistry(timeout time.Duration) *Registry {
 // It never downloads the manifest body: only the Docker-Content-Digest header
 // is needed, so a HEAD is enough and costs no pull quota.
 func (r *Registry) Digest(ctx context.Context, ref Reference) (string, error) {
+	log.Debug().Str("url", ref.manifestURL()).Msg("image update check: HEAD manifest")
+
 	resp, err := r.head(ctx, ref, "")
 	if err != nil {
+		log.Debug().Err(err).Str("url", ref.manifestURL()).Msg("image update check: manifest request failed")
 		return "", err
 	}
 
@@ -69,17 +74,30 @@ func (r *Registry) Digest(ctx context.Context, ref Reference) (string, error) {
 		challenge := resp.Header.Get("WWW-Authenticate")
 		resp.Body.Close()
 
+		log.Debug().
+			Str("repository", ref.Repository).
+			Str("challenge", challenge).
+			Msg("image update check: registry asked for a token")
+
 		token, err := r.token(ctx, ref, challenge)
 		if err != nil {
+			log.Debug().Err(err).Str("repository", ref.Repository).Msg("image update check: could not get a token")
 			return "", err
 		}
 
 		resp, err = r.head(ctx, ref, token)
 		if err != nil {
+			log.Debug().Err(err).Str("url", ref.manifestURL()).Msg("image update check: retry with token failed")
 			return "", err
 		}
 	}
 	defer resp.Body.Close()
+
+	log.Debug().
+		Str("repository", ref.Repository).
+		Int("status", resp.StatusCode).
+		Str("contentType", resp.Header.Get("Content-Type")).
+		Msg("image update check: manifest response")
 
 	switch resp.StatusCode {
 	case http.StatusOK:
@@ -97,6 +115,8 @@ func (r *Registry) Digest(ctx context.Context, ref Reference) (string, error) {
 	if digest == "" {
 		return "", fmt.Errorf("registry omitted Docker-Content-Digest for %s", ref.Repository)
 	}
+
+	log.Debug().Str("repository", ref.Repository).Str("digest", digest).Msg("image update check: registry digest")
 
 	return digest, nil
 }
@@ -123,6 +143,7 @@ func (r *Registry) token(ctx context.Context, ref Reference, challenge string) (
 	r.mu.Lock()
 	if cached, ok := r.tokens[key]; ok && time.Now().Before(cached.expiresAt) {
 		r.mu.Unlock()
+		log.Debug().Str("repository", ref.Repository).Msg("image update check: reusing cached token")
 		return cached.token, nil
 	}
 	r.mu.Unlock()
@@ -135,6 +156,15 @@ func (r *Registry) token(ctx context.Context, ref Reference, challenge string) (
 	endpoint, err := url.Parse(realm)
 	if err != nil {
 		return "", fmt.Errorf("invalid auth realm %q: %w", realm, err)
+	}
+
+	// The realm is chosen by the registry, so it decides where Dozzle sends
+	// its next request. Requiring TLS stops a hostile or compromised registry
+	// from pointing that request at a plaintext internal address such as a
+	// cloud metadata endpoint. Loopback registries are exempt for the same
+	// reason they are allowed over HTTP at all.
+	if err := validateRealm(endpoint, ref); err != nil {
+		return "", err
 	}
 	query := endpoint.Query()
 	if service != "" {
@@ -182,12 +212,42 @@ func (r *Registry) token(ctx context.Context, ref Reference, challenge string) (
 		ttl = 60 * time.Second
 	}
 
+	// The token itself is a credential and is deliberately never logged.
+	log.Debug().
+		Str("repository", ref.Repository).
+		Str("realm", realm).
+		Dur("ttl", ttl).
+		Msg("image update check: obtained registry token")
+
 	r.mu.Lock()
 	// Expire the token a little early so a request never races the deadline.
 	r.tokens[key] = cachedToken{token: token, expiresAt: time.Now().Add(ttl - 10*time.Second)}
 	r.mu.Unlock()
 
 	return token, nil
+}
+
+// validateRealm restricts where a registry can send us for a token.
+func validateRealm(endpoint *url.URL, ref Reference) error {
+	if endpoint.Host == "" {
+		return fmt.Errorf("auth realm %q has no host", endpoint)
+	}
+
+	if endpoint.Scheme == "https" {
+		return nil
+	}
+
+	// A loopback registry is already trusted over plain HTTP, but only for
+	// itself: it cannot send us to some other host in the clear.
+	if endpoint.Scheme == "http" && ref.Insecure() && sameHost(endpoint.Host, ref.Registry) {
+		return nil
+	}
+
+	return fmt.Errorf("refusing auth realm %q: must be https", endpoint)
+}
+
+func sameHost(a, b string) bool {
+	return strings.EqualFold(a, b)
 }
 
 // parseChallenge pulls realm and service out of a Bearer WWW-Authenticate

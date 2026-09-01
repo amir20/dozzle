@@ -16,6 +16,12 @@ toolbar:
   update-recreating: 正在重新创建容器...
   update-done: 容器更新成功
   update-up-to-date: 已是最新版本
+  update-available: '有可用更新'
+  check-for-updates: '检查更新'
+  checking-for-updates: '正在检查更新...'
+  no-updates: '没有更新'
+  dismiss-update: '忽略此更新'
+  view-release-notes: '查看发行说明'
   show-hostname: 显示主机名
   show-container-name: 显示容器名称
   shell: 终端
@@ -117,6 +123,11 @@ error:
     message: >-
       Dozzle UI在连接到API时超时。请检查网络连接并重试。
 alert:
+  image-update:
+    title: '有可用更新'
+    message: '{image} 已发布更新的镜像。'
+    enable-actions: '<a href="https://dozzle.dev/guide/actions" target="_blank" rel="noreferrer noopener">启用操作</a>即可在此拉取并重建容器。'
+    self: 'Dozzle 无法更新自身，请重启以应用更新。'
   redirected:
     title: 重定向到新容器
     message: Dozzle自动将您重定向到新容器 {containerId}。
@@ -146,6 +157,7 @@ placeholder:
   search-containers: 搜索容器 (⌘ + k, ⌃k)
   search: 搜索
 settings:
+  show-image-update-alert: '当容器有更新时显示通知'
   help-support: >
     请通过在 GitHub 上捐赠或赞助我们来支持 Dozzle。您的贡献帮助我们为所有人改进 Dozzle。谢谢！ 🙏🏼
   about-desc: 关于您的 Dozzle 安装及如何支持本项目的信息。

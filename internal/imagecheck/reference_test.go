@@ -1,6 +1,7 @@
 package imagecheck
 
 import (
+	"net/url"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -154,4 +155,58 @@ func TestParseChallenge(t *testing.T) {
 	realm, service = parseChallenge("Basic realm=\"something\"")
 	assert.Empty(t, realm)
 	assert.Empty(t, service)
+}
+
+// Docker Hub answers to several hostnames. They must all normalize, or a
+// reference written as index.docker.io/library/nginx never matches the
+// "nginx@sha256:..." that Docker records locally.
+func TestDockerHubAliasesNormalize(t *testing.T) {
+	for _, image := range []string{
+		"nginx:latest",
+		"docker.io/library/nginx:latest",
+		"index.docker.io/library/nginx:latest",
+		"registry-1.docker.io/library/nginx:latest",
+		"registry.hub.docker.com/library/nginx:latest",
+	} {
+		ref, err := ParseReference(image)
+		require.NoError(t, err)
+
+		assert.Equal(t, "docker.io", ref.Registry, image)
+		assert.Equal(t, "library/nginx", ref.Repository, image)
+		assert.Equal(t, []string{"sha256:aaa"}, digestsForRepository([]string{"nginx@sha256:aaa"}, ref), image)
+	}
+}
+
+// The realm in a WWW-Authenticate header decides where Dozzle sends its next
+// request, so a registry must not be able to point it at a plaintext internal
+// address.
+func TestRealmMustBeHTTPS(t *testing.T) {
+	remote, err := ParseReference("ghcr.io/foo/bar:latest")
+	require.NoError(t, err)
+
+	for _, realm := range []string{
+		"http://169.254.169.254/latest/meta-data/",
+		"http://localhost:9000/token",
+		"http://internal.example.com/token",
+	} {
+		endpoint, parseErr := url.Parse(realm)
+		require.NoError(t, parseErr)
+		assert.Error(t, validateRealm(endpoint, remote), "%s should be refused", realm)
+	}
+
+	https, err := url.Parse("https://auth.docker.io/token")
+	require.NoError(t, err)
+	assert.NoError(t, validateRealm(https, remote))
+
+	// A loopback registry may use plain HTTP, but only to reach itself.
+	local, err := ParseReference("localhost:5000/app:latest")
+	require.NoError(t, err)
+
+	own, err := url.Parse("http://localhost:5000/token")
+	require.NoError(t, err)
+	assert.NoError(t, validateRealm(own, local))
+
+	elsewhere, err := url.Parse("http://169.254.169.254/token")
+	require.NoError(t, err)
+	assert.Error(t, validateRealm(elsewhere, local))
 }
