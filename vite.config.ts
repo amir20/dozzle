@@ -24,6 +24,9 @@ export default defineConfig(() => ({
   },
   build: {
     manifest: true,
+    // App icons are referenced by URL and fetched on demand. Inlining the small ones
+    // would drag all ~250 into the entry chunk as base64 for the handful ever shown.
+    assetsInlineLimit: (filePath: string) => (filePath.includes("assets/icons/apps/") ? false : undefined),
     rollupOptions: {
       input: "assets/main.ts",
     },

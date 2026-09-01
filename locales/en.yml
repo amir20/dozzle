@@ -229,6 +229,8 @@ settings:
   options: Options
   show-stopped-containers: Show stopped containers
   show-image-update-alert: Show a notification when a container has an update
+  show-app-icons: Show app icons
+  show-app-icons-desc: Match well known images to their logo. Icons ship with Dozzle and are never fetched from the internet.
   group-containers: Group containers by namespace
   about: About
   search: Enable searching with Dozzle using

@@ -140,3 +140,33 @@ describe("Container.updateStat", () => {
     expect(c.statsHistory.at(-1)).toEqual(latest);
   });
 });
+
+describe("Container.icon", () => {
+  test("derives the icon from the image", () => {
+    expect(makeContainer({ image: "lscr.io/linuxserver/sonarr:latest" }).icon).toBe("sonarr");
+  });
+
+  test("undefined for an unrecognized image", () => {
+    expect(makeContainer({ image: "my-company/internal-thing" }).icon).toBeUndefined();
+  });
+
+  test("dev.dozzle.icon overrides the guess", () => {
+    expect(makeContainer({ image: "my-company/internal-thing", labels: { "dev.dozzle.icon": "plex" } }).icon).toBe(
+      "plex",
+    );
+    expect(makeContainer({ image: "nginx", labels: { "dev.dozzle.icon": "traefik" } }).icon).toBe("traefik");
+  });
+
+  test("dev.dozzle.icon=none opts out", () => {
+    expect(makeContainer({ image: "sonarr", labels: { "dev.dozzle.icon": "none" } }).icon).toBeUndefined();
+    expect(makeContainer({ image: "sonarr", labels: { "dev.dozzle.icon": "NONE" } }).icon).toBeUndefined();
+  });
+
+  test("an override naming an unbundled icon falls back to nothing", () => {
+    expect(makeContainer({ image: "sonarr", labels: { "dev.dozzle.icon": "not-a-real-icon" } }).icon).toBeUndefined();
+  });
+
+  test("ignores a blank override", () => {
+    expect(makeContainer({ image: "sonarr", labels: { "dev.dozzle.icon": "  " } }).icon).toBe("sonarr");
+  });
+});

@@ -239,6 +239,13 @@
           {{ $t("settings.show-stopped-containers") }}
           <input type="checkbox" class="toggle toggle-primary toggle-sm" v-model="showAllContainers" />
         </label>
+        <label class="flex min-h-13 items-center justify-between gap-4 p-4 text-sm font-medium">
+          <span>
+            {{ $t("settings.show-app-icons") }}
+            <span class="text-base-content/60 block text-xs font-normal">{{ $t("settings.show-app-icons-desc") }}</span>
+          </span>
+          <input type="checkbox" class="toggle toggle-primary toggle-sm" v-model="showAppIcons" />
+        </label>
       </div>
     </section>
   </div>
@@ -263,6 +270,7 @@ import {
   locale,
   groupContainers,
   showImageUpdateAlert,
+  showAppIcons,
 } from "@/stores/settings";
 
 import { availableLocales, i18n } from "@/modules/i18n";

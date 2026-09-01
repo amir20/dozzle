@@ -79,9 +79,12 @@ declare global {
   const groupContainers: typeof import('./stores/settings').groupContainers
   const groupK8sOwners: typeof import('./stores/k8s').groupK8sOwners
   const h: typeof import('vue').h
+  const hasIcon: typeof import('./utils/index').hasIcon
   const hashCode: typeof import('./utils/index').hashCode
   const highlightSubstringInHtml: typeof import('./utils/index').highlightSubstringInHtml
   const hourStyle: typeof import('./stores/settings').hourStyle
+  const iconSlugForImage: typeof import('./utils/index').iconSlugForImage
+  const iconUrl: typeof import('./utils/index').iconUrl
   const ignorableWatch: typeof import('@vueuse/core').ignorableWatch
   const inject: typeof import('vue').inject
   const injectLocal: typeof import('@vueuse/core').injectLocal
@@ -167,6 +170,7 @@ declare global {
   const shallowReadonly: typeof import('vue').shallowReadonly
   const shallowRef: typeof import('vue').shallowRef
   const showAllContainers: typeof import('./stores/settings').showAllContainers
+  const showAppIcons: typeof import('./stores/settings').showAppIcons
   const showImageUpdateAlert: typeof import('./stores/settings').showImageUpdateAlert
   const showStd: typeof import('./stores/settings').showStd
   const showTimestamp: typeof import('./stores/settings').showTimestamp
@@ -346,6 +350,7 @@ declare global {
   const useRafFn: typeof import('@vueuse/core').useRafFn
   const useRefHistory: typeof import('@vueuse/core').useRefHistory
   const useResizeObserver: typeof import('@vueuse/core').useResizeObserver
+  const useResolvedTheme: typeof import('./composable/theme').useResolvedTheme
   const useRoute: typeof import('vue-router/auto').useRoute
   const useRouter: typeof import('vue-router/auto').useRouter
   const useSSRWidth: typeof import('@vueuse/core').useSSRWidth
@@ -547,8 +552,11 @@ declare module 'vue' {
     readonly groupContainers: UnwrapRef<typeof import('./stores/settings')['groupContainers']>
     readonly groupK8sOwners: UnwrapRef<typeof import('./stores/k8s')['groupK8sOwners']>
     readonly h: UnwrapRef<typeof import('vue')['h']>
+    readonly hasIcon: UnwrapRef<typeof import('./utils/index')['hasIcon']>
     readonly hashCode: UnwrapRef<typeof import('./utils/index')['hashCode']>
     readonly hourStyle: UnwrapRef<typeof import('./stores/settings')['hourStyle']>
+    readonly iconSlugForImage: UnwrapRef<typeof import('./utils/index')['iconSlugForImage']>
+    readonly iconUrl: UnwrapRef<typeof import('./utils/index')['iconUrl']>
     readonly ignorableWatch: UnwrapRef<typeof import('@vueuse/core')['ignorableWatch']>
     readonly inject: UnwrapRef<typeof import('vue')['inject']>
     readonly injectLocal: UnwrapRef<typeof import('@vueuse/core')['injectLocal']>
@@ -632,6 +640,7 @@ declare module 'vue' {
     readonly shallowReadonly: UnwrapRef<typeof import('vue')['shallowReadonly']>
     readonly shallowRef: UnwrapRef<typeof import('vue')['shallowRef']>
     readonly showAllContainers: UnwrapRef<typeof import('./stores/settings')['showAllContainers']>
+    readonly showAppIcons: UnwrapRef<typeof import('./stores/settings')['showAppIcons']>
     readonly showImageUpdateAlert: UnwrapRef<typeof import('./stores/settings')['showImageUpdateAlert']>
     readonly showStd: UnwrapRef<typeof import('./stores/settings')['showStd']>
     readonly showTimestamp: UnwrapRef<typeof import('./stores/settings')['showTimestamp']>
@@ -809,6 +818,7 @@ declare module 'vue' {
     readonly useRafFn: UnwrapRef<typeof import('@vueuse/core')['useRafFn']>
     readonly useRefHistory: UnwrapRef<typeof import('@vueuse/core')['useRefHistory']>
     readonly useResizeObserver: UnwrapRef<typeof import('@vueuse/core')['useResizeObserver']>
+    readonly useResolvedTheme: UnwrapRef<typeof import('./composable/theme')['useResolvedTheme']>
     readonly useRoute: UnwrapRef<typeof import('vue-router/auto')['useRoute']>
     readonly useRouter: UnwrapRef<typeof import('vue-router/auto')['useRouter']>
     readonly useSSRWidth: UnwrapRef<typeof import('@vueuse/core')['useSSRWidth']>
