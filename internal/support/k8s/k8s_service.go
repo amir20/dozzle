@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"github.com/amir20/dozzle/internal/container"
+	"github.com/amir20/dozzle/internal/imagecheck"
 	"github.com/amir20/dozzle/internal/k8s"
 )
 
@@ -91,6 +92,17 @@ func (k *K8sClientService) SubscribeEvents(ctx context.Context, events chan<- co
 
 func (k *K8sClientService) SubscribeContainersStarted(ctx context.Context, containers chan<- container.Container) {
 	k.store.SubscribeNewContainers(ctx, containers)
+}
+
+// CheckImageUpdate is not supported in Kubernetes mode, where image rollout is
+// the cluster's responsibility rather than Dozzle's.
+func (k *K8sClientService) CheckImageUpdate(ctx context.Context, c container.Container, force bool) (imagecheck.Result, error) {
+	return imagecheck.Result{
+		Image:     c.Image,
+		Status:    imagecheck.StatusSkipped,
+		Reason:    "image update checks are not supported in Kubernetes mode",
+		CheckedAt: time.Now(),
+	}, nil
 }
 
 func (k *K8sClientService) UpdateContainer(ctx context.Context, c container.Container, progressCh chan<- container.UpdateProgress) (bool, error) {

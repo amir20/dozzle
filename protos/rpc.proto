@@ -19,6 +19,7 @@ service AgentService {
   rpc HostInfo(HostInfoRequest) returns (HostInfoResponse) {}
   rpc ContainerAction(ContainerActionRequest) returns (ContainerActionResponse) {}
   rpc UpdateContainer(UpdateContainerRequest) returns (stream UpdateContainerProgress) {}
+  rpc CheckImageUpdate(CheckImageUpdateRequest) returns (CheckImageUpdateResponse) {}
   rpc ContainerExec(stream ContainerExecRequest) returns (stream ContainerExecResponse) {}
   rpc ContainerAttach(stream ContainerAttachRequest) returns (stream ContainerAttachResponse) {}
   rpc UpdateNotificationConfig(UpdateNotificationConfigRequest) returns (UpdateNotificationConfigResponse) {}
@@ -112,6 +113,20 @@ message UpdateContainerProgress {
   int64 current = 3;
   int64 total = 4;
   string error = 5;
+}
+
+message CheckImageUpdateRequest {
+  string containerId = 1;
+  bool force = 2;
+}
+
+message CheckImageUpdateResponse {
+  string status = 1;
+  string image = 2;
+  string localDigest = 3;
+  string remoteDigest = 4;
+  int64 checkedAt = 5;
+  string reason = 6;
 }
 
 message ContainerExecRequest {

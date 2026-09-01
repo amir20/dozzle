@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/amir20/dozzle/internal/container"
+	"github.com/amir20/dozzle/internal/imagecheck"
 )
 
 type ContainerFilter = func(*container.Container) bool
@@ -16,6 +17,7 @@ type ClientService interface {
 	Host(ctx context.Context) (container.Host, error)
 	ContainerAction(ctx context.Context, container container.Container, action container.ContainerAction) error
 	UpdateContainer(ctx context.Context, container container.Container, progressCh chan<- container.UpdateProgress) (bool, error)
+	CheckImageUpdate(ctx context.Context, container container.Container, force bool) (imagecheck.Result, error)
 	LogsBetweenDates(ctx context.Context, container container.Container, from time.Time, to time.Time, stdTypes container.StdType) (<-chan *container.LogEvent, error)
 	RawLogs(context.Context, container.Container, time.Time, time.Time, container.StdType) (io.ReadCloser, error)
 

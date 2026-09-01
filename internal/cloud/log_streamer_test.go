@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/amir20/dozzle/internal/container"
+	"github.com/amir20/dozzle/internal/imagecheck"
 	container_support "github.com/amir20/dozzle/internal/support/container"
 	pb "github.com/amir20/dozzle/proto/cloud"
 	"github.com/stretchr/testify/assert"
@@ -42,6 +43,10 @@ func (f *fakeClientService) Host(_ context.Context) (container.Host, error) { re
 func (f *fakeClientService) ContainerAction(_ context.Context, _ container.Container, _ container.ContainerAction) error {
 	return nil
 }
+func (f *fakeClientService) CheckImageUpdate(_ context.Context, _ container.Container, _ bool) (imagecheck.Result, error) {
+	return imagecheck.Result{Status: imagecheck.StatusUpToDate}, nil
+}
+
 func (f *fakeClientService) UpdateContainer(_ context.Context, _ container.Container, progressCh chan<- container.UpdateProgress) (bool, error) {
 	close(progressCh)
 	return false, nil
@@ -52,7 +57,7 @@ func (f *fakeClientService) LogsBetweenDates(_ context.Context, _ container.Cont
 func (f *fakeClientService) RawLogs(_ context.Context, _ container.Container, _ time.Time, _ time.Time, _ container.StdType) (io.ReadCloser, error) {
 	return nil, nil
 }
-func (f *fakeClientService) SubscribeStats(_ context.Context, _ chan<- container.ContainerStat)  {}
+func (f *fakeClientService) SubscribeStats(_ context.Context, _ chan<- container.ContainerStat)   {}
 func (f *fakeClientService) SubscribeEvents(_ context.Context, _ chan<- container.ContainerEvent) {}
 func (f *fakeClientService) SubscribeContainersStarted(_ context.Context, _ chan<- container.Container) {
 }

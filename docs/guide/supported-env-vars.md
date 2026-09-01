@@ -7,7 +7,7 @@ title: Environment Variables and Subcommands
 Configurations can be done with flags or environment variables. The table below outlines all supported options and their respective env vars.
 
 | Flag                   | Env Variable                | Default         |
-|------------------------|-----------------------------|-----------------|
+| ---------------------- | --------------------------- | --------------- |
 | `--addr`               | `DOZZLE_ADDR`               | `:8080`         |
 | `--base`               | `DOZZLE_BASE`               | `/`             |
 | `--hostname`           | `DOZZLE_HOSTNAME`           | `""`            |
@@ -27,6 +27,7 @@ Configurations can be done with flags or environment variables. The table below 
 | `--no-analytics`       | `DOZZLE_NO_ANALYTICS`       | `false`         |
 | `--mode`               | `DOZZLE_MODE`               | `server`        |
 | `--release-check-mode` | `DOZZLE_RELEASE_CHECK_MODE` | `automatic`     |
+| `--image-check-mode`   | `DOZZLE_IMAGE_CHECK_MODE`   | inherited       |
 | `--remote-host`        | `DOZZLE_REMOTE_HOST`        |                 |
 | `--remote-agent`       | `DOZZLE_REMOTE_AGENT`       |                 |
 | `--timeout`            | `DOZZLE_TIMEOUT`            | `10s`           |
@@ -46,7 +47,7 @@ docker run -it --rm amir20/dozzle generate admin --password password --email tes
 In this example, `admin` is the username. Email and name are optional but recommended to display accurate avatars. `docker run amir20/dozzle generate --help` displays all options.
 
 | Flag            | Description      | Default |
-|-----------------|------------------| ------- |
+| --------------- | ---------------- | ------- |
 | `--password`    | User's password  |         |
 | `--email`       | User's email     |         |
 | `--name`        | User's full name |         |

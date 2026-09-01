@@ -1,7 +1,7 @@
 <template>
   <div class="toast toast-end max-md:toast-center max-md:toast-bottom whitespace-normal max-md:w-full max-md:px-2">
     <div
-      class="alert max-w-xl shadow-sm max-md:w-full max-md:rounded-lg"
+      class="alert flex max-w-xl flex-col items-stretch gap-2 shadow-sm max-md:w-full max-md:rounded-lg"
       v-for="{ toast, options: { timed } } in toasts"
       :key="toast.id"
       :class="{
@@ -10,14 +10,26 @@
         'alert-warning': toast.type === 'warning',
       }"
     >
-      <carbon:information class="size-5 shrink-0 stroke-current" v-if="toast.type === 'info'" />
-      <carbon:warning class="size-5 shrink-0 stroke-current" v-else-if="toast.type === 'error'" />
-      <carbon:warning class="size-5 shrink-0 stroke-current" v-else-if="toast.type === 'warning'" />
-      <div class="min-w-0">
-        <h3 class="text-lg font-bold max-md:text-base" v-if="toast.title">{{ toast.title }}</h3>
-        <div v-html="toast.message" class="max-md:text-sm [&>a]:underline"></div>
+      <div class="flex w-full items-start gap-3">
+        <carbon:information class="size-5 shrink-0 stroke-current" v-if="toast.type === 'info'" />
+        <carbon:warning class="size-5 shrink-0 stroke-current" v-else-if="toast.type === 'error'" />
+        <carbon:warning class="size-5 shrink-0 stroke-current" v-else-if="toast.type === 'warning'" />
+        <div class="min-w-0 grow">
+          <h3 class="text-lg font-bold max-md:text-base" v-if="toast.title">{{ toast.title }}</h3>
+          <div v-html="toast.message" class="max-md:text-sm [&>a]:underline"></div>
+          <div class="mt-2 flex items-center gap-2" v-if="toast.progress !== undefined">
+            <progress class="progress progress-primary h-1.5 grow" :value="toast.progress" max="100"></progress>
+            <span class="text-xs tabular-nums opacity-70">{{ Math.round(toast.progress) }}%</span>
+          </div>
+        </div>
+        <button class="btn btn-circle btn-xs shrink-0" @click="removeToast(toast.id)">
+          <mdi:close />
+        </button>
       </div>
-      <div class="shrink-0">
+
+      <!-- Actions sit under the message so a long notice keeps its full width
+           instead of being squeezed by the buttons beside it. -->
+      <div class="flex w-full justify-end gap-1" v-if="timed || toast.action || toast.secondaryAction">
         <TimedButton
           v-if="timed"
           class="btn-primary btn-sm"
@@ -30,15 +42,29 @@
         >
           {{ toast.action?.label }}
         </TimedButton>
-        <template v-else-if="toast.action">
-          <button class="btn btn-primary btn-sm" @click="toast.action.handler()">{{ toast.action.label }}</button>
-          <button class="btn btn-circle btn-xs ml-1" @click="removeToast(toast.id)">
-            <mdi:close />
+        <template v-else>
+          <button
+            class="btn btn-ghost btn-sm"
+            v-if="toast.secondaryAction"
+            @click="
+              toast.secondaryAction.handler();
+              removeToast(toast.id);
+            "
+          >
+            {{ toast.secondaryAction.label }}
+          </button>
+          <!-- Acting on a notice answers it, so the toast goes away either way. -->
+          <button
+            class="btn btn-primary btn-sm"
+            v-if="toast.action"
+            @click="
+              toast.action.handler();
+              removeToast(toast.id);
+            "
+          >
+            {{ toast.action.label }}
           </button>
         </template>
-        <button class="btn btn-circle btn-xs" @click="removeToast(toast.id)" v-else>
-          <mdi:close />
-        </button>
       </div>
     </div>
   </div>

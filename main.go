@@ -20,6 +20,7 @@ import (
 	"github.com/amir20/dozzle/internal/cloud"
 	"github.com/amir20/dozzle/internal/container"
 	"github.com/amir20/dozzle/internal/docker"
+	"github.com/amir20/dozzle/internal/imagecheck"
 	"github.com/amir20/dozzle/internal/k8s"
 	"github.com/amir20/dozzle/internal/notification/dispatcher"
 	"github.com/amir20/dozzle/internal/support/cli"
@@ -264,6 +265,12 @@ func createServer(args cli.Args, hostService web.HostService, cloudHooks web.Clo
 		authTTL = ttl
 	}
 
+	// Already validated in ParseArgs, so an error here is not reachable.
+	imageCheckMode, err := imagecheck.ParseMode(args.ImageCheckMode)
+	if err != nil {
+		log.Fatal().Err(err).Msg("Could not parse image check mode")
+	}
+
 	config := web.Config{
 		Addr:        args.Addr,
 		Base:        args.Base,
@@ -283,6 +290,7 @@ func createServer(args cli.Args, hostService web.HostService, cloudHooks web.Clo
 		EnableMCP:        args.EnableMCP,
 		DisableAvatars:   args.DisableAvatars,
 		ReleaseCheckMode: releaseCheckMode,
+		ImageCheckMode:   imageCheckMode,
 		Labels:           args.Filter,
 		Cloud:            cloudHooks,
 	}

@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/amir20/dozzle/internal/container"
+	"github.com/amir20/dozzle/internal/imagecheck"
 	container_support "github.com/amir20/dozzle/internal/support/container"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -146,6 +147,10 @@ func (m *MockClientService) Attach(_ context.Context, _ container.Container, _ c
 }
 func (m *MockClientService) Exec(_ context.Context, _ container.Container, _ []string, _ container.ExecEventReader, _ io.Writer) error {
 	return nil
+}
+
+func (m *MockClientService) CheckImageUpdate(_ context.Context, _ container.Container, _ bool) (imagecheck.Result, error) {
+	return imagecheck.Result{Status: imagecheck.StatusUpToDate}, nil
 }
 
 func (m *MockClientService) UpdateContainer(_ context.Context, _ container.Container, progressCh chan<- container.UpdateProgress) (bool, error) {

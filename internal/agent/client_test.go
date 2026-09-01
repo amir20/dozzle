@@ -12,6 +12,7 @@ import (
 	"time"
 
 	"github.com/amir20/dozzle/internal/container"
+	"github.com/amir20/dozzle/internal/imagecheck"
 	"github.com/amir20/dozzle/internal/notification/dispatcher"
 	"github.com/amir20/dozzle/internal/utils"
 	"github.com/amir20/dozzle/types"
@@ -107,6 +108,11 @@ func (m *MockedClientService) Exec(ctx context.Context, c container.Container, c
 func (m *MockedClientService) UpdateContainer(ctx context.Context, c container.Container, progressCh chan<- container.UpdateProgress) (bool, error) {
 	args := m.Called(ctx, c, progressCh)
 	return args.Bool(0), args.Error(1)
+}
+
+func (m *MockedClientService) CheckImageUpdate(ctx context.Context, c container.Container, force bool) (imagecheck.Result, error) {
+	args := m.Called(ctx, c, force)
+	return args.Get(0).(imagecheck.Result), args.Error(1)
 }
 
 var wantedContainer = container.Container{}

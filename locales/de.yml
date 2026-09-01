@@ -16,6 +16,12 @@ toolbar:
   update-recreating: Container wird neu erstellt...
   update-done: Container erfolgreich aktualisiert
   update-up-to-date: Bereits aktuell
+  update-available: 'Update verfügbar'
+  check-for-updates: 'Nach Updates suchen'
+  checking-for-updates: 'Suche nach Updates...'
+  no-updates: 'Keine Updates'
+  dismiss-update: 'Dieses Update ausblenden'
+  view-release-notes: 'Versionshinweise anzeigen'
   show-hostname: Host-Name anzeigen
   show-container-name: Container-Name anzeigen
   shell: Shell
@@ -117,6 +123,11 @@ error:
     message: >-
       Das Dozzle UI hat beim Verbinden mit der API eine Zeitüberschreitung. Bitte überprüfen Sie die Netzwerkverbindung und versuchen Sie es erneut.
 alert:
+  image-update:
+    title: 'Update verfügbar'
+    message: 'Für {image} wurde ein neueres Image veröffentlicht.'
+    enable-actions: '<a href="https://dozzle.dev/guide/actions" target="_blank" rel="noreferrer noopener">Aktionen aktivieren</a>, um es von hier aus zu laden und neu zu erstellen.'
+    self: 'Dozzle kann sich nicht selbst aktualisieren. Starte es neu, um das Update zu übernehmen.'
   redirected:
     title: Zu neuem Container umgeleitet
     message: Dozzle hat dich automatisch zu dem Container {containerId} umgeleitet.
@@ -146,6 +157,7 @@ placeholder:
   search-containers: Suche Container (⌘ + k, ⌃k)
   search: Suche
 settings:
+  show-image-update-alert: 'Benachrichtigung anzeigen, wenn ein Container ein Update hat'
   help-support: >
     Bitte unterstützen Sie Dozzle durch Spenden oder Sponsoring auf GitHub. Ihre Beiträge helfen uns, Dozzle für alle zu verbessern. Vielen Dank! 🙏🏼
   about-desc: Informationen zu Ihrer Dozzle-Installation und wie Sie das Projekt unterstützen können.

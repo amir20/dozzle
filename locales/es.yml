@@ -16,6 +16,12 @@ toolbar:
   update-recreating: Recreando contenedor...
   update-done: Contenedor actualizado correctamente
   update-up-to-date: Ya está actualizado
+  update-available: 'Actualización disponible'
+  check-for-updates: 'Buscar actualizaciones'
+  checking-for-updates: 'Buscando actualizaciones...'
+  no-updates: 'Sin actualizaciones'
+  dismiss-update: 'Descartar esta actualización'
+  view-release-notes: 'Ver notas de la versión'
   show-hostname: Mostrar nombre del host
   show-container-name: Mostrar nombre del contenedor
   shell: Shell
@@ -117,6 +123,11 @@ error:
     message: >-
       Dozzle UI se agotó el tiempo de espera al conectarse a la API. Por favor, compruebe la conexión de red y vuelva a intentarlo.
 alert:
+  image-update:
+    title: 'Actualización disponible'
+    message: 'Se publicó una imagen más reciente para {image}.'
+    enable-actions: '<a href="https://dozzle.dev/guide/actions" target="_blank" rel="noreferrer noopener">Habilita las acciones</a> para descargarla y recrear el contenedor desde aquí.'
+    self: 'Dozzle no puede actualizarse a sí mismo, reinícialo para aplicar la actualización.'
   redirected:
     title: Redirigido a nuevo contenedor
     message: Dozzle le redirigió automáticamente al nuevo contenedor {containerId}.
@@ -190,6 +201,7 @@ command-palette:
   toggle-scrollbars: Alternar barras de desplazamiento más pequeñas
   open-settings: Abrir configuración
 settings:
+  show-image-update-alert: 'Mostrar una notificación cuando un contenedor tenga una actualización'
   help-support: >
     Por favor, apoya a Dozzle donando o patrocinándonos en GitHub. Tus contribuciones nos ayudan a mejorar Dozzle para todos. ¡Gracias! 🙏🏼
   about-desc: Información sobre tu instalación de Dozzle y cómo apoyar el proyecto.

@@ -29,3 +29,17 @@ export function hashCode(str: string) {
   }
   return hash;
 }
+
+/**
+ * Escapes a string for safe inclusion in HTML. Needed wherever untrusted text
+ * ends up inside a `v-html` binding, such as toast messages, since vue-i18n
+ * does not escape interpolated values.
+ */
+export function escapeHtml(value: string) {
+  return value
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}

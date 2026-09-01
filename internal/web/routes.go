@@ -11,6 +11,7 @@ import (
 	"github.com/amir20/dozzle/internal/auth"
 	"github.com/amir20/dozzle/internal/cloud"
 	"github.com/amir20/dozzle/internal/container"
+	"github.com/amir20/dozzle/internal/imagecheck"
 	dozzle_mcp "github.com/amir20/dozzle/internal/mcp"
 	"github.com/amir20/dozzle/internal/notification"
 	"github.com/amir20/dozzle/internal/notification/dispatcher"
@@ -52,6 +53,7 @@ type Config struct {
 	EnableMCP        bool
 	DisableAvatars   bool
 	ReleaseCheckMode ReleaseCheckMode
+	ImageCheckMode   imagecheck.Mode
 	Labels           container.ContainerLabels
 	Cloud            CloudHooks
 }
@@ -171,6 +173,13 @@ func createRouter(h *handler) *chi.Mux {
 				r.Get("/groups/{group}/logs/stream", h.streamGroupedLogs)
 				r.Get("/host-groups/{group}/logs/stream", h.streamHostGroupLogs)
 				r.Get("/events/stream", h.streamEvents)
+
+				// Image update checks. Registering nothing when off means the
+				// endpoint genuinely does not exist, which is what an
+				// air-gapped operator needs to be able to verify.
+				if h.config.ImageCheckMode != imagecheck.ModeOff {
+					r.Get("/hosts/{host}/containers/{id}/image/check", h.checkImageUpdate)
+				}
 
 				// Action
 				if h.config.EnableActions {

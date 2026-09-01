@@ -8,6 +8,15 @@ type Toast = {
     label: string;
     handler: () => void;
   };
+  // Rendered next to the primary action as a quieter choice, e.g. silencing a
+  // recurring notice rather than just closing it.
+  secondaryAction?: {
+    label: string;
+    handler: () => void;
+  };
+  // Percentage for a determinate progress bar. Omit for work that cannot
+  // report how far along it is.
+  progress?: number;
 };
 
 type ToastOptions = {
@@ -51,6 +60,15 @@ const showToast = (
   }
 };
 
+// Patches a toast that is already on screen, so long-running work can report
+// progress without the notice being torn down and rebuilt on every tick.
+const updateToast = (id: Toast["id"], patch: Partial<Omit<Toast, "id" | "createdAt">>) => {
+  const existing = toasts.value.find((instance) => instance.toast.id === id);
+  if (existing) {
+    Object.assign(existing.toast, patch);
+  }
+};
+
 const removeToast = (id: Toast["id"]) => {
   toasts.value = toasts.value.filter((instance) => instance.toast.id !== id);
 };
@@ -59,6 +77,7 @@ export const useToast = () => {
   return {
     toasts,
     showToast,
+    updateToast,
     removeToast,
   };
 };

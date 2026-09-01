@@ -16,6 +16,12 @@ toolbar:
   update-recreating: Container opnieuw aanmaken...
   update-done: Container succesvol bijgewerkt
   update-up-to-date: Al bijgewerkt
+  update-available: 'Update beschikbaar'
+  check-for-updates: 'Controleren op updates'
+  checking-for-updates: 'Bezig met controleren op updates...'
+  no-updates: 'Geen updates'
+  dismiss-update: 'Deze update negeren'
+  view-release-notes: 'Release-opmerkingen bekijken'
   show-hostname: Toon hostnaam
   show-container-name: Toon containernaam
   shell: Shell
@@ -118,6 +124,11 @@ error:
     message: >-
       De verbinding met de API is verlopen. Controleer je netwerkverbinding en probeer het opnieuw.
 alert:
+  image-update:
+    title: 'Update beschikbaar'
+    message: 'Er is een nieuwere image gepubliceerd voor {image}.'
+    enable-actions: '<a href="https://dozzle.dev/guide/actions" target="_blank" rel="noreferrer noopener">Schakel acties in</a> om deze hier op te halen en opnieuw aan te maken.'
+    self: 'Dozzle kan zichzelf niet bijwerken, start het opnieuw om de update toe te passen.'
   redirected:
     title: Doorgestuurd naar nieuwe container
     message: Dozzle heeft je automatisch doorgestuurd naar de nieuwe container {containerId}.
@@ -147,6 +158,7 @@ placeholder:
   search-containers: Zoek containers (⌘ + k, ⌃k)
   search: Zoeken
 settings:
+  show-image-update-alert: 'Toon een melding wanneer een container een update heeft'
   help-support: >
     Steun Dozzle door te doneren of door ons te sponsoren op GitHub. Jouw bijdrage helpt ons om Dozzle verder te verbeteren voor iedereen. Hartelijk dank! 🙏🏼
   about-desc: Informatie over jouw Dozzle-installatie en hoe je het project kunt ondersteunen.

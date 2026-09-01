@@ -10,9 +10,9 @@ import (
 
 	"github.com/amir20/dozzle/internal/container"
 	docker_support "github.com/amir20/dozzle/internal/support/docker"
+	"github.com/go-chi/chi/v5"
 	docker_types "github.com/moby/moby/api/types/container"
 	"github.com/moby/moby/api/types/system"
-	"github.com/go-chi/chi/v5"
 
 	"github.com/stretchr/testify/mock"
 
@@ -37,6 +37,16 @@ func (m *MockedClient) ContainerActions(ctx context.Context, action container.Co
 func (m *MockedClient) ImagePull(ctx context.Context, imageName string) (io.ReadCloser, error) {
 	args := m.Called(ctx, imageName)
 	return args.Get(0).(io.ReadCloser), args.Error(1)
+}
+
+func (m *MockedClient) ImageRepoDigests(ctx context.Context, imageID string) ([]string, error) {
+	args := m.Called(ctx, imageID)
+	return args.Get(0).([]string), args.Error(1)
+}
+
+func (m *MockedClient) ImageID(ctx context.Context, ref string) (string, error) {
+	args := m.Called(ctx, ref)
+	return args.String(0), args.Error(1)
 }
 
 func (m *MockedClient) ContainerInspect(ctx context.Context, containerID string) (docker_types.InspectResponse, error) {

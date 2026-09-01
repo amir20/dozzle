@@ -19,6 +19,7 @@ export interface Config {
   enableCloud: boolean;
   disableAvatars: boolean;
   releaseCheckMode: "automatic" | "manual";
+  imageCheckMode: "automatic" | "manual" | "off";
   user?: {
     username: string;
     email: string;
@@ -35,6 +36,7 @@ export interface Profile {
   collapsedGroups?: Set<string>;
   collapsedHostGroups?: Set<string>;
   cloudWelcomeShown?: boolean;
+  dismissedImageUpdates?: Set<string>;
 }
 
 const pageConfig = JSON.parse(text);

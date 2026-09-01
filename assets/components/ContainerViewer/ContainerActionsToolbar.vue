@@ -1,8 +1,16 @@
 <template>
   <div class="dropdown dropdown-end dropdown-hover z-20">
-    <label tabindex="0" class="btn btn-ghost btn-sm w-8 gap-0 px-0 md:gap-0.5">
+    <label tabindex="0" class="btn btn-ghost btn-sm relative w-8 gap-0 px-0 md:gap-0.5">
       <carbon:circle-solid class="text-red w-2 md:w-2.5" v-if="streamConfig.stderr" />
       <carbon:circle-solid class="text-blue w-2 md:w-2.5" v-if="streamConfig.stdout" />
+      <span
+        v-if="showImageUpdateAlert"
+        class="absolute end-0.5 top-0.5 flex size-1.5"
+        :title="$t('toolbar.update-available')"
+      >
+        <span class="bg-warning absolute size-full rounded-full opacity-75 motion-safe:animate-ping"></span>
+        <span class="bg-warning relative size-full rounded-full"></span>
+      </span>
     </label>
     <ul
       tabindex="0"
@@ -154,11 +162,58 @@
             {{ $t("toolbar.restart") }}
           </button>
         </li>
-        <li>
+        <li v-if="!isSelfContainer">
           <button @click="update()" :disabled="actionStates.update">
             <carbon:upgrade />
             {{ container.isSwarm ? $t("toolbar.update-service") : $t("toolbar.update") }}
+            <span v-if="showImageUpdateAlert" class="bg-warning size-1.5 rounded-full"></span>
           </button>
+        </li>
+      </template>
+
+      <!-- Manual mode never checks on its own, so the only way to reach a
+           registry is this. Automatic mode reports the last result instead. -->
+      <template v-if="imageCheckState === 'check'">
+        <li class="line"></li>
+        <li>
+          <a @click.stop="checkImageUpdate(true)">
+            <carbon:upgrade :class="{ 'animate-spin': checkingImageUpdate }" />
+            {{ checkingImageUpdate ? $t("toolbar.checking-for-updates") : $t("toolbar.check-for-updates") }}
+          </a>
+        </li>
+      </template>
+
+      <template v-if="imageCheckState === 'checking'">
+        <li class="line"></li>
+        <li class="menu-title flex-row items-center gap-1.5 py-1 text-xs">
+          <carbon:upgrade class="animate-spin" /> {{ $t("toolbar.checking-for-updates") }}
+        </li>
+      </template>
+
+      <template v-if="imageCheckState === 'none'">
+        <li class="line"></li>
+        <li class="menu-title flex-row items-center gap-1.5 py-1 text-xs">
+          <carbon:checkmark /> {{ $t("toolbar.no-updates") }}
+        </li>
+      </template>
+
+      <!-- Shown regardless of actions: an update is worth knowing about even
+           when Dozzle cannot apply it. -->
+      <template v-if="imageCheckState === 'available'">
+        <li class="line"></li>
+        <li class="menu-title text-warning flex-row items-center gap-1.5 py-1 text-xs">
+          <carbon:upgrade /> {{ $t("toolbar.update-available") }}
+        </li>
+        <li v-if="isSelfContainer">
+          <a :href="releaseNotesUrl" target="_blank" rel="noreferrer noopener">
+            <mdi:script-text-outline /> {{ $t("toolbar.view-release-notes") }}
+          </a>
+        </li>
+        <li>
+          <a @click="copyImageReference()"> <mdi:content-copy /> {{ $t("toolbar.copy-image") }} </a>
+        </li>
+        <li>
+          <a @click="dismissImageUpdate()"> <mdi:bell-off-outline /> {{ $t("toolbar.dismiss-update") }} </a>
         </li>
       </template>
 
@@ -197,6 +252,32 @@ const showDrawer = useDrawer();
 const { container, historical = false } = defineProps<{ container: Container; historical?: boolean }>();
 const clear = defineEmit();
 const { actionStates, start, stop, restart, update } = useContainerActions(toRef(() => container));
+const {
+  showAlert: showImageUpdateAlert,
+  isSelf: isSelfContainer,
+  dismiss: dismissImageUpdate,
+  check: checkImageUpdate,
+  checking: checkingImageUpdate,
+  result: imageUpdateResult,
+} = useImageUpdate(
+  toRef(() => container),
+  toRef(() => historical),
+);
+// What the menu should say about image updates. Anything not actionable
+// (pinned, locally built, private registry, a failed check) shows nothing
+// rather than adding a dead row to the menu.
+const imageCheckState = computed(() => {
+  if (config.imageCheckMode === "off" || historical) return "hidden";
+  if (showImageUpdateAlert.value) return "available";
+  if (config.imageCheckMode === "manual") return "check";
+  if (checkingImageUpdate.value) return "checking";
+  return imageUpdateResult.value?.status === "up-to-date" ? "none" : "hidden";
+});
+
+// Dozzle's own standalone container cannot restart itself, so the alert sends
+// people to the release notes rather than to a button that cannot work.
+const { latestRelease } = useAnnouncements();
+const releaseNotesUrl = computed(() => latestRelease.value?.htmlUrl ?? "https://github.com/amir20/dozzle/releases");
 
 const router = useRouter();
 const { copy, copied, isSupported } = useClipboard({ legacy: true });
@@ -230,6 +311,21 @@ async function copyPermalink() {
       {
         title: t("toasts.copied.title"),
         message: t("toasts.copied.message"),
+        type: "info",
+      },
+      { expire: 2000 },
+    );
+  }
+}
+
+async function copyImageReference() {
+  await copy(container.image);
+
+  if (copied.value) {
+    showToast(
+      {
+        title: t("toasts.copied.title"),
+        message: escapeHtml(container.image),
         type: "info",
       },
       { expire: 2000 },

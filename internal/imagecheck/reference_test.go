@@ -1,0 +1,212 @@
+package imagecheck
+
+import (
+	"net/url"
+	"testing"
+
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
+)
+
+func TestParseReference(t *testing.T) {
+	tests := []struct {
+		name     string
+		ref      string
+		registry string
+		repo     string
+		tag      string
+		digest   string
+		url      string
+	}{
+		{
+			name:     "official image without tag",
+			ref:      "alpine",
+			registry: "docker.io",
+			repo:     "library/alpine",
+			tag:      "latest",
+			url:      "https://registry-1.docker.io/v2/library/alpine/manifests/latest",
+		},
+		{
+			name:     "official image with tag",
+			ref:      "postgres:18-alpine",
+			registry: "docker.io",
+			repo:     "library/postgres",
+			tag:      "18-alpine",
+			url:      "https://registry-1.docker.io/v2/library/postgres/manifests/18-alpine",
+		},
+		{
+			name:     "docker hub namespace",
+			ref:      "amir20/dozzle:latest",
+			registry: "docker.io",
+			repo:     "amir20/dozzle",
+			tag:      "latest",
+			url:      "https://registry-1.docker.io/v2/amir20/dozzle/manifests/latest",
+		},
+		{
+			name:     "third party registry",
+			ref:      "ghcr.io/home-assistant/home-assistant:stable",
+			registry: "ghcr.io",
+			repo:     "home-assistant/home-assistant",
+			tag:      "stable",
+			url:      "https://ghcr.io/v2/home-assistant/home-assistant/manifests/stable",
+		},
+		{
+			name:     "registry with single path segment",
+			ref:      "mcr.microsoft.com/playwright:v1.62.1-jammy",
+			registry: "mcr.microsoft.com",
+			repo:     "playwright",
+			tag:      "v1.62.1-jammy",
+			url:      "https://mcr.microsoft.com/v2/playwright/manifests/v1.62.1-jammy",
+		},
+		{
+			name:     "registry with port is not mistaken for a tag",
+			ref:      "localhost:5000/my/app:dev",
+			registry: "localhost:5000",
+			repo:     "my/app",
+			tag:      "dev",
+			url:      "http://localhost:5000/v2/my/app/manifests/dev",
+		},
+		{
+			name:     "digest pinned",
+			ref:      "nginx@sha256:abc123",
+			registry: "docker.io",
+			repo:     "library/nginx",
+			digest:   "sha256:abc123",
+		},
+		{
+			name:     "tag and digest together",
+			ref:      "nginx:1.25@sha256:abc123",
+			registry: "docker.io",
+			repo:     "library/nginx",
+			tag:      "1.25",
+			digest:   "sha256:abc123",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			ref, err := ParseReference(tt.ref)
+			require.NoError(t, err)
+
+			assert.Equal(t, tt.registry, ref.Registry)
+			assert.Equal(t, tt.repo, ref.Repository)
+			assert.Equal(t, tt.tag, ref.Tag)
+			assert.Equal(t, tt.digest, ref.Digest)
+
+			if tt.url != "" {
+				assert.Equal(t, tt.url, ref.manifestURL())
+			}
+		})
+	}
+}
+
+func TestParseReferenceErrors(t *testing.T) {
+	for _, ref := range []string{"", "nginx:", "nginx@"} {
+		_, err := ParseReference(ref)
+		assert.Error(t, err, "expected %q to be rejected", ref)
+	}
+}
+
+// Local registries are commonly run without TLS, and Docker already treats
+// loopback registries as insecure by default.
+func TestInsecureLoopbackRegistries(t *testing.T) {
+	insecure := []string{
+		"localhost:5000/app:latest",
+		"localhost/app:latest",
+		"127.0.0.1:5000/app:latest",
+	}
+	for _, image := range insecure {
+		ref, err := ParseReference(image)
+		require.NoError(t, err)
+		assert.True(t, ref.Insecure(), "%s should be treated as insecure", image)
+		assert.Contains(t, ref.manifestURL(), "http://", image)
+	}
+
+	// A remote host is never downgraded to plain HTTP.
+	secure := []string{
+		"registry.example.com:5000/app:latest",
+		"ghcr.io/foo/bar:latest",
+		"nginx:latest",
+		"10.0.0.5:5000/app:latest",
+	}
+	for _, image := range secure {
+		ref, err := ParseReference(image)
+		require.NoError(t, err)
+		assert.False(t, ref.Insecure(), "%s should require TLS", image)
+		assert.Contains(t, ref.manifestURL(), "https://", image)
+	}
+}
+
+func TestReferencePinned(t *testing.T) {
+	pinned, err := ParseReference("nginx@sha256:abc")
+	require.NoError(t, err)
+	assert.True(t, pinned.Pinned())
+
+	tagged, err := ParseReference("nginx:1.25")
+	require.NoError(t, err)
+	assert.False(t, tagged.Pinned())
+}
+
+func TestParseChallenge(t *testing.T) {
+	realm, service := parseChallenge(`Bearer realm="https://auth.docker.io/token",service="registry.docker.io",scope="repository:library/nginx:pull"`)
+	assert.Equal(t, "https://auth.docker.io/token", realm)
+	assert.Equal(t, "registry.docker.io", service)
+
+	realm, service = parseChallenge("Basic realm=\"something\"")
+	assert.Empty(t, realm)
+	assert.Empty(t, service)
+}
+
+// Docker Hub answers to several hostnames. They must all normalize, or a
+// reference written as index.docker.io/library/nginx never matches the
+// "nginx@sha256:..." that Docker records locally.
+func TestDockerHubAliasesNormalize(t *testing.T) {
+	for _, image := range []string{
+		"nginx:latest",
+		"docker.io/library/nginx:latest",
+		"index.docker.io/library/nginx:latest",
+		"registry-1.docker.io/library/nginx:latest",
+		"registry.hub.docker.com/library/nginx:latest",
+	} {
+		ref, err := ParseReference(image)
+		require.NoError(t, err)
+
+		assert.Equal(t, "docker.io", ref.Registry, image)
+		assert.Equal(t, "library/nginx", ref.Repository, image)
+		assert.Equal(t, []string{"sha256:aaa"}, digestsForRepository([]string{"nginx@sha256:aaa"}, ref), image)
+	}
+}
+
+// The realm in a WWW-Authenticate header decides where Dozzle sends its next
+// request, so a registry must not be able to point it at a plaintext internal
+// address.
+func TestRealmMustBeHTTPS(t *testing.T) {
+	remote, err := ParseReference("ghcr.io/foo/bar:latest")
+	require.NoError(t, err)
+
+	for _, realm := range []string{
+		"http://169.254.169.254/latest/meta-data/",
+		"http://localhost:9000/token",
+		"http://internal.example.com/token",
+	} {
+		endpoint, parseErr := url.Parse(realm)
+		require.NoError(t, parseErr)
+		assert.Error(t, validateRealm(endpoint, remote), "%s should be refused", realm)
+	}
+
+	https, err := url.Parse("https://auth.docker.io/token")
+	require.NoError(t, err)
+	assert.NoError(t, validateRealm(https, remote))
+
+	// A loopback registry may use plain HTTP, but only to reach itself.
+	local, err := ParseReference("localhost:5000/app:latest")
+	require.NoError(t, err)
+
+	own, err := url.Parse("http://localhost:5000/token")
+	require.NoError(t, err)
+	assert.NoError(t, validateRealm(own, local))
+
+	elsewhere, err := url.Parse("http://169.254.169.254/token")
+	require.NoError(t, err)
+	assert.Error(t, validateRealm(elsewhere, local))
+}

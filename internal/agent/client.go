@@ -16,6 +16,7 @@ import (
 
 	"github.com/amir20/dozzle/internal/agent/pb"
 	"github.com/amir20/dozzle/internal/container"
+	"github.com/amir20/dozzle/internal/imagecheck"
 	"github.com/amir20/dozzle/types"
 	"github.com/rs/zerolog/log"
 	orderedmap "github.com/wk8/go-ordered-map/v2"
@@ -453,6 +454,22 @@ func (c *Client) UpdateContainer(ctx context.Context, containerID string, progre
 			Error:   progress.Error,
 		}
 	}
+}
+
+func (c *Client) CheckImageUpdate(ctx context.Context, containerID string, force bool) (imagecheck.Result, error) {
+	resp, err := c.client.CheckImageUpdate(ctx, &pb.CheckImageUpdateRequest{ContainerId: containerID, Force: force})
+	if err != nil {
+		return imagecheck.Result{}, err
+	}
+
+	return imagecheck.Result{
+		Status:       imagecheck.Status(resp.Status),
+		Image:        resp.Image,
+		LocalDigest:  resp.LocalDigest,
+		RemoteDigest: resp.RemoteDigest,
+		CheckedAt:    time.Unix(0, resp.CheckedAt),
+		Reason:       resp.Reason,
+	}, nil
 }
 
 func (c *Client) ContainerAttach(ctx context.Context, containerId string) (*container.ExecSession, error) {

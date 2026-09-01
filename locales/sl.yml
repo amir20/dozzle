@@ -24,6 +24,12 @@ toolbar:
   update-recreating: Ponovno ustvarjanje zabojnika...
   update-done: Zabojnik uspešno posodobljen
   update-up-to-date: Že posodobljen
+  update-available: 'Na voljo je posodobitev'
+  check-for-updates: 'Preveri posodobitve'
+  checking-for-updates: 'Preverjanje posodobitev...'
+  no-updates: 'Ni posodobitev'
+  dismiss-update: 'Opusti to posodobitev'
+  view-release-notes: 'Poglej opombe ob izdaji'
   show-hostname: Prikaži ime gostitelja
 action:
   copy-log: Kopiraj dnevnik
@@ -118,6 +124,11 @@ error:
   something-went-wrong: Nekaj je šlo narobe
   unknown-error: Neznana napaka
 alert:
+  image-update:
+    title: 'Na voljo je posodobitev'
+    message: 'Za {image} je bila objavljena novejša slika.'
+    enable-actions: '<a href="https://dozzle.dev/guide/actions" target="_blank" rel="noreferrer noopener">Omogoči dejanja</a> za prenos in ponovno ustvarjanje od tu.'
+    self: 'Dozzle se ne more posodobiti sam, zato ga znova zaženi, da uveljaviš posodobitev.'
   redirected:
     title: Preusmerjeno v nov zabojnik
     message: Dozzle vas je samodejno preusmeril v nov zabojnik {containerId}.
@@ -148,6 +159,7 @@ placeholder:
   search-containers: Iskanje zabojnikov (⌘ + k, ⌃k)
   search: Iskanje
 settings:
+  show-image-update-alert: 'Pokaži obvestilo, ko je za vsebnik na voljo posodobitev'
   about-desc: Informacije o vaši namestitvi Dozzle in kako podpreti projekt.
   display-desc: Prilagodite videz dnevnikov in preostalega dela aplikacije. Predogled v živo prikazuje vaše spremembe.
   options-desc: Nastavitve jezika, navigacije in združevanja.

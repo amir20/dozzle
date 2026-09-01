@@ -221,6 +221,13 @@
             ]"
           />
         </div>
+        <label
+          class="flex min-h-13 items-center justify-between gap-4 p-4 text-sm font-medium"
+          v-if="config.imageCheckMode !== 'off'"
+        >
+          <span>{{ $t("settings.show-image-update-alert") }}</span>
+          <input type="checkbox" class="toggle toggle-primary toggle-sm" v-model="showImageUpdateAlert" />
+        </label>
         <label class="flex min-h-13 items-center justify-between gap-4 p-4 text-sm font-medium">
           <span class="inline-flex items-center gap-2">
             {{ $t("settings.search") }}
@@ -255,6 +262,7 @@ import {
   softWrap,
   locale,
   groupContainers,
+  showImageUpdateAlert,
 } from "@/stores/settings";
 
 import { availableLocales, i18n } from "@/modules/i18n";

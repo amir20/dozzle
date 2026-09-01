@@ -16,6 +16,12 @@ toolbar:
   update-recreating: Genskaber container...
   update-done: Container opdateret succesfuldt
   update-up-to-date: Allerede opdateret
+  update-available: 'Opdatering tilgængelig'
+  check-for-updates: 'Søg efter opdateringer'
+  checking-for-updates: 'Søger efter opdateringer...'
+  no-updates: 'Ingen opdateringer'
+  dismiss-update: 'Afvis denne opdatering'
+  view-release-notes: 'Se udgivelsesnoter'
   show-hostname: Vis værtsnavn
   show-container-name: Vis containernavn
   shell: Shell
@@ -117,6 +123,11 @@ error:
     message: >-
       Dozzle UI timed ud inden der blev forbundet til API. Tjek venligst din internet forbindelse og prøv igen.
 alert:
+  image-update:
+    title: 'Opdatering tilgængelig'
+    message: 'Et nyere image er udgivet til {image}.'
+    enable-actions: '<a href="https://dozzle.dev/guide/actions" target="_blank" rel="noreferrer noopener">Aktivér handlinger</a> for at hente den og genskabe containeren herfra.'
+    self: 'Dozzle kan ikke opdatere sig selv, så genstart den for at få opdateringen.'
   redirected:
     title: Omdirigeret til ny container
     message: Dozzle omdirigerede dig automatisk til en ny container {containerId}.
@@ -146,6 +157,7 @@ placeholder:
   search-containers: Søg containere (⌘ + k, ⌃k)
   search: Søg
 settings:
+  show-image-update-alert: 'Vis en notifikation når en container har en opdatering'
   help-support: >
     Støt venligst Dozzle ved at donere eller sponsorere os på GitHub. Dine bidrag hjælper os med at forbedre Dozzle for alle. Tak! 🙏🏼
   about-desc: Information om din Dozzle-installation og hvordan du kan støtte projektet.

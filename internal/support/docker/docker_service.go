@@ -11,6 +11,7 @@ import (
 
 	"github.com/amir20/dozzle/internal/container"
 	"github.com/amir20/dozzle/internal/docker"
+	"github.com/amir20/dozzle/internal/imagecheck"
 
 	"github.com/moby/moby/api/pkg/stdcopy"
 	docker_types "github.com/moby/moby/api/types/container"
@@ -21,6 +22,8 @@ import (
 type DockerUpdateClient interface {
 	container.Client
 	ImagePull(ctx context.Context, image string) (io.ReadCloser, error)
+	ImageRepoDigests(ctx context.Context, imageID string) ([]string, error)
+	ImageID(ctx context.Context, ref string) (string, error)
 	ContainerInspect(ctx context.Context, containerID string) (docker_types.InspectResponse, error)
 	ContainerRemove(ctx context.Context, containerID string) error
 	ContainerCreate(ctx context.Context, inspectResp docker_types.InspectResponse, name string) (string, error)
@@ -28,15 +31,17 @@ type DockerUpdateClient interface {
 }
 
 type DockerClientService struct {
-	client DockerUpdateClient
-	store  *container.ContainerStore
+	client  DockerUpdateClient
+	store   *container.ContainerStore
+	checker *imagecheck.Checker
 }
 
 func NewDockerClientService(client DockerUpdateClient, labels container.ContainerLabels) *DockerClientService {
 	statsCollector := docker.NewDockerStatsCollector(client, labels)
 	return &DockerClientService{
-		client: client,
-		store:  container.NewContainerStore(context.Background(), client, statsCollector, labels),
+		client:  client,
+		store:   container.NewContainerStore(context.Background(), client, statsCollector, labels),
+		checker: imagecheck.Shared(),
 	}
 }
 
@@ -114,6 +119,40 @@ type pullEvent struct {
 	ID string `json:"id"`
 }
 
+// CheckImageUpdate reports whether the registry serves a newer image than the
+// one this container is running.
+func (d *DockerClientService) CheckImageUpdate(ctx context.Context, c container.Container, force bool) (imagecheck.Result, error) {
+	if imagecheck.Skipped(c.Labels) {
+		log.Debug().Str("container", c.Name).Msg("image update check: skipped by label")
+		return imagecheck.Result{Image: c.Image, Status: imagecheck.StatusSkipped, CheckedAt: time.Now()}, nil
+	}
+
+	inspect, err := d.client.ContainerInspect(ctx, c.ID)
+	if err != nil {
+		log.Debug().Err(err).Str("container", c.Name).Msg("image update check: inspect failed")
+		return imagecheck.Result{}, err
+	}
+
+	// Inspect by image ID rather than by name. If a newer image was pulled
+	// under the same tag but the container was never recreated, the container
+	// is still running the old image and should report an available update.
+	digests, err := d.client.ImageRepoDigests(ctx, inspect.Image)
+	if err != nil {
+		log.Debug().Err(err).Str("container", c.Name).Str("imageId", inspect.Image).Msg("image update check: image inspect failed")
+		return imagecheck.Result{}, err
+	}
+
+	log.Debug().
+		Str("container", c.Name).
+		Str("ref", inspect.Config.Image).
+		Str("imageId", inspect.Image).
+		Msg("image update check: resolved local image")
+
+	// Config.Image is the reference the container was created from, which is
+	// what the registry must be queried for.
+	return d.checker.Check(ctx, inspect.Config.Image, digests, force), nil
+}
+
 func (d *DockerClientService) UpdateContainer(ctx context.Context, c container.Container, progressCh chan<- container.UpdateProgress) (bool, error) {
 	defer close(progressCh)
 
@@ -134,7 +173,6 @@ func (d *DockerClientService) UpdateContainer(ctx context.Context, c container.C
 	}
 	defer reader.Close()
 
-	updated := false
 	decoder := json.NewDecoder(reader)
 	for {
 		var event pullEvent
@@ -151,13 +189,21 @@ func (d *DockerClientService) UpdateContainer(ctx context.Context, c container.C
 			Current: event.ProgressDetail.Current,
 			Total:   event.ProgressDetail.Total,
 		}
-
-		if strings.HasPrefix(event.Status, "Status: Downloaded newer image") {
-			updated = true
-		}
 	}
 
-	// 3. If no new layers, report up-to-date
+	// 3. Compare what the tag resolves to now against what the container is
+	// actually running. Reading this from the pull output instead would miss
+	// the case where the newer image is already in the local store, which
+	// happens whenever it was pulled or built before the container was
+	// recreated.
+	updated := false
+	if newImageID, err := d.client.ImageID(ctx, imageName); err != nil {
+		log.Warn().Err(err).Str("image", imageName).Msg("unable to resolve pulled image, falling back to recreate")
+		updated = true
+	} else {
+		updated = newImageID != inspectResp.Image
+	}
+
 	if !updated {
 		progressCh <- container.UpdateProgress{Status: "up-to-date"}
 		return false, nil
