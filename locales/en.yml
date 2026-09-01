@@ -18,6 +18,8 @@ toolbar:
   update-up-to-date: Already up to date
   update-available: Update available
   check-for-updates: Check for updates
+  checking-for-updates: Checking for updates...
+  no-updates: No updates
   dismiss-update: Dismiss this update
   view-release-notes: View release notes
   show-hostname: Show hostname
@@ -216,7 +218,7 @@ settings:
   color-scheme: Color scheme
   options: Options
   show-stopped-containers: Show stopped containers
-  show-image-update-alert: Show a banner when a container image is out of date
+  show-image-update-alert: Notify when a container image is out of date
   group-containers: Group containers by namespace
   about: About
   search: Enable searching with Dozzle using

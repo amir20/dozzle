@@ -12,6 +12,17 @@ export interface ImageUpdateResult {
   reason?: string;
 }
 
+// Results are shared across every consumer of a container so the toolbar and
+// the notification agree, and so a container is only fetched once no matter
+// how many components ask about it.
+const results = reactive(new Map<string, ImageUpdateResult>());
+const checkingKeys = reactive(new Set<string>());
+const inflight = new Map<string, Promise<void>>();
+
+// Guards the notification so navigating back to a container does not re-fire
+// it for an update the user has already seen this session.
+const notified = new Set<string>();
+
 // Dozzle's own container can only be updated in place when it is a swarm
 // service; a standalone container cannot stop itself mid-update.
 function isSelfUpdatable(container: Container) {
@@ -19,25 +30,39 @@ function isSelfUpdatable(container: Container) {
 }
 
 export const useImageUpdate = (container: Ref<Container>) => {
-  const result = ref<ImageUpdateResult | undefined>();
-  const checking = ref(false);
+  const { t } = useI18n();
+  const { showToast } = useToast();
+  const { update } = useContainerActions(container);
+
+  const key = computed(() => `${container.value.host}/${container.value.id}`);
+  const result = computed(() => results.get(key.value));
+  const checking = computed(() => checkingKeys.has(key.value));
 
   async function check(force = false) {
     if (config.imageCheckMode === "off") return;
     if (!force && config.imageCheckMode !== "automatic") return;
 
-    checking.value = true;
-    try {
-      const url = `/api/hosts/${container.value.host}/containers/${container.value.id}/image/check`;
-      const response = await fetch(withBase(force ? `${url}?force=true` : url));
-      if (!response.ok) return;
+    const currentKey = key.value;
+    if (!force && (results.has(currentKey) || inflight.has(currentKey))) return;
 
-      result.value = (await response.json()) as ImageUpdateResult;
-    } catch {
-      // A failed check is not worth surfacing; the dot simply stays hidden.
-    } finally {
-      checking.value = false;
-    }
+    const request = (async () => {
+      checkingKeys.add(currentKey);
+      try {
+        const url = `/api/hosts/${container.value.host}/containers/${container.value.id}/image/check`;
+        const response = await fetch(withBase(force ? `${url}?force=true` : url));
+        if (!response.ok) return;
+
+        results.set(currentKey, (await response.json()) as ImageUpdateResult);
+      } catch {
+        // A failed check is not worth surfacing; the menu simply stays quiet.
+      } finally {
+        checkingKeys.delete(currentKey);
+        inflight.delete(currentKey);
+      }
+    })();
+
+    inflight.set(currentKey, request);
+    return request;
   }
 
   // Identifies this specific update so dismissing it stays dismissed until the
@@ -70,13 +95,26 @@ export const useImageUpdate = (container: Ref<Container>) => {
   }
 
   watch(
-    () => [container.value.host, container.value.id],
+    [key, showAlert, showImageUpdateAlert],
     () => {
-      result.value = undefined;
-      check();
+      if (!showAlert.value || !showImageUpdateAlert.value) return;
+
+      const notifyKey = `${key.value}@${result.value?.remoteDigest}`;
+      if (notified.has(notifyKey)) return;
+      notified.add(notifyKey);
+
+      showToast({
+        id: `image-update-${key.value}`,
+        title: t("toolbar.update-available"),
+        message: container.value.image,
+        type: "info",
+        action: updatable.value ? { label: t("toolbar.update"), handler: () => update() } : undefined,
+      });
     },
     { immediate: true },
   );
+
+  watch(key, () => check(), { immediate: true });
 
   return { result, checking, check, updateAvailable, showAlert, updatable, isSelf, dismissed, dismiss };
 };

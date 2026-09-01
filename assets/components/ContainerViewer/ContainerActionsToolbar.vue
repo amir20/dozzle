@@ -168,16 +168,35 @@
         </li>
       </template>
 
-      <li v-if="imageChecksEnabled && !showImageUpdateAlert && !historical">
-        <a @click.stop="checkImageUpdate(true)">
-          <carbon:upgrade :class="{ 'animate-spin': checkingImageUpdate }" />
-          {{ $t("toolbar.check-for-updates") }}
-        </a>
-      </li>
+      <!-- Manual mode never checks on its own, so the only way to reach a
+           registry is this. Automatic mode reports the last result instead. -->
+      <template v-if="imageCheckState === 'check'">
+        <li class="line"></li>
+        <li>
+          <a @click.stop="checkImageUpdate(true)">
+            <carbon:upgrade :class="{ 'animate-spin': checkingImageUpdate }" />
+            {{ checkingImageUpdate ? $t("toolbar.checking-for-updates") : $t("toolbar.check-for-updates") }}
+          </a>
+        </li>
+      </template>
+
+      <template v-if="imageCheckState === 'checking'">
+        <li class="line"></li>
+        <li class="menu-title flex-row items-center gap-1.5 py-1 text-xs">
+          <carbon:upgrade class="animate-spin" /> {{ $t("toolbar.checking-for-updates") }}
+        </li>
+      </template>
+
+      <template v-if="imageCheckState === 'none'">
+        <li class="line"></li>
+        <li class="menu-title flex-row items-center gap-1.5 py-1 text-xs">
+          <carbon:checkmark /> {{ $t("toolbar.no-updates") }}
+        </li>
+      </template>
 
       <!-- Shown regardless of actions: an update is worth knowing about even
            when Dozzle cannot apply it. -->
-      <template v-if="showImageUpdateAlert">
+      <template v-if="imageCheckState === 'available'">
         <li class="line"></li>
         <li class="menu-title text-warning flex-row items-center gap-1.5 py-1 text-xs">
           <carbon:upgrade /> {{ $t("toolbar.update-available") }}
@@ -237,8 +256,18 @@ const {
   dismiss: dismissImageUpdate,
   check: checkImageUpdate,
   checking: checkingImageUpdate,
+  result: imageUpdateResult,
 } = useImageUpdate(toRef(() => container));
-const imageChecksEnabled = config.imageCheckMode !== "off";
+// What the menu should say about image updates. Anything not actionable
+// (pinned, locally built, private registry, a failed check) shows nothing
+// rather than adding a dead row to the menu.
+const imageCheckState = computed(() => {
+  if (config.imageCheckMode === "off" || historical) return "hidden";
+  if (showImageUpdateAlert.value) return "available";
+  if (config.imageCheckMode === "manual") return "check";
+  if (checkingImageUpdate.value) return "checking";
+  return imageUpdateResult.value?.status === "up-to-date" ? "none" : "hidden";
+});
 
 // Dozzle's own standalone container cannot restart itself, so the alert sends
 // people to the release notes rather than to a button that cannot work.

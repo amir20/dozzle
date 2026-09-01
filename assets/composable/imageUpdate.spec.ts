@@ -9,6 +9,9 @@ import type { ImageUpdateResult } from "./imageUpdate";
 const holder = vi.hoisted(() => ({
   config: { imageCheckMode: "automatic", enableActions: true } as Record<string, unknown>,
   dismissed: null as ReturnType<typeof import("vue").ref<Set<string>>> | null,
+  showAlertSetting: null as ReturnType<typeof import("vue").ref<boolean>> | null,
+  toasts: [] as any[],
+  update: vi.fn(),
 }));
 
 // config is the default export of this module, and withBase lives alongside it.
@@ -21,12 +24,37 @@ vi.mock("./storage", async () => {
   holder.dismissed = vueRef(new Set<string>());
   return { dismissedImageUpdates: holder.dismissed };
 });
+vi.mock("@/stores/settings", async () => {
+  const { ref: vueRef } = await import("vue");
+  holder.showAlertSetting = vueRef(false);
+  return { showImageUpdateAlert: holder.showAlertSetting };
+});
+vi.mock("./toast", () => ({
+  useToast: () => ({ showToast: (toast: any) => holder.toasts.push(toast) }),
+}));
+vi.mock("./containerActions", () => ({
+  useContainerActions: () => ({ update: holder.update }),
+}));
+vi.mock("vue-i18n", () => ({ useI18n: () => ({ t: (key: string) => key }) }));
 
 const { useImageUpdate } = await import("./imageUpdate");
 
+let counter = 0;
+
+// Scopes are tracked so each test's watchers are torn down. Without this a
+// later test flipping a shared setting would re-trigger earlier instances.
+const scopes: ReturnType<typeof effectScope>[] = [];
+
+function newScope() {
+  const scope = effectScope();
+  scopes.push(scope);
+  return scope;
+}
+
+// Results are shared per container, so each test uses a fresh id.
 function container(overrides: Partial<Container> = {}): Container {
   return {
-    id: "abc",
+    id: `container-${counter++}`,
     host: "localhost",
     image: "nginx:latest",
     isSwarm: false,
@@ -46,7 +74,7 @@ function mockCheck(result: Partial<ImageUpdateResult>) {
 
 // Runs the composable inside a scope and waits for the initial check.
 async function run(c: Container) {
-  const scope = effectScope();
+  const scope = newScope();
   const result = scope.run(() => useImageUpdate(shallowRef(c)))!;
   await vi.waitFor(() => expect(result.result.value).toBeDefined());
   return { result, scope };
@@ -57,10 +85,14 @@ describe("useImageUpdate", () => {
     holder.config.imageCheckMode = "automatic";
     holder.config.enableActions = true;
     holder.dismissed!.value = new Set();
+    holder.showAlertSetting!.value = false;
+    holder.toasts.length = 0;
+    holder.update.mockClear();
   });
 
   afterEach(() => {
     vi.unstubAllGlobals();
+    scopes.splice(0).forEach((scope) => scope.stop());
   });
 
   test("alerts when the registry has a newer digest", async () => {
@@ -83,7 +115,7 @@ describe("useImageUpdate", () => {
     const fetchSpy = vi.fn();
     vi.stubGlobal("fetch", fetchSpy);
 
-    const scope = effectScope();
+    const scope = newScope();
     scope.run(() => useImageUpdate(shallowRef(container())));
 
     expect(fetchSpy).not.toHaveBeenCalled();
@@ -94,7 +126,7 @@ describe("useImageUpdate", () => {
     const fetchSpy = vi.fn();
     vi.stubGlobal("fetch", fetchSpy);
 
-    const scope = effectScope();
+    const scope = newScope();
     const result = scope.run(() => useImageUpdate(shallowRef(container())))!;
     expect(fetchSpy).not.toHaveBeenCalled();
 
@@ -142,22 +174,85 @@ describe("useImageUpdate", () => {
     expect(result.showAlert.value).toBe(false);
 
     // A newer digest upstream alerts again.
-    result.result.value = {
-      status: "update-available",
-      image: "nginx:latest",
-      remoteDigest: "sha256:two",
-      checkedAt: "",
-    };
+    mockCheck({ status: "update-available", remoteDigest: "sha256:two" });
+    await result.check(true);
     expect(result.showAlert.value).toBe(true);
   });
 
   test("a failed check does not surface an alert", async () => {
     vi.stubGlobal("fetch", vi.fn().mockRejectedValue(new Error("network down")));
 
-    const scope = effectScope();
+    const scope = newScope();
     const result = scope.run(() => useImageUpdate(shallowRef(container())))!;
     await vi.waitFor(() => expect(result.checking.value).toBe(false));
 
     expect(result.showAlert.value).toBe(false);
+  });
+
+  // Two components asking about the same container share one request.
+  test("shares one request across consumers", async () => {
+    const fetchSpy = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({ status: "up-to-date", image: "nginx:latest", checkedAt: "" }),
+    });
+    vi.stubGlobal("fetch", fetchSpy);
+
+    const c = container();
+    const scope = newScope();
+    const a = scope.run(() => useImageUpdate(shallowRef(c)))!;
+    scope.run(() => useImageUpdate(shallowRef(c)));
+    await vi.waitFor(() => expect(a.result.value).toBeDefined());
+
+    expect(fetchSpy).toHaveBeenCalledTimes(1);
+  });
+
+  describe("notification", () => {
+    test("is not shown unless the setting is on", async () => {
+      mockCheck({ status: "update-available", remoteDigest: "sha256:new" });
+      await run(container());
+
+      expect(holder.toasts).toHaveLength(0);
+    });
+
+    test("is shown once when enabled", async () => {
+      holder.showAlertSetting!.value = true;
+      mockCheck({ status: "update-available", remoteDigest: "sha256:new" });
+      const c = container();
+      await run(c);
+
+      expect(holder.toasts).toHaveLength(1);
+      expect(holder.toasts[0].message).toBe("nginx:latest");
+
+      // A second consumer of the same container must not re-notify.
+      const scope = newScope();
+      scope.run(() => useImageUpdate(shallowRef(c)));
+      expect(holder.toasts).toHaveLength(1);
+    });
+
+    test("offers an update action only when Dozzle can apply it", async () => {
+      holder.showAlertSetting!.value = true;
+      mockCheck({ status: "update-available", remoteDigest: "sha256:new" });
+      await run(container());
+
+      holder.toasts[0].action.handler();
+      expect(holder.update).toHaveBeenCalled();
+    });
+
+    test("omits the action for a standalone Dozzle container", async () => {
+      holder.showAlertSetting!.value = true;
+      mockCheck({ status: "update-available", remoteDigest: "sha256:new" });
+      await run(container({ image: "amir20/dozzle:latest" }));
+
+      expect(holder.toasts[0].action).toBeUndefined();
+    });
+
+    test("is not shown for a dismissed update", async () => {
+      holder.showAlertSetting!.value = true;
+      holder.dismissed!.value = new Set(["nginx:latest@sha256:new"]);
+      mockCheck({ status: "update-available", remoteDigest: "sha256:new" });
+      await run(container());
+
+      expect(holder.toasts).toHaveLength(0);
+    });
   });
 });
