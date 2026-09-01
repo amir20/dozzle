@@ -2,7 +2,7 @@ import { Container } from "@/models/Container";
 
 type ContainerActions = "start" | "stop" | "restart";
 export const useContainerActions = (container: Ref<Container>) => {
-  const { showToast, removeToast } = useToast();
+  const { showToast, updateToast, removeToast } = useToast();
   const { t } = useI18n();
 
   const actionStates = reactive({
@@ -43,6 +43,20 @@ export const useContainerActions = (container: Ref<Container>) => {
     const updateUrl = `/api/hosts/${container.value.host}/containers/${container.value.id}/actions/update`;
     const toastId = "container-update";
     let reader: ReadableStreamDefaultReader<Uint8Array> | undefined;
+
+    // Docker reports progress per layer, and layers keep appearing as the pull
+    // goes on. Summing what is known so far gives a percentage that only ever
+    // moves forward within a layer, which is close enough to be useful.
+    const layers = new Map<string, { current: number; total: number }>();
+    const pullProgress = () => {
+      let current = 0;
+      let total = 0;
+      for (const layer of layers.values()) {
+        current += layer.current;
+        total += layer.total;
+      }
+      return total > 0 ? Math.min(100, (current / total) * 100) : undefined;
+    };
 
     actionStates.update = true;
 
@@ -86,18 +100,15 @@ export const useContainerActions = (container: Ref<Container>) => {
 
           switch (data.status) {
             case "pulling":
+              if (data.layer && data.total > 0) {
+                layers.set(data.layer, { current: data.current ?? 0, total: data.total });
+                updateToast(toastId, { progress: pullProgress() });
+              }
               break;
             case "recreating":
-              removeToast(toastId);
-              showToast(
-                {
-                  id: toastId,
-                  title: t("toolbar.update"),
-                  message: t("toolbar.update-recreating"),
-                  type: "info",
-                },
-                { once: true },
-              );
+              // The pull is done; recreating cannot report progress, so the
+              // bar goes away rather than sitting at an arbitrary value.
+              updateToast(toastId, { message: t("toolbar.update-recreating"), progress: undefined });
               break;
             case "done":
             case "up-to-date":

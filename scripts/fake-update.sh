@@ -41,7 +41,7 @@ push_image() {
   docker build -q -t "${IMAGE}:latest" - >/dev/null <<DOCKERFILE
 FROM busybox:latest
 RUN echo "${version} (built $(date +%s%N))" > /version
-CMD ["sh", "-c", "while true; do echo \\"[fake-app] running image \$(cat /version)\\"; sleep 3; done"]
+CMD ["sh", "-c", "trap 'exit 0' TERM INT; while true; do echo \\"[fake-app] running image \$(cat /version)\\"; sleep 3 & wait \$!; done"]
 DOCKERFILE
   docker push -q "${IMAGE}:latest" >/dev/null
 }

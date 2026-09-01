@@ -17,6 +17,10 @@
         <div class="min-w-0 grow">
           <h3 class="text-lg font-bold max-md:text-base" v-if="toast.title">{{ toast.title }}</h3>
           <div v-html="toast.message" class="max-md:text-sm [&>a]:underline"></div>
+          <div class="mt-2 flex items-center gap-2" v-if="toast.progress !== undefined">
+            <progress class="progress progress-primary h-1.5 grow" :value="toast.progress" max="100"></progress>
+            <span class="text-xs tabular-nums opacity-70">{{ Math.round(toast.progress) }}%</span>
+          </div>
         </div>
         <button class="btn btn-circle btn-xs shrink-0" @click="removeToast(toast.id)">
           <mdi:close />
@@ -49,7 +53,15 @@
           >
             {{ toast.secondaryAction.label }}
           </button>
-          <button class="btn btn-primary btn-sm" v-if="toast.action" @click="toast.action.handler()">
+          <!-- Acting on a notice answers it, so the toast goes away either way. -->
+          <button
+            class="btn btn-primary btn-sm"
+            v-if="toast.action"
+            @click="
+              toast.action.handler();
+              removeToast(toast.id);
+            "
+          >
             {{ toast.action.label }}
           </button>
         </template>
