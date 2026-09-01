@@ -161,6 +161,7 @@ placeholder:
   search: Ara
 settings:
   show-image-update-alert: 'Bir kapsayıcının güncellemesi olduğunda bildirim göster'
+  show-image-update-alert-desc: 'Çalışan imajın daha yeni bir etiketi için kayıt defterini denetler.'
   help-support: >
     Lütfen GitHub'da bağış yaparak veya bizi sponsor olarak destekleyerek Dozzle'ı destekleyin. Katkılarınız Dozzle'ı herkes için geliştirmemize yardımcı oluyor. Teşekkürler! 🙏🏼
   about-desc: Dozzle kurulumunuz ve projeyi nasıl destekleyebileceğiniz hakkında bilgiler.
@@ -171,26 +172,39 @@ settings:
   support-help: Bağışlar Dozzle'ın ücretsiz kalmasına ve bakımının sürmesine yardımcı olur. Teşekkürler 🙏
   display: Görünüm
   locale: Dili geçersiz kıl
+  locale-desc: 'Varsayılan olarak tarayıcınızın dilini kullanır.'
   small-scrollbars: Daha küçük kaydırma çubukları kullan
+  small-scrollbars-desc: 'Daha ince kaydırma çubukları, küçük ekranlarda kullanışlıdır.'
   show-timestamps: Zaman damgalarını göster
+  show-timestamps-desc: 'Her satırın başına yazıldığı saati ekler.'
   soft-wrap: Satırları yumuşak kaydır
+  soft-wrap-desc: 'Yana kaydırmak yerine uzun satırları alt satıra kaydırır.'
   datetime-format: Tarih ve saat biçimini geçersiz kıl
+  datetime-format-desc: 'Varsayılan olarak tarayıcınızın dilini ve saat biçimini kullanır.'
   font-size: Günlükler için kullanılacak yazı tipi boyutu
+  font-size-desc: 'Yalnızca günlük çıktısı için geçerlidir, uygulamanın geri kalanı için değil.'
   color-scheme: Renk düzeni
+  color-scheme-desc: 'Otomatik, sistem ayarınızı izler.'
   options: Seçenekler
   show-stopped-containers: Durdurulan konteynerleri göster
+  show-stopped-containers-desc: 'Durdurulmuş konteynerleri kenar çubuğuna ve listelere dahil eder.'
   group-containers: Konteynerleri ad alanına göre grupla
+  group-containers-desc: 'Compose projesine, Swarm yığınına veya dev.dozzle.group değerine göre gruplar.'
   show-app-icons: 'Uygulama simgelerini göster'
   show-app-icons-desc: 'Bilinen imajları logolarıyla eşleştir. Simgeler Dozzle ile birlikte gelir ve hiçbir zaman internetten indirilmez.'
   about: Hakkında
   search: Dozzle kullanarak aramayı etkinleştir
+  search-desc: 'Görüntülediğiniz konteynerin günlüklerinde arama yapar.'
   using-version: <a href="https://dozzle.dev/" target="_blank" rel="noreferrer noopener">Dozzle</a> {version} kullanıyorsunuz.
   update-available: >-
     Yeni sürüm mevcut! <a href="{href}" target="_blank"
     rel="noreferrer noopener">{nextVersion}</a> sürümüne güncelleyin.
   show-std: stdout ve stderr etiketlerini göster
+  show-std-desc: 'Satırın stdout''tan mı stderr''den mi geldiğini gösterir.'
   automatic-redirect: Aynı ada sahip yeni konteynerlere otomatik olarak yönlendir
+  automatic-redirect-desc: 'Bir konteyner değiştirildiğinde yenisine geç.'
   compact: Günlükler için kompakt modu etkinleştir
+  compact-desc: 'Günlük satırları arasındaki boşluğu azaltarak ekrana daha fazlası sığar.'
   size:
     small: Küçük
     medium: Orta

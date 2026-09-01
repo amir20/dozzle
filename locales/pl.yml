@@ -160,6 +160,7 @@ placeholder:
   search: Szukaj
 settings:
   show-image-update-alert: 'Pokaż powiadomienie, gdy kontener ma aktualizację'
+  show-image-update-alert-desc: 'Sprawdza w rejestrze nowszy tag uruchomionego obrazu.'
   help-support: >
     Prosimy o wsparcie Dozzle poprzez darowizny lub sponsoring na GitHub. Twoje wkłady pomagają nam ulepszać Dozzle dla wszystkich. Dziękujemy! 🙏🏼
   about-desc: Informacje o Twojej instalacji Dozzle i o tym, jak wesprzeć projekt.
@@ -170,26 +171,39 @@ settings:
   support-help: Darowizny pomagają utrzymać Dozzle darmowym i rozwijanym. Dziękujemy 🙏
   display: Wyświetlanie
   locale: Nadpisz język
+  locale-desc: 'Domyślnie używa języka przeglądarki.'
   small-scrollbars: Użyj mniejszych suwaków
+  small-scrollbars-desc: 'Cieńsze paski przewijania, przydatne na mniejszych ekranach.'
   show-timestamps: Pokaż date i godzinę
+  show-timestamps-desc: 'Poprzedza każdy wiersz godziną jego zapisania.'
   soft-wrap: Zwijaj linie
+  soft-wrap-desc: 'Zawija długie wiersze zamiast przewijania w bok.'
   datetime-format: Nadpisz format daty i godziny
+  datetime-format-desc: 'Domyślnie używa języka i formatu zegara przeglądarki.'
   font-size: Rozmiar czcionki używany dla logów
+  font-size-desc: 'Dotyczy tylko logów, nie reszty aplikacji.'
   color-scheme: Motyw
+  color-scheme-desc: 'Auto podąża za ustawieniem systemu.'
   options: Opcje
   show-stopped-containers: Pokaż zatrzymane kontenery
+  show-stopped-containers-desc: 'Uwzględnia zatrzymane kontenery na pasku bocznym i listach.'
   group-containers: Grupuj kontenery według przestrzeni nazw
+  group-containers-desc: 'Grupuje według projektu Compose, stosu Swarm lub dev.dozzle.group.'
   show-app-icons: 'Pokaż ikony aplikacji'
   show-app-icons-desc: 'Dopasuj znane obrazy do ich logo. Ikony są dołączone do Dozzle i nigdy nie są pobierane z internetu.'
   about: Informacje
   search: Włącz szukanie z dozzle
+  search-desc: 'Szuka w logach kontenera, który właśnie przeglądasz.'
   using-version: Używasz <a href="https://dozzle.dev/" target="_blank" rel="noreferrer noopener">Dozzle</a> w wersji {version}.
   update-available: >-
     Nowa wersja jest dostępna! Zaktualizuj do <a href="{href}" target="_blank"
     rel="noreferrer noopener">{nextVersion}</a>.
   show-std: Pokaż etykiety dla stdout i stderr
+  show-std-desc: 'Oznacza, czy wiersz pochodzi ze stdout czy ze stderr.'
   automatic-redirect: Automatycznie przekieruj na kontener o tej samej nazwie
+  automatic-redirect-desc: 'Gdy kontener zostanie zastąpiony, przejdź do nowego.'
   compact: Włącz tryb kompaktowy dla logów
+  compact-desc: 'Zmniejsza odstępy między wierszami logów, aby zmieściło się ich więcej.'
   size:
     small: Mały
     medium: Średni

@@ -160,6 +160,7 @@ placeholder:
   search: Iskanje
 settings:
   show-image-update-alert: 'Pokaži obvestilo, ko je za vsebnik na voljo posodobitev'
+  show-image-update-alert-desc: 'V registru preveri, ali obstaja novejša oznaka slike.'
   about-desc: Informacije o vaši namestitvi Dozzle in kako podpreti projekt.
   display-desc: Prilagodite videz dnevnikov in preostalega dela aplikacije. Predogled v živo prikazuje vaše spremembe.
   options-desc: Nastavitve jezika, navigacije in združevanja.
@@ -168,23 +169,35 @@ settings:
   support-help: Donacije pomagajo, da Dozzle ostane brezplačen in vzdrževan. Hvala 🙏
   display: Prikaz
   locale: Preglasi jezik
+  locale-desc: 'Privzeto sledi jeziku brskalnika.'
   small-scrollbars: Uporabite manjše drsne trakove
+  small-scrollbars-desc: 'Tanjši drsniki, priročno na manjših zaslonih.'
   show-timestamps: Prikaži časovne žige
+  show-timestamps-desc: 'Pred vsako vrstico doda čas, ko je bila zapisana.'
   soft-wrap: Mehke ovojne linije
+  soft-wrap-desc: 'Prelomi dolge vrstice namesto drsenja vstran.'
   datetime-format: Preglasi obliko zapisa datuma in časa
+  datetime-format-desc: 'Privzeto sledi jeziku in uri v brskalniku.'
   font-size: Velikost pisave za dnevnike
+  font-size-desc: 'Velja samo za izpis dnevnika, ne za preostanek aplikacije.'
   color-scheme: Barvna shema
+  color-scheme-desc: 'Samodejno sledi nastavitvi sistema.'
   options: Možnosti
   show-stopped-containers: Prikaži ustavljene zabojnike
+  show-stopped-containers-desc: 'Vključi ustavljene vsebnike v stranski vrstici in seznamih.'
   group-containers: Združi zabojnike po imenskem prostoru
+  group-containers-desc: 'Združuje po projektu Compose, skladu Swarm ali dev.dozzle.group.'
   show-app-icons: 'Prikaži ikone aplikacij'
   show-app-icons-desc: 'Znane slike poveži z njihovim logotipom. Ikone so priložene Dozzle in se nikoli ne prenašajo iz interneta.'
   about: O programu
   search: Omogočite iskanje z Dozzle z uporabo
+  search-desc: 'Išče po dnevniku vsebnika, ki ga gledate.'
   update-available: Nova različica je na voljo! Posodobi na <a href="{href}"
     target="_blank" rel="noreferrer noopener">{nextVersion}</a>.
   show-std: Prikaži oznake stdout in stderr
+  show-std-desc: 'Označi, ali vrstica prihaja iz stdout ali stderr.'
   compact: Omogoči kompaktni način za dnevnike
+  compact-desc: 'Zmanjša razmike med vrsticami dnevnika, da jih je na zaslonu več.'
   size:
     small: Majhna
     medium: Srednja
@@ -222,6 +235,7 @@ settings:
   help-support: "Prosimo, podprite Dozzle z donacijo ali sponzoriranjem na GitHubu.
     Vaši prispevki nam pomagajo izboljšati Dozzle za vse. Hvala! 🙏🏼\n"
   automatic-redirect: Samodejna preusmeritev na nove zabojnike z istim imenom
+  automatic-redirect-desc: 'Ko je vsebnik zamenjan, sledi novemu.'
 releases:
   features: ena nova funkcija | {count} funkcij
   bugFixes: en popravek napake | {count} popravkov

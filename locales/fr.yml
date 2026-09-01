@@ -158,6 +158,7 @@ placeholder:
   search: Recherche
 settings:
   show-image-update-alert: 'Afficher une notification lorsqu''un conteneur a une mise à jour'
+  show-image-update-alert-desc: 'Vérifie dans le registre s''il existe un tag plus récent de l''image.'
   help-support: >
     Veuillez soutenir Dozzle en faisant un don ou en nous parrainant sur GitHub. Vos contributions nous aident à améliorer Dozzle pour tout le monde. Merci ! 🙏🏼
   about-desc: Informations sur votre installation de Dozzle et comment soutenir le projet.
@@ -168,25 +169,38 @@ settings:
   support-help: Les dons aident à garder Dozzle gratuit et maintenu. Merci 🙏
   display: Afficher
   locale: Langue de remplacement
+  locale-desc: 'Suit par défaut la langue de votre navigateur.'
   small-scrollbars: Utiliser des barres de défilement plus petites
+  small-scrollbars-desc: 'Barres de défilement plus fines, pratiques sur les petits écrans.'
   show-timestamps: Afficher les horodatages
+  show-timestamps-desc: 'Préfixe chaque ligne avec l''heure à laquelle elle a été écrite.'
   soft-wrap: Lignes d'enroulement souples
+  soft-wrap-desc: 'Renvoie les lignes longues à la ligne au lieu de défiler latéralement.'
   datetime-format: Remplacer le format de la date et de l'heure
+  datetime-format-desc: 'Suit par défaut la langue et l''horloge de votre navigateur.'
   font-size: Taille de police à utiliser pour les journaux
+  font-size-desc: 'S''applique uniquement aux logs, pas au reste de l''application.'
   color-scheme: Schéma de couleurs
+  color-scheme-desc: 'Auto suit le réglage de votre système.'
   options: Options
   show-stopped-containers: Afficher les conteneurs arrêtés
+  show-stopped-containers-desc: 'Inclut les conteneurs arrêtés dans la barre latérale et les listes.'
   group-containers: Regrouper les conteneurs par namespace
+  group-containers-desc: 'Regroupe par projet Compose, stack Swarm ou dev.dozzle.group.'
   show-app-icons: 'Afficher les icônes des applications'
   show-app-icons-desc: 'Associe les images connues à leur logo. Les icônes sont fournies avec Dozzle et ne sont jamais téléchargées depuis internet.'
   about: A propos de
   search: Activer la recherche avec Dozzle en utilisant
+  search-desc: 'Recherche dans les logs du conteneur que vous consultez.'
   using-version: Vous utilisez <a href="https://dozzle.dev/" target="_blank" rel="noreferrer noopener">Dozzle</a> {version}.
   update-available: >-
     Nouvelle version disponible! Mise à jour de <a href="{href}" target="_blank" rel="noreferrer noopener">{nextVersion}</a>.
   show-std: Afficher les étiquettes stdout et stderr
+  show-std-desc: 'Indique si une ligne provient de stdout ou de stderr.'
   automatic-redirect: Redirection automatique vers de nouveaux conteneurs portant le même nom
+  automatic-redirect-desc: 'Lorsqu''un conteneur est remplacé, basculer vers le nouveau.'
   compact: Activer le mode compact pour les journaux
+  compact-desc: 'Réduit l''espacement entre les lignes pour en afficher davantage.'
   size:
     small: Petit
     medium: Moyen

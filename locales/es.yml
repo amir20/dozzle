@@ -202,6 +202,7 @@ command-palette:
   open-settings: Abrir configuración
 settings:
   show-image-update-alert: 'Mostrar una notificación cuando un contenedor tenga una actualización'
+  show-image-update-alert-desc: 'Consulta el registro en busca de una etiqueta más reciente de la imagen.'
   help-support: >
     Por favor, apoya a Dozzle donando o patrocinándonos en GitHub. Tus contribuciones nos ayudan a mejorar Dozzle para todos. ¡Gracias! 🙏🏼
   about-desc: Información sobre tu instalación de Dozzle y cómo apoyar el proyecto.
@@ -212,25 +213,38 @@ settings:
   support-help: Las donaciones ayudan a mantener Dozzle gratuito y actualizado. Gracias 🙏
   display: Vista
   locale: Sobrescribir idioma
+  locale-desc: 'Por defecto usa el idioma de tu navegador.'
   small-scrollbars: Utilizar barras de desplazamiento más pequeñas
+  small-scrollbars-desc: 'Barras de desplazamiento más finas, útiles en pantallas pequeñas.'
   show-timestamps: Mostrar marcas de tiempo
+  show-timestamps-desc: 'Antepone a cada línea la hora en que se escribió.'
   soft-wrap: Líneas de texto con ajuste suave
+  soft-wrap-desc: 'Ajusta las líneas largas en lugar de desplazarse en horizontal.'
   datetime-format: Sobrescribir el formato de fecha y hora
+  datetime-format-desc: 'Por defecto usa el idioma y el reloj de tu navegador.'
   font-size: Tamaño de letra a utilizar para los registros
+  font-size-desc: 'Solo afecta a la salida de los logs, no al resto de la aplicación.'
   color-scheme: Esquema de colores
+  color-scheme-desc: 'Auto sigue la configuración de tu sistema.'
   options: Opciones
   show-stopped-containers: Mostrar contenedores parados
+  show-stopped-containers-desc: 'Incluye los contenedores parados en la barra lateral y en las listas.'
   group-containers: Agrupar contenedores por namespace
+  group-containers-desc: 'Agrupa por proyecto de Compose, stack de Swarm o dev.dozzle.group.'
   show-app-icons: 'Mostrar iconos de aplicaciones'
   show-app-icons-desc: 'Asocia las imágenes conocidas con su logotipo. Los iconos vienen incluidos en Dozzle y nunca se descargan de internet.'
   about: Acerca de
   search: Activar la búsqueda con Dozzle mediante
+  search-desc: 'Busca dentro de los logs del contenedor que estás viendo.'
   using-version: Estás usando <a href="https://dozzle.dev/" target="_blank" rel="noreferrer noopener">Dozzle</a> {version}.
   update-available: >-
     ¡La nueva versión está disponible! Actualizar a la <a href="{href}" target="_blank" rel="noreferrer noopener">{nextVersion}</a>.
   show-std: Mostrar etiquetas de salida estándar y salida de error estándar
+  show-std-desc: 'Indica si una línea proviene de stdout o de stderr.'
   automatic-redirect: Redireccionar automáticamente a nuevos contenedores con el mismo nombre
+  automatic-redirect-desc: 'Cuando se reemplaza un contenedor, seguirlo hasta el nuevo.'
   compact: Modo compacto
+  compact-desc: 'Reduce el espaciado entre líneas para que quepan más en pantalla.'
   size:
     small: Pequeño
     medium: Mediano

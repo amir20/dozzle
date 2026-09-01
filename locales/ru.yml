@@ -158,6 +158,7 @@ placeholder:
   search: Поиск
 settings:
   show-image-update-alert: 'Показывать уведомление, когда у контейнера есть обновление'
+  show-image-update-alert-desc: 'Проверяет в реестре более новый тег запущенного образа.'
   help-support: >
     Пожалуйста, поддержите Dozzle, сделав пожертвование или спонсорство на GitHub. Ваши вклады помогают нам улучшать Dozzle для всех. Спасибо! 🙏🏼
   about-desc: Информация о вашей установке Dozzle и о том, как поддержать проект.
@@ -168,25 +169,38 @@ settings:
   support-help: Пожертвования помогают сохранять Dozzle бесплатным и поддерживаемым. Спасибо 🙏
   display: Вид
   locale: Язык
+  locale-desc: 'По умолчанию следует языку браузера.'
   small-scrollbars: Уменьшенная полоса прокрутки
+  small-scrollbars-desc: 'Более тонкие полосы прокрутки, удобно на небольших экранах.'
   show-timestamps: Показывать временные метки
+  show-timestamps-desc: 'Добавляет в начало каждой строки время её записи.'
   soft-wrap: Плавный перенос текста
+  soft-wrap-desc: 'Переносит длинные строки вместо горизонтальной прокрутки.'
   datetime-format: Формат даты и времени
+  datetime-format-desc: 'По умолчанию следует языку и формату времени браузера.'
   font-size: Размер шрифта
+  font-size-desc: 'Влияет только на вывод логов, а не на остальной интерфейс.'
   color-scheme: Цветовая схема
+  color-scheme-desc: 'Авто следует настройке системы.'
   options: Опции
   show-stopped-containers: Показывать остановленные контейнеры
+  show-stopped-containers-desc: 'Показывать остановленные контейнеры в боковой панели и списках.'
   group-containers: Группировать контейнеры по пространству имён
+  group-containers-desc: 'Группирует по проекту Compose, стеку Swarm или dev.dozzle.group.'
   show-app-icons: 'Показывать значки приложений'
   show-app-icons-desc: 'Сопоставлять известные образы с их логотипами. Значки поставляются вместе с Dozzle и никогда не загружаются из интернета.'
   about: Информация
   search: Включить поиск с помощью Dozzle, используя
+  search-desc: 'Ищет внутри логов контейнера, который вы просматриваете.'
   using-version: Вы используете <a href="https://dozzle.dev/" target="_blank" rel="noreferrer noopener">Dozzle</a> {version}.
   update-available: >-
     Доступна новая версия! Обновить до <a href="{href}" target="_blank" rel="noreferrer noopener">{nextVersion}</a>.
   show-std: Показывать метки stdout и stderr
+  show-std-desc: 'Помечает, из stdout или stderr пришла строка.'
   automatic-redirect: Автоматическое перенаправление на новые контейнеры с тем же именем.
+  automatic-redirect-desc: 'Когда контейнер заменён, перейти к новому.'
   compact: Компактный режим
+  compact-desc: 'Уменьшает отступы между строками логов, чтобы их помещалось больше.'
   size:
     small: Маленький
     medium: Средний

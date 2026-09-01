@@ -159,6 +159,7 @@ placeholder:
   search: Zoeken
 settings:
   show-image-update-alert: 'Toon een melding wanneer een container een update heeft'
+  show-image-update-alert-desc: 'Controleert de registry op een nieuwere tag van de draaiende image.'
   help-support: >
     Steun Dozzle door te doneren of door ons te sponsoren op GitHub. Jouw bijdrage helpt ons om Dozzle verder te verbeteren voor iedereen. Hartelijk dank! 🙏🏼
   about-desc: Informatie over jouw Dozzle-installatie en hoe je het project kunt ondersteunen.
@@ -169,25 +170,38 @@ settings:
   support-help: Donaties houden Dozzle gratis en onderhouden. Bedankt 🙏
   display: Weergave
   locale: Taal aanpassen
+  locale-desc: 'Volgt standaard de taal van je browser.'
   small-scrollbars: Kleinere scrollbalk gebruiken
+  small-scrollbars-desc: 'Dunnere schuifbalken, handig op kleinere schermen.'
   show-timestamps: Tijdstempel tonen
+  show-timestamps-desc: 'Zet voor elke regel het tijdstip waarop die geschreven is.'
   soft-wrap: Regels zacht afbreken
+  soft-wrap-desc: 'Breek lange regels af in plaats van zijwaarts te scrollen.'
   datetime-format: Datum- en tijdnotatie aanpassen
+  datetime-format-desc: 'Volgt standaard de taal en klok van je browser.'
   font-size: Lettergrootte voor logs
+  font-size-desc: 'Geldt alleen voor de loguitvoer, niet voor de rest van de app.'
   color-scheme: Kleurmodus
+  color-scheme-desc: 'Auto volgt je systeeminstelling.'
   options: Opties
   show-stopped-containers: Gestopte containers tonen
+  show-stopped-containers-desc: 'Toon gestopte containers in de zijbalk en in lijsten.'
   group-containers: Groepeer containers op namespace
+  group-containers-desc: 'Groepeert op Compose-project, Swarm-stack of dev.dozzle.group.'
   show-app-icons: 'App-pictogrammen tonen'
   show-app-icons-desc: 'Koppel bekende images aan hun logo. De pictogrammen zitten in Dozzle en worden nooit van internet opgehaald.'
   about: Over
   search: Doorzoeken inschakelen via Dozzle
+  search-desc: 'Zoek in de logs van de container die je bekijkt.'
   using-version: Je gebruikt <a href="https://dozzle.dev/" target="_blank" rel="noreferrer noopener">Dozzle</a> {version}.
   update-available: >-
     Er is een nieuwe versie beschikbaar! Update naar <a href="{href}" target="_blank" rel="noreferrer noopener">{nextVersion}</a>.
   show-std: Toon stdout- en stderr-labels
+  show-std-desc: 'Geef aan of een regel van stdout of stderr komt.'
   automatic-redirect: Automatisch omleiden naar nieuwe containers met dezelfde naam
+  automatic-redirect-desc: 'Als een container wordt vervangen, ga mee naar de nieuwe.'
   compact: Compacte modus inschakelen voor logs
+  compact-desc: 'Verklein de ruimte tussen logregels zodat er meer op het scherm past.'
   size:
     small: Klein
     medium: Middel

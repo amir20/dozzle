@@ -11,12 +11,12 @@
     <!-- ABOUT -->
     <section class="flex flex-col gap-4">
       <div>
-        <h2 class="text-xl font-semibold tracking-tight">{{ $t("settings.about") }}</h2>
+        <h2 class="text-2xl font-semibold tracking-tight">{{ $t("settings.about") }}</h2>
         <p class="text-base-content/60 mt-1 text-sm">{{ $t("settings.about-desc") }}</p>
       </div>
 
-      <div class="border-base-content/15 bg-base-200/40 divide-base-content/10 divide-y rounded-lg border">
-        <div class="flex flex-col gap-2 p-4">
+      <div class="divide-base-content/10 divide-y">
+        <div class="flex flex-col gap-2 py-4">
           <div class="flex flex-wrap items-center gap-3">
             <span class="text-2xl font-semibold tracking-tight">Dozzle</span>
             <span class="status-pill status-pill-neutral font-mono">{{ config.version }}</span>
@@ -40,7 +40,7 @@
           </div>
         </div>
 
-        <div class="flex flex-col gap-3 p-4">
+        <div class="flex flex-col gap-3 py-4">
           <div>
             <div class="text-sm font-medium">{{ $t("settings.support-title") }}</div>
             <div class="text-base-content/60 text-xs">{{ $t("settings.help-support") }}</div>
@@ -73,7 +73,7 @@
     <!-- CLOUD -->
     <section class="flex flex-col gap-4" v-if="config.enableCloud">
       <div>
-        <h2 class="text-xl font-semibold tracking-tight">{{ $t("cloud.title") }}</h2>
+        <h2 class="text-2xl font-semibold tracking-tight">{{ $t("cloud.title") }}</h2>
         <p class="text-base-content/60 mt-1 text-sm">{{ $t("settings.cloud-desc") }}</p>
       </div>
       <CloudSettingsCard />
@@ -82,58 +82,57 @@
     <!-- DISPLAY -->
     <section class="flex flex-col gap-4">
       <div>
-        <h2 class="text-xl font-semibold tracking-tight">{{ $t("settings.display") }}</h2>
+        <h2 class="text-2xl font-semibold tracking-tight">{{ $t("settings.display") }}</h2>
         <p class="text-base-content/60 mt-1 text-sm">{{ $t("settings.display-desc") }}</p>
       </div>
 
       <div class="grid items-stretch gap-3 @3xl:grid-cols-2">
-        <div class="border-base-content/15 bg-base-200/40 divide-base-content/10 divide-y rounded-lg border">
-          <label class="flex min-h-13 items-center justify-between gap-4 p-4 text-sm font-medium">
-            {{ $t("settings.compact") }}
+        <div class="divide-base-content/10 divide-y">
+          <SettingRow tag="label" :label="$t('settings.compact')" :description="$t('settings.compact-desc')">
             <input type="checkbox" class="toggle toggle-primary toggle-sm" v-model="compact" />
-          </label>
-          <label class="flex min-h-13 items-center justify-between gap-4 p-4 text-sm font-medium">
-            {{ $t("settings.small-scrollbars") }}
+          </SettingRow>
+          <SettingRow
+            tag="label"
+            :label="$t('settings.small-scrollbars')"
+            :description="$t('settings.small-scrollbars-desc')"
+          >
             <input type="checkbox" class="toggle toggle-primary toggle-sm" v-model="smallerScrollbars" />
-          </label>
-          <label class="flex min-h-13 items-center justify-between gap-4 p-4 text-sm font-medium">
-            {{ $t("settings.show-timestamps") }}
+          </SettingRow>
+          <SettingRow
+            tag="label"
+            :label="$t('settings.show-timestamps')"
+            :description="$t('settings.show-timestamps-desc')"
+          >
             <input type="checkbox" class="toggle toggle-primary toggle-sm" v-model="showTimestamp" />
-          </label>
-          <label class="flex min-h-13 items-center justify-between gap-4 p-4 text-sm font-medium">
-            {{ $t("settings.show-std") }}
+          </SettingRow>
+          <SettingRow tag="label" :label="$t('settings.show-std')" :description="$t('settings.show-std-desc')">
             <input type="checkbox" class="toggle toggle-primary toggle-sm" v-model="showStd" />
-          </label>
-          <label class="flex min-h-13 items-center justify-between gap-4 p-4 text-sm font-medium">
-            {{ $t("settings.soft-wrap") }}
+          </SettingRow>
+          <SettingRow tag="label" :label="$t('settings.soft-wrap')" :description="$t('settings.soft-wrap-desc')">
             <input type="checkbox" class="toggle toggle-primary toggle-sm" v-model="softWrap" />
-          </label>
-          <div class="flex min-h-13 flex-wrap items-center justify-between gap-3 p-4 text-sm font-medium">
-            <span>{{ $t("settings.datetime-format") }}</span>
-            <div class="ml-auto flex flex-wrap gap-2">
-              <DropdownMenu
-                v-model="dateLocale"
-                :options="[
-                  { label: 'Auto', value: 'auto' },
-                  { label: 'MM/DD/YYYY', value: 'en-US' },
-                  { label: 'DD/MM/YYYY', value: 'en-GB' },
-                  { label: 'DD.MM.YYYY', value: 'de-DE' },
-                  { label: 'YYYY-MM-DD', value: 'en-CA' },
-                ]"
-              />
-              <DropdownMenu
-                v-model="hourStyle"
-                :options="[
-                  { label: $t('settings.hour.auto'), value: 'auto' },
-                  { label: $t('settings.hour.12'), value: '12' },
-                  { label: $t('settings.hour.24'), value: '24' },
-                ]"
-              />
-            </div>
-          </div>
-          <div class="flex min-h-13 flex-wrap items-center justify-between gap-3 p-4 text-sm font-medium">
-            <span>{{ $t("settings.font-size") }}</span>
-            <div class="join ml-auto">
+          </SettingRow>
+          <SettingRow :label="$t('settings.datetime-format')" :description="$t('settings.datetime-format-desc')">
+            <DropdownMenu
+              v-model="dateLocale"
+              :options="[
+                { label: 'Auto', value: 'auto' },
+                { label: 'MM/DD/YYYY', value: 'en-US' },
+                { label: 'DD/MM/YYYY', value: 'en-GB' },
+                { label: 'DD.MM.YYYY', value: 'de-DE' },
+                { label: 'YYYY-MM-DD', value: 'en-CA' },
+              ]"
+            />
+            <DropdownMenu
+              v-model="hourStyle"
+              :options="[
+                { label: $t('settings.hour.auto'), value: 'auto' },
+                { label: $t('settings.hour.12'), value: '12' },
+                { label: $t('settings.hour.24'), value: '24' },
+              ]"
+            />
+          </SettingRow>
+          <SettingRow :label="$t('settings.font-size')" :description="$t('settings.font-size-desc')">
+            <span class="join">
               <button
                 v-for="opt in [
                   { label: $t('settings.size.small'), value: 'small' },
@@ -147,8 +146,8 @@
               >
                 {{ opt.label }}
               </button>
-            </div>
-          </div>
+            </span>
+          </SettingRow>
         </div>
 
         <LogList
@@ -163,25 +162,22 @@
     <!-- OPTIONS -->
     <section class="flex flex-col gap-4">
       <div>
-        <h2 class="text-xl font-semibold tracking-tight">{{ $t("settings.options") }}</h2>
+        <h2 class="text-2xl font-semibold tracking-tight">{{ $t("settings.options") }}</h2>
         <p class="text-base-content/60 mt-1 text-sm">{{ $t("settings.options-desc") }}</p>
       </div>
 
-      <div class="border-base-content/15 bg-base-200/40 divide-base-content/10 divide-y rounded-lg border">
-        <div class="flex min-h-13 flex-wrap items-center justify-between gap-3 p-4 text-sm font-medium">
-          <span>{{ $t("settings.locale") }}</span>
+      <div class="divide-base-content/10 divide-y">
+        <SettingRow :label="$t('settings.locale')" :description="$t('settings.locale-desc')">
           <DropdownMenu
-            class="ml-auto"
             v-model="locale"
             :options="[
               { label: 'Auto', value: '' },
               ...availableLocales.map((l) => ({ label: l.toLocaleUpperCase(), value: l })),
             ]"
           />
-        </div>
-        <div class="flex min-h-13 flex-wrap items-center justify-between gap-3 p-4 text-sm font-medium">
-          <span>{{ $t("settings.color-scheme") }}</span>
-          <div class="join ml-auto">
+        </SettingRow>
+        <SettingRow :label="$t('settings.color-scheme')" :description="$t('settings.color-scheme-desc')">
+          <span class="join">
             <button
               v-for="opt in [
                 { label: $t('settings.theme.light'), value: 'light' },
@@ -195,12 +191,10 @@
             >
               {{ opt.label }}
             </button>
-          </div>
-        </div>
-        <div class="flex min-h-13 flex-wrap items-center justify-between gap-3 p-4 text-sm font-medium">
-          <span>{{ $t("settings.automatic-redirect") }}</span>
+          </span>
+        </SettingRow>
+        <SettingRow :label="$t('settings.automatic-redirect')" :description="$t('settings.automatic-redirect-desc')">
           <DropdownMenu
-            class="ml-auto"
             v-model="automaticRedirect"
             :options="[
               { label: $t('settings.redirect.instant'), value: 'instant' },
@@ -208,11 +202,9 @@
               { label: $t('settings.redirect.none'), value: 'none' },
             ]"
           />
-        </div>
-        <div class="flex min-h-13 flex-wrap items-center justify-between gap-3 p-4 text-sm font-medium">
-          <span>{{ $t("settings.group-containers") }}</span>
+        </SettingRow>
+        <SettingRow :label="$t('settings.group-containers')" :description="$t('settings.group-containers-desc')">
           <DropdownMenu
-            class="ml-auto"
             v-model="groupContainers"
             :options="[
               { label: $t('settings.grouping.always'), value: 'always' },
@@ -220,32 +212,33 @@
               { label: $t('settings.grouping.never'), value: 'never' },
             ]"
           />
-        </div>
-        <label
-          class="flex min-h-13 items-center justify-between gap-4 p-4 text-sm font-medium"
+        </SettingRow>
+        <SettingRow
           v-if="config.imageCheckMode !== 'off'"
+          tag="label"
+          :label="$t('settings.show-image-update-alert')"
+          :description="$t('settings.show-image-update-alert-desc')"
         >
-          <span>{{ $t("settings.show-image-update-alert") }}</span>
           <input type="checkbox" class="toggle toggle-primary toggle-sm" v-model="showImageUpdateAlert" />
-        </label>
-        <label class="flex min-h-13 items-center justify-between gap-4 p-4 text-sm font-medium">
-          <span class="inline-flex items-center gap-2">
-            {{ $t("settings.search") }}
-            <key-shortcut char="f" />
-          </span>
+        </SettingRow>
+        <SettingRow tag="label" :label="$t('settings.search')" :description="$t('settings.search-desc')">
+          <template #label-suffix><key-shortcut char="f" /></template>
           <input type="checkbox" class="toggle toggle-primary toggle-sm" v-model="search" />
-        </label>
-        <label class="flex min-h-13 items-center justify-between gap-4 p-4 text-sm font-medium">
-          {{ $t("settings.show-stopped-containers") }}
+        </SettingRow>
+        <SettingRow
+          tag="label"
+          :label="$t('settings.show-stopped-containers')"
+          :description="$t('settings.show-stopped-containers-desc')"
+        >
           <input type="checkbox" class="toggle toggle-primary toggle-sm" v-model="showAllContainers" />
-        </label>
-        <label class="flex min-h-13 items-center justify-between gap-4 p-4 text-sm font-medium">
-          <span>
-            {{ $t("settings.show-app-icons") }}
-            <span class="text-base-content/60 block text-xs font-normal">{{ $t("settings.show-app-icons-desc") }}</span>
-          </span>
+        </SettingRow>
+        <SettingRow
+          tag="label"
+          :label="$t('settings.show-app-icons')"
+          :description="$t('settings.show-app-icons-desc')"
+        >
           <input type="checkbox" class="toggle toggle-primary toggle-sm" v-model="showAppIcons" />
-        </label>
+        </SettingRow>
       </div>
     </section>
   </div>

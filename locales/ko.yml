@@ -160,6 +160,7 @@ placeholder:
   search: 검색
 settings:
   show-image-update-alert: '컨테이너에 업데이트가 있을 때 알림 표시'
+  show-image-update-alert-desc: '레지스트리에서 실행 중인 이미지의 최신 태그를 확인합니다.'
   help-support: >
     GitHub에서 후원하거나 기부로 Dozzle을 응원해 주세요. 여러분의 도움으로
     모두를 위한 더 나은 Dozzle을 만들 수 있습니다. 감사합니다! 🙏🏼
@@ -171,26 +172,39 @@ settings:
   support-help: 기부는 Dozzle을 무료로 유지하고 관리하는 데 도움이 됩니다. 감사합니다 🙏
   display: 화면 설정
   locale: 언어 변경
+  locale-desc: '기본적으로 브라우저 언어를 따릅니다.'
   small-scrollbars: 작은 스크롤바 사용
+  small-scrollbars-desc: '더 얇은 스크롤바로, 작은 화면에서 유용합니다.'
   show-timestamps: 타임스탬프 표시
+  show-timestamps-desc: '각 줄 앞에 기록된 시각을 표시합니다.'
   soft-wrap: 자동 줄바꿈
+  soft-wrap-desc: '가로로 스크롤하는 대신 긴 줄을 줄바꿈합니다.'
   datetime-format: 날짜 및 시간 형식 변경
+  datetime-format-desc: '기본적으로 브라우저의 언어와 시간 형식을 따릅니다.'
   font-size: 로그 글꼴 크기
+  font-size-desc: '로그 출력에만 적용되며 앱의 나머지 부분에는 적용되지 않습니다.'
   color-scheme: 색상 테마
+  color-scheme-desc: '자동은 시스템 설정을 따릅니다.'
   options: 옵션
   show-stopped-containers: 중지된 컨테이너 보기
+  show-stopped-containers-desc: '중지된 컨테이너를 사이드바와 목록에 포함합니다.'
   group-containers: 네임스페이스별로 컨테이너 그룹화
+  group-containers-desc: 'Compose 프로젝트, Swarm 스택 또는 dev.dozzle.group으로 그룹화합니다.'
   show-app-icons: '앱 아이콘 표시'
   show-app-icons-desc: '잘 알려진 이미지를 해당 로고와 연결합니다. 아이콘은 Dozzle에 포함되어 있으며 인터넷에서 가져오지 않습니다.'
   about: 정보
   search: Dozzle 검색 기능 사용
+  search-desc: '현재 보고 있는 컨테이너의 로그 안에서 검색합니다.'
   using-version: <a href="https://dozzle.dev/" target="_blank" rel="noreferrer noopener">Dozzle</a> {version}을 사용하고 있습니다.
   update-available: >-
     새 버전이 있습니다! <a href="{href}" target="_blank"
     rel="noreferrer noopener">{nextVersion}</a>으로 업데이트하세요.
   show-std: stdout 및 stderr 라벨 표시
+  show-std-desc: '줄이 stdout에서 왔는지 stderr에서 왔는지 표시합니다.'
   automatic-redirect: 같은 이름의 새 컨테이너로 자동 이동
+  automatic-redirect-desc: '컨테이너가 교체되면 새 컨테이너로 따라갑니다.'
   compact: 로그 간단하게 보기
+  compact-desc: '로그 줄 사이 여백을 줄여 화면에 더 많이 표시합니다.'
   size:
     small: 작게
     medium: 중간
