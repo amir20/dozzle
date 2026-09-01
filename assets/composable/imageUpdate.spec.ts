@@ -35,7 +35,11 @@ vi.mock("./toast", () => ({
 vi.mock("./containerActions", () => ({
   useContainerActions: () => ({ update: holder.update }),
 }));
-vi.mock("vue-i18n", () => ({ useI18n: () => ({ t: (key: string) => key }) }));
+vi.mock("vue-i18n", () => ({
+  useI18n: () => ({
+    t: (key: string, params?: Record<string, unknown>) => (params ? `${key}:${JSON.stringify(params)}` : key),
+  }),
+}));
 
 const { useImageUpdate } = await import("./imageUpdate");
 
@@ -221,7 +225,7 @@ describe("useImageUpdate", () => {
       await run(c);
 
       expect(holder.toasts).toHaveLength(1);
-      expect(holder.toasts[0].message).toBe("nginx:latest");
+      expect(holder.toasts[0].message).toContain("nginx:latest");
 
       // A second consumer of the same container must not re-notify.
       const scope = newScope();
@@ -238,12 +242,45 @@ describe("useImageUpdate", () => {
       expect(holder.update).toHaveBeenCalled();
     });
 
-    test("omits the action for a standalone Dozzle container", async () => {
+    test("omits the update action for a standalone Dozzle container", async () => {
       holder.showAlertSetting!.value = true;
       mockCheck({ status: "update-available", remoteDigest: "sha256:new" });
       await run(container({ image: "amir20/dozzle:latest" }));
 
       expect(holder.toasts[0].action).toBeUndefined();
+      expect(holder.toasts[0].message).toContain("alert.image-update.self");
+    });
+
+    // Actions are off by default, so the notice has to say what to do about it.
+    test("explains how to enable actions when they are disabled", async () => {
+      holder.config.enableActions = false;
+      holder.showAlertSetting!.value = true;
+      mockCheck({ status: "update-available", remoteDigest: "sha256:new" });
+      await run(container());
+
+      expect(holder.toasts[0].action).toBeUndefined();
+      expect(holder.toasts[0].message).toContain("alert.image-update.enable-actions");
+    });
+
+    test("does not nag about actions when they are already enabled", async () => {
+      holder.showAlertSetting!.value = true;
+      mockCheck({ status: "update-available", remoteDigest: "sha256:new" });
+      await run(container());
+
+      expect(holder.toasts[0].message).not.toContain("alert.image-update.enable-actions");
+    });
+
+    // Dismissing from the notification has to persist, not just close it.
+    test("offers a dismiss action that silences the update", async () => {
+      holder.showAlertSetting!.value = true;
+      mockCheck({ status: "update-available", remoteDigest: "sha256:new" });
+      const { result } = await run(container());
+
+      expect(result.showAlert.value).toBe(true);
+      holder.toasts[0].secondaryAction!.handler();
+
+      expect(result.showAlert.value).toBe(false);
+      expect(holder.dismissed!.value!.has("nginx:latest@sha256:new")).toBe(true);
     });
 
     test("is not shown for a dismissed update", async () => {

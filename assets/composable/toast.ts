@@ -8,6 +8,12 @@ type Toast = {
     label: string;
     handler: () => void;
   };
+  // Rendered next to the primary action as a quieter choice, e.g. silencing a
+  // recurring notice rather than just closing it.
+  secondaryAction?: {
+    label: string;
+    handler: () => void;
+  };
 };
 
 type ToastOptions = {

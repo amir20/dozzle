@@ -17,7 +17,7 @@
         <h3 class="text-lg font-bold max-md:text-base" v-if="toast.title">{{ toast.title }}</h3>
         <div v-html="toast.message" class="max-md:text-sm [&>a]:underline"></div>
       </div>
-      <div class="shrink-0">
+      <div class="flex shrink-0 items-center gap-1">
         <TimedButton
           v-if="timed"
           class="btn-primary btn-sm"
@@ -30,15 +30,24 @@
         >
           {{ toast.action?.label }}
         </TimedButton>
-        <template v-else-if="toast.action">
-          <button class="btn btn-primary btn-sm" @click="toast.action.handler()">{{ toast.action.label }}</button>
-          <button class="btn btn-circle btn-xs ml-1" @click="removeToast(toast.id)">
+        <template v-else>
+          <button class="btn btn-primary btn-sm" v-if="toast.action" @click="toast.action.handler()">
+            {{ toast.action.label }}
+          </button>
+          <button
+            class="btn btn-ghost btn-sm"
+            v-if="toast.secondaryAction"
+            @click="
+              toast.secondaryAction.handler();
+              removeToast(toast.id);
+            "
+          >
+            {{ toast.secondaryAction.label }}
+          </button>
+          <button class="btn btn-circle btn-xs" @click="removeToast(toast.id)">
             <mdi:close />
           </button>
         </template>
-        <button class="btn btn-circle btn-xs" @click="removeToast(toast.id)" v-else>
-          <mdi:close />
-        </button>
       </div>
     </div>
   </div>

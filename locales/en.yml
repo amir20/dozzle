@@ -132,6 +132,14 @@ alert:
     message: >-
       Dozzle found a similar container {containerId} that is running on the same
       host and will automatically switch to it unless you click 'Cancel'.
+  image-update:
+    title: Update available
+    message: A newer image was published for {image}.
+    enable-actions: >-
+      <a href="https://dozzle.dev/guide/actions" target="_blank"
+      rel="noreferrer noopener">Enable actions</a> to pull and recreate it from
+      here.
+    self: Dozzle cannot update itself, so restart it to pick this up.
   stale-ui:
     title: Refresh to finish updating
     message: >-
@@ -218,7 +226,7 @@ settings:
   color-scheme: Color scheme
   options: Options
   show-stopped-containers: Show stopped containers
-  show-image-update-alert: Notify when a container image is out of date
+  show-image-update-alert: Show a notification when a container has an update
   group-containers: Group containers by namespace
   about: About
   search: Enable searching with Dozzle using

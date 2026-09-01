@@ -103,12 +103,22 @@ export const useImageUpdate = (container: Ref<Container>) => {
       if (notified.has(notifyKey)) return;
       notified.add(notifyKey);
 
+      // The message explains what can be done about it, which differs by
+      // whether Dozzle is allowed to act and whether it can act on itself.
+      let message = t("alert.image-update.message", { image: container.value.image });
+      if (isSelf.value) {
+        message += " " + t("alert.image-update.self");
+      } else if (!config.enableActions) {
+        message += " " + t("alert.image-update.enable-actions");
+      }
+
       showToast({
         id: `image-update-${key.value}`,
-        title: t("toolbar.update-available"),
-        message: container.value.image,
+        title: t("alert.image-update.title"),
+        message,
         type: "info",
         action: updatable.value ? { label: t("toolbar.update"), handler: () => update() } : undefined,
+        secondaryAction: { label: t("toolbar.dismiss-update"), handler: () => dismiss() },
       });
     },
     { immediate: true },
