@@ -14,6 +14,7 @@ import (
 
 	"github.com/amir20/dozzle/internal/agent/pb"
 	"github.com/amir20/dozzle/internal/container"
+	"github.com/amir20/dozzle/internal/imagecheck"
 	"github.com/amir20/dozzle/internal/notification/dispatcher"
 	"github.com/amir20/dozzle/types"
 	"github.com/rs/zerolog/log"
@@ -43,6 +44,7 @@ type ClientService interface {
 	Host(ctx context.Context) (container.Host, error)
 	ContainerAction(ctx context.Context, container container.Container, action container.ContainerAction) error
 	UpdateContainer(ctx context.Context, container container.Container, progressCh chan<- container.UpdateProgress) (bool, error)
+	CheckImageUpdate(ctx context.Context, container container.Container, force bool) (imagecheck.Result, error)
 	LogsBetweenDates(ctx context.Context, container container.Container, from time.Time, to time.Time, stdTypes container.StdType) (<-chan *container.LogEvent, error)
 	RawLogs(ctx context.Context, container container.Container, from time.Time, to time.Time, stdTypes container.StdType) (io.ReadCloser, error)
 	SubscribeStats(context.Context, chan<- container.ContainerStat)
@@ -353,6 +355,27 @@ func (s *server) UpdateContainer(req *pb.UpdateContainerRequest, out pb.AgentSer
 	}
 
 	return <-errCh
+}
+
+func (s *server) CheckImageUpdate(ctx context.Context, req *pb.CheckImageUpdateRequest) (*pb.CheckImageUpdateResponse, error) {
+	c, err := s.service.FindContainer(ctx, req.ContainerId, container.ContainerLabels{})
+	if err != nil {
+		return nil, status.Error(codes.NotFound, err.Error())
+	}
+
+	result, err := s.service.CheckImageUpdate(ctx, c, req.Force)
+	if err != nil {
+		return nil, status.Error(codes.Internal, err.Error())
+	}
+
+	return &pb.CheckImageUpdateResponse{
+		Status:       string(result.Status),
+		Image:        result.Image,
+		LocalDigest:  result.LocalDigest,
+		RemoteDigest: result.RemoteDigest,
+		CheckedAt:    result.CheckedAt.UnixNano(),
+		Reason:       result.Reason,
+	}, nil
 }
 
 // terminalMessage represents a message from a terminal gRPC stream (exec or attach)

@@ -39,6 +39,7 @@ type DockerCLI interface {
 	Info(ctx context.Context, options client.InfoOptions) (client.SystemInfoResult, error)
 	ServerVersion(ctx context.Context, options client.ServerVersionOptions) (client.ServerVersionResult, error)
 	ImagePull(ctx context.Context, refStr string, options client.ImagePullOptions) (client.ImagePullResponse, error)
+	ImageInspect(ctx context.Context, imageID string, opts ...client.ImageInspectOption) (client.ImageInspectResult, error)
 	ContainerRemove(ctx context.Context, containerID string, options client.ContainerRemoveOptions) (client.ContainerRemoveResult, error)
 	ContainerCreate(ctx context.Context, options client.ContainerCreateOptions) (client.ContainerCreateResult, error)
 	ServiceInspect(ctx context.Context, serviceID string, opts client.ServiceInspectOptions) (client.ServiceInspectResult, error)
@@ -191,6 +192,27 @@ func (d *DockerClient) ContainerActions(ctx context.Context, action container.Co
 
 func (d *DockerClient) ImagePull(ctx context.Context, imageName string) (io.ReadCloser, error) {
 	return d.cli.ImagePull(ctx, imageName, client.ImagePullOptions{})
+}
+
+// ImageRepoDigests returns the registry digests recorded for a locally
+// available image. An image built locally has none, which is what makes it
+// impossible to check for updates.
+func (d *DockerClient) ImageRepoDigests(ctx context.Context, imageID string) ([]string, error) {
+	result, err := d.cli.ImageInspect(ctx, imageID)
+	if err != nil {
+		return nil, err
+	}
+
+	// RepoDigests are "repo@sha256:...", but only the digest is comparable to
+	// what a registry reports for a manifest.
+	digests := make([]string, 0, len(result.RepoDigests))
+	for _, repoDigest := range result.RepoDigests {
+		if _, digest, found := strings.Cut(repoDigest, "@"); found {
+			digests = append(digests, digest)
+		}
+	}
+
+	return digests, nil
 }
 
 func (d *DockerClient) ContainerInspect(ctx context.Context, containerID string) (docker.InspectResponse, error) {

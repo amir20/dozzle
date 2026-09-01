@@ -26,3 +26,7 @@ export function persistentVisibleKeysForContainer(container: Ref<Container>): Re
 }
 
 export const pinnedContainers = useProfileStorage("pinned", new Set<string>());
+
+// Keyed by "image@remoteDigest" so dismissing an available update stays
+// dismissed only until the image actually moves again.
+export const dismissedImageUpdates = useProfileStorage("dismissedImageUpdates", new Set<string>());

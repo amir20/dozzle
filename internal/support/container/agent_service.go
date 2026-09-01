@@ -9,6 +9,7 @@ import (
 
 	"github.com/amir20/dozzle/internal/agent"
 	"github.com/amir20/dozzle/internal/container"
+	"github.com/amir20/dozzle/internal/imagecheck"
 	"github.com/amir20/dozzle/types"
 	"github.com/rs/zerolog/log"
 )
@@ -78,6 +79,10 @@ func (a *agentService) ContainerAction(ctx context.Context, container container.
 
 func (a *agentService) UpdateContainer(ctx context.Context, c container.Container, progressCh chan<- container.UpdateProgress) (bool, error) {
 	return a.client.UpdateContainer(ctx, c.ID, progressCh)
+}
+
+func (a *agentService) CheckImageUpdate(ctx context.Context, c container.Container, force bool) (imagecheck.Result, error) {
+	return a.client.CheckImageUpdate(ctx, c.ID, force)
 }
 
 func (a *agentService) Attach(ctx context.Context, c container.Container, events container.ExecEventReader, stdout io.Writer) error {

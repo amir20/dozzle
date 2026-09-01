@@ -11,6 +11,7 @@ import (
 
 	"github.com/amir20/dozzle/internal/container"
 	"github.com/amir20/dozzle/internal/docker"
+	"github.com/amir20/dozzle/internal/imagecheck"
 
 	"github.com/moby/moby/api/pkg/stdcopy"
 	docker_types "github.com/moby/moby/api/types/container"
@@ -21,6 +22,7 @@ import (
 type DockerUpdateClient interface {
 	container.Client
 	ImagePull(ctx context.Context, image string) (io.ReadCloser, error)
+	ImageRepoDigests(ctx context.Context, imageID string) ([]string, error)
 	ContainerInspect(ctx context.Context, containerID string) (docker_types.InspectResponse, error)
 	ContainerRemove(ctx context.Context, containerID string) error
 	ContainerCreate(ctx context.Context, inspectResp docker_types.InspectResponse, name string) (string, error)
@@ -28,15 +30,17 @@ type DockerUpdateClient interface {
 }
 
 type DockerClientService struct {
-	client DockerUpdateClient
-	store  *container.ContainerStore
+	client  DockerUpdateClient
+	store   *container.ContainerStore
+	checker *imagecheck.Checker
 }
 
 func NewDockerClientService(client DockerUpdateClient, labels container.ContainerLabels) *DockerClientService {
 	statsCollector := docker.NewDockerStatsCollector(client, labels)
 	return &DockerClientService{
-		client: client,
-		store:  container.NewContainerStore(context.Background(), client, statsCollector, labels),
+		client:  client,
+		store:   container.NewContainerStore(context.Background(), client, statsCollector, labels),
+		checker: imagecheck.Shared(),
 	}
 }
 
@@ -112,6 +116,31 @@ type pullEvent struct {
 		Total   int64 `json:"total"`
 	} `json:"progressDetail"`
 	ID string `json:"id"`
+}
+
+// CheckImageUpdate reports whether the registry serves a newer image than the
+// one this container is running.
+func (d *DockerClientService) CheckImageUpdate(ctx context.Context, c container.Container, force bool) (imagecheck.Result, error) {
+	if imagecheck.Skipped(c.Labels) {
+		return imagecheck.Result{Image: c.Image, Status: imagecheck.StatusSkipped, CheckedAt: time.Now()}, nil
+	}
+
+	inspect, err := d.client.ContainerInspect(ctx, c.ID)
+	if err != nil {
+		return imagecheck.Result{}, err
+	}
+
+	// Inspect by image ID rather than by name. If a newer image was pulled
+	// under the same tag but the container was never recreated, the container
+	// is still running the old image and should report an available update.
+	digests, err := d.client.ImageRepoDigests(ctx, inspect.Image)
+	if err != nil {
+		return imagecheck.Result{}, err
+	}
+
+	// Config.Image is the reference the container was created from, which is
+	// what the registry must be queried for.
+	return d.checker.Check(ctx, inspect.Config.Image, digests, force), nil
 }
 
 func (d *DockerClientService) UpdateContainer(ctx context.Context, c container.Container, progressCh chan<- container.UpdateProgress) (bool, error) {

@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/alexflint/go-arg"
+	"github.com/amir20/dozzle/internal/imagecheck"
 )
 
 var Version = "head"
@@ -30,6 +31,7 @@ type Args struct {
 	FilterStrings    []string            `arg:"env:DOZZLE_FILTER,--filter,separate" help:"filters docker containers using Docker syntax."`
 	Filter           map[string][]string `arg:"-"`
 	ReleaseCheckMode string              `arg:"--release-check-mode,env:DOZZLE_RELEASE_CHECK_MODE" default:"automatic" help:"sets the release check mode. When manual, releases will not be automatically fetched."`
+	ImageCheckMode   string              `arg:"--image-check-mode,env:DOZZLE_IMAGE_CHECK_MODE" help:"controls checking container registries for newer images (automatic, manual, off). Defaults to --release-check-mode."`
 	RemoteHost       []string            `arg:"env:DOZZLE_REMOTE_HOST,--remote-host,separate" help:"list of hosts to connect remotely"`
 	RemoteAgent      []string            `arg:"env:DOZZLE_REMOTE_AGENT,--remote-agent,separate" help:"list of agents to connect remotely"`
 	NoAnalytics      bool                `arg:"--no-analytics,env:DOZZLE_NO_ANALYTICS" help:"disables anonymous analytics"`
@@ -82,6 +84,17 @@ func ParseArgs() (Args, any) {
 
 	for i, value := range args.Namespace {
 		args.Namespace[i] = strings.TrimSpace(value)
+	}
+
+	// Someone who already asked Dozzle not to fetch releases automatically has
+	// expressed the same preference about outbound checks, so inherit it
+	// unless they set this explicitly.
+	if args.ImageCheckMode == "" {
+		args.ImageCheckMode = args.ReleaseCheckMode
+	}
+
+	if _, err := imagecheck.ParseMode(args.ImageCheckMode); err != nil {
+		parser.Fail(err.Error())
 	}
 
 	if args.TimeoutString != "" {

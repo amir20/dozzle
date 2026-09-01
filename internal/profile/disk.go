@@ -39,11 +39,12 @@ type Settings struct {
 }
 
 type Profile struct {
-	Settings        *Settings `json:"settings,omitempty"`
-	Pinned          []string  `json:"pinned"`
-	VisibleKeys     []any     `json:"visibleKeys,omitempty"`
-	ReleaseSeen     string    `json:"releaseSeen,omitempty"`
-	CollapsedGroups []string  `json:"collapsedGroups"`
+	Settings              *Settings `json:"settings,omitempty"`
+	Pinned                []string  `json:"pinned"`
+	VisibleKeys           []any     `json:"visibleKeys,omitempty"`
+	ReleaseSeen           string    `json:"releaseSeen,omitempty"`
+	CollapsedGroups       []string  `json:"collapsedGroups"`
+	DismissedImageUpdates []string  `json:"dismissedImageUpdates,omitempty"`
 }
 
 var dataPath string

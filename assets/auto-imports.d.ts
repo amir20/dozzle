@@ -58,6 +58,7 @@ declare global {
   const defineAsyncComponent: typeof import('vue').defineAsyncComponent
   const defineComponent: typeof import('vue').defineComponent
   const defineStore: typeof import('pinia').defineStore
+  const dismissedImageUpdates: typeof import('./composable/storage').dismissedImageUpdates
   const drawerContext: typeof import('./composable/drawer').drawerContext
   const eagerComputed: typeof import('@vueuse/core').eagerComputed
   const effectScope: typeof import('vue').effectScope
@@ -166,6 +167,7 @@ declare global {
   const shallowReadonly: typeof import('vue').shallowReadonly
   const shallowRef: typeof import('vue').shallowRef
   const showAllContainers: typeof import('./stores/settings').showAllContainers
+  const showImageUpdateAlert: typeof import('./stores/settings').showImageUpdateAlert
   const showStd: typeof import('./stores/settings').showStd
   const showTimestamp: typeof import('./stores/settings').showTimestamp
   const size: typeof import('./stores/settings').size
@@ -291,6 +293,7 @@ declare global {
   const useId: typeof import('vue').useId
   const useIdle: typeof import('@vueuse/core').useIdle
   const useImage: typeof import('@vueuse/core').useImage
+  const useImageUpdate: typeof import('./composable/imageUpdate').useImageUpdate
   const useInfiniteScroll: typeof import('@vueuse/core').useInfiniteScroll
   const useIntersectionObserver: typeof import('@vueuse/core').useIntersectionObserver
   const useInterval: typeof import('@vueuse/core').useInterval
@@ -451,6 +454,9 @@ declare global {
   export type { ExprEditorOptions } from './composable/exprEditor'
   import('./composable/exprEditor')
   // @ts-ignore
+  export type { ImageUpdateStatus, ImageUpdateResult } from './composable/imageUpdate'
+  import('./composable/imageUpdate')
+  // @ts-ignore
   export type { TemplateEditorOptions } from './composable/templateEditor'
   import('./composable/templateEditor')
   // @ts-ignore
@@ -520,6 +526,7 @@ declare module 'vue' {
     readonly defineAsyncComponent: UnwrapRef<typeof import('vue')['defineAsyncComponent']>
     readonly defineComponent: UnwrapRef<typeof import('vue')['defineComponent']>
     readonly defineStore: UnwrapRef<typeof import('pinia')['defineStore']>
+    readonly dismissedImageUpdates: UnwrapRef<typeof import('./composable/storage')['dismissedImageUpdates']>
     readonly drawerContext: UnwrapRef<typeof import('./composable/drawer')['drawerContext']>
     readonly eagerComputed: UnwrapRef<typeof import('@vueuse/core')['eagerComputed']>
     readonly effectScope: UnwrapRef<typeof import('vue')['effectScope']>
@@ -624,6 +631,7 @@ declare module 'vue' {
     readonly shallowReadonly: UnwrapRef<typeof import('vue')['shallowReadonly']>
     readonly shallowRef: UnwrapRef<typeof import('vue')['shallowRef']>
     readonly showAllContainers: UnwrapRef<typeof import('./stores/settings')['showAllContainers']>
+    readonly showImageUpdateAlert: UnwrapRef<typeof import('./stores/settings')['showImageUpdateAlert']>
     readonly showStd: UnwrapRef<typeof import('./stores/settings')['showStd']>
     readonly showTimestamp: UnwrapRef<typeof import('./stores/settings')['showTimestamp']>
     readonly size: UnwrapRef<typeof import('./stores/settings')['size']>
@@ -747,6 +755,7 @@ declare module 'vue' {
     readonly useId: UnwrapRef<typeof import('vue')['useId']>
     readonly useIdle: UnwrapRef<typeof import('@vueuse/core')['useIdle']>
     readonly useImage: UnwrapRef<typeof import('@vueuse/core')['useImage']>
+    readonly useImageUpdate: UnwrapRef<typeof import('./composable/imageUpdate')['useImageUpdate']>
     readonly useInfiniteScroll: UnwrapRef<typeof import('@vueuse/core')['useInfiniteScroll']>
     readonly useIntersectionObserver: UnwrapRef<typeof import('@vueuse/core')['useIntersectionObserver']>
     readonly useInterval: UnwrapRef<typeof import('@vueuse/core')['useInterval']>

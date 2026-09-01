@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/amir20/dozzle/internal/container"
+	"github.com/amir20/dozzle/internal/imagecheck"
 )
 
 type ContainerService struct {
@@ -38,6 +39,10 @@ func (c *ContainerService) Action(ctx context.Context, action container.Containe
 
 func (c *ContainerService) Update(ctx context.Context, progressCh chan<- container.UpdateProgress) (bool, error) {
 	return c.clientService.UpdateContainer(ctx, c.Container, progressCh)
+}
+
+func (c *ContainerService) CheckImageUpdate(ctx context.Context, force bool) (imagecheck.Result, error) {
+	return c.clientService.CheckImageUpdate(ctx, c.Container, force)
 }
 
 func (c *ContainerService) Attach(ctx context.Context, events container.ExecEventReader, stdout io.Writer) error {

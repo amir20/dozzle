@@ -16,6 +16,10 @@ toolbar:
   update-recreating: Recreating container...
   update-done: Container updated successfully
   update-up-to-date: Already up to date
+  update-available: Update available
+  check-for-updates: Check for updates
+  dismiss-update: Dismiss this update
+  view-release-notes: View release notes
   show-hostname: Show hostname
   show-container-name: Show container name
   shell: Shell
@@ -212,6 +216,7 @@ settings:
   color-scheme: Color scheme
   options: Options
   show-stopped-containers: Show stopped containers
+  show-image-update-alert: Show a banner when a container image is out of date
   group-containers: Group containers by namespace
   about: About
   search: Enable searching with Dozzle using

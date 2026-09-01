@@ -73,6 +73,7 @@ func (h *handler) executeTemplate(w http.ResponseWriter, req *http.Request) {
 		config["hosts"] = hosts
 		config["disableAvatars"] = h.config.DisableAvatars
 		config["releaseCheckMode"] = h.config.ReleaseCheckMode
+		config["imageCheckMode"] = h.config.ImageCheckMode
 		config["enableShell"] = h.config.EnableShell
 		config["enableActions"] = h.config.EnableActions
 		config["enableDownload"] = true
