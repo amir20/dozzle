@@ -12,6 +12,9 @@ describe("iconSlugForImage", () => {
     ["jc21/nginx-proxy-manager:2.11.3", "nginx-proxy-manager"],
     ["ghcr.io/gethomepage/homepage", "homepage"],
     ["amir20/dozzle:v8", "dozzle"],
+    ["homebridge/homebridge:latest", "homebridge"],
+    ["santiagosayshey/profilarr:latest", "profilarr"],
+    ["ghcr.io/seerr/seerr", "seerr"],
   ])("resolves %s", (image, slug) => {
     expect(iconSlugForImage(image)).toBe(slug);
   });

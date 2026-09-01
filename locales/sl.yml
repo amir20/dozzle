@@ -177,6 +177,8 @@ settings:
   options: Možnosti
   show-stopped-containers: Prikaži ustavljene zabojnike
   group-containers: Združi zabojnike po imenskem prostoru
+  show-app-icons: 'Prikaži ikone aplikacij'
+  show-app-icons-desc: 'Znane slike poveži z njihovim logotipom. Ikone so priložene Dozzle in se nikoli ne prenašajo iz interneta.'
   about: O programu
   search: Omogočite iskanje z Dozzle z uporabo
   update-available: Nova različica je na voljo! Posodobi na <a href="{href}"

@@ -177,6 +177,8 @@ settings:
   options: Опции
   show-stopped-containers: Показывать остановленные контейнеры
   group-containers: Группировать контейнеры по пространству имён
+  show-app-icons: 'Показывать значки приложений'
+  show-app-icons-desc: 'Сопоставлять известные образы с их логотипами. Значки поставляются вместе с Dozzle и никогда не загружаются из интернета.'
   about: Информация
   search: Включить поиск с помощью Dozzle, используя
   using-version: Вы используете <a href="https://dozzle.dev/" target="_blank" rel="noreferrer noopener">Dozzle</a> {version}.

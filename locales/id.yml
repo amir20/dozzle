@@ -185,6 +185,8 @@ settings:
   options: Opsi
   show-stopped-containers: Tampilkan kontainer yang dihentikan
   group-containers: Kelompokkan kontainer berdasarkan namespace
+  show-app-icons: 'Tampilkan ikon aplikasi'
+  show-app-icons-desc: 'Cocokkan image yang dikenal dengan logonya. Ikon disertakan dalam Dozzle dan tidak pernah diunduh dari internet.'
   about: Tentang
   search: Aktifkan pencarian dengan Dozzle menggunakan
   using-version: Anda menggunakan <a href="https://dozzle.dev/" target="_blank" rel="noreferrer noopener">Dozzle</a> {version}.
