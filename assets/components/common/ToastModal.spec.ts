@@ -22,7 +22,7 @@ describe("ToastModal secondary action", () => {
 
     const wrapper = mount(ToastModal);
     const buttons = wrapper.findAll("button");
-    expect(buttons.map((b) => b.text()).filter(Boolean)).toEqual(["Update", "Dismiss this update"]);
+    expect(buttons.map((b) => b.text()).filter(Boolean)).toEqual(["Dismiss this update", "Update"]);
 
     await buttons.find((b) => b.text() === "Dismiss this update")!.trigger("click");
     expect(dismissed).toBe(true);
