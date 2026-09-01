@@ -45,6 +45,17 @@
             :options="pageSizes.map((i) => ({ label: i.toLocaleString(), value: i }))"
           />
         </div>
+        <div class="flex items-center gap-1 md:hidden">
+          {{ $t("label.sort-by") }}
+          <DropdownMenu class="dropdown-left btn-xs" v-model="mobileSortField" :options="sortOptions" />
+          <button
+            class="btn btn-square btn-ghost btn-xs"
+            @click="direction *= -1"
+            :aria-label="$t('label.sort-direction')"
+          >
+            <mdi:arrow-up :class="direction > 0 ? '' : 'rotate-180'" />
+          </button>
+        </div>
         <div class="join max-md:hidden">
           <button
             class="btn join-item btn-xs md:btn-sm"
@@ -65,7 +76,7 @@
     </div>
     <div class="rounded-box border-base-content/10 overflow-x-auto border">
       <table class="table-md md:table-lg table-zebra table">
-        <thead>
+        <thead class="max-md:hidden">
           <tr :data-direction="direction > 0 ? 'asc' : 'desc'">
             <th
               v-for="(value, key) in fields"
@@ -90,19 +101,44 @@
             v-memo="[container.id, container.state, container.health, statMode, isMobile]"
             class="hover:bg-base-100/80!"
           >
-            <td v-if="isVisible('name')" class="max-w-80 max-md:max-w-32">
-              <div class="flex items-center gap-2">
-                <ContainerStatusIcon :state="container.state" :health="container.health" class="shrink-0" />
-                <div class="min-w-0">
-                  <router-link
-                    class="block truncate"
-                    :to="{ name: '/container/[id]', params: { id: container.id } }"
-                    :title="container.name"
-                  >
-                    {{ container.name }}
-                  </router-link>
+            <td v-if="isVisible('name')" class="max-w-80 max-md:max-w-none">
+              <div class="flex items-center gap-2 max-md:items-start">
+                <ContainerStatusIcon
+                  :state="container.state"
+                  :health="container.health"
+                  class="shrink-0 max-md:mt-0.5"
+                />
+                <div class="min-w-0 flex-1">
+                  <div class="flex items-baseline gap-2">
+                    <router-link
+                      class="min-w-0 flex-1 truncate"
+                      :to="{ name: '/container/[id]', params: { id: container.id } }"
+                      :title="container.name"
+                    >
+                      {{ container.name }}
+                    </router-link>
+                    <RelativeTime
+                      v-if="isMobile"
+                      :date="container.created"
+                      class="text-base-content/50 shrink-0 text-xs"
+                    />
+                  </div>
                   <div v-if="container.customGroup" class="text-base-content/50 truncate text-xs">
                     {{ container.customGroup }}
+                  </div>
+                  <div v-if="isMobile && container.state === 'running'" class="mt-1.5 flex items-center gap-1.5">
+                    <ContainerStatCell
+                      :container="container"
+                      type="cpu"
+                      :host="hosts[container.host]"
+                      :mode="statMode"
+                    />
+                    <ContainerStatCell
+                      :container="container"
+                      type="mem"
+                      :host="hosts[container.host]"
+                      :mode="statMode"
+                    />
                   </div>
                 </div>
               </div>
@@ -147,6 +183,7 @@
 import { Container } from "@/models/Container";
 import { toRefs } from "@vueuse/core";
 
+const { t } = useI18n();
 const { hosts } = useHosts();
 const selectedHost = ref(null);
 
@@ -190,7 +227,7 @@ const fields: Record<
     label: "label.avg-cpu",
     mobileLabel: "label.cpu",
     sortFunc: (a: Container, b: Container) => (a.movingAverage.cpu - b.movingAverage.cpu) * direction.value,
-    mobileVisible: true,
+    mobileVisible: false,
     customClass: "min-w-48 max-md:min-w-0",
   },
   mem: {
@@ -198,7 +235,7 @@ const fields: Record<
     mobileLabel: "label.mem",
     sortFunc: (a: Container, b: Container) =>
       (a.movingAverage.memoryUsage - b.movingAverage.memoryUsage) * direction.value,
-    mobileVisible: true,
+    mobileVisible: false,
     customClass: "min-w-48 max-md:min-w-0",
   },
 };
@@ -235,6 +272,19 @@ const paginated = computed(() => {
   const end = start + perPage.value;
 
   return sortedContainers.value.slice(start, end);
+});
+
+const sortOptions = computed(() =>
+  Object.entries(fields)
+    .filter(([key]) => key !== "host" || Object.keys(hosts.value).length > 1)
+    .map(([key, value]) => ({ label: t(value.mobileLabel ?? value.label), value: key })),
+);
+
+const mobileSortField = computed({
+  get: () => sortField.value,
+  set: (field: keys) => {
+    if (field !== sortField.value) sort(field);
+  },
 });
 
 function sort(field: keys) {

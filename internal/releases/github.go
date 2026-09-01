@@ -8,7 +8,13 @@ import (
 	"time"
 
 	"github.com/PuerkitoBio/goquery"
-	"github.com/yuin/goldmark"
+	"github.com/yuin/goldmark/v2/parser"
+	"github.com/yuin/goldmark/v2/renderer/html"
+)
+
+var (
+	markdownParser   = parser.New()
+	markdownRenderer = html.New()
 )
 
 type githubRelease struct {
@@ -48,7 +54,8 @@ func Fetch(currentVersion string) ([]Release, error) {
 	var releases []Release
 	for _, githubRelease := range githubReleases {
 		var buffer bytes.Buffer
-		goldmark.Convert([]byte(githubRelease.Body), &buffer)
+		body := []byte(githubRelease.Body)
+		markdownRenderer.Render(&buffer, body, markdownParser.Parse(body))
 		html := buffer.String()
 
 		if githubRelease.TagName == currentVersion {

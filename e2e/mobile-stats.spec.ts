@@ -26,5 +26,15 @@ test.describe("mobile stats", () => {
     // The stats header must sit flush against the bottom of the fixed nav bar:
     // any gap exposes empty space, any overlap clips the CPU/MEM chips underneath the nav.
     expect(Math.abs(header!.y - (nav!.y + nav!.height))).toBeLessThanOrEqual(1);
+
+    // ...and stay there once the logs scroll under it.
+    await page.mouse.wheel(0, 600);
+    await expect
+      .poll(async () => {
+        const stuckNav = await page.getByTestId("navigation").boundingBox();
+        const stuckHeader = await page.getByTestId("scrollable-header").boundingBox();
+        return Math.abs(stuckHeader!.y - (stuckNav!.y + stuckNav!.height));
+      })
+      .toBeLessThanOrEqual(1);
   });
 });
