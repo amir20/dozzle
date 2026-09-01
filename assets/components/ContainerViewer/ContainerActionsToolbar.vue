@@ -5,9 +5,12 @@
       <carbon:circle-solid class="text-blue w-2 md:w-2.5" v-if="streamConfig.stdout" />
       <span
         v-if="showImageUpdateAlert"
-        class="bg-warning absolute end-0.5 top-0.5 size-1.5 rounded-full"
+        class="absolute end-0.5 top-0.5 flex size-1.5"
         :title="$t('toolbar.update-available')"
-      ></span>
+      >
+        <span class="bg-warning absolute size-full rounded-full opacity-75 motion-safe:animate-ping"></span>
+        <span class="bg-warning relative size-full rounded-full"></span>
+      </span>
     </label>
     <ul
       tabindex="0"
