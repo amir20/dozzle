@@ -63,7 +63,7 @@ func TestParseReference(t *testing.T) {
 			registry: "localhost:5000",
 			repo:     "my/app",
 			tag:      "dev",
-			url:      "https://localhost:5000/v2/my/app/manifests/dev",
+			url:      "http://localhost:5000/v2/my/app/manifests/dev",
 		},
 		{
 			name:     "digest pinned",
@@ -103,6 +103,36 @@ func TestParseReferenceErrors(t *testing.T) {
 	for _, ref := range []string{"", "nginx:", "nginx@"} {
 		_, err := ParseReference(ref)
 		assert.Error(t, err, "expected %q to be rejected", ref)
+	}
+}
+
+// Local registries are commonly run without TLS, and Docker already treats
+// loopback registries as insecure by default.
+func TestInsecureLoopbackRegistries(t *testing.T) {
+	insecure := []string{
+		"localhost:5000/app:latest",
+		"localhost/app:latest",
+		"127.0.0.1:5000/app:latest",
+	}
+	for _, image := range insecure {
+		ref, err := ParseReference(image)
+		require.NoError(t, err)
+		assert.True(t, ref.Insecure(), "%s should be treated as insecure", image)
+		assert.Contains(t, ref.manifestURL(), "http://", image)
+	}
+
+	// A remote host is never downgraded to plain HTTP.
+	secure := []string{
+		"registry.example.com:5000/app:latest",
+		"ghcr.io/foo/bar:latest",
+		"nginx:latest",
+		"10.0.0.5:5000/app:latest",
+	}
+	for _, image := range secure {
+		ref, err := ParseReference(image)
+		require.NoError(t, err)
+		assert.False(t, ref.Insecure(), "%s should require TLS", image)
+		assert.Contains(t, ref.manifestURL(), "https://", image)
 	}
 }
 

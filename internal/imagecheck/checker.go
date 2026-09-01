@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"slices"
+	"strings"
 	"sync"
 	"time"
 )
@@ -143,15 +144,52 @@ func (c *Checker) Check(ctx context.Context, image string, localDigests []string
 	}
 
 	result.RemoteDigest = remote
-	result.LocalDigest = localDigests[0]
 
-	if slices.Contains(localDigests, remote) {
+	// An image can carry RepoDigests for several repositories (it was pulled
+	// from one and pushed to another). Only digests for the repository being
+	// checked say anything about whether this container is current.
+	local := digestsForRepository(localDigests, ref)
+	if len(local) == 0 {
+		result.Status = StatusNotCheckable
+		result.Reason = "image has no registry digest for " + ref.Repository
+		return result
+	}
+
+	result.LocalDigest = local[0]
+
+	if slices.Contains(local, remote) {
 		result.Status = StatusUpToDate
 	} else {
 		result.Status = StatusUpdateAvailable
 	}
 
 	return result
+}
+
+// digestsForRepository keeps only the digests recorded for ref's repository.
+// Entries look like "alpine@sha256:..." or "localhost:5000/app@sha256:...",
+// so each repository is parsed through the same normalization as the image
+// reference itself.
+func digestsForRepository(repoDigests []string, ref Reference) []string {
+	matched := make([]string, 0, len(repoDigests))
+
+	for _, entry := range repoDigests {
+		repo, digest, found := strings.Cut(entry, "@")
+		if !found {
+			continue
+		}
+
+		parsed, err := ParseReference(repo)
+		if err != nil {
+			continue
+		}
+
+		if parsed.Registry == ref.Registry && parsed.Repository == ref.Repository {
+			matched = append(matched, digest)
+		}
+	}
+
+	return matched
 }
 
 func (c *Checker) remoteDigest(ctx context.Context, image string, ref Reference, force bool) (string, error) {

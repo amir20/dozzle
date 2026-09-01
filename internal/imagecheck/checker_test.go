@@ -55,7 +55,7 @@ func manifestHandler(digest string) http.HandlerFunc {
 func TestCheckUpToDate(t *testing.T) {
 	checker, _, host := newTestChecker(t, time.Minute, manifestHandler("sha256:aaa"))
 
-	result := checker.Check(context.Background(), host+"/app:latest", []string{"sha256:aaa"}, false)
+	result := checker.Check(context.Background(), host+"/app:latest", []string{host + "/app@sha256:aaa"}, false)
 
 	assert.Equal(t, StatusUpToDate, result.Status)
 	assert.False(t, result.UpdateAvailable())
@@ -64,7 +64,7 @@ func TestCheckUpToDate(t *testing.T) {
 func TestCheckUpdateAvailable(t *testing.T) {
 	checker, _, host := newTestChecker(t, time.Minute, manifestHandler("sha256:bbb"))
 
-	result := checker.Check(context.Background(), host+"/app:latest", []string{"sha256:aaa"}, false)
+	result := checker.Check(context.Background(), host+"/app:latest", []string{host + "/app@sha256:aaa"}, false)
 
 	assert.Equal(t, StatusUpdateAvailable, result.Status)
 	assert.True(t, result.UpdateAvailable())
@@ -77,7 +77,7 @@ func TestCheckUpdateAvailable(t *testing.T) {
 func TestCheckMatchesAnyLocalDigest(t *testing.T) {
 	checker, _, host := newTestChecker(t, time.Minute, manifestHandler("sha256:bbb"))
 
-	result := checker.Check(context.Background(), host+"/app:latest", []string{"sha256:aaa", "sha256:bbb"}, false)
+	result := checker.Check(context.Background(), host+"/app:latest", []string{host + "/app@sha256:aaa", host + "/app@sha256:bbb"}, false)
 
 	assert.Equal(t, StatusUpToDate, result.Status)
 }
@@ -85,7 +85,7 @@ func TestCheckMatchesAnyLocalDigest(t *testing.T) {
 func TestCheckPinnedImageIsNeverStale(t *testing.T) {
 	checker, calls, host := newTestChecker(t, time.Minute, manifestHandler("sha256:bbb"))
 
-	result := checker.Check(context.Background(), host+"/app@sha256:aaa", []string{"sha256:aaa"}, false)
+	result := checker.Check(context.Background(), host+"/app@sha256:aaa", []string{host + "/app@sha256:aaa"}, false)
 
 	assert.Equal(t, StatusPinned, result.Status)
 	assert.Zero(t, calls.Load(), "pinned references must not hit the registry")
@@ -105,7 +105,7 @@ func TestCheckAuthRequired(t *testing.T) {
 		w.WriteHeader(http.StatusUnauthorized)
 	})
 
-	result := checker.Check(context.Background(), host+"/app:latest", []string{"sha256:aaa"}, false)
+	result := checker.Check(context.Background(), host+"/app:latest", []string{host + "/app@sha256:aaa"}, false)
 
 	assert.Equal(t, StatusAuthRequired, result.Status)
 }
@@ -114,7 +114,7 @@ func TestCheckCachesRemoteDigest(t *testing.T) {
 	checker, calls, host := newTestChecker(t, time.Minute, manifestHandler("sha256:aaa"))
 
 	for range 5 {
-		checker.Check(context.Background(), host+"/app:latest", []string{"sha256:aaa"}, false)
+		checker.Check(context.Background(), host+"/app:latest", []string{host + "/app@sha256:aaa"}, false)
 	}
 
 	assert.EqualValues(t, 1, calls.Load(), "repeated checks should be served from cache")
@@ -125,10 +125,10 @@ func TestCheckCachesRemoteDigest(t *testing.T) {
 func TestCacheStoresDigestNotVerdict(t *testing.T) {
 	checker, calls, host := newTestChecker(t, time.Minute, manifestHandler("sha256:bbb"))
 
-	stale := checker.Check(context.Background(), host+"/app:latest", []string{"sha256:aaa"}, false)
+	stale := checker.Check(context.Background(), host+"/app:latest", []string{host + "/app@sha256:aaa"}, false)
 	require.Equal(t, StatusUpdateAvailable, stale.Status)
 
-	updated := checker.Check(context.Background(), host+"/app:latest", []string{"sha256:bbb"}, false)
+	updated := checker.Check(context.Background(), host+"/app:latest", []string{host + "/app@sha256:bbb"}, false)
 	assert.Equal(t, StatusUpToDate, updated.Status)
 	assert.EqualValues(t, 1, calls.Load(), "the local change should not require a new fetch")
 }
@@ -136,8 +136,8 @@ func TestCacheStoresDigestNotVerdict(t *testing.T) {
 func TestForceBypassesCache(t *testing.T) {
 	checker, calls, host := newTestChecker(t, time.Minute, manifestHandler("sha256:aaa"))
 
-	checker.Check(context.Background(), host+"/app:latest", []string{"sha256:aaa"}, false)
-	checker.Check(context.Background(), host+"/app:latest", []string{"sha256:aaa"}, true)
+	checker.Check(context.Background(), host+"/app:latest", []string{host + "/app@sha256:aaa"}, false)
+	checker.Check(context.Background(), host+"/app:latest", []string{host + "/app@sha256:aaa"}, true)
 
 	assert.EqualValues(t, 2, calls.Load())
 }
@@ -149,7 +149,7 @@ func TestFailuresAreCached(t *testing.T) {
 	})
 
 	for range 3 {
-		result := checker.Check(context.Background(), host+"/app:latest", []string{"sha256:aaa"}, false)
+		result := checker.Check(context.Background(), host+"/app:latest", []string{host + "/app@sha256:aaa"}, false)
 		assert.Equal(t, StatusUnknown, result.Status)
 	}
 
@@ -159,9 +159,9 @@ func TestFailuresAreCached(t *testing.T) {
 func TestCacheExpires(t *testing.T) {
 	checker, calls, host := newTestChecker(t, time.Millisecond, manifestHandler("sha256:aaa"))
 
-	checker.Check(context.Background(), host+"/app:latest", []string{"sha256:aaa"}, false)
+	checker.Check(context.Background(), host+"/app:latest", []string{host + "/app@sha256:aaa"}, false)
 	time.Sleep(5 * time.Millisecond)
-	checker.Check(context.Background(), host+"/app:latest", []string{"sha256:aaa"}, false)
+	checker.Check(context.Background(), host+"/app:latest", []string{host + "/app@sha256:aaa"}, false)
 
 	assert.EqualValues(t, 2, calls.Load())
 }
@@ -185,7 +185,7 @@ func TestTokenAuthFlow(t *testing.T) {
 		}
 	})
 
-	result := checker.Check(context.Background(), host+"/app:latest", []string{"sha256:aaa"}, false)
+	result := checker.Check(context.Background(), host+"/app:latest", []string{host + "/app@sha256:aaa"}, false)
 
 	assert.Equal(t, StatusUpToDate, result.Status)
 	assert.True(t, authorized.Load(), "expected the retry to carry a bearer token")
@@ -206,7 +206,7 @@ func TestTokenAuthAcceptsAccessToken(t *testing.T) {
 		}
 	})
 
-	result := checker.Check(context.Background(), host+"/app:latest", []string{"sha256:aaa"}, false)
+	result := checker.Check(context.Background(), host+"/app:latest", []string{host + "/app@sha256:aaa"}, false)
 	assert.Equal(t, StatusUpToDate, result.Status)
 }
 
@@ -238,10 +238,44 @@ func TestOnlyHeadRequestsAreMade(t *testing.T) {
 		w.WriteHeader(http.StatusOK)
 	})
 
-	checker.Check(context.Background(), host+"/app:latest", []string{"sha256:aaa"}, false)
+	checker.Check(context.Background(), host+"/app:latest", []string{host + "/app@sha256:aaa"}, false)
 
 	require.NotEmpty(t, methods)
 	for _, method := range methods {
 		assert.Equal(t, http.MethodHead, method)
 	}
+}
+
+// An image pulled from one repository and pushed to another carries digests
+// for both. Only the repository being checked is comparable, otherwise the
+// reported local digest belongs to an unrelated repository.
+func TestIgnoresDigestsFromOtherRepositories(t *testing.T) {
+	checker, _, host := newTestChecker(t, time.Minute, manifestHandler("sha256:pushed"))
+
+	result := checker.Check(context.Background(), host+"/app:latest", []string{
+		"alpine@sha256:unrelated",
+		host + "/app@sha256:pushed",
+	}, false)
+
+	assert.Equal(t, StatusUpToDate, result.Status)
+	assert.Equal(t, "sha256:pushed", result.LocalDigest)
+}
+
+func TestNotCheckableWhenNoDigestMatchesTheRepository(t *testing.T) {
+	checker, _, host := newTestChecker(t, time.Minute, manifestHandler("sha256:remote"))
+
+	result := checker.Check(context.Background(), host+"/app:latest", []string{"alpine@sha256:unrelated"}, false)
+
+	assert.Equal(t, StatusNotCheckable, result.Status)
+}
+
+// Docker records official images without their library/ prefix, so the
+// normalization has to line up on both sides.
+func TestMatchesOfficialImageDigests(t *testing.T) {
+	checker := NewChecker(NewRegistry(time.Second), time.Minute)
+	ref, err := ParseReference("alpine:latest")
+	require.NoError(t, err)
+
+	assert.Equal(t, []string{"sha256:aaa"}, digestsForRepository([]string{"alpine@sha256:aaa"}, ref))
+	_ = checker
 }

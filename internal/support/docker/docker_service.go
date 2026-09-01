@@ -23,6 +23,7 @@ type DockerUpdateClient interface {
 	container.Client
 	ImagePull(ctx context.Context, image string) (io.ReadCloser, error)
 	ImageRepoDigests(ctx context.Context, imageID string) ([]string, error)
+	ImageID(ctx context.Context, ref string) (string, error)
 	ContainerInspect(ctx context.Context, containerID string) (docker_types.InspectResponse, error)
 	ContainerRemove(ctx context.Context, containerID string) error
 	ContainerCreate(ctx context.Context, inspectResp docker_types.InspectResponse, name string) (string, error)
@@ -163,7 +164,6 @@ func (d *DockerClientService) UpdateContainer(ctx context.Context, c container.C
 	}
 	defer reader.Close()
 
-	updated := false
 	decoder := json.NewDecoder(reader)
 	for {
 		var event pullEvent
@@ -180,13 +180,21 @@ func (d *DockerClientService) UpdateContainer(ctx context.Context, c container.C
 			Current: event.ProgressDetail.Current,
 			Total:   event.ProgressDetail.Total,
 		}
-
-		if strings.HasPrefix(event.Status, "Status: Downloaded newer image") {
-			updated = true
-		}
 	}
 
-	// 3. If no new layers, report up-to-date
+	// 3. Compare what the tag resolves to now against what the container is
+	// actually running. Reading this from the pull output instead would miss
+	// the case where the newer image is already in the local store, which
+	// happens whenever it was pulled or built before the container was
+	// recreated.
+	updated := false
+	if newImageID, err := d.client.ImageID(ctx, imageName); err != nil {
+		log.Warn().Err(err).Str("image", imageName).Msg("unable to resolve pulled image, falling back to recreate")
+		updated = true
+	} else {
+		updated = newImageID != inspectResp.Image
+	}
+
 	if !updated {
 		progressCh <- container.UpdateProgress{Status: "up-to-date"}
 		return false, nil

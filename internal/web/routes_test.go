@@ -44,6 +44,11 @@ func (m *MockedClient) ImageRepoDigests(ctx context.Context, imageID string) ([]
 	return args.Get(0).([]string), args.Error(1)
 }
 
+func (m *MockedClient) ImageID(ctx context.Context, ref string) (string, error) {
+	args := m.Called(ctx, ref)
+	return args.String(0), args.Error(1)
+}
+
 func (m *MockedClient) ContainerInspect(ctx context.Context, containerID string) (docker_types.InspectResponse, error) {
 	args := m.Called(ctx, containerID)
 	return args.Get(0).(docker_types.InspectResponse), args.Error(1)

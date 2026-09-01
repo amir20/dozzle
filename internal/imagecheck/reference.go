@@ -2,6 +2,7 @@ package imagecheck
 
 import (
 	"fmt"
+	"net"
 	"strings"
 )
 
@@ -39,13 +40,39 @@ func (r Reference) host() string {
 	return r.Registry
 }
 
+// Insecure reports whether this registry may be reached over plain HTTP.
+// Docker treats loopback registries as insecure by default, and local
+// registries are very commonly run without TLS. A non-loopback host is never
+// downgraded: silently falling back to HTTP there would strip transport
+// security from a real network request.
+func (r Reference) Insecure() bool {
+	host, _, err := net.SplitHostPort(r.Registry)
+	if err != nil {
+		host = r.Registry
+	}
+
+	if host == "localhost" {
+		return true
+	}
+
+	ip := net.ParseIP(host)
+	return ip != nil && ip.IsLoopback()
+}
+
+func (r Reference) scheme() string {
+	if r.Insecure() {
+		return "http"
+	}
+	return "https"
+}
+
 // manifestURL is the v2 manifest endpoint for this reference.
 func (r Reference) manifestURL() string {
 	target := r.Tag
 	if target == "" {
 		target = r.Digest
 	}
-	return fmt.Sprintf("https://%s/v2/%s/manifests/%s", r.host(), r.Repository, target)
+	return fmt.Sprintf("%s://%s/v2/%s/manifests/%s", r.scheme(), r.host(), r.Repository, target)
 }
 
 // ParseReference splits an image reference into its registry, repository and

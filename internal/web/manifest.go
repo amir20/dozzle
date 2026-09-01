@@ -18,7 +18,7 @@ func (h *handler) manifest(w http.ResponseWriter, req *http.Request) {
 		"display":     "standalone",
 		"lang":        "en",
 		"scope":       base + "/",
-		"description":  "A log viewer for containers",
+		"description": "A log viewer for containers",
 		"icons": []map[string]string{
 			{"src": base + "/apple-touch-icon.png", "sizes": "512x512", "type": "image/png"},
 		},

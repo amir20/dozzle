@@ -194,25 +194,29 @@ func (d *DockerClient) ImagePull(ctx context.Context, imageName string) (io.Read
 	return d.cli.ImagePull(ctx, imageName, client.ImagePullOptions{})
 }
 
-// ImageRepoDigests returns the registry digests recorded for a locally
-// available image. An image built locally has none, which is what makes it
-// impossible to check for updates.
+// ImageRepoDigests returns the "repo@sha256:..." digests recorded for a
+// locally available image. An image built locally has none, which is what
+// makes it impossible to check for updates. The repository is kept because an
+// image can carry digests for several repositories, and only the one being
+// checked is comparable.
 func (d *DockerClient) ImageRepoDigests(ctx context.Context, imageID string) ([]string, error) {
 	result, err := d.cli.ImageInspect(ctx, imageID)
 	if err != nil {
 		return nil, err
 	}
 
-	// RepoDigests are "repo@sha256:...", but only the digest is comparable to
-	// what a registry reports for a manifest.
-	digests := make([]string, 0, len(result.RepoDigests))
-	for _, repoDigest := range result.RepoDigests {
-		if _, digest, found := strings.Cut(repoDigest, "@"); found {
-			digests = append(digests, digest)
-		}
+	return result.RepoDigests, nil
+}
+
+// ImageID resolves an image reference to the local image ID it currently
+// points at.
+func (d *DockerClient) ImageID(ctx context.Context, ref string) (string, error) {
+	result, err := d.cli.ImageInspect(ctx, ref)
+	if err != nil {
+		return "", err
 	}
 
-	return digests, nil
+	return result.ID, nil
 }
 
 func (d *DockerClient) ContainerInspect(ctx context.Context, containerID string) (docker.InspectResponse, error) {

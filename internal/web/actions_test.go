@@ -98,6 +98,7 @@ func Test_handler_containerUpdate_up_to_date(t *testing.T) {
 	mockedClient := mockedClient()
 
 	inspectResp := docker_types.InspectResponse{
+		Image: "sha256:current",
 		Config: &docker_types.Config{
 			Image: "test:v1",
 		},
@@ -107,6 +108,8 @@ func Test_handler_containerUpdate_up_to_date(t *testing.T) {
 	pullResp := `{"status":"Already exists","id":"abc123"}` + "\n" +
 		`{"status":"Status: Image is up to date for test:v1"}` + "\n"
 	mockedClient.On("ImagePull", mock.Anything, "test:v1").Return(io.NopCloser(strings.NewReader(pullResp)), nil)
+	// The tag still resolves to what the container runs, so nothing to do.
+	mockedClient.On("ImageID", mock.Anything, "test:v1").Return("sha256:current", nil)
 
 	handler := createHandler(mockedClient, nil, Config{Base: "/", EnableActions: true, Authorization: Authorization{Provider: NONE}})
 	req, err := http.NewRequest("POST", "/api/hosts/localhost/containers/123/actions/update", nil)
@@ -129,7 +132,8 @@ func Test_handler_containerUpdate_new_image(t *testing.T) {
 	m.On("ContainerEvents", mock.Anything, mock.Anything).Return(nil)
 
 	inspectResp := docker_types.InspectResponse{
-		Name: "/test-container",
+		Name:  "/test-container",
+		Image: "sha256:old",
 		Config: &docker_types.Config{
 			Image: "test:v1",
 		},
@@ -140,6 +144,47 @@ func Test_handler_containerUpdate_new_image(t *testing.T) {
 	pullResp := `{"status":"Already exists","id":"abc123"}` + "\n" +
 		`{"status":"Status: Downloaded newer image for test:v1"}` + "\n"
 	m.On("ImagePull", mock.Anything, "test:v1").Return(io.NopCloser(strings.NewReader(pullResp)), nil)
+	m.On("ImageID", mock.Anything, "test:v1").Return("sha256:new", nil)
+	m.On("ContainerRemove", mock.Anything, "123").Return(nil)
+	m.On("ContainerCreate", mock.Anything, mock.Anything, "test-container").Return("new-123", nil)
+
+	handler := createHandler(m, nil, Config{Base: "/", EnableActions: true, Authorization: Authorization{Provider: NONE}})
+	req, err := http.NewRequest("POST", "/api/hosts/localhost/containers/123/actions/update", nil)
+	require.NoError(t, err)
+
+	rr := httptest.NewRecorder()
+	handler.ServeHTTP(rr, req)
+	assert.Equal(t, 200, rr.Code)
+	assert.Contains(t, rr.Body.String(), `"done"`)
+}
+
+// A pull that reports nothing new must still recreate when the tag has moved
+// on locally, which happens when the image was pulled or built beforehand.
+func Test_handler_containerUpdate_recreates_when_image_already_local(t *testing.T) {
+	m := new(MockedClient)
+	c := container.Container{ID: "123"}
+
+	m.On("FindContainer", mock.Anything, "123").Return(c, nil)
+	m.On("ContainerActions", mock.Anything, container.Start, "new-123").Return(nil)
+	m.On("Host").Return(container.Host{ID: "localhost"})
+	m.On("ListContainers", mock.Anything, mock.Anything).Return([]container.Container{c}, nil)
+	m.On("ContainerEvents", mock.Anything, mock.Anything).Return(nil)
+
+	inspectResp := docker_types.InspectResponse{
+		Name:  "/test-container",
+		Image: "sha256:old",
+		Config: &docker_types.Config{
+			Image: "test:v1",
+		},
+		NetworkSettings: &docker_types.NetworkSettings{},
+	}
+	m.On("ContainerInspect", mock.Anything, "123").Return(inspectResp, nil)
+
+	// The pull finds nothing to download because the image is already here.
+	pullResp := `{"status":"Status: Image is up to date for test:v1"}` + "\n"
+	m.On("ImagePull", mock.Anything, "test:v1").Return(io.NopCloser(strings.NewReader(pullResp)), nil)
+	// The tag nonetheless points somewhere else than the running container.
+	m.On("ImageID", mock.Anything, "test:v1").Return("sha256:new", nil)
 	m.On("ContainerRemove", mock.Anything, "123").Return(nil)
 	m.On("ContainerCreate", mock.Anything, mock.Anything, "test-container").Return("new-123", nil)
 
