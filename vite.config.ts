@@ -20,6 +20,9 @@ export default defineConfig(() => ({
   resolve: {
     alias: {
       "@/": `${path.resolve(import.meta.dirname, "assets")}/`,
+      // ansi-to-html drags in the full `entities` HTML entity table (~135 KB raw). We build
+      // the converter with escapeXML: false, so only encodeXML is reachable. See the shim.
+      entities: path.resolve(import.meta.dirname, "assets/shims/entities.ts"),
     },
   },
   build: {
@@ -42,7 +45,9 @@ export default defineConfig(() => ({
         src: "./assets/pages",
       },
       dts: "./assets/typed-router.d.ts",
-      importMode: "sync", // this can't be async because it won't work with custom base
+      // Async keeps each page out of the entry chunk. Vite resolves the dynamic import
+      // against import.meta.url, so this works under a custom base too.
+      importMode: "async",
     }),
     VueMacros({
       plugins: {
