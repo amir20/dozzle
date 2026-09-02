@@ -208,10 +208,16 @@ func UserFromContext(ctx context.Context) *User {
 					return nil
 				}
 			}
-			roles := None
+			// A token minted before roles existed carries no roles claim at all.
+			// Defaulting to None silently stripped every permission from a session
+			// that is otherwise still valid, so an upgrade quietly hid notifications,
+			// cloud and downloads until the user happened to log out. Absent means
+			// full access here, matching an absent `roles` in users.yml and an absent
+			// roles header in proxy auth.
+			roles := All
 			if r, ok := claims["roles"].(float64); ok {
 				roles = Role(r)
-			} else {
+			} else if claims["roles"] != nil {
 				log.Warn().Interface("roles", claims["roles"]).Msg("Failed to parse roles from JWT claims")
 			}
 

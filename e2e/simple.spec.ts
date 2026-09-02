@@ -2,8 +2,8 @@ import { test, expect } from "@playwright/test";
 
 const BASE = "http://simple-auth:8080";
 
-async function login(page: import("@playwright/test").Page) {
-  await page.locator('input[name="username"]').fill("admin");
+async function login(page: import("@playwright/test").Page, username = "admin") {
+  await page.locator('input[name="username"]').fill(username);
   await page.locator('input[name="password"]').fill("password");
   await page.locator('button[type="submit"]').click();
 }
@@ -56,4 +56,16 @@ test("logout clears the session", async ({ page }) => {
   // The cookie must be gone server-side, not just visually logged out.
   const response = await page.request.get(BASE + "/api/version", { maxRedirects: 0 });
   expect(response.status()).toBe(401);
+});
+
+test("container search stays available without the cloud role", async ({ page }) => {
+  // The topbar search is container search first and cloud log search only when linked.
+  // Gating the whole control on the cloud role took container search away from everyone
+  // who does not use Dozzle Cloud.
+  await page.goto(BASE + "/");
+  await login(page, "viewer");
+
+  const search = page.getByTestId("search");
+  await expect(search).toBeVisible();
+  await expect(search).toContainText("Search containers");
 });
