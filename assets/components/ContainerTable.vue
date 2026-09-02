@@ -96,18 +96,29 @@
         </thead>
         <tbody class="bg-base-300/30">
           <template v-if="!ready">
-            <tr v-for="i in skeletonRows" :key="`skeleton-${i}`">
+            <tr v-for="i in skeletonRows" :key="`skeleton-${i}`" role="status" class="animate-pulse">
               <td v-if="isVisible('name')" class="max-w-80 max-md:max-w-none">
                 <div class="flex items-center gap-2">
-                  <div class="skeleton size-6 shrink-0 rounded-full"></div>
-                  <div class="skeleton h-4 w-40 max-w-full"></div>
+                  <div class="bg-base-content/50 size-6 shrink-0 rounded-full opacity-50"></div>
+                  <div class="bg-base-content/50 h-3 w-40 max-w-full rounded-full opacity-50"></div>
+                  <span class="sr-only">Loading...</span>
                 </div>
               </td>
-              <td v-if="isVisible('host')"><div class="skeleton h-4 w-20"></div></td>
-              <td v-if="isVisible('state')"><div class="skeleton h-4 w-16"></div></td>
-              <td v-if="isVisible('created')"><div class="skeleton h-4 w-24"></div></td>
-              <td v-if="isVisible('cpu')"><div class="skeleton h-4 w-full"></div></td>
-              <td v-if="isVisible('mem')"><div class="skeleton h-4 w-full"></div></td>
+              <td v-if="isVisible('host')">
+                <div class="bg-base-content/50 h-3 w-20 rounded-full opacity-50"></div>
+              </td>
+              <td v-if="isVisible('state')">
+                <div class="bg-base-content/50 h-3 w-16 rounded-full opacity-50"></div>
+              </td>
+              <td v-if="isVisible('created')">
+                <div class="bg-base-content/50 h-3 w-24 rounded-full opacity-50"></div>
+              </td>
+              <td v-if="isVisible('cpu')">
+                <div class="bg-base-content/50 h-3 w-full rounded-full opacity-50"></div>
+              </td>
+              <td v-if="isVisible('mem')">
+                <div class="bg-base-content/50 h-3 w-full rounded-full opacity-50"></div>
+              </td>
             </tr>
           </template>
           <tr
