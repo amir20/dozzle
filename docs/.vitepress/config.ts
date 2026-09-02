@@ -89,6 +89,7 @@ export default defineConfig({
         items: [
           { text: "Authentication", link: "/guide/authentication" },
           { text: "Actions", link: "/guide/actions" },
+          { text: "App Icons", link: "/guide/app-icons" },
           { text: "Shell Access", link: "/guide/shell" },
           { text: "MCP Integration", link: "/guide/mcp" },
           { text: "Agent Mode", link: "/guide/agent" },

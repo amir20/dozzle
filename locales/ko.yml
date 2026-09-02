@@ -180,6 +180,8 @@ settings:
   options: 옵션
   show-stopped-containers: 중지된 컨테이너 보기
   group-containers: 네임스페이스별로 컨테이너 그룹화
+  show-app-icons: '앱 아이콘 표시'
+  show-app-icons-desc: '잘 알려진 이미지를 해당 로고와 연결합니다. 아이콘은 Dozzle에 포함되어 있으며 인터넷에서 가져오지 않습니다.'
   about: 정보
   search: Dozzle 검색 기능 사용
   using-version: <a href="https://dozzle.dev/" target="_blank" rel="noreferrer noopener">Dozzle</a> {version}을 사용하고 있습니다.

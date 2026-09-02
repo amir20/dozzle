@@ -177,6 +177,8 @@ settings:
   options: Muligheder
   show-stopped-containers: Vis stoppet containere
   group-containers: Gruppér containere efter namespace
+  show-app-icons: 'Vis app-ikoner'
+  show-app-icons-desc: 'Match kendte images med deres logo. Ikoner følger med Dozzle og hentes aldrig fra internettet.'
   about: Omkring
   search: Aktiver søgning med Dozzle ved brug af
   using-version: Du bruger <a href="https://dozzle.dev/" target="_blank" rel="noreferrer noopener">Dozzle</a> {version}.

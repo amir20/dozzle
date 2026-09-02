@@ -178,6 +178,8 @@ settings:
   options: Opties
   show-stopped-containers: Gestopte containers tonen
   group-containers: Groepeer containers op namespace
+  show-app-icons: 'App-pictogrammen tonen'
+  show-app-icons-desc: 'Koppel bekende images aan hun logo. De pictogrammen zitten in Dozzle en worden nooit van internet opgehaald.'
   about: Over
   search: Doorzoeken inschakelen via Dozzle
   using-version: Je gebruikt <a href="https://dozzle.dev/" target="_blank" rel="noreferrer noopener">Dozzle</a> {version}.

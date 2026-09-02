@@ -221,6 +221,8 @@ settings:
   options: Opciones
   show-stopped-containers: Mostrar contenedores parados
   group-containers: Agrupar contenedores por namespace
+  show-app-icons: 'Mostrar iconos de aplicaciones'
+  show-app-icons-desc: 'Asocia las imágenes conocidas con su logotipo. Los iconos vienen incluidos en Dozzle y nunca se descargan de internet.'
   about: Acerca de
   search: Activar la búsqueda con Dozzle mediante
   using-version: Estás usando <a href="https://dozzle.dev/" target="_blank" rel="noreferrer noopener">Dozzle</a> {version}.

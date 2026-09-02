@@ -71,7 +71,13 @@
                 :class="{ 'bg-base-content/10': commandEntries.length + index === selectedIndex }"
                 @click.prevent="selected(result.item)"
               >
-                <div :class="result.item.state === 'running' ? 'text-primary' : 'text-base-content/50'">
+                <ContainerIcon
+                  v-if="result.item.type === 'container' && result.item.icon"
+                  :state="result.item.state ?? 'running'"
+                  :slug="result.item.icon"
+                  class="size-5"
+                />
+                <div v-else :class="result.item.state === 'running' ? 'text-primary' : 'text-base-content/50'">
                   <template v-if="result.item.type === 'container'">
                     <octicon:container-24 class="size-4" />
                   </template>
@@ -252,6 +258,7 @@ type Item = {
   name: string;
   state?: ContainerState;
   host?: string;
+  icon?: string;
   type: "container" | "service" | "stack";
 };
 
@@ -265,6 +272,7 @@ const list = computed(() => {
       name: container.name,
       state: container.state,
       host: container.hostLabel,
+      icon: container.icon,
       type: "container",
     });
   }

@@ -118,6 +118,16 @@ export class Container {
     return this.group;
   }
 
+  /**
+   * Bundled app icon slug for this container, derived from its image. `dev.dozzle.icon`
+   * overrides the guess, and `none` opts a container out when the guess is wrong.
+   */
+  get icon() {
+    const override = this.labels["dev.dozzle.icon"]?.trim().toLowerCase();
+    if (override) return override === "none" || !hasIcon(override) ? undefined : override;
+    return iconSlugForImage(this.image);
+  }
+
   set name(name: string) {
     this._name = name;
   }

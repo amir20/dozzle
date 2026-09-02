@@ -153,7 +153,7 @@
                     class="group auto-cols-[max-content_minmax(0,1fr)_max-content]"
                   >
                     <svg-spinners:ring-resize v-if="item.isNew" class="text-secondary size-4" />
-                    <ContainerStatusIcon v-else :state="item.state" :health="item.health" class="shrink-0" />
+                    <ContainerIcon v-else :state="item.state" :health="item.health" :slug="item.icon" class="size-5" />
                     <div class="truncate">
                       {{ item.name }}
                     </div>

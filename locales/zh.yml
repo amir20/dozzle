@@ -177,6 +177,8 @@ settings:
   options: 选项
   show-stopped-containers: 显示已停止的容器
   group-containers: 按命名空间分组容器
+  show-app-icons: '显示应用图标'
+  show-app-icons-desc: '将常见镜像匹配到对应的标志。图标随 Dozzle 一起提供，不会从互联网下载。'
   about: 关于
   search: 使用Dozzle启用搜索
   using-version: 您正在使用<a href="https://dozzle.dev/" target="_blank" rel="noreferrer noopener">Dozzle</a> {version}。

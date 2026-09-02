@@ -18,6 +18,7 @@ export type Settings = {
   locale: string;
   groupContainers: "always" | "at-least-2" | "never";
   showImageUpdateAlert: boolean;
+  showAppIcons: boolean;
 };
 export const DEFAULT_SETTINGS: Settings = {
   search: true,
@@ -37,6 +38,7 @@ export const DEFAULT_SETTINGS: Settings = {
   locale: "",
   groupContainers: "at-least-2",
   showImageUpdateAlert: false,
+  showAppIcons: true,
 };
 
 export const settings = useProfileStorage("settings", DEFAULT_SETTINGS);
@@ -67,4 +69,5 @@ export const {
   locale,
   automaticRedirect,
   groupContainers,
+  showAppIcons,
 } = toRefs(settings.value);

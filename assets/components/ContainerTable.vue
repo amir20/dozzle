@@ -98,15 +98,16 @@
           <tr
             v-for="container in paginated"
             :key="container.id"
-            v-memo="[container.id, container.state, container.health, statMode, isMobile]"
+            v-memo="[container.id, container.state, container.health, statMode, isMobile, showAppIcons]"
             class="hover:bg-base-100/80!"
           >
             <td v-if="isVisible('name')" class="max-w-80 max-md:max-w-none">
               <div class="flex items-center gap-2 max-md:items-start">
-                <ContainerStatusIcon
+                <ContainerIcon
                   :state="container.state"
                   :health="container.health"
-                  class="shrink-0 max-md:mt-0.5"
+                  :slug="container.icon"
+                  class="size-6 max-md:mt-0.5"
                 />
                 <div class="min-w-0 flex-1">
                   <div class="flex items-baseline gap-2">
@@ -181,6 +182,7 @@
 
 <script setup lang="ts">
 import { Container } from "@/models/Container";
+import { showAppIcons } from "@/stores/settings";
 import { toRefs } from "@vueuse/core";
 
 const { t } = useI18n();
