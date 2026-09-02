@@ -134,6 +134,7 @@ const ALIASES: Record<string, string> = {
   "unifi-network-application": "unifi",
   "unifi-console": "unifi",
   requarks: "wikijs",
+  nxzai: "nextexplorer",
 };
 
 const stripSuffix = (name: string) => {
