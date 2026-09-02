@@ -11,7 +11,6 @@ import (
 	"time"
 
 	"github.com/amir20/dozzle/internal/container"
-	"github.com/go-chi/jwtauth/v5"
 	"github.com/rs/zerolog/log"
 	"golang.org/x/crypto/bcrypt"
 	"gopkg.in/yaml.v3"
@@ -117,6 +116,12 @@ func decodeUsersFromFile(path string) (UserDatabase, error) {
 		}
 
 		user.Roles = ParseRole(user.RolesConfigured)
+
+		labels, err := container.ParseContainerFilter(user.Filter)
+		if err != nil {
+			return users, fmt.Errorf("user %s has an invalid filter %q: %w", username, user.Filter, err)
+		}
+		user.ContainerLabels = labels
 	}
 
 	return users, nil
@@ -156,20 +161,6 @@ func (u *UserDatabase) Find(username string) *User {
 	return user
 }
 
-func (u *UserDatabase) FindByPassword(username, password string) *User {
-	user := u.Find(username)
-
-	if user == nil {
-		return nil
-	}
-
-	if !CompareHashAndPassword(user.Password, password) {
-		return nil
-	}
-
-	return user
-}
-
 func CompareHashAndPassword(hash, password string) bool {
 	if len(hash) == 64 {
 		log.Fatal().Msg("sha256 passwords are no longer supported. Please use bcrypt. See https://github.com/amir20/dozzle/security/advisories/GHSA-w7qr-q9fh-fj35 for more details.")
@@ -185,47 +176,17 @@ func CompareHashAndPassword(hash, password string) bool {
 	return false
 }
 
+// UserFromContext returns the user an authentication middleware resolved for this
+// request. Both providers resolve the user themselves: proxy auth from the request
+// headers, simple auth from users.yml keyed by the verified token's username. Roles
+// deliberately are not read back out of the JWT, because a bitmask frozen at login
+// goes stale the moment the role set grows or users.yml changes.
 func UserFromContext(ctx context.Context) *User {
 	if user, ok := ctx.Value(remoteUser).(User); ok {
 		return &user
-	} else {
-		if _, claims, err := jwtauth.FromContext(ctx); err == nil {
-			username, ok := claims["username"].(string)
-			if !ok {
-				return nil
-			}
-			if username == "" {
-				return nil
-			}
-			email := claims["email"].(string)
-			name := claims["name"].(string)
-			containerFilter := container.ContainerLabels{}
-
-			if filter, ok := claims["filter"].(string); ok {
-				containerFilter, err = container.ParseContainerFilter(filter)
-				if err != nil {
-					log.Warn().Err(err).Str("filter", filter).Msg("Failed to parse container filter")
-					return nil
-				}
-			}
-			// A token minted before roles existed carries no roles claim at all.
-			// Defaulting to None silently stripped every permission from a session
-			// that is otherwise still valid, so an upgrade quietly hid notifications,
-			// cloud and downloads until the user happened to log out. Absent means
-			// full access here, matching an absent `roles` in users.yml and an absent
-			// roles header in proxy auth.
-			roles := All
-			if r, ok := claims["roles"].(float64); ok {
-				roles = Role(r)
-			} else if claims["roles"] != nil {
-				log.Warn().Interface("roles", claims["roles"]).Msg("Failed to parse roles from JWT claims")
-			}
-
-			user := newUser(username, email, name, containerFilter, roles)
-			return &user
-		}
-		return nil
 	}
+
+	return nil
 }
 
 func RequireAuthentication(next http.Handler) http.Handler {
