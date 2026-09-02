@@ -156,3 +156,31 @@ func TestSimpleAuthWithoutTokenHasNoUser(t *testing.T) {
 
 	require.Nil(t, serveWithAuth(t, NewSimpleAuth(users, 0), ""))
 }
+
+// The container filter comes from users.yml as well, both parsed into labels for
+// downstream filtering and kept as the raw string on the user.
+func TestSimpleAuthResolvesFilterFromDatabase(t *testing.T) {
+	users := UserDatabase{
+		Users: map[string]*User{
+			"alice": {Username: "alice", Password: "$2a$11$aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", Filter: "name=foo", RolesConfigured: "all", Roles: All},
+		},
+	}
+
+	a := NewSimpleAuth(users, 0)
+	_, token, err := a.tokenAuth.Encode(map[string]any{"username": "alice", "filter": "name=stale"})
+	require.NoError(t, err)
+
+	user := serveWithAuth(t, a, token)
+	require.NotNil(t, user)
+	require.Equal(t, "name=foo", user.Filter)
+	require.Equal(t, []string{"foo"}, user.ContainerLabels["name"])
+}
+
+// The resolved user must not alias the database entry, so a reload of users.yml
+// cannot mutate a user another request is already holding.
+func TestSimpleAuthDoesNotAliasTheUserDatabase(t *testing.T) {
+	alice := &User{Username: "alice", Password: "$2a$11$aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", RolesConfigured: "all", Roles: All}
+	a := NewSimpleAuth(UserDatabase{Users: map[string]*User{"alice": alice}}, 0)
+
+	require.NotSame(t, alice, a.find("alice"))
+}

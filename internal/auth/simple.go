@@ -47,18 +47,31 @@ func NewSimpleAuth(userDatabase UserDatabase, ttl time.Duration) *simpleAuthCont
 	}
 }
 
+// find and findByPassword copy the user out of the database rather than handing
+// back the pointer into UserDatabase.Users, so a caller reading it after the lock
+// is released cannot race a reload of users.yml.
 func (a *simpleAuthContext) find(username string) *User {
 	a.mu.Lock()
 	defer a.mu.Unlock()
 
-	return a.UserDatabase.Find(username)
+	return copyUser(a.UserDatabase.Find(username))
 }
 
 func (a *simpleAuthContext) findByPassword(username, password string) *User {
 	a.mu.Lock()
 	defer a.mu.Unlock()
 
-	return a.UserDatabase.FindByPassword(username, password)
+	return copyUser(a.UserDatabase.FindByPassword(username, password))
+}
+
+func copyUser(user *User) *User {
+	if user == nil {
+		return nil
+	}
+
+	copied := *user
+
+	return &copied
 }
 
 func (a *simpleAuthContext) CreateToken(username, password string) (string, error) {
@@ -125,6 +138,10 @@ func (a *simpleAuthContext) userFromToken(ctx context.Context) *User {
 	}
 
 	user := newUser(configured.Username, configured.Email, configured.Name, labels, configured.Roles)
+	// Carry the raw filter and role strings too, so the resolved user is the same
+	// shape as the one users.yml describes rather than a partially filled copy.
+	user.Filter = configured.Filter
+	user.RolesConfigured = configured.RolesConfigured
 
 	return &user
 }
