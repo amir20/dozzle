@@ -2,3 +2,9 @@ users:
   admin:
     name: Admin
     password: "$2y$11$pTGu6dnTT7Uh3ob7uC6X7OkAamlhHpJ0/mEbsmiPyO85pumillZme"
+  viewer:
+    name: Viewer
+    # Same bcrypt hash as admin, so the password is also "password". Everything but
+    # cloud, which is what a user who never linked Dozzle Cloud looks like.
+    password: "$2y$11$pTGu6dnTT7Uh3ob7uC6X7OkAamlhHpJ0/mEbsmiPyO85pumillZme"
+    roles: "all,^cloud"

@@ -1,4 +1,7 @@
 <template>
+  <!-- The topbar search entry. This is container search first: cloud log search is an
+       extra it picks up when the instance is linked, which is why it must not be gated
+       on the cloud role. Without cloud it falls back to the plain container label. -->
   <button
     type="button"
     data-testid="search"
