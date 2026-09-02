@@ -116,6 +116,12 @@ func decodeUsersFromFile(path string) (UserDatabase, error) {
 		}
 
 		user.Roles = ParseRole(user.RolesConfigured)
+
+		labels, err := container.ParseContainerFilter(user.Filter)
+		if err != nil {
+			return users, fmt.Errorf("user %s has an invalid filter %q: %w", username, user.Filter, err)
+		}
+		user.ContainerLabels = labels
 	}
 
 	return users, nil
@@ -152,20 +158,6 @@ func (u *UserDatabase) Find(username string) *User {
 	if !ok {
 		return nil
 	}
-	return user
-}
-
-func (u *UserDatabase) FindByPassword(username, password string) *User {
-	user := u.Find(username)
-
-	if user == nil {
-		return nil
-	}
-
-	if !CompareHashAndPassword(user.Password, password) {
-		return nil
-	}
-
 	return user
 }
 

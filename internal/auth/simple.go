@@ -10,7 +10,6 @@ import (
 	"sync"
 	"time"
 
-	"github.com/amir20/dozzle/internal/container"
 	"github.com/go-chi/jwtauth/v5"
 	"github.com/rs/zerolog/log"
 )
@@ -47,9 +46,9 @@ func NewSimpleAuth(userDatabase UserDatabase, ttl time.Duration) *simpleAuthCont
 	}
 }
 
-// find and findByPassword return the user by value. UserDatabase.Find hands back
-// a pointer into UserDatabase.Users, and dereferencing it under the lock means no
-// caller can read a user while a reload of users.yml is replacing it.
+// find returns the user by value. UserDatabase.Find hands back a pointer into
+// UserDatabase.Users and reloads users.yml as it goes, so dereferencing it under
+// the lock keeps a reload from racing whoever is reading the user.
 func (a *simpleAuthContext) find(username string) (User, bool) {
 	a.mu.Lock()
 	defer a.mu.Unlock()
@@ -62,25 +61,15 @@ func (a *simpleAuthContext) find(username string) (User, bool) {
 	return *user, true
 }
 
-func (a *simpleAuthContext) findByPassword(username, password string) (User, bool) {
-	a.mu.Lock()
-	defer a.mu.Unlock()
-
-	user := a.UserDatabase.FindByPassword(username, password)
-	if user == nil {
-		return User{}, false
-	}
-
-	return *user, true
-}
-
 func (a *simpleAuthContext) CreateToken(username, password string) (string, error) {
-	user, ok := a.findByPassword(username, password)
-	if !ok {
+	user, ok := a.find(username)
+	if !ok || !CompareHashAndPassword(user.Password, password) {
 		return "", ErrInvalidCredentials
 	}
 
-	claims := map[string]any{"username": user.Username, "email": user.Email, "name": user.Name, "filter": user.Filter, "roles": user.Roles}
+	// Identity only. Everything else about the user is read from users.yml per
+	// request, so anything baked in here would just be a copy that goes stale.
+	claims := map[string]any{"username": user.Username}
 	jwtauth.SetIssuedNow(claims)
 
 	if a.ttl > 0 {
@@ -125,23 +114,13 @@ func (a *simpleAuthContext) userFromToken(ctx context.Context) *User {
 		return nil
 	}
 
-	configured, ok := a.find(username)
+	user, ok := a.find(username)
 	if !ok {
 		log.Debug().Str("username", username).Msg("Token is valid but user is no longer in the user database")
 		return nil
 	}
 
-	labels, err := container.ParseContainerFilter(configured.Filter)
-	if err != nil {
-		log.Warn().Err(err).Str("filter", configured.Filter).Msg("Failed to parse container filter")
-		return nil
-	}
-
-	user := newUser(configured.Username, configured.Email, configured.Name, labels, configured.Roles)
-	// Carry the raw filter and role strings too, so the resolved user is the same
-	// shape as the one users.yml describes rather than a partially filled copy.
-	user.Filter = configured.Filter
-	user.RolesConfigured = configured.RolesConfigured
+	user.Password = ""
 
 	return &user
 }

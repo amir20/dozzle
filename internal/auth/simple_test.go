@@ -3,6 +3,8 @@ package auth
 import (
 	"net/http"
 	"net/http/httptest"
+	"os"
+	"path/filepath"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -157,14 +159,20 @@ func TestSimpleAuthWithoutTokenHasNoUser(t *testing.T) {
 	require.Nil(t, serveWithAuth(t, NewSimpleAuth(users, 0), ""))
 }
 
-// The container filter comes from users.yml as well, both parsed into labels for
-// downstream filtering and kept as the raw string on the user.
+// The container filter comes from users.yml as well, parsed into labels when the
+// file is read so a token cannot pin a stale one.
 func TestSimpleAuthResolvesFilterFromDatabase(t *testing.T) {
-	users := UserDatabase{
-		Users: map[string]*User{
-			"alice": {Username: "alice", Password: "$2a$11$aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", Filter: "name=foo", RolesConfigured: "all", Roles: All},
-		},
-	}
+	path := filepath.Join(t.TempDir(), "users.yml")
+	require.NoError(t, os.WriteFile(path, []byte(`
+users:
+  alice:
+    name: Alice
+    password: "$2y$11$pTGu6dnTT7Uh3ob7uC6X7OkAamlhHpJ0/mEbsmiPyO85pumillZme"
+    filter: "name=foo"
+`), 0o600))
+
+	users, err := ReadUsersFromFile(path)
+	require.NoError(t, err)
 
 	a := NewSimpleAuth(users, 0)
 	_, token, err := a.tokenAuth.Encode(map[string]any{"username": "alice", "filter": "name=stale"})
@@ -174,4 +182,21 @@ func TestSimpleAuthResolvesFilterFromDatabase(t *testing.T) {
 	require.NotNil(t, user)
 	require.Equal(t, "name=foo", user.Filter)
 	require.Equal(t, []string{"foo"}, user.ContainerLabels["name"])
+	require.Equal(t, All, user.Roles, "no roles key in users.yml means everything")
+	require.Empty(t, user.Password, "the resolved user must not carry the password hash")
+}
+
+// An unparseable filter fails the read instead of silently locking the user out
+// of every container on their next request.
+func TestReadUsersRejectsInvalidFilter(t *testing.T) {
+	path := filepath.Join(t.TempDir(), "users.yml")
+	require.NoError(t, os.WriteFile(path, []byte(`
+users:
+  alice:
+    password: "$2y$11$pTGu6dnTT7Uh3ob7uC6X7OkAamlhHpJ0/mEbsmiPyO85pumillZme"
+    filter: "nope"
+`), 0o600))
+
+	_, err := ReadUsersFromFile(path)
+	require.Error(t, err)
 }
