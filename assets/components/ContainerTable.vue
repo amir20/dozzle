@@ -36,7 +36,7 @@
         />
       </div>
       <div class="flex flex-1 items-center justify-end gap-2">
-        <div v-show="containers.length > pageSizes[0]">
+        <div v-show="ready && containers.length > pageSizes[0]">
           {{ $t("label.per-page") }}
 
           <DropdownMenu
@@ -95,7 +95,34 @@
           </tr>
         </thead>
         <tbody class="bg-base-300/30">
+          <template v-if="!ready">
+            <tr v-for="i in skeletonRows" :key="`skeleton-${i}`" role="status" class="animate-pulse">
+              <td v-if="isVisible('name')" class="max-w-80 max-md:max-w-none">
+                <div class="flex items-center gap-2">
+                  <div class="bg-base-content/50 size-6 shrink-0 rounded-full opacity-50"></div>
+                  <div class="bg-base-content/50 h-3 w-40 max-w-full rounded-full opacity-50"></div>
+                  <span class="sr-only">Loading...</span>
+                </div>
+              </td>
+              <td v-if="isVisible('host')">
+                <div class="bg-base-content/50 h-3 w-20 rounded-full opacity-50"></div>
+              </td>
+              <td v-if="isVisible('state')">
+                <div class="bg-base-content/50 h-3 w-16 rounded-full opacity-50"></div>
+              </td>
+              <td v-if="isVisible('created')">
+                <div class="bg-base-content/50 h-3 w-24 rounded-full opacity-50"></div>
+              </td>
+              <td v-if="isVisible('cpu')">
+                <div class="bg-base-content/50 h-3 w-full rounded-full opacity-50"></div>
+              </td>
+              <td v-if="isVisible('mem')">
+                <div class="bg-base-content/50 h-3 w-full rounded-full opacity-50"></div>
+              </td>
+            </tr>
+          </template>
           <tr
+            v-else
             v-for="container in paginated"
             :key="container.id"
             v-memo="[container.id, container.state, container.health, statMode, isMobile, showAppIcons]"
@@ -160,7 +187,7 @@
       </table>
     </div>
     <div class="p-4 text-center">
-      <nav class="join" v-if="isPaginated && totalPages <= 15">
+      <nav class="join" v-if="ready && isPaginated && totalPages <= 15">
         <input
           class="btn btn-square join-item"
           type="radio"
@@ -171,7 +198,7 @@
         />
       </nav>
       <DropdownMenu
-        v-else-if="isPaginated"
+        v-else-if="ready && isPaginated"
         class="btn-sm"
         v-model="currentPage"
         :options="Array.from({ length: totalPages }, (_, i) => ({ label: `${i + 1}`, value: i + 1 }))"
@@ -245,6 +272,8 @@ const fields: Record<
 const { containers } = defineProps<{
   containers: Container[];
 }>();
+
+const { ready } = storeToRefs(useContainerStore());
 type keys = keyof typeof fields;
 
 const statMode = useStorage<"chart" | "progress">("DOZZLE_TABLE_STAT_MODE", "chart");
@@ -265,6 +294,7 @@ const sortedContainers = computedWithControl(
   () => filteredContainers.value.sort((a, b) => fields[sortField.value].sortFunc(a, b)),
 );
 
+const skeletonRows = computed(() => Math.min(perPage.value, 5));
 const totalPages = computed(() => Math.ceil(sortedContainers.value.length / perPage.value));
 const isPaginated = computed(() => totalPages.value > 1);
 const currentPage = ref(1);
