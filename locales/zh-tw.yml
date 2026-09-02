@@ -160,6 +160,7 @@ placeholder:
   search: 搜尋
 settings:
   show-image-update-alert: '當容器有更新時顯示通知'
+  show-image-update-alert-desc: '檢查登錄檔中是否有執行中映像的較新標籤。'
   help-support: >
     請透過在 GitHub 上捐款或贊助我們來支持 Dozzle。您的貢獻幫助我們為所有人改進 Dozzle。謝謝！ 🙏🏼
   about-desc: 關於您的 Dozzle 安裝以及如何支持本專案的資訊。
@@ -170,26 +171,39 @@ settings:
   support-help: 捐款有助於維持 Dozzle 免費並持續維護。謝謝 🙏
   display: 顯示
   locale: 變更語言
+  locale-desc: '預設沿用瀏覽器的語言。'
   small-scrollbars: 使用較小的捲軸
+  small-scrollbars-desc: '較細的捲軸，在小螢幕上很實用。'
   show-timestamps: 顯示時間戳記
+  show-timestamps-desc: '在每一行前面加上寫入時間。'
   soft-wrap: 自動換行
+  soft-wrap-desc: '自動換行顯示長行，而非左右捲動。'
   datetime-format: 變更日期與時間格式
+  datetime-format-desc: '預設沿用瀏覽器的語言與時間格式。'
   font-size: 日誌字型大小
+  font-size-desc: '僅套用於日誌輸出，不影響應用程式其他部分。'
   color-scheme: 顏色設定
+  color-scheme-desc: '自動會跟隨系統設定。'
   options: 選項
   show-stopped-containers: 顯示已停止的容器
+  show-stopped-containers-desc: '在側邊欄與清單中顯示已停止的容器。'
   group-containers: 依命名空間分組容器
+  group-containers-desc: '依 Compose 專案、Swarm 堆疊或 dev.dozzle.group 分組。'
   show-app-icons: '顯示應用程式圖示'
   show-app-icons-desc: '將常見映像對應到其標誌。圖示隨 Dozzle 一起提供，不會從網際網路下載。'
   about: 關於
   search: 啟用 Dozzle 搜尋功能
+  search-desc: '在目前檢視的容器日誌中搜尋。'
   using-version: 您目前使用的是 <a href="https://dozzle.dev/" target="_blank" rel="noreferrer noopener">Dozzle</a> {version}。
   update-available: >-
     有新版本可用！請更新至 <a href="{href}" target="_blank"
     rel="noreferrer noopener">{nextVersion}</a>。
   show-std: 顯示標準輸出(stdout)與標準錯誤(stderr)標籤
+  show-std-desc: '標示該行來自 stdout 或 stderr。'
   automatic-redirect: 自動重新導向至相同名稱的新容器
+  automatic-redirect-desc: '當容器被取代時，自動切換到新的容器。'
   compact: 啟用緊湊模式
+  compact-desc: '縮小日誌行之間的間距，讓畫面顯示更多內容。'
   size:
     small: 小
     medium: 中

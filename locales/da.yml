@@ -158,6 +158,7 @@ placeholder:
   search: Søg
 settings:
   show-image-update-alert: 'Vis en notifikation når en container har en opdatering'
+  show-image-update-alert-desc: 'Tjekker registret for et nyere tag af det kørende image.'
   help-support: >
     Støt venligst Dozzle ved at donere eller sponsorere os på GitHub. Dine bidrag hjælper os med at forbedre Dozzle for alle. Tak! 🙏🏼
   about-desc: Information om din Dozzle-installation og hvordan du kan støtte projektet.
@@ -168,25 +169,38 @@ settings:
   support-help: Donationer hjælper med at holde Dozzle gratis og vedligeholdt. Tak 🙏
   display: Visning
   locale: Overskriv sprog
+  locale-desc: 'Bruger som standard din browsers sprog.'
   small-scrollbars: Brug mindre scrollbarer
+  small-scrollbars-desc: 'Tyndere scrollbarer, praktisk på mindre skærme.'
   show-timestamps: Vis tids stempler
+  show-timestamps-desc: 'Sæt tidspunktet for hver linje foran den.'
   soft-wrap: Blødt bræk på linjer
+  soft-wrap-desc: 'Ombryd lange linjer i stedet for at rulle sidelæns.'
   datetime-format: Overskriv dato og tids format
+  datetime-format-desc: 'Bruger som standard din browsers sprog og urformat.'
   font-size: Tekststørrelse at bruge til logs
+  font-size-desc: 'Gælder kun for logudskrift, ikke resten af appen.'
   color-scheme: Farve skema
+  color-scheme-desc: 'Auto følger din systemindstilling.'
   options: Muligheder
   show-stopped-containers: Vis stoppet containere
+  show-stopped-containers-desc: 'Medtag stoppede containere i sidepanelet og listerne.'
   group-containers: Gruppér containere efter namespace
+  group-containers-desc: 'Grupperer efter Compose-projekt, Swarm-stack eller dev.dozzle.group.'
   show-app-icons: 'Vis app-ikoner'
   show-app-icons-desc: 'Match kendte images med deres logo. Ikoner følger med Dozzle og hentes aldrig fra internettet.'
   about: Omkring
   search: Aktiver søgning med Dozzle ved brug af
+  search-desc: 'Søg i loggen for den container du kigger på.'
   using-version: Du bruger <a href="https://dozzle.dev/" target="_blank" rel="noreferrer noopener">Dozzle</a> {version}.
   update-available: >-
     Ny version er tilgængelig! Opdater til <a href="{href}" target="_blank" rel="noreferrer noopener">{nextVersion}</a>.
   show-std: Vis stdout og stderr mærker
+  show-std-desc: 'Markér om en linje kom fra stdout eller stderr.'
   automatic-redirect: Automatisk omdiriger til nye containere med det samme navn
+  automatic-redirect-desc: 'Følg med til den nye container, når en container udskiftes.'
   compact: Slå kompakt tilstand til for logs
+  compact-desc: 'Reducer afstanden mellem loglinjer, så der er plads til flere.'
   size:
     small: Lille
     medium: Mellem
