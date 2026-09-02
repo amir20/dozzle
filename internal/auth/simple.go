@@ -47,36 +47,36 @@ func NewSimpleAuth(userDatabase UserDatabase, ttl time.Duration) *simpleAuthCont
 	}
 }
 
-// find and findByPassword copy the user out of the database rather than handing
-// back the pointer into UserDatabase.Users, so a caller reading it after the lock
-// is released cannot race a reload of users.yml.
-func (a *simpleAuthContext) find(username string) *User {
+// find and findByPassword return the user by value. UserDatabase.Find hands back
+// a pointer into UserDatabase.Users, and dereferencing it under the lock means no
+// caller can read a user while a reload of users.yml is replacing it.
+func (a *simpleAuthContext) find(username string) (User, bool) {
 	a.mu.Lock()
 	defer a.mu.Unlock()
 
-	return copyUser(a.UserDatabase.Find(username))
-}
-
-func (a *simpleAuthContext) findByPassword(username, password string) *User {
-	a.mu.Lock()
-	defer a.mu.Unlock()
-
-	return copyUser(a.UserDatabase.FindByPassword(username, password))
-}
-
-func copyUser(user *User) *User {
+	user := a.UserDatabase.Find(username)
 	if user == nil {
-		return nil
+		return User{}, false
 	}
 
-	copied := *user
+	return *user, true
+}
 
-	return &copied
+func (a *simpleAuthContext) findByPassword(username, password string) (User, bool) {
+	a.mu.Lock()
+	defer a.mu.Unlock()
+
+	user := a.UserDatabase.FindByPassword(username, password)
+	if user == nil {
+		return User{}, false
+	}
+
+	return *user, true
 }
 
 func (a *simpleAuthContext) CreateToken(username, password string) (string, error) {
-	user := a.findByPassword(username, password)
-	if user == nil {
+	user, ok := a.findByPassword(username, password)
+	if !ok {
 		return "", ErrInvalidCredentials
 	}
 
@@ -125,8 +125,8 @@ func (a *simpleAuthContext) userFromToken(ctx context.Context) *User {
 		return nil
 	}
 
-	configured := a.find(username)
-	if configured == nil {
+	configured, ok := a.find(username)
+	if !ok {
 		log.Debug().Str("username", username).Msg("Token is valid but user is no longer in the user database")
 		return nil
 	}

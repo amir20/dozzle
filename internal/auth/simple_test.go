@@ -175,12 +175,3 @@ func TestSimpleAuthResolvesFilterFromDatabase(t *testing.T) {
 	require.Equal(t, "name=foo", user.Filter)
 	require.Equal(t, []string{"foo"}, user.ContainerLabels["name"])
 }
-
-// The resolved user must not alias the database entry, so a reload of users.yml
-// cannot mutate a user another request is already holding.
-func TestSimpleAuthDoesNotAliasTheUserDatabase(t *testing.T) {
-	alice := &User{Username: "alice", Password: "$2a$11$aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", RolesConfigured: "all", Roles: All}
-	a := NewSimpleAuth(UserDatabase{Users: map[string]*User{"alice": alice}}, 0)
-
-	require.NotSame(t, alice, a.find("alice"))
-}
