@@ -1,20 +1,27 @@
 package auth
 
 import (
+	"context"
 	"crypto/sha256"
 	"errors"
 	"maps"
 	"net/http"
 	"slices"
+	"sync"
 	"time"
 
+	"github.com/amir20/dozzle/internal/container"
 	"github.com/go-chi/jwtauth/v5"
+	"github.com/rs/zerolog/log"
 )
 
 type simpleAuthContext struct {
 	UserDatabase UserDatabase
 	tokenAuth    *jwtauth.JWTAuth
 	ttl          time.Duration
+	// UserDatabase.Find reloads users.yml in place, and the middleware now calls it
+	// on every request, so the reload has to be serialized.
+	mu sync.Mutex
 }
 
 var ErrInvalidCredentials = errors.New("invalid credentials")
@@ -40,8 +47,22 @@ func NewSimpleAuth(userDatabase UserDatabase, ttl time.Duration) *simpleAuthCont
 	}
 }
 
+func (a *simpleAuthContext) find(username string) *User {
+	a.mu.Lock()
+	defer a.mu.Unlock()
+
+	return a.UserDatabase.Find(username)
+}
+
+func (a *simpleAuthContext) findByPassword(username, password string) *User {
+	a.mu.Lock()
+	defer a.mu.Unlock()
+
+	return a.UserDatabase.FindByPassword(username, password)
+}
+
 func (a *simpleAuthContext) CreateToken(username, password string) (string, error) {
-	user := a.UserDatabase.FindByPassword(username, password)
+	user := a.findByPassword(username, password)
 	if user == nil {
 		return "", ErrInvalidCredentials
 	}
@@ -62,5 +83,48 @@ func (a *simpleAuthContext) CreateToken(username, password string) (string, erro
 }
 
 func (a *simpleAuthContext) AuthMiddleware(next http.Handler) http.Handler {
-	return jwtauth.Verifier(a.tokenAuth)(next)
+	return jwtauth.Verifier(a.tokenAuth)(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		// The roles claim is a bitmask frozen at login, so it goes stale the moment
+		// the set of roles grows: a session minted before the cloud role existed
+		// carries a mask without that bit and quietly loses the feature until the
+		// user happens to log out. The same is true of a roles or filter edit in
+		// users.yml. Resolve both from the database per request and let the token
+		// prove only who the user is.
+		if user := a.userFromToken(r.Context()); user != nil {
+			r = r.WithContext(WithUser(r.Context(), *user))
+		}
+
+		next.ServeHTTP(w, r)
+	}))
+}
+
+// userFromToken resolves the verified token's subject against users.yml. It returns
+// nil for a missing or invalid token, and for a user who is no longer configured, so
+// the request falls through to RequireAuthentication as unauthenticated.
+func (a *simpleAuthContext) userFromToken(ctx context.Context) *User {
+	_, claims, err := jwtauth.FromContext(ctx)
+	if err != nil {
+		return nil
+	}
+
+	username, ok := claims["username"].(string)
+	if !ok || username == "" {
+		return nil
+	}
+
+	configured := a.find(username)
+	if configured == nil {
+		log.Debug().Str("username", username).Msg("Token is valid but user is no longer in the user database")
+		return nil
+	}
+
+	labels, err := container.ParseContainerFilter(configured.Filter)
+	if err != nil {
+		log.Warn().Err(err).Str("filter", configured.Filter).Msg("Failed to parse container filter")
+		return nil
+	}
+
+	user := newUser(configured.Username, configured.Email, configured.Name, labels, configured.Roles)
+
+	return &user
 }
