@@ -63,7 +63,10 @@ export const useContainerStore = defineStore("container", () => {
       }
     });
 
-    es.addEventListener("containers-changed", (e) => updateContainers(parseEventData<ContainerJson[]>(e)));
+    es.addEventListener("containers-changed", (e) => {
+      updateContainers(parseEventData<ContainerJson[]>(e));
+      ready.value = true;
+    });
     es.addEventListener("container-stat", (e) => {
       const stat = parseEventData<ContainerStat>(e);
       const container = allContainersById.value[stat.id] as unknown as UnwrapNestedRefs<Container>;
@@ -132,8 +135,6 @@ export const useContainerStore = defineStore("container", () => {
         containers.value = [];
       }
     };
-
-    watchOnce(containers, () => (ready.value = true));
   }
 
   connect();
