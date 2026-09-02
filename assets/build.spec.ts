@@ -9,16 +9,15 @@ describe("production build", () => {
       build: { write: false },
     });
     const outputs = Array.isArray(result) ? result : [result];
-    const stylesheet = outputs
+    // Routes are code split, so the build emits several stylesheets. The fonts live in
+    // whichever one carries the @font-face rules.
+    const stylesheets = outputs
       .flatMap((output) => ("output" in output ? output.output : []))
-      .find((item) => item.type === "asset" && item.fileName.endsWith(".css"));
+      .filter((item) => item.type === "asset" && item.fileName.endsWith(".css"))
+      .map((item) => String((item as { source: string | Uint8Array }).source));
 
-    expect(stylesheet).toBeDefined();
-    if (!stylesheet || stylesheet.type !== "asset") {
-      throw new Error("Production build did not emit a stylesheet");
-    }
-    const css = String(stylesheet.source);
-    expect(css).toMatch(/url\(\.\/jetbrains-mono/);
-    expect(css).not.toMatch(/url\(\/assets\/jetbrains-mono/);
+    expect(stylesheets.length).toBeGreaterThan(0);
+    expect(stylesheets.some((css) => /url\(\.\/jetbrains-mono/.test(css))).toBe(true);
+    expect(stylesheets.some((css) => /url\(\/assets\//.test(css))).toBe(false);
   }, 15_000);
 });

@@ -64,6 +64,9 @@ const { component: drawerComponent, properties: drawerProperties, width: drawerW
 
 import { useFuzzySearch } from "@/composable/fuzzySearch";
 
+// Pulls fuse.js (~48 KB) with it, and the palette only renders once the user opens it.
+const FuzzySearchModal = defineAsyncComponent(() => import("@/components/FuzzySearchModal.vue"));
+
 const modal = ref<HTMLDialogElement>();
 const { open, openSearch: showFuzzySearch, closeSearch } = useFuzzySearch();
 const searchParams = new URLSearchParams(window.location.search);
