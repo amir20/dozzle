@@ -106,7 +106,7 @@
     "simple-git-hooks": "^2.14.0",
     "ts-node": "^10.9.2",
     "typescript": "npm:typescript-native-bridge@6.0.3-bridge.15.tsgo.7.0.2",
-    "vitest": "^4.1.11",
+    "vitest": "^5.0.0",
     "vue-component-type-helpers": "3.3.11",
     "vue-tsc": "3.3.11"
   },
