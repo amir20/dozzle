@@ -25,7 +25,7 @@ type SwarmClientManager struct {
 	clients      map[string]container_support.ClientService
 	certs        tls.Certificate
 	mu           sync.RWMutex
-	subscribers  *xsync.Map[context.Context, chan<- container.Host]
+	subscribers  *xsync.Map[*hostSubscriber, struct{}]
 	localClient  container.Client
 	localIPs     []string
 	name         string
@@ -75,7 +75,7 @@ func NewSwarmClientManager(localClient *docker.DockerClient, certs tls.Certifica
 		localClient:  localClient,
 		clients:      clientMap,
 		certs:        certs,
-		subscribers:  xsync.NewMap[context.Context, chan<- container.Host](),
+		subscribers:  xsync.NewMap[*hostSubscriber, struct{}](),
 		localIPs:     localIPs(),
 		name:         serviceName,
 		timeout:      timeout,
@@ -84,12 +84,13 @@ func NewSwarmClientManager(localClient *docker.DockerClient, certs tls.Certifica
 }
 
 func (m *SwarmClientManager) Subscribe(ctx context.Context, channel chan<- container.Host) {
-	m.subscribers.Store(ctx, channel)
+	sub := &hostSubscriber{ctx: ctx, channel: channel}
+	m.subscribers.Store(sub, struct{}{})
 	m.agentManager.Subscribe(ctx, channel)
 
 	go func() {
 		<-ctx.Done()
-		m.subscribers.Delete(ctx)
+		m.subscribers.Delete(sub)
 	}()
 }
 
@@ -162,15 +163,15 @@ func (m *SwarmClientManager) RetryAndList() ([]container_support.ClientService, 
 		m.clients[host.ID] = client
 		log.Info().Stringer("ip", ip).Str("id", host.ID).Str("name", host.Name).Msg("added new swarm agent")
 
-		m.subscribers.Range(func(ctx context.Context, channel chan<- container.Host) bool {
+		m.subscribers.Range(func(sub *hostSubscriber, _ struct{}) bool {
 			host.Available = true
 			host.Type = "swarm"
 
 			// We don't want to block the subscribers in event.go
 			go func() {
 				select {
-				case channel <- host:
-				case <-ctx.Done():
+				case sub.channel <- host:
+				case <-sub.ctx.Done():
 				}
 			}()
 

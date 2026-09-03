@@ -2,6 +2,8 @@ package main
 
 import (
 	"context"
+	"sync"
+	"sync/atomic"
 	"testing"
 	"time"
 
@@ -17,19 +19,33 @@ import (
 type fakeClientService struct {
 	container_support.ClientService
 	host container.Host
+
+	subscribed atomic.Bool // set when SubscribeContainersStarted is called
 }
 
 func (f *fakeClientService) Host(context.Context) (container.Host, error) {
 	return f.host, nil
 }
 
+func (f *fakeClientService) SubscribeContainersStarted(context.Context, chan<- container.Container) {
+	f.subscribed.Store(true)
+}
+
 // fakeClientManager mimics a hub: one local docker daemon plus one
 // --remote-agent endpoint. LocalClientServices filters agents out, exactly as
 // the real managers do by concrete type.
 type fakeClientManager struct {
-	local  container_support.ClientService
-	agent  container_support.ClientService
-	hostCh chan container.Host
+	mu    sync.Mutex
+	local container_support.ClientService
+	agent container_support.ClientService
+}
+
+// addAgent makes an agent reachable, standing in for one that was down at boot
+// and joined later.
+func (m *fakeClientManager) addAgent(s container_support.ClientService) {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+	m.agent = s
 }
 
 func (m *fakeClientManager) Find(id string) (container_support.ClientService, bool) {
@@ -43,6 +59,9 @@ func (m *fakeClientManager) Find(id string) (container_support.ClientService, bo
 
 // all skips a nil agent so a hub can be built with its agent still unreachable.
 func (m *fakeClientManager) all() []container_support.ClientService {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+
 	services := []container_support.ClientService{m.local}
 	if m.agent != nil {
 		services = append(services, m.agent)
@@ -116,7 +135,29 @@ func TestCloudHostService_PicksUpLateJoiningAgents(t *testing.T) {
 	svc := newCloudHostService("server", docker_support.NewMultiHostService(mgr, time.Second))
 	assert.Equal(t, []string{"local-id"}, hostIDs(svc.Hosts()))
 
-	mgr.agent = &fakeClientService{host: container.Host{ID: "agent-id", Name: "home-assistant", Type: "agent"}}
+	mgr.addAgent(&fakeClientService{host: container.Host{ID: "agent-id", Name: "home-assistant", Type: "agent"}})
 
 	assert.ElementsMatch(t, []string{"local-id", "agent-id"}, hostIDs(svc.Hosts()))
+}
+
+// Appearing in Hosts() is not enough — a late agent has to be picked up by the
+// log and stat subscriptions too, or the cloud sees the host and never a line
+// from it. SubscribeAvailableHosts only fires on the unreachable-to-reachable
+// edge, so the re-attach timer is what has to carry this.
+func TestCloudHostService_SubscribesLateJoiningAgents(t *testing.T) {
+	reattachInterval = 10 * time.Millisecond
+	t.Cleanup(func() { reattachInterval = time.Minute })
+
+	local := &fakeClientService{host: container.Host{ID: "local-id", Name: "hub", Type: "local"}}
+	mgr := &fakeClientManager{local: local}
+	svc := newCloudHostService("server", docker_support.NewMultiHostService(mgr, time.Second))
+
+	ctx := t.Context()
+	svc.SubscribeContainersStarted(ctx, make(chan container.Container, 1), func(*container.Container) bool { return true })
+	assert.True(t, local.subscribed.Load())
+
+	agent := &fakeClientService{host: container.Host{ID: "agent-id", Name: "home-assistant", Type: "agent"}}
+	mgr.addAgent(agent)
+
+	assert.Eventually(t, agent.subscribed.Load, time.Second, 5*time.Millisecond)
 }

@@ -369,13 +369,21 @@ func newCloudHostService(mode string, hs web.HostService) cloud.LogStreamHostSer
 	}
 }
 
+// reattachInterval is how often log and stat subscriptions re-scan the fleet.
+// A var, not a const, so tests need not wait a real minute.
+var reattachInterval = time.Minute
+
 func (l *cloudHostService) hostTimeout() (context.Context, context.CancelFunc) {
 	return context.WithTimeout(context.Background(), 5*time.Second)
 }
 
 // hostID caches a service's host ID. A host ID is stable for the lifetime of
-// the client that serves it, so one successful lookup per service is enough;
-// a failed lookup is not cached so a flaky agent can answer next time.
+// the client that serves it, so one lookup per service is enough.
+//
+// An agent answers Host over the wire and can fail transiently, but it returns
+// its last known host alongside the error, and a service only enters the fleet
+// after one successful Host call. So an id is taken whenever there is one,
+// error or not; only a service that has never identified itself yields "".
 func (l *cloudHostService) hostID(s container_support.ClientService) string {
 	l.mu.Lock()
 	id, ok := l.hostIDs[s]
@@ -385,9 +393,9 @@ func (l *cloudHostService) hostID(s container_support.ClientService) string {
 	}
 
 	ctx, cancel := l.hostTimeout()
-	h, err := s.Host(ctx)
+	h, _ := s.Host(ctx)
 	cancel()
-	if err != nil {
+	if h.ID == "" {
 		return ""
 	}
 
@@ -449,20 +457,28 @@ func (l *cloudHostService) FindContainer(host string, id string, labels containe
 
 // watchNewServices calls attach again whenever a host that was unreachable at
 // startup joins, so a late agent gets subscribed without waiting for a restart.
-// attach is only ever called from this one goroutine after the caller's initial
-// synchronous call has returned, so it needs no locking of its own.
+//
+// The ticker is the backstop. SubscribeAvailableHosts only fires on the
+// unreachable-to-reachable edge, so anything attach skipped for another reason
+// — a host whose id could not be resolved at the time — would otherwise stay
+// skipped for the life of the connection. A re-attach that finds nothing new is
+// a map lookup per service, so this is cheap enough to run unconditionally.
+//
+// attach is only ever called from this one goroutine, after the caller's
+// initial synchronous call has returned, so it needs no locking of its own.
 func (l *cloudHostService) watchNewServices(ctx context.Context, attach func()) {
-	if l.hs == nil {
-		return
-	}
 	hosts := make(chan container.Host, 8)
 	l.hs.SubscribeAvailableHosts(ctx, hosts)
+	ticker := time.NewTicker(reattachInterval)
 	go func() {
+		defer ticker.Stop()
 		for {
 			select {
 			case <-ctx.Done():
 				return
 			case <-hosts:
+				attach()
+			case <-ticker.C:
 				attach()
 			}
 		}
@@ -486,7 +502,8 @@ func (l *cloudHostService) SubscribeStats(ctx context.Context, samples chan<- cl
 			hostID := l.hostID(s)
 			if hostID == "" {
 				// Unstamped samples can't be told apart on the cloud side.
-				// Leave the service unsubscribed so the next attach retries it.
+				// Leave the service unsubscribed; watchNewServices re-attaches
+				// on a timer, so this resolves itself once the host answers.
 				continue
 			}
 			subscribed[s] = true
