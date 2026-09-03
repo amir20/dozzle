@@ -384,6 +384,11 @@ func (l *cloudHostService) hostTimeout() (context.Context, context.CancelFunc) {
 // its last known host alongside the error, and a service only enters the fleet
 // after one successful Host call. So an id is taken whenever there is one,
 // error or not; only a service that has never identified itself yields "".
+//
+// The lock is dropped across the lookup on purpose. Two callers racing a cold
+// cache both dial and both store, which costs one redundant call and writes the
+// same id twice; holding the lock instead would serialise every caller behind a
+// network round trip, including callers asking about other hosts.
 func (l *cloudHostService) hostID(s container_support.ClientService) string {
 	l.mu.Lock()
 	id, ok := l.hostIDs[s]
