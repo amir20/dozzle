@@ -148,7 +148,7 @@ func main() {
 		instanceID = h.ID
 	}
 
-	cloudHostService := newLocalCloudHostService(hostService)
+	cloudHostService := newCloudHostService(args.Mode, hostService)
 
 	cloudClient := cloud.NewClient(apiKeyFunc, instanceID, args.Version(), cloud.ToolDeps{
 		EnableActions:       args.EnableActions,
@@ -322,50 +322,86 @@ func createServer(args cli.Args, hostService web.HostService, cloudHooks web.Clo
 	return web.CreateServer(hostService, assets, config)
 }
 
-// localCloudHostService scopes the cloud client to local docker only;
-// otherwise every connection re-reports its peers, multiplying hosts
-// by connection count on the cloud side.
-type localCloudHostService struct {
-	services    []container_support.ClientService
-	hostIDByIdx []string // parallel to services, populated lazily
-	hostIDOnce  sync.Once
+// cloudHostService is the view of the fleet the cloud client is given.
+//
+// In swarm mode every replica discovers every peer, so a replica reporting the
+// whole fleet would multiply hosts — and duplicate log and stat ingestion — by
+// replica count on the cloud side. There the view is scoped to this process's
+// own docker daemon.
+//
+// Everywhere else there is exactly one Dozzle holding the fleet: --remote-host
+// and --remote-agent endpoints are configured on it and on nothing else, so
+// scoping them away simply hid them from the cloud. --remote-host survived only
+// because it happens to be a *DockerClientService; agents did not appear at all.
+//
+// services is a func, not a slice, because an agent that is unreachable at boot
+// joins later. Reading it per call means such an agent shows up as soon as it
+// connects rather than at the next restart. Its retry argument asks for
+// unreachable agents to be re-dialed, which costs a connection attempt each —
+// only the periodic fan-out calls pay it.
+type cloudHostService struct {
+	services func(retry bool) []container_support.ClientService
+	// hs is the underlying host service, used only to learn when a previously
+	// unreachable host becomes available so log and stat subscriptions can be
+	// extended to it.
+	hs web.HostService
+
+	mu      sync.Mutex
+	hostIDs map[container_support.ClientService]string
 }
 
-func newLocalCloudHostService(hs web.HostService) cloud.LogStreamHostService {
-	services := hs.LocalClientServices()
-	if len(services) == 0 {
-		// k8s has no docker LocalClientServices but its HostService already
+func newCloudHostService(mode string, hs web.HostService) cloud.LogStreamHostService {
+	services := func(bool) []container_support.ClientService { return hs.LocalClientServices() }
+	if mode != "swarm" {
+		if mhs, ok := hs.(*docker_support.MultiHostService); ok {
+			services = mhs.ClientServices
+		}
+	}
+	if len(services(false)) == 0 {
+		// k8s has no docker client services but its HostService already
 		// exposes only what this process can see, so use it directly.
 		return hs
 	}
-	return &localCloudHostService{services: services}
+	return &cloudHostService{
+		services: services,
+		hs:       hs,
+		hostIDs:  make(map[container_support.ClientService]string),
+	}
 }
 
-func (l *localCloudHostService) localHostTimeout() (context.Context, context.CancelFunc) {
+func (l *cloudHostService) hostTimeout() (context.Context, context.CancelFunc) {
 	return context.WithTimeout(context.Background(), 5*time.Second)
 }
 
-// resolveHostIDs caches each service's host ID once. Local docker host IDs
-// are stable for the process lifetime, so a one-time lookup is enough.
-func (l *localCloudHostService) resolveHostIDs() []string {
-	l.hostIDOnce.Do(func() {
-		l.hostIDByIdx = make([]string, len(l.services))
-		for i, s := range l.services {
-			ctx, cancel := l.localHostTimeout()
-			h, err := s.Host(ctx)
-			cancel()
-			if err == nil {
-				l.hostIDByIdx[i] = h.ID
-			}
-		}
-	})
-	return l.hostIDByIdx
+// hostID caches a service's host ID. A host ID is stable for the lifetime of
+// the client that serves it, so one successful lookup per service is enough;
+// a failed lookup is not cached so a flaky agent can answer next time.
+func (l *cloudHostService) hostID(s container_support.ClientService) string {
+	l.mu.Lock()
+	id, ok := l.hostIDs[s]
+	l.mu.Unlock()
+	if ok {
+		return id
+	}
+
+	ctx, cancel := l.hostTimeout()
+	h, err := s.Host(ctx)
+	cancel()
+	if err != nil {
+		return ""
+	}
+
+	l.mu.Lock()
+	l.hostIDs[s] = h.ID
+	l.mu.Unlock()
+	return h.ID
 }
 
-func (l *localCloudHostService) Hosts() []container.Host {
-	hosts := make([]container.Host, 0, len(l.services))
-	for _, s := range l.services {
-		ctx, cancel := l.localHostTimeout()
+func (l *cloudHostService) Hosts() []container.Host {
+	services := l.services(true)
+	hosts := make([]container.Host, 0, len(services))
+	for _, s := range services {
+		ctx, cancel := l.hostTimeout()
 		h, err := s.Host(ctx)
 		cancel()
 		if err != nil {
@@ -377,11 +413,11 @@ func (l *localCloudHostService) Hosts() []container.Host {
 	return hosts
 }
 
-func (l *localCloudHostService) ListAllContainers(labels container.ContainerLabels) ([]container.Container, []error) {
+func (l *cloudHostService) ListAllContainers(labels container.ContainerLabels) ([]container.Container, []error) {
 	var all []container.Container
 	var errs []error
-	for _, s := range l.services {
-		ctx, cancel := l.localHostTimeout()
+	for _, s := range l.services(true) {
+		ctx, cancel := l.hostTimeout()
 		list, err := s.ListContainers(ctx, labels)
 		cancel()
 		if err != nil {
@@ -393,13 +429,14 @@ func (l *localCloudHostService) ListAllContainers(labels container.ContainerLabe
 	return all, errs
 }
 
-func (l *localCloudHostService) FindContainer(host string, id string, labels container.ContainerLabels) (*container_support.ContainerService, error) {
-	hostIDs := l.resolveHostIDs()
-	for i, s := range l.services {
-		if hostIDs[i] != host {
+func (l *cloudHostService) FindContainer(host string, id string, labels container.ContainerLabels) (*container_support.ContainerService, error) {
+	// No retry: this runs once per log reader, and a run of them against an
+	// unreachable agent would each wait out the dial timeout.
+	for _, s := range l.services(false) {
+		if l.hostID(s) != host {
 			continue
 		}
-		ctx, cancel := l.localHostTimeout()
+		ctx, cancel := l.hostTimeout()
 		cont, err := s.FindContainer(ctx, id, labels)
 		cancel()
 		if err != nil {
@@ -407,68 +444,114 @@ func (l *localCloudHostService) FindContainer(host string, id string, labels con
 		}
 		return container_support.NewContainerService(s, cont), nil
 	}
-	return nil, fmt.Errorf("host %s not local to this process", host)
+	return nil, fmt.Errorf("host %s is not served by this Dozzle instance", host)
 }
 
-// SubscribeStats fans stats in from every local client service, stamping the
+// watchNewServices calls attach again whenever a host that was unreachable at
+// startup joins, so a late agent gets subscribed without waiting for a restart.
+// attach is only ever called from this one goroutine after the caller's initial
+// synchronous call has returned, so it needs no locking of its own.
+func (l *cloudHostService) watchNewServices(ctx context.Context, attach func()) {
+	if l.hs == nil {
+		return
+	}
+	hosts := make(chan container.Host, 8)
+	l.hs.SubscribeAvailableHosts(ctx, hosts)
+	go func() {
+		for {
+			select {
+			case <-ctx.Done():
+				return
+			case <-hosts:
+				attach()
+			}
+		}
+	}()
+}
+
+// SubscribeStats fans stats in from every client service, stamping the
 // originating host on each sample. container.ContainerStat has no host field,
 // so without this the cloud side could not tell two same-named containers on
 // different hosts apart.
-func (l *localCloudHostService) SubscribeStats(ctx context.Context, samples chan<- cloud.StatSample) {
-	hostIDs := l.resolveHostIDs()
+func (l *cloudHostService) SubscribeStats(ctx context.Context, samples chan<- cloud.StatSample) {
 	// One inbound channel + forwarder goroutine per service, matching
 	// SubscribeContainersStarted: a burst on one service must not stall the others.
 	var dropWarn sync.Once
-	for i, s := range l.services {
-		hostID := hostIDs[i]
-		ch := make(chan container.ContainerStat, 64)
-		s.SubscribeStats(ctx, ch)
-		go func() {
-			for {
-				select {
-				case <-ctx.Done():
-					return
-				case stat := <-ch:
-					// Non-blocking on purpose. The stats collector dispatches to
-					// each subscriber with a blocking send, so if cloud ingest
-					// ever wedged, backpressure would travel all the way up and
-					// starve the live UI's stats subscriber on this host. Losing
-					// a sample only nudges a 30s average; stalling the UI is not
-					// an acceptable trade for that.
-					select {
-					case samples <- cloud.StatSample{Stat: stat, HostID: hostID}:
-					default:
-						dropWarn.Do(func() {
-							log.Warn().Msg("cloud stats: consumer is not keeping up, dropping samples (further drops are silent)")
-						})
-					}
-				}
+	subscribed := make(map[container_support.ClientService]bool)
+	attach := func() {
+		for _, s := range l.services(false) {
+			if subscribed[s] {
+				continue
 			}
-		}()
-	}
-}
-
-func (l *localCloudHostService) SubscribeContainersStarted(ctx context.Context, containers chan<- container.Container, filter container_support.ContainerFilter) {
-	// One inbound channel + forwarder goroutine per service so a slow consumer
-	// or a burst on one service can't cause the others to drop events.
-	for _, s := range l.services {
-		ch := make(chan container.Container, 64)
-		s.SubscribeContainersStarted(ctx, ch)
-		go func() {
-			for {
-				select {
-				case <-ctx.Done():
-					return
-				case c := <-ch:
-					if filter(&c) {
+			hostID := l.hostID(s)
+			if hostID == "" {
+				// Unstamped samples can't be told apart on the cloud side.
+				// Leave the service unsubscribed so the next attach retries it.
+				continue
+			}
+			subscribed[s] = true
+			ch := make(chan container.ContainerStat, 64)
+			s.SubscribeStats(ctx, ch)
+			go func() {
+				for {
+					select {
+					case <-ctx.Done():
+						return
+					case stat := <-ch:
+						// Non-blocking on purpose. The stats collector dispatches to
+						// each subscriber with a blocking send, so if cloud ingest
+						// ever wedged, backpressure would travel all the way up and
+						// starve the live UI's stats subscriber on this host. Losing
+						// a sample only nudges a 30s average; stalling the UI is not
+						// an acceptable trade for that.
 						select {
-						case containers <- c:
-						case <-ctx.Done():
-							return
+						case samples <- cloud.StatSample{Stat: stat, HostID: hostID}:
+						default:
+							dropWarn.Do(func() {
+								log.Warn().Msg("cloud stats: consumer is not keeping up, dropping samples (further drops are silent)")
+							})
 						}
 					}
 				}
-			}
-		}()
+			}()
+		}
 	}
+
+	attach()
+	l.watchNewServices(ctx, attach)
+}
+
+func (l *cloudHostService) SubscribeContainersStarted(ctx context.Context, containers chan<- container.Container, filter container_support.ContainerFilter) {
+	// One inbound channel + forwarder goroutine per service so a slow consumer
+	// or a burst on one service can't cause the others to drop events.
+	subscribed := make(map[container_support.ClientService]bool)
+	attach := func() {
+		for _, s := range l.services(false) {
+			if subscribed[s] {
+				continue
+			}
+			subscribed[s] = true
+			ch := make(chan container.Container, 64)
+			s.SubscribeContainersStarted(ctx, ch)
+			go func() {
+				for {
+					select {
+					case <-ctx.Done():
+						return
+					case c := <-ch:
+						if filter(&c) {
+							select {
+							case containers <- c:
+							case <-ctx.Done():
+								return
+							}
+						}
+					}
+				}
+			}()
+		}
+	}
+
+	attach()
+	l.watchNewServices(ctx, attach)
 }
