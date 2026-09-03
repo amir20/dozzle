@@ -188,6 +188,23 @@ func (m *MultiHostService) LocalClientServices() []container_support.ClientServi
 	return m.manager.LocalClientServices()
 }
 
+// ClientServices returns every client this Dozzle serves — the local docker
+// daemon, --remote-host daemons and --remote-agent agents alike. Unlike
+// LocalClientServices it does not filter by client type, so a caller that needs
+// the whole fleet (the cloud client) sees agents too.
+//
+// retry re-dials agents that were unreachable the last time they were tried, so
+// one that came up since joins the returned set. It costs a connection attempt
+// per still-unreachable agent, up to the configured timeout each — pass it on
+// the periodic fan-out calls, not on per-container lookups.
+func (m *MultiHostService) ClientServices(retry bool) []container_support.ClientService {
+	if !retry {
+		return m.manager.List()
+	}
+	services, _ := m.manager.RetryAndList()
+	return services
+}
+
 func (m *MultiHostService) TotalClients() int {
 	return len(m.manager.List())
 }

@@ -18,12 +18,23 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
+// hostSubscriber is one registered listener for "a host became available".
+//
+// Subscriptions are keyed by this pointer rather than by their context: one
+// caller may open several subscriptions under a single context (the cloud
+// client's log and stat streamers share one stream lifetime), and keying by
+// context would let the second registration silently evict the first.
+type hostSubscriber struct {
+	ctx     context.Context
+	channel chan<- container.Host
+}
+
 type RetriableClientManager struct {
 	clients      map[string]container_support.ClientService
 	failedAgents []string
 	certs        tls.Certificate
 	mu           sync.RWMutex
-	subscribers  *xsync.Map[context.Context, chan<- container.Host]
+	subscribers  *xsync.Map[*hostSubscriber, struct{}]
 	timeout      time.Duration
 }
 
@@ -95,17 +106,18 @@ func NewRetriableClientManager(agents []string, timeout time.Duration, certs tls
 		clients:      clientMap,
 		failedAgents: failedList,
 		certs:        certs,
-		subscribers:  xsync.NewMap[context.Context, chan<- container.Host](),
+		subscribers:  xsync.NewMap[*hostSubscriber, struct{}](),
 		timeout:      timeout,
 	}
 }
 
 func (m *RetriableClientManager) Subscribe(ctx context.Context, channel chan<- container.Host) {
-	m.subscribers.Store(ctx, channel)
+	sub := &hostSubscriber{ctx: ctx, channel: channel}
+	m.subscribers.Store(sub, struct{}{})
 
 	go func() {
 		<-ctx.Done()
-		m.subscribers.Delete(ctx)
+		m.subscribers.Delete(sub)
 	}()
 }
 
@@ -166,12 +178,12 @@ func (m *RetriableClientManager) RetryAndList() ([]container_support.ClientServi
 		m.clients[r.host.ID] = r.service
 		host := r.host
 		host.Available = true
-		m.subscribers.Range(func(ctx context.Context, channel chan<- container.Host) bool {
+		m.subscribers.Range(func(sub *hostSubscriber, _ struct{}) bool {
 			// We don't want to block the subscribers in event.go
 			go func() {
 				select {
-				case channel <- host:
-				case <-ctx.Done():
+				case sub.channel <- host:
+				case <-sub.ctx.Done():
 				}
 			}()
 			return true
