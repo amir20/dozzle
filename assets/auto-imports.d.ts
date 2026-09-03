@@ -157,6 +157,7 @@ declare global {
   const refManualReset: typeof import('@vueuse/core').refManualReset
   const refThrottled: typeof import('@vueuse/core').refThrottled
   const refWithControl: typeof import('@vueuse/core').refWithControl
+  const relativeTimeTick: typeof import('./composable/timeTicker').relativeTimeTick
   const resolveComponent: typeof import('vue').resolveComponent
   const resolveRef: typeof import('@vueuse/core').resolveRef
   const scrollContextKey: typeof import('./composable/scrollContext').scrollContextKey
@@ -628,6 +629,7 @@ declare module 'vue' {
     readonly refManualReset: UnwrapRef<typeof import('@vueuse/core')['refManualReset']>
     readonly refThrottled: UnwrapRef<typeof import('@vueuse/core')['refThrottled']>
     readonly refWithControl: UnwrapRef<typeof import('@vueuse/core')['refWithControl']>
+    readonly relativeTimeTick: UnwrapRef<typeof import('./composable/timeTicker')['relativeTimeTick']>
     readonly resolveComponent: UnwrapRef<typeof import('vue')['resolveComponent']>
     readonly scrollContextKey: UnwrapRef<typeof import('./composable/scrollContext')['scrollContextKey']>
     readonly search: UnwrapRef<typeof import('./stores/settings')['search']>

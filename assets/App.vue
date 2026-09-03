@@ -3,7 +3,7 @@
 </template>
 
 <script lang="ts" setup>
-const mode = useColorMode();
+const { theme } = useResolvedTheme();
 watchEffect(() => {
   if (smallerScrollbars.value) {
     document.documentElement.classList.add("has-custom-scrollbars");
@@ -11,12 +11,10 @@ watchEffect(() => {
     document.documentElement.classList.remove("has-custom-scrollbars");
   }
 
-  let theme = lightTheme.value;
-  if (theme === "auto") {
-    theme = mode.value;
-  }
-  document.querySelector('meta[name="theme-color"]')?.setAttribute("content", theme == "dark" ? "#121212" : "#F5F5F5");
-  document.documentElement.setAttribute("data-theme", theme);
+  document
+    .querySelector('meta[name="theme-color"]')
+    ?.setAttribute("content", theme.value == "dark" ? "#121212" : "#F5F5F5");
+  document.documentElement.setAttribute("data-theme", theme.value);
 });
 </script>
 <style>
