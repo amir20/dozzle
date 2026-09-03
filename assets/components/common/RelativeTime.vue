@@ -7,11 +7,10 @@ const { date } = defineProps<{
   date: Date;
 }>();
 
-const text = ref<string>();
-
-const updateFromNow = () => {
-  text.value = toRelativeTime(date, locale.value === "" ? undefined : locale.value);
-};
-watch(() => date, updateFromNow, { immediate: true });
-useIntervalFn(updateFromNow, 30_000);
+// Reading the shared tick is what re-evaluates this on the half minute. A timer per
+// component put one setInterval behind every row of the container table.
+const text = computed(() => {
+  relativeTimeTick.value;
+  return toRelativeTime(date, locale.value === "" ? undefined : locale.value);
+});
 </script>
