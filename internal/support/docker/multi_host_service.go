@@ -274,10 +274,14 @@ func (m *MultiHostService) SetCloudConfig(cc *notification.CloudConfig) {
 }
 
 // SetCloudStreamLogs updates the bulk-log-streaming privacy flag on the cloud
-// config and persists it. Only affects the local cloud client; agents never
-// stream logs directly to cloud.
+// config, persists it, and broadcasts it.
+//
+// Agents connect to cloud themselves and stream their own logs, so the setting
+// has to reach them: without the broadcast a user who turned streaming off saw
+// it stop on the hub while every agent kept sending.
 func (m *MultiHostService) SetCloudStreamLogs(enabled bool) {
 	m.persister.SetCloudStreamLogs(enabled)
+	m.broadcastCloudConfig()
 }
 
 // ResetCloudDispatcherBreaker clears the cloud dispatcher's auth circuit breaker
@@ -358,9 +362,10 @@ func (m *MultiHostService) broadcastCloudConfig() {
 	var cc *types.CloudConfig
 	if ncc != nil {
 		cc = &types.CloudConfig{
-			APIKey:    ncc.APIKey,
-			Prefix:    ncc.Prefix,
-			ExpiresAt: ncc.ExpiresAt,
+			APIKey:     ncc.APIKey,
+			Prefix:     ncc.Prefix,
+			ExpiresAt:  ncc.ExpiresAt,
+			StreamLogs: ncc.StreamLogs,
 		}
 	}
 
@@ -440,6 +445,17 @@ func (h *swarmNotificationHandler) SetCloudDispatcher(d dispatcher.Dispatcher) {
 		ExpiresAt: cd.ExpiresAt,
 	}
 	h.persister.SetCloudConfig(cc)
+	h.notify()
+}
+
+// SetCloudStreamLogs applies a peer replica's log-streaming choice. Routed
+// through the persister like everything else here so disk and manager stay in
+// lockstep across replicas.
+func (h *swarmNotificationHandler) SetCloudStreamLogs(enabled *bool) {
+	if enabled == nil {
+		return
+	}
+	h.persister.SetCloudStreamLogs(*enabled)
 	h.notify()
 }
 

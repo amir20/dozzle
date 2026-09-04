@@ -70,6 +70,9 @@ func NewClient(cli DockerCLI, host container.Host) *DockerClient {
 	host.DockerVersion = info.ServerVersion
 	host.Runtime = detectRuntime(cli, info)
 	host.Swarm = info.Swarm.NodeID != ""
+	if info.Swarm.Cluster != nil {
+		host.SwarmClusterID = info.Swarm.Cluster.ID
+	}
 
 	return &DockerClient{
 		cli:  cli,
