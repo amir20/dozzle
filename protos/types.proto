@@ -153,6 +153,11 @@ message NotificationCloudConfig {
   string apiKey = 1;
   string prefix = 2;
   google.protobuf.Timestamp expiresAt = 3;
+  // Whether the fleet streams container logs to Dozzle Cloud. Optional so an
+  // agent can tell "the hub did not say" (an older hub — keep the historical
+  // default of enabled) from "the hub said no". Without this an agent never
+  // learned the setting at all and streamed regardless of what the user chose.
+  optional bool streamLogs = 4;
 }
 
 message NotificationSubscriptionStats {

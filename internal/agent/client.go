@@ -650,8 +650,9 @@ func (c *Client) UpdateCloudConfig(ctx context.Context, cloudConfig *types.Cloud
 	req := &pb.UpdateCloudConfigRequest{}
 	if cloudConfig != nil {
 		req.CloudConfig = &pb.NotificationCloudConfig{
-			ApiKey: cloudConfig.APIKey,
-			Prefix: cloudConfig.Prefix,
+			ApiKey:     cloudConfig.APIKey,
+			Prefix:     cloudConfig.Prefix,
+			StreamLogs: cloudConfig.StreamLogs,
 		}
 		if cloudConfig.ExpiresAt != nil {
 			req.CloudConfig.ExpiresAt = timestamppb.New(*cloudConfig.ExpiresAt)

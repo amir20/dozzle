@@ -143,9 +143,10 @@ func main() {
 		return ""
 	}
 
-	var instanceID string
+	var instanceID, swarmClusterID string
 	if h, err := hostService.LocalHost(); err == nil {
 		instanceID = h.ID
+		swarmClusterID = h.SwarmClusterID
 	}
 
 	cloudHostService := newCloudHostService(args.Mode, hostService)
@@ -156,6 +157,7 @@ func main() {
 		Labels:              args.Filter,
 		NotificationService: notificationService,
 	})
+	cloudClient.SetDeployment(args.Mode, swarmClusterID)
 	cloudClient.SetStreamLogsFunc(func() bool {
 		return hostService.CloudConfig().StreamLogsEnabled()
 	})

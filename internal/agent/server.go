@@ -33,6 +33,9 @@ import (
 type NotificationConfigHandler interface {
 	HandleNotificationConfig(subscriptions []types.SubscriptionConfig, dispatchers []types.DispatcherConfig) error
 	SetCloudDispatcher(d dispatcher.Dispatcher)
+	// SetCloudStreamLogs applies the hub's log-streaming choice. nil means the
+	// hub did not say (an older build), which keeps the historical default.
+	SetCloudStreamLogs(enabled *bool)
 	ClearCloudDispatcher()
 	GetNotificationStats() []types.SubscriptionStats
 }
@@ -523,6 +526,9 @@ func (s *server) UpdateCloudConfig(ctx context.Context, req *pb.UpdateCloudConfi
 			return nil, status.Error(codes.Internal, err.Error())
 		}
 		s.notificationConfigHandler.SetCloudDispatcher(d)
+		// After SetCloudDispatcher, which rebuilds the stored config from the
+		// dispatcher and so cannot carry this itself.
+		s.notificationConfigHandler.SetCloudStreamLogs(cc.StreamLogs)
 		log.Info().Msg("Updated cloud config from main server")
 	} else {
 		s.notificationConfigHandler.ClearCloudDispatcher()
