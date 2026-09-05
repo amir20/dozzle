@@ -125,7 +125,15 @@
             v-else
             v-for="container in paginated"
             :key="container.id"
-            v-memo="[container.id, container.state, container.health, statMode, isMobile, showAppIcons]"
+            v-memo="[
+              container.id,
+              container.state,
+              container.health,
+              statMode,
+              isMobile,
+              showAppIcons,
+              dismissedLinkHint,
+            ]"
             class="hover:bg-base-100/80!"
           >
             <td v-if="isVisible('name')" class="max-w-80 max-md:max-w-none">
@@ -146,6 +154,7 @@
                       {{ container.name }}
                     </router-link>
                     <ContainerLink :container="container" />
+                    <ContainerLinkHint :container="container" />
                     <RelativeTime
                       v-if="isMobile"
                       :date="container.created"

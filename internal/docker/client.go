@@ -617,6 +617,21 @@ func newContainer(c docker.Summary, host string) container.Container {
 	} else if c.Labels["coolify.projectName"] != "" {
 		group = c.Labels["coolify.projectName"]
 	}
+
+	// Same `ip:host->container/proto` shape newContainerFromJSON produces, so the UI has one
+	// format to parse. Only published bindings have a host side; exposed-only ports are dropped.
+	var ports []string
+	for _, p := range c.Ports {
+		if p.PublicPort == 0 {
+			continue
+		}
+		ip := ""
+		if p.IP.IsValid() {
+			ip = p.IP.String()
+		}
+		ports = append(ports, fmt.Sprintf("%s:%d->%d/%s", ip, p.PublicPort, p.PrivatePort, p.Type))
+	}
+
 	return container.Container{
 		ID:      c.ID[:12],
 		Name:    name,
@@ -628,6 +643,7 @@ func newContainer(c docker.Summary, host string) container.Container {
 		Labels:  c.Labels,
 		Stats:   utils.NewRingBuffer[container.ContainerStat](300), // 300 seconds of stats
 		Group:   group,
+		Ports:   ports,
 	}
 }
 

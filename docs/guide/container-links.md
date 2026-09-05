@@ -34,7 +34,7 @@ Dozzle does not check that the URL resolves, and it does not rewrite it per host
 
 Dozzle knows which ports a container publishes, but a published port is not the same as a reachable URL. Reverse proxies, custom paths, TLS, and split networks all make the guess wrong often enough to be annoying. The label keeps it explicit: Dozzle only shows the link you wrote down.
 
-For containers with no label yet, Dozzle shows a faint link icon next to the name on the container page. It opens a snippet you can copy into your compose file, prefilled with a guess. Dismissing it hides the hint everywhere.
+For containers with no label yet, Dozzle shows a faint link icon next to the name, both on the dashboard and on the container page. It opens a snippet you can copy into your compose file, prefilled with a guess. Dismissing it hides the hint everywhere.
 
 The guess comes from two places. Traefik router labels are read first, because a router rule names an address that really does reach the container from a browser:
 

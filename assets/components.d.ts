@@ -49,7 +49,7 @@ declare module 'vue' {
     ContainerHealth: typeof import('./components/ContainerViewer/ContainerHealth.vue')['default']
     ContainerIcon: typeof import('./components/ContainerViewer/ContainerIcon.vue')['default']
     ContainerLink: typeof import('./components/common/ContainerLink.vue')['default']
-    ContainerLinkHint: typeof import('./components/ContainerViewer/ContainerLinkHint.vue')['default']
+    ContainerLinkHint: typeof import('./components/common/ContainerLinkHint.vue')['default']
     ContainerLog: typeof import('./components/ContainerViewer/ContainerLog.vue')['default']
     ContainerPopup: typeof import('./components/ContainerPopup.vue')['default']
     ContainerStatCell: typeof import('./components/ContainerStatCell.vue')['default']
