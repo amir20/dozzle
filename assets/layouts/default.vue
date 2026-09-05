@@ -121,41 +121,14 @@ function onResized({ panes, event, index }: { panes: { size: number }[]; event?:
   @apply absolute inset-y-0 -right-1 -left-1 z-20;
 }
 
-/* Handle that springs out of the divider on hover. A dark capsule of dots,
- * because a light sliver is invisible against the divider's own hover color. It
- * is wider than the 5px divider on purpose so it reads as a grabbable object
- * rather than a highlight. */
-:deep(.splitpanes--vertical > .splitpanes__splitter)::after {
-  content: "";
-  @apply border-base-content/15 pointer-events-none absolute top-1/2 left-1/2 h-9 w-[11px] -translate-x-1/2 -translate-y-1/2 scale-50 rounded-full border opacity-0;
-  background-color: var(--color-base-300);
-  background-image: radial-gradient(circle at center, var(--color-secondary) 1.1px, transparent 1.5px);
-  background-size: 11px 7px;
-  transition:
-    opacity 150ms ease-out,
-    scale 220ms cubic-bezier(0.34, 1.56, 0.64, 1);
-}
-
 :deep(.splitpanes--vertical > .splitpanes__splitter):hover,
 :deep(.splitpanes--dragging.splitpanes--vertical > .splitpanes__splitter) {
   @apply bg-secondary;
 }
 
-:deep(.splitpanes--vertical > .splitpanes__splitter):hover::after,
-:deep(.splitpanes--dragging.splitpanes--vertical > .splitpanes__splitter)::after {
-  @apply scale-100 opacity-100;
-}
-
-/* Stretches while dragging so the handle tracks the cursor as the active thing. */
-:deep(.splitpanes--dragging.splitpanes--vertical > .splitpanes__splitter)::after {
-  @apply h-14;
-}
-
 @media (prefers-reduced-motion: reduce) {
-  :deep(.splitpanes--vertical > .splitpanes__splitter),
-  :deep(.splitpanes--vertical > .splitpanes__splitter)::after {
+  :deep(.splitpanes--vertical > .splitpanes__splitter) {
     transition: none;
-    scale: 1;
   }
 }
 
