@@ -11,6 +11,8 @@ import (
 	"testing"
 
 	"github.com/amir20/dozzle/internal/container"
+	"net/netip"
+
 	docker "github.com/moby/moby/api/types/container"
 	"github.com/moby/moby/api/types/system"
 	"github.com/moby/moby/client"
@@ -313,6 +315,21 @@ func Test_newContainer_labelPriority(t *testing.T) {
 			assert.Equal(t, tt.expectedGroup, c.Group)
 		})
 	}
+}
+
+func Test_newContainer_ports(t *testing.T) {
+	summary := docker.Summary{
+		ID:    "abcdefghijklmnopqrst",
+		Names: []string{"/app"},
+		Ports: []docker.PortSummary{
+			{IP: netip.MustParseAddr("0.0.0.0"), PublicPort: 8080, PrivatePort: 80, Type: "tcp"},
+			{IP: netip.MustParseAddr("::"), PublicPort: 8080, PrivatePort: 80, Type: "tcp"},
+			{PrivatePort: 9000, Type: "tcp"},
+		},
+	}
+
+	c := newContainer(summary, "localhost")
+	assert.Equal(t, []string{"0.0.0.0:8080->80/tcp", ":::8080->80/tcp"}, c.Ports)
 }
 
 func Test_newContainerFromJSON_labelPriority(t *testing.T) {
