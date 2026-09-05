@@ -99,6 +99,19 @@ tooltip:
   volumes: 卷
   volume-unreachable: 無法從此主機存取
   volume-full: "{destination} 已使用 {pct}"
+  open-container-url: "開啟 {url}"
+popup:
+  started: 啟動
+  finished: 停止
+  group: 群組
+  ports: 連接埠
+hint:
+  learn-more: 瞭解更多
+  dismiss: 不再顯示
+link-hint:
+  title: 連結此容器
+  description: 加入 dev.dozzle.url 標籤後，Dozzle 會顯示指向容器自身 Web 介面的連結。將以下內容加入 compose 檔案並重新啟動容器。
+  copy: 複製
 error:
   page-not-found: 此頁面不存在
   host-group-not-found: "在群組「{name}」中找不到主機"

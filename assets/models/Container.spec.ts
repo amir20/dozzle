@@ -8,7 +8,13 @@ vi.mock("@/stores/config", () => ({
 }));
 
 function makeContainer(
-  overrides: { labels?: Record<string, string>; image?: string; command?: string; stats?: Stat[] } = {},
+  overrides: {
+    labels?: Record<string, string>;
+    image?: string;
+    command?: string;
+    stats?: Stat[];
+    ports?: string[];
+  } = {},
 ) {
   return new Container(
     "id-1",
@@ -24,6 +30,12 @@ function makeContainer(
     0,
     0,
     overrides.stats ?? [],
+    undefined,
+    undefined,
+    false,
+    [],
+    {},
+    overrides.ports ?? [],
   );
 }
 
@@ -168,5 +180,74 @@ describe("Container.icon", () => {
 
   test("ignores a blank override", () => {
     expect(makeContainer({ image: "sonarr", labels: { "dev.dozzle.icon": "  " } }).icon).toBe("sonarr");
+  });
+});
+
+describe("Container.url", () => {
+  test("undefined without the label", () => {
+    expect(makeContainer().url).toBeUndefined();
+  });
+
+  test("returns http and https urls as written", () => {
+    expect(makeContainer({ labels: { "dev.dozzle.url": "https://grafana.example.com" } }).url).toBe(
+      "https://grafana.example.com",
+    );
+    expect(makeContainer({ labels: { "dev.dozzle.url": "http://localhost:3000/d/home" } }).url).toBe(
+      "http://localhost:3000/d/home",
+    );
+  });
+
+  test("trims surrounding whitespace", () => {
+    expect(makeContainer({ labels: { "dev.dozzle.url": "  https://example.com  " } }).url).toBe("https://example.com");
+  });
+
+  test("rejects other schemes", () => {
+    expect(makeContainer({ labels: { "dev.dozzle.url": "javascript:alert(1)" } }).url).toBeUndefined();
+    expect(makeContainer({ labels: { "dev.dozzle.url": "data:text/html,<script>" } }).url).toBeUndefined();
+    expect(makeContainer({ labels: { "dev.dozzle.url": "ftp://example.com" } }).url).toBeUndefined();
+  });
+
+  test("rejects a relative or malformed value", () => {
+    expect(makeContainer({ labels: { "dev.dozzle.url": "/grafana" } }).url).toBeUndefined();
+    expect(makeContainer({ labels: { "dev.dozzle.url": "example.com" } }).url).toBeUndefined();
+    expect(makeContainer({ labels: { "dev.dozzle.url": "   " } }).url).toBeUndefined();
+  });
+});
+
+describe("Container.publishedPorts", () => {
+  test("empty without ports", () => {
+    expect(makeContainer().publishedPorts).toEqual([]);
+  });
+
+  test("picks the host port out of a binding", () => {
+    expect(makeContainer({ ports: ["0.0.0.0:8080->80/tcp"] }).publishedPorts).toEqual([8080]);
+  });
+
+  test("handles an empty host ip and ipv6 bindings", () => {
+    expect(makeContainer({ ports: [":3000->3000/tcp"] }).publishedPorts).toEqual([3000]);
+    expect(makeContainer({ ports: ["::: 0"] }).publishedPorts).toEqual([]);
+    expect(makeContainer({ ports: [":::9000->9000/tcp"] }).publishedPorts).toEqual([9000]);
+  });
+
+  test("skips unpublished ports and udp", () => {
+    expect(makeContainer({ ports: ["80/tcp", "0.0.0.0:53->53/udp"] }).publishedPorts).toEqual([]);
+  });
+
+  test("dedupes and sorts numerically", () => {
+    expect(
+      makeContainer({ ports: ["0.0.0.0:9000->9000/tcp", ":::9000->9000/tcp", "0.0.0.0:81->81/tcp"] }).publishedPorts,
+    ).toEqual([81, 9000]);
+  });
+});
+
+describe("Container.portMappings", () => {
+  test("pairs the host port with the container port", () => {
+    expect(makeContainer({ ports: ["0.0.0.0:8080->80/tcp"] }).portMappings).toEqual([{ host: 8080, container: 80 }]);
+  });
+
+  test("dedupes ipv4 and ipv6 bindings of the same host port", () => {
+    expect(makeContainer({ ports: ["0.0.0.0:9000->9000/tcp", ":::9000->9000/tcp"] }).portMappings).toEqual([
+      { host: 9000, container: 9000 },
+    ]);
   });
 });

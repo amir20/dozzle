@@ -99,6 +99,19 @@ tooltip:
   volumes: Volumes
   volume-unreachable: von diesem Host nicht erreichbar
   volume-full: "{destination} ist zu {pct} voll"
+  open-container-url: "{url} öffnen"
+popup:
+  started: Gestartet
+  finished: Beendet
+  group: Gruppe
+  ports: Ports
+hint:
+  learn-more: Mehr erfahren
+  dismiss: Nicht mehr anzeigen
+link-hint:
+  title: Diesen Container verlinken
+  description: Dozzle verlinkt die eigene Weboberfläche eines Containers, sobald Sie ein dev.dozzle.url-Label hinzufügen. Fügen Sie dies in Ihre Compose-Datei ein und starten Sie den Container neu.
+  copy: Kopieren
 error:
   page-not-found: Diese Seite existiert nicht.
   host-group-not-found: 'Keine Hosts in der Gruppe "{name}" gefunden'

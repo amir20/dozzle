@@ -15,6 +15,7 @@ declare global {
   const K8sOwner: typeof import('./stores/k8s').K8sOwner
   const MIN_MENU_WIDTH: typeof import('./stores/settings').MIN_MENU_WIDTH
   const acceptHMRUpdate: typeof import('pinia').acceptHMRUpdate
+  const activePopup: typeof import('./composable/popup').activePopup
   const allLevels: typeof import('./composable/logContext').allLevels
   const arrayEquals: typeof import('./utils/index').arrayEquals
   const asyncComputed: typeof import('@vueuse/core').asyncComputed
@@ -59,6 +60,7 @@ declare global {
   const defineComponent: typeof import('vue').defineComponent
   const defineStore: typeof import('pinia').defineStore
   const dismissedImageUpdates: typeof import('./composable/storage').dismissedImageUpdates
+  const dismissedLinkHint: typeof import('./composable/storage').dismissedLinkHint
   const drawerContext: typeof import('./composable/drawer').drawerContext
   const eagerComputed: typeof import('@vueuse/core').eagerComputed
   const effectScope: typeof import('vue').effectScope
@@ -489,6 +491,7 @@ declare module 'vue' {
     readonly K8sNamespace: UnwrapRef<typeof import('./stores/k8s')['K8sNamespace']>
     readonly K8sOwner: UnwrapRef<typeof import('./stores/k8s')['K8sOwner']>
     readonly acceptHMRUpdate: UnwrapRef<typeof import('pinia')['acceptHMRUpdate']>
+    readonly activePopup: UnwrapRef<typeof import('./composable/popup')['activePopup']>
     readonly allLevels: UnwrapRef<typeof import('./composable/logContext')['allLevels']>
     readonly arrayEquals: UnwrapRef<typeof import('./utils/index')['arrayEquals']>
     readonly asyncComputed: UnwrapRef<typeof import('@vueuse/core')['asyncComputed']>
@@ -533,6 +536,7 @@ declare module 'vue' {
     readonly defineComponent: UnwrapRef<typeof import('vue')['defineComponent']>
     readonly defineStore: UnwrapRef<typeof import('pinia')['defineStore']>
     readonly dismissedImageUpdates: UnwrapRef<typeof import('./composable/storage')['dismissedImageUpdates']>
+    readonly dismissedLinkHint: UnwrapRef<typeof import('./composable/storage')['dismissedLinkHint']>
     readonly drawerContext: UnwrapRef<typeof import('./composable/drawer')['drawerContext']>
     readonly eagerComputed: UnwrapRef<typeof import('@vueuse/core')['eagerComputed']>
     readonly effectScope: UnwrapRef<typeof import('vue')['effectScope']>

@@ -99,6 +99,19 @@ tooltip:
   volumes: Volumes
   volume-unreachable: inaccessible depuis cet hôte
   volume-full: "{destination} est plein à {pct}"
+  open-container-url: "Ouvrir {url}"
+popup:
+  started: Démarré
+  finished: Arrêté
+  group: Groupe
+  ports: Ports
+hint:
+  learn-more: En savoir plus
+  dismiss: Ne plus afficher
+link-hint:
+  title: Lier ce conteneur
+  description: Dozzle affiche un lien vers l'interface web d'un conteneur lorsque vous ajoutez un label dev.dozzle.url. Ajoutez ceci à votre fichier compose puis redémarrez le conteneur.
+  copy: Copier
 error:
   page-not-found: Cette page n'existe pas
   host-group-not-found: "Aucun hôte trouvé dans le groupe « {name} »"

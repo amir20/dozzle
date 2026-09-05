@@ -45,6 +45,7 @@ type Profile struct {
 	ReleaseSeen           string    `json:"releaseSeen,omitempty"`
 	CollapsedGroups       []string  `json:"collapsedGroups"`
 	DismissedImageUpdates []string  `json:"dismissedImageUpdates,omitempty"`
+	DismissedLinkHint     bool      `json:"dismissedLinkHint,omitempty"`
 }
 
 var dataPath string

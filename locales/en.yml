@@ -99,6 +99,19 @@ tooltip:
   volumes: Volumes
   volume-unreachable: not reachable from this host
   volume-full: "{destination} is {pct} full"
+  open-container-url: "Open {url}"
+popup:
+  started: Started
+  finished: Finished
+  group: Group
+  ports: Ports
+hint:
+  learn-more: Learn more
+  dismiss: Don't show again
+link-hint:
+  title: Link this container
+  description: Dozzle links a container to its own web UI when you add a dev.dozzle.url label. Add this to your compose file and restart the container.
+  copy: Copy
 error:
   page-not-found: This page does not exist
   host-group-not-found: 'No hosts found in group "{name}"'

@@ -14,14 +14,28 @@
 </template>
 
 <script lang="ts" setup>
-import { globalShowPopup } from "@/composable/popup";
+import { activePopup, globalShowPopup } from "@/composable/popup";
 
 const globalShow = globalShowPopup();
+const active = activePopup();
+const id = Symbol();
 const show = ref(globalShow.value);
 const delayedShow = refDebounced(show, 1000);
 const content = ref<HTMLElement>();
 
+// Hiding is delayed so the pointer can cross the gap between the trigger and the
+// content, which is hoverable itself, without the popup vanishing on the way.
+const HIDE_DELAY = 200;
+let hideTimer: ReturnType<typeof setTimeout> | undefined;
+
+const cancelHide = () => {
+  clearTimeout(hideTimer);
+  hideTimer = undefined;
+};
+
 const onMouseEnter = (e: Event) => {
+  cancelHide();
+  active.value = id;
   show.value = true;
   globalShow.value = true;
 
@@ -36,13 +50,29 @@ const onMouseEnter = (e: Event) => {
 };
 
 const onMouseLeave = () => {
-  show.value = false;
-  globalShow.value = false;
+  cancelHide();
+  hideTimer = setTimeout(() => {
+    if (active.value === id) active.value = null;
+    show.value = false;
+    globalShow.value = false;
+    hideTimer = undefined;
+  }, HIDE_DELAY);
 };
+
+// Another popup took over: drop this one now instead of waiting out the grace period.
+watch(active, (current) => {
+  if (current === id || !show.value) return;
+  cancelHide();
+  show.value = false;
+});
+
+onScopeDispose(cancelHide);
 
 const el: Ref<HTMLElement> = useCurrentElement();
 useEventListener(() => el.value?.nextElementSibling, "mouseenter", onMouseEnter);
 useEventListener(() => el.value?.nextElementSibling, "mouseleave", onMouseLeave);
+useEventListener(content, "mouseenter", cancelHide);
+useEventListener(content, "mouseleave", onMouseLeave);
 </script>
 
 <style scoped>

@@ -47,6 +47,8 @@
         </ul>
       </div>
     </div>
+    <ContainerLink :container="container" />
+    <ContainerLinkHint :container="container" />
     <ContainerHealth :health="container.health" v-if="container.health" />
     <VolumeWarning :container="container" />
     <Tag

@@ -72,6 +72,7 @@ export class Container {
     public isNew: boolean = false,
     mounts: ContainerMount[] = [],
     mountStats: Record<string, MountStat> = {},
+    public readonly ports: string[] = [],
   ) {
     this.mounts = mounts;
     this.mountStats = mountStats;
@@ -126,6 +127,45 @@ export class Container {
     const override = this.labels["dev.dozzle.icon"]?.trim().toLowerCase();
     if (override) return override === "none" || !hasIcon(override) ? undefined : override;
     return iconSlugForImage(this.image);
+  }
+
+  /**
+   * Opt-in link to whatever web UI this container serves, from `dev.dozzle.url`.
+   * Only absolute http(s) URLs are honored so a label can't smuggle in `javascript:`.
+   */
+  get url() {
+    const raw = this.labels["dev.dozzle.url"]?.trim();
+    if (!raw) return undefined;
+    try {
+      const { protocol } = new URL(raw);
+      return protocol === "http:" || protocol === "https:" ? raw : undefined;
+    } catch {
+      return undefined;
+    }
+  }
+
+  /**
+   * Published tcp bindings, parsed out of Docker's `ip:host->container/proto` strings.
+   * Ports that are only exposed, never published, have no host side and are dropped.
+   */
+  get portMappings() {
+    const byHostPort = new Map<number, number>();
+
+    for (const binding of this.ports) {
+      if (!binding.endsWith("/tcp") || !binding.includes("->")) continue;
+      const [from, to] = binding.split("->");
+      const host = Number(from.split(":").pop());
+      const target = Number(to.replace("/tcp", ""));
+      if (!Number.isInteger(host) || host <= 0 || host > 65535) continue;
+      if (!byHostPort.has(host)) byHostPort.set(host, Number.isInteger(target) ? target : host);
+    }
+
+    return [...byHostPort.entries()].sort(([a], [b]) => a - b).map(([host, container]) => ({ host, container }));
+  }
+
+  /** Host ports this container publishes. Suggests a value when `dev.dozzle.url` is missing. */
+  get publishedPorts() {
+    return this.portMappings.map(({ host }) => host);
   }
 
   set name(name: string) {
@@ -208,6 +248,7 @@ export class Container {
       false,
       c.mounts ?? [],
       c.mountStats ?? {},
+      c.ports ?? [],
     );
   }
 }

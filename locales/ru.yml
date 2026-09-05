@@ -99,6 +99,19 @@ tooltip:
   volumes: Тома
   volume-unreachable: недоступно с этого хоста
   volume-full: "{destination} заполнено на {pct}"
+  open-container-url: "Открыть {url}"
+popup:
+  started: Запущен
+  finished: Остановлен
+  group: Группа
+  ports: Порты
+hint:
+  learn-more: Подробнее
+  dismiss: Больше не показывать
+link-hint:
+  title: Ссылка на контейнер
+  description: Dozzle покажет ссылку на веб-интерфейс контейнера, если добавить метку dev.dozzle.url. Добавьте это в compose-файл и перезапустите контейнер.
+  copy: Копировать
 error:
   page-not-found: Эта страница не доступна.
   host-group-not-found: "Хосты в группе «{name}» не найдены"
