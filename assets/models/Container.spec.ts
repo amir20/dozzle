@@ -251,3 +251,94 @@ describe("Container.portMappings", () => {
     ]);
   });
 });
+
+describe("Container.traefikUrls", () => {
+  test("empty without traefik labels", () => {
+    expect(makeContainer().traefikUrls).toEqual([]);
+    expect(makeContainer({ labels: { "traefik.enable": "true" } }).traefikUrls).toEqual([]);
+  });
+
+  test("reads the host out of a router rule", () => {
+    expect(
+      makeContainer({ labels: { "traefik.http.routers.grafana.rule": "Host(`grafana.example.com`)" } }).traefikUrls,
+    ).toEqual(["http://grafana.example.com"]);
+  });
+
+  test("uses https when the router terminates tls", () => {
+    const tls = { "traefik.http.routers.g.rule": "Host(`g.example.com`)", "traefik.http.routers.g.tls": "true" };
+    expect(makeContainer({ labels: tls }).traefikUrls).toEqual(["https://g.example.com"]);
+
+    const resolver = {
+      "traefik.http.routers.g.rule": "Host(`g.example.com`)",
+      "traefik.http.routers.g.tls.certresolver": "le",
+    };
+    expect(makeContainer({ labels: resolver }).traefikUrls).toEqual(["https://g.example.com"]);
+  });
+
+  test("uses https for a secure entrypoint", () => {
+    const labels = {
+      "traefik.http.routers.g.rule": "Host(`g.example.com`)",
+      "traefik.http.routers.g.entrypoints": "web,websecure",
+    };
+    expect(makeContainer({ labels }).traefikUrls).toEqual(["https://g.example.com"]);
+  });
+
+  test("stays http when tls is explicitly off", () => {
+    const labels = {
+      "traefik.http.routers.g.rule": "Host(`g.example.com`)",
+      "traefik.http.routers.g.tls": "false",
+      "traefik.http.routers.g.entrypoints": "web",
+    };
+    expect(makeContainer({ labels }).traefikUrls).toEqual(["http://g.example.com"]);
+  });
+
+  test("appends a path matcher", () => {
+    const labels = {
+      "traefik.http.routers.g.rule": "Host(`example.com`) && PathPrefix(`/grafana`)",
+      "traefik.http.routers.g.tls": "true",
+    };
+    expect(makeContainer({ labels }).traefikUrls).toEqual(["https://example.com/grafana"]);
+  });
+
+  test("drops a bare root path", () => {
+    const labels = { "traefik.http.routers.g.rule": "Host(`example.com`) && PathPrefix(`/`)" };
+    expect(makeContainer({ labels }).traefikUrls).toEqual(["http://example.com"]);
+  });
+
+  test("expands every host in a rule and across routers", () => {
+    const labels = {
+      "traefik.http.routers.b.rule": "Host(`b.example.com`)",
+      "traefik.http.routers.a.rule": "Host(`a.example.com`, `www.a.example.com`)",
+    };
+    expect(makeContainer({ labels }).traefikUrls).toEqual([
+      "http://a.example.com",
+      "http://www.a.example.com",
+      "http://b.example.com",
+    ]);
+  });
+
+  test("dedupes the same host across routers", () => {
+    const labels = {
+      "traefik.http.routers.web.rule": "Host(`example.com`)",
+      "traefik.http.routers.websecure.rule": "Host(`example.com`)",
+    };
+    expect(makeContainer({ labels }).traefikUrls).toEqual(["http://example.com"]);
+  });
+
+  test("ignores rules without a host matcher", () => {
+    expect(makeContainer({ labels: { "traefik.http.routers.g.rule": "PathPrefix(`/grafana`)" } }).traefikUrls).toEqual(
+      [],
+    );
+    expect(
+      makeContainer({ labels: { "traefik.http.routers.g.rule": "HostRegexp(`{sub:.+}.example.com`)" } }).traefikUrls,
+    ).toEqual([]);
+  });
+
+  test("respects traefik.enable=false", () => {
+    const labels = {
+      "traefik.enable": "false",
+      "traefik.http.routers.g.rule": "Host(`g.example.com`)",
+    };
+    expect(makeContainer({ labels }).traefikUrls).toEqual([]);
+  });
+});

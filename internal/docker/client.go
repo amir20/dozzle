@@ -43,13 +43,15 @@ type DockerCLI interface {
 	ContainerRemove(ctx context.Context, containerID string, options client.ContainerRemoveOptions) (client.ContainerRemoveResult, error)
 	ContainerCreate(ctx context.Context, options client.ContainerCreateOptions) (client.ContainerCreateResult, error)
 	ServiceInspect(ctx context.Context, serviceID string, opts client.ServiceInspectOptions) (client.ServiceInspectResult, error)
+	ServiceList(ctx context.Context, options client.ServiceListOptions) (client.ServiceListResult, error)
 	ServiceUpdate(ctx context.Context, serviceID string, options client.ServiceUpdateOptions) (client.ServiceUpdateResult, error)
 }
 
 type DockerClient struct {
-	cli  DockerCLI
-	host container.Host
-	info system.Info
+	cli           DockerCLI
+	host          container.Host
+	info          system.Info
+	serviceLabels serviceLabelCache
 }
 
 func NewClient(cli DockerCLI, host container.Host) *DockerClient {
@@ -167,7 +169,9 @@ func detectRuntime(cli DockerCLI, info system.Info) string {
 func (d *DockerClient) FindContainer(ctx context.Context, id string) (container.Container, error) {
 	log.Debug().Str("id", id).Msg("Finding container")
 	if result, err := d.cli.ContainerInspect(ctx, id, client.ContainerInspectOptions{}); err == nil {
-		return newContainerFromJSON(result.Container, d.host.ID), nil
+		c := newContainerFromJSON(result.Container, d.host.ID)
+		d.mergeServiceLabels(ctx, &c)
+		return c, nil
 	} else {
 		return container.Container{}, err
 	}
@@ -340,6 +344,12 @@ func (d *DockerClient) ListContainers(ctx context.Context, labels container.Cont
 	for _, c := range list.Items {
 		containers = append(containers, newContainer(c, d.host.ID))
 	}
+
+	refs := make([]*container.Container, len(containers))
+	for i := range containers {
+		refs[i] = &containers[i]
+	}
+	d.mergeServiceLabels(ctx, refs...)
 
 	sort.Slice(containers, func(i, j int) bool {
 		return strings.ToLower(containers[i].Name) < strings.ToLower(containers[j].Name)

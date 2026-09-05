@@ -34,7 +34,37 @@ Dozzle does not check that the URL resolves, and it does not rewrite it per host
 
 Dozzle knows which ports a container publishes, but a published port is not the same as a reachable URL. Reverse proxies, custom paths, TLS, and split networks all make the guess wrong often enough to be annoying. The label keeps it explicit: Dozzle only shows the link you wrote down.
 
-For containers that publish a port and have no label yet, Dozzle shows a faint link icon in the container list and on the container page. It opens a snippet you can copy into your compose file, prefilled with the published port. Dismissing it hides the hint everywhere.
+For containers with no label yet, Dozzle shows a faint link icon next to the name on the container page. It opens a snippet you can copy into your compose file, prefilled with a guess. Dismissing it hides the hint everywhere.
+
+The guess comes from two places. Traefik router labels are read first, because a router rule names an address that really does reach the container from a browser:
+
+```yaml
+labels:
+  - traefik.http.routers.grafana.rule=Host(`grafana.example.com`)
+  - traefik.http.routers.grafana.tls=true
+```
+
+Path prefixes are appended, the scheme follows the router's TLS settings and entrypoints, and `traefik.enable=false` turns the whole thing off. Failing that, Dozzle falls back to a published host port paired with the hostname you are viewing Dozzle on. Both are only ever prefilled into the snippet. Neither becomes a link until you write it into `dev.dozzle.url` yourself.
+
+Containers behind a reverse proxy publish no host port at all, so the Traefik labels are usually the only signal there is. If you use a different proxy, the hint stays hidden and you add the label by hand.
+
+## Swarm
+
+In Swarm, `deploy.labels` sets labels on the service and the top-level `labels` key sets them on the container. Traefik's swarm provider reads service labels, so that is where everyone puts them:
+
+```yaml
+services:
+  ui:
+    image: my/ui
+    deploy:
+      labels:
+        - traefik.http.routers.ui.rule=Host(`app.example.com`)
+        - dev.dozzle.url=https://app.example.com
+```
+
+Dozzle reads service labels back onto each task container, so `dev.dozzle.url` and the Traefik hint both work from `deploy.labels`. The same goes for `dev.dozzle.name`, `dev.dozzle.group` and `dev.dozzle.icon`. A label set on the container itself wins over the service's.
+
+Listing services is a manager-only API. In a multi-node swarm the agents on worker nodes cannot read service labels, so containers scheduled there see only their own.
 
 ## Related labels
 
