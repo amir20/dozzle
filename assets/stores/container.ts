@@ -131,6 +131,10 @@ export const useContainerStore = defineStore("container", () => {
         errorTimer = null;
       }
       removeToast("events-stream");
+      // EventSource reconnects on its own without going through connect(), and the server
+      // replays the full list on every connect. Reset ready so the replay isn't mistaken
+      // for containers that just started and flagged as new.
+      ready.value = false;
       if (containers.value.length > 0) {
         containers.value = [];
       }
