@@ -30,13 +30,13 @@
         Raw JSON
 
         <UseClipboard v-slot="{ copy, copied }" :source="entry.rawMessage">
-          <button class="swap outline-hidden" @click="copy()" :class="{ 'hover:swap-active': copied }">
+          <button class="icon-btn swap outline-hidden" @click="copy()" :class="{ 'hover:swap-active': copied }">
             <mdi:check class="swap-on" />
             <material-symbols:content-copy class="swap-off" />
           </button>
         </UseClipboard>
 
-        <button class="outline-hidden" @click="downloadJSON()" title="Download JSON">
+        <button class="icon-btn outline-hidden" @click="downloadJSON()" title="Download JSON">
           <material-symbols:download />
         </button>
       </div>

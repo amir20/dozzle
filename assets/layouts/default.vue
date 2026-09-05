@@ -2,10 +2,10 @@
   <div>
     <MobileMenu v-if="isMobile && !forceMenuHidden" @search="showFuzzySearch"></MobileMenu>
     <Splitpanes @resized="onResized($event)">
-      <Pane min-size="10" :size="menuWidth" v-if="!isMobile && !collapseNav && !forceMenuHidden">
+      <Pane min-size="10" :size="menuWidth" v-if="navVisible">
         <SidePanel />
       </Pane>
-      <Pane min-size="10" :size="100 - menuWidth">
+      <Pane min-size="10" :size="navVisible ? 100 - menuWidth : 100">
         <Splitpanes>
           <Pane class="router-view min-h-screen">
             <router-view></router-view>
@@ -72,6 +72,14 @@ const { open, openSearch: showFuzzySearch, closeSearch } = useFuzzySearch();
 const searchParams = new URLSearchParams(window.location.search);
 const forceMenuHidden = ref(searchParams.has("hideMenu"));
 
+// splitpanes only reads a pane's `size` as its "given size" when the pane first
+// registers, and its initial layout is only exact when every pane declares one.
+// So both panes keep an explicit size, and this one tells the content pane to
+// claim the whole width while the nav pane is unmounted — otherwise the two
+// panes would together still claim 100% + menuWidth once the nav came back, and
+// splitpanes would shrink the nav to its min-size to compensate.
+const navVisible = computed(() => !isMobile.value && !collapseNav.value && !forceMenuHidden.value);
+
 watch(open, () => {
   if (open.value) {
     modal.value?.showModal();
@@ -87,7 +95,11 @@ onKeyStroke("k", (e) => {
   }
 });
 
-function onResized({ panes }: { panes: { size: number }[] }) {
+// splitpanes also emits `resized` for its own relayouts (the collapse toggle
+// adding/removing the nav pane, a remount). Those carry neither `event` nor
+// `index`, so only a width the user actually dragged to gets persisted.
+function onResized({ panes, event, index }: { panes: { size: number }[]; event?: Event; index?: number }) {
+  if (event === undefined && index === undefined) return;
   if (panes.length == 2) {
     menuWidth.value = Math.min(panes[0].size, 50);
   }
@@ -98,7 +110,26 @@ function onResized({ panes }: { panes: { size: number }[] }) {
 @reference "@/main.css";
 
 :deep(.splitpanes--vertical > .splitpanes__splitter) {
-  @apply bg-base-100 hover:bg-secondary min-w-[5px];
+  @apply bg-base-100 relative min-w-[5px];
+  transition: background-color 150ms ease-out;
+}
+
+/* Grab zone reaches a few pixels past the visible divider so the drag is
+ * easier to start without making the divider itself any wider. */
+:deep(.splitpanes--vertical > .splitpanes__splitter)::before {
+  content: "";
+  @apply absolute inset-y-0 -right-1 -left-1 z-20;
+}
+
+:deep(.splitpanes--vertical > .splitpanes__splitter):hover,
+:deep(.splitpanes--dragging.splitpanes--vertical > .splitpanes__splitter) {
+  @apply bg-secondary;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :deep(.splitpanes--vertical > .splitpanes__splitter) {
+    transition: none;
+  }
 }
 
 @media screen and (max-width: 768px) {

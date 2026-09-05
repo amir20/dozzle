@@ -3,7 +3,7 @@
     <button
       tabindex="0"
       role="button"
-      class="text-base-content/25 hover:text-primary shrink-0 cursor-pointer transition-colors"
+      class="icon-btn text-base-content/25 hover:text-primary shrink-0 transition-colors"
       :title="title"
       :aria-label="title"
     >

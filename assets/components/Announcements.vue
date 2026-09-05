@@ -5,7 +5,7 @@
     @closed="releaseSeen = mostRecent?.tag ?? config.version"
   >
     <template #trigger>
-      <mdi:announcement class="size-6 -rotate-12" />
+      <mdi:announcement class="icon-wiggle size-6 -rotate-12" />
       <template v-if="announcements.length > 0 && releaseSeen != mostRecent?.tag">
         <span class="bg-red absolute top-0 right-px size-2 animate-ping rounded-full opacity-75"></span>
         <span class="bg-red absolute top-0 right-px size-2 rounded-full"></span>

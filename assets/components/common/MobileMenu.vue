@@ -2,8 +2,9 @@
   <nav class="border-base-content/20 bg-base-200 pt-safe fixed top-0 z-30 w-full border-b" data-testid="navigation">
     <div class="px-4 py-2">
       <div class="flex items-center">
-        <router-link :to="{ name: '/' }">
+        <router-link :to="{ name: '/' }" class="flex items-center gap-1.5">
           <Logo class="h-10" />
+          <ProBadge />
         </router-link>
 
         <div class="ml-auto flex items-center gap-2">

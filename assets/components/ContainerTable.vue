@@ -58,14 +58,14 @@
         </div>
         <div class="join max-md:hidden">
           <button
-            class="btn join-item btn-xs md:btn-sm"
+            class="icon-btn btn join-item btn-xs md:btn-sm"
             :class="statMode === 'chart' ? 'btn-active' : 'btn-ghost'"
             @click="statMode = 'chart'"
           >
             <mdi:chart-bar />
           </button>
           <button
-            class="btn join-item btn-xs md:btn-sm"
+            class="icon-btn btn join-item btn-xs md:btn-sm"
             :class="statMode === 'progress' ? 'btn-active' : 'btn-ghost'"
             @click="statMode = 'progress'"
           >

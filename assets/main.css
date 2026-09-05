@@ -274,9 +274,119 @@ body {
 .status-pill-primary {
   @apply text-primary border-primary/30 bg-primary/10;
 }
+.status-pill-secondary {
+  @apply text-secondary border-secondary/30 bg-secondary/10;
+}
 .status-pill-warning {
   @apply text-warning border-warning/30 bg-warning/10;
 }
 .status-pill-error {
   @apply text-error border-error/30 bg-error/10;
+}
+
+/* --- Icon button motion ---------------------------------------------------
+ * Icon-only buttons get a small spring on hover and a press-in on click. The
+ * transform sits on the glyph rather than the button so the circle and border
+ * are left alone. This includes daisyUI `swap` icons: swap-rotate animates the
+ * standalone `rotate` property, which composes with `transform` rather than
+ * fighting it (swap-flip, which does use `transform`, is unused here).
+ *
+ * `btn-circle` and `btn-square` are icon-only by definition; `.icon-btn` opts
+ * in a bare <button>/<a> or a daisyUI button that is icon-only without being
+ * one of those shapes.
+ *
+ * Everything composes through custom properties instead of competing
+ * `transform` declarations, so a per-icon flavour below only has to set a
+ * variable and never has to out-specify the generic hover rule. */
+:is(.btn-circle, .btn-square, .icon-btn) :where(svg, img) {
+  --icon-scale: 1;
+  --icon-rotate: 0deg;
+  --icon-lift: 0px;
+  transform: translateY(var(--icon-lift)) rotate(var(--icon-rotate)) scale(var(--icon-scale));
+  /* Includes the standalone rotate/scale/translate properties so a Tailwind
+   * `rotate-180` toggle on the glyph keeps animating rather than snapping, and
+   * opacity so this rule winning over daisyUI's `.swap > *` does not kill the
+   * swap crossfade. */
+  transition-property: transform, rotate, scale, translate, opacity;
+  transition-duration: 200ms;
+  transition-timing-function: cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.btn-circle,
+.btn-square,
+.icon-btn {
+  @apply cursor-pointer;
+}
+
+:is(.btn-circle, .btn-square, .icon-btn):hover :where(svg, img) {
+  --icon-scale: 1.15;
+}
+
+:is(.btn-circle, .btn-square, .icon-btn):active :where(svg, img) {
+  --icon-scale: 0.92;
+}
+
+/* Per-icon flavours, opted into by the icon itself. */
+.btn:hover .icon-spin {
+  --icon-rotate: 90deg;
+}
+
+.btn:hover .icon-float {
+  --icon-lift: -2px;
+}
+
+/* The two animated flavours restate the hover scale in their keyframes so they
+ * settle at the same size the generic hover rule would have given them. */
+.btn:hover .icon-wiggle {
+  animation: icon-wiggle 600ms ease-in-out;
+}
+
+.btn:hover .icon-ring {
+  animation: icon-ring 700ms ease-in-out;
+  transform-origin: top center;
+}
+
+@keyframes icon-wiggle {
+  0%,
+  100% {
+    transform: rotate(0deg) scale(1.15);
+  }
+  25% {
+    transform: rotate(-14deg) scale(1.15);
+  }
+  60% {
+    transform: rotate(10deg) scale(1.15);
+  }
+  80% {
+    transform: rotate(-5deg) scale(1.15);
+  }
+}
+
+@keyframes icon-ring {
+  0%,
+  100% {
+    transform: rotate(0deg) scale(1.15);
+  }
+  15% {
+    transform: rotate(14deg) scale(1.15);
+  }
+  35% {
+    transform: rotate(-12deg) scale(1.15);
+  }
+  55% {
+    transform: rotate(8deg) scale(1.15);
+  }
+  75% {
+    transform: rotate(-4deg) scale(1.15);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :is(.btn-circle, .btn-square, .icon-btn) :where(svg, img),
+  .btn:hover .icon-wiggle,
+  .btn:hover .icon-ring {
+    animation: none !important;
+    transform: none !important;
+    transition: none !important;
+  }
 }
