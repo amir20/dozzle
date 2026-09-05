@@ -181,15 +181,7 @@ export const useContainerStore = defineStore("container", () => {
       return container;
     });
 
-    // The payload is the complete list for every host it mentions (a start/rename refresh
-    // covers a single host, the initial connect covers all of them). Anything missing from
-    // a host that is present is gone for good, so drop it instead of keeping a tombstone
-    // that never leaves the store.
-    const hostsInPayload = new Set(containersPayload.map((c) => c.host));
-    const idsInPayload = new Set(containersPayload.map((c) => c.id));
-    const retained = containers.value.filter((c) => !hostsInPayload.has(c.host) || idsInPayload.has(c.id));
-
-    containers.value = [...retained, ...mapped];
+    containers.value = [...containers.value, ...mapped];
   };
 
   const currentContainer = (id: Ref<string>) => computed(() => allContainersById.value[id.value]);
