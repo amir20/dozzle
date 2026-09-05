@@ -35,6 +35,10 @@
             <material-symbols:content-copy class="swap-off" />
           </button>
         </UseClipboard>
+
+        <button class="outline-hidden" @click="downloadJSON()" title="Download JSON">
+          <material-symbols:download />
+        </button>
       </div>
       <div class="bg-base-200 max-h-125 overflow-scroll rounded-sm border border-white/20 p-2">
         <JsonFormatted :value="entry.rawMessage" class="text-sm" />
@@ -82,6 +86,25 @@ const visibleKeys = persistentVisibleKeysForContainer(container);
 const { hosts } = useHosts();
 
 const { useSortable } = await import("@vueuse/integrations/useSortable");
+
+function downloadJSON() {
+  let content = entry.rawMessage;
+  try {
+    content = JSON.stringify(JSON.parse(content), null, 2);
+  } catch {
+    // not valid JSON, download as is
+  }
+
+  const name = (container.value?.name ?? "log").replace(/[^\w.-]+/g, "-");
+  const timestamp = entry.date.toISOString().replace(/[:.]/g, "-");
+
+  const url = URL.createObjectURL(new Blob([content], { type: "application/json" }));
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = `${name}-${timestamp}.json`;
+  link.click();
+  URL.revokeObjectURL(url);
+}
 
 function toggleField(key: string[]) {
   if (visibleKeys.value.size === 0) {
