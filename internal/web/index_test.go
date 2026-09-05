@@ -32,17 +32,21 @@ func TestEntryAssets(t *testing.T) {
 	}`), &manifest)
 	assert.NoError(t, err)
 
-	entry, styles := entryAssets(manifest, "assets/main.ts")
+	entry, styles, preloads := entryAssets(manifest, "assets/main.ts")
 
 	assert.Equal(t, "assets/main-abc.js", entry)
 	// Statically imported chunks first, entry's own stylesheet last. Lazy page CSS is left
 	// to the preload helper.
 	assert.Equal(t, []string{"assets/shared-ghi.css", "assets/ContainerIcon-def.css", "assets/main-abc.css"}, styles)
+	// Every statically imported chunk gets a modulepreload hint. The entry is excluded,
+	// since the <script> tag already requests it, as are lazy pages.
+	assert.Equal(t, []string{"assets/ContainerIcon-def.js", "assets/shared-ghi.js"}, preloads)
 }
 
 func TestEntryAssetsMissingEntry(t *testing.T) {
-	entry, styles := entryAssets(map[string]any{}, "assets/main.ts")
+	entry, styles, preloads := entryAssets(map[string]any{}, "assets/main.ts")
 
 	assert.Empty(t, entry)
 	assert.Empty(t, styles)
+	assert.Empty(t, preloads)
 }

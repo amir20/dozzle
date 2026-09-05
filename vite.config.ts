@@ -16,6 +16,8 @@ export default defineConfig(() => ({
   base: "./",
   define: {
     __CLOUD_URL__: JSON.stringify(process.env.CLOUD_URL || "https://cloud.dozzle.dev"),
+    // No component uses the options API, so drop that half of the Vue runtime.
+    __VUE_OPTIONS_API__: false,
   },
   resolve: {
     alias: {

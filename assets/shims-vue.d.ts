@@ -6,3 +6,8 @@ declare module "*.vue" {
 }
 
 declare const __CLOUD_URL__: string;
+
+declare module "*.yml" {
+  const messages: Record<string, any>;
+  export default messages;
+}

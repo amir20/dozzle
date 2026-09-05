@@ -17,6 +17,9 @@
     {{- else }} {{- range .Styles }}
     <link rel="stylesheet" href="{{ $.Base }}/{{ . }}" />
     {{- end }}
+    {{- range .Preload }}
+    <link rel="modulepreload" href="{{ $.Base }}/{{ . }}" />
+    {{- end }}
     <script type="module" src="{{ .Base }}/{{ .Entry }}"></script>
     {{- end }}
     <meta name="description" content="A log viewer for containers" />

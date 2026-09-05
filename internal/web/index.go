@@ -4,6 +4,7 @@ import (
 	"html/template"
 	"io"
 	"sort"
+	"strconv"
 	"strings"
 
 	"encoding/json"
@@ -13,18 +14,50 @@ import (
 
 	"github.com/amir20/dozzle/internal/auth"
 	"github.com/amir20/dozzle/internal/profile"
+	"github.com/andybalholm/brotli"
 	"github.com/rs/zerolog/log"
 )
 
 func (h *handler) index(w http.ResponseWriter, req *http.Request) {
-	path := req.URL.Path
-	_, err := h.content.Open(path)
-	if err == nil && req.URL.Path != "" && req.URL.Path != "/" {
-		w.Header().Set("Cache-Control", "max-age=31536000, immutable")
-		fileServer.ServeHTTP(w, req)
-	} else {
-		h.executeTemplate(w, req)
+	if path := req.URL.Path; path != "" && path != "/" && h.serveAsset(w, req, path) {
+		return
 	}
+	h.executeTemplate(w, req)
+}
+
+// serveAsset serves a built asset, reporting whether it handled the request; anything
+// unknown falls through to the SPA template. Text assets exist only as the `.br`
+// sibling written by scripts/compress-dist.js, so they are served as-is to the usual
+// client and inflated for the rare one that does not accept brotli.
+func (h *handler) serveAsset(w http.ResponseWriter, req *http.Request, name string) bool {
+	if file, err := h.content.Open(name); err == nil {
+		file.Close()
+		w.Header().Set("Cache-Control", cacheControlFor(name))
+		fileServer.ServeHTTP(w, req)
+		return true
+	}
+
+	file, err := h.content.Open(name + ".br")
+	if err != nil {
+		return false
+	}
+	defer file.Close()
+
+	w.Header().Set("Cache-Control", cacheControlFor(name))
+	w.Header().Set("Content-Type", contentTypeFor(name))
+	w.Header().Add("Vary", "Accept-Encoding")
+
+	if acceptsBrotli(req) {
+		w.Header().Set("Content-Encoding", "br")
+		if stat, err := file.Stat(); err == nil {
+			w.Header().Set("Content-Length", strconv.FormatInt(stat.Size(), 10))
+		}
+		io.Copy(w, file)
+		return true
+	}
+
+	io.Copy(w, brotli.NewReader(file))
+	return true
 }
 
 func (h *handler) executeTemplate(w http.ResponseWriter, req *http.Request) {
@@ -106,14 +139,15 @@ func (h *handler) executeTemplate(w http.ResponseWriter, req *http.Request) {
 	}
 
 	manifest := h.readManifest()
-	entryJS, styles := entryAssets(manifest, "assets/main.ts")
+	entryJS, styles, preloads := entryAssets(manifest, entryModule)
 
 	data := map[string]any{
-		"Config": config,
-		"Dev":    h.config.Dev,
-		"Entry":  entryJS,
-		"Styles": styles,
-		"Base":   base,
+		"Config":  config,
+		"Dev":     h.config.Dev,
+		"Entry":   entryJS,
+		"Styles":  styles,
+		"Preload": preloads,
+		"Base":    base,
 	}
 	file, err := h.content.Open("index.html")
 	if err != nil {
@@ -145,22 +179,42 @@ func (h *handler) executeTemplate(w http.ResponseWriter, req *http.Request) {
 	}
 }
 
-// entryAssets resolves the entry chunk's script and every stylesheet it depends on.
+// cacheControlFor keeps the year-long immutable cache for hashed files under assets/,
+// which can always be busted by a new name. The unhashed root files (favicon.png,
+// apple-touch-icon.png) cannot, so pinning them would strand a stale icon for a year.
+func cacheControlFor(name string) string {
+	if strings.HasPrefix(name, "assets/") {
+		return "max-age=31536000, immutable"
+	}
+	return "max-age=3600"
+}
+
+const entryModule = "assets/main.ts"
+
+// entryAssets resolves the entry chunk's script, every stylesheet it depends on, and
+// every other chunk in its static import graph.
+//
 // Vite splits scoped component CSS into its own chunk, and a chunk statically imported by
 // the entry gets no <link> of its own, so linking only the entry's `css` left those
 // stylesheets to whichever lazy page happened to import them. Deep linking to a page that
 // didn't (a container view) then rendered shared components unstyled until the user
 // navigated somewhere that pulled the chunk in.
-func entryAssets(manifest map[string]any, entry string) (string, []string) {
+//
+// The same walk yields the modulepreload list. Vite emits those hints when it owns
+// index.html, but the page is a Go template served from public/, so without them the
+// browser only discovers a chunk after parsing the one that imports it, serializing the
+// graph into several round trips.
+func entryAssets(manifest map[string]any, entry string) (string, []string, []string) {
 	chunk, ok := manifest[entry].(map[string]any)
 	if !ok {
-		return "", nil
+		return "", nil, nil
 	}
 
 	file, _ := chunk["file"].(string)
 
 	seen := make(map[string]bool)
 	styles := make([]string, 0, 4)
+	preloads := make([]string, 0, 32)
 	var collect func(key string)
 	collect = func(key string) {
 		if seen[key] {
@@ -171,6 +225,11 @@ func entryAssets(manifest map[string]any, entry string) (string, []string) {
 		chunk, ok := manifest[key].(map[string]any)
 		if !ok {
 			return
+		}
+
+		// The entry itself is already requested by the <script> tag.
+		if f, ok := chunk["file"].(string); ok && key != entry {
+			preloads = append(preloads, f)
 		}
 
 		// Imports first, matching the order Vite itself emits, so the entry's stylesheet
@@ -195,7 +254,7 @@ func entryAssets(manifest map[string]any, entry string) (string, []string) {
 	}
 	collect(entry)
 
-	return file, styles
+	return file, styles, preloads
 }
 
 func (h *handler) readManifest() map[string]any {
