@@ -48,6 +48,24 @@ Path prefixes are appended, the scheme follows the router's TLS settings and ent
 
 Containers behind a reverse proxy publish no host port at all, so the Traefik labels are usually the only signal there is. If you use a different proxy, the hint stays hidden and you add the label by hand.
 
+## Swarm
+
+In Swarm, `deploy.labels` sets labels on the service and the top-level `labels` key sets them on the container. Traefik's swarm provider reads service labels, so that is where everyone puts them:
+
+```yaml
+services:
+  ui:
+    image: my/ui
+    deploy:
+      labels:
+        - traefik.http.routers.ui.rule=Host(`app.example.com`)
+        - dev.dozzle.url=https://app.example.com
+```
+
+Dozzle reads service labels back onto each task container, so `dev.dozzle.url` and the Traefik hint both work from `deploy.labels`. The same goes for `dev.dozzle.name`, `dev.dozzle.group` and `dev.dozzle.icon`. A label set on the container itself wins over the service's.
+
+Listing services is a manager-only API. In a multi-node swarm the agents on worker nodes cannot read service labels, so containers scheduled there see only their own.
+
 ## Related labels
 
 - [`dev.dozzle.name`](/guide/container-names) sets a custom display name
