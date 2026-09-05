@@ -96,6 +96,7 @@ export default defineConfig({
           { text: "Reverse Proxy & Base Path", link: "/guide/changing-base" },
           { text: "Container Names", link: "/guide/container-names" },
           { text: "Container Groups", link: "/guide/container-groups" },
+          { text: "Container Links", link: "/guide/container-links" },
           { text: "Data Analytics", link: "/guide/analytics" },
           { text: "Default Profile", link: "/guide/default-profile" },
           { text: "Display Name", link: "/guide/hostname" },

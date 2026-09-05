@@ -41,6 +41,7 @@ export type ContainerJson = {
   readonly labels: Record<string, string>;
   readonly stats: ContainerStat[];
   readonly mounts?: ContainerMount[];
+  readonly ports?: string[];
   readonly mountStats?: Record<string, MountStat>;
   readonly health?: ContainerHealth;
   readonly group?: string;

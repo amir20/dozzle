@@ -99,6 +99,19 @@ tooltip:
   volumes: Volumener
   volume-unreachable: ikke tilgængelig fra denne host
   volume-full: "{destination} er {pct} fuld"
+  open-container-url: "Åbn {url}"
+popup:
+  started: Startet
+  finished: Stoppet
+  group: Gruppe
+  ports: Porte
+hint:
+  learn-more: Læs mere
+  dismiss: Vis ikke igen
+link-hint:
+  title: Link denne container
+  description: Dozzle linker til en containers eget webinterface, når du tilføjer et dev.dozzle.url-label. Tilføj dette til din compose-fil, og genstart containeren.
+  copy: Kopiér
 error:
   page-not-found: Denne side eksisterer ikke
   host-group-not-found: 'Ingen værter fundet i gruppen "{name}"'

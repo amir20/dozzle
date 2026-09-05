@@ -99,6 +99,19 @@ tooltip:
   volumes: 볼륨
   volume-unreachable: 이 호스트에서 접근할 수 없음
   volume-full: "{destination}이(가) {pct} 사용 중"
+  open-container-url: "{url} 열기"
+popup:
+  started: 시작됨
+  finished: 종료됨
+  group: 그룹
+  ports: 포트
+hint:
+  learn-more: 자세히 보기
+  dismiss: 다시 표시 안 함
+link-hint:
+  title: 이 컨테이너 링크
+  description: dev.dozzle.url 레이블을 추가하면 Dozzle이 컨테이너의 웹 UI로 연결되는 링크를 표시합니다. 아래 내용을 compose 파일에 추가하고 컨테이너를 다시 시작하세요.
+  copy: 복사
 error:
   page-not-found: 페이지를 찾을 수 없습니다
   host-group-not-found: '"{name}" 그룹에 호스트가 없습니다'

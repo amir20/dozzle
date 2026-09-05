@@ -287,6 +287,7 @@ The frontend uses file-based routing with these conventions:
 
 - `dev.dozzle.name`: Custom container display name
 - `dev.dozzle.group`: Group containers together
+- `dev.dozzle.url`: Link a container to its own web UI (http/https only; `Container.url` in `assets/models/Container.ts`)
 - Label-based filtering throughout the application
 
 ### Deployment Modes

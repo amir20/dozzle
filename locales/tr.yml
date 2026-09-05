@@ -99,6 +99,19 @@ tooltip:
   volumes: Birimler
   volume-unreachable: bu sunucudan erişilemiyor
   volume-full: "{destination} {pct} dolu"
+  open-container-url: "{url} adresini aç"
+popup:
+  started: Başlatıldı
+  finished: Durduruldu
+  group: Grup
+  ports: Portlar
+hint:
+  learn-more: Daha fazla bilgi
+  dismiss: Bir daha gösterme
+link-hint:
+  title: Bu konteyneri bağla
+  description: dev.dozzle.url etiketini eklediğinizde Dozzle konteynerin kendi web arayüzüne bağlantı gösterir. Bunu compose dosyanıza ekleyip konteyneri yeniden başlatın.
+  copy: Kopyala
 error:
   page-not-found: Bu sayfa bulunamadı
   host-group-not-found: '"{name}" grubunda ana bilgisayar bulunamadı'

@@ -99,6 +99,19 @@ tooltip:
   volumes: Nosilci
   volume-unreachable: nedosegljivo iz tega gostitelja
   volume-full: "{destination} je {pct} poln"
+  open-container-url: "Odpri {url}"
+popup:
+  started: Zagnan
+  finished: Ustavljen
+  group: Skupina
+  ports: Vrata
+hint:
+  learn-more: Več o tem
+  dismiss: Ne prikaži več
+link-hint:
+  title: Poveži ta zabojnik
+  description: Dozzle prikaže povezavo do spletnega vmesnika zabojnika, ko dodate oznako dev.dozzle.url. Dodajte to v datoteko compose in znova zaženite zabojnik.
+  copy: Kopiraj
 error:
   page-not-found: Ta stran ne obstaja
   host-group-not-found: 'V skupini "{name}" ni najdenih gostiteljev'

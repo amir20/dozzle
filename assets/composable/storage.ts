@@ -30,3 +30,7 @@ export const pinnedContainers = useProfileStorage("pinned", new Set<string>());
 // Keyed by "image@remoteDigest" so dismissing an available update stays
 // dismissed only until the image actually moves again.
 export const dismissedImageUpdates = useProfileStorage("dismissedImageUpdates", new Set<string>());
+
+// One-time nudge toward `dev.dozzle.url`, shown on containers that publish a port but
+// carry no label. Dismissing is global — once you know about the label, you know.
+export const dismissedLinkHint = useProfileStorage("dismissedLinkHint", false);

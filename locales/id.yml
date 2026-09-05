@@ -102,6 +102,19 @@ tooltip:
   volume-unreachable: tidak dapat dijangkau dari host ini
   volume-full: "{destination} terisi {pct}"
 
+  open-container-url: "Buka {url}"
+popup:
+  started: Dimulai
+  finished: Berhenti
+  group: Grup
+  ports: Port
+hint:
+  learn-more: Pelajari lebih lanjut
+  dismiss: Jangan tampilkan lagi
+link-hint:
+  title: Tautkan kontainer ini
+  description: Dozzle menautkan antarmuka web kontainer saat Anda menambahkan label dev.dozzle.url. Tambahkan ini ke berkas compose Anda lalu mulai ulang kontainer.
+  copy: Salin
 error:
   page-not-found: Halaman ini tidak ada
   host-group-not-found: 'Tidak ada host yang ditemukan di grup "{name}"'

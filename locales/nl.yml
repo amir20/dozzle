@@ -99,6 +99,19 @@ tooltip:
   volumes: Volumes
   volume-unreachable: niet bereikbaar vanaf deze host
   volume-full: "{destination} is {pct} vol"
+  open-container-url: "{url} openen"
+popup:
+  started: Gestart
+  finished: Gestopt
+  group: Groep
+  ports: Poorten
+hint:
+  learn-more: Meer informatie
+  dismiss: Niet meer tonen
+link-hint:
+  title: Deze container koppelen
+  description: Dozzle toont een link naar de webinterface van een container zodra je een dev.dozzle.url-label toevoegt. Voeg dit toe aan je compose-bestand en herstart de container.
+  copy: Kopiëren
 error:
   page-not-found: Deze pagina bestaat niet
   host-group-not-found: 'Geen hosts gevonden in groep "{name}"'

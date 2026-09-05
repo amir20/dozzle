@@ -99,6 +99,19 @@ tooltip:
   volumes: 卷
   volume-unreachable: 无法从此主机访问
   volume-full: "{destination} 已使用 {pct}"
+  open-container-url: "打开 {url}"
+popup:
+  started: 启动
+  finished: 停止
+  group: 分组
+  ports: 端口
+hint:
+  learn-more: 了解更多
+  dismiss: 不再显示
+link-hint:
+  title: 链接此容器
+  description: 添加 dev.dozzle.url 标签后，Dozzle 会显示指向容器自身 Web 界面的链接。把下面的内容加入 compose 文件并重启容器。
+  copy: 复制
 error:
   page-not-found: 此页面不存在。
   host-group-not-found: '在组 "{name}" 中未找到主机'

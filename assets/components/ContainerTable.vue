@@ -145,6 +145,7 @@
                     >
                       {{ container.name }}
                     </router-link>
+                    <ContainerLink :container="container" />
                     <RelativeTime
                       v-if="isMobile"
                       :date="container.created"
