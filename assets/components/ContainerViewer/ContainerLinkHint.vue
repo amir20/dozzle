@@ -9,16 +9,16 @@
 
     <p class="text-base-content/80 mb-2 leading-relaxed">{{ $t("link-hint.description") }}</p>
 
-    <div v-if="ports.length > 1" class="mb-2 flex flex-wrap gap-1">
+    <div v-if="suggestions.length > 1" class="mb-2 flex flex-wrap gap-1">
       <button
-        v-for="port in ports"
-        :key="port"
+        v-for="suggestion in suggestions"
+        :key="suggestion.url"
         type="button"
-        class="btn btn-xs"
-        :class="port === selectedPort ? 'btn-primary' : 'btn-ghost border-base-content/20 border'"
-        @click="selectedPort = port"
+        class="btn btn-xs max-w-full truncate"
+        :class="suggestion.url === selected ? 'btn-primary' : 'btn-ghost border-base-content/20 border'"
+        @click="selected = suggestion.url"
       >
-        {{ port }}
+        {{ suggestion.label }}
       </button>
     </div>
 
@@ -44,19 +44,28 @@ const { t } = useI18n();
 const { copy, copied, isSupported } = useClipboard({ legacy: true });
 const { showToast } = useToast();
 
-const ports = computed(() => container.publishedPorts);
-const show = computed(() => !dismissedLinkHint.value && !container.url && ports.value.length > 0);
+// Traefik labels name an address that actually reaches the container from outside, so they
+// come first. A published host port is only a guess: the browser's own hostname is the best
+// stand-in we have for the docker host. Either way this only ever prefills the snippet,
+// it is never rendered as a link.
+const suggestions = computed(() => [
+  ...container.traefikUrls.map((url) => ({ label: url.replace(/^https?:\/\//, ""), url })),
+  ...container.publishedPorts.map((port) => ({
+    label: `:${port}`,
+    url: `http://${window.location.hostname}:${port}`,
+  })),
+]);
 
-const selectedPort = ref(ports.value[0]);
-watch(ports, (value) => {
-  if (!value.includes(selectedPort.value)) selectedPort.value = value[0];
+const show = computed(() => !dismissedLinkHint.value && !container.url && suggestions.value.length > 0);
+
+const selected = ref(suggestions.value[0]?.url);
+watch(suggestions, (value) => {
+  if (!value.some(({ url }) => url === selected.value)) selected.value = value[0]?.url;
 });
 
-// The browser's own hostname is the best guess we have for an address that reaches the
-// container. It only ever prefills the snippet, it is never rendered as a link.
 const snippet = computed(
   () => `labels:
-  dev.dozzle.url: http://${window.location.hostname}:${selectedPort.value}`,
+  dev.dozzle.url: ${selected.value}`,
 );
 
 function dismiss() {

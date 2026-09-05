@@ -168,6 +168,51 @@ export class Container {
     return this.portMappings.map(({ host }) => host);
   }
 
+  /**
+   * Public URLs read out of Traefik v2/v3 router labels. A container behind a reverse proxy
+   * publishes no host port, so the only place its browser-reachable address exists is here.
+   * Suggestions for the `dev.dozzle.url` snippet only, never rendered as a link.
+   */
+  get traefikUrls() {
+    if (this.labels["traefik.enable"]?.trim().toLowerCase() === "false") return [];
+
+    const routers = new Map<string, { rule?: string; entrypoints?: string; tls: boolean }>();
+    for (const [key, value] of Object.entries(this.labels)) {
+      const match = key.match(/^traefik\.http\.routers\.([^.]+)\.(rule|entrypoints|tls)(\..+)?$/i);
+      if (!match) continue;
+      const [, name, prop, suffix] = match;
+      const router = routers.get(name) ?? { tls: false };
+      switch (prop.toLowerCase()) {
+        case "rule":
+          if (!suffix) router.rule = value;
+          break;
+        case "entrypoints":
+          if (!suffix) router.entrypoints = value;
+          break;
+        // Bare `tls` can be turned off; any sub-key such as `tls.certresolver` implies https.
+        case "tls":
+          router.tls ||= suffix ? true : value.trim().toLowerCase() !== "false";
+          break;
+      }
+      routers.set(name, router);
+    }
+
+    const urls = new Set<string>();
+    for (const name of [...routers.keys()].sort()) {
+      const { rule, entrypoints, tls } = routers.get(name)!;
+      if (!rule) continue;
+      const secure = tls || /(^|,)\s*(websecure|https)\s*(,|$)/i.test(entrypoints ?? "");
+      const path = rule.match(/\bPath(?:Prefix)?\(`([^`]+)`\)/)?.[1] ?? "";
+      for (const [, hosts] of rule.matchAll(/\bHost\(([^)]*)\)/g)) {
+        for (const [, host] of hosts.matchAll(/`([^`]+)`/g)) {
+          urls.add(`${secure ? "https" : "http"}://${host}${path === "/" ? "" : path}`);
+        }
+      }
+    }
+
+    return [...urls];
+  }
+
   set name(name: string) {
     this._name = name;
   }
