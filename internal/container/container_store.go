@@ -301,6 +301,47 @@ func (s *ContainerStore) SubscribeNewContainers(ctx context.Context, containers 
 	}()
 }
 
+// addContainer records a newly created or started container and notifies subscribers.
+//
+// FindContainer can fail transiently (the daemon is busy right after a compose recreate,
+// or the inspect times out). Nothing re-adds the container afterwards, so it would stay
+// missing from the store until the next reconnect and the UI would never update it again.
+// Fall back to the list entry in that case: it is not FullyLoaded, so the next
+// FindContainer fills in the rest.
+func (s *ContainerStore) addContainer(id string, timeout time.Duration) {
+	ctx, cancel := context.WithTimeout(context.Background(), timeout)
+	defer cancel()
+
+	list, err := s.client.ListContainers(ctx, s.labels)
+	if err != nil {
+		log.Warn().Err(err).Str("id", id).Msg("failed to list containers while adding container")
+		return
+	}
+
+	// make sure the container is in the list of containers when using filter
+	listed, valid := lo.Find(list, func(item Container) bool {
+		return item.ID == id
+	})
+	if !valid {
+		return
+	}
+
+	found, err := s.client.FindContainer(ctx, id)
+	if err != nil {
+		log.Warn().Err(err).Str("id", id).Msg("failed to inspect container, falling back to list entry")
+		found = listed
+	}
+
+	s.containers.Store(found.ID, &found)
+	s.newContainerSubscribers.Range(func(c context.Context, containers chan<- Container) bool {
+		select {
+		case containers <- found:
+		case <-c.Done():
+		}
+		return true
+	})
+}
+
 func (s *ContainerStore) init() {
 	stats := make(chan ContainerStat)
 	s.statsCollector.Subscribe(s.ctx, stats)
@@ -315,52 +356,10 @@ func (s *ContainerStore) init() {
 			log.Trace().Str("event", event.Name).Str("id", event.ActorID).Msg("received container event")
 			switch event.Name {
 			case "create":
-				ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
-
-				if container, err := s.client.FindContainer(ctx, event.ActorID); err == nil {
-					list, _ := s.client.ListContainers(ctx, s.labels)
-
-					// make sure the container is in the list of containers when using filter
-					valid := lo.ContainsBy(list, func(item Container) bool {
-						return item.ID == container.ID
-					})
-
-					if valid {
-						s.containers.Store(container.ID, &container)
-						s.newContainerSubscribers.Range(func(c context.Context, containers chan<- Container) bool {
-							select {
-							case containers <- container:
-							case <-c.Done():
-							}
-							return true
-						})
-					}
-				}
-				cancel()
+				s.addContainer(event.ActorID, 3*time.Second)
 
 			case "start":
-				ctx, cancel := context.WithTimeout(context.Background(), defaultTimeout)
-
-				if container, err := s.client.FindContainer(ctx, event.ActorID); err == nil {
-					list, _ := s.client.ListContainers(ctx, s.labels)
-
-					// make sure the container is in the list of containers when using filter
-					valid := lo.ContainsBy(list, func(item Container) bool {
-						return item.ID == container.ID
-					})
-
-					if valid {
-						s.containers.Store(container.ID, &container)
-						s.newContainerSubscribers.Range(func(c context.Context, containers chan<- Container) bool {
-							select {
-							case containers <- container:
-							case <-c.Done():
-							}
-							return true
-						})
-					}
-				}
-				cancel()
+				s.addContainer(event.ActorID, defaultTimeout)
 			case "destroy":
 				log.Debug().Str("id", event.ActorID).Msg("container destroyed")
 				s.containers.Delete(event.ActorID)

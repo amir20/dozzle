@@ -131,6 +131,10 @@ export const useContainerStore = defineStore("container", () => {
         errorTimer = null;
       }
       removeToast("events-stream");
+      // EventSource reconnects on its own without going through connect(), and the server
+      // replays the full list on every connect. Reset ready so the replay isn't mistaken
+      // for containers that just started and flagged as new.
+      ready.value = false;
       if (containers.value.length > 0) {
         containers.value = [];
       }
@@ -177,7 +181,15 @@ export const useContainerStore = defineStore("container", () => {
       return container;
     });
 
-    containers.value = [...containers.value, ...mapped];
+    // The payload is the complete list for every host it mentions (a start/rename refresh
+    // covers a single host, the initial connect covers all of them). Anything missing from
+    // a host that is present is gone for good, so drop it instead of keeping a tombstone
+    // that never leaves the store.
+    const hostsInPayload = new Set(containersPayload.map((c) => c.host));
+    const idsInPayload = new Set(containersPayload.map((c) => c.id));
+    const retained = containers.value.filter((c) => !hostsInPayload.has(c.host) || idsInPayload.has(c.id));
+
+    containers.value = [...retained, ...mapped];
   };
 
   const currentContainer = (id: Ref<string>) => computed(() => allContainersById.value[id.value]);

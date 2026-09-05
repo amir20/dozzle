@@ -2,6 +2,7 @@ package web
 
 import (
 	"net/http"
+	"time"
 
 	"github.com/amir20/dozzle/internal/analytics"
 	"github.com/amir20/dozzle/internal/auth"
@@ -10,6 +11,13 @@ import (
 	support_web "github.com/amir20/dozzle/internal/support/web"
 	"github.com/amir20/dozzle/types"
 	"github.com/rs/zerolog/log"
+)
+
+const (
+	eventBufferSize = 64
+	statBufferSize  = 128
+	// how often a host whose container list failed to refresh is retried
+	staleHostRetryInterval = 5 * time.Second
 )
 
 func (h *handler) streamEvents(w http.ResponseWriter, r *http.Request) {
@@ -21,8 +29,10 @@ func (h *handler) streamEvents(w http.ResponseWriter, r *http.Request) {
 	}
 	defer sseWriter.Close()
 
-	events := make(chan container.ContainerEvent)
-	stats := make(chan container.ContainerStat)
+	// buffered so a momentarily slow client can't stall the shared per-host store loop,
+	// which broadcasts to every subscriber with a blocking send
+	events := make(chan container.ContainerEvent, eventBufferSize)
+	stats := make(chan container.ContainerStat, statBufferSize)
 	availableHosts := make(chan container.Host)
 
 	h.hostService.SubscribeEventsAndStats(r.Context(), events, stats)
@@ -46,6 +56,22 @@ func (h *handler) streamEvents(w http.ResponseWriter, r *http.Request) {
 			ids[c.ID] = struct{}{}
 		}
 		visibleByHost[host] = ids
+	}
+
+	// A host whose refresh failed keeps a set that is missing containers started since,
+	// and nothing else repopulates it. Without a retry those containers stay invisible for
+	// the life of this stream, so the client never sees them start, stop or update again.
+	staleHosts := make(map[string]struct{})
+	refreshHost := func(host string) ([]container.Container, bool) {
+		containers, err := h.hostService.ListContainersForHost(host, userLabels)
+		if err != nil {
+			log.Warn().Err(err).Str("host", host).Msg("failed to refresh containers, will retry")
+			staleHosts[host] = struct{}{}
+			return nil, false
+		}
+		delete(staleHosts, host)
+		setVisible(host, containers)
+		return containers, true
 	}
 	isVisible := func(host, id string) bool {
 		if host != "" {
@@ -77,6 +103,8 @@ func (h *handler) streamEvents(w http.ResponseWriter, r *http.Request) {
 	for _, err := range errors {
 		log.Warn().Err(err).Msg("error listing containers")
 		if hostNotAvailableError, ok := err.(*docker_support.HostUnavailableError); ok {
+			// this host has no visible set at all, so retry it until it answers
+			staleHosts[hostNotAvailableError.Host.ID] = struct{}{}
 			if err := sseWriter.Event("update-host", hostNotAvailableError.Host); err != nil {
 				log.Error().Err(err).Msg("error writing event to event stream")
 			}
@@ -94,8 +122,23 @@ func (h *handler) streamEvents(w http.ResponseWriter, r *http.Request) {
 
 	go sendBeaconEvent(h, r, len(allContainers))
 
+	// stats never repair a stale host (their payload carries no host) and a quiet host may
+	// not emit another event for a long time, so retry on a timer as well
+	retry := time.NewTicker(staleHostRetryInterval)
+	defer retry.Stop()
+
 	for {
 		select {
+		case <-retry.C:
+			for host := range staleHosts {
+				if containers, ok := refreshHost(host); ok {
+					log.Debug().Str("host", host).Int("count", len(containers)).Msg("recovered stale host")
+					if err := sseWriter.Event("containers-changed", containers); err != nil {
+						log.Error().Err(err).Msg("error writing containers to event stream")
+						return
+					}
+				}
+			}
 		case host := <-availableHosts:
 			if err := sseWriter.Event("update-host", host); err != nil {
 				log.Error().Err(err).Msg("error writing event to event stream")
@@ -114,13 +157,26 @@ func (h *handler) streamEvents(w http.ResponseWriter, r *http.Request) {
 				return
 			}
 			log.Trace().Str("event", event.Name).Str("id", event.ActorID).Msg("container event from store")
+
+			// a host left stale by an earlier failure gets repaired on its next event, so a
+			// single transient list failure can't hide containers for the rest of the stream.
+			// start/rename refresh on their own below, so skip the extra list call for those.
+			_, stale := staleHosts[event.Host]
+			if stale && event.Host != "" && event.Name != "start" && event.Name != "rename" {
+				if containers, ok := refreshHost(event.Host); ok {
+					if err := sseWriter.Event("containers-changed", containers); err != nil {
+						log.Error().Err(err).Msg("error writing containers to event stream")
+						return
+					}
+				}
+			}
+
 			switch event.Name {
 			case "start", "die", "destroy", "rename", "pause", "unpause":
 				var refreshed []container.Container
 				if event.Name == "start" || event.Name == "rename" {
-					if containers, err := h.hostService.ListContainersForHost(event.Host, userLabels); err == nil {
+					if containers, ok := refreshHost(event.Host); ok {
 						log.Debug().Str("host", event.Host).Int("count", len(containers)).Msg("updating containers for host")
-						setVisible(event.Host, containers)
 						refreshed = containers
 					}
 				}
