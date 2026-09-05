@@ -3,6 +3,7 @@ on:
     branches:
       - master
   pull_request:
+    types: [opened, reopened, synchronize, ready_for_review]
     branches:
       - master
 name: Push container
@@ -82,3 +83,78 @@ jobs:
           labels: ${{ steps.meta-alpine.outputs.labels }}
           # No cache-to. See the note in deploy.yml.
           cache-from: type=gha
+
+  comment:
+    name: Comment image tag
+    needs: buildx
+    if: ${{ github.event_name == 'pull_request' }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+      issues: write
+    steps:
+      - name: Post pr-${{ github.event.pull_request.number }} image tag
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+          PR: ${{ github.event.pull_request.number }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          IS_DRAFT: ${{ github.event.pull_request.draft }}
+        run: |
+          set -euo pipefail
+
+          short_sha="${HEAD_SHA:0:7}"
+          pr_marker="<!-- dozzle-pr-image -->"
+          issue_marker="<!-- dozzle-pr-image:${PR} -->"
+
+          run_cmd="docker run -v /var/run/docker.sock:/var/run/docker.sock -p 8080:8080 amir20/dozzle:pr-${PR}"
+
+          pr_body=$(printf '%s\n%s\n\n```\n%s\n```\n\n%s\n' \
+            "$pr_marker" \
+            "Try this PR without waiting for a release:" \
+            "$run_cmd" \
+            "Also on \`ghcr.io/amir20/dozzle:pr-${PR}\` and as \`amir20/dozzle:pr-${PR}-alpine\`. Rebuilt on every push, currently \`${short_sha}\`.")
+
+          # Sticky comment on the PR itself.
+          existing=$(gh api "repos/${REPO}/issues/${PR}/comments" --paginate \
+            --jq ".[] | select(.body != null and (.body | contains(\"${pr_marker}\"))) | .id" | head -1)
+          if [ -n "$existing" ]; then
+            gh api -X PATCH "repos/${REPO}/issues/comments/${existing}" -f body="$pr_body" > /dev/null
+          else
+            gh api -X POST "repos/${REPO}/issues/${PR}/comments" -f body="$pr_body" > /dev/null
+          fi
+
+          if [ "$IS_DRAFT" = "true" ]; then
+            echo "Draft PR, skipping linked issues."
+            exit 0
+          fi
+
+          # One-time comment on every issue this PR closes.
+          linked=$(gh api "repos/${REPO}/pulls/${PR}" --jq '.body // ""' \
+            | grep -oiE '(close[sd]?|fix(e[sd])?|resolve[sd]?)[[:space:]]*:?[[:space:]]+#[0-9]+' \
+            | grep -oE '[0-9]+' | sort -u || true)
+
+          for issue in $linked; do
+            if [ "$issue" = "$PR" ]; then
+              continue
+            fi
+            kind=$(gh api "repos/${REPO}/issues/${issue}" --jq 'if .pull_request then "pr" else "issue" end' 2>/dev/null || echo "missing")
+            if [ "$kind" != "issue" ]; then
+              echo "#${issue} is not an issue, skipping."
+              continue
+            fi
+            already=$(gh api "repos/${REPO}/issues/${issue}/comments" --paginate \
+              --jq ".[] | select(.body != null and (.body | contains(\"${issue_marker}\"))) | .id" | head -1)
+            if [ -n "$already" ]; then
+              echo "#${issue} already has a pr-${PR} comment, skipping."
+              continue
+            fi
+            issue_body=$(printf '%s\n%s\n\n```\n%s\n```\n\n%s\n' \
+              "$issue_marker" \
+              "A fix for this is in #${PR}. CI builds an image per PR, so you can test it before the next release:" \
+              "$run_cmd" \
+              "Report back on #${PR} if it still happens.")
+            gh api -X POST "repos/${REPO}/issues/${issue}/comments" -f body="$issue_body" > /dev/null
+            echo "Commented on #${issue}."
+          done
