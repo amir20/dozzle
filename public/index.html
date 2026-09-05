@@ -14,10 +14,10 @@
     {{- if .Dev}}
     <script type="module" src="http://localhost:5173/@vite/client"></script>
     <script type="module" src="http://localhost:5173/assets/main.ts"></script>
-    {{- else }} {{ $js := index .Manifest "assets/main.ts" "file" }} {{ $css := index .Manifest "assets/main.ts" "css"
-    }}
-    <link rel="stylesheet" href="{{ .Base }}/{{ index $css 0}}" />
-    <script type="module" src="{{ .Base }}/{{ $js }}"></script>
+    {{- else }} {{- range .Styles }}
+    <link rel="stylesheet" href="{{ $.Base }}/{{ . }}" />
+    {{- end }}
+    <script type="module" src="{{ .Base }}/{{ .Entry }}"></script>
     {{- end }}
     <meta name="description" content="A log viewer for containers" />
     <meta name="robots" content="noindex" />
