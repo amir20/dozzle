@@ -5,7 +5,7 @@
         <div class="absolute right-0 flex items-center gap-3">
           <button
             v-if="!isMobile"
-            class="hover:text-base-content/60 cursor-pointer outline-hidden"
+            class="icon-btn hover:text-base-content/60 outline-hidden"
             type="button"
             :title="maximized ? $t('drawer.restore') : $t('drawer.maximize')"
             :aria-label="maximized ? $t('drawer.restore') : $t('drawer.maximize')"
@@ -15,10 +15,10 @@
             <mdi:arrow-expand v-else />
           </button>
           <form method="dialog">
-            <button v-if="isMobile" class="cursor-pointer">
+            <button v-if="isMobile" class="icon-btn">
               <mdi:close />
             </button>
-            <button v-else class="swap hover:swap-active cursor-pointer outline-hidden">
+            <button v-else class="icon-btn swap hover:swap-active outline-hidden">
               <mdi:keyboard-esc class="swap-off" />
               <mdi:close class="swap-on" />
             </button>

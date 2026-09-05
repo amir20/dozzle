@@ -3,7 +3,8 @@
     <h1>
       <router-link :to="{ name: '/' }" class="flex w-full items-center gap-2.5 overflow-hidden text-4xl font-thin">
         <Logo class="h-11 w-11 shrink-0" />
-        Dozzle
+        <span class="truncate">Dozzle</span>
+        <ProBadge />
       </router-link>
 
       <small class="mt-4 block text-sm font-light" v-if="hostname">{{ hostname }}</small>

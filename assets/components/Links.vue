@@ -10,7 +10,7 @@
       data-testid="notifications"
       class="btn btn-circle btn-sm"
     >
-      <mdi:bell class="size-6" />
+      <mdi:bell class="icon-ring size-6" />
     </router-link>
 
     <CloudPopover v-if="config.enableCloud" />
@@ -21,7 +21,7 @@
       data-testid="settings"
       class="btn btn-circle btn-sm"
     >
-      <mdi:cog class="size-6" />
+      <mdi:cog class="icon-spin size-6" />
     </router-link>
 
     <dropdown class="dropdown-end" data-testid="user-menu" v-if="config.user">

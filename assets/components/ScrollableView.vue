@@ -29,7 +29,7 @@
     <div class="mr-16 text-right" v-if="!historical">
       <transition name="fade">
         <button
-          class="btn btn-primary text-primary-content fixed bottom-8 rounded-sm p-3 shadow-sm transition-colors"
+          class="icon-btn btn btn-primary text-primary-content fixed bottom-8 rounded-sm p-3 shadow-sm transition-colors"
           :class="hasMore ? 'btn-secondary animate-bounce-fast text-secondary-content' : ''"
           @click="scrollToBottom()"
           v-show="scrollContext.paused"

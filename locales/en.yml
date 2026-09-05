@@ -457,6 +457,7 @@ cloud:
   link-instance: Link instance
   relink-instance: Re-link instance
   connected: Connected
+  pro-badge: Dozzle Cloud Pro
   plan: Plan
   usage: Events this period
   dashboard: Dashboard

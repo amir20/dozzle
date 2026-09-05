@@ -18,7 +18,7 @@
         :placeholder="placeholderCopy"
       />
       <form method="dialog" class="flex">
-        <button v-if="isMobile" class="text-base-content/50 hover:text-base-content">
+        <button v-if="isMobile" class="icon-btn text-base-content/50 hover:text-base-content">
           <mdi:close class="size-5" />
         </button>
         <button v-else>
