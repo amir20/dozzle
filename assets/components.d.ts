@@ -99,6 +99,7 @@ declare module 'vue' {
     LogViewer: typeof import('./components/LogViewer/LogViewer.vue')['default']
     'MaterialSymbols:codeBlocksRounded': typeof import('~icons/material-symbols/code-blocks-rounded')['default']
     'MaterialSymbols:contentCopy': typeof import('~icons/material-symbols/content-copy')['default']
+    'MaterialSymbols:download': typeof import('~icons/material-symbols/download')['default']
     'MaterialSymbols:eyeTracking': typeof import('~icons/material-symbols/eye-tracking')['default']
     'MaterialSymbols:link': typeof import('~icons/material-symbols/link')['default']
     'MaterialSymbols:logout': typeof import('~icons/material-symbols/logout')['default']
