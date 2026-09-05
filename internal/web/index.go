@@ -105,11 +105,15 @@ func (h *handler) executeTemplate(w http.ResponseWriter, req *http.Request) {
 		config["profile"] = struct{}{}
 	}
 
+	manifest := h.readManifest()
+	entryJS, styles := entryAssets(manifest, "assets/main.ts")
+
 	data := map[string]any{
-		"Config":   config,
-		"Dev":      h.config.Dev,
-		"Manifest": h.readManifest(),
-		"Base":     base,
+		"Config": config,
+		"Dev":    h.config.Dev,
+		"Entry":  entryJS,
+		"Styles": styles,
+		"Base":   base,
 	}
 	file, err := h.content.Open("index.html")
 	if err != nil {
@@ -139,6 +143,59 @@ func (h *handler) executeTemplate(w http.ResponseWriter, req *http.Request) {
 	if err != nil {
 		log.Fatal().Err(err).Msg("Could not execute index.html")
 	}
+}
+
+// entryAssets resolves the entry chunk's script and every stylesheet it depends on.
+// Vite splits scoped component CSS into its own chunk, and a chunk statically imported by
+// the entry gets no <link> of its own, so linking only the entry's `css` left those
+// stylesheets to whichever lazy page happened to import them. Deep linking to a page that
+// didn't (a container view) then rendered shared components unstyled until the user
+// navigated somewhere that pulled the chunk in.
+func entryAssets(manifest map[string]any, entry string) (string, []string) {
+	chunk, ok := manifest[entry].(map[string]any)
+	if !ok {
+		return "", nil
+	}
+
+	file, _ := chunk["file"].(string)
+
+	seen := make(map[string]bool)
+	styles := make([]string, 0, 4)
+	var collect func(key string)
+	collect = func(key string) {
+		if seen[key] {
+			return
+		}
+		seen[key] = true
+
+		chunk, ok := manifest[key].(map[string]any)
+		if !ok {
+			return
+		}
+
+		// Imports first, matching the order Vite itself emits, so the entry's stylesheet
+		// (Tailwind's) keeps the last word in the cascade.
+		if imports, ok := chunk["imports"].([]any); ok {
+			for _, i := range imports {
+				if name, ok := i.(string); ok {
+					collect(name)
+				}
+			}
+		}
+
+		if css, ok := chunk["css"].([]any); ok {
+			for _, c := range css {
+				name, ok := c.(string)
+				if ok && !seen[name] {
+					seen[name] = true
+					styles = append(styles, name)
+				}
+			}
+		}
+	}
+	collect(entry)
+
+	return file, styles
 }
 
 func (h *handler) readManifest() map[string]any {
