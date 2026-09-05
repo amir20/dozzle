@@ -6,8 +6,13 @@
       <carbon:star class="swap-off" />
     </label>
     <div class="inline-flex min-w-0 items-center text-sm">
-      <div class="breadcrumbs min-w-0 overflow-x-visible p-0 font-mono">
-        <ul>
+      <!-- daisyUI insets breadcrumbs with a -0.25rem margin plus a matching
+           0.25rem list padding. That pair is not accounted for in the intrinsic
+           width, so the truncating name below always came up 4px short and
+           ellipsized even with the whole row free. Zeroing both keeps the text
+           at the same x and gives it back those 4px. -->
+      <div class="breadcrumbs ms-0 min-w-0 overflow-x-visible p-0 font-mono">
+        <ul class="ps-0">
           <li v-if="config.hosts.length > 1" class="font-thin max-md:hidden">
             {{ container.hostLabel }}
           </li>
