@@ -135,7 +135,7 @@ import { PAYLOAD_TEMPLATES, type PayloadFormat } from "./payloadTemplates";
 
 const { close, onCreated, destination, isEditing } = defineProps<{
   close?: () => void;
-  onCreated?: () => void;
+  onCreated?: (created?: Dispatcher) => void;
   destination?: Dispatcher;
   isEditing: boolean;
 }>();
@@ -266,7 +266,8 @@ async function saveDestination() {
       throw new Error(data.error || "Failed to save destination");
     }
 
-    onCreated?.();
+    // Hand the saved destination back so callers can select it right away.
+    onCreated?.(await res.json().catch(() => undefined));
     close?.();
   } catch (e) {
     error.value = e instanceof Error ? e.message : "Failed to save destination";

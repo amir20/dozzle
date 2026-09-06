@@ -84,7 +84,7 @@ import CloudDestinationForm from "./CloudDestinationForm.vue";
 
 const { close, onCreated, destination } = defineProps<{
   close?: () => void;
-  onCreated?: () => void;
+  onCreated?: (created?: Dispatcher) => void;
   destination?: Dispatcher;
 }>();
 

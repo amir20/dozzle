@@ -348,6 +348,7 @@ notifications:
     enabled: Enabled ({count})
     paused: Paused ({count})
   no-alerts: No alerts configured yet. Create one to get started.
+  no-alerts-in-filter: No alerts match this filter.
   alert:
     paused: Paused
     containers: Containers
@@ -370,27 +371,60 @@ notifications:
   alert-form:
     create-title: Create Alert
     edit-title: Edit Alert
-    description: Subscribe to log events matching your criteria
+    description-log: Get notified when matching lines show up in your container logs
+    description-metric: Get notified when container CPU, memory or disk usage crosses a threshold
+    description-event: Get notified when containers start, stop, die or change health
+    required: Required
+    still-needed: "Still needed: {fields}"
+    missing:
+      container-expression: containers
+      condition: condition
+      destination: destination
+      name: name
     alert-name: Alert Name
     alert-name-placeholder: e.g., Test API Errors
-    container-filter: Container Filter
-    containers-match: "{count} containers match: {names}"
-    no-containers-match: No containers match this filter
-    log-filter: Log Filter
-    logs-match: "{count} logs match"
-    no-logs-match: No logs match this filter
+    alert-name-hint: Shown on the alert card and in every notification it sends.
+    container-filter: Containers
+    container-filter-hint: Which containers this alert watches. Only running containers are matched.
+    containers-match: "Matches {count} running containers: {names}"
+    no-containers-match: No running containers match this filter
+    checking: Checking…
+    examples: "Examples:"
+    use-example: Use this example
+    seconds-unit: sec
+    log-filter: Log Condition
+    log-filter-hint: Which log lines trigger the alert.
+    logs-match: "{count} matching lines in the last {window}"
+    no-logs-match: No matching lines in the last {window}
+    log-preview-hint: Write a condition to see which recent log lines would have triggered this alert.
+    log-scan-note: Preview scanned the first {count} matching containers.
+    preview-needs-containers: Pick containers first to preview against real data.
+    preview-fix-expression: Fix the expression to see a preview.
     destination: Destination
-    select-destination: Select a destination
-    no-destinations: No destinations configured. Add one first.
+    no-destinations: No destinations configured yet.
     preview: Preview
     cancel: Cancel
     save: Save
     create: Create Alert
-    metric-filter: Metric Expression
-    expression-valid: Expression is valid
-    metric-fields-hint: "Available fields: {fields}"
+    discard-title: Discard this alert?
+    discard-keep: Keep editing
+    discard-confirm: Discard
+    metric-filter: Metric Condition
+    metric-filter-hint: "Compare cpu (%), memory (%), memoryUsage (bytes) or mounts free space."
+    metric-preview-hint: Write a condition to see how your containers measure up right now.
+    metric-preview-note: Based on the last {duration} of stats Dozzle has collected.
+    metric-container: Container
+    metric-cpu: CPU
+    metric-memory: Memory
+    metric-window-match: Window
+    metric-firing: Would fire
+    metric-matching-now: Over now
+    metric-no-samples: No stats
+    metric-no-samples-hint: No stats collected yet for the matching containers.
+    metric-would-fire: "Would fire for {count} containers right now"
+    metric-would-not-fire: No container is over the threshold right now
     sample-window-label: Sample Window
-    sample-window-hint: "Alert triggers when condition is met for {duration}"
+    sample-window-hint: "Fires once the condition holds for {duration}"
     cooldown-label: Cooldown
     cooldown-hint: "{duration} between alerts per container"
     no-cooldown: No cooldown
@@ -398,8 +432,16 @@ notifications:
     log-alert: Log Alert
     metric-alert: Metric Alert
     event-alert: Event Alert
-    event-filter: Event Expression
-    event-fields-hint: "Available fields: {fields}"
+    log-alert-description: Match lines in container logs
+    metric-alert-description: Watch CPU, memory and disk usage
+    event-alert-description: React to starts, stops and health changes
+    type-switch-warning: Saving replaces this alert's {type} condition, which will be lost.
+    event-filter: Event Condition
+    event-filter-hint: Which container events trigger the alert.
+    event-matches: "Matches {count} of these events"
+    event-matches-none: Matches none of these events
+    event-preview-hint: Write a condition to see which container events it would catch.
+    event-preview-note: Sample events, not history. Docker events are matched as they happen.
   destination-form:
     create-title: Add Destination
     edit-title: Edit Destination

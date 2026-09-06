@@ -295,6 +295,7 @@ notifications:
     enabled: 已啟用 ({count})
     paused: 已暫停 ({count})
   no-alerts: 尚未設定任何警報。建立一個以開始使用。
+  no-alerts-in-filter: 沒有符合此篩選條件的警示。
   default-alert-created: 我們已為您建立預設警報。當容器以錯誤結束時，您會收到通知。您隨時可以編輯或暫停。
   default-alert-failed: 無法自動建立警報，請改用下方的表單。
   alert:
@@ -319,27 +320,60 @@ notifications:
   alert-form:
     create-title: 建立警報
     edit-title: 編輯警報
-    description: 訂閱符合您條件的日誌事件
+    description-log: 當容器日誌中出現符合的行時收到通知
+    description-metric: 當容器的 CPU、記憶體或磁碟使用率超過閾值時收到通知
+    description-event: 當容器啟動、停止、結束或健康狀態改變時收到通知
+    required: 必填
+    still-needed: "還需要：{fields}"
+    missing:
+      container-expression: 容器
+      condition: 條件
+      destination: 接收目標
+      name: 名稱
     alert-name: 警報名稱
     alert-name-placeholder: 例如，測試 API 錯誤
-    container-filter: 容器篩選器
-    containers-match: "{count} 個容器符合: {names}"
-    no-containers-match: 沒有容器符合此篩選器
-    log-filter: 日誌篩選器
-    logs-match: "{count} 筆日誌符合"
-    no-logs-match: 沒有日誌符合此篩選器
+    alert-name-hint: 顯示在警示卡片以及它發出的每則通知中。
+    container-filter: 容器
+    container-filter-hint: 此警示監看哪些容器。僅比對執行中的容器。
+    containers-match: "符合 {count} 個執行中的容器：{names}"
+    no-containers-match: 沒有執行中的容器符合此篩選條件
+    checking: 檢查中…
+    examples: "範例："
+    use-example: 使用此範例
+    seconds-unit: 秒
+    log-filter: 日誌條件
+    log-filter-hint: 哪些日誌行會觸發警示。
+    logs-match: "最近 {window} 內有 {count} 行符合"
+    no-logs-match: 最近 {window} 內沒有符合的行
+    log-preview-hint: 寫一個條件，看看最近哪些日誌行會觸發這則警示。
+    log-scan-note: 預覽掃描了前 {count} 個符合的容器。
+    preview-needs-containers: 請先選擇容器，才能用真實資料預覽。
+    preview-fix-expression: 修正運算式後即可看到預覽。
     destination: 目標
-    select-destination: 選擇目標
-    no-destinations: 尚未設定目標。請先新增一個。
+    no-destinations: 尚未設定接收目標。
     preview: 預覽
     cancel: 取消
     save: 儲存
     create: 建立警報
-    metric-filter: 指標表達式
-    expression-valid: 表達式有效
-    metric-fields-hint: "可用欄位：{fields}"
+    discard-title: 放棄這則警示？
+    discard-keep: 繼續編輯
+    discard-confirm: 放棄
+    metric-filter: 指標條件
+    metric-filter-hint: "可比較 cpu（%）、memory（%）、memoryUsage（位元組）或 mounts 的剩餘空間。"
+    metric-preview-hint: 寫一個條件，看看你的容器目前的狀況。
+    metric-preview-note: 根據 Dozzle 收集的最近 {duration} 統計資料。
+    metric-container: 容器
+    metric-cpu: CPU
+    metric-memory: 記憶體
+    metric-window-match: 區間
+    metric-firing: 將觸發
+    metric-matching-now: 目前超標
+    metric-no-samples: 無資料
+    metric-no-samples-hint: 符合的容器尚未收集到統計資料。
+    metric-would-fire: "目前會為 {count} 個容器觸發"
+    metric-would-not-fire: 目前沒有容器超過閾值
     sample-window-label: 取樣視窗
-    sample-window-hint: "當條件在 {duration} 內滿足時觸發警報"
+    sample-window-hint: "條件持續 {duration} 後觸發"
     cooldown-label: 冷卻時間
     cooldown-hint: "每個容器警報間隔 {duration}"
     no-cooldown: 無冷卻時間
@@ -347,8 +381,16 @@ notifications:
     log-alert: 日誌警報
     metric-alert: 指標警報
     event-alert: 事件警報
-    event-filter: 事件運算式
-    event-fields-hint: 可用欄位：{fields}
+    log-alert-description: 比對容器日誌中的行
+    metric-alert-description: 監看 CPU、記憶體與磁碟使用率
+    event-alert-description: 回應啟動、停止與健康狀態改變
+    type-switch-warning: 儲存會取代此警示的{type}條件，該條件將遺失。
+    event-filter: 事件條件
+    event-filter-hint: 哪些容器事件會觸發警示。
+    event-matches: "符合其中 {count} 個事件"
+    event-matches-none: 不符合其中任何事件
+    event-preview-hint: 寫一個條件，看看它會攔截哪些容器事件。
+    event-preview-note: 這是範例事件，不是歷史紀錄。Docker 事件會在發生時即時比對。
   destination-form:
     create-title: 新增目標
     edit-title: 編輯目標

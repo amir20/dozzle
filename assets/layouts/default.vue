@@ -42,7 +42,7 @@
       <button>close</button>
     </form>
   </dialog>
-  <SideDrawer ref="drawer" :width="drawerWidth" v-slot="{ close }">
+  <SideDrawer ref="drawer" :width="drawerWidth" :close-guard="drawerCloseGuard" v-slot="{ close }">
     <Suspense :timeout="0">
       <component :is="drawerComponent" v-bind="drawerProperties" :close="close" />
       <template #fallback> <span class="loading loading-spinner loading-sm"></span></template>
@@ -60,7 +60,12 @@ const pinnedLogsStore = usePinnedLogsStore();
 const { pinnedLogs } = storeToRefs(pinnedLogsStore);
 
 const drawer = useTemplateRef<InstanceType<typeof SideDrawer>>("drawer") as Ref<InstanceType<typeof SideDrawer>>;
-const { component: drawerComponent, properties: drawerProperties, width: drawerWidth } = createDrawer(drawer);
+const {
+  component: drawerComponent,
+  properties: drawerProperties,
+  width: drawerWidth,
+  closeGuard: drawerCloseGuard,
+} = createDrawer(drawer);
 
 import { useFuzzySearch } from "@/composable/fuzzySearch";
 

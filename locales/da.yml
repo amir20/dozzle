@@ -292,6 +292,7 @@ notifications:
     enabled: Aktiveret ({count})
     paused: Pauset ({count})
   no-alerts: Ingen alarmer konfigureret endnu. Opret en for at komme i gang.
+  no-alerts-in-filter: Ingen alarmer matcher dette filter.
   default-alert-created: Vi har oprettet en standardalarm for dig. Du får besked, når en container afsluttes med en fejl. Du kan redigere eller sætte den på pause når som helst.
   default-alert-failed: Kunne ikke oprette din alarm automatisk. Her er formularen i stedet.
   alert:
@@ -316,27 +317,60 @@ notifications:
   alert-form:
     create-title: Opret Alarm
     edit-title: Rediger Alarm
-    description: Abonner på log hændelser der matcher dine kriterier
+    description-log: Få besked når matchende linjer dukker op i dine containerlogs
+    description-metric: Få besked når en containers CPU, hukommelse eller diskforbrug overskrider en grænse
+    description-event: Få besked når containere starter, stopper, dør eller skifter helbred
+    required: Påkrævet
+    still-needed: "Mangler stadig: {fields}"
+    missing:
+      container-expression: containere
+      condition: betingelse
+      destination: destination
+      name: navn
     alert-name: Alarm Navn
     alert-name-placeholder: f.eks. Test API Fejl
-    container-filter: Container Filter
-    containers-match: "{count} containere matcher: {names}"
-    no-containers-match: Ingen containere matcher dette filter
-    log-filter: Log Filter
-    logs-match: "{count} logs matcher"
-    no-logs-match: Ingen logs matcher dette filter
+    alert-name-hint: Vises på alarmkortet og i hver notifikation den sender.
+    container-filter: Containere
+    container-filter-hint: Hvilke containere denne alarm overvåger. Kun kørende containere matches.
+    containers-match: "Matcher {count} kørende containere: {names}"
+    no-containers-match: Ingen kørende containere matcher dette filter
+    checking: Kontrollerer…
+    examples: "Eksempler:"
+    use-example: Brug dette eksempel
+    seconds-unit: sek
+    log-filter: Log-betingelse
+    log-filter-hint: Hvilke loglinjer der udløser alarmen.
+    logs-match: "{count} matchende linjer i de sidste {window}"
+    no-logs-match: Ingen matchende linjer i de sidste {window}
+    log-preview-hint: Skriv en betingelse for at se hvilke nylige loglinjer der ville have udløst denne alarm.
+    log-scan-note: Forhåndsvisningen gennemgik de første {count} matchende containere.
+    preview-needs-containers: Vælg containere først for at se en forhåndsvisning med rigtige data.
+    preview-fix-expression: Ret udtrykket for at se en forhåndsvisning.
     destination: Destination
-    select-destination: Vælg en destination
-    no-destinations: Ingen destinationer konfigureret. Tilføj en først.
+    no-destinations: Ingen destinationer konfigureret endnu.
     preview: Forhåndsvisning
     cancel: Annuller
     save: Gem
     create: Opret Alarm
-    metric-filter: Metrikudtryk
-    expression-valid: Udtryk er gyldigt
-    metric-fields-hint: "Tilgængelige felter: {fields}"
+    discard-title: Kassér denne alarm?
+    discard-keep: Fortsæt redigering
+    discard-confirm: Kassér
+    metric-filter: Metrik-betingelse
+    metric-filter-hint: "Sammenlign cpu (%), memory (%), memoryUsage (bytes) eller ledig plads på mounts."
+    metric-preview-hint: Skriv en betingelse for at se hvordan dine containere ligger lige nu.
+    metric-preview-note: Baseret på de sidste {duration} statistik som Dozzle har indsamlet.
+    metric-container: Container
+    metric-cpu: CPU
+    metric-memory: Hukommelse
+    metric-window-match: Vindue
+    metric-firing: Ville udløse
+    metric-matching-now: Over nu
+    metric-no-samples: Ingen data
+    metric-no-samples-hint: Der er endnu ikke indsamlet statistik for de matchende containere.
+    metric-would-fire: "Ville udløse for {count} containere lige nu"
+    metric-would-not-fire: Ingen container er over grænsen lige nu
     sample-window-label: Prøvevindue
-    sample-window-hint: "Alarm udløses, når betingelsen er opfyldt i {duration}"
+    sample-window-hint: "Udløses når betingelsen holder i {duration}"
     cooldown-label: Afkøling
     cooldown-hint: "{duration} mellem alarmer pr. container"
     no-cooldown: Ingen afkøling
@@ -344,8 +378,16 @@ notifications:
     log-alert: Logalarm
     metric-alert: Metrikalarm
     event-alert: Hændelsesalarm
-    event-filter: Hændelsesudtryk
-    event-fields-hint: "Tilgængelige felter: {fields}"
+    log-alert-description: Match linjer i containerlogs
+    metric-alert-description: Overvåg CPU, hukommelse og disk
+    event-alert-description: Reagér på start, stop og helbredsændringer
+    type-switch-warning: Ved at gemme erstattes denne alarms {type}-betingelse, som går tabt.
+    event-filter: Hændelses-betingelse
+    event-filter-hint: Hvilke containerhændelser der udløser alarmen.
+    event-matches: "Matcher {count} af disse hændelser"
+    event-matches-none: Matcher ingen af disse hændelser
+    event-preview-hint: Skriv en betingelse for at se hvilke containerhændelser den ville fange.
+    event-preview-note: Eksempelhændelser, ikke historik. Docker-hændelser vurderes når de sker.
   destination-form:
     create-title: Tilføj Destination
     edit-title: Rediger Destination

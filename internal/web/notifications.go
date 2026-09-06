@@ -85,6 +85,7 @@ type PreviewInput struct {
 	LogExpression       *string `json:"logExpression,omitempty"`
 	MetricExpression    *string `json:"metricExpression,omitempty"`
 	EventExpression     *string `json:"eventExpression,omitempty"`
+	SampleWindow        int     `json:"sampleWindow,omitempty"`
 }
 
 type PreviewResult struct {
@@ -96,6 +97,37 @@ type PreviewResult struct {
 	MatchedLogs       []container.LogEvent  `json:"matchedLogs"`
 	TotalLogs         int                   `json:"totalLogs"`
 	MessageKeys       []string              `json:"messageKeys,omitempty"`
+	// ScannedContainers is how many of the matched containers were actually read for logs.
+	// The scan is capped so a broad container filter can't stall the form.
+	ScannedContainers int            `json:"scannedContainers"`
+	LogWindowSeconds  int            `json:"logWindowSeconds"`
+	MetricSamples     []MetricSample `json:"metricSamples,omitempty"`
+	EventSamples      []EventSample  `json:"eventSamples,omitempty"`
+}
+
+// MetricSample is a per-container dry run of the metric expression against the stats Dozzle
+// already has buffered. It lets the alert form show what the rule would do right now instead
+// of only whether the expression compiles.
+type MetricSample struct {
+	ContainerID    string  `json:"containerId"`
+	Name           string  `json:"name"`
+	Host           string  `json:"host"`
+	CPU            float64 `json:"cpu"`
+	Memory         float64 `json:"memory"`
+	MemoryUsage    float64 `json:"memoryUsage"`
+	Matches        bool    `json:"matches"`
+	MatchedSamples int     `json:"matchedSamples"`
+	TotalSamples   int     `json:"totalSamples"`
+	WouldTrigger   bool    `json:"wouldTrigger"`
+}
+
+// EventSample is one representative container event from previewEventCatalog, tagged with
+// whether the event expression matches it. Docker events aren't retained anywhere, so this is
+// a dry run against realistic samples rather than against history.
+type EventSample struct {
+	Name       string            `json:"name"`
+	Attributes map[string]string `json:"attributes,omitempty"`
+	Matches    bool              `json:"matches"`
 }
 
 type TestWebhookInput struct {
@@ -521,6 +553,131 @@ func (h *handler) requireNotificationsRole(next http.Handler) http.Handler {
 	})
 }
 
+const (
+	// previewLogWindow is how far back the log preview reads. Kept in the response so the
+	// form can describe the window it is showing without hardcoding a duplicate value.
+	previewLogWindow = 2 * time.Hour
+	// previewMaxLogs is how many matching log lines are returned as examples.
+	previewMaxLogs = 10
+	// previewMaxLogContainers caps how many matched containers are read for logs. A filter
+	// like `state == "running"` can match hundreds of containers and reading all of them
+	// would block the drawer for the full request timeout.
+	previewMaxLogContainers = 10
+	// previewMaxMetricSamples caps how many per-container metric rows are returned.
+	previewMaxMetricSamples = 20
+)
+
+// previewEventCatalog is a set of representative container events used to dry-run event
+// expressions. Docker events are not retained anywhere, so instead of showing nothing until
+// an event happens, the form shows which of these an expression would match. Names are the
+// ones the event listener allows through, with health events already normalized.
+var previewEventCatalog = []types.NotificationEvent{
+	{Name: "start"},
+	{Name: "stop"},
+	{Name: "die", Attributes: map[string]string{"exitCode": "0"}},
+	{Name: "die", Attributes: map[string]string{"exitCode": "1"}},
+	{Name: "restart"},
+	{Name: "kill", Attributes: map[string]string{"signal": "SIGKILL"}},
+	{Name: "oom"},
+	{Name: "health_status", Attributes: map[string]string{"healthStatus": "healthy"}},
+	{Name: "health_status", Attributes: map[string]string{"healthStatus": "unhealthy"}},
+}
+
+// previewEventSamples evaluates the event expression against previewEventCatalog.
+func previewEventSamples(sub *notification.Subscription) []EventSample {
+	if sub.EventProgram == nil {
+		return nil
+	}
+
+	samples := make([]EventSample, 0, len(previewEventCatalog))
+	for _, event := range previewEventCatalog {
+		event.Timestamp = time.Now()
+		if event.Attributes == nil {
+			// Expressions that index attributes must not blow up on the events that carry none.
+			event.Attributes = map[string]string{}
+		}
+		samples = append(samples, EventSample{
+			Name:       event.Name,
+			Attributes: event.Attributes,
+			Matches:    sub.MatchesEvent(event),
+		})
+	}
+	return samples
+}
+
+// previewMetricSamples replays the metric expression over the stats already buffered for each
+// matched container. WouldTrigger mirrors Subscription.RecordMetricSample: a full sample window
+// where at least 80% of samples match.
+func previewMetricSamples(sub *notification.Subscription, containers []container.Container, sampleWindow int) []MetricSample {
+	if sub.MetricProgram == nil || len(containers) == 0 {
+		return nil
+	}
+
+	window := (&notification.Subscription{SampleWindow: sampleWindow}).GetSampleWindowSeconds()
+	samples := make([]MetricSample, 0, len(containers))
+
+	for _, c := range containers {
+		sample := MetricSample{ContainerID: c.ID, Name: c.Name, Host: c.Host}
+
+		if c.Stats != nil {
+			stats := c.Stats.Data()
+			if len(stats) > window {
+				stats = stats[len(stats)-window:]
+			}
+
+			mounts := notification.FromContainerMounts(c)
+			for _, stat := range stats {
+				sample.Matches = sub.MatchesMetric(types.NotificationStat{
+					CPUPercent:    stat.CPUPercent,
+					MemoryPercent: stat.MemoryPercent,
+					MemoryUsage:   stat.MemoryUsage,
+					Mounts:        mounts,
+				})
+				if sample.Matches {
+					sample.MatchedSamples++
+				}
+			}
+
+			sample.TotalSamples = len(stats)
+			if len(stats) > 0 {
+				latest := stats[len(stats)-1]
+				sample.CPU = latest.CPUPercent
+				sample.Memory = latest.MemoryPercent
+				sample.MemoryUsage = latest.MemoryUsage
+			}
+
+			if window <= 1 {
+				sample.WouldTrigger = sample.Matches
+			} else {
+				sample.WouldTrigger = sample.TotalSamples >= window &&
+					float64(sample.MatchedSamples)/float64(sample.TotalSamples) >= 0.8
+			}
+		}
+
+		samples = append(samples, sample)
+	}
+
+	// Surface the containers closest to firing first, so a long list stays useful when truncated.
+	sort.SliceStable(samples, func(i, j int) bool {
+		a, b := samples[i], samples[j]
+		if a.WouldTrigger != b.WouldTrigger {
+			return a.WouldTrigger
+		}
+		if a.Matches != b.Matches {
+			return a.Matches
+		}
+		if a.MatchedSamples != b.MatchedSamples {
+			return a.MatchedSamples > b.MatchedSamples
+		}
+		return a.Name < b.Name
+	})
+
+	if len(samples) > previewMaxMetricSamples {
+		samples = samples[:previewMaxMetricSamples]
+	}
+	return samples
+}
+
 // Preview and test handlers
 func (h *handler) previewExpression(w http.ResponseWriter, r *http.Request) {
 	var input PreviewInput
@@ -571,18 +728,22 @@ func (h *handler) previewExpression(w http.ResponseWriter, r *http.Request) {
 
 	// Compile metric expression
 	if sub.MetricExpression != "" {
-		_, err := expr.Compile(sub.MetricExpression, expr.Env(types.NotificationStat{}))
+		program, err := expr.Compile(sub.MetricExpression, expr.Env(types.NotificationStat{}))
 		if err != nil {
 			errStr := err.Error()
 			result.MetricError = &errStr
+		} else {
+			sub.MetricProgram = program
 		}
 	}
 
 	if sub.EventExpression != "" {
-		_, err := expr.Compile(sub.EventExpression, expr.Env(types.NotificationEvent{}))
+		program, err := expr.Compile(sub.EventExpression, expr.Env(types.NotificationEvent{}))
 		if err != nil {
 			errStr := err.Error()
 			result.EventError = &errStr
+		} else {
+			sub.EventProgram = program
 		}
 	}
 
@@ -601,22 +762,34 @@ func (h *handler) previewExpression(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
+	// Dry-run the metric expression against buffered stats, and the event expression against
+	// a catalog of representative events. Neither needs a live subscription, so both give the
+	// form something concrete to show the moment the expression compiles.
+	result.MetricSamples = previewMetricSamples(sub, result.MatchedContainers, input.SampleWindow)
+	result.EventSamples = previewEventSamples(sub)
+
 	// Fetch real logs from matched containers
+	result.LogWindowSeconds = int(previewLogWindow / time.Second)
 	if len(result.MatchedContainers) > 0 {
 		ctx, cancel := context.WithTimeout(r.Context(), 10*time.Second)
 		defer cancel()
 
-		const maxLogs = 10
 		totalMatched := 0
 		keySet := make(map[string]struct{})
 
-		for _, c := range result.MatchedContainers {
+		scanned := result.MatchedContainers
+		if len(scanned) > previewMaxLogContainers {
+			scanned = scanned[:previewMaxLogContainers]
+		}
+		result.ScannedContainers = len(scanned)
+
+		for _, c := range scanned {
 			containerService, err := h.hostService.FindContainer(c.Host, c.ID, h.resolveLabels(r))
 			if err != nil {
 				continue
 			}
 
-			from := time.Now().Add(-2 * time.Hour)
+			from := time.Now().Add(-previewLogWindow)
 			to := time.Now()
 
 			logChan, err := containerService.LogsBetweenDates(ctx, from, to, container.STDALL)
@@ -645,7 +818,7 @@ func (h *handler) previewExpression(w http.ResponseWriter, r *http.Request) {
 					notificationLog := notification.FromLogEvent(*logEvent)
 					if sub.MatchesLog(notificationLog) {
 						totalMatched++
-						if len(result.MatchedLogs) < maxLogs {
+						if len(result.MatchedLogs) < previewMaxLogs {
 							result.MatchedLogs = append(result.MatchedLogs, *logEvent)
 						}
 					}

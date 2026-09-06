@@ -296,6 +296,7 @@ notifications:
     enabled: Etkin ({count})
     paused: Duraklatılmış ({count})
   no-alerts: Henüz uyarı yapılandırılmadı. Başlamak için bir tane oluşturun.
+  no-alerts-in-filter: Bu filtreyle eşleşen uyarı yok.
   default-alert-created: Sizin için varsayılan bir uyarı oluşturduk. Bir konteyner hatayla sonlandığında bildirim alacaksınız. Dilediğiniz zaman düzenleyebilir veya duraklatabilirsiniz.
   default-alert-failed: Uyarınız otomatik olarak oluşturulamadı. Bunun yerine aşağıdaki formu kullanın.
   alert:
@@ -320,27 +321,60 @@ notifications:
   alert-form:
     create-title: Uyarı Oluştur
     edit-title: Uyarıyı Düzenle
-    description: Kriterlerinize uyan günlük olaylarına abone olun
+    description-log: Konteyner loglarınızda eşleşen satırlar göründüğünde bildirim alın
+    description-metric: Bir konteynerin CPU, bellek veya disk kullanımı eşiği aştığında bildirim alın
+    description-event: Konteynerler başladığında, durduğunda, sonlandığında veya sağlık durumu değiştiğinde bildirim alın
+    required: Zorunlu
+    still-needed: "Hâlâ gerekli: {fields}"
+    missing:
+      container-expression: konteynerler
+      condition: koşul
+      destination: hedef
+      name: ad
     alert-name: Uyarı Adı
     alert-name-placeholder: ör., Test API Hataları
-    container-filter: Konteyner Filtresi
-    containers-match: "{count} konteyner eşleşiyor: {names}"
-    no-containers-match: Bu filtreyle eşleşen konteyner yok
-    log-filter: Günlük Filtresi
-    logs-match: "{count} günlük eşleşiyor"
-    no-logs-match: Bu filtreyle eşleşen günlük yok
+    alert-name-hint: Uyarı kartında ve gönderdiği her bildirimde görünür.
+    container-filter: Konteynerler
+    container-filter-hint: Bu uyarının izlediği konteynerler. Yalnızca çalışan konteynerler eşleştirilir.
+    containers-match: "{count} çalışan konteynerle eşleşiyor: {names}"
+    no-containers-match: Bu filtreyle eşleşen çalışan konteyner yok
+    checking: Kontrol ediliyor…
+    examples: "Örnekler:"
+    use-example: Bu örneği kullan
+    seconds-unit: sn
+    log-filter: Log koşulu
+    log-filter-hint: Hangi log satırlarının uyarıyı tetiklediği.
+    logs-match: "Son {window} içinde {count} eşleşen satır"
+    no-logs-match: Son {window} içinde eşleşen satır yok
+    log-preview-hint: Son log satırlarından hangilerinin bu uyarıyı tetikleyeceğini görmek için bir koşul yazın.
+    log-scan-note: Önizleme, eşleşen ilk {count} konteyneri taradı.
+    preview-needs-containers: Gerçek veriyle önizleme için önce konteynerleri seçin.
+    preview-fix-expression: Önizleme görmek için ifadeyi düzeltin.
     destination: Hedef
-    select-destination: Bir hedef seçin
-    no-destinations: Yapılandırılmış hedef yok. Önce bir tane ekleyin.
+    no-destinations: Henüz hedef yapılandırılmadı.
     preview: Önizleme
     cancel: İptal
     save: Kaydet
     create: Uyarı Oluştur
-    metric-filter: Metrik İfadesi
-    expression-valid: İfade geçerli
-    metric-fields-hint: "Kullanılabilir alanlar: {fields}"
+    discard-title: Bu uyarı atılsın mı?
+    discard-keep: Düzenlemeye devam et
+    discard-confirm: At
+    metric-filter: Metrik koşulu
+    metric-filter-hint: "cpu (%), memory (%), memoryUsage (bayt) veya mounts boş alanını karşılaştırın."
+    metric-preview-hint: Konteynerlerinizin şu anki durumunu görmek için bir koşul yazın.
+    metric-preview-note: Dozzle’ın topladığı son {duration} istatistiğe dayanır.
+    metric-container: Konteyner
+    metric-cpu: CPU
+    metric-memory: Bellek
+    metric-window-match: Pencere
+    metric-firing: Tetiklenirdi
+    metric-matching-now: Şu an üstünde
+    metric-no-samples: Veri yok
+    metric-no-samples-hint: Eşleşen konteynerler için henüz istatistik toplanmadı.
+    metric-would-fire: "Şu anda {count} konteyner için tetiklenirdi"
+    metric-would-not-fire: Şu anda eşiğin üstünde konteyner yok
     sample-window-label: Örnek Penceresi
-    sample-window-hint: "Koşul {duration} boyunca karşılandığında uyarı tetiklenir"
+    sample-window-hint: "Koşul {duration} boyunca sürdüğünde tetiklenir"
     cooldown-label: Bekleme süresi
     cooldown-hint: "Konteyner başına uyarılar arası {duration}"
     no-cooldown: Bekleme süresi yok
@@ -348,8 +382,16 @@ notifications:
     log-alert: Günlük Uyarısı
     metric-alert: Metrik Uyarısı
     event-alert: Olay Uyarısı
-    event-filter: Olay İfadesi
-    event-fields-hint: "Kullanılabilir alanlar: {fields}"
+    log-alert-description: Konteyner loglarındaki satırları eşleştir
+    metric-alert-description: CPU, bellek ve disk kullanımını izle
+    event-alert-description: Başlatma, durdurma ve sağlık değişimlerine tepki ver
+    type-switch-warning: Kaydetmek bu uyarının {type} koşulunu değiştirir ve o koşul kaybolur.
+    event-filter: Olay koşulu
+    event-filter-hint: Hangi konteyner olaylarının uyarıyı tetiklediği.
+    event-matches: "Bu olaylardan {count} tanesiyle eşleşiyor"
+    event-matches-none: Bu olayların hiçbiriyle eşleşmiyor
+    event-preview-hint: Hangi konteyner olaylarını yakalayacağını görmek için bir koşul yazın.
+    event-preview-note: Geçmiş değil, örnek olaylar. Docker olayları gerçekleştikçe değerlendirilir.
   destination-form:
     create-title: Hedef Ekle
     edit-title: Hedefi Düzenle

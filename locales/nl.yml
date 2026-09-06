@@ -293,6 +293,7 @@ notifications:
     enabled: Ingeschakeld ({count})
     paused: Gepauzeerd ({count})
   no-alerts: Nog geen waarschuwingen geconfigureerd. Maak er een om te beginnen.
+  no-alerts-in-filter: Geen meldingen komen overeen met dit filter.
   default-alert-created: We hebben een standaardwaarschuwing voor je aangemaakt. Je krijgt bericht wanneer een container met een fout stopt. Je kunt deze altijd aanpassen of pauzeren.
   default-alert-failed: Je waarschuwing kon niet automatisch worden aangemaakt. Gebruik in plaats daarvan dit formulier.
   alert:
@@ -317,27 +318,60 @@ notifications:
   alert-form:
     create-title: Waarschuwing aanmaken
     edit-title: Waarschuwing bewerken
-    description: Abonneer op loggebeurtenissen die voldoen aan je criteria
+    description-log: Krijg een melding wanneer overeenkomende regels in je containerlogs verschijnen
+    description-metric: Krijg een melding wanneer CPU, geheugen of schijfgebruik van een container een drempel overschrijdt
+    description-event: Krijg een melding wanneer containers starten, stoppen, crashen of van gezondheid veranderen
+    required: Verplicht
+    still-needed: "Nog nodig: {fields}"
+    missing:
+      container-expression: containers
+      condition: voorwaarde
+      destination: bestemming
+      name: naam
     alert-name: Waarschuwingsnaam
     alert-name-placeholder: bijv. Test API-fouten
-    container-filter: Containerfilter
-    containers-match: "{count} containers komen overeen: {names}"
-    no-containers-match: Geen containers komen overeen met dit filter
-    log-filter: Logfilter
-    logs-match: "{count} logs komen overeen"
-    no-logs-match: Geen logs komen overeen met dit filter
+    alert-name-hint: Wordt getoond op de meldingskaart en in elke notificatie die hij verstuurt.
+    container-filter: Containers
+    container-filter-hint: Welke containers deze melding bewaakt. Alleen draaiende containers tellen mee.
+    containers-match: "Komt overeen met {count} draaiende containers: {names}"
+    no-containers-match: Geen draaiende containers komen overeen met dit filter
+    checking: Bezig met controleren…
+    examples: "Voorbeelden:"
+    use-example: Dit voorbeeld gebruiken
+    seconds-unit: sec
+    log-filter: Logvoorwaarde
+    log-filter-hint: Welke logregels de melding activeren.
+    logs-match: "{count} overeenkomende regels in de laatste {window}"
+    no-logs-match: Geen overeenkomende regels in de laatste {window}
+    log-preview-hint: Schrijf een voorwaarde om te zien welke recente logregels deze melding hadden geactiveerd.
+    log-scan-note: Het voorbeeld doorzocht de eerste {count} overeenkomende containers.
+    preview-needs-containers: Kies eerst containers om een voorbeeld met echte data te zien.
+    preview-fix-expression: Corrigeer de expressie om een voorbeeld te zien.
     destination: Bestemming
-    select-destination: Selecteer een bestemming
-    no-destinations: Geen bestemmingen geconfigureerd. Voeg er eerst een toe.
+    no-destinations: Nog geen bestemmingen geconfigureerd.
     preview: Voorbeeld
     cancel: Annuleren
     save: Opslaan
     create: Waarschuwing aanmaken
-    metric-filter: Metriekexpressie
-    expression-valid: Expressie is geldig
-    metric-fields-hint: "Beschikbare velden: {fields}"
+    discard-title: Deze melding verwerpen?
+    discard-keep: Verder bewerken
+    discard-confirm: Verwerpen
+    metric-filter: Metriekvoorwaarde
+    metric-filter-hint: "Vergelijk cpu (%), memory (%), memoryUsage (bytes) of de vrije ruimte van mounts."
+    metric-preview-hint: Schrijf een voorwaarde om te zien hoe je containers er nu voor staan.
+    metric-preview-note: Gebaseerd op de laatste {duration} aan statistieken die Dozzle heeft verzameld.
+    metric-container: Container
+    metric-cpu: CPU
+    metric-memory: Geheugen
+    metric-window-match: Venster
+    metric-firing: Zou afgaan
+    metric-matching-now: Nu erboven
+    metric-no-samples: Geen data
+    metric-no-samples-hint: Nog geen statistieken verzameld voor de overeenkomende containers.
+    metric-would-fire: "Zou nu afgaan voor {count} containers"
+    metric-would-not-fire: Geen enkele container zit nu boven de drempel
     sample-window-label: Steekproefvenster
-    sample-window-hint: "Waarschuwing wordt geactiveerd wanneer de voorwaarde gedurende {duration} is voldaan"
+    sample-window-hint: "Gaat af zodra de voorwaarde {duration} standhoudt"
     cooldown-label: Wachttijd
     cooldown-hint: "{duration} tussen waarschuwingen per container"
     no-cooldown: Geen wachttijd
@@ -345,8 +379,16 @@ notifications:
     log-alert: Logwaarschuwing
     metric-alert: Metrikwaarschuwing
     event-alert: Gebeurteniswaarschuwing
-    event-filter: Gebeurtenisexpressie
-    event-fields-hint: "Beschikbare velden: {fields}"
+    log-alert-description: Regels in containerlogs matchen
+    metric-alert-description: CPU-, geheugen- en schijfgebruik bewaken
+    event-alert-description: Reageren op starts, stops en gezondheidswijzigingen
+    type-switch-warning: Opslaan vervangt de {type}-voorwaarde van deze melding, die verloren gaat.
+    event-filter: Gebeurtenisvoorwaarde
+    event-filter-hint: Welke containergebeurtenissen de melding activeren.
+    event-matches: "Komt overeen met {count} van deze gebeurtenissen"
+    event-matches-none: Komt met geen van deze gebeurtenissen overeen
+    event-preview-hint: Schrijf een voorwaarde om te zien welke containergebeurtenissen hij zou opvangen.
+    event-preview-note: Voorbeeldgebeurtenissen, geen geschiedenis. Docker-gebeurtenissen worden live beoordeeld.
   destination-form:
     create-title: Bestemming toevoegen
     edit-title: Bestemming bewerken

@@ -295,6 +295,7 @@ notifications:
     enabled: Włączone ({count})
     paused: Wstrzymane ({count})
   no-alerts: Brak skonfigurowanych alertów. Utwórz jeden, aby rozpocząć.
+  no-alerts-in-filter: Żaden alert nie pasuje do tego filtra.
   default-alert-created: Utworzyliśmy dla Ciebie domyślny alert. Otrzymasz powiadomienie, gdy kontener zakończy się błędem. Możesz go edytować lub wstrzymać w dowolnej chwili.
   default-alert-failed: Nie udało się automatycznie utworzyć alertu. Skorzystaj z formularza poniżej.
   alert:
@@ -319,27 +320,60 @@ notifications:
   alert-form:
     create-title: Utwórz Alert
     edit-title: Edytuj Alert
-    description: Subskrybuj zdarzenia logów pasujące do twoich kryteriów
+    description-log: Otrzymuj powiadomienia, gdy w logach kontenerów pojawią się pasujące linie
+    description-metric: Otrzymuj powiadomienia, gdy CPU, pamięć lub dysk kontenera przekroczy próg
+    description-event: Otrzymuj powiadomienia, gdy kontenery startują, zatrzymują się, kończą pracę lub zmieniają stan
+    required: Wymagane
+    still-needed: "Wciąż brakuje: {fields}"
+    missing:
+      container-expression: kontenery
+      condition: warunek
+      destination: cel
+      name: nazwa
     alert-name: Nazwa Alertu
     alert-name-placeholder: np. Błędy API Testowego
-    container-filter: Filtr Kontenerów
-    containers-match: "{count} kontenerów pasuje: {names}"
-    no-containers-match: Żaden kontener nie pasuje do tego filtra
-    log-filter: Filtr Logów
-    logs-match: "{count} logów pasuje"
-    no-logs-match: Żaden log nie pasuje do tego filtra
+    alert-name-hint: Widoczna na karcie alertu i w każdym wysyłanym powiadomieniu.
+    container-filter: Kontenery
+    container-filter-hint: Które kontenery obserwuje ten alert. Dopasowywane są tylko działające kontenery.
+    containers-match: "Pasuje do {count} działających kontenerów: {names}"
+    no-containers-match: Żaden działający kontener nie pasuje do tego filtra
+    checking: Sprawdzanie…
+    examples: "Przykłady:"
+    use-example: Użyj tego przykładu
+    seconds-unit: sek
+    log-filter: Warunek logów
+    log-filter-hint: Które linie logów wyzwalają alert.
+    logs-match: "{count} pasujących linii w ciągu ostatnich {window}"
+    no-logs-match: Brak pasujących linii w ciągu ostatnich {window}
+    log-preview-hint: Napisz warunek, aby zobaczyć, które ostatnie linie logów wyzwoliłyby ten alert.
+    log-scan-note: Podgląd przeszukał pierwsze {count} pasujących kontenerów.
+    preview-needs-containers: Najpierw wybierz kontenery, aby zobaczyć podgląd na prawdziwych danych.
+    preview-fix-expression: Popraw wyrażenie, aby zobaczyć podgląd.
     destination: Miejsce docelowe
-    select-destination: Wybierz miejsce docelowe
-    no-destinations: Brak skonfigurowanych miejsc docelowych. Najpierw dodaj jedno.
+    no-destinations: Nie skonfigurowano jeszcze żadnych celów.
     preview: Podgląd
     cancel: Anuluj
     save: Zapisz
     create: Utwórz Alert
-    metric-filter: Wyrażenie metryki
-    expression-valid: Wyrażenie jest poprawne
-    metric-fields-hint: "Dostępne pola: {fields}"
+    discard-title: Odrzucić ten alert?
+    discard-keep: Kontynuuj edycję
+    discard-confirm: Odrzuć
+    metric-filter: Warunek metryki
+    metric-filter-hint: "Porównaj cpu (%), memory (%), memoryUsage (bajty) lub wolne miejsce w mounts."
+    metric-preview-hint: Napisz warunek, aby zobaczyć, jak wypadają Twoje kontenery w tej chwili.
+    metric-preview-note: Na podstawie ostatnich {duration} statystyk zebranych przez Dozzle.
+    metric-container: Kontener
+    metric-cpu: CPU
+    metric-memory: Pamięć
+    metric-window-match: Okno
+    metric-firing: Zadziałałby
+    metric-matching-now: Powyżej teraz
+    metric-no-samples: Brak danych
+    metric-no-samples-hint: Nie zebrano jeszcze statystyk dla pasujących kontenerów.
+    metric-would-fire: "Zadziałałby teraz dla {count} kontenerów"
+    metric-would-not-fire: Żaden kontener nie przekracza teraz progu
     sample-window-label: Okno próbkowania
-    sample-window-hint: "Alert jest wyzwalany, gdy warunek jest spełniony przez {duration}"
+    sample-window-hint: "Wyzwala się, gdy warunek utrzyma się przez {duration}"
     cooldown-label: Czas oczekiwania
     cooldown-hint: "{duration} między alertami na kontener"
     no-cooldown: Bez czasu oczekiwania
@@ -347,8 +381,16 @@ notifications:
     log-alert: Alert logów
     metric-alert: Alert metryki
     event-alert: Alert zdarzenia
-    event-filter: Wyrażenie zdarzenia
-    event-fields-hint: "Dostępne pola: {fields}"
+    log-alert-description: Dopasuj linie w logach kontenerów
+    metric-alert-description: Obserwuj CPU, pamięć i dysk
+    event-alert-description: Reaguj na starty, zatrzymania i zmiany stanu
+    type-switch-warning: Zapisanie zastąpi warunek {type} tego alertu, który zostanie utracony.
+    event-filter: Warunek zdarzenia
+    event-filter-hint: Które zdarzenia kontenerów wyzwalają alert.
+    event-matches: "Pasuje do {count} z tych zdarzeń"
+    event-matches-none: Nie pasuje do żadnego z tych zdarzeń
+    event-preview-hint: Napisz warunek, aby zobaczyć, które zdarzenia kontenerów by wychwycił.
+    event-preview-note: Przykładowe zdarzenia, nie historia. Zdarzenia Dockera są oceniane na bieżąco.
   destination-form:
     create-title: Dodaj Miejsce Docelowe
     edit-title: Edytuj Miejsce Docelowe

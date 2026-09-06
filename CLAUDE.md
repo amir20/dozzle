@@ -14,6 +14,12 @@ Format:
 - Include file:line references when relevant
 - Maximum ~10-15 lines per response
 
+## Translations
+
+`locales/en.yml` is the source of truth, but it is never the only file to change. Whenever you add, rename, or remove a key in `en.yml`, apply the same change to **every** other file in `locales/` in the same commit, with the string actually translated (not the English text copied over). Keys are also deleted everywhere when they lose their last consumer.
+
+There is no Crowdin or Weblate sync in this repo, so a key that only exists in `en.yml` silently falls back to English for every other locale and nothing ever flags it.
+
 ## Testing Unreleased PRs
 
 When replying to a GitHub issue or discussion where the fix lives in an open PR, ask the reporter to test the pre-built image: `amir20/dozzle:pr-XXX` (XXX = PR number). CI builds a tagged image per PR, so reporters can verify without waiting for the next release.

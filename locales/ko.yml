@@ -296,6 +296,7 @@ notifications:
     enabled: 활성화됨 ({count})
     paused: 일시정지됨 ({count})
   no-alerts: 아직 설정된 알림이 없습니다. 시작하려면 하나를 만드세요.
+  no-alerts-in-filter: 이 필터와 일치하는 알림이 없습니다.
   default-alert-created: 기본 알림을 만들어 두었습니다. 컨테이너가 오류로 종료되면 알려드립니다. 언제든지 수정하거나 일시중지할 수 있습니다.
   default-alert-failed: 알림을 자동으로 만들지 못했습니다. 대신 아래 양식을 사용하세요.
   alert:
@@ -320,27 +321,60 @@ notifications:
   alert-form:
     create-title: 알림 만들기
     edit-title: 알림 편집
-    description: 기준에 맞는 로그 이벤트를 구독합니다
+    description-log: 컨테이너 로그에 일치하는 줄이 나타나면 알림을 받습니다
+    description-metric: 컨테이너의 CPU, 메모리 또는 디스크 사용량이 임계값을 넘으면 알림을 받습니다
+    description-event: 컨테이너가 시작, 중지, 종료되거나 상태가 바뀌면 알림을 받습니다
+    required: 필수
+    still-needed: "아직 필요: {fields}"
+    missing:
+      container-expression: 컨테이너
+      condition: 조건
+      destination: 대상
+      name: 이름
     alert-name: 알림 이름
     alert-name-placeholder: "예: 테스트 API 오류"
-    container-filter: 컨테이너 필터
-    containers-match: "컨테이너 {count}개 일치: {names}"
-    no-containers-match: 이 필터와 일치하는 컨테이너가 없습니다
-    log-filter: 로그 필터
-    logs-match: "로그 {count}개 일치"
-    no-logs-match: 이 필터와 일치하는 로그가 없습니다
+    alert-name-hint: 알림 카드와 전송되는 모든 알림에 표시됩니다.
+    container-filter: 컨테이너
+    container-filter-hint: 이 알림이 감시할 컨테이너입니다. 실행 중인 컨테이너만 일치합니다.
+    containers-match: "실행 중인 컨테이너 {count}개와 일치: {names}"
+    no-containers-match: 이 필터와 일치하는 실행 중인 컨테이너가 없습니다
+    checking: 확인 중…
+    examples: "예시:"
+    use-example: 이 예시 사용
+    seconds-unit: 초
+    log-filter: 로그 조건
+    log-filter-hint: 어떤 로그 줄이 알림을 발생시킬지 정합니다.
+    logs-match: "최근 {window} 동안 일치하는 줄 {count}개"
+    no-logs-match: 최근 {window} 동안 일치하는 줄이 없습니다
+    log-preview-hint: 조건을 작성하면 최근 로그 중 어떤 줄이 이 알림을 발생시켰을지 볼 수 있습니다.
+    log-scan-note: 미리보기는 일치하는 컨테이너 중 처음 {count}개를 검사했습니다.
+    preview-needs-containers: 실제 데이터로 미리 보려면 먼저 컨테이너를 선택하세요.
+    preview-fix-expression: 미리보기를 보려면 표현식을 수정하세요.
     destination: 목적지
-    select-destination: 목적지 선택
-    no-destinations: 설정된 목적지가 없습니다. 먼저 하나를 추가하세요.
+    no-destinations: 아직 구성된 대상이 없습니다.
     preview: 미리보기
     cancel: 취소
     save: 저장
     create: 알림 만들기
-    metric-filter: 메트릭 표현식
-    expression-valid: 표현식이 유효합니다
-    metric-fields-hint: "사용 가능한 필드: {fields}"
+    discard-title: 이 알림을 취소할까요?
+    discard-keep: 계속 편집
+    discard-confirm: 취소
+    metric-filter: 메트릭 조건
+    metric-filter-hint: "cpu (%), memory (%), memoryUsage (바이트) 또는 mounts의 여유 공간을 비교합니다."
+    metric-preview-hint: 조건을 작성하면 지금 컨테이너 상태가 어떤지 볼 수 있습니다.
+    metric-preview-note: Dozzle이 수집한 최근 {duration}의 통계를 기준으로 합니다.
+    metric-container: 컨테이너
+    metric-cpu: CPU
+    metric-memory: 메모리
+    metric-window-match: 구간
+    metric-firing: 발생함
+    metric-matching-now: 현재 초과
+    metric-no-samples: 통계 없음
+    metric-no-samples-hint: 일치하는 컨테이너에 대해 아직 수집된 통계가 없습니다.
+    metric-would-fire: "지금 컨테이너 {count}개에서 발생합니다"
+    metric-would-not-fire: 지금 임계값을 넘은 컨테이너가 없습니다
     sample-window-label: 샘플 창
-    sample-window-hint: "조건이 {duration} 동안 충족되면 알림이 트리거됩니다"
+    sample-window-hint: "조건이 {duration} 동안 유지되면 발생합니다"
     cooldown-label: 대기 시간
     cooldown-hint: "컨테이너당 알림 간격 {duration}"
     no-cooldown: 대기 시간 없음
@@ -348,8 +382,16 @@ notifications:
     log-alert: 로그 알림
     metric-alert: 메트릭 알림
     event-alert: 이벤트 알림
-    event-filter: 이벤트 표현식
-    event-fields-hint: "사용 가능한 필드: {fields}"
+    log-alert-description: 컨테이너 로그의 줄을 매칭
+    metric-alert-description: CPU, 메모리, 디스크 사용량 감시
+    event-alert-description: 시작, 중지, 상태 변화에 반응
+    type-switch-warning: 저장하면 이 알림의 {type} 조건이 대체되어 사라집니다.
+    event-filter: 이벤트 조건
+    event-filter-hint: 어떤 컨테이너 이벤트가 알림을 발생시킬지 정합니다.
+    event-matches: "이 이벤트 중 {count}개와 일치"
+    event-matches-none: 이 이벤트 중 어느 것과도 일치하지 않습니다
+    event-preview-hint: 조건을 작성하면 어떤 컨테이너 이벤트를 잡아낼지 볼 수 있습니다.
+    event-preview-note: 이력이 아니라 예시 이벤트입니다. Docker 이벤트는 발생하는 즉시 평가됩니다.
   destination-form:
     create-title: 목적지 추가
     edit-title: 목적지 편집

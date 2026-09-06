@@ -62,6 +62,7 @@ declare global {
   const dismissedImageUpdates: typeof import('./composable/storage').dismissedImageUpdates
   const dismissedLinkHint: typeof import('./composable/storage').dismissedLinkHint
   const drawerContext: typeof import('./composable/drawer').drawerContext
+  const drawerGuardContext: typeof import('./composable/drawer').drawerGuardContext
   const eagerComputed: typeof import('@vueuse/core').eagerComputed
   const effectScope: typeof import('vue').effectScope
   const escapeHtml: typeof import('./utils/index').escapeHtml
@@ -265,6 +266,7 @@ declare global {
   const useDownloadUrl: typeof import('./composable/downloadUrl').useDownloadUrl
   const useDraggable: typeof import('@vueuse/core').useDraggable
   const useDrawer: typeof import('./composable/drawer').useDrawer
+  const useDrawerCloseGuard: typeof import('./composable/drawer').useDrawerCloseGuard
   const useDropZone: typeof import('@vueuse/core').useDropZone
   const useDuckDB: typeof import('./composable/duckdb').useDuckDB
   const useElementBounding: typeof import('@vueuse/core').useElementBounding
@@ -441,7 +443,7 @@ declare global {
   export type { Component, Slot, Slots, ComponentPublicInstance, ComputedRef, DirectiveBinding, ExtractDefaultPropTypes, ExtractPropTypes, ExtractPublicPropTypes, InjectionKey, PropType, Ref, ShallowRef, MaybeRef, MaybeRefOrGetter, VNode, WritableComputedRef } from 'vue'
   import('vue')
   // @ts-ignore
-  export type { AlertFormOptions, ContainerResult } from './composable/alertForm'
+  export type { AlertType, AlertPrefill, AlertFormOptions, ContainerResult, SaveBlocker } from './composable/alertForm'
   import('./composable/alertForm')
   // @ts-ignore
   export type { CloudAlert, CloudEvent } from './composable/cloudAlerts'
@@ -453,7 +455,7 @@ declare global {
   export type { CommandSection, Command } from './composable/commands'
   import('./composable/commands')
   // @ts-ignore
-  export type { DrawerWidth } from './composable/drawer'
+  export type { DrawerWidth, DrawerCloseGuard } from './composable/drawer'
   import('./composable/drawer')
   // @ts-ignore
   export type { SearchStatus, LogStreamSource } from './composable/eventStreams'
@@ -538,6 +540,7 @@ declare module 'vue' {
     readonly dismissedImageUpdates: UnwrapRef<typeof import('./composable/storage')['dismissedImageUpdates']>
     readonly dismissedLinkHint: UnwrapRef<typeof import('./composable/storage')['dismissedLinkHint']>
     readonly drawerContext: UnwrapRef<typeof import('./composable/drawer')['drawerContext']>
+    readonly drawerGuardContext: UnwrapRef<typeof import('./composable/drawer')['drawerGuardContext']>
     readonly eagerComputed: UnwrapRef<typeof import('@vueuse/core')['eagerComputed']>
     readonly effectScope: UnwrapRef<typeof import('vue')['effectScope']>
     readonly escapeHtml: UnwrapRef<typeof import('./utils/index')['escapeHtml']>
@@ -736,6 +739,7 @@ declare module 'vue' {
     readonly useDownloadUrl: UnwrapRef<typeof import('./composable/downloadUrl')['useDownloadUrl']>
     readonly useDraggable: UnwrapRef<typeof import('@vueuse/core')['useDraggable']>
     readonly useDrawer: UnwrapRef<typeof import('./composable/drawer')['useDrawer']>
+    readonly useDrawerCloseGuard: UnwrapRef<typeof import('./composable/drawer')['useDrawerCloseGuard']>
     readonly useDropZone: UnwrapRef<typeof import('@vueuse/core')['useDropZone']>
     readonly useDuckDB: UnwrapRef<typeof import('./composable/duckdb')['useDuckDB']>
     readonly useElementBounding: UnwrapRef<typeof import('@vueuse/core')['useElementBounding']>

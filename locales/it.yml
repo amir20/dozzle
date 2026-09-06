@@ -292,6 +292,7 @@ notifications:
     enabled: Abilitati ({count})
     paused: In pausa ({count})
   no-alerts: Nessun avviso configurato. Creane uno per iniziare.
+  no-alerts-in-filter: Nessun avviso corrisponde a questo filtro.
   default-alert-created: Abbiamo creato un avviso predefinito per te. Riceverai una notifica quando un container termina con un errore. Puoi modificarlo o metterlo in pausa quando vuoi.
   default-alert-failed: Non è stato possibile creare l'avviso automaticamente. Ecco il modulo.
   alert:
@@ -316,27 +317,60 @@ notifications:
   alert-form:
     create-title: Crea Avviso
     edit-title: Modifica Avviso
-    description: Iscriviti agli eventi di log che corrispondono ai tuoi criteri
+    description-log: Ricevi una notifica quando compaiono righe corrispondenti nei log dei tuoi container
+    description-metric: Ricevi una notifica quando CPU, memoria o disco di un container supera una soglia
+    description-event: Ricevi una notifica quando i container si avviano, si fermano, terminano o cambiano stato di salute
+    required: Obbligatorio
+    still-needed: "Manca ancora: {fields}"
+    missing:
+      container-expression: container
+      condition: condizione
+      destination: destinazione
+      name: nome
     alert-name: Nome Avviso
     alert-name-placeholder: es., Errori API Test
-    container-filter: Filtro Container
-    containers-match: "{count} container corrispondono: {names}"
-    no-containers-match: Nessun container corrisponde a questo filtro
-    log-filter: Filtro Log
-    logs-match: "{count} log corrispondono"
-    no-logs-match: Nessun log corrisponde a questo filtro
+    alert-name-hint: Mostrato sulla scheda dell'avviso e in ogni notifica che invia.
+    container-filter: Container
+    container-filter-hint: Quali container osserva questo avviso. Vengono considerati solo i container in esecuzione.
+    containers-match: "Corrisponde a {count} container in esecuzione: {names}"
+    no-containers-match: Nessun container in esecuzione corrisponde a questo filtro
+    checking: Verifica in corso…
+    examples: "Esempi:"
+    use-example: Usa questo esempio
+    seconds-unit: sec
+    log-filter: Condizione sui log
+    log-filter-hint: Quali righe di log attivano l'avviso.
+    logs-match: "{count} righe corrispondenti nelle ultime {window}"
+    no-logs-match: Nessuna riga corrispondente nelle ultime {window}
+    log-preview-hint: Scrivi una condizione per vedere quali righe di log recenti avrebbero attivato questo avviso.
+    log-scan-note: L'anteprima ha esaminato i primi {count} container corrispondenti.
+    preview-needs-containers: Scegli prima i container per vedere un'anteprima con dati reali.
+    preview-fix-expression: Correggi l'espressione per vedere un'anteprima.
     destination: Destinazione
-    select-destination: Seleziona una destinazione
-    no-destinations: Nessuna destinazione configurata. Aggiungine una prima.
+    no-destinations: Nessuna destinazione configurata finora.
     preview: Anteprima
     cancel: Annulla
     save: Salva
     create: Crea Avviso
-    metric-filter: Espressione Metrica
-    expression-valid: L'espressione è valida
-    metric-fields-hint: "Campi disponibili: {fields}"
+    discard-title: Scartare questo avviso?
+    discard-keep: Continua a modificare
+    discard-confirm: Scarta
+    metric-filter: Condizione sulle metriche
+    metric-filter-hint: "Confronta cpu (%), memory (%), memoryUsage (byte) o lo spazio libero di mounts."
+    metric-preview-hint: Scrivi una condizione per vedere come stanno i tuoi container in questo momento.
+    metric-preview-note: Basato sulle ultime {duration} di statistiche raccolte da Dozzle.
+    metric-container: Container
+    metric-cpu: CPU
+    metric-memory: Memoria
+    metric-window-match: Finestra
+    metric-firing: Scatterebbe
+    metric-matching-now: Sopra ora
+    metric-no-samples: Nessun dato
+    metric-no-samples-hint: Non sono ancora state raccolte statistiche per i container corrispondenti.
+    metric-would-fire: "Scatterebbe per {count} container in questo momento"
+    metric-would-not-fire: Nessun container supera la soglia in questo momento
     sample-window-label: Finestra di campionamento
-    sample-window-hint: "L'avviso si attiva quando la condizione è soddisfatta per {duration}"
+    sample-window-hint: "Scatta quando la condizione si mantiene per {duration}"
     cooldown-label: Tempo di attesa
     cooldown-hint: "{duration} tra gli avvisi per container"
     no-cooldown: Nessun tempo di attesa
@@ -344,8 +378,16 @@ notifications:
     log-alert: Avviso log
     metric-alert: Avviso metrica
     event-alert: Avviso evento
-    event-filter: Espressione evento
-    event-fields-hint: "Campi disponibili: {fields}"
+    log-alert-description: Filtra le righe nei log dei container
+    metric-alert-description: Sorveglia CPU, memoria e disco
+    event-alert-description: Reagisci ad avvii, arresti e cambi di salute
+    type-switch-warning: Salvando sostituirai la condizione {type} di questo avviso, che andrà persa.
+    event-filter: Condizione sugli eventi
+    event-filter-hint: Quali eventi dei container attivano l'avviso.
+    event-matches: "Corrisponde a {count} di questi eventi"
+    event-matches-none: Non corrisponde a nessuno di questi eventi
+    event-preview-hint: Scrivi una condizione per vedere quali eventi dei container intercetterebbe.
+    event-preview-note: Eventi di esempio, non uno storico. Gli eventi Docker vengono valutati quando accadono.
   destination-form:
     create-title: Aggiungi Destinazione
     edit-title: Modifica Destinazione

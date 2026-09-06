@@ -336,6 +336,7 @@ notifications:
     enabled: Habilitados ({count})
     paused: Pausados ({count})
   no-alerts: Aún no hay alertas configuradas. Cree una para comenzar.
+  no-alerts-in-filter: Ninguna alerta coincide con este filtro.
   default-alert-created: Hemos creado una alerta predeterminada para ti. Recibirás una notificación cuando un contenedor termine con un error. Puedes editarla o pausarla cuando quieras.
   default-alert-failed: No se pudo crear tu alerta automáticamente. Aquí tienes el formulario.
   alert:
@@ -360,27 +361,60 @@ notifications:
   alert-form:
     create-title: Crear Alerta
     edit-title: Editar Alerta
-    description: Suscríbase a eventos de registro que coincidan con sus criterios
+    description-log: Recibe una notificación cuando aparezcan líneas coincidentes en los logs de tus contenedores
+    description-metric: Recibe una notificación cuando la CPU, memoria o disco de un contenedor supere un umbral
+    description-event: Recibe una notificación cuando los contenedores arranquen, se detengan, mueran o cambien de estado
+    required: Obligatorio
+    still-needed: "Aún falta: {fields}"
+    missing:
+      container-expression: contenedores
+      condition: condición
+      destination: destino
+      name: nombre
     alert-name: Nombre de la Alerta
     alert-name-placeholder: ej., Errores de API de Prueba
-    container-filter: Filtro de Contenedor
-    containers-match: "{count} contenedores coinciden: {names}"
-    no-containers-match: Ningún contenedor coincide con este filtro
-    log-filter: Filtro de Registro
-    logs-match: "{count} registros coinciden"
-    no-logs-match: Ningún registro coincide con este filtro
+    alert-name-hint: Se muestra en la tarjeta de la alerta y en cada notificación que envía.
+    container-filter: Contenedores
+    container-filter-hint: Qué contenedores vigila esta alerta. Solo se consideran los contenedores en ejecución.
+    containers-match: "Coincide con {count} contenedores en ejecución: {names}"
+    no-containers-match: Ningún contenedor en ejecución coincide con este filtro
+    checking: Comprobando…
+    examples: "Ejemplos:"
+    use-example: Usar este ejemplo
+    seconds-unit: seg
+    log-filter: Condición de log
+    log-filter-hint: Qué líneas de log disparan la alerta.
+    logs-match: "{count} líneas coincidentes en las últimas {window}"
+    no-logs-match: Ninguna línea coincidente en las últimas {window}
+    log-preview-hint: Escribe una condición para ver qué líneas de log recientes habrían disparado esta alerta.
+    log-scan-note: La vista previa revisó los primeros {count} contenedores coincidentes.
+    preview-needs-containers: Elige contenedores primero para ver una vista previa con datos reales.
+    preview-fix-expression: Corrige la expresión para ver una vista previa.
     destination: Destino
-    select-destination: Seleccione un destino
-    no-destinations: No hay destinos configurados. Añada uno primero.
+    no-destinations: Todavía no hay destinos configurados.
     preview: Vista previa
     cancel: Cancelar
     save: Guardar
     create: Crear Alerta
-    metric-filter: Expresión de Métrica
-    expression-valid: La expresión es válida
-    metric-fields-hint: "Campos disponibles: {fields}"
+    discard-title: ¿Descartar esta alerta?
+    discard-keep: Seguir editando
+    discard-confirm: Descartar
+    metric-filter: Condición de métrica
+    metric-filter-hint: "Compara cpu (%), memory (%), memoryUsage (bytes) o el espacio libre de mounts."
+    metric-preview-hint: Escribe una condición para ver cómo están tus contenedores ahora mismo.
+    metric-preview-note: Basado en las últimas {duration} de estadísticas recogidas por Dozzle.
+    metric-container: Contenedor
+    metric-cpu: CPU
+    metric-memory: Memoria
+    metric-window-match: Ventana
+    metric-firing: Se dispararía
+    metric-matching-now: Por encima
+    metric-no-samples: Sin datos
+    metric-no-samples-hint: Todavía no se han recogido estadísticas de los contenedores coincidentes.
+    metric-would-fire: "Se dispararía para {count} contenedores ahora mismo"
+    metric-would-not-fire: Ningún contenedor supera el umbral ahora mismo
     sample-window-label: Ventana de muestreo
-    sample-window-hint: "La alerta se activa cuando la condición se cumple durante {duration}"
+    sample-window-hint: "Se dispara cuando la condición se mantiene durante {duration}"
     cooldown-label: Tiempo de espera
     cooldown-hint: "{duration} entre alertas por contenedor"
     no-cooldown: Sin tiempo de espera
@@ -388,8 +422,16 @@ notifications:
     log-alert: Alerta de registro
     metric-alert: Alerta de métrica
     event-alert: Alerta de evento
-    event-filter: Expresión de evento
-    event-fields-hint: "Campos disponibles: {fields}"
+    log-alert-description: Filtrar líneas en los logs de contenedores
+    metric-alert-description: Vigilar CPU, memoria y disco
+    event-alert-description: Reaccionar a arranques, paradas y cambios de estado
+    type-switch-warning: Al guardar se reemplazará la condición {type} de esta alerta y se perderá.
+    event-filter: Condición de evento
+    event-filter-hint: Qué eventos de contenedor disparan la alerta.
+    event-matches: "Coincide con {count} de estos eventos"
+    event-matches-none: No coincide con ninguno de estos eventos
+    event-preview-hint: Escribe una condición para ver qué eventos de contenedor detectaría.
+    event-preview-note: Eventos de ejemplo, no un histórico. Los eventos de Docker se evalúan en el momento.
   destination-form:
     create-title: Añadir Destino
     edit-title: Editar Destino

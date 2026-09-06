@@ -298,6 +298,7 @@ notifications:
     enabled: Omogočeni ({count})
     paused: Ustavljeni ({count})
   no-alerts: Opozorila še niso nastavljena. Ustvarite enega za začetek.
+  no-alerts-in-filter: Nobeno opozorilo ne ustreza temu filtru.
   default-alert-created: Za vas smo ustvarili privzeto opozorilo. Obvestili vas bomo, ko se zabojnik konča z napako. Kadar koli ga lahko uredite ali začasno ustavite.
   default-alert-failed: Opozorila ni bilo mogoče ustvariti samodejno. Uporabite spodnji obrazec.
   alert:
@@ -322,27 +323,60 @@ notifications:
   alert-form:
     create-title: Ustvari Opozorilo
     edit-title: Uredi Opozorilo
-    description: Naročite se na dogodke dnevnika, ki ustrezajo vašim kriterijem
+    description-log: Prejmite obvestilo, ko se v dnevnikih vsebnikov pojavijo ustrezne vrstice
+    description-metric: Prejmite obvestilo, ko poraba CPE, pomnilnika ali diska vsebnika preseže prag
+    description-event: Prejmite obvestilo, ko se vsebniki zaženejo, ustavijo, končajo ali spremenijo stanje
+    required: Obvezno
+    still-needed: "Še manjka: {fields}"
+    missing:
+      container-expression: vsebniki
+      condition: pogoj
+      destination: cilj
+      name: ime
     alert-name: Ime Opozorila
     alert-name-placeholder: npr., Napake Testnega API-ja
-    container-filter: Filter Zabojnikov
-    containers-match: "{count} zabojnikov ustreza: {names}"
-    no-containers-match: Noben zabojnik ne ustreza temu filtru
-    log-filter: Filter Dnevnika
-    logs-match: "{count} dnevnikov ustreza"
-    no-logs-match: Noben dnevnik ne ustreza temu filtru
+    alert-name-hint: Prikazano na kartici opozorila in v vsakem poslanem obvestilu.
+    container-filter: Vsebniki
+    container-filter-hint: Katere vsebnike to opozorilo nadzoruje. Upoštevani so samo delujoči vsebniki.
+    containers-match: "Ustreza {count} delujočim vsebnikom: {names}"
+    no-containers-match: Noben delujoč vsebnik ne ustreza temu filtru
+    checking: Preverjanje…
+    examples: "Primeri:"
+    use-example: Uporabi ta primer
+    seconds-unit: s
+    log-filter: Pogoj dnevnika
+    log-filter-hint: Katere vrstice dnevnika sprožijo opozorilo.
+    logs-match: "{count} ustreznih vrstic v zadnjih {window}"
+    no-logs-match: Nobena vrstica ne ustreza v zadnjih {window}
+    log-preview-hint: Napišite pogoj, da vidite, katere nedavne vrstice dnevnika bi sprožile to opozorilo.
+    log-scan-note: Predogled je pregledal prvih {count} ustreznih vsebnikov.
+    preview-needs-containers: Najprej izberite vsebnike za predogled z resničnimi podatki.
+    preview-fix-expression: Popravite izraz, da vidite predogled.
     destination: Cilj
-    select-destination: Izberite cilj
-    no-destinations: Cilji niso nastavljeni. Najprej dodajte enega.
+    no-destinations: Ciljev še ni nastavljenih.
     preview: Predogled
     cancel: Prekliči
     save: Shrani
     create: Ustvari Opozorilo
-    metric-filter: Izraz metrike
-    expression-valid: Izraz je veljaven
-    metric-fields-hint: "Razpoložljiva polja: {fields}"
+    discard-title: Zavržem to opozorilo?
+    discard-keep: Nadaljuj urejanje
+    discard-confirm: Zavrzi
+    metric-filter: Pogoj metrike
+    metric-filter-hint: "Primerjajte cpu (%), memory (%), memoryUsage (bajti) ali prosti prostor v mounts."
+    metric-preview-hint: Napišite pogoj, da vidite, kako so vaši vsebniki trenutno.
+    metric-preview-note: Na podlagi zadnjih {duration} statistike, ki jo je zbral Dozzle.
+    metric-container: Vsebnik
+    metric-cpu: CPE
+    metric-memory: Pomnilnik
+    metric-window-match: Okno
+    metric-firing: Bi se sprožilo
+    metric-matching-now: Zdaj nad
+    metric-no-samples: Ni podatkov
+    metric-no-samples-hint: Za ustrezne vsebnike statistika še ni bila zbrana.
+    metric-would-fire: "Trenutno bi se sprožilo za {count} vsebnikov"
+    metric-would-not-fire: Noben vsebnik trenutno ne presega praga
     sample-window-label: Vzorčno okno
-    sample-window-hint: "Opozorilo se sproži, ko je pogoj izpolnjen za {duration}"
+    sample-window-hint: "Sproži se, ko pogoj velja {duration}"
     cooldown-label: Čas mirovanja
     cooldown-hint: "{duration} med opozorili na zabojnik"
     no-cooldown: Brez časa mirovanja
@@ -350,8 +384,16 @@ notifications:
     log-alert: Opozorilo dnevnika
     metric-alert: Opozorilo metrike
     event-alert: Opozorilo o dogodku
-    event-filter: Izraz dogodka
-    event-fields-hint: "Polja na voljo: {fields}"
+    log-alert-description: Ujemanje vrstic v dnevnikih vsebnikov
+    metric-alert-description: Nadzor porabe CPE, pomnilnika in diska
+    event-alert-description: Odziv na zagone, zaustavitve in spremembe stanja
+    type-switch-warning: Shranjevanje bo zamenjalo pogoj {type} tega opozorila, ki bo izgubljen.
+    event-filter: Pogoj dogodka
+    event-filter-hint: Kateri dogodki vsebnikov sprožijo opozorilo.
+    event-matches: "Ustreza {count} od teh dogodkov"
+    event-matches-none: Ne ustreza nobenemu od teh dogodkov
+    event-preview-hint: Napišite pogoj, da vidite, katere dogodke vsebnikov bi ujel.
+    event-preview-note: Vzorčni dogodki, ne zgodovina. Dogodki Dockerja se ovrednotijo, ko se zgodijo.
   destination-form:
     create-title: Dodaj Cilj
     edit-title: Uredi Cilj
