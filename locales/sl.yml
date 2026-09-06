@@ -45,6 +45,7 @@ label:
   all-containers: Vsi zabojniki
   all-namespaces: Vsi
   namespaces: Imenski prostori
+  owners: Lastniki
   host: Gostitelj
   hosts: Gostitelji
   password: Geslo
@@ -320,6 +321,8 @@ notifications:
     delete-warning: Izbrišem to opozorilo?
     delete-cancel: Obdrži
     delete-confirm: Izbriši
+    window-meta: "okno {duration}"
+    cooldown-meta: "premor {duration}"
   destination:
     http-webhook: HTTP Webhook
     dozzle-cloud: Dozzle Cloud

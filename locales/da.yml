@@ -57,6 +57,7 @@ label:
   all-containers: Alle Containere
   all-namespaces: Alle Navneområder
   namespaces: Navneområder
+  owners: Ejere
   host: Vært
   hosts: Værter
   password: Kodeord
@@ -314,6 +315,8 @@ notifications:
     delete-warning: Slet denne alarm?
     delete-cancel: Behold
     delete-confirm: Slet
+    window-meta: "{duration} vindue"
+    cooldown-meta: "{duration} pause"
   destination:
     http-webhook: HTTP Webhook
     dozzle-cloud: Dozzle Cloud

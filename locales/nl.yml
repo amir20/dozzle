@@ -57,6 +57,7 @@ label:
   all-containers: Alle containers
   all-namespaces: Alle Namespaces
   namespaces: Namespaces
+  owners: Eigenaren
   host: Host
   hosts: Hosts
   password: Wachtwoord
@@ -315,6 +316,8 @@ notifications:
     delete-warning: Deze melding verwijderen?
     delete-cancel: Behouden
     delete-confirm: Verwijderen
+    window-meta: "venster van {duration}"
+    cooldown-meta: "{duration} afkoeltijd"
   destination:
     http-webhook: HTTP Webhook
     dozzle-cloud: Dozzle Cloud

@@ -57,6 +57,7 @@ label:
   all-containers: 전체 컨테이너
   all-namespaces: 전체
   namespaces: 네임스페이스
+  owners: 소유자
   host: 호스트
   hosts: 호스트
   password: 비밀번호
@@ -318,6 +319,8 @@ notifications:
     delete-warning: 이 알림을 삭제할까요?
     delete-cancel: 유지
     delete-confirm: 삭제
+    window-meta: "{duration} 구간"
+    cooldown-meta: "{duration} 대기"
   destination:
     http-webhook: HTTP 웹훅
     dozzle-cloud: Dozzle Cloud

@@ -57,6 +57,7 @@ label:
   all-containers: Все контейнеры
   all-namespaces: Все пространства имён
   namespaces: Пространства имён
+  owners: Владельцы
   host: Хост
   hosts: Хосты
   password: Пароль
@@ -314,6 +315,8 @@ notifications:
     delete-warning: Удалить это оповещение?
     delete-cancel: Оставить
     delete-confirm: Удалить
+    window-meta: "окно {duration}"
+    cooldown-meta: "пауза {duration}"
   destination:
     http-webhook: HTTP Webhook
     dozzle-cloud: Dozzle Cloud

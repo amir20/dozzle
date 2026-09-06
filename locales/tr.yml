@@ -57,6 +57,7 @@ label:
   all-containers: Tüm Konteynerlar
   all-namespaces: Tümü
   namespaces: Ad Alanları
+  owners: Sahipler
   host: Sunucu
   hosts: Sunucular
   password: Şifre
@@ -318,6 +319,8 @@ notifications:
     delete-warning: Bu uyarı silinsin mi?
     delete-cancel: Vazgeç
     delete-confirm: Sil
+    window-meta: "{duration} pencere"
+    cooldown-meta: "{duration} bekleme"
   destination:
     http-webhook: HTTP Webhook
     dozzle-cloud: Dozzle Cloud

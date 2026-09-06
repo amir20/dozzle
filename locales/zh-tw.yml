@@ -57,6 +57,7 @@ label:
   all-containers: 所有容器
   all-namespaces: 所有命名空間
   namespaces: 命名空間
+  owners: 所屬工作負載
   no-logs: 容器尚無日誌
   search-status:
     searching: 正在搜尋較舊的日誌…
@@ -317,6 +318,8 @@ notifications:
     delete-warning: 刪除這則警示？
     delete-cancel: 保留
     delete-confirm: 刪除
+    window-meta: "{duration} 區間"
+    cooldown-meta: "{duration} 冷卻"
   destination:
     http-webhook: HTTP Webhook
     dozzle-cloud: Dozzle Cloud

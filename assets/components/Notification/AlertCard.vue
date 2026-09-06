@@ -56,9 +56,12 @@
         />
       </div>
 
-      <!-- Expressions. The value column is `1fr` so long expressions can wrap, but each chip is
-           w-fit so a short one doesn't stretch a full-width bar across the card. -->
-      <div class="text-base-content/60 grid grid-cols-[auto_1fr] items-center gap-x-4 gap-y-2 text-sm">
+      <!-- Only the rule itself lives here: which containers, and what fires it. A fixed label
+           column keeps the chips on the same line across every card, which an `auto` column
+           could not do since each card sized it to its own longest label. The value column is
+           `1fr` so long expressions wrap, but each chip is w-fit so a short one doesn't stretch
+           a full-width bar across the card. -->
+      <div class="text-base-content/60 grid grid-cols-[minmax(0,7rem)_1fr] items-center gap-x-3 gap-y-2 text-sm">
         <span>{{ $t("notifications.alert.containers") }}</span>
         <code class="bg-base-200 text-base-content w-fit max-w-full rounded px-2 py-0.5 font-mono break-all">{{
           alert.containerExpression
@@ -68,20 +71,12 @@
           <code class="bg-base-200 text-base-content w-fit max-w-full rounded px-2 py-0.5 font-mono break-all">{{
             alert.metricExpression
           }}</code>
-          <span>{{ $t("notifications.alert.sample-window") }}</span>
-          <span>{{ formatDuration(alert.sampleWindow || 15, locale || undefined) }}</span>
-          <span>{{ $t("notifications.alert.cooldown") }}</span>
-          <span>{{ formatDuration(alert.cooldown || 300, locale || undefined) }}</span>
         </template>
         <template v-else-if="alert.eventExpression">
           <span>{{ $t("notifications.alert.event-filter") }}</span>
           <code class="bg-base-200 text-base-content w-fit max-w-full rounded px-2 py-0.5 font-mono break-all">{{
             alert.eventExpression
           }}</code>
-          <template v-if="alert.cooldown">
-            <span>{{ $t("notifications.alert.cooldown") }}</span>
-            <span>{{ formatDuration(alert.cooldown, locale || undefined) }}</span>
-          </template>
         </template>
         <template v-else>
           <span>{{ $t("notifications.alert.log-filter") }}</span>
@@ -101,14 +96,30 @@
           <template v-if="confirmingDelete">
             <span class="text-base-content">{{ $t("notifications.alert.delete-warning") }}</span>
           </template>
-          <template v-else-if="!alert.triggerCount">
-            <span>{{ $t("notifications.alert.never-triggered") }}</span>
-          </template>
           <template v-else>
-            <span>{{ $t("notifications.alert.triggered-count", alert.triggerCount) }}</span>
-            <span>{{ $t("notifications.alert.containers-count", alert.triggeredContainers) }}</span>
-            <span v-if="alert.lastTriggeredAt">
-              {{ $t("notifications.alert.last-triggered", { time: formatTimeAgo(alert.lastTriggeredAt) }) }}
+            <span v-if="!alert.triggerCount">{{ $t("notifications.alert.never-triggered") }}</span>
+            <template v-else>
+              <span>{{ $t("notifications.alert.triggered-count", alert.triggerCount) }}</span>
+              <span>{{ $t("notifications.alert.containers-count", alert.triggeredContainers) }}</span>
+              <span v-if="alert.lastTriggeredAt">
+                {{ $t("notifications.alert.last-triggered", { time: formatTimeAgo(alert.lastTriggeredAt) }) }}
+              </span>
+            </template>
+            <!-- Timing is how the rule is tuned, not what it matches, so it sits with the other
+                 metadata instead of competing with the expressions above. -->
+            <span v-if="alert.metricExpression">
+              {{
+                $t("notifications.alert.window-meta", {
+                  duration: formatDuration(alert.sampleWindow || 15, locale || undefined),
+                })
+              }}
+            </span>
+            <span v-if="cooldownSeconds">
+              {{
+                $t("notifications.alert.cooldown-meta", {
+                  duration: formatDuration(cooldownSeconds, locale || undefined),
+                })
+              }}
             </span>
           </template>
         </div>
@@ -152,6 +163,13 @@ const { alert, onUpdated, highlight } = defineProps<{
   onUpdated?: () => void;
   highlight?: boolean;
 }>();
+
+// Log alerts have no cooldown, metric alerts default to 5m, events only have one when set.
+const cooldownSeconds = computed(() => {
+  if (alert.metricExpression) return alert.cooldown || 300;
+  if (alert.eventExpression) return alert.cooldown || 0;
+  return 0;
+});
 
 const isHighlighted = ref(highlight ?? false);
 watch(

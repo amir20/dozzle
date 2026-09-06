@@ -58,6 +58,7 @@ label:
   all-containers: Semua Kontainer
   all-namespaces: Semua Namespace
   namespaces: Namespace
+  owners: Pemilik
   host: Host
   hosts: Host
   password: Kata sandi
@@ -326,6 +327,8 @@ notifications:
     delete-warning: Hapus peringatan ini?
     delete-cancel: Simpan
     delete-confirm: Hapus
+    window-meta: "jendela {duration}"
+    cooldown-meta: "jeda {duration}"
   destination:
     http-webhook: HTTP Webhook
     dozzle-cloud: Dozzle Cloud

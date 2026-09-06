@@ -57,6 +57,7 @@ label:
   all-containers: Alle Container
   all-namespaces: Alle Namespaces
   namespaces: Namespaces
+  owners: Besitzer
   host: Host
   hosts: Hosts
   password: Passwort
@@ -314,6 +315,8 @@ notifications:
     delete-warning: Diesen Alarm löschen?
     delete-cancel: Behalten
     delete-confirm: Löschen
+    window-meta: "{duration} Zeitfenster"
+    cooldown-meta: "{duration} Abklingzeit"
   destination:
     http-webhook: HTTP Webhook
     dozzle-cloud: Dozzle Cloud
