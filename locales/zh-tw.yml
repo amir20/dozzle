@@ -317,6 +317,15 @@ notifications:
     edit: 編輯
     duplicate: 複製
     delete: 刪除
+    used-by: "被 {count} 則警示使用"
+    unused: 沒有警示使用
+    copy-of: "{name} 副本"
+    copy-failed: 無法複製此接收目標
+    delete-failed: 無法刪除此接收目標
+    delete-warning: 刪除此接收目標？
+    delete-warning-used: "有 {count} 則警示傳送到這裡，刪除後將不再通知。"
+    delete-cancel: 保留
+    delete-confirm: 刪除
   alert-form:
     create-title: 建立警報
     edit-title: 編輯警報
@@ -397,6 +406,12 @@ notifications:
     description: 通知應發送到哪裡？
     name: 名稱
     name-placeholder: 例如，正式環境 Slack
+    name-hint: 為警示挑選接收目標時顯示的名稱。
+    name-taken: 已有其他接收目標使用此名稱。
+    missing:
+      name: 名稱
+      url: Webhook 網址
+      template: 範本
     type: 類型
     webhook-title: HTTP Webhook
     webhook-description: Slack、Discord、自訂端點
@@ -404,19 +419,34 @@ notifications:
     cloud-description: 推送通知、電子郵件警報和 AI 摘要
     webhook-url: Webhook URL
     webhook-url-placeholder: https://hooks.foo.com/services/...
+    webhook-url-invalid: 請輸入完整的 http:// 或 https:// 網址。
     api-key: API 金鑰
-    payload-format: Payload 格式
+    payload-format: 請求內容
     format-slack: Slack
     format-discord: Discord
     format-ntfy: ntfy
     format-custom: 自訂
+    format-replace-warning: 這會覆蓋你已經寫好的範本。
+    format-replace-confirm: 取代
     template: 範本
     template-hint: Go 範本語法
+    template-placeholder: 帶 Go 範本佔位符的 JSON 內容
+    payload-mode-json: 有效的 JSON。每個值都會為你算繪並跳脫。
+    payload-mode-raw: 不是 JSON，因此整個內容會以算繪後的文字送出。
+    payload-mode-unbalanced: 範本語句未關閉。
+    payload-mode-empty: 留空則將完整通知以 JSON 送出。
+    variables: 可用變數
+    variables-all: 所有警示
+    variables-log: 僅日誌警示
+    variables-metric: 僅指標警示
+    variables-event: 僅事件警示
+    variables-scope-hint: 「所有警示」以外的欄位只在各自的警示類型下有值，用在別處會在送出時失敗。
     headers: 自訂標頭
     headers-hint: 選填的 HTTP 標頭（例如 Authorization）
     header-name: 標頭名稱
     header-value: 標頭值
     add-header: 新增標頭
+    remove-header: 移除標頭
     test: 測試
     test-success: 測試成功
     cancel: 取消

@@ -16,8 +16,12 @@
             v-for="option in alertTypes"
             :key="option.type"
             type="button"
-            class="card card-border hover:border-base-content/40 cursor-pointer text-left transition-colors"
-            :class="alertType === option.type ? 'border-primary bg-primary/10' : ''"
+            class="card cursor-pointer border text-left transition-colors"
+            :class="
+              alertType === option.type
+                ? 'border-primary bg-primary/10 ring-primary/40 ring-1'
+                : 'border-base-content/15 hover:border-base-content/35 hover:bg-base-content/5'
+            "
             :aria-pressed="alertType === option.type"
             @click="alertType = option.type"
           >
@@ -25,7 +29,7 @@
               <div class="flex items-center gap-2 font-semibold">
                 <component
                   :is="option.icon"
-                  :class="alertType === option.type ? 'text-primary' : 'text-base-content/60'"
+                  :class="alertType === option.type ? 'text-primary' : 'text-base-content/50'"
                 />
                 {{ $t(`notifications.alert-form.${option.type}-alert`) }}
               </div>
@@ -120,14 +124,26 @@
             v-for="dest in destinations"
             :key="dest.id"
             type="button"
-            class="card card-border hover:border-base-content/40 cursor-pointer text-left transition-colors"
-            :class="dispatcherId === dest.id ? 'border-primary bg-primary/10' : ''"
+            class="card cursor-pointer border text-left transition-colors"
+            :class="
+              dispatcherId === dest.id
+                ? 'border-primary bg-primary/10 ring-primary/40 ring-1'
+                : 'border-base-content/15 hover:border-base-content/35 hover:bg-base-content/5'
+            "
             :aria-pressed="dispatcherId === dest.id"
             @click="dispatcherId = dest.id"
           >
             <div class="card-body flex-row items-center gap-3 p-3">
-              <mdi:webhook v-if="dest.type === 'webhook'" class="shrink-0 text-lg" />
-              <mdi:cloud v-else class="shrink-0 text-lg" />
+              <mdi:webhook
+                v-if="dest.type === 'webhook'"
+                class="shrink-0 text-lg"
+                :class="dispatcherId === dest.id ? 'text-primary' : 'text-base-content/50'"
+              />
+              <mdi:cloud
+                v-else
+                class="shrink-0 text-lg"
+                :class="dispatcherId === dest.id ? 'text-primary' : 'text-base-content/50'"
+              />
               <div class="min-w-0">
                 <div class="truncate font-semibold">{{ dest.name }}</div>
                 <div class="text-base-content/60 text-xs">
@@ -182,7 +198,7 @@
       </div>
 
       <div v-else class="flex flex-wrap items-center justify-end gap-2">
-        <span v-if="blockers.length" class="text-base-content/60 mr-auto text-sm">
+        <span v-if="blockers.length" class="text-base-content/70 mr-auto text-sm">
           {{ $t("notifications.alert-form.still-needed", { fields: blockerLabels }) }}
         </span>
         <button class="btn" @click="close?.()">{{ $t("notifications.alert-form.cancel") }}</button>

@@ -14,6 +14,7 @@ declare global {
   const K8sNamespace: typeof import('./stores/k8s').K8sNamespace
   const K8sOwner: typeof import('./stores/k8s').K8sOwner
   const MIN_MENU_WIDTH: typeof import('./stores/settings').MIN_MENU_WIDTH
+  const TEMPLATE_VARIABLES: typeof import('./composable/templateEditor').TEMPLATE_VARIABLES
   const acceptHMRUpdate: typeof import('pinia').acceptHMRUpdate
   const activePopup: typeof import('./composable/popup').activePopup
   const allLevels: typeof import('./composable/logContext').allLevels
@@ -140,6 +141,7 @@ declare global {
   const ownerMembershipLabel: typeof import('./stores/k8s').ownerMembershipLabel
   const parseMessage: typeof import('./composable/loadBetween').parseMessage
   const pausableWatch: typeof import('@vueuse/core').pausableWatch
+  const payloadMode: typeof import('./composable/templateEditor').payloadMode
   const persistentVisibleKeysForContainer: typeof import('./composable/storage').persistentVisibleKeysForContainer
   const pinnedContainers: typeof import('./composable/storage').pinnedContainers
   const provide: typeof import('vue').provide
@@ -467,7 +469,7 @@ declare global {
   export type { ImageUpdateStatus, ImageUpdateResult } from './composable/imageUpdate'
   import('./composable/imageUpdate')
   // @ts-ignore
-  export type { TemplateEditorOptions } from './composable/templateEditor'
+  export type { TemplateEditorOptions, TemplateVariable, PayloadMode } from './composable/templateEditor'
   import('./composable/templateEditor')
   // @ts-ignore
   export type { Config, Profile } from './stores/config'
@@ -492,6 +494,7 @@ declare module 'vue' {
     readonly EffectScope: UnwrapRef<typeof import('vue')['EffectScope']>
     readonly K8sNamespace: UnwrapRef<typeof import('./stores/k8s')['K8sNamespace']>
     readonly K8sOwner: UnwrapRef<typeof import('./stores/k8s')['K8sOwner']>
+    readonly TEMPLATE_VARIABLES: UnwrapRef<typeof import('./composable/templateEditor')['TEMPLATE_VARIABLES']>
     readonly acceptHMRUpdate: UnwrapRef<typeof import('pinia')['acceptHMRUpdate']>
     readonly activePopup: UnwrapRef<typeof import('./composable/popup')['activePopup']>
     readonly allLevels: UnwrapRef<typeof import('./composable/logContext')['allLevels']>
@@ -616,6 +619,7 @@ declare module 'vue' {
     readonly ownerMembershipLabel: UnwrapRef<typeof import('./stores/k8s')['ownerMembershipLabel']>
     readonly parseMessage: UnwrapRef<typeof import('./composable/loadBetween')['parseMessage']>
     readonly pausableWatch: UnwrapRef<typeof import('@vueuse/core')['pausableWatch']>
+    readonly payloadMode: UnwrapRef<typeof import('./composable/templateEditor')['payloadMode']>
     readonly persistentVisibleKeysForContainer: UnwrapRef<typeof import('./composable/storage')['persistentVisibleKeysForContainer']>
     readonly pinnedContainers: UnwrapRef<typeof import('./composable/storage')['pinnedContainers']>
     readonly provide: UnwrapRef<typeof import('vue')['provide']>

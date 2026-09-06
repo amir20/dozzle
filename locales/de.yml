@@ -314,6 +314,15 @@ notifications:
     edit: Bearbeiten
     duplicate: Duplizieren
     delete: Löschen
+    used-by: "Von {count} Alarmen verwendet"
+    unused: Von keinem Alarm verwendet
+    copy-of: "{name} Kopie"
+    copy-failed: Dieses Ziel konnte nicht dupliziert werden
+    delete-failed: Dieses Ziel konnte nicht gelöscht werden
+    delete-warning: Dieses Ziel löschen?
+    delete-warning-used: "{count} Alarme senden hierhin und benachrichtigen dann nicht mehr."
+    delete-cancel: Behalten
+    delete-confirm: Löschen
   alert-form:
     create-title: Alarm erstellen
     edit-title: Alarm bearbeiten
@@ -394,6 +403,12 @@ notifications:
     description: Wohin sollen Benachrichtigungen gesendet werden?
     name: Name
     name-placeholder: z.B. Produktion Slack
+    name-hint: So wird dieses Ziel bei der Auswahl für einen Alarm angezeigt.
+    name-taken: Ein anderes Ziel verwendet diesen Namen bereits.
+    missing:
+      name: Name
+      url: Webhook-URL
+      template: Vorlage
     type: Typ
     webhook-title: HTTP Webhook
     webhook-description: Slack, Discord, benutzerdefinierter Endpunkt
@@ -401,19 +416,34 @@ notifications:
     cloud-description: Push-Benachrichtigungen, E-Mail-Alarme und KI-gestützte Zusammenfassungen
     webhook-url: Webhook URL
     webhook-url-placeholder: https://hooks.foo.com/services/...
+    webhook-url-invalid: Geben Sie eine vollständige http:// oder https:// URL ein.
     api-key: API-Schlüssel
-    payload-format: Payload-Format
+    payload-format: Nutzlast
     format-slack: Slack
     format-discord: Discord
     format-ntfy: ntfy
     format-custom: Benutzerdefiniert
+    format-replace-warning: Dies ersetzt die von Ihnen geschriebene Vorlage.
+    format-replace-confirm: Ersetzen
     template: Vorlage
     template-hint: Go-Template-Syntax
+    template-placeholder: JSON-Body mit Go-Template-Platzhaltern
+    payload-mode-json: Gültiges JSON. Jeder Wert wird für Sie gerendert und escaped.
+    payload-mode-raw: Kein JSON, daher wird der gesamte Body als gerenderter Text gesendet.
+    payload-mode-unbalanced: Nicht geschlossene Template-Anweisung.
+    payload-mode-empty: Eine leere Vorlage sendet die vollständige Benachrichtigung als JSON.
+    variables: Verfügbare Variablen
+    variables-all: Jeder Alarm
+    variables-log: Nur Log-Alarme
+    variables-metric: Nur Metrik-Alarme
+    variables-event: Nur Ereignisalarme
+    variables-scope-hint: Felder außerhalb von „Jeder Alarm“ sind nur für ihren eigenen Alarmtyp gesetzt; anderswo verwendet schlagen sie beim Senden fehl.
     headers: Benutzerdefinierte Header
     headers-hint: Optionale HTTP-Header (z.B. Authorization)
     header-name: Header-Name
     header-value: Header-Wert
     add-header: Header hinzufügen
+    remove-header: Header entfernen
     test: Testen
     test-success: Test erfolgreich
     cancel: Abbrechen

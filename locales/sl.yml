@@ -320,6 +320,15 @@ notifications:
     edit: Uredi
     duplicate: Podvoji
     delete: Izbriši
+    used-by: "Uporablja ga {count} opozoril"
+    unused: Ne uporablja ga nobeno opozorilo
+    copy-of: "Kopija {name}"
+    copy-failed: Tega cilja ni bilo mogoče podvojiti
+    delete-failed: Tega cilja ni bilo mogoče izbrisati
+    delete-warning: Izbrišem ta cilj?
+    delete-warning-used: "{count} opozoril pošilja sem in bo prenehalo obveščati."
+    delete-cancel: Obdrži
+    delete-confirm: Izbriši
   alert-form:
     create-title: Ustvari Opozorilo
     edit-title: Uredi Opozorilo
@@ -400,6 +409,12 @@ notifications:
     description: Kam naj se pošiljajo obvestila?
     name: Ime
     name-placeholder: npr., Produkcijski Slack
+    name-hint: Tako je ta cilj naveden pri izbiri cilja za opozorilo.
+    name-taken: To ime že uporablja drug cilj.
+    missing:
+      name: ime
+      url: URL webhooka
+      template: predloga
     type: Tip
     webhook-title: HTTP Webhook
     webhook-description: Slack, Discord, končna točka po meri
@@ -407,19 +422,34 @@ notifications:
     cloud-description: Push obvestila, e-poštna opozorila in povzetki z umetno inteligenco
     webhook-url: URL Webhook
     webhook-url-placeholder: https://hooks.foo.com/services/...
+    webhook-url-invalid: Vnesite celoten naslov http:// ali https://.
     api-key: API Ključ
-    payload-format: Format Payload
+    payload-format: Vsebina
     format-slack: Slack
     format-discord: Discord
     format-ntfy: ntfy
     format-custom: Po meri
+    format-replace-warning: To bo zamenjalo predlogo, ki ste jo napisali.
+    format-replace-confirm: Zamenjaj
     template: Predloga
     template-hint: Sintaksa predloge Go
+    template-placeholder: Telo JSON z oznakami predloge Go
+    payload-mode-json: Veljaven JSON. Vsaka vrednost je izrisana in ubežno kodirana namesto vas.
+    payload-mode-raw: Ni JSON, zato je celotno telo poslano kot izrisano besedilo.
+    payload-mode-unbalanced: Nezaprt ukaz predloge.
+    payload-mode-empty: Prazna predloga pošlje celotno obvestilo kot JSON.
+    variables: Razpoložljive spremenljivke
+    variables-all: Vsa opozorila
+    variables-log: Samo opozorila dnevnika
+    variables-metric: Samo opozorila metrik
+    variables-event: Samo opozorila dogodkov
+    variables-scope-hint: Polja zunaj »Vsa opozorila« so nastavljena samo za svojo vrsto opozorila; drugje uporabljena odpovejo pri pošiljanju.
     headers: Prilagojene Glave
     headers-hint: Neobvezne HTTP glave (npr. Authorization)
     header-name: Ime glave
     header-value: Vrednost glave
     add-header: Dodaj Glavo
+    remove-header: Odstrani glavo
     test: Test
     test-success: Test uspešen
     cancel: Prekliči

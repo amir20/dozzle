@@ -326,6 +326,15 @@ notifications:
     edit: Edit
     duplicate: Duplikat
     delete: Hapus
+    used-by: "Dipakai oleh {count} peringatan"
+    unused: Tidak dipakai peringatan mana pun
+    copy-of: "Salinan {name}"
+    copy-failed: Tidak dapat menduplikasi tujuan ini
+    delete-failed: Tidak dapat menghapus tujuan ini
+    delete-warning: Hapus tujuan ini?
+    delete-warning-used: "{count} peringatan mengirim ke sini dan akan berhenti memberi tahu."
+    delete-cancel: Simpan
+    delete-confirm: Hapus
   alert-form:
     create-title: Buat Peringatan
     edit-title: Edit Peringatan
@@ -406,6 +415,12 @@ notifications:
     description: Ke mana notifikasi harus dikirim?
     name: Nama
     name-placeholder: mis., Slack Produksi
+    name-hint: Begini tujuan ini tampil saat memilih tujuan untuk sebuah peringatan.
+    name-taken: Tujuan lain sudah memakai nama ini.
+    missing:
+      name: nama
+      url: URL webhook
+      template: templat
     type: Tipe
     webhook-title: HTTP Webhook
     webhook-description: Slack, Discord, endpoint kustom
@@ -413,19 +428,34 @@ notifications:
     cloud-description: Notifikasi push, peringatan email, dan ringkasan bertenaga AI
     webhook-url: URL Webhook
     webhook-url-placeholder: https://hooks.foo.com/services/...
+    webhook-url-invalid: Masukkan URL http:// atau https:// yang lengkap.
     api-key: Kunci API
-    payload-format: Format Payload
+    payload-format: Payload
     format-slack: Slack
     format-discord: Discord
     format-ntfy: ntfy
     format-custom: Kustom
+    format-replace-warning: Ini menggantikan templat yang sudah Anda tulis.
+    format-replace-confirm: Ganti
     template: Template
     template-hint: Sintaks template Go
+    template-placeholder: Body JSON dengan placeholder templat Go
+    payload-mode-json: JSON valid. Setiap nilai dirender dan di-escape untuk Anda.
+    payload-mode-raw: Bukan JSON, jadi seluruh body dikirim sebagai teks hasil render.
+    payload-mode-unbalanced: Aksi templat belum ditutup.
+    payload-mode-empty: Templat kosong mengirim seluruh notifikasi sebagai JSON.
+    variables: Variabel tersedia
+    variables-all: Semua peringatan
+    variables-log: Hanya peringatan log
+    variables-metric: Hanya peringatan metrik
+    variables-event: Hanya peringatan peristiwa
+    variables-scope-hint: Field di luar "Semua peringatan" hanya terisi untuk jenisnya sendiri; dipakai di jenis lain akan gagal saat dikirim.
     headers: Header Kustom
     headers-hint: Header HTTP opsional (mis. Authorization)
     header-name: Nama header
     header-value: Nilai header
     add-header: Tambah Header
+    remove-header: Hapus header
     test: Test
     test-success: Test berhasil
     cancel: Batal

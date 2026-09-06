@@ -314,6 +314,15 @@ notifications:
     edit: Modifica
     duplicate: Duplica
     delete: Elimina
+    used-by: "Usata da {count} avvisi"
+    unused: Non usata da nessun avviso
+    copy-of: "Copia di {name}"
+    copy-failed: Impossibile duplicare questa destinazione
+    delete-failed: Impossibile eliminare questa destinazione
+    delete-warning: Eliminare questa destinazione?
+    delete-warning-used: "{count} avvisi inviano qui e smetteranno di notificare."
+    delete-cancel: Mantieni
+    delete-confirm: Elimina
   alert-form:
     create-title: Crea Avviso
     edit-title: Modifica Avviso
@@ -394,6 +403,12 @@ notifications:
     description: Dove devono essere inviate le notifiche?
     name: Nome
     name-placeholder: es., Slack Produzione
+    name-hint: Come questa destinazione compare quando ne scegli una per un avviso.
+    name-taken: Un'altra destinazione usa già questo nome.
+    missing:
+      name: nome
+      url: URL del webhook
+      template: modello
     type: Tipo
     webhook-title: HTTP Webhook
     webhook-description: Slack, Discord, endpoint personalizzato
@@ -401,19 +416,34 @@ notifications:
     cloud-description: Notifiche push, avvisi email e riepiloghi basati su AI
     webhook-url: URL Webhook
     webhook-url-placeholder: https://hooks.foo.com/services/...
+    webhook-url-invalid: Inserisci un URL http:// o https:// completo.
     api-key: Chiave API
-    payload-format: Formato Payload
+    payload-format: Payload
     format-slack: Slack
     format-discord: Discord
     format-ntfy: ntfy
     format-custom: Personalizzato
+    format-replace-warning: Questo sostituisce il modello che hai scritto.
+    format-replace-confirm: Sostituisci
     template: Template
     template-hint: Sintassi template Go
+    template-placeholder: Corpo JSON con segnaposto di template Go
+    payload-mode-json: JSON valido. Ogni valore viene reso ed escapato per te.
+    payload-mode-raw: Non è JSON, quindi l'intero corpo viene inviato come testo reso.
+    payload-mode-unbalanced: Azione di template non chiusa.
+    payload-mode-empty: Un modello vuoto invia la notifica completa come JSON.
+    variables: Variabili disponibili
+    variables-all: Tutti gli avvisi
+    variables-log: Solo avvisi sui log
+    variables-metric: Solo avvisi sulle metriche
+    variables-event: Solo avvisi sugli eventi
+    variables-scope-hint: I campi fuori da "Tutti gli avvisi" esistono solo per il proprio tipo; usarli altrove fallisce all'invio.
     headers: Header Personalizzati
     headers-hint: Header HTTP opzionali (es. Authorization)
     header-name: Nome header
     header-value: Valore header
     add-header: Aggiungi Header
+    remove-header: Rimuovi intestazione
     test: Test
     test-success: Test riuscito
     cancel: Annulla

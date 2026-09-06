@@ -34,6 +34,7 @@
               :destination="dest"
               :on-updated="fetchAll"
               :existing-dispatchers="dispatchers"
+              :used-by-count="alertsPerDispatcher.get(dest.id) ?? 0"
               class="w-full md:w-72"
             />
             <!-- Add Destination Card -->
@@ -177,6 +178,16 @@ const filter = ref<"all" | "enabled" | "paused">("all");
 
 const enabledCount = computed(() => alerts.value.filter((a) => a.enabled).length);
 const pausedCount = computed(() => alerts.value.filter((a) => !a.enabled).length);
+
+// Deleting a destination orphans the alerts pointing at it, so each card shows its usage.
+const alertsPerDispatcher = computed(() => {
+  const counts = new Map<number, number>();
+  for (const alert of alerts.value) {
+    if (!alert.dispatcher) continue;
+    counts.set(alert.dispatcher.id, (counts.get(alert.dispatcher.id) ?? 0) + 1);
+  }
+  return counts;
+});
 
 const filteredAlerts = computed(() => {
   if (filter.value === "enabled") return alerts.value.filter((a) => a.enabled);

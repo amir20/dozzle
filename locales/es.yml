@@ -358,6 +358,15 @@ notifications:
     edit: Editar
     duplicate: Duplicar
     delete: Eliminar
+    used-by: "Usado por {count} alertas"
+    unused: No lo usa ninguna alerta
+    copy-of: "Copia de {name}"
+    copy-failed: No se pudo duplicar este destino
+    delete-failed: No se pudo eliminar este destino
+    delete-warning: ¿Eliminar este destino?
+    delete-warning-used: "{count} alertas envían aquí y dejarán de notificar."
+    delete-cancel: Conservar
+    delete-confirm: Eliminar
   alert-form:
     create-title: Crear Alerta
     edit-title: Editar Alerta
@@ -438,6 +447,12 @@ notifications:
     description: ¿Dónde deben enviarse las notificaciones?
     name: Nombre
     name-placeholder: ej., Slack de Producción
+    name-hint: Así se lista este destino al elegir uno para una alerta.
+    name-taken: Otro destino ya usa este nombre.
+    missing:
+      name: nombre
+      url: URL del webhook
+      template: plantilla
     type: Tipo
     webhook-title: HTTP Webhook
     webhook-description: Slack, Discord, endpoint personalizado
@@ -445,19 +460,34 @@ notifications:
     cloud-description: Notificaciones push, alertas por correo electrónico y resúmenes con IA
     webhook-url: URL del Webhook
     webhook-url-placeholder: https://hooks.foo.com/services/...
+    webhook-url-invalid: Introduce una URL http:// o https:// completa.
     api-key: Clave API
-    payload-format: Formato de Payload
+    payload-format: Carga útil
     format-slack: Slack
     format-discord: Discord
     format-ntfy: ntfy
     format-custom: Personalizado
+    format-replace-warning: Esto reemplaza la plantilla que has escrito.
+    format-replace-confirm: Reemplazar
     template: Plantilla
     template-hint: Sintaxis de plantilla Go
+    template-placeholder: Cuerpo JSON con marcadores de plantilla Go
+    payload-mode-json: JSON válido. Cada valor se renderiza y escapa por ti.
+    payload-mode-raw: No es JSON, así que el cuerpo entero se envía como texto renderizado.
+    payload-mode-unbalanced: Acción de plantilla sin cerrar.
+    payload-mode-empty: Una plantilla vacía envía la notificación completa como JSON.
+    variables: Variables disponibles
+    variables-all: Todas las alertas
+    variables-log: Solo alertas de log
+    variables-metric: Solo alertas de métrica
+    variables-event: Solo alertas de evento
+    variables-scope-hint: Los campos fuera de "Todas las alertas" solo existen para su propio tipo; usarlos en otro falla al enviar.
     headers: Encabezados Personalizados
     headers-hint: Encabezados HTTP opcionales (ej. Authorization)
     header-name: Nombre del encabezado
     header-value: Valor del encabezado
     add-header: Añadir Encabezado
+    remove-header: Quitar cabecera
     test: Probar
     test-success: Prueba exitosa
     cancel: Cancelar

@@ -368,6 +368,15 @@ notifications:
     edit: Edit
     duplicate: Duplicate
     delete: Delete
+    used-by: "Used by {count} alerts"
+    unused: Not used by any alert
+    copy-of: "{name} copy"
+    copy-failed: Could not duplicate this destination
+    delete-failed: Could not delete this destination
+    delete-warning: Delete this destination?
+    delete-warning-used: "{count} alerts send here and will stop notifying."
+    delete-cancel: Keep
+    delete-confirm: Delete
   alert-form:
     create-title: Create Alert
     edit-title: Edit Alert
@@ -448,6 +457,12 @@ notifications:
     description: Where should notifications be sent?
     name: Name
     name-placeholder: e.g., Production Slack
+    name-hint: How this destination is listed when picking one for an alert.
+    name-taken: Another destination already uses this name.
+    missing:
+      name: name
+      url: webhook URL
+      template: template
     type: Type
     webhook-title: HTTP Webhook
     webhook-description: Slack, Discord, custom endpoint
@@ -455,19 +470,34 @@ notifications:
     cloud-description: Push notifications, email alerts, and AI-powered summaries
     webhook-url: Webhook URL
     webhook-url-placeholder: https://hooks.foo.com/services/...
+    webhook-url-invalid: Enter a full http:// or https:// URL.
     api-key: API Key
-    payload-format: Payload Format
+    payload-format: Payload
     format-slack: Slack
     format-discord: Discord
     format-ntfy: ntfy
     format-custom: Custom
+    format-replace-warning: This replaces the template you have written.
+    format-replace-confirm: Replace
     template: Template
     template-hint: Go template syntax
+    template-placeholder: JSON body with Go template placeholders
+    payload-mode-json: Valid JSON. Each value is rendered and escaped for you.
+    payload-mode-raw: Not JSON, so the whole body is sent as rendered text.
+    payload-mode-unbalanced: Unclosed template action.
+    payload-mode-empty: Empty template sends the full notification as JSON.
+    variables: Available variables
+    variables-all: Every alert
+    variables-log: Log alerts only
+    variables-metric: Metric alerts only
+    variables-event: Event alerts only
+    variables-scope-hint: Fields outside "Every alert" are only set for their own alert type; using one elsewhere fails at send time.
     headers: Custom Headers
     headers-hint: Optional HTTP headers (e.g., Authorization)
     header-name: Header name
     header-value: Header value
     add-header: Add Header
+    remove-header: Remove header
     test: Test
     test-success: Test successful
     cancel: Cancel

@@ -314,6 +314,15 @@ notifications:
     edit: Rediger
     duplicate: Dupliker
     delete: Slet
+    used-by: "Bruges af {count} alarmer"
+    unused: Bruges ikke af nogen alarm
+    copy-of: "Kopi af {name}"
+    copy-failed: Kunne ikke duplikere denne destination
+    delete-failed: Kunne ikke slette denne destination
+    delete-warning: Slet denne destination?
+    delete-warning-used: "{count} alarmer sender hertil og holder op med at give besked."
+    delete-cancel: Behold
+    delete-confirm: Slet
   alert-form:
     create-title: Opret Alarm
     edit-title: Rediger Alarm
@@ -394,6 +403,12 @@ notifications:
     description: Hvor skal notifikationer sendes til?
     name: Navn
     name-placeholder: f.eks. Produktion Slack
+    name-hint: Sådan vises denne destination, når du vælger en til en alarm.
+    name-taken: En anden destination bruger allerede dette navn.
+    missing:
+      name: navn
+      url: webhook-URL
+      template: skabelon
     type: Type
     webhook-title: HTTP Webhook
     webhook-description: Slack, Discord, brugerdefineret endpoint
@@ -401,19 +416,34 @@ notifications:
     cloud-description: Push notifikationer, email alarmer og AI-drevne resuméer
     webhook-url: Webhook URL
     webhook-url-placeholder: https://hooks.foo.com/services/...
+    webhook-url-invalid: Indtast en fuld http:// eller https:// URL.
     api-key: API Nøgle
-    payload-format: Payload Format
+    payload-format: Payload
     format-slack: Slack
     format-discord: Discord
     format-ntfy: ntfy
     format-custom: Brugerdefineret
+    format-replace-warning: Dette erstatter den skabelon, du har skrevet.
+    format-replace-confirm: Erstat
     template: Skabelon
     template-hint: Go skabelon syntaks
+    template-placeholder: JSON-body med Go-skabelonfelter
+    payload-mode-json: Gyldig JSON. Hver værdi bliver renderet og escapet for dig.
+    payload-mode-raw: Ikke JSON, så hele bodyen sendes som renderet tekst.
+    payload-mode-unbalanced: Ulukket skabelonhandling.
+    payload-mode-empty: En tom skabelon sender hele notifikationen som JSON.
+    variables: Tilgængelige variabler
+    variables-all: Alle alarmer
+    variables-log: Kun log-alarmer
+    variables-metric: Kun metrik-alarmer
+    variables-event: Kun hændelsesalarmer
+    variables-scope-hint: Felter uden for “Alle alarmer” findes kun for deres egen alarmtype; bruges de andre steder, fejler afsendelsen.
     headers: Brugerdefinerede Headers
     headers-hint: Valgfrie HTTP-headers (f.eks. Authorization)
     header-name: Header-navn
     header-value: Header-værdi
     add-header: Tilføj Header
+    remove-header: Fjern header
     test: Test
     test-success: Test succesfuld
     cancel: Annuller

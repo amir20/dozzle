@@ -85,7 +85,7 @@
     </div>
     <div
       v-else
-      class="border-base-content/20 text-base-content/60 flex h-24 items-center justify-center rounded-lg border border-dashed px-4 text-center text-sm"
+      class="border-base-content/15 bg-base-content/[0.03] text-base-content/60 flex h-24 items-center justify-center rounded-lg border border-dashed px-4 text-center text-sm"
     >
       {{ emptyStateMessage }}
     </div>

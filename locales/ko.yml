@@ -318,6 +318,15 @@ notifications:
     edit: 편집
     duplicate: 복제
     delete: 삭제
+    used-by: "알림 {count}개가 사용 중"
+    unused: 사용하는 알림 없음
+    copy-of: "{name} 복사본"
+    copy-failed: 이 대상을 복제하지 못했습니다
+    delete-failed: 이 대상을 삭제하지 못했습니다
+    delete-warning: 이 대상을 삭제할까요?
+    delete-warning-used: "알림 {count}개가 여기로 보내고 있으며 알림이 중단됩니다."
+    delete-cancel: 유지
+    delete-confirm: 삭제
   alert-form:
     create-title: 알림 만들기
     edit-title: 알림 편집
@@ -398,6 +407,12 @@ notifications:
     description: 알림을 어디로 보낼까요?
     name: 이름
     name-placeholder: "예: 프로덕션 Slack"
+    name-hint: 알림에서 대상을 고를 때 이 이름으로 표시됩니다.
+    name-taken: 다른 대상이 이미 이 이름을 사용 중입니다.
+    missing:
+      name: 이름
+      url: 웹훅 URL
+      template: 템플릿
     type: 유형
     webhook-title: HTTP 웹훅
     webhook-description: Slack, Discord, 사용자 정의 엔드포인트
@@ -405,19 +420,34 @@ notifications:
     cloud-description: 푸시 알림, 이메일 알림 및 AI 기반 요약
     webhook-url: 웹훅 URL
     webhook-url-placeholder: https://hooks.foo.com/services/...
+    webhook-url-invalid: http:// 또는 https:// 로 시작하는 전체 URL을 입력하세요.
     api-key: API 키
-    payload-format: 페이로드 형식
+    payload-format: 페이로드
     format-slack: Slack
     format-discord: Discord
     format-ntfy: ntfy
     format-custom: 사용자 정의
+    format-replace-warning: 작성한 템플릿을 덮어씁니다.
+    format-replace-confirm: 바꾸기
     template: 템플릿
     template-hint: Go 템플릿 구문
+    template-placeholder: Go 템플릿 자리표시자가 들어간 JSON 본문
+    payload-mode-json: 올바른 JSON입니다. 각 값이 렌더링되고 이스케이프됩니다.
+    payload-mode-raw: JSON이 아니므로 본문 전체가 렌더링된 텍스트로 전송됩니다.
+    payload-mode-unbalanced: 닫히지 않은 템플릿 구문입니다.
+    payload-mode-empty: 빈 템플릿은 알림 전체를 JSON으로 보냅니다.
+    variables: 사용 가능한 변수
+    variables-all: 모든 알림
+    variables-log: 로그 알림 전용
+    variables-metric: 메트릭 알림 전용
+    variables-event: 이벤트 알림 전용
+    variables-scope-hint: ‘모든 알림’ 밖의 필드는 해당 알림 유형에서만 채워지며, 다른 유형에서 쓰면 전송 시 실패합니다.
     headers: 사용자 정의 헤더
     headers-hint: "선택적 HTTP 헤더 (예: Authorization)"
     header-name: 헤더 이름
     header-value: 헤더 값
     add-header: 헤더 추가
+    remove-header: 헤더 제거
     test: 테스트
     test-success: 테스트 성공
     cancel: 취소

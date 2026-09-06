@@ -318,6 +318,15 @@ notifications:
     edit: Düzenle
     duplicate: Çoğalt
     delete: Sil
+    used-by: "{count} uyarı tarafından kullanılıyor"
+    unused: Hiçbir uyarı kullanmıyor
+    copy-of: "{name} kopyası"
+    copy-failed: Bu hedef çoğaltılamadı
+    delete-failed: Bu hedef silinemedi
+    delete-warning: Bu hedef silinsin mi?
+    delete-warning-used: "{count} uyarı buraya gönderiyor ve bildirim durduracak."
+    delete-cancel: Vazgeç
+    delete-confirm: Sil
   alert-form:
     create-title: Uyarı Oluştur
     edit-title: Uyarıyı Düzenle
@@ -398,6 +407,12 @@ notifications:
     description: Bildirimler nereye gönderilmeli?
     name: Ad
     name-placeholder: ör., Prodüksiyon Slack
+    name-hint: Bir uyarı için hedef seçerken bu hedef böyle listelenir.
+    name-taken: Bu adı başka bir hedef zaten kullanıyor.
+    missing:
+      name: ad
+      url: webhook URL'si
+      template: şablon
     type: Tür
     webhook-title: HTTP Webhook
     webhook-description: Slack, Discord, özel uç nokta
@@ -405,19 +420,34 @@ notifications:
     cloud-description: Push bildirimleri, e-posta uyarıları ve yapay zeka destekli özetler
     webhook-url: Webhook URL
     webhook-url-placeholder: https://hooks.foo.com/services/...
+    webhook-url-invalid: Tam bir http:// veya https:// adresi girin.
     api-key: API Anahtarı
-    payload-format: Payload Formatı
+    payload-format: Gövde
     format-slack: Slack
     format-discord: Discord
     format-ntfy: ntfy
     format-custom: Özel
+    format-replace-warning: Bu, yazdığınız şablonun yerine geçer.
+    format-replace-confirm: Değiştir
     template: Şablon
     template-hint: Go şablon söz dizimi
+    template-placeholder: Go şablon yer tutuculu JSON gövdesi
+    payload-mode-json: Geçerli JSON. Her değer sizin için işlenir ve kaçışlanır.
+    payload-mode-raw: JSON değil, bu yüzden gövdenin tamamı işlenmiş metin olarak gönderilir.
+    payload-mode-unbalanced: Kapatılmamış şablon ifadesi.
+    payload-mode-empty: Boş şablon, bildirimin tamamını JSON olarak gönderir.
+    variables: Kullanılabilir değişkenler
+    variables-all: Tüm uyarılar
+    variables-log: Yalnızca log uyarıları
+    variables-metric: Yalnızca metrik uyarıları
+    variables-event: Yalnızca olay uyarıları
+    variables-scope-hint: “Tüm uyarılar” dışındaki alanlar yalnızca kendi uyarı türünde doludur; başka bir türde kullanmak gönderimde hata verir.
     headers: Özel Başlıklar
     headers-hint: İsteğe bağlı HTTP başlıkları (ör. Authorization)
     header-name: Başlık adı
     header-value: Başlık değeri
     add-header: Başlık Ekle
+    remove-header: Başlığı kaldır
     test: Test
     test-success: Test başarılı
     cancel: İptal

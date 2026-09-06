@@ -17,7 +17,7 @@
         v-for="example in examples"
         :key="example"
         type="button"
-        class="badge badge-sm badge-ghost hover:badge-primary cursor-pointer font-mono"
+        class="border-base-content/15 bg-base-content/5 text-base-content/70 hover:border-primary hover:text-primary cursor-pointer rounded-md border px-2 py-0.5 font-mono text-xs transition-colors"
         :title="$t('notifications.alert-form.use-example')"
         @click="setValue(example)"
       >

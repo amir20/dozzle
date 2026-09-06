@@ -315,6 +315,15 @@ notifications:
     edit: Bewerken
     duplicate: Dupliceren
     delete: Verwijderen
+    used-by: "Gebruikt door {count} meldingen"
+    unused: Door geen enkele melding gebruikt
+    copy-of: "Kopie van {name}"
+    copy-failed: Deze bestemming kon niet worden gedupliceerd
+    delete-failed: Deze bestemming kon niet worden verwijderd
+    delete-warning: Deze bestemming verwijderen?
+    delete-warning-used: "{count} meldingen sturen hierheen en stoppen met notificeren."
+    delete-cancel: Behouden
+    delete-confirm: Verwijderen
   alert-form:
     create-title: Waarschuwing aanmaken
     edit-title: Waarschuwing bewerken
@@ -395,6 +404,12 @@ notifications:
     description: Waar moeten meldingen naartoe worden gestuurd?
     name: Naam
     name-placeholder: bijv. Productie Slack
+    name-hint: Zo staat deze bestemming in de lijst bij het kiezen voor een melding.
+    name-taken: Een andere bestemming gebruikt deze naam al.
+    missing:
+      name: naam
+      url: webhook-URL
+      template: sjabloon
     type: Type
     webhook-title: HTTP Webhook
     webhook-description: Slack, Discord, aangepast eindpunt
@@ -402,19 +417,34 @@ notifications:
     cloud-description: Pushmeldingen, e-mailwaarschuwingen en AI-samenvattingen
     webhook-url: Webhook URL
     webhook-url-placeholder: https://hooks.foo.com/services/...
+    webhook-url-invalid: Voer een volledige http:// of https:// URL in.
     api-key: API-sleutel
-    payload-format: Payload-formaat
+    payload-format: Payload
     format-slack: Slack
     format-discord: Discord
     format-ntfy: ntfy
     format-custom: Aangepast
+    format-replace-warning: Dit vervangt het sjabloon dat je hebt geschreven.
+    format-replace-confirm: Vervangen
     template: Sjabloon
     template-hint: Go-sjabloonsyntaxis
+    template-placeholder: JSON-body met Go-sjabloonvelden
+    payload-mode-json: Geldige JSON. Elke waarde wordt voor je gerenderd en geëscaped.
+    payload-mode-raw: Geen JSON, dus de hele body wordt als gerenderde tekst verstuurd.
+    payload-mode-unbalanced: Niet-afgesloten sjabloonactie.
+    payload-mode-empty: Een leeg sjabloon stuurt de volledige melding als JSON.
+    variables: Beschikbare variabelen
+    variables-all: Elke melding
+    variables-log: Alleen logmeldingen
+    variables-metric: Alleen metriekmeldingen
+    variables-event: Alleen gebeurtenismeldingen
+    variables-scope-hint: Velden buiten "Elke melding" bestaan alleen voor hun eigen type; elders gebruikt mislukt het bij verzenden.
     headers: Aangepaste Headers
     headers-hint: Optionele HTTP-headers (bijv. Authorization)
     header-name: Headernaam
     header-value: Headerwaarde
     add-header: Header toevoegen
+    remove-header: Header verwijderen
     test: Testen
     test-success: Test geslaagd
     cancel: Annuleren

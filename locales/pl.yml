@@ -317,6 +317,15 @@ notifications:
     edit: Edytuj
     duplicate: Duplikuj
     delete: Usuń
+    used-by: "Używany przez {count} alertów"
+    unused: Nieużywany przez żaden alert
+    copy-of: "Kopia {name}"
+    copy-failed: Nie udało się zduplikować tego celu
+    delete-failed: Nie udało się usunąć tego celu
+    delete-warning: Usunąć ten cel?
+    delete-warning-used: "{count} alertów wysyła tutaj i przestanie powiadamiać."
+    delete-cancel: Zachowaj
+    delete-confirm: Usuń
   alert-form:
     create-title: Utwórz Alert
     edit-title: Edytuj Alert
@@ -397,6 +406,12 @@ notifications:
     description: Gdzie mają być wysyłane powiadomienia?
     name: Nazwa
     name-placeholder: np. Produkcyjny Slack
+    name-hint: Tak ten cel jest opisany przy wyborze celu dla alertu.
+    name-taken: Inny cel już używa tej nazwy.
+    missing:
+      name: nazwa
+      url: adres webhooka
+      template: szablon
     type: Typ
     webhook-title: HTTP Webhook
     webhook-description: Slack, Discord, własny endpoint
@@ -404,19 +419,34 @@ notifications:
     cloud-description: Powiadomienia push, alerty e-mail i podsumowania AI
     webhook-url: URL Webhooka
     webhook-url-placeholder: https://hooks.foo.com/services/...
+    webhook-url-invalid: Podaj pełny adres http:// lub https://.
     api-key: Klucz API
-    payload-format: Format Payload
+    payload-format: Ładunek
     format-slack: Slack
     format-discord: Discord
     format-ntfy: ntfy
     format-custom: Własny
+    format-replace-warning: To zastąpi napisany przez Ciebie szablon.
+    format-replace-confirm: Zastąp
     template: Szablon
     template-hint: Składnia szablonu Go
+    template-placeholder: Treść JSON z symbolami szablonu Go
+    payload-mode-json: Poprawny JSON. Każda wartość jest renderowana i escapowana za Ciebie.
+    payload-mode-raw: To nie JSON, więc cała treść jest wysyłana jako wyrenderowany tekst.
+    payload-mode-unbalanced: Niedomknięta instrukcja szablonu.
+    payload-mode-empty: Pusty szablon wysyła całe powiadomienie jako JSON.
+    variables: Dostępne zmienne
+    variables-all: Każdy alert
+    variables-log: Tylko alerty logów
+    variables-metric: Tylko alerty metryk
+    variables-event: Tylko alerty zdarzeń
+    variables-scope-hint: Pola spoza „Każdy alert” istnieją tylko dla swojego typu; użyte gdzie indziej zawiodą przy wysyłce.
     headers: Niestandardowe Nagłówki
     headers-hint: Opcjonalne nagłówki HTTP (np. Authorization)
     header-name: Nazwa nagłówka
     header-value: Wartość nagłówka
     add-header: Dodaj Nagłówek
+    remove-header: Usuń nagłówek
     test: Test
     test-success: Test zakończony pomyślnie
     cancel: Anuluj

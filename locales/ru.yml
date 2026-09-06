@@ -314,6 +314,15 @@ notifications:
     edit: Редактировать
     duplicate: Дублировать
     delete: Удалить
+    used-by: "Используется в {count} оповещениях"
+    unused: Не используется ни в одном оповещении
+    copy-of: "Копия {name}"
+    copy-failed: Не удалось продублировать это назначение
+    delete-failed: Не удалось удалить это назначение
+    delete-warning: Удалить это назначение?
+    delete-warning-used: "{count} оповещений отправляют сюда и перестанут уведомлять."
+    delete-cancel: Оставить
+    delete-confirm: Удалить
   alert-form:
     create-title: Создать Оповещение
     edit-title: Редактировать Оповещение
@@ -394,6 +403,12 @@ notifications:
     description: Куда отправлять уведомления?
     name: Имя
     name-placeholder: напр., Продакшн Slack
+    name-hint: Так это назначение отображается при выборе для оповещения.
+    name-taken: Другое назначение уже занимает это имя.
+    missing:
+      name: имя
+      url: URL вебхука
+      template: шаблон
     type: Тип
     webhook-title: HTTP Webhook
     webhook-description: Slack, Discord, пользовательская конечная точка
@@ -401,19 +416,34 @@ notifications:
     cloud-description: Push-уведомления, email-оповещения и сводки на основе ИИ
     webhook-url: URL Webhook
     webhook-url-placeholder: https://hooks.foo.com/services/...
+    webhook-url-invalid: Введите полный адрес http:// или https://.
     api-key: API Ключ
-    payload-format: Формат Payload
+    payload-format: Тело запроса
     format-slack: Slack
     format-discord: Discord
     format-ntfy: ntfy
     format-custom: Пользовательский
+    format-replace-warning: Это заменит написанный вами шаблон.
+    format-replace-confirm: Заменить
     template: Шаблон
     template-hint: Синтаксис шаблона Go
+    template-placeholder: Тело JSON с подстановками шаблона Go
+    payload-mode-json: Корректный JSON. Каждое значение отрисовывается и экранируется за вас.
+    payload-mode-raw: Это не JSON, поэтому всё тело отправляется как отрисованный текст.
+    payload-mode-unbalanced: Незакрытая конструкция шаблона.
+    payload-mode-empty: Пустой шаблон отправляет уведомление целиком в JSON.
+    variables: Доступные переменные
+    variables-all: Все оповещения
+    variables-log: Только оповещения по логам
+    variables-metric: Только оповещения по метрикам
+    variables-event: Только оповещения по событиям
+    variables-scope-hint: Поля вне раздела «Все оповещения» заполнены только для своего типа; в другом типе отправка завершится ошибкой.
     headers: Пользовательские Заголовки
     headers-hint: Необязательные HTTP-заголовки (напр. Authorization)
     header-name: Имя заголовка
     header-value: Значение заголовка
     add-header: Добавить Заголовок
+    remove-header: Удалить заголовок
     test: Тест
     test-success: Тест успешен
     cancel: Отмена

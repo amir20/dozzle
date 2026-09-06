@@ -314,6 +314,15 @@ notifications:
     edit: Editar
     duplicate: Duplicar
     delete: Excluir
+    used-by: "Usado por {count} alertas"
+    unused: Não usado por nenhum alerta
+    copy-of: "Cópia de {name}"
+    copy-failed: Não foi possível duplicar este destino
+    delete-failed: Não foi possível excluir este destino
+    delete-warning: Excluir este destino?
+    delete-warning-used: "{count} alertas enviam para cá e deixarão de notificar."
+    delete-cancel: Manter
+    delete-confirm: Excluir
   alert-form:
     create-title: Criar Alerta
     edit-title: Editar Alerta
@@ -394,6 +403,12 @@ notifications:
     description: Para onde as notificações devem ser enviadas?
     name: Nome
     name-placeholder: ex., Slack de Produção
+    name-hint: Como este destino aparece ao escolher um para um alerta.
+    name-taken: Outro destino já usa este nome.
+    missing:
+      name: nome
+      url: URL do webhook
+      template: modelo
     type: Tipo
     webhook-title: HTTP Webhook
     webhook-description: Slack, Discord, endpoint personalizado
@@ -401,19 +416,34 @@ notifications:
     cloud-description: Notificações push, alertas por email e resumos com IA
     webhook-url: URL do Webhook
     webhook-url-placeholder: https://hooks.foo.com/services/...
+    webhook-url-invalid: Informe uma URL http:// ou https:// completa.
     api-key: Chave API
-    payload-format: Formato do Payload
+    payload-format: Carga
     format-slack: Slack
     format-discord: Discord
     format-ntfy: ntfy
     format-custom: Personalizado
+    format-replace-warning: Isto substitui o modelo que você escreveu.
+    format-replace-confirm: Substituir
     template: Template
     template-hint: Sintaxe de template Go
+    template-placeholder: Corpo JSON com marcadores de modelo Go
+    payload-mode-json: JSON válido. Cada valor é renderizado e escapado para você.
+    payload-mode-raw: Não é JSON, então o corpo inteiro é enviado como texto renderizado.
+    payload-mode-unbalanced: Ação de modelo não fechada.
+    payload-mode-empty: Um modelo vazio envia a notificação completa como JSON.
+    variables: Variáveis disponíveis
+    variables-all: Todos os alertas
+    variables-log: Apenas alertas de log
+    variables-metric: Apenas alertas de métrica
+    variables-event: Apenas alertas de evento
+    variables-scope-hint: Campos fora de "Todos os alertas" só existem para o próprio tipo; usar um em outro falha no envio.
     headers: Cabeçalhos Personalizados
     headers-hint: Cabeçalhos HTTP opcionais (ex. Authorization)
     header-name: Nome do cabeçalho
     header-value: Valor do cabeçalho
     add-header: Adicionar Cabeçalho
+    remove-header: Remover cabeçalho
     test: Testar
     test-success: Teste bem-sucedido
     cancel: Cancelar

@@ -314,6 +314,15 @@ notifications:
     edit: Modifier
     duplicate: Dupliquer
     delete: Supprimer
+    used-by: "Utilisée par {count} alertes"
+    unused: Utilisée par aucune alerte
+    copy-of: "Copie de {name}"
+    copy-failed: Impossible de dupliquer cette destination
+    delete-failed: Impossible de supprimer cette destination
+    delete-warning: Supprimer cette destination ?
+    delete-warning-used: "{count} alertes envoient ici et cesseront de notifier."
+    delete-cancel: Conserver
+    delete-confirm: Supprimer
   alert-form:
     create-title: Créer une Alerte
     edit-title: Modifier l'Alerte
@@ -394,6 +403,12 @@ notifications:
     description: Où les notifications doivent-elles être envoyées?
     name: Nom
     name-placeholder: ex., Slack Production
+    name-hint: Nom affiché lors du choix d'une destination pour une alerte.
+    name-taken: Une autre destination porte déjà ce nom.
+    missing:
+      name: nom
+      url: URL du webhook
+      template: modèle
     type: Type
     webhook-title: HTTP Webhook
     webhook-description: Slack, Discord, endpoint personnalisé
@@ -401,19 +416,34 @@ notifications:
     cloud-description: Notifications push, alertes par e-mail et résumés alimentés par l'IA
     webhook-url: URL du Webhook
     webhook-url-placeholder: https://hooks.foo.com/services/...
+    webhook-url-invalid: Saisissez une URL http:// ou https:// complète.
     api-key: Clé API
-    payload-format: Format du Payload
+    payload-format: Charge utile
     format-slack: Slack
     format-discord: Discord
     format-ntfy: ntfy
     format-custom: Personnalisé
+    format-replace-warning: Cela remplacera le modèle que vous avez écrit.
+    format-replace-confirm: Remplacer
     template: Modèle
     template-hint: Syntaxe de modèle Go
+    template-placeholder: Corps JSON avec des variables de modèle Go
+    payload-mode-json: JSON valide. Chaque valeur est rendue et échappée pour vous.
+    payload-mode-raw: Pas du JSON, le corps entier est donc envoyé en texte rendu.
+    payload-mode-unbalanced: Action de modèle non fermée.
+    payload-mode-empty: Un modèle vide envoie la notification complète en JSON.
+    variables: Variables disponibles
+    variables-all: Toutes les alertes
+    variables-log: Alertes de log uniquement
+    variables-metric: Alertes de métrique uniquement
+    variables-event: Alertes d'événement uniquement
+    variables-scope-hint: Les champs hors « Toutes les alertes » ne sont renseignés que pour leur propre type ; les utiliser ailleurs échoue à l'envoi.
     headers: En-têtes Personnalisés
     headers-hint: En-têtes HTTP optionnels (ex. Authorization)
     header-name: Nom de l'en-tête
     header-value: Valeur de l'en-tête
     add-header: Ajouter un En-tête
+    remove-header: Supprimer l'en-tête
     test: Tester
     test-success: Test réussi
     cancel: Annuler
