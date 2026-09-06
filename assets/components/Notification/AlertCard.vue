@@ -158,8 +158,9 @@
 import type { Dispatcher, NotificationRule } from "@/types/notifications";
 import AlertForm from "./AlertForm.vue";
 
-const { alert, onUpdated, highlight } = defineProps<{
+const { alert, dispatchers, onUpdated, highlight } = defineProps<{
   alert: NotificationRule;
+  dispatchers: Dispatcher[];
   onUpdated?: () => void;
   highlight?: boolean;
 }>();
@@ -184,12 +185,6 @@ const { showToast } = useToast();
 const showDrawer = useDrawer();
 const isDeleting = ref(false);
 const confirmingDelete = ref(false);
-const dispatchers = ref<Dispatcher[]>([]);
-
-onMounted(async () => {
-  const res = await fetch(withBase("/api/notifications/dispatchers"));
-  dispatchers.value = await res.json();
-});
 
 async function changeDispatcher(id: number) {
   await fetch(withBase(`/api/notifications/rules/${alert.id}`), {

@@ -80,6 +80,7 @@
             v-for="alert in filteredAlerts"
             :key="alert.id"
             :alert="alert"
+            :dispatchers="dispatchers"
             :on-updated="fetchAlerts"
             :highlight="alert.id === highlightId"
           />
