@@ -1,6 +1,7 @@
 packages:
   - docs
 overrides:
+  "@codemirror/state": "$@codemirror/state"
   typescript: npm:typescript-native-bridge@6.0.3-bridge.16.tsgo.7.0.2
 allowBuilds:
   esbuild: true
