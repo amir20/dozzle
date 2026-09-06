@@ -317,13 +317,13 @@ notifications:
     edit: 編輯
     duplicate: 複製
     delete: 刪除
-    used-by: "被 {count} 則警示使用"
+    used-by: "被 1 則警示使用 | 被 {count} 則警示使用"
     unused: 沒有警示使用
     copy-of: "{name} 副本"
     copy-failed: 無法複製此接收目標
     delete-failed: 無法刪除此接收目標
     delete-warning: 刪除此接收目標？
-    delete-warning-used: "有 {count} 則警示傳送到這裡，刪除後將不再通知。"
+    delete-warning-used: "有 1 則警示傳送到這裡，刪除後將不再通知。 | 有 {count} 則警示傳送到這裡，刪除後將不再通知。"
     delete-cancel: 保留
     delete-confirm: 刪除
   alert-form:
@@ -344,7 +344,7 @@ notifications:
     alert-name-hint: 顯示在警示卡片以及它發出的每則通知中。
     container-filter: 容器
     container-filter-hint: 此警示監看哪些容器。僅比對執行中的容器。
-    containers-match: "符合 {count} 個執行中的容器：{names}"
+    containers-match: "符合 1 個執行中的容器：{names} | 符合 {count} 個執行中的容器：{names}"
     no-containers-match: 沒有執行中的容器符合此篩選條件
     checking: 檢查中…
     examples: "範例："
@@ -352,10 +352,10 @@ notifications:
     seconds-unit: 秒
     log-filter: 日誌條件
     log-filter-hint: 哪些日誌行會觸發警示。
-    logs-match: "最近 {window} 內有 {count} 行符合"
+    logs-match: "最近 {window} 內有 1 行符合 | 最近 {window} 內有 {count} 行符合"
     no-logs-match: 最近 {window} 內沒有符合的行
     log-preview-hint: 寫一個條件，看看最近哪些日誌行會觸發這則警示。
-    log-scan-note: 預覽掃描了前 {count} 個符合的容器。
+    log-scan-note: "預覽掃描了第 1 個符合的容器。 | 預覽掃描了前 {count} 個符合的容器。"
     preview-needs-containers: 請先選擇容器，才能用真實資料預覽。
     preview-fix-expression: 修正運算式後即可看到預覽。
     destination: 目標
@@ -379,7 +379,7 @@ notifications:
     metric-matching-now: 目前超標
     metric-no-samples: 無資料
     metric-no-samples-hint: 符合的容器尚未收集到統計資料。
-    metric-would-fire: "目前會為 {count} 個容器觸發"
+    metric-would-fire: "目前會為 1 個容器觸發 | 目前會為 {count} 個容器觸發"
     metric-would-not-fire: 目前沒有容器超過閾值
     sample-window-label: 取樣視窗
     sample-window-hint: "條件持續 {duration} 後觸發"
@@ -396,7 +396,7 @@ notifications:
     type-switch-warning: 儲存會取代此警示的{type}條件，該條件將遺失。
     event-filter: 事件條件
     event-filter-hint: 哪些容器事件會觸發警示。
-    event-matches: "符合其中 {count} 個事件"
+    event-matches: "符合其中 1 個事件 | 符合其中 {count} 個事件"
     event-matches-none: 不符合其中任何事件
     event-preview-hint: 寫一個條件，看看它會攔截哪些容器事件。
     event-preview-note: 這是範例事件，不是歷史紀錄。Docker 事件會在發生時即時比對。

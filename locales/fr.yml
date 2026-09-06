@@ -314,13 +314,13 @@ notifications:
     edit: Modifier
     duplicate: Dupliquer
     delete: Supprimer
-    used-by: "Utilisée par {count} alertes"
+    used-by: "Utilisée par 1 alerte | Utilisée par {count} alertes"
     unused: Utilisée par aucune alerte
     copy-of: "Copie de {name}"
     copy-failed: Impossible de dupliquer cette destination
     delete-failed: Impossible de supprimer cette destination
     delete-warning: Supprimer cette destination ?
-    delete-warning-used: "{count} alertes envoient ici et cesseront de notifier."
+    delete-warning-used: "1 alerte envoie ici et cessera de notifier. | {count} alertes envoient ici et cesseront de notifier."
     delete-cancel: Conserver
     delete-confirm: Supprimer
   alert-form:
@@ -341,7 +341,7 @@ notifications:
     alert-name-hint: Affiché sur la carte de l'alerte et dans chaque notification envoyée.
     container-filter: Conteneurs
     container-filter-hint: Quels conteneurs cette alerte surveille. Seuls les conteneurs en cours d'exécution sont pris en compte.
-    containers-match: "Correspond à {count} conteneurs en cours d'exécution : {names}"
+    containers-match: "Correspond à 1 conteneur en cours d'exécution : {names} | Correspond à {count} conteneurs en cours d'exécution : {names}"
     no-containers-match: Aucun conteneur en cours d'exécution ne correspond à ce filtre
     checking: Vérification…
     examples: "Exemples :"
@@ -349,10 +349,10 @@ notifications:
     seconds-unit: s
     log-filter: Condition de log
     log-filter-hint: Quelles lignes de log déclenchent l'alerte.
-    logs-match: "{count} lignes correspondantes sur les {window} dernières"
+    logs-match: "1 ligne correspondante sur les {window} dernières | {count} lignes correspondantes sur les {window} dernières"
     no-logs-match: Aucune ligne correspondante sur les {window} dernières
     log-preview-hint: Écrivez une condition pour voir quelles lignes de log récentes auraient déclenché cette alerte.
-    log-scan-note: L'aperçu a parcouru les {count} premiers conteneurs correspondants.
+    log-scan-note: "L'aperçu a parcouru le premier conteneur correspondant. | L'aperçu a parcouru les {count} premiers conteneurs correspondants."
     preview-needs-containers: Choisissez d'abord des conteneurs pour un aperçu sur des données réelles.
     preview-fix-expression: Corrigez l'expression pour voir un aperçu.
     destination: Destination
@@ -376,7 +376,7 @@ notifications:
     metric-matching-now: Au-dessus
     metric-no-samples: Aucune stat
     metric-no-samples-hint: Aucune statistique collectée pour l'instant sur les conteneurs correspondants.
-    metric-would-fire: "Se déclencherait pour {count} conteneurs en ce moment"
+    metric-would-fire: "Se déclencherait pour 1 conteneur en ce moment | Se déclencherait pour {count} conteneurs en ce moment"
     metric-would-not-fire: Aucun conteneur ne dépasse le seuil en ce moment
     sample-window-label: Fenêtre d'échantillonnage
     sample-window-hint: "Se déclenche dès que la condition tient pendant {duration}"
@@ -393,7 +393,7 @@ notifications:
     type-switch-warning: L'enregistrement remplacera la condition {type} de cette alerte, qui sera perdue.
     event-filter: Condition d'événement
     event-filter-hint: Quels événements de conteneur déclenchent l'alerte.
-    event-matches: "Correspond à {count} de ces événements"
+    event-matches: "Correspond à 1 de ces événements | Correspond à {count} de ces événements"
     event-matches-none: Ne correspond à aucun de ces événements
     event-preview-hint: Écrivez une condition pour voir quels événements de conteneur elle capterait.
     event-preview-note: Événements d'exemple, pas un historique. Les événements Docker sont évalués en temps réel.

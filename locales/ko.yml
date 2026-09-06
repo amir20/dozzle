@@ -318,13 +318,13 @@ notifications:
     edit: 편집
     duplicate: 복제
     delete: 삭제
-    used-by: "알림 {count}개가 사용 중"
+    used-by: "알림 1개가 사용 중 | 알림 {count}개가 사용 중"
     unused: 사용하는 알림 없음
     copy-of: "{name} 복사본"
     copy-failed: 이 대상을 복제하지 못했습니다
     delete-failed: 이 대상을 삭제하지 못했습니다
     delete-warning: 이 대상을 삭제할까요?
-    delete-warning-used: "알림 {count}개가 여기로 보내고 있으며 알림이 중단됩니다."
+    delete-warning-used: "알림 1개가 여기로 보내고 있으며 알림이 중단됩니다. | 알림 {count}개가 여기로 보내고 있으며 알림이 중단됩니다."
     delete-cancel: 유지
     delete-confirm: 삭제
   alert-form:
@@ -345,7 +345,7 @@ notifications:
     alert-name-hint: 알림 카드와 전송되는 모든 알림에 표시됩니다.
     container-filter: 컨테이너
     container-filter-hint: 이 알림이 감시할 컨테이너입니다. 실행 중인 컨테이너만 일치합니다.
-    containers-match: "실행 중인 컨테이너 {count}개와 일치: {names}"
+    containers-match: "실행 중인 컨테이너 1개와 일치: {names} | 실행 중인 컨테이너 {count}개와 일치: {names}"
     no-containers-match: 이 필터와 일치하는 실행 중인 컨테이너가 없습니다
     checking: 확인 중…
     examples: "예시:"
@@ -353,10 +353,10 @@ notifications:
     seconds-unit: 초
     log-filter: 로그 조건
     log-filter-hint: 어떤 로그 줄이 알림을 발생시킬지 정합니다.
-    logs-match: "최근 {window} 동안 일치하는 줄 {count}개"
+    logs-match: "최근 {window} 동안 일치하는 줄 1개 | 최근 {window} 동안 일치하는 줄 {count}개"
     no-logs-match: 최근 {window} 동안 일치하는 줄이 없습니다
     log-preview-hint: 조건을 작성하면 최근 로그 중 어떤 줄이 이 알림을 발생시켰을지 볼 수 있습니다.
-    log-scan-note: 미리보기는 일치하는 컨테이너 중 처음 {count}개를 검사했습니다.
+    log-scan-note: "미리보기는 일치하는 첫 컨테이너를 검사했습니다. | 미리보기는 일치하는 컨테이너 중 처음 {count}개를 검사했습니다."
     preview-needs-containers: 실제 데이터로 미리 보려면 먼저 컨테이너를 선택하세요.
     preview-fix-expression: 미리보기를 보려면 표현식을 수정하세요.
     destination: 목적지
@@ -380,7 +380,7 @@ notifications:
     metric-matching-now: 현재 초과
     metric-no-samples: 통계 없음
     metric-no-samples-hint: 일치하는 컨테이너에 대해 아직 수집된 통계가 없습니다.
-    metric-would-fire: "지금 컨테이너 {count}개에서 발생합니다"
+    metric-would-fire: "지금 컨테이너 1개에서 발생합니다 | 지금 컨테이너 {count}개에서 발생합니다"
     metric-would-not-fire: 지금 임계값을 넘은 컨테이너가 없습니다
     sample-window-label: 샘플 창
     sample-window-hint: "조건이 {duration} 동안 유지되면 발생합니다"
@@ -397,7 +397,7 @@ notifications:
     type-switch-warning: 저장하면 이 알림의 {type} 조건이 대체되어 사라집니다.
     event-filter: 이벤트 조건
     event-filter-hint: 어떤 컨테이너 이벤트가 알림을 발생시킬지 정합니다.
-    event-matches: "이 이벤트 중 {count}개와 일치"
+    event-matches: "이 이벤트 중 1개와 일치 | 이 이벤트 중 {count}개와 일치"
     event-matches-none: 이 이벤트 중 어느 것과도 일치하지 않습니다
     event-preview-hint: 조건을 작성하면 어떤 컨테이너 이벤트를 잡아낼지 볼 수 있습니다.
     event-preview-note: 이력이 아니라 예시 이벤트입니다. Docker 이벤트는 발생하는 즉시 평가됩니다.

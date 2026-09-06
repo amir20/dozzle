@@ -65,10 +65,11 @@
             <span v-if="containerResult.containers?.length" class="text-success">
               <mdi:check class="inline" />
               {{
-                $t("notifications.alert-form.containers-match", {
-                  count: containerResult.containers.length,
-                  names: matchedNames,
-                })
+                $t(
+                  "notifications.alert-form.containers-match",
+                  { count: containerResult.containers.length, names: matchedNames },
+                  containerResult.containers.length,
+                )
               }}
             </span>
             <span v-else class="text-warning">

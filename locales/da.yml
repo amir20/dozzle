@@ -314,13 +314,13 @@ notifications:
     edit: Rediger
     duplicate: Dupliker
     delete: Slet
-    used-by: "Bruges af {count} alarmer"
+    used-by: "Bruges af 1 alarm | Bruges af {count} alarmer"
     unused: Bruges ikke af nogen alarm
     copy-of: "Kopi af {name}"
     copy-failed: Kunne ikke duplikere denne destination
     delete-failed: Kunne ikke slette denne destination
     delete-warning: Slet denne destination?
-    delete-warning-used: "{count} alarmer sender hertil og holder op med at give besked."
+    delete-warning-used: "1 alarm sender hertil og holder op med at give besked. | {count} alarmer sender hertil og holder op med at give besked."
     delete-cancel: Behold
     delete-confirm: Slet
   alert-form:
@@ -341,7 +341,7 @@ notifications:
     alert-name-hint: Vises på alarmkortet og i hver notifikation den sender.
     container-filter: Containere
     container-filter-hint: Hvilke containere denne alarm overvåger. Kun kørende containere matches.
-    containers-match: "Matcher {count} kørende containere: {names}"
+    containers-match: "Matcher 1 kørende container: {names} | Matcher {count} kørende containere: {names}"
     no-containers-match: Ingen kørende containere matcher dette filter
     checking: Kontrollerer…
     examples: "Eksempler:"
@@ -349,10 +349,10 @@ notifications:
     seconds-unit: sek
     log-filter: Log-betingelse
     log-filter-hint: Hvilke loglinjer der udløser alarmen.
-    logs-match: "{count} matchende linjer i de sidste {window}"
+    logs-match: "1 matchende linje i de sidste {window} | {count} matchende linjer i de sidste {window}"
     no-logs-match: Ingen matchende linjer i de sidste {window}
     log-preview-hint: Skriv en betingelse for at se hvilke nylige loglinjer der ville have udløst denne alarm.
-    log-scan-note: Forhåndsvisningen gennemgik de første {count} matchende containere.
+    log-scan-note: "Forhåndsvisningen gennemgik den første matchende container. | Forhåndsvisningen gennemgik de første {count} matchende containere."
     preview-needs-containers: Vælg containere først for at se en forhåndsvisning med rigtige data.
     preview-fix-expression: Ret udtrykket for at se en forhåndsvisning.
     destination: Destination
@@ -376,7 +376,7 @@ notifications:
     metric-matching-now: Over nu
     metric-no-samples: Ingen data
     metric-no-samples-hint: Der er endnu ikke indsamlet statistik for de matchende containere.
-    metric-would-fire: "Ville udløse for {count} containere lige nu"
+    metric-would-fire: "Ville udløse for 1 container lige nu | Ville udløse for {count} containere lige nu"
     metric-would-not-fire: Ingen container er over grænsen lige nu
     sample-window-label: Prøvevindue
     sample-window-hint: "Udløses når betingelsen holder i {duration}"
@@ -393,7 +393,7 @@ notifications:
     type-switch-warning: Ved at gemme erstattes denne alarms {type}-betingelse, som går tabt.
     event-filter: Hændelses-betingelse
     event-filter-hint: Hvilke containerhændelser der udløser alarmen.
-    event-matches: "Matcher {count} af disse hændelser"
+    event-matches: "Matcher 1 af disse hændelser | Matcher {count} af disse hændelser"
     event-matches-none: Matcher ingen af disse hændelser
     event-preview-hint: Skriv en betingelse for at se hvilke containerhændelser den ville fange.
     event-preview-note: Eksempelhændelser, ikke historik. Docker-hændelser vurderes når de sker.

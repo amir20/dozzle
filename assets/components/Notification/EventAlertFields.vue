@@ -29,7 +29,7 @@
         <mdi:alert v-else class="inline" />
         {{
           matchCount
-            ? $t("notifications.alert-form.event-matches", { count: matchCount })
+            ? $t("notifications.alert-form.event-matches", matchCount)
             : $t("notifications.alert-form.event-matches-none")
         }}
       </span>

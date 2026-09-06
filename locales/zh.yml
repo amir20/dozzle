@@ -314,13 +314,13 @@ notifications:
     edit: 编辑
     duplicate: 复制
     delete: 删除
-    used-by: "被 {count} 条告警使用"
+    used-by: "被 1 条告警使用 | 被 {count} 条告警使用"
     unused: 没有告警使用
     copy-of: "{name} 副本"
     copy-failed: 无法复制此接收目标
     delete-failed: 无法删除此接收目标
     delete-warning: 删除此接收目标？
-    delete-warning-used: "有 {count} 条告警发送到这里，删除后将不再通知。"
+    delete-warning-used: "有 1 条告警发送到这里，删除后将不再通知。 | 有 {count} 条告警发送到这里，删除后将不再通知。"
     delete-cancel: 保留
     delete-confirm: 删除
   alert-form:
@@ -341,7 +341,7 @@ notifications:
     alert-name-hint: 显示在告警卡片以及它发出的每条通知中。
     container-filter: 容器
     container-filter-hint: 此告警监视哪些容器。仅匹配正在运行的容器。
-    containers-match: "匹配 {count} 个运行中的容器：{names}"
+    containers-match: "匹配 1 个运行中的容器：{names} | 匹配 {count} 个运行中的容器：{names}"
     no-containers-match: 没有运行中的容器符合此筛选条件
     checking: 检查中…
     examples: "示例："
@@ -349,10 +349,10 @@ notifications:
     seconds-unit: 秒
     log-filter: 日志条件
     log-filter-hint: 哪些日志行会触发告警。
-    logs-match: "最近 {window} 内有 {count} 行匹配"
+    logs-match: "最近 {window} 内有 1 行匹配 | 最近 {window} 内有 {count} 行匹配"
     no-logs-match: 最近 {window} 内没有匹配的行
     log-preview-hint: 写一个条件，看看最近哪些日志行会触发这条告警。
-    log-scan-note: 预览扫描了前 {count} 个匹配的容器。
+    log-scan-note: "预览扫描了第 1 个匹配的容器。 | 预览扫描了前 {count} 个匹配的容器。"
     preview-needs-containers: 先选择容器，才能用真实数据预览。
     preview-fix-expression: 修正表达式后即可看到预览。
     destination: 目标
@@ -376,7 +376,7 @@ notifications:
     metric-matching-now: 当前超标
     metric-no-samples: 无数据
     metric-no-samples-hint: 匹配的容器尚未收集到统计数据。
-    metric-would-fire: "当前会为 {count} 个容器触发"
+    metric-would-fire: "当前会为 1 个容器触发 | 当前会为 {count} 个容器触发"
     metric-would-not-fire: 当前没有容器超过阈值
     sample-window-label: 采样窗口
     sample-window-hint: "条件持续 {duration} 后触发"
@@ -393,7 +393,7 @@ notifications:
     type-switch-warning: 保存会替换此告警的{type}条件，该条件将丢失。
     event-filter: 事件条件
     event-filter-hint: 哪些容器事件会触发告警。
-    event-matches: "匹配其中 {count} 个事件"
+    event-matches: "匹配其中 1 个事件 | 匹配其中 {count} 个事件"
     event-matches-none: 不匹配其中任何事件
     event-preview-hint: 写一个条件，看看它会捕获哪些容器事件。
     event-preview-note: 这是示例事件，不是历史记录。Docker 事件在发生时实时匹配。

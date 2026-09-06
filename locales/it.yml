@@ -314,13 +314,13 @@ notifications:
     edit: Modifica
     duplicate: Duplica
     delete: Elimina
-    used-by: "Usata da {count} avvisi"
+    used-by: "Usata da 1 avviso | Usata da {count} avvisi"
     unused: Non usata da nessun avviso
     copy-of: "Copia di {name}"
     copy-failed: Impossibile duplicare questa destinazione
     delete-failed: Impossibile eliminare questa destinazione
     delete-warning: Eliminare questa destinazione?
-    delete-warning-used: "{count} avvisi inviano qui e smetteranno di notificare."
+    delete-warning-used: "1 avviso invia qui e smetterà di notificare. | {count} avvisi inviano qui e smetteranno di notificare."
     delete-cancel: Mantieni
     delete-confirm: Elimina
   alert-form:
@@ -341,7 +341,7 @@ notifications:
     alert-name-hint: Mostrato sulla scheda dell'avviso e in ogni notifica che invia.
     container-filter: Container
     container-filter-hint: Quali container osserva questo avviso. Vengono considerati solo i container in esecuzione.
-    containers-match: "Corrisponde a {count} container in esecuzione: {names}"
+    containers-match: "Corrisponde a 1 container in esecuzione: {names} | Corrisponde a {count} container in esecuzione: {names}"
     no-containers-match: Nessun container in esecuzione corrisponde a questo filtro
     checking: Verifica in corso…
     examples: "Esempi:"
@@ -349,10 +349,10 @@ notifications:
     seconds-unit: sec
     log-filter: Condizione sui log
     log-filter-hint: Quali righe di log attivano l'avviso.
-    logs-match: "{count} righe corrispondenti nelle ultime {window}"
+    logs-match: "1 riga corrispondente nelle ultime {window} | {count} righe corrispondenti nelle ultime {window}"
     no-logs-match: Nessuna riga corrispondente nelle ultime {window}
     log-preview-hint: Scrivi una condizione per vedere quali righe di log recenti avrebbero attivato questo avviso.
-    log-scan-note: L'anteprima ha esaminato i primi {count} container corrispondenti.
+    log-scan-note: "L'anteprima ha esaminato il primo container corrispondente. | L'anteprima ha esaminato i primi {count} container corrispondenti."
     preview-needs-containers: Scegli prima i container per vedere un'anteprima con dati reali.
     preview-fix-expression: Correggi l'espressione per vedere un'anteprima.
     destination: Destinazione
@@ -376,7 +376,7 @@ notifications:
     metric-matching-now: Sopra ora
     metric-no-samples: Nessun dato
     metric-no-samples-hint: Non sono ancora state raccolte statistiche per i container corrispondenti.
-    metric-would-fire: "Scatterebbe per {count} container in questo momento"
+    metric-would-fire: "Scatterebbe per 1 container in questo momento | Scatterebbe per {count} container in questo momento"
     metric-would-not-fire: Nessun container supera la soglia in questo momento
     sample-window-label: Finestra di campionamento
     sample-window-hint: "Scatta quando la condizione si mantiene per {duration}"
@@ -393,7 +393,7 @@ notifications:
     type-switch-warning: Salvando sostituirai la condizione {type} di questo avviso, che andrà persa.
     event-filter: Condizione sugli eventi
     event-filter-hint: Quali eventi dei container attivano l'avviso.
-    event-matches: "Corrisponde a {count} di questi eventi"
+    event-matches: "Corrisponde a 1 di questi eventi | Corrisponde a {count} di questi eventi"
     event-matches-none: Non corrisponde a nessuno di questi eventi
     event-preview-hint: Scrivi una condizione per vedere quali eventi dei container intercetterebbe.
     event-preview-note: Eventi di esempio, non uno storico. Gli eventi Docker vengono valutati quando accadono.

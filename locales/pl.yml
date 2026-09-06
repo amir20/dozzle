@@ -317,13 +317,13 @@ notifications:
     edit: Edytuj
     duplicate: Duplikuj
     delete: Usuń
-    used-by: "Używany przez {count} alertów"
+    used-by: "Używany przez 1 alert | Używany przez {count} alertów"
     unused: Nieużywany przez żaden alert
     copy-of: "Kopia {name}"
     copy-failed: Nie udało się zduplikować tego celu
     delete-failed: Nie udało się usunąć tego celu
     delete-warning: Usunąć ten cel?
-    delete-warning-used: "{count} alertów wysyła tutaj i przestanie powiadamiać."
+    delete-warning-used: "1 alert wysyła tutaj i przestanie powiadamiać. | {count} alertów wysyła tutaj i przestanie powiadamiać."
     delete-cancel: Zachowaj
     delete-confirm: Usuń
   alert-form:
@@ -344,7 +344,7 @@ notifications:
     alert-name-hint: Widoczna na karcie alertu i w każdym wysyłanym powiadomieniu.
     container-filter: Kontenery
     container-filter-hint: Które kontenery obserwuje ten alert. Dopasowywane są tylko działające kontenery.
-    containers-match: "Pasuje do {count} działających kontenerów: {names}"
+    containers-match: "Pasuje do 1 działającego kontenera: {names} | Pasuje do {count} działających kontenerów: {names}"
     no-containers-match: Żaden działający kontener nie pasuje do tego filtra
     checking: Sprawdzanie…
     examples: "Przykłady:"
@@ -352,10 +352,10 @@ notifications:
     seconds-unit: sek
     log-filter: Warunek logów
     log-filter-hint: Które linie logów wyzwalają alert.
-    logs-match: "{count} pasujących linii w ciągu ostatnich {window}"
+    logs-match: "1 pasująca linia w ciągu ostatnich {window} | {count} pasujących linii w ciągu ostatnich {window}"
     no-logs-match: Brak pasujących linii w ciągu ostatnich {window}
     log-preview-hint: Napisz warunek, aby zobaczyć, które ostatnie linie logów wyzwoliłyby ten alert.
-    log-scan-note: Podgląd przeszukał pierwsze {count} pasujących kontenerów.
+    log-scan-note: "Podgląd przeszukał pierwszy pasujący kontener. | Podgląd przeszukał pierwsze {count} pasujących kontenerów."
     preview-needs-containers: Najpierw wybierz kontenery, aby zobaczyć podgląd na prawdziwych danych.
     preview-fix-expression: Popraw wyrażenie, aby zobaczyć podgląd.
     destination: Miejsce docelowe
@@ -379,7 +379,7 @@ notifications:
     metric-matching-now: Powyżej teraz
     metric-no-samples: Brak danych
     metric-no-samples-hint: Nie zebrano jeszcze statystyk dla pasujących kontenerów.
-    metric-would-fire: "Zadziałałby teraz dla {count} kontenerów"
+    metric-would-fire: "Zadziałałby teraz dla 1 kontenera | Zadziałałby teraz dla {count} kontenerów"
     metric-would-not-fire: Żaden kontener nie przekracza teraz progu
     sample-window-label: Okno próbkowania
     sample-window-hint: "Wyzwala się, gdy warunek utrzyma się przez {duration}"
@@ -396,7 +396,7 @@ notifications:
     type-switch-warning: Zapisanie zastąpi warunek {type} tego alertu, który zostanie utracony.
     event-filter: Warunek zdarzenia
     event-filter-hint: Które zdarzenia kontenerów wyzwalają alert.
-    event-matches: "Pasuje do {count} z tych zdarzeń"
+    event-matches: "Pasuje do 1 z tych zdarzeń | Pasuje do {count} z tych zdarzeń"
     event-matches-none: Nie pasuje do żadnego z tych zdarzeń
     event-preview-hint: Napisz warunek, aby zobaczyć, które zdarzenia kontenerów by wychwycił.
     event-preview-note: Przykładowe zdarzenia, nie historia. Zdarzenia Dockera są oceniane na bieżąco.

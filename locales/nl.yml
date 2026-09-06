@@ -315,13 +315,13 @@ notifications:
     edit: Bewerken
     duplicate: Dupliceren
     delete: Verwijderen
-    used-by: "Gebruikt door {count} meldingen"
+    used-by: "Gebruikt door 1 melding | Gebruikt door {count} meldingen"
     unused: Door geen enkele melding gebruikt
     copy-of: "Kopie van {name}"
     copy-failed: Deze bestemming kon niet worden gedupliceerd
     delete-failed: Deze bestemming kon niet worden verwijderd
     delete-warning: Deze bestemming verwijderen?
-    delete-warning-used: "{count} meldingen sturen hierheen en stoppen met notificeren."
+    delete-warning-used: "1 melding stuurt hierheen en stopt met notificeren. | {count} meldingen sturen hierheen en stoppen met notificeren."
     delete-cancel: Behouden
     delete-confirm: Verwijderen
   alert-form:
@@ -342,7 +342,7 @@ notifications:
     alert-name-hint: Wordt getoond op de meldingskaart en in elke notificatie die hij verstuurt.
     container-filter: Containers
     container-filter-hint: Welke containers deze melding bewaakt. Alleen draaiende containers tellen mee.
-    containers-match: "Komt overeen met {count} draaiende containers: {names}"
+    containers-match: "Komt overeen met 1 draaiende container: {names} | Komt overeen met {count} draaiende containers: {names}"
     no-containers-match: Geen draaiende containers komen overeen met dit filter
     checking: Bezig met controleren…
     examples: "Voorbeelden:"
@@ -350,10 +350,10 @@ notifications:
     seconds-unit: sec
     log-filter: Logvoorwaarde
     log-filter-hint: Welke logregels de melding activeren.
-    logs-match: "{count} overeenkomende regels in de laatste {window}"
+    logs-match: "1 overeenkomende regel in de laatste {window} | {count} overeenkomende regels in de laatste {window}"
     no-logs-match: Geen overeenkomende regels in de laatste {window}
     log-preview-hint: Schrijf een voorwaarde om te zien welke recente logregels deze melding hadden geactiveerd.
-    log-scan-note: Het voorbeeld doorzocht de eerste {count} overeenkomende containers.
+    log-scan-note: "Het voorbeeld doorzocht de eerste overeenkomende container. | Het voorbeeld doorzocht de eerste {count} overeenkomende containers."
     preview-needs-containers: Kies eerst containers om een voorbeeld met echte data te zien.
     preview-fix-expression: Corrigeer de expressie om een voorbeeld te zien.
     destination: Bestemming
@@ -377,7 +377,7 @@ notifications:
     metric-matching-now: Nu erboven
     metric-no-samples: Geen data
     metric-no-samples-hint: Nog geen statistieken verzameld voor de overeenkomende containers.
-    metric-would-fire: "Zou nu afgaan voor {count} containers"
+    metric-would-fire: "Zou nu afgaan voor 1 container | Zou nu afgaan voor {count} containers"
     metric-would-not-fire: Geen enkele container zit nu boven de drempel
     sample-window-label: Steekproefvenster
     sample-window-hint: "Gaat af zodra de voorwaarde {duration} standhoudt"
@@ -394,7 +394,7 @@ notifications:
     type-switch-warning: Opslaan vervangt de {type}-voorwaarde van deze melding, die verloren gaat.
     event-filter: Gebeurtenisvoorwaarde
     event-filter-hint: Welke containergebeurtenissen de melding activeren.
-    event-matches: "Komt overeen met {count} van deze gebeurtenissen"
+    event-matches: "Komt overeen met 1 van deze gebeurtenissen | Komt overeen met {count} van deze gebeurtenissen"
     event-matches-none: Komt met geen van deze gebeurtenissen overeen
     event-preview-hint: Schrijf een voorwaarde om te zien welke containergebeurtenissen hij zou opvangen.
     event-preview-note: Voorbeeldgebeurtenissen, geen geschiedenis. Docker-gebeurtenissen worden live beoordeeld.

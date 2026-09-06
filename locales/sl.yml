@@ -320,13 +320,13 @@ notifications:
     edit: Uredi
     duplicate: Podvoji
     delete: Izbriši
-    used-by: "Uporablja ga {count} opozoril"
+    used-by: "Uporablja ga 1 opozorilo | Uporablja ga {count} opozoril"
     unused: Ne uporablja ga nobeno opozorilo
     copy-of: "Kopija {name}"
     copy-failed: Tega cilja ni bilo mogoče podvojiti
     delete-failed: Tega cilja ni bilo mogoče izbrisati
     delete-warning: Izbrišem ta cilj?
-    delete-warning-used: "{count} opozoril pošilja sem in bo prenehalo obveščati."
+    delete-warning-used: "1 opozorilo pošilja sem in bo prenehalo obveščati. | {count} opozoril pošilja sem in bo prenehalo obveščati."
     delete-cancel: Obdrži
     delete-confirm: Izbriši
   alert-form:
@@ -347,7 +347,7 @@ notifications:
     alert-name-hint: Prikazano na kartici opozorila in v vsakem poslanem obvestilu.
     container-filter: Vsebniki
     container-filter-hint: Katere vsebnike to opozorilo nadzoruje. Upoštevani so samo delujoči vsebniki.
-    containers-match: "Ustreza {count} delujočim vsebnikom: {names}"
+    containers-match: "Ustreza 1 delujočemu vsebniku: {names} | Ustreza {count} delujočim vsebnikom: {names}"
     no-containers-match: Noben delujoč vsebnik ne ustreza temu filtru
     checking: Preverjanje…
     examples: "Primeri:"
@@ -355,10 +355,10 @@ notifications:
     seconds-unit: s
     log-filter: Pogoj dnevnika
     log-filter-hint: Katere vrstice dnevnika sprožijo opozorilo.
-    logs-match: "{count} ustreznih vrstic v zadnjih {window}"
+    logs-match: "1 ustrezna vrstica v zadnjih {window} | {count} ustreznih vrstic v zadnjih {window}"
     no-logs-match: Nobena vrstica ne ustreza v zadnjih {window}
     log-preview-hint: Napišite pogoj, da vidite, katere nedavne vrstice dnevnika bi sprožile to opozorilo.
-    log-scan-note: Predogled je pregledal prvih {count} ustreznih vsebnikov.
+    log-scan-note: "Predogled je pregledal prvi ustrezni vsebnik. | Predogled je pregledal prvih {count} ustreznih vsebnikov."
     preview-needs-containers: Najprej izberite vsebnike za predogled z resničnimi podatki.
     preview-fix-expression: Popravite izraz, da vidite predogled.
     destination: Cilj
@@ -382,7 +382,7 @@ notifications:
     metric-matching-now: Zdaj nad
     metric-no-samples: Ni podatkov
     metric-no-samples-hint: Za ustrezne vsebnike statistika še ni bila zbrana.
-    metric-would-fire: "Trenutno bi se sprožilo za {count} vsebnikov"
+    metric-would-fire: "Trenutno bi se sprožilo za 1 vsebnik | Trenutno bi se sprožilo za {count} vsebnikov"
     metric-would-not-fire: Noben vsebnik trenutno ne presega praga
     sample-window-label: Vzorčno okno
     sample-window-hint: "Sproži se, ko pogoj velja {duration}"
@@ -399,7 +399,7 @@ notifications:
     type-switch-warning: Shranjevanje bo zamenjalo pogoj {type} tega opozorila, ki bo izgubljen.
     event-filter: Pogoj dogodka
     event-filter-hint: Kateri dogodki vsebnikov sprožijo opozorilo.
-    event-matches: "Ustreza {count} od teh dogodkov"
+    event-matches: "Ustreza 1 od teh dogodkov | Ustreza {count} od teh dogodkov"
     event-matches-none: Ne ustreza nobenemu od teh dogodkov
     event-preview-hint: Napišite pogoj, da vidite, katere dogodke vsebnikov bi ujel.
     event-preview-note: Vzorčni dogodki, ne zgodovina. Dogodki Dockerja se ovrednotijo, ko se zgodijo.

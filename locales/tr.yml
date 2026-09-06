@@ -318,13 +318,13 @@ notifications:
     edit: Düzenle
     duplicate: Çoğalt
     delete: Sil
-    used-by: "{count} uyarı tarafından kullanılıyor"
+    used-by: "1 uyarı tarafından kullanılıyor | {count} uyarı tarafından kullanılıyor"
     unused: Hiçbir uyarı kullanmıyor
     copy-of: "{name} kopyası"
     copy-failed: Bu hedef çoğaltılamadı
     delete-failed: Bu hedef silinemedi
     delete-warning: Bu hedef silinsin mi?
-    delete-warning-used: "{count} uyarı buraya gönderiyor ve bildirim durduracak."
+    delete-warning-used: "1 uyarı buraya gönderiyor ve bildirim durduracak. | {count} uyarı buraya gönderiyor ve bildirim durduracak."
     delete-cancel: Vazgeç
     delete-confirm: Sil
   alert-form:
@@ -345,7 +345,7 @@ notifications:
     alert-name-hint: Uyarı kartında ve gönderdiği her bildirimde görünür.
     container-filter: Konteynerler
     container-filter-hint: Bu uyarının izlediği konteynerler. Yalnızca çalışan konteynerler eşleştirilir.
-    containers-match: "{count} çalışan konteynerle eşleşiyor: {names}"
+    containers-match: "1 çalışan konteynerle eşleşiyor: {names} | {count} çalışan konteynerle eşleşiyor: {names}"
     no-containers-match: Bu filtreyle eşleşen çalışan konteyner yok
     checking: Kontrol ediliyor…
     examples: "Örnekler:"
@@ -353,10 +353,10 @@ notifications:
     seconds-unit: sn
     log-filter: Log koşulu
     log-filter-hint: Hangi log satırlarının uyarıyı tetiklediği.
-    logs-match: "Son {window} içinde {count} eşleşen satır"
+    logs-match: "Son {window} içinde 1 eşleşen satır | Son {window} içinde {count} eşleşen satır"
     no-logs-match: Son {window} içinde eşleşen satır yok
     log-preview-hint: Son log satırlarından hangilerinin bu uyarıyı tetikleyeceğini görmek için bir koşul yazın.
-    log-scan-note: Önizleme, eşleşen ilk {count} konteyneri taradı.
+    log-scan-note: "Önizleme, eşleşen ilk konteyneri taradı. | Önizleme, eşleşen ilk {count} konteyneri taradı."
     preview-needs-containers: Gerçek veriyle önizleme için önce konteynerleri seçin.
     preview-fix-expression: Önizleme görmek için ifadeyi düzeltin.
     destination: Hedef
@@ -380,7 +380,7 @@ notifications:
     metric-matching-now: Şu an üstünde
     metric-no-samples: Veri yok
     metric-no-samples-hint: Eşleşen konteynerler için henüz istatistik toplanmadı.
-    metric-would-fire: "Şu anda {count} konteyner için tetiklenirdi"
+    metric-would-fire: "Şu anda 1 konteyner için tetiklenirdi | Şu anda {count} konteyner için tetiklenirdi"
     metric-would-not-fire: Şu anda eşiğin üstünde konteyner yok
     sample-window-label: Örnek Penceresi
     sample-window-hint: "Koşul {duration} boyunca sürdüğünde tetiklenir"
@@ -397,7 +397,7 @@ notifications:
     type-switch-warning: Kaydetmek bu uyarının {type} koşulunu değiştirir ve o koşul kaybolur.
     event-filter: Olay koşulu
     event-filter-hint: Hangi konteyner olaylarının uyarıyı tetiklediği.
-    event-matches: "Bu olaylardan {count} tanesiyle eşleşiyor"
+    event-matches: "Bu olaylardan 1 tanesiyle eşleşiyor | Bu olaylardan {count} tanesiyle eşleşiyor"
     event-matches-none: Bu olayların hiçbiriyle eşleşmiyor
     event-preview-hint: Hangi konteyner olaylarını yakalayacağını görmek için bir koşul yazın.
     event-preview-note: Geçmiş değil, örnek olaylar. Docker olayları gerçekleştikçe değerlendirilir.

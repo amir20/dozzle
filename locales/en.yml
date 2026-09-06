@@ -368,13 +368,13 @@ notifications:
     edit: Edit
     duplicate: Duplicate
     delete: Delete
-    used-by: "Used by {count} alerts"
+    used-by: "Used by 1 alert | Used by {count} alerts"
     unused: Not used by any alert
     copy-of: "{name} copy"
     copy-failed: Could not duplicate this destination
     delete-failed: Could not delete this destination
     delete-warning: Delete this destination?
-    delete-warning-used: "{count} alerts send here and will stop notifying."
+    delete-warning-used: "1 alert sends here and will stop notifying. | {count} alerts send here and will stop notifying."
     delete-cancel: Keep
     delete-confirm: Delete
   alert-form:
@@ -395,7 +395,7 @@ notifications:
     alert-name-hint: Shown on the alert card and in every notification it sends.
     container-filter: Containers
     container-filter-hint: Which containers this alert watches. Only running containers are matched.
-    containers-match: "Matches {count} running containers: {names}"
+    containers-match: "Matches 1 running container: {names} | Matches {count} running containers: {names}"
     no-containers-match: No running containers match this filter
     checking: Checking…
     examples: "Examples:"
@@ -403,10 +403,10 @@ notifications:
     seconds-unit: sec
     log-filter: Log Condition
     log-filter-hint: Which log lines trigger the alert.
-    logs-match: "{count} matching lines in the last {window}"
+    logs-match: "1 matching line in the last {window} | {count} matching lines in the last {window}"
     no-logs-match: No matching lines in the last {window}
     log-preview-hint: Write a condition to see which recent log lines would have triggered this alert.
-    log-scan-note: Preview scanned the first {count} matching containers.
+    log-scan-note: "Preview scanned the first matching container. | Preview scanned the first {count} matching containers."
     preview-needs-containers: Pick containers first to preview against real data.
     preview-fix-expression: Fix the expression to see a preview.
     destination: Destination
@@ -430,7 +430,7 @@ notifications:
     metric-matching-now: Over now
     metric-no-samples: No stats
     metric-no-samples-hint: No stats collected yet for the matching containers.
-    metric-would-fire: "Would fire for {count} containers right now"
+    metric-would-fire: "Would fire for 1 container right now | Would fire for {count} containers right now"
     metric-would-not-fire: No container is over the threshold right now
     sample-window-label: Sample Window
     sample-window-hint: "Fires once the condition holds for {duration}"
@@ -447,7 +447,7 @@ notifications:
     type-switch-warning: Saving replaces this alert's {type} condition, which will be lost.
     event-filter: Event Condition
     event-filter-hint: Which container events trigger the alert.
-    event-matches: "Matches {count} of these events"
+    event-matches: "Matches 1 of these events | Matches {count} of these events"
     event-matches-none: Matches none of these events
     event-preview-hint: Write a condition to see which container events it would catch.
     event-preview-note: Sample events, not history. Docker events are matched as they happen.

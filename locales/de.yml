@@ -314,13 +314,13 @@ notifications:
     edit: Bearbeiten
     duplicate: Duplizieren
     delete: Löschen
-    used-by: "Von {count} Alarmen verwendet"
+    used-by: "Von 1 Alarm verwendet | Von {count} Alarmen verwendet"
     unused: Von keinem Alarm verwendet
     copy-of: "{name} Kopie"
     copy-failed: Dieses Ziel konnte nicht dupliziert werden
     delete-failed: Dieses Ziel konnte nicht gelöscht werden
     delete-warning: Dieses Ziel löschen?
-    delete-warning-used: "{count} Alarme senden hierhin und benachrichtigen dann nicht mehr."
+    delete-warning-used: "1 Alarm sendet hierhin und benachrichtigt dann nicht mehr. | {count} Alarme senden hierhin und benachrichtigen dann nicht mehr."
     delete-cancel: Behalten
     delete-confirm: Löschen
   alert-form:
@@ -341,7 +341,7 @@ notifications:
     alert-name-hint: Wird auf der Alarmkarte und in jeder gesendeten Benachrichtigung angezeigt.
     container-filter: Container
     container-filter-hint: Welche Container dieser Alarm überwacht. Nur laufende Container werden berücksichtigt.
-    containers-match: "Trifft auf {count} laufende Container zu: {names}"
+    containers-match: "Trifft auf 1 laufenden Container zu: {names} | Trifft auf {count} laufende Container zu: {names}"
     no-containers-match: Keine laufenden Container entsprechen diesem Filter
     checking: Wird geprüft…
     examples: "Beispiele:"
@@ -349,10 +349,10 @@ notifications:
     seconds-unit: Sek.
     log-filter: Log-Bedingung
     log-filter-hint: Welche Log-Zeilen den Alarm auslösen.
-    logs-match: "{count} passende Zeilen in den letzten {window}"
+    logs-match: "1 passende Zeile in den letzten {window} | {count} passende Zeilen in den letzten {window}"
     no-logs-match: Keine passenden Zeilen in den letzten {window}
     log-preview-hint: Schreiben Sie eine Bedingung, um zu sehen, welche letzten Log-Zeilen diesen Alarm ausgelöst hätten.
-    log-scan-note: Die Vorschau hat die ersten {count} passenden Container durchsucht.
+    log-scan-note: "Die Vorschau hat den ersten passenden Container durchsucht. | Die Vorschau hat die ersten {count} passenden Container durchsucht."
     preview-needs-containers: Wählen Sie zuerst Container aus, um eine Vorschau mit echten Daten zu sehen.
     preview-fix-expression: Korrigieren Sie den Ausdruck, um eine Vorschau zu sehen.
     destination: Ziel
@@ -376,7 +376,7 @@ notifications:
     metric-matching-now: Jetzt darüber
     metric-no-samples: Keine Daten
     metric-no-samples-hint: Für die passenden Container wurden noch keine Statistiken erfasst.
-    metric-would-fire: "Würde derzeit für {count} Container auslösen"
+    metric-would-fire: "Würde derzeit für 1 Container auslösen | Würde derzeit für {count} Container auslösen"
     metric-would-not-fire: Derzeit liegt kein Container über dem Schwellenwert
     sample-window-label: Zeitfenster
     sample-window-hint: "Löst aus, sobald die Bedingung {duration} lang erfüllt ist"
@@ -393,7 +393,7 @@ notifications:
     type-switch-warning: Beim Speichern wird die {type}-Bedingung dieses Alarms ersetzt und geht verloren.
     event-filter: Ereignis-Bedingung
     event-filter-hint: Welche Container-Ereignisse den Alarm auslösen.
-    event-matches: "Trifft auf {count} dieser Ereignisse zu"
+    event-matches: "Trifft auf 1 dieser Ereignisse zu | Trifft auf {count} dieser Ereignisse zu"
     event-matches-none: Trifft auf keines dieser Ereignisse zu
     event-preview-hint: Schreiben Sie eine Bedingung, um zu sehen, welche Container-Ereignisse sie erfassen würde.
     event-preview-note: Beispielereignisse, kein Verlauf. Docker-Ereignisse werden abgeglichen, sobald sie auftreten.

@@ -326,13 +326,13 @@ notifications:
     edit: Edit
     duplicate: Duplikat
     delete: Hapus
-    used-by: "Dipakai oleh {count} peringatan"
+    used-by: "Dipakai oleh 1 peringatan | Dipakai oleh {count} peringatan"
     unused: Tidak dipakai peringatan mana pun
     copy-of: "Salinan {name}"
     copy-failed: Tidak dapat menduplikasi tujuan ini
     delete-failed: Tidak dapat menghapus tujuan ini
     delete-warning: Hapus tujuan ini?
-    delete-warning-used: "{count} peringatan mengirim ke sini dan akan berhenti memberi tahu."
+    delete-warning-used: "1 peringatan mengirim ke sini dan akan berhenti memberi tahu. | {count} peringatan mengirim ke sini dan akan berhenti memberi tahu."
     delete-cancel: Simpan
     delete-confirm: Hapus
   alert-form:
@@ -353,7 +353,7 @@ notifications:
     alert-name-hint: Ditampilkan pada kartu peringatan dan di setiap notifikasi yang dikirim.
     container-filter: Kontainer
     container-filter-hint: Kontainer mana yang diawasi peringatan ini. Hanya kontainer yang berjalan yang dicocokkan.
-    containers-match: "Cocok dengan {count} kontainer yang berjalan: {names}"
+    containers-match: "Cocok dengan 1 kontainer yang berjalan: {names} | Cocok dengan {count} kontainer yang berjalan: {names}"
     no-containers-match: Tidak ada kontainer berjalan yang cocok dengan filter ini
     checking: Memeriksa…
     examples: "Contoh:"
@@ -361,10 +361,10 @@ notifications:
     seconds-unit: dtk
     log-filter: Kondisi log
     log-filter-hint: Baris log mana yang memicu peringatan.
-    logs-match: "{count} baris cocok dalam {window} terakhir"
+    logs-match: "1 baris cocok dalam {window} terakhir | {count} baris cocok dalam {window} terakhir"
     no-logs-match: Tidak ada baris yang cocok dalam {window} terakhir
     log-preview-hint: Tulis kondisi untuk melihat baris log terbaru mana yang akan memicu peringatan ini.
-    log-scan-note: Pratinjau memindai {count} kontainer cocok pertama.
+    log-scan-note: "Pratinjau memindai kontainer cocok pertama. | Pratinjau memindai {count} kontainer cocok pertama."
     preview-needs-containers: Pilih kontainer dulu untuk melihat pratinjau dengan data nyata.
     preview-fix-expression: Perbaiki ekspresi untuk melihat pratinjau.
     destination: Tujuan
@@ -388,7 +388,7 @@ notifications:
     metric-matching-now: Di atas kini
     metric-no-samples: Tanpa data
     metric-no-samples-hint: Belum ada statistik yang dikumpulkan untuk kontainer yang cocok.
-    metric-would-fire: "Saat ini akan terpicu untuk {count} kontainer"
+    metric-would-fire: "Saat ini akan terpicu untuk 1 kontainer | Saat ini akan terpicu untuk {count} kontainer"
     metric-would-not-fire: Tidak ada kontainer yang melewati ambang batas saat ini
     sample-window-label: Jendela Sampel
     sample-window-hint: "Terpicu setelah kondisi bertahan selama {duration}"
@@ -405,7 +405,7 @@ notifications:
     type-switch-warning: Menyimpan akan mengganti kondisi {type} peringatan ini, dan kondisi itu hilang.
     event-filter: Kondisi peristiwa
     event-filter-hint: Peristiwa kontainer mana yang memicu peringatan.
-    event-matches: "Cocok dengan {count} dari peristiwa ini"
+    event-matches: "Cocok dengan 1 dari peristiwa ini | Cocok dengan {count} dari peristiwa ini"
     event-matches-none: Tidak cocok dengan satu pun peristiwa ini
     event-preview-hint: Tulis kondisi untuk melihat peristiwa kontainer mana yang akan tertangkap.
     event-preview-note: Contoh peristiwa, bukan riwayat. Peristiwa Docker dicocokkan saat terjadi.

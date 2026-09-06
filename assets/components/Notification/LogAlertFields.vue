@@ -16,7 +16,7 @@
       <span v-else-if="!logError && logExpression.trim() && hasContainers" class="text-sm">
         <span v-if="logMessages.length" class="text-success">
           <mdi:check class="inline" />
-          {{ $t("notifications.alert-form.logs-match", { count: logTotalCount, window: windowLabel }) }}
+          {{ $t("notifications.alert-form.logs-match", { count: logTotalCount, window: windowLabel }, logTotalCount) }}
         </span>
         <span v-else class="text-warning">
           <mdi:alert class="inline" />
@@ -39,7 +39,7 @@
     </div>
 
     <p v-if="truncated" class="text-base-content/50 mt-1 text-xs">
-      {{ $t("notifications.alert-form.log-scan-note", { count: scannedContainers }) }}
+      {{ $t("notifications.alert-form.log-scan-note", scannedContainers) }}
     </p>
   </div>
 </template>

@@ -38,7 +38,7 @@
         <mdi:check v-else class="inline" />
         {{
           triggerCount
-            ? $t("notifications.alert-form.metric-would-fire", { count: triggerCount })
+            ? $t("notifications.alert-form.metric-would-fire", triggerCount)
             : $t("notifications.alert-form.metric-would-not-fire")
         }}
       </span>
