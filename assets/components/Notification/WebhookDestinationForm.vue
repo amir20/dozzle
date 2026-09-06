@@ -1,5 +1,5 @@
 <template>
-  <div class="flex min-h-full flex-col">
+  <div class="flex min-h-full flex-1 flex-col">
     <div class="space-y-6 pb-8">
       <!-- 1. Name -->
       <section>
@@ -119,7 +119,9 @@
     </div>
 
     <!-- Actions -->
-    <div class="bg-base-100/95 border-base-content/10 sticky bottom-0 mt-auto border-t py-4 backdrop-blur">
+    <!-- Opaque and full-bleed: the parent's padding would otherwise leave the scrolling content
+         visible down both sides of the bar. -->
+    <div class="bg-base-100 border-base-content/10 sticky bottom-0 z-10 -mx-4 mt-auto border-t px-4 py-4">
       <div v-if="error" class="alert alert-error mb-3 py-2 text-sm">
         <span>{{ error }}</span>
       </div>

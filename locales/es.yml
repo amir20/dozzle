@@ -449,10 +449,14 @@ notifications:
     name-placeholder: ej., Slack de Producción
     name-hint: Así se lista este destino al elegir uno para una alerta.
     name-taken: Otro destino ya usa este nombre.
+    still-needed: "Aún falta: {fields}"
     missing:
       name: nombre
       url: URL del webhook
       template: plantilla
+    discard-title: ¿Descartar este destino?
+    discard-keep: Seguir editando
+    discard-confirm: Descartar
     type: Tipo
     webhook-title: HTTP Webhook
     webhook-description: Slack, Discord, endpoint personalizado

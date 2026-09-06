@@ -405,10 +405,14 @@ notifications:
     name-placeholder: 例如，生产环境 Slack
     name-hint: 为告警选择接收目标时显示的名称。
     name-taken: 已有其他接收目标使用此名称。
+    still-needed: "还需要：{fields}"
     missing:
       name: 名称
       url: Webhook 地址
       template: 模板
+    discard-title: 放弃这个接收目标？
+    discard-keep: 继续编辑
+    discard-confirm: 放弃
     type: 类型
     webhook-title: HTTP Webhook
     webhook-description: Slack、Discord、自定义端点

@@ -182,7 +182,7 @@
     </div>
 
     <!-- Actions stay reachable in a form this tall -->
-    <div class="bg-base-100/95 border-base-content/10 sticky bottom-0 mt-auto border-t p-4 backdrop-blur">
+    <div class="bg-base-100 border-base-content/10 sticky bottom-0 z-10 mt-auto border-t p-4">
       <div v-if="saveError" class="alert alert-error mb-3 py-2 text-sm">
         <span>{{ saveError }}</span>
       </div>

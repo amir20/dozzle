@@ -417,10 +417,14 @@ notifications:
     name-placeholder: mis., Slack Produksi
     name-hint: Begini tujuan ini tampil saat memilih tujuan untuk sebuah peringatan.
     name-taken: Tujuan lain sudah memakai nama ini.
+    still-needed: "Masih dibutuhkan: {fields}"
     missing:
       name: nama
       url: URL webhook
       template: templat
+    discard-title: Buang tujuan ini?
+    discard-keep: Lanjut mengedit
+    discard-confirm: Buang
     type: Tipe
     webhook-title: HTTP Webhook
     webhook-description: Slack, Discord, endpoint kustom

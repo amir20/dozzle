@@ -409,10 +409,14 @@ notifications:
     name-placeholder: ör., Prodüksiyon Slack
     name-hint: Bir uyarı için hedef seçerken bu hedef böyle listelenir.
     name-taken: Bu adı başka bir hedef zaten kullanıyor.
+    still-needed: "Hâlâ gerekli: {fields}"
     missing:
       name: ad
       url: webhook URL'si
       template: şablon
+    discard-title: Bu hedef atılsın mı?
+    discard-keep: Düzenlemeye devam et
+    discard-confirm: At
     type: Tür
     webhook-title: HTTP Webhook
     webhook-description: Slack, Discord, özel uç nokta

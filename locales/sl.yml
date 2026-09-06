@@ -411,10 +411,14 @@ notifications:
     name-placeholder: npr., Produkcijski Slack
     name-hint: Tako je ta cilj naveden pri izbiri cilja za opozorilo.
     name-taken: To ime že uporablja drug cilj.
+    still-needed: "Še manjka: {fields}"
     missing:
       name: ime
       url: URL webhooka
       template: predloga
+    discard-title: Zavržem ta cilj?
+    discard-keep: Nadaljuj urejanje
+    discard-confirm: Zavrzi
     type: Tip
     webhook-title: HTTP Webhook
     webhook-description: Slack, Discord, končna točka po meri

@@ -408,10 +408,14 @@ notifications:
     name-placeholder: 例如，正式環境 Slack
     name-hint: 為警示挑選接收目標時顯示的名稱。
     name-taken: 已有其他接收目標使用此名稱。
+    still-needed: "還需要：{fields}"
     missing:
       name: 名稱
       url: Webhook 網址
       template: 範本
+    discard-title: 放棄這個接收目標？
+    discard-keep: 繼續編輯
+    discard-confirm: 放棄
     type: 類型
     webhook-title: HTTP Webhook
     webhook-description: Slack、Discord、自訂端點

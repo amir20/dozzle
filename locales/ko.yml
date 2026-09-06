@@ -409,10 +409,14 @@ notifications:
     name-placeholder: "예: 프로덕션 Slack"
     name-hint: 알림에서 대상을 고를 때 이 이름으로 표시됩니다.
     name-taken: 다른 대상이 이미 이 이름을 사용 중입니다.
+    still-needed: "아직 필요: {fields}"
     missing:
       name: 이름
       url: 웹훅 URL
       template: 템플릿
+    discard-title: 이 대상을 취소할까요?
+    discard-keep: 계속 편집
+    discard-confirm: 취소
     type: 유형
     webhook-title: HTTP 웹훅
     webhook-description: Slack, Discord, 사용자 정의 엔드포인트

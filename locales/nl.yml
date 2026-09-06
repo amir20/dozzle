@@ -406,10 +406,14 @@ notifications:
     name-placeholder: bijv. Productie Slack
     name-hint: Zo staat deze bestemming in de lijst bij het kiezen voor een melding.
     name-taken: Een andere bestemming gebruikt deze naam al.
+    still-needed: "Nog nodig: {fields}"
     missing:
       name: naam
       url: webhook-URL
       template: sjabloon
+    discard-title: Deze bestemming verwerpen?
+    discard-keep: Verder bewerken
+    discard-confirm: Verwerpen
     type: Type
     webhook-title: HTTP Webhook
     webhook-description: Slack, Discord, aangepast eindpunt

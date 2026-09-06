@@ -405,10 +405,14 @@ notifications:
     name-placeholder: z.B. Produktion Slack
     name-hint: So wird dieses Ziel bei der Auswahl für einen Alarm angezeigt.
     name-taken: Ein anderes Ziel verwendet diesen Namen bereits.
+    still-needed: "Noch erforderlich: {fields}"
     missing:
       name: Name
       url: Webhook-URL
       template: Vorlage
+    discard-title: Dieses Ziel verwerfen?
+    discard-keep: Weiter bearbeiten
+    discard-confirm: Verwerfen
     type: Typ
     webhook-title: HTTP Webhook
     webhook-description: Slack, Discord, benutzerdefinierter Endpunkt

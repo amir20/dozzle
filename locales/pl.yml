@@ -408,10 +408,14 @@ notifications:
     name-placeholder: np. Produkcyjny Slack
     name-hint: Tak ten cel jest opisany przy wyborze celu dla alertu.
     name-taken: Inny cel już używa tej nazwy.
+    still-needed: "Wciąż brakuje: {fields}"
     missing:
       name: nazwa
       url: adres webhooka
       template: szablon
+    discard-title: Odrzucić ten cel?
+    discard-keep: Kontynuuj edycję
+    discard-confirm: Odrzuć
     type: Typ
     webhook-title: HTTP Webhook
     webhook-description: Slack, Discord, własny endpoint

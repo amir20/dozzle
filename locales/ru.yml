@@ -405,10 +405,14 @@ notifications:
     name-placeholder: напр., Продакшн Slack
     name-hint: Так это назначение отображается при выборе для оповещения.
     name-taken: Другое назначение уже занимает это имя.
+    still-needed: "Ещё нужно: {fields}"
     missing:
       name: имя
       url: URL вебхука
       template: шаблон
+    discard-title: Отменить это назначение?
+    discard-keep: Продолжить редактирование
+    discard-confirm: Отменить
     type: Тип
     webhook-title: HTTP Webhook
     webhook-description: Slack, Discord, пользовательская конечная точка

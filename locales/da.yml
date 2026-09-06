@@ -405,10 +405,14 @@ notifications:
     name-placeholder: f.eks. Produktion Slack
     name-hint: Sådan vises denne destination, når du vælger en til en alarm.
     name-taken: En anden destination bruger allerede dette navn.
+    still-needed: "Mangler stadig: {fields}"
     missing:
       name: navn
       url: webhook-URL
       template: skabelon
+    discard-title: Kassér denne destination?
+    discard-keep: Fortsæt redigering
+    discard-confirm: Kassér
     type: Type
     webhook-title: HTTP Webhook
     webhook-description: Slack, Discord, brugerdefineret endpoint
