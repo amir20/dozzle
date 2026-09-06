@@ -56,7 +56,9 @@
           :examples="containerExamples"
           :get-hints="containerHints"
         />
-        <div class="mt-1 text-sm">
+        <!-- Fixed height: this line flips between a spinner, a match count and nothing at all
+             on every keystroke, and a collapsing line shoves the rest of the form around. -->
+        <div class="mt-1 min-h-5 text-sm">
           <span v-if="isLoading && !containerResult" class="text-base-content/60">
             <span class="loading loading-spinner loading-xs align-middle"></span>
             {{ $t("notifications.alert-form.checking") }}

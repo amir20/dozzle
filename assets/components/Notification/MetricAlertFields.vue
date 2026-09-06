@@ -44,7 +44,7 @@
       </span>
     </div>
 
-    <div v-if="samples.length" class="border-base-content/20 overflow-x-auto rounded-lg border">
+    <div v-if="samples.length" class="border-base-content/20 min-h-24 overflow-x-auto rounded-lg border">
       <table class="table-sm table">
         <thead>
           <tr>
@@ -90,8 +90,10 @@
       {{ emptyStateMessage }}
     </div>
 
-    <p v-if="samples.length" class="text-base-content/50 mt-1 text-xs">
-      {{ $t("notifications.alert-form.metric-preview-note", { duration: windowLabel }) }}
+    <p class="text-base-content/50 mt-1 min-h-4 text-xs">
+      <template v-if="samples.length">{{
+        $t("notifications.alert-form.metric-preview-note", { duration: windowLabel })
+      }}</template>
     </p>
   </div>
 </template>

@@ -31,15 +31,16 @@
       :last-selected-item="undefined"
       class="border-base-content/20 bg-base-200/40 h-64 overflow-hidden rounded-lg border"
     />
+    <!-- Same height as the log list so results appearing and disappearing don't resize the form. -->
     <div
       v-else
-      class="border-base-content/15 bg-base-content/[0.03] text-base-content/60 flex h-24 items-center justify-center rounded-lg border border-dashed px-4 text-center text-sm"
+      class="border-base-content/15 bg-base-content/[0.03] text-base-content/60 flex h-64 items-center justify-center rounded-lg border border-dashed px-4 text-center text-sm"
     >
       {{ emptyStateMessage }}
     </div>
 
-    <p v-if="truncated" class="text-base-content/50 mt-1 text-xs">
-      {{ $t("notifications.alert-form.log-scan-note", scannedContainers) }}
+    <p class="text-base-content/50 mt-1 min-h-4 text-xs">
+      <template v-if="truncated">{{ $t("notifications.alert-form.log-scan-note", scannedContainers) }}</template>
     </p>
   </div>
 </template>

@@ -35,7 +35,10 @@
       </span>
     </div>
 
-    <div v-if="samples.length" class="border-base-content/20 divide-base-content/10 divide-y rounded-lg border">
+    <div
+      v-if="samples.length"
+      class="border-base-content/20 divide-base-content/10 min-h-24 divide-y rounded-lg border"
+    >
       <div
         v-for="(sample, index) in samples"
         :key="index"
@@ -57,8 +60,8 @@
       {{ emptyStateMessage }}
     </div>
 
-    <p v-if="samples.length" class="text-base-content/50 mt-1 text-xs">
-      {{ $t("notifications.alert-form.event-preview-note") }}
+    <p class="text-base-content/50 mt-1 min-h-4 text-xs">
+      <template v-if="samples.length">{{ $t("notifications.alert-form.event-preview-note") }}</template>
     </p>
   </div>
 </template>

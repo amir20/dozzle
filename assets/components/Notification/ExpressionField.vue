@@ -8,7 +8,9 @@
       <div ref="editorRef" class="w-full"></div>
     </div>
 
-    <p v-if="error" class="text-error mt-1 font-mono text-xs">{{ error }}</p>
+    <!-- Always present: the error arrives a debounce after typing stops, and letting it push
+         everything below it down makes the form jump mid-edit. -->
+    <p class="text-error mt-1 min-h-4 font-mono text-xs">{{ error }}</p>
 
     <!-- Examples double as documentation: clicking one fills the editor. -->
     <div v-if="examples.length" class="mt-2 flex flex-wrap items-center gap-1.5">
