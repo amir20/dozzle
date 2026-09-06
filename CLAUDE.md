@@ -20,6 +20,22 @@ Format:
 
 There is no Crowdin or Weblate sync in this repo, so a key that only exists in `en.yml` silently falls back to English for every other locale and nothing ever flags it.
 
+### Docs Translations
+
+`docs/` is translated into `zh`, `de`, `fr` and `es`. The English page under `docs/` is the source of truth, and `docs/<locale>/<same path>` mirrors it. Changing an English page means updating all four translations in the same commit.
+
+Unlike `locales/`, there is no fallback here. A stale translated page renders confidently wrong instructions rather than quietly showing English, so drift is worse than a missing key.
+
+Each translated file carries a `sourceHash` in its frontmatter recording the English source it was written from. `node docs/scripts/check-translations.mjs` fails when they diverge, and runs in CI as the `Docs Translations` job. After actually translating the changed prose, re-stamp with:
+
+```bash
+node docs/scripts/check-translations.mjs --update
+```
+
+`--update` only re-stamps hashes. It does not translate anything, so running it on an untranslated page turns CI green while leaving the page wrong. Translate first.
+
+Inside translated pages, everything in a fenced code block stays byte-identical to English except natural-language comments, and internal links are locale-prefixed (`/guide/agent` becomes `/de/guide/agent`). The sidebar is not duplicated per locale: its structure lives in `docs/.vitepress/locales/structure.ts` and each locale file supplies only labels, so a new page needs one slug there plus one label per locale.
+
 ## Testing Unreleased PRs
 
 When replying to a GitHub issue or discussion where the fix lives in an open PR, ask the reporter to test the pre-built image: `amir20/dozzle:pr-XXX` (XXX = PR number). CI builds a tagged image per PR, so reporters can verify without waiting for the next release.
