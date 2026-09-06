@@ -1,5 +1,5 @@
 <template>
-  <div class="space-y-4 p-4">
+  <div class="flex min-h-full flex-col space-y-4 p-4">
     <div class="mb-6">
       <h2 class="text-2xl font-bold">
         <template v-if="type === 'cloud'">
@@ -69,6 +69,7 @@
     <WebhookDestinationForm
       v-if="type === 'webhook'"
       :destination="destination"
+      :existing-dispatchers="existingDispatchers"
       :close="close"
       :on-created="onCreated"
       :is-editing="isEditing"
@@ -82,10 +83,12 @@ import type { Dispatcher } from "@/types/notifications";
 import WebhookDestinationForm from "./WebhookDestinationForm.vue";
 import CloudDestinationForm from "./CloudDestinationForm.vue";
 
-const { close, onCreated, destination } = defineProps<{
+const { close, onCreated, destination, existingDispatchers } = defineProps<{
   close?: () => void;
-  onCreated?: () => void;
+  onCreated?: (created?: Dispatcher) => void;
   destination?: Dispatcher;
+  /** Used to warn when a name is already taken; the picker in the alert form goes by name. */
+  existingDispatchers?: Dispatcher[];
 }>();
 
 const isEditing = !!destination;

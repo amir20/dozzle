@@ -4,21 +4,15 @@ title: Getting Started
 
 # Getting Started
 
-Dozzle supports multiple ways to run the application. You can run it using Docker CLI, Docker Compose, Swarm, or Kubernetes. The following sections will guide you through the process of setting up Dozzle.
-
-> [!IMPORTANT]
-> Dozzle requires Docker Engine **19.03 or newer** (API version 1.40+). Older daemons are not supported by the underlying Docker SDK.
-
-> [!TIP]
-> If Docker Hub is blocked in your network, you can use the [GitHub Container Registry](https://ghcr.io/amir20/dozzle:latest) to pull the image. Use `ghcr.io/amir20/dozzle:latest` instead of `amir20/dozzle:latest`.
+Dozzle runs as a single container. Pick Docker CLI, Docker Compose, Swarm, or Kubernetes below.
 
 ## <Icon icon="mdi:docker" inline /> Standalone Docker
 
-The easiest way to set up Dozzle is to use the CLI and mount `docker.sock` file. This file is usually located at `/var/run/docker.sock` and can be mounted with the `--volume` flag. You also need to expose the port to view Dozzle. By default, Dozzle listens on port 8080, but you can change the external port using `-p`. You can also run using compose or as a service in Swarm.
+Mount `docker.sock` so Dozzle can read containers, mount a volume at `/data` so settings survive a restart, and publish port 8080.
 
 ::: code-group
 
-```sh
+```sh [docker run]
 docker run -d -v /var/run/docker.sock:/var/run/docker.sock -v dozzle_data:/data -p 8080:8080 amir20/dozzle:latest
 ```
 
@@ -56,15 +50,12 @@ volumes:
 
 :::
 
-> [!TIP]
-> Dozzle supports actions, such as stopping, starting, and restarting containers, or attaching to container shells. But they are disabled by default for security reasons. To enable them, uncomment the corresponding environment variables.
-> Dozzle also supports connecting to remote agents to monitor multiple Docker hosts. See [agent](/guide/agent) to learn more.
-
-> [!IMPORTANT]
-> Dozzle stores notification settings and other data in `/data` inside the container. To persist these settings across container restarts, you need to mount a volume to `/data`. Without this mount, notification settings will be lost when the container is recreated. See the Docker Compose example above for the recommended volume configuration.
+Open `http://localhost:8080` and you are done. Everything else, including actions, shell access, authentication, and remote agents, is optional and off by default. The commented environment variables in the Compose file link to each guide.
 
 > [!WARNING]
 > Mounting `docker.sock` gives Dozzle root-equivalent access to the host. If you plan to expose Dozzle beyond your private network, read [Security Considerations](/guide/authentication#security-considerations) first.
+
+Dozzle needs Docker Engine 19.03 or newer (API version 1.40+). If Docker Hub is blocked on your network, pull `ghcr.io/amir20/dozzle:latest` from the [GitHub Container Registry](https://ghcr.io/amir20/dozzle:latest) instead.
 
 ## <Icon icon="mdi:hexagon-multiple-outline" inline /> Docker Swarm
 
@@ -98,7 +89,7 @@ docker stack deploy -c dozzle-stack.yml <name>
 
 See [swarm mode](/guide/swarm-mode) for more information.
 
-## <Icon icon="mdi:kubernetes" inline /> K8s <Badge type="tip" text="New" />
+## <Icon icon="mdi:kubernetes" inline /> K8s
 
 Dozzle supports running in Kubernetes. It only needs to be deployed on one node within the cluster. You'll need to set `DOZZLE_MODE=k8s` and configure RBAC for pod log access.
 

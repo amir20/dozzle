@@ -57,6 +57,7 @@ label:
   all-containers: Tüm Konteynerlar
   all-namespaces: Tümü
   namespaces: Ad Alanları
+  owners: Sahipler
   host: Sunucu
   hosts: Sunucular
   password: Şifre
@@ -99,6 +100,19 @@ tooltip:
   volumes: Birimler
   volume-unreachable: bu sunucudan erişilemiyor
   volume-full: "{destination} {pct} dolu"
+  open-container-url: "{url} adresini aç"
+popup:
+  started: Başlatıldı
+  finished: Durduruldu
+  group: Grup
+  ports: Portlar
+hint:
+  learn-more: Daha fazla bilgi
+  dismiss: Bir daha gösterme
+link-hint:
+  title: Bu konteyneri bağla
+  description: dev.dozzle.url etiketini eklediğinizde Dozzle konteynerin kendi web arayüzüne bağlantı gösterir. Bunu compose dosyanıza ekleyip konteyneri yeniden başlatın.
+  copy: Kopyala
 error:
   page-not-found: Bu sayfa bulunamadı
   host-group-not-found: '"{name}" grubunda ana bilgisayar bulunamadı'
@@ -239,9 +253,11 @@ releases:
   bugFixes: bir hata düzeltmesi | {count} düzeltme
   breaking: bir kırılma değişikliği | {count} kırılma değişikliği
   three_parts: "{first}, {second} ve {third}"
-  two_parts: "{first} ile {second}"
+  two_parts: "{first} ve {second}"
   latest: En son
   no_releases: En son sürüme sahipsiniz
+  newer: "1 yeni sürüm | {count} yeni sürüm"
+  all: Tüm sürümler
 log_actions:
   copy_log: Günlüğü kopyala
   jump_to_context: Bağlama git
@@ -283,6 +299,7 @@ notifications:
     enabled: Etkin ({count})
     paused: Duraklatılmış ({count})
   no-alerts: Henüz uyarı yapılandırılmadı. Başlamak için bir tane oluşturun.
+  no-alerts-in-filter: Bu filtreyle eşleşen uyarı yok.
   default-alert-created: Sizin için varsayılan bir uyarı oluşturduk. Bir konteyner hatayla sonlandığında bildirim alacaksınız. Dilediğiniz zaman düzenleyebilir veya duraklatabilirsiniz.
   default-alert-failed: Uyarınız otomatik olarak oluşturulamadı. Bunun yerine aşağıdaki formu kullanın.
   alert:
@@ -295,39 +312,87 @@ notifications:
     sample-window: Örnek penceresi
     destination: Hedef
     dispatcher-deleted: Dağıtıcı silindi
-    containers-count: "{count} konteyner"
-    triggered-count: "{count} tetiklendi"
+    containers-count: "1 konteynerde | {count} konteynerde"
+    triggered-count: "1 kez tetiklendi | {count} kez tetiklendi"
+    never-triggered: Hiç tetiklenmedi
     last-triggered: "Son: {time}"
+    delete-warning: Bu uyarı silinsin mi?
+    delete-cancel: Vazgeç
+    delete-confirm: Sil
+    window-meta: "{duration} pencere"
+    cooldown-meta: "{duration} bekleme"
   destination:
     http-webhook: HTTP Webhook
     dozzle-cloud: Dozzle Cloud
     edit: Düzenle
     duplicate: Çoğalt
     delete: Sil
+    used-by: "1 uyarı tarafından kullanılıyor | {count} uyarı tarafından kullanılıyor"
+    unused: Hiçbir uyarı kullanmıyor
+    copy-of: "{name} kopyası"
+    copy-failed: Bu hedef çoğaltılamadı
+    delete-failed: Bu hedef silinemedi
+    delete-warning: Bu hedef silinsin mi?
+    delete-warning-used: "1 uyarı buraya gönderiyor ve bildirim durduracak. | {count} uyarı buraya gönderiyor ve bildirim durduracak."
+    delete-cancel: Vazgeç
+    delete-confirm: Sil
   alert-form:
     create-title: Uyarı Oluştur
     edit-title: Uyarıyı Düzenle
-    description: Kriterlerinize uyan günlük olaylarına abone olun
+    description-log: Konteyner loglarınızda eşleşen satırlar göründüğünde bildirim alın
+    description-metric: Bir konteynerin CPU, bellek veya disk kullanımı eşiği aştığında bildirim alın
+    description-event: Konteynerler başladığında, durduğunda, sonlandığında veya sağlık durumu değiştiğinde bildirim alın
+    required: Zorunlu
+    still-needed: "Hâlâ gerekli: {fields}"
+    missing:
+      container-expression: konteynerler
+      condition: koşul
+      destination: hedef
+      name: ad
     alert-name: Uyarı Adı
     alert-name-placeholder: ör., Test API Hataları
-    container-filter: Konteyner Filtresi
-    containers-match: "{count} konteyner eşleşiyor: {names}"
-    no-containers-match: Bu filtreyle eşleşen konteyner yok
-    log-filter: Günlük Filtresi
-    logs-match: "{count} günlük eşleşiyor"
-    no-logs-match: Bu filtreyle eşleşen günlük yok
+    alert-name-hint: Uyarı kartında ve gönderdiği her bildirimde görünür.
+    container-filter: Konteynerler
+    container-filter-hint: Bu uyarının izlediği konteynerler. Yalnızca çalışan konteynerler eşleştirilir.
+    containers-match: "1 çalışan konteynerle eşleşiyor: {names} | {count} çalışan konteynerle eşleşiyor: {names}"
+    no-containers-match: Bu filtreyle eşleşen çalışan konteyner yok
+    checking: Kontrol ediliyor…
+    examples: "Örnekler:"
+    use-example: Bu örneği kullan
+    seconds-unit: sn
+    log-filter: Log koşulu
+    log-filter-hint: Hangi log satırlarının uyarıyı tetiklediği.
+    logs-match: "Son {window} içinde 1 eşleşen satır | Son {window} içinde {count} eşleşen satır"
+    no-logs-match: Son {window} içinde eşleşen satır yok
+    log-preview-hint: Son log satırlarından hangilerinin bu uyarıyı tetikleyeceğini görmek için bir koşul yazın.
+    log-scan-note: "Önizleme, eşleşen ilk konteyneri taradı. | Önizleme, eşleşen ilk {count} konteyneri taradı."
+    preview-needs-containers: Gerçek veriyle önizleme için önce konteynerleri seçin.
+    preview-fix-expression: Önizleme görmek için ifadeyi düzeltin.
     destination: Hedef
-    select-destination: Bir hedef seçin
-    no-destinations: Yapılandırılmış hedef yok. Önce bir tane ekleyin.
+    no-destinations: Henüz hedef yapılandırılmadı.
     preview: Önizleme
     cancel: İptal
     save: Kaydet
     create: Uyarı Oluştur
-    metric-filter: Metrik İfadesi
-    expression-valid: İfade geçerli
-    metric-fields-hint: "Kullanılabilir alanlar: {fields}"
+    discard-title: Bu uyarı atılsın mı?
+    discard-keep: Düzenlemeye devam et
+    discard-confirm: At
+    metric-filter: Metrik koşulu
+    metric-filter-hint: "cpu (%), memory (%), memoryUsage (bayt) veya mounts boş alanını karşılaştırın."
+    metric-preview-hint: Konteynerlerinizin şu anki durumunu görmek için bir koşul yazın.
+    metric-preview-note: Dozzle’ın topladığı son {duration} istatistiğe dayanır.
+    metric-container: Konteyner
+    metric-cpu: CPU
+    metric-memory: Bellek
+    metric-window-match: Pencere
+    metric-firing: Tetiklenirdi
+    metric-matching-now: Şu an üstünde
+    metric-no-samples: Veri yok
+    metric-no-samples-hint: Eşleşen konteynerler için henüz istatistik toplanmadı.
+    metric-would-fire: "Şu anda 1 konteyner için tetiklenirdi | Şu anda {count} konteyner için tetiklenirdi"
+    metric-would-not-fire: Şu anda eşiğin üstünde konteyner yok
     sample-window-label: Örnek Penceresi
-    sample-window-hint: "Koşul {duration} boyunca karşılandığında uyarı tetiklenir"
+    sample-window-hint: "Koşul {duration} boyunca sürdüğünde tetiklenir"
     cooldown-label: Bekleme süresi
     cooldown-hint: "Konteyner başına uyarılar arası {duration}"
     no-cooldown: Bekleme süresi yok
@@ -335,14 +400,32 @@ notifications:
     log-alert: Günlük Uyarısı
     metric-alert: Metrik Uyarısı
     event-alert: Olay Uyarısı
-    event-filter: Olay İfadesi
-    event-fields-hint: "Kullanılabilir alanlar: {fields}"
+    log-alert-description: Konteyner loglarındaki satırları eşleştir
+    metric-alert-description: CPU, bellek ve disk kullanımını izle
+    event-alert-description: Başlatma, durdurma ve sağlık değişimlerine tepki ver
+    type-switch-warning: Kaydetmek bu uyarının {type} koşulunu değiştirir ve o koşul kaybolur.
+    event-filter: Olay koşulu
+    event-filter-hint: Hangi konteyner olaylarının uyarıyı tetiklediği.
+    event-matches: "Bu olaylardan 1 tanesiyle eşleşiyor | Bu olaylardan {count} tanesiyle eşleşiyor"
+    event-matches-none: Bu olayların hiçbiriyle eşleşmiyor
+    event-preview-hint: Hangi konteyner olaylarını yakalayacağını görmek için bir koşul yazın.
+    event-preview-note: Geçmiş değil, örnek olaylar. Docker olayları gerçekleştikçe değerlendirilir.
   destination-form:
     create-title: Hedef Ekle
     edit-title: Hedefi Düzenle
     description: Bildirimler nereye gönderilmeli?
     name: Ad
     name-placeholder: ör., Prodüksiyon Slack
+    name-hint: Bir uyarı için hedef seçerken bu hedef böyle listelenir.
+    name-taken: Bu adı başka bir hedef zaten kullanıyor.
+    still-needed: "Hâlâ gerekli: {fields}"
+    missing:
+      name: ad
+      url: webhook URL'si
+      template: şablon
+    discard-title: Bu hedef atılsın mı?
+    discard-keep: Düzenlemeye devam et
+    discard-confirm: At
     type: Tür
     webhook-title: HTTP Webhook
     webhook-description: Slack, Discord, özel uç nokta
@@ -350,19 +433,34 @@ notifications:
     cloud-description: Push bildirimleri, e-posta uyarıları ve yapay zeka destekli özetler
     webhook-url: Webhook URL
     webhook-url-placeholder: https://hooks.foo.com/services/...
+    webhook-url-invalid: Tam bir http:// veya https:// adresi girin.
     api-key: API Anahtarı
-    payload-format: Payload Formatı
+    payload-format: Gövde
     format-slack: Slack
     format-discord: Discord
     format-ntfy: ntfy
     format-custom: Özel
+    format-replace-warning: Bu, yazdığınız şablonun yerine geçer.
+    format-replace-confirm: Değiştir
     template: Şablon
     template-hint: Go şablon söz dizimi
+    template-placeholder: Go şablon yer tutuculu JSON gövdesi
+    payload-mode-json: Geçerli JSON. Her değer sizin için işlenir ve kaçışlanır.
+    payload-mode-raw: JSON değil, bu yüzden gövdenin tamamı işlenmiş metin olarak gönderilir.
+    payload-mode-unbalanced: Kapatılmamış şablon ifadesi.
+    payload-mode-empty: Boş şablon, bildirimin tamamını JSON olarak gönderir.
+    variables: Kullanılabilir değişkenler
+    variables-all: Tüm uyarılar
+    variables-log: Yalnızca log uyarıları
+    variables-metric: Yalnızca metrik uyarıları
+    variables-event: Yalnızca olay uyarıları
+    variables-scope-hint: “Tüm uyarılar” dışındaki alanlar yalnızca kendi uyarı türünde doludur; başka bir türde kullanmak gönderimde hata verir.
     headers: Özel Başlıklar
     headers-hint: İsteğe bağlı HTTP başlıkları (ör. Authorization)
     header-name: Başlık adı
     header-value: Başlık değeri
     add-header: Başlık Ekle
+    remove-header: Başlığı kaldır
     test: Test
     test-success: Test başarılı
     cancel: İptal
@@ -394,6 +492,7 @@ cloud:
   link-instance: Örneği bağla
   relink-instance: Örneği yeniden bağla
   connected: Bağlı
+  pro-badge: Dozzle Cloud Pro
   plan: Plan
   usage: Bu dönemdeki olaylar
   dashboard: Pano

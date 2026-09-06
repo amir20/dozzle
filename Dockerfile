@@ -12,14 +12,17 @@ COPY pnpm-lock.yaml pnpm-workspace.yaml ./
 RUN pnpm fetch --ignore-scripts
 
 # Copy package.json and install dependencies
+# corepack already pins pnpm, so skip pnpm's own version switch. It would try to
+# resolve the packageManager field from the registry, which fails with --offline.
 COPY package.json ./
-RUN pnpm install --offline --ignore-scripts
+RUN pnpm install --offline --ignore-scripts --pm-on-fail=ignore
 
 # Copy assets and translations to build
 COPY vite.config.ts tsconfig.json .prettierrc.cjs .npmrc ./
 COPY assets ./assets
 COPY locales ./locales
 COPY public ./public
+COPY scripts ./scripts
 
 ARG CLOUD_URL
 ENV CLOUD_URL=$CLOUD_URL

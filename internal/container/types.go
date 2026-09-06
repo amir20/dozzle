@@ -30,7 +30,7 @@ type Container struct {
 	CPULimit      float64                          `json:"cpuLimit"`
 	Group         string                           `json:"group,omitempty"`
 	Env           []string                         `json:"-"`
-	Ports         []string                         `json:"-"`
+	Ports         []string                         `json:"ports,omitempty"`
 	Mounts        []Mount                          `json:"mounts,omitempty"`
 	MountStats    map[string]MountStat             `json:"mountStats,omitempty"`
 	RestartPolicy string                           `json:"-"`

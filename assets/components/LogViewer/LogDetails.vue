@@ -30,11 +30,15 @@
         Raw JSON
 
         <UseClipboard v-slot="{ copy, copied }" :source="entry.rawMessage">
-          <button class="swap outline-hidden" @click="copy()" :class="{ 'hover:swap-active': copied }">
+          <button class="icon-btn swap outline-hidden" @click="copy()" :class="{ 'hover:swap-active': copied }">
             <mdi:check class="swap-on" />
             <material-symbols:content-copy class="swap-off" />
           </button>
         </UseClipboard>
+
+        <button class="icon-btn outline-hidden" @click="downloadJSON()" title="Download JSON">
+          <material-symbols:download />
+        </button>
       </div>
       <div class="bg-base-200 max-h-125 overflow-scroll rounded-sm border border-white/20 p-2">
         <JsonFormatted :value="entry.rawMessage" class="text-sm" />
@@ -59,7 +63,7 @@
             {{ key.join(".") }}
           </td>
           <td class="truncate max-md:hidden">
-            <code>{{ JSON.stringify(value) }}</code>
+            <code class="font-mono">{{ JSON.stringify(value) }}</code>
           </td>
           <td>
             <input type="checkbox" class="toggle toggle-primary" :checked="enabled" @change="toggleField(key)" />
@@ -82,6 +86,25 @@ const visibleKeys = persistentVisibleKeysForContainer(container);
 const { hosts } = useHosts();
 
 const { useSortable } = await import("@vueuse/integrations/useSortable");
+
+function downloadJSON() {
+  let content = entry.rawMessage;
+  try {
+    content = JSON.stringify(JSON.parse(content), null, 2);
+  } catch {
+    // not valid JSON, download as is
+  }
+
+  const name = (container.value?.name ?? "log").replace(/[^\w.-]+/g, "-");
+  const timestamp = entry.date.toISOString().replace(/[:.]/g, "-");
+
+  const url = URL.createObjectURL(new Blob([content], { type: "application/json" }));
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = `${name}-${timestamp}.json`;
+  link.click();
+  URL.revokeObjectURL(url);
+}
 
 function toggleField(key: string[]) {
   if (visibleKeys.value.size === 0) {
@@ -144,17 +167,3 @@ const toggleAllFields = computed({
 
 useSortable(list, fields);
 </script>
-<style scoped>
-@reference "@/main.css";
-.font-mono {
-  font-family:
-    ui-monospace,
-    SFMono-Regular,
-    SF Mono,
-    Consolas,
-    Liberation Mono,
-    monaco,
-    Menlo,
-    monospace;
-}
-</style>

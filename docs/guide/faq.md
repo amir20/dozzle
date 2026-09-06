@@ -19,7 +19,7 @@ docker pull amir20/dozzle:latest
 docker compose up -d dozzle
 ```
 
-User settings, notification rules, and other state are stored in `/data` (see below), so keep that volume mounted across upgrades. For production use, pin a specific tag (e.g. `amir20/dozzle:v8.14.1`) rather than `latest` so upgrades are deliberate. Release notes are published on the [GitHub releases page](https://github.com/amir20/dozzle/releases). Rolling back is as simple as redeploying an older tag.
+User settings, notification rules, and other state are stored in `/data` (see below), so keep that volume mounted across upgrades. For production use, pin a specific tag (e.g. `amir20/dozzle:v10.9.2`) rather than `latest` so upgrades are deliberate. Release notes are published on the [GitHub releases page](https://github.com/amir20/dozzle/releases). Rolling back is as simple as redeploying an older tag.
 
 ## My platform wraps the container entrypoint and Dozzle fails with `no such file or directory`
 
@@ -40,7 +40,7 @@ docker run \
   amir20/dozzle:alpine
 ```
 
-Versioned tags follow the same pattern (`amir20/dozzle:v8.14.1-alpine`). The scratch-based `latest` stays the recommended image for everything else, since it has a much smaller footprint and no distro packages to patch.
+Versioned tags follow the same pattern (`amir20/dozzle:v10.9.2-alpine`). The scratch-based `latest` stays the recommended image for everything else, since it has a much smaller footprint and no distro packages to patch.
 
 ## What is stored in `/data` and how do I back it up?
 

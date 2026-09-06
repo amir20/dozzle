@@ -96,7 +96,7 @@
     <!-- Actions -->
     <div class="flex items-center gap-2 pt-4">
       <div class="flex-1"></div>
-      <button class="btn btn-primary" @click="close?.()">
+      <button class="btn" @click="close?.()">
         {{ $t("notifications.destination-form.close") }}
       </button>
     </div>

@@ -58,14 +58,14 @@
         </div>
         <div class="join max-md:hidden">
           <button
-            class="btn join-item btn-xs md:btn-sm"
+            class="icon-btn btn join-item btn-xs md:btn-sm"
             :class="statMode === 'chart' ? 'btn-active' : 'btn-ghost'"
             @click="statMode = 'chart'"
           >
             <mdi:chart-bar />
           </button>
           <button
-            class="btn join-item btn-xs md:btn-sm"
+            class="icon-btn btn join-item btn-xs md:btn-sm"
             :class="statMode === 'progress' ? 'btn-active' : 'btn-ghost'"
             @click="statMode = 'progress'"
           >
@@ -125,7 +125,15 @@
             v-else
             v-for="container in paginated"
             :key="container.id"
-            v-memo="[container.id, container.state, container.health, statMode, isMobile, showAppIcons]"
+            v-memo="[
+              container.id,
+              container.state,
+              container.health,
+              statMode,
+              isMobile,
+              showAppIcons,
+              dismissedLinkHint,
+            ]"
             class="hover:bg-base-100/80!"
           >
             <td v-if="isVisible('name')" class="max-w-80 max-md:max-w-none">
@@ -145,6 +153,8 @@
                     >
                       {{ container.name }}
                     </router-link>
+                    <ContainerLink :container="container" />
+                    <ContainerLinkHint :container="container" />
                     <RelativeTime
                       v-if="isMobile"
                       :date="container.created"

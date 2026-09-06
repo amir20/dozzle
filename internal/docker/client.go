@@ -43,13 +43,15 @@ type DockerCLI interface {
 	ContainerRemove(ctx context.Context, containerID string, options client.ContainerRemoveOptions) (client.ContainerRemoveResult, error)
 	ContainerCreate(ctx context.Context, options client.ContainerCreateOptions) (client.ContainerCreateResult, error)
 	ServiceInspect(ctx context.Context, serviceID string, opts client.ServiceInspectOptions) (client.ServiceInspectResult, error)
+	ServiceList(ctx context.Context, options client.ServiceListOptions) (client.ServiceListResult, error)
 	ServiceUpdate(ctx context.Context, serviceID string, options client.ServiceUpdateOptions) (client.ServiceUpdateResult, error)
 }
 
 type DockerClient struct {
-	cli  DockerCLI
-	host container.Host
-	info system.Info
+	cli           DockerCLI
+	host          container.Host
+	info          system.Info
+	serviceLabels serviceLabelCache
 }
 
 func NewClient(cli DockerCLI, host container.Host) *DockerClient {
@@ -70,6 +72,9 @@ func NewClient(cli DockerCLI, host container.Host) *DockerClient {
 	host.DockerVersion = info.ServerVersion
 	host.Runtime = detectRuntime(cli, info)
 	host.Swarm = info.Swarm.NodeID != ""
+	if info.Swarm.Cluster != nil {
+		host.SwarmClusterID = info.Swarm.Cluster.ID
+	}
 
 	return &DockerClient{
 		cli:  cli,
@@ -164,7 +169,9 @@ func detectRuntime(cli DockerCLI, info system.Info) string {
 func (d *DockerClient) FindContainer(ctx context.Context, id string) (container.Container, error) {
 	log.Debug().Str("id", id).Msg("Finding container")
 	if result, err := d.cli.ContainerInspect(ctx, id, client.ContainerInspectOptions{}); err == nil {
-		return newContainerFromJSON(result.Container, d.host.ID), nil
+		c := newContainerFromJSON(result.Container, d.host.ID)
+		d.mergeServiceLabels(ctx, &c)
+		return c, nil
 	} else {
 		return container.Container{}, err
 	}
@@ -338,6 +345,12 @@ func (d *DockerClient) ListContainers(ctx context.Context, labels container.Cont
 		containers = append(containers, newContainer(c, d.host.ID))
 	}
 
+	refs := make([]*container.Container, len(containers))
+	for i := range containers {
+		refs[i] = &containers[i]
+	}
+	d.mergeServiceLabels(ctx, refs...)
+
 	sort.Slice(containers, func(i, j int) bool {
 		return strings.ToLower(containers[i].Name) < strings.ToLower(containers[j].Name)
 	})
@@ -489,16 +502,6 @@ func (d *DockerClient) Host() container.Host {
 	return d.host
 }
 
-// RawClient returns the underlying *client.Client if the DockerCLI is one.
-// Needed for operations like network/volume management that aren't part of
-// the DockerCLI interface.
-func (d *DockerClient) RawClient() *client.Client {
-	if c, ok := d.cli.(*client.Client); ok {
-		return c
-	}
-	return nil
-}
-
 func (d *DockerClient) ContainerAttach(ctx context.Context, id string) (*container.ExecSession, error) {
 	log.Debug().Str("id", id).Str("host", d.host.Name).Msg("Attaching to container")
 	options := client.ContainerAttachOptions{
@@ -604,6 +607,21 @@ func newContainer(c docker.Summary, host string) container.Container {
 	} else if c.Labels["coolify.projectName"] != "" {
 		group = c.Labels["coolify.projectName"]
 	}
+
+	// Same `ip:host->container/proto` shape newContainerFromJSON produces, so the UI has one
+	// format to parse. Only published bindings have a host side; exposed-only ports are dropped.
+	var ports []string
+	for _, p := range c.Ports {
+		if p.PublicPort == 0 {
+			continue
+		}
+		ip := ""
+		if p.IP.IsValid() {
+			ip = p.IP.String()
+		}
+		ports = append(ports, fmt.Sprintf("%s:%d->%d/%s", ip, p.PublicPort, p.PrivatePort, p.Type))
+	}
+
 	return container.Container{
 		ID:      c.ID[:12],
 		Name:    name,
@@ -615,6 +633,7 @@ func newContainer(c docker.Summary, host string) container.Container {
 		Labels:  c.Labels,
 		Stats:   utils.NewRingBuffer[container.ContainerStat](300), // 300 seconds of stats
 		Group:   group,
+		Ports:   ports,
 	}
 }
 

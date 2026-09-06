@@ -14,7 +14,9 @@ declare global {
   const K8sNamespace: typeof import('./stores/k8s').K8sNamespace
   const K8sOwner: typeof import('./stores/k8s').K8sOwner
   const MIN_MENU_WIDTH: typeof import('./stores/settings').MIN_MENU_WIDTH
+  const TEMPLATE_VARIABLES: typeof import('./composable/templateEditor').TEMPLATE_VARIABLES
   const acceptHMRUpdate: typeof import('pinia').acceptHMRUpdate
+  const activePopup: typeof import('./composable/popup').activePopup
   const allLevels: typeof import('./composable/logContext').allLevels
   const arrayEquals: typeof import('./utils/index').arrayEquals
   const asyncComputed: typeof import('@vueuse/core').asyncComputed
@@ -59,7 +61,9 @@ declare global {
   const defineComponent: typeof import('vue').defineComponent
   const defineStore: typeof import('pinia').defineStore
   const dismissedImageUpdates: typeof import('./composable/storage').dismissedImageUpdates
+  const dismissedLinkHint: typeof import('./composable/storage').dismissedLinkHint
   const drawerContext: typeof import('./composable/drawer').drawerContext
+  const drawerGuardContext: typeof import('./composable/drawer').drawerGuardContext
   const eagerComputed: typeof import('@vueuse/core').eagerComputed
   const effectScope: typeof import('vue').effectScope
   const escapeHtml: typeof import('./utils/index').escapeHtml
@@ -137,6 +141,7 @@ declare global {
   const ownerMembershipLabel: typeof import('./stores/k8s').ownerMembershipLabel
   const parseMessage: typeof import('./composable/loadBetween').parseMessage
   const pausableWatch: typeof import('@vueuse/core').pausableWatch
+  const payloadMode: typeof import('./composable/templateEditor').payloadMode
   const persistentVisibleKeysForContainer: typeof import('./composable/storage').persistentVisibleKeysForContainer
   const pinnedContainers: typeof import('./composable/storage').pinnedContainers
   const provide: typeof import('vue').provide
@@ -263,6 +268,7 @@ declare global {
   const useDownloadUrl: typeof import('./composable/downloadUrl').useDownloadUrl
   const useDraggable: typeof import('@vueuse/core').useDraggable
   const useDrawer: typeof import('./composable/drawer').useDrawer
+  const useDrawerCloseGuard: typeof import('./composable/drawer').useDrawerCloseGuard
   const useDropZone: typeof import('@vueuse/core').useDropZone
   const useDuckDB: typeof import('./composable/duckdb').useDuckDB
   const useElementBounding: typeof import('@vueuse/core').useElementBounding
@@ -439,7 +445,7 @@ declare global {
   export type { Component, Slot, Slots, ComponentPublicInstance, ComputedRef, DirectiveBinding, ExtractDefaultPropTypes, ExtractPropTypes, ExtractPublicPropTypes, InjectionKey, PropType, Ref, ShallowRef, MaybeRef, MaybeRefOrGetter, VNode, WritableComputedRef } from 'vue'
   import('vue')
   // @ts-ignore
-  export type { AlertFormOptions, ContainerResult } from './composable/alertForm'
+  export type { AlertType, AlertPrefill, AlertFormOptions, ContainerResult, SaveBlocker } from './composable/alertForm'
   import('./composable/alertForm')
   // @ts-ignore
   export type { CloudAlert, CloudEvent } from './composable/cloudAlerts'
@@ -451,7 +457,7 @@ declare global {
   export type { CommandSection, Command } from './composable/commands'
   import('./composable/commands')
   // @ts-ignore
-  export type { DrawerWidth } from './composable/drawer'
+  export type { DrawerWidth, DrawerCloseGuard } from './composable/drawer'
   import('./composable/drawer')
   // @ts-ignore
   export type { SearchStatus, LogStreamSource } from './composable/eventStreams'
@@ -463,7 +469,7 @@ declare global {
   export type { ImageUpdateStatus, ImageUpdateResult } from './composable/imageUpdate'
   import('./composable/imageUpdate')
   // @ts-ignore
-  export type { TemplateEditorOptions } from './composable/templateEditor'
+  export type { TemplateEditorOptions, TemplateVariable, PayloadMode } from './composable/templateEditor'
   import('./composable/templateEditor')
   // @ts-ignore
   export type { Config, Profile } from './stores/config'
@@ -488,7 +494,9 @@ declare module 'vue' {
     readonly EffectScope: UnwrapRef<typeof import('vue')['EffectScope']>
     readonly K8sNamespace: UnwrapRef<typeof import('./stores/k8s')['K8sNamespace']>
     readonly K8sOwner: UnwrapRef<typeof import('./stores/k8s')['K8sOwner']>
+    readonly TEMPLATE_VARIABLES: UnwrapRef<typeof import('./composable/templateEditor')['TEMPLATE_VARIABLES']>
     readonly acceptHMRUpdate: UnwrapRef<typeof import('pinia')['acceptHMRUpdate']>
+    readonly activePopup: UnwrapRef<typeof import('./composable/popup')['activePopup']>
     readonly allLevels: UnwrapRef<typeof import('./composable/logContext')['allLevels']>
     readonly arrayEquals: UnwrapRef<typeof import('./utils/index')['arrayEquals']>
     readonly asyncComputed: UnwrapRef<typeof import('@vueuse/core')['asyncComputed']>
@@ -533,7 +541,9 @@ declare module 'vue' {
     readonly defineComponent: UnwrapRef<typeof import('vue')['defineComponent']>
     readonly defineStore: UnwrapRef<typeof import('pinia')['defineStore']>
     readonly dismissedImageUpdates: UnwrapRef<typeof import('./composable/storage')['dismissedImageUpdates']>
+    readonly dismissedLinkHint: UnwrapRef<typeof import('./composable/storage')['dismissedLinkHint']>
     readonly drawerContext: UnwrapRef<typeof import('./composable/drawer')['drawerContext']>
+    readonly drawerGuardContext: UnwrapRef<typeof import('./composable/drawer')['drawerGuardContext']>
     readonly eagerComputed: UnwrapRef<typeof import('@vueuse/core')['eagerComputed']>
     readonly effectScope: UnwrapRef<typeof import('vue')['effectScope']>
     readonly escapeHtml: UnwrapRef<typeof import('./utils/index')['escapeHtml']>
@@ -609,6 +619,7 @@ declare module 'vue' {
     readonly ownerMembershipLabel: UnwrapRef<typeof import('./stores/k8s')['ownerMembershipLabel']>
     readonly parseMessage: UnwrapRef<typeof import('./composable/loadBetween')['parseMessage']>
     readonly pausableWatch: UnwrapRef<typeof import('@vueuse/core')['pausableWatch']>
+    readonly payloadMode: UnwrapRef<typeof import('./composable/templateEditor')['payloadMode']>
     readonly persistentVisibleKeysForContainer: UnwrapRef<typeof import('./composable/storage')['persistentVisibleKeysForContainer']>
     readonly pinnedContainers: UnwrapRef<typeof import('./composable/storage')['pinnedContainers']>
     readonly provide: UnwrapRef<typeof import('vue')['provide']>
@@ -732,6 +743,7 @@ declare module 'vue' {
     readonly useDownloadUrl: UnwrapRef<typeof import('./composable/downloadUrl')['useDownloadUrl']>
     readonly useDraggable: UnwrapRef<typeof import('@vueuse/core')['useDraggable']>
     readonly useDrawer: UnwrapRef<typeof import('./composable/drawer')['useDrawer']>
+    readonly useDrawerCloseGuard: UnwrapRef<typeof import('./composable/drawer')['useDrawerCloseGuard']>
     readonly useDropZone: UnwrapRef<typeof import('@vueuse/core')['useDropZone']>
     readonly useDuckDB: UnwrapRef<typeof import('./composable/duckdb')['useDuckDB']>
     readonly useElementBounding: UnwrapRef<typeof import('@vueuse/core')['useElementBounding']>

@@ -57,6 +57,7 @@ label:
   all-containers: Tous les conteneurs
   all-namespaces: Tous les espaces de noms
   namespaces: Espaces de noms
+  owners: Propriétaires
   host: Hôte
   hosts: Hôtes
   password: Mot de passe
@@ -99,6 +100,19 @@ tooltip:
   volumes: Volumes
   volume-unreachable: inaccessible depuis cet hôte
   volume-full: "{destination} est plein à {pct}"
+  open-container-url: "Ouvrir {url}"
+popup:
+  started: Démarré
+  finished: Arrêté
+  group: Groupe
+  ports: Ports
+hint:
+  learn-more: En savoir plus
+  dismiss: Ne plus afficher
+link-hint:
+  title: Lier ce conteneur
+  description: Dozzle affiche un lien vers l'interface web d'un conteneur lorsque vous ajoutez un label dev.dozzle.url. Ajoutez ceci à votre fichier compose puis redémarrez le conteneur.
+  copy: Copier
 error:
   page-not-found: Cette page n'existe pas
   host-group-not-found: "Aucun hôte trouvé dans le groupe « {name} »"
@@ -235,9 +249,11 @@ releases:
   bugFixes: correction d'un bug | {count} bugs
   breaking: un changement radical | {count} changements radicaux
   three_parts: "{first}, {second} et {third}"
-  two_parts: "{first} avec {second}"
+  two_parts: "{first} et {second}"
   latest: Plus récent
   no_releases: Vous avez la dernière version
+  newer: "1 version plus récente | {count} versions plus récentes"
+  all: Toutes les versions
 log_actions:
   copy_log: Copier le journal
   jump_to_context: Aller au contexte
@@ -279,6 +295,7 @@ notifications:
     enabled: Activés ({count})
     paused: En pause ({count})
   no-alerts: Aucune alerte configurée. Créez-en une pour commencer.
+  no-alerts-in-filter: Aucune alerte ne correspond à ce filtre.
   default-alert-created: Nous avons créé une alerte par défaut pour vous. Vous serez notifié lorsqu'un conteneur se termine avec une erreur. Vous pouvez la modifier ou la mettre en pause à tout moment.
   default-alert-failed: Impossible de créer votre alerte automatiquement. Voici le formulaire à la place.
   alert:
@@ -291,39 +308,87 @@ notifications:
     sample-window: Fenêtre d'échantillonnage
     destination: Destination
     dispatcher-deleted: Dispatcher supprimé
-    containers-count: "{count} conteneurs"
-    triggered-count: "{count} déclenchés"
+    containers-count: "dans 1 conteneur | dans {count} conteneurs"
+    triggered-count: "Déclenchée une fois | Déclenchée {count} fois"
+    never-triggered: Jamais déclenchée
     last-triggered: "Dernier: {time}"
+    delete-warning: Supprimer cette alerte ?
+    delete-cancel: Conserver
+    delete-confirm: Supprimer
+    window-meta: "fenêtre de {duration}"
+    cooldown-meta: "délai de {duration}"
   destination:
     http-webhook: HTTP Webhook
     dozzle-cloud: Dozzle Cloud
     edit: Modifier
     duplicate: Dupliquer
     delete: Supprimer
+    used-by: "Utilisée par 1 alerte | Utilisée par {count} alertes"
+    unused: Utilisée par aucune alerte
+    copy-of: "Copie de {name}"
+    copy-failed: Impossible de dupliquer cette destination
+    delete-failed: Impossible de supprimer cette destination
+    delete-warning: Supprimer cette destination ?
+    delete-warning-used: "1 alerte envoie ici et cessera de notifier. | {count} alertes envoient ici et cesseront de notifier."
+    delete-cancel: Conserver
+    delete-confirm: Supprimer
   alert-form:
     create-title: Créer une Alerte
     edit-title: Modifier l'Alerte
-    description: Abonnez-vous aux événements de journal correspondant à vos critères
+    description-log: Soyez notifié quand des lignes correspondantes apparaissent dans vos logs de conteneurs
+    description-metric: Soyez notifié quand le CPU, la mémoire ou le disque d'un conteneur dépasse un seuil
+    description-event: Soyez notifié quand des conteneurs démarrent, s'arrêtent, meurent ou changent d'état de santé
+    required: Obligatoire
+    still-needed: "Encore nécessaire : {fields}"
+    missing:
+      container-expression: conteneurs
+      condition: condition
+      destination: destination
+      name: nom
     alert-name: Nom de l'Alerte
     alert-name-placeholder: ex., Erreurs API de Test
-    container-filter: Filtre de Conteneur
-    containers-match: "{count} conteneurs correspondent: {names}"
-    no-containers-match: Aucun conteneur ne correspond à ce filtre
-    log-filter: Filtre de Journal
-    logs-match: "{count} journaux correspondent"
-    no-logs-match: Aucun journal ne correspond à ce filtre
+    alert-name-hint: Affiché sur la carte de l'alerte et dans chaque notification envoyée.
+    container-filter: Conteneurs
+    container-filter-hint: Quels conteneurs cette alerte surveille. Seuls les conteneurs en cours d'exécution sont pris en compte.
+    containers-match: "Correspond à 1 conteneur en cours d'exécution : {names} | Correspond à {count} conteneurs en cours d'exécution : {names}"
+    no-containers-match: Aucun conteneur en cours d'exécution ne correspond à ce filtre
+    checking: Vérification…
+    examples: "Exemples :"
+    use-example: Utiliser cet exemple
+    seconds-unit: s
+    log-filter: Condition de log
+    log-filter-hint: Quelles lignes de log déclenchent l'alerte.
+    logs-match: "1 ligne correspondante sur les {window} dernières | {count} lignes correspondantes sur les {window} dernières"
+    no-logs-match: Aucune ligne correspondante sur les {window} dernières
+    log-preview-hint: Écrivez une condition pour voir quelles lignes de log récentes auraient déclenché cette alerte.
+    log-scan-note: "L'aperçu a parcouru le premier conteneur correspondant. | L'aperçu a parcouru les {count} premiers conteneurs correspondants."
+    preview-needs-containers: Choisissez d'abord des conteneurs pour un aperçu sur des données réelles.
+    preview-fix-expression: Corrigez l'expression pour voir un aperçu.
     destination: Destination
-    select-destination: Sélectionnez une destination
-    no-destinations: Aucune destination configurée. Ajoutez-en une d'abord.
+    no-destinations: Aucune destination configurée pour le moment.
     preview: Aperçu
     cancel: Annuler
     save: Enregistrer
     create: Créer l'Alerte
-    metric-filter: Expression de Métrique
-    expression-valid: L'expression est valide
-    metric-fields-hint: "Champs disponibles : {fields}"
+    discard-title: Abandonner cette alerte ?
+    discard-keep: Continuer l'édition
+    discard-confirm: Abandonner
+    metric-filter: Condition de métrique
+    metric-filter-hint: "Comparez cpu (%), memory (%), memoryUsage (octets) ou l'espace libre de mounts."
+    metric-preview-hint: Écrivez une condition pour voir où en sont vos conteneurs en ce moment.
+    metric-preview-note: Basé sur les {duration} dernières de statistiques collectées par Dozzle.
+    metric-container: Conteneur
+    metric-cpu: CPU
+    metric-memory: Mémoire
+    metric-window-match: Fenêtre
+    metric-firing: Se déclencherait
+    metric-matching-now: Au-dessus
+    metric-no-samples: Aucune stat
+    metric-no-samples-hint: Aucune statistique collectée pour l'instant sur les conteneurs correspondants.
+    metric-would-fire: "Se déclencherait pour 1 conteneur en ce moment | Se déclencherait pour {count} conteneurs en ce moment"
+    metric-would-not-fire: Aucun conteneur ne dépasse le seuil en ce moment
     sample-window-label: Fenêtre d'échantillonnage
-    sample-window-hint: "L'alerte se déclenche lorsque la condition est remplie pendant {duration}"
+    sample-window-hint: "Se déclenche dès que la condition tient pendant {duration}"
     cooldown-label: Temps d'attente
     cooldown-hint: "{duration} entre les alertes par conteneur"
     no-cooldown: Aucun temps d'attente
@@ -331,14 +396,32 @@ notifications:
     log-alert: Alerte de journal
     metric-alert: Alerte de métrique
     event-alert: Alerte d'événement
-    event-filter: Expression d'événement
-    event-fields-hint: "Champs disponibles : {fields}"
+    log-alert-description: Filtrer les lignes des logs de conteneurs
+    metric-alert-description: Surveiller CPU, mémoire et disque
+    event-alert-description: Réagir aux démarrages, arrêts et changements de santé
+    type-switch-warning: L'enregistrement remplacera la condition {type} de cette alerte, qui sera perdue.
+    event-filter: Condition d'événement
+    event-filter-hint: Quels événements de conteneur déclenchent l'alerte.
+    event-matches: "Correspond à 1 de ces événements | Correspond à {count} de ces événements"
+    event-matches-none: Ne correspond à aucun de ces événements
+    event-preview-hint: Écrivez une condition pour voir quels événements de conteneur elle capterait.
+    event-preview-note: Événements d'exemple, pas un historique. Les événements Docker sont évalués en temps réel.
   destination-form:
     create-title: Ajouter une Destination
     edit-title: Modifier la Destination
     description: Où les notifications doivent-elles être envoyées?
     name: Nom
     name-placeholder: ex., Slack Production
+    name-hint: Nom affiché lors du choix d'une destination pour une alerte.
+    name-taken: Une autre destination porte déjà ce nom.
+    still-needed: "Encore nécessaire : {fields}"
+    missing:
+      name: nom
+      url: URL du webhook
+      template: modèle
+    discard-title: Abandonner cette destination ?
+    discard-keep: Continuer l'édition
+    discard-confirm: Abandonner
     type: Type
     webhook-title: HTTP Webhook
     webhook-description: Slack, Discord, endpoint personnalisé
@@ -346,19 +429,34 @@ notifications:
     cloud-description: Notifications push, alertes par e-mail et résumés alimentés par l'IA
     webhook-url: URL du Webhook
     webhook-url-placeholder: https://hooks.foo.com/services/...
+    webhook-url-invalid: Saisissez une URL http:// ou https:// complète.
     api-key: Clé API
-    payload-format: Format du Payload
+    payload-format: Charge utile
     format-slack: Slack
     format-discord: Discord
     format-ntfy: ntfy
     format-custom: Personnalisé
+    format-replace-warning: Cela remplacera le modèle que vous avez écrit.
+    format-replace-confirm: Remplacer
     template: Modèle
     template-hint: Syntaxe de modèle Go
+    template-placeholder: Corps JSON avec des variables de modèle Go
+    payload-mode-json: JSON valide. Chaque valeur est rendue et échappée pour vous.
+    payload-mode-raw: Pas du JSON, le corps entier est donc envoyé en texte rendu.
+    payload-mode-unbalanced: Action de modèle non fermée.
+    payload-mode-empty: Un modèle vide envoie la notification complète en JSON.
+    variables: Variables disponibles
+    variables-all: Toutes les alertes
+    variables-log: Alertes de log uniquement
+    variables-metric: Alertes de métrique uniquement
+    variables-event: Alertes d'événement uniquement
+    variables-scope-hint: Les champs hors « Toutes les alertes » ne sont renseignés que pour leur propre type ; les utiliser ailleurs échoue à l'envoi.
     headers: En-têtes Personnalisés
     headers-hint: En-têtes HTTP optionnels (ex. Authorization)
     header-name: Nom de l'en-tête
     header-value: Valeur de l'en-tête
     add-header: Ajouter un En-tête
+    remove-header: Supprimer l'en-tête
     test: Tester
     test-success: Test réussi
     cancel: Annuler
@@ -390,6 +488,7 @@ cloud:
   link-instance: Lier l'instance
   relink-instance: Relier l'instance
   connected: Connecté
+  pro-badge: Dozzle Cloud Pro
   plan: Plan
   usage: Événements pour cette période
   dashboard: Tableau de bord

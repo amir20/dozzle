@@ -47,6 +47,17 @@ async function fetchCloudStatus() {
   }
 }
 
+// Dedupes concurrent/repeat status fetches so several components (nav popover,
+// pro badge) can ask for the status without each firing its own request.
+let pendingStatus: Promise<void> | null = null;
+async function ensureCloudStatus() {
+  if (!config.enableCloud || !cloudConfig.value?.linked || cloudStatus.value) return;
+  pendingStatus ??= fetchCloudStatus().finally(() => (pendingStatus = null));
+  return pendingStatus;
+}
+
+const isPro = computed(() => cloudStatus.value?.plan.name.toLowerCase() === "pro");
+
 function clearCloudState() {
   cloudConfig.value = null;
   cloudStatus.value = null;
@@ -59,9 +70,11 @@ export function useCloudConfig() {
     cloudStatus,
     cloudStatusError,
     isLoadingCloudStatus,
+    isPro,
     initialLoad,
     fetchCloudConfig,
     fetchCloudStatus,
+    ensureCloudStatus,
     clearCloudState,
   };
 }

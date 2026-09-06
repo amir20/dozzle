@@ -4,9 +4,7 @@ title: Alerts & Webhooks
 
 # Alerts & Webhooks
 
-<Badge type="tip" text="New in v10" />
-
-Dozzle v10 introduces a powerful alerting system that lets you monitor container logs, resource metrics, and lifecycle events, and receive notifications when specific conditions are met. Alerts use customizable expressions to filter containers and trigger conditions, and can send notifications to webhooks, Slack, Discord, ntfy, or [Dozzle Cloud](/guide/dozzle-cloud).
+Dozzle has an alerting system that lets you monitor container logs, resource metrics, and lifecycle events, and receive notifications when specific conditions are met. Alerts use customizable expressions to filter containers and trigger conditions, and can send notifications to webhooks, Slack, Discord, ntfy, or [Dozzle Cloud](/guide/dozzle-cloud).
 
 ## <Icon icon="mdi:format-list-bulleted-type" inline /> Alert Types
 

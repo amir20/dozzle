@@ -38,6 +38,7 @@ func (m *mockNotificationHandler) HandleNotificationConfig(subscriptions []types
 }
 
 func (m *mockNotificationHandler) SetCloudDispatcher(d dispatcher.Dispatcher) {}
+func (m *mockNotificationHandler) SetCloudStreamLogs(enabled *bool)           {}
 func (m *mockNotificationHandler) ClearCloudDispatcher()                      {}
 
 func (m *mockNotificationHandler) GetNotificationStats() []types.SubscriptionStats {

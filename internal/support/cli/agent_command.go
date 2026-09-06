@@ -72,6 +72,21 @@ func (h *persistingNotificationHandler) HandleNotificationConfig(subscriptions [
 	return nil
 }
 
+// SetCloudStreamLogs applies the hub's log-streaming choice to this agent's own
+// cloud client. The agent streams its logs to cloud itself rather than through
+// the hub, so without this a user who turned streaming off saw it stop on the
+// hub while every agent kept sending.
+func (h *persistingNotificationHandler) SetCloudStreamLogs(enabled *bool) {
+	cc := h.cloudConfig.Load()
+	if cc == nil {
+		return
+	}
+	updated := *cc
+	updated.StreamLogs = enabled
+	h.cloudConfig.Store(&updated)
+	h.persistCloudConfig(updated)
+}
+
 func (h *persistingNotificationHandler) SetCloudDispatcher(d dispatcher.Dispatcher) {
 	h.manager.SetCloudDispatcher(d)
 
@@ -90,6 +105,11 @@ func (h *persistingNotificationHandler) SetCloudDispatcher(d dispatcher.Dispatch
 	if h.onCloudSet != nil {
 		h.onCloudSet()
 	}
+	h.persistCloudConfig(cc)
+}
+
+// persistCloudConfig writes cloud.yml so the setting survives an agent restart.
+func (h *persistingNotificationHandler) persistCloudConfig(cc notification.CloudConfig) {
 	if err := os.MkdirAll("./data", 0755); err != nil {
 		log.Error().Err(err).Msg("Could not create data directory for cloud config")
 		return
@@ -203,9 +223,10 @@ func (a *AgentCmd) Run(args Args, embeddedCerts embed.FS) error {
 	// Cloud gRPC client — connects directly to Dozzle Cloud with this agent's
 	// own host ID as instance_id, so log streaming and tool dispatch happen
 	// here instead of funneling through the main server.
-	var instanceID string
+	var instanceID, swarmClusterID string
 	if h, err := agentHostService.LocalHost(); err == nil {
 		instanceID = h.ID
+		swarmClusterID = h.SwarmClusterID
 	}
 	apiKeyFunc := func() string {
 		if cc := notificationHandler.CloudConfig(); cc != nil {
@@ -218,6 +239,8 @@ func (a *AgentCmd) Run(args Args, embeddedCerts embed.FS) error {
 		HostService:   agentHostService,
 		Labels:        args.Filter,
 	})
+	// An agent is always an agent, whatever the hub in front of it is running as.
+	cloudClient.SetDeployment("agent", swarmClusterID)
 	cloudClient.SetStreamLogsFunc(func() bool {
 		cc := notificationHandler.CloudConfig()
 		return cc != nil && cc.StreamLogsEnabled()

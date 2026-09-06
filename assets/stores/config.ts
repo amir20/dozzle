@@ -37,6 +37,7 @@ export interface Profile {
   collapsedHostGroups?: Set<string>;
   cloudWelcomeShown?: boolean;
   dismissedImageUpdates?: Set<string>;
+  dismissedLinkHint?: boolean;
 }
 
 const pageConfig = JSON.parse(text);

@@ -193,6 +193,54 @@ func TestContainerStore_rename(t *testing.T) {
 	})
 }
 
+// TestContainerStore_start_inspect_failure covers a container that starts while
+// FindContainer is failing (a busy daemon right after a compose recreate). Nothing
+// re-adds it later, so before the list-entry fallback it stayed missing from the store
+// for the life of the connection and the UI never saw it update again.
+func TestContainerStore_start_inspect_failure(t *testing.T) {
+	client := new(mockedClient)
+
+	existing := Container{ID: "1234", Name: "test", State: "running", Stats: utils.NewRingBuffer[ContainerStat](300)}
+	started := Container{ID: "5678", Name: "restarted", State: "running", Stats: utils.NewRingBuffer[ContainerStat](300)}
+
+	// the initial store hydration only sees the pre-existing container
+	client.On("ListContainers", mock.Anything, mock.Anything).Return([]Container{existing}, nil).Once()
+	// by the time the start event lands, docker lists both
+	client.On("ListContainers", mock.Anything, mock.Anything).Return([]Container{existing, started}, nil)
+
+	client.On("FindContainer", mock.Anything, "1234").Return(existing, nil)
+	// inspect fails for the container that just started
+	client.On("FindContainer", mock.Anything, "5678").Return(Container{}, assert.AnError)
+
+	client.On("Host").Return(Host{ID: "localhost"})
+
+	ready := make(chan struct{})
+	client.On("ContainerEvents", mock.Anything, mock.AnythingOfType("chan<- container.ContainerEvent")).Return(nil).
+		Run(func(args mock.Arguments) {
+			ctx := args.Get(0).(context.Context)
+			events := args.Get(1).(chan<- ContainerEvent)
+			<-ready
+			events <- ContainerEvent{Name: "start", ActorID: "5678", Host: "localhost"}
+			<-ctx.Done()
+		})
+
+	store := NewContainerStore(t.Context(), client, &fakeStatsCollector{}, ContainerLabels{})
+
+	events := make(chan ContainerEvent)
+	store.SubscribeEvents(t.Context(), events)
+	close(ready)
+	<-events
+
+	containers, err := store.ListContainers(ContainerLabels{})
+	assert.NoError(t, err)
+
+	ids := make([]string, 0, len(containers))
+	for _, c := range containers {
+		ids = append(ids, c.ID)
+	}
+	assert.ElementsMatch(t, []string{"1234", "5678"}, ids, "started container should fall back to its list entry when inspect fails")
+}
+
 type fakeStatsCollector struct{}
 
 func (f *fakeStatsCollector) Subscribe(_ context.Context, _ chan<- ContainerStat) {}

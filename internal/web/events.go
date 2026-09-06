@@ -2,6 +2,7 @@ package web
 
 import (
 	"net/http"
+	"time"
 
 	"github.com/amir20/dozzle/internal/analytics"
 	"github.com/amir20/dozzle/internal/auth"
@@ -10,6 +11,13 @@ import (
 	support_web "github.com/amir20/dozzle/internal/support/web"
 	"github.com/amir20/dozzle/types"
 	"github.com/rs/zerolog/log"
+)
+
+const (
+	eventBufferSize = 64
+	statBufferSize  = 128
+	// minimum gap between retries of a host whose container list failed to refresh
+	staleHostRetryInterval = 5 * time.Second
 )
 
 func (h *handler) streamEvents(w http.ResponseWriter, r *http.Request) {
@@ -21,8 +29,10 @@ func (h *handler) streamEvents(w http.ResponseWriter, r *http.Request) {
 	}
 	defer sseWriter.Close()
 
-	events := make(chan container.ContainerEvent)
-	stats := make(chan container.ContainerStat)
+	// buffered so a momentarily slow client can't stall the shared per-host store loop,
+	// which broadcasts to every subscriber with a blocking send
+	events := make(chan container.ContainerEvent, eventBufferSize)
+	stats := make(chan container.ContainerStat, statBufferSize)
 	availableHosts := make(chan container.Host)
 
 	h.hostService.SubscribeEventsAndStats(r.Context(), events, stats)
@@ -46,6 +56,40 @@ func (h *handler) streamEvents(w http.ResponseWriter, r *http.Request) {
 			ids[c.ID] = struct{}{}
 		}
 		visibleByHost[host] = ids
+	}
+
+	// A host whose refresh failed keeps a set that is missing containers started since,
+	// and nothing else repopulates it. Without a retry those containers stay invisible for
+	// the life of this stream, so the client never sees them start, stop or update again.
+	// Retries are driven by the host's own traffic and throttled, so a host that is down
+	// and silent is never polled and can't block this loop on every attempt.
+	staleHosts := make(map[string]time.Time) // host -> last failed attempt
+	refreshHost := func(host string) ([]container.Container, bool) {
+		containers, err := h.hostService.ListContainersForHost(host, userLabels)
+		if err != nil {
+			log.Warn().Err(err).Str("host", host).Msg("failed to refresh containers, will retry")
+			staleHosts[host] = time.Now()
+			return nil, false
+		}
+		delete(staleHosts, host)
+		setVisible(host, containers)
+		return containers, true
+	}
+	// retries a stale host and pushes the recovered list; false means the client is gone
+	repairHost := func(host string) bool {
+		if last, stale := staleHosts[host]; !stale || time.Since(last) < staleHostRetryInterval {
+			return true
+		}
+		containers, ok := refreshHost(host)
+		if !ok {
+			return true
+		}
+		log.Debug().Str("host", host).Int("count", len(containers)).Msg("recovered stale host")
+		if err := sseWriter.Event("containers-changed", containers); err != nil {
+			log.Error().Err(err).Msg("error writing containers to event stream")
+			return false
+		}
+		return true
 	}
 	isVisible := func(host, id string) bool {
 		if host != "" {
@@ -77,6 +121,8 @@ func (h *handler) streamEvents(w http.ResponseWriter, r *http.Request) {
 	for _, err := range errors {
 		log.Warn().Err(err).Msg("error listing containers")
 		if hostNotAvailableError, ok := err.(*docker_support.HostUnavailableError); ok {
+			// this host has no visible set at all, so retry as soon as it produces traffic
+			staleHosts[hostNotAvailableError.Host.ID] = time.Time{}
 			if err := sseWriter.Event("update-host", hostNotAvailableError.Host); err != nil {
 				log.Error().Err(err).Msg("error writing event to event stream")
 			}
@@ -97,13 +143,27 @@ func (h *handler) streamEvents(w http.ResponseWriter, r *http.Request) {
 	for {
 		select {
 		case host := <-availableHosts:
+			// an agent that reconnected has no visible set yet; its first traffic fills it
+			if _, ok := visibleByHost[host.ID]; host.Available && !ok {
+				staleHosts[host.ID] = time.Time{}
+			}
 			if err := sseWriter.Event("update-host", host); err != nil {
 				log.Error().Err(err).Msg("error writing event to event stream")
 				return
 			}
 		case stat := <-stats:
 			if !isVisible("", stat.ID) {
-				continue
+				// an unknown ID may belong to a container a stale host never got to report.
+				// a just-started container produces a stat every second, so this also covers
+				// a host that is otherwise quiet
+				for host := range staleHosts {
+					if !repairHost(host) {
+						return
+					}
+				}
+				if !isVisible("", stat.ID) {
+					continue
+				}
 			}
 			if err := sseWriter.Event("container-stat", stat); err != nil {
 				log.Error().Err(err).Msg("error writing event to event stream")
@@ -114,13 +174,19 @@ func (h *handler) streamEvents(w http.ResponseWriter, r *http.Request) {
 				return
 			}
 			log.Trace().Str("event", event.Name).Str("id", event.ActorID).Msg("container event from store")
+
+			// start/rename refresh on their own below; anything else from a stale host is a
+			// chance to repair it
+			if event.Name != "start" && event.Name != "rename" && !repairHost(event.Host) {
+				return
+			}
+
 			switch event.Name {
 			case "start", "die", "destroy", "rename", "pause", "unpause":
 				var refreshed []container.Container
 				if event.Name == "start" || event.Name == "rename" {
-					if containers, err := h.hostService.ListContainersForHost(event.Host, userLabels); err == nil {
+					if containers, ok := refreshHost(event.Host); ok {
 						log.Debug().Str("host", event.Host).Int("count", len(containers)).Msg("updating containers for host")
-						setVisible(event.Host, containers)
 						refreshed = containers
 					}
 				}

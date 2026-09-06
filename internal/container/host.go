@@ -27,7 +27,12 @@ type Host struct {
 	Type          string   `json:"type"`
 	Available     bool     `json:"available"`
 	Swarm         bool     `json:"-"`
-	Group         string   `json:"group,omitempty"`
+	// SwarmClusterID identifies the swarm this node belongs to, empty outside
+	// a swarm. Every node of one swarm reports the same value, which is what
+	// lets Dozzle Cloud tell "one swarm, N replicas" apart from one API key
+	// reused across unrelated deployments.
+	SwarmClusterID string `json:"-"`
+	Group          string `json:"group,omitempty"`
 }
 
 func (h Host) String() string {

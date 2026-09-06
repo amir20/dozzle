@@ -57,6 +57,7 @@ label:
   all-containers: Wszystkie kontenery
   all-namespaces: Wszystkie przestrzenie nazw
   namespaces: Przestrzenie nazw
+  owners: Właściciele
   host: Host
   hosts: Hosty
   password: Hasło
@@ -99,6 +100,19 @@ tooltip:
   volumes: Wolumeny
   volume-unreachable: nieosiągalne z tego hosta
   volume-full: "{destination} zapełniony w {pct}"
+  open-container-url: "Otwórz {url}"
+popup:
+  started: Uruchomiono
+  finished: Zatrzymano
+  group: Grupa
+  ports: Porty
+hint:
+  learn-more: Dowiedz się więcej
+  dismiss: Nie pokazuj ponownie
+link-hint:
+  title: Połącz ten kontener
+  description: Dozzle pokazuje link do interfejsu webowego kontenera po dodaniu etykiety dev.dozzle.url. Dodaj to do pliku compose i uruchom kontener ponownie.
+  copy: Kopiuj
 error:
   page-not-found: Ta strona nie istnieje
   host-group-not-found: "Nie znaleziono hostów w grupie „{name}”"
@@ -241,6 +255,8 @@ releases:
   two_parts: "{first} oraz {second}"
   latest: Najnowsza
   no_releases: Masz najnowszą wersję
+  newer: "1 nowsze wydanie | {count} nowszych wydań"
+  all: Wszystkie wydania
 log_actions:
   copy_log: Skopiuj logi
   jump_to_context: Przeskocz do kontekstu
@@ -282,6 +298,7 @@ notifications:
     enabled: Włączone ({count})
     paused: Wstrzymane ({count})
   no-alerts: Brak skonfigurowanych alertów. Utwórz jeden, aby rozpocząć.
+  no-alerts-in-filter: Żaden alert nie pasuje do tego filtra.
   default-alert-created: Utworzyliśmy dla Ciebie domyślny alert. Otrzymasz powiadomienie, gdy kontener zakończy się błędem. Możesz go edytować lub wstrzymać w dowolnej chwili.
   default-alert-failed: Nie udało się automatycznie utworzyć alertu. Skorzystaj z formularza poniżej.
   alert:
@@ -294,39 +311,87 @@ notifications:
     sample-window: Okno próbkowania
     destination: Miejsce docelowe
     dispatcher-deleted: Dispatcher usunięty
-    containers-count: "{count} kontenerów"
-    triggered-count: "{count} wyzwolonych"
+    containers-count: "w 1 kontenerze | w {count} kontenerach"
+    triggered-count: "Zadziałał raz | Zadziałał {count} razy"
+    never-triggered: Nigdy nie zadziałał
     last-triggered: "Ostatnio: {time}"
+    delete-warning: Usunąć ten alert?
+    delete-cancel: Zachowaj
+    delete-confirm: Usuń
+    window-meta: "okno {duration}"
+    cooldown-meta: "przerwa {duration}"
   destination:
     http-webhook: HTTP Webhook
     dozzle-cloud: Dozzle Cloud
     edit: Edytuj
     duplicate: Duplikuj
     delete: Usuń
+    used-by: "Używany przez 1 alert | Używany przez {count} alertów"
+    unused: Nieużywany przez żaden alert
+    copy-of: "Kopia {name}"
+    copy-failed: Nie udało się zduplikować tego celu
+    delete-failed: Nie udało się usunąć tego celu
+    delete-warning: Usunąć ten cel?
+    delete-warning-used: "1 alert wysyła tutaj i przestanie powiadamiać. | {count} alertów wysyła tutaj i przestanie powiadamiać."
+    delete-cancel: Zachowaj
+    delete-confirm: Usuń
   alert-form:
     create-title: Utwórz Alert
     edit-title: Edytuj Alert
-    description: Subskrybuj zdarzenia logów pasujące do twoich kryteriów
+    description-log: Otrzymuj powiadomienia, gdy w logach kontenerów pojawią się pasujące linie
+    description-metric: Otrzymuj powiadomienia, gdy CPU, pamięć lub dysk kontenera przekroczy próg
+    description-event: Otrzymuj powiadomienia, gdy kontenery startują, zatrzymują się, kończą pracę lub zmieniają stan
+    required: Wymagane
+    still-needed: "Wciąż brakuje: {fields}"
+    missing:
+      container-expression: kontenery
+      condition: warunek
+      destination: cel
+      name: nazwa
     alert-name: Nazwa Alertu
     alert-name-placeholder: np. Błędy API Testowego
-    container-filter: Filtr Kontenerów
-    containers-match: "{count} kontenerów pasuje: {names}"
-    no-containers-match: Żaden kontener nie pasuje do tego filtra
-    log-filter: Filtr Logów
-    logs-match: "{count} logów pasuje"
-    no-logs-match: Żaden log nie pasuje do tego filtra
+    alert-name-hint: Widoczna na karcie alertu i w każdym wysyłanym powiadomieniu.
+    container-filter: Kontenery
+    container-filter-hint: Które kontenery obserwuje ten alert. Dopasowywane są tylko działające kontenery.
+    containers-match: "Pasuje do 1 działającego kontenera: {names} | Pasuje do {count} działających kontenerów: {names}"
+    no-containers-match: Żaden działający kontener nie pasuje do tego filtra
+    checking: Sprawdzanie…
+    examples: "Przykłady:"
+    use-example: Użyj tego przykładu
+    seconds-unit: sek
+    log-filter: Warunek logów
+    log-filter-hint: Które linie logów wyzwalają alert.
+    logs-match: "1 pasująca linia w ciągu ostatnich {window} | {count} pasujących linii w ciągu ostatnich {window}"
+    no-logs-match: Brak pasujących linii w ciągu ostatnich {window}
+    log-preview-hint: Napisz warunek, aby zobaczyć, które ostatnie linie logów wyzwoliłyby ten alert.
+    log-scan-note: "Podgląd przeszukał pierwszy pasujący kontener. | Podgląd przeszukał pierwsze {count} pasujących kontenerów."
+    preview-needs-containers: Najpierw wybierz kontenery, aby zobaczyć podgląd na prawdziwych danych.
+    preview-fix-expression: Popraw wyrażenie, aby zobaczyć podgląd.
     destination: Miejsce docelowe
-    select-destination: Wybierz miejsce docelowe
-    no-destinations: Brak skonfigurowanych miejsc docelowych. Najpierw dodaj jedno.
+    no-destinations: Nie skonfigurowano jeszcze żadnych celów.
     preview: Podgląd
     cancel: Anuluj
     save: Zapisz
     create: Utwórz Alert
-    metric-filter: Wyrażenie metryki
-    expression-valid: Wyrażenie jest poprawne
-    metric-fields-hint: "Dostępne pola: {fields}"
+    discard-title: Odrzucić ten alert?
+    discard-keep: Kontynuuj edycję
+    discard-confirm: Odrzuć
+    metric-filter: Warunek metryki
+    metric-filter-hint: "Porównaj cpu (%), memory (%), memoryUsage (bajty) lub wolne miejsce w mounts."
+    metric-preview-hint: Napisz warunek, aby zobaczyć, jak wypadają Twoje kontenery w tej chwili.
+    metric-preview-note: Na podstawie ostatnich {duration} statystyk zebranych przez Dozzle.
+    metric-container: Kontener
+    metric-cpu: CPU
+    metric-memory: Pamięć
+    metric-window-match: Okno
+    metric-firing: Zadziałałby
+    metric-matching-now: Powyżej teraz
+    metric-no-samples: Brak danych
+    metric-no-samples-hint: Nie zebrano jeszcze statystyk dla pasujących kontenerów.
+    metric-would-fire: "Zadziałałby teraz dla 1 kontenera | Zadziałałby teraz dla {count} kontenerów"
+    metric-would-not-fire: Żaden kontener nie przekracza teraz progu
     sample-window-label: Okno próbkowania
-    sample-window-hint: "Alert jest wyzwalany, gdy warunek jest spełniony przez {duration}"
+    sample-window-hint: "Wyzwala się, gdy warunek utrzyma się przez {duration}"
     cooldown-label: Czas oczekiwania
     cooldown-hint: "{duration} między alertami na kontener"
     no-cooldown: Bez czasu oczekiwania
@@ -334,14 +399,32 @@ notifications:
     log-alert: Alert logów
     metric-alert: Alert metryki
     event-alert: Alert zdarzenia
-    event-filter: Wyrażenie zdarzenia
-    event-fields-hint: "Dostępne pola: {fields}"
+    log-alert-description: Dopasuj linie w logach kontenerów
+    metric-alert-description: Obserwuj CPU, pamięć i dysk
+    event-alert-description: Reaguj na starty, zatrzymania i zmiany stanu
+    type-switch-warning: Zapisanie zastąpi warunek {type} tego alertu, który zostanie utracony.
+    event-filter: Warunek zdarzenia
+    event-filter-hint: Które zdarzenia kontenerów wyzwalają alert.
+    event-matches: "Pasuje do 1 z tych zdarzeń | Pasuje do {count} z tych zdarzeń"
+    event-matches-none: Nie pasuje do żadnego z tych zdarzeń
+    event-preview-hint: Napisz warunek, aby zobaczyć, które zdarzenia kontenerów by wychwycił.
+    event-preview-note: Przykładowe zdarzenia, nie historia. Zdarzenia Dockera są oceniane na bieżąco.
   destination-form:
     create-title: Dodaj Miejsce Docelowe
     edit-title: Edytuj Miejsce Docelowe
     description: Gdzie mają być wysyłane powiadomienia?
     name: Nazwa
     name-placeholder: np. Produkcyjny Slack
+    name-hint: Tak ten cel jest opisany przy wyborze celu dla alertu.
+    name-taken: Inny cel już używa tej nazwy.
+    still-needed: "Wciąż brakuje: {fields}"
+    missing:
+      name: nazwa
+      url: adres webhooka
+      template: szablon
+    discard-title: Odrzucić ten cel?
+    discard-keep: Kontynuuj edycję
+    discard-confirm: Odrzuć
     type: Typ
     webhook-title: HTTP Webhook
     webhook-description: Slack, Discord, własny endpoint
@@ -349,19 +432,34 @@ notifications:
     cloud-description: Powiadomienia push, alerty e-mail i podsumowania AI
     webhook-url: URL Webhooka
     webhook-url-placeholder: https://hooks.foo.com/services/...
+    webhook-url-invalid: Podaj pełny adres http:// lub https://.
     api-key: Klucz API
-    payload-format: Format Payload
+    payload-format: Ładunek
     format-slack: Slack
     format-discord: Discord
     format-ntfy: ntfy
     format-custom: Własny
+    format-replace-warning: To zastąpi napisany przez Ciebie szablon.
+    format-replace-confirm: Zastąp
     template: Szablon
     template-hint: Składnia szablonu Go
+    template-placeholder: Treść JSON z symbolami szablonu Go
+    payload-mode-json: Poprawny JSON. Każda wartość jest renderowana i escapowana za Ciebie.
+    payload-mode-raw: To nie JSON, więc cała treść jest wysyłana jako wyrenderowany tekst.
+    payload-mode-unbalanced: Niedomknięta instrukcja szablonu.
+    payload-mode-empty: Pusty szablon wysyła całe powiadomienie jako JSON.
+    variables: Dostępne zmienne
+    variables-all: Każdy alert
+    variables-log: Tylko alerty logów
+    variables-metric: Tylko alerty metryk
+    variables-event: Tylko alerty zdarzeń
+    variables-scope-hint: Pola spoza „Każdy alert” istnieją tylko dla swojego typu; użyte gdzie indziej zawiodą przy wysyłce.
     headers: Niestandardowe Nagłówki
     headers-hint: Opcjonalne nagłówki HTTP (np. Authorization)
     header-name: Nazwa nagłówka
     header-value: Wartość nagłówka
     add-header: Dodaj Nagłówek
+    remove-header: Usuń nagłówek
     test: Test
     test-success: Test zakończony pomyślnie
     cancel: Anuluj
@@ -393,6 +491,7 @@ cloud:
   link-instance: Połącz instancję
   relink-instance: Połącz ponownie instancję
   connected: Połączony
+  pro-badge: Dozzle Cloud Pro
   plan: Plan
   usage: Zdarzenia w tym okresie
   dashboard: Panel

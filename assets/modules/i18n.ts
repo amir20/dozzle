@@ -2,15 +2,20 @@ import { type App } from "vue";
 import { createI18n } from "vue-i18n";
 import { locale } from "@/stores/settings";
 import type { Locale } from "vue-i18n";
+import en from "../../locales/en.yml";
 
+// `en` is the fallback locale and is always needed before the app can mount, so it is
+// imported statically and rides along in the entry chunk. Awaiting it as a dynamic
+// import cost an extra round trip before the first render. Every other locale stays
+// lazy, so `en` is excluded from the glob to avoid emitting a chunk nothing fetches.
 const localesMap = Object.fromEntries(
-  Object.entries(import.meta.glob("../../locales/*.yml")).map(([path, loadLocale]) => [
+  Object.entries(import.meta.glob(["../../locales/*.yml", "!../../locales/en.yml"])).map(([path, loadLocale]) => [
     path.match(/([\w-]*)\.yml$/)?.[1],
     loadLocale,
   ]),
 ) as Record<Locale, () => Promise<{ default: Record<string, string> }>>;
 
-export const availableLocales = Object.keys(localesMap);
+export const availableLocales = ["en", ...Object.keys(localesMap)].sort();
 
 function setI18nLanguage(lang: Locale) {
   i18n.global.locale.value = lang;
@@ -19,25 +24,22 @@ function setI18nLanguage(lang: Locale) {
 
 export const i18n = createI18n({
   legacy: false,
-  locale: "",
+  locale: "en",
   fallbackLocale: "en",
-  messages: {},
+  // Widened so `locale` stays a plain string; a bare literal narrows it to "en".
+  messages: { en } as Record<Locale, typeof en>,
 });
 
-const loadedLanguages: string[] = [];
-async function loadLanguage(lang: string, setLang = true): Promise<Locale> {
-  if (setLang) {
-    if (i18n.global.locale.value === lang) return setI18nLanguage(lang);
-    if (loadedLanguages.includes(lang)) return setI18nLanguage(lang);
-  }
+const loadedLanguages: string[] = ["en"];
+async function loadLanguage(lang: string): Promise<Locale> {
+  if (i18n.global.locale.value === lang) return setI18nLanguage(lang);
+  if (loadedLanguages.includes(lang)) return setI18nLanguage(lang);
 
   const messages = await localesMap[lang]();
   i18n.global.setLocaleMessage(lang, messages.default);
   loadedLanguages.push(lang);
   return setI18nLanguage(lang);
 }
-
-await loadLanguage("en", false); // load default language
 
 const userLocale = computed(
   () =>

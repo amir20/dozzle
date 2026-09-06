@@ -1,6 +1,51 @@
 #!/bin/bash
 set -e
 
+usage() {
+  cat <<'EOF'
+Usage: ./setup-remote-agent.sh [options] [VM_NAME] [DISTRO] [AGENT_PORT]
+
+Creates an OrbStack VM, installs Docker and runs a Dozzle agent in it.
+
+Positional arguments:
+  VM_NAME       OrbStack VM to create        (default: dozzle-agent)
+  DISTRO        Distro for the VM            (default: ubuntu)
+  AGENT_PORT    Host port for the agent      (default: 7007)
+
+Options:
+  --local             Build and load amir20/dozzle:local instead of pulling :latest
+  --agent-url URL     Dozzle Cloud gRPC endpoint the agent connects to
+                      (default: https://agent.doligence.dozzle.dev)
+  --cloud-url URL     Dozzle Cloud HTTP API the agent posts notifications to
+                      (default: https://doligence.dozzle.dev)
+  -h, --help          Show this help
+
+Both URLs can also come from the environment, as AGENT_URL and DOLIGENCE_URL —
+the same names the agent itself reads — so a shell that already exports them
+needs no flags. Flags win over the environment.
+
+Pointing an agent at a local Dozzle Cloud stack:
+
+  ./setup-remote-agent.sh --local \
+    --agent-url http://host.orb.internal:8082 \
+    --cloud-url http://host.orb.internal:8080
+
+host.orb.internal is the Mac host, and 8082/8080 are the gRPC and public ports
+compose.override.yaml publishes there. An http:// URL makes the agent dial gRPC
+in plaintext, which is what the local stack serves.
+
+Use the name, not OrbStack's 198.19.249.2 host address: that one is only routable
+from a Docker container running under OrbStack directly. The agent this script
+sets up runs inside a Linux VM, which reaches the Mac over its own bridge
+instead, and dialling 198.19.249.2 from there times out with nothing to explain
+why. The name resolves from both.
+
+Setting these does not by itself connect the agent to Dozzle Cloud: it dials
+only once it has an API key, which arrives when the main Dozzle instance pushes
+its cloud config down and the agent persists it to /data/cloud.yml.
+EOF
+}
+
 # Parse arguments
 USE_LOCAL=false
 POSITIONAL_ARGS=()
@@ -10,6 +55,18 @@ while [[ $# -gt 0 ]]; do
     --local)
       USE_LOCAL=true
       shift
+      ;;
+    --agent-url)
+      AGENT_URL="$2"
+      shift 2
+      ;;
+    --cloud-url)
+      DOLIGENCE_URL="$2"
+      shift 2
+      ;;
+    -h|--help)
+      usage
+      exit 0
       ;;
     *)
       POSITIONAL_ARGS+=("$1")
@@ -26,6 +83,14 @@ SHARED_CERT="./shared_cert.pem"
 SHARED_KEY="./shared_key.pem"
 DOZZLE_IMAGE="amir20/dozzle:latest"
 
+# Dozzle Cloud endpoints. These are the agent's own env vars, passed through
+# rather than reinvented: AGENT_URL is the gRPC endpoint it dials for tool
+# dispatch and log streaming, DOLIGENCE_URL is the HTTP API its cloud
+# dispatcher posts notifications to. They are separate on purpose — setting
+# only one leaves the other half of the agent talking to production.
+CLOUD_AGENT_URL="${AGENT_URL:-https://agent.doligence.dozzle.dev}"
+CLOUD_API_URL="${DOLIGENCE_URL:-https://doligence.dozzle.dev}"
+
 if [ "$USE_LOCAL" = true ]; then
     DOZZLE_IMAGE="amir20/dozzle:local"
 fi
@@ -34,6 +99,8 @@ echo "🚀 Setting up Dozzle Agent on OrbStack VM: $VM_NAME"
 if [ "$USE_LOCAL" = true ]; then
     echo "   Using locally built image"
 fi
+echo "   Dozzle Cloud gRPC: $CLOUD_AGENT_URL"
+echo "   Dozzle Cloud API:  $CLOUD_API_URL"
 
 # Verify shared certificates exist
 if [ ! -f "$SHARED_CERT" ]; then
@@ -121,6 +188,8 @@ docker run -d --name dozzle-agent \
   -v ~/dozzle-data:/data \
   -p $AGENT_PORT:7007 \
   -e DOZZLE_LEVEL=debug \
+  -e AGENT_URL=$CLOUD_AGENT_URL \
+  -e DOLIGENCE_URL=$CLOUD_API_URL \
   $DOZZLE_IMAGE agent \
   --cert /certs/shared_cert.pem \
   --key /certs/shared_key.pem
@@ -157,6 +226,8 @@ echo "  docker run -v /var/run/docker.sock:/var/run/docker.sock \\"
 echo "    -v $PWD/shared_cert.pem:/shared_cert.pem:ro \\"
 echo "    -v $PWD/shared_key.pem:/shared_key.pem:ro \\"
 echo "    -p 8080:8080 \\"
+echo "    -e AGENT_URL=$CLOUD_AGENT_URL \\"
+echo "    -e DOLIGENCE_URL=$CLOUD_API_URL \\"
 echo "    amir20/dozzle:latest \\"
 echo "    --remote-agent $VM_NAME.orb.local:$AGENT_PORT \\"
 echo "    --cert /shared_cert.pem --key /shared_key.pem"
@@ -166,6 +237,8 @@ echo ""
 echo "  DOZZLE_REMOTE_AGENT: $VM_NAME.orb.local:$AGENT_PORT"
 echo "  DOZZLE_CERT: /shared_cert.pem"
 echo "  DOZZLE_KEY: /shared_key.pem"
+echo "  AGENT_URL: $CLOUD_AGENT_URL"
+echo "  DOLIGENCE_URL: $CLOUD_API_URL"
 echo ""
 echo "Useful commands:"
 echo "  View agent logs:   orb exec -m $VM_NAME docker logs -f dozzle-agent"

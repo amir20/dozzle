@@ -57,6 +57,7 @@ label:
   all-containers: Alle Containere
   all-namespaces: Alle Navneområder
   namespaces: Navneområder
+  owners: Ejere
   host: Vært
   hosts: Værter
   password: Kodeord
@@ -99,6 +100,19 @@ tooltip:
   volumes: Volumener
   volume-unreachable: ikke tilgængelig fra denne host
   volume-full: "{destination} er {pct} fuld"
+  open-container-url: "Åbn {url}"
+popup:
+  started: Startet
+  finished: Stoppet
+  group: Gruppe
+  ports: Porte
+hint:
+  learn-more: Læs mere
+  dismiss: Vis ikke igen
+link-hint:
+  title: Link denne container
+  description: Dozzle linker til en containers eget webinterface, når du tilføjer et dev.dozzle.url-label. Tilføj dette til din compose-fil, og genstart containeren.
+  copy: Kopiér
 error:
   page-not-found: Denne side eksisterer ikke
   host-group-not-found: 'Ingen værter fundet i gruppen "{name}"'
@@ -235,9 +249,11 @@ releases:
   bugFixes: en fejlrettelse | {count} rettelser
   breaking: en ødelæggende ændring | {count} ødelæggende ændringer
   three_parts: "{first}, {second} og {third}"
-  two_parts: "{first} med {second}"
+  two_parts: "{first} og {second}"
   latest: Nyeste
   no_releases: Du har den nyeste version
+  newer: "1 nyere version | {count} nyere versioner"
+  all: Alle versioner
 log_actions:
   copy_log: Kopier log
   jump_to_context: Hop til kontekst
@@ -279,6 +295,7 @@ notifications:
     enabled: Aktiveret ({count})
     paused: Pauset ({count})
   no-alerts: Ingen alarmer konfigureret endnu. Opret en for at komme i gang.
+  no-alerts-in-filter: Ingen alarmer matcher dette filter.
   default-alert-created: Vi har oprettet en standardalarm for dig. Du får besked, når en container afsluttes med en fejl. Du kan redigere eller sætte den på pause når som helst.
   default-alert-failed: Kunne ikke oprette din alarm automatisk. Her er formularen i stedet.
   alert:
@@ -291,39 +308,87 @@ notifications:
     sample-window: Prøvevindue
     destination: Destination
     dispatcher-deleted: Dispatcher slettet
-    containers-count: "{count} containere"
-    triggered-count: "{count} udløst"
+    containers-count: "i 1 container | i {count} containere"
+    triggered-count: "Udløst én gang | Udløst {count} gange"
+    never-triggered: Aldrig udløst
     last-triggered: "Sidst: {time}"
+    delete-warning: Slet denne alarm?
+    delete-cancel: Behold
+    delete-confirm: Slet
+    window-meta: "{duration} vindue"
+    cooldown-meta: "{duration} pause"
   destination:
     http-webhook: HTTP Webhook
     dozzle-cloud: Dozzle Cloud
     edit: Rediger
     duplicate: Dupliker
     delete: Slet
+    used-by: "Bruges af 1 alarm | Bruges af {count} alarmer"
+    unused: Bruges ikke af nogen alarm
+    copy-of: "Kopi af {name}"
+    copy-failed: Kunne ikke duplikere denne destination
+    delete-failed: Kunne ikke slette denne destination
+    delete-warning: Slet denne destination?
+    delete-warning-used: "1 alarm sender hertil og holder op med at give besked. | {count} alarmer sender hertil og holder op med at give besked."
+    delete-cancel: Behold
+    delete-confirm: Slet
   alert-form:
     create-title: Opret Alarm
     edit-title: Rediger Alarm
-    description: Abonner på log hændelser der matcher dine kriterier
+    description-log: Få besked når matchende linjer dukker op i dine containerlogs
+    description-metric: Få besked når en containers CPU, hukommelse eller diskforbrug overskrider en grænse
+    description-event: Få besked når containere starter, stopper, dør eller skifter helbred
+    required: Påkrævet
+    still-needed: "Mangler stadig: {fields}"
+    missing:
+      container-expression: containere
+      condition: betingelse
+      destination: destination
+      name: navn
     alert-name: Alarm Navn
     alert-name-placeholder: f.eks. Test API Fejl
-    container-filter: Container Filter
-    containers-match: "{count} containere matcher: {names}"
-    no-containers-match: Ingen containere matcher dette filter
-    log-filter: Log Filter
-    logs-match: "{count} logs matcher"
-    no-logs-match: Ingen logs matcher dette filter
+    alert-name-hint: Vises på alarmkortet og i hver notifikation den sender.
+    container-filter: Containere
+    container-filter-hint: Hvilke containere denne alarm overvåger. Kun kørende containere matches.
+    containers-match: "Matcher 1 kørende container: {names} | Matcher {count} kørende containere: {names}"
+    no-containers-match: Ingen kørende containere matcher dette filter
+    checking: Kontrollerer…
+    examples: "Eksempler:"
+    use-example: Brug dette eksempel
+    seconds-unit: sek
+    log-filter: Log-betingelse
+    log-filter-hint: Hvilke loglinjer der udløser alarmen.
+    logs-match: "1 matchende linje i de sidste {window} | {count} matchende linjer i de sidste {window}"
+    no-logs-match: Ingen matchende linjer i de sidste {window}
+    log-preview-hint: Skriv en betingelse for at se hvilke nylige loglinjer der ville have udløst denne alarm.
+    log-scan-note: "Forhåndsvisningen gennemgik den første matchende container. | Forhåndsvisningen gennemgik de første {count} matchende containere."
+    preview-needs-containers: Vælg containere først for at se en forhåndsvisning med rigtige data.
+    preview-fix-expression: Ret udtrykket for at se en forhåndsvisning.
     destination: Destination
-    select-destination: Vælg en destination
-    no-destinations: Ingen destinationer konfigureret. Tilføj en først.
+    no-destinations: Ingen destinationer konfigureret endnu.
     preview: Forhåndsvisning
     cancel: Annuller
     save: Gem
     create: Opret Alarm
-    metric-filter: Metrikudtryk
-    expression-valid: Udtryk er gyldigt
-    metric-fields-hint: "Tilgængelige felter: {fields}"
+    discard-title: Kassér denne alarm?
+    discard-keep: Fortsæt redigering
+    discard-confirm: Kassér
+    metric-filter: Metrik-betingelse
+    metric-filter-hint: "Sammenlign cpu (%), memory (%), memoryUsage (bytes) eller ledig plads på mounts."
+    metric-preview-hint: Skriv en betingelse for at se hvordan dine containere ligger lige nu.
+    metric-preview-note: Baseret på de sidste {duration} statistik som Dozzle har indsamlet.
+    metric-container: Container
+    metric-cpu: CPU
+    metric-memory: Hukommelse
+    metric-window-match: Vindue
+    metric-firing: Ville udløse
+    metric-matching-now: Over nu
+    metric-no-samples: Ingen data
+    metric-no-samples-hint: Der er endnu ikke indsamlet statistik for de matchende containere.
+    metric-would-fire: "Ville udløse for 1 container lige nu | Ville udløse for {count} containere lige nu"
+    metric-would-not-fire: Ingen container er over grænsen lige nu
     sample-window-label: Prøvevindue
-    sample-window-hint: "Alarm udløses, når betingelsen er opfyldt i {duration}"
+    sample-window-hint: "Udløses når betingelsen holder i {duration}"
     cooldown-label: Afkøling
     cooldown-hint: "{duration} mellem alarmer pr. container"
     no-cooldown: Ingen afkøling
@@ -331,14 +396,32 @@ notifications:
     log-alert: Logalarm
     metric-alert: Metrikalarm
     event-alert: Hændelsesalarm
-    event-filter: Hændelsesudtryk
-    event-fields-hint: "Tilgængelige felter: {fields}"
+    log-alert-description: Match linjer i containerlogs
+    metric-alert-description: Overvåg CPU, hukommelse og disk
+    event-alert-description: Reagér på start, stop og helbredsændringer
+    type-switch-warning: Ved at gemme erstattes denne alarms {type}-betingelse, som går tabt.
+    event-filter: Hændelses-betingelse
+    event-filter-hint: Hvilke containerhændelser der udløser alarmen.
+    event-matches: "Matcher 1 af disse hændelser | Matcher {count} af disse hændelser"
+    event-matches-none: Matcher ingen af disse hændelser
+    event-preview-hint: Skriv en betingelse for at se hvilke containerhændelser den ville fange.
+    event-preview-note: Eksempelhændelser, ikke historik. Docker-hændelser vurderes når de sker.
   destination-form:
     create-title: Tilføj Destination
     edit-title: Rediger Destination
     description: Hvor skal notifikationer sendes til?
     name: Navn
     name-placeholder: f.eks. Produktion Slack
+    name-hint: Sådan vises denne destination, når du vælger en til en alarm.
+    name-taken: En anden destination bruger allerede dette navn.
+    still-needed: "Mangler stadig: {fields}"
+    missing:
+      name: navn
+      url: webhook-URL
+      template: skabelon
+    discard-title: Kassér denne destination?
+    discard-keep: Fortsæt redigering
+    discard-confirm: Kassér
     type: Type
     webhook-title: HTTP Webhook
     webhook-description: Slack, Discord, brugerdefineret endpoint
@@ -346,19 +429,34 @@ notifications:
     cloud-description: Push notifikationer, email alarmer og AI-drevne resuméer
     webhook-url: Webhook URL
     webhook-url-placeholder: https://hooks.foo.com/services/...
+    webhook-url-invalid: Indtast en fuld http:// eller https:// URL.
     api-key: API Nøgle
-    payload-format: Payload Format
+    payload-format: Payload
     format-slack: Slack
     format-discord: Discord
     format-ntfy: ntfy
     format-custom: Brugerdefineret
+    format-replace-warning: Dette erstatter den skabelon, du har skrevet.
+    format-replace-confirm: Erstat
     template: Skabelon
     template-hint: Go skabelon syntaks
+    template-placeholder: JSON-body med Go-skabelonfelter
+    payload-mode-json: Gyldig JSON. Hver værdi bliver renderet og escapet for dig.
+    payload-mode-raw: Ikke JSON, så hele bodyen sendes som renderet tekst.
+    payload-mode-unbalanced: Ulukket skabelonhandling.
+    payload-mode-empty: En tom skabelon sender hele notifikationen som JSON.
+    variables: Tilgængelige variabler
+    variables-all: Alle alarmer
+    variables-log: Kun log-alarmer
+    variables-metric: Kun metrik-alarmer
+    variables-event: Kun hændelsesalarmer
+    variables-scope-hint: Felter uden for “Alle alarmer” findes kun for deres egen alarmtype; bruges de andre steder, fejler afsendelsen.
     headers: Brugerdefinerede Headers
     headers-hint: Valgfrie HTTP-headers (f.eks. Authorization)
     header-name: Header-navn
     header-value: Header-værdi
     add-header: Tilføj Header
+    remove-header: Fjern header
     test: Test
     test-success: Test succesfuld
     cancel: Annuller
@@ -390,6 +488,7 @@ cloud:
   link-instance: Tilknyt instans
   relink-instance: Gentilknyt instans
   connected: Tilsluttet
+  pro-badge: Dozzle Cloud Pro
   plan: Plan
   usage: Begivenheder i denne periode
   dashboard: Dashboard

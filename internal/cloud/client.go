@@ -35,10 +35,17 @@ const (
 
 // Client manages the gRPC connection to Dozzle Cloud
 type Client struct {
-	deps           ToolDeps
-	apiKeyFunc     func() string
-	instanceID     string
-	version        string
+	deps       ToolDeps
+	apiKeyFunc func() string
+	instanceID string
+	version    string
+	// mode and swarmClusterID describe what kind of Dozzle process this is.
+	// Cloud cannot infer either — a swarm replica and a standalone server both
+	// scope themselves to their own daemon and look identical on the wire — so
+	// they travel as connect-time metadata. Both may be empty; cloud treats
+	// that as unknown.
+	mode           string
+	swarmClusterID string
 	streamLogsFunc func() bool
 	target         string
 	plaintext      bool
@@ -100,6 +107,18 @@ func NewClient(apiKeyFunc func() string, instanceID string, version string, deps
 		streamSem:  semaphore.NewWeighted(maxConcurrentStreams),
 		startCh:    make(chan struct{}, 1),
 	}
+}
+
+// SetDeployment records what kind of Dozzle process this is ("server",
+// "swarm", "k8s" or "agent") and, on a swarm node, which swarm it belongs to.
+// Sent as connect-time metadata so Dozzle Cloud can tell a hub from the agents
+// behind it, and a replicated swarm from one API key reused across deployments.
+//
+// Optional: a client that never calls this simply reports nothing, which is
+// what every Dozzle before this change did.
+func (c *Client) SetDeployment(mode, swarmClusterID string) {
+	c.mode = mode
+	c.swarmClusterID = swarmClusterID
 }
 
 // SetStreamLogsFunc registers a function that reports whether bulk container
@@ -253,6 +272,12 @@ func (c *Client) connect(ctx context.Context, apiKey string) (wasConnected bool,
 	mdPairs := []string{"x-api-key", apiKey}
 	if c.instanceID != "" {
 		mdPairs = append(mdPairs, "x-instance-id", c.instanceID)
+	}
+	if c.mode != "" {
+		mdPairs = append(mdPairs, "x-dozzle-mode", c.mode)
+	}
+	if c.swarmClusterID != "" {
+		mdPairs = append(mdPairs, "x-dozzle-swarm-cluster-id", c.swarmClusterID)
 	}
 	md := metadata.Pairs(mdPairs...)
 	streamCtx := metadata.NewOutgoingContext(connCtx, md)

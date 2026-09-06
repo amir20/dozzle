@@ -34,6 +34,7 @@
               :destination="dest"
               :on-updated="fetchAll"
               :existing-dispatchers="dispatchers"
+              :used-by-count="alertsPerDispatcher.get(dest.id) ?? 0"
               class="w-full md:w-72"
             />
             <!-- Add Destination Card -->
@@ -56,8 +57,8 @@
           <h3 class="text-base-content/60 font-semibold tracking-wide uppercase">{{ $t("notifications.alerts") }}</h3>
         </div>
 
-        <!-- Filter Tabs -->
-        <div class="tabs tabs-box mb-6">
+        <!-- Filter Tabs. Nothing to filter until there is more than one alert. -->
+        <div v-if="alerts.length > 1" class="tabs tabs-box mb-6">
           <button class="tab" :class="{ 'tab-active': filter === 'all' }" @click="filter = 'all'">
             {{ $t("notifications.filter.all", { count: alerts.length }) }}
           </button>
@@ -71,6 +72,10 @@
 
         <!-- Alerts List -->
         <div class="space-y-4">
+          <p v-if="!alerts.length" class="text-base-content/60 text-sm">{{ $t("notifications.no-alerts") }}</p>
+          <p v-else-if="!filteredAlerts.length" class="text-base-content/60 text-sm">
+            {{ $t("notifications.no-alerts-in-filter") }}
+          </p>
           <AlertCard
             v-for="alert in filteredAlerts"
             :key="alert.id"
@@ -174,6 +179,16 @@ const filter = ref<"all" | "enabled" | "paused">("all");
 const enabledCount = computed(() => alerts.value.filter((a) => a.enabled).length);
 const pausedCount = computed(() => alerts.value.filter((a) => !a.enabled).length);
 
+// Deleting a destination orphans the alerts pointing at it, so each card shows its usage.
+const alertsPerDispatcher = computed(() => {
+  const counts = new Map<number, number>();
+  for (const alert of alerts.value) {
+    if (!alert.dispatcher) continue;
+    counts.set(alert.dispatcher.id, (counts.get(alert.dispatcher.id) ?? 0) + 1);
+  }
+  return counts;
+});
+
 const filteredAlerts = computed(() => {
   if (filter.value === "enabled") return alerts.value.filter((a) => a.enabled);
   if (filter.value === "paused") return alerts.value.filter((a) => !a.enabled);
@@ -192,6 +207,7 @@ function openCreateAlertPrefilled() {
       onCreated: fetchAlerts,
       prefill: {
         name: t("notifications.prefill-name"),
+        alertType: "log" as const,
         logExpression: t("notifications.prefill-expression"),
         ...(cloudDispatcher ? { dispatcherId: cloudDispatcher.id } : {}),
       },

@@ -103,6 +103,11 @@ type CloudConfig struct {
 	APIKey    string
 	Prefix    string
 	ExpiresAt *time.Time
+	// StreamLogs is the user's log-streaming choice, nil when the sender did
+	// not say. Agents apply it to their own cloud client; nil keeps the
+	// historical default (enabled) so an older hub doesn't silently turn
+	// streaming off.
+	StreamLogs *bool
 }
 
 // DispatcherConfig represents a dispatcher configuration

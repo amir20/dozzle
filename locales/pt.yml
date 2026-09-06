@@ -57,6 +57,7 @@ label:
   all-containers: Todos os Containers
   all-namespaces: Todos
   namespaces: Namespaces
+  owners: Proprietários
   host: Host
   hosts: Hosts
   password: Senha
@@ -99,6 +100,19 @@ tooltip:
   volumes: Volumes
   volume-unreachable: inacessível a partir deste host
   volume-full: "{destination} está {pct} cheio"
+  open-container-url: "Abrir {url}"
+popup:
+  started: Iniciado
+  finished: Finalizado
+  group: Grupo
+  ports: Portas
+hint:
+  learn-more: Saiba mais
+  dismiss: Não mostrar novamente
+link-hint:
+  title: Vincular este container
+  description: O Dozzle mostra um link para a interface web de um container quando você adiciona a etiqueta dev.dozzle.url. Adicione isto ao seu arquivo compose e reinicie o container.
+  copy: Copiar
 error:
   page-not-found: Esta página não existe
   host-group-not-found: 'Nenhum host encontrado no grupo "{name}"'
@@ -235,9 +249,11 @@ releases:
   bugFixes: uma correção de bug | {count} correções
   breaking: uma mudança incompatível | {count} mudanças incompatíveis
   three_parts: "{first}, {second} e {third}"
-  two_parts: "{first} com {second}"
+  two_parts: "{first} e {second}"
   latest: Mais recente
   no_releases: Você tem a versão mais recente
+  newer: "1 versão mais recente | {count} versões mais recentes"
+  all: Todas as versões
 log_actions:
   copy_log: Copiar log
   jump_to_context: Ir para contexto
@@ -279,6 +295,7 @@ notifications:
     enabled: Habilitados ({count})
     paused: Pausados ({count})
   no-alerts: Nenhum alerta configurado ainda. Crie um para começar.
+  no-alerts-in-filter: Nenhum alerta corresponde a este filtro.
   default-alert-created: Criamos um alerta padrão para você. Você será notificado quando um container encerrar com erro. Edite ou pause quando quiser.
   default-alert-failed: Não foi possível criar seu alerta automaticamente. Use o formulário abaixo.
   alert:
@@ -291,39 +308,87 @@ notifications:
     sample-window: Janela de amostragem
     destination: Destino
     dispatcher-deleted: Dispatcher excluído
-    containers-count: "{count} containers"
-    triggered-count: "{count} acionados"
+    containers-count: "em 1 contêiner | em {count} contêineres"
+    triggered-count: "Disparado uma vez | Disparado {count} vezes"
+    never-triggered: Nunca disparado
     last-triggered: "Último: {time}"
+    delete-warning: Excluir este alerta?
+    delete-cancel: Manter
+    delete-confirm: Excluir
+    window-meta: "janela de {duration}"
+    cooldown-meta: "espera de {duration}"
   destination:
     http-webhook: HTTP Webhook
     dozzle-cloud: Dozzle Cloud
     edit: Editar
     duplicate: Duplicar
     delete: Excluir
+    used-by: "Usado por 1 alerta | Usado por {count} alertas"
+    unused: Não usado por nenhum alerta
+    copy-of: "Cópia de {name}"
+    copy-failed: Não foi possível duplicar este destino
+    delete-failed: Não foi possível excluir este destino
+    delete-warning: Excluir este destino?
+    delete-warning-used: "1 alerta envia para cá e deixará de notificar. | {count} alertas enviam para cá e deixarão de notificar."
+    delete-cancel: Manter
+    delete-confirm: Excluir
   alert-form:
     create-title: Criar Alerta
     edit-title: Editar Alerta
-    description: Inscreva-se em eventos de log que correspondam aos seus critérios
+    description-log: Seja notificado quando linhas correspondentes aparecerem nos logs dos seus contêineres
+    description-metric: Seja notificado quando CPU, memória ou disco de um contêiner ultrapassar um limite
+    description-event: Seja notificado quando contêineres iniciarem, pararem, morrerem ou mudarem de saúde
+    required: Obrigatório
+    still-needed: "Ainda falta: {fields}"
+    missing:
+      container-expression: contêineres
+      condition: condição
+      destination: destino
+      name: nome
     alert-name: Nome do Alerta
     alert-name-placeholder: ex., Erros de API de Teste
-    container-filter: Filtro de Container
-    containers-match: "{count} containers correspondem: {names}"
-    no-containers-match: Nenhum container corresponde a este filtro
-    log-filter: Filtro de Log
-    logs-match: "{count} logs correspondem"
-    no-logs-match: Nenhum log corresponde a este filtro
+    alert-name-hint: Aparece no cartão do alerta e em todas as notificações que ele envia.
+    container-filter: Contêineres
+    container-filter-hint: Quais contêineres este alerta observa. Apenas contêineres em execução são considerados.
+    containers-match: "Corresponde a 1 contêiner em execução: {names} | Corresponde a {count} contêineres em execução: {names}"
+    no-containers-match: Nenhum contêiner em execução corresponde a este filtro
+    checking: Verificando…
+    examples: "Exemplos:"
+    use-example: Usar este exemplo
+    seconds-unit: seg
+    log-filter: Condição de log
+    log-filter-hint: Quais linhas de log disparam o alerta.
+    logs-match: "1 linha correspondente nas últimas {window} | {count} linhas correspondentes nas últimas {window}"
+    no-logs-match: Nenhuma linha correspondente nas últimas {window}
+    log-preview-hint: Escreva uma condição para ver quais linhas de log recentes teriam disparado este alerta.
+    log-scan-note: "A pré-visualização percorreu o primeiro contêiner correspondente. | A pré-visualização percorreu os primeiros {count} contêineres correspondentes."
+    preview-needs-containers: Escolha contêineres primeiro para pré-visualizar com dados reais.
+    preview-fix-expression: Corrija a expressão para ver uma pré-visualização.
     destination: Destino
-    select-destination: Selecione um destino
-    no-destinations: Nenhum destino configurado. Adicione um primeiro.
+    no-destinations: Nenhum destino configurado ainda.
     preview: Prévia
     cancel: Cancelar
     save: Salvar
     create: Criar Alerta
-    metric-filter: Expressão de Métrica
-    expression-valid: A expressão é válida
-    metric-fields-hint: "Campos disponíveis: {fields}"
+    discard-title: Descartar este alerta?
+    discard-keep: Continuar editando
+    discard-confirm: Descartar
+    metric-filter: Condição de métrica
+    metric-filter-hint: "Compare cpu (%), memory (%), memoryUsage (bytes) ou o espaço livre de mounts."
+    metric-preview-hint: Escreva uma condição para ver como seus contêineres estão agora.
+    metric-preview-note: Baseado nas últimas {duration} de estatísticas coletadas pelo Dozzle.
+    metric-container: Contêiner
+    metric-cpu: CPU
+    metric-memory: Memória
+    metric-window-match: Janela
+    metric-firing: Dispararia
+    metric-matching-now: Acima agora
+    metric-no-samples: Sem dados
+    metric-no-samples-hint: Nenhuma estatística coletada ainda para os contêineres correspondentes.
+    metric-would-fire: "Dispararia para 1 contêiner agora | Dispararia para {count} contêineres agora"
+    metric-would-not-fire: Nenhum contêiner está acima do limite agora
     sample-window-label: Janela de amostragem
-    sample-window-hint: "O alerta é acionado quando a condição é atendida por {duration}"
+    sample-window-hint: "Dispara quando a condição se mantém por {duration}"
     cooldown-label: Tempo de espera
     cooldown-hint: "{duration} entre alertas por container"
     no-cooldown: Sem tempo de espera
@@ -331,14 +396,32 @@ notifications:
     log-alert: Alerta de log
     metric-alert: Alerta de métrica
     event-alert: Alerta de evento
-    event-filter: Expressão de evento
-    event-fields-hint: "Campos disponíveis: {fields}"
+    log-alert-description: Filtrar linhas nos logs dos contêineres
+    metric-alert-description: Observar CPU, memória e disco
+    event-alert-description: Reagir a inícios, paradas e mudanças de saúde
+    type-switch-warning: Salvar substitui a condição {type} deste alerta, que será perdida.
+    event-filter: Condição de evento
+    event-filter-hint: Quais eventos de contêiner disparam o alerta.
+    event-matches: "Corresponde a 1 destes eventos | Corresponde a {count} destes eventos"
+    event-matches-none: Não corresponde a nenhum destes eventos
+    event-preview-hint: Escreva uma condição para ver quais eventos de contêiner ela capturaria.
+    event-preview-note: Eventos de exemplo, não histórico. Eventos do Docker são avaliados no momento em que ocorrem.
   destination-form:
     create-title: Adicionar Destino
     edit-title: Editar Destino
     description: Para onde as notificações devem ser enviadas?
     name: Nome
     name-placeholder: ex., Slack de Produção
+    name-hint: Como este destino aparece ao escolher um para um alerta.
+    name-taken: Outro destino já usa este nome.
+    still-needed: "Ainda falta: {fields}"
+    missing:
+      name: nome
+      url: URL do webhook
+      template: modelo
+    discard-title: Descartar este destino?
+    discard-keep: Continuar editando
+    discard-confirm: Descartar
     type: Tipo
     webhook-title: HTTP Webhook
     webhook-description: Slack, Discord, endpoint personalizado
@@ -346,19 +429,34 @@ notifications:
     cloud-description: Notificações push, alertas por email e resumos com IA
     webhook-url: URL do Webhook
     webhook-url-placeholder: https://hooks.foo.com/services/...
+    webhook-url-invalid: Informe uma URL http:// ou https:// completa.
     api-key: Chave API
-    payload-format: Formato do Payload
+    payload-format: Carga
     format-slack: Slack
     format-discord: Discord
     format-ntfy: ntfy
     format-custom: Personalizado
+    format-replace-warning: Isto substitui o modelo que você escreveu.
+    format-replace-confirm: Substituir
     template: Template
     template-hint: Sintaxe de template Go
+    template-placeholder: Corpo JSON com marcadores de modelo Go
+    payload-mode-json: JSON válido. Cada valor é renderizado e escapado para você.
+    payload-mode-raw: Não é JSON, então o corpo inteiro é enviado como texto renderizado.
+    payload-mode-unbalanced: Ação de modelo não fechada.
+    payload-mode-empty: Um modelo vazio envia a notificação completa como JSON.
+    variables: Variáveis disponíveis
+    variables-all: Todos os alertas
+    variables-log: Apenas alertas de log
+    variables-metric: Apenas alertas de métrica
+    variables-event: Apenas alertas de evento
+    variables-scope-hint: Campos fora de "Todos os alertas" só existem para o próprio tipo; usar um em outro falha no envio.
     headers: Cabeçalhos Personalizados
     headers-hint: Cabeçalhos HTTP opcionais (ex. Authorization)
     header-name: Nome do cabeçalho
     header-value: Valor do cabeçalho
     add-header: Adicionar Cabeçalho
+    remove-header: Remover cabeçalho
     test: Testar
     test-success: Teste bem-sucedido
     cancel: Cancelar
@@ -390,6 +488,7 @@ cloud:
   link-instance: Vincular instância
   relink-instance: Revincular instância
   connected: Conectado
+  pro-badge: Dozzle Cloud Pro
   plan: Plano
   usage: Eventos neste período
   dashboard: Painel

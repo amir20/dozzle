@@ -1,13 +1,18 @@
 <template>
   <div class="@container flex min-w-0 flex-1 items-center gap-1.5 md:gap-2">
-    <label class="swap swap-rotate size-4">
+    <label class="icon-btn swap swap-rotate size-4">
       <input type="checkbox" v-model="pinned" />
       <carbon:star-filled class="swap-on text-secondary" />
       <carbon:star class="swap-off" />
     </label>
     <div class="inline-flex min-w-0 items-center text-sm">
-      <div class="breadcrumbs min-w-0 overflow-x-visible p-0 font-mono">
-        <ul>
+      <!-- daisyUI insets breadcrumbs with a -0.25rem margin plus a matching
+           0.25rem list padding. That pair is not accounted for in the intrinsic
+           width, so the truncating name below always came up 4px short and
+           ellipsized even with the whole row free. Zeroing both keeps the text
+           at the same x and gives it back those 4px. -->
+      <div class="breadcrumbs ms-0 min-w-0 overflow-x-visible p-0 font-mono">
+        <ul class="ps-0">
           <li v-if="config.hosts.length > 1" class="font-thin max-md:hidden">
             {{ container.hostLabel }}
           </li>
@@ -18,26 +23,38 @@
             <div v-else>
               <div class="dropdown">
                 <button tabindex="0" role="button" class="btn btn-xs md:btn-sm">
-                  {{ container.name }} <carbon:caret-down />
+                  {{ container.name }}
+                  <span class="badge badge-xs badge-neutral font-sans">{{ sameNameContainers.length }}</span>
+                  <carbon:caret-down />
                 </button>
                 <ul
                   tabindex="0"
-                  class="dropdown-content menu rounded-box bg-base-100 border-base-content/20 border shadow-sm"
+                  class="dropdown-content menu rounded-box bg-base-100 border-base-content/20 z-10 w-max border p-1 shadow-sm"
                 >
-                  <li v-for="other in otherContainers">
-                    <router-link :to="{ name: '/container/[id]', params: { id: other.id } }">
+                  <li class="menu-title px-2 py-1 text-xs">
+                    {{ $t("label.container", sameNameContainers.length) }}
+                  </li>
+                  <li v-for="other in sameNameContainers" :key="other.id">
+                    <router-link
+                      :to="{ name: '/container/[id]', params: { id: other.id } }"
+                      active-class="menu-active"
+                      class="grid grid-cols-[auto_1fr_auto] items-center gap-x-3"
+                      :title="other.isSwarm ? other.swarmId : other.name"
+                    >
                       <div
                         class="status data-[state=exited]:status-error data-[state=running]:status-success data-[state=paused]:status-warning"
                         :data-state="other.state"
                       ></div>
-                      <div v-if="other.isSwarm">{{ other.swarmId }}</div>
-                      <div v-else>{{ other.name }}</div>
-                      <div v-if="other.hostLabel !== container.hostLabel" class="text-base-content/50 text-xs">
-                        {{ other.hostLabel }}
+                      <div class="flex flex-col leading-tight">
+                        <span class="font-mono text-xs">{{ other.id.slice(0, 12) }}</span>
+                        <span v-if="showHost" class="text-base-content/50 font-sans text-[11px]">
+                          {{ other.hostLabel }}
+                        </span>
                       </div>
-                      <div v-if="other.state === 'running'">running</div>
-                      <div v-else-if="other.state === 'paused'">paused</div>
-                      <RelativeTime :date="other.finishedAt" class="text-base-content/70 text-xs" v-else />
+                      <div class="flex flex-col text-right font-sans leading-tight">
+                        <span class="text-xs">{{ other.state }}</span>
+                        <RelativeTime :date="timestampOf(other)" class="text-base-content/50 text-[11px]" />
+                      </div>
                     </router-link>
                   </li>
                 </ul>
@@ -47,6 +64,8 @@
         </ul>
       </div>
     </div>
+    <ContainerLink :container="container" />
+    <ContainerLinkHint :container="container" />
     <ContainerHealth :health="container.health" v-if="container.health" />
     <VolumeWarning :container="container" />
     <Tag
@@ -99,11 +118,26 @@ const pinned = computed({
 const store = useContainerStore();
 const { containers: allContainers } = storeToRefs(store);
 
-const otherContainers = computed(() =>
+const sameNameContainers = computed(() =>
   allContainers.value
-    .filter((c) => c.name === container.name && c.id !== container.id && c.customGroup === container.customGroup)
+    .filter((c) => c.name === container.name && c.customGroup === container.customGroup)
     .sort((a, b) => +b.created - +a.created),
 );
+
+const otherContainers = computed(() => sameNameContainers.value.filter((c) => c.id !== container.id));
+
+// Same-name containers are usually the same service restarted, so the host only tells them
+// apart when they actually differ.
+const showHost = computed(() => new Set(sameNameContainers.value.map((c) => c.hostLabel)).size > 1);
+
+// Docker leaves startedAt/finishedAt at the zero time when a container never ran or is still
+// running, which renders as "2027 years ago". Fall back to the one timestamp always set.
+const isSet = (date: Date) => date.getFullYear() > 1;
+
+function timestampOf(c: Container) {
+  const date = c.state === "running" || c.state === "paused" ? c.startedAt : c.finishedAt;
+  return isSet(date) ? date : c.created;
+}
 </script>
 
 <style scoped></style>

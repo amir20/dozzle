@@ -151,7 +151,7 @@ enum ToolScope {
   // Applies to the whole Dozzle instance (list_hosts, notifications, etc.).
   // Requires instance_id in the args.
   TOOL_SCOPE_INSTANCE = 1;
-  // Targets a specific Docker host (deploy_compose, list_deploy_versions).
+  // Targets a specific Docker host.
   // Requires host_id in the args.
   TOOL_SCOPE_HOST = 2;
   // Targets a specific container (logs, actions, inspect). Requires
@@ -177,9 +177,12 @@ message CallToolResponse {
     ActionResult action = 6;
     FetchLogsResult fetch_logs = 7;
     InspectContainerResult inspect_container = 8;
-    DeployResult deploy = 11;
     NotificationResult notification = 12;
   }
+
+  // 11 was DeployResult deploy, removed with the native compose deploy feature.
+  reserved 11;
+  reserved "deploy";
 }
 
 message CancelStreamRequest {
@@ -286,13 +289,6 @@ message ActionResult {
   string container_id = 2;
   string action = 3;
   string message = 4;
-}
-
-// Deploy compose result
-message DeployResult {
-  bool success = 1;
-  string project = 2;
-  string message = 3;
 }
 
 // Notification/alert tool result (list, create).

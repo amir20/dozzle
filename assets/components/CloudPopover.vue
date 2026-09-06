@@ -3,7 +3,7 @@
     <template #trigger>
       <div class="relative">
         <mdi:cloud
-          class="size-6"
+          class="icon-float size-6"
           :class="
             !cloudConfig
               ? 'text-base-content/40'

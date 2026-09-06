@@ -4,8 +4,6 @@ title: Dozzle Cloud
 
 # Dozzle Cloud
 
-<Badge type="tip" text="New in v10" />
-
 [Dozzle Cloud](https://cloud.dozzle.dev) is an optional managed companion to self-hosted Dozzle. It links your instances together, summarizes container events, distributes alerts across multiple channels, and lets you ask questions about your infrastructure from chat. Dozzle itself remains fully open source and self-hosted; Cloud sits on top.
 
 The goal is for Dozzle Cloud to feel like the personal SRE assistant you never knew you wanted: it watches your containers, tells you when something matters, and stays out of the way when nothing does.

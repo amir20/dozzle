@@ -58,6 +58,7 @@ label:
   all-containers: Semua Kontainer
   all-namespaces: Semua Namespace
   namespaces: Namespace
+  owners: Pemilik
   host: Host
   hosts: Host
   password: Kata sandi
@@ -102,6 +103,19 @@ tooltip:
   volume-unreachable: tidak dapat dijangkau dari host ini
   volume-full: "{destination} terisi {pct}"
 
+  open-container-url: "Buka {url}"
+popup:
+  started: Dimulai
+  finished: Berhenti
+  group: Grup
+  ports: Port
+hint:
+  learn-more: Pelajari lebih lanjut
+  dismiss: Jangan tampilkan lagi
+link-hint:
+  title: Tautkan kontainer ini
+  description: Dozzle menautkan antarmuka web kontainer saat Anda menambahkan label dev.dozzle.url. Tambahkan ini ke berkas compose Anda lalu mulai ulang kontainer.
+  copy: Salin
 error:
   page-not-found: Halaman ini tidak ada
   host-group-not-found: 'Tidak ada host yang ditemukan di grup "{name}"'
@@ -244,10 +258,12 @@ releases:
   bugFixes: satu perbaikan bug | {count} perbaikan
   breaking: satu perubahan besar | {count} perubahan besar
   three_parts: "{first}, {second}, dan {third}"
-  two_parts: "{first} dengan {second}"
+  two_parts: "{first} dan {second}"
   latest: Terbaru
   no_releases: Anda sudah menggunakan versi terbaru
 
+  newer: "1 rilis lebih baru | {count} rilis lebih baru"
+  all: Semua rilis
 log_actions:
   copy_log: Salin log
   jump_to_context: Lompat ke konteks
@@ -291,6 +307,7 @@ notifications:
     enabled: Diaktifkan ({count})
     paused: Dijeda ({count})
   no-alerts: Belum ada peringatan yang dikonfigurasi. Buat satu untuk memulai.
+  no-alerts-in-filter: Tidak ada peringatan yang cocok dengan filter ini.
   default-alert-created: Kami membuat peringatan bawaan untuk Anda. Anda akan diberi tahu saat sebuah kontainer berhenti dengan kesalahan. Ubah atau jeda kapan saja.
   default-alert-failed: Peringatan tidak bisa dibuat otomatis. Silakan gunakan formulir ini.
   alert:
@@ -303,39 +320,87 @@ notifications:
     sample-window: Jendela sampel
     destination: Tujuan
     dispatcher-deleted: Dispatcher dihapus
-    containers-count: "{count} kontainer"
-    triggered-count: "{count} terpicu"
+    containers-count: "di 1 kontainer | di {count} kontainer"
+    triggered-count: "Terpicu sekali | Terpicu {count} kali"
+    never-triggered: Belum pernah terpicu
     last-triggered: "Terakhir: {time}"
+    delete-warning: Hapus peringatan ini?
+    delete-cancel: Simpan
+    delete-confirm: Hapus
+    window-meta: "jendela {duration}"
+    cooldown-meta: "jeda {duration}"
   destination:
     http-webhook: HTTP Webhook
     dozzle-cloud: Dozzle Cloud
     edit: Edit
     duplicate: Duplikat
     delete: Hapus
+    used-by: "Dipakai oleh 1 peringatan | Dipakai oleh {count} peringatan"
+    unused: Tidak dipakai peringatan mana pun
+    copy-of: "Salinan {name}"
+    copy-failed: Tidak dapat menduplikasi tujuan ini
+    delete-failed: Tidak dapat menghapus tujuan ini
+    delete-warning: Hapus tujuan ini?
+    delete-warning-used: "1 peringatan mengirim ke sini dan akan berhenti memberi tahu. | {count} peringatan mengirim ke sini dan akan berhenti memberi tahu."
+    delete-cancel: Simpan
+    delete-confirm: Hapus
   alert-form:
     create-title: Buat Peringatan
     edit-title: Edit Peringatan
-    description: Berlangganan ke event log yang sesuai dengan kriteria Anda
+    description-log: Dapatkan notifikasi saat baris yang cocok muncul di log kontainer Anda
+    description-metric: Dapatkan notifikasi saat CPU, memori, atau disk kontainer melewati ambang batas
+    description-event: Dapatkan notifikasi saat kontainer mulai, berhenti, mati, atau berubah kondisi
+    required: Wajib
+    still-needed: "Masih dibutuhkan: {fields}"
+    missing:
+      container-expression: kontainer
+      condition: kondisi
+      destination: tujuan
+      name: nama
     alert-name: Nama Peringatan
     alert-name-placeholder: mis., Kesalahan API Test
-    container-filter: Filter Kontainer
-    containers-match: "{count} kontainer cocok: {names}"
-    no-containers-match: Tidak ada kontainer yang cocok dengan filter ini
-    log-filter: Filter Log
-    logs-match: "{count} log cocok"
-    no-logs-match: Tidak ada log yang cocok dengan filter ini
+    alert-name-hint: Ditampilkan pada kartu peringatan dan di setiap notifikasi yang dikirim.
+    container-filter: Kontainer
+    container-filter-hint: Kontainer mana yang diawasi peringatan ini. Hanya kontainer yang berjalan yang dicocokkan.
+    containers-match: "Cocok dengan 1 kontainer yang berjalan: {names} | Cocok dengan {count} kontainer yang berjalan: {names}"
+    no-containers-match: Tidak ada kontainer berjalan yang cocok dengan filter ini
+    checking: Memeriksa…
+    examples: "Contoh:"
+    use-example: Gunakan contoh ini
+    seconds-unit: dtk
+    log-filter: Kondisi log
+    log-filter-hint: Baris log mana yang memicu peringatan.
+    logs-match: "1 baris cocok dalam {window} terakhir | {count} baris cocok dalam {window} terakhir"
+    no-logs-match: Tidak ada baris yang cocok dalam {window} terakhir
+    log-preview-hint: Tulis kondisi untuk melihat baris log terbaru mana yang akan memicu peringatan ini.
+    log-scan-note: "Pratinjau memindai kontainer cocok pertama. | Pratinjau memindai {count} kontainer cocok pertama."
+    preview-needs-containers: Pilih kontainer dulu untuk melihat pratinjau dengan data nyata.
+    preview-fix-expression: Perbaiki ekspresi untuk melihat pratinjau.
     destination: Tujuan
-    select-destination: Pilih tujuan
-    no-destinations: Tidak ada tujuan yang dikonfigurasi. Tambahkan satu terlebih dahulu.
+    no-destinations: Belum ada tujuan yang dikonfigurasi.
     preview: Pratinjau
     cancel: Batal
     save: Simpan
     create: Buat Peringatan
-    metric-filter: Ekspresi Metrik
-    expression-valid: Ekspresi valid
-    metric-fields-hint: "Field tersedia: {fields}"
+    discard-title: Buang peringatan ini?
+    discard-keep: Lanjut mengedit
+    discard-confirm: Buang
+    metric-filter: Kondisi metrik
+    metric-filter-hint: "Bandingkan cpu (%), memory (%), memoryUsage (byte), atau ruang kosong mounts."
+    metric-preview-hint: Tulis kondisi untuk melihat kondisi kontainer Anda saat ini.
+    metric-preview-note: Berdasarkan {duration} terakhir statistik yang dikumpulkan Dozzle.
+    metric-container: Kontainer
+    metric-cpu: CPU
+    metric-memory: Memori
+    metric-window-match: Jendela
+    metric-firing: Akan terpicu
+    metric-matching-now: Di atas kini
+    metric-no-samples: Tanpa data
+    metric-no-samples-hint: Belum ada statistik yang dikumpulkan untuk kontainer yang cocok.
+    metric-would-fire: "Saat ini akan terpicu untuk 1 kontainer | Saat ini akan terpicu untuk {count} kontainer"
+    metric-would-not-fire: Tidak ada kontainer yang melewati ambang batas saat ini
     sample-window-label: Jendela Sampel
-    sample-window-hint: "Peringatan dipicu ketika kondisi terpenuhi selama {duration}"
+    sample-window-hint: "Terpicu setelah kondisi bertahan selama {duration}"
     cooldown-label: Jeda
     cooldown-hint: "{duration} antara peringatan per kontainer"
     no-cooldown: Tanpa jeda
@@ -343,14 +408,32 @@ notifications:
     log-alert: Peringatan Log
     metric-alert: Peringatan Metrik
     event-alert: Peringatan Peristiwa
-    event-filter: Ekspresi Peristiwa
-    event-fields-hint: "Kolom yang tersedia: {fields}"
+    log-alert-description: Cocokkan baris di log kontainer
+    metric-alert-description: Awasi penggunaan CPU, memori, dan disk
+    event-alert-description: Bereaksi pada start, stop, dan perubahan kondisi
+    type-switch-warning: Menyimpan akan mengganti kondisi {type} peringatan ini, dan kondisi itu hilang.
+    event-filter: Kondisi peristiwa
+    event-filter-hint: Peristiwa kontainer mana yang memicu peringatan.
+    event-matches: "Cocok dengan 1 dari peristiwa ini | Cocok dengan {count} dari peristiwa ini"
+    event-matches-none: Tidak cocok dengan satu pun peristiwa ini
+    event-preview-hint: Tulis kondisi untuk melihat peristiwa kontainer mana yang akan tertangkap.
+    event-preview-note: Contoh peristiwa, bukan riwayat. Peristiwa Docker dicocokkan saat terjadi.
   destination-form:
     create-title: Tambah Tujuan
     edit-title: Edit Tujuan
     description: Ke mana notifikasi harus dikirim?
     name: Nama
     name-placeholder: mis., Slack Produksi
+    name-hint: Begini tujuan ini tampil saat memilih tujuan untuk sebuah peringatan.
+    name-taken: Tujuan lain sudah memakai nama ini.
+    still-needed: "Masih dibutuhkan: {fields}"
+    missing:
+      name: nama
+      url: URL webhook
+      template: templat
+    discard-title: Buang tujuan ini?
+    discard-keep: Lanjut mengedit
+    discard-confirm: Buang
     type: Tipe
     webhook-title: HTTP Webhook
     webhook-description: Slack, Discord, endpoint kustom
@@ -358,19 +441,34 @@ notifications:
     cloud-description: Notifikasi push, peringatan email, dan ringkasan bertenaga AI
     webhook-url: URL Webhook
     webhook-url-placeholder: https://hooks.foo.com/services/...
+    webhook-url-invalid: Masukkan URL http:// atau https:// yang lengkap.
     api-key: Kunci API
-    payload-format: Format Payload
+    payload-format: Payload
     format-slack: Slack
     format-discord: Discord
     format-ntfy: ntfy
     format-custom: Kustom
+    format-replace-warning: Ini menggantikan templat yang sudah Anda tulis.
+    format-replace-confirm: Ganti
     template: Template
     template-hint: Sintaks template Go
+    template-placeholder: Body JSON dengan placeholder templat Go
+    payload-mode-json: JSON valid. Setiap nilai dirender dan di-escape untuk Anda.
+    payload-mode-raw: Bukan JSON, jadi seluruh body dikirim sebagai teks hasil render.
+    payload-mode-unbalanced: Aksi templat belum ditutup.
+    payload-mode-empty: Templat kosong mengirim seluruh notifikasi sebagai JSON.
+    variables: Variabel tersedia
+    variables-all: Semua peringatan
+    variables-log: Hanya peringatan log
+    variables-metric: Hanya peringatan metrik
+    variables-event: Hanya peringatan peristiwa
+    variables-scope-hint: Field di luar "Semua peringatan" hanya terisi untuk jenisnya sendiri; dipakai di jenis lain akan gagal saat dikirim.
     headers: Header Kustom
     headers-hint: Header HTTP opsional (mis. Authorization)
     header-name: Nama header
     header-value: Nilai header
     add-header: Tambah Header
+    remove-header: Hapus header
     test: Test
     test-success: Test berhasil
     cancel: Batal
@@ -402,6 +500,7 @@ cloud:
   link-instance: Tautkan instans
   relink-instance: Tautkan ulang instans
   connected: Terhubung
+  pro-badge: Dozzle Cloud Pro
   plan: Paket
   usage: Event periode ini
   dashboard: Dasbor

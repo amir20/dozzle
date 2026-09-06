@@ -31,7 +31,7 @@ services:
 
 Common filters are `name` or `label` to limit Dozzle's access to containers.
 
-## UI, Agents, and User Filters <Badge type="tip" text="New" />
+## UI, Agents, and User Filters
 
 Dozzle supports multiple filters to limit the containers it can see. Filters can be set at the UI, agent, or user level.
 

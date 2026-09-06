@@ -8,7 +8,13 @@ vi.mock("@/stores/config", () => ({
 }));
 
 function makeContainer(
-  overrides: { labels?: Record<string, string>; image?: string; command?: string; stats?: Stat[] } = {},
+  overrides: {
+    labels?: Record<string, string>;
+    image?: string;
+    command?: string;
+    stats?: Stat[];
+    ports?: string[];
+  } = {},
 ) {
   return new Container(
     "id-1",
@@ -24,6 +30,12 @@ function makeContainer(
     0,
     0,
     overrides.stats ?? [],
+    undefined,
+    undefined,
+    false,
+    [],
+    {},
+    overrides.ports ?? [],
   );
 }
 
@@ -168,5 +180,165 @@ describe("Container.icon", () => {
 
   test("ignores a blank override", () => {
     expect(makeContainer({ image: "sonarr", labels: { "dev.dozzle.icon": "  " } }).icon).toBe("sonarr");
+  });
+});
+
+describe("Container.url", () => {
+  test("undefined without the label", () => {
+    expect(makeContainer().url).toBeUndefined();
+  });
+
+  test("returns http and https urls as written", () => {
+    expect(makeContainer({ labels: { "dev.dozzle.url": "https://grafana.example.com" } }).url).toBe(
+      "https://grafana.example.com",
+    );
+    expect(makeContainer({ labels: { "dev.dozzle.url": "http://localhost:3000/d/home" } }).url).toBe(
+      "http://localhost:3000/d/home",
+    );
+  });
+
+  test("trims surrounding whitespace", () => {
+    expect(makeContainer({ labels: { "dev.dozzle.url": "  https://example.com  " } }).url).toBe("https://example.com");
+  });
+
+  test("rejects other schemes", () => {
+    expect(makeContainer({ labels: { "dev.dozzle.url": "javascript:alert(1)" } }).url).toBeUndefined();
+    expect(makeContainer({ labels: { "dev.dozzle.url": "data:text/html,<script>" } }).url).toBeUndefined();
+    expect(makeContainer({ labels: { "dev.dozzle.url": "ftp://example.com" } }).url).toBeUndefined();
+  });
+
+  test("rejects a relative or malformed value", () => {
+    expect(makeContainer({ labels: { "dev.dozzle.url": "/grafana" } }).url).toBeUndefined();
+    expect(makeContainer({ labels: { "dev.dozzle.url": "example.com" } }).url).toBeUndefined();
+    expect(makeContainer({ labels: { "dev.dozzle.url": "   " } }).url).toBeUndefined();
+  });
+});
+
+describe("Container.publishedPorts", () => {
+  test("empty without ports", () => {
+    expect(makeContainer().publishedPorts).toEqual([]);
+  });
+
+  test("picks the host port out of a binding", () => {
+    expect(makeContainer({ ports: ["0.0.0.0:8080->80/tcp"] }).publishedPorts).toEqual([8080]);
+  });
+
+  test("handles an empty host ip and ipv6 bindings", () => {
+    expect(makeContainer({ ports: [":3000->3000/tcp"] }).publishedPorts).toEqual([3000]);
+    expect(makeContainer({ ports: ["::: 0"] }).publishedPorts).toEqual([]);
+    expect(makeContainer({ ports: [":::9000->9000/tcp"] }).publishedPorts).toEqual([9000]);
+  });
+
+  test("skips unpublished ports and udp", () => {
+    expect(makeContainer({ ports: ["80/tcp", "0.0.0.0:53->53/udp"] }).publishedPorts).toEqual([]);
+  });
+
+  test("dedupes and sorts numerically", () => {
+    expect(
+      makeContainer({ ports: ["0.0.0.0:9000->9000/tcp", ":::9000->9000/tcp", "0.0.0.0:81->81/tcp"] }).publishedPorts,
+    ).toEqual([81, 9000]);
+  });
+});
+
+describe("Container.portMappings", () => {
+  test("pairs the host port with the container port", () => {
+    expect(makeContainer({ ports: ["0.0.0.0:8080->80/tcp"] }).portMappings).toEqual([{ host: 8080, container: 80 }]);
+  });
+
+  test("dedupes ipv4 and ipv6 bindings of the same host port", () => {
+    expect(makeContainer({ ports: ["0.0.0.0:9000->9000/tcp", ":::9000->9000/tcp"] }).portMappings).toEqual([
+      { host: 9000, container: 9000 },
+    ]);
+  });
+});
+
+describe("Container.traefikUrls", () => {
+  test("empty without traefik labels", () => {
+    expect(makeContainer().traefikUrls).toEqual([]);
+    expect(makeContainer({ labels: { "traefik.enable": "true" } }).traefikUrls).toEqual([]);
+  });
+
+  test("reads the host out of a router rule", () => {
+    expect(
+      makeContainer({ labels: { "traefik.http.routers.grafana.rule": "Host(`grafana.example.com`)" } }).traefikUrls,
+    ).toEqual(["http://grafana.example.com"]);
+  });
+
+  test("uses https when the router terminates tls", () => {
+    const tls = { "traefik.http.routers.g.rule": "Host(`g.example.com`)", "traefik.http.routers.g.tls": "true" };
+    expect(makeContainer({ labels: tls }).traefikUrls).toEqual(["https://g.example.com"]);
+
+    const resolver = {
+      "traefik.http.routers.g.rule": "Host(`g.example.com`)",
+      "traefik.http.routers.g.tls.certresolver": "le",
+    };
+    expect(makeContainer({ labels: resolver }).traefikUrls).toEqual(["https://g.example.com"]);
+  });
+
+  test("uses https for a secure entrypoint", () => {
+    const labels = {
+      "traefik.http.routers.g.rule": "Host(`g.example.com`)",
+      "traefik.http.routers.g.entrypoints": "web,websecure",
+    };
+    expect(makeContainer({ labels }).traefikUrls).toEqual(["https://g.example.com"]);
+  });
+
+  test("stays http when tls is explicitly off", () => {
+    const labels = {
+      "traefik.http.routers.g.rule": "Host(`g.example.com`)",
+      "traefik.http.routers.g.tls": "false",
+      "traefik.http.routers.g.entrypoints": "web",
+    };
+    expect(makeContainer({ labels }).traefikUrls).toEqual(["http://g.example.com"]);
+  });
+
+  test("appends a path matcher", () => {
+    const labels = {
+      "traefik.http.routers.g.rule": "Host(`example.com`) && PathPrefix(`/grafana`)",
+      "traefik.http.routers.g.tls": "true",
+    };
+    expect(makeContainer({ labels }).traefikUrls).toEqual(["https://example.com/grafana"]);
+  });
+
+  test("drops a bare root path", () => {
+    const labels = { "traefik.http.routers.g.rule": "Host(`example.com`) && PathPrefix(`/`)" };
+    expect(makeContainer({ labels }).traefikUrls).toEqual(["http://example.com"]);
+  });
+
+  test("expands every host in a rule and across routers", () => {
+    const labels = {
+      "traefik.http.routers.b.rule": "Host(`b.example.com`)",
+      "traefik.http.routers.a.rule": "Host(`a.example.com`, `www.a.example.com`)",
+    };
+    expect(makeContainer({ labels }).traefikUrls).toEqual([
+      "http://a.example.com",
+      "http://www.a.example.com",
+      "http://b.example.com",
+    ]);
+  });
+
+  test("dedupes the same host across routers", () => {
+    const labels = {
+      "traefik.http.routers.web.rule": "Host(`example.com`)",
+      "traefik.http.routers.websecure.rule": "Host(`example.com`)",
+    };
+    expect(makeContainer({ labels }).traefikUrls).toEqual(["http://example.com"]);
+  });
+
+  test("ignores rules without a host matcher", () => {
+    expect(makeContainer({ labels: { "traefik.http.routers.g.rule": "PathPrefix(`/grafana`)" } }).traefikUrls).toEqual(
+      [],
+    );
+    expect(
+      makeContainer({ labels: { "traefik.http.routers.g.rule": "HostRegexp(`{sub:.+}.example.com`)" } }).traefikUrls,
+    ).toEqual([]);
+  });
+
+  test("respects traefik.enable=false", () => {
+    const labels = {
+      "traefik.enable": "false",
+      "traefik.http.routers.g.rule": "Host(`g.example.com`)",
+    };
+    expect(makeContainer({ labels }).traefikUrls).toEqual([]);
   });
 });

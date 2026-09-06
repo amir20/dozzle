@@ -3,7 +3,7 @@
     <section>
       <div class="mb-4 flex items-center justify-between">
         <h2 class="text-lg font-semibold">{{ $t("label.host-count", { count: Object.keys(hosts).length }) }}</h2>
-        <button @click="hostsCollapsed = !hostsCollapsed" class="btn btn-ghost btn-sm">
+        <button @click="hostsCollapsed = !hostsCollapsed" class="icon-btn btn btn-ghost btn-sm">
           <mdi:chevron-down :class="{ 'rotate-180': !hostsCollapsed }" class="transition-transform" />
         </button>
       </div>
@@ -17,7 +17,7 @@
         <h2 class="text-lg font-semibold">
           {{ $t("label.container", { count: dashboardContainers.length }) }}
         </h2>
-        <button @click="containersCollapsed = !containersCollapsed" class="btn btn-ghost btn-sm">
+        <button @click="containersCollapsed = !containersCollapsed" class="icon-btn btn btn-ghost btn-sm">
           <mdi:chevron-down :class="{ 'rotate-180': !containersCollapsed }" class="transition-transform" />
         </button>
       </div>

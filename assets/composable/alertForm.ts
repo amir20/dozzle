@@ -3,24 +3,34 @@ import type { ContainerJson } from "@/types/Container";
 import type { Dispatcher, NotificationRule, PreviewResult } from "@/types/notifications";
 import { createContainerHints } from "@/composable/exprEditor";
 
+export type AlertType = "log" | "metric" | "event";
+
+export interface AlertPrefill {
+  name?: string;
+  alertType?: AlertType;
+  containerExpression?: string;
+  logExpression?: string;
+  metricExpression?: string;
+  eventExpression?: string;
+  cooldown?: number;
+  sampleWindow?: number;
+  dispatcherId?: number;
+}
+
 export interface AlertFormOptions {
   close?: () => void;
   onCreated?: () => void;
   alert?: NotificationRule;
-  prefill?: {
-    name?: string;
-    containerExpression?: string;
-    logExpression?: string;
-    metricExpression?: string;
-    eventExpression?: string;
-    dispatcherId?: number;
-  };
+  prefill?: AlertPrefill;
 }
 
 export interface ContainerResult {
   error?: string;
   containers?: Container[];
 }
+
+/** What is still missing before the alert can be saved, in the order the form asks for it. */
+export type SaveBlocker = "container-expression" | "condition" | "destination" | "name";
 
 export function useAlertForm(options: AlertFormOptions) {
   const isEditing = computed(() => !!options.alert);
@@ -32,9 +42,16 @@ export function useAlertForm(options: AlertFormOptions) {
 
   // Destinations (cloud dispatcher with id=0 is included by the backend when configured)
   const destinations = ref<Dispatcher[]>([]);
-  onMounted(async () => {
+  async function fetchDestinations() {
     const res = await fetch(withBase("/api/notifications/dispatchers"));
     destinations.value = await res.json();
+  }
+  onMounted(async () => {
+    await fetchDestinations();
+    // With exactly one destination there is nothing to choose, so don't make the user choose it.
+    if (dispatcherId.value < 0 && destinations.value.length === 1) {
+      dispatcherId.value = destinations.value[0].id;
+    }
   });
   const selectedDestination = computed(() => destinations.value.find((d) => d.id === dispatcherId.value));
 
@@ -51,6 +68,8 @@ export function useAlertForm(options: AlertFormOptions) {
   const containerResult = ref<ContainerResult | null>(null);
   const isLoading = ref(false);
 
+  const containerHints = () => createContainerHints(containerNames.value, imageNames.value, hostNames.value);
+
   const baseCanSave = computed(
     () =>
       alertName.value.trim() &&
@@ -60,15 +79,6 @@ export function useAlertForm(options: AlertFormOptions) {
       !isSaving.value,
   );
 
-  function setupContainerEditor(editorRef: Ref<HTMLElement | undefined>) {
-    useExprEditorField(editorRef, {
-      placeholder: 'name contains "api"',
-      initialValue: options.alert?.containerExpression ?? options.prefill?.containerExpression ?? "",
-      getHints: () => createContainerHints(containerNames.value, imageNames.value, hostNames.value),
-      onChange: (v) => (containerExpression.value = v),
-    });
-  }
-
   async function saveAlert(typeSpecificFields: Record<string, unknown>) {
     isSaving.value = true;
     saveError.value = null;
@@ -77,7 +87,7 @@ export function useAlertForm(options: AlertFormOptions) {
         name: alertName.value.trim(),
         containerExpression: containerExpression.value,
         dispatcherId: dispatcherId.value,
-        enabled: true,
+        enabled: options.alert?.enabled ?? true,
         ...typeSpecificFields,
       };
       const url = isEditing.value
@@ -143,13 +153,14 @@ export function useAlertForm(options: AlertFormOptions) {
     containerExpression,
     dispatcherId,
     destinations,
+    fetchDestinations,
     selectedDestination,
     containerResult,
+    containerHints,
     isLoading,
     isSaving,
     saveError,
     baseCanSave,
-    setupContainerEditor,
     saveAlert,
     validatePreview,
   };

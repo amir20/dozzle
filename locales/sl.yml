@@ -45,6 +45,7 @@ label:
   all-containers: Vsi zabojniki
   all-namespaces: Vsi
   namespaces: Imenski prostori
+  owners: Lastniki
   host: Gostitelj
   hosts: Gostitelji
   password: Geslo
@@ -99,6 +100,19 @@ tooltip:
   volumes: Nosilci
   volume-unreachable: nedosegljivo iz tega gostitelja
   volume-full: "{destination} je {pct} poln"
+  open-container-url: "Odpri {url}"
+popup:
+  started: Zagnan
+  finished: Ustavljen
+  group: Skupina
+  ports: Vrata
+hint:
+  learn-more: Več o tem
+  dismiss: Ne prikaži več
+link-hint:
+  title: Poveži ta zabojnik
+  description: Dozzle prikaže povezavo do spletnega vmesnika zabojnika, ko dodate oznako dev.dozzle.url. Dodajte to v datoteko compose in znova zaženite zabojnik.
+  copy: Kopiraj
 error:
   page-not-found: Ta stran ne obstaja
   host-group-not-found: 'V skupini "{name}" ni najdenih gostiteljev'
@@ -241,9 +255,11 @@ releases:
   bugFixes: en popravek napake | {count} popravkov
   breaking: ena ključna sprememba | {count} ključnih sprememb
   three_parts: "{first}, {second} in {third}"
-  two_parts: "{first} s/z {second}"
+  two_parts: "{first} in {second}"
   latest: Najnovejše
   no_releases: Imate najnovejšo različico
+  newer: "1 novejša izdaja | {count} novejših izdaj"
+  all: Vse izdaje
 log_actions:
   copy_log: Kopiraj dnevnik
   jump_to_context: Skoči na kontekst
@@ -285,6 +301,7 @@ notifications:
     enabled: Omogočeni ({count})
     paused: Ustavljeni ({count})
   no-alerts: Opozorila še niso nastavljena. Ustvarite enega za začetek.
+  no-alerts-in-filter: Nobeno opozorilo ne ustreza temu filtru.
   default-alert-created: Za vas smo ustvarili privzeto opozorilo. Obvestili vas bomo, ko se zabojnik konča z napako. Kadar koli ga lahko uredite ali začasno ustavite.
   default-alert-failed: Opozorila ni bilo mogoče ustvariti samodejno. Uporabite spodnji obrazec.
   alert:
@@ -297,39 +314,87 @@ notifications:
     sample-window: Vzorčno okno
     destination: Cilj
     dispatcher-deleted: Pošiljatelj izbrisan
-    containers-count: "{count} zabojnikov"
-    triggered-count: "{count} sproženih"
+    containers-count: "v 1 vsebniku | v {count} vsebnikih"
+    triggered-count: "Sproženo enkrat | Sproženo {count}-krat"
+    never-triggered: Nikoli sproženo
     last-triggered: "Zadnje: {time}"
+    delete-warning: Izbrišem to opozorilo?
+    delete-cancel: Obdrži
+    delete-confirm: Izbriši
+    window-meta: "okno {duration}"
+    cooldown-meta: "premor {duration}"
   destination:
     http-webhook: HTTP Webhook
     dozzle-cloud: Dozzle Cloud
     edit: Uredi
     duplicate: Podvoji
     delete: Izbriši
+    used-by: "Uporablja ga 1 opozorilo | Uporablja ga {count} opozoril"
+    unused: Ne uporablja ga nobeno opozorilo
+    copy-of: "Kopija {name}"
+    copy-failed: Tega cilja ni bilo mogoče podvojiti
+    delete-failed: Tega cilja ni bilo mogoče izbrisati
+    delete-warning: Izbrišem ta cilj?
+    delete-warning-used: "1 opozorilo pošilja sem in bo prenehalo obveščati. | {count} opozoril pošilja sem in bo prenehalo obveščati."
+    delete-cancel: Obdrži
+    delete-confirm: Izbriši
   alert-form:
     create-title: Ustvari Opozorilo
     edit-title: Uredi Opozorilo
-    description: Naročite se na dogodke dnevnika, ki ustrezajo vašim kriterijem
+    description-log: Prejmite obvestilo, ko se v dnevnikih vsebnikov pojavijo ustrezne vrstice
+    description-metric: Prejmite obvestilo, ko poraba CPE, pomnilnika ali diska vsebnika preseže prag
+    description-event: Prejmite obvestilo, ko se vsebniki zaženejo, ustavijo, končajo ali spremenijo stanje
+    required: Obvezno
+    still-needed: "Še manjka: {fields}"
+    missing:
+      container-expression: vsebniki
+      condition: pogoj
+      destination: cilj
+      name: ime
     alert-name: Ime Opozorila
     alert-name-placeholder: npr., Napake Testnega API-ja
-    container-filter: Filter Zabojnikov
-    containers-match: "{count} zabojnikov ustreza: {names}"
-    no-containers-match: Noben zabojnik ne ustreza temu filtru
-    log-filter: Filter Dnevnika
-    logs-match: "{count} dnevnikov ustreza"
-    no-logs-match: Noben dnevnik ne ustreza temu filtru
+    alert-name-hint: Prikazano na kartici opozorila in v vsakem poslanem obvestilu.
+    container-filter: Vsebniki
+    container-filter-hint: Katere vsebnike to opozorilo nadzoruje. Upoštevani so samo delujoči vsebniki.
+    containers-match: "Ustreza 1 delujočemu vsebniku: {names} | Ustreza {count} delujočim vsebnikom: {names}"
+    no-containers-match: Noben delujoč vsebnik ne ustreza temu filtru
+    checking: Preverjanje…
+    examples: "Primeri:"
+    use-example: Uporabi ta primer
+    seconds-unit: s
+    log-filter: Pogoj dnevnika
+    log-filter-hint: Katere vrstice dnevnika sprožijo opozorilo.
+    logs-match: "1 ustrezna vrstica v zadnjih {window} | {count} ustreznih vrstic v zadnjih {window}"
+    no-logs-match: Nobena vrstica ne ustreza v zadnjih {window}
+    log-preview-hint: Napišite pogoj, da vidite, katere nedavne vrstice dnevnika bi sprožile to opozorilo.
+    log-scan-note: "Predogled je pregledal prvi ustrezni vsebnik. | Predogled je pregledal prvih {count} ustreznih vsebnikov."
+    preview-needs-containers: Najprej izberite vsebnike za predogled z resničnimi podatki.
+    preview-fix-expression: Popravite izraz, da vidite predogled.
     destination: Cilj
-    select-destination: Izberite cilj
-    no-destinations: Cilji niso nastavljeni. Najprej dodajte enega.
+    no-destinations: Ciljev še ni nastavljenih.
     preview: Predogled
     cancel: Prekliči
     save: Shrani
     create: Ustvari Opozorilo
-    metric-filter: Izraz metrike
-    expression-valid: Izraz je veljaven
-    metric-fields-hint: "Razpoložljiva polja: {fields}"
+    discard-title: Zavržem to opozorilo?
+    discard-keep: Nadaljuj urejanje
+    discard-confirm: Zavrzi
+    metric-filter: Pogoj metrike
+    metric-filter-hint: "Primerjajte cpu (%), memory (%), memoryUsage (bajti) ali prosti prostor v mounts."
+    metric-preview-hint: Napišite pogoj, da vidite, kako so vaši vsebniki trenutno.
+    metric-preview-note: Na podlagi zadnjih {duration} statistike, ki jo je zbral Dozzle.
+    metric-container: Vsebnik
+    metric-cpu: CPE
+    metric-memory: Pomnilnik
+    metric-window-match: Okno
+    metric-firing: Bi se sprožilo
+    metric-matching-now: Zdaj nad
+    metric-no-samples: Ni podatkov
+    metric-no-samples-hint: Za ustrezne vsebnike statistika še ni bila zbrana.
+    metric-would-fire: "Trenutno bi se sprožilo za 1 vsebnik | Trenutno bi se sprožilo za {count} vsebnikov"
+    metric-would-not-fire: Noben vsebnik trenutno ne presega praga
     sample-window-label: Vzorčno okno
-    sample-window-hint: "Opozorilo se sproži, ko je pogoj izpolnjen za {duration}"
+    sample-window-hint: "Sproži se, ko pogoj velja {duration}"
     cooldown-label: Čas mirovanja
     cooldown-hint: "{duration} med opozorili na zabojnik"
     no-cooldown: Brez časa mirovanja
@@ -337,14 +402,32 @@ notifications:
     log-alert: Opozorilo dnevnika
     metric-alert: Opozorilo metrike
     event-alert: Opozorilo o dogodku
-    event-filter: Izraz dogodka
-    event-fields-hint: "Polja na voljo: {fields}"
+    log-alert-description: Ujemanje vrstic v dnevnikih vsebnikov
+    metric-alert-description: Nadzor porabe CPE, pomnilnika in diska
+    event-alert-description: Odziv na zagone, zaustavitve in spremembe stanja
+    type-switch-warning: Shranjevanje bo zamenjalo pogoj {type} tega opozorila, ki bo izgubljen.
+    event-filter: Pogoj dogodka
+    event-filter-hint: Kateri dogodki vsebnikov sprožijo opozorilo.
+    event-matches: "Ustreza 1 od teh dogodkov | Ustreza {count} od teh dogodkov"
+    event-matches-none: Ne ustreza nobenemu od teh dogodkov
+    event-preview-hint: Napišite pogoj, da vidite, katere dogodke vsebnikov bi ujel.
+    event-preview-note: Vzorčni dogodki, ne zgodovina. Dogodki Dockerja se ovrednotijo, ko se zgodijo.
   destination-form:
     create-title: Dodaj Cilj
     edit-title: Uredi Cilj
     description: Kam naj se pošiljajo obvestila?
     name: Ime
     name-placeholder: npr., Produkcijski Slack
+    name-hint: Tako je ta cilj naveden pri izbiri cilja za opozorilo.
+    name-taken: To ime že uporablja drug cilj.
+    still-needed: "Še manjka: {fields}"
+    missing:
+      name: ime
+      url: URL webhooka
+      template: predloga
+    discard-title: Zavržem ta cilj?
+    discard-keep: Nadaljuj urejanje
+    discard-confirm: Zavrzi
     type: Tip
     webhook-title: HTTP Webhook
     webhook-description: Slack, Discord, končna točka po meri
@@ -352,19 +435,34 @@ notifications:
     cloud-description: Push obvestila, e-poštna opozorila in povzetki z umetno inteligenco
     webhook-url: URL Webhook
     webhook-url-placeholder: https://hooks.foo.com/services/...
+    webhook-url-invalid: Vnesite celoten naslov http:// ali https://.
     api-key: API Ključ
-    payload-format: Format Payload
+    payload-format: Vsebina
     format-slack: Slack
     format-discord: Discord
     format-ntfy: ntfy
     format-custom: Po meri
+    format-replace-warning: To bo zamenjalo predlogo, ki ste jo napisali.
+    format-replace-confirm: Zamenjaj
     template: Predloga
     template-hint: Sintaksa predloge Go
+    template-placeholder: Telo JSON z oznakami predloge Go
+    payload-mode-json: Veljaven JSON. Vsaka vrednost je izrisana in ubežno kodirana namesto vas.
+    payload-mode-raw: Ni JSON, zato je celotno telo poslano kot izrisano besedilo.
+    payload-mode-unbalanced: Nezaprt ukaz predloge.
+    payload-mode-empty: Prazna predloga pošlje celotno obvestilo kot JSON.
+    variables: Razpoložljive spremenljivke
+    variables-all: Vsa opozorila
+    variables-log: Samo opozorila dnevnika
+    variables-metric: Samo opozorila metrik
+    variables-event: Samo opozorila dogodkov
+    variables-scope-hint: Polja zunaj »Vsa opozorila« so nastavljena samo za svojo vrsto opozorila; drugje uporabljena odpovejo pri pošiljanju.
     headers: Prilagojene Glave
     headers-hint: Neobvezne HTTP glave (npr. Authorization)
     header-name: Ime glave
     header-value: Vrednost glave
     add-header: Dodaj Glavo
+    remove-header: Odstrani glavo
     test: Test
     test-success: Test uspešen
     cancel: Prekliči
@@ -396,6 +494,7 @@ cloud:
   link-instance: Poveži instanco
   relink-instance: Ponovno poveži instanco
   connected: Povezano
+  pro-badge: Dozzle Cloud Pro
   plan: Načrt
   usage: Dogodki v tem obdobju
   dashboard: Nadzorna plošča

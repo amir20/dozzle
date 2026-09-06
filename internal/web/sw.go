@@ -26,8 +26,9 @@ self.addEventListener("activate", (event) => {
 self.addEventListener("fetch", (event) => {
   const url = new URL(event.request.url);
 
-  // Cache immutable hashed assets (Vite adds hashes to filenames)
-  if (url.pathname.match(/\/assets\/.*\.[a-f0-9]{8}\./)) {
+  // Cache immutable hashed assets. Rolldown appends a base64url hash after a dash
+  // (main-DDlQ-1D9.js), not a dot-separated hex one, so match that shape.
+  if (url.pathname.match(/\/assets\/.+-[A-Za-z0-9_-]{8,}\.[a-z0-9]+$/)) {
     event.respondWith(
       caches.match(event.request).then((cached) => {
         if (cached) return cached;

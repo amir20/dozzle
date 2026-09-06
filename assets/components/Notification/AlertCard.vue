@@ -4,7 +4,7 @@
     :class="{ 'opacity-60': !alert.enabled, 'highlight-new': isHighlighted }"
     @animationend="isHighlighted = false"
   >
-    <div class="card-body gap-4 p-5">
+    <div class="card-body gap-3 p-4">
       <!-- Header -->
       <div class="flex items-start justify-between gap-2">
         <div class="flex min-w-0 flex-wrap items-center gap-2">
@@ -56,29 +56,33 @@
         />
       </div>
 
-      <!-- Expressions -->
-      <div class="text-base-content/80 grid grid-cols-[auto_1fr] gap-x-4 gap-y-2 text-sm">
+      <!-- Only the rule itself lives here: which containers, and what fires it. A fixed label
+           column keeps the chips on the same line across every card, which an `auto` column
+           could not do since each card sized it to its own longest label. The value column is
+           `1fr` so long expressions wrap, but each chip is w-fit so a short one doesn't stretch
+           a full-width bar across the card. -->
+      <div class="text-base-content/60 grid grid-cols-[minmax(0,7rem)_1fr] items-center gap-x-3 gap-y-2 text-sm">
         <span>{{ $t("notifications.alert.containers") }}</span>
-        <code class="bg-base-200 text-base-content rounded px-2 py-0.5 font-mono">{{ alert.containerExpression }}</code>
+        <code class="bg-base-200 text-base-content w-fit max-w-full rounded px-2 py-0.5 font-mono break-all">{{
+          alert.containerExpression
+        }}</code>
         <template v-if="alert.metricExpression">
           <span>{{ $t("notifications.alert.metric-filter") }}</span>
-          <code class="bg-base-200 text-base-content rounded px-2 py-0.5 font-mono">{{ alert.metricExpression }}</code>
-          <span>{{ $t("notifications.alert.sample-window") }}</span>
-          <span>{{ formatDuration(alert.sampleWindow || 15, locale || undefined) }}</span>
-          <span>{{ $t("notifications.alert.cooldown") }}</span>
-          <span>{{ formatDuration(alert.cooldown || 300, locale || undefined) }}</span>
+          <code class="bg-base-200 text-base-content w-fit max-w-full rounded px-2 py-0.5 font-mono break-all">{{
+            alert.metricExpression
+          }}</code>
         </template>
         <template v-else-if="alert.eventExpression">
           <span>{{ $t("notifications.alert.event-filter") }}</span>
-          <code class="bg-base-200 text-base-content rounded px-2 py-0.5 font-mono">{{ alert.eventExpression }}</code>
-          <template v-if="alert.cooldown">
-            <span>{{ $t("notifications.alert.cooldown") }}</span>
-            <span>{{ formatDuration(alert.cooldown, locale || undefined) }}</span>
-          </template>
+          <code class="bg-base-200 text-base-content w-fit max-w-full rounded px-2 py-0.5 font-mono break-all">{{
+            alert.eventExpression
+          }}</code>
         </template>
         <template v-else>
           <span>{{ $t("notifications.alert.log-filter") }}</span>
-          <code class="bg-base-200 text-base-content rounded px-2 py-0.5 font-mono">{{ alert.logExpression }}</code>
+          <code class="bg-base-200 text-base-content w-fit max-w-full rounded px-2 py-0.5 font-mono break-all">{{
+            alert.logExpression
+          }}</code>
         </template>
       </div>
 
@@ -86,24 +90,63 @@
       <div
         class="border-base-content/10 text-base-content/80 flex items-center justify-between gap-2 border-t pt-3 text-xs"
       >
+        <!-- These are firing counts, not match counts. "0 containers" next to a filter that
+             clearly matches something read as "this alert matches nothing". -->
         <div class="flex min-w-0 flex-wrap items-center gap-x-4 gap-y-1">
-          <span>
-            {{ $t("notifications.alert.containers-count", { count: alert.triggeredContainers }) }}
-          </span>
-          <span>
-            {{ $t("notifications.alert.triggered-count", { count: alert.triggerCount }) }}
-          </span>
-          <span v-if="alert.lastTriggeredAt">
-            {{ $t("notifications.alert.last-triggered", { time: formatTimeAgo(alert.lastTriggeredAt) }) }}
-          </span>
+          <template v-if="confirmingDelete">
+            <span class="text-base-content">{{ $t("notifications.alert.delete-warning") }}</span>
+          </template>
+          <template v-else>
+            <span v-if="!alert.triggerCount">{{ $t("notifications.alert.never-triggered") }}</span>
+            <template v-else>
+              <span>{{ $t("notifications.alert.triggered-count", alert.triggerCount) }}</span>
+              <span>{{ $t("notifications.alert.containers-count", alert.triggeredContainers) }}</span>
+              <span v-if="alert.lastTriggeredAt">
+                {{ $t("notifications.alert.last-triggered", { time: formatTimeAgo(alert.lastTriggeredAt) }) }}
+              </span>
+            </template>
+            <!-- Timing is how the rule is tuned, not what it matches, so it sits with the other
+                 metadata instead of competing with the expressions above. -->
+            <span v-if="alert.metricExpression">
+              {{
+                $t("notifications.alert.window-meta", {
+                  duration: formatDuration(alert.sampleWindow || 15, locale || undefined),
+                })
+              }}
+            </span>
+            <span v-if="cooldownSeconds">
+              {{
+                $t("notifications.alert.cooldown-meta", {
+                  duration: formatDuration(cooldownSeconds, locale || undefined),
+                })
+              }}
+            </span>
+          </template>
         </div>
-        <div class="flex shrink-0 items-center gap-1">
-          <button class="btn btn-ghost btn-square" @click="editAlert">
+        <!-- Deleting an alert is not undoable and there is no trash to restore it from. -->
+        <div v-if="confirmingDelete" class="flex shrink-0 items-center gap-2">
+          <button class="btn btn-xs" :disabled="isDeleting" @click="confirmingDelete = false">
+            {{ $t("notifications.alert.delete-cancel") }}
+          </button>
+          <button class="btn btn-xs btn-error" :disabled="isDeleting" @click="deleteAlert">
+            <span v-if="isDeleting" class="loading loading-spinner loading-xs"></span>
+            {{ $t("notifications.alert.delete-confirm") }}
+          </button>
+        </div>
+        <div v-else class="flex shrink-0 items-center gap-1">
+          <button
+            class="btn btn-ghost btn-square"
+            :aria-label="$t('notifications.destination.edit')"
+            @click="editAlert"
+          >
             <mdi:pencil-outline />
           </button>
-          <button class="btn btn-ghost btn-square" @click="deleteAlert" :disabled="isDeleting">
-            <span v-if="isDeleting" class="loading loading-spinner loading-xs"></span>
-            <mdi:trash-can-outline v-else />
+          <button
+            class="btn btn-ghost btn-square"
+            :aria-label="$t('notifications.alert.delete-confirm')"
+            @click="confirmingDelete = true"
+          >
+            <mdi:trash-can-outline />
           </button>
         </div>
       </div>
@@ -121,6 +164,13 @@ const { alert, onUpdated, highlight } = defineProps<{
   highlight?: boolean;
 }>();
 
+// Log alerts have no cooldown, metric alerts default to 5m, events only have one when set.
+const cooldownSeconds = computed(() => {
+  if (alert.metricExpression) return alert.cooldown || 300;
+  if (alert.eventExpression) return alert.cooldown || 0;
+  return 0;
+});
+
 const isHighlighted = ref(highlight ?? false);
 watch(
   () => highlight,
@@ -129,8 +179,11 @@ watch(
   },
 );
 
+const { t } = useI18n();
+const { showToast } = useToast();
 const showDrawer = useDrawer();
 const isDeleting = ref(false);
+const confirmingDelete = ref(false);
 const dispatchers = ref<Dispatcher[]>([]);
 
 onMounted(async () => {
@@ -169,8 +222,12 @@ function editAlert() {
 async function deleteAlert() {
   isDeleting.value = true;
   try {
-    await fetch(withBase(`/api/notifications/rules/${alert.id}`), { method: "DELETE" });
+    const res = await fetch(withBase(`/api/notifications/rules/${alert.id}`), { method: "DELETE" });
+    if (!res.ok) throw new Error((await res.json().catch(() => ({}))).error ?? res.statusText);
+    confirmingDelete.value = false;
     onUpdated?.();
+  } catch (e) {
+    showToast({ type: "error", message: e instanceof Error ? e.message : t("error.something-went-wrong") });
   } finally {
     isDeleting.value = false;
   }
