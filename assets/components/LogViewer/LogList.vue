@@ -60,15 +60,7 @@ useIntersectionObserver(
 <style scoped>
 @reference "@/main.css";
 ul {
-  font-family:
-    ui-monospace,
-    SFMono-Regular,
-    SF Mono,
-    Consolas,
-    Liberation Mono,
-    monaco,
-    Menlo,
-    monospace;
+  font-family: var(--font-mono);
 
   > li {
     @apply flex px-2 py-1 break-words last:snap-end odd:bg-gray-400/[0.07] md:px-4;

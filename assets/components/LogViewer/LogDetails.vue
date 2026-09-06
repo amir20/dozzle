@@ -63,7 +63,7 @@
             {{ key.join(".") }}
           </td>
           <td class="truncate max-md:hidden">
-            <code>{{ JSON.stringify(value) }}</code>
+            <code class="font-mono">{{ JSON.stringify(value) }}</code>
           </td>
           <td>
             <input type="checkbox" class="toggle toggle-primary" :checked="enabled" @change="toggleField(key)" />
@@ -167,17 +167,3 @@ const toggleAllFields = computed({
 
 useSortable(list, fields);
 </script>
-<style scoped>
-@reference "@/main.css";
-.font-mono {
-  font-family:
-    ui-monospace,
-    SFMono-Regular,
-    SF Mono,
-    Consolas,
-    Liberation Mono,
-    monaco,
-    Menlo,
-    monospace;
-}
-</style>

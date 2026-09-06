@@ -23,8 +23,8 @@
     </div>
 
     <pre
-      class="bg-base-300/60 rounded-box overflow-x-auto p-2 font-mono text-[11px] leading-relaxed"
-    ><code>{{ snippet }}</code></pre>
+      class="bg-base-300/60 rounded-box p-2 text-[11px] leading-relaxed break-all whitespace-pre-wrap"
+    ><code class="font-mono">{{ snippet }}</code></pre>
 
     <template #action>
       <button type="button" class="btn btn-xs btn-primary" @click="copySnippet">
