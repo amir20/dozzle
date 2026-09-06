@@ -124,8 +124,15 @@ const cloudUrl = __CLOUD_URL__;
 const callbackUrl = `${window.location.origin}${withBase("/")}`;
 const cloudLinkUrl = `${cloudUrl}/link?appUrl=${encodeURIComponent(callbackUrl)}&from=cloud`;
 
-const { cloudConfig, cloudStatus, cloudStatusError, isLoadingCloudStatus, fetchCloudConfig, fetchCloudStatus } =
-  useCloudConfig();
+const {
+  cloudConfig,
+  cloudStatus,
+  cloudStatusError,
+  isLoadingCloudStatus,
+  initialLoad,
+  fetchCloudStatus,
+  ensureCloudStatus,
+} = useCloudConfig();
 
 const welcomeModal = ref<{ open: () => void }>();
 const cloudWelcomeShown = useProfileStorage("cloudWelcomeShown", false);
@@ -136,17 +143,12 @@ const usagePercent = computed(() => {
 });
 
 function onOpen() {
-  if (cloudConfig.value?.linked && !cloudStatus.value && !isLoadingCloudStatus.value) {
-    fetchCloudStatus();
-  }
+  ensureCloudStatus();
 }
 
 onMounted(async () => {
-  await fetchCloudConfig();
-
-  if (cloudConfig.value?.linked) {
-    fetchCloudStatus();
-  }
+  await initialLoad;
+  ensureCloudStatus();
 
   // Handle successful OAuth return — show welcome modal
   if (window.location.hash === "#cloudLinked" && !cloudWelcomeShown.value) {

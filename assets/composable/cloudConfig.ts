@@ -29,8 +29,7 @@ async function fetchCloudConfig() {
 // shared `cloudConfig` ref — no per-component fetch.
 const initialLoad = fetchCloudConfig();
 
-async function fetchCloudStatus() {
-  if (!config.enableCloud || !cloudConfig.value?.linked) return;
+async function loadCloudStatus() {
   isLoadingCloudStatus.value = true;
   cloudStatusError.value = false;
   try {
@@ -47,13 +46,19 @@ async function fetchCloudStatus() {
   }
 }
 
-// Dedupes concurrent/repeat status fetches so several components (nav popover,
-// pro badge) can ask for the status without each firing its own request.
+// Several components (nav popover, pro badge, settings card) can ask for the
+// status at once on the same page, so callers that overlap share one request.
 let pendingStatus: Promise<void> | null = null;
-async function ensureCloudStatus() {
-  if (!config.enableCloud || !cloudConfig.value?.linked || cloudStatus.value) return;
-  pendingStatus ??= fetchCloudStatus().finally(() => (pendingStatus = null));
+async function fetchCloudStatus() {
+  if (!config.enableCloud || !cloudConfig.value?.linked) return;
+  pendingStatus ??= loadCloudStatus().finally(() => (pendingStatus = null));
   return pendingStatus;
+}
+
+// For consumers that only need a status, not a fresh one.
+async function ensureCloudStatus() {
+  if (cloudStatus.value) return;
+  return fetchCloudStatus();
 }
 
 const isPro = computed(() => cloudStatus.value?.plan.name.toLowerCase() === "pro");
