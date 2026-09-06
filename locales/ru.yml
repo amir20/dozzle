@@ -305,8 +305,9 @@ notifications:
     sample-window: Окно выборки
     destination: Назначение
     dispatcher-deleted: Диспетчер удалён
-    containers-count: "{count} контейнеров"
-    triggered-count: "{count} сработало"
+    containers-count: "в 1 контейнере | в {count} контейнерах"
+    triggered-count: "Сработало 1 раз | Сработало {count} раз"
+    never-triggered: Ни разу не сработало
     last-triggered: "Последнее: {time}"
   destination:
     http-webhook: HTTP Webhook

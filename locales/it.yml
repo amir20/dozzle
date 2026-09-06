@@ -305,8 +305,9 @@ notifications:
     sample-window: Finestra di campionamento
     destination: Destinazione
     dispatcher-deleted: Dispatcher eliminato
-    containers-count: "{count} container"
-    triggered-count: "{count} attivati"
+    containers-count: "in 1 container | in {count} container"
+    triggered-count: "Scattato una volta | Scattato {count} volte"
+    never-triggered: Mai scattato
     last-triggered: "Ultimo: {time}"
   destination:
     http-webhook: HTTP Webhook

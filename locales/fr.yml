@@ -305,8 +305,9 @@ notifications:
     sample-window: Fenêtre d'échantillonnage
     destination: Destination
     dispatcher-deleted: Dispatcher supprimé
-    containers-count: "{count} conteneurs"
-    triggered-count: "{count} déclenchés"
+    containers-count: "dans 1 conteneur | dans {count} conteneurs"
+    triggered-count: "Déclenchée une fois | Déclenchée {count} fois"
+    never-triggered: Jamais déclenchée
     last-triggered: "Dernier: {time}"
   destination:
     http-webhook: HTTP Webhook

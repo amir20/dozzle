@@ -349,8 +349,9 @@ notifications:
     sample-window: Ventana de muestreo
     destination: Destino
     dispatcher-deleted: Dispatcher eliminado
-    containers-count: "{count} contenedores"
-    triggered-count: "{count} activados"
+    containers-count: "en 1 contenedor | en {count} contenedores"
+    triggered-count: "Disparada una vez | Disparada {count} veces"
+    never-triggered: Nunca disparada
     last-triggered: "Último: {time}"
   destination:
     http-webhook: HTTP Webhook

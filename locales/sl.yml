@@ -311,8 +311,9 @@ notifications:
     sample-window: Vzorčno okno
     destination: Cilj
     dispatcher-deleted: Pošiljatelj izbrisan
-    containers-count: "{count} zabojnikov"
-    triggered-count: "{count} sproženih"
+    containers-count: "v 1 vsebniku | v {count} vsebnikih"
+    triggered-count: "Sproženo enkrat | Sproženo {count}-krat"
+    never-triggered: Nikoli sproženo
     last-triggered: "Zadnje: {time}"
   destination:
     http-webhook: HTTP Webhook

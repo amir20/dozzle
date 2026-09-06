@@ -359,8 +359,9 @@ notifications:
     sample-window: Sample window
     destination: Destination
     dispatcher-deleted: Dispatcher deleted
-    containers-count: "{count} containers"
-    triggered-count: "{count} triggered"
+    containers-count: "in 1 container | in {count} containers"
+    triggered-count: "Triggered once | Triggered {count} times"
+    never-triggered: Never triggered
     last-triggered: "Last: {time}"
   destination:
     http-webhook: HTTP Webhook

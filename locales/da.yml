@@ -305,8 +305,9 @@ notifications:
     sample-window: Prøvevindue
     destination: Destination
     dispatcher-deleted: Dispatcher slettet
-    containers-count: "{count} containere"
-    triggered-count: "{count} udløst"
+    containers-count: "i 1 container | i {count} containere"
+    triggered-count: "Udløst én gang | Udløst {count} gange"
+    never-triggered: Aldrig udløst
     last-triggered: "Sidst: {time}"
   destination:
     http-webhook: HTTP Webhook

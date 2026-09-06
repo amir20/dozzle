@@ -309,8 +309,9 @@ notifications:
     sample-window: 샘플 창
     destination: 목적지
     dispatcher-deleted: 디스패처 삭제됨
-    containers-count: "컨테이너 {count}개"
-    triggered-count: "{count}회 트리거됨"
+    containers-count: "컨테이너 1개에서 | 컨테이너 {count}개에서"
+    triggered-count: "1회 발생 | {count}회 발생"
+    never-triggered: 발생한 적 없음
     last-triggered: "마지막: {time}"
   destination:
     http-webhook: HTTP 웹훅

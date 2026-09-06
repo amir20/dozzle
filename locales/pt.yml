@@ -305,8 +305,9 @@ notifications:
     sample-window: Janela de amostragem
     destination: Destino
     dispatcher-deleted: Dispatcher excluído
-    containers-count: "{count} containers"
-    triggered-count: "{count} acionados"
+    containers-count: "em 1 contêiner | em {count} contêineres"
+    triggered-count: "Disparado uma vez | Disparado {count} vezes"
+    never-triggered: Nunca disparado
     last-triggered: "Último: {time}"
   destination:
     http-webhook: HTTP Webhook

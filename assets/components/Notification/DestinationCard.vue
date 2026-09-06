@@ -8,26 +8,26 @@
          stacking a banner under it: at 288px wide a filled alert wrapped onto three ragged
          lines. -->
     <div class="grid">
-      <div class="card-body col-start-1 row-start-1 gap-3 p-4" :class="{ invisible: !confirmingDelete }">
-        <div class="flex items-start gap-3">
-          <mdi:alert-outline class="text-error mt-0.5 shrink-0 text-lg" />
-          <div class="min-w-0 flex-1">
-            <h4 class="font-semibold">{{ $t("notifications.destination.delete-warning") }}</h4>
-            <p class="text-base-content/60 mt-1 text-sm">
-              <!-- Deleting orphans every alert pointing here, so name the cost before doing it. -->
-              {{
-                usedByCount
-                  ? $t("notifications.destination.delete-warning-used", usedByCount)
-                  : $t("notifications.destination.unused")
-              }}
-            </p>
-          </div>
+      <!-- Sized to fit the resting card: title, one line of consequence, buttons pinned to the
+           bottom. Anything taller and the grid would raise every card's resting height. -->
+      <div class="card-body col-start-1 row-start-1 gap-0 p-4" :class="{ invisible: !confirmingDelete }">
+        <div class="flex items-center gap-2">
+          <mdi:alert-outline class="text-error shrink-0" />
+          <h4 class="text-sm font-semibold">{{ $t("notifications.destination.delete-warning") }}</h4>
         </div>
-        <div class="mt-auto flex justify-end gap-2">
-          <button class="btn btn-sm" :disabled="isDeleting" @click="confirmingDelete = false">
+        <p class="text-base-content/60 mt-1 text-xs">
+          <!-- Deleting orphans every alert pointing here, so name the cost before doing it. -->
+          {{
+            usedByCount
+              ? $t("notifications.destination.delete-warning-used", usedByCount)
+              : $t("notifications.destination.unused")
+          }}
+        </p>
+        <div class="mt-auto flex justify-end gap-2 pt-2">
+          <button class="btn btn-xs" :disabled="isDeleting" @click="confirmingDelete = false">
             {{ $t("notifications.destination.delete-cancel") }}
           </button>
-          <button class="btn btn-sm btn-error" :disabled="isDeleting" @click="deleteDestination">
+          <button class="btn btn-xs btn-error" :disabled="isDeleting" @click="deleteDestination">
             <span v-if="isDeleting" class="loading loading-spinner loading-xs"></span>
             {{ $t("notifications.destination.delete-confirm") }}
           </button>
@@ -48,12 +48,14 @@
             </div>
             <div class="min-w-0 flex-1">
               <h4 class="truncate font-semibold">{{ destination.name }}</h4>
-              <p class="text-base-content/60 text-sm">
+              <p class="text-base-content/60 truncate text-sm">
                 {{
                   destination.type === "webhook"
                     ? $t("notifications.destination.http-webhook")
                     : $t("notifications.destination.dozzle-cloud")
                 }}
+                <!-- Two webhooks are otherwise indistinguishable once named vaguely. -->
+                <span v-if="webhookHost" class="text-base-content/45">· {{ webhookHost }}</span>
               </p>
               <p class="text-base-content/50 mt-1 text-xs">
                 {{
@@ -109,6 +111,16 @@ const showDrawer = useDrawer();
 
 const confirmingDelete = ref(false);
 const isDeleting = ref(false);
+
+/** Host of the webhook URL, so cards for two webhooks aren't identical. */
+const webhookHost = computed(() => {
+  if (!destination.url) return "";
+  try {
+    return new URL(destination.url).host;
+  } catch {
+    return "";
+  }
+});
 
 /**
  * A CSS-only daisyUI dropdown stays open until it loses focus, so picking an item left the menu

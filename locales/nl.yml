@@ -306,8 +306,9 @@ notifications:
     sample-window: Steekproefvenster
     destination: Bestemming
     dispatcher-deleted: Dispatcher verwijderd
-    containers-count: "{count} containers"
-    triggered-count: "{count} geactiveerd"
+    containers-count: "in 1 container | in {count} containers"
+    triggered-count: "Eén keer afgegaan | {count} keer afgegaan"
+    never-triggered: Nooit afgegaan
     last-triggered: "Laatst: {time}"
   destination:
     http-webhook: HTTP Webhook

@@ -317,8 +317,9 @@ notifications:
     sample-window: Jendela sampel
     destination: Tujuan
     dispatcher-deleted: Dispatcher dihapus
-    containers-count: "{count} kontainer"
-    triggered-count: "{count} terpicu"
+    containers-count: "di 1 kontainer | di {count} kontainer"
+    triggered-count: "Terpicu sekali | Terpicu {count} kali"
+    never-triggered: Belum pernah terpicu
     last-triggered: "Terakhir: {time}"
   destination:
     http-webhook: HTTP Webhook

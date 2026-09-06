@@ -305,8 +305,9 @@ notifications:
     sample-window: 采样窗口
     destination: 目标
     dispatcher-deleted: 发送器已删除
-    containers-count: "{count} 个容器"
-    triggered-count: "{count} 次触发"
+    containers-count: "涉及 1 个容器 | 涉及 {count} 个容器"
+    triggered-count: "触发过 1 次 | 触发过 {count} 次"
+    never-triggered: 从未触发
     last-triggered: "最后触发: {time}"
   destination:
     http-webhook: HTTP Webhook

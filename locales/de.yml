@@ -305,8 +305,9 @@ notifications:
     sample-window: Zeitfenster
     destination: Ziel
     dispatcher-deleted: Dispatcher gelöscht
-    containers-count: "{count} Container"
-    triggered-count: "{count} ausgelöst"
+    containers-count: "in 1 Container | in {count} Containern"
+    triggered-count: "Einmal ausgelöst | {count}-mal ausgelöst"
+    never-triggered: Nie ausgelöst
     last-triggered: "Zuletzt: {time}"
   destination:
     http-webhook: HTTP Webhook

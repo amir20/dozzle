@@ -309,8 +309,9 @@ notifications:
     sample-window: Örnek penceresi
     destination: Hedef
     dispatcher-deleted: Dağıtıcı silindi
-    containers-count: "{count} konteyner"
-    triggered-count: "{count} tetiklendi"
+    containers-count: "1 konteynerde | {count} konteynerde"
+    triggered-count: "1 kez tetiklendi | {count} kez tetiklendi"
+    never-triggered: Hiç tetiklenmedi
     last-triggered: "Son: {time}"
   destination:
     http-webhook: HTTP Webhook

@@ -308,8 +308,9 @@ notifications:
     sample-window: Okno próbkowania
     destination: Miejsce docelowe
     dispatcher-deleted: Dispatcher usunięty
-    containers-count: "{count} kontenerów"
-    triggered-count: "{count} wyzwolonych"
+    containers-count: "w 1 kontenerze | w {count} kontenerach"
+    triggered-count: "Zadziałał raz | Zadziałał {count} razy"
+    never-triggered: Nigdy nie zadziałał
     last-triggered: "Ostatnio: {time}"
   destination:
     http-webhook: HTTP Webhook

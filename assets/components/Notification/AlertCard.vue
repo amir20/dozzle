@@ -86,16 +86,17 @@
       <div
         class="border-base-content/10 text-base-content/80 flex items-center justify-between gap-2 border-t pt-3 text-xs"
       >
+        <!-- These are firing counts, not match counts. "0 containers" next to a filter that
+             clearly matches something read as "this alert matches nothing". -->
         <div class="flex min-w-0 flex-wrap items-center gap-x-4 gap-y-1">
-          <span>
-            {{ $t("notifications.alert.containers-count", { count: alert.triggeredContainers }) }}
-          </span>
-          <span>
-            {{ $t("notifications.alert.triggered-count", { count: alert.triggerCount }) }}
-          </span>
-          <span v-if="alert.lastTriggeredAt">
-            {{ $t("notifications.alert.last-triggered", { time: formatTimeAgo(alert.lastTriggeredAt) }) }}
-          </span>
+          <span v-if="!alert.triggerCount">{{ $t("notifications.alert.never-triggered") }}</span>
+          <template v-else>
+            <span>{{ $t("notifications.alert.triggered-count", alert.triggerCount) }}</span>
+            <span>{{ $t("notifications.alert.containers-count", alert.triggeredContainers) }}</span>
+            <span v-if="alert.lastTriggeredAt">
+              {{ $t("notifications.alert.last-triggered", { time: formatTimeAgo(alert.lastTriggeredAt) }) }}
+            </span>
+          </template>
         </div>
         <div class="flex shrink-0 items-center gap-1">
           <button class="btn btn-ghost btn-square" @click="editAlert">
