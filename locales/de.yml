@@ -251,6 +251,8 @@ releases:
   two_parts: "{first} und {second}"
   latest: Letzte
   no_releases: Du hast die aktuellste Version
+  newer: "1 neuere Version | {count} neuere Versionen"
+  all: Alle Versionen
 log_actions:
   copy_log: Log kopieren
   jump_to_context: Zum Kontext springen
@@ -309,6 +311,9 @@ notifications:
     triggered-count: "Einmal ausgelöst | {count}-mal ausgelöst"
     never-triggered: Nie ausgelöst
     last-triggered: "Zuletzt: {time}"
+    delete-warning: Diesen Alarm löschen?
+    delete-cancel: Behalten
+    delete-confirm: Löschen
   destination:
     http-webhook: HTTP Webhook
     dozzle-cloud: Dozzle Cloud
@@ -480,6 +485,7 @@ cloud:
   link-instance: Instanz verknüpfen
   relink-instance: Instanz erneut verknüpfen
   connected: Verbunden
+  pro-badge: Dozzle Cloud Pro
   plan: Plan
   usage: Ereignisse in diesem Zeitraum
   dashboard: Dashboard

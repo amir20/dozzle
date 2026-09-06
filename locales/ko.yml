@@ -255,6 +255,8 @@ releases:
   two_parts: "{first} 및 {second}"
   latest: 최신
   no_releases: 최신 버전을 사용하고 있습니다
+  newer: "새 릴리스 1개 | 새 릴리스 {count}개"
+  all: 모든 릴리스
 log_actions:
   copy_log: 로그 복사
   jump_to_context: 해당 위치로 이동
@@ -313,6 +315,9 @@ notifications:
     triggered-count: "1회 발생 | {count}회 발생"
     never-triggered: 발생한 적 없음
     last-triggered: "마지막: {time}"
+    delete-warning: 이 알림을 삭제할까요?
+    delete-cancel: 유지
+    delete-confirm: 삭제
   destination:
     http-webhook: HTTP 웹훅
     dozzle-cloud: Dozzle Cloud
@@ -484,6 +489,7 @@ cloud:
   link-instance: 인스턴스 연결
   relink-instance: 인스턴스 재연결
   connected: 연결됨
+  pro-badge: Dozzle Cloud Pro
   plan: 플랜
   usage: 이번 기간 이벤트
   dashboard: 대시보드

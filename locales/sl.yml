@@ -254,9 +254,11 @@ releases:
   bugFixes: en popravek napake | {count} popravkov
   breaking: ena ključna sprememba | {count} ključnih sprememb
   three_parts: "{first}, {second} in {third}"
-  two_parts: "{first} s/z {second}"
+  two_parts: "{first} in {second}"
   latest: Najnovejše
   no_releases: Imate najnovejšo različico
+  newer: "1 novejša izdaja | {count} novejših izdaj"
+  all: Vse izdaje
 log_actions:
   copy_log: Kopiraj dnevnik
   jump_to_context: Skoči na kontekst
@@ -315,6 +317,9 @@ notifications:
     triggered-count: "Sproženo enkrat | Sproženo {count}-krat"
     never-triggered: Nikoli sproženo
     last-triggered: "Zadnje: {time}"
+    delete-warning: Izbrišem to opozorilo?
+    delete-cancel: Obdrži
+    delete-confirm: Izbriši
   destination:
     http-webhook: HTTP Webhook
     dozzle-cloud: Dozzle Cloud
@@ -486,6 +491,7 @@ cloud:
   link-instance: Poveži instanco
   relink-instance: Ponovno poveži instanco
   connected: Povezano
+  pro-badge: Dozzle Cloud Pro
   plan: Načrt
   usage: Dogodki v tem obdobju
   dashboard: Nadzorna plošča

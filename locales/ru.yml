@@ -251,6 +251,8 @@ releases:
   two_parts: "{first} и {second}"
   latest: Последняя
   no_releases: У вас последняя версия
+  newer: "1 новая версия | Новых версий: {count}"
+  all: Все версии
 log_actions:
   copy_log: Копировать лог
   jump_to_context: Перейти к контексту
@@ -309,6 +311,9 @@ notifications:
     triggered-count: "Сработало 1 раз | Сработало {count} раз"
     never-triggered: Ни разу не сработало
     last-triggered: "Последнее: {time}"
+    delete-warning: Удалить это оповещение?
+    delete-cancel: Оставить
+    delete-confirm: Удалить
   destination:
     http-webhook: HTTP Webhook
     dozzle-cloud: Dozzle Cloud
@@ -480,6 +485,7 @@ cloud:
   link-instance: Привязать экземпляр
   relink-instance: Привязать повторно
   connected: Подключён
+  pro-badge: Dozzle Cloud Pro
   plan: План
   usage: События за этот период
   dashboard: Панель управления

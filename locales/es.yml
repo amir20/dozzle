@@ -292,9 +292,11 @@ releases:
   bugFixes: una corrección de error | {count} correcciones
   breaking: un cambio importante | {count} cambios importantes
   three_parts: "{first}, {second} y {third}"
-  two_parts: "{first} con {second}"
+  two_parts: "{first} y {second}"
   latest: Último
   no_releases: No hay lanzamientos
+  newer: "1 versión más reciente | {count} versiones más recientes"
+  all: Todas las versiones
 log_actions:
   copy_log: Copiar registro
   jump_to_context: Ir al contexto
@@ -353,6 +355,9 @@ notifications:
     triggered-count: "Disparada una vez | Disparada {count} veces"
     never-triggered: Nunca disparada
     last-triggered: "Último: {time}"
+    delete-warning: ¿Eliminar esta alerta?
+    delete-cancel: Conservar
+    delete-confirm: Eliminar
   destination:
     http-webhook: HTTP Webhook
     dozzle-cloud: Dozzle Cloud
@@ -524,6 +529,7 @@ cloud:
   link-instance: Vincular instancia
   relink-instance: Revincular instancia
   connected: Conectado
+  pro-badge: Dozzle Cloud Pro
   plan: Plan
   usage: Eventos en este período
   dashboard: Panel

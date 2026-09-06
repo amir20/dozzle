@@ -248,9 +248,11 @@ releases:
   bugFixes: en fejlrettelse | {count} rettelser
   breaking: en ødelæggende ændring | {count} ødelæggende ændringer
   three_parts: "{first}, {second} og {third}"
-  two_parts: "{first} med {second}"
+  two_parts: "{first} og {second}"
   latest: Nyeste
   no_releases: Du har den nyeste version
+  newer: "1 nyere version | {count} nyere versioner"
+  all: Alle versioner
 log_actions:
   copy_log: Kopier log
   jump_to_context: Hop til kontekst
@@ -309,6 +311,9 @@ notifications:
     triggered-count: "Udløst én gang | Udløst {count} gange"
     never-triggered: Aldrig udløst
     last-triggered: "Sidst: {time}"
+    delete-warning: Slet denne alarm?
+    delete-cancel: Behold
+    delete-confirm: Slet
   destination:
     http-webhook: HTTP Webhook
     dozzle-cloud: Dozzle Cloud
@@ -480,6 +485,7 @@ cloud:
   link-instance: Tilknyt instans
   relink-instance: Gentilknyt instans
   connected: Tilsluttet
+  pro-badge: Dozzle Cloud Pro
   plan: Plan
   usage: Begivenheder i denne periode
   dashboard: Dashboard

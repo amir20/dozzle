@@ -251,6 +251,8 @@ releases:
   two_parts: "{first} 与 {second}"
   latest: 最新
   no_releases: 您拥有最新版本
+  newer: "有 1 个更新版本 | 有 {count} 个更新版本"
+  all: 所有版本
 log_actions:
   copy_log: 复制日志
   jump_to_context: 跳转到上下文
@@ -309,6 +311,9 @@ notifications:
     triggered-count: "触发过 1 次 | 触发过 {count} 次"
     never-triggered: 从未触发
     last-triggered: "最后触发: {time}"
+    delete-warning: 删除这条告警？
+    delete-cancel: 保留
+    delete-confirm: 删除
   destination:
     http-webhook: HTTP Webhook
     dozzle-cloud: Dozzle Cloud
@@ -480,6 +485,7 @@ cloud:
   link-instance: 关联实例
   relink-instance: 重新关联实例
   connected: 已连接
+  pro-badge: Dozzle Cloud Pro
   plan: 计划
   usage: 本期事件数
   dashboard: 仪表盘

@@ -254,6 +254,8 @@ releases:
   two_parts: "{first} oraz {second}"
   latest: Najnowsza
   no_releases: Masz najnowszą wersję
+  newer: "1 nowsze wydanie | {count} nowszych wydań"
+  all: Wszystkie wydania
 log_actions:
   copy_log: Skopiuj logi
   jump_to_context: Przeskocz do kontekstu
@@ -312,6 +314,9 @@ notifications:
     triggered-count: "Zadziałał raz | Zadziałał {count} razy"
     never-triggered: Nigdy nie zadziałał
     last-triggered: "Ostatnio: {time}"
+    delete-warning: Usunąć ten alert?
+    delete-cancel: Zachowaj
+    delete-confirm: Usuń
   destination:
     http-webhook: HTTP Webhook
     dozzle-cloud: Dozzle Cloud
@@ -483,6 +488,7 @@ cloud:
   link-instance: Połącz instancję
   relink-instance: Połącz ponownie instancję
   connected: Połączony
+  pro-badge: Dozzle Cloud Pro
   plan: Plan
   usage: Zdarzenia w tym okresie
   dashboard: Panel

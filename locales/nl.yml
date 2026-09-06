@@ -249,9 +249,11 @@ releases:
   bugFixes: één bugfix | {count} bugfixes
   breaking: één breaking change | {count} breaking changes
   three_parts: "{first}, {second} en {third}"
-  two_parts: "{first} met {second}"
+  two_parts: "{first} en {second}"
   latest: Meest recent
   no_releases: Je gebruikt de nieuwste versie
+  newer: "1 nieuwere versie | {count} nieuwere versies"
+  all: Alle versies
 log_actions:
   copy_log: Log kopiëren
   jump_to_context: Ga naar context
@@ -310,6 +312,9 @@ notifications:
     triggered-count: "Eén keer afgegaan | {count} keer afgegaan"
     never-triggered: Nooit afgegaan
     last-triggered: "Laatst: {time}"
+    delete-warning: Deze melding verwijderen?
+    delete-cancel: Behouden
+    delete-confirm: Verwijderen
   destination:
     http-webhook: HTTP Webhook
     dozzle-cloud: Dozzle Cloud
@@ -481,6 +486,7 @@ cloud:
   link-instance: Instantie koppelen
   relink-instance: Instantie opnieuw koppelen
   connected: Verbonden
+  pro-badge: Dozzle Cloud Pro
   plan: Plan
   usage: Gebeurtenissen deze periode
   dashboard: Dashboard

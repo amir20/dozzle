@@ -302,9 +302,11 @@ releases:
   bugFixes: one bug fix | {count} fixes
   breaking: one breaking change | {count} breaking changes
   three_parts: "{first}, {second} and {third}"
-  two_parts: "{first} with {second}"
+  two_parts: "{first} and {second}"
   latest: Latest
   no_releases: You have the latest version
+  newer: "1 newer release | {count} newer releases"
+  all: All releases
 log_actions:
   copy_log: Copy log
   jump_to_context: Jump to context
@@ -363,6 +365,9 @@ notifications:
     triggered-count: "Triggered once | Triggered {count} times"
     never-triggered: Never triggered
     last-triggered: "Last: {time}"
+    delete-warning: Delete this alert?
+    delete-cancel: Keep
+    delete-confirm: Delete
   destination:
     http-webhook: HTTP Webhook
     dozzle-cloud: Dozzle Cloud

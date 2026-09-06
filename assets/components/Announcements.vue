@@ -12,9 +12,24 @@
       </template>
     </template>
     <template #content>
-      <div class="w-72">
-        <ul class="space-y-4 p-2">
-          <li v-for="release in announcements" v-if="announcements.length > 0">
+      <div class="flex max-h-[70vh] w-80 flex-col">
+        <!-- The API stops walking releases at the running version, so everything below is an
+             update you don't have yet. Nothing said so before. -->
+        <div
+          v-if="announcements.length > 0"
+          class="border-base-content/15 flex items-baseline justify-between gap-2 border-b px-2 pb-2"
+        >
+          <span class="text-sm font-semibold">{{ $t("releases.newer", announcements.length) }}</span>
+          <span class="text-base-content/60 font-mono text-xs">{{ config.version }}</span>
+        </div>
+
+        <ul class="min-h-0 flex-1 space-y-4 overflow-y-auto p-2">
+          <li v-if="announcements.length === 0">
+            <div class="text-base-content/80 text-sm">
+              {{ $t("releases.no_releases") }}
+            </div>
+          </li>
+          <li v-for="release in announcements" :key="release.tag">
             <template v-if="release.announcement">
               <div class="flex items-baseline gap-1">
                 <carbon:information class="text-info self-center" />
@@ -44,7 +59,8 @@
                   {{ release.name }}
                 </a>
                 <span class="ml-1 text-xs"><RelativeTime :date="release.createdAt" /></span>
-                <Tag class="bg-red ml-auto px-1 py-1 text-xs" v-if="release.latest">
+                <!-- Red read as a warning on what is the good news in this list. -->
+                <Tag class="bg-primary! text-primary-content ml-auto px-1 py-1 text-xs" v-if="release.latest">
                   {{ $t("releases.latest") }}
                 </Tag>
               </div>
@@ -53,12 +69,18 @@
               </div>
             </template>
           </li>
-          <li v-else>
-            <div class="text-base-content/80 text-sm">
-              {{ $t("releases.no_releases") }}
-            </div>
-          </li>
         </ul>
+
+        <div v-if="announcements.length > 0" class="border-base-content/15 border-t px-2 pt-2">
+          <a
+            href="https://github.com/amir20/dozzle/releases"
+            class="link-primary text-xs"
+            target="_blank"
+            rel="noreferrer noopener"
+          >
+            {{ $t("releases.all") }}
+          </a>
+        </div>
       </div>
     </template>
   </Dropdown>

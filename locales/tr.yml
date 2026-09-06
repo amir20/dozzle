@@ -252,9 +252,11 @@ releases:
   bugFixes: bir hata düzeltmesi | {count} düzeltme
   breaking: bir kırılma değişikliği | {count} kırılma değişikliği
   three_parts: "{first}, {second} ve {third}"
-  two_parts: "{first} ile {second}"
+  two_parts: "{first} ve {second}"
   latest: En son
   no_releases: En son sürüme sahipsiniz
+  newer: "1 yeni sürüm | {count} yeni sürüm"
+  all: Tüm sürümler
 log_actions:
   copy_log: Günlüğü kopyala
   jump_to_context: Bağlama git
@@ -313,6 +315,9 @@ notifications:
     triggered-count: "1 kez tetiklendi | {count} kez tetiklendi"
     never-triggered: Hiç tetiklenmedi
     last-triggered: "Son: {time}"
+    delete-warning: Bu uyarı silinsin mi?
+    delete-cancel: Vazgeç
+    delete-confirm: Sil
   destination:
     http-webhook: HTTP Webhook
     dozzle-cloud: Dozzle Cloud
@@ -484,6 +489,7 @@ cloud:
   link-instance: Örneği bağla
   relink-instance: Örneği yeniden bağla
   connected: Bağlı
+  pro-badge: Dozzle Cloud Pro
   plan: Plan
   usage: Bu dönemdeki olaylar
   dashboard: Pano
