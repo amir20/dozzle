@@ -1,6 +1,37 @@
 <template>
-  <div class="card bg-base-100 border border-transparent" :class="{ 'hover:border-primary': !confirmingDelete }">
-    <div class="card-body gap-2 p-4">
+  <div
+    class="card bg-base-100 border"
+    :class="confirmingDelete ? 'border-error/50' : 'hover:border-primary border-transparent'"
+  >
+    <!-- Confirming replaces the card rather than stacking a banner under it: the card is only
+         288px wide, so a filled alert with two buttons wrapped onto three ragged lines. -->
+    <div v-if="confirmingDelete" class="card-body gap-3 p-4">
+      <div class="flex items-start gap-3">
+        <mdi:alert-outline class="text-error mt-0.5 shrink-0 text-lg" />
+        <div class="min-w-0 flex-1">
+          <h4 class="font-semibold">{{ $t("notifications.destination.delete-warning") }}</h4>
+          <p class="text-base-content/60 mt-1 text-sm">
+            <!-- Deleting orphans every alert pointing here, so name the cost before doing it. -->
+            {{
+              usedByCount
+                ? $t("notifications.destination.delete-warning-used", { count: usedByCount })
+                : $t("notifications.destination.unused")
+            }}
+          </p>
+        </div>
+      </div>
+      <div class="flex justify-end gap-2">
+        <button class="btn btn-sm" :disabled="isDeleting" @click="confirmingDelete = false">
+          {{ $t("notifications.destination.delete-cancel") }}
+        </button>
+        <button class="btn btn-sm btn-error" :disabled="isDeleting" @click="deleteDestination">
+          <span v-if="isDeleting" class="loading loading-spinner loading-xs"></span>
+          {{ $t("notifications.destination.delete-confirm") }}
+        </button>
+      </div>
+    </div>
+
+    <div v-else class="card-body gap-2 p-4">
       <div class="flex items-start gap-3">
         <button
           type="button"
@@ -39,35 +70,18 @@
             class="menu dropdown-content rounded-box bg-base-100 border-base-content/20 z-50 w-40 border p-1 shadow-sm"
           >
             <li>
-              <a @click="editDestination">{{ $t("notifications.destination.edit") }}</a>
+              <a @click="runFromMenu(editDestination)">{{ $t("notifications.destination.edit") }}</a>
             </li>
             <li v-if="destination.type !== 'cloud'">
-              <a @click="duplicateDestination">{{ $t("notifications.destination.duplicate") }}</a>
+              <a @click="runFromMenu(duplicateDestination)">{{ $t("notifications.destination.duplicate") }}</a>
             </li>
             <li v-if="destination.type !== 'cloud'">
-              <a class="text-error" @click="confirmingDelete = true">{{ $t("notifications.destination.delete") }}</a>
+              <a class="text-error" @click="runFromMenu(() => (confirmingDelete = true))">
+                {{ $t("notifications.destination.delete") }}
+              </a>
             </li>
           </ul>
         </div>
-      </div>
-
-      <!-- Deleting orphans every alert pointing here, so name the cost before doing it. -->
-      <div v-if="confirmingDelete" class="alert alert-warning flex-wrap py-2 text-sm">
-        <mdi:alert-outline />
-        <span class="flex-1">
-          {{
-            usedByCount
-              ? $t("notifications.destination.delete-warning-used", { count: usedByCount })
-              : $t("notifications.destination.delete-warning")
-          }}
-        </span>
-        <button class="btn btn-xs" :disabled="isDeleting" @click="confirmingDelete = false">
-          {{ $t("notifications.destination.delete-cancel") }}
-        </button>
-        <button class="btn btn-xs btn-error" :disabled="isDeleting" @click="deleteDestination">
-          <span v-if="isDeleting" class="loading loading-spinner loading-xs"></span>
-          {{ $t("notifications.destination.delete-confirm") }}
-        </button>
       </div>
     </div>
   </div>
@@ -91,6 +105,15 @@ const showDrawer = useDrawer();
 
 const confirmingDelete = ref(false);
 const isDeleting = ref(false);
+
+/**
+ * A CSS-only daisyUI dropdown stays open until it loses focus, so picking an item left the menu
+ * sitting on top of whatever the item revealed.
+ */
+function runFromMenu(action: () => void) {
+  if (document.activeElement instanceof HTMLElement) document.activeElement.blur();
+  action();
+}
 
 function editDestination() {
   showDrawer(
