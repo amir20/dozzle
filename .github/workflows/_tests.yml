@@ -51,6 +51,21 @@ jobs:
         if: ${{ !cancelled() }}
         run: pnpm run test -- --outputTruncateLength=500
 
+  docs-translations:
+    name: Docs Translations
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        name: Install Node
+        with:
+          node-version: latest
+      # There is no Crowdin or Weblate behind docs/, so an English page can change
+      # and leave four translations quietly wrong. Each translated file records the
+      # hash of the source it was written from; this fails when they diverge.
+      - name: Check translations are in sync
+        run: node docs/scripts/check-translations.mjs
+
   go-test:
     name: Go Tests
     runs-on: ubuntu-latest

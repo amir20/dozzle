@@ -1,13 +1,72 @@
 import { createRequire } from "module";
 import { defineConfig } from "vitepress";
+import { buildThemeConfig, type Labels } from "./locales/structure";
+import { en } from "./locales/en";
+import { de } from "./locales/de";
+import { es } from "./locales/es";
+import { fr } from "./locales/fr";
+import { zh } from "./locales/zh";
 
 const require = createRequire(import.meta.url);
 const pkg = require("dozzle/package.json");
 
+// English is the root locale, so it has no path prefix. Every other locale is
+// served from its own directory.
+const TRANSLATIONS: Array<[string, string, Labels]> = [
+  ["root", "", en],
+  ["zh", "/zh", zh],
+  ["de", "/de", de],
+  ["fr", "/fr", fr],
+  ["es", "/es", es],
+];
+
+const locales = Object.fromEntries(
+  TRANSLATIONS.map(([key, base, t]) => [
+    key,
+    {
+      label: t.label,
+      lang: t.lang,
+      description: t.description,
+      themeConfig: buildThemeConfig(base, t, pkg.version),
+    },
+  ]),
+);
+
+const searchLocales = Object.fromEntries(
+  TRANSLATIONS.filter(([key]) => key !== "root").map(([key, , t]) => [
+    key,
+    {
+      translations: {
+        button: { buttonText: t.search.buttonText, buttonAriaLabel: t.search.buttonAriaLabel },
+        modal: {
+          noResultsText: t.search.noResults,
+          resetButtonTitle: t.search.resetButton,
+          footer: {
+            navigateText: t.search.footerNavigate,
+            selectText: t.search.footerSelect,
+            closeText: t.search.footerClose,
+          },
+        },
+      },
+    },
+  ]),
+);
+
+// MiniSearch splits on whitespace and punctuation, which produces nothing
+// useful for Chinese. Intl.Segmenter gives real word boundaries and handles the
+// Latin locales the same way, so it is applied to every index.
+const segmenter =
+  typeof Intl !== "undefined" && "Segmenter" in Intl ? new Intl.Segmenter("zh", { granularity: "word" }) : null;
+
+const tokenize = (text: string): string[] =>
+  segmenter
+    ? [...segmenter.segment(text)].filter((s) => s.isWordLike).map((s) => s.segment)
+    : text.split(/[\n\r\p{Z}\p{P}]+/u).filter(Boolean);
+
 export default defineConfig({
-  lang: "en-US",
   title: "Dozzle",
   description: "A lightweight, open-source, and secure log viewer for Docker.",
+  locales,
 
   lastUpdated: true,
   cleanUrls: true,
@@ -38,97 +97,11 @@ export default defineConfig({
     logo: "/logo.svg",
     search: {
       provider: "local",
+      options: {
+        locales: searchLocales,
+        miniSearch: { options: { tokenize } },
+      },
     },
-    editLink: {
-      pattern: "https://github.com/amir20/dozzle/edit/master/docs/:path",
-    },
-    nav: [
-      { text: "Home", link: "/" },
-      { text: "Guide", link: "/guide/what-is-dozzle", activeMatch: "/guide/" },
-      { text: "Dozzle Cloud", link: "https://cloud.dozzle.dev" },
-      {
-        text: `v${pkg.version}`,
-        items: [
-          {
-            text: "Releases",
-            link: "https://github.com/amir20/dozzle/releases",
-          },
-          {
-            text: "New Issue",
-            link: "https://github.com/amir20/dozzle/issues/new/choose",
-          },
-        ],
-      },
-    ],
-    sidebar: [
-      {
-        text: "Introduction",
-        items: [
-          { text: "What is Dozzle?", link: "/guide/what-is-dozzle" },
-          { text: "Getting Started", link: "/guide/getting-started" },
-          { text: "Introducing dtop 🚀", link: "/guide/dtop" },
-        ],
-      },
-      {
-        text: "Platforms",
-        items: [
-          { text: "Swarm", link: "/guide/swarm-mode" },
-          { text: "K8s", link: "/guide/k8s" },
-          { text: "Podman", link: "/guide/podman" },
-        ],
-      },
-      {
-        text: "Notifications",
-        items: [
-          { text: "Alerts & Webhooks", link: "/guide/alerts-and-webhooks" },
-          { text: "Dozzle Cloud", link: "/guide/dozzle-cloud" },
-        ],
-      },
-      {
-        text: "Advanced Configuration",
-        items: [
-          { text: "Authentication", link: "/guide/authentication" },
-          { text: "Actions", link: "/guide/actions" },
-          { text: "App Icons", link: "/guide/app-icons" },
-          { text: "Shell Access", link: "/guide/shell" },
-          { text: "MCP Integration", link: "/guide/mcp" },
-          { text: "Agent Mode", link: "/guide/agent" },
-          { text: "Reverse Proxy & Base Path", link: "/guide/changing-base" },
-          { text: "Container Names", link: "/guide/container-names" },
-          { text: "Container Groups", link: "/guide/container-groups" },
-          { text: "Container Links", link: "/guide/container-links" },
-          { text: "Data Analytics", link: "/guide/analytics" },
-          { text: "Default Profile", link: "/guide/default-profile" },
-          { text: "Display Name", link: "/guide/hostname" },
-          { text: "Filters", link: "/guide/filters" },
-          { text: "Healthcheck", link: "/guide/healthcheck" },
-          { text: "Remote Hosts", link: "/guide/remote-hosts" },
-          { text: "Following Log Files on Disk", link: "/guide/log-files-on-disk" },
-          { text: "SQL Engine", link: "/guide/sql-engine" },
-        ],
-      },
-      {
-        text: "Troubleshooting",
-        items: [
-          { text: "FAQ", link: "/guide/faq" },
-          { text: "Debugging", link: "/guide/debugging" },
-          { text: "Supported Env Vars", link: "/guide/supported-env-vars" },
-        ],
-      },
-      {
-        text: "About",
-        items: [
-          { text: "Team", link: "/team" },
-          { text: "Support", link: "/support" },
-        ],
-      },
-    ],
-
-    footer: {
-      message: "Released under the MIT License. Open sourced and sponsored by Docker OSS.",
-      copyright: "Copyright © 2019-present <a href='https://amirraminfar.me'>Amir Raminfar</a>",
-    },
-
     socialLinks: [
       { icon: "github", link: "https://github.com/amir20/dozzle" },
       {
