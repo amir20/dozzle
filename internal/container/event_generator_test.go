@@ -13,6 +13,27 @@ import (
 	orderedmap "github.com/wk8/go-ordered-map/v2"
 )
 
+func TestEventGenerator_Pino(t *testing.T) {
+	const message = `{"level":30,"time":1788571152988,"pid":1,"hostname":"example","msg":"Service started"}`
+	for _, stream := range []StdType{STDOUT, STDERR} {
+		t.Run(stream.String(), func(t *testing.T) {
+			g := NewEventGenerator(context.Background(), makeFakeReader("2026-09-05T00:00:00Z "+message, stream), Container{})
+			event := <-g.Events
+
+			require.NotNil(t, event)
+			assert.Equal(t, "info", event.Level)
+			assert.Equal(t, LogTypeComplex, event.Type)
+			assert.Equal(t, stream.String(), event.Stream)
+			assert.Equal(t, message, event.RawMessage)
+			data, ok := event.Message.(*orderedmap.OrderedMap[string, any])
+			require.True(t, ok)
+			level, ok := data.Get("level")
+			require.True(t, ok)
+			assert.Equal(t, float64(30), level)
+		})
+	}
+}
+
 func TestEventGenerator_Events_tty(t *testing.T) {
 	input := "example input"
 

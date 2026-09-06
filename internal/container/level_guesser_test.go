@@ -7,6 +7,47 @@ import (
 	orderedmap "github.com/wk8/go-ordered-map/v2"
 )
 
+func TestGuessPinoLogLevel(t *testing.T) {
+	tests := []struct {
+		input    string
+		expected string
+	}{
+		{`{"level":10,"msg":"trace message"}`, "trace"},
+		{`{"level":20,"msg":"debug message"}`, "debug"},
+		{`{"level":30,"time":1788571152988,"pid":1,"hostname":"example","msg":"Service started"}`, "info"},
+		{`{"level":40,"msg":"warning message"}`, "warn"},
+		{`{"level":50,"msg":"error message"}`, "error"},
+		{`{"level":60,"msg":"fatal message"}`, "fatal"},
+		{`{"level":30.0}`, "info"},
+		{`{"level":35}`, "unknown"},
+		{`{"level":30.5}`, "unknown"},
+		{`{"level":0}`, "unknown"},
+		{`{"level":-10}`, "unknown"},
+		{`{"level":70}`, "unknown"},
+		{`{"level":null}`, "unknown"},
+		{`{"level":true}`, "unknown"},
+		{`{"level":"30"}`, "unknown"},
+		{`{"severity":30}`, "unknown"},
+		{`{"@l":30}`, "unknown"},
+		{`{"log.level":30}`, "unknown"},
+		{`{"@l":"error","level":30}`, "error"},
+		{`{"level":30,"severity":"error"}`, "info"},
+		{`{"level":35,"severity":"warn"}`, "warn"},
+	}
+	for _, test := range tests {
+		t.Run(test.input, func(t *testing.T) {
+			// Exercise the same JSON decoding path as container logs.
+			event := createEvent("2026-09-05T00:00:00Z "+test.input, STDOUT)
+			if event.Type != LogTypeComplex {
+				t.Fatalf("Expected JSON log event, got %v", event.Type)
+			}
+			if actual := guessLogLevel(event); actual != test.expected {
+				t.Errorf("Expected %s, got %s", test.expected, actual)
+			}
+		})
+	}
+}
+
 func TestGuessLogLevel(t *testing.T) {
 	var nilOrderedMap *orderedmap.OrderedMap[string, any]
 	tests := []struct {

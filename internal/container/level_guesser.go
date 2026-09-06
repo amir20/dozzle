@@ -68,6 +68,16 @@ var timestampRegex = regexp.MustCompile(`^(?:\d{4}[-/]\d{2}[-/]\d{2}(?:[T ](?:\d
 // JSON keys to check for log level (in priority order).
 var levelKeys = []string{"@l", "level", "log.level", "severity"}
 
+// Pino's default numeric levels. JSON numbers decode to float64.
+var pinoLevels = map[float64]string{
+	10: "trace",
+	20: "debug",
+	30: "info",
+	40: "warn",
+	50: "error",
+	60: "fatal",
+}
+
 func init() {
 	SupportedLogLevels = make(map[string]struct{}, len(logLevels)+1)
 	var aliases []string
@@ -118,6 +128,11 @@ func guessLogLevel(logEvent *LogEvent) string {
 			if v, ok := value.Get(key); ok {
 				if s, ok := v.(string); ok {
 					return normalizeLogLevel(s)
+				}
+				if n, ok := v.(float64); ok && key == "level" {
+					if level, ok := pinoLevels[n]; ok {
+						return level
+					}
 				}
 			}
 		}
