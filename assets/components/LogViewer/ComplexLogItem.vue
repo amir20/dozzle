@@ -23,7 +23,7 @@
     </ul>
   </DefineTemplate>
   <LogItem :logEntry>
-    <LogLevel class="flex select-none" :level="logEntry.level" />
+    <LogLevel class="flex select-none" :level="logEntry.level" :event="logEntry.matchedEvent" />
     <div @click="containers.length > 0 && showDrawer(LogDetails, { entry: logEntry })" class="cursor-pointer">
       <ReuseTemplate :data="validValues" />
     </div>

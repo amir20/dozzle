@@ -2,7 +2,12 @@
   <LogItem :logEntry>
     <div class="flex flex-col">
       <div v-for="(msg, index) in logEntry.message" :key="index" class="flex items-start gap-x-2">
-        <LogLevel class="flex select-none" :level="logEntry.level" :position="getPosition(index)" />
+        <LogLevel
+          class="flex select-none"
+          :level="logEntry.level"
+          :position="getPosition(index)"
+          :event="index === 0 ? logEntry.matchedEvent : undefined"
+        />
         <div
           class="[word-break:break-word] whitespace-pre-wrap group-[.disable-wrap]:whitespace-pre"
           v-html="colorize(msg)"

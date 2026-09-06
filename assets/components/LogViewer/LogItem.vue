@@ -17,18 +17,6 @@
       <LogDate v-if="showTimestamp" :date="logEntry.date" class="shrink-0 select-none" />
     </div>
 
-    <!-- Cloud matched a notification on this exact line. Badged here rather
-         than inserted as its own row: the event IS this line, so a separate
-         marker would duplicate it — and during a storm would put one between
-         every pair of lines. -->
-    <span
-      v-if="logEntry.matchedEvent"
-      class="event-badge shrink-0 select-none"
-      :title="logEntry.matchedEvent.suppressed ? $t('label.event-suppressed-hint') : $t('label.event-sent-hint')"
-    >
-      <mdi:bell-off v-if="logEntry.matchedEvent.suppressed" class="size-3.5" />
-      <mdi:bell-alert v-else class="size-3.5" />
-    </span>
     <slot />
   </div>
 </template>
@@ -46,16 +34,3 @@ const { hosts } = useHosts();
 const container = currentContainer(toRef(() => logEntry.containerID));
 const host = computed(() => hosts.value[container.value.host]);
 </script>
-
-<style scoped>
-@reference "@/main.css";
-/* Quiet by default: a badge on every line of a storm must not out-shout the
-   logs. The delivered one keeps the alert colour because it marks the moment
-   something was actually sent. */
-.event-badge {
-  @apply mt-0.5 opacity-45 transition-opacity;
-}
-.event-badge:hover {
-  @apply opacity-100;
-}
-</style>
