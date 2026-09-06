@@ -2,7 +2,7 @@
 title: SQL Engine
 ---
 
-# SQL Engine <Badge type="warning" text="beta" /> <Badge type="tip" text="v8.5x" />
+# SQL Engine
 
 The SQL Engine is a powerful tool that allows you to run SQL queries against your data. It is designed to provide a seamless experience for users who are familiar with SQL and want to interact with their data using a familiar language.
 

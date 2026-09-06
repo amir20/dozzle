@@ -6,7 +6,7 @@ title: Swarm Mode
 
 <Badge type="warning" text="Docker Only" />
 
-Dozzle supports Docker Swarm Mode starting from version 8. When using Swarm Mode, Dozzle will automatically discover services and custom groups. Dozzle does not use Swarm API internally as it is [limited](https://github.com/moby/moby/issues/33183). Instead, Dozzle implements its own grouping using swarm labels. Additionally, Dozzle merges stats for containers in a group. This means that you can see logs and stats for all containers in a group in one view. However, it does mean each host needs to be set up with Dozzle.
+Dozzle supports Docker Swarm Mode. When using Swarm Mode, Dozzle will automatically discover services and custom groups. Dozzle does not use Swarm API internally as it is [limited](https://github.com/moby/moby/issues/33183). Instead, Dozzle implements its own grouping using swarm labels. Additionally, Dozzle merges stats for containers in a group. This means that you can see logs and stats for all containers in a group in one view. However, it does mean each host needs to be set up with Dozzle.
 
 ## <Icon icon="mdi:cogs" inline /> How Does It Work?
 
@@ -83,7 +83,7 @@ In this example, `users.yml` file is stored in a Docker secret. It is the same a
 
 ## <Icon icon="mdi:server-plus-outline" inline /> Adding Standalone Agents to Swarm Mode
 
-From version v8.8.x, Dozzle supports adding standalone [Agents](/guide/agent) when running in Swarm Mode.
+Dozzle supports adding standalone [Agents](/guide/agent) when running in Swarm Mode.
 
 Simply [add the remote agent](/guide/agent#how-to-connect-to-an-agent) to your Swarm compose in the same way you normally would.
 

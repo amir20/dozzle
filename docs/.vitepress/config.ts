@@ -103,7 +103,7 @@ export default defineConfig({
           { text: "Filters", link: "/guide/filters" },
           { text: "Healthcheck", link: "/guide/healthcheck" },
           { text: "Remote Hosts", link: "/guide/remote-hosts" },
-          { text: "Logging Files on Disk", link: "/guide/log-files-on-disk" },
+          { text: "Following Log Files on Disk", link: "/guide/log-files-on-disk" },
           { text: "SQL Engine", link: "/guide/sql-engine" },
         ],
       },

@@ -194,8 +194,8 @@ podman run -d \
   --name dozzle \
   -p 3000:8080 \
   ghcr.io/amir20/dozzle:latest \
-  --agent "host1.example.com:7007" \
-  --agent "host2.example.com:7007"
+  --remote-agent "host1.example.com:7007" \
+  --remote-agent "host2.example.com:7007"
 ```
 
 Or with environment variables:

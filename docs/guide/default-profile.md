@@ -29,14 +29,14 @@ If the file does not exist, Dozzle starts with built-in defaults. You only need 
     "smallerScrollbars": false,
     "search": false,
     "compact": false,
-    "menuWidth": 250,
+    "menuWidth": 15,
     "size": "medium",
     "lightTheme": "auto",
     "hourStyle": "auto",
     "dateLocale": "auto",
     "locale": "en",
-    "groupContainers": "stack",
-    "automaticRedirect": ""
+    "groupContainers": "at-least-2",
+    "automaticRedirect": "delayed"
   },
   "pinned": [],
   "visibleKeys": [],
@@ -48,26 +48,28 @@ All fields are optional — include only the ones you want to override.
 
 ## Available Settings
 
-| Field               | Type    | Description                                                          |
-| ------------------- | ------- | -------------------------------------------------------------------- |
-| `showTimestamp`     | boolean | Show timestamps next to each log line                                |
-| `showStd`           | boolean | Show stdout/stderr stream indicator                                  |
-| `showAllContainers` | boolean | Include stopped containers in the sidebar                            |
-| `softWrap`          | boolean | Wrap long log lines instead of horizontal scroll                     |
-| `collapseNav`       | boolean | Start with the sidebar collapsed                                     |
-| `smallerScrollbars` | boolean | Use thinner scrollbars                                               |
-| `search`            | boolean | Enable inline search by default                                      |
-| `compact`           | boolean | Compact log row spacing                                              |
-| `menuWidth`         | number  | Sidebar width in pixels                                              |
-| `size`              | string  | Font size: `small`, `medium`, `large`                                |
-| `lightTheme`        | string  | Theme preference: `auto`, `light`, `dark`                            |
-| `hourStyle`         | string  | Time format: `auto`, `12`, `24`                                      |
-| `dateLocale`        | string  | Locale used for date/time formatting (e.g. `en-US`, `de-DE`, `auto`) |
-| `locale`            | string  | UI language (e.g. `en`, `fr`, `de`)                                  |
-| `groupContainers`   | string  | Default sidebar grouping (e.g. `stack`, `none`)                      |
-| `automaticRedirect` | string  | Path to redirect to on load                                          |
+| Field               | Type    | Description                                                      |
+| ------------------- | ------- | ---------------------------------------------------------------- |
+| `showTimestamp`     | boolean | Show timestamps next to each log line                            |
+| `showStd`           | boolean | Show stdout/stderr stream indicator                              |
+| `showAllContainers` | boolean | Include stopped containers in the sidebar                        |
+| `softWrap`          | boolean | Wrap long log lines instead of horizontal scroll                 |
+| `collapseNav`       | boolean | Start with the sidebar collapsed                                 |
+| `smallerScrollbars` | boolean | Use thinner scrollbars                                           |
+| `search`            | boolean | Enable inline search by default                                  |
+| `compact`           | boolean | Compact log row spacing                                          |
+| `menuWidth`         | number  | Sidebar width as a percentage of the window. Capped at `50`.     |
+| `size`              | string  | Font size: `small`, `medium`, `large`                            |
+| `lightTheme`        | string  | Theme preference: `auto`, `light`, `dark`                        |
+| `hourStyle`         | string  | Time format: `auto`, `12`, `24`                                  |
+| `dateLocale`        | string  | Date/time formatting: `auto`, `en-US`, `en-GB`, `de-DE`, `en-CA` |
+| `locale`            | string  | UI language (e.g. `en`, `fr`, `de`)                              |
+| `groupContainers`   | string  | Sidebar grouping: `always`, `at-least-2`, `never`                |
+| `automaticRedirect` | string  | Redirect to a new container: `instant`, `delayed`, `none`        |
 
-The top-level fields `pinned`, `visibleKeys`, and `collapsedGroups` accept arrays and let you pre-pin containers or pre-collapse groups for first-time visitors.
+Values outside these sets are not accepted, so `groupContainers: "stack"` or a `dateLocale` of `fr-FR` will not do what you expect.
+
+The top-level fields `pinned`, `visibleKeys`, and `collapsedGroups` accept arrays and let you pre-pin containers or pre-collapse groups for first-time visitors. Dozzle also writes `releaseSeen`, `dismissedImageUpdates`, and `dismissedLinkHint` at the top level to remember what a user has already dismissed. Seeding `dismissedLinkHint: true` suppresses the first-run link hint for everyone.
 
 ## How It Works
 

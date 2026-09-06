@@ -15,6 +15,7 @@ Dozzle has access to `docker.sock`, which — unless restricted — is equivalen
 - **Always put Dozzle behind authentication** if it is reachable from the public internet. Use `--auth-provider=simple` or a forward-proxy like Authelia / Authentik / Cloudflare Access.
 - **Keep [actions](/guide/actions) and [shell access](/guide/shell) disabled** unless you need them. They allow starting, stopping, recreating, and executing arbitrary commands inside containers.
 - **Restrict users with [roles](#setting-specific-roles-for-users) and [filters](#setting-specific-filters-for-users)** in multi-user mode. Without explicit roles, a user can see every container the Dozzle instance can.
+- **Never expose Dozzle's port directly in forward-proxy mode.** Dozzle trusts `Remote-User` on every request, and when no roles header is present the user is granted all roles. Anyone who can reach the container without passing through the proxy authenticates as whoever they like by setting one header. Publish only the proxy, and keep Dozzle on an internal network with `expose` rather than `ports`.
 - **Run TLS at the reverse proxy**. See [Reverse Proxy & Base Path](/guide/changing-base) for Nginx / Traefik / Caddy examples.
 - **Restrict `docker.sock` access with a proxy** if you don't need actions. Note that a read-only mount (`/var/run/docker.sock:/var/run/docker.sock:ro`) does _not_ limit the API: the `:ro` flag only marks the socket file read-only on disk, while API calls still pass through the socket normally, so create/delete/update remain possible. To actually restrict operations, put a socket proxy like [`tecnativa/docker-socket-proxy`](https://github.com/Tecnativa/docker-socket-proxy) in front of the daemon.
 
@@ -44,7 +45,7 @@ users:
 Dozzle uses `email` to generate avatars using [Gravatar](https://gravatar.com/). It is optional. The password is hashed using `bcrypt` which can be generated using `docker run amir20/dozzle generate`.
 
 > [!WARNING]
-> In previous versions of Dozzle, SHA-256 was used to hash passwords. Bcrypt is now more secure and is recommended for future use. Dozzle will revert to SHA-256 if it does not find a bcrypt hash. It is advisable to update the password hash to bcrypt using `generate`. For more details, see [this issue](https://github.com/amir20/dozzle/security/advisories/GHSA-w7qr-q9fh-fj35).
+> SHA-256 password hashes are no longer supported. Older versions of Dozzle hashed passwords with SHA-256, and a `users.yml` still holding one will load without complaint but the process exits as soon as that user tries to log in. Regenerate every password with `generate` before upgrading. For more details, see [this advisory](https://github.com/amir20/dozzle/security/advisories/GHSA-w7qr-q9fh-fj35).
 
 You will need to mount this file for Dozzle to find it. Here is an example:
 
@@ -197,6 +198,8 @@ Any role can be prefixed with `^` to exclude it. Exclusions are applied last, so
 roles: all,^shell # everything except shell
 ```
 
+`none` is the one role that cannot be negated. `^none` is ignored, and a plain `none` anywhere in the list drops every other role.
+
 ## <Icon icon="mdi:file-document-edit-outline" inline /> Generating users.yml
 
 Dozzle has a built-in `generate` command to generate `users.yml`. Here is an example:
@@ -222,7 +225,7 @@ Dozzle can be configured to read proxy headers by setting `--auth-provider` to `
 ::: code-group
 
 ```sh [cli]
-$ docker run -v /var/run/docker.sock:/var/run/docker.sock -p 8080:8080 amir20/dozzle --auth-provider forward-proxy
+$ docker run -v /var/run/docker.sock:/var/run/docker.sock -v /path/to/dozzle/data:/data -p 8080:8080 amir20/dozzle --auth-provider forward-proxy
 ```
 
 ```yaml [docker-compose.yml]
@@ -231,6 +234,7 @@ services:
     image: amir20/dozzle:latest
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
+      - /path/to/dozzle/data:/data
     ports:
       - 8080:8080
     environment:
@@ -238,6 +242,8 @@ services:
 ```
 
 :::
+
+Mount `/data` here as well. Per-user settings are written to disk in forward-proxy mode too, and without the volume they are lost every time the container is recreated.
 
 In this mode, Dozzle expects the following headers:
 
@@ -281,15 +287,15 @@ services:
       - "traefik.http.routers.authelia.entrypoints=https"
       - "traefik.http.routers.authelia.tls=true"
       - "traefik.http.routers.authelia.tls.options=default"
-      - "traefik.http.middlewares.authelia.forwardauth.address=http://authelia:9091/api/verify?rd=https://authelia.example.com"
-      - "traefik.http.middlewares.authelia.forwardauth.trustForwardHeader=true"
-      - "traefik.http.middlewares.authelia.forwardauth.authResponseHeaders=Remote-User,Remote-Groups,Remote-Name,Remote-Email"
+      - "traefik.http.middlewares.authelia.forwardAuth.address=http://authelia:9091/api/authz/forward-auth"
+      - "traefik.http.middlewares.authelia.forwardAuth.trustForwardHeader=true"
+      - "traefik.http.middlewares.authelia.forwardAuth.authResponseHeaders=Remote-User,Remote-Groups,Remote-Name,Remote-Email"
     expose:
       - 9091
     restart: unless-stopped
 
   traefik:
-    image: traefik:2.10.5
+    image: traefik:v3.5
     container_name: traefik
     volumes:
       - ./traefik:/etc/traefik
@@ -329,6 +335,7 @@ services:
       DOZZLE_AUTH_PROVIDER: forward-proxy
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
+      - dozzle:/data
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.dozzle.rule=Host(`dozzle.example.com`)"
@@ -339,6 +346,9 @@ services:
     expose:
       - 8080
     restart: unless-stopped
+
+volumes:
+  dozzle:
 ```
 
 ```yaml [configuration.yml]
@@ -346,18 +356,18 @@ services:
 #                   Authelia configuration                      #
 ###############################################################
 
-jwt_secret: a_very_important_secret
-default_redirection_url: https://public.example.com
-
 server:
-  host: 0.0.0.0
-  port: 9091
+  address: tcp://0.0.0.0:9091
 
 log:
   level: info
 
 totp:
   issuer: authelia.com
+
+identity_validation:
+  reset_password:
+    jwt_secret: a_very_important_secret
 
 authentication_backend:
   file:
@@ -373,7 +383,10 @@ access_control:
 
 session:
   secret: unsecure_session_secret
-  domain: example.com # Should match whatever your root protected domain is
+  cookies:
+    - domain: example.com # Should match whatever your root protected domain is
+      authelia_url: https://authelia.example.com
+      default_redirection_url: https://public.example.com
 
 regulation:
   max_retries: 3
@@ -394,6 +407,8 @@ notifier:
 
 Valid SSL keys are required because Authelia only supports SSL.
 
+Authelia sends group membership in `Remote-Groups`, and Dozzle does not read that header by default. To map Authelia groups onto Dozzle [roles](#setting-specific-roles-for-users), set `DOZZLE_AUTH_HEADER_ROLES: Remote-Groups` on the Dozzle service and name the groups after the roles. The `dozzle_` prefixed aliases exist for this, so a group called `dozzle_shell` grants the `shell` role and other group names are ignored. Without that mapping every authenticated user gets all roles.
+
 </details>
 
 ### Setting up Dozzle with Cloudflare Zero Trust
@@ -404,8 +419,6 @@ Cloudflare Zero Trust is a service for authenticated access to self-hosted softw
 services:
   dozzle:
     image: amir20/dozzle:latest
-    networks:
-      - net
     environment:
       DOZZLE_AUTH_PROVIDER: forward-proxy
       DOZZLE_AUTH_HEADER_USER: Cf-Access-Authenticated-User-Email
@@ -413,10 +426,16 @@ services:
       DOZZLE_AUTH_HEADER_NAME: Cf-Access-Authenticated-User-Email
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
+      - dozzle:/data
     expose:
       - 8080
     restart: unless-stopped
+
+volumes:
+  dozzle:
 ```
+
+`expose` keeps port 8080 off the host, so the only way in is through the tunnel. Publishing it with `ports` would let anyone on the host set `Cf-Access-Authenticated-User-Email` themselves and skip Cloudflare entirely.
 
 After running the Dozzle container, configure the Application in Cloudflare Zero Trust dashboard by following the [guide](https://developers.cloudflare.com/cloudflare-one/applications/configure-apps/self-hosted-apps/).
 
