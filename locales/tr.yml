@@ -509,7 +509,7 @@ cloud:
     never-heading: "Asla gönderilmez:"
     never-env: "Ortam değişkenleri"
     off-note: "Günlükleri ve metrikleri bu örnekte tutmak için bunu kapatın. Kurduğunuz uyarılar yine iletilir ve uzaktan konteyner erişimi çalışmaya devam eder."
-    per-container: "Tek bir konteyneri şu etiketle hariç tutun: dev.dozzle.cloud.min_level=disabled"
+    per-container: "Tek bir konteynerin günlüklerini şu etiketle durdurun: dev.dozzle.cloud.min_level=disabled"
     required-for: "Yapay zeka incelemeleri, günlük araması ve kaynak geçmişi için gereklidir."
   welcome:
     watching-title: "Cloud loglarınızı sizin yerinize izler"

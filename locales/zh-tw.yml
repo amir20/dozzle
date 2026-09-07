@@ -508,7 +508,7 @@ cloud:
     never-heading: "永不傳送："
     never-env: "環境變數"
     off-note: "停用後，日誌與指標將保留在此執行個體上。已設定的警示仍會送達，遠端容器存取也仍可使用。"
-    per-container: "若要排除單一容器，請使用標籤：dev.dozzle.cloud.min_level=disabled"
+    per-container: "若要停止單一容器的日誌，請使用標籤：dev.dozzle.cloud.min_level=disabled"
     required-for: "AI 分析、日誌搜尋與資源歷史記錄所需。"
   welcome:
     watching-title: "Cloud 替你盯著日誌"

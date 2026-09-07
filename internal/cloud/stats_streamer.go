@@ -85,12 +85,17 @@ type statAcc struct {
 }
 
 // containerMeta is the per-window metadata snapshot needed to turn raw stats
-// into a wire entry: the container's name, the core count to normalise CPU by,
-// and whether the user opted the container out.
+// into a wire entry: the container's name and the core count to normalise CPU
+// by.
+//
+// Note there is deliberately no opt-out here. dev.dozzle.cloud.min_level is a
+// LOG level filter and governs the log stream only — its published contract
+// says nothing about metrics, and reading it here made
+// `min_level=disabled` silently blank a container's CPU/memory graphs too.
+// A metrics opt-out needs its own label, not this one.
 type containerMeta struct {
-	name     string
-	cores    float64
-	disabled bool
+	name  string
+	cores float64
 }
 
 // statsStreamer aggregates raw container stats into fixed windows and pushes
@@ -192,13 +197,9 @@ func (ss *statsStreamer) run(ctx context.Context) {
 	}
 }
 
-// observe folds one raw sample into its accumulator. Samples for a container
-// the user disabled are dropped here so they never occupy memory.
+// observe folds one raw sample into its accumulator.
 func (ss *statsStreamer) observe(s StatSample) {
 	key := seriesKey{hostID: s.HostID, containerID: s.Stat.ID}
-	if m, ok := ss.meta[key]; ok && m.disabled {
-		return
-	}
 
 	a, ok := ss.acc[key]
 	if !ok {
@@ -254,9 +255,6 @@ func (ss *statsStreamer) flush(now time.Time) error {
 			continue
 		}
 		delete(ss.acc, key)
-		if m.disabled {
-			continue
-		}
 
 		n := float64(a.samples)
 		cores := m.cores
@@ -411,15 +409,6 @@ func (ss *statsStreamer) buildMeta() map[seriesKey]containerMeta {
 
 	meta := make(map[seriesKey]containerMeta, len(containers))
 	for _, c := range containers {
-		// A container the user opted out of log streaming with the min_level
-		// label shouldn't quietly keep reporting metrics either.
-		_, disabled, valid := parseMinLevel(c.Labels[cloudMinLevelLabel])
-		if !valid {
-			// logStreamer already logs the invalid value loudly for this
-			// container; don't double-report it every 30 seconds.
-			disabled = false
-		}
-
 		cores := c.CPULimit
 		if cores <= 0 {
 			cores = float64(ncpuByHost[c.Host])
@@ -429,9 +418,8 @@ func (ss *statsStreamer) buildMeta() map[seriesKey]containerMeta {
 		}
 
 		meta[seriesKey{hostID: c.Host, containerID: c.ID}] = containerMeta{
-			name:     c.Name,
-			cores:    cores,
-			disabled: disabled,
+			name:  c.Name,
+			cores: cores,
 		}
 	}
 	return meta

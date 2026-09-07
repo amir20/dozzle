@@ -506,7 +506,7 @@ cloud:
     never-heading: "Wordt nooit verstuurd:"
     never-env: "Omgevingsvariabelen"
     off-note: "Schakel dit uit om logs en metrieken op deze instantie te houden. Ingestelde meldingen worden nog steeds bezorgd en toegang tot containers op afstand blijft werken."
-    per-container: "Sluit één container uit met het label: dev.dozzle.cloud.min_level=disabled"
+    per-container: "Stop de logs van één container met het label: dev.dozzle.cloud.min_level=disabled"
     required-for: "Vereist voor AI-onderzoek, zoeken in logs en resourcegeschiedenis."
   welcome:
     watching-title: "Cloud houdt je logs in de gaten zodat jij dat niet hoeft"

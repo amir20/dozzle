@@ -505,7 +505,7 @@ cloud:
     never-heading: "Non viene mai inviato:"
     never-env: "Le variabili d'ambiente"
     off-note: "Disattiva per mantenere log e metriche su questa istanza. Gli avvisi che hai configurato continuano a essere recapitati e l'accesso remoto ai container funziona ancora."
-    per-container: "Escludi un singolo container con l'etichetta: dev.dozzle.cloud.min_level=disabled"
+    per-container: "Interrompi i log di un singolo container con l'etichetta: dev.dozzle.cloud.min_level=disabled"
     required-for: "Necessario per le indagini con IA, la ricerca nei log e lo storico delle risorse."
   welcome:
     watching-title: "Cloud tiene d'occhio i tuoi log così non devi farlo tu"

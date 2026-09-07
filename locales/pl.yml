@@ -508,7 +508,7 @@ cloud:
     never-heading: "Nigdy nie jest wysyłane:"
     never-env: "Zmienne środowiskowe"
     off-note: "Wyłącz tę opcję, aby logi i metryki pozostały w tej instancji. Skonfigurowane alerty nadal będą dostarczane, a zdalny dostęp do kontenerów nadal działa."
-    per-container: "Wyklucz pojedynczy kontener etykietą: dev.dozzle.cloud.min_level=disabled"
+    per-container: "Zatrzymaj logi pojedynczego kontenera etykietą: dev.dozzle.cloud.min_level=disabled"
     required-for: "Wymagane do analiz AI, wyszukiwania w logach i historii zasobów."
   welcome:
     watching-title: "Cloud pilnuje twoich logów, żebyś nie musiał tego robić"

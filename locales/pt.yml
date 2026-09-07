@@ -505,7 +505,7 @@ cloud:
     never-heading: "Nunca é enviado:"
     never-env: "Variáveis de ambiente"
     off-note: "Desative para manter os logs e as métricas nesta instância. Os alertas que você configurou continuam sendo entregues e o acesso remoto aos contêineres continua funcionando."
-    per-container: "Exclua um contêiner específico com o rótulo: dev.dozzle.cloud.min_level=disabled"
+    per-container: "Interrompa os logs de um contêiner específico com o rótulo: dev.dozzle.cloud.min_level=disabled"
     required-for: "Necessário para investigações com IA, busca em logs e histórico de recursos."
   welcome:
     watching-title: "O Cloud vigia os seus logs para não ter de o fazer"

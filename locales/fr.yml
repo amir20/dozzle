@@ -505,7 +505,7 @@ cloud:
     never-heading: "Jamais envoyé :"
     never-env: "Les variables d'environnement"
     off-note: "Désactivez pour conserver les journaux et les métriques sur cette instance. Les alertes que vous avez configurées continuent d'être envoyées et l'accès distant aux conteneurs fonctionne toujours."
-    per-container: "Exclure un seul conteneur avec le label : dev.dozzle.cloud.min_level=disabled"
+    per-container: "Arrêter les journaux d'un seul conteneur avec le label : dev.dozzle.cloud.min_level=disabled"
     required-for: "Requis pour les investigations par IA, la recherche dans les journaux et l'historique des ressources."
   welcome:
     watching-title: "Cloud surveille vos logs pour que vous n'ayez pas à le faire"

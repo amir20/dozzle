@@ -549,7 +549,7 @@ cloud:
     never-heading: "Nunca se envía:"
     never-env: "Variables de entorno"
     off-note: "Desactívelo para mantener los registros y las métricas en esta instancia. Las alertas que haya configurado se siguen entregando y el acceso remoto a los contenedores sigue funcionando."
-    per-container: "Excluya un contenedor concreto con la etiqueta: dev.dozzle.cloud.min_level=disabled"
+    per-container: "Detenga los registros de un solo contenedor con la etiqueta: dev.dozzle.cloud.min_level=disabled"
     required-for: "Necesario para investigaciones con IA, búsqueda de registros e historial de recursos."
   welcome:
     watching-title: "Cloud vigila tus logs para que tú no tengas que hacerlo"
