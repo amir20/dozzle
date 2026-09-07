@@ -11,7 +11,7 @@
     {{ $t("label.no-logs") }}
   </div>
   <slot :messages="messages" v-else></slot>
-  <IndeterminateBar :color v-if="!historical" />
+  <IndeterminateBar :color :intensity="streaming ? 1 : 0" v-if="!historical" />
 </template>
 
 <script lang="ts" setup generic="T">
@@ -37,6 +37,12 @@ const color = computed(() => {
   if (opened.value) return "primary";
   return "error";
 });
+
+// The bar reflects real throughput. `messages` is a shallow ref replaced once
+// per buffer flush, so every arriving batch relights it and it fades back after
+// a couple of seconds of quiet instead of implying logs are still pouring in.
+const streaming = refAutoReset(false, 2000);
+watch(messages, () => (streaming.value = true));
 
 const noLogs = computed(() => messages.value.length === 0);
 const waitingForMoreLog = refAutoReset(false, 3000);

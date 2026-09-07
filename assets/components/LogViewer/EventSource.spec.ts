@@ -10,6 +10,7 @@ import { createI18n } from "vue-i18n";
 import { createRouter, createWebHistory } from "vue-router";
 import { default as Component } from "./EventSource.vue";
 import SearchStatus from "./SearchStatus.vue";
+import IndeterminateBar from "@/components/common/IndeterminateBar.vue";
 import LogViewer from "@/components/LogViewer/LogViewer.vue";
 import { Container } from "@/models/Container";
 import { Level } from "@/models/LogEntry";
@@ -171,6 +172,23 @@ describe("<ContainerEventSource />", () => {
     // @ts-ignore
     const [message, _] = wrapper.vm.messages;
     expect(message).toMatchSnapshot();
+  });
+
+  describe("live bar", () => {
+    test("lights up on an incoming batch and dims once the stream goes quiet", async () => {
+      const wrapper = createLogEventSource();
+      sources[sourceUrl].emitOpen();
+      sources[sourceUrl].emitMessage({
+        data: `{"ts":1560336942459, "m":"This is a message.", "id":1, "rm": "This is a message.", "c": "abc"}`,
+      });
+
+      // Past the 250ms buffer debounce, so the batch has flushed into messages.
+      await vi.advanceTimersByTimeAsync(300);
+      expect(wrapper.findComponent(IndeterminateBar).props("intensity")).toBe(1);
+
+      await vi.advanceTimersByTimeAsync(2100);
+      expect(wrapper.findComponent(IndeterminateBar).props("intensity")).toBe(0);
+    });
   });
 
   describe("search status", () => {
