@@ -71,7 +71,11 @@ func (k *K8sClientService) StreamLogs(ctx context.Context, c container.Container
 	k8sReader := k8s.NewLogReader(reader)
 	g := container.NewEventGenerator(ctx, k8sReader, c)
 	for event := range g.Events {
-		events <- event
+		select {
+		case events <- event:
+		case <-ctx.Done():
+			return ctx.Err()
+		}
 	}
 
 	select {

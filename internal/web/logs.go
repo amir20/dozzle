@@ -515,11 +515,14 @@ func (h *handler) streamLogsForContainers(w http.ResponseWriter, r *http.Request
 				if c.FinishedAt.IsZero() {
 					finishedAt = time.Now()
 				}
-				events <- &container.ContainerEvent{
+				select {
+				case events <- &container.ContainerEvent{
 					ActorID: c.ID,
 					Name:    "container-stopped",
 					Host:    c.Host,
 					Time:    finishedAt,
+				}:
+				case <-r.Context().Done():
 				}
 			} else if errors.Is(err, context.Canceled) || r.Context().Err() != nil {
 				// the client went away; a read already in flight comes back as
@@ -552,7 +555,17 @@ loop:
 			sseWriter.Message(logEvent)
 		case c := <-newContainers:
 			if _, err := h.hostService.FindContainer(c.Host, c.ID, userLabels); err == nil {
-				events <- &container.ContainerEvent{ActorID: c.ID, Name: "container-started", Host: c.Host, Time: time.Now()}
+				// Written straight to the client instead of pushed through `events`.
+				// This case runs on the same goroutine that drains `events`, so a send
+				// here waits on a reader that is this very statement: with the buffer
+				// already holding a container-stopped from streamLogs — which is what a
+				// redeploy produces — the handler deadlocks for good. It then stops
+				// draining newContainers, which backs up into the shared container store
+				// and freezes it for every client on that host.
+				event := &container.ContainerEvent{ActorID: c.ID, Name: "container-started", Host: c.Host, Time: time.Now()}
+				if err := sseWriter.Event("container-event", event); err != nil {
+					log.Error().Err(err).Msg("error encoding container event")
+				}
 				go streamLogs(c)
 			}
 

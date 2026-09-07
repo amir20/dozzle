@@ -91,7 +91,11 @@ func (d *DockerClientService) StreamLogs(ctx context.Context, c container.Contai
 	dockerReader := docker.NewLogReader(reader, c.Tty)
 	g := container.NewEventGenerator(ctx, dockerReader, c)
 	for event := range g.Events {
-		events <- event
+		select {
+		case events <- event:
+		case <-ctx.Done():
+			return ctx.Err()
+		}
 	}
 
 	select {
@@ -156,10 +160,20 @@ func (d *DockerClientService) CheckImageUpdate(ctx context.Context, c container.
 func (d *DockerClientService) UpdateContainer(ctx context.Context, c container.Container, progressCh chan<- container.UpdateProgress) (bool, error) {
 	defer close(progressCh)
 
+	// The consumer is a request: an SSE handler that returns the moment a write
+	// to the client fails, or an agent stream that ends with its RPC. An
+	// unguarded send outlives it and parks this goroutine mid-update forever.
+	progress := func(p container.UpdateProgress) {
+		select {
+		case progressCh <- p:
+		case <-ctx.Done():
+		}
+	}
+
 	// 1. Inspect container to get full config
 	inspectResp, err := d.client.ContainerInspect(ctx, c.ID)
 	if err != nil {
-		progressCh <- container.UpdateProgress{Status: "error", Error: fmt.Sprintf("inspect failed: %v", err)}
+		progress(container.UpdateProgress{Status: "error", Error: fmt.Sprintf("inspect failed: %v", err)})
 		return false, err
 	}
 
@@ -168,7 +182,7 @@ func (d *DockerClientService) UpdateContainer(ctx context.Context, c container.C
 	// 2. Pull image with progress
 	reader, err := d.client.ImagePull(ctx, imageName)
 	if err != nil {
-		progressCh <- container.UpdateProgress{Status: "error", Error: fmt.Sprintf("pull failed: %v", err)}
+		progress(container.UpdateProgress{Status: "error", Error: fmt.Sprintf("pull failed: %v", err)})
 		return false, err
 	}
 	defer reader.Close()
@@ -179,16 +193,16 @@ func (d *DockerClientService) UpdateContainer(ctx context.Context, c container.C
 		if err := decoder.Decode(&event); err == io.EOF {
 			break
 		} else if err != nil {
-			progressCh <- container.UpdateProgress{Status: "error", Error: fmt.Sprintf("pull decode failed: %v", err)}
+			progress(container.UpdateProgress{Status: "error", Error: fmt.Sprintf("pull decode failed: %v", err)})
 			return false, err
 		}
 
-		progressCh <- container.UpdateProgress{
+		progress(container.UpdateProgress{
 			Status:  "pulling",
 			Layer:   event.ID,
 			Current: event.ProgressDetail.Current,
 			Total:   event.ProgressDetail.Total,
-		}
+		})
 	}
 
 	// 3. Compare what the tag resolves to now against what the container is
@@ -205,62 +219,62 @@ func (d *DockerClientService) UpdateContainer(ctx context.Context, c container.C
 	}
 
 	if !updated {
-		progressCh <- container.UpdateProgress{Status: "up-to-date"}
+		progress(container.UpdateProgress{Status: "up-to-date"})
 		return false, nil
 	}
 
 	// 4. Check if this is a swarm service
 	serviceName := c.Labels["com.docker.swarm.service.name"]
 	if serviceName != "" {
-		progressCh <- container.UpdateProgress{Status: "recreating"}
+		progress(container.UpdateProgress{Status: "recreating"})
 		serviceID := c.Labels["com.docker.swarm.service.id"]
 		if err := d.client.ServiceUpdate(ctx, serviceID, imageName); err != nil {
-			progressCh <- container.UpdateProgress{Status: "error", Error: fmt.Sprintf("service update failed: %v", err)}
+			progress(container.UpdateProgress{Status: "error", Error: fmt.Sprintf("service update failed: %v", err)})
 			return false, err
 		}
-		progressCh <- container.UpdateProgress{Status: "done"}
+		progress(container.UpdateProgress{Status: "done"})
 		return true, nil
 	}
 
 	// 5. Standalone container: check for self-update
 	if strings.Contains(imageName, "amir20/dozzle") {
-		progressCh <- container.UpdateProgress{Status: "error", Error: "Dozzle cannot update itself. Please restart manually."}
+		progress(container.UpdateProgress{Status: "error", Error: "Dozzle cannot update itself. Please restart manually."})
 		return false, fmt.Errorf("cannot self-update: stopping Dozzle would terminate the update process")
 	}
 
 	// 6. Standalone container: stop -> remove -> create -> start
-	progressCh <- container.UpdateProgress{Status: "recreating"}
+	progress(container.UpdateProgress{Status: "recreating"})
 
 	containerName := strings.TrimPrefix(inspectResp.Name, "/")
 
 	// Stop if running
 	if c.State == "running" {
 		if err := d.client.ContainerActions(ctx, container.Stop, c.ID); err != nil {
-			progressCh <- container.UpdateProgress{Status: "error", Error: fmt.Sprintf("stop failed: %v", err)}
+			progress(container.UpdateProgress{Status: "error", Error: fmt.Sprintf("stop failed: %v", err)})
 			return false, err
 		}
 	}
 
 	// Remove
 	if err := d.client.ContainerRemove(ctx, c.ID); err != nil {
-		progressCh <- container.UpdateProgress{Status: "error", Error: fmt.Sprintf("remove failed: %v", err)}
+		progress(container.UpdateProgress{Status: "error", Error: fmt.Sprintf("remove failed: %v", err)})
 		return false, err
 	}
 
 	// Create with same config
 	newID, err := d.client.ContainerCreate(ctx, inspectResp, containerName)
 	if err != nil {
-		progressCh <- container.UpdateProgress{Status: "error", Error: fmt.Sprintf("create failed: %v", err)}
+		progress(container.UpdateProgress{Status: "error", Error: fmt.Sprintf("create failed: %v", err)})
 		return false, err
 	}
 
 	// Start
 	if err := d.client.ContainerActions(ctx, container.Start, newID); err != nil {
-		progressCh <- container.UpdateProgress{Status: "error", Error: fmt.Sprintf("start failed: %v", err)}
+		progress(container.UpdateProgress{Status: "error", Error: fmt.Sprintf("start failed: %v", err)})
 		return false, err
 	}
 
-	progressCh <- container.UpdateProgress{Status: "done"}
+	progress(container.UpdateProgress{Status: "done"})
 	return true, nil
 }
 
