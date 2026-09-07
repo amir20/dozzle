@@ -555,17 +555,22 @@ loop:
 			sseWriter.Message(logEvent)
 		case c := <-newContainers:
 			if _, err := h.hostService.FindContainer(c.Host, c.ID, userLabels); err == nil {
-				// Written straight to the client instead of pushed through `events`.
-				// This case runs on the same goroutine that drains `events`, so a send
-				// here waits on a reader that is this very statement: with the buffer
-				// already holding a container-stopped from streamLogs — which is what a
-				// redeploy produces — the handler deadlocks for good. It then stops
-				// draining newContainers, which backs up into the shared container store
-				// and freezes it for every client on that host.
+				// Queued from its own goroutine, never from this case. This case runs on
+				// the goroutine that drains `events`, so sending here waits on a reader
+				// that is this very statement: with the buffer already holding a
+				// container-stopped from streamLogs — which is what a redeploy produces —
+				// the handler deadlocks for good. It then stops draining newContainers,
+				// which backs up into the shared container store and freezes it for every
+				// client on that host. Going through `events` rather than straight to the
+				// writer keeps started and stopped in the order they happened, which the
+				// log viewer renders by arrival.
 				event := &container.ContainerEvent{ActorID: c.ID, Name: "container-started", Host: c.Host, Time: time.Now()}
-				if err := sseWriter.Event("container-event", event); err != nil {
-					log.Error().Err(err).Msg("error encoding container event")
-				}
+				go func() {
+					select {
+					case events <- event:
+					case <-r.Context().Done():
+					}
+				}()
 				go streamLogs(c)
 			}
 
