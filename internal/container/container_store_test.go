@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/amir20/dozzle/internal/utils"
+	"github.com/puzpuzpuz/xsync/v4"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
@@ -300,4 +301,31 @@ func TestContainerStore_wedgedSubscriberDoesNotStallStore(t *testing.T) {
 		_, hasSecond := ids["9012"]
 		return hasFirst && hasSecond
 	}, 5*time.Second, 10*time.Millisecond, "containers started behind a wedged subscriber should still reach the store")
+}
+
+// The wait belongs to the fan-out, not to each subscriber: a host that has
+// collected several wedged readers must not pay a full timeout per reader on
+// every event.
+func TestContainerStore_broadcastBudgetIsShared(t *testing.T) {
+	client := new(mockedClient)
+	client.On("Host").Return(Host{ID: "localhost"})
+
+	store := &ContainerStore{
+		client:      client,
+		subscribers: xsync.NewMap[context.Context, chan<- ContainerEvent](),
+	}
+
+	const wedged = 5
+	for range wedged {
+		ctx, cancel := context.WithCancel(t.Context())
+		defer cancel()
+		store.subscribers.Store(ctx, make(chan ContainerEvent))
+	}
+
+	start := time.Now()
+	store.broadcast(ContainerEvent{Name: "start", ActorID: "1234"})
+	elapsed := time.Since(start)
+
+	assert.GreaterOrEqual(t, elapsed, broadcastTimeout, "should have waited on the wedged subscribers")
+	assert.Less(t, elapsed, 2*broadcastTimeout, "should have waited once, not once per subscriber")
 }

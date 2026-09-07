@@ -270,24 +270,32 @@ func canContinueGroup(prev, next *LogEvent, groupLevel string) bool {
 }
 
 func (g *EventGenerator) consumeReader() {
+	defer g.wg.Done()
+
 	for {
 		message, streamType, readerError := g.reader.Read()
 		if message != "" {
 			logEvent := createEvent(message, streamType)
 			logEvent.ContainerID = g.containerID
 			logEvent.Level = guessLogLevel(logEvent)
-			g.buffer <- logEvent
+			// processBuffer stops draining as soon as emit sees the context end,
+			// so an unguarded send here parks this goroutine, and the reader it
+			// holds, for the life of the process once the buffer fills.
+			select {
+			case g.buffer <- logEvent:
+			case <-g.ctx.Done():
+				return
+			}
 		}
 
 		if readerError != nil {
 			if readerError != ErrBadHeader {
 				g.Errors <- readerError
 				close(g.buffer)
-				break
+				return
 			}
 		}
 	}
-	g.wg.Done()
 }
 
 func (g *EventGenerator) peek() *LogEvent {

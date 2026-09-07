@@ -113,8 +113,32 @@ const (
 	sendCancelled
 )
 
-// sendBounded delivers v, waiting at most broadcastTimeout for a full channel.
-func sendBounded[T any](ctx context.Context, ch chan<- T, v T) sendResult {
+// fanoutBudget is the wait shared by one fan-out. The timeout is per fan-out
+// rather than per subscriber so that N wedged subscribers cost the loop one
+// broadcastTimeout between them, not N of them on every event. It starts on
+// first use, so a fan-out where everyone is reading allocates nothing.
+type fanoutBudget struct {
+	expired chan struct{}
+	timer   *time.Timer
+}
+
+func (b *fanoutBudget) start() <-chan struct{} {
+	if b.expired == nil {
+		b.expired = make(chan struct{})
+		b.timer = time.AfterFunc(broadcastTimeout, func() { close(b.expired) })
+	}
+	return b.expired
+}
+
+func (b *fanoutBudget) stop() {
+	if b.timer != nil {
+		b.timer.Stop()
+	}
+}
+
+// sendBounded delivers v, waiting no longer than what is left of the fan-out's
+// shared budget for a subscriber that is not reading.
+func sendBounded[T any](ctx context.Context, ch chan<- T, v T, budget *fanoutBudget) sendResult {
 	select {
 	case ch <- v:
 		return sendOK
@@ -123,14 +147,12 @@ func sendBounded[T any](ctx context.Context, ch chan<- T, v T) sendResult {
 	default:
 	}
 
-	timer := time.NewTimer(broadcastTimeout)
-	defer timer.Stop()
 	select {
 	case ch <- v:
 		return sendOK
 	case <-ctx.Done():
 		return sendCancelled
-	case <-timer.C:
+	case <-budget.start():
 		return sendDropped
 	}
 }
@@ -138,8 +160,11 @@ func sendBounded[T any](ctx context.Context, ch chan<- T, v T) sendResult {
 // broadcast fans an event out to every subscriber without letting any of them
 // stall the caller.
 func (s *ContainerStore) broadcast(event ContainerEvent) {
+	budget := &fanoutBudget{}
+	defer budget.stop()
+
 	s.subscribers.Range(func(ctx context.Context, events chan<- ContainerEvent) bool {
-		switch sendBounded(ctx, events, event) {
+		switch sendBounded(ctx, events, event, budget) {
 		case sendCancelled:
 			s.subscribers.Delete(ctx)
 		case sendDropped:
@@ -381,8 +406,11 @@ func (s *ContainerStore) addContainer(id string, timeout time.Duration) {
 	}
 
 	s.containers.Store(found.ID, &found)
+	budget := &fanoutBudget{}
+	defer budget.stop()
+
 	s.newContainerSubscribers.Range(func(c context.Context, containers chan<- Container) bool {
-		switch sendBounded(c, containers, found) {
+		switch sendBounded(c, containers, found, budget) {
 		case sendCancelled:
 			s.newContainerSubscribers.Delete(c)
 		case sendDropped:

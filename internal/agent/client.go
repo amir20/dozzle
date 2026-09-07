@@ -272,7 +272,8 @@ func (c *Client) StreamStats(ctx context.Context, stats chan<- container.Contain
 			return rpcErrToErr(err)
 		}
 
-		stats <- container.ContainerStat{
+		select {
+		case stats <- container.ContainerStat{
 			CPUPercent:     resp.Stat.CpuPercent,
 			MemoryPercent:  resp.Stat.MemoryPercent,
 			MemoryUsage:    resp.Stat.MemoryUsage,
@@ -281,6 +282,9 @@ func (c *Client) StreamStats(ctx context.Context, stats chan<- container.Contain
 			NetworkTxTotal: resp.Stat.NetworkTxTotal,
 			DiskReadTotal:  resp.Stat.DiskReadTotal,
 			DiskWriteTotal: resp.Stat.DiskWriteTotal,
+		}:
+		case <-ctx.Done():
+			return ctx.Err()
 		}
 	}
 }
@@ -328,7 +332,11 @@ func (c *Client) StreamNewContainers(ctx context.Context, containers chan<- cont
 			return rpcErrToErr(err)
 		}
 
-		containers <- container.FromProto(resp.Container)
+		select {
+		case containers <- container.FromProto(resp.Container):
+		case <-ctx.Done():
+			return ctx.Err()
+		}
 	}
 }
 
@@ -454,12 +462,16 @@ func (c *Client) UpdateContainer(ctx context.Context, containerID string, progre
 			updated = true
 		}
 
-		progressCh <- container.UpdateProgress{
+		select {
+		case progressCh <- container.UpdateProgress{
 			Status:  progress.Status,
 			Layer:   progress.Layer,
 			Current: progress.Current,
 			Total:   progress.Total,
 			Error:   progress.Error,
+		}:
+		case <-ctx.Done():
+			return false, ctx.Err()
 		}
 	}
 }
