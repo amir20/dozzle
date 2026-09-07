@@ -559,7 +559,7 @@ cloud:
     never-heading: "Never sent:"
     never-env: Environment variables
     off-note: Turn this off to keep logs and metrics on this instance. Alerts you have set up are still delivered, and remote container access still works.
-    per-container: "Exclude a single container with the label: dev.dozzle.cloud.min_level=disabled"
+    per-container: "Stop a single container's logs with the label: dev.dozzle.cloud.min_level=disabled"
     required-for: Required for AI investigations, log search, and resource history.
   welcome:
     watching-title: Cloud watches your logs so you don't have to
