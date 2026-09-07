@@ -604,12 +604,16 @@ func (k *K8sClient) ContainerEvents(ctx context.Context, ch chan<- container.Con
 				}
 
 				for _, c := range k.podToContainers(ctx, pod) {
-					ch <- container.ContainerEvent{
+					select {
+					case ch <- container.ContainerEvent{
 						Name:      name,
 						ActorID:   c.ID,
 						Host:      pod.Spec.NodeName,
 						Time:      time.Now(),
 						Container: &c,
+					}:
+					case <-ctx.Done():
+						return
 					}
 				}
 			}

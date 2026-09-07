@@ -74,20 +74,12 @@ func (s *ContainerStore) applyMountStats(id string, stats map[string]MountStat) 
 		return
 	}
 
-	event := ContainerEvent{
+	s.broadcast(ContainerEvent{
 		Name:      "update",
 		Host:      updated.Host,
 		ActorID:   updated.ID,
 		Time:      time.Now(),
 		Container: updated,
-	}
-	s.subscribers.Range(func(ctx context.Context, events chan<- ContainerEvent) bool {
-		select {
-		case events <- event:
-		case <-ctx.Done():
-			s.subscribers.Delete(ctx)
-		}
-		return true
 	})
 }
 
@@ -95,6 +87,71 @@ var (
 	ErrContainerNotFound = errors.New("container not found")
 	maxFetchParallelism  = int64(30)
 )
+
+// broadcastTimeout bounds how long a fan-out waits on a subscriber that is not
+// draining its channel.
+//
+// Everything this store does runs on one goroutine: the Docker event stream,
+// stats, and the create/start handling that is the only path a container has
+// into the map. A blocking send to a subscriber puts all of that behind the
+// slowest reader, and a subscriber that stops reading entirely (a handler that
+// deadlocked, a client whose socket wedged) stops the store for as long as its
+// context stays alive. Docker does not hold events for a consumer that has
+// stopped reading, so what is lost during a stall is lost permanently — a
+// missed `start` means the container never appears until the process restarts.
+//
+// One wedged subscriber must cost its own messages, never the loop.
+const broadcastTimeout = 250 * time.Millisecond
+
+type sendResult int
+
+const (
+	sendOK sendResult = iota
+	// sendDropped: the subscriber did not read in time. Its message is gone.
+	sendDropped
+	// sendCancelled: the subscriber is finished and should be unregistered.
+	sendCancelled
+)
+
+// sendBounded delivers v, waiting at most broadcastTimeout for a full channel.
+func sendBounded[T any](ctx context.Context, ch chan<- T, v T) sendResult {
+	select {
+	case ch <- v:
+		return sendOK
+	case <-ctx.Done():
+		return sendCancelled
+	default:
+	}
+
+	timer := time.NewTimer(broadcastTimeout)
+	defer timer.Stop()
+	select {
+	case ch <- v:
+		return sendOK
+	case <-ctx.Done():
+		return sendCancelled
+	case <-timer.C:
+		return sendDropped
+	}
+}
+
+// broadcast fans an event out to every subscriber without letting any of them
+// stall the caller.
+func (s *ContainerStore) broadcast(event ContainerEvent) {
+	s.subscribers.Range(func(ctx context.Context, events chan<- ContainerEvent) bool {
+		switch sendBounded(ctx, events, event) {
+		case sendCancelled:
+			s.subscribers.Delete(ctx)
+		case sendDropped:
+			log.Warn().
+				Str("host", s.client.Host().Name).
+				Str("event", event.Name).
+				Str("id", event.ActorID).
+				Msg("subscriber is not reading container events, dropping event")
+		}
+		return true
+	})
+}
 
 func (s *ContainerStore) checkConnectivity() error {
 	if s.connected.CompareAndSwap(false, true) {
@@ -233,20 +290,11 @@ func (s *ContainerStore) FindContainer(id string, labels ContainerLabels) (Conta
 
 	if updated {
 		go func() {
-			event := ContainerEvent{
+			s.broadcast(ContainerEvent{
 				Name:      "update",
 				Host:      container.Host,
 				ActorID:   id,
 				Container: container,
-			}
-
-			s.subscribers.Range(func(c context.Context, events chan<- ContainerEvent) bool {
-				select {
-				case events <- event:
-				case <-c.Done():
-					s.subscribers.Delete(c)
-				}
-				return true
 			})
 		}()
 	}
@@ -334,9 +382,14 @@ func (s *ContainerStore) addContainer(id string, timeout time.Duration) {
 
 	s.containers.Store(found.ID, &found)
 	s.newContainerSubscribers.Range(func(c context.Context, containers chan<- Container) bool {
-		select {
-		case containers <- found:
-		case <-c.Done():
+		switch sendBounded(c, containers, found) {
+		case sendCancelled:
+			s.newContainerSubscribers.Delete(c)
+		case sendDropped:
+			log.Warn().
+				Str("host", s.client.Host().Name).
+				Str("id", found.ID).
+				Msg("subscriber is not reading new containers, dropping container")
 		}
 		return true
 	})
@@ -387,17 +440,10 @@ func (s *ContainerStore) init() {
 				})
 
 				if started {
-					s.subscribers.Range(func(ctx context.Context, events chan<- ContainerEvent) bool {
-						select {
-						case events <- ContainerEvent{
-							Name:    "start",
-							ActorID: updatedContainer.ID,
-							Host:    updatedContainer.Host,
-						}:
-						case <-ctx.Done():
-							s.subscribers.Delete(ctx)
-						}
-						return true
+					s.broadcast(ContainerEvent{
+						Name:    "start",
+						ActorID: updatedContainer.ID,
+						Host:    updatedContainer.Host,
 					})
 				}
 
@@ -464,14 +510,7 @@ func (s *ContainerStore) init() {
 					return &copy, xsync.UpdateOp
 				})
 			}
-			s.subscribers.Range(func(c context.Context, events chan<- ContainerEvent) bool {
-				select {
-				case events <- event:
-				case <-c.Done():
-					s.subscribers.Delete(c)
-				}
-				return true
-			})
+			s.broadcast(event)
 
 		case stat := <-stats:
 			if container, ok := s.containers.Load(stat.ID); ok {

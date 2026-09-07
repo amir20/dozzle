@@ -3,6 +3,7 @@ package container
 import (
 	"context"
 	"testing"
+	"time"
 
 	"github.com/amir20/dozzle/internal/utils"
 	"github.com/stretchr/testify/assert"
@@ -246,3 +247,57 @@ type fakeStatsCollector struct{}
 func (f *fakeStatsCollector) Subscribe(_ context.Context, _ chan<- ContainerStat) {}
 func (f *fakeStatsCollector) Start(_ context.Context) bool                        { return true }
 func (f *fakeStatsCollector) Stop()                                               {}
+
+// A subscriber that stops reading must cost only its own events. The store runs
+// the Docker event stream, stats and every container add on one goroutine, so a
+// blocking fan-out lets one wedged reader freeze the host: containers that start
+// during the freeze are never added, and Docker does not replay what it sent
+// while nobody was reading.
+func TestContainerStore_wedgedSubscriberDoesNotStallStore(t *testing.T) {
+	client := new(mockedClient)
+
+	existing := Container{ID: "1234", Name: "test", State: "running", Stats: utils.NewRingBuffer[ContainerStat](300)}
+	first := Container{ID: "5678", Name: "first", State: "running", Stats: utils.NewRingBuffer[ContainerStat](300)}
+	second := Container{ID: "9012", Name: "second", State: "running", Stats: utils.NewRingBuffer[ContainerStat](300)}
+
+	client.On("ListContainers", mock.Anything, mock.Anything).Return([]Container{existing}, nil).Once()
+	client.On("ListContainers", mock.Anything, mock.Anything).Return([]Container{existing, first, second}, nil)
+	client.On("FindContainer", mock.Anything, "1234").Return(existing, nil)
+	client.On("FindContainer", mock.Anything, "5678").Return(first, nil)
+	client.On("FindContainer", mock.Anything, "9012").Return(second, nil)
+	client.On("Host").Return(Host{ID: "localhost"})
+
+	ready := make(chan struct{})
+	client.On("ContainerEvents", mock.Anything, mock.AnythingOfType("chan<- container.ContainerEvent")).Return(nil).
+		Run(func(args mock.Arguments) {
+			ctx := args.Get(0).(context.Context)
+			events := args.Get(1).(chan<- ContainerEvent)
+			<-ready
+			events <- ContainerEvent{Name: "start", ActorID: "5678", Host: "localhost"}
+			events <- ContainerEvent{Name: "start", ActorID: "9012", Host: "localhost"}
+			<-ctx.Done()
+		})
+
+	store := NewContainerStore(t.Context(), client, &fakeStatsCollector{}, ContainerLabels{})
+
+	// neither of these is ever read from: a handler that deadlocked, a client
+	// whose socket wedged. Both contexts stay alive, so nothing unregisters them.
+	store.SubscribeEvents(t.Context(), make(chan ContainerEvent))
+	store.SubscribeNewContainers(t.Context(), make(chan Container))
+
+	close(ready)
+
+	assert.Eventually(t, func() bool {
+		containers, err := store.ListContainers(ContainerLabels{})
+		if err != nil {
+			return false
+		}
+		ids := make(map[string]struct{}, len(containers))
+		for _, c := range containers {
+			ids[c.ID] = struct{}{}
+		}
+		_, hasFirst := ids["5678"]
+		_, hasSecond := ids["9012"]
+		return hasFirst && hasSecond
+	}, 5*time.Second, 10*time.Millisecond, "containers started behind a wedged subscriber should still reach the store")
+}

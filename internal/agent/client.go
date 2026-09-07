@@ -207,7 +207,8 @@ func sendLogs(stream pb.AgentService_StreamLogsClient, events chan<- *container.
 			continue
 		}
 
-		events <- &container.LogEvent{
+		select {
+		case events <- &container.LogEvent{
 			Id:          resp.Event.Id,
 			ContainerID: resp.Event.ContainerId,
 			Message:     message,
@@ -216,6 +217,9 @@ func sendLogs(stream pb.AgentService_StreamLogsClient, events chan<- *container.
 			Level:       resp.Event.Level,
 			Stream:      resp.Event.Stream,
 			RawMessage:  resp.Event.RawMessage,
+		}:
+		case <-stream.Context().Done():
+			return stream.Context().Err()
 		}
 	}
 }
@@ -304,7 +308,11 @@ func (c *Client) StreamEvents(ctx context.Context, events chan<- container.Conta
 			c := container.FromProto(resp.Event.Container)
 			evt.Container = &c
 		}
-		events <- evt
+		select {
+		case events <- evt:
+		case <-stream.Context().Done():
+			return stream.Context().Err()
+		}
 	}
 }
 

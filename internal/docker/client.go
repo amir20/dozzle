@@ -463,12 +463,18 @@ func (d *DockerClient) ContainerEvents(ctx context.Context, messages chan<- cont
 
 		case message := <-dockerMessages:
 			if message.Type == events.ContainerEventType && len(message.Actor.ID) > 0 {
-				messages <- container.ContainerEvent{
+				// ctx-guarded: an unguarded send outlives its consumer, and this
+				// goroutine is what tells the store its event stream has ended.
+				select {
+				case messages <- container.ContainerEvent{
 					ActorID:         message.Actor.ID[:12],
 					Name:            string(message.Action),
 					Host:            d.host.ID,
 					ActorAttributes: message.Actor.Attributes,
 					Time:            time.Now(),
+				}:
+				case <-ctx.Done():
+					return nil
 				}
 			}
 		}

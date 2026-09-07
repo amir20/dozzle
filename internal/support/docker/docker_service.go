@@ -91,7 +91,11 @@ func (d *DockerClientService) StreamLogs(ctx context.Context, c container.Contai
 	dockerReader := docker.NewLogReader(reader, c.Tty)
 	g := container.NewEventGenerator(ctx, dockerReader, c)
 	for event := range g.Events {
-		events <- event
+		select {
+		case events <- event:
+		case <-ctx.Done():
+			return ctx.Err()
+		}
 	}
 
 	select {
