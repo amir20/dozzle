@@ -509,7 +509,7 @@ cloud:
     never-heading: "전송하지 않는 항목:"
     never-env: "환경 변수"
     off-note: "로그와 메트릭을 이 인스턴스에만 유지하려면 이 설정을 끄세요. 설정한 알림은 계속 전달되며 원격 컨테이너 접근도 그대로 작동합니다."
-    per-container: "특정 컨테이너만 제외하려면 라벨을 사용하세요: dev.dozzle.cloud.min_level=disabled"
+    per-container: "특정 컨테이너의 로그를 중지하려면 라벨을 사용하세요: dev.dozzle.cloud.min_level=disabled"
     required-for: "AI 분석, 로그 검색, 리소스 기록에 필요합니다."
   welcome:
     watching-title: "Cloud가 대신 로그를 지켜봅니다"

@@ -505,7 +505,7 @@ cloud:
     never-heading: "Sendes aldrig:"
     never-env: "Miljøvariabler"
     off-note: "Slå dette fra for at holde logs og metrikker på denne instans. Alarmer, du har opsat, leveres stadig, og fjernadgang til containere fungerer fortsat."
-    per-container: "Udelad en enkelt container med labelet: dev.dozzle.cloud.min_level=disabled"
+    per-container: "Stop en enkelt containers logs med labelet: dev.dozzle.cloud.min_level=disabled"
     required-for: "Påkrævet for AI-undersøgelser, logsøgning og ressourcehistorik."
   welcome:
     watching-title: "Cloud holder øje med dine logs, så du slipper"

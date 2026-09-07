@@ -511,7 +511,7 @@ cloud:
     never-heading: "Nikoli ni poslano:"
     never-env: "Spremenljivke okolja"
     off-note: "Izklopite, da dnevniki in meritve ostanejo na tej instanci. Nastavljena opozorila se še vedno dostavljajo, oddaljen dostop do vsebnikov pa še naprej deluje."
-    per-container: "Posamezen vsebnik izključite z oznako: dev.dozzle.cloud.min_level=disabled"
+    per-container: "Ustavite dnevnike posameznega vsebnika z oznako: dev.dozzle.cloud.min_level=disabled"
     required-for: "Potrebno za preiskave z umetno inteligenco, iskanje po dnevnikih in zgodovino virov."
   welcome:
     watching-title: "Cloud spremlja vaše dnevnike, da vam ni treba"

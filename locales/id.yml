@@ -517,7 +517,7 @@ cloud:
     never-heading: "Tidak pernah dikirim:"
     never-env: "Variabel lingkungan"
     off-note: "Nonaktifkan untuk menyimpan log dan metrik di instance ini. Peringatan yang sudah Anda atur tetap dikirim, dan akses kontainer jarak jauh tetap berfungsi."
-    per-container: "Kecualikan satu kontainer dengan label: dev.dozzle.cloud.min_level=disabled"
+    per-container: "Hentikan log satu kontainer dengan label: dev.dozzle.cloud.min_level=disabled"
     required-for: "Diperlukan untuk investigasi AI, pencarian log, dan riwayat sumber daya."
   welcome:
     watching-title: "Cloud mengawasi log Anda supaya Anda tidak perlu"

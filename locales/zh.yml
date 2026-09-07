@@ -505,7 +505,7 @@ cloud:
     never-heading: "从不发送："
     never-env: "环境变量"
     off-note: "禁用后，日志和指标将保留在此实例中。已配置的告警仍会发送，远程容器访问也仍然可用。"
-    per-container: "如需排除单个容器，请使用标签：dev.dozzle.cloud.min_level=disabled"
+    per-container: "如需停止单个容器的日志，请使用标签：dev.dozzle.cloud.min_level=disabled"
     required-for: "AI 调查、日志搜索和资源历史记录所需。"
   welcome:
     watching-title: "Cloud 替你盯着日志"
