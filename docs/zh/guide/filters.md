@@ -1,6 +1,6 @@
 ---
 title: 过滤器
-sourceHash: e380a612fd7f
+sourceHash: b4449a225843
 ---
 
 # 过滤容器
@@ -40,7 +40,7 @@ Dozzle 支持多种过滤器来限制可见的容器。过滤器可以在界面�
 2. **Agent 过滤器**：在 agent 级设置，会传给 Docker 以限制该 agent 暴露的容器。Agent 过滤器和界面过滤器共同起作用。
 3. **用户过滤器**：在用户级设置，决定该用户能看到哪些容器。如果没有定义用户过滤器，Dozzle 默认使用界面过滤器。
 
-关于为特定用户设置过滤器，详见[用户过滤器](/zh/guide/authentication#setting-specific-filters-for-users)。关于为 agent 设置过滤器，详见 [agent 过滤器](/zh/guide/agent#setting-up-filters)。
+关于为特定用户设置过滤器，详见[用户过滤器](/zh/guide/authentication/simple#为用户设置过滤器)。关于为 agent 设置过滤器，详见 [agent 过滤器](/zh/guide/agent#setting-up-filters)。
 
 > [!WARNING]
 > 需要注意的是，多个过滤器会叠加生效。例如在界面级设置 `--filter label=color`，在 agent 级设置 `--filter label=type`，那么 Dozzle 只会显示同时带有 `color` 和 `type` 两个标签的容器。

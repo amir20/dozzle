@@ -73,6 +73,7 @@ label:
   hosts: 主機
   password: 密碼
   username: 使用者名稱
+  or: 或
   container-name: 容器名稱
   status: 狀態
   created: 建立時間
@@ -117,6 +118,7 @@ error:
   page-not-found: 此頁面不存在
   host-group-not-found: "在群組「{name}」中找不到主機"
   invalid-auth: 使用者名稱或密碼不正確
+  oauth-failed: 登入失敗，請再試一次。
   copy-not-supported: 您的瀏覽器不支援複製到剪貼簿
   copy-not-supported-hint: 剪貼簿不可用。請複製下方連結
   logs-skipped: 顯示 {total} 個隱藏項目
@@ -164,6 +166,7 @@ title:
 button:
   logout: 登出
   login: 登入
+  login-with: 使用 {provider} 繼續
   settings: 設定
   cancel: 取消
   redirect: 重新導向

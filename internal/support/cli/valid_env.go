@@ -22,6 +22,11 @@ func ValidateEnvVars(types ...any) {
 		}
 	}
 
+	// Secrets may also arrive as <VAR>_FILE naming a file to read the value from.
+	for _, env := range fileBackedEnvNames() {
+		expectedEnvs[env+"_FILE"] = true
+	}
+
 	for _, env := range os.Environ() {
 		actual, _, _ := strings.Cut(env, "=")
 		if strings.HasPrefix(actual, "DOZZLE_") && !expectedEnvs[actual] {

@@ -1,6 +1,6 @@
 ---
 title: Filter
-sourceHash: e380a612fd7f
+sourceHash: b4449a225843
 ---
 
 # Container filtern
@@ -40,7 +40,7 @@ Dozzle unterstützt mehrere Filter, um die sichtbaren Container einzuschränken.
 2. **Agent-Filter**: Diese Filter werden auf Agent-Ebene gesetzt und an Docker geschickt, um die von diesem Agent bereitgestellten Container einzuschränken. Agent-Filter und Filter der Oberfläche wirken zusammen.
 3. **Benutzerfilter**: Diese Filter werden pro Benutzer gesetzt und bestimmen, welche Container dieser Benutzer sieht. Sind keine Benutzerfilter definiert, verwendet Dozzle die Filter der Oberfläche.
 
-Mehr zum Setzen von Filtern für einzelne Benutzer findest du unter [Benutzerfilter](/de/guide/authentication#setting-specific-filters-for-users). Details zu Filtern für Agents stehen unter [Agent-Filter](/de/guide/agent#setting-up-filters).
+Mehr zum Setzen von Filtern für einzelne Benutzer findest du unter [Benutzerfilter](/de/guide/authentication/simple#bestimmte-filter-fur-benutzer-setzen). Details zu Filtern für Agents stehen unter [Agent-Filter](/de/guide/agent#setting-up-filters).
 
 > [!WARNING]
 > Wichtig zu verstehen: Mehrere Filter werden kombiniert, um die Container einzuschränken. Setzt du zum Beispiel `--filter label=color` auf Ebene der Oberfläche und `--filter label=type` auf Agent-Ebene, zeigt Dozzle nur Container an, die sowohl das Label `color` als auch `type` haben.

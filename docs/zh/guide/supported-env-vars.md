@@ -1,41 +1,50 @@
 ---
 title: 环境变量与子命令
-sourceHash: 3930d18cbbb4
+sourceHash: ec7584015f66
 ---
 
 # 全局环境变量
 
 配置既可以通过标志完成，也可以通过环境变量完成。下表列出了所有支持的选项及其对应的环境变量。
 
-| 标志                   | 环境变量                    | 默认值            |
-| ---------------------- | --------------------------- | ----------------- |
-| `--addr`               | `DOZZLE_ADDR`               | `:8080`           |
-| `--base`               | `DOZZLE_BASE`               | `/`               |
-| `--hostname`           | `DOZZLE_HOSTNAME`           | `""`              |
-| `--level`              | `DOZZLE_LEVEL`              | `info`            |
-| `--auth-provider`      | `DOZZLE_AUTH_PROVIDER`      | `none`            |
-| `--auth-header-user`   | `DOZZLE_AUTH_HEADER_USER`   | `Remote-User`     |
-| `--auth-header-email`  | `DOZZLE_AUTH_HEADER_EMAIL`  | `Remote-Email`    |
-| `--auth-header-name`   | `DOZZLE_AUTH_HEADER_NAME`   | `Remote-Name`     |
-| `--auth-header-filter` | `DOZZLE_AUTH_HEADER_FILTER` | `Remote-Filter`   |
-| `--auth-header-roles`  | `DOZZLE_AUTH_HEADER_ROLES`  | `Remote-Roles`    |
-| `--auth-logout-url`    | `DOZZLE_AUTH_LOGOUT_URL`    | `""`              |
-| `--auth-ttl`           | `DOZZLE_AUTH_TTL`           | `session`         |
-| `--enable-actions`     | `DOZZLE_ENABLE_ACTIONS`     | `false`           |
-| `--enable-shell`       | `DOZZLE_ENABLE_SHELL`       | `false`           |
-| `--enable-mcp`         | `DOZZLE_ENABLE_MCP`         | `false`           |
-| `--disable-avatars`    | `DOZZLE_DISABLE_AVATARS`    | `false`           |
-| `--filter`             | `DOZZLE_FILTER`             | `""`              |
-| `--no-analytics`       | `DOZZLE_NO_ANALYTICS`       | `false`           |
-| `--mode`               | `DOZZLE_MODE`               | `server`          |
-| `--release-check-mode` | `DOZZLE_RELEASE_CHECK_MODE` | `automatic`       |
-| `--image-check-mode`   | `DOZZLE_IMAGE_CHECK_MODE`   | 继承              |
-| `--remote-host`        | `DOZZLE_REMOTE_HOST`        |                   |
-| `--remote-agent`       | `DOZZLE_REMOTE_AGENT`       |                   |
-| `--timeout`            | `DOZZLE_TIMEOUT`            | `10s`             |
-| `--namespace`          | `DOZZLE_NAMESPACE`          | `""`              |
-| `--cert`               | `DOZZLE_CERT`               | `dozzle_cert.pem` |
-| `--key`                | `DOZZLE_KEY`                | `dozzle_key.pem`  |
+| 标志                          | 环境变量                           | 默认值            |
+| ----------------------------- | ---------------------------------- | ----------------- |
+| `--addr`                      | `DOZZLE_ADDR`                      | `:8080`           |
+| `--base`                      | `DOZZLE_BASE`                      | `/`               |
+| `--hostname`                  | `DOZZLE_HOSTNAME`                  | `""`              |
+| `--level`                     | `DOZZLE_LEVEL`                     | `info`            |
+| `--auth-provider`             | `DOZZLE_AUTH_PROVIDER`             | `none`            |
+| `--auth-header-user`          | `DOZZLE_AUTH_HEADER_USER`          | `Remote-User`     |
+| `--auth-header-email`         | `DOZZLE_AUTH_HEADER_EMAIL`         | `Remote-Email`    |
+| `--auth-header-name`          | `DOZZLE_AUTH_HEADER_NAME`          | `Remote-Name`     |
+| `--auth-header-filter`        | `DOZZLE_AUTH_HEADER_FILTER`        | `Remote-Filter`   |
+| `--auth-header-roles`         | `DOZZLE_AUTH_HEADER_ROLES`         | `Remote-Roles`    |
+| `--auth-logout-url`           | `DOZZLE_AUTH_LOGOUT_URL`           | `""`              |
+| `--auth-ttl`                  | `DOZZLE_AUTH_TTL`                  | `session`         |
+| `--auth-github-client-id`     | `DOZZLE_AUTH_GITHUB_CLIENT_ID`     | `""`              |
+| `--auth-github-client-secret` | `DOZZLE_AUTH_GITHUB_CLIENT_SECRET` | `""`              |
+| `--auth-oidc-issuer`          | `DOZZLE_AUTH_OIDC_ISSUER`          | `""`              |
+| `--auth-oidc-client-id`       | `DOZZLE_AUTH_OIDC_CLIENT_ID`       | `""`              |
+| `--auth-oidc-client-secret`   | `DOZZLE_AUTH_OIDC_CLIENT_SECRET`   | `""`              |
+| `--auth-oidc-name`            | `DOZZLE_AUTH_OIDC_NAME`            | `SSO`             |
+| `--enable-actions`            | `DOZZLE_ENABLE_ACTIONS`            | `false`           |
+| `--enable-shell`              | `DOZZLE_ENABLE_SHELL`              | `false`           |
+| `--enable-mcp`                | `DOZZLE_ENABLE_MCP`                | `false`           |
+| `--disable-avatars`           | `DOZZLE_DISABLE_AVATARS`           | `false`           |
+| `--filter`                    | `DOZZLE_FILTER`                    | `""`              |
+| `--no-analytics`              | `DOZZLE_NO_ANALYTICS`              | `false`           |
+| `--mode`                      | `DOZZLE_MODE`                      | `server`          |
+| `--release-check-mode`        | `DOZZLE_RELEASE_CHECK_MODE`        | `automatic`       |
+| `--image-check-mode`          | `DOZZLE_IMAGE_CHECK_MODE`          | 继承              |
+| `--remote-host`               | `DOZZLE_REMOTE_HOST`               |                   |
+| `--remote-agent`              | `DOZZLE_REMOTE_AGENT`              |                   |
+| `--timeout`                   | `DOZZLE_TIMEOUT`                   | `10s`             |
+| `--namespace`                 | `DOZZLE_NAMESPACE`                 | `""`              |
+| `--cert`                      | `DOZZLE_CERT`                      | `dozzle_cert.pem` |
+| `--key`                       | `DOZZLE_KEY`                       | `dozzle_key.pem`  |
+
+> [!TIP]
+> `DOZZLE_AUTH_GITHUB_CLIENT_SECRET` 和 `DOZZLE_AUTH_OIDC_CLIENT_SECRET` 还接受一个 `_FILE` 形式的对应变量，用来指明从哪个文件读取这个值，方便配合 [Docker secrets](/zh/guide/authentication/oauth#用-docker-secrets-保存-client-secret) 使用。
 
 > [!TIP]
 > 有些标志（例如 `--remote-host` 或 `--remote-agent`）可以多次使用。例如 `--remote-agent 167.99.1.1:7007 --remote-agent 167.99.1.2:7007`，或者用逗号分隔的 `DOZZLE_REMOTE_AGENT=167.99.1.1:7007,167.99.1.2:7007`。

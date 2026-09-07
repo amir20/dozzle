@@ -12,6 +12,9 @@ export const SECTIONS: Section[] = [
     key: "advanced",
     items: [
       "authentication",
+      "authentication/simple",
+      "authentication/oauth",
+      "authentication/forward-proxy",
       "actions",
       "app-icons",
       "shell",

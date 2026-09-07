@@ -31,28 +31,39 @@
         </template>
         <template v-else>
           <img
-            class="ring-base-content/60 size-6 max-w-none rounded-full p-px ring-1"
+            class="ring-base-content/25 size-6 max-w-none rounded-full p-px ring-1"
             :src="withBase('/api/profile/avatar')"
           />
         </template>
       </template>
       <template #content>
-        <div class="p-2">
-          <div class="font-bold">
-            {{ config.user.name }}
+        <div class="max-w-72">
+          <div class="flex items-center gap-3 px-2 py-1.5">
+            <img
+              v-if="!config.disableAvatars && config.user.email"
+              class="ring-base-content/15 size-9 shrink-0 rounded-full ring-1"
+              :src="withBase('/api/profile/avatar')"
+            />
+            <!-- min-w-0 is what lets a long email truncate instead of widening the panel. -->
+            <div class="min-w-0">
+              <div class="truncate text-sm font-semibold">{{ config.user.name }}</div>
+              <div v-if="config.user.email" class="text-base-content/60 truncate text-xs">
+                {{ config.user.email }}
+              </div>
+            </div>
           </div>
-          <div v-if="config.user.email" class="text-sm font-light">
-            {{ config.user.email }}
-          </div>
-        </div>
-        <ul v-if="config.authProvider === 'simple' || config.logoutUrl" class="menu mt-4 p-0">
-          <li>
-            <button @click.prevent="logout()" class="text-primary p-2">
-              <material-symbols:logout />
+
+          <template v-if="config.authProvider === 'simple' || config.logoutUrl">
+            <div class="bg-base-content/10 my-1.5 h-px"></div>
+            <button
+              @click.prevent="logout()"
+              class="hover:bg-base-300 flex w-full cursor-pointer items-center gap-2 rounded-md px-2 py-1.5 text-sm transition-colors"
+            >
+              <material-symbols:logout class="size-4 opacity-60" />
               {{ $t("button.logout") }}
             </button>
-          </li>
-        </ul>
+          </template>
+        </div>
       </template>
     </dropdown>
   </div>

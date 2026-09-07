@@ -73,6 +73,7 @@ label:
   hosts: 主机
   password: 密码
   username: 用户名
+  or: 或
   container-name: 容器名称
   status: 状态
   created: 创建时间
@@ -117,6 +118,7 @@ error:
   page-not-found: 此页面不存在。
   host-group-not-found: '在组 "{name}" 中未找到主机'
   invalid-auth: 用户名和密码无效。
+  oauth-failed: 登录失败，请重试。
   copy-not-supported: 您的浏览器不支持复制到剪贴板
   copy-not-supported-hint: 剪贴板不可用。请复制下方链接
   logs-skipped: 显示 {total} 个隐藏条目
@@ -162,6 +164,7 @@ title:
 button:
   logout: 退出
   login: 登录
+  login-with: 使用 {provider} 继续
   settings: 设置
   cancel: 取消
   redirect: 重定向

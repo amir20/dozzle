@@ -63,6 +63,7 @@ label:
   hosts: Host
   password: Kata sandi
   username: Nama pengguna
+  or: atau
   container-name: Nama Kontainer
   status: Status
   created: Dibuat
@@ -120,6 +121,7 @@ error:
   page-not-found: Halaman ini tidak ada
   host-group-not-found: 'Tidak ada host yang ditemukan di grup "{name}"'
   invalid-auth: Nama pengguna atau kata sandi tidak valid
+  oauth-failed: Gagal masuk. Silakan coba lagi.
   copy-not-supported: Salin ke clipboard tidak didukung di browser Anda
   copy-not-supported-hint: Clipboard tidak tersedia. Salin tautan di bawah ini
   logs-skipped: Tampilkan {total} entri tersembunyi
@@ -168,6 +170,7 @@ title:
 button:
   logout: Keluar
   login: Masuk
+  login-with: Lanjutkan dengan {provider}
   settings: Pengaturan
   cancel: Batal
   redirect: Alihkan

@@ -1,41 +1,50 @@
 ---
 title: Umgebungsvariablen und Unterbefehle
-sourceHash: 3930d18cbbb4
+sourceHash: ec7584015f66
 ---
 
 # Globale Umgebungsvariablen
 
 Die Konfiguration erfolgt über Optionen oder Umgebungsvariablen. Die Tabelle unten listet alle unterstützten Optionen und die zugehörigen Umgebungsvariablen auf.
 
-| Option                 | Umgebungsvariable           | Standard          |
-| ---------------------- | --------------------------- | ----------------- |
-| `--addr`               | `DOZZLE_ADDR`               | `:8080`           |
-| `--base`               | `DOZZLE_BASE`               | `/`               |
-| `--hostname`           | `DOZZLE_HOSTNAME`           | `""`              |
-| `--level`              | `DOZZLE_LEVEL`              | `info`            |
-| `--auth-provider`      | `DOZZLE_AUTH_PROVIDER`      | `none`            |
-| `--auth-header-user`   | `DOZZLE_AUTH_HEADER_USER`   | `Remote-User`     |
-| `--auth-header-email`  | `DOZZLE_AUTH_HEADER_EMAIL`  | `Remote-Email`    |
-| `--auth-header-name`   | `DOZZLE_AUTH_HEADER_NAME`   | `Remote-Name`     |
-| `--auth-header-filter` | `DOZZLE_AUTH_HEADER_FILTER` | `Remote-Filter`   |
-| `--auth-header-roles`  | `DOZZLE_AUTH_HEADER_ROLES`  | `Remote-Roles`    |
-| `--auth-logout-url`    | `DOZZLE_AUTH_LOGOUT_URL`    | `""`              |
-| `--auth-ttl`           | `DOZZLE_AUTH_TTL`           | `session`         |
-| `--enable-actions`     | `DOZZLE_ENABLE_ACTIONS`     | `false`           |
-| `--enable-shell`       | `DOZZLE_ENABLE_SHELL`       | `false`           |
-| `--enable-mcp`         | `DOZZLE_ENABLE_MCP`         | `false`           |
-| `--disable-avatars`    | `DOZZLE_DISABLE_AVATARS`    | `false`           |
-| `--filter`             | `DOZZLE_FILTER`             | `""`              |
-| `--no-analytics`       | `DOZZLE_NO_ANALYTICS`       | `false`           |
-| `--mode`               | `DOZZLE_MODE`               | `server`          |
-| `--release-check-mode` | `DOZZLE_RELEASE_CHECK_MODE` | `automatic`       |
-| `--image-check-mode`   | `DOZZLE_IMAGE_CHECK_MODE`   | geerbt            |
-| `--remote-host`        | `DOZZLE_REMOTE_HOST`        |                   |
-| `--remote-agent`       | `DOZZLE_REMOTE_AGENT`       |                   |
-| `--timeout`            | `DOZZLE_TIMEOUT`            | `10s`             |
-| `--namespace`          | `DOZZLE_NAMESPACE`          | `""`              |
-| `--cert`               | `DOZZLE_CERT`               | `dozzle_cert.pem` |
-| `--key`                | `DOZZLE_KEY`                | `dozzle_key.pem`  |
+| Option                        | Umgebungsvariable                  | Standard          |
+| ----------------------------- | ---------------------------------- | ----------------- |
+| `--addr`                      | `DOZZLE_ADDR`                      | `:8080`           |
+| `--base`                      | `DOZZLE_BASE`                      | `/`               |
+| `--hostname`                  | `DOZZLE_HOSTNAME`                  | `""`              |
+| `--level`                     | `DOZZLE_LEVEL`                     | `info`            |
+| `--auth-provider`             | `DOZZLE_AUTH_PROVIDER`             | `none`            |
+| `--auth-header-user`          | `DOZZLE_AUTH_HEADER_USER`          | `Remote-User`     |
+| `--auth-header-email`         | `DOZZLE_AUTH_HEADER_EMAIL`         | `Remote-Email`    |
+| `--auth-header-name`          | `DOZZLE_AUTH_HEADER_NAME`          | `Remote-Name`     |
+| `--auth-header-filter`        | `DOZZLE_AUTH_HEADER_FILTER`        | `Remote-Filter`   |
+| `--auth-header-roles`         | `DOZZLE_AUTH_HEADER_ROLES`         | `Remote-Roles`    |
+| `--auth-logout-url`           | `DOZZLE_AUTH_LOGOUT_URL`           | `""`              |
+| `--auth-ttl`                  | `DOZZLE_AUTH_TTL`                  | `session`         |
+| `--auth-github-client-id`     | `DOZZLE_AUTH_GITHUB_CLIENT_ID`     | `""`              |
+| `--auth-github-client-secret` | `DOZZLE_AUTH_GITHUB_CLIENT_SECRET` | `""`              |
+| `--auth-oidc-issuer`          | `DOZZLE_AUTH_OIDC_ISSUER`          | `""`              |
+| `--auth-oidc-client-id`       | `DOZZLE_AUTH_OIDC_CLIENT_ID`       | `""`              |
+| `--auth-oidc-client-secret`   | `DOZZLE_AUTH_OIDC_CLIENT_SECRET`   | `""`              |
+| `--auth-oidc-name`            | `DOZZLE_AUTH_OIDC_NAME`            | `SSO`             |
+| `--enable-actions`            | `DOZZLE_ENABLE_ACTIONS`            | `false`           |
+| `--enable-shell`              | `DOZZLE_ENABLE_SHELL`              | `false`           |
+| `--enable-mcp`                | `DOZZLE_ENABLE_MCP`                | `false`           |
+| `--disable-avatars`           | `DOZZLE_DISABLE_AVATARS`           | `false`           |
+| `--filter`                    | `DOZZLE_FILTER`                    | `""`              |
+| `--no-analytics`              | `DOZZLE_NO_ANALYTICS`              | `false`           |
+| `--mode`                      | `DOZZLE_MODE`                      | `server`          |
+| `--release-check-mode`        | `DOZZLE_RELEASE_CHECK_MODE`        | `automatic`       |
+| `--image-check-mode`          | `DOZZLE_IMAGE_CHECK_MODE`          | geerbt            |
+| `--remote-host`               | `DOZZLE_REMOTE_HOST`               |                   |
+| `--remote-agent`              | `DOZZLE_REMOTE_AGENT`              |                   |
+| `--timeout`                   | `DOZZLE_TIMEOUT`                   | `10s`             |
+| `--namespace`                 | `DOZZLE_NAMESPACE`                 | `""`              |
+| `--cert`                      | `DOZZLE_CERT`                      | `dozzle_cert.pem` |
+| `--key`                       | `DOZZLE_KEY`                       | `dozzle_key.pem`  |
+
+> [!TIP]
+> `DOZZLE_AUTH_GITHUB_CLIENT_SECRET` und `DOZZLE_AUTH_OIDC_CLIENT_SECRET` akzeptieren auch ein Gegenstück mit `_FILE`, das eine Datei benennt, aus der der Wert gelesen wird, zur Nutzung mit [Docker Secrets](/de/guide/authentication/oauth#docker-secrets-fur-das-client-secret-verwenden).
 
 > [!TIP]
 > Manche Optionen wie `--remote-host` oder `--remote-agent` lassen sich mehrfach angeben. Zum Beispiel `--remote-agent 167.99.1.1:7007 --remote-agent 167.99.1.2:7007` oder kommagetrennt `DOZZLE_REMOTE_AGENT=167.99.1.1:7007,167.99.1.2:7007`.

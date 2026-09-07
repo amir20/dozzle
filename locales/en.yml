@@ -62,6 +62,7 @@ label:
   hosts: Hosts
   password: Password
   username: Username
+  or: or
   container-name: Container Name
   status: Status
   created: Created
@@ -117,6 +118,7 @@ error:
   page-not-found: This page does not exist
   host-group-not-found: 'No hosts found in group "{name}"'
   invalid-auth: Username or password are not valid
+  oauth-failed: Sign in failed. Please try again.
   copy-not-supported: Copy to clipboard is not supported in your browser
   copy-not-supported-hint: Clipboard unavailable. Copy the link below
   logs-skipped: Show {total} hidden entries
@@ -170,6 +172,7 @@ title:
 button:
   logout: Logout
   login: Login
+  login-with: Continue with {provider}
   settings: Settings
   cancel: Cancel
   redirect: Redirect

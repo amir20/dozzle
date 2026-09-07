@@ -62,6 +62,7 @@ label:
   hosts: Хосты
   password: Пароль
   username: Имя пользователя
+  or: или
   container-name: Имя контейнера
   status: Статус
   created: Создан
@@ -117,6 +118,7 @@ error:
   page-not-found: Эта страница не доступна.
   host-group-not-found: "Хосты в группе «{name}» не найдены"
   invalid-auth: Имя пользователя или пароль неверны.
+  oauth-failed: Не удалось выполнить вход. Попробуйте ещё раз.
   copy-not-supported: Копирование в буфер обмена не поддерживается вашим браузером
   copy-not-supported-hint: Буфер обмена недоступен. Скопируйте ссылку ниже
   logs-skipped: Показать {total} скрытых записей
@@ -162,6 +164,7 @@ title:
 button:
   logout: Выйти
   login: Войти
+  login-with: Продолжить с {provider}
   settings: Настройки
   cancel: Отмена
   redirect: Перенаправить
