@@ -1,61 +1,64 @@
 <template>
-  <aside ref="root" class="flex h-[calc(100svh-50px)] flex-col gap-4">
-    <header class="flex items-center gap-3 pe-20">
-      <ri:terminal-window-fill v-if="action === 'attach'" class="text-primary size-7 shrink-0" />
-      <material-symbols:terminal v-else class="text-primary size-7 shrink-0" />
-      <div class="flex min-w-0 flex-col">
-        <div class="flex items-center gap-2">
-          <h1 class="text-xl leading-tight font-semibold">
-            {{ action === "attach" ? $t("toolbar.attach") : $t("toolbar.shell") }}
-          </h1>
-          <span class="badge badge-sm bg-base-300 gap-1.5 border-none">
+  <aside ref="root" class="relative flex h-[calc(100svh-50px)] flex-col gap-4">
+    <!-- Absolute at top-0 so this row lands on exactly the same baseline as the drawer's own
+         maximize/close buttons, which are positioned the same way against the same box. -->
+    <div class="absolute end-16 top-0 z-10 flex items-center gap-3">
+      <button
+        class="icon-btn hover:text-base-content/60"
+        :class="{ 'text-primary': searchOpen }"
+        :title="$t('terminal.search')"
+        :aria-label="$t('terminal.search')"
+        @click="searchOpen ? closeSearch() : openSearch()"
+      >
+        <mdi:magnify />
+      </button>
+      <button
+        class="icon-btn hover:text-base-content/60 disabled:opacity-30"
+        :title="$t('terminal.decrease-font')"
+        :aria-label="$t('terminal.decrease-font')"
+        :disabled="fontSize <= MIN_FONT_SIZE"
+        @click="fontSize--"
+      >
+        <mdi:format-font-size-decrease />
+      </button>
+      <button
+        class="icon-btn hover:text-base-content/60 disabled:opacity-30"
+        :title="$t('terminal.increase-font')"
+        :aria-label="$t('terminal.increase-font')"
+        :disabled="fontSize >= MAX_FONT_SIZE"
+        @click="fontSize++"
+      >
+        <mdi:format-font-size-increase />
+      </button>
+      <button
+        class="icon-btn hover:text-base-content/60"
+        :title="$t('toolbar.clear')"
+        :aria-label="$t('toolbar.clear')"
+        @click="clear()"
+      >
+        <octicon:trash-24 />
+      </button>
+    </div>
+
+    <header class="flex items-center gap-3 pe-52">
+      <div class="bg-base-200 text-primary flex size-9 shrink-0 items-center justify-center rounded-lg">
+        <ri:terminal-window-fill v-if="action === 'attach'" class="size-5" />
+        <material-symbols:terminal v-else class="size-5" />
+      </div>
+      <div class="flex min-w-0 flex-col gap-0.5">
+        <h1 class="text-lg leading-none font-semibold">
+          {{ action === "attach" ? $t("toolbar.attach") : $t("toolbar.shell") }}
+        </h1>
+        <p class="text-base-content/50 flex min-w-0 items-center gap-1.5 text-xs leading-none">
+          <span class="truncate font-mono">{{ container.name }}</span>
+          <span class="opacity-40">·</span>
+          <RelativeTime :date="container.created" class="whitespace-nowrap" />
+          <span class="opacity-40">·</span>
+          <span class="inline-flex items-center gap-1 whitespace-nowrap">
             <span class="status size-1.5" :class="statusDotClass"></span>
             {{ statusLabel }}
           </span>
-        </div>
-        <p class="text-base-content/60 flex items-center gap-1.5 text-sm">
-          <span class="truncate font-mono">{{ container.name }}</span>
-          <span class="opacity-40">·</span>
-          <RelativeTime :date="container.created" />
         </p>
-      </div>
-
-      <div class="ms-auto flex shrink-0 items-center gap-1">
-        <button
-          class="btn btn-ghost btn-xs btn-square"
-          :class="{ 'btn-active': searchOpen }"
-          :title="$t('terminal.search')"
-          :aria-label="$t('terminal.search')"
-          @click="searchOpen ? closeSearch() : openSearch()"
-        >
-          <mdi:magnify />
-        </button>
-        <button
-          class="btn btn-ghost btn-xs btn-square"
-          :title="$t('terminal.decrease-font')"
-          :aria-label="$t('terminal.decrease-font')"
-          :disabled="fontSize <= MIN_FONT_SIZE"
-          @click="fontSize--"
-        >
-          <mdi:format-font-size-decrease />
-        </button>
-        <button
-          class="btn btn-ghost btn-xs btn-square"
-          :title="$t('terminal.increase-font')"
-          :aria-label="$t('terminal.increase-font')"
-          :disabled="fontSize >= MAX_FONT_SIZE"
-          @click="fontSize++"
-        >
-          <mdi:format-font-size-increase />
-        </button>
-        <button
-          class="btn btn-ghost btn-xs btn-square"
-          :title="$t('toolbar.clear')"
-          :aria-label="$t('toolbar.clear')"
-          @click="clear()"
-        >
-          <octicon:trash-24 />
-        </button>
       </div>
     </header>
 
@@ -432,14 +435,41 @@ onUnmounted(() => {
 @reference "@/main.css";
 
 .shell {
-  @apply border-base-content/20 bg-base-200 overflow-hidden rounded border p-2 transition-colors;
-
+  @apply border-base-content/10 bg-base-200 overflow-hidden rounded-lg border p-3 transition-shadow;
+  /* A hard primary border on all four sides read as a glowing box around an
+   * otherwise dark panel, so focus is a soft ring instead. */
   &:has(.terminal.focus) {
-    @apply border-primary;
+    @apply ring-primary/40 ring-2;
   }
 
+  /* xterm sizes .xterm-screen from the fitted cols/rows, so forcing the element
+   * to the full host width left a sub-pixel overflow and a horizontal scrollbar
+   * pinned across the bottom. */
   & :deep(.terminal) {
-    @apply size-full;
+    @apply overflow-hidden;
+  }
+
+  /* The app only restyles scrollbars when the user opts in, which left the OS
+   * bar sitting on top of the terminal. Here it is always part of the surface. */
+  & :deep(.xterm-viewport) {
+    scrollbar-width: thin;
+    scrollbar-color: color-mix(in oklch, var(--color-base-content) 25%, transparent) transparent;
+
+    &::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    &::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    &::-webkit-scrollbar-thumb {
+      @apply bg-base-content/20 rounded;
+
+      &:hover {
+        @apply bg-base-content/35;
+      }
+    }
   }
 
   & :deep(.xterm-cursor-block.xterm-cursor-blink) {
