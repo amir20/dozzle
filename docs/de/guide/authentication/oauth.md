@@ -1,6 +1,6 @@
 ---
 title: Mit GitHub & OIDC anmelden
-sourceHash: 5599dbb13858
+sourceHash: 915ed5a63ab6
 ---
 
 # <Icon icon="mdi:shield-account" inline /> Mit GitHub & OIDC anmelden
@@ -221,7 +221,7 @@ So oder so entfernt Dozzle umgebende Leerzeichen, ein abschließender Zeilenumbr
 
 ### Docker Swarm
 
-Im Swarm wird das Secret vom Cluster verwaltet und liegt nicht als Datei auf der Platte. Deklariere es deshalb als `external` und lege es mit `docker secret create` an:
+Im Swarm wird das Secret vom Cluster verwaltet und liegt nicht als Datei auf der Platte. Lege es deshalb mit `docker secret create` an und deklariere es als `external`:
 
 ```sh
 printf '%s' 'your-oidc-client-secret' | docker secret create dozzle_oidc_secret_v1 -
@@ -236,33 +236,40 @@ services:
       DOZZLE_AUTH_PROVIDER: simple
       DOZZLE_AUTH_OIDC_ISSUER: https://id.example.com
       DOZZLE_AUTH_OIDC_CLIENT_ID: dozzle
-      DOZZLE_AUTH_OIDC_CLIENT_SECRET_FILE: /run/secrets/dozzle_oidc_secret_v1
+      DOZZLE_AUTH_OIDC_CLIENT_SECRET_FILE: /run/secrets/dozzle_oidc_secret
       DOZZLE_AUTH_OIDC_NAME: Pocket ID
     secrets:
-      - dozzle_oidc_secret_v1
+      - dozzle_oidc_secret
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
     deploy:
       mode: global
 
 secrets:
-  dozzle_oidc_secret_v1:
+  dozzle_oidc_secret:
     external: true
+    name: dozzle_oidc_secret_v1
 ```
 
-> [!NOTE]
-> Ein Secret wird standardmäßig unter `/run/secrets/<name>` eingehängt, deshalb zeigt `_FILE` dorthin. Wenn du ein explizites `target:` setzt, lass `_FILE` stattdessen auf diesen Pfad zeigen.
+Beachte die Trennung der beiden Namen. `dozzle_oidc_secret` ist der Alias, den diese Compose-Datei verwendet, und er bestimmt den Einhängepfad: Das Secret landet unter `/run/secrets/dozzle_oidc_secret`, passend zu `_FILE`. `name:` ist das tatsächliche Objekt im Swarm und die einzige Stelle, an der die Version auftaucht.
 
-Swarm-Secrets sind unveränderlich. Den Wert eines bestehenden Secrets zu ändern geht nicht, deshalb trägt der Name im Beispiel die Endung `_v1`: Ein geleaktes oder abgelaufenes Client Secret zu rotieren heißt, die nächste Version anzulegen und den Service darauf zeigen zu lassen.
+Diese Trennung gibt es, weil Swarm-Secrets unveränderlich sind. Den Wert eines bestehenden Secrets zu ändern geht nicht, ein geleaktes oder abgelaufenes Client Secret zu rotieren heißt also, die nächste Version anzulegen und den Stack darauf zeigen zu lassen. Wenn die Version nicht im Alias steht, ist das eine einzige Zeile statt drei Änderungen, die über `_FILE`, die `secrets:`-Liste des Service und die Deklaration auf oberster Ebene synchron gehalten werden müssen:
 
 ```sh
-$ printf '%s' 'your-new-client-secret' | docker secret create dozzle_oidc_secret_v2 -
-$ docker service update \
-    --secret-rm dozzle_oidc_secret_v1 \
-    --secret-add dozzle_oidc_secret_v2 \
-    --env-add DOZZLE_AUTH_OIDC_CLIENT_SECRET_FILE=/run/secrets/dozzle_oidc_secret_v2 \
-    dozzle_dozzle
+printf '%s' 'your-new-client-secret' | docker secret create dozzle_oidc_secret_v2 -
 ```
+
+```yaml [docker-compose.yml]
+secrets:
+  dozzle_oidc_secret:
+    external: true
+    name: dozzle_oidc_secret_v2 # was _v1
+```
+
+Deploye den Stack neu und entferne danach das alte Secret mit `docker secret rm dozzle_oidc_secret_v1`. Die Umgebungsvariable und der Einhängepfad haben sich nie verschoben.
+
+> [!NOTE]
+> Ohne `name:` wird ein Secret unter `/run/secrets/<alias>` eingehängt und der Alias muss dem tatsächlichen Objekt im Swarm entsprechen. Mit `name:` sind die beiden entkoppelt, und genau das macht die Rotation oben zu einer einzigen Änderung. In beiden Fällen zeigt `_FILE` auf den Alias, nie auf `name:`.
 
 ### Überprüfen, ob es funktioniert hat
 

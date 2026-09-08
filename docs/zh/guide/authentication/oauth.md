@@ -1,6 +1,6 @@
 ---
 title: 使用 GitHub 与 OIDC 登录
-sourceHash: 5599dbb13858
+sourceHash: 915ed5a63ab6
 ---
 
 # <Icon icon="mdi:shield-account" inline /> 使用 GitHub 与 OIDC 登录
@@ -221,7 +221,7 @@ secrets:
 
 ### Docker Swarm
 
-在 Swarm 里，secret 由集群管理，而不是磁盘上的某个文件，所以要把它声明为 `external`，并用 `docker secret create` 创建：
+在 Swarm 里，secret 由集群管理，而不是磁盘上的某个文件，所以要用 `docker secret create` 创建它，并把它声明为 `external`：
 
 ```sh
 printf '%s' 'your-oidc-client-secret' | docker secret create dozzle_oidc_secret_v1 -
@@ -236,33 +236,40 @@ services:
       DOZZLE_AUTH_PROVIDER: simple
       DOZZLE_AUTH_OIDC_ISSUER: https://id.example.com
       DOZZLE_AUTH_OIDC_CLIENT_ID: dozzle
-      DOZZLE_AUTH_OIDC_CLIENT_SECRET_FILE: /run/secrets/dozzle_oidc_secret_v1
+      DOZZLE_AUTH_OIDC_CLIENT_SECRET_FILE: /run/secrets/dozzle_oidc_secret
       DOZZLE_AUTH_OIDC_NAME: Pocket ID
     secrets:
-      - dozzle_oidc_secret_v1
+      - dozzle_oidc_secret
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
     deploy:
       mode: global
 
 secrets:
-  dozzle_oidc_secret_v1:
+  dozzle_oidc_secret:
     external: true
+    name: dozzle_oidc_secret_v1
 ```
 
-> [!NOTE]
-> secret 默认挂载在 `/run/secrets/<name>`，`_FILE` 指向的就是这个路径。如果你显式设置了 `target:`，就把 `_FILE` 指向你设置的那个路径。
+注意这里的两个名字是分开的。`dozzle_oidc_secret` 是这个 compose 文件里使用的别名，挂载路径由它决定：secret 会挂载到 `/run/secrets/dozzle_oidc_secret`，正好和 `_FILE` 对应。`name:` 才是 swarm 上真正的那个对象，也是唯一出现版本号的地方。
 
-Swarm 的 secret 是不可变的。已有 secret 的值改不了，这也是示例里的名字带 `_v1` 后缀的原因：轮换一个泄露或过期的 client secret，意味着创建下一个版本，再把服务指向它。
+之所以要这样拆开，是因为 Swarm 的 secret 是不可变的。已有 secret 的值改不了，所以轮换一个泄露或过期的 client secret，只能创建下一个版本，再把整个 stack 指向它。把版本号从别名里拿掉之后，这就变成了改一行的事，而不用在 `_FILE`、服务的 `secrets:` 列表和顶层声明这三处之间来回保持一致：
 
 ```sh
-$ printf '%s' 'your-new-client-secret' | docker secret create dozzle_oidc_secret_v2 -
-$ docker service update \
-    --secret-rm dozzle_oidc_secret_v1 \
-    --secret-add dozzle_oidc_secret_v2 \
-    --env-add DOZZLE_AUTH_OIDC_CLIENT_SECRET_FILE=/run/secrets/dozzle_oidc_secret_v2 \
-    dozzle_dozzle
+printf '%s' 'your-new-client-secret' | docker secret create dozzle_oidc_secret_v2 -
 ```
+
+```yaml [docker-compose.yml]
+secrets:
+  dozzle_oidc_secret:
+    external: true
+    name: dozzle_oidc_secret_v2 # was _v1
+```
+
+重新部署这个 stack，然后用 `docker secret rm dozzle_oidc_secret_v1` 删掉旧的那个。环境变量和挂载路径自始至终都没有变过。
+
+> [!NOTE]
+> 不写 `name:` 时，secret 会挂载在 `/run/secrets/<别名>`，并且别名必须和 swarm 上真正的对象同名。写了 `name:` 之后两者就解耦了，上面的轮换才能只改一处。无论哪种写法，`_FILE` 指向的都是别名，而不是 `name:`。
 
 ### 确认是否生效
 

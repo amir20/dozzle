@@ -220,7 +220,7 @@ Either way Dozzle trims surrounding whitespace, so a trailing newline in the fil
 
 ### Docker Swarm
 
-In Swarm the secret is managed by the cluster rather than a file on disk, so declare it as `external` and create it with `docker secret create`:
+In Swarm the secret is managed by the cluster rather than a file on disk, so create it with `docker secret create` and declare it as `external`:
 
 ```sh
 printf '%s' 'your-oidc-client-secret' | docker secret create dozzle_oidc_secret_v1 -
@@ -235,33 +235,40 @@ services:
       DOZZLE_AUTH_PROVIDER: simple
       DOZZLE_AUTH_OIDC_ISSUER: https://id.example.com
       DOZZLE_AUTH_OIDC_CLIENT_ID: dozzle
-      DOZZLE_AUTH_OIDC_CLIENT_SECRET_FILE: /run/secrets/dozzle_oidc_secret_v1
+      DOZZLE_AUTH_OIDC_CLIENT_SECRET_FILE: /run/secrets/dozzle_oidc_secret
       DOZZLE_AUTH_OIDC_NAME: Pocket ID
     secrets:
-      - dozzle_oidc_secret_v1
+      - dozzle_oidc_secret
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
     deploy:
       mode: global
 
 secrets:
-  dozzle_oidc_secret_v1:
+  dozzle_oidc_secret:
     external: true
+    name: dozzle_oidc_secret_v1
 ```
 
-> [!NOTE]
-> A secret mounts at `/run/secrets/<name>` by default, which is why `_FILE` points there. If you set an explicit `target:`, point `_FILE` at that path instead.
+Note the split between the two names. `dozzle_oidc_secret` is the alias this compose file uses, and it is what decides the mount path: the secret lands at `/run/secrets/dozzle_oidc_secret`, matching `_FILE`. `name:` is the actual object on the swarm, and it is the only place the version appears.
 
-Swarm secrets are immutable. There is no way to change the value of an existing one, which is why the example name carries a `_v1` suffix: rotating a leaked or expired client secret means creating the next version and pointing the service at it.
+That split exists because Swarm secrets are immutable. There is no way to change the value of an existing one, so rotating a leaked or expired client secret means creating the next version and pointing the stack at it. Keeping the version out of the alias makes that a one-line edit, rather than three edits kept in sync across `_FILE`, the service's `secrets:` list, and the top-level declaration:
 
 ```sh
-$ printf '%s' 'your-new-client-secret' | docker secret create dozzle_oidc_secret_v2 -
-$ docker service update \
-    --secret-rm dozzle_oidc_secret_v1 \
-    --secret-add dozzle_oidc_secret_v2 \
-    --env-add DOZZLE_AUTH_OIDC_CLIENT_SECRET_FILE=/run/secrets/dozzle_oidc_secret_v2 \
-    dozzle_dozzle
+printf '%s' 'your-new-client-secret' | docker secret create dozzle_oidc_secret_v2 -
 ```
+
+```yaml [docker-compose.yml]
+secrets:
+  dozzle_oidc_secret:
+    external: true
+    name: dozzle_oidc_secret_v2 # was _v1
+```
+
+Redeploy the stack, then drop the old one with `docker secret rm dozzle_oidc_secret_v1`. The environment variable and the mount path never moved.
+
+> [!NOTE]
+> Without `name:`, a secret mounts at `/run/secrets/<alias>` and the alias must match the real object on the swarm. With `name:` the two are decoupled, which is what makes the rotation above a single edit. Either way `_FILE` points at the alias, never at `name:`.
 
 ### Verifying it worked
 

@@ -1,6 +1,6 @@
 ---
 title: Se connecter avec GitHub et OIDC
-sourceHash: 5599dbb13858
+sourceHash: 915ed5a63ab6
 ---
 
 # <Icon icon="mdi:shield-account" inline /> Se connecter avec GitHub et OIDC
@@ -221,7 +221,7 @@ Dans les deux cas, Dozzle supprime les espaces autour de la valeur, un retour à
 
 ### Docker Swarm
 
-En Swarm le secret est géré par le cluster plutôt que par un fichier sur le disque, déclarez-le donc comme `external` et créez-le avec `docker secret create` :
+En Swarm le secret est géré par le cluster plutôt que par un fichier sur le disque, créez-le donc avec `docker secret create` et déclarez-le comme `external` :
 
 ```sh
 printf '%s' 'your-oidc-client-secret' | docker secret create dozzle_oidc_secret_v1 -
@@ -236,33 +236,40 @@ services:
       DOZZLE_AUTH_PROVIDER: simple
       DOZZLE_AUTH_OIDC_ISSUER: https://id.example.com
       DOZZLE_AUTH_OIDC_CLIENT_ID: dozzle
-      DOZZLE_AUTH_OIDC_CLIENT_SECRET_FILE: /run/secrets/dozzle_oidc_secret_v1
+      DOZZLE_AUTH_OIDC_CLIENT_SECRET_FILE: /run/secrets/dozzle_oidc_secret
       DOZZLE_AUTH_OIDC_NAME: Pocket ID
     secrets:
-      - dozzle_oidc_secret_v1
+      - dozzle_oidc_secret
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
     deploy:
       mode: global
 
 secrets:
-  dozzle_oidc_secret_v1:
+  dozzle_oidc_secret:
     external: true
+    name: dozzle_oidc_secret_v1
 ```
 
-> [!NOTE]
-> Un secret est monté par défaut sur `/run/secrets/<name>`, c'est pour cela que `_FILE` pointe là. Si vous définissez un `target:` explicite, faites pointer `_FILE` sur ce chemin.
+Remarquez la séparation entre les deux noms. `dozzle_oidc_secret` est l'alias utilisé par ce fichier compose, et c'est lui qui décide du chemin de montage : le secret arrive dans `/run/secrets/dozzle_oidc_secret`, ce qui correspond à `_FILE`. `name:` est l'objet réel sur le swarm, et c'est le seul endroit où la version apparaît.
 
-Les secrets Swarm sont immuables. Il n'y a aucun moyen de changer la valeur d'un secret existant, et c'est pour cela que le nom de l'exemple porte un suffixe `_v1` : faire tourner un client secret fuité ou expiré veut dire créer la version suivante et pointer le service dessus.
+Cette séparation existe parce que les secrets Swarm sont immuables. Il n'y a aucun moyen de changer la valeur d'un secret existant, faire tourner un client secret fuité ou expiré veut donc dire créer la version suivante et pointer la stack dessus. Garder la version hors de l'alias transforme cela en une modification d'une seule ligne, au lieu de trois modifications à maintenir synchronisées entre `_FILE`, la liste `secrets:` du service et la déclaration de premier niveau :
 
 ```sh
-$ printf '%s' 'your-new-client-secret' | docker secret create dozzle_oidc_secret_v2 -
-$ docker service update \
-    --secret-rm dozzle_oidc_secret_v1 \
-    --secret-add dozzle_oidc_secret_v2 \
-    --env-add DOZZLE_AUTH_OIDC_CLIENT_SECRET_FILE=/run/secrets/dozzle_oidc_secret_v2 \
-    dozzle_dozzle
+printf '%s' 'your-new-client-secret' | docker secret create dozzle_oidc_secret_v2 -
 ```
+
+```yaml [docker-compose.yml]
+secrets:
+  dozzle_oidc_secret:
+    external: true
+    name: dozzle_oidc_secret_v2 # was _v1
+```
+
+Redéployez la stack, puis supprimez l'ancien avec `docker secret rm dozzle_oidc_secret_v1`. La variable d'environnement et le chemin de montage n'ont pas bougé.
+
+> [!NOTE]
+> Sans `name:`, un secret est monté sur `/run/secrets/<alias>` et l'alias doit correspondre à l'objet réel sur le swarm. Avec `name:` les deux sont découplés, et c'est ce qui rend la rotation ci-dessus possible en une seule modification. Dans les deux cas, `_FILE` pointe sur l'alias, jamais sur `name:`.
 
 ### Vérifier que ça a marché
 
