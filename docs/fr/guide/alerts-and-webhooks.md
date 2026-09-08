@@ -1,11 +1,13 @@
 ---
-title: Alertes et webhooks
-sourceHash: daf372975955
+title: Alertes
+sourceHash: 71776f8fae5c
 ---
 
-# Alertes et webhooks
+# Alertes
 
-Dozzle dispose d'un système d'alertes qui permet de surveiller les logs des conteneurs, les métriques de ressources et les évènements de cycle de vie, et de recevoir des notifications quand certaines conditions sont remplies. Les alertes utilisent des expressions personnalisables pour filtrer les conteneurs et déclencher les conditions, et peuvent envoyer des notifications vers des webhooks, Slack, Discord, ntfy ou [Dozzle Cloud](/fr/guide/dozzle-cloud).
+Dozzle peut surveiller les logs des conteneurs, les métriques de ressources et les évènements de cycle de vie, et vous notifier dès qu'une condition que vous décrivez est remplie. Les règles s'écrivent sous forme d'expressions, sont évaluées sur votre propre instance et sont livrées à un webhook, à Slack, à Discord ou à ntfy.
+
+Les règles vivent toujours ici, sur l'instance auto-hébergée, parce que c'est là que sont vos logs. Si vous avez relié l'instance à [Dozzle Cloud](/fr/guide/dozzle-cloud), ces mêmes règles l'alimentent, et la distribution (regroupement, résumés, mise en sourdine, canaux mobiles) se configure là-bas plutôt que destination par destination ci-dessous.
 
 ## <Icon icon="mdi:format-list-bulleted-type" inline /> Types d'alertes
 
@@ -81,7 +83,7 @@ Vous pouvez aussi écrire votre propre modèle de payload avec la syntaxe `text/
 
 ### Dozzle Cloud
 
-Vous pouvez aussi envoyer les alertes vers [Dozzle Cloud](/fr/guide/dozzle-cloud) pour une supervision centralisée de plusieurs instances Dozzle. Voir le [guide Dozzle Cloud](/fr/guide/dozzle-cloud) pour plus de détails.
+Les instances reliées obtiennent **Dozzle Cloud** comme destination automatiquement. Contrairement à un webhook brut, il regroupe les pannes répétées en une seule notification, résume ce qui s'est passé et diffuse vers e-mail, Telegram, Discord, Slack, ntfy et les notifications navigateur sans avoir à configurer chacun ici. Voir [Dozzle Cloud](/fr/guide/dozzle-cloud).
 
 ## <Icon icon="mdi:plus-circle-outline" inline /> Créer une alerte
 

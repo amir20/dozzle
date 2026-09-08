@@ -34,22 +34,6 @@ features:
       height: 36
     link: /guide/what-is-dozzle#real-time-monitoring
     linkText: Learn More
-  - title: SQL Log Analysis
-    details: Query your logs with DuckDB and WebAssembly — full SQL, running entirely in the browser.
-    icon:
-      src: /icons/sql.svg
-      width: 36
-      height: 36
-    link: /guide/sql-engine
-    linkText: Learn More
-  - title: Alerts & Webhooks
-    details: Match log patterns with powerful expressions and notify Slack, Discord, ntfy, or any webhook.
-    icon:
-      src: /icons/notification-new.svg
-      width: 36
-      height: 36
-    link: /guide/alerts-and-webhooks
-    linkText: Learn More
   - title: Multi-host & Swarm
     details: Connect to multiple Docker hosts and Swarm clusters from a single UI, secured with TLS agents.
     icon:
@@ -57,6 +41,22 @@ features:
       width: 36
       height: 36
     link: /guide/remote-hosts
+    linkText: Learn More
+  - title: Alerts & Webhooks
+    details: Match log patterns, metrics, and lifecycle events with expressions, then notify Slack, Discord, ntfy, or any webhook.
+    icon:
+      src: /icons/notification-new.svg
+      width: 36
+      height: 36
+    link: /guide/alerts-and-webhooks
+    linkText: Learn More
+  - title: Dozzle Cloud
+    details: An optional managed layer that groups repeated failures, summarizes what broke, and reaches you on email, Telegram, or Discord.
+    icon:
+      src: /icons/cloud.svg
+      width: 36
+      height: 36
+    link: /guide/dozzle-cloud
     linkText: Learn More
   - title: Shell & Exec Access
     details: Attach to running containers or exec commands directly from the browser when you need to dig deeper.
@@ -66,13 +66,13 @@ features:
       height: 36
     link: /guide/shell
     linkText: Learn More
-  - title: dtop in Your Terminal
-    details: A command-line companion that gives you a live view of your containers, then jumps straight into Dozzle.
+  - title: Self-hosted & Private
+    details: Runs in your own infrastructure with simple or forward-proxy auth. Your logs never leave your network.
     icon:
-      src: /icons/terminal-command.svg
+      src: /icons/locked.svg
       width: 36
       height: 36
-    link: /guide/dtop
+    link: /guide/authentication
     linkText: Learn More
   - title: MCP for AI Assistants
     details: Expose containers, logs, and stats over the Model Context Protocol so your coding agent can debug alongside you.
@@ -81,13 +81,5 @@ features:
       width: 36
       height: 36
     link: /guide/mcp
-    linkText: Learn More
-  - title: Self-hosted & Private
-    details: Runs in your own infrastructure with simple or forward-proxy auth. Your logs never leave your network.
-    icon:
-      src: /icons/locked.svg
-      width: 36
-      height: 36
-    link: /guide/authentication
     linkText: Learn More
 ---

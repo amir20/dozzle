@@ -1,11 +1,13 @@
 ---
-title: Alertas y webhooks
-sourceHash: daf372975955
+title: Alertas
+sourceHash: 71776f8fae5c
 ---
 
-# Alertas y webhooks
+# Alertas
 
-Dozzle tiene un sistema de alertas que te permite vigilar los logs de los contenedores, las métricas de recursos y los eventos del ciclo de vida, y recibir notificaciones cuando se cumplen ciertas condiciones. Las alertas usan expresiones personalizables para filtrar contenedores y definir la condición que las dispara, y pueden enviar notificaciones a webhooks, Slack, Discord, ntfy o [Dozzle Cloud](/es/guide/dozzle-cloud).
+Dozzle puede vigilar los logs de los contenedores, las métricas de recursos y los eventos del ciclo de vida, y avisarte cuando se cumple la condición que describas. Las reglas se escriben como expresiones, se evalúan en tu propia instancia y se entregan a un webhook, a Slack, a Discord o a ntfy.
+
+Las reglas viven siempre aquí, en la instancia autoalojada, porque es donde están tus logs. Si has vinculado la instancia a [Dozzle Cloud](/es/guide/dozzle-cloud), esas mismas reglas la alimentan, y la entrega (agrupación, resúmenes, silenciado, canales móviles) se configura allí en lugar de por destino aquí abajo.
 
 ## <Icon icon="mdi:format-list-bulleted-type" inline /> Tipos de alerta
 
@@ -81,7 +83,7 @@ También puedes escribir tu propia plantilla de payload con la sintaxis `text/te
 
 ### Dozzle Cloud
 
-También puedes enviar alertas a [Dozzle Cloud](/es/guide/dozzle-cloud) para centralizar la supervisión de varias instancias de Dozzle. Consulta la [guía de Dozzle Cloud](/es/guide/dozzle-cloud) para más detalles.
+Las instancias vinculadas obtienen **Dozzle Cloud** como destino automáticamente. A diferencia de un webhook simple, agrupa los fallos repetidos en una sola notificación, resume lo que ha pasado y reparte a correo, Telegram, Discord, Slack, ntfy y notificaciones del navegador sin configurar cada uno aquí. Consulta [Dozzle Cloud](/es/guide/dozzle-cloud).
 
 ## <Icon icon="mdi:plus-circle-outline" inline /> Crear una alerta
 

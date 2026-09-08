@@ -1,10 +1,10 @@
 ---
-title: Introducing dtop
+title: dtop CLI
 ---
 
-# What is dtop?
+# dtop
 
-`dtop` is a command-line companion to Dozzle that provides a real-time terminal view of the Docker containers running on your system. Think of it as a richer `docker ps` you can leave open in a tmux pane — and when you need the full log history, search, or charts, `dtop` lets you jump straight into Dozzle.
+`dtop` is a command-line companion to Dozzle that gives you a real-time terminal view of the Docker containers running on your system. Think of it as a richer `docker ps` you can leave open in a tmux pane, and when you need the full log history, search, or charts, `dtop` lets you jump straight into Dozzle.
 
 It connects to Docker hosts via `ssh`, `tcp`, or a local `unix socket`, making it well suited for the same multi-host setups Dozzle supports.
 
@@ -26,6 +26,8 @@ docker run -v /var/run/docker.sock:/var/run/docker.sock -it ghcr.io/amir20/dtop:
 
 Full installation instructions can be found at [https://github.com/amir20/dtop](https://github.com/amir20/dtop?tab=readme-ov-file#installation).
 
-## Project Status
+## Scope
 
-`dtop` is a new project and not feature rich as Dozzle. However, I am actively working on adding more features. I use it personally to monitor all my containers across multiple hosts on the command line. If you have suggestions then please open issues at [https://github.com/amir20/dtop/issues](https://github.com/amir20/dtop/issues).
+`dtop` is deliberately smaller than Dozzle. It covers the "what is running right now, and is anything on fire" question from a terminal, and hands off to Dozzle for everything that needs a browser: log history, search, SQL queries, and stat charts.
+
+It is developed in its own repository and ships on its own schedule. Suggestions and bug reports belong at [https://github.com/amir20/dtop/issues](https://github.com/amir20/dtop/issues).

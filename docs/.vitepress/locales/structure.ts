@@ -11,9 +11,18 @@ export type Item = string | { slug: string; items: string[] } | { group: string;
 export type Section = { key: string; items: Item[] };
 
 export const SECTIONS: Section[] = [
-  { key: "introduction", items: ["what-is-dozzle", "getting-started", "dtop"] },
+  { key: "introduction", items: ["what-is-dozzle", "getting-started"] },
   { key: "platforms", items: ["swarm-mode", "k8s", "podman"] },
-  { key: "notifications", items: ["alerts-and-webhooks", "dozzle-cloud"] },
+  {
+    key: "cloud",
+    items: [
+      "dozzle-cloud",
+      "dozzle-cloud/connecting",
+      "dozzle-cloud/channels",
+      "dozzle-cloud/plans",
+      "dozzle-cloud/your-data",
+    ],
+  },
   {
     key: "advanced",
     items: [
@@ -25,7 +34,8 @@ export const SECTIONS: Section[] = [
       { group: "hosts", items: ["remote-hosts", "agent", "hostname"] },
       { group: "control", items: ["actions", "shell"] },
       { group: "logs", items: ["sql-engine", "log-files-on-disk"] },
-      "mcp",
+      { group: "tools", items: ["dtop", "mcp"] },
+      "alerts-and-webhooks",
       "changing-base",
       "filters",
       "default-profile",

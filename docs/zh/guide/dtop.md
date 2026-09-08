@@ -1,9 +1,9 @@
 ---
-title: 认识 dtop
-sourceHash: 3137db243510
+title: dtop CLI
+sourceHash: 88753cae7439
 ---
 
-# 什么是 dtop？
+# dtop
 
 `dtop` 是 Dozzle 的命令行搭档，可以在终端里实时查看系统上运行的 Docker 容器。可以把它看作功能更丰富的 `docker ps`，适合一直开在某个 tmux 窗格里。当你需要完整的历史日志、搜索或图表时，`dtop` 能让你直接跳转到 Dozzle。
 
@@ -27,6 +27,8 @@ docker run -v /var/run/docker.sock:/var/run/docker.sock -it ghcr.io/amir20/dtop:
 
 完整的安装说明见 [https://github.com/amir20/dtop](https://github.com/amir20/dtop?tab=readme-ov-file#installation)。
 
-## 项目状态
+## 定位
 
-`dtop` 是一个新项目，功能还不如 Dozzle 丰富。不过我正在积极添加更多功能。我自己就用它在命令行上监控跨多台主机的所有容器。如果你有建议，欢迎到 [https://github.com/amir20/dtop/issues](https://github.com/amir20/dtop/issues) 提交 issue。
+`dtop` 有意做得比 Dozzle 小。它在终端里回答“现在有哪些容器在跑、有没有哪个出事了”，其余需要浏览器的能力都交给 Dozzle：历史日志、搜索、SQL 查询和统计图表。
+
+它在独立的仓库中开发，按自己的节奏发布。建议和缺陷请提交到 [https://github.com/amir20/dtop/issues](https://github.com/amir20/dtop/issues)。

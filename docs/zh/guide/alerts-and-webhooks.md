@@ -1,11 +1,13 @@
 ---
-title: 警报与 Webhook
-sourceHash: daf372975955
+title: 警报
+sourceHash: 71776f8fae5c
 ---
 
-# 警报与 Webhook
+# 警报
 
-Dozzle 内置了一套警报系统，可以监控容器日志、资源指标和生命周期事件，并在满足特定条件时发出通知。警报使用可自定义的表达式来筛选容器和触发条件，并可把通知发送到 webhook、Slack、Discord、ntfy 或 [Dozzle Cloud](/zh/guide/dozzle-cloud)。
+Dozzle 可以监控容器日志、资源指标和生命周期事件，并在满足你描述的条件时通知你。规则用表达式书写，在你自己的实例上求值，然后投递到 webhook、Slack、Discord 或 ntfy。
+
+规则始终留在这里，也就是自托管实例上，因为日志就在那里。如果你已经把实例连接到 [Dozzle Cloud](/zh/guide/dozzle-cloud)，同样的规则也会供给 Cloud，而投递方式（聚合、摘要、静音、手机渠道）在那边配置，而不是在下面逐个目标配置。
 
 ## <Icon icon="mdi:format-list-bulleted-type" inline /> 警报类型
 
@@ -81,7 +83,7 @@ Webhook 会向你指定的 URL 发送一个 HTTP POST 请求。Dozzle 为常用�
 
 ### Dozzle Cloud
 
-你也可以把警报发送到 [Dozzle Cloud](/zh/guide/dozzle-cloud)，集中监控多个 Dozzle 实例。详见 [Dozzle Cloud 指南](/zh/guide/dozzle-cloud)。
+已连接的实例会自动获得 **Dozzle Cloud** 这个目标。和原始 webhook 不同，它会把重复的故障聚合成一条通知、总结发生了什么，并分发到邮件、Telegram、Discord、Slack、ntfy 和浏览器推送，无需在这里逐个配置。详见 [Dozzle Cloud](/zh/guide/dozzle-cloud)。
 
 ## <Icon icon="mdi:plus-circle-outline" inline /> 创建警报
 

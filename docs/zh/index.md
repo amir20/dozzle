@@ -34,22 +34,6 @@ features:
       height: 36
     link: /zh/guide/what-is-dozzle#real-time-monitoring
     linkText: 了解更多
-  - title: SQL 日志分析
-    details: 用 DuckDB 和 WebAssembly 查询日志，完整的 SQL，全部在浏览器中运行。
-    icon:
-      src: /icons/sql.svg
-      width: 36
-      height: 36
-    link: /zh/guide/sql-engine
-    linkText: 了解更多
-  - title: 警报与 Webhook
-    details: 用强大的表达式匹配日志模式，通知 Slack、Discord、ntfy 或任意 webhook。
-    icon:
-      src: /icons/notification-new.svg
-      width: 36
-      height: 36
-    link: /zh/guide/alerts-and-webhooks
-    linkText: 了解更多
   - title: 多主机与 Swarm
     details: 在一个界面里连接多台 Docker 主机和 Swarm 集群，通过 TLS agent 保障安全。
     icon:
@@ -57,6 +41,22 @@ features:
       width: 36
       height: 36
     link: /zh/guide/remote-hosts
+    linkText: 了解更多
+  - title: 警报与 Webhook
+    details: 用表达式匹配日志模式、指标和生命周期事件，通知 Slack、Discord、ntfy 或任意 webhook。
+    icon:
+      src: /icons/notification-new.svg
+      width: 36
+      height: 36
+    link: /zh/guide/alerts-and-webhooks
+    linkText: 了解更多
+  - title: Dozzle Cloud
+    details: 可选的托管层，会把重复的故障聚合成一条、总结出到底哪里坏了，并通过邮件、Telegram 或 Discord 通知你。
+    icon:
+      src: /icons/cloud.svg
+      width: 36
+      height: 36
+    link: /zh/guide/dozzle-cloud
     linkText: 了解更多
   - title: 终端与命令执行
     details: 需要深入排查时，直接在浏览器里附加到运行中的容器或执行命令。
@@ -66,13 +66,13 @@ features:
       height: 36
     link: /zh/guide/shell
     linkText: 了解更多
-  - title: 终端里的 dtop
-    details: 一个命令行搭档，实时展示你的容器，并能直接跳转到 Dozzle。
+  - title: 自托管与私密
+    details: 运行在你自己的基础设施上，支持简单认证或前置代理认证。日志永远不会离开你的网络。
     icon:
-      src: /icons/terminal-command.svg
+      src: /icons/locked.svg
       width: 36
       height: 36
-    link: /zh/guide/dtop
+    link: /zh/guide/authentication
     linkText: 了解更多
   - title: 面向 AI 助手的 MCP
     details: 通过 Model Context Protocol 暴露容器、日志和指标，让你的编程助手和你一起调试。
@@ -82,13 +82,5 @@ features:
       height: 36
     link: /zh/guide/mcp
     linkText: 了解更多
-  - title: 自托管与私密
-    details: 运行在你自己的基础设施上，支持简单认证或前置代理认证。日志永远不会离开你的网络。
-    icon:
-      src: /icons/locked.svg
-      width: 36
-      height: 36
-    link: /zh/guide/authentication
-    linkText: 了解更多
-sourceHash: a11fae50734d
+sourceHash: d045bec3b85e
 ---
