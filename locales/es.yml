@@ -66,10 +66,11 @@ label:
   container-name: Nombre del contenedor
   status: Estado
   created: Creado
-  avg-cpu: Promedio de CPU (%)
-  avg-mem: Promedio de MEM (%)
+  avg-cpu: Promedio de CPU
+  avg-mem: Promedio de memoria
   name: Nombre
   cpu: CPU
+  core: Sin núcleos | 1 núcleo | {count} núcleos
   mem: MEM
   pinned: Fijado
   per-page: Filas por página

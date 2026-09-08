@@ -1,30 +1,36 @@
 <template>
   <PageWithLinks>
-    <section>
-      <div class="mb-4 flex items-center justify-between">
-        <h2 class="text-lg font-semibold">{{ $t("label.host-count", { count: Object.keys(hosts).length }) }}</h2>
-        <button @click="hostsCollapsed = !hostsCollapsed" class="icon-btn btn btn-ghost btn-sm">
-          <mdi:chevron-down :class="{ 'rotate-180': !hostsCollapsed }" class="transition-transform" />
-        </button>
-      </div>
-      <Transition name="collapse">
-        <HostList v-show="!hostsCollapsed" />
-      </Transition>
-    </section>
+    <CollapsibleSection v-model="hostsCollapsed" :title="$t('label.hosts')" :count="Object.keys(hosts).length">
+      <HostList />
+    </CollapsibleSection>
 
-    <section>
-      <div class="mb-4 flex items-center justify-between">
-        <h2 class="text-lg font-semibold">
-          {{ $t("label.container", { count: dashboardContainers.length }) }}
-        </h2>
-        <button @click="containersCollapsed = !containersCollapsed" class="icon-btn btn btn-ghost btn-sm">
-          <mdi:chevron-down :class="{ 'rotate-180': !containersCollapsed }" class="transition-transform" />
-        </button>
-      </div>
-      <Transition name="collapse">
-        <ContainerTable v-show="!containersCollapsed" :containers="dashboardContainers" />
-      </Transition>
-    </section>
+    <CollapsibleSection
+      v-model="containersCollapsed"
+      :title="$t('label.containers')"
+      :count="dashboardContainers.length"
+    >
+      <template #actions>
+        <div class="join max-md:hidden">
+          <button
+            class="icon-btn btn join-item btn-xs"
+            :class="statMode === 'chart' ? 'btn-active' : 'btn-ghost'"
+            :aria-pressed="statMode === 'chart'"
+            @click="statMode = 'chart'"
+          >
+            <mdi:chart-bar />
+          </button>
+          <button
+            class="icon-btn btn join-item btn-xs"
+            :class="statMode === 'progress' ? 'btn-active' : 'btn-ghost'"
+            :aria-pressed="statMode === 'progress'"
+            @click="statMode = 'progress'"
+          >
+            <mdi:poll class="scale-x-[-1] rotate-90" />
+          </button>
+        </div>
+      </template>
+      <ContainerTable :containers="dashboardContainers" v-model:stat-mode="statMode" />
+    </CollapsibleSection>
   </PageWithLinks>
 </template>
 
@@ -44,6 +50,7 @@ const dashboardContainers = computed(() =>
   containers.value.filter((c) => (showAllContainers.value ? c.state !== "deleted" : c.state === "running")),
 );
 
+const statMode = useStorage<"chart" | "progress">("DOZZLE_TABLE_STAT_MODE", "chart");
 const hostsCollapsed = useStorage("DOZZLE_HOSTS_COLLAPSED", false);
 const containersCollapsed = useStorage("DOZZLE_CONTAINERS_COLLAPSED", false);
 
@@ -53,30 +60,3 @@ watchEffect(() => {
   }
 });
 </script>
-<style scoped>
-:deep(tr td) {
-  padding-top: 1em;
-  padding-bottom: 1em;
-}
-
-.collapse-enter-active,
-.collapse-leave-active {
-  transition:
-    opacity 200ms cubic-bezier(0.22, 1, 0.36, 1),
-    max-height 240ms cubic-bezier(0.22, 1, 0.36, 1);
-  overflow: hidden;
-}
-
-.collapse-enter-from,
-.collapse-leave-to {
-  opacity: 0;
-  max-height: 0;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .collapse-enter-active,
-  .collapse-leave-active {
-    transition: none;
-  }
-}
-</style>

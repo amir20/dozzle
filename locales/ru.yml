@@ -66,10 +66,11 @@ label:
   container-name: Имя контейнера
   status: Статус
   created: Создан
-  avg-cpu: средний процессор (%)
-  avg-mem: средняя память (%)
+  avg-cpu: Средний ЦП
+  avg-mem: Средняя память
   name: Имя
   cpu: CPU
+  core: Нет ядер | 1 ядро | {count} ядер
   mem: MEM
   pinned: Закреплено
   per-page: Строк на странице

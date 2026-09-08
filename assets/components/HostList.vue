@@ -1,5 +1,5 @@
 <template>
-  <ul class="grid gap-4 md:grid-cols-[repeat(auto-fill,minmax(480px,1fr))]">
+  <ul class="grid gap-3 md:grid-cols-[repeat(auto-fit,minmax(min(100%,30rem),1fr))]">
     <li v-for="host in hosts" :key="host.id">
       <HostCard :host="host" />
     </li>

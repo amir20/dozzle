@@ -66,10 +66,11 @@ label:
   container-name: Konteyner Adı
   status: Durum
   created: Oluşturulma
-  avg-cpu: Ort. CPU (%)
-  avg-mem: Ort. Bellek (%)
+  avg-cpu: Ort. CPU
+  avg-mem: Ort. Bellek
   name: Ad
   cpu: CPU
+  core: Çekirdek yok | 1 çekirdek | {count} çekirdek
   mem: MEM
   pinned: Sabitlenmiş
   per-page: Sayfa başına satır

@@ -77,10 +77,11 @@ label:
   container-name: 容器名稱
   status: 狀態
   created: 建立時間
-  avg-cpu: 平均 CPU 使用率 (%)
-  avg-mem: 平均記憶體使用率 (%)
+  avg-cpu: 平均 CPU
+  avg-mem: 平均記憶體
   name: 名稱
   cpu: CPU
+  core: 無核心 | 1 個核心 | {count} 個核心
   mem: MEM
   pinned: 已釘選
   per-page: 每頁列數
