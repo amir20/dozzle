@@ -40,6 +40,7 @@ toolbar:
   none: Tidak ada
   section-logs: Log
   section-filters: Filter
+  section-display: Tampilan
   section-export: Ekspor
   section-container: Kontainer
   section-image: Image
@@ -121,6 +122,10 @@ label:
 tooltip:
   search: Cari kontainer (⌘ + k, ⌃k)
   pin-column: Sematkan sebagai kolom
+  unpin-column: Lepas sematan kolom
+  merge-stream: Gabungkan ke aliran
+  merge-stream-hint: Buka kontainer untuk digabungkan
+  unmerge-stream: Hapus dari aliran
   merge-all: Gabungkan semua ke dalam satu aliran
   network-io: "Jaringan: ↑ {tx}/s · ↓ {rx}/s"
   disk-io: "Disk: ↑ {write}/s · ↓ {read}/s"

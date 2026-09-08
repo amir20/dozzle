@@ -26,6 +26,7 @@ toolbar:
   none: Brez
   section-logs: Dnevniki
   section-filters: Filtri
+  section-display: Prikaz
   section-export: Izvoz
   section-container: Vsebnik
   section-image: Slika
@@ -119,6 +120,10 @@ label:
 tooltip:
   search: Iskanje zabojnikov (⌘ + k, ⌃k)
   pin-column: Pripni kot stolpec
+  unpin-column: Odpni stolpec
+  merge-stream: Združi s tokom
+  merge-stream-hint: Odprite vsebnik za združevanje
+  unmerge-stream: Odstrani iz toka
   merge-all: Združi vse v en tok
   network-io: "Omrežje: ↑ {tx}/s · ↓ {rx}/s"
   disk-io: "Disk: ↑ {write}/s · ↓ {read}/s"

@@ -40,6 +40,7 @@ toolbar:
   none: Hiçbiri
   section-logs: Günlükler
   section-filters: Filtreler
+  section-display: Görünüm
   section-export: Dışa aktar
   section-container: Konteyner
   section-image: İmaj
@@ -119,6 +120,10 @@ label:
 tooltip:
   search: Konteynerlerde ara (⌘ + k, ⌃k)
   pin-column: Sütun olarak sabitle
+  unpin-column: Sütun sabitlemesini kaldır
+  merge-stream: Akışa birleştir
+  merge-stream-hint: Birleştirmek için bir konteyner açın
+  unmerge-stream: Akıştan çıkar
   merge-all: Tümünü tek bir akışta birleştir
   network-io: "Ağ: ↑ {tx}/sn · ↓ {rx}/sn"
   disk-io: "Disk: ↑ {write}/sn · ↓ {read}/sn"

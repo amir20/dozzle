@@ -40,6 +40,7 @@ toolbar:
   none: 無
   section-logs: 日誌
   section-filters: 篩選
+  section-display: 顯示
   section-export: 匯出
   section-container: 容器
   section-image: 映像
@@ -119,6 +120,10 @@ label:
 tooltip:
   search: 搜尋容器 (⌘ + k, ⌃k)
   pin-column: 釘選為欄位
+  unpin-column: 取消釘選欄位
+  merge-stream: 合併到串流
+  merge-stream-hint: 開啟一個容器以進行合併
+  unmerge-stream: 從串流移除
   merge-all: 將所有內容合併到一個流中
   network-io: "網路：↑ {tx}/s · ↓ {rx}/s"
   disk-io: "磁碟：↑ {write}/s · ↓ {read}/s"
