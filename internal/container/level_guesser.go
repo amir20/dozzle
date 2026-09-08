@@ -104,6 +104,36 @@ func otelSeverityLevel(n float64) string {
 	return ""
 }
 
+// otelSeverityNumber reads an OTel severityNumber, which arrives as a JSON
+// number from JSON logs and as a string from logfmt-style maps (some JSON
+// emitters quote it too). Returns "" when it is not a usable severity.
+func otelSeverityNumber(v any) string {
+	switch n := v.(type) {
+	case float64:
+		return otelSeverityLevel(n)
+	case string:
+		if i, err := strconv.Atoi(strings.TrimSpace(n)); err == nil {
+			return otelSeverityLevel(float64(i))
+		}
+	}
+	return ""
+}
+
+// otelSeverityText normalizes an OTel severityText. On top of the usual aliases
+// it understands the spec's own short names for sub-levels, which append 1-4 to
+// the base name: TRACE2, INFO3, WARN4. Returns "unknown" for anything else so
+// the caller can fall back to severityNumber.
+func otelSeverityText(s string) string {
+	if level := normalizeLogLevel(s); level != "unknown" {
+		return level
+	}
+	s = StripANSI(s)
+	if n := len(s); n > 1 && s[n-1] >= '1' && s[n-1] <= '4' {
+		return normalizeLogLevel(s[:n-1])
+	}
+	return "unknown"
+}
+
 func init() {
 	SupportedLogLevels = make(map[string]struct{}, len(logLevels)+1)
 	var aliases []string
@@ -151,20 +181,30 @@ func guessLogLevel(logEvent *LogEvent) string {
 			return "unknown"
 		}
 		for _, key := range levelKeys {
-			if v, ok := value.Get(key); ok {
+			v, ok := value.Get(key)
+			if !ok {
+				continue
+			}
+			switch key {
+			case "severityText":
+				// severityText is free-form, so a value we cannot map falls
+				// through to severityNumber instead of ending the search.
+				if s, ok := v.(string); ok {
+					if level := otelSeverityText(s); level != "unknown" {
+						return level
+					}
+				}
+			case "severityNumber":
+				if level := otelSeverityNumber(v); level != "" {
+					return level
+				}
+			default:
 				if s, ok := v.(string); ok {
 					return normalizeLogLevel(s)
 				}
-				if n, ok := v.(float64); ok {
-					switch key {
-					case "level":
-						if level, ok := pinoLevels[n]; ok {
-							return level
-						}
-					case "severityNumber":
-						if level := otelSeverityLevel(n); level != "" {
-							return level
-						}
+				if n, ok := v.(float64); ok && key == "level" {
+					if level, ok := pinoLevels[n]; ok {
+						return level
 					}
 				}
 			}
@@ -175,16 +215,20 @@ func guessLogLevel(logEvent *LogEvent) string {
 			return "unknown"
 		}
 		for _, key := range levelKeys {
-			if v, ok := value.Get(key); ok {
-				if key == "severityNumber" {
-					// logfmt-style string maps carry the OTel number as a string.
-					if n, err := strconv.Atoi(v); err == nil {
-						if level := otelSeverityLevel(float64(n)); level != "" {
-							return level
-						}
-					}
-					continue
+			v, ok := value.Get(key)
+			if !ok {
+				continue
+			}
+			switch key {
+			case "severityText":
+				if level := otelSeverityText(v); level != "unknown" {
+					return level
 				}
+			case "severityNumber":
+				if level := otelSeverityNumber(v); level != "" {
+					return level
+				}
+			default:
 				return normalizeLogLevel(v)
 			}
 		}

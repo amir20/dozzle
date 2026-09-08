@@ -62,6 +62,20 @@ func TestGuessOtelLogLevel(t *testing.T) {
 		{`{"severityText":"FATAL","body":"fatal message"}`, "fatal"},
 		{`{"severityText":"information","body":"lower case"}`, "info"},
 		{`{"severityText":"bogus","body":"not a level"}`, "unknown"},
+		// OTel short names for sub-levels append 1-4 to the base name.
+		{`{"severityText":"TRACE2"}`, "trace"},
+		{`{"severityText":"DEBUG3"}`, "debug"},
+		{`{"severityText":"INFO4"}`, "info"},
+		{`{"severityText":"WARN2"}`, "warn"},
+		{`{"severityText":"ERROR3"}`, "error"},
+		{`{"severityText":"FATAL4"}`, "fatal"},
+		{`{"severityText":"INFO5"}`, "unknown"},
+		// A severityText we cannot map falls back to severityNumber.
+		{`{"severityText":"WARN2","severityNumber":14}`, "warn"},
+		{`{"severityText":"Notice","severityNumber":9}`, "info"},
+		{`{"severityText":"","severityNumber":17}`, "error"},
+		{`{"severityText":"bogus","severityNumber":0}`, "unknown"},
+		{`{"severityText":42,"severityNumber":21}`, "fatal"},
 		// severityNumber ranges per the OTel spec.
 		{`{"severityNumber":1}`, "trace"},
 		{`{"severityNumber":4}`, "trace"},
@@ -79,7 +93,9 @@ func TestGuessOtelLogLevel(t *testing.T) {
 		{`{"severityNumber":25}`, "unknown"},
 		{`{"severityNumber":-5}`, "unknown"},
 		{`{"severityNumber":9.5}`, "unknown"},
-		{`{"severityNumber":"17"}`, "unknown"},
+		{`{"severityNumber":"17"}`, "error"},
+		{`{"severityNumber":"nope"}`, "unknown"},
+		{`{"severityNumber":true}`, "unknown"},
 		// Existing keys keep their priority over the OTel fields.
 		{`{"level":30,"severityText":"ERROR"}`, "info"},
 		{`{"level":50,"severityNumber":9}`, "error"},
@@ -182,6 +198,17 @@ func TestGuessLogLevel(t *testing.T) {
 				orderedmap.Pair[string, string]{Key: "severityNumber", Value: "not-a-number"},
 			),
 		), "unknown"},
+		{orderedmap.New[string, string](
+			orderedmap.WithInitialData(
+				orderedmap.Pair[string, string]{Key: "severityText", Value: "WARN2"},
+			),
+		), "warn"},
+		{orderedmap.New[string, string](
+			orderedmap.WithInitialData(
+				orderedmap.Pair[string, string]{Key: "severityText", Value: "Notice"},
+				orderedmap.Pair[string, string]{Key: "severityNumber", Value: "9"},
+			),
+		), "info"},
 		{orderedmap.New[string, string](
 			orderedmap.WithInitialData(
 				orderedmap.Pair[string, string]{Key: "key", Value: "value"},
