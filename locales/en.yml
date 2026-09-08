@@ -214,6 +214,10 @@ placeholder:
   search: Search
 cloud-search:
   containers-section: Containers
+  section-logs: Logs
+  no-matches: No containers or commands match
+  nav-hint: navigate
+  pin-shortcut: pin column
   search-logs-for: Search logs for "{query}"
   across-containers: indexed across all your containers
   connect-to-enable: Connect Dozzle Cloud to search logs
@@ -242,6 +246,8 @@ cloud-search:
   container-removed-pill: removed
 command-palette:
   section-commands: Commands
+  section-recent: Recent
+  run-hint: run command
   restart-container: Restart {name}
   stop-container: Stop {name}
   start-container: Start {name}

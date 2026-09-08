@@ -619,6 +619,10 @@ cloud:
       error: "Dowolna linia error"
 cloud-search:
   containers-section: "Kontenery"
+  section-logs: "Logi"
+  no-matches: "Brak pasujących kontenerów ani poleceń"
+  nav-hint: "nawigacja"
+  pin-shortcut: "przypnij kolumnę"
   search-logs-for: 'Przeszukaj logi pod kątem "{query}"'
   across-containers: "zindeksowane we wszystkich Twoich kontenerach"
   connect-to-enable: "Połącz Dozzle Cloud, aby przeszukiwać logi"
@@ -647,6 +651,8 @@ cloud-search:
   container-removed-pill: "usunięty"
 command-palette:
   section-commands: Polecenia
+  section-recent: "Ostatnie"
+  run-hint: "wykonaj polecenie"
   restart-container: Uruchom ponownie {name}
   stop-container: Zatrzymaj {name}
   start-container: Uruchom {name}

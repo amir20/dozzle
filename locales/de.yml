@@ -616,6 +616,10 @@ cloud:
       error: "Jede Fehlerzeile"
 cloud-search:
   containers-section: "Container"
+  section-logs: "Logs"
+  no-matches: "Keine Container oder Befehle gefunden"
+  nav-hint: "navigieren"
+  pin-shortcut: "Spalte anheften"
   search-logs-for: 'Logs durchsuchen nach "{query}"'
   across-containers: "indexiert über alle deine Container"
   connect-to-enable: "Dozzle Cloud verbinden, um Logs zu durchsuchen"
@@ -644,6 +648,8 @@ cloud-search:
   container-removed-pill: "gelöscht"
 command-palette:
   section-commands: Befehle
+  section-recent: "Zuletzt"
+  run-hint: "Befehl ausführen"
   restart-container: "{name} neu starten"
   stop-container: "{name} stoppen"
   start-container: "{name} starten"

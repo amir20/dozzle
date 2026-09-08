@@ -628,6 +628,10 @@ cloud:
       error: "Setiap baris error"
 cloud-search:
   containers-section: "Kontainer"
+  section-logs: "Log"
+  no-matches: "Tidak ada kontainer atau perintah yang cocok"
+  nav-hint: "navigasi"
+  pin-shortcut: "sematkan kolom"
   search-logs-for: 'Cari log untuk "{query}"'
   across-containers: "diindeks di semua kontainer Anda"
   connect-to-enable: "Hubungkan Dozzle Cloud untuk mencari log"
@@ -656,6 +660,8 @@ cloud-search:
   container-removed-pill: "dihapus"
 command-palette:
   section-commands: Perintah
+  section-recent: "Terbaru"
+  run-hint: "jalankan perintah"
   restart-container: Mulai ulang {name}
   stop-container: Hentikan {name}
   start-container: Jalankan {name}

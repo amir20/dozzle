@@ -620,6 +620,10 @@ cloud:
       error: "모든 error 줄"
 cloud-search:
   containers-section: "컨테이너"
+  section-logs: "로그"
+  no-matches: "일치하는 컨테이너나 명령이 없습니다"
+  nav-hint: "이동"
+  pin-shortcut: "열로 고정"
   search-logs-for: '"{query}" 로그 검색'
   across-containers: "모든 컨테이너에서 색인됨"
   connect-to-enable: "로그를 검색하려면 Dozzle Cloud에 연결하세요"
@@ -648,6 +652,8 @@ cloud-search:
   container-removed-pill: "삭제됨"
 command-palette:
   section-commands: 명령
+  section-recent: "최근"
+  run-hint: "명령 실행"
   restart-container: "{name} 재시작"
   stop-container: "{name} 중지"
   start-container: "{name} 시작"

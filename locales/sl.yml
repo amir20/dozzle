@@ -622,6 +622,10 @@ cloud:
       error: "Katerakoli vrstica error"
 cloud-search:
   containers-section: "Vsebniki"
+  section-logs: "Dnevniki"
+  no-matches: "Ni ujemajočih se vsebnikov ali ukazov"
+  nav-hint: "krmarjenje"
+  pin-shortcut: "pripni stolpec"
   search-logs-for: 'Iskanje dnevnikov za "{query}"'
   across-containers: "indeksirano po vseh vaših vsebnikih"
   connect-to-enable: "Povežite Dozzle Cloud za iskanje po dnevnikih"
@@ -650,6 +654,8 @@ cloud-search:
   container-removed-pill: "izbrisano"
 command-palette:
   section-commands: Ukazi
+  section-recent: "Nedavno"
+  run-hint: "izvedi ukaz"
   restart-container: Znova zaženi {name}
   stop-container: Ustavi {name}
   start-container: Zaženi {name}

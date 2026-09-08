@@ -616,6 +616,10 @@ cloud:
       error: "Любая строка error"
 cloud-search:
   containers-section: "Контейнеры"
+  section-logs: "Логи"
+  no-matches: "Нет подходящих контейнеров или команд"
+  nav-hint: "навигация"
+  pin-shortcut: "закрепить столбец"
   search-logs-for: 'Поиск логов по "{query}"'
   across-containers: "проиндексированных по всем вашим контейнерам"
   connect-to-enable: "Подключите Dozzle Cloud, чтобы искать в логах"
@@ -644,6 +648,8 @@ cloud-search:
   container-removed-pill: "удалён"
 command-palette:
   section-commands: Команды
+  section-recent: "Недавние"
+  run-hint: "выполнить команду"
   restart-container: Перезапустить {name}
   stop-container: Остановить {name}
   start-container: Запустить {name}
