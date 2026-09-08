@@ -9,7 +9,7 @@
           :event="index === 0 ? logEntry.matchedEvent : undefined"
         />
         <div
-          class="[word-break:break-word] whitespace-pre-wrap group-[.disable-wrap]:whitespace-pre"
+          class="log-message [word-break:break-word] whitespace-pre-wrap group-[.disable-wrap]:whitespace-pre"
           v-html="colorize(msg)"
           :class="{ 'min-h-4': msg === '' }"
         ></div>

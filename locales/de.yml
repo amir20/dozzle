@@ -49,6 +49,17 @@ action:
   see-in-context: Im Kontext anzeigen
   show-details: Details anzeigen
   create-alert: Alarm erstellen
+log-details:
+  on-std: auf {std}
+  image: Image
+  raw-json: Rohes JSON
+  copy: Kopieren
+  download: JSON herunterladen
+  fields: Felder
+  field: Feld
+  value: Wert
+  fields-hint: Zum Umsortieren ziehen. Umschalten, um sie im Log-Stream ein- oder auszublenden.
+  toggle-all: Alle Felder umschalten
 label:
   containers: Container
   container: Keine Container | 1 Container | {count} Container

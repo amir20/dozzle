@@ -49,6 +49,17 @@ action:
   see-in-context: Посмотреть в контексте
   show-details: Показать детали
   create-alert: Создать оповещение
+log-details:
+  on-std: в {std}
+  image: Образ
+  raw-json: Исходный JSON
+  copy: Копировать
+  download: Скачать JSON
+  fields: Поля
+  field: Поле
+  value: Значение
+  fields-hint: Перетащите, чтобы изменить порядок. Переключите, чтобы показать или скрыть в потоке логов.
+  toggle-all: Переключить все поля
 label:
   containers: Контейнеры
   container: Нет контейнеров | 1 контейнер | {count} контейнеров

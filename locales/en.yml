@@ -49,6 +49,17 @@ action:
   see-in-context: See in context
   show-details: Show details
   create-alert: Create alert
+log-details:
+  on-std: on {std}
+  image: Image
+  raw-json: Raw JSON
+  copy: Copy
+  download: Download JSON
+  fields: Fields
+  field: Field
+  value: Value
+  fields-hint: Drag to reorder. Toggle to show or hide in the log stream.
+  toggle-all: Toggle all fields
 label:
   containers: Containers
   container: No containers | 1 container | {count} containers

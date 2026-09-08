@@ -4,7 +4,9 @@
 
     <LogStd :std="logEntry.std" class="shrink-0 select-none" v-if="showStd" />
 
-    <div class="flex gap-x-2 gap-y-1 group-[.compact]:gap-y-0 has-[>_*:nth-of-type(2)]:flex-col-reverse md:flex-row!">
+    <div
+      class="flex gap-x-2 gap-y-1 group-[.compact]:gap-y-0 has-[>_*:nth-of-type(2)]:flex-col-reverse md:mr-1 md:flex-row!"
+    >
       <RandomColorTag class="w-30 shrink-0 select-none md:w-40" :value="host.name" v-if="showHostname" />
       <RandomColorTag
         v-if="showContainerName"

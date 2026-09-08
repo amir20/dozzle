@@ -49,6 +49,17 @@ action:
   see-in-context: Glej v kontekstu
   show-details: Prikaži podrobnosti
   create-alert: Ustvari opozorilo
+log-details:
+  on-std: na {std}
+  image: Slika
+  raw-json: Neobdelan JSON
+  copy: Kopiraj
+  download: Prenesi JSON
+  fields: Polja
+  field: Polje
+  value: Vrednost
+  fields-hint: Povlecite za spremembo vrstnega reda. Preklopite za prikaz ali skritje v toku dnevnikov.
+  toggle-all: Preklopi vsa polja
 label:
   containers: Zabojniki
   host-count: Ni Gostiteljev | 1 Gostitelj | {count} Gostiteljev

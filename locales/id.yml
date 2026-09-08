@@ -50,6 +50,17 @@ action:
   show-details: Tampilkan detail
   create-alert: Buat peringatan
 
+log-details:
+  on-std: pada {std}
+  image: Image
+  raw-json: JSON Mentah
+  copy: Salin
+  download: Unduh JSON
+  fields: Bidang
+  field: Bidang
+  value: Nilai
+  fields-hint: Seret untuk mengurutkan ulang. Alihkan untuk menampilkan atau menyembunyikan di aliran log.
+  toggle-all: Alihkan semua bidang
 label:
   containers: Kontainer
   container: Tidak ada kontainer | 1 kontainer | {count} kontainer

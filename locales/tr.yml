@@ -49,6 +49,17 @@ action:
   see-in-context: Bağlamda gör
   show-details: Detayları göster
   create-alert: Uyarı oluştur
+log-details:
+  on-std: "{std} üzerinde"
+  image: İmaj
+  raw-json: Ham JSON
+  copy: Kopyala
+  download: JSON indir
+  fields: Alanlar
+  field: Alan
+  value: Değer
+  fields-hint: Yeniden sıralamak için sürükleyin. Günlük akışında göstermek veya gizlemek için değiştirin.
+  toggle-all: Tüm alanları değiştir
 label:
   containers: Konteynerlar
   container: Konteyner yok | 1 konteyner | {count} konteyner

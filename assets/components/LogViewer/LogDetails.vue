@@ -1,76 +1,102 @@
 <template>
-  <header class="flex items-center gap-4">
-    <Tag :data-level="entry.level" class="show-unknown text-white uppercase" v-if="entry.level">{{ entry.level }}</Tag>
-    <h1 class="text-lg max-md:hidden">
+  <!-- pr-24 keeps the title clear of the drawer's maximize/close buttons, which
+       float over this slot. -->
+  <header class="border-base-content/10 flex flex-wrap items-center gap-x-3 gap-y-2 border-b pr-24 pb-4">
+    <span class="level-pill" :data-pill-level="entry.level ?? 'unknown'" v-if="entry.level">{{ entry.level }}</span>
+    <h1 class="font-mono text-base tabular-nums max-md:hidden">
       <DateTime :date="entry.date" />
     </h1>
-    <h2 class="text-sm"><RelativeTime :date="entry.date" /> on {{ entry.std }}</h2>
+    <h2 class="text-base-content/55 text-xs">
+      <RelativeTime :date="entry.date" />
+      <span class="px-1">&middot;</span>
+      <span :data-std="entry.std">{{ $t("log-details.on-std", { std: entry.std }) }}</span>
+    </h2>
   </header>
 
-  <div class="mt-8 flex flex-col gap-10">
-    <section class="grid grid-cols-3 gap-2">
-      <div>
-        <div class="font-thin">Container Name</div>
-        <div class="truncate text-lg font-bold">{{ container.name }}</div>
+  <div class="mt-5 flex flex-col gap-6">
+    <!-- Facts about where the line came from. Small labels, plain values: this
+         is context for the payload below, not the headline. -->
+    <section class="grid grid-cols-1 gap-x-6 gap-y-3 sm:grid-cols-3">
+      <div class="min-w-0">
+        <div class="field-label">{{ $t("label.container-name") }}</div>
+        <div class="truncate font-medium" :title="container.name">{{ container.name }}</div>
       </div>
-      <div>
-        <div class="font-thin">Host</div>
-        <div class="truncate text-lg font-bold">
-          {{ hosts[container.host].name }}
-        </div>
+      <div class="min-w-0">
+        <div class="field-label">{{ $t("label.host") }}</div>
+        <div class="truncate font-medium" :title="hosts[container.host].name">{{ hosts[container.host].name }}</div>
       </div>
-      <div>
-        <div class="font-thin">Image</div>
-        <div class="truncate text-lg font-bold">{{ container.image }}</div>
+      <div class="min-w-0">
+        <div class="field-label">{{ $t("log-details.image") }}</div>
+        <div class="truncate font-medium" :title="container.image">{{ container.image }}</div>
       </div>
     </section>
 
     <section class="flex flex-col gap-2">
-      <div class="flex gap-2">
-        Raw JSON
+      <div class="flex items-center gap-1">
+        <div class="field-label">{{ $t("log-details.raw-json") }}</div>
 
         <UseClipboard v-slot="{ copy, copied }" :source="entry.rawMessage">
-          <button class="icon-btn swap outline-hidden" @click="copy()" :class="{ 'hover:swap-active': copied }">
+          <button
+            class="icon-btn swap ml-auto outline-hidden"
+            @click="copy()"
+            :class="{ 'hover:swap-active': copied }"
+            :title="$t('log-details.copy')"
+          >
             <mdi:check class="swap-on" />
             <material-symbols:content-copy class="swap-off" />
           </button>
         </UseClipboard>
 
-        <button class="icon-btn outline-hidden" @click="downloadJSON()" title="Download JSON">
+        <button class="icon-btn outline-hidden" @click="downloadJSON()" :title="$t('log-details.download')">
           <material-symbols:download />
         </button>
       </div>
-      <div class="bg-base-200 max-h-125 overflow-scroll rounded-sm border border-white/20 p-2">
-        <JsonFormatted :value="entry.rawMessage" class="text-sm" />
+      <div class="bg-base-200 border-base-content/10 max-h-125 overflow-auto rounded-md border p-3">
+        <JsonFormatted :value="entry.rawMessage" class="text-xs leading-relaxed" />
       </div>
     </section>
-    <table class="table-pin-rows table table-fixed" v-if="entry instanceof ComplexLogEntry">
-      <caption class="caption-bottom">
-        Fields are sortable by dragging and dropping.
-      </caption>
-      <thead class="text-lg">
-        <tr>
-          <th class="w-60">Field</th>
-          <th class="max-md:hidden">Value</th>
-          <th class="w-20">
-            <input type="checkbox" class="toggle toggle-primary" v-model="toggleAllFields" title="Toggle all" />
-          </th>
-        </tr>
-      </thead>
-      <tbody ref="list">
-        <tr v-for="{ key, value, enabled } in fields" :key="key.join('.')" class="hover">
-          <td class="cursor-move font-mono break-all">
-            {{ key.join(".") }}
-          </td>
-          <td class="truncate max-md:hidden">
-            <code class="font-mono">{{ JSON.stringify(value) }}</code>
-          </td>
-          <td>
-            <input type="checkbox" class="toggle toggle-primary" :checked="enabled" @change="toggleField(key)" />
-          </td>
-        </tr>
-      </tbody>
-    </table>
+
+    <section class="flex flex-col gap-2" v-if="entry instanceof ComplexLogEntry">
+      <div class="flex items-center gap-3">
+        <div class="field-label">{{ $t("log-details.fields") }}</div>
+        <p class="text-base-content/45 text-xs">{{ $t("log-details.fields-hint") }}</p>
+      </div>
+      <table class="w-full table-fixed border-collapse text-sm">
+        <thead>
+          <tr class="border-base-content/15 border-b">
+            <th class="field-label w-1/3 pb-1.5 text-left">{{ $t("log-details.field") }}</th>
+            <th class="field-label pb-1.5 text-left max-md:hidden">{{ $t("log-details.value") }}</th>
+            <th class="w-14 pb-1.5 text-right">
+              <input
+                type="checkbox"
+                class="toggle toggle-primary toggle-xs align-middle"
+                v-model="toggleAllFields"
+                :title="$t('log-details.toggle-all')"
+              />
+            </th>
+          </tr>
+        </thead>
+        <tbody ref="list">
+          <tr v-for="{ key, value, enabled } in fields" :key="key.join('.')" class="field-row">
+            <td class="cursor-move py-1.5 pr-3 font-mono break-all">
+              <mdi:drag-vertical class="drag-handle -ml-1 inline size-4 align-middle" />
+              <span :class="{ 'opacity-40': !enabled }">{{ key.join(".") }}</span>
+            </td>
+            <td class="text-base-content/65 truncate py-1.5 pr-3 font-mono max-md:hidden">
+              <code :title="JSON.stringify(value)">{{ JSON.stringify(value) }}</code>
+            </td>
+            <td class="py-1.5 text-right">
+              <input
+                type="checkbox"
+                class="toggle toggle-primary toggle-xs align-middle"
+                :checked="enabled"
+                @change="toggleField(key)"
+              />
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
   </div>
 </template>
 
@@ -167,3 +193,60 @@ const toggleAllFields = computed({
 
 useSortable(list, fields);
 </script>
+
+<style scoped>
+@reference "@/main.css";
+
+/* One label style for every section heading and column header, so the eye has
+   a single "this is a label, not content" cue down the whole drawer. */
+.field-label {
+  @apply text-base-content/50 text-[0.7rem] font-semibold tracking-wider uppercase;
+}
+
+/* Keyed on data-pill-level, NOT data-level: LogLevel.vue ships an unscoped
+   `[data-level="error"] { @apply !bg-red }` that would paint this solid and
+   make the tint below unwinnable. */
+.level-pill {
+  background-color: color-mix(in oklab, var(--pill) 18%, transparent);
+  color: var(--pill);
+  border: 1px solid color-mix(in oklab, var(--pill) 40%, transparent);
+  @apply inline-flex shrink-0 items-center rounded px-2 py-0.5 text-[0.7rem] font-bold tracking-wider uppercase;
+  --pill: var(--color-base-content);
+}
+.level-pill[data-pill-level="debug"],
+.level-pill[data-pill-level="trace"] {
+  --pill: var(--color-purple);
+}
+.level-pill[data-pill-level="info"] {
+  --pill: var(--color-green);
+}
+.level-pill[data-pill-level="warn"] {
+  --pill: var(--color-orange);
+}
+.level-pill[data-pill-level="error"],
+.level-pill[data-pill-level="fatal"] {
+  --pill: var(--color-red);
+}
+
+[data-std="stdout"] {
+  @apply text-blue;
+}
+[data-std="stderr"] {
+  @apply text-red;
+}
+
+/* The handle only appears on the row being pointed at: eighteen of them stacked
+   down the table read as noise, and the rows are draggable either way. */
+.drag-handle {
+  @apply text-base-content/40 opacity-0 transition-opacity;
+}
+.field-row {
+  @apply border-base-content/10 border-b transition-colors;
+}
+.field-row:hover {
+  background-color: color-mix(in oklab, var(--color-base-content) 6%, transparent);
+}
+.field-row:hover .drag-handle {
+  @apply opacity-100;
+}
+</style>

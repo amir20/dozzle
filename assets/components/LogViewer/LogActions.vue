@@ -1,6 +1,6 @@
 <template>
   <div
-    class="dropdown dropdown-hover absolute -left-2 z-10 font-sans"
+    class="dropdown dropdown-hover absolute -left-2 z-10 font-sans md:-left-8"
     :class="shouldShowBelow ? 'dropdown-right' : 'dropdown-right dropdown-end'"
     v-show="container"
     ref="dropdownRef"

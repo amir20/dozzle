@@ -49,6 +49,17 @@ action:
   see-in-context: 在內容中查看
   show-details: 顯示詳細資訊
   create-alert: 建立警報
+log-details:
+  on-std: 來自 {std}
+  image: 映像檔
+  raw-json: 原始 JSON
+  copy: 複製
+  download: 下載 JSON
+  fields: 欄位
+  field: 欄位
+  value: 值
+  fields-hint: 拖曳可重新排序。切換可在日誌串流中顯示或隱藏。
+  toggle-all: 切換所有欄位
 label:
   containers: 容器
   container: 無容器 | 1 個容器 | {count} 個容器
