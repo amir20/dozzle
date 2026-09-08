@@ -14,6 +14,8 @@ toolbar:
   attach: Priloži
   copy-permalink: Kopiraj trajno povezavo
   copy-image: "Kopiraj oznako slike"
+  pin: "Pripni"
+  unpin: "Odpni"
   copy-logs: Kopiraj dnevnike
   copy-filtered-logs: Kopiraj filtrirane dnevnike
   copying-logs: Kopiranje dnevnikov...

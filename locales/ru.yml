@@ -28,6 +28,8 @@ toolbar:
   attach: Подключить
   copy-permalink: Скопировать постоянную ссылку
   copy-image: "Копировать тег образа"
+  pin: "Закрепить"
+  unpin: "Открепить"
   copy-logs: Скопировать логи
   copy-filtered-logs: Скопировать отфильтрованные логи
   copying-logs: Копирование логов...

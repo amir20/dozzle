@@ -28,6 +28,8 @@ toolbar:
   attach: Collega
   copy-permalink: Copia link permanente
   copy-image: "Copia tag immagine"
+  pin: "Fissa"
+  unpin: "Rimuovi"
   copy-logs: Copia log
   copy-filtered-logs: Copia log filtrati
   copying-logs: Copia dei log...

@@ -28,6 +28,8 @@ toolbar:
   attach: Dołącz
   copy-permalink: Kopiuj link stały
   copy-image: "Kopiuj tag obrazu"
+  pin: "Przypnij"
+  unpin: "Odepnij"
   copy-logs: Kopiuj logi
   copy-filtered-logs: Kopiuj filtrowane logi
   copying-logs: Kopiowanie logów...

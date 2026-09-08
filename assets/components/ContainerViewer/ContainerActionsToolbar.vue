@@ -23,6 +23,15 @@
           <KeyShortcut char="f" />
         </a>
       </li>
+      <!-- The title bar's pin is icon-only to keep the row short, so this is where the
+           feature is actually named. Menu rows are what people scan when hunting. -->
+      <li>
+        <a @click="pinned = !pinned">
+          <ph:map-pin-simple-fill v-if="pinned" class="text-secondary" />
+          <ph:map-pin-simple v-else />
+          {{ pinned ? $t("toolbar.unpin") : $t("toolbar.pin") }}
+        </a>
+      </li>
       <li v-if="!historical">
         <a @click="clear()">
           <octicon:trash-24 /> {{ $t("toolbar.clear") }}
@@ -418,6 +427,17 @@ if (enableShell) {
     }
   });
 }
+
+const pinned = computed({
+  get: () => pinnedContainers.value.has(container.name),
+  set: (value) => {
+    if (value) {
+      pinnedContainers.value.add(container.name);
+    } else {
+      pinnedContainers.value.delete(container.name);
+    }
+  },
+});
 
 const containerRef = computed(() => [container]);
 const { downloadUrl, isFiltered } = useDownloadUrl(

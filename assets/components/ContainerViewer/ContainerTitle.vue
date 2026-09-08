@@ -1,10 +1,5 @@
 <template>
   <div class="@container flex min-w-0 flex-1 items-center gap-1.5 md:gap-2">
-    <label class="icon-btn swap swap-rotate size-4">
-      <input type="checkbox" v-model="pinned" />
-      <carbon:star-filled class="swap-on text-secondary" />
-      <carbon:star class="swap-off" />
-    </label>
     <div class="inline-flex min-w-0 items-center text-sm">
       <!-- daisyUI insets breadcrumbs with a -0.25rem margin plus a matching
            0.25rem list padding. That pair is not accounted for in the intrinsic
@@ -20,12 +15,20 @@
             <template v-if="otherContainers.length === 0"
               ><span class="block truncate">{{ container.name }}</span></template
             >
-            <div v-else>
-              <div class="dropdown">
-                <button tabindex="0" role="button" class="btn btn-xs md:btn-sm">
-                  {{ container.name }}
-                  <span class="badge badge-xs badge-neutral font-sans">{{ sameNameContainers.length }}</span>
-                  <carbon:caret-down />
+            <div v-else class="min-w-0">
+              <!-- daisyUI's .dropdown is inline-block, so it sizes to its content and
+                   silently overflows this shrunken li: the button spilled past the row
+                   and the next control painted over its caret. max-w-full puts it back
+                   under the li's width so the name truncates instead. -->
+              <div class="dropdown max-w-full min-w-0">
+                <!-- Ghost until hover: the name is the page title, and a
+                     permanent button frame made it read as one more chip. -->
+                <button tabindex="0" role="button" class="btn btn-ghost btn-xs md:btn-sm max-w-full min-w-0 px-1.5">
+                  <span class="truncate">{{ container.name }}</span>
+                  <!-- The count and caret are the only affordance for the dropdown, so they
+                       must survive a long image tag squeezing this button. -->
+                  <span class="badge badge-xs badge-neutral shrink-0 font-sans">{{ sameNameContainers.length }}</span>
+                  <carbon:caret-down class="text-base-content/50 shrink-0" />
                 </button>
                 <ul
                   tabindex="0"
@@ -64,25 +67,37 @@
         </ul>
       </div>
     </div>
+    <!-- Sits after the name so the name leads the row, and carries the same map-pin the
+         sidebar's "Pinned" section uses: a star here and a pin there read as two unrelated
+         features, which is why people never found this. The word "Pin" would cost too much
+         of the row, so the labelled copy of this lives in the toolbar menu. -->
+    <button
+      class="icon-btn shrink-0"
+      :class="pinned ? 'text-secondary' : 'text-base-content/40 hover:text-base-content'"
+      :aria-pressed="pinned"
+      :title="pinned ? $t('toolbar.unpin') : $t('toolbar.pin')"
+      :aria-label="pinned ? $t('toolbar.unpin') : $t('toolbar.pin')"
+      @click="pinned = !pinned"
+    >
+      <ph:map-pin-simple-fill v-if="pinned" class="size-4" />
+      <ph:map-pin-simple v-else class="size-4" />
+    </button>
+
     <ContainerLink :container="container" />
     <ContainerLinkHint :container="container" />
     <ContainerHealth :health="container.health" v-if="container.health" />
     <VolumeWarning :container="container" />
-    <Tag
-      class="group hidden! cursor-pointer items-center gap-1.5 pr-1! font-mono @md:inline-flex!"
-      size="small"
-      role="button"
+    <!-- The image is reference material, not a control: plain dimmed text keeps
+         it out of the name's way, and the copy affordance appears on hover. -->
+    <button
+      class="group text-base-content/45 hover:text-base-content/80 hidden max-w-[32ch] min-w-0 cursor-copy items-center gap-1.5 font-mono text-xs transition-colors @md:inline-flex"
       :title="$t('toolbar.copy-image')"
       :aria-label="$t('toolbar.copy-image')"
       @click="copyImage"
     >
       <span class="truncate">{{ imageTag }}</span>
-      <span
-        class="bg-base-content/10 text-base-content/40 group-hover:text-base-content/70 flex size-4 shrink-0 items-center justify-center rounded-sm transition-colors"
-      >
-        <mdi:content-copy class="size-3" />
-      </span>
-    </Tag>
+      <mdi:content-copy class="size-3 shrink-0 opacity-0 transition-opacity group-hover:opacity-100" />
+    </button>
   </div>
 </template>
 

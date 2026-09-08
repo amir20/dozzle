@@ -28,6 +28,8 @@ toolbar:
   attach: Tilknyt
   copy-permalink: Kopiér permanent link
   copy-image: "Kopiér image-tag"
+  pin: "Fastgør"
+  unpin: "Frigør"
   copy-logs: Kopiér logs
   copy-filtered-logs: Kopiér filtrerede logs
   copying-logs: Kopierer logs...

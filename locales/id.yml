@@ -28,6 +28,8 @@ toolbar:
   attach: Lampirkan
   copy-permalink: Salin tautan permanen
   copy-image: "Salin tag image"
+  pin: "Sematkan"
+  unpin: "Lepas sematan"
   copy-logs: Salin log
   copy-filtered-logs: Salin log terfilter
   copying-logs: Menyalin log...

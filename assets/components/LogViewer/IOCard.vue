@@ -1,25 +1,23 @@
 <template>
   <div
-    class="bg-base-content/[0.06] grid min-w-0 grid-cols-[auto_auto_3.5rem_auto_3.5rem] items-center gap-x-1.5 gap-y-1 rounded-md px-2.5 py-1.5 text-[12.5px] leading-none tabular-nums max-md:hidden @max-5xl:hidden"
+    class="grid grid-cols-[auto_auto_1fr_auto_1fr] items-center gap-x-1.5 gap-y-1.5 px-3 py-1.5 text-[11.5px] leading-none tabular-nums max-md:hidden @max-5xl:hidden"
     :title="tooltip"
   >
-    <PhNetwork class="text-base-content/60 size-3.5" />
-    <PhArrowUp class="text-primary text-[10px]" />
-    <span class="text-right">{{ formatBytes(networkTx, { short: true, decimals: 1 }) }}/s</span>
-    <PhArrowDown class="text-secondary text-[10px]" />
-    <span class="text-right">{{ formatBytes(networkRx, { short: true, decimals: 1 }) }}/s</span>
-
-    <PhHardDrives class="text-base-content/60 size-3.5" />
-    <PhArrowUp class="text-primary text-[10px]" />
-    <span class="text-right">{{ formatBytes(diskWrite, { short: true, decimals: 1 }) }}/s</span>
-    <PhArrowDown class="text-secondary text-[10px]" />
-    <span class="text-right">{{ formatBytes(diskRead, { short: true, decimals: 1 }) }}/s</span>
+    <template v-for="row in rows" :key="row.label">
+      <span
+        class="text-base-content/40 text-[10px] font-medium tracking-wider uppercase"
+        :class="{ 'opacity-40': row.idle }"
+        >{{ row.label }}</span
+      >
+      <PhArrowUp class="text-base-content/35 size-2.5" :class="{ 'opacity-40': row.idle }" />
+      <span class="text-right" :class="{ 'text-base-content/40': !row.up }">{{ rate(row.up) }}</span>
+      <PhArrowDown class="text-base-content/35 size-2.5" :class="{ 'opacity-40': row.idle }" />
+      <span class="text-right" :class="{ 'text-base-content/40': !row.down }">{{ rate(row.down) }}</span>
+    </template>
   </div>
 </template>
 
 <script lang="ts" setup>
-import PhNetwork from "~icons/ph/network";
-import PhHardDrives from "~icons/ph/hard-drives";
 import PhArrowUp from "~icons/ph/arrow-up";
 import PhArrowDown from "~icons/ph/arrow-down";
 
@@ -31,6 +29,16 @@ const { networkRx, networkTx, diskRead, diskWrite } = defineProps<{
 }>();
 
 const { t } = useI18n();
+
+// Disk sits at zero for most containers, so an idle row is dimmed rather than
+// removed: dropping it would resize the whole toolbar the moment a write lands.
+const rows = computed(() => [
+  { label: "NET", up: networkTx, down: networkRx, idle: !networkTx && !networkRx },
+  { label: "DISK", up: diskWrite, down: diskRead, idle: !diskWrite && !diskRead },
+]);
+
+const rate = (bytes: number) => formatBytes(bytes, { short: true, decimals: 1 }) + "/s";
+
 const tooltip = computed(
   () =>
     t("tooltip.network-io", { tx: formatBytes(networkTx), rx: formatBytes(networkRx) }) +
