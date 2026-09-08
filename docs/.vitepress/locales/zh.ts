@@ -13,6 +13,12 @@ export const zh: Labels = {
     troubleshooting: "故障排查",
     about: "关于",
   },
+  groups: {
+    containers: "容器",
+    hosts: "连接主机",
+    control: "容器控制",
+    logs: "日志与查询",
+  },
   pages: {
     "what-is-dozzle": "什么是 Dozzle？",
     "getting-started": "快速开始",

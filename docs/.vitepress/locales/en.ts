@@ -13,6 +13,12 @@ export const en: Labels = {
     troubleshooting: "Troubleshooting",
     about: "About",
   },
+  groups: {
+    containers: "Containers",
+    hosts: "Connecting Hosts",
+    control: "Container Control",
+    logs: "Logs & Queries",
+  },
   pages: {
     "what-is-dozzle": "What is Dozzle?",
     "getting-started": "Getting Started",
