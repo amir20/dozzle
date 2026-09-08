@@ -17,6 +17,16 @@ toolbar:
   copy-logs: Kopiraj dnevnike
   copy-filtered-logs: Kopiraj filtrirane dnevnike
   copying-logs: Kopiranje dnevnikov...
+  streams: Tokovi
+  levels: Ravni
+  toggle-all-levels: Preklopi vse ravni
+  all: Vse
+  none: Brez
+  section-logs: Dnevniki
+  section-filters: Filtri
+  section-export: Izvoz
+  section-container: Vsebnik
+  section-image: Slika
   restart: Ponovni zagon
   update: Posodobi
   update-service: Posodobi Storitev

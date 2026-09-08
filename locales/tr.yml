@@ -31,6 +31,16 @@ toolbar:
   copy-logs: Günlükleri kopyala
   copy-filtered-logs: Filtrelenmiş günlükleri kopyala
   copying-logs: Günlükler kopyalanıyor...
+  streams: Akışlar
+  levels: Seviyeler
+  toggle-all-levels: Tüm seviyeleri değiştir
+  all: Tümü
+  none: Hiçbiri
+  section-logs: Günlükler
+  section-filters: Filtreler
+  section-export: Dışa aktar
+  section-container: Konteyner
+  section-image: İmaj
 action:
   copy-log: Günlüğü kopyala
   copy-link: Kalıcı bağlantıyı kopyala

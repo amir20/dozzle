@@ -31,6 +31,16 @@ toolbar:
   copy-logs: Copiar logs
   copy-filtered-logs: Copiar logs filtrados
   copying-logs: Copiando logs...
+  streams: Streams
+  levels: Níveis
+  toggle-all-levels: Alternar todos os níveis
+  all: Todos
+  none: Nenhum
+  section-logs: Logs
+  section-filters: Filtros
+  section-export: Exportar
+  section-container: Contêiner
+  section-image: Imagem
 action:
   copy-log: Copiar log
   copy-link: Copiar permalink

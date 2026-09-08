@@ -31,6 +31,16 @@ toolbar:
   copy-logs: Salin log
   copy-filtered-logs: Salin log terfilter
   copying-logs: Menyalin log...
+  streams: Stream
+  levels: Level
+  toggle-all-levels: Alihkan semua level
+  all: Semua
+  none: Tidak ada
+  section-logs: Log
+  section-filters: Filter
+  section-export: Ekspor
+  section-container: Kontainer
+  section-image: Image
 action:
   copy-log: Salin log
   copy-link: Salin permalink

@@ -31,6 +31,16 @@ toolbar:
   copy-logs: Copiar registros
   copy-filtered-logs: Copiar registros filtrados
   copying-logs: Copiando registros...
+  streams: Flujos
+  levels: Niveles
+  toggle-all-levels: Alternar todos los niveles
+  all: Todos
+  none: Ninguno
+  section-logs: Registros
+  section-filters: Filtros
+  section-export: Exportar
+  section-container: Contenedor
+  section-image: Imagen
 action:
   copy-log: Copiar registro
   copy-link: Copiar enlace permanente

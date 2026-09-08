@@ -31,6 +31,16 @@ toolbar:
   copy-logs: 複製日誌
   copy-filtered-logs: 複製篩選日誌
   copying-logs: 正在複製日誌...
+  streams: 輸出串流
+  levels: 級別
+  toggle-all-levels: 切換所有級別
+  all: 全部
+  none: 無
+  section-logs: 日誌
+  section-filters: 篩選
+  section-export: 匯出
+  section-container: 容器
+  section-image: 映像
 action:
   copy-log: 複製日誌
   copy-link: 複製永久連結

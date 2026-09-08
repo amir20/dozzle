@@ -14,9 +14,10 @@
     </label>
     <ul
       tabindex="0"
-      class="menu dropdown-content rounded-box bg-base-200 border-base-content/20 z-50 w-52 border p-1 shadow-sm"
+      class="menu dropdown-content rounded-box bg-base-200 border-base-content/10 z-50 w-max min-w-60 border p-1.5 shadow-lg"
       @click="hideMenu"
     >
+      <li class="section" v-if="!historical || hasComplexLogs">{{ $t("toolbar.section-logs") }}</li>
       <li v-if="!historical">
         <a @click="showSearch = true">
           <mdi:magnify /> {{ $t("toolbar.search") }}
@@ -35,15 +36,16 @@
           <KeyShortcut char="f" :modifiers="['shift', 'meta']" />
         </a>
       </li>
-      <li class="line"></li>
+      <li class="section">{{ $t("toolbar.section-filters") }}</li>
       <li>
         <details>
           <summary>
-            <div class="flex w-4">
-              <carbon:circle-solid class="text-red w-2.5" v-if="streamConfig.stderr" />
-              <carbon:circle-solid class="text-blue w-2.5" v-if="streamConfig.stdout" />
+            <div class="flex w-4 items-center gap-0.5">
+              <carbon:circle-solid class="size-2" :class="streamConfig.stderr ? 'text-red' : 'opacity-20'" />
+              <carbon:circle-solid class="size-2" :class="streamConfig.stdout ? 'text-blue' : 'opacity-20'" />
             </div>
-            Streams
+            {{ $t("toolbar.streams") }}
+            <span class="value">{{ streamSummary }}</span>
           </summary>
           <ul class="menu">
             <li>
@@ -89,11 +91,12 @@
         <details class="group/details">
           <summary>
             <mdi:gauge />
-            Levels
+            {{ $t("toolbar.levels") }}
+            <span class="value group-open/details:hidden">{{ levelSummary }}</span>
             <Toggle
-              class="toggle-xs invisible group-open/details:visible"
+              class="toggle-xs hidden group-open/details:inline-flex"
               v-model="toggleAllLevels"
-              title="Toggle all levels"
+              :title="$t('toolbar.toggle-all-levels')"
             />
           </summary>
           <ul class="menu">
@@ -111,7 +114,7 @@
         </details>
       </li>
 
-      <li class="line"></li>
+      <li class="section">{{ $t("toolbar.section-export") }}</li>
       <li v-if="enableDownload">
         <a :href="downloadUrl" download>
           <octicon:download-24 />
@@ -132,8 +135,8 @@
       </li>
 
       <!-- Container Actions (Enabled via config) -->
+      <li class="section" v-if="showContainerSection">{{ $t("toolbar.section-container") }}</li>
       <template v-if="enableActions && !historical">
-        <li class="line"></li>
         <li>
           <button
             @click="stop()"
@@ -171,54 +174,7 @@
         </li>
       </template>
 
-      <!-- Manual mode never checks on its own, so the only way to reach a
-           registry is this. Automatic mode reports the last result instead. -->
-      <template v-if="imageCheckState === 'check'">
-        <li class="line"></li>
-        <li>
-          <a @click.stop="checkImageUpdate(true)">
-            <carbon:upgrade :class="{ 'animate-spin': checkingImageUpdate }" />
-            {{ checkingImageUpdate ? $t("toolbar.checking-for-updates") : $t("toolbar.check-for-updates") }}
-          </a>
-        </li>
-      </template>
-
-      <template v-if="imageCheckState === 'checking'">
-        <li class="line"></li>
-        <li class="menu-title flex-row items-center gap-1.5 py-1 text-xs">
-          <carbon:upgrade class="animate-spin" /> {{ $t("toolbar.checking-for-updates") }}
-        </li>
-      </template>
-
-      <template v-if="imageCheckState === 'none'">
-        <li class="line"></li>
-        <li class="menu-title flex-row items-center gap-1.5 py-1 text-xs">
-          <carbon:checkmark /> {{ $t("toolbar.no-updates") }}
-        </li>
-      </template>
-
-      <!-- Shown regardless of actions: an update is worth knowing about even
-           when Dozzle cannot apply it. -->
-      <template v-if="imageCheckState === 'available'">
-        <li class="line"></li>
-        <li class="menu-title text-warning flex-row items-center gap-1.5 py-1 text-xs">
-          <carbon:upgrade /> {{ $t("toolbar.update-available") }}
-        </li>
-        <li v-if="isSelfContainer">
-          <a :href="releaseNotesUrl" target="_blank" rel="noreferrer noopener">
-            <mdi:script-text-outline /> {{ $t("toolbar.view-release-notes") }}
-          </a>
-        </li>
-        <li>
-          <a @click="copyImageReference()"> <mdi:content-copy /> {{ $t("toolbar.copy-image") }} </a>
-        </li>
-        <li>
-          <a @click="dismissImageUpdate()"> <mdi:bell-off-outline /> {{ $t("toolbar.dismiss-update") }} </a>
-        </li>
-      </template>
-
       <template v-if="enableShell && !historical">
-        <li class="line"></li>
         <li>
           <a @click="showDrawer(Terminal, { container, action: 'attach' }, 'lg')">
             <ri:terminal-window-fill />
@@ -232,6 +188,53 @@
             {{ $t("toolbar.shell") }}
             <KeyShortcut char="e" :modifiers="['shift', 'meta']" />
           </a>
+        </li>
+      </template>
+
+      <!-- Manual mode never checks on its own, so the only way to reach a
+           registry is this. Automatic mode reports the last result instead. -->
+      <template v-if="imageCheckState === 'check'">
+        <li class="section">{{ $t("toolbar.section-image") }}</li>
+        <li>
+          <a @click.stop="checkImageUpdate(true)">
+            <carbon:upgrade :class="{ 'animate-spin': checkingImageUpdate }" />
+            {{ checkingImageUpdate ? $t("toolbar.checking-for-updates") : $t("toolbar.check-for-updates") }}
+          </a>
+        </li>
+      </template>
+
+      <template v-if="imageCheckState === 'checking'">
+        <li class="section flex-row items-center gap-1.5">
+          <carbon:upgrade class="size-3 animate-spin" /> {{ $t("toolbar.checking-for-updates") }}
+        </li>
+      </template>
+
+      <template v-if="imageCheckState === 'none'">
+        <li class="section flex-row items-center gap-1.5">
+          <carbon:checkmark class="size-3" /> {{ $t("toolbar.no-updates") }}
+        </li>
+      </template>
+
+      <!-- Shown regardless of actions: an update is worth knowing about even
+           when Dozzle cannot apply it. -->
+      <template v-if="imageCheckState === 'available'">
+        <li class="section warn flex-row items-center gap-1.5">
+          <span class="relative flex size-1.5">
+            <span class="bg-warning absolute size-full rounded-full opacity-75 motion-safe:animate-ping"></span>
+            <span class="bg-warning relative size-full rounded-full"></span>
+          </span>
+          {{ $t("toolbar.update-available") }}
+        </li>
+        <li v-if="isSelfContainer">
+          <a :href="releaseNotesUrl" target="_blank" rel="noreferrer noopener">
+            <mdi:script-text-outline /> {{ $t("toolbar.view-release-notes") }}
+          </a>
+        </li>
+        <li>
+          <a @click="copyImageReference()"> <mdi:content-copy /> {{ $t("toolbar.copy-image") }} </a>
+        </li>
+        <li>
+          <a @click="dismissImageUpdate()"> <mdi:bell-off-outline /> {{ $t("toolbar.dismiss-update") }} </a>
         </li>
       </template>
     </ul>
@@ -429,6 +432,23 @@ const { downloadUrl, isFiltered } = useDownloadUrl(
 
 const disableRestart = computed(() => actionStates.stop || actionStates.start || actionStates.restart);
 
+// The section header is shared by container actions and the shell entries, so it
+// only shows when at least one of them is actually rendered.
+const showContainerSection = computed(() => (enableActions || enableShell) && !historical);
+
+// Collapsed submenus say what they are currently set to, so the menu answers
+// "what am I looking at?" without being opened.
+const streamSummary = computed(() => {
+  if (streamConfig.value.stdout && streamConfig.value.stderr) return t("toolbar.all");
+  if (streamConfig.value.stdout) return "STDOUT";
+  if (streamConfig.value.stderr) return "STDERR";
+  return t("toolbar.none");
+});
+
+const levelSummary = computed(() =>
+  levels.value.size === allLevels.length ? t("toolbar.all") : `${levels.value.size}/${allLevels.length}`,
+);
+
 const toggleAllLevels = computed({
   get: () => levels.value.size === allLevels.length,
   set: (value) => {
@@ -454,12 +474,42 @@ const hideMenu = (e: MouseEvent) => {
 <style scoped>
 @reference "@/main.css";
 
-li.line {
-  @apply bg-base-content/20 h-px;
+/* Section headers replace the old hairline dividers: they separate and label at
+ * the same time. The first one has nothing above it to divide from. */
+li.section {
+  @apply text-base-content/40 border-base-content/10 mt-1.5 border-t px-2 pt-2 pb-1 text-[10px] font-semibold tracking-wider uppercase;
 }
 
-a {
+/* Same specificity as li.section, declared after it, so the accent wins. */
+li.section.warn {
+  @apply text-warning/90;
+}
+
+/* daisyUI pads every direct child of a menu li as if it were a clickable row,
+ * which squeezes the status dot and spinner in these headers down to nothing. */
+li.section > * {
+  @apply p-0;
+}
+
+li.section:first-child {
+  @apply mt-0 border-t-0 pt-1;
+}
+
+a,
+button,
+summary {
   @apply whitespace-nowrap;
+}
+
+/* One icon size for every row, so labels line up on a single text column. */
+.menu > li > :where(a, button, summary) > svg {
+  @apply size-4 shrink-0 opacity-70;
+}
+
+/* The collapsed-state value sits in the trailing grid column daisyUI reserves,
+ * next to (not on top of) the disclosure chevron. */
+.value {
+  @apply text-base-content/40 text-xs tabular-nums;
 }
 
 /* daisyUI's .menu is width: fit-content, so nested submenus (Streams, Levels)
