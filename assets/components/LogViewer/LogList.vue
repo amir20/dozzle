@@ -108,7 +108,7 @@ ul {
     }
 
     &.log-permalink-target {
-      @apply bg-secondary/15 border-secondary -ml-1 border-l-4 pl-3 md:pl-8;
+      @apply bg-secondary/15;
       animation: log-permalink-pulse 1.4s ease-out;
     }
   }

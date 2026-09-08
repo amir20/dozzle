@@ -2,9 +2,8 @@
   <!--
     Toasts sit on top of the log stream, so they read as a panel in the same
     family as the dropdowns (neutral surface, hairline border, rounded-box)
-    rather than a saturated block of color. Severity shows up as a rail and a
-    tinted icon instead of tinting the whole notice, which keeps the text at
-    full contrast.
+    rather than a saturated block of color. Severity is carried by the icon
+    color alone, which keeps the notice flat and the text at full contrast.
   -->
   <TransitionGroup
     tag="div"
@@ -12,14 +11,12 @@
     class="toast toast-end max-md:toast-center max-md:toast-bottom whitespace-normal max-md:w-full max-md:px-2"
   >
     <div
-      class="rounded-box border-base-content/15 bg-base-200/95 relative flex w-96 max-w-full flex-col gap-2.5 overflow-hidden border p-3 shadow-lg backdrop-blur max-md:w-full"
+      class="rounded-box border-base-content/10 bg-base-200 flex w-96 max-w-full flex-col gap-2.5 border p-3.5 shadow-sm max-md:w-full"
       v-for="{ toast, options: { timed } } in toasts"
       :key="toast.id"
     >
-      <span class="absolute inset-y-0 left-0 w-1" :class="rail[toast.type]"></span>
-
       <div class="flex w-full items-start gap-2.5">
-        <div class="shrink-0 rounded-full p-1.5" :class="chip[toast.type]">
+        <div class="mt-0.5 shrink-0" :class="accent[toast.type]">
           <mdi:information-outline class="size-4" v-if="toast.type === 'info'" />
           <mdi:alert-circle-outline class="size-4" v-else-if="toast.type === 'error'" />
           <mdi:alert-outline class="size-4" v-else />
@@ -88,16 +85,10 @@
 <script lang="ts" setup>
 const { toasts, removeToast } = useToast();
 
-const rail = {
-  error: "bg-error",
-  warning: "bg-warning",
-  info: "bg-info",
-} as const;
-
-const chip = {
-  error: "bg-error/15 text-error",
-  warning: "bg-warning/15 text-warning",
-  info: "bg-info/15 text-info",
+const accent = {
+  error: "text-error",
+  warning: "text-warning",
+  info: "text-info",
 } as const;
 </script>
 

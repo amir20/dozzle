@@ -1,6 +1,6 @@
 <template>
   <LogItem :logEntry>
-    <div class="alert-row w-full min-w-0 border-l-3 pl-4 font-sans" :data-alert-level="level">
+    <div class="alert-row w-full min-w-0 font-sans" :data-alert-level="level">
       <div class="flex flex-col gap-1.5 py-1">
         <div class="flex flex-wrap items-center gap-x-2.5 gap-y-1">
           <span class="chip">
@@ -111,17 +111,14 @@ const hasDetail = computed(
    prose about the logs rather than log output, and monospace made a sentence
    of it read as another line of the stream.
 
-   No fill: a rail and a chip mark the row, and the log background is left
-   alone. Colour is spent where the eye finds it fastest — a small,
+   No fill and no rail: the chip alone marks the row and the log background is
+   left alone. Colour is spent where the eye finds it fastest — a small,
    high-contrast marker against a calm surface.
 
    Keyed on data-alert-level, NOT data-level: LogLevel.vue ships a second,
    UNSCOPED style block whose `[data-level="error"] { @apply !bg-red }` paints
    any element in the app carrying that attribute, !important and all. Reusing
    the name filled this row solid red and made every local rule unwinnable. */
-.alert-row {
-  border-color: var(--tint);
-}
 .alert-row[data-alert-level="error"] {
   --tint: var(--color-error);
   --tint-content: var(--color-error-content);
