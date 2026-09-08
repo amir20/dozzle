@@ -91,11 +91,18 @@ onScopeDispose(() => cancelAnimationFrame(frame));
 </script>
 
 <style scoped>
-.scroll-progress-enter-active,
-.scroll-progress-leave-active {
+.scroll-progress-enter-active {
   transition:
     opacity 200ms ease-out,
     transform 200ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* Leaving is slower than arriving: it should drift out of the way rather than
+   blink off the moment scrolling stops. */
+.scroll-progress-leave-active {
+  transition:
+    opacity 800ms ease-out,
+    transform 800ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .scroll-progress-enter-from,
@@ -105,9 +112,12 @@ onScopeDispose(() => cancelAnimationFrame(frame));
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .scroll-progress-enter-active,
-  .scroll-progress-leave-active {
+  .scroll-progress-enter-active {
     transition: opacity 200ms ease-out;
+  }
+
+  .scroll-progress-leave-active {
+    transition: opacity 800ms ease-out;
   }
 
   .scroll-progress-enter-from,
