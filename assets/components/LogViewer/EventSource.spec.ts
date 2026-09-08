@@ -102,6 +102,9 @@ describe("<ContainerEventSource />", () => {
           [scrollContextKey as symbol]: {
             paused: computed(() => false),
             loading: computed(() => false),
+            progress: ref(1),
+            available: ref(false),
+            currentDate: ref(new Date()),
           },
           [loggingContextKey as symbol]: {
             containers: computed(() => [{ id: "abc", image: "test:v123", host: "localhost" }]),
