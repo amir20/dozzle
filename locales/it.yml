@@ -62,6 +62,7 @@ label:
   hosts: Hosts
   password: Password
   username: Username
+  or: o
   container-name: Nome Container
   status: Stato
   created: Creato
@@ -117,6 +118,7 @@ error:
   page-not-found: Questa pagina non esiste
   host-group-not-found: 'Nessun host trovato nel gruppo "{name}"'
   invalid-auth: Username o password non valide
+  oauth-failed: Accesso non riuscito. Riprova.
   copy-not-supported: La copia negli appunti non è supportata dal tuo browser
   copy-not-supported-hint: Appunti non disponibili. Copia il link qui sotto
   logs-skipped: Mostra {total} voci nascoste
@@ -162,6 +164,7 @@ title:
 button:
   logout: Logout
   login: Login
+  login-with: Continua con {provider}
   settings: Impostazioni
   cancel: Annulla
   redirect: Reindirizza

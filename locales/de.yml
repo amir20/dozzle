@@ -62,6 +62,7 @@ label:
   hosts: Hosts
   password: Passwort
   username: Benutzername
+  or: oder
   container-name: Container Name
   status: Status
   created: Erstellt
@@ -117,6 +118,7 @@ error:
   page-not-found: Diese Seite existiert nicht.
   host-group-not-found: 'Keine Hosts in der Gruppe "{name}" gefunden'
   invalid-auth: Benutzername und Passwort sind ungültig.
+  oauth-failed: Anmeldung fehlgeschlagen. Bitte versuchen Sie es erneut.
   copy-not-supported: Kopieren in die Zwischenablage wird von Ihrem Browser nicht unterstützt
   copy-not-supported-hint: Zwischenablage nicht verfügbar. Link unten kopieren
   logs-skipped: Zeige {total} versteckte Einträge
@@ -162,6 +164,7 @@ title:
 button:
   logout: Ausloggen
   login: Anmeldung
+  login-with: Weiter mit {provider}
   settings: Einstellungen
   cancel: Abbruch
   redirect: Umleiten

@@ -10,6 +10,7 @@ import (
 	"encoding/json"
 
 	"net/http"
+	"net/url"
 	"path"
 
 	"github.com/amir20/dozzle/internal/auth"
@@ -82,7 +83,16 @@ func (h *handler) executeTemplate(w http.ResponseWriter, req *http.Request) {
 		case SIMPLE:
 			if req.URL.Path != "login" {
 				log.Debug().Str("url", req.URL.String()).Msg("Redirecting to login page")
-				http.Redirect(w, req, path.Clean(h.config.Base+"/login")+"?redirectUrl=/"+req.URL.String(), http.StatusTemporaryRedirect)
+				// The login page navigates to whatever comes back in redirectUrl, so
+				// this has to be a plain relative path. A request for "//evil.com"
+				// arrives here as a protocol-relative URL, which a browser follows
+				// off-origin.
+				target := auth.SafeRelativePath("/" + req.URL.String())
+				if target == "" {
+					target = "/"
+				}
+				login := path.Clean(h.config.Base+"/login") + "?" + url.Values{"redirectUrl": {target}}.Encode()
+				http.Redirect(w, req, login, http.StatusTemporaryRedirect)
 				return
 			}
 		}
@@ -90,6 +100,15 @@ func (h *handler) executeTemplate(w http.ResponseWriter, req *http.Request) {
 
 	config := map[string]any{
 		"base": base,
+	}
+
+	// The login page renders one button per provider while nobody is
+	// authenticated yet, so this sits outside the authorized block below. The
+	// assertion is false when no OAuth provider is configured, and on the nil
+	// Authorizer that provider "none" leaves behind.
+	if oauth, ok := h.config.Authorization.Authorizer.(OAuthAuthorizer); ok {
+		config["oauthProviders"] = oauth.Providers()
+		config["passwordLogin"] = oauth.PasswordLoginEnabled()
 	}
 
 	// Build full config when authorized (no auth or authenticated user)

@@ -37,9 +37,9 @@ HTTP/1.1 307 Temporary Redirect
 Connection: close
 Content-Security-Policy: default-src 'self' 'wasm-unsafe-eval' blob: https://cdn.jsdelivr.net https://*.duckdb.org; style-src 'self' 'unsafe-inline' blob:; img-src 'self' data:; font-src 'self' data:;
 Content-Type: text/html; charset=utf-8
-Location: /login?redirectUrl=/
+Location: /login?redirectUrl=%2F
 
-<a href="/login?redirectUrl=/">Temporary Redirect</a>.
+<a href="/login?redirectUrl=%2F">Temporary Redirect</a>.
 
 /* snapshot: Test_createRoutes_username_password */
 HTTP/1.1 307 Temporary Redirect

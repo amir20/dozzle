@@ -1,0 +1,285 @@
+---
+title: Sign in with GitHub & OIDC
+---
+
+# <Icon icon="mdi:shield-account" inline /> Sign in with GitHub & OIDC
+
+Dozzle can let users sign in with an external account instead of typing a password. This is part of the [`simple`](/guide/authentication/simple) provider rather than a provider of its own, so `users.yml` is still read on every request and still decides who gets in.
+
+That has one consequence worth stating up front: **`users.yml` is the allowlist.** An external account that no entry links to cannot sign in, and no account is ever created automatically.
+
+Password login keeps working alongside it, which matters when an OAuth app breaks and you need to get in to fix it.
+
+## Sign in with GitHub
+
+Dozzle can let users sign in with their GitHub account instead of typing a password. This is part of the `simple` provider and not a separate auth provider, so `users.yml` is still read on every request and still decides who gets in. Keep using `--auth-provider simple`. `github` is accepted as an alias if you prefer to spell out what the instance uses.
+
+First create an OAuth App under [Developer settings](https://github.com/settings/developers) on GitHub and set the **Authorization callback URL** to:
+
+```
+https://your-dozzle-host/api/auth/callback
+```
+
+If Dozzle is served under a [base path](/guide/changing-base), include it, for example `https://example.com/dozzle/api/auth/callback`. Dozzle does not send a `redirect_uri` when it starts the flow, so GitHub always redirects to the callback URL registered on the OAuth App. A mismatch here is the most common reason sign in fails.
+
+Then copy the client ID, generate a client secret, and pass both to Dozzle:
+
+::: code-group
+
+```sh [cli]
+$ docker run -v /var/run/docker.sock:/var/run/docker.sock -v /path/to/dozzle/data:/data -p 8080:8080 amir20/dozzle --auth-provider simple --auth-github-client-id Ov23liABCDEFGHIJKLMN --auth-github-client-secret 0123456789abcdef0123456789abcdef01234567
+```
+
+```yaml [docker-compose.yml]
+services:
+  dozzle:
+    image: amir20/dozzle:latest
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /path/to/dozzle/data:/data
+    ports:
+      - 8080:8080
+    environment:
+      DOZZLE_AUTH_PROVIDER: simple
+      DOZZLE_AUTH_GITHUB_CLIENT_ID: Ov23liABCDEFGHIJKLMN
+      DOZZLE_AUTH_GITHUB_CLIENT_SECRET: 0123456789abcdef0123456789abcdef01234567
+```
+
+:::
+
+Link a user to their GitHub account with a `github` key in `users.yml`:
+
+```yaml
+users:
+  admin:
+    email: me@email.net
+    name: Admin
+    password: $2a$11$9ho4vY2LdJ/WBopFcsAS0uORC0x2vuFHQgT/yBqZyzclhHsoaIkzK
+    github: octocat
+
+  guest:
+    email: guest@email.net
+    name: Guest
+    github: hubot
+    filter: "label=com.example.app"
+    roles: none
+```
+
+`password` is optional once `github` is set, as `guest` shows above. `admin` has both, so they can sign in either way. Password login stays available as a fallback for anyone who still has a password, and the login page shows both options.
+
+> [!WARNING]
+> Keep a password on at least one account. When no user in `users.yml` has a `password`, the login form disappears entirely and the external provider becomes the only way in, so a wrong callback URL, a revoked OAuth app, or an expired client secret locks everyone out of the web interface. Recovering means editing `users.yml` on the host to add a password back, which needs shell access to wherever Dozzle's `/data` lives.
+
+The value is the GitHub **login** (the handle in `github.com/octocat`), not the email address. A login is always present and visible, while an account's email can be private or changed at any time.
+
+> [!WARNING]
+> A GitHub login is not permanent. If someone renames their GitHub account, the old handle is released and anyone can register it, and whoever does inherits that entry in your `users.yml` on their next sign in. Treat a rename as an access change: update `users.yml` at the same time, and remove entries for people who have left rather than leaving a stale handle listed.
+
+`users.yml` is the allowlist. A GitHub account that is not listed in `users.yml` cannot sign in, no matter which org it belongs to. There is no auto-provisioning: adding someone means adding them to the file. Filters and roles are resolved from `users.yml` on every request, exactly as they are for password users, so a GitHub user with `roles: none` is restricted the same way.
+
+> [!NOTE]
+> Dozzle intentionally does not support allowlisting a whole GitHub org or an entire email domain. Every user is listed individually. If you need group or domain based access, use `forward-proxy` with [Authelia](/guide/authentication/forward-proxy#setting-up-dozzle-with-authelia) or Authentik, which are built for that.
+
+> [!WARNING]
+> Editing `users.yml` rotates the JWT signing key and signs every user out. This is already the case today when you add or remove a user, and it applies when you add a `github` key too.
+
+## Sign in with OIDC
+
+Any provider that publishes an OpenID Connect discovery document works through the same callback: Google, Keycloak, Pocket ID, Zitadel, Authentik and others. Point Dozzle at the issuer URL and give it a client id and secret.
+
+Register Dozzle as a confidential client with your provider and set the redirect URI to:
+
+```
+https://your-dozzle-host/api/auth/callback
+```
+
+Include the base path if Dozzle runs under one, for example `https://example.com/dozzle/api/auth/callback`. Unlike GitHub, OIDC requires Dozzle to send `redirect_uri`, so this value has to match what you registered exactly.
+
+::: code-group
+
+```sh [cli]
+$ docker run -v /var/run/docker.sock:/var/run/docker.sock -v /path/to/dozzle/data:/data -p 8080:8080 amir20/dozzle --auth-provider simple --auth-oidc-issuer https://id.example.com --auth-oidc-client-id dozzle --auth-oidc-client-secret secret --auth-oidc-name "Pocket ID"
+```
+
+```yaml [docker-compose.yml]
+services:
+  dozzle:
+    image: amir20/dozzle:latest
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /path/to/dozzle/data:/data
+    ports:
+      - 8080:8080
+    environment:
+      DOZZLE_AUTH_PROVIDER: simple
+      DOZZLE_AUTH_OIDC_ISSUER: https://id.example.com
+      DOZZLE_AUTH_OIDC_CLIENT_ID: dozzle
+      DOZZLE_AUTH_OIDC_CLIENT_SECRET: secret
+      DOZZLE_AUTH_OIDC_NAME: Pocket ID
+```
+
+:::
+
+`DOZZLE_AUTH_OIDC_NAME` is only the label on the login button. It defaults to `SSO`.
+
+The issuer URL is the one that serves `/.well-known/openid-configuration`. Dozzle fetches that document to find the authorization, token and userinfo endpoints, and refuses to start the flow if the document names a different issuer than the one you configured.
+
+### Linking users
+
+OIDC matches on the **verified email**, not the login. Set `email` on the user in `users.yml`:
+
+```yaml
+users:
+  admin:
+    email: me@email.net
+    name: Admin
+    # password is optional once the account is linked
+```
+
+The email must be marked verified by your provider. Dozzle rejects a sign-in when `email_verified` is false, because matching an unverified address would let anyone who can register at a permissive provider claim an account by typing in someone else's email.
+
+> [!NOTE]
+> GitHub matches on the login and OIDC matches on the email, and that difference is deliberate. A GitHub login is stable and always present, while a GitHub email can be private or changed. OIDC has no stable human-readable equivalent, so the verified email is the claim operators actually know.
+
+### Google
+
+Google is a normal OIDC provider. Create an OAuth client in the Google Cloud console and use:
+
+```
+DOZZLE_AUTH_OIDC_ISSUER: https://accounts.google.com
+DOZZLE_AUTH_OIDC_NAME: Google
+```
+
+`--auth-provider google` is accepted as an alias for `simple`, so either spelling works.
+
+## Behind a reverse proxy
+
+Dozzle decides whether the original request used HTTPS from the `X-Forwarded-Proto` header, and takes the hostname from `X-Forwarded-Host` when it is present. Most reverse proxies set both by default, but if yours does not, sign in breaks in two ways.
+
+For OIDC it breaks the login outright. The `redirect_uri` Dozzle sends is built from those headers, so a proxy that does not set `X-Forwarded-Proto: https` makes Dozzle send `http://your-host/api/auth/callback`. That does not match the `https://` URI registered with your provider, and the provider rejects the request rather than redirecting anywhere useful.
+
+For GitHub the URL is unaffected, because Dozzle omits `redirect_uri` and GitHub falls back to the callback registered on the OAuth app. The header still decides whether the session cookie is marked `Secure`, so it is worth getting right either way.
+
+You can check what your proxy is sending by looking at the cookie Dozzle sets when a login starts:
+
+```sh
+$ curl -sI 'https://your-dozzle-host/api/auth/login?provider=github' | grep -i set-cookie
+set-cookie: dozzle_oauth_state=...; Path=/; Max-Age=600; HttpOnly; Secure; SameSite=Lax
+```
+
+`Secure` in that response means the header is arriving. If it is missing, fix the proxy before going further. See [Reverse Proxy & Base Path](/guide/changing-base) for Nginx, Traefik and Caddy examples.
+
+## Using Docker secrets for the client secret
+
+Putting a client secret straight into `environment:` means it shows up in `docker inspect`, in your compose file, and in the shell history of anyone who started the container by hand. Both client secrets therefore accept a `_FILE` counterpart naming a file to read the value from, which is the convention Docker's own images use:
+
+| Instead of                         | Use                                     |
+| ---------------------------------- | --------------------------------------- |
+| `DOZZLE_AUTH_GITHUB_CLIENT_SECRET` | `DOZZLE_AUTH_GITHUB_CLIENT_SECRET_FILE` |
+| `DOZZLE_AUTH_OIDC_CLIENT_SECRET`   | `DOZZLE_AUTH_OIDC_CLIENT_SECRET_FILE`   |
+
+Dozzle reads the file at startup and trims surrounding whitespace, so a trailing newline from `echo secret > file` is fine. Setting both a variable and its `_FILE` counterpart is an error rather than a silent preference for one, and pointing `_FILE` at a missing or empty file stops Dozzle at startup instead of quietly disabling the login button.
+
+### Docker Compose
+
+Outside Swarm there is no `docker secret create`, so a Compose secret is either a file on disk or an environment variable. The environment form is usually what you want: it pairs with a gitignored `.env`, and there is no plaintext file sitting next to your compose file waiting to be committed.
+
+```yaml [docker-compose.yml]
+services:
+  dozzle:
+    image: amir20/dozzle:latest
+    ports:
+      - 8080:8080
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./data:/data
+    environment:
+      DOZZLE_AUTH_PROVIDER: simple
+      DOZZLE_AUTH_GITHUB_CLIENT_ID: Ov23liABCDEFGHIJKLMN
+      DOZZLE_AUTH_GITHUB_CLIENT_SECRET_FILE: /run/secrets/dozzle_github_secret
+    secrets:
+      - dozzle_github_secret
+
+secrets:
+  dozzle_github_secret:
+    environment: GITHUB_CLIENT_SECRET
+```
+
+```ini [.env]
+GITHUB_CLIENT_SECRET=your-github-client-secret
+```
+
+Compose reads the variable itself and mounts the value at `/run/secrets/dozzle_github_secret`. It never becomes part of the container's environment, so it stays out of `docker inspect` the same way a file-backed secret does.
+
+Use the file form instead when the secret already exists as a file, for example one written by a secret manager:
+
+```yaml [docker-compose.yml]
+secrets:
+  dozzle_github_secret:
+    file: /run/secrets/github_client_secret
+```
+
+Either way Dozzle trims surrounding whitespace, so a trailing newline in the file does not matter.
+
+### Docker Swarm
+
+In Swarm the secret is managed by the cluster rather than a file on disk, so create it with `docker secret create` and declare it as `external`:
+
+```sh
+printf '%s' 'your-oidc-client-secret' | docker secret create dozzle_oidc_secret_v1 -
+```
+
+```yaml [docker-compose.yml]
+services:
+  dozzle:
+    image: amir20/dozzle:latest
+    environment:
+      DOZZLE_MODE: swarm
+      DOZZLE_AUTH_PROVIDER: simple
+      DOZZLE_AUTH_OIDC_ISSUER: https://id.example.com
+      DOZZLE_AUTH_OIDC_CLIENT_ID: dozzle
+      DOZZLE_AUTH_OIDC_CLIENT_SECRET_FILE: /run/secrets/dozzle_oidc_secret
+      DOZZLE_AUTH_OIDC_NAME: Pocket ID
+    secrets:
+      - dozzle_oidc_secret
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    deploy:
+      mode: global
+
+secrets:
+  dozzle_oidc_secret:
+    external: true
+    name: dozzle_oidc_secret_v1
+```
+
+Note the split between the two names. `dozzle_oidc_secret` is the alias this compose file uses, and it is what decides the mount path: the secret lands at `/run/secrets/dozzle_oidc_secret`, matching `_FILE`. `name:` is the actual object on the swarm, and it is the only place the version appears.
+
+That split exists because Swarm secrets are immutable. There is no way to change the value of an existing one, so rotating a leaked or expired client secret means creating the next version and pointing the stack at it. Keeping the version out of the alias makes that a one-line edit, rather than three edits kept in sync across `_FILE`, the service's `secrets:` list, and the top-level declaration:
+
+```sh
+printf '%s' 'your-new-client-secret' | docker secret create dozzle_oidc_secret_v2 -
+```
+
+```yaml [docker-compose.yml]
+secrets:
+  dozzle_oidc_secret:
+    external: true
+    name: dozzle_oidc_secret_v2 # was _v1
+```
+
+Redeploy the stack, then drop the old one with `docker secret rm dozzle_oidc_secret_v1`. The environment variable and the mount path never moved.
+
+> [!NOTE]
+> Without `name:`, a secret mounts at `/run/secrets/<alias>` and the alias must match the real object on the swarm. With `name:` the two are decoupled, which is what makes the rotation above a single edit. Either way `_FILE` points at the alias, never at `name:`.
+
+### Verifying it worked
+
+Dozzle logs the providers it enabled at startup. Run with `--level debug` and look for the line naming the provider:
+
+```sh
+$ docker compose logs dozzle | grep -i 'sign in'
+DBG Enabling Sign in with GitHub
+```
+
+If the secret file is missing or empty, Dozzle exits at startup with a message naming the variable, so a broken mount fails loudly instead of silently dropping the login button.

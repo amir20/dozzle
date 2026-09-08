@@ -62,6 +62,7 @@ label:
   hosts: Hosts
   password: Senha
   username: Usuário
+  or: ou
   container-name: Nome do Container
   status: Status
   created: Criado
@@ -117,6 +118,7 @@ error:
   page-not-found: Esta página não existe
   host-group-not-found: 'Nenhum host encontrado no grupo "{name}"'
   invalid-auth: Usuário ou senha inválidos
+  oauth-failed: Falha ao entrar. Tente novamente.
   copy-not-supported: Copiar para a área de transferência não é suportado no seu navegador
   copy-not-supported-hint: Área de transferência indisponível. Copie o link abaixo
   logs-skipped: Mostrar {total} entradas ocultas
@@ -162,6 +164,7 @@ title:
 button:
   logout: Sair
   login: Entrar
+  login-with: Continuar com {provider}
   settings: Configurações
   cancel: Cancelar
   redirect: Redirecionar

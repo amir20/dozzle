@@ -62,6 +62,7 @@ label:
   hosts: Hosty
   password: Hasło
   username: Nazwa użytkownika
+  or: lub
   container-name: Nazwa kontenera
   status: Status
   created: Utworzony
@@ -117,6 +118,7 @@ error:
   page-not-found: Ta strona nie istnieje
   host-group-not-found: "Nie znaleziono hostów w grupie „{name}”"
   invalid-auth: Nazwa użytkownika lub hasło są niepoprawne
+  oauth-failed: Logowanie nie powiodło się. Spróbuj ponownie.
   copy-not-supported: Kopiowanie do schowka nie jest obsługiwane w twojej przeglądarce
   copy-not-supported-hint: Schowek niedostępny. Skopiuj poniższy link
   logs-skipped: Pokaż {total} ukrytych wpisów
@@ -164,6 +166,7 @@ title:
 button:
   logout: Wyloguj się
   login: Zaloguj się
+  login-with: Kontynuuj z {provider}
   settings: Ustawienia
   cancel: Anuluj
   redirect: Przekieruj

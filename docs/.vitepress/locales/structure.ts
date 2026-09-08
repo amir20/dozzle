@@ -2,7 +2,13 @@
 // page means one slug in this file plus one label per locale, not five
 // hand-maintained sidebar trees that drift apart.
 
-export type Section = { key: string; items: string[] };
+// A plain slug is one page. `slug` is a page that owns sub-pages, so the group
+// header stays clickable. `group` is a heading with no page behind it, which is
+// what most groupings want: it files related pages together without inventing a
+// landing page that would need translating five times.
+export type Item = string | { slug: string; items: string[] } | { group: string; items: string[] };
+
+export type Section = { key: string; items: Item[] };
 
 export const SECTIONS: Section[] = [
   { key: "introduction", items: ["what-is-dozzle", "getting-started", "dtop"] },
@@ -11,24 +17,20 @@ export const SECTIONS: Section[] = [
   {
     key: "advanced",
     items: [
-      "authentication",
-      "actions",
-      "app-icons",
-      "shell",
+      {
+        slug: "authentication",
+        items: ["authentication/simple", "authentication/oauth", "authentication/forward-proxy"],
+      },
+      { group: "containers", items: ["container-names", "container-groups", "container-links", "app-icons"] },
+      { group: "hosts", items: ["remote-hosts", "agent", "hostname"] },
+      { group: "control", items: ["actions", "shell"] },
+      { group: "logs", items: ["sql-engine", "log-files-on-disk"] },
       "mcp",
-      "agent",
       "changing-base",
-      "container-names",
-      "container-groups",
-      "container-links",
-      "analytics",
-      "default-profile",
-      "hostname",
       "filters",
+      "default-profile",
       "healthcheck",
-      "remote-hosts",
-      "log-files-on-disk",
-      "sql-engine",
+      "analytics",
     ],
   },
   { key: "troubleshooting", items: ["faq", "debugging", "supported-env-vars"] },
@@ -43,6 +45,7 @@ export type Labels = {
   description: string;
   nav: { home: string; guide: string; cloud: string; releases: string; newIssue: string };
   sections: Record<string, string>;
+  groups: Record<string, string>;
   pages: Record<string, string>;
   footer: { message: string; copyright: string };
   ui: {
@@ -90,10 +93,16 @@ export function buildThemeConfig(base: string, t: Labels, version: string) {
     sidebar: [
       ...SECTIONS.map((section) => ({
         text: t.sections[section.key],
-        items: section.items.map((slug) => ({
-          text: t.pages[slug],
-          link: link(base, `/guide/${slug}`),
-        })),
+        items: section.items.map((item) => {
+          const page = (slug: string) => ({ text: t.pages[slug], link: link(base, `/guide/${slug}`) });
+          if (typeof item === "string") return page(item);
+          // collapsed:true keeps the section tidy; VitePress still opens the group
+          // automatically when the active page is inside it.
+          const children = item.items.map(page);
+          return "slug" in item
+            ? { ...page(item.slug), collapsed: true, items: children }
+            : { text: t.groups[item.group], collapsed: true, items: children };
+        }),
       })),
       {
         text: t.sections.about,

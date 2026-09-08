@@ -11,6 +11,8 @@ export interface Config {
   mode: "server" | "swarm" | "k8s";
   hosts: Host[];
   authProvider: "simple" | "none" | "forward-proxy";
+  oauthProviders?: { name: string; loginUrl: string; icon: string }[];
+  passwordLogin?: boolean;
   logoutUrl?: string;
   enableActions: boolean;
   enableShell: boolean;

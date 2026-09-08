@@ -90,6 +90,22 @@ type Authorizer interface {
 	CreateToken(string, string) (string, error)
 }
 
+// OAuthAuthorizer is an Authorizer that can also sign a user in through an
+// external provider. It is an optional interface rather than a new AuthProvider
+// value: OAuth is a second way to prove you are one of the users simple auth
+// already owns, so branching on Provider here would put the same user behind two
+// role-resolution paths. A third vendor touches none of this routing.
+type OAuthAuthorizer interface {
+	Authorizer
+	// Providers is what the login page renders its buttons from.
+	Providers() []auth.OAuthProviderInfo
+	// PasswordLoginEnabled is false when no user has a password, so the login
+	// page can drop the form rather than offer one that cannot succeed.
+	PasswordLoginEnabled() bool
+	LoginHandler(http.ResponseWriter, *http.Request)
+	CallbackHandler(http.ResponseWriter, *http.Request)
+}
+
 type HostService interface {
 	FindContainer(host string, id string, labels container.ContainerLabels) (*container_support.ContainerService, error)
 	ListContainersForHost(host string, labels container.ContainerLabels) ([]container.Container, error)
@@ -250,6 +266,13 @@ func createRouter(h *handler) *chi.Mux {
 			if h.config.Authorization.Provider == SIMPLE {
 				r.Post("/token", h.createToken)
 				r.Delete("/token", h.deleteToken)
+
+				// Both have to stay unauthenticated: they are how a session is
+				// obtained in the first place.
+				if oauth, ok := h.config.Authorization.Authorizer.(OAuthAuthorizer); ok {
+					r.Get("/auth/login", oauth.LoginHandler)
+					r.Get("/auth/callback", oauth.CallbackHandler)
+				}
 			}
 		})
 

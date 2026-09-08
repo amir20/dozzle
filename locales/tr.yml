@@ -62,6 +62,7 @@ label:
   hosts: Sunucular
   password: Şifre
   username: Kullanıcı Adı
+  or: veya
   container-name: Konteyner Adı
   status: Durum
   created: Oluşturulma
@@ -117,6 +118,7 @@ error:
   page-not-found: Bu sayfa bulunamadı
   host-group-not-found: '"{name}" grubunda ana bilgisayar bulunamadı'
   invalid-auth: Kullanıcı adı veya şifre geçersiz
+  oauth-failed: Giriş başarısız oldu. Lütfen tekrar deneyin.
   copy-not-supported: Panoya kopyalama tarayıcınızda desteklenmiyor
   copy-not-supported-hint: Pano kullanılamıyor. Aşağıdaki bağlantıyı kopyalayın
   logs-skipped: "{total} gizli girişi göster"
@@ -165,6 +167,7 @@ title:
 button:
   logout: Çıkış Yap
   login: Giriş Yap
+  login-with: "{provider} ile devam et"
   settings: Ayarlar
   cancel: İptal
   redirect: Yönlendir

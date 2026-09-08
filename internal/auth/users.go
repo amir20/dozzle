@@ -21,6 +21,7 @@ type User struct {
 	Email           string                    `json:"email" yaml:"email"`
 	Name            string                    `json:"name" yaml:"name"`
 	Password        string                    `json:"-" yaml:"password"`
+	Github          string                    `json:"-" yaml:"github"`
 	Filter          string                    `json:"-" yaml:"filter"`
 	RolesConfigured string                    `json:"-" yaml:"roles"`
 	ContainerLabels container.ContainerLabels `json:"-" yaml:"-"`
@@ -49,6 +50,13 @@ type UserDatabase struct {
 	Users    map[string]*User `yaml:"users"`
 	LastRead time.Time        `yaml:"-"`
 	Path     string           `yaml:"-"`
+
+	// Secondary indexes over Users. An OAuth login arrives holding an external
+	// identity rather than a Dozzle username, so it needs a lookup keyed by the
+	// linked account. Rebuilt by decodeUsersFromFile so they cannot drift from
+	// Users across the mtime reload in readFileIfChanged.
+	byEmail  map[string]*User
+	byGithub map[string]*User
 }
 
 func ReadUsersFromFile(path string) (UserDatabase, error) {
@@ -97,14 +105,21 @@ func decodeUsersFromFile(path string) (UserDatabase, error) {
 		return users, err
 	}
 
+	users.byEmail = make(map[string]*User, len(users.Users))
+	users.byGithub = make(map[string]*User, len(users.Users))
+
 	for username, user := range users.Users {
 		user.Username = username
-		if user.Password == "" {
-			log.Fatal().Msgf("User %s has an empty password", username)
+
+		// A password is optional now that an account can be proven by OAuth
+		// instead, but an entry with no way at all to sign in is a typo, not a
+		// configuration.
+		if user.Password == "" && user.Github == "" && user.Email == "" {
+			return users, fmt.Errorf("user %s has no password, github, or email, so it can never sign in", username)
 		}
 
-		if !(len(user.Password) == 64 || len(user.Password) == 60) {
-			log.Fatal().Str("password", user.Password).Str("user", username).Msg("Invalid password for user")
+		if user.Password != "" && !(len(user.Password) == 64 || len(user.Password) == 60) {
+			return users, fmt.Errorf("user %s has an invalid password hash: expected 60 or 64 characters, got %d", username, len(user.Password))
 		}
 
 		if user.Name == "" {
@@ -122,9 +137,41 @@ func decodeUsersFromFile(path string) (UserDatabase, error) {
 			return users, fmt.Errorf("user %s has an invalid filter %q: %w", username, user.Filter, err)
 		}
 		user.ContainerLabels = labels
+
+		// Two users sharing a linked account would make the login they share
+		// resolve to whichever one the map happened to hold, so reject it at
+		// load rather than authenticate the wrong user later.
+		if email := normalizeEmail(user.Email); email != "" {
+			if existing, ok := users.byEmail[email]; ok {
+				return users, fmt.Errorf("users %s and %s share the email %q", existing.Username, username, user.Email)
+			}
+			users.byEmail[email] = user
+		}
+
+		if github := normalizeGithub(user.Github); github != "" {
+			if existing, ok := users.byGithub[github]; ok {
+				return users, fmt.Errorf("users %s and %s share the github login %q", existing.Username, username, user.Github)
+			}
+			users.byGithub[github] = user
+		}
 	}
 
 	return users, nil
+}
+
+// normalizeEmail and normalizeGithub key the secondary indexes.
+//
+// GitHub logins are unique case-insensitively — you cannot register "Amir20"
+// once "amir20" exists — and the API hands back the canonical casing, which is
+// not necessarily the casing an operator typed into users.yml. Folding both
+// sides therefore cannot introduce an ambiguity, and not folding them turns a
+// capitalization difference into a silent failed login.
+func normalizeEmail(email string) string {
+	return strings.ToLower(strings.TrimSpace(email))
+}
+
+func normalizeGithub(login string) string {
+	return strings.ToLower(strings.TrimSpace(login))
 }
 
 func (u *UserDatabase) readFileIfChanged() error {
@@ -143,6 +190,8 @@ func (u *UserDatabase) readFileIfChanged() error {
 			return err
 		}
 		u.Users = users.Users
+		u.byEmail = users.byEmail
+		u.byGithub = users.byGithub
 		u.LastRead = time.Now()
 	}
 
@@ -159,6 +208,55 @@ func (u *UserDatabase) Find(username string) *User {
 		return nil
 	}
 	return user
+}
+
+// AnyPassword reports whether any configured user can sign in with a password.
+//
+// It fails open: on a read error the login page still offers the password form,
+// because hiding it would strand an operator with no way in over what may be a
+// transient problem.
+func (u *UserDatabase) AnyPassword() bool {
+	if err := u.readFileIfChanged(); err != nil {
+		log.Error().Err(err).Msg("Failed to read user database")
+		return true
+	}
+
+	for _, user := range u.Users {
+		if user.Password != "" {
+			return true
+		}
+	}
+
+	return false
+}
+
+// FindByGithub resolves a GitHub login to the user that linked it in users.yml.
+// users.yml is the allowlist: a GitHub account nobody linked has no match here,
+// which is what makes the OAuth flow fail closed.
+func (u *UserDatabase) FindByGithub(login string) *User {
+	return u.findIndexed(normalizeGithub(login), func() map[string]*User { return u.byGithub })
+}
+
+// FindByEmail resolves a verified email to the user that claims it. Unused by
+// the GitHub flow, which matches on the login, and there for generic OIDC.
+func (u *UserDatabase) FindByEmail(email string) *User {
+	return u.findIndexed(normalizeEmail(email), func() map[string]*User { return u.byEmail })
+}
+
+// findIndexed takes a selector rather than a map because readFileIfChanged
+// replaces the index maps wholesale. Resolving the field after the reload is
+// what keeps a lookup from reading the map the reload just discarded.
+func (u *UserDatabase) findIndexed(key string, index func() map[string]*User) *User {
+	if key == "" {
+		return nil
+	}
+
+	if err := u.readFileIfChanged(); err != nil {
+		log.Error().Err(err).Msg("Failed to read user database")
+		return nil
+	}
+
+	return index()[key]
 }
 
 func CompareHashAndPassword(hash, password string) bool {

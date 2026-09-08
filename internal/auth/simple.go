@@ -30,11 +30,17 @@ func NewSimpleAuth(userDatabase UserDatabase, ttl time.Duration) *simpleAuthCont
 	// digest depend on Go's randomized map iteration order, so any users.yml with
 	// more than one user derives a different signing key on every start and
 	// silently invalidates every session on restart.
+	//
+	// The linked OAuth accounts are part of the digest for the same reason the
+	// password is: repointing a user at a different GitHub login has to rotate
+	// sessions, or the sessions minted under the old link outlive it.
 	h := sha256.New()
 	for _, username := range slices.Sorted(maps.Keys(userDatabase.Users)) {
 		user := userDatabase.Users[username]
 		h.Write([]byte(user.Password))
 		h.Write([]byte(user.RolesConfigured))
+		h.Write([]byte(user.Email))
+		h.Write([]byte(user.Github))
 	}
 
 	tokenAuth := jwtauth.New("HS256", h.Sum(nil), nil)
@@ -61,12 +67,59 @@ func (a *simpleAuthContext) find(username string) (User, bool) {
 	return *user, true
 }
 
+// PasswordLoginEnabled reports whether the password form can succeed for anyone.
+// When it cannot, the login page drops the username and password fields instead
+// of offering a form with no possible answer.
+func (a *simpleAuthContext) PasswordLoginEnabled() bool {
+	a.mu.Lock()
+	defer a.mu.Unlock()
+
+	return a.UserDatabase.AnyPassword()
+}
+
+// findByGithub resolves a GitHub login to a user, by value and under the same
+// lock as find, so the users.yml reload cannot race the read.
+func (a *simpleAuthContext) findByGithub(login string) (User, bool) {
+	a.mu.Lock()
+	defer a.mu.Unlock()
+
+	user := a.UserDatabase.FindByGithub(login)
+	if user == nil {
+		return User{}, false
+	}
+
+	return *user, true
+}
+
+// findByEmail is findByGithub for a verified email address.
+func (a *simpleAuthContext) findByEmail(email string) (User, bool) {
+	a.mu.Lock()
+	defer a.mu.Unlock()
+
+	user := a.UserDatabase.FindByEmail(email)
+	if user == nil {
+		return User{}, false
+	}
+
+	return *user, true
+}
+
 func (a *simpleAuthContext) CreateToken(username, password string) (string, error) {
 	user, ok := a.find(username)
-	if !ok || !CompareHashAndPassword(user.Password, password) {
+	// An account linked only to an OAuth provider carries no hash to compare,
+	// and CompareHashAndPassword would log a bogus "invalid hash length" for
+	// every attempt against one.
+	if !ok || user.Password == "" || !CompareHashAndPassword(user.Password, password) {
 		return "", ErrInvalidCredentials
 	}
 
+	return a.issueToken(user)
+}
+
+// issueToken mints the session JWT. Password login and the OAuth callback both
+// land here, so a session is indistinguishable however the user proved who they
+// are, and everything downstream of the token stays untouched.
+func (a *simpleAuthContext) issueToken(user User) (string, error) {
 	// Identity only. Everything else about the user is read from users.yml per
 	// request, so anything baked in here would just be a copy that goes stale.
 	claims := map[string]any{"username": user.Username}
@@ -82,6 +135,12 @@ func (a *simpleAuthContext) CreateToken(username, password string) (string, erro
 	}
 
 	return tokenString, nil
+}
+
+// TTL is the configured session lifetime, exposed so the OAuth callback can set
+// the same cookie expiry the password path does.
+func (a *simpleAuthContext) TTL() time.Duration {
+	return a.ttl
 }
 
 func (a *simpleAuthContext) AuthMiddleware(next http.Handler) http.Handler {

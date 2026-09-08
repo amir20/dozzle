@@ -62,6 +62,7 @@ label:
   hosts: Hosts
   password: Contraseña
   username: Nombre de usuario
+  or: o
   container-name: Nombre del contenedor
   status: Estado
   created: Creado
@@ -117,6 +118,7 @@ error:
   page-not-found: Esta página no existe.
   host-group-not-found: 'No se encontraron hosts en el grupo "{name}"'
   invalid-auth: El nombre de usuario y la contraseña no son válidos.
+  oauth-failed: Error al iniciar sesión. Inténtalo de nuevo.
   copy-not-supported: Copiar al portapapeles no está soportado en su navegador
   copy-not-supported-hint: Portapapeles no disponible. Copie el enlace a continuación
   logs-skipped: Mostrar {total} entradas ocultas
@@ -162,6 +164,7 @@ title:
 button:
   logout: Cerrar la sesión
   login: Iniciar sesión
+  login-with: Continuar con {provider}
   settings: Configuración
   cancel: Cancelar
   redirect: Redirigir

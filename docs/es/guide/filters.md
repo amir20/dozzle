@@ -1,6 +1,6 @@
 ---
 title: Filtros
-sourceHash: e380a612fd7f
+sourceHash: b4449a225843
 ---
 
 # Filtrar contenedores
@@ -40,7 +40,7 @@ Dozzle admite varios filtros para limitar los contenedores que puede ver. Se pue
 2. **Filtros de agente**: se definen a nivel de agente y se envían a Docker para limitar los contenedores que ese agente expone. Los filtros de agente y los de interfaz se combinan para restringir los contenedores.
 3. **Filtros de usuario**: se definen a nivel de usuario y determinan qué contenedores puede ver ese usuario. Si no hay filtros de usuario, Dozzle usa por defecto los filtros de interfaz.
 
-Para más información sobre cómo definir filtros para usuarios concretos, consulta [filtros de usuario](/es/guide/authentication#setting-specific-filters-for-users). Para los detalles sobre los filtros de agente, consulta [filtros de agente](/es/guide/agent#setting-up-filters).
+Para más información sobre cómo definir filtros para usuarios concretos, consulta [filtros de usuario](/es/guide/authentication/simple#asignar-filtros-especificos-a-los-usuarios). Para los detalles sobre los filtros de agente, consulta [filtros de agente](/es/guide/agent#setting-up-filters).
 
 > [!WARNING]
 > Es importante entender que los distintos filtros se combinan para limitar los contenedores. Por ejemplo, si defines `--filter label=color` a nivel de interfaz y `--filter label=type` a nivel de agente, Dozzle solo mostrará los contenedores que tengan las dos etiquetas, `color` y `type`.
