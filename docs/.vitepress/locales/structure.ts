@@ -2,7 +2,11 @@
 // page means one slug in this file plus one label per locale, not five
 // hand-maintained sidebar trees that drift apart.
 
-export type Section = { key: string; items: string[] };
+// A plain slug is one page. The object form is a page that owns sub-pages, which
+// VitePress renders as a clickable group that expands when you are inside it.
+export type Item = string | { slug: string; items: string[] };
+
+export type Section = { key: string; items: Item[] };
 
 export const SECTIONS: Section[] = [
   { key: "introduction", items: ["what-is-dozzle", "getting-started", "dtop"] },
@@ -11,10 +15,10 @@ export const SECTIONS: Section[] = [
   {
     key: "advanced",
     items: [
-      "authentication",
-      "authentication/simple",
-      "authentication/oauth",
-      "authentication/forward-proxy",
+      {
+        slug: "authentication",
+        items: ["authentication/simple", "authentication/oauth", "authentication/forward-proxy"],
+      },
       "actions",
       "app-icons",
       "shell",
@@ -93,10 +97,13 @@ export function buildThemeConfig(base: string, t: Labels, version: string) {
     sidebar: [
       ...SECTIONS.map((section) => ({
         text: t.sections[section.key],
-        items: section.items.map((slug) => ({
-          text: t.pages[slug],
-          link: link(base, `/guide/${slug}`),
-        })),
+        items: section.items.map((item) => {
+          const page = (slug: string) => ({ text: t.pages[slug], link: link(base, `/guide/${slug}`) });
+          if (typeof item === "string") return page(item);
+          // collapsed:true keeps the section tidy; VitePress still opens the group
+          // automatically when the active page is inside it.
+          return { ...page(item.slug), collapsed: true, items: item.items.map(page) };
+        }),
       })),
       {
         text: t.sections.about,
