@@ -1,8 +1,10 @@
 package container
 
 import (
+	"math"
 	"regexp"
 	"sort"
+	"strconv"
 	"strings"
 
 	"github.com/rs/zerolog/log"
@@ -66,7 +68,8 @@ var klogPrefix = regexp.MustCompile(`^([EWIDFTV])\d{4} \d{2}:\d{2}:\d{2}\.\d{6}`
 var timestampRegex = regexp.MustCompile(`^(?:\d{4}[-/]\d{2}[-/]\d{2}(?:[T ](?:\d{2}:\d{2}:\d{2}(?:[.,]\d+)?Z?|\d{2}:\d{2}(?:AM|PM)))?\s+)`)
 
 // JSON keys to check for log level (in priority order).
-var levelKeys = []string{"@l", "level", "log.level", "severity"}
+// severityText/severityNumber are the OpenTelemetry Log Data Model fields.
+var levelKeys = []string{"@l", "level", "log.level", "severity", "severityText", "severityNumber"}
 
 // Pino's default numeric levels. JSON numbers decode to float64.
 var pinoLevels = map[float64]string{
@@ -76,6 +79,29 @@ var pinoLevels = map[float64]string{
 	40: "warn",
 	50: "error",
 	60: "fatal",
+}
+
+// otelSeverityLevel maps an OpenTelemetry severityNumber to a canonical level.
+// Ranges per https://opentelemetry.io/docs/specs/otel/logs/data-model/#field-severitynumber
+func otelSeverityLevel(n float64) string {
+	if n != math.Trunc(n) {
+		return ""
+	}
+	switch {
+	case n >= 1 && n <= 4:
+		return "trace"
+	case n >= 5 && n <= 8:
+		return "debug"
+	case n >= 9 && n <= 12:
+		return "info"
+	case n >= 13 && n <= 16:
+		return "warn"
+	case n >= 17 && n <= 20:
+		return "error"
+	case n >= 21 && n <= 24:
+		return "fatal"
+	}
+	return ""
 }
 
 func init() {
@@ -129,9 +155,16 @@ func guessLogLevel(logEvent *LogEvent) string {
 				if s, ok := v.(string); ok {
 					return normalizeLogLevel(s)
 				}
-				if n, ok := v.(float64); ok && key == "level" {
-					if level, ok := pinoLevels[n]; ok {
-						return level
+				if n, ok := v.(float64); ok {
+					switch key {
+					case "level":
+						if level, ok := pinoLevels[n]; ok {
+							return level
+						}
+					case "severityNumber":
+						if level := otelSeverityLevel(n); level != "" {
+							return level
+						}
 					}
 				}
 			}
@@ -143,6 +176,15 @@ func guessLogLevel(logEvent *LogEvent) string {
 		}
 		for _, key := range levelKeys {
 			if v, ok := value.Get(key); ok {
+				if key == "severityNumber" {
+					// logfmt-style string maps carry the OTel number as a string.
+					if n, err := strconv.Atoi(v); err == nil {
+						if level := otelSeverityLevel(float64(n)); level != "" {
+							return level
+						}
+					}
+					continue
+				}
 				return normalizeLogLevel(v)
 			}
 		}
