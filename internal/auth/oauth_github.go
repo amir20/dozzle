@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/rs/zerolog/log"
 	"golang.org/x/oauth2"
 )
 
@@ -105,7 +106,12 @@ func (g *githubProvider) identity(ctx context.Context, token *oauth2.Token) (ext
 	// Display only, and only ever the primary verified address. The profile's
 	// public email is self-asserted and often empty, so it is never used.
 	var emails []githubEmail
-	if err := g.get(ctx, client, "/user/emails", &emails); err == nil {
+	if err := g.get(ctx, client, "/user/emails", &emails); err != nil {
+		// Not fatal: GitHub matches on the login, so an unreadable address only
+		// costs the avatar. Logged because a missing user:email scope looks
+		// identical to a user with no verified address.
+		log.Debug().Err(err).Str("login", profile.Login).Msg("Could not read GitHub emails; is the user:email scope granted?")
+	} else {
 		for _, e := range emails {
 			if e.Primary && e.Verified {
 				identity.Email = e.Email

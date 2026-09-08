@@ -120,15 +120,6 @@ function loginUrlFor({ loginUrl }: { loginUrl: string }) {
   return redirectUrl ? `${loginUrl}&redirectUrl=${encodeURIComponent(redirectUrl)}` : loginUrl;
 }
 
-// Only same-origin relative paths are allowed. "//evil.com" and "/\evil.com" are
-// treated as absolute by browsers and would navigate off origin.
-function safeRedirect(path: string | null) {
-  if (path && path.startsWith("/") && !path.startsWith("//") && !path.startsWith("/\\")) {
-    return withBase(path);
-  }
-  return withBase("/");
-}
-
 async function onLogin() {
   loading.value = true;
   const response = await fetch(withBase("/api/token"), {
@@ -138,7 +129,7 @@ async function onLogin() {
 
   if (response.status == 200) {
     error.value = false;
-    window.location.href = safeRedirect(params.get("redirectUrl"));
+    window.location.href = safeRedirect(params.get("redirectUrl"), config.base, window.location.origin);
   } else {
     error.value = true;
   }
