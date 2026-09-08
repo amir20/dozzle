@@ -1,88 +1,93 @@
 <template>
-  <div class="mb-2 flex items-center">
-    <div class="flex-1">
-      {{ $t("label.service", services.length) }}
-    </div>
-    <div class="flex-none">
-      <div class="dropdown dropdown-end dropdown-hover">
-        <label tabindex="0" class="btn btn-square btn-ghost btn-sm">
-          <ph:dots-three-vertical-bold />
-        </label>
-        <ul
-          tabindex="0"
-          class="menu dropdown-content rounded-box bg-base-200 border-base-content/20 z-50 w-52 border p-1 shadow-sm"
-        >
-          <li>
-            <a class="text-sm capitalize" @click="collapseAll()">
-              <material-symbols-light:collapse-all class="w-4" />
-              {{ $t("label.collapse-all") }}
-            </a>
-          </li>
-        </ul>
-      </div>
-    </div>
-  </div>
-  <ul class="menu w-full p-0 text-[0.95rem]" ref="menu">
-    <li v-for="{ name, services } in stacks" :key="name">
-      <details open>
-        <summary class="text-base-content/80 font-light">
-          <ph:stack />
-          {{ name }} ({{ services.length }})
+  <NavHeader :title="$t('label.service', services.length)">
+    <template #actions>
+      <NavOverflow>
+        <button type="button" class="nav-menu-item" @click="toggleAll()">
+          <material-symbols-light:expand-all class="size-4 shrink-0 opacity-60" v-if="allCollapsed" />
+          <material-symbols-light:collapse-all class="size-4 shrink-0 opacity-60" v-else />
+          {{ allCollapsed ? $t("label.expand-all") : $t("label.collapse-all") }}
+        </button>
+      </NavOverflow>
+    </template>
+  </NavHeader>
 
-          <router-link
-            :to="{ name: '/stack/[name]', params: { name } }"
-            class="btn btn-square btn-outline btn-primary btn-xs"
-            active-class="btn-active"
-            :title="$t('tooltip.merge-all')"
-          >
-            <ph:arrows-merge />
-          </router-link>
-        </summary>
-        <ul>
-          <li v-for="service in services" :key="service.name">
-            <router-link :to="{ name: '/service/[name]', params: { name: service.name } }" active-class="menu-active">
-              <ph:stack-simple />
-              <div class="truncate">
-                {{ service.name }}
-              </div>
-            </router-link>
-          </li>
-        </ul>
-      </details>
-    </li>
+  <ul class="space-y-1">
+    <NavGroup
+      v-for="{ name, services } in stacks"
+      :key="name"
+      :label="name"
+      :count="services.length"
+      :icon="Stack"
+      :open="!collapsed.has(name)"
+      @update:open="setCollapsed(name, $event)"
+    >
+      <template #actions>
+        <NavMergeLink :to="{ name: '/stack/[name]', params: { name } }" />
+      </template>
+      <NavItem
+        v-for="service in services"
+        :key="service.name"
+        :to="{ name: '/service/[name]', params: { name: service.name } }"
+        :label="service.name"
+        :title="service.name"
+      >
+        <template #icon><ph:stack-simple class="size-4 opacity-70" /></template>
+      </NavItem>
+    </NavGroup>
 
-    <li v-if="servicesWithoutStacks.length > 0">
-      <details open>
-        <summary class="text-base-content/80 font-light">
-          <ph:circles-four />
-          {{ $t("label.services") }} ({{ servicesWithoutStacks.length }})
-        </summary>
-        <ul>
-          <li v-for="service in servicesWithoutStacks" :key="service.name">
-            <router-link :to="{ name: '/service/[name]', params: { name: service.name } }" active-class="menu-active">
-              <ph:stack-simple />
-              <div class="truncate">
-                {{ service.name }}
-              </div>
-            </router-link>
-          </li>
-        </ul>
-      </details>
-    </li>
+    <NavGroup
+      v-if="servicesWithoutStacks.length > 0"
+      :label="$t('label.services')"
+      :count="servicesWithoutStacks.length"
+      :icon="CirclesFour"
+      :open="!collapsed.has(UNGROUPED)"
+      @update:open="setCollapsed(UNGROUPED, $event)"
+    >
+      <NavItem
+        v-for="service in servicesWithoutStacks"
+        :key="service.name"
+        :to="{ name: '/service/[name]', params: { name: service.name } }"
+        :label="service.name"
+        :title="service.name"
+      >
+        <template #icon><ph:stack-simple class="size-4 opacity-70" /></template>
+      </NavItem>
+    </NavGroup>
   </ul>
 </template>
 
 <script lang="ts" setup>
+import Stack from "~icons/ph/stack";
+import CirclesFour from "~icons/ph/circles-four";
+
 const store = useSwarmStore();
 
 const { stacks, services } = storeToRefs(store);
 
 const servicesWithoutStacks = computed(() => services.value.filter((service) => !service.stack));
 
-const menu = useTemplateRef("menu");
+/** Stand-in key for the stackless bucket, which has no stack name of its own. */
+const UNGROUPED = "__services__";
 
-const collapseAll = () => {
-  const details = menu.value?.querySelectorAll("details");
-  details?.forEach((detail) => (detail.open = false));
+const collapsed = ref(new Set<string>());
+
+const setCollapsed = (key: string, open: boolean) => {
+  const next = new Set(collapsed.value);
+  open ? next.delete(key) : next.add(key);
+  collapsed.value = next;
+};
+
+const groupKeys = computed(() => [
+  ...stacks.value.map(({ name }) => name),
+  ...(servicesWithoutStacks.value.length > 0 ? [UNGROUPED] : []),
+]);
+
+const allCollapsed = computed(() => groupKeys.value.length > 0 && groupKeys.value.every((k) => collapsed.value.has(k)));
+
+const toggleAll = () => {
+  collapsed.value = allCollapsed.value ? new Set() : new Set(groupKeys.value);
+  if (document.activeElement instanceof HTMLElement) {
+    document.activeElement.blur();
+  }
 };
 </script>

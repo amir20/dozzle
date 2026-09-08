@@ -90,6 +90,8 @@ label:
   collapse-all: Collapse all
   collapse-group: Collapse group
   expand-all: Expand all
+  more-options: More options
+  groups: Groups
 tooltip:
   search: Search containers (⌘ + k, ⌃k)
   pin-column: Pin as column

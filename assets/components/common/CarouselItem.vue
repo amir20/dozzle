@@ -5,11 +5,18 @@
 </template>
 
 <script lang="ts" setup>
-const { id, title } = defineProps<{ id: string; title?: string }>();
+const { id, title, description } = defineProps<{
+  id: string;
+  /** Short label for the tab strip. */
+  title?: string;
+  /** Spelled-out version, used for the tab's tooltip and accessible name. */
+  description?: string;
+}>();
 
 defineExpose({
   id,
   title,
+  description,
 });
 </script>
 

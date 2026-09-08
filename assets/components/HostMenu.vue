@@ -1,179 +1,100 @@
 <template>
-  <div class="flex items-center">
-    <div class="breadcrumbs flex-1">
-      <ul>
-        <li>
-          <a @click.prevent="setHost(null)" class="link-primary">{{ $t("label.hosts") }}</a>
-        </li>
-        <li v-if="sessionHost && hosts[sessionHost]" class="cursor-default">
-          <router-link
-            :to="{
-              name: '/host/[id]',
-              params: { id: hosts[sessionHost].id },
-            }"
-            class="btn btn-outline btn-primary btn-xs"
-            active-class="btn-active"
-            :title="$t('tooltip.merge-all')"
-          >
-            <ph:arrows-merge />
-            {{ hosts[sessionHost].name }}
-          </router-link>
-        </li>
-      </ul>
-    </div>
-    <div class="flex-none">
-      <div class="dropdown dropdown-end dropdown-hover">
-        <label tabindex="0" class="btn btn-square btn-ghost btn-sm">
-          <ion:ellipsis-vertical />
-        </label>
-        <ul
-          tabindex="0"
-          class="menu dropdown-content rounded-box bg-base-200 border-base-content/20 z-50 w-52 border p-1 shadow-sm"
-        >
-          <li>
-            <a class="text-sm capitalize" @click="toggleShowAllContainers()">
-              <mdi:check class="w-4" v-if="showAllContainers" />
-              <div v-else class="w-4"></div>
-              {{ $t("label.show-all-containers") }}
-            </a>
-            <a v-if="hasCollapsible" class="text-sm capitalize" @click="collapseAll()">
-              <material-symbols-light:expand-all class="w-4" v-if="allCollapsed" />
-              <material-symbols-light:collapse-all class="w-4" v-else />
-              {{ allCollapsed ? $t("label.expand-all") : $t("label.collapse-all") }}
-            </a>
-          </li>
-        </ul>
-      </div>
-    </div>
-  </div>
+  <NavHeader :title="$t('label.hosts')" :back="selectedHost ? $t('label.hosts') : undefined" @back="setHost(null)">
+    <template #title v-if="selectedHost">
+      <HostIcon :type="selectedHost.type" class="text-base-content/50 size-4 shrink-0" />
+      <span class="truncate text-sm font-medium">{{ selectedHost.name }}</span>
+    </template>
+
+    <template #actions>
+      <NavMergeLink v-if="selectedHost" :to="{ name: '/host/[id]', params: { id: selectedHost.id } }" />
+      <NavOverflow>
+        <button type="button" class="nav-menu-item" @click="toggleShowAllContainers()">
+          <mdi:check class="size-4 shrink-0" v-if="showAllContainers" />
+          <span class="size-4 shrink-0" v-else></span>
+          {{ $t("label.show-all-containers") }}
+        </button>
+        <button type="button" class="nav-menu-item" v-if="hasCollapsible" @click="collapseAll()">
+          <material-symbols-light:expand-all class="size-4 shrink-0 opacity-60" v-if="allCollapsed" />
+          <material-symbols-light:collapse-all class="size-4 shrink-0 opacity-60" v-else />
+          {{ allCollapsed ? $t("label.expand-all") : $t("label.collapse-all") }}
+        </button>
+      </NavOverflow>
+    </template>
+  </NavHeader>
 
   <SlideTransition :slide-right="!!sessionHost">
     <template #left>
-      <ul class="menu p-0">
+      <ul class="space-y-px">
         <template v-if="!hasHostGroups">
-          <li v-for="host in hosts" :key="host.id">
-            <a
-              @click.prevent="setHost(host.id)"
-              class="auto-cols-[max-content_minmax(0,1fr)_max-content]"
-              :class="{ 'text-base-content/50 pointer-events-none': !host.available }"
-            >
-              <HostIcon :type="host.type" />
-              <span class="truncate">{{ host.name }}</span>
-              <span class="badge badge-error badge-xs p-1.5" v-if="!host.available">offline</span>
-            </a>
-          </li>
+          <HostNavItem v-for="host in hosts" :key="host.id" :host="host" @click="setHost(host.id)" />
         </template>
+
         <template v-else v-for="[groupName, groupHosts] in groupedHostEntries" :key="groupName || '__ungrouped__'">
-          <li v-if="groupName" class="host-group">
-            <details :open="!collapsedHostGroups.has(groupName)" @toggle="updateCollapsedHostGroups($event, groupName)">
-              <summary class="host-group-summary">
-                <span class="truncate">{{ groupName }}</span>
-                <router-link
-                  :to="{ name: '/host-group/[name]', params: { name: groupName } }"
-                  class="btn btn-square btn-outline btn-primary btn-xs"
-                  :title="$t('tooltip.merge-all')"
-                  @click.stop
-                >
-                  <ph:arrows-merge />
-                </router-link>
-                <button
-                  v-if="!collapsedHostGroups.has(groupName)"
-                  type="button"
-                  class="btn btn-square btn-outline btn-primary btn-xs"
-                  :title="$t('label.collapse-group')"
-                  @click.stop.prevent="collapseHostGroup(groupName)"
-                >
-                  <material-symbols-light:collapse-all />
-                </button>
-              </summary>
-              <ul>
-                <li v-for="host in groupHosts" :key="host.id">
-                  <a
-                    @click.prevent="setHost(host.id)"
-                    class="auto-cols-[max-content_minmax(0,1fr)_max-content]"
-                    :class="{ 'text-base-content/50 pointer-events-none': !host.available }"
-                  >
-                    <HostIcon :type="host.type" />
-                    <span class="truncate">{{ host.name }}</span>
-                    <span class="badge badge-error badge-xs p-1.5" v-if="!host.available">offline</span>
-                  </a>
-                </li>
-              </ul>
-            </details>
-          </li>
+          <NavGroup
+            v-if="groupName"
+            :label="groupName"
+            :count="groupHosts.length"
+            :icon="Folder"
+            :open="!collapsedHostGroups.has(groupName)"
+            @update:open="setCollapsed(collapsedHostGroups, groupName, $event)"
+          >
+            <template #actions>
+              <NavMergeLink :to="{ name: '/host-group/[name]', params: { name: groupName } }" />
+            </template>
+            <HostNavItem v-for="host in groupHosts" :key="host.id" :host="host" @click="setHost(host.id)" />
+          </NavGroup>
+
           <template v-else>
-            <li v-for="host in groupHosts" :key="host.id">
-              <a
-                @click.prevent="setHost(host.id)"
-                class="auto-cols-[max-content_minmax(0,1fr)_max-content]"
-                :class="{ 'text-base-content/50 pointer-events-none': !host.available }"
-              >
-                <HostIcon :type="host.type" />
-                <span class="truncate">{{ host.name }}</span>
-                <span class="badge badge-error badge-xs p-1.5" v-if="!host.available">offline</span>
-              </a>
-            </li>
+            <HostNavItem v-for="host in groupHosts" :key="host.id" :host="host" @click="setHost(host.id)" />
           </template>
         </template>
       </ul>
     </template>
-    <template #right>
-      <ul class="containers menu w-full p-0 [&_li.menu-title]:px-0">
-        <li v-for="{ label, containers, icon } in menuItems" :key="label">
-          <details :open="!collapsedGroups.has(label)" @toggle="updateCollapsedGroups($event, label)">
-            <summary class="text-base-content/80 font-light">
-              <component :is="icon" />
-              {{ label.startsWith("label.") ? $t(label) : label }} ({{ containers.length }})
 
-              <router-link
-                :to="{
-                  name: '/merged/[ids]',
-                  params: { ids: containers.map(({ id }) => id).join(',') },
-                }"
-                class="btn btn-square btn-outline btn-primary btn-xs"
-                active-class="btn-active"
-                :title="$t('tooltip.merge-all')"
-              >
-                <ph:arrows-merge />
-              </router-link>
-            </summary>
-            <ul>
-              <li
-                v-for="item in containers"
-                :class="[item.state, { 'highlight-new': item.isNew }]"
-                :key="item.id"
-                @animationend="item.isNew = false"
-              >
-                <Popup>
-                  <router-link
-                    :to="{ name: '/container/[id]', params: { id: item.id } }"
-                    active-class="menu-active"
-                    @click.alt.stop.prevent="pinnedStore.pinContainer(item)"
-                    :title="item.name"
-                    class="group auto-cols-[max-content_minmax(0,1fr)_max-content]"
-                  >
-                    <svg-spinners:ring-resize v-if="item.isNew" class="text-secondary size-4" />
-                    <ContainerIcon v-else :state="item.state" :health="item.health" :slug="item.icon" class="size-5" />
-                    <div class="truncate">
-                      {{ item.name }}
-                    </div>
-                    <span
-                      class="hover:text-secondary hidden group-hover:inline-block"
-                      @click.stop.prevent="pinnedStore.pinContainer(item)"
-                      v-show="!pinnedStore.isPinned(item)"
-                      :title="$t('tooltip.pin-column')"
-                    >
-                      <cil:columns />
-                    </span>
-                  </router-link>
-                  <template #content>
-                    <ContainerPopup :container="item" />
-                  </template>
-                </Popup>
-              </li>
-            </ul>
-          </details>
-        </li>
+    <template #right>
+      <ul class="containers space-y-1">
+        <NavGroup
+          v-for="{ label, containers, icon } in menuItems"
+          :key="label"
+          :label="label.startsWith('label.') ? $t(label) : label"
+          :count="containers.length"
+          :icon="icon"
+          :open="!collapsedGroups.has(label)"
+          @update:open="setCollapsed(collapsedGroups, label, $event)"
+        >
+          <template #actions>
+            <NavMergeLink :to="{ name: '/merged/[ids]', params: { ids: containers.map(({ id }) => id).join(',') } }" />
+          </template>
+
+          <Popup v-for="item in containers" :key="item.id">
+            <NavItem
+              :to="{ name: '/container/[id]', params: { id: item.id } }"
+              :label="item.name"
+              :title="item.name"
+              :class="[item.state, { 'highlight-new': item.isNew }]"
+              @click.alt.stop.prevent="pinnedStore.pinContainer(item)"
+              @animationend="item.isNew = false"
+            >
+              <template #icon>
+                <svg-spinners:ring-resize v-if="item.isNew" class="text-secondary size-4" />
+                <ContainerIcon v-else :state="item.state" :health="item.health" :slug="item.icon" class="size-5" />
+              </template>
+              <template #trailing>
+                <span
+                  class="icon-btn hover:text-secondary hidden group-hover/nav-item:inline-flex"
+                  @click.stop.prevent="pinnedStore.pinContainer(item)"
+                  v-show="!pinnedStore.isPinned(item)"
+                  :title="$t('tooltip.pin-column')"
+                >
+                  <cil:columns class="size-4" />
+                </span>
+              </template>
+            </NavItem>
+            <template #content>
+              <ContainerPopup :container="item" />
+            </template>
+          </Popup>
+        </NavGroup>
       </ul>
     </template>
   </SlideTransition>
@@ -186,6 +107,7 @@ import { showAllContainers, groupContainers } from "@/stores/settings";
 
 import Pin from "~icons/ph/map-pin-simple";
 import Stack from "~icons/ph/stack";
+import Folder from "~icons/ph/folders";
 import Containers from "~icons/octicon/container-24";
 
 const containerStore = useContainerStore();
@@ -196,6 +118,8 @@ const pinnedStore = usePinnedLogsStore();
 const { hosts } = useHosts();
 
 const setHost = (host: string | null) => (sessionHost.value = host);
+
+const selectedHost = computed(() => (sessionHost.value ? hosts.value[sessionHost.value] : undefined));
 
 const hasHostGroups = computed(() => Object.values(hosts.value).some((h) => h.group));
 
@@ -221,34 +145,14 @@ const groupedHostEntries = computed(() => {
 
 const collapsedGroups = useProfileStorage("collapsedGroups", new Set<string>());
 const collapsedHostGroups = useProfileStorage("collapsedHostGroups", new Set<string>());
-const updateCollapsedGroups = (event: Event, label: string) => {
-  const details = event.target as HTMLDetailsElement;
-  if (details.open) {
-    collapsedGroups.value.delete(label);
-  } else {
-    collapsedGroups.value.add(label);
-  }
-  if (document.activeElement instanceof HTMLElement) {
-    document.activeElement.blur();
-  }
-};
 
-const updateCollapsedHostGroups = (event: Event, groupName: string) => {
-  const details = event.target as HTMLDetailsElement;
-  if (details.open) {
-    collapsedHostGroups.value.delete(groupName);
+// Takes the set itself rather than its ref: the template hands over the unwrapped
+// (still reactive) value, and both call sites mutate the same object either way.
+const setCollapsed = (collapsed: Set<string>, key: string, open: boolean) => {
+  if (open) {
+    collapsed.delete(key);
   } else {
-    collapsedHostGroups.value.add(groupName);
-  }
-  if (document.activeElement instanceof HTMLElement) {
-    document.activeElement.blur();
-  }
-};
-
-const collapseHostGroup = (groupName: string) => {
-  collapsedHostGroups.value.add(groupName);
-  if (document.activeElement instanceof HTMLElement) {
-    document.activeElement.blur();
+    collapsed.add(key);
   }
 };
 
@@ -362,35 +266,19 @@ watch(
 
 const toggleShowAllContainers = () => (showAllContainers.value = !showAllContainers.value);
 </script>
+
 <style scoped>
-.menu {
-  @apply text-[0.95rem];
+@reference "@/main.css";
+
+.containers :deep(.exited) {
+  @apply opacity-60;
 }
 
-.host-group-summary {
-  display: grid;
-  grid-template-columns: minmax(0, auto) max-content max-content max-content;
-  align-items: center;
-  justify-content: start;
-  gap: 0.5rem;
-  padding-left: 0;
-  padding-right: 0.25rem;
-  color: color-mix(in oklch, var(--color-base-content) 50%, transparent);
-}
-
-.host-group-summary::after {
-  margin-left: 0.25rem;
-}
-
-li.exited {
-  @apply opacity-75;
-}
-
-li.deleted {
+.containers :deep(.deleted) {
   @apply hidden;
 }
 
-li.highlight-new {
+.containers :deep(.highlight-new) {
   animation: highlight-fade 3s ease-out;
 }
 

@@ -90,6 +90,8 @@ label:
   collapse-all: Recolher tudo
   collapse-group: Recolher grupo
   expand-all: Expandir tudo
+  more-options: Mais opções
+  groups: Grupos
 tooltip:
   search: Pesquisar containers (⌘ + k, ⌃k)
   pin-column: Fixar como coluna

@@ -1,23 +1,16 @@
 <template>
-  <ul class="menu w-full p-0 text-[0.95rem]">
-    <li v-if="customGroups.length > 0">
-      <details open>
-        <summary class="text-base-content/80 font-light">
-          <ph:bounding-box-fill />
-          {{ $t("label.group-menu") }}
-        </summary>
-        <ul>
-          <li v-for="group in customGroups" :key="group.name">
-            <router-link :to="{ name: '/group/[name]', params: { name: group.name } }" active-class="menu-active">
-              <ph:stack-simple />
-              <div class="truncate">
-                {{ group.name }}
-              </div>
-            </router-link>
-          </li>
-        </ul>
-      </details>
-    </li>
+  <NavHeader :title="$t('label.group-menu')" />
+
+  <ul class="space-y-px" v-if="customGroups.length > 0">
+    <NavItem
+      v-for="group in customGroups"
+      :key="group.name"
+      :to="{ name: '/group/[name]', params: { name: group.name } }"
+      :label="group.name"
+      :title="group.name"
+    >
+      <template #icon><ph:bounding-box-fill class="size-4 opacity-70" /></template>
+    </NavItem>
   </ul>
 </template>
 
@@ -26,4 +19,3 @@ const store = useSwarmStore();
 
 const { customGroups } = storeToRefs(store);
 </script>
-<style scoped></style>

@@ -90,6 +90,8 @@ label:
   collapse-all: Hepsini daralt
   collapse-group: Grubu daralt
   expand-all: Hepsini genişlet
+  more-options: Diğer seçenekler
+  groups: Gruplar
 tooltip:
   search: Konteynerlerde ara (⌘ + k, ⌃k)
   pin-column: Sütun olarak sabitle

@@ -90,6 +90,8 @@ label:
   collapse-all: Comprimi tutto
   collapse-group: Comprimi gruppo
   expand-all: Espandi tutto
+  more-options: Altre opzioni
+  groups: Gruppi
 tooltip:
   search: Ricerca container (⌘ + k, ⌃k)
   pin-column: Blocca come colonna

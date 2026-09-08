@@ -90,6 +90,8 @@ label:
   collapse-all: Свернуть все
   collapse-group: Свернуть группу
   expand-all: Развернуть все
+  more-options: Дополнительные параметры
+  groups: Группы
 tooltip:
   search: Поиск контейнеров (⌘ + k, ⌃k)
   pin-column: Закрепить столбец

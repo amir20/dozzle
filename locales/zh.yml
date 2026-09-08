@@ -69,6 +69,8 @@ label:
   collapse-all: 折叠全部
   collapse-group: 折叠组
   expand-all: 展开全部
+  more-options: 更多选项
+  groups: 组
   host: 主机
   hosts: 主机
   password: 密码
