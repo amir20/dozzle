@@ -77,23 +77,48 @@
 
         <!-- Linked -->
         <template v-else-if="cloudConfig.linked">
-          <!-- Error state -->
-          <div v-if="cloudStatusError" class="space-y-3 p-1">
-            <div class="alert" :class="cloudStatusError === 'auth' ? 'alert-error' : 'alert-warning'">
-              <mdi:alert-circle v-if="cloudStatusError === 'auth'" class="text-lg" />
-              <mdi:cloud-off-outline v-else class="text-lg" />
-              <span class="text-sm">{{
-                cloudStatusError === "auth" ? $t("cloud.error") : $t("cloud.error-unavailable")
-              }}</span>
+          <!--
+            Error state. Same header/divider/footer shape as the other two
+            branches so the panel keeps its size when the connection drops.
+            Severity rides on the icon and the status dot; the surface stays
+            neutral, which leaves the message at full contrast instead of
+            washed onto a saturated block.
+          -->
+          <div v-if="cloudStatusError">
+            <div class="flex items-start gap-2.5 px-2 py-1.5">
+              <div
+                class="shrink-0 rounded-full p-1.5"
+                :class="cloudStatusError === 'auth' ? 'bg-error/10 text-error' : 'bg-warning/10 text-warning'"
+              >
+                <mdi:alert-circle-outline v-if="cloudStatusError === 'auth'" class="size-5" />
+                <mdi:cloud-off-outline v-else class="size-5" />
+              </div>
+              <div class="min-w-0 flex-1">
+                <div class="flex items-center gap-1.5">
+                  <span class="truncate text-sm font-semibold">{{ $t("cloud.title") }}</span>
+                  <span
+                    class="size-1.5 shrink-0 rounded-full"
+                    :class="cloudStatusError === 'auth' ? 'bg-error' : 'bg-warning'"
+                  ></span>
+                </div>
+                <div class="text-base-content/60 text-xs leading-relaxed">
+                  {{ cloudStatusError === "auth" ? $t("cloud.error") : $t("cloud.error-unavailable") }}
+                </div>
+              </div>
             </div>
-            <a v-if="cloudStatusError === 'auth'" :href="cloudLinkUrl" class="btn btn-primary btn-sm w-full">
-              <mdi:link-variant class="text-base" />
-              {{ $t("cloud.relink-instance") }}
-            </a>
-            <button v-else class="btn btn-sm w-full" @click="fetchCloudStatus">
-              <mdi:refresh class="text-base" />
-              {{ $t("button.retry") }}
-            </button>
+
+            <div class="bg-base-content/10 my-1.5 h-px"></div>
+
+            <div class="flex gap-2 px-1 pb-0.5">
+              <a v-if="cloudStatusError === 'auth'" :href="cloudLinkUrl" class="btn btn-primary btn-sm flex-1">
+                <mdi:link-variant class="text-base" />
+                {{ $t("cloud.relink-instance") }}
+              </a>
+              <button v-else class="btn btn-sm flex-1" @click="fetchCloudStatus">
+                <mdi:refresh class="text-base" />
+                {{ $t("button.retry") }}
+              </button>
+            </div>
           </div>
 
           <!-- Loading -->
