@@ -286,7 +286,7 @@ func (h *handler) streamContainerLogs(w http.ResponseWriter, r *http.Request) {
 
 	h.streamLogsForContainers(w, r, func(container *container.Container) bool {
 		return container.ID == id && container.Host == hostKey(r)
-	})
+	}, hostKey(r))
 }
 
 func (h *handler) streamLogsMerged(w http.ResponseWriter, r *http.Request) {
@@ -297,7 +297,7 @@ func (h *handler) streamLogsMerged(w http.ResponseWriter, r *http.Request) {
 
 	h.streamLogsForContainers(w, r, func(container *container.Container) bool {
 		return ids[container.ID] && container.Host == hostKey(r)
-	})
+	}, hostKey(r))
 }
 
 func (h *handler) streamLogsWithLabels(w http.ResponseWriter, r *http.Request) {
@@ -328,7 +328,7 @@ func (h *handler) streamLogsWithLabels(w http.ResponseWriter, r *http.Request) {
 		}
 
 		return len(labelFilters) > 0
-	})
+	}, "")
 }
 
 func (h *handler) streamGroupedLogs(w http.ResponseWriter, r *http.Request) {
@@ -336,7 +336,7 @@ func (h *handler) streamGroupedLogs(w http.ResponseWriter, r *http.Request) {
 
 	h.streamLogsForContainers(w, r, func(container *container.Container) bool {
 		return container.State == "running" && container.Group == group
-	})
+	}, "")
 }
 
 func (h *handler) streamHostGroupLogs(w http.ResponseWriter, r *http.Request) {
@@ -356,17 +356,21 @@ func (h *handler) streamHostGroupLogs(w http.ResponseWriter, r *http.Request) {
 	h.streamLogsForContainers(w, r, func(c *container.Container) bool {
 		_, ok := hostIDs[c.Host]
 		return c.State == "running" && ok
-	})
+	}, "")
 }
 
 func (h *handler) streamHostLogs(w http.ResponseWriter, r *http.Request) {
 	host := hostKey(r)
 	h.streamLogsForContainers(w, r, func(container *container.Container) bool {
 		return container.State == "running" && container.Host == host
-	})
+	}, host)
 }
 
-func (h *handler) streamLogsForContainers(w http.ResponseWriter, r *http.Request, containerFilter container_support.ContainerFilter) {
+// hostScope, when non-empty, names the single host every container this stream
+// can match lives on. Listing just that host skips the fleet-wide fan-out, which
+// re-dials every unreachable agent at up to --timeout each before the first log
+// line can be read. Streams that legitimately span hosts pass "".
+func (h *handler) streamLogsForContainers(w http.ResponseWriter, r *http.Request, containerFilter container_support.ContainerFilter, hostScope string) {
 	stdTypes := parseStdTypes(r)
 	if stdTypes == 0 {
 		http.Error(w, "stdout or stderr is required", http.StatusBadRequest)
@@ -383,9 +387,23 @@ func (h *handler) streamLogsForContainers(w http.ResponseWriter, r *http.Request
 
 	userLabels := h.resolveLabels(r)
 
-	existingContainers, errs := h.hostService.ListAllContainersFiltered(userLabels, containerFilter)
-	if len(errs) > 0 {
-		log.Warn().Err(errs[0]).Msg("error while listing containers")
+	var existingContainers []container.Container
+	if hostScope != "" {
+		hostContainers, err := h.hostService.ListContainersForHost(hostScope, userLabels)
+		if err != nil {
+			log.Warn().Err(err).Str("host", hostScope).Msg("error while listing containers")
+		}
+		for _, c := range hostContainers {
+			if containerFilter(&c) {
+				existingContainers = append(existingContainers, c)
+			}
+		}
+	} else {
+		var errs []error
+		existingContainers, errs = h.hostService.ListAllContainersFiltered(userLabels, containerFilter)
+		if len(errs) > 0 {
+			log.Warn().Err(errs[0]).Msg("error while listing containers")
+		}
 	}
 
 	absoluteTime := time.Time{}
