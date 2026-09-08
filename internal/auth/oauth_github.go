@@ -43,7 +43,7 @@ func (g *githubProvider) Icon() string        { return "mdi:github" }
 // oauth2Config ignores callbackURI. GitHub lets a request omit redirect_uri and
 // falls back to the URL registered on the OAuth app, which is one less thing to
 // keep in sync and one less thing a forged Host header can influence.
-func (g *githubProvider) oauth2Config(callbackURI string) *oauth2.Config {
+func (g *githubProvider) oauth2Config(callbackURI string) (*oauth2.Config, error) {
 	return &oauth2.Config{
 		ClientID:     g.clientID,
 		ClientSecret: g.clientSecret,
@@ -52,7 +52,7 @@ func (g *githubProvider) oauth2Config(callbackURI string) *oauth2.Config {
 		// address stays hidden and the profile has no verified one to show.
 		Scopes: []string{"read:user", "user:email"},
 		// RedirectURL is intentionally empty. See LoginHandler.
-	}
+	}, nil
 }
 
 // match resolves on the GitHub login rather than the email. A login is stable
@@ -80,7 +80,9 @@ type githubEmail struct {
 }
 
 func (g *githubProvider) identity(ctx context.Context, token *oauth2.Token) (externalIdentity, error) {
-	client := g.oauth2Config("").Client(ctx, token)
+	// The error is unreachable: GitHub's endpoints are constants.
+	config, _ := g.oauth2Config("")
+	client := config.Client(ctx, token)
 	if g.client != nil {
 		client.Timeout = g.client.Timeout
 	}

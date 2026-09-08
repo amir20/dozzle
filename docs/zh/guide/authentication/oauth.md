@@ -1,6 +1,6 @@
 ---
 title: 使用 GitHub 与 OIDC 登录
-sourceHash: 915ed5a63ab6
+sourceHash: 7e8f4dfb70fa
 ---
 
 # <Icon icon="mdi:shield-account" inline /> 使用 GitHub 与 OIDC 登录
@@ -71,7 +71,10 @@ users:
 > [!WARNING]
 > 至少给一个账号保留密码。当 `users.yml` 里没有任何用户设置 `password` 时，登录表单会整个消失，外部登录方式就成了唯一的入口，于是一个填错的回调 URL、一个被吊销的 OAuth 应用，或者一个过期的 client secret，都会把所有人挡在 Web 界面之外。要恢复只能在宿主机上编辑 `users.yml` 把密码加回去，而这需要能访问 Dozzle 的 `/data` 所在位置的 shell。
 
-这里填的值是 GitHub 的**登录名**（`github.com/octocat` 中的那个用户名），不是邮箱地址。登录名是稳定的，而且始终可见，账号的邮箱则可能被设为私密或随时更改。
+这里填的值是 GitHub 的**登录名**（`github.com/octocat` 中的那个用户名），不是邮箱地址。登录名始终存在且可见，账号的邮箱则可能被设为私密或随时更改。
+
+> [!WARNING]
+> GitHub 登录名并不是永久不变的。如果有人改掉自己的 GitHub 账号名，旧的用户名就会被释放出来，任何人都可以注册它，而注册到它的人下次登录时就会继承你 `users.yml` 里的那条条目。请把改名当成一次访问权限变更来对待：同时更新 `users.yml`，并且把已经离开的人的条目删掉，而不是让一个作废的用户名一直留在列表里。
 
 `users.yml` 就是白名单。没有列在 `users.yml` 里的 GitHub 账号无法登录，无论它属于哪个组织。这里也没有自动创建用户一说：要加人就得改这个文件。过滤器和角色和密码用户完全一样，每个请求都从 `users.yml` 解析，因此设置了 `roles: none` 的 GitHub 用户同样会被限制。
 

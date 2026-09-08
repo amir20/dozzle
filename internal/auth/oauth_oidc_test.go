@@ -290,3 +290,47 @@ func TestGithubAndOIDCCoexist(t *testing.T) {
 	a.LoginHandler(w, httptest.NewRequest(http.MethodGet, "/api/auth/login", nil))
 	require.Equal(t, http.StatusBadRequest, w.Result().StatusCode)
 }
+
+// A provider that is unreachable when the first login starts must fail closed.
+//
+// oauth2Config used to swallow the discovery error and hand back a config with
+// a zero-value Endpoint. AuthCodeURL on that emits a bare query string, so
+// http.Redirect sent the browser to a relative URL back inside Dozzle, carrying
+// the state and PKCE parameters, instead of showing the login error. Discovery
+// is lazy, so this was reachable on the very first click after a restart.
+func TestOIDCLoginFailsClosedWhenDiscoveryIsDown(t *testing.T) {
+	// Port 1 refuses connections immediately.
+	p := NewOIDCProvider("http://127.0.0.1:1", "id", "secret", "SSO")
+	a := oidcAuth(t, p)
+
+	w := httptest.NewRecorder()
+	req := httptest.NewRequest(http.MethodGet, "/api/auth/login?provider=oidc", nil)
+	req.Host = "dozzle.example.com"
+	a.LoginHandler(w, req)
+
+	res := w.Result()
+	require.Equal(t, http.StatusFound, res.StatusCode)
+	require.Equal(t, "/login?error=oauth", res.Header.Get("Location"),
+		"an unreachable issuer must land on the login page, not a relative OAuth URL")
+
+	for _, c := range res.Cookies() {
+		require.NotEqual(t, stateCookieName, c.Name, "no state should be minted for a login that cannot start")
+	}
+}
+
+// The same guard on the callback leg, where a config is rebuilt to exchange.
+func TestOIDCCallbackFailsClosedWhenDiscoveryIsDown(t *testing.T) {
+	p, _, _ := testOIDCProvider(t, oidcOptions{})
+	a := oidcAuth(t, p)
+
+	cookie, state, _ := startOIDCLogin(t, a, true)
+
+	// Point the provider at a dead issuer and drop the cached discovery, which
+	// is what a restart between the two legs looks like.
+	p.mu.Lock()
+	p.discovery = nil
+	p.issuer = "http://127.0.0.1:1"
+	p.mu.Unlock()
+
+	requireRejected(t, callback(t, a, cookie, "code=the-code&state="+state))
+}

@@ -1,6 +1,6 @@
 ---
 title: Mit GitHub & OIDC anmelden
-sourceHash: 915ed5a63ab6
+sourceHash: 7e8f4dfb70fa
 ---
 
 # <Icon icon="mdi:shield-account" inline /> Mit GitHub & OIDC anmelden
@@ -71,7 +71,10 @@ users:
 > [!WARNING]
 > Behalte bei mindestens einem Konto ein Passwort. Wenn kein Benutzer in `users.yml` ein `password` hat, verschwindet das Anmeldeformular vollständig und der externe Anbieter ist der einzige Weg hinein. Eine falsche Callback-URL, eine widerrufene OAuth-App oder ein abgelaufenes Client Secret sperrt dann alle aus der Weboberfläche aus. Zur Wiederherstellung musst du `users.yml` auf dem Host bearbeiten und dort wieder ein Passwort eintragen, wofür du Shell-Zugriff dorthin brauchst, wo Dozzles `/data` liegt.
 
-Der Wert ist der GitHub-**Login** (das Kürzel in `github.com/octocat`), nicht die E-Mail-Adresse. Logins sind stabil und immer sichtbar, während die E-Mail-Adresse eines Kontos privat sein oder sich jederzeit ändern kann.
+Der Wert ist der GitHub-**Login** (das Kürzel in `github.com/octocat`), nicht die E-Mail-Adresse. Ein Login ist immer vorhanden und sichtbar, während die E-Mail-Adresse eines Kontos privat sein oder sich jederzeit ändern kann.
+
+> [!WARNING]
+> Ein GitHub-Login ist nicht dauerhaft. Wenn jemand sein GitHub-Konto umbenennt, wird das alte Kürzel freigegeben und kann von beliebigen Personen neu registriert werden. Wer das tut, übernimmt bei der nächsten Anmeldung den zugehörigen Eintrag in deiner `users.yml`. Behandle eine Umbenennung als Änderung der Zugriffsrechte: Passe `users.yml` zur selben Zeit an und entferne Einträge von Personen, die nicht mehr dabei sind, statt ein veraltetes Kürzel stehen zu lassen.
 
 `users.yml` ist die Zugriffsliste. Ein GitHub-Konto, das nicht in `users.yml` steht, kann sich nicht anmelden, egal zu welcher Organisation es gehört. Es gibt kein automatisches Anlegen von Benutzern: Jemanden hinzuzufügen heißt, ihn in die Datei einzutragen. Filter und Rollen werden bei jeder Anfrage aus `users.yml` aufgelöst, genau wie bei Benutzern mit Passwort. Ein GitHub-Benutzer mit `roles: none` ist also genauso eingeschränkt.
 

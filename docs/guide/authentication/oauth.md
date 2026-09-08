@@ -70,7 +70,10 @@ users:
 > [!WARNING]
 > Keep a password on at least one account. When no user in `users.yml` has a `password`, the login form disappears entirely and the external provider becomes the only way in, so a wrong callback URL, a revoked OAuth app, or an expired client secret locks everyone out of the web interface. Recovering means editing `users.yml` on the host to add a password back, which needs shell access to wherever Dozzle's `/data` lives.
 
-The value is the GitHub **login** (the handle in `github.com/octocat`), not the email address. Logins are stable and always visible, while an account's email can be private or changed at any time.
+The value is the GitHub **login** (the handle in `github.com/octocat`), not the email address. A login is always present and visible, while an account's email can be private or changed at any time.
+
+> [!WARNING]
+> A GitHub login is not permanent. If someone renames their GitHub account, the old handle is released and anyone can register it, and whoever does inherits that entry in your `users.yml` on their next sign in. Treat a rename as an access change: update `users.yml` at the same time, and remove entries for people who have left rather than leaving a stale handle listed.
 
 `users.yml` is the allowlist. A GitHub account that is not listed in `users.yml` cannot sign in, no matter which org it belongs to. There is no auto-provisioning: adding someone means adding them to the file. Filters and roles are resolved from `users.yml` on every request, exactly as they are for password users, so a GitHub user with `roles: none` is restricted the same way.
 

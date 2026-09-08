@@ -1,6 +1,6 @@
 ---
 title: Iniciar sesión con GitHub y OIDC
-sourceHash: 915ed5a63ab6
+sourceHash: 7e8f4dfb70fa
 ---
 
 # <Icon icon="mdi:shield-account" inline /> Iniciar sesión con GitHub y OIDC
@@ -71,7 +71,10 @@ users:
 > [!WARNING]
 > Deja una contraseña en al menos una cuenta. Cuando ningún usuario de `users.yml` tiene `password`, el formulario de inicio de sesión desaparece por completo y el proveedor externo se convierte en la única forma de entrar, así que una URL de callback equivocada, una OAuth App revocada o un client secret caducado dejan a todo el mundo fuera de la interfaz web. Recuperar el acceso implica editar `users.yml` en el host para volver a poner una contraseña, lo que exige acceso por shell a donde viva el `/data` de Dozzle.
 
-El valor es el **login** de GitHub (el identificador en `github.com/octocat`), no la dirección de correo. Los logins son estables y siempre visibles, mientras que el correo de una cuenta puede ser privado o cambiar en cualquier momento.
+El valor es el **login** de GitHub (el identificador en `github.com/octocat`), no la dirección de correo. Un login siempre está presente y es visible, mientras que el correo de una cuenta puede ser privado o cambiar en cualquier momento.
+
+> [!WARNING]
+> Un login de GitHub no es permanente. Si alguien renombra su cuenta de GitHub, el identificador antiguo queda liberado y cualquiera puede registrarlo, y quien lo haga hereda esa entrada de tu `users.yml` en su siguiente inicio de sesión. Trata un cambio de nombre como un cambio de acceso: actualiza `users.yml` a la vez y elimina las entradas de quienes ya se han ido en lugar de dejar listado un identificador obsoleto.
 
 `users.yml` es la lista de permitidos. Una cuenta de GitHub que no esté en `users.yml` no puede iniciar sesión, pertenezca a la organización que pertenezca. No hay aprovisionamiento automático: dar acceso a alguien significa añadirlo al archivo. Los filtros y los roles se resuelven desde `users.yml` en cada petición, igual que con los usuarios con contraseña, así que un usuario de GitHub con `roles: none` queda igual de limitado.
 

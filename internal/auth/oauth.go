@@ -45,7 +45,12 @@ type IdentityProvider interface {
 	// oauth2Config builds the exchange config. callbackURI is this request's own
 	// callback URL; GitHub ignores it and lets the OAuth app decide, while OIDC
 	// must send it and replay the identical value at the token exchange.
-	oauth2Config(callbackURI string) *oauth2.Config
+	//
+	// It returns an error rather than a partially built config, because OIDC
+	// resolves its endpoints from a discovery document that can be unreachable.
+	// A zero-value Endpoint makes AuthCodeURL emit a bare query string, which
+	// redirects the browser back into Dozzle instead of to the provider.
+	oauth2Config(callbackURI string) (*oauth2.Config, error)
 	identity(ctx context.Context, token *oauth2.Token) (externalIdentity, error)
 	// match resolves an identity against users.yml. GitHub matches on the login;
 	// generic OIDC will match on the verified email.
@@ -243,6 +248,15 @@ func (a *oauthAuthContext) LoginHandler(w http.ResponseWriter, r *http.Request) 
 	verifier := oauth2.GenerateVerifier()
 	callbackURI := a.callbackURL(r)
 
+	// Built before the cookie is set, so a provider that cannot start a login
+	// leaves no half-open state behind for the browser to carry around.
+	config, err := provider.oauth2Config(callbackURI)
+	if err != nil {
+		log.Error().Err(err).Str("provider", provider.ID()).Msg("Could not build the OAuth config")
+		a.failLogin(w, r)
+		return
+	}
+
 	if err := a.setStateCookie(w, r, oauthState{
 		Provider:    provider.ID(),
 		State:       state,
@@ -255,7 +269,6 @@ func (a *oauthAuthContext) LoginHandler(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	config := provider.oauth2Config(callbackURI)
 	// GitHub returns a config with no RedirectURL, and oauth2 omits redirect_uri
 	// entirely in that case, so the OAuth app's registered callback is used.
 	authURL := config.AuthCodeURL(state,
@@ -309,7 +322,14 @@ func (a *oauthAuthContext) CallbackHandler(w http.ResponseWriter, r *http.Reques
 	ctx, cancel := context.WithTimeout(r.Context(), 15*time.Second)
 	defer cancel()
 
-	token, err := provider.oauth2Config(state.CallbackURI).Exchange(ctx, code, oauth2.VerifierOption(state.Verifier))
+	config, err := provider.oauth2Config(state.CallbackURI)
+	if err != nil {
+		log.Error().Err(err).Str("provider", provider.ID()).Msg("Could not build the OAuth config")
+		a.failLogin(w, r)
+		return
+	}
+
+	token, err := config.Exchange(ctx, code, oauth2.VerifierOption(state.Verifier))
 	if err != nil {
 		log.Error().Err(err).Msg("Could not exchange OAuth code")
 		a.failLogin(w, r)

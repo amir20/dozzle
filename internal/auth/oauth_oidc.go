@@ -114,21 +114,21 @@ func (o *oidcProvider) discover(ctx context.Context) (*oidcDiscovery, error) {
 // oauth2Config builds the exchange config from the discovery document. It is
 // called on the request path, where discovery is already warm after the first
 // login; a cold failure surfaces as a failed login rather than a panic.
-func (o *oidcProvider) oauth2Config(callbackURI string) *oauth2.Config {
-	config := &oauth2.Config{
+func (o *oidcProvider) oauth2Config(callbackURI string) (*oauth2.Config, error) {
+	discovery, err := o.discover(context.Background())
+	if err != nil {
+		return nil, err
+	}
+
+	return &oauth2.Config{
 		ClientID:     o.clientID,
 		ClientSecret: o.clientSecret,
 		Scopes:       o.scopes,
+		Endpoint:     oauth2.Endpoint{AuthURL: discovery.AuthURL, TokenURL: discovery.TokenURL},
 		// Unlike GitHub, OIDC requires redirect_uri on the authorize request and
 		// the identical value again at the token exchange.
 		RedirectURL: callbackURI,
-	}
-
-	if discovery, err := o.discover(context.Background()); err == nil {
-		config.Endpoint = oauth2.Endpoint{AuthURL: discovery.AuthURL, TokenURL: discovery.TokenURL}
-	}
-
-	return config
+	}, nil
 }
 
 // match resolves on the verified email.
@@ -182,7 +182,12 @@ func (o *oidcProvider) identity(ctx context.Context, token *oauth2.Token) (exter
 		return externalIdentity{}, err
 	}
 
-	client := o.oauth2Config("").Client(ctx, token)
+	config, err := o.oauth2Config("")
+	if err != nil {
+		return externalIdentity{}, err
+	}
+
+	client := config.Client(ctx, token)
 	client.Timeout = o.client.Timeout
 
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, discovery.UserInfoURL, nil)

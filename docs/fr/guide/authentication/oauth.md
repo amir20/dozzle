@@ -1,6 +1,6 @@
 ---
 title: Se connecter avec GitHub et OIDC
-sourceHash: 915ed5a63ab6
+sourceHash: 7e8f4dfb70fa
 ---
 
 # <Icon icon="mdi:shield-account" inline /> Se connecter avec GitHub et OIDC
@@ -71,7 +71,10 @@ users:
 > [!WARNING]
 > Gardez un mot de passe sur au moins un compte. Quand aucun utilisateur de `users.yml` n'a de `password`, le formulaire de connexion disparaît complètement et le fournisseur externe devient le seul moyen d'entrer : une URL de callback erronée, une OAuth App révoquée ou un client secret expiré verrouille alors tout le monde hors de l'interface web. Pour s'en sortir, il faut modifier `users.yml` sur l'hôte pour y remettre un mot de passe, ce qui demande un accès shell là où se trouve le `/data` de Dozzle.
 
-La valeur est le **login** GitHub (l'identifiant dans `github.com/octocat`), pas l'adresse email. Les logins sont stables et toujours visibles, alors que l'email d'un compte peut être privé ou changer à tout moment.
+La valeur est le **login** GitHub (l'identifiant dans `github.com/octocat`), pas l'adresse email. Un login est toujours présent et visible, alors que l'email d'un compte peut être privé ou changer à tout moment.
+
+> [!WARNING]
+> Un login GitHub n'est pas permanent. Si quelqu'un renomme son compte GitHub, l'ancien identifiant est libéré et n'importe qui peut l'enregistrer : celui qui le fait hérite alors de cette entrée de votre `users.yml` dès sa prochaine connexion. Traitez un renommage comme un changement d'accès : mettez `users.yml` à jour en même temps, et supprimez les entrées des personnes parties au lieu de laisser un identifiant obsolète dans la liste.
 
 `users.yml` est la liste d'autorisation. Un compte GitHub qui n'y figure pas ne peut pas se connecter, quelle que soit l'organisation à laquelle il appartient. Il n'y a pas de création automatique de compte : ajouter quelqu'un veut dire l'ajouter au fichier. Les filtres et les rôles sont résolus depuis `users.yml` à chaque requête, exactement comme pour les utilisateurs avec mot de passe, donc un utilisateur GitHub avec `roles: none` est restreint de la même manière.
 
