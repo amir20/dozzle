@@ -292,10 +292,10 @@ function resolveColors(element: HTMLElement, names: string[]) {
   const colors: Record<string, [number, number, number]> = {};
   for (const name of names) {
     probe.style.color = `var(${name})`;
-    const computed = getComputedStyle(probe).color;
+    const resolvedColor = getComputedStyle(probe).color;
     if (context) {
       context.fillStyle = "#000000";
-      context.fillStyle = computed;
+      context.fillStyle = resolvedColor;
       context.fillRect(0, 0, 1, 1);
       const [r, g, b] = context.getImageData(0, 0, 1, 1).data;
       colors[name] = [r, g, b];
