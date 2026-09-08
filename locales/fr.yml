@@ -40,6 +40,7 @@ toolbar:
   none: Aucun
   section-logs: Journaux
   section-filters: Filtres
+  section-display: Affichage
   section-export: Exporter
   section-container: Conteneur
   section-image: Image
@@ -119,6 +120,10 @@ label:
 tooltip:
   search: Recherche de conteneurs (⌘ + k, ⌃k)
   pin-column: Epinglé en colonne
+  unpin-column: Détacher la colonne
+  merge-stream: Fusionner dans le flux
+  merge-stream-hint: Ouvrez un conteneur pour fusionner avec lui
+  unmerge-stream: Retirer du flux
   merge-all: Fusionner tout dans un flux
   network-io: "Réseau : ↑ {tx}/s · ↓ {rx}/s"
   disk-io: "Disque : ↑ {write}/s · ↓ {read}/s"
