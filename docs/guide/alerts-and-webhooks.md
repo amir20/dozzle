@@ -1,10 +1,12 @@
 ---
-title: Alerts & Webhooks
+title: Alerts
 ---
 
-# Alerts & Webhooks
+# Alerts
 
-Dozzle has an alerting system that lets you monitor container logs, resource metrics, and lifecycle events, and receive notifications when specific conditions are met. Alerts use customizable expressions to filter containers and trigger conditions, and can send notifications to webhooks, Slack, Discord, ntfy, or [Dozzle Cloud](/guide/dozzle-cloud).
+Dozzle can watch container logs, resource metrics, and lifecycle events, and notify you when a condition you describe is met. Rules are written as expressions, evaluated on your own instance, and delivered to a webhook, Slack, Discord, or ntfy.
+
+Rules always live here, on the self-hosted instance, because that is where your logs are. If you have linked the instance to [Dozzle Cloud](/guide/dozzle-cloud), these same rules feed it, and delivery (grouping, summaries, muting, mobile channels) is configured there instead of per-destination below.
 
 ## <Icon icon="mdi:format-list-bulleted-type" inline /> Alert Types
 
@@ -80,7 +82,7 @@ You can also write your own payload template using Go's `text/template` syntax. 
 
 ### Dozzle Cloud
 
-You can also send alerts to [Dozzle Cloud](/guide/dozzle-cloud) for centralized monitoring across multiple Dozzle instances. See the [Dozzle Cloud guide](/guide/dozzle-cloud) for more details.
+Linked instances get **Dozzle Cloud** as a destination automatically. Unlike a raw webhook it groups repeated failures into a single notification, summarizes what happened, and fans out to email, Telegram, Discord, Slack, ntfy, and browser push without configuring each one here. See [Dozzle Cloud](/guide/dozzle-cloud).
 
 ## <Icon icon="mdi:plus-circle-outline" inline /> Creating an Alert
 

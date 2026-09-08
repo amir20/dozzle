@@ -1,11 +1,13 @@
 ---
-title: Alarme & Webhooks
-sourceHash: daf372975955
+title: Alarme
+sourceHash: 71776f8fae5c
 ---
 
-# Alarme & Webhooks
+# Alarme
 
-Dozzle hat ein Alarmsystem, mit dem du Container-Logs, Ressourcenmetriken und Lebenszyklus-Ereignisse überwachst und benachrichtigt wirst, sobald bestimmte Bedingungen zutreffen. Alarme filtern Container und Auslösebedingungen über anpassbare Ausdrücke und können Benachrichtigungen an Webhooks, Slack, Discord, ntfy oder [Dozzle Cloud](/de/guide/dozzle-cloud) schicken.
+Dozzle kann Container-Logs, Ressourcenmetriken und Lebenszyklus-Ereignisse überwachen und dich benachrichtigen, sobald eine von dir beschriebene Bedingung zutrifft. Regeln werden als Ausdrücke geschrieben, auf deiner eigenen Instanz ausgewertet und an einen Webhook, an Slack, Discord oder ntfy zugestellt.
+
+Regeln liegen immer hier, auf der selbst gehosteten Instanz, weil dort deine Logs sind. Wenn du die Instanz mit [Dozzle Cloud](/de/guide/dozzle-cloud) verbunden hast, speisen dieselben Regeln auch Cloud, und die Zustellung (Bündelung, Zusammenfassungen, Stummschaltung, mobile Kanäle) konfigurierst du dort statt unten pro Ziel.
 
 ## <Icon icon="mdi:format-list-bulleted-type" inline /> Alarmtypen
 
@@ -81,7 +83,7 @@ Du kannst auch ein eigenes Payload-Template mit der `text/template`-Syntax von G
 
 ### Dozzle Cloud
 
-Du kannst Alarme auch an [Dozzle Cloud](/de/guide/dozzle-cloud) schicken, um mehrere Dozzle-Instanzen zentral zu überwachen. Mehr Details stehen im [Leitfaden zu Dozzle Cloud](/de/guide/dozzle-cloud).
+Verbundene Instanzen bekommen **Dozzle Cloud** automatisch als Ziel. Anders als ein reiner Webhook bündelt es wiederkehrende Fehler zu einer einzigen Benachrichtigung, fasst zusammen was passiert ist, und verteilt an E-Mail, Telegram, Discord, Slack, ntfy und Browser-Push, ohne dass du jeden Kanal hier einrichten musst. Siehe [Dozzle Cloud](/de/guide/dozzle-cloud).
 
 ## <Icon icon="mdi:plus-circle-outline" inline /> Einen Alarm anlegen
 

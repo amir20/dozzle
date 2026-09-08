@@ -34,22 +34,6 @@ features:
       height: 36
     link: /de/guide/what-is-dozzle#real-time-monitoring
     linkText: Mehr erfahren
-  - title: Log-Analyse mit SQL
-    details: Frage deine Logs mit DuckDB und WebAssembly ab — vollständiges SQL, komplett im Browser.
-    icon:
-      src: /icons/sql.svg
-      width: 36
-      height: 36
-    link: /de/guide/sql-engine
-    linkText: Mehr erfahren
-  - title: Alarme und Webhooks
-    details: Erkenne Log-Muster mit mächtigen Ausdrücken und benachrichtige Slack, Discord, ntfy oder jeden Webhook.
-    icon:
-      src: /icons/notification-new.svg
-      width: 36
-      height: 36
-    link: /de/guide/alerts-and-webhooks
-    linkText: Mehr erfahren
   - title: Multi-Host und Swarm
     details: Verbinde dich aus einer einzigen Oberfläche mit mehreren Docker-Hosts und Swarm-Clustern, abgesichert über TLS-Agents.
     icon:
@@ -57,6 +41,22 @@ features:
       width: 36
       height: 36
     link: /de/guide/remote-hosts
+    linkText: Mehr erfahren
+  - title: Alarme und Webhooks
+    details: Erkenne Log-Muster, Metriken und Lifecycle-Events mit Ausdrücken und benachrichtige Slack, Discord, ntfy oder jeden Webhook.
+    icon:
+      src: /icons/notification-new.svg
+      width: 36
+      height: 36
+    link: /de/guide/alerts-and-webhooks
+    linkText: Mehr erfahren
+  - title: Dozzle Cloud
+    details: Eine optionale verwaltete Ebene, die wiederkehrende Fehler bündelt, zusammenfasst was kaputt ist, und dich per E-Mail, Telegram oder Discord erreicht.
+    icon:
+      src: /icons/cloud.svg
+      width: 36
+      height: 36
+    link: /de/guide/dozzle-cloud
     linkText: Mehr erfahren
   - title: Shell- und Exec-Zugriff
     details: Hänge dich an laufende Container an oder führe Befehle direkt aus dem Browser aus, wenn du tiefer graben musst.
@@ -66,13 +66,13 @@ features:
       height: 36
     link: /de/guide/shell
     linkText: Mehr erfahren
-  - title: dtop in deinem Terminal
-    details: Ein Kommandozeilen-Begleiter, der dir deine Container live anzeigt und von dort direkt nach Dozzle springt.
+  - title: Selbst gehostet und privat
+    details: Läuft in deiner eigenen Infrastruktur, mit einfacher Auth oder Forward-Proxy-Auth. Deine Logs verlassen nie dein Netzwerk.
     icon:
-      src: /icons/terminal-command.svg
+      src: /icons/locked.svg
       width: 36
       height: 36
-    link: /de/guide/dtop
+    link: /de/guide/authentication
     linkText: Mehr erfahren
   - title: MCP für KI-Assistenten
     details: Stelle Container, Logs und Statistiken über das Model Context Protocol bereit, damit dein Coding-Agent mit dir zusammen debuggen kann.
@@ -82,13 +82,5 @@ features:
       height: 36
     link: /de/guide/mcp
     linkText: Mehr erfahren
-  - title: Selbst gehostet und privat
-    details: Läuft in deiner eigenen Infrastruktur, mit einfacher Auth oder Forward-Proxy-Auth. Deine Logs verlassen nie dein Netzwerk.
-    icon:
-      src: /icons/locked.svg
-      width: 36
-      height: 36
-    link: /de/guide/authentication
-    linkText: Mehr erfahren
-sourceHash: a11fae50734d
+sourceHash: d045bec3b85e
 ---
