@@ -69,10 +69,11 @@ label:
   container-name: Nama Kontainer
   status: Status
   created: Dibuat
-  avg-cpu: Rata-rata CPU (%)
-  avg-mem: Rata-rata MEM (%)
+  avg-cpu: Rata-rata CPU
+  avg-mem: Rata-rata memori
   name: Nama
   cpu: CPU
+  core: Tidak ada inti | 1 inti | {count} inti
   mem: MEM
   pinned: Disematkan
   per-page: Baris per halaman

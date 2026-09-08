@@ -68,10 +68,11 @@ label:
   container-name: Containernaam
   status: Status
   created: Aangemaakt
-  avg-cpu: Gem. CPU (%)
-  avg-mem: Gem. geheugen (%)
+  avg-cpu: Gem. CPU
+  avg-mem: Gem. geheugen
   name: Naam
   cpu: CPU
+  core: Geen kernen | 1 kern | {count} kernen
   mem: MEM
   pinned: Vastgezet
   per-page: Rijen per pagina

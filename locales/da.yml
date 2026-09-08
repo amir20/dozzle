@@ -68,10 +68,11 @@ label:
   container-name: Container Navn
   status: Status
   created: Lavet
-  avg-cpu: Gns. CPU (%)
-  avg-mem: Gns. MEM (%)
+  avg-cpu: Gns. CPU
+  avg-mem: Gns. hukommelse
   name: Navn
   cpu: CPU
+  core: Ingen kerner | 1 kerne | {count} kerner
   mem: MEM
   pinned: Fastgjort
   per-page: Rækker per side

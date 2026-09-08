@@ -68,10 +68,11 @@ label:
   container-name: Container Name
   status: Status
   created: Created
-  avg-cpu: Avg. CPU (%)
-  avg-mem: Avg. MEM (%)
+  avg-cpu: Avg. CPU
+  avg-mem: Avg. Memory
   name: Name
   cpu: CPU
+  core: No cores | 1 core | {count} cores
   mem: MEM
   pinned: Pinned
   per-page: Rows per page

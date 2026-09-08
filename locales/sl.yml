@@ -55,7 +55,7 @@ label:
   or: ali
   status: Stanje
   created: Ustvarjeno
-  avg-cpu: CPE povprečje (%)
+  avg-cpu: CPE povprečje
   pinned: Pripeto
   per-page: Vrstic na stran
   sort-by: Razvrsti po
@@ -83,9 +83,10 @@ label:
   event-metric: Metrika
   event-container: Zabojnik
   services: Storitve
-  avg-mem: Povprečje spomina (%)
+  avg-mem: Povprečje spomina
   name: Ime
   cpu: CPU
+  core: Ni jeder | 1 jedro | {count} jeder
   mem: MEM
   no-logs: Zabojnik še nima dnevnika
   search-status:

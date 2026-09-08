@@ -68,10 +68,11 @@ label:
   container-name: Nome do Container
   status: Status
   created: Criado
-  avg-cpu: Média CPU (%)
-  avg-mem: Média MEM (%)
+  avg-cpu: Média CPU
+  avg-mem: Média memória
   name: Nome
   cpu: CPU
+  core: Sem núcleos | 1 núcleo | {count} núcleos
   mem: MEM
   pinned: Fixado
   per-page: Linhas por página

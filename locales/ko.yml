@@ -68,10 +68,11 @@ label:
   container-name: 컨테이너 이름
   status: 상태
   created: 만든 날짜
-  avg-cpu: 평균 CPU (%)
-  avg-mem: 평균 메모리 (%)
+  avg-cpu: 평균 CPU
+  avg-mem: 평균 메모리
   name: 이름
   cpu: CPU
+  core: 코어 없음 | 코어 1개 | 코어 {count}개
   mem: 메모리
   pinned: 고정됨
   per-page: 페이지당 행 수

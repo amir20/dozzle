@@ -81,10 +81,11 @@ label:
   container-name: 容器名称
   status: 状态
   created: 创建时间
-  avg-cpu: 平均CPU (%)
-  avg-mem: 平均MEM (%)
+  avg-cpu: 平均 CPU
+  avg-mem: 平均内存
   name: 名称
   cpu: CPU
+  core: 无核心 | 1 个核心 | {count} 个核心
   mem: MEM
   pinned: 固定
   per-page: 每页行数

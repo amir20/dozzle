@@ -1,8 +1,11 @@
 <template>
-  <div class="flex flex-col gap-4">
-    <div class="flex flex-row">
-      <div v-if="Object.keys(hosts).length > 1" class="flex-1">
-        <div role="tablist" class="tabs-boxed tabs block" v-if="Object.keys(hosts).length < 4">
+  <div class="rounded-box border-base-content/10 bg-base-100 overflow-hidden border">
+    <div
+      class="border-base-content/10 flex flex-row items-center gap-3 border-b px-3 py-2"
+      v-if="Object.keys(hosts).length > 1 || isMobile"
+    >
+      <div v-if="Object.keys(hosts).length > 1" class="min-w-0 flex-1">
+        <div role="tablist" class="tabs-boxed tabs tabs-xs block" v-if="Object.keys(hosts).length < 4">
           <input
             type="radio"
             name="host"
@@ -26,7 +29,7 @@
         </div>
 
         <DropdownMenu
-          class="btn-sm"
+          class="btn-xs md:btn-sm"
           v-model="selectedHost"
           :options="[
             { label: 'Show All', value: null },
@@ -35,16 +38,7 @@
           v-else
         />
       </div>
-      <div class="flex flex-1 items-center justify-end gap-2">
-        <div v-show="ready && containers.length > pageSizes[0]">
-          {{ $t("label.per-page") }}
-
-          <DropdownMenu
-            class="dropdown-left btn-xs md:btn-sm"
-            v-model="perPage"
-            :options="pageSizes.map((i) => ({ label: i.toLocaleString(), value: i }))"
-          />
-        </div>
+      <div class="text-base-content/50 flex flex-1 items-center justify-end gap-2 text-xs">
         <div class="flex items-center gap-1 md:hidden">
           {{ $t("label.sort-by") }}
           <DropdownMenu class="dropdown-left btn-xs" v-model="mobileSortField" :options="sortOptions" />
@@ -56,26 +50,10 @@
             <mdi:arrow-up :class="direction > 0 ? '' : 'rotate-180'" />
           </button>
         </div>
-        <div class="join max-md:hidden">
-          <button
-            class="icon-btn btn join-item btn-xs md:btn-sm"
-            :class="statMode === 'chart' ? 'btn-active' : 'btn-ghost'"
-            @click="statMode = 'chart'"
-          >
-            <mdi:chart-bar />
-          </button>
-          <button
-            class="icon-btn btn join-item btn-xs md:btn-sm"
-            :class="statMode === 'progress' ? 'btn-active' : 'btn-ghost'"
-            @click="statMode = 'progress'"
-          >
-            <mdi:poll class="scale-x-[-1] rotate-90" />
-          </button>
-        </div>
       </div>
     </div>
-    <div class="rounded-box border-base-content/10 overflow-x-auto border">
-      <table class="table-md md:table-lg table-zebra table">
+    <div class="overflow-x-auto">
+      <table class="table-md table">
         <thead class="max-md:hidden">
           <tr :data-direction="direction > 0 ? 'asc' : 'desc'">
             <th
@@ -85,7 +63,7 @@
               :class="[value.customClass, { 'selected-sort': key === sortField }]"
               v-show="isVisible(key)"
             >
-              <a class="inline-flex cursor-pointer gap-2 text-sm uppercase">
+              <a class="inline-flex cursor-pointer gap-1.5 text-xs font-medium tracking-wide uppercase">
                 <span>{{ $t(isMobile && value.mobileLabel ? value.mobileLabel : value.label) }}</span>
                 <span class="h-4" data-icon>
                   <mdi:arrow-up />
@@ -94,7 +72,7 @@
             </th>
           </tr>
         </thead>
-        <tbody class="bg-base-300/30">
+        <tbody>
           <template v-if="!ready">
             <tr v-for="i in skeletonRows" :key="`skeleton-${i}`" role="status" class="animate-pulse">
               <td v-if="isVisible('name')" class="max-w-80 max-md:max-w-none">
@@ -134,7 +112,7 @@
               showAppIcons,
               dismissedLinkHint,
             ]"
-            class="hover:bg-base-100/80!"
+            class="hover:bg-base-200/60"
           >
             <td v-if="isVisible('name')" class="max-w-80 max-md:max-w-none">
               <div class="flex items-center gap-2 max-md:items-start">
@@ -147,7 +125,7 @@
                 <div class="min-w-0 flex-1">
                   <div class="flex items-baseline gap-2">
                     <router-link
-                      class="min-w-0 flex-1 truncate"
+                      class="min-w-0 flex-1 truncate font-medium"
                       :to="{ name: '/container/[id]', params: { id: container.id } }"
                       :title="container.name"
                     >
@@ -181,9 +159,14 @@
                 </div>
               </div>
             </td>
-            <td v-if="isVisible('host')">{{ container.hostLabel }}</td>
-            <td v-if="isVisible('state')">{{ container.health ?? container.state }}</td>
-            <td v-if="isVisible('created')">
+            <td v-if="isVisible('host')" class="text-base-content/70">{{ container.hostLabel }}</td>
+            <td v-if="isVisible('state')">
+              <span class="inline-flex items-center gap-1.5">
+                <span class="size-1.5 shrink-0 rounded-full" :class="statusDot(container)"></span>
+                {{ container.health ?? container.state }}
+              </span>
+            </td>
+            <td v-if="isVisible('created')" class="text-base-content/70">
               <RelativeTime :date="container.created" />
             </td>
             <td v-if="isVisible('cpu')">
@@ -196,10 +179,22 @@
         </tbody>
       </table>
     </div>
-    <div class="p-4 text-center">
-      <nav class="join" v-if="ready && isPaginated && totalPages <= 15">
+    <div
+      class="border-base-content/10 flex flex-row flex-wrap items-center gap-3 border-t px-3 py-2"
+      v-if="ready && (isPaginated || containers.length > pageSizes[0])"
+    >
+      <div class="text-base-content/50 flex items-center gap-1 text-xs" v-show="containers.length > pageSizes[0]">
+        {{ $t("label.per-page") }}
+
+        <DropdownMenu
+          class="btn-xs"
+          v-model="perPage"
+          :options="pageSizes.map((i) => ({ label: i.toLocaleString(), value: i }))"
+        />
+      </div>
+      <nav class="join ml-auto" v-if="isPaginated && totalPages <= 15">
         <input
-          class="btn btn-square join-item"
+          class="btn btn-square btn-sm join-item"
           type="radio"
           v-model="currentPage"
           :aria-label="`${i}`"
@@ -208,8 +203,8 @@
         />
       </nav>
       <DropdownMenu
-        v-else-if="ready && isPaginated"
-        class="btn-sm"
+        v-else-if="isPaginated"
+        class="dropdown-left btn-xs ml-auto"
         v-model="currentPage"
         :options="Array.from({ length: totalPages }, (_, i) => ({ label: `${i + 1}`, value: i + 1 }))"
       />
@@ -283,10 +278,11 @@ const { containers } = defineProps<{
   containers: Container[];
 }>();
 
+const statMode = defineModel<"chart" | "progress">("statMode", { default: "chart" });
+
 const { ready } = storeToRefs(useContainerStore());
 type keys = keyof typeof fields;
 
-const statMode = useStorage<"chart" | "progress">("DOZZLE_TABLE_STAT_MODE", "chart");
 const perPage = useStorage("DOZZLE_TABLE_PAGE_SIZE", 15);
 const pageSizes = [15, 30, 50, 100];
 
@@ -329,6 +325,13 @@ const mobileSortField = computed({
   },
 });
 
+function statusDot(container: Container) {
+  if (container.health === "unhealthy") return "bg-error";
+  if (container.health === "starting") return "bg-warning";
+  if (container.state === "running") return "bg-success";
+  return "bg-base-content/30";
+}
+
 function sort(field: keys) {
   if (sortField.value === field) {
     direction.value *= -1;
@@ -353,14 +356,24 @@ function isVisible(field: keys) {
   }
 }
 
+thead tr {
+  @apply bg-base-200/40;
+}
+
 th {
-  @apply border-base-200 border-b-2;
+  @apply text-base-content/50 border-base-content/10 border-b;
   &.selected-sort {
-    font-weight: bold;
-    @apply border-primary;
+    @apply text-base-content/80;
     [data-icon] {
       display: inline-block;
     }
+  }
+}
+
+tbody tr {
+  @apply transition-colors;
+  &:not(:last-child) {
+    @apply border-base-content/[0.06] border-b;
   }
 }
 

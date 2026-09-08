@@ -68,10 +68,11 @@ label:
   container-name: Nazwa kontenera
   status: Status
   created: Utworzony
-  avg-cpu: Średnie zużycie CPU (%)
-  avg-mem: Średnie zużycie pamięci (%)
+  avg-cpu: Średnie zużycie CPU
+  avg-mem: Średnie zużycie pamięci
   name: Nazwa
   cpu: CPU
+  core: Brak rdzeni | 1 rdzeń | {count} rdzeni
   mem: MEM
   pinned: Przypięte
   per-page: Wierszy na strone
