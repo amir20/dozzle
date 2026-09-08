@@ -384,6 +384,7 @@ declare global {
   const useStepper: typeof import('@vueuse/core').useStepper
   const useStorage: typeof import('@vueuse/core').useStorage
   const useStorageAsync: typeof import('@vueuse/core').useStorageAsync
+  const useStreamedContainers: typeof import('./composable/streamedContainers').useStreamedContainers
   const useStyleTag: typeof import('@vueuse/core').useStyleTag
   const useSupported: typeof import('@vueuse/core').useSupported
   const useSwarmStore: typeof import('./stores/swarm').useSwarmStore
@@ -861,6 +862,7 @@ declare module 'vue' {
     readonly useStepper: UnwrapRef<typeof import('@vueuse/core')['useStepper']>
     readonly useStorage: UnwrapRef<typeof import('@vueuse/core')['useStorage']>
     readonly useStorageAsync: UnwrapRef<typeof import('@vueuse/core')['useStorageAsync']>
+    readonly useStreamedContainers: UnwrapRef<typeof import('./composable/streamedContainers')['useStreamedContainers']>
     readonly useStyleTag: UnwrapRef<typeof import('@vueuse/core')['useStyleTag']>
     readonly useSupported: UnwrapRef<typeof import('@vueuse/core')['useSupported']>
     readonly useSwarmStore: UnwrapRef<typeof import('./stores/swarm')['useSwarmStore']>

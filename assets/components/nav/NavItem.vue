@@ -62,6 +62,17 @@ const bindings = computed(() => (to ? { to, activeClass: "is-active" } : { type:
   @apply bg-primary absolute top-1/2 left-0 h-4 w-0.5 -translate-y-1/2 rounded-full;
 }
 
+/* A merged view has no single active row, so every container feeding the stream
+ * carries the active row's marker in the accent colour instead. */
+.nav-item.is-merged {
+  @apply text-secondary bg-secondary/12 font-medium;
+}
+
+.nav-item.is-merged::before {
+  content: "";
+  @apply bg-secondary absolute top-1/2 left-0 h-4 w-0.5 -translate-y-1/2 rounded-full;
+}
+
 .nav-item.is-muted {
   @apply text-base-content/40 pointer-events-none;
 }

@@ -40,6 +40,7 @@ toolbar:
   none: 无
   section-logs: 日志
   section-filters: 筛选
+  section-display: 显示
   section-export: 导出
   section-container: 容器
   section-image: 镜像
@@ -119,6 +120,10 @@ label:
 tooltip:
   search: 搜索 (⌘ + k, ⌃k)
   pin-column: 固定为列
+  unpin-column: 取消固定列
+  merge-stream: 合并到日志流
+  merge-stream-hint: 打开一个容器以进行合并
+  unmerge-stream: 从日志流移除
   merge-all: 将所有内容合并到一个流中
   network-io: "网络：↑ {tx}/s · ↓ {rx}/s"
   disk-io: "磁盘：↑ {write}/s · ↓ {read}/s"

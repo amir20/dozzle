@@ -40,6 +40,7 @@ toolbar:
   none: Keine
   section-logs: Logs
   section-filters: Filter
+  section-display: Anzeige
   section-export: Export
   section-container: Container
   section-image: Image
@@ -119,6 +120,10 @@ label:
 tooltip:
   search: Suche Container (⌘ + k, ⌃k)
   pin-column: Als Spalte anheften
+  unpin-column: Spalte lösen
+  merge-stream: In den Stream einfügen
+  merge-stream-hint: Zum Zusammenführen zuerst einen Container öffnen
+  unmerge-stream: Aus dem Stream entfernen
   merge-all: Alles in einen Stream zusammenführen
   network-io: "Netzwerk: ↑ {tx}/s · ↓ {rx}/s"
   disk-io: "Festplatte: ↑ {write}/s · ↓ {read}/s"
