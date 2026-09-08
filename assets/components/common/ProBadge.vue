@@ -14,7 +14,7 @@
 </template>
 
 <script lang="ts" setup>
-const cloudUrl = __CLOUD_URL__;
+const cloudUrl = config.cloudUrl;
 const { isPro, cloudConfig, ensureCloudStatus } = useCloudConfig();
 
 // The badge can mount before the shared cloud config resolves, so ask again

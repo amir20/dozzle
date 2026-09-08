@@ -19,6 +19,7 @@ export interface Config {
   enableDownload: boolean;
   enableNotifications: boolean;
   enableCloud: boolean;
+  cloudUrl: string;
   disableAvatars: boolean;
   releaseCheckMode: "automatic" | "manual";
   imageCheckMode: "automatic" | "manual" | "off";
@@ -48,6 +49,9 @@ const config: Config = {
   maxLogs: 400,
   version: "v0.0.0",
   hosts: [],
+  // The login page ships a config without the authorized keys, and unit tests
+  // render components with no injected config at all.
+  cloudUrl: "https://cloud.dozzle.dev",
   ...pageConfig,
 };
 

@@ -24,9 +24,6 @@ COPY locales ./locales
 COPY public ./public
 COPY scripts ./scripts
 
-ARG CLOUD_URL
-ENV CLOUD_URL=$CLOUD_URL
-
 # Build assets
 RUN pnpm build
 

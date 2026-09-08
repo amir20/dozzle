@@ -169,7 +169,7 @@
 </template>
 
 <script lang="ts" setup>
-const cloudUrl = __CLOUD_URL__;
+const cloudUrl = config.cloudUrl;
 const callbackUrl = `${window.location.origin}${withBase("/")}`;
 const cloudLinkUrl = `${cloudUrl}/link?appUrl=${encodeURIComponent(callbackUrl)}&from=cloud`;
 

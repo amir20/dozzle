@@ -521,6 +521,10 @@ notifications:
 cloud:
   title: Dozzle Cloud
   description: 원격으로 컨테이너를 제어하고 AI를 사용하여 클러스터 전반의 문제를 조사하세요.
+  pitch:
+    findings: 오류와 경고를 매일 AI로 분석
+    alerts: 충돌과 임계값에 대한 실시간 알림
+    control: 어디서나 컨테이너 시작, 중지, 확인
   learn-more: 자세히 알아보기
   link-instance: 인스턴스 연결
   relink-instance: 인스턴스 재연결

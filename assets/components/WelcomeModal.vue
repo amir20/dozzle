@@ -268,7 +268,7 @@ const router = useRouter();
 const { showToast } = useToast();
 const { cloudConfig, cloudStatus } = useCloudConfig();
 
-const cloudUrl = __CLOUD_URL__;
+const cloudUrl = config.cloudUrl;
 const notificationsHref = withBase("/notifications");
 
 const modal = ref<HTMLDialogElement>();

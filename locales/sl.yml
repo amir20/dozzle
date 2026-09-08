@@ -523,6 +523,10 @@ notifications:
 cloud:
   title: Dozzle Cloud
   description: Upravljajte svoje zabojnike na daljavo in uporabite UI za preiskovanje težav v vašem grozdu.
+  pitch:
+    findings: Dnevni pregled vaših napak in opozoril z UI
+    alerts: Opozorila v realnem času ob sesutjih in preseženih pragovih
+    control: Zaženite, ustavite in preglejte zabojnike od koder koli
   learn-more: Več o tem
   link-instance: Poveži instanco
   relink-instance: Ponovno poveži instanco

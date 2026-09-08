@@ -518,6 +518,10 @@ notifications:
 cloud:
   title: Dozzle Cloud
   description: Beheer je containers op afstand en gebruik AI om problemen in je cluster te onderzoeken.
+  pitch:
+    findings: Dagelijkse AI-scan van je fouten en waarschuwingen
+    alerts: Realtime meldingen bij crashes en drempelwaarden
+    control: Start, stop en inspecteer containers vanaf overal
   learn-more: Meer informatie
   link-instance: Instantie koppelen
   relink-instance: Instantie opnieuw koppelen

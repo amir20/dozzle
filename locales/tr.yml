@@ -521,6 +521,10 @@ notifications:
 cloud:
   title: Dozzle Cloud
   description: Konteynerlerinizi uzaktan kontrol edin ve kümenizde sorunları araştırmak için yapay zeka kullanın.
+  pitch:
+    findings: Hatalarınızın ve uyarılarınızın günlük yapay zeka taraması
+    alerts: Çökmeler ve eşik aşımları için gerçek zamanlı uyarılar
+    control: Konteynerleri her yerden başlatın, durdurun ve inceleyin
   learn-more: Daha fazla bilgi
   link-instance: Örneği bağla
   relink-instance: Örneği yeniden bağla

@@ -517,6 +517,10 @@ notifications:
 cloud:
   title: Dozzle Cloud
   description: 远程控制您的容器，并使用 AI 调查集群中的问题。
+  pitch:
+    findings: 每日 AI 扫描您的错误和警告
+    alerts: 崩溃和阈值的实时告警
+    control: 随时随地启动、停止和检查容器
   learn-more: 了解更多
   link-instance: 关联实例
   relink-instance: 重新关联实例
