@@ -8,7 +8,9 @@
       <span>{{
         status.scannedTo ? $t("label.search-status.searching-to", { time }) : $t("label.search-status.searching")
       }}</span>
-      <IndeterminateBar color="primary" class="ml-auto" />
+      <div class="ml-auto w-1/2">
+        <IndeterminateBar color="primary" />
+      </div>
     </template>
     <span v-else-if="state === 'empty'">{{ $t("label.search-status.empty") }}</span>
     <span v-else-if="state === 'capped'" class="tabular-nums">
