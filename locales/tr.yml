@@ -28,6 +28,8 @@ toolbar:
   attach: Bağla
   copy-permalink: Kalıcı bağlantıyı kopyala
   copy-image: "İmaj etiketini kopyala"
+  pin: "Sabitle"
+  unpin: "Sabitlemeyi kaldır"
   copy-logs: Günlükleri kopyala
   copy-filtered-logs: Filtrelenmiş günlükleri kopyala
   copying-logs: Günlükler kopyalanıyor...

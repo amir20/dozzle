@@ -28,6 +28,8 @@ toolbar:
   attach: Attach
   copy-permalink: Copy permanent link
   copy-image: Copy image tag
+  pin: Pin
+  unpin: Unpin
   copy-logs: Copy logs
   copy-filtered-logs: Copy Filtered Logs
   copying-logs: Copying logs...

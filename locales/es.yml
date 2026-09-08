@@ -28,6 +28,8 @@ toolbar:
   attach: Conectar
   copy-permalink: Copiar enlace permanente
   copy-image: "Copiar etiqueta de imagen"
+  pin: "Fijar"
+  unpin: "Dejar de fijar"
   copy-logs: Copiar registros
   copy-filtered-logs: Copiar registros filtrados
   copying-logs: Copiando registros...

@@ -1,5 +1,8 @@
 <template>
-  <div class="flex items-stretch gap-2.5">
+  <!-- One surface, hairline-separated. Three separately tinted cards made the
+       toolbar read as three competing things; here the sparklines are the only
+       color, so the eye lands on the numbers. -->
+  <div class="bg-base-content/[0.055] divide-base-content/10 flex items-stretch divide-x rounded-lg">
     <IOCard
       :network-rx="networkRate.rx"
       :network-tx="networkRate.tx"
@@ -8,42 +11,40 @@
     />
 
     <StatCard
-      :icon="PhCpu"
-      card-class="bg-primary/10 md:min-w-56"
-      icon-class="text-primary"
+      label="CPU"
+      class="md:min-w-52"
       :title="t('tooltip.cpu-usage', { cpu: totalStat.cpu.toFixed(2), cores: roundCPU(limits.cpu) })"
     >
       <template #value="{ hoveredValue }">
         <span class="tabular-nums">
-          <span class="font-semibold"> {{ Math.max(0, hoveredValue ?? totalStat.cpu).toFixed(1) }}% </span>
-          <span class="text-base-content/60 max-md:hidden"> / {{ roundCPU(limits.cpu) }} CPU</span>
+          <span class="text-[13px] font-semibold"> {{ Math.max(0, hoveredValue ?? totalStat.cpu).toFixed(1) }}% </span>
+          <span class="text-base-content/45 text-[11px] max-md:hidden"> / {{ roundCPU(limits.cpu) }}</span>
         </span>
       </template>
       <template #chart="{ onHoverValue }">
         <BarChart
           ref="cpuChart"
           :chart-data="cpuData"
-          bar-class="bg-primary opacity-80 hover:opacity-100"
-          class="h-5 w-full max-md:hidden"
+          bar-class="bg-primary opacity-70 hover:opacity-100"
+          class="h-4 w-full max-md:hidden"
           @hover-value="onHoverValue"
         />
       </template>
     </StatCard>
 
     <StatCard
-      :icon="PhMemory"
-      card-class="bg-secondary/10 md:min-w-56"
-      icon-class="text-secondary"
+      label="MEM"
+      class="md:min-w-52"
       :title="
         t('tooltip.memory-usage', { used: formatBytes(totalStat.memoryUsage), total: formatBytes(limits.memory) })
       "
     >
       <template #value="{ hoveredValue }">
         <span class="tabular-nums">
-          <span class="font-semibold">{{
+          <span class="text-[13px] font-semibold">{{
             formatBytes(hoveredValue ?? totalStat.memoryUsage, { short: true, decimals: 1 })
           }}</span>
-          <span class="text-base-content/60 max-md:hidden">
+          <span class="text-base-content/45 text-[11px] max-md:hidden">
             / {{ formatBytes(limits.memory, { short: true, decimals: 1 }) }}</span
           >
         </span>
@@ -52,8 +53,8 @@
         <BarChart
           ref="memoryChart"
           :chart-data="memoryData"
-          bar-class="bg-secondary opacity-80 hover:opacity-100"
-          class="h-5 w-full max-md:hidden"
+          bar-class="bg-secondary opacity-70 hover:opacity-100"
+          class="h-4 w-full max-md:hidden"
           @hover-value="onHoverValue"
         />
       </template>
@@ -66,8 +67,6 @@ import { Container, Stat, emptyStat } from "@/models/Container";
 import StatCard from "@/components/LogViewer/StatCard.vue";
 import IOCard from "@/components/LogViewer/IOCard.vue";
 import BarChart from "@/components/BarChart.vue";
-import PhCpu from "~icons/ph/cpu";
-import PhMemory from "~icons/ph/memory";
 
 const { containers } = defineProps<{
   containers: Container[];
