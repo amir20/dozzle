@@ -1,6 +1,10 @@
 type ScrollContext = {
   paused: boolean;
   progress: number;
+  /** Whether anything actually computes `progress`. Only a single-container
+   * view can place a log on its container's lifetime, so merged, stack, host
+   * and group views leave this false and the readout hides the position. */
+  available: boolean;
   currentDate: Date;
 };
 
@@ -22,6 +26,7 @@ function defaultValue() {
   return reactive({
     paused: false,
     progress: 1,
+    available: false,
     currentDate: new Date(),
   });
 }

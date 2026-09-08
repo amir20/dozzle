@@ -18,7 +18,7 @@
 <script lang="ts" setup>
 import { AlertLogEntry, CloudEventLogEntry, type LogEntry, type LogMessage } from "@/models/LogEntry";
 
-const { progress, currentDate } = useScrollContext();
+const { progress, currentDate, available } = useScrollContext();
 
 const { messages } = defineProps<{
   messages: LogEntry<LogMessage>[];
@@ -38,6 +38,10 @@ const permalinkLogId = computed(() => (typeof route.query.logId === "string" ? r
 const list = ref<HTMLElement[]>([]);
 
 let previousDate = new Date();
+// Only a single container has a lifetime to place a log on; merged and grouped
+// views have nothing to measure against, so they say so instead of leaving the
+// readout parked at the default 100%.
+watchEffect(() => (available.value = containers.value.length === 1));
 useIntersectionObserver(
   list,
   (entries) => {
