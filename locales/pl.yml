@@ -49,6 +49,17 @@ action:
   see-in-context: Zobacz w kontekście
   show-details: Pokaż szczegóły
   create-alert: Utwórz alert
+log-details:
+  on-std: na {std}
+  image: Obraz
+  raw-json: Surowy JSON
+  copy: Kopiuj
+  download: Pobierz JSON
+  fields: Pola
+  field: Pole
+  value: Wartość
+  fields-hint: Przeciągnij, aby zmienić kolejność. Przełącz, aby pokazać lub ukryć w strumieniu logów.
+  toggle-all: Przełącz wszystkie pola
 label:
   service: Brak usług | 1 usługa | {count} usług
   services: Usługi

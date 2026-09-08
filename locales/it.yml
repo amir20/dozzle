@@ -49,6 +49,17 @@ action:
   see-in-context: Vedi nel contesto
   show-details: Mostra dettagli
   create-alert: Crea avviso
+log-details:
+  on-std: su {std}
+  image: Immagine
+  raw-json: JSON grezzo
+  copy: Copia
+  download: Scarica JSON
+  fields: Campi
+  field: Campo
+  value: Valore
+  fields-hint: Trascina per riordinare. Attiva o disattiva per mostrarli o nasconderli nel flusso dei log.
+  toggle-all: Attiva o disattiva tutti i campi
 label:
   containers: Container
   container: Nessun container | 1 container | {count} container

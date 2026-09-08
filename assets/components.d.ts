@@ -144,6 +144,7 @@ declare module 'vue' {
     'Mdi:cogOutline': typeof import('~icons/mdi/cog-outline')['default']
     'Mdi:contentCopy': typeof import('~icons/mdi/content-copy')['default']
     'Mdi:docker': typeof import('~icons/mdi/docker')['default']
+    'Mdi:dragVertical': typeof import('~icons/mdi/drag-vertical')['default']
     'Mdi:filterOffOutline': typeof import('~icons/mdi/filter-off-outline')['default']
     'Mdi:filterOutline': typeof import('~icons/mdi/filter-outline')['default']
     'Mdi:flash': typeof import('~icons/mdi/flash')['default']

@@ -49,6 +49,17 @@ action:
   see-in-context: Se i kontekst
   show-details: Vis detaljer
   create-alert: Opret advarsel
+log-details:
+  on-std: på {std}
+  image: Billede
+  raw-json: Rå JSON
+  copy: Kopiér
+  download: Download JSON
+  fields: Felter
+  field: Felt
+  value: Værdi
+  fields-hint: Træk for at ændre rækkefølgen. Slå til eller fra for at vise eller skjule i logstrømmen.
+  toggle-all: Slå alle felter til eller fra
 label:
   containers: Containere
   container: Ingen containere | 1 container | {count} containere

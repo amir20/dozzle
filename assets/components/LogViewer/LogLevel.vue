@@ -11,13 +11,16 @@
     <mdi:bell-off v-if="event.suppressed" class="size-3.5 shrink-0" />
     <mdi:bell-alert v-else class="size-3.5 shrink-0" />
   </span>
-  <div
-    v-else
-    :data-level="level"
-    :data-position="position"
-    class="mt-1.5 size-2.5 flex-none rounded-lg"
-    :class="{ showUnknown }"
-  ></div>
+  <!-- The rail is 3px inside a 10px slot: it stays a quiet colour cue at the
+       edge of the text instead of a bullet competing with the first word, and
+       the slot keeps every message column aligned whatever the marker is. -->
+  <div v-else class="level-rail mt-1.5 flex w-2.5 flex-none justify-center" :data-position="position">
+    <div
+      :data-level="level"
+      class="w-[3px] rounded-full"
+      :class="[position ? 'h-full' : 'h-[0.9em] min-h-3', { 'show-unknown': showUnknown }]"
+    ></div>
+  </div>
 </template>
 <script lang="ts" setup>
 import { Position, Level, type MatchedEvent } from "@/models/LogEntry";
@@ -37,25 +40,29 @@ const {
 
 <style scoped>
 @reference "@/main.css";
-[data-position="start"],
-[data-position="middle"],
-[data-position="end"] {
+.level-rail[data-position="start"],
+.level-rail[data-position="middle"],
+.level-rail[data-position="end"] {
   align-self: stretch;
   height: auto;
 }
 
-[data-position="start"] {
-  border-radius: 0.375rem 0.375rem 0 0;
+.level-rail[data-position="middle"],
+.level-rail[data-position="end"] {
+  margin-top: 0;
 }
 
-[data-position="middle"] {
+/* Round only the outer ends so a grouped entry reads as one continuous rail. */
+.level-rail[data-position="start"] > div {
+  border-radius: 9999px 9999px 0 0;
+}
+
+.level-rail[data-position="middle"] > div {
   border-radius: 0;
-  margin-top: 0;
 }
 
-[data-position="end"] {
-  border-radius: 0 0 0.375rem 0.375rem;
-  margin-top: 0;
+.level-rail[data-position="end"] > div {
+  border-radius: 0 0 9999px 9999px;
 }
 
 /* Named data-event-level, NOT data-level: the unscoped block below paints any

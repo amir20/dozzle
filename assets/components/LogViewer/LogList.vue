@@ -6,6 +6,7 @@
       :key="item.id"
       :id="item.id.toString()"
       :data-time="item.date.getTime()"
+      :data-log-level="rowLevel(item)"
       class="group/entry"
       :class="{ 'log-permalink-target': permalinkLogId === item.id.toString() }"
     >
@@ -15,7 +16,7 @@
 </template>
 
 <script lang="ts" setup>
-import type { LogEntry, LogMessage } from "@/models/LogEntry";
+import { AlertLogEntry, CloudEventLogEntry, type LogEntry, type LogMessage } from "@/models/LogEntry";
 
 const { progress, currentDate } = useScrollContext();
 
@@ -24,6 +25,12 @@ const { messages } = defineProps<{
 }>();
 
 const { containers } = useLoggingContext();
+
+// Only real log output gets the row tint. Alert and cloud-event rows already
+// carry their own level marker and deliberately leave the row background alone,
+// so tinting them would fight styling they own.
+const rowLevel = (item: LogEntry<LogMessage>) =>
+  item instanceof AlertLogEntry || item instanceof CloudEventLogEntry ? undefined : item.level;
 
 const route = useRoute();
 const permalinkLogId = computed(() => (typeof route.query.logId === "string" ? route.query.logId : ""));
@@ -61,15 +68,47 @@ useIntersectionObserver(
 @reference "@/main.css";
 ul {
   font-family: var(--font-mono);
+  line-height: 1.55;
 
   > li {
-    @apply flex px-2 py-1 break-words last:snap-end odd:bg-gray-400/[0.07] md:px-4;
+    /* pl leaves an empty gutter on desktop so the hover actions button has a
+       home of its own instead of covering the timestamp. */
+    @apply flex px-2 py-1 break-words transition-colors duration-75 last:snap-end md:pr-4 md:pl-9;
     &:last-child {
       scroll-margin-block-end: 5rem;
     }
 
+    /* Written long-hand rather than as odd:/hover: utilities because the order
+       below is the whole point: hover beats the zebra, and a level tint beats
+       both, with its own (stronger) hover on top. */
+    &:nth-child(odd) {
+      background-color: color-mix(in oklab, var(--color-base-content) 4%, transparent);
+    }
+
+    &:hover {
+      background-color: color-mix(in oklab, var(--color-base-content) 8%, transparent);
+    }
+
+    &[data-log-level="error"],
+    &[data-log-level="fatal"] {
+      background-color: color-mix(in oklab, var(--color-red) 9%, transparent);
+    }
+
+    &[data-log-level="error"]:hover,
+    &[data-log-level="fatal"]:hover {
+      background-color: color-mix(in oklab, var(--color-red) 15%, transparent);
+    }
+
+    &[data-log-level="warn"] {
+      background-color: color-mix(in oklab, var(--color-orange) 8%, transparent);
+    }
+
+    &[data-log-level="warn"]:hover {
+      background-color: color-mix(in oklab, var(--color-orange) 14%, transparent);
+    }
+
     &.log-permalink-target {
-      @apply bg-secondary/15 border-secondary -ml-1 border-l-4 pl-3;
+      @apply bg-secondary/15 border-secondary -ml-1 border-l-4 pl-3 md:pl-8;
       animation: log-permalink-pulse 1.4s ease-out;
     }
   }
@@ -94,6 +133,14 @@ ul {
     :deep(.tag) {
       @apply rounded-none;
     }
+  }
+
+  /* A soft-wrapped line hangs its continuation past the start of the entry, so
+     one long line can never be mistaken for two. Harmless when wrapping is off:
+     the negative indent and the padding cancel out. */
+  :deep(.log-message) {
+    padding-left: 1.5ch;
+    text-indent: -1.5ch;
   }
 
   :deep(mark) {

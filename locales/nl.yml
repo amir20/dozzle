@@ -49,6 +49,17 @@ action:
   see-in-context: Bekijk in context
   show-details: Toon details
   create-alert: Waarschuwing aanmaken
+log-details:
+  on-std: op {std}
+  image: Image
+  raw-json: Ruwe JSON
+  copy: Kopiëren
+  download: JSON downloaden
+  fields: Velden
+  field: Veld
+  value: Waarde
+  fields-hint: Sleep om te herordenen. Schakel in of uit om ze in de logstroom te tonen of te verbergen.
+  toggle-all: Alle velden omschakelen
 label:
   containers: Containers
   container: Geen containers | 1 container | {count} containers

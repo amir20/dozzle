@@ -1,7 +1,7 @@
 <template>
-  <Tag :std="std" class="items-start!">
+  <div :std="std" class="pt-px text-[0.85em] tracking-wide uppercase opacity-70">
     {{ std }}
-  </Tag>
+  </div>
 </template>
 
 <script lang="ts" setup>

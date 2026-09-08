@@ -49,6 +49,17 @@ action:
   see-in-context: 컨텍스트에서 보기
   show-details: 세부 정보 표시
   create-alert: 알림 생성
+log-details:
+  on-std: "{std}에서"
+  image: 이미지
+  raw-json: 원본 JSON
+  copy: 복사
+  download: JSON 다운로드
+  fields: 필드
+  field: 필드
+  value: 값
+  fields-hint: 드래그하여 순서를 바꾸세요. 토글하여 로그 스트림에서 표시하거나 숨깁니다.
+  toggle-all: 모든 필드 토글
 label:
   containers: 컨테이너
   container: 컨테이너가 없습니다 | 컨테이너 1개 | 컨테이너 {count}개
