@@ -1,6 +1,6 @@
 ---
 title: Se connecter avec GitHub et OIDC
-sourceHash: eece13f5dae2
+sourceHash: 5599dbb13858
 ---
 
 # <Icon icon="mdi:shield-account" inline /> Se connecter avec GitHub et OIDC
@@ -67,6 +67,9 @@ users:
 ```
 
 `password` devient facultatif dès que `github` est défini, comme le montre `guest` ci-dessus. `admin` a les deux, il peut donc se connecter des deux façons. La connexion par mot de passe reste disponible en solution de repli pour tous ceux qui en ont encore un, et la page de connexion propose les deux options.
+
+> [!WARNING]
+> Gardez un mot de passe sur au moins un compte. Quand aucun utilisateur de `users.yml` n'a de `password`, le formulaire de connexion disparaît complètement et le fournisseur externe devient le seul moyen d'entrer : une URL de callback erronée, une OAuth App révoquée ou un client secret expiré verrouille alors tout le monde hors de l'interface web. Pour s'en sortir, il faut modifier `users.yml` sur l'hôte pour y remettre un mot de passe, ce qui demande un accès shell là où se trouve le `/data` de Dozzle.
 
 La valeur est le **login** GitHub (l'identifiant dans `github.com/octocat`), pas l'adresse email. Les logins sont stables et toujours visibles, alors que l'email d'un compte peut être privé ou changer à tout moment.
 
@@ -147,6 +150,23 @@ DOZZLE_AUTH_OIDC_NAME: Google
 
 `--auth-provider google` est accepté comme alias de `simple`, les deux écritures fonctionnent donc.
 
+## Derrière un reverse proxy
+
+Dozzle détermine si la requête d'origine utilisait HTTPS à partir de l'en-tête `X-Forwarded-Proto`, et prend le nom d'hôte dans `X-Forwarded-Host` quand il est présent. La plupart des reverse proxies envoient les deux par défaut, mais si le vôtre ne le fait pas, la connexion casse de deux façons.
+
+Pour OIDC, elle casse purement et simplement. Le `redirect_uri` qu'envoie Dozzle est construit à partir de ces en-têtes : un proxy qui ne pose pas `X-Forwarded-Proto: https` fait envoyer à Dozzle `http://your-host/api/auth/callback`. Cela ne correspond pas à l'URI en `https://` enregistrée chez votre fournisseur, et le fournisseur rejette la requête au lieu de rediriger vers quoi que ce soit d'utile.
+
+Pour GitHub l'URL n'est pas affectée, puisque Dozzle omet `redirect_uri` et que GitHub retombe sur l'URL de callback enregistrée sur l'OAuth App. L'en-tête décide quand même si le cookie de session est marqué `Secure`, il vaut donc la peine d'être correct dans les deux cas.
+
+Vous pouvez vérifier ce qu'envoie votre proxy en regardant le cookie que Dozzle pose au début d'une connexion :
+
+```sh
+$ curl -sI 'https://your-dozzle-host/api/auth/login?provider=github' | grep -i set-cookie
+set-cookie: dozzle_oauth_state=...; Path=/; Max-Age=600; HttpOnly; Secure; SameSite=Lax
+```
+
+La présence de `Secure` dans cette réponse veut dire que l'en-tête arrive bien. S'il manque, réparez le proxy avant d'aller plus loin. Voir [Reverse proxy et chemin de base](/fr/guide/changing-base) pour des exemples Nginx, Traefik et Caddy.
+
 ## Utiliser les secrets Docker pour le client secret
 
 Mettre un client secret directement dans `environment:` veut dire qu'il apparaît dans `docker inspect`, dans votre fichier compose, et dans l'historique du shell de quiconque a lancé le conteneur à la main. Les deux client secrets acceptent donc un équivalent `_FILE` qui nomme un fichier depuis lequel lire la valeur, la convention qu'utilisent les images officielles de Docker :
@@ -204,7 +224,7 @@ Dans les deux cas, Dozzle supprime les espaces autour de la valeur, un retour à
 En Swarm le secret est géré par le cluster plutôt que par un fichier sur le disque, déclarez-le donc comme `external` et créez-le avec `docker secret create` :
 
 ```sh
-printf '%s' 'your-oidc-client-secret' | docker secret create dozzle_oidc_secret -
+printf '%s' 'your-oidc-client-secret' | docker secret create dozzle_oidc_secret_v1 -
 ```
 
 ```yaml [docker-compose.yml]
@@ -216,22 +236,33 @@ services:
       DOZZLE_AUTH_PROVIDER: simple
       DOZZLE_AUTH_OIDC_ISSUER: https://id.example.com
       DOZZLE_AUTH_OIDC_CLIENT_ID: dozzle
-      DOZZLE_AUTH_OIDC_CLIENT_SECRET_FILE: /run/secrets/dozzle_oidc_secret
+      DOZZLE_AUTH_OIDC_CLIENT_SECRET_FILE: /run/secrets/dozzle_oidc_secret_v1
       DOZZLE_AUTH_OIDC_NAME: Pocket ID
     secrets:
-      - dozzle_oidc_secret
+      - dozzle_oidc_secret_v1
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
     deploy:
       mode: global
 
 secrets:
-  dozzle_oidc_secret:
+  dozzle_oidc_secret_v1:
     external: true
 ```
 
 > [!NOTE]
 > Un secret est monté par défaut sur `/run/secrets/<name>`, c'est pour cela que `_FILE` pointe là. Si vous définissez un `target:` explicite, faites pointer `_FILE` sur ce chemin.
+
+Les secrets Swarm sont immuables. Il n'y a aucun moyen de changer la valeur d'un secret existant, et c'est pour cela que le nom de l'exemple porte un suffixe `_v1` : faire tourner un client secret fuité ou expiré veut dire créer la version suivante et pointer le service dessus.
+
+```sh
+$ printf '%s' 'your-new-client-secret' | docker secret create dozzle_oidc_secret_v2 -
+$ docker service update \
+    --secret-rm dozzle_oidc_secret_v1 \
+    --secret-add dozzle_oidc_secret_v2 \
+    --env-add DOZZLE_AUTH_OIDC_CLIENT_SECRET_FILE=/run/secrets/dozzle_oidc_secret_v2 \
+    dozzle_dozzle
+```
 
 ### Vérifier que ça a marché
 

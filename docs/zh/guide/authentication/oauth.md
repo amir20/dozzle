@@ -1,6 +1,6 @@
 ---
 title: 使用 GitHub 与 OIDC 登录
-sourceHash: eece13f5dae2
+sourceHash: 5599dbb13858
 ---
 
 # <Icon icon="mdi:shield-account" inline /> 使用 GitHub 与 OIDC 登录
@@ -67,6 +67,9 @@ users:
 ```
 
 设置了 `github` 之后 `password` 就是可选的，上面的 `guest` 就是这样。`admin` 两者都有，所以两种方式都能登录。对仍然设有密码的用户来说，密码登录会作为备用方式继续可用，登录页面上两种方式都会显示。
+
+> [!WARNING]
+> 至少给一个账号保留密码。当 `users.yml` 里没有任何用户设置 `password` 时，登录表单会整个消失，外部登录方式就成了唯一的入口，于是一个填错的回调 URL、一个被吊销的 OAuth 应用，或者一个过期的 client secret，都会把所有人挡在 Web 界面之外。要恢复只能在宿主机上编辑 `users.yml` 把密码加回去，而这需要能访问 Dozzle 的 `/data` 所在位置的 shell。
 
 这里填的值是 GitHub 的**登录名**（`github.com/octocat` 中的那个用户名），不是邮箱地址。登录名是稳定的，而且始终可见，账号的邮箱则可能被设为私密或随时更改。
 
@@ -147,6 +150,23 @@ DOZZLE_AUTH_OIDC_NAME: Google
 
 `--auth-provider google` 会被当作 `simple` 的别名，因此两种写法都可以。
 
+## 在反向代理之后
+
+Dozzle 通过 `X-Forwarded-Proto` 头判断最初的请求是不是 HTTPS，并在 `X-Forwarded-Host` 存在时用它作为主机名。大多数反向代理默认会设置这两个头，但如果你的代理没有设置，登录会在两个方面出问题。
+
+对 OIDC 来说，登录会直接失败。Dozzle 发送的 `redirect_uri` 就是用这两个头拼出来的，所以一个不设置 `X-Forwarded-Proto: https` 的代理会让 Dozzle 发出 `http://your-host/api/auth/callback`。它和你在身份提供方那里登记的 `https://` 地址对不上，提供方会拒绝这个请求，而不是跳转到任何有用的地方。
+
+对 GitHub 来说 URL 不受影响，因为 Dozzle 不发送 `redirect_uri`，GitHub 会回退到 OAuth 应用上登记的那个回调地址。但这个头仍然决定会话 cookie 会不会被标记为 `Secure`，所以不管用哪种方式，都值得把它配置正确。
+
+想知道你的代理到底发了什么，可以看看登录开始时 Dozzle 设置的 cookie：
+
+```sh
+$ curl -sI 'https://your-dozzle-host/api/auth/login?provider=github' | grep -i set-cookie
+set-cookie: dozzle_oauth_state=...; Path=/; Max-Age=600; HttpOnly; Secure; SameSite=Lax
+```
+
+响应里出现 `Secure` 就说明这个头送到了。如果没有，先把代理修好再往下做。Nginx、Traefik 和 Caddy 的示例见[反向代理与基础路径](/zh/guide/changing-base)。
+
 ## 用 Docker secrets 保存 client secret
 
 把 client secret 直接写在 `environment:` 里，意味着它会出现在 `docker inspect` 的输出里、你的 compose 文件里，以及任何手动启动过容器的人的 shell 历史里。所以两个 client secret 都接受一个 `_FILE` 形式的对应变量，用来指明从哪个文件读取这个值，这也是 Docker 官方镜像一贯的做法：
@@ -204,7 +224,7 @@ secrets:
 在 Swarm 里，secret 由集群管理，而不是磁盘上的某个文件，所以要把它声明为 `external`，并用 `docker secret create` 创建：
 
 ```sh
-printf '%s' 'your-oidc-client-secret' | docker secret create dozzle_oidc_secret -
+printf '%s' 'your-oidc-client-secret' | docker secret create dozzle_oidc_secret_v1 -
 ```
 
 ```yaml [docker-compose.yml]
@@ -216,22 +236,33 @@ services:
       DOZZLE_AUTH_PROVIDER: simple
       DOZZLE_AUTH_OIDC_ISSUER: https://id.example.com
       DOZZLE_AUTH_OIDC_CLIENT_ID: dozzle
-      DOZZLE_AUTH_OIDC_CLIENT_SECRET_FILE: /run/secrets/dozzle_oidc_secret
+      DOZZLE_AUTH_OIDC_CLIENT_SECRET_FILE: /run/secrets/dozzle_oidc_secret_v1
       DOZZLE_AUTH_OIDC_NAME: Pocket ID
     secrets:
-      - dozzle_oidc_secret
+      - dozzle_oidc_secret_v1
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
     deploy:
       mode: global
 
 secrets:
-  dozzle_oidc_secret:
+  dozzle_oidc_secret_v1:
     external: true
 ```
 
 > [!NOTE]
 > secret 默认挂载在 `/run/secrets/<name>`，`_FILE` 指向的就是这个路径。如果你显式设置了 `target:`，就把 `_FILE` 指向你设置的那个路径。
+
+Swarm 的 secret 是不可变的。已有 secret 的值改不了，这也是示例里的名字带 `_v1` 后缀的原因：轮换一个泄露或过期的 client secret，意味着创建下一个版本，再把服务指向它。
+
+```sh
+$ printf '%s' 'your-new-client-secret' | docker secret create dozzle_oidc_secret_v2 -
+$ docker service update \
+    --secret-rm dozzle_oidc_secret_v1 \
+    --secret-add dozzle_oidc_secret_v2 \
+    --env-add DOZZLE_AUTH_OIDC_CLIENT_SECRET_FILE=/run/secrets/dozzle_oidc_secret_v2 \
+    dozzle_dozzle
+```
 
 ### 确认是否生效
 
