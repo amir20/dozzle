@@ -612,6 +612,10 @@ cloud:
       error: "Elke error-regel"
 cloud-search:
   containers-section: "Containers"
+  section-logs: "Logs"
+  no-matches: "Geen containers of commando's gevonden"
+  nav-hint: "navigeren"
+  pin-shortcut: "kolom vastzetten"
   search-logs-for: 'Logs zoeken op "{query}"'
   across-containers: "geïndexeerd over al je containers"
   connect-to-enable: "Dozzle Cloud verbinden om logs te zoeken"
@@ -640,6 +644,8 @@ cloud-search:
   container-removed-pill: "verwijderd"
 command-palette:
   section-commands: Opdrachten
+  section-recent: "Recent"
+  run-hint: "commando uitvoeren"
   restart-container: "{name} opnieuw starten"
   stop-container: "{name} stoppen"
   start-container: "{name} starten"

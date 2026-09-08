@@ -614,6 +614,10 @@ cloud:
       error: "任何 error 行"
 cloud-search:
   containers-section: "容器"
+  section-logs: "日誌"
+  no-matches: "沒有符合的容器或指令"
+  nav-hint: "導覽"
+  pin-shortcut: "釘選為欄位"
   search-logs-for: '搜尋日誌 "{query}"'
   across-containers: "已在所有容器中建立索引"
   connect-to-enable: "連接 Dozzle Cloud 以搜尋日誌"
@@ -642,6 +646,8 @@ cloud-search:
   container-removed-pill: "已刪除"
 command-palette:
   section-commands: 命令
+  section-recent: "最近"
+  run-hint: "執行指令"
   restart-container: 重新啟動 {name}
   stop-container: 停止 {name}
   start-container: 啟動 {name}

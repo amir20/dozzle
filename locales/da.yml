@@ -611,6 +611,10 @@ cloud:
       error: "Enhver error-linje"
 cloud-search:
   containers-section: "Containere"
+  section-logs: "Logs"
+  no-matches: "Ingen containere eller kommandoer matcher"
+  nav-hint: "naviger"
+  pin-shortcut: "fastgør kolonne"
   search-logs-for: 'Søg logs efter "{query}"'
   across-containers: "indekseret på tværs af alle dine containere"
   connect-to-enable: "Tilslut Dozzle Cloud for at søge i logs"
@@ -639,6 +643,8 @@ cloud-search:
   container-removed-pill: "slettet"
 command-palette:
   section-commands: Kommandoer
+  section-recent: "Seneste"
+  run-hint: "kør kommando"
   restart-container: Genstart {name}
   stop-container: Stop {name}
   start-container: Start {name}

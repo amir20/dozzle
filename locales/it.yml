@@ -611,6 +611,10 @@ cloud:
       error: "Qualsiasi riga error"
 cloud-search:
   containers-section: "Container"
+  section-logs: "Log"
+  no-matches: "Nessun container o comando corrisponde"
+  nav-hint: "naviga"
+  pin-shortcut: "blocca colonna"
   search-logs-for: 'Cerca log per "{query}"'
   across-containers: "indicizzati su tutti i tuoi container"
   connect-to-enable: "Connetti Dozzle Cloud per cercare nei log"
@@ -639,6 +643,8 @@ cloud-search:
   container-removed-pill: "eliminato"
 command-palette:
   section-commands: Comandi
+  section-recent: "Recenti"
+  run-hint: "esegui comando"
   restart-container: Riavvia {name}
   stop-container: Ferma {name}
   start-container: Avvia {name}

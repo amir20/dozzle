@@ -100,18 +100,32 @@ describe("<FuzzySearchModal />", () => {
     vi.mocked(useRouter().push).mockReset();
   });
 
-  test("shows none initially", async () => {
+  test("suggests recent containers before typing", async () => {
     const wrapper = createFuzzySearchModal();
-    expect(wrapper.findAll("li").length).toBe(0);
+    expect(wrapper.findAll("ul [data-name]").map((el) => el.text())).toEqual(["test", "foo bar", "baz"]);
   });
 
   test("search for foo", async () => {
     const wrapper = createFuzzySearchModal();
     await wrapper.find("input").setValue("foo");
-    expect(wrapper.findAll("li").length).toBe(1);
+    expect(wrapper.findAll("ul [data-name]").length).toBe(1);
     expect(wrapper.find("ul [data-name]").html()).toMatchInlineSnapshot(
       `"<span data-v-dc2e8c61="" class="text-base-content" data-name=""><mark>foo</mark> bar</span>"`,
     );
+  });
+
+  test("tells the user when nothing matches", async () => {
+    const wrapper = createFuzzySearchModal();
+    await wrapper.find("input").setValue("nothing-matches-this");
+    expect(wrapper.findAll("ul [data-name]").length).toBe(0);
+    expect(wrapper.find("[data-testid=no-matches]").exists()).toBe(true);
+  });
+
+  test("log search row sends unlinked instances to cloud settings", async () => {
+    const wrapper = createFuzzySearchModal();
+    await wrapper.find("input").setValue("nothing-matches-this");
+    await wrapper.find("input").trigger("keydown.enter");
+    expect(useRouter().push).toHaveBeenCalledWith("/settings/cloud");
   });
 
   test("choose baz", async () => {

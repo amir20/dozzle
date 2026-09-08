@@ -615,6 +615,10 @@ cloud:
       error: "Herhangi bir error satırı"
 cloud-search:
   containers-section: "Konteynerler"
+  section-logs: "Loglar"
+  no-matches: "Eşleşen konteyner veya komut yok"
+  nav-hint: "gezin"
+  pin-shortcut: "sütunu sabitle"
   search-logs-for: '"{query}" için logları ara'
   across-containers: "tüm konteynerleriniz arasında indekslenmiş"
   connect-to-enable: "Logları aramak için Dozzle Cloud'a bağlanın"
@@ -643,6 +647,8 @@ cloud-search:
   container-removed-pill: "silindi"
 command-palette:
   section-commands: Komutlar
+  section-recent: "Son kullanılanlar"
+  run-hint: "komutu çalıştır"
   restart-container: "{name} yeniden başlat"
   stop-container: "{name} durdur"
   start-container: "{name} başlat"

@@ -611,6 +611,10 @@ cloud:
       error: "任何 error 行"
 cloud-search:
   containers-section: "容器"
+  section-logs: "日志"
+  no-matches: "没有匹配的容器或命令"
+  nav-hint: "导航"
+  pin-shortcut: "固定列"
   search-logs-for: '搜索日志 "{query}"'
   across-containers: "已在所有容器中建立索引"
   connect-to-enable: "连接 Dozzle Cloud 以搜索日志"
@@ -639,6 +643,8 @@ cloud-search:
   container-removed-pill: "已删除"
 command-palette:
   section-commands: 命令
+  section-recent: "最近"
+  run-hint: "执行命令"
   restart-container: 重启 {name}
   stop-container: 停止 {name}
   start-container: 启动 {name}

@@ -611,6 +611,10 @@ cloud:
       error: "Toute ligne error"
 cloud-search:
   containers-section: "Conteneurs"
+  section-logs: "Logs"
+  no-matches: "Aucun conteneur ou commande ne correspond"
+  nav-hint: "naviguer"
+  pin-shortcut: "épingler en colonne"
   search-logs-for: 'Rechercher des logs pour "{query}"'
   across-containers: "indexés sur tous vos conteneurs"
   connect-to-enable: "Connecter Dozzle Cloud pour rechercher des logs"
@@ -639,6 +643,8 @@ cloud-search:
   container-removed-pill: "supprimé"
 command-palette:
   section-commands: Commandes
+  section-recent: "Récents"
+  run-hint: "exécuter la commande"
   restart-container: Redémarrer {name}
   stop-container: Arrêter {name}
   start-container: Démarrer {name}
