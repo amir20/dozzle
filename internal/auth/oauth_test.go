@@ -75,7 +75,7 @@ func testAuth(t *testing.T, githubLogin string, provider IdentityProvider) *oaut
 		db.byGithub[normalizeGithub(githubLogin)] = user
 	}
 
-	return NewOAuthAuth(NewSimpleAuth(db, 0), "", provider)
+	return NewOAuthAuth(NewSimpleAuth(db, 0, testSecret), "", provider)
 }
 
 // startLogin runs LoginHandler and returns the state cookie plus the state value
@@ -344,7 +344,7 @@ func TestProvidersDescribeLoginButtons(t *testing.T) {
 // With a base path the login URL has to carry it, because the login page uses
 // the value verbatim.
 func TestProvidersLoginURLCarriesBase(t *testing.T) {
-	a := NewOAuthAuth(NewSimpleAuth(UserDatabase{Users: map[string]*User{}}, 0), "/dozzle", testGithubProvider(t, "amir20"))
+	a := NewOAuthAuth(NewSimpleAuth(UserDatabase{Users: map[string]*User{}}, 0, testSecret), "/dozzle", testGithubProvider(t, "amir20"))
 
 	require.Equal(t, "/dozzle/api/auth/login?provider=github", a.Providers()[0].LoginURL)
 }

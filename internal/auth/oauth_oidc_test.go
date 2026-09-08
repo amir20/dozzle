@@ -104,7 +104,7 @@ func oidcAuth(t *testing.T, p IdentityProvider) *oauthAuthContext {
 		byGithub: map[string]*User{},
 	}
 
-	return NewOAuthAuth(NewSimpleAuth(db, 0), "", p)
+	return NewOAuthAuth(NewSimpleAuth(db, 0, testSecret), "", p)
 }
 
 // startOIDCLogin drives LoginHandler with a real Host so the callback URL is
@@ -170,7 +170,7 @@ func TestOIDCCallbackURLCarriesBase(t *testing.T) {
 	p, _, _ := testOIDCProvider(t, oidcOptions{})
 	user := &User{Username: "amir", Email: "amir@example.com"}
 	db := UserDatabase{Users: map[string]*User{"amir": user}, byEmail: map[string]*User{"amir@example.com": user}}
-	a := NewOAuthAuth(NewSimpleAuth(db, 0), "/dozzle", p)
+	a := NewOAuthAuth(NewSimpleAuth(db, 0, testSecret), "/dozzle", p)
 
 	_, _, redirectURI := startOIDCLogin(t, a, true)
 	require.Equal(t, "https://dozzle.example.com/dozzle/api/auth/callback", redirectURI)
@@ -278,7 +278,7 @@ func TestGithubAndOIDCCoexist(t *testing.T) {
 		byEmail:  map[string]*User{"amir@example.com": user},
 		byGithub: map[string]*User{"amir20": user},
 	}
-	a := NewOAuthAuth(NewSimpleAuth(db, 0), "", github, oidc)
+	a := NewOAuthAuth(NewSimpleAuth(db, 0, testSecret), "", github, oidc)
 
 	providers := a.Providers()
 	require.Len(t, providers, 2)

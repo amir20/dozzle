@@ -173,7 +173,7 @@ func TestSigningKeyCoversLinkedAccounts(t *testing.T) {
 	tokenFor := func(github, email string) string {
 		user := &User{Username: "amir", Email: email, Github: github, RolesConfigured: "all"}
 		db := UserDatabase{Users: map[string]*User{"amir": user}}
-		token, err := NewSimpleAuth(db, 0).issueToken(*user)
+		token, err := NewSimpleAuth(db, 0, testSecret).issueToken(*user)
 		require.NoError(t, err)
 		return token
 	}

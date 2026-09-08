@@ -10,6 +10,11 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+// testSecret stands in for the persisted secret from SessionSecret. It is fixed
+// so the "stable across restarts" tests below still compare two contexts built
+// from the same inputs.
+var testSecret = []byte("test-session-secret")
+
 // The JWT signing key is derived from the users in users.yml so that a token
 // stays valid across restarts and is only invalidated when a password or role
 // actually changes. Deriving it by ranging over the user map made the digest
@@ -25,12 +30,12 @@ func TestSimpleAuthSigningKeyIsStableAcrossRestarts(t *testing.T) {
 		},
 	}
 
-	_, token, err := NewSimpleAuth(users, 0).tokenAuth.Encode(map[string]any{"username": "alice"})
+	_, token, err := NewSimpleAuth(users, 0, testSecret).tokenAuth.Encode(map[string]any{"username": "alice"})
 	require.NoError(t, err)
 
 	// Each iteration stands in for a Dozzle restart against an unchanged users.yml.
 	for i := range 50 {
-		if _, err := NewSimpleAuth(users, 0).tokenAuth.Decode(token); err != nil {
+		if _, err := NewSimpleAuth(users, 0, testSecret).tokenAuth.Decode(token); err != nil {
 			t.Fatalf("token issued before restart %d was rejected: %v", i+1, err)
 		}
 	}
@@ -45,11 +50,11 @@ func TestSimpleAuthSigningKeyChangesWhenCredentialsChange(t *testing.T) {
 		},
 	}
 
-	_, token, err := NewSimpleAuth(users, 0).tokenAuth.Encode(map[string]any{"username": "alice"})
+	_, token, err := NewSimpleAuth(users, 0, testSecret).tokenAuth.Encode(map[string]any{"username": "alice"})
 	require.NoError(t, err)
 
 	users.Users["bob"].RolesConfigured = "shell,actions"
-	_, err = NewSimpleAuth(users, 0).tokenAuth.Decode(token)
+	_, err = NewSimpleAuth(users, 0, testSecret).tokenAuth.Decode(token)
 	require.Error(t, err)
 }
 
@@ -81,7 +86,7 @@ func TestSimpleAuthUsesCurrentRolesNotTheTokensRoles(t *testing.T) {
 		},
 	}
 
-	a := NewSimpleAuth(users, 0)
+	a := NewSimpleAuth(users, 0, testSecret)
 
 	// A session minted back when All did not include Cloud.
 	stale := All &^ Cloud
@@ -103,7 +108,7 @@ func TestSimpleAuthAppliesRevokedRolesToExistingSessions(t *testing.T) {
 		},
 	}
 
-	a := NewSimpleAuth(users, 0)
+	a := NewSimpleAuth(users, 0, testSecret)
 	_, token, err := a.tokenAuth.Encode(map[string]any{"username": "alice", "roles": float64(All)})
 	require.NoError(t, err)
 
@@ -122,7 +127,7 @@ func TestSimpleAuthRejectsTokenForUnknownUser(t *testing.T) {
 		},
 	}
 
-	a := NewSimpleAuth(users, 0)
+	a := NewSimpleAuth(users, 0, testSecret)
 	_, token, err := a.tokenAuth.Encode(map[string]any{"username": "mallory", "roles": float64(All)})
 	require.NoError(t, err)
 
@@ -139,7 +144,7 @@ func TestSimpleAuthResolvesTokenWithNoRolesClaim(t *testing.T) {
 		},
 	}
 
-	a := NewSimpleAuth(users, 0)
+	a := NewSimpleAuth(users, 0, testSecret)
 	_, token, err := a.tokenAuth.Encode(map[string]any{"username": "alice"})
 	require.NoError(t, err)
 
@@ -156,7 +161,7 @@ func TestSimpleAuthWithoutTokenHasNoUser(t *testing.T) {
 		},
 	}
 
-	require.Nil(t, serveWithAuth(t, NewSimpleAuth(users, 0), ""))
+	require.Nil(t, serveWithAuth(t, NewSimpleAuth(users, 0, testSecret), ""))
 }
 
 // The container filter comes from users.yml as well, parsed into labels when the
@@ -174,7 +179,7 @@ users:
 	users, err := ReadUsersFromFile(path)
 	require.NoError(t, err)
 
-	a := NewSimpleAuth(users, 0)
+	a := NewSimpleAuth(users, 0, testSecret)
 	_, token, err := a.tokenAuth.Encode(map[string]any{"username": "alice", "filter": "name=stale"})
 	require.NoError(t, err)
 
