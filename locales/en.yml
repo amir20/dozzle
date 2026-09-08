@@ -40,6 +40,7 @@ toolbar:
   none: None
   section-logs: Logs
   section-filters: Filters
+  section-display: Display
   section-export: Export
   section-container: Container
   section-image: Image
@@ -119,6 +120,10 @@ label:
 tooltip:
   search: Search containers (⌘ + k, ⌃k)
   pin-column: Pin as column
+  unpin-column: Unpin column
+  merge-stream: Merge into stream
+  merge-stream-hint: Open a container to merge it with
+  unmerge-stream: Remove from stream
   merge-all: Merge all into one stream
   network-io: "Network: ↑ {tx}/s · ↓ {rx}/s"
   disk-io: "Disk: ↑ {write}/s · ↓ {read}/s"

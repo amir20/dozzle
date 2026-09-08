@@ -40,6 +40,7 @@ toolbar:
   none: Нет
   section-logs: Логи
   section-filters: Фильтры
+  section-display: Отображение
   section-export: Экспорт
   section-container: Контейнер
   section-image: Образ
@@ -119,6 +120,10 @@ label:
 tooltip:
   search: Поиск контейнеров (⌘ + k, ⌃k)
   pin-column: Закрепить столбец
+  unpin-column: Открепить столбец
+  merge-stream: Объединить с потоком
+  merge-stream-hint: Откройте контейнер, чтобы объединить с ним
+  unmerge-stream: Убрать из потока
   merge-all: Объединить все в один поток
   network-io: "Сеть: ↑ {tx}/s · ↓ {rx}/s"
   disk-io: "Диск: ↑ {write}/s · ↓ {read}/s"

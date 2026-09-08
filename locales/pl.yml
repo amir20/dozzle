@@ -40,6 +40,7 @@ toolbar:
   none: Brak
   section-logs: Logi
   section-filters: Filtry
+  section-display: Wyświetlanie
   section-export: Eksport
   section-container: Kontener
   section-image: Obraz
@@ -119,6 +120,10 @@ label:
 tooltip:
   search: Przeszukaj kontenery (⌘ + k, ⌃k)
   pin-column: Przypnij jako kolumna
+  unpin-column: Odepnij kolumnę
+  merge-stream: Scal ze strumieniem
+  merge-stream-hint: Otwórz kontener, aby go scalić
+  unmerge-stream: Usuń ze strumienia
   merge-all: Scal wszystko w jeden strumień
   network-io: "Sieć: ↑ {tx}/s · ↓ {rx}/s"
   disk-io: "Dysk: ↑ {write}/s · ↓ {read}/s"

@@ -40,6 +40,7 @@ toolbar:
   none: 없음
   section-logs: 로그
   section-filters: 필터
+  section-display: 표시
   section-export: 내보내기
   section-container: 컨테이너
   section-image: 이미지
@@ -119,6 +120,10 @@ label:
 tooltip:
   search: 컨테이너 검색 (⌘ + k, ⌃k)
   pin-column: 열로 고정
+  unpin-column: 열 고정 해제
+  merge-stream: 스트림에 병합
+  merge-stream-hint: 병합하려면 먼저 컨테이너를 여세요
+  unmerge-stream: 스트림에서 제거
   merge-all: 모두 하나의 스트림으로 병합
   network-io: "네트워크: ↑ {tx}/s · ↓ {rx}/s"
   disk-io: "디스크: ↑ {write}/s · ↓ {read}/s"

@@ -40,6 +40,7 @@ toolbar:
   none: Ingen
   section-logs: Logs
   section-filters: Filtre
+  section-display: Visning
   section-export: Eksport
   section-container: Container
   section-image: Image
@@ -119,6 +120,10 @@ label:
 tooltip:
   search: Søg containere (⌘ + k, ⌃k)
   pin-column: Fastgør som kolonne
+  unpin-column: Frigør kolonne
+  merge-stream: Flet ind i strømmen
+  merge-stream-hint: Åbn en container for at flette med den
+  unmerge-stream: Fjern fra strømmen
   merge-all: Sammenlæg alt i én stream
   network-io: "Netværk: ↑ {tx}/s · ↓ {rx}/s"
   disk-io: "Disk: ↑ {write}/s · ↓ {read}/s"

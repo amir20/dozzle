@@ -71,7 +71,7 @@
               :to="{ name: '/container/[id]', params: { id: item.id } }"
               :label="item.name"
               :title="item.name"
-              :class="[item.state, { 'highlight-new': item.isNew }]"
+              :class="[item.state, { 'highlight-new': item.isNew, 'is-merged': isMerged && isStreaming(item.id) }]"
               @click.alt.stop.prevent="pinnedStore.pinContainer(item)"
               @animationend="item.isNew = false"
             >
@@ -79,15 +79,10 @@
                 <svg-spinners:ring-resize v-if="item.isNew" class="text-secondary size-4" />
                 <ContainerIcon v-else :state="item.state" :health="item.health" :slug="item.icon" class="size-5" />
               </template>
-              <template #trailing>
-                <span
-                  class="icon-btn hover:text-secondary hidden group-hover/nav-item:inline-flex"
-                  @click.stop.prevent="pinnedStore.pinContainer(item)"
-                  v-show="!pinnedStore.isPinned(item)"
-                  :title="$t('tooltip.pin-column')"
-                >
-                  <cil:columns class="size-4" />
-                </span>
+              <!-- The tint alone reads as "selected"; the arrows say why several rows
+                   are selected at once. -->
+              <template #trailing v-if="isMerged && isStreaming(item.id)">
+                <ph:arrows-merge class="size-3.5" />
               </template>
             </NavItem>
             <template #content>
@@ -103,6 +98,7 @@
 <script lang="ts" setup>
 import { Container } from "@/models/Container";
 import { sessionHost } from "@/composable/storage";
+import { useStreamedContainers } from "@/composable/streamedContainers";
 import { showAllContainers, groupContainers } from "@/stores/settings";
 
 import Pin from "~icons/ph/map-pin-simple";
@@ -114,6 +110,8 @@ const containerStore = useContainerStore();
 const { visibleContainers } = storeToRefs(containerStore);
 
 const pinnedStore = usePinnedLogsStore();
+
+const { isStreaming, isMerged } = useStreamedContainers();
 
 const { hosts } = useHosts();
 
