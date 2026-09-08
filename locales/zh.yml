@@ -33,6 +33,16 @@ toolbar:
   copy-logs: 复制日志
   copy-filtered-logs: 复制筛选日志
   copying-logs: 正在复制日志...
+  streams: 输出流
+  levels: 级别
+  toggle-all-levels: 切换所有级别
+  all: 全部
+  none: 无
+  section-logs: 日志
+  section-filters: 筛选
+  section-export: 导出
+  section-container: 容器
+  section-image: 镜像
 action:
   copy-log: 复制日志
   copy-link: 复制永久链接

@@ -33,6 +33,16 @@ toolbar:
   copy-logs: 로그 복사
   copy-filtered-logs: 필터된 로그 복사
   copying-logs: 로그 복사 중...
+  streams: 스트림
+  levels: 레벨
+  toggle-all-levels: 모든 레벨 전환
+  all: 전체
+  none: 없음
+  section-logs: 로그
+  section-filters: 필터
+  section-export: 내보내기
+  section-container: 컨테이너
+  section-image: 이미지
 action:
   copy-log: 로그 복사
   copy-link: 영구 링크 복사
