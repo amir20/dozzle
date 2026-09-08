@@ -18,3 +18,4 @@ tmp
 .claude/settings.local.json
 .claude/worktrees/
 .playwright-mcp/
+e2e/data/session_secret

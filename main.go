@@ -292,7 +292,10 @@ func createServer(args cli.Args, hostService web.HostService, cloudHooks web.Clo
 				log.Fatal().Err(err).Msg("Could not parse auth ttl")
 			}
 		}
-		simpleAuth := auth.NewSimpleAuth(db, ttl)
+		// Sits next to users.yml so it lands on the same volume operators already
+		// persist, and so a multi-replica setup sharing that volume signs with the
+		// same key.
+		simpleAuth := auth.NewSimpleAuth(db, ttl, auth.SessionSecret(filepath.Dir(userFilePath)))
 		authorizer = simpleAuth
 
 		if providers := oauthProviders(args); len(providers) > 0 {

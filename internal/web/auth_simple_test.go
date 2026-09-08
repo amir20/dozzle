@@ -19,6 +19,10 @@ import (
 	"github.com/spf13/afero"
 )
 
+// testSecret stands in for the persisted secret from auth.SessionSecret, fixed so
+// the snapshotted responses stay stable.
+var testSecret = []byte("test-session-secret")
+
 func Test_createRoutes_simple_redirect(t *testing.T) {
 	fs := afero.NewMemMapFs()
 	require.NoError(t, afero.WriteFile(fs, "index.html", []byte("index page"), 0644), "WriteFile should have no error.")
@@ -33,7 +37,7 @@ func Test_createRoutes_simple_redirect(t *testing.T) {
 						Password: "$2a$10$4Tvzu0ms9shlv4B8pIfqI.TM9CoqsamsAznP91A1NGuwg/68SGS1m",
 					},
 				},
-			}, time.Second*100),
+			}, time.Second*100, testSecret),
 		},
 	})
 	req, err := http.NewRequest("GET", "/", nil)
@@ -58,7 +62,7 @@ func Test_createRoutes_simple_valid_token(t *testing.T) {
 						Password: "$2a$10$4Tvzu0ms9shlv4B8pIfqI.TM9CoqsamsAznP91A1NGuwg/68SGS1m",
 					},
 				},
-			}, time.Second*100),
+			}, time.Second*100, testSecret),
 		},
 	})
 
@@ -103,7 +107,7 @@ func Test_createRoutes_simple_bad_password(t *testing.T) {
 						Password: "$2a$10$4Tvzu0ms9shlv4B8pIfqI.TM9CoqsamsAznP91A1NGuwg/68SGS1m",
 					},
 				},
-			}, time.Second*100),
+			}, time.Second*100, testSecret),
 		},
 	})
 
@@ -146,7 +150,7 @@ func Test_createRoutes_simple_cloud_callback_requires_auth(t *testing.T) {
 						Password: "$2a$10$4Tvzu0ms9shlv4B8pIfqI.TM9CoqsamsAznP91A1NGuwg/68SGS1m",
 					},
 				},
-			}, time.Second*100),
+			}, time.Second*100, testSecret),
 		},
 	})
 

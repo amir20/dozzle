@@ -25,7 +25,14 @@ type simpleAuthContext struct {
 
 var ErrInvalidCredentials = errors.New("invalid credentials")
 
-func NewSimpleAuth(userDatabase UserDatabase, ttl time.Duration) *simpleAuthContext {
+// NewSimpleAuth builds the simple auth context. secret is the persisted random
+// key from SessionSecret; it is what the signing key's entropy comes from.
+func NewSimpleAuth(userDatabase UserDatabase, ttl time.Duration, secret []byte) *simpleAuthContext {
+	// The users are hashed on top of the secret rather than instead of it. On
+	// their own they are not secret at all: an OAuth-only account has no password
+	// hash, leaving a digest over a role name, an email and a GitHub login that
+	// anyone who can guess them can reproduce and sign tokens with.
+	//
 	// Hash the users in a stable order. Ranging over the map directly makes the
 	// digest depend on Go's randomized map iteration order, so any users.yml with
 	// more than one user derives a different signing key on every start and
@@ -35,6 +42,7 @@ func NewSimpleAuth(userDatabase UserDatabase, ttl time.Duration) *simpleAuthCont
 	// password is: repointing a user at a different GitHub login has to rotate
 	// sessions, or the sessions minted under the old link outlive it.
 	h := sha256.New()
+	h.Write(secret)
 	for _, username := range slices.Sorted(maps.Keys(userDatabase.Users)) {
 		user := userDatabase.Users[username]
 		h.Write([]byte(user.Password))
