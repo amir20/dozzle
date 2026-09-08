@@ -1,6 +1,6 @@
 ---
 title: Mit GitHub & OIDC anmelden
-sourceHash: eb2ef5b9def7
+sourceHash: cb9474f23fcc
 ---
 
 # <Icon icon="mdi:shield-account" inline /> Mit GitHub & OIDC anmelden
@@ -160,7 +160,7 @@ Dozzle liest die Datei beim Start und entfernt umgebende Leerzeichen, ein abschl
 
 ### Docker Compose
 
-Ein vollständiges Beispiel. `users.yml` wird ebenfalls als Secret eingehängt, damit nichts Sensibles in der Compose-Datei steht:
+Außerhalb von Swarm gibt es kein `docker secret create`, ein Compose-Secret ist also entweder eine Datei auf der Platte oder eine Umgebungsvariable. Die Variante mit der Umgebungsvariable ist meistens die, die du willst: Sie passt zu einer per gitignore ausgeschlossenen `.env`, und es liegt keine Klartextdatei neben deiner Compose-Datei, die nur darauf wartet, eingecheckt zu werden.
 
 ```yaml [docker-compose.yml]
 services:
@@ -176,24 +176,28 @@ services:
       DOZZLE_AUTH_GITHUB_CLIENT_ID: Iv1.0123456789abcdef
       DOZZLE_AUTH_GITHUB_CLIENT_SECRET_FILE: /run/secrets/dozzle_github_secret
     secrets:
-      - source: dozzle_github_secret
-      - source: dozzle_users
-        target: /data/users.yml
+      - dozzle_github_secret
 
 secrets:
   dozzle_github_secret:
-    file: ./secrets/github_client_secret.txt
-  dozzle_users:
-    file: ./secrets/users.yml
+    environment: GITHUB_CLIENT_SECRET
 ```
 
-Lege zuerst die Secret-Datei an, ohne einen abschließenden Zeilenumbruch in deiner Shell-History:
-
-```sh
-mkdir -p secrets
-printf '%s' 'your-github-client-secret' > secrets/github_client_secret.txt
-chmod 600 secrets/github_client_secret.txt
+```ini [.env]
+GITHUB_CLIENT_SECRET=your-github-client-secret
 ```
+
+Compose liest die Variable selbst und hängt den Wert unter `/run/secrets/dozzle_github_secret` ein. Sie wird nie Teil der Umgebung des Containers und bleibt damit genauso aus `docker inspect` heraus wie ein dateibasiertes Secret.
+
+Nimm stattdessen die Datei-Variante, wenn das Secret bereits als Datei vorliegt, zum Beispiel von einem Secret-Manager geschrieben:
+
+```yaml [docker-compose.yml]
+secrets:
+  dozzle_github_secret:
+    file: /run/secrets/github_client_secret
+```
+
+So oder so entfernt Dozzle umgebende Leerzeichen, ein abschließender Zeilenumbruch in der Datei spielt also keine Rolle.
 
 ### Docker Swarm
 

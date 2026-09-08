@@ -1,6 +1,6 @@
 ---
 title: 使用 GitHub 与 OIDC 登录
-sourceHash: eb2ef5b9def7
+sourceHash: cb9474f23fcc
 ---
 
 # <Icon icon="mdi:shield-account" inline /> 使用 GitHub 与 OIDC 登录
@@ -160,7 +160,7 @@ Dozzle 会在启动时读取这个文件，并去掉首尾的空白字符，所�
 
 ### Docker Compose
 
-一个完整的例子。`users.yml` 也是当作 secret 挂载的，所以 compose 文件里不会留下任何敏感内容：
+在 Swarm 之外没有 `docker secret create`，所以 Compose 的 secret 要么是磁盘上的一个文件，要么是一个环境变量。通常你想要的是环境变量这种形式：它可以配合一个已被 gitignore 的 `.env` 使用，也不会在 compose 文件旁边留下一个明文文件等着被提交进仓库。
 
 ```yaml [docker-compose.yml]
 services:
@@ -176,24 +176,28 @@ services:
       DOZZLE_AUTH_GITHUB_CLIENT_ID: Iv1.0123456789abcdef
       DOZZLE_AUTH_GITHUB_CLIENT_SECRET_FILE: /run/secrets/dozzle_github_secret
     secrets:
-      - source: dozzle_github_secret
-      - source: dozzle_users
-        target: /data/users.yml
+      - dozzle_github_secret
 
 secrets:
   dozzle_github_secret:
-    file: ./secrets/github_client_secret.txt
-  dozzle_users:
-    file: ./secrets/users.yml
+    environment: GITHUB_CLIENT_SECRET
 ```
 
-先把 secret 文件创建出来，末尾不要带换行：
-
-```sh
-mkdir -p secrets
-printf '%s' 'your-github-client-secret' > secrets/github_client_secret.txt
-chmod 600 secrets/github_client_secret.txt
+```ini [.env]
+GITHUB_CLIENT_SECRET=your-github-client-secret
 ```
+
+Compose 会自己读取这个变量，并把它的值挂载到 `/run/secrets/dozzle_github_secret`。这个值不会成为容器环境变量的一部分，所以它和基于文件的 secret 一样，不会出现在 `docker inspect` 里。
+
+如果这个 secret 本来就已经是一个文件，比如由某个 secret 管理工具写出来的文件，那就改用文件形式：
+
+```yaml [docker-compose.yml]
+secrets:
+  dozzle_github_secret:
+    file: /run/secrets/github_client_secret
+```
+
+两种写法下 Dozzle 都会去掉首尾的空白字符，所以文件末尾有没有换行都无所谓。
 
 ### Docker Swarm
 

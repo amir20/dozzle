@@ -159,7 +159,7 @@ Dozzle reads the file at startup and trims surrounding whitespace, so a trailing
 
 ### Docker Compose
 
-A complete example. `users.yml` is mounted as a secret too, so nothing sensitive lives in the compose file:
+Outside Swarm there is no `docker secret create`, so a Compose secret is either a file on disk or an environment variable. The environment form is usually what you want: it pairs with a gitignored `.env`, and there is no plaintext file sitting next to your compose file waiting to be committed.
 
 ```yaml [docker-compose.yml]
 services:
@@ -175,24 +175,28 @@ services:
       DOZZLE_AUTH_GITHUB_CLIENT_ID: Iv1.0123456789abcdef
       DOZZLE_AUTH_GITHUB_CLIENT_SECRET_FILE: /run/secrets/dozzle_github_secret
     secrets:
-      - source: dozzle_github_secret
-      - source: dozzle_users
-        target: /data/users.yml
+      - dozzle_github_secret
 
 secrets:
   dozzle_github_secret:
-    file: ./secrets/github_client_secret.txt
-  dozzle_users:
-    file: ./secrets/users.yml
+    environment: GITHUB_CLIENT_SECRET
 ```
 
-Create the secret file first, without a trailing newline in your shell history:
-
-```sh
-mkdir -p secrets
-printf '%s' 'your-github-client-secret' > secrets/github_client_secret.txt
-chmod 600 secrets/github_client_secret.txt
+```ini [.env]
+GITHUB_CLIENT_SECRET=your-github-client-secret
 ```
+
+Compose reads the variable itself and mounts the value at `/run/secrets/dozzle_github_secret`. It never becomes part of the container's environment, so it stays out of `docker inspect` the same way a file-backed secret does.
+
+Use the file form instead when the secret already exists as a file, for example one written by a secret manager:
+
+```yaml [docker-compose.yml]
+secrets:
+  dozzle_github_secret:
+    file: /run/secrets/github_client_secret
+```
+
+Either way Dozzle trims surrounding whitespace, so a trailing newline in the file does not matter.
 
 ### Docker Swarm
 

@@ -1,6 +1,6 @@
 ---
 title: Se connecter avec GitHub et OIDC
-sourceHash: eb2ef5b9def7
+sourceHash: cb9474f23fcc
 ---
 
 # <Icon icon="mdi:shield-account" inline /> Se connecter avec GitHub et OIDC
@@ -160,7 +160,7 @@ Dozzle lit le fichier au démarrage et supprime les espaces autour, un retour à
 
 ### Docker Compose
 
-Un exemple complet. `users.yml` est monté comme un secret lui aussi, ainsi rien de sensible ne reste dans le fichier compose :
+Hors Swarm, `docker secret create` n'existe pas : un secret Compose est donc soit un fichier sur le disque, soit une variable d'environnement. La forme environnement est en général celle qu'il vous faut, elle va de pair avec un `.env` ignoré par git et aucun fichier en clair ne traîne à côté de votre fichier compose en attendant d'être commité.
 
 ```yaml [docker-compose.yml]
 services:
@@ -176,24 +176,28 @@ services:
       DOZZLE_AUTH_GITHUB_CLIENT_ID: Iv1.0123456789abcdef
       DOZZLE_AUTH_GITHUB_CLIENT_SECRET_FILE: /run/secrets/dozzle_github_secret
     secrets:
-      - source: dozzle_github_secret
-      - source: dozzle_users
-        target: /data/users.yml
+      - dozzle_github_secret
 
 secrets:
   dozzle_github_secret:
-    file: ./secrets/github_client_secret.txt
-  dozzle_users:
-    file: ./secrets/users.yml
+    environment: GITHUB_CLIENT_SECRET
 ```
 
-Créez d'abord le fichier du secret, sans retour à la ligne final dans l'historique de votre shell :
-
-```sh
-mkdir -p secrets
-printf '%s' 'your-github-client-secret' > secrets/github_client_secret.txt
-chmod 600 secrets/github_client_secret.txt
+```ini [.env]
+GITHUB_CLIENT_SECRET=your-github-client-secret
 ```
+
+Compose lit lui-même la variable et monte la valeur sur `/run/secrets/dozzle_github_secret`. Elle ne fait jamais partie de l'environnement du conteneur, elle reste donc hors de `docker inspect`, exactement comme un secret adossé à un fichier.
+
+Utilisez plutôt la forme fichier quand le secret existe déjà sous forme de fichier, par exemple écrit par un gestionnaire de secrets :
+
+```yaml [docker-compose.yml]
+secrets:
+  dozzle_github_secret:
+    file: /run/secrets/github_client_secret
+```
+
+Dans les deux cas, Dozzle supprime les espaces autour de la valeur, un retour à la ligne final dans le fichier n'a donc aucune importance.
 
 ### Docker Swarm
 
