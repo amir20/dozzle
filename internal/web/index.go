@@ -131,6 +131,10 @@ func (h *handler) executeTemplate(w http.ResponseWriter, req *http.Request) {
 		config["enableDownload"] = true
 		config["enableNotifications"] = true
 		config["enableCloud"] = true
+		// Runtime, not baked into the bundle, so pointing a dev instance at a
+		// local cloud is one env var on this process — same as DOLIGENCE_URL,
+		// which is the API half of the same override.
+		config["cloudUrl"] = cloudWebURL()
 
 		if user != nil {
 			config["enableShell"] = h.config.EnableShell && user.Roles.Has(auth.Shell)

@@ -16,6 +16,16 @@ import (
 
 var cloudHTTPClient = &http.Client{Timeout: 10 * time.Second}
 
+// cloudWebURL is the browser-facing half of Dozzle Cloud (dashboard, settings,
+// the link flow). DOLIGENCE_URL is the API half and is a different host, so the
+// two cannot share one variable.
+func cloudWebURL() string {
+	if url := os.Getenv("CLOUD_URL"); url != "" {
+		return url
+	}
+	return "https://cloud.dozzle.dev"
+}
+
 type exchangeTokenResponse struct {
 	Key       string  `json:"key"`
 	Prefix    string  `json:"prefix"`

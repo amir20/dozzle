@@ -502,6 +502,10 @@ notifications:
 cloud:
   title: Dozzle Cloud
   description: Steuern Sie Ihre Container aus der Ferne und nutzen Sie KI, um Probleme in Ihrem Cluster zu untersuchen.
+  pitch:
+    findings: Täglicher KI-Scan Ihrer Fehler und Warnungen
+    alerts: Echtzeit-Benachrichtigungen bei Abstürzen und Schwellenwerten
+    control: Container von überall starten, stoppen und untersuchen
   learn-more: Mehr erfahren
   link-instance: Instanz verknüpfen
   relink-instance: Instanz erneut verknüpfen

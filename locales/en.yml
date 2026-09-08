@@ -556,6 +556,10 @@ notifications:
 cloud:
   title: Dozzle Cloud
   description: Control your containers remotely and use AI to investigate issues across your cluster.
+  pitch:
+    findings: Daily AI scan of your errors and warnings
+    alerts: Real-time alerts for crashes and thresholds
+    control: Start, stop and inspect containers from anywhere
   learn-more: Learn more
   link-instance: Link instance
   relink-instance: Re-link instance

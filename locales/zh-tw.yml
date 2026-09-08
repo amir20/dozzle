@@ -505,6 +505,10 @@ notifications:
 cloud:
   title: Dozzle Cloud
   description: 遠端控制您的容器，並使用 AI 調查叢集中的問題。
+  pitch:
+    findings: 每日 AI 掃描您的錯誤與警告
+    alerts: 當機與門檻的即時警報
+    control: 隨時隨地啟動、停止與檢查容器
   learn-more: 瞭解更多
   link-instance: 連結實例
   relink-instance: 重新連結實例

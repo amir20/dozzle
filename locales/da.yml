@@ -502,6 +502,10 @@ notifications:
 cloud:
   title: Dozzle Cloud
   description: Styr dine containere eksternt og brug AI til at undersøge problemer på tværs af din klynge.
+  pitch:
+    findings: Daglig AI-scanning af dine fejl og advarsler
+    alerts: Realtidsalarmer ved nedbrud og grænseværdier
+    control: Start, stop og inspicér containere hvor som helst
   learn-more: Læs mere
   link-instance: Tilknyt instans
   relink-instance: Gentilknyt instans

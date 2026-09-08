@@ -112,8 +112,8 @@ const { destination, close } = defineProps<{
 }>();
 
 const callbackUrl = `${window.location.origin}${withBase("/")}`;
-const cloudLinkUrl = `${__CLOUD_URL__}/link?appUrl=${encodeURIComponent(callbackUrl)}&from=notifications`;
-const cloudSettingsUrl = `${__CLOUD_URL__}/settings`;
+const cloudLinkUrl = `${config.cloudUrl}/link?appUrl=${encodeURIComponent(callbackUrl)}&from=notifications`;
+const cloudSettingsUrl = `${config.cloudUrl}/settings`;
 
 const { cloudStatus, cloudStatusError, isLoadingCloudStatus, fetchCloudStatus } = useCloudConfig();
 

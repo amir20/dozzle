@@ -502,6 +502,10 @@ notifications:
 cloud:
   title: Dozzle Cloud
   description: Contrôlez vos conteneurs à distance et utilisez l'IA pour examiner les problèmes dans votre cluster.
+  pitch:
+    findings: Analyse quotidienne par IA de vos erreurs et avertissements
+    alerts: Alertes en temps réel pour les pannes et les seuils
+    control: Démarrez, arrêtez et inspectez vos conteneurs où que vous soyez
   learn-more: En savoir plus
   link-instance: Lier l'instance
   relink-instance: Relier l'instance

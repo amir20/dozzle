@@ -505,6 +505,10 @@ notifications:
 cloud:
   title: Dozzle Cloud
   description: Zarządzaj kontenerami zdalnie i wykorzystuj AI do badania problemów w całym klastrze.
+  pitch:
+    findings: Codzienne skanowanie błędów i ostrzeżeń przez AI
+    alerts: Alerty w czasie rzeczywistym o awariach i przekroczeniach progów
+    control: Uruchamiaj, zatrzymuj i sprawdzaj kontenery z dowolnego miejsca
   learn-more: Dowiedz się więcej
   link-instance: Połącz instancję
   relink-instance: Połącz ponownie instancję
