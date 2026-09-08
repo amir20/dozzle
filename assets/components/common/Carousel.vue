@@ -1,29 +1,41 @@
 <template>
-  <div class="flex min-h-0 flex-col gap-2">
+  <div class="flex min-h-0 flex-col gap-3">
+    <!-- A segmented control rather than the dots this used to carry: with at most a
+         handful of sections, naming them is cheaper to read than a caption that
+         only tells you where you already are. -->
+    <div
+      class="bg-base-content/6 flex shrink-0 gap-0.5 rounded-lg p-0.5"
+      role="tablist"
+      v-if="providedCards.length > 1"
+    >
+      <button
+        v-for="(c, index) in providedCards"
+        :key="c.props?.id"
+        type="button"
+        role="tab"
+        :aria-selected="activeIndex === index"
+        :title="c.props?.description ?? c.props?.title"
+        :aria-label="c.props?.description ?? c.props?.title"
+        @click="scrollToItem(index)"
+        :class="[
+          /* grow/shrink off an auto basis rather than flex-1: equal thirds wasted
+             room on a short label like Hosts and truncated Services next to it. */
+          'flex min-w-0 shrink grow basis-auto cursor-pointer items-center justify-center gap-1.5 rounded-md px-1.5 py-1 text-xs font-medium transition-colors',
+          activeIndex === index
+            ? 'bg-base-100 text-base-content shadow-sm'
+            : 'text-base-content/50 hover:text-base-content/80',
+        ]"
+      >
+        <span class="truncate">{{ c.props?.title }}</span>
+      </button>
+    </div>
+
     <div class="flex min-h-0 flex-1 flex-col overflow-auto overscroll-y-contain">
       <div
         ref="container"
         class="scrollbar-hide flex shrink-0 grow snap-x snap-mandatory overflow-x-auto overscroll-x-contain scroll-smooth"
       >
         <component v-for="(card, index) in providedCards" :key="index" :is="card" ref="cards" />
-      </div>
-    </div>
-    <div class="flex flex-col gap-2">
-      <h3 class="text-center text-sm font-thin">
-        {{ cards?.[activeIndex].title }}
-      </h3>
-      <div class="flex flex-none justify-center gap-2" v-if="providedCards.length > 1">
-        <button
-          v-for="(c, index) in providedCards"
-          :key="c.props?.id"
-          @click="scrollToItem(index)"
-          :class="[
-            'size-2 cursor-pointer rounded-full transition-all duration-700',
-            activeIndex === index ? 'bg-primary scale-125' : 'bg-base-content/50 hover:bg-base-content',
-          ]"
-          :aria-label="c.props?.title"
-          :title="c.props?.title"
-        />
       </div>
     </div>
   </div>
@@ -45,11 +57,10 @@ const scrollToItem = (index: number) => {
   });
 };
 
-const { pause, resume } = watchPausable(activeId, (v) => {
+const { pause, resume } = watchPausable(activeId, () => {
   if (activeId.value) {
     const index = cards.value?.map((c) => c.id).indexOf(activeId.value) ?? -1;
     if (index !== -1) {
-      console.log("watching", activeId.value);
       scrollToItem(index);
     }
   }

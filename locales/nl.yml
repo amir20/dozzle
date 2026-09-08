@@ -90,6 +90,8 @@ label:
   collapse-all: Alles inklappen
   collapse-group: Groep inklappen
   expand-all: Alles uitklappen
+  more-options: Meer opties
+  groups: Groepen
 tooltip:
   search: Zoek containers (⌘ + k, ⌃k)
   pin-column: Vastzetten als kolom

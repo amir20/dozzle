@@ -91,6 +91,8 @@ label:
   collapse-all: Tutup semua
   collapse-group: Tutup grup
   expand-all: Buka semua
+  more-options: Opsi lainnya
+  groups: Grup
 
 tooltip:
   search: Cari kontainer (⌘ + k, ⌃k)

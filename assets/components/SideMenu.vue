@@ -4,22 +4,38 @@
       <CarouselItem v-if="config.mode === 'k8s'" :title="$t('label.k8s-menu')" id="k8s">
         <K8sMenu />
       </CarouselItem>
-      <CarouselItem v-if="config.mode === 'swarm' && services.length > 0" :title="$t('label.swarm-menu')" id="swarm">
+      <CarouselItem
+        v-if="config.mode === 'swarm' && services.length > 0"
+        :title="$t('label.services')"
+        :description="$t('label.swarm-menu')"
+        id="swarm"
+      >
         <SwarmMenu />
       </CarouselItem>
-      <CarouselItem :title="$t('label.host-menu')" id="host">
+      <CarouselItem :title="$t('label.hosts')" :description="$t('label.host-menu')" id="host">
         <HostMenu />
       </CarouselItem>
-      <CarouselItem :title="$t('label.group-menu')" v-if="customGroups.length > 0" id="group">
+      <CarouselItem
+        :title="$t('label.groups')"
+        :description="$t('label.group-menu')"
+        v-if="customGroups.length > 0"
+        id="group"
+      >
         <GroupMenu />
       </CarouselItem>
-      <CarouselItem v-if="config.mode !== 'swarm' && services.length > 0" :title="$t('label.swarm-menu')" id="swarm">
+      <CarouselItem
+        v-if="config.mode !== 'swarm' && services.length > 0"
+        :title="$t('label.services')"
+        :description="$t('label.swarm-menu')"
+        id="swarm"
+      >
         <SwarmMenu />
       </CarouselItem>
     </Carousel>
   </div>
-  <div role="status" class="flex animate-pulse flex-col gap-4" v-else>
-    <div class="bg-base-content/50 h-3 w-full rounded-full opacity-50" v-for="_ in 9"></div>
+  <div role="status" class="flex animate-pulse flex-col gap-3" v-else>
+    <div class="bg-base-content/20 h-7 w-full rounded-lg"></div>
+    <div class="bg-base-content/10 h-3 rounded-full" v-for="i in 8" :style="{ width: `${95 - i * 6}%` }"></div>
     <span class="sr-only">Loading...</span>
   </div>
 </template>

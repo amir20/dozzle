@@ -69,6 +69,8 @@ label:
   collapse-all: 摺疊全部
   collapse-group: 摺疊群組
   expand-all: 展開全部
+  more-options: 更多選項
+  groups: 群組
   host: 主機
   hosts: 主機
   password: 密碼

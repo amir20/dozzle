@@ -90,6 +90,8 @@ label:
   collapse-all: Kollaps alle
   collapse-group: Kollaps gruppe
   expand-all: Udvid alle
+  more-options: Flere valgmuligheder
+  groups: Grupper
 tooltip:
   search: Søg containere (⌘ + k, ⌃k)
   pin-column: Fastgør som kolonne

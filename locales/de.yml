@@ -90,6 +90,8 @@ label:
   collapse-all: Alle einklappen
   collapse-group: Gruppe einklappen
   expand-all: Alle ausklappen
+  more-options: Weitere Optionen
+  groups: Gruppen
 tooltip:
   search: Suche Container (⌘ + k, ⌃k)
   pin-column: Als Spalte anheften

@@ -66,6 +66,8 @@ label:
   collapse-all: Strni vse
   collapse-group: Strni skupino
   expand-all: Razširi vse
+  more-options: Več možnosti
+  groups: Skupine
   container-name: Ime zabojnika
   container: Ni zabojnikov | 1 zabojnik | {count} zabojnikov
   alert-events: Ni dogodkov | 1 dogodek | {count} dogodkov

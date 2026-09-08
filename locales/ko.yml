@@ -90,6 +90,8 @@ label:
   collapse-all: 전체 접기
   collapse-group: 그룹 접기
   expand-all: 전체 펼치기
+  more-options: 추가 옵션
+  groups: 그룹
 tooltip:
   search: 컨테이너 검색 (⌘ + k, ⌃k)
   pin-column: 열로 고정

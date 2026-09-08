@@ -173,6 +173,28 @@
   }
 }
 
+/* --- Sidebar navigation -------------------------------------------------
+ * One vocabulary shared by every nav flavour (hosts, swarm, k8s, custom
+ * groups) so the sidebar reads as one surface no matter which mode Dozzle is
+ * running in. Kept here rather than in scoped blocks because four menu
+ * components and the mobile drawer all draw from it. */
+
+/* Small square affordance for the icon-only controls that live in the sidebar
+ * chrome: back, merge-all, overflow. Pair with `icon-btn` for the press/hover
+ * spring the rest of the app uses. */
+@utility nav-btn {
+  @apply text-base-content/50 hover:bg-base-content/10 hover:text-base-content inline-flex size-6 shrink-0 items-center justify-center rounded-md transition-colors;
+}
+
+/* A row inside a sidebar overflow dropdown. */
+@utility nav-menu-item {
+  @apply hover:bg-base-300 flex w-full cursor-pointer items-center gap-2 rounded-md px-2 py-1.5 text-left text-sm transition-colors;
+}
+
+@utility nav-menu-panel {
+  @apply dropdown-content rounded-box border-base-content/15 bg-base-200 z-50 mt-1 w-56 border p-1.5 shadow-lg;
+}
+
 @utility animate-bounce-fast {
   animation: bounce 0.5s 2 both;
 }
