@@ -2,7 +2,7 @@
 
 exports[`<ContainerEventSource /> > render html correctly > should render dates with 12 hour style 1`] = `
 "<ul data-v-cf9ff940="" class="group pt-4 medium" data-logs="" show-container-name="false">
-  <li data-v-cf9ff940="" id="1560336942709" data-time="1560336942709" class="group/entry">
+  <li data-v-cf9ff940="" id="1560336942509" data-time="1560336942509" class="group/entry">
     <div data-v-cf9ff940="" class="flex min-h-[1px] flex-1 content-center justify-center"><span class="loading loading-bars loading-md text-primary m-2" style="display: none;"></span></div>
   </li>
   <li data-v-cf9ff940="" id="1" data-time="1560336942459" class="group/entry">
@@ -54,7 +54,7 @@ exports[`<ContainerEventSource /> > render html correctly > should render dates 
 
 exports[`<ContainerEventSource /> > render html correctly > should render dates with 24 hour style 1`] = `
 "<ul data-v-cf9ff940="" class="group pt-4 medium" data-logs="" show-container-name="false">
-  <li data-v-cf9ff940="" id="1560336942709" data-time="1560336942709" class="group/entry">
+  <li data-v-cf9ff940="" id="1560336942509" data-time="1560336942509" class="group/entry">
     <div data-v-cf9ff940="" class="flex min-h-[1px] flex-1 content-center justify-center"><span class="loading loading-bars loading-md text-primary m-2" style="display: none;"></span></div>
   </li>
   <li data-v-cf9ff940="" id="1" data-time="1560336942459" class="group/entry">
@@ -106,7 +106,7 @@ exports[`<ContainerEventSource /> > render html correctly > should render dates 
 
 exports[`<ContainerEventSource /> > render html correctly > should render messages 1`] = `
 "<ul data-v-cf9ff940="" class="group pt-4 medium" data-logs="" show-container-name="false">
-  <li data-v-cf9ff940="" id="1560336942709" data-time="1560336942709" class="group/entry">
+  <li data-v-cf9ff940="" id="1560336942509" data-time="1560336942509" class="group/entry">
     <div data-v-cf9ff940="" class="flex min-h-[1px] flex-1 content-center justify-center"><span class="loading loading-bars loading-md text-primary m-2" style="display: none;"></span></div>
   </li>
   <li data-v-cf9ff940="" id="1" data-time="1560336942459" class="group/entry">
@@ -160,8 +160,8 @@ exports[`<ContainerEventSource /> > should parse messages 1`] = `
 LoadMoreLogEntry {
   "_message": "",
   "containerID": "",
-  "date": 2019-06-12T10:55:42.709Z,
-  "id": 1560336942709,
+  "date": 2019-06-12T10:55:42.509Z,
+  "id": 1560336942509,
   "level": undefined,
   "loader": [Function],
   "rawMessage": "info",
