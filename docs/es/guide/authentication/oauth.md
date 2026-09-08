@@ -1,6 +1,6 @@
 ---
 title: Iniciar sesión con GitHub y OIDC
-sourceHash: cb9474f23fcc
+sourceHash: eece13f5dae2
 ---
 
 # <Icon icon="mdi:shield-account" inline /> Iniciar sesión con GitHub y OIDC
@@ -28,7 +28,7 @@ Después copia el client ID, genera un client secret y pásale los dos a Dozzle:
 ::: code-group
 
 ```sh [cli]
-$ docker run -v /var/run/docker.sock:/var/run/docker.sock -v /path/to/dozzle/data:/data -p 8080:8080 amir20/dozzle --auth-provider simple --auth-github-client-id Iv1.0123456789abcdef --auth-github-client-secret 0123456789abcdef0123456789abcdef01234567
+$ docker run -v /var/run/docker.sock:/var/run/docker.sock -v /path/to/dozzle/data:/data -p 8080:8080 amir20/dozzle --auth-provider simple --auth-github-client-id Ov23liABCDEFGHIJKLMN --auth-github-client-secret 0123456789abcdef0123456789abcdef01234567
 ```
 
 ```yaml [docker-compose.yml]
@@ -42,7 +42,7 @@ services:
       - 8080:8080
     environment:
       DOZZLE_AUTH_PROVIDER: simple
-      DOZZLE_AUTH_GITHUB_CLIENT_ID: Iv1.0123456789abcdef
+      DOZZLE_AUTH_GITHUB_CLIENT_ID: Ov23liABCDEFGHIJKLMN
       DOZZLE_AUTH_GITHUB_CLIENT_SECRET: 0123456789abcdef0123456789abcdef01234567
 ```
 
@@ -173,7 +173,7 @@ services:
       - ./data:/data
     environment:
       DOZZLE_AUTH_PROVIDER: simple
-      DOZZLE_AUTH_GITHUB_CLIENT_ID: Iv1.0123456789abcdef
+      DOZZLE_AUTH_GITHUB_CLIENT_ID: Ov23liABCDEFGHIJKLMN
       DOZZLE_AUTH_GITHUB_CLIENT_SECRET_FILE: /run/secrets/dozzle_github_secret
     secrets:
       - dozzle_github_secret
