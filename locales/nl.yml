@@ -284,6 +284,21 @@ analytics:
 drawer:
   maximize: Maximaliseren
   restore: Herstellen
+terminal:
+  connecting: Verbinden
+  connected: Verbonden
+  closed: Verbroken
+  connection-closed: Verbinding gesloten
+  not-running: Container draait niet
+  reconnect: Opnieuw verbinden
+  attaching: Verbinden met {name}
+  decrease-font: Lettergrootte verkleinen
+  increase-font: Lettergrootte vergroten
+  search: Zoeken
+  no-results: Geen resultaten
+  previous-match: Vorige overeenkomst
+  next-match: Volgende overeenkomst
+  close-search: Zoeken sluiten
 notifications:
   title: Meldingen
   description: Configureer waar en wanneer je waarschuwingen ontvangt

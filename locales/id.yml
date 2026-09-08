@@ -295,6 +295,21 @@ analytics:
 drawer:
   maximize: Maksimalkan
   restore: Pulihkan
+terminal:
+  connecting: Menghubungkan
+  connected: Terhubung
+  closed: Terputus
+  connection-closed: Koneksi ditutup
+  not-running: Kontainer tidak berjalan
+  reconnect: Hubungkan ulang
+  attaching: Menghubungkan ke {name}
+  decrease-font: Perkecil ukuran font
+  increase-font: Perbesar ukuran font
+  search: Cari
+  no-results: Tidak ada hasil
+  previous-match: Kecocokan sebelumnya
+  next-match: Kecocokan berikutnya
+  close-search: Tutup pencarian
 notifications:
   title: Notifikasi
   description: Konfigurasikan di mana dan kapan menerima peringatan

@@ -289,6 +289,21 @@ analytics:
 drawer:
   maximize: Maksimiraj
   restore: Obnovi
+terminal:
+  connecting: Povezovanje
+  connected: Povezano
+  closed: Prekinjeno
+  connection-closed: Povezava je zaprta
+  not-running: Zabojnik ne teče
+  reconnect: Ponovno poveži
+  attaching: Povezovanje z {name}
+  decrease-font: Zmanjšaj velikost pisave
+  increase-font: Povečaj velikost pisave
+  search: Iskanje
+  no-results: Ni zadetkov
+  previous-match: Prejšnji zadetek
+  next-match: Naslednji zadetek
+  close-search: Zapri iskanje
 notifications:
   title: Obvestila
   description: Nastavite kje in kdaj prejemati opozorila

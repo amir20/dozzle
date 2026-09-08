@@ -283,6 +283,21 @@ analytics:
 drawer:
   maximize: Maximizar
   restore: Restaurar
+terminal:
+  connecting: Conectando
+  connected: Conectado
+  closed: Desconectado
+  connection-closed: Conexão encerrada
+  not-running: O container não está em execução
+  reconnect: Reconectar
+  attaching: Conectando a {name}
+  decrease-font: Diminuir o tamanho da fonte
+  increase-font: Aumentar o tamanho da fonte
+  search: Pesquisar
+  no-results: Nenhum resultado
+  previous-match: Correspondência anterior
+  next-match: Próxima correspondência
+  close-search: Fechar a pesquisa
 notifications:
   title: Notificações
   description: Configure onde e quando receber alertas

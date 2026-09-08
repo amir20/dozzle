@@ -287,6 +287,21 @@ analytics:
 drawer:
   maximize: 최대화
   restore: 복원
+terminal:
+  connecting: 연결 중
+  connected: 연결됨
+  closed: 연결 끊김
+  connection-closed: 연결이 종료되었습니다
+  not-running: 컨테이너가 실행 중이 아닙니다
+  reconnect: 다시 연결
+  attaching: "{name}에 연결하는 중"
+  decrease-font: 글꼴 크기 줄이기
+  increase-font: 글꼴 크기 키우기
+  search: 검색
+  no-results: 결과 없음
+  previous-match: 이전 일치 항목
+  next-match: 다음 일치 항목
+  close-search: 검색 닫기
 notifications:
   title: 알림
   description: 알림을 받을 위치와 시간을 설정합니다

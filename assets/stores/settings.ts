@@ -19,6 +19,7 @@ export type Settings = {
   groupContainers: "always" | "at-least-2" | "never";
   showImageUpdateAlert: boolean;
   showAppIcons: boolean;
+  terminalFontSize: number;
 };
 export const DEFAULT_SETTINGS: Settings = {
   search: true,
@@ -39,6 +40,7 @@ export const DEFAULT_SETTINGS: Settings = {
   groupContainers: "at-least-2",
   showImageUpdateAlert: false,
   showAppIcons: true,
+  terminalFontSize: 13,
 };
 
 export const settings = useProfileStorage("settings", DEFAULT_SETTINGS);
@@ -70,4 +72,5 @@ export const {
   automaticRedirect,
   groupContainers,
   showAppIcons,
+  terminalFontSize,
 } = toRefs(settings.value);

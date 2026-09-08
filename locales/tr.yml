@@ -287,6 +287,21 @@ analytics:
 drawer:
   maximize: Büyüt
   restore: Geri yükle
+terminal:
+  connecting: Bağlanıyor
+  connected: Bağlandı
+  closed: Bağlantı kesildi
+  connection-closed: Bağlantı kapandı
+  not-running: Konteyner çalışmıyor
+  reconnect: Yeniden bağlan
+  attaching: "{name} konteynerine bağlanılıyor"
+  decrease-font: Yazı tipi boyutunu küçült
+  increase-font: Yazı tipi boyutunu büyüt
+  search: Ara
+  no-results: Sonuç yok
+  previous-match: Önceki eşleşme
+  next-match: Sonraki eşleşme
+  close-search: Aramayı kapat
 notifications:
   title: Bildirimler
   description: Uyarıları nerede ve ne zaman alacağınızı yapılandırın
