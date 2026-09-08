@@ -283,6 +283,21 @@ analytics:
 drawer:
   maximize: Развернуть
   restore: Восстановить
+terminal:
+  connecting: Подключение
+  connected: Подключено
+  closed: Отключено
+  connection-closed: Соединение закрыто
+  not-running: Контейнер не запущен
+  reconnect: Переподключиться
+  attaching: Подключение к {name}
+  decrease-font: Уменьшить размер шрифта
+  increase-font: Увеличить размер шрифта
+  search: Поиск
+  no-results: Ничего не найдено
+  previous-match: Предыдущее совпадение
+  next-match: Следующее совпадение
+  close-search: Закрыть поиск
 notifications:
   title: Уведомления
   description: Настройте где и когда получать оповещения

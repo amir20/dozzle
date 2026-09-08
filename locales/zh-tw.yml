@@ -286,6 +286,21 @@ analytics:
 drawer:
   maximize: 最大化
   restore: 還原
+terminal:
+  connecting: 連線中
+  connected: 已連線
+  closed: 已中斷
+  connection-closed: 連線已關閉
+  not-running: 容器未執行
+  reconnect: 重新連線
+  attaching: 正在連線到 {name}
+  decrease-font: 縮小字級
+  increase-font: 放大字級
+  search: 搜尋
+  no-results: 無結果
+  previous-match: 上一個相符項目
+  next-match: 下一個相符項目
+  close-search: 關閉搜尋
 notifications:
   title: 通知
   description: 設定接收警報的位置和時間

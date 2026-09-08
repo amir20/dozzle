@@ -283,6 +283,21 @@ analytics:
 drawer:
   maximize: Maksimer
   restore: Gendan
+terminal:
+  connecting: Forbinder
+  connected: Forbundet
+  closed: Afbrudt
+  connection-closed: Forbindelsen blev lukket
+  not-running: Containeren kører ikke
+  reconnect: Forbind igen
+  attaching: Tilslutter til {name}
+  decrease-font: Formindsk skriftstørrelse
+  increase-font: Forøg skriftstørrelse
+  search: Søg
+  no-results: Ingen resultater
+  previous-match: Forrige match
+  next-match: Næste match
+  close-search: Luk søgning
 notifications:
   title: Notifikationer
   description: Konfigurer hvor og hvornår du vil modtage alarmer

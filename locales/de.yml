@@ -283,6 +283,21 @@ analytics:
 drawer:
   maximize: Maximieren
   restore: Wiederherstellen
+terminal:
+  connecting: Verbinde
+  connected: Verbunden
+  closed: Getrennt
+  connection-closed: Verbindung geschlossen
+  not-running: Container läuft nicht
+  reconnect: Erneut verbinden
+  attaching: Verbinde mit {name}
+  decrease-font: Schriftgröße verkleinern
+  increase-font: Schriftgröße vergrößern
+  search: Suchen
+  no-results: Keine Treffer
+  previous-match: Vorheriger Treffer
+  next-match: Nächster Treffer
+  close-search: Suche schließen
 notifications:
   title: Benachrichtigungen
   description: Konfigurieren Sie, wo und wann Sie Alarme erhalten möchten

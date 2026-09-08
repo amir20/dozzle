@@ -190,6 +190,7 @@ declare global {
   const syncRefs: typeof import('@vueuse/core').syncRefs
   const syntaxHighlightJson: typeof import('./utils/index').syntaxHighlightJson
   const templateRef: typeof import('@vueuse/core').templateRef
+  const terminalFontSize: typeof import('./stores/settings').terminalFontSize
   const throttledRef: typeof import('@vueuse/core').throttledRef
   const throttledWatch: typeof import('@vueuse/core').throttledWatch
   const toRaw: typeof import('vue').toRaw
@@ -667,6 +668,7 @@ declare module 'vue' {
     readonly syncRef: UnwrapRef<typeof import('@vueuse/core')['syncRef']>
     readonly syncRefs: UnwrapRef<typeof import('@vueuse/core')['syncRefs']>
     readonly templateRef: UnwrapRef<typeof import('@vueuse/core')['templateRef']>
+    readonly terminalFontSize: UnwrapRef<typeof import('./stores/settings')['terminalFontSize']>
     readonly throttledRef: UnwrapRef<typeof import('@vueuse/core')['throttledRef']>
     readonly throttledWatch: UnwrapRef<typeof import('@vueuse/core')['throttledWatch']>
     readonly toRaw: UnwrapRef<typeof import('vue')['toRaw']>
