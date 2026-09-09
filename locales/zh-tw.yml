@@ -317,6 +317,9 @@ analytics:
   export: 匯出
   export_csv: 下載 CSV
   export_json: 下載 JSON
+  query: 查詢
+  run: 執行
+  results: 結果
 drawer:
   maximize: 最大化
   restore: 還原

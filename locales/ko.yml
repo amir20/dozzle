@@ -318,6 +318,9 @@ analytics:
   export: 내보내기
   export_csv: CSV 다운로드
   export_json: JSON 다운로드
+  query: 쿼리
+  run: 실행
+  results: 결과
 drawer:
   maximize: 최대화
   restore: 복원

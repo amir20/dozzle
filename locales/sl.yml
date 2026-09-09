@@ -320,6 +320,9 @@ analytics:
   export: Izvozi
   export_csv: Prenesi CSV
   export_json: Prenesi JSON
+  query: Poizvedba
+  run: Zaženi
+  results: Rezultati
 drawer:
   maximize: Maksimiraj
   restore: Obnovi

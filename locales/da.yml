@@ -314,6 +314,9 @@ analytics:
   export: Eksporter
   export_csv: Download CSV
   export_json: Download JSON
+  query: Forespørgsel
+  run: Kør
+  results: Resultater
 drawer:
   maximize: Maksimer
   restore: Gendan

@@ -38,10 +38,12 @@ declare global {
   const createContainerHints: typeof import('./composable/exprEditor').createContainerHints
   const createDisposableDirective: typeof import('@vueuse/core').createDisposableDirective
   const createDrawer: typeof import('./composable/drawer').createDrawer
+  const createEditorTheme: typeof import('./composable/editorTheme').createEditorTheme
   const createEventHints: typeof import('./composable/exprEditor').createEventHints
   const createEventHook: typeof import('@vueuse/core').createEventHook
   const createExprEditor: typeof import('./composable/exprEditor').createExprEditor
   const createGlobalState: typeof import('@vueuse/core').createGlobalState
+  const createHighlightStyle: typeof import('./composable/editorTheme').createHighlightStyle
   const createInjectionState: typeof import('@vueuse/core').createInjectionState
   const createLogHints: typeof import('./composable/exprEditor').createLogHints
   const createMetricHints: typeof import('./composable/exprEditor').createMetricHints
@@ -49,6 +51,7 @@ declare global {
   const createReactiveFn: typeof import('@vueuse/core').createReactiveFn
   const createRef: typeof import('@vueuse/core').createRef
   const createReusableTemplate: typeof import('@vueuse/core').createReusableTemplate
+  const createSQLEditor: typeof import('./composable/sqlEditor').createSQLEditor
   const createSharedComposable: typeof import('@vueuse/core').createSharedComposable
   const createTemplateEditor: typeof import('./composable/templateEditor').createTemplateEditor
   const createTemplatePromise: typeof import('@vueuse/core').createTemplatePromise
@@ -363,6 +366,7 @@ declare global {
   const useResolvedTheme: typeof import('./composable/theme').useResolvedTheme
   const useRoute: typeof import('vue-router/auto').useRoute
   const useRouter: typeof import('vue-router/auto').useRouter
+  const useSQLEditorField: typeof import('./composable/useSQLEditorField').useSQLEditorField
   const useSSRWidth: typeof import('@vueuse/core').useSSRWidth
   const useScreenOrientation: typeof import('@vueuse/core').useScreenOrientation
   const useScreenSafeArea: typeof import('@vueuse/core').useScreenSafeArea
@@ -478,6 +482,9 @@ declare global {
   export type { PopoverPlacement } from './composable/popover'
   import('./composable/popover')
   // @ts-ignore
+  export type { SQLColumn, SQLEditorOptions } from './composable/sqlEditor'
+  import('./composable/sqlEditor')
+  // @ts-ignore
   export type { TemplateEditorOptions, TemplateVariable, PayloadMode } from './composable/templateEditor'
   import('./composable/templateEditor')
   // @ts-ignore
@@ -529,10 +536,12 @@ declare module 'vue' {
     readonly createContainerHints: UnwrapRef<typeof import('./composable/exprEditor')['createContainerHints']>
     readonly createDisposableDirective: UnwrapRef<typeof import('@vueuse/core')['createDisposableDirective']>
     readonly createDrawer: UnwrapRef<typeof import('./composable/drawer')['createDrawer']>
+    readonly createEditorTheme: UnwrapRef<typeof import('./composable/editorTheme')['createEditorTheme']>
     readonly createEventHints: UnwrapRef<typeof import('./composable/exprEditor')['createEventHints']>
     readonly createEventHook: UnwrapRef<typeof import('@vueuse/core')['createEventHook']>
     readonly createExprEditor: UnwrapRef<typeof import('./composable/exprEditor')['createExprEditor']>
     readonly createGlobalState: UnwrapRef<typeof import('@vueuse/core')['createGlobalState']>
+    readonly createHighlightStyle: UnwrapRef<typeof import('./composable/editorTheme')['createHighlightStyle']>
     readonly createInjectionState: UnwrapRef<typeof import('@vueuse/core')['createInjectionState']>
     readonly createLogHints: UnwrapRef<typeof import('./composable/exprEditor')['createLogHints']>
     readonly createMetricHints: UnwrapRef<typeof import('./composable/exprEditor')['createMetricHints']>
@@ -540,6 +549,7 @@ declare module 'vue' {
     readonly createReactiveFn: UnwrapRef<typeof import('@vueuse/core')['createReactiveFn']>
     readonly createRef: UnwrapRef<typeof import('@vueuse/core')['createRef']>
     readonly createReusableTemplate: UnwrapRef<typeof import('@vueuse/core')['createReusableTemplate']>
+    readonly createSQLEditor: UnwrapRef<typeof import('./composable/sqlEditor')['createSQLEditor']>
     readonly createSharedComposable: UnwrapRef<typeof import('@vueuse/core')['createSharedComposable']>
     readonly createTemplateEditor: UnwrapRef<typeof import('./composable/templateEditor')['createTemplateEditor']>
     readonly createTemplatePromise: UnwrapRef<typeof import('@vueuse/core')['createTemplatePromise']>
@@ -848,6 +858,7 @@ declare module 'vue' {
     readonly useResolvedTheme: UnwrapRef<typeof import('./composable/theme')['useResolvedTheme']>
     readonly useRoute: UnwrapRef<typeof import('vue-router/auto')['useRoute']>
     readonly useRouter: UnwrapRef<typeof import('vue-router/auto')['useRouter']>
+    readonly useSQLEditorField: UnwrapRef<typeof import('./composable/useSQLEditorField')['useSQLEditorField']>
     readonly useSSRWidth: UnwrapRef<typeof import('@vueuse/core')['useSSRWidth']>
     readonly useScreenOrientation: UnwrapRef<typeof import('@vueuse/core')['useScreenOrientation']>
     readonly useScreenSafeArea: UnwrapRef<typeof import('@vueuse/core')['useScreenSafeArea']>

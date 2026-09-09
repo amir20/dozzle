@@ -1,56 +1,96 @@
 <template>
-  <aside class="flex flex-col gap-5 pb-8">
-    <header class="flex items-center gap-3 pr-8">
-      <ph:file-sql class="text-primary size-7 shrink-0" />
-      <div class="flex min-w-0 flex-col">
-        <h1 class="text-xl leading-tight font-semibold">{{ $t("analytics.title") }}</h1>
-        <p class="text-base-content/60 flex items-center gap-1.5 text-sm">
-          <span class="truncate">{{ container.name }}</span>
-          <span class="opacity-40">·</span>
-          <RelativeTime :date="container.created" />
-        </p>
+  <!-- pr-24 keeps the title clear of the drawer's maximize/close buttons, which
+       float over this slot. -->
+  <header class="border-base-content/10 flex flex-wrap items-center gap-x-3 gap-y-1 border-b pr-24 pb-4">
+    <ph:file-sql class="text-primary size-6 shrink-0" />
+    <h1 class="text-base font-semibold">{{ $t("analytics.title") }}</h1>
+    <h2 class="text-base-content/55 flex min-w-0 items-center text-xs">
+      <span class="truncate">{{ container.name }}</span>
+      <span class="px-1">&middot;</span>
+      <RelativeTime :date="container.created" />
+    </h2>
+  </header>
+
+  <div class="mt-5 flex flex-col gap-6 pb-8">
+    <section class="flex flex-col gap-2">
+      <div class="flex items-center gap-3">
+        <div class="field-label">{{ $t("analytics.query") }}</div>
+        <div class="text-base-content/40 ml-auto flex items-center gap-1.5 text-xs">
+          <KeyShortcut char="&crarr;" />
+          {{ $t("analytics.run") }}
+        </div>
       </div>
-    </header>
+
+      <div
+        class="bg-base-200 focus-within:border-primary/60 min-h-24 rounded-md border px-3 py-1"
+        :class="error ? 'border-error/50' : 'border-base-content/10'"
+      >
+        <div ref="editorEl" class="w-full" :aria-label="$t('analytics.title')"></div>
+      </div>
+
+      <!-- Binder errors name the offending column and clause, so they wrap
+           rather than truncate: the useful half is usually at the end. -->
+      <p
+        v-if="error"
+        class="border-error/30 bg-error/10 text-error rounded-md border px-3 py-2 font-mono text-xs leading-relaxed whitespace-pre-wrap"
+      >
+        {{ error }}
+      </p>
+    </section>
+
+    <section class="flex flex-col gap-3" v-if="state === 'ready' && columns.length">
+      <div class="flex flex-wrap items-center gap-x-3 gap-y-1.5">
+        <div class="field-label">{{ $t("analytics.examples") }}</div>
+        <button v-for="ex in examples" :key="ex.key" class="chip" @click="applyExample(ex.sql)">
+          {{ $t(ex.key, ex.params ?? {}) }}
+        </button>
+      </div>
+
+      <details class="group">
+        <summary class="text-base-content/50 hover:text-base-content/80 flex w-fit cursor-pointer items-center gap-1">
+          <ph:caret-right class="size-3 transition-transform group-open:rotate-90" />
+          <span class="field-label">{{ $t("analytics.columns") }}</span>
+          <span class="text-xs opacity-60">{{ columns.length }}</span>
+        </summary>
+        <div class="mt-2 flex max-h-40 flex-wrap gap-1.5 overflow-y-auto">
+          <button
+            v-for="col in columns"
+            :key="col.name"
+            class="chip font-mono"
+            :title="col.type"
+            @click="insertColumn(col.name)"
+          >
+            {{ col.name }}
+          </button>
+        </div>
+      </details>
+    </section>
 
     <section class="flex flex-col gap-2">
-      <textarea
-        ref="queryEl"
-        v-model="query"
-        class="textarea textarea-primary w-full resize-y font-mono text-sm leading-relaxed"
-        :class="{ 'textarea-error!': error }"
-        :disabled="state !== 'ready'"
-        rows="3"
-        spellcheck="false"
-        autocapitalize="off"
-        autocomplete="off"
-        :aria-label="$t('analytics.title')"
-        @keydown.meta.enter.prevent="run"
-        @keydown.ctrl.enter.prevent="run"
-      ></textarea>
+      <div class="flex items-center gap-3">
+        <div class="field-label shrink-0">{{ $t("analytics.results") }}</div>
 
-      <div class="flex min-h-6 items-center text-sm">
-        <div class="min-w-0 flex-1 truncate">
-          <span class="text-error" v-if="error">{{ error }}</span>
-          <span class="text-base-content/60 inline-flex items-center gap-2" v-else-if="state === 'initializing'">
+        <p class="text-base-content/45 min-w-0 truncate text-xs">
+          <span class="inline-flex items-center gap-2" v-if="state === 'initializing'">
             <span class="loading loading-spinner loading-xs"></span>{{ $t("analytics.creating_table") }}
           </span>
-          <span class="text-base-content/60 inline-flex items-center gap-2" v-else-if="state === 'downloading'">
+          <span class="inline-flex items-center gap-2" v-else-if="state === 'downloading'">
             <span class="loading loading-spinner loading-xs"></span
             >{{ $t("analytics.downloading", { size: formatBytes(bytes, { decimals: 1 }) }) }}
           </span>
-          <span class="text-base-content/60 inline-flex items-center gap-2" v-else-if="evaluating">
+          <span class="inline-flex items-center gap-2" v-else-if="evaluating">
             <span class="loading loading-spinner loading-xs"></span>{{ $t("analytics.evaluating_query") }}
           </span>
-          <span class="text-base-content/60" v-else>
+          <template v-else>
             {{ $t("analytics.total_records", { count: results.numRows.toLocaleString() }) }}
             <template v-if="results.numRows > pageLimit">{{
               $t("analytics.showing_first", { count: page.numRows.toLocaleString() })
             }}</template>
-          </span>
-        </div>
+          </template>
+        </p>
 
         <Popover
-          class="shrink-0"
+          class="ml-auto shrink-0"
           placement="bottom-end"
           panel-class="bg-base-200 rounded-box w-44 p-2 shadow-sm"
           v-if="canExport"
@@ -75,45 +115,12 @@
           </ul>
         </Popover>
       </div>
-    </section>
 
-    <section v-if="state === 'ready' && columns.length" class="flex flex-col gap-2 text-xs">
-      <div class="flex flex-wrap items-center gap-x-2 gap-y-1">
-        <span class="text-base-content/50 font-medium">{{ $t("analytics.examples") }}</span>
-        <button
-          v-for="ex in examples"
-          :key="ex.key"
-          class="badge badge-sm badge-outline hover:border-primary hover:text-primary cursor-pointer"
-          @click="applyExample(ex.sql)"
-        >
-          {{ $t(ex.key, ex.params ?? {}) }}
-        </button>
+      <div class="border-base-content/10 max-h-160 overflow-auto rounded-md border">
+        <SQLTable :table="page" :loading="evaluating || state !== 'ready'" />
       </div>
-
-      <details class="group">
-        <summary
-          class="text-base-content/50 hover:text-base-content/80 flex w-fit cursor-pointer items-center gap-1 font-medium select-none"
-        >
-          <ph:caret-right class="size-3 transition-transform group-open:rotate-90" />
-          {{ $t("analytics.columns") }}
-          <span class="opacity-60">{{ columns.length }}</span>
-        </summary>
-        <div class="mt-2 flex max-h-40 flex-wrap gap-1.5 overflow-y-auto">
-          <button
-            v-for="col in columns"
-            :key="col.name"
-            class="badge badge-sm badge-ghost hover:border-primary hover:text-primary cursor-pointer font-mono"
-            :title="col.type"
-            @click="insertColumn(col.name)"
-          >
-            {{ col.name }}
-          </button>
-        </div>
-      </details>
     </section>
-
-    <SQLTable :table="page" :loading="evaluating || state !== 'ready'" />
-  </aside>
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -121,14 +128,26 @@ import { Container } from "@/models/Container";
 import { type Table } from "@apache-arrow/esnext-esm";
 
 const { container } = defineProps<{ container: Container }>();
-const query = ref("SELECT * FROM logs LIMIT 100");
+const defaultQuery = "SELECT * FROM logs LIMIT 100";
+const query = ref(defaultQuery);
 const error = ref<string | null>(null);
 const evaluating = ref(false);
 const pageLimit = 1000;
 const state = ref<"downloading" | "ready" | "initializing">("downloading");
 const bytes = ref(0);
 const columns = ref<{ name: string; type: string }[]>([]);
-const queryEl = useTemplateRef<HTMLTextAreaElement>("queryEl");
+const editorEl = ref<HTMLElement>();
+
+const { setValue, insertAtCursor } = useSQLEditorField(editorEl, {
+  placeholder: defaultQuery,
+  // Read once: the editor owns its content after mount, and re-seeding it on every model
+  // change would fight the user's cursor.
+  initialValue: query.value,
+  // Read lazily so completions pick up the schema the moment DESCRIBE returns.
+  getColumns: () => columns.value,
+  onRun: () => run(),
+  onChange: (v) => (query.value = v),
+});
 
 const runQuery = ref(query.value);
 watchDebounced(query, (v) => (runQuery.value = v), { debounce: 500 });
@@ -216,25 +235,13 @@ function run() {
 }
 
 function applyExample(sql: string) {
-  query.value = sql;
+  setValue(sql);
   nextTick(run);
 }
 
 function insertColumn(name: string) {
-  const text = `"${name}"`;
-  const el = queryEl.value;
-  if (!el) {
-    query.value += text;
-    return;
-  }
-  const start = el.selectionStart ?? query.value.length;
-  const end = el.selectionEnd ?? start;
-  query.value = query.value.slice(0, start) + text + query.value.slice(end);
-  nextTick(() => {
-    el.focus();
-    const pos = start + text.length;
-    el.setSelectionRange(pos, pos);
-  });
+  // Matches what completion applies: bare when it is a legal identifier, quoted otherwise.
+  insertAtCursor(/^[A-Za-z_][A-Za-z0-9_]*$/.test(name) ? name : `"${name}"`);
 }
 
 const results = computedAsync(
@@ -314,4 +321,21 @@ function exportResults(format: "csv" | "json") {
   (document.activeElement as HTMLElement | null)?.blur();
 }
 </script>
-<style scoped></style>
+<style scoped>
+@reference "@/main.css";
+
+/* Same label style as LogDetails, so both log drawers give the eye one "this is
+   a label, not content" cue. */
+.field-label {
+  @apply text-base-content/50 text-[0.7rem] font-semibold tracking-wider uppercase;
+}
+
+/* Examples and column names are both "click to put this in the query", so they
+   share one affordance instead of two different daisyUI badge variants. */
+.chip {
+  @apply border-base-content/15 text-base-content/80 cursor-pointer rounded border px-2 py-0.5 text-xs transition-colors;
+}
+.chip:hover {
+  @apply border-primary/50 text-primary;
+}
+</style>
