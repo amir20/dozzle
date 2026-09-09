@@ -384,6 +384,7 @@ declare global {
   const useSorted: typeof import('@vueuse/core').useSorted
   const useSpeechRecognition: typeof import('@vueuse/core').useSpeechRecognition
   const useSpeechSynthesis: typeof import('@vueuse/core').useSpeechSynthesis
+  const useSseReconnect: typeof import('./composable/sseReconnect').useSseReconnect
   const useStackStream: typeof import('./composable/eventStreams').useStackStream
   const useStaleUI: typeof import('./composable/staleUI').useStaleUI
   const useStepper: typeof import('@vueuse/core').useStepper
@@ -876,6 +877,7 @@ declare module 'vue' {
     readonly useSorted: UnwrapRef<typeof import('@vueuse/core')['useSorted']>
     readonly useSpeechRecognition: UnwrapRef<typeof import('@vueuse/core')['useSpeechRecognition']>
     readonly useSpeechSynthesis: UnwrapRef<typeof import('@vueuse/core')['useSpeechSynthesis']>
+    readonly useSseReconnect: UnwrapRef<typeof import('./composable/sseReconnect')['useSseReconnect']>
     readonly useStackStream: UnwrapRef<typeof import('./composable/eventStreams')['useStackStream']>
     readonly useStaleUI: UnwrapRef<typeof import('./composable/staleUI')['useStaleUI']>
     readonly useStepper: UnwrapRef<typeof import('@vueuse/core')['useStepper']>

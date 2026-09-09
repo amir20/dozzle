@@ -35,12 +35,19 @@ export const useContainerStore = defineStore("container", () => {
 
   let errorTimer: ReturnType<typeof setTimeout> | null = null;
 
+  // the server heartbeats every 20s, so three misses means the connection is gone even if
+  // the browser still calls it OPEN
+  const reconnect = useSseReconnect({ connect: () => connect(), source: () => es, staleAfter: 60_000 });
+
   function connect() {
     es?.close();
     ready.value = false;
     es = new EventSource(withBase("/api/events/stream"));
     es.addEventListener("error", (e) => {
-      if (es?.readyState === EventSource.CONNECTING && errorTimer === null) {
+      reconnect.onError();
+      // the browser retries on its own while CONNECTING; give it a few goes before saying
+      // anything, since a single hiccup resolves itself well inside this window
+      if (errorTimer === null && es?.readyState !== EventSource.OPEN) {
         errorTimer = setTimeout(() => {
           errorTimer = null;
           showToast(
@@ -52,9 +59,11 @@ export const useContainerStore = defineStore("container", () => {
             },
             { once: true },
           );
-        }, 5000);
+        }, 10000);
       }
     });
+
+    es.addEventListener("ping", () => reconnect.onActivity());
 
     es.addEventListener("server-version", (e) => {
       const { version } = parseEventData<{ version: string }>(e);
@@ -66,6 +75,9 @@ export const useContainerStore = defineStore("container", () => {
     es.addEventListener("containers-changed", (e) => {
       updateContainers(parseEventData<ContainerJson[]>(e));
       ready.value = true;
+      // the load-time notice below may have fired against a slow first list; the
+      // containers are here now, so it no longer describes anything
+      removeToast("events-timeout");
     });
     es.addEventListener("container-stat", (e) => {
       const stat = parseEventData<ContainerStat>(e);
@@ -126,6 +138,7 @@ export const useContainerStore = defineStore("container", () => {
     });
 
     es.onopen = () => {
+      reconnect.onOpen();
       if (errorTimer !== null) {
         clearTimeout(errorTimer);
         errorTimer = null;

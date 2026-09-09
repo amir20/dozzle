@@ -129,6 +129,8 @@ Content-Security-Policy: default-src 'self' 'wasm-unsafe-eval' blob: https://cdn
 Content-Type: text/event-stream
 X-Accel-Buffering: no
 
+retry: 3000
+
 event: server-version
 data: {"version":""}
 
@@ -153,6 +155,8 @@ Connection: keep-alive
 Content-Security-Policy: default-src 'self' 'wasm-unsafe-eval' blob: https://cdn.jsdelivr.net https://*.duckdb.org; style-src 'self' 'unsafe-inline' blob:; img-src 'self' data:; font-src 'self' data:;
 Content-Type: text/event-stream
 X-Accel-Buffering: no
+
+retry: 3000
 
 event: server-version
 data: {"version":""}
@@ -179,7 +183,11 @@ X-Content-Type-Options: nosniff
 error finding container
 
 /* snapshot: Test_handler_streamLogs_error_reading */
-:ping
+retry: 3000
+
+:ping 
+
+
 
 /* snapshot: Test_handler_streamLogs_error_std */
 HTTP/1.1 400 Bad Request
@@ -191,6 +199,8 @@ X-Content-Type-Options: nosniff
 stdout or stderr is required
 
 /* snapshot: Test_handler_streamLogs_happy */
+retry: 3000
+
 :ping 
 
 data: {"t":"single","m":"INFO Testing logs...\n","ts":0,"id":3835490584,"l":"info","s":"stdout","c":"123456"}
@@ -199,13 +209,23 @@ data: {"t":"single","m":"INFO Testing logs...\n","ts":0,"id":3835490584,"l":"inf
 event: container-event
 data: {"name":"container-stopped","host":"localhost","actorId":"123456","time":"<removed>"}
 
+
+
+
 /* snapshot: Test_handler_streamLogs_happy_container_stopped */
+retry: 3000
+
 :ping 
 
 event: container-event
 data: {"name":"container-stopped","host":"localhost","actorId":"123456","time":"<removed>"}
 
+
+
+
 /* snapshot: Test_handler_streamLogs_happy_with_id */
+retry: 3000
+
 :ping 
 
 data: {"t":"single","m":"INFO Testing logs...","rm":"INFO Testing logs...","ts":1589396137772,"id":2908612274,"l":"info","s":"stdout","c":"123456"}

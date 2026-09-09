@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"io"
 	"strings"
+	"time"
 
 	"net/http"
 )
@@ -67,6 +68,14 @@ func (s *SSEWriter) Write(data []byte) (int, error) {
 	s.f.Flush()
 
 	return written, nil
+}
+
+// Retry sets how long the browser waits before reconnecting a dropped stream. Browsers
+// pick their own default otherwise (Chrome ~3s, Firefox ~5s), and it is reset on every
+// reconnect, so it is sent again at the top of each stream.
+func (s *SSEWriter) Retry(d time.Duration) error {
+	_, err := s.Write([]byte(fmt.Sprintf("retry: %d", d.Milliseconds())))
+	return err
 }
 
 func (s *SSEWriter) Ping() error {

@@ -182,6 +182,7 @@ function useLogStream(url: Ref<string>, container?: Ref<Container>) {
     },
   });
   let es: EventSource | null = null;
+  const reconnect = useSseReconnect({ connect: () => connect({ clear: true }), source: () => es });
 
   function close() {
     if (es) {
@@ -256,8 +257,13 @@ function useLogStream(url: Ref<string>, container?: Ref<Container>) {
     };
     es.onerror = () => {
       error.value = true;
+      // CLOSED means the browser has stopped retrying, so the log view would sit empty
+      // until a manual reload. Reconnecting drops and refetches rather than resuming,
+      // since the backfill the server replays would otherwise duplicate what is on screen.
+      reconnect.onError();
     };
     es.onopen = () => {
+      reconnect.onOpen();
       loading.value = false;
       opened.value = true;
       error.value = false;
@@ -266,7 +272,10 @@ function useLogStream(url: Ref<string>, container?: Ref<Container>) {
 
   watch(urlWithParams, () => connect(), { immediate: true });
 
-  onScopeDispose(() => close());
+  onScopeDispose(() => {
+    reconnect.dispose();
+    close();
+  });
 
   watch(messages, () => {
     if (messages.value.length > 1) {
