@@ -43,7 +43,7 @@
       </li>
       <li v-if="hasComplexLogs">
         <a @click="showDrawer(LogAnalytics, { container }, 'lg')">
-          <ph:file-sql /> SQL Analytics
+          <ph:file-sql /> {{ $t("analytics.title") }}
           <KeyShortcut char="f" :modifiers="['shift', 'meta']" />
         </a>
       </li>

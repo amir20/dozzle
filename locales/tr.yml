@@ -318,6 +318,9 @@ analytics:
   export: Dışa aktar
   export_csv: CSV indir
   export_json: JSON indir
+  query: Sorgu
+  run: Çalıştır
+  results: Sonuçlar
 drawer:
   maximize: Büyüt
   restore: Geri yükle

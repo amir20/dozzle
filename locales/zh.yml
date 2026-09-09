@@ -314,6 +314,9 @@ analytics:
   export: 导出
   export_csv: 下载 CSV
   export_json: 下载 JSON
+  query: 查询
+  run: 运行
+  results: 结果
 drawer:
   maximize: 最大化
   restore: 还原

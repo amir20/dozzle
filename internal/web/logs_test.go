@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/binary"
+	"encoding/json"
 	"errors"
 	"io"
 	"net/url"
@@ -448,6 +449,117 @@ func Test_handler_between_dates_with_everything_complex(t *testing.T) {
 	reader := strings.NewReader(regexp.MustCompile(`"time":"[^"]*"`).ReplaceAllString(rr.Body.String(), `"time":"<removed>"`))
 	abide.AssertReader(t, t.Name(), reader)
 	mockedClient.AssertExpectations(t)
+}
+
+// jsonOnly feeds the SQL analytics view, which builds a DuckDB table with
+// `unnest(m)`. That only works when every `m` is an object, so anything that is
+// not a complex event has to be dropped here. Filtering on "the message is not a
+// string" is not enough: grouped events carry a []string, which makes DuckDB
+// infer the column as JSON and fails the whole table with a binder error.
+func Test_handler_between_dates_everything_jsonOnly(t *testing.T) {
+	// A single line, a two line group (an ERROR followed by an unlevelled
+	// continuation close in time), and a complex JSON line.
+	data := concatMessages(
+		"2020-05-13T18:55:37.772853839Z INFO Testing stdout logs...\n",
+		"2020-05-13T18:55:38.772853839Z ERROR something blew up\n",
+		"2020-05-13T18:55:38.782853839Z     at foo.bar(baz.go:1)\n",
+		"2020-05-13T18:56:37.772853839Z {\"msg\":\"a complex log message\"}\n",
+	)
+
+	tests := []struct {
+		name      string
+		jsonOnly  bool
+		wantTypes []container.LogType
+	}{
+		{
+			name:      "jsonOnly keeps complex events only",
+			jsonOnly:  true,
+			wantTypes: []container.LogType{container.LogTypeComplex},
+		},
+		{
+			name:     "without jsonOnly every event is sent",
+			jsonOnly: false,
+			wantTypes: []container.LogType{
+				container.LogTypeSingle,
+				container.LogTypeGroup,
+				container.LogTypeComplex,
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			events := fetchEverything(t, data, tt.jsonOnly)
+
+			types := make([]container.LogType, 0, len(events))
+			for _, event := range events {
+				types = append(types, event.Type)
+			}
+			assert.Equal(t, tt.wantTypes, types)
+
+			for _, event := range events {
+				if !tt.jsonOnly {
+					continue
+				}
+				// unnest(m) rejects anything that is not a struct, so every
+				// message the analytics view sees must decode to an object.
+				assert.IsType(t, map[string]any{}, event.Message)
+			}
+		})
+	}
+}
+
+// fetchEverything runs the between-dates handler over data with everything=true
+// and returns the decoded events it wrote.
+func fetchEverything(t *testing.T, data []byte, jsonOnly bool) []*container.LogEvent {
+	t.Helper()
+
+	id := "123456"
+	req, err := http.NewRequest("GET", "/api/hosts/localhost/containers/"+id+"/logs", nil)
+	require.NoError(t, err, "NewRequest should not return an error.")
+
+	q := req.URL.Query()
+	q.Add("stdout", "true")
+	q.Add("stderr", "true")
+	q.Add("everything", "true")
+	if jsonOnly {
+		q.Add("jsonOnly", "true")
+	}
+	req.URL.RawQuery = q.Encode()
+
+	mockedClient := new(MockedClient)
+	mockedClient.On("ContainerLogsBetweenDates", mock.Anything, id, mock.Anything, mock.Anything, container.STDALL).
+		Return(io.NopCloser(bytes.NewReader(data)), nil).
+		Once()
+	mockedClient.On("FindContainer", mock.Anything, id).Return(container.Container{ID: id}, nil)
+	mockedClient.On("Host").Return(container.Host{ID: "localhost"})
+	mockedClient.On("ListContainers", mock.Anything, mock.Anything).Return([]container.Container{
+		{ID: id, Name: "test", Host: "localhost", State: "running"},
+	}, nil)
+	mockedClient.On("ContainerEvents", mock.Anything, mock.AnythingOfType("chan<- container.ContainerEvent")).Return(nil)
+
+	rr := httptest.NewRecorder()
+	createDefaultHandler(mockedClient).ServeHTTP(rr, req)
+	require.Equal(t, http.StatusOK, rr.Code)
+	mockedClient.AssertExpectations(t)
+
+	var events []*container.LogEvent
+	decoder := json.NewDecoder(rr.Body)
+	for decoder.More() {
+		event := &container.LogEvent{}
+		require.NoError(t, decoder.Decode(event))
+		events = append(events, event)
+	}
+
+	return events
+}
+
+func concatMessages(messages ...string) []byte {
+	var data []byte
+	for _, message := range messages {
+		data = append(data, makeMessage(message, container.STDOUT)...)
+	}
+	return data
 }
 
 func Test_matchesFilter_inverse(t *testing.T) {

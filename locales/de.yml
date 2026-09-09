@@ -314,6 +314,9 @@ analytics:
   export: Exportieren
   export_csv: CSV herunterladen
   export_json: JSON herunterladen
+  query: Abfrage
+  run: Ausführen
+  results: Ergebnisse
 drawer:
   maximize: Maximieren
   restore: Wiederherstellen

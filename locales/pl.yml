@@ -317,6 +317,9 @@ analytics:
   export: Eksportuj
   export_csv: Pobierz CSV
   export_json: Pobierz JSON
+  query: Zapytanie
+  run: Uruchom
+  results: Wyniki
 drawer:
   maximize: Maksymalizuj
   restore: Przywróć

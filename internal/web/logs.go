@@ -1,6 +1,7 @@
 package web
 
 import (
+	"cmp"
 	"compress/gzip"
 	"context"
 	"encoding/json"
@@ -8,7 +9,7 @@ import (
 	"fmt"
 	"math"
 	"regexp"
-	"sort"
+	"slices"
 	"strconv"
 	"strings"
 
@@ -216,7 +217,10 @@ func (h *handler) fetchLogsBetweenDates(w http.ResponseWriter, r *http.Request) 
 
 		for event := range events {
 			if everything {
-				if _, ok := event.Message.(string); onlyComplex && ok {
+				// Grouped events carry a []string message, so filtering on "not a
+				// string" still lets arrays through and breaks struct inference for
+				// consumers like the SQL analytics view.
+				if onlyComplex && event.Type != container.LogTypeComplex {
 					continue
 				}
 				if regex != nil && inverse == support_web.Search(regex, event) {
@@ -460,17 +464,23 @@ func (h *handler) streamLogsForContainers(w http.ResponseWriter, r *http.Request
 			defer func() {
 				send(searchStatus{ScannedTo: to, Matches: found, Done: true, Reason: reason})
 			}()
+			// Resolved once, not per scan window: for an agent host FindContainer is
+			// a gRPC round-trip, and the walk below re-visits every container on each
+			// widening pass. Container metadata doesn't change under us mid-scan.
+			services := make([]*container_support.ContainerService, 0, len(existingContainers))
+			for _, c := range existingContainers {
+				containerService, err := h.hostService.FindContainer(c.Host, c.ID, userLabels)
+				if err != nil {
+					log.Error().Err(err).Msg("error while finding container")
+					return
+				}
+				services = append(services, containerService)
+			}
+
 			for minimum > 0 {
 				events := make([]*container.LogEvent, 0)
 				stillRunning := false
-				for _, container := range existingContainers {
-					containerService, err := h.hostService.FindContainer(container.Host, container.ID, userLabels)
-
-					if err != nil {
-						log.Error().Err(err).Msg("error while finding container")
-						return
-					}
-
+				for _, containerService := range services {
 					if to.Before(containerService.Container.Created) {
 						continue
 					}
@@ -500,8 +510,10 @@ func (h *handler) streamLogsForContainers(w http.ResponseWriter, r *http.Request
 				delta *= 2
 				minimum -= len(events)
 				found += len(events)
-				sort.Slice(events, func(i, j int) bool {
-					return events[i].Timestamp < events[j].Timestamp
+				// Stable so that events sharing a timestamp keep the per-container
+				// order they were collected in rather than shuffling between passes.
+				slices.SortStableFunc(events, func(a, b *container.LogEvent) int {
+					return cmp.Compare(a.Timestamp, b.Timestamp)
 				})
 				if len(events) > 0 {
 					select {
@@ -517,15 +529,12 @@ func (h *handler) streamLogsForContainers(w http.ResponseWriter, r *http.Request
 		}()
 	}
 
-	streamLogs := func(c container.Container) {
-		containerService, err := h.hostService.FindContainer(c.Host, c.ID, userLabels)
-		if err != nil {
-			log.Error().Err(err).Msg("error while finding container")
-			return
-		}
-		c = containerService.Container
+	streamLogsFor := func(containerService *container_support.ContainerService) {
+		c := containerService.Container
 		start := utils.Max(absoluteTime, c.StartedAt)
-		err = containerService.StreamLogs(r.Context(), start, stdTypes, liveLogs)
+		// Must stay a local: one of these runs per container, and the handler's
+		// own `err` is shared by all of them.
+		err := containerService.StreamLogs(r.Context(), start, stdTypes, liveLogs)
 		if err != nil {
 			if errors.Is(err, io.EOF) {
 				log.Debug().Str("container", c.ID).Msg("streaming ended")
@@ -552,6 +561,15 @@ func (h *handler) streamLogsForContainers(w http.ResponseWriter, r *http.Request
 		}
 	}
 
+	streamLogs := func(c container.Container) {
+		containerService, err := h.hostService.FindContainer(c.Host, c.ID, userLabels)
+		if err != nil {
+			log.Error().Err(err).Msg("error while finding container")
+			return
+		}
+		streamLogsFor(containerService)
+	}
+
 	for _, container := range existingContainers {
 		go streamLogs(container)
 	}
@@ -560,6 +578,7 @@ func (h *handler) streamLogsForContainers(w http.ResponseWriter, r *http.Request
 	h.hostService.SubscribeContainersStarted(r.Context(), newContainers, containerFilter)
 
 	ticker := time.NewTicker(5 * time.Second)
+	defer ticker.Stop()
 	sseWriter.Ping()
 loop:
 	for {
@@ -572,7 +591,9 @@ loop:
 			support_web.EscapeHTMLValues(logEvent)
 			sseWriter.Message(logEvent)
 		case c := <-newContainers:
-			if _, err := h.hostService.FindContainer(c.Host, c.ID, userLabels); err == nil {
+			// The lookup doubles as the ACL check, so hand the resolved service
+			// straight to the streamer instead of resolving the same container twice.
+			if containerService, err := h.hostService.FindContainer(c.Host, c.ID, userLabels); err == nil {
 				// Written straight to the client instead of pushed through `events`.
 				// This case runs on the same goroutine that drains `events`, so a send
 				// here waits on a reader that is this very statement: with the buffer
@@ -584,7 +605,7 @@ loop:
 				if err := sseWriter.Event("container-event", event); err != nil {
 					log.Error().Err(err).Msg("error encoding container event")
 				}
-				go streamLogs(c)
+				go streamLogsFor(containerService)
 			}
 
 		case event := <-events:
