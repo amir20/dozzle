@@ -521,13 +521,10 @@ notifications:
     cloud-exists: Dozzle Cloud 已关联
     link-cloud: 关联账户
     link-cloud-button: 关联 Dozzle Cloud
-    cloud-settings-hint: 要配置您的托管频道，请前往
     cloud-settings-link: Dozzle Cloud 设置
     cloud-checking: 正在检查云状态...
     cloud-relink: 您的 API 密钥无效或已过期。请删除并重新关联您的账户。
     cloud-unavailable: Dozzle Cloud 暂时不可用，请稍后重试。
-    cloud-plan: 计划
-    cloud-usage: 本期事件数
   empty-state:
     title: 开始使用通知
     description: 选择当您的容器需要关注时，您希望如何接收警报。

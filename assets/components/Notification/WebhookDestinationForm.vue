@@ -51,16 +51,17 @@
           </button>
         </div>
 
-        <div v-if="confirmingFormat" class="alert alert-warning mb-2 flex-wrap py-2 text-sm">
-          <mdi:alert-outline />
-          <span class="flex-1">{{ $t("notifications.destination-form.format-replace-warning") }}</span>
-          <button class="btn btn-xs" @click="confirmingFormat = null">
-            {{ $t("notifications.destination-form.cancel") }}
-          </button>
-          <button class="btn btn-xs btn-warning" @click="applyPayloadFormat(confirmingFormat)">
-            {{ $t("notifications.destination-form.format-replace-confirm") }}
-          </button>
-        </div>
+        <InlineNotice v-if="confirmingFormat" type="warning" class="mb-2">
+          {{ $t("notifications.destination-form.format-replace-warning") }}
+          <template #actions>
+            <button class="btn btn-xs" @click="confirmingFormat = null">
+              {{ $t("notifications.destination-form.cancel") }}
+            </button>
+            <button class="btn btn-xs btn-warning" @click="applyPayloadFormat(confirmingFormat)">
+              {{ $t("notifications.destination-form.format-replace-confirm") }}
+            </button>
+          </template>
+        </InlineNotice>
 
         <div
           ref="templateEditorRef"
@@ -122,22 +123,16 @@
     <!-- Opaque and full-bleed: the parent's padding would otherwise leave the scrolling content
          visible down both sides of the bar. -->
     <div class="bg-base-100 border-base-content/10 sticky bottom-0 z-10 -mx-4 mt-auto border-t px-4 py-4">
-      <div v-if="error" class="alert alert-error mb-3 py-2 text-sm">
-        <span>{{ error }}</span>
-      </div>
+      <InlineNotice v-if="error" type="error" class="mb-3">{{ error }}</InlineNotice>
 
       <!-- Cleared whenever the request changes, so a green tick always describes what is on screen -->
-      <div
-        v-if="testResult"
-        class="alert mb-3 py-2 text-sm"
-        :class="testResult.success ? 'alert-success' : 'alert-error'"
-      >
+      <InlineNotice v-if="testResult" :type="testResult.success ? 'success' : 'error'" class="mb-3">
         <span v-if="testResult.success">
           {{ $t("notifications.destination-form.test-success") }}
           <span v-if="testResult.statusCode" class="opacity-70">({{ testResult.statusCode }})</span>
         </span>
         <span v-else>{{ testResult.error }}</span>
-      </div>
+      </InlineNotice>
 
       <div v-if="confirmingDiscard" class="flex flex-wrap items-center justify-end gap-2">
         <span class="mr-auto text-sm">{{ $t("notifications.destination-form.discard-title") }}</span>

@@ -1,58 +1,59 @@
 <template>
-  <div class="space-y-4">
-    <!-- Cloud linked (when editing with prefix) -->
-    <fieldset v-if="destination?.prefix" class="fieldset">
-      <legend class="fieldset-legend text-lg">{{ $t("notifications.destination-form.api-key") }}</legend>
-      <div class="join w-full">
-        <input
-          type="text"
-          :value="destination.prefix + '**************************************'"
-          readonly
-          disabled
-          class="input join-item w-full font-mono"
-          :class="
-            cloudStatusError === 'auth'
-              ? 'input-error'
-              : cloudStatusError === 'unavailable'
-                ? 'input-warning'
-                : 'input-success'
-          "
-        />
-        <!-- Tinted glyph rather than a filled button: the state is already on the
-             input's border, and a solid red block on the end of a masked key read
-             as something you were meant to press. -->
-        <span
-          class="join-item btn pointer-events-none"
-          :class="
-            cloudStatusError === 'auth'
-              ? 'text-error'
-              : cloudStatusError === 'unavailable'
-                ? 'text-warning'
-                : 'text-success'
-          "
-        >
-          <mdi:alert-circle v-if="cloudStatusError === 'auth'" class="text-lg" />
-          <mdi:cloud-off-outline v-else-if="cloudStatusError === 'unavailable'" class="text-lg" />
-          <mdi:check v-else class="text-lg" />
-        </span>
-      </div>
-
-      <!-- Cloud Status -->
-      <div v-if="isLoadingCloudStatus" class="mt-3 flex items-center gap-2">
-        <span class="loading loading-spinner loading-sm"></span>
-        <span class="text-base-content/60 text-sm">{{ $t("notifications.destination-form.cloud-checking") }}</span>
-      </div>
-      <!-- Severity rides on the icon, not on a full-width saturated bar: the drawer
-           is the width of the page and that block shouted over the key above it. -->
-      <div v-else-if="cloudStatusError" class="mt-3 flex items-start gap-3">
-        <div
-          class="shrink-0 rounded-full p-1.5"
-          :class="cloudStatusError === 'auth' ? 'bg-error/10 text-error' : 'bg-warning/10 text-warning'"
-        >
-          <mdi:alert-circle-outline v-if="cloudStatusError === 'auth'" class="size-5" />
-          <mdi:cloud-off-outline v-else class="size-5" />
+  <div class="flex min-h-full flex-1 flex-col">
+    <!--
+      Linked. Nothing here is editable, so the drawer stops pretending to be a form:
+      no fieldset legend, no disabled input holding a key you cannot change. It is one
+      account panel built from the same parts as the cloud popover and the settings
+      card (identity row, hairline dividers, meter, link rows) so the three read as one
+      surface at three widths.
+    -->
+    <div v-if="destination?.prefix" class="pb-8">
+      <div class="border-base-content/15 bg-base-200/40 divide-base-content/10 divide-y rounded-lg border">
+        <!--
+          Identity leads with the account rather than the product name: the drawer
+          header two lines up already says Dozzle Cloud, and what you cannot tell
+          from there is which account this key belongs to.
+        -->
+        <div class="flex items-center gap-3 p-4">
+          <div class="shrink-0 rounded-full p-2" :class="accent.tint">
+            <mdi:alert-circle-outline v-if="cloudStatusError === 'auth'" class="size-6" />
+            <mdi:cloud-off-outline v-else-if="cloudStatusError === 'unavailable'" class="size-6" />
+            <mdi:cloud v-else class="size-6" />
+          </div>
+          <div class="min-w-0 flex-1">
+            <div class="flex items-center gap-1.5">
+              <span class="truncate font-semibold">{{ cloudStatus?.user.email ?? $t("cloud.title") }}</span>
+              <span class="size-1.5 shrink-0 rounded-full" :class="accent.dot" :title="statusLabel"></span>
+            </div>
+            <!-- An error says its piece in the body below at full length; repeating a
+                 truncated copy of it here would only lose half the sentence. -->
+            <div v-if="!cloudStatusError" class="text-base-content/60 truncate text-sm">{{ statusLabel }}</div>
+          </div>
+          <span v-if="cloudStatus" class="status-pill status-pill-primary shrink-0 capitalize">
+            {{ cloudStatus.plan.name }}
+          </span>
         </div>
-        <div class="flex min-w-0 flex-col items-start gap-3">
+
+        <!-- The key is a fact about the link, not an input: label left, masked value right. -->
+        <div class="flex items-center justify-between gap-4 p-4">
+          <span class="text-base-content/60 text-sm">{{ $t("notifications.destination-form.api-key") }}</span>
+          <span class="truncate font-mono text-sm">
+            {{ destination.prefix }}<span class="text-base-content/30 tracking-widest">••••••••••••</span>
+          </span>
+        </div>
+
+        <!-- The identity row already says the check is running, so this is just a placeholder
+             holding the meter's height so the panel does not jump when it arrives. -->
+        <div v-if="isLoadingCloudStatus" class="flex items-center justify-center p-4">
+          <span class="loading loading-spinner loading-sm"></span>
+        </div>
+
+        <!--
+          Severity rides on the icon above and the message here; the surface stays
+          neutral, which keeps the text at full contrast instead of washed onto a
+          saturated bar the width of the drawer.
+        -->
+        <div v-else-if="cloudStatusError" class="flex flex-col items-start gap-3 p-4">
           <p class="text-sm">
             {{
               cloudStatusError === "auth"
@@ -69,56 +70,83 @@
             {{ $t("button.retry") }}
           </button>
         </div>
-      </div>
-      <div v-else-if="cloudStatus" class="mt-3 space-y-3">
-        <div class="flex items-center justify-between text-sm">
-          <span class="text-base-content/60">{{ $t("notifications.destination-form.cloud-plan") }}</span>
-          <span class="badge badge-primary badge-sm capitalize">{{ cloudStatus.plan.name }}</span>
-        </div>
-        <div>
-          <div class="mb-1 flex items-center justify-between text-sm">
-            <span class="text-base-content/60">{{ $t("notifications.destination-form.cloud-usage") }}</span>
-            <span
-              >{{ cloudStatus.usage.events_used.toLocaleString() }} /
-              {{ cloudStatus.usage.events_limit.toLocaleString() }}</span
-            >
-          </div>
-          <progress
-            class="progress w-full"
-            :class="usagePercent > 90 ? 'progress-error' : usagePercent > 70 ? 'progress-warning' : 'progress-primary'"
-            :value="cloudStatus.usage.events_used"
-            :max="cloudStatus.usage.events_limit"
-          ></progress>
-        </div>
-      </div>
 
-      <p class="text-base-content/60 mt-2 text-sm">
-        {{ $t("notifications.destination-form.cloud-settings-hint") }}
-        <a :href="cloudSettingsUrl" target="_blank" class="link link-primary">
-          {{ $t("notifications.destination-form.cloud-settings-link") }}
-        </a>
-      </p>
-    </fieldset>
+        <div v-else-if="cloudStatus" class="p-4">
+          <UsageMeter
+            :used="cloudStatus.usage.events_used"
+            :limit="cloudStatus.usage.events_limit"
+            :period="cloudStatus.usage.period"
+          />
+        </div>
 
-    <!-- Link Dozzle Cloud (when creating or not linked) -->
-    <div v-else class="card card-border border-primary/30 bg-primary/5">
-      <div class="card-body items-center text-center">
-        <mdi:cloud-outline class="text-primary text-4xl" />
-        <h3 class="card-title">{{ $t("notifications.destination-form.link-cloud") }}</h3>
-        <p class="text-base-content/60 text-sm">{{ $t("notifications.destination-form.cloud-description") }}</p>
-        <a :href="cloudLinkUrl" class="btn btn-primary btn-lg mt-2">
-          <mdi:link-variant class="text-lg" />
-          {{ $t("notifications.destination-form.link-cloud-button") }}
-        </a>
+        <!-- Managed channels live on the cloud side, so the drawer ends in a way out to them. -->
+        <div class="p-2">
+          <a
+            :href="cloudSettingsUrl"
+            target="_blank"
+            rel="noreferrer noopener"
+            class="hover:bg-base-300 flex items-center gap-2 rounded-md px-2 py-2 text-sm transition-colors"
+          >
+            <mdi:cog-outline class="size-4 opacity-60" />
+            <span class="flex-1">{{ $t("notifications.destination-form.cloud-settings-link") }}</span>
+            <mdi:open-in-new class="size-3.5 opacity-40" />
+          </a>
+          <a
+            :href="cloudUrl"
+            target="_blank"
+            rel="noreferrer noopener"
+            class="hover:bg-base-300 flex items-center gap-2 rounded-md px-2 py-2 text-sm transition-colors"
+          >
+            <mdi:view-dashboard-outline class="size-4 opacity-60" />
+            <span class="flex-1">{{ $t("cloud.dashboard") }}</span>
+            <mdi:open-in-new class="size-3.5 opacity-40" />
+          </a>
+        </div>
       </div>
     </div>
 
-    <!-- Actions -->
-    <div class="flex items-center gap-2 pt-4">
-      <div class="flex-1"></div>
-      <button class="btn" @click="close?.()">
-        {{ $t("notifications.destination-form.close") }}
-      </button>
+    <!--
+      Not linked. Same panel shell as the linked state, so linking does not reshuffle
+      the drawer: the pitch rows are replaced by the key and the meter. The header
+      above already carries the title and the pitch sentence, so this branch opens on
+      the three concrete things you get rather than restating them.
+    -->
+    <div v-else class="pb-8">
+      <div class="border-base-content/15 bg-base-200/40 divide-base-content/10 divide-y rounded-lg border">
+        <ul class="text-base-content/70 space-y-2.5 p-4 text-sm">
+          <li class="flex items-start gap-2">
+            <mdi:robot-outline class="text-info mt-0.5 size-4 shrink-0" />
+            <span>{{ $t("cloud.pitch.findings") }}</span>
+          </li>
+          <li class="flex items-start gap-2">
+            <mdi:bell-ring-outline class="text-info mt-0.5 size-4 shrink-0" />
+            <span>{{ $t("cloud.pitch.alerts") }}</span>
+          </li>
+          <li class="flex items-start gap-2">
+            <mdi:remote class="text-info mt-0.5 size-4 shrink-0" />
+            <span>{{ $t("cloud.pitch.control") }}</span>
+          </li>
+        </ul>
+
+        <div class="flex gap-2 p-4">
+          <a :href="cloudUrl" target="_blank" rel="noreferrer noopener" class="btn btn-sm">
+            {{ $t("cloud.learn-more") }}
+          </a>
+          <a :href="cloudLinkUrl" class="btn btn-primary btn-sm">
+            <mdi:link-variant class="text-base" />
+            {{ $t("notifications.destination-form.link-cloud-button") }}
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Actions. Same sticky, full-bleed bar as the webhook form next door. -->
+    <div class="bg-base-100 border-base-content/10 sticky bottom-0 z-10 -mx-4 mt-auto border-t px-4 py-4">
+      <div class="flex items-center justify-end">
+        <button class="btn" @click="close?.()">
+          {{ $t("notifications.destination-form.close") }}
+        </button>
+      </div>
     </div>
   </div>
 </template>
@@ -131,15 +159,29 @@ const { destination, close } = defineProps<{
   close?: () => void;
 }>();
 
+const { t } = useI18n();
+
+const cloudUrl = config.cloudUrl;
 const callbackUrl = `${window.location.origin}${withBase("/")}`;
-const cloudLinkUrl = `${config.cloudUrl}/link?appUrl=${encodeURIComponent(callbackUrl)}&from=notifications`;
-const cloudSettingsUrl = `${config.cloudUrl}/settings`;
+const cloudLinkUrl = `${cloudUrl}/link?appUrl=${encodeURIComponent(callbackUrl)}&from=notifications`;
+const cloudSettingsUrl = `${cloudUrl}/settings`;
 
 const { cloudStatus, cloudStatusError, isLoadingCloudStatus, fetchCloudStatus } = useCloudConfig();
 
-const usagePercent = computed(() => {
-  if (!cloudStatus.value) return 0;
-  return (cloudStatus.value.usage.events_used / cloudStatus.value.usage.events_limit) * 100;
+const accent = computed(() => {
+  if (cloudStatusError.value === "auth") return { tint: "bg-error/10 text-error", dot: "bg-error" };
+  if (cloudStatusError.value === "unavailable") return { tint: "bg-warning/10 text-warning", dot: "bg-warning" };
+  if (!cloudStatus.value) return { tint: "bg-info/10 text-info", dot: "bg-base-content/30" };
+  return { tint: "bg-info/10 text-info", dot: "bg-success" };
+});
+
+const statusLabel = computed(() => {
+  if (cloudStatusError.value === "auth") return t("cloud.error");
+  if (cloudStatusError.value === "unavailable") return t("cloud.error-unavailable");
+  // Before the first check comes back the dot is grey and this says so, rather than
+  // claiming a connection that has not been confirmed yet.
+  if (!cloudStatus.value) return t("notifications.destination-form.cloud-checking");
+  return t("cloud.connected");
 });
 
 if (destination?.prefix) {

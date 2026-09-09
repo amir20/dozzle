@@ -149,29 +149,13 @@
 
             <div class="bg-base-content/10 my-1.5 h-px"></div>
 
-            <div class="flex flex-col gap-1.5 px-2 py-1">
-              <div class="flex items-baseline justify-between gap-2">
-                <span class="text-base-content/60 text-xs">{{ $t("cloud.usage") }}</span>
-                <span class="font-mono text-xs">
-                  <span class="font-semibold">{{ cloudStatus.usage.events_used.toLocaleString() }}</span>
-                  <span class="text-base-content/40"> / {{ cloudStatus.usage.events_limit.toLocaleString() }}</span>
-                </span>
-              </div>
-              <!--
-                A daisyUI <progress> is taller than the type it sits under here, so
-                the meter is a plain div pair scaled to the row instead.
-              -->
-              <div class="bg-base-content/10 h-1.5 w-full overflow-hidden rounded-full">
-                <div
-                  class="h-full rounded-full transition-[width] duration-500"
-                  :class="usagePercent > 90 ? 'bg-error' : usagePercent > 70 ? 'bg-warning' : 'bg-primary'"
-                  :style="{ width: `${Math.min(usagePercent, 100)}%` }"
-                ></div>
-              </div>
-              <div class="text-base-content/40 flex justify-between gap-2 font-mono text-[0.6875rem]">
-                <span class="truncate">{{ cloudStatus.usage.period }}</span>
-                <span class="shrink-0">{{ usagePercent.toFixed(1) }}%</span>
-              </div>
+            <div class="px-2 py-1">
+              <UsageMeter
+                compact
+                :used="cloudStatus.usage.events_used"
+                :limit="cloudStatus.usage.events_limit"
+                :period="cloudStatus.usage.period"
+              />
             </div>
 
             <div class="bg-base-content/10 my-1.5 h-px"></div>
@@ -221,13 +205,6 @@ const {
 
 const welcomeModal = ref<{ open: () => void }>();
 const cloudWelcomeShown = useProfileStorage("cloudWelcomeShown", false);
-
-const usagePercent = computed(() => {
-  if (!cloudStatus.value) return 0;
-  const { events_used, events_limit } = cloudStatus.value.usage;
-  if (!events_limit) return 0;
-  return (events_used / events_limit) * 100;
-});
 
 function onOpen() {
   ensureCloudStatus();

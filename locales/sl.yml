@@ -527,13 +527,10 @@ notifications:
     cloud-exists: Dozzle Cloud je že povezan
     link-cloud: Poveži Račun
     link-cloud-button: Poveži Dozzle Cloud
-    cloud-settings-hint: Za nastavitev upravljanih kanalov pojdite na
     cloud-settings-link: Nastavitve Dozzle Cloud
     cloud-checking: Preverjanje stanja oblaka...
     cloud-relink: Vaš API ključ je neveljaven ali potekel. Prosimo, izbrišite in ponovno povežite svoj račun.
     cloud-unavailable: Dozzle Cloud je začasno nedosegljiv. Poskusite znova pozneje.
-    cloud-plan: Načrt
-    cloud-usage: Dogodki v tem obdobju
   empty-state:
     title: Začnite z obvestili
     description: Izberite, kako želite prejemati opozorila, ko vaši zabojniki potrebujejo pozornost.
