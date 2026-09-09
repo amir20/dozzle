@@ -14,12 +14,7 @@
       </div>
     </template>
     <template #default>
-      <ViewerWithSource
-        ref="viewer"
-        :stream-source="useOwnerStream"
-        :entity="owner"
-        :visible-keys="new Map<string[], boolean>()"
-      />
+      <ViewerWithSource ref="viewer" :stream-source="useOwnerStream" :entity="owner" :visible-keys="visibleKeys" />
     </template>
   </ScrollableView>
 </template>
@@ -40,4 +35,5 @@ provideLoggingContext(
   toRef(() => owner.containers),
   { showContainerName: true, showHostname: false },
 );
+const visibleKeys = useVisibleKeysByContainer();
 </script>

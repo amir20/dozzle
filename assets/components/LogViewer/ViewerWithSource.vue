@@ -7,11 +7,12 @@
 <script lang="ts" setup generic="T">
 import EventSource from "@/components/LogViewer/EventSource.vue";
 import { LogStreamSource } from "@/composable/eventStreams";
+import type { VisibleKeysSource } from "@/composable/visible";
 import { ComponentExposed } from "vue-component-type-helpers";
 
 const { streamSource, visibleKeys, entity } = defineProps<{
   streamSource: (t: Ref<T>) => LogStreamSource;
-  visibleKeys: Map<string[], boolean>;
+  visibleKeys: VisibleKeysSource;
   entity: T;
 }>();
 

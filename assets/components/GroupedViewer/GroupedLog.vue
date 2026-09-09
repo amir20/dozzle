@@ -10,12 +10,7 @@
       </div>
     </template>
     <template #default>
-      <ViewerWithSource
-        ref="viewer"
-        :stream-source="useGroupedStream"
-        :entity="group"
-        :visible-keys="new Map<string[], boolean>()"
-      />
+      <ViewerWithSource ref="viewer" :stream-source="useGroupedStream" :entity="group" :visible-keys="visibleKeys" />
     </template>
   </ScrollableView>
 </template>
@@ -44,4 +39,5 @@ provideLoggingContext(
   toRef(() => group.value.containers),
   { showContainerName: true, showHostname: false },
 );
+const visibleKeys = useVisibleKeysByContainer();
 </script>

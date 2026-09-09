@@ -16,12 +16,7 @@
       </div>
     </template>
     <template #default>
-      <ViewerWithSource
-        ref="viewer"
-        :stream-source="useHostStream"
-        :entity="host"
-        :visible-keys="new Map<string[], boolean>()"
-      />
+      <ViewerWithSource ref="viewer" :stream-source="useHostStream" :entity="host" :visible-keys="visibleKeys" />
     </template>
   </ScrollableView>
 </template>
@@ -40,4 +35,5 @@ const host = computed(() => hosts.value[id]);
 const containers = computed(() => containersByHost.value?.[id]?.filter((c) => c.state === "running") ?? []);
 const viewer = useTemplateRef<ComponentExposed<typeof ViewerWithSource>>("viewer");
 provideLoggingContext(containers, { showContainerName: true, showHostname: false });
+const visibleKeys = useVisibleKeysByContainer();
 </script>

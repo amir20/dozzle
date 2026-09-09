@@ -14,12 +14,7 @@
       </div>
     </template>
     <template #default>
-      <ViewerWithSource
-        ref="viewer"
-        :stream-source="useStackStream"
-        :entity="stack"
-        :visible-keys="new Map<string[], boolean>()"
-      />
+      <ViewerWithSource ref="viewer" :stream-source="useStackStream" :entity="stack" :visible-keys="visibleKeys" />
     </template>
   </ScrollableView>
 </template>
@@ -41,4 +36,5 @@ provideLoggingContext(
   toRef(() => stack.value.containers),
   { showContainerName: true, showHostname: false },
 );
+const visibleKeys = useVisibleKeysByContainer();
 </script>
