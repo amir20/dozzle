@@ -568,6 +568,7 @@ cloud:
   unlink: Lepaskan tautan
   unlink-confirm: Apakah Anda yakin ingin melepaskan tautan dari Dozzle Cloud? Ini akan menghapus semua tujuan notifikasi cloud.
   privacy:
+    details-link: "Apa yang dikirim"
     toggle: "Streaming log dan metrik ke Dozzle Cloud"
     sends-heading: "Selama ini aktif, kontainer Anda terus mengirim:"
     sends-logs: "Baris log, saat ditulis"

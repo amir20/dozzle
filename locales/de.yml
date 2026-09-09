@@ -556,6 +556,7 @@ cloud:
   unlink: Verknüpfung aufheben
   unlink-confirm: Sind Sie sicher, dass Sie die Verknüpfung mit Dozzle Cloud aufheben möchten? Dies entfernt alle Cloud-Benachrichtigungsziele.
   privacy:
+    details-link: "Was gesendet wird"
     toggle: "Logs und Metriken an Dozzle Cloud streamen"
     sends-heading: "Solange dies aktiviert ist, senden Ihre Container fortlaufend:"
     sends-logs: "Log-Zeilen, sobald sie geschrieben werden"

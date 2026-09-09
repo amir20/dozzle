@@ -616,6 +616,7 @@ cloud:
   unlink: Unlink
   unlink-confirm: Are you sure you want to unlink from Dozzle Cloud? This will remove all cloud notification destinations.
   privacy:
+    details-link: What gets sent
     toggle: Stream logs and metrics to Dozzle Cloud
     sends-heading: "While this is on, your containers continuously send:"
     sends-logs: Log lines, as they are written

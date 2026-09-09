@@ -606,6 +606,7 @@ cloud:
   unlink: Desvincular
   unlink-confirm: ¿Está seguro de que desea desvincular de Dozzle Cloud? Esto eliminará todos los destinos de notificación en la nube.
   privacy:
+    details-link: "Qué se envía"
     toggle: "Transmitir registros y métricas a Dozzle Cloud"
     sends-heading: "Mientras esto esté activado, sus contenedores envían continuamente:"
     sends-logs: "Líneas de registro, a medida que se escriben"

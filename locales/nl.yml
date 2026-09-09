@@ -557,6 +557,7 @@ cloud:
   unlink: Ontkoppelen
   unlink-confirm: Weet je zeker dat je de koppeling met Dozzle Cloud wilt opheffen? Dit verwijdert alle cloudmeldingsbestemmingen.
   privacy:
+    details-link: "Wat wordt verstuurd"
     toggle: "Logs en metrieken streamen naar Dozzle Cloud"
     sends-heading: "Zolang dit aanstaat, sturen je containers continu:"
     sends-logs: "Logregels, zodra ze worden geschreven"

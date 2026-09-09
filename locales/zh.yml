@@ -556,6 +556,7 @@ cloud:
   unlink: 取消关联
   unlink-confirm: 确定要取消与 Dozzle Cloud 的关联吗？这将移除所有云通知目标。
   privacy:
+    details-link: "发送了哪些内容"
     toggle: "将日志和指标流式传输到 Dozzle Cloud"
     sends-heading: "启用期间，您的容器会持续发送："
     sends-logs: "日志内容，写入时即发送"

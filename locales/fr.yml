@@ -556,6 +556,7 @@ cloud:
   unlink: Délier
   unlink-confirm: Êtes-vous sûr de vouloir délier de Dozzle Cloud ? Cela supprimera toutes les destinations de notification cloud.
   privacy:
+    details-link: "Ce qui est envoyé"
     toggle: "Diffuser les journaux et les métriques vers Dozzle Cloud"
     sends-heading: "Tant que cette option est activée, vos conteneurs envoient en continu :"
     sends-logs: "Les lignes de journal, au fur et à mesure de leur écriture"

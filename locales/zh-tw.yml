@@ -559,6 +559,7 @@ cloud:
   unlink: 取消連結
   unlink-confirm: 確定要取消與 Dozzle Cloud 的連結嗎？這將移除所有雲端通知目標。
   privacy:
+    details-link: "傳送了哪些內容"
     toggle: "將日誌與指標串流至 Dozzle Cloud"
     sends-heading: "啟用期間，您的容器會持續傳送："
     sends-logs: "日誌內容，於寫入時傳送"

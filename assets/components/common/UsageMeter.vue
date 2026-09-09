@@ -20,7 +20,11 @@
         :style="{ width: `${Math.min(percent, 100)}%` }"
       ></div>
     </div>
-    <div class="text-base-content/40 text-right font-mono" :class="compact ? 'text-[0.6875rem]' : 'text-xs'">
+    <div
+      v-if="!hidePercent"
+      class="text-base-content/40 text-right font-mono"
+      :class="compact ? 'text-[0.6875rem]' : 'text-xs'"
+    >
       {{ percent.toFixed(1) }}%
     </div>
   </div>
@@ -39,6 +43,11 @@ const {
   unit?: "count" | "bytes";
   /** Tightens type and spacing for the popover, which is a third of the width of the other two. */
   compact?: boolean;
+  /**
+   * Drops the percentage line. Used / limit already says how full the meter is, and the
+   * bar shows it; the third restatement only earns its row when the meter stands alone.
+   */
+  hidePercent?: boolean;
 }>();
 
 // A plan without a limit would otherwise divide by zero and render a NaN-wide bar.

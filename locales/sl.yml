@@ -562,6 +562,7 @@ cloud:
   unlink: Prekini povezavo
   unlink-confirm: Ali ste prepričani, da želite prekiniti povezavo z Dozzle Cloud? To bo odstranilo vse cilje obvestil v oblaku.
   privacy:
+    details-link: "Kaj se pošilja"
     toggle: "Pretakanje dnevnikov in meritev v Dozzle Cloud"
     sends-heading: "Dokler je to vklopljeno, vaši vsebniki nenehno pošiljajo:"
     sends-logs: "Vrstice dnevnika, takoj ko so zapisane"
