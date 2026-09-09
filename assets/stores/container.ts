@@ -75,6 +75,9 @@ export const useContainerStore = defineStore("container", () => {
     es.addEventListener("containers-changed", (e) => {
       updateContainers(parseEventData<ContainerJson[]>(e));
       ready.value = true;
+      // the load-time notice below may have fired against a slow first list; the
+      // containers are here now, so it no longer describes anything
+      removeToast("events-timeout");
     });
     es.addEventListener("container-stat", (e) => {
       const stat = parseEventData<ContainerStat>(e);
