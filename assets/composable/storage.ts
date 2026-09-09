@@ -17,10 +17,14 @@ const storage = useProfileStorage("visibleKeys", new Map<string, Map<string[], b
     return inner;
   },
 });
+export function visibleKeysForContainer(container: Container | undefined): Map<string[], boolean> {
+  return (container && storage.value.get(container.storageKey)) || new Map<string[], boolean>();
+}
+
 export function persistentVisibleKeysForContainer(container: Ref<Container>): Ref<Map<string[], boolean>> {
   // Computed property to only store to storage when the value changes
   return computed({
-    get: () => storage.value.get(container.value.storageKey) || new Map<string[], boolean>(),
+    get: () => visibleKeysForContainer(container.value),
     set: (value: Map<string[], boolean>) => storage.value.set(container.value.storageKey, value),
   });
 }

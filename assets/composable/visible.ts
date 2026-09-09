@@ -1,13 +1,19 @@
 import { ComplexLogEntry, type LogMessage, type LogEntry } from "@/models/LogEntry";
 
-export function useVisibleFilter(visibleKeys: Ref<Map<string[], boolean>>) {
+export type VisibleKeysSource = Map<string[], boolean> | ((containerID: string) => Map<string[], boolean>);
+
+export function useVisibleFilter(visibleKeys: Ref<VisibleKeysSource>) {
   const { isSearching, inverseFilter } = useSearchFilter();
   function filteredPayload(messages: Ref<LogEntry<LogMessage>[]>) {
     return computed(() => {
       return messages.value
         .map((d) => {
           if (d instanceof ComplexLogEntry) {
-            return ComplexLogEntry.fromLogEvent(d, visibleKeys);
+            const keys = toRef(() => {
+              const source = visibleKeys.value;
+              return typeof source === "function" ? source(d.containerID) : source;
+            });
+            return ComplexLogEntry.fromLogEvent(d, keys);
           } else {
             return d;
           }

@@ -3,11 +3,12 @@
 </template>
 
 <script lang="ts" setup>
-import { type JSONObject, LogEntry } from "@/models/LogEntry";
+import { type LogMessage, LogEntry } from "@/models/LogEntry";
+import type { VisibleKeysSource } from "@/composable/visible";
 
 const props = defineProps<{
-  messages: LogEntry<string | string[] | JSONObject>[];
-  visibleKeys: Map<string[], boolean>;
+  messages: LogEntry<LogMessage>[];
+  visibleKeys: VisibleKeysSource;
 }>();
 
 const { messages, visibleKeys } = toRefs(props);
