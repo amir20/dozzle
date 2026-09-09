@@ -579,6 +579,7 @@ func (h *handler) streamLogsForContainers(w http.ResponseWriter, r *http.Request
 
 	ticker := time.NewTicker(5 * time.Second)
 	defer ticker.Stop()
+	sseWriter.Retry(reconnectDelay)
 	sseWriter.Ping()
 loop:
 	for {

@@ -18,6 +18,10 @@ const (
 	statBufferSize  = 128
 	// minimum gap between retries of a host whose container list failed to refresh
 	staleHostRetryInterval = 5 * time.Second
+	// keeps proxies from closing an otherwise silent stream
+	keepAliveInterval = 20 * time.Second
+	// how long the browser waits before reconnecting a dropped stream
+	reconnectDelay = 3 * time.Second
 )
 
 func (h *handler) streamEvents(w http.ResponseWriter, r *http.Request) {
@@ -28,6 +32,11 @@ func (h *handler) streamEvents(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	defer sseWriter.Close()
+
+	if err := sseWriter.Retry(reconnectDelay); err != nil {
+		log.Debug().Err(err).Msg("error writing retry to event stream")
+		return
+	}
 
 	// buffered so a momentarily slow client can't stall the shared per-host store loop,
 	// which broadcasts to every subscriber with a blocking send
@@ -140,8 +149,20 @@ func (h *handler) streamEvents(w http.ResponseWriter, r *http.Request) {
 
 	go sendBeaconEvent(h, r, len(allContainers))
 
+	// a host whose containers are all filtered out or stopped emits no stats, so without
+	// this the stream is silent and an idle proxy timeout (nginx defaults to 60s) drops it
+	ticker := time.NewTicker(keepAliveInterval)
+	defer ticker.Stop()
+
 	for {
 		select {
+		case <-ticker.C:
+			// a named event rather than a comment, so the UI can tell a connection that a
+			// sleeping machine left half-open from one that is merely quiet
+			if err := sseWriter.Event("ping", struct{}{}); err != nil {
+				log.Debug().Err(err).Msg("error writing keep-alive to event stream")
+				return
+			}
 		case host := <-availableHosts:
 			// an agent that reconnected has no visible set yet; its first traffic fills it
 			if _, ok := visibleByHost[host.ID]; host.Available && !ok {
