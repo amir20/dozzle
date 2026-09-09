@@ -155,6 +155,7 @@ declare module 'vue' {
     'Mdi:hamburgerMenu': typeof import('~icons/mdi/hamburger-menu')['default']
     'Mdi:heart': typeof import('~icons/mdi/heart')['default']
     'Mdi:hexagonMultiple': typeof import('~icons/mdi/hexagon-multiple')['default']
+    'Mdi:history': typeof import('~icons/mdi/history')['default']
     'Mdi:informationOutline': typeof import('~icons/mdi/information-outline')['default']
     'Mdi:key': typeof import('~icons/mdi/key')['default']
     'Mdi:keyboardEsc': typeof import('~icons/mdi/keyboard-esc')['default']

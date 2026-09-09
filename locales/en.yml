@@ -62,6 +62,7 @@ log-details:
   fields-hint: Drag to reorder. Toggle to show or hide in the log stream.
   toggle-all: Toggle all fields
 label:
+  historical-at: "Historical logs · {time}"
   containers: Containers
   container: No containers | 1 container | {count} containers
   alert-events: No events | 1 event | {count} events
@@ -118,6 +119,7 @@ label:
   more-options: More options
   groups: Groups
 tooltip:
+  live-logs: These logs are frozen at this point in time. Click to follow the live stream.
   search: Search containers (⌘ + k, ⌃k)
   pin-column: Pin as column
   unpin-column: Unpin column
@@ -201,6 +203,7 @@ title:
   settings: Settings
   notifications: Notifications
 button:
+  live-logs: Go to live logs
   logout: Logout
   login: Login
   login-with: Continue with {provider}

@@ -62,6 +62,7 @@ log-details:
   fields-hint: 드래그하여 순서를 바꾸세요. 토글하여 로그 스트림에서 표시하거나 숨깁니다.
   toggle-all: 모든 필드 토글
 label:
+  historical-at: "과거 로그 · {time}"
   containers: 컨테이너
   container: 컨테이너가 없습니다 | 컨테이너 1개 | 컨테이너 {count}개
   alert-events: 이벤트 없음 | 이벤트 1개 | 이벤트 {count}개
@@ -118,6 +119,7 @@ label:
   more-options: 추가 옵션
   groups: 그룹
 tooltip:
+  live-logs: 이 로그는 해당 시점에 고정되어 있습니다. 실시간 스트림을 보려면 클릭하세요.
   search: 컨테이너 검색 (⌘ + k, ⌃k)
   pin-column: 열로 고정
   unpin-column: 열 고정 해제
@@ -195,6 +197,7 @@ title:
   settings: 설정
   notifications: 알림
 button:
+  live-logs: 실시간 로그로 이동
   logout: 로그아웃
   login: 로그인
   login-with: "{provider}(으)로 계속하기"

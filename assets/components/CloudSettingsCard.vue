@@ -21,28 +21,41 @@
 
     <!-- Linked -->
     <template v-else-if="cloudConfig.linked">
-      <!-- Error state -->
-      <div v-if="cloudStatusError" class="space-y-3 p-4">
-        <div class="alert" :class="cloudStatusError === 'auth' ? 'alert-error' : 'alert-warning'">
-          <mdi:alert-circle v-if="cloudStatusError === 'auth'" class="text-lg" />
-          <mdi:cloud-off-outline v-else class="text-lg" />
-          <span class="text-sm">{{
-            cloudStatusError === "auth" ? $t("cloud.error") : $t("cloud.error-unavailable")
-          }}</span>
+      <!--
+        Error state. Laid out like the unlinked branch above (icon, copy, actions)
+        instead of a full-width alert bar: the settings pane runs the width of the
+        page, and a saturated block stretched across all of it shouted far louder
+        than a dropped connection deserves. Severity rides on the icon alone, which
+        leaves the message at full contrast rather than washed onto red.
+      -->
+      <div v-if="cloudStatusError" class="flex items-start gap-4 p-4">
+        <div
+          class="shrink-0 rounded-full p-2"
+          :class="cloudStatusError === 'auth' ? 'bg-error/10 text-error' : 'bg-warning/10 text-warning'"
+        >
+          <mdi:alert-circle-outline v-if="cloudStatusError === 'auth'" class="size-6" />
+          <mdi:cloud-off-outline v-else class="size-6" />
         </div>
-        <div class="flex gap-2">
-          <a v-if="cloudStatusError === 'auth'" :href="cloudLinkUrl" class="btn btn-primary btn-sm">
-            <mdi:link-variant class="text-base" />
-            {{ $t("cloud.relink-instance") }}
-          </a>
-          <button v-else class="btn btn-sm" @click="fetchCloudStatus">
-            <mdi:refresh class="text-base" />
-            {{ $t("button.retry") }}
-          </button>
-          <button class="btn btn-sm btn-error" @click="confirmUnlink">
-            <mdi:link-variant-off class="text-base" />
-            {{ $t("cloud.unlink") }}
-          </button>
+        <div class="flex min-w-0 flex-col gap-1">
+          <p class="text-sm">
+            {{ cloudStatusError === "auth" ? $t("cloud.error") : $t("cloud.error-unavailable") }}
+          </p>
+          <div class="mt-3 flex flex-wrap gap-2">
+            <a v-if="cloudStatusError === 'auth'" :href="cloudLinkUrl" class="btn btn-primary btn-sm">
+              <mdi:link-variant class="text-base" />
+              {{ $t("cloud.relink-instance") }}
+            </a>
+            <button v-else class="btn btn-sm" @click="fetchCloudStatus">
+              <mdi:refresh class="text-base" />
+              {{ $t("button.retry") }}
+            </button>
+            <!-- Unlink is destructive but secondary here: a second solid button
+                 competed with the one action that actually fixes the problem. -->
+            <button class="btn btn-sm text-error" @click="confirmUnlink">
+              <mdi:link-variant-off class="text-base" />
+              {{ $t("cloud.unlink") }}
+            </button>
+          </div>
         </div>
       </div>
 
@@ -139,7 +152,7 @@
           <a :href="cloudUrl" target="_blank" rel="noreferrer noopener" class="btn btn-sm">
             {{ $t("cloud.dashboard") }}
           </a>
-          <button class="btn btn-sm btn-error" @click="confirmUnlink">
+          <button class="btn btn-sm text-error" @click="confirmUnlink">
             {{ $t("cloud.unlink") }}
           </button>
         </div>

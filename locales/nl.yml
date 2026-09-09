@@ -62,6 +62,7 @@ log-details:
   fields-hint: Sleep om te herordenen. Schakel in of uit om ze in de logstroom te tonen of te verbergen.
   toggle-all: Alle velden omschakelen
 label:
+  historical-at: "Historische logs · {time}"
   containers: Containers
   container: Geen containers | 1 container | {count} containers
   alert-events: Geen gebeurtenissen | 1 gebeurtenis | {count} gebeurtenissen
@@ -118,6 +119,7 @@ label:
   more-options: Meer opties
   groups: Groepen
 tooltip:
+  live-logs: Deze logs zijn bevroren op dit tijdstip. Klik om de live stream te volgen.
   search: Zoek containers (⌘ + k, ⌃k)
   pin-column: Vastzetten als kolom
   unpin-column: Kolom losmaken
@@ -194,6 +196,7 @@ title:
   settings: Instellingen
   notifications: Meldingen
 button:
+  live-logs: Naar live logs
   logout: Afmelden
   login: Aanmelden
   login-with: Doorgaan met {provider}

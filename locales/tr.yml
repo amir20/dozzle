@@ -62,6 +62,7 @@ log-details:
   fields-hint: Yeniden sıralamak için sürükleyin. Günlük akışında göstermek veya gizlemek için değiştirin.
   toggle-all: Tüm alanları değiştir
 label:
+  historical-at: "Geçmiş günlükler · {time}"
   containers: Konteynerlar
   container: Konteyner yok | 1 konteyner | {count} konteyner
   alert-events: Olay yok | 1 olay | {count} olay
@@ -118,6 +119,7 @@ label:
   more-options: Diğer seçenekler
   groups: Gruplar
 tooltip:
+  live-logs: Bu günlükler bu ana sabitlenmiştir. Canlı akışı izlemek için tıklayın.
   search: Konteynerlerde ara (⌘ + k, ⌃k)
   pin-column: Sütun olarak sabitle
   unpin-column: Sütun sabitlemesini kaldır
@@ -196,6 +198,7 @@ title:
   settings: Ayarlar
   notifications: Bildirimler
 button:
+  live-logs: Canlı günlüklere git
   logout: Çıkış Yap
   login: Giriş Yap
   login-with: "{provider} ile devam et"

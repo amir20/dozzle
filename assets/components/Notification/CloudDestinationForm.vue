@@ -18,14 +18,17 @@
                 : 'input-success'
           "
         />
+        <!-- Tinted glyph rather than a filled button: the state is already on the
+             input's border, and a solid red block on the end of a masked key read
+             as something you were meant to press. -->
         <span
           class="join-item btn pointer-events-none"
           :class="
             cloudStatusError === 'auth'
-              ? 'btn-error'
+              ? 'text-error'
               : cloudStatusError === 'unavailable'
-                ? 'btn-warning'
-                : 'btn-success'
+                ? 'text-warning'
+                : 'text-success'
           "
         >
           <mdi:alert-circle v-if="cloudStatusError === 'auth'" class="text-lg" />
@@ -39,15 +42,32 @@
         <span class="loading loading-spinner loading-sm"></span>
         <span class="text-base-content/60 text-sm">{{ $t("notifications.destination-form.cloud-checking") }}</span>
       </div>
-      <div v-else-if="cloudStatusError" class="mt-3">
-        <div class="alert" :class="cloudStatusError === 'auth' ? 'alert-error' : 'alert-warning'">
-          <mdi:alert-circle v-if="cloudStatusError === 'auth'" class="text-lg" />
-          <mdi:cloud-off-outline v-else class="text-lg" />
-          <span>{{
-            cloudStatusError === "auth"
-              ? $t("notifications.destination-form.cloud-relink")
-              : $t("notifications.destination-form.cloud-unavailable")
-          }}</span>
+      <!-- Severity rides on the icon, not on a full-width saturated bar: the drawer
+           is the width of the page and that block shouted over the key above it. -->
+      <div v-else-if="cloudStatusError" class="mt-3 flex items-start gap-3">
+        <div
+          class="shrink-0 rounded-full p-1.5"
+          :class="cloudStatusError === 'auth' ? 'bg-error/10 text-error' : 'bg-warning/10 text-warning'"
+        >
+          <mdi:alert-circle-outline v-if="cloudStatusError === 'auth'" class="size-5" />
+          <mdi:cloud-off-outline v-else class="size-5" />
+        </div>
+        <div class="flex min-w-0 flex-col items-start gap-3">
+          <p class="text-sm">
+            {{
+              cloudStatusError === "auth"
+                ? $t("notifications.destination-form.cloud-relink")
+                : $t("notifications.destination-form.cloud-unavailable")
+            }}
+          </p>
+          <a v-if="cloudStatusError === 'auth'" :href="cloudLinkUrl" class="btn btn-primary btn-sm">
+            <mdi:link-variant class="text-base" />
+            {{ $t("cloud.relink-instance") }}
+          </a>
+          <button v-else class="btn btn-sm" @click="fetchCloudStatus">
+            <mdi:refresh class="text-base" />
+            {{ $t("button.retry") }}
+          </button>
         </div>
       </div>
       <div v-else-if="cloudStatus" class="mt-3 space-y-3">

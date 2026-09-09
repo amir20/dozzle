@@ -62,6 +62,7 @@ log-details:
   fields-hint: Povlecite za spremembo vrstnega reda. Preklopite za prikaz ali skritje v toku dnevnikov.
   toggle-all: Preklopi vsa polja
 label:
+  historical-at: "Zgodovinski dnevniki · {time}"
   containers: Zabojniki
   host-count: Ni Gostiteljev | 1 Gostitelj | {count} Gostiteljev
   service: Ni storitev | 1 storitev | {count} storitev
@@ -118,6 +119,7 @@ label:
     exhausted: Preiskani vsi dnevniki · {count} zadetkov
     empty: Ni zadetkov · preiskani vsi dnevniki
 tooltip:
+  live-logs: Ti dnevniki so zamrznjeni na tem trenutku. Kliknite za spremljanje živega toka.
   search: Iskanje zabojnikov (⌘ + k, ⌃k)
   pin-column: Pripni kot stolpec
   unpin-column: Odpni stolpec
@@ -195,6 +197,7 @@ title:
   settings: Nastavitve
   notifications: Obvestila
 button:
+  live-logs: Pojdi na žive dnevnike
   logout: Odjava
   cancel: Prekliči
   redirect: Preusmeritev

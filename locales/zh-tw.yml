@@ -62,6 +62,7 @@ log-details:
   fields-hint: 拖曳可重新排序。切換可在日誌串流中顯示或隱藏。
   toggle-all: 切換所有欄位
 label:
+  historical-at: "歷史日誌 · {time}"
   containers: 容器
   container: 無容器 | 1 個容器 | {count} 個容器
   alert-events: 無事件 | 1 個事件 | {count} 個事件
@@ -118,6 +119,7 @@ label:
   k8s-menu: Kubernetes
   group-menu: 自訂群組
 tooltip:
+  live-logs: 這些日誌已凍結在該時間點。點擊以查看即時日誌串流。
   search: 搜尋容器 (⌘ + k, ⌃k)
   pin-column: 釘選為欄位
   unpin-column: 取消釘選欄位
@@ -195,6 +197,7 @@ title:
   settings: 設定
   notifications: 通知
 button:
+  live-logs: 前往即時日誌
   logout: 登出
   login: 登入
   login-with: 使用 {provider} 繼續

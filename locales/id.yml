@@ -63,6 +63,7 @@ log-details:
   fields-hint: Seret untuk mengurutkan ulang. Alihkan untuk menampilkan atau menyembunyikan di aliran log.
   toggle-all: Alihkan semua bidang
 label:
+  historical-at: "Log historis · {time}"
   containers: Kontainer
   container: Tidak ada kontainer | 1 kontainer | {count} kontainer
   alert-events: Tidak ada peristiwa | 1 peristiwa | {count} peristiwa
@@ -120,6 +121,7 @@ label:
   groups: Grup
 
 tooltip:
+  live-logs: Log ini dibekukan pada waktu ini. Klik untuk mengikuti aliran langsung.
   search: Cari kontainer (⌘ + k, ⌃k)
   pin-column: Sematkan sebagai kolom
   unpin-column: Lepas sematan kolom
@@ -199,6 +201,7 @@ title:
   notifications: Notifikasi
 
 button:
+  live-logs: Buka log langsung
   logout: Keluar
   login: Masuk
   login-with: Lanjutkan dengan {provider}

@@ -62,6 +62,7 @@ log-details:
   fields-hint: Перетащите, чтобы изменить порядок. Переключите, чтобы показать или скрыть в потоке логов.
   toggle-all: Переключить все поля
 label:
+  historical-at: "Исторические логи · {time}"
   containers: Контейнеры
   container: Нет контейнеров | 1 контейнер | {count} контейнеров
   alert-events: Нет событий | 1 событие | {count} событий
@@ -118,6 +119,7 @@ label:
   more-options: Дополнительные параметры
   groups: Группы
 tooltip:
+  live-logs: Эти логи зафиксированы на этот момент времени. Нажмите, чтобы следить за живым потоком.
   search: Поиск контейнеров (⌘ + k, ⌃k)
   pin-column: Закрепить столбец
   unpin-column: Открепить столбец
@@ -193,6 +195,7 @@ title:
   settings: Настройки
   notifications: Уведомления
 button:
+  live-logs: Перейти к живым логам
   logout: Выйти
   login: Войти
   login-with: Продолжить с {provider}

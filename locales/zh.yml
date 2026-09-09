@@ -62,6 +62,7 @@ log-details:
   fields-hint: 拖动可重新排序。切换可在日志流中显示或隐藏。
   toggle-all: 切换所有字段
 label:
+  historical-at: "历史日志 · {time}"
   containers: 容器
   container: 无容器 | 1 容器 | {count} 容器
   alert-events: 无事件 | 1 个事件 | {count} 个事件
@@ -118,6 +119,7 @@ label:
   k8s-menu: Kubernetes
   group-menu: 自定义组
 tooltip:
+  live-logs: 这些日志已冻结在该时间点。点击以查看实时日志流。
   search: 搜索 (⌘ + k, ⌃k)
   pin-column: 固定为列
   unpin-column: 取消固定列
@@ -193,6 +195,7 @@ title:
   settings: 设置
   notifications: 通知
 button:
+  live-logs: 转到实时日志
   logout: 退出
   login: 登录
   login-with: 使用 {provider} 继续
