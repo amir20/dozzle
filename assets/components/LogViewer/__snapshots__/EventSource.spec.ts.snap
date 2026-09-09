@@ -40,11 +40,12 @@ exports[`<ContainerEventSource /> > render html correctly > should render dates 
       <!-- A matched notification takes over the level marker instead of adding a
        second icon beside it: the bell is tinted with the level colour, so one
        glyph still says both "this line fired" and what level it was. -->
-      <!-- The rail is 3px inside a 10px slot: it stays a quiet colour cue at the
-       edge of the text instead of a bullet competing with the first word, and
-       the slot keeps every message column aligned whatever the marker is. -->
-      <div data-v-e625cddd="" class="level-rail mt-1.5 flex w-2.5 flex-none justify-center flex select-none">
-        <div data-v-e625cddd="" class="w-[3px] rounded-full h-[0.9em] min-h-3"></div>
+      <!-- A single line gets a dot; the rail is reserved for grouped entries, where
+       its length is the thing it says (these lines are one entry). Both live in
+       the same 10px slot, so the message column stays aligned whatever the
+       marker is, and both are sized in em so they track the log font size. -->
+      <div data-v-e625cddd="" class="level-rail flex w-2.5 flex-none justify-center h-[1.55em] items-center flex select-none">
+        <div data-v-e625cddd="" class="rounded-full size-[0.45em] min-h-[4px] min-w-[4px]"></div>
       </div>
       <div class="log-message [word-break:break-word] whitespace-pre-wrap group-[.disable-wrap]:whitespace-pre">foo bar</div>
     </div>
@@ -92,11 +93,12 @@ exports[`<ContainerEventSource /> > render html correctly > should render dates 
       <!-- A matched notification takes over the level marker instead of adding a
        second icon beside it: the bell is tinted with the level colour, so one
        glyph still says both "this line fired" and what level it was. -->
-      <!-- The rail is 3px inside a 10px slot: it stays a quiet colour cue at the
-       edge of the text instead of a bullet competing with the first word, and
-       the slot keeps every message column aligned whatever the marker is. -->
-      <div data-v-e625cddd="" class="level-rail mt-1.5 flex w-2.5 flex-none justify-center flex select-none">
-        <div data-v-e625cddd="" class="w-[3px] rounded-full h-[0.9em] min-h-3"></div>
+      <!-- A single line gets a dot; the rail is reserved for grouped entries, where
+       its length is the thing it says (these lines are one entry). Both live in
+       the same 10px slot, so the message column stays aligned whatever the
+       marker is, and both are sized in em so they track the log font size. -->
+      <div data-v-e625cddd="" class="level-rail flex w-2.5 flex-none justify-center h-[1.55em] items-center flex select-none">
+        <div data-v-e625cddd="" class="rounded-full size-[0.45em] min-h-[4px] min-w-[4px]"></div>
       </div>
       <div class="log-message [word-break:break-word] whitespace-pre-wrap group-[.disable-wrap]:whitespace-pre">foo bar</div>
     </div>
@@ -144,11 +146,12 @@ exports[`<ContainerEventSource /> > render html correctly > should render messag
       <!-- A matched notification takes over the level marker instead of adding a
        second icon beside it: the bell is tinted with the level colour, so one
        glyph still says both "this line fired" and what level it was. -->
-      <!-- The rail is 3px inside a 10px slot: it stays a quiet colour cue at the
-       edge of the text instead of a bullet competing with the first word, and
-       the slot keeps every message column aligned whatever the marker is. -->
-      <div data-v-e625cddd="" class="level-rail mt-1.5 flex w-2.5 flex-none justify-center flex select-none">
-        <div data-v-e625cddd="" class="w-[3px] rounded-full h-[0.9em] min-h-3"></div>
+      <!-- A single line gets a dot; the rail is reserved for grouped entries, where
+       its length is the thing it says (these lines are one entry). Both live in
+       the same 10px slot, so the message column stays aligned whatever the
+       marker is, and both are sized in em so they track the log font size. -->
+      <div data-v-e625cddd="" class="level-rail flex w-2.5 flex-none justify-center h-[1.55em] items-center flex select-none">
+        <div data-v-e625cddd="" class="rounded-full size-[0.45em] min-h-[4px] min-w-[4px]"></div>
       </div>
       <div class="log-message [word-break:break-word] whitespace-pre-wrap group-[.disable-wrap]:whitespace-pre">This is a message.</div>
     </div>

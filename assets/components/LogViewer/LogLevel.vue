@@ -11,14 +11,20 @@
     <mdi:bell-off v-if="event.suppressed" class="size-3.5 shrink-0" />
     <mdi:bell-alert v-else class="size-3.5 shrink-0" />
   </span>
-  <!-- The rail is 3px inside a 10px slot: it stays a quiet colour cue at the
-       edge of the text instead of a bullet competing with the first word, and
-       the slot keeps every message column aligned whatever the marker is. -->
-  <div v-else class="level-rail mt-1.5 flex w-2.5 flex-none justify-center" :data-position="position">
+  <!-- A single line gets a dot; the rail is reserved for grouped entries, where
+       its length is the thing it says (these lines are one entry). Both live in
+       the same 10px slot, so the message column stays aligned whatever the
+       marker is, and both are sized in em so they track the log font size. -->
+  <div
+    v-else
+    class="level-rail flex w-2.5 flex-none justify-center"
+    :class="position ? 'mt-1.5' : 'h-[1.55em] items-center'"
+    :data-position="position"
+  >
     <div
       :data-level="level"
-      class="w-[3px] rounded-full"
-      :class="[position ? 'h-full' : 'h-[0.9em] min-h-3', { 'show-unknown': showUnknown }]"
+      class="rounded-full"
+      :class="[position ? 'h-full w-[3px]' : 'size-[0.45em] min-h-[4px] min-w-[4px]', { 'show-unknown': showUnknown }]"
     ></div>
   </div>
 </template>

@@ -24,8 +24,11 @@ const { logEntry } = defineProps<{
   logEntry: GroupedLogEntry;
 }>();
 
-const getPosition = (index: number): Position => {
+// A one-line group is not a group as far as the marker goes: it takes the dot
+// like any other single line rather than a stub of rail.
+const getPosition = (index: number): Position | undefined => {
   const len = logEntry.message.length;
+  if (len === 1) return undefined;
   if (index === 0) return "start";
   if (index === len - 1) return "end";
   return "middle";
