@@ -105,6 +105,22 @@ export interface CloudConfig {
 
 export interface CloudStatus {
   user: { email: string; name: string };
-  plan: { name: string; events_per_month: number; retention_days: number };
-  usage: { events_used: number; events_limit: number; period: string };
+  plan: {
+    name: string;
+    events_per_month: number;
+    agent_messages_per_month?: number;
+    log_bytes_per_month?: number;
+    retention_days: number;
+  };
+  // Agent chats and indexed log bytes are metered too, but a cloud older than they are
+  // does not send them, so everything past events is optional and rendered only when present.
+  usage: {
+    events_used: number;
+    events_limit: number;
+    agent_messages_used?: number;
+    agent_messages_limit?: number;
+    log_bytes_used?: number;
+    log_bytes_limit?: number;
+    period: string;
+  };
 }

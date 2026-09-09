@@ -550,7 +550,9 @@ cloud:
   connected: 연결됨
   pro-badge: Dozzle Cloud Pro
   plan: 플랜
-  usage: 이번 기간 이벤트
+  usage: 이벤트
+  usage-agent-messages: 에이전트 대화
+  usage-log-bytes: 색인된 데이터
   dashboard: 대시보드
   settings: 설정
   error: 연결 오류. 인스턴스를 다시 연결해 주세요.

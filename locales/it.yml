@@ -546,7 +546,9 @@ cloud:
   connected: Connesso
   pro-badge: Dozzle Cloud Pro
   plan: Piano
-  usage: Eventi in questo periodo
+  usage: Eventi
+  usage-agent-messages: Chat con l'agente
+  usage-log-bytes: Dati indicizzati
   dashboard: Dashboard
   settings: Impostazioni
   error: Errore di connessione. Ricollega la tua istanza.

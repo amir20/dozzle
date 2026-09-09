@@ -150,12 +150,7 @@
             <div class="bg-base-content/10 my-1.5 h-px"></div>
 
             <div class="px-2 py-1">
-              <UsageMeter
-                compact
-                :used="cloudStatus.usage.events_used"
-                :limit="cloudStatus.usage.events_limit"
-                :period="cloudStatus.usage.period"
-              />
+              <CloudUsage compact :usage="cloudStatus.usage" />
             </div>
 
             <div class="bg-base-content/10 my-1.5 h-px"></div>

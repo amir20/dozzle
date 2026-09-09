@@ -546,7 +546,9 @@ cloud:
   connected: 已连接
   pro-badge: Dozzle Cloud Pro
   plan: 计划
-  usage: 本期事件数
+  usage: 事件
+  usage-agent-messages: 智能体对话
+  usage-log-bytes: 已索引数据
   dashboard: 仪表盘
   settings: 设置
   error: 连接错误。请重新关联您的实例。

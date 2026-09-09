@@ -546,7 +546,9 @@ cloud:
   connected: Подключён
   pro-badge: Dozzle Cloud Pro
   plan: План
-  usage: События за этот период
+  usage: События
+  usage-agent-messages: Чаты с агентом
+  usage-log-bytes: Проиндексированные данные
   dashboard: Панель управления
   settings: Настройки
   error: Ошибка подключения. Пожалуйста, привяжите экземпляр повторно.

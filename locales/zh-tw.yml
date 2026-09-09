@@ -549,7 +549,9 @@ cloud:
   connected: 已連線
   pro-badge: Dozzle Cloud Pro
   plan: 方案
-  usage: 本期事件數
+  usage: 事件
+  usage-agent-messages: 智慧代理對話
+  usage-log-bytes: 已索引資料
   dashboard: 儀表板
   settings: 設定
   error: 連線錯誤。請重新連結您的實例。

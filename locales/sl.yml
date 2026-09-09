@@ -552,7 +552,9 @@ cloud:
   connected: Povezano
   pro-badge: Dozzle Cloud Pro
   plan: Načrt
-  usage: Dogodki v tem obdobju
+  usage: Dogodki
+  usage-agent-messages: Klepeti z agentom
+  usage-log-bytes: Indeksirani podatki
   dashboard: Nadzorna plošča
   settings: Nastavitve
   error: Napaka povezave. Prosimo, ponovno povežite svojo instanco.

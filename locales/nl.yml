@@ -547,7 +547,9 @@ cloud:
   connected: Verbonden
   pro-badge: Dozzle Cloud Pro
   plan: Plan
-  usage: Gebeurtenissen deze periode
+  usage: Gebeurtenissen
+  usage-agent-messages: Agentgesprekken
+  usage-log-bytes: Geïndexeerde data
   dashboard: Dashboard
   settings: Instellingen
   error: Verbindingsfout. Koppel je instantie opnieuw.
