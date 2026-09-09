@@ -34,7 +34,7 @@ function createFuzzySearchModal() {
               containers: [
                 new Container(
                   "123",
-                  new Date(),
+                  new Date("2026-01-03T00:00:00Z"),
                   new Date(),
                   new Date(),
                   "image",
@@ -49,7 +49,7 @@ function createFuzzySearchModal() {
                 ),
                 new Container(
                   "345",
-                  new Date(),
+                  new Date("2026-01-02T00:00:00Z"),
                   new Date(),
                   new Date(),
                   "image",
@@ -64,7 +64,7 @@ function createFuzzySearchModal() {
                 ),
                 new Container(
                   "567",
-                  new Date(),
+                  new Date("2026-01-01T00:00:00Z"),
                   new Date(),
                   new Date(),
                   "image",
