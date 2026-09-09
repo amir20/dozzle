@@ -2,6 +2,15 @@ import { ComplexLogEntry, type LogMessage, type LogEntry } from "@/models/LogEnt
 
 export type VisibleKeysSource = Map<string[], boolean> | ((containerID: string) => Map<string[], boolean>);
 
+/**
+ * Visible keys for multi-container viewers. Each log line resolves its own container so
+ * field toggles made on a single container view carry over here.
+ */
+export function useVisibleKeysByContainer(): (containerID: string) => Map<string[], boolean> {
+  const { findContainerById } = useContainerStore();
+  return (containerID: string) => visibleKeysForContainer(findContainerById(containerID));
+}
+
 export function useVisibleFilter(visibleKeys: Ref<VisibleKeysSource>) {
   const { isSearching, inverseFilter } = useSearchFilter();
   function filteredPayload(messages: Ref<LogEntry<LogMessage>[]>) {

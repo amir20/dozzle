@@ -9,12 +9,7 @@
       </div>
     </template>
     <template #default>
-      <ViewerWithSource
-        ref="viewer"
-        :stream-source="useServiceStream"
-        :entity="service"
-        :visible-keys="getVisibleKeys"
-      />
+      <ViewerWithSource ref="viewer" :stream-source="useServiceStream" :entity="service" :visible-keys="visibleKeys" />
     </template>
   </ScrollableView>
 </template>
@@ -33,8 +28,7 @@ const viewer = ref<ComponentExposed<typeof ViewerWithSource>>();
 const store = useSwarmStore();
 const { services } = storeToRefs(store) as unknown as { services: Ref<Service[]> };
 const service = computed(() => services.value.find((s) => s.name === name) ?? new Service("", []));
-const { findContainerById } = useContainerStore();
-const getVisibleKeys = (containerID: string) => visibleKeysForContainer(findContainerById(containerID));
+const visibleKeys = useVisibleKeysByContainer();
 
 provideLoggingContext(
   toRef(() => service.value.containers),

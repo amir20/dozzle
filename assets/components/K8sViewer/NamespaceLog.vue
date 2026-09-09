@@ -18,7 +18,7 @@
         ref="viewer"
         :stream-source="useNamespaceStream"
         :entity="namespace"
-        :visible-keys="new Map<string[], boolean>()"
+        :visible-keys="visibleKeys"
       />
     </template>
   </ScrollableView>
@@ -40,4 +40,5 @@ provideLoggingContext(
   toRef(() => namespace.containers),
   { showContainerName: true, showHostname: false },
 );
+const visibleKeys = useVisibleKeysByContainer();
 </script>

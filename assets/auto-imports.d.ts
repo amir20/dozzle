@@ -416,6 +416,7 @@ declare global {
   const useVibrate: typeof import('@vueuse/core').useVibrate
   const useVirtualList: typeof import('@vueuse/core').useVirtualList
   const useVisibleFilter: typeof import('./composable/visible').useVisibleFilter
+  const useVisibleKeysByContainer: typeof import('./composable/visible').useVisibleKeysByContainer
   const useWakeLock: typeof import('@vueuse/core').useWakeLock
   const useWebNotification: typeof import('@vueuse/core').useWebNotification
   const useWebSocket: typeof import('@vueuse/core').useWebSocket
@@ -898,6 +899,7 @@ declare module 'vue' {
     readonly useVibrate: UnwrapRef<typeof import('@vueuse/core')['useVibrate']>
     readonly useVirtualList: UnwrapRef<typeof import('@vueuse/core')['useVirtualList']>
     readonly useVisibleFilter: UnwrapRef<typeof import('./composable/visible')['useVisibleFilter']>
+    readonly useVisibleKeysByContainer: UnwrapRef<typeof import('./composable/visible')['useVisibleKeysByContainer']>
     readonly useWakeLock: UnwrapRef<typeof import('@vueuse/core')['useWakeLock']>
     readonly useWebNotification: UnwrapRef<typeof import('@vueuse/core')['useWebNotification']>
     readonly useWebSocket: UnwrapRef<typeof import('@vueuse/core')['useWebSocket']>

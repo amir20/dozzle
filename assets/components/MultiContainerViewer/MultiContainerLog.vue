@@ -13,7 +13,7 @@
         ref="viewer"
         :stream-source="useMergedStream"
         :entity="containers"
-        :visible-keys="new Map<string[], boolean>()"
+        :visible-keys="visibleKeys"
       />
     </template>
   </ScrollableView>
@@ -34,4 +34,5 @@ const { allContainersById, ready } = storeToRefs(containerStore);
 const containers = computed(() => ids.map((id) => allContainersById.value[id]));
 
 provideLoggingContext(containers, { showContainerName: true, showHostname: false });
+const visibleKeys = useVisibleKeysByContainer();
 </script>

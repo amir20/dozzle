@@ -50,7 +50,7 @@ const { containersByHost } = storeToRefs(store);
 
 const groupHosts = computed(() => Object.values(hosts.value).filter((h) => h.group === name));
 const groupRef = computed(() => ({ name }));
-const visibleKeys = new Map<string[], boolean>();
+const visibleKeys = useVisibleKeysByContainer();
 
 const containers = computed(() =>
   groupHosts.value.flatMap((h) => containersByHost.value?.[h.id]?.filter((c) => c.state === "running") ?? []),
