@@ -518,13 +518,10 @@ notifications:
     cloud-exists: Dozzle Cloud est déjà lié
     link-cloud: Lier le Compte
     link-cloud-button: Lier Dozzle Cloud
-    cloud-settings-hint: Pour configurer vos canaux gérés, allez à
     cloud-settings-link: Paramètres Dozzle Cloud
     cloud-checking: Vérification du statut cloud...
     cloud-relink: Votre clé API est invalide ou expirée. Veuillez supprimer et relier votre compte.
     cloud-unavailable: Dozzle Cloud est temporairement indisponible. Veuillez réessayer plus tard.
-    cloud-plan: Plan
-    cloud-usage: Événements pour cette période
   empty-state:
     title: Commencer avec les notifications
     description: Choisissez comment vous souhaitez recevoir des alertes lorsque vos conteneurs nécessitent une attention.

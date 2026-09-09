@@ -530,13 +530,10 @@ notifications:
     cloud-exists: Dozzle Cloud sudah tertaut
     link-cloud: Tautkan Akun
     link-cloud-button: Tautkan Dozzle Cloud
-    cloud-settings-hint: Untuk mengonfigurasi saluran terkelola Anda, buka
     cloud-settings-link: Pengaturan Dozzle Cloud
     cloud-checking: Memeriksa status cloud...
     cloud-relink: Kunci API Anda tidak valid atau kedaluwarsa. Silakan hapus dan hubungkan akun Anda lagi.
     cloud-unavailable: Dozzle Cloud sedang tidak tersedia. Silakan coba lagi nanti.
-    cloud-plan: Paket
-    cloud-usage: Event periode ini
   empty-state:
     title: Mulai dengan notifikasi
     description: Pilih cara Anda ingin menerima peringatan saat kontainer Anda membutuhkan perhatian.

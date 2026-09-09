@@ -6,10 +6,7 @@
         <h1 class="text-xl font-semibold">{{ $t("title.login") }}</h1>
       </div>
 
-      <div role="alert" class="alert alert-error alert-soft" v-if="oauthError">
-        <mdi:alert-circle-outline class="size-5 shrink-0" />
-        <span>{{ $t("error.oauth-failed") }}</span>
-      </div>
+      <InlineNotice v-if="oauthError" type="error" role="alert">{{ $t("error.oauth-failed") }}</InlineNotice>
 
       <form
         v-if="passwordLogin"

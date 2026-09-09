@@ -250,6 +250,80 @@ The frontend uses file-based routing with these conventions:
 - **Hot Reload**: In development, `DEV=true` disables embedded assets, `LIVE_FS=true` serves from filesystem
 - **Makefile**: Orchestrates builds and dependency generation
 
+## Design System
+
+The UI is being converged on one visual language: clean, flat, and quiet. New or
+redesigned surfaces follow these rules; when touching an old surface, bring it along
+rather than matching what is already there.
+
+### Surfaces
+
+- A grouped surface is a **neutral panel**: `rounded-lg border border-base-content/15 bg-base-200/40`,
+  with rows separated by `divide-y divide-base-content/10`. Padding is `p-4` per row,
+  `p-2` for a row of link items. No shadows, no gradients, no `--depth`.
+- Floating surfaces (dropdowns, popovers, toasts) use `rounded-box border border-base-content/10 bg-base-200`
+  with `shadow-sm`/`shadow-lg`. `nav-menu-panel` in `main.css` is the sidebar's version.
+- Inside a panel, a hairline `<div class="bg-base-content/10 h-px">` separates blocks when
+  `divide-y` does not apply (e.g. inside a dropdown's flow).
+- Interactive rows are `hover:bg-base-300 rounded-md px-2 py-1.5 transition-colors`, with a
+  leading icon at `size-4 opacity-60` and a trailing `mdi:open-in-new size-3.5 opacity-40`
+  when the row leaves the app.
+
+### Color and severity
+
+- **Severity rides on the icon, never on the surface.** A tinted circle
+  (`bg-error/10 text-error`, `bg-warning/10 text-warning`, `bg-info/10 text-info`) plus a
+  status dot carries the state; the panel behind it stays neutral so the text keeps full
+  contrast. Do not use daisyUI `alert alert-error` / `alert-warning` / `alert-success`:
+  a saturated block at drawer or page width shouts over everything near it.
+- Use `InlineNotice` (`assets/components/common/InlineNotice.vue`) for an in-page notice and
+  `ToastModal` for a floating one. Both are neutral panels with a tinted glyph.
+- Status text is a `status-pill` (see `main.css`): a bordered, uppercase, mono chip in
+  `neutral`, `success`, `primary`, `secondary`, `warning` or `error`. Prefer it to `badge`.
+- `primary` is reserved for the single action a surface wants you to take. Two solid
+  primary buttons in one panel is a bug; the secondary one is a plain `btn`, and a
+  destructive secondary is `btn text-error`, not `btn-error`.
+
+### Typography and density
+
+- Body `text-sm`, secondary copy `text-base-content/60`, footnotes `text-xs` at
+  `text-base-content/40`. Drawer and page titles are `text-2xl font-bold` with a
+  `text-base-content/60` subtitle underneath.
+- Section headings inside a form are `FormStepHeading` (numbered chip + uppercase label);
+  standalone section headings are `text-base-content/60 font-semibold tracking-wide uppercase`.
+- Numbers, keys, IDs, periods, and percentages are `font-mono`. Emphasize the meaningful
+  half and mute the rest (`font-semibold` used, `text-base-content/40` for `/ limit`).
+- A read-only value is text, not a disabled input. Label left, mono value right.
+
+### Meters and charts
+
+- Usage meters are `UsageMeter` (`assets/components/common/UsageMeter.vue`): a
+  `bg-base-content/10 h-1.5 rounded-full` track with a `bg-primary` fill that turns
+  `bg-warning` past 70% and `bg-error` past 90%. Do not use daisyUI `<progress>` for these;
+  it is taller than the type around it and carries its own palette.
+- Charts stay custom and lightweight (`BarChart.vue`); no chart library.
+
+### Motion
+
+- Transitions are `transition-colors` on hover, `duration-500` on a meter's width, and
+  `200ms cubic-bezier(0.34, 1.56, 0.64, 1)` for the icon spring in `main.css`.
+- Icon-only buttons opt into the spring with `btn-circle`, `btn-square` or `icon-btn`; the
+  flavours (`icon-float`, `icon-spin`, `icon-wiggle`, `icon-ring`) are set on the glyph.
+- Every animation has a `prefers-reduced-motion` escape.
+
+### Consistency rules
+
+- A panel keeps its shape across states. Loading, error and healthy branches of the same
+  surface share the header, dividers and footer so nothing reshuffles when state changes.
+- The same concept looks the same everywhere. The cloud account panel is the same parts at
+  three widths: `CloudPopover.vue` (compact), `CloudSettingsCard.vue`, and
+  `Notification/CloudDestinationForm.vue`. When a fourth surface needs it, extract a
+  component instead of copying the classes.
+- Do not repeat the container's title inside its own content: a drawer header already names
+  the thing, so the panel below leads with what the header cannot say.
+- Drawer footers are sticky, opaque and full-bleed:
+  `bg-base-100 border-base-content/10 sticky bottom-0 z-10 -mx-4 mt-auto border-t px-4 py-4`.
+
 ## Important Development Notes
 
 ### Frontend

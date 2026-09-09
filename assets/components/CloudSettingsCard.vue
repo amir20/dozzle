@@ -75,25 +75,12 @@
           <span class="text-base-content/50 text-sm">{{ cloudStatus.user.email }}</span>
         </div>
 
-        <div class="flex flex-col gap-2 p-4">
-          <div class="flex items-baseline justify-between">
-            <span class="text-base-content/60 text-sm font-medium">{{ $t("cloud.usage") }}</span>
-            <span class="font-mono text-sm">
-              <span class="font-semibold">{{ cloudStatus.usage.events_used.toLocaleString() }}</span>
-              <span class="text-base-content/40"> / {{ cloudStatus.usage.events_limit.toLocaleString() }}</span>
-            </span>
-          </div>
-          <progress
-            class="progress w-full"
-            :class="usagePercent > 90 ? 'progress-error' : usagePercent > 70 ? 'progress-warning' : 'progress-primary'"
-            :value="cloudStatus.usage.events_used"
-            :max="cloudStatus.usage.events_limit"
-          ></progress>
-          <div class="text-base-content/40 flex justify-between font-mono text-xs">
-            <span v-if="cloudStatus.usage.period">{{ cloudStatus.usage.period }}</span>
-            <span v-else></span>
-            <span>{{ usagePercent.toFixed(2) }}% used</span>
-          </div>
+        <div class="p-4">
+          <UsageMeter
+            :used="cloudStatus.usage.events_used"
+            :limit="cloudStatus.usage.events_limit"
+            :period="cloudStatus.usage.period"
+          />
         </div>
 
         <!--
@@ -224,11 +211,6 @@ async function onStreamLogsChange(value: boolean | undefined) {
     isSavingStreamLogs.value = false;
   }
 }
-
-const usagePercent = computed(() => {
-  if (!cloudStatus.value) return 0;
-  return (cloudStatus.value.usage.events_used / cloudStatus.value.usage.events_limit) * 100;
-});
 
 function confirmUnlink() {
   unlinkModal.value?.showModal();

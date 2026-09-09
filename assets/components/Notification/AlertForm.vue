@@ -39,10 +39,9 @@
             </div>
           </button>
         </div>
-        <div v-if="typeChanged" class="alert alert-warning mt-2 py-2 text-sm">
-          <mdi:alert-outline />
-          <span>{{ $t("notifications.alert-form.type-switch-warning", { type: originalTypeLabel }) }}</span>
-        </div>
+        <InlineNotice v-if="typeChanged" type="warning" class="mt-2">
+          {{ $t("notifications.alert-form.type-switch-warning", { type: originalTypeLabel }) }}
+        </InlineNotice>
       </section>
 
       <!-- 2. Containers -->
@@ -186,9 +185,7 @@
 
     <!-- Actions stay reachable in a form this tall -->
     <div class="bg-base-100 border-base-content/10 sticky bottom-0 z-10 mt-auto border-t p-4">
-      <div v-if="saveError" class="alert alert-error mb-3 py-2 text-sm">
-        <span>{{ saveError }}</span>
-      </div>
+      <InlineNotice v-if="saveError" type="error" class="mb-3">{{ saveError }}</InlineNotice>
 
       <div v-if="confirmingDiscard" class="flex flex-wrap items-center justify-end gap-2">
         <span class="mr-auto text-sm">{{ $t("notifications.alert-form.discard-title") }}</span>

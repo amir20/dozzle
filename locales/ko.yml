@@ -522,13 +522,10 @@ notifications:
     cloud-exists: Dozzle Cloud가 이미 연결되어 있습니다
     link-cloud: 계정 연결
     link-cloud-button: Dozzle Cloud 연결
-    cloud-settings-hint: 관리 채널을 설정하려면 다음으로 이동하세요
     cloud-settings-link: Dozzle Cloud 설정
     cloud-checking: 클라우드 상태 확인 중...
     cloud-relink: API 키가 유효하지 않거나 만료되었습니다. 삭제 후 계정을 다시 연결해 주세요.
     cloud-unavailable: Dozzle Cloud를 일시적으로 사용할 수 없습니다. 나중에 다시 시도해 주세요.
-    cloud-plan: 플랜
-    cloud-usage: 이번 기간 이벤트
   empty-state:
     title: 알림 시작하기
     description: 컨테이너에 문제가 생겼을 때 알림을 받을 방법을 선택하세요.

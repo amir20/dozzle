@@ -522,13 +522,10 @@ notifications:
     cloud-exists: Dozzle Cloud zaten bağlı
     link-cloud: Hesabı Bağla
     link-cloud-button: Dozzle Cloud'u Bağla
-    cloud-settings-hint: Yönetilen kanallarınızı yapılandırmak için şuraya gidin
     cloud-settings-link: Dozzle Cloud Ayarları
     cloud-checking: Bulut durumu kontrol ediliyor...
     cloud-relink: API anahtarınız geçersiz veya süresi dolmuş. Lütfen silin ve hesabınızı tekrar bağlayın.
     cloud-unavailable: Dozzle Cloud geçici olarak kullanılamıyor. Lütfen daha sonra tekrar deneyin.
-    cloud-plan: Plan
-    cloud-usage: Bu dönemdeki olaylar
   empty-state:
     title: Bildirimlerle başlayın
     description: Konteynerleriniz dikkat gerektirdiğinde nasıl uyarı almak istediğinizi seçin.

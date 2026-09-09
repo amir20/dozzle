@@ -518,13 +518,10 @@ notifications:
     cloud-exists: Dozzle Cloud уже привязан
     link-cloud: Связать Аккаунт
     link-cloud-button: Связать Dozzle Cloud
-    cloud-settings-hint: Чтобы настроить управляемые каналы, перейдите в
     cloud-settings-link: Настройки Dozzle Cloud
     cloud-checking: Проверка статуса облака...
     cloud-relink: Ваш API-ключ недействителен или истёк. Пожалуйста, удалите и привяжите аккаунт заново.
     cloud-unavailable: Dozzle Cloud временно недоступен. Попробуйте позже.
-    cloud-plan: План
-    cloud-usage: События за этот период
   empty-state:
     title: Начните с уведомлений
     description: Выберите, как вы хотите получать оповещения, когда ваши контейнеры требуют внимания.
