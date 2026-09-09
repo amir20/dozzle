@@ -558,7 +558,9 @@ cloud:
   connected: Terhubung
   pro-badge: Dozzle Cloud Pro
   plan: Paket
-  usage: Event periode ini
+  usage: Event
+  usage-agent-messages: Obrolan agen
+  usage-log-bytes: Data terindeks
   dashboard: Dasbor
   settings: Pengaturan
   error: Kesalahan koneksi. Silakan tautkan ulang instans Anda.

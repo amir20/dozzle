@@ -72,11 +72,7 @@
         </div>
 
         <div v-else-if="cloudStatus" class="p-4">
-          <UsageMeter
-            :used="cloudStatus.usage.events_used"
-            :limit="cloudStatus.usage.events_limit"
-            :period="cloudStatus.usage.period"
-          />
+          <CloudUsage :usage="cloudStatus.usage" />
         </div>
 
         <!-- Managed channels live on the cloud side, so the drawer ends in a way out to them. -->

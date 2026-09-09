@@ -40,6 +40,7 @@ declare module 'vue' {
     CloudEventLogItem: typeof import('./components/LogViewer/CloudEventLogItem.vue')['default']
     CloudPopover: typeof import('./components/CloudPopover.vue')['default']
     CloudSettingsCard: typeof import('./components/CloudSettingsCard.vue')['default']
+    CloudUsage: typeof import('./components/CloudUsage.vue')['default']
     CollapsibleSection: typeof import('./components/common/CollapsibleSection.vue')['default']
     ComplexLogItem: typeof import('./components/LogViewer/ComplexLogItem.vue')['default']
     ContainerActionsToolbar: typeof import('./components/ContainerViewer/ContainerActionsToolbar.vue')['default']

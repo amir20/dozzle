@@ -549,7 +549,9 @@ cloud:
   connected: Połączony
   pro-badge: Dozzle Cloud Pro
   plan: Plan
-  usage: Zdarzenia w tym okresie
+  usage: Zdarzenia
+  usage-agent-messages: Czaty z agentem
+  usage-log-bytes: Zaindeksowane dane
   dashboard: Panel
   settings: Ustawienia
   error: Błąd połączenia. Połącz ponownie swoją instancję.

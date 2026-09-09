@@ -606,7 +606,9 @@ cloud:
   connected: Connected
   pro-badge: Dozzle Cloud Pro
   plan: Plan
-  usage: Events this period
+  usage: Events
+  usage-agent-messages: Agent chats
+  usage-log-bytes: Data indexed
   dashboard: Dashboard
   settings: Settings
   error: Connection error. Please re-link your instance.

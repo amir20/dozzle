@@ -550,7 +550,9 @@ cloud:
   connected: Bağlı
   pro-badge: Dozzle Cloud Pro
   plan: Plan
-  usage: Bu dönemdeki olaylar
+  usage: Olaylar
+  usage-agent-messages: Aracı sohbetleri
+  usage-log-bytes: Dizine eklenen veri
   dashboard: Pano
   settings: Ayarlar
   error: Bağlantı hatası. Lütfen örneğinizi yeniden bağlayın.

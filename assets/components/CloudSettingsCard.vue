@@ -76,11 +76,7 @@
         </div>
 
         <div class="p-4">
-          <UsageMeter
-            :used="cloudStatus.usage.events_used"
-            :limit="cloudStatus.usage.events_limit"
-            :period="cloudStatus.usage.period"
-          />
+          <CloudUsage :usage="cloudStatus.usage" />
         </div>
 
         <!--
