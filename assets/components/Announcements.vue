@@ -1,7 +1,7 @@
 <template>
   <Dropdown
-    class="dropdown-end"
-    @click="config.releaseCheckMode === 'manual' && fetchReleases()"
+    placement="bottom-end"
+    @opened="config.releaseCheckMode === 'manual' && fetchReleases()"
     @closed="releaseSeen = mostRecent?.tag ?? config.version"
   >
     <template #trigger>

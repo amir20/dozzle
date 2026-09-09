@@ -13,25 +13,28 @@
             <mdi:bell-ring-outline v-else-if="alert.eventExpression" class="text-info shrink-0" />
             <mdi:text-box-outline v-else class="text-info shrink-0" />
             <span class="break-all">{{ alert.name }}</span> <span class="text-sm font-light">→</span>
-            <div class="group/dispatch dropdown dropdown-hover">
-              <div
-                tabindex="0"
-                role="button"
-                class="border-base-content/0 hover:border-base-content/20 flex cursor-pointer items-center gap-1 rounded border px-1.5 py-0.5 text-xs font-light transition-colors"
-                :class="{ 'text-warning': !alert.dispatcher }"
-              >
-                <template v-if="alert.dispatcher">
-                  <mdi:webhook v-if="alert.dispatcher.type === 'webhook'" />
-                  <mdi:cloud v-else />
-                  {{ alert.dispatcher.name }}
-                </template>
-                <template v-else>
-                  <mdi:alert-outline />
-                  {{ $t("notifications.alert.dispatcher-deleted") }}
-                </template>
-                <mdi:chevron-down class="text-[0.6rem] opacity-0 transition-opacity group-hover/dispatch:opacity-100" />
-              </div>
-              <ul tabindex="0" class="dropdown-content menu bg-base-200 rounded-box z-50 w-48 p-2 shadow-lg">
+            <Popover class="group/dispatch" hover panel-class="bg-base-200 rounded-box w-48 p-2 shadow-lg">
+              <template #trigger>
+                <button
+                  type="button"
+                  class="border-base-content/0 hover:border-base-content/20 flex cursor-pointer items-center gap-1 rounded border px-1.5 py-0.5 text-xs font-light transition-colors"
+                  :class="{ 'text-warning': !alert.dispatcher }"
+                >
+                  <template v-if="alert.dispatcher">
+                    <mdi:webhook v-if="alert.dispatcher.type === 'webhook'" />
+                    <mdi:cloud v-else />
+                    {{ alert.dispatcher.name }}
+                  </template>
+                  <template v-else>
+                    <mdi:alert-outline />
+                    {{ $t("notifications.alert.dispatcher-deleted") }}
+                  </template>
+                  <mdi:chevron-down
+                    class="text-[0.6rem] opacity-0 transition-opacity group-hover/dispatch:opacity-100"
+                  />
+                </button>
+              </template>
+              <ul class="menu w-full p-0">
                 <li v-for="dest in dispatchers" :key="dest.id">
                   <a
                     class="flex items-center gap-2"
@@ -44,7 +47,7 @@
                   </a>
                 </li>
               </ul>
-            </div>
+            </Popover>
           </h4>
           <span v-if="!alert.enabled" class="badge badge-warning badge-sm">{{ $t("notifications.alert.paused") }}</span>
         </div>

@@ -1,36 +1,33 @@
 <template>
-  <div
-    class="dropdown dropdown-hover absolute -left-2 z-10 font-sans md:-left-8"
-    :class="shouldShowBelow ? 'dropdown-right' : 'dropdown-right dropdown-end'"
-    v-show="container"
-    ref="dropdownRef"
-    @mouseenter="checkDropdownPosition"
+  <Popover
+    v-if="container"
+    hover
+    placement="right-start"
+    class="absolute -left-2 z-10 font-sans md:-left-8"
+    panel-class="rounded-box bg-base-200 border-base-content/20 w-52 border p-1 text-sm shadow-sm"
   >
-    <router-link
-      v-if="isFiltered"
-      @click="resetSearch()"
-      tabindex="0"
-      class="btn btn-square btn-xs border-base-content/20 bg-base-100 pointer-events-auto! opacity-0 shadow-sm group-hover/entry:opacity-90"
-      :to="{
-        name: '/container/[id].time.[datetime]',
-        params: { id: container.id, datetime: logEntry.date.toISOString() },
-        query: { logId: logEntry.id },
-      }"
-    >
-      <material-symbols:eye-tracking />
-    </router-link>
-    <button
-      tabindex="0"
-      class="btn btn-square btn-xs border-base-content/20 bg-base-100 border opacity-0 shadow-sm group-hover/entry:opacity-90"
-      v-else
-    >
-      <ion:ellipsis-vertical />
-    </button>
-    <ul
-      tabindex="0"
-      class="menu dropdown-content rounded-box bg-base-200 border-base-content/20 z-50 w-52 border p-1 text-sm shadow-sm"
-      @click="hideMenu"
-    >
+    <template #trigger>
+      <router-link
+        v-if="isFiltered"
+        @click="resetSearch()"
+        class="btn btn-square btn-xs border-base-content/20 bg-base-100 pointer-events-auto! opacity-0 shadow-sm group-hover/entry:opacity-90"
+        :to="{
+          name: '/container/[id].time.[datetime]',
+          params: { id: container.id, datetime: logEntry.date.toISOString() },
+          query: { logId: logEntry.id },
+        }"
+      >
+        <material-symbols:eye-tracking />
+      </router-link>
+      <button
+        type="button"
+        class="btn btn-square btn-xs border-base-content/20 bg-base-100 border opacity-0 shadow-sm group-hover/entry:opacity-90"
+        v-else
+      >
+        <ion:ellipsis-vertical />
+      </button>
+    </template>
+    <ul class="menu w-full p-0">
       <li v-if="isFiltered">
         <router-link
           @click="resetSearch()"
@@ -78,7 +75,7 @@
         </a>
       </li>
     </ul>
-  </div>
+  </Popover>
 </template>
 
 <script lang="ts" setup>
@@ -171,25 +168,5 @@ function createAlert() {
   const name = nameParts.join(" ");
 
   showDrawer(AlertForm, { prefill: { name, containerExpression: containerExpr, logExpression: logExpr } }, "lg");
-}
-
-function hideMenu(e: MouseEvent) {
-  if (e.target instanceof HTMLAnchorElement) {
-    setTimeout(() => {
-      if (document.activeElement instanceof HTMLElement) {
-        document.activeElement.blur();
-      }
-    }, 50);
-  }
-}
-
-const dropdownRef = useTemplateRef<HTMLDivElement>("dropdownRef");
-const shouldShowBelow = ref(false);
-
-function checkDropdownPosition() {
-  if (!dropdownRef.value) return;
-
-  const rect = dropdownRef.value.getBoundingClientRect();
-  shouldShowBelow.value = rect.top < 150;
 }
 </script>

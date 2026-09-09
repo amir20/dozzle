@@ -24,7 +24,7 @@
       <mdi:cog class="icon-spin size-6" />
     </router-link>
 
-    <dropdown class="dropdown-end" data-testid="user-menu" v-if="config.user">
+    <Dropdown placement="bottom-end" data-testid="user-menu" v-if="config.user">
       <template #trigger>
         <template v-if="config.disableAvatars || !config.user.email">
           <material-symbols:person class="size-6" />
@@ -65,7 +65,7 @@
           </template>
         </div>
       </template>
-    </dropdown>
+    </Dropdown>
   </div>
 </template>
 <script lang="ts" setup>

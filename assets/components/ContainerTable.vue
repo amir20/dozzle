@@ -41,7 +41,7 @@
       <div class="text-base-content/50 flex flex-1 items-center justify-end gap-2 text-xs">
         <div class="flex items-center gap-1 md:hidden">
           {{ $t("label.sort-by") }}
-          <DropdownMenu class="dropdown-left btn-xs" v-model="mobileSortField" :options="sortOptions" />
+          <DropdownMenu class="btn-xs" v-model="mobileSortField" :options="sortOptions" />
           <button
             class="btn btn-square btn-ghost btn-xs"
             @click="direction *= -1"
@@ -204,7 +204,7 @@
       </nav>
       <DropdownMenu
         v-else-if="isPaginated"
-        class="dropdown-left btn-xs ml-auto"
+        class="btn-xs ml-auto"
         v-model="currentPage"
         :options="Array.from({ length: totalPages }, (_, i) => ({ label: `${i + 1}`, value: i + 1 }))"
       />

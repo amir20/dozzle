@@ -16,24 +16,26 @@
               ><span class="block truncate">{{ container.name }}</span></template
             >
             <div v-else class="min-w-0">
-              <!-- daisyUI's .dropdown is inline-block, so it sizes to its content and
-                   silently overflows this shrunken li: the button spilled past the row
-                   and the next control painted over its caret. max-w-full puts it back
-                   under the li's width so the name truncates instead. -->
-              <div class="dropdown max-w-full min-w-0">
-                <!-- Ghost until hover: the name is the page title, and a
-                     permanent button frame made it read as one more chip. -->
-                <button tabindex="0" role="button" class="btn btn-ghost btn-xs md:btn-sm max-w-full min-w-0 px-1.5">
-                  <span class="truncate">{{ container.name }}</span>
-                  <!-- The count and caret are the only affordance for the dropdown, so they
-                       must survive a long image tag squeezing this button. -->
-                  <span class="badge badge-xs badge-neutral shrink-0 font-sans">{{ sameNameContainers.length }}</span>
-                  <carbon:caret-down class="text-base-content/50 shrink-0" />
-                </button>
-                <ul
-                  tabindex="0"
-                  class="dropdown-content menu rounded-box bg-base-100 border-base-content/20 z-10 w-max border p-1 shadow-sm"
-                >
+              <!-- The anchor is inline-block, so it sizes to its content and silently
+                   overflows this shrunken li: the button spilled past the row and the next
+                   control painted over its caret. max-w-full puts it back under the li's
+                   width so the name truncates instead. -->
+              <Popover
+                class="max-w-full min-w-0"
+                panel-class="rounded-box bg-base-100 border-base-content/20 w-max border p-1 shadow-sm"
+              >
+                <template #trigger>
+                  <!-- Ghost until hover: the name is the page title, and a
+                       permanent button frame made it read as one more chip. -->
+                  <button type="button" class="btn btn-ghost btn-xs md:btn-sm max-w-full min-w-0 px-1.5">
+                    <span class="truncate">{{ container.name }}</span>
+                    <!-- The count and caret are the only affordance for the menu, so they
+                         must survive a long image tag squeezing this button. -->
+                    <span class="badge badge-xs badge-neutral shrink-0 font-sans">{{ sameNameContainers.length }}</span>
+                    <carbon:caret-down class="text-base-content/50 shrink-0" />
+                  </button>
+                </template>
+                <ul class="menu w-full p-0">
                   <li class="menu-title px-2 py-1 text-xs">
                     {{ $t("label.container", sameNameContainers.length) }}
                   </li>
@@ -61,7 +63,7 @@
                     </router-link>
                   </li>
                 </ul>
-              </div>
+              </Popover>
             </div>
           </li>
         </ul>

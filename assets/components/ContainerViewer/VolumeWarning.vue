@@ -1,20 +1,22 @@
 <template>
-  <div v-if="worst" class="dropdown dropdown-end" :class="{ 'dropdown-bottom': !openUp }">
-    <button
-      tabindex="0"
-      role="button"
-      class="inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-xs font-medium tabular-nums"
-      :class="badgeClass"
-      :title="title"
-    >
-      <PhWarning class="size-3.5" />
-      <span class="max-md:hidden">{{ worst.destination }}</span>
-      <span>{{ formatPct(worst.pct) }}</span>
-    </button>
-    <div
-      tabindex="0"
-      class="dropdown-content rounded-box bg-base-200 border-base-content/20 z-50 mt-1 w-72 border p-2 text-xs shadow-sm"
-    >
+  <Popover
+    v-if="worst"
+    placement="bottom-end"
+    panel-class="rounded-box bg-base-200 border-base-content/20 w-72 border p-2 text-xs shadow-sm"
+  >
+    <template #trigger>
+      <button
+        type="button"
+        class="inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-xs font-medium tabular-nums"
+        :class="badgeClass"
+        :title="title"
+      >
+        <PhWarning class="size-3.5" />
+        <span class="max-md:hidden">{{ worst.destination }}</span>
+        <span>{{ formatPct(worst.pct) }}</span>
+      </button>
+    </template>
+    <div>
       <div class="text-base-content/60 mb-1.5 px-1 text-[11px] tracking-wide uppercase">{{ t("tooltip.volumes") }}</div>
       <ul class="space-y-1.5">
         <li
@@ -39,7 +41,7 @@
         </li>
       </ul>
     </div>
-  </div>
+  </Popover>
 </template>
 
 <script lang="ts" setup>
@@ -49,7 +51,7 @@ import PhWarning from "~icons/ph/warning-fill";
 const WARN = 0.85;
 const CRITICAL = 0.95;
 
-const { container } = defineProps<{ container: Container; openUp?: boolean }>();
+const { container } = defineProps<{ container: Container }>();
 
 const { t } = useI18n();
 
