@@ -62,6 +62,7 @@ log-details:
   fields-hint: Przeciągnij, aby zmienić kolejność. Przełącz, aby pokazać lub ukryć w strumieniu logów.
   toggle-all: Przełącz wszystkie pola
 label:
+  historical-at: "Logi historyczne · {time}"
   service: Brak usług | 1 usługa | {count} usług
   services: Usługi
   host-count: Brak Hostów | 1 Host | {count} Hostów
@@ -118,6 +119,7 @@ label:
   more-options: Więcej opcji
   groups: Grupy
 tooltip:
+  live-logs: Te logi są zamrożone w tym momencie. Kliknij, aby śledzić strumień na żywo.
   search: Przeszukaj kontenery (⌘ + k, ⌃k)
   pin-column: Przypnij jako kolumna
   unpin-column: Odepnij kolumnę
@@ -195,6 +197,7 @@ title:
   settings: Ustawienia
   notifications: Powiadomienia
 button:
+  live-logs: Przejdź do logów na żywo
   logout: Wyloguj się
   login: Zaloguj się
   login-with: Kontynuuj z {provider}

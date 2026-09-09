@@ -62,6 +62,7 @@ log-details:
   fields-hint: Trascina per riordinare. Attiva o disattiva per mostrarli o nasconderli nel flusso dei log.
   toggle-all: Attiva o disattiva tutti i campi
 label:
+  historical-at: "Log storici · {time}"
   containers: Container
   container: Nessun container | 1 container | {count} container
   alert-events: Nessun evento | 1 evento | {count} eventi
@@ -118,6 +119,7 @@ label:
   more-options: Altre opzioni
   groups: Gruppi
 tooltip:
+  live-logs: Questi log sono congelati a questo istante. Fai clic per seguire lo streaming in tempo reale.
   search: Ricerca container (⌘ + k, ⌃k)
   pin-column: Blocca come colonna
   unpin-column: Sblocca colonna
@@ -193,6 +195,7 @@ title:
   settings: Impostazioni
   notifications: Notifiche
 button:
+  live-logs: Vai ai log in tempo reale
   logout: Logout
   login: Login
   login-with: Continua con {provider}

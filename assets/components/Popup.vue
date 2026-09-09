@@ -1,88 +1,68 @@
 <template>
   <slot></slot>
-  <teleport to="body">
-    <transition name="fade">
-      <div
-        v-show="show && (delayedShow || globalShow)"
-        class="ring-base-content/20 bg-base-100 fixed z-50 rounded-sm p-3 shadow-sm ring"
-        ref="content"
-      >
-        <slot name="content"></slot>
-      </div>
-    </transition>
-  </teleport>
+  <!-- A sibling of the row instead of a wrapper around it: these rows are <li>s in a <ul>,
+       and a wrapping element would take them out of the list. -->
+  <div
+    ref="panel"
+    popover
+    class="popover-panel ring-base-content/20 bg-base-100 rounded-sm p-3 shadow-sm ring"
+    @beforetoggle="onBeforeToggle"
+    @toggle="onToggle"
+    @pointerenter="cancelHide"
+    @pointerleave="onLeave"
+  >
+    <slot name="content"></slot>
+  </div>
 </template>
 
-<script lang="ts" setup>
-import { activePopup, globalShowPopup } from "@/composable/popup";
-
-const globalShow = globalShowPopup();
-const active = activePopup();
-const id = Symbol();
-const show = ref(globalShow.value);
-const delayedShow = refDebounced(show, 1000);
-const content = ref<HTMLElement>();
-
-// Hiding is delayed so the pointer can cross the gap between the trigger and the
-// content, which is hoverable itself, without the popup vanishing on the way.
-const HIDE_DELAY = 200;
-let hideTimer: ReturnType<typeof setTimeout> | undefined;
-
-const cancelHide = () => {
-  clearTimeout(hideTimer);
-  hideTimer = undefined;
-};
-
-const onMouseEnter = (e: Event) => {
-  cancelHide();
-  active.value = id;
-  show.value = true;
-  globalShow.value = true;
-
-  if (content.value && e.target instanceof HTMLElement) {
-    const { left, top, width } = e.target.getBoundingClientRect();
-    const x = left + width + 10;
-    const y = top;
-
-    content.value.style.left = `${x}px`;
-    content.value.style.top = `${y}px`;
-  }
-};
-
-const onMouseLeave = () => {
-  cancelHide();
-  hideTimer = setTimeout(() => {
-    if (active.value === id) active.value = null;
-    show.value = false;
-    globalShow.value = false;
-    hideTimer = undefined;
-  }, HIDE_DELAY);
-};
-
-// Another popup took over: drop this one now instead of waiting out the grace period.
-watch(active, (current) => {
-  if (current === id || !show.value) return;
-  cancelHide();
-  show.value = false;
-});
-
-onScopeDispose(cancelHide);
-
-const el: Ref<HTMLElement> = useCurrentElement();
-useEventListener(() => el.value?.nextElementSibling, "mouseenter", onMouseEnter);
-useEventListener(() => el.value?.nextElementSibling, "mouseleave", onMouseLeave);
-useEventListener(content, "mouseenter", cancelHide);
-useEventListener(content, "mouseleave", onMouseLeave);
+<script lang="ts">
+/**
+ * Shared by every popup: once one has opened, moving on to another row opens its panel at
+ * once rather than waiting out the delay again.
+ */
+let warmUntil = 0;
 </script>
 
-<style scoped>
-.fade-enter-active,
-.fade-leave-active {
-  @apply transition-opacity;
-}
+<script lang="ts" setup>
+/**
+ * Details hung off a nav row on hover, in the top layer via the native popover API so the
+ * sidebar's scroller cannot clip it. Only one auto popover stays open at a time, so moving
+ * between rows closes the previous panel for free.
+ */
+const panel = useTemplateRef<HTMLElement>("panel");
+// The trigger is whatever the slot rendered right before the panel, which is the row.
+const anchor = computed(() => (panel.value?.previousElementSibling as HTMLElement | null) ?? null);
 
-.fade-enter-from,
-.fade-leave-to {
-  @apply opacity-0;
-}
-</style>
+const { isOpen, onBeforeToggle, onToggle, show, hide } = useAnchoredPopover(anchor, panel, {
+  placement: () => "right-start",
+  gap: () => 10,
+});
+
+// Long enough that the panel does not flash while the pointer crosses the list on its way
+// somewhere else.
+const OPEN_DELAY = 1000;
+// Hiding is delayed so the pointer can cross the gap onto the panel, which is hoverable
+// itself, without the popup vanishing on the way.
+const HIDE_DELAY = 200;
+
+let timer: ReturnType<typeof setTimeout> | undefined;
+
+const cancelHide = () => clearTimeout(timer);
+
+const onEnter = () => {
+  clearTimeout(timer);
+  if (performance.now() < warmUntil) show();
+  else timer = setTimeout(show, OPEN_DELAY);
+};
+
+const onLeave = () => {
+  clearTimeout(timer);
+  if (isOpen.value) warmUntil = performance.now() + OPEN_DELAY;
+  timer = setTimeout(hide, HIDE_DELAY);
+};
+
+useEventListener(anchor, "pointerenter", onEnter);
+useEventListener(anchor, "pointerleave", onLeave);
+
+onScopeDispose(() => clearTimeout(timer));
+</script>

@@ -62,6 +62,7 @@ log-details:
   fields-hint: Træk for at ændre rækkefølgen. Slå til eller fra for at vise eller skjule i logstrømmen.
   toggle-all: Slå alle felter til eller fra
 label:
+  historical-at: "Historiske logs · {time}"
   containers: Containere
   container: Ingen containere | 1 container | {count} containere
   alert-events: Ingen hændelser | 1 hændelse | {count} hændelser
@@ -118,6 +119,7 @@ label:
   more-options: Flere valgmuligheder
   groups: Grupper
 tooltip:
+  live-logs: Disse logs er frosset på dette tidspunkt. Klik for at følge live-streamen.
   search: Søg containere (⌘ + k, ⌃k)
   pin-column: Fastgør som kolonne
   unpin-column: Frigør kolonne
@@ -193,6 +195,7 @@ title:
   settings: Indstillinger
   notifications: Notifikationer
 button:
+  live-logs: Gå til live-logs
   logout: Logout
   login: Login
   login-with: Fortsæt med {provider}
