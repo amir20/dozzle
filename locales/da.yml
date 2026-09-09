@@ -556,6 +556,7 @@ cloud:
   unlink: Fjern tilknytning
   unlink-confirm: Er du sikker på, at du vil fjerne tilknytningen til Dozzle Cloud? Dette fjerner alle cloud-notifikationsdestinationer.
   privacy:
+    details-link: "Hvad der sendes"
     toggle: "Stream logs og metrikker til Dozzle Cloud"
     sends-heading: "Så længe dette er slået til, sender dine containere løbende:"
     sends-logs: "Loglinjer, efterhånden som de skrives"

@@ -66,27 +66,42 @@
 
       <!-- Healthy -->
       <template v-else-if="cloudStatus">
+        <!--
+          Identity and the two account actions share one row. The actions used to sit
+          in a row of their own at the bottom of the card, which cost a full band of
+          padding for two small buttons.
+        -->
         <div class="flex flex-wrap items-center gap-2 p-4">
           <span class="status-pill status-pill-success">
             <span class="size-1.5 rounded-full bg-current"></span>
             {{ $t("cloud.connected") }}
           </span>
           <span class="status-pill status-pill-primary">{{ cloudStatus.plan.name }}</span>
-          <span class="text-base-content/50 text-sm">{{ cloudStatus.user.email }}</span>
+          <span class="text-base-content/50 truncate text-sm">{{ cloudStatus.user.email }}</span>
+          <div class="ml-auto flex gap-2">
+            <a :href="cloudUrl" target="_blank" rel="noreferrer noopener" class="btn btn-sm">
+              {{ $t("cloud.dashboard") }}
+            </a>
+            <button class="btn btn-sm text-error" @click="confirmUnlink">
+              {{ $t("cloud.unlink") }}
+            </button>
+          </div>
         </div>
 
         <div class="p-4">
-          <CloudUsage :usage="cloudStatus.usage" />
+          <CloudUsage :usage="cloudStatus.usage" row />
         </div>
 
         <!--
           One toggle gates BOTH log lines and container metrics — they ride the
           same connection, and opting out of shipping log contents implies
-          opting out of shipping resource usage. The copy has to spell out
-          everything that leaves the instance, or the toggle understates itself.
+          opting out of shipping resource usage. The copy still has to spell out
+          everything that leaves the instance, but it is a disclosure rather than
+          a permanent panel: it answers a question asked once, at link time, and
+          then sits in the way on every later visit to this page.
         -->
         <div class="p-4">
-          <label class="flex min-h-13 cursor-pointer items-center justify-between gap-4">
+          <label class="flex cursor-pointer items-center justify-between gap-4">
             <div class="flex flex-col gap-0.5">
               <span class="text-sm font-medium">{{ $t("cloud.privacy.toggle") }}</span>
               <span class="text-base-content/60 text-xs">{{ $t("cloud.privacy.required-for") }}</span>
@@ -100,44 +115,44 @@
             />
           </label>
 
-          <div class="border-base-content/10 mt-3 space-y-3 rounded-md border p-3 text-xs">
-            <div v-if="streamLogs">
-              <p class="text-base-content/70 font-medium">{{ $t("cloud.privacy.sends-heading") }}</p>
-              <ul class="text-base-content/60 mt-1.5 space-y-1">
-                <li class="flex items-start gap-1.5">
-                  <mdi:text-box-outline class="mt-0.5 shrink-0 text-sm" />
-                  <span>{{ $t("cloud.privacy.sends-logs") }}</span>
-                </li>
-                <li class="flex items-start gap-1.5">
-                  <mdi:chart-line class="mt-0.5 shrink-0 text-sm" />
-                  <span>{{ $t("cloud.privacy.sends-metrics") }}</span>
-                </li>
-              </ul>
+          <p v-if="!streamLogs" class="text-base-content/60 mt-2 text-xs">{{ $t("cloud.privacy.off-note") }}</p>
+
+          <details v-else class="group mt-2">
+            <summary
+              class="text-base-content/60 hover:text-base-content inline-flex cursor-pointer list-none items-center gap-1 text-xs transition-colors [&::-webkit-details-marker]:hidden"
+            >
+              <mdi:chevron-right class="size-3.5 transition-transform group-open:rotate-90" />
+              {{ $t("cloud.privacy.details-link") }}
+            </summary>
+
+            <div class="border-base-content/10 mt-2 space-y-3 rounded-md border p-3 text-xs">
+              <div>
+                <p class="text-base-content/70 font-medium">{{ $t("cloud.privacy.sends-heading") }}</p>
+                <ul class="text-base-content/60 mt-1.5 space-y-1">
+                  <li class="flex items-start gap-1.5">
+                    <mdi:text-box-outline class="mt-0.5 shrink-0 text-sm" />
+                    <span>{{ $t("cloud.privacy.sends-logs") }}</span>
+                  </li>
+                  <li class="flex items-start gap-1.5">
+                    <mdi:chart-line class="mt-0.5 shrink-0 text-sm" />
+                    <span>{{ $t("cloud.privacy.sends-metrics") }}</span>
+                  </li>
+                </ul>
+              </div>
+
+              <div class="text-base-content/60 flex items-start gap-1.5">
+                <mdi:shield-check-outline class="text-success mt-0.5 shrink-0 text-sm" />
+                <span>
+                  <span class="text-base-content/70 font-medium">{{ $t("cloud.privacy.never-heading") }}</span>
+                  {{ $t("cloud.privacy.never-env") }}
+                </span>
+              </div>
+
+              <p class="text-base-content/45 border-base-content/10 border-t pt-2">
+                {{ $t("cloud.privacy.per-container") }}
+              </p>
             </div>
-
-            <p v-else class="text-base-content/60">{{ $t("cloud.privacy.off-note") }}</p>
-
-            <div v-if="streamLogs" class="text-base-content/60 flex items-start gap-1.5">
-              <mdi:shield-check-outline class="text-success mt-0.5 shrink-0 text-sm" />
-              <span>
-                <span class="text-base-content/70 font-medium">{{ $t("cloud.privacy.never-heading") }}</span>
-                {{ $t("cloud.privacy.never-env") }}
-              </span>
-            </div>
-
-            <p v-if="streamLogs" class="text-base-content/45 border-base-content/10 border-t pt-2">
-              {{ $t("cloud.privacy.per-container") }}
-            </p>
-          </div>
-        </div>
-
-        <div class="flex gap-2 p-4">
-          <a :href="cloudUrl" target="_blank" rel="noreferrer noopener" class="btn btn-sm">
-            {{ $t("cloud.dashboard") }}
-          </a>
-          <button class="btn btn-sm text-error" @click="confirmUnlink">
-            {{ $t("cloud.unlink") }}
-          </button>
+          </details>
         </div>
       </template>
     </template>

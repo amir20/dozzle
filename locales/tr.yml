@@ -560,6 +560,7 @@ cloud:
   unlink: Bağlantıyı kaldır
   unlink-confirm: Dozzle Cloud bağlantısını kaldırmak istediğinizden emin misiniz? Bu, tüm bulut bildirim hedeflerini kaldıracaktır.
   privacy:
+    details-link: "Neler gönderiliyor"
     toggle: "Günlükleri ve metrikleri Dozzle Cloud'a yayınla"
     sends-heading: "Bu açıkken konteynerleriniz sürekli olarak şunları gönderir:"
     sends-logs: "Yazıldıkça günlük satırları"
