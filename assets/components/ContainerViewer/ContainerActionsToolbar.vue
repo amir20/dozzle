@@ -1,22 +1,24 @@
 <template>
-  <div class="dropdown dropdown-end dropdown-hover z-20">
-    <label tabindex="0" class="icon-btn btn btn-ghost btn-sm relative w-8 gap-0 px-0 md:gap-0.5">
-      <carbon:circle-solid class="text-red w-2 md:w-2.5" v-if="streamConfig.stderr" />
-      <carbon:circle-solid class="text-blue w-2 md:w-2.5" v-if="streamConfig.stdout" />
-      <span
-        v-if="showImageUpdateAlert"
-        class="absolute end-0.5 top-0.5 flex size-1.5"
-        :title="$t('toolbar.update-available')"
-      >
-        <span class="bg-warning absolute size-full rounded-full opacity-75 motion-safe:animate-ping"></span>
-        <span class="bg-warning relative size-full rounded-full"></span>
-      </span>
-    </label>
-    <ul
-      tabindex="0"
-      class="menu dropdown-content rounded-box bg-base-200 border-base-content/10 z-50 w-max min-w-60 border p-1.5 shadow-lg"
-      @click="hideMenu"
-    >
+  <Popover
+    hover
+    placement="bottom-end"
+    panel-class="rounded-box bg-base-200 border-base-content/10 w-max min-w-60 border p-1.5 shadow-lg"
+  >
+    <template #trigger>
+      <button type="button" class="icon-btn btn btn-ghost btn-sm relative w-8 gap-0 px-0 md:gap-0.5">
+        <carbon:circle-solid class="text-red w-2 md:w-2.5" v-if="streamConfig.stderr" />
+        <carbon:circle-solid class="text-blue w-2 md:w-2.5" v-if="streamConfig.stdout" />
+        <span
+          v-if="showImageUpdateAlert"
+          class="absolute end-0.5 top-0.5 flex size-1.5"
+          :title="$t('toolbar.update-available')"
+        >
+          <span class="bg-warning absolute size-full rounded-full opacity-75 motion-safe:animate-ping"></span>
+          <span class="bg-warning relative size-full rounded-full"></span>
+        </span>
+      </button>
+    </template>
+    <ul class="menu w-full p-0">
       <li class="section" v-if="!historical || hasComplexLogs">{{ $t("toolbar.section-logs") }}</li>
       <li v-if="!historical">
         <a @click="showSearch = true">
@@ -247,7 +249,7 @@
         </li>
       </template>
     </ul>
-  </div>
+  </Popover>
 </template>
 
 <script lang="ts" setup>
@@ -479,16 +481,6 @@ const toggleAllLevels = computed({
     }
   },
 });
-
-const hideMenu = (e: MouseEvent) => {
-  if (e.target instanceof HTMLAnchorElement) {
-    setTimeout(() => {
-      if (document.activeElement instanceof HTMLElement) {
-        document.activeElement.blur();
-      }
-    }, 50);
-  }
-};
 </script>
 
 <style scoped>

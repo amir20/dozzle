@@ -192,7 +192,7 @@
 }
 
 @utility nav-menu-panel {
-  @apply dropdown-content rounded-box border-base-content/15 bg-base-200 z-50 mt-1 w-56 border p-1.5 shadow-lg;
+  @apply rounded-box border-base-content/15 bg-base-200 w-56 border p-1.5 shadow-lg;
 }
 
 @utility animate-bounce-fast {
@@ -204,6 +204,30 @@
 }
 
 @layer base {
+  /* Popover panels come with UA chrome (a border, padding, centering inset) meant for a
+   * standalone dialog. Resetting it in the base layer lets a component's own utilities style
+   * the panel without fighting the reset for source order. */
+  .popover-panel {
+    position: fixed;
+    inset: auto;
+    margin: 0;
+    border: 0 solid;
+    padding: 0;
+    overflow: visible;
+    width: auto;
+    height: auto;
+    max-width: calc(100vw - 1rem);
+    background: none;
+    color: inherit;
+  }
+
+  /* What `.dropdown` used to be: a box that wraps a trigger without changing its layout.
+   * It stays positioned because triggers hang badges and status dots off it. */
+  .popover-anchor {
+    position: relative;
+    display: inline-block;
+  }
+
   @media screen and (max-device-width: 480px) {
     body {
       -webkit-text-size-adjust: 100%;

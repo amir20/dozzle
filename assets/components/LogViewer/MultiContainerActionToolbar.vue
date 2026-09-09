@@ -1,14 +1,16 @@
 <template>
-  <div class="dropdown dropdown-end dropdown-hover z-20">
-    <label tabindex="0" class="icon-btn btn btn-ghost btn-sm w-8 gap-0 px-0 md:gap-0.5">
-      <carbon:circle-solid class="text-red w-2 md:w-2.5" v-if="streamConfig.stderr" />
-      <carbon:circle-solid class="text-blue w-2 md:w-2.5" v-if="streamConfig.stdout" />
-    </label>
-    <ul
-      tabindex="0"
-      class="menu dropdown-content rounded-box bg-base-200 border-base-content/10 z-50 w-max min-w-60 border p-1.5 shadow-lg"
-      @click="hideMenu"
-    >
+  <Popover
+    hover
+    placement="bottom-end"
+    panel-class="rounded-box bg-base-200 border-base-content/10 w-max min-w-60 border p-1.5 shadow-lg"
+  >
+    <template #trigger>
+      <button type="button" class="icon-btn btn btn-ghost btn-sm w-8 gap-0 px-0 md:gap-0.5">
+        <carbon:circle-solid class="text-red w-2 md:w-2.5" v-if="streamConfig.stderr" />
+        <carbon:circle-solid class="text-blue w-2 md:w-2.5" v-if="streamConfig.stdout" />
+      </button>
+    </template>
+    <ul class="menu w-full p-0">
       <li class="section">{{ $t("toolbar.section-logs") }}</li>
       <li>
         <a @click="showSearch = true">
@@ -129,7 +131,7 @@
         </li>
       </template>
     </ul>
-  </div>
+  </Popover>
 </template>
 
 <script lang="ts" setup>
@@ -169,16 +171,6 @@ const toggleAllLevels = computed({
     }
   },
 });
-
-const hideMenu = (e: MouseEvent) => {
-  if (e.target instanceof HTMLAnchorElement) {
-    setTimeout(() => {
-      if (document.activeElement instanceof HTMLElement) {
-        document.activeElement.blur();
-      }
-    }, 50);
-  }
-};
 </script>
 
 <style scoped>

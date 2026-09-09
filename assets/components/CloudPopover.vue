@@ -1,5 +1,5 @@
 <template>
-  <Dropdown class="dropdown-end" @click="onOpen">
+  <Dropdown placement="bottom-end" @opened="onOpen">
     <template #trigger>
       <div class="relative">
         <mdi:cloud

@@ -212,6 +212,7 @@ declare module 'vue' {
     'Ph:mapPinSimpleFill': typeof import('~icons/ph/map-pin-simple-fill')['default']
     'Ph:stack': typeof import('~icons/ph/stack')['default']
     'Ph:stackSimple': typeof import('~icons/ph/stack-simple')['default']
+    Popover: typeof import('./components/common/Popover.vue')['default']
     Popup: typeof import('./components/Popup.vue')['default']
     ProBadge: typeof import('./components/common/ProBadge.vue')['default']
     RandomColorTag: typeof import('./components/LogViewer/RandomColorTag.vue')['default']

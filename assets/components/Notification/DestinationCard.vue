@@ -66,27 +66,30 @@
               </p>
             </div>
           </button>
-          <div class="dropdown dropdown-end" @click.stop>
-            <div tabindex="0" role="button" class="btn btn-ghost btn-sm btn-square">
-              <ion:ellipsis-vertical />
-            </div>
-            <ul
-              tabindex="0"
-              class="menu dropdown-content rounded-box bg-base-100 border-base-content/20 z-50 w-40 border p-1 shadow-sm"
-            >
+          <Popover
+            placement="bottom-end"
+            panel-class="rounded-box bg-base-100 border-base-content/20 w-40 border p-1 shadow-sm"
+            @click.stop
+          >
+            <template #trigger>
+              <button type="button" class="btn btn-ghost btn-sm btn-square">
+                <ion:ellipsis-vertical />
+              </button>
+            </template>
+            <ul class="menu w-full p-0">
               <li>
-                <a @click="runFromMenu(editDestination)">{{ $t("notifications.destination.edit") }}</a>
+                <a @click="editDestination">{{ $t("notifications.destination.edit") }}</a>
               </li>
               <li v-if="destination.type !== 'cloud'">
-                <a @click="runFromMenu(duplicateDestination)">{{ $t("notifications.destination.duplicate") }}</a>
+                <a @click="duplicateDestination">{{ $t("notifications.destination.duplicate") }}</a>
               </li>
               <li v-if="destination.type !== 'cloud'">
-                <a class="text-error" @click="runFromMenu(() => (confirmingDelete = true))">
+                <a class="text-error" @click="confirmingDelete = true">
                   {{ $t("notifications.destination.delete") }}
                 </a>
               </li>
             </ul>
-          </div>
+          </Popover>
         </div>
       </div>
     </div>
@@ -121,15 +124,6 @@ const webhookHost = computed(() => {
     return "";
   }
 });
-
-/**
- * A CSS-only daisyUI dropdown stays open until it loses focus, so picking an item left the menu
- * sitting on top of whatever the item revealed.
- */
-function runFromMenu(action: () => void) {
-  if (document.activeElement instanceof HTMLElement) document.activeElement.blur();
-  action();
-}
 
 function editDestination() {
   showDrawer(

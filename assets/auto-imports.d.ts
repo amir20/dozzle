@@ -212,6 +212,7 @@ declare global {
   const useActiveElement: typeof import('@vueuse/core').useActiveElement
   const useAlertForm: typeof import('./composable/alertForm').useAlertForm
   const useAlertMerger: typeof import('./composable/alertMerger').useAlertMerger
+  const useAnchoredPopover: typeof import('./composable/popover').useAnchoredPopover
   const useAnimate: typeof import('@vueuse/core').useAnimate
   const useAnnouncements: typeof import('./stores/announcements').useAnnouncements
   const useArrayDifference: typeof import('@vueuse/core').useArrayDifference
@@ -472,6 +473,9 @@ declare global {
   export type { ImageUpdateStatus, ImageUpdateResult } from './composable/imageUpdate'
   import('./composable/imageUpdate')
   // @ts-ignore
+  export type { PopoverPlacement } from './composable/popover'
+  import('./composable/popover')
+  // @ts-ignore
   export type { TemplateEditorOptions, TemplateVariable, PayloadMode } from './composable/templateEditor'
   import('./composable/templateEditor')
   // @ts-ignore
@@ -690,6 +694,7 @@ declare module 'vue' {
     readonly useActiveElement: UnwrapRef<typeof import('@vueuse/core')['useActiveElement']>
     readonly useAlertForm: UnwrapRef<typeof import('./composable/alertForm')['useAlertForm']>
     readonly useAlertMerger: UnwrapRef<typeof import('./composable/alertMerger')['useAlertMerger']>
+    readonly useAnchoredPopover: UnwrapRef<typeof import('./composable/popover')['useAnchoredPopover']>
     readonly useAnimate: UnwrapRef<typeof import('@vueuse/core')['useAnimate']>
     readonly useAnnouncements: UnwrapRef<typeof import('./stores/announcements')['useAnnouncements']>
     readonly useArrayDifference: UnwrapRef<typeof import('@vueuse/core')['useArrayDifference']>
