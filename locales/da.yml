@@ -50,6 +50,7 @@ action:
   see-in-context: Se i kontekst
   show-details: Vis detaljer
   create-alert: Opret advarsel
+  ask-about-log: Spørg om denne log
 log-details:
   on-std: på {std}
   image: Billede
@@ -641,9 +642,26 @@ cloud-chat:
   close: Luk
   empty: Spørg om det du kigger på. Assistenten kan se denne visning og læse disse logs.
   thinking: Tænker…
+  doing:
+    logs: Læser logs…
+    containers: Kigger på containere…
+    stats: Tjekker ressourceforbrug…
+    inspect: Inspicerer containeren…
+    notifications: Tjekker notifikationer…
+    action: Kører handlingen…
+    working: Arbejder…
   placeholder: Spørg om disse logs
   historical: historisk
   n-containers: "{n} containere"
+  lines-in-view: "{n} linjer i visning"
+  this-log: Denne loglinje
+  remove-log: Fjern denne loglinje
+  send: Send
+  suggest-summarize: Opsummer hvad der sker
+  suggest-errors: Find fejl og advarsler
+  suggest-next: Hvad skal jeg kigge på nu?
+  error-unavailable: Assistenten er ikke tilgængelig lige nu.
+  error-not-configured: Dozzle Cloud er ikke tilknyttet, så der er ingen assistent at spørge.
   section-ask: Assistent
   ask-for: Spørg Dozzle om {query}
   ask-hint: Svarer ud fra containerne i visningen

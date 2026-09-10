@@ -63,6 +63,12 @@
           {{ $t("action.create-alert") }}
         </a>
       </li>
+      <li v-if="hasCloudChat">
+        <a @click="askAboutLine(toViewLogLine(logEntry))">
+          <mdi:message-question-outline />
+          {{ $t("action.ask-about-log") }}
+        </a>
+      </li>
     </ul>
   </Popover>
 </template>
@@ -71,6 +77,7 @@
 import stripAnsi from "strip-ansi";
 import { Container } from "@/models/Container";
 import { LogEntry, SimpleLogEntry, ComplexLogEntry, GroupedLogEntry, JSONObject } from "@/models/LogEntry";
+import { toViewLogLine } from "@/composable/viewContext";
 import LogDetails from "./LogDetails.vue";
 import AlertForm from "@/components/Notification/AlertForm.vue";
 
@@ -81,6 +88,10 @@ const { logEntry, container } = defineProps<{
 
 const { showToast } = useToast();
 const showDrawer = useDrawer();
+// Cloud owns the answer, so the row is absent rather than dead when nobody has
+// linked an account.
+const { linked: hasCloudChat } = useCloudSurface();
+const { askAboutLine } = useCloudChat();
 const { hrefFor } = useLogJump();
 const moment = () => ({ containerId: container.id, date: logEntry.date, logId: logEntry.id });
 const momentRoute = computed(() => logMomentRoute(moment()));

@@ -50,6 +50,7 @@ action:
   see-in-context: 在內容中查看
   show-details: 顯示詳細資訊
   create-alert: 建立警報
+  ask-about-log: 詢問這則日誌
 log-details:
   on-std: 來自 {std}
   image: 映像檔
@@ -644,9 +645,26 @@ cloud-chat:
   close: 關閉
   empty: 就眼前看到的內容提問。助手能看到這個檢視，也能讀這些日誌。
   thinking: 思考中…
+  doing:
+    logs: 正在讀取日誌…
+    containers: 正在查看容器…
+    stats: 正在檢查資源使用…
+    inspect: 正在檢查容器…
+    notifications: 正在檢查通知…
+    action: 正在執行操作…
+    working: 處理中…
   placeholder: 就這些日誌提問
   historical: 歷史
   n-containers: "{n} 個容器"
+  lines-in-view: 檢視中 {n} 行
+  this-log: 這則日誌
+  remove-log: 移除這則日誌
+  send: 傳送
+  suggest-summarize: 總結目前發生了什麼
+  suggest-errors: 找出錯誤與警告
+  suggest-next: 接下來我該看什麼？
+  error-unavailable: 助理目前無法使用。
+  error-not-configured: 尚未連結 Dozzle Cloud，沒有可以提問的助理。
   section-ask: 助手
   ask-for: 就 {query} 問 Dozzle
   ask-hint: 根據檢視裡的容器作答

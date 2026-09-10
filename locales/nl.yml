@@ -50,6 +50,7 @@ action:
   see-in-context: Bekijk in context
   show-details: Toon details
   create-alert: Waarschuwing aanmaken
+  ask-about-log: Vraag over deze log
 log-details:
   on-std: op {std}
   image: Image
@@ -642,9 +643,26 @@ cloud-chat:
   close: Sluiten
   empty: Stel een vraag over wat je ziet. De assistent kent deze weergave en leest deze logs.
   thinking: Aan het denken…
+  doing:
+    logs: Logs lezen…
+    containers: Containers bekijken…
+    stats: Resourcegebruik controleren…
+    inspect: Container inspecteren…
+    notifications: Meldingen controleren…
+    action: Actie uitvoeren…
+    working: Bezig…
   placeholder: Vraag over deze logs
   historical: historisch
   n-containers: "{n} containers"
+  lines-in-view: "{n} regels in beeld"
+  this-log: Deze logregel
+  remove-log: Deze logregel verwijderen
+  send: Versturen
+  suggest-summarize: Vat samen wat er gebeurt
+  suggest-errors: Zoek de fouten en waarschuwingen
+  suggest-next: Waar moet ik hierna kijken?
+  error-unavailable: De assistent is nu niet beschikbaar.
+  error-not-configured: Dozzle Cloud is niet gekoppeld, dus er is geen assistent om iets aan te vragen.
   section-ask: Assistent
   ask-for: Dozzle vragen over {query}
   ask-hint: Antwoordt vanuit de zichtbare containers

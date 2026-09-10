@@ -1,6 +1,6 @@
 <template>
   <Search />
-  <MultiContainerLog :ids="ids" :scrollable="pinnedLogs.length > 0" />
+  <MultiContainerLog :ids="ids" :scrollable="splitColumns" />
 </template>
 
 <script lang="ts" setup>
@@ -9,8 +9,7 @@ const { ready } = storeToRefs(containerStore);
 
 const route = useRoute("/merged/[ids]");
 
-const pinnedLogsStore = usePinnedLogsStore();
-const { pinnedLogs } = storeToRefs(pinnedLogsStore);
+const splitColumns = useSplitColumns();
 
 const ids = toRef(() => route.params.ids.split(","));
 

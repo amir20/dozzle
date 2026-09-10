@@ -1,6 +1,6 @@
 <template>
   <Search />
-  <GroupedLog :name="route.params.name" :scrollable="pinnedLogs.length > 0" />
+  <GroupedLog :name="route.params.name" :scrollable="splitColumns" />
 </template>
 
 <script lang="ts" setup>
@@ -9,8 +9,7 @@ const route = useRoute("/group/[name]");
 const swarmStore = useSwarmStore();
 const { customGroups } = storeToRefs(swarmStore);
 
-const pinnedLogsStore = usePinnedLogsStore();
-const { pinnedLogs } = storeToRefs(pinnedLogsStore);
+const splitColumns = useSplitColumns();
 
 const group = computed(() => customGroups.value.find((g) => g.name === route.params.name));
 

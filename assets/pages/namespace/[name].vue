@@ -1,6 +1,6 @@
 <template>
   <Search />
-  <NamespaceLog :namespace="namespace" :scrollable="pinnedLogs.length > 0" v-if="namespace" />
+  <NamespaceLog :namespace="namespace" :scrollable="splitColumns" v-if="namespace" />
 </template>
 
 <script lang="ts" setup>
@@ -9,8 +9,7 @@ const route = useRoute("/namespace/[name]");
 const containerStore = useContainerStore();
 const { ready } = storeToRefs(containerStore);
 
-const pinnedLogsStore = usePinnedLogsStore();
-const { pinnedLogs } = storeToRefs(pinnedLogsStore);
+const splitColumns = useSplitColumns();
 
 const k8sStore = useK8sStore();
 const { namespaces } = storeToRefs(k8sStore);

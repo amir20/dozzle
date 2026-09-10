@@ -50,6 +50,7 @@ action:
   see-in-context: 컨텍스트에서 보기
   show-details: 세부 정보 표시
   create-alert: 알림 생성
+  ask-about-log: 이 로그에 대해 질문
 log-details:
   on-std: "{std}에서"
   image: 이미지
@@ -645,9 +646,26 @@ cloud-chat:
   close: 닫기
   empty: 지금 보고 있는 것에 대해 물어보세요. 어시스턴트가 이 화면과 로그를 함께 봅니다.
   thinking: 생각 중…
+  doing:
+    logs: 로그 읽는 중…
+    containers: 컨테이너 확인 중…
+    stats: 리소스 사용량 확인 중…
+    inspect: 컨테이너 검사 중…
+    notifications: 알림 확인 중…
+    action: 작업 실행 중…
+    working: 작업 중…
   placeholder: 이 로그에 대해 질문
   historical: 기록 보기
   n-containers: 컨테이너 {n}개
+  lines-in-view: 화면의 {n}줄
+  this-log: 이 로그 줄
+  remove-log: 이 로그 줄 제거
+  send: 보내기
+  suggest-summarize: 무슨 일인지 요약해 줘
+  suggest-errors: 오류와 경고 찾기
+  suggest-next: 다음으로 무엇을 봐야 할까?
+  error-unavailable: 지금은 어시스턴트를 사용할 수 없습니다.
+  error-not-configured: Dozzle Cloud가 연결되지 않아 질문할 어시스턴트가 없습니다.
   section-ask: 어시스턴트
   ask-for: "{query}에 대해 Dozzle에 질문"
   ask-hint: 화면에 있는 컨테이너를 근거로 답합니다

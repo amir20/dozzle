@@ -1,6 +1,6 @@
 <template>
   <Search />
-  <StackLog :name="route.params.name" :scrollable="pinnedLogs.length > 0" />
+  <StackLog :name="route.params.name" :scrollable="splitColumns" />
 </template>
 
 <script lang="ts" setup>
@@ -9,8 +9,7 @@ const route = useRoute("/stack/[name]");
 const containerStore = useContainerStore();
 const { ready } = storeToRefs(containerStore);
 
-const pinnedLogsStore = usePinnedLogsStore();
-const { pinnedLogs } = storeToRefs(pinnedLogsStore);
+const splitColumns = useSplitColumns();
 
 const stackStore = useSwarmStore();
 const { stacks } = storeToRefs(stackStore);

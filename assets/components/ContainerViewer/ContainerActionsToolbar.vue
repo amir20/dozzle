@@ -47,6 +47,12 @@
           <KeyShortcut char="f" :modifiers="['shift', 'meta']" />
         </a>
       </li>
+      <li v-if="cloudLinked">
+        <a @click="openPane()">
+          <mdi:message-outline /> {{ $t("cloud-chat.title") }}
+          <KeyShortcut char="k" :modifiers="['shift', 'meta']" />
+        </a>
+      </li>
       <li class="section">{{ $t("toolbar.section-filters") }}</li>
       <li>
         <details>
@@ -259,6 +265,8 @@ import LogAnalytics from "../LogViewer/LogAnalytics.vue";
 import Terminal from "@/components/Terminal.vue";
 
 const { showSearch } = useSearchFilter();
+const { linked: cloudLinked } = useCloudSurface();
+const { openPane } = useCloudChat();
 const { enableActions, enableShell, enableDownload } = config;
 const { streamConfig, hasComplexLogs, levels } = useLoggingContext();
 const showDrawer = useDrawer();

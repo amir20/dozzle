@@ -1,13 +1,12 @@
 <template>
   <Search />
-  <HostGroupLog :name="route.params.name" :scrollable="pinnedLogs.length > 0" />
+  <HostGroupLog :name="route.params.name" :scrollable="splitColumns" />
 </template>
 
 <script lang="ts" setup>
 const route = useRoute("/host-group/[name]");
 
-const pinnedLogsStore = usePinnedLogsStore();
-const { pinnedLogs } = storeToRefs(pinnedLogsStore);
+const splitColumns = useSplitColumns();
 
 watchEffect(() => {
   setTitle(route.params.name + " group");

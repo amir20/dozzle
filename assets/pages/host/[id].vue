@@ -1,6 +1,6 @@
 <template>
   <Search />
-  <HostLog :id="route.params.id" :scrollable="pinnedLogs.length > 0" />
+  <HostLog :id="route.params.id" :scrollable="splitColumns" />
 </template>
 
 <script lang="ts" setup>
@@ -9,8 +9,7 @@ const route = useRoute("/host/[id]");
 const containerStore = useContainerStore();
 const { ready } = storeToRefs(containerStore);
 
-const pinnedLogsStore = usePinnedLogsStore();
-const { pinnedLogs } = storeToRefs(pinnedLogsStore);
+const splitColumns = useSplitColumns();
 const { hosts } = useHosts();
 const host = computed(() => hosts.value[route.params.id]);
 

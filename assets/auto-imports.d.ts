@@ -23,6 +23,7 @@ declare global {
   const attachEvents: typeof import('./composable/cloudAlerts').attachEvents
   const autoResetRef: typeof import('@vueuse/core').autoResetRef
   const automaticRedirect: typeof import('./stores/settings').automaticRedirect
+  const buildViewContext: typeof import('./composable/viewContext').buildViewContext
   const collapseNav: typeof import('./stores/settings').collapseNav
   const colorize: typeof import('./utils/index').colorize
   const compact: typeof import('./stores/settings').compact
@@ -105,6 +106,7 @@ declare global {
   const isRef: typeof import('vue').isRef
   const isShallow: typeof import('vue').isShallow
   const isStreamLog: typeof import('./composable/alertMerger').isStreamLog
+  const isViewContextOwner: typeof import('./composable/viewContext').isViewContextOwner
   const lightTheme: typeof import('./stores/settings').lightTheme
   const loadBetween: typeof import('./composable/loadBetween').loadBetween
   const locale: typeof import('./stores/settings').locale
@@ -144,6 +146,7 @@ declare global {
   const onUpdated: typeof import('vue').onUpdated
   const onWatcherCleanup: typeof import('vue').onWatcherCleanup
   const ownerMembershipLabel: typeof import('./stores/k8s').ownerMembershipLabel
+  const ownsViewContext: typeof import('./composable/viewContext').ownsViewContext
   const parseMessage: typeof import('./composable/loadBetween').parseMessage
   const pausableWatch: typeof import('@vueuse/core').pausableWatch
   const payloadMode: typeof import('./composable/templateEditor').payloadMode
@@ -153,6 +156,9 @@ declare global {
   const provideLocal: typeof import('@vueuse/core').provideLocal
   const provideLoggingContext: typeof import('./composable/logContext').provideLoggingContext
   const provideScrollContext: typeof import('./composable/scrollContext').provideScrollContext
+  const provideViewContextOwner: typeof import('./composable/viewContext').provideViewContextOwner
+  const publishViewContext: typeof import('./composable/viewContext').publishViewContext
+  const publishVisibleLogs: typeof import('./composable/viewContext').publishVisibleLogs
   const reactify: typeof import('@vueuse/core').reactify
   const reactifyObject: typeof import('@vueuse/core').reactifyObject
   const reactive: typeof import('vue').reactive
@@ -205,6 +211,8 @@ declare global {
   const toRefs: typeof import('vue').toRefs
   const toRelativeTime: typeof import('./utils/index').toRelativeTime
   const toValue: typeof import('vue').toValue
+  const toViewLogLine: typeof import('./composable/viewContext').toViewLogLine
+  const toViewLogLines: typeof import('./composable/viewContext').toViewLogLines
   const triggerRef: typeof import('vue').triggerRef
   const tryFormatJson: typeof import('./utils/index').tryFormatJson
   const tryOnBeforeMount: typeof import('@vueuse/core').tryOnBeforeMount
@@ -391,6 +399,7 @@ declare global {
   const useSorted: typeof import('@vueuse/core').useSorted
   const useSpeechRecognition: typeof import('@vueuse/core').useSpeechRecognition
   const useSpeechSynthesis: typeof import('@vueuse/core').useSpeechSynthesis
+  const useSplitColumns: typeof import('./composable/splitColumns').useSplitColumns
   const useSseReconnect: typeof import('./composable/sseReconnect').useSseReconnect
   const useStackStream: typeof import('./composable/eventStreams').useStackStream
   const useStaleUI: typeof import('./composable/staleUI').useStaleUI
@@ -506,7 +515,7 @@ declare global {
   export type { TemplateEditorOptions, TemplateVariable, PayloadMode } from './composable/templateEditor'
   import('./composable/templateEditor')
   // @ts-ignore
-  export type { ViewContext } from './composable/viewContext'
+  export type { ViewContext, ViewLogLine } from './composable/viewContext'
   import('./composable/viewContext')
   // @ts-ignore
   export type { VisibleKeysSource } from './composable/visible'
@@ -542,6 +551,7 @@ declare module 'vue' {
     readonly attachEvents: UnwrapRef<typeof import('./composable/cloudAlerts')['attachEvents']>
     readonly autoResetRef: UnwrapRef<typeof import('@vueuse/core')['autoResetRef']>
     readonly automaticRedirect: UnwrapRef<typeof import('./stores/settings')['automaticRedirect']>
+    readonly buildViewContext: UnwrapRef<typeof import('./composable/viewContext')['buildViewContext']>
     readonly collapseNav: UnwrapRef<typeof import('./stores/settings')['collapseNav']>
     readonly colorize: UnwrapRef<typeof import('./utils/index')['colorize']>
     readonly compact: UnwrapRef<typeof import('./stores/settings')['compact']>
@@ -621,6 +631,7 @@ declare module 'vue' {
     readonly isRef: UnwrapRef<typeof import('vue')['isRef']>
     readonly isShallow: UnwrapRef<typeof import('vue')['isShallow']>
     readonly isStreamLog: UnwrapRef<typeof import('./composable/alertMerger')['isStreamLog']>
+    readonly isViewContextOwner: UnwrapRef<typeof import('./composable/viewContext')['isViewContextOwner']>
     readonly lightTheme: UnwrapRef<typeof import('./stores/settings')['lightTheme']>
     readonly loadBetween: UnwrapRef<typeof import('./composable/loadBetween')['loadBetween']>
     readonly locale: UnwrapRef<typeof import('./stores/settings')['locale']>
@@ -669,6 +680,9 @@ declare module 'vue' {
     readonly provideLocal: UnwrapRef<typeof import('@vueuse/core')['provideLocal']>
     readonly provideLoggingContext: UnwrapRef<typeof import('./composable/logContext')['provideLoggingContext']>
     readonly provideScrollContext: UnwrapRef<typeof import('./composable/scrollContext')['provideScrollContext']>
+    readonly provideViewContextOwner: UnwrapRef<typeof import('./composable/viewContext')['provideViewContextOwner']>
+    readonly publishViewContext: UnwrapRef<typeof import('./composable/viewContext')['publishViewContext']>
+    readonly publishVisibleLogs: UnwrapRef<typeof import('./composable/viewContext')['publishVisibleLogs']>
     readonly reactify: UnwrapRef<typeof import('@vueuse/core')['reactify']>
     readonly reactifyObject: UnwrapRef<typeof import('@vueuse/core')['reactifyObject']>
     readonly reactive: UnwrapRef<typeof import('vue')['reactive']>
@@ -719,6 +733,8 @@ declare module 'vue' {
     readonly toRefs: UnwrapRef<typeof import('vue')['toRefs']>
     readonly toRelativeTime: UnwrapRef<typeof import('./utils/index')['toRelativeTime']>
     readonly toValue: UnwrapRef<typeof import('vue')['toValue']>
+    readonly toViewLogLine: UnwrapRef<typeof import('./composable/viewContext')['toViewLogLine']>
+    readonly toViewLogLines: UnwrapRef<typeof import('./composable/viewContext')['toViewLogLines']>
     readonly triggerRef: UnwrapRef<typeof import('vue')['triggerRef']>
     readonly tryOnBeforeMount: UnwrapRef<typeof import('@vueuse/core')['tryOnBeforeMount']>
     readonly tryOnBeforeUnmount: UnwrapRef<typeof import('@vueuse/core')['tryOnBeforeUnmount']>
@@ -904,6 +920,7 @@ declare module 'vue' {
     readonly useSorted: UnwrapRef<typeof import('@vueuse/core')['useSorted']>
     readonly useSpeechRecognition: UnwrapRef<typeof import('@vueuse/core')['useSpeechRecognition']>
     readonly useSpeechSynthesis: UnwrapRef<typeof import('@vueuse/core')['useSpeechSynthesis']>
+    readonly useSplitColumns: UnwrapRef<typeof import('./composable/splitColumns')['useSplitColumns']>
     readonly useSseReconnect: UnwrapRef<typeof import('./composable/sseReconnect')['useSseReconnect']>
     readonly useStackStream: UnwrapRef<typeof import('./composable/eventStreams')['useStackStream']>
     readonly useStaleUI: UnwrapRef<typeof import('./composable/staleUI')['useStaleUI']>

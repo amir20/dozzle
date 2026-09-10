@@ -50,6 +50,7 @@ action:
   see-in-context: Bağlamda gör
   show-details: Detayları göster
   create-alert: Uyarı oluştur
+  ask-about-log: Bu log hakkında sor
 log-details:
   on-std: "{std} üzerinde"
   image: İmaj
@@ -645,9 +646,26 @@ cloud-chat:
   close: Kapat
   empty: Baktığın şeyi sor. Asistan bu görünümü görüyor ve bu logları okuyor.
   thinking: Düşünüyor…
+  doing:
+    logs: Loglar okunuyor…
+    containers: Konteynerlere bakılıyor…
+    stats: Kaynak kullanımı kontrol ediliyor…
+    inspect: Konteyner inceleniyor…
+    notifications: Bildirimler kontrol ediliyor…
+    action: İşlem çalıştırılıyor…
+    working: Çalışıyor…
   placeholder: Bu loglar hakkında sor
   historical: geçmiş
   n-containers: "{n} konteyner"
+  lines-in-view: görünen {n} satır
+  this-log: Bu log satırı
+  remove-log: Bu log satırını kaldır
+  send: Gönder
+  suggest-summarize: Neler olduğunu özetle
+  suggest-errors: Hataları ve uyarıları bul
+  suggest-next: Sırada neye bakmalıyım?
+  error-unavailable: Asistan şu anda kullanılamıyor.
+  error-not-configured: Dozzle Cloud bağlı değil, bu yüzden soru sorulacak bir asistan yok.
   section-ask: Asistan
   ask-for: "{query} hakkında Dozzle'a sor"
   ask-hint: Görünen konteynerlere bakarak yanıtlar

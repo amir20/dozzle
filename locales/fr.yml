@@ -50,6 +50,7 @@ action:
   see-in-context: Voir dans le contexte
   show-details: Afficher les détails
   create-alert: Créer une alerte
+  ask-about-log: Poser une question sur ce log
 log-details:
   on-std: sur {std}
   image: Image
@@ -641,9 +642,26 @@ cloud-chat:
   close: Fermer
   empty: Posez une question sur ce que vous regardez. L'assistant voit cette vue et lit ces logs.
   thinking: Réflexion…
+  doing:
+    logs: Lecture des logs…
+    containers: Examen des conteneurs…
+    stats: Vérification des ressources…
+    inspect: Inspection du conteneur…
+    notifications: Vérification des notifications…
+    action: Exécution de l'action…
+    working: En cours…
   placeholder: Poser une question sur ces logs
   historical: historique
   n-containers: "{n} conteneurs"
+  lines-in-view: "{n} lignes visibles"
+  this-log: Cette ligne de log
+  remove-log: Retirer cette ligne de log
+  send: Envoyer
+  suggest-summarize: Résume ce qui se passe
+  suggest-errors: Trouve les erreurs et avertissements
+  suggest-next: Que dois-je regarder ensuite ?
+  error-unavailable: L'assistant n'est pas disponible pour le moment.
+  error-not-configured: Dozzle Cloud n'est pas lié, il n'y a donc aucun assistant à interroger.
   section-ask: Assistant
   ask-for: Demander à Dozzle à propos de {query}
   ask-hint: Répond à partir des conteneurs affichés

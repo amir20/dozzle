@@ -1,6 +1,6 @@
 <template>
   <Search />
-  <OwnerLog :owner="owner" :scrollable="pinnedLogs.length > 0" v-if="owner" />
+  <OwnerLog :owner="owner" :scrollable="splitColumns" v-if="owner" />
 </template>
 
 <script lang="ts" setup>
@@ -9,8 +9,7 @@ const route = useRoute("/owner/[name]");
 const containerStore = useContainerStore();
 const { ready } = storeToRefs(containerStore);
 
-const pinnedLogsStore = usePinnedLogsStore();
-const { pinnedLogs } = storeToRefs(pinnedLogsStore);
+const splitColumns = useSplitColumns();
 
 const k8sStore = useK8sStore();
 const { owners } = storeToRefs(k8sStore);

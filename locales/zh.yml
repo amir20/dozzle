@@ -50,6 +50,7 @@ action:
   see-in-context: 在上下文中查看
   show-details: 显示详细信息
   create-alert: 创建告警
+  ask-about-log: 询问这条日志
 log-details:
   on-std: 来自 {std}
   image: 镜像
@@ -641,9 +642,26 @@ cloud-chat:
   close: 关闭
   empty: 就眼前看到的内容提问。助手能看到这个视图，也能读这些日志。
   thinking: 思考中…
+  doing:
+    logs: 正在读取日志…
+    containers: 正在查看容器…
+    stats: 正在检查资源使用…
+    inspect: 正在检查容器…
+    notifications: 正在检查通知…
+    action: 正在执行操作…
+    working: 处理中…
   placeholder: 就这些日志提问
   historical: 历史
   n-containers: "{n} 个容器"
+  lines-in-view: 视图中 {n} 行
+  this-log: 这条日志
+  remove-log: 移除这条日志
+  send: 发送
+  suggest-summarize: 总结当前发生了什么
+  suggest-errors: 找出错误和警告
+  suggest-next: 接下来我该看什么？
+  error-unavailable: 助手当前不可用。
+  error-not-configured: 尚未连接 Dozzle Cloud，没有可以提问的助手。
   section-ask: 助手
   ask-for: 就 {query} 问 Dozzle
   ask-hint: 基于视图里的容器作答

@@ -1,4 +1,15 @@
-import type { ViewContext } from "@/composable/viewContext";
+import type { ViewContext, ViewLogLine } from "@/composable/viewContext";
+import { i18n } from "@/modules/i18n";
+
+const { t } = i18n.global;
+
+/** A failure the reader sees, so it is phrased in their language. Cloud codes
+ *  we do not know about fall back to whatever prose came with them. */
+function errorText(code?: string, text?: string) {
+  if (code === "not_configured") return t("cloud-chat.error-not-configured");
+  if (code === "unavailable" || !text) return t("cloud-chat.error-unavailable");
+  return text;
+}
 
 export type ChatMessage = {
   role: "user" | "assistant";
@@ -20,11 +31,28 @@ export type ChatMessage = {
 const open = ref(false);
 const messages = ref<ChatMessage[]>([]);
 const status = ref("");
+// What Dozzle is doing, as a token it sends instead of a sentence: the server
+// has no locale, so the phrase is picked in the browser. Cloud's own status
+// lines arrive as prose and land in `status` instead.
+const activity = ref("");
 const streaming = ref(false);
+// The line the user pointed at, held until it is sent. Asking "why?" from a log
+// row means that row, and nothing about the composer says so on its own.
+const focused = ref<ViewLogLine>();
 
 export function useCloudChat() {
   function openPane() {
     open.value = true;
+  }
+
+  /** Opens the pane with one line attached, from a log row's menu. */
+  function askAboutLine(line: ViewLogLine) {
+    focused.value = line;
+    open.value = true;
+  }
+
+  function clearFocus() {
+    focused.value = undefined;
   }
 
   function closePane() {
@@ -33,14 +61,21 @@ export function useCloudChat() {
     open.value = false;
   }
 
-  async function ask(message: string, view: ViewContext) {
+  async function ask(message: string, context: ViewContext) {
     if (!message.trim() || streaming.value) return;
+
+    // The focus belongs to the turn that was composed with it on screen, not to
+    // the thread: the next question is about whatever the user is looking at
+    // then.
+    const view: ViewContext = focused.value ? { ...context, focused: focused.value } : context;
+    focused.value = undefined;
 
     messages.value.push({ role: "user", text: message, view });
     const reply = reactive<ChatMessage>({ role: "assistant", text: "" });
     messages.value.push(reply);
     streaming.value = true;
     status.value = "";
+    activity.value = "";
 
     try {
       const res = await fetch(withBase("/api/cloud/chat"), {
@@ -50,7 +85,7 @@ export function useCloudChat() {
       });
 
       if (!res.ok || !res.body) {
-        reply.text = "The assistant is unavailable right now.";
+        reply.text = errorText();
         reply.error = true;
         return;
       }
@@ -74,26 +109,31 @@ export function useCloudChat() {
           if (event.kind === "delta") {
             reply.text += event.text;
             status.value = "";
+            activity.value = "";
           } else if (event.kind === "reset") {
             // The model fell back, or a round turned into a tool call. What has
             // been shown is no longer part of the answer.
             reply.text = "";
           } else if (event.kind === "status") {
-            status.value = event.text;
+            // One or the other, never both stacked: whichever arrived last is
+            // what is happening now.
+            status.value = event.text ?? "";
+            activity.value = event.activity ?? "";
           } else if (event.kind === "error") {
-            reply.text = event.text || "Something went wrong.";
+            reply.text = errorText(event.code, event.text);
             reply.error = true;
           }
         }
       }
     } catch {
-      reply.text = "The assistant is unavailable right now.";
+      reply.text = errorText();
       reply.error = true;
     } finally {
       streaming.value = false;
       status.value = "";
+      activity.value = "";
     }
   }
 
-  return { open, messages, status, streaming, ask, openPane, closePane };
+  return { open, messages, status, activity, streaming, focused, ask, askAboutLine, clearFocus, openPane, closePane };
 }

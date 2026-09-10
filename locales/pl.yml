@@ -50,6 +50,7 @@ action:
   see-in-context: Zobacz w kontekście
   show-details: Pokaż szczegóły
   create-alert: Utwórz alert
+  ask-about-log: Zapytaj o ten log
 log-details:
   on-std: na {std}
   image: Obraz
@@ -644,9 +645,26 @@ cloud-chat:
   close: Zamknij
   empty: Zapytaj o to, na co patrzysz. Asystent widzi ten widok i czyta te logi.
   thinking: Myślę…
+  doing:
+    logs: Czytam logi…
+    containers: Sprawdzam kontenery…
+    stats: Sprawdzam zużycie zasobów…
+    inspect: Analizuję kontener…
+    notifications: Sprawdzam powiadomienia…
+    action: Wykonuję akcję…
+    working: Pracuję…
   placeholder: Zapytaj o te logi
   historical: historyczne
   n-containers: "Kontenery: {n}"
+  lines-in-view: "{n} widocznych wierszy"
+  this-log: Ten wiersz logu
+  remove-log: Usuń ten wiersz logu
+  send: Wyślij
+  suggest-summarize: Podsumuj, co się dzieje
+  suggest-errors: Znajdź błędy i ostrzeżenia
+  suggest-next: Na co powinienem spojrzeć dalej?
+  error-unavailable: Asystent jest teraz niedostępny.
+  error-not-configured: Dozzle Cloud nie jest połączone, więc nie ma kogo zapytać.
   section-ask: Asystent
   ask-for: Zapytaj Dozzle o {query}
   ask-hint: Odpowiada na podstawie widocznych kontenerów

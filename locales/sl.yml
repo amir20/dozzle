@@ -50,6 +50,7 @@ action:
   see-in-context: Glej v kontekstu
   show-details: Prikaži podrobnosti
   create-alert: Ustvari opozorilo
+  ask-about-log: Vprašaj o tem dnevniku
 log-details:
   on-std: na {std}
   image: Slika
@@ -647,9 +648,26 @@ cloud-chat:
   close: Zapri
   empty: Vprašaj o tem, kar gledaš. Pomočnik vidi ta pogled in bere te dnevnike.
   thinking: Razmišljam…
+  doing:
+    logs: Berem dnevnike…
+    containers: Pregledujem vsebnike…
+    stats: Preverjam porabo virov…
+    inspect: Pregledujem vsebnik…
+    notifications: Preverjam obvestila…
+    action: Izvajam dejanje…
+    working: Delam…
   placeholder: Vprašaj o teh dnevnikih
   historical: zgodovinsko
   n-containers: "Vsebnikov: {n}"
+  lines-in-view: "{n} vidnih vrstic"
+  this-log: Ta vrstica dnevnika
+  remove-log: Odstrani to vrstico dnevnika
+  send: Pošlji
+  suggest-summarize: Povzemi, kaj se dogaja
+  suggest-errors: Poišči napake in opozorila
+  suggest-next: Kaj naj pogledam naslednje?
+  error-unavailable: Pomočnik trenutno ni na voljo.
+  error-not-configured: Dozzle Cloud ni povezan, zato ni pomočnika, ki bi ga vprašali.
   section-ask: Pomočnik
   ask-for: Vprašaj Dozzle o {query}
   ask-hint: Odgovarja iz vsebnikov v pogledu

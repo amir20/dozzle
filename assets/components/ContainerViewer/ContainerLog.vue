@@ -1,5 +1,5 @@
 <template>
-  <ScrollableView :scrollable="scrollable" v-if="container">
+  <ScrollableView :scrollable="scrollable" :owns-view-context="!closable" v-if="container">
     <template #header v-if="showTitle">
       <div class="@container mx-2 flex items-center gap-1 md:ml-4 md:gap-2">
         <ContainerTitle :container="container" />

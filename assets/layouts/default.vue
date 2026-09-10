@@ -12,7 +12,7 @@
           </Pane>
           <!-- Beside the stream, not over it: the whole argument for a pane
                is that you keep watching the logs while asking about them. -->
-          <Pane v-if="chatOpen && !isMobile" min-size="15" size="28">
+          <Pane v-if="chatOpen && !isMobile" min-size="15" :size="chatWidth">
             <ChatPane />
           </Pane>
           <template v-if="!isMobile">
@@ -57,7 +57,6 @@
 </template>
 
 <script lang="ts" setup>
-const { open: chatOpen } = useCloudChat();
 import { Splitpanes, Pane } from "splitpanes";
 import { collapseNav } from "@/stores/settings";
 import SideDrawer from "@/components/common/SideDrawer.vue";
@@ -77,6 +76,16 @@ import { useFuzzySearch } from "@/composable/fuzzySearch";
 
 // Pulls fuse.js (~48 KB) with it, and the palette only renders once the user opens it.
 const FuzzySearchModal = defineAsyncComponent(() => import("@/components/FuzzySearchModal.vue"));
+// Same deal: the pane carries markdown-it, and nobody who never asks a question
+// should download it.
+const ChatPane = defineAsyncComponent(() => import("@/components/CloudChat/ChatPane.vue"));
+
+const { open: chatOpen, openPane: openChat } = useCloudChat();
+// Splitpanes only speaks percentages, and a fixed 28% of a laptop is narrower
+// than the paragraphs the assistant writes back. 550px is the width they were
+// written for; the clamps keep it sane on a small window and on an ultrawide.
+const { width: windowWidth } = useWindowSize();
+const chatWidth = computed(() => Math.min(50, Math.max(20, (550 / windowWidth.value) * 100)));
 
 const modal = ref<HTMLDialogElement>();
 const { open, openSearch: showFuzzySearch, closeSearch } = useFuzzySearch();
@@ -102,6 +111,15 @@ watch(open, () => {
 onKeyStroke("k", (e) => {
   if ((e.ctrlKey || e.metaKey) && !e.shiftKey) {
     showFuzzySearch();
+    e.preventDefault();
+  }
+});
+
+// Shift is the pane; the palette keeps the bare chord. Registered on the layout
+// rather than the toolbar so it works on every view the pane can talk about.
+onKeyStroke(["k", "K"], (e) => {
+  if ((e.ctrlKey || e.metaKey) && e.shiftKey) {
+    openChat();
     e.preventDefault();
   }
 });
