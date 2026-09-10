@@ -120,8 +120,8 @@
 </template>
 
 <script lang="ts" setup>
-import { useCloudConfig } from "@/composable/cloudConfig";
-import { useCloudLogSearch, type CloudLogHit } from "@/composable/cloudLogSearch";
+import { useCloudConfig } from "@/composable/cloud/cloudConfig";
+import { useCloudLogSearch, type CloudLogHit } from "@/composable/cloud/cloudLogSearch";
 
 const route = useRoute();
 const { jumpTo } = useLogJump();

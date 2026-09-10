@@ -94,7 +94,9 @@ export default defineConfig(() => ({
         "@vueuse/core",
       ],
       dts: "assets/auto-imports.d.ts",
-      dirs: ["assets/composable", "assets/stores", "assets/utils/index.ts"],
+      // Recursive: composables live in feature subfolders. A bare dir is scanned
+      // one level deep only, which silently drops everything nested.
+      dirs: ["assets/composable/**", "assets/stores", "assets/utils/index.ts"],
       vueTemplate: true,
     }),
     VueI18nPlugin({

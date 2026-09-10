@@ -1,14 +1,14 @@
 import { Component, ComputedRef, Ref, ShallowRef } from "vue";
-import type { CloudAlert, CloudEvent } from "@/composable/cloudAlerts";
+import type { CloudAlert, CloudEvent } from "@/composable/cloud/cloudAlerts";
 import { flattenJSON } from "@/utils";
-import ComplexLogItem from "@/components/LogViewer/ComplexLogItem.vue";
-import SimpleLogItem from "@/components/LogViewer/SimpleLogItem.vue";
-import GroupedLogItem from "@/components/LogViewer/GroupedLogItem.vue";
-import ContainerEventLogItem from "@/components/LogViewer/ContainerEventLogItem.vue";
-import SkippedEntriesLogItem from "@/components/LogViewer/SkippedEntriesLogItem.vue";
-import LoadMoreLogItem from "@/components/LogViewer/LoadMoreLogItem.vue";
-import AlertLogItem from "@/components/LogViewer/AlertLogItem.vue";
-import CloudEventLogItem from "@/components/LogViewer/CloudEventLogItem.vue";
+import ComplexLogItem from "@/components/logs/entries/ComplexLogItem.vue";
+import SimpleLogItem from "@/components/logs/entries/SimpleLogItem.vue";
+import GroupedLogItem from "@/components/logs/entries/GroupedLogItem.vue";
+import ContainerEventLogItem from "@/components/logs/entries/ContainerEventLogItem.vue";
+import SkippedEntriesLogItem from "@/components/logs/entries/SkippedEntriesLogItem.vue";
+import LoadMoreLogItem from "@/components/logs/entries/LoadMoreLogItem.vue";
+import AlertLogItem from "@/components/logs/entries/AlertLogItem.vue";
+import CloudEventLogItem from "@/components/logs/entries/CloudEventLogItem.vue";
 
 export type JSONValue = string | number | boolean | JSONObject | Array<JSONValue>;
 export type JSONObject = { [x: string]: JSONValue };
