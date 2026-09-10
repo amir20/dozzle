@@ -1,29 +1,33 @@
 <template>
-  <!-- The rail is fixed to the right edge, so the page reserves its width
-       instead of letting it sit over the logs. -->
-  <div :style="{ paddingRight: `${railOffset}px` }">
+  <div>
     <MobileMenu v-if="isMobile && !forceMenuHidden" @search="showFuzzySearch"></MobileMenu>
     <Splitpanes @resized="onResized($event)">
       <Pane min-size="10" :size="menuWidth" v-if="navVisible">
         <SidePanel />
       </Pane>
       <Pane min-size="10" :size="navVisible ? 100 - menuWidth : 100">
-        <Splitpanes>
-          <Pane class="router-view min-h-screen">
-            <router-view></router-view>
-          </Pane>
-          <template v-if="!isMobile">
-            <Pane v-for="other in pinnedLogs" :key="other.id">
-              <ContainerLog
-                :id="other.id"
-                show-title
-                scrollable
-                closable
-                @close="pinnedLogsStore.unPinContainer(other)"
-              />
+        <!-- The rail is fixed to the right edge, so its width is reserved here
+             rather than over the logs. Reserved inside the content column and
+             not on the page, because the nav is a different column: narrowing
+             it when a panel opens reads as the menu having done something. -->
+        <div :style="{ paddingRight: `${railOffset}px` }">
+          <Splitpanes>
+            <Pane class="router-view min-h-screen">
+              <router-view></router-view>
             </Pane>
-          </template>
-        </Splitpanes>
+            <template v-if="!isMobile">
+              <Pane v-for="other in pinnedLogs" :key="other.id">
+                <ContainerLog
+                  :id="other.id"
+                  show-title
+                  scrollable
+                  closable
+                  @close="pinnedLogsStore.unPinContainer(other)"
+                />
+              </Pane>
+            </template>
+          </Splitpanes>
+        </div>
       </Pane>
     </Splitpanes>
     <label
