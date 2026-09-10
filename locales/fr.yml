@@ -106,12 +106,14 @@ label:
   k8s-menu: Kubernetes
   group-menu: Groupes Personnalisés
   no-logs: Le conteneur n'a pas encore de logs
+  no-logs-hint: "Tout ce que le conteneur écrit apparaîtra ici immédiatement."
   search-status:
     searching: Recherche dans les logs plus anciens…
     searching-to: Recherche dans les logs plus anciens… jusqu'à {time}
     capped: "{count} résultats · recherché jusqu'à {time}"
     exhausted: Tous les logs recherchés · {count} résultats
-    empty: Aucun résultat · tous les logs recherchés
+    empty: "Aucun log correspondant"
+    empty-hint: "Tous les logs ont été recherchés. Essayez un autre terme ou effacez la recherche."
   show-all-containers: Afficher tous les conteneurs
   collapse-all: Réduire tout
   collapse-group: Réduire le groupe

@@ -107,12 +107,14 @@ label:
   k8s-menu: Kubernetes
   group-menu: Grup Kustom
   no-logs: Kontainer belum memiliki log
+  no-logs-hint: "Apa pun yang ditulis kontainer akan langsung muncul di sini."
   search-status:
     searching: Mencari log lama…
     searching-to: Mencari log lama… kembali ke {time}
     capped: "{count} hasil · dicari kembali ke {time}"
     exhausted: Semua log dicari · {count} hasil
-    empty: Tidak ada hasil · semua log dicari
+    empty: "Tidak ada log yang cocok"
+    empty-hint: "Semua log sudah dicari. Coba kata lain atau hapus pencarian."
   show-all-containers: Tampilkan semua kontainer
   collapse-all: Tutup semua
   collapse-group: Tutup grup

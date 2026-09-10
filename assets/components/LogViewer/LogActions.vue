@@ -3,8 +3,8 @@
     v-if="container"
     hover
     placement="right-start"
-    class="absolute -left-2 z-10 font-sans md:-left-8"
-    panel-class="rounded-box bg-base-200 border-base-content/20 w-52 border p-1 text-sm shadow-sm"
+    class="absolute -left-2 z-10 md:-left-8"
+    panel-class="rounded-box bg-base-200 border-base-content/20 w-52 border p-1 font-sans text-sm shadow-sm"
   >
     <template #trigger>
       <router-link

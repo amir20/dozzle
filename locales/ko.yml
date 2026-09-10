@@ -106,12 +106,14 @@ label:
   k8s-menu: 쿠버네티스
   group-menu: 사용자 그룹
   no-logs: 아직 로그가 없습니다
+  no-logs-hint: "컨테이너가 출력하는 내용이 바로 여기에 표시됩니다."
   search-status:
     searching: 이전 로그 검색 중…
     searching-to: 이전 로그 검색 중… {time}까지
     capped: "{count}개 일치 · {time}까지 검색함"
     exhausted: 모든 로그 검색 완료 · {count}개 일치
-    empty: 일치 항목 없음 · 모든 로그 검색함
+    empty: "일치하는 로그가 없습니다"
+    empty-hint: "모든 로그를 검색했습니다. 다른 검색어를 시도하거나 검색을 지우세요."
   show-all-containers: 전체 컨테이너 보기
   collapse-all: 전체 접기
   collapse-group: 그룹 접기

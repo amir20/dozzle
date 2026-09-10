@@ -1,5 +1,5 @@
 <template>
-  <SearchStatus :status="searchStatus" class="sticky top-0 z-10" />
+  <SearchStatus :status="searchStatus" />
   <ul class="flex animate-pulse flex-col gap-4 p-4" v-if="loading || (noLogs && waitingForMoreLog && !inSearch)">
     <div class="flex flex-row gap-2" v-for="size in sizes">
       <div class="bg-base-content/50 h-3 w-40 shrink-0 rounded-full opacity-50"></div>
@@ -7,9 +7,14 @@
     </div>
     <span class="sr-only">Loading...</span>
   </ul>
-  <div v-else-if="noLogs && !waitingForMoreLog && !inSearch" class="p-4" data-testid="no-logs">
-    {{ $t("label.no-logs") }}
-  </div>
+  <EmptyState
+    v-else-if="noLogs && !waitingForMoreLog && !inSearch"
+    data-testid="no-logs"
+    :title="$t('label.no-logs')"
+    :hint="$t('label.no-logs-hint')"
+  >
+    <template #icon><mdi:text-box-outline class="size-5" /></template>
+  </EmptyState>
   <slot :messages="messages" v-else></slot>
   <IndeterminateBar :color :intensity="streaming ? 1 : 0" v-if="!historical" />
 </template>

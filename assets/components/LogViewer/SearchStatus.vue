@@ -1,8 +1,19 @@
 <template>
+  <!-- Progress and completion are a thin sticky strip over the log stream; an empty
+       result is not a status line but the whole answer, so it takes the room the log
+       list would have filled. -->
+  <EmptyState
+    v-if="state === 'empty'"
+    data-state="empty"
+    :title="$t('label.search-status.empty')"
+    :hint="$t('label.search-status.empty-hint')"
+  >
+    <template #icon><mdi:text-search class="size-5" /></template>
+  </EmptyState>
   <div
-    v-if="state"
+    v-else-if="state"
     :data-state="state"
-    class="bg-base-200/80 text-base-content/70 flex items-center gap-2 px-4 py-1.5 text-xs backdrop-blur"
+    class="bg-base-200/80 text-base-content/70 sticky top-0 z-10 flex items-center gap-2 px-4 py-1.5 font-sans text-xs backdrop-blur"
   >
     <template v-if="state === 'searching'">
       <span>{{
@@ -12,7 +23,6 @@
         <IndeterminateBar color="primary" />
       </div>
     </template>
-    <span v-else-if="state === 'empty'">{{ $t("label.search-status.empty") }}</span>
     <span v-else-if="state === 'capped'" class="tabular-nums">
       {{ $t("label.search-status.capped", { count: status.matches, time }) }}
     </span>

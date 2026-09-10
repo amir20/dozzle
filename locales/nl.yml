@@ -106,12 +106,14 @@ label:
   k8s-menu: Kubernetes
   group-menu: Aangepaste groepen
   no-logs: Container heeft nog geen logbestanden
+  no-logs-hint: "Alles wat de container schrijft, verschijnt hier direct."
   search-status:
     searching: Oudere logs doorzoeken…
     searching-to: Oudere logs doorzoeken… terug tot {time}
     capped: "{count} overeenkomsten · doorzocht tot {time}"
     exhausted: Alle logs doorzocht · {count} overeenkomsten
-    empty: Geen overeenkomsten · alle logs doorzocht
+    empty: "Geen overeenkomende logs"
+    empty-hint: "Alle logs doorzocht. Probeer een andere zoekterm of wis de zoekopdracht."
   show-all-containers: Toon alle containers
   collapse-all: Alles inklappen
   collapse-group: Groep inklappen

@@ -84,12 +84,14 @@ label:
   namespaces: 命名空间
   owners: 所属工作负载
   no-logs: 容器尚无日志
+  no-logs-hint: "容器输出的内容会立即显示在这里。"
   search-status:
     searching: 正在搜索较旧的日志…
     searching-to: 正在搜索较旧的日志…回溯至 {time}
     capped: "{count} 条匹配 · 已搜索至 {time}"
     exhausted: 已搜索所有日志 · {count} 条匹配
-    empty: 无匹配项 · 已搜索所有日志
+    empty: "没有匹配的日志"
+    empty-hint: "已搜索所有日志。请尝试其他关键词或清除搜索。"
   show-all-containers: 显示所有容器
   collapse-all: 折叠全部
   collapse-group: 折叠组

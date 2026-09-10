@@ -112,12 +112,14 @@ label:
   core: Ni jeder | 1 jedro | {count} jeder
   mem: MEM
   no-logs: Zabojnik še nima dnevnika
+  no-logs-hint: "Vse, kar vsebnik zapiše, se takoj pojavi tukaj."
   search-status:
     searching: Iskanje po starejših dnevnikih…
     searching-to: Iskanje po starejših dnevnikih… nazaj do {time}
     capped: "{count} zadetkov · iskano nazaj do {time}"
     exhausted: Preiskani vsi dnevniki · {count} zadetkov
-    empty: Ni zadetkov · preiskani vsi dnevniki
+    empty: "Ni ujemajočih se dnevnikov"
+    empty-hint: "Preiskani vsi dnevniki. Poskusite z drugim izrazom ali počistite iskanje."
 tooltip:
   live-logs: Ti dnevniki so zamrznjeni na tem trenutku. Kliknite za spremljanje živega toka.
   search: Iskanje zabojnikov (⌘ + k, ⌃k)
