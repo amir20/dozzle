@@ -1,6 +1,6 @@
 ---
 title: Instanz verbinden
-sourceHash: d6f8f7b6b845
+sourceHash: ffd948b27c63
 ---
 
 # Instanz verbinden
@@ -104,6 +104,8 @@ docker run ... amir20/dozzle --enable-actions
 :::
 
 Das ist eine Einstellung auf **deinem** Dozzle, nicht in Cloud, denn sie regelt, was dein Dozzle mit deinen Containern zu tun bereit ist. Starte Dozzle nach der Änderung neu. Siehe [Aktionen](/de/guide/actions).
+
+Was nach dem Verbinden in der eigenen Oberfläche auftaucht, steht unter [In deinem Dozzle](/de/guide/dozzle-cloud/in-dozzle).
 
 ## Verbindung trennen
 

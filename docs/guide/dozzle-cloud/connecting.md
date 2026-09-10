@@ -104,6 +104,8 @@ docker run ... amir20/dozzle --enable-actions
 
 This is a setting on **your** Dozzle, not in Cloud, because it governs what your Dozzle is willing to do to your containers. Restart Dozzle after changing it. See [Actions](/guide/actions).
 
+Once linked, see [In Your Dozzle](/guide/dozzle-cloud/in-dozzle) for what appears in your own UI.
+
 ## Unlinking
 
 Delete the instance's API key on the Instances page in Cloud. The connection drops, no further data is forwarded, and your self-hosted Dozzle keeps working exactly as before. Linking never changes local log viewing.

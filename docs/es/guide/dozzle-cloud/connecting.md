@@ -1,6 +1,6 @@
 ---
 title: Vincular tu instancia
-sourceHash: d6f8f7b6b845
+sourceHash: ffd948b27c63
 ---
 
 # Vincular tu instancia
@@ -104,6 +104,8 @@ docker run ... amir20/dozzle --enable-actions
 :::
 
 Es un ajuste de **tu** Dozzle, no de Cloud, porque decide qué está dispuesto a hacer tu Dozzle con tus contenedores. Reinicia Dozzle tras cambiarlo. Consulta [Acciones](/es/guide/actions).
+
+Una vez enlazada, consulta [En tu Dozzle](/es/guide/dozzle-cloud/in-dozzle) para ver qué aparece en tu propia interfaz.
 
 ## Desvincular
 

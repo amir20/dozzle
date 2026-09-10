@@ -18,6 +18,7 @@ export const SECTIONS: Section[] = [
     items: [
       "dozzle-cloud",
       "dozzle-cloud/connecting",
+      "dozzle-cloud/in-dozzle",
       "dozzle-cloud/channels",
       "dozzle-cloud/plans",
       "dozzle-cloud/your-data",

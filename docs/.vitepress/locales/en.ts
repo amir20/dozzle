@@ -29,6 +29,7 @@ export const en: Labels = {
     podman: "Podman",
     "dozzle-cloud": "Overview",
     "dozzle-cloud/connecting": "Connecting Your Instance",
+    "dozzle-cloud/in-dozzle": "In Your Dozzle",
     "dozzle-cloud/channels": "Notification Channels",
     "dozzle-cloud/plans": "Plans & Limits",
     "dozzle-cloud/your-data": "Your Data",
