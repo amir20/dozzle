@@ -111,7 +111,8 @@ label:
     searching-to: Pesquisando logs mais antigos… até {time}
     capped: "{count} correspondências · pesquisado até {time}"
     exhausted: Todos os logs pesquisados · {count} correspondências
-    empty: Nenhuma correspondência · todos os logs pesquisados
+    empty: "Nenhum log correspondente"
+    empty-hint: "Todos os logs foram pesquisados. Tente outro termo ou limpe a pesquisa."
   show-all-containers: Mostrar todos os containers
   collapse-all: Recolher tudo
   collapse-group: Recolher grupo

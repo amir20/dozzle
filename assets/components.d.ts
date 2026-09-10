@@ -179,6 +179,7 @@ declare module 'vue' {
     'Mdi:scriptTextOutline': typeof import('~icons/mdi/script-text-outline')['default']
     'Mdi:shieldCheckOutline': typeof import('~icons/mdi/shield-check-outline')['default']
     'Mdi:textBoxOutline': typeof import('~icons/mdi/text-box-outline')['default']
+    'Mdi:textSearch': typeof import('~icons/mdi/text-search')['default']
     'Mdi:trashCanOutline': typeof import('~icons/mdi/trash-can-outline')['default']
     'Mdi:tuneVariant': typeof import('~icons/mdi/tune-variant')['default']
     'Mdi:viewDashboardOutline': typeof import('~icons/mdi/view-dashboard-outline')['default']

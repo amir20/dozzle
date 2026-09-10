@@ -111,7 +111,8 @@ label:
     searching-to: Durchsuche ältere Logs… zurück bis {time}
     capped: "{count} Treffer · durchsucht bis {time}"
     exhausted: Alle Logs durchsucht · {count} Treffer
-    empty: Keine Treffer · alle Logs durchsucht
+    empty: "Keine passenden Logs"
+    empty-hint: "Alle Logs durchsucht. Probiere einen anderen Suchbegriff oder setze die Suche zurück."
   show-all-containers: Zeige alle Container
   collapse-all: Alle einklappen
   collapse-group: Gruppe einklappen

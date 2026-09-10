@@ -1,5 +1,5 @@
 <template>
-  <SearchStatus :status="searchStatus" class="sticky top-0 z-10" />
+  <SearchStatus :status="searchStatus" />
   <ul class="flex animate-pulse flex-col gap-4 p-4" v-if="loading || (noLogs && waitingForMoreLog && !inSearch)">
     <div class="flex flex-row gap-2" v-for="size in sizes">
       <div class="bg-base-content/50 h-3 w-40 shrink-0 rounded-full opacity-50"></div>

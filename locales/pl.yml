@@ -111,7 +111,8 @@ label:
     searching-to: Przeszukiwanie starszych logów… wstecz do {time}
     capped: "{count} dopasowań · przeszukano do {time}"
     exhausted: Przeszukano wszystkie logi · {count} dopasowań
-    empty: Brak dopasowań · przeszukano wszystkie logi
+    empty: "Brak pasujących logów"
+    empty-hint: "Przeszukano wszystkie logi. Spróbuj innej frazy lub wyczyść wyszukiwanie."
   show-all-containers: Pokaż wszystkie kontenery
   collapse-all: Zwiń wszystkie
   collapse-group: Zwiń grupę

@@ -111,7 +111,8 @@ label:
     searching-to: Eski loglar aranıyor… {time} tarihine kadar
     capped: "{count} eşleşme · {time} tarihine kadar arandı"
     exhausted: Tüm loglar arandı · {count} eşleşme
-    empty: Eşleşme yok · tüm loglar arandı
+    empty: "Eşleşen log yok"
+    empty-hint: "Tüm loglar arandı. Farklı bir terim deneyin veya aramayı temizleyin."
   show-all-containers: Tüm konteynerleri göster
   collapse-all: Hepsini daralt
   collapse-group: Grubu daralt

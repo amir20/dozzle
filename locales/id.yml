@@ -112,7 +112,8 @@ label:
     searching-to: Mencari log lama… kembali ke {time}
     capped: "{count} hasil · dicari kembali ke {time}"
     exhausted: Semua log dicari · {count} hasil
-    empty: Tidak ada hasil · semua log dicari
+    empty: "Tidak ada log yang cocok"
+    empty-hint: "Semua log sudah dicari. Coba kata lain atau hapus pencarian."
   show-all-containers: Tampilkan semua kontainer
   collapse-all: Tutup semua
   collapse-group: Tutup grup
