@@ -360,6 +360,7 @@ notifications:
   add-destination: 목적지 추가
   alerts: 알림
   add-alert: 알림 추가
+  new-alerts: 새 알림
   add: 추가
   prefill-name: 오류 알림
   prefill-expression: level == "error"

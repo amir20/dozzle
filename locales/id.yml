@@ -368,6 +368,7 @@ notifications:
   add-destination: Tambah tujuan
   alerts: Peringatan
   add-alert: Tambah peringatan
+  new-alerts: Peringatan baru
   prefill-name: Peringatan kesalahan
   prefill-expression: level == "error"
   add: Tambah

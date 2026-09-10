@@ -1,10 +1,7 @@
 <template>
   <div>
-    <h3 class="text-base-content/60 mb-4 font-semibold tracking-wide uppercase">
-      {{ $t("notifications.history.title") }}
-    </h3>
+    <!-- No heading of its own: the tab that opened this already names it.
 
-    <!--
       The panel keeps its shape across states: loading, empty, failed and full
       all render the same bordered surface, so nothing reshuffles underneath the
       reader when the fetch lands.

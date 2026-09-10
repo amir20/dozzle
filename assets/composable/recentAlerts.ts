@@ -24,6 +24,14 @@ const failed = ref(false);
 
 let pending: Promise<void> | null = null;
 
+/**
+ * The newest alert this browser has been shown, as nanoseconds.
+ *
+ * Per profile rather than per instance: the dot answers "is there something I
+ * have not looked at", which is a question about the reader, not the server.
+ */
+const lastSeenTs = useProfileStorage("lastSeenAlertTs", 0);
+
 async function load(limit = 200): Promise<void> {
   loading.value = true;
   failed.value = false;
@@ -61,6 +69,12 @@ export function useRecentAlerts() {
     return pending;
   }
 
+  /** Re-reads the list, ignoring the once-per-page cache. What the bell polls. */
+  function refreshRecentAlerts(limit?: number) {
+    if (!linked.value || pending) return Promise.resolve();
+    return load(limit);
+  }
+
   /** Newest first, which is the only order any of these surfaces wants. */
   const newestFirst = computed(() => [...alerts.value].sort((a, b) => b.ts - a.ts));
 
@@ -82,5 +96,29 @@ export function useRecentAlerts() {
     return computed(() => newestFirst.value.filter((a) => a.subscriptionId === key));
   }
 
-  return { alerts: newestFirst, byContainer, forSubscription, fetchRecentAlerts, loading, loaded, failed };
+  /** Something fired that this reader has not opened the history for. */
+  const unseen = computed(() => {
+    const newest = newestFirst.value[0];
+    return !!newest && newest.ts > lastSeenTs.value;
+  });
+
+  /** Called when the history is actually on screen, not when it is fetched: the
+   *  dot goes out because someone looked, not because a request landed. */
+  function markAlertsSeen() {
+    const newest = newestFirst.value[0];
+    if (newest && newest.ts > lastSeenTs.value) lastSeenTs.value = newest.ts;
+  }
+
+  return {
+    alerts: newestFirst,
+    byContainer,
+    forSubscription,
+    fetchRecentAlerts,
+    refreshRecentAlerts,
+    unseen,
+    markAlertsSeen,
+    loading,
+    loaded,
+    failed,
+  };
 }

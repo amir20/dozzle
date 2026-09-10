@@ -406,6 +406,7 @@ notifications:
   add-destination: Añadir destino
   alerts: Alertas
   add-alert: Añadir alerta
+  new-alerts: Nuevas alertas
   prefill-name: Alertas de error
   prefill-expression: level == "error"
   add: Añadir

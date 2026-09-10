@@ -417,6 +417,7 @@ notifications:
   alerts: Alerts
   add: Add
   add-alert: Add alert
+  new-alerts: New alerts
   prefill-name: Error alerts
   prefill-expression: level == "error"
   default-alert-created: "We created a default alert for you. You'll get notified when any container exits with an error. Edit or pause it anytime."

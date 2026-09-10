@@ -362,6 +362,7 @@ notifications:
   add-destination: Dodaj cilj
   alerts: Opozorila
   add-alert: Dodaj opozorilo
+  new-alerts: Nova opozorila
   prefill-name: Opozorila o napakah
   prefill-expression: level == "error"
   add: Dodaj

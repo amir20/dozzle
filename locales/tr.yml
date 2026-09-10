@@ -360,6 +360,7 @@ notifications:
   add-destination: Hedef ekle
   alerts: Uyarılar
   add-alert: Uyarı ekle
+  new-alerts: Yeni uyarılar
   prefill-name: Hata uyarıları
   prefill-expression: level == "error"
   add: Ekle

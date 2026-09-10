@@ -356,6 +356,7 @@ notifications:
   add-destination: Tilføj destination
   alerts: Alarmer
   add-alert: Tilføj alarm
+  new-alerts: Nye advarsler
   prefill-name: Fejlalarmer
   prefill-expression: level == "error"
   add: Tilføj

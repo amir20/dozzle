@@ -356,6 +356,7 @@ notifications:
   add-destination: Добавить назначение
   alerts: Оповещения
   add-alert: Добавить оповещение
+  new-alerts: Новые оповещения
   prefill-name: Оповещения об ошибках
   prefill-expression: level == "error"
   add: Добавить

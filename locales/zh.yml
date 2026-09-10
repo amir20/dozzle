@@ -356,6 +356,7 @@ notifications:
   add-destination: 添加目标
   alerts: 警报
   add-alert: 添加警报
+  new-alerts: 有新告警
   prefill-name: 错误警报
   prefill-expression: level == "error"
   add: 添加

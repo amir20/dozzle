@@ -6,11 +6,19 @@
     <router-link
       v-if="config.enableNotifications"
       :to="{ name: '/notifications' }"
-      :aria-label="$t('title.notifications')"
+      :aria-label="unseenAlerts ? $t('notifications.new-alerts') : $t('title.notifications')"
+      :title="unseenAlerts ? $t('notifications.new-alerts') : undefined"
       data-testid="notifications"
-      class="btn btn-circle btn-sm"
+      class="btn btn-circle btn-sm relative"
     >
       <mdi:bell class="icon-ring size-6" />
+      <!-- Severity rides the dot, the button behind it stays neutral. Same mark
+           the container rows carry, so one glance across the app means the same
+           thing everywhere. -->
+      <span v-if="unseenAlerts" class="absolute end-1 top-1 flex size-1.5">
+        <span class="bg-warning absolute size-full rounded-full opacity-75 motion-safe:animate-ping"></span>
+        <span class="bg-warning relative size-full rounded-full"></span>
+      </span>
     </router-link>
 
     <CloudPopover v-if="cloudSurfaceMounted" />
@@ -71,6 +79,26 @@
 <script lang="ts" setup>
 const { mounted: cloudSurfaceMounted } = useCloudSurface();
 const { logoutUrl } = config;
+
+// The bell is the only place that watches for a fire the reader has not seen, so
+// it owns the polling. Without a cloud link there is nothing to remember and
+// nothing to poll, and the page it opens lands on the rules like it always did.
+const { unseen: unseenAlerts, fetchRecentAlerts, refreshRecentAlerts } = useRecentAlerts();
+
+onMounted(() => fetchRecentAlerts());
+
+// A minute is slow enough to be invisible and fast enough that the dot is not a
+// lie. Paused while the tab is hidden, and caught up the moment it comes back.
+const visibility = useDocumentVisibility();
+const { pause, resume } = useIntervalFn(() => refreshRecentAlerts(), 60_000);
+watch(visibility, (state) => {
+  if (state === "visible") {
+    refreshRecentAlerts();
+    resume();
+  } else {
+    pause();
+  }
+});
 
 async function logout() {
   if (logoutUrl) {

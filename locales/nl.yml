@@ -357,6 +357,7 @@ notifications:
   add-destination: Bestemming toevoegen
   alerts: Waarschuwingen
   add-alert: Waarschuwing toevoegen
+  new-alerts: Nieuwe waarschuwingen
   prefill-name: Foutwaarschuwingen
   prefill-expression: level == "error"
   add: Toevoegen
