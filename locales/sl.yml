@@ -662,9 +662,11 @@ cloud-rail:
   window-1h: 1 h
   window-6h: 6 h
   window-24h: 24 h
+  window-7d: 7 d
 cloud-chat:
   title: Vprašaj Dozzle
   close: Zapri
+  clear: Počisti klepet
   empty: Vprašaj o tem, kar gledaš. Pomočnik vidi ta pogled in bere te dnevnike.
   thinking: Razmišljam…
   doing:

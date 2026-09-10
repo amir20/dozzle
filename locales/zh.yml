@@ -656,9 +656,11 @@ cloud-rail:
   window-1h: 1 小时
   window-6h: 6 小时
   window-24h: 24 小时
+  window-7d: 7 天
 cloud-chat:
   title: 问 Dozzle
   close: 关闭
+  clear: 清除对话
   empty: 就眼前看到的内容提问。助手能看到这个视图，也能读这些日志。
   thinking: 思考中…
   doing:

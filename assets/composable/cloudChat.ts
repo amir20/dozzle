@@ -56,6 +56,15 @@ export function useCloudChat() {
     focused.value = undefined;
   }
 
+  /** Start over. The thread is the only thing the assistant remembers, so this
+   *  is also how you tell it to stop carrying an answer that went nowhere. */
+  function reset() {
+    messages.value = [];
+    focused.value = undefined;
+    status.value = "";
+    activity.value = "";
+  }
+
   function closePane() {
     // The thread survives. Reopening into a blank box loses whatever you were
     // half way through.
@@ -136,5 +145,5 @@ export function useCloudChat() {
     }
   }
 
-  return { messages, status, activity, streaming, focused, ask, askAboutLine, clearFocus, openPane, closePane };
+  return { messages, status, activity, streaming, focused, ask, askAboutLine, clearFocus, reset, openPane, closePane };
 }

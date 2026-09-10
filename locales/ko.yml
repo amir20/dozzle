@@ -660,9 +660,11 @@ cloud-rail:
   window-1h: 1시간
   window-6h: 6시간
   window-24h: 24시간
+  window-7d: 7일
 cloud-chat:
   title: Dozzle에 질문
   close: 닫기
+  clear: 대화 지우기
   empty: 지금 보고 있는 것에 대해 물어보세요. 어시스턴트가 이 화면과 로그를 함께 봅니다.
   thinking: 생각 중…
   doing:

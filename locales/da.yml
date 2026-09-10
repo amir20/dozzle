@@ -656,9 +656,11 @@ cloud-rail:
   window-1h: 1t
   window-6h: 6t
   window-24h: 24t
+  window-7d: 7 d
 cloud-chat:
   title: Spørg Dozzle
   close: Luk
+  clear: Ryd chatten
   empty: Spørg om det du kigger på. Assistenten kan se denne visning og læse disse logs.
   thinking: Tænker…
   doing:
