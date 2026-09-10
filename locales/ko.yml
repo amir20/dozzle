@@ -50,6 +50,7 @@ action:
   see-in-context: 컨텍스트에서 보기
   show-details: 세부 정보 표시
   create-alert: 알림 생성
+  ask-about-log: 이 로그에 대해 질문
 log-details:
   on-std: "{std}에서"
   image: 이미지
@@ -640,6 +641,55 @@ cloud:
       disk-free: "볼륨 여유 공간 1GB 미만"
       fatal: "모든 fatal 줄"
       error: "모든 error 줄"
+cloud-rail:
+  title: Dozzle Cloud
+  chat: Dozzle에게 질문
+  metrics: 메트릭
+  alerts: 알림
+  close: 닫기
+  hide: 클라우드 레일 숨기기
+  show: 클라우드 레일 표시
+  alerts-empty-here: 보고 있는 대상에서 발생한 알림이 없습니다.
+  all-activity: 전체 활동
+  metrics-no-container: 컨테이너를 열면 기록을 볼 수 있습니다.
+  metrics-loading: 기록 불러오는 중…
+  metrics-failed: 기록을 불러오지 못했습니다.
+  metrics-empty: 이 구간에 기록된 데이터가 아직 없습니다.
+  metrics-peak: 최고
+  metrics-bucket: "{duration} 평균"
+  window-1h: 1시간
+  window-6h: 6시간
+  window-24h: 24시간
+cloud-chat:
+  title: Dozzle에 질문
+  close: 닫기
+  empty: 지금 보고 있는 것에 대해 물어보세요. 어시스턴트가 이 화면과 로그를 함께 봅니다.
+  thinking: 생각 중…
+  doing:
+    logs: 로그 읽는 중…
+    containers: 컨테이너 확인 중…
+    stats: 리소스 사용량 확인 중…
+    inspect: 컨테이너 검사 중…
+    notifications: 알림 확인 중…
+    action: 작업 실행 중…
+    working: 작업 중…
+  placeholder: 이 로그에 대해 질문
+  historical: 기록 보기
+  n-containers: 컨테이너 {n}개
+  evidence: 질문과 함께 전송됨
+  lines-in-view: 화면의 {n}줄
+  this-log: 이 로그 줄
+  remove-log: 이 로그 줄 제거
+  send: 보내기
+  suggest-summarize: 무슨 일인지 요약해 줘
+  suggest-errors: 오류와 경고 찾기
+  suggest-next: 다음으로 무엇을 봐야 할까?
+  error-unavailable: 지금은 어시스턴트를 사용할 수 없습니다.
+  error-not-configured: Dozzle Cloud가 연결되지 않아 질문할 어시스턴트가 없습니다.
+  section-ask: 어시스턴트
+  ask-for: "{query}에 대해 Dozzle에 질문"
+  ask-hint: 화면에 있는 컨테이너를 근거로 답합니다
+  ask-shortcut: 질문하기
 cloud-search:
   containers-section: "컨테이너"
   section-logs: "로그"

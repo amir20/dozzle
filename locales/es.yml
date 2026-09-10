@@ -50,6 +50,7 @@ action:
   see-in-context: Ver en contexto
   show-details: Mostrar detalles
   create-alert: Crear alerta
+  ask-about-log: Preguntar sobre este log
 log-details:
   on-std: en {std}
   image: Imagen
@@ -209,6 +210,55 @@ button:
 placeholder:
   search-containers: Buscar contenedores (⌘ + K, CTRL + K)
   search: Buscar
+cloud-rail:
+  title: Dozzle Cloud
+  chat: Preguntar a Dozzle
+  metrics: Métricas
+  alerts: Alertas
+  close: Cerrar
+  hide: Ocultar la barra de cloud
+  show: Mostrar la barra de cloud
+  alerts-empty-here: No se ha disparado nada en lo que estás viendo.
+  all-activity: Toda la actividad
+  metrics-no-container: Abre un contenedor para ver su historial.
+  metrics-loading: Cargando el historial…
+  metrics-failed: No se pudo cargar el historial.
+  metrics-empty: Todavía no hay nada registrado para este intervalo.
+  metrics-peak: pico
+  metrics-bucket: promedios de {duration}
+  window-1h: 1 h
+  window-6h: 6 h
+  window-24h: 24 h
+cloud-chat:
+  title: Preguntar a Dozzle
+  close: Cerrar
+  empty: Pregunta sobre lo que estás viendo. El asistente ve esta vista y lee estos logs.
+  thinking: Pensando…
+  doing:
+    logs: Leyendo los logs…
+    containers: Revisando los contenedores…
+    stats: Comprobando el uso de recursos…
+    inspect: Inspeccionando el contenedor…
+    notifications: Comprobando las notificaciones…
+    action: Ejecutando la acción…
+    working: Trabajando…
+  placeholder: Pregunta sobre estos logs
+  historical: histórico
+  n-containers: "{n} contenedores"
+  evidence: Se envía con tu pregunta
+  lines-in-view: "{n} líneas a la vista"
+  this-log: Esta línea de log
+  remove-log: Quitar esta línea de log
+  send: Enviar
+  suggest-summarize: Resume lo que está pasando
+  suggest-errors: Busca los errores y advertencias
+  suggest-next: ¿Qué debería revisar ahora?
+  error-unavailable: El asistente no está disponible ahora mismo.
+  error-not-configured: Dozzle Cloud no está vinculado, así que no hay ningún asistente al que preguntar.
+  section-ask: Asistente
+  ask-for: Preguntar a Dozzle sobre {query}
+  ask-hint: Responde con los contenedores a la vista
+  ask-shortcut: para preguntar
 cloud-search:
   containers-section: "Contenedores"
   section-logs: "Logs"

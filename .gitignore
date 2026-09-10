@@ -19,3 +19,4 @@ tmp
 .claude/worktrees/
 .playwright-mcp/
 e2e/data/session_secret
+.user-ref-secret

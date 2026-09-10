@@ -50,6 +50,7 @@ action:
   see-in-context: Bekijk in context
   show-details: Toon details
   create-alert: Waarschuwing aanmaken
+  ask-about-log: Vraag over deze log
 log-details:
   on-std: op {std}
   image: Image
@@ -637,6 +638,55 @@ cloud:
       disk-free: "Volume met minder dan 1 GB vrij"
       fatal: "Elke fatal-regel"
       error: "Elke error-regel"
+cloud-rail:
+  title: Dozzle Cloud
+  chat: Vraag Dozzle
+  metrics: Metrieken
+  alerts: Waarschuwingen
+  close: Sluiten
+  hide: Cloudbalk verbergen
+  show: Cloudbalk tonen
+  alerts-empty-here: Er is niets afgegaan voor wat je bekijkt.
+  all-activity: Alle activiteit
+  metrics-no-container: Open een container om de geschiedenis te zien.
+  metrics-loading: Geschiedenis laden…
+  metrics-failed: Kon de geschiedenis niet laden.
+  metrics-empty: Nog niets vastgelegd voor dit venster.
+  metrics-peak: piek
+  metrics-bucket: "{duration}-gemiddelden"
+  window-1h: 1u
+  window-6h: 6u
+  window-24h: 24u
+cloud-chat:
+  title: Vraag het Dozzle
+  close: Sluiten
+  empty: Stel een vraag over wat je ziet. De assistent kent deze weergave en leest deze logs.
+  thinking: Aan het denken…
+  doing:
+    logs: Logs lezen…
+    containers: Containers bekijken…
+    stats: Resourcegebruik controleren…
+    inspect: Container inspecteren…
+    notifications: Meldingen controleren…
+    action: Actie uitvoeren…
+    working: Bezig…
+  placeholder: Vraag over deze logs
+  historical: historisch
+  n-containers: "{n} containers"
+  evidence: Wordt met je vraag meegestuurd
+  lines-in-view: "{n} regels in beeld"
+  this-log: Deze logregel
+  remove-log: Deze logregel verwijderen
+  send: Versturen
+  suggest-summarize: Vat samen wat er gebeurt
+  suggest-errors: Zoek de fouten en waarschuwingen
+  suggest-next: Waar moet ik hierna kijken?
+  error-unavailable: De assistent is nu niet beschikbaar.
+  error-not-configured: Dozzle Cloud is niet gekoppeld, dus er is geen assistent om iets aan te vragen.
+  section-ask: Assistent
+  ask-for: Dozzle vragen over {query}
+  ask-hint: Antwoordt vanuit de zichtbare containers
+  ask-shortcut: om te vragen
 cloud-search:
   containers-section: "Containers"
   section-logs: "Logs"

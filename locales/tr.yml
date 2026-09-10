@@ -50,6 +50,7 @@ action:
   see-in-context: Bağlamda gör
   show-details: Detayları göster
   create-alert: Uyarı oluştur
+  ask-about-log: Bu log hakkında sor
 log-details:
   on-std: "{std} üzerinde"
   image: İmaj
@@ -640,6 +641,55 @@ cloud:
       disk-free: "Biriminde 1 GB'tan az boş alan"
       fatal: "Herhangi bir fatal satırı"
       error: "Herhangi bir error satırı"
+cloud-rail:
+  title: Dozzle Cloud
+  chat: Dozzle'a sor
+  metrics: Metrikler
+  alerts: Uyarılar
+  close: Kapat
+  hide: Cloud çubuğunu gizle
+  show: Cloud çubuğunu göster
+  alerts-empty-here: Baktığınız şey için hiçbir şey tetiklenmedi.
+  all-activity: Tüm etkinlik
+  metrics-no-container: Geçmişi görmek için bir konteyner açın.
+  metrics-loading: Geçmiş yükleniyor…
+  metrics-failed: Geçmiş yüklenemedi.
+  metrics-empty: Bu aralık için henüz kayıt yok.
+  metrics-peak: tepe
+  metrics-bucket: "{duration} ortalamaları"
+  window-1h: 1 sa
+  window-6h: 6 sa
+  window-24h: 24 sa
+cloud-chat:
+  title: Dozzle'a sor
+  close: Kapat
+  empty: Baktığın şeyi sor. Asistan bu görünümü görüyor ve bu logları okuyor.
+  thinking: Düşünüyor…
+  doing:
+    logs: Loglar okunuyor…
+    containers: Konteynerlere bakılıyor…
+    stats: Kaynak kullanımı kontrol ediliyor…
+    inspect: Konteyner inceleniyor…
+    notifications: Bildirimler kontrol ediliyor…
+    action: İşlem çalıştırılıyor…
+    working: Çalışıyor…
+  placeholder: Bu loglar hakkında sor
+  historical: geçmiş
+  n-containers: "{n} konteyner"
+  evidence: Sorunuzla birlikte gönderilir
+  lines-in-view: görünen {n} satır
+  this-log: Bu log satırı
+  remove-log: Bu log satırını kaldır
+  send: Gönder
+  suggest-summarize: Neler olduğunu özetle
+  suggest-errors: Hataları ve uyarıları bul
+  suggest-next: Sırada neye bakmalıyım?
+  error-unavailable: Asistan şu anda kullanılamıyor.
+  error-not-configured: Dozzle Cloud bağlı değil, bu yüzden soru sorulacak bir asistan yok.
+  section-ask: Asistan
+  ask-for: "{query} hakkında Dozzle'a sor"
+  ask-hint: Görünen konteynerlere bakarak yanıtlar
+  ask-shortcut: sormak için
 cloud-search:
   containers-section: "Konteynerler"
   section-logs: "Loglar"

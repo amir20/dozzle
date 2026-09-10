@@ -50,6 +50,7 @@ action:
   see-in-context: Glej v kontekstu
   show-details: Prikaži podrobnosti
   create-alert: Ustvari opozorilo
+  ask-about-log: Vprašaj o tem dnevniku
 log-details:
   on-std: na {std}
   image: Slika
@@ -642,6 +643,55 @@ cloud:
       disk-free: "Nosilec z manj kot 1 GB prostora"
       fatal: "Katerakoli vrstica fatal"
       error: "Katerakoli vrstica error"
+cloud-rail:
+  title: Dozzle Cloud
+  chat: Vprašaj Dozzle
+  metrics: Meritve
+  alerts: Opozorila
+  close: Zapri
+  hide: Skrij oblačno vrstico
+  show: Pokaži oblačno vrstico
+  alerts-empty-here: Za to, kar gledate, se ni sprožilo nič.
+  all-activity: Vsa dejavnost
+  metrics-no-container: Odprite vsebnik, da vidite njegovo zgodovino.
+  metrics-loading: Nalagam zgodovino…
+  metrics-failed: Zgodovine ni bilo mogoče naložiti.
+  metrics-empty: Za to obdobje še ni zapisov.
+  metrics-peak: vrh
+  metrics-bucket: povprečja po {duration}
+  window-1h: 1 h
+  window-6h: 6 h
+  window-24h: 24 h
+cloud-chat:
+  title: Vprašaj Dozzle
+  close: Zapri
+  empty: Vprašaj o tem, kar gledaš. Pomočnik vidi ta pogled in bere te dnevnike.
+  thinking: Razmišljam…
+  doing:
+    logs: Berem dnevnike…
+    containers: Pregledujem vsebnike…
+    stats: Preverjam porabo virov…
+    inspect: Pregledujem vsebnik…
+    notifications: Preverjam obvestila…
+    action: Izvajam dejanje…
+    working: Delam…
+  placeholder: Vprašaj o teh dnevnikih
+  historical: zgodovinsko
+  n-containers: "Vsebnikov: {n}"
+  evidence: Poslano z vašim vprašanjem
+  lines-in-view: "{n} vidnih vrstic"
+  this-log: Ta vrstica dnevnika
+  remove-log: Odstrani to vrstico dnevnika
+  send: Pošlji
+  suggest-summarize: Povzemi, kaj se dogaja
+  suggest-errors: Poišči napake in opozorila
+  suggest-next: Kaj naj pogledam naslednje?
+  error-unavailable: Pomočnik trenutno ni na voljo.
+  error-not-configured: Dozzle Cloud ni povezan, zato ni pomočnika, ki bi ga vprašali.
+  section-ask: Pomočnik
+  ask-for: Vprašaj Dozzle o {query}
+  ask-hint: Odgovarja iz vsebnikov v pogledu
+  ask-shortcut: za vprašanje
 cloud-search:
   containers-section: "Vsebniki"
   section-logs: "Dnevniki"

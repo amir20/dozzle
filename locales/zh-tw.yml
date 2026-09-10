@@ -50,6 +50,7 @@ action:
   see-in-context: 在內容中查看
   show-details: 顯示詳細資訊
   create-alert: 建立警報
+  ask-about-log: 詢問這則日誌
 log-details:
   on-std: 來自 {std}
   image: 映像檔
@@ -639,6 +640,55 @@ cloud:
       disk-free: "磁碟區剩餘空間不足 1 GB"
       fatal: "任何 fatal 行"
       error: "任何 error 行"
+cloud-rail:
+  title: Dozzle Cloud
+  chat: 詢問 Dozzle
+  metrics: 指標
+  alerts: 警報
+  close: 關閉
+  hide: 隱藏雲端側欄
+  show: 顯示雲端側欄
+  alerts-empty-here: 目前檢視的內容沒有觸發過警報。
+  all-activity: 全部活動
+  metrics-no-container: 開啟一個容器即可檢視歷史。
+  metrics-loading: 正在載入歷史…
+  metrics-failed: 無法載入歷史。
+  metrics-empty: 該時間範圍還沒有記錄。
+  metrics-peak: 峰值
+  metrics-bucket: "{duration} 平均值"
+  window-1h: 1 小時
+  window-6h: 6 小時
+  window-24h: 24 小時
+cloud-chat:
+  title: 問 Dozzle
+  close: 關閉
+  empty: 就眼前看到的內容提問。助手能看到這個檢視，也能讀這些日誌。
+  thinking: 思考中…
+  doing:
+    logs: 正在讀取日誌…
+    containers: 正在查看容器…
+    stats: 正在檢查資源使用…
+    inspect: 正在檢查容器…
+    notifications: 正在檢查通知…
+    action: 正在執行操作…
+    working: 處理中…
+  placeholder: 就這些日誌提問
+  historical: 歷史
+  n-containers: "{n} 個容器"
+  evidence: 隨問題一起傳送
+  lines-in-view: 檢視中 {n} 行
+  this-log: 這則日誌
+  remove-log: 移除這則日誌
+  send: 傳送
+  suggest-summarize: 總結目前發生了什麼
+  suggest-errors: 找出錯誤與警告
+  suggest-next: 接下來我該看什麼？
+  error-unavailable: 助理目前無法使用。
+  error-not-configured: 尚未連結 Dozzle Cloud，沒有可以提問的助理。
+  section-ask: 助手
+  ask-for: 就 {query} 問 Dozzle
+  ask-hint: 根據檢視裡的容器作答
+  ask-shortcut: 提問
 cloud-search:
   containers-section: "容器"
   section-logs: "日誌"

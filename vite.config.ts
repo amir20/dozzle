@@ -26,6 +26,14 @@ export default defineConfig(() => ({
       entities: path.resolve(import.meta.dirname, "assets/shims/entities.ts"),
     },
   },
+  optimizeDeps: {
+    // The chat pane is loaded lazily, so vite's startup scan never sees
+    // markdown-it (and its five bare deps). It discovers them the first time
+    // someone opens the pane, re-optimizes mid-session, and the chunk that
+    // triggered it fails with "504 Outdated Optimize Dep". Naming it here means
+    // it is pre-bundled before anyone asks.
+    include: ["markdown-it"],
+  },
   build: {
     manifest: true,
     // App icons are referenced by URL and fetched on demand. Inlining the small ones

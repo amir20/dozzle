@@ -50,6 +50,7 @@ action:
   see-in-context: Посмотреть в контексте
   show-details: Показать детали
   create-alert: Создать оповещение
+  ask-about-log: Спросить об этой строке
 log-details:
   on-std: в {std}
   image: Образ
@@ -636,6 +637,55 @@ cloud:
       disk-free: "На томе меньше 1 ГБ свободно"
       fatal: "Любая строка fatal"
       error: "Любая строка error"
+cloud-rail:
+  title: Dozzle Cloud
+  chat: Спросить Dozzle
+  metrics: Метрики
+  alerts: Оповещения
+  close: Закрыть
+  hide: Скрыть панель облака
+  show: Показать панель облака
+  alerts-empty-here: По тому, что вы смотрите, ничего не срабатывало.
+  all-activity: Вся активность
+  metrics-no-container: Откройте контейнер, чтобы увидеть его историю.
+  metrics-loading: Загружаю историю…
+  metrics-failed: Не удалось загрузить историю.
+  metrics-empty: За этот период данных ещё нет.
+  metrics-peak: пик
+  metrics-bucket: средние за {duration}
+  window-1h: 1 ч
+  window-6h: 6 ч
+  window-24h: 24 ч
+cloud-chat:
+  title: Спросить Dozzle
+  close: Закрыть
+  empty: Спросите о том, что видите. Ассистент видит этот экран и читает эти логи.
+  thinking: Думает…
+  doing:
+    logs: Читаю логи…
+    containers: Смотрю контейнеры…
+    stats: Проверяю потребление ресурсов…
+    inspect: Изучаю контейнер…
+    notifications: Проверяю уведомления…
+    action: Выполняю действие…
+    working: Работаю…
+  placeholder: Спросить об этих логах
+  historical: история
+  n-containers: "Контейнеров: {n}"
+  evidence: Отправляется с вопросом
+  lines-in-view: "{n} строк на экране"
+  this-log: Эта строка лога
+  remove-log: Убрать эту строку
+  send: Отправить
+  suggest-summarize: "Кратко: что здесь происходит"
+  suggest-errors: Найди ошибки и предупреждения
+  suggest-next: На что посмотреть дальше?
+  error-unavailable: Ассистент сейчас недоступен.
+  error-not-configured: Dozzle Cloud не подключён, спрашивать некого.
+  section-ask: Ассистент
+  ask-for: Спросить Dozzle про {query}
+  ask-hint: Отвечает по контейнерам на экране
+  ask-shortcut: чтобы спросить
 cloud-search:
   containers-section: "Контейнеры"
   section-logs: "Логи"

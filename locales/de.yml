@@ -50,6 +50,7 @@ action:
   see-in-context: Im Kontext anzeigen
   show-details: Details anzeigen
   create-alert: Alarm erstellen
+  ask-about-log: Zu diesem Log fragen
 log-details:
   on-std: auf {std}
   image: Image
@@ -636,6 +637,55 @@ cloud:
       disk-free: "Volume mit weniger als 1 GB frei"
       fatal: "Jede Fatal-Zeile"
       error: "Jede Fehlerzeile"
+cloud-rail:
+  title: Dozzle Cloud
+  chat: Dozzle fragen
+  metrics: Metriken
+  alerts: Alarme
+  close: Schließen
+  hide: Cloud-Leiste ausblenden
+  show: Cloud-Leiste einblenden
+  alerts-empty-here: Für das, was du gerade ansiehst, wurde nichts ausgelöst.
+  all-activity: Gesamte Aktivität
+  metrics-no-container: Öffne einen Container, um seinen Verlauf zu sehen.
+  metrics-loading: Verlauf wird geladen…
+  metrics-failed: Der Verlauf konnte nicht geladen werden.
+  metrics-empty: Für diesen Zeitraum wurde noch nichts aufgezeichnet.
+  metrics-peak: Spitze
+  metrics-bucket: "{duration}-Mittelwerte"
+  window-1h: 1 Std
+  window-6h: 6 Std
+  window-24h: 24 Std
+cloud-chat:
+  title: Dozzle fragen
+  close: Schließen
+  empty: Frag zu dem, was du gerade siehst. Der Assistent kennt diese Ansicht und liest diese Logs.
+  thinking: Denkt nach…
+  doing:
+    logs: Logs werden gelesen…
+    containers: Container werden angesehen…
+    stats: Ressourcennutzung wird geprüft…
+    inspect: Container wird inspiziert…
+    notifications: Benachrichtigungen werden geprüft…
+    action: Aktion wird ausgeführt…
+    working: Arbeitet…
+  placeholder: Zu diesen Logs fragen
+  historical: historisch
+  n-containers: "{n} Container"
+  evidence: Wird mit deiner Frage gesendet
+  lines-in-view: "{n} sichtbare Zeilen"
+  this-log: Diese Logzeile
+  remove-log: Diese Logzeile entfernen
+  send: Senden
+  suggest-summarize: Zusammenfassen, was gerade passiert
+  suggest-errors: Fehler und Warnungen finden
+  suggest-next: Was sollte ich mir als Nächstes ansehen?
+  error-unavailable: Der Assistent ist gerade nicht erreichbar.
+  error-not-configured: Dozzle Cloud ist nicht verknüpft, es gibt also keinen Assistenten zum Fragen.
+  section-ask: Assistent
+  ask-for: Dozzle nach {query} fragen
+  ask-hint: Antwortet aus den sichtbaren Containern
+  ask-shortcut: zum Fragen
 cloud-search:
   containers-section: "Container"
   section-logs: "Logs"

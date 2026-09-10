@@ -15,5 +15,9 @@ const { messages, visibleKeys } = toRefs(props);
 
 const { filteredPayload } = useVisibleFilter(visibleKeys);
 const visibleMessages = filteredPayload(messages);
+
+// What is on screen is what a chat turn carries, so the assistant reads the
+// same window the person is looking at.
+if (isViewContextOwner()) publishVisibleLogs(visibleMessages);
 </script>
 <style scoped></style>

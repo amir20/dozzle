@@ -52,7 +52,12 @@
 </template>
 
 <script lang="ts" setup>
-const { scrollable = false } = defineProps<{ scrollable?: boolean }>();
+const { scrollable = false, ownsViewContext = true } = defineProps<{
+  scrollable?: boolean;
+  /** False for a pinned column, which is a second view of some other
+   *  container: the assistant should follow the primary viewer, not it. */
+  ownsViewContext?: boolean;
+}>();
 
 const hasMore = ref(false);
 const scrollObserver = ref<HTMLElement>();
@@ -90,6 +95,9 @@ const readoutStyle = computed(() => ({
 const scrollContext = provideScrollContext();
 
 const { loadingMore, historical } = useLoggingContext();
+provideViewContextOwner(ownsViewContext);
+if (ownsViewContext) publishViewContext(buildViewContext(scrollContext));
+
 const { isSearching } = useSearchFilter();
 if (!historical.value) {
   useIntersectionObserver(scrollObserver, ([entry]) => (scrollContext.paused = entry.intersectionRatio == 0), {

@@ -50,6 +50,7 @@ action:
   see-in-context: Lihat dalam konteks
   show-details: Tampilkan detail
   create-alert: Buat peringatan
+  ask-about-log: Tanya tentang log ini
 
 log-details:
   on-std: pada {std}
@@ -648,6 +649,55 @@ cloud:
       disk-free: "Volume dengan sisa kurang dari 1 GB"
       fatal: "Setiap baris fatal"
       error: "Setiap baris error"
+cloud-rail:
+  title: Dozzle Cloud
+  chat: Tanya Dozzle
+  metrics: Metrik
+  alerts: Peringatan
+  close: Tutup
+  hide: Sembunyikan bilah cloud
+  show: Tampilkan bilah cloud
+  alerts-empty-here: Belum ada yang terpicu pada yang sedang Anda lihat.
+  all-activity: Semua aktivitas
+  metrics-no-container: Buka kontainer untuk melihat riwayatnya.
+  metrics-loading: Memuat riwayat…
+  metrics-failed: Riwayat tidak dapat dimuat.
+  metrics-empty: Belum ada rekaman untuk rentang ini.
+  metrics-peak: puncak
+  metrics-bucket: rata-rata {duration}
+  window-1h: 1j
+  window-6h: 6j
+  window-24h: 24j
+cloud-chat:
+  title: Tanya Dozzle
+  close: Tutup
+  empty: Tanyakan tentang yang sedang kamu lihat. Asisten bisa melihat tampilan ini dan membaca log-nya.
+  thinking: Berpikir…
+  doing:
+    logs: Membaca log…
+    containers: Memeriksa kontainer…
+    stats: Memeriksa penggunaan sumber daya…
+    inspect: Memeriksa kontainer…
+    notifications: Memeriksa notifikasi…
+    action: Menjalankan aksi…
+    working: Sedang bekerja…
+  placeholder: Tanya tentang log ini
+  historical: historis
+  n-containers: "{n} kontainer"
+  evidence: Dikirim bersama pertanyaan Anda
+  lines-in-view: "{n} baris terlihat"
+  this-log: Baris log ini
+  remove-log: Hapus baris log ini
+  send: Kirim
+  suggest-summarize: Ringkas apa yang terjadi
+  suggest-errors: Cari error dan peringatan
+  suggest-next: Apa yang harus saya periksa berikutnya?
+  error-unavailable: Asisten sedang tidak tersedia.
+  error-not-configured: Dozzle Cloud belum ditautkan, jadi tidak ada asisten untuk ditanya.
+  section-ask: Asisten
+  ask-for: Tanya Dozzle tentang {query}
+  ask-hint: Menjawab dari kontainer yang terlihat
+  ask-shortcut: untuk bertanya
 cloud-search:
   containers-section: "Kontainer"
   section-logs: "Log"

@@ -190,6 +190,15 @@ func main() {
 		GetAlerts:  cloudClient.GetAlerts,
 
 		GetRecentAlerts: cloudClient.GetRecentAlerts,
+
+		GetContainerMetrics: cloudClient.GetContainerMetrics,
+
+		Chat: func(ctx context.Context, message string, view cloud.ViewContext, userRef string, principal cloud.Principal, emit func(cloud.ChatEvent)) error {
+			// C10: credentials come from a resolver rather than the stored key.
+			// It always answers with the instance key today. When a user can
+			// attach a personal key, this is the only line that changes.
+			return cloudClient.Chat(ctx, message, view, userRef, principal, apiKeyFunc, emit)
+		},
 	})
 
 	go func() {

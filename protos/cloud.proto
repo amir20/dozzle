@@ -31,6 +31,124 @@ service CloudToolService {
   // never know a container list up front. Scoped server-side to the
   // (user_id, api_key_id) on the connection, like everything else here.
   rpc GetRecentAlerts(GetRecentAlertsRequest) returns (GetAlertsResponse);
+
+  // Dozzle-initiated unary call: the stats Cloud kept for one container.
+  //
+  // Dozzle holds a rolling 300 samples in the browser and nothing behind it, so
+  // "was it like this an hour ago" has no local answer. Cloud already receives
+  // these samples over StatsBatch; this reads them back. Scoped server-side to
+  // the (user_id, api_key_id) on the connection, like everything else here.
+  rpc GetContainerMetrics(GetContainerMetricsRequest) returns (GetContainerMetricsResponse);
+
+  // One assistant turn, opened by the Dozzle request that started it.
+  //
+  // Deliberately not served over ToolStream. That stream is owned by the
+  // process and has no user on it, so a tool call arriving there cannot be
+  // scoped to whoever asked. This stream is opened by the HTTP handler holding
+  // the browser's SSE response, so cloud sends the turn's tool calls back down
+  // it and Dozzle executes them inside that request, with that user's filter
+  // and roles. Cloud never learns who the user is.
+  rpc Chat(stream ChatClientEvent) returns (stream ChatServerEvent);
+}
+
+// ViewContext is what the user is looking at when they ask. The whole point of
+// asking from inside Dozzle is that nobody should have to name the thing
+// already on their screen.
+message ViewContext {
+  // Route shape: "container", "host", "merged", "stack", "index", …
+  string kind = 1;
+  // The route's own id or name, when it has one.
+  string target = 2;
+  repeated ViewContainer containers = 3;
+  repeated string hosts = 4;
+  // The active search term, empty when the user is not searching.
+  string search = 5;
+  // Levels the user narrowed to. Empty means every level, which is the default
+  // rather than a filter.
+  repeated string levels = 6;
+  // The moment currently in view, unix nanoseconds.
+  int64 visible_at_ns = 7;
+  // True on the historical view rather than the live stream.
+  bool historical = 8;
+  // The lines the user can actually see, oldest last. Sent so the assistant
+  // reads the same window the person is looking at instead of fetching its own
+  // and answering about a different slice of the log.
+  repeated ViewLogLine lines = 9;
+  // The one line the user pointed at, when they asked from a log row rather
+  // than from the composer.
+  ViewLogLine focused = 10;
+}
+
+// ViewLogLine is one line as Dozzle rendered it: already stripped of ANSI and
+// truncated, because this is what the user saw, not what the container wrote.
+message ViewLogLine {
+  int64 timestamp_ns = 1;
+  string level = 2;
+  // Set only on a view that merges several containers, where a line is
+  // ambiguous without it.
+  string container_id = 3;
+  string message = 4;
+}
+
+message ViewContainer {
+  string id = 1;
+  string name = 2;
+  string host = 3;
+}
+
+message ChatTurn {
+  string message = 1;
+  ViewContext view = 2;
+  // Opaque, per-instance reference to the local user, so cloud can keep five
+  // people's threads apart without learning who any of them are. Never a
+  // username: this is an HMAC under a secret that stays on this machine.
+  string user_ref = 3;
+}
+
+message ChatClientEvent {
+  oneof type {
+    ChatTurn turn = 1;
+    // Reuses the ToolStream message so the executor does not fork: same tool
+    // dispatch, different principal.
+    ToolResponse tool_result = 2;
+  }
+}
+
+message ChatServerEvent {
+  oneof type {
+    ChatStatus status = 1;
+    ChatDelta delta = 2;
+    ChatDone done = 3;
+    ChatError error = 4;
+    ToolRequest tool_call = 5;
+  }
+}
+
+// ChatStatus is what the assistant is doing right now ("reading logs"), shown
+// while nothing has been written yet.
+message ChatStatus {
+  string text = 1;
+}
+
+message ChatDelta {
+  string text = 1;
+  // Throw away everything shown so far and re-render from the deltas that
+  // follow. Happens on a model fallback, or when a round turned into a tool
+  // call. A flag rather than a sentinel in `text`, which a log line quoted back
+  // by the assistant could otherwise forge.
+  bool reset = 2;
+}
+
+message ChatDone {
+  // Cloud's id for the thread, so a reopened pane returns to it.
+  string session_id = 1;
+}
+
+message ChatError {
+  string message = 1;
+  // 'rate_limit' | 'not_configured' | '' — lets the pane render "you're out of
+  // questions today" as a notice rather than a failure.
+  string code = 2;
 }
 
 message GetRecentAlertsRequest {
@@ -45,6 +163,38 @@ message GetRecentAlertsRequest {
   // Include anchors where an already-open incident was still firing. Default
   // false keeps a long-running incident to a single row.
   bool include_follow_ups = 4;
+}
+
+message GetContainerMetricsRequest {
+  // Name and host, not the container id: cloud stores these samples keyed by
+  // name so a redeploy continues the same line instead of stranding the old
+  // one. Dozzle resolves the id it was asked about to a name first, which is
+  // also where it checks the caller may see that container at all.
+  string container_name = 1;
+  string host_id = 5;
+  // The window to read, unix nanoseconds. An empty until means now.
+  int64 since_ts_ns = 2;
+  int64 until_ts_ns = 3;
+  // How many points to return. Cloud buckets the window down to this, because
+  // the panel draws a few hundred pixels wide and a day of samples is not.
+  int32 buckets = 4;
+}
+
+message ContainerMetricPoint {
+  int64 ts_ns = 1;
+  // Percent of the container's cores, the same normalisation Dozzle shows.
+  double cpu = 2;
+  // Percent of the container's memory limit.
+  double memory = 3;
+  // Absolute bytes, because a percentage of an unknown limit is not readable.
+  int64 memory_usage = 4;
+}
+
+message GetContainerMetricsResponse {
+  repeated ContainerMetricPoint points = 1;
+  // The bucket width cloud actually used, so the panel can say "1m averages"
+  // rather than implying every point is a sample.
+  int64 bucket_ns = 2;
 }
 
 message ToolRequest {
