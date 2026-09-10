@@ -61,6 +61,11 @@ const store = useContainerStore();
 // in a 550px column reads as noise. The first in view is the one on screen.
 const containerId = computed(() => view.value.containers[0]?.id);
 const container = computed(() => (containerId.value ? store.allContainersById[containerId.value] : undefined));
+// Cloud keys these by name, and the host is half that identity, so the lookup
+// goes through the host route the rest of the container API uses.
+const source = computed(() =>
+  container.value ? `/api/cloud/hosts/${container.value.host}/containers/${container.value.id}/metrics` : "",
+);
 
 const windows = computed(() => [
   { value: "1h", label: t("cloud-rail.window-1h") },
@@ -75,12 +80,11 @@ const loading = ref(false);
 const failed = ref(false);
 
 async function load() {
-  const id = containerId.value;
-  if (!id) return;
+  if (!source.value) return;
   loading.value = true;
   failed.value = false;
   try {
-    const res = await fetch(withBase(`/api/cloud/containers/${id}/metrics?window=${window.value}`));
+    const res = await fetch(withBase(`${source.value}?window=${window.value}`));
     if (!res.ok) {
       // 503 is an unlinked instance, which the rail is not shown on anyway.
       failed.value = res.status !== 503;
@@ -98,7 +102,7 @@ async function load() {
   }
 }
 
-watch([containerId, window], load, { immediate: true });
+watch([source, window], load, { immediate: true });
 
 const charts = computed(() => {
   const cpuPeak = Math.max(0, ...points.value.map((p) => p.cpu));

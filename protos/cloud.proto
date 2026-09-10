@@ -166,7 +166,12 @@ message GetRecentAlertsRequest {
 }
 
 message GetContainerMetricsRequest {
-  string container_id = 1;
+  // Name and host, not the container id: cloud stores these samples keyed by
+  // name so a redeploy continues the same line instead of stranding the old
+  // one. Dozzle resolves the id it was asked about to a name first, which is
+  // also where it checks the caller may see that container at all.
+  string container_name = 1;
+  string host_id = 5;
   // The window to read, unix nanoseconds. An empty until means now.
   int64 since_ts_ns = 2;
   int64 until_ts_ns = 3;

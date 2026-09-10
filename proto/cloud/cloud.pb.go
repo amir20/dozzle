@@ -899,8 +899,13 @@ func (x *GetRecentAlertsRequest) GetIncludeFollowUps() bool {
 }
 
 type GetContainerMetricsRequest struct {
-	state       protoimpl.MessageState `protogen:"open.v1"`
-	ContainerId string                 `protobuf:"bytes,1,opt,name=container_id,json=containerId,proto3" json:"container_id,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Name and host, not the container id: cloud stores these samples keyed by
+	// name so a redeploy continues the same line instead of stranding the old
+	// one. Dozzle resolves the id it was asked about to a name first, which is
+	// also where it checks the caller may see that container at all.
+	ContainerName string `protobuf:"bytes,1,opt,name=container_name,json=containerName,proto3" json:"container_name,omitempty"`
+	HostId        string `protobuf:"bytes,5,opt,name=host_id,json=hostId,proto3" json:"host_id,omitempty"`
 	// The window to read, unix nanoseconds. An empty until means now.
 	SinceTsNs int64 `protobuf:"varint,2,opt,name=since_ts_ns,json=sinceTsNs,proto3" json:"since_ts_ns,omitempty"`
 	UntilTsNs int64 `protobuf:"varint,3,opt,name=until_ts_ns,json=untilTsNs,proto3" json:"until_ts_ns,omitempty"`
@@ -941,9 +946,16 @@ func (*GetContainerMetricsRequest) Descriptor() ([]byte, []int) {
 	return file_cloud_proto_rawDescGZIP(), []int{11}
 }
 
-func (x *GetContainerMetricsRequest) GetContainerId() string {
+func (x *GetContainerMetricsRequest) GetContainerName() string {
 	if x != nil {
-		return x.ContainerId
+		return x.ContainerName
+	}
+	return ""
+}
+
+func (x *GetContainerMetricsRequest) GetHostId() string {
+	if x != nil {
+		return x.HostId
 	}
 	return ""
 }
@@ -3918,9 +3930,10 @@ const file_cloud_proto_rawDesc = "" +
 	"\vsince_ts_ns\x18\x01 \x01(\x03R\tsinceTsNs\x12\x14\n" +
 	"\x05limit\x18\x02 \x01(\x05R\x05limit\x12'\n" +
 	"\x0fsubscription_id\x18\x03 \x01(\tR\x0esubscriptionId\x12,\n" +
-	"\x12include_follow_ups\x18\x04 \x01(\bR\x10includeFollowUps\"\x99\x01\n" +
-	"\x1aGetContainerMetricsRequest\x12!\n" +
-	"\fcontainer_id\x18\x01 \x01(\tR\vcontainerId\x12\x1e\n" +
+	"\x12include_follow_ups\x18\x04 \x01(\bR\x10includeFollowUps\"\xb6\x01\n" +
+	"\x1aGetContainerMetricsRequest\x12%\n" +
+	"\x0econtainer_name\x18\x01 \x01(\tR\rcontainerName\x12\x17\n" +
+	"\ahost_id\x18\x05 \x01(\tR\x06hostId\x12\x1e\n" +
 	"\vsince_ts_ns\x18\x02 \x01(\x03R\tsinceTsNs\x12\x1e\n" +
 	"\vuntil_ts_ns\x18\x03 \x01(\x03R\tuntilTsNs\x12\x18\n" +
 	"\abuckets\x18\x04 \x01(\x05R\abuckets\"x\n" +

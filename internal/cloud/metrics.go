@@ -32,7 +32,7 @@ type MetricResult struct {
 // question this answers ("what did it look like an hour ago") has no local
 // answer to gate. The caller is responsible for confining the request to a
 // container the user may see: Cloud scopes to the instance, not to a user.
-func (c *Client) GetContainerMetrics(ctx context.Context, containerID string, sinceNs, untilNs int64, buckets int32) (*MetricResult, error) {
+func (c *Client) GetContainerMetrics(ctx context.Context, containerName, hostID string, sinceNs, untilNs int64, buckets int32) (*MetricResult, error) {
 	apiKey := c.apiKeyFunc()
 	if apiKey == "" {
 		return nil, ErrNotConfigured
@@ -50,10 +50,11 @@ func (c *Client) GetContainerMetrics(ctx context.Context, containerID string, si
 	callCtx := metadata.NewOutgoingContext(ctx, metadata.Pairs(mdPairs...))
 
 	resp, err := client.GetContainerMetrics(callCtx, &pb.GetContainerMetricsRequest{
-		ContainerId: containerID,
-		SinceTsNs:   sinceNs,
-		UntilTsNs:   untilNs,
-		Buckets:     buckets,
+		ContainerName: containerName,
+		HostId:        hostID,
+		SinceTsNs:     sinceNs,
+		UntilTsNs:     untilNs,
+		Buckets:       buckets,
 	})
 	if err != nil {
 		return nil, fmt.Errorf("cloud: container metrics: %w", err)

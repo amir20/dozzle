@@ -33,16 +33,15 @@ func (h *handler) cloudContainerMetrics(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	// The id is checked against the caller's own scope rather than passed
-	// through: cloud has never heard of a Dozzle user and would answer for any
-	// container on the instance. A container this caller cannot see reads as
-	// one that does not exist.
-	id := chi.URLParam(r, "id")
-	if h.restrictedUser(r) {
-		if _, ok := h.visibleContainerIDs(r)[id]; !ok {
-			writeError(w, http.StatusNotFound, "container not found")
-			return
-		}
+	// Resolved through the caller's own scope rather than passed through: cloud
+	// has never heard of a Dozzle user and would answer for any container on the
+	// instance. A container this caller cannot see reads as one that does not
+	// exist. The lookup is also where the name comes from, which is what cloud
+	// keys these samples by.
+	service, err := h.hostService.FindContainer(hostKey(r), chi.URLParam(r, "id"), h.resolveLabels(r))
+	if err != nil {
+		writeError(w, http.StatusNotFound, "container not found")
+		return
 	}
 
 	q := r.URL.Query()
@@ -67,7 +66,7 @@ func (h *handler) cloudContainerMetrics(w http.ResponseWriter, r *http.Request) 
 	ctx, cancel := context.WithTimeout(r.Context(), cloudAlertsTimeout)
 	defer cancel()
 
-	result, err := h.config.Cloud.GetContainerMetrics(ctx, id, until.Add(-window).UnixNano(), until.UnixNano(), buckets)
+	result, err := h.config.Cloud.GetContainerMetrics(ctx, service.Container.Name, service.Container.Host, until.Add(-window).UnixNano(), until.UnixNano(), buckets)
 	if err != nil {
 		if errors.Is(err, cloud.ErrNotConfigured) {
 			writeError(w, http.StatusServiceUnavailable, "cloud not configured")
