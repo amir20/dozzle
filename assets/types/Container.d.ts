@@ -39,7 +39,8 @@ export type ContainerJson = {
   readonly cpuLimit: number;
   readonly memoryLimit: number;
   readonly labels: Record<string, string>;
-  readonly stats: ContainerStat[];
+  // history points carry no id; the server drops it since the container already keys them
+  readonly stats: Omit<ContainerStat, "id">[];
   readonly mounts?: ContainerMount[];
   readonly ports?: string[];
   readonly mountStats?: Record<string, MountStat>;
