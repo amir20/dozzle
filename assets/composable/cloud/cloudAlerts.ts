@@ -154,12 +154,16 @@ export function mergeAlerts(
   // and the per-line badges say that with more precision — drawing a second
   // block for it would claim a delivery that never happened.
   //
-  // Deduped inside the batch as well as against `seen`. One incident can span
-  // containers — Cloud folds them into a single alert, headline and all — and
-  // reports it once per container it touched. A merged view asks about every
-  // container at once, so the same fire comes back several times in one
-  // response, and `seen` cannot catch that: it is read here, before any of
-  // them has been placed.
+  // One block per incident. Cloud returns a hit per (alert, container) — an
+  // incident that spans containers is folded into one alert, headline and all,
+  // and then reported once for each container it touched, each anchored on
+  // that container's own line. A merged view asks about every container at
+  // once, so those hits arrive together, at slightly different timestamps, all
+  // of them origins. Keying on the alert alone is what collapses them; keying
+  // on the anchor drew the same incident once per container.
+  //
+  // Deduped inside the batch as well as against `seen`, because `seen` is read
+  // here, before anything in this batch has been placed.
   const fresh: CloudAlert[] = [];
   const batch = new Set<string>();
   for (const alert of alerts) {
@@ -221,8 +225,10 @@ export function mergeAlerts(
   return merged;
 }
 
+// Only origins are ever placed, and a follow-up anchor is never recorded, so
+// the alert id alone is enough to keep one incident to one block.
 function anchorKey(alert: CloudAlert): string {
-  return `${alert.alertId}:${alert.ts}`;
+  return alert.alertId;
 }
 
 /**

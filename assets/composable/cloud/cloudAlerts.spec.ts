@@ -110,21 +110,32 @@ describe("mergeAlerts", () => {
     });
 
     // One incident can span containers: cloud folds them into a single alert
-    // and reports it once per container it touched. A merged view asks about
-    // every container in one request, so both copies arrive in the same
-    // response — before `seen` has anything in it.
+    // and reports it once per container it touched, each hit anchored on that
+    // container's own line. A merged view asks about every container in one
+    // request, so both origins arrive in the same response, at different
+    // timestamps, before `seen` has anything in it.
     test("places a multi-container incident once when it arrives twice in one response", () => {
-      const logs = [log(10, 100, "abc"), log(11, 100, "def")];
+      const logs = [log(10, 100, "abc"), log(11, 150, "def")];
       const merged = mergeAlerts(
         logs,
         [
           alert({ containerId: "abc", logId: 10, ts: ns(100), containerCount: 2 }),
-          alert({ containerId: "def", logId: 11, ts: ns(100), containerCount: 2 }),
+          alert({ containerId: "def", logId: 11, ts: ns(150), containerCount: 2 }),
         ],
         new Set(),
       );
 
       expect(shapeOf(merged)).toEqual(["log:10", "alert:1", "log:11"]);
+    });
+
+    // The same shape split across two scroll windows.
+    test("places a multi-container incident once across windows", () => {
+      const seen = new Set<string>();
+      const first = mergeAlerts([log(10, 100, "abc")], [alert({ containerId: "abc", logId: 10, ts: ns(100) })], seen);
+      expect(shapeOf(first)).toEqual(["log:10", "alert:1"]);
+
+      const second = mergeAlerts([log(11, 150, "def")], [alert({ containerId: "def", logId: 11, ts: ns(150) })], seen);
+      expect(shapeOf(second)).toEqual(["log:11"]);
     });
 
     // Keying the seen-set on alertId alone would swallow this: scrolling
