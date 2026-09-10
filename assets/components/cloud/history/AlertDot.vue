@@ -16,15 +16,15 @@
     class="flex shrink-0 items-center"
     placement="bottom-start"
     panel-class="rounded-box bg-base-200 border-base-content/10 w-72 border p-3 shadow-lg"
+    hover
     @click.stop
   >
     <template #trigger>
-      <button
-        type="button"
-        class="size-1.5 shrink-0 rounded-full transition-colors"
-        :class="tone"
-        :aria-label="alert.headline"
-      ></button>
+      <!-- The dot stays 6px, because a bigger one would read as a status column
+           rather than a mark on the name. Everything that makes it usable is
+           therefore off the painted box: the hit area is an invisible ::after,
+           and the ring is drawn outside it. -->
+      <button type="button" class="alert-dot" :class="tone" :aria-label="alert.headline"></button>
     </template>
 
     <template #default="{ close }">
@@ -47,7 +47,7 @@
            action here and it is the primary one. -->
       <button type="button" class="btn btn-primary btn-sm mt-3 w-full" @click="showLines(close)">
         <mdi:text-search class="size-4" />
-        {{ $t("notifications.history.show-lines") }}
+        {{ label }}
       </button>
     </template>
   </Popover>
@@ -58,6 +58,7 @@ const { containerId } = defineProps<{ containerId: string }>();
 
 const { byContainer, fetchRecentAlerts } = useRecentAlerts();
 const { jumpTo } = useLogJump();
+const { t } = useI18n();
 
 // Shared across every row: one request for the whole table.
 onMounted(() => fetchRecentAlerts());
@@ -65,15 +66,25 @@ onMounted(() => fetchRecentAlerts());
 const alert = computed(() => byContainer.value.get(containerId));
 const firedAt = computed(() => new Date((alert.value?.ts ?? 0) / 1e6));
 
+// A CPU spike or a container event has no line to show — logId is absent for
+// exactly those — so promising lines sends the reader looking for something
+// that was never there. The destination is the same either way; only the
+// log-anchored case can point at the line itself.
+const label = computed(() =>
+  alert.value?.logId ? t("notifications.history.show-lines") : t("notifications.history.show-moment"),
+);
+
+// The text colour rides along so the hover ring can be drawn from currentColor
+// and match whatever severity the dot is wearing.
 const tone = computed(() => {
   switch (alert.value?.level) {
     case "error":
     case "fatal":
-      return "bg-error";
+      return "bg-error text-error";
     case "warn":
-      return "bg-warning";
+      return "bg-warning text-warning";
     default:
-      return "bg-info";
+      return "bg-info text-info";
   }
 });
 
@@ -113,3 +124,33 @@ function showLines(close: () => void) {
   });
 }
 </script>
+
+<style scoped>
+@reference "@/main.css";
+
+/* A 6px target with the UA's default arrow over it is not a control anyone
+   finds. Tailwind v4's preflight gives buttons `cursor: default`, so the dot
+   looked painted on, and at 6px there was nothing to aim at even once you knew
+   it was there. */
+.alert-dot {
+  @apply relative size-1.5 shrink-0 cursor-pointer rounded-full transition-[box-shadow,transform];
+}
+
+/* Roughly a 24px target without taking 24px of the row: the name beside it
+   keeps its width and the dot keeps its position. */
+.alert-dot::after {
+  content: "";
+  @apply absolute -inset-2;
+}
+
+.alert-dot:hover,
+.alert-dot:focus-visible {
+  box-shadow: 0 0 0 3px color-mix(in oklab, currentColor 30%, transparent);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .alert-dot:hover {
+    transform: scale(1.2);
+  }
+}
+</style>

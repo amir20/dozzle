@@ -352,6 +352,7 @@ notifications:
     events: "{n} zdarzeń"
     suppressed: "· {n} pominiętych"
     show-lines: Pokaż mi wiersze
+    show-moment: Pokaż logi z tego momentu
     open-in-cloud: Otwórz w Dozzle Cloud
     fired-recently: razy ostatnio
   title: Powiadomienia

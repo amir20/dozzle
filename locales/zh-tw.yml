@@ -352,6 +352,7 @@ notifications:
     events: "{n} 個事件"
     suppressed: "· 已抑制 {n} 個"
     show-lines: 查看對應日誌
+    show-moment: 查看前後日誌
     open-in-cloud: 在 Dozzle Cloud 中開啟
     fired-recently: 次（最近）
   title: 通知

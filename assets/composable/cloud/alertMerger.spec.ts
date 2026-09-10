@@ -58,12 +58,22 @@ const shapeOf = (entries: LogEntry<LogMessage>[]) =>
 function withMerger(
   messages: ReturnType<typeof shallowRef<LogEntry<LogMessage>[]>>,
   fn: (merger: ReturnType<typeof useAlertMerger>) => Promise<void>,
+  anchor?: Date,
 ) {
   const scope = effectScope();
   const containers = shallowRef<Container[]>([{ id: "abc" } as unknown as Container]);
   const params = ref(new URLSearchParams());
-  const merger = scope.run(() => useAlertMerger(messages as any, containers, params))!;
+  const merger = scope.run(() => useAlertMerger(messages as any, containers, params, () => anchor))!;
   return fn(merger).finally(() => scope.stop());
+}
+
+/** The from/to the last fetch asked for, in milliseconds. */
+function lastWindow() {
+  const url = new URL((global.fetch as any).mock.lastCall[0], "http://localhost");
+  return {
+    from: Number(url.searchParams.get("from")) / 1_000_000,
+    to: Number(url.searchParams.get("to")) / 1_000_000,
+  };
 }
 
 function respondWith(hits: CloudAlert[]) {
@@ -133,6 +143,32 @@ describe("useAlertMerger", () => {
       respondWith([alert({ logId: 1, ts: ns(100) })]);
       await vi.advanceTimersByTimeAsync(15_000);
       expect(shapeOf(messages.value)).toEqual(["log:1", "alert:a1", "log:2"]);
+    });
+  });
+
+  test("widens the window to the anchor so a metric alert outside the loaded lines is found", async () => {
+    // A CPU spike at t=100 on a container whose only lines are minutes later.
+    // Without the anchor the window starts at the first line and cloud is never
+    // asked about the moment the view was opened on.
+    respondWith([alert({ ts: ns(100) })]);
+    const messages = shallowRef<LogEntry<LogMessage>[]>([]);
+    await withMerger(
+      messages,
+      async ({ withAlerts }) => {
+        const merged = await withAlerts([log(1, 5000), log(2, 6000)]);
+        expect(lastWindow().from).toBe(100);
+        expect(shapeOf(merged)).toEqual(["alert:a1", "log:1", "log:2"]);
+      },
+      new Date(100),
+    );
+  });
+
+  test("leaves the window alone when no anchor is given", async () => {
+    respondWith([]);
+    const messages = shallowRef<LogEntry<LogMessage>[]>([]);
+    await withMerger(messages, async ({ withAlerts }) => {
+      await withAlerts([log(1, 5000), log(2, 6000)]);
+      expect(lastWindow()).toEqual({ from: 5000, to: 6001 });
     });
   });
 

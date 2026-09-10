@@ -355,6 +355,7 @@ notifications:
     events: "{n} dogodkov"
     suppressed: "· {n} zadržanih"
     show-lines: Pokaži mi vrstice
+    show-moment: Pokaži dnevnike okoli
     open-in-cloud: Odpri v Dozzle Cloud
     fired-recently: krat nedavno
   title: Obvestila
