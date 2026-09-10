@@ -19,6 +19,9 @@
     "Liberation Mono", monospace;
 }
 
+/* Sets padding-top outright, and is emitted after the core spacing utilities, so
+ * it BEATS `pt-*`/`py-*` on the same element and collapses the padding to 0 where
+ * there is no inset. Put it on a wrapper instead of next to a padding utility. */
 @utility pt-safe {
   padding-top: env(safe-area-inset-top);
 }
@@ -204,6 +207,19 @@
 }
 
 @layer base {
+  /* One focus ring for the whole app.
+   *
+   * The UA default is a hard blue that belongs to no theme, and on a nav row
+   * already tinted for the active route a second, differently coloured box
+   * around it reads as a second kind of selection rather than as focus.
+   *
+   * Neutral on purpose: an accent ring would be the same colour the active row
+   * is already wearing, which is exactly the confusion being fixed. */
+  :focus-visible {
+    outline: 2px solid color-mix(in oklab, var(--color-base-content) 40%, transparent);
+    outline-offset: 1px;
+  }
+
   /* Popover panels come with UA chrome (a border, padding, centering inset) meant for a
    * standalone dialog. Resetting it in the base layer lets a component's own utilities style
    * the panel without fighting the reset for source order. */

@@ -40,8 +40,8 @@
       <mdi:chevron-left class="swap-off" />
     </label>
   </div>
-  <CloudRail v-if="railVisible" />
-  <CloudRailHandle v-else-if="railAvailable" />
+  <CloudRail v-if="railMounted" />
+  <CloudRailHandle v-else-if="railCollapsed" />
   <dialog ref="modal" class="modal bg-base-300/50! items-start backdrop-blur-md transition-none!" @close="closeSearch">
     <div class="modal-box max-w-2xl overflow-visible! bg-transparent pt-20 shadow-none">
       <FuzzySearchModal @close="closeSearch" v-if="open" />
@@ -81,7 +81,7 @@ import { useFuzzySearch } from "@/composable/fuzzySearch";
 // Pulls fuse.js (~48 KB) with it, and the palette only renders once the user opens it.
 const FuzzySearchModal = defineAsyncComponent(() => import("@/components/FuzzySearchModal.vue"));
 
-const { railOffset, visible: railVisible, available: railAvailable, toggleRail } = useCloudRail();
+const { railOffset, mounted: railMounted, collapsed: railCollapsed, toggleRail } = useCloudRail();
 
 const modal = ref<HTMLDialogElement>();
 const { open, openSearch: showFuzzySearch, closeSearch } = useFuzzySearch();

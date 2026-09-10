@@ -656,9 +656,11 @@ cloud-rail:
   window-1h: 1 h
   window-6h: 6 h
   window-24h: 24 h
+  window-7d: 7 d
 cloud-chat:
   title: Perguntar ao Dozzle
   close: Fechar
+  clear: Limpar a conversa
   empty: Pergunta sobre o que estás a ver. O assistente vê esta vista e lê estes logs.
   thinking: A pensar…
   doing:

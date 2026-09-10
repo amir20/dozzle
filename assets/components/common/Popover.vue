@@ -3,7 +3,7 @@
     ref="anchor"
     v-bind="$attrs"
     class="popover-anchor"
-    @click="hover || toggle()"
+    @click="hoverable || toggle()"
     @pointerenter="onEnter"
     @pointerleave="onLeave"
   >
@@ -42,7 +42,8 @@ const {
   panelClass = "",
 } = defineProps<{
   placement?: PopoverPlacement;
-  /** Opens on pointer enter instead of click. Touch taps fire it too. */
+  /** Opens on pointer enter instead of click. Ignored on a touch screen,
+   * where a tap fires enter then leave and the menu would close itself. */
   hover?: boolean;
   /** Close when a row is picked. Rows inside a nested <details> submenu never close. */
   closeOnSelect?: boolean;
@@ -51,13 +52,18 @@ const {
 
 const emit = defineEmits<{ open: []; close: [] }>();
 
+// A tap sends pointerenter on touch-down and pointerleave on touch-up, so a
+// hover menu on a phone opened and shut itself and the trigger looked dead.
+// Without a hovering pointer the trigger is a plain click toggle.
+const hoverable = computed(() => hover && canHover.value);
+
 const anchor = useTemplateRef<HTMLElement>("anchor");
 const panel = useTemplateRef<HTMLElement>("panel");
 
 const { isOpen, onBeforeToggle, onToggle, show, hide, toggle } = useAnchoredPopover(anchor, panel, {
   placement: () => placement,
   // Hover menus have to be reachable across the gap, so keep it tight.
-  gap: () => (hover ? 2 : 4),
+  gap: () => (hoverable.value ? 2 : 4),
 });
 
 watch(isOpen, (value) => (value ? emit("open") : emit("close")));
@@ -66,12 +72,12 @@ watch(isOpen, (value) => (value ? emit("open") : emit("close")));
 // to be bridged instead of relying on a single hover region.
 let timer: ReturnType<typeof setTimeout> | undefined;
 function onEnter() {
-  if (!hover) return;
+  if (!hoverable.value) return;
   clearTimeout(timer);
   show();
 }
 function onLeave() {
-  if (!hover) return;
+  if (!hoverable.value) return;
   clearTimeout(timer);
   timer = setTimeout(hide, 150);
 }

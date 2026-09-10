@@ -73,6 +73,11 @@ type MetricPoint = { ts: number; cpu: number; memory: number; memoryUsage: numbe
 const { t } = useI18n();
 const view = useViewContext();
 const store = useContainerStore();
+const { isPro, ensureCloudStatus } = useCloudConfig();
+
+// The plan decides whether the week is on offer, so the panel needs the status
+// even on a page where nothing else has asked for it. Shared and cached.
+onMounted(ensureCloudStatus);
 
 // One container at a time: a merged view is many histories, and stacking them
 // in a 550px column reads as noise. The first in view is the one on screen.
@@ -84,12 +89,24 @@ const source = computed(() =>
   container.value ? `/api/cloud/hosts/${container.value.host}/containers/${container.value.id}/metrics` : "",
 );
 
+// A day is the question this panel is actually for: the live chart already
+// covers the last few minutes, so opening on an hour showed a slower copy of
+// what is on screen. A week is retention rather than a wider chart, so it is
+// only offered where the plan keeps that much.
 const windows = computed(() => [
   { value: "1h", label: t("cloud-rail.window-1h") },
   { value: "6h", label: t("cloud-rail.window-6h") },
   { value: "24h", label: t("cloud-rail.window-24h") },
+  // Go parses hours, not days, so the week travels as 168h.
+  ...(isPro.value ? [{ value: "168h", label: t("cloud-rail.window-7d") }] : []),
 ]);
-const window = ref("1h");
+const window = ref("24h");
+
+// Losing pro (or the status arriving late) must not leave the tabs pointing at
+// a window that is no longer on offer.
+watch(windows, (options) => {
+  if (!options.some((o) => o.value === window.value)) window.value = "24h";
+});
 
 const points = ref<MetricPoint[]>([]);
 const bucket = ref(0);
@@ -151,8 +168,17 @@ const charts = computed(() => [
 
 // Follows the reader's own clock preference, like every other time in the app.
 const hourCycle = computed(() => (hourStyle.value === "12" ? "h12" : hourStyle.value === "24" ? "h23" : undefined));
+// Past a day the clock alone is ambiguous: "09:14" on a week of bars could be
+// any of seven mornings, so the date comes along.
 const clock = computed(
-  () => new Intl.DateTimeFormat(undefined, { hour: "2-digit", minute: "2-digit", hourCycle: hourCycle.value }),
+  () =>
+    new Intl.DateTimeFormat(undefined, {
+      month: window.value === "1h" || window.value === "6h" ? undefined : "short",
+      day: window.value === "1h" || window.value === "6h" ? undefined : "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+      hourCycle: hourCycle.value,
+    }),
 );
 
 // The bars are buckets of the series, so the hovered one covers a span of

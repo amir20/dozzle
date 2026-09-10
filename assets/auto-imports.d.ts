@@ -25,6 +25,7 @@ declare global {
   const autoResetRef: typeof import('@vueuse/core').autoResetRef
   const automaticRedirect: typeof import('./stores/settings').automaticRedirect
   const buildViewContext: typeof import('./composable/viewContext').buildViewContext
+  const canHover: typeof import('./composable/media').canHover
   const collapseCloudRail: typeof import('./stores/settings').collapseCloudRail
   const collapseNav: typeof import('./stores/settings').collapseNav
   const colorize: typeof import('./utils/index').colorize
@@ -561,6 +562,7 @@ declare module 'vue' {
     readonly autoResetRef: UnwrapRef<typeof import('@vueuse/core')['autoResetRef']>
     readonly automaticRedirect: UnwrapRef<typeof import('./stores/settings')['automaticRedirect']>
     readonly buildViewContext: UnwrapRef<typeof import('./composable/viewContext')['buildViewContext']>
+    readonly canHover: UnwrapRef<typeof import('./composable/media')['canHover']>
     readonly collapseCloudRail: UnwrapRef<typeof import('./stores/settings')['collapseCloudRail']>
     readonly collapseNav: UnwrapRef<typeof import('./stores/settings')['collapseNav']>
     readonly colorize: UnwrapRef<typeof import('./utils/index')['colorize']>

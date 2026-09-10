@@ -6,6 +6,11 @@ import { setupLayouts } from "virtual:generated-layouts";
 export const router = createRouter({
   history: createWebHistory(withBase("/")),
   routes: setupLayouts([...routes]),
+  // Only hashes that name something on the page are honoured. Everything else
+  // keeps the browser's own behaviour, which is what the log views want: they
+  // restore their own scroll position. `#cloudLinked` is a signal to the cloud
+  // popover rather than an anchor, so it has to fall through rather than warn.
+  scrollBehavior: (to) => (to.hash && document.querySelector(to.hash) ? { el: to.hash } : undefined),
 });
 
 // After an upgrade the hashed chunks of the old build are gone, so a route this tab has not

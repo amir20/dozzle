@@ -660,9 +660,11 @@ cloud-rail:
   window-1h: 1 sa
   window-6h: 6 sa
   window-24h: 24 sa
+  window-7d: 7 g
 cloud-chat:
   title: Dozzle'a sor
   close: Kapat
+  clear: Sohbeti temizle
   empty: Baktığın şeyi sor. Asistan bu görünümü görüyor ve bu logları okuyor.
   thinking: Düşünüyor…
   doing:

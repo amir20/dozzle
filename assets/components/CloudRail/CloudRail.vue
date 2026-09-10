@@ -10,12 +10,16 @@
     Everything on it is Cloud, which the mark at the top says once so no panel
     has to carry a slogan. It is mounted only where cloud is linked, so the mark
     is a statement of where the answers come from and never an advert.
+
+    A phone has no room for a permanent strip, and a 550px column beside a 390px
+    screen is not a column. There the strip is gone and the panel is the screen,
+    opened from the toolbar or the palette and closed with the same X.
   -->
-  <div class="fixed inset-y-0 right-0 z-30 flex">
+  <div class="fixed z-30 flex" :class="sheet ? 'pt-safe bg-base-100 inset-0 z-40' : 'inset-y-0 right-0'">
     <section
       v-if="panel"
-      class="border-base-content/10 bg-base-100 flex flex-col border-l"
-      :style="{ width: `${panelWidth}px` }"
+      class="border-base-content/10 bg-base-100 flex min-w-0 flex-1 flex-col border-l"
+      :style="sheet ? undefined : { width: `${panelWidth}px`, flex: 'none' }"
     >
       <header class="border-base-content/10 flex shrink-0 items-center gap-2 border-b px-4 py-3">
         <component :is="active.icon" class="text-base-content/60 size-4 shrink-0" />
@@ -26,14 +30,28 @@
           <mdi:cloud class="text-info/70 size-3.5" />
           {{ $t("cloud.title") }}
         </span>
-        <button
-          type="button"
-          class="btn btn-ghost btn-xs btn-square ml-auto"
-          :aria-label="$t('cloud-rail.close')"
-          @click="closeRail()"
-        >
-          <mdi:close class="size-4" />
-        </button>
+        <div class="ml-auto flex shrink-0 items-center gap-1">
+          <!-- A thread that has run its course is in the way of the next one,
+               and the only way out of it used to be a reload. -->
+          <button
+            v-if="panel === 'chat' && messages.length"
+            type="button"
+            class="btn btn-ghost btn-xs btn-square"
+            :title="$t('cloud-chat.clear')"
+            :aria-label="$t('cloud-chat.clear')"
+            @click="resetChat()"
+          >
+            <octicon:trash-24 class="size-4" />
+          </button>
+          <button
+            type="button"
+            class="btn btn-ghost btn-xs btn-square"
+            :aria-label="$t('cloud-rail.close')"
+            @click="closeRail()"
+          >
+            <mdi:close class="size-4" />
+          </button>
+        </div>
       </header>
 
       <div class="min-h-0 flex-1 overflow-hidden">
@@ -43,13 +61,15 @@
       </div>
     </section>
 
+    <!-- Kept on the sheet too: on a phone it is the only way to move between the
+         three panels, and the only way to put it away. -->
     <nav
-      class="border-base-content/10 bg-base-200/40 flex flex-col items-center gap-1 border-l py-3"
+      class="border-base-content/10 bg-base-200/40 flex shrink-0 flex-col items-center gap-1 border-l py-3"
       :style="{ width: `${RAIL_WIDTH}px` }"
       :aria-label="$t('cloud-rail.title')"
     >
       <router-link
-        to="/settings/cloud"
+        :to="{ name: '/settings', hash: '#cloud' }"
         class="bg-info/10 text-info rounded-full p-1.5 transition-opacity hover:opacity-80"
         :title="$t('cloud.title')"
         :aria-label="$t('cloud.title')"
@@ -77,13 +97,14 @@
       </button>
 
       <!-- Bottom of the strip, mirroring the nav's collapse on the other edge.
-           Hiding is remembered, and the tab on the edge brings it back. -->
+           Hiding is remembered, and the tab on the edge brings it back. A sheet
+           has no collapsed resting state to hide to, so there it just closes. -->
       <button
         type="button"
         class="icon-btn btn btn-ghost btn-square btn-sm text-base-content/40 mt-auto"
-        :title="$t('cloud-rail.hide')"
-        :aria-label="$t('cloud-rail.hide')"
-        @click="hideRail()"
+        :title="sheet ? $t('cloud-rail.close') : $t('cloud-rail.hide')"
+        :aria-label="sheet ? $t('cloud-rail.close') : $t('cloud-rail.hide')"
+        @click="sheet ? closeRail() : hideRail()"
       >
         <mdi:chevron-right class="size-5" />
       </button>
@@ -100,7 +121,8 @@ import mdiBellOutline from "~icons/mdi/bell-outline";
 // Carries markdown-it, and nobody who never asks a question should download it.
 const ChatPane = defineAsyncComponent(() => import("@/components/CloudChat/ChatPane.vue"));
 
-const { panel, panelWidth, closeRail, toggleRail, hideRail } = useCloudRail();
+const { panel, panelWidth, sheet, closeRail, toggleRail, hideRail } = useCloudRail();
+const { messages, reset: resetChat } = useCloudChat();
 const { unseen: unseenAlerts } = useRecentAlerts();
 const { t } = useI18n();
 

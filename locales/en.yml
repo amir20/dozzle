@@ -237,9 +237,11 @@ cloud-rail:
   window-1h: 1h
   window-6h: 6h
   window-24h: 24h
+  window-7d: 7d
 cloud-chat:
   title: Ask Dozzle
   close: Close
+  clear: Clear chat
   empty: Ask about what you're looking at. The assistant can see this view and read these logs.
   thinking: Thinking…
   doing:
