@@ -1,8 +1,10 @@
 package container
 
 import (
+	"encoding/json"
 	"fmt"
 	"math"
+	"strconv"
 	"strings"
 	"time"
 
@@ -204,7 +206,7 @@ func FromProto(c *pb.Container) Container {
 
 // ContainerStat represent stats instant for a container
 type ContainerStat struct {
-	ID             string  `json:"id"`
+	ID             string  `json:"id,omitempty"`
 	CPUPercent     float64 `json:"cpu"`
 	MemoryPercent  float64 `json:"memory"`
 	MemoryUsage    float64 `json:"memoryUsage"`
@@ -212,6 +214,57 @@ type ContainerStat struct {
 	NetworkTxTotal uint64  `json:"networkTxTotal"`
 	DiskReadTotal  uint64  `json:"diskReadTotal"`
 	DiskWriteTotal uint64  `json:"diskWriteTotal"`
+}
+
+// MarshalJSON writes a stat without reflection. The first containers-changed event of a
+// stream carries up to 300 points for every container, so what a single point costs is
+// worth caring about: the id is empty on every buffered point (the store clears it before
+// pushing) and is dropped here, and percentages are written at two decimals, which is
+// finer than anything the UI renders.
+func (s ContainerStat) MarshalJSON() ([]byte, error) {
+	b := make([]byte, 0, 160)
+	b = append(b, '{')
+	if s.ID != "" {
+		id, err := json.Marshal(s.ID)
+		if err != nil {
+			return nil, err
+		}
+		b = append(b, `"id":`...)
+		b = append(b, id...)
+		b = append(b, ',')
+	}
+	b = append(b, `"cpu":`...)
+	b = appendFloat(b, s.CPUPercent, 2)
+	b = append(b, `,"memory":`...)
+	b = appendFloat(b, s.MemoryPercent, 2)
+	b = append(b, `,"memoryUsage":`...)
+	b = appendFloat(b, s.MemoryUsage, 0)
+	b = append(b, `,"networkRxTotal":`...)
+	b = strconv.AppendUint(b, s.NetworkRxTotal, 10)
+	b = append(b, `,"networkTxTotal":`...)
+	b = strconv.AppendUint(b, s.NetworkTxTotal, 10)
+	b = append(b, `,"diskReadTotal":`...)
+	b = strconv.AppendUint(b, s.DiskReadTotal, 10)
+	b = append(b, `,"diskWriteTotal":`...)
+	b = strconv.AppendUint(b, s.DiskWriteTotal, 10)
+	b = append(b, '}')
+	return b, nil
+}
+
+// appendFloat rounds to decimals and then writes the shortest form that round-trips, so a
+// rounded value never comes back as 0.29000000000000004 and a whole one stays "0". NaN and
+// Inf become 0, which the reflection encoder would have failed the whole event over.
+func appendFloat(b []byte, v float64, decimals int) []byte {
+	if math.IsNaN(v) || math.IsInf(v, 0) {
+		return append(b, '0')
+	}
+	if decimals > 0 {
+		pow := math.Pow(10, float64(decimals))
+		v = math.Round(v*pow) / pow
+	} else {
+		v = math.Round(v)
+	}
+	return strconv.AppendFloat(b, v, 'f', -1, 64)
 }
 
 // ContainerEvent represents events that are triggered
