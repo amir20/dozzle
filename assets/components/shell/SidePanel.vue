@@ -5,7 +5,7 @@
          the tree underneath. -->
     <h1 class="shrink-0">
       <router-link :to="{ name: '/' }" class="flex w-full items-center gap-2 overflow-hidden">
-        <Logo class="size-8 shrink-0" />
+        <Logo class="size-9 shrink-0" aria-hidden="true" />
         <span class="truncate text-2xl font-light tracking-tight">Dozzle</span>
         <ProBadge />
       </router-link>
