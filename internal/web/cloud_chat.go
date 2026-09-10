@@ -10,6 +10,11 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
+// The turn carries the window the user is looking at, so the body is a few
+// hundred lines of log rather than one sentence. The browser budgets what it
+// sends; this is the backstop.
+const maxChatRequestBytes = 1024 * 1024
+
 type chatRequest struct {
 	Message string            `json:"message"`
 	View    cloud.ViewContext `json:"view"`
@@ -30,7 +35,7 @@ func (h *handler) cloudChat(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var req chatRequest
-	if err := json.NewDecoder(http.MaxBytesReader(w, r.Body, 64*1024)).Decode(&req); err != nil {
+	if err := json.NewDecoder(http.MaxBytesReader(w, r.Body, maxChatRequestBytes)).Decode(&req); err != nil {
 		writeError(w, http.StatusBadRequest, "invalid request")
 		return
 	}
@@ -52,6 +57,20 @@ func (h *handler) cloudChat(w http.ResponseWriter, r *http.Request) {
 			}
 		}
 		req.View.Containers = allowed
+
+		// The lines are the user's own screen, so their text is theirs to quote.
+		// The id attached to one is not: left alone it would tell the assistant
+		// a container this user cannot see is on their screen.
+		for i := range req.View.Lines {
+			if _, ok := visible[req.View.Lines[i].ContainerID]; !ok {
+				req.View.Lines[i].ContainerID = ""
+			}
+		}
+		if req.View.Focused != nil {
+			if _, ok := visible[req.View.Focused.ContainerID]; !ok {
+				req.View.Focused.ContainerID = ""
+			}
+		}
 	}
 
 	principal := cloud.UserPrincipal(h.resolveLabels(r), h.userRoles(r))
@@ -90,6 +109,8 @@ func (h *handler) cloudChat(w http.ResponseWriter, r *http.Request) {
 	// and ends the turn rather than paying cloud to finish talking to nobody.
 	err := h.config.Cloud.Chat(r.Context(), req.Message, req.View, ref, principal, emit)
 	if err != nil {
+		// The text is a fallback for anything reading this stream raw; the
+		// browser renders the code in the reader's own language.
 		if errors.Is(err, cloud.ErrNotConfigured) {
 			emit(cloud.ChatEvent{Kind: "error", Code: "not_configured", Text: "cloud is not configured"})
 			return
@@ -98,7 +119,7 @@ func (h *handler) cloudChat(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		log.Warn().Err(err).Msg("cloud chat failed")
-		emit(cloud.ChatEvent{Kind: "error", Text: "the assistant is unavailable right now"})
+		emit(cloud.ChatEvent{Kind: "error", Code: "unavailable", Text: "the assistant is unavailable right now"})
 	}
 }
 

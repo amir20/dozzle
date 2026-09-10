@@ -62,6 +62,24 @@ message ViewContext {
   int64 visible_at_ns = 7;
   // True on the historical view rather than the live stream.
   bool historical = 8;
+  // The lines the user can actually see, oldest last. Sent so the assistant
+  // reads the same window the person is looking at instead of fetching its own
+  // and answering about a different slice of the log.
+  repeated ViewLogLine lines = 9;
+  // The one line the user pointed at, when they asked from a log row rather
+  // than from the composer.
+  ViewLogLine focused = 10;
+}
+
+// ViewLogLine is one line as Dozzle rendered it: already stripped of ANSI and
+// truncated, because this is what the user saw, not what the container wrote.
+message ViewLogLine {
+  int64 timestamp_ns = 1;
+  string level = 2;
+  // Set only on a view that merges several containers, where a line is
+  // ambiguous without it.
+  string container_id = 3;
+  string message = 4;
 }
 
 message ViewContainer {

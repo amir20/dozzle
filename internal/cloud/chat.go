@@ -19,6 +19,16 @@ type ViewContainer struct {
 	Host string `json:"host"`
 }
 
+// ViewLogLine is one line as Dozzle rendered it: ANSI already stripped and the
+// message already truncated, because this is what the user saw rather than what
+// the container wrote.
+type ViewLogLine struct {
+	Timestamp   string `json:"timestamp,omitempty"`
+	Level       string `json:"level,omitempty"`
+	ContainerID string `json:"containerId,omitempty"`
+	Message     string `json:"message"`
+}
+
 // ViewContext is what the user was looking at when they asked.
 type ViewContext struct {
 	Kind       string          `json:"kind"`
@@ -32,13 +42,24 @@ type ViewContext struct {
 	// becomes nanoseconds on the wire to cloud.
 	VisibleAt  string `json:"visibleAt,omitempty"`
 	Historical bool   `json:"historical,omitempty"`
+	// Lines is the window on screen, oldest first. Sent so the assistant reads
+	// what the person is looking at instead of fetching its own slice.
+	Lines []ViewLogLine `json:"lines,omitempty"`
+	// Focused is the one line the user pointed at, when they asked from a log
+	// row rather than from the composer.
+	Focused *ViewLogLine `json:"focused,omitempty"`
 }
 
 // ChatEvent is one thing that happened during a turn, on its way to the
 // browser. Kind is "status", "delta", "reset", "done" or "error".
 type ChatEvent struct {
-	Kind      string `json:"kind"`
-	Text      string `json:"text,omitempty"`
+	Kind string `json:"kind"`
+	Text string `json:"text,omitempty"`
+	// Activity names what Dozzle is doing right now, for a status the browser
+	// renders in the reader's own language. A token rather than a sentence:
+	// this side of the wire has no locale, and cloud's own status lines are
+	// already prose it wrote.
+	Activity  string `json:"activity,omitempty"`
 	SessionID string `json:"sessionId,omitempty"`
 	Code      string `json:"code,omitempty"`
 }
@@ -133,21 +154,85 @@ func (c *Client) Chat(
 			emit(ChatEvent{Kind: "error", Text: t.Error.GetMessage(), Code: t.Error.GetCode()})
 			return nil
 		case *pb.ChatServerEvent_ToolCall:
-			call := t.ToolCall.GetCallTool()
-			if call == nil {
-				continue
-			}
-			resp := ExecuteTool(ctx, call.GetName(), call.GetArgumentsJson(), deps)
+			resp := c.chatToolResponse(ctx, t.ToolCall, deps, emit)
 			if err := stream.Send(&pb.ChatClientEvent{
-				Type: &pb.ChatClientEvent_ToolResult{ToolResult: &pb.ToolResponse{
-					RequestId: t.ToolCall.GetRequestId(),
-					Type:      &pb.ToolResponse_CallTool{CallTool: resp},
-				}},
+				Type: &pb.ChatClientEvent_ToolResult{ToolResult: resp},
 			}); err != nil {
 				log.Warn().Err(err).Msg("cloud: chat tool result send failed")
 				return err
 			}
 		}
+	}
+}
+
+// chatToolResponse answers one tool request from a chat turn.
+//
+// Cloud drives discovery down this same stream: it sends ListTools and waits
+// for the reply before the assistant has any tools at all. Dropping that
+// request is why a turn sat on "Thinking…" while cloud logged "tool discovery
+// failed; continuing without live tools".
+func (c *Client) chatToolResponse(ctx context.Context, req *pb.ToolRequest, deps ToolDeps, emit func(ChatEvent)) *pb.ToolResponse {
+	resp := &pb.ToolResponse{RequestId: req.GetRequestId()}
+
+	switch t := req.GetType().(type) {
+	case *pb.ToolRequest_ListTools:
+		// Scoped to the person asking rather than the instance-wide cache, so
+		// the assistant is never offered a tool this user would be denied.
+		resp.Type = &pb.ToolResponse_ListTools{ListTools: &pb.ListToolsResponse{
+			Tools:   AvailableTools(deps.EnableActions, deps.Principal),
+			Version: c.version,
+		}}
+
+	case *pb.ToolRequest_CallTool:
+		name := t.CallTool.GetName()
+		// A turn is one round trip, so the long-lived streaming tool has nowhere
+		// to stream to. It takes the same arguments as the snapshot, which is
+		// what the model wanted anyway; answering "unknown tool" just gets it
+		// called again.
+		if name == toolStreamLogs {
+			name = toolFetchContainerLogs
+		}
+		// Cloud sends its own status lines, but only Dozzle knows a tool is
+		// running right now. Without this a multi-round investigation shows
+		// nothing but "Thinking…" and reads as hung.
+		emit(ChatEvent{Kind: "status", Activity: toolActivity(name)})
+		resp.Type = &pb.ToolResponse_CallTool{
+			CallTool: ExecuteTool(ctx, name, t.CallTool.GetArgumentsJson(), deps),
+		}
+
+	default:
+		// Nothing on a chat stream is long lived, so cancel_stream (and anything
+		// newer than this build) has no meaning here. Cloud still gets an
+		// answer rather than waiting out its timeout.
+		resp.Type = &pb.ToolResponse_CallTool{CallTool: &pb.CallToolResponse{
+			Success: false,
+			Error:   "unsupported request on a chat stream",
+		}}
+	}
+
+	return resp
+}
+
+// toolActivity is the token for what is happening while a tool runs. Coarser
+// than the tool list on purpose: the reader wants to know the assistant is
+// doing something, not which RPC it picked, and the browser has one phrase to
+// translate per activity rather than one per tool.
+func toolActivity(name string) string {
+	switch name {
+	case toolFetchContainerLogs:
+		return "logs"
+	case toolListHosts, toolFindContainers, toolListRunningContainers, toolListAllContainers:
+		return "containers"
+	case toolGetRunningContainerStats:
+		return "stats"
+	case toolInspectContainer:
+		return "inspect"
+	case toolListNotifications, toolCreateLogNotification, toolCreateMetricNotification, toolCreateEventNotification:
+		return "notifications"
+	case toolStartContainer, toolStopContainer, toolRestartContainer, toolRemoveContainer, toolUpdateContainer:
+		return "action"
+	default:
+		return "working"
 	}
 }
 
@@ -165,6 +250,11 @@ func viewToProto(v ViewContext) *pb.ViewContext {
 		}
 	}
 
+	lines := make([]*pb.ViewLogLine, 0, len(v.Lines))
+	for _, l := range v.Lines {
+		lines = append(lines, lineToProto(l))
+	}
+
 	return &pb.ViewContext{
 		Kind:        v.Kind,
 		Target:      v.Target,
@@ -174,5 +264,29 @@ func viewToProto(v ViewContext) *pb.ViewContext {
 		Levels:      v.Levels,
 		VisibleAtNs: visibleAtNs,
 		Historical:  v.Historical,
+		Lines:       lines,
+		Focused:     focusedToProto(v.Focused),
 	}
+}
+
+func lineToProto(l ViewLogLine) *pb.ViewLogLine {
+	var ts int64
+	if l.Timestamp != "" {
+		if t, err := time.Parse(time.RFC3339, l.Timestamp); err == nil {
+			ts = t.UnixNano()
+		}
+	}
+	return &pb.ViewLogLine{
+		TimestampNs: ts,
+		Level:       l.Level,
+		ContainerId: l.ContainerID,
+		Message:     l.Message,
+	}
+}
+
+func focusedToProto(l *ViewLogLine) *pb.ViewLogLine {
+	if l == nil {
+		return nil
+	}
+	return lineToProto(*l)
 }
