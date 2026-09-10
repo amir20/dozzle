@@ -100,8 +100,8 @@
 
 <script lang="ts" setup>
 import type { NotificationRule, Dispatcher } from "@/types/notifications";
-import AlertForm from "@/components/Notification/AlertForm.vue";
-import DestinationForm from "@/components/Notification/DestinationForm.vue";
+import AlertForm from "@/components/notifications/AlertForm.vue";
+import DestinationForm from "@/components/notifications/DestinationForm.vue";
 
 const { t } = useI18n();
 const showDrawer = useDrawer();

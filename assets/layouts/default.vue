@@ -62,7 +62,7 @@
 <script lang="ts" setup>
 import { Splitpanes, Pane } from "splitpanes";
 import { collapseNav } from "@/stores/settings";
-import SideDrawer from "@/components/common/SideDrawer.vue";
+import SideDrawer from "@/components/shell/SideDrawer.vue";
 
 usePinnedColumnsInUrl();
 const pinnedLogsStore = usePinnedLogsStore();
@@ -76,10 +76,10 @@ const {
   closeGuard: drawerCloseGuard,
 } = createDrawer(drawer);
 
-import { useFuzzySearch } from "@/composable/fuzzySearch";
+import { useFuzzySearch } from "@/composable/app/fuzzySearch";
 
 // Pulls fuse.js (~48 KB) with it, and the palette only renders once the user opens it.
-const FuzzySearchModal = defineAsyncComponent(() => import("@/components/FuzzySearchModal.vue"));
+const FuzzySearchModal = defineAsyncComponent(() => import("@/components/search/FuzzySearchModal.vue"));
 
 const { railOffset, mounted: railMounted, collapsed: railCollapsed, toggleRail } = useCloudRail();
 
