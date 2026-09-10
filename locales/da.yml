@@ -547,6 +547,7 @@ cloud:
   relink-instance: Gentilknyt instans
   connected: Tilsluttet
   pro-badge: Dozzle Cloud Pro
+  locked-on-this-plan: Tilgængelig med Dozzle Cloud Pro
   plan: Plan
   usage: Begivenheder
   usage-agent-messages: Agent-chats

@@ -1,6 +1,6 @@
 ---
 title: Authentification simple
-sourceHash: deea96688436
+sourceHash: 50dffd6cac64
 ---
 
 # <Icon icon="mdi:account-cog-outline" inline /> Authentification simple
@@ -178,7 +178,9 @@ Les rôles se séparent par des virgules ou des barres verticales (`shell,action
 > Les règles de notification s'appliquent à toute l'instance. Une règle sélectionne les conteneurs par expression, pas par le filtre de l'utilisateur, donc un utilisateur ayant le rôle `notifications` peut créer une règle pour des conteneurs que son filtre masque par ailleurs et recevoir ces lignes de log sur une destination qu'il contrôle. Ne l'accordez qu'aux utilisateurs à qui vous confiez tous les conteneurs de l'instance.
 
 > [!WARNING]
-> Dozzle Cloud s'applique aussi à toute l'instance. La liaison enregistre une seule clé d'API qui redirige l'envoi des alertes, le streaming des logs et l'exécution des outils vers un seul compte cloud, et les outils cloud s'exécutent avec le filtre de l'instance plutôt qu'avec celui de l'utilisateur qui a fait la liaison. Un utilisateur ayant le rôle `cloud` peut lier l'instance à son propre compte cloud et voir tous les conteneurs à travers lui, ou supprimer une connexion existante. Ne l'accordez qu'aux utilisateurs à qui vous confiez tous les conteneurs de l'instance.
+> Dozzle Cloud s'applique aussi à toute l'instance. La liaison enregistre une seule clé d'API qui redirige l'envoi des alertes, le streaming des logs et l'exécution des outils vers un seul compte cloud. Un utilisateur ayant le rôle `cloud` peut lier l'instance à son propre compte cloud et voir tous les conteneurs à travers lui, ou supprimer une connexion existante. Ne l'accordez qu'aux utilisateurs à qui vous confiez tous les conteneurs de l'instance.
+>
+> Le rôle concerne la liaison, pas la lecture. Tout utilisateur connecté peut rechercher dans les logs cloud et voir les alertes cloud, dans les limites de son propre filtre. Les appels d'outils que le cloud déclenche de lui-même, par exemple une question posée dans Telegram ou Discord, s'exécutent avec le filtre de l'instance, car aucun utilisateur Dozzle ne se trouve derrière eux.
 
 Tout rôle peut être préfixé par `^` pour être exclu. Les exclusions sont appliquées en dernier, l'ordre n'a donc pas d'importance :
 

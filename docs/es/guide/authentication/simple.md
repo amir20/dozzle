@@ -1,6 +1,6 @@
 ---
 title: Autenticación simple
-sourceHash: deea96688436
+sourceHash: 50dffd6cac64
 ---
 
 # <Icon icon="mdi:account-cog-outline" inline /> Autenticación simple
@@ -178,7 +178,9 @@ Los roles se separan con comas o barras verticales (`shell,actions` o `shell|act
 > Las reglas de notificación son de toda la instancia. Una regla selecciona contenedores por expresión, no por el filtro del usuario, así que un usuario con el rol `notifications` puede crear una regla para contenedores que su filtro oculta y recibir esas líneas de log en un destino que él controla. Concédelo solo a usuarios en los que confíes con todos los contenedores de la instancia.
 
 > [!WARNING]
-> Dozzle Cloud también es de toda la instancia. Vincularlo guarda una única clave de API que redirige el envío de alertas, el streaming de logs y la ejecución de herramientas a una sola cuenta de la nube, y las herramientas de la nube se ejecutan con el filtro de la instancia, no con el del usuario que la vinculó. Un usuario con el rol `cloud` puede vincular la instancia a su propia cuenta de la nube y ver todos los contenedores a través de ella, o desvincular una conexión existente. Concédelo solo a usuarios en los que confíes con todos los contenedores de la instancia.
+> Dozzle Cloud también es de toda la instancia. Vincularlo guarda una única clave de API que redirige el envío de alertas, el streaming de logs y la ejecución de herramientas a una sola cuenta de la nube. Un usuario con el rol `cloud` puede vincular la instancia a su propia cuenta de la nube y ver todos los contenedores a través de ella, o desvincular una conexión existente. Concédelo solo a usuarios en los que confíes con todos los contenedores de la instancia.
+>
+> El rol cubre la vinculación, no la lectura. Cualquier usuario que haya iniciado sesión puede buscar en los logs de la nube y ver las alertas de la nube, siempre dentro de su propio filtro. Las llamadas a herramientas que la nube inicia por su cuenta, como una pregunta hecha en Telegram o Discord, se ejecutan con el filtro de la instancia, porque detrás de ellas no hay ningún usuario de Dozzle.
 
 Cualquier rol puede llevar el prefijo `^` para excluirlo. Las exclusiones se aplican al final, así que el orden no importa:
 

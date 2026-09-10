@@ -22,7 +22,7 @@ type findContainersArgs struct {
 }
 
 func executeListHosts(deps ToolDeps) (*pb.CallToolResponse, error) {
-	hosts := deps.HostService.Hosts()
+	hosts := deps.scoped().Hosts()
 	result := make([]*pb.HostInfo, len(hosts))
 	for i, h := range hosts {
 		result[i] = &pb.HostInfo{
@@ -50,7 +50,7 @@ func executeFindContainers(argsJSON string, deps ToolDeps) (*pb.CallToolResponse
 		}
 	}
 
-	containers, errs := deps.HostService.ListAllContainers(deps.Labels)
+	containers, errs := deps.scoped().ListAllContainers()
 	logHostErrors(errs)
 	hostNames := buildHostNameMap(deps.HostService)
 
@@ -77,7 +77,7 @@ func executeFindContainers(argsJSON string, deps ToolDeps) (*pb.CallToolResponse
 }
 
 func executeListRunningContainers(deps ToolDeps) (*pb.CallToolResponse, error) {
-	containers, errs := deps.HostService.ListAllContainers(deps.Labels)
+	containers, errs := deps.scoped().ListAllContainers()
 	logHostErrors(errs)
 	hostNames := buildHostNameMap(deps.HostService)
 
@@ -95,7 +95,7 @@ func executeListRunningContainers(deps ToolDeps) (*pb.CallToolResponse, error) {
 }
 
 func executeListAllContainers(deps ToolDeps) (*pb.CallToolResponse, error) {
-	containers, errs := deps.HostService.ListAllContainers(deps.Labels)
+	containers, errs := deps.scoped().ListAllContainers()
 	logHostErrors(errs)
 	hostNames := buildHostNameMap(deps.HostService)
 
@@ -110,7 +110,7 @@ func executeListAllContainers(deps ToolDeps) (*pb.CallToolResponse, error) {
 }
 
 func executeGetRunningContainerStats(deps ToolDeps) (*pb.CallToolResponse, error) {
-	containers, errs := deps.HostService.ListAllContainers(deps.Labels)
+	containers, errs := deps.scoped().ListAllContainers()
 	logHostErrors(errs)
 	hostNames := buildHostNameMap(deps.HostService)
 
@@ -177,7 +177,7 @@ func executeInspectContainer(argsJSON string, deps ToolDeps) (*pb.CallToolRespon
 		return nil, err
 	}
 
-	cs, err := deps.HostService.FindContainer(hostID, containerID, deps.Labels)
+	cs, err := deps.scoped().FindContainer(hostID, containerID)
 	if err != nil {
 		return nil, fmt.Errorf("container not found: %w", err)
 	}

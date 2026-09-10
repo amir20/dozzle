@@ -597,6 +597,7 @@ cloud:
   relink-instance: Revincular instancia
   connected: Conectado
   pro-badge: Dozzle Cloud Pro
+  locked-on-this-plan: Disponible con Dozzle Cloud Pro
   plan: Plan
   usage: Eventos
   usage-agent-messages: Chats del agente

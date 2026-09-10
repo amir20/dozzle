@@ -307,7 +307,7 @@ func (c *Client) connect(ctx context.Context, apiKey string) (wasConnected bool,
 	if !streamLogs {
 		log.Debug().Msg("cloud log streaming disabled by user setting; skipping streamer")
 	} else if lshs, ok := c.deps.HostService.(LogStreamHostService); ok {
-		streamer := newLogStreamer(lshs, c.deps.Labels, sendResp)
+		streamer := newLogStreamer(lshs, c.deps.Principal.Labels, sendResp)
 		wg.Go(func() {
 			streamer.run(streamLifetime)
 		})
@@ -320,7 +320,7 @@ func (c *Client) connect(ctx context.Context, apiKey string) (wasConnected bool,
 	// their containers' resource usage too.
 	if streamLogs {
 		if sshs, ok := c.deps.HostService.(StatsStreamHostService); ok {
-			stats := newStatsStreamer(sshs, c.deps.Labels, sendResp)
+			stats := newStatsStreamer(sshs, c.deps.Principal.Labels, sendResp)
 			wg.Go(func() {
 				stats.run(streamLifetime)
 			})
@@ -470,7 +470,7 @@ func (c *Client) handleRequest(ctx context.Context, req *pb.ToolRequest) *pb.Too
 
 func (c *Client) tools() []*pb.ToolDefinition {
 	c.toolsOnce.Do(func() {
-		c.cachedTools = AvailableTools(c.deps.EnableActions)
+		c.cachedTools = AvailableTools(c.deps.EnableActions, c.deps.Principal)
 	})
 	return c.cachedTools
 }

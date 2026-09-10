@@ -250,6 +250,60 @@ The frontend uses file-based routing with these conventions:
 - **Hot Reload**: In development, `DEV=true` disables embedded assets, `LIVE_FS=true` serves from filesystem
 - **Makefile**: Orchestrates builds and dependency generation
 
+## Dozzle and Dozzle Cloud
+
+Cloud features are folded into the Dozzle UI rather than linked to. The split that
+decides where a feature lands:
+
+> **Dozzle owns anything about the container in front of the user. Cloud owns
+> anything that is history, cross-instance, or account.**
+
+Dozzle is optimized for the current view and can act on it; Cloud reviews everything
+at once. When a feature could live in either, ask which of those two questions it
+answers.
+
+### Naming
+
+The two Cloud surfaces must not blur into each other:
+
+- **Notifications** — the rules the user wrote, and what those rules did.
+- **Findings** — the rules the user never wrote, that Cloud noticed anyway.
+
+Findings are not alerts and are never listed alongside them.
+
+### What Cloud adds is memory, not features
+
+Nothing Dozzle does locally today ever gets gated. Alerts already splice into the log
+stream (`AlertLogItem.vue`), they just die on refresh because nothing remembers them.
+Cloud's contribution is that the same thing survives a reload, a restart, and a week —
+which is why an alert can come back later as a dot on a container row.
+
+So a Cloud-less install shows an empty history section with one muted line saying what
+it would hold, not a locked card. A surface that has no local half at all (a findings
+list) is mounted only when cloud is configured, rather than existing as a permanent
+upsell page in the nav.
+
+### Linking out
+
+Linking out to Cloud is fine, and expected, for anything Cloud genuinely does better:
+billing and keys, the report archive, cross-instance rollups, deep-investigation
+transcripts. `AlertHit.url` in `protos/cloud.proto` already carries the deep link.
+
+Never link out for something Dozzle could answer against the stream already on screen.
+"Show me the lines" — driving the historical scroll to the window a finding or alert
+describes — is the whole reason these surfaces live in Dozzle at all.
+
+### Gating
+
+Plan decisions are computed server-side in Cloud and handed to Dozzle already decided
+(`fixLocked`), never inferred from missing data — absence read as tier is how a paying
+customer gets shown an upsell for what they already bought. Dozzle renders the gate it
+is given and branches on nothing beyond `isPro` for cosmetics.
+
+One upsell surface: `CloudPopover`. Everywhere else stays silent, per the design
+system's rule that `primary` is reserved for the single action a surface wants you to
+take — a findings drawer wants "Show me the lines", not "Upgrade".
+
 ## Design System
 
 The UI is being converged on one visual language: clean, flat, and quiet. New or

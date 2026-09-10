@@ -548,6 +548,7 @@ cloud:
   relink-instance: Instantie opnieuw koppelen
   connected: Verbonden
   pro-badge: Dozzle Cloud Pro
+  locked-on-this-plan: Beschikbaar met Dozzle Cloud Pro
   plan: Plan
   usage: Gebeurtenissen
   usage-agent-messages: Agentgesprekken

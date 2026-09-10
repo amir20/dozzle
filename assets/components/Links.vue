@@ -13,7 +13,7 @@
       <mdi:bell class="icon-ring size-6" />
     </router-link>
 
-    <CloudPopover v-if="config.enableCloud" />
+    <CloudPopover v-if="cloudSurfaceMounted" />
 
     <router-link
       :to="{ name: '/settings' }"
@@ -69,6 +69,7 @@
   </div>
 </template>
 <script lang="ts" setup>
+const { mounted: cloudSurfaceMounted } = useCloudSurface();
 const { logoutUrl } = config;
 
 async function logout() {

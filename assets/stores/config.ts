@@ -19,6 +19,7 @@ export interface Config {
   enableDownload: boolean;
   enableNotifications: boolean;
   enableCloud: boolean;
+  canLinkCloud: boolean;
   cloudUrl: string;
   disableAvatars: boolean;
   releaseCheckMode: "automatic" | "manual";

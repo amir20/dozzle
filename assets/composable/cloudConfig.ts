@@ -7,8 +7,8 @@ const cloudStatusError = ref<"auth" | "unavailable" | false>(false);
 const isLoadingCloudStatus = ref(false);
 
 async function fetchCloudConfig() {
-  // Cloud endpoints are gated by the cloud role, so a user without it would
-  // only ever get a 403 here. Skip the call and leave the state unlinked.
+  // Reads are open to any signed-in user; only linking needs the role. This
+  // guard is just for builds where cloud is off entirely.
   if (!config.enableCloud) {
     cloudConfig.value = null;
     return;

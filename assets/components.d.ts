@@ -68,6 +68,7 @@ declare module 'vue' {
     ExpressionField: typeof import('./components/Notification/ExpressionField.vue')['default']
     FormStepHeading: typeof import('./components/Notification/FormStepHeading.vue')['default']
     FuzzySearchModal: typeof import('./components/FuzzySearchModal.vue')['default']
+    GatedValue: typeof import('./components/common/GatedValue.vue')['default']
     GroupedLog: typeof import('./components/GroupedViewer/GroupedLog.vue')['default']
     GroupedLogItem: typeof import('./components/LogViewer/GroupedLogItem.vue')['default']
     GroupMenu: typeof import('./components/GroupMenu.vue')['default']
