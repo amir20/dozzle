@@ -547,6 +547,7 @@ cloud:
   relink-instance: 重新关联实例
   connected: 已连接
   pro-badge: Dozzle Cloud Pro
+  locked-on-this-plan: Dozzle Cloud Pro 方案提供
   plan: 计划
   usage: 事件
   usage-agent-messages: 智能体对话

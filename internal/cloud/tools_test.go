@@ -15,7 +15,7 @@ import (
 )
 
 func TestAvailableTools_WithActionsEnabled(t *testing.T) {
-	tools := AvailableTools(true)
+	tools := AvailableTools(true, Principal{})
 
 	names := make([]string, len(tools))
 	for i, tool := range tools {
@@ -40,7 +40,7 @@ func TestAvailableTools_WithActionsEnabled(t *testing.T) {
 }
 
 func TestAvailableTools_WithActionsDisabled(t *testing.T) {
-	tools := AvailableTools(false)
+	tools := AvailableTools(false, Principal{})
 
 	names := make([]string, len(tools))
 	for i, tool := range tools {
@@ -58,7 +58,7 @@ func TestAvailableTools_WithActionsDisabled(t *testing.T) {
 }
 
 func TestAvailableTools_ParametersAreValid(t *testing.T) {
-	tools := AvailableTools(true)
+	tools := AvailableTools(true, Principal{})
 
 	for _, tool := range tools {
 		assert.NotEmpty(t, tool.Name)

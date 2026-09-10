@@ -553,6 +553,7 @@ cloud:
   relink-instance: Ponovno poveži instanco
   connected: Povezano
   pro-badge: Dozzle Cloud Pro
+  locked-on-this-plan: Na voljo z Dozzle Cloud Pro
   plan: Načrt
   usage: Dogodki
   usage-agent-messages: Klepeti z agentom

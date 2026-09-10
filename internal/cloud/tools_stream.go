@@ -77,7 +77,7 @@ func executeStreamLogs(ctx context.Context, requestID string, argsJSON string, d
 		return err
 	}
 
-	cs, err := deps.HostService.FindContainer(hostID, containerID, deps.Labels)
+	cs, err := deps.scoped().FindContainer(hostID, containerID)
 	if err != nil {
 		return fmt.Errorf("container not found: %w", err)
 	}

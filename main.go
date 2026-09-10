@@ -163,7 +163,7 @@ func main() {
 	cloudClient := cloud.NewClient(apiKeyFunc, instanceID, args.Version(), cloud.ToolDeps{
 		EnableActions:       args.EnableActions,
 		HostService:         cloudHostService,
-		Labels:              args.Filter,
+		Principal:           cloud.APIKeyPrincipal(args.Filter),
 		NotificationService: notificationService,
 	})
 	cloudClient.SetDeployment(args.Mode, swarmClusterID)

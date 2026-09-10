@@ -108,6 +108,7 @@ declare global {
   const lightTheme: typeof import('./stores/settings').lightTheme
   const loadBetween: typeof import('./composable/loadBetween').loadBetween
   const locale: typeof import('./stores/settings').locale
+  const logMomentRoute: typeof import('./composable/logJump').logMomentRoute
   const loggingContextKey: typeof import('./composable/logContext').loggingContextKey
   const makeDestructurable: typeof import('@vueuse/core').makeDestructurable
   const mapActions: typeof import('pinia').mapActions
@@ -119,6 +120,7 @@ declare global {
   const menuWidth: typeof import('./stores/settings').menuWidth
   const mergeAlerts: typeof import('./composable/cloudAlerts').mergeAlerts
   const mergeCloudEvents: typeof import('./composable/cloudAlerts').mergeCloudEvents
+  const narrowedLevels: typeof import('./composable/viewContext').narrowedLevels
   const nextTick: typeof import('vue').nextTick
   const onActivated: typeof import('vue').onActivated
   const onBeforeMount: typeof import('vue').onBeforeMount
@@ -168,6 +170,7 @@ declare global {
   const relativeTimeTick: typeof import('./composable/timeTicker').relativeTimeTick
   const resolveComponent: typeof import('vue').resolveComponent
   const resolveRef: typeof import('@vueuse/core').resolveRef
+  const routeKind: typeof import('./composable/viewContext').routeKind
   const safeRedirect: typeof import('./composable/safeRedirect').safeRedirect
   const scrollContextKey: typeof import('./composable/scrollContext').scrollContextKey
   const search: typeof import('./stores/settings').search
@@ -246,6 +249,7 @@ declare global {
   const useCloudAlerts: typeof import('./composable/cloudAlerts').useCloudAlerts
   const useCloudConfig: typeof import('./composable/cloudConfig').useCloudConfig
   const useCloudLogSearch: typeof import('./composable/cloudLogSearch').useCloudLogSearch
+  const useCloudSurface: typeof import('./composable/cloudSurface').useCloudSurface
   const useColorMode: typeof import('@vueuse/core').useColorMode
   const useCommands: typeof import('./composable/commands').useCommands
   const useConfirmDialog: typeof import('@vueuse/core').useConfirmDialog
@@ -320,6 +324,7 @@ declare global {
   const useLastChanged: typeof import('@vueuse/core').useLastChanged
   const useLink: typeof import('vue-router/auto').useLink
   const useLocalStorage: typeof import('@vueuse/core').useLocalStorage
+  const useLogJump: typeof import('./composable/logJump').useLogJump
   const useLogLoader: typeof import('./composable/logLoader').useLogLoader
   const useLoggingContext: typeof import('./composable/logContext').useLoggingContext
   const useMagicKeys: typeof import('@vueuse/core').useMagicKeys
@@ -420,6 +425,7 @@ declare global {
   const useVModel: typeof import('@vueuse/core').useVModel
   const useVModels: typeof import('@vueuse/core').useVModels
   const useVibrate: typeof import('@vueuse/core').useVibrate
+  const useViewContext: typeof import('./composable/viewContext').useViewContext
   const useVirtualList: typeof import('@vueuse/core').useVirtualList
   const useVisibleFilter: typeof import('./composable/visible').useVisibleFilter
   const useVisibleKeysByContainer: typeof import('./composable/visible').useVisibleKeysByContainer
@@ -465,6 +471,9 @@ declare global {
   export type { CloudLogHit } from './composable/cloudLogSearch'
   import('./composable/cloudLogSearch')
   // @ts-ignore
+  export type { CloudSurfaceState } from './composable/cloudSurface'
+  import('./composable/cloudSurface')
+  // @ts-ignore
   export type { CommandSection, Command } from './composable/commands'
   import('./composable/commands')
   // @ts-ignore
@@ -480,6 +489,9 @@ declare global {
   export type { ImageUpdateStatus, ImageUpdateResult } from './composable/imageUpdate'
   import('./composable/imageUpdate')
   // @ts-ignore
+  export type { LogMoment } from './composable/logJump'
+  import('./composable/logJump')
+  // @ts-ignore
   export type { PopoverPlacement } from './composable/popover'
   import('./composable/popover')
   // @ts-ignore
@@ -488,6 +500,9 @@ declare global {
   // @ts-ignore
   export type { TemplateEditorOptions, TemplateVariable, PayloadMode } from './composable/templateEditor'
   import('./composable/templateEditor')
+  // @ts-ignore
+  export type { ViewContext } from './composable/viewContext'
+  import('./composable/viewContext')
   // @ts-ignore
   export type { VisibleKeysSource } from './composable/visible'
   import('./composable/visible')
@@ -604,6 +619,7 @@ declare module 'vue' {
     readonly lightTheme: UnwrapRef<typeof import('./stores/settings')['lightTheme']>
     readonly loadBetween: UnwrapRef<typeof import('./composable/loadBetween')['loadBetween']>
     readonly locale: UnwrapRef<typeof import('./stores/settings')['locale']>
+    readonly logMomentRoute: UnwrapRef<typeof import('./composable/logJump')['logMomentRoute']>
     readonly loggingContextKey: UnwrapRef<typeof import('./composable/logContext')['loggingContextKey']>
     readonly makeDestructurable: UnwrapRef<typeof import('@vueuse/core')['makeDestructurable']>
     readonly mapActions: UnwrapRef<typeof import('pinia')['mapActions']>
@@ -615,6 +631,7 @@ declare module 'vue' {
     readonly menuWidth: UnwrapRef<typeof import('./stores/settings')['menuWidth']>
     readonly mergeAlerts: UnwrapRef<typeof import('./composable/cloudAlerts')['mergeAlerts']>
     readonly mergeCloudEvents: UnwrapRef<typeof import('./composable/cloudAlerts')['mergeCloudEvents']>
+    readonly narrowedLevels: UnwrapRef<typeof import('./composable/viewContext')['narrowedLevels']>
     readonly nextTick: UnwrapRef<typeof import('vue')['nextTick']>
     readonly onActivated: UnwrapRef<typeof import('vue')['onActivated']>
     readonly onBeforeMount: UnwrapRef<typeof import('vue')['onBeforeMount']>
@@ -663,6 +680,7 @@ declare module 'vue' {
     readonly refWithControl: UnwrapRef<typeof import('@vueuse/core')['refWithControl']>
     readonly relativeTimeTick: UnwrapRef<typeof import('./composable/timeTicker')['relativeTimeTick']>
     readonly resolveComponent: UnwrapRef<typeof import('vue')['resolveComponent']>
+    readonly routeKind: UnwrapRef<typeof import('./composable/viewContext')['routeKind']>
     readonly safeRedirect: UnwrapRef<typeof import('./composable/safeRedirect')['safeRedirect']>
     readonly scrollContextKey: UnwrapRef<typeof import('./composable/scrollContext')['scrollContextKey']>
     readonly search: UnwrapRef<typeof import('./stores/settings')['search']>
@@ -739,6 +757,7 @@ declare module 'vue' {
     readonly useCloudAlerts: UnwrapRef<typeof import('./composable/cloudAlerts')['useCloudAlerts']>
     readonly useCloudConfig: UnwrapRef<typeof import('./composable/cloudConfig')['useCloudConfig']>
     readonly useCloudLogSearch: UnwrapRef<typeof import('./composable/cloudLogSearch')['useCloudLogSearch']>
+    readonly useCloudSurface: UnwrapRef<typeof import('./composable/cloudSurface')['useCloudSurface']>
     readonly useColorMode: UnwrapRef<typeof import('@vueuse/core')['useColorMode']>
     readonly useCommands: UnwrapRef<typeof import('./composable/commands')['useCommands']>
     readonly useConfirmDialog: UnwrapRef<typeof import('@vueuse/core')['useConfirmDialog']>
@@ -813,6 +832,7 @@ declare module 'vue' {
     readonly useLastChanged: UnwrapRef<typeof import('@vueuse/core')['useLastChanged']>
     readonly useLink: UnwrapRef<typeof import('vue-router/auto')['useLink']>
     readonly useLocalStorage: UnwrapRef<typeof import('@vueuse/core')['useLocalStorage']>
+    readonly useLogJump: UnwrapRef<typeof import('./composable/logJump')['useLogJump']>
     readonly useLogLoader: UnwrapRef<typeof import('./composable/logLoader')['useLogLoader']>
     readonly useLoggingContext: UnwrapRef<typeof import('./composable/logContext')['useLoggingContext']>
     readonly useMagicKeys: UnwrapRef<typeof import('@vueuse/core')['useMagicKeys']>
@@ -913,6 +933,7 @@ declare module 'vue' {
     readonly useVModel: UnwrapRef<typeof import('@vueuse/core')['useVModel']>
     readonly useVModels: UnwrapRef<typeof import('@vueuse/core')['useVModels']>
     readonly useVibrate: UnwrapRef<typeof import('@vueuse/core')['useVibrate']>
+    readonly useViewContext: UnwrapRef<typeof import('./composable/viewContext')['useViewContext']>
     readonly useVirtualList: UnwrapRef<typeof import('@vueuse/core')['useVirtualList']>
     readonly useVisibleFilter: UnwrapRef<typeof import('./composable/visible')['useVisibleFilter']>
     readonly useVisibleKeysByContainer: UnwrapRef<typeof import('./composable/visible')['useVisibleKeysByContainer']>

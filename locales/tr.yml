@@ -551,6 +551,7 @@ cloud:
   relink-instance: Örneği yeniden bağla
   connected: Bağlı
   pro-badge: Dozzle Cloud Pro
+  locked-on-this-plan: Dozzle Cloud Pro ile kullanılabilir
   plan: Plan
   usage: Olaylar
   usage-agent-messages: Aracı sohbetleri

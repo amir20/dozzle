@@ -241,18 +241,25 @@ func createRouter(h *handler) *chi.Mux {
 
 				// Cloud API
 				r.Route("/cloud", func(r chi.Router) {
-					r.Use(h.requireCloudRole)
+					// Reading is open to any authenticated user. The cloud role means
+					// "may link", not "may look" — cloud-backed reads are confined to
+					// the caller's own filter by the handlers themselves, the same way
+					// every other route is.
 					r.Get("/status", h.cloudStatus)
 					r.Get("/search/logs", h.cloudSearchLogs)
 					r.Get("/alerts", h.cloudAlerts)
 					r.Get("/config", h.cloudConfig)
-					r.Patch("/config", h.updateCloudConfig)
-					r.Delete("/config", h.deleteCloudConfig)
 					r.Post("/feedback", h.cloudFeedback)
+
+					// Linking and configuration stay behind the role. Relinking
+					// repoints alert dispatch, log streaming and tool execution at a
+					// different cloud account for everyone on the instance.
+					r.With(h.requireCloudRole).Patch("/config", h.updateCloudConfig)
+					r.With(h.requireCloudRole).Delete("/config", h.deleteCloudConfig)
 					// Cloud callback handles the OAuth-style code exchange. It must stay
 					// authenticated so an unauthenticated attacker cannot force-link the
 					// instance to their own cloud account via SetCloudConfig.
-					r.Get("/callback", h.cloudCallback)
+					r.With(h.requireCloudRole).Get("/callback", h.cloudCallback)
 				})
 
 				// MCP (Model Context Protocol) endpoint

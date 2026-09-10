@@ -131,6 +131,7 @@ func (h *handler) executeTemplate(w http.ResponseWriter, req *http.Request) {
 		config["enableDownload"] = true
 		config["enableNotifications"] = true
 		config["enableCloud"] = true
+		config["canLinkCloud"] = true
 		// Runtime, not baked into the bundle, so pointing a dev instance at a
 		// local cloud is one env var on this process — same as DOLIGENCE_URL,
 		// which is the API half of the same override.
@@ -141,7 +142,10 @@ func (h *handler) executeTemplate(w http.ResponseWriter, req *http.Request) {
 			config["enableActions"] = h.config.EnableActions && user.Roles.Has(auth.Actions)
 			config["enableDownload"] = user.Roles.Has(auth.Download)
 			config["enableNotifications"] = user.Roles.Has(auth.Notifications)
-			config["enableCloud"] = user.Roles.Has(auth.Cloud)
+			// Reading cloud-backed data is open to anyone signed in and is
+			// confined to their own filter. The role only decides who may
+			// repoint the instance at a cloud account.
+			config["canLinkCloud"] = user.Roles.Has(auth.Cloud)
 			config["user"] = user
 		}
 

@@ -191,7 +191,10 @@ Examples: name == "die"; name == "oom"; name in ["die", "oom", "kill"]; name == 
 )
 
 // AvailableTools returns the list of tool definitions based on configuration.
-func AvailableTools(enableActions bool) []*pb.ToolDefinition {
+// AvailableTools lists the tools a principal may actually invoke. Filtering
+// here rather than only at dispatch means the model never proposes something it
+// will then be refused for.
+func AvailableTools(enableActions bool, p Principal) []*pb.ToolDefinition {
 	tools := []*pb.ToolDefinition{
 		{
 			Name:           toolListHosts,
@@ -311,7 +314,13 @@ func AvailableTools(enableActions bool) []*pb.ToolDefinition {
 		)
 	}
 
-	return tools
+	allowed := tools[:0]
+	for _, t := range tools {
+		if p.mayCall(t.Name, enableActions) == nil {
+			allowed = append(allowed, t)
+		}
+	}
+	return allowed
 }
 
 // NotificationService is the subset of the notification manager exposed to
@@ -326,10 +335,20 @@ type NotificationService interface {
 // NotificationService may be nil in modes without a notification manager
 // (e.g., k8s); notification tools will then return a "not configured" error.
 type ToolDeps struct {
-	EnableActions       bool
-	HostService         ToolHostService
-	Labels              container.ContainerLabels
+	EnableActions bool
+	HostService   ToolHostService
+	// Principal is who the call runs as. The zero value is PrincipalAPIKey,
+	// which is what every tool call meant before principals existed, so an
+	// unset field never grants more than it used to.
+	Principal           Principal
 	NotificationService NotificationService
+}
+
+// scoped returns the host service already confined to the principal's labels.
+// Tools use this instead of HostService so there is no way to ask for
+// containers the caller may not see.
+func (d ToolDeps) scoped() scopedHost {
+	return scopedHost{hosts: d.HostService, labels: d.Principal.Labels}
 }
 
 // ExecuteTool dispatches a tool call by name and returns a proto CallToolResponse.
@@ -345,25 +364,13 @@ func ExecuteTool(ctx context.Context, name string, argsJSON string, deps ToolDep
 	return resp
 }
 
-// requiresActions lists tools gated behind --enable-actions.
-var requiresActions = map[string]struct{}{
-	toolStartContainer:           {},
-	toolStopContainer:            {},
-	toolRestartContainer:         {},
-	toolRemoveContainer:          {},
-	toolUpdateContainer:          {},
-	toolCreateLogNotification:    {},
-	toolCreateMetricNotification: {},
-	toolCreateEventNotification:  {},
-}
-
 func executeTool(ctx context.Context, name string, argsJSON string, deps ToolDeps) (*pb.CallToolResponse, error) {
 	if ctx.Err() != nil {
 		return nil, ctx.Err()
 	}
 
-	if _, gated := requiresActions[name]; gated && !deps.EnableActions {
-		return nil, fmt.Errorf("container actions are not enabled")
+	if err := deps.Principal.mayCall(name, deps.EnableActions); err != nil {
+		return nil, err
 	}
 
 	switch name {

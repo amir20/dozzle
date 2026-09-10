@@ -32,7 +32,7 @@ func executeFetchContainerLogs(ctx context.Context, argsJSON string, deps ToolDe
 		return nil, err
 	}
 
-	cs, err := deps.HostService.FindContainer(hostID, containerID, deps.Labels)
+	cs, err := deps.scoped().FindContainer(hostID, containerID)
 	if err != nil {
 		return nil, fmt.Errorf("container not found: %w", err)
 	}

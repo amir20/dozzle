@@ -550,6 +550,7 @@ cloud:
   relink-instance: 重新連結實例
   connected: 已連線
   pro-badge: Dozzle Cloud Pro
+  locked-on-this-plan: Dozzle Cloud Pro 方案提供
   plan: 方案
   usage: 事件
   usage-agent-messages: 智慧代理對話

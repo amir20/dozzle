@@ -124,7 +124,7 @@ import { useCloudConfig } from "@/composable/cloudConfig";
 import { useCloudLogSearch, type CloudLogHit } from "@/composable/cloudLogSearch";
 
 const route = useRoute();
-const router = useRouter();
+const { jumpTo } = useLogJump();
 
 function readQ(q: unknown): string {
   return typeof q === "string" ? q : "";
@@ -212,21 +212,12 @@ function isJson(message: string): boolean {
 }
 
 function openContainer(hit: CloudLogHit) {
-  // Match Dozzle's permanent-link route: /container/:id/time/:datetime?logId=...
-  // hit.ts is unix nanoseconds; convert to ms then ISO 8601 with millis.
-  const datetime = new Date(hit.ts / 1e6).toISOString();
-  const query: Record<string, string> = {};
-  if (hit.logId !== undefined && hit.logId !== 0) {
-    // logId pinpoints the exact line; the historical-logs view scrolls to it.
-    query.logId = String(hit.logId);
-  }
-  if (committedQuery.value) {
-    query.q = committedQuery.value;
-  }
-  router.push({
-    name: "/container/[id].time.[datetime]",
-    params: { id: hit.containerId, datetime },
-    query,
+  // hit.ts is unix nanoseconds.
+  jumpTo({
+    containerId: hit.containerId,
+    date: new Date(hit.ts / 1e6),
+    logId: hit.logId,
+    query: committedQuery.value,
   });
 }
 </script>

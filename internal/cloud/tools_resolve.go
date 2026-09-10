@@ -142,7 +142,7 @@ func matchContainerTier(containerRef, hostRef string, deps ToolDeps) (tier []con
 		return nil, "", "", nil, fmt.Errorf("container_id is required")
 	}
 
-	containers, errs := deps.HostService.ListAllContainers(deps.Labels)
+	containers, errs := deps.scoped().ListAllContainers()
 	logHostErrors(errs)
 	hostNames = buildHostNameMap(deps.HostService)
 
@@ -208,7 +208,7 @@ func matchesID(id, ref string) bool {
 
 // resolveHostRef resolves a host reference (id or name) to its host id.
 func resolveHostRef(hostRef string, deps ToolDeps) (string, error) {
-	hosts := deps.HostService.Hosts()
+	hosts := deps.scoped().Hosts()
 	var byName []container.Host
 	for _, h := range hosts {
 		if h.ID == hostRef {

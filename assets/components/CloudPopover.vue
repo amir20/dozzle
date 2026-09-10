@@ -68,7 +68,7 @@
             <a :href="`${cloudUrl}`" target="_blank" rel="noreferrer noopener" class="btn btn-sm flex-1">
               {{ $t("cloud.learn-more") }}
             </a>
-            <a :href="cloudLinkUrl" class="btn btn-primary btn-sm flex-1">
+            <a v-if="canLinkCloud" :href="cloudLinkUrl" class="btn btn-primary btn-sm flex-1">
               <mdi:link-variant class="text-base" />
               {{ $t("cloud.link-instance") }}
             </a>
@@ -110,7 +110,11 @@
             <div class="bg-base-content/10 my-1.5 h-px"></div>
 
             <div class="flex gap-2 px-1 pb-0.5">
-              <a v-if="cloudStatusError === 'auth'" :href="cloudLinkUrl" class="btn btn-primary btn-sm flex-1">
+              <a
+                v-if="cloudStatusError === 'auth' && canLinkCloud"
+                :href="cloudLinkUrl"
+                class="btn btn-primary btn-sm flex-1"
+              >
                 <mdi:link-variant class="text-base" />
                 {{ $t("cloud.relink-instance") }}
               </a>
@@ -186,6 +190,7 @@
 <script lang="ts" setup>
 const cloudUrl = config.cloudUrl;
 const callbackUrl = `${window.location.origin}${withBase("/")}`;
+const { canLink: canLinkCloud } = useCloudSurface();
 const cloudLinkUrl = `${cloudUrl}/link?appUrl=${encodeURIComponent(callbackUrl)}&from=cloud`;
 
 const {

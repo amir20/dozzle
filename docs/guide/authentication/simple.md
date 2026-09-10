@@ -177,7 +177,9 @@ Roles are separated by commas or pipes (`shell,actions` or `shell|actions`), and
 > Notification rules are instance wide. A rule matches containers by expression, not by the user's filter, so a user with the `notifications` role can create a rule for containers their filter otherwise hides and receive those log lines at a destination they control. Only grant it to users you trust with every container on the instance.
 
 > [!WARNING]
-> Dozzle Cloud is also instance wide. Linking stores a single API key that repoints alert dispatch, log streaming and tool execution at one cloud account, and cloud tools run with the instance filter rather than the linking user's filter. A user with the `cloud` role can link the instance to their own cloud account and see every container through it, or unlink an existing connection. Only grant it to users you trust with every container on the instance.
+> Dozzle Cloud is also instance wide. Linking stores a single API key that repoints alert dispatch, log streaming and tool execution at one cloud account. A user with the `cloud` role can link the instance to their own cloud account and see every container through it, or unlink an existing connection. Only grant it to users you trust with every container on the instance.
+>
+> The role covers linking, not reading. Any signed-in user can search cloud logs and see cloud alerts, confined to their own filter. Tool calls that Cloud starts by itself, such as a question asked in Telegram or Discord, run with the instance filter instead, because no Dozzle user is behind them.
 
 Any role can be prefixed with `^` to exclude it. Exclusions are applied last, so order doesn't matter:
 

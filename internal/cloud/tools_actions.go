@@ -30,7 +30,7 @@ func executeContainerAction(ctx context.Context, name string, argsJSON string, d
 		return nil, err
 	}
 
-	cs, err := deps.HostService.FindContainer(hostID, containerID, deps.Labels)
+	cs, err := deps.scoped().FindContainer(hostID, containerID)
 	if err != nil {
 		return nil, fmt.Errorf("container not found: %w", err)
 	}
@@ -63,7 +63,7 @@ func executeUpdateContainer(ctx context.Context, argsJSON string, deps ToolDeps)
 		return nil, err
 	}
 
-	cs, err := deps.HostService.FindContainer(hostID, containerID, deps.Labels)
+	cs, err := deps.scoped().FindContainer(hostID, containerID)
 	if err != nil {
 		return nil, fmt.Errorf("container not found: %w", err)
 	}

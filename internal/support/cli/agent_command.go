@@ -237,7 +237,7 @@ func (a *AgentCmd) Run(args Args, embeddedCerts embed.FS) error {
 	cloudClient := cloud.NewClient(apiKeyFunc, instanceID, args.Version(), cloud.ToolDeps{
 		EnableActions: false, // agents don't host action tools today
 		HostService:   agentHostService,
-		Labels:        args.Filter,
+		Principal:     cloud.APIKeyPrincipal(args.Filter),
 	})
 	// An agent is always an agent, whatever the hub in front of it is running as.
 	cloudClient.SetDeployment("agent", swarmClusterID)

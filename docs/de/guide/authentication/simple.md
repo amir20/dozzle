@@ -1,6 +1,6 @@
 ---
 title: Einfache Authentifizierung
-sourceHash: deea96688436
+sourceHash: 50dffd6cac64
 ---
 
 # <Icon icon="mdi:account-cog-outline" inline /> Einfache Authentifizierung
@@ -178,7 +178,9 @@ Rollen werden durch Kommas oder Pipes getrennt (`shell,actions` oder `shell|acti
 > Benachrichtigungsregeln gelten für die gesamte Instanz. Eine Regel wählt Container über einen Ausdruck aus, nicht über den Filter des Benutzers. Ein Benutzer mit der Rolle `notifications` kann also eine Regel für Container anlegen, die sein Filter sonst verbirgt, und diese Logzeilen an ein Ziel schicken, das er selbst kontrolliert. Vergib sie nur an Benutzer, denen du jeden Container der Instanz anvertraust.
 
 > [!WARNING]
-> Dozzle Cloud gilt ebenfalls für die gesamte Instanz. Beim Verknüpfen wird ein einzelner API-Schlüssel gespeichert, der Alarmversand, Log-Streaming und Tool-Ausführung auf ein Cloud-Konto umleitet, und Cloud-Tools laufen mit dem Filter der Instanz statt mit dem des verknüpfenden Benutzers. Ein Benutzer mit der Rolle `cloud` kann die Instanz mit seinem eigenen Cloud-Konto verknüpfen und darüber jeden Container sehen oder eine bestehende Verbindung trennen. Vergib sie nur an Benutzer, denen du jeden Container der Instanz anvertraust.
+> Dozzle Cloud gilt ebenfalls für die gesamte Instanz. Beim Verknüpfen wird ein einzelner API-Schlüssel gespeichert, der Alarmversand, Log-Streaming und Tool-Ausführung auf ein Cloud-Konto umleitet. Ein Benutzer mit der Rolle `cloud` kann die Instanz mit seinem eigenen Cloud-Konto verknüpfen und darüber jeden Container sehen oder eine bestehende Verbindung trennen. Vergib sie nur an Benutzer, denen du jeden Container der Instanz anvertraust.
+>
+> Die Rolle regelt das Verknüpfen, nicht das Lesen. Jeder angemeldete Benutzer kann Cloud-Logs durchsuchen und Cloud-Alarme sehen, begrenzt auf den eigenen Filter. Tool-Aufrufe, die die Cloud von sich aus startet, etwa eine Frage in Telegram oder Discord, laufen dagegen mit dem Filter der Instanz, weil kein Dozzle-Benutzer dahintersteht.
 
 Jeder Rolle kann ein `^` vorangestellt werden, um sie auszuschließen. Ausschlüsse werden zuletzt angewendet, die Reihenfolge spielt also keine Rolle:
 

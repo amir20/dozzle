@@ -11,11 +11,7 @@
         v-if="isFiltered"
         @click="resetSearch()"
         class="btn btn-square btn-xs border-base-content/20 bg-base-100 pointer-events-auto! opacity-0 shadow-sm group-hover/entry:opacity-90"
-        :to="{
-          name: '/container/[id].time.[datetime]',
-          params: { id: container.id, datetime: logEntry.date.toISOString() },
-          query: { logId: logEntry.id },
-        }"
+        :to="momentRoute"
       >
         <material-symbols:eye-tracking />
       </router-link>
@@ -29,14 +25,7 @@
     </template>
     <ul class="menu w-full p-0">
       <li v-if="isFiltered">
-        <router-link
-          @click="resetSearch()"
-          :to="{
-            name: '/container/[id].time.[datetime]',
-            params: { id: container.id, datetime: logEntry.date.toISOString() },
-            query: { logId: logEntry.id },
-          }"
-        >
+        <router-link @click="resetSearch()" :to="momentRoute">
           <material-symbols:eye-tracking />
           {{ $t("action.see-in-context") }}
         </router-link>
@@ -92,7 +81,9 @@ const { logEntry, container } = defineProps<{
 
 const { showToast } = useToast();
 const showDrawer = useDrawer();
-const router = useRouter();
+const { hrefFor } = useLogJump();
+const moment = () => ({ containerId: container.id, date: logEntry.date, logId: logEntry.id });
+const momentRoute = computed(() => logMomentRoute(moment()));
 const { isSearching, resetSearch } = useSearchFilter();
 const { levels } = useLoggingContext();
 
@@ -132,15 +123,7 @@ async function copyPermalink() {
   if (!isSupported.value) {
     return;
   }
-  const url = router.resolve({
-    name: "/container/[id].time.[datetime]",
-    params: { id: container.id, datetime: logEntry.date.toISOString() },
-    query: { logId: logEntry.id },
-  }).href;
-
-  const resolved = new URL(url, window.location.origin);
-
-  await copy(resolved.href);
+  await copy(hrefFor(moment()));
 
   if (copied.value) {
     showToast(
