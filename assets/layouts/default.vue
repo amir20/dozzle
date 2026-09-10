@@ -10,6 +10,11 @@
           <Pane class="router-view min-h-screen">
             <router-view></router-view>
           </Pane>
+          <!-- Beside the stream, not over it: the whole argument for a pane
+               is that you keep watching the logs while asking about them. -->
+          <Pane v-if="chatOpen && !isMobile" min-size="15" size="28">
+            <ChatPane />
+          </Pane>
           <template v-if="!isMobile">
             <Pane v-for="other in pinnedLogs" :key="other.id">
               <ContainerLog
@@ -52,6 +57,7 @@
 </template>
 
 <script lang="ts" setup>
+const { open: chatOpen } = useCloudChat();
 import { Splitpanes, Pane } from "splitpanes";
 import { collapseNav } from "@/stores/settings";
 import SideDrawer from "@/components/common/SideDrawer.vue";

@@ -636,6 +636,18 @@ cloud:
       disk-free: "Volume med under 1 GB fri"
       fatal: "Enhver fatal-linje"
       error: "Enhver error-linje"
+cloud-chat:
+  title: Spørg Dozzle
+  close: Luk
+  empty: Spørg om det du kigger på. Assistenten kan se denne visning og læse disse logs.
+  thinking: Tænker…
+  placeholder: Spørg om disse logs
+  historical: historisk
+  n-containers: "{n} containere"
+  section-ask: Assistent
+  ask-for: Spørg Dozzle om {query}
+  ask-hint: Svarer ud fra containerne i visningen
+  ask-shortcut: for at spørge
 cloud-search:
   containers-section: "Containere"
   section-logs: "Logs"

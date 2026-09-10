@@ -636,6 +636,18 @@ cloud:
       disk-free: "Volume com menos de 1 GB livre"
       fatal: "Qualquer linha fatal"
       error: "Qualquer linha de erro"
+cloud-chat:
+  title: Perguntar ao Dozzle
+  close: Fechar
+  empty: Pergunta sobre o que estás a ver. O assistente vê esta vista e lê estes logs.
+  thinking: A pensar…
+  placeholder: Perguntar sobre estes logs
+  historical: histórico
+  n-containers: "{n} contentores"
+  section-ask: Assistente
+  ask-for: Perguntar ao Dozzle sobre {query}
+  ask-hint: Responde a partir dos contentores à vista
+  ask-shortcut: para perguntar
 cloud-search:
   containers-section: "Containers"
   section-logs: "Logs"

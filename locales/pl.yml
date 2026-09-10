@@ -639,6 +639,18 @@ cloud:
       disk-free: "Wolumin z mniej niż 1 GB wolnego"
       fatal: "Dowolna linia fatal"
       error: "Dowolna linia error"
+cloud-chat:
+  title: Zapytaj Dozzle
+  close: Zamknij
+  empty: Zapytaj o to, na co patrzysz. Asystent widzi ten widok i czyta te logi.
+  thinking: Myślę…
+  placeholder: Zapytaj o te logi
+  historical: historyczne
+  n-containers: "Kontenery: {n}"
+  section-ask: Asystent
+  ask-for: Zapytaj Dozzle o {query}
+  ask-hint: Odpowiada na podstawie widocznych kontenerów
+  ask-shortcut: aby zapytać
 cloud-search:
   containers-section: "Kontenery"
   section-logs: "Logi"

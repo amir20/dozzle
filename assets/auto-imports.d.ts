@@ -247,6 +247,7 @@ declare global {
   const useClipboardItems: typeof import('@vueuse/core').useClipboardItems
   const useCloned: typeof import('@vueuse/core').useCloned
   const useCloudAlerts: typeof import('./composable/cloudAlerts').useCloudAlerts
+  const useCloudChat: typeof import('./composable/cloudChat').useCloudChat
   const useCloudConfig: typeof import('./composable/cloudConfig').useCloudConfig
   const useCloudLogSearch: typeof import('./composable/cloudLogSearch').useCloudLogSearch
   const useCloudSurface: typeof import('./composable/cloudSurface').useCloudSurface
@@ -468,6 +469,9 @@ declare global {
   // @ts-ignore
   export type { CloudAlert, CloudEvent } from './composable/cloudAlerts'
   import('./composable/cloudAlerts')
+  // @ts-ignore
+  export type { ChatMessage } from './composable/cloudChat'
+  import('./composable/cloudChat')
   // @ts-ignore
   export type { CloudLogHit } from './composable/cloudLogSearch'
   import('./composable/cloudLogSearch')
@@ -756,6 +760,7 @@ declare module 'vue' {
     readonly useClipboardItems: UnwrapRef<typeof import('@vueuse/core')['useClipboardItems']>
     readonly useCloned: UnwrapRef<typeof import('@vueuse/core')['useCloned']>
     readonly useCloudAlerts: UnwrapRef<typeof import('./composable/cloudAlerts')['useCloudAlerts']>
+    readonly useCloudChat: UnwrapRef<typeof import('./composable/cloudChat')['useCloudChat']>
     readonly useCloudConfig: UnwrapRef<typeof import('./composable/cloudConfig')['useCloudConfig']>
     readonly useCloudLogSearch: UnwrapRef<typeof import('./composable/cloudLogSearch')['useCloudLogSearch']>
     readonly useCloudSurface: UnwrapRef<typeof import('./composable/cloudSurface')['useCloudSurface']>

@@ -31,6 +31,93 @@ service CloudToolService {
   // never know a container list up front. Scoped server-side to the
   // (user_id, api_key_id) on the connection, like everything else here.
   rpc GetRecentAlerts(GetRecentAlertsRequest) returns (GetAlertsResponse);
+
+  // One assistant turn, opened by the Dozzle request that started it.
+  //
+  // Deliberately not served over ToolStream. That stream is owned by the
+  // process and has no user on it, so a tool call arriving there cannot be
+  // scoped to whoever asked. This stream is opened by the HTTP handler holding
+  // the browser's SSE response, so cloud sends the turn's tool calls back down
+  // it and Dozzle executes them inside that request, with that user's filter
+  // and roles. Cloud never learns who the user is.
+  rpc Chat(stream ChatClientEvent) returns (stream ChatServerEvent);
+}
+
+// ViewContext is what the user is looking at when they ask. The whole point of
+// asking from inside Dozzle is that nobody should have to name the thing
+// already on their screen.
+message ViewContext {
+  // Route shape: "container", "host", "merged", "stack", "index", …
+  string kind = 1;
+  // The route's own id or name, when it has one.
+  string target = 2;
+  repeated ViewContainer containers = 3;
+  repeated string hosts = 4;
+  // The active search term, empty when the user is not searching.
+  string search = 5;
+  // Levels the user narrowed to. Empty means every level, which is the default
+  // rather than a filter.
+  repeated string levels = 6;
+  // The moment currently in view, unix nanoseconds.
+  int64 visible_at_ns = 7;
+  // True on the historical view rather than the live stream.
+  bool historical = 8;
+}
+
+message ViewContainer {
+  string id = 1;
+  string name = 2;
+  string host = 3;
+}
+
+message ChatTurn {
+  string message = 1;
+  ViewContext view = 2;
+  // Opaque, per-instance reference to the local user, so cloud can keep five
+  // people's threads apart without learning who any of them are. Never a
+  // username: this is an HMAC under a secret that stays on this machine.
+  string user_ref = 3;
+}
+
+message ChatClientEvent {
+  oneof type {
+    ChatTurn turn = 1;
+    // Reuses the ToolStream message so the executor does not fork: same tool
+    // dispatch, different principal.
+    ToolResponse tool_result = 2;
+  }
+}
+
+message ChatServerEvent {
+  oneof type {
+    ChatStatus status = 1;
+    ChatDelta delta = 2;
+    ChatDone done = 3;
+    ChatError error = 4;
+    ToolRequest tool_call = 5;
+  }
+}
+
+// ChatStatus is what the assistant is doing right now ("reading logs"), shown
+// while nothing has been written yet.
+message ChatStatus {
+  string text = 1;
+}
+
+message ChatDelta {
+  string text = 1;
+}
+
+message ChatDone {
+  // Cloud's id for the thread, so a reopened pane returns to it.
+  string session_id = 1;
+}
+
+message ChatError {
+  string message = 1;
+  // 'rate_limit' | 'not_configured' | '' — lets the pane render "you're out of
+  // questions today" as a notice rather than a failure.
+  string code = 2;
 }
 
 message GetRecentAlertsRequest {

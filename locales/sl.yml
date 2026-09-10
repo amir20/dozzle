@@ -642,6 +642,18 @@ cloud:
       disk-free: "Nosilec z manj kot 1 GB prostora"
       fatal: "Katerakoli vrstica fatal"
       error: "Katerakoli vrstica error"
+cloud-chat:
+  title: Vprašaj Dozzle
+  close: Zapri
+  empty: Vprašaj o tem, kar gledaš. Pomočnik vidi ta pogled in bere te dnevnike.
+  thinking: Razmišljam…
+  placeholder: Vprašaj o teh dnevnikih
+  historical: zgodovinsko
+  n-containers: "Vsebnikov: {n}"
+  section-ask: Pomočnik
+  ask-for: Vprašaj Dozzle o {query}
+  ask-hint: Odgovarja iz vsebnikov v pogledu
+  ask-shortcut: za vprašanje
 cloud-search:
   containers-section: "Vsebniki"
   section-logs: "Dnevniki"

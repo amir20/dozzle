@@ -209,6 +209,18 @@ button:
 placeholder:
   search-containers: Buscar contenedores (⌘ + K, CTRL + K)
   search: Buscar
+cloud-chat:
+  title: Preguntar a Dozzle
+  close: Cerrar
+  empty: Pregunta sobre lo que estás viendo. El asistente ve esta vista y lee estos logs.
+  thinking: Pensando…
+  placeholder: Pregunta sobre estos logs
+  historical: histórico
+  n-containers: "{n} contenedores"
+  section-ask: Asistente
+  ask-for: Preguntar a Dozzle sobre {query}
+  ask-hint: Responde con los contenedores a la vista
+  ask-shortcut: para preguntar
 cloud-search:
   containers-section: "Contenedores"
   section-logs: "Logs"

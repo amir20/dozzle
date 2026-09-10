@@ -639,6 +639,18 @@ cloud:
       disk-free: "磁碟區剩餘空間不足 1 GB"
       fatal: "任何 fatal 行"
       error: "任何 error 行"
+cloud-chat:
+  title: 問 Dozzle
+  close: 關閉
+  empty: 就眼前看到的內容提問。助手能看到這個檢視，也能讀這些日誌。
+  thinking: 思考中…
+  placeholder: 就這些日誌提問
+  historical: 歷史
+  n-containers: "{n} 個容器"
+  section-ask: 助手
+  ask-for: 就 {query} 問 Dozzle
+  ask-hint: 根據檢視裡的容器作答
+  ask-shortcut: 提問
 cloud-search:
   containers-section: "容器"
   section-logs: "日誌"

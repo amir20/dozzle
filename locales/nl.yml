@@ -637,6 +637,18 @@ cloud:
       disk-free: "Volume met minder dan 1 GB vrij"
       fatal: "Elke fatal-regel"
       error: "Elke error-regel"
+cloud-chat:
+  title: Vraag het Dozzle
+  close: Sluiten
+  empty: Stel een vraag over wat je ziet. De assistent kent deze weergave en leest deze logs.
+  thinking: Aan het denken…
+  placeholder: Vraag over deze logs
+  historical: historisch
+  n-containers: "{n} containers"
+  section-ask: Assistent
+  ask-for: Dozzle vragen over {query}
+  ask-hint: Antwoordt vanuit de zichtbare containers
+  ask-shortcut: om te vragen
 cloud-search:
   containers-section: "Containers"
   section-logs: "Logs"

@@ -80,6 +80,11 @@ type CloudHooks struct {
 	// GetRecentAlerts fetches what fired lately across the instance, for the
 	// notifications page and the container dot. Nil when cloud is not wired.
 	GetRecentAlerts func(ctx context.Context, sinceNs int64, limit int32, subscriptionID string, includeFollowUps bool) (*cloud.AlertResult, error)
+
+	// Chat runs one assistant turn. The handler passes the principal it
+	// resolved from the request, so cloud's tool calls for that turn execute
+	// as the person who asked. Nil when cloud is not wired.
+	Chat func(ctx context.Context, message string, view cloud.ViewContext, userRef string, principal cloud.Principal, emit func(cloud.ChatEvent)) error
 }
 
 type Authorization struct {
@@ -253,6 +258,7 @@ func createRouter(h *handler) *chi.Mux {
 					r.Get("/search/logs", h.cloudSearchLogs)
 					r.Get("/alerts", h.cloudAlerts)
 					r.Get("/alerts/recent", h.cloudRecentAlerts)
+					r.Post("/chat", h.cloudChat)
 					r.Get("/config", h.cloudConfig)
 					r.Post("/feedback", h.cloudFeedback)
 

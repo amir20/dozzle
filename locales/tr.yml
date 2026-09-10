@@ -640,6 +640,18 @@ cloud:
       disk-free: "Biriminde 1 GB'tan az boş alan"
       fatal: "Herhangi bir fatal satırı"
       error: "Herhangi bir error satırı"
+cloud-chat:
+  title: Dozzle'a sor
+  close: Kapat
+  empty: Baktığın şeyi sor. Asistan bu görünümü görüyor ve bu logları okuyor.
+  thinking: Düşünüyor…
+  placeholder: Bu loglar hakkında sor
+  historical: geçmiş
+  n-containers: "{n} konteyner"
+  section-ask: Asistan
+  ask-for: "{query} hakkında Dozzle'a sor"
+  ask-hint: Görünen konteynerlere bakarak yanıtlar
+  ask-shortcut: sormak için
 cloud-search:
   containers-section: "Konteynerler"
   section-logs: "Loglar"

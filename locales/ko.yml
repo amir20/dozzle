@@ -640,6 +640,18 @@ cloud:
       disk-free: "볼륨 여유 공간 1GB 미만"
       fatal: "모든 fatal 줄"
       error: "모든 error 줄"
+cloud-chat:
+  title: Dozzle에 질문
+  close: 닫기
+  empty: 지금 보고 있는 것에 대해 물어보세요. 어시스턴트가 이 화면과 로그를 함께 봅니다.
+  thinking: 생각 중…
+  placeholder: 이 로그에 대해 질문
+  historical: 기록 보기
+  n-containers: 컨테이너 {n}개
+  section-ask: 어시스턴트
+  ask-for: "{query}에 대해 Dozzle에 질문"
+  ask-hint: 화면에 있는 컨테이너를 근거로 답합니다
+  ask-shortcut: 질문하기
 cloud-search:
   containers-section: "컨테이너"
   section-logs: "로그"

@@ -127,6 +127,23 @@
                   </button>
                 </template>
 
+                <!-- Ask the assistant -->
+                <template v-else-if="entry.kind === 'ask'">
+                  <mdi:message-outline class="text-primary size-5 shrink-0" />
+                  <div class="flex min-w-0 flex-1 flex-col">
+                    <span class="text-primary truncate text-sm">
+                      <i18n-t keypath="cloud-chat.ask-for">
+                        <template #query>
+                          <span class="font-mono">{{ query }}</span>
+                        </template>
+                      </i18n-t>
+                    </span>
+                    <span class="text-base-content/50 mt-0.5 truncate text-xs">
+                      {{ $t("cloud-chat.ask-hint") }}
+                    </span>
+                  </div>
+                </template>
+
                 <!-- Cloud log search -->
                 <template v-else>
                   <mdi:cloud-search-outline
@@ -213,6 +230,10 @@ import { useCloudLogSearch } from "@/composable/cloudLogSearch";
 import { useCommands, type Command } from "@/composable/commands";
 
 const close = defineEmit();
+
+const { ask, openPane } = useCloudChat();
+const { linked: cloudLinked } = useCloudSurface();
+const view = useViewContext();
 
 const router = useRouter();
 const route = useRoute();
@@ -371,7 +392,8 @@ const recentResults = computed<FuseResult<Item>[]>(() => {
 type EntryKind =
   | { kind: "command"; command: Command }
   | { kind: "container"; result: FuseResult<Item>; item: Item }
-  | { kind: "logs" };
+  | { kind: "logs" }
+  | { kind: "ask" };
 type PendingEntry = EntryKind & { key: string };
 type Entry = EntryKind & { key: string; index: number };
 type Group = { id: string; label: string; entries: Entry[] };
@@ -411,11 +433,18 @@ const groups = computed<Group[]>(() => {
     push("logs", t("cloud-search.section-logs"), [{ kind: "logs", key: "logs" }]);
   }
 
+  // Last row, and only with something typed: the palette is for finding
+  // things, and asking is what you do when finding did not answer it.
+  if (askVisible.value) {
+    push("ask", t("cloud-chat.section-ask"), [{ kind: "ask", key: "ask" }]);
+  }
+
   return result;
 });
 
 const flatEntries = computed(() => groups.value.flatMap((group) => group.entries));
 const selectedEntry = computed<Entry | undefined>(() => flatEntries.value[selectedIndex.value]);
+const askVisible = computed(() => cloudLinked.value && !!trimmedQuery.value);
 const noLocalMatches = computed(
   () => !!trimmedQuery.value && !commandEntries.value.length && !containerResults.value.length,
 );
@@ -428,6 +457,8 @@ const enterHint = computed(() => {
       return t("cloud-search.open-container");
     case "logs":
       return t("cloud-search.search-logs-shortcut");
+    case "ask":
+      return t("cloud-chat.ask-shortcut");
     default:
       return "";
   }
@@ -488,6 +519,8 @@ function activate(entry: Entry) {
     runCommand(entry.command);
   } else if (entry.kind === "container") {
     selected(entry.item);
+  } else if (entry.kind === "ask") {
+    askAssistant();
   } else {
     runLogSearch();
   }
@@ -503,6 +536,16 @@ function onPin() {
   // selected, not a command or the log search row.
   const entry = selectedEntry.value;
   if (entry?.kind === "container" && entry.item.type === "container") addColumn(entry.item);
+}
+
+// The palette is already a text box the user typed a question into, so this
+// goes straight through rather than opening an empty pane to retype it in.
+function askAssistant() {
+  const q = trimmedQuery.value;
+  if (!q) return;
+  openPane();
+  ask(q, view.value);
+  close();
 }
 
 function runLogSearch() {

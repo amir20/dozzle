@@ -23,6 +23,7 @@ const (
 	CloudToolService_SearchLogs_FullMethodName      = "/cloud.CloudToolService/SearchLogs"
 	CloudToolService_GetAlerts_FullMethodName       = "/cloud.CloudToolService/GetAlerts"
 	CloudToolService_GetRecentAlerts_FullMethodName = "/cloud.CloudToolService/GetRecentAlerts"
+	CloudToolService_Chat_FullMethodName            = "/cloud.CloudToolService/Chat"
 )
 
 // CloudToolServiceClient is the client API for CloudToolService service.
@@ -52,6 +53,15 @@ type CloudToolServiceClient interface {
 	// never know a container list up front. Scoped server-side to the
 	// (user_id, api_key_id) on the connection, like everything else here.
 	GetRecentAlerts(ctx context.Context, in *GetRecentAlertsRequest, opts ...grpc.CallOption) (*GetAlertsResponse, error)
+	// One assistant turn, opened by the Dozzle request that started it.
+	//
+	// Deliberately not served over ToolStream. That stream is owned by the
+	// process and has no user on it, so a tool call arriving there cannot be
+	// scoped to whoever asked. This stream is opened by the HTTP handler holding
+	// the browser's SSE response, so cloud sends the turn's tool calls back down
+	// it and Dozzle executes them inside that request, with that user's filter
+	// and roles. Cloud never learns who the user is.
+	Chat(ctx context.Context, opts ...grpc.CallOption) (grpc.BidiStreamingClient[ChatClientEvent, ChatServerEvent], error)
 }
 
 type cloudToolServiceClient struct {
@@ -105,6 +115,19 @@ func (c *cloudToolServiceClient) GetRecentAlerts(ctx context.Context, in *GetRec
 	return out, nil
 }
 
+func (c *cloudToolServiceClient) Chat(ctx context.Context, opts ...grpc.CallOption) (grpc.BidiStreamingClient[ChatClientEvent, ChatServerEvent], error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	stream, err := c.cc.NewStream(ctx, &CloudToolService_ServiceDesc.Streams[1], CloudToolService_Chat_FullMethodName, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	x := &grpc.GenericClientStream[ChatClientEvent, ChatServerEvent]{ClientStream: stream}
+	return x, nil
+}
+
+// This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
+type CloudToolService_ChatClient = grpc.BidiStreamingClient[ChatClientEvent, ChatServerEvent]
+
 // CloudToolServiceServer is the server API for CloudToolService service.
 // All implementations must embed UnimplementedCloudToolServiceServer
 // for forward compatibility.
@@ -132,6 +155,15 @@ type CloudToolServiceServer interface {
 	// never know a container list up front. Scoped server-side to the
 	// (user_id, api_key_id) on the connection, like everything else here.
 	GetRecentAlerts(context.Context, *GetRecentAlertsRequest) (*GetAlertsResponse, error)
+	// One assistant turn, opened by the Dozzle request that started it.
+	//
+	// Deliberately not served over ToolStream. That stream is owned by the
+	// process and has no user on it, so a tool call arriving there cannot be
+	// scoped to whoever asked. This stream is opened by the HTTP handler holding
+	// the browser's SSE response, so cloud sends the turn's tool calls back down
+	// it and Dozzle executes them inside that request, with that user's filter
+	// and roles. Cloud never learns who the user is.
+	Chat(grpc.BidiStreamingServer[ChatClientEvent, ChatServerEvent]) error
 	mustEmbedUnimplementedCloudToolServiceServer()
 }
 
@@ -153,6 +185,9 @@ func (UnimplementedCloudToolServiceServer) GetAlerts(context.Context, *GetAlerts
 }
 func (UnimplementedCloudToolServiceServer) GetRecentAlerts(context.Context, *GetRecentAlertsRequest) (*GetAlertsResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method GetRecentAlerts not implemented")
+}
+func (UnimplementedCloudToolServiceServer) Chat(grpc.BidiStreamingServer[ChatClientEvent, ChatServerEvent]) error {
+	return status.Error(codes.Unimplemented, "method Chat not implemented")
 }
 func (UnimplementedCloudToolServiceServer) mustEmbedUnimplementedCloudToolServiceServer() {}
 func (UnimplementedCloudToolServiceServer) testEmbeddedByValue()                          {}
@@ -236,6 +271,13 @@ func _CloudToolService_GetRecentAlerts_Handler(srv interface{}, ctx context.Cont
 	return interceptor(ctx, in, info, handler)
 }
 
+func _CloudToolService_Chat_Handler(srv interface{}, stream grpc.ServerStream) error {
+	return srv.(CloudToolServiceServer).Chat(&grpc.GenericServerStream[ChatClientEvent, ChatServerEvent]{ServerStream: stream})
+}
+
+// This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
+type CloudToolService_ChatServer = grpc.BidiStreamingServer[ChatClientEvent, ChatServerEvent]
+
 // CloudToolService_ServiceDesc is the grpc.ServiceDesc for CloudToolService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -260,6 +302,12 @@ var CloudToolService_ServiceDesc = grpc.ServiceDesc{
 		{
 			StreamName:    "ToolStream",
 			Handler:       _CloudToolService_ToolStream_Handler,
+			ServerStreams: true,
+			ClientStreams: true,
+		},
+		{
+			StreamName:    "Chat",
+			Handler:       _CloudToolService_Chat_Handler,
 			ServerStreams: true,
 			ClientStreams: true,
 		},
