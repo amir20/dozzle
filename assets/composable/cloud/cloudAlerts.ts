@@ -153,7 +153,22 @@ export function mergeAlerts(
   // Origins only. A follow-up anchor marks an incident that was already open,
   // and the per-line badges say that with more precision — drawing a second
   // block for it would claim a delivery that never happened.
-  const fresh = alerts.filter((a) => a.isOrigin && !seen.has(anchorKey(a)));
+  //
+  // Deduped inside the batch as well as against `seen`. One incident can span
+  // containers — Cloud folds them into a single alert, headline and all — and
+  // reports it once per container it touched. A merged view asks about every
+  // container at once, so the same fire comes back several times in one
+  // response, and `seen` cannot catch that: it is read here, before any of
+  // them has been placed.
+  const fresh: CloudAlert[] = [];
+  const batch = new Set<string>();
+  for (const alert of alerts) {
+    if (!alert.isOrigin) continue;
+    const key = anchorKey(alert);
+    if (seen.has(key) || batch.has(key)) continue;
+    batch.add(key);
+    fresh.push(alert);
+  }
   if (fresh.length === 0) return logs;
 
   // Indexed once rather than scanned per alert: logs runs into the thousands
@@ -264,7 +279,17 @@ export function mergeCloudEvents(
   events: CloudEvent[],
   seen: Set<string>,
 ): LogEntry<LogMessage>[] {
-  const fresh = events.filter((e) => !isLogEvent(e) && e.suppressed && !seen.has(eventKey(e)));
+  // Deduped inside the batch as well as against `seen`, for the same reason
+  // mergeAlerts is: `seen` is read before anything in this batch is placed.
+  const fresh: CloudEvent[] = [];
+  const batch = new Set<string>();
+  for (const event of events) {
+    if (isLogEvent(event) || !event.suppressed) continue;
+    const key = eventKey(event);
+    if (seen.has(key) || batch.has(key)) continue;
+    batch.add(key);
+    fresh.push(event);
+  }
   if (fresh.length === 0) return logs;
 
   fresh.sort((a, b) => a.ts - b.ts);

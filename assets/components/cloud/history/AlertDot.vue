@@ -141,12 +141,11 @@ function showLines(close: () => void) {
 <style scoped>
 @reference "@/main.css";
 
-/* A 6px target with the UA's default arrow over it is not a control anyone
-   finds. Tailwind v4's preflight gives buttons `cursor: default`, so the dot
-   looked painted on, and at 6px there was nothing to aim at even once you knew
-   it was there. */
+/* At 6px there is nothing to aim at even once you know the dot is a control,
+   which is what the hit area and hover ring below are for. The pointer cursor
+   comes from the base layer in main.css. */
 .alert-dot {
-  @apply relative size-1.5 shrink-0 cursor-pointer rounded-full transition-[box-shadow,transform];
+  @apply relative size-1.5 shrink-0 rounded-full transition-[box-shadow,transform];
 }
 
 /* Roughly a 24px target without taking 24px of the row: the name beside it

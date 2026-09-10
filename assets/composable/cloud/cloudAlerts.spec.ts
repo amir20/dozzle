@@ -109,6 +109,24 @@ describe("mergeAlerts", () => {
       expect(shapeOf(second)).toEqual(["log:10"]);
     });
 
+    // One incident can span containers: cloud folds them into a single alert
+    // and reports it once per container it touched. A merged view asks about
+    // every container in one request, so both copies arrive in the same
+    // response — before `seen` has anything in it.
+    test("places a multi-container incident once when it arrives twice in one response", () => {
+      const logs = [log(10, 100, "abc"), log(11, 100, "def")];
+      const merged = mergeAlerts(
+        logs,
+        [
+          alert({ containerId: "abc", logId: 10, ts: ns(100), containerCount: 2 }),
+          alert({ containerId: "def", logId: 11, ts: ns(100), containerCount: 2 }),
+        ],
+        new Set(),
+      );
+
+      expect(shapeOf(merged)).toEqual(["log:10", "alert:1", "log:11"]);
+    });
+
     // Keying the seen-set on alertId alone would swallow this: scrolling
     // newest -> oldest loads the follow-up first, and the origin — the thing
     // the user is actually scrolling back to find — would never render.
@@ -288,6 +306,11 @@ describe("mergeCloudEvents", () => {
   test("skips events that produced an alert", () => {
     const logs = [log(10, 100)];
     expect(mergeCloudEvents(logs, [cloudEvent({ suppressed: false })], new Set())).toBe(logs);
+  });
+
+  test("places a repeated event once when it arrives twice in one response", () => {
+    const logs = [log(10, 100)];
+    expect(shape(mergeCloudEvents(logs, [cloudEvent(), cloudEvent()], new Set()))).toHaveLength(2);
   });
 
   test("does not place the same event twice across overlapping windows", () => {
