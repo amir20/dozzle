@@ -672,6 +672,7 @@ cloud-chat:
   placeholder: Spørg om disse logs
   historical: historisk
   n-containers: "{n} containere"
+  evidence: Sendes med dit spørgsmål
   lines-in-view: "{n} linjer i visning"
   this-log: Denne loglinje
   remove-log: Fjern denne loglinje

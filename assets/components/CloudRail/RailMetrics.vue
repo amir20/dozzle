@@ -31,15 +31,32 @@
       <p v-else-if="!points.length" class="text-base-content/60 text-sm">{{ $t("cloud-rail.metrics-empty") }}</p>
 
       <template v-else>
-        <section v-for="chart in charts" :key="chart.key" class="mb-5 last:mb-0">
-          <div class="mb-1 flex items-baseline justify-between">
+        <!-- Hovering reads the chart out: a bar is a shape until it says what
+             it was and when. Leaving falls back to the peak, which is the one
+             number worth carrying while the pointer is elsewhere. -->
+        <section
+          v-for="chart in charts"
+          :key="chart.key"
+          class="mb-5 last:mb-0"
+          @mouseleave="hovered[chart.key] = undefined"
+        >
+          <div class="mb-1 flex items-baseline justify-between gap-2">
             <span class="text-base-content/60 text-xs font-semibold tracking-wide uppercase">{{ chart.label }}</span>
-            <span class="font-mono text-xs">
-              <span class="font-semibold">{{ chart.peak }}</span>
+            <span v-if="hovered[chart.key]" class="truncate font-mono text-xs tabular-nums">
+              <span class="font-semibold">{{ chart.format(hovered[chart.key]!.value) }}</span>
+              <span class="text-base-content/40"> · {{ timeOf(hovered[chart.key]!) }}</span>
+            </span>
+            <span v-else class="font-mono text-xs tabular-nums">
+              <span class="font-semibold">{{ chart.format(chart.peak) }}</span>
               <span class="text-base-content/40"> / {{ $t("cloud-rail.metrics-peak") }}</span>
             </span>
           </div>
-          <BarChart :chart-data="chart.data" :bar-class="chart.barClass" class="h-16" />
+          <BarChart
+            :chart-data="chart.data"
+            :bar-class="`${chart.barClass} opacity-70 hover:opacity-100`"
+            class="h-16"
+            @hover-value="(value: number, index: number, bars: number) => (hovered[chart.key] = { value, index, bars })"
+          />
         </section>
 
         <p class="text-base-content/40 mt-4 text-xs">
@@ -104,27 +121,48 @@ async function load() {
 
 watch([source, window], load, { immediate: true });
 
-const charts = computed(() => {
-  const cpuPeak = Math.max(0, ...points.value.map((p) => p.cpu));
-  const memPeak = Math.max(0, ...points.value.map((p) => p.memory));
+// What the pointer is on, per chart. Keyed rather than one shared value so two
+// charts never claim the same bar.
+type Hover = { value: number; index: number; bars: number };
+const hovered = ref<Record<string, Hover | undefined>>({});
 
-  return [
-    {
-      key: "cpu",
-      label: t("label.cpu"),
-      barClass: "bg-primary",
-      peak: `${cpuPeak.toFixed(1)}%`,
-      data: points.value.map((p) => ({ percent: p.cpu, value: p.cpu })),
-    },
-    {
-      key: "memory",
-      label: t("label.mem"),
-      barClass: "bg-secondary",
-      peak: `${memPeak.toFixed(1)}%`,
-      data: points.value.map((p) => ({ percent: p.memory, value: p.memoryUsage })),
-    },
-  ];
-});
+watch([source, window], () => (hovered.value = {}));
+
+const charts = computed(() => [
+  {
+    key: "cpu",
+    label: t("label.cpu"),
+    barClass: "bg-primary",
+    peak: Math.max(0, ...points.value.map((p) => p.cpu)),
+    format: (v: number) => `${v.toFixed(1)}%`,
+    data: points.value.map((p) => ({ percent: p.cpu, value: p.cpu })),
+  },
+  {
+    key: "memory",
+    label: t("label.mem"),
+    barClass: "bg-secondary",
+    // Bytes rather than percent: it is what the hover reads out, and a peak in
+    // a different unit than the value it qualifies reads as a bug.
+    peak: Math.max(0, ...points.value.map((p) => p.memoryUsage)),
+    format: (v: number) => formatBytes(v, { short: true, decimals: 1 }),
+    data: points.value.map((p) => ({ percent: p.memory, value: p.memoryUsage })),
+  },
+]);
+
+// Follows the reader's own clock preference, like every other time in the app.
+const hourCycle = computed(() => (hourStyle.value === "12" ? "h12" : hourStyle.value === "24" ? "h23" : undefined));
+const clock = computed(
+  () => new Intl.DateTimeFormat(undefined, { hour: "2-digit", minute: "2-digit", hourCycle: hourCycle.value }),
+);
+
+// The bars are buckets of the series, so the hovered one covers a span of
+// points. Its middle is the honest moment to name.
+function timeOf(hover: Hover) {
+  if (!points.value.length || hover.bars === 0) return "";
+  const per = points.value.length / hover.bars;
+  const index = Math.min(points.value.length - 1, Math.floor((hover.index + 0.5) * per));
+  return clock.value.format(new Date(points.value[index].ts));
+}
 
 // Said out loud so a flat line reads as an average rather than a missing sample.
 const bucketLabel = computed(() => {

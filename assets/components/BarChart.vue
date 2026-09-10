@@ -29,7 +29,10 @@ const { chartData, barClass = "" } = defineProps<{
   barClass?: string;
 }>();
 
-const hoverValue = defineEmit<[value: number]>();
+// The bucket's index and how many there are ride along with the value: a
+// history chart wants to say when, and only the parent knows what the bars were
+// downsampled from. Consumers that just want the number ignore them.
+const hoverValue = defineEmit<[value: number, index: number, bars: number]>();
 
 const chartContainer = ref<HTMLElement | null>(null);
 const { width } = useElementSize(chartContainer);
@@ -132,6 +135,6 @@ function onContainerHover(event: MouseEvent) {
     }
   }
 
-  hoverValue(downsampledBars.value[index].value);
+  hoverValue(downsampledBars.value[index].value, index, downsampledBars.value.length);
 }
 </script>

@@ -672,6 +672,7 @@ cloud-chat:
   placeholder: Спросить об этих логах
   historical: история
   n-containers: "Контейнеров: {n}"
+  evidence: Отправляется с вопросом
   lines-in-view: "{n} строк на экране"
   this-log: Эта строка лога
   remove-log: Убрать эту строку

@@ -673,6 +673,7 @@ cloud-chat:
   placeholder: Vraag over deze logs
   historical: historisch
   n-containers: "{n} containers"
+  evidence: Wordt met je vraag meegestuurd
   lines-in-view: "{n} regels in beeld"
   this-log: Deze logregel
   remove-log: Deze logregel verwijderen

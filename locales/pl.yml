@@ -675,6 +675,7 @@ cloud-chat:
   placeholder: Zapytaj o te logi
   historical: historyczne
   n-containers: "Kontenery: {n}"
+  evidence: Wysyłane z Twoim pytaniem
   lines-in-view: "{n} widocznych wierszy"
   this-log: Ten wiersz logu
   remove-log: Usuń ten wiersz logu

@@ -684,6 +684,7 @@ cloud-chat:
   placeholder: Tanya tentang log ini
   historical: historis
   n-containers: "{n} kontainer"
+  evidence: Dikirim bersama pertanyaan Anda
   lines-in-view: "{n} baris terlihat"
   this-log: Baris log ini
   remove-log: Hapus baris log ini

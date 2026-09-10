@@ -676,6 +676,7 @@ cloud-chat:
   placeholder: Bu loglar hakkında sor
   historical: geçmiş
   n-containers: "{n} konteyner"
+  evidence: Sorunuzla birlikte gönderilir
   lines-in-view: görünen {n} satır
   this-log: Bu log satırı
   remove-log: Bu log satırını kaldır

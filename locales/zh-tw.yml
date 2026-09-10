@@ -675,6 +675,7 @@ cloud-chat:
   placeholder: 就這些日誌提問
   historical: 歷史
   n-containers: "{n} 個容器"
+  evidence: 隨問題一起傳送
   lines-in-view: 檢視中 {n} 行
   this-log: 這則日誌
   remove-log: 移除這則日誌

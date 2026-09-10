@@ -6,7 +6,7 @@
     faith; the line itself is the only thing that proves the assistant got the
     row they clicked and not its neighbour.
   -->
-  <div class="border-base-content/15 bg-base-200/40 flex items-start gap-2 rounded-lg border px-2.5 py-2">
+  <div class="flex items-start gap-2">
     <mdi:format-quote-close class="text-base-content/30 mt-px size-3.5 shrink-0" />
     <div class="min-w-0 flex-1">
       <div class="text-base-content/40 text-xs">{{ $t("cloud-chat.this-log") }}</div>

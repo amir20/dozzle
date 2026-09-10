@@ -1,23 +1,21 @@
 <template>
   <div class="bg-base-100 flex h-full min-h-0 flex-col">
     <div ref="scroller" class="flex min-h-0 flex-1 flex-col overflow-y-auto px-4 py-3" @scroll="onScroll">
-      <!-- An empty thread is centred; a started one hugs the composer, because a
-           lone bubble at the top of a tall column reads as a stuck pane. -->
-      <div v-if="!messages.length" class="m-auto flex w-full max-w-xs flex-col items-center gap-4 py-8">
-        <mdi:message-outline class="text-base-content/20 size-8" />
-        <p class="text-base-content/60 text-center text-sm">{{ $t("cloud-chat.empty") }}</p>
-        <div class="w-full">
-          <button
-            v-for="suggestion in suggestions"
-            :key="suggestion"
-            type="button"
-            class="hover:bg-base-300 flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left text-sm transition-colors"
-            @click="ask(suggestion, view)"
-          >
-            <mdi:arrow-top-right class="size-4 shrink-0 opacity-40" />
-            <span class="min-w-0 flex-1">{{ suggestion }}</span>
-          </button>
-        </div>
+      <!-- Everything hugs the composer, empty or not. Centred, the openers
+           floated in the middle of a tall empty column, half a screen from the
+           box they type into. -->
+      <div v-if="!messages.length" class="mt-auto">
+        <p class="text-base-content/60 mb-2 text-sm">{{ $t("cloud-chat.empty") }}</p>
+        <button
+          v-for="suggestion in suggestions"
+          :key="suggestion"
+          type="button"
+          class="hover:bg-base-300 flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left text-sm transition-colors"
+          @click="ask(suggestion, view)"
+        >
+          <mdi:arrow-top-right class="size-4 shrink-0 opacity-40" />
+          <span class="min-w-0 flex-1">{{ suggestion }}</span>
+        </button>
       </div>
 
       <div v-else class="mt-auto space-y-4">
@@ -29,7 +27,7 @@
             <div class="border-base-content/15 bg-base-200/40 rounded-lg border p-3">
               <ChatFocusedLine v-if="message.view?.focused" :line="message.view.focused" class="mb-2" />
               <p class="text-sm whitespace-pre-wrap">{{ message.text }}</p>
-              <ChatViewContext v-if="message.view" :view="message.view" class="mt-2" />
+              <ChatViewContext v-if="message.view" :view="message.view" compact class="mt-2" />
             </div>
           </template>
           <template v-else>
@@ -46,26 +44,29 @@
 
     <!-- Sticky, opaque and full bleed, like every other footer in the app. -->
     <div class="bg-base-100 border-base-content/10 sticky bottom-0 z-10 shrink-0 border-t px-4 py-3">
-      <ChatFocusedLine v-if="focused" :line="focused" removable class="mb-2" @remove="clearFocus()" />
-      <form class="input input-sm flex w-full items-center gap-1 pr-1" @submit.prevent="send">
+      <ChatViewContext :view="view" class="mb-2">
+        <ChatFocusedLine v-if="focused" :line="focused" removable @remove="clearFocus()" />
+      </ChatViewContext>
+      <!-- Full height rather than input-sm: this is the one field on the
+           surface and the thing people came here to type in. -->
+      <form class="input flex h-12 w-full items-center gap-1 pr-1" @submit.prevent="send">
         <input
           ref="composer"
           v-model="draft"
           type="text"
-          class="input input-ghost grow px-0"
+          class="input input-ghost grow px-0 text-sm"
           :placeholder="$t('cloud-chat.placeholder')"
           :disabled="streaming"
         />
         <button
           type="submit"
-          class="btn btn-primary btn-circle btn-xs"
+          class="btn btn-primary btn-circle btn-sm"
           :disabled="streaming || !draft.trim()"
           :aria-label="$t('cloud-chat.send')"
         >
-          <mdi:send class="size-3.5" />
+          <mdi:send class="size-4" />
         </button>
       </form>
-      <ChatViewContext :view="view" class="mt-2" />
     </div>
   </div>
 </template>

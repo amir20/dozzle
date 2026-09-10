@@ -676,6 +676,7 @@ cloud-chat:
   placeholder: 이 로그에 대해 질문
   historical: 기록 보기
   n-containers: 컨테이너 {n}개
+  evidence: 질문과 함께 전송됨
   lines-in-view: 화면의 {n}줄
   this-log: 이 로그 줄
   remove-log: 이 로그 줄 제거

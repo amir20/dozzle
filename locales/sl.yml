@@ -678,6 +678,7 @@ cloud-chat:
   placeholder: Vprašaj o teh dnevnikih
   historical: zgodovinsko
   n-containers: "Vsebnikov: {n}"
+  evidence: Poslano z vašim vprašanjem
   lines-in-view: "{n} vidnih vrstic"
   this-log: Ta vrstica dnevnika
   remove-log: Odstrani to vrstico dnevnika

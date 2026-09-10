@@ -672,6 +672,7 @@ cloud-chat:
   placeholder: 就这些日志提问
   historical: 历史
   n-containers: "{n} 个容器"
+  evidence: 随问题一起发送
   lines-in-view: 视图中 {n} 行
   this-log: 这条日志
   remove-log: 移除这条日志

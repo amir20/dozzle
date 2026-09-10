@@ -245,6 +245,7 @@ cloud-chat:
   placeholder: Pregunta sobre estos logs
   historical: histórico
   n-containers: "{n} contenedores"
+  evidence: Se envía con tu pregunta
   lines-in-view: "{n} líneas a la vista"
   this-log: Esta línea de log
   remove-log: Quitar esta línea de log
