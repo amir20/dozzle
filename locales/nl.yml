@@ -339,12 +339,25 @@ terminal:
   next-match: Volgende overeenkomst
   close-search: Zoeken sluiten
 notifications:
+  history:
+    title: Activiteit
+    loading: Activiteit laden…
+    failed: Kon activiteit niet laden.
+    empty-unlinked: Waarschuwingen verschijnen hier zodra deze instantie aan Dozzle Cloud is gekoppeld. Tot dan komen ze langs in de logstroom en zijn ze na verversen vergeten.
+    empty: Er is recent niets afgegaan.
+    still-happening: gebeurt nog steeds
+    events: "{n} gebeurtenissen"
+    suppressed: "· {n} onderdrukt"
+    show-lines: Laat me de regels zien
+    open-in-cloud: Openen in Dozzle Cloud
+    fired-recently: keer recent
   title: Meldingen
   description: Configureer waar en wanneer je waarschuwingen ontvangt
   destinations: Bestemmingen
   add-destination: Bestemming toevoegen
   alerts: Waarschuwingen
   add-alert: Waarschuwing toevoegen
+  new-alerts: Nieuwe waarschuwingen
   prefill-name: Foutwaarschuwingen
   prefill-expression: level == "error"
   add: Toevoegen

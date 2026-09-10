@@ -76,6 +76,10 @@ type CloudHooks struct {
 	// time window, so the log viewer can merge them into the stream on
 	// scrollback. Nil when cloud is not wired.
 	GetAlerts func(ctx context.Context, containerIDs []string, hostID string, fromNs, toNs int64, limit int32, includeFollowUps, includeEvents bool) (*cloud.AlertResult, error)
+
+	// GetRecentAlerts fetches what fired lately across the instance, for the
+	// notifications page and the container dot. Nil when cloud is not wired.
+	GetRecentAlerts func(ctx context.Context, sinceNs int64, limit int32, subscriptionID string, includeFollowUps bool) (*cloud.AlertResult, error)
 }
 
 type Authorization struct {
@@ -248,6 +252,7 @@ func createRouter(h *handler) *chi.Mux {
 					r.Get("/status", h.cloudStatus)
 					r.Get("/search/logs", h.cloudSearchLogs)
 					r.Get("/alerts", h.cloudAlerts)
+					r.Get("/alerts/recent", h.cloudRecentAlerts)
 					r.Get("/config", h.cloudConfig)
 					r.Post("/feedback", h.cloudFeedback)
 

@@ -39,6 +39,7 @@ func Test_cloudRoleGatesLinkingNotLooking(t *testing.T) {
 		"GET /api/cloud/status",
 		"GET /api/cloud/config",
 		"GET /api/cloud/alerts",
+		"GET /api/cloud/alerts/recent",
 		"GET /api/cloud/search/logs",
 		"POST /api/cloud/feedback",
 	}

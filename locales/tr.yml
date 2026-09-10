@@ -342,12 +342,25 @@ terminal:
   next-match: Sonraki eşleşme
   close-search: Aramayı kapat
 notifications:
+  history:
+    title: Etkinlik
+    loading: Etkinlik yükleniyor…
+    failed: Etkinlik yüklenemedi.
+    empty-unlinked: Bu örnek Dozzle Cloud'a bağlandığında uyarılar burada görünür. O zamana kadar yalnızca log akışında geçer ve sayfa yenilenince kaybolur.
+    empty: Son zamanlarda hiçbir şey tetiklenmedi.
+    still-happening: hâlâ sürüyor
+    events: "{n} olay"
+    suppressed: "· {n} bastırıldı"
+    show-lines: Satırları göster
+    open-in-cloud: Dozzle Cloud'da aç
+    fired-recently: kez son zamanlarda
   title: Bildirimler
   description: Uyarıları nerede ve ne zaman alacağınızı yapılandırın
   destinations: Hedefler
   add-destination: Hedef ekle
   alerts: Uyarılar
   add-alert: Uyarı ekle
+  new-alerts: Yeni uyarılar
   prefill-name: Hata uyarıları
   prefill-expression: level == "error"
   add: Ekle

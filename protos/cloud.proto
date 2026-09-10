@@ -23,6 +23,28 @@ service CloudToolService {
   // the log store, so they exist for anyone who linked cloud and configured a
   // subscription.
   rpc GetAlerts(GetAlertsRequest) returns (GetAlertsResponse);
+
+  // Dozzle-initiated unary call: what fired lately anywhere on this instance.
+  // GetAlerts answers "what fired inside this scroll window, for these
+  // containers", which is what the viewer needs and only the viewer needs.
+  // The notifications page and the container dot ask the opposite question and
+  // never know a container list up front. Scoped server-side to the
+  // (user_id, api_key_id) on the connection, like everything else here.
+  rpc GetRecentAlerts(GetRecentAlertsRequest) returns (GetAlertsResponse);
+}
+
+message GetRecentAlertsRequest {
+  // Oldest alert to return, unix nanoseconds. 0 lets cloud apply its own
+  // default window rather than making every caller agree on one.
+  int64 since_ts_ns = 1;
+  // Result cap. Default 50, server-capped at 200, matching GetAlerts.
+  int32 limit = 2;
+  // Narrow to the alerts one subscription raised, for the per-rule activity
+  // line on its card. Empty returns every subscription's.
+  string subscription_id = 3;
+  // Include anchors where an already-open incident was still firing. Default
+  // false keeps a long-running incident to a single row.
+  bool include_follow_ups = 4;
 }
 
 message ToolRequest {
@@ -411,6 +433,10 @@ message AlertHit {
   // Deep link to the alert page in Dozzle Cloud, built from the API key's
   // app_url. Empty when the key has no app_url configured.
   string url = 15;
+  // The subscription that raised this alert, so the notifications page can put
+  // activity on the rule that caused it rather than only in a flat list.
+  // Empty for alerts cloud raised without a Dozzle-side rule behind them.
+  string subscription_id = 18;
 }
 
 // One matched event — a notification Dozzle raised because it matched a

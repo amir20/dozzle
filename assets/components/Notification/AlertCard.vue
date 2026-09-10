@@ -153,6 +153,20 @@
           </button>
         </div>
       </div>
+
+      <!--
+        What this rule actually did. A rule editor with no record of its own
+        firings can only ever be configuration; this is the half a local webhook
+        cannot have, because nothing remembers a fire-and-forget POST.
+      -->
+      <div v-if="linked && firings.length" class="border-base-content/10 flex items-center gap-2 border-t pt-3">
+        <mdi:history class="text-base-content/40 size-3.5 shrink-0" />
+        <span class="text-base-content/60 text-xs">
+          <span class="font-mono font-semibold">{{ firings.length }}</span>
+          {{ $t("notifications.history.fired-recently") }}
+        </span>
+        <RelativeTime v-if="lastFired" :date="lastFired" class="text-base-content/40 ml-auto font-mono text-xs" />
+      </div>
     </div>
   </div>
 </template>
@@ -161,12 +175,20 @@
 import type { Dispatcher, NotificationRule } from "@/types/notifications";
 import AlertForm from "./AlertForm.vue";
 
+const { linked } = useCloudSurface();
+const { forSubscription, fetchRecentAlerts } = useRecentAlerts();
+
 const { alert, dispatchers, onUpdated, highlight } = defineProps<{
   alert: NotificationRule;
   dispatchers: Dispatcher[];
   onUpdated?: () => void;
   highlight?: boolean;
 }>();
+
+// Shared fetch: every card on the page reads the same rows.
+onMounted(() => fetchRecentAlerts());
+const firings = forSubscription(alert.id);
+const lastFired = computed(() => (firings.value.length ? new Date(firings.value[0].ts / 1e6) : undefined));
 
 // Log alerts have no cooldown, metric alerts default to 5m, events only have one when set.
 const cooldownSeconds = computed(() => {

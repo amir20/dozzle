@@ -367,6 +367,7 @@ declare global {
   const usePrevious: typeof import('@vueuse/core').usePrevious
   const useProfileStorage: typeof import('./composable/profileStorage').useProfileStorage
   const useRafFn: typeof import('@vueuse/core').useRafFn
+  const useRecentAlerts: typeof import('./composable/recentAlerts').useRecentAlerts
   const useRefHistory: typeof import('@vueuse/core').useRefHistory
   const useResizeObserver: typeof import('@vueuse/core').useResizeObserver
   const useResolvedTheme: typeof import('./composable/theme').useResolvedTheme
@@ -876,6 +877,7 @@ declare module 'vue' {
     readonly usePrevious: UnwrapRef<typeof import('@vueuse/core')['usePrevious']>
     readonly useProfileStorage: UnwrapRef<typeof import('./composable/profileStorage')['useProfileStorage']>
     readonly useRafFn: UnwrapRef<typeof import('@vueuse/core')['useRafFn']>
+    readonly useRecentAlerts: UnwrapRef<typeof import('./composable/recentAlerts')['useRecentAlerts']>
     readonly useRefHistory: UnwrapRef<typeof import('@vueuse/core')['useRefHistory']>
     readonly useResizeObserver: UnwrapRef<typeof import('@vueuse/core')['useResizeObserver']>
     readonly useResolvedTheme: UnwrapRef<typeof import('./composable/theme')['useResolvedTheme']>

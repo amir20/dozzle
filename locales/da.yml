@@ -338,12 +338,25 @@ terminal:
   next-match: Næste match
   close-search: Luk søgning
 notifications:
+  history:
+    title: Aktivitet
+    loading: Indlæser aktivitet…
+    failed: Kunne ikke indlæse aktivitet.
+    empty-unlinked: Alarmer vises her, når denne instans er forbundet til Dozzle Cloud. Indtil da optræder de i logstrømmen og glemmes ved genindlæsning.
+    empty: Intet er udløst nyligt.
+    still-happening: sker stadig
+    events: "{n} hændelser"
+    suppressed: "· {n} undertrykt"
+    show-lines: Vis mig linjerne
+    open-in-cloud: Åbn i Dozzle Cloud
+    fired-recently: gange nyligt
   title: Notifikationer
   description: Konfigurer hvor og hvornår du vil modtage alarmer
   destinations: Destinationer
   add-destination: Tilføj destination
   alerts: Alarmer
   add-alert: Tilføj alarm
+  new-alerts: Nye advarsler
   prefill-name: Fejlalarmer
   prefill-expression: level == "error"
   add: Tilføj

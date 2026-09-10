@@ -42,6 +42,7 @@ export interface Profile {
   cloudWelcomeShown?: boolean;
   dismissedImageUpdates?: Set<string>;
   dismissedLinkHint?: boolean;
+  lastSeenAlertTs?: number;
 }
 
 const pageConfig = JSON.parse(text);

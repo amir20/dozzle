@@ -398,6 +398,18 @@ terminal:
   next-match: Next match
   close-search: Close search
 notifications:
+  history:
+    title: Activity
+    loading: Loading activity…
+    failed: Could not load activity.
+    empty-unlinked: Alerts show up here once this instance is linked to Dozzle Cloud. Until then they appear in the log stream and are forgotten on refresh.
+    empty: Nothing has fired recently.
+    still-happening: still happening
+    events: "{n} events"
+    suppressed: "· {n} suppressed"
+    show-lines: Show me the lines
+    open-in-cloud: Open in Dozzle Cloud
+    fired-recently: times recently
   title: Notifications
   description: Configure where and when to receive alerts
   destinations: Destinations
@@ -405,6 +417,7 @@ notifications:
   alerts: Alerts
   add: Add
   add-alert: Add alert
+  new-alerts: New alerts
   prefill-name: Error alerts
   prefill-expression: level == "error"
   default-alert-created: "We created a default alert for you. You'll get notified when any container exits with an error. Edit or pause it anytime."

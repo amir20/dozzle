@@ -350,12 +350,25 @@ terminal:
   next-match: Kecocokan berikutnya
   close-search: Tutup pencarian
 notifications:
+  history:
+    title: Aktivitas
+    loading: Memuat aktivitas…
+    failed: Tidak dapat memuat aktivitas.
+    empty-unlinked: Peringatan muncul di sini setelah instance ini ditautkan ke Dozzle Cloud. Sebelum itu, peringatan hanya lewat di aliran log dan hilang saat dimuat ulang.
+    empty: Belum ada yang terpicu baru-baru ini.
+    still-happening: masih berlangsung
+    events: "{n} kejadian"
+    suppressed: "· {n} ditekan"
+    show-lines: Tunjukkan barisnya
+    open-in-cloud: Buka di Dozzle Cloud
+    fired-recently: kali baru-baru ini
   title: Notifikasi
   description: Konfigurasikan di mana dan kapan menerima peringatan
   destinations: Tujuan
   add-destination: Tambah tujuan
   alerts: Peringatan
   add-alert: Tambah peringatan
+  new-alerts: Peringatan baru
   prefill-name: Peringatan kesalahan
   prefill-expression: level == "error"
   add: Tambah

@@ -338,12 +338,25 @@ terminal:
   next-match: Correspondance suivante
   close-search: Fermer la recherche
 notifications:
+  history:
+    title: Activité
+    loading: Chargement de l'activité…
+    failed: Impossible de charger l'activité.
+    empty-unlinked: Les alertes apparaissent ici dès que cette instance est liée à Dozzle Cloud. En attendant, elles passent dans le flux de logs et sont oubliées au rechargement.
+    empty: Rien ne s'est déclenché récemment.
+    still-happening: toujours en cours
+    events: "{n} événements"
+    suppressed: "· {n} supprimés"
+    show-lines: Montre-moi les lignes
+    open-in-cloud: Ouvrir dans Dozzle Cloud
+    fired-recently: fois récemment
   title: Notifications
   description: Configurez où et quand recevoir des alertes
   destinations: Destinations
   add-destination: Ajouter une destination
   alerts: Alertes
   add-alert: Ajouter une alerte
+  new-alerts: Nouvelles alertes
   prefill-name: Alertes d'erreur
   prefill-expression: level == "error"
   add: Ajouter
