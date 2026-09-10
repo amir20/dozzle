@@ -15,7 +15,7 @@
     v-if="alert"
     class="flex shrink-0 items-center"
     placement="bottom-start"
-    panel-class="rounded-box bg-base-200 border-base-content/10 w-72 border p-3 shadow-lg"
+    panel-class="rounded-box bg-base-200 border-base-content/10 w-80 border shadow-lg"
     hover
     @click.stop
   >
@@ -28,27 +28,40 @@
     </template>
 
     <template #default="{ close }">
-      <div class="flex items-start gap-2.5">
+      <!-- The same parts as an AlertRow, at popover width: tinted glyph, a
+           headline that carries its own severity chip, then the meta line. -->
+      <div class="flex items-start gap-3 p-3">
         <div class="mt-0.5 flex size-7 shrink-0 items-center justify-center rounded-full" :class="tint">
           <mdi:alert-circle-outline class="size-4" />
         </div>
         <div class="min-w-0 flex-1">
-          <p class="text-sm font-semibold">{{ alert.headline }}</p>
-          <div class="text-base-content/60 mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs">
+          <div class="flex flex-wrap items-baseline gap-x-2 gap-y-1">
+            <span class="text-sm font-semibold">{{ alert.headline }}</span>
             <span class="status-pill" :class="pill">{{ alert.level || "info" }}</span>
+          </div>
+          <div class="text-base-content/60 mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs">
             <RelativeTime :date="firedAt" />
             <span class="font-mono">{{ $t("notifications.history.events", { n: alert.eventCount }) }}</span>
           </div>
-          <p v-if="alert.summary" class="text-base-content/60 mt-2 text-sm">{{ alert.summary }}</p>
+          <p v-if="alert.summary" class="text-base-content/60 mt-1.5 line-clamp-4 text-sm">{{ alert.summary }}</p>
         </div>
       </div>
 
       <!-- The one move Dozzle can make that Cloud cannot, so it is the only
-           action here and it is the primary one. -->
-      <button type="button" class="btn btn-primary btn-sm mt-3 w-full" @click="showLines(close)">
-        <mdi:text-search class="size-4" />
-        {{ label }}
-      </button>
+           action here. A solid block at panel width shouted over the alert it
+           was about, so it is a row instead: hairline above, quiet until
+           hovered. -->
+      <div class="bg-base-content/10 h-px"></div>
+      <div class="p-1.5">
+        <button
+          type="button"
+          class="hover:bg-base-300 flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-sm font-medium transition-colors"
+          @click="showLines(close)"
+        >
+          <mdi:text-search class="size-4 shrink-0 opacity-60" />
+          {{ label }}
+        </button>
+      </div>
     </template>
   </Popover>
 </template>
