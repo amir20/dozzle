@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"time"
 
 	pb "github.com/amir20/dozzle/proto/cloud"
 	"github.com/rs/zerolog/log"
@@ -20,14 +21,17 @@ type ViewContainer struct {
 
 // ViewContext is what the user was looking at when they asked.
 type ViewContext struct {
-	Kind        string          `json:"kind"`
-	Target      string          `json:"target,omitempty"`
-	Containers  []ViewContainer `json:"containers,omitempty"`
-	Hosts       []string        `json:"hosts,omitempty"`
-	Search      string          `json:"search,omitempty"`
-	Levels      []string        `json:"levels,omitempty"`
-	VisibleAtNs int64           `json:"visibleAt,omitempty"`
-	Historical  bool            `json:"historical,omitempty"`
+	Kind       string          `json:"kind"`
+	Target     string          `json:"target,omitempty"`
+	Containers []ViewContainer `json:"containers,omitempty"`
+	Hosts      []string        `json:"hosts,omitempty"`
+	Search     string          `json:"search,omitempty"`
+	Levels     []string        `json:"levels,omitempty"`
+	// VisibleAt is the moment in view, RFC 3339. A string rather than nanos
+	// because that is what the browser has and what a human reads in a log; it
+	// becomes nanoseconds on the wire to cloud.
+	VisibleAt  string `json:"visibleAt,omitempty"`
+	Historical bool   `json:"historical,omitempty"`
 }
 
 // ChatEvent is one thing that happened during a turn, on its way to the
@@ -147,6 +151,15 @@ func viewToProto(v ViewContext) *pb.ViewContext {
 	for _, c := range v.Containers {
 		containers = append(containers, &pb.ViewContainer{Id: c.ID, Name: c.Name, Host: c.Host})
 	}
+	// An unparseable or absent timestamp sends 0, which cloud reads as "no
+	// particular moment". Refusing the whole turn over it would be worse.
+	var visibleAtNs int64
+	if v.VisibleAt != "" {
+		if t, err := time.Parse(time.RFC3339, v.VisibleAt); err == nil {
+			visibleAtNs = t.UnixNano()
+		}
+	}
+
 	return &pb.ViewContext{
 		Kind:        v.Kind,
 		Target:      v.Target,
@@ -154,7 +167,7 @@ func viewToProto(v ViewContext) *pb.ViewContext {
 		Hosts:       v.Hosts,
 		Search:      v.Search,
 		Levels:      v.Levels,
-		VisibleAtNs: v.VisibleAtNs,
+		VisibleAtNs: visibleAtNs,
 		Historical:  v.Historical,
 	}
 }
