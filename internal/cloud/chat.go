@@ -35,7 +35,7 @@ type ViewContext struct {
 }
 
 // ChatEvent is one thing that happened during a turn, on its way to the
-// browser. Kind is "status", "delta", "done" or "error".
+// browser. Kind is "status", "delta", "reset", "done" or "error".
 type ChatEvent struct {
 	Kind      string `json:"kind"`
 	Text      string `json:"text,omitempty"`
@@ -120,7 +120,12 @@ func (c *Client) Chat(
 		case *pb.ChatServerEvent_Status:
 			emit(ChatEvent{Kind: "status", Text: t.Status.GetText()})
 		case *pb.ChatServerEvent_Delta:
-			emit(ChatEvent{Kind: "delta", Text: t.Delta.GetText()})
+			if t.Delta.GetReset_() {
+				emit(ChatEvent{Kind: "reset"})
+			}
+			if text := t.Delta.GetText(); text != "" {
+				emit(ChatEvent{Kind: "delta", Text: text})
+			}
 		case *pb.ChatServerEvent_Done:
 			emit(ChatEvent{Kind: "done", SessionID: t.Done.GetSessionId()})
 			return nil

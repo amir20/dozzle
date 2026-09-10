@@ -74,6 +74,10 @@ export function useCloudChat() {
           if (event.kind === "delta") {
             reply.text += event.text;
             status.value = "";
+          } else if (event.kind === "reset") {
+            // The model fell back, or a round turned into a tool call. What has
+            // been shown is no longer part of the answer.
+            reply.text = "";
           } else if (event.kind === "status") {
             status.value = event.text;
           } else if (event.kind === "error") {

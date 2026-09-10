@@ -576,8 +576,13 @@ func (x *ChatStatus) GetText() string {
 }
 
 type ChatDelta struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Text          string                 `protobuf:"bytes,1,opt,name=text,proto3" json:"text,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	Text  string                 `protobuf:"bytes,1,opt,name=text,proto3" json:"text,omitempty"`
+	// Throw away everything shown so far and re-render from the deltas that
+	// follow. Happens on a model fallback, or when a round turned into a tool
+	// call. A flag rather than a sentinel in `text`, which a log line quoted back
+	// by the assistant could otherwise forge.
+	Reset_        bool `protobuf:"varint,2,opt,name=reset,proto3" json:"reset,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -617,6 +622,13 @@ func (x *ChatDelta) GetText() string {
 		return x.Text
 	}
 	return ""
+}
+
+func (x *ChatDelta) GetReset_() bool {
+	if x != nil {
+		return x.Reset_
+	}
+	return false
 }
 
 type ChatDone struct {
@@ -3595,9 +3607,10 @@ const file_cloud_proto_rawDesc = "" +
 	"\x04type\" \n" +
 	"\n" +
 	"ChatStatus\x12\x12\n" +
-	"\x04text\x18\x01 \x01(\tR\x04text\"\x1f\n" +
+	"\x04text\x18\x01 \x01(\tR\x04text\"5\n" +
 	"\tChatDelta\x12\x12\n" +
-	"\x04text\x18\x01 \x01(\tR\x04text\")\n" +
+	"\x04text\x18\x01 \x01(\tR\x04text\x12\x14\n" +
+	"\x05reset\x18\x02 \x01(\bR\x05reset\")\n" +
 	"\bChatDone\x12\x1d\n" +
 	"\n" +
 	"session_id\x18\x01 \x01(\tR\tsessionId\"9\n" +
