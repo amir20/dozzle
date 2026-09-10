@@ -106,6 +106,7 @@ label:
   k8s-menu: 쿠버네티스
   group-menu: 사용자 그룹
   no-logs: 아직 로그가 없습니다
+  no-logs-hint: "컨테이너가 출력하는 내용이 바로 여기에 표시됩니다."
   search-status:
     searching: 이전 로그 검색 중…
     searching-to: 이전 로그 검색 중… {time}까지

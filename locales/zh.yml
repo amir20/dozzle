@@ -84,6 +84,7 @@ label:
   namespaces: 命名空间
   owners: 所属工作负载
   no-logs: 容器尚无日志
+  no-logs-hint: "容器输出的内容会立即显示在这里。"
   search-status:
     searching: 正在搜索较旧的日志…
     searching-to: 正在搜索较旧的日志…回溯至 {time}

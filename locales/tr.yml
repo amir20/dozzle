@@ -106,6 +106,7 @@ label:
   k8s-menu: Kubernetes
   group-menu: Özel Gruplar
   no-logs: Konteyner henüz log içermiyor
+  no-logs-hint: "Konteynerin yazdığı her şey anında burada görünür."
   search-status:
     searching: Eski loglar aranıyor…
     searching-to: Eski loglar aranıyor… {time} tarihine kadar

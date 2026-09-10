@@ -106,6 +106,7 @@ label:
   k8s-menu: Kubernetes
   group-menu: Brugerdefinerede Grupper
   no-logs: Container har ingen logs endnu
+  no-logs-hint: "Alt hvad containeren skriver, vises her med det samme."
   search-status:
     searching: Søger i ældre logs…
     searching-to: Søger i ældre logs… tilbage til {time}

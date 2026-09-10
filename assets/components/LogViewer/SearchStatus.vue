@@ -2,19 +2,14 @@
   <!-- Progress and completion are a thin sticky strip over the log stream; an empty
        result is not a status line but the whole answer, so it takes the room the log
        list would have filled. -->
-  <div
+  <EmptyState
     v-if="state === 'empty'"
     data-state="empty"
-    class="flex flex-col items-center gap-3 px-4 py-12 text-center font-sans"
+    :title="$t('label.search-status.empty')"
+    :hint="$t('label.search-status.empty-hint')"
   >
-    <div class="bg-base-content/5 text-base-content/40 flex size-10 items-center justify-center rounded-full">
-      <mdi:text-search class="size-5" />
-    </div>
-    <div class="flex flex-col gap-1">
-      <p class="text-sm font-semibold">{{ $t("label.search-status.empty") }}</p>
-      <p class="text-base-content/50 text-xs">{{ $t("label.search-status.empty-hint") }}</p>
-    </div>
-  </div>
+    <template #icon><mdi:text-search class="size-5" /></template>
+  </EmptyState>
   <div
     v-else-if="state"
     :data-state="state"

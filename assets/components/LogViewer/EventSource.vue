@@ -7,9 +7,14 @@
     </div>
     <span class="sr-only">Loading...</span>
   </ul>
-  <div v-else-if="noLogs && !waitingForMoreLog && !inSearch" class="p-4" data-testid="no-logs">
-    {{ $t("label.no-logs") }}
-  </div>
+  <EmptyState
+    v-else-if="noLogs && !waitingForMoreLog && !inSearch"
+    data-testid="no-logs"
+    :title="$t('label.no-logs')"
+    :hint="$t('label.no-logs-hint')"
+  >
+    <template #icon><mdi:text-box-outline class="size-5" /></template>
+  </EmptyState>
   <slot :messages="messages" v-else></slot>
   <IndeterminateBar :color :intensity="streaming ? 1 : 0" v-if="!historical" />
 </template>

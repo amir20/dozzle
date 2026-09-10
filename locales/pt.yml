@@ -106,6 +106,7 @@ label:
   k8s-menu: Kubernetes
   group-menu: Grupos Personalizados
   no-logs: O container ainda não tem logs
+  no-logs-hint: "Tudo o que o contêiner escrever aparecerá aqui imediatamente."
   search-status:
     searching: Pesquisando logs mais antigos…
     searching-to: Pesquisando logs mais antigos… até {time}

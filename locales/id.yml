@@ -107,6 +107,7 @@ label:
   k8s-menu: Kubernetes
   group-menu: Grup Kustom
   no-logs: Kontainer belum memiliki log
+  no-logs-hint: "Apa pun yang ditulis kontainer akan langsung muncul di sini."
   search-status:
     searching: Mencari log lama…
     searching-to: Mencari log lama… kembali ke {time}

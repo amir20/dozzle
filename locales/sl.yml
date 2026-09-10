@@ -112,6 +112,7 @@ label:
   core: Ni jeder | 1 jedro | {count} jeder
   mem: MEM
   no-logs: Zabojnik še nima dnevnika
+  no-logs-hint: "Vse, kar vsebnik zapiše, se takoj pojavi tukaj."
   search-status:
     searching: Iskanje po starejših dnevnikih…
     searching-to: Iskanje po starejših dnevnikih… nazaj do {time}
