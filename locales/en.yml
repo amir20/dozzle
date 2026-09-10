@@ -218,6 +218,25 @@ button:
 placeholder:
   search-containers: Search containers (⌘ + k, ⌃k)
   search: Search
+cloud-rail:
+  title: Dozzle Cloud
+  chat: Ask Dozzle
+  metrics: Metrics
+  alerts: Alerts
+  close: Close
+  hide: Hide the cloud rail
+  show: Show the cloud rail
+  alerts-empty-here: Nothing has fired on what you're looking at.
+  all-activity: All activity
+  metrics-no-container: Open a container to see its history.
+  metrics-loading: Loading history…
+  metrics-failed: Could not load the history.
+  metrics-empty: Nothing recorded for this window yet.
+  metrics-peak: peak
+  metrics-bucket: "{duration} averages"
+  window-1h: 1h
+  window-6h: 6h
+  window-24h: 24h
 cloud-chat:
   title: Ask Dozzle
   close: Close

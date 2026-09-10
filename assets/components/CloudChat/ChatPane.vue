@@ -1,18 +1,5 @@
 <template>
-  <div class="bg-base-100 flex h-screen min-h-0 flex-col">
-    <div class="border-base-content/10 flex shrink-0 items-center gap-2 border-b px-4 py-3">
-      <mdi:message-outline class="text-base-content/60 size-4 shrink-0" />
-      <span class="text-sm font-semibold">{{ $t("cloud-chat.title") }}</span>
-      <button
-        type="button"
-        class="btn btn-ghost btn-xs btn-square ml-auto"
-        :aria-label="$t('cloud-chat.close')"
-        @click="closePane()"
-      >
-        <mdi:close class="size-4" />
-      </button>
-    </div>
-
+  <div class="bg-base-100 flex h-full min-h-0 flex-col">
     <div ref="scroller" class="flex min-h-0 flex-1 flex-col overflow-y-auto px-4 py-3" @scroll="onScroll">
       <!-- An empty thread is centred; a started one hugs the composer, because a
            lone bubble at the top of a tall column reads as a stuck pane. -->
@@ -84,7 +71,7 @@
 </template>
 
 <script lang="ts" setup>
-const { messages, status, activity, streaming, focused, ask, clearFocus, closePane } = useCloudChat();
+const { messages, status, activity, streaming, focused, ask, clearFocus } = useCloudChat();
 const view = useViewContext();
 const draft = ref("");
 const { t } = useI18n();

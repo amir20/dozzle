@@ -641,6 +641,25 @@ cloud:
       disk-free: "Biriminde 1 GB'tan az boş alan"
       fatal: "Herhangi bir fatal satırı"
       error: "Herhangi bir error satırı"
+cloud-rail:
+  title: Dozzle Cloud
+  chat: Dozzle'a sor
+  metrics: Metrikler
+  alerts: Uyarılar
+  close: Kapat
+  hide: Cloud çubuğunu gizle
+  show: Cloud çubuğunu göster
+  alerts-empty-here: Baktığınız şey için hiçbir şey tetiklenmedi.
+  all-activity: Tüm etkinlik
+  metrics-no-container: Geçmişi görmek için bir konteyner açın.
+  metrics-loading: Geçmiş yükleniyor…
+  metrics-failed: Geçmiş yüklenemedi.
+  metrics-empty: Bu aralık için henüz kayıt yok.
+  metrics-peak: tepe
+  metrics-bucket: "{duration} ortalamaları"
+  window-1h: 1 sa
+  window-6h: 6 sa
+  window-24h: 24 sa
 cloud-chat:
   title: Dozzle'a sor
   close: Kapat

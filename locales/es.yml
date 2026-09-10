@@ -210,6 +210,25 @@ button:
 placeholder:
   search-containers: Buscar contenedores (⌘ + K, CTRL + K)
   search: Buscar
+cloud-rail:
+  title: Dozzle Cloud
+  chat: Preguntar a Dozzle
+  metrics: Métricas
+  alerts: Alertas
+  close: Cerrar
+  hide: Ocultar la barra de cloud
+  show: Mostrar la barra de cloud
+  alerts-empty-here: No se ha disparado nada en lo que estás viendo.
+  all-activity: Toda la actividad
+  metrics-no-container: Abre un contenedor para ver su historial.
+  metrics-loading: Cargando el historial…
+  metrics-failed: No se pudo cargar el historial.
+  metrics-empty: Todavía no hay nada registrado para este intervalo.
+  metrics-peak: pico
+  metrics-bucket: promedios de {duration}
+  window-1h: 1 h
+  window-6h: 6 h
+  window-24h: 24 h
 cloud-chat:
   title: Preguntar a Dozzle
   close: Cerrar

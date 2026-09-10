@@ -1,5 +1,7 @@
 <template>
-  <div>
+  <!-- The rail is fixed to the right edge, so the page reserves its width
+       instead of letting it sit over the logs. -->
+  <div :style="{ paddingRight: `${railOffset}px` }">
     <MobileMenu v-if="isMobile && !forceMenuHidden" @search="showFuzzySearch"></MobileMenu>
     <Splitpanes @resized="onResized($event)">
       <Pane min-size="10" :size="menuWidth" v-if="navVisible">
@@ -9,11 +11,6 @@
         <Splitpanes>
           <Pane class="router-view min-h-screen">
             <router-view></router-view>
-          </Pane>
-          <!-- Beside the stream, not over it: the whole argument for a pane
-               is that you keep watching the logs while asking about them. -->
-          <Pane v-if="chatOpen && !isMobile" min-size="15" :size="chatWidth">
-            <ChatPane />
           </Pane>
           <template v-if="!isMobile">
             <Pane v-for="other in pinnedLogs" :key="other.id">
@@ -39,6 +36,8 @@
       <mdi:chevron-left class="swap-off" />
     </label>
   </div>
+  <CloudRail v-if="railVisible" />
+  <CloudRailHandle v-else-if="cloudLinked && !isMobile" />
   <dialog ref="modal" class="modal bg-base-300/50! items-start backdrop-blur-md transition-none!" @close="closeSearch">
     <div class="modal-box max-w-2xl overflow-visible! bg-transparent pt-20 shadow-none">
       <FuzzySearchModal @close="closeSearch" v-if="open" />
@@ -76,16 +75,9 @@ import { useFuzzySearch } from "@/composable/fuzzySearch";
 
 // Pulls fuse.js (~48 KB) with it, and the palette only renders once the user opens it.
 const FuzzySearchModal = defineAsyncComponent(() => import("@/components/FuzzySearchModal.vue"));
-// Same deal: the pane carries markdown-it, and nobody who never asks a question
-// should download it.
-const ChatPane = defineAsyncComponent(() => import("@/components/CloudChat/ChatPane.vue"));
 
-const { open: chatOpen, openPane: openChat } = useCloudChat();
-// Splitpanes only speaks percentages, and a fixed 28% of a laptop is narrower
-// than the paragraphs the assistant writes back. 550px is the width they were
-// written for; the clamps keep it sane on a small window and on an ultrawide.
-const { width: windowWidth } = useWindowSize();
-const chatWidth = computed(() => Math.min(50, Math.max(20, (550 / windowWidth.value) * 100)));
+const { railOffset, visible: railVisible, toggleRail } = useCloudRail();
+const { linked: cloudLinked } = useCloudSurface();
 
 const modal = ref<HTMLDialogElement>();
 const { open, openSearch: showFuzzySearch, closeSearch } = useFuzzySearch();
@@ -115,11 +107,11 @@ onKeyStroke("k", (e) => {
   }
 });
 
-// Shift is the pane; the palette keeps the bare chord. Registered on the layout
-// rather than the toolbar so it works on every view the pane can talk about.
+// Shift is the assistant; the palette keeps the bare chord. Registered on the
+// layout rather than the toolbar so it works on every view it can talk about.
 onKeyStroke(["k", "K"], (e) => {
   if ((e.ctrlKey || e.metaKey) && e.shiftKey) {
-    openChat();
+    toggleRail("chat");
     e.preventDefault();
   }
 });

@@ -640,6 +640,25 @@ cloud:
       disk-free: "Wolumin z mniej niż 1 GB wolnego"
       fatal: "Dowolna linia fatal"
       error: "Dowolna linia error"
+cloud-rail:
+  title: Dozzle Cloud
+  chat: Zapytaj Dozzle
+  metrics: Metryki
+  alerts: Alerty
+  close: Zamknij
+  hide: Ukryj pasek cloud
+  show: Pokaż pasek cloud
+  alerts-empty-here: Nic się nie uruchomiło dla tego, co oglądasz.
+  all-activity: Cała aktywność
+  metrics-no-container: Otwórz kontener, aby zobaczyć jego historię.
+  metrics-loading: Ładowanie historii…
+  metrics-failed: Nie udało się wczytać historii.
+  metrics-empty: Nic jeszcze nie zapisano dla tego okna.
+  metrics-peak: szczyt
+  metrics-bucket: średnie z {duration}
+  window-1h: 1 godz
+  window-6h: 6 godz
+  window-24h: 24 godz
 cloud-chat:
   title: Zapytaj Dozzle
   close: Zamknij

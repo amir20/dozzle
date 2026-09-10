@@ -641,6 +641,25 @@ cloud:
       disk-free: "볼륨 여유 공간 1GB 미만"
       fatal: "모든 fatal 줄"
       error: "모든 error 줄"
+cloud-rail:
+  title: Dozzle Cloud
+  chat: Dozzle에게 질문
+  metrics: 메트릭
+  alerts: 알림
+  close: 닫기
+  hide: 클라우드 레일 숨기기
+  show: 클라우드 레일 표시
+  alerts-empty-here: 보고 있는 대상에서 발생한 알림이 없습니다.
+  all-activity: 전체 활동
+  metrics-no-container: 컨테이너를 열면 기록을 볼 수 있습니다.
+  metrics-loading: 기록 불러오는 중…
+  metrics-failed: 기록을 불러오지 못했습니다.
+  metrics-empty: 이 구간에 기록된 데이터가 아직 없습니다.
+  metrics-peak: 최고
+  metrics-bucket: "{duration} 평균"
+  window-1h: 1시간
+  window-6h: 6시간
+  window-24h: 24시간
 cloud-chat:
   title: Dozzle에 질문
   close: 닫기

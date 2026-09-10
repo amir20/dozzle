@@ -19,11 +19,12 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	CloudToolService_ToolStream_FullMethodName      = "/cloud.CloudToolService/ToolStream"
-	CloudToolService_SearchLogs_FullMethodName      = "/cloud.CloudToolService/SearchLogs"
-	CloudToolService_GetAlerts_FullMethodName       = "/cloud.CloudToolService/GetAlerts"
-	CloudToolService_GetRecentAlerts_FullMethodName = "/cloud.CloudToolService/GetRecentAlerts"
-	CloudToolService_Chat_FullMethodName            = "/cloud.CloudToolService/Chat"
+	CloudToolService_ToolStream_FullMethodName          = "/cloud.CloudToolService/ToolStream"
+	CloudToolService_SearchLogs_FullMethodName          = "/cloud.CloudToolService/SearchLogs"
+	CloudToolService_GetAlerts_FullMethodName           = "/cloud.CloudToolService/GetAlerts"
+	CloudToolService_GetRecentAlerts_FullMethodName     = "/cloud.CloudToolService/GetRecentAlerts"
+	CloudToolService_GetContainerMetrics_FullMethodName = "/cloud.CloudToolService/GetContainerMetrics"
+	CloudToolService_Chat_FullMethodName                = "/cloud.CloudToolService/Chat"
 )
 
 // CloudToolServiceClient is the client API for CloudToolService service.
@@ -53,6 +54,13 @@ type CloudToolServiceClient interface {
 	// never know a container list up front. Scoped server-side to the
 	// (user_id, api_key_id) on the connection, like everything else here.
 	GetRecentAlerts(ctx context.Context, in *GetRecentAlertsRequest, opts ...grpc.CallOption) (*GetAlertsResponse, error)
+	// Dozzle-initiated unary call: the stats Cloud kept for one container.
+	//
+	// Dozzle holds a rolling 300 samples in the browser and nothing behind it, so
+	// "was it like this an hour ago" has no local answer. Cloud already receives
+	// these samples over StatsBatch; this reads them back. Scoped server-side to
+	// the (user_id, api_key_id) on the connection, like everything else here.
+	GetContainerMetrics(ctx context.Context, in *GetContainerMetricsRequest, opts ...grpc.CallOption) (*GetContainerMetricsResponse, error)
 	// One assistant turn, opened by the Dozzle request that started it.
 	//
 	// Deliberately not served over ToolStream. That stream is owned by the
@@ -115,6 +123,16 @@ func (c *cloudToolServiceClient) GetRecentAlerts(ctx context.Context, in *GetRec
 	return out, nil
 }
 
+func (c *cloudToolServiceClient) GetContainerMetrics(ctx context.Context, in *GetContainerMetricsRequest, opts ...grpc.CallOption) (*GetContainerMetricsResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetContainerMetricsResponse)
+	err := c.cc.Invoke(ctx, CloudToolService_GetContainerMetrics_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *cloudToolServiceClient) Chat(ctx context.Context, opts ...grpc.CallOption) (grpc.BidiStreamingClient[ChatClientEvent, ChatServerEvent], error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	stream, err := c.cc.NewStream(ctx, &CloudToolService_ServiceDesc.Streams[1], CloudToolService_Chat_FullMethodName, cOpts...)
@@ -155,6 +173,13 @@ type CloudToolServiceServer interface {
 	// never know a container list up front. Scoped server-side to the
 	// (user_id, api_key_id) on the connection, like everything else here.
 	GetRecentAlerts(context.Context, *GetRecentAlertsRequest) (*GetAlertsResponse, error)
+	// Dozzle-initiated unary call: the stats Cloud kept for one container.
+	//
+	// Dozzle holds a rolling 300 samples in the browser and nothing behind it, so
+	// "was it like this an hour ago" has no local answer. Cloud already receives
+	// these samples over StatsBatch; this reads them back. Scoped server-side to
+	// the (user_id, api_key_id) on the connection, like everything else here.
+	GetContainerMetrics(context.Context, *GetContainerMetricsRequest) (*GetContainerMetricsResponse, error)
 	// One assistant turn, opened by the Dozzle request that started it.
 	//
 	// Deliberately not served over ToolStream. That stream is owned by the
@@ -185,6 +210,9 @@ func (UnimplementedCloudToolServiceServer) GetAlerts(context.Context, *GetAlerts
 }
 func (UnimplementedCloudToolServiceServer) GetRecentAlerts(context.Context, *GetRecentAlertsRequest) (*GetAlertsResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method GetRecentAlerts not implemented")
+}
+func (UnimplementedCloudToolServiceServer) GetContainerMetrics(context.Context, *GetContainerMetricsRequest) (*GetContainerMetricsResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method GetContainerMetrics not implemented")
 }
 func (UnimplementedCloudToolServiceServer) Chat(grpc.BidiStreamingServer[ChatClientEvent, ChatServerEvent]) error {
 	return status.Error(codes.Unimplemented, "method Chat not implemented")
@@ -271,6 +299,24 @@ func _CloudToolService_GetRecentAlerts_Handler(srv interface{}, ctx context.Cont
 	return interceptor(ctx, in, info, handler)
 }
 
+func _CloudToolService_GetContainerMetrics_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetContainerMetricsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CloudToolServiceServer).GetContainerMetrics(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: CloudToolService_GetContainerMetrics_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CloudToolServiceServer).GetContainerMetrics(ctx, req.(*GetContainerMetricsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _CloudToolService_Chat_Handler(srv interface{}, stream grpc.ServerStream) error {
 	return srv.(CloudToolServiceServer).Chat(&grpc.GenericServerStream[ChatClientEvent, ChatServerEvent]{ServerStream: stream})
 }
@@ -296,6 +342,10 @@ var CloudToolService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetRecentAlerts",
 			Handler:    _CloudToolService_GetRecentAlerts_Handler,
+		},
+		{
+			MethodName: "GetContainerMetrics",
+			Handler:    _CloudToolService_GetContainerMetrics_Handler,
 		},
 	},
 	Streams: []grpc.StreamDesc{

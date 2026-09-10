@@ -643,6 +643,25 @@ cloud:
       disk-free: "Nosilec z manj kot 1 GB prostora"
       fatal: "Katerakoli vrstica fatal"
       error: "Katerakoli vrstica error"
+cloud-rail:
+  title: Dozzle Cloud
+  chat: Vprašaj Dozzle
+  metrics: Meritve
+  alerts: Opozorila
+  close: Zapri
+  hide: Skrij oblačno vrstico
+  show: Pokaži oblačno vrstico
+  alerts-empty-here: Za to, kar gledate, se ni sprožilo nič.
+  all-activity: Vsa dejavnost
+  metrics-no-container: Odprite vsebnik, da vidite njegovo zgodovino.
+  metrics-loading: Nalagam zgodovino…
+  metrics-failed: Zgodovine ni bilo mogoče naložiti.
+  metrics-empty: Za to obdobje še ni zapisov.
+  metrics-peak: vrh
+  metrics-bucket: povprečja po {duration}
+  window-1h: 1 h
+  window-6h: 6 h
+  window-24h: 24 h
 cloud-chat:
   title: Vprašaj Dozzle
   close: Zapri

@@ -638,6 +638,25 @@ cloud:
       disk-free: "Volume met minder dan 1 GB vrij"
       fatal: "Elke fatal-regel"
       error: "Elke error-regel"
+cloud-rail:
+  title: Dozzle Cloud
+  chat: Vraag Dozzle
+  metrics: Metrieken
+  alerts: Waarschuwingen
+  close: Sluiten
+  hide: Cloudbalk verbergen
+  show: Cloudbalk tonen
+  alerts-empty-here: Er is niets afgegaan voor wat je bekijkt.
+  all-activity: Alle activiteit
+  metrics-no-container: Open een container om de geschiedenis te zien.
+  metrics-loading: Geschiedenis laden…
+  metrics-failed: Kon de geschiedenis niet laden.
+  metrics-empty: Nog niets vastgelegd voor dit venster.
+  metrics-peak: piek
+  metrics-bucket: "{duration}-gemiddelden"
+  window-1h: 1u
+  window-6h: 6u
+  window-24h: 24u
 cloud-chat:
   title: Vraag het Dozzle
   close: Sluiten

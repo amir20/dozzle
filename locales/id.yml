@@ -649,6 +649,25 @@ cloud:
       disk-free: "Volume dengan sisa kurang dari 1 GB"
       fatal: "Setiap baris fatal"
       error: "Setiap baris error"
+cloud-rail:
+  title: Dozzle Cloud
+  chat: Tanya Dozzle
+  metrics: Metrik
+  alerts: Peringatan
+  close: Tutup
+  hide: Sembunyikan bilah cloud
+  show: Tampilkan bilah cloud
+  alerts-empty-here: Belum ada yang terpicu pada yang sedang Anda lihat.
+  all-activity: Semua aktivitas
+  metrics-no-container: Buka kontainer untuk melihat riwayatnya.
+  metrics-loading: Memuat riwayat…
+  metrics-failed: Riwayat tidak dapat dimuat.
+  metrics-empty: Belum ada rekaman untuk rentang ini.
+  metrics-peak: puncak
+  metrics-bucket: rata-rata {duration}
+  window-1h: 1j
+  window-6h: 6j
+  window-24h: 24j
 cloud-chat:
   title: Tanya Dozzle
   close: Tutup

@@ -637,6 +637,25 @@ cloud:
       disk-free: "На томе меньше 1 ГБ свободно"
       fatal: "Любая строка fatal"
       error: "Любая строка error"
+cloud-rail:
+  title: Dozzle Cloud
+  chat: Спросить Dozzle
+  metrics: Метрики
+  alerts: Оповещения
+  close: Закрыть
+  hide: Скрыть панель облака
+  show: Показать панель облака
+  alerts-empty-here: По тому, что вы смотрите, ничего не срабатывало.
+  all-activity: Вся активность
+  metrics-no-container: Откройте контейнер, чтобы увидеть его историю.
+  metrics-loading: Загружаю историю…
+  metrics-failed: Не удалось загрузить историю.
+  metrics-empty: За этот период данных ещё нет.
+  metrics-peak: пик
+  metrics-bucket: средние за {duration}
+  window-1h: 1 ч
+  window-6h: 6 ч
+  window-24h: 24 ч
 cloud-chat:
   title: Спросить Dozzle
   close: Закрыть

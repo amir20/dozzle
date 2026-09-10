@@ -1,6 +1,13 @@
 <template>
   <transition name="slide">
-    <div class="fixed z-50 flex w-full justify-end p-2" v-show="showSearch" ref="container" :style="style">
+    <!-- Padded past the cloud rail so the box does not open on top of it. A
+         drag sets left/top, which this does not touch. -->
+    <div
+      class="fixed z-50 flex w-full justify-end p-2"
+      v-show="showSearch"
+      ref="container"
+      :style="[style, { paddingRight: railOffset ? `${railOffset + 8}px` : undefined }]"
+    >
       <div class="input input-primary flex items-center shadow-lg" :class="!isValidQuery ? 'input-warning' : ''">
         <mdi:magnify />
         <input
@@ -30,6 +37,7 @@
 const input = ref<HTMLInputElement>();
 const container = ref<HTMLDivElement>();
 const { searchQueryFilter, showSearch, resetSearch, isValidQuery, inverseFilter, toggleInverse } = useSearchFilter();
+const { railOffset } = useCloudRail();
 
 const { style } = useDraggable(container);
 

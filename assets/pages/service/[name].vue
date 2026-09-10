@@ -1,6 +1,6 @@
 <template>
   <Search />
-  <ServiceLog :name="route.params.name" :scrollable="splitColumns" />
+  <ServiceLog :name="route.params.name" :scrollable="pinnedLogs.length > 0" />
 </template>
 
 <script lang="ts" setup>
@@ -9,7 +9,8 @@ const route = useRoute("/service/[name]");
 const containerStore = useContainerStore();
 const { ready } = storeToRefs(containerStore);
 
-const splitColumns = useSplitColumns();
+const pinnedLogsStore = usePinnedLogsStore();
+const { pinnedLogs } = storeToRefs(pinnedLogsStore);
 
 const stackStore = useSwarmStore();
 const { services } = storeToRefs(stackStore);

@@ -637,6 +637,25 @@ cloud:
       disk-free: "Volume mit weniger als 1 GB frei"
       fatal: "Jede Fatal-Zeile"
       error: "Jede Fehlerzeile"
+cloud-rail:
+  title: Dozzle Cloud
+  chat: Dozzle fragen
+  metrics: Metriken
+  alerts: Alarme
+  close: Schließen
+  hide: Cloud-Leiste ausblenden
+  show: Cloud-Leiste einblenden
+  alerts-empty-here: Für das, was du gerade ansiehst, wurde nichts ausgelöst.
+  all-activity: Gesamte Aktivität
+  metrics-no-container: Öffne einen Container, um seinen Verlauf zu sehen.
+  metrics-loading: Verlauf wird geladen…
+  metrics-failed: Der Verlauf konnte nicht geladen werden.
+  metrics-empty: Für diesen Zeitraum wurde noch nichts aufgezeichnet.
+  metrics-peak: Spitze
+  metrics-bucket: "{duration}-Mittelwerte"
+  window-1h: 1 Std
+  window-6h: 6 Std
+  window-24h: 24 Std
 cloud-chat:
   title: Dozzle fragen
   close: Schließen

@@ -637,6 +637,25 @@ cloud:
       disk-free: "卷剩余空间不足 1 GB"
       fatal: "任何 fatal 行"
       error: "任何 error 行"
+cloud-rail:
+  title: Dozzle Cloud
+  chat: 询问 Dozzle
+  metrics: 指标
+  alerts: 告警
+  close: 关闭
+  hide: 隐藏云侧栏
+  show: 显示云侧栏
+  alerts-empty-here: 当前查看的内容没有触发过告警。
+  all-activity: 全部活动
+  metrics-no-container: 打开一个容器即可查看历史。
+  metrics-loading: 正在加载历史…
+  metrics-failed: 无法加载历史。
+  metrics-empty: 该时间段还没有记录。
+  metrics-peak: 峰值
+  metrics-bucket: "{duration} 平均值"
+  window-1h: 1 小时
+  window-6h: 6 小时
+  window-24h: 24 小时
 cloud-chat:
   title: 问 Dozzle
   close: 关闭

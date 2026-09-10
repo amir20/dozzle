@@ -637,6 +637,25 @@ cloud:
       disk-free: "Volume con meno di 1 GB libero"
       fatal: "Qualsiasi riga fatal"
       error: "Qualsiasi riga error"
+cloud-rail:
+  title: Dozzle Cloud
+  chat: Chiedi a Dozzle
+  metrics: Metriche
+  alerts: Avvisi
+  close: Chiudi
+  hide: Nascondi la barra cloud
+  show: Mostra la barra cloud
+  alerts-empty-here: Non è scattato nulla su ciò che stai guardando.
+  all-activity: Tutta l'attività
+  metrics-no-container: Apri un container per vederne la cronologia.
+  metrics-loading: Caricamento della cronologia…
+  metrics-failed: Impossibile caricare la cronologia.
+  metrics-empty: Non c'è ancora nulla registrato per questo intervallo.
+  metrics-peak: picco
+  metrics-bucket: medie su {duration}
+  window-1h: 1 h
+  window-6h: 6 h
+  window-24h: 24 h
 cloud-chat:
   title: Chiedi a Dozzle
   close: Chiudi

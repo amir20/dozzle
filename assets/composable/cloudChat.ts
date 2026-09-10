@@ -23,12 +23,11 @@ export type ChatMessage = {
 /**
  * One assistant thread, shared across the app.
  *
- * The pane is persistent, so "initiating" only happens once: after that the
+ * The panel is persistent, so "initiating" only happens once: after that the
  * user changes what they are asking about by navigating. That is why the thread
- * lives here rather than inside the pane component, and why closing the pane
- * does not end the conversation.
+ * lives here rather than inside the panel component, and why closing the panel
+ * does not end the conversation. Which panel is open is the rail's business.
  */
-const open = ref(false);
 const messages = ref<ChatMessage[]>([]);
 const status = ref("");
 // What Dozzle is doing, as a token it sends instead of a sentence: the server
@@ -41,14 +40,16 @@ const streaming = ref(false);
 const focused = ref<ViewLogLine>();
 
 export function useCloudChat() {
+  const { openRail, closeRail } = useCloudRail();
+
   function openPane() {
-    open.value = true;
+    openRail("chat");
   }
 
-  /** Opens the pane with one line attached, from a log row's menu. */
+  /** Opens the assistant with one line attached, from a log row's menu. */
   function askAboutLine(line: ViewLogLine) {
     focused.value = line;
-    open.value = true;
+    openRail("chat");
   }
 
   function clearFocus() {
@@ -58,7 +59,7 @@ export function useCloudChat() {
   function closePane() {
     // The thread survives. Reopening into a blank box loses whatever you were
     // half way through.
-    open.value = false;
+    closeRail();
   }
 
   async function ask(message: string, context: ViewContext) {
@@ -135,5 +136,5 @@ export function useCloudChat() {
     }
   }
 
-  return { open, messages, status, activity, streaming, focused, ask, askAboutLine, clearFocus, openPane, closePane };
+  return { messages, status, activity, streaming, focused, ask, askAboutLine, clearFocus, openPane, closePane };
 }

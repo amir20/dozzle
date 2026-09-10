@@ -48,7 +48,7 @@
         </a>
       </li>
       <li v-if="cloudLinked">
-        <a @click="openPane()">
+        <a @click="openRail('chat')">
           <mdi:message-outline /> {{ $t("cloud-chat.title") }}
           <KeyShortcut char="k" :modifiers="['shift', 'meta']" />
         </a>
@@ -266,7 +266,7 @@ import Terminal from "@/components/Terminal.vue";
 
 const { showSearch } = useSearchFilter();
 const { linked: cloudLinked } = useCloudSurface();
-const { openPane } = useCloudChat();
+const { openRail } = useCloudRail();
 const { enableActions, enableShell, enableDownload } = config;
 const { streamConfig, hasComplexLogs, levels } = useLoggingContext();
 const showDrawer = useDrawer();

@@ -640,6 +640,25 @@ cloud:
       disk-free: "磁碟區剩餘空間不足 1 GB"
       fatal: "任何 fatal 行"
       error: "任何 error 行"
+cloud-rail:
+  title: Dozzle Cloud
+  chat: 詢問 Dozzle
+  metrics: 指標
+  alerts: 警報
+  close: 關閉
+  hide: 隱藏雲端側欄
+  show: 顯示雲端側欄
+  alerts-empty-here: 目前檢視的內容沒有觸發過警報。
+  all-activity: 全部活動
+  metrics-no-container: 開啟一個容器即可檢視歷史。
+  metrics-loading: 正在載入歷史…
+  metrics-failed: 無法載入歷史。
+  metrics-empty: 該時間範圍還沒有記錄。
+  metrics-peak: 峰值
+  metrics-bucket: "{duration} 平均值"
+  window-1h: 1 小時
+  window-6h: 6 小時
+  window-24h: 24 小時
 cloud-chat:
   title: 問 Dozzle
   close: 關閉

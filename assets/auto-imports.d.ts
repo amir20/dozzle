@@ -14,6 +14,7 @@ declare global {
   const K8sNamespace: typeof import('./stores/k8s').K8sNamespace
   const K8sOwner: typeof import('./stores/k8s').K8sOwner
   const MIN_MENU_WIDTH: typeof import('./stores/settings').MIN_MENU_WIDTH
+  const RAIL_WIDTH: typeof import('./composable/cloudRail').RAIL_WIDTH
   const TEMPLATE_VARIABLES: typeof import('./composable/templateEditor').TEMPLATE_VARIABLES
   const acceptHMRUpdate: typeof import('pinia').acceptHMRUpdate
   const activePopup: typeof import('./composable/popup').activePopup
@@ -24,6 +25,7 @@ declare global {
   const autoResetRef: typeof import('@vueuse/core').autoResetRef
   const automaticRedirect: typeof import('./stores/settings').automaticRedirect
   const buildViewContext: typeof import('./composable/viewContext').buildViewContext
+  const collapseCloudRail: typeof import('./stores/settings').collapseCloudRail
   const collapseNav: typeof import('./stores/settings').collapseNav
   const colorize: typeof import('./utils/index').colorize
   const compact: typeof import('./stores/settings').compact
@@ -258,6 +260,7 @@ declare global {
   const useCloudChat: typeof import('./composable/cloudChat').useCloudChat
   const useCloudConfig: typeof import('./composable/cloudConfig').useCloudConfig
   const useCloudLogSearch: typeof import('./composable/cloudLogSearch').useCloudLogSearch
+  const useCloudRail: typeof import('./composable/cloudRail').useCloudRail
   const useCloudSurface: typeof import('./composable/cloudSurface').useCloudSurface
   const useColorMode: typeof import('@vueuse/core').useColorMode
   const useCommands: typeof import('./composable/commands').useCommands
@@ -485,6 +488,9 @@ declare global {
   export type { CloudLogHit } from './composable/cloudLogSearch'
   import('./composable/cloudLogSearch')
   // @ts-ignore
+  export type { RailPanel } from './composable/cloudRail'
+  import('./composable/cloudRail')
+  // @ts-ignore
   export type { CloudSurfaceState } from './composable/cloudSurface'
   import('./composable/cloudSurface')
   // @ts-ignore
@@ -543,6 +549,7 @@ declare module 'vue' {
     readonly EffectScope: UnwrapRef<typeof import('vue')['EffectScope']>
     readonly K8sNamespace: UnwrapRef<typeof import('./stores/k8s')['K8sNamespace']>
     readonly K8sOwner: UnwrapRef<typeof import('./stores/k8s')['K8sOwner']>
+    readonly RAIL_WIDTH: UnwrapRef<typeof import('./composable/cloudRail')['RAIL_WIDTH']>
     readonly TEMPLATE_VARIABLES: UnwrapRef<typeof import('./composable/templateEditor')['TEMPLATE_VARIABLES']>
     readonly acceptHMRUpdate: UnwrapRef<typeof import('pinia')['acceptHMRUpdate']>
     readonly allLevels: UnwrapRef<typeof import('./composable/logContext')['allLevels']>
@@ -552,6 +559,7 @@ declare module 'vue' {
     readonly autoResetRef: UnwrapRef<typeof import('@vueuse/core')['autoResetRef']>
     readonly automaticRedirect: UnwrapRef<typeof import('./stores/settings')['automaticRedirect']>
     readonly buildViewContext: UnwrapRef<typeof import('./composable/viewContext')['buildViewContext']>
+    readonly collapseCloudRail: UnwrapRef<typeof import('./stores/settings')['collapseCloudRail']>
     readonly collapseNav: UnwrapRef<typeof import('./stores/settings')['collapseNav']>
     readonly colorize: UnwrapRef<typeof import('./utils/index')['colorize']>
     readonly compact: UnwrapRef<typeof import('./stores/settings')['compact']>
@@ -779,6 +787,7 @@ declare module 'vue' {
     readonly useCloudChat: UnwrapRef<typeof import('./composable/cloudChat')['useCloudChat']>
     readonly useCloudConfig: UnwrapRef<typeof import('./composable/cloudConfig')['useCloudConfig']>
     readonly useCloudLogSearch: UnwrapRef<typeof import('./composable/cloudLogSearch')['useCloudLogSearch']>
+    readonly useCloudRail: UnwrapRef<typeof import('./composable/cloudRail')['useCloudRail']>
     readonly useCloudSurface: UnwrapRef<typeof import('./composable/cloudSurface')['useCloudSurface']>
     readonly useColorMode: UnwrapRef<typeof import('@vueuse/core')['useColorMode']>
     readonly useCommands: UnwrapRef<typeof import('./composable/commands')['useCommands']>
@@ -920,7 +929,6 @@ declare module 'vue' {
     readonly useSorted: UnwrapRef<typeof import('@vueuse/core')['useSorted']>
     readonly useSpeechRecognition: UnwrapRef<typeof import('@vueuse/core')['useSpeechRecognition']>
     readonly useSpeechSynthesis: UnwrapRef<typeof import('@vueuse/core')['useSpeechSynthesis']>
-    readonly useSplitColumns: UnwrapRef<typeof import('./composable/splitColumns')['useSplitColumns']>
     readonly useSseReconnect: UnwrapRef<typeof import('./composable/sseReconnect')['useSseReconnect']>
     readonly useStackStream: UnwrapRef<typeof import('./composable/eventStreams')['useStackStream']>
     readonly useStaleUI: UnwrapRef<typeof import('./composable/staleUI')['useStaleUI']>

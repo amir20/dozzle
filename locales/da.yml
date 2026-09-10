@@ -637,6 +637,25 @@ cloud:
       disk-free: "Volume med under 1 GB fri"
       fatal: "Enhver fatal-linje"
       error: "Enhver error-linje"
+cloud-rail:
+  title: Dozzle Cloud
+  chat: Spørg Dozzle
+  metrics: Metrikker
+  alerts: Advarsler
+  close: Luk
+  hide: Skjul cloud-panelet
+  show: Vis cloud-panelet
+  alerts-empty-here: Intet er udløst for det, du kigger på.
+  all-activity: Al aktivitet
+  metrics-no-container: Åbn en container for at se dens historik.
+  metrics-loading: Indlæser historik…
+  metrics-failed: Kunne ikke indlæse historikken.
+  metrics-empty: Intet registreret for dette vindue endnu.
+  metrics-peak: top
+  metrics-bucket: "{duration}-gennemsnit"
+  window-1h: 1t
+  window-6h: 6t
+  window-24h: 24t
 cloud-chat:
   title: Spørg Dozzle
   close: Luk
