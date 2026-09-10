@@ -90,6 +90,7 @@ declare global {
   const groupK8sOwners: typeof import('./stores/k8s').groupK8sOwners
   const h: typeof import('vue').h
   const hasIcon: typeof import('./utils/index').hasIcon
+  const hasViewContext: typeof import('./composable/viewContext').hasViewContext
   const hashCode: typeof import('./utils/index').hashCode
   const highlightSubstringInHtml: typeof import('./utils/index').highlightSubstringInHtml
   const hourStyle: typeof import('./stores/settings').hourStyle
@@ -623,6 +624,7 @@ declare module 'vue' {
     readonly groupK8sOwners: UnwrapRef<typeof import('./stores/k8s')['groupK8sOwners']>
     readonly h: UnwrapRef<typeof import('vue')['h']>
     readonly hasIcon: UnwrapRef<typeof import('./utils/index')['hasIcon']>
+    readonly hasViewContext: UnwrapRef<typeof import('./composable/viewContext')['hasViewContext']>
     readonly hashCode: UnwrapRef<typeof import('./utils/index')['hashCode']>
     readonly hourStyle: UnwrapRef<typeof import('./stores/settings')['hourStyle']>
     readonly iconSlugForImage: UnwrapRef<typeof import('./utils/index')['iconSlugForImage']>

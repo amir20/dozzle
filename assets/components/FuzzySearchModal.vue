@@ -444,7 +444,11 @@ const groups = computed<Group[]>(() => {
 
 const flatEntries = computed(() => groups.value.flatMap((group) => group.entries));
 const selectedEntry = computed<Entry | undefined>(() => flatEntries.value[selectedIndex.value]);
-const askVisible = computed(() => cloudLinked.value && !!trimmedQuery.value);
+// The assistant answers about the logs on screen, so the row is offered only
+// where there are logs on screen. Elsewhere it would open a panel the layout
+// does not mount.
+const { available: railAvailable } = useCloudRail();
+const askVisible = computed(() => cloudLinked.value && railAvailable.value && !!trimmedQuery.value);
 const noLocalMatches = computed(
   () => !!trimmedQuery.value && !commandEntries.value.length && !containerResults.value.length,
 );

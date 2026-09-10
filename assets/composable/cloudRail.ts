@@ -22,12 +22,18 @@ export const RAIL_WIDTH = 48;
 export function useCloudRail() {
   const { width: windowWidth } = useWindowSize();
   const { linked } = useCloudSurface();
+  const viewing = hasViewContext();
+
+  // Every panel is about the logs on screen, so the rail belongs where there
+  // are logs on screen. On the home page or in settings it would be a strip of
+  // icons about nothing in particular.
+  const available = computed(() => linked.value && !isMobile.value && viewing.value);
 
   // Hidden is a preference, not a state: the strip is always there to bring
   // back, the way the nav collapses on the other edge. Closing the last panel
   // does not hide it, because then the icons would vanish on a click that was
   // about the panel.
-  const visible = computed(() => linked.value && !isMobile.value && !collapseCloudRail.value);
+  const visible = computed(() => available.value && !collapseCloudRail.value);
 
   // 550px is the width the assistant's paragraphs were written for. On a
   // smaller window the logs matter more than the panel, so it gives way.
@@ -63,5 +69,5 @@ export function useCloudRail() {
     panel.value = panel.value === next ? undefined : next;
   }
 
-  return { panel, panelWidth, railOffset, visible, openRail, closeRail, toggleRail, hideRail, showRail };
+  return { panel, panelWidth, railOffset, visible, available, openRail, closeRail, toggleRail, hideRail, showRail };
 }
