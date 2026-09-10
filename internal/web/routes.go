@@ -81,6 +81,11 @@ type CloudHooks struct {
 	// notifications page and the container dot. Nil when cloud is not wired.
 	GetRecentAlerts func(ctx context.Context, sinceNs int64, limit int32, subscriptionID string, includeFollowUps bool) (*cloud.AlertResult, error)
 
+	// GetContainerMetrics reads back the stats this instance pushed for one
+	// container, past the live window the browser holds. Nil when cloud is not
+	// wired.
+	GetContainerMetrics func(ctx context.Context, containerID string, sinceNs, untilNs int64, buckets int32) (*cloud.MetricResult, error)
+
 	// Chat runs one assistant turn. The handler passes the principal it
 	// resolved from the request, so cloud's tool calls for that turn execute
 	// as the person who asked. Nil when cloud is not wired.
@@ -258,6 +263,7 @@ func createRouter(h *handler) *chi.Mux {
 					r.Get("/search/logs", h.cloudSearchLogs)
 					r.Get("/alerts", h.cloudAlerts)
 					r.Get("/alerts/recent", h.cloudRecentAlerts)
+					r.Get("/containers/{id}/metrics", h.cloudContainerMetrics)
 					r.Post("/chat", h.cloudChat)
 					r.Get("/config", h.cloudConfig)
 					r.Post("/feedback", h.cloudFeedback)

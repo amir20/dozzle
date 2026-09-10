@@ -32,6 +32,14 @@ service CloudToolService {
   // (user_id, api_key_id) on the connection, like everything else here.
   rpc GetRecentAlerts(GetRecentAlertsRequest) returns (GetAlertsResponse);
 
+  // Dozzle-initiated unary call: the stats Cloud kept for one container.
+  //
+  // Dozzle holds a rolling 300 samples in the browser and nothing behind it, so
+  // "was it like this an hour ago" has no local answer. Cloud already receives
+  // these samples over StatsBatch; this reads them back. Scoped server-side to
+  // the (user_id, api_key_id) on the connection, like everything else here.
+  rpc GetContainerMetrics(GetContainerMetricsRequest) returns (GetContainerMetricsResponse);
+
   // One assistant turn, opened by the Dozzle request that started it.
   //
   // Deliberately not served over ToolStream. That stream is owned by the
@@ -155,6 +163,33 @@ message GetRecentAlertsRequest {
   // Include anchors where an already-open incident was still firing. Default
   // false keeps a long-running incident to a single row.
   bool include_follow_ups = 4;
+}
+
+message GetContainerMetricsRequest {
+  string container_id = 1;
+  // The window to read, unix nanoseconds. An empty until means now.
+  int64 since_ts_ns = 2;
+  int64 until_ts_ns = 3;
+  // How many points to return. Cloud buckets the window down to this, because
+  // the panel draws a few hundred pixels wide and a day of samples is not.
+  int32 buckets = 4;
+}
+
+message ContainerMetricPoint {
+  int64 ts_ns = 1;
+  // Percent of the container's cores, the same normalisation Dozzle shows.
+  double cpu = 2;
+  // Percent of the container's memory limit.
+  double memory = 3;
+  // Absolute bytes, because a percentage of an unknown limit is not readable.
+  int64 memory_usage = 4;
+}
+
+message GetContainerMetricsResponse {
+  repeated ContainerMetricPoint points = 1;
+  // The bucket width cloud actually used, so the panel can say "1m averages"
+  // rather than implying every point is a sample.
+  int64 bucket_ns = 2;
 }
 
 message ToolRequest {
