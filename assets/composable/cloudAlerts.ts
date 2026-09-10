@@ -38,6 +38,9 @@ export interface CloudAlert {
    */
   isOrigin: boolean;
   url?: string;
+  /** The rule that raised this alert, so activity can be shown on the card
+   *  that caused it. Empty for alerts cloud raised with no local rule. */
+  subscriptionId?: string;
 }
 
 /** One matched event, as returned by /api/cloud/alerts?events=1. */

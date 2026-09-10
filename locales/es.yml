@@ -388,6 +388,18 @@ terminal:
   next-match: Coincidencia siguiente
   close-search: Cerrar búsqueda
 notifications:
+  history:
+    title: Actividad
+    loading: Cargando actividad…
+    failed: No se pudo cargar la actividad.
+    empty-unlinked: Las alertas aparecen aquí cuando esta instancia está vinculada a Dozzle Cloud. Hasta entonces salen en el flujo de logs y se olvidan al recargar.
+    empty: No se ha disparado nada recientemente.
+    still-happening: sigue ocurriendo
+    events: "{n} eventos"
+    suppressed: "· {n} suprimidos"
+    show-lines: Muéstrame las líneas
+    open-in-cloud: Abrir en Dozzle Cloud
+    fired-recently: veces recientemente
   title: Notificaciones
   description: Configure dónde y cuándo recibir alertas
   destinations: Destinos

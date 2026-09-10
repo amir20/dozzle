@@ -338,6 +338,18 @@ terminal:
   next-match: Следующее совпадение
   close-search: Закрыть поиск
 notifications:
+  history:
+    title: Активность
+    loading: Загрузка активности…
+    failed: Не удалось загрузить активность.
+    empty-unlinked: Оповещения появятся здесь, когда этот экземпляр будет связан с Dozzle Cloud. До этого они мелькают в потоке логов и теряются после перезагрузки.
+    empty: Недавно ничего не срабатывало.
+    still-happening: всё ещё происходит
+    events: "{n} событий"
+    suppressed: "· {n} подавлено"
+    show-lines: Показать строки
+    open-in-cloud: Открыть в Dozzle Cloud
+    fired-recently: раз за последнее время
   title: Уведомления
   description: Настройте где и когда получать оповещения
   destinations: Назначения

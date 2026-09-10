@@ -344,6 +344,18 @@ terminal:
   next-match: Naslednji zadetek
   close-search: Zapri iskanje
 notifications:
+  history:
+    title: Dejavnost
+    loading: Nalaganje dejavnosti…
+    failed: Dejavnosti ni bilo mogoče naložiti.
+    empty-unlinked: Opozorila se pokažejo tukaj, ko je ta instanca povezana z Dozzle Cloud. Do takrat se pojavijo v toku dnevnikov in se ob osvežitvi pozabijo.
+    empty: Nedavno se ni sprožilo nič.
+    still-happening: še vedno se dogaja
+    events: "{n} dogodkov"
+    suppressed: "· {n} zadržanih"
+    show-lines: Pokaži mi vrstice
+    open-in-cloud: Odpri v Dozzle Cloud
+    fired-recently: krat nedavno
   title: Obvestila
   description: Nastavite kje in kdaj prejemati opozorila
   destinations: Cilji

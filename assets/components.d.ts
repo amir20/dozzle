@@ -12,7 +12,9 @@ export {}
 declare module 'vue' {
   export interface GlobalComponents {
     AlertCard: typeof import('./components/Notification/AlertCard.vue')['default']
+    AlertDot: typeof import('./components/common/AlertDot.vue')['default']
     AlertForm: typeof import('./components/Notification/AlertForm.vue')['default']
+    AlertHistory: typeof import('./components/Notification/AlertHistory.vue')['default']
     AlertLogItem: typeof import('./components/LogViewer/AlertLogItem.vue')['default']
     Announcements: typeof import('./components/Announcements.vue')['default']
     BarChart: typeof import('./components/BarChart.vue')['default']

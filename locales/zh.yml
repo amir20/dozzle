@@ -338,6 +338,18 @@ terminal:
   next-match: 下一个匹配项
   close-search: 关闭搜索
 notifications:
+  history:
+    title: 动态
+    loading: 正在加载动态…
+    failed: 无法加载动态。
+    empty-unlinked: 把这个实例关联到 Dozzle Cloud 之后，警报就会出现在这里。在那之前它们只会从日志流里闪过，刷新就没了。
+    empty: 最近没有任何警报触发。
+    still-happening: 仍在持续
+    events: "{n} 个事件"
+    suppressed: "· 已抑制 {n} 个"
+    show-lines: 查看对应日志
+    open-in-cloud: 在 Dozzle Cloud 中打开
+    fired-recently: 次（最近）
   title: 通知
   description: 配置接收警报的位置和时间
   destinations: 目标

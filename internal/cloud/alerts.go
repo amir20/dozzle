@@ -60,6 +60,10 @@ type AlertHit struct {
 	// URL deep-links to the alert page in Dozzle Cloud. Empty when the API key
 	// has no app_url configured.
 	URL string `json:"url,omitempty"`
+	// SubscriptionID is the rule that raised this alert, so activity can be
+	// shown on the card that caused it. Empty for alerts Cloud raised with no
+	// Dozzle-side rule behind them.
+	SubscriptionID string `json:"subscriptionId,omitempty"`
 }
 
 // EventHit is one matched event — a notification Dozzle raised because it hit a
@@ -118,6 +122,12 @@ func (c *Client) GetAlerts(ctx context.Context, containerIDs []string, hostID st
 		return nil, fmt.Errorf("cloud: alerts: %w", err)
 	}
 
+	return alertResultFromProto(resp), nil
+}
+
+// alertResultFromProto converts one alerts response. Both alert RPCs answer
+// with the same message, so the mapping lives here rather than twice.
+func alertResultFromProto(resp *pb.GetAlertsResponse) *AlertResult {
 	hits := make([]AlertHit, 0, len(resp.GetHits()))
 	for _, h := range resp.GetHits() {
 		hits = append(hits, AlertHit{
@@ -138,6 +148,7 @@ func (c *Client) GetAlerts(ctx context.Context, containerIDs []string, hostID st
 			LastActivityAt:  h.GetLastActivityAtNs(),
 			IsOrigin:        h.GetIsOrigin(),
 			URL:             h.GetUrl(),
+			SubscriptionID:  h.GetSubscriptionId(),
 		})
 	}
 	events := make([]EventHit, 0, len(resp.GetEvents()))
@@ -155,5 +166,42 @@ func (c *Client) GetAlerts(ctx context.Context, containerIDs []string, hostID st
 			Suppressed:  e.GetSuppressed(),
 		})
 	}
-	return &AlertResult{Hits: hits, Events: events, Truncated: resp.GetTruncated()}, nil
+	return &AlertResult{Hits: hits, Events: events, Truncated: resp.GetTruncated()}
+}
+
+// GetRecentAlerts fetches what fired lately across the whole instance, for the
+// notifications page and the container dot. This is the question the viewer
+// never asks: it has no container list up front and does not care which scroll
+// window an alert landed in.
+//
+// The caller is responsible for confining the result to what the requesting
+// user may see — Cloud scopes to the instance, not to a Dozzle user.
+func (c *Client) GetRecentAlerts(ctx context.Context, sinceNs int64, limit int32, subscriptionID string, includeFollowUps bool) (*AlertResult, error) {
+	apiKey := c.apiKeyFunc()
+	if apiKey == "" {
+		return nil, ErrNotConfigured
+	}
+
+	client, err := c.unaryServiceClient()
+	if err != nil {
+		return nil, err
+	}
+
+	mdPairs := []string{"x-api-key", apiKey}
+	if c.instanceID != "" {
+		mdPairs = append(mdPairs, "x-instance-id", c.instanceID)
+	}
+	callCtx := metadata.NewOutgoingContext(ctx, metadata.Pairs(mdPairs...))
+
+	resp, err := client.GetRecentAlerts(callCtx, &pb.GetRecentAlertsRequest{
+		SinceTsNs:        sinceNs,
+		Limit:            limit,
+		SubscriptionId:   subscriptionID,
+		IncludeFollowUps: includeFollowUps,
+	})
+	if err != nil {
+		return nil, fmt.Errorf("cloud: recent alerts: %w", err)
+	}
+
+	return alertResultFromProto(resp), nil
 }

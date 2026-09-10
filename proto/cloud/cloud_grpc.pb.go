@@ -19,9 +19,10 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	CloudToolService_ToolStream_FullMethodName = "/cloud.CloudToolService/ToolStream"
-	CloudToolService_SearchLogs_FullMethodName = "/cloud.CloudToolService/SearchLogs"
-	CloudToolService_GetAlerts_FullMethodName  = "/cloud.CloudToolService/GetAlerts"
+	CloudToolService_ToolStream_FullMethodName      = "/cloud.CloudToolService/ToolStream"
+	CloudToolService_SearchLogs_FullMethodName      = "/cloud.CloudToolService/SearchLogs"
+	CloudToolService_GetAlerts_FullMethodName       = "/cloud.CloudToolService/GetAlerts"
+	CloudToolService_GetRecentAlerts_FullMethodName = "/cloud.CloudToolService/GetRecentAlerts"
 )
 
 // CloudToolServiceClient is the client API for CloudToolService service.
@@ -44,6 +45,13 @@ type CloudToolServiceClient interface {
 	// the log store, so they exist for anyone who linked cloud and configured a
 	// subscription.
 	GetAlerts(ctx context.Context, in *GetAlertsRequest, opts ...grpc.CallOption) (*GetAlertsResponse, error)
+	// Dozzle-initiated unary call: what fired lately anywhere on this instance.
+	// GetAlerts answers "what fired inside this scroll window, for these
+	// containers", which is what the viewer needs and only the viewer needs.
+	// The notifications page and the container dot ask the opposite question and
+	// never know a container list up front. Scoped server-side to the
+	// (user_id, api_key_id) on the connection, like everything else here.
+	GetRecentAlerts(ctx context.Context, in *GetRecentAlertsRequest, opts ...grpc.CallOption) (*GetAlertsResponse, error)
 }
 
 type cloudToolServiceClient struct {
@@ -87,6 +95,16 @@ func (c *cloudToolServiceClient) GetAlerts(ctx context.Context, in *GetAlertsReq
 	return out, nil
 }
 
+func (c *cloudToolServiceClient) GetRecentAlerts(ctx context.Context, in *GetRecentAlertsRequest, opts ...grpc.CallOption) (*GetAlertsResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetAlertsResponse)
+	err := c.cc.Invoke(ctx, CloudToolService_GetRecentAlerts_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // CloudToolServiceServer is the server API for CloudToolService service.
 // All implementations must embed UnimplementedCloudToolServiceServer
 // for forward compatibility.
@@ -107,6 +125,13 @@ type CloudToolServiceServer interface {
 	// the log store, so they exist for anyone who linked cloud and configured a
 	// subscription.
 	GetAlerts(context.Context, *GetAlertsRequest) (*GetAlertsResponse, error)
+	// Dozzle-initiated unary call: what fired lately anywhere on this instance.
+	// GetAlerts answers "what fired inside this scroll window, for these
+	// containers", which is what the viewer needs and only the viewer needs.
+	// The notifications page and the container dot ask the opposite question and
+	// never know a container list up front. Scoped server-side to the
+	// (user_id, api_key_id) on the connection, like everything else here.
+	GetRecentAlerts(context.Context, *GetRecentAlertsRequest) (*GetAlertsResponse, error)
 	mustEmbedUnimplementedCloudToolServiceServer()
 }
 
@@ -125,6 +150,9 @@ func (UnimplementedCloudToolServiceServer) SearchLogs(context.Context, *SearchLo
 }
 func (UnimplementedCloudToolServiceServer) GetAlerts(context.Context, *GetAlertsRequest) (*GetAlertsResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method GetAlerts not implemented")
+}
+func (UnimplementedCloudToolServiceServer) GetRecentAlerts(context.Context, *GetRecentAlertsRequest) (*GetAlertsResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method GetRecentAlerts not implemented")
 }
 func (UnimplementedCloudToolServiceServer) mustEmbedUnimplementedCloudToolServiceServer() {}
 func (UnimplementedCloudToolServiceServer) testEmbeddedByValue()                          {}
@@ -190,6 +218,24 @@ func _CloudToolService_GetAlerts_Handler(srv interface{}, ctx context.Context, d
 	return interceptor(ctx, in, info, handler)
 }
 
+func _CloudToolService_GetRecentAlerts_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetRecentAlertsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CloudToolServiceServer).GetRecentAlerts(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: CloudToolService_GetRecentAlerts_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CloudToolServiceServer).GetRecentAlerts(ctx, req.(*GetRecentAlertsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // CloudToolService_ServiceDesc is the grpc.ServiceDesc for CloudToolService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -204,6 +250,10 @@ var CloudToolService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetAlerts",
 			Handler:    _CloudToolService_GetAlerts_Handler,
+		},
+		{
+			MethodName: "GetRecentAlerts",
+			Handler:    _CloudToolService_GetRecentAlerts_Handler,
 		},
 	},
 	Streams: []grpc.StreamDesc{

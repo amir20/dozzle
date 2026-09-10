@@ -131,6 +131,7 @@
                     >
                       {{ container.name }}
                     </router-link>
+                    <AlertDot :container-id="container.id" />
                     <ContainerLink :container="container" />
                     <ContainerLinkHint :container="container" />
                     <RelativeTime

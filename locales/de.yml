@@ -338,6 +338,18 @@ terminal:
   next-match: Nächster Treffer
   close-search: Suche schließen
 notifications:
+  history:
+    title: Aktivität
+    loading: Aktivität wird geladen…
+    failed: Aktivität konnte nicht geladen werden.
+    empty-unlinked: Alarme erscheinen hier, sobald diese Instanz mit Dozzle Cloud verknüpft ist. Bis dahin tauchen sie im Log-Stream auf und sind nach dem Neuladen vergessen.
+    empty: In letzter Zeit wurde nichts ausgelöst.
+    still-happening: passiert weiterhin
+    events: "{n} Ereignisse"
+    suppressed: "· {n} unterdrückt"
+    show-lines: Zeig mir die Zeilen
+    open-in-cloud: In Dozzle Cloud öffnen
+    fired-recently: Mal in letzter Zeit
   title: Benachrichtigungen
   description: Konfigurieren Sie, wo und wann Sie Alarme erhalten möchten
   destinations: Ziele

@@ -96,6 +96,11 @@
         </div>
       </div>
     </section>
+
+    <!-- ACTIVITY -->
+    <section class="mt-8">
+      <AlertHistory />
+    </section>
   </PageWithLinks>
 </template>
 

@@ -188,6 +188,8 @@ func main() {
 		OnUpdate:   cloudClient.Reconnect,
 		SearchLogs: cloudClient.SearchLogs,
 		GetAlerts:  cloudClient.GetAlerts,
+
+		GetRecentAlerts: cloudClient.GetRecentAlerts,
 	})
 
 	go func() {
