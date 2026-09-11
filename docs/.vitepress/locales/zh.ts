@@ -23,6 +23,7 @@ export const zh: Labels = {
   pages: {
     "what-is-dozzle": "什么是 Dozzle？",
     "getting-started": "快速开始",
+    "whats-new": "v11 新变化",
     "swarm-mode": "Swarm",
     k8s: "Kubernetes",
     podman: "Podman",

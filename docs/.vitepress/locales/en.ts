@@ -23,6 +23,7 @@ export const en: Labels = {
   pages: {
     "what-is-dozzle": "What is Dozzle?",
     "getting-started": "Getting Started",
+    "whats-new": "What's New in v11",
     "swarm-mode": "Swarm",
     k8s: "Kubernetes",
     podman: "Podman",
