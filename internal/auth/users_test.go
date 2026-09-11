@@ -182,3 +182,29 @@ func TestSigningKeyCoversLinkedAccounts(t *testing.T) {
 	require.NotEqual(t, base, tokenFor("someone-else", "amir@example.com"), "changing github must rotate sessions")
 	require.NotEqual(t, base, tokenFor("amir20", "other@example.com"), "changing email must rotate sessions")
 }
+
+// A sha256 hash used to be a supported format, and the length check used to
+// accept one long after CompareHashAndPassword stopped comparing it. That
+// combination loads clean and then refuses at the first login attempt, which is
+// an unauthenticated request. Reject it at load instead.
+func TestSha256PasswordHashIsRejected(t *testing.T) {
+	_, err := ReadUsersFromFile(writeUsers(t, `
+users:
+  amir:
+    email: amir@example.com
+    password: 5e884898da28047151d0e56f8dc6292773603d0d6aabbdd62a11ef721d1542d8
+`))
+	require.ErrorContains(t, err, "amir")
+	require.ErrorContains(t, err, "sha256")
+	require.ErrorContains(t, err, "dozzle generate", "the error has to say how to fix the file")
+	require.ErrorContains(t, err, "GHSA-w7qr-q9fh-fj35")
+}
+
+// The comparison runs on an unauthenticated request, so a hash it cannot handle
+// has to fail the login rather than take the process down. A users.yml reload
+// can also put one in front of this long after startup.
+func TestCompareHashAndPasswordRefusesSha256WithoutExiting(t *testing.T) {
+	require.False(t, CompareHashAndPassword("5e884898da28047151d0e56f8dc6292773603d0d6aabbdd62a11ef721d1542d8", "password"))
+	require.False(t, CompareHashAndPassword("too-short", "password"))
+	require.True(t, CompareHashAndPassword("$2y$11$pTGu6dnTT7Uh3ob7uC6X7OkAamlhHpJ0/mEbsmiPyO85pumillZme", "password"))
+}
