@@ -21,6 +21,8 @@
 
 <script lang="ts" setup generic="T">
 import { LogStreamSource } from "@/composable/logs/eventStreams";
+import { HistoricalContainer } from "@/models/Container";
+import { LoadMoreLogEntry } from "@/models/LogEntry";
 const route = useRoute();
 
 const { entity, streamSource } = $defineProps<{
@@ -57,11 +59,28 @@ defineExpose({
   clear: () => (messages.value = []),
 });
 
-if (historical.value && typeof route.query.logId === "string") {
-  const targetId = route.query.logId;
+// A historical view opens on a moment, and the reader has to land on that
+// moment. `?logId` names the exact line when the thing that sent them here had
+// one. A metric or container alert has no line at all, and without the second
+// branch the view stayed wherever it loaded — the bottom of a window that can
+// run to hundreds of lines, with the moment clicked thousands of pixels above
+// the fold. That is what "show me the logs around it" showing no alert was.
+if (historical.value) {
+  const targetId = typeof route.query.logId === "string" ? route.query.logId : undefined;
   watchOnce(messages, async () => {
     await nextTick();
-    document.getElementById(targetId)?.scrollIntoView({ behavior: "instant", block: "center" });
+    const byId = targetId ? document.getElementById(targetId) : null;
+    if (byId) {
+      byId.scrollIntoView({ behavior: "instant", block: "center" });
+      return;
+    }
+    const openedOn = entity instanceof HistoricalContainer ? entity.date.getTime() : undefined;
+    if (openedOn === undefined) return;
+    // The first real row at or past the moment, which is where an alert with no
+    // line of its own is spliced in. Load-more rows carry `now` as their date
+    // and pin to the ends, so they would match ahead of anything real.
+    const entry = messages.value.find((m) => !(m instanceof LoadMoreLogEntry) && m.date.getTime() >= openedOn);
+    if (entry) document.getElementById(entry.id.toString())?.scrollIntoView({ behavior: "instant", block: "center" });
   });
 }
 
