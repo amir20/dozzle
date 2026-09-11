@@ -290,8 +290,12 @@ body {
 }
 
 /* CodeMirror autocomplete tooltip styles */
+/* `min-w-96` is 384px, which is wider than the phones the rule editor is opened
+ * on, so the floor gives way to the viewport before it pushes the page sideways. */
 .cm-tooltip {
-  @apply bg-base-200! border-base-content/40! min-w-96 rounded-sm border shadow-md;
+  @apply bg-base-200! border-base-content/40! rounded-sm border shadow-md;
+  min-width: min(24rem, calc(100vw - 2rem));
+  max-width: calc(100vw - 2rem);
 }
 
 .cm-tooltip-autocomplete ul {

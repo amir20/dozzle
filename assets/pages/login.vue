@@ -1,5 +1,9 @@
 <template>
-  <div class="card bg-base-100 w-96 shrink-0 shadow-2xl">
+  <!-- Capped rather than fixed: `w-96` plus the hero's own padding is 416px, so a
+       384px card horizontally scrolled the login page on every phone. `max-w-full`
+       does not save it, because the hero shrinks to fit its content and resolves a
+       percentage max-width against a width it is still computing. -->
+  <div class="card bg-base-100 w-full max-w-96 shadow-2xl">
     <div class="card-body gap-6">
       <div class="flex flex-col items-center gap-3 text-center">
         <Logo class="h-12 w-12" />
