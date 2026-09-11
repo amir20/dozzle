@@ -19,6 +19,35 @@ const panel = ref<RailPanel>();
  *  the rail never sits over the logs. */
 export const RAIL_WIDTH = 48;
 
+/**
+ * The recent alerts, scoped to whatever log view is on screen.
+ *
+ * The rail's panel answers "what fired on what you're looking at" — the only
+ * reason it earns a place beside the stream rather than a link to the
+ * notifications page — so its bell has to ask the same question. An
+ * instance-wide dot there promised rows the panel then filtered away.
+ *
+ * Lives beside the rail rather than with the alerts because the bell needs the
+ * scope while the panel is closed and unmounted, and one definition keeps the
+ * dot and the rows it promises from drifting apart again.
+ */
+export function useViewAlerts() {
+  const { alerts, unseenIn } = useRecentAlerts();
+  const view = useViewContext();
+
+  const ids = computed(() => new Set(view.value.containers.map((c) => c.id)));
+  const scoped = computed(() => ids.value.size > 0);
+  const single = computed(() => ids.value.size === 1);
+
+  // On a view with no containers of its own (the home page, settings) there is
+  // nothing to scope to, so the panel shows the instance the way the page does.
+  const visible = computed(() =>
+    scoped.value ? alerts.value.filter((a) => ids.value.has(a.containerId)) : alerts.value,
+  );
+
+  return { visible, scoped, single, unseen: unseenIn(ids) };
+}
+
 export function useCloudRail() {
   const { width: windowWidth } = useWindowSize();
   const { linked } = useCloudSurface();

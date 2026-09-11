@@ -440,6 +440,7 @@ declare global {
   const useVModel: typeof import('@vueuse/core').useVModel
   const useVModels: typeof import('@vueuse/core').useVModels
   const useVibrate: typeof import('@vueuse/core').useVibrate
+  const useViewAlerts: typeof import('./composable/cloud/cloudRail').useViewAlerts
   const useViewContext: typeof import('./composable/logs/viewContext').useViewContext
   const useVirtualList: typeof import('@vueuse/core').useVirtualList
   const useVisibleFilter: typeof import('./composable/logs/visible').useVisibleFilter
@@ -970,6 +971,7 @@ declare module 'vue' {
     readonly useVModel: UnwrapRef<typeof import('@vueuse/core')['useVModel']>
     readonly useVModels: UnwrapRef<typeof import('@vueuse/core')['useVModels']>
     readonly useVibrate: UnwrapRef<typeof import('@vueuse/core')['useVibrate']>
+    readonly useViewAlerts: UnwrapRef<typeof import('./composable/cloud/cloudRail')['useViewAlerts']>
     readonly useViewContext: UnwrapRef<typeof import('./composable/logs/viewContext')['useViewContext']>
     readonly useVirtualList: UnwrapRef<typeof import('@vueuse/core')['useVirtualList']>
     readonly useVisibleFilter: UnwrapRef<typeof import('./composable/logs/visible')['useVisibleFilter']>

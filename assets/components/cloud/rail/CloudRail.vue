@@ -157,7 +157,9 @@ const ChatPane = defineAsyncComponent(() => import("@/components/cloud/chat/Chat
 
 const { panel, panelWidth, sheet, closeRail, toggleRail, hideRail } = useCloudRail();
 const { messages, reset: resetChat } = useCloudChat();
-const { unseen: unseenAlerts } = useRecentAlerts();
+// Scoped to the view, because the panel this bell opens is. The nav's bell keeps
+// the instance-wide one: it opens the notifications page, which shows everything.
+const { unseen: unseenAlerts } = useViewAlerts();
 const { t } = useI18n();
 
 const items = computed(() => [
