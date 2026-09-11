@@ -1,6 +1,6 @@
 ---
 title: Dozzle Cloud
-sourceHash: 49197a749322
+sourceHash: 8426d3f379ba
 ---
 
 # Dozzle Cloud
@@ -45,6 +45,7 @@ Tienes la comparativa completa en [Planes y límites](/es/guide/dozzle-cloud/pla
 | Página                                                     | Qué cubre                                                                                             |
 | ---------------------------------------------------------- | ----------------------------------------------------------------------------------------------------- |
 | [Vincular tu instancia](/es/guide/dozzle-cloud/connecting) | Vinculación, por qué no hace falta IP pública ni puerto abierto, cortafuegos, resolución de problemas |
+| [En tu Dozzle](/es/guide/dozzle-cloud/in-dozzle)           | El carril de Cloud, las alertas que sobreviven a una recarga y lo que sigue funcionando sin Cloud     |
 | [Canales de notificación](/es/guide/dozzle-cloud/channels) | Todos los canales, cómo configurar cada uno y cómo bajar el ruido                                     |
 | [Planes y límites](/es/guide/dozzle-cloud/plans)           | Qué incluye cada plan, qué es un evento procesado, qué pasa si te pasas                               |
 | [Tus datos](/es/guide/dozzle-cloud/your-data)              | Qué sale de tu host, cómo detenerlo, qué almacena Cloud, claves de API                                |

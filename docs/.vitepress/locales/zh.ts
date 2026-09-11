@@ -29,6 +29,7 @@ export const zh: Labels = {
     podman: "Podman",
     "dozzle-cloud": "概览",
     "dozzle-cloud/connecting": "连接你的实例",
+    "dozzle-cloud/in-dozzle": "在你的 Dozzle 里",
     "dozzle-cloud/channels": "通知渠道",
     "dozzle-cloud/plans": "套餐与限制",
     "dozzle-cloud/your-data": "你的数据",

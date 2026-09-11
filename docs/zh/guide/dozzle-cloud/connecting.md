@@ -1,6 +1,6 @@
 ---
 title: 连接你的实例
-sourceHash: d6f8f7b6b845
+sourceHash: ffd948b27c63
 ---
 
 # 连接你的实例
@@ -104,6 +104,8 @@ docker run ... amir20/dozzle --enable-actions
 :::
 
 这是**你的** Dozzle 上的设置，不在 Cloud 里，因为它决定的是你的 Dozzle 愿意对你的容器做什么。改完后重启 Dozzle。见[操作](/zh/guide/actions)。
+
+连接完成后，界面上会出现什么，见[在你的 Dozzle 里](/zh/guide/dozzle-cloud/in-dozzle)。
 
 ## 断开连接
 

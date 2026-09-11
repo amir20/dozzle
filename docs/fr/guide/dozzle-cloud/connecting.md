@@ -1,6 +1,6 @@
 ---
 title: Relier votre instance
-sourceHash: d6f8f7b6b845
+sourceHash: ffd948b27c63
 ---
 
 # Relier votre instance
@@ -104,6 +104,8 @@ docker run ... amir20/dozzle --enable-actions
 :::
 
 C'est un réglage sur **votre** Dozzle, pas dans Cloud, car il gouverne ce que votre Dozzle accepte de faire à vos conteneurs. Redémarrez Dozzle après l'avoir changé. Voir [Actions](/fr/guide/actions).
+
+Une fois relié, voir [Dans votre Dozzle](/fr/guide/dozzle-cloud/in-dozzle) pour ce qui apparaît dans votre propre interface.
 
 ## Dissocier
 
