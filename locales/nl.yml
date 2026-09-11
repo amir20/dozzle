@@ -5,6 +5,9 @@ toolbar:
   search: Zoeken
   inverse-on: Overeenkomsten uitsluiten (omgekeerd)
   inverse-off: Overeenkomsten opnemen (normaal)
+  invalid-regex: Ongeldige reguliere expressie
+  close-search: Zoeken sluiten
+  move-search: Sleep om te verplaatsen
   show: Toon {std}
   show-all: Toon alles
   stop: Stoppen
@@ -110,9 +113,9 @@ label:
   no-logs-hint: "Alles wat de container schrijft, verschijnt hier direct."
   search-status:
     searching: Oudere logs doorzoeken…
-    searching-to: Oudere logs doorzoeken… terug tot {time}
-    capped: "{count} overeenkomsten · doorzocht tot {time}"
-    exhausted: Alle logs doorzocht · {count} overeenkomsten
+    matches: "{count} overeenkomsten"
+    searched-all: "Alle logs doorzocht"
+    scanned-to: "terug tot {time}"
     empty: "Geen overeenkomende logs"
     empty-hint: "Alle logs doorzocht. Probeer een andere zoekterm of wis de zoekopdracht."
   show-all-containers: Toon alle containers
@@ -210,6 +213,7 @@ button:
   refresh: Vernieuwen
 placeholder:
   search-containers: Zoek containers (⌘ + k, ⌃k)
+  find-logs: Zoek in logs of regex
   search: Zoeken
 settings:
   show-image-update-alert: 'Toon een melding wanneer een container een update heeft'

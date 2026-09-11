@@ -5,6 +5,9 @@ toolbar:
   search: Ara
   inverse-on: Eşleşenleri hariç tut (ters)
   inverse-off: Eşleşenleri dahil et (normal)
+  invalid-regex: Geçersiz düzenli ifade
+  close-search: Aramayı kapat
+  move-search: Taşımak için sürükleyin
   show: Sadece {std} göster
   show-all: Tüm akışları göster
   stop: Durdur
@@ -110,9 +113,9 @@ label:
   no-logs-hint: "Konteynerin yazdığı her şey anında burada görünür."
   search-status:
     searching: Eski loglar aranıyor…
-    searching-to: Eski loglar aranıyor… {time} tarihine kadar
-    capped: "{count} eşleşme · {time} tarihine kadar arandı"
-    exhausted: Tüm loglar arandı · {count} eşleşme
+    matches: "{count} eşleşme"
+    searched-all: "Tüm loglar arandı"
+    scanned-to: "{time} tarihine kadar"
     empty: "Eşleşen log yok"
     empty-hint: "Tüm loglar arandı. Farklı bir terim deneyin veya aramayı temizleyin."
   show-all-containers: Tüm konteynerleri göster
@@ -212,6 +215,7 @@ button:
   refresh: Yenile
 placeholder:
   search-containers: Konteynerlerde ara (⌘ + k, ⌃k)
+  find-logs: Günlüklerde ara veya regex
   search: Ara
 settings:
   show-image-update-alert: 'Bir kapsayıcının güncellemesi olduğunda bildirim göster'

@@ -21,15 +21,15 @@ describe("<Search />", () => {
     search.resetSearch();
   });
 
-  test("flags an invalid regex with a warning style", async () => {
+  test("flags an invalid regex on the box without recoloring it", async () => {
     const wrapper = mountSearch();
     search.searchQueryFilter.value = "valid";
     await nextTick();
-    expect(wrapper.find(".input").classes()).not.toContain("input-warning");
+    expect(wrapper.find('[data-testid="search-box"]').attributes("data-invalid")).toBeUndefined();
 
     search.searchQueryFilter.value = "[";
     await nextTick();
-    expect(wrapper.find(".input").classes()).toContain("input-warning");
+    expect(wrapper.find('[data-testid="search-box"]').attributes("data-invalid")).toBe("true");
   });
 
   test("binds the input to the shared search filter", async () => {

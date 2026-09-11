@@ -5,6 +5,9 @@ toolbar:
   search: Søg
   inverse-on: Ekskluder matchende (inverteret)
   inverse-off: Inkluder matchende (normal)
+  invalid-regex: Ugyldigt regulært udtryk
+  close-search: Luk søgning
+  move-search: Træk for at flytte
   show: Vis kun {std}
   show-all: Vis alle streams
   stop: Stop
@@ -110,9 +113,9 @@ label:
   no-logs-hint: "Alt hvad containeren skriver, vises her med det samme."
   search-status:
     searching: Søger i ældre logs…
-    searching-to: Søger i ældre logs… tilbage til {time}
-    capped: "{count} match · søgt tilbage til {time}"
-    exhausted: Søgt i alle logs · {count} match
+    matches: "{count} match"
+    searched-all: "Søgt i alle logs"
+    scanned-to: "tilbage til {time}"
     empty: "Ingen matchende logs"
     empty-hint: "Søgte i alle logs. Prøv et andet søgeord, eller ryd søgningen."
   show-all-containers: Vis alle containere
@@ -209,6 +212,7 @@ button:
   refresh: Opdater
 placeholder:
   search-containers: Søg containere (⌘ + k, ⌃k)
+  find-logs: Find i logs eller regex
   search: Søg
 settings:
   show-image-update-alert: 'Vis en notifikation når en container har en opdatering'

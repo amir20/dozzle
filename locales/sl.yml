@@ -5,6 +5,9 @@ toolbar:
   search: Iskanje
   inverse-on: Izključi ujemanja (obratno)
   inverse-off: Vključi ujemanja (običajno)
+  invalid-regex: Neveljaven regularni izraz
+  close-search: Zapri iskanje
+  move-search: Povlecite za premik
   show: Prikaži {std}
   show-all: Prikaži vse
   stop: Ustavi
@@ -116,9 +119,9 @@ label:
   no-logs-hint: "Vse, kar vsebnik zapiše, se takoj pojavi tukaj."
   search-status:
     searching: Iskanje po starejših dnevnikih…
-    searching-to: Iskanje po starejših dnevnikih… nazaj do {time}
-    capped: "{count} zadetkov · iskano nazaj do {time}"
-    exhausted: Preiskani vsi dnevniki · {count} zadetkov
+    matches: "{count} zadetkov"
+    searched-all: "Preiskani vsi dnevniki"
+    scanned-to: "nazaj do {time}"
     empty: "Ni ujemajočih se dnevnikov"
     empty-hint: "Preiskani vsi dnevniki. Poskusite z drugim izrazom ali počistite iskanje."
 tooltip:
@@ -211,6 +214,7 @@ button:
   refresh: Osveži
 placeholder:
   search-containers: Iskanje zabojnikov (⌘ + k, ⌃k)
+  find-logs: Iskanje po dnevnikih ali regex
   search: Iskanje
 settings:
   show-image-update-alert: 'Pokaži obvestilo, ko je za vsebnik na voljo posodobitev'
