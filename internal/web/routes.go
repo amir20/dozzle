@@ -3,18 +3,21 @@ package web
 import (
 	"context"
 	"io/fs"
+	"sync"
 	"time"
 
 	"net/http"
 	"strings"
 
 	"github.com/amir20/dozzle/internal/auth"
+	"github.com/amir20/dozzle/internal/cache"
 	"github.com/amir20/dozzle/internal/cloud"
 	"github.com/amir20/dozzle/internal/container"
 	"github.com/amir20/dozzle/internal/imagecheck"
 	dozzle_mcp "github.com/amir20/dozzle/internal/mcp"
 	"github.com/amir20/dozzle/internal/notification"
 	"github.com/amir20/dozzle/internal/notification/dispatcher"
+	"github.com/amir20/dozzle/internal/releases"
 	container_support "github.com/amir20/dozzle/internal/support/container"
 	"github.com/amir20/dozzle/types"
 
@@ -154,6 +157,9 @@ type handler struct {
 	content     fs.FS
 	config      *Config
 	hostService HostService
+
+	releasesOnce  sync.Once
+	releasesCache *cache.Cache[[]releases.Release]
 }
 
 func CreateServer(hostService HostService, content fs.FS, config Config) *http.Server {
