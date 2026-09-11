@@ -7,7 +7,7 @@
             <mdi:bell-alert class="size-3" />
             {{ $t("label.alert") }}
           </span>
-          <span class="font-semibold">{{ alert.headline }}</span>
+          <span class="font-semibold wrap-anywhere">{{ alert.headline }}</span>
           <!-- Only the count rides the summary line. Everything else —
                  containers, what triage held back, the investigation — sits
                  behind Details. -->
