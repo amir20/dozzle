@@ -1,6 +1,6 @@
 <template>
   <div
-    class="grid grid-cols-[auto_auto_1fr_auto_1fr] items-center gap-x-1.5 gap-y-1.5 px-3 py-1.5 text-[11.5px] leading-none tabular-nums max-md:hidden @max-5xl:hidden"
+    class="grid grid-cols-[auto_auto_1fr_auto_1fr] items-center gap-1.5 px-3 py-1.5 text-[11.5px] leading-none tabular-nums max-md:hidden @max-5xl:hidden"
     :title="tooltip"
   >
     <template v-for="row in rows" :key="row.label">

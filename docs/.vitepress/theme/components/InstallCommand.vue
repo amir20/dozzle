@@ -14,7 +14,7 @@ const { copy, copied } = useClipboard({ source: command, copiedDuring: 2000 });
 </script>
 
 <template>
-  <div class="mx-auto flex max-w-[1152px] flex-col items-center gap-3 px-6" :class="dense ? 'mb-0' : 'mb-14'">
+  <div class="mx-auto flex max-w-288 flex-col items-center gap-3 px-6" :class="dense ? 'mb-0' : 'mb-14'">
     <div
       class="flex w-full max-w-4xl items-start gap-3 rounded-lg border border-solid border-(--vp-c-divider) bg-(--vp-c-bg-alt) py-3 pr-3 pl-4"
     >

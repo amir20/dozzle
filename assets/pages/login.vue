@@ -6,7 +6,7 @@
   <div class="card bg-base-100 w-full max-w-96 shadow-2xl">
     <div class="card-body gap-6">
       <div class="flex flex-col items-center gap-3 text-center">
-        <Logo class="h-12 w-12" />
+        <Logo class="size-12" />
         <h1 class="text-xl font-semibold">{{ $t("title.login") }}</h1>
       </div>
 

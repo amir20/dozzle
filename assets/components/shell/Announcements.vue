@@ -60,7 +60,7 @@
                 </a>
                 <span class="ml-1 text-xs"><RelativeTime :date="release.createdAt" /></span>
                 <!-- Red read as a warning on what is the good news in this list. -->
-                <Tag class="bg-primary! text-primary-content ml-auto px-1 py-1 text-xs" v-if="release.latest">
+                <Tag class="bg-primary! text-primary-content ml-auto p-1 text-xs" v-if="release.latest">
                   {{ $t("releases.latest") }}
                 </Tag>
               </div>

@@ -18,7 +18,7 @@
       <div
         ref="card"
         class="rounded-box border-primary/40 bg-base-200 focus-within:border-primary/80 pointer-events-auto flex max-w-full items-center gap-1.5 border py-1.5 pr-1.5 pl-1 shadow-lg transition-colors"
-        :class="{ '!border-warning/60': !isValidQuery }"
+        :class="{ 'border-warning/60!': !isValidQuery }"
         :data-invalid="!isValidQuery || undefined"
         data-testid="search-box"
       >

@@ -24,11 +24,7 @@
         :date="scrollContext.currentDate"
       />
     </div>
-    <main
-      ref="scrollableMain"
-      :data-scrolling="scrollable ? true : undefined"
-      class="min-h-[300px] snap-y overflow-auto"
-    >
+    <main ref="scrollableMain" :data-scrolling="scrollable ? true : undefined" class="min-h-75 snap-y overflow-auto">
       <!-- The find box floats over the top of this column, so the list starts below
            it while it is open and sitting where it opened. -->
       <div

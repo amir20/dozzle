@@ -84,7 +84,7 @@
           :href="cloudSettingsUrl"
           target="_blank"
           rel="noreferrer noopener"
-          class="hover:bg-base-300 flex items-center gap-2 rounded-md px-2 py-2 text-sm transition-colors"
+          class="hover:bg-base-300 flex items-center gap-2 rounded-md p-2 text-sm transition-colors"
         >
           <mdi:cog-outline class="size-4 opacity-60" />
           <span class="flex-1">{{ $t("notifications.destination-form.cloud-settings-link") }}</span>
@@ -94,7 +94,7 @@
           :href="cloudUrl"
           target="_blank"
           rel="noreferrer noopener"
-          class="hover:bg-base-300 flex items-center gap-2 rounded-md px-2 py-2 text-sm transition-colors"
+          class="hover:bg-base-300 flex items-center gap-2 rounded-md p-2 text-sm transition-colors"
         >
           <mdi:view-dashboard-outline class="size-4 opacity-60" />
           <span class="flex-1">{{ $t("cloud.dashboard") }}</span>
@@ -137,7 +137,7 @@
     </div>
 
     <!-- Actions. Same sticky, full-bleed bar as the webhook form next door. -->
-    <div class="bg-base-100 border-base-content/10 sticky bottom-0 z-10 -mx-4 mt-auto border-t px-4 py-4">
+    <div class="bg-base-100 border-base-content/10 sticky bottom-0 z-10 -mx-4 mt-auto border-t p-4">
       <div class="flex items-center justify-end">
         <button class="btn" @click="close?.()">
           {{ $t("notifications.destination-form.close") }}

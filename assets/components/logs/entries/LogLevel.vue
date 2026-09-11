@@ -24,7 +24,7 @@
     <div
       :data-level="level"
       class="rounded-full"
-      :class="[position ? 'h-full w-[3px]' : 'size-[0.45em] min-h-[4px] min-w-[4px]', { 'show-unknown': showUnknown }]"
+      :class="[position ? 'h-full w-[3px]' : 'size-[0.45em] min-h-1 min-w-1', { 'show-unknown': showUnknown }]"
     ></div>
   </div>
 </template>
