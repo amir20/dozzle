@@ -396,9 +396,6 @@ releases:
   no_releases: No hay lanzamientos
   newer: "1 versión más reciente | {count} versiones más recientes"
   all: Todas las versiones
-log_actions:
-  copy_log: Copiar registro
-  jump_to_context: Ir al contexto
 toasts:
   copied:
     title: Copiado

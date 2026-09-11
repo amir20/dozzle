@@ -305,9 +305,6 @@ releases:
 
   newer: "1 rilis lebih baru | {count} rilis lebih baru"
   all: Semua rilis
-log_actions:
-  copy_log: Salin log
-  jump_to_context: Lompat ke konteks
 
 toasts:
   copied:

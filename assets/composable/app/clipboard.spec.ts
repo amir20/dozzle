@@ -87,6 +87,17 @@ describe("useCopy", () => {
     expect(toast.message).toContain("hello");
   });
 
+  test("does not stuff a whole stack trace into the failure toast", async () => {
+    setSecureContext(false);
+    document.execCommand = vi.fn().mockReturnValue(false);
+
+    const { api } = mountCopy();
+    expect(await api.copy("line one\nline two")).toBe(false);
+
+    const [{ toast }] = toasts.value;
+    expect(toast.message).toBe("error.copy-insecure-hint");
+  });
+
   test("falls back when the async clipboard rejects", async () => {
     const writeText = vi.fn().mockRejectedValue(new Error("denied"));
     Object.defineProperty(navigator, "clipboard", { value: { writeText }, configurable: true });

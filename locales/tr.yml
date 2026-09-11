@@ -299,9 +299,6 @@ releases:
   no_releases: En son sürüme sahipsiniz
   newer: "1 yeni sürüm | {count} yeni sürüm"
   all: Tüm sürümler
-log_actions:
-  copy_log: Günlüğü kopyala
-  jump_to_context: Bağlama git
 toasts:
   copied:
     title: Kopyalandı

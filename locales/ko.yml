@@ -299,9 +299,6 @@ releases:
   no_releases: 최신 버전을 사용하고 있습니다
   newer: "새 릴리스 1개 | 새 릴리스 {count}개"
   all: 모든 릴리스
-log_actions:
-  copy_log: 로그 복사
-  jump_to_context: 해당 위치로 이동
 toasts:
   copied:
     title: 복사 완료

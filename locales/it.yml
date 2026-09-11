@@ -295,9 +295,6 @@ releases:
   no_releases: Stai utilizzando l'ultima versione
   newer: "1 versione più recente | {count} versioni più recenti"
   all: Tutte le versioni
-log_actions:
-  copy_log: Copia log
-  jump_to_context: Vai a
 toasts:
   copied:
     title: Copiato

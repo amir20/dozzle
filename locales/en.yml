@@ -406,9 +406,6 @@ releases:
   no_releases: You have the latest version
   newer: "1 newer release | {count} newer releases"
   all: All releases
-log_actions:
-  copy_log: Copy log
-  jump_to_context: Jump to context
 toasts:
   copied:
     title: Copied

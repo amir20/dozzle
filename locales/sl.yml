@@ -301,9 +301,6 @@ releases:
   no_releases: Imate najnovejšo različico
   newer: "1 novejša izdaja | {count} novejših izdaj"
   all: Vse izdaje
-log_actions:
-  copy_log: Kopiraj dnevnik
-  jump_to_context: Skoči na kontekst
 toasts:
   copied:
     title: Kopirano

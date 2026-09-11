@@ -296,9 +296,6 @@ releases:
   no_releases: Je gebruikt de nieuwste versie
   newer: "1 nieuwere versie | {count} nieuwere versies"
   all: Alle versies
-log_actions:
-  copy_log: Log kopiëren
-  jump_to_context: Ga naar context
 toasts:
   copied:
     title: Gekopieerd

@@ -89,12 +89,13 @@ export function useCopy() {
 
   function failed({ manual, action }: CopyOptions) {
     const insecure = !window.isSecureContext;
+    // A link or an image tag is worth offering for manual selection. A stack trace
+    // is not: past a line or two the toast becomes the thing in the way.
+    const selectable = manual && manual.length <= 200 && !manual.includes("\n") ? escapeHtml(manual) : "";
     showToast(
       {
         title: insecure ? t("error.copy-insecure") : t("error.copy-not-supported"),
-        message: [insecure ? t("error.copy-insecure-hint") : "", manual ? escapeHtml(manual) : ""]
-          .filter(Boolean)
-          .join("<br>"),
+        message: [insecure ? t("error.copy-insecure-hint") : "", selectable].filter(Boolean).join("<br>"),
         type: "warning",
         action,
       },

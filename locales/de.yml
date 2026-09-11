@@ -295,9 +295,6 @@ releases:
   no_releases: Du hast die aktuellste Version
   newer: "1 neuere Version | {count} neuere Versionen"
   all: Alle Versionen
-log_actions:
-  copy_log: Log kopieren
-  jump_to_context: Zum Kontext springen
 toasts:
   copied:
     title: Kopiert

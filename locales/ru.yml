@@ -295,9 +295,6 @@ releases:
   no_releases: У вас последняя версия
   newer: "1 новая версия | Новых версий: {count}"
   all: Все версии
-log_actions:
-  copy_log: Копировать лог
-  jump_to_context: Перейти к контексту
 toasts:
   copied:
     title: Скопировано
