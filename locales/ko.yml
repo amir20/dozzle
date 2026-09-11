@@ -240,6 +240,8 @@ settings:
   show-timestamps-desc: '각 줄 앞에 기록된 시각을 표시합니다.'
   soft-wrap: 자동 줄바꿈
   soft-wrap-desc: '가로로 스크롤하는 대신 긴 줄을 줄바꿈합니다.'
+  highlight-errors: 오류 줄 강조
+  highlight-errors-desc: '오류 줄의 배경에 색을 입힙니다. 색상 레벨 표시는 항상 나타납니다.'
   datetime-format: 날짜 및 시간 형식 변경
   datetime-format-desc: '기본적으로 브라우저의 언어와 시간 형식을 따릅니다.'
   font-size: 로그 글꼴 크기

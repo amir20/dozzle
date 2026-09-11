@@ -237,6 +237,8 @@ settings:
   show-timestamps-desc: 'Pred vsako vrstico doda čas, ko je bila zapisana.'
   soft-wrap: Mehke ovojne linije
   soft-wrap-desc: 'Prelomi dolge vrstice namesto drsenja vstran.'
+  highlight-errors: Označi vrstice z napakami
+  highlight-errors-desc: 'Obarva ozadje vrstic z napakami. Barvna oznaka ravni je vedno vidna.'
   datetime-format: Preglasi obliko zapisa datuma in časa
   datetime-format-desc: 'Privzeto sledi jeziku in uri v brskalniku.'
   font-size: Velikost pisave za dnevnike

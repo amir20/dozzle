@@ -1,5 +1,9 @@
 <template>
-  <ul class="group pt-4" :class="{ 'disable-wrap': !softWrap, [size]: true, compact }" data-logs>
+  <ul
+    class="group pt-4"
+    :class="{ 'disable-wrap': !softWrap, [size]: true, compact, 'highlight-errors': highlightErrors }"
+    data-logs
+  >
     <li
       v-for="item in messages"
       ref="list"
@@ -83,37 +87,35 @@ ul {
     }
 
     /* Written long-hand rather than as odd:/hover: utilities because the order
-       below is the whole point: hover beats the zebra, and a level tint beats
-       both, with its own (stronger) hover on top. */
+       below is the whole point: hover has to beat the zebra, and the error tint
+       has to beat both. */
     &:nth-child(odd) {
-      background-color: color-mix(in oklab, var(--color-base-content) 4%, transparent);
+      background-color: color-mix(in oklab, var(--color-base-content) 2.5%, transparent);
     }
 
     &:hover {
       background-color: color-mix(in oklab, var(--color-base-content) 8%, transparent);
     }
 
+    &.log-permalink-target {
+      @apply bg-secondary/15;
+      animation: log-permalink-pulse 1.4s ease-out;
+    }
+  }
+
+  /* Severity primarily rides on the level rail in LogLevel.vue, so this is a
+     hint rather than the signal, and warn does not get one at all: an orange
+     wash on a routine retry line was the noisiest thing in the stream. Off by
+     choice for anyone who wants the field completely flat. */
+  &.highlight-errors > li {
     &[data-log-level="error"],
     &[data-log-level="fatal"] {
-      background-color: color-mix(in oklab, var(--color-red) 9%, transparent);
+      background-color: color-mix(in oklab, var(--color-red) 5%, transparent);
     }
 
     &[data-log-level="error"]:hover,
     &[data-log-level="fatal"]:hover {
-      background-color: color-mix(in oklab, var(--color-red) 15%, transparent);
-    }
-
-    &[data-log-level="warn"] {
-      background-color: color-mix(in oklab, var(--color-orange) 8%, transparent);
-    }
-
-    &[data-log-level="warn"]:hover {
-      background-color: color-mix(in oklab, var(--color-orange) 14%, transparent);
-    }
-
-    &.log-permalink-target {
-      @apply bg-secondary/15;
-      animation: log-permalink-pulse 1.4s ease-out;
+      background-color: color-mix(in oklab, var(--color-red) 12%, transparent);
     }
   }
 

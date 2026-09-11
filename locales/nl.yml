@@ -238,6 +238,8 @@ settings:
   show-timestamps-desc: 'Zet voor elke regel het tijdstip waarop die geschreven is.'
   soft-wrap: Regels zacht afbreken
   soft-wrap-desc: 'Breek lange regels af in plaats van zijwaarts te scrollen.'
+  highlight-errors: Foutregels markeren
+  highlight-errors-desc: 'Geeft foutregels een gekleurde achtergrond. De gekleurde niveaumarkering blijft altijd zichtbaar.'
   datetime-format: Datum- en tijdnotatie aanpassen
   datetime-format-desc: 'Volgt standaard de taal en klok van je browser.'
   font-size: Lettergrootte voor logs

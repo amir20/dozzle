@@ -237,6 +237,8 @@ settings:
   show-timestamps-desc: 'Antepone a ogni riga l''ora in cui è stata scritta.'
   soft-wrap: Soft Wrap
   soft-wrap-desc: 'Manda a capo le righe lunghe invece di scorrere in orizzontale.'
+  highlight-errors: Evidenzia le righe di errore
+  highlight-errors-desc: "Colora lo sfondo delle righe di errore. L'indicatore di livello è sempre visibile."
   datetime-format: Sovrascrivi data e formato dell'ora
   datetime-format-desc: 'Per impostazione predefinita segue lingua e orologio del browser.'
   font-size: Grandezza del Font da usare nei log
