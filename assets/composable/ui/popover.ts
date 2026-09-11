@@ -59,23 +59,41 @@ export function useAnchoredPopover(
   function onBeforeToggle(event: ToggleEvent) {
     if (event.newState !== "open" || !panel.value) return;
     // The panel is still display:none here, so it cannot be measured and this first pass can
-    // only be a guess. Keeping it invisible until `toggle` avoids showing that guess.
+    // only be a guess. Keeping it invisible until it is laid out avoids showing that guess.
     panel.value.style.visibility = "hidden";
     position();
   }
 
+  /**
+   * Measures the laid-out panel, puts it where it belongs and reveals it.
+   *
+   * Called straight after showPopover() rather than from the `toggle` event.
+   * `toggle` is delivered on a rendering update, so a document that is not
+   * rendering (a background tab, a throttled one) never ran this and left the
+   * panel open and invisible — every hover after that was a no-op, because as
+   * far as the popover was concerned it was already showing.
+   */
+  function reveal() {
+    if (!panel.value) return;
+    position();
+    panel.value.style.visibility = "";
+    startTracking();
+  }
+
   function onToggle(event: ToggleEvent) {
+    // The state is already ours when we opened or closed it; this matters for
+    // the transitions we don't drive, above all light dismiss.
     isOpen.value = event.newState === "open";
-    if (isOpen.value) {
-      // Now that it is laid out its real size is known, so it can flip and clamp.
-      position();
-      if (panel.value) panel.value.style.visibility = "";
-      window.addEventListener("scroll", position, true);
-      window.addEventListener("resize", position);
-    } else {
+    if (isOpen.value) reveal();
+    else {
       closedAt = performance.now();
       stopTracking();
     }
+  }
+
+  function startTracking() {
+    window.addEventListener("scroll", position, true);
+    window.addEventListener("resize", position);
   }
 
   function stopTracking() {
@@ -83,14 +101,26 @@ export function useAnchoredPopover(
     window.removeEventListener("resize", position);
   }
 
+  // Read off the element rather than the ref: `isOpen` only catches up on the
+  // `toggle` event, and a stale `false` there would make showPopover() throw
+  // for being called on an already-open popover.
+  const isShowing = () => !!panel.value?.matches(":popover-open");
+
   const show = () => {
-    if (!isOpen.value) panel.value?.showPopover();
+    if (isShowing()) return;
+    panel.value?.showPopover();
+    isOpen.value = true;
+    reveal();
   };
   const hide = () => {
-    if (isOpen.value) panel.value?.hidePopover();
+    if (!isShowing()) return;
+    panel.value?.hidePopover();
+    isOpen.value = false;
+    closedAt = performance.now();
+    stopTracking();
   };
   const toggle = () => {
-    if (isOpen.value) hide();
+    if (isShowing()) hide();
     else if (performance.now() - closedAt > 250) show();
   };
 

@@ -353,6 +353,7 @@ notifications:
     events: 이벤트 {n}건
     suppressed: "· {n}건 억제됨"
     show-lines: 해당 로그 보기
+    show-moment: 그 시점의 로그 보기
     open-in-cloud: Dozzle Cloud에서 열기
     fired-recently: 회 (최근)
   title: 알림

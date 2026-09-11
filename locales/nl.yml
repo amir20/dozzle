@@ -350,6 +350,7 @@ notifications:
     events: "{n} gebeurtenissen"
     suppressed: "· {n} onderdrukt"
     show-lines: Laat me de regels zien
+    show-moment: Toon de logs eromheen
     open-in-cloud: Openen in Dozzle Cloud
     fired-recently: keer recent
   title: Meldingen

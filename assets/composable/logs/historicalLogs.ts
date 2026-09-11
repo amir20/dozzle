@@ -32,8 +32,15 @@ export function useHistoricalContainerLog(historicalContainer: Ref<HistoricalCon
 
   // Same alert layer the live stream uses: without it a deep link to an alert
   // landed on the one view that could not draw it.
+  //
+  // The date is handed over as the anchor. A metric or container alert has no
+  // log line, so the moment this view was opened on can sit outside the range
+  // of every line loaded around it — on a quiet container that meant clicking
+  // "show me the logs around it" for a CPU spike landed on a window that never
+  // asked Cloud about the spike.
   const containers = computed(() => [container.value]);
-  const { withAlerts, decorateVisible, alertsAvailable } = useAlertMerger(messages, containers, params);
+  const anchor = () => historicalContainer.value.date;
+  const { withAlerts, decorateVisible, alertsAvailable } = useAlertMerger(messages, containers, params, anchor);
 
   const route = useRoute();
   async function loadLogs() {

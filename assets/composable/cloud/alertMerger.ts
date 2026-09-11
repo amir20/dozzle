@@ -1,4 +1,4 @@
-import { ShallowRef, type Ref } from "vue";
+import { ShallowRef, type MaybeRefOrGetter, type Ref } from "vue";
 import {
   type LogMessage,
   LogEntry,
@@ -49,11 +49,12 @@ export function useAlertMerger(
   messages: ShallowRef<LogEntry<LogMessage>[]>,
   containers: Ref<Container[]>,
   params: Ref<URLSearchParams>,
+  anchor?: MaybeRefOrGetter<Date | undefined>,
 ) {
   const { fetchAlerts, available: alertsAvailable } = useCloudAlerts();
-  // Anchor keys already placed, so overlapping scroll windows don't duplicate.
-  // Keyed on (alert, anchor) rather than the alert alone: one incident legitimately
-  // marks every window it was active in.
+  // Alerts already placed, so overlapping scroll windows — and a merged view,
+  // where cloud reports one incident once per container it touched — don't
+  // draw the same incident twice.
   const placedAlerts = new Set<string>();
   // Newest log timestamp the poll has already asked Cloud about. Events only
   // describe lines, so a window that gained no lines cannot have gained
@@ -68,11 +69,34 @@ export function useAlertMerger(
   // The viewer clears its messages when the stream changes (container switch,
   // filter change). Without this the seen-set would outlive the entries it was
   // tracking, and alerts already scrolled past would never render again.
-  watch([params, containers], () => {
+  //
+  // Watched by value, not by identity. Both of these are computed: `params` builds
+  // a fresh URLSearchParams and a single-container view builds a fresh `[container]`
+  // on every re-evaluation, so watching the refs themselves fired on every
+  // containers-changed event — which on a busy host is constant. Each of those
+  // wiped the dedupe state for a stream that had not changed at all, and the next
+  // poll drew every alert on screen a second time.
+  watch([() => params.value.toString(), () => containers.value.map((c) => c.id).join(",")], () => {
     placedAlerts.clear();
     polledThrough = undefined;
     generation++;
   });
+
+  /**
+   * Widens a window to cover the moment the view was opened on.
+   *
+   * A log-anchored alert is always inside the lines it triggered on, so a range
+   * taken off those lines finds it. A metric or container alert has no line at
+   * all — it is positioned by its timestamp alone — and the historical view
+   * opens on exactly such a moment, which a quiet container can leave outside
+   * the range of every line loaded around it. Asking about the anchor itself is
+   * what makes "show me the logs around it" show the thing that sent you there.
+   */
+  function widenToAnchor(range: { from: number; to: number }) {
+    const at = toValue(anchor)?.getTime();
+    if (at === undefined || Number.isNaN(at)) return range;
+    return { from: Math.min(range.from, at), to: Math.max(range.to, at) };
+  }
 
   /**
    * Decorates a freshly loaded, time-sorted run of logs with any Dozzle Cloud
@@ -97,7 +121,8 @@ export function useAlertMerger(
         if (t < earliest) earliest = t;
         if (t > latest) latest = t;
       }
-      const { alerts, events } = await fetchAlerts(ids, new Date(earliest), new Date(latest + 1), {
+      const range = widenToAnchor({ from: earliest, to: latest + 1 });
+      const { alerts, events } = await fetchAlerts(ids, new Date(range.from), new Date(range.to), {
         events: true,
       });
       attachEvents(logs, events);
@@ -147,8 +172,9 @@ export function useAlertMerger(
         if (t < earliest) earliest = t;
         if (t > newest) newest = t;
       }
-      const from = new Date(earliest);
-      const to = new Date(newest + 1);
+      const range = widenToAnchor({ from: earliest, to: newest + 1 });
+      const from = new Date(range.from);
+      const to = new Date(range.to);
       // Origins only, like scrollback. An incident already running when this
       // window opens shows through the per-line badges instead, which is both
       // more precise and cheaper than a second block.

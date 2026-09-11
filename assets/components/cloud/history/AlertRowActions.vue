@@ -4,11 +4,11 @@
   <button
     type="button"
     class="btn btn-ghost btn-xs"
-    :title="$t('notifications.history.show-lines')"
+    :title="label"
     @click="jumpTo({ containerId: alert.containerId, date: new Date(alert.ts / 1e6), logId: alert.logId })"
   >
     <material-symbols:eye-tracking class="size-4" />
-    <span class="hidden sm:inline">{{ $t("notifications.history.show-lines") }}</span>
+    <span class="hidden sm:inline">{{ label }}</span>
   </button>
   <a
     v-if="alert.url"
@@ -27,4 +27,13 @@ import type { CloudAlert } from "@/composable/cloud/cloudAlerts";
 
 const { alert } = defineProps<{ alert: CloudAlert }>();
 const { jumpTo } = useLogJump();
+const { t } = useI18n();
+
+// A CPU spike or a container event has no line to show — logId is absent for
+// exactly those — so promising lines sends the reader looking for something
+// that was never there. What they get either way is the stream around the
+// moment; only the log-anchored case can point at the line itself.
+const label = computed(() =>
+  alert.logId ? t("notifications.history.show-lines") : t("notifications.history.show-moment"),
+);
 </script>

@@ -2,7 +2,7 @@
  * @vitest-environment jsdom
  */
 import { describe, expect, test, vi, beforeEach, afterEach } from "vitest";
-import { effectScope, shallowRef, ref } from "vue";
+import { computed, effectScope, shallowRef, ref, type Ref } from "vue";
 import { useAlertMerger, isStreamLog } from "./alertMerger";
 import type { CloudAlert } from "./cloudAlerts";
 import {
@@ -57,13 +57,27 @@ const shapeOf = (entries: LogEntry<LogMessage>[]) =>
 
 function withMerger(
   messages: ReturnType<typeof shallowRef<LogEntry<LogMessage>[]>>,
-  fn: (merger: ReturnType<typeof useAlertMerger>) => Promise<void>,
+  fn: (merger: ReturnType<typeof useAlertMerger>, containers: Ref<Container[]>) => Promise<void>,
+  anchor?: Date,
 ) {
   const scope = effectScope();
-  const containers = shallowRef<Container[]>([{ id: "abc" } as unknown as Container]);
+  // A computed, like the real one: a single-container view rebuilds
+  // `[container]` on every re-evaluation, so the ref's identity churns while
+  // the stream it describes does not.
+  const source = shallowRef<string[]>(["abc"]);
+  const containers = computed(() => source.value.map((id) => ({ id }) as unknown as Container));
   const params = ref(new URLSearchParams());
-  const merger = scope.run(() => useAlertMerger(messages as any, containers, params))!;
-  return fn(merger).finally(() => scope.stop());
+  const merger = scope.run(() => useAlertMerger(messages as any, containers, params, () => anchor))!;
+  return fn(merger, source as unknown as Ref<Container[]>).finally(() => scope.stop());
+}
+
+/** The from/to the last fetch asked for, in milliseconds. */
+function lastWindow() {
+  const url = new URL((global.fetch as any).mock.lastCall[0], "http://localhost");
+  return {
+    from: Number(url.searchParams.get("from")) / 1_000_000,
+    to: Number(url.searchParams.get("to")) / 1_000_000,
+  };
 }
 
 function respondWith(hits: CloudAlert[]) {
@@ -133,6 +147,70 @@ describe("useAlertMerger", () => {
       respondWith([alert({ logId: 1, ts: ns(100) })]);
       await vi.advanceTimersByTimeAsync(15_000);
       expect(shapeOf(messages.value)).toEqual(["log:1", "alert:a1", "log:2"]);
+    });
+  });
+
+  // Every containers-changed event rebuilds the containers array, and the params
+  // computed rebuilds its URLSearchParams. Resetting the dedupe state on those
+  // meant the next poll drew every alert on screen a second time.
+  test("keeps its dedupe state when the container list is rebuilt with the same ids", async () => {
+    respondWith([alert({ logId: 1, ts: ns(100) })]);
+    const messages = shallowRef<LogEntry<LogMessage>[]>([log(1, 100), log(2, 200)]);
+
+    await withMerger(messages, async ({ decorateVisible }, source) => {
+      decorateVisible();
+      await vi.advanceTimersByTimeAsync(500);
+      expect(shapeOf(messages.value)).toEqual(["log:1", "alert:a1", "log:2"]);
+
+      // Same stream, new array — what the store hands the view on any docker event.
+      (source as unknown as Ref<string[]>).value = ["abc"];
+      await vi.advanceTimersByTimeAsync(15_000);
+      expect(shapeOf(messages.value)).toEqual(["log:1", "alert:a1", "log:2"]);
+    });
+  });
+
+  // The last line of defence: even with the dedupe state gone, the run itself
+  // says what is already drawn.
+  test("does not draw an alert the run already holds", async () => {
+    respondWith([alert({ logId: 1, ts: ns(100) })]);
+    const messages = shallowRef<LogEntry<LogMessage>[]>([log(1, 100), log(2, 200)]);
+
+    await withMerger(messages, async ({ decorateVisible }, source) => {
+      decorateVisible();
+      await vi.advanceTimersByTimeAsync(500);
+      expect(shapeOf(messages.value)).toEqual(["log:1", "alert:a1", "log:2"]);
+
+      // A real stream change wipes the dedupe state, but the block is still on screen.
+      (source as unknown as Ref<string[]>).value = ["abc", "def"];
+      (source as unknown as Ref<string[]>).value = ["abc"];
+      await vi.advanceTimersByTimeAsync(15_000);
+      expect(shapeOf(messages.value)).toEqual(["log:1", "alert:a1", "log:2"]);
+    });
+  });
+
+  test("widens the window to the anchor so a metric alert outside the loaded lines is found", async () => {
+    // A CPU spike at t=100 on a container whose only lines are minutes later.
+    // Without the anchor the window starts at the first line and cloud is never
+    // asked about the moment the view was opened on.
+    respondWith([alert({ ts: ns(100) })]);
+    const messages = shallowRef<LogEntry<LogMessage>[]>([]);
+    await withMerger(
+      messages,
+      async ({ withAlerts }) => {
+        const merged = await withAlerts([log(1, 5000), log(2, 6000)]);
+        expect(lastWindow().from).toBe(100);
+        expect(shapeOf(merged)).toEqual(["alert:a1", "log:1", "log:2"]);
+      },
+      new Date(100),
+    );
+  });
+
+  test("leaves the window alone when no anchor is given", async () => {
+    respondWith([]);
+    const messages = shallowRef<LogEntry<LogMessage>[]>([]);
+    await withMerger(messages, async ({ withAlerts }) => {
+      await withAlerts([log(1, 5000), log(2, 6000)]);
+      expect(lastWindow()).toEqual({ from: 5000, to: 6001 });
     });
   });
 

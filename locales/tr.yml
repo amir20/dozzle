@@ -353,6 +353,7 @@ notifications:
     events: "{n} olay"
     suppressed: "· {n} bastırıldı"
     show-lines: Satırları göster
+    show-moment: O andaki günlükleri göster
     open-in-cloud: Dozzle Cloud'da aç
     fired-recently: kez son zamanlarda
   title: Bildirimler
