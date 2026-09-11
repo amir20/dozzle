@@ -11,6 +11,9 @@ import tsParser from "@typescript-eslint/parser";
 // better, which the IDE extension shows but CI never did.
 export default defineConfig([
   globalIgnores([
+    // Worktrees are whole copies of this repo. Linting them lints every file
+    // twice and reports errors against code that is not in this checkout.
+    ".claude/worktrees/**",
     "dist/**",
     "docs/.vitepress/cache/**",
     "docs/.vitepress/dist/**",
