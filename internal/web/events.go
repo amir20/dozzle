@@ -22,6 +22,9 @@ const (
 	keepAliveInterval = 20 * time.Second
 	// how long the browser waits before reconnecting a dropped stream
 	reconnectDelay = 3 * time.Second
+	// minimum gap between host-id reconciliations, so a burst of reconnecting tabs
+	// dials every agent once rather than once each
+	hostReconcileInterval = 10 * time.Second
 )
 
 func (h *handler) streamEvents(w http.ResponseWriter, r *http.Request) {
@@ -46,6 +49,13 @@ func (h *handler) streamEvents(w http.ResponseWriter, r *http.Request) {
 
 	h.hostService.SubscribeEventsAndStats(container.WithSubscriberName(r.Context(), "sse-events"), events, stats)
 	h.hostService.SubscribeAvailableHosts(r.Context(), availableHosts)
+
+	// An agent mints its id when its process starts, so one that restarted since the
+	// hub last looked answers under an id nothing here is keyed by. Hosts() repairs
+	// that and publishes the new host to the subscription above, which reaches this
+	// stream as an update-host carrying replacesId. Without this, a dashboard that was
+	// already open when the agent restarted keeps the stale host until someone reloads.
+	h.reconcileHosts()
 
 	userLabels := h.config.Labels
 	if h.config.Authorization.Provider != NONE {
@@ -314,4 +324,28 @@ func sendBeaconEvent(h *handler, r *http.Request, runningContainers int) {
 	if err := analytics.SendBeacon(b); err != nil {
 		log.Debug().Err(err).Msg("error sending beacon")
 	}
+}
+
+// reconcileHosts re-reads host ids off the back of a stream connecting, throttled and
+// off this request so the first payload is never held behind a dial to a down agent.
+// This is deliberately driven by a watching client rather than a ticker: dialing every
+// agent on a timer is churn for a fleet nobody is looking at.
+func (h *handler) reconcileHosts() {
+	h.reconcileMu.Lock()
+	if h.reconciling || (!h.reconciledAt.IsZero() && time.Since(h.reconciledAt) < hostReconcileInterval) {
+		h.reconcileMu.Unlock()
+		return
+	}
+	h.reconciling = true
+	h.reconcileMu.Unlock()
+
+	go func() {
+		defer func() {
+			h.reconcileMu.Lock()
+			h.reconciling = false
+			h.reconciledAt = time.Now()
+			h.reconcileMu.Unlock()
+		}()
+		h.hostService.Hosts()
+	}()
 }

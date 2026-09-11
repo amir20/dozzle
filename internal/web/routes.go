@@ -160,6 +160,11 @@ type handler struct {
 
 	releasesOnce  sync.Once
 	releasesCache *cache.Cache[[]releases.Release]
+
+	// guards the throttle around reconcileHosts
+	reconcileMu  sync.Mutex
+	reconciling  bool
+	reconciledAt time.Time
 }
 
 func CreateServer(hostService HostService, content fs.FS, config Config) *http.Server {
