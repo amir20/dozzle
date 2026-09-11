@@ -4,7 +4,7 @@ import InstallCommand from "./InstallCommand.vue";
 </script>
 
 <template>
-  <section class="mx-auto mt-20 max-w-288 px-6">
+  <section class="mx-auto mt-20 max-w-6xl px-6">
     <div
       class="flex flex-col items-center rounded-2xl border border-solid border-(--vp-c-divider) bg-(--vp-c-bg-alt) px-6 py-16"
     >

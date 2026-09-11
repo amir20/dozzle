@@ -8,7 +8,7 @@ const testimonials: Testimonial[] = [];
 </script>
 
 <template>
-  <section v-if="testimonials.length" class="mx-auto mt-20 max-w-288 px-6">
+  <section v-if="testimonials.length" class="mx-auto mt-20 max-w-6xl px-6">
     <h2 class="m-0! text-center text-2xl font-semibold text-(--vp-c-text-1) md:text-3xl">What people say</h2>
 
     <div class="mt-10 grid gap-4 md:grid-cols-3">
