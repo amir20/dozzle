@@ -3,6 +3,7 @@ package cli
 import (
 	"embed"
 	"os"
+	"regexp"
 	"strings"
 	"time"
 
@@ -12,10 +13,13 @@ import (
 
 var Version = "head"
 
+var validHostID = regexp.MustCompile(`^[A-Za-z0-9_.-]+$`)
+
 type Args struct {
 	Addr                   string              `arg:"env:DOZZLE_ADDR" default:":8080" help:"sets host:port to bind for server. This is rarely needed inside a docker container."`
 	Base                   string              `arg:"env:DOZZLE_BASE" default:"/" help:"sets the base for http router."`
 	Hostname               string              `arg:"env:DOZZLE_HOSTNAME" help:"sets the hostname for display. This is useful with multiple Dozzle instances."`
+	HostID                 string              `arg:"--host-id,env:DOZZLE_HOST_ID" help:"overrides the id Dozzle derives for this host. Only needed when the derived id collides with another host."`
 	Level                  string              `arg:"env:DOZZLE_LEVEL" default:"info" help:"set Dozzle log level. Use debug for more logging."`
 	AuthProvider           string              `arg:"--auth-provider,env:DOZZLE_AUTH_PROVIDER" default:"none" help:"sets the auth provider to use: none, simple or forward-proxy. github and google are aliases for simple."`
 	AuthTTL                string              `arg:"--auth-ttl,env:DOZZLE_AUTH_TTL" default:"session" help:"sets the TTL for the auth token. Accepts duration values like 12h. Valid time units are s, m, h"`
@@ -113,6 +117,12 @@ func ParseArgs() (Args, any) {
 			parser.Fail("timeout should be a valid duration")
 		}
 		args.Timeout = timeout
+	}
+
+	// The host id is a path segment in every /api/hosts/{host}/... route, so a
+	// slash or a space here would not fail loudly, it would just route nowhere.
+	if args.HostID != "" && !validHostID.MatchString(args.HostID) {
+		parser.Fail("host-id should only contain letters, numbers, dashes, underscores and dots")
 	}
 
 	return args, parser.Subcommand()

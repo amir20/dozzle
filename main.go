@@ -89,7 +89,9 @@ func main() {
 		hostService = multiHostService
 		notificationService = multiHostService
 	} else if args.Mode == "swarm" {
-		localClient, err := docker.NewLocalClient("")
+		// No host id override in swarm mode: identity here is the swarm node id,
+		// which is already stable and is what every other node refers to this one by.
+		localClient, err := docker.NewLocalClient("", "")
 		if err != nil {
 			log.Fatal().Err(err).Msg("Could not create docker client")
 		}

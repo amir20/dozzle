@@ -142,7 +142,7 @@ func (a *AgentCmd) Run(args Args, embeddedCerts embed.FS) error {
 	if args.Mode != "server" {
 		return fmt.Errorf("agent command is only available in server mode")
 	}
-	client, err := docker.NewLocalClient(args.Hostname)
+	client, err := docker.NewLocalClient(args.Hostname, args.HostID)
 	if err != nil {
 		return fmt.Errorf("failed to create docker client: %w", err)
 	}

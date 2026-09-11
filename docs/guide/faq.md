@@ -142,20 +142,22 @@ Sometimes, VMs may be restored from backups with the same host ID. This can caus
 
 ## I am seeing host not found error in the logs. How do I fix it?
 
-This should be mainly a Podman only error: Using Podman doesn't create an engine-id like Docker.
-If you are using Docker check if the `engine-id` file exists with correct permissions in `/var/lib/docker` and has the UUID inside.
+This is mainly a Podman error. Podman is daemonless and tracks no engine identity, so its Docker-compatible `/info` endpoint returns a brand new random UUID on every call. Dozzle reads that ID once when it connects and uses it to identify the host, so every restart used to produce a different host, and the main server kept routing to an ID that no longer answered.
 
-To resolve the error take following steps:
+Dozzle now derives a stable ID on Podman from the hostname and the container storage path, so this should fix itself once both the server and the agents are updated. If you are still seeing it, restart the main Dozzle server so it picks up the new IDs.
 
-1. Create the folders: `mkdir -p /var/lib/docker`
-2. Install uuidgen if necessary
-3. Using uuidgen generate a UUID: `uuidgen > engine-id`
+> [!WARNING]
+> Earlier versions of this page told you to create `/var/lib/docker/engine-id`. That never had any effect on Podman, which reads no file for this. You can safely delete it.
 
-The engine-id file should now have a UUID inside.
+If you are using Docker rather than Podman, check that `engine-id` exists in `/var/lib/docker` with a UUID inside and is readable by the Docker daemon.
 
-An example setup for Ansible can be found in [Podman](/guide/podman)
+Two Podman hosts that share both a hostname and a storage path will still collide, since that is all Podman gives Dozzle to work with. Set `DOZZLE_HOST_ID` on one of them to break the tie:
 
-It might be necessary to clean up your existing Dozzle deployment under Podman, stop the container and remove the associated data (container/volumes). After that you can redeploy the Dozzle container and your logs should now show up.
+```sh
+podman run -e DOZZLE_HOST_ID=web-01 ...
+```
+
+See the [Podman guide](/guide/podman) for the full setup.
 
 ## Why am I only seeing running containers? How do I see stopped containers?
 

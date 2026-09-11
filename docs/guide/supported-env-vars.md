@@ -11,6 +11,7 @@ Configurations can be done with flags or environment variables. The table below 
 | `--addr`                      | `DOZZLE_ADDR`                      | `:8080`           |
 | `--base`                      | `DOZZLE_BASE`                      | `/`               |
 | `--hostname`                  | `DOZZLE_HOSTNAME`                  | `""`              |
+| `--host-id`                   | `DOZZLE_HOST_ID`                   | `""`              |
 | `--level`                     | `DOZZLE_LEVEL`                     | `info`            |
 | `--auth-provider`             | `DOZZLE_AUTH_PROVIDER`             | `none`            |
 | `--auth-header-user`          | `DOZZLE_AUTH_HEADER_USER`          | `Remote-User`     |

@@ -4,6 +4,7 @@ import (
 	"context"
 	"crypto/tls"
 	"fmt"
+	"slices"
 	"sync"
 	"time"
 
@@ -178,16 +179,7 @@ func (m *RetriableClientManager) RetryAndList() ([]container_support.ClientServi
 		m.clients[r.host.ID] = r.service
 		host := r.host
 		host.Available = true
-		m.subscribers.Range(func(sub *hostSubscriber, _ struct{}) bool {
-			// We don't want to block the subscribers in event.go
-			go func() {
-				select {
-				case sub.channel <- host:
-				case <-sub.ctx.Done():
-				}
-			}()
-			return true
-		})
+		m.publish(host)
 	}
 	m.failedAgents = newFailed
 
@@ -213,11 +205,68 @@ func (m *RetriableClientManager) String() string {
 	return fmt.Sprintf("RetriableClientManager{clients: %d, failedAgents: %d}", len(m.clients), len(m.failedAgents))
 }
 
-func (m *RetriableClientManager) Hosts(ctx context.Context) []container.Host {
-	clients := m.List()
+// rekey moves a client to the id its host now reports, so Find keeps resolving
+// after the agent behind it restarted under a new id. It returns the host to
+// report, which carries the id it was previously known by so an open tab can
+// drop the stale entry instead of showing the same machine twice until reload.
+func (m *RetriableClientManager) rekey(oldID string, service container_support.ClientService, host container.Host) container.Host {
+	m.mu.Lock()
+	if current, ok := m.clients[oldID]; !ok || current != service {
+		// A concurrent Hosts() already repaired this one.
+		m.mu.Unlock()
+		return host
+	}
+	if existing, taken := m.clients[host.ID]; taken && existing != service {
+		m.mu.Unlock()
+		log.Warn().Str("name", host.Name).Str("id", host.ID).Str("previousId", oldID).Msg("host reported an id that already belongs to another host, leaving both in place. See https://dozzle.dev/guide/faq#i-am-seeing-duplicate-hosts-error-in-the-logs-how-do-i-fix-it")
+		return host
+	}
+	delete(m.clients, oldID)
+	m.clients[host.ID] = service
+	m.mu.Unlock()
 
-	hosts := lop.Map(clients, func(client container_support.ClientService, _ int) container.Host {
-		host, err := client.Host(ctx)
+	log.Info().Str("name", host.Name).Str("id", host.ID).Str("previousId", oldID).Msg("host came back with a new id, updating routing")
+
+	host.ReplacesID = oldID
+	m.publish(host)
+
+	return host
+}
+
+// publish tells every subscriber about a host, without blocking this caller on
+// a slow one. Mirrors what RetryAndList does when an agent first comes back.
+func (m *RetriableClientManager) publish(host container.Host) {
+	m.subscribers.Range(func(sub *hostSubscriber, _ struct{}) bool {
+		go func() {
+			select {
+			case sub.channel <- host:
+			case <-sub.ctx.Done():
+			}
+		}()
+		return true
+	})
+}
+
+func (m *RetriableClientManager) Hosts(ctx context.Context) []container.Host {
+	m.mu.RLock()
+	type entry struct {
+		id      string
+		service container_support.ClientService
+	}
+	entries := make([]entry, 0, len(m.clients))
+	for id, service := range m.clients {
+		entries = append(entries, entry{id: id, service: service})
+	}
+	failedAgents := slices.Clone(m.failedAgents)
+	m.mu.RUnlock()
+
+	type result struct {
+		entry entry
+		host  container.Host
+	}
+
+	results := lop.Map(entries, func(e entry, _ int) result {
+		host, err := e.service.Host(ctx)
 		if err != nil {
 			log.Warn().Err(err).Str("host", host.Name).Msg("error fetching host info for client")
 			host.Available = false
@@ -225,10 +274,24 @@ func (m *RetriableClientManager) Hosts(ctx context.Context) []container.Host {
 			host.Available = true
 		}
 
-		return host
+		return result{entry: e, host: host}
 	})
 
-	for _, endpoint := range m.failedAgents {
+	hosts := make([]container.Host, 0, len(results)+len(failedAgents))
+	for _, r := range results {
+		// An agent mints its id when its own process starts, so an agent that
+		// restarted since we last looked answers under a different id than the
+		// one this map is keyed by. Nothing else notices: RetryAndList only ever
+		// revisits endpoints that never connected. Left alone, the id we hand the
+		// UI here is one Find has never heard of, and every lookup for that host
+		// fails with "host not found" until the hub itself is restarted.
+		if r.host.Available && r.host.ID != "" && r.host.ID != r.entry.id {
+			r.host = m.rekey(r.entry.id, r.entry.service, r.host)
+		}
+		hosts = append(hosts, r.host)
+	}
+
+	for _, endpoint := range failedAgents {
 		addr, name, group, err := agent.ParseEndpoint(endpoint)
 		if err != nil {
 			log.Warn().Err(err).Str("endpoint", endpoint).Msg("skipping malformed agent endpoint")

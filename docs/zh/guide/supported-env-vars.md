@@ -1,6 +1,6 @@
 ---
 title: 环境变量与子命令
-sourceHash: ec7584015f66
+sourceHash: 3b46b35a4f0e
 ---
 
 # 全局环境变量
@@ -12,6 +12,7 @@ sourceHash: ec7584015f66
 | `--addr`                      | `DOZZLE_ADDR`                      | `:8080`           |
 | `--base`                      | `DOZZLE_BASE`                      | `/`               |
 | `--hostname`                  | `DOZZLE_HOSTNAME`                  | `""`              |
+| `--host-id`                   | `DOZZLE_HOST_ID`                   | `""`              |
 | `--level`                     | `DOZZLE_LEVEL`                     | `info`            |
 | `--auth-provider`             | `DOZZLE_AUTH_PROVIDER`             | `none`            |
 | `--auth-header-user`          | `DOZZLE_AUTH_HEADER_USER`          | `Remote-User`     |
