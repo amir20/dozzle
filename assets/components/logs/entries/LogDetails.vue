@@ -35,17 +35,15 @@
       <div class="flex items-center gap-1">
         <div class="field-label">{{ $t("log-details.raw-json") }}</div>
 
-        <UseClipboard v-slot="{ copy, copied }" :source="entry.rawMessage">
-          <button
-            class="icon-btn swap ml-auto outline-hidden"
-            @click="copy()"
-            :class="{ 'hover:swap-active': copied }"
-            :title="$t('log-details.copy')"
-          >
-            <mdi:check class="swap-on" />
-            <material-symbols:content-copy class="swap-off" />
-          </button>
-        </UseClipboard>
+        <button
+          class="icon-btn swap ml-auto outline-hidden"
+          @click="copy(entry.rawMessage, { quiet: true })"
+          :class="{ 'hover:swap-active': copied }"
+          :title="$t('log-details.copy')"
+        >
+          <mdi:check class="swap-on" />
+          <material-symbols:content-copy class="swap-off" />
+        </button>
 
         <button class="icon-btn outline-hidden" @click="downloadJSON()" :title="$t('log-details.download')">
           <material-symbols:download />
@@ -102,9 +100,9 @@
 
 <script setup lang="ts">
 import { ComplexLogEntry } from "@/models/LogEntry";
-import { UseClipboard } from "@vueuse/components";
 
 const { entry } = defineProps<{ entry: ComplexLogEntry }>();
+const { copy, copied } = useCopy();
 const { currentContainer } = useContainerStore();
 const list = ref<HTMLElement>();
 const container = currentContainer(toRef(() => entry.containerID));

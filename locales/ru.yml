@@ -159,7 +159,8 @@ error:
   invalid-auth: Имя пользователя или пароль неверны.
   oauth-failed: Не удалось выполнить вход. Попробуйте ещё раз.
   copy-not-supported: Копирование в буфер обмена не поддерживается вашим браузером
-  copy-not-supported-hint: Буфер обмена недоступен. Скопируйте ссылку ниже
+  copy-insecure: Буфер обмена заблокирован по http
+  copy-insecure-hint: Браузер разрешает доступ к буферу обмена только по https. Скопируйте текст вручную.
   logs-skipped: Показать {total} скрытых записей
   container-not-found: Контейнер не найден.
   action-failed: Действие не выполнено
@@ -298,9 +299,6 @@ releases:
   no_releases: У вас последняя версия
   newer: "1 новая версия | Новых версий: {count}"
   all: Все версии
-log_actions:
-  copy_log: Копировать лог
-  jump_to_context: Перейти к контексту
 toasts:
   copied:
     title: Скопировано

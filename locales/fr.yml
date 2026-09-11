@@ -159,7 +159,8 @@ error:
   invalid-auth: Nom d'utilisateur ou mot de passe non valides
   oauth-failed: Échec de la connexion. Veuillez réessayer.
   copy-not-supported: La copie dans le presse-papiers n'est pas prise en charge par votre navigateur
-  copy-not-supported-hint: Presse-papiers indisponible. Copiez le lien ci-dessous
+  copy-insecure: Presse-papiers bloqué en http
+  copy-insecure-hint: Votre navigateur n'autorise l'accès au presse-papiers qu'en https. Copiez le texte manuellement.
   logs-skipped: Afficher {total} entrées cachées
   container-not-found: Conteneur non trouvé
   action-failed: Action Échouée
@@ -298,9 +299,6 @@ releases:
   no_releases: Vous avez la dernière version
   newer: "1 version plus récente | {count} versions plus récentes"
   all: Toutes les versions
-log_actions:
-  copy_log: Copier le journal
-  jump_to_context: Aller au contexte
 toasts:
   copied:
     title: Copié

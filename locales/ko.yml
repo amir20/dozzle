@@ -159,7 +159,8 @@ error:
   invalid-auth: 사용자 이름 또는 비밀번호가 올바르지 않습니다
   oauth-failed: 로그인에 실패했습니다. 다시 시도해 주세요.
   copy-not-supported: 클립보드 복사는 브라우저에서 지원되지 않습니다
-  copy-not-supported-hint: 클립보드를 사용할 수 없습니다. 아래 링크를 복사하세요
+  copy-insecure: http에서는 클립보드가 차단됩니다
+  copy-insecure-hint: 브라우저는 https에서만 클립보드 접근을 허용합니다. 텍스트를 직접 복사하세요.
   logs-skipped: 숨겨진 항목 {total}개 보기
   container-not-found: 컨테이너를 찾을 수 없습니다
   action-failed: 작업 실패
@@ -302,9 +303,6 @@ releases:
   no_releases: 최신 버전을 사용하고 있습니다
   newer: "새 릴리스 1개 | 새 릴리스 {count}개"
   all: 모든 릴리스
-log_actions:
-  copy_log: 로그 복사
-  jump_to_context: 해당 위치로 이동
 toasts:
   copied:
     title: 복사 완료

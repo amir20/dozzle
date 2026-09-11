@@ -138,7 +138,7 @@
           {{ isFiltered ? $t("toolbar.download-filtered") : $t("toolbar.download") }}
         </a>
       </li>
-      <li v-if="isSupported">
+      <li>
         <a @click="copyLogs()">
           <mdi:content-copy />
           {{ isFiltered ? $t("toolbar.copy-filtered-logs") : $t("toolbar.copy-logs") }}
@@ -302,7 +302,7 @@ const { latestRelease } = useAnnouncements();
 const releaseNotesUrl = computed(() => latestRelease.value?.htmlUrl ?? "https://github.com/amir20/dozzle/releases");
 
 const router = useRouter();
-const { copy, copied, isSupported } = useClipboard({ legacy: true });
+const { copy, copyLazy } = useCopy();
 const { t } = useI18n();
 const { showToast, removeToast } = useToast();
 
@@ -312,47 +312,11 @@ async function copyPermalink() {
     query: { name: container.name, host: container.host },
   }).href;
 
-  const resolved = new URL(url, window.location.origin);
-
-  if (!isSupported.value) {
-    showToast(
-      {
-        title: t("error.copy-not-supported-hint"),
-        message: resolved.href,
-        type: "info",
-      },
-      { expire: 10000 },
-    );
-    return;
-  }
-
-  await copy(resolved.href);
-
-  if (copied.value) {
-    showToast(
-      {
-        title: t("toasts.copied.title"),
-        message: t("toasts.copied.message"),
-        type: "info",
-      },
-      { expire: 2000 },
-    );
-  }
+  await copy(new URL(url, window.location.origin).href);
 }
 
 async function copyImageReference() {
-  await copy(container.image);
-
-  if (copied.value) {
-    showToast(
-      {
-        title: t("toasts.copied.title"),
-        message: escapeHtml(container.image),
-        type: "info",
-      },
-      { expire: 2000 },
-    );
-  }
+  await copy(container.image, { message: escapeHtml(container.image) });
 }
 
 async function copyLogs() {
@@ -384,37 +348,45 @@ async function copyLogs() {
     { once: true },
   );
 
-  const blobPromise = fetch(url, { headers: { Accept: "text/plain" } })
-    .then((response) => {
-      if (!response.ok) throw new Error(response.statusText);
-      return response.blob();
-    })
-    .then((blob) => {
-      removeToast(toastId);
-      showToast(
-        {
-          title: t("toasts.copied.title"),
-          message: t("toasts.copied.message"),
-          type: "info",
-        },
-        { expire: 2000 },
-      );
-      return blob;
-    })
-    .catch((err) => {
-      removeToast(toastId);
-      showToast(
-        {
-          title: "Error",
-          message: err.message,
-          type: "error",
-        },
-        { expire: 5000 },
-      );
-      throw err;
-    });
+  // The success toast belongs to the copy, not to the download: on http the
+  // clipboard is out of reach, and the logs arriving is not the same as them
+  // landing somewhere the user can paste. A failed download has already been
+  // reported by then, so it is swallowed here.
+  await copyLazy(
+    () =>
+      fetch(url, { headers: { Accept: "text/plain" } })
+        .then((response) => {
+          if (!response.ok) throw new Error(response.statusText);
+          return response.text();
+        })
+        .then((text) => {
+          removeToast(toastId);
+          return text;
+        })
+        .catch((err) => {
+          removeToast(toastId);
+          showToast(
+            {
+              title: "Error",
+              message: err.message,
+              type: "error",
+            },
+            { expire: 5000 },
+          );
+          throw err;
+        }),
+    // A browser only allows the fallback copy for a few seconds after the click,
+    // which a long download can outlast, so the notice offers the same content as
+    // a file rather than dead-ending.
+    { action: enableDownload ? { label: t("toolbar.download"), handler: downloadLogs } : undefined },
+  ).catch(() => {});
+}
 
-  await navigator.clipboard.write([new ClipboardItem({ "text/plain": blobPromise })]);
+function downloadLogs() {
+  const link = document.createElement("a");
+  link.href = downloadUrl.value;
+  link.download = "";
+  link.click();
 }
 
 onKeyStroke(["f", "F"], (e) => {

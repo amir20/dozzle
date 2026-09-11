@@ -40,9 +40,7 @@ import { Container } from "@/models/Container";
 
 const { container } = defineProps<{ container: Container }>();
 
-const { t } = useI18n();
-const { copy, copied, isSupported } = useClipboard({ legacy: true });
-const { showToast } = useToast();
+const { copy } = useCopy();
 
 // Traefik labels name an address that actually reaches the container from outside, so they
 // come first. A published host port is only a guess: the browser's own hostname is the best
@@ -73,10 +71,6 @@ function dismiss() {
 }
 
 async function copySnippet() {
-  if (!isSupported.value) return;
   await copy(snippet.value);
-  if (copied.value) {
-    showToast({ title: t("toasts.copied.title"), message: t("toasts.copied.message"), type: "info" }, { expire: 2000 });
-  }
 }
 </script>
