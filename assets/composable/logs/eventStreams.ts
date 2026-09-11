@@ -18,7 +18,7 @@ import { parseMessage } from "./loadBetween";
 import { useLogLoader } from "./logLoader";
 import { parseEventData } from "@/utils/events";
 
-const { isSearching, debouncedSearchFilter, inverseFilter } = useSearchFilter();
+const { isSearching, appliedSearchFilter, inverseFilter } = useSearchFilter();
 
 export function useContainerStream(container: Ref<Container>): LogStreamSource {
   const url = computed(() => `/api/hosts/${container.value.host}/containers/${container.value.id}/logs/stream`);
@@ -95,7 +95,7 @@ function useLogStream(url: Ref<string>, container?: Ref<Container>) {
     if (streamConfig.value.stdout) params.append("stdout", "1");
     if (streamConfig.value.stderr) params.append("stderr", "1");
     if (isSearching.value) {
-      params.append("filter", debouncedSearchFilter.value);
+      params.append("filter", appliedSearchFilter.value);
       if (inverseFilter.value) params.append("inverse", "true");
     }
     for (const level of levels.value) {

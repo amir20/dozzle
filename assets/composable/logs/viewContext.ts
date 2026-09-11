@@ -130,7 +130,7 @@ const publishedLines = shallowRef<Ref<LogEntry<LogMessage>[]>>();
 export function buildViewContext(scroll: { currentDate: Date }): ComputedRef<ViewContext> {
   const route = useRoute();
   const { containers, levels, historical } = useLoggingContext();
-  const { debouncedSearchFilter, isSearching } = useSearchFilter();
+  const { appliedSearchFilter, isSearching } = useSearchFilter();
 
   return computed(() => {
     const visible = containers.value ?? [];
@@ -139,7 +139,7 @@ export function buildViewContext(scroll: { currentDate: Date }): ComputedRef<Vie
       target: typeof route.params.id === "string" ? route.params.id : undefined,
       containers: visible.map(({ id, name, host }) => ({ id, name, host })),
       hosts: [...new Set(visible.map(({ host }) => host))],
-      search: isSearching.value ? debouncedSearchFilter.value : undefined,
+      search: isSearching.value ? appliedSearchFilter.value : undefined,
       levels: narrowedLevels(levels.value),
       visibleAt: scroll.currentDate.toISOString(),
       historical: historical.value,

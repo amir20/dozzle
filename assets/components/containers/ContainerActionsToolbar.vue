@@ -325,9 +325,9 @@ async function copyLogs() {
   if (streamConfig.value.stderr) params.append("stderr", "1");
   params.append("everything", "1");
 
-  const { debouncedSearchFilter } = useSearchFilter();
-  if (debouncedSearchFilter.value) {
-    params.append("filter", debouncedSearchFilter.value);
+  const { appliedSearchFilter } = useSearchFilter();
+  if (appliedSearchFilter.value) {
+    params.append("filter", appliedSearchFilter.value);
   }
 
   const selectedLevels = Array.from(levels.value);
