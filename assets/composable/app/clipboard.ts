@@ -30,20 +30,41 @@ function copyHost() {
 function legacyCopy(value: string) {
   const textarea = document.createElement("textarea");
   textarea.value = value;
+  // readonly keeps the on-screen keyboard down on mobile, fixed positioning keeps
+  // the page from scrolling to a field nobody can see, and 16px keeps iOS from
+  // zooming towards it.
   textarea.setAttribute("readonly", "");
-  textarea.style.position = "absolute";
-  textarea.style.opacity = "0";
+  textarea.setAttribute("aria-hidden", "true");
+  textarea.style.cssText = "position:fixed;top:0;left:0;width:1px;height:1px;opacity:0;font-size:16px;";
   copyHost().appendChild(textarea);
+
+  // Whatever the user had selected is about to be replaced, so put it back after.
+  const selection = window.getSelection();
+  const previous = selection && selection.rangeCount > 0 ? selection.getRangeAt(0) : undefined;
+
+  // select() alone is a no-op on iOS Safari; a range plus an explicit selection
+  // range is what actually takes there, and is harmless everywhere else.
   textarea.select();
+  const range = document.createRange();
+  range.selectNodeContents(textarea);
+  selection?.removeAllRanges();
+  selection?.addRange(range);
+  textarea.setSelectionRange(0, value.length);
+
   // execCommand reports failure by returning false rather than throwing, and unlike
   // VueUse's legacy mode we care about the answer.
   let copied = false;
   try {
-    copied = document.execCommand("copy");
+    copied = document.execCommand?.("copy") ?? false;
   } catch {
     copied = false;
   }
+
   textarea.remove();
+  if (previous) {
+    selection?.removeAllRanges();
+    selection?.addRange(previous);
+  }
   return copied;
 }
 
