@@ -69,7 +69,14 @@ export function useAlertMerger(
   // The viewer clears its messages when the stream changes (container switch,
   // filter change). Without this the seen-set would outlive the entries it was
   // tracking, and alerts already scrolled past would never render again.
-  watch([params, containers], () => {
+  //
+  // Watched by value, not by identity. Both of these are computed: `params` builds
+  // a fresh URLSearchParams and a single-container view builds a fresh `[container]`
+  // on every re-evaluation, so watching the refs themselves fired on every
+  // containers-changed event — which on a busy host is constant. Each of those
+  // wiped the dedupe state for a stream that had not changed at all, and the next
+  // poll drew every alert on screen a second time.
+  watch([() => params.value.toString(), () => containers.value.map((c) => c.id).join(",")], () => {
     placedAlerts.clear();
     polledThrough = undefined;
     generation++;

@@ -164,12 +164,23 @@ export function mergeAlerts(
   //
   // Deduped inside the batch as well as against `seen`, because `seen` is read
   // here, before anything in this batch has been placed.
+  //
+  // And deduped against the run itself. `seen` is the caller's memory of what
+  // it has drawn, and a caller that resets it — a container switch, a filter
+  // change, anything that rebuilds the view — hands us a run that already holds
+  // blocks this batch would place again. The list in front of us is the one
+  // authority on what is already drawn, so it wins over both sets.
+  const drawn = new Set<string>();
+  for (const l of logs) {
+    if (l instanceof AlertLogEntry) drawn.add(l.alert.alertId);
+  }
+
   const fresh: CloudAlert[] = [];
   const batch = new Set<string>();
   for (const alert of alerts) {
     if (!alert.isOrigin) continue;
     const key = anchorKey(alert);
-    if (seen.has(key) || batch.has(key)) continue;
+    if (seen.has(key) || batch.has(key) || drawn.has(alert.alertId)) continue;
     batch.add(key);
     fresh.push(alert);
   }

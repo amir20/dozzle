@@ -2,7 +2,7 @@
  * @vitest-environment jsdom
  */
 import { describe, expect, test, vi, beforeEach, afterEach } from "vitest";
-import { effectScope, shallowRef, ref } from "vue";
+import { computed, effectScope, shallowRef, ref, type Ref } from "vue";
 import { useAlertMerger, isStreamLog } from "./alertMerger";
 import type { CloudAlert } from "./cloudAlerts";
 import {
@@ -57,14 +57,18 @@ const shapeOf = (entries: LogEntry<LogMessage>[]) =>
 
 function withMerger(
   messages: ReturnType<typeof shallowRef<LogEntry<LogMessage>[]>>,
-  fn: (merger: ReturnType<typeof useAlertMerger>) => Promise<void>,
+  fn: (merger: ReturnType<typeof useAlertMerger>, containers: Ref<Container[]>) => Promise<void>,
   anchor?: Date,
 ) {
   const scope = effectScope();
-  const containers = shallowRef<Container[]>([{ id: "abc" } as unknown as Container]);
+  // A computed, like the real one: a single-container view rebuilds
+  // `[container]` on every re-evaluation, so the ref's identity churns while
+  // the stream it describes does not.
+  const source = shallowRef<string[]>(["abc"]);
+  const containers = computed(() => source.value.map((id) => ({ id }) as unknown as Container));
   const params = ref(new URLSearchParams());
   const merger = scope.run(() => useAlertMerger(messages as any, containers, params, () => anchor))!;
-  return fn(merger).finally(() => scope.stop());
+  return fn(merger, source as unknown as Ref<Container[]>).finally(() => scope.stop());
 }
 
 /** The from/to the last fetch asked for, in milliseconds. */
@@ -141,6 +145,44 @@ describe("useAlertMerger", () => {
       expect(shapeOf(messages.value)).toEqual(["log:1", "log:2"]);
 
       respondWith([alert({ logId: 1, ts: ns(100) })]);
+      await vi.advanceTimersByTimeAsync(15_000);
+      expect(shapeOf(messages.value)).toEqual(["log:1", "alert:a1", "log:2"]);
+    });
+  });
+
+  // Every containers-changed event rebuilds the containers array, and the params
+  // computed rebuilds its URLSearchParams. Resetting the dedupe state on those
+  // meant the next poll drew every alert on screen a second time.
+  test("keeps its dedupe state when the container list is rebuilt with the same ids", async () => {
+    respondWith([alert({ logId: 1, ts: ns(100) })]);
+    const messages = shallowRef<LogEntry<LogMessage>[]>([log(1, 100), log(2, 200)]);
+
+    await withMerger(messages, async ({ decorateVisible }, source) => {
+      decorateVisible();
+      await vi.advanceTimersByTimeAsync(500);
+      expect(shapeOf(messages.value)).toEqual(["log:1", "alert:a1", "log:2"]);
+
+      // Same stream, new array — what the store hands the view on any docker event.
+      (source as unknown as Ref<string[]>).value = ["abc"];
+      await vi.advanceTimersByTimeAsync(15_000);
+      expect(shapeOf(messages.value)).toEqual(["log:1", "alert:a1", "log:2"]);
+    });
+  });
+
+  // The last line of defence: even with the dedupe state gone, the run itself
+  // says what is already drawn.
+  test("does not draw an alert the run already holds", async () => {
+    respondWith([alert({ logId: 1, ts: ns(100) })]);
+    const messages = shallowRef<LogEntry<LogMessage>[]>([log(1, 100), log(2, 200)]);
+
+    await withMerger(messages, async ({ decorateVisible }, source) => {
+      decorateVisible();
+      await vi.advanceTimersByTimeAsync(500);
+      expect(shapeOf(messages.value)).toEqual(["log:1", "alert:a1", "log:2"]);
+
+      // A real stream change wipes the dedupe state, but the block is still on screen.
+      (source as unknown as Ref<string[]>).value = ["abc", "def"];
+      (source as unknown as Ref<string[]>).value = ["abc"];
       await vi.advanceTimersByTimeAsync(15_000);
       expect(shapeOf(messages.value)).toEqual(["log:1", "alert:a1", "log:2"]);
     });
