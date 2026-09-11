@@ -12,24 +12,38 @@
     is a statement of where the answers come from and never an advert.
 
     A phone has no room for a permanent strip, and a 550px column beside a 390px
-    screen is not a column. There the strip is gone and the panel is the screen,
-    opened from the toolbar or the palette and closed with the same X.
+    screen is not a column. There the strip is gone entirely and the panel is the
+    screen, opened from the toolbar or the palette and closed with the same X. A
+    vertical strip of icons down the edge of a 390px screen is a desktop affordance
+    wearing a phone's clothes, so on a sheet the three panels are tabs across the
+    top instead, where a thumb can reach them.
   -->
-  <div class="fixed z-30 flex" :class="sheet ? 'pt-safe bg-base-100 inset-0 z-40' : 'inset-y-0 right-0'">
+  <div class="fixed z-30 flex" :class="sheet ? 'pt-safe pb-safe bg-base-100 inset-0 z-40' : 'inset-y-0 right-0'">
     <section
       v-if="panel"
-      class="border-base-content/10 bg-base-100 flex min-w-0 flex-1 flex-col border-l"
+      class="border-base-content/10 bg-base-100 flex min-w-0 flex-1 flex-col"
+      :class="{ 'border-l': !sheet }"
       :style="sheet ? undefined : { width: `${panelWidth}px`, flex: 'none' }"
     >
       <header class="border-base-content/10 flex shrink-0 items-center gap-2 border-b px-4 py-3">
-        <component :is="active.icon" class="text-base-content/60 size-4 shrink-0" />
-        <span class="text-sm font-semibold">{{ active.label }}</span>
-        <!-- Who answered. Muted, because the reader needs it once to trust the
-             panel and never again while reading it. -->
-        <span class="text-base-content/40 ml-1 flex items-center gap-1 text-xs">
-          <mdi:cloud class="text-info/70 size-3.5" />
-          {{ $t("cloud.title") }}
-        </span>
+        <!-- On a sheet the tabs under this name the panel, so the header says the
+             one thing they cannot: where the answers come from. -->
+        <template v-if="sheet">
+          <span class="bg-info/10 text-info flex size-6 shrink-0 items-center justify-center rounded-full">
+            <mdi:cloud class="size-3.5" />
+          </span>
+          <span class="text-sm font-semibold">{{ $t("cloud.title") }}</span>
+        </template>
+        <template v-else>
+          <component :is="active.icon" class="text-base-content/60 size-4 shrink-0" />
+          <span class="text-sm font-semibold">{{ active.label }}</span>
+          <!-- Who answered. Muted, because the reader needs it once to trust the
+               panel and never again while reading it. -->
+          <span class="text-base-content/40 ml-1 flex items-center gap-1 text-xs">
+            <mdi:cloud class="text-info/70 size-3.5" />
+            {{ $t("cloud.title") }}
+          </span>
+        </template>
         <div class="ml-auto flex shrink-0 items-center gap-1">
           <!-- A thread that has run its course is in the way of the next one,
                and the only way out of it used to be a reload. -->
@@ -54,6 +68,28 @@
         </div>
       </header>
 
+      <!-- The strip's job, laid out for a thumb: same three panels, same dot, and
+           the only way to move between them once the strip is gone. -->
+      <nav
+        v-if="sheet"
+        class="border-base-content/10 flex shrink-0 gap-1 border-b px-2 py-2"
+        :aria-label="$t('cloud-rail.title')"
+      >
+        <button
+          v-for="item in items"
+          :key="item.id"
+          type="button"
+          class="flex flex-1 items-center justify-center gap-1.5 rounded-md px-2 py-2 text-sm transition-colors"
+          :class="panel === item.id ? 'bg-info/10 text-info font-semibold' : 'text-base-content/60'"
+          :aria-pressed="panel === item.id"
+          @click="toggleRail(item.id)"
+        >
+          <component :is="item.icon" class="size-4 shrink-0" />
+          <span class="truncate">{{ item.label }}</span>
+          <span v-if="item.dot" class="bg-warning size-1.5 shrink-0 rounded-full"></span>
+        </button>
+      </nav>
+
       <div class="min-h-0 flex-1 overflow-hidden">
         <ChatPane v-if="panel === 'chat'" />
         <RailMetrics v-else-if="panel === 'metrics'" />
@@ -61,9 +97,8 @@
       </div>
     </section>
 
-    <!-- Kept on the sheet too: on a phone it is the only way to move between the
-         three panels, and the only way to put it away. -->
     <nav
+      v-if="!sheet"
       class="border-base-content/10 bg-base-200/40 flex shrink-0 flex-col items-center gap-1 border-l py-3"
       :style="{ width: `${RAIL_WIDTH}px` }"
       :aria-label="$t('cloud-rail.title')"
@@ -97,14 +132,13 @@
       </button>
 
       <!-- Bottom of the strip, mirroring the nav's collapse on the other edge.
-           Hiding is remembered, and the tab on the edge brings it back. A sheet
-           has no collapsed resting state to hide to, so there it just closes. -->
+           Hiding is remembered, and the tab on the edge brings it back. -->
       <button
         type="button"
         class="icon-btn btn btn-ghost btn-square btn-sm text-base-content/40 mt-auto"
-        :title="sheet ? $t('cloud-rail.close') : $t('cloud-rail.hide')"
-        :aria-label="sheet ? $t('cloud-rail.close') : $t('cloud-rail.hide')"
-        @click="sheet ? closeRail() : hideRail()"
+        :title="$t('cloud-rail.hide')"
+        :aria-label="$t('cloud-rail.hide')"
+        @click="hideRail()"
       >
         <mdi:chevron-right class="size-5" />
       </button>

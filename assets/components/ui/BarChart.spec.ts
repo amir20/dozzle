@@ -73,3 +73,50 @@ describe("<BarChart />", () => {
     expect(heightOf(wrapper, 0)).toBeGreaterThan(50);
   });
 });
+
+describe("BarChart pointer readout", () => {
+  // jsdom lays nothing out, so every bar reports a zero rect. Stub each one to a
+  // real column so the hit test has something to walk.
+  function layOutBars(wrapper: ReturnType<typeof mount>, width = 10) {
+    wrapper.findAll(".bar").forEach((bar, i) => {
+      vi.spyOn(bar.element, "getBoundingClientRect").mockReturnValue({
+        left: i * width,
+        right: (i + 1) * width,
+        width,
+      } as DOMRect);
+    });
+  }
+
+  test("a mouse move reports the bar under the pointer", async () => {
+    const wrapper = await mountAndRender(ramp());
+    layOutBars(wrapper);
+    await wrapper.trigger("mousemove", { clientX: 25 });
+
+    const emitted = wrapper.emitted("hoverValue");
+    expect(emitted).toHaveLength(1);
+    expect(emitted![0][1]).toBe(2);
+  });
+
+  // A touch screen never fires mousemove, so the history panel's readout was
+  // stuck on the peak and no bar could be read on a phone.
+  test("a touch reports the bar under the finger", async () => {
+    const wrapper = await mountAndRender(ramp());
+    layOutBars(wrapper);
+    await wrapper.trigger("touchstart", { touches: [{ clientX: 25 }] });
+    await wrapper.trigger("touchmove", { touches: [{ clientX: 55 }] });
+
+    const emitted = wrapper.emitted("hoverValue");
+    expect(emitted).toHaveLength(2);
+    expect(emitted![0][1]).toBe(2);
+    expect(emitted![1][1]).toBe(5);
+  });
+
+  test("a touch with no contact point reports nothing", async () => {
+    const wrapper = await mountAndRender(ramp());
+    layOutBars(wrapper);
+    await wrapper.trigger("touchend", { touches: [] });
+    await wrapper.trigger("touchstart", { touches: [] });
+
+    expect(wrapper.emitted("hoverValue")).toBeUndefined();
+  });
+});

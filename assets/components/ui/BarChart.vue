@@ -1,5 +1,19 @@
 <template>
-  <div ref="chartContainer" class="flex items-end gap-[2px]" @mousemove="onContainerHover">
+  <div
+    ref="chartContainer"
+    class="flex touch-pan-y items-end gap-[2px]"
+    @mousemove="onContainerHover"
+    @touchstart="onContainerTouch"
+    @touchmove="onContainerTouch"
+  >
+    <!-- Inside the root element rather than above it: a comment above compiles to
+         a second root node in dev builds, and `wrapper.element` is then the
+         comment, so every `trigger()` in the spec fires at nothing. Vue itself
+         copes (attrs still fall through to the single element child).
+
+         `touch-pan-y` keeps a vertical swipe scrolling the panel while a
+         horizontal drag scrubs the bars, so the chart reads out on a phone
+         without trapping the scroll. -->
     <div
       v-for="(bar, i) in downsampledBars"
       :key="i"
@@ -117,18 +131,31 @@ function updateLastBar() {
 }
 
 function onContainerHover(event: MouseEvent) {
+  emitAt(event.clientX);
+}
+
+// A touch screen never fires mousemove, so without this the readout above a
+// history chart was stuck on the peak and every bar was a shape with no value.
+// The last touched bar stays reported after the finger lifts: there is no
+// `mouseleave` to fall back from, and a value that vanishes on lift is one
+// nobody can read.
+function onContainerTouch(event: TouchEvent) {
+  const touch = event.touches[0];
+  if (touch) emitAt(touch.clientX);
+}
+
+function emitAt(clientX: number) {
   if (!chartContainer.value) return;
 
   const bars = chartContainer.value.children;
   if (bars.length === 0) return;
 
-  const mouseX = event.clientX;
   let index = 0;
 
-  // Find the bar whose column contains the mouse x position
+  // Find the bar whose column contains the pointer's x position
   for (let i = 0; i < bars.length; i++) {
     const rect = bars[i].getBoundingClientRect();
-    if (mouseX >= rect.left) {
+    if (clientX >= rect.left) {
       index = i;
     } else {
       break;
