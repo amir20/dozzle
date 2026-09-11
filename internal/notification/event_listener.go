@@ -56,8 +56,9 @@ func (l *ContainerEventListener) Start() {
 	l.cancelFunc = cancel
 
 	rawEvents := make(chan container.ContainerEvent, 1000)
+	named := container.WithSubscriberName(ctx, "notifications")
 	for _, client := range l.clients {
-		client.SubscribeEvents(ctx, rawEvents)
+		client.SubscribeEvents(named, rawEvents)
 	}
 
 	go l.enrich(ctx, rawEvents)

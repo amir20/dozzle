@@ -14,6 +14,7 @@ declare module 'vue' {
     BuyMeCoffee: typeof import('./.vitepress/theme/components/BuyMeCoffee.vue')['default']
     Counter: typeof import('./.vitepress/theme/components/Counter.vue')['default']
     FinalCta: typeof import('./.vitepress/theme/components/FinalCta.vue')['default']
+    HeroAnnouncement: typeof import('./.vitepress/theme/components/HeroAnnouncement.vue')['default']
     HeroDemo: typeof import('./.vitepress/theme/components/HeroDemo.vue')['default']
     HeroTrust: typeof import('./.vitepress/theme/components/HeroTrust.vue')['default']
     InstallCommand: typeof import('./.vitepress/theme/components/InstallCommand.vue')['default']

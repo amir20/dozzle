@@ -5,6 +5,9 @@ toolbar:
   search: 搜尋
   inverse-on: 排除符合項目（反向）
   inverse-off: 包含符合項目（一般）
+  invalid-regex: 無效的正規表示式
+  close-search: 關閉搜尋
+  move-search: 拖曳以移動
   show: 僅顯示 {std}
   show-all: 顯示全部
   stop: 停止
@@ -88,9 +91,9 @@ label:
   no-logs-hint: "容器輸出的內容會立即顯示在這裡。"
   search-status:
     searching: 正在搜尋較舊的日誌…
-    searching-to: 正在搜尋較舊的日誌…回溯至 {time}
-    capped: "{count} 筆符合 · 已搜尋至 {time}"
-    exhausted: 已搜尋所有日誌 · {count} 筆符合
+    matches: "{count} 筆符合"
+    searched-all: "已搜尋所有日誌"
+    scanned-to: "回溯至 {time}"
     empty: "沒有符合的日誌"
     empty-hint: "已搜尋所有日誌。請試試其他關鍵字或清除搜尋。"
   show-all-containers: 顯示所有容器
@@ -213,6 +216,7 @@ button:
   refresh: 重新整理
 placeholder:
   search-containers: 搜尋容器 (⌘ + k, ⌃k)
+  find-logs: 在日誌中尋找或正規表示式
   search: 搜尋
 settings:
   show-image-update-alert: '當容器有更新時顯示通知'

@@ -1,6 +1,6 @@
 ---
 title: Dozzle Cloud
-sourceHash: 49197a749322
+sourceHash: 8426d3f379ba
 ---
 
 # Dozzle Cloud
@@ -42,12 +42,13 @@ sourceHash: 49197a749322
 
 ## 接下来看什么
 
-| 页面                                              | 内容                                                   |
-| ------------------------------------------------- | ------------------------------------------------------ |
-| [连接你的实例](/zh/guide/dozzle-cloud/connecting) | 连接步骤、为什么不需要公网 IP 或开放端口、防火墙、排障 |
-| [通知渠道](/zh/guide/dozzle-cloud/channels)       | 所有渠道、逐个的配置方法，以及怎么让它安静下来         |
-| [套餐与限制](/zh/guide/dozzle-cloud/plans)        | 每个套餐包含什么、什么算一次处理事件、超额之后会怎样   |
-| [你的数据](/zh/guide/dozzle-cloud/your-data)      | 什么会离开你的主机、如何阻止、Cloud 存了什么、API 密钥 |
+| 页面                                                 | 内容                                                            |
+| ---------------------------------------------------- | --------------------------------------------------------------- |
+| [连接你的实例](/zh/guide/dozzle-cloud/connecting)    | 连接步骤、为什么不需要公网 IP 或开放端口、防火墙、排障          |
+| [在你的 Dozzle 里](/zh/guide/dozzle-cloud/in-dozzle) | Cloud 侧栏、刷新后仍在的告警，以及未连接 Cloud 时依然可用的部分 |
+| [通知渠道](/zh/guide/dozzle-cloud/channels)          | 所有渠道、逐个的配置方法，以及怎么让它安静下来                  |
+| [套餐与限制](/zh/guide/dozzle-cloud/plans)           | 每个套餐包含什么、什么算一次处理事件、超额之后会怎样            |
+| [你的数据](/zh/guide/dozzle-cloud/your-data)         | 什么会离开你的主机、如何阻止、Cloud 存了什么、API 密钥          |
 
 告警规则本身是在你自己的实例上配置的，不在 Cloud。见[警报](/zh/guide/alerts-and-webhooks)。
 

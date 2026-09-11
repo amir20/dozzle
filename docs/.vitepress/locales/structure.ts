@@ -11,13 +11,14 @@ export type Item = string | { slug: string; items: string[] } | { group: string;
 export type Section = { key: string; items: Item[] };
 
 export const SECTIONS: Section[] = [
-  { key: "introduction", items: ["what-is-dozzle", "getting-started"] },
+  { key: "introduction", items: ["what-is-dozzle", "getting-started", "whats-new"] },
   { key: "platforms", items: ["swarm-mode", "k8s", "podman"] },
   {
     key: "cloud",
     items: [
       "dozzle-cloud",
       "dozzle-cloud/connecting",
+      "dozzle-cloud/in-dozzle",
       "dozzle-cloud/channels",
       "dozzle-cloud/plans",
       "dozzle-cloud/your-data",

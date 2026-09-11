@@ -4,6 +4,7 @@ import { nextTick } from "vue";
 import { createI18n } from "vue-i18n";
 import SearchStatus from "./SearchStatus.vue";
 import IndeterminateBar from "@/components/ui/IndeterminateBar.vue";
+import EmptyState from "@/components/ui/EmptyState.vue";
 
 /**
  * @vitest-environment jsdom
@@ -16,9 +17,9 @@ const i18n = createI18n({
       label: {
         "search-status": {
           searching: "Searching older logs…",
-          "searching-to": "Searching older logs… back to {time}",
-          capped: "{count} matches · searched back to {time}",
-          exhausted: "Searched all logs · {count} matches",
+          matches: "{count} matches",
+          "searched-all": "Searched all logs",
+          "scanned-to": "back to {time}",
           empty: "No matching logs",
           "empty-hint": "Searched all logs. Try a different term or clear the search.",
         },
@@ -27,11 +28,12 @@ const i18n = createI18n({
   },
 });
 
-function createStatus(overrides: Record<string, unknown> = {}) {
+function createStatus(overrides: Record<string, unknown> = {}, empty = false) {
   return mount(SearchStatus, {
     global: { plugins: [i18n] },
     props: {
       status: { active: false, done: false, matches: 0, scannedTo: undefined, reason: undefined, ...overrides },
+      empty,
     },
   });
 }
@@ -57,6 +59,16 @@ describe("<SearchStatus />", () => {
     await nextTick();
     expect(wrapper.find('[data-state="searching"]').exists()).toBe(true);
     expect(wrapper.findComponent(IndeterminateBar).exists()).toBe(true);
+  });
+
+  test("takes the whole page while a search runs with nothing on screen yet", async () => {
+    const wrapper = createStatus({ active: true, scannedTo: "2026-06-01T13:10:00Z" }, true);
+    vi.advanceTimersByTime(400);
+    await nextTick();
+    // The centred state, not the strip: EmptyState owns the layout.
+    expect(wrapper.findComponent(EmptyState).exists()).toBe(true);
+    expect(wrapper.find('[data-state="searching"]').exists()).toBe(true);
+    expect(wrapper.text()).toContain("Searching older logs…");
   });
 
   test("reveals the searching bar even when progress events arrive faster than the delay", async () => {

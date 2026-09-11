@@ -11,11 +11,23 @@ import (
 	"time"
 
 	"net/http"
+
+	"github.com/rs/zerolog/log"
 )
+
+// writeTimeout bounds a single write to an SSE client. A client that goes away without
+// closing the socket (a sleeping laptop, a NAT that forgot the flow) stays writable until
+// its send buffer fills, and the write then blocks until the kernel gives up retransmitting,
+// which takes minutes. For that whole window the handler stops reading its event channel
+// and the container store drops every event aimed at it. A deadline turns the wedge into an
+// error the handler returns on, which cancels the request context and unsubscribes it.
+const writeTimeout = 10 * time.Second
 
 type SSEWriter struct {
 	w io.Writer
 	f http.Flusher
+	// nil when the ResponseWriter cannot set deadlines, in which case writes block as before
+	rc *http.ResponseController
 }
 
 type HasId interface {
@@ -44,10 +56,24 @@ func NewSSEWriter(ctx context.Context, w http.ResponseWriter, r *http.Request) (
 		f: w.(http.Flusher),
 	}
 
+	// probe once rather than per write: a wrapped ResponseWriter that does not implement
+	// SetWriteDeadline reports it the same way every time
+	rc := http.NewResponseController(w)
+	if err := rc.SetWriteDeadline(time.Time{}); err == nil {
+		sse.rc = rc
+	} else {
+		log.Debug().Err(err).Msg("sse stream cannot set write deadlines, a dead client will block writes")
+	}
+
 	return sse, nil
 }
 
 func (s *SSEWriter) Write(data []byte) (int, error) {
+	if s.rc != nil {
+		// covers the payload, the gzip flush and the http flush below
+		s.rc.SetWriteDeadline(time.Now().Add(writeTimeout))
+	}
+
 	written, err := s.w.Write(data)
 	if err != nil {
 		return written, err

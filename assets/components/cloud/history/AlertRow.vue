@@ -8,7 +8,7 @@
 
     <div class="min-w-0 flex-1">
       <div class="flex flex-wrap items-baseline gap-x-2 gap-y-1">
-        <span class="text-sm font-semibold">{{ alert.headline }}</span>
+        <span class="text-sm font-semibold wrap-anywhere">{{ alert.headline }}</span>
         <span class="status-pill" :class="pill">{{ alert.level || "info" }}</span>
         <span v-if="alert.isOrigin === false" class="text-base-content/40 text-xs">
           {{ $t("notifications.history.still-happening") }}
@@ -28,7 +28,7 @@
         </span>
       </div>
 
-      <p v-if="alert.summary" class="text-base-content/60 mt-1.5 text-sm">{{ alert.summary }}</p>
+      <p v-if="alert.summary" class="text-base-content/60 mt-1.5 text-sm wrap-anywhere">{{ alert.summary }}</p>
 
       <!-- Narrow enough that the actions cannot sit beside the text, so they sit
            under it rather than squeezing the summary into a column. -->

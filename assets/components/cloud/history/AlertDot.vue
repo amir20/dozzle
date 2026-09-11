@@ -29,21 +29,31 @@
 
     <template #default="{ close }">
       <!-- The same parts as an AlertRow, at popover width: tinted glyph, a
-           headline that carries its own severity chip, then the meta line. -->
+           headline that carries its own severity chip, then the meta line.
+
+           The headline is whatever Cloud wrote, and for a log-anchored alert
+           that is often the raw line: a stack-trace class name is one 50-char
+           word with nowhere to break. `break-words` is not enough, because a
+           flex item is still sized to its min-content and min-content is that
+           word — the text spilled out past the rounded corner. `wrap-anywhere`
+           folds the break opportunity into min-content, so the item shrinks to
+           the panel and the word breaks. -->
       <div class="flex items-start gap-3 p-3">
         <div class="mt-0.5 flex size-7 shrink-0 items-center justify-center rounded-full" :class="tint">
           <mdi:alert-circle-outline class="size-4" />
         </div>
         <div class="min-w-0 flex-1">
           <div class="flex flex-wrap items-baseline gap-x-2 gap-y-1">
-            <span class="text-sm font-semibold">{{ alert.headline }}</span>
+            <span class="text-sm font-semibold wrap-anywhere">{{ alert.headline }}</span>
             <span class="status-pill" :class="pill">{{ alert.level || "info" }}</span>
           </div>
           <div class="text-base-content/60 mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs">
             <RelativeTime :date="firedAt" />
             <span class="font-mono">{{ $t("notifications.history.events", { n: alert.eventCount }) }}</span>
           </div>
-          <p v-if="alert.summary" class="text-base-content/60 mt-1.5 line-clamp-4 text-sm">{{ alert.summary }}</p>
+          <p v-if="alert.summary" class="text-base-content/60 mt-1.5 line-clamp-4 text-sm wrap-anywhere">
+            {{ alert.summary }}
+          </p>
         </div>
       </div>
 

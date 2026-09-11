@@ -5,6 +5,9 @@ toolbar:
   search: Cari
   inverse-on: Kecualikan yang cocok (inversi)
   inverse-off: Sertakan yang cocok (normal)
+  invalid-regex: Ekspresi reguler tidak valid
+  close-search: Tutup pencarian
+  move-search: Seret untuk memindahkan
   show: Tampilkan {std}
   show-all: Tampilkan semua
   stop: Hentikan
@@ -111,9 +114,9 @@ label:
   no-logs-hint: "Apa pun yang ditulis kontainer akan langsung muncul di sini."
   search-status:
     searching: Mencari log lama…
-    searching-to: Mencari log lama… kembali ke {time}
-    capped: "{count} hasil · dicari kembali ke {time}"
-    exhausted: Semua log dicari · {count} hasil
+    matches: "{count} hasil"
+    searched-all: "Semua log dicari"
+    scanned-to: "kembali ke {time}"
     empty: "Tidak ada log yang cocok"
     empty-hint: "Semua log sudah dicari. Coba kata lain atau hapus pencarian."
   show-all-containers: Tampilkan semua kontainer
@@ -218,6 +221,7 @@ button:
 
 placeholder:
   search-containers: Cari kontainer (⌘ + k, ⌃k)
+  find-logs: Cari di log atau regex
   search: Cari
 
 settings:

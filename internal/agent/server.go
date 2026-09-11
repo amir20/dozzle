@@ -170,9 +170,11 @@ func (s *server) StreamRawBytes(in *pb.StreamRawBytesRequest, out pb.AgentServic
 }
 
 func (s *server) StreamEvents(in *pb.StreamEventsRequest, out pb.AgentService_StreamEventsServer) error {
-	events := make(chan container.ContainerEvent)
+	// buffered: Send blocks on gRPC flow control, and an unbuffered channel makes the
+	// store drop an event for any blip at all rather than only for a real stall
+	events := make(chan container.ContainerEvent, 64)
 
-	s.service.SubscribeEvents(out.Context(), events)
+	s.service.SubscribeEvents(container.WithSubscriberName(out.Context(), "agent-stream"), events)
 
 	for {
 		select {

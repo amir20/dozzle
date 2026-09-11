@@ -5,6 +5,9 @@ toolbar:
   search: Поиск
   inverse-on: Исключить совпадения (инверсия)
   inverse-off: Включить совпадения (обычно)
+  invalid-regex: Некорректное регулярное выражение
+  close-search: Закрыть поиск
+  move-search: Перетащите, чтобы переместить
   show: Показать только {std}
   show-all: Показать все потоки
   stop: Остановить
@@ -110,9 +113,9 @@ label:
   no-logs-hint: "Всё, что запишет контейнер, сразу появится здесь."
   search-status:
     searching: Поиск в старых логах…
-    searching-to: Поиск в старых логах… до {time}
-    capped: "{count} совпадений · поиск до {time}"
-    exhausted: Все логи просмотрены · {count} совпадений
+    matches: "{count} совпадений"
+    searched-all: "Все логи просмотрены"
+    scanned-to: "до {time}"
     empty: "Нет подходящих логов"
     empty-hint: "Просмотрены все логи. Попробуйте другой запрос или очистите поиск."
   show-all-containers: Показать все контейнеры
@@ -211,6 +214,7 @@ button:
   refresh: Обновить
 placeholder:
   search-containers: Поиск контейнеров (⌘ + k, ⌃k)
+  find-logs: Поиск в логах или regex
   search: Поиск
 settings:
   show-image-update-alert: 'Показывать уведомление, когда у контейнера есть обновление'

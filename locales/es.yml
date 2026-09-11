@@ -5,6 +5,9 @@ toolbar:
   search: Buscar
   inverse-on: Excluir coincidencias (inverso)
   inverse-off: Incluir coincidencias (normal)
+  invalid-regex: Expresión regular no válida
+  close-search: Cerrar búsqueda
+  move-search: Arrastra para mover
   show: Mostrar {std}
   show-all: Mostrar todo
   stop: Detener
@@ -110,9 +113,9 @@ label:
   no-logs-hint: "Todo lo que el contenedor escriba aparecerá aquí de inmediato."
   search-status:
     searching: Buscando registros anteriores…
-    searching-to: Buscando registros anteriores… hasta {time}
-    capped: "{count} coincidencias · buscado hasta {time}"
-    exhausted: Todos los registros buscados · {count} coincidencias
+    matches: "{count} coincidencias"
+    searched-all: "Todos los registros buscados"
+    scanned-to: "hasta {time}"
     empty: "Ningún registro coincide"
     empty-hint: "Se buscó en todos los registros. Prueba otro término o borra la búsqueda."
   show-all-containers: Mostrar todos los contenedores
@@ -211,6 +214,7 @@ button:
   refresh: Actualizar
 placeholder:
   search-containers: Buscar contenedores (⌘ + K, CTRL + K)
+  find-logs: Buscar en los registros o regex
   search: Buscar
 cloud-rail:
   title: Dozzle Cloud

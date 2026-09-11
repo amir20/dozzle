@@ -5,6 +5,9 @@ toolbar:
   search: Szukaj
   inverse-on: Wyklucz pasujące (odwrotnie)
   inverse-off: Uwzględnij pasujące (normalnie)
+  invalid-regex: Nieprawidłowe wyrażenie regularne
+  close-search: Zamknij wyszukiwanie
+  move-search: Przeciągnij, aby przenieść
   show: Pokaż tylko {std}
   show-all: Pokaż wszystko
   stop: Stop
@@ -110,9 +113,9 @@ label:
   no-logs-hint: "Wszystko, co zapisze kontener, pojawi się tutaj od razu."
   search-status:
     searching: Przeszukiwanie starszych logów…
-    searching-to: Przeszukiwanie starszych logów… wstecz do {time}
-    capped: "{count} dopasowań · przeszukano do {time}"
-    exhausted: Przeszukano wszystkie logi · {count} dopasowań
+    matches: "{count} dopasowań"
+    searched-all: "Przeszukano wszystkie logi"
+    scanned-to: "wstecz do {time}"
     empty: "Brak pasujących logów"
     empty-hint: "Przeszukano wszystkie logi. Spróbuj innej frazy lub wyczyść wyszukiwanie."
   show-all-containers: Pokaż wszystkie kontenery
@@ -213,6 +216,7 @@ button:
   refresh: Odśwież
 placeholder:
   search-containers: Przeszukaj kontery (⌘ + k, ⌃k)
+  find-logs: Szukaj w logach lub regex
   search: Szukaj
 settings:
   show-image-update-alert: 'Pokaż powiadomienie, gdy kontener ma aktualizację'
