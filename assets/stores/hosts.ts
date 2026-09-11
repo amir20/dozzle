@@ -10,6 +10,10 @@ export type Host = {
   runtime?: "docker" | "podman";
   agentVersion: string;
   group?: string;
+  // set when the server re-keyed this host because its agent came back under a
+  // new id, so we drop the entry it used to live under instead of listing the
+  // same machine twice
+  replacesId?: string;
 };
 
 const hosts = ref(
@@ -25,6 +29,9 @@ const hosts = ref(
 );
 const updateHost = (host: Host) => {
   delete hosts.value[host.endpoint];
+  if (host.replacesId) {
+    delete hosts.value[host.replacesId];
+  }
   hosts.value[host.id] = host;
   return host;
 };

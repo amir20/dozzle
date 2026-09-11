@@ -1,11 +1,11 @@
 ---
 title: Podman
-sourceHash: 6baf154c7545
+sourceHash: bbfd1745527f
 ---
 
 # Podman
 
-Dozzle 通过 Podman 的 Docker 兼容套接字接口来支持 Podman。有两个已知的与 Docker 的差异会影响配置：在 rootless/Quadlet 部署中内存统计经常缺失（cgroup 委派问题），以及 Podman 不会生成 engine-id。本指南涵盖独立模式（本地监控）和代理模式（通过中心 Dozzle 服务器进行远程监控）。
+Dozzle 通过 Podman 的 Docker 兼容套接字接口来支持 Podman。有一个已知的与 Docker 的差异会影响配置：在 rootless/Quadlet 部署中内存统计经常缺失（cgroup 委派问题）。本指南涵盖独立模式（本地监控）和代理模式（通过中心 Dozzle 服务器进行远程监控）。
 
 ## 部署方式
 
@@ -243,42 +243,32 @@ WantedBy=default.target
 
 # <Icon icon="mdi:tune" inline /> 其他配置
 
-## <Icon icon="mdi:identifier" inline /> engine-id 配置
+## <Icon icon="mdi:identifier" inline /> 主机 ID
 
-Podman 不会像 Docker 那样创建 engine-id。创建一个可以避免“host not found”错误：
+这里没有需要配置的东西。Dozzle 会自己算出 Podman 的主机 ID。这一节之所以还保留着，只是因为这个页面早期的版本让你去创建一个从来没起过作用的文件。
 
-### 使用 uuidgen
+Docker 用 `/var/lib/docker/engine-id` 里的 UUID 来标识一个引擎，这个文件在 daemon 首次启动时写入一次。Podman 没有 daemon，也不维护这样的身份，所以它兼容 Docker 的 `/info` 接口每次调用都会给这个字段填一个全新的随机 UUID。你可以自己验证：
 
-```bash
-# 如有需要，先创建目录
-sudo mkdir -p /var/lib/docker
-
-# 生成 UUID
-sudo sh -c 'uuidgen > /var/lib/docker/engine-id'
-
-# 验证
-cat /var/lib/docker/engine-id
+```sh
+curl -s --unix-socket /run/user/$(id -u)/podman/podman.sock "http://d/v1.40/info" | jq .ID
+curl -s --unix-socket /run/user/$(id -u)/podman/podman.sock "http://d/v1.40/info" | jq .ID
 ```
 
-### 使用 Ansible
+两个不同的 UUID，而且创建 `/var/lib/docker/engine-id` 也没有任何用，因为 Podman 根本不读它。Dozzle 改为从主机名和容器存储路径推导出一个稳定的 ID，这样主机重启后仍然能被认出来，同一台机器上的两个 rootless 用户也能区分开。
 
-```yaml
-- name: Create /var/lib/docker
-  ansible.builtin.file:
-    path: /var/lib/docker
-    state: directory
-    mode: "755"
+> [!WARNING] 如果你按照旧说明在 Podman 主机上创建过 `/var/lib/docker/engine-id`，可以删掉它。
 
-- name: Create engine-id and derive UUID from hostname
-  ansible.builtin.lineinfile:
-    path: /var/lib/docker/engine-id
-    line: "{{ hostname | to_uuid }}"
-    create: true
-    mode: "0644"
-    insertafter: "EOF"
+### ID 冲突时
+
+两台主机名和存储路径都相同的 Podman 主机会推导出同一个 ID，Dozzle 会把其中一台当作重复项丢弃。主机名通常是不同的，所以这需要克隆的虚拟机，或者是一批从没设置过主机名的机器。在其中一台上设置 `DOZZLE_HOST_ID` 来区分：
+
+```ini
+# dozzle-agent.container
+[Container]
+Environment=DOZZLE_HOST_ID=web-01
 ```
 
-> [!WARNING] 在带上 engine-id 重新创建之前，请先清理已有的 Dozzle 部署（停止容器、删除卷）。
+取值可以是任意由字母、数字、连字符、下划线和点组成的字符串。它在你的所有主机之间必须唯一，并且在主机的整个生命周期内保持不变。
 
 ## <Icon icon="mdi:help-circle-outline" inline /> FAQ
 

@@ -1,11 +1,11 @@
 ---
 title: Podman
-sourceHash: 6baf154c7545
+sourceHash: bbfd1745527f
 ---
 
 # Podman
 
-Dozzle funciona con Podman a través de su socket compatible con Docker. Hay dos diferencias conocidas respecto a Docker que afectan a la instalación: las estadísticas de memoria suelen faltar en despliegues rootless o con Quadlet (por la delegación de cgroups) y Podman no genera un engine-id. Esta guía cubre el modo independiente (monitorización local) y el modo agente (monitorización remota desde un servidor Dozzle central).
+Dozzle funciona con Podman a través de su socket compatible con Docker. Hay una diferencia conocida respecto a Docker que afecta a la instalación: las estadísticas de memoria suelen faltar en despliegues rootless o con Quadlet (por la delegación de cgroups). Esta guía cubre el modo independiente (monitorización local) y el modo agente (monitorización remota desde un servidor Dozzle central).
 
 ## Opciones de despliegue
 
@@ -243,42 +243,32 @@ WantedBy=default.target
 
 # <Icon icon="mdi:tune" inline /> Configuración adicional
 
-## <Icon icon="mdi:identifier" inline /> Configurar el engine-id
+## <Icon icon="mdi:identifier" inline /> IDs de host
 
-Podman no crea un engine-id como hace Docker. Créalo tú para evitar errores de tipo «host not found»:
+Aquí no hay nada que configurar. Dozzle calcula por su cuenta los IDs de host en Podman. Esta sección solo existe porque versiones anteriores de esta página pedían crear un archivo que nunca sirvió de nada.
 
-### Con uuidgen
+Docker identifica un motor por el UUID que hay en `/var/lib/docker/engine-id`, escrito una sola vez cuando el demonio arranca por primera vez. Podman no tiene demonio y no guarda ninguna identidad de ese tipo, así que su endpoint `/info` compatible con Docker rellena ese campo con un UUID aleatorio nuevo en cada llamada. Puedes comprobarlo tú mismo:
 
-```bash
-# Crea el directorio si hace falta
-sudo mkdir -p /var/lib/docker
-
-# Genera el UUID
-sudo sh -c 'uuidgen > /var/lib/docker/engine-id'
-
-# Comprueba el resultado
-cat /var/lib/docker/engine-id
+```sh
+curl -s --unix-socket /run/user/$(id -u)/podman/podman.sock "http://d/v1.40/info" | jq .ID
+curl -s --unix-socket /run/user/$(id -u)/podman/podman.sock "http://d/v1.40/info" | jq .ID
 ```
 
-### Con Ansible
+Dos UUID distintos, y crear `/var/lib/docker/engine-id` no cambia nada, porque Podman nunca lo lee. En su lugar, Dozzle deriva un ID estable a partir del nombre de host y de la ruta de almacenamiento de los contenedores, lo que mantiene un host reconocible entre reinicios y distingue a dos usuarios rootless en la misma máquina.
 
-```yaml
-- name: Create /var/lib/docker
-  ansible.builtin.file:
-    path: /var/lib/docker
-    state: directory
-    mode: "755"
+> [!WARNING] Si creaste `/var/lib/docker/engine-id` en un host Podman siguiendo las instrucciones antiguas, puedes borrarlo.
 
-- name: Create engine-id and derive UUID from hostname
-  ansible.builtin.lineinfile:
-    path: /var/lib/docker/engine-id
-    line: "{{ hostname | to_uuid }}"
-    create: true
-    mode: "0644"
-    insertafter: "EOF"
+### Cuando los IDs chocan
+
+Dos hosts Podman que comparten nombre de host y ruta de almacenamiento obtienen el mismo ID derivado, y Dozzle descarta uno de ellos como duplicado. Los nombres de host suelen ser distintos, así que esto requiere VM clonadas o un parque donde nunca se haya fijado un nombre de host. Define `DOZZLE_HOST_ID` en uno de ellos para deshacer el empate:
+
+```ini
+# dozzle-agent.container
+[Container]
+Environment=DOZZLE_HOST_ID=web-01
 ```
 
-> [!WARNING] Limpia los despliegues de Dozzle ya existentes (para el contenedor, elimina los volúmenes) antes de recrearlos con el engine-id ya puesto.
+El valor puede ser cualquier cadena de letras, números, guiones, guiones bajos y puntos. Debe ser único entre tus hosts y mantenerse igual durante toda la vida del host.
 
 ## <Icon icon="mdi:help-circle-outline" inline /> FAQ
 

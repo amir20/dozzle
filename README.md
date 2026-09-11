@@ -128,9 +128,10 @@ Once the Podman remote socket is enabled, you can run Dozzle:
 podman run --volume=/run/user/1000/podman/podman.sock:/var/run/docker.sock -d -p 8080:8080 docker.io/amir20/dozzle:latest
 ```
 
-Additionally, you need to create a fake engine-id to prevent `host not found` errors. Podman doesn't generate an engine-id like Docker does, due to its daemonless architecture.
+Nothing else is needed. Dozzle works out a stable host id for Podman on its own, since Podman is daemonless and has no engine identity to report.
 
-Create a file named `engine-id` under `/var/lib/docker`. On a system with Podman, you'll need to create the folder path as well. Place a UUID inside the file, for example using `uuidgen > engine-id`. The file should contain an identifier like: `b9f1d7fc-b459-4b6e-9f7a-e3d1cd2e14a9`.
+> [!NOTE]
+> Older versions of this page told you to create a `/var/lib/docker/engine-id` file to prevent `host not found` errors. That never worked. Podman's Docker-compatible `/info` endpoint does not read any file, it returns a new random UUID on every call, so Dozzle now derives the id instead. You can delete the file.
 
 For more details, see [Podman Info](docs/guide/podman.md) or the [FAQ](docs/guide/faq.md#i-am-seeing-host-not-found-error-in-the-logs-how-do-i-fix-it).
 

@@ -33,6 +33,11 @@ type Host struct {
 	// reused across unrelated deployments.
 	SwarmClusterID string `json:"-"`
 	Group          string `json:"group,omitempty"`
+	// ReplacesID names an id this host was previously known by, set only when
+	// the hub re-keys a client whose agent came back with a different id. It is
+	// minted by the hub and never crosses the agent boundary, so the UI can drop
+	// the stale entry rather than list one machine twice until the next reload.
+	ReplacesID string `json:"replacesId,omitempty"`
 }
 
 func (h Host) String() string {

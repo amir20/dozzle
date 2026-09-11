@@ -54,7 +54,8 @@ type K8sClient struct {
 	lastMapperReset time.Time
 }
 
-func NewK8sClient(namespace []string) (*K8sClient, error) {
+// hostIDs decides what this node is called; see container.HostIDResolver.
+func NewK8sClient(namespace []string, hostIDs container.HostIDResolver) (*K8sClient, error) {
 	var config *rest.Config
 	var err error
 
@@ -111,7 +112,7 @@ func NewK8sClient(namespace []string) (*K8sClient, error) {
 		namespace:     namespace,
 		config:        config,
 		host: container.Host{
-			ID:   node.Status.NodeInfo.MachineID,
+			ID:   hostIDs.Resolve(container.EngineIdentity{Runtime: "k8s", EngineID: node.Status.NodeInfo.MachineID}),
 			Name: node.Name,
 		},
 		ownerCache: make(map[string]ownerLookupResult),

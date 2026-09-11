@@ -1,6 +1,6 @@
 ---
 title: Preguntas frecuentes
-sourceHash: c964c824dcab
+sourceHash: 28cd2b9845cc
 ---
 
 # Preguntas frecuentes
@@ -143,20 +143,22 @@ A veces se restauran máquinas virtuales desde copias de seguridad con el mismo 
 
 ## Veo un error de host no encontrado en los logs. ¿Cómo lo soluciono?
 
-Este error debería darse casi siempre solo con Podman: Podman no crea un engine-id como hace Docker.
-Si usas Docker, comprueba que el archivo `engine-id` existe en `/var/lib/docker` con los permisos correctos y contiene el UUID.
+Este es sobre todo un error de Podman. Podman no tiene demonio y no guarda ninguna identidad de motor, así que su endpoint `/info` compatible con Docker devuelve un UUID aleatorio nuevo en cada llamada. Dozzle lee ese ID una sola vez al conectarse y lo usa para identificar el host, de modo que cada reinicio producía un host distinto y el servidor principal seguía enrutando a un ID que ya no respondía.
 
-Para resolver el error sigue estos pasos:
+Ahora Dozzle deriva en Podman un ID estable a partir del nombre de host y de la ruta de almacenamiento de los contenedores, así que esto se corrige solo en cuanto se actualicen tanto el servidor como los agentes. Si lo sigues viendo, reinicia el servidor Dozzle principal para que tome los nuevos IDs.
 
-1. Crea las carpetas: `mkdir -p /var/lib/docker`
-2. Instala uuidgen si hace falta
-3. Genera un UUID con uuidgen: `uuidgen > engine-id`
+> [!WARNING]
+> Versiones anteriores de esta página pedían crear `/var/lib/docker/engine-id`. En Podman eso nunca tuvo ningún efecto, porque no lee ningún archivo para esto. Puedes borrarlo sin problema.
 
-El archivo engine-id ya debería contener un UUID.
+Si usas Docker en lugar de Podman, comprueba que `engine-id` existe en `/var/lib/docker`, contiene un UUID y el demonio de Docker puede leerlo.
 
-Puedes encontrar un ejemplo de configuración para Ansible en [Podman](/es/guide/podman)
+Dos hosts Podman que comparten nombre de host y ruta de almacenamiento seguirán chocando, porque eso es todo lo que Podman le da a Dozzle. Define `DOZZLE_HOST_ID` en uno de ellos para deshacer el empate:
 
-Puede que necesites limpiar tu despliegue actual de Dozzle bajo Podman: para el contenedor y elimina los datos asociados (contenedor y volúmenes). Después puedes volver a desplegar el contenedor de Dozzle y los logs deberían aparecer.
+```sh
+podman run -e DOZZLE_HOST_ID=web-01 ...
+```
+
+Consulta la [guía de Podman](/es/guide/podman) para la configuración completa.
 
 ## ¿Por qué solo veo contenedores en ejecución? ¿Cómo veo los contenedores parados?
 

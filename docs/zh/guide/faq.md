@@ -1,6 +1,6 @@
 ---
 title: 常见问题
-sourceHash: c964c824dcab
+sourceHash: 28cd2b9845cc
 ---
 
 # 常见问题
@@ -143,20 +143,22 @@ Dozzle 通过 Docker API 收集主机信息。每台主机必须有唯一的 ID�
 
 ## 日志里出现找不到主机的错误，怎么解决？
 
-这基本上只会出现在 Podman 上：Podman 不像 Docker 那样生成 engine-id。
-如果你用的是 Docker，请检查 `/var/lib/docker` 下的 `engine-id` 文件是否存在、权限是否正确、里面是否有 UUID。
+这主要是 Podman 的问题。Podman 没有 daemon，也不维护引擎身份，所以它兼容 Docker 的 `/info` 接口每次调用都会返回一个全新的随机 UUID。Dozzle 在连接时读取一次这个 ID 并用它来标识主机，因此以前每次重启都会产生一台不同的主机，而主服务器仍然在往一个已经没人应答的 ID 上路由。
 
-按以下步骤解决这个错误：
+现在 Dozzle 在 Podman 上会从主机名和容器存储路径推导出一个稳定的 ID，所以只要服务器和代理都升级了，这个问题就会自行消失。如果仍然看到它，重启主 Dozzle 服务器，让它接受新的 ID。
 
-1. 创建目录：`mkdir -p /var/lib/docker`
-2. 如有需要，先安装 uuidgen
-3. 用 uuidgen 生成一个 UUID：`uuidgen > engine-id`
+> [!WARNING]
+> 这个页面早期的版本让你创建 `/var/lib/docker/engine-id`。在 Podman 上这从来没有任何作用，因为它根本不会为此读取任何文件。可以放心删掉。
 
-现在 engine-id 文件里应该已经有 UUID 了。
+如果你用的是 Docker 而不是 Podman，请检查 `/var/lib/docker` 下是否存在 `engine-id`、里面是否有 UUID，以及 Docker daemon 能否读取它。
 
-Ansible 的配置示例可以在 [Podman](/zh/guide/podman) 中找到。
+主机名和存储路径都相同的两台 Podman 主机仍然会冲突，因为 Podman 能给 Dozzle 的信息就只有这些。在其中一台上设置 `DOZZLE_HOST_ID` 来区分：
 
-你可能还需要清理 Podman 下已有的 Dozzle 部署：停掉容器，删除相关数据（容器/卷）。之后重新部署 Dozzle 容器，日志应该就能正常显示了。
+```sh
+podman run -e DOZZLE_HOST_ID=web-01 ...
+```
+
+完整配置见 [Podman 指南](/zh/guide/podman)。
 
 ## 为什么我只看到运行中的容器？怎么才能看到已停止的容器？
 

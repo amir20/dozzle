@@ -54,23 +54,33 @@ type DockerClient struct {
 	serviceLabels serviceLabelCache
 }
 
-func NewClient(cli DockerCLI, host container.Host) *DockerClient {
+// NewClient connects a Docker or Podman engine. hostIDs decides what this host
+// is called; see container.HostIDResolver for why that is not decided here.
+func NewClient(cli DockerCLI, host container.Host, hostIDs container.HostIDResolver) *DockerClient {
 	infoResult, err := cli.Info(context.Background(), client.InfoOptions{})
 	if err != nil {
 		log.Error().Err(err).Msg("Failed to get docker info")
 	}
 	info := infoResult.Info
 
-	id := info.ID
-	if info.Swarm.NodeID != "" {
-		id = info.Swarm.NodeID
-	}
+	runtime := detectRuntime(cli, info)
 
-	host.ID = id
+	// Report what the engine said and let the resolver rule on it. host.ID is
+	// what the caller already knew: ParseConnection derives one from the remote
+	// URL, which is all that survives an engine we could not reach.
+	host.ID = hostIDs.Resolve(container.EngineIdentity{
+		Runtime:     runtime,
+		EngineID:    info.ID,
+		SwarmNodeID: info.Swarm.NodeID,
+		Hostname:    info.Name,
+		StorageRoot: info.DockerRootDir,
+		Fallback:    host.ID,
+	})
+
 	host.NCPU = info.NCPU
 	host.MemTotal = info.MemTotal
 	host.DockerVersion = info.ServerVersion
-	host.Runtime = detectRuntime(cli, info)
+	host.Runtime = runtime
 	host.Swarm = info.Swarm.NodeID != ""
 	if info.Swarm.Cluster != nil {
 		host.SwarmClusterID = info.Swarm.Cluster.ID
@@ -83,8 +93,8 @@ func NewClient(cli DockerCLI, host container.Host) *DockerClient {
 	}
 }
 
-// NewLocalClient creates a new instance of Client with docker filters
-func NewLocalClient(hostname string) (*DockerClient, error) {
+// NewLocalClient creates a new instance of Client with docker filters.
+func NewLocalClient(hostname string, hostIDs container.HostIDResolver) (*DockerClient, error) {
 	cli, err := client.New(client.FromEnv, client.WithUserAgent("Docker-Client/Dozzle"))
 
 	if err != nil {
@@ -111,10 +121,10 @@ func NewLocalClient(hostname string) (*DockerClient, error) {
 		host.Name = hostname
 	}
 
-	return NewClient(cli, host), nil
+	return NewClient(cli, host, hostIDs), nil
 }
 
-func NewRemoteClient(host container.Host) (*DockerClient, error) {
+func NewRemoteClient(host container.Host, hostIDs container.HostIDResolver) (*DockerClient, error) {
 	if host.URL.Scheme != "tcp" {
 		return nil, fmt.Errorf("invalid scheme: %s", host.URL.Scheme)
 	}
@@ -144,7 +154,7 @@ func NewRemoteClient(host container.Host) (*DockerClient, error) {
 
 	host.Type = "remote"
 
-	return NewClient(cli, host), nil
+	return NewClient(cli, host, hostIDs), nil
 }
 
 func detectRuntime(cli DockerCLI, info system.Info) string {
