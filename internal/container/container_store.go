@@ -21,7 +21,7 @@ type StatsCollector interface {
 
 type ContainerStore struct {
 	containers              *xsync.Map[string, *Container]
-	subscribers             *xsync.Map[context.Context, chan<- ContainerEvent]
+	subscribers             *xsync.Map[context.Context, *eventSubscriber]
 	newContainerSubscribers *xsync.Map[context.Context, chan<- Container]
 	client                  Client
 	statsCollector          StatsCollector
@@ -41,7 +41,7 @@ func NewContainerStore(ctx context.Context, client Client, statsCollect StatsCol
 	s := &ContainerStore{
 		containers:              xsync.NewMap[string, *Container](),
 		client:                  client,
-		subscribers:             xsync.NewMap[context.Context, chan<- ContainerEvent](),
+		subscribers:             xsync.NewMap[context.Context, *eventSubscriber](),
 		newContainerSubscribers: xsync.NewMap[context.Context, chan<- Container](),
 		statsCollector:          statsCollect,
 		wg:                      sync.WaitGroup{},
@@ -87,6 +87,75 @@ var (
 	ErrContainerNotFound = errors.New("container not found")
 	maxFetchParallelism  = int64(30)
 )
+
+type subscriberNameKey struct{}
+
+// WithSubscriberName labels a subscription so a dropped-event warning can say which
+// consumer stalled. Subscribers are keyed by their context, so the name rides along on
+// that context instead of being threaded through every ClientService implementation.
+func WithSubscriberName(ctx context.Context, name string) context.Context {
+	return context.WithValue(ctx, subscriberNameKey{}, name)
+}
+
+func subscriberNameFrom(ctx context.Context) string {
+	if name, ok := ctx.Value(subscriberNameKey{}).(string); ok && name != "" {
+		return name
+	}
+	return "unnamed"
+}
+
+// dropLogInterval bounds how often one stalled subscriber may warn. A container with a
+// 5s healthcheck emits three exec events per cycle, so an unthrottled warning buries
+// every other line in the log while repeating the same fact.
+const dropLogInterval = 10 * time.Second
+
+// eventSubscriber is one registered consumer plus the bookkeeping needed to report a
+// stall as a single span rather than one line per lost event.
+type eventSubscriber struct {
+	ch   chan<- ContainerEvent
+	name string
+
+	mu      sync.Mutex
+	dropped int       // events lost since the last warning
+	total   int       // events lost since the stall began
+	since   time.Time // when the current stall began
+	lastLog time.Time
+}
+
+// recordDrop counts a lost event and reports whether this one should be logged.
+func (s *eventSubscriber) recordDrop(now time.Time) (dropped int, stalledFor time.Duration, shouldLog bool) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
+	if s.since.IsZero() {
+		s.since = now
+	}
+	s.dropped++
+	s.total++
+
+	if !s.lastLog.IsZero() && now.Sub(s.lastLog) < dropLogInterval {
+		return 0, 0, false
+	}
+
+	s.lastLog = now
+	dropped, s.dropped = s.dropped, 0
+	return dropped, now.Sub(s.since), true
+}
+
+// recordDelivered closes out a stall. It reports the total lost only once, on the first
+// event that lands after the subscriber starts reading again.
+func (s *eventSubscriber) recordDelivered(now time.Time) (dropped int, stalledFor time.Duration, recovered bool) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
+	if s.since.IsZero() {
+		return 0, 0, false
+	}
+
+	dropped, stalledFor = s.total, now.Sub(s.since)
+	s.dropped, s.total, s.since, s.lastLog = 0, 0, time.Time{}, time.Time{}
+	return dropped, stalledFor, true
+}
 
 // broadcastTimeout bounds how long a fan-out waits on a subscriber that is not
 // draining its channel.
@@ -163,16 +232,36 @@ func (s *ContainerStore) broadcast(event ContainerEvent) {
 	budget := &fanoutBudget{}
 	defer budget.stop()
 
-	s.subscribers.Range(func(ctx context.Context, events chan<- ContainerEvent) bool {
-		switch sendBounded(ctx, events, event, budget) {
+	s.subscribers.Range(func(ctx context.Context, sub *eventSubscriber) bool {
+		switch sendBounded(ctx, sub.ch, event, budget) {
 		case sendCancelled:
 			s.subscribers.Delete(ctx)
+		case sendOK:
+			if dropped, stalled, recovered := sub.recordDelivered(time.Now()); recovered {
+				// info, not warn: this is the line that closes out the warning above, and
+				// the default level shows it
+				log.Info().
+					Str("host", s.client.Host().Name).
+					Str("subscriber", sub.name).
+					Int("dropped", dropped).
+					Dur("stalledFor", stalled).
+					Msg("subscriber is reading container events again")
+			}
 		case sendDropped:
-			log.Warn().
+			log.Trace().
 				Str("host", s.client.Host().Name).
+				Str("subscriber", sub.name).
 				Str("event", event.Name).
 				Str("id", event.ActorID).
-				Msg("subscriber is not reading container events, dropping event")
+				Msg("dropped container event")
+			if dropped, stalled, shouldLog := sub.recordDrop(time.Now()); shouldLog {
+				log.Warn().
+					Str("host", s.client.Host().Name).
+					Str("subscriber", sub.name).
+					Int("dropped", dropped).
+					Dur("stalledFor", stalled).
+					Msg("subscriber is not reading container events, dropping events")
+			}
 		}
 		return true
 	})
@@ -341,7 +430,7 @@ func (s *ContainerStore) SubscribeEvents(ctx context.Context, events chan<- Cont
 		}
 	}()
 
-	s.subscribers.Store(ctx, events)
+	s.subscribers.Store(ctx, &eventSubscriber{ch: events, name: subscriberNameFrom(ctx)})
 	go func() {
 		<-ctx.Done()
 		s.subscribers.Delete(ctx)

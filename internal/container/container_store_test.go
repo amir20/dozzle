@@ -312,14 +312,14 @@ func TestContainerStore_broadcastBudgetIsShared(t *testing.T) {
 
 	store := &ContainerStore{
 		client:      client,
-		subscribers: xsync.NewMap[context.Context, chan<- ContainerEvent](),
+		subscribers: xsync.NewMap[context.Context, *eventSubscriber](),
 	}
 
 	const wedged = 5
 	for range wedged {
 		ctx, cancel := context.WithCancel(t.Context())
 		defer cancel()
-		store.subscribers.Store(ctx, make(chan ContainerEvent))
+		store.subscribers.Store(ctx, &eventSubscriber{ch: make(chan ContainerEvent), name: "wedged"})
 	}
 
 	start := time.Now()
@@ -328,4 +328,60 @@ func TestContainerStore_broadcastBudgetIsShared(t *testing.T) {
 
 	assert.GreaterOrEqual(t, elapsed, broadcastTimeout, "should have waited on the wedged subscribers")
 	assert.Less(t, elapsed, 2*broadcastTimeout, "should have waited once, not once per subscriber")
+}
+
+// A stalled subscriber must report the stall as one throttled span. A container with a
+// 5s healthcheck emits three exec events per cycle, and a line per lost event buries
+// every other thing in the log.
+func TestEventSubscriber_dropLoggingIsThrottled(t *testing.T) {
+	sub := &eventSubscriber{ch: make(chan ContainerEvent), name: "sse-events"}
+	start := time.Now()
+
+	dropped, stalled, shouldLog := sub.recordDrop(start)
+	assert.True(t, shouldLog, "the first drop should be logged")
+	assert.Equal(t, 1, dropped)
+	assert.Equal(t, time.Duration(0), stalled)
+
+	for i := range 20 {
+		_, _, shouldLog := sub.recordDrop(start.Add(time.Duration(i) * time.Second / 2))
+		assert.False(t, shouldLog, "drops inside the interval should be silent")
+	}
+
+	dropped, stalled, shouldLog = sub.recordDrop(start.Add(dropLogInterval))
+	assert.True(t, shouldLog, "a drop past the interval should be logged")
+	assert.Equal(t, 21, dropped, "should report every drop since the last line, not just this one")
+	assert.Equal(t, dropLogInterval, stalled, "should report how long the stall has run")
+}
+
+func TestEventSubscriber_reportsRecoveryOnce(t *testing.T) {
+	sub := &eventSubscriber{ch: make(chan ContainerEvent), name: "sse-events"}
+	start := time.Now()
+
+	sub.recordDrop(start)
+	sub.recordDrop(start.Add(time.Second))
+
+	dropped, stalled, recovered := sub.recordDelivered(start.Add(2 * time.Second))
+	assert.True(t, recovered)
+	assert.Equal(t, 2, dropped, "recovery reports the whole stall, not just the unlogged tail")
+	assert.Equal(t, 2*time.Second, stalled)
+
+	_, _, recovered = sub.recordDelivered(start.Add(3 * time.Second))
+	assert.False(t, recovered, "a subscriber that never stalled should stay quiet")
+}
+
+// The warning has to name the consumer that stalled. Without it there is no way to tell
+// an SSE client that wedged from the notification listener or an agent stream.
+func TestContainerStore_subscriberIsNamed(t *testing.T) {
+	ctx := WithSubscriberName(t.Context(), "sse-events")
+	assert.Equal(t, "sse-events", subscriberNameFrom(ctx))
+	assert.Equal(t, "unnamed", subscriberNameFrom(t.Context()), "an unlabelled subscription should still be loggable")
+
+	store := &ContainerStore{
+		subscribers: xsync.NewMap[context.Context, *eventSubscriber](),
+	}
+	store.subscribers.Store(ctx, &eventSubscriber{ch: make(chan ContainerEvent, 1), name: subscriberNameFrom(ctx)})
+
+	sub, ok := store.subscribers.Load(ctx)
+	assert.True(t, ok, "subscriber should be registered under the context it was passed")
+	assert.Equal(t, "sse-events", sub.name)
 }
