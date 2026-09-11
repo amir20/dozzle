@@ -49,6 +49,13 @@ generate: shared_key.pem shared_cert.pem
 dev: generate fake_assets
 	pnpm dev
 
+# Same as dev, on a free port trio derived from this checkout's path, so several
+# worktrees can each run an instance at once. Prints the URL it picked.
+# Override any of them by hand with DOZZLE_PORT / VITE_PORT / AGENT_PORT.
+.PHONY: dev-auto
+dev-auto: generate fake_assets
+	pnpm run dev:auto
+
 .PHONY: int
 int:
 	docker compose up --build --force-recreate --exit-code-from playwright
