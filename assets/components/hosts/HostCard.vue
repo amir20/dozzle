@@ -1,8 +1,8 @@
 <template>
   <div
-    class="border-base-content/10 bg-base-100 hover:border-base-content/20 rounded-box flex flex-col gap-4 border p-4 transition-colors @2xl:flex-row @2xl:items-center @2xl:gap-6 @2xl:px-5"
+    class="border-base-content/10 bg-base-100 hover:border-base-content/20 rounded-box flex flex-col gap-3 border p-4 transition-colors"
   >
-    <div class="flex min-w-0 flex-col gap-1 @2xl:w-1/3 @2xl:max-w-64 @2xl:shrink-0">
+    <div class="flex min-w-0 flex-col gap-1">
       <div class="flex min-w-0 items-center gap-2">
         <span class="bg-base-content/5 text-base-content/70 flex-none rounded-md p-1.5">
           <HostIcon :type="host.type" class="size-4" />
@@ -42,7 +42,7 @@
       </ul>
     </div>
 
-    <div class="grid grid-cols-2 gap-3 @2xl:min-w-0 @2xl:flex-1" v-if="stats">
+    <div class="grid grid-cols-2 gap-3" v-if="stats">
       <MetricCard
         :icon="PhCpu"
         label="CPU"
