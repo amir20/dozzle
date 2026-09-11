@@ -161,7 +161,8 @@ error:
   invalid-auth: Username o password non valide
   oauth-failed: Accesso non riuscito. Riprova.
   copy-not-supported: La copia negli appunti non è supportata dal tuo browser
-  copy-not-supported-hint: Appunti non disponibili. Copia il link qui sotto
+  copy-insecure: Appunti bloccati su http
+  copy-insecure-hint: Il tuo browser consente l'accesso agli appunti solo tramite https. Copia il testo manualmente.
   logs-skipped: Mostra {total} voci nascoste
   container-not-found: Container non trovato
   action-failed: Azione Fallita
@@ -300,9 +301,6 @@ releases:
   no_releases: Stai utilizzando l'ultima versione
   newer: "1 versione più recente | {count} versioni più recenti"
   all: Tutte le versioni
-log_actions:
-  copy_log: Copia log
-  jump_to_context: Vai a
 toasts:
   copied:
     title: Copiato

@@ -161,7 +161,8 @@ error:
   invalid-auth: Kullanıcı adı veya şifre geçersiz
   oauth-failed: Giriş başarısız oldu. Lütfen tekrar deneyin.
   copy-not-supported: Panoya kopyalama tarayıcınızda desteklenmiyor
-  copy-not-supported-hint: Pano kullanılamıyor. Aşağıdaki bağlantıyı kopyalayın
+  copy-insecure: Pano http üzerinde engellendi
+  copy-insecure-hint: Tarayıcınız panoya erişime yalnızca https üzerinden izin veriyor. Metni elle kopyalayın.
   logs-skipped: "{total} gizli girişi göster"
   container-not-found: Konteyner bulunamadı
   action-failed: İşlem Başarısız
@@ -304,9 +305,6 @@ releases:
   no_releases: En son sürüme sahipsiniz
   newer: "1 yeni sürüm | {count} yeni sürüm"
   all: Tüm sürümler
-log_actions:
-  copy_log: Günlüğü kopyala
-  jump_to_context: Bağlama git
 toasts:
   copied:
     title: Kopyalandı

@@ -161,7 +161,8 @@ error:
   invalid-auth: Gebruikersnaam of wachtwoord is ongeldig
   oauth-failed: Aanmelden mislukt. Probeer het opnieuw.
   copy-not-supported: Kopiëren naar klembord wordt niet ondersteund in je browser
-  copy-not-supported-hint: Klembord niet beschikbaar. Kopieer de link hieronder
+  copy-insecure: Klembord geblokkeerd op http
+  copy-insecure-hint: Je browser staat klembordtoegang alleen toe via https. Kopieer de tekst handmatig.
   logs-skipped: Toon {total} verborgen items
   container-not-found: Container niet gevonden
   action-failed: Actie Mislukt
@@ -301,9 +302,6 @@ releases:
   no_releases: Je gebruikt de nieuwste versie
   newer: "1 nieuwere versie | {count} nieuwere versies"
   all: Alle versies
-log_actions:
-  copy_log: Log kopiëren
-  jump_to_context: Ga naar context
 toasts:
   copied:
     title: Gekopieerd

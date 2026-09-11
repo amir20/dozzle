@@ -161,7 +161,8 @@ error:
   invalid-auth: Usuário ou senha inválidos
   oauth-failed: Falha ao entrar. Tente novamente.
   copy-not-supported: Copiar para a área de transferência não é suportado no seu navegador
-  copy-not-supported-hint: Área de transferência indisponível. Copie o link abaixo
+  copy-insecure: Área de transferência bloqueada em http
+  copy-insecure-hint: O seu navegador só permite acesso à área de transferência por https. Copie o texto manualmente.
   logs-skipped: Mostrar {total} entradas ocultas
   container-not-found: Container não encontrado
   action-failed: Ação Falhou
@@ -300,9 +301,6 @@ releases:
   no_releases: Você tem a versão mais recente
   newer: "1 versão mais recente | {count} versões mais recentes"
   all: Todas as versões
-log_actions:
-  copy_log: Copiar log
-  jump_to_context: Ir para contexto
 toasts:
   copied:
     title: Copiado

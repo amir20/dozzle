@@ -161,7 +161,8 @@ error:
   invalid-auth: 用户名和密码无效。
   oauth-failed: 登录失败，请重试。
   copy-not-supported: 您的浏览器不支持复制到剪贴板
-  copy-not-supported-hint: 剪贴板不可用。请复制下方链接
+  copy-insecure: http 下剪贴板被阻止
+  copy-insecure-hint: 浏览器仅允许通过 https 访问剪贴板。请手动复制文本。
   logs-skipped: 显示 {total} 个隐藏条目
   container-not-found: 容器未找到。
   action-failed: 操作失败
@@ -300,9 +301,6 @@ releases:
   no_releases: 您拥有最新版本
   newer: "有 1 个更新版本 | 有 {count} 个更新版本"
   all: 所有版本
-log_actions:
-  copy_log: 复制日志
-  jump_to_context: 跳转到上下文
 toasts:
   copied:
     title: 已复制

@@ -161,7 +161,8 @@ error:
   invalid-auth: Username or password are not valid
   oauth-failed: Sign in failed. Please try again.
   copy-not-supported: Copy to clipboard is not supported in your browser
-  copy-not-supported-hint: Clipboard unavailable. Copy the link below
+  copy-insecure: Clipboard blocked on http
+  copy-insecure-hint: Your browser only allows clipboard access over https. Copy the text manually instead.
   logs-skipped: Show {total} hidden entries
   container-not-found: Container not found
   action-failed: Action Failed
@@ -411,9 +412,6 @@ releases:
   no_releases: You have the latest version
   newer: "1 newer release | {count} newer releases"
   all: All releases
-log_actions:
-  copy_log: Copy log
-  jump_to_context: Jump to context
 toasts:
   copied:
     title: Copied

@@ -268,6 +268,7 @@ declare global {
   const useContainerActions: typeof import('./composable/containers/containerActions').useContainerActions
   const useContainerStore: typeof import('./stores/container').useContainerStore
   const useContainerStream: typeof import('./composable/logs/eventStreams').useContainerStream
+  const useCopy: typeof import('./composable/app/clipboard').useCopy
   const useCountdown: typeof import('@vueuse/core').useCountdown
   const useCounter: typeof import('@vueuse/core').useCounter
   const useCssModule: typeof import('vue').useCssModule
@@ -797,6 +798,7 @@ declare module 'vue' {
     readonly useContainerActions: UnwrapRef<typeof import('./composable/containers/containerActions')['useContainerActions']>
     readonly useContainerStore: UnwrapRef<typeof import('./stores/container')['useContainerStore']>
     readonly useContainerStream: UnwrapRef<typeof import('./composable/logs/eventStreams')['useContainerStream']>
+    readonly useCopy: UnwrapRef<typeof import('./composable/app/clipboard')['useCopy']>
     readonly useCountdown: UnwrapRef<typeof import('@vueuse/core')['useCountdown']>
     readonly useCounter: UnwrapRef<typeof import('@vueuse/core')['useCounter']>
     readonly useCssModule: UnwrapRef<typeof import('vue')['useCssModule']>

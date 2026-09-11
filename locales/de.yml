@@ -161,7 +161,8 @@ error:
   invalid-auth: Benutzername und Passwort sind ungültig.
   oauth-failed: Anmeldung fehlgeschlagen. Bitte versuchen Sie es erneut.
   copy-not-supported: Kopieren in die Zwischenablage wird von Ihrem Browser nicht unterstützt
-  copy-not-supported-hint: Zwischenablage nicht verfügbar. Link unten kopieren
+  copy-insecure: Zwischenablage über http blockiert
+  copy-insecure-hint: Ihr Browser erlaubt den Zugriff auf die Zwischenablage nur über https. Kopieren Sie den Text stattdessen manuell.
   logs-skipped: Zeige {total} versteckte Einträge
   container-not-found: Container nicht gefunden.
   action-failed: Aktion fehlgeschlagen
@@ -300,9 +301,6 @@ releases:
   no_releases: Du hast die aktuellste Version
   newer: "1 neuere Version | {count} neuere Versionen"
   all: Alle Versionen
-log_actions:
-  copy_log: Log kopieren
-  jump_to_context: Zum Kontext springen
 toasts:
   copied:
     title: Kopiert

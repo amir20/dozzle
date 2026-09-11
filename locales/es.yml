@@ -161,7 +161,8 @@ error:
   invalid-auth: El nombre de usuario y la contraseña no son válidos.
   oauth-failed: Error al iniciar sesión. Inténtalo de nuevo.
   copy-not-supported: Copiar al portapapeles no está soportado en su navegador
-  copy-not-supported-hint: Portapapeles no disponible. Copie el enlace a continuación
+  copy-insecure: Portapapeles bloqueado en http
+  copy-insecure-hint: Su navegador solo permite el acceso al portapapeles mediante https. Copie el texto manualmente.
   logs-skipped: Mostrar {total} entradas ocultas
   container-not-found: Contenedor no encontrado.
   action-failed: Acción Fallida
@@ -401,9 +402,6 @@ releases:
   no_releases: No hay lanzamientos
   newer: "1 versión más reciente | {count} versiones más recientes"
   all: Todas las versiones
-log_actions:
-  copy_log: Copiar registro
-  jump_to_context: Ir al contexto
 toasts:
   copied:
     title: Copiado
