@@ -141,6 +141,8 @@ tooltip:
   volume-unreachable: nedosegljivo iz tega gostitelja
   volume-full: "{destination} je {pct} poln"
   open-container-url: "Odpri {url}"
+  agent-version: "Agent Dozzle {version}"
+  agent-version-mismatch: "Agent {version} se ne ujema z Dozzle {current}. Posodobite agenta."
 popup:
   started: Zagnan
   finished: Ustavljen

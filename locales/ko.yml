@@ -141,6 +141,8 @@ tooltip:
   volume-unreachable: 이 호스트에서 접근할 수 없음
   volume-full: "{destination}이(가) {pct} 사용 중"
   open-container-url: "{url} 열기"
+  agent-version: "Dozzle 에이전트 {version}"
+  agent-version-mismatch: "에이전트 {version}이(가) Dozzle {current}과(와) 일치하지 않습니다. 에이전트를 업데이트하세요."
 popup:
   started: 시작됨
   finished: 종료됨

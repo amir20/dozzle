@@ -141,6 +141,8 @@ tooltip:
   volume-unreachable: 無法從此主機存取
   volume-full: "{destination} 已使用 {pct}"
   open-container-url: "開啟 {url}"
+  agent-version: "Dozzle 代理程式 {version}"
+  agent-version-mismatch: "代理程式 {version} 與 Dozzle {current} 不一致，請更新代理程式。"
 popup:
   started: 啟動
   finished: 停止

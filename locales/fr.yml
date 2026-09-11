@@ -141,6 +141,8 @@ tooltip:
   volume-unreachable: inaccessible depuis cet hôte
   volume-full: "{destination} est plein à {pct}"
   open-container-url: "Ouvrir {url}"
+  agent-version: "Agent Dozzle {version}"
+  agent-version-mismatch: "L'agent {version} ne correspond pas à Dozzle {current}. Mettez à jour l'agent."
 popup:
   started: Démarré
   finished: Arrêté

@@ -144,6 +144,8 @@ tooltip:
   volume-full: "{destination} terisi {pct}"
 
   open-container-url: "Buka {url}"
+  agent-version: "Agen Dozzle {version}"
+  agent-version-mismatch: "Agen {version} tidak cocok dengan Dozzle {current}. Perbarui agennya."
 popup:
   started: Dimulai
   finished: Berhenti
