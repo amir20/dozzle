@@ -25,7 +25,7 @@
             :aria-pressed="statMode === 'progress'"
             @click="statMode = 'progress'"
           >
-            <mdi:poll class="scale-x-[-1] rotate-90" />
+            <mdi:poll class="-scale-x-1 rotate-90" />
           </button>
         </div>
       </template>

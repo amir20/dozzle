@@ -42,7 +42,7 @@
             :aria-label="$t('notifications.destination.edit')"
             @click="editDestination"
           >
-            <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg">
+            <div class="flex size-10 shrink-0 items-center justify-center rounded-lg">
               <mdi:webhook v-if="destination.type === 'webhook'" class="text-lg" />
               <mdi:cloud v-else class="text-primary text-lg" />
             </div>

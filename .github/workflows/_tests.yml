@@ -51,6 +51,29 @@ jobs:
         if: ${{ !cancelled() }}
         run: pnpm run test -- --outputTruncateLength=500
 
+  tailwind-lint:
+    name: Tailwind Lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        name: Install Node
+        with:
+          node-version: latest
+      - run: npm install --global corepack@latest
+      - run: corepack enable
+      - run: pnpm --version
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: latest
+          cache: "pnpm"
+          cache-dependency-path: "**/pnpm-lock.yaml"
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile --prefer-offline
+      # ESLint is here only for the Tailwind rules. See eslint.config.js.
+      - name: Run ESLint
+        run: pnpm run lint
+
   docs-translations:
     name: Docs Translations
     runs-on: ubuntu-latest

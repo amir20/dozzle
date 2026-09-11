@@ -1,5 +1,5 @@
 <template>
-  <div class="@container flex flex-col gap-8 px-4 py-4 md:px-8">
+  <div class="@container flex flex-col gap-8 p-4 md:px-8">
     <section>
       <Links>
         <template #more-items>

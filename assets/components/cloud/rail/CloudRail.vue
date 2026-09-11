@@ -72,14 +72,14 @@
            the only way to move between them once the strip is gone. -->
       <nav
         v-if="sheet"
-        class="border-base-content/10 flex shrink-0 gap-1 border-b px-2 py-2"
+        class="border-base-content/10 flex shrink-0 gap-1 border-b p-2"
         :aria-label="$t('cloud-rail.title')"
       >
         <button
           v-for="item in items"
           :key="item.id"
           type="button"
-          class="flex flex-1 items-center justify-center gap-1.5 rounded-md px-2 py-2 text-sm transition-colors"
+          class="flex flex-1 items-center justify-center gap-1.5 rounded-md p-2 text-sm transition-colors"
           :class="panel === item.id ? 'bg-info/10 text-info font-semibold' : 'text-base-content/60'"
           :aria-pressed="panel === item.id"
           @click="toggleRail(item.id)"

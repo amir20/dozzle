@@ -24,7 +24,7 @@ const rows = [
 </script>
 
 <template>
-  <section class="mx-auto mt-20 max-w-[1152px] px-6">
+  <section class="mx-auto mt-20 max-w-6xl px-6">
     <h2 class="m-0! text-center text-2xl font-semibold text-(--vp-c-text-1) md:text-3xl">
       Why not just <code class="bg-transparent! p-0! font-mono">docker logs</code>?
     </h2>

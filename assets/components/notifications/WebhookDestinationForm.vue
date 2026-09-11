@@ -122,7 +122,7 @@
     <!-- Actions -->
     <!-- Opaque and full-bleed: the parent's padding would otherwise leave the scrolling content
          visible down both sides of the bar. -->
-    <div class="bg-base-100 border-base-content/10 sticky bottom-0 z-10 -mx-4 mt-auto border-t px-4 py-4">
+    <div class="bg-base-100 border-base-content/10 sticky bottom-0 z-10 -mx-4 mt-auto border-t p-4">
       <InlineNotice v-if="error" type="error" class="mb-3">{{ error }}</InlineNotice>
 
       <!-- Cleared whenever the request changes, so a green tick always describes what is on screen -->
