@@ -25,7 +25,13 @@
         {{ $t("notifications.history.empty") }}
       </p>
 
-      <AlertRow v-for="alert in alerts" :key="alert.alertId" :alert="alert" />
+      <!-- Part of the chain above, not a sibling of it. As a sibling the rows
+           rendered underneath whichever line was showing, so unlinking in the
+           settings card printed "linking would remember these" over a list of
+           remembered alerts. -->
+      <template v-else>
+        <AlertRow v-for="alert in alerts" :key="alert.alertId" :alert="alert" />
+      </template>
     </div>
   </div>
 </template>

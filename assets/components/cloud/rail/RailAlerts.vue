@@ -33,22 +33,19 @@
 </template>
 
 <script lang="ts" setup>
-const { alerts, fetchRecentAlerts, markAlertsSeen, loading, loaded, failed } = useRecentAlerts();
-const view = useViewContext();
+const { fetchRecentAlerts, markAlertsSeen, loading, loaded, failed } = useRecentAlerts();
+const { visible, scoped, single } = useViewAlerts();
 
-onMounted(async () => {
-  await fetchRecentAlerts();
-  // Open the panel and the bell's dot goes out: someone looked.
-  markAlertsSeen();
+onMounted(() => fetchRecentAlerts());
+
+// The panel is open, so whatever it is showing has been looked at — and only
+// that. Marking the instance's newest seen from a panel scoped to one container
+// put out the nav's bell for alerts that were never on this screen, which is
+// also why a panel showing nothing marks nothing.
+//
+// An effect rather than a one-shot in onMounted: the rows usually land after the
+// panel opens, and more can arrive while it stays open.
+watchEffect(() => {
+  if (visible.value.length) markAlertsSeen(visible.value[0]);
 });
-
-const ids = computed(() => new Set(view.value.containers.map((c) => c.id)));
-const scoped = computed(() => ids.value.size > 0);
-const single = computed(() => ids.value.size === 1);
-
-// On a view with no containers of its own (the home page, settings) there is
-// nothing to scope to, so the panel shows the instance the way the page does.
-const visible = computed(() =>
-  scoped.value ? alerts.value.filter((a) => ids.value.has(a.containerId)) : alerts.value,
-);
 </script>

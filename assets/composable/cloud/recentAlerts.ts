@@ -1,3 +1,4 @@
+import type { MaybeRefOrGetter } from "vue";
 import type { CloudAlert } from "./cloudAlerts";
 
 /**
@@ -23,6 +24,28 @@ const loaded = ref(false);
 const failed = ref(false);
 
 let pending: Promise<void> | null = null;
+
+// Module scope rather than per-consumer: every surface below derives from
+// whether the instance is linked *right now*, not from what the last fetch
+// happened to return.
+const { linked } = useCloudSurface();
+
+// Linking and unlinking both happen without a reload — the settings card clears
+// the cloud config in place — and the moment either does, the rows this module
+// is holding stop describing the instance in front of the reader. So they are
+// dropped, and refetched when there is somewhere to ask again.
+//
+// The refetch also covers boot. `cloudConfig` is fetched asynchronously, so the
+// first `fetchRecentAlerts()` of a page load usually runs while the instance
+// still looks unlinked and early-returns; without this the history sat empty
+// until the bell's poll came round a minute later.
+watch(linked, (isLinked) => {
+  alerts.value = [];
+  loaded.value = false;
+  failed.value = false;
+  pending = null;
+  if (isLinked) pending = load();
+});
 
 /**
  * The newest alert this browser has been shown, as nanoseconds.
@@ -57,8 +80,6 @@ async function load(limit = 200): Promise<void> {
 }
 
 export function useRecentAlerts() {
-  const { linked } = useCloudSurface();
-
   function fetchRecentAlerts(limit?: number) {
     if (!linked.value) {
       alerts.value = [];
@@ -75,8 +96,13 @@ export function useRecentAlerts() {
     return load(limit);
   }
 
-  /** Newest first, which is the only order any of these surfaces wants. */
-  const newestFirst = computed(() => [...alerts.value].sort((a, b) => b.ts - a.ts));
+  /** Newest first, which is the only order any of these surfaces wants.
+   *
+   *  Empty while unlinked: an unlinked instance has no memory, so it has no
+   *  history — including the rows an earlier link left behind in this tab.
+   *  Gating it here rather than in each surface is what keeps a stale row out of
+   *  the history, both bells and the dot on a container row in one move. */
+  const newestFirst = computed(() => (linked.value ? [...alerts.value].sort((a, b) => b.ts - a.ts) : []));
 
   /**
    * The most recent alert per container, for the severity dot. A container with
@@ -102,10 +128,35 @@ export function useRecentAlerts() {
     return !!newest && newest.ts > lastSeenTs.value;
   });
 
+  /**
+   * The same question asked of one set of containers.
+   *
+   * A dot has to ask whatever its destination answers. The nav's bell opens the
+   * notifications page, which shows the instance, so it keeps `unseen`. The
+   * rail's bell opens a panel scoped to the view, so an instance-wide dot there
+   * promised rows the panel then filtered away, and the reader who followed it
+   * landed on "nothing has fired on what you're looking at".
+   *
+   * An empty scope is a view with no containers of its own (home, settings),
+   * where the panel shows the instance and so does the dot.
+   */
+  function unseenIn(ids: MaybeRefOrGetter<Set<string>>) {
+    return computed(() => {
+      const scope = toValue(ids);
+      if (scope.size === 0) return unseen.value;
+      return newestFirst.value.some((a) => scope.has(a.containerId) && a.ts > lastSeenTs.value);
+    });
+  }
+
   /** Called when the history is actually on screen, not when it is fetched: the
-   *  dot goes out because someone looked, not because a request landed. */
-  function markAlertsSeen() {
-    const newest = newestFirst.value[0];
+   *  dot goes out because someone looked, not because a request landed.
+   *
+   *  `upTo` is the newest alert the surface actually rendered. A scoped panel
+   *  that marked the instance's newest seen put out the nav's bell for alerts
+   *  the reader never saw, so the watermark moves only as far as the rows that
+   *  were on screen. Monotonic either way. */
+  function markAlertsSeen(upTo?: CloudAlert) {
+    const newest = upTo ?? newestFirst.value[0];
     if (newest && newest.ts > lastSeenTs.value) lastSeenTs.value = newest.ts;
   }
 
@@ -116,6 +167,7 @@ export function useRecentAlerts() {
     fetchRecentAlerts,
     refreshRecentAlerts,
     unseen,
+    unseenIn,
     markAlertsSeen,
     loading,
     loaded,
