@@ -16,6 +16,10 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
+// sha256AdvisoryURL explains why sha256 hashes stopped being accepted, and is
+// the one thing an operator with a pre-bcrypt users.yml needs to read.
+const sha256AdvisoryURL = "https://github.com/amir20/dozzle/security/advisories/GHSA-w7qr-q9fh-fj35"
+
 type User struct {
 	Username        string                    `json:"username" yaml:"-"`
 	Email           string                    `json:"email" yaml:"email"`
@@ -118,8 +122,17 @@ func decodeUsersFromFile(path string) (UserDatabase, error) {
 			return users, fmt.Errorf("user %s has no password, github, or email, so it can never sign in", username)
 		}
 
-		if user.Password != "" && !(len(user.Password) == 64 || len(user.Password) == 60) {
-			return users, fmt.Errorf("user %s has an invalid password hash: expected 60 or 64 characters, got %d", username, len(user.Password))
+		// A sha256 hash is 64 characters. It used to be a supported format, so this
+		// check used to accept one, but CompareHashAndPassword has refused to compare
+		// one since v10.0.1. Accepting it here means the file loads clean, the login
+		// page renders a password form, and the refusal lands on the first login
+		// attempt instead of at startup. Reject it where main.go can name the file.
+		if len(user.Password) == 64 {
+			return users, fmt.Errorf("user %s has a sha256 password hash, which is no longer supported: regenerate it with `dozzle generate` to get a bcrypt hash, see %s", username, sha256AdvisoryURL)
+		}
+
+		if user.Password != "" && len(user.Password) != 60 {
+			return users, fmt.Errorf("user %s has an invalid password hash: expected 60 characters, got %d", username, len(user.Password))
 		}
 
 		if user.Name == "" {
@@ -260,8 +273,14 @@ func (u *UserDatabase) findIndexed(key string, index func() map[string]*User) *U
 }
 
 func CompareHashAndPassword(hash, password string) bool {
+	// decodeUsersFromFile rejects a sha256 hash, so this is unreachable from a
+	// file that loaded. It stays as a guard because this runs on an
+	// unauthenticated request: exiting here turns "someone guessed a username"
+	// into a process kill, and the users.yml reload can put a hash in front of
+	// this long after startup.
 	if len(hash) == 64 {
-		log.Fatal().Msg("sha256 passwords are no longer supported. Please use bcrypt. See https://github.com/amir20/dozzle/security/advisories/GHSA-w7qr-q9fh-fj35 for more details.")
+		log.Error().Msgf("sha256 passwords are no longer supported. Please use bcrypt. See %s for more details.", sha256AdvisoryURL)
+		return false
 	}
 
 	if len(hash) == 60 {
@@ -269,7 +288,7 @@ func CompareHashAndPassword(hash, password string) bool {
 		return err == nil
 	}
 
-	log.Error().Str("hash", hash).Msg("Invalid hash length. Expecting 64 or 60 characters.")
+	log.Error().Int("length", len(hash)).Msg("Invalid hash length. Expecting 60 characters.")
 
 	return false
 }
