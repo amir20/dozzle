@@ -68,23 +68,14 @@ func newClient(cli DockerCLI, host container.Host, overrideID string) *DockerCli
 
 	runtime := detectRuntime(cli, info)
 
-	id := info.ID
-	if runtime == "podman" {
-		if stable := podmanHostID(info); stable != "" {
-			id = stable
-		}
-	}
-	if info.Swarm.NodeID != "" {
-		id = info.Swarm.NodeID
-	}
-	// An explicit id wins over everything Dozzle can work out for itself. It is
-	// the only remedy when the derived id collides, which needs two hosts that
-	// share both a hostname and a storage root to happen.
-	if overrideID != "" {
-		id = overrideID
-	}
+	// Highest precedence first. An explicit id beats anything Dozzle works out
+	// for itself, a swarm node id beats the engine's own, and the derived Podman
+	// id beats the throwaway one Podman would otherwise hand out. host.ID is
+	// whatever the caller already knew — ParseConnection derives one from the
+	// remote URL — which is all that is left when the engine is unreachable and
+	// Info came back empty.
+	host.ID = container.ResolveHostID(overrideID, info.Swarm.NodeID, podmanHostID(info, runtime), info.ID, host.ID)
 
-	host.ID = id
 	host.NCPU = info.NCPU
 	host.MemTotal = info.MemTotal
 	host.DockerVersion = info.ServerVersion
@@ -107,23 +98,30 @@ func newClient(cli DockerCLI, host container.Host, overrideID string) *DockerCli
 // Changing it would re-id every Podman host in the world, so don't.
 var dozzleHostNamespace = uuid.MustParse("cb6c32a9-acb9-454b-8427-014fe9bc073c")
 
-// podmanHostID derives a host id Podman itself cannot supply.
+// podmanHostID derives a host id Podman itself cannot supply, and returns ""
+// for anything it has no answer for — every other runtime, and a Podman that
+// reported nothing to derive from.
 //
 // Podman is daemonless and tracks no engine identity at all, so its Docker
 // compat /info fills the required ID field with a throwaway uuid.New() on every
 // single call. Nothing reads /var/lib/docker/engine-id on the way, which is why
 // creating that file has never done anything on Podman. Caching that value the
-// way NewClient does means a host id that survives only as long as the process
+// way newClient does means a host id that survives only as long as the process
 // that first asked for it.
 //
 // Hostname plus the storage graph root are the two things Podman does report
 // consistently. Graphroot is what keeps two rootless users on one machine
 // apart: they share a hostname but never a store.
 //
-// Returns "" when Podman reported neither, so the caller keeps the random id
-// rather than handing every host in the fleet the same hash of nothing, which
-// the duplicate-host check in RetriableClientManager would collapse into one.
-func podmanHostID(info system.Info) string {
+// Declining when Podman reported neither matters: hashing two empty strings
+// would hand every host in the fleet one id, and the duplicate-host check in
+// RetriableClientManager would collapse them into a single host. A churning id
+// is bad, hosts silently vanishing is worse.
+func podmanHostID(info system.Info, runtime string) string {
+	if runtime != "podman" {
+		return ""
+	}
+
 	if info.Name == "" && info.DockerRootDir == "" {
 		return ""
 	}

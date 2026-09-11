@@ -126,7 +126,7 @@ func main() {
 			}
 		}()
 	} else if args.Mode == "k8s" {
-		localClient, err := k8s.NewK8sClient(args.Namespace)
+		localClient, err := k8s.NewK8sClient(args.Namespace, args.HostID)
 		if err != nil {
 			log.Fatal().Err(err).Msg("Could not create k8s client")
 		}
