@@ -80,6 +80,10 @@ make generate
 # Run full development environment (backend + frontend with hot reload)
 make dev
 
+# Same, on a free port trio derived from this checkout's path, so several worktrees
+# can each run an instance at once. Prints the URL it picked.
+make dev-auto
+
 # Alternative: Run backend and frontend separately
 pnpm run watch:backend  # Go backend with air (port 3100)
 pnpm run watch:frontend # Vite dev server (port 3100)

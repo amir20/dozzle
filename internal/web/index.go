@@ -11,6 +11,7 @@ import (
 
 	"net/http"
 	"net/url"
+	"os"
 	"path"
 
 	"github.com/amir20/dozzle/internal/auth"
@@ -171,6 +172,7 @@ func (h *handler) executeTemplate(w http.ResponseWriter, req *http.Request) {
 	data := map[string]any{
 		"Config":  config,
 		"Dev":     h.config.Dev,
+		"Vite":    viteDevURL(),
 		"Entry":   entryJS,
 		"Styles":  styles,
 		"Preload": preloads,
@@ -204,6 +206,20 @@ func (h *handler) executeTemplate(w http.ResponseWriter, req *http.Request) {
 	if err != nil {
 		log.Fatal().Err(err).Msg("Could not execute index.html")
 	}
+}
+
+// viteDevURL is where the dev page loads the Vite client and the entry module from.
+// It is a runtime lookup rather than a constant so several worktrees can each run
+// `make dev` at once, every one on its own pair of ports.
+func viteDevURL() string {
+	if url := os.Getenv("VITE_URL"); url != "" {
+		return strings.TrimSuffix(url, "/")
+	}
+	port := os.Getenv("VITE_PORT")
+	if port == "" {
+		port = "5173"
+	}
+	return "http://localhost:" + port
 }
 
 // cacheControlFor keeps the year-long immutable cache for hashed files under assets/,
