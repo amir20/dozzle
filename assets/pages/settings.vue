@@ -111,6 +111,13 @@
           <SettingRow tag="label" :label="$t('settings.soft-wrap')" :description="$t('settings.soft-wrap-desc')">
             <input type="checkbox" class="toggle toggle-primary toggle-sm" v-model="softWrap" />
           </SettingRow>
+          <SettingRow
+            tag="label"
+            :label="$t('settings.highlight-errors')"
+            :description="$t('settings.highlight-errors-desc')"
+          >
+            <input type="checkbox" class="toggle toggle-primary toggle-sm" v-model="highlightErrors" />
+          </SettingRow>
           <SettingRow :label="$t('settings.datetime-format')" :description="$t('settings.datetime-format-desc')">
             <DropdownMenu
               v-model="dateLocale"
@@ -264,6 +271,7 @@ import {
   groupContainers,
   showImageUpdateAlert,
   showAppIcons,
+  highlightErrors,
 } from "@/stores/settings";
 
 import { availableLocales, i18n } from "@/modules/i18n";

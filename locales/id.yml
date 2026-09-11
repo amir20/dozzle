@@ -245,6 +245,8 @@ settings:
   show-timestamps-desc: 'Tambahkan waktu penulisan di awal setiap baris.'
   soft-wrap: Bungkus baris secara lunak
   soft-wrap-desc: 'Bungkus baris panjang alih-alih menggulir ke samping.'
+  highlight-errors: Sorot baris galat
+  highlight-errors-desc: 'Beri warna latar pada baris galat. Penanda level berwarna selalu ditampilkan.'
   datetime-format: Ganti format tanggal dan waktu
   datetime-format-desc: 'Secara bawaan mengikuti bahasa dan format jam peramban Anda.'
   font-size: Ukuran font untuk log

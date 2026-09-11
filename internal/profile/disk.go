@@ -37,6 +37,10 @@ type Settings struct {
 	DateLocale        string  `json:"dateLocale,omitempty"`
 	Locale            string  `json:"locale"`
 	GroupContainers   string  `json:"groupContainers,omitempty"`
+	// Pointer with omitempty so a profile written before this setting existed
+	// stays silent instead of injecting a false that overrides the frontend's
+	// default of true.
+	HighlightErrors *bool `json:"highlightErrors,omitempty"`
 }
 
 type Profile struct {

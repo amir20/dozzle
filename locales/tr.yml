@@ -240,6 +240,8 @@ settings:
   show-timestamps-desc: 'Her satırın başına yazıldığı saati ekler.'
   soft-wrap: Satırları yumuşak kaydır
   soft-wrap-desc: 'Yana kaydırmak yerine uzun satırları alt satıra kaydırır.'
+  highlight-errors: Hata satırlarını vurgula
+  highlight-errors-desc: 'Hata satırlarının arka planını renklendirir. Renkli seviye işareti her zaman görünür.'
   datetime-format: Tarih ve saat biçimini geçersiz kıl
   datetime-format-desc: 'Varsayılan olarak tarayıcınızın dilini ve saat biçimini kullanır.'
   font-size: Günlükler için kullanılacak yazı tipi boyutu

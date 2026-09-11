@@ -345,6 +345,8 @@ settings:
   show-timestamps-desc: Prefix each line with the time it was written.
   soft-wrap: Soft wrap lines
   soft-wrap-desc: Wrap long lines instead of scrolling sideways.
+  highlight-errors: Highlight error rows
+  highlight-errors-desc: Tint the background of error lines. The colored level marker is always shown.
   datetime-format: Override date and time format
   datetime-format-desc: Defaults to your browser locale and clock.
   font-size: Font size to use for logs

@@ -1,11 +1,16 @@
 <template>
-  <ul class="group pt-4" :class="{ 'disable-wrap': !softWrap, [size]: true, compact }" data-logs>
+  <ul
+    class="group pt-4"
+    :class="{ 'disable-wrap': !softWrap, [size]: true, compact, 'highlight-errors': highlightErrors }"
+    data-logs
+  >
     <li
       v-for="item in messages"
       ref="list"
       :key="item.id"
       :id="item.id.toString()"
       :data-time="item.date.getTime()"
+      :data-log-level="rowLevel(item)"
       class="group/entry"
       :class="{ 'log-permalink-target': permalinkLogId === item.id.toString() }"
     >
@@ -15,7 +20,7 @@
 </template>
 
 <script lang="ts" setup>
-import { type LogEntry, type LogMessage } from "@/models/LogEntry";
+import { AlertLogEntry, CloudEventLogEntry, type LogEntry, type LogMessage } from "@/models/LogEntry";
 
 const { progress, currentDate, available } = useScrollContext();
 
@@ -24,6 +29,12 @@ const { messages } = defineProps<{
 }>();
 
 const { containers } = useLoggingContext();
+
+// Only real log output gets the row tint. Alert and cloud-event rows already
+// carry their own level marker and deliberately leave the row background alone,
+// so tinting them would fight styling they own.
+const rowLevel = (item: LogEntry<LogMessage>) =>
+  item instanceof AlertLogEntry || item instanceof CloudEventLogEntry ? undefined : item.level;
 
 const route = useRoute();
 const permalinkLogId = computed(() => (typeof route.query.logId === "string" ? route.query.logId : ""));
@@ -76,9 +87,8 @@ ul {
     }
 
     /* Written long-hand rather than as odd:/hover: utilities because the order
-       below is the whole point: hover has to beat the zebra. Severity is not
-       here at all -- it rides on the level rail in LogLevel.vue, so the row
-       behind the text stays neutral and the text keeps full contrast. */
+       below is the whole point: hover has to beat the zebra, and the error tint
+       has to beat both. */
     &:nth-child(odd) {
       background-color: color-mix(in oklab, var(--color-base-content) 2.5%, transparent);
     }
@@ -90,6 +100,22 @@ ul {
     &.log-permalink-target {
       @apply bg-secondary/15;
       animation: log-permalink-pulse 1.4s ease-out;
+    }
+  }
+
+  /* Severity primarily rides on the level rail in LogLevel.vue, so this is a
+     hint rather than the signal, and warn does not get one at all: an orange
+     wash on a routine retry line was the noisiest thing in the stream. Off by
+     choice for anyone who wants the field completely flat. */
+  &.highlight-errors > li {
+    &[data-log-level="error"],
+    &[data-log-level="fatal"] {
+      background-color: color-mix(in oklab, var(--color-red) 5%, transparent);
+    }
+
+    &[data-log-level="error"]:hover,
+    &[data-log-level="fatal"]:hover {
+      background-color: color-mix(in oklab, var(--color-red) 12%, transparent);
     }
   }
 

@@ -239,6 +239,8 @@ settings:
   show-timestamps-desc: '在每一行前面加上寫入時間。'
   soft-wrap: 自動換行
   soft-wrap-desc: '自動換行顯示長行，而非左右捲動。'
+  highlight-errors: 醒目提示錯誤行
+  highlight-errors-desc: '為錯誤行加上背景色。彩色層級標記一律顯示。'
   datetime-format: 變更日期與時間格式
   datetime-format-desc: '預設沿用瀏覽器的語言與時間格式。'
   font-size: 日誌字型大小

@@ -237,6 +237,8 @@ settings:
   show-timestamps-desc: 'Sæt tidspunktet for hver linje foran den.'
   soft-wrap: Blødt bræk på linjer
   soft-wrap-desc: 'Ombryd lange linjer i stedet for at rulle sidelæns.'
+  highlight-errors: Fremhæv fejllinjer
+  highlight-errors-desc: 'Giv fejllinjer en farvet baggrund. Den farvede niveaumarkør vises altid.'
   datetime-format: Overskriv dato og tids format
   datetime-format-desc: 'Bruger som standard din browsers sprog og urformat.'
   font-size: Tekststørrelse at bruge til logs

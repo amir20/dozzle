@@ -20,6 +20,7 @@ export type Settings = {
   groupContainers: "always" | "at-least-2" | "never";
   showImageUpdateAlert: boolean;
   showAppIcons: boolean;
+  highlightErrors: boolean;
   terminalFontSize: number;
 };
 export const DEFAULT_SETTINGS: Settings = {
@@ -42,6 +43,7 @@ export const DEFAULT_SETTINGS: Settings = {
   groupContainers: "at-least-2",
   showImageUpdateAlert: false,
   showAppIcons: true,
+  highlightErrors: true,
   terminalFontSize: 13,
 };
 
@@ -75,5 +77,6 @@ export const {
   automaticRedirect,
   groupContainers,
   showAppIcons,
+  highlightErrors,
   terminalFontSize,
 } = toRefs(settings.value);
