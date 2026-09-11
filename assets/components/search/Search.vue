@@ -1,5 +1,7 @@
 <template>
-  <transition name="slide">
+  <!-- Clamped once the box has finished sliding in, never while it is moving: a
+       correction measured mid-animation moves the card, which re-measures. -->
+  <transition name="slide" @after-enter="clampIntoView">
     <!-- Padded past the cloud rail so the box does not open on top of it. A
          drag sets left/top, which this does not touch. The strip itself is
          inert: it spans the window, so whatever sits under it (the topbar) has
@@ -103,7 +105,10 @@ const moved = ref(false);
 const { style, position } = useDraggable(container, {
   handle,
   initialValue: { x: 0, y: FALLBACK_TOP },
-  onEnd: () => (moved.value = true),
+  onEnd: () => {
+    moved.value = true;
+    clampIntoView();
+  },
 });
 
 // Measured live rather than once on open: the header is a different height on mobile and
@@ -131,8 +136,13 @@ watchEffect(() => {
 
 // A drag that runs past the edge parks the box where nothing can reach it: the close
 // button goes off-screen, the position outlives closing and reopening, and a narrower
-// window does not bring it back, so only a reload does. The card is kept inside the
-// viewport instead, on every move and on every resize.
+// window does not bring it back, so only a reload does. The card is pulled back inside
+// the viewport when a drag ends and when the window changes size.
+//
+// Deliberately NOT on every change to `position`. The box animates in, and measuring a
+// card that is still sliding yields a correction, which moves the card, which measures
+// again: with the re-measure on a microtask the loop never yields and the tab locks up.
+// Both callers here run on a real event, with nothing animating.
 const MARGIN = 8;
 function clampIntoView() {
   const rect = card.value?.getBoundingClientRect();
@@ -148,7 +158,6 @@ function clampIntoView() {
   if (dx || dy) position.value = { x: position.value.x + dx, y: position.value.y + dy };
 }
 
-watch(position, () => nextTick(clampIntoView));
 useEventListener(window, "resize", clampIntoView);
 
 // The box opens over the top of the log list, which after a search is exactly where the
