@@ -908,16 +908,18 @@ func (h *handler) testWebhook(w http.ResponseWriter, r *http.Request) {
 }
 
 // Releases handler
-var releasesCache *cache.Cache[[]releases.Release]
-
-func (h *handler) getReleases(w http.ResponseWriter, r *http.Request) {
-	if releasesCache == nil {
-		releasesCache = cache.New(func() ([]releases.Release, error) {
+func (h *handler) releases() *cache.Cache[[]releases.Release] {
+	h.releasesOnce.Do(func() {
+		h.releasesCache = cache.New(func() ([]releases.Release, error) {
 			return releases.Fetch(h.config.Version)
 		}, time.Hour)
-	}
+	})
 
-	result, err := releasesCache.Get()
+	return h.releasesCache
+}
+
+func (h *handler) getReleases(w http.ResponseWriter, r *http.Request) {
+	result, err := h.releases().Get()
 	if err != nil {
 		writeError(w, http.StatusInternalServerError, err.Error())
 		return
