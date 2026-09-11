@@ -138,6 +138,8 @@ tooltip:
   volume-unreachable: bu sunucudan erişilemiyor
   volume-full: "{destination} {pct} dolu"
   open-container-url: "{url} adresini aç"
+  agent-version: "Dozzle aracısı {version}"
+  agent-version-mismatch: "Aracı {version}, Dozzle {current} ile eşleşmiyor. Aracıyı güncelleyin."
 popup:
   started: Başlatıldı
   finished: Durduruldu

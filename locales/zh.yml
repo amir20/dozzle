@@ -138,6 +138,8 @@ tooltip:
   volume-unreachable: 无法从此主机访问
   volume-full: "{destination} 已使用 {pct}"
   open-container-url: "打开 {url}"
+  agent-version: "Dozzle 代理 {version}"
+  agent-version-mismatch: "代理 {version} 与 Dozzle {current} 不一致，请更新代理。"
 popup:
   started: 启动
   finished: 停止

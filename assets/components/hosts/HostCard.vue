@@ -1,25 +1,17 @@
 <template>
   <div
-    class="border-base-content/10 bg-base-100 hover:border-base-content/20 rounded-box flex flex-col gap-4 border p-4 transition-colors lg:flex-row lg:items-center lg:gap-6 lg:px-5"
+    class="border-base-content/10 bg-base-100 hover:border-base-content/20 rounded-box flex flex-col gap-4 border p-4 transition-colors @2xl:flex-row @2xl:items-center @2xl:gap-6 @2xl:px-5"
   >
-    <div class="flex min-w-0 flex-col gap-1 lg:shrink-0">
+    <div class="flex min-w-0 flex-col gap-1 @2xl:w-1/3 @2xl:shrink-0">
       <div class="flex min-w-0 items-center gap-2">
         <span class="bg-base-content/5 text-base-content/70 flex-none rounded-md p-1.5">
           <HostIcon :type="host.type" class="size-4" />
         </span>
-        <div class="truncate text-lg font-semibold tracking-tight">{{ host.name }}</div>
+        <div class="truncate text-lg font-semibold tracking-tight" :title="host.name">{{ host.name }}</div>
 
-        <span class="badge badge-error badge-xs gap-1 p-2 font-normal" v-if="!host.available">
-          <carbon:warning />
+        <span class="status-pill status-pill-error flex-none gap-1" v-if="!host.available">
+          <carbon:warning class="size-3" />
           offline
-        </span>
-        <span
-          class="badge badge-success badge-xs gap-1 p-2 font-normal"
-          :class="{ 'badge-warning': config.version != host.agentVersion }"
-          v-else-if="host.type == 'agent'"
-          title="Dozzle Agent"
-        >
-          {{ host.agentVersion }}
         </span>
       </div>
 
@@ -33,10 +25,24 @@
           <mdi:docker v-else class="size-3.5" />
           {{ host.dockerVersion }}
         </li>
+        <li
+          class="flex items-center gap-1.5"
+          :class="{ 'text-warning': agentOutdated }"
+          v-if="host.type == 'agent' && host.agentVersion"
+          :title="
+            agentOutdated
+              ? $t('tooltip.agent-version-mismatch', { version: host.agentVersion, current: config.version })
+              : $t('tooltip.agent-version', { version: host.agentVersion })
+          "
+        >
+          <carbon:warning v-if="agentOutdated" class="size-3.5" />
+          <mdi:satellite-variant v-else class="size-3.5" />
+          {{ host.agentVersion }}
+        </li>
       </ul>
     </div>
 
-    <div class="grid grid-cols-2 gap-3 lg:flex-1" v-if="stats">
+    <div class="grid grid-cols-2 gap-3 @2xl:min-w-0 @2xl:flex-1" v-if="stats">
       <MetricCard
         :icon="PhCpu"
         label="CPU"
@@ -82,6 +88,8 @@ const hostContainers = computed(() =>
 );
 
 const runtimeLabel = computed(() => (props.host.runtime === "podman" ? "Podman" : "Docker"));
+
+const agentOutdated = computed(() => props.host.type === "agent" && props.host.agentVersion !== config.version);
 
 function toContainerCores(container: Container): number {
   if (container.cpuLimit && container.cpuLimit > 0) {
