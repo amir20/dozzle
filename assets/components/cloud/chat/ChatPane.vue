@@ -10,32 +10,45 @@
           v-for="suggestion in suggestions"
           :key="suggestion"
           type="button"
-          class="hover:bg-base-300 flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left text-sm transition-colors"
+          class="hover:bg-info/10 hover:text-info flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left text-sm transition-colors"
           @click="ask(suggestion, view)"
         >
-          <mdi:arrow-top-right class="size-4 shrink-0 opacity-40" />
+          <mdi:arrow-top-right class="text-info/60 size-4 shrink-0" />
           <span class="min-w-0 flex-1">{{ suggestion }}</span>
         </button>
       </div>
 
       <div v-else class="mt-auto space-y-4">
         <div v-for="(message, i) in messages" :key="i">
-          <!-- The question is a neutral panel; the answer is the pane itself.
-               Two facing bubbles in a 550px column spend half the width on
-               borders that say nothing the alignment does not. -->
+          <!-- The question is a panel and the answer is the pane itself. Two
+               facing bubbles in a 550px column spend half the width on borders
+               that say nothing the alignment does not. What the two turns do get
+               is a colour each, because in a wall of grey text the only thing a
+               reader ever has to find again is where their own question ended:
+               a primary wash on the question, a cloud glyph on the answer. -->
           <template v-if="message.role === 'user'">
-            <div class="border-base-content/15 bg-base-200/40 rounded-lg border p-3">
+            <div class="border-primary/25 bg-primary/5 rounded-lg border p-3">
               <ChatFocusedLine v-if="message.view?.focused" :line="message.view.focused" class="mb-2" />
               <p class="text-sm whitespace-pre-wrap">{{ message.text }}</p>
               <ChatViewContext v-if="message.view" :view="message.view" compact class="mt-2" />
             </div>
           </template>
           <template v-else>
-            <InlineNotice v-if="message.error" type="error">{{ message.text }}</InlineNotice>
-            <ChatMarkdown v-else-if="message.text" :text="message.text" class="text-sm leading-relaxed" />
-            <div v-else class="text-base-content/60 flex items-center gap-2 text-sm">
-              <span class="loading loading-dots loading-xs"></span>
-              {{ working }}
+            <div class="flex gap-2">
+              <span
+                class="bg-info/10 text-info mt-0.5 flex size-6 shrink-0 items-center justify-center rounded-full"
+                aria-hidden="true"
+              >
+                <mdi:cloud class="size-3.5" />
+              </span>
+              <div class="min-w-0 flex-1">
+                <InlineNotice v-if="message.error" type="error">{{ message.text }}</InlineNotice>
+                <ChatMarkdown v-else-if="message.text" :text="message.text" class="text-sm leading-relaxed" />
+                <div v-else class="text-base-content/60 flex items-center gap-2 text-sm">
+                  <span class="loading loading-dots loading-xs"></span>
+                  {{ working }}
+                </div>
+              </div>
             </div>
           </template>
         </div>
