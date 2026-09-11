@@ -120,7 +120,33 @@ TZ=UTC pnpm test --watch
 
 # Type checking
 pnpm typecheck
+
+# Lint (Tailwind classes only)
+pnpm lint
+pnpm lint --fix
 ```
+
+### Linting
+
+ESLint here checks Tailwind classes and nothing else. It is not a general JS or TS
+linter, and it should not become one: `tsconfig.json` already has `strict`,
+`strictNullChecks` and `noUnusedLocals`, so `vue-tsc` covers that ground, and prettier
+plus `prettier-plugin-tailwindcss` own formatting and class order. No stylistic rule
+belongs in `eslint.config.js`, which is also why `eslint-config-prettier` is not needed.
+
+Every rule the Tailwind plugin ships is listed in that config with the reason it is on
+or off, so add to that list rather than reaching for a preset.
+
+`eslint --fix` runs on staged `js`/`mjs`/`ts`/`mts`/`vue` in the pre-commit hook, before
+prettier so prettier gets the last word on formatting. Run `pnpm lint --fix` by hand
+after writing a batch of markup if you would rather not find out at commit time.
+
+Two blind spots worth knowing, because a green run does not mean a clean tree:
+
+- `@apply` inside an SFC `<style>` block is never handed to the plugin, so a bad class
+  there is never reported.
+- The arbitrary-value rule only maps whole-number spacing steps. `gap-[2px]` and `w-[3px]`
+  go unreported even though `gap-0.5` and `w-0.75` exist.
 
 ### Preview & Other
 
