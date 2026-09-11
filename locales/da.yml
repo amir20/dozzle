@@ -349,6 +349,7 @@ notifications:
     events: "{n} hændelser"
     suppressed: "· {n} undertrykt"
     show-lines: Vis mig linjerne
+    show-moment: Vis loggen omkring det
     open-in-cloud: Åbn i Dozzle Cloud
     fired-recently: gange nyligt
   title: Notifikationer

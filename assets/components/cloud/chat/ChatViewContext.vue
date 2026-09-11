@@ -29,7 +29,7 @@
 
     <!-- A line the reader pointed at is evidence as much as the window is, so
          it belongs in this card rather than in a second one under it. -->
-    <template v-if="$slots.default">
+    <template v-if="hasSlotContent()">
       <div class="bg-base-content/10 my-2 h-px"></div>
       <slot />
     </template>
@@ -37,10 +37,28 @@
 </template>
 
 <script lang="ts" setup>
+import { Comment, Fragment, Text, type VNode } from "vue";
 import type { ViewContext } from "@/composable/logs/viewContext";
 
 const { view, compact = false } = defineProps<{ view: ViewContext; compact?: boolean }>();
 const { t } = useI18n();
+const slots = useSlots();
+
+// `$slots.default` is truthy the moment a caller writes slot content at all,
+// even when that content is a single `v-if` that rendered nothing. The composer
+// always passes the focused line, so testing it drew a divider with nothing
+// under it whenever no line was focused. Called from the template so it is
+// re-evaluated, and re-tracked, on every render.
+function hasSlotContent() {
+  return (slots.default?.() ?? []).some(isRendered);
+}
+
+function isRendered(node: VNode): boolean {
+  if (node.type === Comment) return false;
+  if (node.type === Fragment) return (node.children as VNode[] | null)?.some(isRendered) ?? false;
+  if (node.type === Text) return !!String(node.children ?? "").trim();
+  return true;
+}
 
 const parts = computed(() => {
   const out: { key: string; label: string; name?: boolean }[] = [];

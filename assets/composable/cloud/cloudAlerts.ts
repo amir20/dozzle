@@ -153,7 +153,37 @@ export function mergeAlerts(
   // Origins only. A follow-up anchor marks an incident that was already open,
   // and the per-line badges say that with more precision — drawing a second
   // block for it would claim a delivery that never happened.
-  const fresh = alerts.filter((a) => a.isOrigin && !seen.has(anchorKey(a)));
+  //
+  // One block per incident. Cloud returns a hit per (alert, container) — an
+  // incident that spans containers is folded into one alert, headline and all,
+  // and then reported once for each container it touched, each anchored on
+  // that container's own line. A merged view asks about every container at
+  // once, so those hits arrive together, at slightly different timestamps, all
+  // of them origins. Keying on the alert alone is what collapses them; keying
+  // on the anchor drew the same incident once per container.
+  //
+  // Deduped inside the batch as well as against `seen`, because `seen` is read
+  // here, before anything in this batch has been placed.
+  //
+  // And deduped against the run itself. `seen` is the caller's memory of what
+  // it has drawn, and a caller that resets it — a container switch, a filter
+  // change, anything that rebuilds the view — hands us a run that already holds
+  // blocks this batch would place again. The list in front of us is the one
+  // authority on what is already drawn, so it wins over both sets.
+  const drawn = new Set<string>();
+  for (const l of logs) {
+    if (l instanceof AlertLogEntry) drawn.add(l.alert.alertId);
+  }
+
+  const fresh: CloudAlert[] = [];
+  const batch = new Set<string>();
+  for (const alert of alerts) {
+    if (!alert.isOrigin) continue;
+    const key = anchorKey(alert);
+    if (seen.has(key) || batch.has(key) || drawn.has(alert.alertId)) continue;
+    batch.add(key);
+    fresh.push(alert);
+  }
   if (fresh.length === 0) return logs;
 
   // Indexed once rather than scanned per alert: logs runs into the thousands
@@ -206,8 +236,10 @@ export function mergeAlerts(
   return merged;
 }
 
+// Only origins are ever placed, and a follow-up anchor is never recorded, so
+// the alert id alone is enough to keep one incident to one block.
 function anchorKey(alert: CloudAlert): string {
-  return `${alert.alertId}:${alert.ts}`;
+  return alert.alertId;
 }
 
 /**
@@ -264,7 +296,17 @@ export function mergeCloudEvents(
   events: CloudEvent[],
   seen: Set<string>,
 ): LogEntry<LogMessage>[] {
-  const fresh = events.filter((e) => !isLogEvent(e) && e.suppressed && !seen.has(eventKey(e)));
+  // Deduped inside the batch as well as against `seen`, for the same reason
+  // mergeAlerts is: `seen` is read before anything in this batch is placed.
+  const fresh: CloudEvent[] = [];
+  const batch = new Set<string>();
+  for (const event of events) {
+    if (isLogEvent(event) || !event.suppressed) continue;
+    const key = eventKey(event);
+    if (seen.has(key) || batch.has(key)) continue;
+    batch.add(key);
+    fresh.push(event);
+  }
   if (fresh.length === 0) return logs;
 
   fresh.sort((a, b) => a.ts - b.ts);

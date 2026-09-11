@@ -15,40 +15,53 @@
     v-if="alert"
     class="flex shrink-0 items-center"
     placement="bottom-start"
-    panel-class="rounded-box bg-base-200 border-base-content/10 w-72 border p-3 shadow-lg"
+    panel-class="rounded-box bg-base-200 border-base-content/10 w-80 border shadow-lg"
+    hover
     @click.stop
   >
     <template #trigger>
-      <button
-        type="button"
-        class="size-1.5 shrink-0 rounded-full transition-colors"
-        :class="tone"
-        :aria-label="alert.headline"
-      ></button>
+      <!-- The dot stays 6px, because a bigger one would read as a status column
+           rather than a mark on the name. Everything that makes it usable is
+           therefore off the painted box: the hit area is an invisible ::after,
+           and the ring is drawn outside it. -->
+      <button type="button" class="alert-dot" :class="tone" :aria-label="alert.headline"></button>
     </template>
 
     <template #default="{ close }">
-      <div class="flex items-start gap-2.5">
+      <!-- The same parts as an AlertRow, at popover width: tinted glyph, a
+           headline that carries its own severity chip, then the meta line. -->
+      <div class="flex items-start gap-3 p-3">
         <div class="mt-0.5 flex size-7 shrink-0 items-center justify-center rounded-full" :class="tint">
           <mdi:alert-circle-outline class="size-4" />
         </div>
         <div class="min-w-0 flex-1">
-          <p class="text-sm font-semibold">{{ alert.headline }}</p>
-          <div class="text-base-content/60 mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs">
+          <div class="flex flex-wrap items-baseline gap-x-2 gap-y-1">
+            <span class="text-sm font-semibold">{{ alert.headline }}</span>
             <span class="status-pill" :class="pill">{{ alert.level || "info" }}</span>
+          </div>
+          <div class="text-base-content/60 mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs">
             <RelativeTime :date="firedAt" />
             <span class="font-mono">{{ $t("notifications.history.events", { n: alert.eventCount }) }}</span>
           </div>
-          <p v-if="alert.summary" class="text-base-content/60 mt-2 text-sm">{{ alert.summary }}</p>
+          <p v-if="alert.summary" class="text-base-content/60 mt-1.5 line-clamp-4 text-sm">{{ alert.summary }}</p>
         </div>
       </div>
 
       <!-- The one move Dozzle can make that Cloud cannot, so it is the only
-           action here and it is the primary one. -->
-      <button type="button" class="btn btn-primary btn-sm mt-3 w-full" @click="showLines(close)">
-        <mdi:text-search class="size-4" />
-        {{ $t("notifications.history.show-lines") }}
-      </button>
+           action here. A solid block at panel width shouted over the alert it
+           was about, so it is a row instead: hairline above, quiet until
+           hovered. -->
+      <div class="bg-base-content/10 h-px"></div>
+      <div class="p-1.5">
+        <button
+          type="button"
+          class="hover:bg-base-300 flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-sm font-medium transition-colors"
+          @click="showLines(close)"
+        >
+          <mdi:text-search class="size-4 shrink-0 opacity-60" />
+          {{ label }}
+        </button>
+      </div>
     </template>
   </Popover>
 </template>
@@ -58,6 +71,7 @@ const { containerId } = defineProps<{ containerId: string }>();
 
 const { byContainer, fetchRecentAlerts } = useRecentAlerts();
 const { jumpTo } = useLogJump();
+const { t } = useI18n();
 
 // Shared across every row: one request for the whole table.
 onMounted(() => fetchRecentAlerts());
@@ -65,15 +79,25 @@ onMounted(() => fetchRecentAlerts());
 const alert = computed(() => byContainer.value.get(containerId));
 const firedAt = computed(() => new Date((alert.value?.ts ?? 0) / 1e6));
 
+// A CPU spike or a container event has no line to show — logId is absent for
+// exactly those — so promising lines sends the reader looking for something
+// that was never there. The destination is the same either way; only the
+// log-anchored case can point at the line itself.
+const label = computed(() =>
+  alert.value?.logId ? t("notifications.history.show-lines") : t("notifications.history.show-moment"),
+);
+
+// The text colour rides along so the hover ring can be drawn from currentColor
+// and match whatever severity the dot is wearing.
 const tone = computed(() => {
   switch (alert.value?.level) {
     case "error":
     case "fatal":
-      return "bg-error";
+      return "bg-error text-error";
     case "warn":
-      return "bg-warning";
+      return "bg-warning text-warning";
     default:
-      return "bg-info";
+      return "bg-info text-info";
   }
 });
 
@@ -113,3 +137,32 @@ function showLines(close: () => void) {
   });
 }
 </script>
+
+<style scoped>
+@reference "@/main.css";
+
+/* At 6px there is nothing to aim at even once you know the dot is a control,
+   which is what the hit area and hover ring below are for. The pointer cursor
+   comes from the base layer in main.css. */
+.alert-dot {
+  @apply relative size-1.5 shrink-0 rounded-full transition-[box-shadow,transform];
+}
+
+/* Roughly a 24px target without taking 24px of the row: the name beside it
+   keeps its width and the dot keeps its position. */
+.alert-dot::after {
+  content: "";
+  @apply absolute -inset-2;
+}
+
+.alert-dot:hover,
+.alert-dot:focus-visible {
+  box-shadow: 0 0 0 3px color-mix(in oklab, currentColor 30%, transparent);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .alert-dot:hover {
+    transform: scale(1.2);
+  }
+}
+</style>

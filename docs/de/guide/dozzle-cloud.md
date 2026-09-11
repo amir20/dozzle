@@ -1,6 +1,6 @@
 ---
 title: Dozzle Cloud
-sourceHash: 49197a749322
+sourceHash: 8426d3f379ba
 ---
 
 # Dozzle Cloud
@@ -45,6 +45,7 @@ Die vollständige Gegenüberstellung steht unter [Tarife & Limits](/de/guide/doz
 | Seite                                                      | Worum es geht                                                                                 |
 | ---------------------------------------------------------- | --------------------------------------------------------------------------------------------- |
 | [Instanz verbinden](/de/guide/dozzle-cloud/connecting)     | Verbinden, warum keine öffentliche IP und kein offener Port nötig sind, Firewall, Fehlersuche |
+| [In deinem Dozzle](/de/guide/dozzle-cloud/in-dozzle)       | Die Cloud-Leiste, Alarme die ein Neuladen überstehen, und was ohne Cloud weiter funktioniert  |
 | [Benachrichtigungskanäle](/de/guide/dozzle-cloud/channels) | Alle Kanäle, wie du jeden einrichtest, und wie du es leiser bekommst                          |
 | [Tarife & Limits](/de/guide/dozzle-cloud/plans)            | Was jeder Tarif enthält, was ein ausgewertetes Ereignis ist, was beim Überschreiten passiert  |
 | [Deine Daten](/de/guide/dozzle-cloud/your-data)            | Was deinen Host verlässt, wie du das stoppst, was Cloud speichert, API-Schlüssel              |

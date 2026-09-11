@@ -2,8 +2,8 @@
   <nav class="border-base-content/20 bg-base-200 pt-safe fixed top-0 z-30 w-full border-b" data-testid="navigation">
     <div class="px-4 py-2">
       <div class="flex items-center">
-        <router-link :to="{ name: '/' }" class="flex items-center gap-1.5">
-          <Logo class="h-10" />
+        <router-link :to="{ name: '/' }" class="flex items-center gap-1.5" aria-label="Dozzle">
+          <Logo class="size-10 shrink-0" aria-hidden="true" />
           <ProBadge />
         </router-link>
 

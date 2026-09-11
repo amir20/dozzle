@@ -23,11 +23,13 @@ export const fr: Labels = {
   pages: {
     "what-is-dozzle": "Qu'est-ce que Dozzle ?",
     "getting-started": "Démarrage",
+    "whats-new": "Nouveautés de la v11",
     "swarm-mode": "Swarm",
     k8s: "Kubernetes",
     podman: "Podman",
     "dozzle-cloud": "Vue d'ensemble",
     "dozzle-cloud/connecting": "Relier votre instance",
+    "dozzle-cloud/in-dozzle": "Dans votre Dozzle",
     "dozzle-cloud/channels": "Canaux de notification",
     "dozzle-cloud/plans": "Offres et limites",
     "dozzle-cloud/your-data": "Vos données",

@@ -360,6 +360,18 @@ rather than matching what is already there.
   it is taller than the type around it and carries its own palette.
 - Charts stay custom and lightweight (`BarChart.vue`); no chart library.
 
+### Affordances
+
+- Tailwind v4's preflight sets `cursor: default` on buttons, so a control reads as
+  painted on unless something puts the pointer back. One base-layer rule in `main.css`
+  does that for `button`, `summary`, `select`, `[role="button"]`, `.btn` and
+  checkbox/radio labels, skipping disabled ones. Never add `cursor-pointer` to a new
+  button; if a clickable thing still shows an arrow, it is a `div` pretending to be a
+  button and the fix is to make it a `<button>`.
+- Anything clickable needs a hover state and a hit area a pointer can find. Under ~24px
+  the painted box is not the target: draw the hit area with an `::after` inset so
+  the layout around it does not move (`AlertDot.vue`).
+
 ### Motion
 
 - Transitions are `transition-colors` on hover, `duration-500` on a meter's width, and

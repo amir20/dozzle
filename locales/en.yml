@@ -460,6 +460,7 @@ notifications:
     events: "{n} events"
     suppressed: "· {n} suppressed"
     show-lines: Show me the lines
+    show-moment: Show logs around it
     open-in-cloud: Open in Dozzle Cloud
     fired-recently: times recently
   title: Notifications

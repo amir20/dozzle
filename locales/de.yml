@@ -349,6 +349,7 @@ notifications:
     events: "{n} Ereignisse"
     suppressed: "· {n} unterdrückt"
     show-lines: Zeig mir die Zeilen
+    show-moment: Logs drumherum anzeigen
     open-in-cloud: In Dozzle Cloud öffnen
     fired-recently: Mal in letzter Zeit
   title: Benachrichtigungen
