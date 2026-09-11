@@ -349,7 +349,6 @@ notifications:
     title: Aktivität
     loading: Aktivität wird geladen…
     failed: Aktivität konnte nicht geladen werden.
-    empty-unlinked: Alarme erscheinen hier, sobald diese Instanz mit Dozzle Cloud verknüpft ist. Bis dahin tauchen sie im Log-Stream auf und sind nach dem Neuladen vergessen.
     empty: In letzter Zeit wurde nichts ausgelöst.
     still-happening: passiert weiterhin
     events: "{n} Ereignisse"

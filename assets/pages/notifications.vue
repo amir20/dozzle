@@ -116,9 +116,10 @@ type Tab = "activity" | "alerts" | "destinations";
 const { linked: cloudLinked } = useCloudSurface();
 const { unseen: unseenAlerts, markAlertsSeen } = useRecentAlerts();
 
-// What happened, then the rules that made it happen, then where it goes. An
-// instance with no cloud link has no history to open, so it lands on the rules
-// instead of on a muted line explaining an absence.
+// What happened, then the rules that made it happen, then where it goes. Only
+// Cloud remembers an alert past the refresh that dropped it out of the log
+// stream, so an unlinked instance has no history at all and the tab is gone
+// rather than empty — a webhook or an email destination never fills it.
 const defaultTab = computed<Tab>(() => (cloudLinked.value ? "activity" : "alerts"));
 
 // The tab lives in the URL so a bookmark and the back button land where the
@@ -126,7 +127,10 @@ const defaultTab = computed<Tab>(() => (cloudLinked.value ? "activity" : "alerts
 // /notifications link the bell uses stays plain.
 const tab = computed<Tab>(() => {
   const value = route.query.tab;
-  return value === "activity" || value === "alerts" || value === "destinations" ? value : defaultTab.value;
+  // ?tab=activity is a link someone kept from when this instance was linked, or
+  // a bell that fired before it was unlinked. There is no tab to land on now.
+  if (value === "activity") return cloudLinked.value ? "activity" : defaultTab.value;
+  return value === "alerts" || value === "destinations" ? value : defaultTab.value;
 });
 
 function queryForTab(next: Tab) {
@@ -138,7 +142,9 @@ function selectTab(next: Tab) {
 }
 
 const tabs = computed(() => [
-  { id: "activity" as const, label: t("notifications.history.title"), dot: unseenAlerts.value },
+  ...(cloudLinked.value
+    ? [{ id: "activity" as const, label: t("notifications.history.title"), dot: unseenAlerts.value }]
+    : []),
   { id: "alerts" as const, label: t("notifications.alerts"), count: alerts.value.length },
   { id: "destinations" as const, label: t("notifications.destinations"), count: dispatchers.value.length },
 ]);

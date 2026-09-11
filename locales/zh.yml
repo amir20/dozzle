@@ -349,7 +349,6 @@ notifications:
     title: 动态
     loading: 正在加载动态…
     failed: 无法加载动态。
-    empty-unlinked: 把这个实例关联到 Dozzle Cloud 之后，警报就会出现在这里。在那之前它们只会从日志流里闪过，刷新就没了。
     empty: 最近没有任何警报触发。
     still-happening: 仍在持续
     events: "{n} 个事件"
