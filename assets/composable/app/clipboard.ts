@@ -12,6 +12,9 @@ type CopyOptions = {
   // Skips the success toast for buttons that already confirm inline. A failure
   // is always announced: that is the whole point.
   quiet?: boolean;
+  // Offered in the failure toast when the surface has a way to deliver the same
+  // content without the clipboard, e.g. downloading the logs instead.
+  action?: { label: string; handler: () => void };
 };
 
 // While a <dialog> is open as a modal, everything outside it is inert: a textarea
@@ -63,7 +66,7 @@ export function useCopy() {
     return true;
   }
 
-  function failed({ manual }: CopyOptions) {
+  function failed({ manual, action }: CopyOptions) {
     const insecure = !window.isSecureContext;
     showToast(
       {
@@ -72,6 +75,7 @@ export function useCopy() {
           .filter(Boolean)
           .join("<br>"),
         type: "warning",
+        action,
       },
       { expire: 10000 },
     );

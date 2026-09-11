@@ -352,29 +352,41 @@ async function copyLogs() {
   // clipboard is out of reach, and the logs arriving is not the same as them
   // landing somewhere the user can paste. A failed download has already been
   // reported by then, so it is swallowed here.
-  await copyLazy(() =>
-    fetch(url, { headers: { Accept: "text/plain" } })
-      .then((response) => {
-        if (!response.ok) throw new Error(response.statusText);
-        return response.text();
-      })
-      .then((text) => {
-        removeToast(toastId);
-        return text;
-      })
-      .catch((err) => {
-        removeToast(toastId);
-        showToast(
-          {
-            title: "Error",
-            message: err.message,
-            type: "error",
-          },
-          { expire: 5000 },
-        );
-        throw err;
-      }),
+  await copyLazy(
+    () =>
+      fetch(url, { headers: { Accept: "text/plain" } })
+        .then((response) => {
+          if (!response.ok) throw new Error(response.statusText);
+          return response.text();
+        })
+        .then((text) => {
+          removeToast(toastId);
+          return text;
+        })
+        .catch((err) => {
+          removeToast(toastId);
+          showToast(
+            {
+              title: "Error",
+              message: err.message,
+              type: "error",
+            },
+            { expire: 5000 },
+          );
+          throw err;
+        }),
+    // A browser only allows the fallback copy for a few seconds after the click,
+    // which a long download can outlast, so the notice offers the same content as
+    // a file rather than dead-ending.
+    { action: enableDownload ? { label: t("toolbar.download"), handler: downloadLogs } : undefined },
   ).catch(() => {});
+}
+
+function downloadLogs() {
+  const link = document.createElement("a");
+  link.href = downloadUrl.value;
+  link.download = "";
+  link.click();
 }
 
 onKeyStroke(["f", "F"], (e) => {
