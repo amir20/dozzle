@@ -159,7 +159,8 @@ error:
   invalid-auth: Nama pengguna atau kata sandi tidak valid
   oauth-failed: Gagal masuk. Silakan coba lagi.
   copy-not-supported: Salin ke clipboard tidak didukung di browser Anda
-  copy-not-supported-hint: Clipboard tidak tersedia. Salin tautan di bawah ini
+  copy-insecure: Clipboard diblokir di http
+  copy-insecure-hint: Browser Anda hanya mengizinkan akses clipboard melalui https. Salin teks secara manual.
   logs-skipped: Tampilkan {total} entri tersembunyi
   container-not-found: Kontainer tidak ditemukan
   action-failed: Tindakan Gagal

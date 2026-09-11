@@ -156,7 +156,8 @@ error:
   invalid-auth: Uporabniško ime ali geslo nista veljavna
   oauth-failed: Prijava ni uspela. Poskusite znova.
   copy-not-supported: Kopiranje v odložišče ni podprto v vašem brskalniku
-  copy-not-supported-hint: Odložišče ni na voljo. Kopirajte spodnjo povezavo
+  copy-insecure: Odložišče je blokirano prek http
+  copy-insecure-hint: Vaš brskalnik dovoljuje dostop do odložišča samo prek https. Besedilo kopirajte ročno.
   logs-skipped: Prikaži {total} skritih vnosov
   events-stream:
     title: Nepričakovana napaka

@@ -31,21 +31,13 @@
         </router-link>
       </li>
       <li>
-        <a
-          @click="copyLogMessage()"
-          :disabled="isSupported ? undefined : true"
-          :title="isSupported ? undefined : $t('error.copy-not-supported')"
-        >
+        <a @click="copyLogMessage()">
           <material-symbols:content-copy />
           {{ $t("action.copy-log") }}
         </a>
       </li>
       <li>
-        <a
-          @click="copyPermalink()"
-          :disabled="isSupported ? undefined : true"
-          :title="isSupported ? undefined : $t('error.copy-not-supported')"
-        >
+        <a @click="copyPermalink()">
           <material-symbols:link />
           {{ $t("action.copy-link") }}
         </a>
@@ -86,7 +78,6 @@ const { logEntry, container } = defineProps<{
   container: Container;
 }>();
 
-const { showToast } = useToast();
 const showDrawer = useDrawer();
 // Cloud owns the answer, so the row is absent rather than dead when nobody has
 // linked an account.
@@ -102,14 +93,9 @@ const { levels } = useLoggingContext();
 // or by a log-level filter, so the entry can be inspected in the full log stream.
 const isFiltered = computed(() => isSearching.value || allLevels.some((level) => !levels.value.has(level)));
 
-const { copy, isSupported, copied } = useClipboard({ legacy: true });
-const { t } = useI18n();
+const { copy } = useCopy();
 
 async function copyLogMessage() {
-  if (!isSupported.value) {
-    return;
-  }
-
   if (logEntry instanceof ComplexLogEntry) {
     await copy(stripAnsi(logEntry.rawMessage));
   } else if (logEntry instanceof SimpleLogEntry) {
@@ -117,35 +103,10 @@ async function copyLogMessage() {
   } else if (logEntry instanceof GroupedLogEntry) {
     await copy(stripAnsi(logEntry.message.join("\n")));
   }
-
-  if (copied.value) {
-    showToast(
-      {
-        title: t("toasts.copied.title"),
-        message: t("toasts.copied.message"),
-        type: "info",
-      },
-      { expire: 2000 },
-    );
-  }
 }
 
 async function copyPermalink() {
-  if (!isSupported.value) {
-    return;
-  }
   await copy(hrefFor(moment()));
-
-  if (copied.value) {
-    showToast(
-      {
-        title: t("toasts.copied.title"),
-        message: t("toasts.copied.message"),
-        type: "info",
-      },
-      { expire: 2000 },
-    );
-  }
 }
 
 function createAlert() {

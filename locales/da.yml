@@ -156,7 +156,8 @@ error:
   invalid-auth: Brugernavn eller kodeord er ikke gyldig
   oauth-failed: Login mislykkedes. Prøv igen.
   copy-not-supported: Kopiering til udklipsholder understøttes ikke i din browser
-  copy-not-supported-hint: Udklipsholder ikke tilgængelig. Kopiér linket nedenfor
+  copy-insecure: Udklipsholderen er blokeret på http
+  copy-insecure-hint: Din browser tillader kun adgang til udklipsholderen over https. Kopiér teksten manuelt i stedet.
   logs-skipped: Vis {total} skjulte indtastninger
   container-not-found: Container ikke fundet
   action-failed: Handling Mislykkedes

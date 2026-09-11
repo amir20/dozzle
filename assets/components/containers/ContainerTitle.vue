@@ -108,18 +108,12 @@ import { Container } from "@/models/Container";
 
 const { container } = defineProps<{ container: Container }>();
 
-const { t } = useI18n();
-const { copy, copied, isSupported } = useClipboard({ legacy: true });
-const { showToast } = useToast();
+const { copy } = useCopy();
 
 const imageTag = computed(() => container.image.replace(/@sha.*/, ""));
 
 async function copyImage() {
-  if (!isSupported.value) return;
   await copy(imageTag.value);
-  if (copied.value) {
-    showToast({ title: t("toasts.copied.title"), message: t("toasts.copied.message"), type: "info" }, { expire: 2000 });
-  }
 }
 
 const pinned = computed({

@@ -156,7 +156,8 @@ error:
   invalid-auth: Nazwa użytkownika lub hasło są niepoprawne
   oauth-failed: Logowanie nie powiodło się. Spróbuj ponownie.
   copy-not-supported: Kopiowanie do schowka nie jest obsługiwane w twojej przeglądarce
-  copy-not-supported-hint: Schowek niedostępny. Skopiuj poniższy link
+  copy-insecure: Schowek zablokowany przez http
+  copy-insecure-hint: Twoja przeglądarka zezwala na dostęp do schowka tylko przez https. Skopiuj tekst ręcznie.
   logs-skipped: Pokaż {total} ukrytych wpisów
   container-not-found: Kontener nie został znaleziony
   action-failed: Akcja Nieudana
