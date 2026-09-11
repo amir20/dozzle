@@ -24,7 +24,7 @@
     <div
       :data-level="level"
       class="rounded-full"
-      :class="[position ? 'h-full w-[3px]' : 'size-[0.45em] min-h-1 min-w-1', { 'show-unknown': showUnknown }]"
+      :class="[rail ? 'h-full w-[3px]' : 'size-[0.45em] min-h-1 min-w-1', { 'show-unknown': showUnknown }]"
     ></div>
   </div>
 </template>
@@ -42,6 +42,11 @@ const {
   event?: MatchedEvent;
   showUnknown?: boolean;
 }>();
+
+// A single error line gets the rail a grouped entry gets rather than a 4px dot:
+// with the row background left neutral, this marker is the only thing carrying
+// severity, so it has to be visible from a scroll.
+const rail = computed(() => !!position || level === "error" || level === "fatal");
 </script>
 
 <style scoped>

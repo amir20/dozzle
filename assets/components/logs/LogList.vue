@@ -6,7 +6,6 @@
       :key="item.id"
       :id="item.id.toString()"
       :data-time="item.date.getTime()"
-      :data-log-level="rowLevel(item)"
       class="group/entry"
       :class="{ 'log-permalink-target': permalinkLogId === item.id.toString() }"
     >
@@ -16,7 +15,7 @@
 </template>
 
 <script lang="ts" setup>
-import { AlertLogEntry, CloudEventLogEntry, type LogEntry, type LogMessage } from "@/models/LogEntry";
+import { type LogEntry, type LogMessage } from "@/models/LogEntry";
 
 const { progress, currentDate, available } = useScrollContext();
 
@@ -25,12 +24,6 @@ const { messages } = defineProps<{
 }>();
 
 const { containers } = useLoggingContext();
-
-// Only real log output gets the row tint. Alert and cloud-event rows already
-// carry their own level marker and deliberately leave the row background alone,
-// so tinting them would fight styling they own.
-const rowLevel = (item: LogEntry<LogMessage>) =>
-  item instanceof AlertLogEntry || item instanceof CloudEventLogEntry ? undefined : item.level;
 
 const route = useRoute();
 const permalinkLogId = computed(() => (typeof route.query.logId === "string" ? route.query.logId : ""));
@@ -83,32 +76,15 @@ ul {
     }
 
     /* Written long-hand rather than as odd:/hover: utilities because the order
-       below is the whole point: hover beats the zebra, and a level tint beats
-       both, with its own (stronger) hover on top. */
+       below is the whole point: hover has to beat the zebra. Severity is not
+       here at all -- it rides on the level rail in LogLevel.vue, so the row
+       behind the text stays neutral and the text keeps full contrast. */
     &:nth-child(odd) {
-      background-color: color-mix(in oklab, var(--color-base-content) 4%, transparent);
+      background-color: color-mix(in oklab, var(--color-base-content) 2.5%, transparent);
     }
 
     &:hover {
       background-color: color-mix(in oklab, var(--color-base-content) 8%, transparent);
-    }
-
-    &[data-log-level="error"],
-    &[data-log-level="fatal"] {
-      background-color: color-mix(in oklab, var(--color-red) 9%, transparent);
-    }
-
-    &[data-log-level="error"]:hover,
-    &[data-log-level="fatal"]:hover {
-      background-color: color-mix(in oklab, var(--color-red) 15%, transparent);
-    }
-
-    &[data-log-level="warn"] {
-      background-color: color-mix(in oklab, var(--color-orange) 8%, transparent);
-    }
-
-    &[data-log-level="warn"]:hover {
-      background-color: color-mix(in oklab, var(--color-orange) 14%, transparent);
     }
 
     &.log-permalink-target {

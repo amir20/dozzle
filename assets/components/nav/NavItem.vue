@@ -48,7 +48,7 @@ const bindings = computed(() => (to ? { to, activeClass: "is-active" } : { type:
 @reference "@/main.css";
 
 .nav-item {
-  @apply text-base-content/85 hover:text-base-content hover:bg-base-content/8 relative flex h-8 w-full cursor-pointer items-center gap-2 rounded-md px-2 text-left text-sm transition-colors;
+  @apply text-base-content/85 hover:text-base-content hover:bg-base-content/8 relative flex h-8 w-full cursor-pointer items-center gap-2 rounded-md px-2 text-left text-[0.9375rem] transition-colors;
 }
 
 /* Tinted rather than filled: a solid primary block on the selected row shouted
