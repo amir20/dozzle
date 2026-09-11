@@ -10,9 +10,16 @@
         />
 
         <ContainerActionsToolbar @clear="viewer?.clear()" :container="container" />
-        <a class="btn btn-circle btn-xs" @click="close()" v-if="closable">
+        <button
+          type="button"
+          class="btn btn-circle btn-xs"
+          @click="close()"
+          v-if="closable"
+          :title="$t('toolbar.unpin')"
+          :aria-label="$t('toolbar.unpin')"
+        >
           <mdi:close />
-        </a>
+        </button>
       </div>
     </template>
     <template #default>

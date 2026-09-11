@@ -5,7 +5,10 @@ import type { RouteLocationNormalizedLoaded } from "vue-router";
 const SEPARATOR = "|";
 const QUERY_KEY = "columns";
 
-const parseColumns = (value: unknown) => (typeof value === "string" ? value.split(SEPARATOR).filter(Boolean) : []);
+// Deduped: pinContainer() already refuses to pin the same container twice, and a link
+// carrying `a|a` should not be able to say otherwise.
+const parseColumns = (value: unknown) =>
+  typeof value === "string" ? [...new Set(value.split(SEPARATOR).filter(Boolean))] : [];
 
 /**
  * Keeps the pinned columns and the `?columns=a|b|c` query in step, in both directions.
@@ -21,6 +24,11 @@ export const usePinnedColumnsInUrl = () => {
 
   const columnsInUrl = (route: RouteLocationNormalizedLoaded = router.currentRoute.value) =>
     parseColumns(route.query[QUERY_KEY]);
+  // What the query literally says, which a link can spell differently from what it means
+  // (`a|a`, a trailing separator, `|||`). Comparing against this rather than the parsed
+  // set is what lets the URL be rewritten to the columns actually open.
+  const rawColumns = (route: RouteLocationNormalizedLoaded = router.currentRoute.value) =>
+    typeof route.query[QUERY_KEY] === "string" ? (route.query[QUERY_KEY] as string) : "";
   const pinned = () => pinnedContainerIds.value.join(SEPARATOR);
 
   const writeToUrl = (route: RouteLocationNormalizedLoaded = router.currentRoute.value) => {
@@ -34,27 +42,26 @@ export const usePinnedColumnsInUrl = () => {
   };
 
   pinnedContainerIds.value = columnsInUrl();
+  if (rawColumns() !== pinned()) writeToUrl();
 
   // Deep, because pinning and unpinning mutate the array in place.
   watch(
     pinnedContainerIds,
     () => {
-      if (columnsInUrl().join(SEPARATOR) !== pinned()) writeToUrl();
+      if (rawColumns() !== pinned()) writeToUrl();
     },
     { deep: true },
   );
 
   // Columns outlive a navigation, so a route that lands without them gets them written back.
-  // A route carrying its own set (a shared link, back/forward) wins instead, and replaying it
-  // into the store leaves the URL already correct, so the watcher above stops there.
+  // A route carrying its own set (a shared link, back/forward) wins instead, and is written
+  // back only when the URL spells it differently from the columns it opened.
   const stopCarryingColumns = router.afterEach((to: RouteLocationNormalizedLoaded) => {
-    const columns = columnsInUrl(to).join(SEPARATOR);
-    if (columns === pinned()) return;
-    if (columns) {
-      pinnedContainerIds.value = columnsInUrl(to);
-    } else {
-      writeToUrl(to);
+    const columns = columnsInUrl(to);
+    if (columns.length && columns.join(SEPARATOR) !== pinned()) {
+      pinnedContainerIds.value = columns;
     }
+    if (rawColumns(to) !== pinned()) writeToUrl(to);
   });
 
   onScopeDispose(stopCarryingColumns);

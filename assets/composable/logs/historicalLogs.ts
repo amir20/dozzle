@@ -14,14 +14,14 @@ export function useHistoricalContainerLog(historicalContainer: Ref<HistoricalCon
   const container = toRef(() => historicalContainer.value.container);
 
   const { streamConfig, levels, loadingMore } = useLoggingContext();
-  const { isSearching, debouncedSearchFilter, inverseFilter } = useSearchFilter();
+  const { isSearching, appliedSearchFilter, inverseFilter } = useSearchFilter();
 
   const params = computed(() => {
     const params = new URLSearchParams();
     if (streamConfig.value.stdout) params.append("stdout", "1");
     if (streamConfig.value.stderr) params.append("stderr", "1");
     if (isSearching.value) {
-      params.append("filter", debouncedSearchFilter.value);
+      params.append("filter", appliedSearchFilter.value);
       if (inverseFilter.value) params.append("inverse", "true");
     }
     for (const level of levels.value) {

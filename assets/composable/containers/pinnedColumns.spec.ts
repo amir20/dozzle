@@ -96,6 +96,14 @@ describe("pinned columns in the url", () => {
     expect(router.currentRoute.value.fullPath).toBe("/container/ddd?columns=eee|fff");
   });
 
+  test("a link repeating the same id opens one column", async () => {
+    const { router, store } = await mountLayout("/container/aaa?columns=bbb|bbb|ccc");
+
+    expect(store.pinnedContainerIds).toEqual(["bbb", "ccc"]);
+    await flushPromises();
+    expect(router.currentRoute.value.query.columns).toBe("bbb|ccc");
+  });
+
   test("pinning the same container twice keeps one column", async () => {
     const { router, store } = await mountLayout("/container/aaa?columns=bbb");
 
