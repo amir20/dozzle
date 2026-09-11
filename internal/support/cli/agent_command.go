@@ -12,6 +12,7 @@ import (
 
 	"github.com/amir20/dozzle/internal/agent"
 	"github.com/amir20/dozzle/internal/cloud"
+	"github.com/amir20/dozzle/internal/container"
 	"github.com/amir20/dozzle/internal/docker"
 	"github.com/amir20/dozzle/internal/notification"
 	"github.com/amir20/dozzle/internal/notification/dispatcher"
@@ -142,7 +143,7 @@ func (a *AgentCmd) Run(args Args, embeddedCerts embed.FS) error {
 	if args.Mode != "server" {
 		return fmt.Errorf("agent command is only available in server mode")
 	}
-	client, err := docker.NewLocalClient(args.Hostname, args.HostID)
+	client, err := docker.NewLocalClient(args.Hostname, container.NewHostIDResolver(args.HostID))
 	if err != nil {
 		return fmt.Errorf("failed to create docker client: %w", err)
 	}

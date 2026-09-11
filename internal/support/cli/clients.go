@@ -17,6 +17,12 @@ func CreateMultiHostService(embeddedCerts embed.FS, args Args) *docker_support.M
 		log.Info().Msg(`Consider using Dozzle's remote agent to manage remote hosts. See https://dozzle.dev/guide/agent for more information`)
 	}
 
+	// DOZZLE_HOST_ID names the host this process runs on, so only the local
+	// client gets it. Sharing one StaticHostID with the remote engines below
+	// would give them all the same id and collapse them into a single host.
+	localHostIDs := container.NewHostIDResolver(args.HostID)
+	remoteHostIDs := container.DerivedHostID{}
+
 	for _, remoteHost := range args.RemoteHost {
 		host, err := container.ParseConnection(remoteHost)
 		if err != nil {
@@ -24,7 +30,7 @@ func CreateMultiHostService(embeddedCerts embed.FS, args Args) *docker_support.M
 		}
 
 		log.Info().Interface("host", host).Msg("Adding remote host")
-		if client, err := docker.NewRemoteClient(host); err == nil {
+		if client, err := docker.NewRemoteClient(host, remoteHostIDs); err == nil {
 			ctx, cancel := context.WithTimeout(context.Background(), args.Timeout)
 			defer cancel()
 			if _, err := client.ListContainers(ctx, args.Filter); err == nil {
@@ -37,7 +43,7 @@ func CreateMultiHostService(embeddedCerts embed.FS, args Args) *docker_support.M
 		}
 	}
 
-	localClient, err := docker.NewLocalClient(args.Hostname, args.HostID)
+	localClient, err := docker.NewLocalClient(args.Hostname, localHostIDs)
 	if err == nil {
 		ctx, cancel := context.WithTimeout(context.Background(), args.Timeout)
 		defer cancel()

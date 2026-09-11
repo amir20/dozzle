@@ -13,7 +13,6 @@ import (
 
 	"github.com/amir20/dozzle/internal/container"
 	"github.com/amir20/dozzle/internal/utils"
-	"github.com/google/uuid"
 	docker "github.com/moby/moby/api/types/container"
 	"github.com/moby/moby/api/types/events"
 	"github.com/moby/moby/api/types/network"
@@ -55,11 +54,9 @@ type DockerClient struct {
 	serviceLabels serviceLabelCache
 }
 
-func NewClient(cli DockerCLI, host container.Host) *DockerClient {
-	return newClient(cli, host, "")
-}
-
-func newClient(cli DockerCLI, host container.Host, overrideID string) *DockerClient {
+// NewClient connects a Docker or Podman engine. hostIDs decides what this host
+// is called; see container.HostIDResolver for why that is not decided here.
+func NewClient(cli DockerCLI, host container.Host, hostIDs container.HostIDResolver) *DockerClient {
 	infoResult, err := cli.Info(context.Background(), client.InfoOptions{})
 	if err != nil {
 		log.Error().Err(err).Msg("Failed to get docker info")
@@ -68,13 +65,17 @@ func newClient(cli DockerCLI, host container.Host, overrideID string) *DockerCli
 
 	runtime := detectRuntime(cli, info)
 
-	// Highest precedence first. An explicit id beats anything Dozzle works out
-	// for itself, a swarm node id beats the engine's own, and the derived Podman
-	// id beats the throwaway one Podman would otherwise hand out. host.ID is
-	// whatever the caller already knew — ParseConnection derives one from the
-	// remote URL — which is all that is left when the engine is unreachable and
-	// Info came back empty.
-	host.ID = container.ResolveHostID(overrideID, info.Swarm.NodeID, podmanHostID(info, runtime), info.ID, host.ID)
+	// Report what the engine said and let the resolver rule on it. host.ID is
+	// what the caller already knew: ParseConnection derives one from the remote
+	// URL, which is all that survives an engine we could not reach.
+	host.ID = hostIDs.Resolve(container.EngineIdentity{
+		Runtime:     runtime,
+		EngineID:    info.ID,
+		SwarmNodeID: info.Swarm.NodeID,
+		Hostname:    info.Name,
+		StorageRoot: info.DockerRootDir,
+		Fallback:    host.ID,
+	})
 
 	host.NCPU = info.NCPU
 	host.MemTotal = info.MemTotal
@@ -92,49 +93,8 @@ func newClient(cli DockerCLI, host container.Host, overrideID string) *DockerCli
 	}
 }
 
-// dozzleHostNamespace seeds the derived host ids below. It is a random constant
-// picked once, not one of the RFC 4122 namespaces, and it exists only so the
-// derivation is reproducible across restarts and across Dozzle versions.
-// Changing it would re-id every Podman host in the world, so don't.
-var dozzleHostNamespace = uuid.MustParse("cb6c32a9-acb9-454b-8427-014fe9bc073c")
-
-// podmanHostID derives a host id Podman itself cannot supply, and returns ""
-// for anything it has no answer for — every other runtime, and a Podman that
-// reported nothing to derive from.
-//
-// Podman is daemonless and tracks no engine identity at all, so its Docker
-// compat /info fills the required ID field with a throwaway uuid.New() on every
-// single call. Nothing reads /var/lib/docker/engine-id on the way, which is why
-// creating that file has never done anything on Podman. Caching that value the
-// way newClient does means a host id that survives only as long as the process
-// that first asked for it.
-//
-// Hostname plus the storage graph root are the two things Podman does report
-// consistently. Graphroot is what keeps two rootless users on one machine
-// apart: they share a hostname but never a store.
-//
-// Declining when Podman reported neither matters: hashing two empty strings
-// would hand every host in the fleet one id, and the duplicate-host check in
-// RetriableClientManager would collapse them into a single host. A churning id
-// is bad, hosts silently vanishing is worse.
-func podmanHostID(info system.Info, runtime string) string {
-	if runtime != "podman" {
-		return ""
-	}
-
-	if info.Name == "" && info.DockerRootDir == "" {
-		return ""
-	}
-
-	return uuid.NewSHA1(dozzleHostNamespace, []byte(info.Name+"\x00"+info.DockerRootDir)).String()
-}
-
 // NewLocalClient creates a new instance of Client with docker filters.
-//
-// hostID overrides the host id Dozzle would otherwise derive from the engine.
-// It applies only to this process's own host, never to remote hosts or agents,
-// since each of those reports an identity of its own.
-func NewLocalClient(hostname string, hostID string) (*DockerClient, error) {
+func NewLocalClient(hostname string, hostIDs container.HostIDResolver) (*DockerClient, error) {
 	cli, err := client.New(client.FromEnv, client.WithUserAgent("Docker-Client/Dozzle"))
 
 	if err != nil {
@@ -161,10 +121,10 @@ func NewLocalClient(hostname string, hostID string) (*DockerClient, error) {
 		host.Name = hostname
 	}
 
-	return newClient(cli, host, hostID), nil
+	return NewClient(cli, host, hostIDs), nil
 }
 
-func NewRemoteClient(host container.Host) (*DockerClient, error) {
+func NewRemoteClient(host container.Host, hostIDs container.HostIDResolver) (*DockerClient, error) {
 	if host.URL.Scheme != "tcp" {
 		return nil, fmt.Errorf("invalid scheme: %s", host.URL.Scheme)
 	}
@@ -194,7 +154,7 @@ func NewRemoteClient(host container.Host) (*DockerClient, error) {
 
 	host.Type = "remote"
 
-	return NewClient(cli, host), nil
+	return NewClient(cli, host, hostIDs), nil
 }
 
 func detectRuntime(cli DockerCLI, info system.Info) string {

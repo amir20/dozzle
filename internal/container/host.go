@@ -8,7 +8,6 @@ import (
 	"strings"
 
 	"github.com/rs/zerolog/log"
-	"github.com/samber/lo"
 )
 
 type Host struct {
@@ -39,24 +38,6 @@ type Host struct {
 	// minted by the hub and never crosses the agent boundary, so the UI can drop
 	// the stale entry rather than list one machine twice until the next reload.
 	ReplacesID string `json:"replacesId,omitempty"`
-}
-
-// ResolveHostID picks a host id from candidates given highest precedence first,
-// taking the first one that is not empty.
-//
-// A host id has to be stable for the life of the machine and unique across the
-// fleet, because it is what the hub routes on and what every bookmarked URL
-// carries. Backends differ in how much of that they can supply on their own:
-// Docker has an engine id, a swarm node has its node id, Kubernetes has the
-// node's machine id, and Podman has nothing at all and needs one derived (see
-// docker.podmanHostID). A backend that can offer several sources lists them in
-// order here rather than growing another branch, and a source that has nothing
-// to say returns "" instead of deciding for itself whether it applies.
-//
-// Nothing enforces stability, so treat it as a preference rather than a
-// guarantee: RetriableClientManager re-keys a client whose id moves anyway.
-func ResolveHostID(candidates ...string) string {
-	return lo.CoalesceOrEmpty(candidates...)
 }
 
 func (h Host) String() string {

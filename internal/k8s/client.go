@@ -54,9 +54,8 @@ type K8sClient struct {
 	lastMapperReset time.Time
 }
 
-// hostID overrides the id derived from the node, for the same reason it exists
-// on the Docker client: the derived one is not guaranteed unique across a fleet.
-func NewK8sClient(namespace []string, hostID string) (*K8sClient, error) {
+// hostIDs decides what this node is called; see container.HostIDResolver.
+func NewK8sClient(namespace []string, hostIDs container.HostIDResolver) (*K8sClient, error) {
 	var config *rest.Config
 	var err error
 
@@ -113,7 +112,7 @@ func NewK8sClient(namespace []string, hostID string) (*K8sClient, error) {
 		namespace:     namespace,
 		config:        config,
 		host: container.Host{
-			ID:   container.ResolveHostID(hostID, node.Status.NodeInfo.MachineID),
+			ID:   hostIDs.Resolve(container.EngineIdentity{Runtime: "k8s", EngineID: node.Status.NodeInfo.MachineID}),
 			Name: node.Name,
 		},
 		ownerCache: make(map[string]ownerLookupResult),

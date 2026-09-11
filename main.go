@@ -91,7 +91,7 @@ func main() {
 	} else if args.Mode == "swarm" {
 		// No host id override in swarm mode: identity here is the swarm node id,
 		// which is already stable and is what every other node refers to this one by.
-		localClient, err := docker.NewLocalClient("", "")
+		localClient, err := docker.NewLocalClient("", container.DerivedHostID{})
 		if err != nil {
 			log.Fatal().Err(err).Msg("Could not create docker client")
 		}
@@ -126,7 +126,7 @@ func main() {
 			}
 		}()
 	} else if args.Mode == "k8s" {
-		localClient, err := k8s.NewK8sClient(args.Namespace, args.HostID)
+		localClient, err := k8s.NewK8sClient(args.Namespace, container.NewHostIDResolver(args.HostID))
 		if err != nil {
 			log.Fatal().Err(err).Msg("Could not create k8s client")
 		}
