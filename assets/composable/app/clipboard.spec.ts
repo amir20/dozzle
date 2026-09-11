@@ -100,6 +100,25 @@ describe("useCopy", () => {
     expect(toasts.value.map(({ toast }) => toast.type)).toEqual(["info"]);
   });
 
+  test("copies from inside an open drawer, where document.body is inert", async () => {
+    setSecureContext(false);
+    const dialog = document.createElement("dialog");
+    dialog.setAttribute("open", "");
+    document.body.appendChild(dialog);
+
+    let host: Node | null = null;
+    document.execCommand = vi.fn(() => {
+      host = document.querySelector("textarea")?.parentElement ?? null;
+      return true;
+    });
+
+    const { api } = mountCopy();
+    expect(await api.copy("hello")).toBe(true);
+
+    expect(host).toBe(dialog);
+    dialog.remove();
+  });
+
   test("copyLazy only fetches the content once", async () => {
     setSecureContext(false);
     document.execCommand = vi.fn().mockReturnValue(true);

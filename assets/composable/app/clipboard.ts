@@ -14,13 +14,23 @@ type CopyOptions = {
   quiet?: boolean;
 };
 
+// While a <dialog> is open as a modal, everything outside it is inert: a textarea
+// parked on document.body cannot be selected, so execCommand copies nothing. Drawers
+// are modal dialogs (SideDrawer.vue), so a copy button inside one has to put its
+// scratch textarea in the same subtree.
+function copyHost() {
+  const dialogs = [...document.querySelectorAll("dialog[open]")];
+  const focused = dialogs.filter((dialog) => dialog.contains(document.activeElement));
+  return focused.at(-1) ?? dialogs.at(-1) ?? document.body;
+}
+
 function legacyCopy(value: string) {
   const textarea = document.createElement("textarea");
   textarea.value = value;
   textarea.setAttribute("readonly", "");
   textarea.style.position = "absolute";
   textarea.style.opacity = "0";
-  document.body.appendChild(textarea);
+  copyHost().appendChild(textarea);
   textarea.select();
   // execCommand reports failure by returning false rather than throwing, and unlike
   // VueUse's legacy mode we care about the answer.
