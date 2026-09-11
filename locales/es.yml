@@ -338,6 +338,8 @@ settings:
   show-timestamps-desc: 'Antepone a cada línea la hora en que se escribió.'
   soft-wrap: Líneas de texto con ajuste suave
   soft-wrap-desc: 'Ajusta las líneas largas en lugar de desplazarse en horizontal.'
+  highlight-errors: Resaltar líneas de error
+  highlight-errors-desc: 'Aplica un fondo de color a las líneas de error. El marcador de nivel siempre se muestra.'
   datetime-format: Sobrescribir el formato de fecha y hora
   datetime-format-desc: 'Por defecto usa el idioma y el reloj de tu navegador.'
   font-size: Tamaño de letra a utilizar para los registros

@@ -237,6 +237,8 @@ settings:
   show-timestamps-desc: '在每一行前面加上写入时间。'
   soft-wrap: 断行
   soft-wrap-desc: '自动换行显示长行，而不是左右滚动。'
+  highlight-errors: 高亮错误行
+  highlight-errors-desc: '为错误行添加背景色。彩色级别标记始终显示。'
   datetime-format: 自定义日期和时间格式
   datetime-format-desc: '默认跟随浏览器的语言和时间格式。'
   font-size: 字体大小

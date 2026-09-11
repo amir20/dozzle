@@ -6,7 +6,7 @@
 
     <div class="flex min-w-0 flex-1 items-center gap-1.5">
       <slot name="title">
-        <span class="truncate text-sm font-medium">{{ title }}</span>
+        <span class="truncate text-[0.9375rem] font-medium">{{ title }}</span>
       </slot>
     </div>
 

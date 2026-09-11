@@ -6,7 +6,7 @@
   >
     <template #title v-if="selectedNamespace && selectedNamespace !== 'all'">
       <ph:circles-four class="text-base-content/50 size-4 shrink-0" />
-      <span class="truncate text-sm font-medium">{{ selectedNamespace }}</span>
+      <span class="truncate text-[0.9375rem] font-medium">{{ selectedNamespace }}</span>
     </template>
 
     <template #actions>

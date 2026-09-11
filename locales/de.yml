@@ -237,6 +237,8 @@ settings:
   show-timestamps-desc: 'Jeder Zeile die Uhrzeit voranstellen, zu der sie geschrieben wurde.'
   soft-wrap: Zeilenumbruch
   soft-wrap-desc: 'Lange Zeilen umbrechen statt seitwärts zu scrollen.'
+  highlight-errors: Fehlerzeilen hervorheben
+  highlight-errors-desc: 'Färbt den Hintergrund von Fehlerzeilen ein. Die farbige Level-Markierung wird immer angezeigt.'
   datetime-format: Datums- und Zeitformat
   datetime-format-desc: 'Folgt standardmäßig der Sprache und Uhrzeit deines Browsers.'
   font-size: Schriftgröße für Logs

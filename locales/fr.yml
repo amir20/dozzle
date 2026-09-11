@@ -237,6 +237,8 @@ settings:
   show-timestamps-desc: 'Préfixe chaque ligne avec l''heure à laquelle elle a été écrite.'
   soft-wrap: Lignes d'enroulement souples
   soft-wrap-desc: 'Renvoie les lignes longues à la ligne au lieu de défiler latéralement.'
+  highlight-errors: Mettre en évidence les lignes d'erreur
+  highlight-errors-desc: "Colore l'arrière-plan des lignes d'erreur. Le marqueur de niveau reste toujours visible."
   datetime-format: Remplacer le format de la date et de l'heure
   datetime-format-desc: 'Suit par défaut la langue et l''horloge de votre navigateur.'
   font-size: Taille de police à utiliser pour les journaux

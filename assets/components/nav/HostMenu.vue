@@ -2,7 +2,7 @@
   <NavHeader :title="$t('label.hosts')" :back="selectedHost ? $t('label.hosts') : undefined" @back="setHost(null)">
     <template #title v-if="selectedHost">
       <HostIcon :type="selectedHost.type" class="text-base-content/50 size-4 shrink-0" />
-      <span class="truncate text-sm font-medium">{{ selectedHost.name }}</span>
+      <span class="truncate text-[0.9375rem] font-medium">{{ selectedHost.name }}</span>
     </template>
 
     <template #actions>

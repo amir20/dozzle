@@ -239,6 +239,8 @@ settings:
   show-timestamps-desc: 'Poprzedza każdy wiersz godziną jego zapisania.'
   soft-wrap: Zwijaj linie
   soft-wrap-desc: 'Zawija długie wiersze zamiast przewijania w bok.'
+  highlight-errors: Wyróżniaj wiersze błędów
+  highlight-errors-desc: 'Koloruje tło wierszy z błędami. Kolorowy znacznik poziomu jest zawsze widoczny.'
   datetime-format: Nadpisz format daty i godziny
   datetime-format-desc: 'Domyślnie używa języka i formatu zegara przeglądarki.'
   font-size: Rozmiar czcionki używany dla logów

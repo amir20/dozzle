@@ -91,6 +91,7 @@ declare global {
   const hasIcon: typeof import('./utils/index').hasIcon
   const hasViewContext: typeof import('./composable/logs/viewContext').hasViewContext
   const hashCode: typeof import('./utils/index').hashCode
+  const highlightErrors: typeof import('./stores/settings').highlightErrors
   const highlightSubstringInHtml: typeof import('./utils/index').highlightSubstringInHtml
   const hourStyle: typeof import('./stores/settings').hourStyle
   const iconSlugForImage: typeof import('./utils/index').iconSlugForImage
@@ -628,6 +629,7 @@ declare module 'vue' {
     readonly hasIcon: UnwrapRef<typeof import('./utils/index')['hasIcon']>
     readonly hasViewContext: UnwrapRef<typeof import('./composable/logs/viewContext')['hasViewContext']>
     readonly hashCode: UnwrapRef<typeof import('./utils/index')['hashCode']>
+    readonly highlightErrors: UnwrapRef<typeof import('./stores/settings')['highlightErrors']>
     readonly hourStyle: UnwrapRef<typeof import('./stores/settings')['hourStyle']>
     readonly iconSlugForImage: UnwrapRef<typeof import('./utils/index')['iconSlugForImage']>
     readonly iconUrl: UnwrapRef<typeof import('./utils/index')['iconUrl']>

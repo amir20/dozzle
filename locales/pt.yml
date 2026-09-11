@@ -237,6 +237,8 @@ settings:
   show-timestamps-desc: 'Prefixa cada linha com o horário em que foi escrita.'
   soft-wrap: Quebrar linhas automaticamente
   soft-wrap-desc: 'Quebra linhas longas em vez de rolar na horizontal.'
+  highlight-errors: Destacar linhas de erro
+  highlight-errors-desc: 'Aplica um fundo colorido às linhas de erro. O marcador de nível colorido é sempre exibido.'
   datetime-format: Sobrescrever formato de data e hora
   datetime-format-desc: 'Por padrão segue o idioma e o relógio do seu navegador.'
   font-size: Tamanho da fonte para logs
