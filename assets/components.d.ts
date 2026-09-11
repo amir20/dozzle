@@ -180,6 +180,7 @@ declare module 'vue' {
     'Mdi:linkVariant': typeof import('~icons/mdi/link-variant')['default']
     'Mdi:linkVariantOff': typeof import('~icons/mdi/link-variant-off')['default']
     'Mdi:linkVariantPlus': typeof import('~icons/mdi/link-variant-plus')['default']
+    'Mdi:loading': typeof import('~icons/mdi/loading')['default']
     'Mdi:magnify': typeof import('~icons/mdi/magnify')['default']
     'Mdi:messageOutline': typeof import('~icons/mdi/message-outline')['default']
     'Mdi:messageQuestionOutline': typeof import('~icons/mdi/message-question-outline')['default']

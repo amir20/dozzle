@@ -5,6 +5,9 @@ toolbar:
   search: Search
   inverse-on: Exclude matching (inverse)
   inverse-off: Include matching (normal)
+  invalid-regex: Invalid regular expression
+  close-search: Close search
+  move-search: Drag to move
   show: Show {std}
   show-all: Show all
   stop: Stop
@@ -110,9 +113,9 @@ label:
   no-logs-hint: "Anything the container writes shows up here right away."
   search-status:
     searching: Searching older logs…
-    searching-to: Searching older logs… back to {time}
-    capped: "{count} matches · searched back to {time}"
-    exhausted: Searched all logs · {count} matches
+    matches: "{count} matches"
+    searched-all: "Searched all logs"
+    scanned-to: "back to {time}"
     empty: "No matching logs"
     empty-hint: "Searched all logs. Try a different term or clear the search."
   show-all-containers: Show all containers
@@ -217,6 +220,7 @@ button:
   refresh: Refresh
 placeholder:
   search-containers: Search containers (⌘ + k, ⌃k)
+  find-logs: Find in logs or regex
   search: Search
 cloud-rail:
   title: Dozzle Cloud

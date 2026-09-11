@@ -5,6 +5,9 @@ toolbar:
   search: 搜索
   inverse-on: 排除匹配项（反向）
   inverse-off: 包含匹配项（正常）
+  invalid-regex: 无效的正则表达式
+  close-search: 关闭搜索
+  move-search: 拖动以移动
   show: 显示 {std}
   show-all: 显示全部
   stop: 停止
@@ -88,9 +91,9 @@ label:
   no-logs-hint: "容器输出的内容会立即显示在这里。"
   search-status:
     searching: 正在搜索较旧的日志…
-    searching-to: 正在搜索较旧的日志…回溯至 {time}
-    capped: "{count} 条匹配 · 已搜索至 {time}"
-    exhausted: 已搜索所有日志 · {count} 条匹配
+    matches: "{count} 条匹配"
+    searched-all: "已搜索所有日志"
+    scanned-to: "回溯至 {time}"
     empty: "没有匹配的日志"
     empty-hint: "已搜索所有日志。请尝试其他关键词或清除搜索。"
   show-all-containers: 显示所有容器
@@ -209,6 +212,7 @@ button:
   refresh: 刷新
 placeholder:
   search-containers: 搜索容器 (⌘ + k, ⌃k)
+  find-logs: 在日志中查找或正则
   search: 搜索
 settings:
   show-image-update-alert: '当容器有更新时显示通知'

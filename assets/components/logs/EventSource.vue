@@ -1,5 +1,5 @@
 <template>
-  <SearchStatus :status="searchStatus" />
+  <SearchStatus :status="searchStatus" :empty="noLogs" />
   <ul class="flex animate-pulse flex-col gap-4 p-4" v-if="loading || (noLogs && waitingForMoreLog && !inSearch)">
     <div class="flex flex-row gap-2" v-for="size in sizes">
       <div class="bg-base-content/50 h-3 w-40 shrink-0 rounded-full opacity-50"></div>
@@ -13,7 +13,7 @@
     :title="$t('label.no-logs')"
     :hint="$t('label.no-logs-hint')"
   >
-    <template #icon><mdi:text-box-outline class="size-5" /></template>
+    <template #icon><mdi:text-box-outline class="size-6" /></template>
   </EmptyState>
   <slot :messages="messages" v-else></slot>
   <IndeterminateBar :color :intensity="streaming ? 1 : 0" v-if="!historical" />

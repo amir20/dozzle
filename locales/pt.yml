@@ -5,6 +5,9 @@ toolbar:
   search: Pesquisar
   inverse-on: Excluir correspondências (inverso)
   inverse-off: Incluir correspondências (normal)
+  invalid-regex: Expressão regular inválida
+  close-search: Fechar pesquisa
+  move-search: Arraste para mover
   show: Mostrar {std}
   show-all: Mostrar tudo
   stop: Parar
@@ -110,9 +113,9 @@ label:
   no-logs-hint: "Tudo o que o contêiner escrever aparecerá aqui imediatamente."
   search-status:
     searching: Pesquisando logs mais antigos…
-    searching-to: Pesquisando logs mais antigos… até {time}
-    capped: "{count} correspondências · pesquisado até {time}"
-    exhausted: Todos os logs pesquisados · {count} correspondências
+    matches: "{count} correspondências"
+    searched-all: "Todos os logs pesquisados"
+    scanned-to: "até {time}"
     empty: "Nenhum log correspondente"
     empty-hint: "Todos os logs foram pesquisados. Tente outro termo ou limpe a pesquisa."
   show-all-containers: Mostrar todos os containers
@@ -209,6 +212,7 @@ button:
   refresh: Atualizar
 placeholder:
   search-containers: Pesquisar containers (⌘ + k, ⌃k)
+  find-logs: Pesquisar nos logs ou regex
   search: Pesquisar
 settings:
   show-image-update-alert: 'Mostrar uma notificação quando um contêiner tiver uma atualização'
