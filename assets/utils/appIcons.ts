@@ -136,7 +136,11 @@ const ALIASES: Record<string, string> = {
   requarks: "wikijs",
   nxzai: "nextexplorer",
   dmunozv04: "sponsorblock",
-  timothyjmiller: "cloudflare"
+  timothyjmiller: "cloudflare",
+  otel: "opentelemetry",
+  "pingvin-share-x": "pingvin-share",
+  "signal-cli-rest-api": "signal",
+  pgadmin4: "pgadmin"
 };
 
 const stripSuffix = (name: string) => {
