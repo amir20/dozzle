@@ -73,7 +73,7 @@
     "strip-ansi": "^7.2.0",
     "tailwindcss": "4.3.3",
     "unplugin-auto-import": "^21.1.0",
-    "unplugin-icons": "^23.0.1",
+    "unplugin-icons": "^24.0.0",
     "unplugin-vue-components": "^32.1.0",
     "unplugin-vue-macros": "^2.14.5",
     "vite": "8.3.0",
