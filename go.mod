@@ -3,7 +3,7 @@ module github.com/amir20/dozzle
 require (
 	github.com/PuerkitoBio/goquery v1.13.0
 	github.com/alexflint/go-arg v1.6.1
-	github.com/andybalholm/brotli v1.2.3
+	github.com/andybalholm/brotli v1.2.4
 	github.com/beme/abide v0.0.0-20190723115211-635a09831760
 	github.com/dustin/go-humanize v1.0.1
 	github.com/expr-lang/expr v1.17.8
