@@ -21,13 +21,14 @@ Dozzle has access to `docker.sock`, which — unless restricted — is equivalen
 
 ## <Icon icon="mdi:key-outline" inline /> Choosing a method
 
-| Method                                               | Who owns the users     | Use it when                                                                                                                          |
-| ---------------------------------------------------- | ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------ |
-| [Simple](/guide/authentication/simple)               | Dozzle, in `users.yml` | You have no authentication solution and want Dozzle to handle logins.                                                                |
-| [GitHub & OIDC](/guide/authentication/oauth)         | Dozzle, in `users.yml` | You want the same `users.yml` users to sign in with GitHub, Google, Keycloak, Pocket ID, Zitadel or Authentik instead of a password. |
-| [Forward Proxy](/guide/authentication/forward-proxy) | Your proxy             | You already run Authelia, Authentik, Cloudflare Access or similar, and want it to own authentication entirely.                       |
+| Method                                               | Who owns the users     | Use it when                                                                                                                             |
+| ---------------------------------------------------- | ---------------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
+| [Simple](/guide/authentication/simple)               | Dozzle, in `users.yml` | You have no authentication solution and want Dozzle to handle logins.                                                                   |
+| [GitHub & OIDC](/guide/authentication/oauth)         | Dozzle, in `users.yml` | You want the same `users.yml` users to sign in with GitHub, Google, Keycloak, Pocket ID, Zitadel or Authentik instead of a password.    |
+| [OpenID Connect](/guide/authentication/oidc)         | Your identity provider | You want Keycloak, Authentik, Zitadel or Pocket ID to own the user list, with roles and filters read from the token and no `users.yml`. |
+| [Forward Proxy](/guide/authentication/forward-proxy) | Your proxy             | You already run Authelia, Authentik, Cloudflare Access or similar, and want it to own authentication entirely.                          |
 
-Simple and OAuth are the same provider: `users.yml` is the user list either way, and OAuth only adds a second way to prove you are one of the users in it. Forward proxy is the separate one, and it is the right choice when you need org-wide or domain-wide access rules, which `users.yml` deliberately does not do.
+Simple and OAuth are the same provider: `users.yml` is the user list either way, and OAuth only adds a second way to prove you are one of the users in it. OpenID Connect and forward proxy are the separate ones, where something outside Dozzle owns the users. Pick `oidc` when your identity provider can put roles in the token, and forward proxy when you need org-wide or domain-wide access rules enforced in front of Dozzle, which `users.yml` deliberately does not do.
 
 ## <Icon icon="mdi:file-document-edit-outline" inline /> Generating users.yml
 

@@ -10,7 +10,7 @@ export interface Config {
   hostname: string;
   mode: "server" | "swarm" | "k8s";
   hosts: Host[];
-  authProvider: "simple" | "none" | "forward-proxy";
+  authProvider: "simple" | "none" | "forward-proxy" | "oidc";
   oauthProviders?: { name: string; loginUrl: string; icon: string }[];
   passwordLogin?: boolean;
   logoutUrl?: string;

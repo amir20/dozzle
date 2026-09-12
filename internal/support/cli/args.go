@@ -21,20 +21,22 @@ type Args struct {
 	Hostname               string              `arg:"env:DOZZLE_HOSTNAME" help:"sets the hostname for display. This is useful with multiple Dozzle instances."`
 	HostID                 string              `arg:"--host-id,env:DOZZLE_HOST_ID" help:"overrides the id Dozzle derives for this host. Only needed when the derived id collides with another host."`
 	Level                  string              `arg:"env:DOZZLE_LEVEL" default:"info" help:"set Dozzle log level. Use debug for more logging."`
-	AuthProvider           string              `arg:"--auth-provider,env:DOZZLE_AUTH_PROVIDER" default:"none" help:"sets the auth provider to use: none, simple or forward-proxy. github and google are aliases for simple."`
+	AuthProvider           string              `arg:"--auth-provider,env:DOZZLE_AUTH_PROVIDER" default:"none" help:"sets the auth provider to use: none, simple, oidc or forward-proxy. github and google are aliases for simple."`
 	AuthTTL                string              `arg:"--auth-ttl,env:DOZZLE_AUTH_TTL" default:"session" help:"sets the TTL for the auth token. Accepts duration values like 12h. Valid time units are s, m, h"`
 	AuthHeaderUser         string              `arg:"--auth-header-user,env:DOZZLE_AUTH_HEADER_USER" default:"Remote-User" help:"sets the HTTP Header to use for username in Forward Proxy configuration."`
 	AuthHeaderEmail        string              `arg:"--auth-header-email,env:DOZZLE_AUTH_HEADER_EMAIL" default:"Remote-Email" help:"sets the HTTP Header to use for email in Forward Proxy configuration."`
 	AuthHeaderName         string              `arg:"--auth-header-name,env:DOZZLE_AUTH_HEADER_NAME" default:"Remote-Name" help:"sets the HTTP Header to use for name in Forward Proxy configuration."`
 	AuthHeaderFilter       string              `arg:"--auth-header-filter,env:DOZZLE_AUTH_HEADER_FILTER" default:"Remote-Filter" help:"sets the HTTP Header to use for filtering in Forward Proxy configuration."`
 	AuthHeaderRoles        string              `arg:"--auth-header-roles,env:DOZZLE_AUTH_HEADER_ROLES" default:"Remote-Roles" help:"sets the HTTP Header to use for roles in Forward Proxy configuration."`
-	AuthLogoutUrl          string              `arg:"--auth-logout-url,env:DOZZLE_AUTH_LOGOUT_URL" help:"sets the Logout URL used with Forward Proxy."`
+	AuthLogoutUrl          string              `arg:"--auth-logout-url,env:DOZZLE_AUTH_LOGOUT_URL" help:"sets the Logout URL used with Forward Proxy, and where the browser is sent after logout with the oidc auth provider."`
 	AuthGithubClientID     string              `arg:"--auth-github-client-id,env:DOZZLE_AUTH_GITHUB_CLIENT_ID" help:"sets the GitHub OAuth app client id, enabling Sign in with GitHub for simple auth."`
 	AuthGithubClientSecret string              `arg:"--auth-github-client-secret,env:DOZZLE_AUTH_GITHUB_CLIENT_SECRET" help:"sets the GitHub OAuth app client secret."`
 	AuthOidcIssuer         string              `arg:"--auth-oidc-issuer,env:DOZZLE_AUTH_OIDC_ISSUER" help:"sets the OpenID Connect issuer URL, enabling SSO for simple auth. Works with Google, Keycloak, Pocket ID, Zitadel and Authentik."`
 	AuthOidcClientID       string              `arg:"--auth-oidc-client-id,env:DOZZLE_AUTH_OIDC_CLIENT_ID" help:"sets the OpenID Connect client id."`
 	AuthOidcClientSecret   string              `arg:"--auth-oidc-client-secret,env:DOZZLE_AUTH_OIDC_CLIENT_SECRET" help:"sets the OpenID Connect client secret."`
 	AuthOidcName           string              `arg:"--auth-oidc-name,env:DOZZLE_AUTH_OIDC_NAME" default:"SSO" help:"sets the label shown on the OpenID Connect login button."`
+	AuthOidcRolesClaim     string              `arg:"--auth-oidc-roles-claim,env:DOZZLE_AUTH_OIDC_ROLES_CLAIM" help:"sets the dot-separated claim path roles are read from with the oidc auth provider, replacing the default search of dozzle_roles, resource_access.<client-id>.roles and roles."`
+	AuthOidcFiltersClaim   string              `arg:"--auth-oidc-filters-claim,env:DOZZLE_AUTH_OIDC_FILTERS_CLAIM" help:"sets the dot-separated claim path container filters are read from with the oidc auth provider, replacing the default search of dozzle_filters, resource_access.<client-id>.filters and filters."`
 	EnableActions          bool                `arg:"--enable-actions,env:DOZZLE_ENABLE_ACTIONS" default:"false" help:"enables essential actions on containers from the web interface."`
 	EnableShell            bool                `arg:"--enable-shell,env:DOZZLE_ENABLE_SHELL" default:"false" help:"enables shell access to containers from the web interface."`
 	EnableMCP              bool                `arg:"--enable-mcp,env:DOZZLE_ENABLE_MCP" default:"false" help:"enables the MCP (Model Context Protocol) endpoint for LLM integration."`

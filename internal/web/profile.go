@@ -31,6 +31,12 @@ func (h *handler) avatar(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// A provider-asserted picture is served by redirect, never fetched here.
+	if picture := user.PictureURL(); picture != "" {
+		http.Redirect(w, r, picture, http.StatusFound)
+		return
+	}
+
 	url := user.AvatarURL()
 
 	if url == "" {

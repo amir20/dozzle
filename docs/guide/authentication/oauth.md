@@ -10,6 +10,9 @@ That has one consequence worth stating up front: **`users.yml` is the allowlist.
 
 Password login keeps working alongside it, which matters when an OAuth app breaks and you need to get in to fix it.
 
+> [!TIP]
+> If you would rather have the identity provider own the user list, with roles and filters read from the token and no `users.yml` at all, that is a provider of its own: see [OpenID Connect](/guide/authentication/oidc).
+
 ## Sign in with GitHub
 
 Dozzle can let users sign in with their GitHub account instead of typing a password. This is part of the `simple` provider and not a separate auth provider, so `users.yml` is still read on every request and still decides who gets in. Keep using `--auth-provider simple`. `github` is accepted as an alias if you prefer to spell out what the instance uses.
@@ -140,6 +143,8 @@ The email must be marked verified by your provider. Dozzle rejects a sign-in whe
 
 > [!NOTE]
 > GitHub matches on the login and OIDC matches on the email, and that difference is deliberate. A GitHub login is stable and always present, while a GitHub email can be private or changed. OIDC has no stable human-readable equivalent, so the verified email is the claim operators actually know.
+
+In this mode the provider only proves who you are. Roles and filters still come from `users.yml`, and a user the file does not list cannot sign in however many roles the token carries. To have the provider decide both, use [`--auth-provider oidc`](/guide/authentication/oidc) instead.
 
 ### Google
 

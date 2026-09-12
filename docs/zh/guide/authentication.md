@@ -1,6 +1,6 @@
 ---
 title: 身份验证
-sourceHash: c0e3f963afbe
+sourceHash: 111fbadf1b7a
 ---
 
 # 身份验证
@@ -26,9 +26,10 @@ Dozzle 可以访问 `docker.sock`，除非加以限制，否则这等同于**主
 | -------------------------------------------------- | --------------------------- | -------------------------------------------------------------------------------------------------------------------- |
 | [简单模式](/zh/guide/authentication/simple)        | Dozzle，写在 `users.yml` 里 | 你没有现成的验证方案，希望由 Dozzle 来处理登录。                                                                     |
 | [GitHub 与 OIDC](/zh/guide/authentication/oauth)   | Dozzle，写在 `users.yml` 里 | 你希望 `users.yml` 里的同一批用户用 GitHub、Google、Keycloak、Pocket ID、Zitadel 或 Authentik 登录，而不是输入密码。 |
+| [OpenID Connect](/zh/guide/authentication/oidc)    | 你的身份提供方              | 你希望由 Keycloak、Authentik、Zitadel 或 Pocket ID 掌管用户列表，角色和过滤器从令牌里读取，不再需要 `users.yml`。    |
 | [前置代理](/zh/guide/authentication/forward-proxy) | 你的代理                    | 你已经在运行 Authelia、Authentik、Cloudflare Access 之类的服务，并且希望完全由它来负责身份验证。                     |
 
-简单模式和 OAuth 其实是同一种验证方式：两者的用户列表都是 `users.yml`，OAuth 只是多提供了一种方式来证明你是列表里的某个用户。前置代理才是另一类，当你需要基于组织或域名的访问规则时它才是正确的选择，而这正是 `users.yml` 有意不做的事。
+简单模式和 OAuth 其实是同一种验证方式：两者的用户列表都是 `users.yml`，OAuth 只是多提供了一种方式来证明你是列表里的某个用户。OpenID Connect 和前置代理才是另一类，用户由 Dozzle 之外的东西掌管。当你的身份提供方能把角色放进令牌时选 `oidc`；当你需要在 Dozzle 前面强制执行基于组织或域名的访问规则时选前置代理，而这正是 `users.yml` 有意不做的事。
 
 ## <Icon icon="mdi:file-document-edit-outline" inline /> 生成 users.yml
 

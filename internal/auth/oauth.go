@@ -16,14 +16,21 @@ import (
 	"golang.org/x/oauth2"
 )
 
-// externalIdentity is what a provider tells us about whoever just signed in. It
-// is deliberately not a User: users.yml is the only place a Dozzle user is
-// defined, and this exists only to look one up there.
+// externalIdentity is what a provider tells us about whoever just signed in.
+//
+// Under simple auth it is deliberately not a User: users.yml is the only place a
+// Dozzle user is defined, and this exists only to look one up there. Under the
+// oidc provider there is no users.yml, and Claims is what the user is built from.
 type externalIdentity struct {
-	Sub   string
-	Login string
-	Email string
-	Name  string
+	Sub     string
+	Login   string
+	Email   string
+	Name    string
+	Picture string
+	// Claims is every claim the provider returned, ID token first and userinfo
+	// second, for the oidc provider to read roles and filters out of. Empty for
+	// GitHub, which publishes no claims.
+	Claims claimSet
 }
 
 // userLookup is the locked view of users.yml handed to a provider, so a provider
@@ -64,23 +71,42 @@ type OAuthProviderInfo struct {
 	Icon     string `json:"icon"`
 }
 
+// oauthFlow is the authorization code dance shared by simple auth with OAuth
+// bolted on and by the oidc provider: state cookie, PKCE, code exchange, and
+// reading the identity back. What happens to that identity is the one thing the
+// two disagree on, which is why it is a callback rather than a method.
+type oauthFlow struct {
+	providers []IdentityProvider
+	base      string
+	ttl       time.Duration
+	// login turns a verified identity into a session JWT, or refuses it. A refusal
+	// has already been logged with whatever detail the owner wanted to give.
+	login func(provider IdentityProvider, id externalIdentity) (string, bool)
+}
+
+func newOAuthFlow(base string, ttl time.Duration, login func(IdentityProvider, externalIdentity) (string, bool), providers ...IdentityProvider) *oauthFlow {
+	if base == "/" {
+		base = ""
+	}
+
+	return &oauthFlow{providers: providers, base: base, ttl: ttl, login: login}
+}
+
 // oauthAuthContext is simple auth with OAuth bolted on as a second way to prove
 // you are one of the users already in users.yml. It embeds the simple context so
 // password login, the middleware, and per-request role resolution are untouched.
 type oauthAuthContext struct {
 	*simpleAuthContext
-	providers []IdentityProvider
-	base      string
+	*oauthFlow
 }
 
 // NewOAuthAuth wraps simple auth. base is the router base ("" when Dozzle is
 // mounted at /), used to build the login URLs and the post-login redirect.
 func NewOAuthAuth(simple *simpleAuthContext, base string, providers ...IdentityProvider) *oauthAuthContext {
-	if base == "/" {
-		base = ""
-	}
+	a := &oauthAuthContext{simpleAuthContext: simple}
+	a.oauthFlow = newOAuthFlow(base, simple.ttl, a.loginUser, providers...)
 
-	return &oauthAuthContext{simpleAuthContext: simple, providers: providers, base: base}
+	return a
 }
 
 func (a *oauthAuthContext) byGithubLogin(login string) (User, bool) {
@@ -91,14 +117,37 @@ func (a *oauthAuthContext) byVerifiedEmail(email string) (User, bool) {
 	return a.findByEmail(email)
 }
 
+// loginUser is the simple-auth half of the flow: users.yml is the allowlist. No
+// match means no login, and no account is ever created here.
+func (a *oauthAuthContext) loginUser(provider IdentityProvider, identity externalIdentity) (string, bool) {
+	user, ok := provider.match(a, identity)
+	if !ok {
+		log.Warn().
+			Str("provider", provider.ID()).
+			Str("login", identity.Login).
+			Msg("OAuth login rejected: no user in the user database is linked to this account")
+		return "", false
+	}
+
+	jwt, err := a.issueToken(user)
+	if err != nil {
+		log.Error().Err(err).Msg("Could not create token after OAuth login")
+		return "", false
+	}
+
+	log.Info().Str("user", user.Username).Str("provider", provider.ID()).Msg("Token created")
+
+	return jwt, true
+}
+
 // Providers describes the configured providers to the frontend. The URLs are
 // already base-prefixed, so the login page uses them verbatim.
-func (a *oauthAuthContext) Providers() []OAuthProviderInfo {
-	infos := make([]OAuthProviderInfo, 0, len(a.providers))
-	for _, p := range a.providers {
+func (f *oauthFlow) Providers() []OAuthProviderInfo {
+	infos := make([]OAuthProviderInfo, 0, len(f.providers))
+	for _, p := range f.providers {
 		infos = append(infos, OAuthProviderInfo{
 			Name:     p.DisplayName(),
-			LoginURL: fmt.Sprintf("%s/api/auth/login?provider=%s", a.base, url.QueryEscape(p.ID())),
+			LoginURL: fmt.Sprintf("%s/api/auth/login?provider=%s", f.base, url.QueryEscape(p.ID())),
 			Icon:     p.Icon(),
 		})
 	}
@@ -106,14 +155,14 @@ func (a *oauthAuthContext) Providers() []OAuthProviderInfo {
 	return infos
 }
 
-func (a *oauthAuthContext) provider(id string) IdentityProvider {
+func (f *oauthFlow) provider(id string) IdentityProvider {
 	// Omitting ?provider= is unambiguous when only one is configured, which is
 	// the common single-vendor setup.
-	if id == "" && len(a.providers) == 1 {
-		return a.providers[0]
+	if id == "" && len(f.providers) == 1 {
+		return f.providers[0]
 	}
 
-	for _, p := range a.providers {
+	for _, p := range f.providers {
 		if p.ID() == id {
 			return p
 		}
@@ -148,7 +197,7 @@ type oauthState struct {
 // A spoofed Host cannot leak a code: the provider only honours a redirect_uri
 // that is on the OAuth app's registered list, so a forged value fails the login
 // instead. That is what lets Dozzle work without a base-URL flag.
-func (a *oauthAuthContext) callbackURL(r *http.Request) string {
+func (f *oauthFlow) callbackURL(r *http.Request) string {
 	scheme := "http"
 	if IsHTTPS(r) {
 		scheme = "https"
@@ -160,7 +209,7 @@ func (a *oauthAuthContext) callbackURL(r *http.Request) string {
 		host = strings.TrimSpace(host)
 	}
 
-	return scheme + "://" + host + a.base + "/api/auth/callback"
+	return scheme + "://" + host + f.base + "/api/auth/callback"
 }
 
 func randomString() (string, error) {
@@ -172,7 +221,7 @@ func randomString() (string, error) {
 	return base64.RawURLEncoding.EncodeToString(buf), nil
 }
 
-func (a *oauthAuthContext) setStateCookie(w http.ResponseWriter, r *http.Request, state oauthState) error {
+func (f *oauthFlow) setStateCookie(w http.ResponseWriter, r *http.Request, state oauthState) error {
 	encoded, err := json.Marshal(state)
 	if err != nil {
 		return err
@@ -182,7 +231,7 @@ func (a *oauthAuthContext) setStateCookie(w http.ResponseWriter, r *http.Request
 		Name:     stateCookieName,
 		Value:    base64.RawURLEncoding.EncodeToString(encoded),
 		HttpOnly: true,
-		Path:     a.base + "/",
+		Path:     f.base + "/",
 		// The callback is a top-level navigation from the provider, which is
 		// cross-site; Lax still sends the cookie on that, Strict would not.
 		SameSite: http.SameSiteLaxMode,
@@ -193,19 +242,19 @@ func (a *oauthAuthContext) setStateCookie(w http.ResponseWriter, r *http.Request
 	return nil
 }
 
-func (a *oauthAuthContext) clearStateCookie(w http.ResponseWriter, r *http.Request) {
+func (f *oauthFlow) clearStateCookie(w http.ResponseWriter, r *http.Request) {
 	http.SetCookie(w, &http.Cookie{
 		Name:     stateCookieName,
 		Value:    "",
 		HttpOnly: true,
-		Path:     a.base + "/",
+		Path:     f.base + "/",
 		SameSite: http.SameSiteLaxMode,
 		Secure:   IsHTTPS(r),
 		MaxAge:   -1,
 	})
 }
 
-func (a *oauthAuthContext) readStateCookie(r *http.Request) (oauthState, bool) {
+func (f *oauthFlow) readStateCookie(r *http.Request) (oauthState, bool) {
 	cookie, err := r.Cookie(stateCookieName)
 	if err != nil {
 		return oauthState{}, false
@@ -230,8 +279,8 @@ func (a *oauthAuthContext) readStateCookie(r *http.Request) (oauthState, bool) {
 
 // LoginHandler starts the flow: it mints state and a PKCE verifier, parks them
 // in a short-lived cookie, and bounces the browser to the provider.
-func (a *oauthAuthContext) LoginHandler(w http.ResponseWriter, r *http.Request) {
-	provider := a.provider(r.URL.Query().Get("provider"))
+func (f *oauthFlow) LoginHandler(w http.ResponseWriter, r *http.Request) {
+	provider := f.provider(r.URL.Query().Get("provider"))
 	if provider == nil {
 		log.Warn().Str("provider", r.URL.Query().Get("provider")).Msg("Unknown OAuth provider requested")
 		http.Error(w, "Unknown provider", http.StatusBadRequest)
@@ -241,23 +290,23 @@ func (a *oauthAuthContext) LoginHandler(w http.ResponseWriter, r *http.Request) 
 	state, err := randomString()
 	if err != nil {
 		log.Error().Err(err).Msg("Could not generate OAuth state")
-		a.failLogin(w, r)
+		f.failLogin(w, r)
 		return
 	}
 
 	verifier := oauth2.GenerateVerifier()
-	callbackURI := a.callbackURL(r)
+	callbackURI := f.callbackURL(r)
 
 	// Built before the cookie is set, so a provider that cannot start a login
 	// leaves no half-open state behind for the browser to carry around.
 	config, err := provider.oauth2Config(callbackURI)
 	if err != nil {
 		log.Error().Err(err).Str("provider", provider.ID()).Msg("Could not build the OAuth config")
-		a.failLogin(w, r)
+		f.failLogin(w, r)
 		return
 	}
 
-	if err := a.setStateCookie(w, r, oauthState{
+	if err := f.setStateCookie(w, r, oauthState{
 		Provider:    provider.ID(),
 		State:       state,
 		Verifier:    verifier,
@@ -265,7 +314,7 @@ func (a *oauthAuthContext) LoginHandler(w http.ResponseWriter, r *http.Request) 
 		CallbackURI: callbackURI,
 	}); err != nil {
 		log.Error().Err(err).Msg("Could not set OAuth state cookie")
-		a.failLogin(w, r)
+		f.failLogin(w, r)
 		return
 	}
 
@@ -280,14 +329,14 @@ func (a *oauthAuthContext) LoginHandler(w http.ResponseWriter, r *http.Request) 
 
 // CallbackHandler finishes the flow. Every failure path lands on the login page
 // with ?error=oauth rather than leaking which step failed.
-func (a *oauthAuthContext) CallbackHandler(w http.ResponseWriter, r *http.Request) {
+func (f *oauthFlow) CallbackHandler(w http.ResponseWriter, r *http.Request) {
 	// The state is single use whatever happens next.
-	a.clearStateCookie(w, r)
+	f.clearStateCookie(w, r)
 
-	state, ok := a.readStateCookie(r)
+	state, ok := f.readStateCookie(r)
 	if !ok {
 		log.Warn().Msg("OAuth callback without a valid state cookie")
-		a.failLogin(w, r)
+		f.failLogin(w, r)
 		return
 	}
 
@@ -295,27 +344,27 @@ func (a *oauthAuthContext) CallbackHandler(w http.ResponseWriter, r *http.Reques
 
 	if errCode := query.Get("error"); errCode != "" {
 		log.Warn().Str("error", errCode).Str("description", query.Get("error_description")).Msg("OAuth provider returned an error")
-		a.failLogin(w, r)
+		f.failLogin(w, r)
 		return
 	}
 
 	if subtle.ConstantTimeCompare([]byte(state.State), []byte(query.Get("state"))) != 1 {
 		log.Warn().Msg("OAuth callback state did not match the state cookie")
-		a.failLogin(w, r)
+		f.failLogin(w, r)
 		return
 	}
 
-	provider := a.provider(state.Provider)
+	provider := f.provider(state.Provider)
 	if provider == nil {
 		log.Warn().Str("provider", state.Provider).Msg("OAuth callback for a provider that is no longer configured")
-		a.failLogin(w, r)
+		f.failLogin(w, r)
 		return
 	}
 
 	code := query.Get("code")
 	if code == "" {
 		log.Warn().Msg("OAuth callback without a code")
-		a.failLogin(w, r)
+		f.failLogin(w, r)
 		return
 	}
 
@@ -325,54 +374,40 @@ func (a *oauthAuthContext) CallbackHandler(w http.ResponseWriter, r *http.Reques
 	config, err := provider.oauth2Config(state.CallbackURI)
 	if err != nil {
 		log.Error().Err(err).Str("provider", provider.ID()).Msg("Could not build the OAuth config")
-		a.failLogin(w, r)
+		f.failLogin(w, r)
 		return
 	}
 
 	token, err := config.Exchange(ctx, code, oauth2.VerifierOption(state.Verifier))
 	if err != nil {
 		log.Error().Err(err).Msg("Could not exchange OAuth code")
-		a.failLogin(w, r)
+		f.failLogin(w, r)
 		return
 	}
 
 	identity, err := provider.identity(ctx, token)
 	if err != nil {
 		log.Error().Err(err).Msg("Could not read identity from OAuth provider")
-		a.failLogin(w, r)
+		f.failLogin(w, r)
 		return
 	}
 
-	// users.yml is the allowlist. No match means no login, and no account is
-	// ever created here.
-	user, ok := provider.match(a, identity)
+	jwt, ok := f.login(provider, identity)
 	if !ok {
-		log.Warn().
-			Str("provider", provider.ID()).
-			Str("login", identity.Login).
-			Msg("OAuth login rejected: no user in the user database is linked to this account")
-		a.failLogin(w, r)
+		f.failLogin(w, r)
 		return
 	}
 
-	jwt, err := a.issueToken(user)
-	if err != nil {
-		log.Error().Err(err).Msg("Could not create token after OAuth login")
-		a.failLogin(w, r)
-		return
-	}
-
-	SetSessionCookie(w, r, jwt, a.ttl)
-	log.Info().Str("user", user.Username).Str("provider", provider.ID()).Msg("Token created")
+	SetSessionCookie(w, r, jwt, f.ttl)
 
 	target := state.RedirectURL
 	if target == "" {
 		target = "/"
 	}
 
-	http.Redirect(w, r, a.base+target, http.StatusFound)
+	http.Redirect(w, r, f.base+target, http.StatusFound)
 }
 
-func (a *oauthAuthContext) failLogin(w http.ResponseWriter, r *http.Request) {
-	http.Redirect(w, r, a.base+"/login?error=oauth", http.StatusFound)
+func (f *oauthFlow) failLogin(w http.ResponseWriter, r *http.Request) {
+	http.Redirect(w, r, f.base+"/login?error=oauth", http.StatusFound)
 }

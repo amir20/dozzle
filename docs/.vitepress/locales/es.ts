@@ -38,6 +38,7 @@ export const es: Labels = {
     authentication: "Autenticación",
     "authentication/simple": "Simple (users.yml)",
     "authentication/oauth": "GitHub y OIDC",
+    "authentication/oidc": "OpenID Connect",
     "authentication/forward-proxy": "Proxy inverso",
     actions: "Acciones",
     "app-icons": "Iconos",

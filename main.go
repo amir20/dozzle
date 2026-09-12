@@ -63,7 +63,7 @@ func main() {
 	case "github", "google":
 		log.Debug().Str("alias", args.AuthProvider).Msg("Auth provider is an alias for simple")
 		args.AuthProvider = "simple"
-	case "none", "forward-proxy", "simple":
+	case "none", "forward-proxy", "simple", "oidc":
 	default:
 		log.Fatal().Str("provider", args.AuthProvider).Msg("Invalid auth provider")
 	}
@@ -250,6 +250,56 @@ func oauthProviders(args cli.Args) []auth.IdentityProvider {
 	return providers
 }
 
+// oidcAuth builds the oidc provider, where the token is the user database.
+//
+// It shares the --auth-oidc-* flags with simple auth, so the split between the
+// two has to show up in behavior: this mode never opens users.yml, refuses the
+// GitHub flags, and says at startup which claims it will read roles from.
+func oidcAuth(args cli.Args) web.OAuthAuthorizer {
+	if args.AuthOidcIssuer == "" || args.AuthOidcClientID == "" || args.AuthOidcClientSecret == "" {
+		log.Fatal().Msg("--auth-oidc-issuer, --auth-oidc-client-id and --auth-oidc-client-secret are required with --auth-provider oidc")
+	}
+
+	// GitHub is not an OpenID Connect issuer and publishes no claims to read
+	// roles from, so it cannot be a user database. Failing here beats a button
+	// that signs nobody in.
+	if args.AuthGithubClientID != "" || args.AuthGithubClientSecret != "" {
+		log.Fatal().Msg("--auth-github-client-id and --auth-github-client-secret cannot be used with --auth-provider oidc; use --auth-provider simple to sign users.yml users in with GitHub")
+	}
+
+	dataDir := "./data"
+	for _, name := range []string{"users.yml", "users.yaml"} {
+		if fileExists(filepath.Join(dataDir, name)) {
+			log.Warn().Str("file", name).Msg("Ignoring the user database: with --auth-provider oidc every user comes from the token")
+		}
+	}
+
+	ttl := time.Duration(0)
+	if args.AuthTTL != "session" {
+		var err error
+		ttl, err = time.ParseDuration(args.AuthTTL)
+		if err != nil {
+			log.Fatal().Err(err).Msg("Could not parse auth ttl")
+		}
+	}
+
+	authorizer := auth.NewOIDCAuth(auth.OIDCConfig{
+		Issuer:       args.AuthOidcIssuer,
+		ClientID:     args.AuthOidcClientID,
+		ClientSecret: args.AuthOidcClientSecret,
+		DisplayName:  args.AuthOidcName,
+		RolesClaim:   args.AuthOidcRolesClaim,
+		FiltersClaim: args.AuthOidcFiltersClaim,
+	}, args.Base, ttl, auth.SessionSecret(dataDir))
+
+	log.Info().
+		Str("issuer", args.AuthOidcIssuer).
+		Str("rolesClaim", authorizer.RolesClaims()).
+		Msg("Using OpenID Connect authentication; users and roles come from the token")
+
+	return authorizer
+}
+
 func fileExists(filename string) bool {
 	_, err := os.Stat(filename)
 	if os.IsNotExist(err) {
@@ -314,6 +364,9 @@ func createServer(args cli.Args, hostService web.HostService, cloudHooks web.Clo
 		if providers := oauthProviders(args); len(providers) > 0 {
 			authorizer = auth.NewOAuthAuth(simpleAuth, args.Base, providers...)
 		}
+	} else if args.AuthProvider == "oidc" {
+		provider = web.OIDC
+		authorizer = oidcAuth(args)
 	}
 
 	authTTL := time.Duration(0)

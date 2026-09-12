@@ -1,6 +1,6 @@
 ---
 title: Authentification
-sourceHash: c0e3f963afbe
+sourceHash: 111fbadf1b7a
 ---
 
 # Authentification
@@ -22,13 +22,14 @@ Dozzle a accès à `docker.sock`, ce qui équivaut, sauf restriction, à un acc�
 
 ## <Icon icon="mdi:key-outline" inline /> Choisir une méthode
 
-| Méthode                                                 | Qui gère les utilisateurs | À utiliser quand                                                                                                                                                   |
-| ------------------------------------------------------- | ------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| [Simple](/fr/guide/authentication/simple)               | Dozzle, dans `users.yml`  | Vous n'avez pas de solution d'authentification et vous voulez que Dozzle gère les connexions.                                                                      |
-| [GitHub et OIDC](/fr/guide/authentication/oauth)        | Dozzle, dans `users.yml`  | Vous voulez que les mêmes utilisateurs de `users.yml` se connectent avec GitHub, Google, Keycloak, Pocket ID, Zitadel ou Authentik plutôt qu'avec un mot de passe. |
-| [Forward proxy](/fr/guide/authentication/forward-proxy) | Votre proxy               | Vous utilisez déjà Authelia, Authentik, Cloudflare Access ou équivalent, et vous voulez qu'il gère entièrement l'authentification.                                 |
+| Méthode                                                 | Qui gère les utilisateurs    | À utiliser quand                                                                                                                                                    |
+| ------------------------------------------------------- | ---------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| [Simple](/fr/guide/authentication/simple)               | Dozzle, dans `users.yml`     | Vous n'avez pas de solution d'authentification et vous voulez que Dozzle gère les connexions.                                                                       |
+| [GitHub et OIDC](/fr/guide/authentication/oauth)        | Dozzle, dans `users.yml`     | Vous voulez que les mêmes utilisateurs de `users.yml` se connectent avec GitHub, Google, Keycloak, Pocket ID, Zitadel ou Authentik plutôt qu'avec un mot de passe.  |
+| [OpenID Connect](/fr/guide/authentication/oidc)         | Votre fournisseur d'identité | Vous voulez que Keycloak, Authentik, Zitadel ou Pocket ID possède la liste des utilisateurs, avec les rôles et les filtres lus depuis le token et sans `users.yml`. |
+| [Forward proxy](/fr/guide/authentication/forward-proxy) | Votre proxy                  | Vous utilisez déjà Authelia, Authentik, Cloudflare Access ou équivalent, et vous voulez qu'il gère entièrement l'authentification.                                  |
 
-Simple et OAuth sont le même fournisseur : `users.yml` est la liste des utilisateurs dans les deux cas, et OAuth ajoute seulement une deuxième façon de prouver que vous êtes l'un de ces utilisateurs. Le forward proxy est celui qui se distingue, et c'est le bon choix quand vous avez besoin de règles d'accès à l'échelle d'une organisation ou d'un domaine, ce que `users.yml` ne fait volontairement pas.
+Simple et OAuth sont le même fournisseur : `users.yml` est la liste des utilisateurs dans les deux cas, et OAuth ajoute seulement une deuxième façon de prouver que vous êtes l'un de ces utilisateurs. OpenID Connect et le forward proxy sont ceux qui se distinguent, avec quelque chose d'extérieur à Dozzle qui possède les utilisateurs. Choisissez `oidc` quand votre fournisseur d'identité peut mettre des rôles dans le token, et le forward proxy quand vous avez besoin de règles d'accès à l'échelle d'une organisation ou d'un domaine appliquées devant Dozzle, ce que `users.yml` ne fait volontairement pas.
 
 ## <Icon icon="mdi:file-document-edit-outline" inline /> Générer users.yml
 

@@ -61,7 +61,7 @@
             </div>
           </div>
 
-          <template v-if="config.authProvider === 'simple' || config.logoutUrl">
+          <template v-if="hasSession || config.logoutUrl">
             <div class="bg-base-content/10 my-1.5 h-px"></div>
             <button
               @click.prevent="logout()"
@@ -79,6 +79,10 @@
 <script lang="ts" setup>
 const { mounted: cloudSurfaceMounted } = useCloudSurface();
 const { logoutUrl } = config;
+
+// simple and oidc hold a session cookie Dozzle issued, so logging out means
+// clearing it. Forward proxy has none: the logout URL is the whole logout there.
+const hasSession = config.authProvider === "simple" || config.authProvider === "oidc";
 
 // The bell is the only place that watches for a fire the reader has not seen, so
 // it owns the polling. Without a cloud link there is nothing to remember and
@@ -101,13 +105,17 @@ watch(visibility, (state) => {
 });
 
 async function logout() {
-  if (logoutUrl) {
-    location.href = logoutUrl;
-  } else {
+  if (hasSession) {
     await fetch(withBase("/api/token"), {
       method: "DELETE",
     });
+  }
 
+  // Under oidc the URL is where to go once the session is gone, usually the
+  // issuer's own logout, so it runs after the DELETE rather than instead of it.
+  if (logoutUrl) {
+    location.href = logoutUrl;
+  } else {
     location.reload();
   }
 }

@@ -27,6 +27,8 @@ Configurations can be done with flags or environment variables. The table below 
 | `--auth-oidc-client-id`       | `DOZZLE_AUTH_OIDC_CLIENT_ID`       | `""`              |
 | `--auth-oidc-client-secret`   | `DOZZLE_AUTH_OIDC_CLIENT_SECRET`   | `""`              |
 | `--auth-oidc-name`            | `DOZZLE_AUTH_OIDC_NAME`            | `SSO`             |
+| `--auth-oidc-roles-claim`     | `DOZZLE_AUTH_OIDC_ROLES_CLAIM`     | `""`              |
+| `--auth-oidc-filters-claim`   | `DOZZLE_AUTH_OIDC_FILTERS_CLAIM`   | `""`              |
 | `--enable-actions`            | `DOZZLE_ENABLE_ACTIONS`            | `false`           |
 | `--enable-shell`              | `DOZZLE_ENABLE_SHELL`              | `false`           |
 | `--enable-mcp`                | `DOZZLE_ENABLE_MCP`                | `false`           |
@@ -45,6 +47,9 @@ Configurations can be done with flags or environment variables. The table below 
 
 > [!TIP]
 > `DOZZLE_AUTH_GITHUB_CLIENT_SECRET` and `DOZZLE_AUTH_OIDC_CLIENT_SECRET` also accept a `_FILE` counterpart naming a file to read the value from, for use with [Docker secrets](/guide/authentication/oauth#using-docker-secrets-for-the-client-secret).
+
+> [!TIP]
+> `DOZZLE_AUTH_OIDC_ROLES_CLAIM` and `DOZZLE_AUTH_OIDC_FILTERS_CLAIM` only apply to [`--auth-provider oidc`](/guide/authentication/oidc), and are only needed when the claims live somewhere the default search does not look.
 
 > [!TIP]
 > Some flags like `--remote-host` or `--remote-agent` can be used multiple times. For example, `--remote-agent 167.99.1.1:7007 --remote-agent 167.99.1.2:7007` or comma-separated `DOZZLE_REMOTE_AGENT=167.99.1.1:7007,167.99.1.2:7007`.

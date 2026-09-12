@@ -1,6 +1,6 @@
 ---
 title: Authentifizierung
-sourceHash: c0e3f963afbe
+sourceHash: 111fbadf1b7a
 ---
 
 # Authentifizierung
@@ -26,9 +26,10 @@ Dozzle hat Zugriff auf `docker.sock`, was — sofern nicht eingeschränkt — **
 | ------------------------------------------------------- | ------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | [Simple](/de/guide/authentication/simple)               | Dozzle, in `users.yml`   | Du hast keine Authentifizierungslösung und möchtest, dass Dozzle die Anmeldungen übernimmt.                                                                  |
 | [GitHub & OIDC](/de/guide/authentication/oauth)         | Dozzle, in `users.yml`   | Du möchtest, dass sich dieselben Benutzer aus `users.yml` mit GitHub, Google, Keycloak, Pocket ID, Zitadel oder Authentik anmelden statt mit einem Passwort. |
+| [OpenID Connect](/de/guide/authentication/oidc)         | Dein Identity Provider   | Du möchtest, dass Keycloak, Authentik, Zitadel oder Pocket ID die Benutzerliste besitzt, mit Rollen und Filtern aus dem Token und ohne `users.yml`.          |
 | [Forward Proxy](/de/guide/authentication/forward-proxy) | Dein Proxy               | Du betreibst bereits Authelia, Authentik, Cloudflare Access oder Ähnliches und möchtest, dass es die Authentifizierung vollständig übernimmt.                |
 
-Simple und OAuth sind derselbe Anbieter: `users.yml` ist in beiden Fällen die Benutzerliste, und OAuth ergänzt nur einen zweiten Weg, um nachzuweisen, dass du einer der Benutzer darin bist. Der Forward Proxy ist der eigenständige Weg, und er ist die richtige Wahl, wenn du organisations- oder domainweite Zugriffsregeln brauchst, was `users.yml` bewusst nicht kann.
+Simple und OAuth sind derselbe Anbieter: `users.yml` ist in beiden Fällen die Benutzerliste, und OAuth ergänzt nur einen zweiten Weg, um nachzuweisen, dass du einer der Benutzer darin bist. OpenID Connect und Forward Proxy sind die eigenständigen Wege, bei denen etwas außerhalb von Dozzle die Benutzer besitzt. Nimm `oidc`, wenn dein Identity Provider Rollen in das Token schreiben kann, und den Forward Proxy, wenn du organisations- oder domainweite Zugriffsregeln brauchst, die vor Dozzle durchgesetzt werden, was `users.yml` bewusst nicht kann.
 
 ## <Icon icon="mdi:file-document-edit-outline" inline /> users.yml erzeugen
 
