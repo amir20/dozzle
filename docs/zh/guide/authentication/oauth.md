@@ -1,6 +1,6 @@
 ---
 title: 使用 GitHub 与 OIDC 登录
-sourceHash: 7e8f4dfb70fa
+sourceHash: cfb7126acb65
 ---
 
 # <Icon icon="mdi:shield-account" inline /> 使用 GitHub 与 OIDC 登录
@@ -10,6 +10,9 @@ Dozzle 可以让用户用外部账号登录，而不必输入密码。这是 [`s
 这里有一点值得先说清楚：**`users.yml` 就是白名单。** 没有任何条目关联到的外部账号无法登录，也不会自动创建任何账号。
 
 密码登录会继续保留，这在 OAuth 应用出问题、你需要登录进去修复时很重要。
+
+> [!TIP]
+> 如果你更希望由身份提供方掌管用户列表，角色和过滤器从令牌里读取，完全不要 `users.yml`，那是一种独立的验证方式：参见 [OpenID Connect](/zh/guide/authentication/oidc)。
 
 ## 使用 GitHub 登录
 
@@ -141,6 +144,8 @@ users:
 
 > [!NOTE]
 > GitHub 按登录名匹配，OIDC 按邮箱匹配，这个区别是有意为之。GitHub 的登录名稳定且始终存在，而 GitHub 邮箱可能被设为私密或被更改。OIDC 没有对应的、稳定又便于阅读的标识，因此已验证的邮箱才是运维人员真正掌握的那个 claim。
+
+在这种模式下，提供方只负责证明你是谁。角色和过滤器仍然来自 `users.yml`，文件里没有列出的用户无论令牌里带了多少角色都无法登录。想让提供方同时决定这两者，请改用 [`--auth-provider oidc`](/zh/guide/authentication/oidc)。
 
 ### Google
 

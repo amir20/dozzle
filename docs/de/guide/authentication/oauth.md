@@ -1,6 +1,6 @@
 ---
 title: Mit GitHub & OIDC anmelden
-sourceHash: 7e8f4dfb70fa
+sourceHash: cfb7126acb65
 ---
 
 # <Icon icon="mdi:shield-account" inline /> Mit GitHub & OIDC anmelden
@@ -10,6 +10,9 @@ Dozzle kann Benutzer sich mit einem externen Konto anmelden lassen, statt ein Pa
 Das hat eine Konsequenz, die gleich vorweg gesagt sein will: **`users.yml` ist die Zugriffsliste.** Ein externes Konto, mit dem kein Eintrag verknüpft ist, kann sich nicht anmelden, und es wird nie automatisch ein Konto angelegt.
 
 Die Anmeldung mit Passwort funktioniert weiterhin daneben, was wichtig ist, wenn eine OAuth-App kaputtgeht und du hereinkommen musst, um sie zu reparieren.
+
+> [!TIP]
+> Wenn du lieber den Identity Provider die Benutzerliste besitzen lässt, mit Rollen und Filtern aus dem Token und ganz ohne `users.yml`, ist das ein eigener Anbieter: siehe [OpenID Connect](/de/guide/authentication/oidc).
 
 ## Mit GitHub anmelden
 
@@ -141,6 +144,8 @@ Die E-Mail-Adresse muss von deinem Anbieter als verifiziert markiert sein. Dozzl
 
 > [!NOTE]
 > GitHub gleicht über den Login ab und OIDC über die E-Mail-Adresse, und dieser Unterschied ist Absicht. Ein GitHub-Login ist stabil und immer vorhanden, während eine GitHub-E-Mail-Adresse privat sein oder geändert werden kann. Bei OIDC gibt es kein stabiles, menschenlesbares Gegenstück, also ist die verifizierte E-Mail-Adresse das Merkmal, das Betreiber tatsächlich kennen.
+
+In diesem Modus weist der Anbieter nur nach, wer du bist. Rollen und Filter kommen weiterhin aus `users.yml`, und ein Benutzer, den die Datei nicht auflistet, kann sich nicht anmelden, egal wie viele Rollen das Token trägt. Damit der Anbieter beides entscheidet, nimm stattdessen [`--auth-provider oidc`](/de/guide/authentication/oidc).
 
 ### Google
 

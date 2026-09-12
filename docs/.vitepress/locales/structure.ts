@@ -29,7 +29,7 @@ export const SECTIONS: Section[] = [
     items: [
       {
         slug: "authentication",
-        items: ["authentication/simple", "authentication/oauth", "authentication/forward-proxy"],
+        items: ["authentication/simple", "authentication/oauth", "authentication/oidc", "authentication/forward-proxy"],
       },
       { group: "containers", items: ["container-names", "container-groups", "container-links", "app-icons"] },
       { group: "hosts", items: ["agent", "remote-hosts", "hostname"] },

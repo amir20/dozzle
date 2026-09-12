@@ -39,6 +39,9 @@ const (
 	NONE          AuthProvider = "none"
 	SIMPLE        AuthProvider = "simple"
 	FORWARD_PROXY AuthProvider = "forward-proxy"
+	// OIDC is the provider where the identity provider is also the user
+	// database: no users.yml, no password form.
+	OIDC AuthProvider = "oidc"
 )
 
 // Config is a struct for configuring the web service
@@ -298,8 +301,13 @@ func createRouter(h *handler) *chi.Mux {
 			})
 
 			// Public API routes
-			if h.config.Authorization.Provider == SIMPLE {
-				r.Post("/token", h.createToken)
+			switch h.config.Authorization.Provider {
+			case SIMPLE, OIDC:
+				// No POST /token under oidc: there is no password to check, and
+				// not registering the route is what makes that verifiable.
+				if h.config.Authorization.Provider == SIMPLE {
+					r.Post("/token", h.createToken)
+				}
 				r.Delete("/token", h.deleteToken)
 
 				// Both have to stay unauthenticated: they are how a session is

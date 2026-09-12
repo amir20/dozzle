@@ -1,6 +1,6 @@
 ---
 title: Umgebungsvariablen und Unterbefehle
-sourceHash: 3b46b35a4f0e
+sourceHash: a9818d761eb6
 ---
 
 # Globale Umgebungsvariablen
@@ -28,6 +28,8 @@ Die Konfiguration erfolgt über Optionen oder Umgebungsvariablen. Die Tabelle un
 | `--auth-oidc-client-id`       | `DOZZLE_AUTH_OIDC_CLIENT_ID`       | `""`              |
 | `--auth-oidc-client-secret`   | `DOZZLE_AUTH_OIDC_CLIENT_SECRET`   | `""`              |
 | `--auth-oidc-name`            | `DOZZLE_AUTH_OIDC_NAME`            | `SSO`             |
+| `--auth-oidc-roles-claim`     | `DOZZLE_AUTH_OIDC_ROLES_CLAIM`     | `""`              |
+| `--auth-oidc-filters-claim`   | `DOZZLE_AUTH_OIDC_FILTERS_CLAIM`   | `""`              |
 | `--enable-actions`            | `DOZZLE_ENABLE_ACTIONS`            | `false`           |
 | `--enable-shell`              | `DOZZLE_ENABLE_SHELL`              | `false`           |
 | `--enable-mcp`                | `DOZZLE_ENABLE_MCP`                | `false`           |
@@ -46,6 +48,9 @@ Die Konfiguration erfolgt über Optionen oder Umgebungsvariablen. Die Tabelle un
 
 > [!TIP]
 > `DOZZLE_AUTH_GITHUB_CLIENT_SECRET` und `DOZZLE_AUTH_OIDC_CLIENT_SECRET` akzeptieren auch ein Gegenstück mit `_FILE`, das eine Datei benennt, aus der der Wert gelesen wird, zur Nutzung mit [Docker Secrets](/de/guide/authentication/oauth#docker-secrets-fur-das-client-secret-verwenden).
+
+> [!TIP]
+> `DOZZLE_AUTH_OIDC_ROLES_CLAIM` und `DOZZLE_AUTH_OIDC_FILTERS_CLAIM` gelten nur für [`--auth-provider oidc`](/de/guide/authentication/oidc) und werden nur gebraucht, wenn die Claims an einer Stelle liegen, an der die Standardsuche nicht nachsieht.
 
 > [!TIP]
 > Manche Optionen wie `--remote-host` oder `--remote-agent` lassen sich mehrfach angeben. Zum Beispiel `--remote-agent 167.99.1.1:7007 --remote-agent 167.99.1.2:7007` oder kommagetrennt `DOZZLE_REMOTE_AGENT=167.99.1.1:7007,167.99.1.2:7007`.

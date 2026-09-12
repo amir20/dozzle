@@ -81,7 +81,7 @@ func (h *handler) executeTemplate(w http.ResponseWriter, req *http.Request) {
 			}
 			http.Error(w, "Unauthorized user", http.StatusUnauthorized)
 			return
-		case SIMPLE:
+		case SIMPLE, OIDC:
 			if req.URL.Path != "login" {
 				log.Debug().Str("url", req.URL.String()).Msg("Redirecting to login page")
 				// The login page navigates to whatever comes back in redirectUrl, so
@@ -150,8 +150,13 @@ func (h *handler) executeTemplate(w http.ResponseWriter, req *http.Request) {
 			config["user"] = user
 		}
 
-		if h.config.Authorization.Provider == FORWARD_PROXY && strings.TrimSpace(h.config.Authorization.LogoutUrl) != "" {
-			config["logoutUrl"] = strings.TrimSpace(h.config.Authorization.LogoutUrl)
+		// Forward proxy has no session of its own to clear, so the URL is the
+		// whole logout. Under oidc it is where the browser goes after Dozzle's
+		// session is cleared, typically the issuer's end_session_endpoint.
+		if provider := h.config.Authorization.Provider; provider == FORWARD_PROXY || provider == OIDC {
+			if logoutURL := strings.TrimSpace(h.config.Authorization.LogoutUrl); logoutURL != "" {
+				config["logoutUrl"] = logoutURL
+			}
 		}
 	}
 

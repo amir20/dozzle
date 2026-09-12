@@ -1,6 +1,6 @@
 ---
 title: Iniciar sesión con GitHub y OIDC
-sourceHash: 7e8f4dfb70fa
+sourceHash: cfb7126acb65
 ---
 
 # <Icon icon="mdi:shield-account" inline /> Iniciar sesión con GitHub y OIDC
@@ -10,6 +10,9 @@ Dozzle puede permitir que los usuarios inicien sesión con una cuenta externa en
 Eso tiene una consecuencia que conviene dejar clara desde el principio: **`users.yml` es la lista de permitidos.** Una cuenta externa que no esté vinculada a ninguna entrada no puede iniciar sesión, y nunca se crea ninguna cuenta de forma automática.
 
 El inicio de sesión con contraseña sigue funcionando en paralelo, algo que importa cuando una OAuth App se rompe y necesitas entrar para arreglarla.
+
+> [!TIP]
+> Si prefieres que el proveedor de identidad sea el dueño de la lista de usuarios, con roles y filtros leídos del token y sin ningún `users.yml`, eso es un proveedor aparte: consulta [OpenID Connect](/es/guide/authentication/oidc).
 
 ## Iniciar sesión con GitHub
 
@@ -141,6 +144,8 @@ Tu proveedor tiene que marcar ese correo como verificado. Dozzle rechaza el inic
 
 > [!NOTE]
 > GitHub identifica por el login y OIDC por el correo, y esa diferencia es intencionada. Un login de GitHub es estable y siempre está presente, mientras que el correo de GitHub puede ser privado o cambiar. OIDC no tiene un equivalente estable y legible por personas, así que el correo verificado es el dato que los administradores conocen de verdad.
+
+En este modo el proveedor solo demuestra quién eres. Los roles y los filtros siguen saliendo de `users.yml`, y un usuario que no esté en el archivo no puede iniciar sesión por muchos roles que lleve el token. Para que el proveedor decida las dos cosas, usa [`--auth-provider oidc`](/es/guide/authentication/oidc) en su lugar.
 
 ### Google
 

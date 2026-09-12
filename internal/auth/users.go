@@ -30,6 +30,29 @@ type User struct {
 	RolesConfigured string                    `json:"-" yaml:"roles"`
 	ContainerLabels container.ContainerLabels `json:"-" yaml:"-"`
 	Roles           Role                      `json:"-" yaml:"-"`
+	// Picture is an avatar URL the identity provider asserted, set only by the
+	// oidc provider. See PictureURL for why it is not proxied like the gravatar.
+	Picture string `json:"-" yaml:"-"`
+}
+
+// PictureURL is the provider-asserted avatar, or "" when there is none or it is
+// not an https URL. The avatar handler redirects the browser to it rather than
+// fetching it the way it fetches the gravatar: at many providers a user can
+// edit their own picture, so fetching it server-side would let anyone who can
+// sign in point Dozzle at an internal address and read the response back.
+// https only, because a Dozzle served over TLS cannot show an http image anyway.
+func (u User) PictureURL() string {
+	picture := strings.TrimSpace(u.Picture)
+	if picture == "" {
+		return ""
+	}
+
+	parsed, err := url.Parse(picture)
+	if err != nil || parsed.Scheme != "https" || parsed.Host == "" {
+		return ""
+	}
+
+	return picture
 }
 
 func (u User) AvatarURL() string {

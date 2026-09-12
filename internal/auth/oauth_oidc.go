@@ -9,6 +9,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/rs/zerolog/log"
 	"golang.org/x/oauth2"
 )
 
@@ -22,6 +23,11 @@ type oidcProvider struct {
 	displayName  string
 	scopes       []string
 	client       *http.Client
+
+	// requireVerifiedEmail is set under simple auth, where the email is what
+	// matches the login to a users.yml entry. The oidc provider keys on sub and
+	// only displays the email, so an issuer with no email scope works there.
+	requireVerifiedEmail bool
 
 	// Discovery is fetched once and cached, but a failure is not cached: an IdP
 	// that is down while Dozzle boots must not disable SSO until the next
@@ -53,6 +59,8 @@ func NewOIDCProvider(issuer, clientID, clientSecret, displayName string) *oidcPr
 		displayName:  displayName,
 		scopes:       []string{"openid", "profile", "email"},
 		client:       &http.Client{Timeout: 10 * time.Second},
+
+		requireVerifiedEmail: true,
 	}
 }
 
@@ -151,6 +159,35 @@ type oidcUserInfo struct {
 	EmailVerified     any    `json:"email_verified"`
 	Name              string `json:"name"`
 	PreferredUsername string `json:"preferred_username"`
+	Picture           string `json:"picture"`
+}
+
+// fromClaims fills the standard claims from a decoded ID token, so a field the
+// userinfo response leaves out can still come from the token.
+func (u *oidcUserInfo) fromClaims(claims map[string]any) {
+	str := func(key string) string {
+		s, _ := claims[key].(string)
+		return s
+	}
+
+	if u.Sub == "" {
+		u.Sub = str("sub")
+	}
+	if u.Email == "" {
+		u.Email = str("email")
+		if verified, ok := claims["email_verified"]; ok {
+			u.EmailVerified = verified
+		}
+	}
+	if u.Name == "" {
+		u.Name = str("name")
+	}
+	if u.PreferredUsername == "" {
+		u.PreferredUsername = str("preferred_username")
+	}
+	if u.Picture == "" {
+		u.Picture = str("picture")
+	}
 }
 
 // verified normalizes email_verified, which some issuers send as the string
@@ -166,7 +203,7 @@ func (u oidcUserInfo) verified() bool {
 	}
 }
 
-// identity reads the claims from the userinfo endpoint.
+// identity reads the claims from the ID token and the userinfo endpoint.
 //
 // The id_token's signature is deliberately not checked here, because nothing
 // rests on it: the code was exchanged by this process, directly against the
@@ -185,6 +222,19 @@ func (o *oidcProvider) identity(ctx context.Context, token *oauth2.Token) (exter
 	config, err := o.oauth2Config("")
 	if err != nil {
 		return externalIdentity{}, err
+	}
+
+	// Best effort: a missing or malformed ID token only costs the claims that
+	// live in it, and userinfo is still read. Keycloak puts resource_access in
+	// the ID token and only mirrors it into userinfo when a mapper says so, so
+	// the token is the first place roles are looked for.
+	var claims claimSet
+	if raw, ok := token.Extra("id_token").(string); ok && raw != "" {
+		if idToken, err := decodeJWTClaims(raw); err == nil {
+			claims = append(claims, idToken)
+		} else {
+			log.Debug().Err(err).Msg("Could not decode the OIDC ID token; reading claims from userinfo only")
+		}
 	}
 
 	client := config.Client(ctx, token)
@@ -206,25 +256,44 @@ func (o *oidcProvider) identity(ctx context.Context, token *oauth2.Token) (exter
 		return externalIdentity{}, fmt.Errorf("OIDC userinfo returned %s", resp.Status)
 	}
 
-	var info oidcUserInfo
-	if err := json.NewDecoder(resp.Body).Decode(&info); err != nil {
+	var userInfo map[string]any
+	if err := json.NewDecoder(resp.Body).Decode(&userInfo); err != nil {
 		return externalIdentity{}, err
 	}
+	claims = append(claims, userInfo)
 
-	if info.Email == "" {
-		return externalIdentity{}, fmt.Errorf("OIDC userinfo returned no email; the issuer must grant the email scope")
+	// userinfo is the authoritative profile; the ID token fills in what it left
+	// out. Google, for one, only puts picture in userinfo.
+	var info oidcUserInfo
+	info.fromClaims(userInfo)
+	if len(claims) == 2 {
+		idSub, _ := claims[0]["sub"].(string)
+		// The spec has the client verify this: a userinfo response for a
+		// different subject than the token was issued for is not the same user.
+		if idSub != "" && info.Sub != "" && idSub != info.Sub {
+			return externalIdentity{}, fmt.Errorf("OIDC userinfo sub %q does not match the ID token sub %q", info.Sub, idSub)
+		}
+		info.fromClaims(claims[0])
 	}
 
-	// Matching an unverified address would let anyone who can register at a
-	// sloppy IdP claim a Dozzle account by typing in someone else's email.
-	if !info.verified() {
-		return externalIdentity{}, fmt.Errorf("OIDC userinfo reported email %q as unverified", info.Email)
+	if o.requireVerifiedEmail {
+		if info.Email == "" {
+			return externalIdentity{}, fmt.Errorf("OIDC userinfo returned no email; the issuer must grant the email scope")
+		}
+
+		// Matching an unverified address would let anyone who can register at a
+		// sloppy IdP claim a Dozzle account by typing in someone else's email.
+		if !info.verified() {
+			return externalIdentity{}, fmt.Errorf("OIDC userinfo reported email %q as unverified", info.Email)
+		}
 	}
 
 	return externalIdentity{
-		Sub:   info.Sub,
-		Login: info.PreferredUsername,
-		Email: info.Email,
-		Name:  info.Name,
+		Sub:     info.Sub,
+		Login:   info.PreferredUsername,
+		Email:   info.Email,
+		Name:    info.Name,
+		Picture: info.Picture,
+		Claims:  claims,
 	}, nil
 }

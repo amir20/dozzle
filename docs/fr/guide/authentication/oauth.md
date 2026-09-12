@@ -1,6 +1,6 @@
 ---
 title: Se connecter avec GitHub et OIDC
-sourceHash: 7e8f4dfb70fa
+sourceHash: cfb7126acb65
 ---
 
 # <Icon icon="mdi:shield-account" inline /> Se connecter avec GitHub et OIDC
@@ -10,6 +10,9 @@ Dozzle peut laisser les utilisateurs se connecter avec un compte externe au lieu
 Cela a une conséquence qui mérite d'être dite d'emblée : **`users.yml` est la liste d'autorisation.** Un compte externe auquel aucune entrée n'est liée ne peut pas se connecter, et aucun compte n'est jamais créé automatiquement.
 
 La connexion par mot de passe continue de fonctionner à côté, ce qui compte quand une OAuth App casse et qu'il faut pouvoir entrer pour la réparer.
+
+> [!TIP]
+> Si vous préférez que le fournisseur d'identité possède la liste des utilisateurs, avec les rôles et les filtres lus depuis le token et sans `users.yml` du tout, c'est un fournisseur à part entière : voir [OpenID Connect](/fr/guide/authentication/oidc).
 
 ## Se connecter avec GitHub
 
@@ -141,6 +144,8 @@ L'email doit être marqué comme vérifié par votre fournisseur. Dozzle refuse 
 
 > [!NOTE]
 > GitHub fait la correspondance sur le login et OIDC sur l'email, et cette différence est voulue. Un login GitHub est stable et toujours présent, alors qu'un email GitHub peut être privé ou changer. OIDC n'a pas d'équivalent stable et lisible par un humain, l'email vérifié est donc l'attribut que les administrateurs connaissent réellement.
+
+Dans ce mode, le fournisseur prouve seulement qui vous êtes. Les rôles et les filtres viennent toujours de `users.yml`, et un utilisateur que le fichier ne liste pas ne peut pas se connecter, quel que soit le nombre de rôles que porte le token. Pour que le fournisseur décide des deux, utilisez plutôt [`--auth-provider oidc`](/fr/guide/authentication/oidc).
 
 ### Google
 

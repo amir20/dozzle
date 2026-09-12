@@ -1,6 +1,6 @@
 ---
 title: 环境变量与子命令
-sourceHash: 3b46b35a4f0e
+sourceHash: a9818d761eb6
 ---
 
 # 全局环境变量
@@ -28,6 +28,8 @@ sourceHash: 3b46b35a4f0e
 | `--auth-oidc-client-id`       | `DOZZLE_AUTH_OIDC_CLIENT_ID`       | `""`              |
 | `--auth-oidc-client-secret`   | `DOZZLE_AUTH_OIDC_CLIENT_SECRET`   | `""`              |
 | `--auth-oidc-name`            | `DOZZLE_AUTH_OIDC_NAME`            | `SSO`             |
+| `--auth-oidc-roles-claim`     | `DOZZLE_AUTH_OIDC_ROLES_CLAIM`     | `""`              |
+| `--auth-oidc-filters-claim`   | `DOZZLE_AUTH_OIDC_FILTERS_CLAIM`   | `""`              |
 | `--enable-actions`            | `DOZZLE_ENABLE_ACTIONS`            | `false`           |
 | `--enable-shell`              | `DOZZLE_ENABLE_SHELL`              | `false`           |
 | `--enable-mcp`                | `DOZZLE_ENABLE_MCP`                | `false`           |
@@ -46,6 +48,9 @@ sourceHash: 3b46b35a4f0e
 
 > [!TIP]
 > `DOZZLE_AUTH_GITHUB_CLIENT_SECRET` 和 `DOZZLE_AUTH_OIDC_CLIENT_SECRET` 还接受一个 `_FILE` 形式的对应变量，用来指明从哪个文件读取这个值，方便配合 [Docker secrets](/zh/guide/authentication/oauth#用-docker-secrets-保存-client-secret) 使用。
+
+> [!TIP]
+> `DOZZLE_AUTH_OIDC_ROLES_CLAIM` 和 `DOZZLE_AUTH_OIDC_FILTERS_CLAIM` 只对 [`--auth-provider oidc`](/zh/guide/authentication/oidc) 生效，而且只有当 claim 放在默认搜索不会去找的位置时才需要设置。
 
 > [!TIP]
 > 有些标志（例如 `--remote-host` 或 `--remote-agent`）可以多次使用。例如 `--remote-agent 167.99.1.1:7007 --remote-agent 167.99.1.2:7007`，或者用逗号分隔的 `DOZZLE_REMOTE_AGENT=167.99.1.1:7007,167.99.1.2:7007`。
