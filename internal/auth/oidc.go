@@ -150,7 +150,8 @@ func (a *oidcAuthContext) loginUser(provider IdentityProvider, identity external
 		return "", false
 	}
 
-	user := a.newUser(identity.Sub, identity.Login, identity.Email, identity.Name, identity.Picture, rolesRaw, filtersRaw)
+	picture := sessionPicture(identity.Picture)
+	user := a.newUser(identity.Sub, identity.Login, identity.Email, identity.Name, picture, rolesRaw, filtersRaw)
 
 	// Roles and filters ride in the session as the raw claim strings and are
 	// parsed again on every request. There is no users.yml to re-read, so the
@@ -160,7 +161,7 @@ func (a *oidcAuthContext) loginUser(provider IdentityProvider, identity external
 		"username": identity.Login,
 		"email":    identity.Email,
 		"name":     identity.Name,
-		"picture":  identity.Picture,
+		"picture":  picture,
 		"roles":    rolesRaw,
 		"filters":  filtersRaw,
 	}
@@ -175,6 +176,16 @@ func (a *oidcAuthContext) loginUser(provider IdentityProvider, identity external
 		return "", false
 	}
 
+	// Browsers drop a cookie past ~4KB without telling anyone, so the user just
+	// lands back on the login page. Refuse here instead, where it can be logged.
+	if len(token) > maxSessionCookieBytes {
+		log.Warn().
+			Str("sub", identity.Sub).
+			Int("bytes", len(token)).
+			Msg("OIDC login rejected: the session token is too large for a browser cookie, check for oversized name, email, roles or filters claims")
+		return "", false
+	}
+
 	log.Info().
 		Str("user", user.Username).
 		Str("login", identity.Login).
@@ -183,6 +194,25 @@ func (a *oidcAuthContext) loginUser(provider IdentityProvider, identity external
 		Msg("Token created")
 
 	return token, true
+}
+
+// maxSessionCookieBytes leaves room under the browser's 4096 byte cookie limit
+// for the name and attributes.
+const maxSessionCookieBytes = 3900
+
+// maxPictureBytes caps the picture carried in the session. Some issuers send a
+// data: URL of the image itself, several KB, which would overflow the cookie.
+const maxPictureBytes = 1024
+
+// sessionPicture keeps only a picture the avatar handler would actually serve,
+// so a data: URL or an oversized link never reaches the session cookie.
+func sessionPicture(picture string) string {
+	picture = User{Picture: picture}.PictureURL()
+	if len(picture) > maxPictureBytes {
+		return ""
+	}
+
+	return picture
 }
 
 // newUser builds the request-scoped user from what the session carries.

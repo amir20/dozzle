@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"net/url"
+	"strings"
 	"testing"
 	"time"
 
@@ -323,6 +324,29 @@ func TestOIDCAuthPictureFeedsTheAvatar(t *testing.T) {
 		user.Picture = picture
 		require.Empty(t, user.PictureURL(), picture)
 	}
+}
+
+// Keycloak can put the image itself in picture as a data: URL. It must not end
+// up in the session cookie, where it pushes past the browser's 4KB limit.
+func TestOIDCAuthDropsADataURLPictureFromTheSession(t *testing.T) {
+	claims := keycloakClaims("shell")
+	claims["picture"] = "data:image/png;base64," + strings.Repeat("A", 6000)
+	a := oidcUserAuth(t, oidcUserServer{idToken: claims}, OIDCConfig{})
+
+	jwt := sessionCookie(signIn(t, a))
+	require.Less(t, len(jwt.Value), maxSessionCookieBytes)
+
+	user := userFor(t, a, signIn(t, a))
+	require.Empty(t, user.Picture)
+	require.Contains(t, user.AvatarURL(), "gravatar.com")
+}
+
+func TestOIDCAuthRejectsASessionTooLargeForACookie(t *testing.T) {
+	claims := keycloakClaims("shell")
+	claims["name"] = strings.Repeat("a", 5000)
+	a := oidcUserAuth(t, oidcUserServer{idToken: claims}, OIDCConfig{})
+
+	requireRejected(t, signIn(t, a))
 }
 
 // Roles and filters ride in the session and are re-parsed per request, so the
