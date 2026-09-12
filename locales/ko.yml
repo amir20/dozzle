@@ -353,7 +353,6 @@ notifications:
     title: 활동
     loading: 활동을 불러오는 중…
     failed: 활동을 불러올 수 없습니다.
-    empty-unlinked: 이 인스턴스를 Dozzle Cloud에 연결하면 알림이 여기에 표시됩니다. 그전까지는 로그 스트림에만 나타나고 새로고침하면 사라집니다.
     empty: 최근에 발생한 알림이 없습니다.
     still-happening: 계속 발생 중
     events: 이벤트 {n}건

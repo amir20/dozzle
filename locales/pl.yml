@@ -352,7 +352,6 @@ notifications:
     title: Aktywność
     loading: Wczytywanie aktywności…
     failed: Nie udało się wczytać aktywności.
-    empty-unlinked: Alerty pojawią się tutaj, gdy ta instancja zostanie połączona z Dozzle Cloud. Do tego czasu przewijają się w strumieniu logów i znikają po odświeżeniu.
     empty: Ostatnio nic się nie uruchomiło.
     still-happening: nadal trwa
     events: "{n} zdarzeń"

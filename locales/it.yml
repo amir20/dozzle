@@ -349,7 +349,6 @@ notifications:
     title: Attività
     loading: Caricamento attività…
     failed: Impossibile caricare l'attività.
-    empty-unlinked: Gli avvisi compaiono qui quando questa istanza è collegata a Dozzle Cloud. Fino ad allora passano nel flusso dei log e vengono dimenticati al ricaricamento.
     empty: Nulla è scattato di recente.
     still-happening: ancora in corso
     events: "{n} eventi"

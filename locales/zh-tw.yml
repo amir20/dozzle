@@ -352,7 +352,6 @@ notifications:
     title: 動態
     loading: 正在載入動態…
     failed: 無法載入動態。
-    empty-unlinked: 把這個實例連結到 Dozzle Cloud 之後，警報就會出現在這裡。在那之前它們只會從日誌串流裡閃過，重新載入就沒了。
     empty: 最近沒有任何警報觸發。
     still-happening: 仍在持續
     events: "{n} 個事件"

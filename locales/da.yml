@@ -349,7 +349,6 @@ notifications:
     title: Aktivitet
     loading: Indlæser aktivitet…
     failed: Kunne ikke indlæse aktivitet.
-    empty-unlinked: Alarmer vises her, når denne instans er forbundet til Dozzle Cloud. Indtil da optræder de i logstrømmen og glemmes ved genindlæsning.
     empty: Intet er udløst nyligt.
     still-happening: sker stadig
     events: "{n} hændelser"

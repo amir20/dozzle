@@ -353,7 +353,6 @@ notifications:
     title: Etkinlik
     loading: Etkinlik yükleniyor…
     failed: Etkinlik yüklenemedi.
-    empty-unlinked: Bu örnek Dozzle Cloud'a bağlandığında uyarılar burada görünür. O zamana kadar yalnızca log akışında geçer ve sayfa yenilenince kaybolur.
     empty: Son zamanlarda hiçbir şey tetiklenmedi.
     still-happening: hâlâ sürüyor
     events: "{n} olay"

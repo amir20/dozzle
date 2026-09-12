@@ -355,7 +355,6 @@ notifications:
     title: Dejavnost
     loading: Nalaganje dejavnosti…
     failed: Dejavnosti ni bilo mogoče naložiti.
-    empty-unlinked: Opozorila se pokažejo tukaj, ko je ta instanca povezana z Dozzle Cloud. Do takrat se pojavijo v toku dnevnikov in se ob osvežitvi pozabijo.
     empty: Nedavno se ni sprožilo nič.
     still-happening: še vedno se dogaja
     events: "{n} dogodkov"
