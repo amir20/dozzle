@@ -66,6 +66,8 @@ log-details:
   fields-hint: Zum Umsortieren ziehen. Umschalten, um sie im Log-Stream ein- oder auszublenden.
   toggle-all: Alle Felder umschalten
 label:
+  hide-sidebar: "Seitenleiste ausblenden"
+  show-sidebar: "Seitenleiste einblenden"
   host-unreachable: "nicht erreichbar"
   agent-unreachable: "Agent unter {endpoint} nicht erreichbar"
   agent-outdated: "Agent {version}"

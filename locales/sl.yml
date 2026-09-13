@@ -66,6 +66,8 @@ log-details:
   fields-hint: Povlecite za spremembo vrstnega reda. Preklopite za prikaz ali skritje v toku dnevnikov.
   toggle-all: Preklopi vsa polja
 label:
+  hide-sidebar: "Skrij stransko vrstico"
+  show-sidebar: "Prikaži stransko vrstico"
   host-unreachable: "nedosegljiv"
   agent-unreachable: "Agenta na {endpoint} ni mogoče doseči"
   agent-outdated: "agent {version}"

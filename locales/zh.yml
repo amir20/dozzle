@@ -66,6 +66,8 @@ log-details:
   fields-hint: 拖动可重新排序。切换可在日志流中显示或隐藏。
   toggle-all: 切换所有字段
 label:
+  hide-sidebar: "隐藏侧边栏"
+  show-sidebar: "显示侧边栏"
   host-unreachable: "无法连接"
   agent-unreachable: "无法连接到位于 {endpoint} 的代理"
   agent-outdated: "代理 {version}"

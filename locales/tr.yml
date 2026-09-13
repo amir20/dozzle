@@ -66,6 +66,8 @@ log-details:
   fields-hint: Yeniden sıralamak için sürükleyin. Günlük akışında göstermek veya gizlemek için değiştirin.
   toggle-all: Tüm alanları değiştir
 label:
+  hide-sidebar: "Kenar çubuğunu gizle"
+  show-sidebar: "Kenar çubuğunu göster"
   host-unreachable: "erişilemiyor"
   agent-unreachable: "{endpoint} adresindeki ajana ulaşılamıyor"
   agent-outdated: "ajan {version}"

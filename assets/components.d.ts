@@ -72,6 +72,7 @@ declare module 'vue' {
     Dropdown: typeof import('./components/ui/Dropdown.vue')['default']
     DropdownMenu: typeof import('./components/ui/DropdownMenu.vue')['default']
     DurationField: typeof import('./components/ui/DurationField.vue')['default']
+    EdgeTab: typeof import('./components/ui/EdgeTab.vue')['default']
     EmptyState: typeof import('./components/ui/EmptyState.vue')['default']
     EventAlertFields: typeof import('./components/notifications/EventAlertFields.vue')['default']
     EventSource: typeof import('./components/logs/EventSource.vue')['default']

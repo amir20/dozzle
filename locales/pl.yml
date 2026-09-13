@@ -66,6 +66,8 @@ log-details:
   fields-hint: Przeciągnij, aby zmienić kolejność. Przełącz, aby pokazać lub ukryć w strumieniu logów.
   toggle-all: Przełącz wszystkie pola
 label:
+  hide-sidebar: "Ukryj pasek boczny"
+  show-sidebar: "Pokaż pasek boczny"
   host-unreachable: "niedostępny"
   agent-unreachable: "Nie można połączyć się z agentem pod adresem {endpoint}"
   agent-outdated: "agent {version}"

@@ -66,6 +66,8 @@ log-details:
   fields-hint: Перетащите, чтобы изменить порядок. Переключите, чтобы показать или скрыть в потоке логов.
   toggle-all: Переключить все поля
 label:
+  hide-sidebar: "Скрыть боковую панель"
+  show-sidebar: "Показать боковую панель"
   host-unreachable: "недоступен"
   agent-unreachable: "Не удаётся связаться с агентом по адресу {endpoint}"
   agent-outdated: "агент {version}"

@@ -67,6 +67,8 @@ log-details:
   fields-hint: Seret untuk mengurutkan ulang. Alihkan untuk menampilkan atau menyembunyikan di aliran log.
   toggle-all: Alihkan semua bidang
 label:
+  hide-sidebar: "Sembunyikan bilah sisi"
+  show-sidebar: "Tampilkan bilah sisi"
   host-unreachable: "tidak dapat dijangkau"
   agent-unreachable: "Tidak dapat menjangkau agen di {endpoint}"
   agent-outdated: "agen {version}"

@@ -66,6 +66,8 @@ log-details:
   fields-hint: Arraste para reordenar. Alterne para mostrar ou ocultar no fluxo de logs.
   toggle-all: Alternar todos os campos
 label:
+  hide-sidebar: "Ocultar a barra lateral"
+  show-sidebar: "Mostrar a barra lateral"
   host-unreachable: "inacessível"
   agent-unreachable: "Não foi possível alcançar o agente em {endpoint}"
   agent-outdated: "agente {version}"

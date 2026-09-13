@@ -66,6 +66,8 @@ log-details:
   fields-hint: 拖曳可重新排序。切換可在日誌串流中顯示或隱藏。
   toggle-all: 切換所有欄位
 label:
+  hide-sidebar: "隱藏側邊欄"
+  show-sidebar: "顯示側邊欄"
   host-unreachable: "無法連線"
   agent-unreachable: "無法連線至位於 {endpoint} 的代理程式"
   agent-outdated: "代理程式 {version}"

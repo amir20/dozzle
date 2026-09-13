@@ -30,15 +30,14 @@
         </div>
       </Pane>
     </Splitpanes>
-    <label
-      class="btn btn-circle swap bg-base-content/10 swap-rotate border-base-content/20 hover:border-primary fixed bottom-4 -left-12 w-16 shadow-sm transition-all hover:-left-4"
-      :class="{ '-left-6!': collapseNav }"
-      v-if="!isMobile && !forceMenuHidden"
-    >
-      <input type="checkbox" v-model="collapseNav" />
-      <mdi:chevron-right class="swap-on" />
-      <mdi:chevron-left class="swap-off" />
-    </label>
+    <!-- Hiding lives at the bottom of the sidebar itself; this is what brings it back,
+         the same edge tab the cloud rail leaves on the other side. -->
+    <EdgeTab
+      v-if="!isMobile && !forceMenuHidden && collapseNav"
+      side="left"
+      :label="$t('label.show-sidebar')"
+      @click="collapseNav = false"
+    />
   </div>
   <CloudRail v-if="railMounted" />
   <CloudRailHandle v-else-if="railCollapsed" />

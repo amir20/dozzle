@@ -66,6 +66,8 @@ log-details:
   fields-hint: Træk for at ændre rækkefølgen. Slå til eller fra for at vise eller skjule i logstrømmen.
   toggle-all: Slå alle felter til eller fra
 label:
+  hide-sidebar: "Skjul sidepanelet"
+  show-sidebar: "Vis sidepanelet"
   host-unreachable: "utilgængelig"
   agent-unreachable: "Kan ikke nå agenten på {endpoint}"
   agent-outdated: "agent {version}"

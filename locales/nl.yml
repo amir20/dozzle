@@ -66,6 +66,8 @@ log-details:
   fields-hint: Sleep om te herordenen. Schakel in of uit om ze in de logstroom te tonen of te verbergen.
   toggle-all: Alle velden omschakelen
 label:
+  hide-sidebar: "Zijbalk verbergen"
+  show-sidebar: "Zijbalk tonen"
   host-unreachable: "onbereikbaar"
   agent-unreachable: "Kan agent op {endpoint} niet bereiken"
   agent-outdated: "agent {version}"

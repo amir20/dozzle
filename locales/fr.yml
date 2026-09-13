@@ -66,6 +66,8 @@ log-details:
   fields-hint: Faites glisser pour réordonner. Activez ou désactivez pour les afficher ou les masquer dans le flux de logs.
   toggle-all: Basculer tous les champs
 label:
+  hide-sidebar: "Masquer la barre latérale"
+  show-sidebar: "Afficher la barre latérale"
   host-unreachable: "injoignable"
   agent-unreachable: "Impossible de joindre l'agent à {endpoint}"
   agent-outdated: "agent {version}"
