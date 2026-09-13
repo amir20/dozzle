@@ -15,6 +15,13 @@ export type RailPanel = "chat" | "metrics" | "alerts";
  */
 const panel = ref<RailPanel>();
 
+/** The panel last opened, so a single "Cloud" entry point (a phone's toolbar
+ *  menu, which has no room for three rows) lands where the reader left off. */
+const lastPanel = ref<RailPanel>("chat");
+watch(panel, (next) => {
+  if (next) lastPanel.value = next;
+});
+
 /** The icon strip's width. Shared with the layout, which pads the page by it so
  *  the rail never sits over the logs. */
 export const RAIL_WIDTH = 48;
@@ -107,6 +114,12 @@ export function useCloudRail() {
     panel.value = next;
   }
 
+  /** Opens the rail on the panel that most needs reading: alerts when something
+   *  fired that has not been seen, otherwise wherever the reader was last. */
+  function openCloud(unseenAlerts: boolean) {
+    openRail(unseenAlerts ? "alerts" : lastPanel.value);
+  }
+
   function closeRail() {
     panel.value = undefined;
   }
@@ -127,6 +140,7 @@ export function useCloudRail() {
     collapsed,
     available,
     openRail,
+    openCloud,
     closeRail,
     toggleRail,
     hideRail,

@@ -154,6 +154,7 @@ declare module 'vue' {
     'Mdi:cloud': typeof import('~icons/mdi/cloud')['default']
     'Mdi:cloudCheckOutline': typeof import('~icons/mdi/cloud-check-outline')['default']
     'Mdi:cloudOffOutline': typeof import('~icons/mdi/cloud-off-outline')['default']
+    'Mdi:cloudOutline': typeof import('~icons/mdi/cloud-outline')['default']
     'Mdi:cloudSearchOutline': typeof import('~icons/mdi/cloud-search-outline')['default']
     'Mdi:cog': typeof import('~icons/mdi/cog')['default']
     'Mdi:cogOutline': typeof import('~icons/mdi/cog-outline')['default']
