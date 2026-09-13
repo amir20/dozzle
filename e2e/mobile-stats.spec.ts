@@ -8,14 +8,14 @@ test.describe("mobile stats", () => {
   });
 
   test("shows CPU and memory stats for containers on the dashboard", async ({ page }) => {
-    const row = page.locator("tr").filter({ has: page.getByTitle("dozzle") });
+    const row = page.locator("tr").filter({ has: page.getByTitle("dozzle_e2e_dozzle", { exact: true }) });
     await expect(row.getByText(/^\d+%$/)).toBeVisible();
     await expect(row.getByText(/^[\d.]+ ?[KMGT]?B$/)).toBeVisible();
   });
 
   test("locks the container stats header directly under the mobile nav, with no gap or overlap", async ({ page }) => {
-    const row = page.locator("tr").filter({ has: page.getByTitle("dozzle") });
-    await row.getByTitle("dozzle").click();
+    const row = page.locator("tr").filter({ has: page.getByTitle("dozzle_e2e_dozzle", { exact: true }) });
+    await row.getByTitle("dozzle_e2e_dozzle", { exact: true }).click();
     await expect(page).toHaveURL(/\/container\//);
 
     const nav = await page.getByTestId("navigation").boundingBox();

@@ -20,7 +20,7 @@ Do NOT use when diffs are unintentional regressions — investigate first.
    rm e2e/visual.spec.ts-snapshots/*.png
    ```
 
-2. **Check for port 8080 conflicts.** The `custom_base` test container binds host port 8080. If another container is already on it (common: `doligence-api-1`), the run fails with `Bind for 0.0.0.0:8080 failed: port is already allocated`.
+2. **Check for port 8080 conflicts.** The `dozzle_e2e_custom_base` test container binds host port 8080. If another container is already on it (common: `doligence-api-1`), the run fails with `Bind for 0.0.0.0:8080 failed: port is already allocated`.
 
    ```bash
    docker ps --format '{{.Names}}\t{{.Ports}}' | grep ':8080->'
