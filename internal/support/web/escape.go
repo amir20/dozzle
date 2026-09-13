@@ -15,10 +15,9 @@ import (
 var urlMarkerRegex = regexp.MustCompile(URLMarkerStart + "(.*?)" + URLMarkerEnd)
 var searchMarkerStripper = strings.NewReplacer(MarkerStart, "", MarkerEnd, "")
 var searchMarkerHTMLReplacer = strings.NewReplacer(MarkerStart, "<mark>", MarkerEnd, "</mark>")
+var urlMarkerStripper = strings.NewReplacer(URLMarkerStart, "", URLMarkerEnd, "")
 
 func EscapeHTMLValues(logEvent *container.LogEvent) {
-	MarkURLs(logEvent)
-
 	switch value := logEvent.Message.(type) {
 	case string:
 		logEvent.Message = escapeAndProcessMarkers(value)
@@ -45,12 +44,20 @@ func EscapeHTMLValues(logEvent *container.LogEvent) {
 	}
 }
 
+// escapeAndProcessMarkers marks URLs itself rather than trusting markers already in
+// the string: they are plain characters any container can log, so a forged pair
+// around javascript: would otherwise become a live href.
 func escapeAndProcessMarkers(value string) string {
+	value = urlMarkerStripper.Replace(value)
+	value = urlRegex.ReplaceAllString(value, URLMarkerStart+"$0"+URLMarkerEnd)
 	value = html.EscapeString(value)
 	value = urlMarkerRegex.ReplaceAllStringFunc(value, func(match string) string {
 		url := strings.TrimSuffix(strings.TrimPrefix(match, URLMarkerStart), URLMarkerEnd)
 		href := searchMarkerStripper.Replace(url)
 		text := searchMarkerHTMLReplacer.Replace(url)
+		if !strings.HasPrefix(href, "http://") && !strings.HasPrefix(href, "https://") {
+			return text
+		}
 		return "<a href=\"" + href + "\" target=\"_blank\" rel=\"noopener noreferrer external\">" + text + "</a>"
 	})
 	value = searchMarkerHTMLReplacer.Replace(value)
