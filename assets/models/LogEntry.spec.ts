@@ -56,6 +56,20 @@ describe("asLogEntry dispatch", () => {
     expect(entry.level).toBe("warn");
     expect(entry.date.getTime()).toBe(1_700_000_000_000);
   });
+
+  test("single carries the timestamp prefix and keeps the full message", () => {
+    const entry = asLogEntry(event({ t: "single", m: "2026-09-13T22:28:56Z INF ready", tp: 21 })) as SimpleLogEntry;
+    expect(entry.timestampPrefix).toBe(21);
+    expect(entry.message).toBe("2026-09-13T22:28:56Z INF ready");
+    expect(asLogEntry(event({ t: "single", m: "x" })) as SimpleLogEntry).toHaveProperty("timestampPrefix", 0);
+  });
+
+  test("group carries a timestamp prefix per line", () => {
+    const entry = asLogEntry(
+      event({ t: "group", m: [{ m: "2026-09-13T22:28:56Z ERR boom", tp: 21 }, { m: "  at main.go:1" }] }),
+    ) as GroupedLogEntry;
+    expect(entry.timestampPrefixes).toEqual([21, 0]);
+  });
 });
 
 describe("std normalization", () => {

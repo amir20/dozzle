@@ -605,7 +605,8 @@ func logEventToPb(event *container.LogEvent) *pb.LogEvent {
 		fragments := make([]*pb.LogFragment, len(data))
 		for i, f := range data {
 			fragments[i] = &pb.LogFragment{
-				Message: f.Message,
+				Message:         f.Message,
+				TimestampPrefix: int32(f.TimestampPrefix),
 			}
 		}
 		message, _ = anypb.New(&pb.GroupMessage{
@@ -626,14 +627,15 @@ func logEventToPb(event *container.LogEvent) *pb.LogEvent {
 	}
 
 	return &pb.LogEvent{
-		Message:     message,
-		Timestamp:   timestamppb.New(time.Unix(event.Timestamp, 0)),
-		Id:          event.Id,
-		ContainerId: event.ContainerID,
-		Level:       event.Level,
-		Stream:      event.Stream,
-		Type:        string(event.Type),
-		RawMessage:  string(event.RawMessage),
+		Message:         message,
+		Timestamp:       timestamppb.New(time.Unix(event.Timestamp, 0)),
+		Id:              event.Id,
+		ContainerId:     event.ContainerID,
+		Level:           event.Level,
+		Stream:          event.Stream,
+		Type:            string(event.Type),
+		RawMessage:      string(event.RawMessage),
+		TimestampPrefix: int32(event.TimestampPrefix),
 	}
 }
 

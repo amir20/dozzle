@@ -192,7 +192,8 @@ func sendLogs(stream pb.AgentService_StreamLogsClient, events chan<- *container.
 			fragments := make([]container.LogFragment, len(m.Fragments))
 			for i, f := range m.Fragments {
 				fragments[i] = container.LogFragment{
-					Message: f.Message,
+					Message:         f.Message,
+					TimestampPrefix: int(f.TimestampPrefix),
 				}
 			}
 			message = fragments
@@ -209,14 +210,15 @@ func sendLogs(stream pb.AgentService_StreamLogsClient, events chan<- *container.
 
 		select {
 		case events <- &container.LogEvent{
-			Id:          resp.Event.Id,
-			ContainerID: resp.Event.ContainerId,
-			Message:     message,
-			Type:        logType,
-			Timestamp:   resp.Event.Timestamp.AsTime().Unix(),
-			Level:       resp.Event.Level,
-			Stream:      resp.Event.Stream,
-			RawMessage:  resp.Event.RawMessage,
+			Id:              resp.Event.Id,
+			ContainerID:     resp.Event.ContainerId,
+			Message:         message,
+			Type:            logType,
+			Timestamp:       resp.Event.Timestamp.AsTime().Unix(),
+			Level:           resp.Event.Level,
+			Stream:          resp.Event.Stream,
+			RawMessage:      resp.Event.RawMessage,
+			TimestampPrefix: int(resp.Event.TimestampPrefix),
 		}:
 		case <-stream.Context().Done():
 			return stream.Context().Err()

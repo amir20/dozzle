@@ -68,6 +68,7 @@ message MountStat {
 
 message LogFragment {
   string message = 1;
+  int32 timestampPrefix = 2;
 }
 
 message LogEvent {
@@ -79,6 +80,7 @@ message LogEvent {
   string stream = 6;
   string type = 7; // "single", "group", or "complex"
   string rawMessage = 8;
+  int32 timestampPrefix = 9;
 }
 
 message SingleMessage {

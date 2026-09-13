@@ -21,6 +21,8 @@ export type Level =
 
 export interface LogFragment {
   readonly m: string;
+  /** Length of a leading timestamp that repeats `ts`. See LogEvent.tp. */
+  readonly tp?: number;
 }
 
 export interface LogEvent {
@@ -32,6 +34,12 @@ export interface LogEvent {
   readonly s: "stdout" | "stderr" | "unknown";
   readonly c: string;
   readonly rm: string;
+  /**
+   * Length of a timestamp the app printed at the start of the line that agrees
+   * with `ts`. The backend only sets it for plain lines, and the prefix is ASCII,
+   * so it is safe to use as a string index. `m` still holds the full line.
+   */
+  readonly tp?: number;
 }
 
 /**
@@ -99,6 +107,7 @@ export class SimpleLogEntry extends LogEntry<string> {
     public readonly level: Level,
     public readonly std: Std,
     public readonly rawMessage: string,
+    public readonly timestampPrefix: number = 0,
   ) {
     super(message, containerID, id, date, std, rawMessage, level);
   }
@@ -115,6 +124,8 @@ export class GroupedLogEntry extends LogEntry<string[]> {
     date: Date,
     public readonly level: Level,
     public readonly std: Std,
+    /** Per line, see SimpleLogEntry.timestampPrefix. */
+    public readonly timestampPrefixes: number[] = [],
   ) {
     super(messages as any, containerID, id, date, std, "", level);
   }
@@ -368,9 +379,19 @@ export function asLogEntry(event: LogEvent): LogEntry<LogMessage> {
         new Date(event.ts),
         event.l,
         std,
+        (event.m as LogFragment[]).map((f) => f.tp ?? 0),
       );
     case "single":
     default:
-      return new SimpleLogEntry(event.m as string, event.c, event.id, new Date(event.ts), event.l, std, event.rm);
+      return new SimpleLogEntry(
+        event.m as string,
+        event.c,
+        event.id,
+        new Date(event.ts),
+        event.l,
+        std,
+        event.rm,
+        event.tp ?? 0,
+      );
   }
 }

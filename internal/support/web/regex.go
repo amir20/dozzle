@@ -46,7 +46,12 @@ func CreateRegex(pattern string, caseInsensitive bool) (*regexp.Regexp, error) {
 func (pm *PatternMatcher) MarkInLogEvent(logEvent *container.LogEvent) bool {
 	switch value := logEvent.Message.(type) {
 	case string:
-		if pm.Regex.MatchString(value) {
+		if loc := pm.Regex.FindStringIndex(value); loc != nil {
+			// Markers inside a hidden timestamp would shift its length and cut
+			// through the <mark>. The user searched for it, so show it instead.
+			if loc[0] < logEvent.TimestampPrefix {
+				logEvent.TimestampPrefix = 0
+			}
 			logEvent.Message = pm.Regex.ReplaceAllString(value, pm.MarkerStart+"$0"+pm.MarkerEnd)
 			return true
 		}
@@ -54,7 +59,10 @@ func (pm *PatternMatcher) MarkInLogEvent(logEvent *container.LogEvent) bool {
 	case []container.LogFragment:
 		found := false
 		for i, fragment := range value {
-			if pm.Regex.MatchString(fragment.Message) {
+			if loc := pm.Regex.FindStringIndex(fragment.Message); loc != nil {
+				if loc[0] < fragment.TimestampPrefix {
+					value[i].TimestampPrefix = 0
+				}
 				value[i].Message = pm.Regex.ReplaceAllString(fragment.Message, pm.MarkerStart+"$0"+pm.MarkerEnd)
 				found = true
 			}

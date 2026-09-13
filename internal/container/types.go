@@ -321,6 +321,9 @@ const (
 // LogFragment represents a single line within a grouped simple log
 type LogFragment struct {
 	Message string `json:"m"`
+	// TimestampPrefix is the length of a leading timestamp that repeats the
+	// line's Docker timestamp. See LogEvent.TimestampPrefix.
+	TimestampPrefix int `json:"tp,omitempty"`
 }
 
 type ContainerAction string
@@ -359,6 +362,10 @@ type LogEvent struct {
 	Level       string  `json:"l,omitempty"`
 	Stream      string  `json:"s,omitempty"`
 	ContainerID string  `json:"c,omitempty"`
+	// TimestampPrefix is the byte length of a timestamp the app printed at the
+	// start of a single line when it agrees with Timestamp, so the UI can hide
+	// the duplicate. Message itself is left intact for search, alerts and copy.
+	TimestampPrefix int `json:"tp,omitempty"`
 }
 
 func (l *LogEvent) HasLevel() bool {
