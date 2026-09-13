@@ -224,6 +224,8 @@ declare module 'vue' {
     'Ph:arrowsMerge': typeof import('~icons/ph/arrows-merge')['default']
     'Ph:boundingBoxFill': typeof import('~icons/ph/bounding-box-fill')['default']
     'Ph:caretRight': typeof import('~icons/ph/caret-right')['default']
+    'Ph:chartBar': typeof import('~icons/ph/chart-bar')['default']
+    'Ph:chartBarHorizontal': typeof import('~icons/ph/chart-bar-horizontal')['default']
     'Ph:circlesFour': typeof import('~icons/ph/circles-four')['default']
     'Ph:command': typeof import('~icons/ph/command')['default']
     'Ph:computerTower': typeof import('~icons/ph/computer-tower')['default']
