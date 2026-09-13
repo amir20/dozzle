@@ -61,7 +61,7 @@ func (h *persistingNotificationHandler) HandleNotificationConfig(subscriptions [
 		return fmt.Errorf("failed to create data directory: %w", err)
 	}
 
-	if err := utils.WriteFileAtomic(h.configPath, h.manager.WriteConfig); err != nil {
+	if err := utils.WriteFile(h.configPath, h.manager.WriteConfig); err != nil {
 		return fmt.Errorf("failed to save config: %w", err)
 	}
 
@@ -111,7 +111,7 @@ func (h *persistingNotificationHandler) persistCloudConfig(cc notification.Cloud
 		log.Error().Err(err).Msg("Could not create data directory for cloud config")
 		return
 	}
-	if err := utils.WriteFileAtomic("./data/cloud.yml", func(w io.Writer) error {
+	if err := utils.WriteFile("./data/cloud.yml", func(w io.Writer) error {
 		return notification.WriteCloudConfig(w, cc)
 	}); err != nil {
 		log.Error().Err(err).Msg("Could not write cloud.yml on agent")

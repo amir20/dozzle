@@ -118,7 +118,7 @@ func save(username string, profile Profile) error {
 		return err
 	}
 
-	if err := utils.WriteFileAtomic(filePath, func(w io.Writer) error {
+	if err := utils.WriteFile(filePath, func(w io.Writer) error {
 		_, err := w.Write(data)
 		return err
 	}); err != nil {

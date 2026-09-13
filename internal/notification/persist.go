@@ -60,7 +60,7 @@ func (p *Persister) SaveNotifications() {
 		log.Error().Err(err).Msg("Could not create data directory")
 		return
 	}
-	if err := utils.WriteFileAtomic(p.NotificationPath, p.Manager.WriteConfig); err != nil {
+	if err := utils.WriteFile(p.NotificationPath, p.Manager.WriteConfig); err != nil {
 		log.Error().Err(err).Msg("Could not write notification config")
 	}
 }
@@ -79,7 +79,7 @@ func (p *Persister) SaveCloud() {
 		log.Error().Err(err).Msg("Could not create data directory")
 		return
 	}
-	if err := utils.WriteFileAtomic(p.CloudPath, func(w io.Writer) error {
+	if err := utils.WriteFile(p.CloudPath, func(w io.Writer) error {
 		return WriteCloudConfig(w, *cc)
 	}); err != nil {
 		log.Error().Err(err).Msg("Could not write cloud config")
