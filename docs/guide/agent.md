@@ -8,6 +8,11 @@ title: Agent Mode
 
 Dozzle can run in agent mode which can expose Docker hosts to other Dozzle instances. All communication is done over a secured connection using TLS. This means that you can deploy Dozzle on a remote host and connect to it from your local machine.
 
+> [!WARNING] An agent is only as private as the network it listens on
+> The certificate Dozzle ships with is the same in every copy of the image, so it encrypts the connection but it does not prove who is on the other end. Anyone who can reach port `7007` can connect their own Dozzle to your agent, read every log on that host and run commands inside its containers. The agent does not look at `DOZZLE_ENABLE_SHELL` or `DOZZLE_ENABLE_ACTIONS`, those flags only control what the UI offers.
+>
+> Keep port `7007` on a private network, and if the agent is reachable from anywhere else, [generate your own certificate](#custom-certificates) so agents only accept your hub.
+
 > [!NOTE] Using Docker Swarm?
 > If you are using Docker Swarm Mode, you don't need to use agents. Dozzle will automatically discover itself and create a cluster using swarm mode. See [Swarm Mode](/guide/swarm-mode) for more information.
 
@@ -40,7 +45,7 @@ services:
 The agent will start and listen on port `7007`. You can connect to the agent using the Dozzle UI by providing the agent's IP address and port. The agent will only show the containers that are available on the host where the agent is running.
 
 > [!TIP]
-> You don't need to expose port 7007 if using Docker network. The agent will be available to other containers on the same network.
+> You don't need to expose port 7007 if using Docker network. The agent will be available to other containers on the same network. This is the safest way to run an agent, since nothing outside that network can reach it.
 
 ## <Icon icon="mdi:connection" inline /> How to Connect to an Agent
 
@@ -204,9 +209,22 @@ This will restrict the agent to displaying only containers with the label `color
 
 ### Custom Certificates
 
-By default, Dozzle uses self-signed certificates for communication between agents. This is a private certificate which is only valid to other Dozzle instances. This is secure and recommended for most use cases. However, if Dozzle is exposed externally and an attacker knows exactly which port the agent is running on, then they can set up their own Dozzle instance and connect to the agent. To prevent this, you can provide your own certificates.
+Dozzle ships with a self-signed certificate that both ends present to each other, and each end trusts that one certificate and nothing else. It is compiled into the binary, so it is identical in every Dozzle install and anyone can read it out of the public image.
 
-To provide custom certificates, you need to mount or use secrets to provide the certificates. By default, Dozzle looks for certificates at `/dozzle_cert.pem` and `/dozzle_key.pem`, but you can customize these paths using the `--cert` and `--key` flags or the `DOZZLE_CERT` and `DOZZLE_KEY` environment variables.
+That means it gives you encryption but no authentication. An agent cannot tell your hub apart from someone else's, so the only thing keeping strangers out of an agent started with the defaults is that they cannot reach port `7007`.
+
+> [!WARNING] When you need your own certificate
+> If port `7007` is reachable by anything you do not control, which includes publishing it on a host with a public IP, generate your own pair. Every deployment that does gets a credential nobody else holds.
+
+Run `generate-certs` to write a unique pair:
+
+```sh
+docker run --rm -v "$PWD":/out amir20/dozzle:latest generate-certs --cert-out /out/dozzle_cert.pem --key-out /out/dozzle_key.pem
+```
+
+Copy both files to the hub and to every agent. Dozzle looks for them at `/dozzle_cert.pem` and `/dozzle_key.pem`, so mounting them there is enough. You can put them elsewhere with the `--cert` and `--key` flags or the `DOZZLE_CERT` and `DOZZLE_KEY` environment variables.
+
+Treat the key like a password. Anyone holding it can connect to your agents, and an agent will reject a hub presenting anything else, so the hub and its agents have to be given the same pair and restarted together.
 
 Here is an example using the default paths:
 
@@ -275,7 +293,7 @@ services:
 
 This will mount the certificate and key files to the agent. The agent will use these certificates for communication. The same certificates should be provided to the Dozzle instance connecting to the agent.
 
-To generate certificates, you can use the following command:
+If you would rather generate them with openssl than with `generate-certs`:
 
 ```sh
 $ openssl genpkey -algorithm Ed25519 -out key.pem
@@ -287,14 +305,14 @@ $ openssl x509 -req -in request.csr -signkey key.pem -out cert.pem -days 365
 
 Agents are similar to remote connections, but they have some advantages. Generally, agents are preferred over remote connections due to performance and security reasons. Here is a comparison:
 
-| Feature     | Agent                        | Remote Connection               |
-| ----------- | ---------------------------- | ------------------------------- |
-| Performance | Better with distributed load | Worse on the UI                 |
-| Security    | Private SSL                  | Insecure or Docker TLS          |
-| Ease of use | Easy out of the box          | Requires exposing Docker socket |
-| Permissions | Full access to Docker        | Can be controlled with a proxy  |
-| Reconnect   | Automatically reconnects     | Requires UI restart             |
-| Healthcheck | Built-in healthcheck         | No healthcheck                  |
-| Filters     | Supports filters             | No support for filters          |
+| Feature     | Agent                          | Remote Connection               |
+| ----------- | ------------------------------ | ------------------------------- |
+| Performance | Better with distributed load   | Worse on the UI                 |
+| Security    | Encrypted, bring your own cert | Insecure or Docker TLS          |
+| Ease of use | Easy out of the box            | Requires exposing Docker socket |
+| Permissions | Full access to Docker          | Can be controlled with a proxy  |
+| Reconnect   | Automatically reconnects       | Requires UI restart             |
+| Healthcheck | Built-in healthcheck           | No healthcheck                  |
+| Filters     | Supports filters               | No support for filters          |
 
 If you do plan to use remote connections, make sure to secure the connection using Docker TLS or a reverse proxy.

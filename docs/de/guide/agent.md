@@ -1,6 +1,6 @@
 ---
 title: Agent-Modus
-sourceHash: 34df9234d941
+sourceHash: a73c7ed62d8a
 ---
 
 # Agent-Modus
@@ -8,6 +8,11 @@ sourceHash: 34df9234d941
 <Badge type="warning" text="Nur Docker" />
 
 Dozzle kann im Agent-Modus laufen und damit Docker-Hosts für andere Dozzle-Instanzen zugänglich machen. Die gesamte Kommunikation läuft über eine mit TLS gesicherte Verbindung. Du kannst Dozzle also auf einem entfernten Host betreiben und dich von deinem lokalen Rechner aus damit verbinden.
+
+> [!WARNING] Ein Agent ist nur so privat wie das Netzwerk, in dem er lauscht
+> Das Zertifikat, das Dozzle mitbringt, ist in jeder Kopie des Images dasselbe. Es verschlüsselt die Verbindung, belegt aber nicht, wer am anderen Ende sitzt. Wer Port `7007` erreichen kann, verbindet sein eigenes Dozzle mit deinem Agent, liest jedes Log auf diesem Host und führt Befehle in dessen Containern aus. Der Agent schaut dabei nicht auf `DOZZLE_ENABLE_SHELL` oder `DOZZLE_ENABLE_ACTIONS`, diese Flags steuern nur, was die UI anbietet.
+>
+> Halte Port `7007` in einem privaten Netzwerk, und wenn der Agent von außerhalb erreichbar ist, [erzeuge dein eigenes Zertifikat](#eigene-zertifikate), damit Agents nur deinen Hub akzeptieren.
 
 > [!NOTE] Du nutzt Docker Swarm?
 > Im Docker-Swarm-Modus brauchst du keine Agents. Dozzle erkennt sich selbst und bildet über den Swarm-Modus einen Cluster. Mehr dazu unter [Swarm-Modus](/de/guide/swarm-mode).
@@ -41,7 +46,7 @@ services:
 Der Agent startet und lauscht auf Port `7007`. Über die Dozzle-Oberfläche verbindest du dich mit ihm, indem du IP-Adresse und Port des Agents angibst. Der Agent zeigt nur die Container, die auf dem Host verfügbar sind, auf dem er läuft.
 
 > [!TIP]
-> Du musst Port 7007 nicht freigeben, wenn du ein Docker-Netzwerk nutzt. Der Agent ist für andere Container im selben Netzwerk erreichbar.
+> Du musst Port 7007 nicht freigeben, wenn du ein Docker-Netzwerk nutzt. Der Agent ist für andere Container im selben Netzwerk erreichbar. Das ist die sicherste Art, einen Agent zu betreiben, denn von außerhalb dieses Netzwerks kommt niemand an ihn heran.
 
 ## <Icon icon="mdi:connection" inline /> Mit einem Agent verbinden
 
@@ -205,9 +210,22 @@ Damit zeigt der Agent nur Container mit dem Label `color`. Beachte, dass diese F
 
 ### Eigene Zertifikate
 
-Standardmäßig nutzt Dozzle selbstsignierte Zertifikate für die Kommunikation zwischen Agents. Das ist ein privates Zertifikat, das nur für andere Dozzle-Instanzen gültig ist. Das ist sicher und für die meisten Fälle empfohlen. Ist Dozzle jedoch nach außen erreichbar und ein Angreifer kennt genau den Port des Agents, kann er eine eigene Dozzle-Instanz aufsetzen und sich mit dem Agent verbinden. Um das zu verhindern, kannst du eigene Zertifikate bereitstellen.
+Dozzle bringt ein selbstsigniertes Zertifikat mit, das beide Seiten einander vorzeigen, und jede Seite vertraut genau diesem einen Zertifikat und keinem anderen. Es ist in die Binary kompiliert, also in jeder Dozzle-Installation identisch, und jeder kann es aus dem öffentlichen Image auslesen.
 
-Dafür musst du die Zertifikate per Mount oder über Secrets bereitstellen. Standardmäßig sucht Dozzle die Zertifikate unter `/dozzle_cert.pem` und `/dozzle_key.pem`, du kannst diese Pfade aber über die Flags `--cert` und `--key` oder die Umgebungsvariablen `DOZZLE_CERT` und `DOZZLE_KEY` anpassen.
+Damit bekommst du Verschlüsselung, aber keine Authentifizierung. Ein Agent kann deinen Hub nicht von einem fremden unterscheiden. Das Einzige, was Fremde aus einem mit Standardwerten gestarteten Agent heraushält, ist, dass sie Port `7007` nicht erreichen.
+
+> [!WARNING] Wann du ein eigenes Zertifikat brauchst
+> Ist Port `7007` für irgendetwas erreichbar, das du nicht kontrollierst, etwa weil er auf einem Host mit öffentlicher IP veröffentlicht wird, erzeuge dein eigenes Paar. Jede Installation, die das tut, bekommt ein Geheimnis, das sonst niemand hat.
+
+Mit `generate-certs` schreibst du ein eindeutiges Paar:
+
+```sh
+docker run --rm -v "$PWD":/out amir20/dozzle:latest generate-certs --cert-out /out/dozzle_cert.pem --key-out /out/dozzle_key.pem
+```
+
+Kopiere beide Dateien auf den Hub und auf jeden Agent. Dozzle sucht sie unter `/dozzle_cert.pem` und `/dozzle_key.pem`, es genügt also, sie dorthin zu mounten. Über die Flags `--cert` und `--key` oder die Umgebungsvariablen `DOZZLE_CERT` und `DOZZLE_KEY` kannst du sie auch anderswo ablegen.
+
+Behandle den Schlüssel wie ein Passwort. Wer ihn hat, kann sich mit deinen Agents verbinden, und ein Agent weist jeden Hub ab, der etwas anderes vorzeigt. Hub und Agents müssen deshalb dasselbe Paar bekommen und zusammen neu gestartet werden.
 
 Hier ein Beispiel mit den Standardpfaden:
 
@@ -276,7 +294,7 @@ services:
 
 Damit werden Zertifikat und Schlüsseldatei in den Agent eingehängt. Der Agent nutzt diese Zertifikate für die Kommunikation. Dieselben Zertifikate müssen auch der Dozzle-Instanz bereitgestellt werden, die sich mit dem Agent verbindet.
 
-Zertifikate erzeugst du mit den folgenden Befehlen:
+Wenn du sie lieber mit openssl erzeugst als mit `generate-certs`:
 
 ```sh
 $ openssl genpkey -algorithm Ed25519 -out key.pem
@@ -288,14 +306,14 @@ $ openssl x509 -req -in request.csr -signkey key.pem -out cert.pem -days 365
 
 Agents ähneln entfernten Verbindungen, haben aber einige Vorteile. Aus Gründen der Performance und Sicherheit sind Agents in der Regel die bessere Wahl. Hier ein Vergleich:
 
-| Merkmal        | Agent                          | Entfernte Verbindung                  |
-| -------------- | ------------------------------ | ------------------------------------- |
-| Performance    | Besser durch verteilte Last    | Schlechter in der Oberfläche          |
-| Sicherheit     | Privates SSL                   | Unsicher oder Docker TLS              |
-| Bedienung      | Ohne Aufwand einsatzbereit     | Erfordert Freigabe des Docker-Sockets |
-| Berechtigungen | Voller Zugriff auf Docker      | Über einen Proxy steuerbar            |
-| Reconnect      | Verbindet sich automatisch neu | Erfordert Neustart der Oberfläche     |
-| Healthcheck    | Eingebauter Healthcheck        | Kein Healthcheck                      |
-| Filter         | Unterstützt Filter             | Keine Unterstützung für Filter        |
+| Merkmal        | Agent                                     | Entfernte Verbindung                  |
+| -------------- | ----------------------------------------- | ------------------------------------- |
+| Performance    | Besser durch verteilte Last               | Schlechter in der Oberfläche          |
+| Sicherheit     | Verschlüsselt, eigenes Zertifikat möglich | Unsicher oder Docker TLS              |
+| Bedienung      | Ohne Aufwand einsatzbereit                | Erfordert Freigabe des Docker-Sockets |
+| Berechtigungen | Voller Zugriff auf Docker                 | Über einen Proxy steuerbar            |
+| Reconnect      | Verbindet sich automatisch neu            | Erfordert Neustart der Oberfläche     |
+| Healthcheck    | Eingebauter Healthcheck                   | Kein Healthcheck                      |
+| Filter         | Unterstützt Filter                        | Keine Unterstützung für Filter        |
 
 Wenn du entfernte Verbindungen nutzen willst, sichere die Verbindung unbedingt mit Docker TLS oder einem Reverse Proxy ab.

@@ -56,6 +56,7 @@ type Args struct {
 	KeyPath                string              `arg:"--key,env:DOZZLE_KEY" default:"dozzle_key.pem" help:"path to custom TLS key"`
 	Healthcheck            *HealthcheckCmd     `arg:"subcommand:healthcheck" help:"checks if the server is running"`
 	Generate               *GenerateCmd        `arg:"subcommand:generate" help:"generates a configuration file for simple auth"`
+	GenerateCerts          *GenerateCertsCmd   `arg:"subcommand:generate-certs" help:"generates a unique certificate and key for agent connections"`
 	Agent                  *AgentCmd           `arg:"subcommand:agent" help:"starts the agent"`
 	AgentTest              *AgentTestCmd       `arg:"subcommand:agent-test" help:"tests an agent"`
 }

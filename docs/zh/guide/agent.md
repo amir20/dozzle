@@ -1,6 +1,6 @@
 ---
 title: 代理模式
-sourceHash: 34df9234d941
+sourceHash: a73c7ed62d8a
 ---
 
 # 代理模式
@@ -8,6 +8,11 @@ sourceHash: 34df9234d941
 <Badge type="warning" text="仅限 Docker" />
 
 Dozzle 可以运行在代理模式下，把 Docker 主机暴露给其他 Dozzle 实例。所有通信都通过 TLS 加密连接完成。也就是说，你可以把 Dozzle 部署在远程主机上，然后从本地机器连接过去。
+
+> [!WARNING] 代理的安全性取决于它所监听的网络
+> Dozzle 自带的证书在每一份镜像副本里都是同一个，它只能加密连接，并不能证明对端是谁。任何能访问 `7007` 端口的人都可以用自己的 Dozzle 连上你的代理，读取该主机上的全部日志，并在其容器里执行命令。代理并不检查 `DOZZLE_ENABLE_SHELL` 或 `DOZZLE_ENABLE_ACTIONS`，这两个开关只决定界面上显示什么。
+>
+> 请把 `7007` 端口留在私有网络里；如果代理能从别处访问到，就[生成你自己的证书](#自定义证书)，让代理只接受你自己的主实例。
 
 > [!NOTE] 在用 Docker Swarm？
 > 如果你使用 Docker Swarm 模式，就不需要代理。Dozzle 会自动发现自身并利用 swarm 模式组建集群。详见 [Swarm 模式](/zh/guide/swarm-mode)。
@@ -41,7 +46,7 @@ services:
 代理会启动并监听 `7007` 端口。在 Dozzle 界面中填入代理的 IP 地址和端口即可连接。代理只会显示它所在主机上的容器。
 
 > [!TIP]
-> 如果使用 Docker 网络，则不必暴露 7007 端口。同一网络中的其他容器可以直接访问该代理。
+> 如果使用 Docker 网络，则不必暴露 7007 端口。同一网络中的其他容器可以直接访问该代理。这是运行代理最安全的方式，因为该网络之外的任何东西都访问不到它。
 
 ## <Icon icon="mdi:connection" inline /> 如何连接到代理
 
@@ -205,9 +210,22 @@ services:
 
 ### 自定义证书
 
-默认情况下，Dozzle 使用自签名证书在代理之间通信。这是一份私有证书，只对其他 Dozzle 实例有效。对大多数场景来说这是安全且推荐的做法。不过，如果 Dozzle 暴露在外网，而攻击者确切知道代理运行在哪个端口上，他们就可以自己搭一个 Dozzle 实例连上这个代理。要防止这种情况，你可以提供自己的证书。
+Dozzle 自带一份自签名证书，两端互相出示的是同一份证书，而且每一端只信任这一份，别的都不认。它被编译进了二进制文件，所以每个 Dozzle 安装里都完全相同，任何人都能从公开镜像里把它提取出来。
 
-要提供自定义证书，需要通过挂载或 secrets 的方式传入证书。默认情况下，Dozzle 会在 `/dozzle_cert.pem` 和 `/dozzle_key.pem` 查找证书，你也可以用 `--cert` 和 `--key` 参数或者 `DOZZLE_CERT` 和 `DOZZLE_KEY` 环境变量来自定义路径。
+也就是说，它提供的是加密，而不是身份认证。代理分不清你的主实例和别人的主实例。对于用默认配置启动的代理，唯一把陌生人挡在外面的东西，就是他们访问不到 `7007` 端口。
+
+> [!WARNING] 什么时候需要自己的证书
+> 只要 `7007` 端口能被你无法控制的东西访问到，包括把它发布在有公网 IP 的主机上，就请生成你自己的证书对。这样每个部署都会拥有一份别人没有的凭据。
+
+运行 `generate-certs` 生成一份独有的证书对：
+
+```sh
+docker run --rm -v "$PWD":/out amir20/dozzle:latest generate-certs --cert-out /out/dozzle_cert.pem --key-out /out/dozzle_key.pem
+```
+
+把两个文件都复制到主实例和每个代理上。Dozzle 默认在 `/dozzle_cert.pem` 和 `/dozzle_key.pem` 查找，所以挂载到这两个路径就够了。你也可以用 `--cert` 和 `--key` 参数或者 `DOZZLE_CERT` 和 `DOZZLE_KEY` 环境变量放到别处。
+
+请像对待密码一样对待私钥。拿到它的人都能连上你的代理；而代理会拒绝出示其他证书的主实例，所以主实例和它的代理必须拿到同一份证书对，并且一起重启。
 
 下面是使用默认路径的示例：
 
@@ -276,7 +294,7 @@ services:
 
 这样会把证书和密钥文件挂载到代理中，代理会用这些证书进行通信。连接该代理的 Dozzle 实例必须使用同一套证书。
 
-可以用下面的命令生成证书：
+如果你更想用 openssl 而不是 `generate-certs` 来生成：
 
 ```sh
 $ openssl genpkey -algorithm Ed25519 -out key.pem
@@ -291,7 +309,7 @@ $ openssl x509 -req -in request.csr -signkey key.pem -out cert.pem -days 365
 | 特性     | 代理                 | 远程连接                   |
 | -------- | -------------------- | -------------------------- |
 | 性能     | 负载分散，表现更好   | 界面端表现更差             |
-| 安全性   | 私有 SSL             | 不加密或使用 Docker TLS    |
+| 安全性   | 加密传输，可自带证书 | 不加密或使用 Docker TLS    |
 | 易用性   | 开箱即用             | 需要暴露 Docker socket     |
 | 权限     | 对 Docker 的完全访问 | 可以通过 socket proxy 控制 |
 | 重连     | 自动重连             | 需要重启界面               |

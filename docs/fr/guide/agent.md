@@ -1,6 +1,6 @@
 ---
 title: Mode agent
-sourceHash: 34df9234d941
+sourceHash: a73c7ed62d8a
 ---
 
 # Mode agent
@@ -8,6 +8,11 @@ sourceHash: 34df9234d941
 <Badge type="warning" text="Docker uniquement" />
 
 Dozzle peut fonctionner en mode agent, ce qui permet d'exposer des hôtes Docker à d'autres instances de Dozzle. Toute la communication passe par une connexion sécurisée en TLS. Vous pouvez donc déployer Dozzle sur un hôte distant et vous y connecter depuis votre machine locale.
+
+> [!WARNING] Un agent n'est privé que dans la mesure où son réseau l'est
+> Le certificat livré avec Dozzle est le même dans toutes les copies de l'image. Il chiffre la connexion mais ne prouve pas qui se trouve à l'autre bout. Quiconque peut joindre le port `7007` peut brancher son propre Dozzle sur votre agent, lire tous les logs de cet hôte et exécuter des commandes dans ses conteneurs. L'agent ne regarde ni `DOZZLE_ENABLE_SHELL` ni `DOZZLE_ENABLE_ACTIONS`, ces options ne contrôlent que ce que propose l'interface.
+>
+> Gardez le port `7007` sur un réseau privé, et si l'agent est joignable depuis ailleurs, [générez votre propre certificat](#certificats-personnalises) pour que les agents n'acceptent que votre hub.
 
 > [!NOTE] Vous utilisez Docker Swarm ?
 > Si vous utilisez le mode Docker Swarm, vous n'avez pas besoin d'agents. Dozzle se découvre automatiquement et crée un cluster en mode swarm. Voir [Mode Swarm](/fr/guide/swarm-mode) pour plus d'informations.
@@ -41,7 +46,7 @@ services:
 L'agent démarre et écoute sur le port `7007`. Vous pouvez vous y connecter depuis l'interface de Dozzle en fournissant l'adresse IP et le port de l'agent. L'agent n'affiche que les conteneurs disponibles sur l'hôte où il tourne.
 
 > [!TIP]
-> Vous n'avez pas besoin d'exposer le port 7007 si vous utilisez un réseau Docker. L'agent est joignable par les autres conteneurs du même réseau.
+> Vous n'avez pas besoin d'exposer le port 7007 si vous utilisez un réseau Docker. L'agent est joignable par les autres conteneurs du même réseau. C'est la façon la plus sûre de faire tourner un agent, puisque rien en dehors de ce réseau ne peut l'atteindre.
 
 ## <Icon icon="mdi:connection" inline /> Comment se connecter à un agent
 
@@ -205,9 +210,22 @@ L'agent n'affichera que les conteneurs portant le label `color`. Gardez à l'esp
 
 ### Certificats personnalisés
 
-Par défaut, Dozzle utilise des certificats auto-signés pour la communication entre agents. C'est un certificat privé valide uniquement pour d'autres instances de Dozzle. C'est sûr et recommandé dans la plupart des cas. En revanche, si Dozzle est exposé publiquement et qu'un attaquant connaît exactement le port sur lequel tourne l'agent, il peut monter sa propre instance de Dozzle et se connecter à l'agent. Pour éviter cela, vous pouvez fournir vos propres certificats.
+Dozzle est livré avec un certificat auto-signé que les deux extrémités se présentent mutuellement, et chaque extrémité ne fait confiance qu'à ce seul certificat. Il est compilé dans le binaire, donc identique dans toutes les installations de Dozzle, et n'importe qui peut l'extraire de l'image publique.
 
-Pour fournir des certificats personnalisés, utilisez un montage ou des secrets. Par défaut, Dozzle cherche les certificats dans `/dozzle_cert.pem` et `/dozzle_key.pem`, mais vous pouvez changer ces chemins avec les flags `--cert` et `--key` ou les variables d'environnement `DOZZLE_CERT` et `DOZZLE_KEY`.
+Il apporte donc du chiffrement, mais aucune authentification. Un agent ne peut pas distinguer votre hub de celui de quelqu'un d'autre. Sur un agent lancé avec les réglages par défaut, la seule chose qui tient les inconnus à distance est qu'ils ne peuvent pas joindre le port `7007`.
+
+> [!WARNING] Quand vous avez besoin de votre propre certificat
+> Si le port `7007` est joignable par quoi que ce soit que vous ne contrôlez pas, y compris parce qu'il est publié sur un hôte avec une IP publique, générez votre propre paire. Chaque déploiement qui le fait obtient un secret que personne d'autre ne détient.
+
+Lancez `generate-certs` pour écrire une paire unique :
+
+```sh
+docker run --rm -v "$PWD":/out amir20/dozzle:latest generate-certs --cert-out /out/dozzle_cert.pem --key-out /out/dozzle_key.pem
+```
+
+Copiez les deux fichiers sur le hub et sur chaque agent. Dozzle les cherche dans `/dozzle_cert.pem` et `/dozzle_key.pem`, il suffit donc de les monter là. Vous pouvez les placer ailleurs avec les flags `--cert` et `--key` ou les variables d'environnement `DOZZLE_CERT` et `DOZZLE_KEY`.
+
+Traitez la clé comme un mot de passe. Quiconque la détient peut se connecter à vos agents, et un agent rejette tout hub qui présente autre chose. Le hub et ses agents doivent donc recevoir la même paire et être redémarrés ensemble.
 
 Voici un exemple utilisant les chemins par défaut :
 
@@ -276,7 +294,7 @@ services:
 
 Cela monte les fichiers de certificat et de clé dans l'agent. L'agent les utilise pour la communication. Les mêmes certificats doivent être fournis à l'instance Dozzle qui se connecte à l'agent.
 
-Pour générer des certificats, vous pouvez utiliser les commandes suivantes :
+Si vous préférez les générer avec openssl plutôt qu'avec `generate-certs` :
 
 ```sh
 $ openssl genpkey -algorithm Ed25519 -out key.pem
@@ -291,7 +309,7 @@ Les agents ressemblent aux connexions distantes, mais ils ont quelques avantages
 | Fonctionnalité | Agent                         | Connexion distante                      |
 | -------------- | ----------------------------- | --------------------------------------- |
 | Performance    | Meilleure, charge répartie    | Moins bonne côté interface              |
-| Sécurité       | SSL privé                     | Non sécurisée ou TLS Docker             |
+| Sécurité       | Chiffré, certificat au choix  | Non sécurisée ou TLS Docker             |
 | Simplicité     | Fonctionne d'emblée           | Nécessite d'exposer le socket Docker    |
 | Permissions    | Accès complet à Docker        | Contrôlables avec un proxy              |
 | Reconnexion    | Se reconnecte automatiquement | Nécessite un redémarrage de l'interface |
