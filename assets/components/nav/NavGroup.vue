@@ -44,6 +44,6 @@ const open = defineModel<boolean>("open", { default: true });
  * uppercase micro-label — a namespace like `docker-compose-project` is already
  * long, and uppercase plus letter-spacing truncated it in a 15%-wide sidebar. */
 .nav-group-toggle {
-  @apply text-base-content/55 hover:text-base-content/90 flex min-w-0 flex-1 cursor-pointer items-center gap-1.5 text-left text-xs font-semibold transition-colors;
+  @apply text-base-content/55 hover:text-base-content/90 flex min-w-0 flex-1 cursor-pointer items-center gap-1.5 text-left text-sm font-semibold transition-colors;
 }
 </style>
