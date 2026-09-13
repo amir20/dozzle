@@ -230,7 +230,7 @@ const maxSessionCookieBytes = 3900
 // data: URL of the image itself, several KB, which would overflow the cookie.
 const maxPictureBytes = 1024
 
-// sessionPicture keeps only a picture the avatar handler would actually serve,
+// sessionPicture keeps only a picture the avatar handler would actually fetch,
 // so a data: URL or an oversized link never reaches the session cookie.
 func sessionPicture(picture string) string {
 	picture = User{Picture: picture}.PictureURL()

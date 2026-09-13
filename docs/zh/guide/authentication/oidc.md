@@ -1,6 +1,6 @@
 ---
 title: OpenID Connect
-sourceHash: d3a00c9c2d56
+sourceHash: 82563eb8343a
 ---
 
 # <Icon icon="mdi:shield-account" inline /> OpenID Connect
@@ -97,7 +97,7 @@ claim 存在但里面没有任何 Dozzle 能识别为角色的内容，则是另
 
 ## 身份
 
-`sub` claim 是用户的稳定标识。它是 `/data` 下配置目录的键，所以即使用户名或邮箱在提供方那里发生了变化，设置也会跟着这个人走。菜单里显示的名字取 `name`，没有则依次回退到 `preferred_username`、`email`、`sub`。`email` 和 `picture` 用于生成头像，如果提供方发来了 `picture` URL，就直接使用它。
+`sub` claim 是用户的稳定标识。它是 `/data` 下配置目录的键，所以即使用户名或邮箱在提供方那里发生了变化，设置也会跟着这个人走。菜单里显示的名字取 `name`，没有则依次回退到 `preferred_username`、`email`、`sub`。`email` 和 `picture` 用于生成头像，如果提供方发来了 `picture` URL，就使用它。Dozzle 会自己去获取这张图片，而且只从公网地址获取，所以托管在私有网络上的图片会回退到 Gravatar。
 
 和 `simple` 验证方式不同，这里的邮箱不需要经过验证。它只用于显示，从不拿来和任何东西匹配，所以不授予 email scope 的 issuer 也能正常工作。
 

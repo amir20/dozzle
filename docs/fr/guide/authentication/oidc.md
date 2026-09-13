@@ -1,6 +1,6 @@
 ---
 title: OpenID Connect
-sourceHash: d3a00c9c2d56
+sourceHash: 82563eb8343a
 ---
 
 # <Icon icon="mdi:shield-account" inline /> OpenID Connect
@@ -97,7 +97,7 @@ Un utilisateur sans claim de filtres voit tous les conteneurs que l'instance Doz
 
 ## Identité
 
-Le claim `sub` est l'identifiant stable de l'utilisateur. Il sert de clé au répertoire de profil sous `/data`, les réglages suivent donc la personne même si son nom d'utilisateur ou son email change chez le fournisseur. Le nom affiché dans le menu est `name`, avec repli sur `preferred_username`, puis `email`, puis `sub`. `email` et `picture` alimentent l'avatar, et une URL `picture` est utilisée directement quand le fournisseur en envoie une.
+Le claim `sub` est l'identifiant stable de l'utilisateur. Il sert de clé au répertoire de profil sous `/data`, les réglages suivent donc la personne même si son nom d'utilisateur ou son email change chez le fournisseur. Le nom affiché dans le menu est `name`, avec repli sur `preferred_username`, puis `email`, puis `sub`. `email` et `picture` alimentent l'avatar, et une URL `picture` est utilisée quand le fournisseur en envoie une. Dozzle récupère lui-même cette image et uniquement depuis des adresses publiques, une image hébergée sur un réseau privé retombe donc sur Gravatar.
 
 Contrairement au fournisseur `simple`, l'email n'a pas besoin d'être vérifié ici. Il est seulement affiché, jamais comparé à quoi que ce soit, un émetteur qui n'accorde aucun scope email fonctionne donc très bien.
 
