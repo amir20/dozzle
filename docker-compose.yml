@@ -1,3 +1,11 @@
+# Every container_name carries the dozzle_e2e_ prefix so filters can match test
+# containers exactly and nothing else on a dev machine leaks into the snapshots.
+# The fixed project name makes a leftover run from another worktree get recreated
+# instead of blocking the next one with name conflicts.
+# No host ports are published: playwright reaches every instance by service name on
+# the compose network, so a run never collides with whatever else is on the machine.
+name: dozzle_e2e
+
 x-dozzle-healthcheck: &dozzle-healthcheck
   test: ["CMD", "/dozzle", "healthcheck"]
   interval: 5s
@@ -7,54 +15,51 @@ x-dozzle-healthcheck: &dozzle-healthcheck
 
 services:
   custom_base:
-    container_name: custom_base
+    container_name: dozzle_e2e_custom_base
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
     environment:
-      - DOZZLE_FILTER=name=custom_base
+      - DOZZLE_FILTER=name=^dozzle_e2e_custom_base$$
       - DOZZLE_BASE=/foobarbase
       - DOZZLE_NO_ANALYTICS=1
       - DOZZLE_HOSTNAME=custom name
-    ports:
-      - 8080:8080
     healthcheck: *dozzle-healthcheck
     build:
       context: .
   simple-auth:
-    container_name: simple-auth
+    container_name: dozzle_e2e_simple-auth
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - ./e2e/data:/data
     environment:
+      - DOZZLE_FILTER=name=^dozzle_e2e_
       - DOZZLE_AUTH_PROVIDER=simple
       - DOZZLE_NO_ANALYTICS=1
     healthcheck: *dozzle-healthcheck
     build:
       context: .
   dozzle:
-    container_name: dozzle
+    container_name: dozzle_e2e_dozzle
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
     environment:
-      - DOZZLE_FILTER=name=dozzle
+      - DOZZLE_FILTER=name=^dozzle_e2e_dozzle$$
       - DOZZLE_NO_ANALYTICS=1
       - DOZZLE_HOSTNAME=localhost
       - DOZZLE_LEVEL=debug
-    ports:
-      - 7070:8080
     # Deliberately no healthcheck: this container is the subject of the visual
     # snapshots, and a healthcheck makes a health badge appear in the sidebar
     # (HostMenu.vue), which shifts the reference images.
     build:
       context: .
   # Dedicated instance + noisy container so log streaming can be asserted without
-  # perturbing the `name=dozzle` filter the other instances rely on.
+  # perturbing the dozzle_e2e_dozzle filter the other instances rely on.
   logs-viewer:
-    container_name: logs-viewer
+    container_name: dozzle_e2e_logs-viewer
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
     environment:
-      - DOZZLE_FILTER=name=logspam
+      - DOZZLE_FILTER=name=^dozzle_e2e_logspam$$
       - DOZZLE_NO_ANALYTICS=1
       - DOZZLE_HOSTNAME=logs
     healthcheck: *dozzle-healthcheck
@@ -63,20 +68,18 @@ services:
     depends_on:
       - logspam
   logspam:
-    container_name: logspam
+    container_name: dozzle_e2e_logspam
     image: alpine:3
     command:
       - sh
       - -c
       - 'i=0; while true; do i=$$((i+1)); echo "logspam line $$i"; sleep 1; done'
   remote:
-    container_name: remote
+    container_name: dozzle_e2e_remote
     environment:
       - DOZZLE_REMOTE_HOST=tcp://proxy:2375|remote-host
-      - DOZZLE_FILTER=name=dozzle
+      - DOZZLE_FILTER=name=^dozzle_e2e_dozzle$$
       - DOZZLE_NO_ANALYTICS=1
-    ports:
-      - 5050:8080
     healthcheck: *dozzle-healthcheck
     build:
       context: .
@@ -84,13 +87,11 @@ services:
       proxy:
         condition: service_healthy
   dozzle-with-agent:
-    container_name: with-agent
+    container_name: dozzle_e2e_with-agent
     environment:
       - DOZZLE_REMOTE_AGENT=agent:7007
       - DOZZLE_NO_ANALYTICS=1
       - DOZZLE_LEVEL=debug
-    ports:
-      - 8082:8080
     healthcheck: *dozzle-healthcheck
     build:
       context: .
@@ -98,10 +99,10 @@ services:
       agent:
         condition: service_healthy
   agent:
-    container_name: agent
+    container_name: dozzle_e2e_agent
     command: agent
     environment:
-      - DOZZLE_FILTER=name=dozzle
+      - DOZZLE_FILTER=name=^dozzle_e2e_dozzle$$
       - DOZZLE_NO_ANALYTICS=1
     healthcheck:
       test: ["CMD", "/dozzle", "healthcheck"]
@@ -115,7 +116,7 @@ services:
     build:
       context: .
   proxy:
-    container_name: proxy
+    container_name: dozzle_e2e_proxy
     image: tecnativa/docker-socket-proxy
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
@@ -130,11 +131,9 @@ services:
       retries: 5
       start_period: 5s
       start_interval: 5s
-    ports:
-      - 2375:2375
 
   playwright:
-    container_name: playwright
+    container_name: dozzle_e2e_playwright
     image: mcr.microsoft.com/playwright:v1.63.0-jammy
     working_dir: /app
     volumes:

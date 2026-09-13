@@ -5,7 +5,7 @@ import { test, expect } from "@playwright/test";
 // without depending on incidental output from Dozzle itself.
 test.beforeEach(async ({ page }) => {
   await page.goto("http://logs-viewer:8080/");
-  await page.getByTestId("side-menu").getByRole("link", { name: "logspam" }).click();
+  await page.getByTestId("side-menu").getByRole("link", { name: "dozzle_e2e_logspam", exact: true }).click();
   await expect(page).toHaveURL(/\/container\//);
 });
 
