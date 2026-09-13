@@ -30,8 +30,13 @@ extension is the slug. `assets/utils/appIcons.ts` resolves an image reference to
      https://raw.githubusercontent.com/homarr-labs/dashboard-icons/main/svg/$slug.svg
    ```
 
+   If the SVG is over 20KB (`wc -c < assets/icons/apps/$slug.svg`), delete it and use the
+   WebP below instead. An SVG that large is almost always a traced raster made of
+   thousands of paths, not real vector artwork.
+
    Upstream WebPs are 128-4096px and often 20-180KB. Downscale to 64px tall, lossy, like
-   every other WebP in the folder (they land around 1-3KB):
+   every other WebP in the folder (they land around 1-3KB). `cwebp` and `webpinfo` ship
+   in the `webp` package (`brew install webp`, `apt install webp`):
 
    ```bash
    curl -fsSL -o /tmp/$slug.webp \
@@ -71,6 +76,19 @@ extension is the slug. `assets/utils/appIcons.ts` resolves an image reference to
    ```bash
    TZ=UTC pnpm test assets/utils/appIcons.spec.ts
    pnpm exec prettier --write assets/utils/appIcons.ts assets/utils/appIcons.spec.ts
+   ```
+
+   Then check every icon in the folder, not only yours. This should print nothing; any
+   WebP taller than 64px, any file that is not really a WebP, or any SVG over 20KB needs
+   step 2 redone:
+
+   ```bash
+   sh -c 'for f in assets/icons/apps/*.webp; do
+     h=$(webpinfo "$f" 2>/dev/null | awk "/Height:/{print \$2; exit}")
+     [ "${h:-0}" -gt 0 ] || { echo "not a webp: $f"; continue; }
+     [ "$h" -gt 64 ] && echo "${h}px tall: $f"
+   done
+   find assets/icons/apps -name "*.svg" -size +20k'
    ```
 
 ## Rules
