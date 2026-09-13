@@ -28,6 +28,11 @@ type OIDCConfig struct {
 	// default search with the one path given. Empty means search the defaults.
 	RolesClaim   string
 	FiltersClaim string
+	// LogoutURL is --auth-logout-url. Unset, logout uses the issuer's own
+	// end_session_endpoint from discovery.
+	LogoutURL string
+	// DataDir is where each session's ID token is kept for logout.
+	DataDir string
 }
 
 // oidcAuthContext is the oidc provider: the IdP proves who you are and also
@@ -40,6 +45,9 @@ type oidcAuthContext struct {
 
 	rolesClaims   []claimPath
 	filtersClaims []claimPath
+
+	idTokens  idTokenStore
+	logoutURL string
 }
 
 // ErrPasswordLoginUnavailable is what CreateToken returns under the oidc
@@ -69,6 +77,8 @@ func NewOIDCAuth(config OIDCConfig, base string, ttl time.Duration, secret []byt
 		ttl:           ttl,
 		rolesClaims:   claimSearch(config.RolesClaim, "roles", config.ClientID),
 		filtersClaims: claimSearch(config.FiltersClaim, "filters", config.ClientID),
+		idTokens:      newIDTokenStore(config.DataDir, ttl),
+		logoutURL:     strings.TrimSpace(config.LogoutURL),
 	}
 	a.oauthFlow = newOAuthFlow(base, ttl, a.loginUser, provider)
 
@@ -153,6 +163,12 @@ func (a *oidcAuthContext) loginUser(provider IdentityProvider, identity external
 	picture := sessionPicture(identity.Picture)
 	user := a.newUser(identity.Sub, identity.Login, identity.Email, identity.Name, picture, rolesRaw, filtersRaw)
 
+	session, err := newSessionID()
+	if err != nil {
+		log.Error().Err(err).Msg("Could not create a session id after OIDC login")
+		return "", false
+	}
+
 	// Roles and filters ride in the session as the raw claim strings and are
 	// parsed again on every request. There is no users.yml to re-read, so the
 	// session is the only copy; a change at the IdP lands at the next login.
@@ -164,6 +180,9 @@ func (a *oidcAuthContext) loginUser(provider IdentityProvider, identity external
 		"picture":  picture,
 		"roles":    rolesRaw,
 		"filters":  filtersRaw,
+		// session names the file the raw ID token is kept in for logout. The
+		// token itself can be far larger than a cookie holds.
+		"session": session,
 	}
 	jwtauth.SetIssuedNow(claims)
 	if a.ttl > 0 {
@@ -184,6 +203,13 @@ func (a *oidcAuthContext) loginUser(provider IdentityProvider, identity external
 			Int("bytes", len(token)).
 			Msg("OIDC login rejected: the session token is too large for a browser cookie, check for oversized name, email, roles or filters claims")
 		return "", false
+	}
+
+	if identity.IDToken != "" {
+		a.idTokens.prune(user.Username)
+		if err := a.idTokens.save(user.Username, session, identity.IDToken); err != nil {
+			log.Warn().Err(err).Str("user", user.Username).Msg("Could not store the ID token; the issuer will ask to confirm logout")
+		}
 	}
 
 	log.Info().

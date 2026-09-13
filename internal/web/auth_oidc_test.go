@@ -26,6 +26,7 @@ func oidcHandler(t *testing.T) http.Handler {
 		ClientID:     "dozzle",
 		ClientSecret: "secret",
 		DisplayName:  "Keycloak",
+		DataDir:      t.TempDir(),
 	}, "", 0, testSecret)
 
 	return createHandler(nil, afero.NewIOFS(fs), Config{Base: "/", Authorization: Authorization{

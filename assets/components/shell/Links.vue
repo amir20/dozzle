@@ -104,19 +104,41 @@ watch(visibility, (state) => {
   }
 });
 
+type LogoutTarget = { url: string; params?: Record<string, string> };
+
 async function logout() {
+  let target: LogoutTarget | undefined = logoutUrl ? { url: logoutUrl } : undefined;
+
   if (hasSession) {
-    await fetch(withBase("/api/token"), {
+    const response = await fetch(withBase("/api/token"), {
       method: "DELETE",
     });
+    // Under oidc the server answers with the issuer's logout, since only it can
+    // read the ID token the session was issued with.
+    if (response.headers.get("Content-Type")?.includes("application/json")) {
+      target = await response.json();
+    }
   }
 
-  // Under oidc the URL is where to go once the session is gone, usually the
-  // issuer's own logout, so it runs after the DELETE rather than instead of it.
-  if (logoutUrl) {
-    location.href = logoutUrl;
-  } else {
+  if (!target) {
     location.reload();
+  } else if (target.params) {
+    // A form POST, because the ID token in the hint can be several KB, past the
+    // request line a proxy in front of the issuer accepts on a GET.
+    const form = document.createElement("form");
+    form.method = "POST";
+    form.action = target.url;
+    for (const [name, value] of Object.entries(target.params)) {
+      const input = document.createElement("input");
+      input.type = "hidden";
+      input.name = name;
+      input.value = value;
+      form.appendChild(input);
+    }
+    document.body.appendChild(form);
+    form.submit();
+  } else {
+    location.href = target.url;
   }
 }
 </script>

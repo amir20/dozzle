@@ -3,7 +3,6 @@ package auth
 import (
 	"encoding/base64"
 	"encoding/json"
-	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
@@ -19,6 +18,8 @@ import (
 type oidcUserServer struct {
 	idToken  map[string]any
 	userInfo map[string]any
+	// endSession publishes an end_session_endpoint in discovery.
+	endSession bool
 }
 
 func (s oidcUserServer) start(t *testing.T) *httptest.Server {
@@ -30,8 +31,16 @@ func (s oidcUserServer) start(t *testing.T) *httptest.Server {
 
 	mux.HandleFunc("/.well-known/openid-configuration", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
-		fmt.Fprintf(w, `{"issuer": %q, "authorization_endpoint": %q, "token_endpoint": %q, "userinfo_endpoint": %q}`,
-			server.URL, server.URL+"/authorize", server.URL+"/token", server.URL+"/userinfo")
+		discovery := map[string]string{
+			"issuer":                 server.URL,
+			"authorization_endpoint": server.URL + "/authorize",
+			"token_endpoint":         server.URL + "/token",
+			"userinfo_endpoint":      server.URL + "/userinfo",
+		}
+		if s.endSession {
+			discovery["end_session_endpoint"] = server.URL + "/logout"
+		}
+		json.NewEncoder(w).Encode(discovery)
 	})
 
 	mux.HandleFunc("/token", func(w http.ResponseWriter, r *http.Request) {
@@ -75,6 +84,9 @@ func oidcUserAuth(t *testing.T, server oidcUserServer, config OIDCConfig) *oidcA
 		config.ClientID = "dozzle"
 	}
 	config.ClientSecret = "secret"
+	if config.DataDir == "" {
+		config.DataDir = t.TempDir()
+	}
 
 	return NewOIDCAuth(config, "", 0, testSecret)
 }

@@ -1,6 +1,6 @@
 ---
 title: OpenID Connect
-sourceHash: 9dcc3df4a715
+sourceHash: d3a00c9c2d56
 ---
 
 # <Icon icon="mdi:shield-account" inline /> OpenID Connect
@@ -107,11 +107,17 @@ claim 存在但里面没有任何 Dozzle 能识别为角色的内容，则是另
 
 ## 登出
 
-登出会清除 Dozzle 的会话。如果设置了 `--auth-logout-url`，浏览器接着会被送到那个地址，所以把它指向你的提供方的 end session URL，就能把用户从提供方那里也登出：
+登出会清除 Dozzle 的会话，并同时把用户从提供方那里登出。Dozzle 从 discovery 文档中读取提供方的 `end_session_endpoint`，并把签发该会话时的 ID token 交回给它，因此提供方不会要求确认，浏览器会回到 Dozzle 的登录页。Dozzle 这边不需要做任何设置。
 
-```yaml
-DOZZLE_AUTH_LOGOUT_URL: https://keycloak.example.com/realms/main/protocol/openid-connect/logout
+在提供方那里把下面的地址登记为 post logout redirect URI，如果 Dozzle 运行在某个基础路径下，要带上该路径：
+
 ```
+https://your-dozzle-host/login
+```
+
+ID token 保存在 `/data` 下，直到用户登出。如果容器在 `/data` 没有挂载卷的情况下被重新创建，之前的会话仍然可以登出，但提供方会要求确认。
+
+`--auth-logout-url` 只用于登出地址不在 discovery 文档里的提供方。设置成其他 URL 时，浏览器会改为被送到那里。
 
 ## 和 `simple` 有什么不同
 
@@ -126,7 +132,7 @@ DOZZLE_AUTH_LOGOUT_URL: https://keycloak.example.com/realms/main/protocol/openid
 
 ### Keycloak
 
-在你的 realm 里创建一个名为 `dozzle` 的客户端，开启 client authentication，并添加上面的重定向 URI。然后在客户端的 **Roles** 标签页下创建你想分发的客户端角色：`shell`、`actions`、`download`、`notifications`、`cloud` 或 `all`。在 **Role mapping** 下把它们分配给用户或用户组。
+在你的 realm 里创建一个名为 `dozzle` 的客户端，开启 client authentication，并添加上面的重定向 URI，再在 **Valid post logout redirect URIs** 下添加[登出](#登出)一节中的登录 URL。然后在客户端的 **Roles** 标签页下创建你想分发的客户端角色：`shell`、`actions`、`download`、`notifications`、`cloud` 或 `all`。在 **Role mapping** 下把它们分配给用户或用户组。
 
 Keycloak 以 `resource_access.<client-id>.roles` 的形式输出客户端角色，Dozzle 本来就会搜索这条路径。检查客户端的 **Client scopes**，打开专属 scope，确认 **client roles** 这个 mapper 会把该 claim 加进 ID 令牌或 userinfo；Dozzle 会读这两者，但不读 access token。
 

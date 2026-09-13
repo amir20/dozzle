@@ -27,6 +27,9 @@ type externalIdentity struct {
 	Email   string
 	Name    string
 	Picture string
+	// IDToken is the raw ID token as the issuer signed it, kept by the oidc
+	// provider to hand back as id_token_hint at logout. Empty for GitHub.
+	IDToken string
 	// Claims is every claim the provider returned, ID token first and userinfo
 	// second, for the oidc provider to read roles and filters out of. Empty for
 	// GitHub, which publishes no claims.
@@ -198,6 +201,11 @@ type oauthState struct {
 // that is on the OAuth app's registered list, so a forged value fails the login
 // instead. That is what lets Dozzle work without a base-URL flag.
 func (f *oauthFlow) callbackURL(r *http.Request) string {
+	return f.absoluteURL(r, "/api/auth/callback")
+}
+
+// absoluteURL is path under this deployment's base, as the browser reaches it.
+func (f *oauthFlow) absoluteURL(r *http.Request, path string) string {
 	scheme := "http"
 	if IsHTTPS(r) {
 		scheme = "https"
@@ -209,7 +217,7 @@ func (f *oauthFlow) callbackURL(r *http.Request) string {
 		host = strings.TrimSpace(host)
 	}
 
-	return scheme + "://" + host + f.base + "/api/auth/callback"
+	return scheme + "://" + host + f.base + path
 }
 
 func randomString() (string, error) {
