@@ -161,6 +161,13 @@ func init() {
 
 	mockService.On("Client").Return(nil)
 
+	mockService.On("StreamLogs", mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(nil).Run(func(args mock.Arguments) {
+		events := args.Get(4).(chan<- *container.LogEvent)
+		for _, e := range streamedLogEvents {
+			events <- e
+		}
+	})
+
 	server, _ := NewServer(mockService, certs, "test", &mockNotificationHandler{})
 	go server.Serve(lis)
 }
@@ -191,6 +198,37 @@ func TestListContainers(t *testing.T) {
 	assert.Equal(t, []container.Container{
 		wantedContainer,
 	}, containers)
+}
+
+var streamedLogEvents = []*container.LogEvent{
+	{Id: 1, Type: container.LogTypeSingle, Message: "2026-09-13T22:28:56Z INF ready", RawMessage: "2026-09-13T22:28:56Z INF ready", Timestamp: 1789424936000, Level: "info", Stream: "stdout", TimestampPrefix: 21},
+	{Id: 2, Type: container.LogTypeGroup, Message: []container.LogFragment{
+		{Message: "2026-09-13T22:28:56Z ERR boom", TimestampPrefix: 21},
+		{Message: "  at main.go:1"},
+	}, Timestamp: 1789424936000, Level: "error", Stream: "stderr"},
+}
+
+func TestStreamContainerLogsKeepsTimestampPrefix(t *testing.T) {
+	rpc, err := NewClient("passthrough://bufnet", certs, grpc.WithContextDialer(bufDialer))
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	events := make(chan *container.LogEvent, len(streamedLogEvents))
+	go rpc.StreamContainerLogs(ctx, "123456", time.Time{}, container.STDALL, events)
+
+	for _, want := range streamedLogEvents {
+		select {
+		case got := <-events:
+			assert.Equal(t, want.Message, got.Message)
+			assert.Equal(t, want.TimestampPrefix, got.TimestampPrefix)
+		case <-ctx.Done():
+			t.Fatal("timed out waiting for log event")
+		}
+	}
 }
 
 func TestHostWithAgentMetadata(t *testing.T) {

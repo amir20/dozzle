@@ -564,10 +564,11 @@ func (x *MountStat) GetLastChecked() *timestamppb.Timestamp {
 }
 
 type LogFragment struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Message       string                 `protobuf:"bytes,1,opt,name=message,proto3" json:"message,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	state           protoimpl.MessageState `protogen:"open.v1"`
+	Message         string                 `protobuf:"bytes,1,opt,name=message,proto3" json:"message,omitempty"`
+	TimestampPrefix int32                  `protobuf:"varint,2,opt,name=timestampPrefix,proto3" json:"timestampPrefix,omitempty"`
+	unknownFields   protoimpl.UnknownFields
+	sizeCache       protoimpl.SizeCache
 }
 
 func (x *LogFragment) Reset() {
@@ -607,18 +608,26 @@ func (x *LogFragment) GetMessage() string {
 	return ""
 }
 
+func (x *LogFragment) GetTimestampPrefix() int32 {
+	if x != nil {
+		return x.TimestampPrefix
+	}
+	return 0
+}
+
 type LogEvent struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            uint32                 `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
-	ContainerId   string                 `protobuf:"bytes,2,opt,name=containerId,proto3" json:"containerId,omitempty"`
-	Message       *anypb.Any             `protobuf:"bytes,3,opt,name=message,proto3" json:"message,omitempty"` // SingleMessage, GroupMessage, or ComplexMessage
-	Timestamp     *timestamppb.Timestamp `protobuf:"bytes,4,opt,name=timestamp,proto3" json:"timestamp,omitempty"`
-	Level         string                 `protobuf:"bytes,5,opt,name=level,proto3" json:"level,omitempty"`
-	Stream        string                 `protobuf:"bytes,6,opt,name=stream,proto3" json:"stream,omitempty"`
-	Type          string                 `protobuf:"bytes,7,opt,name=type,proto3" json:"type,omitempty"` // "single", "group", or "complex"
-	RawMessage    string                 `protobuf:"bytes,8,opt,name=rawMessage,proto3" json:"rawMessage,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	state           protoimpl.MessageState `protogen:"open.v1"`
+	Id              uint32                 `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
+	ContainerId     string                 `protobuf:"bytes,2,opt,name=containerId,proto3" json:"containerId,omitempty"`
+	Message         *anypb.Any             `protobuf:"bytes,3,opt,name=message,proto3" json:"message,omitempty"` // SingleMessage, GroupMessage, or ComplexMessage
+	Timestamp       *timestamppb.Timestamp `protobuf:"bytes,4,opt,name=timestamp,proto3" json:"timestamp,omitempty"`
+	Level           string                 `protobuf:"bytes,5,opt,name=level,proto3" json:"level,omitempty"`
+	Stream          string                 `protobuf:"bytes,6,opt,name=stream,proto3" json:"stream,omitempty"`
+	Type            string                 `protobuf:"bytes,7,opt,name=type,proto3" json:"type,omitempty"` // "single", "group", or "complex"
+	RawMessage      string                 `protobuf:"bytes,8,opt,name=rawMessage,proto3" json:"rawMessage,omitempty"`
+	TimestampPrefix int32                  `protobuf:"varint,9,opt,name=timestampPrefix,proto3" json:"timestampPrefix,omitempty"`
+	unknownFields   protoimpl.UnknownFields
+	sizeCache       protoimpl.SizeCache
 }
 
 func (x *LogEvent) Reset() {
@@ -705,6 +714,13 @@ func (x *LogEvent) GetRawMessage() string {
 		return x.RawMessage
 	}
 	return ""
+}
+
+func (x *LogEvent) GetTimestampPrefix() int32 {
+	if x != nil {
+		return x.TimestampPrefix
+	}
+	return 0
 }
 
 type SingleMessage struct {
@@ -1462,9 +1478,10 @@ const file_types_proto_rawDesc = "" +
 	"\x04free\x18\x03 \x01(\x04R\x04free\x12\x12\n" +
 	"\x04used\x18\x04 \x01(\x04R\x04used\x12\x1c\n" +
 	"\tavailable\x18\x05 \x01(\bR\tavailable\x12<\n" +
-	"\vlastChecked\x18\x06 \x01(\v2\x1a.google.protobuf.TimestampR\vlastChecked\"'\n" +
+	"\vlastChecked\x18\x06 \x01(\v2\x1a.google.protobuf.TimestampR\vlastChecked\"Q\n" +
 	"\vLogFragment\x12\x18\n" +
-	"\amessage\x18\x01 \x01(\tR\amessage\"\x88\x02\n" +
+	"\amessage\x18\x01 \x01(\tR\amessage\x12(\n" +
+	"\x0ftimestampPrefix\x18\x02 \x01(\x05R\x0ftimestampPrefix\"\xb2\x02\n" +
 	"\bLogEvent\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\rR\x02id\x12 \n" +
 	"\vcontainerId\x18\x02 \x01(\tR\vcontainerId\x12.\n" +
@@ -1475,7 +1492,8 @@ const file_types_proto_rawDesc = "" +
 	"\x04type\x18\a \x01(\tR\x04type\x12\x1e\n" +
 	"\n" +
 	"rawMessage\x18\b \x01(\tR\n" +
-	"rawMessage\")\n" +
+	"rawMessage\x12(\n" +
+	"\x0ftimestampPrefix\x18\t \x01(\x05R\x0ftimestampPrefix\")\n" +
 	"\rSingleMessage\x12\x18\n" +
 	"\amessage\x18\x01 \x01(\tR\amessage\"C\n" +
 	"\fGroupMessage\x123\n" +

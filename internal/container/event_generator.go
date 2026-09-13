@@ -73,7 +73,7 @@ func (g *EventGenerator) flushGroup(pendingGroup []*LogEvent) bool {
 	first := pendingGroup[0]
 	fragments := make([]LogFragment, len(pendingGroup))
 	for i, e := range pendingGroup {
-		fragments[i] = LogFragment{Message: e.Message.(string)}
+		fragments[i] = LogFragment{Message: e.Message.(string), TimestampPrefix: e.TimestampPrefix}
 	}
 
 	return g.emit(&LogEvent{
@@ -347,6 +347,8 @@ func createEvent(message string, streamType StdType) *LogEvent {
 					log.Error().Err(err).Msg("failed to marshal json")
 				}
 				logEvent.RawMessage = string(data)
+			} else {
+				logEvent.TimestampPrefix = timestampPrefixLen(message, logEvent.Timestamp)
 			}
 		}
 	}

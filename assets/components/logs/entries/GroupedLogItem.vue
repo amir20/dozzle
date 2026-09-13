@@ -10,7 +10,7 @@
         />
         <div
           class="log-message [word-break:break-word] whitespace-pre-wrap group-[.disable-wrap]:whitespace-pre"
-          v-html="colorize(msg)"
+          v-html="colorize(displayed(msg, index))"
           :class="{ 'min-h-4': msg === '' }"
         ></div>
       </div>
@@ -19,10 +19,16 @@
 </template>
 <script lang="ts" setup>
 import { GroupedLogEntry, type Position } from "@/models/LogEntry";
+import { showTimestamp } from "@/stores/settings";
 
 const { logEntry } = defineProps<{
   logEntry: GroupedLogEntry;
 }>();
+
+// Same rule as SimpleLogItem: hide a line's own timestamp only while the date
+// column is showing it already.
+const displayed = (msg: string, index: number): string =>
+  showTimestamp.value ? msg.slice(logEntry.timestampPrefixes[index] ?? 0) : msg;
 
 // A one-line group is not a group as far as the marker goes: it takes the dot
 // like any other single line rather than a stub of rail.

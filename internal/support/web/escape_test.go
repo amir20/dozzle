@@ -109,3 +109,49 @@ func TestEscapeHTMLValuesKeepsSearchedURLClickable(t *testing.T) {
 		})
 	}
 }
+
+func TestSearchKeepsTimestampPrefixAligned(t *testing.T) {
+	const line = "2026-09-13T22:28:56Z INF <b>ready</b>"
+	const tp = 21
+
+	tests := []struct {
+		name   string
+		search string
+		wantTp int
+		rest   string
+	}{
+		{name: "match after the timestamp", search: "ready", wantTp: tp, rest: "INF &lt;b&gt;<mark>ready</mark>&lt;/b&gt;"},
+		{name: "match inside the timestamp", search: "22:28", wantTp: 0},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			regex, err := ParseRegex(tt.search)
+			if err != nil {
+				t.Fatal(err)
+			}
+
+			single := &container.LogEvent{Type: container.LogTypeSingle, Message: line, TimestampPrefix: tp}
+			group := &container.LogEvent{Type: container.LogTypeGroup, Message: []container.LogFragment{{Message: line, TimestampPrefix: tp}}}
+			for _, event := range []*container.LogEvent{single, group} {
+				if !Search(regex, event) {
+					t.Fatal("expected search to match")
+				}
+				EscapeHTMLValues(event)
+			}
+
+			fragment := group.Message.([]container.LogFragment)[0]
+			if single.TimestampPrefix != tt.wantTp || fragment.TimestampPrefix != tt.wantTp {
+				t.Fatalf("timestamp prefix = %d / %d, want %d", single.TimestampPrefix, fragment.TimestampPrefix, tt.wantTp)
+			}
+			if tt.rest != "" {
+				if got := single.Message.(string)[single.TimestampPrefix:]; got != tt.rest {
+					t.Fatalf("single rest = %q, want %q", got, tt.rest)
+				}
+				if got := fragment.Message[fragment.TimestampPrefix:]; got != tt.rest {
+					t.Fatalf("fragment rest = %q, want %q", got, tt.rest)
+				}
+			}
+		})
+	}
+}
