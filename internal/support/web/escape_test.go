@@ -5,7 +5,50 @@ import (
 	"testing"
 
 	"github.com/amir20/dozzle/internal/container"
+	orderedmap "github.com/wk8/go-ordered-map/v2"
 )
+
+func TestEscapeHTMLValuesIgnoresForgedURLMarkers(t *testing.T) {
+	forged := URLMarkerStart + "javascript:alert(document.domain)" + URLMarkerEnd
+	json := orderedmap.New[string, any]()
+	json.Set("msg", forged)
+	json.Set("nested", []any{forged})
+
+	tests := []struct {
+		name    string
+		message any
+	}{
+		{name: "string", message: forged},
+		{name: "fragments", message: []container.LogFragment{{Message: forged}}},
+		{name: "json", message: json},
+		{name: "wrapping a real url", message: URLMarkerStart + "javascript:x//https://example.com" + URLMarkerEnd},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			event := &container.LogEvent{Type: container.LogTypeSingle, Message: tt.message}
+			EscapeHTMLValues(event)
+
+			var out []string
+			switch m := event.Message.(type) {
+			case string:
+				out = append(out, m)
+			case []container.LogFragment:
+				out = append(out, m[0].Message)
+			case *orderedmap.OrderedMap[string, any]:
+				out = append(out, m.Value("msg").(string), m.Value("nested").([]any)[0].(string))
+			}
+			for _, got := range out {
+				if strings.Contains(got, `href="javascript:`) {
+					t.Fatalf("forged marker produced a javascript href: %q", got)
+				}
+				if strings.ContainsAny(got, URLMarkerStart+URLMarkerEnd) {
+					t.Fatalf("url markers leaked to output: %q", got)
+				}
+			}
+		})
+	}
+}
 
 func TestEscapeHTMLValuesKeepsSearchedURLClickable(t *testing.T) {
 	tests := []struct {

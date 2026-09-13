@@ -1,10 +1,6 @@
 package support_web
 
-import (
-	"regexp"
-
-	"github.com/amir20/dozzle/internal/container"
-)
+import "regexp"
 
 const (
 	URLMarkerStart = "\uE002"
@@ -22,9 +18,3 @@ var (
 
 // Standard URL regex pattern to match http/https URLs
 var urlRegex = regexp.MustCompile(`(https?://` + urlHostRegex + urlPathChars + `*/?(?:` + urlTailChars + `|\b))`)
-
-// MarkURLs marks URLs in the logEvent message with special markers
-func MarkURLs(logEvent *container.LogEvent) bool {
-	matcher := NewPatternMatcher(urlRegex, URLMarkerStart, URLMarkerEnd)
-	return matcher.MarkInLogEvent(logEvent)
-}
