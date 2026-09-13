@@ -7,42 +7,50 @@
          the name only when the card is too narrow for both. -->
     <div class="flex min-w-0 flex-wrap items-center gap-x-3 gap-y-1">
       <div class="flex min-w-0 items-center gap-2">
-        <span class="bg-base-content/5 text-base-content/70 flex-none rounded-md p-1.5">
+        <!-- Connection state rides on the host's own icon as a dot, the way a
+             container's does, so a healthy header carries no color at all. -->
+        <span class="bg-base-content/5 text-base-content/70 relative flex-none rounded-md p-1.5" :title="agentTooltip">
           <HostIcon :type="host.type" class="size-4" />
+          <span
+            class="ring-base-100 absolute -top-0.5 -right-0.5 size-2 rounded-full ring-2"
+            :class="host.available ? 'bg-success' : 'bg-base-content/30'"
+          ></span>
         </span>
         <div class="truncate text-lg font-semibold tracking-tight" :title="host.name">{{ host.name }}</div>
-
-        <span class="status-pill status-pill-error flex-none gap-1" v-if="!host.available">
-          <carbon:warning class="size-3" />
-          offline
-        </span>
       </div>
 
-      <ul class="text-base-content/50 flex flex-row flex-wrap items-center gap-x-3 gap-y-1 text-xs tabular-nums">
-        <li class="flex items-center gap-1.5">
-          <octicon:container-24 class="size-3.5" />
-          {{ $t("label.container", hostContainers.length) }}
-        </li>
-        <li class="flex items-center gap-1.5" :title="runtimeLabel">
-          <simple-icons:podman v-if="host.runtime === 'podman'" class="size-3.5" />
-          <mdi:docker v-else class="size-3.5" />
-          {{ host.dockerVersion }}
-        </li>
-        <li
-          class="flex items-center gap-1.5"
-          :class="{ 'text-warning': agentOutdated }"
-          v-if="host.type == 'agent' && host.agentVersion"
-          :title="
-            agentOutdated
-              ? $t('tooltip.agent-version-mismatch', { version: host.agentVersion, current: config.version })
-              : $t('tooltip.agent-version', { version: host.agentVersion })
-          "
+      <!-- Plain facts, no glyph per fact. The agent version only appears when it
+           disagrees with the server: a matching one said nothing and read like a
+           second runtime version. -->
+      <div class="text-base-content/50 flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1 text-xs tabular-nums">
+        <template v-if="host.available">
+          <span>{{ $t("label.container", hostContainers.length) }}</span>
+          <span class="text-base-content/25">·</span>
+          <span>{{ runtimeLabel }} {{ host.dockerVersion }}</span>
+        </template>
+        <span v-else>{{ $t("label.host-unreachable") }}</span>
+        <span
+          v-if="agentOutdated"
+          class="status-pill status-pill-warning ml-1"
+          :title="$t('tooltip.agent-version-mismatch', { version: host.agentVersion, current: config.version })"
         >
-          <carbon:warning v-if="agentOutdated" class="size-3.5" />
-          <mdi:satellite-variant v-else class="size-3.5" />
-          {{ host.agentVersion }}
-        </li>
-      </ul>
+          {{ $t("label.agent-outdated", { version: host.agentVersion }) }}
+        </span>
+      </div>
+    </div>
+
+    <!-- An offline host has no live numbers, so the meters give way to one line in
+         the same slot rather than showing the last values as if they were current. -->
+    <div
+      v-if="!host.available"
+      class="bg-base-content/5.5 text-base-content/50 flex items-center gap-2 rounded-lg px-3 py-2.5 text-xs"
+    >
+      <mdi:lan-disconnect class="size-3.5 shrink-0 opacity-60" />
+      <i18n-t keypath="label.agent-unreachable" tag="span" class="truncate">
+        <template #endpoint>
+          <span class="font-mono">{{ host.endpoint }}</span>
+        </template>
+      </i18n-t>
     </div>
 
     <!-- Two charts at half a phone's width are too narrow to read a trend from and
@@ -50,7 +58,7 @@
          split into two halves that span the card, each over a thin meter so the
          width it takes carries load rather than empty space. -->
     <div
-      v-if="stats && isMobile"
+      v-else-if="stats && isMobile"
       class="bg-base-content/5.5 divide-base-content/10 grid grid-cols-2 divide-x rounded-lg tabular-nums"
     >
       <div v-for="meter in meters" :key="meter.key" class="flex min-w-0 flex-col gap-1.5 px-3 py-2">
@@ -106,6 +114,7 @@ const props = defineProps<{
   host: Host;
 }>();
 
+const { t } = useI18n();
 const containerStore = useContainerStore();
 const { containers } = storeToRefs(containerStore) as unknown as {
   containers: Ref<Container[]>;
@@ -116,6 +125,12 @@ const hostContainers = computed(() =>
 );
 
 const runtimeLabel = computed(() => (props.host.runtime === "podman" ? "Podman" : "Docker"));
+
+const agentTooltip = computed(() =>
+  props.host.type === "agent" && props.host.agentVersion
+    ? t("tooltip.agent-version", { version: props.host.agentVersion })
+    : undefined,
+);
 
 const agentOutdated = computed(() => props.host.type === "agent" && props.host.agentVersion !== config.version);
 
@@ -151,7 +166,6 @@ const memHistory = computed(() =>
 
 const stats = reactive({ mostRecent: totalStat, weighted: useExponentialMovingAverage(totalStat) });
 
-const { t } = useI18n();
 const meters = computed(() => {
   const { totalCPU, totalMemUsage } = stats.weighted.movingAverage;
   return [

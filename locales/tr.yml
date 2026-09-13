@@ -66,6 +66,9 @@ log-details:
   fields-hint: Yeniden sıralamak için sürükleyin. Günlük akışında göstermek veya gizlemek için değiştirin.
   toggle-all: Tüm alanları değiştir
 label:
+  host-unreachable: "erişilemiyor"
+  agent-unreachable: "{endpoint} adresindeki ajana ulaşılamıyor"
+  agent-outdated: "ajan {version}"
   historical-at: "Geçmiş günlükler · {time}"
   containers: Konteynerlar
   container: Konteyner yok | 1 konteyner | {count} konteyner

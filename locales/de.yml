@@ -66,6 +66,9 @@ log-details:
   fields-hint: Zum Umsortieren ziehen. Umschalten, um sie im Log-Stream ein- oder auszublenden.
   toggle-all: Alle Felder umschalten
 label:
+  host-unreachable: "nicht erreichbar"
+  agent-unreachable: "Agent unter {endpoint} nicht erreichbar"
+  agent-outdated: "Agent {version}"
   historical-at: "Historische Logs · {time}"
   containers: Container
   container: Keine Container | 1 Container | {count} Container

@@ -66,6 +66,9 @@ log-details:
   fields-hint: Przeciągnij, aby zmienić kolejność. Przełącz, aby pokazać lub ukryć w strumieniu logów.
   toggle-all: Przełącz wszystkie pola
 label:
+  host-unreachable: "niedostępny"
+  agent-unreachable: "Nie można połączyć się z agentem pod adresem {endpoint}"
+  agent-outdated: "agent {version}"
   historical-at: "Logi historyczne · {time}"
   service: Brak usług | 1 usługa | {count} usług
   services: Usługi

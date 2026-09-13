@@ -176,6 +176,7 @@ declare module 'vue' {
     'Mdi:informationOutline': typeof import('~icons/mdi/information-outline')['default']
     'Mdi:key': typeof import('~icons/mdi/key')['default']
     'Mdi:keyboardEsc': typeof import('~icons/mdi/keyboard-esc')['default']
+    'Mdi:lanDisconnect': typeof import('~icons/mdi/lan-disconnect')['default']
     'Mdi:lightbulbOnOutline': typeof import('~icons/mdi/lightbulb-on-outline')['default']
     'Mdi:lightningBolt': typeof import('~icons/mdi/lightning-bolt')['default']
     'Mdi:linkVariant': typeof import('~icons/mdi/link-variant')['default']

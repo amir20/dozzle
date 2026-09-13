@@ -66,6 +66,9 @@ log-details:
   fields-hint: Træk for at ændre rækkefølgen. Slå til eller fra for at vise eller skjule i logstrømmen.
   toggle-all: Slå alle felter til eller fra
 label:
+  host-unreachable: "utilgængelig"
+  agent-unreachable: "Kan ikke nå agenten på {endpoint}"
+  agent-outdated: "agent {version}"
   historical-at: "Historiske logs · {time}"
   containers: Containere
   container: Ingen containere | 1 container | {count} containere

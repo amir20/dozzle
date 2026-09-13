@@ -66,6 +66,9 @@ log-details:
   fields-hint: 드래그하여 순서를 바꾸세요. 토글하여 로그 스트림에서 표시하거나 숨깁니다.
   toggle-all: 모든 필드 토글
 label:
+  host-unreachable: "연결할 수 없음"
+  agent-unreachable: "{endpoint}의 에이전트에 연결할 수 없습니다"
+  agent-outdated: "에이전트 {version}"
   historical-at: "과거 로그 · {time}"
   containers: 컨테이너
   container: 컨테이너가 없습니다 | 컨테이너 1개 | 컨테이너 {count}개

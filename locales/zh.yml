@@ -66,6 +66,9 @@ log-details:
   fields-hint: 拖动可重新排序。切换可在日志流中显示或隐藏。
   toggle-all: 切换所有字段
 label:
+  host-unreachable: "无法连接"
+  agent-unreachable: "无法连接到位于 {endpoint} 的代理"
+  agent-outdated: "代理 {version}"
   historical-at: "历史日志 · {time}"
   containers: 容器
   container: 无容器 | 1 容器 | {count} 容器

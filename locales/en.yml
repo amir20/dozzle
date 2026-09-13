@@ -66,6 +66,9 @@ log-details:
   fields-hint: Drag to reorder. Toggle to show or hide in the log stream.
   toggle-all: Toggle all fields
 label:
+  host-unreachable: "unreachable"
+  agent-unreachable: "Can't reach agent at {endpoint}"
+  agent-outdated: "agent {version}"
   historical-at: "Historical logs · {time}"
   containers: Containers
   container: No containers | 1 container | {count} containers

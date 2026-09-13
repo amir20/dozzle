@@ -66,6 +66,9 @@ log-details:
   fields-hint: Перетащите, чтобы изменить порядок. Переключите, чтобы показать или скрыть в потоке логов.
   toggle-all: Переключить все поля
 label:
+  host-unreachable: "недоступен"
+  agent-unreachable: "Не удаётся связаться с агентом по адресу {endpoint}"
+  agent-outdated: "агент {version}"
   historical-at: "Исторические логи · {time}"
   containers: Контейнеры
   container: Нет контейнеров | 1 контейнер | {count} контейнеров

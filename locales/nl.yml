@@ -66,6 +66,9 @@ log-details:
   fields-hint: Sleep om te herordenen. Schakel in of uit om ze in de logstroom te tonen of te verbergen.
   toggle-all: Alle velden omschakelen
 label:
+  host-unreachable: "onbereikbaar"
+  agent-unreachable: "Kan agent op {endpoint} niet bereiken"
+  agent-outdated: "agent {version}"
   historical-at: "Historische logs · {time}"
   containers: Containers
   container: Geen containers | 1 container | {count} containers

@@ -66,6 +66,9 @@ log-details:
   fields-hint: Arrastra para reordenar. Activa o desactiva para mostrarlos u ocultarlos en el flujo de registros.
   toggle-all: Alternar todos los campos
 label:
+  host-unreachable: "inaccesible"
+  agent-unreachable: "No se puede contactar con el agente en {endpoint}"
+  agent-outdated: "agente {version}"
   historical-at: "Registros históricos · {time}"
   containers: Contenedores
   container: No contenedores | 1 contenedor | {count} contenedores
