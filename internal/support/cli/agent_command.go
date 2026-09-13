@@ -4,6 +4,7 @@ import (
 	"context"
 	"embed"
 	"fmt"
+	"io"
 	"net"
 	"os"
 	"os/signal"
@@ -18,6 +19,7 @@ import (
 	"github.com/amir20/dozzle/internal/notification/dispatcher"
 	container_support "github.com/amir20/dozzle/internal/support/container"
 	docker_support "github.com/amir20/dozzle/internal/support/docker"
+	"github.com/amir20/dozzle/internal/utils"
 	"github.com/amir20/dozzle/types"
 	"github.com/rs/zerolog/log"
 )
@@ -59,13 +61,7 @@ func (h *persistingNotificationHandler) HandleNotificationConfig(subscriptions [
 		return fmt.Errorf("failed to create data directory: %w", err)
 	}
 
-	file, err := os.Create(h.configPath)
-	if err != nil {
-		return fmt.Errorf("failed to create config file: %w", err)
-	}
-	defer file.Close()
-
-	if err := h.manager.WriteConfig(file); err != nil {
+	if err := utils.WriteFileAtomic(h.configPath, h.manager.WriteConfig); err != nil {
 		return fmt.Errorf("failed to save config: %w", err)
 	}
 
@@ -115,13 +111,9 @@ func (h *persistingNotificationHandler) persistCloudConfig(cc notification.Cloud
 		log.Error().Err(err).Msg("Could not create data directory for cloud config")
 		return
 	}
-	file, err := os.Create("./data/cloud.yml")
-	if err != nil {
-		log.Error().Err(err).Msg("Could not create cloud.yml on agent")
-		return
-	}
-	defer file.Close()
-	if err := notification.WriteCloudConfig(file, cc); err != nil {
+	if err := utils.WriteFileAtomic("./data/cloud.yml", func(w io.Writer) error {
+		return notification.WriteCloudConfig(w, cc)
+	}); err != nil {
 		log.Error().Err(err).Msg("Could not write cloud.yml on agent")
 	} else {
 		log.Debug().Msg("Persisted cloud.yml on agent")

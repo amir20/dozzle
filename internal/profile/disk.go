@@ -9,6 +9,7 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/amir20/dozzle/internal/utils"
 	"github.com/rs/zerolog/log"
 )
 
@@ -117,19 +118,16 @@ func save(username string, profile Profile) error {
 		return err
 	}
 
-	f, err := os.Create(filePath)
-	if err != nil {
+	if err := utils.WriteFileAtomic(filePath, func(w io.Writer) error {
+		_, err := w.Write(data)
 		return err
-	}
-	defer f.Close()
-
-	if _, err := f.Write(data); err != nil {
+	}); err != nil {
 		return err
 	}
 
 	log.Debug().Str("path", filePath).Msg("Profile saved")
 
-	return f.Sync()
+	return nil
 }
 
 func Load(username string) (Profile, error) {

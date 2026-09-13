@@ -1,11 +1,13 @@
 package notification
 
 import (
+	"io"
 	"os"
 	"path/filepath"
 	"sync"
 
 	"github.com/amir20/dozzle/internal/notification/dispatcher"
+	"github.com/amir20/dozzle/internal/utils"
 	"github.com/rs/zerolog/log"
 )
 
@@ -58,14 +60,7 @@ func (p *Persister) SaveNotifications() {
 		log.Error().Err(err).Msg("Could not create data directory")
 		return
 	}
-	file, err := os.Create(p.NotificationPath)
-	if err != nil {
-		log.Error().Err(err).Msg("Could not create notification config file")
-		return
-	}
-	defer file.Close()
-
-	if err := p.Manager.WriteConfig(file); err != nil {
+	if err := utils.WriteFileAtomic(p.NotificationPath, p.Manager.WriteConfig); err != nil {
 		log.Error().Err(err).Msg("Could not write notification config")
 	}
 }
@@ -84,14 +79,9 @@ func (p *Persister) SaveCloud() {
 		log.Error().Err(err).Msg("Could not create data directory")
 		return
 	}
-	file, err := os.Create(p.CloudPath)
-	if err != nil {
-		log.Error().Err(err).Msg("Could not create cloud config file")
-		return
-	}
-	defer file.Close()
-
-	if err := WriteCloudConfig(file, *cc); err != nil {
+	if err := utils.WriteFileAtomic(p.CloudPath, func(w io.Writer) error {
+		return WriteCloudConfig(w, *cc)
+	}); err != nil {
 		log.Error().Err(err).Msg("Could not write cloud config")
 	}
 }
