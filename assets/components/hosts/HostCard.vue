@@ -2,7 +2,10 @@
   <div
     class="border-base-content/10 bg-base-100 hover:border-base-content/20 rounded-box flex flex-col gap-3 border p-4 transition-colors"
   >
-    <div class="flex min-w-0 flex-col gap-1">
+    <!-- Name and facts share one line: the facts are short, and a second line for
+         them made the header as tall as the meters it introduces. They wrap under
+         the name only when the card is too narrow for both. -->
+    <div class="flex min-w-0 flex-wrap items-center gap-x-3 gap-y-1">
       <div class="flex min-w-0 items-center gap-2">
         <span class="bg-base-content/5 text-base-content/70 flex-none rounded-md p-1.5">
           <HostIcon :type="host.type" class="size-4" />
@@ -44,24 +47,25 @@
 
     <!-- Two charts at half a phone's width are too narrow to read a trend from and
          push the container list below the fold, so a phone gets the numbers alone,
-         in the same chip the container rows and the log toolbar use. -->
+         split into two halves that span the card, each over a thin meter so the
+         width it takes carries load rather than empty space. -->
     <div
       v-if="stats && isMobile"
-      class="bg-base-content/5.5 divide-base-content/10 flex w-fit items-stretch divide-x rounded-lg tabular-nums"
+      class="bg-base-content/5.5 divide-base-content/10 grid grid-cols-2 divide-x rounded-lg tabular-nums"
     >
-      <div class="flex items-center gap-1.5 px-2.5 py-1">
-        <ph:cpu class="text-base-content/40 size-3.5 shrink-0" />
-        <span class="text-[13px] font-semibold">{{ stats.weighted.movingAverage.totalCPU.toFixed(1) }}%</span>
-        <span class="text-base-content/45 text-[11px]">/ {{ $t("label.core", host.nCPU ?? 0) }}</span>
-      </div>
-      <div class="flex items-center gap-1.5 px-2.5 py-1">
-        <ph:memory class="text-base-content/40 size-3.5 shrink-0" />
-        <span class="text-[13px] font-semibold">{{
-          formatBytes(stats.weighted.movingAverage.totalMemUsage, { short: true, decimals: 1 })
-        }}</span>
-        <span class="text-base-content/45 text-[11px]"
-          >/ {{ formatBytes(host.memTotal, { short: true, decimals: 1 }) }}</span
-        >
+      <div v-for="meter in meters" :key="meter.key" class="flex min-w-0 flex-col gap-1.5 px-3 py-2">
+        <div class="flex min-w-0 items-center gap-1.5">
+          <component :is="meter.icon" class="text-base-content/40 size-3.5 shrink-0" />
+          <span class="text-[13px] font-semibold">{{ meter.value }}</span>
+          <span class="text-base-content/45 truncate text-[11px]">/ {{ meter.limit }}</span>
+        </div>
+        <div class="bg-base-content/10 h-1 overflow-hidden rounded-full">
+          <div
+            class="h-full rounded-full transition-[width] duration-500"
+            :class="meter.percent > 90 ? 'bg-error' : meter.percent > 70 ? 'bg-warning' : meter.bar"
+            :style="{ width: `${Math.min(Math.max(meter.percent, 0), 100)}%` }"
+          ></div>
+        </div>
       </div>
     </div>
 
@@ -83,6 +87,7 @@
         :capacity="formatBytes(host.memTotal, { decimals: 1 })"
         :value="stats.weighted.movingAverage.totalMemUsage"
         :chartData="memHistory"
+        :chart-max="100"
         text-class="text-secondary"
         bar-class="bg-secondary"
         :formatValue="(value) => formatBytes(value, { decimals: 1 })"
@@ -138,12 +143,36 @@ const cpuHistory = computed(() =>
 );
 const memHistory = computed(() =>
   history.value.map((stat) => ({
-    percent: stat.totalMem,
+    // Against the host's memory, so the bars read as how full it is.
+    percent: props.host.memTotal ? (stat.totalMemUsage / props.host.memTotal) * 100 : 0,
     value: stat.totalMemUsage,
   })),
 );
 
 const stats = reactive({ mostRecent: totalStat, weighted: useExponentialMovingAverage(totalStat) });
+
+const { t } = useI18n();
+const meters = computed(() => {
+  const { totalCPU, totalMemUsage } = stats.weighted.movingAverage;
+  return [
+    {
+      key: "cpu",
+      icon: PhCpu,
+      value: `${totalCPU.toFixed(1)}%`,
+      limit: t("label.core", props.host.nCPU ?? 0),
+      percent: totalCPU,
+      bar: "bg-primary",
+    },
+    {
+      key: "mem",
+      icon: PhMemory,
+      value: formatBytes(totalMemUsage, { short: true, decimals: 1 }),
+      limit: formatBytes(props.host.memTotal, { short: true, decimals: 1 }),
+      percent: props.host.memTotal ? (totalMemUsage / props.host.memTotal) * 100 : 0,
+      bar: "bg-secondary",
+    },
+  ];
+});
 
 watch(
   () => hostContainers.value,

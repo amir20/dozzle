@@ -13,7 +13,7 @@
       avg {{ formatValue(average) }} · pk {{ formatValue(peak) }}
     </div>
 
-    <BarChart class="mt-2 h-7" :chart-data="chartData" :bar-class="barClass" />
+    <BarChart class="mt-2 h-7" :chart-data="chartData" :bar-class="barClass" :max="chartMax" />
   </div>
 </template>
 
@@ -29,6 +29,7 @@ const {
   chartData,
   textClass = "",
   barClass = "",
+  chartMax,
   formatValue = (v: number) => v.toString(),
 } = defineProps<{
   label: string;
@@ -38,6 +39,7 @@ const {
   chartData: BarDataPoint[];
   textClass?: string;
   barClass?: string;
+  chartMax?: number;
   formatValue?: (value: number) => string;
 }>();
 

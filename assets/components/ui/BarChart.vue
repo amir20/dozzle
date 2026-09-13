@@ -38,9 +38,17 @@ export interface BarDataPoint {
   value: number;
 }
 
-const { chartData, barClass = "" } = defineProps<{
+const {
+  chartData,
+  barClass = "",
+  max,
+} = defineProps<{
   chartData: BarDataPoint[];
   barClass?: string;
+  // A fixed ceiling for `percent`. Without one the chart scales to its own peak,
+  // which suits a spiky series like CPU but draws a steady one (memory) as a solid
+  // block at 80% height no matter how little of the capacity it uses.
+  max?: number;
 }>();
 
 // The bucket's index and how many there are ride along with the value: a
@@ -59,6 +67,7 @@ const bucketSize = computed(() => Math.ceil(chartData.length / availableBars.val
 
 const downsampledBars = ref<BarDataPoint[]>([]);
 const maxValue = computed(() => {
+  if (max !== undefined) return max;
   const dataMax = Math.max(0, ...downsampledBars.value.map((b) => b.percent));
   return Math.max(dataMax * 1.25, 1);
 });
