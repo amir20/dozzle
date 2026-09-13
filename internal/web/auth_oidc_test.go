@@ -101,16 +101,85 @@ func Test_createRoutes_oidc_requires_auth_for_api(t *testing.T) {
 	assert.Equal(t, http.StatusUnauthorized, rr.Code)
 }
 
-// A provider-asserted picture is served by redirect, so Dozzle never fetches a
-// URL a user may have typed into their own profile.
-func Test_avatar_redirects_to_provider_picture(t *testing.T) {
-	h := &handler{config: &Config{}}
-
+func avatarRequest(picture string) *http.Request {
 	req := httptest.NewRequest("GET", "/api/profile/avatar", nil)
-	req = req.WithContext(auth.WithUser(req.Context(), auth.User{Username: "abc", Picture: "https://cdn.example.com/a.png"}))
-	rr := httptest.NewRecorder()
-	h.avatar(rr, req)
+	return req.WithContext(auth.WithUser(req.Context(), auth.User{Username: "abc", Email: "a@example.com", Picture: picture}))
+}
 
-	assert.Equal(t, http.StatusFound, rr.Code)
-	assert.Equal(t, "https://cdn.example.com/a.png", rr.Header().Get("Location"))
+// swapAvatarClients points both clients at test servers. The picture client
+// keeps its redirect policy but loses the public-address dialer, since test
+// servers listen on loopback.
+func swapAvatarClients(t *testing.T, picture, gravatar *httptest.Server) {
+	t.Helper()
+	oldPicture, oldAvatar := pictureClient, avatarClient
+	t.Cleanup(func() { pictureClient, avatarClient = oldPicture, oldAvatar })
+
+	pictureClient = &http.Client{Transport: picture.Client().Transport, CheckRedirect: oldPicture.CheckRedirect}
+	gravatarURL := gravatar.URL
+	avatarClient = &http.Client{Transport: roundTripFunc(func(r *http.Request) (*http.Response, error) {
+		r2, _ := http.NewRequestWithContext(r.Context(), r.Method, gravatarURL, nil)
+		return gravatar.Client().Transport.RoundTrip(r2)
+	})}
+}
+
+type roundTripFunc func(*http.Request) (*http.Response, error)
+
+func (f roundTripFunc) RoundTrip(r *http.Request) (*http.Response, error) { return f(r) }
+
+func imageServer(contentType, body string) *httptest.Server {
+	return httptest.NewTLSServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", contentType)
+		w.Write([]byte(body))
+	}))
+}
+
+// The CSP only allows same-origin images, so the provider picture is proxied.
+func Test_avatar_proxies_provider_picture(t *testing.T) {
+	picture := imageServer("image/png", "picture")
+	defer picture.Close()
+	gravatar := imageServer("image/png", "gravatar")
+	defer gravatar.Close()
+	swapAvatarClients(t, picture, gravatar)
+
+	rr := httptest.NewRecorder()
+	(&handler{config: &Config{}}).avatar(rr, avatarRequest(picture.URL+"/a.png"))
+
+	assert.Equal(t, http.StatusOK, rr.Code)
+	assert.Equal(t, "image/png", rr.Header().Get("Content-Type"))
+	assert.Equal(t, "picture", rr.Body.String())
+}
+
+func Test_avatar_falls_back_to_gravatar_for_unsafe_picture(t *testing.T) {
+	gravatar := imageServer("image/png", "gravatar")
+	defer gravatar.Close()
+
+	for name, picture := range map[string]*httptest.Server{
+		"svg":       imageServer("image/svg+xml", "<svg/>"),
+		"not-image": imageServer("text/html", "<html>"),
+	} {
+		t.Run(name, func(t *testing.T) {
+			defer picture.Close()
+			swapAvatarClients(t, picture, gravatar)
+
+			rr := httptest.NewRecorder()
+			(&handler{config: &Config{}}).avatar(rr, avatarRequest(picture.URL))
+
+			assert.Equal(t, http.StatusOK, rr.Code)
+			assert.Equal(t, "gravatar", rr.Body.String())
+		})
+	}
+}
+
+// A user who controls their picture must not be able to read internal addresses.
+func Test_picture_client_refuses_private_addresses(t *testing.T) {
+	internal := imageServer("image/png", "secret")
+	defer internal.Close()
+
+	_, err := pictureClient.Get(internal.URL)
+	require.ErrorIs(t, err, errPrivateAddress)
+
+	for _, addr := range []string{"127.0.0.1:443", "10.0.0.1:443", "192.168.1.1:443", "169.254.169.254:80", "100.64.0.1:443", "[::1]:443", "[fd00::1]:443", "[::ffff:127.0.0.1]:443", "0.0.0.0:443"} {
+		assert.ErrorIs(t, refuseNonPublicAddress("tcp", addr, nil), errPrivateAddress, addr)
+	}
+	assert.NoError(t, refuseNonPublicAddress("tcp", "140.82.112.3:443", nil))
 }

@@ -1,6 +1,6 @@
 ---
 title: OpenID Connect
-sourceHash: d3a00c9c2d56
+sourceHash: 82563eb8343a
 ---
 
 # <Icon icon="mdi:shield-account" inline /> OpenID Connect
@@ -97,7 +97,7 @@ Ein Benutzer ohne Filter-Claim sieht jeden Container, den die Dozzle-Instanz sie
 
 ## Identität
 
-Der Claim `sub` ist die stabile ID des Benutzers. Er ist der Schlüssel für das Profilverzeichnis unter `/data`, Einstellungen folgen der Person also auch dann, wenn sich ihr Benutzername oder ihre E-Mail-Adresse beim Anbieter ändert. Der im Menü angezeigte Name ist `name`, mit Rückfall auf `preferred_username`, dann `email`, dann `sub`. `email` und `picture` speisen den Avatar, und eine `picture`-URL wird direkt verwendet, wenn der Anbieter eine schickt.
+Der Claim `sub` ist die stabile ID des Benutzers. Er ist der Schlüssel für das Profilverzeichnis unter `/data`, Einstellungen folgen der Person also auch dann, wenn sich ihr Benutzername oder ihre E-Mail-Adresse beim Anbieter ändert. Der im Menü angezeigte Name ist `name`, mit Rückfall auf `preferred_username`, dann `email`, dann `sub`. `email` und `picture` speisen den Avatar, und eine `picture`-URL wird verwendet, wenn der Anbieter eine schickt. Dozzle lädt dieses Bild selbst und nur von öffentlichen Adressen, ein Bild in einem privaten Netzwerk fällt also auf Gravatar zurück.
 
 Anders als beim Anbieter `simple` muss die E-Mail-Adresse hier nicht verifiziert sein. Sie wird nur angezeigt und nie mit etwas abgeglichen, ein Issuer, der keinen E-Mail-Scope gewährt, funktioniert also problemlos.
 

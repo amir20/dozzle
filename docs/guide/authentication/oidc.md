@@ -96,7 +96,7 @@ A user with no filters claim can see every container the Dozzle instance can. A 
 
 ## Identity
 
-The `sub` claim is the user's stable id. It keys the profile directory under `/data`, so settings follow the person even if their username or email changes at the provider. The name shown in the menu is `name`, falling back to `preferred_username`, then `email`, then `sub`. `email` and `picture` feed the avatar, and a `picture` URL is used directly when the provider sends one.
+The `sub` claim is the user's stable id. It keys the profile directory under `/data`, so settings follow the person even if their username or email changes at the provider. The name shown in the menu is `name`, falling back to `preferred_username`, then `email`, then `sub`. `email` and `picture` feed the avatar, and a `picture` URL is used when the provider sends one. Dozzle fetches that picture itself and only from public addresses, so a picture hosted on a private network falls back to the Gravatar.
 
 Unlike the `simple` provider, the email does not have to be verified here. It is only displayed, never matched against anything, so an issuer that grants no email scope works fine.
 
