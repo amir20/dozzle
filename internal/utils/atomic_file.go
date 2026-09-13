@@ -15,8 +15,9 @@ import (
 //
 // The existing file's mode is kept; a new file gets 0644.
 //
-// Rename fails when path is a single-file bind mount (EBUSY), so in that case
-// it falls back to rewriting path in place. The bytes are already fully
+// Rename fails when path is a single-file bind mount (EBUSY), and the temp file
+// can't be created when the dir around such a mount is read-only, so in both
+// cases it falls back to rewriting path in place. The bytes are already fully
 // rendered by then, so the only unsafe window left is the write itself.
 func WriteFileAtomic(path string, write func(io.Writer) error) error {
 	var buf bytes.Buffer
@@ -33,7 +34,9 @@ func WriteFileAtomic(path string, write func(io.Writer) error) error {
 	dir := filepath.Dir(path)
 	tmp, err := os.CreateTemp(dir, "."+filepath.Base(path)+".tmp-*")
 	if err != nil {
-		return err
+		// The dir can be read-only while the file itself is a writable bind mount.
+		log.Debug().Err(err).Str("path", path).Msg("Could not create temp file, writing in place")
+		return writeInPlace(path, data, perm)
 	}
 	tmpPath := tmp.Name()
 	defer os.Remove(tmpPath) // no-op once renamed

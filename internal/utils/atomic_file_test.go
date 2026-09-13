@@ -49,6 +49,23 @@ func TestWriteFileAtomic_FailedWriteKeepsOriginal(t *testing.T) {
 	assert.Len(t, entries, 1, "no temp files left behind")
 }
 
+func TestWriteFileAtomic_ReadOnlyDirWritesInPlace(t *testing.T) {
+	dir := t.TempDir()
+	path := filepath.Join(dir, "notifications.yml")
+	require.NoError(t, os.WriteFile(path, []byte("old"), 0644))
+	require.NoError(t, os.Chmod(dir, 0555))
+	t.Cleanup(func() { os.Chmod(dir, 0755) })
+
+	require.NoError(t, WriteFileAtomic(path, func(w io.Writer) error {
+		_, err := w.Write([]byte("new"))
+		return err
+	}))
+
+	data, err := os.ReadFile(path)
+	require.NoError(t, err)
+	assert.Equal(t, "new", string(data))
+}
+
 func TestWriteFileAtomic_KeepsExistingMode(t *testing.T) {
 	dir := t.TempDir()
 	path := filepath.Join(dir, "cloud.yml")
