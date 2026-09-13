@@ -213,3 +213,14 @@ Try editing `assets/pages/index.vue` and saving — the browser updates instantl
 - **Nothing shows up at localhost:3100** — make sure Docker is running and the socket is accessible at `/var/run/docker.sock`.
 - **`make generate` fails** — confirm `protoc` is on your PATH (`protoc --version`).
 - **Still stuck?** Open a question in [GitHub Discussions](https://github.com/amir20/dozzle/discussions) — we're happy to help.
+
+## Adding App Icons
+
+Dozzle shows a logo next to containers whose image it recognizes. Icons are vendored from [homarr-labs/dashboard-icons](https://github.com/homarr-labs/dashboard-icons) into [`assets/icons/apps/`](assets/icons/apps/), and matching happens in `assets/utils/appIcons.ts`.
+
+The repo ships an `add-app-icon` skill in `.claude/skills/`. To add icons with an AI coding agent, paste this prompt and fill in the images:
+
+```
+Use the add-app-icon skill in .claude/skills/add-app-icon/SKILL.md to add app icons
+for these container images: <image1>, <image2>
+```
