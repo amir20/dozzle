@@ -71,9 +71,22 @@
           v-for="provider in oauthProviders"
           :key="provider.name"
           :href="loginUrlFor(provider)"
+          @click="pendingProvider = provider.name"
+          :aria-busy="pendingProvider === provider.name"
           class="btn border-base-content/15 bg-base-200 hover:border-base-content/25 hover:bg-base-300 h-12 gap-2.5 font-medium shadow-none"
+          :class="{
+            'pointer-events-none': pendingProvider,
+            'opacity-50': pendingProvider && pendingProvider !== provider.name,
+          }"
         >
-          <component :is="iconFor(provider.icon)" class="size-[1.15rem] opacity-80" />
+          <!-- The redirect to the provider can take a few seconds on a phone, and
+               nothing on the page changes until it lands. The spinner takes the
+               icon's place so the button keeps its width. -->
+          <span
+            v-if="pendingProvider === provider.name"
+            class="loading loading-spinner size-[1.15rem] opacity-60"
+          ></span>
+          <component v-else :is="iconFor(provider.icon)" class="size-[1.15rem] opacity-80" />
           {{ $t("button.login-with", { provider: provider.name }) }}
         </a>
       </div>
@@ -101,6 +114,12 @@ const oauthProviders = config.oauthProviders ?? [];
 // Absent when no OAuth provider is configured, in which case the password form is
 // the only way in and always shows.
 const passwordLogin = config.passwordLogin ?? true;
+
+// The provider whose sign in the browser is navigating to.
+const pendingProvider = ref<string>();
+// Safari restores the page from its back-forward cache when the user comes back
+// from the provider, spinner and all, so clear it whenever the page is shown again.
+useEventListener(window, "pageshow", () => (pendingProvider.value = undefined));
 
 // Bad credentials are a property of the pair, so both fields turn red together.
 const fieldClass = computed(() => (error.value ? "border-error focus-within:border-error" : ""));

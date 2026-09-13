@@ -1,6 +1,6 @@
 ---
 title: OpenID Connect
-sourceHash: 9dcc3df4a715
+sourceHash: d3a00c9c2d56
 ---
 
 # <Icon icon="mdi:shield-account" inline /> OpenID Connect
@@ -107,11 +107,17 @@ Après la connexion, Dozzle émet son propre cookie de session portant les rôle
 
 ## Déconnexion
 
-Se déconnecter efface la session de Dozzle. Si `--auth-logout-url` est défini, le navigateur y est ensuite envoyé, pointez-le donc sur l'URL de fin de session de votre fournisseur pour déconnecter aussi l'utilisateur du fournisseur :
+Se déconnecter efface la session de Dozzle et déconnecte aussi l'utilisateur du fournisseur. Dozzle lit le `end_session_endpoint` du fournisseur dans le document de découverte et lui renvoie l'ID token avec lequel la session a été émise, si bien que le fournisseur ne demande pas de confirmation et que le navigateur revient sur la page de connexion de Dozzle. Rien n'est à régler côté Dozzle.
 
-```yaml
-DOZZLE_AUTH_LOGOUT_URL: https://keycloak.example.com/realms/main/protocol/openid-connect/logout
+Enregistrez cette adresse comme URI de redirection après déconnexion auprès de votre fournisseur, avec le chemin de base si Dozzle tourne sous un :
+
 ```
+https://your-dozzle-host/login
+```
+
+L'ID token est conservé sous `/data` jusqu'à ce que l'utilisateur se déconnecte. Si le conteneur est recréé sans volume sur `/data`, les sessions d'avant se déconnectent quand même, mais le fournisseur demande une confirmation.
+
+`--auth-logout-url` ne sert que pour un fournisseur dont la déconnexion ne figure pas dans son document de découverte. Réglé sur une autre URL, le navigateur y est envoyé à la place.
 
 ## Ce qui diffère de `simple`
 
@@ -126,7 +132,7 @@ Les deux fournisseurs partagent les flags `--auth-oidc-*`, la différence se voi
 
 ### Keycloak
 
-Créez un client `dozzle` dans votre realm avec l'authentification du client activée, et ajoutez l'URI de redirection ci-dessus. Puis, sous l'onglet **Roles** du client, créez les rôles de client que vous voulez distribuer : `shell`, `actions`, `download`, `notifications`, `cloud` ou `all`. Attribuez-les aux utilisateurs ou aux groupes sous **Role mapping**.
+Créez un client `dozzle` dans votre realm avec l'authentification du client activée, et ajoutez l'URI de redirection ci-dessus, ainsi que l'URL de connexion de [Déconnexion](#deconnexion) sous **Valid post logout redirect URIs**. Puis, sous l'onglet **Roles** du client, créez les rôles de client que vous voulez distribuer : `shell`, `actions`, `download`, `notifications`, `cloud` ou `all`. Attribuez-les aux utilisateurs ou aux groupes sous **Role mapping**.
 
 Keycloak émet les rôles de client sous `resource_access.<client-id>.roles`, que Dozzle cherche déjà. Vérifiez les **Client scopes** du client, ouvrez le scope dédié et confirmez que le mapper **client roles** ajoute le claim à l'ID token ou au userinfo ; Dozzle lit les deux mais pas l'access token.
 

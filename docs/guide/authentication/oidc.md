@@ -106,11 +106,17 @@ After sign in, Dozzle issues its own session cookie carrying the roles and filte
 
 ## Logout
 
-Logging out clears Dozzle's session. If `--auth-logout-url` is set, the browser is then sent there, so point it at your provider's end session URL to sign the user out of the provider as well:
+Logging out clears Dozzle's session and signs the user out of the provider as well. Dozzle reads the provider's `end_session_endpoint` from discovery and hands back the ID token the session was issued with, so the provider does not ask for confirmation, and the browser lands back on Dozzle's login page. Nothing needs to be set in Dozzle.
 
-```yaml
-DOZZLE_AUTH_LOGOUT_URL: https://keycloak.example.com/realms/main/protocol/openid-connect/logout
+Register this as a post logout redirect URI with your provider, including the base path if Dozzle runs under one:
+
 ```
+https://your-dozzle-host/login
+```
+
+The ID token is kept under `/data` until the user logs out. If the container is recreated without a volume on `/data`, sessions from before that still log out, but the provider asks to confirm.
+
+`--auth-logout-url` is only for a provider whose logout is not in its discovery document. Set to any other URL, the browser is sent there instead.
 
 ## What is different from `simple`
 
@@ -125,7 +131,7 @@ Both providers share the `--auth-oidc-*` flags, so the split shows up in behavio
 
 ### Keycloak
 
-Create a client `dozzle` in your realm with client authentication on, and add the redirect URI above. Then, under the client's **Roles** tab, create the client roles you want to hand out: `shell`, `actions`, `download`, `notifications`, `cloud`, or `all`. Assign them to users or groups under **Role mapping**.
+Create a client `dozzle` in your realm with client authentication on, and add the redirect URI above, plus the login URL from [Logout](#logout) under **Valid post logout redirect URIs**. Then, under the client's **Roles** tab, create the client roles you want to hand out: `shell`, `actions`, `download`, `notifications`, `cloud`, or `all`. Assign them to users or groups under **Role mapping**.
 
 Keycloak emits client roles as `resource_access.<client-id>.roles`, which Dozzle already searches. Check the client's **Client scopes**, open the dedicated scope and confirm the **client roles** mapper adds the claim to the ID token or to userinfo; Dozzle reads both but not the access token.
 

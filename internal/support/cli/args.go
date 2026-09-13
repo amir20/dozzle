@@ -28,7 +28,7 @@ type Args struct {
 	AuthHeaderName         string              `arg:"--auth-header-name,env:DOZZLE_AUTH_HEADER_NAME" default:"Remote-Name" help:"sets the HTTP Header to use for name in Forward Proxy configuration."`
 	AuthHeaderFilter       string              `arg:"--auth-header-filter,env:DOZZLE_AUTH_HEADER_FILTER" default:"Remote-Filter" help:"sets the HTTP Header to use for filtering in Forward Proxy configuration."`
 	AuthHeaderRoles        string              `arg:"--auth-header-roles,env:DOZZLE_AUTH_HEADER_ROLES" default:"Remote-Roles" help:"sets the HTTP Header to use for roles in Forward Proxy configuration."`
-	AuthLogoutUrl          string              `arg:"--auth-logout-url,env:DOZZLE_AUTH_LOGOUT_URL" help:"sets the Logout URL used with Forward Proxy, and where the browser is sent after logout with the oidc auth provider."`
+	AuthLogoutUrl          string              `arg:"--auth-logout-url,env:DOZZLE_AUTH_LOGOUT_URL" help:"sets the Logout URL used with Forward Proxy. With the oidc auth provider it overrides the issuer's end_session_endpoint and is rarely needed."`
 	AuthGithubClientID     string              `arg:"--auth-github-client-id,env:DOZZLE_AUTH_GITHUB_CLIENT_ID" help:"sets the GitHub OAuth app client id, enabling Sign in with GitHub for simple auth."`
 	AuthGithubClientSecret string              `arg:"--auth-github-client-secret,env:DOZZLE_AUTH_GITHUB_CLIENT_SECRET" help:"sets the GitHub OAuth app client secret."`
 	AuthOidcIssuer         string              `arg:"--auth-oidc-issuer,env:DOZZLE_AUTH_OIDC_ISSUER" help:"sets the OpenID Connect issuer URL, enabling SSO for simple auth. Works with Google, Keycloak, Pocket ID, Zitadel and Authentik."`

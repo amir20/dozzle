@@ -290,6 +290,8 @@ func oidcAuth(args cli.Args) web.OAuthAuthorizer {
 		DisplayName:  args.AuthOidcName,
 		RolesClaim:   args.AuthOidcRolesClaim,
 		FiltersClaim: args.AuthOidcFiltersClaim,
+		LogoutURL:    args.AuthLogoutUrl,
+		DataDir:      dataDir,
 	}, args.Base, ttl, auth.SessionSecret(dataDir))
 
 	log.Info().

@@ -151,9 +151,9 @@ func (h *handler) executeTemplate(w http.ResponseWriter, req *http.Request) {
 		}
 
 		// Forward proxy has no session of its own to clear, so the URL is the
-		// whole logout. Under oidc it is where the browser goes after Dozzle's
-		// session is cleared, typically the issuer's end_session_endpoint.
-		if provider := h.config.Authorization.Provider; provider == FORWARD_PROXY || provider == OIDC {
+		// whole logout. Under oidc the logout response says where to go, since
+		// it carries the session's ID token.
+		if h.config.Authorization.Provider == FORWARD_PROXY {
 			if logoutURL := strings.TrimSpace(h.config.Authorization.LogoutUrl); logoutURL != "" {
 				config["logoutUrl"] = logoutURL
 			}

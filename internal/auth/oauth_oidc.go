@@ -42,6 +42,7 @@ type oidcDiscovery struct {
 	TokenURL      string   `json:"token_endpoint"`
 	UserInfoURL   string   `json:"userinfo_endpoint"`
 	JWKSURL       string   `json:"jwks_uri"`
+	EndSessionURL string   `json:"end_session_endpoint"`
 	ScopesSupport []string `json:"scopes_supported"`
 }
 
@@ -229,7 +230,8 @@ func (o *oidcProvider) identity(ctx context.Context, token *oauth2.Token) (exter
 	// the ID token and only mirrors it into userinfo when a mapper says so, so
 	// the token is the first place roles are looked for.
 	var claims claimSet
-	if raw, ok := token.Extra("id_token").(string); ok && raw != "" {
+	raw, _ := token.Extra("id_token").(string)
+	if raw != "" {
 		if idToken, err := decodeJWTClaims(raw); err == nil {
 			claims = append(claims, idToken)
 		} else {
@@ -294,6 +296,7 @@ func (o *oidcProvider) identity(ctx context.Context, token *oauth2.Token) (exter
 		Email:   info.Email,
 		Name:    info.Name,
 		Picture: info.Picture,
+		IDToken: raw,
 		Claims:  claims,
 	}, nil
 }

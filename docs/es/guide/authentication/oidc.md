@@ -1,6 +1,6 @@
 ---
 title: OpenID Connect
-sourceHash: 9dcc3df4a715
+sourceHash: d3a00c9c2d56
 ---
 
 # <Icon icon="mdi:shield-account" inline /> OpenID Connect
@@ -107,11 +107,17 @@ Tras iniciar sesión, Dozzle emite su propia cookie de sesión con los roles y l
 
 ## Cerrar sesión
 
-Cerrar sesión borra la sesión de Dozzle. Si `--auth-logout-url` está definido, el navegador se envía después a esa URL, así que apúntala a la URL de fin de sesión de tu proveedor para cerrar también la sesión en el proveedor:
+Cerrar sesión borra la sesión de Dozzle y también cierra la sesión del usuario en el proveedor. Dozzle lee el `end_session_endpoint` del proveedor en el documento de discovery y le devuelve el ID token con el que se emitió la sesión, así que el proveedor no pide confirmación y el navegador vuelve a la página de inicio de sesión de Dozzle. No hay que configurar nada en Dozzle.
 
-```yaml
-DOZZLE_AUTH_LOGOUT_URL: https://keycloak.example.com/realms/main/protocol/openid-connect/logout
+Registra esta dirección como post logout redirect URI en tu proveedor, con la ruta base si Dozzle corre bajo una:
+
 ```
+https://your-dozzle-host/login
+```
+
+El ID token se guarda en `/data` hasta que el usuario cierra sesión. Si el contenedor se vuelve a crear sin un volumen en `/data`, las sesiones anteriores igual se cierran, pero el proveedor pide confirmación.
+
+`--auth-logout-url` solo hace falta con un proveedor cuyo cierre de sesión no está en su documento de discovery. Si apunta a otra URL, el navegador se envía ahí en su lugar.
 
 ## Qué cambia respecto a `simple`
 
@@ -126,7 +132,7 @@ Los dos proveedores comparten los flags `--auth-oidc-*`, así que la diferencia 
 
 ### Keycloak
 
-Crea un cliente `dozzle` en tu realm con la autenticación de cliente activada y añade la redirect URI de arriba. Después, en la pestaña **Roles** del cliente, crea los roles de cliente que quieras repartir: `shell`, `actions`, `download`, `notifications`, `cloud` o `all`. Asígnalos a usuarios o grupos en **Role mapping**.
+Crea un cliente `dozzle` en tu realm con la autenticación de cliente activada y añade la redirect URI de arriba, junto con la URL de inicio de sesión de [Cerrar sesión](#cerrar-sesion) en **Valid post logout redirect URIs**. Después, en la pestaña **Roles** del cliente, crea los roles de cliente que quieras repartir: `shell`, `actions`, `download`, `notifications`, `cloud` o `all`. Asígnalos a usuarios o grupos en **Role mapping**.
 
 Keycloak emite los roles de cliente como `resource_access.<client-id>.roles`, que Dozzle ya busca. Revisa los **Client scopes** del cliente, abre el scope dedicado y confirma que el mapper **client roles** añade el claim al ID token o a userinfo; Dozzle lee los dos pero no el access token.
 
