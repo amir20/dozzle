@@ -223,7 +223,6 @@ settings:
   show-image-update-alert-desc: 'Controleert de registry op een nieuwere tag van de draaiende image.'
   help-support: >
     Steun Dozzle door te doneren of door ons te sponsoren op GitHub. Jouw bijdrage helpt ons om Dozzle verder te verbeteren voor iedereen. Hartelijk dank! 🙏🏼
-  about-desc: Informatie over jouw Dozzle-installatie en hoe je het project kunt ondersteunen.
   display-desc: Pas aan hoe logs en de rest van de app eruitzien. De voorbeeldweergave toont je wijzigingen live.
   options-desc: Voorkeuren voor taal, navigatie en groepering.
   cloud-desc: Stream logs naar Dozzle Cloud voor AI-gestuurde analyses en zoeken over instanties heen.
@@ -253,7 +252,6 @@ settings:
   group-containers-desc: 'Groepeert op Compose-project, Swarm-stack of dev.dozzle.group.'
   show-app-icons: 'App-pictogrammen tonen'
   show-app-icons-desc: 'Koppel bekende images aan hun logo. De pictogrammen zitten in Dozzle en worden nooit van internet opgehaald.'
-  about: Over
   search: Doorzoeken inschakelen via Dozzle
   search-desc: 'Zoek in de logs van de container die je bekijkt.'
   using-version: Je gebruikt <a href="https://dozzle.dev/" target="_blank" rel="noreferrer noopener">Dozzle</a> {version}.

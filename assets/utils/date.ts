@@ -23,9 +23,13 @@ const units: [Intl.RelativeTimeFormatUnit, number][] = [
   ["second", 1],
 ];
 
-export function toRelativeTime(date: Date, locale: string | undefined): string {
+export function toRelativeTime(
+  date: Date,
+  locale: string | undefined,
+  style: Intl.RelativeTimeFormatStyle = "long",
+): string {
   const diffInSeconds = (date.getTime() - new Date().getTime()) / 1000;
-  const rtf = new Intl.RelativeTimeFormat(locale, { numeric: "auto" });
+  const rtf = new Intl.RelativeTimeFormat(locale, { numeric: "auto", style });
 
   for (const [unit, seconds] of units) {
     const value = Math.round(diffInSeconds / seconds);

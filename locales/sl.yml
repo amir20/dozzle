@@ -222,7 +222,6 @@ placeholder:
 settings:
   show-image-update-alert: 'Pokaži obvestilo, ko je za vsebnik na voljo posodobitev'
   show-image-update-alert-desc: 'V registru preveri, ali obstaja novejša oznaka slike.'
-  about-desc: Informacije o vaši namestitvi Dozzle in kako podpreti projekt.
   display-desc: Prilagodite videz dnevnikov in preostalega dela aplikacije. Predogled v živo prikazuje vaše spremembe.
   options-desc: Nastavitve jezika, navigacije in združevanja.
   cloud-desc: Pretakajte dnevnike v Dozzle Cloud za preiskave z umetno inteligenco in iskanje med instancami.
@@ -252,7 +251,6 @@ settings:
   group-containers-desc: 'Združuje po projektu Compose, skladu Swarm ali dev.dozzle.group.'
   show-app-icons: 'Prikaži ikone aplikacij'
   show-app-icons-desc: 'Znane slike poveži z njihovim logotipom. Ikone so priložene Dozzle in se nikoli ne prenašajo iz interneta.'
-  about: O programu
   search: Omogočite iskanje z Dozzle z uporabo
   search-desc: 'Išče po dnevniku vsebnika, ki ga gledate.'
   update-available: Nova različica je na voljo! Posodobi na <a href="{href}"

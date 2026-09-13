@@ -225,7 +225,6 @@ settings:
   show-image-update-alert-desc: 'Çalışan imajın daha yeni bir etiketi için kayıt defterini denetler.'
   help-support: >
     Lütfen GitHub'da bağış yaparak veya bizi sponsor olarak destekleyerek Dozzle'ı destekleyin. Katkılarınız Dozzle'ı herkes için geliştirmemize yardımcı oluyor. Teşekkürler! 🙏🏼
-  about-desc: Dozzle kurulumunuz ve projeyi nasıl destekleyebileceğiniz hakkında bilgiler.
   display-desc: Logların ve uygulamanın geri kalanının görünümünü özelleştirin. Önizleme değişikliklerinizi canlı olarak yansıtır.
   options-desc: Dil, gezinme ve gruplama tercihleri.
   cloud-desc: AI destekli incelemeler ve örnekler arasında arama için logları Dozzle Cloud'a aktarın.
@@ -255,7 +254,6 @@ settings:
   group-containers-desc: 'Compose projesine, Swarm yığınına veya dev.dozzle.group değerine göre gruplar.'
   show-app-icons: 'Uygulama simgelerini göster'
   show-app-icons-desc: 'Bilinen imajları logolarıyla eşleştir. Simgeler Dozzle ile birlikte gelir ve hiçbir zaman internetten indirilmez.'
-  about: Hakkında
   search: Dozzle kullanarak aramayı etkinleştir
   search-desc: 'Görüntülediğiniz konteynerin günlüklerinde arama yapar.'
   using-version: <a href="https://dozzle.dev/" target="_blank" rel="noreferrer noopener">Dozzle</a> {version} kullanıyorsunuz.

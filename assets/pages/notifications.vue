@@ -34,7 +34,19 @@
 
       <!-- ALERTS -->
       <template v-else-if="tab === 'alerts'">
-        <div class="mb-4 flex flex-wrap items-center gap-3">
+        <!-- With nothing to list, the button is the whole page, so it sits under the
+             sentence that explains it instead of alone at the far edge. -->
+        <EmptyState v-if="!alerts.length" :title="$t('notifications.no-alerts')">
+          <template #icon><mdi:bell-outline class="size-5" /></template>
+          <template #actions>
+            <button class="btn btn-primary btn-sm" @click="openCreateAlert">
+              <mdi:plus class="size-4" />
+              {{ $t("notifications.add-alert") }}
+            </button>
+          </template>
+        </EmptyState>
+
+        <div v-else class="mb-4 flex flex-wrap items-center gap-3">
           <!-- Nothing to filter until there is more than one alert. -->
           <div v-if="alerts.length > 1" role="tablist" class="tabs tabs-box tabs-xs">
             <button
@@ -54,9 +66,8 @@
           </button>
         </div>
 
-        <div class="space-y-4">
-          <p v-if="!alerts.length" class="text-base-content/60 text-sm">{{ $t("notifications.no-alerts") }}</p>
-          <p v-else-if="!filteredAlerts.length" class="text-base-content/60 text-sm">
+        <div v-if="alerts.length" class="space-y-4">
+          <p v-if="!filteredAlerts.length" class="text-base-content/60 text-sm">
             {{ $t("notifications.no-alerts-in-filter") }}
           </p>
           <AlertCard
@@ -72,10 +83,21 @@
 
       <!-- DESTINATIONS -->
       <template v-else>
-        <div class="mb-4 flex flex-wrap items-center gap-3">
-          <p v-if="!dispatchers.length" class="text-base-content/60 text-sm">
-            {{ $t("notifications.empty-state.description") }}
-          </p>
+        <EmptyState
+          v-if="!dispatchers.length"
+          :title="$t('notifications.empty-state.title')"
+          :hint="$t('notifications.empty-state.description')"
+        >
+          <template #icon><mdi:send-outline class="size-5" /></template>
+          <template #actions>
+            <button class="btn btn-primary btn-sm" @click="openAddDestination">
+              <mdi:plus class="size-4" />
+              {{ $t("notifications.add-destination") }}
+            </button>
+          </template>
+        </EmptyState>
+
+        <div v-else class="mb-4 flex flex-wrap items-center gap-3">
           <button class="btn btn-primary btn-sm ml-auto" @click="openAddDestination">
             <mdi:plus class="size-4" />
             {{ $t("notifications.add-destination") }}

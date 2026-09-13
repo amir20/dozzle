@@ -4,7 +4,9 @@
     panel-class="rounded-box border-base-content/20 bg-base-200 max-h-72 w-48 overflow-auto border p-2 shadow-sm"
   >
     <template #trigger>
-      <button type="button" class="btn btn-primary flex-nowrap" v-bind="$attrs">
+      <!-- `plain` is for a picker that sits beside the surface's real action and must
+           not compete with it for the one primary slot. -->
+      <button type="button" class="btn flex-nowrap" :class="{ 'btn-primary': !plain }" v-bind="$attrs">
         <slot name="trigger"> {{ label }} <carbon:caret-down /></slot>
       </button>
     </template>
@@ -32,9 +34,14 @@ type DropdownItem = {
 
 const model = defineModel<T>();
 
-const { options, defaultLabel = "" } = defineProps<{
+const {
+  options,
+  defaultLabel = "",
+  plain = false,
+} = defineProps<{
   options: DropdownItem[];
   defaultLabel?: string;
+  plain?: boolean;
 }>();
 
 const label = computed(() => options.find((item) => item.value === model.value)?.label ?? defaultLabel);

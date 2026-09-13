@@ -42,7 +42,30 @@
       </ul>
     </div>
 
-    <div class="grid grid-cols-2 gap-3" v-if="stats">
+    <!-- Two charts at half a phone's width are too narrow to read a trend from and
+         push the container list below the fold, so a phone gets the numbers alone,
+         in the same chip the container rows and the log toolbar use. -->
+    <div
+      v-if="stats && isMobile"
+      class="bg-base-content/5.5 divide-base-content/10 flex w-fit items-stretch divide-x rounded-lg tabular-nums"
+    >
+      <div class="flex items-center gap-1.5 px-2.5 py-1">
+        <ph:cpu class="text-base-content/40 size-3.5 shrink-0" />
+        <span class="text-[13px] font-semibold">{{ stats.weighted.movingAverage.totalCPU.toFixed(1) }}%</span>
+        <span class="text-base-content/45 text-[11px]">/ {{ $t("label.core", host.nCPU ?? 0) }}</span>
+      </div>
+      <div class="flex items-center gap-1.5 px-2.5 py-1">
+        <ph:memory class="text-base-content/40 size-3.5 shrink-0" />
+        <span class="text-[13px] font-semibold">{{
+          formatBytes(stats.weighted.movingAverage.totalMemUsage, { short: true, decimals: 1 })
+        }}</span>
+        <span class="text-base-content/45 text-[11px]"
+          >/ {{ formatBytes(host.memTotal, { short: true, decimals: 1 }) }}</span
+        >
+      </div>
+    </div>
+
+    <div class="grid grid-cols-2 gap-3" v-else-if="stats">
       <MetricCard
         :icon="PhCpu"
         label="CPU"

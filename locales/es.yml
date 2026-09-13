@@ -323,7 +323,6 @@ settings:
   show-image-update-alert-desc: 'Consulta el registro en busca de una etiqueta más reciente de la imagen.'
   help-support: >
     Por favor, apoya a Dozzle donando o patrocinándonos en GitHub. Tus contribuciones nos ayudan a mejorar Dozzle para todos. ¡Gracias! 🙏🏼
-  about-desc: Información sobre tu instalación de Dozzle y cómo apoyar el proyecto.
   display-desc: Personaliza la apariencia de los logs y del resto de la aplicación. La vista previa refleja tus cambios en vivo.
   options-desc: Preferencias de idioma, navegación y agrupación.
   cloud-desc: Transmite logs a Dozzle Cloud para investigaciones con IA y búsqueda entre instancias.
@@ -353,7 +352,6 @@ settings:
   group-containers-desc: 'Agrupa por proyecto de Compose, stack de Swarm o dev.dozzle.group.'
   show-app-icons: 'Mostrar iconos de aplicaciones'
   show-app-icons-desc: 'Asocia las imágenes conocidas con su logotipo. Los iconos vienen incluidos en Dozzle y nunca se descargan de internet.'
-  about: Acerca de
   search: Activar la búsqueda con Dozzle mediante
   search-desc: 'Busca dentro de los logs del contenedor que estás viendo.'
   using-version: Estás usando <a href="https://dozzle.dev/" target="_blank" rel="noreferrer noopener">Dozzle</a> {version}.

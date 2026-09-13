@@ -9,14 +9,13 @@
     </section>
 
     <!-- ABOUT -->
-    <section class="flex flex-col gap-4">
-      <div>
-        <h2 class="text-2xl font-semibold tracking-tight">{{ $t("settings.about") }}</h2>
-        <p class="text-base-content/60 mt-1 text-sm">{{ $t("settings.about-desc") }}</p>
-      </div>
-
+    <!-- No "About" heading: the Dozzle wordmark and its version already say what this
+         section is. On a phone this is the first screen of settings, so it keeps only
+         what earns that spot: the version, whether it is stale, and the ways to support
+         the project. The prose around them is desktop-only. -->
+    <section>
       <div class="divide-base-content/10 divide-y">
-        <div class="flex flex-col gap-2 py-4">
+        <div class="flex flex-col gap-2 pb-4 max-md:pb-3">
           <div class="flex flex-wrap items-center gap-3">
             <span class="text-2xl font-semibold tracking-tight">Dozzle</span>
             <span class="status-pill status-pill-neutral font-mono">{{ config.version }}</span>
@@ -31,7 +30,7 @@
               {{ latestRelease?.name }} available
             </a>
           </div>
-          <div class="text-base-content/60 font-mono text-xs">
+          <div class="text-base-content/60 font-mono text-xs max-md:hidden">
             <template v-if="hasRelease && latestRelease?.createdAt">
               Latest release {{ latestRelease.name }} ·
               {{ new Date(latestRelease.createdAt).toLocaleDateString(undefined, dateFmt) }}
@@ -40,14 +39,20 @@
           </div>
         </div>
 
-        <div class="flex flex-col gap-3 py-4">
+        <div class="flex flex-col gap-3 py-4 max-md:pt-3">
           <div>
             <div class="text-sm font-medium">{{ $t("settings.support-title") }}</div>
-            <div class="text-base-content/60 text-xs">{{ $t("settings.help-support") }}</div>
+            <div class="text-base-content/60 text-xs max-md:hidden">{{ $t("settings.help-support") }}</div>
           </div>
           <div class="flex flex-wrap gap-2">
-            <a href="https://github.com/amir20/dozzle" target="_blank" rel="noopener noreferrer" class="btn btn-sm">
-              <mdi:github /> amir20/dozzle
+            <a
+              href="https://github.com/amir20/dozzle"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="btn btn-sm max-md:btn-square"
+              aria-label="amir20/dozzle"
+            >
+              <mdi:github /> <span class="max-md:hidden">amir20/dozzle</span>
             </a>
             <a
               href="https://github.com/sponsors/amir20"
@@ -120,6 +125,7 @@
           </SettingRow>
           <SettingRow :label="$t('settings.datetime-format')" :description="$t('settings.datetime-format-desc')">
             <DropdownMenu
+              plain
               v-model="dateLocale"
               :options="[
                 { label: 'Auto', value: 'auto' },
@@ -130,6 +136,7 @@
               ]"
             />
             <DropdownMenu
+              plain
               v-model="hourStyle"
               :options="[
                 { label: $t('settings.hour.auto'), value: 'auto' },
@@ -148,7 +155,7 @@
                 ]"
                 :key="opt.value"
                 class="btn btn-sm join-item"
-                :class="size === opt.value ? 'btn-primary' : 'btn-ghost'"
+                :class="size === opt.value ? 'bg-base-content/10 border-transparent' : 'btn-ghost text-base-content/60'"
                 @click="size = opt.value as typeof size"
               >
                 {{ opt.label }}
@@ -176,6 +183,7 @@
       <div class="divide-base-content/10 divide-y">
         <SettingRow :label="$t('settings.locale')" :description="$t('settings.locale-desc')">
           <DropdownMenu
+            plain
             v-model="locale"
             :options="[
               { label: 'Auto', value: '' },
@@ -193,7 +201,9 @@
               ]"
               :key="opt.value"
               class="btn btn-sm join-item"
-              :class="lightTheme === opt.value ? 'btn-primary' : 'btn-ghost'"
+              :class="
+                lightTheme === opt.value ? 'bg-base-content/10 border-transparent' : 'btn-ghost text-base-content/60'
+              "
               @click="lightTheme = opt.value as typeof lightTheme"
             >
               {{ opt.label }}
@@ -202,6 +212,7 @@
         </SettingRow>
         <SettingRow :label="$t('settings.automatic-redirect')" :description="$t('settings.automatic-redirect-desc')">
           <DropdownMenu
+            plain
             v-model="automaticRedirect"
             :options="[
               { label: $t('settings.redirect.instant'), value: 'instant' },
@@ -212,6 +223,7 @@
         </SettingRow>
         <SettingRow :label="$t('settings.group-containers')" :description="$t('settings.group-containers-desc')">
           <DropdownMenu
+            plain
             v-model="groupContainers"
             :options="[
               { label: $t('settings.grouping.always'), value: 'always' },

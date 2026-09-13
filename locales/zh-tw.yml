@@ -224,7 +224,6 @@ settings:
   show-image-update-alert-desc: '檢查登錄檔中是否有執行中映像的較新標籤。'
   help-support: >
     請透過在 GitHub 上捐款或贊助我們來支持 Dozzle。您的貢獻幫助我們為所有人改進 Dozzle。謝謝！ 🙏🏼
-  about-desc: 關於您的 Dozzle 安裝以及如何支持本專案的資訊。
   display-desc: 自訂日誌和應用程式其餘部分的外觀。預覽會即時反映您的變更。
   options-desc: 語言、導覽和群組偏好設定。
   cloud-desc: 將日誌串流至 Dozzle Cloud，進行 AI 驅動的調查和跨實例搜尋。
@@ -254,7 +253,6 @@ settings:
   group-containers-desc: '依 Compose 專案、Swarm 堆疊或 dev.dozzle.group 分組。'
   show-app-icons: '顯示應用程式圖示'
   show-app-icons-desc: '將常見映像對應到其標誌。圖示隨 Dozzle 一起提供，不會從網際網路下載。'
-  about: 關於
   search: 啟用 Dozzle 搜尋功能
   search-desc: '在目前檢視的容器日誌中搜尋。'
   using-version: 您目前使用的是 <a href="https://dozzle.dev/" target="_blank" rel="noreferrer noopener">Dozzle</a> {version}。
