@@ -66,6 +66,11 @@ log-details:
   fields-hint: Drag to reorder. Toggle to show or hide in the log stream.
   toggle-all: Toggle all fields
 label:
+  hide-sidebar: "Hide the sidebar"
+  show-sidebar: "Show the sidebar"
+  host-unreachable: "unreachable"
+  agent-unreachable: "Can't reach agent at {endpoint}"
+  agent-outdated: "agent {version}"
   historical-at: "Historical logs · {time}"
   containers: Containers
   container: No containers | 1 container | {count} containers
@@ -330,7 +335,6 @@ settings:
   help-support: >
     Please support Dozzle by donating or sponsoring us on GitHub. Your contributions help us improve Dozzle for
     everyone. Thank you! 🙏🏼
-  about-desc: Information about your Dozzle installation and how to support the project.
   display-desc: Customize how logs and the rest of the app look. The preview reflects your changes live.
   options-desc: Locale, navigation and grouping preferences.
   cloud-desc: Stream logs to Dozzle Cloud for AI-powered investigations and search across instances.
@@ -362,7 +366,6 @@ settings:
   show-app-icons-desc: Match well known images to their logo. Icons ship with Dozzle and are never fetched from the internet.
   group-containers: Group containers by namespace
   group-containers-desc: Groups by Compose project, Swarm stack, or dev.dozzle.group.
-  about: About
   search: Enable searching with Dozzle using
   search-desc: Search inside the logs of the container you are viewing.
   using-version: You are using <a href="https://dozzle.dev/" target="_blank" rel="noreferrer noopener">Dozzle</a> {version}.

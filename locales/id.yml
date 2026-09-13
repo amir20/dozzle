@@ -67,6 +67,11 @@ log-details:
   fields-hint: Seret untuk mengurutkan ulang. Alihkan untuk menampilkan atau menyembunyikan di aliran log.
   toggle-all: Alihkan semua bidang
 label:
+  hide-sidebar: "Sembunyikan bilah sisi"
+  show-sidebar: "Tampilkan bilah sisi"
+  host-unreachable: "tidak dapat dijangkau"
+  agent-unreachable: "Tidak dapat menjangkau agen di {endpoint}"
+  agent-outdated: "agen {version}"
   historical-at: "Log historis · {time}"
   containers: Kontainer
   container: Tidak ada kontainer | 1 kontainer | {count} kontainer
@@ -230,7 +235,6 @@ settings:
   show-image-update-alert-desc: 'Memeriksa registry untuk tag image yang lebih baru.'
   help-support: >
     Silakan dukung Dozzle dengan berdonasi atau mensponsori kami di GitHub. Kontribusi Anda membantu kami meningkatkan Dozzle untuk semua orang. Terima kasih! 🙏🏼
-  about-desc: Informasi tentang instalasi Dozzle Anda dan cara mendukung proyek ini.
   display-desc: Sesuaikan tampilan log dan sisa aplikasi. Pratinjau mencerminkan perubahan Anda secara langsung.
   options-desc: Preferensi bahasa, navigasi, dan pengelompokan.
   cloud-desc: Streaming log ke Dozzle Cloud untuk investigasi bertenaga AI dan pencarian lintas instans.
@@ -260,7 +264,6 @@ settings:
   group-containers-desc: 'Mengelompokkan berdasarkan proyek Compose, stack Swarm, atau dev.dozzle.group.'
   show-app-icons: 'Tampilkan ikon aplikasi'
   show-app-icons-desc: 'Cocokkan image yang dikenal dengan logonya. Ikon disertakan dalam Dozzle dan tidak pernah diunduh dari internet.'
-  about: Tentang
   search: Aktifkan pencarian dengan Dozzle menggunakan
   search-desc: 'Cari di dalam log kontainer yang sedang Anda lihat.'
   using-version: Anda menggunakan <a href="https://dozzle.dev/" target="_blank" rel="noreferrer noopener">Dozzle</a> {version}.

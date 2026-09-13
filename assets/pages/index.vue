@@ -17,7 +17,7 @@
             :aria-pressed="statMode === 'chart'"
             @click="statMode = 'chart'"
           >
-            <mdi:chart-bar />
+            <ph:chart-bar />
           </button>
           <button
             class="icon-btn btn join-item btn-xs"
@@ -25,7 +25,9 @@
             :aria-pressed="statMode === 'progress'"
             @click="statMode = 'progress'"
           >
-            <mdi:poll class="-scale-x-1 rotate-90" />
+            <!-- Drawn horizontal rather than rotated: icon-btn owns the glyph's
+                 transform for its spring, so a rotate class never applied. -->
+            <ph:chart-bar-horizontal />
           </button>
         </div>
       </template>

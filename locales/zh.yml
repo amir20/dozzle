@@ -66,6 +66,11 @@ log-details:
   fields-hint: 拖动可重新排序。切换可在日志流中显示或隐藏。
   toggle-all: 切换所有字段
 label:
+  hide-sidebar: "隐藏侧边栏"
+  show-sidebar: "显示侧边栏"
+  host-unreachable: "无法连接"
+  agent-unreachable: "无法连接到位于 {endpoint} 的代理"
+  agent-outdated: "代理 {version}"
   historical-at: "历史日志 · {time}"
   containers: 容器
   container: 无容器 | 1 容器 | {count} 容器
@@ -222,7 +227,6 @@ settings:
   show-image-update-alert-desc: '检查仓库中是否有运行镜像的更新标签。'
   help-support: >
     请通过在 GitHub 上捐赠或赞助我们来支持 Dozzle。您的贡献帮助我们为所有人改进 Dozzle。谢谢！ 🙏🏼
-  about-desc: 关于您的 Dozzle 安装及如何支持本项目的信息。
   display-desc: 自定义日志和应用其余部分的外观。预览会实时反映您的更改。
   options-desc: 语言、导航和分组首选项。
   cloud-desc: 将日志流式传输到 Dozzle Cloud，进行 AI 驱动的调查和跨实例搜索。
@@ -252,7 +256,6 @@ settings:
   group-containers-desc: '按 Compose 项目、Swarm 堆栈或 dev.dozzle.group 分组。'
   show-app-icons: '显示应用图标'
   show-app-icons-desc: '将常见镜像匹配到对应的标志。图标随 Dozzle 一起提供，不会从互联网下载。'
-  about: 关于
   search: 使用Dozzle启用搜索
   search-desc: '在当前查看的容器日志中搜索。'
   using-version: 您正在使用<a href="https://dozzle.dev/" target="_blank" rel="noreferrer noopener">Dozzle</a> {version}。

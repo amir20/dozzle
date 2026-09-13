@@ -66,6 +66,11 @@ log-details:
   fields-hint: Zum Umsortieren ziehen. Umschalten, um sie im Log-Stream ein- oder auszublenden.
   toggle-all: Alle Felder umschalten
 label:
+  hide-sidebar: "Seitenleiste ausblenden"
+  show-sidebar: "Seitenleiste einblenden"
+  host-unreachable: "nicht erreichbar"
+  agent-unreachable: "Agent unter {endpoint} nicht erreichbar"
+  agent-outdated: "Agent {version}"
   historical-at: "Historische Logs · {time}"
   containers: Container
   container: Keine Container | 1 Container | {count} Container
@@ -222,7 +227,6 @@ settings:
   show-image-update-alert-desc: 'Prüft die Registry auf einen neueren Tag des laufenden Images.'
   help-support: >
     Bitte unterstützen Sie Dozzle durch Spenden oder Sponsoring auf GitHub. Ihre Beiträge helfen uns, Dozzle für alle zu verbessern. Vielen Dank! 🙏🏼
-  about-desc: Informationen zu Ihrer Dozzle-Installation und wie Sie das Projekt unterstützen können.
   display-desc: Passen Sie an, wie Logs und der Rest der App aussehen. Die Vorschau zeigt Ihre Änderungen live.
   options-desc: Einstellungen für Sprache, Navigation und Gruppierung.
   cloud-desc: Streamen Sie Logs an Dozzle Cloud für KI-gestützte Analysen und Suche über Instanzen hinweg.
@@ -252,7 +256,6 @@ settings:
   group-containers-desc: 'Gruppiert nach Compose-Projekt, Swarm-Stack oder dev.dozzle.group.'
   show-app-icons: 'App-Symbole anzeigen'
   show-app-icons-desc: 'Bekannte Images ihrem Logo zuordnen. Die Symbole sind in Dozzle enthalten und werden nie aus dem Internet geladen.'
-  about: Über
   search: Aktiviere die Suche mit Dozzle mit
   search-desc: 'Durchsucht die Logs des Containers, den du gerade ansiehst.'
   using-version: Du verwendest <a href="https://dozzle.dev/" target="_blank" rel="noreferrer noopener">Dozzle</a> {version}.

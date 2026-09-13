@@ -66,6 +66,11 @@ log-details:
   fields-hint: 드래그하여 순서를 바꾸세요. 토글하여 로그 스트림에서 표시하거나 숨깁니다.
   toggle-all: 모든 필드 토글
 label:
+  hide-sidebar: "사이드바 숨기기"
+  show-sidebar: "사이드바 표시"
+  host-unreachable: "연결할 수 없음"
+  agent-unreachable: "{endpoint}의 에이전트에 연결할 수 없습니다"
+  agent-outdated: "에이전트 {version}"
   historical-at: "과거 로그 · {time}"
   containers: 컨테이너
   container: 컨테이너가 없습니다 | 컨테이너 1개 | 컨테이너 {count}개
@@ -225,7 +230,6 @@ settings:
   help-support: >
     GitHub에서 후원하거나 기부로 Dozzle을 응원해 주세요. 여러분의 도움으로
     모두를 위한 더 나은 Dozzle을 만들 수 있습니다. 감사합니다! 🙏🏼
-  about-desc: Dozzle 설치 정보와 프로젝트를 후원하는 방법입니다.
   display-desc: 로그와 앱의 나머지 부분의 모습을 사용자 지정합니다. 미리보기에 변경 사항이 실시간으로 반영됩니다.
   options-desc: 언어, 탐색 및 그룹화 환경설정.
   cloud-desc: Dozzle Cloud로 로그를 스트리밍하여 AI 기반 조사 및 인스턴스 간 검색을 수행합니다.
@@ -255,7 +259,6 @@ settings:
   group-containers-desc: 'Compose 프로젝트, Swarm 스택 또는 dev.dozzle.group으로 그룹화합니다.'
   show-app-icons: '앱 아이콘 표시'
   show-app-icons-desc: '잘 알려진 이미지를 해당 로고와 연결합니다. 아이콘은 Dozzle에 포함되어 있으며 인터넷에서 가져오지 않습니다.'
-  about: 정보
   search: Dozzle 검색 기능 사용
   search-desc: '현재 보고 있는 컨테이너의 로그 안에서 검색합니다.'
   using-version: <a href="https://dozzle.dev/" target="_blank" rel="noreferrer noopener">Dozzle</a> {version}을 사용하고 있습니다.

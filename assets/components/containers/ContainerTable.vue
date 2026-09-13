@@ -41,7 +41,7 @@
       <div class="text-base-content/50 flex flex-1 items-center justify-end gap-2 text-xs">
         <div class="flex items-center gap-1 md:hidden">
           {{ $t("label.sort-by") }}
-          <DropdownMenu class="btn-xs" v-model="mobileSortField" :options="sortOptions" />
+          <DropdownMenu class="btn-xs" plain v-model="mobileSortField" :options="sortOptions" />
           <button
             class="btn btn-square btn-ghost btn-xs"
             @click="direction *= -1"
@@ -133,17 +133,23 @@
                     </router-link>
                     <AlertDot :container-id="container.id" />
                     <ContainerLink :container="container" />
-                    <ContainerLinkHint :container="container" />
+                    <ContainerLinkHint v-if="!isMobile" :container="container" />
                     <RelativeTime
                       v-if="isMobile"
                       :date="container.created"
+                      narrow
                       class="text-base-content/50 shrink-0 text-xs"
                     />
                   </div>
                   <div v-if="container.customGroup" class="text-base-content/50 truncate text-xs">
                     {{ container.customGroup }}
                   </div>
-                  <div v-if="isMobile && container.state === 'running'" class="mt-1.5 flex items-center gap-1.5">
+                  <!-- Same hairline-split chip as the log toolbar's stats, so a number
+                       looks the same on the way into a container as it does inside. -->
+                  <div
+                    v-if="isMobile && container.state === 'running'"
+                    class="bg-base-content/5.5 divide-base-content/10 mt-1.5 flex w-fit items-stretch divide-x rounded-lg"
+                  >
                     <ContainerStatCell
                       :container="container"
                       type="cpu"

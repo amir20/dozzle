@@ -16,6 +16,12 @@
           <span class="bg-warning absolute size-full rounded-full opacity-75 motion-safe:animate-ping"></span>
           <span class="bg-warning relative size-full rounded-full"></span>
         </span>
+        <!-- On a phone the menu is the only door to the alerts panel, so the dot
+             that door carries shows on the closed menu too. -->
+        <span
+          v-else-if="cloudLinked && isMobile && unseenAlerts"
+          class="bg-warning absolute end-0.5 top-0.5 size-1.5 rounded-full"
+        ></span>
       </button>
     </template>
     <ul class="menu w-full p-0">
@@ -47,7 +53,16 @@
           <KeyShortcut char="f" :modifiers="['shift', 'meta']" />
         </a>
       </li>
-      <li v-if="cloudLinked">
+      <!-- A phone has no rail strip, so this one row is the way into all three
+           panels: named for Cloud rather than chat, carrying the alerts dot the
+           strip would have shown, and opening where the reader needs to look. -->
+      <li v-if="cloudLinked && isMobile">
+        <a @click="openCloud(unseenAlerts)">
+          <mdi:cloud-outline /> {{ $t("cloud.title") }}
+          <span v-if="unseenAlerts" class="bg-warning ms-auto size-1.5 rounded-full"></span>
+        </a>
+      </li>
+      <li v-else-if="cloudLinked">
         <a @click="openRail('chat')">
           <mdi:message-outline /> {{ $t("cloud-chat.title") }}
           <KeyShortcut char="k" :modifiers="['shift', 'meta']" />
@@ -266,7 +281,8 @@ import Terminal from "./Terminal.vue";
 
 const { showSearch } = useSearchFilter();
 const { linked: cloudLinked } = useCloudSurface();
-const { openRail } = useCloudRail();
+const { openRail, openCloud } = useCloudRail();
+const { unseen: unseenAlerts } = useViewAlerts();
 const { enableActions, enableShell, enableDownload } = config;
 const { streamConfig, hasComplexLogs, levels } = useLoggingContext();
 const showDrawer = useDrawer();

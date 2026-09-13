@@ -66,6 +66,11 @@ log-details:
   fields-hint: Træk for at ændre rækkefølgen. Slå til eller fra for at vise eller skjule i logstrømmen.
   toggle-all: Slå alle felter til eller fra
 label:
+  hide-sidebar: "Skjul sidepanelet"
+  show-sidebar: "Vis sidepanelet"
+  host-unreachable: "utilgængelig"
+  agent-unreachable: "Kan ikke nå agenten på {endpoint}"
+  agent-outdated: "agent {version}"
   historical-at: "Historiske logs · {time}"
   containers: Containere
   container: Ingen containere | 1 container | {count} containere
@@ -222,7 +227,6 @@ settings:
   show-image-update-alert-desc: 'Tjekker registret for et nyere tag af det kørende image.'
   help-support: >
     Støt venligst Dozzle ved at donere eller sponsorere os på GitHub. Dine bidrag hjælper os med at forbedre Dozzle for alle. Tak! 🙏🏼
-  about-desc: Information om din Dozzle-installation og hvordan du kan støtte projektet.
   display-desc: Tilpas hvordan logs og resten af appen ser ud. Forhåndsvisningen afspejler dine ændringer live.
   options-desc: Indstillinger for sprog, navigation og gruppering.
   cloud-desc: Stream logs til Dozzle Cloud for AI-drevne undersøgelser og søgning på tværs af installationer.
@@ -252,7 +256,6 @@ settings:
   group-containers-desc: 'Grupperer efter Compose-projekt, Swarm-stack eller dev.dozzle.group.'
   show-app-icons: 'Vis app-ikoner'
   show-app-icons-desc: 'Match kendte images med deres logo. Ikoner følger med Dozzle og hentes aldrig fra internettet.'
-  about: Omkring
   search: Aktiver søgning med Dozzle ved brug af
   search-desc: 'Søg i loggen for den container du kigger på.'
   using-version: Du bruger <a href="https://dozzle.dev/" target="_blank" rel="noreferrer noopener">Dozzle</a> {version}.

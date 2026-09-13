@@ -18,11 +18,24 @@
     <div class="bg-base-content/10 h-px shrink-0"></div>
 
     <SideMenu class="min-h-0 flex-1" />
+
+    <!-- Bottom of the column, mirroring the cloud rail's hide on the other edge.
+         Hiding is remembered, and the tab left on the edge brings it back. -->
+    <button
+      type="button"
+      class="icon-btn btn btn-ghost btn-square btn-sm text-base-content/40 -mb-1 shrink-0"
+      :title="$t('label.hide-sidebar')"
+      :aria-label="$t('label.hide-sidebar')"
+      @click="collapseNav = true"
+    >
+      <mdi:chevron-left class="size-5" />
+    </button>
   </aside>
 </template>
 
 <script lang="ts" setup>
 import Logo from "@/logo.svg";
+import { collapseNav } from "@/stores/settings";
 const { hostname } = config;
 </script>
 

@@ -15,6 +15,7 @@
       class="md:min-w-52"
       :title="t('tooltip.cpu-usage', { cpu: totalStat.cpu.toFixed(2), cores: roundCPU(limits.cpu) })"
     >
+      <template #icon><ph:cpu class="size-3.5" /></template>
       <template #value="{ hoveredValue }">
         <span class="tabular-nums">
           <span class="text-[13px] font-semibold"> {{ Math.max(0, hoveredValue ?? totalStat.cpu).toFixed(1) }}% </span>
@@ -39,6 +40,7 @@
         t('tooltip.memory-usage', { used: formatBytes(totalStat.memoryUsage), total: formatBytes(limits.memory) })
       "
     >
+      <template #icon><ph:memory class="size-3.5" /></template>
       <template #value="{ hoveredValue }">
         <span class="tabular-nums">
           <span class="text-[13px] font-semibold">{{

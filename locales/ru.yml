@@ -66,6 +66,11 @@ log-details:
   fields-hint: Перетащите, чтобы изменить порядок. Переключите, чтобы показать или скрыть в потоке логов.
   toggle-all: Переключить все поля
 label:
+  hide-sidebar: "Скрыть боковую панель"
+  show-sidebar: "Показать боковую панель"
+  host-unreachable: "недоступен"
+  agent-unreachable: "Не удаётся связаться с агентом по адресу {endpoint}"
+  agent-outdated: "агент {version}"
   historical-at: "Исторические логи · {time}"
   containers: Контейнеры
   container: Нет контейнеров | 1 контейнер | {count} контейнеров
@@ -222,7 +227,6 @@ settings:
   show-image-update-alert-desc: 'Проверяет в реестре более новый тег запущенного образа.'
   help-support: >
     Пожалуйста, поддержите Dozzle, сделав пожертвование или спонсорство на GitHub. Ваши вклады помогают нам улучшать Dozzle для всех. Спасибо! 🙏🏼
-  about-desc: Информация о вашей установке Dozzle и о том, как поддержать проект.
   display-desc: Настройте внешний вид логов и остальной части приложения. Предпросмотр отражает ваши изменения в реальном времени.
   options-desc: Настройки языка, навигации и группировки.
   cloud-desc: Передавайте логи в Dozzle Cloud для аналитики с использованием ИИ и поиска по экземплярам.
@@ -252,7 +256,6 @@ settings:
   group-containers-desc: 'Группирует по проекту Compose, стеку Swarm или dev.dozzle.group.'
   show-app-icons: 'Показывать значки приложений'
   show-app-icons-desc: 'Сопоставлять известные образы с их логотипами. Значки поставляются вместе с Dozzle и никогда не загружаются из интернета.'
-  about: Информация
   search: Включить поиск с помощью Dozzle, используя
   search-desc: 'Ищет внутри логов контейнера, который вы просматриваете.'
   using-version: Вы используете <a href="https://dozzle.dev/" target="_blank" rel="noreferrer noopener">Dozzle</a> {version}.

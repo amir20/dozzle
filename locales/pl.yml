@@ -66,6 +66,11 @@ log-details:
   fields-hint: Przeciągnij, aby zmienić kolejność. Przełącz, aby pokazać lub ukryć w strumieniu logów.
   toggle-all: Przełącz wszystkie pola
 label:
+  hide-sidebar: "Ukryj pasek boczny"
+  show-sidebar: "Pokaż pasek boczny"
+  host-unreachable: "niedostępny"
+  agent-unreachable: "Nie można połączyć się z agentem pod adresem {endpoint}"
+  agent-outdated: "agent {version}"
   historical-at: "Logi historyczne · {time}"
   service: Brak usług | 1 usługa | {count} usług
   services: Usługi
@@ -224,7 +229,6 @@ settings:
   show-image-update-alert-desc: 'Sprawdza w rejestrze nowszy tag uruchomionego obrazu.'
   help-support: >
     Prosimy o wsparcie Dozzle poprzez darowizny lub sponsoring na GitHub. Twoje wkłady pomagają nam ulepszać Dozzle dla wszystkich. Dziękujemy! 🙏🏼
-  about-desc: Informacje o Twojej instalacji Dozzle i o tym, jak wesprzeć projekt.
   display-desc: Dostosuj wygląd logów i reszty aplikacji. Podgląd odzwierciedla zmiany na żywo.
   options-desc: Preferencje języka, nawigacji i grupowania.
   cloud-desc: Przesyłaj logi do Dozzle Cloud w celu analiz wspomaganych przez AI i wyszukiwania między instancjami.
@@ -254,7 +258,6 @@ settings:
   group-containers-desc: 'Grupuje według projektu Compose, stosu Swarm lub dev.dozzle.group.'
   show-app-icons: 'Pokaż ikony aplikacji'
   show-app-icons-desc: 'Dopasuj znane obrazy do ich logo. Ikony są dołączone do Dozzle i nigdy nie są pobierane z internetu.'
-  about: Informacje
   search: Włącz szukanie z dozzle
   search-desc: 'Szuka w logach kontenera, który właśnie przeglądasz.'
   using-version: Używasz <a href="https://dozzle.dev/" target="_blank" rel="noreferrer noopener">Dozzle</a> w wersji {version}.

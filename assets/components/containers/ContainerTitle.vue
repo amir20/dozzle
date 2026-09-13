@@ -12,9 +12,12 @@
             {{ container.hostLabel }}
           </li>
           <li class="min-w-0">
-            <template v-if="otherContainers.length === 0"
-              ><span class="block truncate">{{ container.name }}</span></template
-            >
+            <!-- Leads with the same icon the sidebar row carries, so health reads
+                 in the one place the eye already looks for it. -->
+            <div v-if="otherContainers.length === 0" class="flex min-w-0 items-center gap-1.5">
+              <ContainerIcon v-bind="iconProps" class="size-4 shrink-0" />
+              <span class="truncate">{{ container.name }}</span>
+            </div>
             <div v-else class="min-w-0">
               <!-- The anchor is inline-block, so it sizes to its content and silently
                    overflows this shrunken li: the button spilled past the row and the next
@@ -28,6 +31,7 @@
                   <!-- Ghost until hover: the name is the page title, and a
                        permanent button frame made it read as one more chip. -->
                   <button type="button" class="btn btn-ghost btn-xs md:btn-sm max-w-full min-w-0 px-1.5">
+                    <ContainerIcon v-bind="iconProps" class="size-4 shrink-0" />
                     <span class="truncate">{{ container.name }}</span>
                     <!-- The count and caret are the only affordance for the menu, so they
                          must survive a long image tag squeezing this button. -->
@@ -72,9 +76,10 @@
     <!-- Sits after the name so the name leads the row, and carries the same map-pin the
          sidebar's "Pinned" section uses: a star here and a pin there read as two unrelated
          features, which is why people never found this. The word "Pin" would cost too much
-         of the row, so the labelled copy of this lives in the toolbar menu. -->
+         of the row, so the labelled copy of this lives in the toolbar menu, which is
+         the only copy a phone gets: there the name needs the room more. -->
     <button
-      class="icon-btn shrink-0"
+      class="icon-btn shrink-0 max-md:hidden"
       :class="pinned ? 'text-secondary' : 'text-base-content/40 hover:text-base-content'"
       :aria-pressed="pinned"
       :title="pinned ? $t('toolbar.unpin') : $t('toolbar.pin')"
@@ -86,8 +91,8 @@
     </button>
 
     <ContainerLink :container="container" />
-    <ContainerLinkHint :container="container" />
-    <ContainerHealth :health="container.health" v-if="container.health" />
+    <!-- A hint to go edit a compose file is desk work; on a phone it only costs the name. -->
+    <ContainerLinkHint v-if="!isMobile" :container="container" />
     <VolumeWarning :container="container" />
     <!-- The image is reference material, not a control: plain dimmed text keeps
          it out of the name's way, and the copy affordance appears on hover. -->
@@ -109,6 +114,8 @@ import { Container } from "@/models/Container";
 const { container } = defineProps<{ container: Container }>();
 
 const { copy } = useCopy();
+
+const iconProps = computed(() => ({ state: container.state, health: container.health, slug: container.icon }));
 
 const imageTag = computed(() => container.image.replace(/@sha.*/, ""));
 
