@@ -4,15 +4,16 @@ import (
 	"bytes"
 	"io"
 	"os"
-	"path/filepath"
 	"sync"
 )
 
-var fileLocks sync.Map // absolute path -> *sync.Mutex
+// One lock for every path: saves are rare and small, and a per-path map would
+// grow with every distinct profile username.
+var writeMu sync.Mutex
 
 // WriteFile renders the file into memory before touching disk, so a failing
 // encoder never leaves a half-written file, then writes it in place and fsyncs.
-// Saves to the same path are serialized so two of them can't interleave.
+// Saves are serialized so two of them can't interleave.
 //
 // It writes through os.Create on purpose: a temp file plus rename would also
 // survive power loss, but breaks single-file bind mounts, symlinks and umask.
@@ -22,13 +23,8 @@ func WriteFile(path string, write func(io.Writer) error) error {
 		return err
 	}
 
-	key := path
-	if abs, err := filepath.Abs(path); err == nil {
-		key = abs
-	}
-	mu, _ := fileLocks.LoadOrStore(key, &sync.Mutex{})
-	mu.(*sync.Mutex).Lock()
-	defer mu.(*sync.Mutex).Unlock()
+	writeMu.Lock()
+	defer writeMu.Unlock()
 
 	f, err := os.Create(path)
 	if err != nil {
