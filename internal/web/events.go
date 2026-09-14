@@ -8,7 +8,7 @@ import (
 	"github.com/amir20/dozzle/internal/analytics"
 	"github.com/amir20/dozzle/internal/auth"
 	"github.com/amir20/dozzle/internal/container"
-	support_web "github.com/amir20/dozzle/internal/support/web"
+	"github.com/amir20/dozzle/internal/web/sse"
 	"github.com/amir20/dozzle/types"
 	"github.com/rs/zerolog/log"
 )
@@ -28,7 +28,7 @@ const (
 )
 
 func (h *handler) streamEvents(w http.ResponseWriter, r *http.Request) {
-	sseWriter, err := support_web.NewSSEWriter(r.Context(), w, r)
+	sseWriter, err := sse.NewWriter(r.Context(), w, r)
 	if err != nil {
 		log.Error().Err(err).Msg("error creating sse writer")
 		http.Error(w, err.Error(), http.StatusInternalServerError)

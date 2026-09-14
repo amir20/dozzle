@@ -88,9 +88,9 @@ Use ultra-brief mode as specified by the project:
 Example output:
 
 ```
-- `internal/docker/client.go:142` — `io.ReadAll(resp.Body)` reads entire log stream into memory. Stream with `bufio.Scanner` instead.
+- `internal/container/docker/client.go:142` — `io.ReadAll(resp.Body)` reads entire log stream into memory. Stream with `bufio.Scanner` instead.
 - `internal/web/logs.go:87` — New `json.Encoder` created per log line in hot loop. Reuse encoder or use `sync.Pool`.
-- `internal/support/docker/manager.go:53` — All hosts initialized eagerly at startup. Defer client creation until first access.
+- `internal/hostservice/multi_host.go:53` — All hosts initialized eagerly at startup. Defer client creation until first access.
 ```
 
 If no performance issues are found, state that clearly in one line.

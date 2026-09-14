@@ -11,7 +11,7 @@ import (
 
 	"github.com/amir20/dozzle/internal/auth"
 	"github.com/amir20/dozzle/internal/container"
-	support_web "github.com/amir20/dozzle/internal/support/web"
+	"github.com/amir20/dozzle/internal/web/search"
 	"github.com/go-chi/chi/v5"
 	"github.com/rs/zerolog/log"
 )
@@ -60,7 +60,7 @@ func (h *handler) downloadLogs(w http.ResponseWriter, r *http.Request) {
 	var regex *regexp.Regexp
 	var err error
 	if r.URL.Query().Has("filter") {
-		regex, err = support_web.ParseRegex(r.URL.Query().Get("filter"))
+		regex, err = search.ParseRegex(r.URL.Query().Get("filter"))
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
@@ -162,7 +162,7 @@ func (h *handler) downloadLogs(w http.ResponseWriter, r *http.Request) {
 			for event := range events {
 				// Apply regex filter if provided. In inverse mode a match excludes
 				// the line, so skip when the match result equals the inverse flag.
-				if regex != nil && inverse == support_web.Search(regex, event) {
+				if regex != nil && inverse == search.Search(regex, event) {
 					continue
 				}
 

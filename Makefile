@@ -35,7 +35,7 @@ test-update: fake_assets generate
 
 .PHONY: build
 build: dist generate
-	CGO_ENABLED=0 go build -ldflags "-s -w -X github.com/amir20/dozzle/internal/support/cli.Version=local"
+	CGO_ENABLED=0 go build -ldflags "-s -w -X github.com/amir20/dozzle/internal/cli.Version=local"
 
 .PHONY: docker
 docker: generate

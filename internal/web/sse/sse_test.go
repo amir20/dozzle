@@ -1,4 +1,4 @@
-package support_web
+package sse
 
 import (
 	"net/http"
@@ -26,10 +26,10 @@ func (d *deadlineRecorder) SetWriteDeadline(t time.Time) error {
 	return nil
 }
 
-func newSSE(t *testing.T, w http.ResponseWriter) *SSEWriter {
+func newSSE(t *testing.T, w http.ResponseWriter) *Writer {
 	t.Helper()
 	r := httptest.NewRequest("GET", "/api/events/stream", nil)
-	sse, err := NewSSEWriter(t.Context(), w, r)
+	sse, err := NewWriter(t.Context(), w, r)
 	require.NoError(t, err)
 	return sse
 }
@@ -37,11 +37,11 @@ func newSSE(t *testing.T, w http.ResponseWriter) *SSEWriter {
 // A client that goes away without closing its socket leaves the write blocking until the
 // kernel gives up retransmitting, which is minutes. For that whole window the handler
 // stops reading its event channel and the container store drops every event aimed at it.
-func TestSSEWriter_setsWriteDeadlinePerWrite(t *testing.T) {
+func TestWriter_setsWriteDeadlinePerWrite(t *testing.T) {
 	w := &deadlineRecorder{ResponseRecorder: httptest.NewRecorder()}
 	sse := newSSE(t, w)
 
-	// one cleared deadline from the probe in NewSSEWriter
+	// one cleared deadline from the probe in NewWriter
 	require.Len(t, w.deadlines, 1)
 	assert.True(t, w.deadlines[0].IsZero(), "the probe should not leave a deadline armed")
 
@@ -58,7 +58,7 @@ func TestSSEWriter_setsWriteDeadlinePerWrite(t *testing.T) {
 
 // A ResponseWriter wrapped by middleware may not support deadlines. That is worth a debug
 // line, not a broken stream.
-func TestSSEWriter_writesWithoutDeadlineSupport(t *testing.T) {
+func TestWriter_writesWithoutDeadlineSupport(t *testing.T) {
 	w := &deadlineRecorder{ResponseRecorder: httptest.NewRecorder(), err: http.ErrNotSupported}
 	sse := newSSE(t, w)
 

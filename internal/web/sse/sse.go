@@ -1,4 +1,4 @@
-package support_web
+package sse
 
 import (
 	"bytes"
@@ -23,7 +23,7 @@ import (
 // error the handler returns on, which cancels the request context and unsubscribes it.
 const writeTimeout = 10 * time.Second
 
-type SSEWriter struct {
+type Writer struct {
 	w io.Writer
 	f http.Flusher
 	// nil when the ResponseWriter cannot set deadlines, in which case writes block as before
@@ -34,7 +34,7 @@ type HasId interface {
 	MessageId() int64
 }
 
-func NewSSEWriter(ctx context.Context, w http.ResponseWriter, r *http.Request) (*SSEWriter, error) {
+func NewWriter(ctx context.Context, w http.ResponseWriter, r *http.Request) (*Writer, error) {
 	if _, ok := w.(http.Flusher); !ok {
 		return nil, http.ErrNotSupported
 	}
@@ -51,7 +51,7 @@ func NewSSEWriter(ctx context.Context, w http.ResponseWriter, r *http.Request) (
 		writer = gzip.NewWriter(w)
 	}
 
-	sse := &SSEWriter{
+	sse := &Writer{
 		w: writer,
 		f: w.(http.Flusher),
 	}
@@ -68,7 +68,7 @@ func NewSSEWriter(ctx context.Context, w http.ResponseWriter, r *http.Request) (
 	return sse, nil
 }
 
-func (s *SSEWriter) Write(data []byte) (int, error) {
+func (s *Writer) Write(data []byte) (int, error) {
 	if s.rc != nil {
 		// covers the payload, the gzip flush and the http flush below
 		s.rc.SetWriteDeadline(time.Now().Add(writeTimeout))
@@ -99,23 +99,23 @@ func (s *SSEWriter) Write(data []byte) (int, error) {
 // Retry sets how long the browser waits before reconnecting a dropped stream. Browsers
 // pick their own default otherwise (Chrome ~3s, Firefox ~5s), and it is reset on every
 // reconnect, so it is sent again at the top of each stream.
-func (s *SSEWriter) Retry(d time.Duration) error {
+func (s *Writer) Retry(d time.Duration) error {
 	_, err := s.Write([]byte(fmt.Sprintf("retry: %d", d.Milliseconds())))
 	return err
 }
 
-func (s *SSEWriter) Ping() error {
+func (s *Writer) Ping() error {
 	_, err := s.Write([]byte(":ping "))
 	return err
 }
 
-func (s *SSEWriter) Close() {
+func (s *Writer) Close() {
 	if closer, ok := s.w.(io.Closer); ok && s.w != nil {
 		closer.Close()
 	}
 }
 
-func (s *SSEWriter) Message(data any) error {
+func (s *Writer) Message(data any) error {
 	encoded, err := json.Marshal(data)
 
 	if err != nil {
@@ -138,7 +138,7 @@ func (s *SSEWriter) Message(data any) error {
 	return err
 }
 
-func (s *SSEWriter) Event(event string, data any) error {
+func (s *Writer) Event(event string, data any) error {
 	encoded, err := json.Marshal(data)
 
 	if err != nil {

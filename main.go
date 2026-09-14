@@ -20,6 +20,7 @@ import (
 	_ "time/tzdata"
 
 	"github.com/amir20/dozzle/internal/auth"
+	"github.com/amir20/dozzle/internal/cli"
 	"github.com/amir20/dozzle/internal/cloud"
 	dozzleconfig "github.com/amir20/dozzle/internal/config"
 	"github.com/amir20/dozzle/internal/container"
@@ -28,7 +29,6 @@ import (
 	"github.com/amir20/dozzle/internal/container/k8s"
 	"github.com/amir20/dozzle/internal/imagecheck"
 	"github.com/amir20/dozzle/internal/notification/dispatcher"
-	"github.com/amir20/dozzle/internal/support/cli"
 	"github.com/amir20/dozzle/internal/web"
 	"github.com/rs/zerolog/log"
 )

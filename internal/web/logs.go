@@ -22,8 +22,9 @@ import (
 
 	"github.com/amir20/dozzle/internal/auth"
 	"github.com/amir20/dozzle/internal/container"
-	support_web "github.com/amir20/dozzle/internal/support/web"
 	"github.com/amir20/dozzle/internal/utils"
+	"github.com/amir20/dozzle/internal/web/search"
+	"github.com/amir20/dozzle/internal/web/sse"
 	"github.com/dustin/go-humanize"
 	"github.com/go-chi/chi/v5"
 
@@ -42,7 +43,7 @@ func parseStdTypes(r *http.Request) container.StdType {
 }
 
 func matchesFilter(event *container.LogEvent, regex *regexp.Regexp, levels map[string]struct{}, inverse bool) bool {
-	if regex != nil && inverse == support_web.Search(regex, event) {
+	if regex != nil && inverse == search.Search(regex, event) {
 		return false
 	}
 	_, ok := levels[event.Level]
@@ -119,7 +120,7 @@ func (h *handler) fetchLogsBetweenDates(w http.ResponseWriter, r *http.Request) 
 
 	var regex *regexp.Regexp
 	if r.URL.Query().Has("filter") {
-		regex, err = support_web.ParseRegex(r.URL.Query().Get("filter"))
+		regex, err = search.ParseRegex(r.URL.Query().Get("filter"))
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
@@ -222,7 +223,7 @@ func (h *handler) fetchLogsBetweenDates(w http.ResponseWriter, r *http.Request) 
 				if onlyComplex && event.Type != container.LogTypeComplex {
 					continue
 				}
-				if regex != nil && inverse == support_web.Search(regex, event) {
+				if regex != nil && inverse == search.Search(regex, event) {
 					continue
 				}
 				if len(levels) > 0 {
@@ -262,7 +263,7 @@ func (h *handler) fetchLogsBetweenDates(w http.ResponseWriter, r *http.Request) 
 				break
 			}
 
-			support_web.EscapeHTMLValues(event)
+			search.EscapeHTMLValues(event)
 			buffer.Push(event)
 		}
 
@@ -380,7 +381,7 @@ func (h *handler) streamLogsForContainers(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	sseWriter, err := support_web.NewSSEWriter(r.Context(), w, r)
+	sseWriter, err := sse.NewWriter(r.Context(), w, r)
 	if err != nil {
 		log.Error().Err(err).Msg("error creating sse writer")
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -430,7 +431,7 @@ func (h *handler) streamLogsForContainers(w http.ResponseWriter, r *http.Request
 	var regex *regexp.Regexp
 	if r.URL.Query().Has("filter") {
 		var err error
-		regex, err = support_web.ParseRegex(r.URL.Query().Get("filter"))
+		regex, err = search.ParseRegex(r.URL.Query().Get("filter"))
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
@@ -588,7 +589,7 @@ loop:
 				continue
 			}
 
-			support_web.EscapeHTMLValues(logEvent)
+			search.EscapeHTMLValues(logEvent)
 			sseWriter.Message(logEvent)
 		case c := <-newContainers:
 			// The lookup doubles as the ACL check, so hand the resolved service
@@ -616,7 +617,7 @@ loop:
 
 		case backfillEvents := <-backfill:
 			for _, event := range backfillEvents {
-				support_web.EscapeHTMLValues(event)
+				search.EscapeHTMLValues(event)
 			}
 			if err := sseWriter.Event("logs-backfill", backfillEvents); err != nil {
 				log.Error().Err(err).Msg("error encoding container event")

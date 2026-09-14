@@ -1,4 +1,4 @@
-package support_web
+package search
 
 import "regexp"
 
