@@ -625,7 +625,7 @@ cloud:
     turn-on: "1 uyarıyı aç | {count} uyarıyı aç"
     turn-on-short: "Aç"
     continue-without: "Uyarı olmadan devam et"
-    skip-alerts: "Şimdi değil, sadece günlük bulguları gönder"
+    skip-alerts: "Şimdi değil"
     ready: "Hazır"
     done-title: "Her şey hazır"
     done-body: "Her bildirim türünün nerede göründüğü aşağıda."
@@ -639,6 +639,10 @@ cloud:
     where-tuning: "Konteyner bazında ayarlama"
     where-tuning-detail: "Bildirimler sayfasından herhangi bir kuralı daraltın, sessize alın veya silin."
     done: "Tamam"
+    steps:
+      watching: "Cloud ne yapar"
+      alerts: "Gerçek zamanlı uyarılar"
+      done: "Her şey nerede görünür"
     signals:
       exited: "Konteyner hatayla sonlandı"
       unhealthy: "Konteyner unhealthy oldu"

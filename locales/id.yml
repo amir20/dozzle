@@ -633,7 +633,7 @@ cloud:
     turn-on: "Aktifkan 1 peringatan | Aktifkan {count} peringatan"
     turn-on-short: "Aktifkan"
     continue-without: "Lanjutkan tanpa peringatan"
-    skip-alerts: "Nanti saja, kirim temuan harian saja"
+    skip-alerts: "Jangan sekarang"
     ready: "Siap"
     done-title: "Semua siap"
     done-body: "Berikut tempat setiap jenis notifikasi muncul."
@@ -647,6 +647,10 @@ cloud:
     where-tuning: "Penyetelan per kontainer"
     where-tuning-detail: "Persempit, bisukan, atau hapus aturan apa pun dari halaman Notifikasi."
     done: "Selesai"
+    steps:
+      watching: "Apa yang dilakukan Cloud"
+      alerts: "Peringatan real-time"
+      done: "Di mana semuanya muncul"
     signals:
       exited: "Kontainer keluar dengan error"
       unhealthy: "Kontainer menjadi unhealthy"

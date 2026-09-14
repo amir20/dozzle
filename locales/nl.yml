@@ -622,7 +622,7 @@ cloud:
     turn-on: "1 melding aanzetten | {count} meldingen aanzetten"
     turn-on-short: "Aanzetten"
     continue-without: "Doorgaan zonder meldingen"
-    skip-alerts: "Nu niet, stuur alleen de dagelijkse bevindingen"
+    skip-alerts: "Niet nu"
     ready: "Klaar"
     done-title: "Je bent klaar"
     done-body: "Hier verschijnt elk soort melding."
@@ -636,6 +636,10 @@ cloud:
     where-tuning: "Afstemmen per container"
     where-tuning-detail: "Beperk, demp of verwijder elke regel op de pagina Notificaties."
     done: "Klaar"
+    steps:
+      watching: "Wat Cloud doet"
+      alerts: "Realtime meldingen"
+      done: "Waar alles verschijnt"
     signals:
       exited: "Container met fout gestopt"
       unhealthy: "Container werd unhealthy"

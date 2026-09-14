@@ -627,7 +627,7 @@ cloud:
     turn-on: "Vklopi 1 opozorilo | Vklopi {count} opozoril"
     turn-on-short: "Vklopi"
     continue-without: "Nadaljuj brez opozoril"
-    skip-alerts: "Ne zdaj, pošiljajte samo dnevne ugotovitve"
+    skip-alerts: "Ne zdaj"
     ready: "Pripravljeno"
     done-title: "Vse je nastavljeno"
     done-body: "Tukaj se pojavi vsaka vrsta obvestila."
@@ -641,6 +641,10 @@ cloud:
     where-tuning: "Prilagajanje po vsebnikih"
     where-tuning-detail: "Zožite, utišajte ali izbrišite katerokoli pravilo na strani Obvestila."
     done: "Končano"
+    steps:
+      watching: "Kaj naredi Cloud"
+      alerts: "Opozorila v realnem času"
+      done: "Kje se vse prikaže"
     signals:
       exited: "Vsebnik se je končal z napako"
       unhealthy: "Vsebnik je postal unhealthy"

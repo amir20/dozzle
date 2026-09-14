@@ -1,181 +1,253 @@
 <template>
-  <dialog ref="modal" class="modal" @close="onClose">
-    <div class="modal-box max-w-lg p-8">
-      <!-- Progress. Three steps, so the user can see the flow is short. -->
-      <div class="mb-6 flex gap-1">
-        <span
-          v-for="i in 3"
-          :key="i"
-          class="h-[3px] flex-1 rounded-full transition-colors"
-          :class="i === step ? 'bg-primary' : i < step ? 'bg-primary/45' : 'bg-base-content/15'"
-        ></span>
-      </div>
+  <StepModal ref="modal" :title="$t('cloud-rail.title')" :steps="railSteps" @close="onClose">
+    <!-- ------------------------------------------------------------------
+      Step 1 — what Cloud already does on its own.
 
-      <!-- ------------------------------------------------------------------
-        Step 1 — what Cloud already does on its own.
+      This screen exists to answer "I linked it, now what?" before the user
+      asks. It never asks for anything; the only interactive element is the
+      streaming toggle, and only when streaming is off.
+    ------------------------------------------------------------------- -->
+    <template v-if="step === 1">
+      <template v-if="streamLogs">
+        <span class="status-pill status-pill-success">
+          <span class="size-1.5 rounded-full bg-current"></span>
+          {{ $t("cloud.connected") }}
+        </span>
+        <h2 class="mt-3 text-2xl font-bold">{{ $t("cloud.welcome.watching-title") }}</h2>
+        <p class="text-base-content/60 mt-1 text-sm">{{ $t("cloud.welcome.watching-body") }}</p>
 
-        This screen exists to answer "I linked it, now what?" before the user
-        asks. It never asks for anything; the only interactive element is the
-        streaming toggle, and only when streaming is off.
-      ------------------------------------------------------------------- -->
-      <template v-if="step === 1">
-        <template v-if="streamLogs">
-          <span class="status-pill status-pill-success mb-3">
-            <span class="size-1.5 rounded-full bg-current"></span>
-            {{ $t("cloud.connected") }}
-          </span>
-          <h3 class="text-xl font-bold">{{ $t("cloud.welcome.watching-title") }}</h3>
-          <p class="text-base-content/60 mt-2 text-sm">{{ $t("cloud.welcome.watching-body") }}</p>
-
-          <ol class="mt-5 space-y-0">
-            <li v-for="(beat, i) in timeline" :key="beat.when" class="flex gap-3">
-              <div class="flex flex-col items-center">
-                <span
-                  class="mt-1.5 size-2.5 shrink-0 rounded-full"
-                  :class="i === 0 ? 'bg-primary' : 'border-base-content/30 border-[1.5px]'"
-                ></span>
-                <span v-if="i < timeline.length - 1" class="bg-base-content/15 my-1 w-px flex-1"></span>
+        <ol class="mt-6">
+          <li v-for="(beat, i) in timeline" :key="beat.when" class="flex gap-3">
+            <div class="flex flex-col items-center">
+              <span
+                class="mt-1.5 size-2.5 shrink-0 rounded-full"
+                :class="i === 0 ? 'bg-primary' : 'border-base-content/30 border-[1.5px]'"
+              ></span>
+              <span v-if="i < timeline.length - 1" class="bg-base-content/15 my-1 w-px flex-1"></span>
+            </div>
+            <div :class="i < timeline.length - 1 ? 'pb-3.5' : ''">
+              <div class="text-base-content/60 font-mono text-xs font-semibold tracking-wider uppercase">
+                {{ beat.when }}
               </div>
-              <div :class="i < timeline.length - 1 ? 'pb-3.5' : ''">
-                <div class="text-base-content/55 font-mono text-[0.65rem] font-semibold tracking-wider uppercase">
-                  {{ beat.when }}
-                </div>
-                <p class="mt-0.5 text-sm">{{ beat.what }}</p>
-              </div>
-            </li>
-          </ol>
-        </template>
-
-        <template v-else>
-          <span class="status-pill status-pill-warning mb-3">
-            <span class="size-1.5 rounded-full bg-current"></span>
-            {{ $t("cloud.welcome.scan-paused") }}
-          </span>
-          <h3 class="text-xl font-bold">{{ $t("cloud.welcome.paused-title") }}</h3>
-          <p class="text-base-content/60 mt-2 text-sm">{{ $t("cloud.welcome.paused-body") }}</p>
-
-          <label
-            class="border-warning/45 bg-warning/10 mt-5 flex cursor-pointer items-center justify-between gap-4 rounded-lg border p-3"
-          >
-            <span class="text-sm">{{ $t("cloud.welcome.streaming-off") }}</span>
-            <input
-              type="checkbox"
-              class="toggle toggle-primary toggle-sm shrink-0"
-              :checked="streamLogs"
-              :disabled="isSavingStreamLogs"
-              @change="onStreamLogsChange(($event.target as HTMLInputElement).checked)"
-            />
-          </label>
-        </template>
-
-        <!--
-          The privacy answer sits directly under the "Cloud watches your logs"
-          headline on purpose. For a self-hosting audience that sentence raises
-          the question, so this is where it gets answered.
-        -->
-        <p class="bg-success/10 text-base-content/70 mt-5 flex gap-2 rounded-lg p-3 text-xs leading-relaxed">
-          <mdi:shield-check-outline class="text-success mt-0.5 shrink-0 text-sm" />
-          <span>
-            {{ $t("cloud.welcome.privacy") }}
-            <a :href="`${cloudUrl}/privacy`" target="_blank" rel="noreferrer noopener" class="link link-primary">
-              {{ $t("cloud.welcome.privacy-link") }}
-              <mdi:open-in-new class="inline align-[-0.1em] text-[0.9em]" />
-            </a>
-          </span>
-        </p>
-
-        <button class="btn btn-primary btn-block mt-6" @click="step = 2">
-          {{ $t("cloud.welcome.next-alerts") }}
-        </button>
+              <p class="mt-0.5 text-sm">{{ beat.what }}</p>
+            </div>
+          </li>
+        </ol>
       </template>
 
-      <!-- ------------------------------------------------------------------
-        Step 2 — the three push categories.
+      <template v-else>
+        <span class="status-pill status-pill-warning">
+          <span class="size-1.5 rounded-full bg-current"></span>
+          {{ $t("cloud.welcome.scan-paused") }}
+        </span>
+        <h2 class="mt-3 text-2xl font-bold">{{ $t("cloud.welcome.paused-title") }}</h2>
+        <p class="text-base-content/60 mt-1 text-sm">{{ $t("cloud.welcome.paused-body") }}</p>
 
-        Named exactly as AlertForm names its alert types (log / metric / event)
-        so the vocabulary carries over to the Notifications page.
-      ------------------------------------------------------------------- -->
-      <template v-else-if="step === 2">
-        <h3 class="text-xl font-bold">{{ $t("cloud.welcome.push-title") }}</h3>
-        <p class="text-base-content/60 mt-2 text-sm">{{ $t("cloud.welcome.push-body") }}</p>
+        <!-- Severity rides on the icon; the panel stays neutral. -->
+        <label class="border-base-content/15 bg-base-200/40 mt-6 flex items-center gap-3 rounded-lg border p-4">
+          <span class="bg-warning/10 text-warning shrink-0 rounded-full p-2">
+            <mdi:pause-circle-outline class="size-5" />
+          </span>
+          <span class="min-w-0 flex-1 text-sm">{{ $t("cloud.welcome.streaming-off") }}</span>
+          <input
+            type="checkbox"
+            class="toggle toggle-primary toggle-sm shrink-0"
+            :checked="streamLogs"
+            :disabled="isSavingStreamLogs"
+            @change="onStreamLogsChange(($event.target as HTMLInputElement).checked)"
+          />
+        </label>
+      </template>
 
-        <div class="mt-5 space-y-2">
-          <div
-            v-for="category in categories"
-            :key="category.id"
-            class="rounded-lg border transition-colors"
-            :class="category.enabled ? 'border-primary/45 bg-primary/[0.06]' : 'border-base-content/15'"
-          >
-            <div class="flex items-start gap-3 p-3">
-              <component :is="category.icon" class="text-base-content/70 mt-0.5 shrink-0 text-lg" />
-              <div class="flex-1">
-                <div class="flex flex-wrap items-center gap-2">
-                  <span class="text-sm font-semibold">{{ category.label }}</span>
-                  <span v-if="category.recommended" class="status-pill status-pill-primary">
-                    {{ $t("cloud.welcome.recommended") }}
-                  </span>
-                </div>
-                <p class="text-base-content/60 mt-0.5 text-xs">{{ category.description }}</p>
+      <!--
+        The privacy answer sits directly under the "Cloud watches your logs"
+        headline on purpose. For a self-hosting audience that sentence raises
+        the question, so this is where it gets answered.
+      -->
+      <div class="border-base-content/15 bg-base-200/40 mt-6 flex items-start gap-3 rounded-lg border p-4">
+        <span class="bg-success/10 text-success shrink-0 rounded-full p-2">
+          <mdi:shield-check-outline class="size-5" />
+        </span>
+        <p class="text-base-content/70 min-w-0 text-sm">
+          {{ $t("cloud.welcome.privacy") }}
+          <a :href="`${cloudUrl}/privacy`" target="_blank" rel="noreferrer noopener" class="link link-primary">
+            {{ $t("cloud.welcome.privacy-link") }}
+            <mdi:open-in-new class="inline size-3.5 align-[-0.1em] opacity-40" />
+          </a>
+        </p>
+      </div>
+    </template>
+
+    <!-- ------------------------------------------------------------------
+      Step 2 — the three push categories.
+
+      Named exactly as AlertForm names its alert types (log / metric / event)
+      so the vocabulary carries over to the Notifications page.
+    ------------------------------------------------------------------- -->
+    <template v-else-if="step === 2">
+      <h2 class="text-2xl font-bold">{{ $t("cloud.welcome.push-title") }}</h2>
+      <p class="text-base-content/60 mt-1 text-sm">{{ $t("cloud.welcome.push-body") }}</p>
+
+      <div class="mt-6 space-y-2">
+        <div
+          v-for="category in categories"
+          :key="category.id"
+          class="rounded-lg border transition-colors"
+          :class="category.enabled ? 'border-primary/45 bg-primary/6' : 'border-base-content/15 bg-base-200/40'"
+        >
+          <div class="flex items-start gap-3 p-4">
+            <component :is="category.icon" class="text-base-content/70 mt-0.5 size-5 shrink-0" />
+            <div class="min-w-0 flex-1">
+              <div class="flex flex-wrap items-center gap-2">
+                <span class="text-sm font-semibold">{{ category.label }}</span>
+                <span v-if="category.recommended" class="status-pill status-pill-primary">
+                  {{ $t("cloud.welcome.recommended") }}
+                </span>
               </div>
-              <input
-                type="checkbox"
-                class="toggle toggle-primary toggle-sm mt-0.5 shrink-0"
-                :aria-label="category.label"
-                v-model="category.enabled"
-              />
+              <p class="text-base-content/60 mt-0.5 text-sm">{{ category.description }}</p>
             </div>
+            <input
+              type="checkbox"
+              class="toggle toggle-primary toggle-sm mt-0.5 shrink-0"
+              :aria-label="category.label"
+              v-model="category.enabled"
+            />
+          </div>
 
-            <!--
-              Always visible. These rows are what actually teach the category,
-              so hiding them behind a disclosure defeats the point of the screen
-              and buries rules people never discover.
-            -->
-            <div class="space-y-1.5 pt-0 pr-3 pb-3 pl-10">
-              <label
-                v-for="rule in category.rules"
-                :key="rule.key"
-                class="flex items-center gap-2 font-mono text-xs"
-                :class="[
-                  category.enabled ? 'cursor-pointer' : 'cursor-not-allowed',
-                  rule.enabled && category.enabled ? '' : 'text-base-content/45',
-                ]"
-              >
-                <input
-                  v-model="rule.enabled"
-                  type="checkbox"
-                  class="checkbox checkbox-primary checkbox-xs"
-                  :disabled="!category.enabled"
-                />
-                <span>{{ rule.label }}</span>
-              </label>
-              <p
-                v-if="category.caution"
-                class="border-warning/60 text-base-content/65 mt-1 border-l-2 py-1 pl-2 text-xs leading-relaxed"
-              >
-                {{ category.caution }}
-              </p>
-            </div>
+          <!--
+            Always visible. These rows are what actually teach the category,
+            so hiding them behind a disclosure defeats the point of the screen
+            and buries rules people never discover.
+          -->
+          <div class="space-y-1.5 pt-0 pr-4 pb-4 pl-12">
+            <label
+              v-for="rule in category.rules"
+              :key="rule.key"
+              class="flex items-center gap-2 font-mono text-xs"
+              :class="[
+                category.enabled ? 'cursor-pointer' : 'cursor-not-allowed',
+                rule.enabled && category.enabled ? '' : 'text-base-content/40',
+              ]"
+            >
+              <input
+                v-model="rule.enabled"
+                type="checkbox"
+                class="checkbox checkbox-primary checkbox-xs"
+                :disabled="!category.enabled"
+              />
+              <span>{{ rule.label }}</span>
+            </label>
+            <p
+              v-if="category.caution"
+              class="border-base-content/20 text-base-content/60 mt-1 border-l-2 py-1 pl-2 text-xs leading-relaxed"
+            >
+              {{ category.caution }}
+            </p>
           </div>
         </div>
+      </div>
 
-        <!-- Name the destination. Otherwise "nothing ever happens" just moves down a layer. -->
-        <div
-          class="border-base-content/20 text-base-content/65 mt-4 flex flex-wrap items-center gap-2 rounded-lg border border-dashed px-3 py-2 text-xs"
+      <!-- Name the destination. Otherwise "nothing ever happens" just moves down a layer. -->
+      <div
+        class="border-base-content/15 bg-base-200/40 text-base-content/60 mt-4 flex flex-wrap items-center gap-2 rounded-lg border px-4 py-2.5 text-sm"
+      >
+        <span>{{ $t("cloud.welcome.alerts-go-to") }}</span>
+        <span class="text-base-content font-mono">{{ destination }}</span>
+        <a
+          :href="`${cloudUrl}/settings`"
+          target="_blank"
+          rel="noreferrer noopener"
+          class="link link-primary ml-auto whitespace-nowrap"
         >
-          <span>{{ $t("cloud.welcome.alerts-go-to") }}</span>
-          <span class="text-base-content font-mono">{{ destination }}</span>
-          <a
-            :href="`${cloudUrl}/settings`"
-            target="_blank"
-            rel="noreferrer noopener"
-            class="link link-primary ml-auto whitespace-nowrap"
-          >
-            {{ $t("cloud.welcome.change") }}
-            <mdi:open-in-new class="inline align-[-0.1em] text-[0.9em]" />
+          {{ $t("cloud.welcome.change") }}
+          <mdi:open-in-new class="inline size-3.5 align-[-0.1em] opacity-40" />
+        </a>
+      </div>
+    </template>
+
+    <!-- ------------------------------------------------------------------
+      Step 3 — where each kind of notification shows up.
+
+      Every destination opens in a new tab so the user keeps the modal and
+      their place in Dozzle.
+    ------------------------------------------------------------------- -->
+    <template v-else>
+      <span class="status-pill status-pill-success">
+        <span class="size-1.5 rounded-full bg-current"></span>
+        {{ $t("cloud.welcome.ready") }}
+      </span>
+      <h2 class="mt-3 text-2xl font-bold">{{ $t("cloud.welcome.done-title") }}</h2>
+      <p class="text-base-content/60 mt-1 text-sm">{{ $t("cloud.welcome.done-body") }}</p>
+
+      <div class="border-base-content/15 bg-base-200/40 divide-base-content/10 mt-6 divide-y rounded-lg border">
+        <div class="flex items-center gap-3 p-4">
+          <span class="bg-base-content/10 text-base-content/70 shrink-0 rounded-full p-2">
+            <mdi:clipboard-text-search-outline class="size-5" />
+          </span>
+          <div class="min-w-0 flex-1">
+            <div class="text-sm font-semibold">{{ $t("cloud.welcome.where-findings") }}</div>
+            <p class="text-base-content/60 mt-0.5 text-sm">
+              {{ $t("cloud.welcome.where-findings-detail", { day: firstScanDay }) }}
+            </p>
+          </div>
+          <a :href="`${cloudUrl}/findings`" target="_blank" rel="noreferrer noopener" class="btn btn-sm">
+            {{ $t("cloud.welcome.open-findings") }}
+            <mdi:open-in-new class="size-3.5 opacity-40" />
           </a>
         </div>
 
-        <button class="btn btn-primary btn-block mt-5" :disabled="creating" @click="createAlerts">
+        <div class="flex items-center gap-3 p-4">
+          <span class="bg-base-content/10 text-base-content/70 shrink-0 rounded-full p-2">
+            <mdi:bell-ring-outline class="size-5" />
+          </span>
+          <div class="min-w-0 flex-1">
+            <div class="text-sm font-semibold">{{ $t("cloud.welcome.where-alerts") }}</div>
+            <p v-if="createdCount > 0" class="text-base-content/60 mt-0.5 text-sm">
+              {{
+                $t("cloud.welcome.where-alerts-detail", {
+                  rules: $t("cloud.welcome.rule-plural", createdCount),
+                  destination,
+                })
+              }}
+            </p>
+            <p v-else class="text-base-content/60 mt-0.5 text-sm">{{ $t("cloud.welcome.where-alerts-off") }}</p>
+          </div>
+          <button v-if="createdCount === 0" type="button" class="btn btn-sm" @click="step = 2">
+            {{ $t("cloud.welcome.turn-on-short") }}
+          </button>
+        </div>
+
+        <div class="flex items-center gap-3 p-4">
+          <span class="bg-base-content/10 text-base-content/70 shrink-0 rounded-full p-2">
+            <mdi:tune-variant class="size-5" />
+          </span>
+          <div class="min-w-0 flex-1">
+            <div class="text-sm font-semibold">{{ $t("cloud.welcome.where-tuning") }}</div>
+            <p class="text-base-content/60 mt-0.5 text-sm">{{ $t("cloud.welcome.where-tuning-detail") }}</p>
+          </div>
+          <a :href="notificationsHref" target="_blank" rel="noreferrer noopener" class="btn btn-sm">
+            {{ $t("notifications.title") }}
+            <mdi:open-in-new class="size-3.5 opacity-40" />
+          </a>
+        </div>
+      </div>
+    </template>
+
+    <template #footer-end>
+      <template v-if="step === 1">
+        <button type="button" class="btn btn-primary btn-sm" @click="step = 2">
+          {{ $t("cloud.welcome.next-alerts") }}
+        </button>
+      </template>
+      <template v-else-if="step === 2">
+        <button type="button" class="btn btn-sm" :disabled="creating" @click="step = 1">
+          {{ $t("setup.back") }}
+        </button>
+        <!-- Declining sits beside turning them on, at the same size. -->
+        <button v-if="activeRules.length > 0" type="button" class="btn btn-sm" :disabled="creating" @click="skipAlerts">
+          {{ $t("cloud.welcome.skip-alerts") }}
+        </button>
+        <button type="button" class="btn btn-primary btn-sm" :disabled="creating" @click="createAlerts">
           <span v-if="creating" class="loading loading-spinner loading-xs"></span>
           {{
             activeRules.length === 0
@@ -183,85 +255,20 @@
               : $t("cloud.welcome.turn-on", activeRules.length)
           }}
         </button>
-        <button class="btn btn-ghost btn-block btn-sm mt-1" :disabled="creating" @click="skipAlerts">
-          {{ $t("cloud.welcome.skip-alerts") }}
-        </button>
       </template>
-
-      <!-- ------------------------------------------------------------------
-        Step 3 — where each kind of notification shows up.
-
-        Every destination opens in a new tab so the user keeps the modal and
-        their place in Dozzle.
-      ------------------------------------------------------------------- -->
-      <template v-else>
-        <span class="status-pill status-pill-success mb-3">
-          <span class="size-1.5 rounded-full bg-current"></span>
-          {{ $t("cloud.welcome.ready") }}
-        </span>
-        <h3 class="text-xl font-bold">{{ $t("cloud.welcome.done-title") }}</h3>
-        <p class="text-base-content/60 mt-2 text-sm">{{ $t("cloud.welcome.done-body") }}</p>
-
-        <div class="mt-5 space-y-2">
-          <div class="border-base-content/15 flex items-center gap-3 rounded-lg border p-3">
-            <mdi:clipboard-text-search-outline class="text-base-content/70 shrink-0 text-lg" />
-            <div class="flex-1">
-              <div class="text-sm font-semibold">{{ $t("cloud.welcome.where-findings") }}</div>
-              <p class="text-base-content/60 mt-0.5 text-xs">
-                {{ $t("cloud.welcome.where-findings-detail", { day: firstScanDay }) }}
-              </p>
-            </div>
-            <a :href="`${cloudUrl}/findings`" target="_blank" rel="noreferrer noopener" class="btn btn-xs">
-              {{ $t("cloud.welcome.open-findings") }}
-              <mdi:open-in-new class="text-[0.9em]" />
-            </a>
-          </div>
-
-          <div class="border-base-content/15 flex items-center gap-3 rounded-lg border p-3">
-            <mdi:bell-ring-outline class="text-base-content/70 shrink-0 text-lg" />
-            <div class="flex-1">
-              <div class="text-sm font-semibold">{{ $t("cloud.welcome.where-alerts") }}</div>
-              <p v-if="createdCount > 0" class="text-base-content/60 mt-0.5 text-xs">
-                {{
-                  $t("cloud.welcome.where-alerts-detail", {
-                    rules: $t("cloud.welcome.rule-plural", createdCount),
-                    destination,
-                  })
-                }}
-              </p>
-              <p v-else class="text-warning/90 mt-0.5 text-xs">{{ $t("cloud.welcome.where-alerts-off") }}</p>
-            </div>
-            <button v-if="createdCount === 0" class="btn btn-xs" @click="step = 2">
-              {{ $t("cloud.welcome.turn-on-short") }}
-            </button>
-          </div>
-
-          <div class="border-base-content/15 flex items-center gap-3 rounded-lg border p-3">
-            <mdi:tune-variant class="text-base-content/70 shrink-0 text-lg" />
-            <div class="flex-1">
-              <div class="text-sm font-semibold">{{ $t("cloud.welcome.where-tuning") }}</div>
-              <p class="text-base-content/60 mt-0.5 text-xs">{{ $t("cloud.welcome.where-tuning-detail") }}</p>
-            </div>
-            <a :href="notificationsHref" target="_blank" rel="noreferrer noopener" class="btn btn-xs">
-              {{ $t("notifications.title") }}
-              <mdi:open-in-new class="text-[0.9em]" />
-            </a>
-          </div>
-        </div>
-
-        <button class="btn btn-primary btn-block mt-6" @click="close">{{ $t("cloud.welcome.done") }}</button>
-      </template>
-    </div>
-    <form method="dialog" class="modal-backdrop">
-      <button></button>
-    </form>
-  </dialog>
+      <button v-else type="button" class="btn btn-primary btn-sm" @click="close">
+        {{ $t("cloud.welcome.done") }}
+      </button>
+    </template>
+  </StepModal>
 </template>
 
 <script lang="ts" setup>
 import MdiBellRingOutline from "~icons/mdi/bell-ring-outline";
 import MdiChartLine from "~icons/mdi/chart-line";
 import MdiTextBoxOutline from "~icons/mdi/text-box-outline";
+import type StepModal from "@/components/ui/StepModal.vue";
+import type { StepModalState } from "@/components/ui/StepModal.vue";
 
 const { t } = useI18n();
 const router = useRouter();
@@ -271,11 +278,23 @@ const { cloudConfig, cloudStatus } = useCloudConfig();
 const cloudUrl = config.cloudUrl;
 const notificationsHref = withBase("/notifications");
 
-const modal = ref<HTMLDialogElement>();
+const modal = useTemplateRef<InstanceType<typeof StepModal>>("modal");
 const step = ref(1);
 const creating = ref(false);
 const createdCount = ref(0);
 let usageReported = false;
+
+// Same rail as the setup wizard, so linking Cloud from there feels like one flow.
+const railSteps = computed(() => {
+  const ids = ["watching", "alerts", "done"] as const;
+  return ids.map((id, i) => {
+    const n = i + 1;
+    let state: StepModalState = n === step.value ? "current" : n < step.value ? "done" : "todo";
+    // Passing the alerts step without turning any on reads as skipped, not done.
+    if (id === "alerts" && step.value > 2 && createdCount.value === 0) state = "skipped";
+    return { id, label: t(`cloud.welcome.steps.${id}`), state };
+  });
+});
 
 type AlertKind = "event" | "metric" | "log";
 
@@ -598,13 +617,15 @@ function skipAlerts() {
   step.value = 3;
 }
 
-function open() {
-  step.value = 1;
+// The setup wizard opens this at the alerts step: its own Cloud step already said
+// what Cloud does.
+function open(startStep = 1) {
+  step.value = startStep;
   creating.value = false;
   createdCount.value = 0;
   categories.value = buildCategories();
   usageReported = false;
-  modal.value?.showModal();
+  modal.value?.open();
 }
 
 function close() {

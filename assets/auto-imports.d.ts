@@ -27,7 +27,9 @@ declare global {
   const automaticRedirect: typeof import('./stores/settings').automaticRedirect
   const buildViewContext: typeof import('./composable/logs/viewContext').buildViewContext
   const canHover: typeof import('./composable/ui/media').canHover
+  const clearCloudWelcomePending: typeof import('./composable/cloud/cloudWelcome').clearCloudWelcomePending
   const clearSetupResume: typeof import('./composable/setup/setup').clearSetupResume
+  const cloudWelcomePending: typeof import('./composable/cloud/cloudWelcome').cloudWelcomePending
   const collapseCloudRail: typeof import('./stores/settings').collapseCloudRail
   const collapseNav: typeof import('./stores/settings').collapseNav
   const colorize: typeof import('./utils/index').colorize
@@ -124,6 +126,7 @@ declare global {
   const mapState: typeof import('pinia').mapState
   const mapStores: typeof import('pinia').mapStores
   const mapWritableState: typeof import('pinia').mapWritableState
+  const markCloudWelcomePending: typeof import('./composable/cloud/cloudWelcome').markCloudWelcomePending
   const markRaw: typeof import('vue').markRaw
   const menuWidth: typeof import('./stores/settings').menuWidth
   const mergeAlerts: typeof import('./composable/cloud/cloudAlerts').mergeAlerts
@@ -273,6 +276,7 @@ declare global {
   const useCloudLogSearch: typeof import('./composable/cloud/cloudLogSearch').useCloudLogSearch
   const useCloudRail: typeof import('./composable/cloud/cloudRail').useCloudRail
   const useCloudSurface: typeof import('./composable/cloud/cloudSurface').useCloudSurface
+  const useCloudWelcome: typeof import('./composable/cloud/cloudWelcome').useCloudWelcome
   const useColorMode: typeof import('@vueuse/core').useColorMode
   const useCommands: typeof import('./composable/app/commands').useCommands
   const useConfirmDialog: typeof import('@vueuse/core').useConfirmDialog
@@ -580,7 +584,9 @@ declare module 'vue' {
     readonly automaticRedirect: UnwrapRef<typeof import('./stores/settings')['automaticRedirect']>
     readonly buildViewContext: UnwrapRef<typeof import('./composable/logs/viewContext')['buildViewContext']>
     readonly canHover: UnwrapRef<typeof import('./composable/ui/media')['canHover']>
+    readonly clearCloudWelcomePending: UnwrapRef<typeof import('./composable/cloud/cloudWelcome')['clearCloudWelcomePending']>
     readonly clearSetupResume: UnwrapRef<typeof import('./composable/setup/setup')['clearSetupResume']>
+    readonly cloudWelcomePending: UnwrapRef<typeof import('./composable/cloud/cloudWelcome')['cloudWelcomePending']>
     readonly collapseCloudRail: UnwrapRef<typeof import('./stores/settings')['collapseCloudRail']>
     readonly collapseNav: UnwrapRef<typeof import('./stores/settings')['collapseNav']>
     readonly colorize: UnwrapRef<typeof import('./utils/index')['colorize']>
@@ -675,6 +681,7 @@ declare module 'vue' {
     readonly mapState: UnwrapRef<typeof import('pinia')['mapState']>
     readonly mapStores: UnwrapRef<typeof import('pinia')['mapStores']>
     readonly mapWritableState: UnwrapRef<typeof import('pinia')['mapWritableState']>
+    readonly markCloudWelcomePending: UnwrapRef<typeof import('./composable/cloud/cloudWelcome')['markCloudWelcomePending']>
     readonly markRaw: UnwrapRef<typeof import('vue')['markRaw']>
     readonly menuWidth: UnwrapRef<typeof import('./stores/settings')['menuWidth']>
     readonly mergeAlerts: UnwrapRef<typeof import('./composable/cloud/cloudAlerts')['mergeAlerts']>
@@ -820,6 +827,7 @@ declare module 'vue' {
     readonly useCloudLogSearch: UnwrapRef<typeof import('./composable/cloud/cloudLogSearch')['useCloudLogSearch']>
     readonly useCloudRail: UnwrapRef<typeof import('./composable/cloud/cloudRail')['useCloudRail']>
     readonly useCloudSurface: UnwrapRef<typeof import('./composable/cloud/cloudSurface')['useCloudSurface']>
+    readonly useCloudWelcome: UnwrapRef<typeof import('./composable/cloud/cloudWelcome')['useCloudWelcome']>
     readonly useColorMode: UnwrapRef<typeof import('@vueuse/core')['useColorMode']>
     readonly useCommands: UnwrapRef<typeof import('./composable/app/commands')['useCommands']>
     readonly useConfirmDialog: UnwrapRef<typeof import('@vueuse/core')['useConfirmDialog']>

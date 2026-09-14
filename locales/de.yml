@@ -621,7 +621,7 @@ cloud:
     turn-on: "1 Benachrichtigung aktivieren | {count} Benachrichtigungen aktivieren"
     turn-on-short: "Aktivieren"
     continue-without: "Ohne Benachrichtigungen fortfahren"
-    skip-alerts: "Jetzt nicht, nur die täglichen Untersuchungen senden"
+    skip-alerts: "Nicht jetzt"
     ready: "Bereit"
     done-title: "Alles eingerichtet"
     done-body: "Hier erscheint jede Art von Benachrichtigung."
@@ -635,6 +635,10 @@ cloud:
     where-tuning: "Feinabstimmung pro Container"
     where-tuning-detail: "Regeln auf der Benachrichtigungsseite eingrenzen, stummschalten oder löschen."
     done: "Fertig"
+    steps:
+      watching: "Was Cloud macht"
+      alerts: "Echtzeit-Alerts"
+      done: "Wo alles auftaucht"
     signals:
       exited: "Container mit Fehler beendet"
       unhealthy: "Container wurde unhealthy"

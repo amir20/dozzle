@@ -203,22 +203,42 @@ const {
   ensureCloudStatus,
 } = useCloudConfig();
 
-const welcomeModal = ref<{ open: () => void }>();
+const welcomeModal = ref<{ open: (startStep?: number) => void }>();
 const cloudWelcomeShown = useProfileStorage("cloudWelcomeShown", false);
+const { requestedStep } = useCloudWelcome();
 
 function onOpen() {
   ensureCloudStatus();
 }
 
+function showWelcome(step: number) {
+  if (cloudWelcomeShown.value) return;
+  cloudWelcomeShown.value = true;
+  nextTick(() => welcomeModal.value?.open(step));
+}
+
+// Handed over by the setup wizard once it closes. Immediate, because the wizard may
+// have closed before this component mounted.
+watch(
+  requestedStep,
+  (step) => {
+    if (step == null) return;
+    requestedStep.value = null;
+    showWelcome(step);
+  },
+  { immediate: true },
+);
+
 onMounted(async () => {
   await initialLoad;
   ensureCloudStatus();
 
-  // Handle successful OAuth return — show welcome modal
-  if (window.location.hash === "#cloudLinked" && !cloudWelcomeShown.value) {
-    cloudWelcomeShown.value = true;
-    nextTick(() => welcomeModal.value?.open());
+  // Back from linking. When the wizard started the link it has already claimed the
+  // return (and dropped the hash); the pending check keeps that explicit rather than
+  // relying on this running after the wizard's setup.
+  if (window.location.hash === "#cloudLinked" && !cloudWelcomePending()) {
     history.replaceState(history.state, "", window.location.pathname + window.location.search);
+    showWelcome(1);
   }
 });
 </script>

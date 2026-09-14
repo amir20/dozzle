@@ -621,7 +621,7 @@ cloud:
     turn-on: "Slå 1 notifikation til | Slå {count} notifikationer til"
     turn-on-short: "Slå til"
     continue-without: "Fortsæt uden notifikationer"
-    skip-alerts: "Ikke nu, send kun de daglige undersøgelser"
+    skip-alerts: "Ikke nu"
     ready: "Klar"
     done-title: "Så er du klar"
     done-body: "Her dukker hver type notifikation op."
@@ -635,6 +635,10 @@ cloud:
     where-tuning: "Justering per container"
     where-tuning-detail: "Indsnævr, dæmp eller slet enhver regel fra siden Notifikationer."
     done: "Færdig"
+    steps:
+      watching: "Hvad Cloud gør"
+      alerts: "Advarsler i realtid"
+      done: "Hvor tingene dukker op"
     signals:
       exited: "Container afsluttet med fejl"
       unhealthy: "Container blev unhealthy"

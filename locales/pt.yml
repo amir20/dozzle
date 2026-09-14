@@ -621,7 +621,7 @@ cloud:
     turn-on: "Ativar 1 alerta | Ativar {count} alertas"
     turn-on-short: "Ativar"
     continue-without: "Continuar sem alertas"
-    skip-alerts: "Agora não, envie apenas as investigações diárias"
+    skip-alerts: "Agora não"
     ready: "Pronto"
     done-title: "Está tudo preparado"
     done-body: "É aqui que aparece cada tipo de notificação."
@@ -635,6 +635,10 @@ cloud:
     where-tuning: "Ajuste por contentor"
     where-tuning-detail: "Restrinja, silencie ou elimine qualquer regra na página de Notificações."
     done: "Concluído"
+    steps:
+      watching: "O que o Cloud faz"
+      alerts: "Alertas em tempo real"
+      done: "Onde tudo aparece"
     signals:
       exited: "Contentor terminou com erro"
       unhealthy: "Contentor ficou unhealthy"

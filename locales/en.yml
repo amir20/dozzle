@@ -732,7 +732,7 @@ cloud:
     turn-on: "Turn on 1 alert | Turn on {count} alerts"
     turn-on-short: Turn on
     continue-without: Continue without alerts
-    skip-alerts: "Not now, just send the daily findings"
+    skip-alerts: "Not now"
     ready: Ready
     done-title: You are set
     done-body: Here is where each kind of notification shows up.
@@ -746,6 +746,10 @@ cloud:
     where-tuning: Per-container tuning
     where-tuning-detail: Narrow, mute or delete any rule from the Notifications page.
     done: Done
+    steps:
+      watching: "What Cloud does"
+      alerts: "Real-time alerts"
+      done: "Where things show up"
     signals:
       exited: Container exited with an error
       unhealthy: Container became unhealthy

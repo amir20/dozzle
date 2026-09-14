@@ -621,7 +621,7 @@ cloud:
     turn-on: "Attiva 1 avviso | Attiva {count} avvisi"
     turn-on-short: "Attiva"
     continue-without: "Continua senza avvisi"
-    skip-alerts: "Non ora, invia solo le indagini giornaliere"
+    skip-alerts: "Non ora"
     ready: "Pronto"
     done-title: "Tutto pronto"
     done-body: "Ecco dove compare ogni tipo di notifica."
@@ -635,6 +635,10 @@ cloud:
     where-tuning: "Regolazione per container"
     where-tuning-detail: "Restringi, silenzia o elimina qualsiasi regola dalla pagina Notifiche."
     done: "Fatto"
+    steps:
+      watching: "Cosa fa Cloud"
+      alerts: "Avvisi in tempo reale"
+      done: "Dove compare tutto"
     signals:
       exited: "Container terminato con errore"
       unhealthy: "Container diventato unhealthy"

@@ -621,7 +621,7 @@ cloud:
     turn-on: "开启 1 条提醒 | 开启 {count} 条提醒"
     turn-on-short: "开启"
     continue-without: "不启用提醒，继续"
-    skip-alerts: "暂时不用，只发送每日调查结果"
+    skip-alerts: "暂不"
     ready: "就绪"
     done-title: "已经设置好了"
     done-body: "以下是每类通知出现的位置。"
@@ -635,6 +635,10 @@ cloud:
     where-tuning: "按容器微调"
     where-tuning-detail: "在「通知」页面缩小范围、静音或删除任何规则。"
     done: "完成"
+    steps:
+      watching: "Cloud 能做什么"
+      alerts: "实时告警"
+      done: "在哪里查看"
     signals:
       exited: "容器以错误退出"
       unhealthy: "容器变为 unhealthy"

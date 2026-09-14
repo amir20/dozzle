@@ -1,103 +1,58 @@
 <template>
-  <dialog ref="modal" class="modal" @close="onClose" @cancel="onCancel">
-    <div class="modal-box flex max-h-[90vh] w-full max-w-215 overflow-hidden p-0 max-md:flex-col md:h-160">
-      <!-- Rail: where you are and how much is left. On a phone it collapses to a bar. -->
-      <aside class="bg-base-200/60 border-base-content/10 w-55 shrink-0 border-r p-5 max-md:hidden">
-        <div class="text-base font-semibold">{{ $t("setup.title") }}</div>
-        <ol class="mt-5 flex flex-col gap-1">
-          <li
-            v-for="(id, i) in steps"
-            :key="id"
-            class="flex items-start gap-2.5 rounded-md px-2 py-1.5"
-            :class="{ 'bg-base-300': i === index }"
-            :aria-current="i === index ? 'step' : undefined"
-          >
-            <span
-              class="mt-px flex size-5 shrink-0 items-center justify-center rounded-full text-xs font-semibold"
-              :class="chipClass[stateOf(id, i)]"
-            >
-              <mdi:check v-if="stateOf(id, i) === 'done'" class="size-3.5" />
-              <template v-else>{{ i + 1 }}</template>
-            </span>
-            <span class="min-w-0">
-              <span class="block text-sm" :class="i === index ? 'font-semibold' : 'text-base-content/70'">
-                {{ $t(`setup.steps.${id}`) }}
-              </span>
-              <span v-if="id === 'login'" class="text-base-content/40 block text-xs">
-                {{ $t("setup.steps.login-note") }}
-              </span>
-              <span v-else-if="id === 'cloud'" class="text-base-content/40 block text-xs">
-                {{ $t("setup.steps.cloud-note") }}
-              </span>
-            </span>
-          </li>
-        </ol>
-      </aside>
-
-      <div class="flex min-h-0 min-w-0 flex-1 flex-col">
-        <div class="flex gap-1 px-4 pt-4 md:hidden" aria-hidden="true">
-          <span
-            v-for="(id, i) in steps"
-            :key="id"
-            class="h-0.75 flex-1 rounded-full transition-colors"
-            :class="i === index ? 'bg-primary' : i < index ? 'bg-primary/45' : 'bg-base-content/15'"
-          ></span>
-        </div>
-
-        <div class="min-h-0 flex-1 overflow-y-auto p-8 max-md:p-5">
-          <template v-if="status && currentId">
-            <SetupLoginStep v-if="currentId === 'login'" ref="step" :status="status" :next-step="steps[index + 1]" />
-            <SetupActionsStep v-else-if="currentId === 'actions'" ref="step" :status="status" />
-            <SetupCloudStep v-else-if="currentId === 'cloud'" ref="step" :next-step="steps[index + 1]" />
-            <SetupRestartStep v-else ref="step" :status="status" @seen="setupSeen = true" />
-          </template>
-          <div v-else-if="loading" class="flex h-full items-center justify-center">
-            <span class="loading loading-spinner loading-sm"></span>
-          </div>
-          <InlineNotice v-else type="error">{{ $t("setup.error.load") }}</InlineNotice>
-        </div>
-
-        <div class="border-base-content/10 bg-base-100 flex items-center gap-2 border-t px-8 py-4 max-md:px-5">
-          <button v-if="!isLast" type="button" class="btn btn-ghost btn-sm" :disabled="busy" @click="close">
-            {{ $t("setup.finish-later") }}
-          </button>
-          <div class="ml-auto flex items-center gap-2">
-            <button v-if="index > 0" type="button" class="btn btn-sm" :disabled="busy" @click="back">
-              {{ $t("setup.back") }}
-            </button>
-            <button v-if="handle?.skipLabel" type="button" class="btn btn-sm" :disabled="busy" @click="advance(true)">
-              {{ handle.skipLabel }}
-            </button>
-            <button
-              v-if="handle"
-              type="button"
-              class="btn btn-sm"
-              :class="{ 'btn-primary': !handle.nextPlain }"
-              :disabled="handle.nextDisabled"
-              @click="onNext"
-            >
-              <span v-if="handle.busy" class="loading loading-spinner loading-xs"></span>
-              {{ handle.nextLabel }}
-            </button>
-            <button v-else-if="!status && !loading" type="button" class="btn btn-sm" @click="close">
-              {{ $t("setup.close") }}
-            </button>
-          </div>
-        </div>
-      </div>
+  <StepModal ref="modal" :title="$t('setup.title')" :steps="railSteps" @close="onClose" @cancel="onCancel">
+    <template v-if="status && currentId">
+      <SetupLoginStep v-if="currentId === 'login'" ref="step" :status="status" :next-step="steps[index + 1]" />
+      <SetupActionsStep v-else-if="currentId === 'actions'" ref="step" :status="status" />
+      <SetupCloudStep v-else-if="currentId === 'cloud'" ref="step" :next-step="steps[index + 1]" />
+      <SetupRestartStep v-else ref="step" :status="status" @seen="setupSeen = true" />
+    </template>
+    <div v-else-if="loading" class="flex h-full items-center justify-center">
+      <span class="loading loading-spinner loading-sm"></span>
     </div>
-  </dialog>
+    <InlineNotice v-else type="error">{{ $t("setup.error.load") }}</InlineNotice>
+
+    <template #footer-start>
+      <button v-if="!isLast" type="button" class="btn btn-ghost btn-sm" :disabled="busy" @click="close">
+        {{ $t("setup.finish-later") }}
+      </button>
+    </template>
+    <template #footer-end>
+      <button v-if="index > 0" type="button" class="btn btn-sm" :disabled="busy" @click="back">
+        {{ $t("setup.back") }}
+      </button>
+      <button v-if="handle?.skipLabel" type="button" class="btn btn-sm" :disabled="busy" @click="advance(true)">
+        {{ handle.skipLabel }}
+      </button>
+      <button
+        v-if="handle"
+        type="button"
+        class="btn btn-sm"
+        :class="{ 'btn-primary': !handle.nextPlain }"
+        :disabled="handle.nextDisabled"
+        @click="onNext"
+      >
+        <span v-if="handle.busy" class="loading loading-spinner loading-xs"></span>
+        {{ handle.nextLabel }}
+      </button>
+      <button v-else-if="!status && !loading" type="button" class="btn btn-sm" @click="close">
+        {{ $t("setup.close") }}
+      </button>
+    </template>
+  </StepModal>
 </template>
 
 <script lang="ts" setup>
 import type { SetupStepHandle, SetupStepId, SetupStepState } from "@/composable/setup/setup";
+import type StepModal from "@/components/ui/StepModal.vue";
 
+const { t } = useI18n();
 const { status, loading, wizardOpen, fetchStatus } = useSetup();
 const { linked, canLink } = useCloudSurface();
 const { initialLoad } = useCloudConfig();
+const { requestCloudWelcome } = useCloudWelcome();
 const setupSeen = useProfileStorage("setupSeen", false);
 
-const modal = ref<HTMLDialogElement>();
+const modal = useTemplateRef<InstanceType<typeof StepModal>>("modal");
 const handle = useTemplateRef<SetupStepHandle>("step");
 
 const steps = ref<SetupStepId[]>([]);
@@ -107,13 +62,6 @@ const skipped = ref(new Set<SetupStepId>());
 const currentId = computed<SetupStepId | undefined>(() => steps.value[index.value]);
 const isLast = computed(() => index.value >= steps.value.length - 1 && steps.value.length > 0);
 const busy = computed(() => !!handle.value?.busy);
-
-const chipClass: Record<SetupStepState, string> = {
-  done: "bg-success text-success-content",
-  current: "bg-primary text-primary-content",
-  skipped: "border-base-content/30 text-base-content/40 border border-dashed",
-  todo: "bg-base-content/10 text-base-content/60",
-};
 
 function stateOf(id: SetupStepId, i: number): SetupStepState {
   if (i === index.value) return "current";
@@ -125,12 +73,27 @@ function stateOf(id: SetupStepId, i: number): SetupStepState {
   return i < index.value ? "done" : "todo";
 }
 
+const notes: Partial<Record<SetupStepId, string>> = {
+  login: "setup.steps.login-note",
+  cloud: "setup.steps.cloud-note",
+};
+
+const railSteps = computed(() =>
+  steps.value.map((id, i) => ({
+    id,
+    label: t(`setup.steps.${id}`),
+    note: notes[id] ? t(notes[id]) : undefined,
+    state: stateOf(id, i),
+  })),
+);
+
 // A restart or the cloud round trip left a marker naming the step to come back to.
 // When the page came back from Cloud, the wizard owns that return: the hash is
-// dropped here, synchronously during setup, before CloudPopover's mounted hook
-// (which waits on the cloud config fetch) can see it and open its own modal.
+// dropped here, synchronously during setup, and the cloud welcome is handed over
+// once the wizard closes instead of opening on top of it.
 const resumeAtLoad = readSetupResume();
 if (resumeAtLoad && window.location.hash === "#cloudLinked") {
+  markCloudWelcomePending();
   history.replaceState(history.state, "", window.location.pathname + window.location.search);
 }
 
@@ -140,7 +103,7 @@ async function open(startAt: SetupStepId | undefined, auto: boolean) {
   skipped.value = new Set();
   steps.value = [];
   index.value = 0;
-  if (!auto && !modal.value?.open) modal.value?.showModal();
+  if (!auto) modal.value?.open();
 
   await Promise.all([fetchStatus(), initialLoad]);
   const s = status.value;
@@ -148,7 +111,7 @@ async function open(startAt: SetupStepId | undefined, auto: boolean) {
     if (auto) wizardOpen.value = false;
     return;
   }
-  if (!modal.value?.open) modal.value?.showModal();
+  modal.value?.open();
 
   // Frozen for the session, so linking Cloud or saving a toggle does not shuffle
   // the rail under the user.
@@ -174,6 +137,12 @@ function onClose() {
   setupSeen.value = true;
   clearSetupResume();
   wizardOpen.value = false;
+  // Linked Cloud along the way: the welcome picks up at its starter alerts, since
+  // the wizard's Cloud step already said what Cloud does.
+  if (cloudWelcomePending()) {
+    clearCloudWelcomePending();
+    requestCloudWelcome(2);
+  }
 }
 
 function back() {
@@ -206,10 +175,10 @@ watch(currentId, (id) => {
 let autoOpening = false;
 
 watch(wizardOpen, (value) => {
-  if (value && !modal.value?.open) {
+  if (value && !modal.value?.isOpen()) {
     open(readSetupResume(), autoOpening);
     autoOpening = false;
-  } else if (!value && modal.value?.open) close();
+  } else if (!value && modal.value?.isOpen()) close();
 });
 
 onMounted(() => {

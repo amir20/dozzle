@@ -625,7 +625,7 @@ cloud:
     turn-on: "알림 1개 켜기 | 알림 {count}개 켜기"
     turn-on-short: "켜기"
     continue-without: "알림 없이 계속하기"
-    skip-alerts: "나중에, 일일 조사 결과만 보내주세요"
+    skip-alerts: "나중에"
     ready: "준비됨"
     done-title: "설정이 끝났습니다"
     done-body: "각 알림이 어디에 표시되는지 안내합니다."
@@ -639,6 +639,10 @@ cloud:
     where-tuning: "컨테이너별 조정"
     where-tuning-detail: "알림 페이지에서 규칙을 좁히거나 음소거하거나 삭제할 수 있습니다."
     done: "완료"
+    steps:
+      watching: "Cloud가 하는 일"
+      alerts: "실시간 알림"
+      done: "확인할 수 있는 곳"
     signals:
       exited: "컨테이너가 오류로 종료됨"
       unhealthy: "컨테이너가 unhealthy 상태가 됨"
