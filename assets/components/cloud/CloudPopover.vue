@@ -203,28 +203,28 @@ const {
   ensureCloudStatus,
 } = useCloudConfig();
 
-const welcomeModal = ref<{ open: (startStep?: number) => void }>();
+const welcomeModal = ref<{ open: () => void }>();
 const cloudWelcomeShown = useProfileStorage("cloudWelcomeShown", false);
-const { requestedStep } = useCloudWelcome();
+const { requested } = useCloudWelcome();
 
 function onOpen() {
   ensureCloudStatus();
 }
 
-function showWelcome(step: number) {
+function showWelcome() {
   if (cloudWelcomeShown.value) return;
   cloudWelcomeShown.value = true;
-  nextTick(() => welcomeModal.value?.open(step));
+  nextTick(() => welcomeModal.value?.open());
 }
 
 // Handed over by the setup wizard once it closes. Immediate, because the wizard may
 // have closed before this component mounted.
 watch(
-  requestedStep,
-  (step) => {
-    if (step == null) return;
-    requestedStep.value = null;
-    showWelcome(step);
+  requested,
+  (value) => {
+    if (!value) return;
+    requested.value = false;
+    showWelcome();
   },
   { immediate: true },
 );
@@ -238,7 +238,7 @@ onMounted(async () => {
   // relying on this running after the wizard's setup.
   if (window.location.hash === "#cloudLinked" && !cloudWelcomePending()) {
     history.replaceState(history.state, "", window.location.pathname + window.location.search);
-    showWelcome(1);
+    showWelcome();
   }
 });
 </script>
