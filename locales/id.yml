@@ -822,7 +822,7 @@ setup:
     shell-desc: "Terhubung ke kontainer atau jalankan perintah di dalamnya."
     shell-warning: "Akses shell ke kontainer sering kali setara dengan akses ke host. Biarkan nonaktif kecuali Anda membutuhkannya."
     locked: "Disetel oleh {env}"
-    window-closed: "Penyiapan ditutup untuk perubahan anonim setelah 15 menit. Mulai ulang Dozzle untuk membukanya kembali, atau setel ini dengan variabel lingkungan."
+    window-closed: "Tanpa login, penyiapan hanya menerima perubahan pada 15 menit pertama instalasi baru. Setel ini dengan variabel lingkungan, atau aktifkan login terlebih dahulu."
     no-access: "Akun Anda tidak dapat mengubah pengaturan ini."
     restart-note: "Perubahan ini berlaku setelah Dozzle dimulai ulang."
   cloud:
@@ -860,4 +860,4 @@ setup:
     load: "Tidak dapat memuat penyiapan. Coba lagi nanti."
     conflict: "Ini sudah disetel, atau ditetapkan oleh variabel lingkungan."
     no-data: "/data tidak di-mount, jadi ini tidak dapat disimpan."
-    window-closed: "Penyiapan berhenti menerima perubahan 15 menit setelah Dozzle dimulai. Mulai ulang kontainer Dozzle untuk membuat akun di sini, atau aktifkan login dengan variabel lingkungan."
+    window-closed: "Tanpa login, penyiapan hanya menerima perubahan pada 15 menit pertama instalasi baru. Aktifkan login dengan variabel lingkungan sebagai gantinya."

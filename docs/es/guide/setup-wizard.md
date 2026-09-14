@@ -1,6 +1,6 @@
 ---
 title: Asistente de configuración
-sourceHash: 33f53b1244a8
+sourceHash: 7c37c945db57
 ---
 
 # Asistente de configuración
@@ -83,5 +83,5 @@ Los flags y las variables de entorno siempre tienen prioridad sobre el archivo. 
 
 - **El inicio de sesión es el primer paso.** Un reinicio tras guardar una cuenta o un proxy activa el inicio de sesión antes de que se pueda cambiar cualquier otro ajuste.
 - **Solo un usuario con sesión iniciada puede cambiar las acciones y la shell o reiniciar Dozzle.** El usuario necesita todos los roles.
-- **Sin inicio de sesión hay una ventana de 15 minutos.** Cuando `authProvider` es `none`, estos ajustes solo se pueden cambiar durante los 15 minutos siguientes al arranque de Dozzle. Después, el asistente queda en solo lectura hasta que actives el inicio de sesión o reinicies Dozzle.
+- **Sin inicio de sesión, solo una instalación nueva tiene una ventana de 15 minutos.** Cuando `authProvider` es `none`, estos ajustes solo se pueden cambiar durante los 15 minutos siguientes al primer arranque de una instalación nueva, es decir, una cuyo `/data` estaba vacío. Una instalación que ya tiene datos de arranques anteriores nunca tiene la ventana, así que un reinicio del host o una actualización de la imagen no pueden abrirla. Fuera de la ventana, usa variables de entorno o activa el inicio de sesión.
 - **Las rutas se siguen decidiendo al arrancar.** El asistente solo escribe en `dozzle.yml`. Los endpoints de acciones y shell se registran cuando Dozzle arranca, igual que con las variables de entorno, así que no se activa nada hasta que Dozzle se reinicia.

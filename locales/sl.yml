@@ -816,7 +816,7 @@ setup:
     shell-desc: Priključite se na vsebnik ali v njem izvajajte ukaze.
     shell-warning: Dostop do lupine vsebnika je pogosto enakovreden dostopu do gostitelja. Pustite izklopljeno, razen če ga potrebujete.
     locked: "Nastavljeno z {env}"
-    window-closed: Po 15 minutah je nastavitev zaprta za anonimne spremembe. Znova zaženite Dozzle, da jo znova odprete, ali to nastavite z okoljskimi spremenljivkami.
+    window-closed: "Brez prijave nastavitev sprejema spremembe samo v prvih 15 minutah nove namestitve. To nastavite z okoljskimi spremenljivkami ali najprej vklopite prijavo."
     no-access: Vaš račun ne more spreminjati teh nastavitev.
     restart-note: Spremembe začnejo veljati po ponovnem zagonu Dozzle.
   cloud:
@@ -854,4 +854,4 @@ setup:
     load: Nastavitve ni bilo mogoče naložiti. Poskusite pozneje.
     conflict: To je že nastavljeno ali določeno z okoljsko spremenljivko.
     no-data: /data ni priklopljen, zato tega ni mogoče shraniti.
-    window-closed: "Nastavitev 15 minut po zagonu Dozzla ne sprejema več sprememb. Znova zaženite vsebnik Dozzle, da tukaj ustvarite račun, ali vklopite prijavo z okoljskimi spremenljivkami."
+    window-closed: "Brez prijave nastavitev sprejema spremembe samo v prvih 15 minutah nove namestitve. Prijavo namesto tega vklopite z okoljskimi spremenljivkami."

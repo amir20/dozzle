@@ -82,5 +82,5 @@ Flags and environment variables always win over the file. If `DOZZLE_ENABLE_ACTI
 
 - **Login is the first step.** A restart after saving an account or proxy turns login on before any other setting can be changed.
 - **Only a signed in user can change actions, shell or restart Dozzle.** The user needs all roles.
-- **Without login, there is a 15 minute window.** When `authProvider` is `none`, these settings can only be changed within 15 minutes of Dozzle starting. After that, the wizard is read-only until you turn on login or restart Dozzle.
+- **Without login, only a new install gets a 15 minute window.** When `authProvider` is `none`, these settings can only be changed within 15 minutes of the first start of a new install, one whose `/data` was empty. An install that already has data from earlier runs never gets the window, so a reboot or an image update can't open it. Outside the window, use environment variables or turn on login.
 - **Routes are still decided at startup.** The wizard only writes to `dozzle.yml`. The endpoints for actions and shell are registered when Dozzle starts, exactly as with environment variables, so nothing is enabled until Dozzle restarts.

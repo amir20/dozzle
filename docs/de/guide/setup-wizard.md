@@ -1,6 +1,6 @@
 ---
 title: Einrichtungsassistent
-sourceHash: 33f53b1244a8
+sourceHash: 7c37c945db57
 ---
 
 # Einrichtungsassistent
@@ -83,5 +83,5 @@ Flags und Umgebungsvariablen haben immer Vorrang vor der Datei. Ist `DOZZLE_ENAB
 
 - **Der Login ist der erste Schritt.** Ein Neustart nach dem Speichern eines Kontos oder Proxys schaltet den Login ein, bevor irgendeine andere Einstellung geändert werden kann.
 - **Nur ein angemeldeter Benutzer kann Aktionen und Shell ändern oder Dozzle neu starten.** Der Benutzer braucht alle Rollen.
-- **Ohne Login gibt es ein Zeitfenster von 15 Minuten.** Ist `authProvider` auf `none` gesetzt, lassen sich diese Einstellungen nur innerhalb von 15 Minuten nach dem Start von Dozzle ändern. Danach ist der Assistent schreibgeschützt, bis du den Login einschaltest oder Dozzle neu startest.
+- **Ohne Login bekommt nur eine neue Installation ein Zeitfenster von 15 Minuten.** Ist `authProvider` auf `none` gesetzt, lassen sich diese Einstellungen nur innerhalb von 15 Minuten nach dem ersten Start einer neuen Installation ändern, also einer, deren `/data` leer war. Eine Installation, die schon Daten aus früheren Starts hat, bekommt das Zeitfenster nie, ein Neustart des Hosts oder ein Image-Update kann es also nicht öffnen. Außerhalb des Zeitfensters nutzt du Umgebungsvariablen oder schaltest den Login ein.
 - **Routen werden weiterhin beim Start festgelegt.** Der Assistent schreibt nur in `dozzle.yml`. Die Endpunkte für Aktionen und Shell werden beim Start von Dozzle registriert, genau wie bei Umgebungsvariablen, also wird nichts aktiviert, bevor Dozzle neu startet.

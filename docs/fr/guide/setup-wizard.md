@@ -1,6 +1,6 @@
 ---
 title: Assistant de configuration
-sourceHash: 33f53b1244a8
+sourceHash: 7c37c945db57
 ---
 
 # Assistant de configuration
@@ -83,5 +83,5 @@ Les flags et les variables d'environnement l'emportent toujours sur le fichier. 
 
 - **La connexion est la première étape.** Un redémarrage après l'enregistrement d'un compte ou d'un proxy active la connexion avant que tout autre réglage puisse être modifié.
 - **Seul un utilisateur connecté peut modifier les actions et le shell ou redémarrer Dozzle.** L'utilisateur doit avoir tous les rôles.
-- **Sans connexion, il existe une fenêtre de 15 minutes.** Quand `authProvider` vaut `none`, ces réglages ne peuvent être modifiés que dans les 15 minutes qui suivent le démarrage de Dozzle. Ensuite, l'assistant est en lecture seule jusqu'à ce que vous activiez la connexion ou redémarriez Dozzle.
+- **Sans connexion, seule une nouvelle installation a une fenêtre de 15 minutes.** Quand `authProvider` vaut `none`, ces réglages ne peuvent être modifiés que dans les 15 minutes qui suivent le premier démarrage d'une nouvelle installation, c'est-à-dire dont `/data` était vide. Une installation qui a déjà des données de démarrages précédents n'a jamais cette fenêtre, un redémarrage de l'hôte ou une mise à jour de l'image ne peut donc pas l'ouvrir. En dehors de la fenêtre, utilisez les variables d'environnement ou activez la connexion.
 - **Les routes sont toujours décidées au démarrage.** L'assistant écrit uniquement dans `dozzle.yml`. Les endpoints des actions et du shell sont enregistrés au démarrage de Dozzle, exactement comme avec les variables d'environnement, donc rien n'est activé tant que Dozzle n'a pas redémarré.

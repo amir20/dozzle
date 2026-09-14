@@ -810,7 +810,7 @@ setup:
     shell-desc: "Tilknyt til en container, eller kør kommandoer i den."
     shell-warning: "Shell-adgang til en container er ofte lige så god som adgang til værten. Lad den være slået fra, medmindre du har brug for den."
     locked: "Sat af {env}"
-    window-closed: "Opsætningen er lukket for anonyme ændringer efter 15 minutter. Genstart Dozzle for at åbne den igen, eller sæt disse med miljøvariabler."
+    window-closed: "Uden login tager opsætningen kun imod ændringer i de første 15 minutter af en ny installation. Sæt disse med miljøvariabler, eller slå login til først."
     no-access: "Din konto kan ikke ændre disse indstillinger."
     restart-note: "Disse træder i kraft, når Dozzle genstarter."
   cloud:
@@ -848,4 +848,4 @@ setup:
     load: "Kunne ikke indlæse opsætningen. Prøv igen senere."
     conflict: "Dette er allerede sat eller fastlåst af en miljøvariabel."
     no-data: "/data er ikke monteret, så dette kan ikke gemmes."
-    window-closed: "Opsætningen holdt op med at tage imod ændringer 15 minutter efter, at Dozzle startede. Genstart Dozzle-containeren for at oprette en konto her, eller slå login til med miljøvariabler."
+    window-closed: "Uden login tager opsætningen kun imod ændringer i de første 15 minutter af en ny installation. Slå login til med miljøvariabler i stedet."

@@ -810,7 +810,7 @@ setup:
     shell-desc: "Mit einem Container verbinden oder Befehle darin ausführen."
     shell-warning: "Shell-Zugriff auf einen Container ist oft so gut wie Zugriff auf den Host. Lassen Sie ihn deaktiviert, sofern Sie ihn nicht brauchen."
     locked: "Gesetzt durch {env}"
-    window-closed: "Die Einrichtung ist nach 15 Minuten für anonyme Änderungen gesperrt. Starten Sie Dozzle neu, um sie wieder zu öffnen, oder setzen Sie diese Werte über Umgebungsvariablen."
+    window-closed: "Ohne Login nimmt die Einrichtung nur in den ersten 15 Minuten einer neuen Installation Änderungen an. Setze diese Werte über Umgebungsvariablen oder schalte zuerst den Login ein."
     no-access: "Ihr Konto darf diese Einstellungen nicht ändern."
     restart-note: "Diese Änderungen werden nach einem Neustart von Dozzle wirksam."
   cloud:
@@ -848,4 +848,4 @@ setup:
     load: "Die Einrichtung konnte nicht geladen werden. Versuchen Sie es später erneut."
     conflict: "Dies ist bereits gesetzt oder durch eine Umgebungsvariable festgelegt."
     no-data: "/data ist nicht eingebunden, daher kann dies nicht gespeichert werden."
-    window-closed: "Die Einrichtung nimmt 15 Minuten nach dem Start von Dozzle keine Änderungen mehr an. Starten Sie den Dozzle-Container neu, um hier ein Konto anzulegen, oder aktivieren Sie die Anmeldung über Umgebungsvariablen."
+    window-closed: "Ohne Login nimmt die Einrichtung nur in den ersten 15 Minuten einer neuen Installation Änderungen an. Schalte den Login stattdessen über Umgebungsvariablen ein."

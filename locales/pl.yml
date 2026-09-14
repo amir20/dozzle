@@ -813,7 +813,7 @@ setup:
     shell-desc: Podłącz się do kontenera lub uruchamiaj w nim polecenia.
     shell-warning: Dostęp do powłoki kontenera często oznacza to samo co dostęp do hosta. Pozostaw wyłączone, chyba że go potrzebujesz.
     locked: "Ustawione przez {env}"
-    window-closed: Po 15 minutach konfiguracja jest zamknięta dla anonimowych zmian. Zrestartuj Dozzle, aby ją ponownie otworzyć, lub ustaw te opcje zmiennymi środowiskowymi.
+    window-closed: "Bez logowania konfiguracja przyjmuje zmiany tylko przez pierwsze 15 minut nowej instalacji. Ustaw te opcje zmiennymi środowiskowymi albo najpierw włącz logowanie."
     no-access: Twoje konto nie może zmieniać tych ustawień.
     restart-note: Zmiany zaczną działać po restarcie Dozzle.
   cloud:
@@ -851,4 +851,4 @@ setup:
     load: Nie można załadować konfiguracji. Spróbuj ponownie później.
     conflict: To jest już ustawione lub określone przez zmienną środowiskową.
     no-data: /data nie jest zamontowany, więc nie można tego zapisać.
-    window-closed: "Konfiguracja przestała przyjmować zmiany 15 minut po uruchomieniu Dozzle. Zrestartuj kontener Dozzle, aby utworzyć tutaj konto, lub włącz logowanie zmiennymi środowiskowymi."
+    window-closed: "Bez logowania konfiguracja przyjmuje zmiany tylko przez pierwsze 15 minut nowej instalacji. Zamiast tego włącz logowanie zmiennymi środowiskowymi."

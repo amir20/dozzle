@@ -820,7 +820,7 @@ setup:
     shell-desc: Attach to a container or run commands inside it.
     shell-warning: Shell access to a container is often as good as access to the host. Leave it off unless you need it.
     locked: "Set by {env}"
-    window-closed: Setup is closed to anonymous changes after 15 minutes. Restart Dozzle to reopen it, or set these with environment variables.
+    window-closed: "Without a login, setup only takes changes in the first 15 minutes of a new install. Set these with environment variables, or turn on login first."
     no-access: Your account can't change these settings.
     restart-note: These take effect after Dozzle restarts.
   cloud:
@@ -858,4 +858,4 @@ setup:
     load: Could not load setup. Try again later.
     conflict: This is already set, or fixed by an environment variable.
     no-data: /data is not mounted, so this can't be saved.
-    window-closed: "Setup stopped accepting changes 15 minutes after Dozzle started. Restart the Dozzle container to create an account here, or turn on login with environment variables."
+    window-closed: "Without a login, setup only takes changes in the first 15 minutes of a new install. Turn on login with environment variables instead."

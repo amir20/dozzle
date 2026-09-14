@@ -813,7 +813,7 @@ setup:
     shell-desc: 附加到容器或在容器內執行指令。
     shell-warning: 容器的 Shell 存取權通常等同於主機的存取權。除非需要，否則請保持關閉。
     locked: "由 {env} 設定"
-    window-closed: 15 分鐘後設定將不再接受匿名變更。重新啟動 Dozzle 可再次開放，或使用環境變數設定。
+    window-closed: "未開啟登入時，設定只在全新安裝後的前 15 分鐘內接受變更。請使用環境變數設定，或先開啟登入。"
     no-access: 你的帳戶無權變更這些設定。
     restart-note: 這些設定會在 Dozzle 重新啟動後生效。
   cloud:
@@ -851,4 +851,4 @@ setup:
     load: 無法載入設定精靈，請稍後再試。
     conflict: 此項已設定，或已由環境變數固定。
     no-data: 未掛載 /data，因此無法儲存。
-    window-closed: "Dozzle 啟動 15 分鐘後，設定已不再接受變更。重新啟動 Dozzle 容器即可在此建立帳號，或使用環境變數開啟登入。"
+    window-closed: "未開啟登入時，設定只在全新安裝後的前 15 分鐘內接受變更。請改用環境變數開啟登入。"

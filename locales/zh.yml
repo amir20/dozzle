@@ -810,7 +810,7 @@ setup:
     shell-desc: 附加到容器或在容器内运行命令。
     shell-warning: 容器的 Shell 访问权限通常等同于主机的访问权限。除非需要，否则请保持关闭。
     locked: "由 {env} 设置"
-    window-closed: 15 分钟后设置将不再接受匿名更改。重启 Dozzle 可重新开放，或使用环境变量进行设置。
+    window-closed: "未开启登录时，设置只在全新安装后的前 15 分钟内接受更改。请使用环境变量设置，或先开启登录。"
     no-access: 你的账户无权更改这些设置。
     restart-note: 这些设置将在 Dozzle 重启后生效。
   cloud:
@@ -848,4 +848,4 @@ setup:
     load: 无法加载设置向导，请稍后再试。
     conflict: 该项已设置，或已由环境变量固定。
     no-data: 未挂载 /data，因此无法保存。
-    window-closed: "Dozzle 启动 15 分钟后，设置已不再接受更改。重启 Dozzle 容器即可在此创建账户，或使用环境变量开启登录。"
+    window-closed: "未开启登录时，设置只在全新安装后的前 15 分钟内接受更改。请改用环境变量开启登录。"

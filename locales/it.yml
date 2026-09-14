@@ -810,7 +810,7 @@ setup:
     shell-desc: Collegati a un container o esegui comandi al suo interno.
     shell-warning: L'accesso shell a un container spesso equivale all'accesso all'host. Lascialo disattivato a meno che non ti serva.
     locked: "Impostato da {env}"
-    window-closed: La configurazione non accetta modifiche anonime dopo 15 minuti. Riavvia Dozzle per riaprirla, oppure imposta questi valori con variabili d'ambiente.
+    window-closed: "Senza accesso, la configurazione accetta modifiche solo nei primi 15 minuti di una nuova installazione. Imposta questi valori con variabili d'ambiente, oppure attiva prima l'accesso."
     no-access: Il tuo account non può modificare queste impostazioni.
     restart-note: Queste modifiche hanno effetto dopo il riavvio di Dozzle.
   cloud:
@@ -848,4 +848,4 @@ setup:
     load: Impossibile caricare la configurazione. Riprova più tardi.
     conflict: Questo è già impostato, o fissato da una variabile d'ambiente.
     no-data: /data non è montato, quindi non è possibile salvare.
-    window-closed: "La configurazione non accetta più modifiche 15 minuti dopo l'avvio di Dozzle. Riavvia il container di Dozzle per creare un account qui, oppure attiva l'accesso con variabili d'ambiente."
+    window-closed: "Senza accesso, la configurazione accetta modifiche solo nei primi 15 minuti di una nuova installazione. Attiva invece l'accesso con variabili d'ambiente."

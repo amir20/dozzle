@@ -30,6 +30,26 @@ type File struct {
 
 var mu sync.Mutex
 
+// FreshDataDir reports whether dir holds nothing from an earlier run: no
+// profiles, users, notification rules or dozzle.yml. It has to be called
+// before this process writes anything there. Dotfiles and lost+found are
+// filesystem noise, not Dozzle state. A missing or unreadable dir is not fresh,
+// so an error never opens anything up.
+func FreshDataDir(dir string) bool {
+	entries, err := os.ReadDir(dir)
+	if err != nil {
+		return errors.Is(err, os.ErrNotExist)
+	}
+	for _, entry := range entries {
+		name := entry.Name()
+		if name == "lost+found" || name[0] == '.' {
+			continue
+		}
+		return false
+	}
+	return true
+}
+
 // Load returns an empty File when the file does not exist yet.
 func Load(path string) (File, error) {
 	mu.Lock()

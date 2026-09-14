@@ -811,7 +811,7 @@ setup:
     shell-desc: Koppel aan een container of voer er opdrachten in uit.
     shell-warning: Shelltoegang tot een container staat vaak gelijk aan toegang tot de host. Laat het uit, tenzij je het nodig hebt.
     locked: "Ingesteld door {env}"
-    window-closed: De installatie accepteert na 15 minuten geen anonieme wijzigingen meer. Herstart Dozzle om het opnieuw te openen, of stel dit in met omgevingsvariabelen.
+    window-closed: "Zonder inloggen accepteert de installatie alleen wijzigingen in de eerste 15 minuten van een nieuwe installatie. Stel dit in met omgevingsvariabelen, of zet eerst inloggen aan."
     no-access: Je account kan deze instellingen niet wijzigen.
     restart-note: Deze worden actief nadat Dozzle is herstart.
   cloud:
@@ -849,4 +849,4 @@ setup:
     load: Kan de installatie niet laden. Probeer het later opnieuw.
     conflict: Dit is al ingesteld, of vastgelegd door een omgevingsvariabele.
     no-data: /data is niet gekoppeld, dus dit kan niet worden opgeslagen.
-    window-closed: "De installatie accepteert 15 minuten na het starten van Dozzle geen wijzigingen meer. Herstart de Dozzle-container om hier een account aan te maken, of zet inloggen aan met omgevingsvariabelen."
+    window-closed: "Zonder inloggen accepteert de installatie alleen wijzigingen in de eerste 15 minuten van een nieuwe installatie. Zet inloggen in plaats daarvan aan met omgevingsvariabelen."

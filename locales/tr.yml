@@ -814,7 +814,7 @@ setup:
     shell-desc: Bir konteynere bağlanın veya içinde komut çalıştırın.
     shell-warning: Bir konteynerin kabuğuna erişim çoğu zaman sunucuya erişim kadar güçlüdür. İhtiyacınız yoksa kapalı bırakın.
     locked: "{env} ile ayarlandı"
-    window-closed: Kurulum 15 dakika sonra anonim değişikliklere kapanır. Yeniden açmak için Dozzle'ı yeniden başlatın veya bunları ortam değişkenleriyle ayarlayın.
+    window-closed: "Giriş olmadan kurulum, yeni bir kurulumun yalnızca ilk 15 dakikasında değişiklik kabul eder. Bunları ortam değişkenleriyle ayarlayın veya önce girişi açın."
     no-access: Hesabınız bu ayarları değiştiremez.
     restart-note: Bunlar Dozzle yeniden başladıktan sonra geçerli olur.
   cloud:
@@ -852,4 +852,4 @@ setup:
     load: Kurulum yüklenemedi. Daha sonra tekrar deneyin.
     conflict: Bu zaten ayarlanmış veya bir ortam değişkeniyle sabitlenmiş.
     no-data: /data bağlı değil, bu yüzden bu kaydedilemiyor.
-    window-closed: "Kurulum, Dozzle başladıktan 15 dakika sonra değişiklik kabul etmeyi bıraktı. Burada hesap oluşturmak için Dozzle konteynerini yeniden başlatın veya girişi ortam değişkenleriyle açın."
+    window-closed: "Giriş olmadan kurulum, yeni bir kurulumun yalnızca ilk 15 dakikasında değişiklik kabul eder. Bunun yerine girişi ortam değişkenleriyle açın."

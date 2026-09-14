@@ -253,11 +253,32 @@ func TestSetup_RestartCarriesWindowForward(t *testing.T) {
 	require.Equal(t, http.StatusAccepted, doSetup(h, "POST", "/api/setup/restart", "").Code)
 	<-restarts
 
-	// The next process keeps the old start while it is still inside the window.
-	assert.True(t, SetupWindowStart(time.Now()).Equal(started))
-	// Once the window has passed, a restart opens a fresh one.
+	// The next process keeps the old start while it is still inside the window,
+	// even though /data is no longer empty by then.
+	assert.True(t, SetupWindowStart(time.Now(), false).Equal(started))
+	// Once it has passed, a restart of an install with data never reopens it.
 	later := started.Add(setupWindow + time.Minute)
-	assert.True(t, SetupWindowStart(later).Equal(later))
+	assert.True(t, SetupWindowStart(later, false).IsZero())
+}
+
+func TestSetup_WindowOnlyOnFreshInstall(t *testing.T) {
+	setupTestEnv(t, true)
+	now := time.Now()
+
+	assert.True(t, SetupWindowStart(now, true).Equal(now), "a brand new install gets the window")
+	assert.True(t, SetupWindowStart(now, false).IsZero(), "an install with earlier data does not")
+
+	// An existing install that restarts with no login stays closed to anonymous writes.
+	h := setupNoneHandler(SetupWindowStart(now, false), SetupConfig{})
+	assert.Equal(t, http.StatusForbidden, doSetup(h, "PATCH", "/api/setup/config", `{"enableActions":true}`).Code)
+	assert.Equal(t, http.StatusForbidden, doSetup(h, "POST", "/api/setup/account", `{"username":"amir","password":"supersecret"}`).Code)
+
+	rr := doSetup(h, "GET", "/api/setup", "")
+	require.Equal(t, http.StatusOK, rr.Code)
+	var state setupState
+	require.NoError(t, json.Unmarshal(rr.Body.Bytes(), &state))
+	assert.False(t, state.WindowOpen)
+	assert.False(t, state.CanWrite)
 }
 
 func TestSetup_AccountRollsBackUsersFileWhenConfigFails(t *testing.T) {

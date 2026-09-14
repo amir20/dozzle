@@ -73,20 +73,29 @@ func setupUsersFileExists() bool {
 	return false
 }
 
-// SetupWindowStart is when the no-login window of this process opens. A restart
-// the wizard triggered carries the previous window's start forward, so calling
-// restart just before it closes cannot keep it open. Any other restart, or one
-// after the window has passed, opens a fresh window.
-func SetupWindowStart(now time.Time) time.Time {
-	file, err := config.Load(setupConfigPath)
-	if err != nil || file.SetupWindowStartedAt == nil {
+// SetupWindowStart is when the no-login window of this process opens, or the
+// zero time when it never does.
+//
+// The window exists for a brand new install, where nobody has configured
+// anything yet. An install that already has data from earlier runs never gets
+// one: before this, a stranger could not turn on shell on a running Dozzle
+// without editing its compose file, and a reboot or an image update must not
+// change that.
+//
+// A restart the wizard triggered carries the previous window's start forward,
+// so first-time setup survives the restart that turns login on, and calling
+// restart just before the window closes cannot keep it open.
+func SetupWindowStart(now time.Time, freshInstall bool) time.Time {
+	if file, err := config.Load(setupConfigPath); err == nil && file.SetupWindowStartedAt != nil {
+		since := now.Sub(*file.SetupWindowStartedAt)
+		if since >= 0 && since < setupWindow {
+			return *file.SetupWindowStartedAt
+		}
+	}
+	if freshInstall {
 		return now
 	}
-	since := now.Sub(*file.SetupWindowStartedAt)
-	if since < 0 || since >= setupWindow {
-		return now
-	}
-	return *file.SetupWindowStartedAt
+	return time.Time{}
 }
 
 func (h *handler) setupWindowOpen() bool {
