@@ -2,14 +2,13 @@ package main
 
 import (
 	"context"
+	"github.com/amir20/dozzle/internal/hostservice"
 	"sync"
 	"sync/atomic"
 	"testing"
 	"time"
 
 	"github.com/amir20/dozzle/internal/container"
-	container_support "github.com/amir20/dozzle/internal/support/container"
-	docker_support "github.com/amir20/dozzle/internal/support/docker"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -17,7 +16,7 @@ import (
 // other method is left nil on the embedded interface — the cloud host service
 // selection logic under test never calls them.
 type fakeClientService struct {
-	container_support.ClientService
+	container.ClientService
 	host container.Host
 
 	subscribed atomic.Bool // set when SubscribeContainersStarted is called
@@ -36,19 +35,19 @@ func (f *fakeClientService) SubscribeContainersStarted(context.Context, chan<- c
 // the real managers do by concrete type.
 type fakeClientManager struct {
 	mu    sync.Mutex
-	local container_support.ClientService
-	agent container_support.ClientService
+	local container.ClientService
+	agent container.ClientService
 }
 
 // addAgent makes an agent reachable, standing in for one that was down at boot
 // and joined later.
-func (m *fakeClientManager) addAgent(s container_support.ClientService) {
+func (m *fakeClientManager) addAgent(s container.ClientService) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 	m.agent = s
 }
 
-func (m *fakeClientManager) Find(id string) (container_support.ClientService, bool) {
+func (m *fakeClientManager) Find(id string) (container.ClientService, bool) {
 	for _, s := range m.all() {
 		if h, _ := s.Host(context.Background()); h.ID == id {
 			return s, true
@@ -58,20 +57,20 @@ func (m *fakeClientManager) Find(id string) (container_support.ClientService, bo
 }
 
 // all skips a nil agent so a hub can be built with its agent still unreachable.
-func (m *fakeClientManager) all() []container_support.ClientService {
+func (m *fakeClientManager) all() []container.ClientService {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 
-	services := []container_support.ClientService{m.local}
+	services := []container.ClientService{m.local}
 	if m.agent != nil {
 		services = append(services, m.agent)
 	}
 	return services
 }
 
-func (m *fakeClientManager) List() []container_support.ClientService { return m.all() }
+func (m *fakeClientManager) List() []container.ClientService { return m.all() }
 
-func (m *fakeClientManager) RetryAndList() ([]container_support.ClientService, []error) {
+func (m *fakeClientManager) RetryAndList() ([]container.ClientService, []error) {
 	return m.all(), nil
 }
 
@@ -88,12 +87,12 @@ func (m *fakeClientManager) Hosts(ctx context.Context) []container.Host {
 
 func (m *fakeClientManager) LocalClients() []container.Client { return nil }
 
-func (m *fakeClientManager) LocalClientServices() []container_support.ClientService {
-	return []container_support.ClientService{m.local}
+func (m *fakeClientManager) LocalClientServices() []container.ClientService {
+	return []container.ClientService{m.local}
 }
 
-func newFakeHub() *docker_support.MultiHostService {
-	return docker_support.NewMultiHostService(&fakeClientManager{
+func newFakeHub() *hostservice.MultiHostService {
+	return hostservice.NewMultiHostService(&fakeClientManager{
 		local: &fakeClientService{host: container.Host{ID: "local-id", Name: "hub", Type: "local"}},
 		agent: &fakeClientService{host: container.Host{ID: "agent-id", Name: "home-assistant", Type: "agent"}},
 	}, time.Second)
@@ -132,7 +131,7 @@ func TestCloudHostService_PicksUpLateJoiningAgents(t *testing.T) {
 	mgr := &fakeClientManager{
 		local: &fakeClientService{host: container.Host{ID: "local-id", Name: "hub", Type: "local"}},
 	}
-	svc := newCloudHostService("server", docker_support.NewMultiHostService(mgr, time.Second))
+	svc := newCloudHostService("server", hostservice.NewMultiHostService(mgr, time.Second))
 	assert.Equal(t, []string{"local-id"}, hostIDs(svc.Hosts()))
 
 	mgr.addAgent(&fakeClientService{host: container.Host{ID: "agent-id", Name: "home-assistant", Type: "agent"}})
@@ -150,7 +149,7 @@ func TestCloudHostService_SubscribesLateJoiningAgents(t *testing.T) {
 
 	local := &fakeClientService{host: container.Host{ID: "local-id", Name: "hub", Type: "local"}}
 	mgr := &fakeClientManager{local: local}
-	svc := newCloudHostService("server", docker_support.NewMultiHostService(mgr, time.Second))
+	svc := newCloudHostService("server", hostservice.NewMultiHostService(mgr, time.Second))
 
 	ctx := t.Context()
 	svc.SubscribeContainersStarted(ctx, make(chan container.Container, 1), func(*container.Container) bool { return true })

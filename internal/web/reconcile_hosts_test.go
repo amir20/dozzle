@@ -3,6 +3,8 @@ package web
 import (
 	"context"
 	"crypto/tls"
+	"github.com/amir20/dozzle/internal/container/docker"
+	"github.com/amir20/dozzle/internal/hostservice"
 	"net/http"
 	"net/http/httptest"
 	"sync/atomic"
@@ -10,7 +12,6 @@ import (
 	"time"
 
 	"github.com/amir20/dozzle/internal/container"
-	docker_support "github.com/amir20/dozzle/internal/support/docker"
 	"github.com/amir20/dozzle/internal/utils"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -77,8 +78,8 @@ func Test_handler_streamEvents_reconcilesHosts(t *testing.T) {
 	}, nil)
 	mockedClient.On("Host").Return(container.Host{ID: "localhost"})
 
-	manager := docker_support.NewRetriableClientManager(nil, 3*time.Second, tls.Certificate{}, docker_support.NewDockerClientService(mockedClient, container.ContainerLabels{}))
-	service := &countingHostService{HostService: docker_support.NewMultiHostService(manager, 3*time.Second)}
+	manager := hostservice.NewRetriableClientManager(nil, 3*time.Second, tls.Certificate{}, docker.NewDockerClientService(mockedClient, container.ContainerLabels{}))
+	service := &countingHostService{HostService: hostservice.NewMultiHostService(manager, 3*time.Second)}
 
 	server := CreateServer(service, nil, Config{Base: "/", Authorization: Authorization{Provider: NONE}})
 	server.Handler.ServeHTTP(httptest.NewRecorder(), req)

@@ -8,7 +8,6 @@ import (
 	"time"
 
 	"github.com/amir20/dozzle/internal/container"
-	container_support "github.com/amir20/dozzle/internal/support/container"
 	"github.com/puzpuzpuz/xsync/v4"
 	"github.com/rs/zerolog/log"
 )
@@ -26,9 +25,9 @@ type streamEntry struct {
 
 // ContainerLogListener manages active log streams for containers across multiple clients
 type ContainerLogListener struct {
-	clients          []container_support.ClientService
-	containerClients *xsync.Map[string, container_support.ClientService] // containerID -> owning client
-	activeStreams    *xsync.Map[string, *streamEntry]                    // containerID -> active stream
+	clients          []container.ClientService
+	containerClients *xsync.Map[string, container.ClientService] // containerID -> owning client
+	activeStreams    *xsync.Map[string, *streamEntry]            // containerID -> active stream
 	matcher          ContainerMatcher
 	logChannel       chan *container.LogEvent
 	ctx              context.Context
@@ -36,10 +35,10 @@ type ContainerLogListener struct {
 }
 
 // NewContainerLogListener creates a new listener for multiple clients
-func NewContainerLogListener(ctx context.Context, clients []container_support.ClientService) *ContainerLogListener {
+func NewContainerLogListener(ctx context.Context, clients []container.ClientService) *ContainerLogListener {
 	return &ContainerLogListener{
 		clients:          clients,
-		containerClients: xsync.NewMap[string, container_support.ClientService](),
+		containerClients: xsync.NewMap[string, container.ClientService](),
 		activeStreams:    xsync.NewMap[string, *streamEntry](),
 		logChannel:       make(chan *container.LogEvent, 1000),
 		ctx:              ctx,
@@ -117,7 +116,7 @@ func (l *ContainerLogListener) UpdateStreams() {
 }
 
 // startListening starts listening to a container's logs with a known client
-func (l *ContainerLogListener) startListening(c container.Container, client container_support.ClientService, since time.Time) {
+func (l *ContainerLogListener) startListening(c container.Container, client container.ClientService, since time.Time) {
 	streamCtx, cancel := context.WithCancel(l.ctx)
 	entry := &streamEntry{ctx: streamCtx, cancel: cancel}
 

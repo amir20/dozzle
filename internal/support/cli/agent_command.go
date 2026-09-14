@@ -4,6 +4,7 @@ import (
 	"context"
 	"embed"
 	"fmt"
+	"github.com/amir20/dozzle/internal/hostservice"
 	"io"
 	"net"
 	"os"
@@ -17,8 +18,6 @@ import (
 	"github.com/amir20/dozzle/internal/container/docker"
 	"github.com/amir20/dozzle/internal/notification"
 	"github.com/amir20/dozzle/internal/notification/dispatcher"
-	container_support "github.com/amir20/dozzle/internal/support/container"
-	docker_support "github.com/amir20/dozzle/internal/support/docker"
 	"github.com/amir20/dozzle/internal/utils"
 	"github.com/amir20/dozzle/types"
 	"github.com/rs/zerolog/log"
@@ -158,11 +157,11 @@ func (a *AgentCmd) Run(args Args, embeddedCerts embed.FS) error {
 	defer stop()
 
 	// Create shared client service (single ContainerStore for both agent server and notifications)
-	clientService := docker_support.NewDockerClientService(client, args.Filter)
+	clientService := docker.NewDockerClientService(client, args.Filter)
 
 	// Create notification manager using the shared client service
 	const notificationConfigPath = "./data/notifications.yml"
-	clients := []container_support.ClientService{clientService}
+	clients := []container.ClientService{clientService}
 	notificationManager := notification.NewManager(
 		notification.NewContainerLogListener(ctx, clients),
 		notification.NewContainerStatsListener(ctx, clients),
@@ -210,8 +209,8 @@ func (a *AgentCmd) Run(args Args, embeddedCerts embed.FS) error {
 
 	// Create a single-host MultiHostService so the cloud client has a
 	// HostService for tool execution (list_containers, fetch_logs, etc.).
-	agentManager := docker_support.NewRetriableClientManager(nil, args.Timeout, certs, clientService)
-	agentHostService := docker_support.NewMultiHostService(agentManager, args.Timeout)
+	agentManager := hostservice.NewRetriableClientManager(nil, args.Timeout, certs, clientService)
+	agentHostService := hostservice.NewMultiHostService(agentManager, args.Timeout)
 
 	// Cloud gRPC client — connects directly to Dozzle Cloud with this agent's
 	// own host ID as instance_id, so log streaming and tool dispatch happen

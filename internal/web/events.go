@@ -1,13 +1,13 @@
 package web
 
 import (
+	"github.com/amir20/dozzle/internal/hostservice"
 	"net/http"
 	"time"
 
 	"github.com/amir20/dozzle/internal/analytics"
 	"github.com/amir20/dozzle/internal/auth"
 	"github.com/amir20/dozzle/internal/container"
-	docker_support "github.com/amir20/dozzle/internal/support/docker"
 	support_web "github.com/amir20/dozzle/internal/support/web"
 	"github.com/amir20/dozzle/types"
 	"github.com/rs/zerolog/log"
@@ -151,7 +151,7 @@ func (h *handler) streamEvents(w http.ResponseWriter, r *http.Request) {
 
 	for _, err := range errors {
 		log.Warn().Err(err).Msg("error listing containers")
-		if hostNotAvailableError, ok := err.(*docker_support.HostUnavailableError); ok {
+		if hostNotAvailableError, ok := err.(*hostservice.HostUnavailableError); ok {
 			// this host has no visible set at all, so retry as soon as it produces traffic
 			staleHosts[hostNotAvailableError.Host.ID] = time.Time{}
 			if err := sseWriter.Event("update-host", hostNotAvailableError.Host); err != nil {

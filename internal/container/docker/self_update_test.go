@@ -1,4 +1,4 @@
-package docker_support
+package docker
 
 import (
 	"testing"

@@ -3,13 +3,14 @@ package web
 import (
 	"context"
 	"crypto/tls"
+	"github.com/amir20/dozzle/internal/container/docker"
+	"github.com/amir20/dozzle/internal/hostservice"
 	"time"
 
 	"io"
 	"io/fs"
 
 	"github.com/amir20/dozzle/internal/container"
-	docker_support "github.com/amir20/dozzle/internal/support/docker"
 	"github.com/go-chi/chi/v5"
 	docker_types "github.com/moby/moby/api/types/container"
 	"github.com/moby/moby/api/types/system"
@@ -106,7 +107,7 @@ func (m *MockedClient) SystemInfo() system.Info {
 	return system.Info{ID: "123"}
 }
 
-func createHandler(client docker_support.DockerUpdateClient, content fs.FS, config Config) *chi.Mux {
+func createHandler(client docker.DockerUpdateClient, content fs.FS, config Config) *chi.Mux {
 	if client == nil {
 		client = new(MockedClient)
 		client.(*MockedClient).On("ListContainers", mock.Anything, mock.Anything).Return([]container.Container{}, nil)
@@ -122,8 +123,8 @@ func createHandler(client docker_support.DockerUpdateClient, content fs.FS, conf
 		content = afero.NewIOFS(fs)
 	}
 
-	manager := docker_support.NewRetriableClientManager(nil, 3*time.Second, tls.Certificate{}, docker_support.NewDockerClientService(client, container.ContainerLabels{}))
-	multiHostService := docker_support.NewMultiHostService(manager, 3*time.Second)
+	manager := hostservice.NewRetriableClientManager(nil, 3*time.Second, tls.Certificate{}, docker.NewDockerClientService(client, container.ContainerLabels{}))
+	multiHostService := hostservice.NewMultiHostService(manager, 3*time.Second)
 	return createRouter(&handler{
 		hostService: multiHostService,
 		content:     content,
@@ -131,6 +132,6 @@ func createHandler(client docker_support.DockerUpdateClient, content fs.FS, conf
 	})
 }
 
-func createDefaultHandler(client docker_support.DockerUpdateClient) *chi.Mux {
+func createDefaultHandler(client docker.DockerUpdateClient) *chi.Mux {
 	return createHandler(client, nil, Config{Base: "/", Authorization: Authorization{Provider: NONE}})
 }

@@ -1,4 +1,4 @@
-package container_support
+package agent
 
 import (
 	"context"
@@ -8,18 +8,17 @@ import (
 	"time"
 
 	"github.com/amir20/dozzle/internal/container"
-	"github.com/amir20/dozzle/internal/container/agent"
 	"github.com/amir20/dozzle/internal/imagecheck"
 	"github.com/amir20/dozzle/types"
 	"github.com/rs/zerolog/log"
 )
 
 type agentService struct {
-	client *agent.Client
+	client *Client
 	host   atomic.Pointer[container.Host]
 }
 
-func NewAgentService(client *agent.Client) ClientService {
+func NewAgentService(client *Client) ClientService {
 	return &agentService{
 		client: client,
 	}

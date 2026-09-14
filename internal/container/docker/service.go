@@ -1,4 +1,4 @@
-package docker_support
+package docker
 
 import (
 	"context"
@@ -11,7 +11,6 @@ import (
 	"time"
 
 	"github.com/amir20/dozzle/internal/container"
-	"github.com/amir20/dozzle/internal/container/docker"
 	"github.com/amir20/dozzle/internal/imagecheck"
 	"github.com/amir20/dozzle/internal/profile"
 	"github.com/amir20/dozzle/internal/selfupdate"
@@ -68,12 +67,17 @@ type DockerClientService struct {
 }
 
 func NewDockerClientService(client DockerUpdateClient, labels container.ContainerLabels) *DockerClientService {
-	statsCollector := docker.NewDockerStatsCollector(client, labels)
+	statsCollector := NewDockerStatsCollector(client, labels)
 	return &DockerClientService{
 		client:  client,
 		store:   container.NewContainerStore(context.Background(), client, statsCollector, labels),
 		checker: imagecheck.Shared(),
 	}
+}
+
+// Client returns the underlying docker client.
+func (d *DockerClientService) Client() DockerUpdateClient {
+	return d.client
 }
 
 func (d *DockerClientService) RawLogs(ctx context.Context, container container.Container, from time.Time, to time.Time, stdTypes container.StdType) (io.ReadCloser, error) {
@@ -108,7 +112,7 @@ func (d *DockerClientService) LogsBetweenDates(ctx context.Context, c container.
 		return nil, err
 	}
 
-	dockerReader := docker.NewLogReader(reader, c.Tty)
+	dockerReader := NewLogReader(reader, c.Tty)
 	g := container.NewEventGenerator(ctx, dockerReader, c)
 	return g.Events, nil
 }
@@ -119,7 +123,7 @@ func (d *DockerClientService) StreamLogs(ctx context.Context, c container.Contai
 		return err
 	}
 
-	dockerReader := docker.NewLogReader(reader, c.Tty)
+	dockerReader := NewLogReader(reader, c.Tty)
 	g := container.NewEventGenerator(ctx, dockerReader, c)
 	for event := range g.Events {
 		select {

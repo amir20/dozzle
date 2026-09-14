@@ -3,6 +3,8 @@ package web
 import (
 	"context"
 	"crypto/tls"
+	"github.com/amir20/dozzle/internal/container/docker"
+	"github.com/amir20/dozzle/internal/hostservice"
 	"time"
 
 	"net/http"
@@ -10,7 +12,6 @@ import (
 	"testing"
 
 	"github.com/amir20/dozzle/internal/container"
-	docker_support "github.com/amir20/dozzle/internal/support/docker"
 	"github.com/amir20/dozzle/internal/utils"
 	"github.com/beme/abide"
 	"github.com/stretchr/testify/mock"
@@ -56,8 +57,8 @@ func Test_handler_streamEvents_happy(t *testing.T) {
 	})
 
 	// This is needed so that the server is initialized for store
-	manager := docker_support.NewRetriableClientManager(nil, 3*time.Second, tls.Certificate{}, docker_support.NewDockerClientService(mockedClient, container.ContainerLabels{}))
-	multiHostService := docker_support.NewMultiHostService(manager, 3*time.Second)
+	manager := hostservice.NewRetriableClientManager(nil, 3*time.Second, tls.Certificate{}, docker.NewDockerClientService(mockedClient, container.ContainerLabels{}))
+	multiHostService := hostservice.NewMultiHostService(manager, 3*time.Second)
 
 	server := CreateServer(multiHostService, nil, Config{Base: "/", Authorization: Authorization{Provider: NONE}})
 
@@ -115,8 +116,8 @@ func Test_handler_streamEvents_filtered(t *testing.T) {
 		ID: "localhost",
 	})
 
-	manager := docker_support.NewRetriableClientManager(nil, 3*time.Second, tls.Certificate{}, docker_support.NewDockerClientService(mockedClient, container.ContainerLabels{}))
-	multiHostService := docker_support.NewMultiHostService(manager, 3*time.Second)
+	manager := hostservice.NewRetriableClientManager(nil, 3*time.Second, tls.Certificate{}, docker.NewDockerClientService(mockedClient, container.ContainerLabels{}))
+	multiHostService := hostservice.NewMultiHostService(manager, 3*time.Second)
 
 	server := CreateServer(multiHostService, nil, Config{Base: "/", Authorization: Authorization{Provider: NONE}})
 

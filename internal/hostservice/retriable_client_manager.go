@@ -1,16 +1,16 @@
-package docker_support
+package hostservice
 
 import (
 	"context"
 	"crypto/tls"
 	"fmt"
+	"github.com/amir20/dozzle/internal/container/docker"
 	"slices"
 	"sync"
 	"time"
 
 	"github.com/amir20/dozzle/internal/container"
 	"github.com/amir20/dozzle/internal/container/agent"
-	container_support "github.com/amir20/dozzle/internal/support/container"
 
 	"github.com/puzpuzpuz/xsync/v4"
 	"github.com/samber/lo"
@@ -31,7 +31,7 @@ type hostSubscriber struct {
 }
 
 type RetriableClientManager struct {
-	clients      map[string]container_support.ClientService
+	clients      map[string]container.ClientService
 	failedAgents []string
 	certs        tls.Certificate
 	mu           sync.RWMutex
@@ -39,10 +39,10 @@ type RetriableClientManager struct {
 	timeout      time.Duration
 }
 
-func NewRetriableClientManager(agents []string, timeout time.Duration, certs tls.Certificate, clients ...container_support.ClientService) *RetriableClientManager {
+func NewRetriableClientManager(agents []string, timeout time.Duration, certs tls.Certificate, clients ...container.ClientService) *RetriableClientManager {
 	type entry struct {
 		host    container.Host
-		service container_support.ClientService
+		service container.ClientService
 		failed  string // endpoint, set only for failed agents
 		ok      bool
 	}
@@ -80,13 +80,13 @@ func NewRetriableClientManager(agents []string, timeout time.Duration, certs tls
 				results[idx] = entry{failed: endpoint}
 				return
 			}
-			results[idx] = entry{host: host, service: container_support.NewAgentService(a), ok: true}
+			results[idx] = entry{host: host, service: agent.NewAgentService(a), ok: true}
 		})
 	}
 
 	wg.Wait()
 
-	clientMap := make(map[string]container_support.ClientService)
+	clientMap := make(map[string]container.ClientService)
 	failedList := make([]string, 0)
 	for _, r := range results {
 		if r.failed != "" {
@@ -122,7 +122,7 @@ func (m *RetriableClientManager) Subscribe(ctx context.Context, channel chan<- c
 	}()
 }
 
-func (m *RetriableClientManager) RetryAndList() ([]container_support.ClientService, []error) {
+func (m *RetriableClientManager) RetryAndList() ([]container.ClientService, []error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 
@@ -133,7 +133,7 @@ func (m *RetriableClientManager) RetryAndList() ([]container_support.ClientServi
 	type retryResult struct {
 		endpoint string
 		host     container.Host
-		service  container_support.ClientService
+		service  container.ClientService
 		err      error
 	}
 
@@ -158,7 +158,7 @@ func (m *RetriableClientManager) RetryAndList() ([]container_support.ClientServi
 			results[i] = retryResult{
 				endpoint: endpoint,
 				host:     h,
-				service:  container_support.NewAgentService(a),
+				service:  agent.NewAgentService(a),
 			}
 		})
 	}
@@ -186,14 +186,14 @@ func (m *RetriableClientManager) RetryAndList() ([]container_support.ClientServi
 	return lo.Values(m.clients), errs
 }
 
-func (m *RetriableClientManager) List() []container_support.ClientService {
+func (m *RetriableClientManager) List() []container.ClientService {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 
 	return lo.Values(m.clients)
 }
 
-func (m *RetriableClientManager) Find(id string) (container_support.ClientService, bool) {
+func (m *RetriableClientManager) Find(id string) (container.ClientService, bool) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 
@@ -209,7 +209,7 @@ func (m *RetriableClientManager) String() string {
 // after the agent behind it restarted under a new id. It returns the host to
 // report, which carries the id it was previously known by so an open tab can
 // drop the stale entry instead of showing the same machine twice until reload.
-func (m *RetriableClientManager) rekey(oldID string, service container_support.ClientService, host container.Host) container.Host {
+func (m *RetriableClientManager) rekey(oldID string, service container.ClientService, host container.Host) container.Host {
 	m.mu.Lock()
 	if current, ok := m.clients[oldID]; !ok || current != service {
 		// A concurrent Hosts() already repaired this one.
@@ -251,7 +251,7 @@ func (m *RetriableClientManager) Hosts(ctx context.Context) []container.Host {
 	m.mu.RLock()
 	type entry struct {
 		id      string
-		service container_support.ClientService
+		service container.ClientService
 	}
 	entries := make([]entry, 0, len(m.clients))
 	for id, service := range m.clients {
@@ -319,21 +319,21 @@ func (m *RetriableClientManager) LocalClients() []container.Client {
 	clients := make([]container.Client, 0)
 
 	for _, service := range services {
-		if clientService, ok := service.(*DockerClientService); ok {
-			clients = append(clients, clientService.client)
+		if clientService, ok := service.(*docker.DockerClientService); ok {
+			clients = append(clients, clientService.Client())
 		}
 	}
 
 	return clients
 }
 
-func (m *RetriableClientManager) LocalClientServices() []container_support.ClientService {
+func (m *RetriableClientManager) LocalClientServices() []container.ClientService {
 	services := m.List()
 
-	result := make([]container_support.ClientService, 0)
+	result := make([]container.ClientService, 0)
 
 	for _, service := range services {
-		if _, ok := service.(*DockerClientService); ok {
+		if _, ok := service.(*docker.DockerClientService); ok {
 			result = append(result, service)
 		}
 	}

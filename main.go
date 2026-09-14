@@ -4,6 +4,7 @@ import (
 	"context"
 	"embed"
 	"fmt"
+	"github.com/amir20/dozzle/internal/hostservice"
 	"io/fs"
 
 	"net"
@@ -28,9 +29,6 @@ import (
 	"github.com/amir20/dozzle/internal/imagecheck"
 	"github.com/amir20/dozzle/internal/notification/dispatcher"
 	"github.com/amir20/dozzle/internal/support/cli"
-	container_support "github.com/amir20/dozzle/internal/support/container"
-	docker_support "github.com/amir20/dozzle/internal/support/docker"
-	k8s_support "github.com/amir20/dozzle/internal/support/k8s"
 	"github.com/amir20/dozzle/internal/web"
 	"github.com/rs/zerolog/log"
 )
@@ -111,9 +109,9 @@ func main() {
 		if err != nil {
 			log.Fatal().Err(err).Msg("Could not read certificates")
 		}
-		agentManager := docker_support.NewRetriableClientManager(args.RemoteAgent, args.Timeout, certs)
-		manager := docker_support.NewSwarmClientManager(localClient, certs, args.Timeout, agentManager, args.Filter)
-		multiHostService := docker_support.NewMultiHostService(manager, args.Timeout)
+		agentManager := hostservice.NewRetriableClientManager(args.RemoteAgent, args.Timeout, certs)
+		manager := hostservice.NewSwarmClientManager(localClient, certs, args.Timeout, agentManager, args.Filter)
+		multiHostService := hostservice.NewMultiHostService(manager, args.Timeout)
 		if err := multiHostService.StartNotificationManager(ctx); err != nil {
 			log.Fatal().Err(err).Msg("Could not start notification manager")
 		}
@@ -125,7 +123,7 @@ func main() {
 			log.Fatal().Err(err).Msg("failed to listen")
 		}
 		// Create client service for agent server in swarm mode
-		clientService := docker_support.NewDockerClientService(localClient, args.Filter)
+		clientService := docker.NewDockerClientService(localClient, args.Filter)
 		server, err := agent.NewServer(clientService, certs, args.Version(), multiHostService.SwarmNotificationHandler())
 		if err != nil {
 			log.Fatal().Err(err).Msg("failed to create agent")
@@ -143,7 +141,7 @@ func main() {
 			log.Fatal().Err(err).Msg("Could not create k8s client")
 		}
 
-		clusterService, err := k8s_support.NewK8sClusterService(localClient, args.Timeout)
+		clusterService, err := hostservice.NewK8sClusterService(localClient, args.Timeout)
 		if err != nil {
 			log.Fatal().Err(err).Msg("Could not create k8s cluster service")
 		}
@@ -188,7 +186,7 @@ func main() {
 
 	// In swarm mode, peer broadcasts of cloud config should kick this
 	// replica's cloud client too, so every replica holds its own connection.
-	if mhs, ok := hostService.(*docker_support.MultiHostService); ok {
+	if mhs, ok := hostService.(*hostservice.MultiHostService); ok {
 		mhs.SetCloudNotifyFunc(cloudClient.Notify)
 	}
 
@@ -497,20 +495,20 @@ func createServer(args cli.Args, hostService web.HostService, cloudHooks web.Clo
 // unreachable agents to be re-dialed, which costs a connection attempt each —
 // only the periodic fan-out calls pay it.
 type cloudHostService struct {
-	services func(retry bool) []container_support.ClientService
+	services func(retry bool) []container.ClientService
 	// hs is the underlying host service, used only to learn when a previously
 	// unreachable host becomes available so log and stat subscriptions can be
 	// extended to it.
 	hs web.HostService
 
 	mu      sync.Mutex
-	hostIDs map[container_support.ClientService]string
+	hostIDs map[container.ClientService]string
 }
 
 func newCloudHostService(mode string, hs web.HostService) cloud.LogStreamHostService {
-	services := func(bool) []container_support.ClientService { return hs.LocalClientServices() }
+	services := func(bool) []container.ClientService { return hs.LocalClientServices() }
 	if mode != "swarm" {
-		if mhs, ok := hs.(*docker_support.MultiHostService); ok {
+		if mhs, ok := hs.(*hostservice.MultiHostService); ok {
 			services = mhs.ClientServices
 		}
 	}
@@ -522,7 +520,7 @@ func newCloudHostService(mode string, hs web.HostService) cloud.LogStreamHostSer
 	return &cloudHostService{
 		services: services,
 		hs:       hs,
-		hostIDs:  make(map[container_support.ClientService]string),
+		hostIDs:  make(map[container.ClientService]string),
 	}
 }
 
@@ -546,7 +544,7 @@ func (l *cloudHostService) hostTimeout() (context.Context, context.CancelFunc) {
 // cache both dial and both store, which costs one redundant call and writes the
 // same id twice; holding the lock instead would serialise every caller behind a
 // network round trip, including callers asking about other hosts.
-func (l *cloudHostService) hostID(s container_support.ClientService) string {
+func (l *cloudHostService) hostID(s container.ClientService) string {
 	l.mu.Lock()
 	id, ok := l.hostIDs[s]
 	l.mu.Unlock()
@@ -599,7 +597,7 @@ func (l *cloudHostService) ListAllContainers(labels container.ContainerLabels) (
 	return all, errs
 }
 
-func (l *cloudHostService) FindContainer(host string, id string, labels container.ContainerLabels) (*container_support.ContainerService, error) {
+func (l *cloudHostService) FindContainer(host string, id string, labels container.ContainerLabels) (*container.ContainerService, error) {
 	// No retry: this runs once per log reader, and a run of them against an
 	// unreachable agent would each wait out the dial timeout.
 	for _, s := range l.services(false) {
@@ -612,7 +610,7 @@ func (l *cloudHostService) FindContainer(host string, id string, labels containe
 		if err != nil {
 			return nil, err
 		}
-		return container_support.NewContainerService(s, cont), nil
+		return container.NewContainerService(s, cont), nil
 	}
 	return nil, fmt.Errorf("host %s is not served by this Dozzle instance", host)
 }
@@ -655,7 +653,7 @@ func (l *cloudHostService) SubscribeStats(ctx context.Context, samples chan<- cl
 	// One inbound channel + forwarder goroutine per service, matching
 	// SubscribeContainersStarted: a burst on one service must not stall the others.
 	var dropWarn sync.Once
-	subscribed := make(map[container_support.ClientService]bool)
+	subscribed := make(map[container.ClientService]bool)
 	attach := func() {
 		for _, s := range l.services(false) {
 			if subscribed[s] {
@@ -700,10 +698,10 @@ func (l *cloudHostService) SubscribeStats(ctx context.Context, samples chan<- cl
 	l.watchNewServices(ctx, attach)
 }
 
-func (l *cloudHostService) SubscribeContainersStarted(ctx context.Context, containers chan<- container.Container, filter container_support.ContainerFilter) {
+func (l *cloudHostService) SubscribeContainersStarted(ctx context.Context, containers chan<- container.Container, filter container.ContainerFilter) {
 	// One inbound channel + forwarder goroutine per service so a slow consumer
 	// or a burst on one service can't cause the others to drop events.
-	subscribed := make(map[container_support.ClientService]bool)
+	subscribed := make(map[container.ClientService]bool)
 	attach := func() {
 		for _, s := range l.services(false) {
 			if subscribed[s] {

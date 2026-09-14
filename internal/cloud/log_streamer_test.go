@@ -10,7 +10,6 @@ import (
 
 	"github.com/amir20/dozzle/internal/container"
 	"github.com/amir20/dozzle/internal/imagecheck"
-	container_support "github.com/amir20/dozzle/internal/support/container"
 	pb "github.com/amir20/dozzle/proto/cloud"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -101,7 +100,7 @@ func (f *fakeHostService) ListAllContainers(_ container.ContainerLabels) ([]cont
 	return append([]container.Container(nil), f.containers...), nil
 }
 
-func (f *fakeHostService) FindContainer(host string, id string, _ container.ContainerLabels) (*container_support.ContainerService, error) {
+func (f *fakeHostService) FindContainer(host string, id string, _ container.ContainerLabels) (*container.ContainerService, error) {
 	f.mu.Lock()
 	defer f.mu.Unlock()
 	client, ok := f.clients[host]
@@ -110,7 +109,7 @@ func (f *fakeHostService) FindContainer(host string, id string, _ container.Cont
 	}
 	for _, c := range f.containers {
 		if c.ID == id && c.Host == host {
-			return container_support.NewContainerService(client, c), nil
+			return container.NewContainerService(client, c), nil
 		}
 	}
 	return nil, assert.AnError
@@ -126,7 +125,7 @@ func (f *fakeHostService) Hosts() []container.Host {
 	return hosts
 }
 
-func (f *fakeHostService) SubscribeContainersStarted(_ context.Context, ch chan<- container.Container, _ container_support.ContainerFilter) {
+func (f *fakeHostService) SubscribeContainersStarted(_ context.Context, ch chan<- container.Container, _ container.ContainerFilter) {
 	f.mu.Lock()
 	f.startedCh = ch
 	f.mu.Unlock()

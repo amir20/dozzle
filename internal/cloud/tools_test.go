@@ -9,7 +9,6 @@ import (
 
 	"github.com/amir20/dozzle/internal/container"
 	"github.com/amir20/dozzle/internal/imagecheck"
-	container_support "github.com/amir20/dozzle/internal/support/container"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
@@ -82,12 +81,12 @@ func (m *MockHostService) ListAllContainers(labels container.ContainerLabels) ([
 	return containers, errs
 }
 
-func (m *MockHostService) FindContainer(host string, id string, labels container.ContainerLabels) (*container_support.ContainerService, error) {
+func (m *MockHostService) FindContainer(host string, id string, labels container.ContainerLabels) (*container.ContainerService, error) {
 	args := m.Called(host, id, labels)
 	if args.Get(0) == nil {
 		return nil, args.Error(1)
 	}
-	return args.Get(0).(*container_support.ContainerService), args.Error(1)
+	return args.Get(0).(*container.ContainerService), args.Error(1)
 }
 
 func (m *MockHostService) Hosts() []container.Host {
@@ -201,7 +200,7 @@ func TestExecuteTool_RestartContainer(t *testing.T) {
 	mockClient := &MockClientService{}
 	mockClient.On("ContainerAction", mock.Anything, mock.Anything, container.Restart).Return(nil)
 
-	cs := container_support.NewContainerService(mockClient, container.Container{ID: "abc123", Name: "nginx", Host: "local"})
+	cs := container.NewContainerService(mockClient, container.Container{ID: "abc123", Name: "nginx", Host: "local"})
 
 	mockHost := &MockHostService{}
 	withResolver(mockHost, container.Container{ID: "abc123", Name: "nginx", Host: "local"})
@@ -223,7 +222,7 @@ func TestExecuteTool_RemoveContainer(t *testing.T) {
 	mockClient := &MockClientService{}
 	mockClient.On("ContainerAction", mock.Anything, mock.Anything, container.Remove).Return(nil)
 
-	cs := container_support.NewContainerService(mockClient, container.Container{ID: "abc123", Name: "nginx", Host: "local"})
+	cs := container.NewContainerService(mockClient, container.Container{ID: "abc123", Name: "nginx", Host: "local"})
 
 	mockHost := &MockHostService{}
 	withResolver(mockHost, container.Container{ID: "abc123", Name: "nginx", Host: "local"})

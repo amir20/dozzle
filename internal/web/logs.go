@@ -22,7 +22,6 @@ import (
 
 	"github.com/amir20/dozzle/internal/auth"
 	"github.com/amir20/dozzle/internal/container"
-	container_support "github.com/amir20/dozzle/internal/support/container"
 	support_web "github.com/amir20/dozzle/internal/support/web"
 	"github.com/amir20/dozzle/internal/utils"
 	"github.com/dustin/go-humanize"
@@ -374,7 +373,7 @@ func (h *handler) streamHostLogs(w http.ResponseWriter, r *http.Request) {
 // can match lives on. Listing just that host skips the fleet-wide fan-out, which
 // re-dials every unreachable agent at up to --timeout each before the first log
 // line can be read. Streams that legitimately span hosts pass "".
-func (h *handler) streamLogsForContainers(w http.ResponseWriter, r *http.Request, containerFilter container_support.ContainerFilter, hostScope string) {
+func (h *handler) streamLogsForContainers(w http.ResponseWriter, r *http.Request, containerFilter container.ContainerFilter, hostScope string) {
 	stdTypes := parseStdTypes(r)
 	if stdTypes == 0 {
 		http.Error(w, "stdout or stderr is required", http.StatusBadRequest)
@@ -467,7 +466,7 @@ func (h *handler) streamLogsForContainers(w http.ResponseWriter, r *http.Request
 			// Resolved once, not per scan window: for an agent host FindContainer is
 			// a gRPC round-trip, and the walk below re-visits every container on each
 			// widening pass. Container metadata doesn't change under us mid-scan.
-			services := make([]*container_support.ContainerService, 0, len(existingContainers))
+			services := make([]*container.ContainerService, 0, len(existingContainers))
 			for _, c := range existingContainers {
 				containerService, err := h.hostService.FindContainer(c.Host, c.ID, userLabels)
 				if err != nil {
@@ -529,7 +528,7 @@ func (h *handler) streamLogsForContainers(w http.ResponseWriter, r *http.Request
 		}()
 	}
 
-	streamLogsFor := func(containerService *container_support.ContainerService) {
+	streamLogsFor := func(containerService *container.ContainerService) {
 		c := containerService.Container
 		start := utils.Max(absoluteTime, c.StartedAt)
 		// Must stay a local: one of these runs per container, and the handler's

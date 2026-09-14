@@ -1,4 +1,4 @@
-package docker_support
+package hostservice
 
 import (
 	"context"
@@ -11,7 +11,6 @@ import (
 	"github.com/amir20/dozzle/internal/migration"
 	"github.com/amir20/dozzle/internal/notification"
 	"github.com/amir20/dozzle/internal/notification/dispatcher"
-	container_support "github.com/amir20/dozzle/internal/support/container"
 	"github.com/amir20/dozzle/types"
 	"github.com/rs/zerolog/log"
 	lop "github.com/samber/lo/parallel"
@@ -27,13 +26,13 @@ func (h *HostUnavailableError) Error() string {
 }
 
 type ClientManager interface {
-	Find(id string) (container_support.ClientService, bool)
-	List() []container_support.ClientService
-	RetryAndList() ([]container_support.ClientService, []error)
+	Find(id string) (container.ClientService, bool)
+	List() []container.ClientService
+	RetryAndList() ([]container.ClientService, []error)
 	Subscribe(ctx context.Context, channel chan<- container.Host)
 	Hosts(ctx context.Context) []container.Host
 	LocalClients() []container.Client
-	LocalClientServices() []container_support.ClientService
+	LocalClientServices() []container.ClientService
 }
 
 type MultiHostService struct {
@@ -53,19 +52,19 @@ func NewMultiHostService(manager ClientManager, timeout time.Duration) *MultiHos
 	return m
 }
 
-func (m *MultiHostService) FindContainer(host string, id string, labels container.ContainerLabels) (*container_support.ContainerService, error) {
+func (m *MultiHostService) FindContainer(host string, id string, labels container.ContainerLabels) (*container.ContainerService, error) {
 	client, ok := m.manager.Find(host)
 	if !ok {
 		return nil, fmt.Errorf("host %s not found", host)
 	}
 	ctx, cancel := context.WithTimeout(context.Background(), m.timeout)
 	defer cancel()
-	container, err := client.FindContainer(ctx, id, labels)
+	c, err := client.FindContainer(ctx, id, labels)
 	if err != nil {
 		return nil, err
 	}
 
-	return container_support.NewContainerService(client, container), nil
+	return container.NewContainerService(client, c), nil
 }
 
 func (m *MultiHostService) ListContainersForHost(host string, labels container.ContainerLabels) ([]container.Container, error) {
@@ -87,7 +86,7 @@ func (m *MultiHostService) ListAllContainers(labels container.ContainerLabels) (
 		err        error
 	}
 
-	results := lop.Map(clients, func(client container_support.ClientService, _ int) result {
+	results := lop.Map(clients, func(client container.ClientService, _ int) result {
 		ctx, cancel := context.WithTimeout(context.Background(), m.timeout)
 		defer cancel()
 
@@ -114,7 +113,7 @@ func (m *MultiHostService) ListAllContainers(labels container.ContainerLabels) (
 	return containers, errors
 }
 
-func (m *MultiHostService) ListAllContainersFiltered(userLabels container.ContainerLabels, filter container_support.ContainerFilter) ([]container.Container, []error) {
+func (m *MultiHostService) ListAllContainersFiltered(userLabels container.ContainerLabels, filter container.ContainerFilter) ([]container.Container, []error) {
 	containers, err := m.ListAllContainers(userLabels)
 	filtered := make([]container.Container, 0, len(containers))
 	for _, container := range containers {
@@ -132,7 +131,7 @@ func (m *MultiHostService) SubscribeEventsAndStats(ctx context.Context, events c
 	}
 }
 
-func (m *MultiHostService) SubscribeContainersStarted(ctx context.Context, containers chan<- container.Container, filter container_support.ContainerFilter) {
+func (m *MultiHostService) SubscribeContainersStarted(ctx context.Context, containers chan<- container.Container, filter container.ContainerFilter) {
 	newContainers := make(chan container.Container)
 	for _, client := range m.manager.List() {
 		client.SubscribeContainersStarted(ctx, newContainers)
@@ -184,7 +183,7 @@ func (m *MultiHostService) LocalClients() []container.Client {
 	return m.manager.LocalClients()
 }
 
-func (m *MultiHostService) LocalClientServices() []container_support.ClientService {
+func (m *MultiHostService) LocalClientServices() []container.ClientService {
 	return m.manager.LocalClientServices()
 }
 
@@ -197,7 +196,7 @@ func (m *MultiHostService) LocalClientServices() []container_support.ClientServi
 // one that came up since joins the returned set. It costs a connection attempt
 // per still-unreachable agent, up to the configured timeout each — pass it on
 // the periodic fan-out calls, not on per-container lookups.
-func (m *MultiHostService) ClientServices(retry bool) []container_support.ClientService {
+func (m *MultiHostService) ClientServices(retry bool) []container.ClientService {
 	if !retry {
 		return m.manager.List()
 	}

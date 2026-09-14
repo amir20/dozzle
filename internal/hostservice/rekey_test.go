@@ -1,4 +1,4 @@
-package docker_support
+package hostservice
 
 import (
 	"context"
@@ -8,7 +8,6 @@ import (
 	"time"
 
 	"github.com/amir20/dozzle/internal/container"
-	container_support "github.com/amir20/dozzle/internal/support/container"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -16,7 +15,7 @@ import (
 // stubService answers only Host. RetriableClientManager should not be calling
 // anything else while it decides where a client belongs.
 type stubService struct {
-	container_support.ClientService
+	container.ClientService
 	host container.Host
 	err  error
 }
@@ -25,7 +24,7 @@ func (s *stubService) Host(context.Context) (container.Host, error) {
 	return s.host, s.err
 }
 
-func managerWith(clients map[string]container_support.ClientService) *RetriableClientManager {
+func managerWith(clients map[string]container.ClientService) *RetriableClientManager {
 	m := NewRetriableClientManager(nil, time.Second, tls.Certificate{})
 	m.clients = clients
 	return m
@@ -40,7 +39,7 @@ func managerWith(clients map[string]container_support.ClientService) *RetriableC
 // was restarted.
 func TestRetriableClientManager_RekeysRestartedAgent(t *testing.T) {
 	service := &stubService{host: container.Host{ID: "new", Name: "node-1"}}
-	m := managerWith(map[string]container_support.ClientService{"old": service})
+	m := managerWith(map[string]container.ClientService{"old": service})
 
 	hosts := m.Hosts(t.Context())
 
@@ -57,7 +56,7 @@ func TestRetriableClientManager_RekeysRestartedAgent(t *testing.T) {
 
 func TestRetriableClientManager_RekeyNotifiesSubscribers(t *testing.T) {
 	service := &stubService{host: container.Host{ID: "new", Name: "node-1"}}
-	m := managerWith(map[string]container_support.ClientService{"old": service})
+	m := managerWith(map[string]container.ClientService{"old": service})
 
 	updates := make(chan container.Host, 1)
 	m.Subscribe(t.Context(), updates)
@@ -77,7 +76,7 @@ func TestRetriableClientManager_RekeyNotifiesSubscribers(t *testing.T) {
 // stale id is not evidence of anything, so the map is left exactly as it is.
 func TestRetriableClientManager_DoesNotRekeyUnavailableHost(t *testing.T) {
 	service := &stubService{host: container.Host{ID: "cached", Name: "node-1"}, err: errors.New("unreachable")}
-	m := managerWith(map[string]container_support.ClientService{"old": service})
+	m := managerWith(map[string]container.ClientService{"old": service})
 
 	m.Hosts(t.Context())
 
@@ -91,7 +90,7 @@ func TestRetriableClientManager_DoesNotRekeyUnavailableHost(t *testing.T) {
 func TestRetriableClientManager_DoesNotClobberAnotherHost(t *testing.T) {
 	drifted := &stubService{host: container.Host{ID: "shared", Name: "node-1"}}
 	incumbent := &stubService{host: container.Host{ID: "shared", Name: "node-2"}}
-	m := managerWith(map[string]container_support.ClientService{
+	m := managerWith(map[string]container.ClientService{
 		"old":    drifted,
 		"shared": incumbent,
 	})
@@ -108,7 +107,7 @@ func TestRetriableClientManager_DoesNotClobberAnotherHost(t *testing.T) {
 
 func TestRetriableClientManager_LeavesStableHostAlone(t *testing.T) {
 	service := &stubService{host: container.Host{ID: "same", Name: "node-1"}}
-	m := managerWith(map[string]container_support.ClientService{"same": service})
+	m := managerWith(map[string]container.ClientService{"same": service})
 
 	updates := make(chan container.Host, 1)
 	m.Subscribe(t.Context(), updates)

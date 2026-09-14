@@ -1,4 +1,4 @@
-package k8s_support
+package hostservice
 
 import (
 	"context"
@@ -10,13 +10,12 @@ import (
 	"github.com/amir20/dozzle/internal/migration"
 	"github.com/amir20/dozzle/internal/notification"
 	"github.com/amir20/dozzle/internal/notification/dispatcher"
-	container_support "github.com/amir20/dozzle/internal/support/container"
 	"github.com/amir20/dozzle/types"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
 type K8sClusterService struct {
-	client              *K8sClientService
+	client              *k8s.K8sClientService
 	timeout             time.Duration
 	hosts               []container.Host
 	notificationManager *notification.Manager
@@ -47,19 +46,19 @@ func NewK8sClusterService(client *k8s.K8sClient, timeout time.Duration) (*K8sClu
 	}
 
 	return &K8sClusterService{
-		client:  NewK8sClientService(client, container.ContainerLabels{}),
+		client:  k8s.NewK8sClientService(client, container.ContainerLabels{}),
 		timeout: timeout,
 		hosts:   hosts,
 	}, nil
 }
 
-func (m *K8sClusterService) FindContainer(host string, id string, labels container.ContainerLabels) (*container_support.ContainerService, error) {
-	container, err := m.client.FindContainer(context.Background(), id, labels)
+func (m *K8sClusterService) FindContainer(host string, id string, labels container.ContainerLabels) (*container.ContainerService, error) {
+	c, err := m.client.FindContainer(context.Background(), id, labels)
 	if err != nil {
 		return nil, err
 	}
 
-	return container_support.NewContainerService(m.client, container), nil
+	return container.NewContainerService(m.client, c), nil
 }
 
 func (m *K8sClusterService) ListContainersForHost(host string, labels container.ContainerLabels) ([]container.Container, error) {
@@ -86,7 +85,7 @@ func (m *K8sClusterService) ListAllContainers(labels container.ContainerLabels) 
 	return containers, nil
 }
 
-func (m *K8sClusterService) ListAllContainersFiltered(userLabels container.ContainerLabels, filter container_support.ContainerFilter) ([]container.Container, []error) {
+func (m *K8sClusterService) ListAllContainersFiltered(userLabels container.ContainerLabels, filter container.ContainerFilter) ([]container.Container, []error) {
 	containers, err := m.ListAllContainers(userLabels)
 	filtered := make([]container.Container, 0, len(containers))
 	for _, container := range containers {
@@ -102,7 +101,7 @@ func (m *K8sClusterService) SubscribeEventsAndStats(ctx context.Context, events 
 	m.client.SubscribeStats(ctx, stats)
 }
 
-func (m *K8sClusterService) SubscribeContainersStarted(ctx context.Context, containers chan<- container.Container, filter container_support.ContainerFilter) {
+func (m *K8sClusterService) SubscribeContainersStarted(ctx context.Context, containers chan<- container.Container, filter container.ContainerFilter) {
 	newContainers := make(chan container.Container)
 	m.client.SubscribeContainersStarted(ctx, newContainers)
 	go func() {
@@ -128,18 +127,18 @@ func (m *K8sClusterService) Hosts() []container.Host {
 }
 
 func (m *K8sClusterService) LocalHost() (container.Host, error) {
-	return m.client.client.Host(), nil
+	return m.client.Client().Host(), nil
 }
 
 func (m *K8sClusterService) SubscribeAvailableHosts(ctx context.Context, hosts chan<- container.Host) {
 }
 
 func (m *K8sClusterService) LocalClients() []container.Client {
-	return []container.Client{m.client.client}
+	return []container.Client{m.client.Client()}
 }
 
-func (m *K8sClusterService) LocalClientServices() []container_support.ClientService {
-	return []container_support.ClientService{m.client}
+func (m *K8sClusterService) LocalClientServices() []container.ClientService {
+	return []container.ClientService{m.client}
 }
 
 // StartNotificationManager initializes and starts the notification manager for k8s mode

@@ -8,7 +8,6 @@ import (
 	"time"
 
 	"github.com/amir20/dozzle/internal/container"
-	container_support "github.com/amir20/dozzle/internal/support/container"
 	pb "github.com/amir20/dozzle/proto/cloud"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -28,7 +27,7 @@ func (f *fakeStatsHostService) ListAllContainers(_ container.ContainerLabels) ([
 	return f.containers, nil
 }
 
-func (f *fakeStatsHostService) FindContainer(_ string, _ string, _ container.ContainerLabels) (*container_support.ContainerService, error) {
+func (f *fakeStatsHostService) FindContainer(_ string, _ string, _ container.ContainerLabels) (*container.ContainerService, error) {
 	return nil, nil
 }
 

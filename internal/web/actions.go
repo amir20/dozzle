@@ -5,13 +5,12 @@ import (
 
 	"github.com/amir20/dozzle/internal/auth"
 	"github.com/amir20/dozzle/internal/container"
-	container_support "github.com/amir20/dozzle/internal/support/container"
 	support_web "github.com/amir20/dozzle/internal/support/web"
 	"github.com/go-chi/chi/v5"
 	"github.com/rs/zerolog/log"
 )
 
-func (h *handler) findContainerWithActions(w http.ResponseWriter, r *http.Request) (*container_support.ContainerService, bool) {
+func (h *handler) findContainerWithActions(w http.ResponseWriter, r *http.Request) (*container.ContainerService, bool) {
 	id := chi.URLParam(r, "id")
 
 	userLabels := h.config.Labels

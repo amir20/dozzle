@@ -1,4 +1,4 @@
-package k8s_support
+package k8s
 
 import (
 	"context"
@@ -11,17 +11,16 @@ import (
 	"time"
 
 	"github.com/amir20/dozzle/internal/container"
-	"github.com/amir20/dozzle/internal/container/k8s"
 	"github.com/amir20/dozzle/internal/imagecheck"
 )
 
 type K8sClientService struct {
-	client *k8s.K8sClient
+	client *K8sClient
 	store  *container.ContainerStore
 }
 
-func NewK8sClientService(client *k8s.K8sClient, labels container.ContainerLabels) *K8sClientService {
-	statsCollector, err := k8s.NewK8sStatsCollector(client, labels)
+func NewK8sClientService(client *K8sClient, labels container.ContainerLabels) *K8sClientService {
+	statsCollector, err := NewK8sStatsCollector(client, labels)
 	if err != nil {
 		log.Fatal().Err(err).Msg("Could not create k8s stats collector")
 	}
@@ -29,6 +28,11 @@ func NewK8sClientService(client *k8s.K8sClient, labels container.ContainerLabels
 		client: client,
 		store:  container.NewContainerStore(context.Background(), client, statsCollector, labels),
 	}
+}
+
+// Client returns the underlying k8s client.
+func (k *K8sClientService) Client() *K8sClient {
+	return k.client
 }
 
 func (k *K8sClientService) FindContainer(ctx context.Context, id string, labels container.ContainerLabels) (container.Container, error) {
@@ -53,7 +57,7 @@ func (k *K8sClientService) LogsBetweenDates(ctx context.Context, c container.Con
 		return nil, err
 	}
 
-	k8sReader := k8s.NewLogReader(reader)
+	k8sReader := NewLogReader(reader)
 	g := container.NewEventGenerator(ctx, k8sReader, c)
 	return g.Events, nil
 }
@@ -68,7 +72,7 @@ func (k *K8sClientService) StreamLogs(ctx context.Context, c container.Container
 		return err
 	}
 
-	k8sReader := k8s.NewLogReader(reader)
+	k8sReader := NewLogReader(reader)
 	g := container.NewEventGenerator(ctx, k8sReader, c)
 	for event := range g.Events {
 		select {
