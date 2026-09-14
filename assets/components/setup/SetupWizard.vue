@@ -1,5 +1,12 @@
 <template>
-  <StepModal ref="modal" :title="$t('setup.title')" :steps="railSteps" @close="onClose" @cancel="onCancel">
+  <StepModal
+    ref="modal"
+    :title="$t('setup.title')"
+    :steps="railSteps"
+    @close="onClose"
+    @cancel="onCancel"
+    @select="goTo"
+  >
     <template v-if="status && currentId">
       <SetupLoginStep v-if="currentId === 'login'" ref="step" :status="status" :next-step="steps[index + 1]" />
       <SetupActionsStep v-else-if="currentId === 'actions'" ref="step" :status="status" />
@@ -58,6 +65,9 @@ const handle = useTemplateRef<SetupStepHandle>("step");
 const steps = ref<SetupStepId[]>([]);
 const index = ref(0);
 const skipped = ref(new Set<SetupStepId>());
+// Steps left through Next. The rail can jump anywhere, so being behind the current
+// step no longer means a step was done.
+const completed = ref(new Set<SetupStepId>());
 
 const currentId = computed<SetupStepId | undefined>(() => steps.value[index.value]);
 const isLast = computed(() => index.value >= steps.value.length - 1 && steps.value.length > 0);
@@ -65,12 +75,9 @@ const busy = computed(() => !!handle.value?.busy);
 
 function stateOf(id: SetupStepId, i: number): SetupStepState {
   if (i === index.value) return "current";
+  if (id === "login" && status.value && setupLoginConfigured(status.value)) return "done";
   if (skipped.value.has(id)) return "skipped";
-  if (id === "login" && status.value) {
-    if (setupLoginConfigured(status.value)) return "done";
-    return i < index.value ? "skipped" : "todo";
-  }
-  return i < index.value ? "done" : "todo";
+  return completed.value.has(id) ? "done" : "todo";
 }
 
 const notes: Partial<Record<SetupStepId, string>> = {
@@ -84,8 +91,15 @@ const railSteps = computed(() =>
     label: t(`setup.steps.${id}`),
     note: notes[id] ? t(notes[id]) : undefined,
     state: stateOf(id, i),
+    // Not mid-save or mid-restart, where leaving the step would strand the work.
+    selectable: i !== index.value && !busy.value,
   })),
 );
+
+function goTo(i: number) {
+  if (busy.value || i === index.value || !steps.value[i]) return;
+  index.value = i;
+}
 
 // A restart or the cloud round trip left a marker naming the step to come back to.
 // When the page came back from Cloud, the wizard owns that return: the hash is
@@ -101,6 +115,7 @@ if (resumeAtLoad && window.location.hash === "#cloudLinked") {
 // status first, so a server without the setup API never flashes an error at anyone.
 async function open(startAt: SetupStepId | undefined, auto: boolean) {
   skipped.value = new Set();
+  completed.value = new Set();
   steps.value = [];
   index.value = 0;
   if (!auto) modal.value?.open();
@@ -119,6 +134,9 @@ async function open(startAt: SetupStepId | undefined, auto: boolean) {
   if (startAt) {
     const at = steps.value.indexOf(startAt);
     index.value = at >= 0 ? at : steps.value.length - 1;
+    // Resuming after a restart or the cloud round trip: everything before was done
+    // in the part of the session that just ended.
+    completed.value = new Set(steps.value.slice(0, index.value));
   } else if (steps.value[0] === "login" && s.authProvider !== "none") {
     index.value = 1;
   }
@@ -151,7 +169,15 @@ function back() {
 
 function advance(skip = false) {
   const id = currentId.value;
-  if (skip && id) skipped.value.add(id);
+  if (id) {
+    if (skip) {
+      skipped.value.add(id);
+      completed.value.delete(id);
+    } else {
+      completed.value.add(id);
+      skipped.value.delete(id);
+    }
+  }
   if (isLast.value) {
     close();
     return;

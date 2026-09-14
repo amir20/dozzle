@@ -1,5 +1,11 @@
 <template>
-  <StepModal ref="modal" :title="$t('cloud-rail.title')" :steps="railSteps" @close="onClose">
+  <StepModal
+    ref="modal"
+    :title="$t('cloud-rail.title')"
+    :steps="railSteps"
+    @close="onClose"
+    @select="(i) => (step = i + 1)"
+  >
     <!-- ------------------------------------------------------------------
       Step 1 — what Cloud already does on its own.
 
@@ -292,7 +298,8 @@ const railSteps = computed(() => {
     let state: StepModalState = n === step.value ? "current" : n < step.value ? "done" : "todo";
     // Passing the alerts step without turning any on reads as skipped, not done.
     if (id === "alerts" && step.value > 2 && createdCount.value === 0) state = "skipped";
-    return { id, label: t(`cloud.welcome.steps.${id}`), state };
+    // Back only: jumping ahead would pass the alerts step without deciding on it.
+    return { id, label: t(`cloud.welcome.steps.${id}`), state, selectable: n < step.value && !creating.value };
   });
 });
 

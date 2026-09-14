@@ -5,26 +5,36 @@
       <aside class="bg-base-200/60 border-base-content/10 w-55 shrink-0 border-r p-5 max-md:hidden">
         <div class="text-base font-semibold">{{ title }}</div>
         <ol class="mt-5 flex flex-col gap-1">
-          <li
-            v-for="(step, i) in steps"
-            :key="step.id"
-            class="flex items-start gap-2.5 rounded-md px-2 py-1.5"
-            :class="{ 'bg-base-300': step.state === 'current' }"
-            :aria-current="step.state === 'current' ? 'step' : undefined"
-          >
-            <span
-              class="mt-px flex size-5 shrink-0 items-center justify-center rounded-full text-xs font-semibold"
-              :class="chipClass[step.state]"
+          <li v-for="(step, i) in steps" :key="step.id">
+            <!-- A button only when the parent says the step can be jumped to, so a
+                 disabled or current step never looks clickable. -->
+            <component
+              :is="step.selectable ? 'button' : 'div'"
+              :type="step.selectable ? 'button' : undefined"
+              class="flex w-full items-start gap-2.5 rounded-md px-2 py-1.5 text-left"
+              :class="{
+                'bg-base-300': step.state === 'current',
+                'hover:bg-base-300 transition-colors': step.selectable,
+              }"
+              :aria-current="step.state === 'current' ? 'step' : undefined"
+              :aria-disabled="step.state === 'disabled' ? true : undefined"
+              @click="step.selectable && $emit('select', i)"
             >
-              <mdi:check v-if="step.state === 'done'" class="size-3.5" />
-              <template v-else>{{ i + 1 }}</template>
-            </span>
-            <span class="min-w-0">
-              <span class="block text-sm" :class="step.state === 'current' ? 'font-semibold' : 'text-base-content/70'">
-                {{ step.label }}
+              <span
+                class="mt-px flex size-5 shrink-0 items-center justify-center rounded-full text-xs font-semibold"
+                :class="chipClass[step.state]"
+              >
+                <mdi:check v-if="step.state === 'done'" class="size-3.5" />
+                <mdi:lock-outline v-else-if="step.state === 'disabled'" class="size-3" />
+                <template v-else>{{ i + 1 }}</template>
               </span>
-              <span v-if="step.note" class="text-base-content/40 block text-xs">{{ step.note }}</span>
-            </span>
+              <span class="min-w-0">
+                <span class="block text-sm" :class="labelClass[step.state]">
+                  {{ step.label }}
+                </span>
+                <span v-if="step.note" class="text-base-content/40 block text-xs">{{ step.note }}</span>
+              </span>
+            </component>
           </li>
         </ol>
       </aside>
@@ -57,16 +67,19 @@
 <script lang="ts" setup>
 // The frame shared by every multi-step modal: a numbered rail, a scrolling body and
 // a sticky footer. The parent owns what the steps are and what the buttons do.
-export type StepModalState = "done" | "current" | "todo" | "skipped";
+// "disabled" is a step that exists but cannot be used yet; its note should say why.
+export type StepModalState = "done" | "current" | "todo" | "skipped" | "disabled";
 export interface StepModalStep {
   id: string;
   label: string;
   note?: string;
   state: StepModalState;
+  // Whether clicking the step in the rail jumps to it.
+  selectable?: boolean;
 }
 
 defineProps<{ title: string; steps: StepModalStep[] }>();
-defineEmits<{ close: []; cancel: [event: Event] }>();
+defineEmits<{ close: []; cancel: [event: Event]; select: [index: number] }>();
 
 const dialog = ref<HTMLDialogElement>();
 
@@ -75,6 +88,15 @@ const chipClass: Record<StepModalState, string> = {
   current: "bg-primary text-primary-content",
   skipped: "border-base-content/30 text-base-content/40 border border-dashed",
   todo: "bg-base-content/10 text-base-content/60",
+  disabled: "bg-base-content/5 text-base-content/30",
+};
+
+const labelClass: Record<StepModalState, string> = {
+  done: "text-base-content/70",
+  current: "font-semibold",
+  skipped: "text-base-content/70",
+  todo: "text-base-content/70",
+  disabled: "text-base-content/40",
 };
 
 const barClass: Record<StepModalState, string> = {
@@ -82,6 +104,7 @@ const barClass: Record<StepModalState, string> = {
   skipped: "bg-primary/45",
   current: "bg-primary",
   todo: "bg-base-content/15",
+  disabled: "bg-base-content/5",
 };
 
 defineExpose({
