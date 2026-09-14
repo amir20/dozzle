@@ -18,6 +18,7 @@ import (
 	"github.com/amir20/dozzle/internal/agent"
 	"github.com/amir20/dozzle/internal/auth"
 	"github.com/amir20/dozzle/internal/cloud"
+	dozzleconfig "github.com/amir20/dozzle/internal/config"
 	"github.com/amir20/dozzle/internal/container"
 	"github.com/amir20/dozzle/internal/docker"
 	"github.com/amir20/dozzle/internal/imagecheck"
@@ -33,6 +34,10 @@ import (
 
 //go:embed all:dist
 var content embed.FS
+
+// freshInstall is whether ./data held nothing from an earlier run when this
+// process started. Only a fresh install gets the no-login setup window.
+var freshInstall bool
 
 //go:embed shared_cert.pem shared_key.pem
 var certs embed.FS
@@ -54,6 +59,10 @@ func main() {
 
 		os.Exit(0)
 	}
+
+	// Read before anything below writes to ./data (profiles, notification rules,
+	// session secrets), so it reflects earlier runs only.
+	freshInstall = dozzleconfig.FreshDataDir(filepath.Dir(dozzleconfig.Path))
 
 	// "github" and "google" are aliases for simple auth. OAuth is a second way to
 	// prove you are one of the users in users.yml, not a provider of its own, but
@@ -409,6 +418,12 @@ func createServer(args cli.Args, hostService web.HostService, cloudHooks web.Clo
 		ImageCheckMode:   imageCheckMode,
 		Labels:           args.Filter,
 		Cloud:            cloudHooks,
+		Setup: web.SetupConfig{
+			LockedAuthProvider:  args.Locked.AuthProvider,
+			LockedEnableActions: args.Locked.EnableActions,
+			LockedEnableShell:   args.Locked.EnableShell,
+			StartedAt:           web.SetupWindowStart(time.Now(), freshInstall),
+		},
 	}
 
 	assets, err := fs.Sub(content, "dist")

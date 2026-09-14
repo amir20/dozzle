@@ -70,7 +70,7 @@ shared_cert.pem: shared_key.pem
 
 .PHONY: run
 run: docker
-	docker run -it --rm -p 8080:8080 -v /var/run/docker.sock:/var/run/docker.sock amir20/dozzle:local
+	docker run -it --rm -p 8080:8080 -v /var/run/docker.sock:/var/run/docker.sock -v /data amir20/dozzle:local
 
 .PHONY: preview
 preview: build

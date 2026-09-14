@@ -621,7 +621,7 @@ cloud:
     turn-on: "Ativar 1 alerta | Ativar {count} alertas"
     turn-on-short: "Ativar"
     continue-without: "Continuar sem alertas"
-    skip-alerts: "Agora não, envie apenas as investigações diárias"
+    skip-alerts: "Agora não"
     ready: "Pronto"
     done-title: "Está tudo preparado"
     done-body: "É aqui que aparece cada tipo de notificação."
@@ -635,6 +635,10 @@ cloud:
     where-tuning: "Ajuste por contentor"
     where-tuning-detail: "Restrinja, silencie ou elimine qualquer regra na página de Notificações."
     done: "Concluído"
+    steps:
+      watching: "O que o Cloud faz"
+      alerts: "Alertas em tempo real"
+      done: "Onde tudo aparece"
     signals:
       exited: "Contentor terminou com erro"
       unhealthy: "Contentor ficou unhealthy"
@@ -747,3 +751,101 @@ command-palette:
   toggle-std: Alternar rótulos stdout/stderr
   toggle-scrollbars: Alternar barras de rolagem menores
   open-settings: Abrir configurações
+setup:
+  title: Configurar o Dozzle
+  next: Próximo
+  back: Voltar
+  finish-later: Terminar depois
+  close: Fechar
+  copy: Copiar
+  settings-title: Configurar o Dozzle
+  settings-desc: Login, ações de contêiner, shell e Dozzle Cloud em poucos passos.
+  settings-open: Abrir configuração
+  steps:
+    login: Login
+    login-note: Faça isto primeiro
+    actions: Ações e shell
+    cloud: Dozzle Cloud
+    cloud-note: Opcional
+    restart: Reiniciar
+  login:
+    title: Ativar login
+    subtitle: Qualquer pessoa que acesse o Dozzle pode ler seus logs. Proteja-o antes de qualquer outra coisa.
+    no-data-title: /data não está montado
+    no-data-body: Usuários e configurações são salvos em /data. Sem um volume, eles somem na próxima vez que o contêiner for recriado. Monte um e verifique novamente.
+    check-again: Verificar novamente
+    tab-account: Conta do Dozzle
+    tab-proxy: Meu proxy
+    tab-oidc: OIDC
+    username: Nome de usuário
+    email: E-mail
+    optional: (opcional)
+    password: Senha
+    confirm: Confirmar senha
+    password-hint: Pelo menos 8 caracteres. Letras, números, pontos, hífens e sublinhados no nome de usuário.
+    saved-volume: Salvo em um volume montado
+    after-restart: O login é ativado após reiniciar
+    on: O login está ativado
+    users-exist: Já existe um users.yml. Defina o provedor de autenticação como simple para usá-lo.
+    create-account: Criar conta
+    proxy-body: Authelia, Authentik, Cloudflare Access e similares autenticam os usuários e depois passam o nome de usuário ao Dozzle no cabeçalho Remote-User.
+    proxy-warning-title: Publique apenas o proxy
+    proxy-warning-body: O Dozzle confia nesse cabeçalho vindo de qualquer um. Se a porta dele estiver acessível, qualquer pessoa pode se passar por qualquer usuário.
+    proxy-docs: Guia de forward proxy
+    use-proxy: Usar meu proxy
+    oidc-body: O OIDC precisa de um client secret, então nada é salvo aqui. Adicione isto ao seu arquivo compose e recrie o contêiner.
+    oidc-docs: Guia de OpenID Connect
+    skip: "Continuar sem login"
+    manual-restart: O Dozzle não consegue se reiniciar aqui. Reinicie o contêiner para ativar o login, ou defina isto no seu arquivo compose.
+    restart-hint: Você chegará à página de login. A configuração continua depois que você entrar.
+  actions:
+    title: Ações e shell
+    subtitle: Decida o que o Dozzle pode fazer com seus contêineres.
+    example-status: Encerrado (1) há 2 minutos
+    example-restart: Reiniciar
+    example: "Exemplo"
+    actions-label: Iniciar, parar e reiniciar
+    actions-desc: Corrija um contêiner que travou na mesma página em que você encontrou o erro.
+    shell-label: Shell
+    shell-desc: Conecte-se a um contêiner ou execute comandos dentro dele.
+    shell-warning: Acesso ao shell de um contêiner muitas vezes equivale a acesso ao host. Deixe desativado a menos que precise.
+    locked: "Definido por {env}"
+    window-closed: "Sem login, a configuração só aceita alterações nos primeiros 15 minutos de uma instalação nova. Defina isto com variáveis de ambiente ou ative o login primeiro."
+    no-access: Sua conta não pode alterar estas configurações.
+    restart-note: Estas alterações entram em vigor depois que o Dozzle reiniciar.
+  cloud:
+    title: Conectar o Dozzle Cloud
+    subtitle: Saiba quando algo quebrar sem precisar manter uma aba aberta.
+    alerts-title: Alertas no momento em que algo quebra
+    alerts-body: Falhas, encerramentos por OOM e picos de erros, enviados por e-mail, Slack ou Discord.
+    summary-title: Um resumo matinal do que corrigir
+    summary-body: Uma lista ordenada dos problemas que merecem seu tempo, todos os dias.
+    history-title: Histórico que sobrevive a reinicializações
+    history-body: Alertas e descobertas continuam lá depois de recarregar, reiniciar ou passar uma semana.
+    connect: Conectar o Dozzle Cloud
+    learn-more: Saiba mais
+    skip: "Agora não"
+  restart:
+    title: Reiniciar o Dozzle
+    subtitle: Estas alterações foram salvas e passam a funcionar após reiniciar.
+    change-auth: Login
+    "on": "Ativado"
+    "off": "Desativado"
+    button: Reiniciar o Dozzle
+    restarting: Reiniciando o Dozzle
+    restarting-hint: A página recarrega assim que o Dozzle voltar.
+    slow-title: Isto está demorando um pouco
+    slow-body: O Dozzle ainda não voltou. Verifique o contêiner e depois recarregue.
+    reload: Recarregar
+    manual: O Dozzle não consegue se reiniciar aqui. Reinicie o contêiner, ou defina isto no seu arquivo compose.
+    done-title: Tudo pronto
+    done-body: Nada precisa ser reiniciado. Você pode voltar aqui pelas Configurações a qualquer momento.
+    nothing-title: "Nada para reiniciar"
+    nothing-body: "Nenhuma etapa foi configurada desta vez. Abra a configuração em Configurações quando quiser."
+    done: Concluído
+  error:
+    generic: Algo deu errado. Tente novamente.
+    load: Não foi possível carregar a configuração. Tente novamente mais tarde.
+    conflict: Isto já está definido, ou fixado por uma variável de ambiente.
+    no-data: /data não está montado, então não é possível salvar isto.
+    window-closed: "Sem login, a configuração só aceita alterações nos primeiros 15 minutos de uma instalação nova. Ative o login com variáveis de ambiente."

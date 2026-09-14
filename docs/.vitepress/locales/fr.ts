@@ -23,6 +23,7 @@ export const fr: Labels = {
   pages: {
     "what-is-dozzle": "Qu'est-ce que Dozzle ?",
     "getting-started": "Démarrage",
+    "setup-wizard": "Assistant de configuration",
     "whats-new": "Nouveautés de la v11",
     "swarm-mode": "Swarm",
     k8s: "Kubernetes",

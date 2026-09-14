@@ -137,6 +137,7 @@ func (h *handler) executeTemplate(w http.ResponseWriter, req *http.Request) {
 		// local cloud is one env var on this process — same as DOLIGENCE_URL,
 		// which is the API half of the same override.
 		config["cloudUrl"] = cloudWebURL()
+		config["dataPersisted"] = profile.Persisted()
 
 		if user != nil {
 			config["enableShell"] = h.config.EnableShell && user.Roles.Has(auth.Shell)
