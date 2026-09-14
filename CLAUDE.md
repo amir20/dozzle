@@ -171,15 +171,27 @@ The Go backend is organized into these key packages:
   - WebSocket/SSE handlers for log streaming (`logs.go`)
   - Authentication middleware and token management (`auth.go`)
   - Container action handlers (`actions.go`)
+  - `sse/`: the SSE writer; `search/`: log filtering, highlighting and HTML escaping
 
-- **`internal/docker/`** - Docker API client implementation
-  - `client.go`: Main Docker client wrapper with container operations
-  - `log_reader.go`: Streaming container logs
-  - `stats_collector.go`: Real-time container stats collection
+- **`internal/container/`** - The generic layer every platform implements
+  - `types.go`, `host.go`: domain models (`Container`, `Host`, `LogEvent`, `ContainerStat`)
+  - `client.go`: `container.Client`, the raw engine interface
+  - `client_service.go`: `container.ClientService`, the per-host contract the rest of the app uses
+  - `container_store.go`: the container cache and stats/event fan-out that docker and k8s share
+  - `logparse/`: the log pipeline both platforms feed (`event_generator.go` grouping and JSON
+    detection, `level_guesser.go`, `logfmt.go`, `timestamp_prefix.go`)
+  - One folder per platform, each holding that platform end to end:
+    - `docker/`: `client.go`, `log_reader.go`, `stats_collector.go`, and `service.go` (`DockerClientService`)
+    - `k8s/`: `client.go`, `log_reader.go`, `stats_collector.go`, and `service.go` (`K8sClientService`)
+    - `agent/`: gRPC `client.go`/`server.go`, `convert.go` (proto conversion), `service.go`, and
+      generated `pb/` (protos in `protos/`)
 
-- **`internal/agent/`** - gRPC agent for multi-host support
-  - Uses Protocol Buffers (protos defined in `protos/`)
-  - Enables distributed log collection across Docker hosts
+- **`internal/hostservice/`** - Orchestration across hosts, one per deployment mode
+  - `multi_host.go`: `MultiHostService` (server and swarm modes)
+  - `retriable_client_manager.go` (server), `swarm_client_manager.go` (swarm)
+  - `k8s_cluster.go`: `K8sClusterService` (k8s mode)
+
+- **`internal/cli/`** - Command-line parsing, subcommands, client wiring (`clients.go`)
 
 - **`internal/cloud/`** - Dozzle Cloud integration (tool execution engine)
   - `client.go`: Bidirectional gRPC stream client with auto-reconnect and exponential backoff
@@ -190,22 +202,10 @@ The Go backend is organized into these key packages:
   - `tools_helpers.go`: Proto conversion utilities and host name resolution
   - Uses `protos/cloud.proto` for service and message definitions
 
-- **`internal/k8s/`** - Kubernetes client support
-  - Alternative to Docker client for k8s deployments
-
-- **`internal/support/`** - Support utilities
-  - `cli/`: Command-line argument parsing and validation
-  - `docker/`: Multi-host Docker management and Swarm support (`docker_service.go`, client managers)
-  - `k8s/`: Kubernetes service abstractions
-  - `web/`: Web service utilities
-
 - **`internal/auth/`** - Authentication providers
   - Simple file-based auth (`simple.go`)
   - Forward proxy auth (`proxy.go`)
   - Role-based authorization (`roles.go`)
-
-- **`internal/container/`** - Container domain models and interfaces
-  - `event_generator.go`: Log parsing and grouping logic (multi-line, JSON detection)
 
 - **`internal/notification/`** - Alert and notification system
   - `manager.go`: Notification rule evaluation and dispatching
@@ -486,9 +486,13 @@ means **two components may never share a basename**, at any depth.
 - Protocol buffer generation happens via `go generate` directive in `main.go`
 - Docker client uses API version negotiation for compatibility
 - **Service Layer Architecture**:
-  - `ClientService` interface abstracts Docker/K8s/Agent backends
-  - `MultiHostService` orchestrates multi-host operations
+  - `container.ClientService` interface abstracts Docker/K8s/Agent backends
+  - `hostservice.MultiHostService` orchestrates multi-host operations
   - `ClientManager` implementations: `RetriableClientManager` (server mode), `SwarmClientManager` (swarm mode)
+- **Where backend code goes**: code that only one platform needs lives in `internal/container/<platform>/`;
+  code docker and k8s share lives in `internal/container/` (or `logparse/` for the log pipeline);
+  code that coordinates several hosts lives in `internal/hostservice/`. `internal/container` never
+  imports a platform package, and platforms never import each other.
 
 ### Authentication
 
@@ -540,20 +544,21 @@ The backend follows a clean layered architecture:
 ```
 HTTP Handlers (internal/web)
     ↓
-HostService Interface (MultiHostService)
+HostService Interface (internal/hostservice)
     ↓
-ClientService Interface (per host)
+container.ClientService Interface (per host)
     ↓
 container.Client Interface
     ↓
-Implementation (DockerClient, K8sClient, AgentClient)
+Implementation (internal/container/{docker,k8s,agent})
 ```
 
 **When adding new container operations:**
 
 1. Define method in `container.Client` interface (`internal/container/client.go`)
-2. Implement in `internal/docker/client.go` (and `internal/k8s/client.go` if applicable)
-3. Add wrapper method in `ClientService` interface (`internal/support/docker/docker_service.go`)
+2. Implement in `internal/container/docker/client.go` (and `internal/container/k8s/client.go` if applicable)
+3. Add it to `container.ClientService` (`internal/container/client_service.go`) and implement it in each
+   platform's `service.go` (`docker/`, `k8s/`, `agent/`)
 4. Add HTTP handler in `internal/web/` with appropriate route
 
 ### Frontend Data Flow
@@ -584,7 +589,7 @@ Implementation (DockerClient, K8sClient, AgentClient)
 3. Method calls translate to gRPC requests defined in `protos/rpc.proto`
 4. Remote agent receives gRPC call, delegates to local `DockerClient`
 5. Streaming RPCs (logs, stats, events) use bidirectional channels
-6. Responses converted back to domain models via `FromProto()` methods
+6. Responses converted back to domain models in `internal/container/agent/convert.go`
 
 ### Cloud Tool Execution Flow
 
@@ -599,8 +604,8 @@ Implementation (DockerClient, K8sClient, AgentClient)
 ### Log Parsing Pipeline
 
 1. Docker API returns multiplexed stream (8-byte headers + payload)
-2. `log_reader.go` parses headers, extracts stdout/stderr type
-3. `event_generator.go` receives raw log lines
+2. `container/docker/log_reader.go` parses headers, extracts stdout/stderr type
+3. `container/logparse/event_generator.go` receives raw log lines
 4. Detection logic identifies:
    - JSON structure → `ComplexLogEntry`
    - Multi-line patterns (stack traces) → `GroupedLogEntry`
@@ -636,9 +641,9 @@ Implementation (DockerClient, K8sClient, AgentClient)
 ### Adding Container Stats/Metrics
 
 1. Add field to `Stat` type in `internal/container/types.go`
-2. Update `stats_collector.go` to extract metric from Docker API response
-3. Add calculation logic in `docker/calculation.go` if needed
-4. Ensure protobuf definition includes field in `protos/rpc.proto`
+2. Update `container/docker/stats_collector.go` (and `container/k8s/stats_collector.go`) to extract the metric
+3. Add calculation logic in `container/docker/calculation.go` if needed
+4. Ensure protobuf definition includes field in `protos/rpc.proto`, and map it in `container/agent/convert.go`
 5. Frontend automatically receives updates via existing SSE stream
 6. Update `Container` model in `assets/models/Container.ts` if UI needs access
 

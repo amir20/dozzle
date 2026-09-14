@@ -18,7 +18,6 @@ import (
 	"github.com/amir20/dozzle/internal/notification"
 	"github.com/amir20/dozzle/internal/notification/dispatcher"
 	"github.com/amir20/dozzle/internal/releases"
-	container_support "github.com/amir20/dozzle/internal/support/container"
 	"github.com/amir20/dozzle/types"
 
 	"github.com/go-chi/chi/v5"
@@ -144,17 +143,17 @@ type OAuthAuthorizer interface {
 }
 
 type HostService interface {
-	FindContainer(host string, id string, labels container.ContainerLabels) (*container_support.ContainerService, error)
+	FindContainer(host string, id string, labels container.ContainerLabels) (*container.ContainerService, error)
 	ListContainersForHost(host string, labels container.ContainerLabels) ([]container.Container, error)
 	ListAllContainers(labels container.ContainerLabels) ([]container.Container, []error)
-	ListAllContainersFiltered(userFilter container.ContainerLabels, filter container_support.ContainerFilter) ([]container.Container, []error)
+	ListAllContainersFiltered(userFilter container.ContainerLabels, filter container.ContainerFilter) ([]container.Container, []error)
 	SubscribeEventsAndStats(ctx context.Context, events chan<- container.ContainerEvent, stats chan<- container.ContainerStat)
-	SubscribeContainersStarted(ctx context.Context, containers chan<- container.Container, filter container_support.ContainerFilter)
+	SubscribeContainersStarted(ctx context.Context, containers chan<- container.Container, filter container.ContainerFilter)
 	Hosts() []container.Host
 	LocalHost() (container.Host, error)
 	SubscribeAvailableHosts(ctx context.Context, hosts chan<- container.Host)
 	LocalClients() []container.Client
-	LocalClientServices() []container_support.ClientService
+	LocalClientServices() []container.ClientService
 	// Notification methods
 	AddSubscription(sub *notification.Subscription) error
 	RemoveSubscription(id int)

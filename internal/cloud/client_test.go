@@ -5,7 +5,6 @@ import (
 	"testing"
 
 	"github.com/amir20/dozzle/internal/container"
-	container_support "github.com/amir20/dozzle/internal/support/container"
 	pb "github.com/amir20/dozzle/proto/cloud"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -128,7 +127,7 @@ func TestHandleRequest_CallTool_RestartContainer(t *testing.T) {
 	mockClient := &MockClientService{}
 	mockClient.On("ContainerAction", mock.Anything, mock.Anything, container.Restart).Return(nil)
 
-	cs := container_support.NewContainerService(mockClient, container.Container{ID: "abc123", Name: "nginx", Host: "local"})
+	cs := container.NewContainerService(mockClient, container.Container{ID: "abc123", Name: "nginx", Host: "local"})
 
 	mockHost := &MockHostService{}
 	withResolver(mockHost, container.Container{ID: "abc123", Name: "nginx", Host: "local"})

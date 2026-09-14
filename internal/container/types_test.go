@@ -5,27 +5,9 @@ import (
 	"math"
 	"testing"
 
-	"github.com/amir20/dozzle/internal/utils"
-	"github.com/go-faker/faker/v4"
-	"github.com/go-faker/faker/v4/pkg/options"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
-
-func TestProto(t *testing.T) {
-	expected := Container{}
-	faker.FakeData(&expected, options.WithFieldsToIgnore("Stats", "MountStats"))
-	expected.FinishedAt = expected.FinishedAt.UTC()
-	expected.Created = expected.Created.UTC()
-	expected.StartedAt = expected.StartedAt.UTC()
-	expected.Stats = utils.NewRingBuffer[ContainerStat](300)
-
-	pb := expected.ToProto()
-	actual := FromProto(&pb)
-
-	assert.Equal(t, expected, actual)
-
-}
 
 func TestContainerStat_MarshalJSON(t *testing.T) {
 	tests := []struct {

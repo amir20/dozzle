@@ -10,14 +10,13 @@ import (
 
 	"github.com/amir20/dozzle/internal/auth"
 	"github.com/amir20/dozzle/internal/container"
-	container_support "github.com/amir20/dozzle/internal/support/container"
 	"github.com/modelcontextprotocol/go-sdk/mcp"
 	"github.com/rs/zerolog/log"
 )
 
 // HostService is the subset of web.HostService needed by the MCP server.
 type HostService interface {
-	FindContainer(host string, id string, labels container.ContainerLabels) (*container_support.ContainerService, error)
+	FindContainer(host string, id string, labels container.ContainerLabels) (*container.ContainerService, error)
 	ListAllContainers(labels container.ContainerLabels) ([]container.Container, []error)
 	Hosts() []container.Host
 }

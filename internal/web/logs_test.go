@@ -18,7 +18,7 @@ import (
 	"testing"
 
 	"github.com/amir20/dozzle/internal/container"
-	support_web "github.com/amir20/dozzle/internal/support/web"
+	"github.com/amir20/dozzle/internal/web/search"
 	"github.com/beme/abide"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -565,10 +565,10 @@ func concatMessages(messages ...string) []byte {
 func Test_matchesFilter_inverse(t *testing.T) {
 	levels := map[string]struct{}{"info": {}}
 
-	regex, err := support_web.ParseRegex("INFO")
+	regex, err := search.ParseRegex("INFO")
 	require.NoError(t, err)
 
-	regex2, err := support_web.ParseRegex("ERROR")
+	regex2, err := search.ParseRegex("ERROR")
 	require.NoError(t, err)
 
 	tests := []struct {

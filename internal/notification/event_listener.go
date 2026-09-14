@@ -7,7 +7,6 @@ import (
 	"time"
 
 	"github.com/amir20/dozzle/internal/container"
-	container_support "github.com/amir20/dozzle/internal/support/container"
 	"github.com/rs/zerolog/log"
 )
 
@@ -28,7 +27,7 @@ type ContainerEventEntry struct {
 }
 
 type ContainerEventListener struct {
-	clients    []container_support.ClientService
+	clients    []container.ClientService
 	channel    chan *ContainerEventEntry
 	parentCtx  context.Context
 	cache      *TTLCache[string, containerInfo]
@@ -36,7 +35,7 @@ type ContainerEventListener struct {
 	cancelFunc context.CancelFunc
 }
 
-func NewContainerEventListener(ctx context.Context, clients []container_support.ClientService) *ContainerEventListener {
+func NewContainerEventListener(ctx context.Context, clients []container.ClientService) *ContainerEventListener {
 	return &ContainerEventListener{
 		clients:   clients,
 		channel:   make(chan *ContainerEventEntry, 1000),

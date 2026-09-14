@@ -5,7 +5,6 @@ import (
 
 	"github.com/amir20/dozzle/internal/auth"
 	"github.com/amir20/dozzle/internal/container"
-	container_support "github.com/amir20/dozzle/internal/support/container"
 )
 
 // PrincipalKind is who a tool call runs as. Cloud reaches back into Dozzle from
@@ -112,7 +111,7 @@ func (s scopedHost) ListAllContainers() ([]container.Container, []error) {
 	return s.hosts.ListAllContainers(s.labels)
 }
 
-func (s scopedHost) FindContainer(host string, id string) (*container_support.ContainerService, error) {
+func (s scopedHost) FindContainer(host string, id string) (*container.ContainerService, error) {
 	return s.hosts.FindContainer(host, id, s.labels)
 }
 

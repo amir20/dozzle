@@ -6,7 +6,6 @@ import (
 	"time"
 
 	"github.com/amir20/dozzle/internal/container"
-	container_support "github.com/amir20/dozzle/internal/support/container"
 	"github.com/rs/zerolog/log"
 )
 
@@ -25,7 +24,7 @@ type containerInfo struct {
 // ContainerStatsListener subscribes to container stats from all clients,
 // enriches each stat with container and host metadata, and forwards them to a channel.
 type ContainerStatsListener struct {
-	clients    []container_support.ClientService
+	clients    []container.ClientService
 	channel    chan *ContainerStatEvent
 	parentCtx  context.Context
 	cache      *TTLCache[string, containerInfo]
@@ -35,7 +34,7 @@ type ContainerStatsListener struct {
 
 // NewContainerStatsListener creates a new listener that can subscribe to stats from the given clients.
 // Call Start() to begin receiving stats.
-func NewContainerStatsListener(ctx context.Context, clients []container_support.ClientService) *ContainerStatsListener {
+func NewContainerStatsListener(ctx context.Context, clients []container.ClientService) *ContainerStatsListener {
 	return &ContainerStatsListener{
 		clients:   clients,
 		channel:   make(chan *ContainerStatEvent, 1000),

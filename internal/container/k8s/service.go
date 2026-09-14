@@ -1,0 +1,218 @@
+package k8s
+
+import (
+	"context"
+	"fmt"
+	"io"
+	"sync"
+
+	"github.com/rs/zerolog/log"
+
+	"time"
+
+	"github.com/amir20/dozzle/internal/container"
+	"github.com/amir20/dozzle/internal/container/logparse"
+	"github.com/amir20/dozzle/internal/imagecheck"
+)
+
+type K8sClientService struct {
+	client *K8sClient
+	store  *container.ContainerStore
+}
+
+func NewK8sClientService(client *K8sClient, labels container.ContainerLabels) *K8sClientService {
+	statsCollector, err := NewK8sStatsCollector(client, labels)
+	if err != nil {
+		log.Fatal().Err(err).Msg("Could not create k8s stats collector")
+	}
+	return &K8sClientService{
+		client: client,
+		store:  container.NewContainerStore(context.Background(), client, statsCollector, labels),
+	}
+}
+
+// Client returns the underlying k8s client.
+func (k *K8sClientService) Client() *K8sClient {
+	return k.client
+}
+
+func (k *K8sClientService) FindContainer(ctx context.Context, id string, labels container.ContainerLabels) (container.Container, error) {
+	return k.store.FindContainer(id, labels)
+}
+
+func (k *K8sClientService) ListContainers(ctx context.Context, labels container.ContainerLabels) ([]container.Container, error) {
+	return k.store.ListContainers(labels)
+}
+
+func (k *K8sClientService) Host(ctx context.Context) (container.Host, error) {
+	return k.client.Host(), nil
+}
+
+func (k *K8sClientService) ContainerAction(ctx context.Context, container container.Container, action container.ContainerAction) error {
+	return k.client.ContainerActions(ctx, action, container.ID)
+}
+
+func (k *K8sClientService) LogsBetweenDates(ctx context.Context, c container.Container, from time.Time, to time.Time, stdTypes container.StdType) (<-chan *container.LogEvent, error) {
+	reader, err := k.client.ContainerLogsBetweenDates(ctx, c.ID, from, to, stdTypes)
+	if err != nil {
+		return nil, err
+	}
+
+	k8sReader := NewLogReader(reader)
+	g := logparse.NewEventGenerator(ctx, k8sReader, c)
+	return g.Events, nil
+}
+
+func (k *K8sClientService) RawLogs(ctx context.Context, container container.Container, from time.Time, to time.Time, stdTypes container.StdType) (io.ReadCloser, error) {
+	return k.client.ContainerLogsBetweenDates(ctx, container.ID, from, to, stdTypes)
+}
+
+func (k *K8sClientService) StreamLogs(ctx context.Context, c container.Container, from time.Time, stdTypes container.StdType, events chan<- *container.LogEvent) error {
+	reader, err := k.client.ContainerLogs(ctx, c.ID, from, stdTypes)
+	if err != nil {
+		return err
+	}
+
+	k8sReader := NewLogReader(reader)
+	g := logparse.NewEventGenerator(ctx, k8sReader, c)
+	for event := range g.Events {
+		select {
+		case events <- event:
+		case <-ctx.Done():
+			return ctx.Err()
+		}
+	}
+
+	select {
+	case e := <-g.Errors:
+		return e
+	default:
+		return nil
+	}
+}
+
+func (k *K8sClientService) SubscribeStats(ctx context.Context, stats chan<- container.ContainerStat) {
+	k.store.SubscribeStats(ctx, stats)
+}
+
+func (k *K8sClientService) SubscribeEvents(ctx context.Context, events chan<- container.ContainerEvent) {
+	k.store.SubscribeEvents(ctx, events)
+}
+
+func (k *K8sClientService) SubscribeContainersStarted(ctx context.Context, containers chan<- container.Container) {
+	k.store.SubscribeNewContainers(ctx, containers)
+}
+
+// CheckImageUpdate is not supported in Kubernetes mode, where image rollout is
+// the cluster's responsibility rather than Dozzle's.
+func (k *K8sClientService) CheckImageUpdate(ctx context.Context, c container.Container, force bool) (imagecheck.Result, error) {
+	return imagecheck.Result{
+		Image:     c.Image,
+		Status:    imagecheck.StatusSkipped,
+		Reason:    "image update checks are not supported in Kubernetes mode",
+		CheckedAt: time.Now(),
+	}, nil
+}
+
+func (k *K8sClientService) UpdateContainer(ctx context.Context, c container.Container, progressCh chan<- container.UpdateProgress) (bool, error) {
+	defer close(progressCh)
+	return false, fmt.Errorf("update container is not supported in Kubernetes mode")
+}
+
+func (k *K8sClientService) Attach(ctx context.Context, c container.Container, events container.ExecEventReader, stdout io.Writer) error {
+	cancelCtx, cancel := context.WithCancel(ctx)
+	session, err := k.client.ContainerAttach(cancelCtx, c.ID)
+	if err != nil {
+		cancel()
+		return err
+	}
+
+	var wg sync.WaitGroup
+
+	wg.Go(func() {
+		defer session.Writer.Close()
+		defer cancel()
+
+	loop:
+		for {
+			event, err := events.ReadEvent()
+			if err != nil {
+				if err != io.EOF {
+					log.Error().Err(err).Msg("error reading event")
+				}
+				break
+			}
+
+			switch event.Type {
+			case "userinput":
+				if _, err := session.Writer.Write([]byte(event.Data)); err != nil {
+					log.Error().Err(err).Msg("error writing to container")
+					break loop
+				}
+			case "resize":
+				if err := session.Resize(event.Width, event.Height); err != nil {
+					log.Error().Err(err).Msg("error resizing terminal")
+				}
+			}
+		}
+	})
+
+	wg.Go(func() {
+		defer cancel()
+		if _, err := io.Copy(stdout, session.Reader); err != nil {
+			log.Error().Err(err).Msg("error copying stdout")
+		}
+	})
+
+	wg.Wait()
+	return nil
+}
+
+func (k *K8sClientService) Exec(ctx context.Context, c container.Container, cmd []string, events container.ExecEventReader, stdout io.Writer) error {
+	cancelCtx, cancel := context.WithCancel(ctx)
+	session, err := k.client.ContainerExec(cancelCtx, c.ID, cmd)
+	if err != nil {
+		cancel()
+		return err
+	}
+
+	var wg sync.WaitGroup
+
+	wg.Go(func() {
+		defer session.Writer.Close()
+		defer cancel()
+
+	loop:
+		for {
+			event, err := events.ReadEvent()
+			if err != nil {
+				if err != io.EOF {
+					log.Error().Err(err).Msg("error reading event")
+				}
+				break
+			}
+
+			switch event.Type {
+			case "userinput":
+				if _, err := session.Writer.Write([]byte(event.Data)); err != nil {
+					log.Error().Err(err).Msg("error writing to container")
+					break loop
+				}
+			case "resize":
+				if err := session.Resize(event.Width, event.Height); err != nil {
+					log.Error().Err(err).Msg("error resizing terminal")
+				}
+			}
+		}
+	})
+
+	wg.Go(func() {
+		defer cancel()
+		if _, err := io.Copy(stdout, session.Reader); err != nil {
+			log.Error().Err(err).Msg("error copying stdout")
+		}
+	})
+
+	wg.Wait()
+	return nil
+}

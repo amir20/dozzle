@@ -8,9 +8,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/amir20/dozzle/internal/agent/pb"
 	"github.com/amir20/dozzle/internal/utils"
-	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 // Container represents an internal representation of docker containers
@@ -61,147 +59,6 @@ type MountStat struct {
 	Used        uint64    `json:"used"`
 	Available   bool      `json:"available"`
 	LastChecked time.Time `json:"lastChecked"`
-}
-
-func (container Container) ToProto() pb.Container {
-	var pbStats []*pb.ContainerStat
-	for _, stat := range container.Stats.Data() {
-		pbStats = append(pbStats, &pb.ContainerStat{
-			Id:             stat.ID,
-			CpuPercent:     stat.CPUPercent,
-			MemoryPercent:  stat.MemoryPercent,
-			MemoryUsage:    stat.MemoryUsage,
-			NetworkRxTotal: stat.NetworkRxTotal,
-			NetworkTxTotal: stat.NetworkTxTotal,
-			DiskReadTotal:  stat.DiskReadTotal,
-			DiskWriteTotal: stat.DiskWriteTotal,
-		})
-	}
-
-	pbMounts := make([]*pb.Mount, 0, len(container.Mounts))
-	for _, m := range container.Mounts {
-		pbMounts = append(pbMounts, &pb.Mount{
-			Type:        m.Type,
-			Source:      m.Source,
-			Destination: m.Destination,
-			Rw:          m.RW,
-		})
-	}
-
-	pbMountStats := make([]*pb.MountStat, 0, len(container.MountStats))
-	for _, ms := range container.MountStats {
-		pbMountStats = append(pbMountStats, &pb.MountStat{
-			Destination: ms.Destination,
-			Total:       ms.Total,
-			Free:        ms.Free,
-			Used:        ms.Used,
-			Available:   ms.Available,
-			LastChecked: timestamppb.New(ms.LastChecked),
-		})
-	}
-
-	return pb.Container{
-		Id:            container.ID,
-		Name:          container.Name,
-		Image:         container.Image,
-		Created:       timestamppb.New(container.Created),
-		State:         container.State,
-		Health:        container.Health,
-		Host:          container.Host,
-		Tty:           container.Tty,
-		Labels:        container.Labels,
-		Group:         container.Group,
-		Started:       timestamppb.New(container.StartedAt),
-		Finished:      timestamppb.New(container.FinishedAt),
-		Stats:         pbStats,
-		Command:       container.Command,
-		MemoryLimit:   container.MemoryLimit,
-		CpuLimit:      container.CPULimit,
-		FullyLoaded:   container.FullyLoaded,
-		Env:           container.Env,
-		Ports:         container.Ports,
-		Mounts:        pbMounts,
-		MountStats:    pbMountStats,
-		RestartPolicy: container.RestartPolicy,
-		NetworkMode:   container.NetworkMode,
-	}
-}
-
-func FromProto(c *pb.Container) Container {
-	var stats []ContainerStat
-	for _, stat := range c.Stats {
-		stats = append(stats, ContainerStat{
-			ID:             stat.Id,
-			CPUPercent:     stat.CpuPercent,
-			MemoryPercent:  stat.MemoryPercent,
-			MemoryUsage:    stat.MemoryUsage,
-			NetworkRxTotal: stat.NetworkRxTotal,
-			NetworkTxTotal: stat.NetworkTxTotal,
-			DiskReadTotal:  stat.DiskReadTotal,
-			DiskWriteTotal: stat.DiskWriteTotal,
-		})
-	}
-
-	labels := c.Labels
-	if labels == nil {
-		labels = make(map[string]string)
-	}
-
-	env := c.Env
-	if env == nil {
-		env = []string{}
-	}
-
-	mounts := make([]Mount, 0, len(c.Mounts))
-	for _, m := range c.Mounts {
-		mounts = append(mounts, Mount{
-			Type:        m.Type,
-			Source:      m.Source,
-			Destination: m.Destination,
-			RW:          m.Rw,
-		})
-	}
-
-	var mountStats map[string]MountStat
-	if len(c.MountStats) > 0 {
-		mountStats = make(map[string]MountStat, len(c.MountStats))
-		for _, ms := range c.MountStats {
-			mountStats[ms.Destination] = MountStat{
-				Destination: ms.Destination,
-				Total:       ms.Total,
-				Free:        ms.Free,
-				Used:        ms.Used,
-				Available:   ms.Available,
-				LastChecked: ms.LastChecked.AsTime(),
-			}
-		}
-	}
-
-	return Container{
-		ID:            c.Id,
-		Name:          c.Name,
-		Image:         c.Image,
-		Labels:        labels,
-		Group:         c.Group,
-		Created:       c.Created.AsTime(),
-		State:         c.State,
-		Health:        c.Health,
-		Host:          c.Host,
-		Tty:           c.Tty,
-		Command:       c.Command,
-		StartedAt:     c.Started.AsTime(),
-		FinishedAt:    c.Finished.AsTime(),
-		Stats:         utils.RingBufferFrom(300, stats),
-		MemoryLimit:   c.MemoryLimit,
-		CPULimit:      c.CpuLimit,
-		FullyLoaded:   c.FullyLoaded,
-		Env:           env,
-		Ports:         c.Ports,
-		Mounts:        mounts,
-		MountStats:    mountStats,
-		RestartPolicy: c.RestartPolicy,
-		NetworkMode:   c.NetworkMode,
-	}
 }
 
 // ContainerStat represent stats instant for a container
@@ -376,13 +233,13 @@ func (l *LogEvent) IsSimple() bool {
 	return l.Type == LogTypeSingle || l.Type == LogTypeGroup
 }
 
-// maxGroupTimeDelta is the maximum time difference (in milliseconds) between
+// MaxGroupTimeDelta is the maximum time difference (in milliseconds) between
 // consecutive log lines that can be grouped together. Docker can introduce
 // up to ~30ms of jitter between related log lines (e.g., a stack trace).
-const maxGroupTimeDelta = 50
+const MaxGroupTimeDelta = 50
 
 func (l *LogEvent) IsCloseToTime(other *LogEvent) bool {
-	return math.Abs(float64(l.Timestamp-other.Timestamp)) < maxGroupTimeDelta
+	return math.Abs(float64(l.Timestamp-other.Timestamp)) < MaxGroupTimeDelta
 }
 
 func (l *LogEvent) MessageId() int64 {

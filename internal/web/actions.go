@@ -5,13 +5,12 @@ import (
 
 	"github.com/amir20/dozzle/internal/auth"
 	"github.com/amir20/dozzle/internal/container"
-	container_support "github.com/amir20/dozzle/internal/support/container"
-	support_web "github.com/amir20/dozzle/internal/support/web"
+	"github.com/amir20/dozzle/internal/web/sse"
 	"github.com/go-chi/chi/v5"
 	"github.com/rs/zerolog/log"
 )
 
-func (h *handler) findContainerWithActions(w http.ResponseWriter, r *http.Request) (*container_support.ContainerService, bool) {
+func (h *handler) findContainerWithActions(w http.ResponseWriter, r *http.Request) (*container.ContainerService, bool) {
 	id := chi.URLParam(r, "id")
 
 	userLabels := h.config.Labels
@@ -71,13 +70,13 @@ func (h *handler) containerUpdate(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	sse, err := support_web.NewSSEWriter(r.Context(), w, r)
+	sseWriter, err := sse.NewWriter(r.Context(), w, r)
 	if err != nil {
 		log.Error().Err(err).Msg("error creating SSE writer")
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	defer sse.Close()
+	defer sseWriter.Close()
 
 	progressCh := make(chan container.UpdateProgress, 50)
 	errCh := make(chan error, 1)
@@ -88,7 +87,7 @@ func (h *handler) containerUpdate(w http.ResponseWriter, r *http.Request) {
 	}()
 
 	for progress := range progressCh {
-		if err := sse.Event("update-progress", progress); err != nil {
+		if err := sseWriter.Event("update-progress", progress); err != nil {
 			log.Error().Err(err).Msg("error writing SSE event")
 			return
 		}

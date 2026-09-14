@@ -5,7 +5,7 @@ import (
 
 	"github.com/amir20/dozzle/internal/auth"
 	"github.com/amir20/dozzle/internal/container"
-	support_web "github.com/amir20/dozzle/internal/support/web"
+	"github.com/amir20/dozzle/internal/web/sse"
 	"github.com/rs/zerolog/log"
 )
 
@@ -22,13 +22,13 @@ func (h *handler) updateSelf(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	sse, err := support_web.NewSSEWriter(r.Context(), w, r)
+	sseWriter, err := sse.NewWriter(r.Context(), w, r)
 	if err != nil {
 		log.Error().Err(err).Msg("error creating SSE writer")
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	defer sse.Close()
+	defer sseWriter.Close()
 
 	var last string
 	writeFailed := false
@@ -37,7 +37,7 @@ func (h *handler) updateSelf(w http.ResponseWriter, r *http.Request) {
 		if writeFailed {
 			return
 		}
-		if err := sse.Event("update-progress", p); err != nil {
+		if err := sseWriter.Event("update-progress", p); err != nil {
 			log.Error().Err(err).Msg("error writing SSE event")
 			writeFailed = true
 		}
