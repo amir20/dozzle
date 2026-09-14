@@ -275,7 +275,6 @@ declare module 'vue' {
     Tag: typeof import('./components/ui/Tag.vue')['default']
     TemplateVariables: typeof import('./components/notifications/TemplateVariables.vue')['default']
     Terminal: typeof import('./components/containers/Terminal.vue')['default']
-    TimedButton: typeof import('./components/ui/TimedButton.vue')['default']
     ToastModal: typeof import('./components/shell/ToastModal.vue')['default']
     Toggle: typeof import('./components/ui/Toggle.vue')['default']
     UsageMeter: typeof import('./components/ui/UsageMeter.vue')['default']
