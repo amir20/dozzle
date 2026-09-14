@@ -1,6 +1,6 @@
 ---
 title: 设置向导
-sourceHash: dafa5f1cb91a
+sourceHash: 413c966adbb1
 ---
 
 # 设置向导
@@ -38,7 +38,7 @@ volumes:
 - **我的代理** 适用于 Authelia、Authentik、Cloudflare Access 等。Dozzle 信任 `Remote-User` 请求头，所以只发布代理的端口，永远不要发布 Dozzle 自己的端口。这会设置 `authProvider: forward-proxy`。请参阅 [前置代理](/zh/guide/authentication/forward-proxy)。
 - **OIDC** 显示 [OpenID Connect](/zh/guide/authentication/oidc) 指南的链接和需要添加的环境变量。OIDC 需要客户端密钥，所以这里不会写入任何内容，由你自行配置。
 
-如果 Dozzle 只能在你自己的网络中访问，**只在我的网络中** 会跳过登录。
+如果 Dozzle 只能在你自己的网络中访问，**不设置登录，继续** 会跳过此步骤。
 
 保存账户或代理后，Dozzle 会立即重启，确保在修改其他任何设置之前登录已经生效。你会进入登录页面，登录后向导会从下一步继续。
 
@@ -53,7 +53,7 @@ volumes:
 
 ### 3. Dozzle Cloud
 
-[Dozzle Cloud](/zh/guide/dozzle-cloud) 会在出现故障的第一时间发送告警，每天早上发送一份待修复问题的摘要，并保留重启后依然存在的历史记录。**连接 Dozzle Cloud** 会关联此实例，**跳过，以后再说** 则继续下一步。如果实例已经关联，或者你没有权限关联，此步骤会被跳过。
+[Dozzle Cloud](/zh/guide/dozzle-cloud) 会在出现故障的第一时间发送告警，每天早上发送一份待修复问题的摘要，并保留重启后依然存在的历史记录。**连接 Dozzle Cloud** 会关联此实例，**暂不** 则继续下一步。如果实例已经关联，或者你没有权限关联，此步骤会被跳过。
 
 ### 4. 重启
 

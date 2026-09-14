@@ -37,7 +37,7 @@ Once `/data` is persisted, pick one of three options:
 - **My proxy** is for Authelia, Authentik, Cloudflare Access and similar. Dozzle trusts the `Remote-User` header, so publish only the proxy and never Dozzle's own port. This sets `authProvider: forward-proxy`. See [Forward Proxy](/guide/authentication/forward-proxy).
 - **OIDC** shows a link to the [OpenID Connect](/guide/authentication/oidc) guide and the environment variables to add. OIDC needs a client secret, so nothing is written here and you configure it yourself.
 
-If Dozzle is only reachable on your own network, **It's only on my network** skips login.
+If Dozzle is only reachable on your own network, **Continue without login** skips this step.
 
 After an account or proxy is saved, Dozzle restarts right away so login is on before anything else is changed. You land on the login page, and the wizard continues with the next step once you sign in.
 
@@ -52,7 +52,7 @@ If a setting is already fixed by a flag or environment variable, its toggle is r
 
 ### 3. Dozzle Cloud
 
-[Dozzle Cloud](/guide/dozzle-cloud) sends alerts the moment something breaks, a morning summary of what to fix, and keeps history that survives restarts. **Connect Dozzle Cloud** links this instance, and **Skip, maybe later** moves on. This step is skipped when the instance is already linked or when you are not allowed to link it.
+[Dozzle Cloud](/guide/dozzle-cloud) sends alerts the moment something breaks, a morning summary of what to fix, and keeps history that survives restarts. **Connect Dozzle Cloud** links this instance, and **Not now** moves on. This step is skipped when the instance is already linked or when you are not allowed to link it.
 
 ### 4. Restart
 

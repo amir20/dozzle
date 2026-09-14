@@ -27,8 +27,11 @@ export type SetupNextResult = "advance" | "skip" | "stay" | "finish";
 export interface SetupStepHandle {
   nextLabel: string;
   nextDisabled: boolean;
-  // True when the step's content already holds the surface's one primary action.
+  // True when going forward is not the answer the step should favor, e.g. an optional step.
   nextPlain: boolean;
+  // Set on steps that are fine to pass on. It sits beside Next at the same size,
+  // so declining never reads as the lesser, harder-to-find choice.
+  skipLabel?: string;
   busy: boolean;
   next: () => Promise<SetupNextResult>;
 }

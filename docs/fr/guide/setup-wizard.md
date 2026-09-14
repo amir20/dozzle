@@ -1,6 +1,6 @@
 ---
 title: Assistant de configuration
-sourceHash: dafa5f1cb91a
+sourceHash: 413c966adbb1
 ---
 
 # Assistant de configuration
@@ -38,7 +38,7 @@ Une fois `/data` persistant, choisissez l'une des trois options :
 - **Mon proxy** est destiné à Authelia, Authentik, Cloudflare Access et équivalents. Dozzle fait confiance à l'en-tête `Remote-User`, publiez donc uniquement le proxy et jamais le port de Dozzle lui-même. Cela définit `authProvider: forward-proxy`. Consultez [Proxy d'authentification](/fr/guide/authentication/forward-proxy).
 - **OIDC** affiche un lien vers le guide [OpenID Connect](/fr/guide/authentication/oidc) et les variables d'environnement à ajouter. OIDC nécessite un secret client, donc rien n'est écrit ici et vous le configurez vous-même.
 
-Si Dozzle n'est accessible que sur votre propre réseau, **Il est uniquement sur mon réseau** permet de passer la connexion.
+Si Dozzle n'est accessible que sur votre propre réseau, **Continuer sans connexion** permet de passer cette étape.
 
 Une fois un compte ou un proxy enregistré, Dozzle redémarre immédiatement pour que la connexion soit active avant toute autre modification. Vous arrivez sur la page de connexion, et l'assistant reprend à l'étape suivante une fois connecté.
 
@@ -53,7 +53,7 @@ Si un réglage est déjà fixé par un flag ou une variable d'environnement, son
 
 ### 3. Dozzle Cloud
 
-[Dozzle Cloud](/fr/guide/dozzle-cloud) envoie des alertes dès que quelque chose casse, un résumé matinal de ce qu'il faut corriger, et conserve un historique qui survit aux redémarrages. **Connecter Dozzle Cloud** relie cette instance, et **Passer, peut-être plus tard** continue. Cette étape est ignorée si l'instance est déjà reliée ou si vous n'avez pas le droit de la relier.
+[Dozzle Cloud](/fr/guide/dozzle-cloud) envoie des alertes dès que quelque chose casse, un résumé matinal de ce qu'il faut corriger, et conserve un historique qui survit aux redémarrages. **Connecter Dozzle Cloud** relie cette instance, et **Pas maintenant** continue. Cette étape est ignorée si l'instance est déjà reliée ou si vous n'avez pas le droit de la relier.
 
 ### 4. Redémarrage
 

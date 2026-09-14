@@ -791,7 +791,7 @@ setup:
     use-proxy: "Brug min proxy"
     oidc-body: "OIDC kræver en client secret, så intet gemmes her. Tilføj disse til din compose-fil, og genopret containeren."
     oidc-docs: "Guide til OpenID Connect"
-    skip: "Det er kun på mit netværk"
+    skip: "Fortsæt uden login"
     manual-restart: "Dozzle kan ikke genstarte sig selv her. Genstart containeren for at slå login til, eller sæt dette i din compose-fil."
     restart-hint: "Du lander på login-siden. Opsætningen fortsætter, når du har logget ind."
   actions:
@@ -819,7 +819,7 @@ setup:
     history-body: "Advarsler og fund bliver bevaret efter en genindlæsning, en genstart eller en uge."
     connect: "Forbind Dozzle Cloud"
     learn-more: "Læs mere"
-    skip: "Spring over, måske senere"
+    skip: "Ikke nu"
   restart:
     title: "Genstart Dozzle"
     subtitle: "Disse ændringer er gemt og begynder at virke efter en genstart."

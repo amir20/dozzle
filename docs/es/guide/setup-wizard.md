@@ -1,6 +1,6 @@
 ---
 title: Asistente de configuración
-sourceHash: dafa5f1cb91a
+sourceHash: 413c966adbb1
 ---
 
 # Asistente de configuración
@@ -38,7 +38,7 @@ Cuando `/data` es persistente, elige una de estas tres opciones:
 - **Mi proxy** es para Authelia, Authentik, Cloudflare Access y similares. Dozzle confía en la cabecera `Remote-User`, así que publica solo el proxy y nunca el puerto de Dozzle. Esto define `authProvider: forward-proxy`. Consulta [Proxy inverso](/es/guide/authentication/forward-proxy).
 - **OIDC** muestra un enlace a la guía de [OpenID Connect](/es/guide/authentication/oidc) y las variables de entorno que hay que añadir. OIDC necesita un client secret, así que aquí no se escribe nada y lo configuras tú.
 
-Si Dozzle solo es accesible desde tu propia red, **Solo está en mi red** se salta el inicio de sesión.
+Si Dozzle solo es accesible desde tu propia red, **Continuar sin inicio de sesión** se salta este paso.
 
 Después de guardar una cuenta o un proxy, Dozzle se reinicia en el acto para que el inicio de sesión esté activo antes de cambiar cualquier otra cosa. Llegas a la página de inicio de sesión y, al entrar, el asistente continúa con el siguiente paso.
 
@@ -53,7 +53,7 @@ Si un ajuste ya está fijado por un flag o una variable de entorno, su interrupt
 
 ### 3. Dozzle Cloud
 
-[Dozzle Cloud](/es/guide/dozzle-cloud) envía alertas en cuanto algo falla, un resumen cada mañana de lo que hay que arreglar y guarda un historial que sobrevive a los reinicios. **Conectar Dozzle Cloud** vincula esta instancia y **Omitir, quizás más tarde** sigue adelante. Este paso se omite si la instancia ya está vinculada o si no tienes permiso para vincularla.
+[Dozzle Cloud](/es/guide/dozzle-cloud) envía alertas en cuanto algo falla, un resumen cada mañana de lo que hay que arreglar y guarda un historial que sobrevive a los reinicios. **Conectar Dozzle Cloud** vincula esta instancia y **Ahora no** sigue adelante. Este paso se omite si la instancia ya está vinculada o si no tienes permiso para vincularla.
 
 ### 4. Reinicio
 

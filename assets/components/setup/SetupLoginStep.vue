@@ -26,9 +26,6 @@
           <mdi:refresh v-else class="size-4" />
           {{ $t("setup.login.check-again") }}
         </button>
-        <button type="button" class="btn btn-ghost btn-sm text-base-content/60 ml-2" @click="$emit('skip')">
-          {{ $t("setup.login.skip") }}
-        </button>
       </div>
     </div>
 
@@ -171,12 +168,6 @@
           <mdi:open-in-new class="inline size-3.5 align-[-0.1em] opacity-40" />
         </a>
       </template>
-
-      <div>
-        <button type="button" class="btn btn-ghost btn-sm text-base-content/60" @click="$emit('skip')">
-          {{ $t("setup.login.skip") }}
-        </button>
-      </div>
     </div>
 
     <InlineNotice v-if="error" type="error" class="mt-4">{{ error }}</InlineNotice>
@@ -187,7 +178,6 @@
 import type { SetupNextResult, SetupStatus, SetupStepId } from "@/composable/setup/setup";
 
 const { status, nextStep } = defineProps<{ status: SetupStatus; nextStep?: SetupStepId }>();
-defineEmits<{ skip: [] }>();
 
 const { t } = useI18n();
 const { loading, fetchStatus, createAccount, useProxy: saveProxy, restart, waitForRestart } = useSetup();
@@ -315,5 +305,12 @@ const nextDisabled = computed(() => {
 
 const busy = computed(() => phase.value === "saving" || phase.value === "restarting");
 
-defineExpose({ nextLabel, nextDisabled, nextPlain: false, busy, next });
+// Only while nothing is saved yet: once a login is on or pending, there is nothing to decline.
+const skipLabel = computed(() =>
+  status.authProvider === "none" && !status.pending.authProvider && phase.value === "idle"
+    ? t("setup.login.skip")
+    : undefined,
+);
+
+defineExpose({ nextLabel, nextDisabled, nextPlain: false, skipLabel, busy, next });
 </script>

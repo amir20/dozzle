@@ -1,6 +1,6 @@
 ---
 title: Einrichtungsassistent
-sourceHash: dafa5f1cb91a
+sourceHash: 413c966adbb1
 ---
 
 # Einrichtungsassistent
@@ -38,7 +38,7 @@ Sobald `/data` persistent ist, wählst du eine von drei Optionen:
 - **Mein Proxy** ist für Authelia, Authentik, Cloudflare Access und Ähnliches. Dozzle vertraut dem Header `Remote-User`, veröffentliche also nur den Proxy und nie den Port von Dozzle selbst. Das setzt `authProvider: forward-proxy`. Siehe [Forward Proxy](/de/guide/authentication/forward-proxy).
 - **OIDC** zeigt einen Link zur Anleitung für [OpenID Connect](/de/guide/authentication/oidc) und die Umgebungsvariablen, die du ergänzen musst. OIDC braucht ein Client-Secret, deshalb wird hier nichts geschrieben und du richtest es selbst ein.
 
-Ist Dozzle nur in deinem eigenen Netzwerk erreichbar, überspringt **Nur in meinem Netzwerk** den Login.
+Ist Dozzle nur in deinem eigenen Netzwerk erreichbar, überspringt **Ohne Anmeldung fortfahren** diesen Schritt.
 
 Nachdem ein Konto oder Proxy gespeichert wurde, startet Dozzle sofort neu, damit der Login aktiv ist, bevor irgendetwas anderes geändert wird. Du landest auf der Login-Seite, und nach der Anmeldung macht der Assistent mit dem nächsten Schritt weiter.
 
@@ -53,7 +53,7 @@ Ist eine Einstellung bereits über ein Flag oder eine Umgebungsvariable festgele
 
 ### 3. Dozzle Cloud
 
-[Dozzle Cloud](/de/guide/dozzle-cloud) schickt Alerts, sobald etwas kaputtgeht, eine morgendliche Zusammenfassung dessen, was zu beheben ist, und bewahrt einen Verlauf, der Neustarts übersteht. **Dozzle Cloud verbinden** verknüpft diese Instanz, **Überspringen, vielleicht später** geht weiter. Dieser Schritt entfällt, wenn die Instanz bereits verknüpft ist oder du sie nicht verknüpfen darfst.
+[Dozzle Cloud](/de/guide/dozzle-cloud) schickt Alerts, sobald etwas kaputtgeht, eine morgendliche Zusammenfassung dessen, was zu beheben ist, und bewahrt einen Verlauf, der Neustarts übersteht. **Dozzle Cloud verbinden** verknüpft diese Instanz, **Nicht jetzt** geht weiter. Dieser Schritt entfällt, wenn die Instanz bereits verknüpft ist oder du sie nicht verknüpfen darfst.
 
 ### 4. Neustart
 

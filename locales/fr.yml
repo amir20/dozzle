@@ -791,7 +791,7 @@ setup:
     use-proxy: "Utiliser mon proxy"
     oidc-body: "OIDC nécessite un client secret, donc rien n'est enregistré ici. Ajoutez ceci à votre fichier compose et recréez le conteneur."
     oidc-docs: "Guide OpenID Connect"
-    skip: "C'est uniquement sur mon réseau"
+    skip: "Continuer sans connexion"
     manual-restart: "Dozzle ne peut pas se redémarrer lui-même ici. Redémarrez le conteneur pour activer la connexion, ou définissez ceci dans votre fichier compose."
     restart-hint: "Vous arriverez sur la page de connexion. La configuration reprend une fois connecté."
   actions:
@@ -819,7 +819,7 @@ setup:
     history-body: "Les alertes et les constats restent disponibles après un rechargement, un redémarrage ou une semaine."
     connect: "Connecter Dozzle Cloud"
     learn-more: "En savoir plus"
-    skip: "Passer, peut-être plus tard"
+    skip: "Pas maintenant"
   restart:
     title: "Redémarrer Dozzle"
     subtitle: "Ces changements sont enregistrés et prendront effet après un redémarrage."

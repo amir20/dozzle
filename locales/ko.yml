@@ -795,7 +795,7 @@ setup:
     use-proxy: 내 프록시 사용
     oidc-body: OIDC에는 클라이언트 시크릿이 필요하므로 여기에는 아무것도 저장되지 않습니다. 아래 내용을 compose 파일에 추가하고 컨테이너를 다시 만드세요.
     oidc-docs: OpenID Connect 가이드
-    skip: 내 네트워크에서만 사용합니다
+    skip: "로그인 없이 계속"
     manual-restart: 여기서는 Dozzle이 스스로 재시작할 수 없습니다. 로그인을 켜려면 컨테이너를 재시작하거나 compose 파일에 이 값을 설정하세요.
     restart-hint: 로그인 페이지로 이동합니다. 로그인하면 설정이 이어집니다.
   actions:
@@ -823,7 +823,7 @@ setup:
     history-body: 알림과 발견 항목이 새로고침, 재시작, 일주일이 지나도 유지됩니다.
     connect: Dozzle Cloud 연결
     learn-more: 자세히 알아보기
-    skip: 건너뛰기, 나중에
+    skip: "나중에"
   restart:
     title: Dozzle 재시작
     subtitle: 변경 사항이 저장되었으며 재시작 후 적용됩니다.

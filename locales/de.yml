@@ -791,7 +791,7 @@ setup:
     use-proxy: "Meinen Proxy verwenden"
     oidc-body: "OIDC benötigt ein Client Secret, daher wird hier nichts gespeichert. Fügen Sie Folgendes zu Ihrer Compose-Datei hinzu und erstellen Sie den Container neu."
     oidc-docs: "Anleitung zu OpenID Connect"
-    skip: "Es läuft nur in meinem Netzwerk"
+    skip: "Ohne Anmeldung fortfahren"
     manual-restart: "Dozzle kann sich hier nicht selbst neu starten. Starten Sie den Container neu, um die Anmeldung zu aktivieren, oder setzen Sie dies in Ihrer Compose-Datei."
     restart-hint: "Sie landen auf der Anmeldeseite. Die Einrichtung geht nach der Anmeldung weiter."
   actions:
@@ -819,7 +819,7 @@ setup:
     history-body: "Warnungen und Befunde bleiben nach einem Neuladen, einem Neustart oder einer Woche erhalten."
     connect: "Dozzle Cloud verbinden"
     learn-more: "Mehr erfahren"
-    skip: "Überspringen, vielleicht später"
+    skip: "Nicht jetzt"
   restart:
     title: "Dozzle neu starten"
     subtitle: "Diese Änderungen sind gespeichert und werden nach einem Neustart wirksam."

@@ -46,13 +46,7 @@
 
         <div class="min-h-0 flex-1 overflow-y-auto p-8 max-md:p-5">
           <template v-if="status && currentId">
-            <SetupLoginStep
-              v-if="currentId === 'login'"
-              ref="step"
-              :status="status"
-              :next-step="steps[index + 1]"
-              @skip="advance(true)"
-            />
+            <SetupLoginStep v-if="currentId === 'login'" ref="step" :status="status" :next-step="steps[index + 1]" />
             <SetupActionsStep v-else-if="currentId === 'actions'" ref="step" :status="status" />
             <SetupCloudStep v-else-if="currentId === 'cloud'" ref="step" :next-step="steps[index + 1]" />
             <SetupRestartStep v-else ref="step" :status="status" @seen="setupSeen = true" />
@@ -70,6 +64,9 @@
           <div class="ml-auto flex items-center gap-2">
             <button v-if="index > 0" type="button" class="btn btn-sm" :disabled="busy" @click="back">
               {{ $t("setup.back") }}
+            </button>
+            <button v-if="handle?.skipLabel" type="button" class="btn btn-sm" :disabled="busy" @click="advance(true)">
+              {{ handle.skipLabel }}
             </button>
             <button
               v-if="handle"

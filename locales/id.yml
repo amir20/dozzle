@@ -803,7 +803,7 @@ setup:
     use-proxy: "Gunakan proxy saya"
     oidc-body: "OIDC memerlukan client secret, jadi tidak ada yang disimpan di sini. Tambahkan ini ke berkas compose Anda lalu buat ulang kontainer."
     oidc-docs: "Panduan OpenID Connect"
-    skip: "Hanya ada di jaringan saya"
+    skip: "Lanjut tanpa login"
     manual-restart: "Dozzle tidak dapat memulai ulang dirinya sendiri di sini. Mulai ulang kontainer untuk mengaktifkan login, atau setel ini di berkas compose Anda."
     restart-hint: "Anda akan diarahkan ke halaman login. Penyiapan berlanjut setelah Anda masuk."
   actions:
@@ -831,7 +831,7 @@ setup:
     history-body: "Peringatan dan temuan tetap ada setelah memuat ulang, mulai ulang, atau seminggu."
     connect: "Hubungkan Dozzle Cloud"
     learn-more: "Pelajari lebih lanjut"
-    skip: "Lewati, mungkin nanti"
+    skip: "Jangan sekarang"
   restart:
     title: "Mulai ulang Dozzle"
     subtitle: "Perubahan ini sudah disimpan dan mulai berlaku setelah dimulai ulang."

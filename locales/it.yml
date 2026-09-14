@@ -791,7 +791,7 @@ setup:
     use-proxy: Usa il mio proxy
     oidc-body: OIDC richiede un client secret, quindi qui non viene salvato nulla. Aggiungi queste righe al tuo file compose e ricrea il container.
     oidc-docs: Guida a OpenID Connect
-    skip: È solo sulla mia rete
+    skip: "Continua senza accesso"
     manual-restart: Dozzle non può riavviarsi da solo qui. Riavvia il container per attivare l'accesso, oppure imposta questo nel tuo file compose.
     restart-hint: Arriverai alla pagina di accesso. La configurazione continua dopo aver effettuato l'accesso.
   actions:
@@ -819,7 +819,7 @@ setup:
     history-body: Avvisi e rilevamenti restano disponibili dopo un ricaricamento, un riavvio o una settimana.
     connect: Collega Dozzle Cloud
     learn-more: Scopri di più
-    skip: Salta, magari più tardi
+    skip: "Non ora"
   restart:
     title: Riavvia Dozzle
     subtitle: Queste modifiche sono salvate e funzioneranno dopo un riavvio.

@@ -797,7 +797,7 @@ setup:
     use-proxy: Uporabi mojega posrednika
     oidc-body: OIDC potrebuje skrivnost odjemalca, zato se tukaj nič ne shrani. Dodajte to v datoteko compose in znova ustvarite vsebnik.
     oidc-docs: Vodnik za OpenID Connect
-    skip: Dostopen je samo v mojem omrežju
+    skip: "Nadaljuj brez prijave"
     manual-restart: Dozzle se tukaj ne more sam znova zagnati. Znova zaženite vsebnik, da vklopite prijavo, ali to nastavite v datoteki compose.
     restart-hint: Pristali boste na strani za prijavo. Nastavitev se nadaljuje po prijavi.
   actions:
@@ -825,7 +825,7 @@ setup:
     history-body: Opozorila in ugotovitve ostanejo po osvežitvi, ponovnem zagonu ali tednu dni.
     connect: Poveži Dozzle Cloud
     learn-more: Več o tem
-    skip: Preskoči, morda pozneje
+    skip: "Ne zdaj"
   restart:
     title: Znova zaženi Dozzle
     subtitle: Spremembe so shranjene in začnejo delovati po ponovnem zagonu.

@@ -791,7 +791,7 @@ setup:
     use-proxy: 使用我的代理
     oidc-body: OIDC 需要客户端密钥，因此这里不会保存任何内容。请将以下内容添加到 compose 文件并重建容器。
     oidc-docs: OpenID Connect 指南
-    skip: 它只在我的内网中
+    skip: "不设置登录，继续"
     manual-restart: Dozzle 在此环境下无法自行重启。请重启容器以启用登录，或在 compose 文件中进行设置。
     restart-hint: 你将进入登录页面。登录后设置会继续。
   actions:
@@ -819,7 +819,7 @@ setup:
     history-body: 告警和发现在刷新、重启乃至一周之后依然保留。
     connect: 连接 Dozzle Cloud
     learn-more: 了解更多
-    skip: 跳过，以后再说
+    skip: "暂不"
   restart:
     title: 重启 Dozzle
     subtitle: 这些更改已保存，重启后生效。

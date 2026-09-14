@@ -792,7 +792,7 @@ setup:
     use-proxy: Mijn proxy gebruiken
     oidc-body: OIDC heeft een client secret nodig, dus hier wordt niets opgeslagen. Voeg dit toe aan je compose-bestand en maak de container opnieuw aan.
     oidc-docs: Handleiding OpenID Connect
-    skip: Het draait alleen op mijn netwerk
+    skip: "Doorgaan zonder inloggen"
     manual-restart: Dozzle kan zichzelf hier niet herstarten. Herstart de container om inloggen in te schakelen, of stel dit in je compose-bestand in.
     restart-hint: Je komt op de inlogpagina terecht. De installatie gaat verder nadat je bent ingelogd.
   actions:
@@ -820,7 +820,7 @@ setup:
     history-body: Meldingen en bevindingen blijven bewaard na een herlaadbeurt, een herstart of een week.
     connect: Dozzle Cloud koppelen
     learn-more: Meer informatie
-    skip: Overslaan, misschien later
+    skip: "Niet nu"
   restart:
     title: Dozzle herstarten
     subtitle: Deze wijzigingen zijn opgeslagen en werken na een herstart.

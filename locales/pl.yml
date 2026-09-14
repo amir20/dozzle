@@ -794,7 +794,7 @@ setup:
     use-proxy: Użyj mojego proxy
     oidc-body: OIDC wymaga sekretu klienta, więc nic nie jest tutaj zapisywane. Dodaj to do pliku compose i odtwórz kontener.
     oidc-docs: Przewodnik po OpenID Connect
-    skip: Działa tylko w mojej sieci
+    skip: "Kontynuuj bez logowania"
     manual-restart: Dozzle nie może się tutaj sam zrestartować. Zrestartuj kontener, aby włączyć logowanie, lub ustaw to w pliku compose.
     restart-hint: Trafisz na stronę logowania. Konfiguracja będzie kontynuowana po zalogowaniu.
   actions:
@@ -822,7 +822,7 @@ setup:
     history-body: Alerty i spostrzeżenia zostają po przeładowaniu, restarcie lub tygodniu.
     connect: Połącz Dozzle Cloud
     learn-more: Dowiedz się więcej
-    skip: Pomiń, może później
+    skip: "Nie teraz"
   restart:
     title: Zrestartuj Dozzle
     subtitle: Te zmiany zostały zapisane i zaczną działać po restarcie.

@@ -795,7 +795,7 @@ setup:
     use-proxy: Kendi proxy'mi kullan
     oidc-body: OIDC bir istemci sırrı gerektirdiği için burada hiçbir şey kaydedilmez. Bunları compose dosyanıza ekleyin ve konteyneri yeniden oluşturun.
     oidc-docs: OpenID Connect rehberi
-    skip: Yalnızca kendi ağımda
+    skip: "Giriş olmadan devam et"
     manual-restart: Dozzle burada kendini yeniden başlatamıyor. Girişi açmak için konteyneri yeniden başlatın veya bunu compose dosyanızda ayarlayın.
     restart-hint: Giriş sayfasına yönlendirileceksiniz. Giriş yaptıktan sonra kurulum devam eder.
   actions:
@@ -823,7 +823,7 @@ setup:
     history-body: Uyarılar ve bulgular sayfa yenilemesinden, yeniden başlatmadan ve bir haftadan sonra da kalır.
     connect: Dozzle Cloud'a bağlan
     learn-more: Daha fazla bilgi
-    skip: Atla, belki sonra
+    skip: "Şimdi değil"
   restart:
     title: Dozzle'ı yeniden başlat
     subtitle: Bu değişiklikler kaydedildi ve yeniden başlatmadan sonra çalışmaya başlar.

@@ -15,21 +15,15 @@
       </div>
     </div>
 
-    <div class="mt-6 flex flex-wrap items-center gap-3">
-      <a :href="linkUrl" class="btn btn-primary" @click="onConnect">
-        <mdi:link-variant class="size-4" />
-        {{ $t("setup.cloud.connect") }}
-      </a>
-      <a
-        :href="cloudUrl"
-        target="_blank"
-        rel="noreferrer noopener"
-        class="link link-hover text-base-content/60 text-sm"
-      >
-        {{ $t("setup.cloud.learn-more") }}
-        <mdi:open-in-new class="inline size-3.5 align-[-0.1em] opacity-40" />
-      </a>
-    </div>
+    <a
+      :href="cloudUrl"
+      target="_blank"
+      rel="noreferrer noopener"
+      class="link link-hover text-base-content/60 mt-4 inline-block text-sm"
+    >
+      {{ $t("setup.cloud.learn-more") }}
+      <mdi:open-in-new class="inline size-3.5 align-[-0.1em] opacity-40" />
+    </a>
   </div>
 </template>
 
@@ -61,15 +55,15 @@ const values = computed(() => [
 
 // The link leaves the app. The marker makes the wizard, not the cloud welcome
 // modal, own the #cloudLinked return.
-function onConnect() {
-  writeSetupResume(nextStep ?? "restart");
-}
-
 async function next(): Promise<SetupNextResult> {
-  return "skip";
+  writeSetupResume(nextStep ?? "restart");
+  window.location.assign(linkUrl);
+  return "stay";
 }
 
-const nextLabel = computed(() => t("setup.cloud.skip"));
+const nextLabel = computed(() => t("setup.cloud.connect"));
+const skipLabel = computed(() => t("setup.cloud.skip"));
 
-defineExpose({ nextLabel, nextDisabled: false, nextPlain: true, busy: false, next });
+// Connect stays a plain button: Cloud is optional, so neither answer is the highlighted one.
+defineExpose({ nextLabel, nextDisabled: false, nextPlain: true, skipLabel, busy: false, next });
 </script>
