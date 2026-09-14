@@ -37,7 +37,7 @@ func Test_previewExpression_respects_user_labels(t *testing.T) {
 	client.On("ContainerLogsBetweenDates", mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).
 		Return(io.NopCloser(strings.NewReader("")), nil)
 
-	manager := hostservice.NewRetriableClientManager(nil, 3*time.Second, tls.Certificate{}, docker.NewDockerClientService(client, container.ContainerLabels{}))
+	manager := hostservice.NewRetriableClientManager(nil, 3*time.Second, tls.Certificate{}, docker.NewService(client, container.ContainerLabels{}))
 	h := &handler{
 		hostService: hostservice.NewMultiHostService(manager, 3*time.Second),
 		config:      &Config{Base: "/", Authorization: Authorization{Provider: SIMPLE}},

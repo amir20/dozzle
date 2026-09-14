@@ -49,9 +49,9 @@ func localIPs() []string {
 	return ips
 }
 
-func NewSwarmClientManager(localClient *docker.DockerClient, certs tls.Certificate, timeout time.Duration, agentManager *RetriableClientManager, labels container.ContainerLabels) *SwarmClientManager {
+func NewSwarmClientManager(localClient *docker.Client, certs tls.Certificate, timeout time.Duration, agentManager *RetriableClientManager, labels container.ContainerLabels) *SwarmClientManager {
 	clientMap := make(map[string]container.ClientService)
-	localService := docker.NewDockerClientService(localClient, labels)
+	localService := docker.NewService(localClient, labels)
 	clientMap[localClient.Host().ID] = localService
 
 	id, ok := os.LookupEnv("HOSTNAME")
@@ -158,7 +158,7 @@ func (m *SwarmClientManager) RetryAndList() ([]container.ClientService, []error)
 			continue
 		}
 
-		client := agent.NewAgentService(agentClient)
+		client := agent.NewService(agentClient)
 		m.clients[host.ID] = client
 		log.Info().Stringer("ip", ip).Str("id", host.ID).Str("name", host.Name).Msg("added new swarm agent")
 
@@ -243,7 +243,7 @@ func (m *SwarmClientManager) LocalClientServices() []container.ClientService {
 
 	result := make([]container.ClientService, 0)
 	for _, service := range m.clients {
-		if _, ok := service.(*docker.DockerClientService); ok {
+		if _, ok := service.(*docker.Service); ok {
 			result = append(result, service)
 		}
 	}

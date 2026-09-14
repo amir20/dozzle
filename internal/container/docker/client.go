@@ -22,7 +22,7 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-type DockerCLI interface {
+type CLI interface {
 	ContainerList(context.Context, client.ContainerListOptions) (client.ContainerListResult, error)
 	ContainerLogs(context.Context, string, client.ContainerLogsOptions) (client.ContainerLogsResult, error)
 	Events(context.Context, client.EventsListOptions) client.EventsResult
@@ -47,8 +47,8 @@ type DockerCLI interface {
 	ServiceUpdate(ctx context.Context, serviceID string, options client.ServiceUpdateOptions) (client.ServiceUpdateResult, error)
 }
 
-type DockerClient struct {
-	cli           DockerCLI
+type Client struct {
+	cli           CLI
 	host          container.Host
 	info          system.Info
 	serviceLabels serviceLabelCache
@@ -56,7 +56,7 @@ type DockerClient struct {
 
 // NewClient connects a Docker or Podman engine. hostIDs decides what this host
 // is called; see container.HostIDResolver for why that is not decided here.
-func NewClient(cli DockerCLI, host container.Host, hostIDs container.HostIDResolver) *DockerClient {
+func NewClient(cli CLI, host container.Host, hostIDs container.HostIDResolver) *Client {
 	infoResult, err := cli.Info(context.Background(), client.InfoOptions{})
 	if err != nil {
 		log.Error().Err(err).Msg("Failed to get docker info")
@@ -86,7 +86,7 @@ func NewClient(cli DockerCLI, host container.Host, hostIDs container.HostIDResol
 		host.SwarmClusterID = info.Swarm.Cluster.ID
 	}
 
-	return &DockerClient{
+	return &Client{
 		cli:  cli,
 		host: host,
 		info: info,
@@ -94,7 +94,7 @@ func NewClient(cli DockerCLI, host container.Host, hostIDs container.HostIDResol
 }
 
 // NewLocalClient creates a new instance of Client with docker filters.
-func NewLocalClient(hostname string, hostIDs container.HostIDResolver) (*DockerClient, error) {
+func NewLocalClient(hostname string, hostIDs container.HostIDResolver) (*Client, error) {
 	cli, err := client.New(client.FromEnv, client.WithUserAgent("Docker-Client/Dozzle"))
 
 	if err != nil {
@@ -124,7 +124,7 @@ func NewLocalClient(hostname string, hostIDs container.HostIDResolver) (*DockerC
 	return NewClient(cli, host, hostIDs), nil
 }
 
-func NewRemoteClient(host container.Host, hostIDs container.HostIDResolver) (*DockerClient, error) {
+func NewRemoteClient(host container.Host, hostIDs container.HostIDResolver) (*Client, error) {
 	if host.URL.Scheme != "tcp" {
 		return nil, fmt.Errorf("invalid scheme: %s", host.URL.Scheme)
 	}
@@ -157,7 +157,7 @@ func NewRemoteClient(host container.Host, hostIDs container.HostIDResolver) (*Do
 	return NewClient(cli, host, hostIDs), nil
 }
 
-func detectRuntime(cli DockerCLI, info system.Info) string {
+func detectRuntime(cli CLI, info system.Info) string {
 	version, err := cli.ServerVersion(context.Background(), client.ServerVersionOptions{})
 	if err == nil {
 		for _, c := range version.Components {
@@ -176,7 +176,7 @@ func detectRuntime(cli DockerCLI, info system.Info) string {
 }
 
 // Finds a container by id, skipping the filters
-func (d *DockerClient) FindContainer(ctx context.Context, id string) (container.Container, error) {
+func (d *Client) FindContainer(ctx context.Context, id string) (container.Container, error) {
 	log.Debug().Str("id", id).Msg("Finding container")
 	if result, err := d.cli.ContainerInspect(ctx, id, client.ContainerInspectOptions{}); err == nil {
 		c := newContainerFromJSON(result.Container, d.host.ID)
@@ -188,7 +188,7 @@ func (d *DockerClient) FindContainer(ctx context.Context, id string) (container.
 
 }
 
-func (d *DockerClient) ContainerActions(ctx context.Context, action container.ContainerAction, containerID string) error {
+func (d *Client) ContainerActions(ctx context.Context, action container.ContainerAction, containerID string) error {
 	switch action {
 	case container.Start:
 		_, err := d.cli.ContainerStart(ctx, containerID, client.ContainerStartOptions{})
@@ -207,7 +207,7 @@ func (d *DockerClient) ContainerActions(ctx context.Context, action container.Co
 	}
 }
 
-func (d *DockerClient) ImagePull(ctx context.Context, imageName string) (io.ReadCloser, error) {
+func (d *Client) ImagePull(ctx context.Context, imageName string) (io.ReadCloser, error) {
 	return d.cli.ImagePull(ctx, imageName, client.ImagePullOptions{})
 }
 
@@ -216,7 +216,7 @@ func (d *DockerClient) ImagePull(ctx context.Context, imageName string) (io.Read
 // makes it impossible to check for updates. The repository is kept because an
 // image can carry digests for several repositories, and only the one being
 // checked is comparable.
-func (d *DockerClient) ImageRepoDigests(ctx context.Context, imageID string) ([]string, error) {
+func (d *Client) ImageRepoDigests(ctx context.Context, imageID string) ([]string, error) {
 	result, err := d.cli.ImageInspect(ctx, imageID)
 	if err != nil {
 		return nil, err
@@ -227,7 +227,7 @@ func (d *DockerClient) ImageRepoDigests(ctx context.Context, imageID string) ([]
 
 // ImageID resolves an image reference to the local image ID it currently
 // points at.
-func (d *DockerClient) ImageID(ctx context.Context, ref string) (string, error) {
+func (d *Client) ImageID(ctx context.Context, ref string) (string, error) {
 	result, err := d.cli.ImageInspect(ctx, ref)
 	if err != nil {
 		return "", err
@@ -236,17 +236,17 @@ func (d *DockerClient) ImageID(ctx context.Context, ref string) (string, error) 
 	return result.ID, nil
 }
 
-func (d *DockerClient) ContainerInspect(ctx context.Context, containerID string) (docker.InspectResponse, error) {
+func (d *Client) ContainerInspect(ctx context.Context, containerID string) (docker.InspectResponse, error) {
 	result, err := d.cli.ContainerInspect(ctx, containerID, client.ContainerInspectOptions{})
 	return result.Container, err
 }
 
-func (d *DockerClient) ContainerRemove(ctx context.Context, containerID string) error {
+func (d *Client) ContainerRemove(ctx context.Context, containerID string) error {
 	_, err := d.cli.ContainerRemove(ctx, containerID, client.ContainerRemoveOptions{})
 	return err
 }
 
-func (d *DockerClient) ContainerCreate(ctx context.Context, inspectResp docker.InspectResponse, name string) (string, error) {
+func (d *Client) ContainerCreate(ctx context.Context, inspectResp docker.InspectResponse, name string) (string, error) {
 	sharesNamespace := sanitizeForRecreate(&inspectResp)
 
 	// Build clean EndpointsConfig with only network names and aliases,
@@ -323,7 +323,7 @@ func sanitizeForRecreate(inspectResp *docker.InspectResponse) bool {
 	return isContainerMode || isHostMode
 }
 
-func (d *DockerClient) ServiceUpdate(ctx context.Context, serviceID string, imageName string) error {
+func (d *Client) ServiceUpdate(ctx context.Context, serviceID string, imageName string) error {
 	inspectResult, err := d.cli.ServiceInspect(ctx, serviceID, client.ServiceInspectOptions{})
 	if err != nil {
 		return err
@@ -335,7 +335,7 @@ func (d *DockerClient) ServiceUpdate(ctx context.Context, serviceID string, imag
 	return err
 }
 
-func (d *DockerClient) ListContainers(ctx context.Context, labels container.ContainerLabels) ([]container.Container, error) {
+func (d *Client) ListContainers(ctx context.Context, labels container.ContainerLabels) ([]container.Container, error) {
 	log.Debug().Interface("labels", labels).Str("host", d.host.Name).Msg("Listing containers")
 	filterArgs := make(client.Filters)
 	for key, values := range labels {
@@ -368,7 +368,7 @@ func (d *DockerClient) ListContainers(ctx context.Context, labels container.Cont
 	return containers, nil
 }
 
-func (d *DockerClient) ContainerStats(ctx context.Context, id string, stats chan<- container.ContainerStat) error {
+func (d *Client) ContainerStats(ctx context.Context, id string, stats chan<- container.ContainerStat) error {
 	response, err := d.cli.ContainerStats(ctx, id, client.ContainerStatsOptions{Stream: true})
 
 	if err != nil {
@@ -438,7 +438,7 @@ func (d *DockerClient) ContainerStats(ctx context.Context, id string, stats chan
 	}
 }
 
-func (d *DockerClient) ContainerLogs(ctx context.Context, id string, since time.Time, stdType container.StdType) (io.ReadCloser, error) {
+func (d *Client) ContainerLogs(ctx context.Context, id string, since time.Time, stdType container.StdType) (io.ReadCloser, error) {
 	log.Debug().Str("id", id).Time("since", since).Stringer("stdType", stdType).Str("host", d.host.Name).Msg("Streaming logs for container")
 
 	sinceQuery := since.Add(-50 * time.Millisecond).Format(time.RFC3339Nano)
@@ -459,7 +459,7 @@ func (d *DockerClient) ContainerLogs(ctx context.Context, id string, since time.
 	return reader, nil
 }
 
-func (d *DockerClient) ContainerEvents(ctx context.Context, messages chan<- container.ContainerEvent) error {
+func (d *Client) ContainerEvents(ctx context.Context, messages chan<- container.ContainerEvent) error {
 	eventsResult := d.cli.Events(ctx, client.EventsListOptions{})
 	dockerMessages := eventsResult.Messages
 	err := eventsResult.Err
@@ -491,7 +491,7 @@ func (d *DockerClient) ContainerEvents(ctx context.Context, messages chan<- cont
 	}
 }
 
-func (d *DockerClient) ContainerLogsBetweenDates(ctx context.Context, id string, from time.Time, to time.Time, stdType container.StdType) (io.ReadCloser, error) {
+func (d *Client) ContainerLogsBetweenDates(ctx context.Context, id string, from time.Time, to time.Time, stdType container.StdType) (io.ReadCloser, error) {
 	log.Debug().Str("id", id).Time("from", from).Time("to", to).Stringer("stdType", stdType).Str("host", d.host.Name).Msg("Fetching logs between dates for container")
 	options := client.ContainerLogsOptions{
 		ShowStdout: stdType&container.STDOUT != 0,
@@ -509,16 +509,16 @@ func (d *DockerClient) ContainerLogsBetweenDates(ctx context.Context, id string,
 	return reader, nil
 }
 
-func (d *DockerClient) Ping(ctx context.Context) error {
+func (d *Client) Ping(ctx context.Context) error {
 	_, err := d.cli.Ping(ctx, client.PingOptions{})
 	return err
 }
 
-func (d *DockerClient) Host() container.Host {
+func (d *Client) Host() container.Host {
 	return d.host
 }
 
-func (d *DockerClient) ContainerAttach(ctx context.Context, id string) (*container.ExecSession, error) {
+func (d *Client) ContainerAttach(ctx context.Context, id string) (*container.ExecSession, error) {
 	log.Debug().Str("id", id).Str("host", d.host.Name).Msg("Attaching to container")
 	options := client.ContainerAttachOptions{
 		Stream: true,
@@ -547,7 +547,7 @@ func (d *DockerClient) ContainerAttach(ctx context.Context, id string) (*contain
 	}, nil
 }
 
-func (d *DockerClient) ContainerExec(ctx context.Context, id string, cmd []string) (*container.ExecSession, error) {
+func (d *Client) ContainerExec(ctx context.Context, id string, cmd []string) (*container.ExecSession, error) {
 	log.Debug().Str("id", id).Str("host", d.host.Name).Msg("Executing command in container")
 	options := client.ExecCreateOptions{
 		AttachStdout: true,

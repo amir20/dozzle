@@ -78,7 +78,7 @@ func Test_handler_streamEvents_reconcilesHosts(t *testing.T) {
 	}, nil)
 	mockedClient.On("Host").Return(container.Host{ID: "localhost"})
 
-	manager := hostservice.NewRetriableClientManager(nil, 3*time.Second, tls.Certificate{}, docker.NewDockerClientService(mockedClient, container.ContainerLabels{}))
+	manager := hostservice.NewRetriableClientManager(nil, 3*time.Second, tls.Certificate{}, docker.NewService(mockedClient, container.ContainerLabels{}))
 	service := &countingHostService{HostService: hostservice.NewMultiHostService(manager, 3*time.Second)}
 
 	server := CreateServer(service, nil, Config{Base: "/", Authorization: Authorization{Provider: NONE}})

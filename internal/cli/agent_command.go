@@ -157,7 +157,7 @@ func (a *AgentCmd) Run(args Args, embeddedCerts embed.FS) error {
 	defer stop()
 
 	// Create shared client service (single ContainerStore for both agent server and notifications)
-	clientService := docker.NewDockerClientService(client, args.Filter)
+	clientService := docker.NewService(client, args.Filter)
 
 	// Create notification manager using the shared client service
 	const notificationConfigPath = "./data/notifications.yml"

@@ -21,8 +21,8 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-// DockerUpdateClient extends container.Client with Docker-specific update operations.
-type DockerUpdateClient interface {
+// UpdateClient extends container.Client with Docker-specific update operations.
+type UpdateClient interface {
 	container.Client
 	ImagePull(ctx context.Context, image string) (io.ReadCloser, error)
 	ImageRepoDigests(ctx context.Context, imageID string) ([]string, error)
@@ -61,15 +61,15 @@ func mayBeSelf(inspect docker_types.InspectResponse) bool {
 	return err == nil && len(h) >= 12 && strings.HasPrefix(inspect.ID, h)
 }
 
-type DockerClientService struct {
-	client  DockerUpdateClient
+type Service struct {
+	client  UpdateClient
 	store   *container.ContainerStore
 	checker *imagecheck.Checker
 }
 
-func NewDockerClientService(client DockerUpdateClient, labels container.ContainerLabels) *DockerClientService {
-	statsCollector := NewDockerStatsCollector(client, labels)
-	return &DockerClientService{
+func NewService(client UpdateClient, labels container.ContainerLabels) *Service {
+	statsCollector := NewStatsCollector(client, labels)
+	return &Service{
 		client:  client,
 		store:   container.NewContainerStore(context.Background(), client, statsCollector, labels),
 		checker: imagecheck.Shared(),
@@ -77,11 +77,11 @@ func NewDockerClientService(client DockerUpdateClient, labels container.Containe
 }
 
 // Client returns the underlying docker client.
-func (d *DockerClientService) Client() DockerUpdateClient {
+func (d *Service) Client() UpdateClient {
 	return d.client
 }
 
-func (d *DockerClientService) RawLogs(ctx context.Context, container container.Container, from time.Time, to time.Time, stdTypes container.StdType) (io.ReadCloser, error) {
+func (d *Service) RawLogs(ctx context.Context, container container.Container, from time.Time, to time.Time, stdTypes container.StdType) (io.ReadCloser, error) {
 	reader, err := d.client.ContainerLogsBetweenDates(ctx, container.ID, from, to, stdTypes)
 	if err != nil {
 		return nil, err
@@ -107,7 +107,7 @@ func (d *DockerClientService) RawLogs(ctx context.Context, container container.C
 
 }
 
-func (d *DockerClientService) LogsBetweenDates(ctx context.Context, c container.Container, from time.Time, to time.Time, stdTypes container.StdType) (<-chan *container.LogEvent, error) {
+func (d *Service) LogsBetweenDates(ctx context.Context, c container.Container, from time.Time, to time.Time, stdTypes container.StdType) (<-chan *container.LogEvent, error) {
 	reader, err := d.client.ContainerLogsBetweenDates(ctx, c.ID, from, to, stdTypes)
 	if err != nil {
 		return nil, err
@@ -118,7 +118,7 @@ func (d *DockerClientService) LogsBetweenDates(ctx context.Context, c container.
 	return g.Events, nil
 }
 
-func (d *DockerClientService) StreamLogs(ctx context.Context, c container.Container, from time.Time, stdTypes container.StdType, events chan<- *container.LogEvent) error {
+func (d *Service) StreamLogs(ctx context.Context, c container.Container, from time.Time, stdTypes container.StdType, events chan<- *container.LogEvent) error {
 	reader, err := d.client.ContainerLogs(ctx, c.ID, from, stdTypes)
 	if err != nil {
 		return err
@@ -142,11 +142,11 @@ func (d *DockerClientService) StreamLogs(ctx context.Context, c container.Contai
 	}
 }
 
-func (d *DockerClientService) FindContainer(ctx context.Context, id string, labels container.ContainerLabels) (container.Container, error) {
+func (d *Service) FindContainer(ctx context.Context, id string, labels container.ContainerLabels) (container.Container, error) {
 	return d.store.FindContainer(id, labels)
 }
 
-func (d *DockerClientService) ContainerAction(ctx context.Context, container container.Container, action container.ContainerAction) error {
+func (d *Service) ContainerAction(ctx context.Context, container container.Container, action container.ContainerAction) error {
 	return d.client.ContainerActions(ctx, action, container.ID)
 }
 
@@ -161,7 +161,7 @@ type pullEvent struct {
 
 // CheckImageUpdate reports whether the registry serves a newer image than the
 // one this container is running.
-func (d *DockerClientService) CheckImageUpdate(ctx context.Context, c container.Container, force bool) (imagecheck.Result, error) {
+func (d *Service) CheckImageUpdate(ctx context.Context, c container.Container, force bool) (imagecheck.Result, error) {
 	if imagecheck.Skipped(c.Labels) {
 		log.Debug().Str("container", c.Name).Msg("image update check: skipped by label")
 		return imagecheck.Result{Image: c.Image, Status: imagecheck.StatusSkipped, CheckedAt: time.Now()}, nil
@@ -194,7 +194,7 @@ func (d *DockerClientService) CheckImageUpdate(ctx context.Context, c container.
 	return d.checker.Check(ctx, selfupdate.ImageRef(inspect.Config), digests, force), nil
 }
 
-func (d *DockerClientService) UpdateContainer(ctx context.Context, c container.Container, progressCh chan<- container.UpdateProgress) (bool, error) {
+func (d *Service) UpdateContainer(ctx context.Context, c container.Container, progressCh chan<- container.UpdateProgress) (bool, error) {
 	defer close(progressCh)
 
 	// The consumer is a request: an SSE handler that returns the moment a write
@@ -319,27 +319,27 @@ func (d *DockerClientService) UpdateContainer(ctx context.Context, c container.C
 	return true, nil
 }
 
-func (d *DockerClientService) ListContainers(ctx context.Context, labels container.ContainerLabels) ([]container.Container, error) {
+func (d *Service) ListContainers(ctx context.Context, labels container.ContainerLabels) ([]container.Container, error) {
 	return d.store.ListContainers(labels)
 }
 
-func (d *DockerClientService) Host(ctx context.Context) (container.Host, error) {
+func (d *Service) Host(ctx context.Context) (container.Host, error) {
 	return d.client.Host(), nil
 }
 
-func (d *DockerClientService) SubscribeStats(ctx context.Context, stats chan<- container.ContainerStat) {
+func (d *Service) SubscribeStats(ctx context.Context, stats chan<- container.ContainerStat) {
 	d.store.SubscribeStats(ctx, stats)
 }
 
-func (d *DockerClientService) SubscribeEvents(ctx context.Context, events chan<- container.ContainerEvent) {
+func (d *Service) SubscribeEvents(ctx context.Context, events chan<- container.ContainerEvent) {
 	d.store.SubscribeEvents(ctx, events)
 }
 
-func (d *DockerClientService) SubscribeContainersStarted(ctx context.Context, containers chan<- container.Container) {
+func (d *Service) SubscribeContainersStarted(ctx context.Context, containers chan<- container.Container) {
 	d.store.SubscribeNewContainers(ctx, containers)
 }
 
-func (d *DockerClientService) Attach(ctx context.Context, c container.Container, events container.ExecEventReader, stdout io.Writer) error {
+func (d *Service) Attach(ctx context.Context, c container.Container, events container.ExecEventReader, stdout io.Writer) error {
 	cancelCtx, cancel := context.WithCancel(ctx)
 	session, err := d.client.ContainerAttach(cancelCtx, c.ID)
 	if err != nil {
@@ -396,7 +396,7 @@ func (d *DockerClientService) Attach(ctx context.Context, c container.Container,
 	return nil
 }
 
-func (d *DockerClientService) Exec(ctx context.Context, c container.Container, cmd []string, events container.ExecEventReader, stdout io.Writer) error {
+func (d *Service) Exec(ctx context.Context, c container.Container, cmd []string, events container.ExecEventReader, stdout io.Writer) error {
 	cancelCtx, cancel := context.WithCancel(ctx)
 	session, err := d.client.ContainerExec(cancelCtx, c.ID, cmd)
 	if err != nil {

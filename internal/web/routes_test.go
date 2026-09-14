@@ -107,7 +107,7 @@ func (m *MockedClient) SystemInfo() system.Info {
 	return system.Info{ID: "123"}
 }
 
-func createHandler(client docker.DockerUpdateClient, content fs.FS, config Config) *chi.Mux {
+func createHandler(client docker.UpdateClient, content fs.FS, config Config) *chi.Mux {
 	if client == nil {
 		client = new(MockedClient)
 		client.(*MockedClient).On("ListContainers", mock.Anything, mock.Anything).Return([]container.Container{}, nil)
@@ -123,7 +123,7 @@ func createHandler(client docker.DockerUpdateClient, content fs.FS, config Confi
 		content = afero.NewIOFS(fs)
 	}
 
-	manager := hostservice.NewRetriableClientManager(nil, 3*time.Second, tls.Certificate{}, docker.NewDockerClientService(client, container.ContainerLabels{}))
+	manager := hostservice.NewRetriableClientManager(nil, 3*time.Second, tls.Certificate{}, docker.NewService(client, container.ContainerLabels{}))
 	multiHostService := hostservice.NewMultiHostService(manager, 3*time.Second)
 	return createRouter(&handler{
 		hostService: multiHostService,
@@ -132,6 +132,6 @@ func createHandler(client docker.DockerUpdateClient, content fs.FS, config Confi
 	})
 }
 
-func createDefaultHandler(client docker.DockerUpdateClient) *chi.Mux {
+func createDefaultHandler(client docker.UpdateClient) *chi.Mux {
 	return createHandler(client, nil, Config{Base: "/", Authorization: Authorization{Provider: NONE}})
 }

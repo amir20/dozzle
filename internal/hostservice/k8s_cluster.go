@@ -15,14 +15,14 @@ import (
 )
 
 type K8sClusterService struct {
-	client              *k8s.K8sClientService
+	client              *k8s.Service
 	timeout             time.Duration
 	hosts               []container.Host
 	notificationManager *notification.Manager
 	persister           *notification.Persister
 }
 
-func NewK8sClusterService(client *k8s.K8sClient, timeout time.Duration) (*K8sClusterService, error) {
+func NewK8sClusterService(client *k8s.Client, timeout time.Duration) (*K8sClusterService, error) {
 	hosts := make([]container.Host, 0)
 	nodes, err := client.Clientset.CoreV1().Nodes().List(context.Background(), metav1.ListOptions{})
 	if err != nil {
@@ -46,7 +46,7 @@ func NewK8sClusterService(client *k8s.K8sClient, timeout time.Duration) (*K8sClu
 	}
 
 	return &K8sClusterService{
-		client:  k8s.NewK8sClientService(client, container.ContainerLabels{}),
+		client:  k8s.NewService(client, container.ContainerLabels{}),
 		timeout: timeout,
 		hosts:   hosts,
 	}, nil

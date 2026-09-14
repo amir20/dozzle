@@ -17,8 +17,8 @@ import (
 
 var timeToStop = 2 * time.Hour
 
-type K8sStatsCollector struct {
-	client       *K8sClient
+type StatsCollector struct {
+	client       *Client
 	metrics      *metricsclient.Clientset
 	subscribers  *xsync.Map[context.Context, chan<- container.ContainerStat]
 	stopper      context.CancelFunc
@@ -28,12 +28,12 @@ type K8sStatsCollector struct {
 	labels       container.ContainerLabels
 }
 
-func NewK8sStatsCollector(client *K8sClient, labels container.ContainerLabels) (*K8sStatsCollector, error) {
+func NewStatsCollector(client *Client, labels container.ContainerLabels) (*StatsCollector, error) {
 	metricsClient, err := metricsclient.NewForConfig(client.config)
 	if err != nil {
 		return nil, err
 	}
-	return &K8sStatsCollector{
+	return &StatsCollector{
 		subscribers: xsync.NewMap[context.Context, chan<- container.ContainerStat](),
 		client:      client,
 		labels:      labels,
@@ -41,7 +41,7 @@ func NewK8sStatsCollector(client *K8sClient, labels container.ContainerLabels) (
 	}, nil
 }
 
-func (c *K8sStatsCollector) Subscribe(ctx context.Context, stats chan<- container.ContainerStat) {
+func (c *StatsCollector) Subscribe(ctx context.Context, stats chan<- container.ContainerStat) {
 	c.subscribers.Store(ctx, stats)
 	go func() {
 		<-ctx.Done()
@@ -49,7 +49,7 @@ func (c *K8sStatsCollector) Subscribe(ctx context.Context, stats chan<- containe
 	}()
 }
 
-func (c *K8sStatsCollector) Stop() {
+func (c *StatsCollector) Stop() {
 	c.mu.Lock()
 	defer c.mu.Unlock()
 	if c.totalStarted.Add(-1) == 0 {
@@ -59,7 +59,7 @@ func (c *K8sStatsCollector) Stop() {
 	}
 }
 
-func (c *K8sStatsCollector) forceStop() {
+func (c *StatsCollector) forceStop() {
 	c.mu.Lock()
 	defer c.mu.Unlock()
 	if c.stopper != nil {
@@ -69,7 +69,7 @@ func (c *K8sStatsCollector) forceStop() {
 	}
 }
 
-func (c *K8sStatsCollector) reset() {
+func (c *StatsCollector) reset() {
 	c.mu.Lock()
 	defer c.mu.Unlock()
 	if c.timer != nil {
@@ -79,7 +79,7 @@ func (c *K8sStatsCollector) reset() {
 }
 
 // Start starts the stats collector and blocks until it's stopped. It returns true if the collector was stopped, false if it was already running
-func (sc *K8sStatsCollector) Start(parentCtx context.Context) bool {
+func (sc *StatsCollector) Start(parentCtx context.Context) bool {
 	sc.reset()
 	sc.totalStarted.Add(1)
 
