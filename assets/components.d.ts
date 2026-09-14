@@ -132,7 +132,6 @@ declare module 'vue' {
     'Mdi:arrowExpand': typeof import('~icons/mdi/arrow-expand')['default']
     'Mdi:arrowTopRight': typeof import('~icons/mdi/arrow-top-right')['default']
     'Mdi:arrowUp': typeof import('~icons/mdi/arrow-up')['default']
-    'Mdi:beer': typeof import('~icons/mdi/beer')['default']
     'Mdi:bell': typeof import('~icons/mdi/bell')['default']
     'Mdi:bellAlert': typeof import('~icons/mdi/bell-alert')['default']
     'Mdi:bellOff': typeof import('~icons/mdi/bell-off')['default']

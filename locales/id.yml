@@ -230,50 +230,43 @@ placeholder:
   search: Cari
 
 settings:
-  show-image-update-alert: 'Tampilkan notifikasi saat kontainer memiliki pembaruan'
-  show-image-update-alert-desc: 'Memeriksa registry untuk tag image yang lebih baru.'
-  help-support: >
-    Silakan dukung Dozzle dengan berdonasi atau mensponsori kami di GitHub. Kontribusi Anda membantu kami meningkatkan Dozzle untuk semua orang. Terima kasih! 🙏🏼
-  display-desc: Sesuaikan tampilan log dan sisa aplikasi. Pratinjau mencerminkan perubahan Anda secara langsung.
-  options-desc: Preferensi bahasa, navigasi, dan pengelompokan.
+  subtitle: Preferensi untuk browser ini. Perubahan disimpan secara otomatis.
+  appearance: Tampilan
+  logs: Log
+  sidebar: Bilah sisi
+  behavior: Perilaku
+  advanced: Lanjutan
+  instance: Instans ini
+  about: Tentang
+  reset: Kembalikan ke default
+  sponsor: Sponsori
+  new-version: "{version} tersedia"
+  show-image-update-alert: 'Peringatan pembaruan image'
+  show-image-update-alert-desc: 'Beri tahu jika ada tag lebih baru untuk image yang sedang berjalan.'
   cloud-desc: Streaming log ke Dozzle Cloud untuk investigasi bertenaga AI dan pencarian lintas instans.
-  support-title: Dukung Dozzle
-  support-help: Donasi membantu menjaga Dozzle tetap gratis dan terawat. Terima kasih 🙏
-  display: Tampilan
-  locale: Ganti bahasa
-  locale-desc: 'Secara bawaan mengikuti bahasa peramban Anda.'
-  small-scrollbars: Gunakan scrollbar kecil
+  locale: Bahasa
+  small-scrollbars: Scrollbar tipis
   small-scrollbars-desc: 'Bilah gulir lebih tipis, berguna pada layar kecil.'
   show-timestamps: Tampilkan cap waktu
-  show-timestamps-desc: 'Tambahkan waktu penulisan di awal setiap baris.'
-  soft-wrap: Bungkus baris secara lunak
-  soft-wrap-desc: 'Bungkus baris panjang alih-alih menggulir ke samping.'
+  soft-wrap: Bungkus baris
   highlight-errors: Sorot baris galat
-  highlight-errors-desc: 'Beri warna latar pada baris galat. Penanda level berwarna selalu ditampilkan.'
-  datetime-format: Ganti format tanggal dan waktu
-  datetime-format-desc: 'Secara bawaan mengikuti bahasa dan format jam peramban Anda.'
-  font-size: Ukuran font untuk log
-  font-size-desc: 'Hanya berlaku untuk keluaran log, bukan bagian lain aplikasi.'
-  color-scheme: Skema warna
-  color-scheme-desc: 'Auto mengikuti pengaturan sistem Anda.'
-  options: Opsi
+  highlight-errors-desc: 'Penanda level berwarna selalu ditampilkan.'
+  datetime-format: Tanggal dan waktu
+  font-size: Ukuran font
+  color-scheme: Tema
   show-stopped-containers: Tampilkan kontainer yang dihentikan
-  show-stopped-containers-desc: 'Sertakan kontainer yang berhenti di bilah sisi dan daftar.'
-  group-containers: Kelompokkan kontainer berdasarkan namespace
-  group-containers-desc: 'Mengelompokkan berdasarkan proyek Compose, stack Swarm, atau dev.dozzle.group.'
-  show-app-icons: 'Tampilkan ikon aplikasi'
-  show-app-icons-desc: 'Cocokkan image yang dikenal dengan logonya. Ikon disertakan dalam Dozzle dan tidak pernah diunduh dari internet.'
-  search: Aktifkan pencarian dengan Dozzle menggunakan
-  search-desc: 'Cari di dalam log kontainer yang sedang Anda lihat.'
-  using-version: Anda menggunakan <a href="https://dozzle.dev/" target="_blank" rel="noreferrer noopener">Dozzle</a> {version}.
-  update-available: >-
-    Versi baru tersedia! Perbarui ke <a href="{href}" target="_blank" rel="noreferrer noopener">{nextVersion}</a>.
+  group-containers: Kelompokkan kontainer
+  group-containers-desc: 'Berdasarkan proyek Compose, stack Swarm, atau dev.dozzle.group.'
+  show-app-icons: 'Ikon aplikasi'
+  show-app-icons-desc: 'Disertakan bersama Dozzle, tidak pernah diunduh dari internet.'
+  search: Cari log dengan
+  search-desc: 'Menggantikan pencarian browser saat melihat kontainer.'
   show-std: Tampilkan label stdout dan stderr
   show-std-desc: 'Tandai apakah baris berasal dari stdout atau stderr.'
-  automatic-redirect: Alihkan otomatis ke kontainer baru dengan nama yang sama
-  automatic-redirect-desc: 'Saat kontainer diganti, ikuti ke kontainer yang baru.'
-  compact: Aktifkan mode ringkas untuk log
-  compact-desc: 'Kurangi jarak antar baris log agar lebih banyak yang muat di layar.'
+  automatic-redirect: Ikuti kontainer yang dibuat ulang
+  automatic-redirect-desc: 'Saat kontainer diganti, pindah ke yang baru.'
+  compact: Mode ringkas
+  compact-desc: 'Jarak lebih rapat agar lebih banyak baris muat di layar.'
   size:
     small: Kecil
     medium: Sedang
