@@ -847,7 +847,8 @@ setup:
     restarting-hint: "De pagina herlaadt zodra de nieuwe versie reageert."
     needs-actions: "Nu bijwerken werkt zodra acties aan staan, na de herstart."
     reason-pinned-tag: "Je gebruikt een vaste versietag, dus er is niets nieuwers om op te halen. Gebruik een tag zoals latest om updates te krijgen."
-    reason-unsupported: "Dozzle kan zichzelf alleen vervangen als het draait als één Docker-container."
+    reason-unsupported: "Dozzle kan hier zijn eigen container niet vinden en kan zichzelf dus niet vervangen."
+    reason-swarm-worker: "Dozzle draait als Swarm-service op een worker-node. Alleen een manager kan de service bijwerken, dus draai Dozzle op een manager of werk het bij met docker service update."
     pull-denied: "{image} kon niet worden opgehaald. Misschien bestaat het alleen op deze machine, of vraagt de registry om docker login."
   restart:
     title: Dozzle herstarten

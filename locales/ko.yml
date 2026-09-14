@@ -850,7 +850,8 @@ setup:
     restarting-hint: "새 버전이 응답하면 바로 페이지가 새로고침됩니다."
     needs-actions: "지금 업데이트는 재시작 후 작업이 켜지면 사용할 수 있습니다."
     reason-pinned-tag: "고정된 버전 태그를 사용 중이라 받을 새 버전이 없습니다. 업데이트를 받으려면 latest 같은 태그를 사용하세요."
-    reason-unsupported: "Dozzle은 단일 Docker 컨테이너로 실행될 때만 자신을 교체할 수 있습니다."
+    reason-unsupported: "여기서는 Dozzle이 자신의 컨테이너를 찾을 수 없어 스스로 교체할 수 없습니다."
+    reason-swarm-worker: "Dozzle이 워커 노드에서 Swarm 서비스로 실행 중입니다. 서비스는 매니저만 업데이트할 수 있으므로 Dozzle을 매니저에서 실행하거나 docker service update로 업데이트하세요."
     pull-denied: "{image}을(를) 가져올 수 없습니다. 이 머신에만 있는 이미지이거나 레지스트리에 docker login이 필요할 수 있습니다."
   restart:
     title: Dozzle 재시작

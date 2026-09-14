@@ -34,8 +34,8 @@ const (
 	ReasonAutoRemove = "auto-remove"
 )
 
-// ErrSwarm is returned for a container that belongs to a swarm service; the
-// service update path handles those.
+// ErrSwarm is returned by Run for a swarm task: the helper never swaps one,
+// since Start updates those through the swarm manager instead.
 var ErrSwarm = errors.New("selfupdate: container is managed by a swarm service")
 
 // versionTag matches a full release tag such as v8.12.0 or 8.12.0-beta. Those
@@ -46,7 +46,7 @@ var versionTag = regexp.MustCompile(`^v?\d+\.\d+\.\d+([-+].*)?$`)
 var imageIDRef = regexp.MustCompile(`^(sha256:)?[0-9a-f]{12,64}$`)
 
 // SwarmTask reports whether a container with these labels belongs to a swarm
-// service, which Start refuses with ErrSwarm.
+// service, which Start updates through the manager rather than the helper.
 func SwarmTask(labels map[string]string) bool {
 	return labels[swarmLabel] != ""
 }
@@ -85,9 +85,9 @@ func support(ctx context.Context, cli dockerAPI, selfID string) (bool, string, s
 		return false, ReasonNoContainer, ""
 	}
 	self := result.Container
-	image := ImageRef(self.Config)
-	if self.Config.Labels[swarmLabel] != "" {
-		return false, ReasonNotServer, image
+	image := SelfRef(self.Config)
+	if SwarmTask(self.Config.Labels) && !swarmManager(ctx, cli, self.Config.Labels[swarmServiceIDLabel]) {
+		return false, ReasonSwarmWorker, image
 	}
 	if Pinned(image) {
 		return false, ReasonPinnedTag, image
@@ -152,12 +152,9 @@ func start(ctx context.Context, cli dockerAPI, selfID string, progress func(cont
 	if self.Config == nil {
 		return fail("inspect failed: container has no config")
 	}
-	if self.Config.Labels[swarmLabel] != "" {
-		progress(container.UpdateProgress{Status: "error", Error: ErrSwarm.Error()})
-		return false, ErrSwarm
-	}
+	swarmTask := SwarmTask(self.Config.Labels)
 
-	ref := ImageRef(self.Config)
+	ref := SelfRef(self.Config)
 	if imageIDRef.MatchString(ref) {
 		// Created from an image id: there is no tag to pull.
 		progress(container.UpdateProgress{Status: "up-to-date"})
@@ -198,6 +195,10 @@ func start(ctx context.Context, cli dockerAPI, selfID string, progress func(cont
 		log.Info().Str("image", ref).Msg("self-update: already running the latest image")
 		progress(container.UpdateProgress{Status: "up-to-date"})
 		return false, nil
+	}
+
+	if swarmTask {
+		return updateService(ctx, cli, self.Config.Labels[swarmServiceIDLabel], ref, progress)
 	}
 
 	progress(container.UpdateProgress{Status: "recreating"})

@@ -850,7 +850,8 @@ setup:
     restarting-hint: "Yeni sürüm yanıt verir vermez sayfa yeniden yüklenir."
     needs-actions: "Şimdi güncelle, yeniden başlatmadan sonra eylemler açıldığında çalışır."
     reason-pinned-tag: "Sabitlenmiş bir sürüm etiketi kullanıyorsunuz, bu yüzden çekilecek daha yeni bir şey yok. Güncelleme almak için latest gibi bir etiket kullanın."
-    reason-unsupported: "Dozzle yalnızca tek bir Docker konteyneri olarak çalıştığında kendini değiştirebilir."
+    reason-unsupported: "Dozzle burada kendi konteynerini bulamıyor, bu yüzden kendini değiştiremez."
+    reason-swarm-worker: "Dozzle bir worker düğümünde Swarm servisi olarak çalışıyor. Servisi yalnızca bir manager güncelleyebilir; Dozzle'ı bir manager üzerinde çalıştırın veya docker service update ile güncelleyin."
     pull-denied: "{image} çekilemedi. Yalnızca bu makinede bulunuyor olabilir ya da kayıt defteri docker login gerektiriyor."
   restart:
     title: Dozzle'ı yeniden başlat

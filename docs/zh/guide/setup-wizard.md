@@ -1,6 +1,6 @@
 ---
 title: 设置向导
-sourceHash: 6c58a8385357
+sourceHash: 4a73b46d7ba8
 ---
 
 # 设置向导
@@ -107,7 +107,7 @@ Dozzle 可以通过自身容器上的 `Update` 操作更新自己，也可以按
 有些部署方式无法通过这种方式更新：
 
 - **必须开启操作。** 自更新需要 `DOZZLE_ENABLE_ACTIONS`，开启登录时，`Update` 操作还需要 actions 角色。
-- **仅限服务器模式。** 以 Swarm 服务运行的 Dozzle 和其他服务一样，通过 Swarm manager 更新。Kubernetes 和 Dozzle 代理不会自行更新。
+- **服务器模式，包括以 Swarm 服务运行。** 当 Dozzle 作为 Swarm 服务的任务运行时，不会使用辅助容器：Dozzle 会请求 Swarm manager 把服务滚动更新到新镜像，并沿用 Swarm 自己的更新和回滚设置。这要求 Dozzle 运行在 manager 节点上。有多个副本时，只有第一个副本会执行计划任务。Kubernetes 和 Dozzle 代理不会自行更新。
 - **固定版本标签永远不会更新。** 拉取 `amir20/dozzle:v8.12.0` 总是得到同一个镜像，所以自动更新不可用，手动更新会报告已是最新版本。请使用 `latest`，或者自己修改标签。
 
 ## <Icon icon="mdi:shield-lock-outline" inline /> 安全

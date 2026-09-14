@@ -849,7 +849,8 @@ setup:
     restarting-hint: "新版本回應後頁面會立即重新載入。"
     needs-actions: "重新啟動後開啟操作功能，立即更新才可使用。"
     reason-pinned-tag: "你使用的是固定的版本標籤，因此沒有更新的映像檔可拉取。請使用 latest 之類的標籤來取得更新。"
-    reason-unsupported: "Dozzle 只有在以單一 Docker 容器執行時才能替換自身。"
+    reason-unsupported: "Dozzle 在這裡找不到自己的容器，因此無法替換自身。"
+    reason-swarm-worker: "Dozzle 以 Swarm 服務的形式執行在工作節點上。只有管理節點才能更新服務，請在管理節點上執行 Dozzle，或使用 docker service update 更新。"
     pull-denied: "無法拉取 {image}。它可能只存在於這台機器上，或者映像倉庫需要 docker login。"
   restart:
     title: 重新啟動 Dozzle

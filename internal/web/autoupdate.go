@@ -25,24 +25,32 @@ const (
 	autoUpdateNotServer   = selfupdate.ReasonNotServer
 	autoUpdateNoContainer = selfupdate.ReasonNoContainer
 	autoUpdatePinnedTag   = selfupdate.ReasonPinnedTag
+	autoUpdateSwarmWorker = selfupdate.ReasonSwarmWorker
 	autoUpdateActionsOff  = "actions-off"
 )
 
 // selfImage is what auto-update needs to know about Dozzle's own container.
 type selfImage struct {
-	// Ref is the reference the container was created from, e.g. amir20/dozzle:latest.
+	// Ref is the reference the container follows, e.g. amir20/dozzle:latest. For
+	// a swarm task any digest swarm pinned it to is dropped.
 	Ref     string
 	ImageID string
-	// Swarm is true for a swarm service task, which selfupdate.Start refuses.
-	Swarm       bool
-	RepoDigests []string
+	// Swarm is true for a swarm service task, which updates through the manager.
+	Swarm bool
+	// ServiceID is the swarm service a task belongs to.
+	ServiceID string
+	// SecondaryReplica is a swarm replica other than the first, which leaves the
+	// schedule to that one so the service is not rolled once per replica.
+	SecondaryReplica bool
+	RepoDigests      []string
 }
 
 // Seams for tests, so nothing here reaches docker or a registry.
 var (
-	selfUpdateStart   = selfupdate.Start
-	selfUpdateInspect = inspectSelf
-	selfUpdateCheck   = func(ctx context.Context, image string, digests []string) imagecheck.Result {
+	selfUpdateStart        = selfupdate.Start
+	selfUpdateSwarmManager = selfupdate.SwarmManager
+	selfUpdateInspect      = inspectSelf
+	selfUpdateCheck        = func(ctx context.Context, image string, digests []string) imagecheck.Result {
 		// Forced: this runs at most once a day, and a six hour old digest would
 		// quietly push the update to the next one.
 		return imagecheck.Shared().Check(ctx, image, digests, true)
@@ -77,8 +85,12 @@ func inspectSelf(ctx context.Context, hostService HostService, id string) (selfI
 		}
 		self := selfImage{ImageID: inspect.Image}
 		if inspect.Config != nil {
-			self.Ref = selfupdate.ImageRef(inspect.Config)
+			self.Ref = selfupdate.SelfRef(inspect.Config)
 			self.Swarm = selfupdate.SwarmTask(inspect.Config.Labels)
+			if self.Swarm {
+				self.ServiceID = selfupdate.SwarmServiceID(inspect.Config.Labels)
+				self.SecondaryReplica = !selfupdate.SwarmPrimary(inspect.Config.Labels)
+			}
 		}
 		if digests, err := inspector.ImageRepoDigests(ctx, inspect.Image); err == nil {
 			self.RepoDigests = digests
@@ -150,8 +162,8 @@ func checkAutoUpdateSupport(ctx context.Context, cfg *Config, hostService HostSe
 	}
 	s := autoUpdateSupport{Image: self.Ref, self: self, selfID: id}
 	switch {
-	case self.Swarm:
-		s.Reason = autoUpdateNotServer
+	case self.Swarm && !selfUpdateSwarmManager(ctx, self.ServiceID):
+		s.Reason = autoUpdateSwarmWorker
 	case !cfg.EnableActions:
 		s.Reason = autoUpdateActionsOff
 	case pinnedReference(self.Ref):
@@ -227,6 +239,10 @@ func (s *autoUpdateScheduler) tick(ctx context.Context, now time.Time) {
 	support := checkAutoUpdateSupport(ctx, s.config, s.hostService)
 	if !support.Supported {
 		log.Debug().Str("reason", support.Reason).Msg("auto update: skipped, not supported")
+		return
+	}
+	if support.self.SecondaryReplica {
+		log.Debug().Str("service", support.self.ServiceID).Msg("auto update: skipped, another replica of this service runs the schedule")
 		return
 	}
 
