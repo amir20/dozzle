@@ -104,7 +104,7 @@
                 v-model="locale"
                 :options="[
                   { label: 'Auto', value: '' },
-                  ...availableLocales.map((l) => ({ label: l.toLocaleUpperCase(), value: l })),
+                  ...availableLocales.map((l) => ({ label: localeName(l), value: l })),
                 ]"
               />
             </SettingRow>
@@ -115,12 +115,14 @@
         <section id="logs" ref="logsEl" class="scroll-mt-4">
           <h2 class="section-heading">{{ $t("settings.logs") }}</h2>
           <div class="panel">
-            <LogList
-              :messages="fakeMessages"
-              :last-selected-item="undefined"
-              :show-container-name="false"
-              class="bg-base-100 pb-2"
-            />
+            <div ref="previewEl">
+              <LogList
+                :messages="fakeMessages"
+                :last-selected-item="undefined"
+                :show-container-name="false"
+                class="bg-base-100 pb-2"
+              />
+            </div>
             <SettingRow :label="$t('settings.font-size')" class="px-4">
               <span class="join">
                 <button
@@ -383,6 +385,12 @@ import {
 
 import { availableLocales, i18n } from "@/modules/i18n";
 
+// Each language named in itself, e.g. "Deutsch", "日本語".
+function localeName(l: string) {
+  const name = new Intl.DisplayNames([l], { type: "language" }).of(l) ?? l;
+  return name.charAt(0).toLocaleUpperCase(l) + name.slice(1);
+}
+
 const { t } = useI18n();
 
 setTitle(t("title.settings"));
@@ -413,6 +421,23 @@ const sections = computed(() =>
     hasInstance.value ? { id: "instance", label: t("settings.instance"), icon: IconInstance } : undefined,
     { id: "about", label: t("settings.about"), icon: IconAbout },
   ].filter((s) => s !== undefined),
+);
+
+// The preview sits above the controls that resize it, so every change would push
+// the control out from under the pointer. Scroll by however much the preview's
+// bottom edge moved, which keeps everything below it still.
+const previewEl = useTemplateRef("previewEl");
+let previewBottom: number | undefined;
+const previewSettings = () => [size.value, compact.value, showTimestamp.value, softWrap.value];
+watch(previewSettings, () => (previewBottom = previewEl.value?.getBoundingClientRect().bottom), { flush: "pre" });
+watch(
+  previewSettings,
+  () => {
+    if (previewBottom === undefined || !previewEl.value) return;
+    window.scrollBy(0, previewEl.value.getBoundingClientRect().bottom - previewBottom);
+    previewBottom = undefined;
+  },
+  { flush: "post" },
 );
 
 // Scroll spy: the active section is the last one whose top has scrolled past a
