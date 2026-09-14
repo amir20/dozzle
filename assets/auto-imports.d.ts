@@ -15,6 +15,8 @@ declare global {
   const K8sOwner: typeof import('./stores/k8s').K8sOwner
   const MIN_MENU_WIDTH: typeof import('./stores/settings').MIN_MENU_WIDTH
   const RAIL_WIDTH: typeof import('./composable/cloud/cloudRail').RAIL_WIDTH
+  const SETUP_RESUME_KEY: typeof import('./composable/setup/setup').SETUP_RESUME_KEY
+  const SetupError: typeof import('./composable/setup/setup').SetupError
   const TEMPLATE_VARIABLES: typeof import('./composable/editor/templateEditor').TEMPLATE_VARIABLES
   const acceptHMRUpdate: typeof import('pinia').acceptHMRUpdate
   const allLevels: typeof import('./composable/logs/logContext').allLevels
@@ -25,6 +27,7 @@ declare global {
   const automaticRedirect: typeof import('./stores/settings').automaticRedirect
   const buildViewContext: typeof import('./composable/logs/viewContext').buildViewContext
   const canHover: typeof import('./composable/ui/media').canHover
+  const clearSetupResume: typeof import('./composable/setup/setup').clearSetupResume
   const collapseCloudRail: typeof import('./stores/settings').collapseCloudRail
   const collapseNav: typeof import('./stores/settings').collapseNav
   const colorize: typeof import('./utils/index').colorize
@@ -168,6 +171,7 @@ declare global {
   const reactiveComputed: typeof import('@vueuse/core').reactiveComputed
   const reactiveOmit: typeof import('@vueuse/core').reactiveOmit
   const reactivePick: typeof import('@vueuse/core').reactivePick
+  const readSetupResume: typeof import('./composable/setup/setup').readSetupResume
   const readonly: typeof import('vue').readonly
   const ref: typeof import('vue').ref
   const refAutoReset: typeof import('@vueuse/core').refAutoReset
@@ -188,6 +192,12 @@ declare global {
   const setMapStoreSuffix: typeof import('pinia').setMapStoreSuffix
   const setTitle: typeof import('./composable/app/title').setTitle
   const settings: typeof import('./stores/settings').settings
+  const setupEnvSnippet: typeof import('./composable/setup/setup').setupEnvSnippet
+  const setupHasPending: typeof import('./composable/setup/setup').setupHasPending
+  const setupLoginConfigured: typeof import('./composable/setup/setup').setupLoginConfigured
+  const setupShouldAutoOpen: typeof import('./composable/setup/setup').setupShouldAutoOpen
+  const setupSteps: typeof import('./composable/setup/setup').setupSteps
+  const setupToggles: typeof import('./composable/setup/setup').setupToggles
   const shallowReactive: typeof import('vue').shallowReactive
   const shallowReadonly: typeof import('vue').shallowReadonly
   const shallowRef: typeof import('vue').shallowRef
@@ -399,6 +409,7 @@ declare global {
   const useSeoMeta: typeof import('@vueuse/head').useSeoMeta
   const useServiceStream: typeof import('./composable/logs/eventStreams').useServiceStream
   const useSessionStorage: typeof import('@vueuse/core').useSessionStorage
+  const useSetup: typeof import('./composable/setup/setup').useSetup
   const useShare: typeof import('@vueuse/core').useShare
   const useSimpleRefHistory: typeof import('./utils/index').useSimpleRefHistory
   const useSlots: typeof import('vue').useSlots
@@ -472,6 +483,7 @@ declare global {
   const watchWithFilter: typeof import('@vueuse/core').watchWithFilter
   const whenever: typeof import('@vueuse/core').whenever
   const withBase: typeof import('./stores/config').withBase
+  const writeSetupResume: typeof import('./composable/setup/setup').writeSetupResume
 }
 // for type re-export
 declare global {
@@ -527,6 +539,9 @@ declare global {
   export type { AlertType, AlertPrefill, AlertFormOptions, ContainerResult, SaveBlocker } from './composable/notifications/alertForm'
   import('./composable/notifications/alertForm')
   // @ts-ignore
+  export type { SetupError, SetupStepId, SetupStepState, SetupStatus, SetupNextResult, SetupStepHandle, SetupCloudFacts } from './composable/setup/setup'
+  import('./composable/setup/setup')
+  // @ts-ignore
   export type { PopoverPlacement } from './composable/ui/popover'
   import('./composable/ui/popover')
   // @ts-ignore
@@ -553,6 +568,8 @@ declare module 'vue' {
     readonly K8sNamespace: UnwrapRef<typeof import('./stores/k8s')['K8sNamespace']>
     readonly K8sOwner: UnwrapRef<typeof import('./stores/k8s')['K8sOwner']>
     readonly RAIL_WIDTH: UnwrapRef<typeof import('./composable/cloud/cloudRail')['RAIL_WIDTH']>
+    readonly SETUP_RESUME_KEY: UnwrapRef<typeof import('./composable/setup/setup')['SETUP_RESUME_KEY']>
+    readonly SetupError: UnwrapRef<typeof import('./composable/setup/setup')['SetupError']>
     readonly TEMPLATE_VARIABLES: UnwrapRef<typeof import('./composable/editor/templateEditor')['TEMPLATE_VARIABLES']>
     readonly acceptHMRUpdate: UnwrapRef<typeof import('pinia')['acceptHMRUpdate']>
     readonly allLevels: UnwrapRef<typeof import('./composable/logs/logContext')['allLevels']>
@@ -563,6 +580,7 @@ declare module 'vue' {
     readonly automaticRedirect: UnwrapRef<typeof import('./stores/settings')['automaticRedirect']>
     readonly buildViewContext: UnwrapRef<typeof import('./composable/logs/viewContext')['buildViewContext']>
     readonly canHover: UnwrapRef<typeof import('./composable/ui/media')['canHover']>
+    readonly clearSetupResume: UnwrapRef<typeof import('./composable/setup/setup')['clearSetupResume']>
     readonly collapseCloudRail: UnwrapRef<typeof import('./stores/settings')['collapseCloudRail']>
     readonly collapseNav: UnwrapRef<typeof import('./stores/settings')['collapseNav']>
     readonly colorize: UnwrapRef<typeof import('./utils/index')['colorize']>
@@ -703,6 +721,7 @@ declare module 'vue' {
     readonly reactiveComputed: UnwrapRef<typeof import('@vueuse/core')['reactiveComputed']>
     readonly reactiveOmit: UnwrapRef<typeof import('@vueuse/core')['reactiveOmit']>
     readonly reactivePick: UnwrapRef<typeof import('@vueuse/core')['reactivePick']>
+    readonly readSetupResume: UnwrapRef<typeof import('./composable/setup/setup')['readSetupResume']>
     readonly readonly: UnwrapRef<typeof import('vue')['readonly']>
     readonly ref: UnwrapRef<typeof import('vue')['ref']>
     readonly refAutoReset: UnwrapRef<typeof import('@vueuse/core')['refAutoReset']>
@@ -722,6 +741,12 @@ declare module 'vue' {
     readonly setMapStoreSuffix: UnwrapRef<typeof import('pinia')['setMapStoreSuffix']>
     readonly setTitle: UnwrapRef<typeof import('./composable/app/title')['setTitle']>
     readonly settings: UnwrapRef<typeof import('./stores/settings')['settings']>
+    readonly setupEnvSnippet: UnwrapRef<typeof import('./composable/setup/setup')['setupEnvSnippet']>
+    readonly setupHasPending: UnwrapRef<typeof import('./composable/setup/setup')['setupHasPending']>
+    readonly setupLoginConfigured: UnwrapRef<typeof import('./composable/setup/setup')['setupLoginConfigured']>
+    readonly setupShouldAutoOpen: UnwrapRef<typeof import('./composable/setup/setup')['setupShouldAutoOpen']>
+    readonly setupSteps: UnwrapRef<typeof import('./composable/setup/setup')['setupSteps']>
+    readonly setupToggles: UnwrapRef<typeof import('./composable/setup/setup')['setupToggles']>
     readonly shallowReactive: UnwrapRef<typeof import('vue')['shallowReactive']>
     readonly shallowReadonly: UnwrapRef<typeof import('vue')['shallowReadonly']>
     readonly shallowRef: UnwrapRef<typeof import('vue')['shallowRef']>
@@ -931,6 +956,7 @@ declare module 'vue' {
     readonly useSeoMeta: UnwrapRef<typeof import('@vueuse/head')['useSeoMeta']>
     readonly useServiceStream: UnwrapRef<typeof import('./composable/logs/eventStreams')['useServiceStream']>
     readonly useSessionStorage: UnwrapRef<typeof import('@vueuse/core')['useSessionStorage']>
+    readonly useSetup: UnwrapRef<typeof import('./composable/setup/setup')['useSetup']>
     readonly useShare: UnwrapRef<typeof import('@vueuse/core')['useShare']>
     readonly useSimpleRefHistory: UnwrapRef<typeof import('./utils/index')['useSimpleRefHistory']>
     readonly useSlots: UnwrapRef<typeof import('vue')['useSlots']>
@@ -1004,5 +1030,6 @@ declare module 'vue' {
     readonly watchWithFilter: UnwrapRef<typeof import('@vueuse/core')['watchWithFilter']>
     readonly whenever: UnwrapRef<typeof import('@vueuse/core')['whenever']>
     readonly withBase: UnwrapRef<typeof import('./stores/config')['withBase']>
+    readonly writeSetupResume: UnwrapRef<typeof import('./composable/setup/setup')['writeSetupResume']>
   }
 }

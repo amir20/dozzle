@@ -75,6 +75,20 @@
       </div>
     </section>
 
+    <!-- SETUP -->
+    <section v-if="config.mode === 'server'">
+      <div class="border-base-content/15 bg-base-200/40 flex items-center gap-3 rounded-lg border p-4">
+        <div class="bg-base-content/10 text-base-content/70 shrink-0 rounded-full p-2">
+          <mdi:rocket-launch-outline class="size-5" />
+        </div>
+        <div class="min-w-0 flex-1">
+          <div class="text-sm font-medium">{{ $t("setup.settings-title") }}</div>
+          <div class="text-base-content/60 text-xs">{{ $t("setup.settings-desc") }}</div>
+        </div>
+        <button type="button" class="btn btn-sm shrink-0" @click="openWizard">{{ $t("setup.settings-open") }}</button>
+      </div>
+    </section>
+
     <!-- CLOUD -->
     <section id="cloud" class="flex scroll-mt-4 flex-col gap-4" v-if="config.enableCloud && config.canLinkCloud">
       <div>
@@ -292,6 +306,7 @@ const { t } = useI18n();
 
 setTitle(t("title.settings"));
 const { latestRelease, hasRelease } = useAnnouncements();
+const { openWizard } = useSetup();
 
 const dateFmt: Intl.DateTimeFormatOptions = { year: "numeric", month: "short", day: "numeric" };
 

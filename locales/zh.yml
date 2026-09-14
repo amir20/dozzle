@@ -747,3 +747,98 @@ command-palette:
   toggle-std: 切换 stdout/stderr 标签
   toggle-scrollbars: 切换更小的滚动条
   open-settings: 打开设置
+setup:
+  title: 设置 Dozzle
+  next: 下一步
+  back: 返回
+  finish-later: 稍后完成
+  close: 关闭
+  copy: 复制
+  settings-title: 设置 Dozzle
+  settings-desc: 几步完成登录、容器操作、Shell 和 Dozzle Cloud 的设置。
+  settings-open: 打开设置向导
+  steps:
+    login: 登录
+    login-note: 请先完成此步
+    actions: 操作与 Shell
+    cloud: Dozzle Cloud
+    cloud-note: 可选
+    restart: 重启
+  login:
+    title: 启用登录
+    subtitle: 任何能访问 Dozzle 的人都能读取你的日志。请先锁定访问。
+    no-data-title: 未挂载 /data
+    no-data-body: 用户和设置保存在 /data 中。没有挂载卷的话，下次重建容器时它们就会丢失。请挂载一个卷后再检查。
+    check-again: 重新检查
+    tab-account: Dozzle 账户
+    tab-proxy: 我的代理
+    tab-oidc: OIDC
+    username: 用户名
+    email: 邮箱
+    optional: （可选）
+    password: 密码
+    confirm: 确认密码
+    password-hint: 至少 8 个字符。用户名可包含字母、数字、点、短横线和下划线。
+    saved-volume: 已保存到挂载的卷
+    after-restart: 重启后启用登录
+    on: 登录已启用
+    users-exist: users.yml 已存在。将认证提供方设置为 simple 即可使用它。
+    create-account: 创建账户
+    proxy-body: Authelia、Authentik、Cloudflare Access 等服务负责用户登录，然后通过 Remote-User 请求头将用户名传给 Dozzle。
+    proxy-warning-title: 只对外暴露代理
+    proxy-warning-body: Dozzle 信任任何来源的该请求头。如果 Dozzle 自身的端口可以被访问，任何人都能冒充任意用户。
+    proxy-docs: 转发代理指南
+    use-proxy: 使用我的代理
+    oidc-body: OIDC 需要客户端密钥，因此这里不会保存任何内容。请将以下内容添加到 compose 文件并重建容器。
+    oidc-docs: OpenID Connect 指南
+    skip: 它只在我的内网中
+    manual-restart: Dozzle 在此环境下无法自行重启。请重启容器以启用登录，或在 compose 文件中进行设置。
+    restart-hint: 你将进入登录页面。登录后设置会继续。
+  actions:
+    title: 操作与 Shell
+    subtitle: 决定 Dozzle 可以对你的容器做什么。
+    example-status: 已退出 (1) 2 分钟前
+    example-restart: 重启
+    actions-label: 启动、停止和重启
+    actions-desc: 在发现错误的页面上直接修复崩溃的容器。
+    shell-label: Shell
+    shell-desc: 附加到容器或在容器内运行命令。
+    shell-warning: 容器的 Shell 访问权限通常等同于主机的访问权限。除非需要，否则请保持关闭。
+    locked: "由 {env} 设置"
+    window-closed: 15 分钟后设置将不再接受匿名更改。重启 Dozzle 可重新开放，或使用环境变量进行设置。
+    no-access: 你的账户无权更改这些设置。
+    restart-note: 这些设置将在 Dozzle 重启后生效。
+  cloud:
+    title: 连接 Dozzle Cloud
+    subtitle: 无需一直开着标签页，也能在出问题时第一时间知道。
+    alerts-title: 出问题时立即告警
+    alerts-body: 崩溃、OOM 终止和错误激增，发送到邮箱、Slack 或 Discord。
+    summary-title: 每日早间待修复摘要
+    summary-body: 每天一份按优先级排序的问题清单，只列值得你花时间的问题。
+    history-title: 重启后依然保留的历史
+    history-body: 告警和发现在刷新、重启乃至一周之后依然保留。
+    connect: 连接 Dozzle Cloud
+    learn-more: 了解更多
+    skip: 跳过，以后再说
+  restart:
+    title: 重启 Dozzle
+    subtitle: 这些更改已保存，重启后生效。
+    change-auth: 登录
+    "on": "开启"
+    "off": "关闭"
+    button: 重启 Dozzle
+    restarting: 正在重启 Dozzle
+    restarting-hint: Dozzle 恢复后页面会自动刷新。
+    slow-title: 耗时比预期长
+    slow-body: Dozzle 还没有恢复。请检查容器，然后刷新页面。
+    reload: 刷新
+    manual: Dozzle 在此环境下无法自行重启。请重启容器，或在 compose 文件中进行设置。
+    done-title: 一切就绪
+    done-body: 无需重启。你可以随时从设置中回到这里。
+    done: 完成
+  error:
+    generic: 出错了，请重试。
+    load: 无法加载设置向导，请稍后再试。
+    conflict: 该项已设置，或已由环境变量固定。
+    no-data: 未挂载 /data，因此无法保存。
+    forbidden: 你无权更改此项。

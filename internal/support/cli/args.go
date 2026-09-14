@@ -59,6 +59,7 @@ type Args struct {
 	GenerateCerts          *GenerateCertsCmd   `arg:"subcommand:generate-certs" help:"generates a unique certificate and key for agent connections"`
 	Agent                  *AgentCmd           `arg:"subcommand:agent" help:"starts the agent"`
 	AgentTest              *AgentTestCmd       `arg:"subcommand:agent-test" help:"tests an agent"`
+	Locked                 Locked              `arg:"-"`
 }
 
 type Runnable interface {
@@ -74,6 +75,11 @@ func ParseArgs() (Args, any) {
 	parser := arg.MustParse(&args)
 
 	ConfigureLogger(args.Level)
+
+	// dozzle.yml only configures the server; subcommands never read it.
+	if parser.Subcommand() == nil {
+		loadConfigFile(&args)
+	}
 
 	args.Filter = make(map[string][]string)
 

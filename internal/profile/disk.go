@@ -52,6 +52,7 @@ type Profile struct {
 	CollapsedGroups       []string  `json:"collapsedGroups"`
 	DismissedImageUpdates []string  `json:"dismissedImageUpdates,omitempty"`
 	DismissedLinkHint     bool      `json:"dismissedLinkHint,omitempty"`
+	SetupSeen             bool      `json:"setupSeen,omitempty"`
 	// Nanoseconds of the newest alert this user has opened the history for.
 	// Follows them across browsers, because "have I looked at this" is about
 	// the person and not the machine.

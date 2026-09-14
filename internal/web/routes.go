@@ -62,6 +62,17 @@ type Config struct {
 	ImageCheckMode   imagecheck.Mode
 	Labels           container.ContainerLabels
 	Cloud            CloudHooks
+	Setup            SetupConfig
+}
+
+// SetupConfig is what the setup wizard needs to know about how this process
+// was configured. A Locked field was set by a flag or env var, so the wizard
+// shows it read-only instead of writing a dozzle.yml value that would lose.
+type SetupConfig struct {
+	LockedAuthProvider  bool
+	LockedEnableActions bool
+	LockedEnableShell   bool
+	StartedAt           time.Time
 }
 
 // CloudHooks bundles cloud-side callbacks the web layer invokes. Grouping
@@ -263,6 +274,18 @@ func createRouter(h *handler) *chi.Mux {
 					r.Post("/preview", h.previewExpression)
 					r.Post("/test-webhook", h.testWebhook)
 				})
+
+				// Setup wizard. Server mode only; swarm and k8s never show it.
+				if h.config.Mode == "server" {
+					r.Get("/setup", h.getSetup)
+					r.Patch("/setup/config", h.updateSetupConfig)
+					r.Post("/setup/restart", h.restartSetup)
+					// Choosing a login only exists while there is none.
+					if h.config.Authorization.Provider == NONE {
+						r.Post("/setup/account", h.createSetupAccount)
+						r.Post("/setup/auth", h.updateSetupAuth)
+					}
+				}
 
 				// Releases API
 				r.Get("/releases", h.getReleases)

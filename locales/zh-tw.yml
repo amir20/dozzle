@@ -750,3 +750,98 @@ command-palette:
   toggle-std: 切換 stdout/stderr 標籤
   toggle-scrollbars: 切換較小的捲軸
   open-settings: 開啟設定
+setup:
+  title: 設定 Dozzle
+  next: 下一步
+  back: 返回
+  finish-later: 稍後完成
+  close: 關閉
+  copy: 複製
+  settings-title: 設定 Dozzle
+  settings-desc: 幾個步驟完成登入、容器操作、Shell 與 Dozzle Cloud 的設定。
+  settings-open: 開啟設定精靈
+  steps:
+    login: 登入
+    login-note: 請先完成此步驟
+    actions: 操作與 Shell
+    cloud: Dozzle Cloud
+    cloud-note: 選用
+    restart: 重新啟動
+  login:
+    title: 啟用登入
+    subtitle: 任何能連到 Dozzle 的人都能讀取你的日誌。請先鎖定存取。
+    no-data-title: 未掛載 /data
+    no-data-body: 使用者與設定會儲存在 /data。沒有掛載磁碟區的話，下次重建容器時它們就會消失。請掛載一個磁碟區後再檢查。
+    check-again: 重新檢查
+    tab-account: Dozzle 帳戶
+    tab-proxy: 我的代理伺服器
+    tab-oidc: OIDC
+    username: 使用者名稱
+    email: 電子郵件
+    optional: （選用）
+    password: 密碼
+    confirm: 確認密碼
+    password-hint: 至少 8 個字元。使用者名稱可包含字母、數字、點、連字號與底線。
+    saved-volume: 已儲存到掛載的磁碟區
+    after-restart: 重新啟動後啟用登入
+    on: 登入已啟用
+    users-exist: users.yml 已存在。將驗證提供者設為 simple 即可使用它。
+    create-account: 建立帳戶
+    proxy-body: Authelia、Authentik、Cloudflare Access 等服務負責使用者登入，再透過 Remote-User 標頭將使用者名稱傳給 Dozzle。
+    proxy-warning-title: 只對外公開代理伺服器
+    proxy-warning-body: Dozzle 會信任任何來源的這個標頭。如果 Dozzle 本身的連接埠可被存取，任何人都能冒充任意使用者。
+    proxy-docs: 轉發代理指南
+    use-proxy: 使用我的代理伺服器
+    oidc-body: OIDC 需要用戶端密鑰，因此這裡不會儲存任何內容。請將以下內容加入 compose 檔案並重建容器。
+    oidc-docs: OpenID Connect 指南
+    skip: 它只在我的內部網路中
+    manual-restart: Dozzle 在此環境下無法自行重新啟動。請重新啟動容器以啟用登入，或在 compose 檔案中設定。
+    restart-hint: 你會進入登入頁面。登入後設定會繼續。
+  actions:
+    title: 操作與 Shell
+    subtitle: 決定 Dozzle 可以對你的容器做什麼。
+    example-status: 已結束 (1) 2 分鐘前
+    example-restart: 重新啟動
+    actions-label: 啟動、停止與重新啟動
+    actions-desc: 在發現錯誤的頁面上直接修復當掉的容器。
+    shell-label: Shell
+    shell-desc: 附加到容器或在容器內執行指令。
+    shell-warning: 容器的 Shell 存取權通常等同於主機的存取權。除非需要，否則請保持關閉。
+    locked: "由 {env} 設定"
+    window-closed: 15 分鐘後設定將不再接受匿名變更。重新啟動 Dozzle 可再次開放，或使用環境變數設定。
+    no-access: 你的帳戶無權變更這些設定。
+    restart-note: 這些設定會在 Dozzle 重新啟動後生效。
+  cloud:
+    title: 連接 Dozzle Cloud
+    subtitle: 不必一直開著分頁，也能在出問題時馬上知道。
+    alerts-title: 出問題時立即通知
+    alerts-body: 當機、OOM 終止與錯誤激增，傳送到電子郵件、Slack 或 Discord。
+    summary-title: 每日早晨待修復摘要
+    summary-body: 每天一份依優先順序排列的問題清單，只列出值得你花時間的問題。
+    history-title: 重新啟動後仍保留的歷史
+    history-body: 警示與發現在重新整理、重新啟動甚至一週之後仍會保留。
+    connect: 連接 Dozzle Cloud
+    learn-more: 了解更多
+    skip: 略過，以後再說
+  restart:
+    title: 重新啟動 Dozzle
+    subtitle: 這些變更已儲存，重新啟動後生效。
+    change-auth: 登入
+    "on": "開啟"
+    "off": "關閉"
+    button: 重新啟動 Dozzle
+    restarting: 正在重新啟動 Dozzle
+    restarting-hint: Dozzle 恢復後頁面會自動重新整理。
+    slow-title: 花費的時間比預期長
+    slow-body: Dozzle 尚未恢復。請檢查容器，然後重新整理頁面。
+    reload: 重新整理
+    manual: Dozzle 在此環境下無法自行重新啟動。請重新啟動容器，或在 compose 檔案中設定。
+    done-title: 一切就緒
+    done-body: 不需要重新啟動。你隨時可以從設定回到這裡。
+    done: 完成
+  error:
+    generic: 發生錯誤，請再試一次。
+    load: 無法載入設定精靈，請稍後再試。
+    conflict: 此項已設定，或已由環境變數固定。
+    no-data: 未掛載 /data，因此無法儲存。
+    forbidden: 你無權變更此項。

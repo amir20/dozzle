@@ -753,3 +753,98 @@ command-palette:
   toggle-std: Preklopi oznake stdout/stderr
   toggle-scrollbars: Preklopi manjše drsnike
   open-settings: Odpri nastavitve
+setup:
+  title: Nastavitev Dozzle
+  next: Naprej
+  back: Nazaj
+  finish-later: Dokončaj pozneje
+  close: Zapri
+  copy: Kopiraj
+  settings-title: Nastavitev Dozzle
+  settings-desc: Prijava, dejanja na vsebnikih, lupina in Dozzle Cloud v nekaj korakih.
+  settings-open: Odpri nastavitev
+  steps:
+    login: Prijava
+    login-note: To naredite najprej
+    actions: Dejanja in lupina
+    cloud: Dozzle Cloud
+    cloud-note: Neobvezno
+    restart: Ponovni zagon
+  login:
+    title: Vklopi prijavo
+    subtitle: Kdorkoli, ki lahko doseže Dozzle, lahko bere vaše dnevnike. Pred vsem drugim omejite dostop.
+    no-data-title: /data ni priklopljen
+    no-data-body: Uporabniki in nastavitve se shranijo v /data. Brez nosilca izginejo, ko je vsebnik naslednjič znova ustvarjen. Priklopite nosilec in preverite znova.
+    check-again: Preveri znova
+    tab-account: Račun Dozzle
+    tab-proxy: Moj posrednik
+    tab-oidc: OIDC
+    username: Uporabniško ime
+    email: E-pošta
+    optional: (neobvezno)
+    password: Geslo
+    confirm: Potrdi geslo
+    password-hint: Vsaj 8 znakov. V uporabniškem imenu so dovoljene črke, številke, pike, vezaji in podčrtaji.
+    saved-volume: Shranjeno na priklopljen nosilec
+    after-restart: Prijava se vklopi po ponovnem zagonu
+    on: Prijava je vklopljena
+    users-exist: Datoteka users.yml že obstaja. Za njeno uporabo nastavite ponudnika overjanja na simple.
+    create-account: Ustvari račun
+    proxy-body: Authelia, Authentik, Cloudflare Access in podobni prijavijo uporabnike, nato pa uporabniško ime posredujejo Dozzle v glavi Remote-User.
+    proxy-warning-title: Objavite samo posrednika
+    proxy-warning-body: Dozzle tej glavi zaupa ne glede na pošiljatelja. Če so vrata Dozzle dosegljiva neposredno, se lahko kdorkoli izdaja za kateregakoli uporabnika.
+    proxy-docs: Vodnik za forward proxy
+    use-proxy: Uporabi mojega posrednika
+    oidc-body: OIDC potrebuje skrivnost odjemalca, zato se tukaj nič ne shrani. Dodajte to v datoteko compose in znova ustvarite vsebnik.
+    oidc-docs: Vodnik za OpenID Connect
+    skip: Dostopen je samo v mojem omrežju
+    manual-restart: Dozzle se tukaj ne more sam znova zagnati. Znova zaženite vsebnik, da vklopite prijavo, ali to nastavite v datoteki compose.
+    restart-hint: Pristali boste na strani za prijavo. Nastavitev se nadaljuje po prijavi.
+  actions:
+    title: Dejanja in lupina
+    subtitle: Odločite, kaj sme Dozzle početi z vašimi vsebniki.
+    example-status: Končan (1) pred 2 minutama
+    example-restart: Znova zaženi
+    actions-label: Zagon, ustavitev in ponovni zagon
+    actions-desc: Popravite sesut vsebnik kar na strani, kjer ste našli napako.
+    shell-label: Lupina
+    shell-desc: Priključite se na vsebnik ali v njem izvajajte ukaze.
+    shell-warning: Dostop do lupine vsebnika je pogosto enakovreden dostopu do gostitelja. Pustite izklopljeno, razen če ga potrebujete.
+    locked: "Nastavljeno z {env}"
+    window-closed: Po 15 minutah je nastavitev zaprta za anonimne spremembe. Znova zaženite Dozzle, da jo znova odprete, ali to nastavite z okoljskimi spremenljivkami.
+    no-access: Vaš račun ne more spreminjati teh nastavitev.
+    restart-note: Spremembe začnejo veljati po ponovnem zagonu Dozzle.
+  cloud:
+    title: Poveži Dozzle Cloud
+    subtitle: Izvedite, ko se kaj pokvari, ne da bi imeli odprt zavihek.
+    alerts-title: Opozorila v trenutku, ko se kaj pokvari
+    alerts-body: Sesutja, prekinitve zaradi OOM in porasti napak, poslani na e-pošto, Slack ali Discord.
+    summary-title: Jutranji povzetek, kaj popraviti
+    summary-body: En razvrščen seznam težav, vrednih vašega časa, vsak dan.
+    history-title: Zgodovina, ki preživi ponovne zagone
+    history-body: Opozorila in ugotovitve ostanejo po osvežitvi, ponovnem zagonu ali tednu dni.
+    connect: Poveži Dozzle Cloud
+    learn-more: Več o tem
+    skip: Preskoči, morda pozneje
+  restart:
+    title: Znova zaženi Dozzle
+    subtitle: Spremembe so shranjene in začnejo delovati po ponovnem zagonu.
+    change-auth: Prijava
+    "on": "Vklopljeno"
+    "off": "Izklopljeno"
+    button: Znova zaženi Dozzle
+    restarting: Ponovni zagon Dozzle
+    restarting-hint: Stran se osveži, takoj ko je Dozzle spet na voljo.
+    slow-title: To traja dlje kot običajno
+    slow-body: Dozzle še ni spet na voljo. Preverite vsebnik in nato osvežite stran.
+    reload: Osveži
+    manual: Dozzle se tukaj ne more sam znova zagnati. Znova zaženite vsebnik ali to nastavite v datoteki compose.
+    done-title: Vse je pripravljeno
+    done-body: Ponovni zagon ni potreben. K temu se lahko kadarkoli vrnete v nastavitvah.
+    done: Končano
+  error:
+    generic: Nekaj je šlo narobe. Poskusite znova.
+    load: Nastavitve ni bilo mogoče naložiti. Poskusite pozneje.
+    conflict: To je že nastavljeno ali določeno z okoljsko spremenljivko.
+    no-data: /data ni priklopljen, zato tega ni mogoče shraniti.
+    forbidden: Tega ne smete spreminjati.

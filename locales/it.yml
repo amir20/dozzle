@@ -747,3 +747,98 @@ command-palette:
   toggle-std: Attiva/disattiva etichette stdout/stderr
   toggle-scrollbars: Attiva/disattiva barre di scorrimento più piccole
   open-settings: Apri impostazioni
+setup:
+  title: Configura Dozzle
+  next: Avanti
+  back: Indietro
+  finish-later: Termina più tardi
+  close: Chiudi
+  copy: Copia
+  settings-title: Configura Dozzle
+  settings-desc: Accesso, azioni sui container, shell e Dozzle Cloud in pochi passaggi.
+  settings-open: Apri configurazione
+  steps:
+    login: Accesso
+    login-note: Fai questo per primo
+    actions: Azioni e shell
+    cloud: Dozzle Cloud
+    cloud-note: Facoltativo
+    restart: Riavvio
+  login:
+    title: Attiva l'accesso
+    subtitle: Chiunque possa raggiungere Dozzle può leggere i tuoi log. Proteggilo prima di tutto.
+    no-data-title: /data non è montato
+    no-data-body: Utenti e impostazioni vengono salvati in /data. Senza un volume andranno persi la prossima volta che il container viene ricreato. Montane uno e controlla di nuovo.
+    check-again: Controlla di nuovo
+    tab-account: Account Dozzle
+    tab-proxy: Il mio proxy
+    tab-oidc: OIDC
+    username: Nome utente
+    email: Email
+    optional: (facoltativo)
+    password: Password
+    confirm: Conferma password
+    password-hint: Almeno 8 caratteri. Lettere, numeri, punti, trattini e trattini bassi nel nome utente.
+    saved-volume: Salvato su un volume montato
+    after-restart: L'accesso si attiva dopo il riavvio
+    on: L'accesso è attivo
+    users-exist: Esiste già un file users.yml. Imposta il provider di autenticazione su simple per usarlo.
+    create-account: Crea account
+    proxy-body: Authelia, Authentik, Cloudflare Access e simili autenticano gli utenti, poi passano il nome utente a Dozzle nell'header Remote-User.
+    proxy-warning-title: Pubblica solo il proxy
+    proxy-warning-body: Dozzle si fida di quell'header da chiunque. Se la sua porta è raggiungibile, chiunque può fingersi qualsiasi utente.
+    proxy-docs: Guida al forward proxy
+    use-proxy: Usa il mio proxy
+    oidc-body: OIDC richiede un client secret, quindi qui non viene salvato nulla. Aggiungi queste righe al tuo file compose e ricrea il container.
+    oidc-docs: Guida a OpenID Connect
+    skip: È solo sulla mia rete
+    manual-restart: Dozzle non può riavviarsi da solo qui. Riavvia il container per attivare l'accesso, oppure imposta questo nel tuo file compose.
+    restart-hint: Arriverai alla pagina di accesso. La configurazione continua dopo aver effettuato l'accesso.
+  actions:
+    title: Azioni e shell
+    subtitle: Decidi cosa Dozzle può fare ai tuoi container.
+    example-status: Uscito (1) 2 minuti fa
+    example-restart: Riavvia
+    actions-label: Avvia, arresta e riavvia
+    actions-desc: Ripara un container andato in crash dalla pagina in cui hai trovato l'errore.
+    shell-label: Shell
+    shell-desc: Collegati a un container o esegui comandi al suo interno.
+    shell-warning: L'accesso shell a un container spesso equivale all'accesso all'host. Lascialo disattivato a meno che non ti serva.
+    locked: "Impostato da {env}"
+    window-closed: La configurazione non accetta modifiche anonime dopo 15 minuti. Riavvia Dozzle per riaprirla, oppure imposta questi valori con variabili d'ambiente.
+    no-access: Il tuo account non può modificare queste impostazioni.
+    restart-note: Queste modifiche hanno effetto dopo il riavvio di Dozzle.
+  cloud:
+    title: Collega Dozzle Cloud
+    subtitle: Sappi quando qualcosa si rompe senza tenere una scheda aperta.
+    alerts-title: Avvisi nel momento in cui qualcosa si rompe
+    alerts-body: Crash, terminazioni OOM e picchi di errori, inviati via email, Slack o Discord.
+    summary-title: Un riepilogo mattutino di cosa sistemare
+    summary-body: Un unico elenco ordinato dei problemi che meritano il tuo tempo, ogni giorno.
+    history-title: Uno storico che sopravvive ai riavvii
+    history-body: Avvisi e rilevamenti restano disponibili dopo un ricaricamento, un riavvio o una settimana.
+    connect: Collega Dozzle Cloud
+    learn-more: Scopri di più
+    skip: Salta, magari più tardi
+  restart:
+    title: Riavvia Dozzle
+    subtitle: Queste modifiche sono salvate e funzioneranno dopo un riavvio.
+    change-auth: Accesso
+    "on": "Attivo"
+    "off": "Disattivo"
+    button: Riavvia Dozzle
+    restarting: Riavvio di Dozzle in corso
+    restarting-hint: La pagina si ricarica non appena Dozzle torna disponibile.
+    slow-title: Ci sta mettendo un po'
+    slow-body: Dozzle non è ancora tornato. Controlla il container, poi ricarica.
+    reload: Ricarica
+    manual: Dozzle non può riavviarsi da solo qui. Riavvia il container, oppure imposta questi valori nel tuo file compose.
+    done-title: Tutto pronto
+    done-body: Non serve alcun riavvio. Puoi tornare qui dalle Impostazioni in qualsiasi momento.
+    done: Fatto
+  error:
+    generic: Qualcosa è andato storto. Riprova.
+    load: Impossibile caricare la configurazione. Riprova più tardi.
+    conflict: Questo è già impostato, o fissato da una variabile d'ambiente.
+    no-data: /data non è montato, quindi non è possibile salvare.
+    forbidden: Non hai il permesso di modificare questo.

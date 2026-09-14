@@ -20,6 +20,7 @@ export interface Config {
   enableNotifications: boolean;
   enableCloud: boolean;
   canLinkCloud: boolean;
+  dataPersisted?: boolean;
   cloudUrl: string;
   disableAvatars: boolean;
   releaseCheckMode: "automatic" | "manual";
@@ -43,6 +44,7 @@ export interface Profile {
   dismissedImageUpdates?: Set<string>;
   dismissedLinkHint?: boolean;
   lastSeenAlertTs?: number;
+  setupSeen?: boolean;
 }
 
 const pageConfig = JSON.parse(text);

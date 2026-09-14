@@ -751,3 +751,98 @@ command-palette:
   toggle-std: stdout/stderr etiketlerini aç/kapat
   toggle-scrollbars: Daha küçük kaydırma çubuklarını aç/kapat
   open-settings: Ayarları aç
+setup:
+  title: Dozzle kurulumu
+  next: İleri
+  back: Geri
+  finish-later: Daha sonra bitir
+  close: Kapat
+  copy: Kopyala
+  settings-title: Dozzle kurulumu
+  settings-desc: Giriş, konteyner işlemleri, kabuk ve Dozzle Cloud birkaç adımda.
+  settings-open: Kurulumu aç
+  steps:
+    login: Giriş
+    login-note: Önce bunu yapın
+    actions: İşlemler ve kabuk
+    cloud: Dozzle Cloud
+    cloud-note: İsteğe bağlı
+    restart: Yeniden başlat
+  login:
+    title: Girişi aç
+    subtitle: Dozzle'a erişebilen herkes loglarınızı okuyabilir. Her şeyden önce erişimi kısıtlayın.
+    no-data-title: /data bağlı değil
+    no-data-body: Kullanıcılar ve ayarlar /data içine kaydedilir. Bir birim olmadan konteyner bir sonraki yeniden oluşturulduğunda kaybolurlar. Bir birim bağlayın ve tekrar kontrol edin.
+    check-again: Tekrar kontrol et
+    tab-account: Dozzle hesabı
+    tab-proxy: Kendi proxy'm
+    tab-oidc: OIDC
+    username: Kullanıcı adı
+    email: E-posta
+    optional: (isteğe bağlı)
+    password: Parola
+    confirm: Parolayı onayla
+    password-hint: En az 8 karakter. Kullanıcı adında harf, rakam, nokta, tire ve alt çizgi kullanılabilir.
+    saved-volume: Bağlı bir birime kaydedildi
+    after-restart: Giriş yeniden başlatmadan sonra açılır
+    on: Giriş açık
+    users-exist: Bir users.yml zaten mevcut. Kullanmak için kimlik doğrulama sağlayıcısını simple olarak ayarlayın.
+    create-account: Hesap oluştur
+    proxy-body: Authelia, Authentik, Cloudflare Access ve benzerleri kullanıcıların girişini yapar, ardından kullanıcı adını Remote-User başlığıyla Dozzle'a iletir.
+    proxy-warning-title: Yalnızca proxy'yi yayınlayın
+    proxy-warning-body: Dozzle bu başlığa kimden gelirse gelsin güvenir. Dozzle'ın kendi portuna erişilebiliyorsa herkes herhangi bir kullanıcı gibi davranabilir.
+    proxy-docs: Forward proxy rehberi
+    use-proxy: Kendi proxy'mi kullan
+    oidc-body: OIDC bir istemci sırrı gerektirdiği için burada hiçbir şey kaydedilmez. Bunları compose dosyanıza ekleyin ve konteyneri yeniden oluşturun.
+    oidc-docs: OpenID Connect rehberi
+    skip: Yalnızca kendi ağımda
+    manual-restart: Dozzle burada kendini yeniden başlatamıyor. Girişi açmak için konteyneri yeniden başlatın veya bunu compose dosyanızda ayarlayın.
+    restart-hint: Giriş sayfasına yönlendirileceksiniz. Giriş yaptıktan sonra kurulum devam eder.
+  actions:
+    title: İşlemler ve kabuk
+    subtitle: Dozzle'ın konteynerlerinize neler yapabileceğine karar verin.
+    example-status: Çıktı (1) 2 dakika önce
+    example-restart: Yeniden başlat
+    actions-label: Başlat, durdur ve yeniden başlat
+    actions-desc: Çöken bir konteyneri hatayı bulduğunuz sayfadan düzeltin.
+    shell-label: Kabuk
+    shell-desc: Bir konteynere bağlanın veya içinde komut çalıştırın.
+    shell-warning: Bir konteynerin kabuğuna erişim çoğu zaman sunucuya erişim kadar güçlüdür. İhtiyacınız yoksa kapalı bırakın.
+    locked: "{env} ile ayarlandı"
+    window-closed: Kurulum 15 dakika sonra anonim değişikliklere kapanır. Yeniden açmak için Dozzle'ı yeniden başlatın veya bunları ortam değişkenleriyle ayarlayın.
+    no-access: Hesabınız bu ayarları değiştiremez.
+    restart-note: Bunlar Dozzle yeniden başladıktan sonra geçerli olur.
+  cloud:
+    title: Dozzle Cloud'a bağlan
+    subtitle: Bir sekmeyi açık tutmadan bir şeyler bozulduğunda haberdar olun.
+    alerts-title: Bir şey bozulduğu anda uyarılar
+    alerts-body: Çökmeler, OOM sonlandırmaları ve hata artışları e-posta, Slack veya Discord'a gönderilir.
+    summary-title: Neyin düzeltilmesi gerektiğine dair sabah özeti
+    summary-body: Her gün, zamanınıza değer sorunların sıralı tek bir listesi.
+    history-title: Yeniden başlatmalardan sonra da kalan geçmiş
+    history-body: Uyarılar ve bulgular sayfa yenilemesinden, yeniden başlatmadan ve bir haftadan sonra da kalır.
+    connect: Dozzle Cloud'a bağlan
+    learn-more: Daha fazla bilgi
+    skip: Atla, belki sonra
+  restart:
+    title: Dozzle'ı yeniden başlat
+    subtitle: Bu değişiklikler kaydedildi ve yeniden başlatmadan sonra çalışmaya başlar.
+    change-auth: Giriş
+    "on": "Açık"
+    "off": "Kapalı"
+    button: Dozzle'ı yeniden başlat
+    restarting: Dozzle yeniden başlatılıyor
+    restarting-hint: Dozzle geri gelir gelmez sayfa yenilenir.
+    slow-title: Bu biraz uzun sürüyor
+    slow-body: Dozzle henüz geri gelmedi. Konteyneri kontrol edin, ardından sayfayı yenileyin.
+    reload: Yenile
+    manual: Dozzle burada kendini yeniden başlatamıyor. Konteyneri yeniden başlatın veya bunları compose dosyanızda ayarlayın.
+    done-title: Her şey hazır
+    done-body: Yeniden başlatma gerekmiyor. Buraya istediğiniz zaman Ayarlar'dan dönebilirsiniz.
+    done: Tamam
+  error:
+    generic: Bir şeyler ters gitti. Tekrar deneyin.
+    load: Kurulum yüklenemedi. Daha sonra tekrar deneyin.
+    conflict: Bu zaten ayarlanmış veya bir ortam değişkeniyle sabitlenmiş.
+    no-data: /data bağlı değil, bu yüzden bu kaydedilemiyor.
+    forbidden: Bunu değiştirme izniniz yok.

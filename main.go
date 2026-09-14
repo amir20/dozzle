@@ -409,6 +409,12 @@ func createServer(args cli.Args, hostService web.HostService, cloudHooks web.Clo
 		ImageCheckMode:   imageCheckMode,
 		Labels:           args.Filter,
 		Cloud:            cloudHooks,
+		Setup: web.SetupConfig{
+			LockedAuthProvider:  args.Locked.AuthProvider,
+			LockedEnableActions: args.Locked.EnableActions,
+			LockedEnableShell:   args.Locked.EnableShell,
+			StartedAt:           web.SetupWindowStart(time.Now()),
+		},
 	}
 
 	assets, err := fs.Sub(content, "dist")

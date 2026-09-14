@@ -757,3 +757,98 @@ cloud:
       disk-free: Volume under 1 GB free
       fatal: Any fatal line
       error: Any error line
+setup:
+  title: Set up Dozzle
+  next: Next
+  back: Back
+  finish-later: Finish later
+  close: Close
+  copy: Copy
+  settings-title: Set up Dozzle
+  settings-desc: Login, container actions, shell and Dozzle Cloud in a few steps.
+  settings-open: Open setup
+  steps:
+    login: Login
+    login-note: Do this first
+    actions: Actions and shell
+    cloud: Dozzle Cloud
+    cloud-note: Optional
+    restart: Restart
+  login:
+    title: Turn on login
+    subtitle: Anyone who can reach Dozzle can read your logs. Lock it down before anything else.
+    no-data-title: /data is not mounted
+    no-data-body: Users and settings are saved to /data. Without a volume they are gone the next time the container is recreated. Mount one and check again.
+    check-again: Check again
+    tab-account: Dozzle account
+    tab-proxy: My proxy
+    tab-oidc: OIDC
+    username: Username
+    email: Email
+    optional: (optional)
+    password: Password
+    confirm: Confirm password
+    password-hint: At least 8 characters. Letters, numbers, dots, dashes and underscores in the username.
+    saved-volume: Saved to a mounted volume
+    after-restart: Login turns on after the restart
+    on: Login is on
+    users-exist: A users.yml already exists. Set the auth provider to simple to use it.
+    create-account: Create account
+    proxy-body: Authelia, Authentik, Cloudflare Access and similar sign users in, then pass the username to Dozzle in the Remote-User header.
+    proxy-warning-title: Publish only the proxy
+    proxy-warning-body: Dozzle trusts that header from anyone. If its own port is reachable, anyone can pretend to be any user.
+    proxy-docs: Forward proxy guide
+    use-proxy: Use my proxy
+    oidc-body: OIDC needs a client secret, so nothing is saved here. Add these to your compose file and recreate the container.
+    oidc-docs: OpenID Connect guide
+    skip: It's only on my network
+    manual-restart: Dozzle can't restart itself here. Restart the container to turn on login, or set this in your compose file.
+    restart-hint: You will land on the login page. Setup continues after you sign in.
+  actions:
+    title: Actions and shell
+    subtitle: Decide what Dozzle is allowed to do to your containers.
+    example-status: Exited (1) 2 minutes ago
+    example-restart: Restart
+    actions-label: Start, stop and restart
+    actions-desc: Fix a crashed container from the page where you found the error.
+    shell-label: Shell
+    shell-desc: Attach to a container or run commands inside it.
+    shell-warning: Shell access to a container is often as good as access to the host. Leave it off unless you need it.
+    locked: "Set by {env}"
+    window-closed: Setup is closed to anonymous changes after 15 minutes. Restart Dozzle to reopen it, or set these with environment variables.
+    no-access: Your account can't change these settings.
+    restart-note: These take effect after Dozzle restarts.
+  cloud:
+    title: Connect Dozzle Cloud
+    subtitle: Know when something breaks without keeping a tab open.
+    alerts-title: Alerts the moment something breaks
+    alerts-body: Crashes, OOM kills and error spikes, sent to email, Slack or Discord.
+    summary-title: A morning summary of what to fix
+    summary-body: One ranked list of the problems worth your time, every day.
+    history-title: History that survives restarts
+    history-body: Alerts and findings stay around after a reload, a restart or a week.
+    connect: Connect Dozzle Cloud
+    learn-more: Learn more
+    skip: Skip, maybe later
+  restart:
+    title: Restart Dozzle
+    subtitle: These changes are saved and start working after a restart.
+    change-auth: Login
+    "on": "On"
+    "off": "Off"
+    button: Restart Dozzle
+    restarting: Restarting Dozzle
+    restarting-hint: The page reloads as soon as Dozzle is back.
+    slow-title: This is taking a while
+    slow-body: Dozzle has not come back yet. Check the container, then reload.
+    reload: Reload
+    manual: Dozzle can't restart itself here. Restart the container, or set these in your compose file.
+    done-title: You're all set
+    done-body: Nothing needs a restart. You can come back to this from Settings any time.
+    done: Done
+  error:
+    generic: Something went wrong. Try again.
+    load: Could not load setup. Try again later.
+    conflict: This is already set, or fixed by an environment variable.
+    no-data: /data is not mounted, so this can't be saved.
+    forbidden: You are not allowed to change this.
