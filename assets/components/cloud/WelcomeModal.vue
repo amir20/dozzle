@@ -624,10 +624,8 @@ function skipAlerts() {
   step.value = 3;
 }
 
-// The setup wizard opens this at the alerts step: its own Cloud step already said
-// what Cloud does.
-function open(startStep = 1) {
-  step.value = startStep;
+function open() {
+  step.value = 1;
   creating.value = false;
   createdCount.value = 0;
   categories.value = buildCategories();
