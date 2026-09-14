@@ -41,7 +41,7 @@ func (m *mockedClient) Host() container.Host {
 	return args.Get(0).(container.Host)
 }
 
-func startedCollector(ctx context.Context) *DockerStatsCollector {
+func startedCollector(ctx context.Context) *StatsCollector {
 	client := new(mockedClient)
 	client.On("ListContainers", mock.Anything, mock.Anything).Return([]container.Container{
 		{
@@ -68,7 +68,7 @@ func startedCollector(ctx context.Context) *DockerStatsCollector {
 		ID: "localhost",
 	})
 
-	collector := NewDockerStatsCollector(client, container.ContainerLabels{})
+	collector := NewStatsCollector(client, container.ContainerLabels{})
 	stats := make(chan container.ContainerStat)
 
 	collector.Subscribe(ctx, stats)
@@ -119,7 +119,7 @@ func TestStop(t *testing.T) {
 // fastRetries shrinks one collector's backoff so a retry test finishes in
 // milliseconds. It is set on the instance before Start, so it never races with
 // the goroutines of collectors other tests left running.
-func fastRetries(sc *DockerStatsCollector) *DockerStatsCollector {
+func fastRetries(sc *StatsCollector) *StatsCollector {
 	sc.retryMin, sc.retryMax = time.Millisecond, time.Millisecond
 	return sc
 }
@@ -152,7 +152,7 @@ func TestStatsStreamRetriesAfterError(t *testing.T) {
 			args.Get(2).(chan<- container.ContainerStat) <- container.ContainerStat{ID: "1234"}
 		})
 
-	collector := fastRetries(NewDockerStatsCollector(client, container.ContainerLabels{}))
+	collector := fastRetries(NewStatsCollector(client, container.ContainerLabels{}))
 	stats := make(chan container.ContainerStat)
 	collector.Subscribe(ctx, stats)
 	go collector.Start(ctx)
@@ -192,7 +192,7 @@ func TestEventStreamRetriesInsteadOfStoppingTheCollector(t *testing.T) {
 			<-args.Get(0).(context.Context).Done()
 		})
 
-	collector := fastRetries(NewDockerStatsCollector(client, container.ContainerLabels{}))
+	collector := fastRetries(NewStatsCollector(client, container.ContainerLabels{}))
 	stopped := make(chan bool, 1)
 	go func() { stopped <- collector.Start(ctx) }()
 

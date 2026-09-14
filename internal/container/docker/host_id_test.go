@@ -16,7 +16,7 @@ import (
 // engine. Everything else is left to the embedded nil interface and would
 // panic, which is the point: these tests should not reach any further.
 type stubCLI struct {
-	DockerCLI
+	CLI
 	info     system.Info
 	platform string
 	infoErr  error

@@ -40,7 +40,7 @@ import (
 	"k8s.io/client-go/tools/remotecommand"
 )
 
-type K8sClient struct {
+type Client struct {
 	Clientset     kubernetes.Interface
 	DynamicClient dynamic.Interface
 	restMapper    meta.RESTMapper
@@ -55,7 +55,7 @@ type K8sClient struct {
 }
 
 // hostIDs decides what this node is called; see container.HostIDResolver.
-func NewK8sClient(namespace []string, hostIDs container.HostIDResolver) (*K8sClient, error) {
+func NewClient(namespace []string, hostIDs container.HostIDResolver) (*Client, error) {
 	var config *rest.Config
 	var err error
 
@@ -105,7 +105,7 @@ func NewK8sClient(namespace []string, hostIDs container.HostIDResolver) (*K8sCli
 	}
 	node := nodes.Items[0]
 
-	return &K8sClient{
+	return &Client{
 		Clientset:     clientset,
 		DynamicClient: dynamicClient,
 		restMapper:    restmapper.NewDeferredDiscoveryRESTMapper(memory.NewMemCacheClient(discoveryClient)),
@@ -149,7 +149,7 @@ const (
 	mapperResetInterval = time.Minute
 )
 
-func (k *K8sClient) podToContainers(ctx context.Context, pod *corev1.Pod) []container.Container {
+func (k *Client) podToContainers(ctx context.Context, pod *corev1.Pod) []container.Container {
 	started := time.Time{}
 	if pod.Status.StartTime != nil {
 		started = pod.Status.StartTime.Time
@@ -200,7 +200,7 @@ func (k *K8sClient) podToContainers(ctx context.Context, pod *corev1.Pod) []cont
 	return containers
 }
 
-func (k *K8sClient) resolveOwnerChain(ctx context.Context, namespace string, refs []metav1.OwnerReference) []k8sOwner {
+func (k *Client) resolveOwnerChain(ctx context.Context, namespace string, refs []metav1.OwnerReference) []k8sOwner {
 	owners := make([]k8sOwner, 0)
 	seen := make(map[string]struct{})
 
@@ -288,7 +288,7 @@ func isKnownK8sOwnerType(apiVersion, kind string) bool {
 	}
 }
 
-func (k *K8sClient) lookupOwnerReferences(ctx context.Context, owner k8sOwner) ([]metav1.OwnerReference, bool) {
+func (k *Client) lookupOwnerReferences(ctx context.Context, owner k8sOwner) ([]metav1.OwnerReference, bool) {
 	cacheKey := owner.cacheKey()
 	now := time.Now()
 
@@ -319,7 +319,7 @@ func (k *K8sClient) lookupOwnerReferences(ctx context.Context, owner k8sOwner) (
 // hysteresis (grow to max, drop to evictTo) bounds growth without evicting on
 // every insert, and avoids clearing the map wholesale so a cluster with more
 // than ownerCacheMaxSize live owners doesn't thrash. Callers must hold ownerCacheMu.
-func (k *K8sClient) pruneOwnerCache(now time.Time) {
+func (k *Client) pruneOwnerCache(now time.Time) {
 	for key, result := range k.ownerCache {
 		if !now.Before(result.expiresAt) {
 			delete(k.ownerCache, key)
@@ -339,7 +339,7 @@ func (k *K8sClient) pruneOwnerCache(now time.Time) {
 
 // resetRESTMapper resets the cached discovery mapper so newly-registered CRDs
 // can be mapped, at most once per mapperResetInterval. Returns true if it reset.
-func (k *K8sClient) resetRESTMapper() bool {
+func (k *Client) resetRESTMapper() bool {
 	resetter, ok := k.restMapper.(interface{ Reset() })
 	if !ok {
 		return false
@@ -356,7 +356,7 @@ func (k *K8sClient) resetRESTMapper() bool {
 	return true
 }
 
-func (k *K8sClient) fetchOwnerReferences(ctx context.Context, owner k8sOwner) ([]metav1.OwnerReference, bool, bool) {
+func (k *Client) fetchOwnerReferences(ctx context.Context, owner k8sOwner) ([]metav1.OwnerReference, bool, bool) {
 	if k.DynamicClient == nil || k.restMapper == nil {
 		return nil, false, false
 	}
@@ -453,7 +453,7 @@ func matchesContainerLabels(labels map[string]string, filters container.Containe
 	return true
 }
 
-func (k *K8sClient) ListContainers(ctx context.Context, labels container.ContainerLabels) ([]container.Container, error) {
+func (k *Client) ListContainers(ctx context.Context, labels container.ContainerLabels) ([]container.Container, error) {
 	podLabels, metadataLabels := splitK8sFilters(labels)
 	selector := ""
 	if podLabels.Exists() {
@@ -522,7 +522,7 @@ func phaseToState(phase corev1.PodPhase) string {
 	}
 }
 
-func (k *K8sClient) FindContainer(ctx context.Context, id string) (container.Container, error) {
+func (k *Client) FindContainer(ctx context.Context, id string) (container.Container, error) {
 	log.Debug().Str("id", id).Msg("Finding container")
 	namespace, podName, containerName := parsePodContainerID(id)
 
@@ -540,7 +540,7 @@ func (k *K8sClient) FindContainer(ctx context.Context, id string) (container.Con
 	return container.Container{}, fmt.Errorf("container %s not found in pod %s", containerName, podName)
 }
 
-func (k *K8sClient) ContainerLogs(ctx context.Context, id string, since time.Time, stdType container.StdType) (io.ReadCloser, error) {
+func (k *Client) ContainerLogs(ctx context.Context, id string, since time.Time, stdType container.StdType) (io.ReadCloser, error) {
 	namespace, podName, containerName := parsePodContainerID(id)
 
 	var lines int64 = 500
@@ -556,7 +556,7 @@ func (k *K8sClient) ContainerLogs(ctx context.Context, id string, since time.Tim
 	return k.Clientset.CoreV1().Pods(namespace).GetLogs(podName, opts).Stream(ctx)
 }
 
-func (k *K8sClient) ContainerLogsBetweenDates(ctx context.Context, id string, start time.Time, end time.Time, stdType container.StdType) (io.ReadCloser, error) {
+func (k *Client) ContainerLogsBetweenDates(ctx context.Context, id string, start time.Time, end time.Time, stdType container.StdType) (io.ReadCloser, error) {
 	namespace, podName, containerName := parsePodContainerID(id)
 
 	opts := &corev1.PodLogOptions{
@@ -569,7 +569,7 @@ func (k *K8sClient) ContainerLogsBetweenDates(ctx context.Context, id string, st
 	return k.Clientset.CoreV1().Pods(namespace).GetLogs(podName, opts).Stream(ctx)
 }
 
-func (k *K8sClient) ContainerEvents(ctx context.Context, ch chan<- container.ContainerEvent) error {
+func (k *Client) ContainerEvents(ctx context.Context, ch chan<- container.ContainerEvent) error {
 	watchers := lo.Map(k.namespace, func(namespace string, index int) watch.Interface {
 		watcher, err := k.Clientset.CoreV1().Pods(namespace).Watch(ctx, metav1.ListOptions{})
 		if err != nil {
@@ -626,25 +626,25 @@ func (k *K8sClient) ContainerEvents(ctx context.Context, ch chan<- container.Con
 	return nil
 }
 
-func (k *K8sClient) ContainerStats(ctx context.Context, id string, stats chan<- container.ContainerStat) error {
+func (k *Client) ContainerStats(ctx context.Context, id string, stats chan<- container.ContainerStat) error {
 	// Stats collection is implemented in stats_collector.go using K8s metrics API
-	panic("not implemented - use K8sStatsCollector instead")
+	panic("not implemented - use StatsCollector instead")
 }
 
-func (k *K8sClient) Ping(ctx context.Context) error {
+func (k *Client) Ping(ctx context.Context) error {
 	_, err := k.Clientset.CoreV1().Pods("default").List(ctx, metav1.ListOptions{Limit: 1})
 	return err
 }
 
-func (k *K8sClient) Host() container.Host {
+func (k *Client) Host() container.Host {
 	return k.host
 }
 
-func (k *K8sClient) ContainerActions(ctx context.Context, action container.ContainerAction, containerID string) error {
+func (k *Client) ContainerActions(ctx context.Context, action container.ContainerAction, containerID string) error {
 	panic("not implemented")
 }
 
-func (k *K8sClient) ContainerAttach(ctx context.Context, id string) (*container.ExecSession, error) {
+func (k *Client) ContainerAttach(ctx context.Context, id string) (*container.ExecSession, error) {
 	namespace, podName, containerName := parsePodContainerID(id)
 	log.Debug().Str("container", containerName).Str("pod", podName).Msg("Attaching to pod")
 	req := k.Clientset.CoreV1().RESTClient().Post().
@@ -721,7 +721,7 @@ func (t *terminalSizeQueue) Next() *remotecommand.TerminalSize {
 	return &size
 }
 
-func (k *K8sClient) ContainerExec(ctx context.Context, id string, cmd []string) (*container.ExecSession, error) {
+func (k *Client) ContainerExec(ctx context.Context, id string, cmd []string) (*container.ExecSession, error) {
 	namespace, podName, containerName := parsePodContainerID(id)
 	log.Debug().Str("container", containerName).Str("pod", podName).Msg("Executing command in pod")
 	req := k.Clientset.CoreV1().RESTClient().Post().

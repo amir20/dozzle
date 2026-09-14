@@ -42,7 +42,7 @@ func restrictedHandler(t *testing.T) *handler {
 	client.On("ContainerLogsBetweenDates", mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).
 		Return(io.NopCloser(strings.NewReader("")), nil)
 
-	manager := hostservice.NewRetriableClientManager(nil, 3*time.Second, tls.Certificate{}, docker.NewDockerClientService(client, container.ContainerLabels{}))
+	manager := hostservice.NewRetriableClientManager(nil, 3*time.Second, tls.Certificate{}, docker.NewService(client, container.ContainerLabels{}))
 	return &handler{
 		hostService: hostservice.NewMultiHostService(manager, 3*time.Second),
 		config:      &Config{Base: "/", Authorization: Authorization{Provider: SIMPLE}},

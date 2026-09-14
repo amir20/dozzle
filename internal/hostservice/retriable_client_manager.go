@@ -80,7 +80,7 @@ func NewRetriableClientManager(agents []string, timeout time.Duration, certs tls
 				results[idx] = entry{failed: endpoint}
 				return
 			}
-			results[idx] = entry{host: host, service: agent.NewAgentService(a), ok: true}
+			results[idx] = entry{host: host, service: agent.NewService(a), ok: true}
 		})
 	}
 
@@ -158,7 +158,7 @@ func (m *RetriableClientManager) RetryAndList() ([]container.ClientService, []er
 			results[i] = retryResult{
 				endpoint: endpoint,
 				host:     h,
-				service:  agent.NewAgentService(a),
+				service:  agent.NewService(a),
 			}
 		})
 	}
@@ -319,7 +319,7 @@ func (m *RetriableClientManager) LocalClients() []container.Client {
 	clients := make([]container.Client, 0)
 
 	for _, service := range services {
-		if clientService, ok := service.(*docker.DockerClientService); ok {
+		if clientService, ok := service.(*docker.Service); ok {
 			clients = append(clients, clientService.Client())
 		}
 	}
@@ -333,7 +333,7 @@ func (m *RetriableClientManager) LocalClientServices() []container.ClientService
 	result := make([]container.ClientService, 0)
 
 	for _, service := range services {
-		if _, ok := service.(*docker.DockerClientService); ok {
+		if _, ok := service.(*docker.Service); ok {
 			result = append(result, service)
 		}
 	}

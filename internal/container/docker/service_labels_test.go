@@ -28,8 +28,8 @@ func service(id string, labels map[string]string) swarm.Service {
 	return swarm.Service{ID: id, Spec: swarm.ServiceSpec{Annotations: swarm.Annotations{Labels: labels}}}
 }
 
-func managerClient(proxy *mockedProxy) *DockerClient {
-	return &DockerClient{
+func managerClient(proxy *mockedProxy) *Client {
+	return &Client{
 		cli:  proxy,
 		host: container.Host{ID: "localhost"},
 		info: system.Info{Swarm: swarm.Info{ControlAvailable: true}},
@@ -109,7 +109,7 @@ func Test_mergeServiceLabels_skips_plain_containers(t *testing.T) {
 
 func Test_mergeServiceLabels_skips_workers(t *testing.T) {
 	proxy := new(mockedProxy)
-	d := &DockerClient{cli: proxy, host: container.Host{ID: "localhost"}, info: system.Info{}}
+	d := &Client{cli: proxy, host: container.Host{ID: "localhost"}, info: system.Info{}}
 
 	c := task("svc1", nil)
 	d.mergeServiceLabels(context.Background(), c)

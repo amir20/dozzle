@@ -33,7 +33,7 @@ type serviceLabelCache struct {
 // all returns the labels of every swarm service keyed by service id, refreshing when
 // stale. A failed refresh keeps whatever is already cached rather than dropping labels
 // out of the UI on a transient error.
-func (s *serviceLabelCache) all(ctx context.Context, cli DockerCLI) map[string]map[string]string {
+func (s *serviceLabelCache) all(ctx context.Context, cli CLI) map[string]map[string]string {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
@@ -64,7 +64,7 @@ func (s *serviceLabelCache) all(ctx context.Context, cli DockerCLI) map[string]m
 
 // mergeServiceLabels folds each swarm service's labels into its task containers. A label
 // set on the container itself is the more specific of the two and always wins.
-func (d *DockerClient) mergeServiceLabels(ctx context.Context, containers ...*container.Container) {
+func (d *Client) mergeServiceLabels(ctx context.Context, containers ...*container.Container) {
 	if !d.info.Swarm.ControlAvailable {
 		return
 	}

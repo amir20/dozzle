@@ -181,8 +181,8 @@ The Go backend is organized into these key packages:
   - `logparse/`: the log pipeline both platforms feed (`event_generator.go` grouping and JSON
     detection, `level_guesser.go`, `logfmt.go`, `timestamp_prefix.go`)
   - One folder per platform, each holding that platform end to end:
-    - `docker/`: `client.go`, `log_reader.go`, `stats_collector.go`, and `service.go` (`DockerClientService`)
-    - `k8s/`: `client.go`, `log_reader.go`, `stats_collector.go`, and `service.go` (`K8sClientService`)
+    - `docker/`: `client.go`, `log_reader.go`, `stats_collector.go`, and `service.go` (`docker.Service`)
+    - `k8s/`: `client.go`, `log_reader.go`, `stats_collector.go`, and `service.go` (`k8s.Service`)
     - `agent/`: gRPC `client.go`/`server.go`, `convert.go` (proto conversion), `service.go`, and
       generated `pb/` (protos in `protos/`)
 
@@ -587,7 +587,7 @@ Implementation (internal/container/{docker,k8s,agent})
 1. Main server creates `agent.NewClient(endpoint, certs)` for each remote host
 2. AgentClient implements `container.Client` interface
 3. Method calls translate to gRPC requests defined in `protos/rpc.proto`
-4. Remote agent receives gRPC call, delegates to local `DockerClient`
+4. Remote agent receives gRPC call, delegates to local `docker.Client`
 5. Streaming RPCs (logs, stats, events) use bidirectional channels
 6. Responses converted back to domain models in `internal/container/agent/convert.go`
 

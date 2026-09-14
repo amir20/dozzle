@@ -300,7 +300,7 @@ func (m *resettableMapper) Reset() { m.resets++ }
 
 func TestResetRESTMapperThrottles(t *testing.T) {
 	mapper := &resettableMapper{}
-	client := &K8sClient{restMapper: mapper}
+	client := &Client{restMapper: mapper}
 
 	assert.True(t, client.resetRESTMapper(), "first reset should proceed")
 	assert.False(t, client.resetRESTMapper(), "immediate second reset should be throttled")
@@ -343,7 +343,7 @@ func replicaSetOwner() k8sOwner {
 	})
 }
 
-func newTestK8sClient(t *testing.T, objects ...runtime.Object) *K8sClient {
+func newTestK8sClient(t *testing.T, objects ...runtime.Object) *Client {
 	scheme := runtime.NewScheme()
 	require.NoError(t, corev1.AddToScheme(scheme))
 	require.NoError(t, appsv1.AddToScheme(scheme))
@@ -352,7 +352,7 @@ func newTestK8sClient(t *testing.T, objects ...runtime.Object) *K8sClient {
 	mapper.Add(appsv1.SchemeGroupVersion.WithKind("ReplicaSet"), meta.RESTScopeNamespace)
 	mapper.Add(appsv1.SchemeGroupVersion.WithKind("Deployment"), meta.RESTScopeNamespace)
 
-	return &K8sClient{
+	return &Client{
 		Clientset:     k8sfake.NewSimpleClientset(),
 		DynamicClient: dynamicfake.NewSimpleDynamicClient(scheme, objects...),
 		restMapper:    mapper,

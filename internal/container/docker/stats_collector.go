@@ -13,7 +13,7 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-type DockerStatsCollector struct {
+type StatsCollector struct {
 	stream       chan container.ContainerStat
 	subscribers  *xsync.Map[context.Context, chan<- container.ContainerStat]
 	client       container.Client
@@ -63,8 +63,8 @@ func sleepOrDone(ctx context.Context, d time.Duration) bool {
 	}
 }
 
-func NewDockerStatsCollector(client container.Client, labels container.ContainerLabels) *DockerStatsCollector {
-	return &DockerStatsCollector{
+func NewStatsCollector(client container.Client, labels container.ContainerLabels) *StatsCollector {
+	return &StatsCollector{
 		stream:      make(chan container.ContainerStat),
 		subscribers: xsync.NewMap[context.Context, chan<- container.ContainerStat](),
 		client:      client,
@@ -75,7 +75,7 @@ func NewDockerStatsCollector(client container.Client, labels container.Container
 	}
 }
 
-func (c *DockerStatsCollector) Subscribe(ctx context.Context, stats chan<- container.ContainerStat) {
+func (c *StatsCollector) Subscribe(ctx context.Context, stats chan<- container.ContainerStat) {
 	c.subscribers.Store(ctx, stats)
 	go func() {
 		<-ctx.Done()
@@ -83,7 +83,7 @@ func (c *DockerStatsCollector) Subscribe(ctx context.Context, stats chan<- conta
 	}()
 }
 
-func (c *DockerStatsCollector) forceStop() {
+func (c *StatsCollector) forceStop() {
 	c.mu.Lock()
 	defer c.mu.Unlock()
 	if c.stopper != nil {
@@ -93,7 +93,7 @@ func (c *DockerStatsCollector) forceStop() {
 	}
 }
 
-func (c *DockerStatsCollector) Stop() {
+func (c *StatsCollector) Stop() {
 	c.mu.Lock()
 	defer c.mu.Unlock()
 	if c.totalStarted.Add(-1) == 0 {
@@ -103,7 +103,7 @@ func (c *DockerStatsCollector) Stop() {
 	}
 }
 
-func (c *DockerStatsCollector) reset() {
+func (c *StatsCollector) reset() {
 	c.mu.Lock()
 	defer c.mu.Unlock()
 	if c.timer != nil {
@@ -119,7 +119,7 @@ func (c *DockerStatsCollector) reset() {
 // retried with backoff. Without that, one hiccup left a single container
 // silently absent from every subsequent stats window while its neighbours
 // carried on, which is indistinguishable from a container that is simply idle.
-func streamStats(parent context.Context, sc *DockerStatsCollector, id string) {
+func streamStats(parent context.Context, sc *StatsCollector, id string) {
 	ctx, cancel := context.WithCancel(parent)
 	sc.cancelers.Store(id, cancel)
 
@@ -157,7 +157,7 @@ func streamStats(parent context.Context, sc *DockerStatsCollector, id string) {
 }
 
 // Start starts the stats collector and blocks until it's stopped. It returns true if the collector was stopped, false if it was already running
-func (sc *DockerStatsCollector) Start(parentCtx context.Context) bool {
+func (sc *StatsCollector) Start(parentCtx context.Context) bool {
 	sc.reset()
 	sc.totalStarted.Add(1)
 
