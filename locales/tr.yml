@@ -192,7 +192,6 @@ alert:
     title: 'Güncelleme mevcut'
     message: '{image} için daha yeni bir imaj yayımlandı.'
     enable-actions: 'Buradan indirip yeniden oluşturmak için <a href="https://dozzle.dev/guide/actions" target="_blank" rel="noreferrer noopener">eylemleri etkinleştirin</a>.'
-    self: 'Dozzle kendini güncelleyemez, uygulamak için yeniden başlatın.'
   redirected:
     title: Yeni konteynere yönlendirildi
     message: Dozzle sizi otomatik olarak yeni {containerId} konteynerine yönlendirdi.
@@ -625,7 +624,7 @@ cloud:
     turn-on: "1 uyarıyı aç | {count} uyarıyı aç"
     turn-on-short: "Aç"
     continue-without: "Uyarı olmadan devam et"
-    skip-alerts: "Şimdi değil, sadece günlük bulguları gönder"
+    skip-alerts: "Şimdi değil"
     ready: "Hazır"
     done-title: "Her şey hazır"
     done-body: "Her bildirim türünün nerede göründüğü aşağıda."
@@ -639,6 +638,10 @@ cloud:
     where-tuning: "Konteyner bazında ayarlama"
     where-tuning-detail: "Bildirimler sayfasından herhangi bir kuralı daraltın, sessize alın veya silin."
     done: "Tamam"
+    steps:
+      watching: "Cloud ne yapar"
+      alerts: "Gerçek zamanlı uyarılar"
+      done: "Her şey nerede görünür"
     signals:
       exited: "Konteyner hatayla sonlandı"
       unhealthy: "Konteyner unhealthy oldu"
@@ -751,3 +754,125 @@ command-palette:
   toggle-std: stdout/stderr etiketlerini aç/kapat
   toggle-scrollbars: Daha küçük kaydırma çubuklarını aç/kapat
   open-settings: Ayarları aç
+setup:
+  title: Dozzle kurulumu
+  next: İleri
+  back: Geri
+  finish-later: Daha sonra bitir
+  close: Kapat
+  copy: Kopyala
+  settings-title: Dozzle kurulumu
+  settings-desc: Giriş, konteyner işlemleri, kabuk ve Dozzle Cloud birkaç adımda.
+  settings-open: Kurulumu aç
+  steps:
+    login: Giriş
+    login-note: Önce bunu yapın
+    actions: İşlemler ve kabuk
+    cloud: Dozzle Cloud
+    cloud-note: İsteğe bağlı
+    update: "Otomatik güncelleme"
+    update-note: "Eylemler gerekli"
+    restart: Yeniden başlat
+  login:
+    title: Girişi aç
+    subtitle: Dozzle'a erişebilen herkes loglarınızı okuyabilir. Her şeyden önce erişimi kısıtlayın.
+    no-data-title: /data bağlı değil
+    no-data-body: Kullanıcılar ve ayarlar /data içine kaydedilir. Bir birim olmadan konteyner bir sonraki yeniden oluşturulduğunda kaybolurlar. Bir birim bağlayın ve tekrar kontrol edin.
+    check-again: Tekrar kontrol et
+    tab-account: Dozzle hesabı
+    tab-proxy: Kendi proxy'm
+    tab-oidc: OIDC
+    username: Kullanıcı adı
+    email: E-posta
+    optional: (isteğe bağlı)
+    password: Parola
+    confirm: Parolayı onayla
+    password-hint: En az 8 karakter. Kullanıcı adında harf, rakam, nokta, tire ve alt çizgi kullanılabilir.
+    saved-volume: Bağlı bir birime kaydedildi
+    after-restart: Giriş yeniden başlatmadan sonra açılır
+    on: Giriş açık
+    users-exist: Bir users.yml zaten mevcut. Kullanmak için kimlik doğrulama sağlayıcısını simple olarak ayarlayın.
+    create-account: Hesap oluştur
+    proxy-body: Authelia, Authentik, Cloudflare Access ve benzerleri kullanıcıların girişini yapar, ardından kullanıcı adını Remote-User başlığıyla Dozzle'a iletir.
+    proxy-warning-title: Yalnızca proxy'yi yayınlayın
+    proxy-warning-body: Dozzle bu başlığa kimden gelirse gelsin güvenir. Dozzle'ın kendi portuna erişilebiliyorsa herkes herhangi bir kullanıcı gibi davranabilir.
+    proxy-docs: Forward proxy rehberi
+    use-proxy: Kendi proxy'mi kullan
+    oidc-body: OIDC bir istemci sırrı gerektirdiği için burada hiçbir şey kaydedilmez. Bunları compose dosyanıza ekleyin ve konteyneri yeniden oluşturun.
+    oidc-docs: OpenID Connect rehberi
+    skip: "Giriş olmadan devam et"
+    manual-restart: Dozzle burada kendini yeniden başlatamıyor. Girişi açmak için konteyneri yeniden başlatın veya bunu compose dosyanızda ayarlayın.
+    restart-hint: Giriş sayfasına yönlendirileceksiniz. Giriş yaptıktan sonra kurulum devam eder.
+  actions:
+    title: İşlemler ve kabuk
+    subtitle: Dozzle'ın konteynerlerinize neler yapabileceğine karar verin.
+    example-status: Çıktı (1) 2 dakika önce
+    example-restart: Yeniden başlat
+    example: "Örnek"
+    actions-label: Başlat, durdur ve yeniden başlat
+    actions-desc: Çöken bir konteyneri hatayı bulduğunuz sayfadan düzeltin.
+    shell-label: Kabuk
+    shell-desc: Bir konteynere bağlanın veya içinde komut çalıştırın.
+    shell-warning: Bir konteynerin kabuğuna erişim çoğu zaman sunucuya erişim kadar güçlüdür. İhtiyacınız yoksa kapalı bırakın.
+    locked: "{env} ile ayarlandı"
+    window-closed: "Giriş olmadan kurulum, yeni bir kurulumun yalnızca ilk 15 dakikasında değişiklik kabul eder. Bunları ortam değişkenleriyle ayarlayın veya önce girişi açın."
+    no-access: Hesabınız bu ayarları değiştiremez.
+    restart-note: Bunlar Dozzle yeniden başladıktan sonra geçerli olur.
+  cloud:
+    title: Dozzle Cloud'a bağlan
+    subtitle: Bir sekmeyi açık tutmadan bir şeyler bozulduğunda haberdar olun.
+    alerts-title: Bir şey bozulduğu anda uyarılar
+    alerts-body: Çökmeler, OOM sonlandırmaları ve hata artışları e-posta, Slack veya Discord'a gönderilir.
+    summary-title: Neyin düzeltilmesi gerektiğine dair sabah özeti
+    summary-body: Her gün, zamanınıza değer sorunların sıralı tek bir listesi.
+    history-title: Yeniden başlatmalardan sonra da kalan geçmiş
+    history-body: Uyarılar ve bulgular sayfa yenilemesinden, yeniden başlatmadan ve bir haftadan sonra da kalır.
+    connect: Dozzle Cloud'a bağlan
+    learn-more: Daha fazla bilgi
+    skip: "Şimdi değil"
+  update:
+    pill-on: "Eylemleri kullanır · açık"
+    pill-pending: "Eylemlerle birlikte açılır"
+    title: "Dozzle'ı güncel tutun"
+    subtitle: "Dozzle sakin bir saatte yeni imajı çeker ve kendi konteynerini değiştirir. Ayarlar, kullanıcılar ve uyarılar korunur."
+    auto-label: "Otomatik güncelle"
+    auto-desc: "Daha yeni bir imaj olup olmadığını kontrol eder ve yalnızca varsa Dozzle'ı değiştirir."
+    when-label: "Ne zaman"
+    time-label: "Saat"
+    server-time: "Sunucunun saat dilimini kullanır."
+    daily: "Günlük"
+    weekly: "Her pazar"
+    version-label: "Sürüm"
+    update-now: "Şimdi güncelle"
+    pulling: "Yeni imaj çekiliyor"
+    up-to-date: "Dozzle zaten güncel."
+    restarting: "Dozzle kendini yeni sürümle değiştiriyor."
+    restarting-hint: "Yeni sürüm yanıt verir vermez sayfa yeniden yüklenir."
+    needs-actions: "Şimdi güncelle, yeniden başlatmadan sonra eylemler açıldığında çalışır."
+    reason-pinned-tag: "Sabitlenmiş bir sürüm etiketi kullanıyorsunuz, bu yüzden çekilecek daha yeni bir şey yok. Güncelleme almak için latest gibi bir etiket kullanın."
+    reason-unsupported: "Dozzle yalnızca tek bir Docker konteyneri olarak çalıştığında kendini değiştirebilir."
+    pull-denied: "{image} çekilemedi. Yalnızca bu makinede bulunuyor olabilir ya da kayıt defteri docker login gerektiriyor."
+  restart:
+    title: Dozzle'ı yeniden başlat
+    subtitle: Bu değişiklikler kaydedildi ve yeniden başlatmadan sonra çalışmaya başlar.
+    change-auth: Giriş
+    "on": "Açık"
+    "off": "Kapalı"
+    button: Dozzle'ı yeniden başlat
+    restarting: Dozzle yeniden başlatılıyor
+    restarting-hint: Dozzle geri gelir gelmez sayfa yenilenir.
+    slow-title: Bu biraz uzun sürüyor
+    slow-body: Dozzle henüz geri gelmedi. Konteyneri kontrol edin, ardından sayfayı yenileyin.
+    reload: Yenile
+    manual: Dozzle burada kendini yeniden başlatamıyor. Konteyneri yeniden başlatın veya bunları compose dosyanızda ayarlayın.
+    done-title: Her şey hazır
+    done-body: Yeniden başlatma gerekmiyor. Buraya istediğiniz zaman Ayarlar'dan dönebilirsiniz.
+    nothing-title: "Yeniden başlatılacak bir şey yok"
+    nothing-body: "Bu sefer hiçbir adım ayarlanmadı. Hazır olduğunuzda kurulumu Ayarlar'dan açabilirsiniz."
+    done: Tamam
+  error:
+    generic: Bir şeyler ters gitti. Tekrar deneyin.
+    load: Kurulum yüklenemedi. Daha sonra tekrar deneyin.
+    conflict: Bu zaten ayarlanmış veya bir ortam değişkeniyle sabitlenmiş.
+    no-data: /data bağlı değil, bu yüzden bu kaydedilemiyor.
+    window-closed: "Giriş olmadan kurulum, yeni bir kurulumun yalnızca ilk 15 dakikasında değişiklik kabul eder. Bunun yerine girişi ortam değişkenleriyle açın."

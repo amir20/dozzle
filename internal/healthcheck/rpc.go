@@ -4,8 +4,8 @@ import (
 	"context"
 	"crypto/tls"
 
-	"github.com/amir20/dozzle/internal/agent"
 	"github.com/amir20/dozzle/internal/container"
+	"github.com/amir20/dozzle/internal/container/agent"
 	"github.com/rs/zerolog/log"
 )
 

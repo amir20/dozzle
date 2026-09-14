@@ -191,7 +191,6 @@ alert:
     title: 'Update beschikbaar'
     message: 'Er is een nieuwere image gepubliceerd voor {image}.'
     enable-actions: '<a href="https://dozzle.dev/guide/actions" target="_blank" rel="noreferrer noopener">Schakel acties in</a> om deze hier op te halen en opnieuw aan te maken.'
-    self: 'Dozzle kan zichzelf niet bijwerken, start het opnieuw om de update toe te passen.'
   redirected:
     title: Doorgestuurd naar nieuwe container
     message: Dozzle heeft je automatisch doorgestuurd naar de nieuwe container {containerId}.
@@ -622,7 +621,7 @@ cloud:
     turn-on: "1 melding aanzetten | {count} meldingen aanzetten"
     turn-on-short: "Aanzetten"
     continue-without: "Doorgaan zonder meldingen"
-    skip-alerts: "Nu niet, stuur alleen de dagelijkse bevindingen"
+    skip-alerts: "Niet nu"
     ready: "Klaar"
     done-title: "Je bent klaar"
     done-body: "Hier verschijnt elk soort melding."
@@ -636,6 +635,10 @@ cloud:
     where-tuning: "Afstemmen per container"
     where-tuning-detail: "Beperk, demp of verwijder elke regel op de pagina Notificaties."
     done: "Klaar"
+    steps:
+      watching: "Wat Cloud doet"
+      alerts: "Realtime meldingen"
+      done: "Waar alles verschijnt"
     signals:
       exited: "Container met fout gestopt"
       unhealthy: "Container werd unhealthy"
@@ -748,3 +751,125 @@ command-palette:
   toggle-std: stdout/stderr-labels omschakelen
   toggle-scrollbars: Kleinere schuifbalken omschakelen
   open-settings: Instellingen openen
+setup:
+  title: Dozzle instellen
+  next: Volgende
+  back: Terug
+  finish-later: Later afronden
+  close: Sluiten
+  copy: Kopiëren
+  settings-title: Dozzle instellen
+  settings-desc: Inloggen, containeracties, shell en Dozzle Cloud in een paar stappen.
+  settings-open: Installatie openen
+  steps:
+    login: Inloggen
+    login-note: Doe dit eerst
+    actions: Acties en shell
+    cloud: Dozzle Cloud
+    cloud-note: Optioneel
+    update: "Automatisch bijwerken"
+    update-note: "Vereist acties"
+    restart: Herstarten
+  login:
+    title: Inloggen inschakelen
+    subtitle: Iedereen die Dozzle kan bereiken, kan je logs lezen. Beveilig het voordat je iets anders doet.
+    no-data-title: /data is niet gekoppeld
+    no-data-body: Gebruikers en instellingen worden opgeslagen in /data. Zonder volume zijn ze weg zodra de container opnieuw wordt aangemaakt. Koppel er een en controleer opnieuw.
+    check-again: Opnieuw controleren
+    tab-account: Dozzle-account
+    tab-proxy: Mijn proxy
+    tab-oidc: OIDC
+    username: Gebruikersnaam
+    email: E-mail
+    optional: (optioneel)
+    password: Wachtwoord
+    confirm: Wachtwoord bevestigen
+    password-hint: Minstens 8 tekens. Letters, cijfers, punten, streepjes en underscores in de gebruikersnaam.
+    saved-volume: Opgeslagen op een gekoppeld volume
+    after-restart: Inloggen wordt ingeschakeld na de herstart
+    on: Inloggen is ingeschakeld
+    users-exist: Er bestaat al een users.yml. Stel de auth-provider in op simple om die te gebruiken.
+    create-account: Account aanmaken
+    proxy-body: Authelia, Authentik, Cloudflare Access en vergelijkbare tools laten gebruikers inloggen en geven de gebruikersnaam door aan Dozzle in de Remote-User-header.
+    proxy-warning-title: Publiceer alleen de proxy
+    proxy-warning-body: Dozzle vertrouwt die header van iedereen. Als de eigen poort bereikbaar is, kan iedereen zich voordoen als elke gebruiker.
+    proxy-docs: Handleiding forward proxy
+    use-proxy: Mijn proxy gebruiken
+    oidc-body: OIDC heeft een client secret nodig, dus hier wordt niets opgeslagen. Voeg dit toe aan je compose-bestand en maak de container opnieuw aan.
+    oidc-docs: Handleiding OpenID Connect
+    skip: "Doorgaan zonder inloggen"
+    manual-restart: Dozzle kan zichzelf hier niet herstarten. Herstart de container om inloggen in te schakelen, of stel dit in je compose-bestand in.
+    restart-hint: Je komt op de inlogpagina terecht. De installatie gaat verder nadat je bent ingelogd.
+  actions:
+    title: Acties en shell
+    subtitle: Bepaal wat Dozzle met je containers mag doen.
+    example-status: Gestopt (1) 2 minuten geleden
+    example-restart: Herstarten
+    example: "Voorbeeld"
+    actions-label: Starten, stoppen en herstarten
+    actions-desc: Herstel een gecrashte container vanaf de pagina waar je de fout vond.
+    shell-label: Shell
+    shell-desc: Koppel aan een container of voer er opdrachten in uit.
+    shell-warning: Shelltoegang tot een container staat vaak gelijk aan toegang tot de host. Laat het uit, tenzij je het nodig hebt.
+    locked: "Ingesteld door {env}"
+    window-closed: "Zonder inloggen accepteert de installatie alleen wijzigingen in de eerste 15 minuten van een nieuwe installatie. Stel dit in met omgevingsvariabelen, of zet eerst inloggen aan."
+    no-access: Je account kan deze instellingen niet wijzigen.
+    restart-note: Deze worden actief nadat Dozzle is herstart.
+  cloud:
+    title: Dozzle Cloud koppelen
+    subtitle: Weet wanneer er iets stukgaat zonder een tabblad open te houden.
+    alerts-title: Meldingen zodra er iets stukgaat
+    alerts-body: Crashes, OOM-kills en foutpieken, verstuurd naar e-mail, Slack of Discord.
+    summary-title: Een ochtendoverzicht van wat je moet oplossen
+    summary-body: Elke dag één gerangschikte lijst van de problemen die je tijd waard zijn.
+    history-title: Geschiedenis die herstarts overleeft
+    history-body: Meldingen en bevindingen blijven bewaard na een herlaadbeurt, een herstart of een week.
+    connect: Dozzle Cloud koppelen
+    learn-more: Meer informatie
+    skip: "Niet nu"
+  update:
+    pill-on: "Gebruikt acties · aan"
+    pill-pending: "Gaat aan met acties"
+    title: "Houd Dozzle up-to-date"
+    subtitle: "Dozzle haalt de nieuwe image op en vervangt zijn eigen container op een rustig uur. Instellingen, gebruikers en meldingen blijven behouden."
+    auto-label: "Automatisch bijwerken"
+    auto-desc: "Controleert op een nieuwere image en vervangt Dozzle alleen als die er is."
+    when-label: "Wanneer"
+    time-label: "Tijd"
+    server-time: "Gebruikt de tijdzone van de server."
+    daily: "Dagelijks"
+    weekly: "Wekelijks op zondag"
+    version-label: "Versie"
+    update-now: "Nu bijwerken"
+    pulling: "Nieuwe image ophalen"
+    up-to-date: "Dozzle is al up-to-date."
+    restarting: "Dozzle vervangt zichzelf door de nieuwe versie."
+    restarting-hint: "De pagina herlaadt zodra de nieuwe versie reageert."
+    needs-actions: "Nu bijwerken werkt zodra acties aan staan, na de herstart."
+    reason-pinned-tag: "Je gebruikt een vaste versietag, dus er is niets nieuwers om op te halen. Gebruik een tag zoals latest om updates te krijgen."
+    reason-unsupported: "Dozzle kan zichzelf alleen vervangen als het draait als één Docker-container."
+    pull-denied: "{image} kon niet worden opgehaald. Misschien bestaat het alleen op deze machine, of vraagt de registry om docker login."
+  restart:
+    title: Dozzle herstarten
+    subtitle: Deze wijzigingen zijn opgeslagen en werken na een herstart.
+    change-auth: Inloggen
+    "on": "Aan"
+    "off": "Uit"
+    button: Dozzle herstarten
+    restarting: Dozzle wordt herstart
+    restarting-hint: De pagina herlaadt zodra Dozzle weer terug is.
+    slow-title: Dit duurt even
+    slow-body: Dozzle is nog niet terug. Controleer de container en herlaad dan.
+    reload: Herladen
+    manual: Dozzle kan zichzelf hier niet herstarten. Herstart de container, of stel dit in je compose-bestand in.
+    done-title: Je bent klaar
+    done-body: Er is geen herstart nodig. Je kunt hier altijd terugkomen via Instellingen.
+    nothing-title: "Niets om te herstarten"
+    nothing-body: "Er is deze keer geen stap ingesteld. Open de installatie vanuit Instellingen wanneer je er klaar voor bent."
+    done: Klaar
+  error:
+    generic: Er is iets misgegaan. Probeer het opnieuw.
+    load: Kan de installatie niet laden. Probeer het later opnieuw.
+    conflict: Dit is al ingesteld, of vastgelegd door een omgevingsvariabele.
+    no-data: /data is niet gekoppeld, dus dit kan niet worden opgeslagen.
+    window-closed: "Zonder inloggen accepteert de installatie alleen wijzigingen in de eerste 15 minuten van een nieuwe installatie. Zet inloggen in plaats daarvan aan met omgevingsvariabelen."

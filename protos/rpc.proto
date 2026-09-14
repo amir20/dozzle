@@ -5,7 +5,7 @@ package protobuf;
 import "google/protobuf/timestamp.proto";
 import "types.proto";
 
-option go_package = "internal/agent/pb";
+option go_package = "internal/container/agent/pb";
 
 service AgentService {
   rpc ListContainers(ListContainersRequest) returns (ListContainersResponse) {}

@@ -191,7 +191,6 @@ alert:
     title: 'Dostępna aktualizacja'
     message: 'Opublikowano nowszy obraz dla {image}.'
     enable-actions: '<a href="https://dozzle.dev/guide/actions" target="_blank" rel="noreferrer noopener">Włącz akcje</a>, aby pobrać go i odtworzyć kontener stąd.'
-    self: 'Dozzle nie może zaktualizować samego siebie, uruchom go ponownie, aby zastosować aktualizację.'
   redirected:
     title: Przekierowywanie do nowego kontenera
     message: Dozzle automatycznie przekierował do nowego kontenera {containerId}.
@@ -624,7 +623,7 @@ cloud:
     turn-on: "Włącz 1 alert | Włącz {count} alertów"
     turn-on-short: "Włącz"
     continue-without: "Kontynuuj bez alertów"
-    skip-alerts: "Nie teraz, wysyłaj tylko codzienne ustalenia"
+    skip-alerts: "Nie teraz"
     ready: "Gotowe"
     done-title: "Wszystko gotowe"
     done-body: "Oto gdzie pojawia się każdy rodzaj powiadomienia."
@@ -638,6 +637,10 @@ cloud:
     where-tuning: "Dostrajanie per kontener"
     where-tuning-detail: "Zawęź, wycisz lub usuń dowolną regułę na stronie Powiadomień."
     done: "Gotowe"
+    steps:
+      watching: "Co robi Cloud"
+      alerts: "Alerty w czasie rzeczywistym"
+      done: "Gdzie wszystko się pojawia"
     signals:
       exited: "Kontener zakończony z błędem"
       unhealthy: "Kontener stał się unhealthy"
@@ -750,3 +753,125 @@ command-palette:
   toggle-std: Przełącz etykiety stdout/stderr
   toggle-scrollbars: Przełącz mniejsze paski przewijania
   open-settings: Otwórz ustawienia
+setup:
+  title: Skonfiguruj Dozzle
+  next: Dalej
+  back: Wstecz
+  finish-later: Dokończ później
+  close: Zamknij
+  copy: Kopiuj
+  settings-title: Skonfiguruj Dozzle
+  settings-desc: Logowanie, akcje kontenerów, powłoka i Dozzle Cloud w kilku krokach.
+  settings-open: Otwórz konfigurację
+  steps:
+    login: Logowanie
+    login-note: Zrób to najpierw
+    actions: Akcje i powłoka
+    cloud: Dozzle Cloud
+    cloud-note: Opcjonalnie
+    update: "Automatyczna aktualizacja"
+    update-note: "Wymaga akcji"
+    restart: Restart
+  login:
+    title: Włącz logowanie
+    subtitle: Każdy, kto ma dostęp do Dozzle, może czytać Twoje logi. Zabezpiecz go przed wszystkim innym.
+    no-data-title: /data nie jest zamontowany
+    no-data-body: Użytkownicy i ustawienia są zapisywane w /data. Bez wolumenu znikną przy następnym odtworzeniu kontenera. Zamontuj wolumen i sprawdź ponownie.
+    check-again: Sprawdź ponownie
+    tab-account: Konto Dozzle
+    tab-proxy: Mój proxy
+    tab-oidc: OIDC
+    username: Nazwa użytkownika
+    email: E-mail
+    optional: (opcjonalnie)
+    password: Hasło
+    confirm: Potwierdź hasło
+    password-hint: Co najmniej 8 znaków. W nazwie użytkownika litery, cyfry, kropki, myślniki i podkreślenia.
+    saved-volume: Zapisano na zamontowanym wolumenie
+    after-restart: Logowanie włączy się po restarcie
+    on: Logowanie jest włączone
+    users-exist: Plik users.yml już istnieje. Ustaw dostawcę uwierzytelniania na simple, aby go użyć.
+    create-account: Utwórz konto
+    proxy-body: Authelia, Authentik, Cloudflare Access i podobne logują użytkowników, a następnie przekazują nazwę użytkownika do Dozzle w nagłówku Remote-User.
+    proxy-warning-title: Udostępniaj tylko proxy
+    proxy-warning-body: Dozzle ufa temu nagłówkowi od każdego. Jeśli jego własny port jest osiągalny, każdy może podszyć się pod dowolnego użytkownika.
+    proxy-docs: Przewodnik po forward proxy
+    use-proxy: Użyj mojego proxy
+    oidc-body: OIDC wymaga sekretu klienta, więc nic nie jest tutaj zapisywane. Dodaj to do pliku compose i odtwórz kontener.
+    oidc-docs: Przewodnik po OpenID Connect
+    skip: "Kontynuuj bez logowania"
+    manual-restart: Dozzle nie może się tutaj sam zrestartować. Zrestartuj kontener, aby włączyć logowanie, lub ustaw to w pliku compose.
+    restart-hint: Trafisz na stronę logowania. Konfiguracja będzie kontynuowana po zalogowaniu.
+  actions:
+    title: Akcje i powłoka
+    subtitle: Zdecyduj, co Dozzle może robić z Twoimi kontenerami.
+    example-status: Zakończony (1) 2 minuty temu
+    example-restart: Restartuj
+    example: "Przykład"
+    actions-label: Uruchamianie, zatrzymywanie i restart
+    actions-desc: Napraw kontener, który uległ awarii, ze strony, na której znalazłeś błąd.
+    shell-label: Powłoka
+    shell-desc: Podłącz się do kontenera lub uruchamiaj w nim polecenia.
+    shell-warning: Dostęp do powłoki kontenera często oznacza to samo co dostęp do hosta. Pozostaw wyłączone, chyba że go potrzebujesz.
+    locked: "Ustawione przez {env}"
+    window-closed: "Bez logowania konfiguracja przyjmuje zmiany tylko przez pierwsze 15 minut nowej instalacji. Ustaw te opcje zmiennymi środowiskowymi albo najpierw włącz logowanie."
+    no-access: Twoje konto nie może zmieniać tych ustawień.
+    restart-note: Zmiany zaczną działać po restarcie Dozzle.
+  cloud:
+    title: Połącz Dozzle Cloud
+    subtitle: Wiedz, kiedy coś się psuje, bez trzymania otwartej karty.
+    alerts-title: Alerty w chwili, gdy coś się psuje
+    alerts-body: Awarie, zabicia OOM i skoki błędów wysyłane na e-mail, Slack lub Discord.
+    summary-title: Poranne podsumowanie tego, co naprawić
+    summary-body: Jedna uporządkowana lista problemów wartych Twojego czasu, codziennie.
+    history-title: Historia, która przetrwa restarty
+    history-body: Alerty i spostrzeżenia zostają po przeładowaniu, restarcie lub tygodniu.
+    connect: Połącz Dozzle Cloud
+    learn-more: Dowiedz się więcej
+    skip: "Nie teraz"
+  update:
+    pill-on: "Używa akcji · włączone"
+    pill-pending: "Włączy się razem z akcjami"
+    title: "Utrzymuj Dozzle w najnowszej wersji"
+    subtitle: "Dozzle pobiera nowy obraz i zastępuje własny kontener w spokojnej porze. Ustawienia, użytkownicy i alerty zostają."
+    auto-label: "Aktualizuj automatycznie"
+    auto-desc: "Sprawdza, czy jest nowszy obraz, i zastępuje Dozzle tylko wtedy, gdy jest."
+    when-label: "Kiedy"
+    time-label: "Godzina"
+    server-time: "Używa strefy czasowej serwera."
+    daily: "Codziennie"
+    weekly: "Co tydzień w niedzielę"
+    version-label: "Wersja"
+    update-now: "Aktualizuj teraz"
+    pulling: "Pobieranie nowego obrazu"
+    up-to-date: "Dozzle jest już aktualny."
+    restarting: "Dozzle zastępuje się nową wersją."
+    restarting-hint: "Strona odświeży się, gdy tylko nowa wersja odpowie."
+    needs-actions: "Aktualizuj teraz zadziała, gdy akcje będą włączone, po restarcie."
+    reason-pinned-tag: "Używasz przypiętego tagu wersji, więc nie ma nic nowszego do pobrania. Użyj tagu takiego jak latest, aby otrzymywać aktualizacje."
+    reason-unsupported: "Dozzle może zastąpić samego siebie tylko wtedy, gdy działa jako pojedynczy kontener Docker."
+    pull-denied: "Nie udało się pobrać {image}. Może istnieje tylko na tej maszynie albo rejestr wymaga docker login."
+  restart:
+    title: Zrestartuj Dozzle
+    subtitle: Te zmiany zostały zapisane i zaczną działać po restarcie.
+    change-auth: Logowanie
+    "on": "Wł."
+    "off": "Wył."
+    button: Zrestartuj Dozzle
+    restarting: Restartowanie Dozzle
+    restarting-hint: Strona przeładuje się, gdy tylko Dozzle wróci.
+    slow-title: To trwa dłużej niż zwykle
+    slow-body: Dozzle jeszcze nie wrócił. Sprawdź kontener, a następnie przeładuj.
+    reload: Przeładuj
+    manual: Dozzle nie może się tutaj sam zrestartować. Zrestartuj kontener lub ustaw te opcje w pliku compose.
+    done-title: Wszystko gotowe
+    done-body: Nic nie wymaga restartu. Możesz tu wrócić z Ustawień w dowolnym momencie.
+    nothing-title: "Nie ma czego restartować"
+    nothing-body: "Tym razem nie skonfigurowano żadnego kroku. Otwórz konfigurację w Ustawieniach, kiedy tylko zechcesz."
+    done: Gotowe
+  error:
+    generic: Coś poszło nie tak. Spróbuj ponownie.
+    load: Nie można załadować konfiguracji. Spróbuj ponownie później.
+    conflict: To jest już ustawione lub określone przez zmienną środowiskową.
+    no-data: /data nie jest zamontowany, więc nie można tego zapisać.
+    window-closed: "Bez logowania konfiguracja przyjmuje zmiany tylko przez pierwsze 15 minut nowej instalacji. Zamiast tego włącz logowanie zmiennymi środowiskowymi."

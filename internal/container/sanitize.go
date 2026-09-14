@@ -3,7 +3,7 @@ package container
 import "strings"
 
 // Highlight markers that Dozzle injects into log messages for HTML rendering
-// (see internal/support/web: MarkerStart/End = U+E000/U+E001 for search hits,
+// (see internal/web/search: MarkerStart/End = U+E000/U+E001 for search hits,
 // URLMarkerStart/End = U+E002/U+E003 for URLs). They live in the Unicode
 // private-use area and must never appear in copied or downloaded plain-text
 // logs, where they show up as invisible garbage characters.

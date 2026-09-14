@@ -197,8 +197,8 @@
             {{ $t("toolbar.restart") }}
           </button>
         </li>
-        <li v-if="!isSelfContainer">
-          <button @click="update()" :disabled="actionStates.update">
+        <li v-if="imageUpdatable">
+          <button @click="update({ self: isSelfContainer })" :disabled="actionStates.update">
             <carbon:upgrade />
             {{ container.isSwarm ? $t("toolbar.update-service") : $t("toolbar.update") }}
             <span v-if="showImageUpdateAlert" class="bg-warning size-1.5 rounded-full"></span>
@@ -293,6 +293,7 @@ const { actionStates, start, stop, restart, update } = useContainerActions(toRef
 const {
   showAlert: showImageUpdateAlert,
   isSelf: isSelfContainer,
+  updatable: imageUpdatable,
   dismiss: dismissImageUpdate,
   check: checkImageUpdate,
   checking: checkingImageUpdate,

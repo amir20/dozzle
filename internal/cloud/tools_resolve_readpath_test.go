@@ -6,7 +6,6 @@ import (
 	"time"
 
 	"github.com/amir20/dozzle/internal/container"
-	container_support "github.com/amir20/dozzle/internal/support/container"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
@@ -187,7 +186,7 @@ func TestExecuteTool_FetchLogs_AllStopped_ResolvesNewestCorpseWithNote(t *testin
 		container.Container{ID: "newest", Name: "svc.1.bbb", Host: "local", State: "exited", StartedAt: t0.Add(5 * time.Minute)},
 	)
 	newestC := container.Container{ID: "newest", Name: "svc.1.bbb", Host: "local", State: "exited", StartedAt: t0.Add(5 * time.Minute)}
-	cs := container_support.NewContainerService(&closedLogsClientService{}, newestC)
+	cs := container.NewContainerService(&closedLogsClientService{}, newestC)
 	mockHost.On("FindContainer", "local", "newest", container.ContainerLabels(nil)).Return(cs, nil)
 
 	resp := ExecuteTool(context.Background(), "fetch_container_logs", `{"container_id":"svc.1"}`, ToolDeps{HostService: mockHost})
@@ -211,7 +210,7 @@ func TestExecuteTool_InspectContainer_AllStopped_ResolvesNewestCorpse(t *testing
 		container.Container{ID: "newest", Name: "svc.1.bbb", Host: "local", State: "exited", StartedAt: t0.Add(5 * time.Minute)},
 	)
 	newestC := container.Container{ID: "newest", Name: "svc.1.bbb", Host: "local", State: "exited", StartedAt: t0.Add(5 * time.Minute)}
-	cs := container_support.NewContainerService(&MockClientService{}, newestC)
+	cs := container.NewContainerService(&MockClientService{}, newestC)
 	mockHost.On("FindContainer", "local", "newest", container.ContainerLabels(nil)).Return(cs, nil)
 
 	resp := ExecuteTool(context.Background(), "inspect_container", `{"container_id":"svc.1"}`, ToolDeps{HostService: mockHost})

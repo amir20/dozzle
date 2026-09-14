@@ -7,7 +7,6 @@ import (
 
 	"github.com/amir20/dozzle/internal/container"
 	"github.com/amir20/dozzle/internal/notification"
-	container_support "github.com/amir20/dozzle/internal/support/container"
 	pb "github.com/amir20/dozzle/proto/cloud"
 	"github.com/rs/zerolog/log"
 )
@@ -15,7 +14,7 @@ import (
 // ToolHostService is the subset of HostService needed by tool execution.
 type ToolHostService interface {
 	ListAllContainers(labels container.ContainerLabels) ([]container.Container, []error)
-	FindContainer(host string, id string, labels container.ContainerLabels) (*container_support.ContainerService, error)
+	FindContainer(host string, id string, labels container.ContainerLabels) (*container.ContainerService, error)
 	Hosts() []container.Host
 }
 

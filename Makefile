@@ -1,4 +1,4 @@
-GEN_DIR := internal/agent/pb
+GEN_DIR := internal/container/agent/pb
 
 .PHONY: clean
 clean:
@@ -35,7 +35,7 @@ test-update: fake_assets generate
 
 .PHONY: build
 build: dist generate
-	CGO_ENABLED=0 go build -ldflags "-s -w -X github.com/amir20/dozzle/internal/support/cli.Version=local"
+	CGO_ENABLED=0 go build -ldflags "-s -w -X github.com/amir20/dozzle/internal/cli.Version=local"
 
 .PHONY: docker
 docker: generate
@@ -70,7 +70,7 @@ shared_cert.pem: shared_key.pem
 
 .PHONY: run
 run: docker
-	docker run -it --rm -p 8080:8080 -v /var/run/docker.sock:/var/run/docker.sock amir20/dozzle:local
+	docker run -it --rm -p 8080:8080 -v /var/run/docker.sock:/var/run/docker.sock -v /data amir20/dozzle:local
 
 .PHONY: preview
 preview: build

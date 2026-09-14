@@ -56,6 +56,7 @@
     </Suspense>
   </SideDrawer>
   <ToastModal />
+  <SetupWizard />
 </template>
 
 <script lang="ts" setup>

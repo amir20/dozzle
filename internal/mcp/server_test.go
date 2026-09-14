@@ -10,7 +10,6 @@ import (
 
 	"github.com/amir20/dozzle/internal/auth"
 	"github.com/amir20/dozzle/internal/container"
-	container_support "github.com/amir20/dozzle/internal/support/container"
 	"github.com/amir20/dozzle/internal/utils"
 	"github.com/modelcontextprotocol/go-sdk/mcp"
 	"github.com/stretchr/testify/assert"
@@ -31,7 +30,7 @@ type mockHostService struct {
 }
 
 type stubClientService struct {
-	container_support.ClientService
+	container.ClientService
 	events []*container.LogEvent
 	err    error
 }
@@ -58,7 +57,7 @@ func (s *stubClientService) RawLogs(context.Context, container.Container, time.T
 	return nil, fmt.Errorf("not implemented")
 }
 
-func (m *mockHostService) FindContainer(host string, id string, labels container.ContainerLabels) (*container_support.ContainerService, error) {
+func (m *mockHostService) FindContainer(host string, id string, labels container.ContainerLabels) (*container.ContainerService, error) {
 	m.gotLabels = labels
 	if m.findErr != nil {
 		return nil, m.findErr
@@ -66,7 +65,7 @@ func (m *mockHostService) FindContainer(host string, id string, labels container
 	for _, c := range m.containers {
 		if c.ID == id && c.Host == host {
 			stub := &stubClientService{events: m.logEvents, err: m.logErr}
-			return container_support.NewContainerService(stub, c), nil
+			return container.NewContainerService(stub, c), nil
 		}
 	}
 	return nil, assert.AnError

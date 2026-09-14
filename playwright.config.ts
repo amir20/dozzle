@@ -28,6 +28,22 @@ export default defineConfig({
 
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
     trace: "on-first-retry",
+
+    /* The e2e instances run server mode with no auth and an empty profile, which is
+     * exactly when the setup wizard opens by itself. Mark it seen on every origin so it
+     * never covers the UI under test or lands in a visual snapshot. The key matches
+     * useProfileStorage("setupSeen"). */
+    storageState: {
+      cookies: [],
+      origins: [
+        "http://custom_base:8080",
+        "http://dozzle:8080",
+        "http://dozzle-with-agent:8080",
+        "http://logs-viewer:8080",
+        "http://remote:8080",
+        "http://simple-auth:8080",
+      ].map((origin) => ({ origin, localStorage: [{ name: "DOZZLE_SETUPSEEN", value: "true" }] })),
+    },
   },
 
   /* Configure projects for major browsers */

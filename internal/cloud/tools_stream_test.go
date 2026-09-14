@@ -8,7 +8,6 @@ import (
 	"time"
 
 	"github.com/amir20/dozzle/internal/container"
-	container_support "github.com/amir20/dozzle/internal/support/container"
 	pb "github.com/amir20/dozzle/proto/cloud"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -236,7 +235,7 @@ func TestExecuteStreamLogs_BasicFlow(t *testing.T) {
 		return nil
 	}
 
-	cs := container_support.NewContainerService(mockClient, container.Container{ID: "abc123", Name: "test-container", Host: "host1"})
+	cs := container.NewContainerService(mockClient, container.Container{ID: "abc123", Name: "test-container", Host: "host1"})
 	mockHost := &MockHostService{}
 	withResolver(mockHost, container.Container{ID: "abc123", Name: "test-container", Host: "host1"})
 	mockHost.On("FindContainer", "host1", "abc123", container.ContainerLabels(nil)).Return(cs, nil)
@@ -274,7 +273,7 @@ func TestExecuteStreamLogs_WithLevelFilter(t *testing.T) {
 		return nil
 	}
 
-	cs := container_support.NewContainerService(mockClient, container.Container{ID: "abc123", Name: "test-container", Host: "host1"})
+	cs := container.NewContainerService(mockClient, container.Container{ID: "abc123", Name: "test-container", Host: "host1"})
 	mockHost := &MockHostService{}
 	withResolver(mockHost, container.Container{ID: "abc123", Name: "test-container", Host: "host1"})
 	mockHost.On("FindContainer", "host1", "abc123", container.ContainerLabels(nil)).Return(cs, nil)
@@ -316,7 +315,7 @@ func TestExecuteStreamLogs_CancelContext(t *testing.T) {
 		return ctx.Err()
 	}
 
-	cs := container_support.NewContainerService(mockClient, container.Container{ID: "abc123", Name: "test-container", Host: "host1"})
+	cs := container.NewContainerService(mockClient, container.Container{ID: "abc123", Name: "test-container", Host: "host1"})
 	mockHost := &MockHostService{}
 	withResolver(mockHost, container.Container{ID: "abc123", Name: "test-container", Host: "host1"})
 	mockHost.On("FindContainer", "host1", "abc123", container.ContainerLabels(nil)).Return(cs, nil)
@@ -388,7 +387,7 @@ func TestExecuteStreamLogs_BatchingAt50(t *testing.T) {
 		return nil
 	}
 
-	cs := container_support.NewContainerService(mockClient, container.Container{ID: "abc123", Name: "test-container", Host: "host1"})
+	cs := container.NewContainerService(mockClient, container.Container{ID: "abc123", Name: "test-container", Host: "host1"})
 	mockHost := &MockHostService{}
 	withResolver(mockHost, container.Container{ID: "abc123", Name: "test-container", Host: "host1"})
 	mockHost.On("FindContainer", mock.Anything, mock.Anything, mock.Anything).Return(cs, nil)
@@ -435,7 +434,7 @@ func TestExecuteStreamLogs_StreamsFromContainerStart(t *testing.T) {
 	mockHost := &MockHostService{}
 	withResolver(mockHost, c)
 	mockHost.On("FindContainer", "host1", "abc123", container.ContainerLabels(nil)).
-		Return(container_support.NewContainerService(mockClient, c), nil)
+		Return(container.NewContainerService(mockClient, c), nil)
 
 	err := executeStreamLogs(context.Background(), "req1", `{"container_id":"abc123","host_id":"host1"}`,
 		ToolDeps{HostService: mockHost}, func(*pb.ToolResponse) error { return nil })
@@ -458,7 +457,7 @@ func TestExecuteStreamLogs_FallsBackWhenStartedAtUnknown(t *testing.T) {
 	mockHost := &MockHostService{}
 	withResolver(mockHost, c)
 	mockHost.On("FindContainer", "host1", "abc123", container.ContainerLabels(nil)).
-		Return(container_support.NewContainerService(mockClient, c), nil)
+		Return(container.NewContainerService(mockClient, c), nil)
 
 	err := executeStreamLogs(context.Background(), "req1", `{"container_id":"abc123","host_id":"host1"}`,
 		ToolDeps{HostService: mockHost}, func(*pb.ToolResponse) error { return nil })

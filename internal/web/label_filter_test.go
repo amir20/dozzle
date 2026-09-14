@@ -14,8 +14,9 @@ import (
 	"github.com/amir20/dozzle/internal/auth"
 	"github.com/amir20/dozzle/internal/cloud"
 	"github.com/amir20/dozzle/internal/container"
+	"github.com/amir20/dozzle/internal/container/docker"
+	"github.com/amir20/dozzle/internal/hostservice"
 	"github.com/amir20/dozzle/internal/notification"
-	docker_support "github.com/amir20/dozzle/internal/support/docker"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
@@ -41,9 +42,9 @@ func restrictedHandler(t *testing.T) *handler {
 	client.On("ContainerLogsBetweenDates", mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).
 		Return(io.NopCloser(strings.NewReader("")), nil)
 
-	manager := docker_support.NewRetriableClientManager(nil, 3*time.Second, tls.Certificate{}, docker_support.NewDockerClientService(client, container.ContainerLabels{}))
+	manager := hostservice.NewRetriableClientManager(nil, 3*time.Second, tls.Certificate{}, docker.NewDockerClientService(client, container.ContainerLabels{}))
 	return &handler{
-		hostService: docker_support.NewMultiHostService(manager, 3*time.Second),
+		hostService: hostservice.NewMultiHostService(manager, 3*time.Second),
 		config:      &Config{Base: "/", Authorization: Authorization{Provider: SIMPLE}},
 	}
 }

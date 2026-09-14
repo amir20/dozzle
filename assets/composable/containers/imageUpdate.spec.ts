@@ -10,6 +10,7 @@ const holder = vi.hoisted(() => ({
   config: {
     imageCheckMode: "automatic",
     enableActions: true,
+    selfContainerId: "5e1f00000000" + "0".repeat(52),
     hosts: [
       { id: "localhost", type: "local" },
       { id: "remote", type: "agent" },
@@ -56,6 +57,9 @@ vi.mock("vue-i18n", () => ({
 const { useImageUpdate } = await import("./imageUpdate");
 
 let counter = 0;
+
+// Short form of config.selfContainerId, the way container ids reach the page.
+const SELF_ID = "5e1f00000000";
 
 // Scopes are tracked so each test's watchers are torn down. Without this a
 // later test flipping a shared setting would re-trigger earlier instances.
@@ -171,21 +175,47 @@ describe("useImageUpdate", () => {
     expect(result.updatable.value).toBe(false);
   });
 
-  // Dozzle cannot stop itself to update, unless swarm does it.
-  test("marks a standalone Dozzle container as not updatable", async () => {
+  // Dozzle updates itself through a helper container.
+  test("marks a standalone Dozzle container as updatable self", async () => {
+    mockCheck({ status: "update-available", remoteDigest: "sha256:new" });
+    const { result } = await run(container({ id: SELF_ID, image: "amir20/dozzle:latest" }));
+
+    expect(result.showAlert.value).toBe(true);
+    expect(result.updatable.value).toBe(true);
+    expect(result.isSelf.value).toBe(true);
+  });
+
+  // Matched by id like the backend, so a second Dozzle on the same host is ordinary.
+  test("does not treat another Dozzle container on the local host as self", async () => {
     mockCheck({ status: "update-available", remoteDigest: "sha256:new" });
     const { result } = await run(container({ image: "amir20/dozzle:latest" }));
 
-    expect(result.showAlert.value).toBe(true);
-    expect(result.updatable.value).toBe(false);
-    expect(result.isSelf.value).toBe(true);
+    expect(result.isSelf.value).toBe(false);
+  });
+
+  // Without its own container id the backend refuses anything that looks like
+  // Dozzle, so no button that cannot work is offered.
+  test("does not offer updating a local Dozzle container when its own id is unknown", async () => {
+    const self = holder.config.selfContainerId;
+    holder.config.selfContainerId = undefined;
+    try {
+      mockCheck({ status: "update-available", remoteDigest: "sha256:new" });
+      const { result } = await run(container({ image: "amir20/dozzle:latest" }));
+      expect(result.updatable.value).toBe(false);
+
+      mockCheck({ status: "update-available", remoteDigest: "sha256:new" });
+      const other = await run(container());
+      expect(other.result.updatable.value).toBe(true);
+    } finally {
+      holder.config.selfContainerId = self;
+    }
   });
 
   // A Dozzle agent on another host is an ordinary container: updating it does
   // not stop the instance doing the updating.
   test("treats a Dozzle agent on a remote host as updatable", async () => {
     mockCheck({ status: "update-available", remoteDigest: "sha256:new" });
-    const { result } = await run(container({ image: "amir20/dozzle:latest", host: "remote" }));
+    const { result } = await run(container({ id: SELF_ID, image: "amir20/dozzle:latest", host: "remote" }));
 
     expect(result.isSelf.value).toBe(false);
     expect(result.updatable.value).toBe(true);
@@ -193,7 +223,7 @@ describe("useImageUpdate", () => {
 
   test("allows updating Dozzle when it runs as a swarm service", async () => {
     mockCheck({ status: "update-available", remoteDigest: "sha256:new" });
-    const { result } = await run(container({ image: "amir20/dozzle:latest", isSwarm: true }));
+    const { result } = await run(container({ id: SELF_ID, image: "amir20/dozzle:latest", isSwarm: true }));
 
     expect(result.updatable.value).toBe(true);
     expect(result.isSelf.value).toBe(false);
@@ -296,13 +326,14 @@ describe("useImageUpdate", () => {
       expect(holder.update).toHaveBeenCalled();
     });
 
-    test("omits the update action for a standalone Dozzle container", async () => {
+    // Dozzle replaces itself through a helper, so the update waits for the new process.
+    test("updates a standalone Dozzle container as itself", async () => {
       holder.showAlertSetting!.value = true;
       mockCheck({ status: "update-available", remoteDigest: "sha256:new" });
-      await run(container({ image: "amir20/dozzle:latest" }));
+      await run(container({ id: SELF_ID, image: "amir20/dozzle:latest" }));
 
-      expect(holder.toasts[0].action).toBeUndefined();
-      expect(holder.toasts[0].message).toContain("alert.image-update.self");
+      holder.toasts[0].action.handler();
+      expect(holder.update).toHaveBeenCalledWith({ self: true });
     });
 
     // Actions are off by default, so the notice has to say what to do about it.

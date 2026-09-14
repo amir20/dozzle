@@ -18,7 +18,6 @@ import (
 	"github.com/amir20/dozzle/internal/notification"
 	"github.com/amir20/dozzle/internal/notification/dispatcher"
 	"github.com/amir20/dozzle/internal/releases"
-	container_support "github.com/amir20/dozzle/internal/support/container"
 	"github.com/amir20/dozzle/types"
 
 	"github.com/go-chi/chi/v5"
@@ -62,6 +61,23 @@ type Config struct {
 	ImageCheckMode   imagecheck.Mode
 	Labels           container.ContainerLabels
 	Cloud            CloudHooks
+	Setup            SetupConfig
+}
+
+// SetupConfig is what the setup wizard needs to know about how this process
+// was configured. A Locked field was set by a flag or env var, so the wizard
+// shows it read-only instead of writing a dozzle.yml value that would lose.
+type SetupConfig struct {
+	LockedAuthProvider  bool
+	LockedEnableActions bool
+	LockedEnableShell   bool
+	// LockedAutoUpdate is true when either auto-update setting came from a flag
+	// or env var. AutoUpdateMode and AutoUpdateTime hold those values, nil when
+	// the setting is not locked.
+	LockedAutoUpdate bool
+	AutoUpdateMode   *string
+	AutoUpdateTime   *string
+	StartedAt        time.Time
 }
 
 // CloudHooks bundles cloud-side callbacks the web layer invokes. Grouping
@@ -127,17 +143,17 @@ type OAuthAuthorizer interface {
 }
 
 type HostService interface {
-	FindContainer(host string, id string, labels container.ContainerLabels) (*container_support.ContainerService, error)
+	FindContainer(host string, id string, labels container.ContainerLabels) (*container.ContainerService, error)
 	ListContainersForHost(host string, labels container.ContainerLabels) ([]container.Container, error)
 	ListAllContainers(labels container.ContainerLabels) ([]container.Container, []error)
-	ListAllContainersFiltered(userFilter container.ContainerLabels, filter container_support.ContainerFilter) ([]container.Container, []error)
+	ListAllContainersFiltered(userFilter container.ContainerLabels, filter container.ContainerFilter) ([]container.Container, []error)
 	SubscribeEventsAndStats(ctx context.Context, events chan<- container.ContainerEvent, stats chan<- container.ContainerStat)
-	SubscribeContainersStarted(ctx context.Context, containers chan<- container.Container, filter container_support.ContainerFilter)
+	SubscribeContainersStarted(ctx context.Context, containers chan<- container.Container, filter container.ContainerFilter)
 	Hosts() []container.Host
 	LocalHost() (container.Host, error)
 	SubscribeAvailableHosts(ctx context.Context, hosts chan<- container.Host)
 	LocalClients() []container.Client
-	LocalClientServices() []container_support.ClientService
+	LocalClientServices() []container.ClientService
 	// Notification methods
 	AddSubscription(sub *notification.Subscription) error
 	RemoveSubscription(id int)
@@ -229,6 +245,9 @@ func createRouter(h *handler) *chi.Mux {
 				if h.config.EnableActions {
 					r.Post("/hosts/{host}/containers/{id}/actions/update", h.containerUpdate)
 					r.Post("/hosts/{host}/containers/{id}/actions/{action}", h.containerActions)
+					if h.config.Mode == "server" {
+						r.Post("/update/self", h.updateSelf)
+					}
 				}
 				if h.config.EnableShell {
 					r.Get("/hosts/{host}/containers/{id}/attach", h.attach)
@@ -263,6 +282,18 @@ func createRouter(h *handler) *chi.Mux {
 					r.Post("/preview", h.previewExpression)
 					r.Post("/test-webhook", h.testWebhook)
 				})
+
+				// Setup wizard. Server mode only; swarm and k8s never show it.
+				if h.config.Mode == "server" {
+					r.Get("/setup", h.getSetup)
+					r.Patch("/setup/config", h.updateSetupConfig)
+					r.Post("/setup/restart", h.restartSetup)
+					// Choosing a login only exists while there is none.
+					if h.config.Authorization.Provider == NONE {
+						r.Post("/setup/account", h.createSetupAccount)
+						r.Post("/setup/auth", h.updateSetupAuth)
+					}
+				}
 
 				// Releases API
 				r.Get("/releases", h.getReleases)

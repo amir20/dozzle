@@ -5,7 +5,6 @@ import (
 	"testing"
 
 	"github.com/amir20/dozzle/internal/container"
-	container_support "github.com/amir20/dozzle/internal/support/container"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
@@ -277,7 +276,7 @@ func TestResolveContainerRef_IDBeatsName(t *testing.T) {
 func TestExecuteTool_InspectContainer_ByName(t *testing.T) {
 	mockHost := &MockHostService{}
 	withResolver(mockHost, container.Container{ID: "abc123def456", Name: "nginx", Host: "local"})
-	cs := container_support.NewContainerService(&MockClientService{}, container.Container{ID: "abc123def456", Name: "nginx", Host: "local"})
+	cs := container.NewContainerService(&MockClientService{}, container.Container{ID: "abc123def456", Name: "nginx", Host: "local"})
 	mockHost.On("FindContainer", "local", "abc123def456", container.ContainerLabels(nil)).Return(cs, nil)
 
 	// Pass the NAME in container_id and omit host_id entirely.
@@ -307,7 +306,7 @@ func TestExecuteTool_RestartContainer_AmbiguousName_NoSilentPick(t *testing.T) {
 func TestExecuteTool_RestartContainer_ByName_HostInferred(t *testing.T) {
 	mockClient := &MockClientService{}
 	mockClient.On("ContainerAction", mock.Anything, mock.Anything, container.Restart).Return(nil)
-	cs := container_support.NewContainerService(mockClient, container.Container{ID: "id1", Name: "nginx", Host: "host-a"})
+	cs := container.NewContainerService(mockClient, container.Container{ID: "id1", Name: "nginx", Host: "host-a"})
 
 	mockHost := &MockHostService{}
 	withResolver(mockHost, container.Container{ID: "id1", Name: "nginx", Host: "host-a"})
@@ -325,7 +324,7 @@ func TestExecuteTool_RestartContainer_PrefersRunningReplica(t *testing.T) {
 	// so picking the single running container is safe (and what the user means).
 	mockClient := &MockClientService{}
 	mockClient.On("ContainerAction", mock.Anything, mock.Anything, container.Restart).Return(nil)
-	cs := container_support.NewContainerService(mockClient, container.Container{ID: "live", Name: "svc.1.ccc", Host: "local", State: "running"})
+	cs := container.NewContainerService(mockClient, container.Container{ID: "live", Name: "svc.1.ccc", Host: "local", State: "running"})
 
 	mockHost := &MockHostService{}
 	withResolver(mockHost,
