@@ -12,8 +12,8 @@ import (
 
 	"time"
 
-	"github.com/amir20/dozzle/internal/agent/pb"
 	"github.com/amir20/dozzle/internal/container"
+	"github.com/amir20/dozzle/internal/container/agent/pb"
 	"github.com/amir20/dozzle/internal/imagecheck"
 	"github.com/amir20/dozzle/internal/notification/dispatcher"
 	"github.com/amir20/dozzle/types"
@@ -187,7 +187,7 @@ func (s *server) StreamEvents(in *pb.StreamEventsRequest, out pb.AgentService_St
 				ActorAttributes: event.ActorAttributes,
 			}
 			if event.Container != nil {
-				proto := event.Container.ToProto()
+				proto := containerToProto(*event.Container)
 				pbEvent.Container = &proto
 			}
 			out.Send(&pb.StreamEventsResponse{Event: pbEvent})
@@ -235,7 +235,7 @@ func (s *server) FindContainer(ctx context.Context, in *pb.FindContainerRequest)
 	if err != nil {
 		return nil, status.Error(codes.NotFound, err.Error())
 	}
-	proto := c.ToProto()
+	proto := containerToProto(c)
 	return &pb.FindContainerResponse{
 		Container: &proto,
 	}, nil
@@ -256,7 +256,7 @@ func (s *server) ListContainers(ctx context.Context, in *pb.ListContainersReques
 
 	var pbContainers []*pb.Container
 	for _, c := range containers {
-		proto := c.ToProto()
+		proto := containerToProto(c)
 		pbContainers = append(pbContainers, &proto)
 	}
 
@@ -291,7 +291,7 @@ func (s *server) StreamContainerStarted(in *pb.StreamContainerStartedRequest, ou
 	for {
 		select {
 		case container := <-containers:
-			c := container.ToProto()
+			c := containerToProto(container)
 			out.Send(&pb.StreamContainerStartedResponse{
 				Container: &c,
 			})

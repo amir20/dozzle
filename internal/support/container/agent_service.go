@@ -7,8 +7,8 @@ import (
 
 	"time"
 
-	"github.com/amir20/dozzle/internal/agent"
 	"github.com/amir20/dozzle/internal/container"
+	"github.com/amir20/dozzle/internal/container/agent"
 	"github.com/amir20/dozzle/internal/imagecheck"
 	"github.com/amir20/dozzle/types"
 	"github.com/rs/zerolog/log"

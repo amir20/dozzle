@@ -8,8 +8,8 @@ import (
 	"sync"
 	"time"
 
-	"github.com/amir20/dozzle/internal/agent"
 	"github.com/amir20/dozzle/internal/container"
+	"github.com/amir20/dozzle/internal/container/agent"
 	container_support "github.com/amir20/dozzle/internal/support/container"
 
 	"github.com/puzpuzpuz/xsync/v4"

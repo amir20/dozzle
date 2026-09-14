@@ -11,8 +11,8 @@ import (
 	"time"
 
 	"github.com/amir20/dozzle/internal/container"
+	"github.com/amir20/dozzle/internal/container/k8s"
 	"github.com/amir20/dozzle/internal/imagecheck"
-	"github.com/amir20/dozzle/internal/k8s"
 )
 
 type K8sClientService struct {

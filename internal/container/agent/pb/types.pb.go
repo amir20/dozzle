@@ -1569,7 +1569,7 @@ const file_types_proto_rawDesc = "" +
 	"\x04Stop\x10\x01\x12\v\n" +
 	"\aRestart\x10\x02\x12\n" +
 	"\n" +
-	"\x06Remove\x10\x03B\x13Z\x11internal/agent/pbb\x06proto3"
+	"\x06Remove\x10\x03B\x1dZ\x1binternal/container/agent/pbb\x06proto3"
 
 var (
 	file_types_proto_rawDescOnce sync.Once

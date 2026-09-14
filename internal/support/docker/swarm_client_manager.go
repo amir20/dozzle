@@ -9,9 +9,9 @@ import (
 	"sync"
 	"time"
 
-	"github.com/amir20/dozzle/internal/agent"
 	"github.com/amir20/dozzle/internal/container"
-	"github.com/amir20/dozzle/internal/docker"
+	"github.com/amir20/dozzle/internal/container/agent"
+	"github.com/amir20/dozzle/internal/container/docker"
 	container_support "github.com/amir20/dozzle/internal/support/container"
 
 	"github.com/puzpuzpuz/xsync/v4"

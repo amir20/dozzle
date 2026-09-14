@@ -132,7 +132,7 @@ func init() {
 	if err != nil {
 		panic(err)
 	}
-	root := path.Join(cwd, "../../")
+	root := path.Join(cwd, "../../../")
 	certs, err = tls.LoadX509KeyPair(path.Join(root, "shared_cert.pem"), path.Join(root, "shared_key.pem"))
 	if err != nil {
 		panic(err)

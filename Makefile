@@ -1,4 +1,4 @@
-GEN_DIR := internal/agent/pb
+GEN_DIR := internal/container/agent/pb
 
 .PHONY: clean
 clean:

@@ -1896,7 +1896,7 @@ const file_rpc_proto_rawDesc = "" +
 	"\x0fContainerAttach\x12 .protobuf.ContainerAttachRequest\x1a!.protobuf.ContainerAttachResponse\"\x00(\x010\x01\x12s\n" +
 	"\x18UpdateNotificationConfig\x12).protobuf.UpdateNotificationConfigRequest\x1a*.protobuf.UpdateNotificationConfigResponse\"\x00\x12^\n" +
 	"\x11UpdateCloudConfig\x12\".protobuf.UpdateCloudConfigRequest\x1a#.protobuf.UpdateCloudConfigResponse\"\x00\x12g\n" +
-	"\x14GetNotificationStats\x12%.protobuf.GetNotificationStatsRequest\x1a&.protobuf.GetNotificationStatsResponse\"\x00B\x13Z\x11internal/agent/pbb\x06proto3"
+	"\x14GetNotificationStats\x12%.protobuf.GetNotificationStatsRequest\x1a&.protobuf.GetNotificationStatsResponse\"\x00B\x1dZ\x1binternal/container/agent/pbb\x06proto3"
 
 var (
 	file_rpc_proto_rawDescOnce sync.Once

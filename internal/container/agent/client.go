@@ -14,8 +14,8 @@ import (
 	"encoding/json"
 	"strings"
 
-	"github.com/amir20/dozzle/internal/agent/pb"
 	"github.com/amir20/dozzle/internal/container"
+	"github.com/amir20/dozzle/internal/container/agent/pb"
 	"github.com/amir20/dozzle/internal/imagecheck"
 	"github.com/amir20/dozzle/types"
 	"github.com/rs/zerolog/log"
@@ -311,7 +311,7 @@ func (c *Client) StreamEvents(ctx context.Context, events chan<- container.Conta
 			ActorAttributes: resp.Event.ActorAttributes,
 		}
 		if resp.Event.Container != nil {
-			c := container.FromProto(resp.Event.Container)
+			c := containerFromProto(resp.Event.Container)
 			evt.Container = &c
 		}
 		select {
@@ -335,7 +335,7 @@ func (c *Client) StreamNewContainers(ctx context.Context, containers chan<- cont
 		}
 
 		select {
-		case containers <- container.FromProto(resp.Container):
+		case containers <- containerFromProto(resp.Container):
 		case <-ctx.Done():
 			return ctx.Err()
 		}
@@ -357,7 +357,7 @@ func (c *Client) FindContainer(ctx context.Context, containerID string, labels c
 		return container.Container{}, err
 	}
 
-	return container.FromProto(response.Container), nil
+	return containerFromProto(response.Container), nil
 }
 
 func (c *Client) ListContainers(ctx context.Context, labels container.ContainerLabels) ([]container.Container, error) {
@@ -377,7 +377,7 @@ func (c *Client) ListContainers(ctx context.Context, labels container.ContainerL
 
 	containers := make([]container.Container, 0)
 	for _, c := range response.Containers {
-		containers = append(containers, container.FromProto(c))
+		containers = append(containers, containerFromProto(c))
 	}
 
 	return containers, nil

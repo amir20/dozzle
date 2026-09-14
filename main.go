@@ -18,14 +18,14 @@ import (
 	// auto-update time silently means UTC.
 	_ "time/tzdata"
 
-	"github.com/amir20/dozzle/internal/agent"
 	"github.com/amir20/dozzle/internal/auth"
 	"github.com/amir20/dozzle/internal/cloud"
 	dozzleconfig "github.com/amir20/dozzle/internal/config"
 	"github.com/amir20/dozzle/internal/container"
-	"github.com/amir20/dozzle/internal/docker"
+	"github.com/amir20/dozzle/internal/container/agent"
+	"github.com/amir20/dozzle/internal/container/docker"
+	"github.com/amir20/dozzle/internal/container/k8s"
 	"github.com/amir20/dozzle/internal/imagecheck"
-	"github.com/amir20/dozzle/internal/k8s"
 	"github.com/amir20/dozzle/internal/notification/dispatcher"
 	"github.com/amir20/dozzle/internal/support/cli"
 	container_support "github.com/amir20/dozzle/internal/support/container"
