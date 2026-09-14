@@ -1,6 +1,6 @@
 ---
 title: Einrichtungsassistent
-sourceHash: 6c58a8385357
+sourceHash: 4a73b46d7ba8
 ---
 
 # Einrichtungsassistent
@@ -107,7 +107,7 @@ Die Logs des Hilfscontainers sind die einzige Aufzeichnung eines Updates. Er ent
 Manche Setups lassen sich so nicht aktualisieren:
 
 - **Aktionen müssen eingeschaltet sein.** Das Selbst-Update braucht `DOZZLE_ENABLE_ACTIONS`, und die `Update`-Aktion braucht bei aktivem Login die Rolle für Aktionen.
-- **Nur im Server-Modus.** Ein Dozzle-Swarm-Service wird wie jeder andere Service über den Swarm-Manager aktualisiert. Kubernetes und Dozzle-Agents aktualisieren sich nicht selbst.
+- **Im Server-Modus, auch als Swarm-Service.** Läuft Dozzle als Task eines Swarm-Service, gibt es keinen Hilfscontainer: Dozzle bittet den Swarm-Manager, den Service auf das neue Image umzustellen, und es gelten die Update- und Rollback-Einstellungen von Swarm. Dafür muss Dozzle auf einem Manager-Knoten laufen. Bei mehreren Replicas führt nur die erste den Zeitplan aus. Kubernetes und Dozzle-Agents aktualisieren sich nicht selbst.
 - **Feste Versions-Tags werden nie aktualisiert.** `amir20/dozzle:v8.12.0` liefert beim Ziehen immer dasselbe Image, deshalb sind automatische Updates nicht verfügbar und ein manuelles Update meldet, dass alles aktuell ist. Nutze `latest` oder ändere den Tag selbst.
 
 ## <Icon icon="mdi:shield-lock-outline" inline /> Sicherheit

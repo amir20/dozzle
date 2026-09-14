@@ -7,7 +7,7 @@ export type SetupStepId = "login" | "actions" | "cloud" | "update" | "restart";
 export type SetupStepState = "done" | "current" | "todo" | "skipped" | "disabled";
 
 export type AutoUpdateMode = "off" | "daily" | "weekly";
-export type AutoUpdateReason = "not-server" | "no-container" | "pinned-tag" | "actions-off";
+export type AutoUpdateReason = "not-server" | "no-container" | "pinned-tag" | "swarm-worker" | "actions-off";
 
 export interface SetupAutoUpdate {
   mode: AutoUpdateMode;

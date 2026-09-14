@@ -852,7 +852,8 @@ setup:
     restarting-hint: "Stran se znova naloži, takoj ko se nova različica odzove."
     needs-actions: "Posodobi zdaj deluje, ko so dejanja vklopljena, po ponovnem zagonu."
     reason-pinned-tag: "Uporabljaš pripeto oznako različice, zato ni ničesar novejšega za prenos. Za posodobitve uporabi oznako, kot je latest."
-    reason-unsupported: "Dozzle se lahko zamenja le, ko teče kot en sam Docker vsebnik."
+    reason-unsupported: "Dozzle tukaj ne najde svojega vsebnika, zato se ne more zamenjati sam."
+    reason-swarm-worker: "Dozzle teče kot storitev Swarm na delovnem vozlišču. Storitev lahko posodobi samo upravitelj, zato Dozzle zaženite na upravitelju ali ga posodobite z docker service update."
     pull-denied: "{image} ni bilo mogoče prenesti. Morda obstaja samo na tem računalniku ali register zahteva docker login."
   restart:
     title: Znova zaženi Dozzle

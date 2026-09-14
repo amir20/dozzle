@@ -846,7 +846,8 @@ setup:
     restarting-hint: "La pagina si ricarica non appena la nuova versione risponde."
     needs-actions: "Aggiorna ora funziona quando le azioni sono attive, dopo il riavvio."
     reason-pinned-tag: "Usi un tag di versione fisso, quindi non c'è nulla di più recente da scaricare. Usa un tag come latest per ricevere gli aggiornamenti."
-    reason-unsupported: "Dozzle può sostituirsi solo quando è in esecuzione come singolo container Docker."
+    reason-unsupported: "Dozzle non trova qui il proprio container, quindi non può sostituirsi da solo."
+    reason-swarm-worker: "Dozzle è in esecuzione come servizio Swarm su un nodo worker. Solo un manager può aggiornare il servizio: esegui Dozzle su un manager oppure aggiornalo con docker service update."
     pull-denied: "Impossibile scaricare {image}. Potrebbe esistere solo su questa macchina, oppure il registry richiede docker login."
   restart:
     title: Riavvia Dozzle

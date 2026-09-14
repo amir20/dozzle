@@ -106,7 +106,7 @@ The helper's logs are the only record of an update. It removes itself when it fi
 Some setups cannot update this way:
 
 - **Actions must be on.** Self-update needs `DOZZLE_ENABLE_ACTIONS`, and the `Update` action needs the actions role when login is on.
-- **Server mode only.** A Dozzle Swarm service updates through the Swarm manager like any other service. Kubernetes and Dozzle agents do not update themselves.
+- **Server mode, including as a Swarm service.** When Dozzle runs as a task of a Swarm service, there is no helper container: Dozzle asks the Swarm manager to roll the service onto the new image, and Swarm's own update and rollback settings apply. That needs Dozzle to run on a manager node. With several replicas, only the first one runs the schedule. Kubernetes and Dozzle agents do not update themselves.
 - **Pinned version tags never update.** Pulling `amir20/dozzle:v8.12.0` always returns the same image, so auto-update is unavailable and a manual update reports up to date. Use `latest` or change the tag yourself.
 
 ## <Icon icon="mdi:shield-lock-outline" inline /> Security

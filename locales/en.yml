@@ -856,7 +856,8 @@ setup:
     restarting-hint: The page reloads as soon as the new version answers.
     needs-actions: Update now works once actions are on, after the restart.
     reason-pinned-tag: You run a pinned version tag, so there is nothing newer to pull. Use a tag like latest to get updates.
-    reason-unsupported: Dozzle can only replace itself when it runs as a single Docker container.
+    reason-unsupported: "Dozzle can't find its own container here, so it can't replace itself."
+    reason-swarm-worker: "Dozzle runs as a Swarm service on a worker node. Only a manager can update the service, so run Dozzle on a manager or update it with docker service update."
     pull-denied: "Couldn't pull {image}. It may only exist on this machine, or the registry needs docker login."
   restart:
     title: Restart Dozzle

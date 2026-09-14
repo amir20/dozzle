@@ -858,7 +858,8 @@ setup:
     restarting-hint: "Halaman dimuat ulang begitu versi baru merespons."
     needs-actions: "Perbarui sekarang berfungsi setelah aksi aktif, sesudah mulai ulang."
     reason-pinned-tag: "Anda memakai tag versi yang dipatok, jadi tidak ada yang lebih baru untuk ditarik. Gunakan tag seperti latest untuk mendapat pembaruan."
-    reason-unsupported: "Dozzle hanya dapat mengganti dirinya saat berjalan sebagai satu container Docker."
+    reason-unsupported: "Dozzle tidak dapat menemukan kontainernya sendiri di sini, jadi tidak dapat mengganti dirinya sendiri."
+    reason-swarm-worker: "Dozzle berjalan sebagai layanan Swarm di node worker. Hanya manager yang dapat memperbarui layanan, jadi jalankan Dozzle di manager atau perbarui dengan docker service update."
     pull-denied: "Tidak dapat menarik {image}. Image ini mungkin hanya ada di mesin ini, atau registry memerlukan docker login."
   restart:
     title: "Mulai ulang Dozzle"

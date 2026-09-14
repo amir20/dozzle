@@ -846,7 +846,8 @@ setup:
     restarting-hint: "A página recarrega assim que a nova versão responder."
     needs-actions: "Atualizar agora funciona quando as ações estiverem ativadas, após o reinício."
     reason-pinned-tag: "Você usa uma tag de versão fixa, então não há nada mais novo para baixar. Use uma tag como latest para receber atualizações."
-    reason-unsupported: "O Dozzle só pode se substituir quando roda como um único contêiner Docker."
+    reason-unsupported: "O Dozzle não encontra o próprio contêiner aqui, então não consegue se substituir."
+    reason-swarm-worker: "O Dozzle está rodando como serviço do Swarm em um nó worker. Só um manager pode atualizar o serviço, então rode o Dozzle em um manager ou atualize-o com docker service update."
     pull-denied: "Não foi possível baixar {image}. Talvez exista apenas nesta máquina ou o registro exija docker login."
   restart:
     title: Reiniciar o Dozzle
