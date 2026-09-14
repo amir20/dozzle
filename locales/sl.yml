@@ -809,6 +809,7 @@ setup:
     subtitle: Odločite, kaj sme Dozzle početi z vašimi vsebniki.
     example-status: Končan (1) pred 2 minutama
     example-restart: Znova zaženi
+    example: "Primer"
     actions-label: Zagon, ustavitev in ponovni zagon
     actions-desc: Popravite sesut vsebnik kar na strani, kjer ste našli napako.
     shell-label: Lupina
@@ -845,6 +846,8 @@ setup:
     manual: Dozzle se tukaj ne more sam znova zagnati. Znova zaženite vsebnik ali to nastavite v datoteki compose.
     done-title: Vse je pripravljeno
     done-body: Ponovni zagon ni potreben. K temu se lahko kadarkoli vrnete v nastavitvah.
+    nothing-title: "Ničesar ni treba znova zagnati"
+    nothing-body: "Tokrat ni bil nastavljen noben korak. Nastavitev odprite v Nastavitvah, ko boste pripravljeni."
     done: Končano
   error:
     generic: Nekaj je šlo narobe. Poskusite znova.

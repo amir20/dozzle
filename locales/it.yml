@@ -803,6 +803,7 @@ setup:
     subtitle: Decidi cosa Dozzle può fare ai tuoi container.
     example-status: Uscito (1) 2 minuti fa
     example-restart: Riavvia
+    example: "Esempio"
     actions-label: Avvia, arresta e riavvia
     actions-desc: Ripara un container andato in crash dalla pagina in cui hai trovato l'errore.
     shell-label: Shell
@@ -839,6 +840,8 @@ setup:
     manual: Dozzle non può riavviarsi da solo qui. Riavvia il container, oppure imposta questi valori nel tuo file compose.
     done-title: Tutto pronto
     done-body: Non serve alcun riavvio. Puoi tornare qui dalle Impostazioni in qualsiasi momento.
+    nothing-title: "Niente da riavviare"
+    nothing-body: "Questa volta non è stato configurato nessun passaggio. Apri la configurazione dalle Impostazioni quando vuoi."
     done: Fatto
   error:
     generic: Qualcosa è andato storto. Riprova.

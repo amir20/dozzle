@@ -803,6 +803,7 @@ setup:
     subtitle: "Legen Sie fest, was Dozzle mit Ihren Containern tun darf."
     example-status: "Beendet (1) vor 2 Minuten"
     example-restart: "Neu starten"
+    example: "Beispiel"
     actions-label: "Starten, Stoppen und Neustarten"
     actions-desc: "Reparieren Sie einen abgestürzten Container direkt auf der Seite, auf der Sie den Fehler gefunden haben."
     shell-label: "Shell"
@@ -839,6 +840,8 @@ setup:
     manual: "Dozzle kann sich hier nicht selbst neu starten. Starten Sie den Container neu oder setzen Sie diese Werte in Ihrer Compose-Datei."
     done-title: "Alles erledigt"
     done-body: "Nichts erfordert einen Neustart. Sie können jederzeit über die Einstellungen hierher zurückkehren."
+    nothing-title: "Nichts neu zu starten"
+    nothing-body: "Diesmal wurde kein Schritt eingerichtet. Öffne die Einrichtung in den Einstellungen, wann immer du so weit bist."
     done: "Fertig"
   error:
     generic: "Etwas ist schiefgelaufen. Bitte versuchen Sie es erneut."

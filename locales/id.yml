@@ -815,6 +815,7 @@ setup:
     subtitle: "Tentukan apa yang boleh dilakukan Dozzle terhadap kontainer Anda."
     example-status: "Keluar (1) 2 menit yang lalu"
     example-restart: "Mulai ulang"
+    example: "Contoh"
     actions-label: "Mulai, hentikan, dan mulai ulang"
     actions-desc: "Perbaiki kontainer yang crash dari halaman tempat Anda menemukan error."
     shell-label: "Shell"
@@ -851,6 +852,8 @@ setup:
     manual: "Dozzle tidak dapat memulai ulang dirinya sendiri di sini. Mulai ulang kontainer, atau setel ini di berkas compose Anda."
     done-title: "Semua sudah siap"
     done-body: "Tidak ada yang perlu dimulai ulang. Anda dapat kembali ke sini dari Pengaturan kapan saja."
+    nothing-title: "Tidak ada yang perlu dimulai ulang"
+    nothing-body: "Belum ada langkah yang disiapkan kali ini. Buka penyiapan dari Pengaturan kapan pun Anda siap."
     done: "Selesai"
   error:
     generic: "Terjadi kesalahan. Coba lagi."

@@ -807,6 +807,7 @@ setup:
     subtitle: Dozzle'ın konteynerlerinize neler yapabileceğine karar verin.
     example-status: Çıktı (1) 2 dakika önce
     example-restart: Yeniden başlat
+    example: "Örnek"
     actions-label: Başlat, durdur ve yeniden başlat
     actions-desc: Çöken bir konteyneri hatayı bulduğunuz sayfadan düzeltin.
     shell-label: Kabuk
@@ -843,6 +844,8 @@ setup:
     manual: Dozzle burada kendini yeniden başlatamıyor. Konteyneri yeniden başlatın veya bunları compose dosyanızda ayarlayın.
     done-title: Her şey hazır
     done-body: Yeniden başlatma gerekmiyor. Buraya istediğiniz zaman Ayarlar'dan dönebilirsiniz.
+    nothing-title: "Yeniden başlatılacak bir şey yok"
+    nothing-body: "Bu sefer hiçbir adım ayarlanmadı. Hazır olduğunuzda kurulumu Ayarlar'dan açabilirsiniz."
     done: Tamam
   error:
     generic: Bir şeyler ters gitti. Tekrar deneyin.

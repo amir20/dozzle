@@ -1,6 +1,6 @@
 ---
 title: Asistente de configuración
-sourceHash: 413c966adbb1
+sourceHash: 33f53b1244a8
 ---
 
 # Asistente de configuración
@@ -49,7 +49,7 @@ Dos interruptores controlan lo que Dozzle puede hacer con tus contenedores:
 - **Iniciar, detener y reiniciar** activa las [acciones sobre contenedores](/es/guide/actions) (`enableActions`).
 - **Shell** activa la posibilidad de [conectarse y ejecutar comandos](/es/guide/shell) dentro de los contenedores (`enableShell`). Está desactivado por defecto. El acceso a la shell de un contenedor suele equivaler a acceso al host, así que actívalo solo si lo necesitas.
 
-Si un ajuste ya está fijado por un flag o una variable de entorno, su interruptor es de solo lectura y lo indica.
+Si un ajuste ya está fijado por un flag o una variable de entorno, su interruptor es de solo lectura y lo indica. Igual que el inicio de sesión, estos interruptores necesitan `/data` en un volumen, así que siguen en solo lectura hasta que lo esté.
 
 ### 3. Dozzle Cloud
 

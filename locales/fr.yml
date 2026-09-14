@@ -803,6 +803,7 @@ setup:
     subtitle: "Choisissez ce que Dozzle a le droit de faire à vos conteneurs."
     example-status: "Arrêté (1) il y a 2 minutes"
     example-restart: "Redémarrer"
+    example: "Exemple"
     actions-label: "Démarrer, arrêter et redémarrer"
     actions-desc: "Réparez un conteneur planté depuis la page où vous avez trouvé l'erreur."
     shell-label: "Shell"
@@ -839,6 +840,8 @@ setup:
     manual: "Dozzle ne peut pas se redémarrer lui-même ici. Redémarrez le conteneur, ou définissez ces valeurs dans votre fichier compose."
     done-title: "Tout est prêt"
     done-body: "Aucun redémarrage n'est nécessaire. Vous pouvez revenir ici depuis les Paramètres à tout moment."
+    nothing-title: "Rien à redémarrer"
+    nothing-body: "Aucune étape n'a été configurée cette fois. Ouvrez la configuration depuis les paramètres quand vous voulez."
     done: "Terminé"
   error:
     generic: "Une erreur s'est produite. Réessayez."

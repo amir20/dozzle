@@ -807,6 +807,7 @@ setup:
     subtitle: Dozzle이 컨테이너에 무엇을 할 수 있는지 정하세요.
     example-status: 2분 전 종료됨 (1)
     example-restart: 재시작
+    example: "예시"
     actions-label: 시작, 중지, 재시작
     actions-desc: 오류를 발견한 페이지에서 바로 중단된 컨테이너를 복구하세요.
     shell-label: 셸
@@ -843,6 +844,8 @@ setup:
     manual: 여기서는 Dozzle이 스스로 재시작할 수 없습니다. 컨테이너를 재시작하거나 compose 파일에 이 값들을 설정하세요.
     done-title: 모두 완료되었습니다
     done-body: 재시작이 필요한 항목이 없습니다. 언제든지 설정에서 다시 돌아올 수 있습니다.
+    nothing-title: "재시작할 항목이 없습니다"
+    nothing-body: "이번에는 설정한 단계가 없습니다. 준비되면 설정에서 언제든 다시 열 수 있습니다."
     done: 완료
   error:
     generic: 문제가 발생했습니다. 다시 시도하세요.

@@ -803,6 +803,7 @@ setup:
     subtitle: 决定 Dozzle 可以对你的容器做什么。
     example-status: 已退出 (1) 2 分钟前
     example-restart: 重启
+    example: "示例"
     actions-label: 启动、停止和重启
     actions-desc: 在发现错误的页面上直接修复崩溃的容器。
     shell-label: Shell
@@ -839,6 +840,8 @@ setup:
     manual: Dozzle 在此环境下无法自行重启。请重启容器，或在 compose 文件中进行设置。
     done-title: 一切就绪
     done-body: 无需重启。你可以随时从设置中回到这里。
+    nothing-title: "无需重启"
+    nothing-body: "这次没有设置任何步骤。准备好后，随时可以在设置中打开向导。"
     done: 完成
   error:
     generic: 出错了，请重试。

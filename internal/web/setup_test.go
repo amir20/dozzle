@@ -184,6 +184,17 @@ func TestSetup_LoginRoutesClosedAfterWindow(t *testing.T) {
 	assert.Nil(t, file.AuthProvider)
 }
 
+func TestSetup_ConfigRefusedWithoutPersistedData(t *testing.T) {
+	setupTestEnv(t, false)
+	h := setupNoneHandler(time.Now(), SetupConfig{})
+
+	assert.Equal(t, http.StatusPreconditionFailed, doSetup(h, "PATCH", "/api/setup/config", `{"enableActions":true}`).Code)
+
+	file, err := config.Load(setupConfigPath)
+	require.NoError(t, err)
+	assert.Nil(t, file.EnableActions)
+}
+
 func TestSetup_RestartAllowedWithPendingAuthAfterWindow(t *testing.T) {
 	_, restarts := setupTestEnv(t, true)
 	started := time.Now()

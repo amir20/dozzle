@@ -10,6 +10,7 @@ import {
   setupHasPending,
   setupLoginConfigured,
   setupShouldAutoOpen,
+  setupStepConfigured,
   setupSteps,
   setupToggles,
   type SetupStatus,
@@ -77,6 +78,26 @@ describe("setupLoginConfigured", () => {
   });
   test("a saved provider waiting for restart is configured", () => {
     expect(setupLoginConfigured(status({ pending: { authProvider: "simple" } }))).toBe(true);
+  });
+});
+
+describe("setupStepConfigured", () => {
+  test("actions count once either toggle is on, running or pending", () => {
+    expect(setupStepConfigured("actions", status())).toBe(false);
+    expect(setupStepConfigured("actions", status({ enableActions: true }))).toBe(true);
+    expect(setupStepConfigured("actions", status({ pending: { enableShell: true } }))).toBe(true);
+  });
+  test("turning actions off again leaves the step unconfigured", () => {
+    expect(setupStepConfigured("actions", status({ enableActions: true, pending: { enableActions: false } }))).toBe(
+      false,
+    );
+  });
+  test("login follows setupLoginConfigured", () => {
+    expect(setupStepConfigured("login", status({ authProvider: "simple" }))).toBe(true);
+  });
+  test("cloud and restart are never pre-marked", () => {
+    expect(setupStepConfigured("cloud", status({ enableActions: true }))).toBe(false);
+    expect(setupStepConfigured("restart", status({ authProvider: "simple" }))).toBe(false);
   });
 });
 

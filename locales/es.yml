@@ -803,6 +803,7 @@ setup:
     subtitle: "Decida qué puede hacer Dozzle con sus contenedores."
     example-status: "Salió (1) hace 2 minutos"
     example-restart: "Reiniciar"
+    example: "Ejemplo"
     actions-label: "Iniciar, detener y reiniciar"
     actions-desc: "Arregle un contenedor caído desde la página donde encontró el error."
     shell-label: "Shell"
@@ -839,6 +840,8 @@ setup:
     manual: "Dozzle no puede reiniciarse solo aquí. Reinicie el contenedor o defina estos valores en su archivo compose."
     done-title: "Todo listo"
     done-body: "Nada necesita un reinicio. Puede volver aquí desde Configuración cuando quiera."
+    nothing-title: "Nada que reiniciar"
+    nothing-body: "Esta vez no se configuró ningún paso. Abre la configuración desde Ajustes cuando quieras."
     done: "Hecho"
   error:
     generic: "Algo salió mal. Inténtelo de nuevo."

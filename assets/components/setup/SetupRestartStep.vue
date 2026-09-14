@@ -1,11 +1,20 @@
 <template>
   <div>
-    <template v-if="!setupHasPending(status)">
+    <template v-if="!setupHasPending(status) && anythingSet">
       <div class="bg-success/10 text-success w-fit rounded-full p-2.5">
         <mdi:check class="size-6" />
       </div>
       <h2 class="mt-4 text-2xl font-bold">{{ $t("setup.restart.done-title") }}</h2>
       <p class="text-base-content/60 mt-1 text-sm">{{ $t("setup.restart.done-body") }}</p>
+    </template>
+
+    <!-- Every step passed by: no check mark, nothing is set up to celebrate. -->
+    <template v-else-if="!setupHasPending(status)">
+      <div class="bg-base-content/10 text-base-content/60 w-fit rounded-full p-2.5">
+        <mdi:skip-next-outline class="size-6" />
+      </div>
+      <h2 class="mt-4 text-2xl font-bold">{{ $t("setup.restart.nothing-title") }}</h2>
+      <p class="text-base-content/60 mt-1 text-sm">{{ $t("setup.restart.nothing-body") }}</p>
     </template>
 
     <template v-else>
@@ -38,7 +47,8 @@
 <script lang="ts" setup>
 import type { SetupNextResult, SetupStatus } from "@/composable/setup/setup";
 
-const { status } = defineProps<{ status: SetupStatus }>();
+// Whether anything is set up at all, so passing every step by does not end on "all set".
+const { status, anythingSet = true } = defineProps<{ status: SetupStatus; anythingSet?: boolean }>();
 const emit = defineEmits<{ seen: [] }>();
 
 const { t } = useI18n();

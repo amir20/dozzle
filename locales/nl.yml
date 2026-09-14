@@ -804,6 +804,7 @@ setup:
     subtitle: Bepaal wat Dozzle met je containers mag doen.
     example-status: Gestopt (1) 2 minuten geleden
     example-restart: Herstarten
+    example: "Voorbeeld"
     actions-label: Starten, stoppen en herstarten
     actions-desc: Herstel een gecrashte container vanaf de pagina waar je de fout vond.
     shell-label: Shell
@@ -840,6 +841,8 @@ setup:
     manual: Dozzle kan zichzelf hier niet herstarten. Herstart de container, of stel dit in je compose-bestand in.
     done-title: Je bent klaar
     done-body: Er is geen herstart nodig. Je kunt hier altijd terugkomen via Instellingen.
+    nothing-title: "Niets om te herstarten"
+    nothing-body: "Er is deze keer geen stap ingesteld. Open de installatie vanuit Instellingen wanneer je er klaar voor bent."
     done: Klaar
   error:
     generic: Er is iets misgegaan. Probeer het opnieuw.

@@ -32,6 +32,9 @@ export interface SetupStepHandle {
   // Set on steps that are fine to pass on. It sits beside Next at the same size,
   // so declining never reads as the lesser, harder-to-find choice.
   skipLabel?: string;
+  // Unsaved changes on the step. Jumping away from the rail saves them first, the
+  // same as Next, so a click on another step never quietly drops them.
+  dirty?: boolean;
   busy: boolean;
   next: () => Promise<SetupNextResult>;
 }
@@ -74,6 +77,17 @@ export function setupShouldAutoOpen(input: {
 // Login counts as done once a provider is running or saved and waiting for a restart.
 export function setupLoginConfigured(status: SetupStatus): boolean {
   return status.authProvider !== "none" || !!status.pending.authProvider;
+}
+
+// Whether a step already holds a choice, so reopening the wizard later shows it as
+// done instead of asking again from scratch.
+export function setupStepConfigured(id: SetupStepId, status: SetupStatus): boolean {
+  if (id === "login") return setupLoginConfigured(status);
+  if (id === "actions") {
+    const toggles = setupToggles(status);
+    return toggles.enableActions || toggles.enableShell;
+  }
+  return false;
 }
 
 // What each toggle will be after the next restart.
@@ -209,7 +223,14 @@ export function useSetup() {
     return false;
   }
 
-  function openWizard() {
+  // Opening rides on a change to wizardOpen. If it is ever left true while the dialog
+  // is closed, setting it true again changes nothing and the click does nothing, so
+  // reset it first and let the watcher see a real change.
+  async function openWizard() {
+    if (wizardOpen.value) {
+      wizardOpen.value = false;
+      await nextTick();
+    }
     wizardOpen.value = true;
   }
 

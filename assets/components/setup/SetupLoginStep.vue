@@ -305,9 +305,11 @@ const nextDisabled = computed(() => {
 
 const busy = computed(() => phase.value === "saving" || phase.value === "restarting");
 
-// Only while nothing is saved yet: once a login is on or pending, there is nothing to decline.
+// Only while nothing is saved yet: once a login is on or pending, there is nothing to
+// decline. Not on the OIDC tab either, where Next already moves on without saving and a
+// second button would do the same thing.
 const skipLabel = computed(() =>
-  status.authProvider === "none" && !status.pending.authProvider && phase.value === "idle"
+  status.authProvider === "none" && !status.pending.authProvider && phase.value === "idle" && method.value !== "oidc"
     ? t("setup.login.skip")
     : undefined,
 );

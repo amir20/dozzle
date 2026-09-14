@@ -11,7 +11,13 @@
       <SetupLoginStep v-if="currentId === 'login'" ref="step" :status="status" :next-step="steps[index + 1]" />
       <SetupActionsStep v-else-if="currentId === 'actions'" ref="step" :status="status" />
       <SetupCloudStep v-else-if="currentId === 'cloud'" ref="step" :next-step="steps[index + 1]" />
-      <SetupRestartStep v-else ref="step" :status="status" @seen="setupSeen = true" />
+      <SetupRestartStep
+        v-else
+        ref="step"
+        :status="status"
+        :anything-set="steps.some((id) => setupStepConfigured(id, status!) || completed.has(id))"
+        @seen="setupSeen = true"
+      />
     </template>
     <div v-else-if="loading" class="flex h-full items-center justify-center">
       <span class="loading loading-spinner loading-sm"></span>
@@ -96,8 +102,19 @@ const railSteps = computed(() =>
   })),
 );
 
-function goTo(i: number) {
+async function goTo(i: number) {
   if (busy.value || i === index.value || !steps.value[i]) return;
+  const id = currentId.value;
+  // Unsaved changes are saved on the way out, exactly as Next would. A failed save
+  // keeps the user here with its error, instead of losing the change silently.
+  if (handle.value?.dirty) {
+    const result = await handle.value.next();
+    if (result === "stay") return;
+    if (id) {
+      completed.value.add(id);
+      skipped.value.delete(id);
+    }
+  }
   index.value = i;
 }
 
@@ -131,12 +148,14 @@ async function open(startAt: SetupStepId | undefined, auto: boolean) {
   // Frozen for the session, so linking Cloud or saving a toggle does not shuffle
   // the rail under the user.
   steps.value = setupSteps(s, { linked: linked.value, canLink: canLink.value });
+  // Reopened later: what is already set shows as done rather than as a fresh question.
+  completed.value = new Set(steps.value.filter((id) => setupStepConfigured(id, s)));
   if (startAt) {
     const at = steps.value.indexOf(startAt);
     index.value = at >= 0 ? at : steps.value.length - 1;
     // Resuming after a restart or the cloud round trip: everything before was done
     // in the part of the session that just ended.
-    completed.value = new Set(steps.value.slice(0, index.value));
+    for (const id of steps.value.slice(0, index.value)) completed.value.add(id);
   } else if (steps.value[0] === "login" && s.authProvider !== "none") {
     index.value = 1;
   }
@@ -144,6 +163,9 @@ async function open(startAt: SetupStepId | undefined, auto: boolean) {
 
 function close() {
   modal.value?.close();
+  // Not left to the dialog's close event alone: the settings entry reopens by flipping
+  // this, and it has to read false the moment the wizard is gone.
+  wizardOpen.value = false;
 }
 
 // Escape mid-restart would clear the resume marker the restart depends on.

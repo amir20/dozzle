@@ -306,6 +306,13 @@ func (h *handler) updateSetupConfig(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Same as the login routes: a dozzle.yml outside a volume is gone on the next
+	// recreate, and the setting with it.
+	if !setupPersisted() {
+		http.Error(w, "data directory is not persisted", http.StatusPreconditionFailed)
+		return
+	}
+
 	var req setupConfigRequest
 	if !decodeSetupBody(w, r, &req) {
 		return

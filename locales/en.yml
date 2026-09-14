@@ -813,6 +813,7 @@ setup:
     subtitle: Decide what Dozzle is allowed to do to your containers.
     example-status: Exited (1) 2 minutes ago
     example-restart: Restart
+    example: "Example"
     actions-label: Start, stop and restart
     actions-desc: Fix a crashed container from the page where you found the error.
     shell-label: Shell
@@ -849,6 +850,8 @@ setup:
     manual: Dozzle can't restart itself here. Restart the container, or set these in your compose file.
     done-title: You're all set
     done-body: Nothing needs a restart. You can come back to this from Settings any time.
+    nothing-title: "Nothing to restart"
+    nothing-body: "No steps were set up this time. Open setup from Settings whenever you're ready."
     done: Done
   error:
     generic: Something went wrong. Try again.

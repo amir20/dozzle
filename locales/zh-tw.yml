@@ -806,6 +806,7 @@ setup:
     subtitle: 決定 Dozzle 可以對你的容器做什麼。
     example-status: 已結束 (1) 2 分鐘前
     example-restart: 重新啟動
+    example: "範例"
     actions-label: 啟動、停止與重新啟動
     actions-desc: 在發現錯誤的頁面上直接修復當掉的容器。
     shell-label: Shell
@@ -842,6 +843,8 @@ setup:
     manual: Dozzle 在此環境下無法自行重新啟動。請重新啟動容器，或在 compose 檔案中設定。
     done-title: 一切就緒
     done-body: 不需要重新啟動。你隨時可以從設定回到這裡。
+    nothing-title: "無需重新啟動"
+    nothing-body: "這次沒有設定任何步驟。準備好後，隨時可以在設定中開啟精靈。"
     done: 完成
   error:
     generic: 發生錯誤，請再試一次。

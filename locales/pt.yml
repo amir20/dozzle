@@ -803,6 +803,7 @@ setup:
     subtitle: Decida o que o Dozzle pode fazer com seus contêineres.
     example-status: Encerrado (1) há 2 minutos
     example-restart: Reiniciar
+    example: "Exemplo"
     actions-label: Iniciar, parar e reiniciar
     actions-desc: Corrija um contêiner que travou na mesma página em que você encontrou o erro.
     shell-label: Shell
@@ -839,6 +840,8 @@ setup:
     manual: O Dozzle não consegue se reiniciar aqui. Reinicie o contêiner, ou defina isto no seu arquivo compose.
     done-title: Tudo pronto
     done-body: Nada precisa ser reiniciado. Você pode voltar aqui pelas Configurações a qualquer momento.
+    nothing-title: "Nada para reiniciar"
+    nothing-body: "Nenhuma etapa foi configurada desta vez. Abra a configuração em Configurações quando quiser."
     done: Concluído
   error:
     generic: Algo deu errado. Tente novamente.

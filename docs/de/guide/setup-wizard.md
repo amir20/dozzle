@@ -1,6 +1,6 @@
 ---
 title: Einrichtungsassistent
-sourceHash: 413c966adbb1
+sourceHash: 33f53b1244a8
 ---
 
 # Einrichtungsassistent
@@ -49,7 +49,7 @@ Zwei Schalter legen fest, was Dozzle mit deinen Containern tun darf:
 - **Starten, Stoppen und Neustarten** schaltet [Container-Aktionen](/de/guide/actions) ein (`enableActions`).
 - **Shell** schaltet das [Anhängen und Ausführen von Befehlen](/de/guide/shell) in Containern ein (`enableShell`). Standardmäßig ist es aus. Shell-Zugriff auf einen Container ist oft so viel wert wie Zugriff auf den Host, schalte ihn also nur ein, wenn du ihn brauchst.
 
-Ist eine Einstellung bereits über ein Flag oder eine Umgebungsvariable festgelegt, ist ihr Schalter schreibgeschützt und weist darauf hin.
+Ist eine Einstellung bereits über ein Flag oder eine Umgebungsvariable festgelegt, ist ihr Schalter schreibgeschützt und weist darauf hin. Wie der Login brauchen diese Schalter `/data` auf einem Volume und bleiben schreibgeschützt, bis es eingebunden ist.
 
 ### 3. Dozzle Cloud
 

@@ -199,6 +199,7 @@ declare global {
   const setupHasPending: typeof import('./composable/setup/setup').setupHasPending
   const setupLoginConfigured: typeof import('./composable/setup/setup').setupLoginConfigured
   const setupShouldAutoOpen: typeof import('./composable/setup/setup').setupShouldAutoOpen
+  const setupStepConfigured: typeof import('./composable/setup/setup').setupStepConfigured
   const setupSteps: typeof import('./composable/setup/setup').setupSteps
   const setupToggles: typeof import('./composable/setup/setup').setupToggles
   const shallowReactive: typeof import('vue').shallowReactive
@@ -752,6 +753,7 @@ declare module 'vue' {
     readonly setupHasPending: UnwrapRef<typeof import('./composable/setup/setup')['setupHasPending']>
     readonly setupLoginConfigured: UnwrapRef<typeof import('./composable/setup/setup')['setupLoginConfigured']>
     readonly setupShouldAutoOpen: UnwrapRef<typeof import('./composable/setup/setup')['setupShouldAutoOpen']>
+    readonly setupStepConfigured: UnwrapRef<typeof import('./composable/setup/setup')['setupStepConfigured']>
     readonly setupSteps: UnwrapRef<typeof import('./composable/setup/setup')['setupSteps']>
     readonly setupToggles: UnwrapRef<typeof import('./composable/setup/setup')['setupToggles']>
     readonly shallowReactive: UnwrapRef<typeof import('vue')['shallowReactive']>

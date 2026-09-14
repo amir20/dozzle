@@ -803,6 +803,7 @@ setup:
     subtitle: "Bestem, hvad Dozzle må gøre ved dine containere."
     example-status: "Afsluttet (1) for 2 minutter siden"
     example-restart: "Genstart"
+    example: "Eksempel"
     actions-label: "Start, stop og genstart"
     actions-desc: "Ret en nedbrudt container fra den side, hvor du fandt fejlen."
     shell-label: "Shell"
@@ -839,6 +840,8 @@ setup:
     manual: "Dozzle kan ikke genstarte sig selv her. Genstart containeren, eller sæt disse i din compose-fil."
     done-title: "Du er klar"
     done-body: "Intet kræver en genstart. Du kan altid vende tilbage hertil fra Indstillinger."
+    nothing-title: "Intet at genstarte"
+    nothing-body: "Ingen trin blev sat op denne gang. Åbn opsætningen fra Indstillinger, når du er klar."
     done: "Færdig"
   error:
     generic: "Noget gik galt. Prøv igen."

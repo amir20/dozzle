@@ -6,14 +6,18 @@
     <!-- The example comes first: a crashed container and the button that fixes it
          says what "actions" means faster than a sentence does. Illustration only. -->
     <div class="border-base-content/15 bg-base-200/40 mt-6 rounded-lg border p-4" aria-hidden="true">
+      <span class="status-pill status-pill-neutral mb-3">{{ $t("setup.actions.example") }}</span>
       <div class="flex items-center gap-3">
         <span class="bg-error size-2 shrink-0 rounded-full"></span>
         <div class="min-w-0 flex-1">
           <div class="truncate font-mono text-sm font-semibold">api</div>
           <div class="text-base-content/60 text-xs">{{ $t("setup.actions.example-status") }}</div>
         </div>
-        <span class="btn btn-sm pointer-events-none">
-          <mdi:restart class="size-4" />
+        <!-- Drawn, not a button: a real-looking button here gets clicked and does nothing. -->
+        <span
+          class="border-base-content/15 text-base-content/60 inline-flex items-center gap-1.5 rounded-md border border-dashed px-2.5 py-1 text-xs"
+        >
+          <mdi:restart class="size-3.5" />
           {{ $t("setup.actions.example-restart") }}
         </span>
       </div>
@@ -22,7 +26,11 @@
       </div>
     </div>
 
-    <InlineNotice v-if="!status.canWrite" type="info" class="mt-4">
+    <!-- Same rule as the login step: anything saved without a volume is gone on the next recreate. -->
+    <InlineNotice v-if="!status.dataPersisted" type="warning" class="mt-4">{{
+      $t("setup.error.no-data")
+    }}</InlineNotice>
+    <InlineNotice v-else-if="!status.canWrite" type="info" class="mt-4">
       {{ status.authProvider === "none" ? $t("setup.actions.window-closed") : $t("setup.actions.no-access") }}
     </InlineNotice>
 
@@ -92,11 +100,10 @@ const saving = ref(false);
 const error = ref("");
 
 function canEdit(field: Field) {
-  return status.canWrite && !status.locked[field];
+  return status.dataPersisted && status.canWrite && !status.locked[field];
 }
 
-async function next(): Promise<SetupNextResult> {
-  error.value = "";
+function changes() {
   const current = setupToggles(status);
   const patch: Partial<Record<Field, boolean>> = {};
   if (canEdit("enableActions") && enableActions.value !== current.enableActions) {
@@ -105,6 +112,14 @@ async function next(): Promise<SetupNextResult> {
   if (canEdit("enableShell") && enableShell.value !== current.enableShell) {
     patch.enableShell = enableShell.value;
   }
+  return patch;
+}
+
+const dirty = computed(() => Object.keys(changes()).length > 0);
+
+async function next(): Promise<SetupNextResult> {
+  error.value = "";
+  const patch = changes();
   if (Object.keys(patch).length === 0) return "advance";
 
   saving.value = true;
@@ -122,5 +137,5 @@ async function next(): Promise<SetupNextResult> {
 const nextLabel = computed(() => t("setup.next"));
 const nextDisabled = computed(() => saving.value);
 
-defineExpose({ nextLabel, nextDisabled, nextPlain: false, busy: saving, next });
+defineExpose({ nextLabel, nextDisabled, nextPlain: false, dirty, busy: saving, next });
 </script>

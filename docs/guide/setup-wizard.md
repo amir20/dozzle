@@ -48,7 +48,7 @@ Two toggles control what Dozzle is allowed to do to your containers:
 - **Start, stop and restart** turns on [container actions](/guide/actions) (`enableActions`).
 - **Shell** turns on [attaching and running commands](/guide/shell) inside containers (`enableShell`). It is off by default. Shell access to a container is often as good as access to the host, so only turn it on if you need it.
 
-If a setting is already fixed by a flag or environment variable, its toggle is read-only and says so.
+If a setting is already fixed by a flag or environment variable, its toggle is read-only and says so. Like login, these toggles need `/data` on a volume, so they stay read-only until it is.
 
 ### 3. Dozzle Cloud
 
