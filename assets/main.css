@@ -296,7 +296,7 @@ body {
  * sticks right below it and the log content is padded by the same amount, so
  * they stay locked together. The safe-area inset is already handled by body. */
 :root {
-  --mobile-nav-height: 57px;
+  --mobile-nav-height: 61px;
   /* Viewport offset of the nav's bottom edge. The nav is fixed to the viewport
    * so it sits above the body's safe-area padding, which means anything sticking
    * to it must add the inset back in. */
