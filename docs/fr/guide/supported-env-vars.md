@@ -1,6 +1,6 @@
 ---
 title: Variables d'environnement et sous-commandes
-sourceHash: a9818d761eb6
+sourceHash: 593ca969d305
 ---
 
 # Variables d'environnement globales
@@ -32,6 +32,8 @@ La configuration se fait avec des options en ligne de commande ou des variables 
 | `--auth-oidc-filters-claim`   | `DOZZLE_AUTH_OIDC_FILTERS_CLAIM`   | `""`              |
 | `--enable-actions`            | `DOZZLE_ENABLE_ACTIONS`            | `false`           |
 | `--enable-shell`              | `DOZZLE_ENABLE_SHELL`              | `false`           |
+| `--auto-update`               | `DOZZLE_AUTO_UPDATE`               | `off`             |
+| `--auto-update-time`          | `DOZZLE_AUTO_UPDATE_TIME`          | `03:00`           |
 | `--enable-mcp`                | `DOZZLE_ENABLE_MCP`                | `false`           |
 | `--disable-avatars`           | `DOZZLE_DISABLE_AVATARS`           | `false`           |
 | `--filter`                    | `DOZZLE_FILTER`                    | `""`              |

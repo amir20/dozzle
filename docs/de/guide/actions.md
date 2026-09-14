@@ -1,6 +1,6 @@
 ---
 title: Container-Aktionen
-sourceHash: 7eab1f511f5f
+sourceHash: 7011f4c16a51
 ---
 
 # Container-Aktionen
@@ -87,4 +87,4 @@ Bei manchen Containern gibt es nichts zu vergleichen, und Dozzle bleibt still st
 
 ### Dozzle selbst aktualisieren
 
-Dozzle kann sich nicht selbst stoppen, um sich an Ort und Stelle zu aktualisieren, deshalb zeigt ein eigenständiger Dozzle-Container den Update-Hinweis mit einem Link zu den Release Notes statt einer `Update`-Schaltfläche. Läuft Dozzle als Swarm-Service, funktioniert es normal, da das Update an den Orchestrator übergeben wird. Dozzle-Agents auf anderen Hosts sind gewöhnliche Container und aktualisieren sich wie alles andere.
+Die `Update`-Aktion am eigenen Container von Dozzle aktualisiert Dozzle an Ort und Stelle. Sie zieht das neue Image und übergibt den Austausch an einen kurzlebigen Hilfscontainer, Dozzle ist also ein paar Sekunden weg und kommt mit der neuen Version, derselben Konfiguration und denselben Volumes zurück. Das geht auch nach Zeitplan. Unter [So funktioniert das Selbst-Update](/de/guide/setup-wizard#self-update) steht, was erhalten bleibt und welche Setups nicht unterstützt werden. Läuft Dozzle als Swarm-Service, wird es über den Orchestrator aktualisiert. Dozzle-Agents auf anderen Hosts sind gewöhnliche Container und aktualisieren sich wie alles andere.

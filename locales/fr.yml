@@ -190,7 +190,6 @@ alert:
     title: 'Mise à jour disponible'
     message: 'Une image plus récente a été publiée pour {image}.'
     enable-actions: '<a href="https://dozzle.dev/guide/actions" target="_blank" rel="noreferrer noopener">Activez les actions</a> pour la télécharger et recréer le conteneur ici.'
-    self: 'Dozzle ne peut pas se mettre à jour lui-même, redémarrez-le pour appliquer la mise à jour.'
   redirected:
     title: Redirigé vers le nouveau conteneur
     message: Dozzle vous a automatiquement redirigé vers le nouveau conteneur {containerId}.
@@ -767,6 +766,8 @@ setup:
     actions: "Actions et shell"
     cloud: "Dozzle Cloud"
     cloud-note: "Facultatif"
+    update: "Mise à jour auto"
+    update-note: "Nécessite les actions"
     restart: "Redémarrage"
   login:
     title: "Activer la connexion"
@@ -825,6 +826,28 @@ setup:
     connect: "Connecter Dozzle Cloud"
     learn-more: "En savoir plus"
     skip: "Pas maintenant"
+  update:
+    pill-on: "Utilise les actions · activé"
+    pill-pending: "S'active avec les actions"
+    title: "Garder Dozzle à jour"
+    subtitle: "Dozzle télécharge la nouvelle image et remplace son propre conteneur à une heure creuse. Les paramètres, utilisateurs et alertes sont conservés."
+    auto-label: "Mettre à jour automatiquement"
+    auto-desc: "Vérifie s'il existe une image plus récente et ne remplace Dozzle que s'il y en a une."
+    when-label: "Quand"
+    time-label: "Heure"
+    server-time: "Utilise le fuseau horaire du serveur."
+    daily: "Tous les jours"
+    weekly: "Chaque semaine le dimanche"
+    version-label: "Version"
+    update-now: "Mettre à jour maintenant"
+    pulling: "Téléchargement de la nouvelle image"
+    up-to-date: "Dozzle est déjà à jour."
+    restarting: "Dozzle se remplace par la nouvelle version."
+    restarting-hint: "La page se recharge dès que la nouvelle version répond."
+    needs-actions: "Mettre à jour maintenant fonctionne une fois les actions activées, après le redémarrage."
+    reason-pinned-tag: "Vous utilisez un tag de version figé, il n'y a donc rien de plus récent à télécharger. Utilisez un tag comme latest pour recevoir les mises à jour."
+    reason-unsupported: "Dozzle ne peut se remplacer lui-même que lorsqu'il s'exécute comme un seul conteneur Docker."
+    pull-denied: "Impossible de récupérer {image}. Elle n'existe peut-être que sur cette machine, ou le registre demande docker login."
   restart:
     title: "Redémarrer Dozzle"
     subtitle: "Ces changements sont enregistrés et prendront effet après un redémarrage."

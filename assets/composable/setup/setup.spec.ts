@@ -10,6 +10,7 @@ import {
   setupHasPending,
   setupLoginConfigured,
   setupShouldAutoOpen,
+  setupUpdateTimes,
   setupStepConfigured,
   setupSteps,
   setupToggles,
@@ -63,9 +64,66 @@ describe("setupSteps", () => {
     expect(setupSteps(status(), { linked: false, canLink: false })).not.toContain("cloud");
   });
 
+  describe("update", () => {
+    const autoUpdate = {
+      mode: "off" as const,
+      time: "03:00",
+      supported: true,
+      image: "amir20/dozzle:latest",
+      currentVersion: "v9.0.0",
+    };
+
+    test("shows after cloud when actions are on", () => {
+      expect(setupSteps(status({ enableActions: true, autoUpdate }), unlinked)).toEqual([
+        "login",
+        "actions",
+        "cloud",
+        "update",
+        "restart",
+      ]);
+    });
+
+    // Listed either way so people see what actions unlock; the wizard greys it out.
+    test("still listed when actions are off", () => {
+      expect(setupSteps(status({ autoUpdate }), unlinked)).toContain("update");
+    });
+
+    test("still listed when actions are on but pending off", () => {
+      const s = status({ enableActions: true, pending: { enableActions: false }, autoUpdate });
+      expect(setupSteps(s, unlinked)).toContain("update");
+    });
+
+    test("hidden outside server mode", () => {
+      expect(setupSteps(status({ mode: "swarm", enableActions: true, autoUpdate }), unlinked)).not.toContain("update");
+    });
+
+    test("hidden when the server does not report auto-update", () => {
+      expect(setupSteps(status({ enableActions: true }), unlinked)).not.toContain("update");
+    });
+  });
+
   test("restart is always last", () => {
     const s = status({ locked: { authProvider: true, enableActions: true, enableShell: true } });
     expect(setupSteps(s, { linked: true, canLink: false })).toEqual(["restart"]);
+  });
+});
+
+describe("setupUpdateTimes", () => {
+  test("lists every hour", () => {
+    const times = setupUpdateTimes("03:00");
+    expect(times).toHaveLength(24);
+    expect(times[0]).toBe("00:00");
+    expect(times[23]).toBe("23:00");
+  });
+
+  test("keeps an off-the-hour time from the file", () => {
+    const times = setupUpdateTimes("03:30");
+    expect(times).toHaveLength(25);
+    expect(times.indexOf("03:30")).toBe(4);
+  });
+
+  test("ignores garbage", () => {
+    expect(setupUpdateTimes("25:99")).toHaveLength(24);
   });
 });
 
@@ -94,6 +152,18 @@ describe("setupStepConfigured", () => {
   });
   test("login follows setupLoginConfigured", () => {
     expect(setupStepConfigured("login", status({ authProvider: "simple" }))).toBe(true);
+  });
+  test("auto-update counts once a schedule is saved", () => {
+    const autoUpdate = {
+      mode: "off" as const,
+      time: "03:00",
+      supported: true,
+      image: "x:latest",
+      currentVersion: "v1",
+    };
+    expect(setupStepConfigured("update", status({ autoUpdate }))).toBe(false);
+    expect(setupStepConfigured("update", status({ autoUpdate: { ...autoUpdate, mode: "weekly" } }))).toBe(true);
+    expect(setupStepConfigured("update", status())).toBe(false);
   });
   test("cloud and restart are never pre-marked", () => {
     expect(setupStepConfigured("cloud", status({ enableActions: true }))).toBe(false);

@@ -72,7 +72,13 @@ type SetupConfig struct {
 	LockedAuthProvider  bool
 	LockedEnableActions bool
 	LockedEnableShell   bool
-	StartedAt           time.Time
+	// LockedAutoUpdate is true when either auto-update setting came from a flag
+	// or env var. AutoUpdateMode and AutoUpdateTime hold those values, nil when
+	// the setting is not locked.
+	LockedAutoUpdate bool
+	AutoUpdateMode   *string
+	AutoUpdateTime   *string
+	StartedAt        time.Time
 }
 
 // CloudHooks bundles cloud-side callbacks the web layer invokes. Grouping
@@ -240,6 +246,9 @@ func createRouter(h *handler) *chi.Mux {
 				if h.config.EnableActions {
 					r.Post("/hosts/{host}/containers/{id}/actions/update", h.containerUpdate)
 					r.Post("/hosts/{host}/containers/{id}/actions/{action}", h.containerActions)
+					if h.config.Mode == "server" {
+						r.Post("/update/self", h.updateSelf)
+					}
 				}
 				if h.config.EnableShell {
 					r.Get("/hosts/{host}/containers/{id}/attach", h.attach)

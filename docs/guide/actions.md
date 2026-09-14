@@ -86,4 +86,4 @@ Some containers have nothing to compare, and Dozzle stays quiet rather than gues
 
 ### Updating Dozzle itself
 
-Dozzle cannot stop itself to update in place, so a standalone Dozzle container shows the update notice with a link to the release notes instead of an `Update` button. Running Dozzle as a Swarm service works normally, since the update is handed to the orchestrator. Dozzle agents on other hosts are ordinary containers and update like anything else.
+The `Update` action on Dozzle's own container updates Dozzle in place. It pulls the new image and hands the swap to a short-lived helper container, so Dozzle goes away for a few seconds and comes back on the new version with the same configuration and volumes. It can also run on a schedule. See [How self-update works](/guide/setup-wizard#self-update) for what is kept and the setups it does not cover. Running Dozzle as a Swarm service updates through the orchestrator. Dozzle agents on other hosts are ordinary containers and update like anything else.

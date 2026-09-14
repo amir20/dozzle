@@ -39,6 +39,8 @@ type Args struct {
 	AuthOidcFiltersClaim   string              `arg:"--auth-oidc-filters-claim,env:DOZZLE_AUTH_OIDC_FILTERS_CLAIM" help:"sets the dot-separated claim path container filters are read from with the oidc auth provider, replacing the default search of dozzle_filters, resource_access.<client-id>.filters and filters."`
 	EnableActions          bool                `arg:"--enable-actions,env:DOZZLE_ENABLE_ACTIONS" default:"false" help:"enables essential actions on containers from the web interface."`
 	EnableShell            bool                `arg:"--enable-shell,env:DOZZLE_ENABLE_SHELL" default:"false" help:"enables shell access to containers from the web interface."`
+	AutoUpdate             string              `arg:"--auto-update,env:DOZZLE_AUTO_UPDATE" default:"" help:"updates Dozzle's own container on a schedule: off, daily or weekly (Sunday). Requires --enable-actions."`
+	AutoUpdateTime         string              `arg:"--auto-update-time,env:DOZZLE_AUTO_UPDATE_TIME" default:"" help:"sets the HH:MM, in server local time, that --auto-update runs at. Defaults to 03:00."`
 	EnableMCP              bool                `arg:"--enable-mcp,env:DOZZLE_ENABLE_MCP" default:"false" help:"enables the MCP (Model Context Protocol) endpoint for LLM integration."`
 	DisableAvatars         bool                `arg:"--disable-avatars,env:DOZZLE_DISABLE_AVATARS" default:"false" help:"disables avatars for authenticated users."`
 	FilterStrings          []string            `arg:"env:DOZZLE_FILTER,--filter,separate" help:"filters docker containers using Docker syntax."`
@@ -59,6 +61,7 @@ type Args struct {
 	GenerateCerts          *GenerateCertsCmd   `arg:"subcommand:generate-certs" help:"generates a unique certificate and key for agent connections"`
 	Agent                  *AgentCmd           `arg:"subcommand:agent" help:"starts the agent"`
 	AgentTest              *AgentTestCmd       `arg:"subcommand:agent-test" help:"tests an agent"`
+	SelfUpdate             *SelfUpdateCmd      `arg:"subcommand:self-update" help:"replaces a Dozzle container with one on its newer image (used internally by self-update)"`
 	Locked                 Locked              `arg:"-"`
 }
 

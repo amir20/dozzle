@@ -191,7 +191,6 @@ alert:
     title: 'Update beschikbaar'
     message: 'Er is een nieuwere image gepubliceerd voor {image}.'
     enable-actions: '<a href="https://dozzle.dev/guide/actions" target="_blank" rel="noreferrer noopener">Schakel acties in</a> om deze hier op te halen en opnieuw aan te maken.'
-    self: 'Dozzle kan zichzelf niet bijwerken, start het opnieuw om de update toe te passen.'
   redirected:
     title: Doorgestuurd naar nieuwe container
     message: Dozzle heeft je automatisch doorgestuurd naar de nieuwe container {containerId}.
@@ -768,6 +767,8 @@ setup:
     actions: Acties en shell
     cloud: Dozzle Cloud
     cloud-note: Optioneel
+    update: "Automatisch bijwerken"
+    update-note: "Vereist acties"
     restart: Herstarten
   login:
     title: Inloggen inschakelen
@@ -826,6 +827,28 @@ setup:
     connect: Dozzle Cloud koppelen
     learn-more: Meer informatie
     skip: "Niet nu"
+  update:
+    pill-on: "Gebruikt acties · aan"
+    pill-pending: "Gaat aan met acties"
+    title: "Houd Dozzle up-to-date"
+    subtitle: "Dozzle haalt de nieuwe image op en vervangt zijn eigen container op een rustig uur. Instellingen, gebruikers en meldingen blijven behouden."
+    auto-label: "Automatisch bijwerken"
+    auto-desc: "Controleert op een nieuwere image en vervangt Dozzle alleen als die er is."
+    when-label: "Wanneer"
+    time-label: "Tijd"
+    server-time: "Gebruikt de tijdzone van de server."
+    daily: "Dagelijks"
+    weekly: "Wekelijks op zondag"
+    version-label: "Versie"
+    update-now: "Nu bijwerken"
+    pulling: "Nieuwe image ophalen"
+    up-to-date: "Dozzle is al up-to-date."
+    restarting: "Dozzle vervangt zichzelf door de nieuwe versie."
+    restarting-hint: "De pagina herlaadt zodra de nieuwe versie reageert."
+    needs-actions: "Nu bijwerken werkt zodra acties aan staan, na de herstart."
+    reason-pinned-tag: "Je gebruikt een vaste versietag, dus er is niets nieuwers om op te halen. Gebruik een tag zoals latest om updates te krijgen."
+    reason-unsupported: "Dozzle kan zichzelf alleen vervangen als het draait als één Docker-container."
+    pull-denied: "{image} kon niet worden opgehaald. Misschien bestaat het alleen op deze machine, of vraagt de registry om docker login."
   restart:
     title: Dozzle herstarten
     subtitle: Deze wijzigingen zijn opgeslagen en werken na een herstart.

@@ -191,7 +191,6 @@ alert:
     title: '업데이트 사용 가능'
     message: '{image}의 새로운 이미지가 게시되었습니다.'
     enable-actions: '여기에서 내려받아 다시 생성하려면 <a href="https://dozzle.dev/guide/actions" target="_blank" rel="noreferrer noopener">액션을 활성화</a>하세요.'
-    self: 'Dozzle은 자기 자신을 업데이트할 수 없습니다. 적용하려면 다시 시작하세요.'
   redirected:
     title: 새 컨테이너로 이동했습니다
     message: Dozzle이 자동으로 새 컨테이너 {containerId}로 이동했습니다.
@@ -771,6 +770,8 @@ setup:
     actions: 작업 및 셸
     cloud: Dozzle Cloud
     cloud-note: 선택 사항
+    update: "자동 업데이트"
+    update-note: "작업 필요"
     restart: 재시작
   login:
     title: 로그인 켜기
@@ -829,6 +830,28 @@ setup:
     connect: Dozzle Cloud 연결
     learn-more: 자세히 알아보기
     skip: "나중에"
+  update:
+    pill-on: "작업 사용 · 켜짐"
+    pill-pending: "작업과 함께 켜짐"
+    title: "Dozzle 최신 상태 유지"
+    subtitle: "Dozzle이 한가한 시간에 새 이미지를 받아 자신의 컨테이너를 교체합니다. 설정, 사용자, 알림은 유지됩니다."
+    auto-label: "자동으로 업데이트"
+    auto-desc: "더 새로운 이미지가 있는지 확인하고, 있을 때만 Dozzle을 교체합니다."
+    when-label: "주기"
+    time-label: "시간"
+    server-time: "서버의 시간대를 사용합니다."
+    daily: "매일"
+    weekly: "매주 일요일"
+    version-label: "버전"
+    update-now: "지금 업데이트"
+    pulling: "새 이미지를 받는 중"
+    up-to-date: "Dozzle이 이미 최신 상태입니다."
+    restarting: "Dozzle이 새 버전으로 자신을 교체하는 중입니다."
+    restarting-hint: "새 버전이 응답하면 바로 페이지가 새로고침됩니다."
+    needs-actions: "지금 업데이트는 재시작 후 작업이 켜지면 사용할 수 있습니다."
+    reason-pinned-tag: "고정된 버전 태그를 사용 중이라 받을 새 버전이 없습니다. 업데이트를 받으려면 latest 같은 태그를 사용하세요."
+    reason-unsupported: "Dozzle은 단일 Docker 컨테이너로 실행될 때만 자신을 교체할 수 있습니다."
+    pull-denied: "{image}을(를) 가져올 수 없습니다. 이 머신에만 있는 이미지이거나 레지스트리에 docker login이 필요할 수 있습니다."
   restart:
     title: Dozzle 재시작
     subtitle: 변경 사항이 저장되었으며 재시작 후 적용됩니다.

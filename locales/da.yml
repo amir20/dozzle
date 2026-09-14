@@ -190,7 +190,6 @@ alert:
     title: 'Opdatering tilgængelig'
     message: 'Et nyere image er udgivet til {image}.'
     enable-actions: '<a href="https://dozzle.dev/guide/actions" target="_blank" rel="noreferrer noopener">Aktivér handlinger</a> for at hente den og genskabe containeren herfra.'
-    self: 'Dozzle kan ikke opdatere sig selv, så genstart den for at få opdateringen.'
   redirected:
     title: Omdirigeret til ny container
     message: Dozzle omdirigerede dig automatisk til en ny container {containerId}.
@@ -767,6 +766,8 @@ setup:
     actions: "Handlinger og shell"
     cloud: "Dozzle Cloud"
     cloud-note: "Valgfrit"
+    update: "Auto-opdatering"
+    update-note: "Kræver handlinger"
     restart: "Genstart"
   login:
     title: "Slå login til"
@@ -825,6 +826,28 @@ setup:
     connect: "Forbind Dozzle Cloud"
     learn-more: "Læs mere"
     skip: "Ikke nu"
+  update:
+    pill-on: "Bruger handlinger · til"
+    pill-pending: "Slås til med handlinger"
+    title: "Hold Dozzle opdateret"
+    subtitle: "Dozzle henter det nye image og erstatter sin egen container på et roligt tidspunkt. Indstillinger, brugere og alarmer bevares."
+    auto-label: "Opdater automatisk"
+    auto-desc: "Tjekker efter et nyere image og erstatter kun Dozzle, når der er et."
+    when-label: "Hvornår"
+    time-label: "Tidspunkt"
+    server-time: "Bruger serverens tidszone."
+    daily: "Dagligt"
+    weekly: "Ugentligt om søndagen"
+    version-label: "Version"
+    update-now: "Opdater nu"
+    pulling: "Henter det nye image"
+    up-to-date: "Dozzle er allerede opdateret."
+    restarting: "Dozzle erstatter sig selv med den nye version."
+    restarting-hint: "Siden genindlæses, så snart den nye version svarer."
+    needs-actions: "Opdater nu virker, når handlinger er slået til efter genstarten."
+    reason-pinned-tag: "Du kører et fastlåst versionstag, så der er intet nyere at hente. Brug et tag som latest for at få opdateringer."
+    reason-unsupported: "Dozzle kan kun erstatte sig selv, når den kører som en enkelt Docker-container."
+    pull-denied: "Kunne ikke hente {image}. Det findes måske kun på denne maskine, eller registret kræver docker login."
   restart:
     title: "Genstart Dozzle"
     subtitle: "Disse ændringer er gemt og begynder at virke efter en genstart."

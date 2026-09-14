@@ -14,6 +14,9 @@ import (
 	"sync"
 	"syscall"
 	"time"
+	// The image has no zoneinfo, so without this TZ is ignored and the
+	// auto-update time silently means UTC.
+	_ "time/tzdata"
 
 	"github.com/amir20/dozzle/internal/agent"
 	"github.com/amir20/dozzle/internal/auth"
@@ -212,6 +215,18 @@ func main() {
 		},
 	})
 
+	if args.Mode == "server" {
+		go web.RunAutoUpdateScheduler(ctx, hostService, web.Config{
+			Mode:          args.Mode,
+			EnableActions: args.EnableActions,
+			Version:       args.Version(),
+			Setup: web.SetupConfig{
+				AutoUpdateMode: lockedValue(args.Locked.AutoUpdate, args.AutoUpdate),
+				AutoUpdateTime: lockedValue(args.Locked.AutoUpdateTime, args.AutoUpdateTime),
+			},
+		})
+	}
+
 	go func() {
 		log.Info().Msgf("Accepting connections on %s", args.Addr)
 		if err := srv.ListenAndServe(); err != http.ErrServerClosed {
@@ -228,6 +243,14 @@ func main() {
 		log.Error().Err(err).Msg("failed to shut down")
 	}
 	log.Debug().Msg("shut down complete")
+}
+
+// lockedValue is value when a flag or env var set it, nil when dozzle.yml decides.
+func lockedValue(locked bool, value string) *string {
+	if !locked {
+		return nil
+	}
+	return &value
 }
 
 // oauthProviders builds the external identity providers simple auth accepts.
@@ -422,6 +445,9 @@ func createServer(args cli.Args, hostService web.HostService, cloudHooks web.Clo
 			LockedAuthProvider:  args.Locked.AuthProvider,
 			LockedEnableActions: args.Locked.EnableActions,
 			LockedEnableShell:   args.Locked.EnableShell,
+			LockedAutoUpdate:    args.Locked.AutoUpdate || args.Locked.AutoUpdateTime,
+			AutoUpdateMode:      lockedValue(args.Locked.AutoUpdate, args.AutoUpdate),
+			AutoUpdateTime:      lockedValue(args.Locked.AutoUpdateTime, args.AutoUpdateTime),
 			StartedAt:           web.SetupWindowStart(time.Now(), freshInstall),
 		},
 	}

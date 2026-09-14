@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"os"
 	"strings"
 	"sync"
 	"time"
@@ -12,6 +13,8 @@ import (
 	"github.com/amir20/dozzle/internal/container"
 	"github.com/amir20/dozzle/internal/docker"
 	"github.com/amir20/dozzle/internal/imagecheck"
+	"github.com/amir20/dozzle/internal/profile"
+	"github.com/amir20/dozzle/internal/selfupdate"
 
 	"github.com/moby/moby/api/pkg/stdcopy"
 	docker_types "github.com/moby/moby/api/types/container"
@@ -28,6 +31,34 @@ type DockerUpdateClient interface {
 	ContainerRemove(ctx context.Context, containerID string) error
 	ContainerCreate(ctx context.Context, inspectResp docker_types.InspectResponse, name string) (string, error)
 	ServiceUpdate(ctx context.Context, serviceID string, image string) error
+}
+
+var (
+	selfContainerID = profile.SelfContainerID
+	startSelfUpdate = selfupdate.Start
+	hostname        = os.Hostname
+)
+
+// isSelf reports whether id (Dozzle's 12-character form or a full id) is the
+// container this process runs in.
+func isSelf(id string) bool {
+	self := selfContainerID()
+	return self != "" && len(id) >= 12 && strings.HasPrefix(self, id)
+}
+
+// mayBeSelf reports whether a container could be Dozzle's own when that id is
+// unknown (Podman's mountinfo never names it, for one). Recreating it in place
+// would stop this process mid-update, so anything on a Dozzle image, or whose
+// short id is this process's hostname, is refused.
+func mayBeSelf(inspect docker_types.InspectResponse) bool {
+	if selfContainerID() != "" || inspect.Config == nil {
+		return false
+	}
+	if strings.Contains(selfupdate.ImageRef(inspect.Config), "amir20/dozzle") {
+		return true
+	}
+	h, err := hostname()
+	return err == nil && len(h) >= 12 && strings.HasPrefix(inspect.ID, h)
 }
 
 type DockerClientService struct {
@@ -154,7 +185,8 @@ func (d *DockerClientService) CheckImageUpdate(ctx context.Context, c container.
 
 	// Config.Image is the reference the container was created from, which is
 	// what the registry must be queried for.
-	return d.checker.Check(ctx, inspect.Config.Image, digests, force), nil
+	// A rolled-back Dozzle runs from a bare image id and keeps its tag in a label.
+	return d.checker.Check(ctx, selfupdate.ImageRef(inspect.Config), digests, force), nil
 }
 
 func (d *DockerClientService) UpdateContainer(ctx context.Context, c container.Container, progressCh chan<- container.UpdateProgress) (bool, error) {
@@ -177,7 +209,7 @@ func (d *DockerClientService) UpdateContainer(ctx context.Context, c container.C
 		return false, err
 	}
 
-	imageName := inspectResp.Config.Image
+	imageName := selfupdate.ImageRef(inspectResp.Config)
 
 	// 2. Pull image with progress
 	reader, err := d.client.ImagePull(ctx, imageName)
@@ -236,10 +268,14 @@ func (d *DockerClientService) UpdateContainer(ctx context.Context, c container.C
 		return true, nil
 	}
 
-	// 5. Standalone container: check for self-update
-	if strings.Contains(imageName, "amir20/dozzle") {
-		progress(container.UpdateProgress{Status: "error", Error: "Dozzle cannot update itself. Please restart manually."})
-		return false, fmt.Errorf("cannot self-update: stopping Dozzle would terminate the update process")
+	// 5. Standalone container: stopping Dozzle's own container would kill this
+	// process mid-update, so a helper container on the new image does the swap.
+	if isSelf(c.ID) {
+		return startSelfUpdate(ctx, inspectResp.ID, progress)
+	}
+	if mayBeSelf(inspectResp) {
+		progress(container.UpdateProgress{Status: "error", Error: "Dozzle cannot identify its own container, so it cannot update it. Please update it manually."})
+		return false, fmt.Errorf("cannot self-update: own container id is unknown")
 	}
 
 	// 6. Standalone container: stop -> remove -> create -> start

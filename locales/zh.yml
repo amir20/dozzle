@@ -190,7 +190,6 @@ alert:
     title: '有可用更新'
     message: '{image} 已发布更新的镜像。'
     enable-actions: '<a href="https://dozzle.dev/guide/actions" target="_blank" rel="noreferrer noopener">启用操作</a>即可在此拉取并重建容器。'
-    self: 'Dozzle 无法更新自身，请重启以应用更新。'
   redirected:
     title: 重定向到新容器
     message: Dozzle自动将您重定向到新容器 {containerId}。
@@ -767,6 +766,8 @@ setup:
     actions: 操作与 Shell
     cloud: Dozzle Cloud
     cloud-note: 可选
+    update: "自动更新"
+    update-note: "需要操作功能"
     restart: 重启
   login:
     title: 启用登录
@@ -825,6 +826,28 @@ setup:
     connect: 连接 Dozzle Cloud
     learn-more: 了解更多
     skip: "暂不"
+  update:
+    pill-on: "使用操作功能 · 已开启"
+    pill-pending: "随操作功能一起开启"
+    title: "让 Dozzle 保持最新"
+    subtitle: "Dozzle 会在空闲时段拉取新镜像并替换自身容器。设置、用户和告警都会保留。"
+    auto-label: "自动更新"
+    auto-desc: "检查是否有更新的镜像，仅在有新镜像时替换 Dozzle。"
+    when-label: "时间"
+    time-label: "时刻"
+    server-time: "使用服务器的时区。"
+    daily: "每天"
+    weekly: "每周日"
+    version-label: "版本"
+    update-now: "立即更新"
+    pulling: "正在拉取新镜像"
+    up-to-date: "Dozzle 已是最新版本。"
+    restarting: "Dozzle 正在替换为新版本。"
+    restarting-hint: "新版本响应后页面会立即重新加载。"
+    needs-actions: "重启后开启操作功能，立即更新才可用。"
+    reason-pinned-tag: "你使用的是固定的版本标签，因此没有更新的镜像可拉取。请使用 latest 之类的标签来获取更新。"
+    reason-unsupported: "Dozzle 仅在作为单个 Docker 容器运行时才能替换自身。"
+    pull-denied: "无法拉取 {image}。它可能只存在于这台机器上，或者镜像仓库需要 docker login。"
   restart:
     title: 重启 Dozzle
     subtitle: 这些更改已保存，重启后生效。

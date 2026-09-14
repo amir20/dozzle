@@ -3,8 +3,21 @@
 // The step list is a pure function of GET /api/setup plus two cloud facts, so the
 // rules for "which steps does this install see" are testable without a browser.
 
-export type SetupStepId = "login" | "actions" | "cloud" | "restart";
-export type SetupStepState = "done" | "current" | "todo" | "skipped";
+export type SetupStepId = "login" | "actions" | "cloud" | "update" | "restart";
+export type SetupStepState = "done" | "current" | "todo" | "skipped" | "disabled";
+
+export type AutoUpdateMode = "off" | "daily" | "weekly";
+export type AutoUpdateReason = "not-server" | "no-container" | "pinned-tag" | "actions-off";
+
+export interface SetupAutoUpdate {
+  mode: AutoUpdateMode;
+  // "HH:MM", server local time.
+  time: string;
+  supported: boolean;
+  reason?: AutoUpdateReason;
+  image: string;
+  currentVersion: string;
+}
 
 export interface SetupStatus {
   mode: string;
@@ -13,11 +26,13 @@ export interface SetupStatus {
   usersFileExists: boolean;
   enableActions: boolean;
   enableShell: boolean;
-  locked: { authProvider: boolean; enableActions: boolean; enableShell: boolean };
+  locked: { authProvider: boolean; enableActions: boolean; enableShell: boolean; autoUpdate?: boolean };
   pending: { authProvider?: string; enableActions?: boolean; enableShell?: boolean };
   canRestart: boolean;
   windowOpen: boolean;
   canWrite: boolean;
+  // Applies live, so it never shows up in pending. Absent on servers without self-update.
+  autoUpdate?: SetupAutoUpdate;
 }
 
 // What a step tells the wizard's footer. The step owns what "Next" means on it
@@ -32,6 +47,8 @@ export interface SetupStepHandle {
   // Set on steps that are fine to pass on. It sits beside Next at the same size,
   // so declining never reads as the lesser, harder-to-find choice.
   skipLabel?: string;
+  // The actions step's unsaved switch, so steps that depend on it react before Next.
+  actionsDraft?: boolean;
   // Unsaved changes on the step. Jumping away from the rail saves them first, the
   // same as Next, so a click on another step never quietly drops them.
   dirty?: boolean;
@@ -55,8 +72,21 @@ export function setupSteps(status: SetupStatus, cloud: SetupCloudFacts): SetupSt
   // Nothing to toggle when both are pinned.
   if (!(status.locked.enableActions && status.locked.enableShell)) steps.push("actions");
   if (!cloud.linked && cloud.canLink) steps.push("cloud");
+  // Always listed so people see what actions would unlock. The wizard greys it out
+  // while actions are off, since self-update is an action.
+  if (status.mode === "server" && status.autoUpdate) steps.push("update");
   steps.push("restart");
   return steps;
+}
+
+// Every hour on the hour, plus whatever the file holds if someone wrote 03:30 by hand.
+export function setupUpdateTimes(current: string): string[] {
+  const times = Array.from({ length: 24 }, (_, h) => `${String(h).padStart(2, "0")}:00`);
+  if (/^([01]\d|2[0-3]):[0-5]\d$/.test(current) && !times.includes(current)) {
+    times.push(current);
+    times.sort();
+  }
+  return times;
 }
 
 // Opens by itself only on a fresh install (an empty profile, so nobody upgrading
@@ -87,6 +117,7 @@ export function setupStepConfigured(id: SetupStepId, status: SetupStatus): boole
     const toggles = setupToggles(status);
     return toggles.enableActions || toggles.enableShell;
   }
+  if (id === "update") return !!status.autoUpdate && status.autoUpdate.mode !== "off";
   return false;
 }
 
@@ -190,7 +221,11 @@ export function useSetup() {
     await fetchStatus();
   }
 
-  async function saveConfig(patch: { enableActions?: boolean; enableShell?: boolean }) {
+  async function saveConfig(patch: {
+    enableActions?: boolean;
+    enableShell?: boolean;
+    autoUpdate?: { mode: AutoUpdateMode; time: string };
+  }) {
     if (Object.keys(patch).length === 0) return;
     await request("/api/setup/config", { method: "PATCH", body: JSON.stringify(patch) });
     await fetchStatus();
@@ -200,9 +235,16 @@ export function useSetup() {
     await request("/api/setup/restart", { method: "POST" });
   }
 
+  // POST /api/update/self. The body is the same update-progress stream the
+  // container Update action reads.
+  async function updateSelf() {
+    return request("/api/update/self", { method: "POST" });
+  }
+
   // The restart lands ~500ms after the 202, so a response right away is still the
-  // old process. Back means it answered after failing once, or after 2s.
-  async function waitForRestart({ timeout = 60_000, interval = 500 } = {}) {
+  // old process. Back means it answered after failing once, or after 2s. A self-update
+  // keeps the old process up for much longer, so it passes mustGoDown.
+  async function waitForRestart({ timeout = 60_000, interval = 500, mustGoDown = false } = {}) {
     const started = Date.now();
     let failed = false;
     while (Date.now() - started < timeout) {
@@ -215,7 +257,7 @@ export function useSetup() {
         ok = false;
       }
       if (!ok) failed = true;
-      else if (failed || Date.now() - started >= 2000) {
+      else if (failed || (!mustGoDown && Date.now() - started >= 2000)) {
         window.location.assign(withBase("/"));
         return true;
       }
@@ -244,6 +286,7 @@ export function useSetup() {
     useProxy,
     saveConfig,
     restart,
+    updateSelf,
     waitForRestart,
     openWizard,
   };

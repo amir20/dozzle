@@ -192,7 +192,6 @@ alert:
     title: 'Güncelleme mevcut'
     message: '{image} için daha yeni bir imaj yayımlandı.'
     enable-actions: 'Buradan indirip yeniden oluşturmak için <a href="https://dozzle.dev/guide/actions" target="_blank" rel="noreferrer noopener">eylemleri etkinleştirin</a>.'
-    self: 'Dozzle kendini güncelleyemez, uygulamak için yeniden başlatın.'
   redirected:
     title: Yeni konteynere yönlendirildi
     message: Dozzle sizi otomatik olarak yeni {containerId} konteynerine yönlendirdi.
@@ -771,6 +770,8 @@ setup:
     actions: İşlemler ve kabuk
     cloud: Dozzle Cloud
     cloud-note: İsteğe bağlı
+    update: "Otomatik güncelleme"
+    update-note: "Eylemler gerekli"
     restart: Yeniden başlat
   login:
     title: Girişi aç
@@ -829,6 +830,28 @@ setup:
     connect: Dozzle Cloud'a bağlan
     learn-more: Daha fazla bilgi
     skip: "Şimdi değil"
+  update:
+    pill-on: "Eylemleri kullanır · açık"
+    pill-pending: "Eylemlerle birlikte açılır"
+    title: "Dozzle'ı güncel tutun"
+    subtitle: "Dozzle sakin bir saatte yeni imajı çeker ve kendi konteynerini değiştirir. Ayarlar, kullanıcılar ve uyarılar korunur."
+    auto-label: "Otomatik güncelle"
+    auto-desc: "Daha yeni bir imaj olup olmadığını kontrol eder ve yalnızca varsa Dozzle'ı değiştirir."
+    when-label: "Ne zaman"
+    time-label: "Saat"
+    server-time: "Sunucunun saat dilimini kullanır."
+    daily: "Günlük"
+    weekly: "Her pazar"
+    version-label: "Sürüm"
+    update-now: "Şimdi güncelle"
+    pulling: "Yeni imaj çekiliyor"
+    up-to-date: "Dozzle zaten güncel."
+    restarting: "Dozzle kendini yeni sürümle değiştiriyor."
+    restarting-hint: "Yeni sürüm yanıt verir vermez sayfa yeniden yüklenir."
+    needs-actions: "Şimdi güncelle, yeniden başlatmadan sonra eylemler açıldığında çalışır."
+    reason-pinned-tag: "Sabitlenmiş bir sürüm etiketi kullanıyorsunuz, bu yüzden çekilecek daha yeni bir şey yok. Güncelleme almak için latest gibi bir etiket kullanın."
+    reason-unsupported: "Dozzle yalnızca tek bir Docker konteyneri olarak çalıştığında kendini değiştirebilir."
+    pull-denied: "{image} çekilemedi. Yalnızca bu makinede bulunuyor olabilir ya da kayıt defteri docker login gerektiriyor."
   restart:
     title: Dozzle'ı yeniden başlat
     subtitle: Bu değişiklikler kaydedildi ve yeniden başlatmadan sonra çalışmaya başlar.

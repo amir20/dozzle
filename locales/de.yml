@@ -190,7 +190,6 @@ alert:
     title: 'Update verfügbar'
     message: 'Für {image} wurde ein neueres Image veröffentlicht.'
     enable-actions: '<a href="https://dozzle.dev/guide/actions" target="_blank" rel="noreferrer noopener">Aktionen aktivieren</a>, um es von hier aus zu laden und neu zu erstellen.'
-    self: 'Dozzle kann sich nicht selbst aktualisieren. Starte es neu, um das Update zu übernehmen.'
   redirected:
     title: Zu neuem Container umgeleitet
     message: Dozzle hat dich automatisch zu dem Container {containerId} umgeleitet.
@@ -767,6 +766,8 @@ setup:
     actions: "Aktionen und Shell"
     cloud: "Dozzle Cloud"
     cloud-note: "Optional"
+    update: "Auto-Update"
+    update-note: "Benötigt Aktionen"
     restart: "Neustart"
   login:
     title: "Anmeldung aktivieren"
@@ -825,6 +826,28 @@ setup:
     connect: "Dozzle Cloud verbinden"
     learn-more: "Mehr erfahren"
     skip: "Nicht jetzt"
+  update:
+    pill-on: "Nutzt Aktionen · an"
+    pill-pending: "Wird mit Aktionen aktiviert"
+    title: "Dozzle aktuell halten"
+    subtitle: "Dozzle lädt das neue Image und ersetzt seinen eigenen Container zu einer ruhigen Stunde. Einstellungen, Benutzer und Alarme bleiben erhalten."
+    auto-label: "Automatisch aktualisieren"
+    auto-desc: "Sucht nach einem neueren Image und ersetzt Dozzle nur, wenn es eines gibt."
+    when-label: "Wann"
+    time-label: "Uhrzeit"
+    server-time: "Verwendet die Zeitzone des Servers."
+    daily: "Täglich"
+    weekly: "Wöchentlich am Sonntag"
+    version-label: "Version"
+    update-now: "Jetzt aktualisieren"
+    pulling: "Neues Image wird geladen"
+    up-to-date: "Dozzle ist bereits auf dem neuesten Stand."
+    restarting: "Dozzle ersetzt sich selbst durch die neue Version."
+    restarting-hint: "Die Seite lädt neu, sobald die neue Version antwortet."
+    needs-actions: "Jetzt aktualisieren funktioniert, sobald Aktionen nach dem Neustart aktiv sind."
+    reason-pinned-tag: "Du verwendest einen festen Versions-Tag, daher gibt es nichts Neueres zu laden. Verwende einen Tag wie latest, um Updates zu erhalten."
+    reason-unsupported: "Dozzle kann sich nur selbst ersetzen, wenn es als einzelner Docker-Container läuft."
+    pull-denied: "{image} konnte nicht gezogen werden. Es existiert vielleicht nur auf diesem Rechner, oder die Registry verlangt docker login."
   restart:
     title: "Dozzle neu starten"
     subtitle: "Diese Änderungen sind gespeichert und werden nach einem Neustart wirksam."

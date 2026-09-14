@@ -1,6 +1,6 @@
 ---
 title: Assistant de configuration
-sourceHash: 7c37c945db57
+sourceHash: 6c58a8385357
 ---
 
 # Assistant de configuration
@@ -55,7 +55,15 @@ Si un réglage est déjà fixé par un flag ou une variable d'environnement, son
 
 [Dozzle Cloud](/fr/guide/dozzle-cloud) envoie des alertes dès que quelque chose casse, un résumé matinal de ce qu'il faut corriger, et conserve un historique qui survit aux redémarrages. **Connecter Dozzle Cloud** relie cette instance, et **Pas maintenant** continue. Cette étape est ignorée si l'instance est déjà reliée ou si vous n'avez pas le droit de la relier.
 
-### 4. Redémarrage
+### 4. Mise à jour automatique
+
+Dozzle peut se tenir à jour tout seul. Choisissez **Désactivée**, **Quotidienne** ou **Hebdomadaire** (le dimanche) et une heure. L'heure est celle du serveur, `03:00` par défaut. À cette heure, Dozzle vérifie si son registre propose une image plus récente et, seulement dans ce cas, [se met à jour](#self-update).
+
+Ce réglage s'applique immédiatement et ne nécessite pas de redémarrage.
+
+Se mettre à jour est une action. Tant que les actions sont désactivées, cette étape reste donc dans la liste, mais grisée et marquée **Nécessite les actions**. Activer les actions à l'étape 2 la rend disponible immédiatement. Si cette instance ne peut pas se mettre à jour elle-même pour une autre raison (par exemple si elle utilise un tag de version fixe), l'étape en indique la raison à la place.
+
+### 5. Redémarrage
 
 La dernière étape liste les modifications enregistrées mais pas encore actives. **Redémarrer Dozzle** redémarre le conteneur, attend qu'il soit de retour et recharge la page. S'il n'y a rien en attente, l'étape indique simplement que vous avez terminé.
 
@@ -63,25 +71,48 @@ Si Dozzle ne peut pas redémarrer tout seul (par exemple s'il ne trouve pas son 
 
 ## <Icon icon="mdi:file-cog-outline" inline /> Où les paramètres sont enregistrés
 
-L'assistant enregistre vos choix dans `/data/dozzle.yml`. Dozzle lit ce fichier une seule fois au démarrage, c'est pourquoi les modifications nécessitent un redémarrage. Dozzle redémarre tout seul depuis l'assistant, vous n'avez donc pas à le faire à la main.
+L'assistant enregistre vos choix dans `/data/dozzle.yml`. Dozzle lit ce fichier une seule fois au démarrage, c'est pourquoi les modifications nécessitent un redémarrage. Dozzle redémarre tout seul depuis l'assistant, vous n'avez donc pas à le faire à la main. Les clés de mise à jour automatique font exception : Dozzle les relit chaque minute, elles s'appliquent donc sans redémarrage.
 
 ```yaml [/data/dozzle.yml]
 authProvider: simple
 enableActions: true
 enableShell: false
+autoUpdate: weekly
+autoUpdateTime: "03:00"
 ```
 
-| Clé             | Valeurs                           | Équivalent à            |
-| --------------- | --------------------------------- | ----------------------- |
-| `authProvider`  | `none`, `simple`, `forward-proxy` | `DOZZLE_AUTH_PROVIDER`  |
-| `enableActions` | `true`, `false`                   | `DOZZLE_ENABLE_ACTIONS` |
-| `enableShell`   | `true`, `false`                   | `DOZZLE_ENABLE_SHELL`   |
+| Clé              | Valeurs                           | Équivalent à              |
+| ---------------- | --------------------------------- | ------------------------- |
+| `authProvider`   | `none`, `simple`, `forward-proxy` | `DOZZLE_AUTH_PROVIDER`    |
+| `enableActions`  | `true`, `false`                   | `DOZZLE_ENABLE_ACTIONS`   |
+| `enableShell`    | `true`, `false`                   | `DOZZLE_ENABLE_SHELL`     |
+| `autoUpdate`     | `off`, `daily`, `weekly`          | `DOZZLE_AUTO_UPDATE`      |
+| `autoUpdateTime` | `HH:MM`, heure locale du serveur  | `DOZZLE_AUTO_UPDATE_TIME` |
 
 Les flags et les variables d'environnement l'emportent toujours sur le fichier. Si `DOZZLE_ENABLE_ACTIONS` est défini, la valeur de `dozzle.yml` est ignorée et l'assistant affiche l'interrupteur comme verrouillé. Pour gérer à nouveau un réglage depuis l'assistant, retirez la variable de votre fichier compose.
+
+## <Icon icon="mdi:update" inline /> Comment Dozzle se met à jour lui-même {#self-update}
+
+Dozzle se met à jour lui-même via l'action `Update` sur son propre conteneur ou selon la planification de mise à jour automatique. Les deux font la même chose :
+
+1. Dozzle récupère le tag d'image qu'il exécute. Si le tag pointe toujours vers l'image en cours, il s'arrête là et indique qu'il est à jour.
+2. Dozzle lance, à partir de la nouvelle image, un conteneur auxiliaire éphémère qui a accès au même socket Docker. Dozzle disparaît quelques secondes plus tard.
+3. Le conteneur auxiliaire renomme l'ancien conteneur et crée un remplaçant sous le nom d'origine avec la même configuration, les mêmes réseaux et les mêmes volumes. Ce n'est qu'ensuite qu'il arrête l'ancien conteneur et démarre le remplaçant. Les volumes anonymes sont conservés aussi, donc les données de `/data` survivent même sans volume nommé.
+4. Le conteneur auxiliaire attend que le remplaçant reste en marche (et en bonne santé, s'il a un healthcheck). Si c'est le cas, l'ancien conteneur est supprimé sans toucher à ses volumes. Sinon, le remplaçant est supprimé, l'ancien conteneur reprend son nom et redémarre.
+
+Les conteneurs lancés avec `--rm` se mettent à jour de la même façon. L'ancien conteneur se supprime en s'arrêtant, mais le remplaçant détient déjà ses volumes à ce moment-là, donc ils sont conservés. Si la mise à jour doit revenir en arrière, le conteneur auxiliaire recrée l'ancien conteneur à partir de sa configuration enregistrée.
+
+Les logs du conteneur auxiliaire sont la seule trace d'une mise à jour. Il se supprime à la fin, donc pour en suivre une, surveillez le conteneur `dozzle-self-update-*` pendant qu'il tourne.
+
+Certaines installations ne peuvent pas se mettre à jour ainsi :
+
+- **Les actions doivent être activées.** Pour se mettre à jour lui-même, Dozzle a besoin de `DOZZLE_ENABLE_ACTIONS`, et l'action `Update` nécessite le rôle actions quand la connexion est activée.
+- **Mode serveur uniquement.** Un service Swarm Dozzle se met à jour via le manager Swarm comme n'importe quel autre service. Kubernetes et les agents Dozzle ne se mettent pas à jour eux-mêmes.
+- **Les tags de version fixes ne se mettent jamais à jour.** Récupérer `amir20/dozzle:v8.12.0` renvoie toujours la même image, la mise à jour automatique n'est donc pas disponible et une mise à jour manuelle indique que tout est à jour. Utilisez `latest` ou changez le tag vous-même.
 
 ## <Icon icon="mdi:shield-lock-outline" inline /> Sécurité
 
 - **La connexion est la première étape.** Un redémarrage après l'enregistrement d'un compte ou d'un proxy active la connexion avant que tout autre réglage puisse être modifié.
-- **Seul un utilisateur connecté peut modifier les actions et le shell ou redémarrer Dozzle.** L'utilisateur doit avoir tous les rôles.
+- **Seul un utilisateur connecté peut modifier les actions, le shell et la mise à jour automatique ou redémarrer Dozzle.** L'utilisateur doit avoir tous les rôles.
 - **Sans connexion, seule une nouvelle installation a une fenêtre de 15 minutes.** Quand `authProvider` vaut `none`, ces réglages ne peuvent être modifiés que dans les 15 minutes qui suivent le premier démarrage d'une nouvelle installation, c'est-à-dire dont `/data` était vide. Une installation qui a déjà des données de démarrages précédents n'a jamais cette fenêtre, un redémarrage de l'hôte ou une mise à jour de l'image ne peut donc pas l'ouvrir. En dehors de la fenêtre, utilisez les variables d'environnement ou activez la connexion.
 - **Les routes sont toujours décidées au démarrage.** L'assistant écrit uniquement dans `dozzle.yml`. Les endpoints des actions et du shell sont enregistrés au démarrage de Dozzle, exactement comme avec les variables d'environnement, donc rien n'est activé tant que Dozzle n'a pas redémarré.

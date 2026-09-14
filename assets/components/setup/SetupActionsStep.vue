@@ -137,5 +137,5 @@ async function next(): Promise<SetupNextResult> {
 const nextLabel = computed(() => t("setup.next"));
 const nextDisabled = computed(() => saving.value);
 
-defineExpose({ nextLabel, nextDisabled, nextPlain: false, dirty, busy: saving, next });
+defineExpose({ nextLabel, nextDisabled, nextPlain: false, actionsDraft: enableActions, dirty, busy: saving, next });
 </script>

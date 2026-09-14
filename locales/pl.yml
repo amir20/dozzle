@@ -191,7 +191,6 @@ alert:
     title: 'Dostępna aktualizacja'
     message: 'Opublikowano nowszy obraz dla {image}.'
     enable-actions: '<a href="https://dozzle.dev/guide/actions" target="_blank" rel="noreferrer noopener">Włącz akcje</a>, aby pobrać go i odtworzyć kontener stąd.'
-    self: 'Dozzle nie może zaktualizować samego siebie, uruchom go ponownie, aby zastosować aktualizację.'
   redirected:
     title: Przekierowywanie do nowego kontenera
     message: Dozzle automatycznie przekierował do nowego kontenera {containerId}.
@@ -770,6 +769,8 @@ setup:
     actions: Akcje i powłoka
     cloud: Dozzle Cloud
     cloud-note: Opcjonalnie
+    update: "Automatyczna aktualizacja"
+    update-note: "Wymaga akcji"
     restart: Restart
   login:
     title: Włącz logowanie
@@ -828,6 +829,28 @@ setup:
     connect: Połącz Dozzle Cloud
     learn-more: Dowiedz się więcej
     skip: "Nie teraz"
+  update:
+    pill-on: "Używa akcji · włączone"
+    pill-pending: "Włączy się razem z akcjami"
+    title: "Utrzymuj Dozzle w najnowszej wersji"
+    subtitle: "Dozzle pobiera nowy obraz i zastępuje własny kontener w spokojnej porze. Ustawienia, użytkownicy i alerty zostają."
+    auto-label: "Aktualizuj automatycznie"
+    auto-desc: "Sprawdza, czy jest nowszy obraz, i zastępuje Dozzle tylko wtedy, gdy jest."
+    when-label: "Kiedy"
+    time-label: "Godzina"
+    server-time: "Używa strefy czasowej serwera."
+    daily: "Codziennie"
+    weekly: "Co tydzień w niedzielę"
+    version-label: "Wersja"
+    update-now: "Aktualizuj teraz"
+    pulling: "Pobieranie nowego obrazu"
+    up-to-date: "Dozzle jest już aktualny."
+    restarting: "Dozzle zastępuje się nową wersją."
+    restarting-hint: "Strona odświeży się, gdy tylko nowa wersja odpowie."
+    needs-actions: "Aktualizuj teraz zadziała, gdy akcje będą włączone, po restarcie."
+    reason-pinned-tag: "Używasz przypiętego tagu wersji, więc nie ma nic nowszego do pobrania. Użyj tagu takiego jak latest, aby otrzymywać aktualizacje."
+    reason-unsupported: "Dozzle może zastąpić samego siebie tylko wtedy, gdy działa jako pojedynczy kontener Docker."
+    pull-denied: "Nie udało się pobrać {image}. Może istnieje tylko na tej maszynie albo rejestr wymaga docker login."
   restart:
     title: Zrestartuj Dozzle
     subtitle: Te zmiany zostały zapisane i zaczną działać po restarcie.

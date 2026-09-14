@@ -194,7 +194,6 @@ alert:
     title: 'Pembaruan tersedia'
     message: 'Image yang lebih baru telah dirilis untuk {image}.'
     enable-actions: '<a href="https://dozzle.dev/guide/actions" target="_blank" rel="noreferrer noopener">Aktifkan aksi</a> untuk mengunduh dan membuat ulang kontainer dari sini.'
-    self: 'Dozzle tidak dapat memperbarui dirinya sendiri, mulai ulang untuk menerapkannya.'
   redirected:
     title: Dialihkan ke kontainer baru
     message: Dozzle secara otomatis mengalihkan Anda ke kontainer baru {containerId}.
@@ -779,6 +778,8 @@ setup:
     actions: "Aksi dan shell"
     cloud: "Dozzle Cloud"
     cloud-note: "Opsional"
+    update: "Pembaruan otomatis"
+    update-note: "Perlu aksi"
     restart: "Mulai ulang"
   login:
     title: "Aktifkan login"
@@ -837,6 +838,28 @@ setup:
     connect: "Hubungkan Dozzle Cloud"
     learn-more: "Pelajari lebih lanjut"
     skip: "Jangan sekarang"
+  update:
+    pill-on: "Memakai aksi · aktif"
+    pill-pending: "Aktif bersama aksi"
+    title: "Jaga Dozzle tetap terbaru"
+    subtitle: "Dozzle menarik image baru dan mengganti container-nya sendiri pada jam sepi. Pengaturan, pengguna, dan peringatan tetap ada."
+    auto-label: "Perbarui otomatis"
+    auto-desc: "Memeriksa image yang lebih baru dan hanya mengganti Dozzle jika ada."
+    when-label: "Kapan"
+    time-label: "Waktu"
+    server-time: "Memakai zona waktu server."
+    daily: "Harian"
+    weekly: "Mingguan pada hari Minggu"
+    version-label: "Versi"
+    update-now: "Perbarui sekarang"
+    pulling: "Menarik image baru"
+    up-to-date: "Dozzle sudah versi terbaru."
+    restarting: "Dozzle sedang mengganti dirinya dengan versi baru."
+    restarting-hint: "Halaman dimuat ulang begitu versi baru merespons."
+    needs-actions: "Perbarui sekarang berfungsi setelah aksi aktif, sesudah mulai ulang."
+    reason-pinned-tag: "Anda memakai tag versi yang dipatok, jadi tidak ada yang lebih baru untuk ditarik. Gunakan tag seperti latest untuk mendapat pembaruan."
+    reason-unsupported: "Dozzle hanya dapat mengganti dirinya saat berjalan sebagai satu container Docker."
+    pull-denied: "Tidak dapat menarik {image}. Image ini mungkin hanya ada di mesin ini, atau registry memerlukan docker login."
   restart:
     title: "Mulai ulang Dozzle"
     subtitle: "Perubahan ini sudah disimpan dan mulai berlaku setelah dimulai ulang."

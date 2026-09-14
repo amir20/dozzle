@@ -117,3 +117,33 @@ func TestApplyConfigFile(t *testing.T) {
 		})
 	}
 }
+
+func TestApplyConfigFileAutoUpdate(t *testing.T) {
+	file := config.File{AutoUpdate: new("weekly"), AutoUpdateTime: new("04:30")}
+
+	args := Args{}
+	applyConfigFile(&args, file, nil, lookupFrom(nil))
+	assert.Equal(t, "weekly", args.AutoUpdate)
+	assert.Equal(t, "04:30", args.AutoUpdateTime)
+	assert.Equal(t, Locked{}, args.Locked)
+
+	args = Args{AutoUpdate: "daily"}
+	applyConfigFile(&args, file, []string{"--auto-update=daily"}, lookupFrom(nil))
+	assert.Equal(t, "daily", args.AutoUpdate)
+	assert.Equal(t, "04:30", args.AutoUpdateTime)
+	assert.Equal(t, Locked{AutoUpdate: true}, args.Locked)
+
+	args = Args{AutoUpdateTime: "01:00"}
+	applyConfigFile(&args, file, nil, lookupFrom(map[string]string{"DOZZLE_AUTO_UPDATE_TIME": "01:00"}))
+	assert.Equal(t, "weekly", args.AutoUpdate)
+	assert.Equal(t, "01:00", args.AutoUpdateTime)
+	assert.Equal(t, Locked{AutoUpdateTime: true}, args.Locked)
+}
+
+func TestValidateAutoUpdate(t *testing.T) {
+	assert.NoError(t, validateAutoUpdate(Args{}))
+	assert.NoError(t, validateAutoUpdate(Args{AutoUpdate: "bogus", AutoUpdateTime: "25:00"}), "file values are not fatal")
+	assert.NoError(t, validateAutoUpdate(Args{AutoUpdate: "weekly", AutoUpdateTime: "23:59", Locked: Locked{AutoUpdate: true, AutoUpdateTime: true}}))
+	assert.Error(t, validateAutoUpdate(Args{AutoUpdate: "hourly", Locked: Locked{AutoUpdate: true}}))
+	assert.Error(t, validateAutoUpdate(Args{AutoUpdateTime: "3:00", Locked: Locked{AutoUpdateTime: true}}))
+}
