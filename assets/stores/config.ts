@@ -21,6 +21,8 @@ export interface Config {
   enableCloud: boolean;
   canLinkCloud: boolean;
   dataPersisted?: boolean;
+  // Full id of the container this Dozzle runs in, absent when it cannot tell.
+  selfContainerId?: string;
   cloudUrl: string;
   disableAvatars: boolean;
   releaseCheckMode: "automatic" | "manual";

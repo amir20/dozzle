@@ -1,6 +1,6 @@
 ---
 title: Actions sur les conteneurs
-sourceHash: 7eab1f511f5f
+sourceHash: 7011f4c16a51
 ---
 
 # Actions sur les conteneurs
@@ -87,4 +87,4 @@ Certains conteneurs n'ont rien à comparer, et Dozzle reste silencieux plutôt q
 
 ### Mettre à jour Dozzle lui-même
 
-Dozzle ne peut pas s'arrêter lui-même pour se mettre à jour sur place, donc un conteneur Dozzle autonome affiche l'avertissement de mise à jour avec un lien vers les notes de version au lieu d'un bouton `Update`. Faire tourner Dozzle en service Swarm fonctionne normalement, puisque la mise à jour est confiée à l'orchestrateur. Les agents Dozzle sur les autres hôtes sont des conteneurs ordinaires et se mettent à jour comme n'importe lequel.
+L'action `Update` sur le propre conteneur de Dozzle met Dozzle à jour sur place. Elle récupère la nouvelle image et confie le remplacement à un conteneur auxiliaire éphémère, donc Dozzle disparaît quelques secondes et revient dans la nouvelle version avec la même configuration et les mêmes volumes. Elle peut aussi être planifiée. Consultez [Comment Dozzle se met à jour lui-même](/fr/guide/setup-wizard#self-update) pour savoir ce qui est conservé et quelles installations ne sont pas prises en charge. Faire tourner Dozzle en service Swarm le met à jour via l'orchestrateur. Les agents Dozzle sur les autres hôtes sont des conteneurs ordinaires et se mettent à jour comme n'importe lequel.

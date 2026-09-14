@@ -138,6 +138,11 @@ func (h *handler) executeTemplate(w http.ResponseWriter, req *http.Request) {
 		// which is the API half of the same override.
 		config["cloudUrl"] = cloudWebURL()
 		config["dataPersisted"] = profile.Persisted()
+		// Lets the page tell Dozzle's own container apart from other Dozzle
+		// containers, since updating it replaces the process serving the page.
+		if id := setupSelfID(); id != "" {
+			config["selfContainerId"] = id
+		}
 
 		if user != nil {
 			config["enableShell"] = h.config.EnableShell && user.Roles.Has(auth.Shell)

@@ -56,6 +56,7 @@ declare global {
   const createLogHints: typeof import('./composable/editor/exprEditor').createLogHints
   const createMetricHints: typeof import('./composable/editor/exprEditor').createMetricHints
   const createPinia: typeof import('pinia').createPinia
+  const createPullProgress: typeof import('./composable/containers/containerActions').createPullProgress
   const createReactiveFn: typeof import('@vueuse/core').createReactiveFn
   const createRef: typeof import('@vueuse/core').createRef
   const createReusableTemplate: typeof import('@vueuse/core').createReusableTemplate
@@ -175,6 +176,7 @@ declare global {
   const reactiveOmit: typeof import('@vueuse/core').reactiveOmit
   const reactivePick: typeof import('@vueuse/core').reactivePick
   const readSetupResume: typeof import('./composable/setup/setup').readSetupResume
+  const readUpdateProgress: typeof import('./composable/containers/containerActions').readUpdateProgress
   const readonly: typeof import('vue').readonly
   const ref: typeof import('vue').ref
   const refAutoReset: typeof import('@vueuse/core').refAutoReset
@@ -202,6 +204,7 @@ declare global {
   const setupStepConfigured: typeof import('./composable/setup/setup').setupStepConfigured
   const setupSteps: typeof import('./composable/setup/setup').setupSteps
   const setupToggles: typeof import('./composable/setup/setup').setupToggles
+  const setupUpdateTimes: typeof import('./composable/setup/setup').setupUpdateTimes
   const shallowReactive: typeof import('vue').shallowReactive
   const shallowReadonly: typeof import('vue').shallowReadonly
   const shallowRef: typeof import('vue').shallowRef
@@ -517,6 +520,9 @@ declare global {
   export type { CloudSurfaceState } from './composable/cloud/cloudSurface'
   import('./composable/cloud/cloudSurface')
   // @ts-ignore
+  export type { UpdateProgress } from './composable/containers/containerActions'
+  import('./composable/containers/containerActions')
+  // @ts-ignore
   export type { ImageUpdateStatus, ImageUpdateResult } from './composable/containers/imageUpdate'
   import('./composable/containers/imageUpdate')
   // @ts-ignore
@@ -544,7 +550,7 @@ declare global {
   export type { AlertType, AlertPrefill, AlertFormOptions, ContainerResult, SaveBlocker } from './composable/notifications/alertForm'
   import('./composable/notifications/alertForm')
   // @ts-ignore
-  export type { SetupError, SetupStepId, SetupStepState, SetupStatus, SetupNextResult, SetupStepHandle, SetupCloudFacts } from './composable/setup/setup'
+  export type { SetupError, SetupStepId, SetupStepState, AutoUpdateMode, AutoUpdateReason, SetupAutoUpdate, SetupStatus, SetupNextResult, SetupStepHandle, SetupCloudFacts } from './composable/setup/setup'
   import('./composable/setup/setup')
   // @ts-ignore
   export type { PopoverPlacement } from './composable/ui/popover'
@@ -614,6 +620,7 @@ declare module 'vue' {
     readonly createLogHints: UnwrapRef<typeof import('./composable/editor/exprEditor')['createLogHints']>
     readonly createMetricHints: UnwrapRef<typeof import('./composable/editor/exprEditor')['createMetricHints']>
     readonly createPinia: UnwrapRef<typeof import('pinia')['createPinia']>
+    readonly createPullProgress: UnwrapRef<typeof import('./composable/containers/containerActions')['createPullProgress']>
     readonly createReactiveFn: UnwrapRef<typeof import('@vueuse/core')['createReactiveFn']>
     readonly createRef: UnwrapRef<typeof import('@vueuse/core')['createRef']>
     readonly createReusableTemplate: UnwrapRef<typeof import('@vueuse/core')['createReusableTemplate']>
@@ -730,6 +737,7 @@ declare module 'vue' {
     readonly reactiveOmit: UnwrapRef<typeof import('@vueuse/core')['reactiveOmit']>
     readonly reactivePick: UnwrapRef<typeof import('@vueuse/core')['reactivePick']>
     readonly readSetupResume: UnwrapRef<typeof import('./composable/setup/setup')['readSetupResume']>
+    readonly readUpdateProgress: UnwrapRef<typeof import('./composable/containers/containerActions')['readUpdateProgress']>
     readonly readonly: UnwrapRef<typeof import('vue')['readonly']>
     readonly ref: UnwrapRef<typeof import('vue')['ref']>
     readonly refAutoReset: UnwrapRef<typeof import('@vueuse/core')['refAutoReset']>
@@ -756,6 +764,7 @@ declare module 'vue' {
     readonly setupStepConfigured: UnwrapRef<typeof import('./composable/setup/setup')['setupStepConfigured']>
     readonly setupSteps: UnwrapRef<typeof import('./composable/setup/setup')['setupSteps']>
     readonly setupToggles: UnwrapRef<typeof import('./composable/setup/setup')['setupToggles']>
+    readonly setupUpdateTimes: UnwrapRef<typeof import('./composable/setup/setup')['setupUpdateTimes']>
     readonly shallowReactive: UnwrapRef<typeof import('vue')['shallowReactive']>
     readonly shallowReadonly: UnwrapRef<typeof import('vue')['shallowReadonly']>
     readonly shallowRef: UnwrapRef<typeof import('vue')['shallowRef']>

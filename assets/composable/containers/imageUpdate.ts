@@ -41,19 +41,29 @@ function trim(collection: Map<string, unknown> | Set<string>) {
 // so a tab left open for days does not keep reporting a stale answer.
 const STALE_AFTER = 30 * 60 * 1000;
 
-// Dozzle cannot stop itself to update, so its own container is a special
-// case. Only the container this browser is talking to counts: a Dozzle agent
+// Dozzle updating itself goes away mid-update, so its own container is a special
+// case: the page waits for the replacement instead of reporting success.
+// Only the container this browser is talking to counts: a Dozzle agent
 // on a remote host is an ordinary container that updates over RPC like any
 // other, and a swarm service is recreated by the orchestrator rather than by
 // the process itself.
 //
-// The image name is matched because the backend does not report which
-// container Dozzle runs in. A renamed or mirrored image (my-registry/dozzle)
-// is therefore not recognised, and would offer an update button that fails.
+// Matched by container id, the same way the backend decides to self-update, so
+// a renamed image still counts and a second Dozzle on the host does not.
 function isSelf(container: Container) {
-  if (!container.image.includes("amir20/dozzle")) return false;
+  const self = config.selfContainerId;
+  if (!self || container.id.length < 12 || !self.startsWith(container.id)) return false;
   if (container.isSwarm) return false;
 
+  return config.hosts.find((host) => host.id === container.host)?.type === "local";
+}
+
+// Without selfContainerId (Podman, for one) the backend cannot tell its own
+// container apart and refuses to update anything that looks like Dozzle, so the
+// button is not offered there.
+function mayBeSelf(container: Container) {
+  if (config.selfContainerId || container.isSwarm) return false;
+  if (!container.image.includes("amir20/dozzle")) return false;
   return config.hosts.find((host) => host.id === container.host)?.type === "local";
 }
 
@@ -118,11 +128,13 @@ export const useImageUpdate = (container: Ref<Container>, historical: Ref<boolea
   // Whether Dozzle can perform the update itself. Independent of whether an
   // update is currently available, so the existing manual pull button stays
   // available exactly as before.
-  const updatable = computed(() => config.enableActions && !selfContainer.value);
+  const updatable = computed(() => !!config.enableActions && !mayBeSelf(container.value));
 
-  // Dozzle's own standalone container cannot be updated in place, so the alert
-  // points at the release notes instead of a button.
+  // Dozzle's own standalone container replaces itself through a helper, so the
+  // update waits for the new process and the menu also links the release notes.
   const selfContainer = computed(() => isSelf(container.value));
+
+  const runUpdate = () => update({ self: selfContainer.value });
 
   function dismiss() {
     if (updateKey.value) {
@@ -144,14 +156,12 @@ export const useImageUpdate = (container: Ref<Container>, historical: Ref<boolea
       trim(notified);
 
       // The message explains what can be done about it, which differs by
-      // whether Dozzle is allowed to act and whether it can act on itself.
+      // whether Dozzle is allowed to act.
       // vue-i18n does not escape interpolated values and the notice is
       // rendered as HTML so it can carry a docs link. Image names are
       // arbitrary strings, in k8s especially.
       let message = t("alert.image-update.message", { image: escapeHtml(container.value.image) });
-      if (selfContainer.value) {
-        message += " " + t("alert.image-update.self");
-      } else if (!config.enableActions) {
+      if (!config.enableActions) {
         message += " " + t("alert.image-update.enable-actions");
       }
 
@@ -160,7 +170,7 @@ export const useImageUpdate = (container: Ref<Container>, historical: Ref<boolea
         title: t("alert.image-update.title"),
         message,
         type: "info",
-        action: updatable.value ? { label: t("toolbar.update"), handler: () => update() } : undefined,
+        action: updatable.value ? { label: t("toolbar.update"), handler: () => runUpdate() } : undefined,
         secondaryAction: { label: t("toolbar.dismiss-update"), handler: () => dismiss() },
       });
     },
@@ -169,5 +179,16 @@ export const useImageUpdate = (container: Ref<Container>, historical: Ref<boolea
 
   watch(key, () => check(), { immediate: true });
 
-  return { result, checking, check, updateAvailable, showAlert, updatable, isSelf: selfContainer, dismissed, dismiss };
+  return {
+    result,
+    checking,
+    check,
+    updateAvailable,
+    showAlert,
+    updatable,
+    isSelf: selfContainer,
+    update: runUpdate,
+    dismissed,
+    dismiss,
+  };
 };

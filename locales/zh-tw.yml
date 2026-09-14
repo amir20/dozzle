@@ -191,7 +191,6 @@ alert:
     title: '有可用更新'
     message: '{image} 已發布更新的映像檔。'
     enable-actions: '<a href="https://dozzle.dev/guide/actions" target="_blank" rel="noreferrer noopener">啟用操作</a>即可在此拉取並重建容器。'
-    self: 'Dozzle 無法更新自身，請重新啟動以套用更新。'
   redirected:
     title: 已重新導向至新容器
     message: Dozzle 已自動將您重新導向至新容器 {containerId}。
@@ -770,6 +769,8 @@ setup:
     actions: 操作與 Shell
     cloud: Dozzle Cloud
     cloud-note: 選用
+    update: "自動更新"
+    update-note: "需要操作功能"
     restart: 重新啟動
   login:
     title: 啟用登入
@@ -828,6 +829,28 @@ setup:
     connect: 連接 Dozzle Cloud
     learn-more: 了解更多
     skip: "暫不"
+  update:
+    pill-on: "使用操作功能 · 已開啟"
+    pill-pending: "隨操作功能一起開啟"
+    title: "讓 Dozzle 保持最新"
+    subtitle: "Dozzle 會在閒置時段拉取新映像檔並替換自身容器。設定、使用者與警示都會保留。"
+    auto-label: "自動更新"
+    auto-desc: "檢查是否有更新的映像檔，只有在有新映像檔時才替換 Dozzle。"
+    when-label: "時間"
+    time-label: "時刻"
+    server-time: "使用伺服器的時區。"
+    daily: "每天"
+    weekly: "每週日"
+    version-label: "版本"
+    update-now: "立即更新"
+    pulling: "正在拉取新映像檔"
+    up-to-date: "Dozzle 已是最新版本。"
+    restarting: "Dozzle 正在替換為新版本。"
+    restarting-hint: "新版本回應後頁面會立即重新載入。"
+    needs-actions: "重新啟動後開啟操作功能，立即更新才可使用。"
+    reason-pinned-tag: "你使用的是固定的版本標籤，因此沒有更新的映像檔可拉取。請使用 latest 之類的標籤來取得更新。"
+    reason-unsupported: "Dozzle 只有在以單一 Docker 容器執行時才能替換自身。"
+    pull-denied: "無法拉取 {image}。它可能只存在於這台機器上，或者映像倉庫需要 docker login。"
   restart:
     title: 重新啟動 Dozzle
     subtitle: 這些變更已儲存，重新啟動後生效。

@@ -38,6 +38,7 @@ type setupLocked struct {
 	AuthProvider  bool `json:"authProvider"`
 	EnableActions bool `json:"enableActions"`
 	EnableShell   bool `json:"enableShell"`
+	AutoUpdate    bool `json:"autoUpdate"`
 }
 
 type setupPending struct {
@@ -46,18 +47,28 @@ type setupPending struct {
 	EnableShell   *bool   `json:"enableShell,omitempty"`
 }
 
+type setupAutoUpdate struct {
+	Mode           string `json:"mode"`
+	Time           string `json:"time"`
+	Supported      bool   `json:"supported"`
+	Reason         string `json:"reason,omitempty"`
+	Image          string `json:"image"`
+	CurrentVersion string `json:"currentVersion"`
+}
+
 type setupState struct {
-	Mode            string       `json:"mode"`
-	DataPersisted   bool         `json:"dataPersisted"`
-	AuthProvider    string       `json:"authProvider"`
-	UsersFileExists bool         `json:"usersFileExists"`
-	EnableActions   bool         `json:"enableActions"`
-	EnableShell     bool         `json:"enableShell"`
-	Locked          setupLocked  `json:"locked"`
-	Pending         setupPending `json:"pending"`
-	CanRestart      bool         `json:"canRestart"`
-	WindowOpen      bool         `json:"windowOpen"`
-	CanWrite        bool         `json:"canWrite"`
+	Mode            string          `json:"mode"`
+	DataPersisted   bool            `json:"dataPersisted"`
+	AuthProvider    string          `json:"authProvider"`
+	UsersFileExists bool            `json:"usersFileExists"`
+	EnableActions   bool            `json:"enableActions"`
+	EnableShell     bool            `json:"enableShell"`
+	Locked          setupLocked     `json:"locked"`
+	Pending         setupPending    `json:"pending"`
+	CanRestart      bool            `json:"canRestart"`
+	WindowOpen      bool            `json:"windowOpen"`
+	CanWrite        bool            `json:"canWrite"`
+	AutoUpdate      setupAutoUpdate `json:"autoUpdate"`
 }
 
 func setupDataDir() string {
@@ -146,6 +157,10 @@ func (h *handler) getSetup(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Already read successfully above, so an error here is not expected.
+	settings, _ := effectiveAutoUpdate(h.config.Setup)
+	support := checkAutoUpdateSupport(r.Context(), h.config, h.hostService)
+
 	state := setupState{
 		Mode:            h.config.Mode,
 		DataPersisted:   setupPersisted(),
@@ -157,11 +172,20 @@ func (h *handler) getSetup(w http.ResponseWriter, r *http.Request) {
 			AuthProvider:  h.config.Setup.LockedAuthProvider,
 			EnableActions: h.config.Setup.LockedEnableActions,
 			EnableShell:   h.config.Setup.LockedEnableShell,
+			AutoUpdate:    h.config.Setup.LockedAutoUpdate,
 		},
 		Pending:    pending,
 		CanRestart: h.setupCanRestart(),
 		WindowOpen: h.setupWindowOpen(),
 		CanWrite:   h.setupCanWrite(r),
+		AutoUpdate: setupAutoUpdate{
+			Mode:           settings.Mode,
+			Time:           settings.Time,
+			Supported:      support.Supported,
+			Reason:         support.Reason,
+			Image:          support.Image,
+			CurrentVersion: h.config.Version,
+		},
 	}
 
 	w.Header().Set("Content-Type", "application/json")
@@ -302,13 +326,20 @@ func (h *handler) updateSetupAuth(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusNoContent)
 }
 
+type setupAutoUpdateRequest struct {
+	Mode string `json:"mode"`
+	Time string `json:"time"`
+}
+
 type setupConfigRequest struct {
-	EnableActions *bool `json:"enableActions"`
-	EnableShell   *bool `json:"enableShell"`
+	EnableActions *bool                   `json:"enableActions"`
+	EnableShell   *bool                   `json:"enableShell"`
+	AutoUpdate    *setupAutoUpdateRequest `json:"autoUpdate"`
 }
 
 // updateSetupConfig only writes dozzle.yml. Action and shell routes are decided
-// at startup, so nothing here turns them on without a restart.
+// at startup, so nothing here turns them on without a restart. The auto-update
+// schedule is the exception: the scheduler re-reads the file every minute.
 func (h *handler) updateSetupConfig(w http.ResponseWriter, r *http.Request) {
 	if !h.setupCanWrite(r) {
 		http.Error(w, http.StatusText(http.StatusForbidden), http.StatusForbidden)
@@ -327,13 +358,24 @@ func (h *handler) updateSetupConfig(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if (req.EnableActions != nil && h.config.Setup.LockedEnableActions) ||
-		(req.EnableShell != nil && h.config.Setup.LockedEnableShell) {
+		(req.EnableShell != nil && h.config.Setup.LockedEnableShell) ||
+		(req.AutoUpdate != nil && h.config.Setup.LockedAutoUpdate) {
 		http.Error(w, "setting is set by flag or env", http.StatusConflict)
 		return
 	}
 
-	if req.EnableActions != nil || req.EnableShell != nil {
+	if req.AutoUpdate != nil && (!config.ValidAutoUpdateMode(req.AutoUpdate.Mode) || !config.ValidAutoUpdateTime(req.AutoUpdate.Time)) {
+		http.Error(w, "invalid auto update schedule", http.StatusBadRequest)
+		return
+	}
+
+	if req.EnableActions != nil || req.EnableShell != nil || req.AutoUpdate != nil {
 		err := config.Update(setupConfigPath, func(c *config.File) {
+			if req.AutoUpdate != nil {
+				mode, at := req.AutoUpdate.Mode, req.AutoUpdate.Time
+				c.AutoUpdate = &mode
+				c.AutoUpdateTime = &at
+			}
 			if req.EnableActions != nil {
 				c.EnableActions = req.EnableActions
 			}
@@ -348,6 +390,9 @@ func (h *handler) updateSetupConfig(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
+	if req.AutoUpdate != nil {
+		log.Info().Str("mode", req.AutoUpdate.Mode).Str("time", req.AutoUpdate.Time).Msg("setup changed the auto update schedule")
+	}
 	w.WriteHeader(http.StatusNoContent)
 }
 

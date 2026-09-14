@@ -1,7 +1,9 @@
 package web
 
 import (
+	"context"
 	"encoding/json"
+	"errors"
 	"net/http"
 	"net/http/httptest"
 	"os"
@@ -26,6 +28,10 @@ func setupTestEnv(t *testing.T, persisted bool) (string, chan string) {
 	dir := t.TempDir()
 	restarts := make(chan string, 4)
 
+	oldInspect := selfUpdateInspect
+	selfUpdateInspect = func(context.Context, HostService, string) (selfImage, error) {
+		return selfImage{Ref: "amir20/dozzle:latest", ImageID: "sha256:old"}, nil
+	}
 	oldPath, oldPersisted, oldSelf, oldDelay, oldRestarter := setupConfigPath, setupPersisted, setupSelfID, setupRestartDelay, setupRestarter
 	setupConfigPath = filepath.Join(dir, "dozzle.yml")
 	setupPersisted = func() bool { return persisted }
@@ -36,6 +42,7 @@ func setupTestEnv(t *testing.T, persisted bool) (string, chan string) {
 		return nil
 	}
 	t.Cleanup(func() {
+		selfUpdateInspect = oldInspect
 		setupConfigPath, setupPersisted, setupSelfID, setupRestartDelay, setupRestarter = oldPath, oldPersisted, oldSelf, oldDelay, oldRestarter
 	})
 	return dir, restarts
@@ -327,4 +334,80 @@ func TestSetup_NotRegisteredOutsideServerMode(t *testing.T) {
 	assert.NotContains(t, rr.Header().Get("Content-Type"), "application/json")
 	assert.NotEqual(t, http.StatusNoContent, doSetup(h, "PATCH", "/api/setup/config", `{}`).Code)
 	assert.NotEqual(t, http.StatusAccepted, doSetup(h, "POST", "/api/setup/restart", "").Code)
+}
+
+func getSetupState(t *testing.T, h http.Handler) setupState {
+	t.Helper()
+	rr := doSetup(h, "GET", "/api/setup", "")
+	require.Equal(t, http.StatusOK, rr.Code, rr.Body.String())
+	var state setupState
+	require.NoError(t, json.Unmarshal(rr.Body.Bytes(), &state))
+	return state
+}
+
+func TestSetup_AutoUpdateStatus(t *testing.T) {
+	setupTestEnv(t, true)
+
+	h := createHandler(nil, nil, Config{Base: "/", Mode: "server", Version: "v8.12.0", EnableActions: true, Authorization: Authorization{Provider: NONE}, Setup: SetupConfig{StartedAt: time.Now()}})
+	rr := doSetup(h, "GET", "/api/setup", "")
+	require.Equal(t, http.StatusOK, rr.Code)
+	var raw map[string]json.RawMessage
+	require.NoError(t, json.Unmarshal(rr.Body.Bytes(), &raw))
+	assert.JSONEq(t, `{"mode":"off","time":"03:00","supported":true,"image":"amir20/dozzle:latest","currentVersion":"v8.12.0"}`, string(raw["autoUpdate"]))
+
+	state := getSetupState(t, setupNoneHandler(time.Now(), SetupConfig{}))
+	assert.False(t, state.AutoUpdate.Supported)
+	assert.Equal(t, "actions-off", state.AutoUpdate.Reason)
+
+	on := Config{Base: "/", Mode: "server", EnableActions: true, Authorization: Authorization{Provider: NONE}, Setup: SetupConfig{StartedAt: time.Now()}}
+
+	selfUpdateInspect = func(context.Context, HostService, string) (selfImage, error) {
+		return selfImage{Ref: "amir20/dozzle:latest", Swarm: true}, nil
+	}
+	assert.Equal(t, "not-server", getSetupState(t, createHandler(nil, nil, on)).AutoUpdate.Reason)
+
+	selfUpdateInspect = func(context.Context, HostService, string) (selfImage, error) {
+		return selfImage{Ref: "amir20/dozzle:v8.12.0"}, nil
+	}
+	assert.Equal(t, "pinned-tag", getSetupState(t, createHandler(nil, nil, on)).AutoUpdate.Reason)
+
+	selfUpdateInspect = func(context.Context, HostService, string) (selfImage, error) {
+		return selfImage{}, errors.New("gone")
+	}
+	assert.Equal(t, "no-container", getSetupState(t, createHandler(nil, nil, on)).AutoUpdate.Reason)
+
+	setupSelfID = func() string { return "" }
+	assert.Equal(t, "no-container", getSetupState(t, createHandler(nil, nil, on)).AutoUpdate.Reason)
+}
+
+func TestSetup_AutoUpdatePatch(t *testing.T) {
+	setupTestEnv(t, true)
+	h := setupNoneHandler(time.Now(), SetupConfig{})
+
+	assert.Equal(t, http.StatusBadRequest, doSetup(h, "PATCH", "/api/setup/config", `{"autoUpdate":{"mode":"hourly","time":"03:00"}}`).Code)
+	assert.Equal(t, http.StatusBadRequest, doSetup(h, "PATCH", "/api/setup/config", `{"autoUpdate":{"mode":"daily","time":"3:00"}}`).Code)
+	assert.Equal(t, http.StatusBadRequest, doSetup(h, "PATCH", "/api/setup/config", `{"autoUpdate":{"mode":"daily","time":"24:00"}}`).Code)
+	require.Equal(t, http.StatusNoContent, doSetup(h, "PATCH", "/api/setup/config", `{"autoUpdate":{"mode":"weekly","time":"04:15"}}`).Code)
+
+	file, err := config.Load(setupConfigPath)
+	require.NoError(t, err)
+	require.NotNil(t, file.AutoUpdate)
+	assert.Equal(t, "weekly", *file.AutoUpdate)
+	assert.Equal(t, "04:15", *file.AutoUpdateTime)
+
+	state := getSetupState(t, h)
+	assert.Equal(t, "weekly", state.AutoUpdate.Mode)
+	assert.Equal(t, "04:15", state.AutoUpdate.Time)
+	assert.Equal(t, setupPending{}, state.Pending, "auto update applies live")
+
+	closed := setupNoneHandler(time.Now().Add(-time.Hour), SetupConfig{})
+	assert.Equal(t, http.StatusForbidden, doSetup(closed, "PATCH", "/api/setup/config", `{"autoUpdate":{"mode":"daily","time":"04:15"}}`).Code)
+
+	mode := "daily"
+	locked := setupNoneHandler(time.Now(), SetupConfig{LockedAutoUpdate: true, AutoUpdateMode: &mode})
+	assert.Equal(t, http.StatusConflict, doSetup(locked, "PATCH", "/api/setup/config", `{"autoUpdate":{"mode":"off","time":"04:15"}}`).Code)
+	state = getSetupState(t, locked)
+	assert.True(t, state.Locked.AutoUpdate)
+	assert.Equal(t, "daily", state.AutoUpdate.Mode, "flag wins over the file")
+	assert.Equal(t, "04:15", state.AutoUpdate.Time, "unlocked time still comes from the file")
 }

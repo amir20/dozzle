@@ -11,6 +11,7 @@
       <SetupLoginStep v-if="currentId === 'login'" ref="step" :status="status" :next-step="steps[index + 1]" />
       <SetupActionsStep v-else-if="currentId === 'actions'" ref="step" :status="status" />
       <SetupCloudStep v-else-if="currentId === 'cloud'" ref="step" :next-step="steps[index + 1]" />
+      <SetupUpdateStep v-else-if="currentId === 'update'" ref="step" :status="status" />
       <SetupRestartStep
         v-else
         ref="step"
@@ -30,7 +31,7 @@
       </button>
     </template>
     <template #footer-end>
-      <button v-if="index > 0" type="button" class="btn btn-sm" :disabled="busy" @click="back">
+      <button v-if="hasPrevious" type="button" class="btn btn-sm" :disabled="busy" @click="back">
         {{ $t("setup.back") }}
       </button>
       <button v-if="handle?.skipLabel" type="button" class="btn btn-sm" :disabled="busy" @click="advance(true)">
@@ -76,11 +77,33 @@ const skipped = ref(new Set<SetupStepId>());
 const completed = ref(new Set<SetupStepId>());
 
 const currentId = computed<SetupStepId | undefined>(() => steps.value[index.value]);
-const isLast = computed(() => index.value >= steps.value.length - 1 && steps.value.length > 0);
 const busy = computed(() => !!handle.value?.busy);
+
+// Auto-update is an action, so it follows the actions toggle. While that step is on
+// screen it follows the unsaved switch, so flipping it greys the step in or out
+// right away instead of after Next.
+const actionsOn = computed(() => {
+  if (currentId.value === "actions" && handle.value?.actionsDraft !== undefined) return handle.value.actionsDraft;
+  return status.value ? setupToggles(status.value).enableActions : false;
+});
+
+function isDisabled(id: SetupStepId) {
+  return id === "update" && !actionsOn.value;
+}
+
+// The next usable step in a direction, skipping greyed-out ones.
+function neighbor(from: number, dir: 1 | -1): number {
+  let i = from + dir;
+  while (steps.value[i] && isDisabled(steps.value[i])) i += dir;
+  return steps.value[i] ? i : -1;
+}
+
+const isLast = computed(() => steps.value.length > 0 && neighbor(index.value, 1) < 0);
+const hasPrevious = computed(() => neighbor(index.value, -1) >= 0);
 
 function stateOf(id: SetupStepId, i: number): SetupStepState {
   if (i === index.value) return "current";
+  if (isDisabled(id)) return "disabled";
   if (id === "login" && status.value && setupLoginConfigured(status.value)) return "done";
   if (skipped.value.has(id)) return "skipped";
   return completed.value.has(id) ? "done" : "todo";
@@ -95,15 +118,16 @@ const railSteps = computed(() =>
   steps.value.map((id, i) => ({
     id,
     label: t(`setup.steps.${id}`),
-    note: notes[id] ? t(notes[id]) : undefined,
+    // The disabled note is the whole explanation of the link between the two steps.
+    note: isDisabled(id) ? t("setup.steps.update-note") : notes[id] ? t(notes[id]) : undefined,
     state: stateOf(id, i),
     // Not mid-save or mid-restart, where leaving the step would strand the work.
-    selectable: i !== index.value && !busy.value,
+    selectable: i !== index.value && !busy.value && !isDisabled(id),
   })),
 );
 
 async function goTo(i: number) {
-  if (busy.value || i === index.value || !steps.value[i]) return;
+  if (busy.value || i === index.value || !steps.value[i] || isDisabled(steps.value[i])) return;
   const id = currentId.value;
   // Unsaved changes are saved on the way out, exactly as Next would. A failed save
   // keeps the user here with its error, instead of losing the change silently.
@@ -115,6 +139,8 @@ async function goTo(i: number) {
       skipped.value.delete(id);
     }
   }
+  // Saving can grey out the target (actions turned off, then Auto-update clicked).
+  if (isDisabled(steps.value[i])) return;
   index.value = i;
 }
 
@@ -146,7 +172,7 @@ async function open(startAt: SetupStepId | undefined, auto: boolean) {
   modal.value?.open();
 
   // Frozen for the session, so linking Cloud or saving a toggle does not shuffle
-  // the rail under the user.
+  // the rail under the user. Auto-update is always listed and only greys out.
   steps.value = setupSteps(s, { linked: linked.value, canLink: canLink.value });
   // Reopened later: what is already set shows as done rather than as a fresh question.
   completed.value = new Set(steps.value.filter((id) => setupStepConfigured(id, s)));
@@ -156,6 +182,9 @@ async function open(startAt: SetupStepId | undefined, auto: boolean) {
     // Resuming after a restart or the cloud round trip: everything before was done
     // in the part of the session that just ended.
     for (const id of steps.value.slice(0, index.value)) completed.value.add(id);
+    // A resume can name a step that has since greyed out.
+    const current = steps.value[index.value];
+    if (current && isDisabled(current)) index.value = Math.max(neighbor(index.value, 1), 0);
   } else if (steps.value[0] === "login" && s.authProvider !== "none") {
     index.value = 1;
   }
@@ -186,7 +215,8 @@ function onClose() {
 }
 
 function back() {
-  if (index.value > 0) index.value--;
+  const i = neighbor(index.value, -1);
+  if (i >= 0) index.value = i;
 }
 
 function advance(skip = false) {
@@ -200,11 +230,12 @@ function advance(skip = false) {
       skipped.value.delete(id);
     }
   }
-  if (isLast.value) {
+  const i = neighbor(index.value, 1);
+  if (i < 0) {
     close();
     return;
   }
-  index.value++;
+  index.value = i;
 }
 
 async function onNext() {

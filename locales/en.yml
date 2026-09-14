@@ -204,7 +204,6 @@ alert:
       <a href="https://dozzle.dev/guide/actions" target="_blank"
       rel="noreferrer noopener">Enable actions</a> to pull and recreate it from
       here.
-    self: Dozzle cannot update itself, so restart it to pick this up.
   stale-ui:
     title: Refresh to finish updating
     message: >-
@@ -777,6 +776,8 @@ setup:
     actions: Actions and shell
     cloud: Dozzle Cloud
     cloud-note: Optional
+    update: Auto-update
+    update-note: Needs actions
     restart: Restart
   login:
     title: Turn on login
@@ -835,6 +836,28 @@ setup:
     connect: Connect Dozzle Cloud
     learn-more: Learn more
     skip: "Not now"
+  update:
+    pill-on: "Uses actions · on"
+    pill-pending: Turns on with actions
+    title: Keep Dozzle up to date
+    subtitle: Dozzle pulls the new image and replaces its own container at a quiet hour. Settings, users and alerts stay.
+    auto-label: Update automatically
+    auto-desc: Checks for a newer image and replaces Dozzle only when there is one.
+    when-label: When
+    time-label: Time
+    server-time: Uses the server's time zone.
+    daily: Daily
+    weekly: Weekly on Sunday
+    version-label: Version
+    update-now: Update now
+    pulling: Pulling the new image
+    up-to-date: Dozzle is already up to date.
+    restarting: Dozzle is replacing itself with the new version.
+    restarting-hint: The page reloads as soon as the new version answers.
+    needs-actions: Update now works once actions are on, after the restart.
+    reason-pinned-tag: You run a pinned version tag, so there is nothing newer to pull. Use a tag like latest to get updates.
+    reason-unsupported: Dozzle can only replace itself when it runs as a single Docker container.
+    pull-denied: "Couldn't pull {image}. It may only exist on this machine, or the registry needs docker login."
   restart:
     title: Restart Dozzle
     subtitle: These changes are saved and start working after a restart.

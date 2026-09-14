@@ -70,6 +70,13 @@ const changes = computed(() => {
   if (enableActions != null)
     rows.push({ key: "actions", label: t("setup.actions.actions-label"), value: on(enableActions) });
   if (enableShell != null) rows.push({ key: "shell", label: t("setup.actions.shell-label"), value: on(enableShell) });
+  // Auto-update is saved already and needs no restart of its own, but it cannot run
+  // until the actions this restart turns on. Listed so the restart reads as what starts it.
+  const update = status.autoUpdate;
+  if (update && update.mode !== "off" && !status.enableActions && enableActions === true) {
+    const when = update.mode === "daily" ? t("setup.update.daily") : t("setup.update.weekly");
+    rows.push({ key: "update", label: t("setup.steps.update"), value: `${when} · ${update.time}` });
+  }
   return rows;
 });
 

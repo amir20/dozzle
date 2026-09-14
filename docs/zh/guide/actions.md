@@ -1,6 +1,6 @@
 ---
 title: 容器操作
-sourceHash: 7eab1f511f5f
+sourceHash: 7011f4c16a51
 ---
 
 # 容器操作
@@ -87,4 +87,4 @@ services:
 
 ### 更新 Dozzle 自身
 
-Dozzle 无法停止自己来就地更新，所以独立运行的 Dozzle 容器只会显示更新提示和一个指向发布说明的链接，而不是 `Update` 按钮。以 Swarm 服务方式运行的 Dozzle 则可以正常更新，因为更新交给了编排器。其他主机上的 Dozzle 代理是普通容器，和其他容器一样更新。
+Dozzle 自身容器上的 `Update` 操作会就地更新 Dozzle。它拉取新镜像，并把替换工作交给一个短暂存在的辅助容器，所以 Dozzle 会离开几秒钟，然后以新版本回来，配置和卷保持不变。它也可以按计划运行。关于哪些内容会保留以及哪些部署方式不受支持，请参阅 [自更新的工作原理](/zh/guide/setup-wizard#self-update)。以 Swarm 服务方式运行的 Dozzle 通过编排器更新。其他主机上的 Dozzle 代理是普通容器，和其他容器一样更新。

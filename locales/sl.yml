@@ -191,7 +191,6 @@ alert:
     title: 'Na voljo je posodobitev'
     message: 'Za {image} je bila objavljena novejša slika.'
     enable-actions: '<a href="https://dozzle.dev/guide/actions" target="_blank" rel="noreferrer noopener">Omogoči dejanja</a> za prenos in ponovno ustvarjanje od tu.'
-    self: 'Dozzle se ne more posodobiti sam, zato ga znova zaženi, da uveljaviš posodobitev.'
   redirected:
     title: Preusmerjeno v nov zabojnik
     message: Dozzle vas je samodejno preusmeril v nov zabojnik {containerId}.
@@ -773,6 +772,8 @@ setup:
     actions: Dejanja in lupina
     cloud: Dozzle Cloud
     cloud-note: Neobvezno
+    update: "Samodejna posodobitev"
+    update-note: "Potrebuje dejanja"
     restart: Ponovni zagon
   login:
     title: Vklopi prijavo
@@ -831,6 +832,28 @@ setup:
     connect: Poveži Dozzle Cloud
     learn-more: Več o tem
     skip: "Ne zdaj"
+  update:
+    pill-on: "Uporablja dejanja · vklopljeno"
+    pill-pending: "Vklopi se z dejanji"
+    title: "Ohrani Dozzle posodobljen"
+    subtitle: "Dozzle ob mirni uri prenese novo sliko in zamenja svoj vsebnik. Nastavitve, uporabniki in opozorila ostanejo."
+    auto-label: "Posodabljaj samodejno"
+    auto-desc: "Preveri, ali obstaja novejša slika, in zamenja Dozzle le, če ta obstaja."
+    when-label: "Kdaj"
+    time-label: "Čas"
+    server-time: "Uporablja časovni pas strežnika."
+    daily: "Dnevno"
+    weekly: "Tedensko ob nedeljah"
+    version-label: "Različica"
+    update-now: "Posodobi zdaj"
+    pulling: "Prenašanje nove slike"
+    up-to-date: "Dozzle je že posodobljen."
+    restarting: "Dozzle se zamenjuje z novo različico."
+    restarting-hint: "Stran se znova naloži, takoj ko se nova različica odzove."
+    needs-actions: "Posodobi zdaj deluje, ko so dejanja vklopljena, po ponovnem zagonu."
+    reason-pinned-tag: "Uporabljaš pripeto oznako različice, zato ni ničesar novejšega za prenos. Za posodobitve uporabi oznako, kot je latest."
+    reason-unsupported: "Dozzle se lahko zamenja le, ko teče kot en sam Docker vsebnik."
+    pull-denied: "{image} ni bilo mogoče prenesti. Morda obstaja samo na tem računalniku ali register zahteva docker login."
   restart:
     title: Znova zaženi Dozzle
     subtitle: Spremembe so shranjene in začnejo delovati po ponovnem zagonu.

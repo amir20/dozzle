@@ -8,6 +8,7 @@ import (
 	"errors"
 	"os"
 	"path/filepath"
+	"regexp"
 	"sync"
 	"time"
 
@@ -23,9 +24,34 @@ type File struct {
 	AuthProvider  *string `yaml:"authProvider,omitempty"`
 	EnableActions *bool   `yaml:"enableActions,omitempty"`
 	EnableShell   *bool   `yaml:"enableShell,omitempty"`
+	// AutoUpdate is off, daily or weekly. Unlike the settings above it is read
+	// again every minute, so changing it needs no restart.
+	AutoUpdate *string `yaml:"autoUpdate,omitempty"`
+	// AutoUpdateTime is "HH:MM" in the server's local time.
+	AutoUpdateTime *string `yaml:"autoUpdateTime,omitempty"`
 	// SetupWindowStartedAt is written just before the wizard restarts Dozzle,
 	// so the restart carries the no-login window forward instead of reopening it.
 	SetupWindowStartedAt *time.Time `yaml:"setupWindowStartedAt,omitempty"`
+}
+
+const (
+	AutoUpdateOff    = "off"
+	AutoUpdateDaily  = "daily"
+	AutoUpdateWeekly = "weekly"
+	// DefaultAutoUpdateTime is quiet on most servers.
+	DefaultAutoUpdateTime = "03:00"
+)
+
+var autoUpdateTimePattern = regexp.MustCompile(`^([01]\d|2[0-3]):[0-5]\d$`)
+
+// ValidAutoUpdateMode reports whether mode is off, daily or weekly.
+func ValidAutoUpdateMode(mode string) bool {
+	return mode == AutoUpdateOff || mode == AutoUpdateDaily || mode == AutoUpdateWeekly
+}
+
+// ValidAutoUpdateTime reports whether t is a 24h "HH:MM".
+func ValidAutoUpdateTime(t string) bool {
+	return autoUpdateTimePattern.MatchString(t)
 }
 
 var mu sync.Mutex
