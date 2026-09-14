@@ -331,52 +331,43 @@ command-palette:
   toggle-scrollbars: Toggle smaller scrollbars
   open-settings: Open settings
 settings:
-  help-support: >
-    Please support Dozzle by donating or sponsoring us on GitHub. Your contributions help us improve Dozzle for
-    everyone. Thank you! 🙏🏼
-  display-desc: Customize how logs and the rest of the app look. The preview reflects your changes live.
-  options-desc: Locale, navigation and grouping preferences.
+  subtitle: Preferences for this browser. Changes save automatically.
+  appearance: Appearance
+  logs: Logs
+  sidebar: Sidebar
+  behavior: Behavior
+  advanced: Advanced
+  instance: This instance
+  about: About
+  reset: Reset to defaults
+  sponsor: Sponsor
+  new-version: "{version} available"
   cloud-desc: Stream logs to Dozzle Cloud for AI-powered investigations and search across instances.
-  support-title: Support Dozzle
-  support-help: Donations help keep Dozzle free and maintained. Thank you 🙏
-  display: Display
-  locale: Override language
-  locale-desc: Defaults to your browser language.
-  small-scrollbars: Use smaller scrollbars
+  locale: Language
+  small-scrollbars: Thin scrollbars
   small-scrollbars-desc: Thinner scrollbars, handy on smaller displays.
   show-timestamps: Show timestamps
-  show-timestamps-desc: Prefix each line with the time it was written.
-  soft-wrap: Soft wrap lines
-  soft-wrap-desc: Wrap long lines instead of scrolling sideways.
+  soft-wrap: Soft wrap
   highlight-errors: Highlight error rows
-  highlight-errors-desc: Tint the background of error lines. The colored level marker is always shown.
-  datetime-format: Override date and time format
-  datetime-format-desc: Defaults to your browser locale and clock.
-  font-size: Font size to use for logs
-  font-size-desc: Applies to log output only, not the rest of the app.
-  color-scheme: Color scheme
-  color-scheme-desc: Auto follows your system setting.
-  options: Options
+  highlight-errors-desc: The colored level marker is always shown.
+  datetime-format: Date and time
+  font-size: Font size
+  color-scheme: Theme
   show-stopped-containers: Show stopped containers
-  show-stopped-containers-desc: Include exited containers in the sidebar and lists.
-  show-image-update-alert: Show a notification when a container has an update
-  show-image-update-alert-desc: Checks the registry for a newer tag of the running image.
-  show-app-icons: Show app icons
-  show-app-icons-desc: Match well known images to their logo. Icons ship with Dozzle and are never fetched from the internet.
-  group-containers: Group containers by namespace
-  group-containers-desc: Groups by Compose project, Swarm stack, or dev.dozzle.group.
-  search: Enable searching with Dozzle using
-  search-desc: Search inside the logs of the container you are viewing.
-  using-version: You are using <a href="https://dozzle.dev/" target="_blank" rel="noreferrer noopener">Dozzle</a> {version}.
-  update-available: >-
-    New version is available! Update to <a href="{href}" target="_blank"
-    rel="noreferrer noopener">{nextVersion}</a>.
+  show-image-update-alert: Image update alerts
+  show-image-update-alert-desc: Notify when a newer tag of a running image exists.
+  show-app-icons: App icons
+  show-app-icons-desc: Bundled with Dozzle, never fetched from the internet.
+  group-containers: Group containers
+  group-containers-desc: By Compose project, Swarm stack, or dev.dozzle.group.
+  search: Search logs with
+  search-desc: Replaces the browser's find while viewing a container.
   show-std: Show stdout and stderr labels
   show-std-desc: Mark whether a line came from stdout or stderr.
-  automatic-redirect: Automatically redirect to new containers with the same name
-  automatic-redirect-desc: When a container is replaced, follow it to the new one.
-  compact: Enable compact mode for logs
-  compact-desc: Reduce padding between log lines to fit more on screen.
+  automatic-redirect: Follow recreated containers
+  automatic-redirect-desc: When a container is replaced, jump to the new one.
+  compact: Compact mode
+  compact-desc: Tighter spacing so more lines fit on screen.
   size:
     small: Small
     medium: Medium

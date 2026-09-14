@@ -224,51 +224,43 @@ placeholder:
   find-logs: 在日誌中尋找或正規表示式
   search: 搜尋
 settings:
-  show-image-update-alert: '當容器有更新時顯示通知'
-  show-image-update-alert-desc: '檢查登錄檔中是否有執行中映像的較新標籤。'
-  help-support: >
-    請透過在 GitHub 上捐款或贊助我們來支持 Dozzle。您的貢獻幫助我們為所有人改進 Dozzle。謝謝！ 🙏🏼
-  display-desc: 自訂日誌和應用程式其餘部分的外觀。預覽會即時反映您的變更。
-  options-desc: 語言、導覽和群組偏好設定。
+  subtitle: 此瀏覽器的偏好設定。變更會自動儲存。
+  appearance: 外觀
+  logs: 日誌
+  sidebar: 側邊欄
+  behavior: 行為
+  advanced: 進階
+  instance: 此執行個體
+  about: 關於
+  reset: 重設為預設值
+  sponsor: 贊助
+  new-version: "{version} 已推出"
+  show-image-update-alert: '映像更新提醒'
+  show-image-update-alert-desc: '當執行中的映像有較新的標籤時通知。'
   cloud-desc: 將日誌串流至 Dozzle Cloud，進行 AI 驅動的調查和跨實例搜尋。
-  support-title: 支持 Dozzle
-  support-help: 捐款有助於維持 Dozzle 免費並持續維護。謝謝 🙏
-  display: 顯示
-  locale: 變更語言
-  locale-desc: '預設沿用瀏覽器的語言。'
-  small-scrollbars: 使用較小的捲軸
+  locale: 語言
+  small-scrollbars: 細捲軸
   small-scrollbars-desc: '較細的捲軸，在小螢幕上很實用。'
   show-timestamps: 顯示時間戳記
-  show-timestamps-desc: '在每一行前面加上寫入時間。'
   soft-wrap: 自動換行
-  soft-wrap-desc: '自動換行顯示長行，而非左右捲動。'
   highlight-errors: 醒目提示錯誤行
-  highlight-errors-desc: '為錯誤行加上背景色。彩色層級標記一律顯示。'
-  datetime-format: 變更日期與時間格式
-  datetime-format-desc: '預設沿用瀏覽器的語言與時間格式。'
-  font-size: 日誌字型大小
-  font-size-desc: '僅套用於日誌輸出，不影響應用程式其他部分。'
-  color-scheme: 顏色設定
-  color-scheme-desc: '自動會跟隨系統設定。'
-  options: 選項
+  highlight-errors-desc: '彩色等級標記會一直顯示。'
+  datetime-format: 日期和時間
+  font-size: 字型大小
+  color-scheme: 主題
   show-stopped-containers: 顯示已停止的容器
-  show-stopped-containers-desc: '在側邊欄與清單中顯示已停止的容器。'
-  group-containers: 依命名空間分組容器
-  group-containers-desc: '依 Compose 專案、Swarm 堆疊或 dev.dozzle.group 分組。'
-  show-app-icons: '顯示應用程式圖示'
-  show-app-icons-desc: '將常見映像對應到其標誌。圖示隨 Dozzle 一起提供，不會從網際網路下載。'
-  search: 啟用 Dozzle 搜尋功能
-  search-desc: '在目前檢視的容器日誌中搜尋。'
-  using-version: 您目前使用的是 <a href="https://dozzle.dev/" target="_blank" rel="noreferrer noopener">Dozzle</a> {version}。
-  update-available: >-
-    有新版本可用！請更新至 <a href="{href}" target="_blank"
-    rel="noreferrer noopener">{nextVersion}</a>。
+  group-containers: 容器分組
+  group-containers-desc: '依 Compose 專案、Swarm 堆疊或 dev.dozzle.group。'
+  show-app-icons: '應用程式圖示'
+  show-app-icons-desc: '隨 Dozzle 內建，絕不從網路下載。'
+  search: 搜尋日誌
+  search-desc: '檢視容器時取代瀏覽器的尋找功能。'
   show-std: 顯示標準輸出(stdout)與標準錯誤(stderr)標籤
   show-std-desc: '標示該行來自 stdout 或 stderr。'
-  automatic-redirect: 自動重新導向至相同名稱的新容器
-  automatic-redirect-desc: '當容器被取代時，自動切換到新的容器。'
-  compact: 啟用緊湊模式
-  compact-desc: '縮小日誌行之間的間距，讓畫面顯示更多內容。'
+  automatic-redirect: 跟隨重新建立的容器
+  automatic-redirect-desc: '容器被取代時，跳到新的容器。'
+  compact: 緊湊模式
+  compact-desc: '縮小間距，讓螢幕顯示更多行。'
   size:
     small: 小
     medium: 中

@@ -222,50 +222,43 @@ placeholder:
   find-logs: In Logs suchen oder Regex
   search: Suche
 settings:
-  show-image-update-alert: 'Benachrichtigung anzeigen, wenn ein Container ein Update hat'
-  show-image-update-alert-desc: 'Prüft die Registry auf einen neueren Tag des laufenden Images.'
-  help-support: >
-    Bitte unterstützen Sie Dozzle durch Spenden oder Sponsoring auf GitHub. Ihre Beiträge helfen uns, Dozzle für alle zu verbessern. Vielen Dank! 🙏🏼
-  display-desc: Passen Sie an, wie Logs und der Rest der App aussehen. Die Vorschau zeigt Ihre Änderungen live.
-  options-desc: Einstellungen für Sprache, Navigation und Gruppierung.
+  subtitle: Einstellungen für diesen Browser. Änderungen werden automatisch gespeichert.
+  appearance: Darstellung
+  logs: Logs
+  sidebar: Seitenleiste
+  behavior: Verhalten
+  advanced: Erweitert
+  instance: Diese Instanz
+  about: Über
+  reset: Auf Standard zurücksetzen
+  sponsor: Sponsern
+  new-version: "{version} verfügbar"
+  show-image-update-alert: 'Image-Update-Hinweise'
+  show-image-update-alert-desc: 'Benachrichtigen, wenn ein neuerer Tag eines laufenden Images existiert.'
   cloud-desc: Streamen Sie Logs an Dozzle Cloud für KI-gestützte Analysen und Suche über Instanzen hinweg.
-  support-title: Dozzle unterstützen
-  support-help: Spenden helfen, Dozzle kostenlos und gepflegt zu halten. Vielen Dank 🙏
-  display: Anzeige
-  locale: Sprache überschreiben
-  locale-desc: 'Folgt standardmäßig der Sprache deines Browsers.'
-  small-scrollbars: Verwende kleinere Scrollbars
+  locale: Sprache
+  small-scrollbars: Schmale Scrollleisten
   small-scrollbars-desc: 'Schmalere Scrollleisten, praktisch auf kleineren Bildschirmen.'
   show-timestamps: Zeige Zeitstempel
-  show-timestamps-desc: 'Jeder Zeile die Uhrzeit voranstellen, zu der sie geschrieben wurde.'
   soft-wrap: Zeilenumbruch
-  soft-wrap-desc: 'Lange Zeilen umbrechen statt seitwärts zu scrollen.'
   highlight-errors: Fehlerzeilen hervorheben
-  highlight-errors-desc: 'Färbt den Hintergrund von Fehlerzeilen ein. Die farbige Level-Markierung wird immer angezeigt.'
-  datetime-format: Datums- und Zeitformat
-  datetime-format-desc: 'Folgt standardmäßig der Sprache und Uhrzeit deines Browsers.'
-  font-size: Schriftgröße für Logs
-  font-size-desc: 'Gilt nur für die Logausgabe, nicht für den Rest der App.'
-  color-scheme: Farbschema
-  color-scheme-desc: 'Auto folgt deiner Systemeinstellung.'
-  options: Optionen
+  highlight-errors-desc: 'Die farbige Level-Markierung wird immer angezeigt.'
+  datetime-format: Datum und Uhrzeit
+  font-size: Schriftgröße
+  color-scheme: Design
   show-stopped-containers: Zeige gestoppte Container
-  show-stopped-containers-desc: 'Beendete Container in der Seitenleiste und in Listen anzeigen.'
-  group-containers: Container nach Namespace gruppieren
-  group-containers-desc: 'Gruppiert nach Compose-Projekt, Swarm-Stack oder dev.dozzle.group.'
-  show-app-icons: 'App-Symbole anzeigen'
-  show-app-icons-desc: 'Bekannte Images ihrem Logo zuordnen. Die Symbole sind in Dozzle enthalten und werden nie aus dem Internet geladen.'
-  search: Aktiviere die Suche mit Dozzle mit
-  search-desc: 'Durchsucht die Logs des Containers, den du gerade ansiehst.'
-  using-version: Du verwendest <a href="https://dozzle.dev/" target="_blank" rel="noreferrer noopener">Dozzle</a> {version}.
-  update-available: >-
-    Eine neue Version ist verfügbar! Aktualisiere auf <a href="{href}" target="_blank" rel="noreferrer noopener">{nextVersion}</a>.
+  group-containers: Container gruppieren
+  group-containers-desc: 'Nach Compose-Projekt, Swarm-Stack oder dev.dozzle.group.'
+  show-app-icons: 'App-Symbole'
+  show-app-icons-desc: 'In Dozzle enthalten, nie aus dem Internet geladen.'
+  search: Logs durchsuchen mit
+  search-desc: 'Ersetzt die Browsersuche, während ein Container angezeigt wird.'
   show-std: Zeige stdout und stderr Labels
   show-std-desc: 'Kennzeichnen, ob eine Zeile von stdout oder stderr stammt.'
-  automatic-redirect: Automatische Weiterleitung zu neuen Containern mit demselben Namen
-  automatic-redirect-desc: 'Wird ein Container ersetzt, zum neuen wechseln.'
-  compact: Aktiviere den kompakten Modus für Logs
-  compact-desc: 'Abstände zwischen Logzeilen verringern, damit mehr auf den Bildschirm passt.'
+  automatic-redirect: Neu erstellten Containern folgen
+  automatic-redirect-desc: 'Wird ein Container ersetzt, zum neuen springen.'
+  compact: Kompaktmodus
+  compact-desc: 'Engere Abstände, damit mehr Zeilen auf den Bildschirm passen.'
   size:
     small: Klein
     medium: Mittel

@@ -222,50 +222,43 @@ placeholder:
   find-logs: Rechercher dans les logs ou regex
   search: Recherche
 settings:
-  show-image-update-alert: 'Afficher une notification lorsqu''un conteneur a une mise à jour'
-  show-image-update-alert-desc: 'Vérifie dans le registre s''il existe un tag plus récent de l''image.'
-  help-support: >
-    Veuillez soutenir Dozzle en faisant un don ou en nous parrainant sur GitHub. Vos contributions nous aident à améliorer Dozzle pour tout le monde. Merci ! 🙏🏼
-  display-desc: Personnalisez l'apparence des logs et du reste de l'application. L'aperçu reflète vos modifications en direct.
-  options-desc: Préférences de langue, de navigation et de regroupement.
+  subtitle: Préférences pour ce navigateur. Les modifications sont enregistrées automatiquement.
+  appearance: Apparence
+  logs: Logs
+  sidebar: Barre latérale
+  behavior: Comportement
+  advanced: Avancé
+  instance: Cette instance
+  about: À propos
+  reset: Rétablir les valeurs par défaut
+  sponsor: Sponsoriser
+  new-version: "{version} disponible"
+  show-image-update-alert: 'Alertes de mise à jour d''image'
+  show-image-update-alert-desc: 'Prévenir lorsqu''un tag plus récent d''une image en cours d''exécution existe.'
   cloud-desc: Diffusez les logs vers Dozzle Cloud pour des analyses assistées par IA et la recherche entre instances.
-  support-title: Soutenir Dozzle
-  support-help: Les dons aident à garder Dozzle gratuit et maintenu. Merci 🙏
-  display: Afficher
-  locale: Langue de remplacement
-  locale-desc: 'Suit par défaut la langue de votre navigateur.'
-  small-scrollbars: Utiliser des barres de défilement plus petites
+  locale: Langue
+  small-scrollbars: Barres de défilement fines
   small-scrollbars-desc: 'Barres de défilement plus fines, pratiques sur les petits écrans.'
   show-timestamps: Afficher les horodatages
-  show-timestamps-desc: 'Préfixe chaque ligne avec l''heure à laquelle elle a été écrite.'
-  soft-wrap: Lignes d'enroulement souples
-  soft-wrap-desc: 'Renvoie les lignes longues à la ligne au lieu de défiler latéralement.'
+  soft-wrap: Retour à la ligne
   highlight-errors: Mettre en évidence les lignes d'erreur
-  highlight-errors-desc: "Colore l'arrière-plan des lignes d'erreur. Le marqueur de niveau reste toujours visible."
-  datetime-format: Remplacer le format de la date et de l'heure
-  datetime-format-desc: 'Suit par défaut la langue et l''horloge de votre navigateur.'
-  font-size: Taille de police à utiliser pour les journaux
-  font-size-desc: 'S''applique uniquement aux logs, pas au reste de l''application.'
-  color-scheme: Schéma de couleurs
-  color-scheme-desc: 'Auto suit le réglage de votre système.'
-  options: Options
+  highlight-errors-desc: "Le marqueur de niveau coloré est toujours affiché."
+  datetime-format: Date et heure
+  font-size: Taille de police
+  color-scheme: Thème
   show-stopped-containers: Afficher les conteneurs arrêtés
-  show-stopped-containers-desc: 'Inclut les conteneurs arrêtés dans la barre latérale et les listes.'
-  group-containers: Regrouper les conteneurs par namespace
-  group-containers-desc: 'Regroupe par projet Compose, stack Swarm ou dev.dozzle.group.'
-  show-app-icons: 'Afficher les icônes des applications'
-  show-app-icons-desc: 'Associe les images connues à leur logo. Les icônes sont fournies avec Dozzle et ne sont jamais téléchargées depuis internet.'
-  search: Activer la recherche avec Dozzle en utilisant
-  search-desc: 'Recherche dans les logs du conteneur que vous consultez.'
-  using-version: Vous utilisez <a href="https://dozzle.dev/" target="_blank" rel="noreferrer noopener">Dozzle</a> {version}.
-  update-available: >-
-    Nouvelle version disponible! Mise à jour de <a href="{href}" target="_blank" rel="noreferrer noopener">{nextVersion}</a>.
+  group-containers: Grouper les conteneurs
+  group-containers-desc: 'Par projet Compose, stack Swarm ou dev.dozzle.group.'
+  show-app-icons: 'Icônes d''applications'
+  show-app-icons-desc: 'Fournies avec Dozzle, jamais téléchargées depuis Internet.'
+  search: Rechercher dans les logs avec
+  search-desc: 'Remplace la recherche du navigateur lors de l''affichage d''un conteneur.'
   show-std: Afficher les étiquettes stdout et stderr
   show-std-desc: 'Indique si une ligne provient de stdout ou de stderr.'
-  automatic-redirect: Redirection automatique vers de nouveaux conteneurs portant le même nom
-  automatic-redirect-desc: 'Lorsqu''un conteneur est remplacé, basculer vers le nouveau.'
-  compact: Activer le mode compact pour les journaux
-  compact-desc: 'Réduit l''espacement entre les lignes pour en afficher davantage.'
+  automatic-redirect: Suivre les conteneurs recréés
+  automatic-redirect-desc: 'Quand un conteneur est remplacé, passer au nouveau.'
+  compact: Mode compact
+  compact-desc: 'Espacement réduit pour afficher plus de lignes à l''écran.'
   size:
     small: Petit
     medium: Moyen
