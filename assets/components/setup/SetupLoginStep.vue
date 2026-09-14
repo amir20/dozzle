@@ -57,6 +57,8 @@
 
     <!-- Pick one. -->
     <div v-else class="mt-6 flex flex-col gap-5">
+      <!-- Said up front, so nobody fills in the form only to have it refused. -->
+      <InlineNotice v-if="!status.canWrite" type="warning">{{ $t("setup.error.window-closed") }}</InlineNotice>
       <div role="tablist" class="tabs tabs-box tabs-sm w-fit">
         <button
           v-for="tab in tabs"
@@ -236,7 +238,8 @@ function messageFor(e: unknown) {
   if (e instanceof SetupError) {
     if (e.status === 409) return t("setup.error.conflict");
     if (e.status === 412) return t("setup.error.no-data");
-    if (e.status === 403) return t("setup.error.forbidden");
+    // Login writes only run with auth off, so a 403 here is always the window.
+    if (e.status === 403) return t("setup.error.window-closed");
   }
   return t("setup.error.generic");
 }

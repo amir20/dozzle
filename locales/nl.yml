@@ -842,4 +842,4 @@ setup:
     load: Kan de installatie niet laden. Probeer het later opnieuw.
     conflict: Dit is al ingesteld, of vastgelegd door een omgevingsvariabele.
     no-data: /data is niet gekoppeld, dus dit kan niet worden opgeslagen.
-    forbidden: Je hebt geen toestemming om dit te wijzigen.
+    window-closed: "De installatie accepteert 15 minuten na het starten van Dozzle geen wijzigingen meer. Herstart de Dozzle-container om hier een account aan te maken, of zet inloggen aan met omgevingsvariabelen."

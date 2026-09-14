@@ -853,4 +853,4 @@ setup:
     load: "Tidak dapat memuat penyiapan. Coba lagi nanti."
     conflict: "Ini sudah disetel, atau ditetapkan oleh variabel lingkungan."
     no-data: "/data tidak di-mount, jadi ini tidak dapat disimpan."
-    forbidden: "Anda tidak diizinkan mengubah ini."
+    window-closed: "Penyiapan berhenti menerima perubahan 15 menit setelah Dozzle dimulai. Mulai ulang kontainer Dozzle untuk membuat akun di sini, atau aktifkan login dengan variabel lingkungan."

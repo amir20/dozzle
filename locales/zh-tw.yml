@@ -844,4 +844,4 @@ setup:
     load: 無法載入設定精靈，請稍後再試。
     conflict: 此項已設定，或已由環境變數固定。
     no-data: 未掛載 /data，因此無法儲存。
-    forbidden: 你無權變更此項。
+    window-closed: "Dozzle 啟動 15 分鐘後，設定已不再接受變更。重新啟動 Dozzle 容器即可在此建立帳號，或使用環境變數開啟登入。"

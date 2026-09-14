@@ -841,4 +841,4 @@ setup:
     load: "Die Einrichtung konnte nicht geladen werden. Versuchen Sie es später erneut."
     conflict: "Dies ist bereits gesetzt oder durch eine Umgebungsvariable festgelegt."
     no-data: "/data ist nicht eingebunden, daher kann dies nicht gespeichert werden."
-    forbidden: "Sie dürfen dies nicht ändern."
+    window-closed: "Die Einrichtung nimmt 15 Minuten nach dem Start von Dozzle keine Änderungen mehr an. Starten Sie den Dozzle-Container neu, um hier ein Konto anzulegen, oder aktivieren Sie die Anmeldung über Umgebungsvariablen."

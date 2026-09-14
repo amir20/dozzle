@@ -841,4 +841,4 @@ setup:
     load: 无法加载设置向导，请稍后再试。
     conflict: 该项已设置，或已由环境变量固定。
     no-data: 未挂载 /data，因此无法保存。
-    forbidden: 你无权更改此项。
+    window-closed: "Dozzle 启动 15 分钟后，设置已不再接受更改。重启 Dozzle 容器即可在此创建账户，或使用环境变量开启登录。"

@@ -844,4 +844,4 @@ setup:
     load: Nie można załadować konfiguracji. Spróbuj ponownie później.
     conflict: To jest już ustawione lub określone przez zmienną środowiskową.
     no-data: /data nie jest zamontowany, więc nie można tego zapisać.
-    forbidden: Nie masz uprawnień, aby to zmienić.
+    window-closed: "Konfiguracja przestała przyjmować zmiany 15 minut po uruchomieniu Dozzle. Zrestartuj kontener Dozzle, aby utworzyć tutaj konto, lub włącz logowanie zmiennymi środowiskowymi."

@@ -847,4 +847,4 @@ setup:
     load: Nastavitve ni bilo mogoče naložiti. Poskusite pozneje.
     conflict: To je že nastavljeno ali določeno z okoljsko spremenljivko.
     no-data: /data ni priklopljen, zato tega ni mogoče shraniti.
-    forbidden: Tega ne smete spreminjati.
+    window-closed: "Nastavitev 15 minut po zagonu Dozzla ne sprejema več sprememb. Znova zaženite vsebnik Dozzle, da tukaj ustvarite račun, ali vklopite prijavo z okoljskimi spremenljivkami."

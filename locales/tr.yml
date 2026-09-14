@@ -845,4 +845,4 @@ setup:
     load: Kurulum yüklenemedi. Daha sonra tekrar deneyin.
     conflict: Bu zaten ayarlanmış veya bir ortam değişkeniyle sabitlenmiş.
     no-data: /data bağlı değil, bu yüzden bu kaydedilemiyor.
-    forbidden: Bunu değiştirme izniniz yok.
+    window-closed: "Kurulum, Dozzle başladıktan 15 dakika sonra değişiklik kabul etmeyi bıraktı. Burada hesap oluşturmak için Dozzle konteynerini yeniden başlatın veya girişi ortam değişkenleriyle açın."

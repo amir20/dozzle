@@ -841,4 +841,4 @@ setup:
     load: Impossibile caricare la configurazione. Riprova più tardi.
     conflict: Questo è già impostato, o fissato da una variabile d'ambiente.
     no-data: /data non è montato, quindi non è possibile salvare.
-    forbidden: Non hai il permesso di modificare questo.
+    window-closed: "La configurazione non accetta più modifiche 15 minuti dopo l'avvio di Dozzle. Riavvia il container di Dozzle per creare un account qui, oppure attiva l'accesso con variabili d'ambiente."

@@ -851,4 +851,4 @@ setup:
     load: Could not load setup. Try again later.
     conflict: This is already set, or fixed by an environment variable.
     no-data: /data is not mounted, so this can't be saved.
-    forbidden: You are not allowed to change this.
+    window-closed: "Setup stopped accepting changes 15 minutes after Dozzle started. Restart the Dozzle container to create an account here, or turn on login with environment variables."

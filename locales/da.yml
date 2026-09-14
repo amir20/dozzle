@@ -841,4 +841,4 @@ setup:
     load: "Kunne ikke indlæse opsætningen. Prøv igen senere."
     conflict: "Dette er allerede sat eller fastlåst af en miljøvariabel."
     no-data: "/data er ikke monteret, så dette kan ikke gemmes."
-    forbidden: "Du har ikke tilladelse til at ændre dette."
+    window-closed: "Opsætningen holdt op med at tage imod ændringer 15 minutter efter, at Dozzle startede. Genstart Dozzle-containeren for at oprette en konto her, eller slå login til med miljøvariabler."
