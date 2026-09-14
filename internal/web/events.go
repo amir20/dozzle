@@ -1,13 +1,13 @@
 package web
 
 import (
-	"github.com/amir20/dozzle/internal/hostservice"
 	"net/http"
 	"time"
 
 	"github.com/amir20/dozzle/internal/analytics"
 	"github.com/amir20/dozzle/internal/auth"
 	"github.com/amir20/dozzle/internal/container"
+	"github.com/amir20/dozzle/internal/hostservice"
 	"github.com/amir20/dozzle/internal/web/sse"
 	"github.com/amir20/dozzle/types"
 	"github.com/rs/zerolog/log"

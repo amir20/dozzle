@@ -1,4 +1,4 @@
-package container
+package logparse
 
 import (
 	"math"
@@ -6,6 +6,8 @@ import (
 	"sort"
 	"strconv"
 	"strings"
+
+	"github.com/amir20/dozzle/internal/container"
 
 	"github.com/rs/zerolog/log"
 	orderedmap "github.com/wk8/go-ordered-map/v2"
@@ -127,7 +129,7 @@ func otelSeverityText(s string) string {
 	if level := normalizeLogLevel(s); level != "unknown" {
 		return level
 	}
-	s = StripANSI(s)
+	s = container.StripANSI(s)
 	if n := len(s); n > 1 && s[n-1] >= '1' && s[n-1] <= '4' {
 		return normalizeLogLevel(s[:n-1])
 	}
@@ -171,7 +173,7 @@ func init() {
 	}
 }
 
-func guessLogLevel(logEvent *LogEvent) string {
+func guessLogLevel(logEvent *container.LogEvent) string {
 	switch value := logEvent.Message.(type) {
 	case string:
 		return guessFromString(value)
@@ -251,7 +253,7 @@ var singleLetterToLevel = map[byte]string{
 }
 
 func guessFromString(value string) string {
-	value = StripANSI(value)
+	value = container.StripANSI(value)
 	value = timestampRegex.ReplaceAllString(value, "")
 	for _, tier := range levelTiers {
 		level := ""
@@ -282,7 +284,7 @@ func guessFromString(value string) string {
 }
 
 func normalizeLogLevel(level string) string {
-	level = StripANSI(level)
+	level = container.StripANSI(level)
 	level = strings.ToLower(level)
 	if canonical, ok := aliasToCanonical[level]; ok {
 		return canonical

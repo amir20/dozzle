@@ -4,7 +4,6 @@ import (
 	"context"
 	"embed"
 	"fmt"
-	"github.com/amir20/dozzle/internal/hostservice"
 	"io/fs"
 
 	"net"
@@ -27,6 +26,7 @@ import (
 	"github.com/amir20/dozzle/internal/container/agent"
 	"github.com/amir20/dozzle/internal/container/docker"
 	"github.com/amir20/dozzle/internal/container/k8s"
+	"github.com/amir20/dozzle/internal/hostservice"
 	"github.com/amir20/dozzle/internal/imagecheck"
 	"github.com/amir20/dozzle/internal/notification/dispatcher"
 	"github.com/amir20/dozzle/internal/web"

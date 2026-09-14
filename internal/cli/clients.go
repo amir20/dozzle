@@ -3,10 +3,10 @@ package cli
 import (
 	"context"
 	"embed"
-	"github.com/amir20/dozzle/internal/hostservice"
 
 	"github.com/amir20/dozzle/internal/container"
 	"github.com/amir20/dozzle/internal/container/docker"
+	"github.com/amir20/dozzle/internal/hostservice"
 	"github.com/rs/zerolog/log"
 )
 

@@ -3,14 +3,14 @@ package web
 import (
 	"context"
 	"crypto/tls"
-	"github.com/amir20/dozzle/internal/container/docker"
-	"github.com/amir20/dozzle/internal/hostservice"
 	"time"
 
 	"io"
 	"io/fs"
 
 	"github.com/amir20/dozzle/internal/container"
+	"github.com/amir20/dozzle/internal/container/docker"
+	"github.com/amir20/dozzle/internal/hostservice"
 	"github.com/go-chi/chi/v5"
 	docker_types "github.com/moby/moby/api/types/container"
 	"github.com/moby/moby/api/types/system"

@@ -4,13 +4,13 @@ import (
 	"context"
 	"crypto/tls"
 	"fmt"
-	"github.com/amir20/dozzle/internal/container/docker"
 	"slices"
 	"sync"
 	"time"
 
 	"github.com/amir20/dozzle/internal/container"
 	"github.com/amir20/dozzle/internal/container/agent"
+	"github.com/amir20/dozzle/internal/container/docker"
 
 	"github.com/puzpuzpuz/xsync/v4"
 	"github.com/samber/lo"

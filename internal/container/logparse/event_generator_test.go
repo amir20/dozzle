@@ -1,4 +1,4 @@
-package container
+package logparse
 
 import (
 	"context"
@@ -8,6 +8,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/amir20/dozzle/internal/container"
+
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	orderedmap "github.com/wk8/go-ordered-map/v2"
@@ -15,14 +17,14 @@ import (
 
 func TestEventGenerator_Pino(t *testing.T) {
 	const message = `{"level":30,"time":1788571152988,"pid":1,"hostname":"example","msg":"Service started"}`
-	for _, stream := range []StdType{STDOUT, STDERR} {
+	for _, stream := range []container.StdType{container.STDOUT, container.STDERR} {
 		t.Run(stream.String(), func(t *testing.T) {
-			g := NewEventGenerator(context.Background(), makeFakeReader("2026-09-05T00:00:00Z "+message, stream), Container{})
+			g := NewEventGenerator(context.Background(), makeFakeReader("2026-09-05T00:00:00Z "+message, stream), container.Container{})
 			event := <-g.Events
 
 			require.NotNil(t, event)
 			assert.Equal(t, "info", event.Level)
-			assert.Equal(t, LogTypeComplex, event.Type)
+			assert.Equal(t, container.LogTypeComplex, event.Type)
 			assert.Equal(t, stream.String(), event.Stream)
 			assert.Equal(t, message, event.RawMessage)
 			data, ok := event.Message.(*orderedmap.OrderedMap[string, any])
@@ -37,29 +39,29 @@ func TestEventGenerator_Pino(t *testing.T) {
 func TestEventGenerator_Events_tty(t *testing.T) {
 	input := "example input"
 
-	g := NewEventGenerator(context.Background(), makeFakeReader(input, STDOUT), Container{Tty: true})
+	g := NewEventGenerator(context.Background(), makeFakeReader(input, container.STDOUT), container.Container{Tty: true})
 	event := <-g.Events
 
 	require.NotNil(t, event, "Expected event to not be nil, but got nil")
 	assert.Equal(t, input, event.Message)
-	assert.Equal(t, LogTypeSingle, event.Type)
+	assert.Equal(t, container.LogTypeSingle, event.Type)
 }
 
 func TestEventGenerator_Events_non_tty(t *testing.T) {
 	input := "example input"
 
-	g := NewEventGenerator(context.Background(), makeFakeReader(input, STDOUT), Container{Tty: false})
+	g := NewEventGenerator(context.Background(), makeFakeReader(input, container.STDOUT), container.Container{Tty: false})
 	event := <-g.Events
 
 	require.NotNil(t, event, "Expected event to not be nil, but got nil")
 	assert.Equal(t, input, event.Message)
-	assert.Equal(t, LogTypeSingle, event.Type)
+	assert.Equal(t, container.LogTypeSingle, event.Type)
 }
 
 func TestEventGenerator_Events_non_tty_close_channel(t *testing.T) {
 	input := "example input"
 
-	g := NewEventGenerator(context.Background(), makeFakeReader(input, STDOUT), Container{Tty: false})
+	g := NewEventGenerator(context.Background(), makeFakeReader(input, container.STDOUT), container.Container{Tty: false})
 	<-g.Events
 	_, ok := <-g.Events
 
@@ -69,18 +71,18 @@ func TestEventGenerator_Events_non_tty_close_channel(t *testing.T) {
 func TestEventGenerator_Events_routines_done(t *testing.T) {
 	input := "example input"
 
-	g := NewEventGenerator(context.Background(), makeFakeReader(input, STDOUT), Container{Tty: false})
+	g := NewEventGenerator(context.Background(), makeFakeReader(input, container.STDOUT), container.Container{Tty: false})
 	<-g.Events
 	assert.False(t, waitTimeout(&g.wg, 1*time.Second), "Expected routines to be done")
 }
 
 type mockLogReader struct {
 	messages []string
-	types    []StdType
+	types    []container.StdType
 	i        int
 }
 
-func (m *mockLogReader) Read() (string, StdType, error) {
+func (m *mockLogReader) Read() (string, container.StdType, error) {
 	if m.i >= len(m.messages) {
 		return "", 0, io.EOF
 	}
@@ -88,10 +90,10 @@ func (m *mockLogReader) Read() (string, StdType, error) {
 	return m.messages[m.i-1], m.types[m.i-1], nil
 }
 
-func makeFakeReader(message string, stream StdType) LogReader {
+func makeFakeReader(message string, stream container.StdType) LogReader {
 	return &mockLogReader{
 		messages: []string{message},
-		types:    []StdType{stream},
+		types:    []container.StdType{stream},
 	}
 }
 
@@ -110,7 +112,7 @@ func waitTimeout(wg *sync.WaitGroup, timeout time.Duration) bool {
 }
 
 // steadyLevellessReader emits simple, level-less, timestamped lines forever,
-// spaced under both maxGroupTimeDelta (so they look groupable) and the peek
+// spaced under both MaxGroupTimeDelta (so they look groupable) and the peek
 // timeout (so peek never reports a gap). It stops when ctx is cancelled.
 type steadyLevellessReader struct {
 	ctx   context.Context
@@ -120,7 +122,7 @@ type steadyLevellessReader struct {
 	i     int
 }
 
-func (r *steadyLevellessReader) Read() (string, StdType, error) {
+func (r *steadyLevellessReader) Read() (string, container.StdType, error) {
 	select {
 	case <-r.ctx.Done():
 		return "", 0, io.EOF
@@ -128,21 +130,21 @@ func (r *steadyLevellessReader) Read() (string, StdType, error) {
 	}
 	ts := r.base.Add(time.Duration(r.i) * r.step).Format(time.RFC3339Nano)
 	r.i++
-	return ts + " lorem ipsum dolor sit amet", STDOUT, nil
+	return ts + " lorem ipsum dolor sit amet", container.STDOUT, nil
 }
 
 func TestEventGenerator_doesNotStallOnSustainedLevellessStream(t *testing.T) {
 	// Reproduces the live-log stall: a busy container whose backlog has rotated
 	// away streams from a point far past its start, so skipOrphanedLines never
 	// short-circuits. With sustained level-less lines spaced under
-	// maxGroupTimeDelta, every line looks like an orphaned continuation, so the
+	// MaxGroupTimeDelta, every line looks like an orphaned continuation, so the
 	// skip loop buffers forever and the UI shows "no logs". The generator must
 	// give up and emit instead.
 	ctx := t.Context()
 
 	reader := &steadyLevellessReader{ctx: ctx, base: time.Now(), step: time.Millisecond, delay: time.Millisecond}
 	// startedAt far in the past so the near-start short-circuit cannot fire
-	g := NewEventGenerator(ctx, reader, Container{StartedAt: time.Now().Add(-time.Hour)})
+	g := NewEventGenerator(ctx, reader, container.Container{StartedAt: time.Now().Add(-time.Hour)})
 
 	select {
 	case event := <-g.Events:
@@ -162,14 +164,14 @@ func Test_createEvent(t *testing.T) {
 	tests := []struct {
 		name string
 		args args
-		want *LogEvent
+		want *container.LogEvent
 	}{
 		{
 			name: "empty message",
 			args: args{
 				message: "",
 			},
-			want: &LogEvent{
+			want: &container.LogEvent{
 				Message: "",
 			},
 		}, {
@@ -177,7 +179,7 @@ func Test_createEvent(t *testing.T) {
 			args: args{
 				message: "2020-05-13T18:55:37.772853839Z {\"xyz\": \"value\", \"abc\": \"value2\"}",
 			},
-			want: &LogEvent{
+			want: &container.LogEvent{
 				Message: data,
 			},
 		},
@@ -186,7 +188,7 @@ func Test_createEvent(t *testing.T) {
 			args: args{
 				message: "2020-05-13T18:55:37.772853839Z {\"key\"}",
 			},
-			want: &LogEvent{
+			want: &container.LogEvent{
 				Message: "{\"key\"}",
 			},
 		},
@@ -195,7 +197,7 @@ func Test_createEvent(t *testing.T) {
 			args: args{
 				message: "2020-05-13T18:55:37.772853839Z 123",
 			},
-			want: &LogEvent{
+			want: &container.LogEvent{
 				Message: "123",
 			},
 		},
@@ -204,7 +206,7 @@ func Test_createEvent(t *testing.T) {
 			args: args{
 				message: "2020-05-13T18:55:37.772853839Z sample text with=equal sign",
 			},
-			want: &LogEvent{
+			want: &container.LogEvent{
 				Message: "sample text with=equal sign",
 			},
 		},
@@ -213,7 +215,7 @@ func Test_createEvent(t *testing.T) {
 			args: args{
 				message: "2020-05-13T18:55:37.772853839Z null",
 			},
-			want: &LogEvent{
+			want: &container.LogEvent{
 				Message: "",
 			},
 		},
@@ -221,7 +223,7 @@ func Test_createEvent(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := createEvent(tt.args.message, STDOUT); !reflect.DeepEqual(got.Message, tt.want.Message) {
+			if got := createEvent(tt.args.message, container.STDOUT); !reflect.DeepEqual(got.Message, tt.want.Message) {
 				t.Errorf("createEvent() = %v, want %v", got.Message, tt.want.Message)
 			}
 		})
@@ -231,11 +233,11 @@ func Test_createEvent(t *testing.T) {
 func TestEventGenerator_ComplexLog(t *testing.T) {
 	input := "2020-05-13T18:55:37.772853839Z {\"level\": \"info\", \"message\": \"test\"}"
 
-	g := NewEventGenerator(context.Background(), makeFakeReader(input, STDOUT), Container{Tty: false})
+	g := NewEventGenerator(context.Background(), makeFakeReader(input, container.STDOUT), container.Container{Tty: false})
 	event := <-g.Events
 
 	require.NotNil(t, event, "Expected event to not be nil")
-	assert.Equal(t, LogTypeComplex, event.Type)
+	assert.Equal(t, container.LogTypeComplex, event.Type)
 	_, isMap := event.Message.(*orderedmap.OrderedMap[string, any])
 	assert.True(t, isMap, "Expected Message to be an ordered map")
 }
@@ -251,16 +253,16 @@ func TestEventGenerator_GroupedSimpleLogs(t *testing.T) {
 
 	reader := &mockLogReader{
 		messages: messages,
-		types:    []StdType{STDERR, STDERR, STDERR},
+		types:    []container.StdType{container.STDERR, container.STDERR, container.STDERR},
 	}
 
-	g := NewEventGenerator(context.Background(), reader, Container{Tty: false})
+	g := NewEventGenerator(context.Background(), reader, container.Container{Tty: false})
 	event := <-g.Events
 
 	require.NotNil(t, event, "Expected event to not be nil")
-	assert.Equal(t, LogTypeGroup, event.Type)
+	assert.Equal(t, container.LogTypeGroup, event.Type)
 
-	fragments, ok := event.Message.([]LogFragment)
+	fragments, ok := event.Message.([]container.LogFragment)
 	require.True(t, ok, "Expected Message to be []LogFragment")
 	assert.Len(t, fragments, 3)
 	assert.Equal(t, "ERROR: Something went wrong", fragments[0].Message)
@@ -271,11 +273,11 @@ func TestEventGenerator_GroupedSimpleLogs(t *testing.T) {
 func TestEventGenerator_SingleSimpleLog(t *testing.T) {
 	input := "2020-05-13T18:55:37.772853839Z INFO: Single log message"
 
-	g := NewEventGenerator(context.Background(), makeFakeReader(input, STDOUT), Container{Tty: false})
+	g := NewEventGenerator(context.Background(), makeFakeReader(input, container.STDOUT), container.Container{Tty: false})
 	event := <-g.Events
 
 	require.NotNil(t, event, "Expected event to not be nil")
-	assert.Equal(t, LogTypeSingle, event.Type)
+	assert.Equal(t, container.LogTypeSingle, event.Type)
 	assert.Equal(t, "INFO: Single log message", event.Message)
 }
 
@@ -288,20 +290,20 @@ func TestEventGenerator_MixedLogs(t *testing.T) {
 
 	reader := &mockLogReader{
 		messages: messages,
-		types:    []StdType{STDOUT, STDOUT},
+		types:    []container.StdType{container.STDOUT, container.STDOUT},
 	}
 
-	g := NewEventGenerator(context.Background(), reader, Container{Tty: false})
+	g := NewEventGenerator(context.Background(), reader, container.Container{Tty: false})
 
 	// First event should be complex
 	event1 := <-g.Events
 	require.NotNil(t, event1)
-	assert.Equal(t, LogTypeComplex, event1.Type)
+	assert.Equal(t, container.LogTypeComplex, event1.Type)
 
 	// Second event should be single simple
 	event2 := <-g.Events
 	require.NotNil(t, event2)
-	assert.Equal(t, LogTypeSingle, event2.Type)
+	assert.Equal(t, container.LogTypeSingle, event2.Type)
 }
 
 // Tests for orphan skipping: leading levelless lines ARE skipped when container
@@ -319,15 +321,15 @@ func TestEventGenerator_OrphanSkipped_FollowedByLeveledLog(t *testing.T) {
 
 	reader := &mockLogReader{
 		messages: messages,
-		types:    []StdType{STDERR, STDERR, STDERR, STDERR},
+		types:    []container.StdType{container.STDERR, container.STDERR, container.STDERR, container.STDERR},
 	}
 
-	g := NewEventGenerator(context.Background(), reader, Container{Tty: false, StartedAt: containerStart})
+	g := NewEventGenerator(context.Background(), reader, container.Container{Tty: false, StartedAt: containerStart})
 	event := <-g.Events
 
 	require.NotNil(t, event)
-	assert.Equal(t, LogTypeGroup, event.Type)
-	fragments, ok := event.Message.([]LogFragment)
+	assert.Equal(t, container.LogTypeGroup, event.Type)
+	fragments, ok := event.Message.([]container.LogFragment)
 	require.True(t, ok)
 	assert.Len(t, fragments, 2)
 	assert.Equal(t, "ERROR: Next error", fragments[0].Message)
@@ -345,14 +347,14 @@ func TestEventGenerator_OrphanSkipped_FollowedByComplexLog(t *testing.T) {
 
 	reader := &mockLogReader{
 		messages: messages,
-		types:    []StdType{STDERR, STDERR, STDOUT},
+		types:    []container.StdType{container.STDERR, container.STDERR, container.STDOUT},
 	}
 
-	g := NewEventGenerator(context.Background(), reader, Container{Tty: false, StartedAt: containerStart})
+	g := NewEventGenerator(context.Background(), reader, container.Container{Tty: false, StartedAt: containerStart})
 	event := <-g.Events
 
 	require.NotNil(t, event)
-	assert.Equal(t, LogTypeComplex, event.Type)
+	assert.Equal(t, container.LogTypeComplex, event.Type)
 }
 
 // When the first log is near the container start, nothing can precede it — no orphan skipping.
@@ -369,27 +371,27 @@ func TestEventGenerator_OrphanNotSkipped_NearContainerStart(t *testing.T) {
 
 	reader := &mockLogReader{
 		messages: messages,
-		types:    []StdType{STDERR, STDERR, STDERR, STDERR},
+		types:    []container.StdType{container.STDERR, container.STDERR, container.STDERR, container.STDERR},
 	}
 
-	g := NewEventGenerator(context.Background(), reader, Container{Tty: false, StartedAt: containerStart})
+	g := NewEventGenerator(context.Background(), reader, container.Container{Tty: false, StartedAt: containerStart})
 
 	// Leading lines emitted as singles since we're at the container start
 	event1 := <-g.Events
 	require.NotNil(t, event1)
-	assert.Equal(t, LogTypeSingle, event1.Type)
+	assert.Equal(t, container.LogTypeSingle, event1.Type)
 	assert.Equal(t, "at line 42", event1.Message)
 
 	event2 := <-g.Events
 	require.NotNil(t, event2)
-	assert.Equal(t, LogTypeSingle, event2.Type)
+	assert.Equal(t, container.LogTypeSingle, event2.Type)
 	assert.Equal(t, "in function foo", event2.Message)
 
 	// Then the real grouped entry
 	event3 := <-g.Events
 	require.NotNil(t, event3)
-	assert.Equal(t, LogTypeGroup, event3.Type)
-	fragments, ok := event3.Message.([]LogFragment)
+	assert.Equal(t, container.LogTypeGroup, event3.Type)
+	fragments, ok := event3.Message.([]container.LogFragment)
 	require.True(t, ok)
 	assert.Len(t, fragments, 2)
 	assert.Equal(t, "ERROR: Next error", fragments[0].Message)
@@ -407,19 +409,19 @@ func TestEventGenerator_OrphanNotSkipped_AllLevellessLines(t *testing.T) {
 
 	reader := &mockLogReader{
 		messages: messages,
-		types:    []StdType{STDERR, STDERR, STDERR},
+		types:    []container.StdType{container.STDERR, container.STDERR, container.STDERR},
 	}
 
-	g := NewEventGenerator(context.Background(), reader, Container{Tty: false})
+	g := NewEventGenerator(context.Background(), reader, container.Container{Tty: false})
 
-	var events []*LogEvent
+	var events []*container.LogEvent
 	for event := range g.Events {
 		events = append(events, event)
 	}
 
 	assert.Len(t, events, 3)
 	for _, event := range events {
-		assert.Equal(t, LogTypeSingle, event.Type)
+		assert.Equal(t, container.LogTypeSingle, event.Type)
 	}
 }
 
@@ -437,19 +439,19 @@ func TestEventGenerator_OrphanNotSkipped_TimestampGapBreaksOrphanDetection(t *te
 
 	reader := &mockLogReader{
 		messages: messages,
-		types:    []StdType{STDOUT, STDOUT},
+		types:    []container.StdType{container.STDOUT, container.STDOUT},
 	}
 
-	g := NewEventGenerator(context.Background(), reader, Container{Tty: false, StartedAt: containerStart})
+	g := NewEventGenerator(context.Background(), reader, container.Container{Tty: false, StartedAt: containerStart})
 
 	event1 := <-g.Events
 	require.NotNil(t, event1)
-	assert.Equal(t, LogTypeSingle, event1.Type)
+	assert.Equal(t, container.LogTypeSingle, event1.Type)
 	assert.Equal(t, "some log without level", event1.Message)
 
 	event2 := <-g.Events
 	require.NotNil(t, event2)
-	assert.Equal(t, LogTypeSingle, event2.Type)
+	assert.Equal(t, container.LogTypeSingle, event2.Type)
 	assert.Equal(t, "another log without level", event2.Message)
 }
 
@@ -457,12 +459,12 @@ func TestEventGenerator_OrphanNotSkipped_NoTimestamp(t *testing.T) {
 	// Lines without timestamps (e.g., tty/raw input) are never treated as orphans.
 	input := "some raw output"
 
-	g := NewEventGenerator(context.Background(), makeFakeReader(input, STDOUT), Container{Tty: true})
+	g := NewEventGenerator(context.Background(), makeFakeReader(input, container.STDOUT), container.Container{Tty: true})
 	event := <-g.Events
 
 	require.NotNil(t, event)
 	assert.Equal(t, input, event.Message)
-	assert.Equal(t, LogTypeSingle, event.Type)
+	assert.Equal(t, container.LogTypeSingle, event.Type)
 }
 
 func TestEventGenerator_NoGroupingWhenTimestampGap(t *testing.T) {
@@ -474,17 +476,17 @@ func TestEventGenerator_NoGroupingWhenTimestampGap(t *testing.T) {
 
 	reader := &mockLogReader{
 		messages: messages,
-		types:    []StdType{STDERR, STDERR},
+		types:    []container.StdType{container.STDERR, container.STDERR},
 	}
 
-	g := NewEventGenerator(context.Background(), reader, Container{Tty: false})
+	g := NewEventGenerator(context.Background(), reader, container.Container{Tty: false})
 
 	// Should get two separate events (not grouped due to timestamp gap)
 	event1 := <-g.Events
 	require.NotNil(t, event1)
-	assert.Equal(t, LogTypeSingle, event1.Type)
+	assert.Equal(t, container.LogTypeSingle, event1.Type)
 
 	event2 := <-g.Events
 	require.NotNil(t, event2)
-	assert.Equal(t, LogTypeSingle, event2.Type)
+	assert.Equal(t, container.LogTypeSingle, event2.Type)
 }

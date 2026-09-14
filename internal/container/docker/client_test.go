@@ -8,9 +8,10 @@ import (
 	"io"
 	"time"
 
+	"github.com/amir20/dozzle/internal/container"
+
 	"testing"
 
-	"github.com/amir20/dozzle/internal/container"
 	"net/netip"
 
 	docker "github.com/moby/moby/api/types/container"

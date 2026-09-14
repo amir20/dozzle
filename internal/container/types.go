@@ -233,13 +233,13 @@ func (l *LogEvent) IsSimple() bool {
 	return l.Type == LogTypeSingle || l.Type == LogTypeGroup
 }
 
-// maxGroupTimeDelta is the maximum time difference (in milliseconds) between
+// MaxGroupTimeDelta is the maximum time difference (in milliseconds) between
 // consecutive log lines that can be grouped together. Docker can introduce
 // up to ~30ms of jitter between related log lines (e.g., a stack trace).
-const maxGroupTimeDelta = 50
+const MaxGroupTimeDelta = 50
 
 func (l *LogEvent) IsCloseToTime(other *LogEvent) bool {
-	return math.Abs(float64(l.Timestamp-other.Timestamp)) < maxGroupTimeDelta
+	return math.Abs(float64(l.Timestamp-other.Timestamp)) < MaxGroupTimeDelta
 }
 
 func (l *LogEvent) MessageId() int64 {

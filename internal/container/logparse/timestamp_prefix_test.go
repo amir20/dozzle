@@ -1,9 +1,11 @@
-package container
+package logparse
 
 import (
 	"context"
 	"testing"
 	"time"
+
+	"github.com/amir20/dozzle/internal/container"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -62,12 +64,12 @@ func TestTimestampPrefixLen(t *testing.T) {
 }
 
 func TestCreateEventTimestampPrefix(t *testing.T) {
-	event := createEvent("2026-09-13T22:28:56.412Z \x1b[90m2026-09-13T22:28:56Z\x1b[0m INF ready", STDOUT)
+	event := createEvent("2026-09-13T22:28:56.412Z \x1b[90m2026-09-13T22:28:56Z\x1b[0m INF ready", container.STDOUT)
 	assert.Equal(t, "\x1b[90m2026-09-13T22:28:56Z\x1b[0m INF ready", event.Message, "message must stay intact")
 	assert.Equal(t, "INF ready", event.Message.(string)[event.TimestampPrefix:])
 
-	json := createEvent(`2026-09-13T22:28:56.412Z {"time":"2026-09-13T22:28:56Z","msg":"ready"}`, STDOUT)
-	assert.Equal(t, LogTypeComplex, json.Type)
+	json := createEvent(`2026-09-13T22:28:56.412Z {"time":"2026-09-13T22:28:56Z","msg":"ready"}`, container.STDOUT)
+	assert.Equal(t, container.LogTypeComplex, json.Type)
 	assert.Zero(t, json.TimestampPrefix)
 }
 
@@ -78,15 +80,15 @@ func TestEventGenerator_GroupKeepsTimestampPrefix(t *testing.T) {
 			"2026-09-13T22:28:56.413Z   at handler.go:42",
 			"2026-09-13T22:28:56.414Z 2026-09-13T22:28:56Z   at main.go:7",
 		},
-		types: []StdType{STDERR, STDERR, STDERR},
+		types: []container.StdType{container.STDERR, container.STDERR, container.STDERR},
 	}
 
-	g := NewEventGenerator(context.Background(), reader, Container{Tty: false})
+	g := NewEventGenerator(context.Background(), reader, container.Container{Tty: false})
 	event := <-g.Events
 
 	require.NotNil(t, event)
-	require.Equal(t, LogTypeGroup, event.Type)
-	fragments := event.Message.([]LogFragment)
+	require.Equal(t, container.LogTypeGroup, event.Type)
+	fragments := event.Message.([]container.LogFragment)
 	require.Len(t, fragments, 3)
 	assert.Equal(t, "ERR request failed", fragments[0].Message[fragments[0].TimestampPrefix:])
 	assert.Zero(t, fragments[1].TimestampPrefix)

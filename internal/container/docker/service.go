@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"github.com/amir20/dozzle/internal/container"
+	"github.com/amir20/dozzle/internal/container/logparse"
 	"github.com/amir20/dozzle/internal/imagecheck"
 	"github.com/amir20/dozzle/internal/profile"
 	"github.com/amir20/dozzle/internal/selfupdate"
@@ -113,7 +114,7 @@ func (d *DockerClientService) LogsBetweenDates(ctx context.Context, c container.
 	}
 
 	dockerReader := NewLogReader(reader, c.Tty)
-	g := container.NewEventGenerator(ctx, dockerReader, c)
+	g := logparse.NewEventGenerator(ctx, dockerReader, c)
 	return g.Events, nil
 }
 
@@ -124,7 +125,7 @@ func (d *DockerClientService) StreamLogs(ctx context.Context, c container.Contai
 	}
 
 	dockerReader := NewLogReader(reader, c.Tty)
-	g := container.NewEventGenerator(ctx, dockerReader, c)
+	g := logparse.NewEventGenerator(ctx, dockerReader, c)
 	for event := range g.Events {
 		select {
 		case events <- event:

@@ -1,4 +1,4 @@
-package container
+package logparse
 
 import (
 	"context"
@@ -10,6 +10,8 @@ import (
 	"sync"
 	"time"
 
+	"github.com/amir20/dozzle/internal/container"
+
 	"encoding/json"
 
 	orderedmap "github.com/wk8/go-ordered-map/v2"
@@ -18,11 +20,11 @@ import (
 )
 
 type EventGenerator struct {
-	Events      chan *LogEvent
+	Events      chan *container.LogEvent
 	Errors      chan error
 	reader      LogReader
-	next        *LogEvent
-	buffer      chan *LogEvent
+	next        *container.LogEvent
+	buffer      chan *container.LogEvent
 	wg          sync.WaitGroup
 	containerID string
 	startedAt   time.Time
@@ -32,17 +34,17 @@ type EventGenerator struct {
 var ErrBadHeader = fmt.Errorf("dozzle/docker: unable to read header")
 
 type LogReader interface {
-	Read() (string, StdType, error)
+	Read() (string, container.StdType, error)
 }
 
-func NewEventGenerator(ctx context.Context, reader LogReader, container Container) *EventGenerator {
+func NewEventGenerator(ctx context.Context, reader LogReader, c container.Container) *EventGenerator {
 	generator := &EventGenerator{
 		reader:      reader,
-		buffer:      make(chan *LogEvent, 100),
+		buffer:      make(chan *container.LogEvent, 100),
 		Errors:      make(chan error, 1),
-		Events:      make(chan *LogEvent),
-		containerID: container.ID,
-		startedAt:   container.StartedAt,
+		Events:      make(chan *container.LogEvent),
+		containerID: c.ID,
+		startedAt:   c.StartedAt,
 		ctx:         ctx,
 	}
 	generator.wg.Add(2)
@@ -51,7 +53,7 @@ func NewEventGenerator(ctx context.Context, reader LogReader, container Containe
 	return generator
 }
 
-func (g *EventGenerator) emit(event *LogEvent) bool {
+func (g *EventGenerator) emit(event *container.LogEvent) bool {
 	select {
 	case g.Events <- event:
 		return true
@@ -60,24 +62,24 @@ func (g *EventGenerator) emit(event *LogEvent) bool {
 	}
 }
 
-func (g *EventGenerator) flushGroup(pendingGroup []*LogEvent) bool {
+func (g *EventGenerator) flushGroup(pendingGroup []*container.LogEvent) bool {
 	if len(pendingGroup) == 0 {
 		return true
 	}
 
 	if len(pendingGroup) == 1 {
-		pendingGroup[0].Type = LogTypeSingle
+		pendingGroup[0].Type = container.LogTypeSingle
 		return g.emit(pendingGroup[0])
 	}
 
 	first := pendingGroup[0]
-	fragments := make([]LogFragment, len(pendingGroup))
+	fragments := make([]container.LogFragment, len(pendingGroup))
 	for i, e := range pendingGroup {
-		fragments[i] = LogFragment{Message: e.Message.(string), TimestampPrefix: e.TimestampPrefix}
+		fragments[i] = container.LogFragment{Message: e.Message.(string), TimestampPrefix: e.TimestampPrefix}
 	}
 
-	return g.emit(&LogEvent{
-		Type:        LogTypeGroup,
+	return g.emit(&container.LogEvent{
+		Type:        container.LogTypeGroup,
 		Message:     fragments,
 		Timestamp:   first.Timestamp,
 		Id:          first.Id,
@@ -88,9 +90,9 @@ func (g *EventGenerator) flushGroup(pendingGroup []*LogEvent) bool {
 }
 
 // emitAsSingles emits each event individually as LogTypeSingle.
-func (g *EventGenerator) emitAsSingles(events []*LogEvent) bool {
+func (g *EventGenerator) emitAsSingles(events []*container.LogEvent) bool {
 	for _, e := range events {
-		e.Type = LogTypeSingle
+		e.Type = container.LogTypeSingle
 		if !g.emit(e) {
 			return false
 		}
@@ -101,7 +103,7 @@ func (g *EventGenerator) emitAsSingles(events []*LogEvent) bool {
 // maxOrphanLines bounds how many leading lines skipOrphanedLines will buffer
 // before giving up. A genuine orphan run is the tail of a single group split at
 // a fetch boundary, which is small. A busy container streaming sustained
-// level-less lines (all spaced under maxGroupTimeDelta) would otherwise look
+// level-less lines (all spaced under MaxGroupTimeDelta) would otherwise look
 // like one endless orphan run and buffer forever, so the live view shows
 // nothing until a timing gap appears. Past this many lines it clearly isn't a
 // leftover fragment — emit what we have and resume normal processing.
@@ -114,8 +116,8 @@ const maxOrphanLines = 1000
 // exceeds maxOrphanLines), the buffered events are emitted as singles — they
 // weren't really orphans. Lines near the container start time are never
 // skipped since nothing can precede them.
-func (g *EventGenerator) skipOrphanedLines() *LogEvent {
-	var orphanBuffer []*LogEvent
+func (g *EventGenerator) skipOrphanedLines() *container.LogEvent {
+	var orphanBuffer []*container.LogEvent
 	var lastTimestamp int64
 
 	// First event must block — we need at least one event to start.
@@ -133,7 +135,7 @@ func (g *EventGenerator) skipOrphanedLines() *LogEvent {
 
 	for {
 		isOrphan := current.IsSimple() && !current.HasLevel() && current.Timestamp > 0 &&
-			(lastTimestamp == 0 || math.Abs(float64(lastTimestamp-current.Timestamp)) < maxGroupTimeDelta)
+			(lastTimestamp == 0 || math.Abs(float64(lastTimestamp-current.Timestamp)) < container.MaxGroupTimeDelta)
 
 		if !isOrphan {
 			if len(orphanBuffer) > 0 {
@@ -144,7 +146,7 @@ func (g *EventGenerator) skipOrphanedLines() *LogEvent {
 				// (e.g. postgres "checkpoint starting: time" — only entry in
 				// a 5-min window followed by a 0.4s-later "complete" line).
 				timeGap := lastTimestamp != 0 && current.Timestamp > 0 &&
-					math.Abs(float64(lastTimestamp-current.Timestamp)) >= maxGroupTimeDelta
+					math.Abs(float64(lastTimestamp-current.Timestamp)) >= container.MaxGroupTimeDelta
 				if timeGap {
 					g.emitAsSingles(orphanBuffer)
 				} else {
@@ -185,7 +187,7 @@ func (g *EventGenerator) processBuffer() {
 		g.wg.Done()
 	}()
 
-	var pendingGroup []*LogEvent
+	var pendingGroup []*container.LogEvent
 
 	// Skip leading orphaned continuation lines from a prior fetch.
 	first := g.skipOrphanedLines()
@@ -223,7 +225,7 @@ loop:
 				next.Level = current.Level
 				pendingGroup = append(pendingGroup, current)
 			} else {
-				current.Type = LogTypeSingle
+				current.Type = container.LogTypeSingle
 				if !g.emit(current) {
 					break loop
 				}
@@ -244,7 +246,7 @@ loop:
 	}
 }
 
-func (g *EventGenerator) nextEvent() *LogEvent {
+func (g *EventGenerator) nextEvent() *container.LogEvent {
 	if g.next != nil {
 		event := g.next
 		g.next = nil
@@ -258,14 +260,14 @@ func (g *EventGenerator) nextEvent() *LogEvent {
 }
 
 // canStartGroup checks if current can start a group with next
-func canStartGroup(current, next *LogEvent) bool {
+func canStartGroup(current, next *container.LogEvent) bool {
 	return current.HasLevel() && canContinueGroup(current, next, current.Level)
 }
 
 // canContinueGroup checks if next can be appended after prev in a group.
 // Lines without a level always continue the group. Lines with the same level
 // as the group also continue it (e.g. repeated error lines in a stack trace).
-func canContinueGroup(prev, next *LogEvent, groupLevel string) bool {
+func canContinueGroup(prev, next *container.LogEvent, groupLevel string) bool {
 	return (!next.HasLevel() || next.Level == groupLevel) && prev.IsCloseToTime(next)
 }
 
@@ -298,7 +300,7 @@ func (g *EventGenerator) consumeReader() {
 	}
 }
 
-func (g *EventGenerator) peek() *LogEvent {
+func (g *EventGenerator) peek() *container.LogEvent {
 	if g.next != nil {
 		return g.next
 	}
@@ -311,10 +313,10 @@ func (g *EventGenerator) peek() *LogEvent {
 	}
 }
 
-func createEvent(message string, streamType StdType) *LogEvent {
+func createEvent(message string, streamType container.StdType) *container.LogEvent {
 	h := fnv.New32a()
 	h.Write([]byte(message))
-	logEvent := &LogEvent{Id: h.Sum32(), Message: message, Stream: streamType.String(), Type: LogTypeSingle}
+	logEvent := &container.LogEvent{Id: h.Sum32(), Message: message, Stream: streamType.String(), Type: container.LogTypeSingle}
 	if index := strings.IndexByte(message, ' '); index != -1 {
 		if timestamp, err := time.Parse(time.RFC3339Nano, message[:index]); err == nil {
 			logEvent.Timestamp = timestamp.UnixMilli()
@@ -336,12 +338,12 @@ func createEvent(message string, streamType StdType) *LogEvent {
 						logEvent.Message = ""
 					} else {
 						logEvent.Message = data
-						logEvent.Type = LogTypeComplex
+						logEvent.Type = container.LogTypeComplex
 					}
 				}
 			} else if data, err := ParseLogFmt(message); err == nil {
 				logEvent.Message = data
-				logEvent.Type = LogTypeComplex
+				logEvent.Type = container.LogTypeComplex
 				data, err := json.Marshal(data)
 				if err != nil {
 					log.Error().Err(err).Msg("failed to marshal json")

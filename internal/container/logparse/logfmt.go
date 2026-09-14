@@ -1,4 +1,4 @@
-package container
+package logparse
 
 import (
 	"errors"

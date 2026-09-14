@@ -3,8 +3,6 @@ package web
 import (
 	"context"
 	"crypto/tls"
-	"github.com/amir20/dozzle/internal/container/docker"
-	"github.com/amir20/dozzle/internal/hostservice"
 	"time"
 
 	"net/http"
@@ -12,6 +10,8 @@ import (
 	"testing"
 
 	"github.com/amir20/dozzle/internal/container"
+	"github.com/amir20/dozzle/internal/container/docker"
+	"github.com/amir20/dozzle/internal/hostservice"
 	"github.com/amir20/dozzle/internal/utils"
 	"github.com/beme/abide"
 	"github.com/stretchr/testify/mock"

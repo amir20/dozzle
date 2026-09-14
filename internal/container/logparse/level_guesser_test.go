@@ -1,8 +1,10 @@
-package container
+package logparse
 
 import (
 	"encoding/json"
 	"testing"
+
+	"github.com/amir20/dozzle/internal/container"
 
 	orderedmap "github.com/wk8/go-ordered-map/v2"
 )
@@ -37,8 +39,8 @@ func TestGuessPinoLogLevel(t *testing.T) {
 	for _, test := range tests {
 		t.Run(test.input, func(t *testing.T) {
 			// Exercise the same JSON decoding path as container logs.
-			event := createEvent("2026-09-05T00:00:00Z "+test.input, STDOUT)
-			if event.Type != LogTypeComplex {
+			event := createEvent("2026-09-05T00:00:00Z "+test.input, container.STDOUT)
+			if event.Type != container.LogTypeComplex {
 				t.Fatalf("Expected JSON log event, got %v", event.Type)
 			}
 			if actual := guessLogLevel(event); actual != test.expected {
@@ -104,8 +106,8 @@ func TestGuessOtelLogLevel(t *testing.T) {
 	for _, test := range tests {
 		t.Run(test.input, func(t *testing.T) {
 			// Exercise the same JSON decoding path as container logs.
-			event := createEvent("2026-09-05T00:00:00Z "+test.input, STDOUT)
-			if event.Type != LogTypeComplex {
+			event := createEvent("2026-09-05T00:00:00Z "+test.input, container.STDOUT)
+			if event.Type != container.LogTypeComplex {
 				t.Fatalf("Expected JSON log event, got %v", event.Type)
 			}
 			if actual := guessLogLevel(event); actual != test.expected {
@@ -297,7 +299,7 @@ func TestGuessLogLevel(t *testing.T) {
 	for _, test := range tests {
 		name, _ := json.Marshal(test.input)
 		t.Run(string(name), func(t *testing.T) {
-			actual := guessLogLevel(&LogEvent{Message: test.input})
+			actual := guessLogLevel(&container.LogEvent{Message: test.input})
 			if actual != test.expected {
 				t.Errorf("Expected %s, got %s", test.expected, actual)
 			}

@@ -22,6 +22,7 @@ import (
 
 	"github.com/amir20/dozzle/internal/auth"
 	"github.com/amir20/dozzle/internal/container"
+	"github.com/amir20/dozzle/internal/container/logparse"
 	"github.com/amir20/dozzle/internal/utils"
 	"github.com/amir20/dozzle/internal/web/search"
 	"github.com/amir20/dozzle/internal/web/sse"
@@ -422,7 +423,7 @@ func (h *handler) streamLogsForContainers(w http.ResponseWriter, r *http.Request
 	}
 
 	allLogs := true
-	for level := range container.SupportedLogLevels {
+	for level := range logparse.SupportedLogLevels {
 		if _, ok := levels[level]; !ok {
 			allLogs = false
 		}

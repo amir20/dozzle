@@ -2,13 +2,13 @@ package main
 
 import (
 	"context"
-	"github.com/amir20/dozzle/internal/hostservice"
 	"sync"
 	"sync/atomic"
 	"testing"
 	"time"
 
 	"github.com/amir20/dozzle/internal/container"
+	"github.com/amir20/dozzle/internal/hostservice"
 	"github.com/stretchr/testify/assert"
 )
 

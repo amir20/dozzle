@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"github.com/amir20/dozzle/internal/container"
+	"github.com/amir20/dozzle/internal/container/logparse"
 	"github.com/amir20/dozzle/internal/imagecheck"
 )
 
@@ -58,7 +59,7 @@ func (k *K8sClientService) LogsBetweenDates(ctx context.Context, c container.Con
 	}
 
 	k8sReader := NewLogReader(reader)
-	g := container.NewEventGenerator(ctx, k8sReader, c)
+	g := logparse.NewEventGenerator(ctx, k8sReader, c)
 	return g.Events, nil
 }
 
@@ -73,7 +74,7 @@ func (k *K8sClientService) StreamLogs(ctx context.Context, c container.Container
 	}
 
 	k8sReader := NewLogReader(reader)
-	g := container.NewEventGenerator(ctx, k8sReader, c)
+	g := logparse.NewEventGenerator(ctx, k8sReader, c)
 	for event := range g.Events {
 		select {
 		case events <- event:
