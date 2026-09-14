@@ -16,7 +16,17 @@
             :class="host.available ? 'bg-success' : 'bg-base-content/30'"
           ></span>
         </span>
-        <div class="truncate text-lg font-semibold tracking-tight" :title="host.name">{{ host.name }}</div>
+        <!-- Selects the host in the sidebar, the same as clicking its row there.
+             Not a link to /host/[id]: that is the merged stream, which is what the
+             sidebar's merge button is for. -->
+        <button
+          type="button"
+          class="hover:decoration-base-content/40 truncate text-left text-lg font-semibold tracking-tight hover:underline hover:underline-offset-4"
+          :title="host.name"
+          @click="sessionHost = host.id"
+        >
+          {{ host.name }}
+        </button>
       </div>
 
       <!-- Plain facts, no glyph per fact. The agent version only appears when it
@@ -106,6 +116,7 @@
 
 <script setup lang="ts">
 import type { Host } from "@/stores/hosts";
+import { sessionHost } from "@/composable/app/storage";
 import { Container } from "@/models/Container";
 import PhCpu from "~icons/ph/cpu";
 import PhMemory from "~icons/ph/memory";
