@@ -14,9 +14,6 @@ func lookupFrom(pairs map[string]string) func(string) (string, bool) {
 	}
 }
 
-//go:fix inline
-func ptr[T any](v T) *T { return new(v) }
-
 func TestApplyConfigFile(t *testing.T) {
 	fullFile := config.File{
 		AuthProvider:  new("simple"),
