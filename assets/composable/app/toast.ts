@@ -20,10 +20,17 @@ type Toast = {
 };
 
 type ToastOptions = {
+  // Milliseconds before the toast closes on its own.
   expire?: number;
   once?: boolean;
+  // Milliseconds before the primary action runs on its own. The action button
+  // cancels it instead.
   timed?: number;
 };
+
+// One timer per toast, whichever of expire or timed started it, so closing a
+// toast early also stops it from acting later.
+const timers = new Map<string, ReturnType<typeof setTimeout>>();
 
 const toasts = ref<
   {
@@ -53,10 +60,19 @@ const showToast = (
     options: { expire, once, timed },
   });
 
-  if (expire > 0) {
-    setTimeout(() => {
-      removeToast(toastWithId.id);
-    }, expire);
+  if (timed && timed > 0) {
+    timers.set(
+      toastWithId.id,
+      setTimeout(() => {
+        removeToast(toastWithId.id);
+        toastWithId.action?.handler();
+      }, timed),
+    );
+  } else if (expire > 0) {
+    timers.set(
+      toastWithId.id,
+      setTimeout(() => removeToast(toastWithId.id), expire),
+    );
   }
 };
 
@@ -70,6 +86,8 @@ const updateToast = (id: Toast["id"], patch: Partial<Omit<Toast, "id" | "created
 };
 
 const removeToast = (id: Toast["id"]) => {
+  clearTimeout(timers.get(id));
+  timers.delete(id);
   toasts.value = toasts.value.filter((instance) => instance.toast.id !== id);
 };
 

@@ -1,7 +1,7 @@
 /**
  * @vitest-environment jsdom
  */
-import { describe, expect, test } from "vitest";
+import { afterEach, describe, expect, test, vi } from "vitest";
 import { mount } from "@vue/test-utils";
 import ToastModal from "./ToastModal.vue";
 
@@ -87,5 +87,76 @@ describe("ToastModal secondary action", () => {
     const wrapper = mount(ToastModal);
     expect(wrapper.findAll("button")).toHaveLength(1);
     expect(wrapper.find("progress").exists()).toBe(false);
+  });
+});
+
+describe("ToastModal countdown", () => {
+  afterEach(() => vi.useRealTimers());
+
+  test("draws a countdown for an expiring toast and closes it when time is up", async () => {
+    vi.useFakeTimers();
+    const { useToast } = await import("@/composable/app/toast");
+    const { showToast, toasts } = useToast();
+    toasts.value = [];
+
+    showToast({ message: "copied", type: "info" }, { expire: 3000 });
+    const wrapper = mount(ToastModal);
+    const bar = wrapper.find("[data-testid=toast-countdown]");
+    expect(bar.exists()).toBe(true);
+    expect(bar.attributes("style")).toContain("3000ms");
+
+    vi.advanceTimersByTime(3000);
+    expect(toasts.value).toHaveLength(0);
+  });
+
+  test("runs a timed action when time is up", async () => {
+    vi.useFakeTimers();
+    const { useToast } = await import("@/composable/app/toast");
+    const { showToast, toasts } = useToast();
+    toasts.value = [];
+
+    let ran = false;
+    showToast(
+      { message: "redirecting", type: "info", action: { label: "Cancel", handler: () => (ran = true) } },
+      { timed: 4000 },
+    );
+    const wrapper = mount(ToastModal);
+    expect(wrapper.find("[data-testid=toast-countdown]").exists()).toBe(true);
+
+    vi.advanceTimersByTime(4000);
+    expect(ran).toBe(true);
+    expect(toasts.value).toHaveLength(0);
+  });
+
+  test("pressing a timed button closes the toast without acting", async () => {
+    vi.useFakeTimers();
+    const { useToast } = await import("@/composable/app/toast");
+    const { showToast, toasts } = useToast();
+    toasts.value = [];
+
+    let ran = false;
+    showToast(
+      { message: "redirecting", type: "info", action: { label: "Cancel", handler: () => (ran = true) } },
+      { timed: 4000 },
+    );
+    const wrapper = mount(ToastModal);
+    await wrapper
+      .findAll("button")
+      .find((b) => b.text() === "Cancel")!
+      .trigger("click");
+    expect(toasts.value).toHaveLength(0);
+
+    vi.advanceTimersByTime(4000);
+    expect(ran).toBe(false);
+  });
+
+  test("a toast with no timer has no countdown", async () => {
+    const { useToast } = await import("@/composable/app/toast");
+    const { showToast, toasts } = useToast();
+    toasts.value = [];
+
+    showToast({ message: "hello", type: "info" });
+    const wrapper = mount(ToastModal);
+    expect(wrapper.find("[data-testid=toast-countdown]").exists()).toBe(false);
   });
 });

@@ -12,10 +12,18 @@
     :style="railOffset ? { paddingInlineEnd: `${railOffset}px` } : undefined"
   >
     <div
-      class="rounded-box border-base-content/10 bg-base-200 flex w-96 max-w-full flex-col gap-2.5 border p-3.5 shadow-sm max-md:w-full"
-      v-for="{ toast, options: { timed } } in toasts"
+      class="rounded-box border-base-content/10 bg-base-200 relative flex w-96 max-w-full flex-col gap-2.5 overflow-hidden border p-3.5 shadow-sm max-md:w-full"
+      v-for="{ toast, options: { timed, expire } } in toasts"
       :key="toast.id"
     >
+      <!-- Time left before the toast closes or acts on its own. The timer
+           itself lives in useToast; this only draws it. -->
+      <div
+        v-if="timed || (expire ?? -1) > 0"
+        class="toast-countdown bg-primary absolute inset-x-0 top-0 h-0.5 origin-left"
+        :style="{ animationDuration: `${timed || expire}ms` }"
+        data-testid="toast-countdown"
+      ></div>
       <div class="flex w-full items-start gap-2.5">
         <div class="mt-0.5 shrink-0" :class="accent[toast.type]">
           <mdi:information-outline class="size-4" v-if="toast.type === 'info'" />
@@ -43,19 +51,12 @@
 
       <!-- Actions sit under the message so a long notice keeps its full width
            instead of being squeezed by the buttons beside it. -->
-      <div class="flex w-full justify-end gap-1" v-if="timed || toast.action || toast.secondaryAction">
-        <TimedButton
-          v-if="timed"
-          class="btn-primary btn-xs"
-          :duration="timed"
-          @finished="
-            removeToast(toast.id);
-            toast.action?.handler();
-          "
-          @cancelled="removeToast(toast.id)"
-        >
+      <div class="flex w-full justify-end gap-1" v-if="toast.action || toast.secondaryAction">
+        <!-- A timed action runs when the bar runs out; pressing the button
+             stops it, so the toast closes without acting. -->
+        <button v-if="timed" class="btn btn-primary btn-xs" @click="removeToast(toast.id)">
           {{ toast.action?.label }}
-        </TimedButton>
+        </button>
         <template v-else>
           <button
             class="btn btn-ghost btn-xs"
@@ -111,6 +112,21 @@ const accent = {
   transform: translateX(1rem) scale(0.98);
 }
 
+.toast-countdown {
+  animation-name: toast-countdown;
+  animation-timing-function: linear;
+  animation-fill-mode: forwards;
+}
+
+@keyframes toast-countdown {
+  from {
+    transform: scaleX(1);
+  }
+  to {
+    transform: scaleX(0);
+  }
+}
+
 /* Stacked toasts slide into the gap a dismissed one leaves behind. */
 .toast-move {
   transition: transform 200ms ease;
@@ -123,6 +139,8 @@ const accent = {
   }
 }
 
+/* The countdown is left running under reduced motion: it is a slow linear
+   shrink that tells you how long you have, not decoration. */
 @media (prefers-reduced-motion: reduce) {
   .toast-enter-active,
   .toast-leave-active,
