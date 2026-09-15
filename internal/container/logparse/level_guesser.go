@@ -22,7 +22,7 @@ var logLevels = [][]string{
 	{"info", "inf", "information"},
 	{"debug", "dbg"},
 	{"trace", "verbose", "ver", "vbs"},
-	{"fatal", "sev", "severe", "crit", "critical"},
+	{"fatal", "fail", "sev", "severe", "crit", "critical"},
 }
 
 // aliasToCanonical maps every alias to its canonical level name.
