@@ -1,9 +1,7 @@
 <template>
-  <div v-if="groupHosts.length === 0" class="hero min-h-[50vh]">
-    <div class="hero-content text-center">
-      <p class="text-base-content/70 text-lg">{{ $t("error.host-group-not-found", { name }) }}</p>
-    </div>
-  </div>
+  <NotFound v-if="groupHosts.length === 0" :title="$t('error.host-group-not-found', { name })">
+    <template #icon><ph:computer-tower class="size-5" /></template>
+  </NotFound>
   <ScrollableView :scrollable="scrollable" v-else>
     <template #header>
       <div class="mx-2 flex items-center gap-2 md:ml-4">

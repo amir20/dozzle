@@ -170,6 +170,7 @@ error:
   copy-insecure-hint: Votre navigateur n'autorise l'accès au presse-papiers qu'en https. Copiez le texte manuellement.
   logs-skipped: Afficher {total} entrées cachées
   container-not-found: Conteneur non trouvé
+  container-not-found-hint: Il a peut-être été supprimé, ou son hôte n'est plus joignable.
   action-failed: Action Échouée
   update-failed: Mise à jour Échouée
   unable-to-complete-action: Impossible de terminer l'action
@@ -208,6 +209,7 @@ title:
   settings: Paramètres
   notifications: Notifications
 button:
+  back-to-dashboard: Retour au tableau de bord
   live-logs: Aller aux logs en direct
   logout: Déconnexion
   login: Connexion

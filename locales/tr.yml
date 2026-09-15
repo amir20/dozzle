@@ -170,6 +170,7 @@ error:
   copy-insecure-hint: Tarayıcınız panoya erişime yalnızca https üzerinden izin veriyor. Metni elle kopyalayın.
   logs-skipped: "{total} gizli girişi göster"
   container-not-found: Konteyner bulunamadı
+  container-not-found-hint: Kaldırılmış olabilir ya da ana makinesine artık ulaşılamıyor.
   action-failed: İşlem Başarısız
   update-failed: Güncelleme Başarısız
   unable-to-complete-action: İşlem tamamlanamadı
@@ -211,6 +212,7 @@ title:
   settings: Ayarlar
   notifications: Bildirimler
 button:
+  back-to-dashboard: Panele dön
   live-logs: Canlı günlüklere git
   logout: Çıkış Yap
   login: Giriş Yap

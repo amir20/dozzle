@@ -170,6 +170,7 @@ error:
   copy-insecure-hint: Il tuo browser consente l'accesso agli appunti solo tramite https. Copia il testo manualmente.
   logs-skipped: Mostra {total} voci nascoste
   container-not-found: Container non trovato
+  container-not-found-hint: Potrebbe essere stato rimosso, oppure il suo host non è più raggiungibile.
   action-failed: Azione Fallita
   update-failed: Aggiornamento Fallito
   unable-to-complete-action: Impossibile completare l'azione
@@ -208,6 +209,7 @@ title:
   settings: Impostazioni
   notifications: Notifiche
 button:
+  back-to-dashboard: Torna alla dashboard
   live-logs: Vai ai log in tempo reale
   logout: Logout
   login: Login

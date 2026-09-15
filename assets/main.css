@@ -91,7 +91,7 @@
   --border: 1px;
 
   --depth: 0;
-  --noise: 1;
+  --noise: 0;
 }
 
 @plugin "daisyui/theme" {
@@ -149,7 +149,7 @@
   --border: 1px;
 
   --depth: 0;
-  --noise: 1;
+  --noise: 0;
 }
 
 @utility input {
@@ -173,11 +173,31 @@
   border-color: color-mix(in oklab, var(--color-base-content) 40%, transparent) !important;
 }
 
-@utility menu-active {
-  &,
-  &:active {
-    --menu-active-bg: var(--color-primary);
-  }
+/* Tinted rather than filled, the same selected row as the sidebar's `nav-item`: a
+ * solid primary block competes with the one primary action a surface is allowed. */
+@utility menu {
+  --menu-active-bg: color-mix(in oklab, var(--color-primary) 15%, transparent);
+  --menu-active-fg: var(--color-primary);
+}
+
+/* `badge-soft` is the status chip: bordered, faintly tinted, uppercase mono. With
+ * no tone it is the neutral chip. */
+@utility badge-soft {
+  --badge-soft-color: var(--badge-color, var(--color-base-content));
+  color: var(--badge-color, color-mix(in oklab, var(--color-base-content) 70%, transparent));
+  background-color: color-mix(in oklab, var(--badge-soft-color) 10%, transparent);
+  border-color: color-mix(in oklab, var(--badge-soft-color) 30%, transparent);
+  border-radius: 0.25rem;
+  font-family: var(--font-mono);
+  font-weight: 500;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  gap: 0.375rem;
+}
+
+/* The neutral panel: `card card-border bg-base-200/40`. */
+@utility card-border {
+  border-color: color-mix(in oklab, var(--color-base-content) 15%, transparent);
 }
 
 /* --- Sidebar navigation -------------------------------------------------

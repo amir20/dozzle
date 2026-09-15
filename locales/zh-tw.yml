@@ -170,6 +170,7 @@ error:
   copy-insecure-hint: 瀏覽器僅允許透過 https 存取剪貼簿。請手動複製文字。
   logs-skipped: 顯示 {total} 個隱藏項目
   container-not-found: 找不到容器
+  container-not-found-hint: 它可能已被移除，或其主機已無法連線。
   action-failed: 操作失敗
   update-failed: 更新失敗
   unable-to-complete-action: 無法完成操作
@@ -210,6 +211,7 @@ title:
   settings: 設定
   notifications: 通知
 button:
+  back-to-dashboard: 返回儀表板
   live-logs: 前往即時日誌
   logout: 登出
   login: 登入

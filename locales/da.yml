@@ -170,6 +170,7 @@ error:
   copy-insecure-hint: Din browser tillader kun adgang til udklipsholderen over https. Kopiér teksten manuelt i stedet.
   logs-skipped: Vis {total} skjulte indtastninger
   container-not-found: Container ikke fundet
+  container-not-found-hint: Den kan være fjernet, eller dens vært kan ikke længere nås.
   action-failed: Handling Mislykkedes
   update-failed: Opdatering Mislykkedes
   unable-to-complete-action: Kan ikke fuldføre handling
@@ -208,6 +209,7 @@ title:
   settings: Indstillinger
   notifications: Notifikationer
 button:
+  back-to-dashboard: Tilbage til oversigten
   live-logs: Gå til live-logs
   logout: Logout
   login: Login

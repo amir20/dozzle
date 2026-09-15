@@ -170,6 +170,7 @@ error:
   copy-insecure-hint: Je browser staat klembordtoegang alleen toe via https. Kopieer de tekst handmatig.
   logs-skipped: Toon {total} verborgen items
   container-not-found: Container niet gevonden
+  container-not-found-hint: Mogelijk is hij verwijderd, of is de host niet meer bereikbaar.
   action-failed: Actie Mislukt
   update-failed: Update Mislukt
   unable-to-complete-action: Kan actie niet voltooien
@@ -209,6 +210,7 @@ title:
   settings: Instellingen
   notifications: Meldingen
 button:
+  back-to-dashboard: Terug naar dashboard
   live-logs: Naar live logs
   logout: Afmelden
   login: Aanmelden

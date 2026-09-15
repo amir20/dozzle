@@ -170,6 +170,7 @@ error:
   copy-insecure-hint: Браузер разрешает доступ к буферу обмена только по https. Скопируйте текст вручную.
   logs-skipped: Показать {total} скрытых записей
   container-not-found: Контейнер не найден.
+  container-not-found-hint: Возможно, он был удалён или его хост больше недоступен.
   action-failed: Действие не выполнено
   update-failed: Обновление не выполнено
   unable-to-complete-action: Не удалось выполнить действие
@@ -208,6 +209,7 @@ title:
   settings: Настройки
   notifications: Уведомления
 button:
+  back-to-dashboard: Вернуться на панель
   live-logs: Перейти к живым логам
   logout: Выйти
   login: Войти

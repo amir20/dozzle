@@ -170,6 +170,7 @@ error:
   copy-insecure-hint: 浏览器仅允许通过 https 访问剪贴板。请手动复制文本。
   logs-skipped: 显示 {total} 个隐藏条目
   container-not-found: 容器未找到。
+  container-not-found-hint: 它可能已被删除，或其主机已无法访问。
   action-failed: 操作失败
   update-failed: 更新失败
   unable-to-complete-action: 无法完成操作
@@ -208,6 +209,7 @@ title:
   settings: 设置
   notifications: 通知
 button:
+  back-to-dashboard: 返回仪表板
   live-logs: 转到实时日志
   logout: 退出
   login: 登录
