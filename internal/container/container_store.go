@@ -539,7 +539,10 @@ func (s *ContainerStore) init() {
 				updatedContainer, _ := s.containers.Compute(event.ActorID, func(c *Container, loaded bool) (*Container, xsync.ComputeOp) {
 					if loaded && event.Container != nil {
 						newContainer := event.Container
-						if newContainer.State == "running" && c.State != "running" {
+						// A short-lived k8s pod (a Job) can go from Pending straight to
+						// Succeeded without ever reporting Running. It still ran, so it
+						// counts as a start, or the UI never learns it exists.
+						if c.State != "running" && (newContainer.State == "running" || (c.State == "created" && newContainer.State == "exited")) {
 							started = true
 						}
 						copy := *c

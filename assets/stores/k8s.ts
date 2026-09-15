@@ -1,6 +1,7 @@
 import { acceptHMRUpdate, defineStore } from "pinia";
 
 import { Container, GroupedContainers } from "@/models/Container";
+import { showAllContainers } from "@/stores/settings";
 
 export type K8sOwnerRef = {
   key: string;
@@ -81,7 +82,11 @@ export function getK8sOwnerRefs(container: Container): K8sOwnerRef[] {
 export function groupK8sOwners(containers: Container[]) {
   const ownerGroups: Record<string, { owner: K8sOwnerRef; containers: Container[] }> = {};
   for (const container of containers) {
-    for (const owner of getK8sOwnerRefs(container)) {
+    const refs = getK8sOwnerRefs(container);
+    for (const [i, owner] of refs.entries()) {
+      // A Deployment's ReplicaSet holds exactly the Deployment's pods, so listing both
+      // shows the same logs twice. The chain runs child to parent.
+      if (owner.kind === "ReplicaSet" && refs[i + 1]?.kind === "Deployment") continue;
       ownerGroups[owner.key] ||= { owner, containers: [] };
       ownerGroups[owner.key].containers.push(container);
     }
@@ -95,7 +100,10 @@ export const useK8sStore = defineStore("k8s", () => {
   const containerStore = useContainerStore();
   const { containers } = storeToRefs(containerStore) as unknown as { containers: Ref<Container[]> };
 
-  const runningContainers = computed(() => containers.value.filter((c) => c.state === "running"));
+  // Follows "Show all containers" so a finished Job stays listed while its pod exists.
+  const runningContainers = computed(() =>
+    containers.value.filter((c) => (showAllContainers.value ? c.state !== "deleted" : c.state === "running")),
+  );
 
   const namespaces = computed(() => {
     const namespacedContainers: Record<string, Container[]> = {};

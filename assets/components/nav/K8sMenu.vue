@@ -15,6 +15,11 @@
         :to="{ name: '/namespace/[name]', params: { name: selectedNamespace } }"
       />
       <NavOverflow>
+        <button type="button" class="nav-menu-item" @click="showAllContainers = !showAllContainers">
+          <mdi:check class="size-4 shrink-0" v-if="showAllContainers" />
+          <span class="size-4 shrink-0" v-else></span>
+          {{ $t("label.show-all-containers") }}
+        </button>
         <button type="button" class="nav-menu-item" @click="toggleAll()">
           <material-symbols-light:expand-all class="size-4 shrink-0 opacity-60" v-if="allCollapsed" />
           <material-symbols-light:collapse-all class="size-4 shrink-0 opacity-60" v-else />
@@ -93,6 +98,7 @@
 <script lang="ts" setup>
 import Stack from "~icons/ph/stack";
 import CirclesFour from "~icons/ph/circles-four";
+import { showAllContainers } from "@/stores/settings";
 
 const store = useK8sStore();
 
