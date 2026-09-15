@@ -25,7 +25,10 @@ type StatsCollector struct {
 	timer        *time.Timer
 	mu           sync.Mutex
 	totalStarted atomic.Int32
-	labels       container.ContainerLabels
+	// metricsFailing keeps a missing metrics-server to one warning instead of one a
+	// second. Per namespace, since RBAC can allow metrics in one and deny another.
+	metricsFailing *xsync.Map[string, bool]
+	labels         container.ContainerLabels
 }
 
 func NewStatsCollector(client *Client, labels container.ContainerLabels) (*StatsCollector, error) {
@@ -34,10 +37,11 @@ func NewStatsCollector(client *Client, labels container.ContainerLabels) (*Stats
 		return nil, err
 	}
 	return &StatsCollector{
-		subscribers: xsync.NewMap[context.Context, chan<- container.ContainerStat](),
-		client:      client,
-		labels:      labels,
-		metrics:     metricsClient,
+		subscribers:    xsync.NewMap[context.Context, chan<- container.ContainerStat](),
+		metricsFailing: xsync.NewMap[string, bool](),
+		client:         client,
+		labels:         labels,
+		metrics:        metricsClient,
 	}, nil
 }
 
@@ -100,7 +104,15 @@ func (sc *StatsCollector) Start(parentCtx context.Context) bool {
 			lop.ForEach(sc.client.namespace, func(item string, index int) {
 				metricList, err := sc.metrics.MetricsV1beta1().PodMetricses(item).List(ctx, metav1.ListOptions{})
 				if err != nil {
-					log.Panic().Err(err).Msg("failed to get pod metrics")
+					// Most often metrics-server is not installed. Logs work without it, so
+					// warn once and keep polling in case it shows up.
+					if _, failing := sc.metricsFailing.LoadOrStore(item, true); ctx.Err() == nil && !failing {
+						log.Warn().Err(err).Str("namespace", item).Msg("could not read pod metrics, is metrics-server installed? CPU and memory will be empty")
+					}
+					return
+				}
+				if _, failing := sc.metricsFailing.LoadAndDelete(item); failing {
+					log.Info().Str("namespace", item).Msg("pod metrics are available again")
 				}
 				for _, pod := range metricList.Items {
 					for _, c := range pod.Containers {

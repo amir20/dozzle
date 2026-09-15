@@ -75,33 +75,36 @@ export function useCommands() {
         keywords: "restart reboot",
         perform: restart,
       });
-      if (container.state === "running") {
+      // Kubernetes has no stop, start or image update for one container, only restart.
+      if (config.mode !== "k8s") {
+        if (container.state === "running") {
+          list.push({
+            id: "container.stop",
+            section: "container",
+            icon: mdiStop,
+            title: t("command-palette.stop-container", { name }),
+            keywords: "stop kill halt",
+            perform: stop,
+          });
+        } else {
+          list.push({
+            id: "container.start",
+            section: "container",
+            icon: mdiPlay,
+            title: t("command-palette.start-container", { name }),
+            keywords: "start run",
+            perform: start,
+          });
+        }
         list.push({
-          id: "container.stop",
+          id: "container.update",
           section: "container",
-          icon: mdiStop,
-          title: t("command-palette.stop-container", { name }),
-          keywords: "stop kill halt",
-          perform: stop,
-        });
-      } else {
-        list.push({
-          id: "container.start",
-          section: "container",
-          icon: mdiPlay,
-          title: t("command-palette.start-container", { name }),
-          keywords: "start run",
-          perform: start,
+          icon: mdiDownload,
+          title: t("command-palette.update-container", { name }),
+          keywords: "update pull recreate upgrade",
+          perform: update,
         });
       }
-      list.push({
-        id: "container.update",
-        section: "container",
-        icon: mdiDownload,
-        title: t("command-palette.update-container", { name }),
-        keywords: "update pull recreate upgrade",
-        perform: update,
-      });
     }
 
     list.push(

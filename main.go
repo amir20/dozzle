@@ -136,12 +136,12 @@ func main() {
 			}
 		}()
 	} else if args.Mode == "k8s" {
-		localClient, err := k8s.NewClient(args.Namespace, container.NewHostIDResolver(args.HostID))
+		localClient, err := k8s.NewClient(args.Namespace, args.Filter, container.NewHostIDResolver(args.HostID))
 		if err != nil {
 			log.Fatal().Err(err).Msg("Could not create k8s client")
 		}
 
-		clusterService, err := hostservice.NewK8sClusterService(localClient, args.Timeout)
+		clusterService, err := hostservice.NewK8sClusterService(localClient, args.Timeout, args.Filter)
 		if err != nil {
 			log.Fatal().Err(err).Msg("Could not create k8s cluster service")
 		}

@@ -29,7 +29,11 @@ export const useContainerStore = defineStore("container", () => {
   );
 
   const visibleContainers = computed(() => {
-    const filter = showAllContainers.value ? () => true : (c: Container) => c.state === "running";
+    // A destroyed container lingers as "deleted" until the next full list, so leave it
+    // out of what is shown and counted.
+    const filter = showAllContainers.value
+      ? (c: Container) => c.state !== "deleted"
+      : (c: Container) => c.state === "running";
     return containers.value.filter(filter);
   });
 

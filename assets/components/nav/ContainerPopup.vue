@@ -95,10 +95,11 @@
         <!-- Start/stop/restart sit apart from the view controls above: one group
              changes what you are looking at, the other changes the container. -->
         <template v-if="enableActions">
+          <!-- Kubernetes has no stop or start for one container, only restart. -->
           <button
             type="button"
             class="nav-btn icon-btn hover:text-error! ms-auto disabled:pointer-events-none disabled:opacity-40"
-            v-if="isRunning"
+            v-if="isRunning && canStartStop"
             :disabled="actionStates.stop || actionStates.restart"
             :title="$t('toolbar.stop')"
             :aria-label="$t('toolbar.stop')"
@@ -109,7 +110,7 @@
           <button
             type="button"
             class="nav-btn icon-btn hover:text-success! ms-auto disabled:pointer-events-none disabled:opacity-40"
-            v-else
+            v-else-if="canStartStop"
             :disabled="actionStates.start || actionStates.restart"
             :title="$t('toolbar.start')"
             :aria-label="$t('toolbar.start')"
@@ -121,6 +122,7 @@
           <button
             type="button"
             class="nav-btn icon-btn disabled:pointer-events-none disabled:opacity-40"
+            :class="{ 'ms-auto': !canStartStop }"
             :disabled="actionStates.stop || actionStates.start || actionStates.restart"
             :title="$t('toolbar.restart')"
             :aria-label="$t('toolbar.restart')"
@@ -152,6 +154,7 @@ const { actionStates, start, stop, restart } = useContainerActions(toRef(() => c
 
 const host = computed(() => hosts.value[container.host]);
 const isRunning = computed(() => container.state === "running");
+const canStartStop = config.mode !== "k8s";
 const imageTag = computed(() => container.image.replace(/@sha.*/, ""));
 const shortUrl = computed(() => container.url?.replace(/^https?:\/\//, "").replace(/\/$/, ""));
 

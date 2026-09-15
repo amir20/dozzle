@@ -169,7 +169,8 @@
       <!-- Container Actions (Enabled via config) -->
       <li class="section" v-if="showContainerSection">{{ $t("toolbar.section-container") }}</li>
       <template v-if="enableActions && !historical">
-        <li>
+        <!-- Kubernetes has no stop or start for one container, only restart. -->
+        <li v-if="canStartStop">
           <button
             @click="stop()"
             :disabled="actionStates.stop || actionStates.restart"
@@ -290,6 +291,7 @@ const showDrawer = useDrawer();
 const { container, historical = false } = defineProps<{ container: Container; historical?: boolean }>();
 const clear = defineEmit();
 const { actionStates, start, stop, restart, update } = useContainerActions(toRef(() => container));
+const canStartStop = config.mode !== "k8s";
 const {
   showAlert: showImageUpdateAlert,
   isSelf: isSelfContainer,

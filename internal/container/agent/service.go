@@ -3,6 +3,7 @@ package agent
 import (
 	"context"
 	"io"
+	"sync"
 	"sync/atomic"
 
 	"time"
@@ -85,7 +86,52 @@ func (a *service) CheckImageUpdate(ctx context.Context, c container.Container, f
 }
 
 func (a *service) Attach(ctx context.Context, c container.Container, events container.ExecEventReader, stdout io.Writer) error {
-	panic("not implemented")
+	cancelCtx, cancel := context.WithCancel(ctx)
+	session, err := a.client.ContainerAttach(cancelCtx, c.ID)
+	if err != nil {
+		cancel()
+		return err
+	}
+
+	var wg sync.WaitGroup
+
+	wg.Go(func() {
+		defer session.Writer.Close()
+		defer cancel()
+
+	loop:
+		for {
+			event, err := events.ReadEvent()
+			if err != nil {
+				if err != io.EOF {
+					log.Error().Err(err).Msg("error reading event")
+				}
+				break
+			}
+
+			switch event.Type {
+			case "userinput":
+				if _, err := session.Writer.Write([]byte(event.Data)); err != nil {
+					log.Error().Err(err).Msg("error writing to container")
+					break loop
+				}
+			case "resize":
+				if err := session.Resize(event.Width, event.Height); err != nil {
+					log.Error().Err(err).Msg("error resizing terminal")
+				}
+			}
+		}
+	})
+
+	wg.Go(func() {
+		defer cancel()
+		if _, err := io.Copy(stdout, session.Reader); err != nil {
+			log.Error().Err(err).Msg("error copying stdout")
+		}
+	})
+
+	wg.Wait()
+	return nil
 }
 
 func (a *service) Exec(ctx context.Context, c container.Container, cmd []string, events container.ExecEventReader, stdout io.Writer) error {

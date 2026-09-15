@@ -1,6 +1,7 @@
 package k8s
 
 import (
+	"bufio"
 	"context"
 	"encoding/base64"
 	"errors"
@@ -22,10 +23,10 @@ import (
 	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime/schema"
-	"k8s.io/apimachinery/pkg/watch"
 	"k8s.io/client-go/discovery"
 	"k8s.io/client-go/discovery/cached/memory"
 	"k8s.io/client-go/dynamic"
+	coreinformers "k8s.io/client-go/informers/core/v1"
 
 	"github.com/rs/zerolog/log"
 
@@ -36,6 +37,7 @@ import (
 	"k8s.io/client-go/kubernetes/scheme"
 	"k8s.io/client-go/rest"
 	"k8s.io/client-go/restmapper"
+	"k8s.io/client-go/tools/cache"
 	"k8s.io/client-go/tools/clientcmd"
 	"k8s.io/client-go/tools/remotecommand"
 )
@@ -45,6 +47,7 @@ type Client struct {
 	DynamicClient dynamic.Interface
 	restMapper    meta.RESTMapper
 	namespace     []string
+	labelSelector string // pod-label half of --filter, pushed down to the API server
 	config        *rest.Config
 	host          container.Host
 	ownerCacheMu  sync.Mutex
@@ -54,8 +57,9 @@ type Client struct {
 	lastMapperReset time.Time
 }
 
-// hostIDs decides what this node is called; see container.HostIDResolver.
-func NewClient(namespace []string, hostIDs container.HostIDResolver) (*Client, error) {
+// hostIDs decides what this node is called; see container.HostIDResolver. filter is
+// --filter: its pod-label entries narrow what is listed and watched at the API server.
+func NewClient(namespace []string, filter container.ContainerLabels, hostIDs container.HostIDResolver) (*Client, error) {
 	var config *rest.Config
 	var err error
 
@@ -110,6 +114,7 @@ func NewClient(namespace []string, hostIDs container.HostIDResolver) (*Client, e
 		DynamicClient: dynamicClient,
 		restMapper:    restmapper.NewDeferredDiscoveryRESTMapper(memory.NewMemCacheClient(discoveryClient)),
 		namespace:     namespace,
+		labelSelector: podLabelSelector(filter),
 		config:        config,
 		host: container.Host{
 			ID:   hostIDs.Resolve(container.EngineIdentity{Runtime: "k8s", EngineID: node.Status.NodeInfo.MachineID}),
@@ -180,15 +185,37 @@ func (k *Client) podToContainers(ctx context.Context, pod *corev1.Pod) []contain
 		labels[ownerMembershipLabel(owner.Key)] = "true"
 	}
 
-	var containers []container.Container
-	for _, c := range pod.Spec.Containers {
+	statuses := make(map[string]corev1.ContainerStatus, len(pod.Status.InitContainerStatuses)+len(pod.Status.ContainerStatuses))
+	for _, status := range pod.Status.InitContainerStatuses {
+		statuses[status.Name] = status
+	}
+	for _, status := range pod.Status.ContainerStatuses {
+		statuses[status.Name] = status
+	}
+
+	// Init containers first, in the order they run. A failing one is usually why a pod
+	// is stuck, and a native sidecar (an init container with restartPolicy Always)
+	// runs for the pod's whole life, so both need to be viewable.
+	var initLabels map[string]string
+	if len(pod.Spec.InitContainers) > 0 {
+		initLabels = maps.Clone(labels)
+		initLabels["@k8s.init"] = "true"
+	}
+
+	containers := make([]container.Container, 0, len(pod.Spec.InitContainers)+len(pod.Spec.Containers))
+	add := func(c corev1.Container, labels map[string]string) {
+		state, containerStarted, finished := phaseToState(pod.Status.Phase), started, time.Time{}
+		if status, ok := statuses[c.Name]; ok {
+			state, containerStarted, finished = containerStatusToState(status, started)
+		}
 		containers = append(containers, container.Container{
 			ID:          pod.Namespace + ":" + pod.Name + ":" + c.Name,
 			Name:        pod.Name + "/" + c.Name,
 			Image:       c.Image,
 			Created:     pod.CreationTimestamp.Time,
-			State:       phaseToState(pod.Status.Phase),
-			StartedAt:   started,
+			State:       state,
+			StartedAt:   containerStarted,
+			FinishedAt:  finished,
 			Command:     strings.Join(c.Command, " "),
 			Host:        pod.Spec.NodeName,
 			Tty:         c.TTY,
@@ -197,7 +224,34 @@ func (k *Client) podToContainers(ctx context.Context, pod *corev1.Pod) []contain
 			FullyLoaded: true,
 		})
 	}
+	for _, c := range pod.Spec.InitContainers {
+		add(c, initLabels)
+	}
+	for _, c := range pod.Spec.Containers {
+		add(c, labels)
+	}
 	return containers
+}
+
+// containerStatusToState reads one container's own status. The pod phase stays
+// Running while a container crash-loops or a sidecar has died, so it cannot say
+// whether this particular container is healthy.
+// Like Docker, StartedAt is when the latest run started, not the pod.
+func containerStatusToState(status corev1.ContainerStatus, podStarted time.Time) (state string, started time.Time, finished time.Time) {
+	switch {
+	case status.State.Running != nil:
+		return "running", status.State.Running.StartedAt.Time, time.Time{}
+	case status.State.Terminated != nil:
+		t := status.State.Terminated
+		return "exited", t.StartedAt.Time, t.FinishedAt.Time
+	case status.State.Waiting != nil && status.LastTerminationState.Terminated != nil:
+		// Waiting after having run before is a crash loop (CrashLoopBackOff), which
+		// Docker calls restarting.
+		t := status.LastTerminationState.Terminated
+		return "restarting", t.StartedAt.Time, t.FinishedAt.Time
+	default:
+		return "created", podStarted, time.Time{}
+	}
 }
 
 func (k *Client) resolveOwnerChain(ctx context.Context, namespace string, refs []metav1.OwnerReference) []k8sOwner {
@@ -453,18 +507,24 @@ func matchesContainerLabels(labels map[string]string, filters container.Containe
 	return true
 }
 
-func (k *Client) ListContainers(ctx context.Context, labels container.ContainerLabels) ([]container.Container, error) {
-	podLabels, metadataLabels := splitK8sFilters(labels)
-	selector := ""
-	if podLabels.Exists() {
-		for key, values := range podLabels {
-			for _, value := range values {
-				if selector != "" {
-					selector += ","
-				}
-				selector += fmt.Sprintf("%s=%s", key, value)
-			}
+// podLabelSelector turns the pod-label entries of a filter into a label selector.
+// Metadata entries (namespace, owner) are not pod labels and are matched after listing.
+func podLabelSelector(labels container.ContainerLabels) string {
+	podLabels, _ := splitK8sFilters(labels)
+	var parts []string
+	for key, values := range podLabels {
+		for _, value := range values {
+			parts = append(parts, fmt.Sprintf("%s=%s", key, value))
 		}
+	}
+	slices.Sort(parts)
+	return strings.Join(parts, ",")
+}
+
+func (k *Client) ListContainers(ctx context.Context, labels container.ContainerLabels) ([]container.Container, error) {
+	_, metadataLabels := splitK8sFilters(labels)
+	selector := podLabelSelector(labels)
+	if selector != "" {
 		log.Debug().Str("selector", selector).Msg("Listing containers with labels")
 	}
 	containerList := lop.Map(k.namespace, func(namespace string, index int) lo.Tuple2[[]container.Container, error] {
@@ -566,69 +626,166 @@ func (k *Client) ContainerLogsBetweenDates(ctx context.Context, id string, start
 		SinceTime:  &metav1.Time{Time: start},
 	}
 
-	return k.Clientset.CoreV1().Pods(namespace).GetLogs(podName, opts).Stream(ctx)
+	pods := k.Clientset.CoreV1().Pods(namespace)
+	current, err := pods.GetLogs(podName, opts).Stream(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	// A restarted container keeps the same ID, but the logs API only serves the current
+	// run unless asked for the previous one. That run is what explains a crash loop, so
+	// put it in front. With no previous run the API returns an error, and when the
+	// runtime has already pruned it the kubelet answers 200 with "unable to retrieve
+	// container logs" as the body. Every real line starts with a timestamp, so anything
+	// else is dropped.
+	previousOpts := *opts
+	previousOpts.Previous = true
+	previous, err := pods.GetLogs(podName, &previousOpts).Stream(ctx)
+	if err != nil {
+		return current, nil
+	}
+	buffered := bufio.NewReader(previous)
+	if head, _ := buffered.Peek(len(time.RFC3339)); !startsWithTimestamp(head) {
+		previous.Close()
+		return current, nil
+	}
+
+	return &multiReadCloser{
+		Reader:  io.MultiReader(&newlineTerminated{r: buffered}, current),
+		closers: []io.Closer{previous, current},
+	}, nil
 }
 
-func (k *Client) ContainerEvents(ctx context.Context, ch chan<- container.ContainerEvent) error {
-	watchers := lo.Map(k.namespace, func(namespace string, index int) watch.Interface {
-		watcher, err := k.Clientset.CoreV1().Pods(namespace).Watch(ctx, metav1.ListOptions{})
-		if err != nil {
-			log.Error().Err(err).Msg("Failed to watch pods")
-			return nil
-		}
-		return watcher
-	})
+func startsWithTimestamp(b []byte) bool {
+	_, err := time.Parse("2006-01-02T15:04:05", string(b[:min(len(b), len("2006-01-02T15:04:05"))]))
+	return err == nil
+}
 
-	if len(watchers) == 0 {
+// newlineTerminated makes sure the previous run ends on a line break, so its last
+// line is not glued to the first line of the current run.
+type newlineTerminated struct {
+	r    io.Reader
+	last byte
+	eof  bool
+}
+
+func (n *newlineTerminated) Read(p []byte) (int, error) {
+	if n.eof {
+		if n.last != 0 && n.last != '\n' && len(p) > 0 {
+			p[0], n.last = '\n', '\n'
+			return 1, io.EOF
+		}
+		return 0, io.EOF
+	}
+	read, err := n.r.Read(p)
+	if read > 0 {
+		n.last = p[read-1]
+	}
+	if err == io.EOF {
+		n.eof = true
+		if read == 0 {
+			return n.Read(p)
+		}
+		return read, nil
+	}
+	return read, err
+}
+
+type multiReadCloser struct {
+	io.Reader
+	closers []io.Closer
+}
+
+func (m *multiReadCloser) Close() error {
+	var errs []error
+	for _, c := range m.closers {
+		errs = append(errs, c.Close())
+	}
+	return errors.Join(errs...)
+}
+
+// ContainerEvents streams pod changes until ctx is done. It uses an informer rather
+// than a bare watch: the API server closes every watch after 30 to 60 minutes, and a
+// bare watch that ends leaves Dozzle deaf to new pods (and their alerts) until
+// something happens to list containers again. The informer re-establishes the watch
+// and re-lists after a gap, so a missed delete still arrives.
+func (k *Client) ContainerEvents(ctx context.Context, ch chan<- container.ContainerEvent) error {
+	if len(k.namespace) == 0 {
 		return errors.New("no namespaces to watch")
 	}
 
 	wg := sync.WaitGroup{}
-
-	for _, watcher := range watchers {
-		wg.Go(func() {
-			for event := range watcher.ResultChan() {
-				log.Debug().Interface("event.type", event.Type).Msg("Received kubernetes event")
-				pod, ok := event.Object.(*corev1.Pod)
-				if !ok {
-					continue
-				}
-
-				name := ""
-				switch event.Type {
-				case "ADDED":
-					name = "create"
-				case "DELETED":
-					name = "destroy"
-				case "MODIFIED":
-					name = "update"
-				}
-
-				for _, c := range k.podToContainers(ctx, pod) {
-					select {
-					case ch <- container.ContainerEvent{
-						Name:      name,
-						ActorID:   c.ID,
-						Host:      pod.Spec.NodeName,
-						Time:      time.Now(),
-						Container: &c,
-					}:
-					case <-ctx.Done():
-						return
-					}
-				}
-			}
-		})
+	for _, namespace := range k.namespace {
+		informer := k.newPodInformer(namespace)
+		if _, err := informer.AddEventHandlerWithOptions(k.podEventHandler(ctx, ch), cache.HandlerOptions{}); err != nil {
+			return fmt.Errorf("failed to watch pods in namespace %s: %w", namespace, err)
+		}
+		wg.Go(func() { informer.RunWithContext(ctx) })
 	}
-
 	wg.Wait()
 
-	return nil
+	return ctx.Err()
 }
 
+func (k *Client) newPodInformer(namespace string) cache.SharedIndexInformer {
+	return coreinformers.NewFilteredPodInformer(k.Clientset, namespace, 0, cache.Indexers{}, func(options *metav1.ListOptions) {
+		options.LabelSelector = k.labelSelector
+	})
+}
+
+func (k *Client) podEventHandler(ctx context.Context, ch chan<- container.ContainerEvent) cache.ResourceEventHandler {
+	send := func(name string, pod *corev1.Pod) {
+		log.Debug().Str("event", name).Str("pod", pod.Name).Msg("Received kubernetes event")
+		for _, c := range k.podToContainers(ctx, pod) {
+			select {
+			case ch <- container.ContainerEvent{
+				Name:      name,
+				ActorID:   c.ID,
+				Host:      pod.Spec.NodeName,
+				Time:      time.Now(),
+				Container: &c,
+			}:
+			case <-ctx.Done():
+				return
+			}
+		}
+	}
+
+	return cache.ResourceEventHandlerDetailedFuncs{
+		AddFunc: func(obj any, isInInitialList bool) {
+			pod, ok := obj.(*corev1.Pod)
+			if !ok {
+				return
+			}
+			// The store lists pods itself when it connects, so the informer's own first
+			// list is sent as updates: cheap for pods the store already has, and it
+			// catches one created between the two lists.
+			if isInInitialList {
+				send("update", pod)
+			} else {
+				send("create", pod)
+			}
+		},
+		UpdateFunc: func(_, obj any) {
+			if pod, ok := obj.(*corev1.Pod); ok {
+				send("update", pod)
+			}
+		},
+		DeleteFunc: func(obj any) {
+			if tombstone, ok := obj.(cache.DeletedFinalStateUnknown); ok {
+				obj = tombstone.Obj
+			}
+			if pod, ok := obj.(*corev1.Pod); ok {
+				send("destroy", pod)
+			}
+		},
+	}
+}
+
+// ContainerStats is not used in k8s mode: StatsCollector polls the metrics API for
+// every pod at once instead of streaming per container.
 func (k *Client) ContainerStats(ctx context.Context, id string, stats chan<- container.ContainerStat) error {
-	// Stats collection is implemented in stats_collector.go using K8s metrics API
-	panic("not implemented - use StatsCollector instead")
+	return fmt.Errorf("per-container stats are not supported in Kubernetes mode: %w", errors.ErrUnsupported)
 }
 
 func (k *Client) Ping(ctx context.Context) error {
@@ -640,8 +797,31 @@ func (k *Client) Host() container.Host {
 	return k.host
 }
 
+// ContainerActions supports restart only. Kubernetes has no stop or start for a
+// single container; what it does have is deleting a pod so its controller schedules a
+// fresh one, which is what `kubectl delete pod` is used for day to day. A pod nothing
+// controls would be gone for good, so that is refused rather than done.
 func (k *Client) ContainerActions(ctx context.Context, action container.ContainerAction, containerID string) error {
-	panic("not implemented")
+	if action != container.Restart {
+		return fmt.Errorf("%s is not supported in Kubernetes mode, only restart: %w", action, errors.ErrUnsupported)
+	}
+
+	namespace, podName, _ := parsePodContainerID(containerID)
+	pods := k.Clientset.CoreV1().Pods(namespace)
+	pod, err := pods.Get(ctx, podName, metav1.GetOptions{})
+	if err != nil {
+		return err
+	}
+	// A static pod's mirror is "controlled" by its Node, but deleting the mirror only
+	// recreates the API object; the kubelet never restarts the containers.
+	if controller := metav1.GetControllerOf(pod); controller == nil || controller.Kind == "Node" {
+		return fmt.Errorf("pod %s has no controller to recreate it, so it cannot be restarted: %w", podName, errors.ErrUnsupported)
+	}
+
+	log.Info().Str("pod", podName).Str("namespace", namespace).Msg("restarting pod by deleting it")
+	return pods.Delete(ctx, podName, metav1.DeleteOptions{
+		Preconditions: &metav1.Preconditions{UID: &pod.UID},
+	})
 }
 
 func (k *Client) ContainerAttach(ctx context.Context, id string) (*container.ExecSession, error) {

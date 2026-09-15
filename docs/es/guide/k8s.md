@@ -1,6 +1,6 @@
 ---
 title: Compatibilidad con Kubernetes
-sourceHash: dd54f394f340
+sourceHash: b3fed93e4dd1
 ---
 
 # Compatibilidad con Kubernetes
@@ -141,7 +141,19 @@ Para comprobar que la API está funcionando, ejecuta:
 kubectl top pod
 ```
 
-Por ahora esto es obligatorio para usar Dozzle en Kubernetes.
+Sin ella, los logs siguen funcionando y la CPU y la memoria quedan vacías.
+
+## <Icon icon="mdi:restart" inline /> Acciones sobre contenedores
+
+Con `DOZZLE_ENABLE_ACTIONS=true`, Dozzle puede reiniciar un contenedor. Kubernetes no permite detener ni iniciar un contenedor por separado, así que reiniciar es la única acción. Dozzle reinicia borrando el pod para que su controlador (un Deployment, StatefulSet, DaemonSet o Job) cree uno nuevo, igual que `kubectl delete pod`. Un pod sin controlador nunca se borra.
+
+Borrar pods requiere un permiso que el rol de solo lectura de arriba no concede. Añade esta regla al ClusterRole:
+
+```yaml
+- apiGroups: [""]
+  resources: ["pods"]
+  verbs: ["delete"]
+```
 
 ## <Icon icon="mdi:filter-variant" inline /> Namespaces y filtros
 
