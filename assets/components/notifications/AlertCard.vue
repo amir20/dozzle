@@ -38,7 +38,7 @@
                 <li v-for="dest in dispatchers" :key="dest.id">
                   <a
                     class="flex items-center gap-2"
-                    :class="{ active: dest.id === alert.dispatcher?.id }"
+                    :class="{ 'menu-active': dest.id === alert.dispatcher?.id }"
                     @click="changeDispatcher(dest.id)"
                   >
                     <mdi:webhook v-if="dest.type === 'webhook'" />
