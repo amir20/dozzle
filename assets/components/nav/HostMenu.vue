@@ -71,7 +71,14 @@
               :to="{ name: '/container/[id]', params: { id: item.id } }"
               :label="item.name"
               :title="item.name"
-              :class="[item.state, { 'highlight-new': item.isNew, 'is-merged': isMerged && isStreaming(item.id) }]"
+              :class="[
+                item.state,
+                {
+                  'highlight-new': item.isNew,
+                  'is-merged': isMerged && isStreaming(item.id),
+                  'is-active': historyId === item.id,
+                },
+              ]"
               @click.alt.stop.prevent="pinnedStore.pinContainer(item)"
               @animationend="item.isNew = false"
             >
@@ -80,8 +87,13 @@
                 <ContainerIcon v-else :state="item.state" :health="item.health" :slug="item.icon" class="size-5" />
               </template>
               <!-- The tint alone reads as "selected"; the arrows say why several rows
-                   are selected at once. -->
-              <template #trailing v-if="isMerged && isStreaming(item.id)">
+                   are selected at once, and the clock that the row is open at a past
+                   moment rather than live. The history route is a sibling of the live
+                   one, so router-link never marks the row active on its own. -->
+              <template #trailing v-if="historyId === item.id">
+                <mdi:history class="size-3.5" />
+              </template>
+              <template #trailing v-else-if="isMerged && isStreaming(item.id)">
                 <ph:arrows-merge class="size-3.5" />
               </template>
             </NavItem>
@@ -247,12 +259,17 @@ const menuItems = computed(() => {
   return items;
 });
 
-const route = useRoute("/container/[id]");
+const route = useRoute();
+const containerRoutes = ["/container/[id]", "/container/[id].time.[datetime]"];
+
+const historyId = computed(() =>
+  route.name === "/container/[id].time.[datetime]" ? (route.params as { id: string }).id : undefined,
+);
 
 watch(
-  [() => route.name, () => route.params.id],
+  [() => route.name, () => (route.params as { id?: string }).id],
   ([name, id]) => {
-    if (name === "/container/[id]") {
+    if (containerRoutes.includes(name as string) && id) {
       const container = containerStore.findContainerById(id as string);
       if (container) {
         setHost(container.host);
