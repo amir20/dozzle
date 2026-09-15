@@ -91,7 +91,7 @@
   --border: 1px;
 
   --depth: 0;
-  --noise: 1;
+  --noise: 0;
 }
 
 @plugin "daisyui/theme" {
@@ -149,7 +149,7 @@
   --border: 1px;
 
   --depth: 0;
-  --noise: 1;
+  --noise: 0;
 }
 
 @utility input {
