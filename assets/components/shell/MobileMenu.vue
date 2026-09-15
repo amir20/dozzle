@@ -1,6 +1,7 @@
 <template>
   <nav class="border-base-content/20 bg-base-200 pt-safe fixed top-0 z-30 w-full border-b" data-testid="navigation">
-    <div class="px-4 py-2">
+    <!-- Extra top padding keeps the logo clear of iOS's blurred status-bar edge. -->
+    <div class="px-4 pt-3 pb-2">
       <div class="flex items-center">
         <router-link :to="{ name: '/' }" class="flex items-center gap-1.5" aria-label="Dozzle">
           <Logo class="size-10 shrink-0" aria-hidden="true" />
@@ -20,7 +21,7 @@
       </div>
 
       <transition name="fade">
-        <div v-show="show" class="flex h-[calc(100svh-55px)]">
+        <div v-show="show" class="flex h-[calc(100svh-59px)]">
           <SideMenu class="flex-1" />
         </div>
       </transition>
