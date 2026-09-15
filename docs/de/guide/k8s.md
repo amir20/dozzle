@@ -1,6 +1,6 @@
 ---
 title: Kubernetes-Unterstützung
-sourceHash: dd54f394f340
+sourceHash: b3fed93e4dd1
 ---
 
 # Kubernetes-Unterstützung
@@ -140,7 +140,19 @@ Ob die API läuft, prüfst du mit diesem Befehl:
 kubectl top pod
 ```
 
-Aktuell ist das Voraussetzung für den Einsatz von Dozzle in Kubernetes.
+Ohne sie funktionieren die Logs trotzdem, CPU und Arbeitsspeicher bleiben dann leer.
+
+## <Icon icon="mdi:restart" inline /> Container-Aktionen
+
+Mit `DOZZLE_ENABLE_ACTIONS=true` kann Dozzle einen Container neu starten. Kubernetes kennt kein Stoppen oder Starten eines einzelnen Containers, deshalb ist Neustarten die einzige Aktion. Dozzle startet neu, indem es den Pod löscht, damit sein Controller (ein Deployment, StatefulSet, DaemonSet oder Job) einen neuen anlegt, genau wie bei `kubectl delete pod`. Ein Pod ohne Controller wird nie gelöscht.
+
+Zum Löschen von Pods braucht Dozzle eine Berechtigung, die die schreibgeschützte Rolle oben nicht vergibt. Ergänze diese Regel in der ClusterRole:
+
+```yaml
+- apiGroups: [""]
+  resources: ["pods"]
+  verbs: ["delete"]
+```
 
 ## <Icon icon="mdi:filter-variant" inline /> Namespaces und Filter
 
