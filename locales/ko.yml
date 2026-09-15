@@ -170,6 +170,7 @@ error:
   copy-insecure-hint: 브라우저는 https에서만 클립보드 접근을 허용합니다. 텍스트를 직접 복사하세요.
   logs-skipped: 숨겨진 항목 {total}개 보기
   container-not-found: 컨테이너를 찾을 수 없습니다
+  container-not-found-hint: 삭제되었거나 호스트에 더 이상 연결할 수 없습니다.
   action-failed: 작업 실패
   update-failed: 업데이트 실패
   unable-to-complete-action: 작업을 완료할 수 없습니다
@@ -210,6 +211,7 @@ title:
   settings: 설정
   notifications: 알림
 button:
+  back-to-dashboard: 대시보드로 돌아가기
   live-logs: 실시간 로그로 이동
   logout: 로그아웃
   login: 로그인

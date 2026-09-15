@@ -170,6 +170,7 @@ error:
   copy-insecure-hint: Su navegador solo permite el acceso al portapapeles mediante https. Copie el texto manualmente.
   logs-skipped: Mostrar {total} entradas ocultas
   container-not-found: Contenedor no encontrado.
+  container-not-found-hint: Puede que se haya eliminado o que su host ya no esté accesible.
   action-failed: Acción Fallida
   update-failed: Actualización Fallida
   unable-to-complete-action: No se pudo completar la acción
@@ -208,6 +209,7 @@ title:
   settings: Configuración
   notifications: Notificaciones
 button:
+  back-to-dashboard: Volver al panel
   live-logs: Ir a los registros en vivo
   logout: Cerrar la sesión
   login: Iniciar sesión

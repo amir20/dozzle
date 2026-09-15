@@ -170,6 +170,7 @@ error:
   copy-insecure-hint: O seu navegador só permite acesso à área de transferência por https. Copie o texto manualmente.
   logs-skipped: Mostrar {total} entradas ocultas
   container-not-found: Container não encontrado
+  container-not-found-hint: Pode ter sido removido, ou o seu host já não está acessível.
   action-failed: Ação Falhou
   update-failed: Atualização Falhou
   unable-to-complete-action: Não foi possível completar a ação
@@ -208,6 +209,7 @@ title:
   settings: Configurações
   notifications: Notificações
 button:
+  back-to-dashboard: Voltar ao painel
   live-logs: Ir para os logs ao vivo
   logout: Sair
   login: Entrar

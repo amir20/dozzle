@@ -170,6 +170,7 @@ error:
   copy-insecure-hint: Ihr Browser erlaubt den Zugriff auf die Zwischenablage nur über https. Kopieren Sie den Text stattdessen manuell.
   logs-skipped: Zeige {total} versteckte Einträge
   container-not-found: Container nicht gefunden.
+  container-not-found-hint: Er wurde möglicherweise entfernt, oder sein Host ist nicht mehr erreichbar.
   action-failed: Aktion fehlgeschlagen
   update-failed: Aktualisierung fehlgeschlagen
   unable-to-complete-action: Aktion konnte nicht abgeschlossen werden
@@ -208,6 +209,7 @@ title:
   settings: Einstellungen
   notifications: Benachrichtigungen
 button:
+  back-to-dashboard: Zurück zum Dashboard
   live-logs: Zu den Live-Logs
   logout: Ausloggen
   login: Anmeldung

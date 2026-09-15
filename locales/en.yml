@@ -170,6 +170,7 @@ error:
   copy-insecure-hint: Your browser only allows clipboard access over https. Copy the text manually instead.
   logs-skipped: Show {total} hidden entries
   container-not-found: Container not found
+  container-not-found-hint: It may have been removed, or its host is no longer reachable.
   action-failed: Action Failed
   update-failed: Update Failed
   unable-to-complete-action: Unable to complete action
@@ -216,6 +217,7 @@ title:
   settings: Settings
   notifications: Notifications
 button:
+  back-to-dashboard: Back to dashboard
   live-logs: Go to live logs
   logout: Logout
   login: Login

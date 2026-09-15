@@ -173,6 +173,7 @@ error:
   copy-insecure-hint: Browser Anda hanya mengizinkan akses clipboard melalui https. Salin teks secara manual.
   logs-skipped: Tampilkan {total} entri tersembunyi
   container-not-found: Kontainer tidak ditemukan
+  container-not-found-hint: Kontainer mungkin telah dihapus, atau host-nya tidak lagi dapat dijangkau.
   action-failed: Tindakan Gagal
   update-failed: Pembaruan Gagal
   unable-to-complete-action: Tidak dapat menyelesaikan tindakan
@@ -214,6 +215,7 @@ title:
   notifications: Notifikasi
 
 button:
+  back-to-dashboard: Kembali ke dasbor
   live-logs: Buka log langsung
   logout: Keluar
   login: Masuk

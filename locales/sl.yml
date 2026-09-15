@@ -179,6 +179,7 @@ error:
     message: Časovna omejitev uporabniškega vmesnika Dozzle je potekla med
       povezovanjem z API-jem. Preverite omrežno povezavo in poskusite znova.
   container-not-found: Zabojnika ni bilo mogoče najti
+  container-not-found-hint: Morda je bil odstranjen ali pa njegov gostitelj ni več dosegljiv.
   action-failed: Dejanje Neuspešno
   update-failed: Posodobitev Neuspešna
   unable-to-complete-action: Dejanja ni mogoče dokončati
@@ -210,6 +211,7 @@ title:
   settings: Nastavitve
   notifications: Obvestila
 button:
+  back-to-dashboard: Nazaj na nadzorno ploščo
   live-logs: Pojdi na žive dnevnike
   logout: Odjava
   cancel: Prekliči
