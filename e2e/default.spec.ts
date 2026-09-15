@@ -27,6 +27,11 @@ test("route by name", async ({ page }) => {
   await expect(page).toHaveURL(/\/container/);
 });
 
+test("route by names skips unknown names", async ({ page }) => {
+  await page.goto("http://dozzle:8080/show?name=dozzle_e2e_dozzle,does-not-exist");
+  await expect(page).toHaveURL(/\/container/);
+});
+
 test.describe("es locale", () => {
   test.use({ locale: "es" });
 

@@ -1,6 +1,6 @@
 ---
 title: 常见问题
-sourceHash: 28cd2b9845cc
+sourceHash: 45f3e3d59e43
 ---
 
 # 常见问题
@@ -109,6 +109,8 @@ http:
 ## 我们有工具会在新容器创建时用到 Dozzle。怎么按容器名称拿到直达链接？
 
 Dozzle 有一个专门的[路由](https://github.com/amir20/dozzle/blob/master/assets/pages/show.vue)，可以按名称搜索容器并跳转过去。例如，如果有个容器名为 `"foo.bar"`、id 为 `abc123`，你可以把用户导向 `/show?name=foo.bar`，它会转到 `/container/abc123`。
+
+要在一个合并视图中打开多个容器，用逗号分隔名称：`/show?name=foo,bar` 会转到 `/merged/<ids>`。如果多个容器同名，会选择最近启动的那个。加上 `host=<host id>` 可以只匹配该主机上的容器，例如 `/show?name=foo,bar&host=abc`。没有匹配的名称会被跳过。
 
 ## 装好 Dozzle 但内存占用不显示！
 

@@ -1,6 +1,6 @@
 ---
 title: FAQ
-sourceHash: 28cd2b9845cc
+sourceHash: 45f3e3d59e43
 ---
 
 # Häufig gestellte Fragen
@@ -109,6 +109,8 @@ http:
 ## Wir haben Tools, die Dozzle nutzen, sobald ein neuer Container erstellt wird. Wie bekomme ich einen direkten Link zu einem Container über seinen Namen?
 
 Dozzle hat eine spezielle [Route](https://github.com/amir20/dozzle/blob/master/assets/pages/show.vue), mit der sich Container über den Namen suchen und anschließend dorthin weiterleiten lassen. Hast du zum Beispiel einen Container mit dem Namen `"foo.bar"` und der ID `abc123`, kannst du deine Benutzer auf `/show?name=foo.bar` schicken, was auf `/container/abc123` weiterleitet.
+
+Um mehrere Container in einer zusammengeführten Ansicht zu öffnen, trenne die Namen mit Kommas: `/show?name=foo,bar` leitet auf `/merged/<ids>` weiter. Haben mehrere Container denselben Namen, gewinnt der zuletzt gestartete. Mit `host=<host id>` werden nur Container auf diesem Host berücksichtigt, z. B. `/show?name=foo,bar&host=abc`. Namen ohne Treffer werden übersprungen.
 
 ## Ich habe Dozzle installiert, aber der Speicherverbrauch wird nicht angezeigt!
 
