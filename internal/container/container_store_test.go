@@ -121,6 +121,50 @@ func TestContainerStore_die(t *testing.T) {
 	assert.Equal(t, containers[0].State, "exited")
 }
 
+func TestContainerStore_updateCreatedToExitedBroadcastsStart(t *testing.T) {
+	pending := Container{
+		ID:    "default:hello-1:hello",
+		Name:  "hello-1/hello",
+		State: "created",
+		Host:  "localhost",
+		Stats: utils.NewRingBuffer[ContainerStat](300),
+	}
+	succeeded := pending
+	succeeded.State = "exited"
+
+	client := new(mockedClient)
+	client.On("ListContainers", mock.Anything, mock.Anything).Return([]Container{pending}, nil)
+
+	ready := make(chan struct{})
+	client.On("ContainerEvents", mock.Anything, mock.AnythingOfType("chan<- container.ContainerEvent")).Return(nil).
+		Run(func(args mock.Arguments) {
+			ctx := args.Get(0).(context.Context)
+			events := args.Get(1).(chan<- ContainerEvent)
+			<-ready
+			events <- ContainerEvent{
+				Name:      "update",
+				ActorID:   pending.ID,
+				Host:      "localhost",
+				Container: &succeeded,
+			}
+			<-ctx.Done()
+		})
+	client.On("Host").Return(Host{ID: "localhost"})
+	client.On("ContainerStats", mock.Anything, pending.ID, mock.AnythingOfType("chan<- container.ContainerStat")).Return(nil)
+	client.On("FindContainer", mock.Anything, pending.ID).Return(pending, nil)
+
+	store := NewContainerStore(t.Context(), client, &fakeStatsCollector{}, ContainerLabels{})
+
+	events := make(chan ContainerEvent, 2)
+	store.SubscribeEvents(t.Context(), events)
+	close(ready)
+
+	assert.Equal(t, "start", (<-events).Name)
+
+	containers, _ := store.ListContainers(ContainerLabels{})
+	assert.Equal(t, "exited", containers[0].State)
+}
+
 func TestContainerStore_rename(t *testing.T) {
 	run := func(t *testing.T, initial Container, attributes map[string]string) Container {
 		client := new(mockedClient)
