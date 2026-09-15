@@ -9,29 +9,22 @@
         <h1 class="text-2xl font-bold">{{ $t("title.settings") }}</h1>
         <p class="text-base-content/60 text-sm">{{ $t("settings.subtitle") }}</p>
       </div>
-      <button
-        type="button"
-        class="text-base-content/40 hover:text-base-content text-xs transition-colors"
-        @click="reset"
-      >
+      <button type="button" class="btn btn-ghost btn-xs text-base-content/60" @click="reset">
         {{ $t("settings.reset") }}
       </button>
     </div>
 
     <!-- On a phone the sub-nav folds into a row of chips above the first section. -->
-    <nav class="-mx-4 flex gap-2 overflow-x-auto px-4 @3xl:hidden">
+    <nav role="tablist" class="tabs tabs-box tabs-sm flex-nowrap overflow-x-auto @3xl:hidden">
       <router-link
         v-for="item in sections"
         :key="item.id"
         :to="{ hash: `#${item.id}` }"
         replace
         @click="pin(item.id)"
-        class="flex h-9 shrink-0 items-center rounded-full border px-3.5 text-sm whitespace-nowrap transition-colors"
-        :class="
-          active === item.id
-            ? 'bg-base-content/10 border-transparent font-medium'
-            : 'border-base-content/15 text-base-content/70 hover:bg-base-300'
-        "
+        role="tab"
+        class="tab shrink-0 whitespace-nowrap"
+        :class="{ 'tab-active': active === item.id }"
       >
         {{ item.label }}
       </router-link>
@@ -39,31 +32,30 @@
 
     <div class="flex items-start gap-10">
       <!-- Preferences first, what is about this instance after a hairline. -->
-      <nav class="sticky top-4 hidden w-48 shrink-0 flex-col gap-0.5 @3xl:flex">
+      <ul class="menu sticky top-4 hidden w-48 shrink-0 p-0 @3xl:flex">
         <template v-for="item in sections" :key="item.id">
-          <template v-if="item.id === 'instance'">
-            <div class="bg-base-content/10 mx-2 my-2.5 h-px"></div>
-          </template>
-          <router-link
-            :to="{ hash: `#${item.id}` }"
-            replace
-            @click="pin(item.id)"
-            class="hover:bg-base-300 flex items-center gap-2 rounded-md px-2 py-1.5 text-sm transition-colors"
-            :class="active === item.id ? 'bg-base-300 font-medium' : 'text-base-content/70'"
-          >
-            <component :is="item.icon" class="size-4 opacity-60" />
-            <span class="flex-1">{{ item.label }}</span>
-            <span v-if="item.id === 'about' && hasRelease" class="bg-warning size-1.5 rounded-full"></span>
-          </router-link>
+          <li v-if="item.id === 'instance'"></li>
+          <li>
+            <router-link
+              :to="{ hash: `#${item.id}` }"
+              replace
+              @click="pin(item.id)"
+              :class="{ 'menu-active': active === item.id }"
+            >
+              <component :is="item.icon" class="size-4 opacity-60" />
+              <span class="flex-1">{{ item.label }}</span>
+              <span v-if="item.id === 'about' && hasRelease" class="status status-warning"></span>
+            </router-link>
+          </li>
         </template>
-      </nav>
+      </ul>
 
       <div class="flex max-w-4xl min-w-0 flex-1 flex-col gap-8">
         <!-- APPEARANCE: app-wide only. Anything that changes how a log line looks is in Logs,
              under the preview it changes. -->
         <section id="appearance" ref="appearanceEl" class="scroll-mt-4">
           <h2 class="section-heading">{{ $t("settings.appearance") }}</h2>
-          <div class="panel">
+          <div class="card card-border bg-base-200/40 divide-base-content/10 divide-y overflow-hidden">
             <SettingRow :label="$t('settings.color-scheme')" class="px-4">
               <div class="flex gap-3">
                 <button
@@ -114,7 +106,7 @@
         <!-- LOGS -->
         <section id="logs" ref="logsEl" class="scroll-mt-4">
           <h2 class="section-heading">{{ $t("settings.logs") }}</h2>
-          <div class="panel">
+          <div class="card card-border bg-base-200/40 divide-base-content/10 divide-y overflow-hidden">
             <div ref="previewEl">
               <LogList
                 :messages="fakeMessages"
@@ -124,15 +116,14 @@
               />
             </div>
             <SettingRow :label="$t('settings.font-size')" class="px-4">
-              <span class="join">
+              <span role="tablist" class="tabs tabs-box tabs-sm">
                 <button
                   v-for="opt in sizes"
                   :key="opt.value"
                   type="button"
-                  class="btn btn-sm join-item"
-                  :class="
-                    size === opt.value ? 'bg-base-content/10 border-transparent' : 'btn-ghost text-base-content/60'
-                  "
+                  role="tab"
+                  class="tab"
+                  :class="{ 'tab-active': size === opt.value }"
                   @click="size = opt.value"
                 >
                   {{ opt.label }}
@@ -189,7 +180,7 @@
         <!-- SIDEBAR -->
         <section id="sidebar" ref="sidebarEl" class="scroll-mt-4">
           <h2 class="section-heading">{{ $t("settings.sidebar") }}</h2>
-          <div class="panel">
+          <div class="card card-border bg-base-200/40 divide-base-content/10 divide-y overflow-hidden">
             <SettingRow tag="label" :label="$t('settings.show-stopped-containers')" class="px-4">
               <input type="checkbox" class="toggle toggle-primary toggle-sm" v-model="showAllContainers" />
             </SettingRow>
@@ -222,7 +213,7 @@
         <!-- BEHAVIOR -->
         <section id="behavior" ref="behaviorEl" class="scroll-mt-4">
           <h2 class="section-heading">{{ $t("settings.behavior") }}</h2>
-          <div class="panel">
+          <div class="card card-border bg-base-200/40 divide-base-content/10 divide-y overflow-hidden">
             <SettingRow
               :label="$t('settings.automatic-redirect')"
               :description="$t('settings.automatic-redirect-desc')"
@@ -260,17 +251,16 @@
         </section>
 
         <!-- ADVANCED: the two settings almost nobody changes, folded away. -->
-        <details class="panel group/advanced">
-          <summary
-            class="text-base-content/70 hover:bg-base-300 flex min-h-13 list-none items-center gap-2 px-4 text-sm font-medium transition-colors [&::-webkit-details-marker]:hidden"
-          >
-            <mdi:chevron-right class="size-4 opacity-60 transition-transform group-open/advanced:rotate-90" />
+        <details
+          class="collapse-arrow card-border bg-base-200/40 divide-base-content/10 group/advanced collapse divide-y"
+        >
+          <summary class="collapse-title text-base-content/70 flex items-center gap-2 text-sm font-medium">
             <span class="flex-1">{{ $t("settings.advanced") }}</span>
             <span class="text-base-content/40 hidden text-xs font-normal group-open/advanced:hidden @xl:inline">
               {{ $t("settings.show-std") }}, {{ $t("settings.small-scrollbars") }}
             </span>
           </summary>
-          <div class="divide-base-content/10 border-base-content/10 divide-y border-t">
+          <div class="collapse-content divide-base-content/10 divide-y p-0">
             <SettingRow
               tag="label"
               :label="$t('settings.show-std')"
@@ -296,7 +286,7 @@
           <button
             v-if="config.mode === 'server'"
             type="button"
-            class="border-base-content/15 bg-base-200/40 hover:bg-base-300 flex items-center gap-3 rounded-lg border p-4 text-left transition-colors"
+            class="card card-border bg-base-200/40 hover:bg-base-300 flex-row items-center gap-3 p-4 text-left transition-colors"
             @click="openWizard"
           >
             <span class="bg-base-content/10 text-base-content/70 shrink-0 rounded-full p-2">
@@ -325,15 +315,15 @@
         >
           <div class="flex flex-wrap items-center gap-2.5">
             <span class="text-[0.9375rem] font-semibold">Dozzle</span>
-            <span class="status-pill status-pill-neutral">{{ config.version }}</span>
+            <span class="badge badge-soft badge-sm">{{ config.version }}</span>
             <a
               v-if="hasRelease"
               :href="latestRelease?.htmlUrl"
               target="_blank"
               rel="noopener noreferrer"
-              class="status-pill status-pill-warning hover:bg-warning/15"
+              class="badge badge-soft badge-warning badge-sm hover:bg-warning/15"
             >
-              <span class="size-1.5 rounded-full bg-current"></span>
+              <span class="status status-warning"></span>
               {{ $t("settings.new-version", { version: latestRelease?.name }) }}
             </a>
           </div>
@@ -554,9 +544,6 @@ const fakeMessages = computedWithControl(
 <style scoped>
 @reference "@/main.css";
 
-.panel {
-  @apply border-base-content/15 bg-base-200/40 divide-base-content/10 divide-y overflow-hidden rounded-lg border;
-}
 .section-heading {
   @apply text-base-content/60 mb-2 text-xs font-semibold tracking-wide uppercase;
 }
