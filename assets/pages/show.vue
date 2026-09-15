@@ -3,27 +3,44 @@ const router = useRouter();
 const route = useRoute();
 
 const store = useContainerStore();
-const { containers } = storeToRefs(store);
+const { containers, ready } = storeToRefs(store);
 
-watch(containers, (newValue) => {
-  if (newValue) {
-    if (route.query.name) {
-      const name = route.query.name as string;
-      const host = route.query.host as string | undefined;
-      const matches = containers.value
-        .filter((c) => c.name == name && (!host || c.host == host))
-        .sort((a, b) => b.startedAt.getTime() - a.startedAt.getTime());
-      if (matches.length > 0) {
-        router.push({ name: "/container/[id]", params: { id: matches[0].id } });
-      } else {
-        console.error(`No containers found matching name=${name}${host ? ` host=${host}` : ""}. Redirecting to /`);
-        router.push({ name: "/" });
-      }
-    } else {
-      console.error(`Expection query parameter name to be set. Redirecting to /`);
-      router.push({ name: "/" });
+whenever(
+  ready,
+  () => {
+    const names = String(route.query.name ?? "")
+      .split(",")
+      .map((n) => n.trim())
+      .filter(Boolean);
+    if (names.length === 0) {
+      console.error(`Expected query parameter name to be set. Redirecting to /`);
+      router.replace({ name: "/" });
+      return;
     }
-  }
-});
+
+    const host = route.query.host as string | undefined;
+    const ids: string[] = [];
+    for (const name of names) {
+      const match = containers.value
+        .filter((c) => c.name == name && (!host || c.host == host))
+        .sort((a, b) => b.startedAt.getTime() - a.startedAt.getTime())[0];
+      if (match) {
+        if (!ids.includes(match.id)) ids.push(match.id);
+      } else {
+        console.warn(`No containers found matching name=${name}${host ? ` host=${host}` : ""}`);
+      }
+    }
+
+    if (ids.length === 1) {
+      router.replace({ name: "/container/[id]", params: { id: ids[0] } });
+    } else if (ids.length > 1) {
+      router.replace({ name: "/merged/[ids]", params: { ids: ids.join(",") } });
+    } else {
+      console.error(`No containers found. Redirecting to /`);
+      router.replace({ name: "/" });
+    }
+  },
+  { immediate: true, once: true },
+);
 </script>
 <template></template>
