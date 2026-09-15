@@ -15,14 +15,14 @@ import (
 
 var SupportedLogLevels map[string]struct{}
 
-// Changing this also needs to change the logContext.ts file
+// Canonical names (the first of each group) must match Level in assets/models/LogEntry.ts
 var logLevels = [][]string{
-	{"error", "err"},
+	{"error", "err", "fail"},
 	{"warn", "warning", "wrn"},
 	{"info", "inf", "information"},
-	{"debug", "dbg"},
-	{"trace", "verbose", "ver", "vbs"},
-	{"fatal", "fail", "sev", "severe", "crit", "critical"},
+	{"debug", "dbg", "dbug"},
+	{"trace", "trce", "verbose", "ver", "vbs"},
+	{"fatal", "sev", "severe", "crit", "critical"},
 }
 
 // aliasToCanonical maps every alias to its canonical level name.
