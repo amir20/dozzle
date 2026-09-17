@@ -94,3 +94,12 @@ See [swarm mode](/guide/swarm-mode) for more information.
 Dozzle supports running in Kubernetes. It only needs to be deployed on one node within the cluster. You'll need to set `DOZZLE_MODE=k8s` and configure RBAC for pod log access.
 
 See [Kubernetes mode](/guide/k8s) for the full setup configuration including RBAC, deployment, and service manifests.
+
+## <Icon icon="mdi:cloud-outline" inline /> Easypanel
+
+If you'd rather not manage the container yourself, [Easypanel](https://easypanel.io) is a self-hosted deployment platform with a one-click Dozzle template:
+
+[![Deploy on Easypanel][easypanel-btn]][easypanel-deploy]
+
+[easypanel-btn]: https://easypanel.io/img/deploy-on-easypanel-40.svg
+[easypanel-deploy]: https://easypanel.io/templates/dozzle
