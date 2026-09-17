@@ -63,9 +63,11 @@ RUN mkdir /data
 # last stage remains the default build target.
 FROM alpine:3.24 AS alpine
 
-COPY --from=builder /data /data
+COPY --from=builder --chown=65532:65532 /data /data
 COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/ca-certificates.crt
 COPY --from=builder /dozzle/dozzle /dozzle
+
+USER 65532:65532
 
 EXPOSE 8080
 
@@ -73,10 +75,13 @@ ENTRYPOINT ["/dozzle"]
 
 FROM scratch
 
-COPY --from=builder /data /data
+COPY --from=builder --chown=65532:65532 /data /data
 COPY --from=builder /tmp /tmp
 COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/ca-certificates.crt
 COPY --from=builder /dozzle/dozzle /dozzle
+
+# Run as nonroot. Reading the docker socket needs its group, e.g. group_add.
+USER 65532:65532
 
 EXPOSE 8080
 
