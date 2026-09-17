@@ -1,6 +1,6 @@
 ---
 title: Prise en charge de Kubernetes
-sourceHash: dd54f394f340
+sourceHash: b3fed93e4dd1
 ---
 
 # Prise en charge de Kubernetes
@@ -141,7 +141,19 @@ Pour vérifier que l'API fonctionne, exécutez la commande suivante :
 kubectl top pod
 ```
 
-Pour l'instant, elle est requise pour utiliser Dozzle dans Kubernetes.
+Sans elle, les logs fonctionnent quand même, et le CPU et la mémoire restent vides.
+
+## <Icon icon="mdi:restart" inline /> Actions sur les conteneurs
+
+Avec `DOZZLE_ENABLE_ACTIONS=true`, Dozzle peut redémarrer un conteneur. Kubernetes ne permet pas d'arrêter ou de démarrer un conteneur seul, le redémarrage est donc la seule action. Dozzle redémarre en supprimant le pod pour que son contrôleur (un Deployment, StatefulSet, DaemonSet ou Job) en crée un nouveau, comme avec `kubectl delete pod`. Un pod sans contrôleur n'est jamais supprimé.
+
+Supprimer des pods demande une permission que le rôle en lecture seule ci-dessus n'accorde pas. Ajoutez cette règle au ClusterRole :
+
+```yaml
+- apiGroups: [""]
+  resources: ["pods"]
+  verbs: ["delete"]
+```
 
 ## <Icon icon="mdi:filter-variant" inline /> Namespaces et filtres
 

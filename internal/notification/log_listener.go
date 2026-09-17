@@ -187,18 +187,30 @@ func (l *ContainerLogListener) FindContainer(ctx context.Context, id string, lab
 	return client.FindContainer(ctx, id, labels)
 }
 
+// findContainerAndClient resolves the owning client for a container. A short-lived
+// container (a k8s CronJob pod) can finish streaming and be cleaned up before its
+// buffered log events are processed, so fall back to asking every client.
+func (l *ContainerLogListener) findContainerAndClient(ctx context.Context, id string, labels container.ContainerLabels) (container.Container, container.ClientService, error) {
+	if client, exists := l.containerClients.Load(id); exists {
+		c, err := client.FindContainer(ctx, id, labels)
+		return c, client, err
+	}
+
+	for _, client := range l.clients {
+		if c, err := client.FindContainer(ctx, id, labels); err == nil {
+			return c, client, nil
+		}
+	}
+	return container.Container{}, nil, fmt.Errorf("container %s not found in any client", id)
+}
+
 // FindContainerWithHost finds a container and its host by container ID, using a TTL cache.
 func (l *ContainerLogListener) FindContainerWithHost(ctx context.Context, id string, labels container.ContainerLabels) (container.Container, container.Host, error) {
 	if cached, ok := l.cache.Load(id); ok {
 		return cached.container, cached.host, nil
 	}
 
-	client, exists := l.containerClients.Load(id)
-	if !exists {
-		return container.Container{}, container.Host{}, fmt.Errorf("container %s not found in any client", id)
-	}
-
-	c, err := client.FindContainer(ctx, id, labels)
+	c, client, err := l.findContainerAndClient(ctx, id, labels)
 	if err != nil {
 		return container.Container{}, container.Host{}, err
 	}

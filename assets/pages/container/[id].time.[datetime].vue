@@ -12,13 +12,9 @@
     v-if="currentContainer"
     :key="route.params.datetime"
   />
-  <div v-else-if="ready" class="hero bg-base-200 min-h-screen">
-    <div class="hero-content text-center">
-      <div class="max-w-md">
-        <p class="py-6 text-2xl font-bold">{{ $t("error.container-not-found") }}</p>
-      </div>
-    </div>
-  </div>
+  <NotFound v-else-if="ready" :title="$t('error.container-not-found')" :hint="$t('error.container-not-found-hint')">
+    <template #icon><octicon:container-24 class="size-5" /></template>
+  </NotFound>
 </template>
 
 <script lang="ts" setup>

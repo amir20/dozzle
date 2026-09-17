@@ -139,7 +139,19 @@ To verify that the API is running, you can run the following command:
 kubectl top pod
 ```
 
-For now, this is required to use Dozzle in Kubernetes.
+Without it, logs still work, and CPU and memory stay empty.
+
+## <Icon icon="mdi:restart" inline /> Container Actions
+
+With `DOZZLE_ENABLE_ACTIONS=true`, Dozzle can restart a container. Kubernetes has no stop or start for a single container, so restart is the only action. Dozzle restarts by deleting the pod so its controller (a Deployment, StatefulSet, DaemonSet or Job) creates a new one, the same as `kubectl delete pod`. A pod without a controller is never deleted.
+
+Deleting pods needs a permission the read-only role above does not grant. Add this rule to the ClusterRole:
+
+```yaml
+- apiGroups: [""]
+  resources: ["pods"]
+  verbs: ["delete"]
+```
 
 ## <Icon icon="mdi:filter-variant" inline /> Namespaces and Filters
 

@@ -1,6 +1,6 @@
 ---
 title: Kubernetes 支持
-sourceHash: dd54f394f340
+sourceHash: b3fed93e4dd1
 ---
 
 # Kubernetes 支持
@@ -139,7 +139,19 @@ kubectl apply -f https://github.com/kubernetes-sigs/metrics-server/releases/late
 kubectl top pod
 ```
 
-目前在 Kubernetes 中使用 Dozzle 必须安装它。
+没有它，日志照常可用，只是 CPU 和内存会显示为空。
+
+## <Icon icon="mdi:restart" inline /> 容器操作
+
+设置 `DOZZLE_ENABLE_ACTIONS=true` 后，Dozzle 可以重启容器。Kubernetes 不支持单独停止或启动某个容器，所以重启是唯一的操作。Dozzle 通过删除 Pod 来重启，由它的控制器（Deployment、StatefulSet、DaemonSet 或 Job）创建新的 Pod，效果和 `kubectl delete pod` 一样。没有控制器的 Pod 永远不会被删除。
+
+删除 Pod 需要的权限，上面的只读角色并没有授予。请在 ClusterRole 中加上这条规则：
+
+```yaml
+- apiGroups: [""]
+  resources: ["pods"]
+  verbs: ["delete"]
+```
 
 ## <Icon icon="mdi:filter-variant" inline /> 命名空间与过滤
 

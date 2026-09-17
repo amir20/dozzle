@@ -57,7 +57,7 @@ func Test_handler_streamEvents_happy(t *testing.T) {
 	})
 
 	// This is needed so that the server is initialized for store
-	manager := hostservice.NewRetriableClientManager(nil, 3*time.Second, tls.Certificate{}, docker.NewDockerClientService(mockedClient, container.ContainerLabels{}))
+	manager := hostservice.NewRetriableClientManager(nil, 3*time.Second, tls.Certificate{}, docker.NewService(mockedClient, container.ContainerLabels{}))
 	multiHostService := hostservice.NewMultiHostService(manager, 3*time.Second)
 
 	server := CreateServer(multiHostService, nil, Config{Base: "/", Authorization: Authorization{Provider: NONE}})
@@ -116,7 +116,7 @@ func Test_handler_streamEvents_filtered(t *testing.T) {
 		ID: "localhost",
 	})
 
-	manager := hostservice.NewRetriableClientManager(nil, 3*time.Second, tls.Certificate{}, docker.NewDockerClientService(mockedClient, container.ContainerLabels{}))
+	manager := hostservice.NewRetriableClientManager(nil, 3*time.Second, tls.Certificate{}, docker.NewService(mockedClient, container.ContainerLabels{}))
 	multiHostService := hostservice.NewMultiHostService(manager, 3*time.Second)
 
 	server := CreateServer(multiHostService, nil, Config{Base: "/", Authorization: Authorization{Provider: NONE}})

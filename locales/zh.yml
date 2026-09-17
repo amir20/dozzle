@@ -170,6 +170,7 @@ error:
   copy-insecure-hint: 浏览器仅允许通过 https 访问剪贴板。请手动复制文本。
   logs-skipped: 显示 {total} 个隐藏条目
   container-not-found: 容器未找到。
+  container-not-found-hint: 它可能已被删除，或其主机已无法访问。
   action-failed: 操作失败
   update-failed: 更新失败
   unable-to-complete-action: 无法完成操作
@@ -208,6 +209,7 @@ title:
   settings: 设置
   notifications: 通知
 button:
+  back-to-dashboard: 返回仪表板
   live-logs: 转到实时日志
   logout: 退出
   login: 登录
@@ -222,50 +224,43 @@ placeholder:
   find-logs: 在日志中查找或正则
   search: 搜索
 settings:
-  show-image-update-alert: '当容器有更新时显示通知'
-  show-image-update-alert-desc: '检查仓库中是否有运行镜像的更新标签。'
-  help-support: >
-    请通过在 GitHub 上捐赠或赞助我们来支持 Dozzle。您的贡献帮助我们为所有人改进 Dozzle。谢谢！ 🙏🏼
-  display-desc: 自定义日志和应用其余部分的外观。预览会实时反映您的更改。
-  options-desc: 语言、导航和分组首选项。
+  subtitle: 此浏览器的偏好设置。更改会自动保存。
+  appearance: 外观
+  logs: 日志
+  sidebar: 侧边栏
+  behavior: 行为
+  advanced: 高级
+  instance: 此实例
+  about: 关于
+  reset: 恢复默认设置
+  sponsor: 赞助
+  new-version: "{version} 可用"
+  show-image-update-alert: '镜像更新提醒'
+  show-image-update-alert-desc: '当运行中的镜像有更新的标签时通知。'
   cloud-desc: 将日志流式传输到 Dozzle Cloud，进行 AI 驱动的调查和跨实例搜索。
-  support-title: 支持 Dozzle
-  support-help: 捐赠有助于保持 Dozzle 免费并持续维护。谢谢 🙏
-  display: 显示
-  locale: 显示语言
-  locale-desc: '默认跟随浏览器的语言。'
-  small-scrollbars: 使用较小的滚动条
+  locale: 语言
+  small-scrollbars: 细滚动条
   small-scrollbars-desc: '更细的滚动条，在小屏幕上很实用。'
   show-timestamps: 显示时间戳
-  show-timestamps-desc: '在每一行前面加上写入时间。'
-  soft-wrap: 断行
-  soft-wrap-desc: '自动换行显示长行，而不是左右滚动。'
+  soft-wrap: 自动换行
   highlight-errors: 高亮错误行
-  highlight-errors-desc: '为错误行添加背景色。彩色级别标记始终显示。'
-  datetime-format: 自定义日期和时间格式
-  datetime-format-desc: '默认跟随浏览器的语言和时间格式。'
+  highlight-errors-desc: '彩色级别标记始终显示。'
+  datetime-format: 日期和时间
   font-size: 字体大小
-  font-size-desc: '仅作用于日志输出，不影响应用的其他部分。'
-  color-scheme: 颜色方案
-  color-scheme-desc: '自动会跟随系统设置。'
-  options: 选项
+  color-scheme: 主题
   show-stopped-containers: 显示已停止的容器
-  show-stopped-containers-desc: '在侧边栏和列表中显示已停止的容器。'
-  group-containers: 按命名空间分组容器
-  group-containers-desc: '按 Compose 项目、Swarm 堆栈或 dev.dozzle.group 分组。'
-  show-app-icons: '显示应用图标'
-  show-app-icons-desc: '将常见镜像匹配到对应的标志。图标随 Dozzle 一起提供，不会从互联网下载。'
-  search: 使用Dozzle启用搜索
-  search-desc: '在当前查看的容器日志中搜索。'
-  using-version: 您正在使用<a href="https://dozzle.dev/" target="_blank" rel="noreferrer noopener">Dozzle</a> {version}。
-  update-available: >-
-    新版本可用！更新到 <a href="{href}" target="_blank" rel="noreferrer noopener">{nextVersion}</a>。
+  group-containers: 容器分组
+  group-containers-desc: '按 Compose 项目、Swarm 堆栈或 dev.dozzle.group。'
+  show-app-icons: '应用图标'
+  show-app-icons-desc: '随 Dozzle 内置，绝不从互联网下载。'
+  search: 搜索日志
+  search-desc: '查看容器时替代浏览器的查找功能。'
   show-std: 显示stdout和stderr标签
   show-std-desc: '标示该行来自 stdout 还是 stderr。'
-  automatic-redirect: 自动重定向到同名的新容器
-  automatic-redirect-desc: '当容器被替换时，自动跳转到新容器。'
+  automatic-redirect: 跟随重新创建的容器
+  automatic-redirect-desc: '容器被替换时，跳转到新容器。'
   compact: 紧凑模式
-  compact-desc: '缩小日志行之间的间距，让屏幕显示更多内容。'
+  compact-desc: '缩小间距，让屏幕显示更多行。'
   size:
     small: 小
     medium: 中
@@ -846,7 +841,8 @@ setup:
     restarting-hint: "新版本响应后页面会立即重新加载。"
     needs-actions: "重启后开启操作功能，立即更新才可用。"
     reason-pinned-tag: "你使用的是固定的版本标签，因此没有更新的镜像可拉取。请使用 latest 之类的标签来获取更新。"
-    reason-unsupported: "Dozzle 仅在作为单个 Docker 容器运行时才能替换自身。"
+    reason-unsupported: "Dozzle 在这里找不到自己的容器，因此无法替换自身。"
+    reason-swarm-worker: "Dozzle 以 Swarm 服务的形式运行在工作节点上。只有管理节点才能更新服务，请在管理节点上运行 Dozzle，或使用 docker service update 更新。"
     pull-denied: "无法拉取 {image}。它可能只存在于这台机器上，或者镜像仓库需要 docker login。"
   restart:
     title: 重启 Dozzle

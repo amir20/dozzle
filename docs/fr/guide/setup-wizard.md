@@ -1,6 +1,6 @@
 ---
 title: Assistant de configuration
-sourceHash: 6c58a8385357
+sourceHash: 4a73b46d7ba8
 ---
 
 # Assistant de configuration
@@ -107,7 +107,7 @@ Les logs du conteneur auxiliaire sont la seule trace d'une mise à jour. Il se s
 Certaines installations ne peuvent pas se mettre à jour ainsi :
 
 - **Les actions doivent être activées.** Pour se mettre à jour lui-même, Dozzle a besoin de `DOZZLE_ENABLE_ACTIONS`, et l'action `Update` nécessite le rôle actions quand la connexion est activée.
-- **Mode serveur uniquement.** Un service Swarm Dozzle se met à jour via le manager Swarm comme n'importe quel autre service. Kubernetes et les agents Dozzle ne se mettent pas à jour eux-mêmes.
+- **En mode serveur, y compris en service Swarm.** Quand Dozzle tourne comme tâche d'un service Swarm, il n'y a pas de conteneur auxiliaire : Dozzle demande au manager Swarm de faire passer le service sur la nouvelle image, et les réglages de mise à jour et de rollback de Swarm s'appliquent. Dozzle doit pour cela tourner sur un nœud manager. Avec plusieurs réplicas, seul le premier exécute la planification. Kubernetes et les agents Dozzle ne se mettent pas à jour eux-mêmes.
 - **Les tags de version fixes ne se mettent jamais à jour.** Récupérer `amir20/dozzle:v8.12.0` renvoie toujours la même image, la mise à jour automatique n'est donc pas disponible et une mise à jour manuelle indique que tout est à jour. Utilisez `latest` ou changez le tag vous-même.
 
 ## <Icon icon="mdi:shield-lock-outline" inline /> Sécurité

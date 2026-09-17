@@ -16,7 +16,7 @@ require (
 	github.com/moby/docker-image-spec v1.3.1
 	github.com/moby/moby/api v1.56.0
 	github.com/moby/moby/client v0.6.0
-	github.com/modelcontextprotocol/go-sdk v1.7.0
+	github.com/modelcontextprotocol/go-sdk v1.8.0
 	github.com/opencontainers/image-spec v1.1.1
 	github.com/puzpuzpuz/xsync/v4 v4.5.0
 	github.com/rs/zerolog v1.35.1
@@ -24,7 +24,7 @@ require (
 	github.com/spf13/afero v1.15.0
 	github.com/stretchr/testify v1.12.1
 	github.com/wk8/go-ordered-map/v2 v2.1.8
-	github.com/yuin/goldmark/v2 v2.1.0
+	github.com/yuin/goldmark/v2 v2.1.1
 	go.yaml.in/yaml/v3 v3.0.5
 	golang.org/x/crypto v0.57.0
 	golang.org/x/oauth2 v0.37.0
@@ -103,6 +103,7 @@ require (
 	github.com/opencontainers/go-digest v1.0.0 // indirect
 	github.com/pelletier/go-toml v1.9.5 // indirect
 	github.com/pelletier/go-toml/v2 v2.4.3 // indirect
+	github.com/pmezard/go-difflib v1.0.1-0.20181226105442-5d4384ee4fb2 // indirect
 	github.com/segmentio/asm v1.2.1 // indirect
 	github.com/segmentio/encoding v0.5.4 // indirect
 	github.com/sergi/go-diff v1.4.0 // indirect

@@ -206,11 +206,12 @@ function onClose() {
   setupSeen.value = true;
   clearSetupResume();
   wizardOpen.value = false;
-  // Linked Cloud along the way: the welcome picks up at its starter alerts, since
-  // the wizard's Cloud step already said what Cloud does.
+  // Linked Cloud along the way: the welcome opens from its first step. The wizard's
+  // Cloud step only pitched Cloud; the welcome's first step says what leaves the
+  // instance, whether streaming is on, and when the first findings arrive.
   if (cloudWelcomePending()) {
     clearCloudWelcomePending();
-    requestCloudWelcome(2);
+    requestCloudWelcome();
   }
 }
 

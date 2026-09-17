@@ -17,31 +17,35 @@ import (
 
 var timeToStop = 2 * time.Hour
 
-type K8sStatsCollector struct {
-	client       *K8sClient
+type StatsCollector struct {
+	client       *Client
 	metrics      *metricsclient.Clientset
 	subscribers  *xsync.Map[context.Context, chan<- container.ContainerStat]
 	stopper      context.CancelFunc
 	timer        *time.Timer
 	mu           sync.Mutex
 	totalStarted atomic.Int32
-	labels       container.ContainerLabels
+	// metricsFailing keeps a missing metrics-server to one warning instead of one a
+	// second. Per namespace, since RBAC can allow metrics in one and deny another.
+	metricsFailing *xsync.Map[string, bool]
+	labels         container.ContainerLabels
 }
 
-func NewK8sStatsCollector(client *K8sClient, labels container.ContainerLabels) (*K8sStatsCollector, error) {
+func NewStatsCollector(client *Client, labels container.ContainerLabels) (*StatsCollector, error) {
 	metricsClient, err := metricsclient.NewForConfig(client.config)
 	if err != nil {
 		return nil, err
 	}
-	return &K8sStatsCollector{
-		subscribers: xsync.NewMap[context.Context, chan<- container.ContainerStat](),
-		client:      client,
-		labels:      labels,
-		metrics:     metricsClient,
+	return &StatsCollector{
+		subscribers:    xsync.NewMap[context.Context, chan<- container.ContainerStat](),
+		metricsFailing: xsync.NewMap[string, bool](),
+		client:         client,
+		labels:         labels,
+		metrics:        metricsClient,
 	}, nil
 }
 
-func (c *K8sStatsCollector) Subscribe(ctx context.Context, stats chan<- container.ContainerStat) {
+func (c *StatsCollector) Subscribe(ctx context.Context, stats chan<- container.ContainerStat) {
 	c.subscribers.Store(ctx, stats)
 	go func() {
 		<-ctx.Done()
@@ -49,7 +53,7 @@ func (c *K8sStatsCollector) Subscribe(ctx context.Context, stats chan<- containe
 	}()
 }
 
-func (c *K8sStatsCollector) Stop() {
+func (c *StatsCollector) Stop() {
 	c.mu.Lock()
 	defer c.mu.Unlock()
 	if c.totalStarted.Add(-1) == 0 {
@@ -59,7 +63,7 @@ func (c *K8sStatsCollector) Stop() {
 	}
 }
 
-func (c *K8sStatsCollector) forceStop() {
+func (c *StatsCollector) forceStop() {
 	c.mu.Lock()
 	defer c.mu.Unlock()
 	if c.stopper != nil {
@@ -69,7 +73,7 @@ func (c *K8sStatsCollector) forceStop() {
 	}
 }
 
-func (c *K8sStatsCollector) reset() {
+func (c *StatsCollector) reset() {
 	c.mu.Lock()
 	defer c.mu.Unlock()
 	if c.timer != nil {
@@ -79,7 +83,7 @@ func (c *K8sStatsCollector) reset() {
 }
 
 // Start starts the stats collector and blocks until it's stopped. It returns true if the collector was stopped, false if it was already running
-func (sc *K8sStatsCollector) Start(parentCtx context.Context) bool {
+func (sc *StatsCollector) Start(parentCtx context.Context) bool {
 	sc.reset()
 	sc.totalStarted.Add(1)
 
@@ -100,7 +104,15 @@ func (sc *K8sStatsCollector) Start(parentCtx context.Context) bool {
 			lop.ForEach(sc.client.namespace, func(item string, index int) {
 				metricList, err := sc.metrics.MetricsV1beta1().PodMetricses(item).List(ctx, metav1.ListOptions{})
 				if err != nil {
-					log.Panic().Err(err).Msg("failed to get pod metrics")
+					// Most often metrics-server is not installed. Logs work without it, so
+					// warn once and keep polling in case it shows up.
+					if _, failing := sc.metricsFailing.LoadOrStore(item, true); ctx.Err() == nil && !failing {
+						log.Warn().Err(err).Str("namespace", item).Msg("could not read pod metrics, is metrics-server installed? CPU and memory will be empty")
+					}
+					return
+				}
+				if _, failing := sc.metricsFailing.LoadAndDelete(item); failing {
+					log.Info().Str("namespace", item).Msg("pod metrics are available again")
 				}
 				for _, pod := range metricList.Items {
 					for _, c := range pod.Containers {

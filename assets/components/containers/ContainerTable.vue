@@ -5,12 +5,12 @@
       v-if="Object.keys(hosts).length > 1 || isMobile"
     >
       <div v-if="Object.keys(hosts).length > 1" class="min-w-0 flex-1">
-        <div role="tablist" class="tabs-boxed tabs tabs-xs block" v-if="Object.keys(hosts).length < 4">
+        <div role="tablist" class="tabs tabs-box tabs-xs" v-if="Object.keys(hosts).length < 4">
           <input
             type="radio"
             name="host"
             role="tab"
-            class="tab rounded-sm!"
+            class="tab"
             aria-label="Show All"
             v-model="selectedHost"
             :value="null"
@@ -19,7 +19,7 @@
             type="radio"
             name="host"
             role="tab"
-            class="tab rounded-sm!"
+            class="tab"
             :aria-label="host.name"
             v-for="host in hosts"
             :value="host.id"

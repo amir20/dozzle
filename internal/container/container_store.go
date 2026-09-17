@@ -3,6 +3,7 @@ package container
 import (
 	"context"
 	"errors"
+	"slices"
 	"sync"
 	"sync/atomic"
 	"time"
@@ -470,6 +471,18 @@ func (s *ContainerStore) SubscribeNewContainers(ctx context.Context, containers 
 // missing from the store until the next reconnect and the UI would never update it again.
 // Fall back to the list entry in that case: it is not FullyLoaded, so the next
 // FindContainer fills in the rest.
+// matchesLabels is a cheap pre-check against the store's filter, so an update for a
+// container outside it does not cost a full list every time it changes.
+func matchesLabels(labels map[string]string, filter ContainerLabels) bool {
+	for key, values := range filter {
+		value, ok := labels[key]
+		if !ok || !slices.Contains(values, value) {
+			return false
+		}
+	}
+	return true
+}
+
 func (s *ContainerStore) addContainer(id string, timeout time.Duration) {
 	ctx, cancel := context.WithTimeout(context.Background(), timeout)
 	defer cancel()
@@ -535,11 +548,15 @@ func (s *ContainerStore) init() {
 				s.containers.Delete(event.ActorID)
 
 			case "update":
-				started := false
+				started, known := false, false
 				updatedContainer, _ := s.containers.Compute(event.ActorID, func(c *Container, loaded bool) (*Container, xsync.ComputeOp) {
 					if loaded && event.Container != nil {
+						known = true
 						newContainer := event.Container
-						if newContainer.State == "running" && c.State != "running" {
+						// A short-lived k8s pod (a Job) can go from Pending straight to
+						// Succeeded without ever reporting Running. It still ran, so it
+						// counts as a start, or the UI never learns it exists.
+						if c.State != "running" && (newContainer.State == "running" || (c.State == "created" && newContainer.State == "exited")) {
 							started = true
 						}
 						copy := *c
@@ -562,6 +579,17 @@ func (s *ContainerStore) init() {
 						ActorID: updatedContainer.ID,
 						Host:    updatedContainer.Host,
 					})
+				}
+
+				// Only Kubernetes sends updates carrying a container the store never loaded:
+				// its create landed before the store's first list, or adding it failed. A
+				// k8s watch no longer ends and forces a fresh list, so pick it up here or
+				// it stays missing for the life of the process.
+				if !known && event.Container != nil && matchesLabels(event.Container.Labels, s.labels) {
+					s.addContainer(event.ActorID, 3*time.Second)
+					if added, ok := s.containers.Load(event.ActorID); ok {
+						s.broadcast(ContainerEvent{Name: "start", ActorID: added.ID, Host: added.Host})
+					}
 				}
 
 			case "die":

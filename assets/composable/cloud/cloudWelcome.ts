@@ -8,9 +8,8 @@
 
 const PENDING_KEY = "DOZZLE_CLOUD_WELCOME_PENDING";
 
-// Step the welcome should open at, set by whoever hands it over. CloudPopover owns
-// the modal and consumes it.
-const requestedStep = ref<number | null>(null);
+// Set by whoever hands the welcome over. CloudPopover owns the modal and consumes it.
+const requested = ref(false);
 
 export function markCloudWelcomePending() {
   try {
@@ -38,9 +37,9 @@ export function clearCloudWelcomePending() {
 
 export function useCloudWelcome() {
   return {
-    requestedStep,
-    requestCloudWelcome: (step: number) => {
-      requestedStep.value = step;
+    requested,
+    requestCloudWelcome: () => {
+      requested.value = true;
     },
   };
 }

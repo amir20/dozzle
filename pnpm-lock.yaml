@@ -263,8 +263,8 @@ importers:
         specifier: ^6.0.2
         version: 6.0.2
       daisyui:
-        specifier: 5.7.37
-        version: 5.7.37
+        specifier: 5.7.38
+        version: 5.7.38
       entities:
         specifier: ^8.1.0
         version: 8.1.0
@@ -366,8 +366,8 @@ importers:
         specifier: ^8.70.0
         version: 8.70.0(eslint@10.10.0(jiti@2.7.0)(supports-color@10.2.2))(supports-color@10.2.2)(typescript-native-bridge@6.0.3-bridge.17.tsgo.7.0.2)
       '@vitejs/plugin-vue':
-        specifier: 6.0.8
-        version: 6.0.8(vite@8.3.0(@types/node@26.5.1)(jiti@2.7.0)(yaml@2.9.0))(vue@3.5.42(typescript-native-bridge@6.0.3-bridge.17.tsgo.7.0.2))
+        specifier: 6.0.9
+        version: 6.0.9(vite@8.3.0(@types/node@26.5.1)(jiti@2.7.0)(yaml@2.9.0))(vue@3.5.42(typescript-native-bridge@6.0.3-bridge.17.tsgo.7.0.2))
       '@vue/compiler-sfc':
         specifier: ^3.5.42
         version: 3.5.42
@@ -1927,8 +1927,8 @@ packages:
       vite: ^5.0.0 || ^6.0.0
       vue: ^3.2.25
 
-  '@vitejs/plugin-vue@6.0.8':
-    resolution: {integrity: sha512-0ZjgOg7oO6farnNGup7yvoM/YXZV84OZxHAwtflItNa/6zzQyVb5LNxyea3FEKEX2XlagIKzrlH7wwxkKgtiew==}
+  '@vitejs/plugin-vue@6.0.9':
+    resolution: {integrity: sha512-rD/MORlhaZMlXWW0rEn4FB4wMinWC0z/D7Ye160S5+Rs1mC8ZDAdcDp4SjKfUhG5t8q1ktcPVw4xuTkPRlzrSA==}
     engines: {node: ^20.19.0 || >=22.12.0}
     peerDependencies:
       vite: ^5.0.0 || ^6.0.0 || ^7.0.0 || ^8.0.0
@@ -2605,8 +2605,8 @@ packages:
   csstype@3.2.3:
     resolution: {integrity: sha512-z1HGKcYy2xA8AGQfwrn0PAy+PB7X/GSj3UVJW9qKyn43xWa+gl5nXmU4qqLMRzWVLFC8KusUX8T/0kCiOYpAIQ==}
 
-  daisyui@5.7.37:
-    resolution: {integrity: sha512-PVcdAcL0ni6/wmcNwvldARZuO0HdzxtjVEAT86ie9GMgFjwmqIWeXsPaM2/eYqLb4WMexqj146C5Z1xmzZDnjg==}
+  daisyui@5.7.38:
+    resolution: {integrity: sha512-ef3RIbteKVmlQ10ak0l4mu8F70pBJ2UBjDJNsA2vWlpNdErpHqfxddxK2ckNNYd7vQvTqP4a1A1vSsunlCGVOw==}
 
   data-urls@7.0.0:
     resolution: {integrity: sha512-23XHcCF+coGYevirZceTVD7NdJOqVn+49IHyxgszm+JIiHLoB2TkmPtsYkNWT1pvRSGkc35L6NHs0yHkN2SumA==}
@@ -5586,7 +5586,7 @@ snapshots:
       vite: 5.4.21(@types/node@26.5.1)(lightningcss@1.33.0)
       vue: 3.5.42(typescript-native-bridge@6.0.3-bridge.17.tsgo.7.0.2)
 
-  '@vitejs/plugin-vue@6.0.8(vite@8.3.0(@types/node@26.5.1)(jiti@2.7.0)(yaml@2.9.0))(vue@3.5.42(typescript-native-bridge@6.0.3-bridge.17.tsgo.7.0.2))':
+  '@vitejs/plugin-vue@6.0.9(vite@8.3.0(@types/node@26.5.1)(jiti@2.7.0)(yaml@2.9.0))(vue@3.5.42(typescript-native-bridge@6.0.3-bridge.17.tsgo.7.0.2))':
     dependencies:
       '@rolldown/pluginutils': 1.0.1
       vite: 8.3.0(@types/node@26.5.1)(jiti@2.7.0)(yaml@2.9.0)
@@ -6353,7 +6353,7 @@ snapshots:
 
   csstype@3.2.3: {}
 
-  daisyui@5.7.37: {}
+  daisyui@5.7.38: {}
 
   data-urls@7.0.0:
     dependencies:

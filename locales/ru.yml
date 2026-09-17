@@ -170,6 +170,7 @@ error:
   copy-insecure-hint: Браузер разрешает доступ к буферу обмена только по https. Скопируйте текст вручную.
   logs-skipped: Показать {total} скрытых записей
   container-not-found: Контейнер не найден.
+  container-not-found-hint: Возможно, он был удалён или его хост больше недоступен.
   action-failed: Действие не выполнено
   update-failed: Обновление не выполнено
   unable-to-complete-action: Не удалось выполнить действие
@@ -208,6 +209,7 @@ title:
   settings: Настройки
   notifications: Уведомления
 button:
+  back-to-dashboard: Вернуться на панель
   live-logs: Перейти к живым логам
   logout: Выйти
   login: Войти
@@ -222,50 +224,43 @@ placeholder:
   find-logs: Поиск в логах или regex
   search: Поиск
 settings:
-  show-image-update-alert: 'Показывать уведомление, когда у контейнера есть обновление'
-  show-image-update-alert-desc: 'Проверяет в реестре более новый тег запущенного образа.'
-  help-support: >
-    Пожалуйста, поддержите Dozzle, сделав пожертвование или спонсорство на GitHub. Ваши вклады помогают нам улучшать Dozzle для всех. Спасибо! 🙏🏼
-  display-desc: Настройте внешний вид логов и остальной части приложения. Предпросмотр отражает ваши изменения в реальном времени.
-  options-desc: Настройки языка, навигации и группировки.
+  subtitle: Настройки для этого браузера. Изменения сохраняются автоматически.
+  appearance: Внешний вид
+  logs: Логи
+  sidebar: Боковая панель
+  behavior: Поведение
+  advanced: Дополнительно
+  instance: Этот экземпляр
+  about: О программе
+  reset: Сбросить настройки
+  sponsor: Поддержать
+  new-version: "Доступна версия {version}"
+  show-image-update-alert: 'Уведомления об обновлениях образов'
+  show-image-update-alert-desc: 'Сообщать, когда у запущенного образа есть более новый тег.'
   cloud-desc: Передавайте логи в Dozzle Cloud для аналитики с использованием ИИ и поиска по экземплярам.
-  support-title: Поддержать Dozzle
-  support-help: Пожертвования помогают сохранять Dozzle бесплатным и поддерживаемым. Спасибо 🙏
-  display: Вид
   locale: Язык
-  locale-desc: 'По умолчанию следует языку браузера.'
-  small-scrollbars: Уменьшенная полоса прокрутки
+  small-scrollbars: Тонкие полосы прокрутки
   small-scrollbars-desc: 'Более тонкие полосы прокрутки, удобно на небольших экранах.'
   show-timestamps: Показывать временные метки
-  show-timestamps-desc: 'Добавляет в начало каждой строки время её записи.'
-  soft-wrap: Плавный перенос текста
-  soft-wrap-desc: 'Переносит длинные строки вместо горизонтальной прокрутки.'
+  soft-wrap: Перенос строк
   highlight-errors: Подсвечивать строки с ошибками
-  highlight-errors-desc: 'Окрашивает фон строк с ошибками. Цветной маркер уровня отображается всегда.'
-  datetime-format: Формат даты и времени
-  datetime-format-desc: 'По умолчанию следует языку и формату времени браузера.'
+  highlight-errors-desc: 'Цветная метка уровня отображается всегда.'
+  datetime-format: Дата и время
   font-size: Размер шрифта
-  font-size-desc: 'Влияет только на вывод логов, а не на остальной интерфейс.'
-  color-scheme: Цветовая схема
-  color-scheme-desc: 'Авто следует настройке системы.'
-  options: Опции
+  color-scheme: Тема
   show-stopped-containers: Показывать остановленные контейнеры
-  show-stopped-containers-desc: 'Показывать остановленные контейнеры в боковой панели и списках.'
-  group-containers: Группировать контейнеры по пространству имён
-  group-containers-desc: 'Группирует по проекту Compose, стеку Swarm или dev.dozzle.group.'
-  show-app-icons: 'Показывать значки приложений'
-  show-app-icons-desc: 'Сопоставлять известные образы с их логотипами. Значки поставляются вместе с Dozzle и никогда не загружаются из интернета.'
-  search: Включить поиск с помощью Dozzle, используя
-  search-desc: 'Ищет внутри логов контейнера, который вы просматриваете.'
-  using-version: Вы используете <a href="https://dozzle.dev/" target="_blank" rel="noreferrer noopener">Dozzle</a> {version}.
-  update-available: >-
-    Доступна новая версия! Обновить до <a href="{href}" target="_blank" rel="noreferrer noopener">{nextVersion}</a>.
+  group-containers: Группировать контейнеры
+  group-containers-desc: 'По проекту Compose, стеку Swarm или dev.dozzle.group.'
+  show-app-icons: 'Значки приложений'
+  show-app-icons-desc: 'Входят в состав Dozzle и никогда не загружаются из интернета.'
+  search: Поиск по логам
+  search-desc: 'Заменяет поиск браузера при просмотре контейнера.'
   show-std: Показывать метки stdout и stderr
   show-std-desc: 'Помечает, из stdout или stderr пришла строка.'
-  automatic-redirect: Автоматическое перенаправление на новые контейнеры с тем же именем.
-  automatic-redirect-desc: 'Когда контейнер заменён, перейти к новому.'
+  automatic-redirect: Следовать за пересозданными контейнерами
+  automatic-redirect-desc: 'Когда контейнер заменён, переходить к новому.'
   compact: Компактный режим
-  compact-desc: 'Уменьшает отступы между строками логов, чтобы их помещалось больше.'
+  compact-desc: 'Меньшие отступы, чтобы на экране помещалось больше строк.'
   size:
     small: Маленький
     medium: Средний
@@ -846,7 +841,8 @@ setup:
     restarting-hint: "Страница перезагрузится, как только новая версия ответит."
     needs-actions: "Кнопка «Обновить сейчас» заработает, когда действия будут включены, после перезапуска."
     reason-pinned-tag: "Вы используете закреплённый тег версии, поэтому загружать нечего. Используйте тег вроде latest, чтобы получать обновления."
-    reason-unsupported: "Dozzle может заменить себя, только когда работает как один Docker-контейнер."
+    reason-unsupported: "Здесь Dozzle не может найти собственный контейнер, поэтому не может заменить себя."
+    reason-swarm-worker: "Dozzle работает как сервис Swarm на рабочем узле. Обновить сервис может только менеджер, поэтому запустите Dozzle на менеджере или обновите его командой docker service update."
     pull-denied: "Не удалось загрузить {image}. Возможно, образ есть только на этой машине или реестру нужен docker login."
   restart:
     title: Перезапустить Dozzle

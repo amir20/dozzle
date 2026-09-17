@@ -18,6 +18,7 @@ import (
 	"github.com/moby/moby/api/types/jsonstream"
 	"github.com/moby/moby/api/types/mount"
 	"github.com/moby/moby/api/types/network"
+	"github.com/moby/moby/api/types/swarm"
 	"github.com/moby/moby/client"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -63,6 +64,11 @@ type fakeDocker struct {
 	goneAfter map[string]int
 	// newState is what an inspect of a created container reports.
 	newState *dcontainer.State
+
+	// service is what a service inspect returns; nil makes it fail the way a
+	// worker node's engine does.
+	service        *swarm.Service
+	serviceUpdates []client.ServiceUpdateOptions
 }
 
 func (f *fakeDocker) record(format string, args ...any) {
@@ -149,6 +155,21 @@ func (f *fakeDocker) ImageInspect(_ context.Context, ref string, _ ...client.Ima
 func (f *fakeDocker) ImagePull(_ context.Context, ref string, _ client.ImagePullOptions) (client.ImagePullResponse, error) {
 	f.record("pull %s", ref)
 	return pullResponse{io.NopCloser(strings.NewReader(f.pullBody))}, nil
+}
+
+func (f *fakeDocker) ServiceInspect(_ context.Context, id string, _ client.ServiceInspectOptions) (client.ServiceInspectResult, error) {
+	if f.service == nil || f.service.ID != id {
+		return client.ServiceInspectResult{}, errors.New("This node is not a swarm manager.")
+	}
+	return client.ServiceInspectResult{Service: *f.service}, nil
+}
+
+func (f *fakeDocker) ServiceUpdate(_ context.Context, id string, opts client.ServiceUpdateOptions) (client.ServiceUpdateResult, error) {
+	f.record("service update %s", id)
+	f.mu.Lock()
+	f.serviceUpdates = append(f.serviceUpdates, opts)
+	f.mu.Unlock()
+	return client.ServiceUpdateResult{}, nil
 }
 
 func (f *fakeDocker) Close() error { return nil }

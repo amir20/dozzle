@@ -123,7 +123,7 @@ func main() {
 			log.Fatal().Err(err).Msg("failed to listen")
 		}
 		// Create client service for agent server in swarm mode
-		clientService := docker.NewDockerClientService(localClient, args.Filter)
+		clientService := docker.NewService(localClient, args.Filter)
 		server, err := agent.NewServer(clientService, certs, args.Version(), multiHostService.SwarmNotificationHandler())
 		if err != nil {
 			log.Fatal().Err(err).Msg("failed to create agent")
@@ -136,12 +136,12 @@ func main() {
 			}
 		}()
 	} else if args.Mode == "k8s" {
-		localClient, err := k8s.NewK8sClient(args.Namespace, container.NewHostIDResolver(args.HostID))
+		localClient, err := k8s.NewClient(args.Namespace, args.Filter, container.NewHostIDResolver(args.HostID))
 		if err != nil {
 			log.Fatal().Err(err).Msg("Could not create k8s client")
 		}
 
-		clusterService, err := hostservice.NewK8sClusterService(localClient, args.Timeout)
+		clusterService, err := hostservice.NewK8sClusterService(localClient, args.Timeout, args.Filter)
 		if err != nil {
 			log.Fatal().Err(err).Msg("Could not create k8s cluster service")
 		}
@@ -487,7 +487,7 @@ func createServer(args cli.Args, hostService web.HostService, cloudHooks web.Clo
 // Everywhere else there is exactly one Dozzle holding the fleet: --remote-host
 // and --remote-agent endpoints are configured on it and on nothing else, so
 // scoping them away simply hid them from the cloud. --remote-host survived only
-// because it happens to be a *DockerClientService; agents did not appear at all.
+// because it happens to be a *docker.Service; agents did not appear at all.
 //
 // services is a func, not a slice, because an agent that is unreachable at boot
 // joins later. Reading it per call means such an agent shows up as soon as it

@@ -178,6 +178,8 @@ const blockedReason = computed(() => {
   switch (autoUpdate.value.reason) {
     case "pinned-tag":
       return t("setup.update.reason-pinned-tag");
+    case "swarm-worker":
+      return t("setup.update.reason-swarm-worker");
     default:
       return t("setup.update.reason-unsupported");
   }
@@ -193,6 +195,7 @@ const canUpdateNow = computed(
     status.enableActions &&
     autoUpdate.value.reason !== "not-server" &&
     autoUpdate.value.reason !== "no-container" &&
+    autoUpdate.value.reason !== "swarm-worker" &&
     phase.value !== "restarting",
 );
 

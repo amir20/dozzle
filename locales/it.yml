@@ -170,6 +170,7 @@ error:
   copy-insecure-hint: Il tuo browser consente l'accesso agli appunti solo tramite https. Copia il testo manualmente.
   logs-skipped: Mostra {total} voci nascoste
   container-not-found: Container non trovato
+  container-not-found-hint: Potrebbe essere stato rimosso, oppure il suo host non è più raggiungibile.
   action-failed: Azione Fallita
   update-failed: Aggiornamento Fallito
   unable-to-complete-action: Impossibile completare l'azione
@@ -208,6 +209,7 @@ title:
   settings: Impostazioni
   notifications: Notifiche
 button:
+  back-to-dashboard: Torna alla dashboard
   live-logs: Vai ai log in tempo reale
   logout: Logout
   login: Login
@@ -222,50 +224,43 @@ placeholder:
   find-logs: Cerca nei log o regex
   search: Cerca
 settings:
-  show-image-update-alert: 'Mostra una notifica quando un container ha un aggiornamento'
-  show-image-update-alert-desc: 'Controlla nel registry se esiste un tag più recente dell''immagine.'
-  help-support: >
-    Per favore sostieni Dozzle donando o sponsorizzandoci su GitHub. I tuoi contributi ci aiutano a migliorare Dozzle per tutti. Grazie! 🙏🏼
-  display-desc: Personalizza l'aspetto dei log e del resto dell'app. L'anteprima riflette le modifiche in tempo reale.
-  options-desc: Preferenze di lingua, navigazione e raggruppamento.
+  subtitle: Preferenze per questo browser. Le modifiche vengono salvate automaticamente.
+  appearance: Aspetto
+  logs: Log
+  sidebar: Barra laterale
+  behavior: Comportamento
+  advanced: Avanzate
+  instance: Questa istanza
+  about: Informazioni
+  reset: Ripristina predefiniti
+  sponsor: Sponsorizza
+  new-version: "{version} disponibile"
+  show-image-update-alert: 'Avvisi aggiornamento immagine'
+  show-image-update-alert-desc: 'Avvisa quando esiste un tag più recente di un''immagine in esecuzione.'
   cloud-desc: Trasmetti i log a Dozzle Cloud per analisi basate su IA e ricerca tra le istanze.
-  support-title: Sostieni Dozzle
-  support-help: Le donazioni aiutano a mantenere Dozzle gratuito e curato. Grazie 🙏
-  display: Visualizza
-  locale: Sovrascrivi Lingua
-  locale-desc: 'Per impostazione predefinita segue la lingua del browser.'
-  small-scrollbars: Usa una scrollbars più piccola
+  locale: Lingua
+  small-scrollbars: Barre di scorrimento sottili
   small-scrollbars-desc: 'Barre di scorrimento più sottili, utili su schermi piccoli.'
   show-timestamps: Visualizza timestamp
-  show-timestamps-desc: 'Antepone a ogni riga l''ora in cui è stata scritta.'
-  soft-wrap: Soft Wrap
-  soft-wrap-desc: 'Manda a capo le righe lunghe invece di scorrere in orizzontale.'
+  soft-wrap: A capo automatico
   highlight-errors: Evidenzia le righe di errore
-  highlight-errors-desc: "Colora lo sfondo delle righe di errore. L'indicatore di livello è sempre visibile."
-  datetime-format: Sovrascrivi data e formato dell'ora
-  datetime-format-desc: 'Per impostazione predefinita segue lingua e orologio del browser.'
-  font-size: Grandezza del Font da usare nei log
-  font-size-desc: 'Vale solo per l''output dei log, non per il resto dell''app.'
-  color-scheme: Tema colori
-  color-scheme-desc: 'Auto segue l''impostazione di sistema.'
-  options: Opzioni
+  highlight-errors-desc: "L'indicatore colorato del livello è sempre visibile."
+  datetime-format: Data e ora
+  font-size: Dimensione carattere
+  color-scheme: Tema
   show-stopped-containers: Visualizza i container arrestati
-  show-stopped-containers-desc: 'Includi i container arrestati nella barra laterale e negli elenchi.'
-  group-containers: Raggruppa i container per namespace
-  group-containers-desc: 'Raggruppa per progetto Compose, stack Swarm o dev.dozzle.group.'
-  show-app-icons: 'Mostra le icone delle applicazioni'
-  show-app-icons-desc: 'Associa le immagini note al loro logo. Le icone sono incluse in Dozzle e non vengono mai scaricate da internet.'
-  search: Abilita la ricerca attraverso Dozzle
-  search-desc: 'Cerca nei log del container che stai visualizzando.'
-  using-version: Stai utilizzando <a href="https://dozzle.dev/" target="_blank" rel="noreferrer noopener">Dozzle</a> {version}.
-  update-available: >-
-    Nuova versione disponibile! Aggiorna a <a href="{href}" target="_blank" rel="noreferrer noopener">{nextVersion}</a>.
+  group-containers: Raggruppa container
+  group-containers-desc: 'Per progetto Compose, stack Swarm o dev.dozzle.group.'
+  show-app-icons: 'Icone delle app'
+  show-app-icons-desc: 'Incluse in Dozzle, mai scaricate da internet.'
+  search: Cerca nei log con
+  search-desc: 'Sostituisce la ricerca del browser mentre visualizzi un container.'
   show-std: Visualizza stdout e stderr
   show-std-desc: 'Indica se una riga proviene da stdout o da stderr.'
-  automatic-redirect: Reindirizza automaticamente al nuovo container con lo stesso nome
+  automatic-redirect: Segui i container ricreati
   automatic-redirect-desc: 'Quando un container viene sostituito, passa a quello nuovo.'
-  compact: Abilita la modalità compatta per i log
-  compact-desc: 'Riduce la spaziatura tra le righe per mostrarne di più.'
+  compact: Modalità compatta
+  compact-desc: 'Spaziatura ridotta per mostrare più righe sullo schermo.'
   size:
     small: Piccolo
     medium: Medio
@@ -846,7 +841,8 @@ setup:
     restarting-hint: "La pagina si ricarica non appena la nuova versione risponde."
     needs-actions: "Aggiorna ora funziona quando le azioni sono attive, dopo il riavvio."
     reason-pinned-tag: "Usi un tag di versione fisso, quindi non c'è nulla di più recente da scaricare. Usa un tag come latest per ricevere gli aggiornamenti."
-    reason-unsupported: "Dozzle può sostituirsi solo quando è in esecuzione come singolo container Docker."
+    reason-unsupported: "Dozzle non trova qui il proprio container, quindi non può sostituirsi da solo."
+    reason-swarm-worker: "Dozzle è in esecuzione come servizio Swarm su un nodo worker. Solo un manager può aggiornare il servizio: esegui Dozzle su un manager oppure aggiornalo con docker service update."
     pull-denied: "Impossibile scaricare {image}. Potrebbe esistere solo su questa macchina, oppure il registry richiede docker login."
   restart:
     title: Riavvia Dozzle

@@ -508,6 +508,22 @@ func (c *Client) ContainerAttach(ctx context.Context, containerId string) (*cont
 	stdoutReader, stdoutWriter := io.Pipe()
 	stdinReader, stdinWriter := io.Pipe()
 
+	// stdin and resize both send on the stream, and a gRPC stream is not safe for
+	// concurrent sends.
+	var sendMu sync.Mutex
+	send := func(req *pb.ContainerAttachRequest) error {
+		sendMu.Lock()
+		defer sendMu.Unlock()
+		return stream.Send(req)
+	}
+
+	// The receive loop can be blocked writing to stdout when the caller stops reading;
+	// closing the reader unblocks it so the loop and the stream do not leak.
+	go func() {
+		<-ctx.Done()
+		stdoutReader.Close()
+	}()
+
 	go func() {
 		defer stdoutWriter.Close()
 
@@ -540,7 +556,7 @@ func (c *Client) ContainerAttach(ctx context.Context, containerId string) (*cont
 					return
 				}
 
-				if err := stream.Send(&pb.ContainerAttachRequest{
+				if err := send(&pb.ContainerAttachRequest{
 					Payload: &pb.ContainerAttachRequest_Stdin{
 						Stdin: buffer[:n],
 					},
@@ -553,7 +569,7 @@ func (c *Client) ContainerAttach(ctx context.Context, containerId string) (*cont
 
 	// Create resize closure that sends via gRPC
 	resizeFn := func(width uint, height uint) error {
-		return stream.Send(&pb.ContainerAttachRequest{
+		return send(&pb.ContainerAttachRequest{
 			Payload: &pb.ContainerAttachRequest_Resize{
 				Resize: &pb.ResizePayload{
 					Width:  uint32(width),

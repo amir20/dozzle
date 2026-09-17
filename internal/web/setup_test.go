@@ -28,10 +28,11 @@ func setupTestEnv(t *testing.T, persisted bool) (string, chan string) {
 	dir := t.TempDir()
 	restarts := make(chan string, 4)
 
-	oldInspect := selfUpdateInspect
+	oldInspect, oldManager := selfUpdateInspect, selfUpdateSwarmManager
 	selfUpdateInspect = func(context.Context, HostService, string) (selfImage, error) {
 		return selfImage{Ref: "amir20/dozzle:latest", ImageID: "sha256:old"}, nil
 	}
+	selfUpdateSwarmManager = func(context.Context, string) bool { return true }
 	oldPath, oldPersisted, oldSelf, oldDelay, oldRestarter := setupConfigPath, setupPersisted, setupSelfID, setupRestartDelay, setupRestarter
 	setupConfigPath = filepath.Join(dir, "dozzle.yml")
 	setupPersisted = func() bool { return persisted }
@@ -42,7 +43,7 @@ func setupTestEnv(t *testing.T, persisted bool) (string, chan string) {
 		return nil
 	}
 	t.Cleanup(func() {
-		selfUpdateInspect = oldInspect
+		selfUpdateInspect, selfUpdateSwarmManager = oldInspect, oldManager
 		setupConfigPath, setupPersisted, setupSelfID, setupRestartDelay, setupRestarter = oldPath, oldPersisted, oldSelf, oldDelay, oldRestarter
 	})
 	return dir, restarts
@@ -362,9 +363,13 @@ func TestSetup_AutoUpdateStatus(t *testing.T) {
 	on := Config{Base: "/", Mode: "server", EnableActions: true, Authorization: Authorization{Provider: NONE}, Setup: SetupConfig{StartedAt: time.Now()}}
 
 	selfUpdateInspect = func(context.Context, HostService, string) (selfImage, error) {
-		return selfImage{Ref: "amir20/dozzle:latest", Swarm: true}, nil
+		return selfImage{Ref: "amir20/dozzle:latest", Swarm: true, ServiceID: "svc"}, nil
 	}
-	assert.Equal(t, "not-server", getSetupState(t, createHandler(nil, nil, on)).AutoUpdate.Reason)
+	swarmState := getSetupState(t, createHandler(nil, nil, on))
+	assert.True(t, swarmState.AutoUpdate.Supported, "a swarm task on a manager updates through the service")
+	selfUpdateSwarmManager = func(context.Context, string) bool { return false }
+	assert.Equal(t, "swarm-worker", getSetupState(t, createHandler(nil, nil, on)).AutoUpdate.Reason)
+	selfUpdateSwarmManager = func(context.Context, string) bool { return true }
 
 	selfUpdateInspect = func(context.Context, HostService, string) (selfImage, error) {
 		return selfImage{Ref: "amir20/dozzle:v8.12.0"}, nil

@@ -170,6 +170,7 @@ error:
   copy-insecure-hint: Su navegador solo permite el acceso al portapapeles mediante https. Copie el texto manualmente.
   logs-skipped: Mostrar {total} entradas ocultas
   container-not-found: Contenedor no encontrado.
+  container-not-found-hint: Puede que se haya eliminado o que su host ya no esté accesible.
   action-failed: Acción Fallida
   update-failed: Actualización Fallida
   unable-to-complete-action: No se pudo completar la acción
@@ -208,6 +209,7 @@ title:
   settings: Configuración
   notifications: Notificaciones
 button:
+  back-to-dashboard: Volver al panel
   live-logs: Ir a los registros en vivo
   logout: Cerrar la sesión
   login: Iniciar sesión
@@ -323,50 +325,43 @@ command-palette:
   toggle-scrollbars: Alternar barras de desplazamiento más pequeñas
   open-settings: Abrir configuración
 settings:
-  show-image-update-alert: 'Mostrar una notificación cuando un contenedor tenga una actualización'
-  show-image-update-alert-desc: 'Consulta el registro en busca de una etiqueta más reciente de la imagen.'
-  help-support: >
-    Por favor, apoya a Dozzle donando o patrocinándonos en GitHub. Tus contribuciones nos ayudan a mejorar Dozzle para todos. ¡Gracias! 🙏🏼
-  display-desc: Personaliza la apariencia de los logs y del resto de la aplicación. La vista previa refleja tus cambios en vivo.
-  options-desc: Preferencias de idioma, navegación y agrupación.
+  subtitle: Preferencias para este navegador. Los cambios se guardan automáticamente.
+  appearance: Apariencia
+  logs: Logs
+  sidebar: Barra lateral
+  behavior: Comportamiento
+  advanced: Avanzado
+  instance: Esta instancia
+  about: Acerca de
+  reset: Restablecer valores predeterminados
+  sponsor: Patrocinar
+  new-version: "{version} disponible"
+  show-image-update-alert: 'Alertas de actualización de imagen'
+  show-image-update-alert-desc: 'Avisa cuando existe una etiqueta más nueva de una imagen en ejecución.'
   cloud-desc: Transmite logs a Dozzle Cloud para investigaciones con IA y búsqueda entre instancias.
-  support-title: Apoya a Dozzle
-  support-help: Las donaciones ayudan a mantener Dozzle gratuito y actualizado. Gracias 🙏
-  display: Vista
-  locale: Sobrescribir idioma
-  locale-desc: 'Por defecto usa el idioma de tu navegador.'
-  small-scrollbars: Utilizar barras de desplazamiento más pequeñas
+  locale: Idioma
+  small-scrollbars: Barras de desplazamiento finas
   small-scrollbars-desc: 'Barras de desplazamiento más finas, útiles en pantallas pequeñas.'
   show-timestamps: Mostrar marcas de tiempo
-  show-timestamps-desc: 'Antepone a cada línea la hora en que se escribió.'
-  soft-wrap: Líneas de texto con ajuste suave
-  soft-wrap-desc: 'Ajusta las líneas largas en lugar de desplazarse en horizontal.'
+  soft-wrap: Ajuste de línea
   highlight-errors: Resaltar líneas de error
-  highlight-errors-desc: 'Aplica un fondo de color a las líneas de error. El marcador de nivel siempre se muestra.'
-  datetime-format: Sobrescribir el formato de fecha y hora
-  datetime-format-desc: 'Por defecto usa el idioma y el reloj de tu navegador.'
-  font-size: Tamaño de letra a utilizar para los registros
-  font-size-desc: 'Solo afecta a la salida de los logs, no al resto de la aplicación.'
-  color-scheme: Esquema de colores
-  color-scheme-desc: 'Auto sigue la configuración de tu sistema.'
-  options: Opciones
+  highlight-errors-desc: 'El marcador de nivel de color siempre se muestra.'
+  datetime-format: Fecha y hora
+  font-size: Tamaño de fuente
+  color-scheme: Tema
   show-stopped-containers: Mostrar contenedores parados
-  show-stopped-containers-desc: 'Incluye los contenedores parados en la barra lateral y en las listas.'
-  group-containers: Agrupar contenedores por namespace
-  group-containers-desc: 'Agrupa por proyecto de Compose, stack de Swarm o dev.dozzle.group.'
-  show-app-icons: 'Mostrar iconos de aplicaciones'
-  show-app-icons-desc: 'Asocia las imágenes conocidas con su logotipo. Los iconos vienen incluidos en Dozzle y nunca se descargan de internet.'
-  search: Activar la búsqueda con Dozzle mediante
-  search-desc: 'Busca dentro de los logs del contenedor que estás viendo.'
-  using-version: Estás usando <a href="https://dozzle.dev/" target="_blank" rel="noreferrer noopener">Dozzle</a> {version}.
-  update-available: >-
-    ¡La nueva versión está disponible! Actualizar a la <a href="{href}" target="_blank" rel="noreferrer noopener">{nextVersion}</a>.
+  group-containers: Agrupar contenedores
+  group-containers-desc: 'Por proyecto de Compose, stack de Swarm o dev.dozzle.group.'
+  show-app-icons: 'Iconos de apps'
+  show-app-icons-desc: 'Incluidos en Dozzle, nunca se descargan de internet.'
+  search: Buscar en logs con
+  search-desc: 'Reemplaza la búsqueda del navegador al ver un contenedor.'
   show-std: Mostrar etiquetas de salida estándar y salida de error estándar
   show-std-desc: 'Indica si una línea proviene de stdout o de stderr.'
-  automatic-redirect: Redireccionar automáticamente a nuevos contenedores con el mismo nombre
-  automatic-redirect-desc: 'Cuando se reemplaza un contenedor, seguirlo hasta el nuevo.'
+  automatic-redirect: Seguir contenedores recreados
+  automatic-redirect-desc: 'Cuando se reemplaza un contenedor, salta al nuevo.'
   compact: Modo compacto
-  compact-desc: 'Reduce el espaciado entre líneas para que quepan más en pantalla.'
+  compact-desc: 'Espaciado más ajustado para que quepan más líneas en pantalla.'
   size:
     small: Pequeño
     medium: Mediano
@@ -846,7 +841,8 @@ setup:
     restarting-hint: "La página se recargará en cuanto responda la nueva versión."
     needs-actions: "Actualizar ahora funciona una vez que las acciones estén activadas, después del reinicio."
     reason-pinned-tag: "Usas una etiqueta de versión fija, así que no hay nada más reciente que descargar. Usa una etiqueta como latest para recibir actualizaciones."
-    reason-unsupported: "Dozzle solo puede reemplazarse a sí mismo cuando se ejecuta como un único contenedor Docker."
+    reason-unsupported: "Dozzle no encuentra su propio contenedor aquí, así que no puede reemplazarse a sí mismo."
+    reason-swarm-worker: "Dozzle se ejecuta como servicio de Swarm en un nodo worker. Solo un manager puede actualizar el servicio, así que ejecuta Dozzle en un manager o actualízalo con docker service update."
     pull-denied: "No se pudo descargar {image}. Puede que solo exista en esta máquina o que el registro necesite docker login."
   restart:
     title: "Reiniciar Dozzle"

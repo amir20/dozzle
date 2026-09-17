@@ -79,7 +79,14 @@ func (pm *PatternMatcher) MarkInLogEvent(logEvent *container.LogEvent) bool {
 		return pm.markMap(value)
 
 	case map[string]string:
-		panic("not implemented")
+		found := false
+		for key, val := range value {
+			if replaced, matched := pm.markString(val); matched {
+				value[key] = replaced
+				found = true
+			}
+		}
+		return found
 
 	default:
 		log.Debug().Type("type", value).Msg("unknown logEvent type")

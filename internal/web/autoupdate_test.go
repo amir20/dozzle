@@ -70,6 +70,20 @@ func at(day int, hhmm string) time.Time {
 	return t
 }
 
+func TestAutoUpdate_SwarmPrimaryOnManagerUpdates(t *testing.T) {
+	setupTestEnv(t, true)
+	rec := stubAutoUpdate(t, imagecheck.StatusUpdateAvailable)
+	writeSchedule(t, "daily", "03:00")
+	selfUpdateInspect = func(context.Context, HostService, string) (selfImage, error) {
+		return selfImage{Ref: "amir20/dozzle:master", Swarm: true, ServiceID: "svc"}, nil
+	}
+
+	newTestScheduler(serverActions).tick(context.Background(), at(14, "03:00"))
+	checks, starts := rec.counts()
+	assert.Equal(t, 1, checks)
+	assert.Equal(t, 1, starts)
+}
+
 func TestAutoUpdate_DailyFiresOncePerDay(t *testing.T) {
 	setupTestEnv(t, true)
 	rec := stubAutoUpdate(t, imagecheck.StatusUpdateAvailable)
@@ -176,8 +190,17 @@ func TestAutoUpdate_OffAndUnsupported(t *testing.T) {
 	}
 	newTestScheduler(serverActions).tick(ctx, at(14, "03:00"))
 
+	// A swarm task on a worker cannot update the service.
+	selfUpdateSwarmManager = func(context.Context, string) bool { return false }
 	selfUpdateInspect = func(context.Context, HostService, string) (selfImage, error) {
-		return selfImage{Ref: "amir20/dozzle:latest", Swarm: true}, nil
+		return selfImage{Ref: "amir20/dozzle:latest", Swarm: true, ServiceID: "svc"}, nil
+	}
+	newTestScheduler(serverActions).tick(ctx, at(14, "03:00"))
+
+	// Nor does a replica other than the first, even on a manager.
+	selfUpdateSwarmManager = func(context.Context, string) bool { return true }
+	selfUpdateInspect = func(context.Context, HostService, string) (selfImage, error) {
+		return selfImage{Ref: "amir20/dozzle:latest", Swarm: true, ServiceID: "svc", SecondaryReplica: true}, nil
 	}
 	newTestScheduler(serverActions).tick(ctx, at(14, "03:00"))
 

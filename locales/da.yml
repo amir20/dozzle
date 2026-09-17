@@ -170,6 +170,7 @@ error:
   copy-insecure-hint: Din browser tillader kun adgang til udklipsholderen over https. Kopiér teksten manuelt i stedet.
   logs-skipped: Vis {total} skjulte indtastninger
   container-not-found: Container ikke fundet
+  container-not-found-hint: Den kan være fjernet, eller dens vært kan ikke længere nås.
   action-failed: Handling Mislykkedes
   update-failed: Opdatering Mislykkedes
   unable-to-complete-action: Kan ikke fuldføre handling
@@ -208,6 +209,7 @@ title:
   settings: Indstillinger
   notifications: Notifikationer
 button:
+  back-to-dashboard: Tilbage til oversigten
   live-logs: Gå til live-logs
   logout: Logout
   login: Login
@@ -222,50 +224,43 @@ placeholder:
   find-logs: Find i logs eller regex
   search: Søg
 settings:
-  show-image-update-alert: 'Vis en notifikation når en container har en opdatering'
-  show-image-update-alert-desc: 'Tjekker registret for et nyere tag af det kørende image.'
-  help-support: >
-    Støt venligst Dozzle ved at donere eller sponsorere os på GitHub. Dine bidrag hjælper os med at forbedre Dozzle for alle. Tak! 🙏🏼
-  display-desc: Tilpas hvordan logs og resten af appen ser ud. Forhåndsvisningen afspejler dine ændringer live.
-  options-desc: Indstillinger for sprog, navigation og gruppering.
+  subtitle: Indstillinger for denne browser. Ændringer gemmes automatisk.
+  appearance: Udseende
+  logs: Logs
+  sidebar: Sidepanel
+  behavior: Adfærd
+  advanced: Avanceret
+  instance: Denne instans
+  about: Om
+  reset: Nulstil til standard
+  sponsor: Sponsorer
+  new-version: "{version} tilgængelig"
+  show-image-update-alert: 'Image-opdateringer'
+  show-image-update-alert-desc: 'Giv besked, når der findes et nyere tag til et kørende image.'
   cloud-desc: Stream logs til Dozzle Cloud for AI-drevne undersøgelser og søgning på tværs af installationer.
-  support-title: Støt Dozzle
-  support-help: Donationer hjælper med at holde Dozzle gratis og vedligeholdt. Tak 🙏
-  display: Visning
-  locale: Overskriv sprog
-  locale-desc: 'Bruger som standard din browsers sprog.'
-  small-scrollbars: Brug mindre scrollbarer
+  locale: Sprog
+  small-scrollbars: Tynde rullebjælker
   small-scrollbars-desc: 'Tyndere scrollbarer, praktisk på mindre skærme.'
   show-timestamps: Vis tids stempler
-  show-timestamps-desc: 'Sæt tidspunktet for hver linje foran den.'
-  soft-wrap: Blødt bræk på linjer
-  soft-wrap-desc: 'Ombryd lange linjer i stedet for at rulle sidelæns.'
+  soft-wrap: Linjeombrydning
   highlight-errors: Fremhæv fejllinjer
-  highlight-errors-desc: 'Giv fejllinjer en farvet baggrund. Den farvede niveaumarkør vises altid.'
-  datetime-format: Overskriv dato og tids format
-  datetime-format-desc: 'Bruger som standard din browsers sprog og urformat.'
-  font-size: Tekststørrelse at bruge til logs
-  font-size-desc: 'Gælder kun for logudskrift, ikke resten af appen.'
-  color-scheme: Farve skema
-  color-scheme-desc: 'Auto følger din systemindstilling.'
-  options: Muligheder
+  highlight-errors-desc: 'Den farvede niveaumarkør vises altid.'
+  datetime-format: Dato og tid
+  font-size: Skriftstørrelse
+  color-scheme: Tema
   show-stopped-containers: Vis stoppet containere
-  show-stopped-containers-desc: 'Medtag stoppede containere i sidepanelet og listerne.'
-  group-containers: Gruppér containere efter namespace
-  group-containers-desc: 'Grupperer efter Compose-projekt, Swarm-stack eller dev.dozzle.group.'
-  show-app-icons: 'Vis app-ikoner'
-  show-app-icons-desc: 'Match kendte images med deres logo. Ikoner følger med Dozzle og hentes aldrig fra internettet.'
-  search: Aktiver søgning med Dozzle ved brug af
-  search-desc: 'Søg i loggen for den container du kigger på.'
-  using-version: Du bruger <a href="https://dozzle.dev/" target="_blank" rel="noreferrer noopener">Dozzle</a> {version}.
-  update-available: >-
-    Ny version er tilgængelig! Opdater til <a href="{href}" target="_blank" rel="noreferrer noopener">{nextVersion}</a>.
+  group-containers: Gruppér containere
+  group-containers-desc: 'Efter Compose-projekt, Swarm-stack eller dev.dozzle.group.'
+  show-app-icons: 'App-ikoner'
+  show-app-icons-desc: 'Følger med Dozzle og hentes aldrig fra internettet.'
+  search: Søg i logs med
+  search-desc: 'Erstatter browserens søgning, mens du ser en container.'
   show-std: Vis stdout og stderr mærker
   show-std-desc: 'Markér om en linje kom fra stdout eller stderr.'
-  automatic-redirect: Automatisk omdiriger til nye containere med det samme navn
-  automatic-redirect-desc: 'Følg med til den nye container, når en container udskiftes.'
-  compact: Slå kompakt tilstand til for logs
-  compact-desc: 'Reducer afstanden mellem loglinjer, så der er plads til flere.'
+  automatic-redirect: Følg genskabte containere
+  automatic-redirect-desc: 'Når en container udskiftes, hop til den nye.'
+  compact: Kompakt tilstand
+  compact-desc: 'Tættere afstand, så flere linjer kan være på skærmen.'
   size:
     small: Lille
     medium: Mellem
@@ -846,7 +841,8 @@ setup:
     restarting-hint: "Siden genindlæses, så snart den nye version svarer."
     needs-actions: "Opdater nu virker, når handlinger er slået til efter genstarten."
     reason-pinned-tag: "Du kører et fastlåst versionstag, så der er intet nyere at hente. Brug et tag som latest for at få opdateringer."
-    reason-unsupported: "Dozzle kan kun erstatte sig selv, når den kører som en enkelt Docker-container."
+    reason-unsupported: "Dozzle kan ikke finde sin egen container her, så den kan ikke udskifte sig selv."
+    reason-swarm-worker: "Dozzle kører som en Swarm-tjeneste på en worker-node. Kun en manager kan opdatere tjenesten, så kør Dozzle på en manager, eller opdater den med docker service update."
     pull-denied: "Kunne ikke hente {image}. Det findes måske kun på denne maskine, eller registret kræver docker login."
   restart:
     title: "Genstart Dozzle"

@@ -3,6 +3,8 @@ package hostservice
 import (
 	"context"
 	"fmt"
+	"slices"
+	"strings"
 	"time"
 
 	"github.com/amir20/dozzle/internal/container"
@@ -11,19 +13,24 @@ import (
 	"github.com/amir20/dozzle/internal/notification"
 	"github.com/amir20/dozzle/internal/notification/dispatcher"
 	"github.com/amir20/dozzle/types"
+	"github.com/puzpuzpuz/xsync/v4"
+	"github.com/rs/zerolog/log"
+	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	coreinformers "k8s.io/client-go/informers/core/v1"
+	"k8s.io/client-go/tools/cache"
 )
 
 type K8sClusterService struct {
-	client              *k8s.K8sClientService
+	client              *k8s.Service
 	timeout             time.Duration
-	hosts               []container.Host
+	hosts               *xsync.Map[string, container.Host] // node name -> host
+	hostSubscribers     *xsync.Map[context.Context, chan<- container.Host]
 	notificationManager *notification.Manager
 	persister           *notification.Persister
 }
 
-func NewK8sClusterService(client *k8s.K8sClient, timeout time.Duration) (*K8sClusterService, error) {
-	hosts := make([]container.Host, 0)
+func NewK8sClusterService(client *k8s.Client, timeout time.Duration, filter container.ContainerLabels) (*K8sClusterService, error) {
 	nodes, err := client.Clientset.CoreV1().Nodes().List(context.Background(), metav1.ListOptions{})
 	if err != nil {
 		return nil, err
@@ -33,23 +40,91 @@ func NewK8sClusterService(client *k8s.K8sClient, timeout time.Duration) (*K8sClu
 		return nil, fmt.Errorf("nodes not found")
 	}
 
+	m := &K8sClusterService{
+		client:          k8s.NewService(client, filter),
+		timeout:         timeout,
+		hosts:           xsync.NewMap[string, container.Host](),
+		hostSubscribers: xsync.NewMap[context.Context, chan<- container.Host](),
+	}
 	for _, node := range nodes.Items {
-		hosts = append(hosts, container.Host{
-			ID:            node.Name,
-			Name:          node.Name,
-			MemTotal:      node.Status.Capacity.Memory().Value(),
-			NCPU:          int(node.Status.Capacity.Cpu().Value()),
-			DockerVersion: node.Status.NodeInfo.ContainerRuntimeVersion,
-			Type:          "k8s",
-			Available:     true,
-		})
+		m.hosts.Store(node.Name, nodeToHost(&node))
 	}
 
-	return &K8sClusterService{
-		client:  k8s.NewK8sClientService(client, container.ContainerLabels{}),
-		timeout: timeout,
-		hosts:   hosts,
-	}, nil
+	go m.watchNodes(context.Background(), client)
+
+	return m, nil
+}
+
+func nodeToHost(node *corev1.Node) container.Host {
+	available := false
+	for _, condition := range node.Status.Conditions {
+		if condition.Type == corev1.NodeReady {
+			available = condition.Status == corev1.ConditionTrue
+		}
+	}
+	return container.Host{
+		ID:            node.Name,
+		Name:          node.Name,
+		MemTotal:      node.Status.Capacity.Memory().Value(),
+		NCPU:          int(node.Status.Capacity.Cpu().Value()),
+		DockerVersion: node.Status.NodeInfo.ContainerRuntimeVersion,
+		Type:          "k8s",
+		Available:     available,
+	}
+}
+
+// watchNodes keeps the host list current. Nodes were listed once at startup, so on
+// an autoscaling cluster a pod scheduled onto a node added later belonged to a host
+// the UI had never heard of, and a node that went away still looked healthy.
+func (m *K8sClusterService) watchNodes(ctx context.Context, client *k8s.Client) {
+	informer := coreinformers.NewNodeInformer(client.Clientset, 0, cache.Indexers{})
+
+	upsert := func(obj any) {
+		if node, ok := obj.(*corev1.Node); ok {
+			m.setHost(nodeToHost(node))
+		}
+	}
+	_, err := informer.AddEventHandlerWithOptions(cache.ResourceEventHandlerFuncs{
+		AddFunc:    func(obj any) { upsert(obj) },
+		UpdateFunc: func(_, obj any) { upsert(obj) },
+		DeleteFunc: func(obj any) {
+			if tombstone, ok := obj.(cache.DeletedFinalStateUnknown); ok {
+				obj = tombstone.Obj
+			}
+			if node, ok := obj.(*corev1.Node); ok {
+				host := nodeToHost(node)
+				host.Available = false
+				m.setHost(host)
+			}
+		},
+	}, cache.HandlerOptions{})
+	if err != nil {
+		log.Error().Err(err).Msg("could not watch kubernetes nodes")
+		return
+	}
+	informer.RunWithContext(ctx)
+}
+
+// setHost records a host and tells subscribers, but only when something they can see
+// changed: nodes report status every few seconds with nothing new in it.
+func (m *K8sClusterService) setHost(host container.Host) {
+	if previous, ok := m.hosts.Load(host.ID); ok && previous == host {
+		return
+	}
+	m.hosts.Store(host.ID, host)
+	// Bounded, so one SSE client that is not reading cannot stall the node informer for
+	// everyone. A dropped update only leaves that client with a stale host until reload.
+	timeout := time.After(250 * time.Millisecond)
+	m.hostSubscribers.Range(func(ctx context.Context, ch chan<- container.Host) bool {
+		select {
+		case ch <- host:
+		case <-ctx.Done():
+			m.hostSubscribers.Delete(ctx)
+		case <-timeout:
+			log.Warn().Str("host", host.ID).Msg("subscriber is not reading host updates, dropping update")
+		}
+		return true
+	})
 }
 
 func (m *K8sClusterService) FindContainer(host string, id string, labels container.ContainerLabels) (*container.ContainerService, error) {
@@ -123,7 +198,13 @@ func (m *K8sClusterService) SubscribeContainersStarted(ctx context.Context, cont
 }
 
 func (m *K8sClusterService) Hosts() []container.Host {
-	return m.hosts
+	hosts := make([]container.Host, 0, m.hosts.Size())
+	m.hosts.Range(func(_ string, host container.Host) bool {
+		hosts = append(hosts, host)
+		return true
+	})
+	slices.SortFunc(hosts, func(a, b container.Host) int { return strings.Compare(a.Name, b.Name) })
+	return hosts
 }
 
 func (m *K8sClusterService) LocalHost() (container.Host, error) {
@@ -131,6 +212,11 @@ func (m *K8sClusterService) LocalHost() (container.Host, error) {
 }
 
 func (m *K8sClusterService) SubscribeAvailableHosts(ctx context.Context, hosts chan<- container.Host) {
+	m.hostSubscribers.Store(ctx, hosts)
+	go func() {
+		<-ctx.Done()
+		m.hostSubscribers.Delete(ctx)
+	}()
 }
 
 func (m *K8sClusterService) LocalClients() []container.Client {

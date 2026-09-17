@@ -170,6 +170,7 @@ error:
   copy-insecure-hint: Je browser staat klembordtoegang alleen toe via https. Kopieer de tekst handmatig.
   logs-skipped: Toon {total} verborgen items
   container-not-found: Container niet gevonden
+  container-not-found-hint: Mogelijk is hij verwijderd, of is de host niet meer bereikbaar.
   action-failed: Actie Mislukt
   update-failed: Update Mislukt
   unable-to-complete-action: Kan actie niet voltooien
@@ -209,6 +210,7 @@ title:
   settings: Instellingen
   notifications: Meldingen
 button:
+  back-to-dashboard: Terug naar dashboard
   live-logs: Naar live logs
   logout: Afmelden
   login: Aanmelden
@@ -223,50 +225,43 @@ placeholder:
   find-logs: Zoek in logs of regex
   search: Zoeken
 settings:
-  show-image-update-alert: 'Toon een melding wanneer een container een update heeft'
-  show-image-update-alert-desc: 'Controleert de registry op een nieuwere tag van de draaiende image.'
-  help-support: >
-    Steun Dozzle door te doneren of door ons te sponsoren op GitHub. Jouw bijdrage helpt ons om Dozzle verder te verbeteren voor iedereen. Hartelijk dank! 🙏🏼
-  display-desc: Pas aan hoe logs en de rest van de app eruitzien. De voorbeeldweergave toont je wijzigingen live.
-  options-desc: Voorkeuren voor taal, navigatie en groepering.
+  subtitle: Voorkeuren voor deze browser. Wijzigingen worden automatisch opgeslagen.
+  appearance: Weergave
+  logs: Logs
+  sidebar: Zijbalk
+  behavior: Gedrag
+  advanced: Geavanceerd
+  instance: Deze instantie
+  about: Over
+  reset: Standaardwaarden herstellen
+  sponsor: Sponsoren
+  new-version: "{version} beschikbaar"
+  show-image-update-alert: 'Image-updatemeldingen'
+  show-image-update-alert-desc: 'Melden wanneer er een nieuwere tag van een draaiende image bestaat.'
   cloud-desc: Stream logs naar Dozzle Cloud voor AI-gestuurde analyses en zoeken over instanties heen.
-  support-title: Steun Dozzle
-  support-help: Donaties houden Dozzle gratis en onderhouden. Bedankt 🙏
-  display: Weergave
-  locale: Taal aanpassen
-  locale-desc: 'Volgt standaard de taal van je browser.'
-  small-scrollbars: Kleinere scrollbalk gebruiken
+  locale: Taal
+  small-scrollbars: Smalle scrollbalken
   small-scrollbars-desc: 'Dunnere schuifbalken, handig op kleinere schermen.'
   show-timestamps: Tijdstempel tonen
-  show-timestamps-desc: 'Zet voor elke regel het tijdstip waarop die geschreven is.'
-  soft-wrap: Regels zacht afbreken
-  soft-wrap-desc: 'Breek lange regels af in plaats van zijwaarts te scrollen.'
+  soft-wrap: Regelafbreking
   highlight-errors: Foutregels markeren
-  highlight-errors-desc: 'Geeft foutregels een gekleurde achtergrond. De gekleurde niveaumarkering blijft altijd zichtbaar.'
-  datetime-format: Datum- en tijdnotatie aanpassen
-  datetime-format-desc: 'Volgt standaard de taal en klok van je browser.'
-  font-size: Lettergrootte voor logs
-  font-size-desc: 'Geldt alleen voor de loguitvoer, niet voor de rest van de app.'
-  color-scheme: Kleurmodus
-  color-scheme-desc: 'Auto volgt je systeeminstelling.'
-  options: Opties
+  highlight-errors-desc: 'De gekleurde niveaumarkering wordt altijd getoond.'
+  datetime-format: Datum en tijd
+  font-size: Lettergrootte
+  color-scheme: Thema
   show-stopped-containers: Gestopte containers tonen
-  show-stopped-containers-desc: 'Toon gestopte containers in de zijbalk en in lijsten.'
-  group-containers: Groepeer containers op namespace
-  group-containers-desc: 'Groepeert op Compose-project, Swarm-stack of dev.dozzle.group.'
-  show-app-icons: 'App-pictogrammen tonen'
-  show-app-icons-desc: 'Koppel bekende images aan hun logo. De pictogrammen zitten in Dozzle en worden nooit van internet opgehaald.'
-  search: Doorzoeken inschakelen via Dozzle
-  search-desc: 'Zoek in de logs van de container die je bekijkt.'
-  using-version: Je gebruikt <a href="https://dozzle.dev/" target="_blank" rel="noreferrer noopener">Dozzle</a> {version}.
-  update-available: >-
-    Er is een nieuwe versie beschikbaar! Update naar <a href="{href}" target="_blank" rel="noreferrer noopener">{nextVersion}</a>.
+  group-containers: Containers groeperen
+  group-containers-desc: 'Op Compose-project, Swarm-stack of dev.dozzle.group.'
+  show-app-icons: 'App-pictogrammen'
+  show-app-icons-desc: 'Meegeleverd met Dozzle, nooit van internet opgehaald.'
+  search: Logs doorzoeken met
+  search-desc: 'Vervangt het zoeken van de browser tijdens het bekijken van een container.'
   show-std: Toon stdout- en stderr-labels
   show-std-desc: 'Geef aan of een regel van stdout of stderr komt.'
-  automatic-redirect: Automatisch omleiden naar nieuwe containers met dezelfde naam
-  automatic-redirect-desc: 'Als een container wordt vervangen, ga mee naar de nieuwe.'
-  compact: Compacte modus inschakelen voor logs
-  compact-desc: 'Verklein de ruimte tussen logregels zodat er meer op het scherm past.'
+  automatic-redirect: Opnieuw gemaakte containers volgen
+  automatic-redirect-desc: 'Wanneer een container wordt vervangen, spring naar de nieuwe.'
+  compact: Compacte modus
+  compact-desc: 'Kleinere tussenruimte zodat er meer regels op het scherm passen.'
   size:
     small: Klein
     medium: Middel
@@ -847,7 +842,8 @@ setup:
     restarting-hint: "De pagina herlaadt zodra de nieuwe versie reageert."
     needs-actions: "Nu bijwerken werkt zodra acties aan staan, na de herstart."
     reason-pinned-tag: "Je gebruikt een vaste versietag, dus er is niets nieuwers om op te halen. Gebruik een tag zoals latest om updates te krijgen."
-    reason-unsupported: "Dozzle kan zichzelf alleen vervangen als het draait als één Docker-container."
+    reason-unsupported: "Dozzle kan hier zijn eigen container niet vinden en kan zichzelf dus niet vervangen."
+    reason-swarm-worker: "Dozzle draait als Swarm-service op een worker-node. Alleen een manager kan de service bijwerken, dus draai Dozzle op een manager of werk het bij met docker service update."
     pull-denied: "{image} kon niet worden opgehaald. Misschien bestaat het alleen op deze machine, of vraagt de registry om docker login."
   restart:
     title: Dozzle herstarten

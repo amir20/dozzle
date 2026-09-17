@@ -170,6 +170,7 @@ error:
   copy-insecure-hint: Twoja przeglądarka zezwala na dostęp do schowka tylko przez https. Skopiuj tekst ręcznie.
   logs-skipped: Pokaż {total} ukrytych wpisów
   container-not-found: Kontener nie został znaleziony
+  container-not-found-hint: Mógł zostać usunięty lub jego host nie jest już osiągalny.
   action-failed: Akcja Nieudana
   update-failed: Aktualizacja Nieudana
   unable-to-complete-action: Nie można ukończyć akcji
@@ -210,6 +211,7 @@ title:
   settings: Ustawienia
   notifications: Powiadomienia
 button:
+  back-to-dashboard: Wróć do pulpitu
   live-logs: Przejdź do logów na żywo
   logout: Wyloguj się
   login: Zaloguj się
@@ -224,51 +226,43 @@ placeholder:
   find-logs: Szukaj w logach lub regex
   search: Szukaj
 settings:
-  show-image-update-alert: 'Pokaż powiadomienie, gdy kontener ma aktualizację'
-  show-image-update-alert-desc: 'Sprawdza w rejestrze nowszy tag uruchomionego obrazu.'
-  help-support: >
-    Prosimy o wsparcie Dozzle poprzez darowizny lub sponsoring na GitHub. Twoje wkłady pomagają nam ulepszać Dozzle dla wszystkich. Dziękujemy! 🙏🏼
-  display-desc: Dostosuj wygląd logów i reszty aplikacji. Podgląd odzwierciedla zmiany na żywo.
-  options-desc: Preferencje języka, nawigacji i grupowania.
+  subtitle: Preferencje dla tej przeglądarki. Zmiany zapisują się automatycznie.
+  appearance: Wygląd
+  logs: Logi
+  sidebar: Pasek boczny
+  behavior: Zachowanie
+  advanced: Zaawansowane
+  instance: Ta instancja
+  about: O programie
+  reset: Przywróć domyślne
+  sponsor: Wesprzyj
+  new-version: "{version} jest dostępna"
+  show-image-update-alert: 'Alerty aktualizacji obrazu'
+  show-image-update-alert-desc: 'Powiadamiaj, gdy istnieje nowszy tag uruchomionego obrazu.'
   cloud-desc: Przesyłaj logi do Dozzle Cloud w celu analiz wspomaganych przez AI i wyszukiwania między instancjami.
-  support-title: Wesprzyj Dozzle
-  support-help: Darowizny pomagają utrzymać Dozzle darmowym i rozwijanym. Dziękujemy 🙏
-  display: Wyświetlanie
-  locale: Nadpisz język
-  locale-desc: 'Domyślnie używa języka przeglądarki.'
-  small-scrollbars: Użyj mniejszych suwaków
+  locale: Język
+  small-scrollbars: Cienkie paski przewijania
   small-scrollbars-desc: 'Cieńsze paski przewijania, przydatne na mniejszych ekranach.'
   show-timestamps: Pokaż date i godzinę
-  show-timestamps-desc: 'Poprzedza każdy wiersz godziną jego zapisania.'
-  soft-wrap: Zwijaj linie
-  soft-wrap-desc: 'Zawija długie wiersze zamiast przewijania w bok.'
+  soft-wrap: Zawijanie wierszy
   highlight-errors: Wyróżniaj wiersze błędów
-  highlight-errors-desc: 'Koloruje tło wierszy z błędami. Kolorowy znacznik poziomu jest zawsze widoczny.'
-  datetime-format: Nadpisz format daty i godziny
-  datetime-format-desc: 'Domyślnie używa języka i formatu zegara przeglądarki.'
-  font-size: Rozmiar czcionki używany dla logów
-  font-size-desc: 'Dotyczy tylko logów, nie reszty aplikacji.'
+  highlight-errors-desc: 'Kolorowy znacznik poziomu jest zawsze widoczny.'
+  datetime-format: Data i godzina
+  font-size: Rozmiar czcionki
   color-scheme: Motyw
-  color-scheme-desc: 'Auto podąża za ustawieniem systemu.'
-  options: Opcje
   show-stopped-containers: Pokaż zatrzymane kontenery
-  show-stopped-containers-desc: 'Uwzględnia zatrzymane kontenery na pasku bocznym i listach.'
-  group-containers: Grupuj kontenery według przestrzeni nazw
-  group-containers-desc: 'Grupuje według projektu Compose, stosu Swarm lub dev.dozzle.group.'
-  show-app-icons: 'Pokaż ikony aplikacji'
-  show-app-icons-desc: 'Dopasuj znane obrazy do ich logo. Ikony są dołączone do Dozzle i nigdy nie są pobierane z internetu.'
-  search: Włącz szukanie z dozzle
-  search-desc: 'Szuka w logach kontenera, który właśnie przeglądasz.'
-  using-version: Używasz <a href="https://dozzle.dev/" target="_blank" rel="noreferrer noopener">Dozzle</a> w wersji {version}.
-  update-available: >-
-    Nowa wersja jest dostępna! Zaktualizuj do <a href="{href}" target="_blank"
-    rel="noreferrer noopener">{nextVersion}</a>.
+  group-containers: Grupuj kontenery
+  group-containers-desc: 'Według projektu Compose, stosu Swarm lub dev.dozzle.group.'
+  show-app-icons: 'Ikony aplikacji'
+  show-app-icons-desc: 'Dołączone do Dozzle, nigdy nie pobierane z internetu.'
+  search: Szukaj w logach za pomocą
+  search-desc: 'Zastępuje wyszukiwanie przeglądarki podczas przeglądania kontenera.'
   show-std: Pokaż etykiety dla stdout i stderr
   show-std-desc: 'Oznacza, czy wiersz pochodzi ze stdout czy ze stderr.'
-  automatic-redirect: Automatycznie przekieruj na kontener o tej samej nazwie
+  automatic-redirect: Podążaj za odtworzonymi kontenerami
   automatic-redirect-desc: 'Gdy kontener zostanie zastąpiony, przejdź do nowego.'
-  compact: Włącz tryb kompaktowy dla logów
-  compact-desc: 'Zmniejsza odstępy między wierszami logów, aby zmieściło się ich więcej.'
+  compact: Tryb kompaktowy
+  compact-desc: 'Mniejsze odstępy, aby zmieścić więcej wierszy na ekranie.'
   size:
     small: Mały
     medium: Średni
@@ -849,7 +843,8 @@ setup:
     restarting-hint: "Strona odświeży się, gdy tylko nowa wersja odpowie."
     needs-actions: "Aktualizuj teraz zadziała, gdy akcje będą włączone, po restarcie."
     reason-pinned-tag: "Używasz przypiętego tagu wersji, więc nie ma nic nowszego do pobrania. Użyj tagu takiego jak latest, aby otrzymywać aktualizacje."
-    reason-unsupported: "Dozzle może zastąpić samego siebie tylko wtedy, gdy działa jako pojedynczy kontener Docker."
+    reason-unsupported: "Dozzle nie może tutaj znaleźć własnego kontenera, więc nie może się sam zastąpić."
+    reason-swarm-worker: "Dozzle działa jako usługa Swarm na węźle worker. Tylko manager może zaktualizować usługę, więc uruchom Dozzle na managerze albo zaktualizuj go poleceniem docker service update."
     pull-denied: "Nie udało się pobrać {image}. Może istnieje tylko na tej maszynie albo rejestr wymaga docker login."
   restart:
     title: Zrestartuj Dozzle

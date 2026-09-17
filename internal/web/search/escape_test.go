@@ -8,6 +8,32 @@ import (
 	orderedmap "github.com/wk8/go-ordered-map/v2"
 )
 
+// Plain maps used to hit panic("not implemented") in both the escaper and the matcher.
+func TestPlainMapMessagesDoNotPanic(t *testing.T) {
+	re, err := ParseRegex("needle")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	anyMap := &container.LogEvent{Message: map[string]any{"msg": "<b>needle</b>"}}
+	if !Search(re, anyMap) {
+		t.Fatal("expected a match in map[string]any")
+	}
+	EscapeHTMLValues(anyMap)
+	if got := anyMap.Message.(map[string]any)["msg"].(string); strings.Contains(got, "<b>") {
+		t.Fatalf("map[string]any value was not escaped: %q", got)
+	}
+
+	stringMap := &container.LogEvent{Message: map[string]string{"msg": "<b>needle</b>"}}
+	if !Search(re, stringMap) {
+		t.Fatal("expected a match in map[string]string")
+	}
+	EscapeHTMLValues(stringMap)
+	if got := stringMap.Message.(map[string]string)["msg"]; strings.Contains(got, "<b>") {
+		t.Fatalf("map[string]string value was not escaped: %q", got)
+	}
+}
+
 func TestEscapeHTMLValuesIgnoresForgedURLMarkers(t *testing.T) {
 	forged := URLMarkerStart + "javascript:alert(document.domain)" + URLMarkerEnd
 	json := orderedmap.New[string, any]()
