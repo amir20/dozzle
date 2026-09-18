@@ -1066,9 +1066,9 @@ func TestContainerStore_storeListedKeepsFullyLoadedLoopEntry(t *testing.T) {
 }
 
 func shortenEventRetry(t *testing.T) {
-	oldMin, oldMax := eventRetryMin, eventRetryMax
-	eventRetryMin, eventRetryMax = 5*time.Millisecond, 20*time.Millisecond
-	t.Cleanup(func() { eventRetryMin, eventRetryMax = oldMin, oldMax })
+	oldMin, oldMax, oldGrace := eventRetryMin, eventRetryMax, eventSubscribeGrace
+	eventRetryMin, eventRetryMax, eventSubscribeGrace = 5*time.Millisecond, 20*time.Millisecond, 5*time.Millisecond
+	t.Cleanup(func() { eventRetryMin, eventRetryMax, eventSubscribeGrace = oldMin, oldMax, oldGrace })
 }
 
 // A dropped event stream reconnects on its own and refreshes the map, so a container
@@ -1175,4 +1175,41 @@ func TestContainerStore_userLabelListHasDeadline(t *testing.T) {
 	_, err := store.ListContainers(context.Background(), userLabels)
 	assert.NoError(t, err)
 	assert.True(t, hadDeadline)
+}
+
+// Once a refresh is running, a caller whose context ends still stops waiting on it,
+// and the refresh finishes for everyone else.
+func TestContainerStore_callerLeavesRunningRefresh(t *testing.T) {
+	client := new(mockedClient)
+	client.On("Host").Return(Host{ID: "localhost"})
+	client.On("ListContainers", mock.Anything, mock.Anything).Return([]Container{}, nil).Once()
+	unblock := make(chan struct{})
+	client.On("ListContainers", mock.Anything, mock.Anything).Return([]Container{}, nil).Run(func(mock.Arguments) {
+		<-unblock
+	})
+	client.On("ContainerEvents", mock.Anything, mock.Anything).Return(nil).Run(func(args mock.Arguments) {
+		<-args.Get(0).(context.Context).Done()
+	})
+
+	store := NewContainerStore(t.Context(), client, &fakeStatsCollector{}, ContainerLabels{})
+	_, err := store.ListContainers(t.Context(), ContainerLabels{})
+	assert.NoError(t, err)
+
+	// the stream reconnected: the next list is stuck on the daemon
+	store.staleGen.Add(1)
+	ctx, cancel := context.WithTimeout(t.Context(), 50*time.Millisecond)
+	defer cancel()
+	done := make(chan error, 1)
+	go func() { _, err := store.ListContainers(ctx, ContainerLabels{}); done <- err }()
+	select {
+	case err := <-done:
+		assert.ErrorIs(t, err, context.DeadlineExceeded)
+	case <-time.After(5 * time.Second):
+		t.Fatal("caller stayed blocked on a refresh after its context ended")
+	}
+
+	close(unblock)
+	assert.Eventually(t, func() bool {
+		return store.staleGen.Load() == store.freshGen.Load()
+	}, 5*time.Second, 5*time.Millisecond, "the refresh completes after the caller left")
 }

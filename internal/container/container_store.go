@@ -12,6 +12,7 @@ import (
 	"github.com/rs/zerolog/log"
 	"github.com/samber/lo"
 	"golang.org/x/sync/semaphore"
+	"golang.org/x/sync/singleflight"
 )
 
 type StatsCollector interface {
@@ -37,10 +38,10 @@ type ContainerStore struct {
 	// while a refresh is in flight is not cleared by that refresh finishing.
 	staleGen atomic.Uint64
 	freshGen atomic.Uint64
-	// refreshSem serialises refreshes and makes concurrent readers wait for one in
-	// flight instead of reading a map that is still being rebuilt. A channel rather
-	// than a mutex so a caller whose context ends can stop waiting.
-	refreshSem chan struct{}
+	// refreshes runs one refresh at a time on its own goroutine and lets every caller
+	// that needs it wait on the same one. A caller whose context ends stops waiting,
+	// and the refresh carries on for the others.
+	refreshes singleflight.Group
 	// announced is the StartedAt each container was last announced to new-container
 	// subscribers with. Only the event loop touches it.
 	announced map[string]time.Time
@@ -61,7 +62,6 @@ func NewContainerStore(ctx context.Context, client Client, statsCollect StatsCol
 		newContainerSubscribers: xsync.NewMap[context.Context, chan<- Container](),
 		statsCollector:          statsCollect,
 		ready:                   make(chan struct{}),
-		refreshSem:              make(chan struct{}, 1),
 		events:                  make(chan ContainerEvent),
 		ctx:                     ctx,
 		labels:                  labels,
@@ -286,6 +286,11 @@ func (s *ContainerStore) broadcast(event ContainerEvent) {
 var (
 	eventRetryMin = time.Second
 	eventRetryMax = 30 * time.Second
+	// eventSubscribeGrace is how long a reconnect waits before listing. The docker SDK
+	// subscribes to /events on its own goroutine and never says when it is live, and a
+	// list taken before that misses whatever changes in between while still marking
+	// the map fresh. Waiting a moment puts the list after the subscription.
+	eventSubscribeGrace = time.Second
 )
 
 // streamEvents keeps the event stream connected for the life of the store. It runs
@@ -295,14 +300,20 @@ var (
 // event and log alerts went silent with nothing saying so.
 //
 // Docker does not replay what it sent while nobody was listening, so every reconnect
-// marks the map stale and refreshes it once the stream is back. The first connect's
-// list is init's.
+// marks the map stale and refreshes it once the new subscription is live. The first
+// connect's list is init's.
 func (s *ContainerStore) streamEvents() {
 	backoff := eventRetryMin
 	for attempt := 0; ; attempt++ {
 		if attempt > 0 {
-			s.staleGen.Add(1)
-			go s.refreshUntilFresh()
+			go func() {
+				// marked stale only after the grace too, or a ListContainers during it
+				// would list early and mark the map fresh
+				if sleepOrDone(s.ctx, eventSubscribeGrace) {
+					s.staleGen.Add(1)
+					s.refreshUntilFresh()
+				}
+			}()
 		}
 
 		connectedAt := time.Now()
@@ -355,31 +366,32 @@ func sleepOrDone(ctx context.Context, d time.Duration) bool {
 
 // ensureFresh lists containers when the map may be out of date. A failed list leaves
 // it stale, so the next caller retries it. ctx only bounds how long this caller
-// waits: the refresh itself runs on the store's context, because callers share it
-// and one cancelled request must not fail it for the others.
+// waits: the refresh runs on its own goroutine and the store's context, because
+// callers share it and one cancelled request must not fail it for the others.
 func (s *ContainerStore) ensureFresh(ctx context.Context) error {
 	if s.staleGen.Load() == s.freshGen.Load() {
 		return nil
 	}
 
+	result := s.refreshes.DoChan("refresh", func() (any, error) {
+		gen := s.staleGen.Load()
+		if gen == s.freshGen.Load() {
+			// a refresh that finished just before this one started covered it
+			return nil, nil
+		}
+		if err := s.refresh(); err != nil {
+			return nil, err
+		}
+		s.freshGen.Store(gen)
+		return nil, nil
+	})
+
 	select {
-	case s.refreshSem <- struct{}{}:
+	case r := <-result:
+		return r.Err
 	case <-ctx.Done():
 		return ctx.Err()
 	}
-	defer func() { <-s.refreshSem }()
-
-	gen := s.staleGen.Load()
-	if gen == s.freshGen.Load() {
-		// another caller refreshed while this one waited
-		return nil
-	}
-
-	if err := s.refresh(); err != nil {
-		return err
-	}
-	s.freshGen.Store(gen)
-	return nil
 }
 
 // waitReady blocks until init's first refresh has run, or ctx ends.
