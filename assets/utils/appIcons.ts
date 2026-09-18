@@ -143,6 +143,8 @@ const ALIASES: Record<string, string> = {
   pgadmin4: "pgadmin",
   "bluesky-social": "bluesky",
   "mastodon-streaming": "mastodon",
+  "apprise-api": "apprise",
+  thetorproject: "tor",
 };
 
 const stripSuffix = (name: string) => {
