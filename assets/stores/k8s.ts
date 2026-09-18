@@ -85,8 +85,10 @@ export function groupK8sOwners(containers: Container[]) {
     const refs = getK8sOwnerRefs(container);
     for (const [i, owner] of refs.entries()) {
       // A Deployment's ReplicaSet holds exactly the Deployment's pods, so listing both
-      // shows the same logs twice. The chain runs child to parent.
+      // shows the same logs twice. A CronJob's Job is one run, which its pod already
+      // shows, and the CronJob merges every run. The chain runs child to parent.
       if (owner.kind === "ReplicaSet" && refs[i + 1]?.kind === "Deployment") continue;
+      if (owner.kind === "Job" && refs[i + 1]?.kind === "CronJob") continue;
       ownerGroups[owner.key] ||= { owner, containers: [] };
       ownerGroups[owner.key].containers.push(container);
     }

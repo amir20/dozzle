@@ -29,6 +29,38 @@ export interface ContainerResult {
   containers?: Container[];
 }
 
+/**
+ * What an alert written from one container should match. A k8s pod and a Swarm task
+ * are renamed on every run or redeploy, so matching the name would only ever catch
+ * the one that is already on screen. Those key on what outlives them instead.
+ */
+export function alertTargetFor(container: Pick<Container, "name" | "labels">): { name: string; expression: string } {
+  const { labels } = container;
+  const q = (value: string) => JSON.stringify(value);
+
+  const workload = labels["@k8s.workload.name"];
+  if (workload) {
+    // The pod part changes every run; the container part does not, and keeps the
+    // alert off the pod's sidecars.
+    const containerName = container.name.split("/").at(-1) ?? container.name;
+    return {
+      name: `${labels["@k8s.workload.kind"] ?? "workload"}/${workload}`,
+      expression: [
+        `labels["@k8s.namespace"] == ${q(labels["@k8s.namespace"] ?? "")}`,
+        `labels["@k8s.workload.name"] == ${q(workload)}`,
+        `name endsWith ${q("/" + containerName)}`,
+      ].join(" && "),
+    };
+  }
+
+  const service = labels["com.docker.swarm.service.name"];
+  if (service) {
+    return { name: service, expression: `labels["com.docker.swarm.service.name"] == ${q(service)}` };
+  }
+
+  return { name: container.name, expression: `name contains ${q(container.name)}` };
+}
+
 /** What is still missing before the alert can be saved, in the order the form asks for it. */
 export type SaveBlocker = "container-expression" | "condition" | "destination" | "name";
 

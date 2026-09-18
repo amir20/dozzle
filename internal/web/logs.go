@@ -320,8 +320,13 @@ func (h *handler) streamLogsWithLabels(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
+	// all=1 comes from the Kubernetes tab with "Show all containers" on, where a
+	// finished Job pod is still listed and should open to its logs. A created
+	// container has none to read yet.
+	all := r.URL.Query().Get("all") == "1"
+
 	h.streamLogsForContainers(w, r, func(container *container.Container) bool {
-		if container.State != "running" {
+		if container.State != "running" && (!all || container.State == "created") {
 			return false
 		}
 

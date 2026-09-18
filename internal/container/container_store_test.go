@@ -165,6 +165,47 @@ func TestContainerStore_updateCreatedToExitedBroadcastsStart(t *testing.T) {
 	assert.Equal(t, "exited", containers[0].State)
 }
 
+// A k8s pod is created while its container is still being pulled, and the logs API
+// refuses it until it runs. Log streams (alerts included) must hear about it when it
+// starts, not when it is created, or a CronJob pod is never read at all.
+func TestContainerStore_k8sPodNotifiesNewContainerWhenItStarts(t *testing.T) {
+	pending := Container{ID: "default:hello-1:hello", Name: "hello-1/hello", State: "created", Host: "localhost", Stats: utils.NewRingBuffer[ContainerStat](300)}
+	running := pending
+	running.State = "running"
+
+	client := new(mockedClient)
+	client.On("ListContainers", mock.Anything, mock.Anything).Return([]Container{}, nil).Once()
+	client.On("ListContainers", mock.Anything, mock.Anything).Return([]Container{pending}, nil)
+	client.On("FindContainer", mock.Anything, pending.ID).Return(pending, nil)
+	client.On("Host").Return(Host{ID: "localhost"})
+	client.On("ContainerStats", mock.Anything, pending.ID, mock.AnythingOfType("chan<- container.ContainerStat")).Return(nil)
+
+	ready := make(chan struct{})
+	client.On("ContainerEvents", mock.Anything, mock.AnythingOfType("chan<- container.ContainerEvent")).Return(nil).
+		Run(func(args mock.Arguments) {
+			ctx := args.Get(0).(context.Context)
+			events := args.Get(1).(chan<- ContainerEvent)
+			<-ready
+			events <- ContainerEvent{Name: "create", ActorID: pending.ID, Host: "localhost", Container: &pending}
+			events <- ContainerEvent{Name: "update", ActorID: pending.ID, Host: "localhost", Container: &running}
+			<-ctx.Done()
+		})
+
+	store := NewContainerStore(t.Context(), client, &fakeStatsCollector{}, ContainerLabels{})
+
+	started := make(chan Container, 2)
+	store.SubscribeNewContainers(t.Context(), started)
+	close(ready)
+
+	select {
+	case c := <-started:
+		assert.Equal(t, "running", c.State)
+	case <-time.After(2 * time.Second):
+		t.Fatal("pod that started was never handed to new-container subscribers")
+	}
+	assert.Empty(t, started, "a created pod has no logs yet and should not be handed out")
+}
+
 // A k8s pod created between the store's first list and the informer's arrives only as
 // an update. Before, updates for IDs the store never loaded were dropped for good.
 func TestContainerStore_updateForUnknownContainerAddsIt(t *testing.T) {

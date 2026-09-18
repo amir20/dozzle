@@ -17,6 +17,7 @@ import { Container, GroupedContainers } from "@/models/Container";
 import { parseMessage } from "./loadBetween";
 import { useLogLoader } from "./logLoader";
 import { parseEventData } from "@/utils/events";
+import { showAllContainers } from "@/stores/settings";
 
 const { isSearching, appliedSearchFilter, inverseFilter } = useSearchFilter();
 
@@ -56,14 +57,18 @@ export function useServiceStream(service: Ref<Service>): LogStreamSource {
   return useLogStream(computed(() => `/api/labels/${labels.value}/logs/stream`));
 }
 
+// The Kubernetes tab follows "Show all containers", so a finished Job stays listed.
+// Its stream has to follow the same toggle or the Job opens to an empty view.
+function k8sLabelsUrl(labels: string) {
+  return `/api/labels/${labels}/logs/stream${showAllContainers.value ? "?all=1" : ""}`;
+}
+
 export function useNamespaceStream(namespace: Ref<{ name: string }>): LogStreamSource {
-  const labels = computed(() => `@k8s.namespace:${namespace.value.name}`);
-  return useLogStream(computed(() => `/api/labels/${labels.value}/logs/stream`));
+  return useLogStream(computed(() => k8sLabelsUrl(`@k8s.namespace:${namespace.value.name}`)));
 }
 
 export function useOwnerStream(owner: Ref<{ label: string }>): LogStreamSource {
-  const labels = computed(() => `${owner.value.label}:true`);
-  return useLogStream(computed(() => `/api/labels/${labels.value}/logs/stream`));
+  return useLogStream(computed(() => k8sLabelsUrl(`${owner.value.label}:true`)));
 }
 
 export type SearchStatus = {
@@ -197,7 +202,9 @@ function useLogStream(url: Ref<string>, container?: Ref<Container>) {
     buffer = [];
   }
 
-  const urlWithParams = computed(() => withBase(`${url.value}?${params.value.toString()}`));
+  const urlWithParams = computed(() =>
+    withBase(`${url.value}${url.value.includes("?") ? "&" : "?"}${params.value.toString()}`),
+  );
 
   function connect({ clear } = { clear: true }) {
     close();

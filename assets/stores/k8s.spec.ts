@@ -102,6 +102,26 @@ describe("getK8sOwnerRefs", () => {
 
 describe("groupK8sOwners", () => {
   test("groups a container under every owner in its chain", () => {
+    const container = makeContainer("db-0", {
+      namespace: "default",
+      "@k8s.owner.count": "2",
+      "@k8s.owner.0.kind": "StatefulSet",
+      "@k8s.owner.0.namespace": "default",
+      "@k8s.owner.0.name": "db",
+      "@k8s.owner.0.key": "StatefulSet~default~db",
+      "@k8s.owner.1.kind": "Tenant",
+      "@k8s.owner.1.namespace": "default",
+      "@k8s.owner.1.name": "acme",
+      "@k8s.owner.1.key": "Tenant~default~acme",
+    });
+
+    const owners = groupK8sOwners([container]);
+
+    expect(owners.map((owner) => owner.key).sort()).toEqual(["StatefulSet~default~db", "Tenant~default~acme"]);
+    expect(owners.every((owner) => owner.containers.length === 1)).toBe(true);
+  });
+
+  test("skips a Job owned by a CronJob", () => {
     const container = makeContainer("hello", {
       namespace: "default",
       "@k8s.owner.count": "2",
@@ -115,10 +135,20 @@ describe("groupK8sOwners", () => {
       "@k8s.owner.1.key": "CronJob~default~hello",
     });
 
-    const owners = groupK8sOwners([container]);
+    expect(groupK8sOwners([container]).map((owner) => owner.key)).toEqual(["CronJob~default~hello"]);
+  });
 
-    expect(owners.map((owner) => owner.key).sort()).toEqual(["CronJob~default~hello", "Job~default~hello-29824580"]);
-    expect(owners.every((owner) => owner.containers.length === 1)).toBe(true);
+  test("keeps a standalone Job", () => {
+    const container = makeContainer("migrate", {
+      namespace: "default",
+      "@k8s.owner.count": "1",
+      "@k8s.owner.0.kind": "Job",
+      "@k8s.owner.0.namespace": "default",
+      "@k8s.owner.0.name": "migrate",
+      "@k8s.owner.0.key": "Job~default~migrate",
+    });
+
+    expect(groupK8sOwners([container]).map((owner) => owner.key)).toEqual(["Job~default~migrate"]);
   });
 
   test("skips a ReplicaSet owned by a Deployment", () => {

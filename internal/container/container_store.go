@@ -508,6 +508,18 @@ func (s *ContainerStore) addContainer(id string, timeout time.Duration) {
 	}
 
 	s.containers.Store(found.ID, &found)
+
+	// A created container has nothing to stream yet: Kubernetes refuses logs while a
+	// pod is ContainerCreating. Docker follows with a start event, and a k8s pod with
+	// the update that makes it run, and both of those notify.
+	if found.State != "created" {
+		s.notifyNewContainer(found)
+	}
+}
+
+// notifyNewContainer hands a container that has started to everything streaming
+// logs for new containers (alerts, merged views, cloud).
+func (s *ContainerStore) notifyNewContainer(found Container) {
 	budget := &fanoutBudget{}
 	defer budget.stop()
 
@@ -574,6 +586,10 @@ func (s *ContainerStore) init() {
 				})
 
 				if started {
+					// Kubernetes reports a pod starting only as an update, so this is the
+					// first moment its logs can be read. Without it an alert on a CronJob
+					// pod never sees a line.
+					s.notifyNewContainer(*updatedContainer)
 					s.broadcast(ContainerEvent{
 						Name:    "start",
 						ActorID: updatedContainer.ID,
