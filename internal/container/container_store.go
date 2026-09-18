@@ -27,9 +27,9 @@ type ContainerStore struct {
 	client                  Client
 	statsCollector          StatsCollector
 	volumeMonitor           *volumeMonitor
-	wg                      sync.WaitGroup
-	// connected guards the event stream goroutine only: it is true while one is running.
-	connected atomic.Bool
+	// ready is closed once init's first refresh has run, so callers can stop waiting
+	// on it when their own context ends.
+	ready chan struct{}
 	// staleGen is bumped every time the event stream (re)connects, and freshGen records
 	// the staleGen the last successful list covered. They differ while the map may be
 	// missing whatever happened while no stream was running, including when the very
@@ -37,9 +37,10 @@ type ContainerStore struct {
 	// while a refresh is in flight is not cleared by that refresh finishing.
 	staleGen atomic.Uint64
 	freshGen atomic.Uint64
-	// refreshMu serialises refreshes and makes concurrent readers wait for one in
-	// flight instead of reading a map that is still being rebuilt.
-	refreshMu sync.Mutex
+	// refreshSem serialises refreshes and makes concurrent readers wait for one in
+	// flight instead of reading a map that is still being rebuilt. A channel rather
+	// than a mutex so a caller whose context ends can stop waiting.
+	refreshSem chan struct{}
 	// announced is the StartedAt each container was last announced to new-container
 	// subscribers with. Only the event loop touches it.
 	announced map[string]time.Time
@@ -59,15 +60,14 @@ func NewContainerStore(ctx context.Context, client Client, statsCollect StatsCol
 		subscribers:             xsync.NewMap[context.Context, *eventSubscriber](),
 		newContainerSubscribers: xsync.NewMap[context.Context, chan<- Container](),
 		statsCollector:          statsCollect,
-		wg:                      sync.WaitGroup{},
+		ready:                   make(chan struct{}),
+		refreshSem:              make(chan struct{}, 1),
 		events:                  make(chan ContainerEvent),
 		ctx:                     ctx,
 		labels:                  labels,
 	}
 	s.volumeMonitor = newVolumeMonitor(s)
 	s.volumeMonitor.start(ctx)
-
-	s.wg.Add(1)
 
 	go s.init()
 
@@ -282,34 +282,96 @@ func (s *ContainerStore) broadcast(event ContainerEvent) {
 	})
 }
 
-// checkConnectivity starts the event stream if none is running and lists containers
-// when the map may be out of date. A failed list leaves the map stale, so the next
-// caller retries it instead of serving an empty store until the stream drops.
-func (s *ContainerStore) checkConnectivity() error {
-	if s.connected.CompareAndSwap(false, true) {
-		// marked before the stream starts: whatever happened while no stream was
-		// running is only recovered by a list
-		s.staleGen.Add(1)
-		go func() {
-			log.Debug().Str("host", s.client.Host().Name).Msg("docker store subscribing docker events")
-			err := s.client.ContainerEvents(s.ctx, s.events)
-			if err != nil && !errors.Is(err, context.Canceled) {
-				log.Error().Err(err).Str("host", s.client.Host().Name).Msg("docker store unexpectedly disconnected from docker events")
-			}
-			s.connected.Store(false)
-		}()
-	}
+// Backoff bounds for reconnecting the event stream. Variables so tests can shorten them.
+var (
+	eventRetryMin = time.Second
+	eventRetryMax = 30 * time.Second
+)
 
+// streamEvents keeps the event stream connected for the life of the store. It runs
+// from boot whether or not anyone is watching, so reconnecting costs nothing extra.
+// It used to reconnect only when something next called ListContainers, which left a
+// headless instance deaf after a daemon restart: new containers never appeared and
+// event and log alerts went silent with nothing saying so.
+//
+// Docker does not replay what it sent while nobody was listening, so every reconnect
+// marks the map stale and refreshes it once the stream is back. The first connect's
+// list is init's.
+func (s *ContainerStore) streamEvents() {
+	backoff := eventRetryMin
+	for attempt := 0; ; attempt++ {
+		if attempt > 0 {
+			s.staleGen.Add(1)
+			go s.refreshUntilFresh()
+		}
+
+		connectedAt := time.Now()
+		log.Debug().Str("host", s.client.Host().Name).Msg("docker store subscribing docker events")
+		err := s.client.ContainerEvents(s.ctx, s.events)
+		if s.ctx.Err() != nil {
+			return
+		}
+
+		// a stream that stayed up for a while was healthy, so start the backoff over
+		if time.Since(connectedAt) > eventRetryMax {
+			backoff = eventRetryMin
+		}
+		log.Warn().Err(err).Str("host", s.client.Host().Name).Dur("retry_in", backoff).Msg("docker store disconnected from docker events, reconnecting")
+		if !sleepOrDone(s.ctx, backoff) {
+			return
+		}
+		backoff = min(backoff*2, eventRetryMax)
+	}
+}
+
+// refreshUntilFresh retries the refresh a reconnect needs until one succeeds. Without
+// it, a list that fails because the daemon is still coming up would leave the map
+// stale until the next ListContainers.
+func (s *ContainerStore) refreshUntilFresh() {
+	backoff := eventRetryMin
+	for {
+		err := s.ensureFresh(s.ctx)
+		if err == nil || s.ctx.Err() != nil {
+			return
+		}
+		log.Warn().Err(err).Str("host", s.client.Host().Name).Dur("retry_in", backoff).Msg("failed to refresh containers, retrying")
+		if !sleepOrDone(s.ctx, backoff) {
+			return
+		}
+		backoff = min(backoff*2, eventRetryMax)
+	}
+}
+
+func sleepOrDone(ctx context.Context, d time.Duration) bool {
+	t := time.NewTimer(d)
+	defer t.Stop()
+	select {
+	case <-ctx.Done():
+		return false
+	case <-t.C:
+		return true
+	}
+}
+
+// ensureFresh lists containers when the map may be out of date. A failed list leaves
+// it stale, so the next caller retries it. ctx only bounds how long this caller
+// waits: the refresh itself runs on the store's context, because callers share it
+// and one cancelled request must not fail it for the others.
+func (s *ContainerStore) ensureFresh(ctx context.Context) error {
 	if s.staleGen.Load() == s.freshGen.Load() {
 		return nil
 	}
 
-	s.refreshMu.Lock()
-	defer s.refreshMu.Unlock()
+	select {
+	case s.refreshSem <- struct{}{}:
+	case <-ctx.Done():
+		return ctx.Err()
+	}
+	defer func() { <-s.refreshSem }()
 
 	gen := s.staleGen.Load()
 	if gen == s.freshGen.Load() {
-		// another caller refreshed while this one waited for the lock
+		// another caller refreshed while this one waited
 		return nil
 	}
 
@@ -318,6 +380,16 @@ func (s *ContainerStore) checkConnectivity() error {
 	}
 	s.freshGen.Store(gen)
 	return nil
+}
+
+// waitReady blocks until init's first refresh has run, or ctx ends.
+func (s *ContainerStore) waitReady(ctx context.Context) error {
+	select {
+	case <-s.ready:
+		return nil
+	case <-ctx.Done():
+		return ctx.Err()
+	}
 }
 
 // refresh reconciles the map with a fresh list. It never clears the map first:
@@ -331,7 +403,7 @@ func (s *ContainerStore) refresh() error {
 		return true
 	})
 
-	ctx, cancel := context.WithTimeout(context.Background(), defaultTimeout)
+	ctx, cancel := context.WithTimeout(s.ctx, defaultTimeout)
 	defer cancel()
 	containers, err := s.client.ListContainers(ctx, s.labels)
 	if err != nil {
@@ -375,7 +447,7 @@ func (s *ContainerStore) refresh() error {
 			if !ok || prev.FullyLoaded {
 				return
 			}
-			ctx, cancel := context.WithTimeout(context.Background(), defaultTimeout)
+			ctx, cancel := context.WithTimeout(s.ctx, defaultTimeout)
 			defer cancel()
 			if fetched, err := s.client.FindContainer(ctx, id); err == nil {
 				s.mergeFetched(prev, fetched)
@@ -471,27 +543,38 @@ func (s *ContainerStore) mergeFetched(prev *Container, fetched Container) (curre
 	return current, found, updated
 }
 
-func (s *ContainerStore) ListContainers(labels ContainerLabels) ([]Container, error) {
-	s.wg.Wait()
+// userFilterIDs lists the containers a user's labels allow. It is bounded by
+// defaultTimeout: on bare s.ctx a hung daemon hung the request forever.
+func (s *ContainerStore) userFilterIDs(ctx context.Context, labels ContainerLabels) (map[string]Container, error) {
+	ctx, cancel := context.WithTimeout(ctx, defaultTimeout)
+	defer cancel()
+	validContainers, err := s.client.ListContainers(ctx, labels)
+	if err != nil {
+		return nil, err
+	}
+	if len(validContainers) == 0 {
+		log.Warn().Interface("userLabels", labels).Msg("no containers found with user labels")
+	}
+	return lo.KeyBy(validContainers, func(item Container) string {
+		return item.ID
+	}), nil
+}
 
-	if err := s.checkConnectivity(); err != nil {
+func (s *ContainerStore) ListContainers(ctx context.Context, labels ContainerLabels) ([]Container, error) {
+	if err := s.waitReady(ctx); err != nil {
+		return nil, err
+	}
+
+	if err := s.ensureFresh(ctx); err != nil {
 		return nil, err
 	}
 
 	containers := make([]Container, 0)
 	if labels.Exists() {
-		validContainers, err := s.client.ListContainers(s.ctx, labels)
+		validIDMap, err := s.userFilterIDs(ctx, labels)
 		if err != nil {
 			return nil, err
 		}
-
-		if len(validContainers) == 0 {
-			log.Warn().Interface("userLabels", labels).Msg("no containers found with user labels")
-		}
-
-		validIDMap := lo.KeyBy(validContainers, func(item Container) string {
-			return item.ID
-		})
 
 		s.containers.Range(func(_ string, c *Container) bool {
 			if _, ok := validIDMap[c.ID]; ok {
@@ -509,17 +592,15 @@ func (s *ContainerStore) ListContainers(labels ContainerLabels) ([]Container, er
 	return containers, nil
 }
 
-func (s *ContainerStore) FindContainer(id string, labels ContainerLabels) (Container, error) {
-	s.wg.Wait()
+func (s *ContainerStore) FindContainer(ctx context.Context, id string, labels ContainerLabels) (Container, error) {
+	if err := s.waitReady(ctx); err != nil {
+		return Container{}, err
+	}
 	if labels.Exists() {
-		validContainers, err := s.client.ListContainers(s.ctx, labels)
+		validIDMap, err := s.userFilterIDs(ctx, labels)
 		if err != nil {
 			return Container{}, err
 		}
-
-		validIDMap := lo.KeyBy(validContainers, func(item Container) string {
-			return item.ID
-		})
 
 		if _, ok := validIDMap[id]; !ok {
 			log.Warn().Str("id", id).Msg("user doesn't have access to container")
@@ -540,7 +621,7 @@ func (s *ContainerStore) FindContainer(id string, labels ContainerLabels) (Conta
 	// Compute it held the bucket lock for that long and stalled the event loop behind
 	// it whenever the loop touched a container in the same bucket.
 	log.Debug().Str("id", id).Msg("container is not fully loaded, fetching it")
-	ctx, cancel := context.WithTimeout(context.Background(), defaultTimeout)
+	ctx, cancel := context.WithTimeout(ctx, defaultTimeout)
 	defer cancel()
 	fetched, err := s.client.FindContainer(ctx, id)
 	if err != nil {
@@ -649,7 +730,7 @@ func matchesLabels(labels map[string]string, filter ContainerLabels) bool {
 // Fall back to the list entry in that case: it is not FullyLoaded, so the next
 // FindContainer fills in the rest.
 func (s *ContainerStore) addContainer(id string, timeout time.Duration) (Container, bool) {
-	ctx, cancel := context.WithTimeout(context.Background(), timeout)
+	ctx, cancel := context.WithTimeout(s.ctx, timeout)
 	defer cancel()
 
 	filtered := s.labels.Exists()
@@ -726,12 +807,18 @@ func (s *ContainerStore) init() {
 	stats := make(chan ContainerStat)
 	s.statsCollector.Subscribe(s.ctx, stats)
 
-	if err := s.checkConnectivity(); err != nil {
-		// the store stays stale, so the next ListContainers retries the list
-		log.Error().Err(err).Str("host", s.client.Host().Name).Msg("failed to list containers while initializing container store")
+	// the stream starts before the first list, so nothing that happens during the
+	// list is missed
+	s.staleGen.Add(1)
+	go s.streamEvents()
+	if err := s.ensureFresh(s.ctx); err != nil {
+		// ready is not held back on it: callers get the error from their own
+		// ListContainers instead of hanging while the daemon is down
+		log.Error().Err(err).Str("host", s.client.Host().Name).Msg("failed to list containers while initializing container store, retrying")
+		go s.refreshUntilFresh()
 	}
 
-	s.wg.Done()
+	close(s.ready)
 
 	for {
 		select {

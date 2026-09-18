@@ -67,7 +67,7 @@ func TestContainerStore_List(t *testing.T) {
 
 	collector := &fakeStatsCollector{}
 	store := NewContainerStore(t.Context(), client, collector, ContainerLabels{})
-	containers, _ := store.ListContainers(ContainerLabels{})
+	containers, _ := store.ListContainers(t.Context(), ContainerLabels{})
 
 	assert.Equal(t, containers[0].ID, "1234")
 }
@@ -117,7 +117,7 @@ func TestContainerStore_die(t *testing.T) {
 	close(ready)
 	<-events
 
-	containers, _ := store.ListContainers(ContainerLabels{})
+	containers, _ := store.ListContainers(t.Context(), ContainerLabels{})
 	assert.Equal(t, containers[0].State, "exited")
 }
 
@@ -161,7 +161,7 @@ func TestContainerStore_updateCreatedToExitedBroadcastsStart(t *testing.T) {
 
 	assert.Equal(t, "start", (<-events).Name)
 
-	containers, _ := store.ListContainers(ContainerLabels{})
+	containers, _ := store.ListContainers(t.Context(), ContainerLabels{})
 	assert.Equal(t, "exited", containers[0].State)
 }
 
@@ -194,7 +194,7 @@ func TestContainerStore_updateForUnknownContainerAddsIt(t *testing.T) {
 	close(ready)
 
 	assert.Equal(t, "start", (<-events).Name)
-	containers, _ := store.ListContainers(ContainerLabels{})
+	containers, _ := store.ListContainers(t.Context(), ContainerLabels{})
 	assert.Len(t, containers, 1)
 }
 
@@ -227,7 +227,7 @@ func TestContainerStore_rename(t *testing.T) {
 		close(ready)
 		<-events
 
-		containers, err := store.ListContainers(ContainerLabels{})
+		containers, err := store.ListContainers(t.Context(), ContainerLabels{})
 		assert.NoError(t, err)
 		assert.Len(t, containers, 1)
 		return containers[0]
@@ -310,7 +310,7 @@ func TestContainerStore_start_inspect_failure(t *testing.T) {
 	close(ready)
 	<-events
 
-	containers, err := store.ListContainers(ContainerLabels{})
+	containers, err := store.ListContainers(t.Context(), ContainerLabels{})
 	assert.NoError(t, err)
 
 	ids := make([]string, 0, len(containers))
@@ -366,7 +366,7 @@ func TestContainerStore_wedgedSubscriberDoesNotStallStore(t *testing.T) {
 	close(ready)
 
 	assert.Eventually(t, func() bool {
-		containers, err := store.ListContainers(ContainerLabels{})
+		containers, err := store.ListContainers(t.Context(), ContainerLabels{})
 		if err != nil {
 			return false
 		}
@@ -548,7 +548,7 @@ func TestContainerStore_lifecycleEvents(t *testing.T) {
 	store.SubscribeEvents(t.Context(), events)
 
 	state := func() Container {
-		containers, err := store.ListContainers(ContainerLabels{})
+		containers, err := store.ListContainers(t.Context(), ContainerLabels{})
 		assert.NoError(t, err)
 		c, _ := findByID(containers, "1234")
 		return c
@@ -572,7 +572,7 @@ func TestContainerStore_lifecycleEvents(t *testing.T) {
 
 	feed <- ContainerEvent{Name: "destroy", ActorID: "1234"}
 	waitForEvent(t, events, "destroy")
-	containers, err := store.ListContainers(ContainerLabels{})
+	containers, err := store.ListContainers(t.Context(), ContainerLabels{})
 	assert.NoError(t, err)
 	assert.Empty(t, containers)
 }
@@ -700,7 +700,7 @@ func TestContainerStore_FindContainer(t *testing.T) {
 		events := make(chan ContainerEvent, 16)
 		store.SubscribeEvents(t.Context(), events)
 
-		c, err := store.FindContainer("1234", ContainerLabels{})
+		c, err := store.FindContainer(t.Context(), "1234", ContainerLabels{})
 		assert.NoError(t, err)
 		assert.True(t, c.FullyLoaded)
 		assert.Equal(t, "nginx", c.Image)
@@ -713,12 +713,12 @@ func TestContainerStore_FindContainer(t *testing.T) {
 
 	t.Run("keeps the stats history", func(t *testing.T) {
 		store, _ := newStore(t)
-		_, _ = store.ListContainers(ContainerLabels{})
+		_, _ = store.ListContainers(t.Context(), ContainerLabels{})
 		stored, ok := store.containers.Load("1234")
 		assert.True(t, ok)
 		stored.Stats.Push(ContainerStat{CPUPercent: 42})
 
-		c, err := store.FindContainer("1234", ContainerLabels{})
+		c, err := store.FindContainer(t.Context(), "1234", ContainerLabels{})
 		assert.NoError(t, err)
 		assert.True(t, c.FullyLoaded)
 		assert.Equal(t, 1, c.Stats.Len(), "a refetch should not reset the stats history")
@@ -727,13 +727,13 @@ func TestContainerStore_FindContainer(t *testing.T) {
 
 	t.Run("denied by user labels", func(t *testing.T) {
 		store, _ := newStore(t)
-		_, err := store.FindContainer("1234", userLabels)
+		_, err := store.FindContainer(t.Context(), "1234", userLabels)
 		assert.ErrorIs(t, err, ErrContainerNotFound)
 	})
 
 	t.Run("unknown id", func(t *testing.T) {
 		store, client := newStore(t)
-		_, err := store.FindContainer("nope", ContainerLabels{})
+		_, err := store.FindContainer(t.Context(), "nope", ContainerLabels{})
 		assert.ErrorIs(t, err, ErrContainerNotFound)
 		client.AssertNotCalled(t, "FindContainer", mock.Anything, "nope")
 	})
@@ -749,11 +749,11 @@ func TestContainerStore_ListContainersWithUserLabels(t *testing.T) {
 
 	store := NewContainerStore(t.Context(), client, newCaptureStatsCollector(), ContainerLabels{})
 
-	all, err := store.ListContainers(ContainerLabels{})
+	all, err := store.ListContainers(t.Context(), ContainerLabels{})
 	assert.NoError(t, err)
 	assert.Len(t, all, 2)
 
-	visible, err := store.ListContainers(userLabels)
+	visible, err := store.ListContainers(t.Context(), userLabels)
 	assert.NoError(t, err)
 	assert.Len(t, visible, 1)
 	assert.Equal(t, "1234", visible[0].ID)
@@ -770,12 +770,12 @@ func TestContainerStore_initialListFailureIsRetried(t *testing.T) {
 
 	store := NewContainerStore(t.Context(), client, newCaptureStatsCollector(), ContainerLabels{})
 
-	containers, err := store.ListContainers(ContainerLabels{})
+	containers, err := store.ListContainers(t.Context(), ContainerLabels{})
 	assert.NoError(t, err)
 	assert.Len(t, containers, 1)
 
 	// fresh now, so the next call does not list again
-	_, err = store.ListContainers(ContainerLabels{})
+	_, err = store.ListContainers(t.Context(), ContainerLabels{})
 	assert.NoError(t, err)
 	client.AssertNumberOfCalls(t, "ListContainers", 2)
 }
@@ -788,7 +788,7 @@ func TestContainerStore_statsArePushedToTheirContainer(t *testing.T) {
 
 	collector := newCaptureStatsCollector()
 	store := NewContainerStore(t.Context(), client, collector, ContainerLabels{})
-	_, _ = store.ListContainers(ContainerLabels{})
+	_, _ = store.ListContainers(t.Context(), ContainerLabels{})
 
 	var stats chan<- ContainerStat
 	select {
@@ -1063,4 +1063,116 @@ func TestContainerStore_storeListedKeepsFullyLoadedLoopEntry(t *testing.T) {
 	store.storeListed(&before, Container{ID: "1", State: "running"})
 	got, _ := store.containers.Load("1")
 	assert.Same(t, &inspected, got)
+}
+
+func shortenEventRetry(t *testing.T) {
+	oldMin, oldMax := eventRetryMin, eventRetryMax
+	eventRetryMin, eventRetryMax = 5*time.Millisecond, 20*time.Millisecond
+	t.Cleanup(func() { eventRetryMin, eventRetryMax = oldMin, oldMax })
+}
+
+// A dropped event stream reconnects on its own and refreshes the map, so a container
+// that started while it was down shows up without anyone calling ListContainers.
+func TestContainerStore_eventStreamReconnectsAndRefreshes(t *testing.T) {
+	shortenEventRetry(t)
+	missed := Container{ID: "missed", Name: "missed", State: "running", FullyLoaded: true, Stats: utils.NewRingBuffer[ContainerStat](300)}
+
+	client := new(mockedClient)
+	client.On("Host").Return(Host{ID: "localhost"})
+	client.On("ListContainers", mock.Anything, mock.Anything).Return([]Container{}, nil).Once()
+	client.On("ListContainers", mock.Anything, mock.Anything).Return([]Container{missed}, nil)
+	// the daemon restarts: the first stream ends with an error, the second stays up
+	client.On("ContainerEvents", mock.Anything, mock.Anything).Return(assert.AnError).Once()
+	reconnected := make(chan struct{})
+	client.On("ContainerEvents", mock.Anything, mock.Anything).Return(nil).Run(func(args mock.Arguments) {
+		close(reconnected)
+		<-args.Get(0).(context.Context).Done()
+	})
+
+	store := NewContainerStore(t.Context(), client, &fakeStatsCollector{}, ContainerLabels{})
+
+	select {
+	case <-reconnected:
+	case <-time.After(5 * time.Second):
+		t.Fatal("event stream did not reconnect")
+	}
+	assert.Eventually(t, func() bool {
+		_, ok := store.containers.Load("missed")
+		return ok
+	}, 5*time.Second, 5*time.Millisecond, "the reconnect should refresh the map")
+}
+
+// The refresh after a reconnect can fail while the daemon is still coming up. It
+// keeps retrying instead of waiting for the next ListContainers.
+func TestContainerStore_refreshAfterReconnectRetries(t *testing.T) {
+	shortenEventRetry(t)
+	missed := Container{ID: "missed", State: "running", FullyLoaded: true, Stats: utils.NewRingBuffer[ContainerStat](300)}
+
+	client := new(mockedClient)
+	client.On("Host").Return(Host{ID: "localhost"})
+	client.On("ListContainers", mock.Anything, mock.Anything).Return([]Container{}, nil).Once()
+	client.On("ListContainers", mock.Anything, mock.Anything).Return([]Container{}, assert.AnError).Twice()
+	client.On("ListContainers", mock.Anything, mock.Anything).Return([]Container{missed}, nil)
+	client.On("ContainerEvents", mock.Anything, mock.Anything).Return(assert.AnError).Once()
+	client.On("ContainerEvents", mock.Anything, mock.Anything).Return(nil).Run(func(args mock.Arguments) {
+		<-args.Get(0).(context.Context).Done()
+	})
+
+	store := NewContainerStore(t.Context(), client, &fakeStatsCollector{}, ContainerLabels{})
+
+	assert.Eventually(t, func() bool {
+		_, ok := store.containers.Load("missed")
+		return ok
+	}, 5*time.Second, 5*time.Millisecond)
+	assert.Equal(t, store.staleGen.Load(), store.freshGen.Load())
+}
+
+// A caller whose context ends stops waiting on a refresh that is stuck on the daemon.
+func TestContainerStore_ListContainersHonoursCallerContext(t *testing.T) {
+	client := new(mockedClient)
+	client.On("Host").Return(Host{ID: "localhost"})
+	unblock := make(chan struct{})
+	t.Cleanup(func() { close(unblock) })
+	client.On("ListContainers", mock.Anything, mock.Anything).Return([]Container{}, nil).Run(func(mock.Arguments) {
+		<-unblock
+	})
+	client.On("ContainerEvents", mock.Anything, mock.Anything).Return(nil).Run(func(args mock.Arguments) {
+		<-args.Get(0).(context.Context).Done()
+	})
+
+	store := NewContainerStore(t.Context(), client, &fakeStatsCollector{}, ContainerLabels{})
+
+	ctx, cancel := context.WithTimeout(t.Context(), 50*time.Millisecond)
+	defer cancel()
+	done := make(chan error, 2)
+	go func() { _, err := store.ListContainers(ctx, ContainerLabels{}); done <- err }()
+	go func() { _, err := store.FindContainer(ctx, "1234", ContainerLabels{}); done <- err }()
+	for range 2 {
+		select {
+		case err := <-done:
+			assert.ErrorIs(t, err, context.DeadlineExceeded)
+		case <-time.After(5 * time.Second):
+			t.Fatal("caller kept waiting after its context ended")
+		}
+	}
+}
+
+// The user-label list used bare s.ctx, so a hung daemon hung the request forever.
+func TestContainerStore_userLabelListHasDeadline(t *testing.T) {
+	client := new(mockedClient)
+	client.On("Host").Return(Host{ID: "localhost"})
+	userLabels := ContainerLabels{"team": {"a"}}
+	client.On("ListContainers", mock.Anything, ContainerLabels{}).Return([]Container{}, nil)
+	var hadDeadline bool
+	client.On("ListContainers", mock.Anything, userLabels).Return([]Container{}, nil).Run(func(args mock.Arguments) {
+		_, hadDeadline = args.Get(0).(context.Context).Deadline()
+	})
+	client.On("ContainerEvents", mock.Anything, mock.Anything).Return(nil).Run(func(args mock.Arguments) {
+		<-args.Get(0).(context.Context).Done()
+	})
+
+	store := NewContainerStore(t.Context(), client, &fakeStatsCollector{}, ContainerLabels{})
+	_, err := store.ListContainers(context.Background(), userLabels)
+	assert.NoError(t, err)
+	assert.True(t, hadDeadline)
 }
