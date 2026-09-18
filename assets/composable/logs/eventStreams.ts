@@ -129,21 +129,23 @@ function useLogStream(url: Ref<string>, container?: Ref<Container>) {
     // The first batch that fits opens the view, headed by the load-more row, and
     // is the only one that triggers an immediate alert pass; after that the poll
     // owns the cadence, so log volume cannot drive request volume.
+    // An opening burst over maxLogs is still the opening: it has to end `initial`
+    // too, or the next small batch lands here and replaces the window it kept.
+    const wasInitial = initial;
+    initial = false;
     const overflows = messages.value.length + batch.length > config.maxLogs;
-    if (initial && !overflows) {
-      initial = false;
+    if (wasInitial && !overflows) {
       const head =
         container || containers.value.length > 0 ? [new LoadMoreLogEntry(new Date(), loadOlderLogs)] : messages.value;
       messages.value = [...head, ...batch];
-      decorateWithAlerts();
-      return;
+    } else {
+      messages.value = appendBatch(messages.value, batch, {
+        maxLogs: config.maxLogs,
+        paused: scrollingPaused.value === true,
+        loadSkipped: loadSkippedLogs,
+      });
     }
-
-    messages.value = appendBatch(messages.value, batch, {
-      maxLogs: config.maxLogs,
-      paused: scrollingPaused.value === true,
-      loadSkipped: loadSkippedLogs,
-    });
+    if (wasInitial) decorateWithAlerts();
   }
 
   const flushBuffer = useAdaptiveFlush(flushNow, () => initial);

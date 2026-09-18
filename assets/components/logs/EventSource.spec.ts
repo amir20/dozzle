@@ -13,11 +13,11 @@ import SearchStatus from "./SearchStatus.vue";
 import IndeterminateBar from "@/components/ui/IndeterminateBar.vue";
 import LogViewer from "./LogViewer.vue";
 import { Container } from "@/models/Container";
-import { Level } from "@/models/LogEntry";
+import { Level, type LogEntry } from "@/models/LogEntry";
 
 vi.mock("@/stores/config", () => ({
   __esModule: true,
-  default: { base: "", hosts: [{ name: "localhost", id: "localhost" }] },
+  default: { base: "", maxLogs: 400, hosts: [{ name: "localhost", id: "localhost" }] },
   withBase: (path: string) => path,
 }));
 
@@ -175,6 +175,28 @@ describe("<ContainerEventSource />", () => {
     // @ts-ignore
     const [message, _] = wrapper.vm.messages;
     expect(message).toMatchSnapshot();
+  });
+
+  test("keeps an overflowing opening burst when the next batch arrives", async () => {
+    const wrapper = createLogEventSource();
+    sources[sourceUrl].emitOpen();
+    const emit = (id: number) =>
+      sources[sourceUrl].emitMessage({
+        data: `{"ts":${1560336942459 + id}, "m":"line ${id}", "id":${id}, "rm": "line ${id}", "c": "abc"}`,
+      });
+
+    for (let id = 1; id <= 500; id++) emit(id);
+    await vi.advanceTimersByTimeAsync(200);
+    // @ts-ignore
+    const opening = wrapper.vm.messages.length;
+    expect(opening).toBe(200);
+
+    emit(501);
+    await vi.advanceTimersByTimeAsync(1100);
+    // @ts-ignore
+    const messages: LogEntry<string>[] = wrapper.vm.messages;
+    expect(messages).toHaveLength(opening + 1);
+    expect(messages.at(-1)?.message).toBe("line 501");
   });
 
   describe("live bar", () => {
