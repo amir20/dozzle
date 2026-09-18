@@ -3,19 +3,18 @@ import { ShallowRef, type Ref } from "vue";
 import debounce from "lodash.debounce";
 import {
   type LogEvent,
-  type JSONObject,
   type LogMessage,
   LogEntry,
   asLogEntry,
   ContainerEventLogEntry,
   ComplexLogEntry,
-  SkippedLogsEntry,
   LoadMoreLogEntry,
 } from "@/models/LogEntry";
 import { Service, Stack } from "@/models/Stack";
 import { Container, GroupedContainers } from "@/models/Container";
 import { parseMessage } from "./loadBetween";
 import { useLogLoader } from "./logLoader";
+import { appendBatch } from "./logWindow";
 import { parseEventData } from "@/utils/events";
 
 const { isSearching, appliedSearchFilter, inverseFilter } = useSearchFilter();
@@ -33,9 +32,12 @@ export function useHostGroupStream(group: Ref<{ name: string }>): LogStreamSourc
   return useLogStream(computed(() => `/api/host-groups/${encodeURIComponent(group.value.name)}/logs/stream`));
 }
 
+function useLabelStream(labels: () => string): LogStreamSource {
+  return useLogStream(computed(() => `/api/labels/${labels()}/logs/stream`));
+}
+
 export function useStackStream(stack: Ref<Stack>): LogStreamSource {
-  const labels = computed(() => `com.docker.stack.namespace:${stack.value.name}`);
-  return useLogStream(computed(() => `/api/labels/${labels.value}/logs/stream`));
+  return useLabelStream(() => `com.docker.stack.namespace:${stack.value.name}`);
 }
 
 export function useGroupedStream(group: Ref<GroupedContainers>): LogStreamSource {
@@ -52,18 +54,15 @@ export function useMergedStream(containers: Ref<Container[]>): LogStreamSource {
 }
 
 export function useServiceStream(service: Ref<Service>): LogStreamSource {
-  const labels = computed(() => `com.docker.swarm.service.name:${service.value.name}`);
-  return useLogStream(computed(() => `/api/labels/${labels.value}/logs/stream`));
+  return useLabelStream(() => `com.docker.swarm.service.name:${service.value.name}`);
 }
 
 export function useNamespaceStream(namespace: Ref<{ name: string }>): LogStreamSource {
-  const labels = computed(() => `@k8s.namespace:${namespace.value.name}`);
-  return useLogStream(computed(() => `/api/labels/${labels.value}/logs/stream`));
+  return useLabelStream(() => `@k8s.namespace:${namespace.value.name}`);
 }
 
 export function useOwnerStream(owner: Ref<{ label: string }>): LogStreamSource {
-  const labels = computed(() => `${owner.value.label}:true`);
-  return useLogStream(computed(() => `/api/labels/${labels.value}/logs/stream`));
+  return useLabelStream(() => `${owner.value.label}:true`);
 }
 
 export type SearchStatus = {
@@ -116,9 +115,6 @@ function useLogStream(url: Ref<string>, container?: Ref<Container>) {
   );
 
   function flushNow() {
-    // Only the first assembly triggers an immediate alert pass; after that the
-    // poll owns the cadence, so log volume cannot drive request volume.
-    let wasInitial = false;
     // Only merged views need this. A single container's stream already arrives in
     // order, and sorting it would reorder stdout against stderr, which are separate
     // pipes the daemon can stamp out of delivery order. With several containers a
@@ -127,60 +123,30 @@ function useLogStream(url: Ref<string>, container?: Ref<Container>) {
     if (initial || allContainers.value.length > 1) {
       buffer.sort((a, b) => a.date.getTime() - b.date.getTime());
     }
-    if (messages.value.length + buffer.length > config.maxLogs) {
-      if (scrollingPaused.value === true) {
-        if (messages.value.at(-1) instanceof SkippedLogsEntry) {
-          const lastEvent = messages.value.at(-1) as SkippedLogsEntry;
-          const lastItem = buffer.at(-1) as LogEntry<string | JSONObject>;
-          lastEvent.addSkippedEntries(buffer.length, lastItem);
-        } else {
-          const firstItem = buffer.at(0) as LogEntry<string | JSONObject>;
-          const lastItem = buffer.at(-1) as LogEntry<string | JSONObject>;
-          messages.value = [
-            ...messages.value,
-            new SkippedLogsEntry(new Date(), buffer.length, firstItem, lastItem, loadSkippedLogs),
-          ];
-        }
-        buffer = [];
-      } else {
-        if (buffer.length > config.maxLogs / 2) {
-          messages.value = buffer.slice(-config.maxLogs / 2);
-        } else {
-          messages.value = [...messages.value, ...buffer].slice(-config.maxLogs);
-        }
-        buffer = [];
-      }
-    } else {
-      if (initial) {
-        wasInitial = true;
-        if (container || containers.value.length > 0) {
-          const loadMoreItem = new LoadMoreLogEntry(new Date(), loadOlderLogs);
-          messages.value = [loadMoreItem];
-        }
-        initial = false;
-      }
-      messages.value = [...messages.value, ...buffer];
-      buffer = [];
+    const batch = buffer;
+    buffer = [];
+
+    // The first batch that fits opens the view, headed by the load-more row, and
+    // is the only one that triggers an immediate alert pass; after that the poll
+    // owns the cadence, so log volume cannot drive request volume.
+    const overflows = messages.value.length + batch.length > config.maxLogs;
+    if (initial && !overflows) {
+      initial = false;
+      const head =
+        container || containers.value.length > 0 ? [new LoadMoreLogEntry(new Date(), loadOlderLogs)] : messages.value;
+      messages.value = [...head, ...batch];
+      decorateWithAlerts();
+      return;
     }
-    if (wasInitial) decorateWithAlerts();
+
+    messages.value = appendBatch(messages.value, batch, {
+      maxLogs: config.maxLogs,
+      paused: scrollingPaused.value === true,
+      loadSkipped: loadSkippedLogs,
+    });
   }
 
-  // Two cadences. Steady state batches hard so a chatty container can't drive a
-  // render per line. The opening burst gets a much tighter window instead: the
-  // skeleton stays up until the first flush, so the 250ms/1000ms pair spent up
-  // to a full second showing nothing on a view whose logs had already arrived.
-  const initialFlush = debounce(flushNow, 50, { maxWait: 150 });
-  const steadyFlush = debounce(flushNow, 250, { maxWait: 1000 });
-  const flushBuffer = Object.assign(() => (initial ? initialFlush() : steadyFlush()), {
-    cancel: () => {
-      initialFlush.cancel();
-      steadyFlush.cancel();
-    },
-    flush: () => {
-      initialFlush.flush();
-      steadyFlush.flush();
-    },
-  });
+  const flushBuffer = useAdaptiveFlush(flushNow, () => initial);
   let es: EventSource | null = null;
   const reconnect = useSseReconnect({ connect: () => connect({ clear: true }), source: () => es });
 
@@ -234,12 +200,7 @@ function useLogStream(url: Ref<string>, container?: Ref<Container>) {
     });
 
     es.addEventListener("search-status", (e) => {
-      const data = parseEventData<{
-        scannedTo: string;
-        matches: number;
-        done: boolean;
-        reason?: "capped" | "exhausted";
-      }>(e);
+      const data = parseEventData<Omit<SearchStatus, "active">>(e);
       searchStatus.value = {
         active: !data.done,
         done: data.done,
@@ -290,4 +251,23 @@ function useLogStream(url: Ref<string>, container?: Ref<Container>) {
     loading,
     searchStatus,
   };
+}
+
+// Two cadences. Steady state batches hard so a chatty container can't drive a
+// render per line. The opening burst gets a much tighter window instead: the
+// skeleton stays up until the first flush, so the 250ms/1000ms pair spent up
+// to a full second showing nothing on a view whose logs had already arrived.
+function useAdaptiveFlush(fn: () => void, isInitial: () => boolean) {
+  const initialFlush = debounce(fn, 50, { maxWait: 150 });
+  const steadyFlush = debounce(fn, 250, { maxWait: 1000 });
+  return Object.assign(() => (isInitial() ? initialFlush() : steadyFlush()), {
+    cancel: () => {
+      initialFlush.cancel();
+      steadyFlush.cancel();
+    },
+    flush: () => {
+      initialFlush.flush();
+      steadyFlush.flush();
+    },
+  });
 }
