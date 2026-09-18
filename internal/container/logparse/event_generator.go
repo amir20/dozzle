@@ -341,6 +341,9 @@ func createEvent(message string, streamType container.StdType) *container.LogEve
 						logEvent.Type = container.LogTypeComplex
 					}
 				}
+			} else if data, ok := parsePrefixedJSON(message, logEvent.Timestamp); ok {
+				logEvent.Message = data
+				logEvent.Type = container.LogTypeComplex
 			} else if data, err := ParseLogFmt(message); err == nil {
 				logEvent.Message = data
 				logEvent.Type = container.LogTypeComplex
