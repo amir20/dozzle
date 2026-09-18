@@ -17,7 +17,10 @@ describe("iconSlugForImage", () => {
     ["ghcr.io/seerr/seerr", "seerr"],
     ["ghcr.io/bluesky-social/pds:0.4.67", "bluesky"],
     ["tootsuite/mastodon:v4.7.2", "mastodon"],
-    ["ttootsuite/mastodon-streaming:v4.7.2", "mastodon"],
+    ["lscr.io/linuxserver/apprise-api:latest", "apprise"],
+    ["openrct2/openrct2-cli:develop", "openrct2"],
+    ["thetorproject/snowflake-proxy:latest", "tor"],
+    ["thetorproject/webtunnel-bridge:latest", "tor"],
   ])("resolves %s", (image, slug) => {
     expect(iconSlugForImage(image)).toBe(slug);
   });
