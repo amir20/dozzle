@@ -140,7 +140,9 @@ const ALIASES: Record<string, string> = {
   otel: "opentelemetry",
   "pingvin-share-x": "pingvin-share",
   "signal-cli-rest-api": "signal",
-  pgadmin4: "pgadmin"
+  pgadmin4: "pgadmin",
+  "bluesky-social": "bluesky",
+  "mastodon-streaming": "mastodon",
 };
 
 const stripSuffix = (name: string) => {
