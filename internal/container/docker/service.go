@@ -63,7 +63,7 @@ func mayBeSelf(inspect docker_types.InspectResponse) bool {
 
 type Service struct {
 	client  UpdateClient
-	store   *container.ContainerStore
+	store   *container.Store
 	checker *imagecheck.Checker
 }
 
@@ -71,7 +71,7 @@ func NewService(client UpdateClient, labels container.ContainerLabels) *Service 
 	statsCollector := NewStatsCollector(client, labels)
 	return &Service{
 		client:  client,
-		store:   container.NewContainerStore(context.Background(), client, statsCollector, labels),
+		store:   container.NewStore(context.Background(), client, statsCollector, labels),
 		checker: imagecheck.Shared(),
 	}
 }

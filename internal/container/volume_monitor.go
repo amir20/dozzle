@@ -30,13 +30,13 @@ type volumeTracker struct {
 }
 
 type volumeMonitor struct {
-	store    *ContainerStore
+	store    *Store
 	queue    chan string
 	pending  *xsync.Map[string, struct{}]
 	trackers *xsync.Map[string, *volumeTracker]
 }
 
-func newVolumeMonitor(store *ContainerStore) *volumeMonitor {
+func newVolumeMonitor(store *Store) *volumeMonitor {
 	return &volumeMonitor{
 		store:    store,
 		queue:    make(chan string, volumeQueueSize),

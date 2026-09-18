@@ -37,7 +37,7 @@ func matchesLabels(labels map[string]string, filter ContainerLabels) bool {
 // missing from the store until the next reconnect and the UI would never update it again.
 // Fall back to the list entry in that case: it is not FullyLoaded, so the next
 // FindContainer fills in the rest.
-func (s *ContainerStore) addContainer(id string, timeout time.Duration) (Container, bool) {
+func (s *Store) addContainer(id string, timeout time.Duration) (Container, bool) {
 	ctx, cancel := context.WithTimeout(s.ctx, timeout)
 	defer cancel()
 
@@ -64,7 +64,7 @@ func (s *ContainerStore) addContainer(id string, timeout time.Duration) (Contain
 
 // listedEntry is the store's filtered list entry for id, or nil if the list does not
 // have it.
-func (s *ContainerStore) listedEntry(ctx context.Context, id string) *Container {
+func (s *Store) listedEntry(ctx context.Context, id string) *Container {
 	list, err := s.client.ListContainers(ctx, s.labels)
 	if err != nil {
 		log.Warn().Err(err).Str("id", id).Msg("failed to list containers while adding container")
@@ -80,7 +80,7 @@ func (s *ContainerStore) listedEntry(ctx context.Context, id string) *Container 
 // never mutated in place: readers hold the old pointer, and a refresh compares
 // against it. change returns false to leave the entry alone. ok is false when the
 // container is unknown or was left alone.
-func (s *ContainerStore) patch(id string, change func(c *Container) bool) (patched *Container, ok bool) {
+func (s *Store) patch(id string, change func(c *Container) bool) (patched *Container, ok bool) {
 	patched, _ = s.containers.Compute(id, func(c *Container, loaded bool) (*Container, xsync.ComputeOp) {
 		if !loaded {
 			return c, xsync.CancelOp
@@ -98,7 +98,7 @@ func (s *ContainerStore) patch(id string, change func(c *Container) bool) (patch
 // run is the store's one goroutine: it boots the store, then applies events and stats
 // for as long as the store lives. Everything that changes a container because of an
 // event happens here, in order.
-func (s *ContainerStore) run() {
+func (s *Store) run() {
 	stats := make(chan ContainerStat)
 	s.statsCollector.Subscribe(s.ctx, stats)
 
@@ -124,7 +124,7 @@ func (s *ContainerStore) run() {
 }
 
 // boot connects the event stream, fills the map and opens the store to callers.
-func (s *ContainerStore) boot() {
+func (s *Store) boot() {
 	go s.refresher()
 
 	// the stream starts before the first list, so what happens during the list is not
@@ -154,7 +154,7 @@ func (s *ContainerStore) boot() {
 	close(s.ready)
 }
 
-func (s *ContainerStore) handleEvent(event ContainerEvent) {
+func (s *Store) handleEvent(event ContainerEvent) {
 	id := event.ActorID
 	switch event.Name {
 	case "create":
@@ -224,7 +224,7 @@ func (s *ContainerStore) handleEvent(event ContainerEvent) {
 
 // handleUpdate applies an update that carries the container's new state. Only
 // Kubernetes sends these.
-func (s *ContainerStore) handleUpdate(event ContainerEvent) {
+func (s *Store) handleUpdate(event ContainerEvent) {
 	update := event.Container
 	if update == nil {
 		return

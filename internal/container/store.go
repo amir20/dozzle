@@ -18,14 +18,14 @@ type StatsCollector interface {
 	Stop()
 }
 
-// ContainerStore is one host's containers, kept current from the engine's event
+// Store is one host's containers, kept current from the engine's event
 // stream, plus the fan-out of those events to subscribers.
 //
 // Three things write to the map, and the rules between them are the whole design:
 //
-//   - the event loop (container_store_events.go) applies events in order on one
+//   - the event loop (store_events.go) applies events in order on one
 //     goroutine. What it writes is the newest truth there is.
-//   - a refresh (container_store_refresh.go) lists everything after the stream
+//   - a refresh (store_refresh.go) lists everything after the stream
 //     (re)connects, because the engine does not replay what was sent while nobody
 //     listened. It yields to anything the loop changed while the list was in flight,
 //     and replays to the loop whatever it found that the stream never said.
@@ -35,9 +35,9 @@ type StatsCollector interface {
 // Entries are immutable: every change stores a new *Container (see patch), which is
 // what lets a refresh or an inspect tell whether the loop got there first.
 //
-// container_store_fanout.go is delivery: bounded sends, so one stalled subscriber
+// store_fanout.go is delivery: bounded sends, so one stalled subscriber
 // costs its own messages and never the loop.
-type ContainerStore struct {
+type Store struct {
 	containers     *xsync.Map[string, *Container]
 	client         Client
 	labels         ContainerLabels
@@ -81,14 +81,14 @@ type ContainerStore struct {
 
 const defaultTimeout = 10 * time.Second
 
-func NewContainerStore(ctx context.Context, client Client, statsCollect StatsCollector, labels ContainerLabels) *ContainerStore {
-	return newContainerStore(ctx, client, statsCollect, labels, defaultStoreTiming)
+func NewStore(ctx context.Context, client Client, statsCollect StatsCollector, labels ContainerLabels) *Store {
+	return newStore(ctx, client, statsCollect, labels, defaultStoreTiming)
 }
 
-func newContainerStore(ctx context.Context, client Client, statsCollect StatsCollector, labels ContainerLabels, timing storeTiming) *ContainerStore {
+func newStore(ctx context.Context, client Client, statsCollect StatsCollector, labels ContainerLabels, timing storeTiming) *Store {
 	log.Debug().Str("host", client.Host().Name).Interface("labels", labels).Msg("initializing container store")
 
-	s := &ContainerStore{
+	s := &Store{
 		containers:              xsync.NewMap[string, *Container](),
 		client:                  client,
 		subscribers:             xsync.NewMap[context.Context, *eventSubscriber](),
@@ -111,7 +111,7 @@ func newContainerStore(ctx context.Context, client Client, statsCollect StatsCol
 
 // applyMountStats updates a container's MountStats and broadcasts an "update"
 // event so subscribers (SSE) can propagate the new data to clients.
-func (s *ContainerStore) applyMountStats(id string, stats map[string]MountStat) {
+func (s *Store) applyMountStats(id string, stats map[string]MountStat) {
 	updated, ok := s.patch(id, func(c *Container) bool {
 		c.MountStats = stats
 		return true
@@ -135,7 +135,7 @@ var (
 )
 
 // waitReady blocks until init's first refresh has run, or ctx ends.
-func (s *ContainerStore) waitReady(ctx context.Context) error {
+func (s *Store) waitReady(ctx context.Context) error {
 	select {
 	case <-s.ready:
 		return nil
@@ -146,7 +146,7 @@ func (s *ContainerStore) waitReady(ctx context.Context) error {
 
 // userFilterIDs lists the containers a user's labels allow. It is bounded by
 // defaultTimeout: on bare s.ctx a hung daemon hung the request forever.
-func (s *ContainerStore) userFilterIDs(ctx context.Context, labels ContainerLabels) (map[string]Container, error) {
+func (s *Store) userFilterIDs(ctx context.Context, labels ContainerLabels) (map[string]Container, error) {
 	ctx, cancel := context.WithTimeout(ctx, defaultTimeout)
 	defer cancel()
 	validContainers, err := s.client.ListContainers(ctx, labels)
@@ -161,7 +161,7 @@ func (s *ContainerStore) userFilterIDs(ctx context.Context, labels ContainerLabe
 	}), nil
 }
 
-func (s *ContainerStore) ListContainers(ctx context.Context, labels ContainerLabels) ([]Container, error) {
+func (s *Store) ListContainers(ctx context.Context, labels ContainerLabels) ([]Container, error) {
 	if err := s.waitReady(ctx); err != nil {
 		return nil, err
 	}
@@ -193,7 +193,7 @@ func (s *ContainerStore) ListContainers(ctx context.Context, labels ContainerLab
 	return containers, nil
 }
 
-func (s *ContainerStore) FindContainer(ctx context.Context, id string, labels ContainerLabels) (Container, error) {
+func (s *Store) FindContainer(ctx context.Context, id string, labels ContainerLabels) (Container, error) {
 	if err := s.waitReady(ctx); err != nil {
 		return Container{}, err
 	}
@@ -237,7 +237,7 @@ func (s *ContainerStore) FindContainer(ctx context.Context, id string, labels Co
 // The inspect can take up to defaultTimeout, so it runs outside any lock. Inside
 // Compute it held the bucket lock for that long and stalled the event loop behind it
 // whenever the loop touched a container in the same bucket.
-func (s *ContainerStore) loadFully(id string) (Container, error) {
+func (s *Store) loadFully(id string) (Container, error) {
 	prev, ok := s.containers.Load(id)
 	if !ok {
 		return Container{}, ErrContainerNotFound
@@ -281,14 +281,14 @@ func (s *ContainerStore) loadFully(id string) (Container, error) {
 	return *container, nil
 }
 
-func (s *ContainerStore) Client() Client {
+func (s *Store) Client() Client {
 	return s.client
 }
 
 // startStats starts the stats collector in the background. Start blocks for the
 // collector's whole life and returns true once the collector this call started has
 // stopped; the history then has a gap in it, so it is cleared.
-func (s *ContainerStore) startStats() {
+func (s *Store) startStats() {
 	go func() {
 		if s.statsCollector.Start(s.ctx) {
 			s.containers.Range(func(_ string, c *Container) bool {
@@ -301,7 +301,7 @@ func (s *ContainerStore) startStats() {
 	}()
 }
 
-func (s *ContainerStore) SubscribeEvents(ctx context.Context, events chan<- ContainerEvent) {
+func (s *Store) SubscribeEvents(ctx context.Context, events chan<- ContainerEvent) {
 	s.startStats()
 
 	s.subscribers.Store(ctx, &eventSubscriber{ch: events, name: subscriberNameFrom(ctx)})
@@ -312,7 +312,7 @@ func (s *ContainerStore) SubscribeEvents(ctx context.Context, events chan<- Cont
 	}()
 }
 
-func (s *ContainerStore) SubscribeStats(ctx context.Context, stats chan<- ContainerStat) {
+func (s *Store) SubscribeStats(ctx context.Context, stats chan<- ContainerStat) {
 	s.startStats()
 
 	s.statsCollector.Subscribe(ctx, stats)
@@ -322,7 +322,7 @@ func (s *ContainerStore) SubscribeStats(ctx context.Context, stats chan<- Contai
 	}()
 }
 
-func (s *ContainerStore) SubscribeNewContainers(ctx context.Context, containers chan<- Container) {
+func (s *Store) SubscribeNewContainers(ctx context.Context, containers chan<- Container) {
 	s.newContainerSubscribers.Store(ctx, containers)
 	go func() {
 		<-ctx.Done()

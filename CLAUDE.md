@@ -177,9 +177,9 @@ The Go backend is organized into these key packages:
   - `types.go`, `host.go`: domain models (`Container`, `Host`, `LogEvent`, `ContainerStat`)
   - `client.go`: `container.Client`, the raw engine interface
   - `client_service.go`: `container.ClientService`, the per-host contract the rest of the app uses
-  - `container_store.go`: the container cache docker and k8s share (its header comment explains who
-    may write to the map), split by concern into `container_store_events.go` (the event loop),
-    `container_store_refresh.go` (reconnect, list and reconcile) and `container_store_fanout.go`
+  - `store.go`: the container cache docker and k8s share (its header comment explains who
+    may write to the map), split by concern into `store_events.go` (the event loop),
+    `store_refresh.go` (reconnect, list and reconcile) and `store_fanout.go`
     (bounded delivery to subscribers)
   - `collector_lifecycle.go`: the lazy start/idle-stop reference count both stats collectors use
   - `logparse/`: the log pipeline both platforms feed (`event_generator.go` grouping and JSON

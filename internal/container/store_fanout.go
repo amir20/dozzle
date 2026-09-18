@@ -148,7 +148,7 @@ func sendBounded[T any](ctx context.Context, ch chan<- T, v T, budget *fanoutBud
 
 // broadcast fans an event out to every subscriber without letting any of them
 // stall the caller.
-func (s *ContainerStore) broadcast(event ContainerEvent) {
+func (s *Store) broadcast(event ContainerEvent) {
 	budget := &fanoutBudget{}
 	defer budget.stop()
 
@@ -194,7 +194,7 @@ func (s *ContainerStore) broadcast(event ContainerEvent) {
 // handles its create, so the create's inspect already sees it running and the start
 // that follows announces it again. Each announcement starts a log stream, so it is
 // deduplicated on StartedAt; a restart has a new StartedAt and is announced again.
-func (s *ContainerStore) notifyNewContainer(found Container) {
+func (s *Store) notifyNewContainer(found Container) {
 	if last, ok := s.announced[found.ID]; ok && !found.StartedAt.IsZero() && last.Equal(found.StartedAt) {
 		return
 	}
