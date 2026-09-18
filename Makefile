@@ -9,7 +9,7 @@ clean:
 
 .PHONY: dist
 dist:
-	@pnpm build
+	@bun run build
 
 .PHONY: fake_assets
 fake_assets:
@@ -47,14 +47,14 @@ generate: shared_key.pem shared_cert.pem
 
 .PHONY: dev
 dev: generate fake_assets
-	pnpm dev
+	bun run dev
 
 # Same as dev, on a free port trio derived from this checkout's path, so several
 # worktrees can each run an instance at once. Prints the URL it picked.
 # Override any of them by hand with DOZZLE_PORT / VITE_PORT / AGENT_PORT.
 .PHONY: dev-auto
 dev-auto: generate fake_assets
-	pnpm run dev:auto
+	bun run dev:auto
 
 .PHONY: int
 int:
@@ -74,7 +74,7 @@ run: docker
 
 .PHONY: preview
 preview: build
-	pnpm preview
+	bun run preview
 
 .PHONY: agent-reload
 agent-reload: docker

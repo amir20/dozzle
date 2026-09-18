@@ -6,7 +6,6 @@ node_modules
 static
 dozzle
 coverage
-.pnpm-debug.log
 coverage.out
 .netlify
 /test-results/

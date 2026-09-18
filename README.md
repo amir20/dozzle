@@ -169,19 +169,19 @@ Want to contribute? Great! Dozzle has two parts: a **Go backend** that talks to 
 
 ### 1. Install the prerequisites
 
-You'll need [Go](https://go.dev/doc/install) (1.25+), [Node.js](https://nodejs.org/en/download/) (with [pnpm](https://pnpm.io/installation)), and [protoc](https://grpc.io/docs/protoc-installation/).
+You'll need [Go](https://go.dev/doc/install) (1.25+), [Node.js](https://nodejs.org/en/download/), [Bun](https://bun.com/docs/installation), and [protoc](https://grpc.io/docs/protoc-installation/).
 
 On macOS, you can install everything in one go:
 
 ```bash
-brew install go node pnpm protobuf
+brew install go node oven-sh/bun/bun protobuf
 ```
 
 On Linux (Debian/Ubuntu):
 
 ```bash
 sudo apt install golang nodejs protobuf-compiler
-npm install -g pnpm
+curl -fsSL https://bun.com/install | bash
 ```
 
 On Windows, we recommend using [WSL2](https://learn.microsoft.com/en-us/windows/wsl/install) and following the Linux instructions.
@@ -191,7 +191,7 @@ On Windows, we recommend using [WSL2](https://learn.microsoft.com/en-us/windows/
 ```bash
 git clone https://github.com/amir20/dozzle.git
 cd dozzle
-pnpm install                # installs frontend dependencies
+bun install                 # installs frontend dependencies
 go install tool             # installs Go build tools listed in go.mod (air, protoc-gen-go, etc.)
 make generate               # generates TLS certificates and protobuf code (only needed once)
 ```
