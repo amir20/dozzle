@@ -66,6 +66,11 @@ func (c *StatsCollector) Stop() {
 func (c *StatsCollector) forceStop() {
 	c.mu.Lock()
 	defer c.mu.Unlock()
+	// The timer can fire and then wait here on mu while Start takes a new reference.
+	// Timer.Stop cannot recall a callback that already fired, so check the count.
+	if c.totalStarted.Load() > 0 {
+		return
+	}
 	if c.stopper != nil {
 		c.stopper()
 		c.stopper = nil

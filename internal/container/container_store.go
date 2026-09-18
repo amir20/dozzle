@@ -40,6 +40,9 @@ type ContainerStore struct {
 	// refreshMu serialises refreshes and makes concurrent readers wait for one in
 	// flight instead of reading a map that is still being rebuilt.
 	refreshMu sync.Mutex
+	// announced is the StartedAt each container was last announced to new-container
+	// subscribers with. Only the event loop touches it.
+	announced map[string]time.Time
 	events    chan ContainerEvent
 	ctx       context.Context
 	labels    ContainerLabels
@@ -322,9 +325,9 @@ func (s *ContainerStore) checkConnectivity() error {
 // added while the list was in flight would be wiped. Only IDs that were already in the
 // map before the list, and that the list no longer reports, are removed.
 func (s *ContainerStore) refresh() error {
-	previous := make(map[string]struct{})
-	s.containers.Range(func(id string, _ *Container) bool {
-		previous[id] = struct{}{}
+	previous := make(map[string]*Container)
+	s.containers.Range(func(id string, c *Container) bool {
+		previous[id] = c
 		return true
 	})
 
@@ -338,7 +341,7 @@ func (s *ContainerStore) refresh() error {
 	listed := make(map[string]struct{}, len(containers))
 	for _, c := range containers {
 		listed[c.ID] = struct{}{}
-		s.storeKeepingStats(c)
+		s.storeListed(previous[c.ID], c)
 	}
 	for id := range previous {
 		if _, ok := listed[id]; !ok {
@@ -406,6 +409,37 @@ func carryOverStats(from *Container, to *Container) {
 // event loop may have moved on: the container can be gone, or its entry replaced.
 // found reports whether the container is still in the map, updated whether the
 // fetched value was stored.
+// storeListed stores a list entry taken during a refresh. before is what the map
+// held when the refresh started. If the entry changed while the list was in flight,
+// the event loop got there first (a die, a pause, a health change) and its state is
+// newer than the list's, so the list must not write the older state back.
+func (s *ContainerStore) storeListed(before *Container, c Container) {
+	s.containers.Compute(c.ID, func(existing *Container, loaded bool) (*Container, xsync.ComputeOp) {
+		if !loaded {
+			return &c, xsync.UpdateOp
+		}
+		if existing != before {
+			if before == nil {
+				// added by the event loop during the list, from an inspect newer than it
+				return existing, xsync.CancelOp
+			}
+			keepLoopFields(existing, &c)
+		}
+		carryOverStats(existing, &c)
+		return &c, xsync.UpdateOp
+	})
+}
+
+// keepLoopFields copies the fields the event loop maintains from events onto a
+// snapshot that was taken before those events were applied.
+func keepLoopFields(from *Container, to *Container) {
+	to.State = from.State
+	to.Health = from.Health
+	to.StartedAt = from.StartedAt
+	to.FinishedAt = from.FinishedAt
+	to.Name = from.Name
+}
+
 func (s *ContainerStore) mergeFetched(prev *Container, fetched Container) (current *Container, found bool, updated bool) {
 	current, found = s.containers.Compute(prev.ID, func(c *Container, loaded bool) (*Container, xsync.ComputeOp) {
 		if !loaded {
@@ -418,11 +452,7 @@ func (s *ContainerStore) mergeFetched(prev *Container, fetched Container) (curre
 			}
 			// the event loop changed these while the fetch was in flight, so they are
 			// newer than what the fetch saw
-			fetched.State = c.State
-			fetched.Health = c.Health
-			fetched.StartedAt = c.StartedAt
-			fetched.FinishedAt = c.FinishedAt
-			fetched.Name = c.Name
+			keepLoopFields(c, &fetched)
 		}
 		carryOverStats(c, &fetched)
 		updated = true
@@ -648,7 +678,22 @@ func (s *ContainerStore) addContainer(id string, timeout time.Duration) (Contain
 
 // notifyNewContainer tells new-container subscribers that c started, so they can
 // begin streaming its logs.
+//
+// One start can reach here twice: docker often starts a container before the loop
+// handles its create, so the create's inspect already sees it running and the start
+// that follows announces it again. Each announcement starts a log stream, so it is
+// deduplicated on StartedAt; a restart has a new StartedAt and is announced again.
 func (s *ContainerStore) notifyNewContainer(found Container) {
+	if !found.StartedAt.IsZero() {
+		if s.announced == nil {
+			s.announced = make(map[string]time.Time)
+		}
+		if last, ok := s.announced[found.ID]; ok && last.Equal(found.StartedAt) {
+			return
+		}
+		s.announced[found.ID] = found.StartedAt
+	}
+
 	budget := &fanoutBudget{}
 	defer budget.stop()
 
@@ -697,6 +742,7 @@ func (s *ContainerStore) init() {
 			case "destroy":
 				log.Debug().Str("id", event.ActorID).Msg("container destroyed")
 				s.containers.Delete(event.ActorID)
+				delete(s.announced, event.ActorID)
 
 			case "update":
 				started, known := false, false

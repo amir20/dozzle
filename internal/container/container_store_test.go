@@ -953,3 +953,74 @@ func TestContainerStore_mergeFetched(t *testing.T) {
 		assert.False(t, ok)
 	})
 }
+
+// docker often starts a container before the loop handles its create, so the
+// create's inspect already sees it running and the start that follows sees the
+// same run. It must be announced once, or each announcement starts a log stream.
+func TestContainerStore_createSeenRunningThenStartNotifiesOnce(t *testing.T) {
+	running := loadedContainer("5678", "running")
+	running.StartedAt = time.Date(2026, 1, 1, 0, 0, 0, 0, time.UTC)
+
+	client := new(mockedClient)
+	client.On("ListContainers", mock.Anything, mock.Anything).Return([]Container{}, nil)
+	client.On("FindContainer", mock.Anything, "5678").Return(running, nil)
+	client.On("Host").Return(Host{ID: "localhost"})
+	feed := feedEvents(client)
+
+	store := NewContainerStore(t.Context(), client, newCaptureStatsCollector(), ContainerLabels{})
+	events := make(chan ContainerEvent, 16)
+	store.SubscribeEvents(t.Context(), events)
+	started := make(chan Container, 4)
+	store.SubscribeNewContainers(t.Context(), started)
+
+	feed <- ContainerEvent{Name: "create", ActorID: "5678"}
+	waitForEvent(t, events, "create")
+	feed <- ContainerEvent{Name: "start", ActorID: "5678"}
+	waitForEvent(t, events, "start")
+	assert.Len(t, started, 1)
+
+	// a restart is a new run and is announced again
+	<-started
+	restarted := running
+	restarted.StartedAt = running.StartedAt.Add(time.Minute)
+	client.ExpectedCalls = nil
+	client.On("FindContainer", mock.Anything, "5678").Return(restarted, nil)
+	client.On("Host").Return(Host{ID: "localhost"})
+	feed <- ContainerEvent{Name: "start", ActorID: "5678"}
+	waitForEvent(t, events, "start")
+	assert.Len(t, started, 1)
+}
+
+// A refresh's list can be taken before a die the event loop has since applied.
+// Writing the list entry back unconditionally would resurrect the container.
+func TestContainerStore_storeListedKeepsNewerLoopState(t *testing.T) {
+	store := &ContainerStore{containers: xsync.NewMap[string, *Container]()}
+
+	before := loadedContainer("1", "running")
+	store.containers.Store("1", &before)
+	died := before
+	died.State = "exited"
+	store.containers.Store("1", &died)
+	stat := ContainerStat{CPUPercent: 5}
+	died.Stats.Push(stat)
+
+	listed := Container{ID: "1", Name: "c-1", State: "running", Stats: utils.NewRingBuffer[ContainerStat](300)}
+	store.storeListed(&before, listed)
+	got, _ := store.containers.Load("1")
+	assert.Equal(t, "exited", got.State, "the die applied during the list is newer")
+	assert.Equal(t, 1, got.Stats.Len(), "stats history is kept")
+
+	// added by the loop while the list was in flight: its inspect is newer
+	added := loadedContainer("2", "paused")
+	store.containers.Store("2", &added)
+	store.storeListed(nil, Container{ID: "2", State: "running"})
+	got, _ = store.containers.Load("2")
+	assert.Same(t, &added, got)
+
+	// untouched during the list: the list wins
+	unchanged := loadedContainer("3", "running")
+	store.containers.Store("3", &unchanged)
+	store.storeListed(&unchanged, Container{ID: "3", State: "exited"})
+	got, _ = store.containers.Load("3")
+	assert.Equal(t, "exited", got.State)
+}

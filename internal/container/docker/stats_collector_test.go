@@ -265,3 +265,15 @@ func TestStopTimerEndsStartedCollector(t *testing.T) {
 	}
 	assert.False(t, running(collector))
 }
+
+// The stop timer can fire and then wait on mu while Start takes a new reference.
+// Timer.Stop cannot recall it, so forceStop must not cancel a collector someone holds.
+func TestForceStopSkipsHeldCollector(t *testing.T) {
+	collector := NewStatsCollector(new(mockedClient), container.ContainerLabels{})
+	_, cancel := context.WithCancel(t.Context())
+	collector.stopper = cancel
+	collector.totalStarted.Store(1)
+
+	collector.forceStop()
+	assert.True(t, running(collector), "a held collector must keep running")
+}
