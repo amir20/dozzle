@@ -246,14 +246,18 @@ func (s *Store) applyList(previous map[string]*Container, containers []Container
 
 // inspectPartial inspects the running containers that are only known from the list,
 // in parallel, and waits for all of them.
+//
+// The entry is read again inside the goroutine. Boot's light refresh lands while the
+// first refresh is still inspecting, and with everything queued behind
+// maxFetchParallelism an entry can be inspected and stored in the wait. Reading it
+// once before the queue meant inspecting every container on the host twice.
 func (s *Store) inspectPartial(containers []Container) {
 	sem := semaphore.NewWeighted(maxFetchParallelism)
 	for _, c := range containers {
 		if c.State == "exited" {
 			continue
 		}
-		prev, ok := s.containers.Load(c.ID)
-		if !ok || prev.FullyLoaded {
+		if prev, ok := s.containers.Load(c.ID); !ok || prev.FullyLoaded {
 			continue
 		}
 		if err := sem.Acquire(s.ctx, 1); err != nil {
@@ -261,6 +265,10 @@ func (s *Store) inspectPartial(containers []Container) {
 		}
 		go func() {
 			defer sem.Release(1)
+			prev, ok := s.containers.Load(c.ID)
+			if !ok || prev.FullyLoaded {
+				return
+			}
 			ctx, cancel := context.WithTimeout(s.ctx, defaultTimeout)
 			defer cancel()
 			if fetched, err := s.inspect(ctx, prev.ID); err == nil {

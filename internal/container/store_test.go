@@ -1512,3 +1512,39 @@ func TestStore_inspectIsSharedAcrossPaths(t *testing.T) {
 	wg.Wait()
 	client.AssertNumberOfCalls(t, "FindContainer", 1)
 }
+
+// A container inspected while the goroutine sat in the parallelism queue must not be
+// inspected again: two overlapping refreshes used to inspect every container twice.
+func TestStore_inspectPartialSkipsWhatLoadedWhileQueued(t *testing.T) {
+	client := new(mockedClient)
+	client.On("Host").Return(Host{ID: "localhost"})
+	store := bareStore(t, client)
+	first := Container{ID: "1", State: "running"}
+	second := Container{ID: "2", State: "running"}
+	store.containers.Store("1", &first)
+	store.containers.Store("2", &second)
+
+	release := make(chan struct{})
+	client.On("FindContainer", mock.Anything, "1").Return(loadedContainer("1", "running"), nil).Run(func(mock.Arguments) {
+		// "2" is inspected by someone else while this one holds the only slot
+		loaded := loadedContainer("2", "running")
+		store.containers.Store("2", &loaded)
+		<-release
+	})
+	client.On("FindContainer", mock.Anything, "2").Return(loadedContainer("2", "running"), nil)
+
+	original := maxFetchParallelism
+	maxFetchParallelism = 1
+	t.Cleanup(func() { maxFetchParallelism = original })
+
+	done := make(chan struct{})
+	go func() {
+		store.inspectPartial([]Container{first, second})
+		close(done)
+	}()
+	time.Sleep(50 * time.Millisecond)
+	close(release)
+	<-done
+
+	client.AssertNumberOfCalls(t, "FindContainer", 1)
+}
