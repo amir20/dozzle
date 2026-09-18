@@ -87,6 +87,7 @@
   "devDependencies": {
     "@apache-arrow/esnext-esm": "^21.2.0",
     "@fontsource-variable/jetbrains-mono": "^5.3.0",
+    "@fontsource-variable/playfair-display": "^5.3.0",
     "@iconify-json/ion": "^1.2.7",
     "@iconify-json/material-symbols-light": "^1.2.93",
     "@iconify-json/ri": "^1.2.10",
@@ -122,9 +123,6 @@
   "simple-git-hooks": {
     "pre-commit": "bunx lint-staged --allow-empty"
   },
-  "workspaces": [
-    "docs"
-  ],
   "overrides": {
     "typescript": "npm:typescript-native-bridge@6.0.3-bridge.17.tsgo.7.0.2"
   },

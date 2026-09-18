@@ -6,8 +6,6 @@ dist
 .git
 e2e
 docs
-# bun's frozen lockfile needs every workspace member's package.json
-!docs/package.json
 
 # Restored into the workspace by the Go cache restore/injection steps in
 # dev.yml. Without these the build context would carry a few hundred MB of

@@ -13,9 +13,8 @@ ENV CI=true
 
 WORKDIR /build
 
-# docs/package.json is a workspace member, so the frozen lockfile needs it present
+# Install dependencies from lock file
 COPY package.json bun.lock bunfig.toml ./
-COPY docs/package.json ./docs/
 RUN --mount=type=cache,target=/root/.bun/install/cache \
   bun install --frozen-lockfile --ignore-scripts
 

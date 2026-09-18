@@ -61,6 +61,7 @@
       "devDependencies": {
         "@apache-arrow/esnext-esm": "^21.2.0",
         "@fontsource-variable/jetbrains-mono": "^5.3.0",
+        "@fontsource-variable/playfair-display": "^5.3.0",
         "@iconify-json/ion": "^1.2.7",
         "@iconify-json/material-symbols-light": "^1.2.93",
         "@iconify-json/ri": "^1.2.10",
@@ -92,12 +93,6 @@
         "vue-component-type-helpers": "3.3.11",
         "vue-eslint-parser": "^10.4.1",
         "vue-tsc": "3.3.11",
-      },
-    },
-    "docs": {
-      "name": "docs",
-      "dependencies": {
-        "@fontsource-variable/playfair-display": "^5.3.0",
       },
     },
   },
@@ -892,8 +887,6 @@
     "devlop": ["devlop@1.1.0", "", { "dependencies": { "dequal": "^2.0.0" } }, "sha512-RWmIqhcFf1lRYBvNmr7qTNuyCt/7/ns2jbpp1+PalgE/rDQcBT0fioSMUpJ93irlUhC5hrg4cYqe6U+0ImW0rA=="],
 
     "diff": ["diff@4.0.4", "", {}, "sha512-X07nttJQkwkfKfvTPG/KSnE2OMdcUCao6+eXF3wmnIQRn2aPAHH3VxDbDOdegkd6JbPsXqShpvEOHfAT+nCNwQ=="],
-
-    "docs": ["docs@workspace:docs"],
 
     "dom-serializer": ["dom-serializer@2.0.0", "", { "dependencies": { "domelementtype": "^2.3.0", "domhandler": "^5.0.2", "entities": "^4.2.0" } }, "sha512-wIkAryiqt/nV5EQKqQpo3SToSOV9J0DnbJqwK7Wv/Trc92zIAYZ4FlMu+JPFW1DfGFt81ZTCGgDEabffXeLyJg=="],
 
