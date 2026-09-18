@@ -343,10 +343,19 @@ func (s *ContainerStore) refresh() error {
 		listed[c.ID] = struct{}{}
 		s.storeListed(previous[c.ID], c)
 	}
-	for id := range previous {
-		if _, ok := listed[id]; !ok {
-			s.containers.Delete(id)
+	for id, before := range previous {
+		if _, ok := listed[id]; ok {
+			continue
 		}
+		// Only drop the entry the snapshot saw. If the loop replaced it during the list,
+		// the container came back after the list was taken (a k8s StatefulSet pod keeps
+		// its ID across a recreate) and deleting it would lose it for good.
+		s.containers.Compute(id, func(c *Container, loaded bool) (*Container, xsync.ComputeOp) {
+			if loaded && c == before {
+				return nil, xsync.DeleteOp
+			}
+			return c, xsync.CancelOp
+		})
 	}
 
 	running := lo.Filter(containers, func(item Container, index int) bool {
@@ -404,11 +413,6 @@ func carryOverStats(from *Container, to *Container) {
 	}
 }
 
-// mergeFetched stores a container fetched from the client over prev, the entry the
-// fetch started from. The fetch runs outside any lock, so by the time it returns the
-// event loop may have moved on: the container can be gone, or its entry replaced.
-// found reports whether the container is still in the map, updated whether the
-// fetched value was stored.
 // storeListed stores a list entry taken during a refresh. before is what the map
 // held when the refresh started. If the entry changed while the list was in flight,
 // the event loop got there first (a die, a pause, a health change) and its state is
@@ -419,8 +423,9 @@ func (s *ContainerStore) storeListed(before *Container, c Container) {
 			return &c, xsync.UpdateOp
 		}
 		if existing != before {
-			if before == nil {
-				// added by the event loop during the list, from an inspect newer than it
+			if before == nil || existing.FullyLoaded {
+				// stored by the event loop during the list from an inspect, which is
+				// newer than the list and complete
 				return existing, xsync.CancelOp
 			}
 			keepLoopFields(existing, &c)
@@ -440,6 +445,11 @@ func keepLoopFields(from *Container, to *Container) {
 	to.Name = from.Name
 }
 
+// mergeFetched stores a container fetched from the client over prev, the entry the
+// fetch started from. The fetch runs outside any lock, so by the time it returns the
+// event loop may have moved on: the container can be gone, or its entry replaced.
+// found reports whether the container is still in the map, updated whether the
+// fetched value was stored.
 func (s *ContainerStore) mergeFetched(prev *Container, fetched Container) (current *Container, found bool, updated bool) {
 	current, found = s.containers.Compute(prev.ID, func(c *Container, loaded bool) (*Container, xsync.ComputeOp) {
 		if !loaded {
@@ -568,8 +578,9 @@ func (s *ContainerStore) Client() Client {
 	return s.client
 }
 
-// startStats starts the stats collector in the background. A fresh start means the
-// history in every ring buffer has a gap in it, so it is cleared.
+// startStats starts the stats collector in the background. Start blocks for the
+// collector's whole life and returns true once the collector this call started has
+// stopped; the history then has a gap in it, so it is cleared.
 func (s *ContainerStore) startStats() {
 	go func() {
 		if s.statsCollector.Start(s.ctx) {
@@ -858,7 +869,7 @@ func (s *ContainerStore) init() {
 			s.broadcast(event)
 
 		case stat := <-stats:
-			if container, ok := s.containers.Load(stat.ID); ok {
+			if container, ok := s.containers.Load(stat.ID); ok && container.Stats != nil {
 				s.volumeMonitor.observe(container, stat)
 				stat.ID = ""
 				container.Stats.Push(stat)

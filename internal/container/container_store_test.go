@@ -1024,3 +1024,43 @@ func TestContainerStore_storeListedKeepsNewerLoopState(t *testing.T) {
 	got, _ = store.containers.Load("3")
 	assert.Equal(t, "exited", got.State)
 }
+
+// A refresh removes what the list no longer reports, but only the entry its snapshot
+// saw. One the loop re-stored during the list came back after the list was taken.
+func TestContainerStore_refreshKeepsEntryReplacedDuringList(t *testing.T) {
+	gone := loadedContainer("gone", "running")
+	recreated := loadedContainer("sts-0", "running")
+
+	client := new(mockedClient)
+	client.On("Host").Return(Host{ID: "localhost"})
+	store := &ContainerStore{containers: xsync.NewMap[string, *Container](), client: client, ctx: t.Context()}
+	store.containers.Store(gone.ID, &gone)
+	store.containers.Store(recreated.ID, &recreated)
+
+	again := loadedContainer("sts-0", "running")
+	client.On("ListContainers", mock.Anything, mock.Anything).Return([]Container{}, nil).Run(func(mock.Arguments) {
+		// the loop handles the pod's recreate while the list is in flight
+		store.containers.Store(again.ID, &again)
+	})
+
+	assert.NoError(t, store.refresh())
+	_, ok := store.containers.Load("gone")
+	assert.False(t, ok, "a container the list no longer reports is removed")
+	got, ok := store.containers.Load("sts-0")
+	assert.True(t, ok, "the entry re-stored during the list survives")
+	assert.Same(t, &again, got)
+}
+
+// A complete entry the loop stored during the list is newer than the list entry.
+func TestContainerStore_storeListedKeepsFullyLoadedLoopEntry(t *testing.T) {
+	store := &ContainerStore{containers: xsync.NewMap[string, *Container]()}
+	before := Container{ID: "1", State: "created"}
+	store.containers.Store("1", &before)
+	inspected := loadedContainer("1", "running")
+	inspected.Image = "nginx"
+	store.containers.Store("1", &inspected)
+
+	store.storeListed(&before, Container{ID: "1", State: "running"})
+	got, _ := store.containers.Load("1")
+	assert.Same(t, &inspected, got)
+}
