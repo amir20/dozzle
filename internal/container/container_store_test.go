@@ -462,3 +462,494 @@ func TestContainerStore_subscriberIsNamed(t *testing.T) {
 	assert.True(t, ok, "subscriber should be registered under the context it was passed")
 	assert.Equal(t, "sse-events", sub.name)
 }
+
+// feedEvents makes the mocked event stream forward whatever the test sends, so a test
+// can drive the store one event at a time.
+func feedEvents(client *mockedClient) chan<- ContainerEvent {
+	feed := make(chan ContainerEvent)
+	client.On("ContainerEvents", mock.Anything, mock.AnythingOfType("chan<- container.ContainerEvent")).Return(nil).
+		Run(func(args mock.Arguments) {
+			ctx := args.Get(0).(context.Context)
+			events := args.Get(1).(chan<- ContainerEvent)
+			for {
+				select {
+				case e := <-feed:
+					select {
+					case events <- e:
+					case <-ctx.Done():
+						return
+					}
+				case <-ctx.Done():
+					return
+				}
+			}
+		})
+	return feed
+}
+
+// waitForEvent reads the subscriber channel until the store has broadcast name, which
+// it does only after it has finished handling the event.
+func waitForEvent(t *testing.T, events <-chan ContainerEvent, name string) ContainerEvent {
+	t.Helper()
+	timeout := time.After(5 * time.Second)
+	for {
+		select {
+		case e := <-events:
+			if e.Name == name {
+				return e
+			}
+		case <-timeout:
+			t.Fatalf("timed out waiting for %q event", name)
+			return ContainerEvent{}
+		}
+	}
+}
+
+func findByID(containers []Container, id string) (Container, bool) {
+	for _, c := range containers {
+		if c.ID == id {
+			return c, true
+		}
+	}
+	return Container{}, false
+}
+
+// captureStatsCollector hands the store's stats channel to the test. Start reports
+// false so no background Clear races with a test that pushes stats itself.
+type captureStatsCollector struct {
+	subscribed chan chan<- ContainerStat
+}
+
+func newCaptureStatsCollector() *captureStatsCollector {
+	return &captureStatsCollector{subscribed: make(chan chan<- ContainerStat, 1)}
+}
+
+func (c *captureStatsCollector) Subscribe(_ context.Context, stats chan<- ContainerStat) {
+	select {
+	case c.subscribed <- stats:
+	default:
+	}
+}
+func (c *captureStatsCollector) Start(_ context.Context) bool { return false }
+func (c *captureStatsCollector) Stop()                        {}
+
+func loadedContainer(id, state string) Container {
+	return Container{ID: id, Name: "c-" + id, State: state, Host: "localhost", FullyLoaded: true, Stats: utils.NewRingBuffer[ContainerStat](300)}
+}
+
+func TestContainerStore_lifecycleEvents(t *testing.T) {
+	client := new(mockedClient)
+	client.On("ListContainers", mock.Anything, mock.Anything).Return([]Container{loadedContainer("1234", "running")}, nil)
+	client.On("Host").Return(Host{ID: "localhost"})
+	feed := feedEvents(client)
+
+	store := NewContainerStore(t.Context(), client, newCaptureStatsCollector(), ContainerLabels{})
+	events := make(chan ContainerEvent, 16)
+	store.SubscribeEvents(t.Context(), events)
+
+	state := func() Container {
+		containers, err := store.ListContainers(ContainerLabels{})
+		assert.NoError(t, err)
+		c, _ := findByID(containers, "1234")
+		return c
+	}
+
+	feed <- ContainerEvent{Name: "pause", ActorID: "1234"}
+	waitForEvent(t, events, "pause")
+	assert.Equal(t, "paused", state().State)
+
+	feed <- ContainerEvent{Name: "unpause", ActorID: "1234"}
+	waitForEvent(t, events, "unpause")
+	assert.Equal(t, "running", state().State)
+
+	feed <- ContainerEvent{Name: "health_status: healthy", ActorID: "1234"}
+	waitForEvent(t, events, "health_status: healthy")
+	assert.Equal(t, "healthy", state().Health)
+
+	feed <- ContainerEvent{Name: "health_status: unhealthy", ActorID: "1234"}
+	waitForEvent(t, events, "health_status: unhealthy")
+	assert.Equal(t, "unhealthy", state().Health)
+
+	feed <- ContainerEvent{Name: "destroy", ActorID: "1234"}
+	waitForEvent(t, events, "destroy")
+	containers, err := store.ListContainers(ContainerLabels{})
+	assert.NoError(t, err)
+	assert.Empty(t, containers)
+}
+
+// The store's filter can hold docker filters that are not labels, so the list decides
+// membership. A create the list does not report must not reach the map, or the host
+// would show containers the operator filtered out.
+func TestContainerStore_createRejectedByFilter(t *testing.T) {
+	filter := ContainerLabels{"com.example.team": {"payments"}}
+	client := new(mockedClient)
+	client.On("ListContainers", mock.Anything, mock.Anything).Return([]Container{loadedContainer("1234", "running")}, nil)
+	client.On("Host").Return(Host{ID: "localhost"})
+	feed := feedEvents(client)
+
+	store := NewContainerStore(t.Context(), client, newCaptureStatsCollector(), filter)
+	events := make(chan ContainerEvent, 16)
+	store.SubscribeEvents(t.Context(), events)
+
+	feed <- ContainerEvent{Name: "create", ActorID: "5678"}
+	waitForEvent(t, events, "create")
+
+	_, ok := store.containers.Load("5678")
+	assert.False(t, ok, "a container outside the filter should not be added")
+	client.AssertNotCalled(t, "FindContainer", mock.Anything, "5678")
+}
+
+// Without a filter the inspect alone proves the container belongs, so a start must not
+// pay for a full list of every container on the host.
+func TestContainerStore_startWithoutFilterSkipsList(t *testing.T) {
+	client := new(mockedClient)
+	client.On("ListContainers", mock.Anything, mock.Anything).Return([]Container{}, nil)
+	client.On("FindContainer", mock.Anything, "5678").Return(loadedContainer("5678", "running"), nil)
+	client.On("Host").Return(Host{ID: "localhost"})
+	feed := feedEvents(client)
+
+	store := NewContainerStore(t.Context(), client, newCaptureStatsCollector(), ContainerLabels{})
+	events := make(chan ContainerEvent, 16)
+	store.SubscribeEvents(t.Context(), events)
+
+	feed <- ContainerEvent{Name: "start", ActorID: "5678"}
+	waitForEvent(t, events, "start")
+
+	_, ok := store.containers.Load("5678")
+	assert.True(t, ok)
+	client.AssertNumberOfCalls(t, "ListContainers", 1) // the initial list only
+}
+
+// Docker sends create then start for one container. Announcing both made the log
+// streamer emit container-started twice and open two streams for the same container.
+func TestContainerStore_createThenStartNotifiesOnce(t *testing.T) {
+	client := new(mockedClient)
+	client.On("ListContainers", mock.Anything, mock.Anything).Return([]Container{}, nil)
+	client.On("FindContainer", mock.Anything, "5678").Return(loadedContainer("5678", "created"), nil).Once()
+	client.On("FindContainer", mock.Anything, "5678").Return(loadedContainer("5678", "running"), nil)
+	client.On("Host").Return(Host{ID: "localhost"})
+	feed := feedEvents(client)
+
+	store := NewContainerStore(t.Context(), client, newCaptureStatsCollector(), ContainerLabels{})
+	events := make(chan ContainerEvent, 16)
+	store.SubscribeEvents(t.Context(), events)
+	started := make(chan Container, 4)
+	store.SubscribeNewContainers(t.Context(), started)
+
+	feed <- ContainerEvent{Name: "create", ActorID: "5678"}
+	waitForEvent(t, events, "create")
+	feed <- ContainerEvent{Name: "start", ActorID: "5678"}
+	waitForEvent(t, events, "start")
+
+	assert.Len(t, started, 1)
+	c := <-started
+	assert.Equal(t, "running", c.State)
+}
+
+// K8s sends create for a pending pod and then an update once it runs. The update is
+// the only signal the pod started, so it has to be announced there.
+func TestContainerStore_k8sUpdateToRunningNotifies(t *testing.T) {
+	pending := loadedContainer("default:web-1:app", "created")
+	running := pending
+	running.State = "running"
+
+	client := new(mockedClient)
+	client.On("ListContainers", mock.Anything, mock.Anything).Return([]Container{}, nil)
+	client.On("FindContainer", mock.Anything, pending.ID).Return(pending, nil)
+	client.On("Host").Return(Host{ID: "localhost"})
+	feed := feedEvents(client)
+
+	store := NewContainerStore(t.Context(), client, newCaptureStatsCollector(), ContainerLabels{})
+	events := make(chan ContainerEvent, 16)
+	store.SubscribeEvents(t.Context(), events)
+	started := make(chan Container, 4)
+	store.SubscribeNewContainers(t.Context(), started)
+
+	feed <- ContainerEvent{Name: "create", ActorID: pending.ID, Container: &pending}
+	waitForEvent(t, events, "create")
+	assert.Empty(t, started, "a pending pod has not started yet")
+
+	feed <- ContainerEvent{Name: "update", ActorID: pending.ID, Container: &running}
+	waitForEvent(t, events, "update")
+
+	assert.Len(t, started, 1)
+	c := <-started
+	assert.Equal(t, "running", c.State)
+}
+
+func TestContainerStore_FindContainer(t *testing.T) {
+	partial := Container{ID: "1234", Name: "test", State: "exited", Host: "localhost", Stats: utils.NewRingBuffer[ContainerStat](300)}
+	full := partial
+	full.FullyLoaded = true
+	full.Image = "nginx"
+	full.Stats = utils.NewRingBuffer[ContainerStat](300)
+	userLabels := ContainerLabels{"team": {"a"}}
+
+	newStore := func(t *testing.T) (*ContainerStore, *mockedClient) {
+		client := new(mockedClient)
+		client.On("ListContainers", mock.Anything, userLabels).Return([]Container{}, nil)
+		client.On("ListContainers", mock.Anything, mock.Anything).Return([]Container{partial}, nil)
+		client.On("FindContainer", mock.Anything, "1234").Return(full, nil)
+		client.On("Host").Return(Host{ID: "localhost"})
+		feedEvents(client)
+		return NewContainerStore(t.Context(), client, newCaptureStatsCollector(), ContainerLabels{}), client
+	}
+
+	t.Run("fetches a partial container and broadcasts update", func(t *testing.T) {
+		store, _ := newStore(t)
+		events := make(chan ContainerEvent, 16)
+		store.SubscribeEvents(t.Context(), events)
+
+		c, err := store.FindContainer("1234", ContainerLabels{})
+		assert.NoError(t, err)
+		assert.True(t, c.FullyLoaded)
+		assert.Equal(t, "nginx", c.Image)
+
+		update := waitForEvent(t, events, "update")
+		assert.Equal(t, "1234", update.ActorID)
+		assert.False(t, update.Time.IsZero(), "update should carry a timestamp")
+		assert.True(t, update.Container.FullyLoaded)
+	})
+
+	t.Run("keeps the stats history", func(t *testing.T) {
+		store, _ := newStore(t)
+		_, _ = store.ListContainers(ContainerLabels{})
+		stored, ok := store.containers.Load("1234")
+		assert.True(t, ok)
+		stored.Stats.Push(ContainerStat{CPUPercent: 42})
+
+		c, err := store.FindContainer("1234", ContainerLabels{})
+		assert.NoError(t, err)
+		assert.True(t, c.FullyLoaded)
+		assert.Equal(t, 1, c.Stats.Len(), "a refetch should not reset the stats history")
+		assert.Equal(t, 42.0, c.Stats.Data()[0].CPUPercent)
+	})
+
+	t.Run("denied by user labels", func(t *testing.T) {
+		store, _ := newStore(t)
+		_, err := store.FindContainer("1234", userLabels)
+		assert.ErrorIs(t, err, ErrContainerNotFound)
+	})
+
+	t.Run("unknown id", func(t *testing.T) {
+		store, client := newStore(t)
+		_, err := store.FindContainer("nope", ContainerLabels{})
+		assert.ErrorIs(t, err, ErrContainerNotFound)
+		client.AssertNotCalled(t, "FindContainer", mock.Anything, "nope")
+	})
+}
+
+func TestContainerStore_ListContainersWithUserLabels(t *testing.T) {
+	userLabels := ContainerLabels{"team": {"a"}}
+	client := new(mockedClient)
+	client.On("ListContainers", mock.Anything, userLabels).Return([]Container{loadedContainer("1234", "running")}, nil)
+	client.On("ListContainers", mock.Anything, mock.Anything).Return([]Container{loadedContainer("1234", "running"), loadedContainer("5678", "running")}, nil)
+	client.On("Host").Return(Host{ID: "localhost"})
+	feedEvents(client)
+
+	store := NewContainerStore(t.Context(), client, newCaptureStatsCollector(), ContainerLabels{})
+
+	all, err := store.ListContainers(ContainerLabels{})
+	assert.NoError(t, err)
+	assert.Len(t, all, 2)
+
+	visible, err := store.ListContainers(userLabels)
+	assert.NoError(t, err)
+	assert.Len(t, visible, 1)
+	assert.Equal(t, "1234", visible[0].ID)
+}
+
+// A failed first list used to leave the store empty until the Docker event stream
+// happened to drop, because the stream was already marked connected.
+func TestContainerStore_initialListFailureIsRetried(t *testing.T) {
+	client := new(mockedClient)
+	client.On("ListContainers", mock.Anything, mock.Anything).Return([]Container(nil), assert.AnError).Once()
+	client.On("ListContainers", mock.Anything, mock.Anything).Return([]Container{loadedContainer("1234", "running")}, nil)
+	client.On("Host").Return(Host{ID: "localhost"})
+	feedEvents(client)
+
+	store := NewContainerStore(t.Context(), client, newCaptureStatsCollector(), ContainerLabels{})
+
+	containers, err := store.ListContainers(ContainerLabels{})
+	assert.NoError(t, err)
+	assert.Len(t, containers, 1)
+
+	// fresh now, so the next call does not list again
+	_, err = store.ListContainers(ContainerLabels{})
+	assert.NoError(t, err)
+	client.AssertNumberOfCalls(t, "ListContainers", 2)
+}
+
+func TestContainerStore_statsArePushedToTheirContainer(t *testing.T) {
+	client := new(mockedClient)
+	client.On("ListContainers", mock.Anything, mock.Anything).Return([]Container{loadedContainer("1234", "running")}, nil)
+	client.On("Host").Return(Host{ID: "localhost"})
+	feedEvents(client)
+
+	collector := newCaptureStatsCollector()
+	store := NewContainerStore(t.Context(), client, collector, ContainerLabels{})
+	_, _ = store.ListContainers(ContainerLabels{})
+
+	var stats chan<- ContainerStat
+	select {
+	case stats = <-collector.subscribed:
+	case <-time.After(5 * time.Second):
+		t.Fatal("store never subscribed to stats")
+	}
+
+	stats <- ContainerStat{ID: "unknown", CPUPercent: 1}
+	stats <- ContainerStat{ID: "1234", CPUPercent: 7}
+
+	c, _ := store.containers.Load("1234")
+	assert.Eventually(t, func() bool { return c.Stats.Len() == 1 }, 5*time.Second, 5*time.Millisecond)
+	assert.Equal(t, 7.0, c.Stats.Data()[0].CPUPercent)
+	_, ok := store.containers.Load("unknown")
+	assert.False(t, ok, "a stat for an unknown container should not create one")
+}
+
+func TestContainerStore_cancelledSubscriberIsRemoved(t *testing.T) {
+	client := new(mockedClient)
+	client.On("ListContainers", mock.Anything, mock.Anything).Return([]Container{}, nil)
+	client.On("Host").Return(Host{ID: "localhost"})
+	feedEvents(client)
+
+	store := NewContainerStore(t.Context(), client, newCaptureStatsCollector(), ContainerLabels{})
+	ctx, cancel := context.WithCancel(t.Context())
+	store.SubscribeEvents(ctx, make(chan ContainerEvent, 1))
+	assert.Equal(t, 1, store.subscribers.Size())
+
+	cancel()
+	assert.Eventually(t, func() bool { return store.subscribers.Size() == 0 }, 5*time.Second, 5*time.Millisecond)
+}
+
+func TestContainerStore_applyMountStats(t *testing.T) {
+	client := new(mockedClient)
+	client.On("Host").Return(Host{ID: "localhost"})
+	store := &ContainerStore{
+		client:      client,
+		containers:  xsync.NewMap[string, *Container](),
+		subscribers: xsync.NewMap[context.Context, *eventSubscriber](),
+	}
+	c := loadedContainer("1234", "running")
+	store.containers.Store(c.ID, &c)
+	events := make(chan ContainerEvent, 1)
+	store.subscribers.Store(t.Context(), &eventSubscriber{ch: events, name: "test"})
+
+	mounts := map[string]MountStat{"/data": {Destination: "/data", Available: true, Total: 100, Free: 40, Used: 60}}
+	store.applyMountStats("1234", mounts)
+
+	stored, _ := store.containers.Load("1234")
+	assert.Equal(t, mounts, stored.MountStats)
+	assert.Nil(t, c.MountStats, "the previous entry should not be mutated")
+
+	update := <-events
+	assert.Equal(t, "update", update.Name)
+	assert.Equal(t, mounts, update.Container.MountStats)
+
+	store.applyMountStats("unknown", mounts)
+	assert.Empty(t, events, "an unknown container should not broadcast")
+}
+
+func TestMatchesLabels(t *testing.T) {
+	tests := []struct {
+		name   string
+		labels map[string]string
+		filter ContainerLabels
+		want   bool
+	}{
+		{"empty filter", map[string]string{"a": "1"}, ContainerLabels{}, true},
+		{"nil labels, empty filter", nil, ContainerLabels{}, true},
+		{"match", map[string]string{"a": "1"}, ContainerLabels{"a": {"1"}}, true},
+		{"one of several values", map[string]string{"a": "2"}, ContainerLabels{"a": {"1", "2"}}, true},
+		{"wrong value", map[string]string{"a": "3"}, ContainerLabels{"a": {"1", "2"}}, false},
+		{"missing key", map[string]string{"b": "1"}, ContainerLabels{"a": {"1"}}, false},
+		{"all keys required", map[string]string{"a": "1"}, ContainerLabels{"a": {"1"}, "b": {"2"}}, false},
+		{"all keys match", map[string]string{"a": "1", "b": "2"}, ContainerLabels{"a": {"1"}, "b": {"2"}}, true},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			assert.Equal(t, tt.want, matchesLabels(tt.labels, tt.filter))
+		})
+	}
+}
+
+// A refresh must not wipe a container the event loop added while the list was in
+// flight, and must not keep one the list no longer reports.
+func TestContainerStore_refreshReconcilesWithoutClearing(t *testing.T) {
+	client := new(mockedClient)
+	client.On("Host").Return(Host{ID: "localhost"})
+	store := &ContainerStore{
+		client:     client,
+		containers: xsync.NewMap[string, *Container](),
+		ctx:        t.Context(),
+	}
+	old := loadedContainer("old", "running")
+	kept := loadedContainer("kept", "running")
+	kept.Stats.Push(ContainerStat{CPUPercent: 3})
+	store.containers.Store(old.ID, &old)
+	store.containers.Store(kept.ID, &kept)
+
+	client.On("ListContainers", mock.Anything, mock.Anything).Return([]Container{loadedContainer("kept", "running")}, nil).Run(func(mock.Arguments) {
+		added := loadedContainer("added", "running")
+		store.containers.Store(added.ID, &added)
+	})
+
+	assert.NoError(t, store.refresh())
+
+	_, ok := store.containers.Load("old")
+	assert.False(t, ok, "a container the list no longer reports should be removed")
+	_, ok = store.containers.Load("added")
+	assert.True(t, ok, "a container added during the list should survive")
+	c, ok := store.containers.Load("kept")
+	assert.True(t, ok)
+	assert.Equal(t, 1, c.Stats.Len(), "the refresh should keep the stats history")
+}
+
+func TestContainerStore_mergeFetched(t *testing.T) {
+	newStore := func() *ContainerStore {
+		return &ContainerStore{containers: xsync.NewMap[string, *Container]()}
+	}
+	fetched := loadedContainer("1234", "running")
+	fetched.Image = "nginx"
+
+	t.Run("keeps fields the event loop changed during the fetch", func(t *testing.T) {
+		store := newStore()
+		prev := &Container{ID: "1234", State: "running", Stats: utils.NewRingBuffer[ContainerStat](300)}
+		store.containers.Store("1234", prev)
+		changed := *prev
+		changed.State = "exited"
+		changed.Health = "unhealthy"
+		store.containers.Store("1234", &changed)
+
+		c, found, updated := store.mergeFetched(prev, fetched)
+		assert.True(t, found)
+		assert.True(t, updated)
+		assert.Equal(t, "exited", c.State)
+		assert.Equal(t, "unhealthy", c.Health)
+		assert.Equal(t, "nginx", c.Image)
+		assert.Same(t, prev.Stats, c.Stats)
+	})
+
+	t.Run("keeps a fully loaded entry stored during the fetch", func(t *testing.T) {
+		store := newStore()
+		prev := &Container{ID: "1234", State: "running"}
+		store.containers.Store("1234", prev)
+		newer := loadedContainer("1234", "paused")
+		store.containers.Store("1234", &newer)
+
+		c, found, updated := store.mergeFetched(prev, fetched)
+		assert.True(t, found)
+		assert.False(t, updated)
+		assert.Equal(t, "paused", c.State)
+	})
+
+	t.Run("container removed during the fetch", func(t *testing.T) {
+		store := newStore()
+		prev := &Container{ID: "1234"}
+		_, found, updated := store.mergeFetched(prev, fetched)
+		assert.False(t, found)
+		assert.False(t, updated)
+		_, ok := store.containers.Load("1234")
+		assert.False(t, ok)
+	})
+}

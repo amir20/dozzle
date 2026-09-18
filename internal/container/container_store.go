@@ -28,10 +28,21 @@ type ContainerStore struct {
 	statsCollector          StatsCollector
 	volumeMonitor           *volumeMonitor
 	wg                      sync.WaitGroup
-	connected               atomic.Bool
-	events                  chan ContainerEvent
-	ctx                     context.Context
-	labels                  ContainerLabels
+	// connected guards the event stream goroutine only: it is true while one is running.
+	connected atomic.Bool
+	// staleGen is bumped every time the event stream (re)connects, and freshGen records
+	// the staleGen the last successful list covered. They differ while the map may be
+	// missing whatever happened while no stream was running, including when the very
+	// first list failed. A generation rather than a flag, so a reconnect that lands
+	// while a refresh is in flight is not cleared by that refresh finishing.
+	staleGen atomic.Uint64
+	freshGen atomic.Uint64
+	// refreshMu serialises refreshes and makes concurrent readers wait for one in
+	// flight instead of reading a map that is still being rebuilt.
+	refreshMu sync.Mutex
+	events    chan ContainerEvent
+	ctx       context.Context
+	labels    ContainerLabels
 }
 
 const defaultTimeout = 10 * time.Second
@@ -268,8 +279,14 @@ func (s *ContainerStore) broadcast(event ContainerEvent) {
 	})
 }
 
+// checkConnectivity starts the event stream if none is running and lists containers
+// when the map may be out of date. A failed list leaves the map stale, so the next
+// caller retries it instead of serving an empty store until the stream drops.
 func (s *ContainerStore) checkConnectivity() error {
 	if s.connected.CompareAndSwap(false, true) {
+		// marked before the stream starts: whatever happened while no stream was
+		// running is only recovered by a list
+		s.staleGen.Add(1)
 		go func() {
 			log.Debug().Str("host", s.client.Host().Name).Msg("docker store subscribing docker events")
 			err := s.client.ContainerEvents(s.ctx, s.events)
@@ -278,48 +295,140 @@ func (s *ContainerStore) checkConnectivity() error {
 			}
 			s.connected.Store(false)
 		}()
+	}
 
-		ctx, cancel := context.WithTimeout(context.Background(), defaultTimeout)
-		defer cancel()
-		if containers, err := s.client.ListContainers(ctx, s.labels); err != nil {
-			return err
-		} else {
-			s.containers.Clear()
+	if s.staleGen.Load() == s.freshGen.Load() {
+		return nil
+	}
 
-			for _, c := range containers {
-				s.containers.Store(c.ID, &c)
-			}
+	s.refreshMu.Lock()
+	defer s.refreshMu.Unlock()
 
-			running := lo.Filter(containers, func(item Container, index int) bool {
-				return item.State != "exited" && !item.FullyLoaded
-			})
+	gen := s.staleGen.Load()
+	if gen == s.freshGen.Load() {
+		// another caller refreshed while this one waited for the lock
+		return nil
+	}
 
-			sem := semaphore.NewWeighted(maxFetchParallelism)
+	if err := s.refresh(); err != nil {
+		return err
+	}
+	s.freshGen.Store(gen)
+	return nil
+}
 
-			for i, c := range running {
-				if err := sem.Acquire(s.ctx, 1); err != nil {
-					log.Error().Err(err).Msg("failed to acquire semaphore")
-					break
-				}
-				go func(c Container, i int) {
-					defer sem.Release(1)
-					ctx, cancel := context.WithTimeout(context.Background(), defaultTimeout)
-					defer cancel()
-					if container, err := s.client.FindContainer(ctx, c.ID); err == nil {
-						s.containers.Store(c.ID, &container)
-					}
-				}(c, i)
-			}
+// refresh reconciles the map with a fresh list. It never clears the map first:
+// concurrent readers would see it empty or half built, and a container the event loop
+// added while the list was in flight would be wiped. Only IDs that were already in the
+// map before the list, and that the list no longer reports, are removed.
+func (s *ContainerStore) refresh() error {
+	previous := make(map[string]struct{})
+	s.containers.Range(func(id string, _ *Container) bool {
+		previous[id] = struct{}{}
+		return true
+	})
 
-			if err := sem.Acquire(s.ctx, maxFetchParallelism); err != nil {
-				log.Error().Err(err).Msg("failed to acquire semaphore")
-			}
+	ctx, cancel := context.WithTimeout(context.Background(), defaultTimeout)
+	defer cancel()
+	containers, err := s.client.ListContainers(ctx, s.labels)
+	if err != nil {
+		return err
+	}
 
-			log.Debug().Int("containers", len(containers)).Msg("finished initializing container store")
+	listed := make(map[string]struct{}, len(containers))
+	for _, c := range containers {
+		listed[c.ID] = struct{}{}
+		s.storeKeepingStats(c)
+	}
+	for id := range previous {
+		if _, ok := listed[id]; !ok {
+			s.containers.Delete(id)
 		}
 	}
 
+	running := lo.Filter(containers, func(item Container, index int) bool {
+		return item.State != "exited" && !item.FullyLoaded
+	})
+
+	sem := semaphore.NewWeighted(maxFetchParallelism)
+
+	for _, c := range running {
+		if err := sem.Acquire(s.ctx, 1); err != nil {
+			log.Error().Err(err).Msg("failed to acquire semaphore")
+			break
+		}
+		go func(id string) {
+			defer sem.Release(1)
+			prev, ok := s.containers.Load(id)
+			if !ok || prev.FullyLoaded {
+				return
+			}
+			ctx, cancel := context.WithTimeout(context.Background(), defaultTimeout)
+			defer cancel()
+			if fetched, err := s.client.FindContainer(ctx, id); err == nil {
+				s.mergeFetched(prev, fetched)
+			}
+		}(c.ID)
+	}
+
+	if err := sem.Acquire(s.ctx, maxFetchParallelism); err != nil {
+		log.Error().Err(err).Msg("failed to acquire semaphore")
+	}
+
+	log.Debug().Int("containers", len(containers)).Msg("finished initializing container store")
 	return nil
+}
+
+// storeKeepingStats stores c, carrying over the stats history and mount stats of the
+// entry it replaces. A list or inspect result always comes with an empty ring buffer,
+// and swapping that in would reset every chart on each reconnect or refetch.
+func (s *ContainerStore) storeKeepingStats(c Container) *Container {
+	stored, _ := s.containers.Compute(c.ID, func(existing *Container, loaded bool) (*Container, xsync.ComputeOp) {
+		if loaded {
+			carryOverStats(existing, &c)
+		}
+		return &c, xsync.UpdateOp
+	})
+	return stored
+}
+
+func carryOverStats(from *Container, to *Container) {
+	if from.Stats != nil {
+		to.Stats = from.Stats
+	}
+	if from.MountStats != nil {
+		to.MountStats = from.MountStats
+	}
+}
+
+// mergeFetched stores a container fetched from the client over prev, the entry the
+// fetch started from. The fetch runs outside any lock, so by the time it returns the
+// event loop may have moved on: the container can be gone, or its entry replaced.
+// found reports whether the container is still in the map, updated whether the
+// fetched value was stored.
+func (s *ContainerStore) mergeFetched(prev *Container, fetched Container) (current *Container, found bool, updated bool) {
+	current, found = s.containers.Compute(prev.ID, func(c *Container, loaded bool) (*Container, xsync.ComputeOp) {
+		if !loaded {
+			return c, xsync.CancelOp
+		}
+		if c != prev {
+			if c.FullyLoaded {
+				// someone else stored a complete entry during the fetch, and it is newer
+				return c, xsync.CancelOp
+			}
+			// the event loop changed these while the fetch was in flight, so they are
+			// newer than what the fetch saw
+			fetched.State = c.State
+			fetched.Health = c.Health
+			fetched.StartedAt = c.StartedAt
+			fetched.FinishedAt = c.FinishedAt
+			fetched.Name = c.Name
+		}
+		carryOverStats(c, &fetched)
+		updated = true
+		return &fetched, xsync.UpdateOp
+	})
+	return current, found, updated
 }
 
 func (s *ContainerStore) ListContainers(labels ContainerLabels) ([]Container, error) {
@@ -378,38 +487,46 @@ func (s *ContainerStore) FindContainer(id string, labels ContainerLabels) (Conta
 		}
 	}
 
-	var updated bool
-	container, found := s.containers.Compute(id, func(c *Container, loaded bool) (*Container, xsync.ComputeOp) {
-		if !loaded {
-			return nil, xsync.CancelOp
-		}
-		if c.FullyLoaded {
-			return c, xsync.CancelOp
-		}
-		log.Debug().Str("id", id).Msg("container is not fully loaded, fetching it")
-		ctx, cancel := context.WithTimeout(context.Background(), defaultTimeout)
-		defer cancel()
-		if newContainer, err := s.client.FindContainer(ctx, id); err == nil {
-			updated = true
-			return &newContainer, xsync.UpdateOp
-		} else {
-			log.Error().Err(err).Msg("failed to fetch container")
-			return c, xsync.CancelOp
-		}
-	})
-
-	if !found {
+	prev, ok := s.containers.Load(id)
+	if !ok {
 		log.Warn().Str("id", id).Msg("container not found")
+		return Container{}, ErrContainerNotFound
+	}
+	if prev.FullyLoaded {
+		return *prev, nil
+	}
+
+	// The inspect can take up to defaultTimeout, so it runs outside any lock. Inside
+	// Compute it held the bucket lock for that long and stalled the event loop behind
+	// it whenever the loop touched a container in the same bucket.
+	log.Debug().Str("id", id).Msg("container is not fully loaded, fetching it")
+	ctx, cancel := context.WithTimeout(context.Background(), defaultTimeout)
+	defer cancel()
+	fetched, err := s.client.FindContainer(ctx, id)
+	if err != nil {
+		log.Error().Err(err).Str("id", id).Msg("failed to fetch container")
+		return *prev, nil
+	}
+
+	container, found, updated := s.mergeFetched(prev, fetched)
+	if !found {
+		log.Warn().Str("id", id).Msg("container was removed while fetching it")
 		return Container{}, ErrContainerNotFound
 	}
 
 	if updated {
 		go func() {
+			// read back at send time: the event loop may have changed the entry since
+			latest, ok := s.containers.Load(id)
+			if !ok {
+				return
+			}
 			s.broadcast(ContainerEvent{
 				Name:      "update",
-				Host:      container.Host,
+				Host:      latest.Host,
 				ActorID:   id,
-				Container: container,
+				Time:      time.Now(),
+				Container: latest,
 			})
 		}()
 	}
@@ -421,15 +538,23 @@ func (s *ContainerStore) Client() Client {
 	return s.client
 }
 
-func (s *ContainerStore) SubscribeEvents(ctx context.Context, events chan<- ContainerEvent) {
+// startStats starts the stats collector in the background. A fresh start means the
+// history in every ring buffer has a gap in it, so it is cleared.
+func (s *ContainerStore) startStats() {
 	go func() {
 		if s.statsCollector.Start(s.ctx) {
 			s.containers.Range(func(_ string, c *Container) bool {
-				c.Stats.Clear()
+				if c.Stats != nil {
+					c.Stats.Clear()
+				}
 				return true
 			})
 		}
 	}()
+}
+
+func (s *ContainerStore) SubscribeEvents(ctx context.Context, events chan<- ContainerEvent) {
+	s.startStats()
 
 	s.subscribers.Store(ctx, &eventSubscriber{ch: events, name: subscriberNameFrom(ctx)})
 	go func() {
@@ -440,14 +565,7 @@ func (s *ContainerStore) SubscribeEvents(ctx context.Context, events chan<- Cont
 }
 
 func (s *ContainerStore) SubscribeStats(ctx context.Context, stats chan<- ContainerStat) {
-	go func() {
-		if s.statsCollector.Start(s.ctx) {
-			s.containers.Range(func(_ string, c *Container) bool {
-				c.Stats.Clear()
-				return true
-			})
-		}
-	}()
+	s.startStats()
 
 	s.statsCollector.Subscribe(ctx, stats)
 	go func() {
@@ -464,13 +582,6 @@ func (s *ContainerStore) SubscribeNewContainers(ctx context.Context, containers 
 	}()
 }
 
-// addContainer records a newly created or started container and notifies subscribers.
-//
-// FindContainer can fail transiently (the daemon is busy right after a compose recreate,
-// or the inspect times out). Nothing re-adds the container afterwards, so it would stay
-// missing from the store until the next reconnect and the UI would never update it again.
-// Fall back to the list entry in that case: it is not FullyLoaded, so the next
-// FindContainer fills in the rest.
 // matchesLabels is a cheap pre-check against the store's filter, so an update for a
 // container outside it does not cost a full list every time it changes.
 func matchesLabels(labels map[string]string, filter ContainerLabels) bool {
@@ -483,14 +594,36 @@ func matchesLabels(labels map[string]string, filter ContainerLabels) bool {
 	return true
 }
 
-func (s *ContainerStore) addContainer(id string, timeout time.Duration) {
+// addContainer records a newly created or started container and returns what it
+// stored. It does not notify: create and start both land here for the same container,
+// so the caller decides which of them counts as the container starting.
+//
+// With no filter configured the inspect alone is enough. With one, the list is the
+// authoritative membership check: filter keys can be docker filters that are not
+// labels at all, so matchesLabels cannot stand in for it.
+//
+// FindContainer can fail transiently (the daemon is busy right after a compose recreate,
+// or the inspect times out). Nothing re-adds the container afterwards, so it would stay
+// missing from the store until the next reconnect and the UI would never update it again.
+// Fall back to the list entry in that case: it is not FullyLoaded, so the next
+// FindContainer fills in the rest.
+func (s *ContainerStore) addContainer(id string, timeout time.Duration) (Container, bool) {
 	ctx, cancel := context.WithTimeout(context.Background(), timeout)
 	defer cancel()
+
+	filtered := s.labels.Exists()
+	if !filtered {
+		if found, err := s.client.FindContainer(ctx, id); err == nil {
+			return *s.storeKeepingStats(found), true
+		} else {
+			log.Warn().Err(err).Str("id", id).Msg("failed to inspect container, falling back to list entry")
+		}
+	}
 
 	list, err := s.client.ListContainers(ctx, s.labels)
 	if err != nil {
 		log.Warn().Err(err).Str("id", id).Msg("failed to list containers while adding container")
-		return
+		return Container{}, false
 	}
 
 	// make sure the container is in the list of containers when using filter
@@ -498,16 +631,24 @@ func (s *ContainerStore) addContainer(id string, timeout time.Duration) {
 		return item.ID == id
 	})
 	if !valid {
-		return
+		return Container{}, false
 	}
 
-	found, err := s.client.FindContainer(ctx, id)
-	if err != nil {
-		log.Warn().Err(err).Str("id", id).Msg("failed to inspect container, falling back to list entry")
-		found = listed
+	if filtered {
+		// inspected only now, so a container outside the filter never costs one
+		if found, err := s.client.FindContainer(ctx, id); err == nil {
+			return *s.storeKeepingStats(found), true
+		} else {
+			log.Warn().Err(err).Str("id", id).Msg("failed to inspect container, falling back to list entry")
+		}
 	}
 
-	s.containers.Store(found.ID, &found)
+	return *s.storeKeepingStats(listed), true
+}
+
+// notifyNewContainer tells new-container subscribers that c started, so they can
+// begin streaming its logs.
+func (s *ContainerStore) notifyNewContainer(found Container) {
 	budget := &fanoutBudget{}
 	defer budget.stop()
 
@@ -529,7 +670,10 @@ func (s *ContainerStore) init() {
 	stats := make(chan ContainerStat)
 	s.statsCollector.Subscribe(s.ctx, stats)
 
-	s.checkConnectivity()
+	if err := s.checkConnectivity(); err != nil {
+		// the store stays stale, so the next ListContainers retries the list
+		log.Error().Err(err).Str("host", s.client.Host().Name).Msg("failed to list containers while initializing container store")
+	}
 
 	s.wg.Done()
 
@@ -539,10 +683,17 @@ func (s *ContainerStore) init() {
 			log.Trace().Str("event", event.Name).Str("id", event.ActorID).Msg("received container event")
 			switch event.Name {
 			case "create":
-				s.addContainer(event.ActorID, 3*time.Second)
+				// docker follows a create with a start, which is what notifies. Only a
+				// container that is already running here (a k8s pod created running)
+				// would otherwise never be announced.
+				if added, ok := s.addContainer(event.ActorID, 3*time.Second); ok && added.State == "running" {
+					s.notifyNewContainer(added)
+				}
 
 			case "start":
-				s.addContainer(event.ActorID, defaultTimeout)
+				if added, ok := s.addContainer(event.ActorID, defaultTimeout); ok {
+					s.notifyNewContainer(added)
+				}
 			case "destroy":
 				log.Debug().Str("id", event.ActorID).Msg("container destroyed")
 				s.containers.Delete(event.ActorID)
@@ -579,6 +730,9 @@ func (s *ContainerStore) init() {
 						ActorID: updatedContainer.ID,
 						Host:    updatedContainer.Host,
 					})
+					// k8s sends create for a pending pod and only this update once it
+					// runs, so this is where its start is announced
+					s.notifyNewContainer(*updatedContainer)
 				}
 
 				// Only Kubernetes sends updates carrying a container the store never loaded:
@@ -586,9 +740,9 @@ func (s *ContainerStore) init() {
 				// k8s watch no longer ends and forces a fresh list, so pick it up here or
 				// it stays missing for the life of the process.
 				if !known && event.Container != nil && matchesLabels(event.Container.Labels, s.labels) {
-					s.addContainer(event.ActorID, 3*time.Second)
-					if added, ok := s.containers.Load(event.ActorID); ok {
+					if added, ok := s.addContainer(event.ActorID, 3*time.Second); ok {
 						s.broadcast(ContainerEvent{Name: "start", ActorID: added.ID, Host: added.Host})
+						s.notifyNewContainer(added)
 					}
 				}
 
