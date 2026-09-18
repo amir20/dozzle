@@ -73,21 +73,24 @@ func (c *StatsCollector) forceStop() {
 	}
 }
 
-func (c *StatsCollector) reset() {
-	c.mu.Lock()
-	defer c.mu.Unlock()
-	if c.timer != nil {
-		c.timer.Stop()
-	}
-	c.timer = nil
-}
-
 // Start starts the stats collector and blocks until it's stopped. It returns true if the collector was stopped, false if it was already running
 func (sc *StatsCollector) Start(parentCtx context.Context) bool {
-	sc.reset()
-	sc.totalStarted.Add(1)
-
 	sc.mu.Lock()
+	if sc.timer != nil {
+		sc.timer.Stop()
+		sc.timer = nil
+	}
+	// Callers run Start and Stop in separate goroutines, so a subscriber whose
+	// ctx is already done can Stop first. A count still <= 0 means that Stop
+	// already ran: starting here would leave a collector nobody holds and no
+	// timer to end it.
+	if sc.totalStarted.Add(1) <= 0 {
+		if sc.stopper != nil {
+			sc.timer = time.AfterFunc(timeToStop, sc.forceStop)
+		}
+		sc.mu.Unlock()
+		return false
+	}
 	if sc.stopper != nil {
 		sc.mu.Unlock()
 		return false

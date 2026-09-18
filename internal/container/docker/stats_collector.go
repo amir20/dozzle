@@ -103,15 +103,6 @@ func (c *StatsCollector) Stop() {
 	}
 }
 
-func (c *StatsCollector) reset() {
-	c.mu.Lock()
-	defer c.mu.Unlock()
-	if c.timer != nil {
-		c.timer.Stop()
-	}
-	c.timer = nil
-}
-
 // streamStats keeps one container's stats flowing for as long as its context
 // lives. ContainerStats returning — with an error OR cleanly — means the stream
 // broke, not that the container is gone: a container that actually stops
@@ -158,10 +149,22 @@ func streamStats(parent context.Context, sc *StatsCollector, id string) {
 
 // Start starts the stats collector and blocks until it's stopped. It returns true if the collector was stopped, false if it was already running
 func (sc *StatsCollector) Start(parentCtx context.Context) bool {
-	sc.reset()
-	sc.totalStarted.Add(1)
-
 	sc.mu.Lock()
+	if sc.timer != nil {
+		sc.timer.Stop()
+		sc.timer = nil
+	}
+	// Callers run Start and Stop in separate goroutines, so a subscriber whose
+	// ctx is already done can Stop first. A count still <= 0 means that Stop
+	// already ran: starting here would leave a collector nobody holds and no
+	// timer to end it.
+	if sc.totalStarted.Add(1) <= 0 {
+		if sc.stopper != nil {
+			sc.timer = time.AfterFunc(timeToStop, sc.forceStop)
+		}
+		sc.mu.Unlock()
+		return false
+	}
 	if sc.stopper != nil {
 		sc.mu.Unlock()
 		return false

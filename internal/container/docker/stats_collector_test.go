@@ -212,3 +212,56 @@ func TestEventStreamRetriesInsteadOfStoppingTheCollector(t *testing.T) {
 	assert.NotNil(t, collector.stopper, "collector should still be running")
 	collector.mu.Unlock()
 }
+
+// running reports whether a collector is live, read under the same lock Start
+// and forceStop use.
+func running(sc *StatsCollector) bool {
+	sc.mu.Lock()
+	defer sc.mu.Unlock()
+	return sc.stopper != nil
+}
+
+func TestStopBeforeStartDoesNotLeakCollector(t *testing.T) {
+	collector := NewStatsCollector(new(mockedClient), container.ContainerLabels{})
+	collector.Stop()
+
+	done := make(chan bool)
+	go func() { done <- collector.Start(t.Context()) }()
+
+	select {
+	case started := <-done:
+		assert.False(t, started, "start after its own stop should not run a collector")
+	case <-time.After(2 * time.Second):
+		t.Fatal("Start blocked, so it started a collector nobody holds")
+	}
+	assert.False(t, running(collector), "no collector should be running")
+	assert.Equal(t, int32(0), collector.totalStarted.Load())
+}
+
+func TestStopTimerEndsStartedCollector(t *testing.T) {
+	old := timeToStop
+	timeToStop = 10 * time.Millisecond
+	t.Cleanup(func() { timeToStop = old })
+
+	client := new(mockedClient)
+	client.On("ListContainers", mock.Anything, mock.Anything).Return([]container.Container{}, nil)
+	client.On("ContainerEvents", mock.Anything, mock.Anything).
+		Return(nil).
+		Run(func(args mock.Arguments) { <-args.Get(0).(context.Context).Done() })
+	client.On("Host").Return(container.Host{ID: "localhost"})
+
+	collector := NewStatsCollector(client, container.ContainerLabels{})
+	done := make(chan bool)
+	go func() { done <- collector.Start(t.Context()) }()
+
+	assert.Eventually(t, func() bool { return running(collector) }, 2*time.Second, time.Millisecond)
+	collector.Stop()
+
+	select {
+	case stopped := <-done:
+		assert.True(t, stopped, "the stop timer should end the collector")
+	case <-time.After(2 * time.Second):
+		t.Fatal("stop timer never ended the collector")
+	}
+	assert.False(t, running(collector))
+}
