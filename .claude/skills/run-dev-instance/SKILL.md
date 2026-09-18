@@ -42,13 +42,13 @@ on a change. For a one-shot check of already-written code, a production build is
 and has no vite half:
 
 ```bash
-pnpm build && LIVE_FS=true go run . --level info --addr localhost:$PORT
+bun run build && LIVE_FS=true go run . --level info --addr localhost:$PORT
 ```
 
 ## Overriding
 
 `DOZZLE_PORT`, `VITE_PORT` and `AGENT_PORT` override any of the three, for `make dev`,
-`make dev-auto`, `pnpm preview` and `pnpm agent:dev` alike. Plain `make dev` still uses
+`make dev-auto`, `bun run preview` and `bun run agent:dev` alike. Plain `make dev` still uses
 3100/5173/7007, which is what a human starting one by hand expects, and is deliberately
 outside the auto-assigned ranges.
 

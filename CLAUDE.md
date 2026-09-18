@@ -68,7 +68,7 @@ The application supports multiple deployment modes: standalone server, Docker Sw
 
 ```bash
 # Install dependencies
-pnpm install
+bun install
 
 # Generate certificates and protobuf files
 make generate
@@ -85,18 +85,18 @@ make dev
 make dev-auto
 
 # Alternative: Run backend and frontend separately
-pnpm run watch:backend  # Go backend with air (port 3100)
-pnpm run watch:frontend # Vite dev server (port 3100)
+bun run watch:backend  # Go backend with air (port 3100)
+bun run watch:frontend # Vite dev server (port 3100)
 
 # Run in agent mode for development
-pnpm run agent:dev
+bun run agent:dev
 ```
 
 ### Building
 
 ```bash
 # Build frontend assets
-pnpm build
+bun run build
 # or
 make dist
 
@@ -114,17 +114,21 @@ make docker
 make test
 
 # Run frontend tests (Vitest)
-pnpm test
+bun run test
 # Run in watch mode
-TZ=UTC pnpm test --watch
+TZ=UTC bun run test --watch
 
 # Type checking
-pnpm typecheck
+bun run typecheck
 
 # Lint (Tailwind classes only)
-pnpm lint
-pnpm lint --fix
+bun run lint
+bun run lint --fix
 ```
+
+Always go through `bun run` for `test` and `build`. `bun test` and `bun build` are
+bun's own test runner and bundler, not the scripts in `package.json`, and they fail
+in confusing ways against this codebase.
 
 ### Linting
 
@@ -138,7 +142,7 @@ Every rule the Tailwind plugin ships is listed in that config with the reason it
 or off, so add to that list rather than reaching for a preset.
 
 `eslint --fix` runs on staged `js`/`mjs`/`ts`/`mts`/`vue` in the pre-commit hook, before
-prettier so prettier gets the last word on formatting. Run `pnpm lint --fix` by hand
+prettier so prettier gets the last word on formatting. Run `bun run lint --fix` by hand
 after writing a batch of markup if you would rather not find out at commit time.
 
 Two blind spots worth knowing, because a green run does not mean a clean tree:
@@ -152,7 +156,7 @@ Two blind spots worth knowing, because a green run does not mean a clean tree:
 
 ```bash
 # Preview production build locally
-pnpm preview
+bun run preview
 # or
 make preview
 
@@ -536,7 +540,7 @@ means **two components may never share a basename**, at any depth.
 - **K8s mode**: Pod log monitoring in Kubernetes cluster
   - Implements `container.Client` interface via Kubernetes API
 - **Agent mode**: Lightweight gRPC agent for remote log collection
-  - Run with `dozzle agent` or `pnpm run agent:dev`
+  - Run with `dozzle agent` or `bun run agent:dev`
   - Listens on port 7007 with TLS certificate authentication
 
 ## Key Architectural Patterns

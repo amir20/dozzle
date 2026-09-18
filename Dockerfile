@@ -1,31 +1,32 @@
+# Pinned to the build platform like the node stage. A bare COPY --from=oven/bun
+# pulls the target platform's binary, which cannot run here in a cross build,
+# and bun ships no arm/v6 or arm/v7 image at all.
+FROM --platform=$BUILDPLATFORM oven/bun:1.3.14-alpine AS bun
+
 # Build assets
 FROM --platform=$BUILDPLATFORM node:25.9.0-alpine AS node
 
-RUN npm install -g --force corepack && corepack enable
+# bun only installs packages. vite and the build scripts still run on node.
+COPY --from=bun /usr/local/bin/bun /usr/local/bin/bun
 
 ENV CI=true
 
 WORKDIR /build
 
 # Install dependencies from lock file
-COPY pnpm-lock.yaml pnpm-workspace.yaml ./
-RUN pnpm fetch --ignore-scripts
-
-# Copy package.json and install dependencies
-# corepack already pins pnpm, so skip pnpm's own version switch. It would try to
-# resolve the packageManager field from the registry, which fails with --offline.
-COPY package.json ./
-RUN pnpm install --offline --ignore-scripts --pm-on-fail=ignore
+COPY package.json bun.lock bunfig.toml ./
+RUN --mount=type=cache,target=/root/.bun/install/cache \
+  bun install --frozen-lockfile --ignore-scripts
 
 # Copy assets and translations to build
-COPY vite.config.ts tsconfig.json .prettierrc.cjs .npmrc ./
+COPY vite.config.ts tsconfig.json .prettierrc.cjs ./
 COPY assets ./assets
 COPY locales ./locales
 COPY public ./public
 COPY scripts ./scripts
 
 # Build assets
-RUN pnpm build
+RUN bun run build
 
 FROM --platform=$BUILDPLATFORM golang:1.27-alpine AS builder
 

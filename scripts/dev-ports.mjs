@@ -6,7 +6,7 @@
 //
 //   node scripts/dev-ports.mjs             prints DOZZLE_PORT=… VITE_PORT=… AGENT_PORT=…
 //   node scripts/dev-ports.mjs --json      prints the same as JSON
-//   node scripts/dev-ports.mjs pnpm dev    runs the command with those ports exported
+//   node scripts/dev-ports.mjs bun run dev    runs the command with those ports exported
 //
 // The plain `make dev` defaults (3100/5173/7007) are deliberately outside these ranges,
 // so an auto-assigned instance never collides with someone's hand-started one.
