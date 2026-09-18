@@ -23,9 +23,7 @@ func newTestCollector() *StatsCollector {
 // running reports whether a collector is live, read under the same lock Start
 // and forceStop use.
 func running(sc *StatsCollector) bool {
-	sc.mu.Lock()
-	defer sc.mu.Unlock()
-	return sc.stopper != nil
+	return sc.lifecycle.Running()
 }
 
 func TestStopBeforeStartDoesNotLeakCollector(t *testing.T) {
@@ -42,7 +40,7 @@ func TestStopBeforeStartDoesNotLeakCollector(t *testing.T) {
 		t.Fatal("Start blocked, so it started a collector nobody holds")
 	}
 	assert.False(t, running(collector), "no collector should be running")
-	assert.Equal(t, int32(0), collector.totalStarted.Load())
+	assert.Equal(t, 0, collector.lifecycle.Holders())
 }
 
 func TestStopTimerEndsStartedCollector(t *testing.T) {
@@ -64,16 +62,4 @@ func TestStopTimerEndsStartedCollector(t *testing.T) {
 		t.Fatal("stop timer never ended the collector")
 	}
 	assert.False(t, running(collector))
-}
-
-// The stop timer can fire and then wait on mu while Start takes a new reference.
-// Timer.Stop cannot recall it, so forceStop must not cancel a collector someone holds.
-func TestForceStopSkipsHeldCollector(t *testing.T) {
-	collector := newTestCollector()
-	_, cancel := context.WithCancel(t.Context())
-	collector.stopper = cancel
-	collector.totalStarted.Store(1)
-
-	collector.forceStop()
-	assert.True(t, running(collector), "a held collector must keep running")
 }

@@ -42,6 +42,12 @@ type ContainerStore struct {
 	// that needs it wait on the same one. A caller whose context ends stops waiting,
 	// and the refresh carries on for the others.
 	refreshes singleflight.Group
+	// refreshWake wakes the one refresher goroutine. Every reconnect used to start its
+	// own retry loop, and they piled up for as long as the daemon stayed down.
+	refreshWake chan struct{}
+	// inspects merges concurrent inspects of one container into one.
+	inspects singleflight.Group
+	timing   storeTiming
 	// announced is the StartedAt each container was last announced to new-container
 	// subscribers with. Only the event loop touches it.
 	announced map[string]time.Time
@@ -53,6 +59,10 @@ type ContainerStore struct {
 const defaultTimeout = 10 * time.Second
 
 func NewContainerStore(ctx context.Context, client Client, statsCollect StatsCollector, labels ContainerLabels) *ContainerStore {
+	return newContainerStore(ctx, client, statsCollect, labels, defaultStoreTiming)
+}
+
+func newContainerStore(ctx context.Context, client Client, statsCollect StatsCollector, labels ContainerLabels, timing storeTiming) *ContainerStore {
 	log.Debug().Str("host", client.Host().Name).Interface("labels", labels).Msg("initializing container store")
 
 	s := &ContainerStore{
@@ -62,6 +72,8 @@ func NewContainerStore(ctx context.Context, client Client, statsCollect StatsCol
 		newContainerSubscribers: xsync.NewMap[context.Context, chan<- Container](),
 		statsCollector:          statsCollect,
 		ready:                   make(chan struct{}),
+		refreshWake:             make(chan struct{}, 1),
+		timing:                  timing,
 		events:                  make(chan ContainerEvent),
 		ctx:                     ctx,
 		labels:                  labels,
@@ -282,16 +294,21 @@ func (s *ContainerStore) broadcast(event ContainerEvent) {
 	})
 }
 
-// Backoff bounds for reconnecting the event stream. Variables so tests can shorten them.
-var (
-	eventRetryMin = time.Second
-	eventRetryMax = 30 * time.Second
-	// eventSubscribeGrace is how long a reconnect waits before listing. The docker SDK
-	// subscribes to /events on its own goroutine and never says when it is live, and a
-	// list taken before that misses whatever changes in between while still marking
-	// the map fresh. Waiting a moment puts the list after the subscription.
-	eventSubscribeGrace = time.Second
-)
+// storeTiming is the backoff for reconnecting the event stream, and how long a new
+// subscription is given to go live before the map is listed again. The docker SDK
+// subscribes to /events on its own goroutine and never says when it is live, and a
+// list taken before that misses whatever changes in between while still marking the
+// map fresh. Waiting a moment puts the list after the subscription.
+//
+// It lives on the store rather than in package globals so tests can shrink it for one
+// instance without writing to state other running stores read.
+type storeTiming struct {
+	retryMin       time.Duration
+	retryMax       time.Duration
+	subscribeGrace time.Duration
+}
+
+var defaultStoreTiming = storeTiming{retryMin: time.Second, retryMax: 30 * time.Second, subscribeGrace: time.Second}
 
 // streamEvents keeps the event stream connected for the life of the store. It runs
 // from boot whether or not anyone is watching, so reconnecting costs nothing extra.
@@ -300,18 +317,17 @@ var (
 // event and log alerts went silent with nothing saying so.
 //
 // Docker does not replay what it sent while nobody was listening, so every reconnect
-// marks the map stale and refreshes it once the new subscription is live. The first
-// connect's list is init's.
+// marks the map stale once the new subscription is live. The first connect's list is
+// init's.
 func (s *ContainerStore) streamEvents() {
-	backoff := eventRetryMin
+	backoff := s.timing.retryMin
 	for attempt := 0; ; attempt++ {
 		if attempt > 0 {
 			go func() {
-				// marked stale only after the grace too, or a ListContainers during it
+				// marked stale only after the grace, or a ListContainers during it
 				// would list early and mark the map fresh
-				if sleepOrDone(s.ctx, eventSubscribeGrace) {
-					s.staleGen.Add(1)
-					s.refreshUntilFresh()
+				if SleepOrDone(s.ctx, s.timing.subscribeGrace) {
+					s.markStale()
 				}
 			}()
 		}
@@ -324,43 +340,57 @@ func (s *ContainerStore) streamEvents() {
 		}
 
 		// a stream that stayed up for a while was healthy, so start the backoff over
-		if time.Since(connectedAt) > eventRetryMax {
-			backoff = eventRetryMin
+		if time.Since(connectedAt) > s.timing.retryMax {
+			backoff = s.timing.retryMin
 		}
 		log.Warn().Err(err).Str("host", s.client.Host().Name).Dur("retry_in", backoff).Msg("docker store disconnected from docker events, reconnecting")
-		if !sleepOrDone(s.ctx, backoff) {
+		if !SleepOrDone(s.ctx, backoff) {
 			return
 		}
-		backoff = min(backoff*2, eventRetryMax)
+		backoff = NextBackoff(backoff, s.timing.retryMax)
 	}
 }
 
-// refreshUntilFresh retries the refresh a reconnect needs until one succeeds. Without
-// it, a list that fails because the daemon is still coming up would leave the map
-// stale until the next ListContainers.
-func (s *ContainerStore) refreshUntilFresh() {
-	backoff := eventRetryMin
-	for {
-		err := s.ensureFresh(s.ctx)
-		if err == nil || s.ctx.Err() != nil {
-			return
-		}
-		log.Warn().Err(err).Str("host", s.client.Host().Name).Dur("retry_in", backoff).Msg("failed to refresh containers, retrying")
-		if !sleepOrDone(s.ctx, backoff) {
-			return
-		}
-		backoff = min(backoff*2, eventRetryMax)
-	}
+// markStale says the map may have missed something and wakes the refresher.
+func (s *ContainerStore) markStale() {
+	s.staleGen.Add(1)
+	s.wakeRefresher()
 }
 
-func sleepOrDone(ctx context.Context, d time.Duration) bool {
-	t := time.NewTimer(d)
-	defer t.Stop()
+func (s *ContainerStore) wakeRefresher() {
 	select {
-	case <-ctx.Done():
-		return false
-	case <-t.C:
-		return true
+	case s.refreshWake <- struct{}{}:
+	default:
+	}
+}
+
+// refresher refreshes the map whenever it is stale, without waiting for someone to
+// call ListContainers, and retries until the map is actually fresh. A nil error is
+// not enough to stop on: ensureFresh may have joined a refresh that started before
+// the latest markStale and so does not cover it.
+func (s *ContainerStore) refresher() {
+	for {
+		select {
+		case <-s.ctx.Done():
+			return
+		case <-s.refreshWake:
+		}
+
+		backoff := s.timing.retryMin
+		for s.staleGen.Load() != s.freshGen.Load() {
+			err := s.ensureFresh(s.ctx)
+			if s.ctx.Err() != nil {
+				return
+			}
+			if err == nil {
+				continue
+			}
+			log.Warn().Err(err).Str("host", s.client.Host().Name).Dur("retry_in", backoff).Msg("failed to refresh containers, retrying")
+			if !SleepOrDone(s.ctx, backoff) {
+				return
+			}
+			backoff = NextBackoff(backoff, s.timing.retryMax)
+		}
 	}
 }
 
@@ -379,10 +409,18 @@ func (s *ContainerStore) ensureFresh(ctx context.Context) error {
 			// a refresh that finished just before this one started covered it
 			return nil, nil
 		}
-		if err := s.refresh(); err != nil {
+		// The first list has nothing to compare against: everything in it is new to
+		// the map but not newly started, and announcing it would restart every log
+		// stream from the container's StartedAt.
+		first := s.freshGen.Load() == 0
+		missed, err := s.refresh(true)
+		if err != nil {
 			return nil, err
 		}
 		s.freshGen.Store(gen)
+		if !first {
+			s.replay(missed)
+		}
 		return nil, nil
 	})
 
@@ -391,6 +429,24 @@ func (s *ContainerStore) ensureFresh(ctx context.Context) error {
 		return r.Err
 	case <-ctx.Done():
 		return ctx.Err()
+	}
+}
+
+// replay feeds the event loop what a refresh found out the stream never said: the
+// refresh fixes the map, but subscribers only hear about events. Without this a
+// container that came back during a daemon restart never reached the log listener,
+// so its log alerts stayed silent, and open tabs kept showing containers that were gone.
+//
+// They go through the loop like real events, so start dedupe, alerts and SSE all
+// behave as if the stream had delivered them.
+func (s *ContainerStore) replay(missed []ContainerEvent) {
+	for _, event := range missed {
+		log.Debug().Str("event", event.Name).Str("id", event.ActorID).Msg("replaying event missed while the stream was down")
+		select {
+		case s.events <- event:
+		case <-s.ctx.Done():
+			return
+		}
 	}
 }
 
@@ -408,7 +464,13 @@ func (s *ContainerStore) waitReady(ctx context.Context) error {
 // concurrent readers would see it empty or half built, and a container the event loop
 // added while the list was in flight would be wiped. Only IDs that were already in the
 // map before the list, and that the list no longer reports, are removed.
-func (s *ContainerStore) refresh() error {
+//
+// A full refresh re-inspects every running container, which is what catches a restart
+// during an outage. A light one trusts entries that are already fully loaded and only
+// picks up what the list shows changed.
+//
+// It returns the events the changes it made amount to, for replay.
+func (s *ContainerStore) refresh(full bool) ([]ContainerEvent, error) {
 	previous := make(map[string]*Container)
 	s.containers.Range(func(id string, c *Container) bool {
 		previous[id] = c
@@ -419,27 +481,49 @@ func (s *ContainerStore) refresh() error {
 	defer cancel()
 	containers, err := s.client.ListContainers(ctx, s.labels)
 	if err != nil {
-		return err
+		return nil, err
+	}
+
+	var missed []ContainerEvent
+	event := func(name string, c *Container) {
+		missed = append(missed, ContainerEvent{Name: name, ActorID: c.ID, Host: c.Host, Time: time.Now()})
 	}
 
 	listed := make(map[string]struct{}, len(containers))
+	// containers whose state only the list changed; the loop saw no event for them
+	changed := make(map[string]struct{})
 	for _, c := range containers {
 		listed[c.ID] = struct{}{}
-		s.storeListed(previous[c.ID], c)
+		before := previous[c.ID]
+		if stored, touched := s.storeListed(before, c, full); !stored || touched {
+			continue
+		}
+		switch {
+		case before == nil:
+			changed[c.ID] = struct{}{}
+		case before.State != c.State:
+			changed[c.ID] = struct{}{}
+			if before.State == "running" && c.State == "exited" {
+				event("die", &c)
+			}
+		}
 	}
 	for id, before := range previous {
 		if _, ok := listed[id]; ok {
 			continue
 		}
-		// Only drop the entry the snapshot saw. If the loop replaced it during the list,
+		// Only drop the entry the snapshot saw. If the loop changed it during the list,
 		// the container came back after the list was taken (a k8s StatefulSet pod keeps
 		// its ID across a recreate) and deleting it would lose it for good.
-		s.containers.Compute(id, func(c *Container, loaded bool) (*Container, xsync.ComputeOp) {
-			if loaded && c == before {
+		_, kept := s.containers.Compute(id, func(c *Container, loaded bool) (*Container, xsync.ComputeOp) {
+			if loaded && !touchedByLoop(before, c) {
 				return nil, xsync.DeleteOp
 			}
 			return c, xsync.CancelOp
 		})
+		if !kept {
+			event("destroy", before)
+		}
 	}
 
 	running := lo.Filter(containers, func(item Container, index int) bool {
@@ -471,8 +555,24 @@ func (s *ContainerStore) refresh() error {
 		log.Error().Err(err).Msg("failed to acquire semaphore")
 	}
 
-	log.Debug().Int("containers", len(containers)).Msg("finished initializing container store")
-	return nil
+	// Starts are worked out after the inspects, because only an inspect has StartedAt
+	// and a restart during the outage shows up as nothing else. A start the loop also
+	// saw is announced once: notifyNewContainer dedupes on StartedAt.
+	for _, c := range containers {
+		cur, ok := s.containers.Load(c.ID)
+		if !ok || cur.State != "running" {
+			continue
+		}
+		before := previous[c.ID]
+		_, stateChanged := changed[c.ID]
+		restarted := before != nil && !before.StartedAt.IsZero() && !cur.StartedAt.IsZero() && !before.StartedAt.Equal(cur.StartedAt)
+		if stateChanged || restarted {
+			event("start", cur)
+		}
+	}
+
+	log.Debug().Int("containers", len(containers)).Bool("full", full).Msg("finished refreshing container store")
+	return missed, nil
 }
 
 // storeKeepingStats stores c, carrying over the stats history and mount stats of the
@@ -497,36 +597,86 @@ func carryOverStats(from *Container, to *Container) {
 	}
 }
 
-// storeListed stores a list entry taken during a refresh. before is what the map
-// held when the refresh started. If the entry changed while the list was in flight,
-// the event loop got there first (a die, a pause, a health change) and its state is
-// newer than the list's, so the list must not write the older state back.
-func (s *ContainerStore) storeListed(before *Container, c Container) {
+// storeListed stores a list entry taken during a refresh. It reports whether it did,
+// and whether the event loop had touched the entry, in which case the loop already
+// told subscribers about it.
+// before is what the map held when the refresh started. If the entry changed while
+// the list was in flight, the event loop got there first (a die, a pause, a health
+// change) and its state is newer than the list's, so the list must not write the
+// older state back.
+func (s *ContainerStore) storeListed(before *Container, c Container, full bool) (stored bool, touched bool) {
 	s.containers.Compute(c.ID, func(existing *Container, loaded bool) (*Container, xsync.ComputeOp) {
 		if !loaded {
+			if before != nil {
+				// the loop handled its destroy during the list; storing it again would
+				// leave a ghost until the next reconnect
+				return existing, xsync.CancelOp
+			}
+			stored = true
 			return &c, xsync.UpdateOp
 		}
-		if existing != before {
-			if before == nil || existing.FullyLoaded {
+		if touchedByLoop(before, existing) {
+			touched = true
+			if existing.FullyLoaded {
 				// stored by the event loop during the list from an inspect, which is
 				// newer than the list and complete
 				return existing, xsync.CancelOp
 			}
 			keepLoopFields(existing, &c)
+		} else if !full && existing.FullyLoaded {
+			if existing.State == c.State {
+				return existing, xsync.CancelOp
+			}
+			copy := *existing
+			copy.State = c.State
+			stored = true
+			return &copy, xsync.UpdateOp
 		}
 		carryOverStats(existing, &c)
+		stored = true
 		return &c, xsync.UpdateOp
 	})
+	return stored, touched
+}
+
+// touchedByLoop reports whether the event loop changed an entry since before was
+// read. Pointer identity is not enough: applyMountStats swaps the pointer every
+// minute without changing anything a list or an inspect knows better.
+func touchedByLoop(before *Container, current *Container) bool {
+	if before == current {
+		return false
+	}
+	if before == nil || current == nil {
+		return true
+	}
+	return before.State != current.State ||
+		before.Health != current.Health ||
+		before.Name != current.Name ||
+		before.FullyLoaded != current.FullyLoaded ||
+		!before.StartedAt.Equal(current.StartedAt) ||
+		!before.FinishedAt.Equal(current.FinishedAt) ||
+		!before.Created.Equal(current.Created)
 }
 
 // keepLoopFields copies the fields the event loop maintains from events onto a
-// snapshot that was taken before those events were applied.
+// snapshot that was taken before those events were applied. State is always known.
+// The rest only when set: from can be a list entry, which has no StartedAt or Health,
+// and copying its zero values would wipe what an inspect just fetched for good, since
+// the result is FullyLoaded and never fetched again.
 func keepLoopFields(from *Container, to *Container) {
 	to.State = from.State
-	to.Health = from.Health
-	to.StartedAt = from.StartedAt
-	to.FinishedAt = from.FinishedAt
-	to.Name = from.Name
+	if from.Health != "" {
+		to.Health = from.Health
+	}
+	if !from.StartedAt.IsZero() {
+		to.StartedAt = from.StartedAt
+	}
+	if !from.FinishedAt.IsZero() {
+		to.FinishedAt = from.FinishedAt
+	}
+	if from.Name != "" {
+		to.Name = from.Name
+	}
 }
 
 // mergeFetched stores a container fetched from the client over prev, the entry the
@@ -539,7 +689,7 @@ func (s *ContainerStore) mergeFetched(prev *Container, fetched Container) (curre
 		if !loaded {
 			return c, xsync.CancelOp
 		}
-		if c != prev {
+		if touchedByLoop(prev, c) {
 			if c.FullyLoaded {
 				// someone else stored a complete entry during the fetch, and it is newer
 				return c, xsync.CancelOp
@@ -620,20 +770,45 @@ func (s *ContainerStore) FindContainer(ctx context.Context, id string, labels Co
 		}
 	}
 
+	if c, ok := s.containers.Load(id); !ok {
+		log.Warn().Str("id", id).Msg("container not found")
+		return Container{}, ErrContainerNotFound
+	} else if c.FullyLoaded {
+		return *c, nil
+	}
+
+	// One inspect per container however many requests want it, on the store's context
+	// so a request that goes away neither fails it for the others nor logs an error.
+	result := s.inspects.DoChan(id, func() (any, error) {
+		return s.loadFully(id)
+	})
+	select {
+	case r := <-result:
+		if r.Err != nil {
+			return Container{}, r.Err
+		}
+		return r.Val.(Container), nil
+	case <-ctx.Done():
+		return Container{}, ctx.Err()
+	}
+}
+
+// loadFully inspects a container that is only known from a list and stores the result.
+//
+// The inspect can take up to defaultTimeout, so it runs outside any lock. Inside
+// Compute it held the bucket lock for that long and stalled the event loop behind it
+// whenever the loop touched a container in the same bucket.
+func (s *ContainerStore) loadFully(id string) (Container, error) {
 	prev, ok := s.containers.Load(id)
 	if !ok {
-		log.Warn().Str("id", id).Msg("container not found")
 		return Container{}, ErrContainerNotFound
 	}
 	if prev.FullyLoaded {
 		return *prev, nil
 	}
 
-	// The inspect can take up to defaultTimeout, so it runs outside any lock. Inside
-	// Compute it held the bucket lock for that long and stalled the event loop behind
-	// it whenever the loop touched a container in the same bucket.
 	log.Debug().Str("id", id).Msg("container is not fully loaded, fetching it")
-	ctx, cancel := context.WithTimeout(ctx, defaultTimeout)
+	ctx, cancel := context.WithTimeout(s.ctx, defaultTimeout)
 	defer cancel()
 	fetched, err := s.client.FindContainer(ctx, id)
 	if err != nil {
@@ -788,24 +963,22 @@ func (s *ContainerStore) addContainer(id string, timeout time.Duration) (Contain
 // that follows announces it again. Each announcement starts a log stream, so it is
 // deduplicated on StartedAt; a restart has a new StartedAt and is announced again.
 func (s *ContainerStore) notifyNewContainer(found Container) {
-	if !found.StartedAt.IsZero() {
-		if s.announced == nil {
-			s.announced = make(map[string]time.Time)
-		}
-		if last, ok := s.announced[found.ID]; ok && last.Equal(found.StartedAt) {
-			return
-		}
-		s.announced[found.ID] = found.StartedAt
+	if last, ok := s.announced[found.ID]; ok && !found.StartedAt.IsZero() && last.Equal(found.StartedAt) {
+		return
 	}
 
 	budget := &fanoutBudget{}
 	defer budget.stop()
 
+	delivered, dropped := 0, 0
 	s.newContainerSubscribers.Range(func(c context.Context, containers chan<- Container) bool {
 		switch sendBounded(c, containers, found, budget) {
+		case sendOK:
+			delivered++
 		case sendCancelled:
 			s.newContainerSubscribers.Delete(c)
 		case sendDropped:
+			dropped++
 			log.Warn().
 				Str("host", s.client.Host().Name).
 				Str("id", found.ID).
@@ -813,22 +986,46 @@ func (s *ContainerStore) notifyNewContainer(found Container) {
 		}
 		return true
 	})
+
+	// Recorded only once everyone has it. If the create's announcement was dropped, or
+	// nobody was subscribed yet, the start that follows is the retry.
+	if delivered > 0 && dropped == 0 && !found.StartedAt.IsZero() {
+		if s.announced == nil {
+			s.announced = make(map[string]time.Time)
+		}
+		s.announced[found.ID] = found.StartedAt
+	}
 }
 
 func (s *ContainerStore) init() {
 	stats := make(chan ContainerStat)
 	s.statsCollector.Subscribe(s.ctx, stats)
 
-	// the stream starts before the first list, so nothing that happens during the
-	// list is missed
+	go s.refresher()
+
+	// the stream starts before the first list, so what happens during the list is not
+	// missed once the subscription is live
 	s.staleGen.Add(1)
 	go s.streamEvents()
 	if err := s.ensureFresh(s.ctx); err != nil {
 		// ready is not held back on it: callers get the error from their own
 		// ListContainers instead of hanging while the daemon is down
 		log.Error().Err(err).Str("host", s.client.Host().Name).Msg("failed to list containers while initializing container store, retrying")
-		go s.refreshUntilFresh()
+		s.wakeRefresher()
 	}
+
+	// The subscription goes live a moment after streamEvents starts, and a container
+	// that starts in between is in neither the list nor the stream. Holding the first
+	// list back would add that wait to every boot, so look again afterwards instead:
+	// one list, no inspects.
+	go func() {
+		if !SleepOrDone(s.ctx, s.timing.subscribeGrace) || s.staleGen.Load() != s.freshGen.Load() {
+			return
+		}
+		if missed, err := s.refresh(false); err == nil {
+			s.replay(missed)
+		}
+	}()
 
 	close(s.ready)
 

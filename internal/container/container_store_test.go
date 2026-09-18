@@ -2,6 +2,9 @@ package container
 
 import (
 	"context"
+	"slices"
+	"sync"
+	"sync/atomic"
 	"testing"
 	"time"
 
@@ -894,7 +897,8 @@ func TestContainerStore_refreshReconcilesWithoutClearing(t *testing.T) {
 		store.containers.Store(added.ID, &added)
 	})
 
-	assert.NoError(t, store.refresh())
+	_, err := store.refresh(true)
+	assert.NoError(t, err)
 
 	_, ok := store.containers.Load("old")
 	assert.False(t, ok, "a container the list no longer reports should be removed")
@@ -1005,7 +1009,7 @@ func TestContainerStore_storeListedKeepsNewerLoopState(t *testing.T) {
 	died.Stats.Push(stat)
 
 	listed := Container{ID: "1", Name: "c-1", State: "running", Stats: utils.NewRingBuffer[ContainerStat](300)}
-	store.storeListed(&before, listed)
+	store.storeListed(&before, listed, true)
 	got, _ := store.containers.Load("1")
 	assert.Equal(t, "exited", got.State, "the die applied during the list is newer")
 	assert.Equal(t, 1, got.Stats.Len(), "stats history is kept")
@@ -1013,14 +1017,14 @@ func TestContainerStore_storeListedKeepsNewerLoopState(t *testing.T) {
 	// added by the loop while the list was in flight: its inspect is newer
 	added := loadedContainer("2", "paused")
 	store.containers.Store("2", &added)
-	store.storeListed(nil, Container{ID: "2", State: "running"})
+	store.storeListed(nil, Container{ID: "2", State: "running"}, true)
 	got, _ = store.containers.Load("2")
 	assert.Same(t, &added, got)
 
 	// untouched during the list: the list wins
 	unchanged := loadedContainer("3", "running")
 	store.containers.Store("3", &unchanged)
-	store.storeListed(&unchanged, Container{ID: "3", State: "exited"})
+	store.storeListed(&unchanged, Container{ID: "3", State: "exited"}, true)
 	got, _ = store.containers.Load("3")
 	assert.Equal(t, "exited", got.State)
 }
@@ -1038,12 +1042,14 @@ func TestContainerStore_refreshKeepsEntryReplacedDuringList(t *testing.T) {
 	store.containers.Store(recreated.ID, &recreated)
 
 	again := loadedContainer("sts-0", "running")
+	again.Created = time.Date(2026, 1, 1, 0, 0, 0, 0, time.UTC)
 	client.On("ListContainers", mock.Anything, mock.Anything).Return([]Container{}, nil).Run(func(mock.Arguments) {
 		// the loop handles the pod's recreate while the list is in flight
 		store.containers.Store(again.ID, &again)
 	})
 
-	assert.NoError(t, store.refresh())
+	_, err := store.refresh(true)
+	assert.NoError(t, err)
 	_, ok := store.containers.Load("gone")
 	assert.False(t, ok, "a container the list no longer reports is removed")
 	got, ok := store.containers.Load("sts-0")
@@ -1060,71 +1066,80 @@ func TestContainerStore_storeListedKeepsFullyLoadedLoopEntry(t *testing.T) {
 	inspected.Image = "nginx"
 	store.containers.Store("1", &inspected)
 
-	store.storeListed(&before, Container{ID: "1", State: "running"})
+	store.storeListed(&before, Container{ID: "1", State: "running"}, true)
 	got, _ := store.containers.Load("1")
 	assert.Same(t, &inspected, got)
 }
 
-func shortenEventRetry(t *testing.T) {
-	oldMin, oldMax, oldGrace := eventRetryMin, eventRetryMax, eventSubscribeGrace
-	eventRetryMin, eventRetryMax, eventSubscribeGrace = 5*time.Millisecond, 20*time.Millisecond, 5*time.Millisecond
-	t.Cleanup(func() { eventRetryMin, eventRetryMax, eventSubscribeGrace = oldMin, oldMax, oldGrace })
+var fastTiming = storeTiming{retryMin: 5 * time.Millisecond, retryMax: 20 * time.Millisecond, subscribeGrace: 5 * time.Millisecond}
+
+// restartingDaemon is a daemon that drops the event stream once. While the stream is
+// down a container starts, so only a list taken after the reconnect can see it.
+type restartingDaemon struct {
+	*mockedClient
+	reconnected atomic.Bool
+	listFails   atomic.Int32 // lists to fail after the reconnect
+	missed      Container
+}
+
+func newRestartingDaemon() *restartingDaemon {
+	d := &restartingDaemon{
+		mockedClient: new(mockedClient),
+		missed:       Container{ID: "missed", Name: "missed", State: "running", StartedAt: time.Date(2026, 1, 1, 0, 0, 0, 0, time.UTC), FullyLoaded: true, Stats: utils.NewRingBuffer[ContainerStat](300)},
+	}
+	d.On("Host").Return(Host{ID: "localhost"})
+	d.On("FindContainer", mock.Anything, "missed").Return(d.missed, nil)
+	d.On("ContainerEvents", mock.Anything, mock.Anything).Return(assert.AnError).Once()
+	d.On("ContainerEvents", mock.Anything, mock.Anything).Return(nil).Run(func(args mock.Arguments) {
+		d.reconnected.Store(true)
+		<-args.Get(0).(context.Context).Done()
+	})
+	return d
+}
+
+func (d *restartingDaemon) ListContainers(context.Context, ContainerLabels) ([]Container, error) {
+	if !d.reconnected.Load() {
+		return []Container{}, nil
+	}
+	if d.listFails.Add(-1) >= 0 {
+		return nil, assert.AnError
+	}
+	return []Container{d.missed}, nil
 }
 
 // A dropped event stream reconnects on its own and refreshes the map, so a container
-// that started while it was down shows up without anyone calling ListContainers.
+// that started while it was down shows up without anyone calling ListContainers, and
+// is announced so log alerts attach to it.
 func TestContainerStore_eventStreamReconnectsAndRefreshes(t *testing.T) {
-	shortenEventRetry(t)
-	missed := Container{ID: "missed", Name: "missed", State: "running", FullyLoaded: true, Stats: utils.NewRingBuffer[ContainerStat](300)}
-
-	client := new(mockedClient)
-	client.On("Host").Return(Host{ID: "localhost"})
-	client.On("ListContainers", mock.Anything, mock.Anything).Return([]Container{}, nil).Once()
-	client.On("ListContainers", mock.Anything, mock.Anything).Return([]Container{missed}, nil)
-	// the daemon restarts: the first stream ends with an error, the second stays up
-	client.On("ContainerEvents", mock.Anything, mock.Anything).Return(assert.AnError).Once()
-	reconnected := make(chan struct{})
-	client.On("ContainerEvents", mock.Anything, mock.Anything).Return(nil).Run(func(args mock.Arguments) {
-		close(reconnected)
-		<-args.Get(0).(context.Context).Done()
-	})
-
-	store := NewContainerStore(t.Context(), client, &fakeStatsCollector{}, ContainerLabels{})
+	daemon := newRestartingDaemon()
+	store := newContainerStore(t.Context(), daemon, &fakeStatsCollector{}, ContainerLabels{}, fastTiming)
+	started := make(chan Container, 4)
+	store.SubscribeNewContainers(t.Context(), started)
+	events := make(chan ContainerEvent, 16)
+	store.SubscribeEvents(t.Context(), events)
 
 	select {
-	case <-reconnected:
+	case c := <-started:
+		assert.Equal(t, "missed", c.ID)
 	case <-time.After(5 * time.Second):
-		t.Fatal("event stream did not reconnect")
+		t.Fatal("the container that started while the stream was down was never announced")
 	}
-	assert.Eventually(t, func() bool {
-		_, ok := store.containers.Load("missed")
-		return ok
-	}, 5*time.Second, 5*time.Millisecond, "the reconnect should refresh the map")
+	waitForEvent(t, events, "start")
+	_, ok := store.containers.Load("missed")
+	assert.True(t, ok)
 }
 
 // The refresh after a reconnect can fail while the daemon is still coming up. It
 // keeps retrying instead of waiting for the next ListContainers.
 func TestContainerStore_refreshAfterReconnectRetries(t *testing.T) {
-	shortenEventRetry(t)
-	missed := Container{ID: "missed", State: "running", FullyLoaded: true, Stats: utils.NewRingBuffer[ContainerStat](300)}
-
-	client := new(mockedClient)
-	client.On("Host").Return(Host{ID: "localhost"})
-	client.On("ListContainers", mock.Anything, mock.Anything).Return([]Container{}, nil).Once()
-	client.On("ListContainers", mock.Anything, mock.Anything).Return([]Container{}, assert.AnError).Twice()
-	client.On("ListContainers", mock.Anything, mock.Anything).Return([]Container{missed}, nil)
-	client.On("ContainerEvents", mock.Anything, mock.Anything).Return(assert.AnError).Once()
-	client.On("ContainerEvents", mock.Anything, mock.Anything).Return(nil).Run(func(args mock.Arguments) {
-		<-args.Get(0).(context.Context).Done()
-	})
-
-	store := NewContainerStore(t.Context(), client, &fakeStatsCollector{}, ContainerLabels{})
+	daemon := newRestartingDaemon()
+	daemon.listFails.Store(3)
+	store := newContainerStore(t.Context(), daemon, &fakeStatsCollector{}, ContainerLabels{}, fastTiming)
 
 	assert.Eventually(t, func() bool {
 		_, ok := store.containers.Load("missed")
-		return ok
+		return ok && store.staleGen.Load() == store.freshGen.Load()
 	}, 5*time.Second, 5*time.Millisecond)
-	assert.Equal(t, store.staleGen.Load(), store.freshGen.Load())
 }
 
 // A caller whose context ends stops waiting on a refresh that is stuck on the daemon.
@@ -1212,4 +1227,210 @@ func TestContainerStore_callerLeavesRunningRefresh(t *testing.T) {
 	assert.Eventually(t, func() bool {
 		return store.staleGen.Load() == store.freshGen.Load()
 	}, 5*time.Second, 5*time.Millisecond, "the refresh completes after the caller left")
+}
+
+func bareStore(t *testing.T, client Client) *ContainerStore {
+	return &ContainerStore{
+		containers:              xsync.NewMap[string, *Container](),
+		newContainerSubscribers: xsync.NewMap[context.Context, chan<- Container](),
+		subscribers:             xsync.NewMap[context.Context, *eventSubscriber](),
+		client:                  client,
+		ctx:                     t.Context(),
+		timing:                  fastTiming,
+	}
+}
+
+// After a reconnect the map holds list entries, which have no StartedAt or Health. A
+// die during the follow-up inspect must not copy those zero values over the inspect.
+func TestContainerStore_mergeFetchedKeepsInspectDataOverListEntry(t *testing.T) {
+	store := bareStore(t, nil)
+	listEntry := Container{ID: "1", Name: "web", State: "running"}
+	store.containers.Store("1", &listEntry)
+	died := listEntry
+	died.State = "exited"
+	died.FinishedAt = time.Date(2026, 1, 2, 0, 0, 0, 0, time.UTC)
+	store.containers.Store("1", &died)
+
+	startedAt := time.Date(2026, 1, 1, 0, 0, 0, 0, time.UTC)
+	fetched := Container{ID: "1", Name: "web", State: "running", Health: "healthy", StartedAt: startedAt, FullyLoaded: true}
+	got, found, updated := store.mergeFetched(&listEntry, fetched)
+
+	assert.True(t, found)
+	assert.True(t, updated)
+	assert.Equal(t, "exited", got.State, "the die is newer than the inspect")
+	assert.Equal(t, died.FinishedAt, got.FinishedAt)
+	assert.Equal(t, startedAt, got.StartedAt, "the list entry never knew StartedAt")
+	assert.Equal(t, "healthy", got.Health)
+}
+
+// A destroy the loop handled during the list must not be undone by the list entry.
+func TestContainerStore_storeListedSkipsDestroyedDuringList(t *testing.T) {
+	store := bareStore(t, nil)
+	before := loadedContainer("1", "running")
+
+	stored, _ := store.storeListed(&before, Container{ID: "1", State: "running"}, true)
+	assert.False(t, stored)
+	_, ok := store.containers.Load("1")
+	assert.False(t, ok)
+}
+
+// applyMountStats swaps the pointer every minute. That is not the loop changing the
+// container, so a refresh still removes it when it is gone and still trusts the list.
+func TestContainerStore_mountStatsSwapIsNotALoopChange(t *testing.T) {
+	client := new(mockedClient)
+	client.On("Host").Return(Host{ID: "localhost"})
+	store := bareStore(t, client)
+	gone := loadedContainer("gone", "running")
+	store.containers.Store(gone.ID, &gone)
+	client.On("ListContainers", mock.Anything, mock.Anything).Return([]Container{}, nil).Run(func(mock.Arguments) {
+		store.applyMountStats("gone", map[string]MountStat{"/data": {}})
+	})
+
+	missed, err := store.refresh(true)
+	assert.NoError(t, err)
+	_, ok := store.containers.Load("gone")
+	assert.False(t, ok)
+	assert.Equal(t, []string{"destroy:gone"}, eventNames(missed))
+}
+
+func eventNames(events []ContainerEvent) []string {
+	names := make([]string, 0, len(events))
+	for _, e := range events {
+		names = append(names, e.Name+":"+e.ActorID)
+	}
+	slices.Sort(names)
+	return names
+}
+
+// A refresh reports what the stream never said, so it can be replayed to subscribers:
+// what started, restarted, died or went away while the stream was down.
+func TestContainerStore_refreshReportsMissedEvents(t *testing.T) {
+	t1 := time.Date(2026, 1, 1, 0, 0, 0, 0, time.UTC)
+	removed := loadedContainer("removed", "running")
+	died := loadedContainer("died", "running")
+	restarted := loadedContainer("restarted", "running")
+	restarted.StartedAt = t1
+	steady := loadedContainer("steady", "running")
+	steady.StartedAt = t1
+
+	client := new(mockedClient)
+	client.On("Host").Return(Host{ID: "localhost"})
+	store := bareStore(t, client)
+	for _, c := range []*Container{&removed, &died, &restarted, &steady} {
+		store.containers.Store(c.ID, c)
+	}
+
+	client.On("ListContainers", mock.Anything, mock.Anything).Return([]Container{
+		{ID: "died", State: "exited"},
+		{ID: "restarted", State: "running"},
+		{ID: "steady", State: "running"},
+		{ID: "new", State: "running"},
+		{ID: "new-stopped", State: "exited"},
+	}, nil)
+	again := restarted
+	again.StartedAt = t1.Add(time.Hour)
+	client.On("FindContainer", mock.Anything, "restarted").Return(again, nil)
+	client.On("FindContainer", mock.Anything, "steady").Return(steady, nil)
+	client.On("FindContainer", mock.Anything, "new").Return(loadedContainer("new", "running"), nil)
+
+	missed, err := store.refresh(true)
+	assert.NoError(t, err)
+	assert.Equal(t, []string{"destroy:removed", "die:died", "start:new", "start:restarted"}, eventNames(missed))
+}
+
+// A light refresh trusts fully loaded entries: no inspect, only the listed state.
+func TestContainerStore_lightRefreshDoesNotReinspect(t *testing.T) {
+	client := new(mockedClient)
+	client.On("Host").Return(Host{ID: "localhost"})
+	store := bareStore(t, client)
+	kept := loadedContainer("kept", "running")
+	kept.Image = "nginx"
+	store.containers.Store(kept.ID, &kept)
+	client.On("ListContainers", mock.Anything, mock.Anything).Return([]Container{
+		{ID: "kept", State: "running"},
+		{ID: "new", State: "running"},
+	}, nil)
+	client.On("FindContainer", mock.Anything, "new").Return(loadedContainer("new", "running"), nil)
+
+	missed, err := store.refresh(false)
+	assert.NoError(t, err)
+	client.AssertNotCalled(t, "FindContainer", mock.Anything, "kept")
+	got, _ := store.containers.Load("kept")
+	assert.Same(t, &kept, got)
+	assert.Equal(t, []string{"start:new"}, eventNames(missed))
+}
+
+// A stale mark that lands while a refresh is running is not covered by it. The
+// refresher keeps going until the map is fresh instead of stopping on the first nil.
+func TestContainerStore_refresherCoversStaleMarkedDuringRefresh(t *testing.T) {
+	client := new(mockedClient)
+	client.On("Host").Return(Host{ID: "localhost"})
+	store := bareStore(t, client)
+	store.refreshWake = make(chan struct{}, 1)
+	store.freshGen.Store(1)
+	store.staleGen.Store(1)
+
+	var lists atomic.Int32
+	client.On("ListContainers", mock.Anything, mock.Anything).Return([]Container{}, nil).Run(func(mock.Arguments) {
+		if lists.Add(1) == 1 {
+			// the stream reconnects again while this list is in flight
+			store.markStale()
+		}
+	})
+
+	go store.refresher()
+	store.markStale()
+
+	assert.Eventually(t, func() bool {
+		return store.staleGen.Load() == store.freshGen.Load()
+	}, 5*time.Second, 5*time.Millisecond)
+	assert.Equal(t, uint64(3), store.freshGen.Load())
+	assert.GreaterOrEqual(t, lists.Load(), int32(2))
+}
+
+// An announcement nobody received is not recorded, so the start that follows a create
+// still announces the container.
+func TestContainerStore_undeliveredAnnouncementIsRetried(t *testing.T) {
+	client := new(mockedClient)
+	client.On("Host").Return(Host{ID: "localhost"})
+	store := bareStore(t, client)
+	c := loadedContainer("1", "running")
+	c.StartedAt = time.Date(2026, 1, 1, 0, 0, 0, 0, time.UTC)
+
+	store.notifyNewContainer(c) // nobody subscribed yet
+
+	started := make(chan Container, 2)
+	store.newContainerSubscribers.Store(t.Context(), started)
+	store.notifyNewContainer(c)
+	store.notifyNewContainer(c)
+	assert.Len(t, started, 1, "announced once it could be delivered, and only once")
+}
+
+// Concurrent lookups of a container that is not fully loaded share one inspect.
+func TestContainerStore_FindContainerSharesOneInspect(t *testing.T) {
+	client := new(mockedClient)
+	client.On("Host").Return(Host{ID: "localhost"})
+	store := bareStore(t, client)
+	store.ready = make(chan struct{})
+	close(store.ready)
+	partial := Container{ID: "1", State: "exited"}
+	store.containers.Store("1", &partial)
+
+	release := make(chan struct{})
+	client.On("FindContainer", mock.Anything, "1").Return(loadedContainer("1", "exited"), nil).Run(func(mock.Arguments) {
+		<-release
+	})
+
+	var wg sync.WaitGroup
+	for range 5 {
+		wg.Go(func() {
+			c, err := store.FindContainer(t.Context(), "1", ContainerLabels{})
+			assert.NoError(t, err)
+			assert.True(t, c.FullyLoaded)
+		})
+	}
+	time.Sleep(50 * time.Millisecond)
+	close(release)
+	wg.Wait()
+	client.AssertNumberOfCalls(t, "FindContainer", 1)
 }
