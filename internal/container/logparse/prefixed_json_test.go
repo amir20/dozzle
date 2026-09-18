@@ -77,6 +77,6 @@ func Test_createEvent_prefixedJSON(t *testing.T) {
 	event := createEvent("2026-09-18T22:46:26.123456789Z "+line, container.STDOUT)
 
 	assert.Equal(t, container.LogTypeComplex, event.Type)
-	assert.Equal(t, line, event.RawMessage)
+	assert.JSONEq(t, `{"level":"info","msg":"finished call","server":"grpc","grpc.code":"OK"}`, event.RawMessage)
 	assert.Equal(t, "info", guessLogLevel(event))
 }

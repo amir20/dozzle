@@ -344,6 +344,10 @@ func createEvent(message string, streamType container.StdType) *container.LogEve
 			} else if data, ok := parsePrefixedJSON(message, logEvent.Timestamp); ok {
 				logEvent.Message = data
 				logEvent.Type = container.LogTypeComplex
+				// Complex entries carry JSON in RawMessage; LogDetails parses it.
+				if raw, err := json.Marshal(data); err == nil {
+					logEvent.RawMessage = string(raw)
+				}
 			} else if data, err := ParseLogFmt(message); err == nil {
 				logEvent.Message = data
 				logEvent.Type = container.LogTypeComplex
