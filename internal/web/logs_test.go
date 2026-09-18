@@ -562,7 +562,7 @@ func concatMessages(messages ...string) []byte {
 	return data
 }
 
-func Test_matchesFilter_inverse(t *testing.T) {
+func Test_logFilter_matches_inverse(t *testing.T) {
 	levels := map[string]struct{}{"info": {}}
 
 	regex, err := search.ParseRegex("INFO")
@@ -631,7 +631,7 @@ func Test_matchesFilter_inverse(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got := matchesFilter(tt.event, tt.regex, tt.levels, tt.inverse)
+			got := logFilter{regex: tt.regex, levels: tt.levels, inverse: tt.inverse}.matches(tt.event)
 			assert.Equal(t, tt.want, got)
 		})
 	}

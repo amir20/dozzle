@@ -8,7 +8,7 @@ import { fr } from "./locales/fr";
 import { zh } from "./locales/zh";
 
 const require = createRequire(import.meta.url);
-const pkg = require("dozzle/package.json");
+const pkg = require("../../package.json");
 
 // English is the root locale, so it has no path prefix. Every other locale is
 // served from its own directory.
