@@ -20,6 +20,7 @@ declare global {
   const TEMPLATE_VARIABLES: typeof import('./composable/editor/templateEditor').TEMPLATE_VARIABLES
   const acceptHMRUpdate: typeof import('pinia').acceptHMRUpdate
   const allLevels: typeof import('./composable/logs/logContext').allLevels
+  const appendBatch: typeof import('./composable/logs/logWindow').appendBatch
   const arrayEquals: typeof import('./utils/index').arrayEquals
   const asyncComputed: typeof import('@vueuse/core').asyncComputed
   const attachEvents: typeof import('./composable/cloud/cloudAlerts').attachEvents
@@ -544,6 +545,9 @@ declare global {
   export type { LogMoment } from './composable/logs/logJump'
   import('./composable/logs/logJump')
   // @ts-ignore
+  export type { AppendBatchOptions } from './composable/logs/logWindow'
+  import('./composable/logs/logWindow')
+  // @ts-ignore
   export type { ViewContext, ViewLogLine } from './composable/logs/viewContext'
   import('./composable/logs/viewContext')
   // @ts-ignore
@@ -587,6 +591,7 @@ declare module 'vue' {
     readonly TEMPLATE_VARIABLES: UnwrapRef<typeof import('./composable/editor/templateEditor')['TEMPLATE_VARIABLES']>
     readonly acceptHMRUpdate: UnwrapRef<typeof import('pinia')['acceptHMRUpdate']>
     readonly allLevels: UnwrapRef<typeof import('./composable/logs/logContext')['allLevels']>
+    readonly appendBatch: UnwrapRef<typeof import('./composable/logs/logWindow')['appendBatch']>
     readonly arrayEquals: UnwrapRef<typeof import('./utils/index')['arrayEquals']>
     readonly asyncComputed: UnwrapRef<typeof import('@vueuse/core')['asyncComputed']>
     readonly attachEvents: UnwrapRef<typeof import('./composable/cloud/cloudAlerts')['attachEvents']>
