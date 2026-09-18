@@ -2,6 +2,7 @@ package container
 
 import (
 	"context"
+	"errors"
 	"slices"
 	"sync"
 	"sync/atomic"
@@ -1429,6 +1430,83 @@ func TestStore_FindContainerSharesOneInspect(t *testing.T) {
 			assert.True(t, c.FullyLoaded)
 		})
 	}
+	time.Sleep(50 * time.Millisecond)
+	close(release)
+	wg.Wait()
+	client.AssertNumberOfCalls(t, "FindContainer", 1)
+}
+
+// An inspect that fails on create leaves a list entry, which has no StartedAt. The
+// start that follows inspects successfully, and dedupe on StartedAt alone compared a
+// zero time against a real one and announced the same start twice.
+func TestStore_listFallbackThenStartNotifiesOnce(t *testing.T) {
+	running := loadedContainer("5678", "running")
+	running.StartedAt = time.Now().Add(-time.Minute)
+	listed := Container{ID: "5678", Name: "c-5678", State: "running", Host: "localhost"}
+
+	client := new(mockedClient)
+	client.On("ListContainers", mock.Anything, mock.Anything).Return([]Container{listed}, nil)
+	client.On("FindContainer", mock.Anything, "5678").Return(Container{}, errors.New("daemon busy")).Once()
+	client.On("FindContainer", mock.Anything, "5678").Return(running, nil)
+	client.On("Host").Return(Host{ID: "localhost"})
+	feed := feedEvents(client)
+
+	store := NewStore(t.Context(), client, newCaptureStatsCollector(), ContainerLabels{})
+	events := make(chan ContainerEvent, 16)
+	store.SubscribeEvents(t.Context(), events)
+	started := make(chan Container, 4)
+	store.SubscribeNewContainers(t.Context(), started)
+
+	feed <- ContainerEvent{Name: "create", ActorID: "5678"}
+	waitForEvent(t, events, "create")
+	feed <- ContainerEvent{Name: "start", ActorID: "5678"}
+	waitForEvent(t, events, "start")
+	assert.Len(t, started, 1)
+
+	// a restart is still a new run
+	<-started
+	restarted := running
+	restarted.StartedAt = time.Now().Add(time.Minute)
+	client.ExpectedCalls = nil
+	client.On("FindContainer", mock.Anything, "5678").Return(restarted, nil)
+	client.On("Host").Return(Host{ID: "localhost"})
+	feed <- ContainerEvent{Name: "start", ActorID: "5678"}
+	waitForEvent(t, events, "start")
+	assert.Len(t, started, 1)
+}
+
+// Only FindContainer used to go through the singleflight, so a refresh filling in a
+// list entry and the event loop adding a container each ran their own inspect of the
+// same container at the same time.
+func TestStore_inspectIsSharedAcrossPaths(t *testing.T) {
+	client := new(mockedClient)
+	client.On("Host").Return(Host{ID: "localhost"})
+	store := bareStore(t, client)
+	store.ready = make(chan struct{})
+	close(store.ready)
+	partial := Container{ID: "1", State: "running"}
+	store.containers.Store("1", &partial)
+
+	release := make(chan struct{})
+	client.On("FindContainer", mock.Anything, "1").Return(loadedContainer("1", "running"), nil).Run(func(mock.Arguments) {
+		<-release
+	})
+
+	var wg sync.WaitGroup
+	wg.Go(func() {
+		c, err := store.FindContainer(t.Context(), "1", ContainerLabels{})
+		assert.NoError(t, err)
+		assert.True(t, c.FullyLoaded)
+	})
+	wg.Go(func() {
+		store.inspectPartial([]Container{{ID: "1", State: "running"}})
+	})
+	wg.Go(func() {
+		c, ok := store.addContainer("1", time.Second)
+		assert.True(t, ok)
+		assert.True(t, c.FullyLoaded)
+	})
+
 	time.Sleep(50 * time.Millisecond)
 	close(release)
 	wg.Wait()

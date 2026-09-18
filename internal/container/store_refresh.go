@@ -263,7 +263,7 @@ func (s *Store) inspectPartial(containers []Container) {
 			defer sem.Release(1)
 			ctx, cancel := context.WithTimeout(s.ctx, defaultTimeout)
 			defer cancel()
-			if fetched, err := s.client.FindContainer(ctx, prev.ID); err == nil {
+			if fetched, err := s.inspect(ctx, prev.ID); err == nil {
 				s.mergeFetched(prev, fetched)
 			}
 		}()

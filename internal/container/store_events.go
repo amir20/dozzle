@@ -48,7 +48,7 @@ func (s *Store) addContainer(id string, timeout time.Duration) (Container, bool)
 		}
 	}
 
-	found, err := s.client.FindContainer(ctx, id)
+	found, err := s.inspect(ctx, id)
 	if err == nil {
 		return *s.storeKeepingStats(found), true
 	}

@@ -75,7 +75,9 @@ type Store struct {
 	// refreshWake wakes the one refresher goroutine. Every reconnect used to start its
 	// own retry loop, and they piled up for as long as the daemon stayed down.
 	refreshWake chan struct{}
-	// inspects merges concurrent inspects of one container into one.
+	// inspects merges concurrent inspects of one container into one, whoever asked:
+	// a request, the event loop adding a container, or a refresh filling in a list
+	// entry. Each of them merges the result its own way, so only the call is shared.
 	inspects singleflight.Group
 }
 
@@ -216,10 +218,18 @@ func (s *Store) FindContainer(ctx context.Context, id string, labels ContainerLa
 		return *c, nil
 	}
 
-	// One inspect per container however many requests want it, on the store's context
-	// so a request that goes away neither fails it for the others nor logs an error.
+	return s.loadFully(ctx, id)
+}
+
+// inspect fetches a container from the engine, merging concurrent inspects of the
+// same id into one call however many callers want it. The fetch runs on the store's
+// context so a caller that goes away neither fails it for the others nor logs an
+// error; ctx only bounds how long this caller waits for it.
+func (s *Store) inspect(ctx context.Context, id string) (Container, error) {
 	result := s.inspects.DoChan(id, func() (any, error) {
-		return s.loadFully(id)
+		fetchCtx, cancel := context.WithTimeout(s.ctx, defaultTimeout)
+		defer cancel()
+		return s.client.FindContainer(fetchCtx, id)
 	})
 	select {
 	case r := <-result:
@@ -237,7 +247,7 @@ func (s *Store) FindContainer(ctx context.Context, id string, labels ContainerLa
 // The inspect can take up to defaultTimeout, so it runs outside any lock. Inside
 // Compute it held the bucket lock for that long and stalled the event loop behind it
 // whenever the loop touched a container in the same bucket.
-func (s *Store) loadFully(id string) (Container, error) {
+func (s *Store) loadFully(ctx context.Context, id string) (Container, error) {
 	prev, ok := s.containers.Load(id)
 	if !ok {
 		return Container{}, ErrContainerNotFound
@@ -247,10 +257,12 @@ func (s *Store) loadFully(id string) (Container, error) {
 	}
 
 	log.Debug().Str("id", id).Msg("container is not fully loaded, fetching it")
-	ctx, cancel := context.WithTimeout(s.ctx, defaultTimeout)
-	defer cancel()
-	fetched, err := s.client.FindContainer(ctx, id)
+	fetched, err := s.inspect(ctx, id)
 	if err != nil {
+		if ctx.Err() != nil {
+			// this caller gave up; the inspect carries on for whoever else wants it
+			return Container{}, err
+		}
 		log.Error().Err(err).Str("id", id).Msg("failed to fetch container")
 		return *prev, nil
 	}

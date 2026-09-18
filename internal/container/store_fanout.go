@@ -194,8 +194,13 @@ func (s *Store) broadcast(event ContainerEvent) {
 // handles its create, so the create's inspect already sees it running and the start
 // that follows announces it again. Each announcement starts a log stream, so it is
 // deduplicated on StartedAt; a restart has a new StartedAt and is announced again.
+//
+// A list entry has no StartedAt, which addContainer falls back to when an inspect
+// fails. Those are recorded at the time they were announced instead, and a later
+// announcement whose StartedAt predates that is the same start, now inspected.
 func (s *Store) notifyNewContainer(found Container) {
-	if last, ok := s.announced[found.ID]; ok && !found.StartedAt.IsZero() && last.Equal(found.StartedAt) {
+	if last, ok := s.announced[found.ID]; ok && !found.StartedAt.IsZero() &&
+		(last.Equal(found.StartedAt) || found.StartedAt.Before(last)) {
 		return
 	}
 
@@ -221,10 +226,14 @@ func (s *Store) notifyNewContainer(found Container) {
 
 	// Recorded only once everyone has it. If the create's announcement was dropped, or
 	// nobody was subscribed yet, the start that follows is the retry.
-	if delivered > 0 && dropped == 0 && !found.StartedAt.IsZero() {
+	if delivered > 0 && dropped == 0 {
+		at := found.StartedAt
+		if at.IsZero() {
+			at = time.Now()
+		}
 		if s.announced == nil {
 			s.announced = make(map[string]time.Time)
 		}
-		s.announced[found.ID] = found.StartedAt
+		s.announced[found.ID] = at
 	}
 }
