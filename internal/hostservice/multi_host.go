@@ -136,18 +136,20 @@ func (m *MultiHostService) SubscribeContainersStarted(ctx context.Context, conta
 	for _, client := range m.manager.List() {
 		client.SubscribeContainersStarted(ctx, newContainers)
 	}
+	// newContainers is never closed: the stores sending into it drop their
+	// subscription only after ctx ends, so a close would race their sends and panic.
 	go func() {
-		<-ctx.Done()
-		close(newContainers)
-	}()
-
-	go func() {
-		for container := range newContainers {
-			if filter(&container) {
-				select {
-				case containers <- container:
-				case <-ctx.Done():
-					return
+		for {
+			select {
+			case <-ctx.Done():
+				return
+			case container := <-newContainers:
+				if filter(&container) {
+					select {
+					case containers <- container:
+					case <-ctx.Done():
+						return
+					}
 				}
 			}
 		}

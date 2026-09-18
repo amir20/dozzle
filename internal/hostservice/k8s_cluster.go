@@ -179,18 +179,20 @@ func (m *K8sClusterService) SubscribeEventsAndStats(ctx context.Context, events 
 func (m *K8sClusterService) SubscribeContainersStarted(ctx context.Context, containers chan<- container.Container, filter container.ContainerFilter) {
 	newContainers := make(chan container.Container)
 	m.client.SubscribeContainersStarted(ctx, newContainers)
+	// newContainers is never closed: the store sending into it drops its
+	// subscription only after ctx ends, so a close would race its sends and panic.
 	go func() {
-		<-ctx.Done()
-		close(newContainers)
-	}()
-
-	go func() {
-		for container := range newContainers {
-			if filter(&container) {
-				select {
-				case containers <- container:
-				case <-ctx.Done():
-					return
+		for {
+			select {
+			case <-ctx.Done():
+				return
+			case container := <-newContainers:
+				if filter(&container) {
+					select {
+					case containers <- container:
+					case <-ctx.Done():
+						return
+					}
 				}
 			}
 		}
