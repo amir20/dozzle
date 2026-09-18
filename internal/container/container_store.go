@@ -565,10 +565,12 @@ func (s *ContainerStore) init() {
 					if loaded && event.Container != nil {
 						known = true
 						newContainer := event.Container
-						// A short-lived k8s pod (a Job) can go from Pending straight to
-						// Succeeded without ever reporting Running. It still ran, so it
-						// counts as a start, or the UI never learns it exists.
-						if c.State != "running" && (newContainer.State == "running" || (c.State == "created" && newContainer.State == "exited")) {
+						// A k8s pod can leave Pending without ever reporting Running: a
+						// short Job goes straight to Succeeded, and a pod that crashes on
+						// boot straight to CrashLoopBackOff. Either way it ran, so it
+						// counts as a start, or neither the UI nor alerts learn it exists.
+						leftCreated := c.State == "created" && (newContainer.State == "exited" || newContainer.State == "restarting")
+						if c.State != "running" && (newContainer.State == "running" || leftCreated) {
 							started = true
 						}
 						copy := *c

@@ -42,11 +42,13 @@ export function alertTargetFor(container: Pick<Container, "name" | "labels">): {
   if (workload) {
     // The pod part changes every run; the container part does not, and keeps the
     // alert off the pod's sidecars.
-    const containerName = container.name.split("/").at(-1) ?? container.name;
+    const containerName = container.name.slice(container.name.lastIndexOf("/") + 1);
     return {
       name: `${labels["@k8s.workload.kind"] ?? "workload"}/${workload}`,
       expression: [
         `labels["@k8s.namespace"] == ${q(labels["@k8s.namespace"] ?? "")}`,
+        // A Deployment and a CronJob may share a name in one namespace.
+        `labels["@k8s.workload.kind"] == ${q(labels["@k8s.workload.kind"] ?? "")}`,
         `labels["@k8s.workload.name"] == ${q(workload)}`,
         `name endsWith ${q("/" + containerName)}`,
       ].join(" && "),

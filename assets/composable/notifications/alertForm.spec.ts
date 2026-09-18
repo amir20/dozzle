@@ -22,7 +22,7 @@ describe("alertTargetFor", () => {
     expect(target).toEqual({
       name: "CronJob/hello",
       expression:
-        'labels["@k8s.namespace"] == "default" && labels["@k8s.workload.name"] == "hello" && name endsWith "/hello"',
+        'labels["@k8s.namespace"] == "default" && labels["@k8s.workload.kind"] == "CronJob" && labels["@k8s.workload.name"] == "hello" && name endsWith "/hello"',
     });
   });
 

@@ -169,9 +169,16 @@ func TestContainerStore_updateCreatedToExitedBroadcastsStart(t *testing.T) {
 // refuses it until it runs. Log streams (alerts included) must hear about it when it
 // starts, not when it is created, or a CronJob pod is never read at all.
 func TestContainerStore_k8sPodNotifiesNewContainerWhenItStarts(t *testing.T) {
+	// restarting: crashed on boot, and the first update seen is already CrashLoopBackOff
+	for _, state := range []string{"running", "exited", "restarting"} {
+		t.Run(state, func(t *testing.T) { testK8sPodNotifiesWhenItStarts(t, state) })
+	}
+}
+
+func testK8sPodNotifiesWhenItStarts(t *testing.T, state string) {
 	pending := Container{ID: "default:hello-1:hello", Name: "hello-1/hello", State: "created", Host: "localhost", Stats: utils.NewRingBuffer[ContainerStat](300)}
 	running := pending
-	running.State = "running"
+	running.State = state
 
 	client := new(mockedClient)
 	client.On("ListContainers", mock.Anything, mock.Anything).Return([]Container{}, nil).Once()
@@ -199,7 +206,7 @@ func TestContainerStore_k8sPodNotifiesNewContainerWhenItStarts(t *testing.T) {
 
 	select {
 	case c := <-started:
-		assert.Equal(t, "running", c.State)
+		assert.Equal(t, state, c.State)
 	case <-time.After(2 * time.Second):
 		t.Fatal("pod that started was never handed to new-container subscribers")
 	}
