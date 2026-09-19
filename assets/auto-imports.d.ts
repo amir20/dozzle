@@ -19,6 +19,7 @@ declare global {
   const SetupError: typeof import('./composable/setup/setup').SetupError
   const TEMPLATE_VARIABLES: typeof import('./composable/editor/templateEditor').TEMPLATE_VARIABLES
   const acceptHMRUpdate: typeof import('pinia').acceptHMRUpdate
+  const alertTargetFor: typeof import('./composable/notifications/alertForm').alertTargetFor
   const allLevels: typeof import('./composable/logs/logContext').allLevels
   const appendBatch: typeof import('./composable/logs/logWindow').appendBatch
   const arrayEquals: typeof import('./utils/index').arrayEquals
@@ -590,6 +591,7 @@ declare module 'vue' {
     readonly SetupError: UnwrapRef<typeof import('./composable/setup/setup')['SetupError']>
     readonly TEMPLATE_VARIABLES: UnwrapRef<typeof import('./composable/editor/templateEditor')['TEMPLATE_VARIABLES']>
     readonly acceptHMRUpdate: UnwrapRef<typeof import('pinia')['acceptHMRUpdate']>
+    readonly alertTargetFor: UnwrapRef<typeof import('./composable/notifications/alertForm')['alertTargetFor']>
     readonly allLevels: UnwrapRef<typeof import('./composable/logs/logContext')['allLevels']>
     readonly appendBatch: UnwrapRef<typeof import('./composable/logs/logWindow')['appendBatch']>
     readonly arrayEquals: UnwrapRef<typeof import('./utils/index')['arrayEquals']>

@@ -232,10 +232,12 @@ func (s *Store) handleUpdate(event ContainerEvent) {
 
 	started := false
 	updated, known := s.patch(event.ActorID, func(c *Container) bool {
-		// A short-lived k8s pod (a Job) can go from Pending straight to
-		// Succeeded without ever reporting Running. It still ran, so it
-		// counts as a start, or the UI never learns it exists.
-		started = c.State != "running" && (update.State == "running" || (c.State == "created" && update.State == "exited"))
+		// A k8s pod can leave Pending without ever reporting Running: a short
+		// Job goes straight to Succeeded, and a pod that crashes on boot
+		// straight to CrashLoopBackOff. Either way it ran, so it counts as a
+		// start, or neither the UI nor alerts learn it exists.
+		leftCreated := c.State == "created" && (update.State == "exited" || update.State == "restarting")
+		started = c.State != "running" && (update.State == "running" || leftCreated)
 		c.Name = update.Name
 		c.State = update.State
 		c.Labels = update.Labels

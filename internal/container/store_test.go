@@ -653,9 +653,17 @@ func TestStore_createThenStartNotifiesOnce(t *testing.T) {
 // K8s sends create for a pending pod and then an update once it runs. The update is
 // the only signal the pod started, so it has to be announced there.
 func TestStore_k8sUpdateToRunningNotifies(t *testing.T) {
+	// exited: a short Job that finished before a Running update was seen.
+	// restarting: crashed on boot, and the first update seen is already CrashLoopBackOff.
+	for _, state := range []string{"running", "exited", "restarting"} {
+		t.Run(state, func(t *testing.T) { testK8sUpdateNotifies(t, state) })
+	}
+}
+
+func testK8sUpdateNotifies(t *testing.T, state string) {
 	pending := loadedContainer("default:web-1:app", "created")
 	running := pending
-	running.State = "running"
+	running.State = state
 
 	client := new(mockedClient)
 	client.On("ListContainers", mock.Anything, mock.Anything).Return([]Container{}, nil)
@@ -678,7 +686,7 @@ func TestStore_k8sUpdateToRunningNotifies(t *testing.T) {
 
 	assert.Len(t, started, 1)
 	c := <-started
-	assert.Equal(t, "running", c.State)
+	assert.Equal(t, state, c.State)
 }
 
 func TestStore_FindContainer(t *testing.T) {
