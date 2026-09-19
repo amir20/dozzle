@@ -7,7 +7,7 @@
     <template v-if="src">
       <img
         :src="src"
-        :alt="slug"
+        :alt="alt"
         class="size-full object-contain"
         :class="{ 'opacity-40 grayscale': !isRunning }"
         loading="lazy"
@@ -43,6 +43,8 @@ const { isDark } = useResolvedTheme();
 
 const status = computed(() => health ?? state);
 const isRunning = computed(() => state === "running" || state === "restarting");
+// A data URI is not a name anyone wants read aloud.
+const alt = computed(() => (slug && isDataIcon(slug) ? "" : slug));
 const src = computed(() => (showAppIcons.value ? iconUrl(slug, isDark.value) : undefined));
 </script>
 

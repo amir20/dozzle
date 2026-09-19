@@ -1,6 +1,6 @@
 ---
 title: 应用图标
-sourceHash: b11b42409e46
+sourceHash: 2b128908b958
 ---
 
 # 应用图标
@@ -50,6 +50,32 @@ services:
 :::
 
 标签的值是 [dashboard-icons](https://github.com/homarr-labs/dashboard-icons) 中的图标名称。只有 Dozzle 打包进来的图标可用，未知名称会退回到不显示图标。
+
+## 使用自己的图标
+
+对于 Dozzle 永远不会收录的镜像，比如你自己的项目，可以让标签以 data URI 的形式直接携带图标。无需上传或挂载任何东西，也不会从网络获取任何内容。
+
+```yaml [docker-compose.yml]
+services:
+  app:
+    image: my-company/internal-thing
+    labels:
+      - dev.dozzle.icon=data:image/svg+xml;base64,PHN2ZyB4bWxucz0i...
+```
+
+用 `base64` 生成这个值：
+
+```sh
+echo "data:image/svg+xml;base64,$(base64 < icon.svg | tr -d '\n')"
+```
+
+支持 SVG、PNG 和 WebP，整个值最大为 16KB，其他情况会退回到不显示图标。图标的显示尺寸约为 20px，所以一个优化过的 SVG 或 64px 的 WebP 就足够了。
+
+如果你发布镜像，可以在 Dockerfile 中设置该标签，这样所有运行它的人无需任何配置就能看到图标。
+
+```dockerfile
+LABEL dev.dozzle.icon="data:image/svg+xml;base64,PHN2ZyB4bWxucz0i..."
+```
 
 ## 缺少某个图标？
 
