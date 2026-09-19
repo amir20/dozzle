@@ -207,7 +207,8 @@ func (h *handler) cloudStatus(w http.ResponseWriter, r *http.Request) {
 			Name string `json:"name"`
 		} `json:"plan"`
 	}
-	if json.Unmarshal(body, &statusResp) == nil && statusResp.Plan.Name == "pro" {
+	// Re-establish the connection after an upgrade to any paid plan, not just Pro.
+	if json.Unmarshal(body, &statusResp) == nil && (statusResp.Plan.Name == "pro" || statusResp.Plan.Name == "team") {
 		if h.config.Cloud.OnSetup != nil {
 			h.config.Cloud.OnSetup()
 		}
