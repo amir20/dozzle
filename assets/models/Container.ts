@@ -121,10 +121,14 @@ export class Container {
 
   /**
    * Bundled app icon slug for this container, derived from its image. `dev.dozzle.icon`
-   * overrides the guess, and `none` opts a container out when the guess is wrong.
+   * overrides the guess, and `none` opts a container out when the guess is wrong. The
+   * label may also carry the icon itself as a data URI, which is returned untouched
+   * because base64 does not survive lowercasing.
    */
   get icon() {
-    const override = this.labels["dev.dozzle.icon"]?.trim().toLowerCase();
+    const label = this.labels["dev.dozzle.icon"]?.trim();
+    if (label && isDataIcon(label)) return label;
+    const override = label?.toLowerCase();
     if (override) return override === "none" || !hasIcon(override) ? undefined : override;
     return iconSlugForImage(this.image);
   }

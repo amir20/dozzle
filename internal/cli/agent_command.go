@@ -156,7 +156,7 @@ func (a *AgentCmd) Run(args Args, embeddedCerts embed.FS) error {
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer stop()
 
-	// Create shared client service (single ContainerStore for both agent server and notifications)
+	// Create shared client service (single Store for both agent server and notifications)
 	clientService := docker.NewService(client, args.Filter)
 
 	// Create notification manager using the shared client service

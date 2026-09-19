@@ -25,6 +25,7 @@
         role="tab"
         class="tab shrink-0 whitespace-nowrap"
         :class="{ 'tab-active': active === item.id }"
+        :aria-current="active === item.id ? 'location' : false"
       >
         {{ item.label }}
       </router-link>
@@ -41,6 +42,7 @@
               replace
               @click="pin(item.id)"
               :class="{ 'menu-active': active === item.id }"
+              :aria-current="active === item.id ? 'location' : false"
             >
               <component :is="item.icon" class="size-4 opacity-60" />
               <span class="flex-1">{{ item.label }}</span>

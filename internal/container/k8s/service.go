@@ -17,7 +17,7 @@ import (
 
 type Service struct {
 	client *Client
-	store  *container.ContainerStore
+	store  *container.Store
 }
 
 func NewService(client *Client, labels container.ContainerLabels) *Service {
@@ -27,7 +27,7 @@ func NewService(client *Client, labels container.ContainerLabels) *Service {
 	}
 	return &Service{
 		client: client,
-		store:  container.NewContainerStore(context.Background(), client, statsCollector, labels),
+		store:  container.NewStore(context.Background(), client, statsCollector, labels),
 	}
 }
 
@@ -37,11 +37,11 @@ func (k *Service) Client() *Client {
 }
 
 func (k *Service) FindContainer(ctx context.Context, id string, labels container.ContainerLabels) (container.Container, error) {
-	return k.store.FindContainer(id, labels)
+	return k.store.FindContainer(ctx, id, labels)
 }
 
 func (k *Service) ListContainers(ctx context.Context, labels container.ContainerLabels) ([]container.Container, error) {
-	return k.store.ListContainers(labels)
+	return k.store.ListContainers(ctx, labels)
 }
 
 func (k *Service) Host(ctx context.Context) (container.Host, error) {

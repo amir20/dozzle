@@ -1,6 +1,6 @@
 ---
 title: 环境变量与子命令
-sourceHash: 593ca969d305
+sourceHash: 6cca131686f5
 ---
 
 # 全局环境变量
@@ -30,6 +30,7 @@ sourceHash: 593ca969d305
 | `--auth-oidc-name`            | `DOZZLE_AUTH_OIDC_NAME`            | `SSO`             |
 | `--auth-oidc-roles-claim`     | `DOZZLE_AUTH_OIDC_ROLES_CLAIM`     | `""`              |
 | `--auth-oidc-filters-claim`   | `DOZZLE_AUTH_OIDC_FILTERS_CLAIM`   | `""`              |
+| `--auth-oidc-scopes`          | `DOZZLE_AUTH_OIDC_SCOPES`          | `""`              |
 | `--enable-actions`            | `DOZZLE_ENABLE_ACTIONS`            | `false`           |
 | `--enable-shell`              | `DOZZLE_ENABLE_SHELL`              | `false`           |
 | `--auto-update`               | `DOZZLE_AUTO_UPDATE`               | `off`             |
@@ -52,7 +53,7 @@ sourceHash: 593ca969d305
 > `DOZZLE_AUTH_GITHUB_CLIENT_SECRET` 和 `DOZZLE_AUTH_OIDC_CLIENT_SECRET` 还接受一个 `_FILE` 形式的对应变量，用来指明从哪个文件读取这个值，方便配合 [Docker secrets](/zh/guide/authentication/oauth#用-docker-secrets-保存-client-secret) 使用。
 
 > [!TIP]
-> `DOZZLE_AUTH_OIDC_ROLES_CLAIM` 和 `DOZZLE_AUTH_OIDC_FILTERS_CLAIM` 只对 [`--auth-provider oidc`](/zh/guide/authentication/oidc) 生效，而且只有当 claim 放在默认搜索不会去找的位置时才需要设置。
+> `DOZZLE_AUTH_OIDC_ROLES_CLAIM` 和 `DOZZLE_AUTH_OIDC_FILTERS_CLAIM` 只对 [`--auth-provider oidc`](/zh/guide/authentication/oidc) 生效，而且只有当 claim 放在默认搜索不会去找的位置时才需要设置。`DOZZLE_AUTH_OIDC_SCOPES` 会在 Dozzle 始终请求的 `openid`、`profile` 和 `email` 之外，再加上以逗号分隔的 scope，用于那些只有在[请求了对应 scope](/zh/guide/authentication/oidc#请求额外的-scope) 时才会给出 claim 的提供方。
 
 > [!TIP]
 > 有些标志（例如 `--remote-host` 或 `--remote-agent`）可以多次使用。例如 `--remote-agent 167.99.1.1:7007 --remote-agent 167.99.1.2:7007`，或者用逗号分隔的 `DOZZLE_REMOTE_AGENT=167.99.1.1:7007,167.99.1.2:7007`。

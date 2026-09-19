@@ -1,6 +1,6 @@
 ---
 title: Icônes d'applications
-sourceHash: b11b42409e46
+sourceHash: 2b128908b958
 ---
 
 # Icônes d'applications
@@ -50,6 +50,32 @@ services:
 :::
 
 La valeur est un nom d'icône de [dashboard-icons](https://github.com/homarr-labs/dashboard-icons). Seules les icônes embarquées dans Dozzle sont disponibles. Un nom inconnu revient à ne pas afficher d'icône.
+
+## Utiliser votre propre icône
+
+Pour une image que Dozzle n'embarquera jamais, comme votre propre projet, le label peut contenir l'icône elle-même sous forme de data URI. Rien n'est téléversé ni monté, et rien n'est récupéré sur le réseau.
+
+```yaml [docker-compose.yml]
+services:
+  app:
+    image: my-company/internal-thing
+    labels:
+      - dev.dozzle.icon=data:image/svg+xml;base64,PHN2ZyB4bWxucz0i...
+```
+
+Construisez la valeur avec `base64` :
+
+```sh
+echo "data:image/svg+xml;base64,$(base64 < icon.svg | tr -d '\n')"
+```
+
+Les formats SVG, PNG et WebP sont acceptés, et la valeur complète ne peut pas dépasser 16 Ko. Tout le reste revient à ne pas afficher d'icône. Les icônes s'affichent à environ 20 px, donc un SVG optimisé ou un WebP de 64 px suffit largement.
+
+Si vous publiez une image, définissez le label dans son Dockerfile et tous ceux qui l'exécutent obtiennent l'icône sans rien configurer.
+
+```dockerfile
+LABEL dev.dozzle.icon="data:image/svg+xml;base64,PHN2ZyB4bWxucz0i..."
+```
 
 ## Une icône manque ?
 

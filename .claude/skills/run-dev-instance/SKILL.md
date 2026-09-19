@@ -26,13 +26,13 @@ walked forward until free, so **this worktree always gets the same URL** and two
 worktrees never land on the same one. To know the URL without starting anything:
 
 ```bash
-node scripts/dev-ports.mjs --json
+bun scripts/dev-ports.mjs --json
 ```
 
 Run it in the background and wait for the port rather than a fixed sleep:
 
 ```bash
-PORT=$(node scripts/dev-ports.mjs --json | grep -o '"DOZZLE_PORT": [0-9]*' | grep -o '[0-9]*')
+PORT=$(bun scripts/dev-ports.mjs --json | grep -o '"DOZZLE_PORT": [0-9]*' | grep -o '[0-9]*')
 # start make dev-auto with run_in_background, then:
 until curl -sf -o /dev/null http://localhost:$PORT/; do sleep 1; done
 ```
@@ -42,13 +42,13 @@ on a change. For a one-shot check of already-written code, a production build is
 and has no vite half:
 
 ```bash
-pnpm build && LIVE_FS=true go run . --level info --addr localhost:$PORT
+bun run build && LIVE_FS=true go run . --level info --addr localhost:$PORT
 ```
 
 ## Overriding
 
 `DOZZLE_PORT`, `VITE_PORT` and `AGENT_PORT` override any of the three, for `make dev`,
-`make dev-auto`, `pnpm preview` and `pnpm agent:dev` alike. Plain `make dev` still uses
+`make dev-auto`, `bun run preview` and `bun run agent:dev` alike. Plain `make dev` still uses
 3100/5173/7007, which is what a human starting one by hand expects, and is deliberately
 outside the auto-assigned ranges.
 

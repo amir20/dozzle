@@ -26,10 +26,10 @@ There is no Crowdin or Weblate sync in this repo, so a key that only exists in `
 
 Unlike `locales/`, there is no fallback here. A stale translated page renders confidently wrong instructions rather than quietly showing English, so drift is worse than a missing key.
 
-Each translated file carries a `sourceHash` in its frontmatter recording the English source it was written from. `node docs/scripts/check-translations.mjs` fails when they diverge, and runs in CI as the `Docs Translations` job. After actually translating the changed prose, re-stamp with:
+Each translated file carries a `sourceHash` in its frontmatter recording the English source it was written from. `bun docs/scripts/check-translations.mjs` fails when they diverge, and runs in CI as the `Docs Translations` job. After actually translating the changed prose, re-stamp with:
 
 ```bash
-node docs/scripts/check-translations.mjs --update
+bun docs/scripts/check-translations.mjs --update
 ```
 
 `--update` only re-stamps hashes. It does not translate anything, so running it on an untranslated page turns CI green while leaving the page wrong. Translate first.
@@ -68,7 +68,7 @@ The application supports multiple deployment modes: standalone server, Docker Sw
 
 ```bash
 # Install dependencies
-pnpm install
+bun install
 
 # Generate certificates and protobuf files
 make generate
@@ -85,18 +85,18 @@ make dev
 make dev-auto
 
 # Alternative: Run backend and frontend separately
-pnpm run watch:backend  # Go backend with air (port 3100)
-pnpm run watch:frontend # Vite dev server (port 3100)
+bun run watch:backend  # Go backend with air (port 3100)
+bun run watch:frontend # Vite dev server (port 3100)
 
 # Run in agent mode for development
-pnpm run agent:dev
+bun run agent:dev
 ```
 
 ### Building
 
 ```bash
 # Build frontend assets
-pnpm build
+bun run build
 # or
 make dist
 
@@ -114,17 +114,27 @@ make docker
 make test
 
 # Run frontend tests (Vitest)
-pnpm test
+bun run test
 # Run in watch mode
-TZ=UTC pnpm test --watch
+TZ=UTC bun run test --watch
 
 # Type checking
-pnpm typecheck
+bun run typecheck
 
 # Lint (Tailwind classes only)
-pnpm lint
-pnpm lint --fix
+bun run lint
+bun run lint --fix
 ```
+
+Always go through `bun run` for `test` and `build`. `bun test` and `bun build` are
+bun's own test runner and bundler, not the scripts in `package.json`, and they fail
+in confusing ways against this codebase.
+
+`bun run` does not mean the bun runtime: it follows each tool's `#!/usr/bin/env node`
+shebang unless the script says `bun --bun`. Every script in `package.json` that starts a
+JS tool carries that flag except `test` and `typecheck`, which need node: under `--bun` vitest's jsdom
+workers fail to start and `vue-tsc` reports a false TS2614. `release` (bumpp) is
+untested on bun and also left alone. Those are the only reasons node is still required.
 
 ### Linting
 
@@ -138,7 +148,7 @@ Every rule the Tailwind plugin ships is listed in that config with the reason it
 or off, so add to that list rather than reaching for a preset.
 
 `eslint --fix` runs on staged `js`/`mjs`/`ts`/`mts`/`vue` in the pre-commit hook, before
-prettier so prettier gets the last word on formatting. Run `pnpm lint --fix` by hand
+prettier so prettier gets the last word on formatting. Run `bun run lint --fix` by hand
 after writing a batch of markup if you would rather not find out at commit time.
 
 Two blind spots worth knowing, because a green run does not mean a clean tree:
@@ -152,7 +162,7 @@ Two blind spots worth knowing, because a green run does not mean a clean tree:
 
 ```bash
 # Preview production build locally
-pnpm preview
+bun run preview
 # or
 make preview
 
@@ -177,7 +187,11 @@ The Go backend is organized into these key packages:
   - `types.go`, `host.go`: domain models (`Container`, `Host`, `LogEvent`, `ContainerStat`)
   - `client.go`: `container.Client`, the raw engine interface
   - `client_service.go`: `container.ClientService`, the per-host contract the rest of the app uses
-  - `container_store.go`: the container cache and stats/event fan-out that docker and k8s share
+  - `store.go`: the container cache docker and k8s share (its header comment explains who
+    may write to the map), split by concern into `store_events.go` (the event loop),
+    `store_refresh.go` (reconnect, list and reconcile) and `store_fanout.go`
+    (bounded delivery to subscribers)
+  - `collector_lifecycle.go`: the lazy start/idle-stop reference count both stats collectors use
   - `logparse/`: the log pipeline both platforms feed (`event_generator.go` grouping and JSON
     detection, `level_guesser.go`, `logfmt.go`, `timestamp_prefix.go`)
   - One folder per platform, each holding that platform end to end:
@@ -532,7 +546,7 @@ means **two components may never share a basename**, at any depth.
 - **K8s mode**: Pod log monitoring in Kubernetes cluster
   - Implements `container.Client` interface via Kubernetes API
 - **Agent mode**: Lightweight gRPC agent for remote log collection
-  - Run with `dozzle agent` or `pnpm run agent:dev`
+  - Run with `dozzle agent` or `bun run agent:dev`
   - Listens on port 7007 with TLS certificate authentication
 
 ## Key Architectural Patterns

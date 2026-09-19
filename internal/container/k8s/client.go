@@ -173,6 +173,12 @@ func (k *Client) podToContainers(ctx context.Context, pod *corev1.Pod) []contain
 		labels["owner.name"] = owners[0].Name
 		labels["owner.key"] = owners[0].Key
 		labels["@k8s.owner.count"] = fmt.Sprintf("%d", len(owners))
+		// The top of the chain outlives every pod it makes: a CronJob keeps its name
+		// while each run's Job and pod get new ones. Alerts key on it so they match
+		// the next run, not only the pod they were written from.
+		workload := owners[len(owners)-1]
+		labels["@k8s.workload.kind"] = workload.Kind
+		labels["@k8s.workload.name"] = workload.Name
 	}
 	for i, owner := range owners {
 		prefix := fmt.Sprintf("@k8s.owner.%d.", i)

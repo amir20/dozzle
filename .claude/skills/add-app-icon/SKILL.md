@@ -74,8 +74,8 @@ extension is the slug. `assets/utils/appIcons.ts` resolves an image reference to
 5. Verify:
 
    ```bash
-   TZ=UTC pnpm test assets/utils/appIcons.spec.ts
-   pnpm exec prettier --write assets/utils/appIcons.ts assets/utils/appIcons.spec.ts
+   TZ=UTC bun run test assets/utils/appIcons.spec.ts
+   bunx prettier --write assets/utils/appIcons.ts assets/utils/appIcons.spec.ts
    ```
 
    Then check every icon in the folder, not only yours. This should print nothing; any

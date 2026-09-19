@@ -140,7 +140,11 @@ const ALIASES: Record<string, string> = {
   otel: "opentelemetry",
   "pingvin-share-x": "pingvin-share",
   "signal-cli-rest-api": "signal",
-  pgadmin4: "pgadmin"
+  pgadmin4: "pgadmin",
+  "bluesky-social": "bluesky",
+  "mastodon-streaming": "mastodon",
+  "apprise-api": "apprise",
+  thetorproject: "tor",
 };
 
 const stripSuffix = (name: string) => {
@@ -195,7 +199,20 @@ export function iconSlugForImage(image: string | undefined): string | undefined 
  */
 export function iconUrl(slug: string | undefined, dark: boolean): string | undefined {
   if (!slug) return undefined;
+  if (isDataIcon(slug)) return slug;
   return icons.get(dark ? `${slug}-light` : `${slug}-dark`) ?? icons.get(slug);
 }
 
 export const hasIcon = (slug: string) => icons.has(slug);
+
+// Labels ride along with every container the browser is told about, so an inline icon
+// has to stay small. Bundled icons land around 1-3KB; this leaves room for a real SVG.
+export const MAX_DATA_ICON_LENGTH = 16 * 1024;
+
+/**
+ * An icon carried inline in `dev.dozzle.icon` as a data URI, for images that will never
+ * be bundled. Only raster and SVG images are accepted, and only through `<img>`, where an
+ * SVG cannot run script. The CSP already allows `data:` for images and nothing else.
+ */
+export const isDataIcon = (value: string) =>
+  value.length <= MAX_DATA_ICON_LENGTH && /^data:image\/(svg\+xml|png|webp)[;,]/i.test(value);

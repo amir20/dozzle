@@ -181,6 +181,16 @@ describe("Container.icon", () => {
   test("ignores a blank override", () => {
     expect(makeContainer({ image: "sonarr", labels: { "dev.dozzle.icon": "  " } }).icon).toBe("sonarr");
   });
+
+  test("a data URI override is kept byte for byte", () => {
+    const icon = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciLz4=";
+    expect(makeContainer({ image: "sonarr", labels: { "dev.dozzle.icon": ` ${icon} ` } }).icon).toBe(icon);
+  });
+
+  test("a data URI that is not an accepted image falls back to nothing", () => {
+    const labels = { "dev.dozzle.icon": "data:text/html;base64,PHNjcmlwdD4=" };
+    expect(makeContainer({ image: "sonarr", labels }).icon).toBeUndefined();
+  });
 });
 
 describe("Container.url", () => {

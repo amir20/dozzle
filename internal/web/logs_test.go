@@ -562,7 +562,7 @@ func concatMessages(messages ...string) []byte {
 	return data
 }
 
-func Test_matchesFilter_inverse(t *testing.T) {
+func Test_logFilter_matches_inverse(t *testing.T) {
 	levels := map[string]struct{}{"info": {}}
 
 	regex, err := search.ParseRegex("INFO")
@@ -631,7 +631,7 @@ func Test_matchesFilter_inverse(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got := matchesFilter(tt.event, tt.regex, tt.levels, tt.inverse)
+			got := logFilter{regex: tt.regex, levels: tt.levels, inverse: tt.inverse}.matches(tt.event)
 			assert.Equal(t, tt.want, got)
 		})
 	}
@@ -729,4 +729,65 @@ func Test_handler_streamHostLogs_container_started_while_event_buffered(t *testi
 
 	assert.Contains(t, rr.Body.String(), "container-started")
 	assert.Contains(t, rr.Body.String(), "bbbb")
+}
+
+// A finished k8s Job pod stays listed when "Show all containers" is on, so its
+// owner view must stream it too. Without all=1 only running containers qualify.
+func Test_handler_streamLogsWithLabels_all(t *testing.T) {
+	for _, tc := range []struct {
+		name     string
+		all      bool
+		streamed bool
+	}{
+		{name: "running only by default", all: false, streamed: false},
+		{name: "finished included with all", all: true, streamed: true},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			ctx, cancel := context.WithCancel(context.Background())
+			defer cancel()
+
+			req, err := http.NewRequestWithContext(ctx, "GET", "/api/labels/job:hello/logs/stream", nil)
+			require.NoError(t, err)
+			q := req.URL.Query()
+			q.Add("stdout", "true")
+			q.Add("stderr", "true")
+			addAllLogLevels(q)
+			if tc.all {
+				q.Add("all", "1")
+			}
+			req.URL.RawQuery = q.Encode()
+
+			finished := container.Container{ID: "job1", Name: "hello", Host: "localhost", State: "exited", Labels: map[string]string{"job": "hello"}}
+			creating := container.Container{ID: "job2", Name: "hello", Host: "localhost", State: "created", Labels: map[string]string{"job": "hello"}}
+
+			streamed := make(chan struct{}, 1)
+			mockedClient := new(MockedClient)
+			mockedClient.On("Host").Return(container.Host{ID: "localhost"})
+			mockedClient.On("ListContainers", mock.Anything, mock.Anything).Return([]container.Container{finished, creating}, nil)
+			mockedClient.On("FindContainer", mock.Anything, "job1").Return(finished, nil)
+			mockedClient.On("FindContainer", mock.Anything, "job2").Return(creating, nil)
+			mockedClient.On("ContainerLogs", mock.Anything, "job1", mock.Anything, container.STDALL).
+				Return(io.NopCloser(strings.NewReader("")), io.EOF).
+				Run(func(args mock.Arguments) { streamed <- struct{}{} })
+			mockedClient.On("ContainerEvents", mock.Anything, mock.AnythingOfType("chan<- container.ContainerEvent")).Return(nil)
+
+			handler := createDefaultHandler(mockedClient)
+			rr := httptest.NewRecorder()
+			done := make(chan struct{})
+			go func() {
+				defer close(done)
+				handler.ServeHTTP(rr, req)
+			}()
+
+			select {
+			case <-streamed:
+				assert.True(t, tc.streamed, "finished container should not be streamed without all=1")
+			case <-time.After(300 * time.Millisecond):
+				assert.False(t, tc.streamed, "finished container was never streamed with all=1")
+			}
+			cancel()
+			<-done
+			mockedClient.AssertNotCalled(t, "ContainerLogs", mock.Anything, "job2", mock.Anything, mock.Anything)
+		})
+	}
 }

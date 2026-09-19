@@ -89,11 +89,11 @@ func TestCancelers(t *testing.T) {
 	assert.True(t, ok, "canceler should be stored")
 
 	assert.False(t, collector.Start(ctx), "second start should return false")
-	assert.Equal(t, int32(2), collector.totalStarted.Load(), "total started should be 2")
+	assert.Equal(t, 2, collector.lifecycle.Holders(), "total started should be 2")
 
 	collector.Stop()
 
-	assert.Equal(t, int32(1), collector.totalStarted.Load(), "total started should be 1")
+	assert.Equal(t, 1, collector.lifecycle.Holders(), "total started should be 1")
 }
 
 func TestSecondStart(t *testing.T) {
@@ -102,10 +102,10 @@ func TestSecondStart(t *testing.T) {
 	collector := startedCollector(ctx)
 
 	assert.False(t, collector.Start(ctx), "second start should return false")
-	assert.Equal(t, int32(2), collector.totalStarted.Load(), "total started should be 2")
+	assert.Equal(t, 2, collector.lifecycle.Holders(), "total started should be 2")
 
 	collector.Stop()
-	assert.Equal(t, int32(1), collector.totalStarted.Load(), "total started should be 1")
+	assert.Equal(t, 1, collector.lifecycle.Holders(), "total started should be 1")
 }
 
 func TestStop(t *testing.T) {
@@ -113,7 +113,7 @@ func TestStop(t *testing.T) {
 	t.Cleanup(cancel)
 	collector := startedCollector(ctx)
 	collector.Stop()
-	assert.Equal(t, int32(0), collector.totalStarted.Load(), "total started should be 1")
+	assert.Equal(t, 0, collector.lifecycle.Holders(), "total started should be 1")
 }
 
 // fastRetries shrinks one collector's backoff so a retry test finishes in
@@ -208,7 +208,56 @@ func TestEventStreamRetriesInsteadOfStoppingTheCollector(t *testing.T) {
 		t.Fatal("collector stopped when the event stream failed")
 	case <-time.After(50 * time.Millisecond):
 	}
-	collector.mu.Lock()
-	assert.NotNil(t, collector.stopper, "collector should still be running")
-	collector.mu.Unlock()
+	assert.True(t, running(collector), "collector should still be running")
+}
+
+// running reports whether a collector is live, read under the same lock Start
+// and forceStop use.
+func running(sc *StatsCollector) bool {
+	return sc.lifecycle.Running()
+}
+
+func TestStopBeforeStartDoesNotLeakCollector(t *testing.T) {
+	collector := NewStatsCollector(new(mockedClient), container.ContainerLabels{})
+	collector.Stop()
+
+	done := make(chan bool)
+	go func() { done <- collector.Start(t.Context()) }()
+
+	select {
+	case started := <-done:
+		assert.False(t, started, "start after its own stop should not run a collector")
+	case <-time.After(2 * time.Second):
+		t.Fatal("Start blocked, so it started a collector nobody holds")
+	}
+	assert.False(t, running(collector), "no collector should be running")
+	assert.Equal(t, 0, collector.lifecycle.Holders())
+}
+
+func TestStopTimerEndsStartedCollector(t *testing.T) {
+	old := timeToStop
+	timeToStop = 10 * time.Millisecond
+	t.Cleanup(func() { timeToStop = old })
+
+	client := new(mockedClient)
+	client.On("ListContainers", mock.Anything, mock.Anything).Return([]container.Container{}, nil)
+	client.On("ContainerEvents", mock.Anything, mock.Anything).
+		Return(nil).
+		Run(func(args mock.Arguments) { <-args.Get(0).(context.Context).Done() })
+	client.On("Host").Return(container.Host{ID: "localhost"})
+
+	collector := NewStatsCollector(client, container.ContainerLabels{})
+	done := make(chan bool)
+	go func() { done <- collector.Start(t.Context()) }()
+
+	assert.Eventually(t, func() bool { return running(collector) }, 2*time.Second, time.Millisecond)
+	collector.Stop()
+
+	select {
+	case stopped := <-done:
+		assert.True(t, stopped, "the stop timer should end the collector")
+	case <-time.After(2 * time.Second):
+		t.Fatal("stop timer never ended the collector")
+	}
+	assert.False(t, running(collector))
 }

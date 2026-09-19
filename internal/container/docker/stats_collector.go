@@ -4,8 +4,6 @@ import (
 	"context"
 	"errors"
 	"io"
-	"sync"
-	"sync/atomic"
 	"time"
 
 	"github.com/amir20/dozzle/internal/container"
@@ -14,17 +12,14 @@ import (
 )
 
 type StatsCollector struct {
-	stream       chan container.ContainerStat
-	subscribers  *xsync.Map[context.Context, chan<- container.ContainerStat]
-	client       container.Client
-	cancelers    *xsync.Map[string, context.CancelFunc]
-	stopper      context.CancelFunc
-	timer        *time.Timer
-	mu           sync.Mutex
-	totalStarted atomic.Int32
-	labels       container.ContainerLabels
-	retryMin     time.Duration
-	retryMax     time.Duration
+	stream      chan container.ContainerStat
+	subscribers *xsync.Map[context.Context, chan<- container.ContainerStat]
+	client      container.Client
+	cancelers   *xsync.Map[string, context.CancelFunc]
+	lifecycle   container.CollectorLifecycle
+	labels      container.ContainerLabels
+	retryMin    time.Duration
+	retryMax    time.Duration
 }
 
 var timeToStop = 6 * time.Hour
@@ -46,23 +41,6 @@ const (
 	streamRetryMax = 30 * time.Second
 )
 
-// nextBackoff doubles up to the ceiling.
-func nextBackoff(d, ceiling time.Duration) time.Duration {
-	return min(d*2, ceiling)
-}
-
-// sleepOrDone waits out the backoff, returning false if ctx ended first.
-func sleepOrDone(ctx context.Context, d time.Duration) bool {
-	t := time.NewTimer(d)
-	defer t.Stop()
-	select {
-	case <-ctx.Done():
-		return false
-	case <-t.C:
-		return true
-	}
-}
-
 func NewStatsCollector(client container.Client, labels container.ContainerLabels) *StatsCollector {
 	return &StatsCollector{
 		stream:      make(chan container.ContainerStat),
@@ -83,33 +61,8 @@ func (c *StatsCollector) Subscribe(ctx context.Context, stats chan<- container.C
 	}()
 }
 
-func (c *StatsCollector) forceStop() {
-	c.mu.Lock()
-	defer c.mu.Unlock()
-	if c.stopper != nil {
-		c.stopper()
-		c.stopper = nil
-		log.Debug().Str("host", c.client.Host().ID).Msg("stopped container stats collector")
-	}
-}
-
 func (c *StatsCollector) Stop() {
-	c.mu.Lock()
-	defer c.mu.Unlock()
-	if c.totalStarted.Add(-1) == 0 {
-		c.timer = time.AfterFunc(timeToStop, func() {
-			c.forceStop()
-		})
-	}
-}
-
-func (c *StatsCollector) reset() {
-	c.mu.Lock()
-	defer c.mu.Unlock()
-	if c.timer != nil {
-		c.timer.Stop()
-	}
-	c.timer = nil
+	c.lifecycle.Release(timeToStop)
 }
 
 // streamStats keeps one container's stats flowing for as long as its context
@@ -149,26 +102,19 @@ func streamStats(parent context.Context, sc *StatsCollector, id string) {
 			Dur("retry_in", backoff).
 			Msg("container stats stream ended, retrying")
 
-		if !sleepOrDone(ctx, backoff) {
+		if !container.SleepOrDone(ctx, backoff) {
 			return
 		}
-		backoff = nextBackoff(backoff, sc.retryMax)
+		backoff = container.NextBackoff(backoff, sc.retryMax)
 	}
 }
 
 // Start starts the stats collector and blocks until it's stopped. It returns true if the collector was stopped, false if it was already running
 func (sc *StatsCollector) Start(parentCtx context.Context) bool {
-	sc.reset()
-	sc.totalStarted.Add(1)
-
-	sc.mu.Lock()
-	if sc.stopper != nil {
-		sc.mu.Unlock()
+	ctx, run := sc.lifecycle.Acquire(parentCtx, timeToStop)
+	if !run {
 		return false
 	}
-	var ctx context.Context
-	ctx, sc.stopper = context.WithCancel(parentCtx)
-	sc.mu.Unlock()
 
 	timeoutCtx, cancel := context.WithTimeout(parentCtx, 3*time.Second) // 3 seconds to list containers is hard limit
 	if containers, err := sc.client.ListContainers(timeoutCtx, sc.labels); err == nil {
@@ -211,10 +157,10 @@ func (sc *StatsCollector) Start(parentCtx context.Context) bool {
 				Err(err).
 				Dur("retry_in", backoff).
 				Msg("docker event stream ended, retrying")
-			if !sleepOrDone(ctx, backoff) {
+			if !container.SleepOrDone(ctx, backoff) {
 				return
 			}
-			backoff = nextBackoff(backoff, sc.retryMax)
+			backoff = container.NextBackoff(backoff, sc.retryMax)
 		}
 	}()
 

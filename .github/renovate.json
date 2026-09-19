@@ -9,7 +9,6 @@
   ],
   "rangeStrategy": "bump",
   "minimumReleaseAge": "24 hours",
-  "postUpdateOptions": ["pnpmDedupe"],
   "ignoreDeps": [],
   "packageRules": [
     {

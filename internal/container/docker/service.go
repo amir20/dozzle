@@ -63,7 +63,7 @@ func mayBeSelf(inspect docker_types.InspectResponse) bool {
 
 type Service struct {
 	client  UpdateClient
-	store   *container.ContainerStore
+	store   *container.Store
 	checker *imagecheck.Checker
 }
 
@@ -71,7 +71,7 @@ func NewService(client UpdateClient, labels container.ContainerLabels) *Service 
 	statsCollector := NewStatsCollector(client, labels)
 	return &Service{
 		client:  client,
-		store:   container.NewContainerStore(context.Background(), client, statsCollector, labels),
+		store:   container.NewStore(context.Background(), client, statsCollector, labels),
 		checker: imagecheck.Shared(),
 	}
 }
@@ -143,7 +143,7 @@ func (d *Service) StreamLogs(ctx context.Context, c container.Container, from ti
 }
 
 func (d *Service) FindContainer(ctx context.Context, id string, labels container.ContainerLabels) (container.Container, error) {
-	return d.store.FindContainer(id, labels)
+	return d.store.FindContainer(ctx, id, labels)
 }
 
 func (d *Service) ContainerAction(ctx context.Context, container container.Container, action container.ContainerAction) error {
@@ -320,7 +320,7 @@ func (d *Service) UpdateContainer(ctx context.Context, c container.Container, pr
 }
 
 func (d *Service) ListContainers(ctx context.Context, labels container.ContainerLabels) ([]container.Container, error) {
-	return d.store.ListContainers(labels)
+	return d.store.ListContainers(ctx, labels)
 }
 
 func (d *Service) Host(ctx context.Context) (container.Host, error) {

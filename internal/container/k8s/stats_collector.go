@@ -2,8 +2,6 @@ package k8s
 
 import (
 	"context"
-	"sync"
-	"sync/atomic"
 	"time"
 
 	"github.com/amir20/dozzle/internal/container"
@@ -18,13 +16,10 @@ import (
 var timeToStop = 2 * time.Hour
 
 type StatsCollector struct {
-	client       *Client
-	metrics      *metricsclient.Clientset
-	subscribers  *xsync.Map[context.Context, chan<- container.ContainerStat]
-	stopper      context.CancelFunc
-	timer        *time.Timer
-	mu           sync.Mutex
-	totalStarted atomic.Int32
+	client      *Client
+	metrics     *metricsclient.Clientset
+	subscribers *xsync.Map[context.Context, chan<- container.ContainerStat]
+	lifecycle   container.CollectorLifecycle
 	// metricsFailing keeps a missing metrics-server to one warning instead of one a
 	// second. Per namespace, since RBAC can allow metrics in one and deny another.
 	metricsFailing *xsync.Map[string, bool]
@@ -54,47 +49,15 @@ func (c *StatsCollector) Subscribe(ctx context.Context, stats chan<- container.C
 }
 
 func (c *StatsCollector) Stop() {
-	c.mu.Lock()
-	defer c.mu.Unlock()
-	if c.totalStarted.Add(-1) == 0 {
-		c.timer = time.AfterFunc(timeToStop, func() {
-			c.forceStop()
-		})
-	}
-}
-
-func (c *StatsCollector) forceStop() {
-	c.mu.Lock()
-	defer c.mu.Unlock()
-	if c.stopper != nil {
-		c.stopper()
-		c.stopper = nil
-		log.Debug().Msg("stopped container k8s stats collector")
-	}
-}
-
-func (c *StatsCollector) reset() {
-	c.mu.Lock()
-	defer c.mu.Unlock()
-	if c.timer != nil {
-		c.timer.Stop()
-	}
-	c.timer = nil
+	c.lifecycle.Release(timeToStop)
 }
 
 // Start starts the stats collector and blocks until it's stopped. It returns true if the collector was stopped, false if it was already running
 func (sc *StatsCollector) Start(parentCtx context.Context) bool {
-	sc.reset()
-	sc.totalStarted.Add(1)
-
-	sc.mu.Lock()
-	if sc.stopper != nil {
-		sc.mu.Unlock()
+	ctx, run := sc.lifecycle.Acquire(parentCtx, timeToStop)
+	if !run {
 		return false
 	}
-	var ctx context.Context
-	ctx, sc.stopper = context.WithCancel(parentCtx)
-	sc.mu.Unlock()
 
 	ticker := time.NewTicker(1 * time.Second)
 

@@ -1,31 +1,29 @@
-# Build assets
-FROM --platform=$BUILDPLATFORM node:25.9.0-alpine AS node
-
-RUN npm install -g --force corepack && corepack enable
+# Build assets. Pinned to the build platform: the output is platform independent,
+# and bun ships no arm/v6 or arm/v7 image at all, so a cross build cannot run it
+# on the target.
+#
+# No node in this stage. `bun run build` runs vite and compress-dist.js on the
+# bun runtime (see the --bun flags in package.json).
+FROM --platform=$BUILDPLATFORM oven/bun:1.4.2-alpine AS assets
 
 ENV CI=true
 
 WORKDIR /build
 
 # Install dependencies from lock file
-COPY pnpm-lock.yaml pnpm-workspace.yaml ./
-RUN pnpm fetch --ignore-scripts
-
-# Copy package.json and install dependencies
-# corepack already pins pnpm, so skip pnpm's own version switch. It would try to
-# resolve the packageManager field from the registry, which fails with --offline.
-COPY package.json ./
-RUN pnpm install --offline --ignore-scripts --pm-on-fail=ignore
+COPY package.json bun.lock bunfig.toml ./
+RUN --mount=type=cache,target=/root/.bun/install/cache \
+  bun install --frozen-lockfile --ignore-scripts
 
 # Copy assets and translations to build
-COPY vite.config.ts tsconfig.json .prettierrc.cjs .npmrc ./
+COPY vite.config.ts tsconfig.json .prettierrc.cjs ./
 COPY assets ./assets
 COPY locales ./locales
 COPY public ./public
 COPY scripts ./scripts
 
 # Build assets
-RUN pnpm build
+RUN bun run build
 
 FROM --platform=$BUILDPLATFORM golang:1.27-alpine AS builder
 
@@ -45,8 +43,8 @@ COPY main.go ./
 COPY protos ./protos
 COPY shared_key.pem shared_cert.pem ./
 
-# Copy assets built with node
-COPY --from=node /build/dist ./dist
+# Copy assets built in the assets stage
+COPY --from=assets /build/dist ./dist
 
 # Args
 ARG TAG=dev

@@ -28,6 +28,9 @@ type OIDCConfig struct {
 	// default search with the one path given. Empty means search the defaults.
 	RolesClaim   string
 	FiltersClaim string
+	// Scopes are requested on top of openid, profile and email, separated by
+	// commas or spaces.
+	Scopes string
 	// LogoutURL is --auth-logout-url. Unset, logout uses the issuer's own
 	// end_session_endpoint from discovery.
 	LogoutURL string
@@ -58,7 +61,7 @@ var ErrPasswordLoginUnavailable = errors.New("password login is not available wi
 // NewOIDCAuth builds the oidc provider. base is the router base, secret is the
 // persisted key from SessionSecret.
 func NewOIDCAuth(config OIDCConfig, base string, ttl time.Duration, secret []byte) *oidcAuthContext {
-	provider := NewOIDCProvider(config.Issuer, config.ClientID, config.ClientSecret, config.DisplayName)
+	provider := NewOIDCProvider(config.Issuer, config.ClientID, config.ClientSecret, config.DisplayName).AddScopes(config.Scopes)
 	// sub is the key here and the email is only for display, so an issuer that
 	// grants no email scope, or one that never marks addresses verified, is fine.
 	provider.requireVerifiedEmail = false
