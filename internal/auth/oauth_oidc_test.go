@@ -166,6 +166,37 @@ func TestOIDCCallbackURLRespectsForwardedProto(t *testing.T) {
 	require.Equal(t, "http://dozzle.example.com/api/auth/callback", plain)
 }
 
+// Authelia only releases a claim for the scope it hangs off, so the extra
+// scopes have to reach the authorize request. The defaults always lead.
+func TestOIDCRequestsExtraScopes(t *testing.T) {
+	tests := []struct {
+		name  string
+		extra string
+		want  string
+	}{
+		{"none", "", "openid profile email"},
+		{"comma separated", "groups,dozzle_roles", "openid profile email groups dozzle_roles"},
+		{"spaces and blanks", " groups,  dozzle_roles ,", "openid profile email groups dozzle_roles"},
+		{"a default repeated", "email groups groups", "openid profile email groups"},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			p, _, _ := testOIDCProvider(t, oidcOptions{})
+			a := oidcAuth(t, p.AddScopes(tt.extra))
+
+			req := httptest.NewRequest(http.MethodGet, "/api/auth/login?provider=oidc", nil)
+			req.Host = "dozzle.example.com"
+			w := httptest.NewRecorder()
+			a.LoginHandler(w, req)
+
+			redirect, err := url.Parse(w.Result().Header.Get("Location"))
+			require.NoError(t, err)
+			require.Equal(t, tt.want, redirect.Query().Get("scope"))
+		})
+	}
+}
+
 func TestOIDCCallbackURLCarriesBase(t *testing.T) {
 	p, _, _ := testOIDCProvider(t, oidcOptions{})
 	user := &User{Username: "amir", Email: "amir@example.com"}

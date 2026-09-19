@@ -69,6 +69,16 @@ The role names are the same as in `users.yml`: `shell`, `actions`, `download`, `
 > [!WARNING]
 > `groups` is deliberately not on the list. At Authentik or Google every user belongs to at least one group, so searching it would turn "denied" into "signed in and can read every container". If groups are what you have, map them into a `dozzle_roles` claim at the provider, see the examples below.
 
+### Requesting extra scopes
+
+Dozzle asks the provider for the `openid`, `profile` and `email` scopes. Most providers attach a roles claim to the client through a mapper, so that is enough. Some, Authelia among them, only release a claim when the scope it belongs to is requested. `DOZZLE_AUTH_OIDC_SCOPES` adds scopes to the request, separated by commas:
+
+```yaml
+DOZZLE_AUTH_OIDC_SCOPES: dozzle_roles
+```
+
+The three default scopes are always requested and cannot be removed. The provider has to allow the client to request the extra scope, or it rejects the login with `invalid_scope`.
+
 ### When a login is refused
 
 Sign in is rejected when none of the claims exist, or when the first one that exists is empty. The log names the paths that were tried:
@@ -148,6 +158,39 @@ if request.user.ak_groups.filter(name="dozzle-admins").exists():
 elif request.user.ak_groups.filter(name="dozzle-users").exists():
     roles.append("download")
 return {"dozzle_roles": roles}
+```
+
+A user in neither group gets an empty list and is refused.
+
+### Authelia
+
+Authelia only puts a custom claim in the token when the client requests the scope that carries it. Define the roles as a user attribute, map it to a `dozzle_roles` claim in a claims policy, put that claim in a scope, and allow the client to request the scope:
+
+```yaml
+definitions:
+  user_attributes:
+    dozzle_roles:
+      expression: '"dozzle-admins" in groups ? ["all"] : "dozzle-users" in groups ? ["download"] : []'
+identity_providers:
+  oidc:
+    claims_policies:
+      dozzle:
+        id_token: ["dozzle_roles"]
+        custom_claims:
+          dozzle_roles: {}
+    scopes:
+      dozzle_roles:
+        claims: ["dozzle_roles"]
+    clients:
+      - client_id: dozzle
+        claims_policy: dozzle
+        scopes: ["openid", "profile", "email", "dozzle_roles"]
+```
+
+Then have Dozzle request it:
+
+```yaml
+DOZZLE_AUTH_OIDC_SCOPES: dozzle_roles
 ```
 
 A user in neither group gets an empty list and is refused.
