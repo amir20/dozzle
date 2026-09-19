@@ -30,6 +30,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      # The one job that still needs node. bun installs and launches the scripts, but
+      # vitest and vue-tsc run on node through their shebangs: under `bun run --bun`
+      # vitest's jsdom workers fail to start and vue-tsc reports a false TS2614.
       - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         name: Install Node
         with:
@@ -51,33 +54,30 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
-        name: Install Node
-        with:
-          node-version: latest
       - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2.2.0
         with:
           bun-version-file: package.json
       - name: Install dependencies
         run: bun install --frozen-lockfile
       # ESLint is here only for the Tailwind rules. See eslint.config.js.
+      # --bun overrides eslint's node shebang, which would otherwise pick up the
+      # node the runner image ships with.
       - name: Run ESLint
-        run: bun run lint
+        run: bun run --bun lint
 
   docs-translations:
     name: Docs Translations
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
-        name: Install Node
+      - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2.2.0
         with:
-          node-version: latest
+          bun-version-file: package.json
       # There is no Crowdin or Weblate behind docs/, so an English page can change
       # and leave four translations quietly wrong. Each translated file records the
       # hash of the source it was written from; this fails when they diverge.
       - name: Check translations are in sync
-        run: node docs/scripts/check-translations.mjs
+        run: bun docs/scripts/check-translations.mjs
 
   go-test:
     name: Go Tests
@@ -124,10 +124,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
-        name: Install Node
-        with:
-          node-version: latest
       - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2.2.0
         with:
           bun-version-file: package.json
