@@ -1,6 +1,6 @@
 ---
 title: App-Icons
-sourceHash: b11b42409e46
+sourceHash: 2b128908b958
 ---
 
 # App-Icons
@@ -50,6 +50,32 @@ services:
 :::
 
 Der Wert ist ein Icon-Name aus [dashboard-icons](https://github.com/homarr-labs/dashboard-icons). Verfügbar sind nur die Icons, die Dozzle mitliefert. Bei einem unbekannten Namen wird kein Icon angezeigt.
+
+## Ein eigenes Icon verwenden
+
+Für ein Image, das Dozzle nie mitliefern wird, etwa dein eigenes Projekt, kann das Label das Icon selbst als Data-URI enthalten. Es wird nichts hochgeladen oder gemountet, und nichts wird aus dem Netzwerk geladen.
+
+```yaml [docker-compose.yml]
+services:
+  app:
+    image: my-company/internal-thing
+    labels:
+      - dev.dozzle.icon=data:image/svg+xml;base64,PHN2ZyB4bWxucz0i...
+```
+
+Den Wert erzeugst du mit `base64`:
+
+```sh
+echo "data:image/svg+xml;base64,$(base64 < icon.svg | tr -d '\n')"
+```
+
+Akzeptiert werden SVG, PNG und WebP, und der gesamte Wert darf höchstens 16 KB groß sein. Alles andere führt dazu, dass kein Icon angezeigt wird. Icons werden mit etwa 20 px dargestellt, ein optimiertes SVG oder ein WebP mit 64 px reicht also völlig.
+
+Wenn du ein Image veröffentlichst, setze das Label im Dockerfile, dann bekommen alle, die es ausführen, das Icon ohne jede Konfiguration.
+
+```dockerfile
+LABEL dev.dozzle.icon="data:image/svg+xml;base64,PHN2ZyB4bWxucz0i..."
+```
 
 ## Fehlt ein Icon?
 

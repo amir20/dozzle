@@ -1,5 +1,5 @@
 import { describe, expect, test } from "vitest";
-import { hasIcon, iconSlugForImage, iconUrl } from "./appIcons";
+import { hasIcon, iconSlugForImage, iconUrl, isDataIcon, MAX_DATA_ICON_LENGTH } from "./appIcons";
 
 describe("iconSlugForImage", () => {
   test.each([
@@ -83,6 +83,35 @@ describe("iconUrl", () => {
   test("returns undefined without a slug", () => {
     expect(iconUrl(undefined, true)).toBeUndefined();
     expect(iconUrl("definitely-not-bundled", true)).toBeUndefined();
+  });
+});
+
+describe("isDataIcon", () => {
+  test("accepts svg, png and webp", () => {
+    expect(isDataIcon("data:image/svg+xml;base64,PHN2Zy8+")).toBe(true);
+    expect(isDataIcon("data:image/svg+xml,%3Csvg/%3E")).toBe(true);
+    expect(isDataIcon("data:image/png;base64,iVBORw0KGgo=")).toBe(true);
+    expect(isDataIcon("data:image/webp;base64,UklGRg==")).toBe(true);
+  });
+
+  test("rejects everything else", () => {
+    expect(isDataIcon("plex")).toBe(false);
+    expect(isDataIcon("https://example.com/icon.svg")).toBe(false);
+    expect(isDataIcon("data:text/html;base64,PHNjcmlwdD4=")).toBe(false);
+    expect(isDataIcon("data:image/gif;base64,R0lGODlh")).toBe(false);
+    expect(isDataIcon("data:image/pngx;base64,AAAA")).toBe(false);
+  });
+
+  test("rejects an icon over the size cap", () => {
+    const prefix = "data:image/png;base64,";
+    expect(isDataIcon(prefix + "A".repeat(MAX_DATA_ICON_LENGTH - prefix.length))).toBe(true);
+    expect(isDataIcon(prefix + "A".repeat(MAX_DATA_ICON_LENGTH))).toBe(false);
+  });
+
+  test("iconUrl hands a data URI straight back", () => {
+    const icon = "data:image/png;base64,iVBORw0KGgo=";
+    expect(iconUrl(icon, true)).toBe(icon);
+    expect(iconUrl(icon, false)).toBe(icon);
   });
 });
 
