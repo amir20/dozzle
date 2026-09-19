@@ -272,7 +272,7 @@ func oauthProviders(args cli.Args) []auth.IdentityProvider {
 	switch {
 	case issuer != "" && oidcID != "" && oidcSecret != "":
 		log.Debug().Str("issuer", issuer).Msg("Enabling OpenID Connect sign in")
-		providers = append(providers, auth.NewOIDCProvider(issuer, oidcID, oidcSecret, args.AuthOidcName))
+		providers = append(providers, auth.NewOIDCProvider(issuer, oidcID, oidcSecret, args.AuthOidcName).AddScopes(args.AuthOidcScopes))
 	case issuer != "" || oidcID != "" || oidcSecret != "":
 		log.Warn().Msg("--auth-oidc-issuer, --auth-oidc-client-id and --auth-oidc-client-secret are all required for OpenID Connect; ignoring OIDC configuration")
 	}
@@ -320,6 +320,7 @@ func oidcAuth(args cli.Args) web.OAuthAuthorizer {
 		DisplayName:  args.AuthOidcName,
 		RolesClaim:   args.AuthOidcRolesClaim,
 		FiltersClaim: args.AuthOidcFiltersClaim,
+		Scopes:       args.AuthOidcScopes,
 		LogoutURL:    args.AuthLogoutUrl,
 		DataDir:      dataDir,
 	}, args.Base, ttl, auth.SessionSecret(dataDir))

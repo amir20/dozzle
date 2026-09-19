@@ -1,6 +1,6 @@
 ---
 title: Variables d'environnement et sous-commandes
-sourceHash: 593ca969d305
+sourceHash: 6cca131686f5
 ---
 
 # Variables d'environnement globales
@@ -30,6 +30,7 @@ La configuration se fait avec des options en ligne de commande ou des variables 
 | `--auth-oidc-name`            | `DOZZLE_AUTH_OIDC_NAME`            | `SSO`             |
 | `--auth-oidc-roles-claim`     | `DOZZLE_AUTH_OIDC_ROLES_CLAIM`     | `""`              |
 | `--auth-oidc-filters-claim`   | `DOZZLE_AUTH_OIDC_FILTERS_CLAIM`   | `""`              |
+| `--auth-oidc-scopes`          | `DOZZLE_AUTH_OIDC_SCOPES`          | `""`              |
 | `--enable-actions`            | `DOZZLE_ENABLE_ACTIONS`            | `false`           |
 | `--enable-shell`              | `DOZZLE_ENABLE_SHELL`              | `false`           |
 | `--auto-update`               | `DOZZLE_AUTO_UPDATE`               | `off`             |
@@ -52,7 +53,7 @@ La configuration se fait avec des options en ligne de commande ou des variables 
 > `DOZZLE_AUTH_GITHUB_CLIENT_SECRET` et `DOZZLE_AUTH_OIDC_CLIENT_SECRET` acceptent aussi un équivalent `_FILE` qui nomme un fichier depuis lequel lire la valeur, à utiliser avec les [secrets Docker](/fr/guide/authentication/oauth#utiliser-les-secrets-docker-pour-le-client-secret).
 
 > [!TIP]
-> `DOZZLE_AUTH_OIDC_ROLES_CLAIM` et `DOZZLE_AUTH_OIDC_FILTERS_CLAIM` ne s'appliquent qu'à [`--auth-provider oidc`](/fr/guide/authentication/oidc), et ne sont nécessaires que lorsque les claims se trouvent à un endroit où la recherche par défaut ne regarde pas.
+> `DOZZLE_AUTH_OIDC_ROLES_CLAIM` et `DOZZLE_AUTH_OIDC_FILTERS_CLAIM` ne s'appliquent qu'à [`--auth-provider oidc`](/fr/guide/authentication/oidc), et ne sont nécessaires que lorsque les claims se trouvent à un endroit où la recherche par défaut ne regarde pas. `DOZZLE_AUTH_OIDC_SCOPES` ajoute des scopes séparés par des virgules aux scopes `openid`, `profile` et `email` que Dozzle demande toujours, pour un fournisseur qui ne délivre un claim que lorsque [son scope est demandé](/fr/guide/authentication/oidc#demander-des-scopes-supplementaires).
 
 > [!TIP]
 > Certaines options comme `--remote-host` ou `--remote-agent` peuvent être répétées. Par exemple, `--remote-agent 167.99.1.1:7007 --remote-agent 167.99.1.2:7007`, ou séparées par des virgules avec `DOZZLE_REMOTE_AGENT=167.99.1.1:7007,167.99.1.2:7007`.

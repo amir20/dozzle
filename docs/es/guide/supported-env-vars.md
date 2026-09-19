@@ -1,6 +1,6 @@
 ---
 title: Variables de entorno y subcomandos
-sourceHash: 593ca969d305
+sourceHash: 6cca131686f5
 ---
 
 # Variables de entorno globales
@@ -30,6 +30,7 @@ La configuración se puede hacer con flags o con variables de entorno. La tabla 
 | `--auth-oidc-name`            | `DOZZLE_AUTH_OIDC_NAME`            | `SSO`             |
 | `--auth-oidc-roles-claim`     | `DOZZLE_AUTH_OIDC_ROLES_CLAIM`     | `""`              |
 | `--auth-oidc-filters-claim`   | `DOZZLE_AUTH_OIDC_FILTERS_CLAIM`   | `""`              |
+| `--auth-oidc-scopes`          | `DOZZLE_AUTH_OIDC_SCOPES`          | `""`              |
 | `--enable-actions`            | `DOZZLE_ENABLE_ACTIONS`            | `false`           |
 | `--enable-shell`              | `DOZZLE_ENABLE_SHELL`              | `false`           |
 | `--auto-update`               | `DOZZLE_AUTO_UPDATE`               | `off`             |
@@ -52,7 +53,7 @@ La configuración se puede hacer con flags o con variables de entorno. La tabla 
 > `DOZZLE_AUTH_GITHUB_CLIENT_SECRET` y `DOZZLE_AUTH_OIDC_CLIENT_SECRET` también aceptan una variante `_FILE` que indica el archivo del que leer el valor, pensada para usarse con [secretos de Docker](/es/guide/authentication/oauth#usar-secretos-de-docker-para-el-client-secret).
 
 > [!TIP]
-> `DOZZLE_AUTH_OIDC_ROLES_CLAIM` y `DOZZLE_AUTH_OIDC_FILTERS_CLAIM` solo se aplican a [`--auth-provider oidc`](/es/guide/authentication/oidc), y solo hacen falta cuando los claims viven en un sitio donde la búsqueda por defecto no mira.
+> `DOZZLE_AUTH_OIDC_ROLES_CLAIM` y `DOZZLE_AUTH_OIDC_FILTERS_CLAIM` solo se aplican a [`--auth-provider oidc`](/es/guide/authentication/oidc), y solo hacen falta cuando los claims viven en un sitio donde la búsqueda por defecto no mira. `DOZZLE_AUTH_OIDC_SCOPES` añade scopes separados por comas a los `openid`, `profile` y `email` que Dozzle siempre solicita, para un proveedor que solo entrega un claim cuando [se solicita su scope](/es/guide/authentication/oidc#solicitar-scopes-adicionales).
 
 > [!TIP]
 > Algunos flags como `--remote-host` o `--remote-agent` se pueden repetir. Por ejemplo, `--remote-agent 167.99.1.1:7007 --remote-agent 167.99.1.2:7007` o separados por comas con `DOZZLE_REMOTE_AGENT=167.99.1.1:7007,167.99.1.2:7007`.
