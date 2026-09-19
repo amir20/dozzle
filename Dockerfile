@@ -1,7 +1,7 @@
 # Pinned to the build platform like the node stage. A bare COPY --from=oven/bun
 # pulls the target platform's binary, which cannot run here in a cross build,
 # and bun ships no arm/v6 or arm/v7 image at all.
-FROM --platform=$BUILDPLATFORM oven/bun:1.3.14-alpine AS bun
+FROM --platform=$BUILDPLATFORM oven/bun:1.4.2-alpine AS bun
 
 # Build assets
 FROM --platform=$BUILDPLATFORM node:25.9.0-alpine AS node
