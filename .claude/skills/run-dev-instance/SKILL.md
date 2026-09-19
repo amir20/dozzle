@@ -26,13 +26,13 @@ walked forward until free, so **this worktree always gets the same URL** and two
 worktrees never land on the same one. To know the URL without starting anything:
 
 ```bash
-node scripts/dev-ports.mjs --json
+bun scripts/dev-ports.mjs --json
 ```
 
 Run it in the background and wait for the port rather than a fixed sleep:
 
 ```bash
-PORT=$(node scripts/dev-ports.mjs --json | grep -o '"DOZZLE_PORT": [0-9]*' | grep -o '[0-9]*')
+PORT=$(bun scripts/dev-ports.mjs --json | grep -o '"DOZZLE_PORT": [0-9]*' | grep -o '[0-9]*')
 # start make dev-auto with run_in_background, then:
 until curl -sf -o /dev/null http://localhost:$PORT/; do sleep 1; done
 ```

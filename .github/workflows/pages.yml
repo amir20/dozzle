@@ -36,7 +36,7 @@ jobs:
         run: bun install --frozen-lockfile
       - name: Build with VitePress
         run: |
-          bun run --bun docs:build
+          bun run docs:build
           touch docs/.vitepress/dist/.nojekyll
       - name: Upload artifact
         uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5.0.0
