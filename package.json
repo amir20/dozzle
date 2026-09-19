@@ -16,19 +16,19 @@
   "author": "Amir Raminfar <findamir@gmail.com>",
   "scripts": {
     "agent:dev": "DEV=true air -- agent --level debug --agent-addr localhost:${AGENT_PORT:-7007}",
-    "watch:frontend": "vite --port ${VITE_PORT:-5173} --strictPort --open http://localhost:${DOZZLE_PORT:-3100}/",
+    "watch:frontend": "bun --bun vite --port ${VITE_PORT:-5173} --strictPort --open http://localhost:${DOZZLE_PORT:-3100}/",
     "watch:backend": "LIVE_FS=true DEV=true air -- --level debug --addr localhost:${DOZZLE_PORT:-3100}",
-    "dev": "concurrently --kill-others \"bun:watch:*\"",
-    "dev:auto": "node scripts/dev-ports.mjs bun run dev",
-    "build": "vite build && node scripts/compress-dist.js",
+    "dev": "bun --bun concurrently --kill-others \"bun:watch:*\"",
+    "dev:auto": "bun scripts/dev-ports.mjs bun run dev",
+    "build": "bun --bun vite build && bun scripts/compress-dist.js",
     "preview": "LIVE_FS=true air -- --addr localhost:${DOZZLE_PORT:-3100}",
     "release": "bumpp",
-    "lint": "eslint .",
+    "lint": "bun --bun eslint .",
     "test": "TZ=UTC vitest",
     "typecheck": "vue-tsc --noEmit",
-    "docs:dev": "vitepress dev docs --open",
-    "docs:build": "vitepress build docs",
-    "docs:preview": "vitepress preview docs"
+    "docs:dev": "bun --bun vitepress dev docs --open",
+    "docs:build": "bun --bun vitepress build docs",
+    "docs:preview": "bun --bun vitepress preview docs"
   },
   "dependencies": {
     "@codemirror/autocomplete": "^6.20.3",
@@ -121,7 +121,7 @@
     "vue-tsc": "3.3.11"
   },
   "simple-git-hooks": {
-    "pre-commit": "bunx lint-staged --allow-empty"
+    "pre-commit": "bunx --bun lint-staged --allow-empty"
   },
   "overrides": {
     "typescript": "npm:typescript-native-bridge@6.0.3-bridge.17.tsgo.7.0.2"

@@ -1,13 +1,10 @@
-# Pinned to the build platform like the node stage. A bare COPY --from=oven/bun
-# pulls the target platform's binary, which cannot run here in a cross build,
-# and bun ships no arm/v6 or arm/v7 image at all.
-FROM --platform=$BUILDPLATFORM oven/bun:1.4.2-alpine AS bun
-
-# Build assets
-FROM --platform=$BUILDPLATFORM node:25.9.0-alpine AS node
-
-# bun only installs packages. vite and the build scripts still run on node.
-COPY --from=bun /usr/local/bin/bun /usr/local/bin/bun
+# Build assets. Pinned to the build platform: the output is platform independent,
+# and bun ships no arm/v6 or arm/v7 image at all, so a cross build cannot run it
+# on the target.
+#
+# No node in this stage. `bun run build` runs vite and compress-dist.js on the
+# bun runtime (see the --bun flags in package.json).
+FROM --platform=$BUILDPLATFORM oven/bun:1.4.2-alpine AS assets
 
 ENV CI=true
 
@@ -46,8 +43,8 @@ COPY main.go ./
 COPY protos ./protos
 COPY shared_key.pem shared_cert.pem ./
 
-# Copy assets built with node
-COPY --from=node /build/dist ./dist
+# Copy assets built in the assets stage
+COPY --from=assets /build/dist ./dist
 
 # Args
 ARG TAG=dev

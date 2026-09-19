@@ -1,11 +1,11 @@
-#!/usr/bin/env node
+#!/usr/bin/env bun
 // Translations have no Crowdin or Weblate behind them, so nothing would otherwise
 // notice when an English page changes and its translations do not. Each translated
 // file carries a sourceHash of the English page it was made from. This script fails
 // when those disagree, which turns silent drift into a red build.
 //
-//   node docs/scripts/check-translations.mjs           verify
-//   node docs/scripts/check-translations.mjs --update   re-stamp after translating
+//   bun docs/scripts/check-translations.mjs            verify
+//   bun docs/scripts/check-translations.mjs --update   re-stamp after translating
 
 import { createHash } from "node:crypto";
 import { readdir, readFile, writeFile } from "node:fs/promises";
@@ -93,6 +93,6 @@ if (stale.length) {
   for (const f of stale) console.error(`  docs/${f}`);
 }
 console.error(
-  `\nUpdate the translated page(s), then run:\n  node docs/scripts/check-translations.mjs --update\nto re-stamp them.`,
+  `\nUpdate the translated page(s), then run:\n  bun docs/scripts/check-translations.mjs --update\nto re-stamp them.`,
 );
 process.exit(1);

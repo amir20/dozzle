@@ -1,12 +1,12 @@
-#!/usr/bin/env node
+#!/usr/bin/env bun
 // Picks a free port trio for a dev instance so several worktrees can each run the app
 // at the same time. The ports are derived from the checkout's own path, so a worktree
 // keeps the same URL across restarts (bookmarks and open tabs survive), and only walks
 // forward when something else already holds one.
 //
-//   node scripts/dev-ports.mjs             prints DOZZLE_PORT=… VITE_PORT=… AGENT_PORT=…
-//   node scripts/dev-ports.mjs --json      prints the same as JSON
-//   node scripts/dev-ports.mjs bun run dev    runs the command with those ports exported
+//   bun scripts/dev-ports.mjs              prints DOZZLE_PORT=… VITE_PORT=… AGENT_PORT=…
+//   bun scripts/dev-ports.mjs --json       prints the same as JSON
+//   bun scripts/dev-ports.mjs bun run dev    runs the command with those ports exported
 //
 // The plain `make dev` defaults (3100/5173/7007) are deliberately outside these ranges,
 // so an auto-assigned instance never collides with someone's hand-started one.

@@ -26,10 +26,10 @@ There is no Crowdin or Weblate sync in this repo, so a key that only exists in `
 
 Unlike `locales/`, there is no fallback here. A stale translated page renders confidently wrong instructions rather than quietly showing English, so drift is worse than a missing key.
 
-Each translated file carries a `sourceHash` in its frontmatter recording the English source it was written from. `node docs/scripts/check-translations.mjs` fails when they diverge, and runs in CI as the `Docs Translations` job. After actually translating the changed prose, re-stamp with:
+Each translated file carries a `sourceHash` in its frontmatter recording the English source it was written from. `bun docs/scripts/check-translations.mjs` fails when they diverge, and runs in CI as the `Docs Translations` job. After actually translating the changed prose, re-stamp with:
 
 ```bash
-node docs/scripts/check-translations.mjs --update
+bun docs/scripts/check-translations.mjs --update
 ```
 
 `--update` only re-stamps hashes. It does not translate anything, so running it on an untranslated page turns CI green while leaving the page wrong. Translate first.
@@ -129,6 +129,12 @@ bun run lint --fix
 Always go through `bun run` for `test` and `build`. `bun test` and `bun build` are
 bun's own test runner and bundler, not the scripts in `package.json`, and they fail
 in confusing ways against this codebase.
+
+`bun run` does not mean the bun runtime: it follows each tool's `#!/usr/bin/env node`
+shebang unless the script says `bun --bun`. Every script in `package.json` that starts a
+JS tool carries that flag except `test` and `typecheck`, which need node: under `--bun` vitest's jsdom
+workers fail to start and `vue-tsc` reports a false TS2614. `release` (bumpp) is
+untested on bun and also left alone. Those are the only reasons node is still required.
 
 ### Linting
 
