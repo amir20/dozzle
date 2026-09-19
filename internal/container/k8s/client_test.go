@@ -57,6 +57,8 @@ func TestPodToContainersAddsOwnerChainLabels(t *testing.T) {
 	assert.Equal(t, "Deployment", labels["@k8s.owner.1.kind"])
 	assert.Equal(t, "api", labels["@k8s.owner.1.name"])
 	assert.Equal(t, "Deployment~default~api", labels["@k8s.owner.1.key"])
+	assert.Equal(t, "Deployment", labels["@k8s.workload.kind"])
+	assert.Equal(t, "api", labels["@k8s.workload.name"])
 	// Legacy duplicated k8s.owner.* labels are no longer emitted.
 	assert.Empty(t, labels["k8s.owner.count"])
 	assert.Empty(t, labels["k8s.owner.0.kind"])

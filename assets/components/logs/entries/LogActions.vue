@@ -110,18 +110,18 @@ async function copyPermalink() {
 }
 
 function createAlert() {
-  const containerExpr = `name contains "${container.name}"`;
+  const target = alertTargetFor(container);
   let logExpr = "";
   if (logEntry.level && logEntry.level !== "unknown") {
     logExpr = `level == "${logEntry.level}"`;
   }
 
-  const nameParts = [container.name];
+  const nameParts = [target.name];
   if (logEntry.level && logEntry.level !== "unknown") {
     nameParts.push(logEntry.level);
   }
   const name = nameParts.join(" ");
 
-  showDrawer(AlertForm, { prefill: { name, containerExpression: containerExpr, logExpression: logExpr } }, "lg");
+  showDrawer(AlertForm, { prefill: { name, containerExpression: target.expression, logExpression: logExpr } }, "lg");
 }
 </script>
