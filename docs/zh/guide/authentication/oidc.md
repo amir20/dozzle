@@ -1,6 +1,6 @@
 ---
 title: OpenID Connect
-sourceHash: 82563eb8343a
+sourceHash: 304983067693
 ---
 
 # <Icon icon="mdi:shield-account" inline /> OpenID Connect
@@ -69,6 +69,16 @@ DOZZLE_AUTH_OIDC_ROLES_CLAIM: realm_access.roles
 
 > [!WARNING]
 > `groups` 是有意不在这个列表里的。在 Authentik 或 Google 那里，每个用户都至少属于一个组，搜索它会把"拒绝登录"变成"登录成功并能读取所有容器"。如果你手头只有用户组，请在提供方那里把它们映射成一个 `dozzle_roles` claim，参见下面的示例。
+
+### 请求额外的 scope
+
+Dozzle 向提供方请求 `openid`、`profile` 和 `email` 这三个 scope。大多数提供方通过 mapper 把角色 claim 挂到客户端上，所以这样就够了。但有些提供方，比如 Authelia，只有在请求了 claim 所属的 scope 时才会给出这个 claim。`DOZZLE_AUTH_OIDC_SCOPES` 会把 scope 加进请求里，多个之间用逗号分隔：
+
+```yaml
+DOZZLE_AUTH_OIDC_SCOPES: dozzle_roles
+```
+
+三个默认 scope 始终会被请求，无法去掉。提供方必须允许该客户端请求这个额外的 scope，否则会以 `invalid_scope` 拒绝登录。
 
 ### 登录被拒绝时
 
@@ -149,6 +159,39 @@ if request.user.ak_groups.filter(name="dozzle-admins").exists():
 elif request.user.ak_groups.filter(name="dozzle-users").exists():
     roles.append("download")
 return {"dozzle_roles": roles}
+```
+
+两个组都不属于的用户会得到一个空列表，并被拒绝登录。
+
+### Authelia
+
+Authelia 只有在客户端请求了承载自定义 claim 的 scope 时，才会把这个 claim 放进令牌。把角色定义成一个用户属性，在 claims policy 里把它映射为 `dozzle_roles` claim，把这个 claim 放进一个 scope，再允许客户端请求这个 scope：
+
+```yaml
+definitions:
+  user_attributes:
+    dozzle_roles:
+      expression: '"dozzle-admins" in groups ? ["all"] : "dozzle-users" in groups ? ["download"] : []'
+identity_providers:
+  oidc:
+    claims_policies:
+      dozzle:
+        id_token: ["dozzle_roles"]
+        custom_claims:
+          dozzle_roles: {}
+    scopes:
+      dozzle_roles:
+        claims: ["dozzle_roles"]
+    clients:
+      - client_id: dozzle
+        claims_policy: dozzle
+        scopes: ["openid", "profile", "email", "dozzle_roles"]
+```
+
+然后让 Dozzle 去请求它：
+
+```yaml
+DOZZLE_AUTH_OIDC_SCOPES: dozzle_roles
 ```
 
 两个组都不属于的用户会得到一个空列表，并被拒绝登录。

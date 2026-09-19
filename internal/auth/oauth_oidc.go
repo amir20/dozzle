@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"slices"
 	"strings"
 	"sync"
 	"time"
@@ -63,6 +64,20 @@ func NewOIDCProvider(issuer, clientID, clientSecret, displayName string) *oidcPr
 
 		requireVerifiedEmail: true,
 	}
+}
+
+// AddScopes requests scopes on top of openid, profile and email. extra is
+// separated by commas or spaces. Authelia only releases a claim when the scope
+// it hangs off is requested, so a roles claim there needs its scope named here.
+// The defaults are never dropped: losing openid or email breaks login itself.
+func (o *oidcProvider) AddScopes(extra string) *oidcProvider {
+	for _, scope := range strings.FieldsFunc(extra, func(r rune) bool { return r == ',' || r == ' ' }) {
+		if !slices.Contains(o.scopes, scope) {
+			o.scopes = append(o.scopes, scope)
+		}
+	}
+
+	return o
 }
 
 func (o *oidcProvider) ID() string          { return "oidc" }

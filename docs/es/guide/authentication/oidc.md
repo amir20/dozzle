@@ -1,6 +1,6 @@
 ---
 title: OpenID Connect
-sourceHash: 82563eb8343a
+sourceHash: 304983067693
 ---
 
 # <Icon icon="mdi:shield-account" inline /> OpenID Connect
@@ -69,6 +69,16 @@ Los nombres de rol son los mismos que en `users.yml`: `shell`, `actions`, `downl
 
 > [!WARNING]
 > `groups` queda fuera de la lista a propósito. En Authentik o Google todos los usuarios pertenecen al menos a un grupo, así que buscar ahí convertiría "denegado" en "con sesión iniciada y puede leer todos los contenedores". Si lo que tienes son grupos, mapéalos a un claim `dozzle_roles` en el proveedor, consulta los ejemplos más abajo.
+
+### Solicitar scopes adicionales
+
+Dozzle solicita al proveedor los scopes `openid`, `profile` y `email`. La mayoría de los proveedores asocian un claim de roles al cliente mediante un mapper, así que con eso basta. Algunos, entre ellos Authelia, solo entregan un claim cuando se solicita el scope al que pertenece. `DOZZLE_AUTH_OIDC_SCOPES` añade scopes a la petición, separados por comas:
+
+```yaml
+DOZZLE_AUTH_OIDC_SCOPES: dozzle_roles
+```
+
+Los tres scopes por defecto se solicitan siempre y no se pueden quitar. El proveedor tiene que permitir que el cliente solicite el scope adicional, o rechaza el inicio de sesión con `invalid_scope`.
 
 ### Cuando se rechaza un inicio de sesión
 
@@ -149,6 +159,39 @@ if request.user.ak_groups.filter(name="dozzle-admins").exists():
 elif request.user.ak_groups.filter(name="dozzle-users").exists():
     roles.append("download")
 return {"dozzle_roles": roles}
+```
+
+Un usuario que no esté en ninguno de los dos grupos recibe una lista vacía y se le rechaza.
+
+### Authelia
+
+Authelia solo pone un claim personalizado en el token cuando el cliente solicita el scope que lo contiene. Define los roles como un atributo de usuario, asígnalo a un claim `dozzle_roles` en una claims policy, mete ese claim en un scope y permite que el cliente solicite ese scope:
+
+```yaml
+definitions:
+  user_attributes:
+    dozzle_roles:
+      expression: '"dozzle-admins" in groups ? ["all"] : "dozzle-users" in groups ? ["download"] : []'
+identity_providers:
+  oidc:
+    claims_policies:
+      dozzle:
+        id_token: ["dozzle_roles"]
+        custom_claims:
+          dozzle_roles: {}
+    scopes:
+      dozzle_roles:
+        claims: ["dozzle_roles"]
+    clients:
+      - client_id: dozzle
+        claims_policy: dozzle
+        scopes: ["openid", "profile", "email", "dozzle_roles"]
+```
+
+Después haz que Dozzle lo solicite:
+
+```yaml
+DOZZLE_AUTH_OIDC_SCOPES: dozzle_roles
 ```
 
 Un usuario que no esté en ninguno de los dos grupos recibe una lista vacía y se le rechaza.
