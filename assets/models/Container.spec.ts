@@ -165,7 +165,9 @@ describe("Container.updateStat", () => {
 // The store keeps containers in a deeply reactive array. That is what used to drag
 // all 300 stats of every container into the proxy graph and made a stat tick cost
 // tens of milliseconds across a busy table. These two guard the arrangement that
-// fixed it: the series stays raw, and readers are still woken by hand.
+// fixed it, and they fail independently: `markRaw` is what keeps the window out of
+// the proxy graph, and the `triggerRef` is the only thing that wakes a reader once
+// it is out. Losing either one is silent without them.
 describe("Container stats reactivity", () => {
   test("the series stays raw inside a reactive array", () => {
     const containers = reactive([makeContainer()]);
