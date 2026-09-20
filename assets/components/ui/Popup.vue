@@ -11,7 +11,12 @@
     @pointerenter="cancelHide"
     @pointerleave="onLeave"
   >
-    <slot name="content"></slot>
+    <!-- Mounted on first open, not with the row. The sidebar renders one of these per
+         container, so on a busy host the eager version kept ~150 component trees alive
+         for panels nobody had opened, each holding charts that re-derived a 300 point
+         series every tick. It stays mounted afterwards: a row that has been hovered once
+         tends to be hovered again, and remounting per hover would redo that work. -->
+    <slot v-if="hasOpened" name="content"></slot>
   </div>
 </template>
 
@@ -49,10 +54,22 @@ let timer: ReturnType<typeof setTimeout> | undefined;
 
 const cancelHide = () => clearTimeout(timer);
 
+const hasOpened = ref(false);
+
+// The panel is measured and placed immediately after showPopover(), so its contents have
+// to be in the DOM before that runs or the first frame is positioned against an empty box.
+const open = async () => {
+  if (!hasOpened.value) {
+    hasOpened.value = true;
+    await nextTick();
+  }
+  show();
+};
+
 const onEnter = () => {
   clearTimeout(timer);
-  if (performance.now() < warmUntil) show();
-  else timer = setTimeout(show, OPEN_DELAY);
+  if (performance.now() < warmUntil) open();
+  else timer = setTimeout(open, OPEN_DELAY);
 };
 
 const onLeave = () => {
