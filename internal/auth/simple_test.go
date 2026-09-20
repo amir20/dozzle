@@ -6,7 +6,9 @@ import (
 	"os"
 	"path/filepath"
 	"testing"
+	"time"
 
+	"github.com/go-chi/jwtauth/v5"
 	"github.com/stretchr/testify/require"
 )
 
@@ -204,4 +206,93 @@ users:
 
 	_, err := ReadUsersFromFile(path)
 	require.Error(t, err)
+}
+
+// serveWithAuthResponse is serveWithAuth for the tests that care about what the
+// middleware wrote back rather than which user it resolved.
+func serveWithAuthResponse(t *testing.T, a *simpleAuthContext, token string) *http.Response {
+	t.Helper()
+
+	handler := a.AuthMiddleware(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {}))
+
+	req := httptest.NewRequest(http.MethodGet, "/", nil)
+	req.Header.Set("Authorization", "Bearer "+token)
+	recorder := httptest.NewRecorder()
+	handler.ServeHTTP(recorder, req)
+
+	return recorder.Result()
+}
+
+func aliceDatabase() UserDatabase {
+	return UserDatabase{
+		Users: map[string]*User{
+			"alice": {Username: "alice", Password: "$2a$11$aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", RolesConfigured: "all", Roles: All},
+		},
+	}
+}
+
+// tokenExpiringIn mints a session for alice that runs out at a chosen moment, so
+// a test can place it anywhere in its life without waiting.
+func tokenExpiringIn(t *testing.T, a *simpleAuthContext, remaining time.Duration) string {
+	t.Helper()
+
+	claims := map[string]any{"username": "alice"}
+	jwtauth.SetIssuedNow(claims)
+	jwtauth.SetExpiry(claims, time.Now().Add(remaining))
+	_, token, err := a.tokenAuth.Encode(claims)
+	require.NoError(t, err)
+
+	return token
+}
+
+// The token minted at login used to be the only one there ever was, so a session
+// ended exactly ttl after the password was typed however much it was used. An
+// iOS home screen app is the case that made this visible: it is resumed, never
+// reloaded, so nothing ever went back through the login page to get a new one.
+func TestSimpleAuthSlidesSessionPastHalfLife(t *testing.T) {
+	a := NewSimpleAuth(aliceDatabase(), time.Hour, testSecret)
+
+	res := serveWithAuthResponse(t, a, tokenExpiringIn(t, a, 20*time.Minute))
+
+	cookie := sessionCookie(res)
+	require.NotNil(t, cookie, "a session past half its life must be renewed")
+
+	token, err := a.tokenAuth.Decode(cookie.Value)
+	require.NoError(t, err)
+	expiry, ok := token.Expiration()
+	require.True(t, ok)
+	require.WithinDuration(t, time.Now().Add(time.Hour), expiry, time.Minute)
+	require.WithinDuration(t, time.Now().Add(time.Hour), cookie.Expires, time.Minute)
+}
+
+// Renewing on every request would put a Set-Cookie on every SSE response and
+// every poll, and re-sign a token for nothing.
+func TestSimpleAuthLeavesAFreshSessionAlone(t *testing.T) {
+	a := NewSimpleAuth(aliceDatabase(), time.Hour, testSecret)
+
+	res := serveWithAuthResponse(t, a, tokenExpiringIn(t, a, 50*time.Minute))
+
+	require.Nil(t, sessionCookie(res))
+}
+
+// --auth-ttl=session mints a token with no exp and a cookie the browser expires
+// on its own. There is nothing to slide, and writing a cookie with an Expires
+// would turn it into a persistent one, which is the opposite of what was asked.
+func TestSimpleAuthDoesNotSlideASessionCookie(t *testing.T) {
+	a := NewSimpleAuth(aliceDatabase(), 0, testSecret)
+
+	_, token, err := a.tokenAuth.Encode(map[string]any{"username": "alice"})
+	require.NoError(t, err)
+
+	require.Nil(t, sessionCookie(serveWithAuthResponse(t, a, token)))
+}
+
+// An expired token resolves to no user at all, so there is nothing to renew:
+// renewing here would let a session be extended forever from a dead one.
+func TestSimpleAuthDoesNotSlideAnExpiredSession(t *testing.T) {
+	a := NewSimpleAuth(aliceDatabase(), time.Hour, testSecret)
+
+	res := serveWithAuthResponse(t, a, tokenExpiringIn(t, a, -time.Minute))
+
+	require.Nil(t, sessionCookie(res))
 }

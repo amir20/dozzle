@@ -56,6 +56,39 @@ describe("useSseReconnect", () => {
     reconnect.dispose();
   });
 
+  // The stream cannot see why it closed, so the caller is told each time it does and
+  // decides whether retrying is worth anything. An expired session is the case that
+  // never is.
+  test("reports every close to the caller before backing off", () => {
+    const connect = vi.fn();
+    const onClosed = vi.fn();
+    const reconnect = useSseReconnect({ connect, source: () => source as unknown as EventSource, onClosed });
+
+    reconnect.onError();
+    expect(onClosed).toHaveBeenCalledTimes(1);
+
+    vi.advanceTimersByTime(1000);
+    reconnect.onError();
+    expect(onClosed).toHaveBeenCalledTimes(2);
+
+    reconnect.dispose();
+  });
+
+  test("does not report a close while the browser is still retrying on its own", () => {
+    const onClosed = vi.fn();
+    source = { readyState: CONNECTING };
+    const reconnect = useSseReconnect({
+      connect: vi.fn(),
+      source: () => source as unknown as EventSource,
+      onClosed,
+    });
+
+    reconnect.onError();
+    expect(onClosed).not.toHaveBeenCalled();
+
+    reconnect.dispose();
+  });
+
   test("ignores an error while the browser is still retrying on its own", () => {
     const connect = vi.fn();
     source = { readyState: CONNECTING };

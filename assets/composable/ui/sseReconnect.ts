@@ -11,6 +11,12 @@ type Options = {
    * for a stream with an observable heartbeat; leave unset otherwise.
    */
   staleAfter?: number;
+  /**
+   * Called each time the source lands in CLOSED, before the next retry is scheduled.
+   * EventSource hides the status code, so whether a failure is worth retrying at all
+   * is the caller's question to answer, not this one's.
+   */
+  onClosed?: () => void;
 };
 
 /**
@@ -21,7 +27,7 @@ type Options = {
  * what a reverse proxy returns on a 502/504 or a restart — it gives up permanently and the
  * stream stays dead until the page is reloaded. That is the case this retries.
  */
-export function useSseReconnect({ connect, source, staleAfter }: Options) {
+export function useSseReconnect({ connect, source, staleAfter, onClosed }: Options) {
   let attempt = 0;
   let timer: ReturnType<typeof setTimeout> | null = null;
   let lastActivity = Date.now();
@@ -72,6 +78,7 @@ export function useSseReconnect({ connect, source, staleAfter }: Options) {
     /** Call from the source's `error` handler. */
     onError() {
       if (source()?.readyState === EventSource.CLOSED) {
+        onClosed?.();
         scheduleReconnect();
       }
     },
