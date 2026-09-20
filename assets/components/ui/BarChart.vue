@@ -124,15 +124,18 @@ watch(
     if (!initialized) {
       initialized = true;
       recalculate();
-      return;
-    }
-    changeCounter.value++;
-    if (changeCounter.value >= bucketSize.value) {
-      recalculate();
-      changeCounter.value = 0;
     } else {
-      updateLastBar();
+      changeCounter.value++;
+      if (changeCounter.value >= bucketSize.value) {
+        recalculate();
+        changeCounter.value = 0;
+      } else {
+        updateLastBar();
+      }
     }
+    // Every path above can move the bar under the pointer, so the readout is
+    // re-reported from whatever is now drawn there.
+    reportHovered();
   },
 );
 
@@ -200,12 +203,50 @@ function onLeave() {
   hoverEnd();
 }
 
-// Where to draw the guide, in px from the chart's left edge.
+// The pointer sits over a fixed column while the series scrolls underneath it, so
+// the readout has to follow the bar rather than the sample it first landed on.
+// Without this the number froze at whatever was under the pointer when it stopped
+// moving, and went quietly wrong at the next recalculation. It reports what is
+// drawn, so the readout and the bar can never disagree.
+function reportHovered() {
+  const index = hoverIndex.value;
+  if (index === null) return;
+
+  const bar = downsampledBars.value[index];
+  // A resize, or the boundary advancing, can leave the pointer on a bar that is
+  // gone or has become padding.
+  if (!bar || !bar.sampled) {
+    onLeave();
+    return;
+  }
+  hoverValue(bar.value, index, downsampledBars.value.length);
+}
+
+// Unmounting is a silent way to leave the chart: a consumer that swaps the chart
+// for something else (ContainerStatCell's progress mode) gets no mouseleave, and
+// its readout would sit on the last hovered number for good.
+onBeforeUnmount(() => {
+  if (hoverIndex.value !== null) hoverEnd();
+});
+
+// Where to draw the guide, in px from the chart's left edge. A resize changes the
+// bar count without touching hoverIndex, so the index is clamped here too rather
+// than trusting the one emitAt last wrote.
 const guideLeft = computed(() => {
   const count = downsampledBars.value.length;
   if (hoverIndex.value === null || count === 0 || width.value === 0) return null;
-  return (hoverIndex.value + 0.5) * ((width.value + GAP) / count);
+  const index = Math.min(hoverIndex.value, count - 1);
+  // A bar spans [i*pitch, i*pitch + pitch - GAP], so its centre sits half a gap to
+  // the left of the column's midpoint.
+  return (index + 0.5) * pitchOf(count) - GAP / 2;
 });
+
+// One definition of a column's width, shared by the guide and the hit test. They
+// used to read `width` and getBoundingClientRect().width respectively, which agree
+// only while the chart root carries no padding or border.
+function pitchOf(count: number) {
+  return (width.value + GAP) / count;
+}
 
 function emitAt(clientX: number) {
   if (!chartContainer.value) return;
@@ -218,7 +259,7 @@ function emitAt(clientX: number) {
   // (width + GAP) / count wide. Asking each bar for its own rect walked the whole
   // chart on every pointer move to arrive at the same number.
   const rect = chartContainer.value.getBoundingClientRect();
-  const pitch = (rect.width + GAP) / count;
+  const pitch = pitchOf(count);
   if (pitch <= 0) return;
 
   const index = Math.min(count - 1, Math.max(0, Math.floor((clientX - rect.left) / pitch)));

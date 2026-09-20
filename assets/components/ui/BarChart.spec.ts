@@ -6,8 +6,9 @@ import { describe, expect, test, vi } from "vitest";
 import { nextTick } from "vue";
 import BarChart, { type BarDataPoint } from "./BarChart.vue";
 
-// Mirrors the gap between bars in the component, which sets the column pitch.
+// Mirror the component's own layout constants, which set the column pitch.
 const GAP = 2;
+const CHART_WIDTH = 300;
 
 // useElementSize relies on ResizeObserver which jsdom lacks, so the width stays
 // 0 and the chart never renders. Mock it with a controllable width ref that we
@@ -121,22 +122,27 @@ describe("BarChart stability", () => {
 });
 
 describe("BarChart pointer readout", () => {
-  // jsdom lays nothing out, so the chart reports a zero rect. Stub the container
-  // to a real width: the bars are uniform, so one rect is all the hit test reads.
-  // Column pitch is (width + GAP) / count, so this width makes each column `width`.
-  function layOutBars(wrapper: ReturnType<typeof mount>, width = 10) {
-    const count = wrapper.findAll(".bar").length;
+  // jsdom lays nothing out, so the chart reports a zero rect. Only `left` is read
+  // from it now: the column pitch comes from the mocked useElementSize width, the
+  // same source the guide uses.
+  function layOutBars(wrapper: ReturnType<typeof mount>) {
     vi.spyOn(wrapper.element, "getBoundingClientRect").mockReturnValue({
       left: 0,
-      right: count * width - GAP,
-      width: count * width - GAP,
+      right: CHART_WIDTH,
+      width: CHART_WIDTH,
     } as DOMRect);
+  }
+
+  // The x at the centre of bar `index`, using the component's own pitch formula.
+  function xOfBar(wrapper: ReturnType<typeof mount>, index: number) {
+    const count = wrapper.findAll(".bar").length;
+    return (index + 0.5) * ((CHART_WIDTH + GAP) / count);
   }
 
   test("a mouse move reports the bar under the pointer", async () => {
     const wrapper = await mountAndRender(ramp());
     layOutBars(wrapper);
-    await wrapper.trigger("mousemove", { clientX: 25 });
+    await wrapper.trigger("mousemove", { clientX: xOfBar(wrapper, 2) });
 
     const emitted = wrapper.emitted("hoverValue");
     expect(emitted).toHaveLength(1);
@@ -148,8 +154,8 @@ describe("BarChart pointer readout", () => {
   test("a touch reports the bar under the finger", async () => {
     const wrapper = await mountAndRender(ramp());
     layOutBars(wrapper);
-    await wrapper.trigger("touchstart", { touches: [{ clientX: 25 }] });
-    await wrapper.trigger("touchmove", { touches: [{ clientX: 55 }] });
+    await wrapper.trigger("touchstart", { touches: [{ clientX: xOfBar(wrapper, 2) }] });
+    await wrapper.trigger("touchmove", { touches: [{ clientX: xOfBar(wrapper, 5) }] });
 
     const emitted = wrapper.emitted("hoverValue");
     expect(emitted).toHaveLength(2);
@@ -173,7 +179,7 @@ describe("BarChart pointer readout", () => {
     expect(bars.at(-1)!.classes()).toContain("opacity-70");
 
     layOutBars(wrapper);
-    await wrapper.trigger("mousemove", { clientX: 5 });
+    await wrapper.trigger("mousemove", { clientX: xOfBar(wrapper, 0) });
     expect(wrapper.emitted("hoverValue")).toBeUndefined();
     expect(wrapper.emitted("hoverEnd")).toHaveLength(1);
   });
@@ -200,7 +206,7 @@ describe("BarChart pointer readout", () => {
     expect(firstSampled).toBe(59);
 
     layOutBars(wrapper);
-    await wrapper.trigger("mousemove", { clientX: firstSampled * 10 + 5 });
+    await wrapper.trigger("mousemove", { clientX: xOfBar(wrapper, firstSampled) });
     const emitted = wrapper.emitted("hoverValue");
     expect(emitted).toHaveLength(1);
     // 90, the measurement. Averaging the padded zero in would report 72.
@@ -212,11 +218,69 @@ describe("BarChart pointer readout", () => {
     layOutBars(wrapper);
     expect(wrapper.find(".absolute").exists()).toBe(false);
 
-    await wrapper.trigger("mousemove", { clientX: 25 });
+    await wrapper.trigger("mousemove", { clientX: xOfBar(wrapper, 2) });
     expect(wrapper.find(".absolute").exists()).toBe(true);
 
     await wrapper.trigger("mouseleave");
     expect(wrapper.find(".absolute").exists()).toBe(false);
+  });
+
+  // The pointer sits over a fixed column while the series scrolls underneath, so
+  // the readout has to follow the column. It used to freeze on the sample that was
+  // there when the pointer stopped moving.
+  test("the readout follows the hovered column as the series scrolls", async () => {
+    const point = (v: number) => ({ percent: v, value: v });
+    let series: BarDataPoint[] = Array.from({ length: 300 }, () => point(10));
+    holder.width!.value = 0;
+    const wrapper = mount(BarChart, { props: { chartData: series } });
+    await nextTick();
+    holder.width!.value = CHART_WIDTH;
+    await nextTick();
+    await flushPromises();
+    layOutBars(wrapper);
+
+    const count = wrapper.findAll(".bar").length;
+    const last = count - 1;
+    await wrapper.trigger("mousemove", { clientX: xOfBar(wrapper, last) });
+    expect(wrapper.emitted("hoverValue")!.at(-1)![0]).toBe(10);
+
+    // A tick of the live series pushes a very different sample into that column.
+    series = [...series.slice(1), point(90)];
+    await wrapper.setProps({ chartData: series });
+    await nextTick();
+
+    expect(wrapper.emitted("hoverValue")!.at(-1)![0]).not.toBe(10);
+  });
+
+  // Swapping the chart out is a silent way to leave it: no mouseleave fires, and a
+  // consumer would sit on the last hovered number for good.
+  test("unmounting releases the hover", async () => {
+    const wrapper = await mountAndRender(ramp());
+    layOutBars(wrapper);
+    await wrapper.trigger("mousemove", { clientX: xOfBar(wrapper, 2) });
+    expect(wrapper.emitted("hoverEnd")).toBeUndefined();
+
+    wrapper.unmount();
+    expect(wrapper.emitted("hoverEnd")).toHaveLength(1);
+  });
+
+  // A resize changes the bar count without touching the stored index, which used to
+  // throw the guide far outside the chart until the next pointer event.
+  test("the guide stays inside the chart after a resize", async () => {
+    const wrapper = await mountAndRender(ramp());
+    layOutBars(wrapper);
+    const count = wrapper.findAll(".bar").length;
+    await wrapper.trigger("mousemove", { clientX: xOfBar(wrapper, count - 1) });
+
+    holder.width!.value = CHART_WIDTH / 4;
+    await nextTick();
+    await flushPromises();
+
+    const guide = wrapper.find(".absolute");
+    if (guide.exists()) {
+      const left = parseFloat(guide.attributes("style")!.match(/left:\s*([\d.]+)px/)![1]);
+      expect(left).toBeLessThanOrEqual(CHART_WIDTH / 4);
+    }
   });
 
   test("a touch with no contact point reports nothing", async () => {
