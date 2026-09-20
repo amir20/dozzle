@@ -235,6 +235,7 @@ settings:
   reset: Restaurar padrões
   sponsor: Patrocinar
   new-version: "{version} disponível"
+  update-available: "Está disponível uma imagem mais recente"
   auto-update-on: "O Dozzle mantém-se atualizado"
   auto-update-daily: "Verifica diariamente às {time}, hora do servidor."
   auto-update-weekly: "Verifica semanalmente, aos domingos às {time}, hora do servidor."

@@ -1,20 +1,20 @@
 <template>
   <div class="border-base-content/15 bg-base-200/40 divide-base-content/10 divide-y rounded-lg border">
     <div class="flex flex-wrap items-center gap-3 p-4">
-      <div
-        class="shrink-0 rounded-full p-2"
-        :class="hasRelease ? 'bg-warning/10 text-warning' : 'bg-info/10 text-info'"
-      >
-        <mdi:package-down v-if="hasRelease" class="size-5" />
+      <div class="shrink-0 rounded-full p-2" :class="stale ? 'bg-warning/10 text-warning' : 'bg-info/10 text-info'">
+        <mdi:package-down v-if="stale" class="size-5" />
         <mdi:autorenew v-else class="size-5" />
       </div>
       <div class="min-w-0 flex-1">
-        <div class="text-sm font-medium">
-          {{
-            hasRelease ? $t("settings.new-version", { version: latestRelease?.name }) : $t("settings.auto-update-on")
-          }}
+        <div class="text-sm font-medium">{{ title }}</div>
+        <!-- The tag first: it is what the schedule follows and what Update now pulls. -->
+        <div class="text-base-content/60 mt-0.5 truncate text-xs">
+          <template v-if="autoUpdate.image">
+            <span class="font-mono">{{ autoUpdate.image }}</span>
+            ·
+          </template>
+          {{ schedule }}
         </div>
-        <div class="text-base-content/60 mt-0.5 text-xs">{{ schedule }}</div>
       </div>
       <button
         v-if="canUpdate"
@@ -74,9 +74,17 @@ import type { SetupAutoUpdate, SetupStatus } from "@/composable/setup/setup";
 const { status, autoUpdate } = defineProps<{ status: SetupStatus; autoUpdate: SetupAutoUpdate }>();
 
 const { t } = useI18n();
-const { latestRelease, hasRelease } = useAnnouncements();
+const { latestRelease } = useAnnouncements();
 // No resume marker: nothing reopens the wizard after an update started from here.
 const { phase, progress, error, errorDetail, busy, updateNow } = useSelfUpdate();
+const { headline } = useSelfUpdateCheck();
+
+const stale = computed(() => headline.value !== "current");
+const title = computed(() => {
+  if (headline.value === "image") return t("settings.update-available");
+  if (headline.value === "release") return t("settings.new-version", { version: latestRelease.value?.name });
+  return t("settings.auto-update-on");
+});
 
 const canUpdate = computed(() => canSelfUpdate(status));
 const schedule = computed(() =>

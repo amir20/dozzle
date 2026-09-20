@@ -239,6 +239,12 @@ func createRouter(h *handler) *chi.Mux {
 				// air-gapped operator needs to be able to verify.
 				if h.config.ImageCheckMode != imagecheck.ModeOff {
 					r.Get("/hosts/{host}/containers/{id}/image/check", h.checkImageUpdate)
+					// Dozzle's own image, which the container route cannot answer
+					// for: label filters may well hide Dozzle from itself. Not
+					// behind actions, for the same reason as above.
+					if h.config.Mode == "server" {
+						r.Get("/update/self/check", h.checkSelfUpdate)
+					}
 				}
 
 				// Action

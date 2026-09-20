@@ -50,10 +50,8 @@ var (
 	selfUpdateStart        = selfupdate.Start
 	selfUpdateSwarmManager = selfupdate.SwarmManager
 	selfUpdateInspect      = inspectSelf
-	selfUpdateCheck        = func(ctx context.Context, image string, digests []string) imagecheck.Result {
-		// Forced: this runs at most once a day, and a six hour old digest would
-		// quietly push the update to the next one.
-		return imagecheck.Shared().Check(ctx, image, digests, true)
+	selfUpdateCheck        = func(ctx context.Context, image string, digests []string, force bool) imagecheck.Result {
+		return imagecheck.Shared().Check(ctx, image, digests, force)
 	}
 )
 
@@ -247,7 +245,9 @@ func (s *autoUpdateScheduler) tick(ctx context.Context, now time.Time) {
 	}
 
 	checkCtx, cancel := context.WithTimeout(ctx, 30*time.Second)
-	result := selfUpdateCheck(checkCtx, support.self.Ref, support.self.RepoDigests)
+	// Forced: this runs at most once a day, and a six hour old digest would
+	// quietly push the update to the next one.
+	result := selfUpdateCheck(checkCtx, support.self.Ref, support.self.RepoDigests, true)
 	cancel()
 	if !result.UpdateAvailable() {
 		if result.Status == imagecheck.StatusUpToDate {

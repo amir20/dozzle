@@ -235,6 +235,7 @@ settings:
   reset: 恢复默认设置
   sponsor: 赞助
   new-version: "{version} 可用"
+  update-available: "有更新的镜像可用"
   auto-update-on: "Dozzle 会自动保持最新"
   auto-update-daily: "每天 {time} 检查（服务器时间）。"
   auto-update-weekly: "每周日 {time} 检查（服务器时间）。"

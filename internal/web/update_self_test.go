@@ -2,6 +2,7 @@ package web
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"net/http"
 	"strings"
@@ -10,6 +11,7 @@ import (
 
 	"github.com/amir20/dozzle/internal/auth"
 	"github.com/amir20/dozzle/internal/container"
+	"github.com/amir20/dozzle/internal/imagecheck"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -117,4 +119,83 @@ func TestUpdateSelf_RequiresActionsRole(t *testing.T) {
 	rr := doSetup(proxy, "POST", "/api/update/self", "", "Remote-User", "amir", "Remote-Roles", "actions")
 	assert.Equal(t, http.StatusOK, rr.Code)
 	assert.Equal(t, []string{"up-to-date"}, updateSelfEvents(rr.Body.String()))
+}
+
+func stubSelfUpdateCheck(t *testing.T, result imagecheck.Result) *int {
+	t.Helper()
+	calls := 0
+	old := selfUpdateCheck
+	selfUpdateCheck = func(_ context.Context, image string, _ []string, _ bool) imagecheck.Result {
+		calls++
+		result.Image = image
+		return result
+	}
+	t.Cleanup(func() { selfUpdateCheck = old })
+	return &calls
+}
+
+func selfCheckHandler(mode imagecheck.Mode) http.Handler {
+	return createHandler(nil, nil, Config{Base: "/", Mode: "server", ImageCheckMode: mode,
+		Authorization: Authorization{Provider: NONE}, Setup: SetupConfig{StartedAt: time.Now()}})
+}
+
+// The About panel asks what a self-update would pull, which is about the tag
+// this container follows and not about the newest release.
+func TestCheckSelfUpdate_ReportsTheImageCheck(t *testing.T) {
+	setupTestEnv(t, true)
+	selfUpdateInspect = func(context.Context, HostService, string) (selfImage, error) {
+		return selfImage{Ref: "amir20/dozzle:master", RepoDigests: []string{"amir20/dozzle@sha256:old"}}, nil
+	}
+	calls := stubSelfUpdateCheck(t, imagecheck.Result{Status: imagecheck.StatusUpdateAvailable, RemoteDigest: "sha256:new"})
+
+	rr := doSetup(selfCheckHandler(imagecheck.ModeAutomatic), "GET", "/api/update/self/check", "")
+	require.Equal(t, http.StatusOK, rr.Code)
+
+	var result imagecheck.Result
+	require.NoError(t, json.Unmarshal(rr.Body.Bytes(), &result))
+	assert.Equal(t, imagecheck.StatusUpdateAvailable, result.Status)
+	assert.Equal(t, "amir20/dozzle:master", result.Image)
+	assert.Equal(t, 1, *calls)
+}
+
+func TestCheckSelfUpdate_PinnedTagNeverAsksTheRegistry(t *testing.T) {
+	setupTestEnv(t, true)
+	selfUpdateInspect = func(context.Context, HostService, string) (selfImage, error) {
+		return selfImage{Ref: "amir20/dozzle:v11.1.0"}, nil
+	}
+	calls := stubSelfUpdateCheck(t, imagecheck.Result{Status: imagecheck.StatusUpdateAvailable})
+
+	rr := doSetup(selfCheckHandler(imagecheck.ModeAutomatic), "GET", "/api/update/self/check", "")
+	require.Equal(t, http.StatusOK, rr.Code)
+
+	var result imagecheck.Result
+	require.NoError(t, json.Unmarshal(rr.Body.Bytes(), &result))
+	assert.Equal(t, imagecheck.StatusPinned, result.Status)
+	assert.Zero(t, *calls)
+}
+
+func TestCheckSelfUpdate_ManualModeOnlyChecksWhenAsked(t *testing.T) {
+	setupTestEnv(t, true)
+	calls := stubSelfUpdateCheck(t, imagecheck.Result{Status: imagecheck.StatusUpToDate})
+	h := selfCheckHandler(imagecheck.ModeManual)
+
+	var result imagecheck.Result
+	rr := doSetup(h, "GET", "/api/update/self/check", "")
+	require.NoError(t, json.Unmarshal(rr.Body.Bytes(), &result))
+	assert.Equal(t, imagecheck.StatusSkipped, result.Status)
+	assert.Zero(t, *calls)
+
+	rr = doSetup(h, "GET", "/api/update/self/check?force=true", "")
+	require.NoError(t, json.Unmarshal(rr.Body.Bytes(), &result))
+	assert.Equal(t, imagecheck.StatusUpToDate, result.Status)
+	assert.Equal(t, 1, *calls)
+}
+
+// Air-gapped installs must be able to see the route does not exist.
+func TestCheckSelfUpdate_NotRegisteredWhenChecksAreOff(t *testing.T) {
+	setupTestEnv(t, true)
+	assert.Equal(t, http.StatusNotFound, doSetup(selfCheckHandler(imagecheck.ModeOff), "GET", "/api/update/self/check", "").Code)
+
+	swarm := createHandler(nil, nil, Config{Base: "/", Mode: "swarm", Authorization: Authorization{Provider: NONE}})
+	assert.Equal(t, http.StatusNotFound, doSetup(swarm, "GET", "/api/update/self/check", "").Code)
 }
