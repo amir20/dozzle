@@ -133,9 +133,6 @@ watch(
         updateLastBar();
       }
     }
-    // Every path above can move the bar under the pointer, so the readout is
-    // re-reported from whatever is now drawn there.
-    reportHovered();
   },
 );
 
@@ -152,6 +149,7 @@ function recalculate() {
 
   if (chartData.length <= availableBars.value) {
     downsampledBars.value = chartData.map((d, i) => ({ ...d, sampled: i >= sampledFrom }));
+    reportHovered();
     return;
   }
 
@@ -171,6 +169,7 @@ function recalculate() {
   }
 
   downsampledBars.value = result.slice(-availableBars.value);
+  reportHovered();
 }
 
 function updateLastBar() {
@@ -182,6 +181,7 @@ function updateLastBar() {
   const bucket = chartData.slice(sampled ? Math.max(lastBucketStart, sampledFrom) : lastBucketStart);
 
   downsampledBars.value[downsampledBars.value.length - 1] = averageBucket(bucket, sampled);
+  reportHovered();
 }
 
 function onContainerHover(event: MouseEvent) {
@@ -203,6 +203,9 @@ function onLeave() {
   hoverEnd();
 }
 
+// Called by everything that redraws the bars, so a resize and a parent's forced
+// recalculate refresh the readout too, not just the per-tick update.
+//
 // The pointer sits over a fixed column while the series scrolls underneath it, so
 // the readout has to follow the bar rather than the sample it first landed on.
 // Without this the number froze at whatever was under the pointer when it stopped

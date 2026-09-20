@@ -264,23 +264,52 @@ describe("BarChart pointer readout", () => {
     expect(wrapper.emitted("hoverEnd")).toHaveLength(1);
   });
 
-  // A resize changes the bar count without touching the stored index, which used to
-  // throw the guide far outside the chart until the next pointer event.
-  test("the guide stays inside the chart after a resize", async () => {
+  // The parent owns wholesale series swaps: HostCard's backfill keeps the length at
+  // 300 and can leave the last entry untouched, so the data watcher never fires and
+  // only the forced recalculate can refresh what the pointer is reading.
+  test("a forced recalculate re-reports the hovered bar", async () => {
+    const point = (v: number) => ({ percent: v, value: v });
+    // Shared last entry, so `chartData.at(-1)` keeps its identity across the swap.
+    const tail = point(10);
+    let series: BarDataPoint[] = [...Array.from({ length: 299 }, () => point(10)), tail];
+
+    holder.width!.value = 0;
+    const wrapper = mount(BarChart, { props: { chartData: series } });
+    await nextTick();
+    holder.width!.value = CHART_WIDTH;
+    await nextTick();
+    await flushPromises();
+    layOutBars(wrapper);
+
+    await wrapper.trigger("mousemove", { clientX: xOfBar(wrapper, 10) });
+    expect(wrapper.emitted("hoverValue")!.at(-1)![0]).toBe(10);
+
+    series = [...Array.from({ length: 299 }, () => point(90)), tail];
+    await wrapper.setProps({ chartData: series });
+    await nextTick();
+    // Nothing in the chart can see this swap, which is why the contract exists.
+    expect(wrapper.emitted("hoverValue")!.at(-1)![0]).toBe(10);
+
+    (wrapper.vm as unknown as { recalculate: () => void }).recalculate();
+    await nextTick();
+    expect(wrapper.emitted("hoverValue")!.at(-1)![0]).toBe(90);
+  });
+
+  // A resize re-buckets the series, so the column the pointer was on may not exist
+  // any more. There is no clientX to re-run the hit test with until it moves again.
+  test("a resize releases a hover that is no longer on a bar", async () => {
     const wrapper = await mountAndRender(ramp());
     layOutBars(wrapper);
     const count = wrapper.findAll(".bar").length;
     await wrapper.trigger("mousemove", { clientX: xOfBar(wrapper, count - 1) });
+    expect(wrapper.find(".absolute").exists()).toBe(true);
 
     holder.width!.value = CHART_WIDTH / 4;
     await nextTick();
     await flushPromises();
 
-    const guide = wrapper.find(".absolute");
-    if (guide.exists()) {
-      const left = parseFloat(guide.attributes("style")!.match(/left:\s*([\d.]+)px/)![1]);
-      expect(left).toBeLessThanOrEqual(CHART_WIDTH / 4);
-    }
+    expect(wrapper.emitted("hoverEnd")).toHaveLength(1);
+    expect(wrapper.find(".absolute").exists()).toBe(false);
   });
 
   test("a touch with no contact point reports nothing", async () => {
