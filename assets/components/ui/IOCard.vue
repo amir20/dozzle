@@ -1,6 +1,6 @@
 <template>
   <div
-    class="grid grid-cols-[auto_auto_1fr_auto_1fr] items-center gap-1.5 px-3 py-1.5 text-[11.5px] leading-none tabular-nums max-md:hidden @max-5xl:hidden"
+    class="grid grid-cols-[auto_auto_9ch_auto_9ch] items-center gap-1.5 px-3 py-1.5 text-[11.5px] leading-none tabular-nums max-md:hidden @max-5xl:hidden"
     :title="tooltip"
   >
     <template v-for="row in rows" :key="row.label">
@@ -18,6 +18,10 @@
 </template>
 
 <script lang="ts" setup>
+// The value columns are a fixed 9ch rather than 1fr. A rate runs anywhere from
+// "1K/s" to "1023.9K/s", so an auto-sized column resized on almost every tick and
+// walked the numbers (and the card, and its neighbours) left and right. 9ch with
+// tabular-nums holds the widest rate this can print, and the numbers stay put.
 import PhArrowUp from "~icons/ph/arrow-up";
 import PhArrowDown from "~icons/ph/arrow-down";
 
