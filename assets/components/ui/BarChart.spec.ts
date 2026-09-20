@@ -100,6 +100,22 @@ describe("<BarChart />", () => {
     expect(bars(wrapper).length).toBeGreaterThan(0);
     expect(heightOf(wrapper, 0)).toBeGreaterThan(50);
   });
+
+  // A handful of points across a wide element makes each column, and so the stroke
+  // drawn for it, far wider than the element is tall. The cap allowance subtracted
+  // from the drawable height is half a stroke, so unbounded it went past the whole
+  // height and every bar came out at zero. The cloud rail asks for whatever the API
+  // returns for the selected window, so this is reachable with real data.
+  test("a sparse series in a short chart still draws visible bars", async () => {
+    holder.height!.value = 16; // h-4, as the container table renders it
+    const wrapper = await mountAndRender(constant(50, 4));
+
+    const drawn = bars(wrapper);
+    expect(drawn).toHaveLength(4);
+    for (const bar of drawn) expect(bar.height).toBeGreaterThan(0);
+
+    holder.height!.value = 100;
+  });
 });
 
 describe("BarChart stability", () => {

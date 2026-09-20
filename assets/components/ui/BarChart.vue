@@ -141,7 +141,14 @@ const barWidth = computed(() => {
 // The round cap reaches half a stroke past the line's end, so the drawable height
 // stops short of the top by that much. Without it a bar at `max` is shaved flat by
 // the viewport edge, which reads as a bar that stopped growing.
-const usableHeight = computed(() => Math.max(0, height.value - barWidth.value / 2));
+//
+// Bounded to half the chart, because a short series in a wide element makes the
+// columns (and so the stroke) far wider than the element is tall: the cloud rail's
+// metrics are whatever the API returns for the chosen window, not the fixed 300 the
+// stats charts feed. Unbounded, that subtraction went negative and every bar in the
+// chart collapsed to nothing.
+const capRadius = computed(() => Math.min(barWidth.value / 2, height.value / 2));
+const usableHeight = computed(() => Math.max(0, height.value - capRadius.value));
 
 function pathFor(include: (bar: Bar) => boolean) {
   const bars = downsampledBars.value;
