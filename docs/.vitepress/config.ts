@@ -55,13 +55,21 @@ const searchLocales = Object.fromEntries(
 // MiniSearch splits on whitespace and punctuation, which produces nothing
 // useful for Chinese. Intl.Segmenter gives real word boundaries and handles the
 // Latin locales the same way, so it is applied to every index.
-const segmenter =
-  typeof Intl !== "undefined" && "Segmenter" in Intl ? new Intl.Segmenter("zh", { granularity: "word" }) : null;
-
-const tokenize = (text: string): string[] =>
-  segmenter
-    ? [...segmenter.segment(text)].filter((s) => s.isWordLike).map((s) => s.segment)
+//
+// VitePress ships this to the browser by calling toString() on it and rebuilding
+// it with new Function(), which drops the closure. Anything it needs has to be
+// created inside the body, and the cache has to hang off globalThis.
+const tokenize = (text: string): string[] => {
+  const g = globalThis as any;
+  if (g.__dozzleSegmenter === undefined) {
+    g.__dozzleSegmenter =
+      typeof Intl !== "undefined" && "Segmenter" in Intl ? new Intl.Segmenter("zh", { granularity: "word" }) : null;
+  }
+  const segmenter = g.__dozzleSegmenter;
+  return segmenter
+    ? [...segmenter.segment(text)].filter((s: any) => s.isWordLike).map((s: any) => s.segment)
     : text.split(/[\n\r\p{Z}\p{P}]+/u).filter(Boolean);
+};
 
 export default defineConfig({
   title: "Dozzle",
