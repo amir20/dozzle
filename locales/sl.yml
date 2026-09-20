@@ -232,11 +232,14 @@ settings:
   sidebar: Stranska vrstica
   behavior: Vedenje
   advanced: Napredno
-  instance: Ta instanca
+  setup: "Nastavitev"
   about: O programu
   reset: Ponastavi na privzeto
   sponsor: Podpri
   new-version: "Na voljo je {version}"
+  auto-update-on: "Dozzle se posodablja sam"
+  auto-update-daily: "Preveri vsak dan ob {time} po času strežnika."
+  auto-update-weekly: "Preveri vsak teden v nedeljo ob {time} po času strežnika."
   show-image-update-alert: 'Opozorila o posodobitvah slik'
   show-image-update-alert-desc: 'Obvesti, ko obstaja novejša oznaka slike, ki se izvaja.'
   cloud-desc: Pretakajte dnevnike v Dozzle Cloud za preiskave z umetno inteligenco in iskanje med instancami.
@@ -759,7 +762,10 @@ setup:
   copy: Kopiraj
   settings-title: Nastavitev Dozzle
   settings-desc: Prijava, dejanja na vsebnikih, lupina in Dozzle Cloud v nekaj korakih.
-  settings-open: Odpri nastavitev
+  settings-done-title: "Dozzle je nastavljen"
+  settings-done-desc: "Prijava je vklopljena. Odprite nastavitev za pregled dejanj na vsebnikih, lupine in Dozzle Cloud."
+  settings-closed-title: "Nastavitev je zaprta"
+  settings-closed-desc: "Brez prijave nastavitev sprejema spremembe le v prvih 15 minutah nove namestitve. Namesto tega uporabite okoljske spremenljivke."
   steps:
     login: Prijava
     login-note: To naredite najprej

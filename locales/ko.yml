@@ -232,11 +232,14 @@ settings:
   sidebar: 사이드바
   behavior: 동작
   advanced: 고급
-  instance: 이 인스턴스
+  setup: "설정"
   about: 정보
   reset: 기본값으로 재설정
   sponsor: 후원하기
   new-version: "{version} 사용 가능"
+  auto-update-on: "Dozzle가 스스로 최신 상태를 유지합니다"
+  auto-update-daily: "매일 {time}(서버 시간)에 확인합니다."
+  auto-update-weekly: "매주 일요일 {time}(서버 시간)에 확인합니다."
   show-image-update-alert: '이미지 업데이트 알림'
   show-image-update-alert-desc: '실행 중인 이미지에 더 새로운 태그가 있으면 알립니다.'
   cloud-desc: Dozzle Cloud로 로그를 스트리밍하여 AI 기반 조사 및 인스턴스 간 검색을 수행합니다.
@@ -756,7 +759,10 @@ setup:
   copy: 복사
   settings-title: Dozzle 설정
   settings-desc: 로그인, 컨테이너 작업, 셸, Dozzle Cloud를 몇 단계로 설정합니다.
-  settings-open: 설정 열기
+  settings-done-title: "Dozzle 설정 완료"
+  settings-done-desc: "로그인이 켜져 있습니다. 설정을 열어 컨테이너 작업, 셸, Dozzle Cloud를 확인하세요."
+  settings-closed-title: "설정이 닫혔습니다"
+  settings-closed-desc: "로그인이 없으면 새 설치 후 첫 15분 동안만 설정 변경을 받습니다. 대신 환경 변수를 사용하세요."
   steps:
     login: 로그인
     login-note: 가장 먼저 하세요

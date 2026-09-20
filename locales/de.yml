@@ -230,11 +230,14 @@ settings:
   sidebar: Seitenleiste
   behavior: Verhalten
   advanced: Erweitert
-  instance: Diese Instanz
+  setup: "Einrichtung"
   about: Über
   reset: Auf Standard zurücksetzen
   sponsor: Sponsern
   new-version: "{version} verfügbar"
+  auto-update-on: "Dozzle hält sich selbst aktuell"
+  auto-update-daily: "Prüft täglich um {time}, Serverzeit."
+  auto-update-weekly: "Prüft wöchentlich sonntags um {time}, Serverzeit."
   show-image-update-alert: 'Image-Update-Hinweise'
   show-image-update-alert-desc: 'Benachrichtigen, wenn ein neuerer Tag eines laufenden Images existiert.'
   cloud-desc: Streamen Sie Logs an Dozzle Cloud für KI-gestützte Analysen und Suche über Instanzen hinweg.
@@ -754,7 +757,10 @@ setup:
   copy: "Kopieren"
   settings-title: "Dozzle einrichten"
   settings-desc: "Anmeldung, Container-Aktionen, Shell und Dozzle Cloud in wenigen Schritten."
-  settings-open: "Einrichtung öffnen"
+  settings-done-title: "Dozzle ist eingerichtet"
+  settings-done-desc: "Die Anmeldung ist aktiv. Öffnen Sie die Einrichtung, um Container-Aktionen, Shell und Dozzle Cloud zu prüfen."
+  settings-closed-title: "Die Einrichtung ist geschlossen"
+  settings-closed-desc: "Ohne Anmeldung nimmt die Einrichtung nur in den ersten 15 Minuten einer neuen Installation Änderungen an. Verwenden Sie stattdessen Umgebungsvariablen."
   steps:
     login: "Anmeldung"
     login-note: "Zuerst erledigen"

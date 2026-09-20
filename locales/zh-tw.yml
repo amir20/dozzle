@@ -232,11 +232,14 @@ settings:
   sidebar: 側邊欄
   behavior: 行為
   advanced: 進階
-  instance: 此執行個體
+  setup: "設定"
   about: 關於
   reset: 重設為預設值
   sponsor: 贊助
   new-version: "{version} 已推出"
+  auto-update-on: "Dozzle 會自行保持最新版本"
+  auto-update-daily: "每天 {time} 檢查（伺服器時間）。"
+  auto-update-weekly: "每週日 {time} 檢查（伺服器時間）。"
   show-image-update-alert: '映像更新提醒'
   show-image-update-alert-desc: '當執行中的映像有較新的標籤時通知。'
   cloud-desc: 將日誌串流至 Dozzle Cloud，進行 AI 驅動的調查和跨實例搜尋。
@@ -756,7 +759,10 @@ setup:
   copy: 複製
   settings-title: 設定 Dozzle
   settings-desc: 幾個步驟完成登入、容器操作、Shell 與 Dozzle Cloud 的設定。
-  settings-open: 開啟設定精靈
+  settings-done-title: "Dozzle 已設定完成"
+  settings-done-desc: "登入已啟用。開啟設定精靈可檢視容器操作、Shell 與 Dozzle Cloud。"
+  settings-closed-title: "設定已關閉"
+  settings-closed-desc: "未啟用登入時，設定只在新安裝的前 15 分鐘內接受變更。請改用環境變數。"
   steps:
     login: 登入
     login-note: 請先完成此步驟

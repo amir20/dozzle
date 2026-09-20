@@ -230,11 +230,14 @@ settings:
   sidebar: Barra laterale
   behavior: Comportamento
   advanced: Avanzate
-  instance: Questa istanza
+  setup: "Configurazione"
   about: Informazioni
   reset: Ripristina predefiniti
   sponsor: Sponsorizza
   new-version: "{version} disponibile"
+  auto-update-on: "Dozzle si mantiene aggiornato"
+  auto-update-daily: "Controlla ogni giorno alle {time}, ora del server."
+  auto-update-weekly: "Controlla ogni settimana, la domenica alle {time}, ora del server."
   show-image-update-alert: 'Avvisi aggiornamento immagine'
   show-image-update-alert-desc: 'Avvisa quando esiste un tag più recente di un''immagine in esecuzione.'
   cloud-desc: Trasmetti i log a Dozzle Cloud per analisi basate su IA e ricerca tra le istanze.
@@ -754,7 +757,10 @@ setup:
   copy: Copia
   settings-title: Configura Dozzle
   settings-desc: Accesso, azioni sui container, shell e Dozzle Cloud in pochi passaggi.
-  settings-open: Apri configurazione
+  settings-done-title: "Dozzle è configurato"
+  settings-done-desc: "L'accesso è attivo. Apri la configurazione per rivedere azioni sui container, shell e Dozzle Cloud."
+  settings-closed-title: "La configurazione è chiusa"
+  settings-closed-desc: "Senza accesso, la configurazione accetta modifiche solo nei primi 15 minuti di una nuova installazione. Usa invece le variabili d'ambiente."
   steps:
     login: Accesso
     login-note: Fai questo per primo

@@ -230,11 +230,14 @@ settings:
   sidebar: Barre latérale
   behavior: Comportement
   advanced: Avancé
-  instance: Cette instance
+  setup: "Configuration"
   about: À propos
   reset: Rétablir les valeurs par défaut
   sponsor: Sponsoriser
   new-version: "{version} disponible"
+  auto-update-on: "Dozzle se met à jour tout seul"
+  auto-update-daily: "Vérifie chaque jour à {time}, heure du serveur."
+  auto-update-weekly: "Vérifie chaque semaine, le dimanche à {time}, heure du serveur."
   show-image-update-alert: 'Alertes de mise à jour d''image'
   show-image-update-alert-desc: 'Prévenir lorsqu''un tag plus récent d''une image en cours d''exécution existe.'
   cloud-desc: Diffusez les logs vers Dozzle Cloud pour des analyses assistées par IA et la recherche entre instances.
@@ -754,7 +757,10 @@ setup:
   copy: "Copier"
   settings-title: "Configurer Dozzle"
   settings-desc: "Connexion, actions sur les conteneurs, shell et Dozzle Cloud en quelques étapes."
-  settings-open: "Ouvrir la configuration"
+  settings-done-title: "Dozzle est configuré"
+  settings-done-desc: "La connexion est activée. Ouvrez la configuration pour revoir les actions sur les conteneurs, le shell et Dozzle Cloud."
+  settings-closed-title: "La configuration est fermée"
+  settings-closed-desc: "Sans connexion, la configuration n'accepte de modifications que pendant les 15 premières minutes d'une nouvelle installation. Utilisez plutôt des variables d'environnement."
   steps:
     login: "Connexion"
     login-note: "À faire en premier"

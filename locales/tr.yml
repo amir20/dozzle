@@ -233,11 +233,14 @@ settings:
   sidebar: Kenar çubuğu
   behavior: Davranış
   advanced: Gelişmiş
-  instance: Bu örnek
+  setup: "Kurulum"
   about: Hakkında
   reset: Varsayılanlara sıfırla
   sponsor: Sponsor ol
   new-version: "{version} mevcut"
+  auto-update-on: "Dozzle kendini güncel tutar"
+  auto-update-daily: "Her gün {time} saatinde kontrol eder (sunucu saati)."
+  auto-update-weekly: "Her hafta pazar günü {time} saatinde kontrol eder (sunucu saati)."
   show-image-update-alert: 'İmaj güncelleme uyarıları'
   show-image-update-alert-desc: 'Çalışan bir imajın daha yeni bir etiketi olduğunda bildir.'
   cloud-desc: AI destekli incelemeler ve örnekler arasında arama için logları Dozzle Cloud'a aktarın.
@@ -757,7 +760,10 @@ setup:
   copy: Kopyala
   settings-title: Dozzle kurulumu
   settings-desc: Giriş, konteyner işlemleri, kabuk ve Dozzle Cloud birkaç adımda.
-  settings-open: Kurulumu aç
+  settings-done-title: "Dozzle kuruldu"
+  settings-done-desc: "Giriş açık. Konteyner işlemlerini, kabuğu ve Dozzle Cloud'u gözden geçirmek için kurulumu açın."
+  settings-closed-title: "Kurulum kapandı"
+  settings-closed-desc: "Giriş olmadan kurulum, yalnızca yeni bir kurulumun ilk 15 dakikasında değişiklik kabul eder. Bunun yerine ortam değişkenlerini kullanın."
   steps:
     login: Giriş
     login-note: Önce bunu yapın

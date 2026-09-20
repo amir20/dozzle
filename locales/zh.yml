@@ -230,11 +230,14 @@ settings:
   sidebar: 侧边栏
   behavior: 行为
   advanced: 高级
-  instance: 此实例
+  setup: "设置"
   about: 关于
   reset: 恢复默认设置
   sponsor: 赞助
   new-version: "{version} 可用"
+  auto-update-on: "Dozzle 会自动保持最新"
+  auto-update-daily: "每天 {time} 检查（服务器时间）。"
+  auto-update-weekly: "每周日 {time} 检查（服务器时间）。"
   show-image-update-alert: '镜像更新提醒'
   show-image-update-alert-desc: '当运行中的镜像有更新的标签时通知。'
   cloud-desc: 将日志流式传输到 Dozzle Cloud，进行 AI 驱动的调查和跨实例搜索。
@@ -754,7 +757,10 @@ setup:
   copy: 复制
   settings-title: 设置 Dozzle
   settings-desc: 几步完成登录、容器操作、Shell 和 Dozzle Cloud 的设置。
-  settings-open: 打开设置向导
+  settings-done-title: "Dozzle 已完成设置"
+  settings-done-desc: "登录已开启。打开设置向导可查看容器操作、Shell 和 Dozzle Cloud。"
+  settings-closed-title: "设置已关闭"
+  settings-closed-desc: "未启用登录时，设置仅在新安装后的前 15 分钟内接受更改。请改用环境变量。"
   steps:
     login: 登录
     login-note: 请先完成此步
