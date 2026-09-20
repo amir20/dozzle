@@ -264,7 +264,13 @@ func (m *MultiHostService) saveNotificationConfig() {
 }
 
 // CloudConfig returns the current cloud config, or nil if not set.
+// The persister only exists once StartNotificationManager has run. The shell reads
+// this on every page render, so it is reachable before that and in modes that never
+// start a notification manager at all; no persister means nothing is linked.
 func (m *MultiHostService) CloudConfig() *notification.CloudConfig {
+	if m.persister == nil {
+		return nil
+	}
 	return m.persister.CloudConfig()
 }
 

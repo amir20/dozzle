@@ -147,6 +147,12 @@ func (h *handler) executeTemplate(w http.ResponseWriter, req *http.Request) {
 		// local cloud is one env var on this process — same as DOLIGENCE_URL,
 		// which is the API half of the same override.
 		config["cloudUrl"] = cloudWebURL()
+		// Whether this instance is linked decides whether the page asks for the
+		// cloud status and the recent-alerts history at all, so fetching it was a
+		// round trip both of those queued behind: on an instance an ocean away
+		// nothing cloud-shaped started until two round trips after first paint.
+		// It comes out of memory here, so the shell may as well carry it.
+		config["cloudConfig"] = h.cloudConfigPayload()
 		config["dataPersisted"] = profile.Persisted()
 		// Lets the page tell Dozzle's own container apart from other Dozzle
 		// containers, since updating it replaces the process serving the page.

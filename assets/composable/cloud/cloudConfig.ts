@@ -1,14 +1,21 @@
 import type { CloudConfig, CloudStatus } from "@/types/notifications";
 
-// Shared state across all component instances
-const cloudConfig = ref<CloudConfig | null>(null);
+// Shared state across all component instances.
+//
+// Seeded from the shell rather than fetched: the server reads this out of memory
+// when it renders the page, and everything else cloud-shaped keys off `linked`,
+// so asking for it over the wire put a round trip in front of the cloud status
+// and the recent-alerts history. Reads are open to any signed-in user; only
+// linking needs the role. The key is absent on the login page's cut-down config
+// and in unit tests that inject none.
+const cloudConfig = ref<CloudConfig | null>(config.enableCloud ? (config.cloudConfig ?? null) : null);
 const cloudStatus = ref<CloudStatus | null>(null);
 const cloudStatusError = ref<"auth" | "unavailable" | false>(false);
 const isLoadingCloudStatus = ref(false);
 
+// Re-reads what the server actually stored, for the forms that change it. Boot
+// does not call this — see the seed above.
 async function fetchCloudConfig() {
-  // Reads are open to any signed-in user; only linking needs the role. This
-  // guard is just for builds where cloud is off entirely.
   if (!config.enableCloud) {
     cloudConfig.value = null;
     return;
@@ -24,10 +31,6 @@ async function fetchCloudConfig() {
     cloudConfig.value = null;
   }
 }
-
-// Loaded once at module import (i.e. app boot). Every consumer reads the
-// shared `cloudConfig` ref — no per-component fetch.
-const initialLoad = fetchCloudConfig();
 
 async function loadCloudStatus() {
   isLoadingCloudStatus.value = true;
@@ -76,7 +79,6 @@ export function useCloudConfig() {
     cloudStatusError,
     isLoadingCloudStatus,
     isPro,
-    initialLoad,
     fetchCloudConfig,
     fetchCloudStatus,
     ensureCloudStatus,
