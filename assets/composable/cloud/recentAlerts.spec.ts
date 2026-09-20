@@ -90,6 +90,44 @@ describe("useRecentAlerts", () => {
     await vi.waitFor(() => expect(alerts.value).toHaveLength(1));
   });
 
+  test("fetches the history once per page, however many surfaces ask", async () => {
+    // The bell in the nav asks on mount; the dot on a container row asks when
+    // its row appears, which is after the event stream has delivered containers
+    // and the bell's request has already landed. Both were served.
+    const { useRecentAlerts } = await freshModule();
+    setLinked(true);
+    respondWith([alert()]);
+
+    const { fetchRecentAlerts, alerts } = useRecentAlerts();
+    await fetchRecentAlerts();
+    expect(alerts.value).toHaveLength(1);
+
+    // Every module instance this file has built watches the same link ref, so
+    // only what happens from here can be attributed to this one.
+    vi.mocked(global.fetch).mockClear();
+    await fetchRecentAlerts();
+    expect(global.fetch).not.toHaveBeenCalled();
+  });
+
+  test("the poll still re-reads, and a failed load is retried", async () => {
+    const { useRecentAlerts } = await freshModule();
+    setLinked(true);
+    global.fetch = vi.fn().mockRejectedValue(new Error("offline"));
+
+    const { fetchRecentAlerts, refreshRecentAlerts, failed, alerts } = useRecentAlerts();
+    await fetchRecentAlerts();
+    expect(failed.value).toBe(true);
+
+    respondWith([alert()]);
+    await fetchRecentAlerts();
+    expect(failed.value).toBe(false);
+    expect(alerts.value).toHaveLength(1);
+
+    vi.mocked(global.fetch).mockClear();
+    await refreshRecentAlerts();
+    expect(global.fetch).toHaveBeenCalledTimes(1);
+  });
+
   test("drops the history when the instance is unlinked in place", async () => {
     // Unlinking does not reload the page, so without this the notifications
     // history went on listing alerts under a line saying nothing is remembered.

@@ -28,7 +28,12 @@
 </template>
 
 <script lang="ts" setup>
-const { alerts, fetchRecentAlerts, loading, loaded, failed } = useRecentAlerts();
+const { alerts, fetchRecentAlerts, refreshRecentAlerts, loading, loaded, failed } = useRecentAlerts();
 
-onMounted(() => fetchRecentAlerts());
+// The rows are cached for the page, which is what keeps the bell and the dots on
+// a container table to one request between them. This surface is the history
+// itself, so opening it re-reads rather than showing what the bell happened to
+// fetch a minute ago. Either branch is one request: fill the list if nothing has
+// read it yet, re-read it if something has.
+onMounted(() => (loaded.value ? refreshRecentAlerts() : fetchRecentAlerts()));
 </script>
