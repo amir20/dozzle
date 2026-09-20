@@ -1,4 +1,5 @@
 import { describe, expect, test, vi } from "vitest";
+import { computed, isReactive, reactive } from "vue";
 import { Container, emptyStat, type Stat } from "./Container";
 
 vi.mock("@/stores/config", () => ({
@@ -158,6 +159,47 @@ describe("Container.updateStat", () => {
     c.updateStat(latest);
     expect(c.statsHistory).toHaveLength(300);
     expect(c.statsHistory.at(-1)).toEqual(latest);
+  });
+});
+
+// The store keeps containers in a deeply reactive array. That is what used to drag
+// all 300 stats of every container into the proxy graph and made a stat tick cost
+// tens of milliseconds across a busy table. These two guard the arrangement that
+// fixed it, and they fail independently: `markRaw` is what keeps the window out of
+// the proxy graph, and the `triggerRef` is the only thing that wakes a reader once
+// it is out. Losing either one is silent without them.
+describe("Container stats reactivity", () => {
+  test("the series stays raw inside a reactive array", () => {
+    const containers = reactive([makeContainer()]);
+    const c = containers[0] as unknown as Container;
+
+    expect(isReactive(c.statsHistory)).toBe(false);
+    c.updateStat(makeStat({ cpu: 42 }));
+    expect(isReactive(c.statsHistory)).toBe(false);
+    expect(isReactive(c.statsHistory.at(-1))).toBe(false);
+    expect(c.statsHistory.at(-1)?.cpu).toBe(42);
+  });
+
+  test("a reader of statsHistory re-runs on a new sample", () => {
+    const containers = reactive([makeContainer()]);
+    const c = containers[0] as unknown as Container;
+
+    let runs = 0;
+    const latestCpu = computed(() => {
+      runs++;
+      return c.statsHistory.at(-1)!.cpu;
+    });
+
+    expect(latestCpu.value).toBe(0);
+    expect(runs).toBe(1);
+
+    c.updateStat(makeStat({ cpu: 42 }));
+    expect(latestCpu.value).toBe(42);
+    expect(runs).toBe(2);
+
+    // and stays memoized when nothing has arrived
+    expect(latestCpu.value).toBe(42);
+    expect(runs).toBe(2);
   });
 });
 

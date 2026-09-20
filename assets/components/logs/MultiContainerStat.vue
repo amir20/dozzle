@@ -80,7 +80,8 @@ const { containers } = defineProps<{
 
 const { t } = useI18n();
 
-const totalStat = ref<Stat>(emptyStat());
+// shallow, for the reason given on HostCard's own totalStat.
+const totalStat = shallowRef<Stat>(emptyStat());
 const { history, reset } = useSimpleRefHistory(totalStat, { capacity: 300 });
 
 // The padded head of the series, which is not data. See `Container.statsHistory`.
