@@ -127,6 +127,10 @@ watch(
     }
     totalStat.value = initial[0];
     reset({ initial: initial.reverse() });
+    // `max`, not `min`: the two only differ when one container's history is
+    // shorter than another's, which means that container did not exist yet, and
+    // zero is its honest contribution to a total. Taking the min would let one
+    // newly created container blank the sampled region for everything else.
     sampledCount.value = Math.min(300, Math.max(0, ...containers.map((c) => c.sampledStats)));
     // Charts cache their downsampled bars and only patch the last bar per tick;
     // a container switch replaces the whole series, so force a full recalculate.
