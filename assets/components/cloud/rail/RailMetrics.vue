@@ -145,7 +145,7 @@ const charts = computed(() => [
   {
     key: "cpu",
     label: t("label.cpu"),
-    barClass: "bg-primary",
+    barClass: "text-primary",
     peak: Math.max(0, ...points.value.map((p) => p.cpu)),
     format: (v: number) => `${v.toFixed(1)}%`,
     data: points.value.map((p) => ({ percent: p.cpu, value: p.cpu })),
@@ -153,7 +153,7 @@ const charts = computed(() => [
   {
     key: "memory",
     label: t("label.mem"),
-    barClass: "bg-secondary",
+    barClass: "text-secondary",
     // Bytes rather than percent: it is what the hover reads out, and a peak in
     // a different unit than the value it qualifies reads as a bug.
     peak: Math.max(0, ...points.value.map((p) => p.memoryUsage)),
