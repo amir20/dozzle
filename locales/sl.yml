@@ -237,6 +237,7 @@ settings:
   reset: Ponastavi na privzeto
   sponsor: Podpri
   new-version: "Na voljo je {version}"
+  update-available: "Na voljo je novejša slika"
   auto-update-on: "Dozzle se posodablja sam"
   auto-update-daily: "Preveri vsak dan ob {time} po času strežnika."
   auto-update-weekly: "Preveri vsak teden v nedeljo ob {time} po času strežnika."

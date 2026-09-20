@@ -25,7 +25,7 @@ func stubAutoUpdate(t *testing.T, status imagecheck.Status) *autoUpdateRecorder 
 	t.Helper()
 	rec := &autoUpdateRecorder{status: status}
 	oldCheck := selfUpdateCheck
-	selfUpdateCheck = func(_ context.Context, image string, _ []string) imagecheck.Result {
+	selfUpdateCheck = func(_ context.Context, image string, _ []string, _ bool) imagecheck.Result {
 		rec.mu.Lock()
 		defer rec.mu.Unlock()
 		rec.checks++
@@ -130,8 +130,8 @@ func TestAutoUpdate_DoesNotRetryRolledBackImage(t *testing.T) {
 	rec := stubAutoUpdate(t, imagecheck.StatusUpdateAvailable)
 	digest := "sha256:broken"
 	oldCheck := selfUpdateCheck
-	selfUpdateCheck = func(ctx context.Context, image string, digests []string) imagecheck.Result {
-		r := oldCheck(ctx, image, digests)
+	selfUpdateCheck = func(ctx context.Context, image string, digests []string, force bool) imagecheck.Result {
+		r := oldCheck(ctx, image, digests, force)
 		r.RemoteDigest = digest
 		return r
 	}

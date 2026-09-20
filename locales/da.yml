@@ -235,6 +235,7 @@ settings:
   reset: Nulstil til standard
   sponsor: Sponsorer
   new-version: "{version} tilgængelig"
+  update-available: "Et nyere image er tilgængeligt"
   auto-update-on: "Dozzle holder sig selv opdateret"
   auto-update-daily: "Tjekker dagligt kl. {time}, servertid."
   auto-update-weekly: "Tjekker ugentligt om søndagen kl. {time}, servertid."

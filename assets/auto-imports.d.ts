@@ -197,6 +197,7 @@ declare global {
   const safeRedirect: typeof import('./composable/ui/safeRedirect').safeRedirect
   const scrollContextKey: typeof import('./composable/logs/scrollContext').scrollContextKey
   const search: typeof import('./stores/settings').search
+  const selfUpdateHeadline: typeof import('./composable/setup/selfUpdate').selfUpdateHeadline
   const sessionHost: typeof import('./composable/app/storage').sessionHost
   const setActivePinia: typeof import('pinia').setActivePinia
   const setMapStoreSuffix: typeof import('pinia').setMapStoreSuffix
@@ -421,6 +422,7 @@ declare global {
   const useScrollLock: typeof import('@vueuse/core').useScrollLock
   const useSearchFilter: typeof import('./composable/logs/search').useSearchFilter
   const useSelfUpdate: typeof import('./composable/setup/selfUpdate').useSelfUpdate
+  const useSelfUpdateCheck: typeof import('./composable/setup/selfUpdate').useSelfUpdateCheck
   const useSeoMeta: typeof import('@vueuse/head').useSeoMeta
   const useServiceStream: typeof import('./composable/logs/eventStreams').useServiceStream
   const useSessionStorage: typeof import('@vueuse/core').useSessionStorage
@@ -772,6 +774,7 @@ declare module 'vue' {
     readonly safeRedirect: UnwrapRef<typeof import('./composable/ui/safeRedirect')['safeRedirect']>
     readonly scrollContextKey: UnwrapRef<typeof import('./composable/logs/scrollContext')['scrollContextKey']>
     readonly search: UnwrapRef<typeof import('./stores/settings')['search']>
+    readonly selfUpdateHeadline: UnwrapRef<typeof import('./composable/setup/selfUpdate')['selfUpdateHeadline']>
     readonly sessionHost: UnwrapRef<typeof import('./composable/app/storage')['sessionHost']>
     readonly setActivePinia: UnwrapRef<typeof import('pinia')['setActivePinia']>
     readonly setMapStoreSuffix: UnwrapRef<typeof import('pinia')['setMapStoreSuffix']>
@@ -993,6 +996,7 @@ declare module 'vue' {
     readonly useScrollLock: UnwrapRef<typeof import('@vueuse/core')['useScrollLock']>
     readonly useSearchFilter: UnwrapRef<typeof import('./composable/logs/search')['useSearchFilter']>
     readonly useSelfUpdate: UnwrapRef<typeof import('./composable/setup/selfUpdate')['useSelfUpdate']>
+    readonly useSelfUpdateCheck: UnwrapRef<typeof import('./composable/setup/selfUpdate')['useSelfUpdateCheck']>
     readonly useSeoMeta: UnwrapRef<typeof import('@vueuse/head')['useSeoMeta']>
     readonly useServiceStream: UnwrapRef<typeof import('./composable/logs/eventStreams')['useServiceStream']>
     readonly useSessionStorage: UnwrapRef<typeof import('@vueuse/core')['useSessionStorage']>

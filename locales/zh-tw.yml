@@ -237,6 +237,7 @@ settings:
   reset: 重設為預設值
   sponsor: 贊助
   new-version: "{version} 已推出"
+  update-available: "有更新的映像檔可用"
   auto-update-on: "Dozzle 會自行保持最新版本"
   auto-update-daily: "每天 {time} 檢查（伺服器時間）。"
   auto-update-weekly: "每週日 {time} 檢查（伺服器時間）。"

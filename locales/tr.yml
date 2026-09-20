@@ -238,6 +238,7 @@ settings:
   reset: Varsayılanlara sıfırla
   sponsor: Sponsor ol
   new-version: "{version} mevcut"
+  update-available: "Daha yeni bir imaj mevcut"
   auto-update-on: "Dozzle kendini güncel tutar"
   auto-update-daily: "Her gün {time} saatinde kontrol eder (sunucu saati)."
   auto-update-weekly: "Her hafta pazar günü {time} saatinde kontrol eder (sunucu saati)."
