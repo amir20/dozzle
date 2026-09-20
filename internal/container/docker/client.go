@@ -478,7 +478,7 @@ func (d *Client) ContainerEvents(ctx context.Context, messages chan<- container.
 				select {
 				case messages <- container.ContainerEvent{
 					ActorID:         message.Actor.ID[:12],
-					Name:            string(message.Action),
+					Name:            dockerHealthEventName(message.Action, message.Actor.Attributes),
 					Host:            d.host.ID,
 					ActorAttributes: message.Actor.Attributes,
 					Time:            time.Now(),
@@ -507,6 +507,17 @@ func (d *Client) ContainerLogsBetweenDates(ctx context.Context, id string, from 
 	}
 
 	return reader, nil
+}
+
+// dockerHealthEventName maps a Docker/Podman events Action onto the name the
+// rest of Dozzle expects. Docker encodes health as "health_status: healthy".
+// Podman sends the bare action and the value in actor attributes.
+func dockerHealthEventName(action events.Action, attrs map[string]string) string {
+	name := string(action)
+	if status, ok := container.HealthStatusOf(container.ContainerEvent{Name: name, ActorAttributes: attrs}); ok {
+		return "health_status: " + status
+	}
+	return name
 }
 
 func (d *Client) Ping(ctx context.Context) error {

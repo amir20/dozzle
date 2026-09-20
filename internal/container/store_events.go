@@ -3,7 +3,6 @@ package container
 import (
 	"context"
 	"slices"
-	"strings"
 	"time"
 
 	"github.com/puzpuzpuz/xsync/v4"
@@ -197,8 +196,11 @@ func (s *Store) handleEvent(event ContainerEvent) {
 			return true
 		})
 
-	case "health_status: healthy", "health_status: unhealthy":
-		_, health, _ := strings.Cut(event.Name, ": ")
+	case "health_status: healthy", "health_status: unhealthy", "health_status":
+		health, ok := HealthStatusOf(event)
+		if !ok {
+			break
+		}
 		log.Debug().Str("id", id).Str("health", health).Msg("container health status changed")
 		s.patch(id, func(c *Container) bool {
 			c.Health = health

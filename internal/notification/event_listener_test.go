@@ -50,6 +50,15 @@ func TestNormalizeEvent(t *testing.T) {
 			wantName:       "health_status",
 			wantAttributes: nil,
 		},
+		{
+			name: "podman health_status attribute is copied to healthStatus",
+			event: container.ContainerEvent{
+				Name:            "health_status",
+				ActorAttributes: map[string]string{"health_status": "unhealthy"},
+			},
+			wantName:       "health_status",
+			wantAttributes: map[string]string{"health_status": "unhealthy", "healthStatus": "unhealthy"},
+		},
 	}
 
 	for _, tt := range tests {

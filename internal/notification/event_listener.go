@@ -2,7 +2,6 @@ package notification
 
 import (
 	"context"
-	"strings"
 	"sync"
 	"time"
 
@@ -82,19 +81,22 @@ func (l *ContainerEventListener) IsRunning() bool {
 	return l.cancelFunc != nil
 }
 
-// normalizeEvent rewrites Docker's health event so notification expressions can match it.
-// Docker emits health events as "health_status: healthy" / "health_status: unhealthy".
-// We collapse them to a bare "health_status" name and expose the status as a "healthStatus"
-// attribute, so expressions like
-// name == "health_status" && attributes["healthStatus"] == "unhealthy" work.
+// normalizeEvent rewrites a health event so notification expressions can match it.
+// Docker emits "health_status: healthy" / "health_status: unhealthy". Podman emits
+// the bare action "health_status" with the value in actor attributes. We collapse
+// both to a bare "health_status" name and expose the status as "healthStatus", so
+// expressions like name == "health_status" && attributes["healthStatus"] == "unhealthy"
+// work.
 func normalizeEvent(event *container.ContainerEvent) {
-	if name, status, found := strings.Cut(event.Name, ": "); found && name == "health_status" {
-		event.Name = name
-		if event.ActorAttributes == nil {
-			event.ActorAttributes = map[string]string{}
-		}
-		event.ActorAttributes["healthStatus"] = status
+	status, ok := container.HealthStatusOf(*event)
+	if !ok {
+		return
 	}
+	event.Name = "health_status"
+	if event.ActorAttributes == nil {
+		event.ActorAttributes = map[string]string{}
+	}
+	event.ActorAttributes["healthStatus"] = status
 }
 
 func (l *ContainerEventListener) enrich(ctx context.Context, rawEvents <-chan container.ContainerEvent) {

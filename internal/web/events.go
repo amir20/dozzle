@@ -286,17 +286,17 @@ func (h *handler) streamEvents(w http.ResponseWriter, r *http.Request) {
 					log.Error().Err(err).Msg("error writing event to event stream")
 					return
 				}
-			case "health_status: healthy", "health_status: unhealthy":
+			case "health_status: healthy", "health_status: unhealthy", "health_status":
 				if !isVisible(event.Host, event.ActorID) {
 					continue
 				}
-				healthy := "unhealthy"
-				if event.Name == "health_status: healthy" {
-					healthy = "healthy"
+				health, ok := container.HealthStatusOf(event)
+				if !ok {
+					continue
 				}
 				payload := map[string]string{
 					"actorId": event.ActorID,
-					"health":  healthy,
+					"health":  health,
 				}
 
 				if err := sseWriter.Event("container-health", payload); err != nil {

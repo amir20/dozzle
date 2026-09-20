@@ -574,6 +574,10 @@ func TestStore_lifecycleEvents(t *testing.T) {
 	waitForEvent(t, events, "health_status: unhealthy")
 	assert.Equal(t, "unhealthy", state().Health)
 
+	feed <- ContainerEvent{Name: "health_status", ActorID: "1234", ActorAttributes: map[string]string{"health_status": "healthy"}}
+	waitForEvent(t, events, "health_status")
+	assert.Equal(t, "healthy", state().Health)
+
 	feed <- ContainerEvent{Name: "destroy", ActorID: "1234"}
 	waitForEvent(t, events, "destroy")
 	containers, err := store.ListContainers(t.Context(), ContainerLabels{})
