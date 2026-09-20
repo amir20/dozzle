@@ -230,11 +230,14 @@ settings:
   sidebar: Sidepanel
   behavior: Adfærd
   advanced: Avanceret
-  instance: Denne instans
+  setup: "Opsætning"
   about: Om
   reset: Nulstil til standard
   sponsor: Sponsorer
   new-version: "{version} tilgængelig"
+  auto-update-on: "Dozzle holder sig selv opdateret"
+  auto-update-daily: "Tjekker dagligt kl. {time}, servertid."
+  auto-update-weekly: "Tjekker ugentligt om søndagen kl. {time}, servertid."
   show-image-update-alert: 'Image-opdateringer'
   show-image-update-alert-desc: 'Giv besked, når der findes et nyere tag til et kørende image.'
   cloud-desc: Stream logs til Dozzle Cloud for AI-drevne undersøgelser og søgning på tværs af installationer.
@@ -754,7 +757,10 @@ setup:
   copy: "Kopiér"
   settings-title: "Opsæt Dozzle"
   settings-desc: "Login, containerhandlinger, shell og Dozzle Cloud i få trin."
-  settings-open: "Åbn opsætning"
+  settings-done-title: "Dozzle er sat op"
+  settings-done-desc: "Login er slået til. Åbn opsætningen for at gennemgå containerhandlinger, shell og Dozzle Cloud."
+  settings-closed-title: "Opsætningen er lukket"
+  settings-closed-desc: "Uden login tager opsætningen kun imod ændringer i de første 15 minutter af en ny installation. Brug miljøvariabler i stedet."
   steps:
     login: "Login"
     login-note: "Gør dette først"

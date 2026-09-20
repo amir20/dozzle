@@ -29,6 +29,7 @@ declare global {
   const automaticRedirect: typeof import('./stores/settings').automaticRedirect
   const buildViewContext: typeof import('./composable/logs/viewContext').buildViewContext
   const canHover: typeof import('./composable/ui/media').canHover
+  const canSelfUpdate: typeof import('./composable/setup/selfUpdate').canSelfUpdate
   const clearCloudWelcomePending: typeof import('./composable/cloud/cloudWelcome').clearCloudWelcomePending
   const clearSetupResume: typeof import('./composable/setup/setup').clearSetupResume
   const cloudWelcomePending: typeof import('./composable/cloud/cloudWelcome').cloudWelcomePending
@@ -418,6 +419,7 @@ declare global {
   const useScrollContext: typeof import('./composable/logs/scrollContext').useScrollContext
   const useScrollLock: typeof import('@vueuse/core').useScrollLock
   const useSearchFilter: typeof import('./composable/logs/search').useSearchFilter
+  const useSelfUpdate: typeof import('./composable/setup/selfUpdate').useSelfUpdate
   const useSeoMeta: typeof import('@vueuse/head').useSeoMeta
   const useServiceStream: typeof import('./composable/logs/eventStreams').useServiceStream
   const useSessionStorage: typeof import('@vueuse/core').useSessionStorage
@@ -559,6 +561,9 @@ declare global {
   export type { AlertType, AlertPrefill, AlertFormOptions, ContainerResult, SaveBlocker } from './composable/notifications/alertForm'
   import('./composable/notifications/alertForm')
   // @ts-ignore
+  export type { SelfUpdatePhase } from './composable/setup/selfUpdate'
+  import('./composable/setup/selfUpdate')
+  // @ts-ignore
   export type { SetupError, SetupStepId, SetupStepState, AutoUpdateMode, AutoUpdateReason, SetupAutoUpdate, SetupStatus, SetupNextResult, SetupStepHandle, SetupCloudFacts } from './composable/setup/setup'
   import('./composable/setup/setup')
   // @ts-ignore
@@ -602,6 +607,7 @@ declare module 'vue' {
     readonly automaticRedirect: UnwrapRef<typeof import('./stores/settings')['automaticRedirect']>
     readonly buildViewContext: UnwrapRef<typeof import('./composable/logs/viewContext')['buildViewContext']>
     readonly canHover: UnwrapRef<typeof import('./composable/ui/media')['canHover']>
+    readonly canSelfUpdate: UnwrapRef<typeof import('./composable/setup/selfUpdate')['canSelfUpdate']>
     readonly clearCloudWelcomePending: UnwrapRef<typeof import('./composable/cloud/cloudWelcome')['clearCloudWelcomePending']>
     readonly clearSetupResume: UnwrapRef<typeof import('./composable/setup/setup')['clearSetupResume']>
     readonly cloudWelcomePending: UnwrapRef<typeof import('./composable/cloud/cloudWelcome')['cloudWelcomePending']>
@@ -984,6 +990,7 @@ declare module 'vue' {
     readonly useScrollContext: UnwrapRef<typeof import('./composable/logs/scrollContext')['useScrollContext']>
     readonly useScrollLock: UnwrapRef<typeof import('@vueuse/core')['useScrollLock']>
     readonly useSearchFilter: UnwrapRef<typeof import('./composable/logs/search')['useSearchFilter']>
+    readonly useSelfUpdate: UnwrapRef<typeof import('./composable/setup/selfUpdate')['useSelfUpdate']>
     readonly useSeoMeta: UnwrapRef<typeof import('@vueuse/head')['useSeoMeta']>
     readonly useServiceStream: UnwrapRef<typeof import('./composable/logs/eventStreams')['useServiceStream']>
     readonly useSessionStorage: UnwrapRef<typeof import('@vueuse/core')['useSessionStorage']>

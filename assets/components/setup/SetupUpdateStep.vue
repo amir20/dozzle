@@ -126,7 +126,9 @@ import type { AutoUpdateMode, SetupAutoUpdate, SetupNextResult, SetupStatus } fr
 const { status } = defineProps<{ status: SetupStatus }>();
 
 const { t } = useI18n();
-const { saveConfig, updateSelf, waitForRestart } = useSetup();
+const { saveConfig } = useSetup();
+// Coming back from the restart lands on this step again, showing the version it now runs.
+const { phase, progress, error, errorDetail, updateNow: runUpdate } = useSelfUpdate({ resume: "update" });
 
 // The wizard only mounts this step when the server reports autoUpdate.
 const autoUpdate = computed<SetupAutoUpdate>(
@@ -147,27 +149,7 @@ const schedule = ref<Exclude<AutoUpdateMode, "off">>(autoUpdate.value.mode === "
 const time = ref(autoUpdate.value.time || "03:00");
 const times = computed(() => setupUpdateTimes(autoUpdate.value.time));
 
-const phase = ref<"idle" | "pulling" | "up-to-date" | "restarting" | "timeout">("idle");
-const progress = ref<number>();
 const saving = ref(false);
-const error = ref("");
-// The daemon's own words, kept under a plain-language summary for anyone debugging.
-const errorDetail = ref("");
-
-// Pull failures come back as raw daemon text. The common ones get a sentence a person
-// can act on; anything unrecognised is shown as it came.
-function describeUpdateError(message: string) {
-  if (/pull access denied|repository does not exist|manifest unknown|not found|unauthorized|denied/i.test(message)) {
-    error.value = t("setup.update.pull-denied", { image: autoUpdate.value.image });
-    errorDetail.value = message;
-  } else if (message) {
-    error.value = message;
-    errorDetail.value = "";
-  } else {
-    error.value = t("setup.error.generic");
-    errorDetail.value = "";
-  }
-}
 
 // actions-off is not a blocker here: the step only shows when actions are on or about
 // to be, so the schedule can be saved now and starts working after the restart.
@@ -188,63 +170,11 @@ const blockedReason = computed(() => {
 // dozzle.yml outside a volume is lost on the next recreate, so nothing is saved there.
 const canEdit = computed(() => status.dataPersisted && status.canWrite && !status.locked.autoUpdate && !blocked.value);
 
-// A pinned tag can still be pulled by hand, it just reports up to date. Everything
-// else that blocks the schedule also blocks replacing the container.
-const canUpdateNow = computed(
-  () =>
-    status.enableActions &&
-    autoUpdate.value.reason !== "not-server" &&
-    autoUpdate.value.reason !== "no-container" &&
-    autoUpdate.value.reason !== "swarm-worker" &&
-    phase.value !== "restarting",
-);
+const canUpdateNow = computed(() => canSelfUpdate(status) && phase.value !== "restarting");
 
 const mode = computed<AutoUpdateMode>(() => (enabled.value ? schedule.value : "off"));
 
-async function updateNow() {
-  error.value = "";
-  errorDetail.value = "";
-  progress.value = undefined;
-  phase.value = "pulling";
-  const pullProgress = createPullProgress();
-  let launched = false;
-  let finished = false;
-
-  try {
-    const response = await updateSelf();
-    await readUpdateProgress(response, (event) => {
-      if (event.status === "pulling") {
-        progress.value = pullProgress(event) ?? progress.value;
-      } else if (event.status === "done") {
-        launched = finished = true;
-      } else if (event.status === "up-to-date") {
-        finished = true;
-        phase.value = "up-to-date";
-      } else if (event.status === "error") {
-        finished = true;
-        phase.value = "idle";
-        describeUpdateError(event.error ?? "");
-      }
-    });
-  } catch (e) {
-    finished = true;
-    phase.value = "idle";
-    error.value = e instanceof SetupError && e.status === 403 ? t("setup.actions.no-access") : t("setup.error.generic");
-  }
-
-  if (!finished) {
-    // The stream closed without saying how it went.
-    phase.value = "idle";
-    error.value = t("setup.error.generic");
-    return;
-  }
-  if (!launched) return;
-
-  // The new container comes back on the same step, showing the version it now runs.
-  writeSetupResume("update");
-  phase.value = "restarting";
-  if (!(await waitForRestart({ timeout: 180_000, mustGoDown: true }))) phase.value = "timeout";
-}
+const updateNow = () => runUpdate(autoUpdate.value.image);
 
 function changed() {
   return mode.value !== autoUpdate.value.mode || (enabled.value && time.value !== autoUpdate.value.time);

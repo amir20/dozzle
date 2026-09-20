@@ -339,11 +339,14 @@ settings:
   sidebar: Sidebar
   behavior: Behavior
   advanced: Advanced
-  instance: This instance
+  setup: Setup
   about: About
   reset: Reset to defaults
   sponsor: Sponsor
   new-version: "{version} available"
+  auto-update-on: Dozzle keeps itself up to date
+  auto-update-daily: Checks daily at {time}, server time.
+  auto-update-weekly: Checks weekly on Sunday at {time}, server time.
   cloud-desc: Stream logs to Dozzle Cloud for AI-powered investigations and search across instances.
   locale: Language
   small-scrollbars: Thin scrollbars
@@ -762,7 +765,10 @@ setup:
   copy: Copy
   settings-title: Set up Dozzle
   settings-desc: Login, container actions, shell and Dozzle Cloud in a few steps.
-  settings-open: Open setup
+  settings-done-title: Dozzle is set up
+  settings-done-desc: Login is on. Open setup to review container actions, shell and Dozzle Cloud.
+  settings-closed-title: Setup is closed
+  settings-closed-desc: Without a login, setup only takes changes in the first 15 minutes of a new install. Use environment variables instead.
   steps:
     login: Login
     login-note: Do this first

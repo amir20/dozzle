@@ -238,11 +238,14 @@ settings:
   sidebar: Bilah sisi
   behavior: Perilaku
   advanced: Lanjutan
-  instance: Instans ini
+  setup: "Penyiapan"
   about: Tentang
   reset: Kembalikan ke default
   sponsor: Sponsori
   new-version: "{version} tersedia"
+  auto-update-on: "Dozzle memperbarui dirinya sendiri"
+  auto-update-daily: "Memeriksa setiap hari pukul {time}, waktu server."
+  auto-update-weekly: "Memeriksa setiap minggu pada hari Minggu pukul {time}, waktu server."
   show-image-update-alert: 'Peringatan pembaruan image'
   show-image-update-alert-desc: 'Beri tahu jika ada tag lebih baru untuk image yang sedang berjalan.'
   cloud-desc: Streaming log ke Dozzle Cloud untuk investigasi bertenaga AI dan pencarian lintas instans.
@@ -766,7 +769,10 @@ setup:
   copy: "Salin"
   settings-title: "Siapkan Dozzle"
   settings-desc: "Login, aksi kontainer, shell, dan Dozzle Cloud dalam beberapa langkah."
-  settings-open: "Buka penyiapan"
+  settings-done-title: "Dozzle sudah disiapkan"
+  settings-done-desc: "Login aktif. Buka penyiapan untuk meninjau aksi kontainer, shell, dan Dozzle Cloud."
+  settings-closed-title: "Penyiapan sudah ditutup"
+  settings-closed-desc: "Tanpa login, penyiapan hanya menerima perubahan dalam 15 menit pertama instalasi baru. Gunakan variabel lingkungan sebagai gantinya."
   steps:
     login: "Login"
     login-note: "Lakukan ini dulu"

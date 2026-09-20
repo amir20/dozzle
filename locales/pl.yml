@@ -232,11 +232,14 @@ settings:
   sidebar: Pasek boczny
   behavior: Zachowanie
   advanced: Zaawansowane
-  instance: Ta instancja
+  setup: "Konfiguracja"
   about: O programie
   reset: Przywróć domyślne
   sponsor: Wesprzyj
   new-version: "{version} jest dostępna"
+  auto-update-on: "Dozzle sam się aktualizuje"
+  auto-update-daily: "Sprawdza codziennie o {time} czasu serwera."
+  auto-update-weekly: "Sprawdza co tydzień w niedzielę o {time} czasu serwera."
   show-image-update-alert: 'Alerty aktualizacji obrazu'
   show-image-update-alert-desc: 'Powiadamiaj, gdy istnieje nowszy tag uruchomionego obrazu.'
   cloud-desc: Przesyłaj logi do Dozzle Cloud w celu analiz wspomaganych przez AI i wyszukiwania między instancjami.
@@ -756,7 +759,10 @@ setup:
   copy: Kopiuj
   settings-title: Skonfiguruj Dozzle
   settings-desc: Logowanie, akcje kontenerów, powłoka i Dozzle Cloud w kilku krokach.
-  settings-open: Otwórz konfigurację
+  settings-done-title: "Dozzle jest skonfigurowany"
+  settings-done-desc: "Logowanie jest włączone. Otwórz konfigurację, aby przejrzeć akcje kontenerów, powłokę i Dozzle Cloud."
+  settings-closed-title: "Konfiguracja jest zamknięta"
+  settings-closed-desc: "Bez logowania konfiguracja przyjmuje zmiany tylko przez pierwsze 15 minut nowej instalacji. Zamiast tego użyj zmiennych środowiskowych."
   steps:
     login: Logowanie
     login-note: Zrób to najpierw

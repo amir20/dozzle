@@ -231,11 +231,14 @@ settings:
   sidebar: Zijbalk
   behavior: Gedrag
   advanced: Geavanceerd
-  instance: Deze instantie
+  setup: "Instellen"
   about: Over
   reset: Standaardwaarden herstellen
   sponsor: Sponsoren
   new-version: "{version} beschikbaar"
+  auto-update-on: "Dozzle houdt zichzelf up-to-date"
+  auto-update-daily: "Controleert dagelijks om {time}, servertijd."
+  auto-update-weekly: "Controleert wekelijks op zondag om {time}, servertijd."
   show-image-update-alert: 'Image-updatemeldingen'
   show-image-update-alert-desc: 'Melden wanneer er een nieuwere tag van een draaiende image bestaat.'
   cloud-desc: Stream logs naar Dozzle Cloud voor AI-gestuurde analyses en zoeken over instanties heen.
@@ -755,7 +758,10 @@ setup:
   copy: Kopiëren
   settings-title: Dozzle instellen
   settings-desc: Inloggen, containeracties, shell en Dozzle Cloud in een paar stappen.
-  settings-open: Installatie openen
+  settings-done-title: "Dozzle is ingesteld"
+  settings-done-desc: "Inloggen staat aan. Open de installatie om containeracties, shell en Dozzle Cloud te bekijken."
+  settings-closed-title: "De installatie is gesloten"
+  settings-closed-desc: "Zonder login accepteert de installatie alleen wijzigingen in de eerste 15 minuten van een nieuwe installatie. Gebruik in plaats daarvan omgevingsvariabelen."
   steps:
     login: Inloggen
     login-note: Doe dit eerst

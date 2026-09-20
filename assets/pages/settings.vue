@@ -32,10 +32,10 @@
     </nav>
 
     <div class="flex items-start gap-10">
-      <!-- Preferences first, what is about this instance after a hairline. -->
+      <!-- Preferences first, what is about the server itself after a hairline. -->
       <ul class="menu sticky top-4 hidden w-48 shrink-0 p-0 @3xl:flex">
         <template v-for="item in sections" :key="item.id">
-          <li v-if="item.id === 'instance'"></li>
+          <li v-if="item.divider"></li>
           <li>
             <router-link
               :to="{ hash: `#${item.id}` }"
@@ -282,61 +282,50 @@
           </div>
         </details>
 
-        <!-- THIS INSTANCE: setup and cloud act on the server, not on this browser. -->
-        <section v-if="hasInstance" id="instance" ref="instanceEl" class="flex scroll-mt-4 flex-col gap-4">
-          <h2 class="section-heading mb-0!">{{ $t("settings.instance") }}</h2>
-          <button
-            v-if="config.mode === 'server'"
-            type="button"
-            class="card card-border bg-base-200/40 hover:bg-base-300 flex-row items-center gap-3 p-4 text-left transition-colors"
-            @click="openWizard"
-          >
-            <span class="bg-base-content/10 text-base-content/70 shrink-0 rounded-full p-2">
-              <mdi:rocket-launch-outline class="size-5" />
-            </span>
-            <span class="min-w-0 flex-1">
-              <span class="block text-sm font-medium">{{ $t("setup.settings-title") }}</span>
-              <span class="text-base-content/60 block text-xs">{{ $t("setup.settings-desc") }}</span>
-            </span>
-            <mdi:chevron-right class="size-4 shrink-0 opacity-40" />
-          </button>
-          <div v-if="showCloud" id="cloud" class="flex scroll-mt-4 flex-col gap-2">
-            <div>
-              <div class="text-sm font-medium">{{ $t("cloud.title") }}</div>
-              <div class="text-base-content/60 text-xs">{{ $t("settings.cloud-desc") }}</div>
-            </div>
-            <CloudSettingsCard />
+        <!-- SETUP and CLOUD act on the server, not on this browser, so they sit below
+             the preferences with their own headings rather than under one vague one. -->
+        <section v-if="showSetup" id="setup" ref="setupEl" class="flex scroll-mt-4 flex-col gap-4">
+          <h2 class="section-heading mb-0!">{{ $t("settings.setup") }}</h2>
+          <SetupSettingsCard :status="setupStatus" />
+        </section>
+
+        <section v-if="showCloud" id="cloud" ref="cloudEl" class="flex scroll-mt-4 flex-col gap-4">
+          <div>
+            <h2 class="section-heading mb-1!">{{ $t("cloud.title") }}</h2>
+            <p class="text-base-content/60 text-xs">{{ $t("settings.cloud-desc") }}</p>
           </div>
+          <CloudSettingsCard />
         </section>
 
         <!-- ABOUT: the version, whether it is stale, and the ways to support the project. -->
-        <footer
-          id="about"
-          ref="aboutEl"
-          class="border-base-content/10 flex scroll-mt-4 flex-wrap items-center justify-between gap-3 border-t pt-5"
-        >
-          <div class="flex flex-wrap items-center gap-2.5">
-            <span class="text-[0.9375rem] font-semibold">Dozzle</span>
-            <span class="badge badge-soft badge-sm">{{ config.version }}</span>
-            <a
-              v-if="hasRelease"
-              :href="latestRelease?.htmlUrl"
-              target="_blank"
-              rel="noopener noreferrer"
-              class="badge badge-soft badge-warning badge-sm hover:bg-warning/15"
-            >
-              <span class="status status-warning"></span>
-              {{ $t("settings.new-version", { version: latestRelease?.name }) }}
-            </a>
+        <footer id="about" ref="aboutEl" class="border-base-content/10 flex scroll-mt-4 flex-col gap-4 border-t pt-5">
+          <div class="flex flex-wrap items-center justify-between gap-3">
+            <div class="flex flex-wrap items-center gap-2.5">
+              <span class="text-[0.9375rem] font-semibold">Dozzle</span>
+              <span class="badge badge-soft badge-sm">{{ config.version }}</span>
+              <!-- With auto-update on, the panel below already says what happens next,
+                   so the badge would be a second, louder answer to the same question. -->
+              <a
+                v-if="hasRelease && !autoUpdate"
+                :href="latestRelease?.htmlUrl"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="badge badge-soft badge-warning badge-sm hover:bg-warning/15"
+              >
+                <span class="status status-warning"></span>
+                {{ $t("settings.new-version", { version: latestRelease?.name }) }}
+              </a>
+            </div>
+            <div class="flex gap-2">
+              <a href="https://github.com/amir20/dozzle" target="_blank" rel="noopener noreferrer" class="btn btn-sm">
+                <mdi:github /> GitHub
+              </a>
+              <a href="https://github.com/sponsors/amir20" target="_blank" rel="noopener noreferrer" class="btn btn-sm">
+                <mdi:heart class="text-error" /> {{ $t("settings.sponsor") }}
+              </a>
+            </div>
           </div>
-          <div class="flex gap-2">
-            <a href="https://github.com/amir20/dozzle" target="_blank" rel="noopener noreferrer" class="btn btn-sm">
-              <mdi:github /> GitHub
-            </a>
-            <a href="https://github.com/sponsors/amir20" target="_blank" rel="noopener noreferrer" class="btn btn-sm">
-              <mdi:heart class="text-error" /> {{ $t("settings.sponsor") }}
-            </a>
-          </div>
+          <SelfUpdateStatus v-if="setupStatus && autoUpdate" :status="setupStatus" :auto-update="autoUpdate" />
         </footer>
       </div>
     </div>
@@ -349,7 +338,8 @@ import IconPalette from "~icons/mdi/palette-outline";
 import IconLogs from "~icons/mdi/format-list-text";
 import IconSidebar from "~icons/mdi/dock-left";
 import IconBehavior from "~icons/mdi/lightning-bolt-outline";
-import IconInstance from "~icons/mdi/server-outline";
+import IconSetup from "~icons/mdi/rocket-launch-outline";
+import IconCloud from "~icons/mdi/cloud-outline";
 import IconAbout from "~icons/mdi/information-outline";
 
 import {
@@ -387,10 +377,21 @@ const { t } = useI18n();
 
 setTitle(t("title.settings"));
 const { latestRelease, hasRelease } = useAnnouncements();
-const { openWizard } = useSetup();
+// The setup card reports what is already configured and About shows the update
+// schedule, so this page reads the status itself instead of waiting for someone
+// to open the wizard. The API only exists in server mode.
+const { status: setupStatus, fetchStatus } = useSetup();
+const showSetup = computed(() => config.mode === "server");
+if (showSetup.value && !setupStatus.value) fetchStatus();
 
 const showCloud = computed(() => config.enableCloud && config.canLinkCloud);
-const hasInstance = computed(() => config.mode === "server" || showCloud.value);
+
+// Auto-update belongs in About: someone reading the version there is asking exactly
+// the question the schedule answers.
+const autoUpdate = computed(() => {
+  const update = setupStatus.value?.autoUpdate;
+  return update && update.mode !== "off" ? update : undefined;
+});
 
 const themes = computed(() => [
   { label: t("settings.theme.light"), value: "light" as const, swatches: ["light"] },
@@ -404,16 +405,20 @@ const sizes = computed(() => [
   { label: t("settings.size.large"), value: "large" as const },
 ]);
 
-const sections = computed(() =>
-  [
+const sections = computed(() => {
+  const items = [
     { id: "appearance", label: t("settings.appearance"), icon: IconPalette },
     { id: "logs", label: t("settings.logs"), icon: IconLogs },
     { id: "sidebar", label: t("settings.sidebar"), icon: IconSidebar },
     { id: "behavior", label: t("settings.behavior"), icon: IconBehavior },
-    hasInstance.value ? { id: "instance", label: t("settings.instance"), icon: IconInstance } : undefined,
+    showSetup.value ? { id: "setup", label: t("settings.setup"), icon: IconSetup } : undefined,
+    showCloud.value ? { id: "cloud", label: t("cloud.title"), icon: IconCloud } : undefined,
     { id: "about", label: t("settings.about"), icon: IconAbout },
-  ].filter((s) => s !== undefined),
-);
+  ].filter((s) => s !== undefined);
+  // A hairline before the first entry that is about the server rather than this browser.
+  const first = items.find((s) => s.id === "setup" || s.id === "cloud");
+  return items.map((s) => ({ ...s, divider: s === first }));
+});
 
 // The preview sits above the controls that resize it, so every change would push
 // the control out from under the pointer. Scroll by however much the preview's
@@ -439,12 +444,13 @@ const appearanceEl = useTemplateRef("appearanceEl");
 const logsEl = useTemplateRef("logsEl");
 const sidebarEl = useTemplateRef("sidebarEl");
 const behaviorEl = useTemplateRef("behaviorEl");
-const instanceEl = useTemplateRef("instanceEl");
+const setupEl = useTemplateRef("setupEl");
+const cloudEl = useTemplateRef("cloudEl");
 const aboutEl = useTemplateRef("aboutEl");
 const active = ref("appearance");
 
 const updateActive = () => {
-  const els = [appearanceEl, logsEl, sidebarEl, behaviorEl, instanceEl, aboutEl]
+  const els = [appearanceEl, logsEl, sidebarEl, behaviorEl, setupEl, cloudEl, aboutEl]
     .map((r) => r.value)
     .filter((el): el is HTMLElement => el != null);
   if (els.length === 0) return;
