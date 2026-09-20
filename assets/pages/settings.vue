@@ -32,7 +32,8 @@
     </nav>
 
     <div class="flex items-start gap-10">
-      <!-- Preferences first, what is about the server itself after a hairline. -->
+      <!-- What this install is, then the preferences, then what is about the server
+           itself, each group after a hairline. -->
       <ul class="menu sticky top-4 hidden w-48 shrink-0 p-0 @3xl:flex">
         <template v-for="item in sections" :key="item.id">
           <li v-if="item.divider"></li>
@@ -53,6 +54,38 @@
       </ul>
 
       <div class="flex max-w-4xl min-w-0 flex-1 flex-col gap-8">
+        <!-- ABOUT leads: what this install is, whether it is stale and what it will do
+             about that. Everything below it is a setting someone changes. -->
+        <section id="about" ref="aboutEl" class="border-base-content/10 flex scroll-mt-4 flex-col gap-4 border-b pb-6">
+          <div class="flex flex-wrap items-center justify-between gap-3">
+            <div class="flex flex-wrap items-center gap-2.5">
+              <span class="text-[0.9375rem] font-semibold">Dozzle</span>
+              <span class="badge badge-soft badge-sm">{{ config.version }}</span>
+              <!-- With auto-update on, the panel below already says what happens next,
+                   so the badge would be a second, louder answer to the same question. -->
+              <a
+                v-if="hasRelease && !autoUpdate"
+                :href="latestRelease?.htmlUrl"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="badge badge-soft badge-warning badge-sm hover:bg-warning/15"
+              >
+                <span class="status status-warning"></span>
+                {{ $t("settings.new-version", { version: latestRelease?.name }) }}
+              </a>
+            </div>
+            <div class="flex gap-2">
+              <a href="https://github.com/amir20/dozzle" target="_blank" rel="noopener noreferrer" class="btn btn-sm">
+                <mdi:github /> GitHub
+              </a>
+              <a href="https://github.com/sponsors/amir20" target="_blank" rel="noopener noreferrer" class="btn btn-sm">
+                <mdi:heart class="text-error" /> {{ $t("settings.sponsor") }}
+              </a>
+            </div>
+          </div>
+          <SelfUpdateStatus v-if="setupStatus && autoUpdate" :status="setupStatus" :auto-update="autoUpdate" />
+        </section>
+
         <!-- APPEARANCE: app-wide only. Anything that changes how a log line looks is in Logs,
              under the preview it changes. -->
         <section id="appearance" ref="appearanceEl" class="scroll-mt-4">
@@ -296,37 +329,6 @@
           </div>
           <CloudSettingsCard />
         </section>
-
-        <!-- ABOUT: the version, whether it is stale, and the ways to support the project. -->
-        <footer id="about" ref="aboutEl" class="border-base-content/10 flex scroll-mt-4 flex-col gap-4 border-t pt-5">
-          <div class="flex flex-wrap items-center justify-between gap-3">
-            <div class="flex flex-wrap items-center gap-2.5">
-              <span class="text-[0.9375rem] font-semibold">Dozzle</span>
-              <span class="badge badge-soft badge-sm">{{ config.version }}</span>
-              <!-- With auto-update on, the panel below already says what happens next,
-                   so the badge would be a second, louder answer to the same question. -->
-              <a
-                v-if="hasRelease && !autoUpdate"
-                :href="latestRelease?.htmlUrl"
-                target="_blank"
-                rel="noopener noreferrer"
-                class="badge badge-soft badge-warning badge-sm hover:bg-warning/15"
-              >
-                <span class="status status-warning"></span>
-                {{ $t("settings.new-version", { version: latestRelease?.name }) }}
-              </a>
-            </div>
-            <div class="flex gap-2">
-              <a href="https://github.com/amir20/dozzle" target="_blank" rel="noopener noreferrer" class="btn btn-sm">
-                <mdi:github /> GitHub
-              </a>
-              <a href="https://github.com/sponsors/amir20" target="_blank" rel="noopener noreferrer" class="btn btn-sm">
-                <mdi:heart class="text-error" /> {{ $t("settings.sponsor") }}
-              </a>
-            </div>
-          </div>
-          <SelfUpdateStatus v-if="setupStatus && autoUpdate" :status="setupStatus" :auto-update="autoUpdate" />
-        </footer>
       </div>
     </div>
   </div>
@@ -407,17 +409,17 @@ const sizes = computed(() => [
 
 const sections = computed(() => {
   const items = [
+    { id: "about", label: t("settings.about"), icon: IconAbout },
     { id: "appearance", label: t("settings.appearance"), icon: IconPalette },
     { id: "logs", label: t("settings.logs"), icon: IconLogs },
     { id: "sidebar", label: t("settings.sidebar"), icon: IconSidebar },
     { id: "behavior", label: t("settings.behavior"), icon: IconBehavior },
     showSetup.value ? { id: "setup", label: t("settings.setup"), icon: IconSetup } : undefined,
     showCloud.value ? { id: "cloud", label: t("cloud.title"), icon: IconCloud } : undefined,
-    { id: "about", label: t("settings.about"), icon: IconAbout },
   ].filter((s) => s !== undefined);
-  // A hairline before the first entry that is about the server rather than this browser.
-  const first = items.find((s) => s.id === "setup" || s.id === "cloud");
-  return items.map((s) => ({ ...s, divider: s === first }));
+  // A hairline opening each group: the preferences, then what is about the server.
+  const server = items.find((s) => s.id === "setup" || s.id === "cloud");
+  return items.map((s) => ({ ...s, divider: s.id === "appearance" || s === server }));
 });
 
 // The preview sits above the controls that resize it, so every change would push
@@ -447,10 +449,10 @@ const behaviorEl = useTemplateRef("behaviorEl");
 const setupEl = useTemplateRef("setupEl");
 const cloudEl = useTemplateRef("cloudEl");
 const aboutEl = useTemplateRef("aboutEl");
-const active = ref("appearance");
+const active = ref("about");
 
 const updateActive = () => {
-  const els = [appearanceEl, logsEl, sidebarEl, behaviorEl, setupEl, cloudEl, aboutEl]
+  const els = [aboutEl, appearanceEl, logsEl, sidebarEl, behaviorEl, setupEl, cloudEl]
     .map((r) => r.value)
     .filter((el): el is HTMLElement => el != null);
   if (els.length === 0) return;
