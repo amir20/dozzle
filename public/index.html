@@ -4,8 +4,15 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <meta name="mobile-web-app-capable" content="yes" />
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-    <meta name="theme-color" content="" />
+    <!-- No apple-mobile-web-app-status-bar-style. "black-translucent" put page pixels under the
+         iOS status bar, and since iOS 26 the system fills that inset with a Liquid Glass blur that
+         ramps ~40pt down into the page, smearing the logo and the nav icons. There is no way to
+         opt out of the effect, so the only fix is to stop drawing up there: without the meta the
+         web view starts below the status bar and env(safe-area-inset-top) reports 0. iOS has also
+         warned since 11 that the value is going away. -->
+    <!-- With an opaque status bar this paints it, so it must not be empty before App.vue runs.
+         #121212 is the dark theme, matching the manifest's theme_color for the same reason. -->
+    <meta name="theme-color" content="#121212" />
     <title>Dozzle</title>
     <script type="application/json" id="config__json">
       {{ marshal .Config }}
