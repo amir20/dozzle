@@ -118,6 +118,14 @@ describe("Container stats history", () => {
     expect(c.statsHistory).toHaveLength(300);
     expect(c.stat).toEqual(emptyStat());
   });
+
+  test("a history longer than the window keeps the newest 300", () => {
+    const stats = Array.from({ length: 350 }, (_, i) => makeStat({ cpu: i }));
+    const c = makeContainer({ stats });
+    expect(c.statsHistory).toHaveLength(300);
+    expect(c.statsHistory.at(0)).toEqual(stats[50]);
+    expect(c.statsHistory.at(-1)).toEqual(stats.at(-1));
+  });
 });
 
 describe("Container.updateStat", () => {

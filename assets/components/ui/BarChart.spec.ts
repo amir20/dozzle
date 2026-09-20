@@ -6,6 +6,9 @@ import { describe, expect, test, vi } from "vitest";
 import { nextTick } from "vue";
 import BarChart, { type BarDataPoint } from "./BarChart.vue";
 
+// Mirrors the gap between bars in the component, which sets the column pitch.
+const GAP = 2;
+
 // useElementSize relies on ResizeObserver which jsdom lacks, so the width stays
 // 0 and the chart never renders. Mock it with a controllable width ref that we
 // flip to a real value after mount to mimic the ResizeObserver firing.
@@ -75,16 +78,16 @@ describe("<BarChart />", () => {
 });
 
 describe("BarChart pointer readout", () => {
-  // jsdom lays nothing out, so every bar reports a zero rect. Stub each one to a
-  // real column so the hit test has something to walk.
+  // jsdom lays nothing out, so the chart reports a zero rect. Stub the container
+  // to a real width: the bars are uniform, so one rect is all the hit test reads.
+  // Column pitch is (width + GAP) / count, so this width makes each column `width`.
   function layOutBars(wrapper: ReturnType<typeof mount>, width = 10) {
-    wrapper.findAll(".bar").forEach((bar, i) => {
-      vi.spyOn(bar.element, "getBoundingClientRect").mockReturnValue({
-        left: i * width,
-        right: (i + 1) * width,
-        width,
-      } as DOMRect);
-    });
+    const count = wrapper.findAll(".bar").length;
+    vi.spyOn(wrapper.element, "getBoundingClientRect").mockReturnValue({
+      left: 0,
+      right: count * width - GAP,
+      width: count * width - GAP,
+    } as DOMRect);
   }
 
   test("a mouse move reports the bar under the pointer", async () => {
@@ -109,6 +112,39 @@ describe("BarChart pointer readout", () => {
     expect(emitted).toHaveLength(2);
     expect(emitted![0][1]).toBe(2);
     expect(emitted![1][1]).toBe(5);
+  });
+
+  // The front of a stats series is padding that keeps the chart full width while
+  // real samples scroll in. Reporting it would put a value and a timestamp on a
+  // sample nobody took.
+  test("padding is drawn faint and never reported", async () => {
+    holder.width!.value = 0;
+    const wrapper = mount(BarChart, { props: { chartData: ramp(), sampledFrom: 200 } });
+    await nextTick();
+    holder.width!.value = 300;
+    await nextTick();
+    await flushPromises();
+
+    const bars = wrapper.findAll(".bar");
+    expect(bars[0].classes()).toContain("opacity-15");
+    expect(bars.at(-1)!.classes()).toContain("opacity-70");
+
+    layOutBars(wrapper);
+    await wrapper.trigger("mousemove", { clientX: 5 });
+    expect(wrapper.emitted("hoverValue")).toBeUndefined();
+    expect(wrapper.emitted("hoverEnd")).toHaveLength(1);
+  });
+
+  test("a hovered sampled bar draws a guide on its column", async () => {
+    const wrapper = await mountAndRender(ramp());
+    layOutBars(wrapper);
+    expect(wrapper.find(".absolute").exists()).toBe(false);
+
+    await wrapper.trigger("mousemove", { clientX: 25 });
+    expect(wrapper.find(".absolute").exists()).toBe(true);
+
+    await wrapper.trigger("mouseleave");
+    expect(wrapper.find(".absolute").exists()).toBe(false);
   });
 
   test("a touch with no contact point reports nothing", async () => {
