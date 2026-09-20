@@ -29,8 +29,8 @@ export const useContainerStore = defineStore("container", () => {
   );
 
   const visibleContainers = computed(() => {
-    // A destroyed container lingers as "deleted" until the next full list, so leave it
-    // out of what is shown and counted.
+    // A destroyed container lingers as "deleted" until the next list covering its host
+    // drops it (see updateContainers), so leave it out of what is shown and counted.
     const filter = showAllContainers.value
       ? (c: Container) => c.state !== "deleted"
       : (c: Container) => c.state === "running";
@@ -198,7 +198,23 @@ export const useContainerStore = defineStore("container", () => {
       return container;
     });
 
-    containers.value = [...containers.value, ...mapped];
+    // `containers-changed` is the authoritative list for every host it names, so a
+    // container of a named host that is missing from it is gone and is dropped here.
+    // Nothing else ever removed one: `destroy` only marks the container "deleted", and
+    // a container that disappears while the tab is asleep raises no event at all. A tab
+    // left open on a host with any churn therefore held every container it had ever
+    // seen, each keeping its own stats window -- 3.7 KB for one that lived ten seconds,
+    // 24.8 KB once it has filled the window. A day of CI on one host ran to hundreds of
+    // megabytes that only a reload freed.
+    //
+    // Scoped by host, never wholesale: only the payload sent on connect covers every
+    // host. The others are one host's list after a start, a rename, or a stale-host
+    // repair, and treating one of those as the whole world would drop every other host.
+    const listedHosts = new Set(containersPayload.map((c) => c.host));
+    const stillListed = new Set(containersPayload.map((c) => c.id));
+    const kept = containers.value.filter((c) => !listedHosts.has(c.host) || stillListed.has(c.id));
+
+    containers.value = [...kept, ...mapped];
   };
 
   const currentContainer = (id: Ref<string>) => computed(() => allContainersById.value[id.value]);
