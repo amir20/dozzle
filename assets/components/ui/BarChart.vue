@@ -105,6 +105,14 @@ watch([availableBars, bucketSize], () => {
   changeCounter.value = 0;
 });
 
+// Recalculating is only phase-stable every `bucketSize` ticks: the window has then
+// shifted by exactly one bucket, so every bar keeps its shape and the chart scrolls
+// left by one bar. An extra recalculation at any other tick re-buckets the series
+// against data that has moved a fraction of a bar, and every bar visibly changes
+// height. That is why the padding boundary below is NOT watched: a boundary bar can
+// stay faint for up to `bucketSize` ticks, which is the same cadence at which it
+// would be redrawn anyway, and that lag is much cheaper than a jittering chart.
+//
 // On data changes, only update the last bar unless a new bucket boundary is crossed.
 // A wholesale replacement of the series (e.g. switching containers) is not detected
 // here; the parent owns that and must call the exposed recalculate() on switch.
@@ -152,8 +160,11 @@ function recalculate() {
     const start = i * size;
     const end = Math.min(start + size, chartData.length);
     // A bucket counts as sampled as soon as it holds one real point, so the
-    // boundary never eats a measurement to keep the padding tidy.
-    result.push(averageBucket(chartData.slice(start, end), end > sampledFrom));
+    // boundary never eats a measurement to keep the padding tidy. It then averages
+    // only those real points: folding the padding's zeros in dragged the oldest
+    // readable bar toward zero and the hover reported that as a measurement.
+    const sampled = end > sampledFrom;
+    result.push(averageBucket(chartData.slice(sampled ? Math.max(start, sampledFrom) : start, end), sampled));
   }
 
   downsampledBars.value = result.slice(-availableBars.value);
@@ -164,9 +175,10 @@ function updateLastBar() {
 
   const size = bucketSize.value;
   const lastBucketStart = (Math.ceil(chartData.length / size) - 1) * size;
-  const bucket = chartData.slice(lastBucketStart);
+  const sampled = chartData.length > sampledFrom;
+  const bucket = chartData.slice(sampled ? Math.max(lastBucketStart, sampledFrom) : lastBucketStart);
 
-  downsampledBars.value[downsampledBars.value.length - 1] = averageBucket(bucket, chartData.length > sampledFrom);
+  downsampledBars.value[downsampledBars.value.length - 1] = averageBucket(bucket, sampled);
 }
 
 function onContainerHover(event: MouseEvent) {
