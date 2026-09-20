@@ -1,7 +1,7 @@
 <template>
   <div
     ref="chartContainer"
-    class="relative touch-pan-y"
+    class="relative min-w-0 touch-pan-y"
     @mousemove="onContainerHover"
     @mouseleave="onLeave"
     @touchstart="onContainerTouch"
@@ -24,11 +24,18 @@
          A bar is a stroked vertical line, not a rect: `stroke-linecap="round"`
          gives the rounded top for free, the matching bottom cap falls outside the
          viewport and is clipped, and the geometry stays one `M x yV y` per bar. -->
+    <!-- Absolutely positioned so it contributes nothing to its parent's size. An svg
+         in flow is a replaced element: `width`/`height` attributes give it an intrinsic
+         width, and a `viewBox` alone still gives it an intrinsic ratio, so its
+         min-content width comes out as the very width we measured from the parent. In a
+         `flex-1` cell that becomes a floor the cell can never shrink below, and since
+         the readout beside it changes width as the number changes, every widening was
+         locked in and the column ratcheted wider for as long as the tab stayed open.
+         Out of flow it has no say in the layout, and `min-w-0` lets the cell shrink
+         back (a flex item defaults to `min-width: auto`). -->
     <svg
-      class="block size-full overflow-hidden"
+      class="absolute inset-0 size-full overflow-hidden"
       :viewBox="`0 0 ${width} ${height}`"
-      :width="width"
-      :height="height"
       fill="none"
       stroke="currentColor"
       stroke-linecap="round"
@@ -63,6 +70,7 @@
          changes with nothing on the chart saying which bar it belongs to. -->
     <div
       v-if="guideLeft !== null"
+      data-guide
       class="bg-base-content/25 pointer-events-none absolute inset-y-0 w-px"
       :style="{ left: `${guideLeft}px` }"
     ></div>

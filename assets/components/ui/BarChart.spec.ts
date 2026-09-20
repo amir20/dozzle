@@ -95,6 +95,23 @@ describe("<BarChart />", () => {
     expect(heightOf(wrapper, 0)).toBeGreaterThan(50); // flat series -> uniform height
   });
 
+  // The svg must never take part in sizing its parent. An svg in flow is a replaced
+  // element: `width`/`height` attributes give it an intrinsic width and a `viewBox`
+  // alone still gives it an intrinsic ratio, either of which becomes the min-content
+  // width of the `flex-1` cell it lives in. That width is measured from the cell, so it
+  // became a floor the cell could not shrink below, and the column ratcheted wider
+  // every time the readout beside it changed width. jsdom does no layout, so this
+  // guards the two properties that caused it rather than the width itself.
+  test("the svg contributes nothing to its parent's width", async () => {
+    const wrapper = await mountAndRender(constant(1000));
+    const svg = wrapper.find("svg");
+
+    expect(svg.attributes("width")).toBeUndefined();
+    expect(svg.attributes("height")).toBeUndefined();
+    expect(svg.classes()).toContain("absolute");
+    expect(wrapper.classes()).toContain("min-w-0");
+  });
+
   test("renders downsampled bars once width is known", async () => {
     const wrapper = await mountAndRender(constant(1000));
     expect(bars(wrapper).length).toBeGreaterThan(0);
@@ -252,16 +269,18 @@ describe("BarChart pointer readout", () => {
     expect(emitted![0][0]).toBe(90);
   });
 
+  // Queried by `data-guide` rather than `.absolute`: the svg is positioned as well, so
+  // the utility class no longer picks out the guide on its own.
   test("a hovered sampled bar draws a guide on its column", async () => {
     const wrapper = await mountAndRender(ramp());
     layOutBars(wrapper);
-    expect(wrapper.find(".absolute").exists()).toBe(false);
+    expect(wrapper.find("[data-guide]").exists()).toBe(false);
 
     await wrapper.trigger("mousemove", { clientX: xOfBar(wrapper, 2) });
-    expect(wrapper.find(".absolute").exists()).toBe(true);
+    expect(wrapper.find("[data-guide]").exists()).toBe(true);
 
     await wrapper.trigger("mouseleave");
-    expect(wrapper.find(".absolute").exists()).toBe(false);
+    expect(wrapper.find("[data-guide]").exists()).toBe(false);
   });
 
   // The pointer sits over a fixed column while the series scrolls underneath, so
@@ -341,14 +360,14 @@ describe("BarChart pointer readout", () => {
     layOutBars(wrapper);
     const count = bars(wrapper).length;
     await wrapper.trigger("mousemove", { clientX: xOfBar(wrapper, count - 1) });
-    expect(wrapper.find(".absolute").exists()).toBe(true);
+    expect(wrapper.find("[data-guide]").exists()).toBe(true);
 
     holder.width!.value = CHART_WIDTH / 4;
     await nextTick();
     await flushPromises();
 
     expect(wrapper.emitted("hoverEnd")).toHaveLength(1);
-    expect(wrapper.find(".absolute").exists()).toBe(false);
+    expect(wrapper.find("[data-guide]").exists()).toBe(false);
   });
 
   test("a touch with no contact point reports nothing", async () => {
