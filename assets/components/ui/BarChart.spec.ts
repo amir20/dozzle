@@ -13,12 +13,20 @@ const CHART_WIDTH = 300;
 // useElementSize relies on ResizeObserver which jsdom lacks, so the width stays
 // 0 and the chart never renders. Mock it with a controllable width ref that we
 // flip to a real value after mount to mimic the ResizeObserver firing.
-const holder = vi.hoisted(() => ({ width: null as ReturnType<typeof import("vue").ref<number>> | null }));
+const holder = vi.hoisted(() => ({
+  width: null as ReturnType<typeof import("vue").ref<number>> | null,
+  height: null as ReturnType<typeof import("vue").ref<number>> | null,
+}));
 vi.mock("@vueuse/core", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@vueuse/core")>();
   const { ref: vueRef } = await import("vue");
   holder.width = vueRef(0);
-  return { ...actual, useElementSize: () => ({ width: holder.width, height: vueRef(0) }) };
+  // Bars are drawn in real pixels, so the chart needs a height to draw into. 100
+  // keeps every assertion below reading on the same 0-100 scale as before. Written
+  // out rather than referencing CHART_HEIGHT: vi.mock hoists this factory above the
+  // consts, so naming one here is a use-before-init.
+  holder.height = vueRef(100);
+  return { ...actual, useElementSize: () => ({ width: holder.width, height: holder.height }) };
 });
 
 function ramp(start = 0, n = 300): BarDataPoint[] {
@@ -29,10 +37,26 @@ function constant(percent: number, n = 300): BarDataPoint[] {
   return Array.from({ length: n }, () => ({ percent, value: percent }));
 }
 
+// Each layer is a single <path> whose bars are one `M x bottomV top` subpath each,
+// so this reads the drawn geometry straight back out rather than trusting internals.
+// Bars come back in left-to-right order across both layers, as they are drawn.
+type DrawnBar = { x: number; height: number; sampled: boolean };
+function bars(wrapper: ReturnType<typeof mount>): DrawnBar[] {
+  const layer = (kind: string, sampled: boolean): DrawnBar[] => {
+    const d = wrapper.find(`[data-bars="${kind}"]`).exists()
+      ? (wrapper.find(`[data-bars="${kind}"]`).attributes("d") ?? "")
+      : "";
+    return [...d.matchAll(/M([\d.]+) ([\d.]+)V([\d.]+)/g)].map((m) => ({
+      x: parseFloat(m[1]),
+      height: parseFloat(m[2]) - parseFloat(m[3]),
+      sampled,
+    }));
+  };
+  return [...layer("padding", false), ...layer("sampled", true)].sort((a, b) => a.x - b.x);
+}
+
 function heightOf(wrapper: ReturnType<typeof mount>, index: number): number {
-  const style = wrapper.findAll(".bar")[index]?.attributes("style") ?? "";
-  const match = style.match(/--height:\s*([\d.]+)%/);
-  return match ? parseFloat(match[1]) : 0;
+  return bars(wrapper)[index]?.height ?? 0;
 }
 
 async function mountAndRender(chartData: BarDataPoint[]) {
@@ -73,8 +97,24 @@ describe("<BarChart />", () => {
 
   test("renders downsampled bars once width is known", async () => {
     const wrapper = await mountAndRender(constant(1000));
-    expect(wrapper.findAll(".bar").length).toBeGreaterThan(0);
+    expect(bars(wrapper).length).toBeGreaterThan(0);
     expect(heightOf(wrapper, 0)).toBeGreaterThan(50);
+  });
+
+  // A handful of points across a wide element makes each column, and so the stroke
+  // drawn for it, far wider than the element is tall. The cap allowance subtracted
+  // from the drawable height is half a stroke, so unbounded it went past the whole
+  // height and every bar came out at zero. The cloud rail asks for whatever the API
+  // returns for the selected window, so this is reachable with real data.
+  test("a sparse series in a short chart still draws visible bars", async () => {
+    holder.height!.value = 16; // h-4, as the container table renders it
+    const wrapper = await mountAndRender(constant(50, 4));
+
+    const drawn = bars(wrapper);
+    expect(drawn).toHaveLength(4);
+    for (const bar of drawn) expect(bar.height).toBeGreaterThan(0);
+
+    holder.height!.value = 100;
   });
 });
 
@@ -100,7 +140,7 @@ describe("BarChart stability", () => {
     await nextTick();
     await flushPromises();
 
-    const heights = () => wrapper.findAll(".bar").map((_, i) => heightOf(wrapper, i));
+    const heights = () => bars(wrapper).map((b) => b.height);
     const tick = async () => {
       series = [...series.slice(1), point(90)];
       boundary = Math.max(0, boundary - 1);
@@ -135,7 +175,7 @@ describe("BarChart pointer readout", () => {
 
   // The x at the centre of bar `index`, using the component's own pitch formula.
   function xOfBar(wrapper: ReturnType<typeof mount>, index: number) {
-    const count = wrapper.findAll(".bar").length;
+    const count = bars(wrapper).length;
     return (index + 0.5) * ((CHART_WIDTH + GAP) / count);
   }
 
@@ -174,9 +214,9 @@ describe("BarChart pointer readout", () => {
     await nextTick();
     await flushPromises();
 
-    const bars = wrapper.findAll(".bar");
-    expect(bars[0].classes()).toContain("opacity-15");
-    expect(bars.at(-1)!.classes()).toContain("opacity-70");
+    const drawn = bars(wrapper);
+    expect(drawn[0].sampled).toBe(false);
+    expect(drawn.at(-1)!.sampled).toBe(true);
 
     layOutBars(wrapper);
     await wrapper.trigger("mousemove", { clientX: xOfBar(wrapper, 0) });
@@ -201,8 +241,7 @@ describe("BarChart pointer readout", () => {
     await nextTick();
     await flushPromises();
 
-    const bars = wrapper.findAll(".bar");
-    const firstSampled = bars.findIndex((b) => b.classes().includes("opacity-70"));
+    const firstSampled = bars(wrapper).findIndex((b) => b.sampled);
     expect(firstSampled).toBe(59);
 
     layOutBars(wrapper);
@@ -239,7 +278,7 @@ describe("BarChart pointer readout", () => {
     await flushPromises();
     layOutBars(wrapper);
 
-    const count = wrapper.findAll(".bar").length;
+    const count = bars(wrapper).length;
     const last = count - 1;
     await wrapper.trigger("mousemove", { clientX: xOfBar(wrapper, last) });
     expect(wrapper.emitted("hoverValue")!.at(-1)![0]).toBe(10);
@@ -300,7 +339,7 @@ describe("BarChart pointer readout", () => {
   test("a resize releases a hover that is no longer on a bar", async () => {
     const wrapper = await mountAndRender(ramp());
     layOutBars(wrapper);
-    const count = wrapper.findAll(".bar").length;
+    const count = bars(wrapper).length;
     await wrapper.trigger("mousemove", { clientX: xOfBar(wrapper, count - 1) });
     expect(wrapper.find(".absolute").exists()).toBe(true);
 

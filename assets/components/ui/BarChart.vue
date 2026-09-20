@@ -1,7 +1,7 @@
 <template>
   <div
     ref="chartContainer"
-    class="relative flex touch-pan-y items-end gap-[2px]"
+    class="relative touch-pan-y"
     @mousemove="onContainerHover"
     @mouseleave="onLeave"
     @touchstart="onContainerTouch"
@@ -14,20 +14,53 @@
 
          `touch-pan-y` keeps a vertical swipe scrolling the panel while a
          horizontal drag scrubs the bars, so the chart reads out on a phone
-         without trapping the scroll. -->
-    <div
-      v-for="(bar, i) in downsampledBars"
-      :key="i"
-      class="bar min-h-px flex-1 rounded-t-sm transition-opacity"
-      :class="[barClass, bar.sampled ? 'opacity-70 hover:opacity-100' : 'opacity-15']"
-      :style="{ '--height': `${maxValue > 0 ? (bar.percent / maxValue) * 100 : 0}%` }"
-    ></div>
+         without trapping the scroll.
+
+         Every bar of a layer is one subpath of a single `<path>`, so a chart is
+         three nodes however many bars it draws, and a tick writes one `d`
+         attribute instead of restyling each bar in turn. At a hundred containers
+         the table drew 15,000 bar divs and spent ~90ms a second patching them.
+
+         A bar is a stroked vertical line, not a rect: `stroke-linecap="round"`
+         gives the rounded top for free, the matching bottom cap falls outside the
+         viewport and is clipped, and the geometry stays one `M x yV y` per bar. -->
+    <svg
+      class="block size-full overflow-hidden"
+      :viewBox="`0 0 ${width} ${height}`"
+      :width="width"
+      :height="height"
+      fill="none"
+      stroke="currentColor"
+      stroke-linecap="round"
+      aria-hidden="true"
+    >
+      <!-- The padded head of a series that has not filled its window yet. Drawn as
+           a faint track, never averaged, never reported. -->
+      <path
+        v-if="paddingPath"
+        data-bars="padding"
+        :d="paddingPath"
+        :stroke-width="barWidth"
+        :class="barClass"
+        class="opacity-15"
+      />
+      <path
+        v-if="sampledPath"
+        data-bars="sampled"
+        :d="sampledPath"
+        :stroke-width="barWidth"
+        :class="barClass"
+        class="opacity-70"
+      />
+      <!-- The hovered bar, redrawn opaque on top. With one path per layer there is
+           no element per bar left to hang a `hover:` variant on, and the lift is
+           what tells you which column the readout belongs to. -->
+      <path v-if="hoveredPath" data-bars="hovered" :d="hoveredPath" :stroke-width="barWidth" :class="barClass" />
+    </svg>
 
     <!-- A 1px guide on the hovered column. The bar's own opacity shift is invisible
          at 3px wide and at `h-4` in a table row, so without this the readout above
-         changes with nothing on the chart saying which bar it belongs to. Drawn
-         over the bars rather than behind them, which needs no stacking context on
-         the ~100 bars themselves. -->
+         changes with nothing on the chart saying which bar it belongs to. -->
     <div
       v-if="guideLeft !== null"
       class="bg-base-content/25 pointer-events-none absolute inset-y-0 w-px"
@@ -35,14 +68,6 @@
     ></div>
   </div>
 </template>
-
-<style scoped>
-.bar {
-  height: var(--height);
-  will-change: height;
-  contain: layout;
-}
-</style>
 
 <script setup lang="ts">
 export interface BarDataPoint {
@@ -62,6 +87,8 @@ const {
   sampledFrom = 0,
 } = defineProps<{
   chartData: BarDataPoint[];
+  // Applied to each bar's `<path>`, which strokes in `currentColor` -- so this is a
+  // text colour (`text-primary`), not a background (`bg-primary`).
   barClass?: string;
   // Index in `chartData` where real samples begin. Everything before it is padding
   // that keeps the chart full width while the series scrolls in (see
@@ -84,7 +111,7 @@ const hoverValue = defineEmit<[value: number, index: number, bars: number]>();
 const hoverEnd = defineEmit<[]>();
 
 const chartContainer = ref<HTMLElement | null>(null);
-const { width } = useElementSize(chartContainer);
+const { width, height } = useElementSize(chartContainer);
 
 const BAR_WIDTH = 3;
 const GAP = 2;
@@ -99,6 +126,61 @@ const maxValue = computed(() => {
   const dataMax = Math.max(0, ...downsampledBars.value.map((b) => b.percent));
   return Math.max(dataMax * 1.25, 1);
 });
+
+// Bars are flex-1 siblings no more, but the column geometry is unchanged: one
+// definition of a column's width, shared by the bars, the guide and the hit test.
+function pitchOf(count: number) {
+  return (width.value + GAP) / count;
+}
+
+const barWidth = computed(() => {
+  const count = downsampledBars.value.length;
+  return count === 0 ? BAR_WIDTH : Math.max(1, pitchOf(count) - GAP);
+});
+
+// The round cap reaches half a stroke past the line's end, so the drawable height
+// stops short of the top by that much. Without it a bar at `max` is shaved flat by
+// the viewport edge, which reads as a bar that stopped growing.
+//
+// Bounded to half the chart, because a short series in a wide element makes the
+// columns (and so the stroke) far wider than the element is tall: the cloud rail's
+// metrics are whatever the API returns for the chosen window, not the fixed 300 the
+// stats charts feed. Unbounded, that subtraction went negative and every bar in the
+// chart collapsed to nothing.
+const capRadius = computed(() => Math.min(barWidth.value / 2, height.value / 2));
+const usableHeight = computed(() => Math.max(0, height.value - capRadius.value));
+
+function pathFor(include: (bar: Bar) => boolean) {
+  const bars = downsampledBars.value;
+  const count = bars.length;
+  if (count === 0 || height.value === 0) return "";
+
+  const ceiling = maxValue.value;
+  const pitch = pitchOf(count);
+  const bottom = height.value;
+  let d = "";
+
+  for (let i = 0; i < count; i++) {
+    const bar = bars[i];
+    if (!include(bar)) continue;
+    // Centre of the column: a bar spans [i*pitch, i*pitch + pitch - GAP], so its
+    // middle sits half a gap left of the column's midpoint. Same formula the guide
+    // and the hit test use, so the three can never disagree.
+    const x = (i + 0.5) * pitch - GAP / 2;
+    const drawn = ceiling > 0 ? Math.min(bar.percent / ceiling, 1) * usableHeight.value : 0;
+    d += `M${x.toFixed(2)} ${bottom.toFixed(2)}V${(bottom - drawn).toFixed(2)}`;
+  }
+  return d;
+}
+
+const sampledPath = computed(() => pathFor((b) => b.sampled));
+const paddingPath = computed(() => pathFor((b) => !b.sampled));
+const hoveredPath = computed(() => {
+  const index = hoverIndex.value;
+  if (index === null) return "";
+  return pathFor((b) => b === downsampledBars.value[index] && b.sampled);
+});
+
 // Full recalculate when width/bucket size changes
 watch([availableBars, bucketSize], () => {
   recalculate();
@@ -244,23 +326,15 @@ const guideLeft = computed(() => {
   return (index + 0.5) * pitchOf(count) - GAP / 2;
 });
 
-// One definition of a column's width, shared by the guide and the hit test. They
-// used to read `width` and getBoundingClientRect().width respectively, which agree
-// only while the chart root carries no padding or border.
-function pitchOf(count: number) {
-  return (width.value + GAP) / count;
-}
-
 function emitAt(clientX: number) {
   if (!chartContainer.value) return;
 
   const count = downsampledBars.value.length;
   if (count === 0) return;
 
-  // Every bar is a `flex-1` sibling with one gap between each pair, so the columns
-  // are uniform by construction and the index is arithmetic: a column is
-  // (width + GAP) / count wide. Asking each bar for its own rect walked the whole
-  // chart on every pointer move to arrive at the same number.
+  // The columns are uniform by construction, so the index is arithmetic: a column
+  // is (width + GAP) / count wide. Asking each bar for its own rect walked the
+  // whole chart on every pointer move to arrive at the same number.
   const rect = chartContainer.value.getBoundingClientRect();
   const pitch = pitchOf(count);
   if (pitch <= 0) return;

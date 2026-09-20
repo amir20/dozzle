@@ -98,7 +98,7 @@
         :sample-interval="SAMPLE_INTERVAL"
         :sampled-from="sampledFrom"
         text-class="text-primary"
-        bar-class="bg-primary"
+        bar-class="text-primary"
         :formatValue="(value) => `${value.toFixed(1)}%`"
       />
 
@@ -113,7 +113,7 @@
         :sampled-from="sampledFrom"
         :chart-max="100"
         text-class="text-secondary"
-        bar-class="bg-secondary"
+        bar-class="text-secondary"
         :formatValue="(value) => formatBytes(value, { decimals: 1 })"
       />
     </div>

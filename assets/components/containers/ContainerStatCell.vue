@@ -90,12 +90,13 @@ const displayValue = computed(() => {
   return formatBytes(hovered.value ?? container.movingAverage.memoryUsage);
 });
 
+// A text colour, not a background: BarChart strokes its bars in `currentColor`.
 const barClass = computed(() => {
   const value = averageValue.value;
-  if (value <= 50) return "bg-success";
-  if (value <= 70) return "bg-secondary";
-  if (value <= 90) return "bg-warning";
-  return "bg-error";
+  if (value <= 50) return "text-success";
+  if (value <= 70) return "text-secondary";
+  if (value <= 90) return "text-warning";
+  return "text-error";
 });
 
 const progressClass = computed(() => {
