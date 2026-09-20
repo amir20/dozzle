@@ -169,7 +169,9 @@ type TotalStat = {
   totalMemUsage: number;
 };
 
-const totalStat = ref<TotalStat>({ totalCPU: 0, totalMem: 0, totalMemUsage: 0 });
+// shallow: replaced wholesale each tick and never edited in place, so the deep
+// proxy a plain `ref` would build over it is pure cost. See useSimpleRefHistory.
+const totalStat = shallowRef<TotalStat>({ totalCPU: 0, totalMem: 0, totalMemUsage: 0 });
 const { history, reset } = useSimpleRefHistory(totalStat, { capacity: 300 });
 
 // How many entries at the end of `history` are real totals. The backfill below
