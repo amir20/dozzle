@@ -237,6 +237,7 @@ settings:
   reset: Przywróć domyślne
   sponsor: Wesprzyj
   new-version: "{version} jest dostępna"
+  update-available: "Dostępny jest nowszy obraz"
   auto-update-on: "Dozzle sam się aktualizuje"
   auto-update-daily: "Sprawdza codziennie o {time} czasu serwera."
   auto-update-weekly: "Sprawdza co tydzień w niedzielę o {time} czasu serwera."

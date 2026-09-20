@@ -236,6 +236,7 @@ settings:
   reset: Standaardwaarden herstellen
   sponsor: Sponsoren
   new-version: "{version} beschikbaar"
+  update-available: "Er is een nieuwere image beschikbaar"
   auto-update-on: "Dozzle houdt zichzelf up-to-date"
   auto-update-daily: "Controleert dagelijks om {time}, servertijd."
   auto-update-weekly: "Controleert wekelijks op zondag om {time}, servertijd."

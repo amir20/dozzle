@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"net/http"
+	"regexp"
 	"strings"
 	"time"
 
@@ -15,6 +16,10 @@ import (
 var (
 	markdownParser   = parser.New()
 	markdownRenderer = html.New()
+
+	// releaseVersion matches a version Dozzle was released under, e.g. v11.1.0
+	// or v11.1.0-beta.1. A dev build (master-<sha>, pr-123-<sha>, local) does not.
+	releaseVersion = regexp.MustCompile(`^v?\d+\.\d+\.\d+([-+].*)?$`)
 )
 
 type githubRelease struct {
@@ -37,6 +42,12 @@ type Release struct {
 	Features      int       `json:"features"`
 	BugFixes      int       `json:"bugFixes"`
 	Breaking      int       `json:"breaking"`
+}
+
+// OnReleaseLine reports whether version is one Dozzle was released under, and
+// so whether comparing it against a release tag means anything.
+func OnReleaseLine(version string) bool {
+	return releaseVersion.MatchString(version)
 }
 
 func Fetch(currentVersion string) ([]Release, error) {
@@ -89,7 +100,12 @@ func Fetch(currentVersion string) ([]Release, error) {
 		releases = append(releases, release)
 	}
 
-	if len(releases) > 0 {
+	// Latest means "newer than what you run", which only has an answer on the
+	// release line. A dev build (master-<sha>, a PR image, a local build) sits
+	// off it and matches no tag, so every release would otherwise read as an
+	// update waiting to be installed. The notes still list, they just stop
+	// claiming that.
+	if len(releases) > 0 && OnReleaseLine(currentVersion) {
 		releases[0].Latest = true
 	}
 

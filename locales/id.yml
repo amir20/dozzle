@@ -243,6 +243,7 @@ settings:
   reset: Kembalikan ke default
   sponsor: Sponsori
   new-version: "{version} tersedia"
+  update-available: "Image yang lebih baru tersedia"
   auto-update-on: "Dozzle memperbarui dirinya sendiri"
   auto-update-daily: "Memeriksa setiap hari pukul {time}, waktu server."
   auto-update-weekly: "Memeriksa setiap minggu pada hari Minggu pukul {time}, waktu server."

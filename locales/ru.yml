@@ -235,6 +235,7 @@ settings:
   reset: Сбросить настройки
   sponsor: Поддержать
   new-version: "Доступна версия {version}"
+  update-available: "Доступен более новый образ"
   auto-update-on: "Dozzle обновляется сам"
   auto-update-daily: "Проверяет ежедневно в {time} по времени сервера."
   auto-update-weekly: "Проверяет еженедельно по воскресеньям в {time} по времени сервера."

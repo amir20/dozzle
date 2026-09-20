@@ -4,6 +4,7 @@
 // settings. They render it differently, but the phases, the progress maths and the
 // wording of a failed pull have to match, so they live here.
 
+import type { ImageUpdateResult, ImageUpdateStatus } from "@/composable/containers/imageUpdate";
 import type { SetupStatus, SetupStepId } from "@/composable/setup/setup";
 
 export type SelfUpdatePhase = "idle" | "pulling" | "up-to-date" | "restarting" | "timeout";
@@ -19,6 +20,46 @@ export function canSelfUpdate(status: SetupStatus): boolean {
     reason !== "no-container" &&
     reason !== "swarm-worker"
   );
+}
+
+// What an update would actually pull. This is a question about the tag the
+// container follows, not about the newest release: :master gets whatever master
+// points at now, and a release number says nothing about it. The endpoint runs
+// the same check the auto-update scheduler does.
+//
+// Shared, and fetched once: two surfaces ask, and the answer costs a registry
+// round trip on the server.
+const check = ref<ImageUpdateResult>();
+let checked = false;
+
+export function useSelfUpdateCheck() {
+  const { hasRelease } = useAnnouncements();
+
+  if (!checked) {
+    checked = true;
+    fetch(withBase("/api/update/self/check"))
+      // Off, or not this deployment mode: the route is not registered at all.
+      .then((res) => (res.ok ? res.json() : undefined))
+      .then((result) => (check.value = result))
+      .catch(() => (checked = false));
+  }
+
+  return { check, headline: computed(() => selfUpdateHeadline(check.value?.status, hasRelease.value)) };
+}
+
+// What the About panel can honestly say. The tag decides what an update brings,
+// so when the check has an answer it is the answer: a container on :master is
+// never told about a release it would not get. A release is worth naming only
+// when the tag cannot move it (a pinned version tag, where switching tags is
+// the update) or when nothing could be checked at all: pinned, manual,
+// air-gapped, or still in flight.
+export function selfUpdateHeadline(
+  status: ImageUpdateStatus | undefined,
+  hasRelease: boolean,
+): "image" | "release" | "current" {
+  if (status === "update-available") return "image";
+  if (status === "up-to-date") return "current";
+  return hasRelease ? "release" : "current";
 }
 
 export function useSelfUpdate({ resume }: { resume?: SetupStepId } = {}) {

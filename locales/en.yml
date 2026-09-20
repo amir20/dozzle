@@ -344,6 +344,7 @@ settings:
   reset: Reset to defaults
   sponsor: Sponsor
   new-version: "{version} available"
+  update-available: A newer image is available
   auto-update-on: Dozzle keeps itself up to date
   auto-update-daily: Checks daily at {time}, server time.
   auto-update-weekly: Checks weekly on Sunday at {time}, server time.

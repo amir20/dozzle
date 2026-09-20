@@ -237,6 +237,7 @@ settings:
   reset: 기본값으로 재설정
   sponsor: 후원하기
   new-version: "{version} 사용 가능"
+  update-available: "더 새로운 이미지를 사용할 수 있습니다"
   auto-update-on: "Dozzle가 스스로 최신 상태를 유지합니다"
   auto-update-daily: "매일 {time}(서버 시간)에 확인합니다."
   auto-update-weekly: "매주 일요일 {time}(서버 시간)에 확인합니다."
