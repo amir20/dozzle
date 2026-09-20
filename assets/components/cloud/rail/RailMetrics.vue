@@ -34,12 +34,7 @@
         <!-- Hovering reads the chart out: a bar is a shape until it says what
              it was and when. Leaving falls back to the peak, which is the one
              number worth carrying while the pointer is elsewhere. -->
-        <section
-          v-for="chart in charts"
-          :key="chart.key"
-          class="mb-5 last:mb-0"
-          @mouseleave="hovered[chart.key] = undefined"
-        >
+        <section v-for="chart in charts" :key="chart.key" class="mb-5 last:mb-0">
           <div class="mb-1 flex items-baseline justify-between gap-2">
             <span class="text-base-content/60 text-xs font-semibold tracking-wide uppercase">{{ chart.label }}</span>
             <span v-if="hovered[chart.key]" class="truncate font-mono text-xs tabular-nums">
@@ -53,9 +48,10 @@
           </div>
           <BarChart
             :chart-data="chart.data"
-            :bar-class="`${chart.barClass} opacity-70 hover:opacity-100`"
+            :bar-class="chart.barClass"
             class="h-16"
             @hover-value="(value: number, index: number, bars: number) => (hovered[chart.key] = { value, index, bars })"
+            @hover-end="hovered[chart.key] = undefined"
           />
         </section>
 

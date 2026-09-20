@@ -48,6 +48,9 @@ export class Container {
   private _stat: Ref<Stat>;
   private _name: string;
   private readonly _statsHistory: Ref<Stat[]>;
+  // How many of the entries in `_statsHistory` are real samples rather than the
+  // padding in front of them. Always counts from the end.
+  private _sampledStats: Ref<number>;
   private readonly movingAverageStat: Ref<Stat>;
 
   public mounts: ContainerMount[];
@@ -79,8 +82,13 @@ export class Container {
     const defaultStat = emptyStat();
     this._stat = ref(stats.at(-1) || defaultStat);
     const recentStats = stats.slice(-300);
+    // Padded to a full window on purpose: the chart keeps its width and the bars
+    // stay put as samples arrive, instead of growing in from the left. The padding
+    // is not a measurement, so anything that reads a value back out (averages, the
+    // hover readout) has to tell the two apart -- see `sampledStats`.
     const padding = Array(300 - recentStats.length).fill(defaultStat);
     this._statsHistory = ref([...padding, ...recentStats]);
+    this._sampledStats = ref(recentStats.length);
     this.movingAverageStat = ref(stats.at(-1) || defaultStat);
 
     this._name = name;
@@ -88,6 +96,13 @@ export class Container {
 
   get statsHistory() {
     return unref(this._statsHistory);
+  }
+
+  // The count of real samples at the end of `statsHistory`. Everything before them
+  // is padding that keeps the chart full width while the series scrolls in, and is
+  // not a measurement: it must never be averaged or read out as a value.
+  get sampledStats() {
+    return unref(this._sampledStats);
   }
 
   get movingAverage() {
@@ -250,6 +265,15 @@ export class Container {
     history.push(stat);
     if (history.length > 300) {
       history.shift();
+    }
+    const sampled = isRef(this._sampledStats) ? this._sampledStats : null;
+    if (sampled) {
+      sampled.value = Math.min(history.length, sampled.value + 1);
+    } else {
+      (this._sampledStats as unknown as number) = Math.min(
+        history.length,
+        (this._sampledStats as unknown as number) + 1,
+      );
     }
 
     // Calculate EMA directly (no watcher needed)

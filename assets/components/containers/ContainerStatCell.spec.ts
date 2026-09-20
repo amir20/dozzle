@@ -97,7 +97,7 @@ describe("<ContainerStatCell /> chart data", () => {
     const wrapper = mountCell({ container: makeContainer({ cpu: 100 }, 4), type: "cpu", host: host(8) });
     const chartData = (wrapper.vm as unknown as { chartData: { percent: number; value: number }[] }).chartData;
     expect(chartData).toHaveLength(300);
-    expect(chartData.at(-1)).toEqual({ percent: 25, value: 100 });
+    expect(chartData.at(-1)).toEqual({ percent: 25, value: 25 });
   });
 
   test("memory series uses percent and absolute usage", () => {

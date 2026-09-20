@@ -1,5 +1,5 @@
 <template>
-  <div class="flex min-w-0 flex-col justify-center gap-1 px-3 py-1.5" :title="title" @mouseleave="hoveredValue = null">
+  <div class="flex min-w-0 flex-col justify-center gap-1 px-3 py-1.5" :title="title">
     <div class="flex items-baseline gap-1.5 leading-none">
       <!-- A phone has no room for a spelled-out label beside the number, so the
            glyph stands in for it there; the word stays wherever it fits. -->
@@ -13,7 +13,7 @@
       >
       <slot name="value" :hoveredValue="hoveredValue" />
     </div>
-    <slot name="chart" :onHoverValue="(v: number) => (hoveredValue = v)" />
+    <slot name="chart" :onHoverValue="(v: number) => (hoveredValue = v)" :onHoverEnd="() => (hoveredValue = null)" />
   </div>
 </template>
 

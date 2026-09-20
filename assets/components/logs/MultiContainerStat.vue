@@ -22,13 +22,15 @@
           <span class="text-base-content/45 text-[11px] max-md:hidden"> / {{ roundCPU(limits.cpu) }}</span>
         </span>
       </template>
-      <template #chart="{ onHoverValue }">
+      <template #chart="{ onHoverValue, onHoverEnd }">
         <BarChart
           ref="cpuChart"
           :chart-data="cpuData"
-          bar-class="bg-primary opacity-70 hover:opacity-100"
+          :sampled-from="sampledFrom"
+          bar-class="bg-primary"
           class="h-4 w-full max-md:hidden"
           @hover-value="onHoverValue"
+          @hover-end="onHoverEnd"
         />
       </template>
     </StatCard>
@@ -51,13 +53,15 @@
           >
         </span>
       </template>
-      <template #chart="{ onHoverValue }">
+      <template #chart="{ onHoverValue, onHoverEnd }">
         <BarChart
           ref="memoryChart"
           :chart-data="memoryData"
-          bar-class="bg-secondary opacity-70 hover:opacity-100"
+          :sampled-from="sampledFrom"
+          bar-class="bg-secondary"
           class="h-4 w-full max-md:hidden"
           @hover-value="onHoverValue"
+          @hover-end="onHoverEnd"
         />
       </template>
     </StatCard>
@@ -78,6 +82,10 @@ const { t } = useI18n();
 
 const totalStat = ref<Stat>(emptyStat());
 const { history, reset } = useSimpleRefHistory(totalStat, { capacity: 300 });
+
+// The padded head of the series, which is not data. See `Container.statsHistory`.
+const sampledCount = ref(0);
+const sampledFrom = computed(() => Math.max(0, history.value.length - sampledCount.value));
 const { hosts } = useHosts();
 const cpuChart = useTemplateRef("cpuChart");
 const memoryChart = useTemplateRef("memoryChart");
@@ -119,6 +127,11 @@ watch(
     }
     totalStat.value = initial[0];
     reset({ initial: initial.reverse() });
+    // `max`, not `min`: the two only differ when one container's history is
+    // shorter than another's, which means that container did not exist yet, and
+    // zero is its honest contribution to a total. Taking the min would let one
+    // newly created container blank the sampled region for everything else.
+    sampledCount.value = Math.min(300, Math.max(0, ...containers.map((c) => c.sampledStats)));
     // Charts cache their downsampled bars and only patch the last bar per tick;
     // a container switch replaces the whole series, so force a full recalculate.
     nextTick(() => {
@@ -181,6 +194,7 @@ useIntervalFn(() => {
       diskWriteTotal: acc.diskWriteTotal + container.stat.diskWriteTotal,
     };
   }, emptyStat());
+  sampledCount.value = Math.min(300, sampledCount.value + 1);
 
   networkRate.value = {
     rx: Math.max(0, totalStat.value.networkRxTotal - previousStat.networkRxTotal),
