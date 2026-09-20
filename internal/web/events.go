@@ -196,6 +196,17 @@ func (h *handler) streamEvents(w http.ResponseWriter, r *http.Request) {
 				staleHosts[refresh.host] = time.Now()
 				continue
 			}
+			// Same race the error branch above guards, and it matters more here: a
+			// start or rename refreshes the host inline while this retry is in flight,
+			// and that list is newer than the one we are holding. Applying ours would
+			// hide a container that has already started -- from `visibleByHost`, so its
+			// stats and events are gated out, and from the client, which treats every
+			// `containers-changed` as authoritative for the hosts it names and drops
+			// what is missing.
+			if _, stale := staleHosts[refresh.host]; !stale {
+				log.Debug().Str("host", refresh.host).Msg("discarding stale refresh, host already recovered")
+				continue
+			}
 			delete(staleHosts, refresh.host)
 			setVisible(refresh.host, refresh.containers)
 			log.Debug().Str("host", refresh.host).Int("count", len(refresh.containers)).Msg("recovered stale host")
