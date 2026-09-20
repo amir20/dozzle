@@ -286,7 +286,7 @@ func (h *handler) streamEvents(w http.ResponseWriter, r *http.Request) {
 					log.Error().Err(err).Msg("error writing event to event stream")
 					return
 				}
-			case "health_status: healthy", "health_status: unhealthy", "health_status":
+			case "health_status: healthy", "health_status: unhealthy", "health_status: starting", "health_status":
 				if !isVisible(event.Host, event.ActorID) {
 					continue
 				}

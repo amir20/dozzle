@@ -473,14 +473,15 @@ func (d *Client) ContainerEvents(ctx context.Context, messages chan<- container.
 
 		case message := <-dockerMessages:
 			if message.Type == events.ContainerEventType && len(message.Actor.ID) > 0 {
+				name, attrs := d.resolveHealthEventName(ctx, message.Action, message.Actor.Attributes, message.Actor.ID)
 				// ctx-guarded: an unguarded send outlives its consumer, and this
 				// goroutine is what tells the store its event stream has ended.
 				select {
 				case messages <- container.ContainerEvent{
 					ActorID:         message.Actor.ID[:12],
-					Name:            dockerHealthEventName(message.Action, message.Actor.Attributes),
+					Name:            name,
 					Host:            d.host.ID,
-					ActorAttributes: message.Actor.Attributes,
+					ActorAttributes: attrs,
 					Time:            time.Now(),
 				}:
 				case <-ctx.Done():
@@ -511,13 +512,44 @@ func (d *Client) ContainerLogsBetweenDates(ctx context.Context, id string, from 
 
 // dockerHealthEventName maps a Docker/Podman events Action onto the name the
 // rest of Dozzle expects. Docker encodes health as "health_status: healthy".
-// Podman sends the bare action and the value in actor attributes.
+// A bare "health_status" action keeps that name unless attributes already
+// carry the status (tests, or a decoder that preserved HealthStatus).
 func dockerHealthEventName(action events.Action, attrs map[string]string) string {
 	name := string(action)
 	if status, ok := container.HealthStatusOf(container.ContainerEvent{Name: name, ActorAttributes: attrs}); ok {
 		return "health_status: " + status
 	}
 	return name
+}
+
+// resolveHealthEventName is the producer for health events. Docker already
+// encodes the status in the action. Podman's Docker-compatible /events stream
+// sends a bare "health_status" action and a top-level HealthStatus field that
+// moby/api/types/events.Message drops, so attributes never have the value.
+// Inspect the container when the action is still bare.
+func (d *Client) resolveHealthEventName(ctx context.Context, action events.Action, attrs map[string]string, actorID string) (string, map[string]string) {
+	name := dockerHealthEventName(action, attrs)
+	if name != "health_status" {
+		return name, attrs
+	}
+	result, err := d.cli.ContainerInspect(ctx, actorID, client.ContainerInspectOptions{})
+	if err != nil {
+		log.Debug().Err(err).Str("id", actorID).Msg("inspect health_status event")
+		return name, attrs
+	}
+	if result.Container.State == nil || result.Container.State.Health == nil {
+		return name, attrs
+	}
+	status := strings.TrimSpace(strings.ToLower(string(result.Container.State.Health.Status)))
+	if status == "" {
+		return name, attrs
+	}
+	out := make(map[string]string, len(attrs)+1)
+	for k, v := range attrs {
+		out[k] = v
+	}
+	out["healthStatus"] = status
+	return "health_status: " + status, out
 }
 
 func (d *Client) Ping(ctx context.Context) error {

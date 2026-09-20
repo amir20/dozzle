@@ -3,9 +3,9 @@ package container
 import "strings"
 
 // HealthStatusOf returns the health-check result encoded on a container event.
-// Docker puts it in the action itself ("health_status: healthy"). Podman's
-// Docker-compatible events endpoint uses the bare action "health_status" and
-// puts the value in actor attributes (health_status / healthStatus / HealthStatus).
+// Docker puts it in the action itself ("health_status: healthy"). A bare
+// "health_status" action (Podman) reads healthStatus / health_status /
+// HealthStatus from actor attributes when a producer has filled them.
 func HealthStatusOf(event ContainerEvent) (string, bool) {
 	if after, ok := strings.CutPrefix(event.Name, "health_status: "); ok {
 		after = strings.TrimSpace(after)

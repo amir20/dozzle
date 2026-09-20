@@ -196,7 +196,7 @@ func (s *Store) handleEvent(event ContainerEvent) {
 			return true
 		})
 
-	case "health_status: healthy", "health_status: unhealthy", "health_status":
+	case "health_status: healthy", "health_status: unhealthy", "health_status: starting", "health_status":
 		health, ok := HealthStatusOf(event)
 		if !ok {
 			break

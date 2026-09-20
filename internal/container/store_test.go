@@ -566,6 +566,10 @@ func TestStore_lifecycleEvents(t *testing.T) {
 	waitForEvent(t, events, "unpause")
 	assert.Equal(t, "running", state().State)
 
+	feed <- ContainerEvent{Name: "health_status: starting", ActorID: "1234"}
+	waitForEvent(t, events, "health_status: starting")
+	assert.Equal(t, "starting", state().Health)
+
 	feed <- ContainerEvent{Name: "health_status: healthy", ActorID: "1234"}
 	waitForEvent(t, events, "health_status: healthy")
 	assert.Equal(t, "healthy", state().Health)

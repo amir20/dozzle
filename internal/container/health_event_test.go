@@ -26,6 +26,12 @@ func TestHealthStatusOf(t *testing.T) {
 			ok:     true,
 		},
 		{
+			name:   "docker starting action",
+			event:  ContainerEvent{Name: "health_status: starting"},
+			status: "starting",
+			ok:     true,
+		},
+		{
 			name: "podman attribute health_status",
 			event: ContainerEvent{
 				Name:            "health_status",
