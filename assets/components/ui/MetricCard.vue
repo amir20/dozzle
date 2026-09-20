@@ -24,6 +24,7 @@
     </div>
 
     <BarChart
+      ref="chart"
       class="mt-2 h-7"
       :chart-data="chartData"
       :bar-class="barClass"
@@ -73,10 +74,11 @@ const { locale } = useI18n();
 
 const hovered = ref<{ value: number; index: number; bars: number } | undefined>();
 
-watch(
-  () => chartData.length,
-  () => (hovered.value = undefined),
-);
+// The chart is rendered in here rather than by the parent, so the parent cannot
+// reach it to force a full re-bucket after it replaces the series wholesale. This
+// forwards that call; see HostCard, which makes it when its container set changes.
+const chart = useTemplateRef("chart");
+defineExpose({ recalculate: () => chart.value?.recalculate() });
 
 // Averaging the padding in was what made a fresh card read `avg 414.9 KB` beside
 // `pk 7.2 MB`: the mean was divided by samples nobody took.

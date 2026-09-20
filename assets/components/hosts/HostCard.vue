@@ -89,6 +89,7 @@
 
     <div class="grid grid-cols-2 gap-3" v-else-if="stats">
       <MetricCard
+        ref="cpuCard"
         :icon="PhCpu"
         label="CPU"
         :capacity="$t('label.core', host.nCPU ?? 0)"
@@ -102,6 +103,7 @@
       />
 
       <MetricCard
+        ref="memCard"
         :icon="PhMemory"
         label="Memory"
         :capacity="formatBytes(host.memTotal, { decimals: 1 })"
@@ -176,6 +178,9 @@ const { history, reset } = useSimpleRefHistory(totalStat, { capacity: 300 });
 const sampledCount = ref(0);
 const sampledFrom = computed(() => Math.max(0, history.value.length - sampledCount.value));
 
+const cpuCard = useTemplateRef("cpuCard");
+const memCard = useTemplateRef("memCard");
+
 const cpuHistory = computed(() =>
   history.value.map((stat) => ({
     percent: stat.totalCPU,
@@ -244,6 +249,15 @@ watch(
     // newly created container blank the sampled region for everything else.
     sampledCount.value = Math.min(300, Math.max(0, ...hostContainers.value.map((c) => c.sampledStats)));
     stats.weighted.reset(initial.at(-1)!);
+    // The backfill replaces the series outright, but its length is still 300, so
+    // nothing in the chart notices: it would keep the old bars, and the old sampled
+    // flags with them, until the next scheduled recalculation. Hovering in between
+    // reported padding as a measurement, which is the thing these flags exist to
+    // prevent. MultiContainerStat does the same for the same reason.
+    nextTick(() => {
+      cpuCard.value?.recalculate();
+      memCard.value?.recalculate();
+    });
   },
   { immediate: true },
 );
