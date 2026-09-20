@@ -41,7 +41,12 @@ export const useContainerStore = defineStore("container", () => {
 
   // the server heartbeats every 20s, so three misses means the connection is gone even if
   // the browser still calls it OPEN
-  const reconnect = useSseReconnect({ connect: () => connect(), source: () => es, staleAfter: 60_000 });
+  const reconnect = useSseReconnect({
+    connect: () => connect(),
+    source: () => es,
+    staleAfter: 60_000,
+    onClosed: checkSession,
+  });
 
   function connect() {
     es?.close();

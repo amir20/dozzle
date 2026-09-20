@@ -1,6 +1,7 @@
 /* snapshot: Test_createRoutes_foobar */
 HTTP/1.1 200 OK
 Connection: close
+Cache-Control: no-store
 Content-Security-Policy: default-src 'self' 'wasm-unsafe-eval' blob: https://cdn.jsdelivr.net https://*.duckdb.org; style-src 'self' 'unsafe-inline' blob:; img-src 'self' data:; font-src 'self' data:;
 Content-Type: text/html; charset=utf-8
 
@@ -9,6 +10,7 @@ foo page
 /* snapshot: Test_createRoutes_index */
 HTTP/1.1 200 OK
 Connection: close
+Cache-Control: no-store
 Content-Security-Policy: default-src 'self' 'wasm-unsafe-eval' blob: https://cdn.jsdelivr.net https://*.duckdb.org; style-src 'self' 'unsafe-inline' blob:; img-src 'self' data:; font-src 'self' data:;
 Content-Type: text/html; charset=utf-8
 
@@ -35,6 +37,7 @@ Location: /foobar/login
 /* snapshot: Test_createRoutes_simple_redirect */
 HTTP/1.1 307 Temporary Redirect
 Connection: close
+Cache-Control: no-store
 Content-Security-Policy: default-src 'self' 'wasm-unsafe-eval' blob: https://cdn.jsdelivr.net https://*.duckdb.org; style-src 'self' 'unsafe-inline' blob:; img-src 'self' data:; font-src 'self' data:;
 Content-Type: text/html; charset=utf-8
 Location: /login?redirectUrl=%2F

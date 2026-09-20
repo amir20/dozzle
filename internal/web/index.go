@@ -68,6 +68,16 @@ func (h *handler) executeTemplate(w http.ResponseWriter, req *http.Request) {
 		base = h.config.Base
 	}
 
+	// The shell carries the session's config as inline JSON and names this build's
+	// hashed chunks, so it can never be reused. It had no cache headers at all,
+	// and a response with no Cache-Control, no ETag and no Last-Modified is one a
+	// browser may hold under heuristic freshness. An iOS home screen app relaunching
+	// days later then re-rendered a shell that still claimed a signed-in user and
+	// pointed at chunks the last upgrade deleted: nothing mounts, and standalone
+	// mode has no error page to say why. Set before the login redirect too, so that
+	// is not what gets held instead.
+	w.Header().Set("Cache-Control", "no-store")
+
 	user := auth.UserFromContext(req.Context())
 
 	// Handle unauthorized cases early

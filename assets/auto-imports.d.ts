@@ -30,6 +30,7 @@ declare global {
   const buildViewContext: typeof import('./composable/logs/viewContext').buildViewContext
   const canHover: typeof import('./composable/ui/media').canHover
   const canSelfUpdate: typeof import('./composable/setup/selfUpdate').canSelfUpdate
+  const checkSession: typeof import('./composable/app/session').checkSession
   const clearCloudWelcomePending: typeof import('./composable/cloud/cloudWelcome').clearCloudWelcomePending
   const clearSetupResume: typeof import('./composable/setup/setup').clearSetupResume
   const cloudWelcomePending: typeof import('./composable/cloud/cloudWelcome').cloudWelcomePending
@@ -608,6 +609,7 @@ declare module 'vue' {
     readonly buildViewContext: UnwrapRef<typeof import('./composable/logs/viewContext')['buildViewContext']>
     readonly canHover: UnwrapRef<typeof import('./composable/ui/media')['canHover']>
     readonly canSelfUpdate: UnwrapRef<typeof import('./composable/setup/selfUpdate')['canSelfUpdate']>
+    readonly checkSession: UnwrapRef<typeof import('./composable/app/session')['checkSession']>
     readonly clearCloudWelcomePending: UnwrapRef<typeof import('./composable/cloud/cloudWelcome')['clearCloudWelcomePending']>
     readonly clearSetupResume: UnwrapRef<typeof import('./composable/setup/setup')['clearSetupResume']>
     readonly cloudWelcomePending: UnwrapRef<typeof import('./composable/cloud/cloudWelcome')['cloudWelcomePending']>

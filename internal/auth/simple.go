@@ -160,11 +160,52 @@ func (a *simpleAuthContext) AuthMiddleware(next http.Handler) http.Handler {
 		// users.yml. Resolve both from the database per request and let the token
 		// prove only who the user is.
 		if user := a.userFromToken(r.Context()); user != nil {
+			a.slideSession(w, r, *user)
 			r = r.WithContext(WithUser(r.Context(), *user))
 		}
 
 		next.ServeHTTP(w, r)
 	}))
+}
+
+// slideSession re-issues the session once it is more than halfway through its
+// life, so an instance in regular use never reaches the TTL at all.
+//
+// Without it the token minted at login is the only one there ever is: with
+// --auth-ttl=12h a phone parked on the log view is signed out twelve hours
+// after the password was typed, however much it was used in between, and
+// nothing renews it short of visiting the login page.
+//
+// Half is what keeps the write rare. Re-signing on every request would put a
+// Set-Cookie on every SSE response and every poll for no gain, while half a TTL
+// is already a longer gap between visits than a session worth keeping alive
+// would ever have.
+func (a *simpleAuthContext) slideSession(w http.ResponseWriter, r *http.Request, user User) {
+	// ttl 0 is --auth-ttl=session: no exp claim to move, and the cookie already
+	// lives exactly as long as the browser says it does.
+	if a.ttl <= 0 {
+		return
+	}
+
+	token, _, err := jwtauth.FromContext(r.Context())
+	if err != nil || token == nil {
+		return
+	}
+
+	expiry, ok := token.Expiration()
+	if !ok || time.Until(expiry) > a.ttl/2 {
+		return
+	}
+
+	fresh, err := a.issueToken(user)
+	if err != nil {
+		// The session the caller already holds is still valid, so this is not
+		// worth failing the request over; it just expires on the old schedule.
+		log.Warn().Err(err).Str("user", user.Username).Msg("Could not renew the session token")
+		return
+	}
+
+	SetSessionCookie(w, r, fresh, a.ttl)
 }
 
 // userFromToken resolves the verified token's subject against users.yml. It returns

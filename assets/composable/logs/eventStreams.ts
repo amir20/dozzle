@@ -157,7 +157,11 @@ function useLogStream(url: Ref<string>, container?: Ref<Container>) {
 
   const flushBuffer = useAdaptiveFlush(flushNow, () => initial);
   let es: EventSource | null = null;
-  const reconnect = useSseReconnect({ connect: () => connect({ clear: true }), source: () => es });
+  const reconnect = useSseReconnect({
+    connect: () => connect({ clear: true }),
+    source: () => es,
+    onClosed: checkSession,
+  });
 
   function close() {
     if (es) {
