@@ -353,6 +353,10 @@ func createRouter(h *handler) *chi.Mux {
 		r.Get("/healthcheck", h.healthcheck)
 		r.Get("/manifest.webmanifest", h.manifest)
 		r.Get("/sw.js", h.serviceWorker)
+		// Unauthenticated on purpose: it holds nothing, and the service worker has
+		// to be able to cache it while the session is expired, which is one of the
+		// times it is most needed.
+		r.Get("/offline.html", h.offlinePage)
 
 		defaultHandler := http.StripPrefix(strings.Replace(base+"/", "//", "/", 1), http.HandlerFunc(h.index))
 		r.Get("/*", func(w http.ResponseWriter, req *http.Request) {
