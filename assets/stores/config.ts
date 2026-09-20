@@ -1,5 +1,6 @@
 import { type Settings } from "@/stores/settings";
 import { Host } from "@/stores/hosts";
+import type { CloudConfig } from "@/types/notifications";
 
 const text = document.querySelector("script#config__json")?.textContent || "{}";
 
@@ -24,6 +25,9 @@ export interface Config {
   // Full id of the container this Dozzle runs in, absent when it cannot tell.
   selfContainerId?: string;
   cloudUrl: string;
+  // Null when this instance is not linked. Inlined so the page does not spend a
+  // round trip asking, since everything else cloud-shaped waits on `linked`.
+  cloudConfig?: CloudConfig | null;
   disableAvatars: boolean;
   releaseCheckMode: "automatic" | "manual";
   imageCheckMode: "automatic" | "manual" | "off";

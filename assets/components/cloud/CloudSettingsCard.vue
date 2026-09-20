@@ -184,15 +184,8 @@ const cloudUrl = config.cloudUrl;
 const callbackUrl = `${window.location.origin}${withBase("/")}`;
 const cloudLinkUrl = `${cloudUrl}/link?appUrl=${encodeURIComponent(callbackUrl)}&from=cloud`;
 
-const {
-  cloudConfig,
-  cloudStatus,
-  cloudStatusError,
-  isLoadingCloudStatus,
-  initialLoad,
-  fetchCloudStatus,
-  clearCloudState,
-} = useCloudConfig();
+const { cloudConfig, cloudStatus, cloudStatusError, isLoadingCloudStatus, fetchCloudStatus, clearCloudState } =
+  useCloudConfig();
 const isUnlinking = ref(false);
 const unlinkModal = ref<HTMLDialogElement | null>(null);
 
@@ -242,8 +235,7 @@ async function doUnlink() {
   }
 }
 
-onMounted(async () => {
-  await initialLoad;
+onMounted(() => {
   if (cloudConfig.value?.linked) {
     fetchCloudStatus();
   }

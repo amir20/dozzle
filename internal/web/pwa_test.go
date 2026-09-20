@@ -121,8 +121,13 @@ func Test_serviceWorker_falls_back_for_navigations(t *testing.T) {
 
 	assert.Contains(t, body, `const OFFLINE_URL = "/foobar/offline.html";`)
 	assert.Contains(t, body, `event.request.mode === "navigate"`)
-	// Network-first: the fallback is only reached once the fetch has rejected, so
-	// a stale page is never shown to someone who is online.
-	assert.Contains(t, body, "fetch(event.request).catch(")
+	// Network-first: the fallback is only reached once the network has rejected, so
+	// a stale page is never shown to someone who is online. The network here is the
+	// preloaded response when there is one, and a plain fetch when there is not.
+	assert.Contains(t, body, "preloaded || fetch(event.request)")
+	assert.Contains(t, body, ".catch(")
+	// Without this the worker has to boot before it can ask for the page, and that
+	// boot lands in front of every cold navigation.
+	assert.Contains(t, body, "navigationPreload?.enable()")
 	assert.Contains(t, body, `const CACHE_NAME = "dozzle-dev";`)
 }

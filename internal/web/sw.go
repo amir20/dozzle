@@ -25,11 +25,18 @@ self.addEventListener("install", (event) => {
 
 self.addEventListener("activate", (event) => {
   event.waitUntil(
-    caches.keys().then((names) =>
-      Promise.all(
-        names.filter((name) => name !== CACHE_NAME).map((name) => caches.delete(name))
-      )
-    )
+    Promise.all([
+      caches.keys().then((names) =>
+        Promise.all(
+          names.filter((name) => name !== CACHE_NAME).map((name) => caches.delete(name))
+        )
+      ),
+      // Navigations below go through this worker, and a worker that is not already
+      // running has to boot before its fetch handler can ask the network for the
+      // page. That boot sits in front of every cold navigation. Preload lets the
+      // browser issue the request in parallel with the boot instead.
+      self.registration.navigationPreload?.enable().catch(() => {}),
+    ])
   );
   self.clients.claim();
 });
@@ -43,12 +50,17 @@ self.addEventListener("fetch", (event) => {
   // retry. Still network-first, so nothing stale is ever shown while online.
   if (event.request.mode === "navigate") {
     event.respondWith(
-      fetch(event.request).catch(() =>
-        caches
-          .open(CACHE_NAME)
-          .then((cache) => cache.match(OFFLINE_URL))
-          .then((cached) => cached || Response.error())
-      )
+      // The preloaded response is the same request, already in flight. It is
+      // undefined when preload is unsupported or was not enabled in time, so the
+      // plain fetch stays as the fallback.
+      Promise.resolve(event.preloadResponse)
+        .then((preloaded) => preloaded || fetch(event.request))
+        .catch(() =>
+          caches
+            .open(CACHE_NAME)
+            .then((cache) => cache.match(OFFLINE_URL))
+            .then((cached) => cached || Response.error())
+        )
     );
     return;
   }

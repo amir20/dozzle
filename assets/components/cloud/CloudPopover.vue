@@ -193,15 +193,8 @@ const callbackUrl = `${window.location.origin}${withBase("/")}`;
 const { canLink: canLinkCloud } = useCloudSurface();
 const cloudLinkUrl = `${cloudUrl}/link?appUrl=${encodeURIComponent(callbackUrl)}&from=cloud`;
 
-const {
-  cloudConfig,
-  cloudStatus,
-  cloudStatusError,
-  isLoadingCloudStatus,
-  initialLoad,
-  fetchCloudStatus,
-  ensureCloudStatus,
-} = useCloudConfig();
+const { cloudConfig, cloudStatus, cloudStatusError, isLoadingCloudStatus, fetchCloudStatus, ensureCloudStatus } =
+  useCloudConfig();
 
 const welcomeModal = ref<{ open: () => void }>();
 const cloudWelcomeShown = useProfileStorage("cloudWelcomeShown", false);
@@ -229,8 +222,7 @@ watch(
   { immediate: true },
 );
 
-onMounted(async () => {
-  await initialLoad;
+onMounted(() => {
   ensureCloudStatus();
 
   // Back from linking. When the wizard started the link it has already claimed the

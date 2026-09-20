@@ -62,7 +62,6 @@ import type StepModal from "@/components/ui/StepModal.vue";
 const { t } = useI18n();
 const { status, loading, wizardOpen, fetchStatus } = useSetup();
 const { linked, canLink } = useCloudSurface();
-const { initialLoad } = useCloudConfig();
 const { requestCloudWelcome } = useCloudWelcome();
 const setupSeen = useProfileStorage("setupSeen", false);
 
@@ -163,7 +162,7 @@ async function open(startAt: SetupStepId | undefined, auto: boolean) {
   index.value = 0;
   if (!auto) modal.value?.open();
 
-  await Promise.all([fetchStatus(), initialLoad]);
+  await fetchStatus();
   const s = status.value;
   if (!s) {
     if (auto) wizardOpen.value = false;
