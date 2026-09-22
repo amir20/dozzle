@@ -60,14 +60,10 @@ func NewCloudDispatcher(name string, apiKey string, prefix string, expiresAt *ti
 
 const defaultRetryAfter = 60 * time.Second
 
-// serverErrorRetryAfter is how long to back off after a 5xx. Cloud is briefly
-// unavailable during a deploy, so the pause only spares it a burst of requests
-// while it comes back; it must stay short or alerts are dropped for nothing.
+// serverErrorRetryAfter is how long to back off after a 5xx that carries no
+// Retry-After, such as a proxy's 502 while cloud restarts during a deploy. It
+// must stay short or alerts are dropped for nothing.
 const serverErrorRetryAfter = 30 * time.Second
-
-// maxServerErrorRetryAfter caps a 5xx's Retry-After, so a misbehaving proxy
-// can't silence notifications for long.
-const maxServerErrorRetryAfter = 60 * time.Second
 
 // unauthorizedRetryAfter is how long to back off after an auth failure (invalid/expired
 // API key). Retrying won't help until the user fixes their key, which recreates the
@@ -149,7 +145,7 @@ func (c *CloudDispatcher) Send(ctx context.Context, notification types.Notificat
 	if resp.StatusCode >= 500 {
 		limitedReader := io.LimitReader(resp.Body, 1024*1024)
 		responseBody, _ := io.ReadAll(limitedReader)
-		retryAfter := min(parseRetryAfter(resp.Header.Get("Retry-After"), serverErrorRetryAfter), maxServerErrorRetryAfter)
+		retryAfter := parseRetryAfter(resp.Header.Get("Retry-After"), serverErrorRetryAfter)
 		c.trip(retryAfter, fmt.Sprintf("server error (%d)", resp.StatusCode))
 		log.Warn().
 			Str("cloud", c.Name).

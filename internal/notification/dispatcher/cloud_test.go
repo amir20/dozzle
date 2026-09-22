@@ -82,7 +82,6 @@ func TestCloudDispatcher_ServerErrorTripsShortBreaker(t *testing.T) {
 	}{
 		{"no Retry-After", "", serverErrorRetryAfter},
 		{"honors Retry-After", "10", 10 * time.Second},
-		{"caps Retry-After", "3600", maxServerErrorRetryAfter},
 	}
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
