@@ -18,13 +18,20 @@ import (
 
 // CloudDispatcher sends notifications to Dozzle Cloud
 type CloudDispatcher struct {
-	Name         string
-	URL          string
-	APIKey       string
-	Prefix       string
-	ExpiresAt    *time.Time
-	client       *http.Client
-	blockedUntil atomic.Int64
+	Name      string
+	URL       string
+	APIKey    string
+	Prefix    string
+	ExpiresAt *time.Time
+	client    *http.Client
+	breaker   atomic.Pointer[breakerState]
+}
+
+// breakerState records until when sends are skipped and why, so the error a
+// skipped send returns names the failure that tripped it.
+type breakerState struct {
+	until  time.Time
+	reason string
 }
 
 // NewCloudDispatcher creates a new cloud dispatcher
@@ -53,6 +60,15 @@ func NewCloudDispatcher(name string, apiKey string, prefix string, expiresAt *ti
 
 const defaultRetryAfter = 60 * time.Second
 
+// serverErrorRetryAfter is how long to back off after a 5xx. Cloud is briefly
+// unavailable during a deploy, so the pause only spares it a burst of requests
+// while it comes back; it must stay short or alerts are dropped for nothing.
+const serverErrorRetryAfter = 30 * time.Second
+
+// maxServerErrorRetryAfter caps a 5xx's Retry-After, so a misbehaving proxy
+// can't silence notifications for long.
+const maxServerErrorRetryAfter = 60 * time.Second
+
 // unauthorizedRetryAfter is how long to back off after an auth failure (invalid/expired
 // API key). Retrying won't help until the user fixes their key, which recreates the
 // dispatcher and resets the breaker.
@@ -61,18 +77,31 @@ const unauthorizedRetryAfter = 6 * time.Hour
 // ResetBreaker clears the circuit breaker so the next Send dials cloud again.
 // Called when a cloud status check succeeds, proving the API key is valid.
 func (c *CloudDispatcher) ResetBreaker() {
-	c.blockedUntil.Store(0)
+	c.breaker.Store(nil)
+}
+
+func (c *CloudDispatcher) trip(retryAfter time.Duration, reason string) {
+	c.breaker.Store(&breakerState{until: time.Now().Add(retryAfter), reason: reason})
+}
+
+// parseRetryAfter reads a Retry-After header given in seconds, falling back to
+// def when it is missing or unparsable.
+func parseRetryAfter(header string, def time.Duration) time.Duration {
+	if seconds, err := strconv.Atoi(header); err == nil && seconds > 0 {
+		return time.Duration(seconds) * time.Second
+	}
+	return def
 }
 
 // Send sends a notification to Dozzle Cloud
 func (c *CloudDispatcher) Send(ctx context.Context, notification types.Notification) error {
-	if blockedUntil := c.blockedUntil.Load(); blockedUntil > 0 && time.Now().UnixNano() < blockedUntil {
-		t := time.Unix(0, blockedUntil)
+	if b := c.breaker.Load(); b != nil && time.Now().Before(b.until) {
 		log.Debug().
 			Str("cloud", c.Name).
-			Time("blocked_until", t).
+			Str("reason", b.reason).
+			Time("blocked_until", b.until).
 			Msg("circuit breaker open, skipping cloud request")
-		return fmt.Errorf("cloud dispatcher rate limited, retry after %s", t.Format(time.RFC3339))
+		return fmt.Errorf("cloud dispatcher paused after %s, retry after %s", b.reason, b.until.Format(time.RFC3339))
 	}
 
 	payload, err := json.Marshal(notification)
@@ -96,13 +125,8 @@ func (c *CloudDispatcher) Send(ctx context.Context, notification types.Notificat
 	defer resp.Body.Close()
 
 	if resp.StatusCode == http.StatusTooManyRequests {
-		retryAfter := defaultRetryAfter
-		if ra := resp.Header.Get("Retry-After"); ra != "" {
-			if seconds, err := strconv.Atoi(ra); err == nil {
-				retryAfter = time.Duration(seconds) * time.Second
-			}
-		}
-		c.blockedUntil.Store(time.Now().Add(retryAfter).UnixNano())
+		retryAfter := parseRetryAfter(resp.Header.Get("Retry-After"), defaultRetryAfter)
+		c.trip(retryAfter, "rate limit (429)")
 		log.Warn().
 			Str("cloud", c.Name).
 			Dur("retry_after", retryAfter).
@@ -113,12 +137,25 @@ func (c *CloudDispatcher) Send(ctx context.Context, notification types.Notificat
 	if resp.StatusCode == http.StatusUnauthorized || resp.StatusCode == http.StatusForbidden {
 		limitedReader := io.LimitReader(resp.Body, 1024*1024)
 		responseBody, _ := io.ReadAll(limitedReader)
-		c.blockedUntil.Store(time.Now().Add(unauthorizedRetryAfter).UnixNano())
+		c.trip(unauthorizedRetryAfter, fmt.Sprintf("API key rejected (%d)", resp.StatusCode))
 		log.Warn().
 			Str("cloud", c.Name).
 			Int("status_code", resp.StatusCode).
 			Dur("retry_after", unauthorizedRetryAfter).
 			Msg("cloud rejected API key, circuit breaker tripped")
+		return fmt.Errorf("cloud returned status code %d: %s", resp.StatusCode, string(responseBody))
+	}
+
+	if resp.StatusCode >= 500 {
+		limitedReader := io.LimitReader(resp.Body, 1024*1024)
+		responseBody, _ := io.ReadAll(limitedReader)
+		retryAfter := min(parseRetryAfter(resp.Header.Get("Retry-After"), serverErrorRetryAfter), maxServerErrorRetryAfter)
+		c.trip(retryAfter, fmt.Sprintf("server error (%d)", resp.StatusCode))
+		log.Warn().
+			Str("cloud", c.Name).
+			Int("status_code", resp.StatusCode).
+			Dur("retry_after", retryAfter).
+			Msg("cloud unavailable, circuit breaker tripped")
 		return fmt.Errorf("cloud returned status code %d: %s", resp.StatusCode, string(responseBody))
 	}
 
