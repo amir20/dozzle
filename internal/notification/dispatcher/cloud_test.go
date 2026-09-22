@@ -40,7 +40,8 @@ func TestCloudDispatcher_AuthFailureTripsBreaker(t *testing.T) {
 
 		err = d.Send(context.Background(), newTestNotification("second"))
 		require.Error(t, err)
-		assert.Contains(t, err.Error(), "rate limited")
+		assert.Contains(t, err.Error(), "API key rejected")
+		assert.NotContains(t, err.Error(), "rate limit")
 		assert.EqualValues(t, 1, hits.Load(), "breaker should block second send (status %d)", status)
 
 		srv.Close()
@@ -69,4 +70,61 @@ func TestCloudDispatcher_ResetBreaker(t *testing.T) {
 
 	require.Error(t, d.Send(context.Background(), newTestNotification("after-reset")))
 	assert.EqualValues(t, 2, hits.Load(), "send after reset should reach cloud again")
+}
+
+// A 5xx trips a short breaker, never the 6h auth one: cloud restarting during a
+// deploy must not silence notifications for hours.
+func TestCloudDispatcher_ServerErrorTripsShortBreaker(t *testing.T) {
+	tests := []struct {
+		name       string
+		retryAfter string
+		want       time.Duration
+	}{
+		{"no Retry-After", "", serverErrorRetryAfter},
+		{"honors Retry-After", "10", 10 * time.Second},
+	}
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			var hits atomic.Int32
+			srv := httptest.NewServer(http.HandlerFunc(func(rw http.ResponseWriter, r *http.Request) {
+				hits.Add(1)
+				if tc.retryAfter != "" {
+					rw.Header().Set("Retry-After", tc.retryAfter)
+				}
+				rw.WriteHeader(http.StatusServiceUnavailable)
+			}))
+			defer srv.Close()
+
+			d := newTestCloudDispatcher(srv.URL)
+
+			start := time.Now()
+			require.Error(t, d.Send(context.Background(), newTestNotification("first")))
+			require.EqualValues(t, 1, hits.Load())
+
+			b := d.breaker.Load()
+			require.NotNil(t, b)
+			assert.WithinDuration(t, start.Add(tc.want), b.until, 2*time.Second)
+
+			err := d.Send(context.Background(), newTestNotification("second"))
+			require.Error(t, err)
+			assert.Contains(t, err.Error(), "server error (503)")
+			assert.EqualValues(t, 1, hits.Load(), "breaker should block second send")
+		})
+	}
+}
+
+// Once a 5xx breaker expires, sends reach cloud again.
+func TestCloudDispatcher_ServerErrorBreakerExpires(t *testing.T) {
+	var hits atomic.Int32
+	srv := httptest.NewServer(http.HandlerFunc(func(rw http.ResponseWriter, r *http.Request) {
+		hits.Add(1)
+		rw.WriteHeader(http.StatusOK)
+	}))
+	defer srv.Close()
+
+	d := newTestCloudDispatcher(srv.URL)
+	d.breaker.Store(&breakerState{until: time.Now().Add(-time.Second), reason: "server error (503)"})
+
+	require.NoError(t, d.Send(context.Background(), newTestNotification("after-expiry")))
+	assert.EqualValues(t, 1, hits.Load())
 }
