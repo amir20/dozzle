@@ -3,7 +3,9 @@ package container
 import (
 	"encoding/json"
 	"math"
+	"strings"
 	"testing"
+	"unicode/utf8"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -69,4 +71,15 @@ func TestContainerStat_MarshalJSON_roundTrips(t *testing.T) {
 	var actual ContainerStat
 	require.NoError(t, json.Unmarshal(b, &actual))
 	assert.Equal(t, stat, actual)
+}
+
+func TestTruncateLogLine(t *testing.T) {
+	short := "hello\n"
+	assert.Equal(t, short, TruncateLogLine(short))
+
+	// A 3-byte rune straddling the cap must not be split.
+	long := strings.Repeat("a", MaxLogLineBytes-1) + "€" + "tail\n"
+	got := TruncateLogLine(long)
+	assert.True(t, utf8.ValidString(got))
+	assert.Equal(t, strings.Repeat("a", MaxLogLineBytes-1)+LogTruncationSuffix+"\n", got)
 }

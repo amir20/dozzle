@@ -71,6 +71,30 @@ func TestRead_lastLineWithoutNewlineTTY(t *testing.T) {
 	assert.Equal(t, "2024-01-01T00:00:01.000000000Z last line without newline", message)
 }
 
+func TestRead_hugeLineIsCappedAndStaysFramed(t *testing.T) {
+	const ts = "2024-01-01T00:00:00.000000000Z "
+	chunk := strings.Repeat("a", 16*1024)
+	buf := &bytes.Buffer{}
+	// Well past the cap, the way Docker frames one long line.
+	frames := container.MaxLogLineBytes/len(chunk) + 50
+	for range frames {
+		writeFrame(buf, 1, ts+chunk)
+	}
+	writeFrame(buf, 1, ts+"end\n")
+	writeFrame(buf, 1, ts+"next\n")
+
+	reader := NewLogReader(buf, false)
+
+	message, _, err := reader.Read()
+	require.NoError(t, err)
+	assert.LessOrEqual(t, len(message), container.MaxLogLineBytes+len(container.LogTruncationSuffix)+1)
+	assert.True(t, strings.HasSuffix(message, container.LogTruncationSuffix+"\n"))
+
+	message, _, err = reader.Read()
+	require.NoError(t, err)
+	assert.Equal(t, ts+"next\n", message)
+}
+
 func TestRead_continuedFrames(t *testing.T) {
 	buf := &bytes.Buffer{}
 	writeFrame(buf, 1, "2024-01-01T00:00:00.000000000Z part one ")

@@ -7,6 +7,7 @@ import (
 	"strconv"
 	"strings"
 	"time"
+	"unicode/utf8"
 
 	"github.com/amir20/dozzle/internal/utils"
 )
@@ -237,6 +238,36 @@ func (l *LogEvent) IsSimple() bool {
 // consecutive log lines that can be grouped together. Docker can introduce
 // up to ~30ms of jitter between related log lines (e.g., a stack trace).
 const MaxGroupTimeDelta = 50
+
+// MaxLogLineBytes bounds one log line, and one grouped entry, anywhere in the
+// pipeline. Docker hands a long line over in ~16KB frames and nothing upstream
+// limits how many, so a container that writes a single enormous line would
+// otherwise be held in memory whole and shipped whole to every consumer. It
+// matches the largest line Dozzle Cloud keeps, so clipping here loses nothing
+// that would have survived ingest.
+const MaxLogLineBytes = 1024 * 1024
+
+// LogTruncationSuffix marks a line clipped to MaxLogLineBytes, so it reads as
+// clipped rather than as a log that stops mid-word.
+const LogTruncationSuffix = "… [truncated]"
+
+// TruncateLogLine clips s to MaxLogLineBytes without splitting a rune, keeping
+// a trailing newline so readers that frame on it still see a line end.
+func TruncateLogLine(s string) string {
+	if len(s) <= MaxLogLineBytes {
+		return s
+	}
+	newline := strings.HasSuffix(s, "\n")
+	n := MaxLogLineBytes
+	for n > 0 && !utf8.RuneStart(s[n]) {
+		n--
+	}
+	s = s[:n] + LogTruncationSuffix
+	if newline {
+		s += "\n"
+	}
+	return s
+}
 
 func (l *LogEvent) IsCloseToTime(other *LogEvent) bool {
 	return math.Abs(float64(l.Timestamp-other.Timestamp)) < MaxGroupTimeDelta

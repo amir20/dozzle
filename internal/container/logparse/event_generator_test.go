@@ -270,6 +270,33 @@ func TestEventGenerator_GroupedSimpleLogs(t *testing.T) {
 	assert.Equal(t, "in function foo", fragments[2].Message)
 }
 
+func TestEventGenerator_GroupIsCapped(t *testing.T) {
+	baseTime := "2020-05-13T18:55:37.772853839Z"
+	total := maxGroupLines + 10
+	messages := make([]string, 0, total)
+	types := make([]container.StdType, 0, total)
+	messages = append(messages, baseTime+" ERROR: dump follows")
+	types = append(types, container.STDOUT)
+	for i := 1; i < total; i++ {
+		messages = append(messages, baseTime+" row")
+		types = append(types, container.STDOUT)
+	}
+
+	g := NewEventGenerator(context.Background(), &mockLogReader{messages: messages, types: types}, container.Container{})
+
+	first := <-g.Events
+	require.NotNil(t, first)
+	require.Equal(t, container.LogTypeGroup, first.Type)
+	assert.Len(t, first.Message.([]container.LogFragment), maxGroupLines)
+
+	// The rest of the run keeps the level and groups on its own.
+	second := <-g.Events
+	require.NotNil(t, second)
+	assert.Equal(t, container.LogTypeGroup, second.Type)
+	assert.Equal(t, first.Level, second.Level)
+	assert.Len(t, second.Message.([]container.LogFragment), 10)
+}
+
 func TestEventGenerator_SingleSimpleLog(t *testing.T) {
 	input := "2020-05-13T18:55:37.772853839Z INFO: Single log message"
 
