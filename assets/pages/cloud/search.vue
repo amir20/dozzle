@@ -19,6 +19,9 @@
         <template v-else-if="cloudSearch.error.value">
           <mdi:alert-circle-outline class="text-error size-3.5" />
           <span>{{ $t("cloud-search.search-failed") }}</span>
+          <span v-if="cloudSearch.errorDetail.value" class="text-base-content/60">{{
+            cloudSearch.errorDetail.value
+          }}</span>
         </template>
         <template v-else-if="committedQuery && hits.length === 0">
           <span>{{ $t("cloud-search.no-results") }}</span>

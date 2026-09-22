@@ -4,6 +4,7 @@ import (
 	"context"
 	"crypto/tls"
 	"encoding/json"
+	"fmt"
 	"io"
 	"net/http"
 	"net/http/httptest"
@@ -20,6 +21,8 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 )
 
 var (
@@ -168,4 +171,35 @@ func Test_requireCloudRole(t *testing.T) {
 	assert.Equal(t, http.StatusTeapot, serve(withUser(auth.User{Roles: auth.Cloud})))
 	// Unset roles parse to All, so existing users keep cloud access.
 	assert.Equal(t, http.StatusTeapot, serve(withUser(auth.User{Roles: auth.All, ContainerLabels: devLabels})))
+}
+
+// Cloud words InvalidArgument and ResourceExhausted for the person who typed
+// the query, so those messages reach the UI verbatim — unwrapped from the
+// client's "cloud: search: %w". Anything else stays generic.
+func Test_cloudSearchLogs_passes_query_errors_through(t *testing.T) {
+	for name, tc := range map[string]struct {
+		err      error
+		wantCode int
+		wantMsg  string
+	}{
+		"invalid":   {status.Error(codes.InvalidArgument, "Wrap it in double quotes."), http.StatusBadRequest, "Wrap it in double quotes."},
+		"too broad": {status.Error(codes.ResourceExhausted, "Narrow it to a container."), http.StatusUnprocessableEntity, "Narrow it to a container."},
+		"internal":  {status.Error(codes.Internal, "vl exploded"), http.StatusBadGateway, "cloud search failed"},
+	} {
+		t.Run(name, func(t *testing.T) {
+			h := restrictedHandler(t)
+			h.config.Cloud.SearchLogs = func(context.Context, string, int32, string, string, int64) (*cloud.SearchLogResult, error) {
+				return nil, fmt.Errorf("cloud: search: %w", tc.err)
+			}
+			h.hostService = &cloudLinkedService{HostService: h.hostService, cc: &notification.CloudConfig{APIKey: "key"}}
+
+			rr := httptest.NewRecorder()
+			h.cloudSearchLogs(rr, httptest.NewRequest(http.MethodGet, "/api/cloud/search/logs?q=x", nil))
+
+			require.Equal(t, tc.wantCode, rr.Code)
+			var body map[string]string
+			require.NoError(t, json.Unmarshal(rr.Body.Bytes(), &body))
+			assert.Equal(t, tc.wantMsg, body["error"])
+		})
+	}
 }

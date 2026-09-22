@@ -30,6 +30,8 @@ const cloudSearchTimeout = 3 * time.Second
 //	204 — streamLogs is disabled; nothing to search
 //	503 — cloud not configured (no API key) or no SearchLogs func wired
 //	504 — cloud round-trip exceeded the search timeout
+//	400 — cloud rejected the query itself (InvalidArgument)
+//	422 — cloud gave up on a query too broad to finish (ResourceExhausted)
 //	502 — any other cloud-side error
 func (h *handler) cloudSearchLogs(w http.ResponseWriter, r *http.Request) {
 	if h.config.Cloud.SearchLogs == nil {
@@ -97,6 +99,23 @@ func (h *handler) cloudSearchLogs(w http.ResponseWriter, r *http.Request) {
 		if errors.Is(err, context.DeadlineExceeded) || status.Code(err) == codes.DeadlineExceeded {
 			writeError(w, http.StatusGatewayTimeout, "cloud search timed out")
 			return
+		}
+		// Cloud words these two for the person who typed the query ("wrap it
+		// in double quotes…"), so pass the message through. Every other code
+		// stays generic: its message describes Cloud's internals, not the
+		// search.
+		// errors.As rather than status.Convert: the client wraps the status
+		// ("cloud: search: %w"), and Convert would then report the whole
+		// wrapped string as the message.
+		if grpcErr, ok := errors.AsType[interface{ GRPCStatus() *status.Status }](err); ok {
+			switch st := grpcErr.GRPCStatus(); st.Code() {
+			case codes.InvalidArgument:
+				writeError(w, http.StatusBadRequest, st.Message())
+				return
+			case codes.ResourceExhausted:
+				writeError(w, http.StatusUnprocessableEntity, st.Message())
+				return
+			}
 		}
 		log.Warn().Err(err).Msg("cloud search failed")
 		writeError(w, http.StatusBadGateway, "cloud search failed")
