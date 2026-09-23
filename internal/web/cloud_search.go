@@ -103,11 +103,10 @@ func (h *handler) cloudSearchLogs(w http.ResponseWriter, r *http.Request) {
 		// Cloud words these two for the person who typed the query ("wrap it
 		// in double quotes…"), so pass the message through. Every other code
 		// stays generic: its message describes Cloud's internals, not the
-		// search.
-		// errors.As rather than status.Convert: the client wraps the status
-		// ("cloud: search: %w"), and Convert would then report the whole
-		// wrapped string as the message.
-		if grpcErr, ok := errors.AsType[interface{ GRPCStatus() *status.Status }](err); ok {
+		// search. Unwrapped with AsType rather than status.Convert: the client
+		// wraps the status ("cloud: search: %w"), and Convert would report the
+		// whole wrapped string as the message.
+		if grpcErr, ok := errors.AsType[grpcStatusError](err); ok {
 			switch st := grpcErr.GRPCStatus(); st.Code() {
 			case codes.InvalidArgument:
 				writeError(w, http.StatusBadRequest, st.Message())
@@ -139,4 +138,11 @@ func (h *handler) cloudSearchLogs(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "application/json")
 	_ = json.NewEncoder(w).Encode(result)
+}
+
+// grpcStatusError is an error carrying a gRPC status. It embeds error because
+// errors.AsType requires its type argument to implement it.
+type grpcStatusError interface {
+	error
+	GRPCStatus() *status.Status
 }
