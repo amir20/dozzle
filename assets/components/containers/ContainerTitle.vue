@@ -95,9 +95,11 @@
     <ContainerLinkHint v-if="!isMobile" :container="container" />
     <VolumeWarning :container="container" />
     <!-- The image is reference material, not a control: plain dimmed text keeps
-         it out of the name's way, and the copy affordance appears on hover. -->
+         it out of the name's way, and the copy affordance appears on hover.
+         No width cap: it takes whatever the row has left, and shrink-4 makes it
+         give up space well before the name does when the row gets tight. -->
     <button
-      class="group text-base-content/45 hover:text-base-content/80 hidden max-w-[32ch] min-w-0 cursor-copy items-center gap-1.5 font-mono text-xs transition-colors @md:inline-flex"
+      class="group text-base-content/45 hover:text-base-content/80 hidden min-w-0 shrink-4 cursor-copy items-center gap-1.5 font-mono text-xs transition-colors @md:inline-flex"
       :title="$t('toolbar.copy-image')"
       :aria-label="$t('toolbar.copy-image')"
       @click="copyImage"
