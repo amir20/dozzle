@@ -238,6 +238,11 @@ func (ls *logStreamer) runReader(ctx context.Context, cs *container.ContainerSer
 			if msg == "" {
 				msg = messageToString(ev.Message)
 			}
+			// Clipped here as well as at the reader: a remote agent on an older
+			// version streams lines of any size, and a grouped entry grows by its
+			// JSON encoding. One entry past gRPC's 4MiB frame limit makes Cloud
+			// reset the whole stream, taking every other container with it.
+			msg = container.TruncateLogLine(msg)
 
 			tsNs := ev.Timestamp * int64(time.Millisecond) // LogEvent.Timestamp is UnixMilli
 			if tsNs == 0 {
@@ -247,6 +252,15 @@ func (ls *logStreamer) runReader(ctx context.Context, cs *container.ContainerSer
 			level := ev.Level
 			if level == "unknown" {
 				level = ""
+			}
+
+			// Flush before appending, not after, so an entry never lands in a
+			// batch that is already full.
+			if len(batch) >= logBatchMaxEntries || batchBytes+len(msg) > logBatchMaxBytes {
+				if err := flush(); err != nil {
+					log.Debug().Err(err).Msg("log streamer: send failed")
+					return
+				}
 			}
 
 			batch = append(batch, &pb.LogBatchEntry{
@@ -260,13 +274,6 @@ func (ls *logStreamer) runReader(ctx context.Context, cs *container.ContainerSer
 				LogId:         ev.Id,
 			})
 			batchBytes += len(msg)
-
-			if len(batch) >= logBatchMaxEntries || batchBytes >= logBatchMaxBytes {
-				if err := flush(); err != nil {
-					log.Debug().Err(err).Msg("log streamer: send failed")
-					return
-				}
-			}
 		}
 	}
 }

@@ -22,5 +22,5 @@ func (r *LogReader) Read() (string, container.StdType, error) {
 	// Return the partial line with the error instead of dropping it; the
 	// event generator emits the message before handling the error.
 	line, err := r.reader.ReadString('\n')
-	return line, container.STDOUT, err
+	return container.TruncateLogLine(line), container.STDOUT, err
 }
