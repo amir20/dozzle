@@ -102,7 +102,7 @@
       :aria-label="$t('toolbar.copy-image')"
       @click="copyImage"
     >
-      <span class="truncate">{{ imageTag }}</span>
+      <span>{{ imageTag }}</span>
       <mdi:content-copy class="size-3 shrink-0 opacity-0 transition-opacity group-hover:opacity-100" />
     </button>
   </div>
