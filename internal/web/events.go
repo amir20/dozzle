@@ -1,6 +1,8 @@
 package web
 
 import (
+	"errors"
+	"net"
 	"net/http"
 	"time"
 
@@ -10,6 +12,7 @@ import (
 	"github.com/amir20/dozzle/internal/hostservice"
 	"github.com/amir20/dozzle/internal/web/sse"
 	"github.com/amir20/dozzle/types"
+	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 )
 
@@ -155,18 +158,18 @@ func (h *handler) streamEvents(w http.ResponseWriter, r *http.Request) {
 			// this host has no visible set at all, so retry as soon as it produces traffic
 			staleHosts[hostNotAvailableError.Host.ID] = time.Time{}
 			if err := sseWriter.Event("update-host", hostNotAvailableError.Host); err != nil {
-				log.Error().Err(err).Msg("error writing event to event stream")
+				logWriteError(err, "error writing event to event stream")
 			}
 		}
 	}
 
 	// sent on every (re)connect so a long-lived tab can tell it is running UI from an older build
 	if err := sseWriter.Event("server-version", map[string]string{"version": h.config.Version}); err != nil {
-		log.Error().Err(err).Msg("error writing version to event stream")
+		logWriteError(err, "error writing version to event stream")
 	}
 
 	if err := sseWriter.Event("containers-changed", allContainers); err != nil {
-		log.Error().Err(err).Msg("error writing containers to event stream")
+		logWriteError(err, "error writing containers to event stream")
 	}
 
 	go sendBeaconEvent(h, r, len(allContainers))
@@ -211,7 +214,7 @@ func (h *handler) streamEvents(w http.ResponseWriter, r *http.Request) {
 			setVisible(refresh.host, refresh.containers)
 			log.Debug().Str("host", refresh.host).Int("count", len(refresh.containers)).Msg("recovered stale host")
 			if err := sseWriter.Event("containers-changed", refresh.containers); err != nil {
-				log.Error().Err(err).Msg("error writing containers to event stream")
+				logWriteError(err, "error writing containers to event stream")
 				return
 			}
 		case host := <-availableHosts:
@@ -220,7 +223,7 @@ func (h *handler) streamEvents(w http.ResponseWriter, r *http.Request) {
 				staleHosts[host.ID] = time.Time{}
 			}
 			if err := sseWriter.Event("update-host", host); err != nil {
-				log.Error().Err(err).Msg("error writing event to event stream")
+				logWriteError(err, "error writing event to event stream")
 				return
 			}
 		case stat := <-stats:
@@ -235,7 +238,7 @@ func (h *handler) streamEvents(w http.ResponseWriter, r *http.Request) {
 				continue
 			}
 			if err := sseWriter.Event("container-stat", stat); err != nil {
-				log.Error().Err(err).Msg("error writing event to event stream")
+				logWriteError(err, "error writing event to event stream")
 				return
 			}
 		case event, ok := <-events:
@@ -268,13 +271,13 @@ func (h *handler) streamEvents(w http.ResponseWriter, r *http.Request) {
 
 				if refreshed != nil {
 					if err := sseWriter.Event("containers-changed", refreshed); err != nil {
-						log.Error().Err(err).Msg("error writing containers to event stream")
+						logWriteError(err, "error writing containers to event stream")
 						return
 					}
 				}
 
 				if err := sseWriter.Event("container-event", event); err != nil {
-					log.Error().Err(err).Msg("error writing event to event stream")
+					logWriteError(err, "error writing event to event stream")
 					return
 				}
 
@@ -283,7 +286,7 @@ func (h *handler) streamEvents(w http.ResponseWriter, r *http.Request) {
 					continue
 				}
 				if err := sseWriter.Event("container-updated", event.Container); err != nil {
-					log.Error().Err(err).Msg("error writing event to event stream")
+					logWriteError(err, "error writing event to event stream")
 					return
 				}
 			case "health_status: healthy", "health_status: unhealthy":
@@ -300,7 +303,7 @@ func (h *handler) streamEvents(w http.ResponseWriter, r *http.Request) {
 				}
 
 				if err := sseWriter.Event("container-health", payload); err != nil {
-					log.Error().Err(err).Msg("error writing event to event stream")
+					logWriteError(err, "error writing event to event stream")
 					return
 				}
 			}
@@ -308,6 +311,17 @@ func (h *handler) streamEvents(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 	}
+}
+
+// logWriteError logs a failed write at debug when the client is at fault (a write
+// deadline, a reset or a broken pipe all surface as net.Error). Those are routine: the
+// handler returns and the browser reconnects. Anything else, like a marshal failure, is ours.
+func logWriteError(err error, msg string) {
+	level := zerolog.ErrorLevel
+	if _, ok := errors.AsType[net.Error](err); ok {
+		level = zerolog.DebugLevel
+	}
+	log.WithLevel(level).Err(err).Msg(msg)
 }
 
 func sendBeaconEvent(h *handler, r *http.Request, runningContainers int) {
