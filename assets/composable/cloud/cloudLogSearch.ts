@@ -24,6 +24,9 @@ interface CloudLogSearchResponse {
 
 const debounceMs = 250;
 
+/** A search Cloud refused because of the query itself; message is user-facing. */
+class QueryError extends Error {}
+
 /**
  * useCloudLogSearch performs Cloud-side log search via the Dozzle backend's
  * /api/cloud/search/logs endpoint. Identity is derived server-side from the
@@ -39,7 +42,9 @@ const debounceMs = 250;
  *   200 -> hits populated (may be empty)
  *   204 -> streaming disabled server-side (defense-in-depth)
  *   503 -> cloud not configured
- *   504 -> timeout (500ms upstream)
+ *   504 -> timeout (3s upstream)
+ *   400 / 422 -> Cloud rejected the query itself; `errorDetail` carries its
+ *               message, which is written for the person who typed it
  *   any other 4xx/5xx -> error set, results cleared
  */
 export function useCloudLogSearch(query: Ref<string>) {
@@ -49,6 +54,10 @@ export function useCloudLogSearch(query: Ref<string>) {
   const loading = ref(false);
   const loadingMore = ref(false);
   const error = ref<Error | null>(null);
+  // Cloud's own explanation, set only when the query itself was the problem
+  // (invalid, or too broad to finish). Null for every other failure, whose
+  // message would describe infrastructure rather than the search.
+  const errorDetail = ref<string | null>(null);
   const hasMore = ref(false);
   // Cursor (timestamp_ns) of the last hit on the current page; 0 = at the
   // newest page. Cleared on every new query.
@@ -67,6 +76,7 @@ export function useCloudLogSearch(query: Ref<string>) {
   function clearResults() {
     results.value = [];
     error.value = null;
+    errorDetail.value = null;
     loading.value = false;
     loadingMore.value = false;
     hasMore.value = false;
@@ -78,7 +88,13 @@ export function useCloudLogSearch(query: Ref<string>) {
     if (before > 0) url += `&before=${before}`;
     const res = await fetch(url, { signal });
     if (res.status === 204) return { hits: [], hasMore: false };
-    if (!res.ok) throw new Error(`cloud search failed: ${res.status}`);
+    if (!res.ok) {
+      if (res.status === 400 || res.status === 422) {
+        const body = (await res.json().catch(() => null)) as { error?: string } | null;
+        if (body?.error) throw new QueryError(body.error);
+      }
+      throw new Error(`cloud search failed: ${res.status}`);
+    }
     return (await res.json()) as CloudLogSearchResponse;
   }
 
@@ -91,6 +107,7 @@ export function useCloudLogSearch(query: Ref<string>) {
     abortController = new AbortController();
     loading.value = true;
     error.value = null;
+    errorDetail.value = null;
     nextBefore.value = 0;
 
     try {
@@ -102,6 +119,7 @@ export function useCloudLogSearch(query: Ref<string>) {
     } catch (e) {
       if ((e as DOMException)?.name !== "AbortError") {
         error.value = e as Error;
+        errorDetail.value = e instanceof QueryError ? e.message : null;
         results.value = [];
         hasMore.value = false;
       }
@@ -151,5 +169,5 @@ export function useCloudLogSearch(query: Ref<string>) {
     loadMoreAborter?.abort();
   });
 
-  return { results, loading, loadingMore, error, available, hasMore, loadMore };
+  return { results, loading, loadingMore, error, errorDetail, available, hasMore, loadMore };
 }
