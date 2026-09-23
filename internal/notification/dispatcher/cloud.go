@@ -25,6 +25,10 @@ type CloudDispatcher struct {
 	ExpiresAt    *time.Time
 	client       *http.Client
 	blockedUntil atomic.Int64
+	// why the breaker is open, reported to every send it short-circuits
+	blockedReason atomic.Pointer[string]
+	// consecutive 401/403 responses, which grows the auth backoff
+	authFailures atomic.Int32
 }
 
 // NewCloudDispatcher creates a new cloud dispatcher
@@ -53,26 +57,49 @@ func NewCloudDispatcher(name string, apiKey string, prefix string, expiresAt *ti
 
 const defaultRetryAfter = 60 * time.Second
 
-// unauthorizedRetryAfter is how long to back off after an auth failure (invalid/expired
-// API key). Retrying won't help until the user fixes their key, which recreates the
-// dispatcher and resets the breaker.
-const unauthorizedRetryAfter = 6 * time.Hour
+// An auth failure (401/403) backs off from minUnauthorizedRetryAfter, doubling on each
+// consecutive failure up to maxUnauthorizedRetryAfter. A revoked key stops hammering cloud
+// within a few tries, while a single rejection during a cloud deploy or a blip in its auth
+// path only costs a minute of notifications instead of the full cap.
+const (
+	minUnauthorizedRetryAfter = time.Minute
+	maxUnauthorizedRetryAfter = 6 * time.Hour
+)
+
+func unauthorizedRetryAfter(failures int32) time.Duration {
+	d := minUnauthorizedRetryAfter
+	for i := int32(1); i < failures && d < maxUnauthorizedRetryAfter; i++ {
+		d *= 2
+	}
+	return min(d, maxUnauthorizedRetryAfter)
+}
+
+func (c *CloudDispatcher) trip(d time.Duration, reason string) {
+	c.blockedReason.Store(&reason)
+	c.blockedUntil.Store(time.Now().Add(d).UnixNano())
+}
 
 // ResetBreaker clears the circuit breaker so the next Send dials cloud again.
 // Called when a cloud status check succeeds, proving the API key is valid.
 func (c *CloudDispatcher) ResetBreaker() {
 	c.blockedUntil.Store(0)
+	c.authFailures.Store(0)
 }
 
 // Send sends a notification to Dozzle Cloud
 func (c *CloudDispatcher) Send(ctx context.Context, notification types.Notification) error {
 	if blockedUntil := c.blockedUntil.Load(); blockedUntil > 0 && time.Now().UnixNano() < blockedUntil {
 		t := time.Unix(0, blockedUntil)
+		reason := "circuit breaker open"
+		if r := c.blockedReason.Load(); r != nil {
+			reason = *r
+		}
 		log.Debug().
 			Str("cloud", c.Name).
 			Time("blocked_until", t).
+			Str("reason", reason).
 			Msg("circuit breaker open, skipping cloud request")
-		return fmt.Errorf("cloud dispatcher rate limited, retry after %s", t.Format(time.RFC3339))
+		return fmt.Errorf("cloud dispatcher paused until %s: %s", t.Format(time.RFC3339), reason)
 	}
 
 	payload, err := json.Marshal(notification)
@@ -102,7 +129,7 @@ func (c *CloudDispatcher) Send(ctx context.Context, notification types.Notificat
 				retryAfter = time.Duration(seconds) * time.Second
 			}
 		}
-		c.blockedUntil.Store(time.Now().Add(retryAfter).UnixNano())
+		c.trip(retryAfter, "rate limited by cloud")
 		log.Warn().
 			Str("cloud", c.Name).
 			Dur("retry_after", retryAfter).
@@ -113,11 +140,12 @@ func (c *CloudDispatcher) Send(ctx context.Context, notification types.Notificat
 	if resp.StatusCode == http.StatusUnauthorized || resp.StatusCode == http.StatusForbidden {
 		limitedReader := io.LimitReader(resp.Body, 1024*1024)
 		responseBody, _ := io.ReadAll(limitedReader)
-		c.blockedUntil.Store(time.Now().Add(unauthorizedRetryAfter).UnixNano())
+		retryAfter := unauthorizedRetryAfter(c.authFailures.Add(1))
+		c.trip(retryAfter, fmt.Sprintf("API key rejected by cloud (status %d)", resp.StatusCode))
 		log.Warn().
 			Str("cloud", c.Name).
 			Int("status_code", resp.StatusCode).
-			Dur("retry_after", unauthorizedRetryAfter).
+			Dur("retry_after", retryAfter).
 			Msg("cloud rejected API key, circuit breaker tripped")
 		return fmt.Errorf("cloud returned status code %d: %s", resp.StatusCode, string(responseBody))
 	}
@@ -135,5 +163,6 @@ func (c *CloudDispatcher) Send(ctx context.Context, notification types.Notificat
 		return fmt.Errorf("cloud returned status code %d: %s", resp.StatusCode, string(responseBody))
 	}
 
+	c.authFailures.Store(0)
 	return nil
 }

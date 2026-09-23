@@ -40,7 +40,7 @@ func TestCloudDispatcher_AuthFailureTripsBreaker(t *testing.T) {
 
 		err = d.Send(context.Background(), newTestNotification("second"))
 		require.Error(t, err)
-		assert.Contains(t, err.Error(), "rate limited")
+		assert.Contains(t, err.Error(), "API key rejected")
 		assert.EqualValues(t, 1, hits.Load(), "breaker should block second send (status %d)", status)
 
 		srv.Close()
@@ -69,4 +69,41 @@ func TestCloudDispatcher_ResetBreaker(t *testing.T) {
 
 	require.Error(t, d.Send(context.Background(), newTestNotification("after-reset")))
 	assert.EqualValues(t, 2, hits.Load(), "send after reset should reach cloud again")
+}
+
+// Consecutive auth failures double the backoff from a minute up to the cap, and a
+// success resets it.
+func TestCloudDispatcher_AuthBackoffGrows(t *testing.T) {
+	var status atomic.Int32
+	status.Store(http.StatusUnauthorized)
+	srv := httptest.NewServer(http.HandlerFunc(func(rw http.ResponseWriter, r *http.Request) {
+		rw.WriteHeader(int(status.Load()))
+	}))
+	defer srv.Close()
+
+	d := newTestCloudDispatcher(srv.URL)
+	blockedFor := func() time.Duration {
+		return time.Until(time.Unix(0, d.blockedUntil.Load()))
+	}
+
+	for _, want := range []time.Duration{time.Minute, 2 * time.Minute, 4 * time.Minute} {
+		d.blockedUntil.Store(0) // let the next send through without resetting the count
+		require.Error(t, d.Send(context.Background(), newTestNotification("fail")))
+		assert.InDelta(t, want.Seconds(), blockedFor().Seconds(), 5)
+	}
+
+	status.Store(http.StatusOK)
+	d.blockedUntil.Store(0)
+	require.NoError(t, d.Send(context.Background(), newTestNotification("ok")))
+
+	status.Store(http.StatusUnauthorized)
+	require.Error(t, d.Send(context.Background(), newTestNotification("fail again")))
+	assert.InDelta(t, time.Minute.Seconds(), blockedFor().Seconds(), 5, "success should reset the backoff")
+}
+
+func TestUnauthorizedRetryAfter_Capped(t *testing.T) {
+	assert.Equal(t, time.Minute, unauthorizedRetryAfter(1))
+	assert.Equal(t, 256*time.Minute, unauthorizedRetryAfter(9))
+	assert.Equal(t, maxUnauthorizedRetryAfter, unauthorizedRetryAfter(10))
+	assert.Equal(t, maxUnauthorizedRetryAfter, unauthorizedRetryAfter(1000))
 }
