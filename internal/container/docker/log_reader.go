@@ -55,20 +55,29 @@ func (d *LogReader) Read() (string, container.StdType, error) {
 	// with the error instead of dropping it; the event generator emits the
 	// message before handling the error.
 	if err != nil {
-		return message, std, err
+		return container.TruncateLogLine(message), std, err
 	}
 
 	for !strings.HasSuffix(message, "\n") {
 		tail, _, err := d.readEvent()
 		if err != nil {
-			return message, std, err
+			return container.TruncateLogLine(message), std, err
 		}
 
 		_, after, _ := strings.Cut(tail, " ")
-		message += after
+		// Past the cap, stop growing but keep draining frames to the newline,
+		// so the next Read still starts at the beginning of a line.
+		if len(message) < container.MaxLogLineBytes {
+			message += after
+		} else if strings.HasSuffix(after, "\n") {
+			message += "\n"
+		}
+		if strings.HasSuffix(after, "\n") {
+			break
+		}
 	}
 
-	return message, std, nil
+	return container.TruncateLogLine(message), std, nil
 }
 
 func (d *LogReader) readEvent() (string, StdType, error) {

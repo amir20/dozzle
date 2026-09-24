@@ -3,6 +3,7 @@ package cloud
 import (
 	"context"
 	"io"
+	"strings"
 	"sync"
 	"sync/atomic"
 	"testing"
@@ -13,6 +14,7 @@ import (
 	pb "github.com/amir20/dozzle/proto/cloud"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	"google.golang.org/protobuf/proto"
 )
 
 // fakeClientService is a ClientService that delivers scripted log events.
@@ -531,4 +533,60 @@ func TestLogStreamer_BatchFlushesOnMaxEntries(t *testing.T) {
 	cancel()
 	<-runDone
 	t.Fatal("expected a batch with >= logBatchMaxEntries entries")
+}
+
+func TestLogStreamer_OversizedLineIsClippedAndSentAlone(t *testing.T) {
+	client := newFakeClientService("host-1")
+	hs := &fakeHostService{
+		containers: []container.Container{
+			{ID: "c1", Name: "n", Host: "host-1", State: "running"},
+		},
+		clients: map[string]*fakeClientService{"host-1": client},
+	}
+
+	var sendMu sync.Mutex
+	var sent []*pb.LogBatch
+	send := func(resp *pb.ToolResponse) error {
+		sendMu.Lock()
+		defer sendMu.Unlock()
+		if lb := resp.GetLogBatch(); lb != nil {
+			sent = append(sent, lb)
+		}
+		return nil
+	}
+	ls := newLogStreamer(hs, nil, send)
+
+	ctx, cancel := context.WithCancel(t.Context())
+	runDone := make(chan struct{})
+	go func() { ls.run(ctx); close(runDone) }()
+
+	<-client.wait
+	ts := time.Now().UnixMilli()
+	client.logsCh <- &container.LogEvent{Timestamp: ts, RawMessage: "before", Stream: "stdout"}
+	// The shape from #5229: one line well past gRPC's 4MiB default.
+	client.logsCh <- &container.LogEvent{Timestamp: ts, RawMessage: strings.Repeat("x", 5*1024*1024), Stream: "stdout"}
+	client.logsCh <- &container.LogEvent{Timestamp: ts, RawMessage: "after", Stream: "stdout"}
+
+	collectBatches(t, &sendMu, &sent, 3, 3*time.Second)
+	cancel()
+	<-runDone
+
+	sendMu.Lock()
+	defer sendMu.Unlock()
+	for _, b := range sent {
+		assert.Less(t, proto.Size(b), 4*1024*1024, "a batch must stay under gRPC's default frame limit")
+	}
+	var huge *pb.LogBatchEntry
+	for _, b := range sent {
+		for _, e := range b.Entries {
+			if len(e.Message) > 1024 {
+				require.Nil(t, huge)
+				require.Len(t, b.Entries, 1, "the oversized entry travels on its own")
+				huge = e
+			}
+		}
+	}
+	require.NotNil(t, huge)
+	assert.True(t, strings.HasSuffix(huge.Message, container.LogTruncationSuffix))
+	assert.LessOrEqual(t, len(huge.Message), container.MaxLogLineBytes+len(container.LogTruncationSuffix))
 }

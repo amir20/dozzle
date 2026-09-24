@@ -109,6 +109,13 @@ func (g *EventGenerator) emitAsSingles(events []*container.LogEvent) bool {
 // leftover fragment — emit what we have and resume normal processing.
 const maxOrphanLines = 1000
 
+// maxGroupLines and container.MaxLogLineBytes bound one grouped entry. Grouping
+// keys only on timing and level, so a container printing a long unbroken run of
+// level-less lines under MaxGroupTimeDelta apart would otherwise fold all of it
+// into a single entry of unbounded size. Past either limit the group is flushed
+// and the rest starts a new one.
+const maxGroupLines = 1000
+
 // skipOrphanedLines drains leading simple events without a level that look
 // like orphaned continuation lines from a group already emitted in a prior
 // fetch. Returns the first non-orphan event (or nil if the stream ends).
@@ -188,6 +195,7 @@ func (g *EventGenerator) processBuffer() {
 	}()
 
 	var pendingGroup []*container.LogEvent
+	var groupBytes int
 
 	// Skip leading orphaned continuation lines from a prior fetch.
 	first := g.skipOrphanedLines()
@@ -224,6 +232,7 @@ loop:
 			if next != nil && next.IsSimple() && canStartGroup(current, next) {
 				next.Level = current.Level
 				pendingGroup = append(pendingGroup, current)
+				groupBytes = len(current.Message.(string))
 			} else {
 				current.Type = container.LogTypeSingle
 				if !g.emit(current) {
@@ -234,14 +243,20 @@ loop:
 		}
 
 		pendingGroup = append(pendingGroup, current)
+		groupBytes += len(current.Message.(string))
 
-		if next == nil || !next.IsSimple() || !canContinueGroup(pendingGroup[len(pendingGroup)-1], next, pendingGroup[0].Level) {
+		continues := next != nil && next.IsSimple() && canContinueGroup(pendingGroup[len(pendingGroup)-1], next, pendingGroup[0].Level)
+		if continues {
+			// Carried even when the group is full, so the rest of the run
+			// starts a new group at the same level instead of trickling out
+			// as level-less singles.
+			next.Level = pendingGroup[0].Level
+		}
+		if !continues || len(pendingGroup) >= maxGroupLines || groupBytes >= container.MaxLogLineBytes {
 			if !g.flushGroup(pendingGroup) {
 				break loop
 			}
 			pendingGroup = nil
-		} else {
-			next.Level = pendingGroup[0].Level
 		}
 	}
 }
