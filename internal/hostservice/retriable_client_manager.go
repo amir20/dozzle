@@ -97,7 +97,7 @@ func NewRetriableClientManager(agents []string, timeout time.Duration, certs tls
 			continue
 		}
 		if _, exists := clientMap[r.host.ID]; exists {
-			log.Warn().Str("name", r.host.Name).Str("id", r.host.ID).Msg("An agent with an existing ID was found. Removing the duplicate host. For more details, see http://localhost:5173/guide/agent#agent-not-showing-up.")
+			log.Warn().Str("name", r.host.Name).Str("id", r.host.ID).Msg("An agent with an existing ID was found. Removing the duplicate host. For more details, see https://dozzle.dev/guide/faq#i-am-seeing-duplicate-hosts-error-in-the-logs-how-do-i-fix-it")
 			continue
 		}
 		clientMap[r.host.ID] = r.service
@@ -173,7 +173,7 @@ func (m *RetriableClientManager) RetryAndList() ([]container.ClientService, []er
 			continue
 		}
 		if _, ok := m.clients[r.host.ID]; ok {
-			log.Warn().Str("name", r.host.Name).Str("id", r.host.ID).Msg("An agent with an existing ID was found. Removing the duplicate host. For more details, see http://localhost:5173/guide/agent#agent-not-showing-up.")
+			log.Warn().Str("name", r.host.Name).Str("id", r.host.ID).Msg("An agent with an existing ID was found. Removing the duplicate host. For more details, see https://dozzle.dev/guide/faq#i-am-seeing-duplicate-hosts-error-in-the-logs-how-do-i-fix-it")
 			continue
 		}
 		m.clients[r.host.ID] = r.service
