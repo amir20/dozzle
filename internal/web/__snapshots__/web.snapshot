@@ -2,7 +2,7 @@
 HTTP/1.1 200 OK
 Connection: close
 Cache-Control: no-store
-Content-Security-Policy: default-src 'self' 'wasm-unsafe-eval' blob: https://cdn.jsdelivr.net https://*.duckdb.org; style-src 'self' 'unsafe-inline' blob:; img-src 'self' data:; font-src 'self' data:;
+Content-Security-Policy: default-src 'self' 'wasm-unsafe-eval' blob: https://cdn.jsdelivr.net https://*.duckdb.org; script-src 'self' 'wasm-unsafe-eval' blob: https://cdn.jsdelivr.net/npm/@duckdb/; style-src 'self' 'unsafe-inline' blob:; img-src 'self' data:; font-src 'self' data:; object-src 'none'; base-uri 'self';
 Content-Type: text/html; charset=utf-8
 
 foo page
@@ -11,7 +11,7 @@ foo page
 HTTP/1.1 200 OK
 Connection: close
 Cache-Control: no-store
-Content-Security-Policy: default-src 'self' 'wasm-unsafe-eval' blob: https://cdn.jsdelivr.net https://*.duckdb.org; style-src 'self' 'unsafe-inline' blob:; img-src 'self' data:; font-src 'self' data:;
+Content-Security-Policy: default-src 'self' 'wasm-unsafe-eval' blob: https://cdn.jsdelivr.net https://*.duckdb.org; script-src 'self' 'wasm-unsafe-eval' blob: https://cdn.jsdelivr.net/npm/@duckdb/; style-src 'self' 'unsafe-inline' blob:; img-src 'self' data:; font-src 'self' data:; object-src 'none'; base-uri 'self';
 Content-Type: text/html; charset=utf-8
 
 index page
@@ -19,7 +19,7 @@ index page
 /* snapshot: Test_createRoutes_redirect */
 HTTP/1.1 301 Moved Permanently
 Connection: close
-Content-Security-Policy: default-src 'self' 'wasm-unsafe-eval' blob: https://cdn.jsdelivr.net https://*.duckdb.org; style-src 'self' 'unsafe-inline' blob:; img-src 'self' data:; font-src 'self' data:;
+Content-Security-Policy: default-src 'self' 'wasm-unsafe-eval' blob: https://cdn.jsdelivr.net https://*.duckdb.org; script-src 'self' 'wasm-unsafe-eval' blob: https://cdn.jsdelivr.net/npm/@duckdb/; style-src 'self' 'unsafe-inline' blob:; img-src 'self' data:; font-src 'self' data:; object-src 'none'; base-uri 'self';
 Content-Type: text/html; charset=utf-8
 Location: /foobar/
 
@@ -38,7 +38,7 @@ Location: /foobar/login
 HTTP/1.1 307 Temporary Redirect
 Connection: close
 Cache-Control: no-store
-Content-Security-Policy: default-src 'self' 'wasm-unsafe-eval' blob: https://cdn.jsdelivr.net https://*.duckdb.org; style-src 'self' 'unsafe-inline' blob:; img-src 'self' data:; font-src 'self' data:;
+Content-Security-Policy: default-src 'self' 'wasm-unsafe-eval' blob: https://cdn.jsdelivr.net https://*.duckdb.org; script-src 'self' 'wasm-unsafe-eval' blob: https://cdn.jsdelivr.net/npm/@duckdb/; style-src 'self' 'unsafe-inline' blob:; img-src 'self' data:; font-src 'self' data:; object-src 'none'; base-uri 'self';
 Content-Type: text/html; charset=utf-8
 Location: /login?redirectUrl=%2F
 
@@ -78,7 +78,7 @@ data: end of stream
 /* snapshot: Test_createRoutes_version */
 HTTP/1.1 200 OK
 Connection: close
-Content-Security-Policy: default-src 'self' 'wasm-unsafe-eval' blob: https://cdn.jsdelivr.net https://*.duckdb.org; style-src 'self' 'unsafe-inline' blob:; img-src 'self' data:; font-src 'self' data:;
+Content-Security-Policy: default-src 'self' 'wasm-unsafe-eval' blob: https://cdn.jsdelivr.net https://*.duckdb.org; script-src 'self' 'wasm-unsafe-eval' blob: https://cdn.jsdelivr.net/npm/@duckdb/; style-src 'self' 'unsafe-inline' blob:; img-src 'self' data:; font-src 'self' data:; object-src 'none'; base-uri 'self';
 Content-Type: text/html
 
 <pre>dev</pre>
@@ -128,7 +128,7 @@ Connection: close
 Cache-Control: no-transform
 Cache-Control: no-cache
 Connection: keep-alive
-Content-Security-Policy: default-src 'self' 'wasm-unsafe-eval' blob: https://cdn.jsdelivr.net https://*.duckdb.org; style-src 'self' 'unsafe-inline' blob:; img-src 'self' data:; font-src 'self' data:;
+Content-Security-Policy: default-src 'self' 'wasm-unsafe-eval' blob: https://cdn.jsdelivr.net https://*.duckdb.org; script-src 'self' 'wasm-unsafe-eval' blob: https://cdn.jsdelivr.net/npm/@duckdb/; style-src 'self' 'unsafe-inline' blob:; img-src 'self' data:; font-src 'self' data:; object-src 'none'; base-uri 'self';
 Content-Type: text/event-stream
 X-Accel-Buffering: no
 
@@ -155,7 +155,7 @@ Connection: close
 Cache-Control: no-transform
 Cache-Control: no-cache
 Connection: keep-alive
-Content-Security-Policy: default-src 'self' 'wasm-unsafe-eval' blob: https://cdn.jsdelivr.net https://*.duckdb.org; style-src 'self' 'unsafe-inline' blob:; img-src 'self' data:; font-src 'self' data:;
+Content-Security-Policy: default-src 'self' 'wasm-unsafe-eval' blob: https://cdn.jsdelivr.net https://*.duckdb.org; script-src 'self' 'wasm-unsafe-eval' blob: https://cdn.jsdelivr.net/npm/@duckdb/; style-src 'self' 'unsafe-inline' blob:; img-src 'self' data:; font-src 'self' data:; object-src 'none'; base-uri 'self';
 Content-Type: text/event-stream
 X-Accel-Buffering: no
 
@@ -188,14 +188,12 @@ error finding container
 /* snapshot: Test_handler_streamLogs_error_reading */
 retry: 3000
 
-:ping 
-
-
+:ping
 
 /* snapshot: Test_handler_streamLogs_error_std */
 HTTP/1.1 400 Bad Request
 Connection: close
-Content-Security-Policy: default-src 'self' 'wasm-unsafe-eval' blob: https://cdn.jsdelivr.net https://*.duckdb.org; style-src 'self' 'unsafe-inline' blob:; img-src 'self' data:; font-src 'self' data:;
+Content-Security-Policy: default-src 'self' 'wasm-unsafe-eval' blob: https://cdn.jsdelivr.net https://*.duckdb.org; script-src 'self' 'wasm-unsafe-eval' blob: https://cdn.jsdelivr.net/npm/@duckdb/; style-src 'self' 'unsafe-inline' blob:; img-src 'self' data:; font-src 'self' data:; object-src 'none'; base-uri 'self';
 Content-Type: text/plain; charset=utf-8
 X-Content-Type-Options: nosniff
 
@@ -212,9 +210,6 @@ data: {"t":"single","m":"INFO Testing logs...\n","ts":0,"id":3835490584,"l":"inf
 event: container-event
 data: {"name":"container-stopped","host":"localhost","actorId":"123456","time":"<removed>"}
 
-
-
-
 /* snapshot: Test_handler_streamLogs_happy_container_stopped */
 retry: 3000
 
@@ -222,9 +217,6 @@ retry: 3000
 
 event: container-event
 data: {"name":"container-stopped","host":"localhost","actorId":"123456","time":"<removed>"}
-
-
-
 
 /* snapshot: Test_handler_streamLogs_happy_with_id */
 retry: 3000
