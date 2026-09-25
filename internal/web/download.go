@@ -114,17 +114,8 @@ func (h *handler) downloadLogs(w http.ResponseWriter, r *http.Request) {
 
 	// Determine zip filename from optional name param or default
 	zipName := "container-logs"
-	if name := r.URL.Query().Get("name"); name != "" {
-		// Sanitize: keep only alphanumeric, hyphens, underscores, dots
-		sanitized := strings.Map(func(r rune) rune {
-			if (r >= 'a' && r <= 'z') || (r >= 'A' && r <= 'Z') || (r >= '0' && r <= '9') || r == '-' || r == '_' || r == '.' {
-				return r
-			}
-			return '-'
-		}, name)
-		if sanitized != "" {
-			zipName = sanitized
-		}
+	if name := sanitizeFileName(r.URL.Query().Get("name")); name != "" {
+		zipName = name
 	}
 
 	// Set headers for zip file
@@ -138,7 +129,13 @@ func (h *handler) downloadLogs(w http.ResponseWriter, r *http.Request) {
 	// Process each container - errors after this point are logged only since response has started
 	for _, c := range containers {
 		// Create new file in zip for this container's logs
-		fileName := fmt.Sprintf("%s-%s.log", c.containerService.Container.Name, nowFmt)
+		// Container names come from the engine or an agent, so they can carry path
+		// separators or "..". Entry names must stay a plain file name.
+		baseName := sanitizeFileName(c.containerService.Container.Name)
+		if baseName == "" {
+			baseName = sanitizeFileName(c.id)
+		}
+		fileName := fmt.Sprintf("%s-%s.log", baseName, nowFmt)
 		f, err := zw.CreateHeader(&zip.FileHeader{
 			Name:     fileName,
 			Modified: now,
@@ -215,4 +212,17 @@ func (h *handler) downloadLogs(w http.ResponseWriter, r *http.Request) {
 			}
 		}
 	}
+}
+
+// sanitizeFileName keeps alphanumerics, hyphens, underscores and dots, replacing
+// everything else with a hyphen, and trims leading dots so the result is never
+// "." / ".." or a hidden file.
+func sanitizeFileName(name string) string {
+	sanitized := strings.Map(func(r rune) rune {
+		if (r >= 'a' && r <= 'z') || (r >= 'A' && r <= 'Z') || (r >= '0' && r <= '9') || r == '-' || r == '_' || r == '.' {
+			return r
+		}
+		return '-'
+	}, name)
+	return strings.TrimLeft(sanitized, ".")
 }
