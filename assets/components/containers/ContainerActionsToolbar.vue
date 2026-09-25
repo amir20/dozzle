@@ -387,7 +387,7 @@ async function copyLogs() {
           showToast(
             {
               title: "Error",
-              message: err.message,
+              message: escapeHtml(err.message),
               type: "error",
             },
             { expire: 5000 },

@@ -152,7 +152,8 @@ export const useContainerActions = (container: Ref<Container>) => {
           removeToast(toastId);
           showToast({
             type: "error",
-            message: data.error || t("error.unknown-error"),
+            // Toasts render HTML, and pull errors carry the registry's own text.
+            message: data.error ? escapeHtml(data.error) : t("error.unknown-error"),
             title: t("error.update-failed"),
           });
         }

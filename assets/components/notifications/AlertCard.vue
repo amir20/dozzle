@@ -247,7 +247,7 @@ async function deleteAlert() {
     confirmingDelete.value = false;
     onUpdated?.();
   } catch (e) {
-    showToast({ type: "error", message: e instanceof Error ? e.message : t("error.something-went-wrong") });
+    showToast({ type: "error", message: e instanceof Error ? escapeHtml(e.message) : t("error.something-went-wrong") });
   } finally {
     isDeleting.value = false;
   }

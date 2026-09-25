@@ -56,7 +56,7 @@ watchEffect(() => {
     showToast(
       {
         title: t("alert.similar-container-found.title"),
-        message: t("alert.similar-container-found.message", { containerId: nextContainer.id }),
+        message: t("alert.similar-container-found.message", { containerId: escapeHtml(nextContainer.id) }),
         type: "info",
         action: {
           label: t("button.cancel"),
@@ -64,7 +64,7 @@ watchEffect(() => {
             showToast(
               {
                 title: t("alert.redirected.title"),
-                message: t("alert.redirected.message", { containerId: nextContainer.id }),
+                message: t("alert.redirected.message", { containerId: escapeHtml(nextContainer.id) }),
                 type: "info",
               },
               { expire: 5000 },
@@ -80,7 +80,7 @@ watchEffect(() => {
     showToast(
       {
         title: t("alert.redirected.title"),
-        message: t("alert.redirected.message", { containerId: nextContainer.id }),
+        message: t("alert.redirected.message", { containerId: escapeHtml(nextContainer.id) }),
         type: "info",
       },
       { expire: 3000 },

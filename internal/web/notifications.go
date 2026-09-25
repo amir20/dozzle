@@ -14,6 +14,7 @@ import (
 	"github.com/amir20/dozzle/internal/notification"
 	"github.com/amir20/dozzle/internal/notification/dispatcher"
 	"github.com/amir20/dozzle/internal/releases"
+	"github.com/amir20/dozzle/internal/web/search"
 	"github.com/amir20/dozzle/types"
 	"github.com/expr-lang/expr"
 	"github.com/go-chi/chi/v5"
@@ -819,6 +820,10 @@ func (h *handler) previewExpression(w http.ResponseWriter, r *http.Request) {
 					if sub.MatchesLog(notificationLog) {
 						totalMatched++
 						if len(result.MatchedLogs) < previewMaxLogs {
+							// The form renders these with the same v-html log items as the
+							// stream, so they need the same escaping. Matching above ran on
+							// the raw text.
+							search.EscapeHTMLValues(logEvent)
 							result.MatchedLogs = append(result.MatchedLogs, *logEvent)
 						}
 					}
