@@ -21,7 +21,7 @@ vi.mock("@/stores/config", () => ({
   withBase: (path: string) => path,
 }));
 
-function createFuzzySearchModal() {
+function createFuzzySearchModal(extra: Container[] = []) {
   global.EventSource = EventSource;
   const wrapper = mount(FuzzySearchModal, {
     global: {
@@ -77,6 +77,7 @@ function createFuzzySearchModal() {
                   0,
                   [],
                 ),
+                ...extra,
               ],
             },
           },
@@ -112,6 +113,34 @@ describe("<FuzzySearchModal />", () => {
     expect(wrapper.find("ul [data-name]").html()).toMatchInlineSnapshot(
       `"<span data-v-2818ba83="" class="text-base-content" data-name=""><mark>foo</mark> bar</span>"`,
     );
+  });
+
+  test("escapes html in names from container labels", async () => {
+    const payload = 'pwn<iframe srcdoc="x"></iframe>';
+    const wrapper = createFuzzySearchModal([
+      new Container(
+        "789",
+        new Date("2026-01-04T00:00:00Z"),
+        new Date(),
+        new Date(),
+        "image",
+        payload,
+        "command",
+        "host",
+        {},
+        "running",
+        0,
+        0,
+        [],
+      ),
+    ]);
+    expect(wrapper.find("ul iframe").exists()).toBe(false);
+
+    await wrapper.find("input").setValue("pwn");
+    const name = wrapper.find("ul [data-name]");
+    expect(name.find("iframe").exists()).toBe(false);
+    expect(name.find("mark").text()).toBe("pwn");
+    expect(name.text()).toBe(payload);
   });
 
   test("tells the user when nothing matches", async () => {

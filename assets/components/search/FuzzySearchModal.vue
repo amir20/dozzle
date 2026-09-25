@@ -571,6 +571,8 @@ function addColumn(container: { id: string }) {
   close();
 }
 
+// Rendered with v-html, and names come from container labels anyone starting a
+// container controls, so every slice is escaped before the <mark> tags go in.
 function matchedName({ item, matches = [] }: FuseResult<Item>) {
   const matched = matches.find((match) => match.key === "name");
   if (matched) {
@@ -579,14 +581,14 @@ function matchedName({ item, matches = [] }: FuseResult<Item>) {
     let lastIndex = 0;
     for (const [start, end] of indices) {
       if (lastIndex > start) continue;
-      result.push(item.name.slice(lastIndex, start));
-      result.push(`<mark>${item.name.slice(start, end + 1)}</mark>`);
+      result.push(escapeHtml(item.name.slice(lastIndex, start)));
+      result.push(`<mark>${escapeHtml(item.name.slice(start, end + 1))}</mark>`);
       lastIndex = end + 1;
     }
-    result.push(item.name.slice(lastIndex));
+    result.push(escapeHtml(item.name.slice(lastIndex)));
     return result.join("");
   } else {
-    return item.name;
+    return escapeHtml(item.name);
   }
 }
 </script>
