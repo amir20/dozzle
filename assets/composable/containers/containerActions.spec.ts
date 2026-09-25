@@ -114,4 +114,15 @@ describe("useContainerActions update progress", () => {
     expect(progressToast()?.progress).toBeUndefined();
     expect(progressToast()?.message).toBe("toolbar.update-recreating");
   });
+
+  // The toast renders its message as HTML, and a pull error quotes whatever the
+  // registry answered.
+  test("escapes the error text before it reaches the toast", async () => {
+    const actions = run([{ status: "error", error: 'pull failed: <img src=x onerror="alert(1)">' }]);
+
+    await actions.update();
+
+    const message = holder.toasts.find((t) => t.type === "error")?.message;
+    expect(message).toBe("pull failed: &lt;img src=x onerror=&quot;alert(1)&quot;&gt;");
+  });
 });

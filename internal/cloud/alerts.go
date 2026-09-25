@@ -3,6 +3,7 @@ package cloud
 import (
 	"context"
 	"fmt"
+	"net/url"
 
 	pb "github.com/amir20/dozzle/proto/cloud"
 	"google.golang.org/grpc/metadata"
@@ -147,7 +148,7 @@ func alertResultFromProto(resp *pb.GetAlertsResponse) *AlertResult {
 			CreatedAt:       h.GetCreatedAtNs(),
 			LastActivityAt:  h.GetLastActivityAtNs(),
 			IsOrigin:        h.GetIsOrigin(),
-			URL:             h.GetUrl(),
+			URL:             httpURL(h.GetUrl()),
 			SubscriptionID:  h.GetSubscriptionId(),
 		})
 	}
@@ -167,6 +168,16 @@ func alertResultFromProto(resp *pb.GetAlertsResponse) *AlertResult {
 		})
 	}
 	return &AlertResult{Hits: hits, Events: events, Truncated: resp.GetTruncated()}
+}
+
+// httpURL drops anything that is not an absolute http(s) URL. The viewer puts
+// it straight into an href, where a javascript: link would run on click.
+func httpURL(raw string) string {
+	u, err := url.Parse(raw)
+	if err != nil || (u.Scheme != "http" && u.Scheme != "https") || u.Host == "" {
+		return ""
+	}
+	return raw
 }
 
 // GetRecentAlerts fetches what fired lately across the whole instance, for the

@@ -164,7 +164,10 @@ async function duplicateDestination() {
     if (!res.ok) throw new Error((await res.json().catch(() => ({}))).error ?? res.statusText);
     onUpdated?.();
   } catch (e) {
-    showToast({ type: "error", message: e instanceof Error ? e.message : t("notifications.destination.copy-failed") });
+    showToast({
+      type: "error",
+      message: e instanceof Error ? escapeHtml(e.message) : t("notifications.destination.copy-failed"),
+    });
   }
 }
 
@@ -178,7 +181,7 @@ async function deleteDestination() {
   } catch (e) {
     showToast({
       type: "error",
-      message: e instanceof Error ? e.message : t("notifications.destination.delete-failed"),
+      message: e instanceof Error ? escapeHtml(e.message) : t("notifications.destination.delete-failed"),
     });
   } finally {
     isDeleting.value = false;
