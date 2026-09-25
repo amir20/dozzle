@@ -8,6 +8,7 @@ import (
 
 	"net/http"
 	"net/http/httptest"
+	"strings"
 	"testing"
 
 	"github.com/amir20/dozzle/internal/container"
@@ -97,4 +98,36 @@ func Test_handler_download_logs_inverse_filter(t *testing.T) {
 		require.Contains(t, out, "boom")
 		require.NotContains(t, out, "all good")
 	})
+}
+
+func Test_handler_download_logs_sanitizes_entry_names(t *testing.T) {
+	id := "123456"
+	name := "../../etc/cron.d/evil"
+	req, err := http.NewRequest("GET", "/api/containers/localhost~"+id+"/download?stdout=1", nil)
+	require.NoError(t, err)
+
+	mockedClient := new(MockedClient)
+	data := makeMessage("INFO Testing logs...", container.STDOUT)
+	mockedClient.On("FindContainer", mock.Anything, id).Return(container.Container{ID: id, Name: name, Tty: false}, nil)
+	mockedClient.On("ContainerLogsBetweenDates", mock.Anything, id, mock.Anything, mock.Anything, container.STDOUT).Return(io.NopCloser(bytes.NewReader(data)), nil)
+	mockedClient.On("Host").Return(container.Host{ID: "localhost"})
+	mockedClient.On("ContainerEvents", mock.Anything, mock.AnythingOfType("chan<- container.ContainerEvent")).Return(nil).Run(func(args mock.Arguments) {
+		time.Sleep(1 * time.Second)
+	})
+	mockedClient.On("ListContainers", mock.Anything, mock.Anything).Return([]container.Container{
+		{ID: id, Name: name, State: "running"},
+	}, nil)
+
+	rr := httptest.NewRecorder()
+	createDefaultHandler(mockedClient).ServeHTTP(rr, req)
+	require.Equal(t, http.StatusOK, rr.Code)
+
+	body := rr.Body.Bytes()
+	zr, err := zip.NewReader(bytes.NewReader(body), int64(len(body)))
+	require.NoError(t, err)
+	require.Len(t, zr.File, 1)
+	entry := zr.File[0].Name
+	require.NotContains(t, entry, "/")
+	require.NotContains(t, entry, "\\")
+	require.False(t, strings.HasPrefix(entry, "."), "entry %q should not start with a dot", entry)
 }
