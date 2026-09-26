@@ -875,3 +875,17 @@ setup:
     conflict: 该项已设置，或已由环境变量固定。
     no-data: 未挂载 /data，因此无法保存。
     window-closed: "未开启登录时，设置只在全新安装后的前 15 分钟内接受更改。请改用环境变量开启登录。"
+mcp-authorize:
+  title: "授权 MCP 客户端"
+  subtitle: "{client} 想代表你使用 Dozzle。"
+  unnamed-client: "未命名的客户端"
+  redirect-label: "将你重定向到"
+  access-label: "访问权限"
+  access-value: "读取容器、日志和统计数据"
+  user-label: "登录身份"
+  hint: "只允许你刚刚亲自连接的客户端，并确认上方的地址符合预期。"
+  allow: "允许"
+  deny: "拒绝"
+  return: "返回客户端"
+  redirecting: "正在返回客户端。完成后即可关闭此标签页。"
+  failed: "无法完成此请求。"

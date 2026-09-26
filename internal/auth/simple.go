@@ -18,6 +18,7 @@ type simpleAuthContext struct {
 	UserDatabase UserDatabase
 	tokenAuth    *jwtauth.JWTAuth
 	ttl          time.Duration
+	secret       []byte
 	// UserDatabase.Find reloads users.yml in place, and the middleware now calls it
 	// on every request, so the reload has to be serialized.
 	mu sync.Mutex
@@ -57,6 +58,7 @@ func NewSimpleAuth(userDatabase UserDatabase, ttl time.Duration, secret []byte) 
 		UserDatabase: userDatabase,
 		tokenAuth:    tokenAuth,
 		ttl:          ttl,
+		secret:       secret,
 	}
 }
 
@@ -208,15 +210,20 @@ func (a *simpleAuthContext) slideSession(w http.ResponseWriter, r *http.Request,
 	SetSessionCookie(w, r, fresh, a.ttl)
 }
 
-// userFromToken resolves the verified token's subject against users.yml. It returns
-// nil for a missing or invalid token, and for a user who is no longer configured, so
-// the request falls through to RequireAuthentication as unauthenticated.
+// userFromToken resolves the verified session against users.yml. It returns nil
+// for a missing or invalid token, for a token that is not a session, and for a
+// user who is no longer configured, so the request falls through to
+// RequireAuthentication as unauthenticated.
 func (a *simpleAuthContext) userFromToken(ctx context.Context) *User {
 	_, claims, err := jwtauth.FromContext(ctx)
-	if err != nil {
+	if err != nil || !isSessionClaims(claims) {
 		return nil
 	}
 
+	return a.UserFromClaims(claims)
+}
+
+func (a *simpleAuthContext) UserFromClaims(claims map[string]any) *User {
 	username, ok := claims["username"].(string)
 	if !ok || username == "" {
 		return nil
@@ -231,4 +238,17 @@ func (a *simpleAuthContext) userFromToken(ctx context.Context) *User {
 	user.Password = ""
 
 	return &user
+}
+
+func (a *simpleAuthContext) SignToken(claims map[string]any) (string, error) {
+	_, token, err := a.tokenAuth.Encode(claims)
+	return token, err
+}
+
+func (a *simpleAuthContext) VerifyToken(token string) (map[string]any, error) {
+	return verifyClaims(a.tokenAuth, token)
+}
+
+func (a *simpleAuthContext) DerivedKey(purpose string) []byte {
+	return deriveKey(a.secret, purpose)
 }

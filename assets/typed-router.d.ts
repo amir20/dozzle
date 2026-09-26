@@ -94,6 +94,13 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
+    '/mcp/authorize': RouteRecordInfo<
+      '/mcp/authorize',
+      '/mcp/authorize',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
     '/merged/[ids]': RouteRecordInfo<
       '/merged/[ids]',
       '/merged/:ids',
@@ -231,6 +238,14 @@ declare module 'vue-router/auto-routes' {
     'assets/pages/login.vue': {
       routes:
         | '/login'
+      views:
+        | never
+      pathParamNames:
+        | never
+    }
+    'assets/pages/mcp/authorize.vue': {
+      routes:
+        | '/mcp/authorize'
       views:
         | never
       pathParamNames:
