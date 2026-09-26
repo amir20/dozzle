@@ -1,12 +1,12 @@
 <template>
   <ul
+    ref="list"
     class="group pt-4"
     :class="{ 'disable-wrap': !softWrap, [size]: true, compact, 'highlight-errors': highlightErrors }"
     data-logs
   >
     <li
       v-for="item in messages"
-      ref="list"
       :key="item.id"
       :id="item.id.toString()"
       :data-time="item.date.getTime()"
@@ -39,38 +39,84 @@ const rowLevel = (item: LogEntry<LogMessage>) =>
 const route = useRoute();
 const permalinkLogId = computed(() => (typeof route.query.logId === "string" ? route.query.logId : ""));
 
-const list = ref<HTMLElement[]>([]);
+const list = ref<HTMLElement>();
 
-let previousDate = new Date();
 // Only a single container has a lifetime to place a log on; merged and grouped
 // views have nothing to measure against, so they say so instead of leaving the
 // readout parked at the default 100%.
 watchEffect(() => (available.value = containers.value.length === 1));
-useIntersectionObserver(
-  list,
-  (entries) => {
-    if (containers.value.length != 1) return;
-    const container = containers.value[0];
-    for (const entry of entries) {
-      if (entry.isIntersecting) {
-        const time = entry.target.getAttribute("data-time");
-        if (time) {
-          const date = new Date(parseInt(time));
-          if (+date === +previousDate) break;
-          previousDate = date;
-          const diff = new Date().getTime() - container.created.getTime();
-          progress.value = (date.getTime() - container.created.getTime()) / diff;
-          currentDate.value = date;
-          break;
-        }
-      }
-    }
-  },
-  {
-    rootMargin: "-10% 0px -10% 0px",
-    threshold: 1,
-  },
-);
+
+// Docker leaves finishedAt at the zero time for a container that never stopped.
+const isSet = (date: Date) => date.getFullYear() > 1;
+
+// The position is read off one fixed line, the middle of the visible column,
+// rather than from whichever rows last crossed an observer's edge. That makes
+// it a pure function of the scroll offset: the same spot always gives the same
+// value whichever way you scrolled to it, tall rows are measured like any
+// other, and nothing resets when rows are appended or older ones load in.
+// Blending between the row under the line and the next one keeps it moving
+// continuously instead of stepping a row at a time.
+function measure() {
+  const ul = list.value;
+  if (!ul || containers.value.length !== 1) return;
+  const rows = ul.children;
+  if (rows.length === 0) return;
+
+  // The sticky header sits over the top of the column when the page scrolls,
+  // so the visible logs start at its bottom edge, not at the scroller's.
+  const view = ul.closest("[data-scroll-view]");
+  const scroller = view?.querySelector("main[data-scrolling]")?.getBoundingClientRect();
+  const header = view?.querySelector("[data-scroll-header]")?.getBoundingClientRect();
+  const top = Math.max(scroller?.top ?? 0, header?.bottom ?? 0, 0);
+  const bottom = Math.min(scroller?.bottom ?? window.innerHeight, window.innerHeight);
+  const line = (top + bottom) / 2;
+
+  // Rows are in time order, so the last one starting above the line is found
+  // by bisection: a handful of layout reads per frame however long the list.
+  let lo = 0;
+  let hi = rows.length - 1;
+  while (lo < hi) {
+    const mid = (lo + hi + 1) >> 1;
+    if (rows[mid].getBoundingClientRect().top <= line) lo = mid;
+    else hi = mid - 1;
+  }
+
+  const row = rows[lo];
+  const rect = row.getBoundingClientRect();
+  const from = Number(row.getAttribute("data-time") || NaN);
+  const next = Number(rows[lo + 1]?.getAttribute("data-time") || NaN);
+  if (!Number.isFinite(from)) return;
+  const through = rect.height > 0 ? Math.min(Math.max((line - rect.top) / rect.height, 0), 1) : 0;
+  const time = Number.isFinite(next) ? from + (next - from) * through : from;
+
+  const container = containers.value[0];
+  // Only a container that is down for good has an end; a restarting one still
+  // carries the previous run's finishedAt while its life goes on.
+  const stopped = container.state === "exited" || container.state === "dead";
+  const end = stopped && isSet(container.finishedAt) ? container.finishedAt.getTime() : Date.now();
+  const span = end - container.created.getTime();
+  progress.value = span > 0 ? (time - container.created.getTime()) / span : 1;
+  currentDate.value = new Date(time);
+}
+
+let frame = 0;
+const schedule = () => {
+  if (frame) return;
+  frame = requestAnimationFrame(() => {
+    frame = 0;
+    measure();
+  });
+};
+onScopeDispose(() => cancelAnimationFrame(frame));
+
+// Scroll does not bubble, so listening in the capture phase on window hears
+// whichever element is scrolling: the page, or this column's own scroller.
+useEventListener(window, "scroll", schedule, { capture: true, passive: true });
+useResizeObserver(list, schedule);
+useMutationObserver(list, schedule, { childList: true });
+// A container that stops while you are reading changes its lifetime without
+// touching the rows.
+watch(() => [containers.value[0]?.state, containers.value[0]?.finishedAt], schedule);
 </script>
 <style scoped>
 @reference "@/main.css";

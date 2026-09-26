@@ -54,12 +54,11 @@ const {
 const target = computed(() => Math.min(Math.max(progress, 0), 1));
 const eased = ref(target.value);
 
-// The source position only moves when a new row's timestamp crosses the middle
-// of the view, so it arrives in visible steps. Gliding towards it on an
-// exponential decay (frame-rate independent, and re-aimed rather than
-// restarted when the next step lands mid-flight) is what turns those steps
-// into one continuous motion. The number and the fill both read `eased`, so
-// they can never disagree.
+// The source position follows the scroll offset, but a fling or a jump to an
+// older page can still move it a long way in one frame. Gliding towards it on
+// an exponential decay (frame-rate independent, and re-aimed rather than
+// restarted when the next value lands mid-flight) keeps those moves readable.
+// The number and the fill both read `eased`, so they can never disagree.
 const reducedMotion = usePreferredReducedMotion();
 let frame = 0;
 

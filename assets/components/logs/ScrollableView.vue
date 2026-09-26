@@ -1,8 +1,9 @@
 <template>
-  <section :class="{ 'h-screen min-h-0': scrollable }" class="flex flex-col">
+  <section :class="{ 'h-screen min-h-0': scrollable }" class="flex flex-col" data-scroll-view>
     <header
       v-if="$slots.header"
       ref="scrollableHeader"
+      data-scroll-header
       data-testid="scrollable-header"
       class="border-base-content/10 bg-base-200 sticky top-[var(--mobile-nav-offset)] z-20 border-b py-0.5 shadow-[1px_1px_2px_0_rgb(0,0,0,0.05)] md:top-0 md:py-2"
     >
