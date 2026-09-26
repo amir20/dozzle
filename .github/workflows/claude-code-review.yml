@@ -36,12 +36,15 @@ jobs:
             Review this PR for real defects only: bugs, regressions, security issues,
             and violations of rules in CLAUDE.md. Skip style, praise, and suggestions.
 
-            - Read the diff with `gh pr diff` and existing feedback with `gh pr view --comments`.
+            - Read the diff with `gh pr diff`. Read existing feedback with `gh pr view --comments`
+              and existing inline threads with
+              `gh api repos/${{ github.repository }}/pulls/${{ github.event.pull_request.number }}/comments`.
               Don't repeat anything already raised.
             - Post each line-specific finding as an inline comment with
               mcp__github_inline_comment__create_inline_comment. One or two sentences:
               what breaks and under what input.
             - Post a single summary with `gh pr comment` only for findings that don't
-              map to a line. If there are none, say "No issues found." and stop.
+              map to a line. If there are no findings at all, say "No issues found."
+              If every finding is inline, don't post a summary.
           claude_args: |
-            --allowedTools "mcp__github_inline_comment__create_inline_comment,Bash(gh pr comment:*),Bash(gh pr diff:*),Bash(gh pr view:*)"
+            --allowedTools "mcp__github_inline_comment__create_inline_comment,Bash(gh pr comment:*),Bash(gh pr diff:*),Bash(gh pr view:*),Bash(gh api repos/${{ github.repository }}/pulls/${{ github.event.pull_request.number }}/comments)"
