@@ -164,7 +164,9 @@ export const useK8sStore = defineStore("k8s", () => {
       grouped[group].push(container);
     }
 
-    return Object.entries(grouped).map(([name, containers]) => new GroupedContainers(name, containers));
+    return Object.entries(grouped)
+      .map(([name, containers]) => new GroupedContainers(name, containers))
+      .sort((a, b) => a.name.localeCompare(b.name));
   });
 
   return {
