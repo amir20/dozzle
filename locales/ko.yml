@@ -877,3 +877,17 @@ setup:
     conflict: 이미 설정되었거나 환경 변수로 고정되어 있습니다.
     no-data: /data가 마운트되지 않아 저장할 수 없습니다.
     window-closed: "로그인이 없으면 설정은 새로 설치한 뒤 처음 15분 동안만 변경을 받습니다. 대신 환경 변수로 로그인을 켜세요."
+mcp-authorize:
+  title: "MCP 클라이언트 승인"
+  subtitle: "{client}이(가) 사용자를 대신해 Dozzle을 사용하려고 합니다."
+  unnamed-client: "이름 없는 클라이언트"
+  redirect-label: "돌아갈 주소"
+  access-label: "접근 권한"
+  access-value: "컨테이너, 로그, 통계 읽기"
+  user-label: "로그인 계정"
+  hint: "방금 직접 연결한 클라이언트만 허용하고, 위 주소가 예상한 주소인지 확인하세요."
+  allow: "허용"
+  deny: "거부"
+  return: "클라이언트로 돌아가기"
+  redirecting: "클라이언트로 돌아가는 중입니다. 완료되면 이 탭을 닫아도 됩니다."
+  failed: "요청을 완료할 수 없습니다."

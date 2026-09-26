@@ -82,9 +82,22 @@ Add the following to your Claude Desktop MCP configuration:
 
 The MCP endpoint is part of the authenticated API group. When authentication is enabled, MCP clients must provide valid credentials.
 
-### Simple Auth
+### Simple Auth and OIDC
 
-With `--auth-provider simple`, MCP clients need to include a valid JWT token in the `Authorization` header. To obtain a token:
+With `--auth-provider simple` or `--auth-provider oidc`, Dozzle is an OAuth authorization server for MCP clients. Clients that support MCP authorization (VS Code, Claude Code, Claude Desktop and others) sign in on their own. Add the server with no headers, and the first time the client connects it opens a browser tab:
+
+1. Sign in to Dozzle the way you normally do (password, GitHub or your OIDC provider).
+2. Dozzle shows a consent page with the client's name and the address it will send you back to. Choose **Allow**.
+3. The browser returns to the client, which stores the token and refreshes it on its own.
+
+The token only works on `/api/mcp` and carries the same roles and container filters as your browser session. Access tokens last an hour. Refresh tokens stop working 30 days after you approved the client, and the client then asks you to approve it again. Anything that signs everyone out of Dozzle, such as editing `users.yml` or changing the OIDC issuer, also revokes MCP tokens.
+
+> [!NOTE]
+> Dozzle builds its OAuth URLs from the request, the same way it builds the OIDC callback. Behind a reverse proxy, forward `Host` (or `X-Forwarded-Host`) and `X-Forwarded-Proto`. With a custom base path, some clients look for metadata under `/.well-known/` at the root of the domain, so route `/.well-known/` to Dozzle if you can.
+
+#### Clients without OAuth support
+
+With simple auth, a client that can only send static headers can use a session token instead:
 
 1. Send a `POST` request to `/api/token` with your username and password.
 2. Configure your MCP client to send the token as a Bearer header.
@@ -104,6 +117,8 @@ For example, in VS Code MCP settings:
   }
 }
 ```
+
+This is not available with oidc, because there is no password to exchange for a token.
 
 ### Forward Proxy Auth
 

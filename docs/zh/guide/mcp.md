@@ -1,6 +1,6 @@
 ---
 title: MCP 集成
-sourceHash: 07d02a3201c5
+sourceHash: fe1cee485b1f
 ---
 
 # MCP 集成
@@ -83,14 +83,27 @@ services:
 
 MCP 端点属于需要身份验证的 API 组。启用身份验证后，MCP 客户端必须提供有效的凭据。
 
-### 简单身份验证
+### 简单身份验证和 OIDC
 
-使用 `--auth-provider simple` 时，MCP 客户端需要在 `Authorization` 头中带上有效的 JWT 令牌。获取令牌的方式：
+使用 `--auth-provider simple` 或 `--auth-provider oidc` 时，Dozzle 会作为 MCP 客户端的 OAuth 授权服务器。支持 MCP 授权的客户端（VS Code、Claude Code、Claude Desktop 等）会自行完成登录。添加服务器时无需任何请求头，客户端首次连接时会打开一个浏览器标签页：
 
-1. 带上用户名和密码，向 `/api/token` 发送一个 `POST` 请求。
-2. 配置你的 MCP 客户端，把该令牌作为 Bearer 头发送。
+1. 按平常的方式登录 Dozzle（密码、GitHub 或你的 OIDC 提供商）。
+2. Dozzle 会显示一个授权页面，列出客户端名称以及登录后将返回的地址。选择 **允许**。
+3. 浏览器返回客户端，客户端保存令牌并自动刷新。
 
-例如，在 VS Code 的 MCP 设置中：
+该令牌只能用于 `/api/mcp`，并带有与你的浏览器会话相同的角色和容器过滤器。访问令牌有效期为一小时。刷新令牌在你批准客户端 30 天后失效，届时客户端会请你重新批准。任何会让所有人退出 Dozzle 的操作（例如修改 `users.yml` 或更换 OIDC issuer）也会吊销 MCP 令牌。
+
+> [!NOTE]
+> Dozzle 根据请求构造 OAuth URL，与构造 OIDC 回调的方式相同。在反向代理之后，请转发 `Host`（或 `X-Forwarded-Host`）和 `X-Forwarded-Proto`。如果使用了自定义基础路径，有些客户端会在域名根部的 `/.well-known/` 下查找元数据，因此请尽量把 `/.well-known/` 也转发给 Dozzle。
+
+#### 不支持 OAuth 的客户端
+
+使用简单身份验证时，只能发送固定请求头的客户端可以改用会话令牌：
+
+1. 向 `/api/token` 发送包含用户名和密码的 `POST` 请求。
+2. 配置 MCP 客户端，将令牌作为 Bearer 请求头发送。
+
+例如在 VS Code 的 MCP 设置中：
 
 ```json
 {
@@ -105,6 +118,8 @@ MCP 端点属于需要身份验证的 API 组。启用身份验证后，MCP 客�
   }
 }
 ```
+
+oidc 模式下无法使用此方式，因为没有可以换取令牌的密码。
 
 ### 前置代理身份验证
 

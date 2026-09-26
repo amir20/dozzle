@@ -1,6 +1,6 @@
 ---
 title: Intégration MCP
-sourceHash: 07d02a3201c5
+sourceHash: fe1cee485b1f
 ---
 
 # Intégration MCP
@@ -83,11 +83,24 @@ Ajoutez ce qui suit à votre configuration MCP de Claude Desktop :
 
 L'endpoint MCP fait partie du groupe d'API authentifiées. Lorsque l'authentification est activée, les clients MCP doivent fournir des identifiants valides.
 
-### Authentification simple
+### Authentification simple et OIDC
 
-Avec `--auth-provider simple`, les clients MCP doivent inclure un jeton JWT valide dans l'en-tête `Authorization`. Pour obtenir un jeton :
+Avec `--auth-provider simple` ou `--auth-provider oidc`, Dozzle est un serveur d'autorisation OAuth pour les clients MCP. Les clients qui prennent en charge l'autorisation MCP (VS Code, Claude Code, Claude Desktop et d'autres) se connectent d'eux-mêmes. Ajoutez le serveur sans en-tête : à la première connexion, le client ouvre un onglet du navigateur.
 
-1. Envoyez une requête `POST` vers `/api/token` avec votre nom d'utilisateur et votre mot de passe.
+1. Connectez-vous à Dozzle comme d'habitude (mot de passe, GitHub ou votre fournisseur OIDC).
+2. Dozzle affiche une page de consentement avec le nom du client et l'adresse vers laquelle vous serez renvoyé. Choisissez **Autoriser**.
+3. Le navigateur revient au client, qui enregistre le jeton et le renouvelle tout seul.
+
+Le jeton ne fonctionne que sur `/api/mcp` et porte les mêmes rôles et filtres de conteneurs que votre session navigateur. Les jetons d'accès durent une heure. Les jetons de rafraîchissement expirent 30 jours après l'approbation du client, qui vous demande alors de l'approuver à nouveau. Tout ce qui déconnecte tout le monde de Dozzle, comme une modification de `users.yml` ou de l'émetteur OIDC, révoque aussi les jetons MCP.
+
+> [!NOTE]
+> Dozzle construit ses URL OAuth à partir de la requête, comme pour le callback OIDC. Derrière un reverse proxy, transmettez `Host` (ou `X-Forwarded-Host`) et `X-Forwarded-Proto`. Avec un chemin de base personnalisé, certains clients cherchent les métadonnées sous `/.well-known/` à la racine du domaine : redirigez `/.well-known/` vers Dozzle si possible.
+
+#### Clients sans prise en charge d'OAuth
+
+Avec l'authentification simple, un client qui ne sait envoyer que des en-têtes fixes peut utiliser un jeton de session à la place :
+
+1. Envoyez une requête `POST` à `/api/token` avec votre nom d'utilisateur et votre mot de passe.
 2. Configurez votre client MCP pour envoyer le jeton dans un en-tête Bearer.
 
 Par exemple, dans les paramètres MCP de VS Code :
@@ -105,6 +118,8 @@ Par exemple, dans les paramètres MCP de VS Code :
   }
 }
 ```
+
+Ce n'est pas possible avec oidc, car il n'y a pas de mot de passe à échanger contre un jeton.
 
 ### Authentification par proxy
 

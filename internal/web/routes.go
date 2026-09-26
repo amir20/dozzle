@@ -15,6 +15,7 @@ import (
 	"github.com/amir20/dozzle/internal/container"
 	"github.com/amir20/dozzle/internal/imagecheck"
 	dozzle_mcp "github.com/amir20/dozzle/internal/mcp"
+	mcpoauth "github.com/amir20/dozzle/internal/mcp/oauth"
 	"github.com/amir20/dozzle/internal/notification"
 	"github.com/amir20/dozzle/internal/notification/dispatcher"
 	"github.com/amir20/dozzle/internal/releases"
@@ -211,9 +212,33 @@ func createRouter(h *handler) *chi.Mux {
 		log.Fatal().Msg("Authorization provider is set but no authorizer is provided")
 	}
 
+	// MCP clients sign in through Dozzle's own authorization server whenever
+	// sessions are JWTs Dozzle signs. Forward-proxy auth has none, and the proxy
+	// already authenticates MCP requests the same way it does the browser's.
+	var mcpOAuth *mcpoauth.Server
+	if h.config.EnableMCP {
+		if tokens, ok := h.config.Authorization.Authorizer.(auth.TokenAuthorizer); ok && (h.config.Authorization.Provider == SIMPLE || h.config.Authorization.Provider == OIDC) {
+			mcpOAuth = mcpoauth.New(tokens, base)
+		}
+	}
+
+	// Clients look for metadata at the origin root with the base inserted in the
+	// path (RFC 8414 and RFC 9728). That only reaches Dozzle when a proxy
+	// forwards more than the base, so the challenge also points under the base.
+	if mcpOAuth != nil && base != "/" {
+		r.Get("/.well-known/oauth-authorization-server"+base, mcpOAuth.AuthServerMetadata)
+		r.Get("/.well-known/oauth-protected-resource"+base+"/api/mcp", mcpOAuth.ResourceMetadata)
+	}
+
 	r.Route(base, func(r chi.Router) {
 		if h.config.Authorization.Provider != NONE {
 			r.Use(h.config.Authorization.Authorizer.AuthMiddleware)
+		}
+
+		if mcpOAuth != nil {
+			r.Get("/.well-known/oauth-authorization-server", mcpOAuth.AuthServerMetadata)
+			r.Get("/.well-known/oauth-protected-resource", mcpOAuth.ResourceMetadata)
+			r.Get("/.well-known/oauth-protected-resource/api/mcp", mcpOAuth.ResourceMetadata)
 		}
 
 		r.Route("/api", func(r chi.Router) {
@@ -331,11 +356,31 @@ func createRouter(h *handler) *chi.Mux {
 				})
 
 				// MCP (Model Context Protocol) endpoint
-				if h.config.EnableMCP {
+				if h.config.EnableMCP && mcpOAuth == nil {
 					mcpServer := dozzle_mcp.NewServer(h.hostService, h.config.Labels, h.config.Version)
 					r.Mount("/mcp", mcpServer.Handler())
 				}
+
+				// What the consent page asks and answers.
+				if mcpOAuth != nil {
+					r.Get("/oauth/authorize", mcpOAuth.DescribeRequest)
+					r.Post("/oauth/authorize", mcpOAuth.Decide)
+				}
 			})
+
+			// Outside RequireAuthentication: the middleware accepts a session or
+			// an access token, and answers neither with the challenge an MCP
+			// client needs to start signing in.
+			if mcpOAuth != nil {
+				mcpServer := dozzle_mcp.NewServer(h.hostService, h.config.Labels, h.config.Version)
+				r.With(mcpoauth.CORS, mcpOAuth.Middleware).Mount("/mcp", mcpServer.Handler())
+
+				// Public: they are how an MCP client gets a token in the first place.
+				r.With(mcpoauth.CORS).Post("/oauth/register", mcpOAuth.Register)
+				r.With(mcpoauth.CORS).Post("/oauth/token", mcpOAuth.Token)
+				r.With(mcpoauth.CORS).Options("/oauth/register", func(http.ResponseWriter, *http.Request) {})
+				r.With(mcpoauth.CORS).Options("/oauth/token", func(http.ResponseWriter, *http.Request) {})
+			}
 
 			// Public API routes
 			switch h.config.Authorization.Provider {

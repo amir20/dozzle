@@ -876,3 +876,17 @@ setup:
     conflict: Dit is al ingesteld, of vastgelegd door een omgevingsvariabele.
     no-data: /data is niet gekoppeld, dus dit kan niet worden opgeslagen.
     window-closed: "Zonder inloggen accepteert de installatie alleen wijzigingen in de eerste 15 minuten van een nieuwe installatie. Zet inloggen in plaats daarvan aan met omgevingsvariabelen."
+mcp-authorize:
+  title: "MCP-client autoriseren"
+  subtitle: "{client} wil Dozzle namens jou gebruiken."
+  unnamed-client: "Een naamloze client"
+  redirect-label: "Stuurt je terug naar"
+  access-label: "Toegang"
+  access-value: "Containers, logs en statistieken lezen"
+  user-label: "Ingelogd als"
+  hint: "Sta alleen een client toe die je zelf net hebt gekoppeld, en controleer of het adres hierboven het verwachte is."
+  allow: "Toestaan"
+  deny: "Weigeren"
+  return: "Terug naar de client"
+  redirecting: "Terug naar de client. Je kunt dit tabblad sluiten zodra het klaar is."
+  failed: "Dit verzoek kon niet worden voltooid."
