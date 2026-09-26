@@ -90,7 +90,18 @@ describe("<ContainerEventSource />", () => {
             createSpy: vi.fn,
             stubActions: false,
             initialState: {
-              container: { containers: [{ id: "abc", image: "test:v123", host: "localhost" }] },
+              container: {
+                containers: [
+                  {
+                    id: "abc",
+                    image: "test:v123",
+                    host: "localhost",
+                    created: new Date(0),
+                    finishedAt: new Date(0),
+                    state: "running",
+                  },
+                ],
+              },
             },
           }),
           createI18n({}),
@@ -107,7 +118,16 @@ describe("<ContainerEventSource />", () => {
             currentDate: ref(new Date()),
           },
           [loggingContextKey as symbol]: {
-            containers: computed(() => [{ id: "abc", image: "test:v123", host: "localhost" }]),
+            containers: computed(() => [
+              {
+                id: "abc",
+                image: "test:v123",
+                host: "localhost",
+                created: new Date(0),
+                finishedAt: new Date(0),
+                state: "running",
+              },
+            ]),
             streamConfig: reactive({ stdout: true, stderr: true }),
             hasComplexLogs: ref(false),
             levels: new Set<Level>(["info"]),

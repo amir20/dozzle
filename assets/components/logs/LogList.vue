@@ -22,7 +22,7 @@
 <script lang="ts" setup>
 import { AlertLogEntry, CloudEventLogEntry, type LogEntry, type LogMessage } from "@/models/LogEntry";
 
-const { progress, currentDate, available, paused } = useScrollContext();
+const { progress, currentDate, available } = useScrollContext();
 
 const { messages } = defineProps<{
   messages: LogEntry<LogMessage>[];
@@ -58,12 +58,16 @@ const isSet = (date: Date) => date.getFullYear() > 1;
 // continuously instead of stepping a row at a time.
 function measure() {
   const ul = list.value;
-  if (!ul || !paused.value || containers.value.length !== 1) return;
+  if (!ul || containers.value.length !== 1) return;
   const rows = ul.children;
   if (rows.length === 0) return;
 
-  const scroller = ul.closest<HTMLElement>("[data-scrolling]")?.getBoundingClientRect();
-  const top = Math.max(scroller?.top ?? 0, 0);
+  // The sticky header sits over the top of the column when the page scrolls,
+  // so the visible logs start at its bottom edge, not at the scroller's.
+  const view = ul.closest("[data-scroll-view]");
+  const scroller = view?.querySelector("main[data-scrolling]")?.getBoundingClientRect();
+  const header = view?.querySelector("[data-scroll-header]")?.getBoundingClientRect();
+  const top = Math.max(scroller?.top ?? 0, header?.bottom ?? 0, 0);
   const bottom = Math.min(scroller?.bottom ?? window.innerHeight, window.innerHeight);
   const line = (top + bottom) / 2;
 
@@ -79,15 +83,17 @@ function measure() {
 
   const row = rows[lo];
   const rect = row.getBoundingClientRect();
-  const from = Number(row.getAttribute("data-time"));
-  const next = rows[lo + 1]?.getAttribute("data-time");
+  const from = Number(row.getAttribute("data-time") || NaN);
+  const next = Number(rows[lo + 1]?.getAttribute("data-time") || NaN);
   if (!Number.isFinite(from)) return;
   const through = rect.height > 0 ? Math.min(Math.max((line - rect.top) / rect.height, 0), 1) : 0;
-  const time = next ? from + (Number(next) - from) * through : from;
+  const time = Number.isFinite(next) ? from + (next - from) * through : from;
 
   const container = containers.value[0];
-  const running = container.state === "running" || container.state === "paused";
-  const end = !running && isSet(container.finishedAt) ? container.finishedAt.getTime() : Date.now();
+  // Only a container that is down for good has an end; a restarting one still
+  // carries the previous run's finishedAt while its life goes on.
+  const stopped = container.state === "exited" || container.state === "dead";
+  const end = stopped && isSet(container.finishedAt) ? container.finishedAt.getTime() : Date.now();
   const span = end - container.created.getTime();
   progress.value = span > 0 ? (time - container.created.getTime()) / span : 1;
   currentDate.value = new Date(time);
@@ -108,7 +114,9 @@ onScopeDispose(() => cancelAnimationFrame(frame));
 useEventListener(window, "scroll", schedule, { capture: true, passive: true });
 useResizeObserver(list, schedule);
 useMutationObserver(list, schedule, { childList: true });
-watch(paused, schedule);
+// A container that stops while you are reading changes its lifetime without
+// touching the rows.
+watch(() => [containers.value[0]?.state, containers.value[0]?.finishedAt], schedule);
 </script>
 <style scoped>
 @reference "@/main.css";
