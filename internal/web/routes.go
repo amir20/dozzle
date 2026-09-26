@@ -45,23 +45,24 @@ const (
 
 // Config is a struct for configuring the web service
 type Config struct {
-	Base             string
-	Addr             string
-	Version          string
-	Hostname         string
-	NoAnalytics      bool
-	Dev              bool
-	Mode             string
-	Authorization    Authorization
-	EnableActions    bool
-	EnableShell      bool
-	EnableMCP        bool
-	DisableAvatars   bool
-	ReleaseCheckMode ReleaseCheckMode
-	ImageCheckMode   imagecheck.Mode
-	Labels           container.ContainerLabels
-	Cloud            CloudHooks
-	Setup            SetupConfig
+	Base               string
+	Addr               string
+	Version            string
+	Hostname           string
+	NoAnalytics        bool
+	Dev                bool
+	Mode               string
+	Authorization      Authorization
+	EnableActions      bool
+	EnableShell        bool
+	EnableMCP          bool
+	DisableAvatars     bool
+	DisableSetupWizard bool
+	ReleaseCheckMode   ReleaseCheckMode
+	ImageCheckMode     imagecheck.Mode
+	Labels             container.ContainerLabels
+	Cloud              CloudHooks
+	Setup              SetupConfig
 }
 
 // SetupConfig is what the setup wizard needs to know about how this process

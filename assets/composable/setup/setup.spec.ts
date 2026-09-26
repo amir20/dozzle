@@ -208,6 +208,10 @@ describe("setupShouldAutoOpen", () => {
   test("does not ambush an existing profile", () => {
     expect(setupShouldAutoOpen({ ...base, profile: { releaseSeen: "v8" } })).toBe(false);
   });
+  test("stays closed when disabled by the operator, but still resumes", () => {
+    expect(setupShouldAutoOpen({ ...base, disabled: true })).toBe(false);
+    expect(setupShouldAutoOpen({ ...base, disabled: true, resume: "restart" })).toBe(true);
+  });
   test("stays closed once seen", () => {
     expect(setupShouldAutoOpen({ ...base, setupSeen: true })).toBe(false);
   });

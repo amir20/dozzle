@@ -1,6 +1,6 @@
 ---
 title: Assistant de configuration
-sourceHash: 4a73b46d7ba8
+sourceHash: 3b30130e995d
 ---
 
 # Assistant de configuration
@@ -10,6 +10,8 @@ sourceHash: 4a73b46d7ba8
 Une nouvelle installation de Dozzle s'ouvre sur un court assistant de configuration. Il vous guide à travers les quelques réglages que la plupart des gens modifient juste après l'installation : activer la connexion, autoriser les actions sur les conteneurs et l'accès shell, et connecter Dozzle Cloud. Tout ce qu'il enregistre peut aussi être défini par des flags ou des variables d'environnement, l'assistant est donc facultatif.
 
 L'assistant n'apparaît que sur une nouvelle installation en mode serveur. Les déploiements Swarm et Kubernetes ne l'affichent jamais. Vous pouvez le rouvrir plus tard depuis les paramètres.
+
+Pour les environnements jetables, créés et détruits souvent, définissez `DOZZLE_DISABLE_SETUP_WIZARD=true` afin que l'assistant ne s'ouvre jamais tout seul. Il reste accessible depuis les paramètres.
 
 ## <Icon icon="mdi:format-list-numbered" inline /> Étapes
 

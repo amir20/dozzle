@@ -44,6 +44,7 @@ type Args struct {
 	AutoUpdateTime         string              `arg:"--auto-update-time,env:DOZZLE_AUTO_UPDATE_TIME" default:"" help:"sets the HH:MM, in server local time, that --auto-update runs at. Defaults to 03:00."`
 	EnableMCP              bool                `arg:"--enable-mcp,env:DOZZLE_ENABLE_MCP" default:"false" help:"enables the MCP (Model Context Protocol) endpoint for LLM integration."`
 	DisableAvatars         bool                `arg:"--disable-avatars,env:DOZZLE_DISABLE_AVATARS" default:"false" help:"disables avatars for authenticated users."`
+	DisableSetupWizard     bool                `arg:"--disable-setup-wizard,env:DOZZLE_DISABLE_SETUP_WIZARD" default:"false" help:"stops the setup wizard from opening by itself on a fresh install."`
 	FilterStrings          []string            `arg:"env:DOZZLE_FILTER,--filter,separate" help:"filters docker containers using Docker syntax."`
 	Filter                 map[string][]string `arg:"-"`
 	ReleaseCheckMode       string              `arg:"--release-check-mode,env:DOZZLE_RELEASE_CHECK_MODE" default:"automatic" help:"sets the release check mode. When manual, releases will not be automatically fetched."`

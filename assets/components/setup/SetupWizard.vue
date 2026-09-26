@@ -268,6 +268,7 @@ onMounted(() => {
     profile: config.profile,
     resume: resumeAtLoad,
     hideMenu: new URLSearchParams(window.location.search).has("hideMenu"),
+    disabled: config.disableSetupWizard,
   });
   if (shouldOpen) {
     autoOpening = true;

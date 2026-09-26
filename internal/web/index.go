@@ -135,6 +135,7 @@ func (h *handler) executeTemplate(w http.ResponseWriter, req *http.Request) {
 		config["mode"] = h.config.Mode
 		config["hosts"] = hosts
 		config["disableAvatars"] = h.config.DisableAvatars
+		config["disableSetupWizard"] = h.config.DisableSetupWizard
 		config["releaseCheckMode"] = h.config.ReleaseCheckMode
 		config["imageCheckMode"] = h.config.ImageCheckMode
 		config["enableShell"] = h.config.EnableShell

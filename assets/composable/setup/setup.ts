@@ -91,6 +91,8 @@ export function setupUpdateTimes(current: string): string[] {
 
 // Opens by itself only on a fresh install (an empty profile, so nobody upgrading
 // gets ambushed) or when a restart or the cloud round trip left a resume marker.
+// DOZZLE_DISABLE_SETUP_WIZARD only drops the fresh-install case, so a wizard opened
+// from Settings still resumes after the restart it asked for.
 export function setupShouldAutoOpen(input: {
   mode: string;
   authProvider: string;
@@ -98,9 +100,11 @@ export function setupShouldAutoOpen(input: {
   profile: object | undefined;
   resume: SetupStepId | undefined;
   hideMenu: boolean;
+  disabled?: boolean;
 }): boolean {
   if (input.hideMenu || input.mode !== "server") return false;
   if (input.resume) return true;
+  if (input.disabled) return false;
   return input.authProvider === "none" && !input.setupSeen && Object.keys(input.profile ?? {}).length === 0;
 }
 

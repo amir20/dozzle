@@ -1,6 +1,6 @@
 ---
 title: Einrichtungsassistent
-sourceHash: 4a73b46d7ba8
+sourceHash: 3b30130e995d
 ---
 
 # Einrichtungsassistent
@@ -10,6 +10,8 @@ sourceHash: 4a73b46d7ba8
 Eine frische Dozzle-Installation startet mit einem kurzen Einrichtungsassistenten. Er führt dich durch die wenigen Dinge, die die meisten direkt nach der Installation ändern: Login einschalten, Container-Aktionen und Shell-Zugriff erlauben und Dozzle Cloud verbinden. Alles, was er speichert, lässt sich auch über Flags oder Umgebungsvariablen setzen, der Assistent ist also optional.
 
 Der Assistent erscheint nur bei einer frischen Installation im Server-Modus. Swarm- und Kubernetes-Deployments zeigen ihn nie. Du kannst ihn später in den Einstellungen erneut öffnen.
+
+Für kurzlebige Umgebungen, die oft neu erstellt und wieder abgebaut werden, setze `DOZZLE_DISABLE_SETUP_WIZARD=true`, damit sich der Assistent nie von selbst öffnet. In den Einstellungen lässt er sich weiterhin öffnen.
 
 ## <Icon icon="mdi:format-list-numbered" inline /> Schritte
 
