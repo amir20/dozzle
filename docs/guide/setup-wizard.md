@@ -10,6 +10,8 @@ A fresh Dozzle install opens with a short setup wizard. It walks you through the
 
 The wizard only appears on a fresh install running in server mode. Swarm and Kubernetes deployments never show it. You can open it again later from Settings.
 
+For throwaway environments that are created and torn down often, set `DOZZLE_DISABLE_SETUP_WIZARD=true` so the wizard never opens by itself. It can still be opened from Settings.
+
 ## <Icon icon="mdi:format-list-numbered" inline /> Steps
 
 ### 1. Login
