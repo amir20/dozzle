@@ -461,6 +461,9 @@ type NotificationConfigUpdater interface {
 
 // broadcastNotificationConfig sends current notification config to all agent clients
 func (m *MultiHostService) broadcastNotificationConfig() {
+	// Held across read and send, so an older snapshot can never go out last.
+	m.configMu.Lock()
+	defer m.configMu.Unlock()
 	notifSubs := m.notificationManager.Subscriptions()
 	notifDispatchers := m.notificationManager.Dispatchers()
 
@@ -496,8 +499,6 @@ func (m *MultiHostService) broadcastNotificationConfig() {
 		})
 	}
 
-	m.configMu.Lock()
-	defer m.configMu.Unlock()
 	var wg sync.WaitGroup
 	for _, client := range m.manager.List() {
 		if updater, ok := client.(NotificationConfigUpdater); ok {
@@ -515,6 +516,8 @@ func (m *MultiHostService) broadcastNotificationConfig() {
 
 // broadcastCloudConfig sends current cloud config to all agent clients
 func (m *MultiHostService) broadcastCloudConfig() {
+	m.configMu.Lock()
+	defer m.configMu.Unlock()
 	ncc := m.persister.CloudConfig()
 
 	var cc *types.CloudConfig
@@ -527,8 +530,6 @@ func (m *MultiHostService) broadcastCloudConfig() {
 		}
 	}
 
-	m.configMu.Lock()
-	defer m.configMu.Unlock()
 	var count int
 	var wg sync.WaitGroup
 	for _, client := range m.manager.List() {
