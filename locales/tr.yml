@@ -843,6 +843,7 @@ setup:
     error-exists: "Bu ajan zaten eklenmiş."
     error-duplicate: "Bu makine zaten başka bir ana bilgisayar olarak bağlı. Bu ajan aynı Docker motorunu kullanıyorsa ona kendi DOZZLE_HOST_ID değerini verin."
     error-connect: "Ajana bağlanılamadı: {reason}"
+    error-cert: "Ajanın sertifikası bu Dozzle'dan farklı. Parçacığı yeniden kopyalayın, ajanı güncelleyin ve yeniden oluşturun."
     private-label: "Özel sertifika"
     private-desc: "Ajana yalnızca bu Dozzle bağlanabilir. Diğer ajanlar etkilenmez."
     private-warning: "Bu parça özel bir anahtar içeriyor. Onu bir parola gibi saklayın."

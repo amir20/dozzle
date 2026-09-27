@@ -852,6 +852,7 @@ setup:
     error-exists: "Agen itu sudah ditambahkan."
     error-duplicate: "Mesin itu sudah terhubung sebagai host lain. Jika agen ini memakai Docker engine yang sama, beri agen DOZZLE_HOST_ID sendiri."
     error-connect: "Tidak dapat terhubung ke agen: {reason}"
+    error-cert: "Agen memakai sertifikat yang berbeda dari Dozzle ini. Salin cuplikannya lagi, perbarui agen, lalu buat ulang."
     private-label: "Sertifikat privat"
     private-desc: "Hanya Dozzle ini yang bisa terhubung ke agen. Agen lain tidak terpengaruh."
     private-warning: "Cuplikan ini berisi kunci privat. Perlakukan seperti kata sandi."

@@ -845,6 +845,7 @@ setup:
     error-exists: "Ta agent je že dodan."
     error-duplicate: "Ta naprava je že povezana kot drug gostitelj. Če ta agent uporablja isti Docker engine, mu nastavi lasten DOZZLE_HOST_ID."
     error-connect: "Povezava z agentom ni uspela: {reason}"
+    error-cert: "Agent ima drugačno potrdilo kot ta Dozzle. Znova kopiraj izsek, posodobi agenta in ga ustvari na novo."
     private-label: "Zasebno potrdilo"
     private-desc: "Z agentom se lahko poveže samo ta Dozzle. Drugi agenti ostanejo nespremenjeni."
     private-warning: "Ta izrezek vsebuje zasebni ključ. Z njim ravnajte kot z geslom."

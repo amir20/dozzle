@@ -841,6 +841,7 @@ setup:
     error-exists: "Die agent is al toegevoegd."
     error-duplicate: "Die machine is al verbonden als een andere host. Deelt deze agent dezelfde Docker-engine, geef de agent dan een eigen DOZZLE_HOST_ID."
     error-connect: "Kan geen verbinding maken met de agent: {reason}"
+    error-cert: "De agent heeft een ander certificaat dan deze Dozzle. Kopieer het fragment opnieuw, werk de agent bij en maak hem opnieuw aan."
     private-label: "Privécertificaat"
     private-desc: "Alleen deze Dozzle kan verbinding maken met de agent. Andere agents veranderen niet."
     private-warning: "Dit fragment bevat een privésleutel. Behandel het als een wachtwoord."

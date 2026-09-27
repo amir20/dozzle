@@ -840,6 +840,7 @@ setup:
     error-exists: "Dieser Agent ist bereits hinzugefügt."
     error-duplicate: "Diese Maschine ist bereits als anderer Host verbunden. Wenn dieser Agent dieselbe Docker-Engine nutzt, gib ihm eine eigene DOZZLE_HOST_ID."
     error-connect: "Verbindung zum Agent fehlgeschlagen: {reason}"
+    error-cert: "Der Agent hat ein anderes Zertifikat als dieses Dozzle. Kopiere das Snippet erneut, aktualisiere den Agent und erstelle ihn neu."
     private-label: "Privates Zertifikat"
     private-desc: "Nur dieses Dozzle kann sich mit dem Agent verbinden. Andere Agents sind nicht betroffen."
     private-warning: "Dieser Ausschnitt enthält einen privaten Schlüssel. Behandeln Sie ihn wie ein Passwort."

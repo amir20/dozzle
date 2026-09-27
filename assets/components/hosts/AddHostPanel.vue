@@ -217,6 +217,9 @@ function errorMessage(e: unknown) {
     case 412:
       return /private certificate/i.test(e.message) ? t("setup.hosts.private-missing") : t("setup.error.no-data");
     case 502:
+      // Reached the agent, but the two ends hold different pairs. The raw TLS
+      // error ("unknown certificate authority") says nothing about what to do.
+      if (/certificate/i.test(e.message)) return t("setup.hosts.error-cert");
       return t("setup.hosts.error-connect", { reason: e.message.replace(/^could not connect to agent:\s*/i, "") });
     default:
       return e.message || t("setup.error.generic");
