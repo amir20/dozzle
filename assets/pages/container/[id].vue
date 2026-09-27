@@ -30,23 +30,36 @@ watchEffect(() => {
   }
 });
 
+// The store drops a container once its host's next list no longer carries it, and a
+// recreate (update, compose up) removes the old container before starting the new one,
+// so the list that brings the successor is the same one that drops the container on
+// screen. The page holds on to the last one it saw so it can still find the successor.
+// Only this one object is kept, and only while the page is mounted.
+const lastSeen = shallowRef<Container>();
+watch(
+  currentContainer,
+  (c) => {
+    if (c) lastSeen.value = c;
+  },
+  { immediate: true },
+);
+const redirectFrom = computed(
+  () => currentContainer.value ?? (lastSeen.value?.id === id.value ? lastSeen.value : undefined),
+);
+
 const redirectTrigger = ref(false);
 watch(currentContainer, () => (redirectTrigger.value = false));
 
 watchEffect(() => {
   if (redirectTrigger.value) return;
   if (automaticRedirect.value === "none") return;
-  if (!currentContainer.value) return;
-  if (currentContainer.value.state === "running") return;
-  if (Date.now() - +currentContainer.value.finishedAt > 5 * 60 * 1000) return;
+  const from = redirectFrom.value;
+  if (!from) return;
+  if (from.state === "running") return;
+  if (Date.now() - +from.finishedAt > 5 * 60 * 1000) return;
 
   const nextContainer = allContainers.value
-    .filter(
-      (c) =>
-        c.startedAt > currentContainer.value.startedAt &&
-        c.name === currentContainer.value.name &&
-        c.host === currentContainer.value.host,
-    )
+    .filter((c) => c.startedAt > from.startedAt && c.name === from.name && c.host === from.host)
     .sort((a, b) => +a.created - +b.created)[0];
 
   if (!nextContainer) return;
