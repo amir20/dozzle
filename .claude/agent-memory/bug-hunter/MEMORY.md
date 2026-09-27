@@ -44,3 +44,5 @@
 ## Topic notes
 
 - [Hidden dialog mounts](hidden-dialog-mounts.md) — closed <dialog> children gated on shared data still mount and fire side effects
+- [Setup endpoints CSRF](setup-endpoints-csrf.md) — decodeSetupBody has no Content-Type check, so /api/setup/* POSTs are form-CSRFable under auth=none
+- [Host follow streams](host-follow-streams.md) — publish is unordered; agent streams are one-shot; rekey resubscribe can duplicate streams

@@ -34,4 +34,5 @@
 ## Memory Files
 
 - [cloud_client_patterns.md](cloud_client_patterns.md) - Cloud gRPC client architecture and known patterns
-- [hostservice_fanout.md](hostservice_fanout.md) - followClients per stream, RetryAndList lock across dials, beacon has no timeout
+- [hostservice_fanout.md](hostservice_fanout.md) - followClients per stream, RetryAndList lock across dials (beacon POST now has 10s timeout)
+- [analytics_beacon.md](analytics_beacon.md) - usage counters cheap; beaconFacts does Hosts() x2 + config.Load per events connect and on shutdown flush

@@ -9,4 +9,4 @@ metadata:
 - `RetriableClientManager.publish` spawns one goroutine per subscriber per host event; subscriber count scales with open log streams.
 - `RetryAndList` holds `m.mu` write lock across agent dials (up to args.Timeout). Called by ListAllContainers and ClientServices(true). Blocks List/Find/AgentHostID while any agent is down.
 - `analytics.Count` is map lookup + atomic add on a fixed map; only called per request, never per log line (verified 2026-09).
-- `analytics.SendBeacon` uses http.DefaultClient with no timeout.
+- `analytics.SendBeacon` uses `beaconClient` with a 10s timeout (fixed in 45206b46).
