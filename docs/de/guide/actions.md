@@ -1,6 +1,6 @@
 ---
 title: Container-Aktionen
-sourceHash: 814ae194c05f
+sourceHash: f51478b92485
 ---
 
 # Container-Aktionen
@@ -85,6 +85,10 @@ Bei manchen Containern gibt es nichts zu vergleichen, und Dozzle bleibt still st
 - Private Registries, da Dozzle keine eigenen Zugangsdaten hat
 - Kubernetes, wo das Ausrollen von Images Sache des Clusters ist
 
+### Dozzle selbst aktualisieren
+
+Die `Update`-Aktion am eigenen Container von Dozzle aktualisiert Dozzle an Ort und Stelle. Sie zieht das neue Image und übergibt den Austausch an einen kurzlebigen Hilfscontainer, Dozzle ist also ein paar Sekunden weg und kommt mit der neuen Version, derselben Konfiguration und denselben Volumes zurück. Das geht auch nach Zeitplan. Unter [So funktioniert das Selbst-Update](/de/guide/setup-wizard#self-update) steht, was erhalten bleibt und welche Setups nicht unterstützt werden. Läuft Dozzle als Swarm-Service, wird es über den Orchestrator aktualisiert. Dozzle-Agents auf anderen Hosts sind gewöhnliche Container und aktualisieren sich wie alles andere.
+
 ## Mehrere Container auf einmal aktualisieren
 
 Mit eingeschalteten Aktionen prüft das Dashboard alle Container in einem Durchgang. Veraltete Container bekommen einen kleinen Ring neben ihrem Namen, und über der Containerliste erscheint ein Button **N Updates**. Beide öffnen die Update-Schublade, die jeden Container mit einem neueren Image auflistet, alle bereits ausgewählt. Entferne den Haken bei allem, was du in Ruhe lassen willst, und drücke dann **Aktualisieren**.
@@ -112,7 +116,3 @@ Container mit diesem Label folgen demselben Zeitplan wie [das automatische Updat
 Das automatische Update ist bewusst Opt-in. Eine Datenbank auf einem beweglichen Tag wie `postgres:latest` kann auf eine neue Hauptversion springen, deren Datendateien sie nicht lesen kann. Versieh also nur Container mit dem Label, bei denen es dich nicht stört, wenn sie ohne dein Zutun ersetzt werden. Container, die Dozzle [nicht prüfen kann](#was-sich-nicht-prufen-lasst), etwa solche aus einer privaten Registry, werden nie automatisch aktualisiert.
 
 Das automatische Update läuft im Server-Modus, auch für Container auf [Remote-Agents](/de/guide/agent). Es setzt eingeschaltete Aktionen voraus.
-
-### Dozzle selbst aktualisieren
-
-Die `Update`-Aktion am eigenen Container von Dozzle aktualisiert Dozzle an Ort und Stelle. Sie zieht das neue Image und übergibt den Austausch an einen kurzlebigen Hilfscontainer, Dozzle ist also ein paar Sekunden weg und kommt mit der neuen Version, derselben Konfiguration und denselben Volumes zurück. Das geht auch nach Zeitplan. Unter [So funktioniert das Selbst-Update](/de/guide/setup-wizard#self-update) steht, was erhalten bleibt und welche Setups nicht unterstützt werden. Läuft Dozzle als Swarm-Service, wird es über den Orchestrator aktualisiert. Dozzle-Agents auf anderen Hosts sind gewöhnliche Container und aktualisieren sich wie alles andere.

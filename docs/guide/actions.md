@@ -84,6 +84,10 @@ Some containers have nothing to compare, and Dozzle stays quiet rather than gues
 - Private registries, since Dozzle has no credentials of its own
 - Kubernetes, where image rollout belongs to the cluster
 
+### Updating Dozzle itself
+
+The `Update` action on Dozzle's own container updates Dozzle in place. It pulls the new image and hands the swap to a short-lived helper container, so Dozzle goes away for a few seconds and comes back on the new version with the same configuration and volumes. It can also run on a schedule. See [How self-update works](/guide/setup-wizard#self-update) for what is kept and the setups it does not cover. Running Dozzle as a Swarm service updates through the orchestrator. Dozzle agents on other hosts are ordinary containers and update like anything else.
+
 ## Updating several containers at once
 
 With actions on, the dashboard checks every container in one pass. Out-of-date containers get a small ring next to their name, and an **N updates** button appears above the container list. Both open the Updates drawer, which lists every container with a newer image, all selected. Untick anything you want to leave alone, then press **Update**.
@@ -111,7 +115,3 @@ Labelled containers follow the same schedule as [Dozzle's own auto-update](/guid
 Auto-update is opt in on purpose. A database on a floating tag like `postgres:latest` can move to a new major version that its data files cannot read, so only label containers you are happy to see replaced without watching. Containers Dozzle [cannot check](#what-cannot-be-checked), such as ones from a private registry, are never auto-updated.
 
 Auto-update runs in server mode, including containers on [remote agents](/guide/agent). It needs actions on.
-
-### Updating Dozzle itself
-
-The `Update` action on Dozzle's own container updates Dozzle in place. It pulls the new image and hands the swap to a short-lived helper container, so Dozzle goes away for a few seconds and comes back on the new version with the same configuration and volumes. It can also run on a schedule. See [How self-update works](/guide/setup-wizard#self-update) for what is kept and the setups it does not cover. Running Dozzle as a Swarm service updates through the orchestrator. Dozzle agents on other hosts are ordinary containers and update like anything else.

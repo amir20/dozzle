@@ -324,15 +324,16 @@ func (s *autoUpdateScheduler) updateLabelledContainers(ctx context.Context) {
 		log.Warn().Err(err).Msg("auto update: host unavailable, its containers are skipped")
 	}
 
-	selfID := setupSelfID()
+	selfService := selfSwarmService(containers)
 	var outdated []*container.ContainerService
 	for _, c := range containers {
 		if c.State == "deleted" || !autoUpdateEnabled(c.Labels) {
 			continue
 		}
 		// Dozzle's own container follows the schedule by itself, with the
-		// rollback guard below.
-		if selfID != "" && len(c.ID) >= 12 && strings.HasPrefix(selfID, c.ID) {
+		// rollback guard below. A labelled replica of its swarm service would
+		// roll this one too, in the middle of everything else.
+		if isSelfContainer(c, selfService) {
 			continue
 		}
 		service, err := s.hostService.FindContainer(c.Host, c.ID, s.config.Labels)
@@ -353,7 +354,14 @@ func (s *autoUpdateScheduler) updateLabelledContainers(ctx context.Context) {
 		return
 	}
 
-	done, err := bulkUpdates.Start(outdated, "schedule")
+	// A manual update that happens to be running is waited out rather than
+	// costing the labelled containers a whole day.
+	select {
+	case <-bulkUpdates.idle():
+	case <-ctx.Done():
+		return
+	}
+	done, err := bulkUpdates.Start(outdated, "schedule", selfService)
 	if err != nil {
 		log.Warn().Err(err).Msg("auto update: skipped containers")
 		return

@@ -37,12 +37,16 @@ import ContainerUpdatesDrawer from "./ContainerUpdatesDrawer.vue";
 // matches what the drawer lists.
 const { containers } = storeToRefs(useContainerStore()) as unknown as { containers: Ref<Container[]> };
 const { checkAll, checking, hasUpdate } = useImageUpdates();
-const { running } = useBulkUpdate();
+const { running, hold } = useBulkUpdate();
 const showDrawer = useDrawer();
 
 const count = computed(() => containers.value.filter((c) => c.state !== "deleted" && hasUpdate(c)).length);
 
 onMounted(() => checkAll());
+
+// Watched for as long as the dashboard is up, so a job started by the schedule
+// or another tab shows here and the drawer can be opened to follow it.
+onScopeDispose(hold());
 
 function open() {
   showDrawer(ContainerUpdatesDrawer, {}, "lg");

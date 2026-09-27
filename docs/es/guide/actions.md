@@ -1,6 +1,6 @@
 ---
 title: Acciones sobre contenedores
-sourceHash: 814ae194c05f
+sourceHash: f51478b92485
 ---
 
 # Acciones sobre contenedores
@@ -85,6 +85,10 @@ Algunos contenedores no tienen nada con lo que comparar, y Dozzle se calla en ve
 - Registros privados, ya que Dozzle no tiene credenciales propias
 - Kubernetes, donde el despliegue de imágenes es cosa del clúster
 
+### Actualizar el propio Dozzle
+
+La acción `Update` sobre el propio contenedor de Dozzle actualiza Dozzle en el sitio. Descarga la nueva imagen y deja el cambio en manos de un contenedor auxiliar de corta duración, así que Dozzle desaparece unos segundos y vuelve con la nueva versión, la misma configuración y los mismos volúmenes. También puede ejecutarse de forma programada. Consulta [Cómo se actualiza Dozzle a sí mismo](/es/guide/setup-wizard#self-update) para ver qué se conserva y qué instalaciones no están soportadas. Ejecutar Dozzle como servicio de Swarm lo actualiza a través del orquestador. Los agentes de Dozzle en otros hosts son contenedores normales y se actualizan como cualquier otro.
+
 ## Actualizar varios contenedores a la vez
 
 Con las acciones activadas, el panel comprueba todos los contenedores de una sola pasada. Los contenedores desactualizados muestran un pequeño anillo junto a su nombre, y aparece un botón **N actualizaciones** encima de la lista de contenedores. Ambos abren el panel de actualizaciones, que lista todos los contenedores con una imagen más reciente, todos seleccionados. Desmarca lo que quieras dejar como está y pulsa **Actualizar**.
@@ -112,7 +116,3 @@ Los contenedores etiquetados siguen la misma programación que [la actualizació
 La actualización automática hay que activarla a propósito. Una base de datos con un tag flotante como `postgres:latest` puede saltar a una nueva versión mayor cuyos archivos de datos ya no sabe leer, así que etiqueta solo los contenedores que no te importe ver reemplazados sin estar pendiente. Los contenedores que Dozzle [no puede comprobar](#lo-que-no-se-puede-comprobar), como los de un registro privado, nunca se actualizan automáticamente.
 
 La actualización automática funciona en modo servidor, incluidos los contenedores en [agentes remotos](/es/guide/agent). Requiere las acciones activadas.
-
-### Actualizar el propio Dozzle
-
-La acción `Update` sobre el propio contenedor de Dozzle actualiza Dozzle en el sitio. Descarga la nueva imagen y deja el cambio en manos de un contenedor auxiliar de corta duración, así que Dozzle desaparece unos segundos y vuelve con la nueva versión, la misma configuración y los mismos volúmenes. También puede ejecutarse de forma programada. Consulta [Cómo se actualiza Dozzle a sí mismo](/es/guide/setup-wizard#self-update) para ver qué se conserva y qué instalaciones no están soportadas. Ejecutar Dozzle como servicio de Swarm lo actualiza a través del orquestador. Los agentes de Dozzle en otros hosts son contenedores normales y se actualizan como cualquier otro.

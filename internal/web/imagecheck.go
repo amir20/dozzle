@@ -86,14 +86,18 @@ func (h *handler) checkAllImageUpdates(w http.ResponseWriter, r *http.Request) {
 			continue
 		}
 		group.Go(func() error {
-			service, err := h.hostService.FindContainer(c.Host, c.ID, labels)
+			// The list is already filtered to what the caller may see. Passing
+			// their labels again would re-list the host for every container.
+			service, err := h.hostService.FindContainer(c.Host, c.ID, nil)
 			if err != nil {
 				return nil
 			}
 			result, err := service.CheckImageUpdate(r.Context(), force)
 			if err != nil {
+				// Reported rather than dropped, so an earlier "update available"
+				// does not outlive the check that could no longer confirm it.
 				log.Debug().Err(err).Str("container", c.Name).Msg("image update check failed")
-				return nil
+				result = imagecheck.Result{Image: c.Image, Status: imagecheck.StatusUnknown, Reason: err.Error(), CheckedAt: time.Now()}
 			}
 			mu.Lock()
 			results = append(results, containerImageCheck{Host: c.Host, ID: c.ID, Result: result})

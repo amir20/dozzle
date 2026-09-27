@@ -66,7 +66,33 @@ type bulkUpdater struct {
 	mu       sync.Mutex
 	job      *bulkUpdateJob
 	running  bool
+	done     chan struct{}
 	watchers map[chan struct{}]struct{}
+}
+
+const swarmServiceLabel = "com.docker.swarm.service.id"
+
+// selfSwarmService is the swarm service Dozzle's own container belongs to, or
+// empty when it is not a swarm task or is not among containers.
+func selfSwarmService(containers []container.Container) string {
+	selfID := setupSelfID()
+	for _, c := range containers {
+		if selfID != "" && len(c.ID) >= 12 && strings.HasPrefix(selfID, c.ID) {
+			return c.Labels[swarmServiceLabel]
+		}
+	}
+	return ""
+}
+
+// isSelfContainer reports whether updating c replaces this process: it is
+// Dozzle's own container, or any replica of Dozzle's swarm service, since
+// rolling one rolls them all.
+func isSelfContainer(c container.Container, selfService string) bool {
+	selfID := setupSelfID()
+	if selfID != "" && len(c.ID) >= 12 && strings.HasPrefix(selfID, c.ID) {
+		return true
+	}
+	return selfService != "" && c.Labels[swarmServiceLabel] == selfService
 }
 
 // bulkUpdates is shared by the handler and the scheduler, which are built
@@ -75,50 +101,67 @@ var bulkUpdates = &bulkUpdater{watchers: make(map[chan struct{}]struct{})}
 
 // Start queues services and runs them in the background. The returned channel
 // closes when every one has finished.
-func (u *bulkUpdater) Start(services []*container.ContainerService, trigger string) (<-chan struct{}, error) {
+// selfService is Dozzle's own swarm service, if any (see selfSwarmService).
+func (u *bulkUpdater) Start(services []*container.ContainerService, trigger, selfService string) (<-chan struct{}, error) {
 	u.mu.Lock()
 	if u.running {
 		u.mu.Unlock()
 		return nil, errBulkUpdateBusy
 	}
 
-	selfID := setupSelfID()
-	seen := make(map[string]struct{}, len(services))
+	seen := make(map[string]*bulkUpdateItem, len(services))
 	job := &bulkUpdateJob{Trigger: trigger, StartedAt: time.Now()}
 	for _, service := range services {
 		c := service.Container
+		self := isSelfContainer(c, selfService)
 		// Every replica of a swarm service is the same update: the first one
-		// rolls the whole service, and the rest would roll it again.
+		// rolls the whole service, and the rest would roll it again. If any of
+		// them is Dozzle's, the one kept still has to go last.
 		key := c.Host + "/" + c.ID
-		if id := c.Labels["com.docker.swarm.service.id"]; id != "" {
+		if id := c.Labels[swarmServiceLabel]; id != "" {
 			key = "service/" + id
 		}
-		if _, ok := seen[key]; ok {
+		if kept, ok := seen[key]; ok {
+			kept.Self = kept.Self || self
 			continue
 		}
-		seen[key] = struct{}{}
-		job.Items = append(job.Items, &bulkUpdateItem{
+		item := &bulkUpdateItem{
 			Host:    c.Host,
 			ID:      c.ID,
 			Name:    c.Name,
 			Image:   c.Image,
-			Self:    selfID != "" && len(c.ID) >= 12 && strings.HasPrefix(selfID, c.ID),
+			Self:    self,
 			Status:  bulkQueued,
 			service: service,
-		})
+		}
+		seen[key] = item
+		job.Items = append(job.Items, item)
 	}
 
+	done := make(chan struct{})
 	u.job = job
 	u.running = true
+	u.done = done
 	u.mu.Unlock()
 	u.notify()
 
-	done := make(chan struct{})
 	go func() {
 		defer close(done)
 		u.run(job)
 	}()
 	return done, nil
+}
+
+// idle closes once no job is running.
+func (u *bulkUpdater) idle() <-chan struct{} {
+	u.mu.Lock()
+	defer u.mu.Unlock()
+	if u.running {
+		return u.done
+	}
+	closed := make(chan struct{})
+	close(closed)
+	return closed
 }
 
 func (u *bulkUpdater) run(job *bulkUpdateJob) {
@@ -235,7 +278,7 @@ func (u *bulkUpdater) watch() (<-chan struct{}, func()) {
 
 // snapshot copies the job so it can be encoded outside the lock. visible,
 // when set, drops containers the caller is not allowed to see.
-func (u *bulkUpdater) snapshot(visible func(host, id string) bool) (bulkUpdateJob, bool) {
+func (u *bulkUpdater) snapshot(visible func(host, name string) bool) (bulkUpdateJob, bool) {
 	u.mu.Lock()
 	defer u.mu.Unlock()
 	if u.job == nil {
@@ -244,7 +287,7 @@ func (u *bulkUpdater) snapshot(visible func(host, id string) bool) (bulkUpdateJo
 	job := *u.job
 	job.Items = make([]*bulkUpdateItem, 0, len(u.job.Items))
 	for _, item := range u.job.Items {
-		if visible != nil && !visible(item.Host, item.ID) {
+		if visible != nil && !visible(item.Host, item.Name) {
 			continue
 		}
 		copied := *item
@@ -295,7 +338,8 @@ func (h *handler) startBulkUpdate(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if _, err := bulkUpdates.Start(services, "manual"); err != nil {
+	all, _ := h.hostService.ListAllContainers(h.config.Labels)
+	if _, err := bulkUpdates.Start(services, "manual", selfSwarmService(all)); err != nil {
 		http.Error(w, err.Error(), http.StatusConflict)
 		return
 	}
@@ -308,15 +352,17 @@ func (h *handler) startBulkUpdate(w http.ResponseWriter, r *http.Request) {
 // streamBulkUpdate sends the current job, then every change to it. A tab that
 // opens mid-update picks up where things are, not where it would have started.
 func (h *handler) streamBulkUpdate(w http.ResponseWriter, r *http.Request) {
-	var visible func(host, id string) bool
+	// Matched by name: an updated container comes back under a new id, and
+	// the job still lists the old one.
+	var visible func(host, name string) bool
 	if h.restrictedUser(r) {
 		containers, _ := h.hostService.ListAllContainers(h.resolveLabels(r))
 		allowed := make(map[string]struct{}, len(containers))
 		for _, c := range containers {
-			allowed[c.Host+"/"+c.ID] = struct{}{}
+			allowed[c.Host+"/"+c.Name] = struct{}{}
 		}
-		visible = func(host, id string) bool {
-			_, ok := allowed[host+"/"+id]
+		visible = func(host, name string) bool {
+			_, ok := allowed[host+"/"+name]
 			return ok
 		}
 	}

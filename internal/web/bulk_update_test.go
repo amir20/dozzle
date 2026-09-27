@@ -65,7 +65,7 @@ func TestBulkUpdate_SelfRunsLast(t *testing.T) {
 	}
 
 	u := newTestUpdater()
-	done, err := u.Start(services, "manual")
+	done, err := u.Start(services, "manual", "")
 	require.NoError(t, err)
 	waitDone(t, done)
 
@@ -90,7 +90,7 @@ func TestBulkUpdate_FailureDoesNotStopTheRest(t *testing.T) {
 	}
 
 	u := newTestUpdater()
-	done, err := u.Start(services, "manual")
+	done, err := u.Start(services, "manual", "")
 	require.NoError(t, err)
 	waitDone(t, done)
 
@@ -109,7 +109,7 @@ func TestBulkUpdate_SwarmServiceUpdatedOnce(t *testing.T) {
 	}
 
 	u := newTestUpdater()
-	done, err := u.Start(services, "manual")
+	done, err := u.Start(services, "manual", "")
 	require.NoError(t, err)
 	waitDone(t, done)
 
@@ -122,12 +122,12 @@ func TestBulkUpdate_RejectsOverlap(t *testing.T) {
 	u := newTestUpdater()
 	done, err := u.Start([]*container.ContainerService{
 		container.NewContainerService(client, container.Container{ID: "bbbbbbbbbbbb", Host: "local"}),
-	}, "manual")
+	}, "manual", "")
 	require.NoError(t, err)
 
 	_, err = u.Start([]*container.ContainerService{
 		container.NewContainerService(client, container.Container{ID: "cccccccccccc", Host: "local"}),
-	}, "schedule")
+	}, "schedule", "")
 	assert.ErrorIs(t, err, errBulkUpdateBusy)
 
 	close(block)
@@ -138,15 +138,84 @@ func TestBulkUpdate_SnapshotFiltersHidden(t *testing.T) {
 	client := &recordingClientService{}
 	u := newTestUpdater()
 	done, err := u.Start([]*container.ContainerService{
-		container.NewContainerService(client, container.Container{ID: "bbbbbbbbbbbb", Host: "local"}),
-		container.NewContainerService(client, container.Container{ID: "cccccccccccc", Host: "local"}),
-	}, "manual")
+		container.NewContainerService(client, container.Container{ID: "bbbbbbbbbbbb", Host: "local", Name: "web"}),
+		container.NewContainerService(client, container.Container{ID: "cccccccccccc", Host: "local", Name: "db"}),
+	}, "manual", "")
 	require.NoError(t, err)
 	waitDone(t, done)
 
-	job, _ := u.snapshot(func(_, id string) bool { return id == "cccccccccccc" })
+	// By name, since an updated container no longer has the id the job holds.
+	job, _ := u.snapshot(func(_, name string) bool { return name == "db" })
 	require.Len(t, job.Items, 1)
 	assert.Equal(t, "cccccccccccc", job.Items[0].ID)
+}
+
+// Dozzle as a swarm service: the drawer lists a replica per node, and the one
+// kept after dedupe is rarely this node's. It must still go last.
+func TestBulkUpdate_SwarmSelfServiceRunsLast(t *testing.T) {
+	selfID := "aaaaaaaaaaaa0000000000000000000000000000000000000000000000000000"
+	prev := setupSelfID
+	setupSelfID = func() string { return selfID }
+	t.Cleanup(func() { setupSelfID = prev })
+
+	client := &recordingClientService{}
+	dozzle := map[string]string{swarmServiceLabel: "dozzle-svc"}
+	services := []*container.ContainerService{
+		container.NewContainerService(client, container.Container{ID: "dddddddddddd", Host: "node2", Name: "dozzle.2", Labels: dozzle}),
+		container.NewContainerService(client, container.Container{ID: "aaaaaaaaaaaa", Host: "node1", Name: "dozzle.1", Labels: dozzle}),
+		container.NewContainerService(client, container.Container{ID: "bbbbbbbbbbbb", Host: "node2", Name: "web"}),
+	}
+
+	u := newTestUpdater()
+	done, err := u.Start(services, "manual", "dozzle-svc")
+	require.NoError(t, err)
+	waitDone(t, done)
+
+	assert.Equal(t, []string{"bbbbbbbbbbbb", "dddddddddddd"}, client.order)
+	job, _ := u.snapshot(nil)
+	require.Len(t, job.Items, 2)
+	assert.True(t, job.Items[0].Self)
+}
+
+func TestIsSelfContainer(t *testing.T) {
+	prev := setupSelfID
+	setupSelfID = func() string { return "aaaaaaaaaaaa0000" }
+	t.Cleanup(func() { setupSelfID = prev })
+
+	containers := []container.Container{
+		{ID: "aaaaaaaaaaaa", Labels: map[string]string{swarmServiceLabel: "svc"}},
+		{ID: "bbbbbbbbbbbb", Labels: map[string]string{swarmServiceLabel: "other"}},
+	}
+	service := selfSwarmService(containers)
+	assert.Equal(t, "svc", service)
+	assert.True(t, isSelfContainer(container.Container{ID: "cccccccccccc", Labels: map[string]string{swarmServiceLabel: "svc"}}, service))
+	assert.False(t, isSelfContainer(containers[1], service))
+	assert.False(t, isSelfContainer(container.Container{ID: "cccccccccccc"}, ""))
+}
+
+func TestBulkUpdate_IdleWaitsForRunningJob(t *testing.T) {
+	block := make(chan struct{})
+	u := newTestUpdater()
+	select {
+	case <-u.idle():
+	default:
+		t.Fatal("idle should be closed with no job")
+	}
+
+	done, err := u.Start([]*container.ContainerService{
+		container.NewContainerService(&blockingClientService{release: block}, container.Container{ID: "bbbbbbbbbbbb", Host: "local"}),
+	}, "manual", "")
+	require.NoError(t, err)
+
+	idle := u.idle()
+	select {
+	case <-idle:
+		t.Fatal("idle closed while a job runs")
+	default:
+	}
+	close(block)
+	waitDone(t, done)
+	<-idle
 }
 
 type blockingClientService struct {
