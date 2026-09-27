@@ -327,6 +327,31 @@ analytics:
   query: 查询
   run: 运行
   results: 结果
+updates:
+  title: 更新
+  count: 1 个更新 | {count} 个更新
+  running: 正在更新…
+  subtitle: 这些容器运行的镜像比其镜像仓库提供的旧。
+  subtitle-running: 每台主机一次更新一个容器。
+  none: 所有容器都在运行其标签指向的最新镜像。
+  update-selected: 更新 | 更新 1 个 | 更新 {count} 个
+  self-last: Dozzle 最后更新，然后重启。
+  auto: 自动
+  auto-hint: 也会按自动更新计划更新
+  auto-footnote: 为容器添加标签 {label}，即可按自动更新计划更新它。
+  scheduled-running: 自动更新计划正在运行。
+  progress: 已完成 {done}/{total}
+  back: 返回
+  busy: 已有另一个更新正在运行。
+  summary: 已更新 {updated} 个
+  summary-failed: 已更新 {updated} 个，失败 {failed} 个
+  status:
+    queued: 排队中
+    pulling: 拉取中
+    recreating: 重建中
+    done: 已更新
+    up-to-date: 最新
+    error: 失败
 drawer:
   maximize: 最大化
   restore: 还原
@@ -867,6 +892,7 @@ setup:
     subtitle: "Dozzle 会在空闲时段拉取新镜像并替换自身容器。设置、用户和告警都会保留。"
     auto-label: "自动更新"
     auto-desc: "检查是否有更新的镜像，仅在有新镜像时替换 Dozzle。"
+    auto-containers: 带有 {label} 标签的容器也会在同一时间更新。
     when-label: "时间"
     time-label: "时刻"
     server-time: "使用服务器的时区。"

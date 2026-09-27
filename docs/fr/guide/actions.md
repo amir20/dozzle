@@ -1,6 +1,6 @@
 ---
 title: Actions sur les conteneurs
-sourceHash: 7011f4c16a51
+sourceHash: f51478b92485
 ---
 
 # Actions sur les conteneurs
@@ -88,3 +88,31 @@ Certains conteneurs n'ont rien à comparer, et Dozzle reste silencieux plutôt q
 ### Mettre à jour Dozzle lui-même
 
 L'action `Update` sur le propre conteneur de Dozzle met Dozzle à jour sur place. Elle récupère la nouvelle image et confie le remplacement à un conteneur auxiliaire éphémère, donc Dozzle disparaît quelques secondes et revient dans la nouvelle version avec la même configuration et les mêmes volumes. Elle peut aussi être planifiée. Consultez [Comment Dozzle se met à jour lui-même](/fr/guide/setup-wizard#self-update) pour savoir ce qui est conservé et quelles installations ne sont pas prises en charge. Faire tourner Dozzle en service Swarm le met à jour via l'orchestrateur. Les agents Dozzle sur les autres hôtes sont des conteneurs ordinaires et se mettent à jour comme n'importe lequel.
+
+## Mettre à jour plusieurs conteneurs à la fois
+
+Quand les actions sont activées, le tableau de bord vérifie tous les conteneurs en une seule passe. Les conteneurs obsolètes reçoivent un petit anneau à côté de leur nom, et un bouton **N mises à jour** apparaît au-dessus de la liste des conteneurs. Les deux ouvrent le panneau des mises à jour, qui liste tous les conteneurs disposant d'une image plus récente, tous sélectionnés. Décochez ceux que vous voulez laisser tels quels, puis appuyez sur **Mettre à jour**.
+
+Les hôtes se mettent à jour en parallèle, et chaque hôte met à jour un conteneur à la fois, pour qu'aucun démon n'ait à récupérer une douzaine d'images en même temps. Le panneau montre chaque conteneur passer par les étapes de récupération, de recréation puis de mise à jour terminée, et l'échec d'un conteneur n'arrête pas les autres. La mise à jour s'exécute sur le serveur, donc fermer l'onglet ne l'interrompt pas. Rouvrir le panneau reprend là où elle en est.
+
+Si le propre conteneur de Dozzle figure dans la liste, il passe toujours en dernier, car le mettre à jour redémarre Dozzle.
+
+Avec `DOZZLE_IMAGE_CHECK_MODE=manual`, le bouton affiche **Rechercher des mises à jour** tant que vous ne l'avez pas pressé. Quand les actions sont désactivées, le tableau de bord reste exactement comme aujourd'hui, et le menu de chaque conteneur indique toujours quand une mise à jour est disponible.
+
+## Mise à jour automatique des conteneurs {#auto-updating-containers}
+
+Dozzle peut mettre à jour des conteneurs selon un planning. Activez-la pour un conteneur avec un label :
+
+```yaml [docker-compose.yml]
+services:
+  whoami:
+    image: traefik/whoami:latest
+    labels:
+      dev.dozzle.auto-update: true
+```
+
+Les conteneurs portant ce label suivent le même planning que [la mise à jour automatique de Dozzle](/fr/guide/setup-wizard#_4-mise-a-jour-automatique), que vous définissez dans l'assistant de configuration ou avec `DOZZLE_AUTO_UPDATE` et `DOZZLE_AUTO_UPDATE_TIME`. À cette heure, Dozzle compare chaque conteneur étiqueté à son registre et ne met à jour que ceux qui ont une image plus récente. Les conteneurs passent d'abord et Dozzle en dernier.
+
+La mise à jour automatique est volontairement opt-in. Une base de données sur un tag flottant comme `postgres:latest` peut passer à une nouvelle version majeure dont elle ne sait pas lire les fichiers de données, donc n'ajoutez ce label qu'aux conteneurs que vous acceptez de voir remplacés sans surveillance. Les conteneurs que Dozzle [ne peut pas vérifier](#ce-qui-ne-peut-pas-etre-verifie), comme ceux d'un registre privé, ne sont jamais mis à jour automatiquement.
+
+La mise à jour automatique fonctionne en mode serveur, y compris pour les conteneurs sur des [agents distants](/fr/guide/agent). Elle nécessite que les actions soient activées.

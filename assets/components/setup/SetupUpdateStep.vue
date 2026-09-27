@@ -24,6 +24,11 @@
           <span class="min-w-0 flex-1">
             <span class="block text-sm font-medium">{{ $t("setup.update.auto-label") }}</span>
             <span class="text-base-content/60 mt-0.5 block text-xs">{{ $t("setup.update.auto-desc") }}</span>
+            <i18n-t keypath="setup.update.auto-containers" tag="span" class="text-base-content/40 mt-1 block text-xs">
+              <template #label>
+                <code class="font-mono">dev.dozzle.auto-update=true</code>
+              </template>
+            </i18n-t>
             <span v-if="status.locked.autoUpdate" class="text-base-content/40 mt-1 flex items-center gap-1 text-xs">
               <mdi:lock-outline class="size-3.5" />
               {{ $t("setup.actions.locked", { env: "DOZZLE_AUTO_UPDATE" }) }}

@@ -1,6 +1,6 @@
 ---
 title: Container-Aktionen
-sourceHash: 7011f4c16a51
+sourceHash: f51478b92485
 ---
 
 # Container-Aktionen
@@ -88,3 +88,31 @@ Bei manchen Containern gibt es nichts zu vergleichen, und Dozzle bleibt still st
 ### Dozzle selbst aktualisieren
 
 Die `Update`-Aktion am eigenen Container von Dozzle aktualisiert Dozzle an Ort und Stelle. Sie zieht das neue Image und übergibt den Austausch an einen kurzlebigen Hilfscontainer, Dozzle ist also ein paar Sekunden weg und kommt mit der neuen Version, derselben Konfiguration und denselben Volumes zurück. Das geht auch nach Zeitplan. Unter [So funktioniert das Selbst-Update](/de/guide/setup-wizard#self-update) steht, was erhalten bleibt und welche Setups nicht unterstützt werden. Läuft Dozzle als Swarm-Service, wird es über den Orchestrator aktualisiert. Dozzle-Agents auf anderen Hosts sind gewöhnliche Container und aktualisieren sich wie alles andere.
+
+## Mehrere Container auf einmal aktualisieren
+
+Mit eingeschalteten Aktionen prüft das Dashboard alle Container in einem Durchgang. Veraltete Container bekommen einen kleinen Ring neben ihrem Namen, und über der Containerliste erscheint ein Button **N Updates**. Beide öffnen die Update-Schublade, die jeden Container mit einem neueren Image auflistet, alle bereits ausgewählt. Entferne den Haken bei allem, was du in Ruhe lassen willst, und drücke dann **Aktualisieren**.
+
+Hosts werden parallel aktualisiert, und jeder Host aktualisiert einen Container nach dem anderen, damit kein Daemon ein Dutzend Images gleichzeitig ziehen muss. Die Schublade zeigt, wie jeder Container die Phasen **Lädt**, **Neu erstellen** und **Aktualisiert** durchläuft, und ein Fehler bei einem Container hält die übrigen nicht auf. Das Update läuft auf dem Server, das Schließen des Tabs unterbricht es also nicht. Öffnest du die Schublade erneut, zeigt sie den aktuellen Stand.
+
+Steht der eigene Container von Dozzle in der Liste, kommt er immer zuletzt dran, weil sein Update Dozzle neu startet.
+
+Mit `DOZZLE_IMAGE_CHECK_MODE=manual` lautet der Button **Nach Updates suchen**, bis du ihn drückst. Mit ausgeschalteten Aktionen sieht das Dashboard genauso aus wie bisher, und das Menü jedes einzelnen Containers zeigt weiterhin an, wenn ein Update verfügbar ist.
+
+## Container automatisch aktualisieren {#auto-updating-containers}
+
+Dozzle kann Container nach Zeitplan aktualisieren. Einen Container nimmst du per Label mit auf:
+
+```yaml [docker-compose.yml]
+services:
+  whoami:
+    image: traefik/whoami:latest
+    labels:
+      dev.dozzle.auto-update: true
+```
+
+Container mit diesem Label folgen demselben Zeitplan wie [das automatische Update von Dozzle selbst](/de/guide/setup-wizard#_4-automatische-updates), den du im Einrichtungsassistenten oder mit `DOZZLE_AUTO_UPDATE` und `DOZZLE_AUTO_UPDATE_TIME` festlegst. Zu dieser Zeit prüft Dozzle jeden markierten Container gegen seine Registry und aktualisiert nur die, für die es ein neueres Image gibt. Erst kommen die Container dran, Dozzle zuletzt.
+
+Das automatische Update ist bewusst Opt-in. Eine Datenbank auf einem beweglichen Tag wie `postgres:latest` kann auf eine neue Hauptversion springen, deren Datendateien sie nicht lesen kann. Versieh also nur Container mit dem Label, bei denen es dich nicht stört, wenn sie ohne dein Zutun ersetzt werden. Container, die Dozzle [nicht prüfen kann](#was-sich-nicht-prufen-lasst), etwa solche aus einer privaten Registry, werden nie automatisch aktualisiert.
+
+Das automatische Update läuft im Server-Modus, auch für Container auf [Remote-Agents](/de/guide/agent). Es setzt eingeschaltete Aktionen voraus.

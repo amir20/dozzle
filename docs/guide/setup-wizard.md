@@ -66,6 +66,8 @@ Agents set with `DOZZLE_REMOTE_AGENT` are listed as locked and can only be remov
 
 Dozzle can keep itself up to date. Pick **Off**, **Daily** or **Weekly** (weekly runs on Sunday) and a time of day. The time is in the server's local time and defaults to `03:00`. At that time Dozzle checks its registry for a newer image and, only if there is one, [updates itself](#self-update).
 
+Containers labelled `dev.dozzle.auto-update=true` update on the same schedule, just before Dozzle does. See [Auto-updating containers](/guide/actions#auto-updating-containers).
+
 This setting applies right away and does not need a restart.
 
 Updating itself is an action, so while actions are off this step stays in the list but is greyed out with **Needs actions**. Turning actions on in step 2 makes it available right away. If this instance cannot update itself for another reason (for example it runs a pinned version tag), the step says why instead.

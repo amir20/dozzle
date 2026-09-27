@@ -8,6 +8,7 @@
 // biome-ignore lint: disable
 export {}
 declare global {
+  const AUTO_UPDATE_LABEL: typeof import('./composable/containers/bulkUpdate').AUTO_UPDATE_LABEL
   const DEFAULT_MENU_WIDTH: typeof import('./stores/settings').DEFAULT_MENU_WIDTH
   const DEFAULT_SETTINGS: typeof import('./stores/settings').DEFAULT_SETTINGS
   const EffectScope: typeof import('vue').EffectScope
@@ -29,6 +30,7 @@ declare global {
   const asyncComputed: typeof import('@vueuse/core').asyncComputed
   const attachEvents: typeof import('./composable/cloud/cloudAlerts').attachEvents
   const autoResetRef: typeof import('@vueuse/core').autoResetRef
+  const autoUpdateEnabled: typeof import('./composable/containers/bulkUpdate').autoUpdateEnabled
   const automaticRedirect: typeof import('./stores/settings').automaticRedirect
   const buildViewContext: typeof import('./composable/logs/viewContext').buildViewContext
   const canHover: typeof import('./composable/ui/media').canHover
@@ -115,6 +117,7 @@ declare global {
   const injectLocal: typeof import('@vueuse/core').injectLocal
   const isDataIcon: typeof import('./utils/index').isDataIcon
   const isDefined: typeof import('@vueuse/core').isDefined
+  const isFinished: typeof import('./composable/containers/bulkUpdate').isFinished
   const isLogEvent: typeof import('@/composable/cloud/cloudAlerts').isLogEvent
   const isMobile: typeof import('./composable/ui/media').isMobile
   const isObject: typeof import('./utils/index').isObject
@@ -282,6 +285,7 @@ declare global {
   const useBreakpoints: typeof import('@vueuse/core').useBreakpoints
   const useBroadcastChannel: typeof import('@vueuse/core').useBroadcastChannel
   const useBrowserLocation: typeof import('@vueuse/core').useBrowserLocation
+  const useBulkUpdate: typeof import('./composable/containers/bulkUpdate').useBulkUpdate
   const useCached: typeof import('@vueuse/core').useCached
   const useClipboard: typeof import('@vueuse/core').useClipboard
   const useClipboardItems: typeof import('@vueuse/core').useClipboardItems
@@ -359,6 +363,7 @@ declare global {
   const useIdle: typeof import('@vueuse/core').useIdle
   const useImage: typeof import('@vueuse/core').useImage
   const useImageUpdate: typeof import('./composable/containers/imageUpdate').useImageUpdate
+  const useImageUpdates: typeof import('./composable/containers/imageUpdate').useImageUpdates
   const useInfiniteScroll: typeof import('@vueuse/core').useInfiniteScroll
   const useIntersectionObserver: typeof import('@vueuse/core').useIntersectionObserver
   const useInterval: typeof import('@vueuse/core').useInterval
@@ -540,6 +545,9 @@ declare global {
   export type { CloudSurfaceState } from './composable/cloud/cloudSurface'
   import('./composable/cloud/cloudSurface')
   // @ts-ignore
+  export type { BulkUpdateStatus, BulkUpdateItem, BulkUpdateJob } from './composable/containers/bulkUpdate'
+  import('./composable/containers/bulkUpdate')
+  // @ts-ignore
   export type { UpdateProgress } from './composable/containers/containerActions'
   import('./composable/containers/containerActions')
   // @ts-ignore
@@ -600,6 +608,7 @@ import { UnwrapRef } from 'vue'
 declare module 'vue' {
   interface GlobalComponents {}
   interface ComponentCustomProperties {
+    readonly AUTO_UPDATE_LABEL: UnwrapRef<typeof import('./composable/containers/bulkUpdate')['AUTO_UPDATE_LABEL']>
     readonly DEFAULT_SETTINGS: UnwrapRef<typeof import('./stores/settings')['DEFAULT_SETTINGS']>
     readonly EffectScope: UnwrapRef<typeof import('vue')['EffectScope']>
     readonly K8sNamespace: UnwrapRef<typeof import('./stores/k8s')['K8sNamespace']>
@@ -619,6 +628,7 @@ declare module 'vue' {
     readonly asyncComputed: UnwrapRef<typeof import('@vueuse/core')['asyncComputed']>
     readonly attachEvents: UnwrapRef<typeof import('./composable/cloud/cloudAlerts')['attachEvents']>
     readonly autoResetRef: UnwrapRef<typeof import('@vueuse/core')['autoResetRef']>
+    readonly autoUpdateEnabled: UnwrapRef<typeof import('./composable/containers/bulkUpdate')['autoUpdateEnabled']>
     readonly automaticRedirect: UnwrapRef<typeof import('./stores/settings')['automaticRedirect']>
     readonly buildViewContext: UnwrapRef<typeof import('./composable/logs/viewContext')['buildViewContext']>
     readonly canHover: UnwrapRef<typeof import('./composable/ui/media')['canHover']>
@@ -704,6 +714,7 @@ declare module 'vue' {
     readonly injectLocal: UnwrapRef<typeof import('@vueuse/core')['injectLocal']>
     readonly isDataIcon: UnwrapRef<typeof import('./utils/index')['isDataIcon']>
     readonly isDefined: UnwrapRef<typeof import('@vueuse/core')['isDefined']>
+    readonly isFinished: UnwrapRef<typeof import('./composable/containers/bulkUpdate')['isFinished']>
     readonly isMobile: UnwrapRef<typeof import('./composable/ui/media')['isMobile']>
     readonly isObject: UnwrapRef<typeof import('./utils/index')['isObject']>
     readonly isProxy: UnwrapRef<typeof import('vue')['isProxy']>
@@ -865,6 +876,7 @@ declare module 'vue' {
     readonly useBreakpoints: UnwrapRef<typeof import('@vueuse/core')['useBreakpoints']>
     readonly useBroadcastChannel: UnwrapRef<typeof import('@vueuse/core')['useBroadcastChannel']>
     readonly useBrowserLocation: UnwrapRef<typeof import('@vueuse/core')['useBrowserLocation']>
+    readonly useBulkUpdate: UnwrapRef<typeof import('./composable/containers/bulkUpdate')['useBulkUpdate']>
     readonly useCached: UnwrapRef<typeof import('@vueuse/core')['useCached']>
     readonly useClipboard: UnwrapRef<typeof import('@vueuse/core')['useClipboard']>
     readonly useClipboardItems: UnwrapRef<typeof import('@vueuse/core')['useClipboardItems']>
@@ -942,6 +954,7 @@ declare module 'vue' {
     readonly useIdle: UnwrapRef<typeof import('@vueuse/core')['useIdle']>
     readonly useImage: UnwrapRef<typeof import('@vueuse/core')['useImage']>
     readonly useImageUpdate: UnwrapRef<typeof import('./composable/containers/imageUpdate')['useImageUpdate']>
+    readonly useImageUpdates: UnwrapRef<typeof import('./composable/containers/imageUpdate')['useImageUpdates']>
     readonly useInfiniteScroll: UnwrapRef<typeof import('@vueuse/core')['useInfiniteScroll']>
     readonly useIntersectionObserver: UnwrapRef<typeof import('@vueuse/core')['useIntersectionObserver']>
     readonly useInterval: UnwrapRef<typeof import('@vueuse/core')['useInterval']>

@@ -428,6 +428,31 @@ analytics:
   query: Consulta
   run: Ejecutar
   results: Resultados
+updates:
+  title: Actualizaciones
+  count: 1 actualización | {count} actualizaciones
+  running: Actualizando…
+  subtitle: Estos contenedores usan una imagen más antigua que la que ofrece su registro.
+  subtitle-running: Cada host actualiza un contenedor a la vez.
+  none: Todos los contenedores usan la imagen más reciente de su etiqueta.
+  update-selected: Actualizar | Actualizar 1 | Actualizar {count}
+  self-last: Dozzle se actualiza al final y luego se reinicia.
+  auto: Auto
+  auto-hint: También se actualiza con la programación de actualización automática
+  auto-footnote: Añade la etiqueta {label} a un contenedor para actualizarlo con la programación de actualización automática.
+  scheduled-running: La actualización automática programada se está ejecutando ahora.
+  progress: "{done} de {total} terminados"
+  back: Volver
+  busy: Ya hay otra actualización en curso.
+  summary: "{updated} actualizados"
+  summary-failed: "{updated} actualizados, {failed} con error"
+  status:
+    queued: En cola
+    pulling: Descargando
+    recreating: Recreando
+    done: Actualizado
+    up-to-date: Al día
+    error: Error
 drawer:
   maximize: Maximizar
   restore: Restaurar
@@ -867,6 +892,7 @@ setup:
     subtitle: "Dozzle descarga la nueva imagen y reemplaza su propio contenedor a una hora tranquila. La configuración, los usuarios y las alertas se conservan."
     auto-label: "Actualizar automáticamente"
     auto-desc: "Busca una imagen más reciente y reemplaza Dozzle solo cuando la hay."
+    auto-containers: Los contenedores con la etiqueta {label} se actualizan a la misma hora.
     when-label: "Cuándo"
     time-label: "Hora"
     server-time: "Usa la zona horaria del servidor."

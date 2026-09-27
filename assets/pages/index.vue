@@ -10,6 +10,7 @@
       :count="dashboardContainers.length"
     >
       <template #actions>
+        <ContainerUpdatesButton v-if="showUpdates" />
         <div class="join max-md:hidden">
           <button
             class="icon-btn btn join-item btn-xs"
@@ -51,6 +52,10 @@ const { containers, ready } = storeToRefs(containerStore) as unknown as {
 const dashboardContainers = computed(() =>
   containers.value.filter((c) => (showAllContainers.value ? c.state !== "deleted" : c.state === "running")),
 );
+
+// Updating many containers at once is an action, so none of it exists when
+// actions are off. Kubernetes rolls out images itself.
+const showUpdates = config.enableActions && config.imageCheckMode !== "off" && config.mode !== "k8s";
 
 const statMode = useStorage<"chart" | "progress">("DOZZLE_TABLE_STAT_MODE", "chart");
 const hostsCollapsed = useStorage("DOZZLE_HOSTS_COLLAPSED", false);

@@ -87,3 +87,31 @@ Some containers have nothing to compare, and Dozzle stays quiet rather than gues
 ### Updating Dozzle itself
 
 The `Update` action on Dozzle's own container updates Dozzle in place. It pulls the new image and hands the swap to a short-lived helper container, so Dozzle goes away for a few seconds and comes back on the new version with the same configuration and volumes. It can also run on a schedule. See [How self-update works](/guide/setup-wizard#self-update) for what is kept and the setups it does not cover. Running Dozzle as a Swarm service updates through the orchestrator. Dozzle agents on other hosts are ordinary containers and update like anything else.
+
+## Updating several containers at once
+
+With actions on, the dashboard checks every container in one pass. Out-of-date containers get a small ring next to their name, and an **N updates** button appears above the container list. Both open the Updates drawer, which lists every container with a newer image, all selected. Untick anything you want to leave alone, then press **Update**.
+
+Hosts update in parallel, and each host updates one container at a time, so no daemon has to pull a dozen images at once. The drawer shows each container moving through pulling, recreating and updated, and a failure on one container does not stop the rest. The update runs on the server, so closing the tab does not interrupt it. Opening the drawer again picks up where it is.
+
+If Dozzle's own container is in the list, it always goes last, because updating it restarts Dozzle.
+
+With `DOZZLE_IMAGE_CHECK_MODE=manual`, the button reads **Check for updates** until you press it. With actions off, the dashboard looks exactly as it does today, and each container's own menu still says when an update is available.
+
+## Auto-updating containers
+
+Dozzle can update containers on a schedule. Opt a container in with a label:
+
+```yaml [docker-compose.yml]
+services:
+  whoami:
+    image: traefik/whoami:latest
+    labels:
+      dev.dozzle.auto-update: true
+```
+
+Labelled containers follow the same schedule as [Dozzle's own auto-update](/guide/setup-wizard#_4-auto-update), which you set in the setup wizard or with `DOZZLE_AUTO_UPDATE` and `DOZZLE_AUTO_UPDATE_TIME`. At that time Dozzle checks each labelled container against its registry and updates only the ones with a newer image. Containers go first and Dozzle goes last.
+
+Auto-update is opt in on purpose. A database on a floating tag like `postgres:latest` can move to a new major version that its data files cannot read, so only label containers you are happy to see replaced without watching. Containers Dozzle [cannot check](#what-cannot-be-checked), such as ones from a private registry, are never auto-updated.
+
+Auto-update runs in server mode, including containers on [remote agents](/guide/agent). It needs actions on.

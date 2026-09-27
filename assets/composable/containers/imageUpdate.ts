@@ -24,8 +24,9 @@ const inflight = new Map<string, Promise<void>>();
 const notified = new Set<string>();
 
 // Containers come and go, and nothing else removes these entries, so a long
-// session on a busy host would grow them without limit.
-const MAX_TRACKED = 200;
+// session on a busy host would grow them without limit. Sized so a
+// dashboard-wide check on a big install still fits in one pass.
+const MAX_TRACKED = 1000;
 
 function trim(collection: Map<string, unknown> | Set<string>) {
   const excess = collection.size - MAX_TRACKED;
@@ -66,6 +67,43 @@ function mayBeSelf(container: Container) {
   if (!container.image.includes("amir20/dozzle")) return false;
   return config.hosts.find((host) => host.id === container.host)?.type === "local";
 }
+
+const checkingAll = ref(false);
+let checkedAllAt = 0;
+
+// Checks every container the dashboard can see in one request, filling the
+// same results the per-container menu reads, so both always agree.
+async function checkAll(force = false) {
+  if (config.imageCheckMode === "off") return;
+  if (!force && config.imageCheckMode !== "automatic") return;
+  if (checkingAll.value) return;
+  if (!force && Date.now() - checkedAllAt < STALE_AFTER) return;
+
+  checkingAll.value = true;
+  try {
+    const response = await fetch(withBase(force ? "/api/image/check?force=true" : "/api/image/check"));
+    if (!response.ok) return;
+    const checks = (await response.json()) as { host: string; id: string; result: ImageUpdateResult }[];
+    for (const { host, id, result } of checks) {
+      results.set(`${host}/${id}`, result);
+    }
+    trim(results);
+    checkedAllAt = Date.now();
+  } catch {
+    // Same as a single check: a failure leaves the dashboard quiet.
+  } finally {
+    checkingAll.value = false;
+  }
+}
+
+// What the dashboard offers to update: containers with a newer image that
+// Dozzle is able to update itself.
+export const useImageUpdates = () => {
+  const hasUpdate = (container: Container) =>
+    results.get(`${container.host}/${container.id}`)?.status === "update-available" && !mayBeSelf(container);
+
+  return { checkAll, checking: readonly(checkingAll), hasUpdate, isSelf };
+};
 
 export const useImageUpdate = (container: Ref<Container>, historical: Ref<boolean> | boolean = false) => {
   const { t } = useI18n();

@@ -111,6 +111,7 @@
               isMobile,
               showAppIcons,
               dismissedLinkHint,
+              showUpdates && hasUpdate(container),
             ]"
             class="hover:bg-base-200/60"
           >
@@ -132,6 +133,7 @@
                       {{ container.name }}
                     </router-link>
                     <AlertDot :container-id="container.id" />
+                    <ContainerUpdateDot v-if="showUpdates" :container="container" />
                     <ContainerLink :container="container" />
                     <ContainerLinkHint v-if="!isMobile" :container="container" />
                     <RelativeTime
@@ -227,6 +229,10 @@ import { toRefs } from "@vueuse/core";
 const { t } = useI18n();
 const { hosts } = useHosts();
 const selectedHost = ref(null);
+// Same gate as the dashboard's updates button: without actions there is
+// nothing a mark on the row could lead to.
+const showUpdates = config.enableActions && config.imageCheckMode !== "off" && config.mode !== "k8s";
+const { hasUpdate } = useImageUpdates();
 
 const fields: Record<
   string,

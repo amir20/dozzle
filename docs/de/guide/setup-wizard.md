@@ -1,6 +1,6 @@
 ---
 title: Einrichtungsassistent
-sourceHash: 364d497cf753
+sourceHash: 05d0487e6d37
 ---
 
 # Einrichtungsassistent
@@ -66,6 +66,8 @@ Agents aus `DOZZLE_REMOTE_AGENT` werden als gesperrt angezeigt und lassen sich n
 ### 5. Automatische Updates
 
 Dozzle kann sich selbst aktuell halten. Wähle **Aus**, **Täglich** oder **Wöchentlich** (wöchentlich läuft am Sonntag) und eine Uhrzeit. Die Uhrzeit gilt in der lokalen Zeit des Servers, Standard ist `03:00`. Zu dieser Zeit prüft Dozzle seine Registry auf ein neueres Image und [aktualisiert sich](#self-update) nur, wenn es eines gibt.
+
+Container mit dem Label `dev.dozzle.auto-update=true` werden nach demselben Zeitplan aktualisiert, kurz bevor Dozzle selbst an der Reihe ist. Siehe [Container automatisch aktualisieren](/de/guide/actions#auto-updating-containers).
 
 Diese Einstellung gilt sofort und braucht keinen Neustart.
 

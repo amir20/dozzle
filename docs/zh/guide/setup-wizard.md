@@ -1,6 +1,6 @@
 ---
 title: 设置向导
-sourceHash: 364d497cf753
+sourceHash: 05d0487e6d37
 ---
 
 # 设置向导
@@ -66,6 +66,8 @@ Dozzle 可以通过[代理](/zh/guide/agent)显示其他机器上的容器。这
 ### 5. 自动更新
 
 Dozzle 可以让自己保持最新。选择 **关闭**、**每天** 或 **每周**（每周在周日运行），再选择一天中的时间。时间使用服务器的本地时间，默认是 `03:00`。到了这个时间，Dozzle 会检查镜像仓库中是否有更新的镜像，只有在有新镜像时才会 [更新自身](#self-update)。
+
+带有 `dev.dozzle.auto-update=true` 标签的容器会按同一计划更新，就在 Dozzle 更新之前。请参阅 [自动更新容器](/zh/guide/actions#auto-updating-containers)。
 
 此设置立即生效，不需要重启。
 

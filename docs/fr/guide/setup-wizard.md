@@ -1,6 +1,6 @@
 ---
 title: Assistant de configuration
-sourceHash: 364d497cf753
+sourceHash: 05d0487e6d37
 ---
 
 # Assistant de configuration
@@ -66,6 +66,8 @@ Les agents définis par `DOZZLE_REMOTE_AGENT` sont affichés comme verrouillés 
 ### 5. Mise à jour automatique
 
 Dozzle peut se tenir à jour tout seul. Choisissez **Désactivée**, **Quotidienne** ou **Hebdomadaire** (le dimanche) et une heure. L'heure est celle du serveur, `03:00` par défaut. À cette heure, Dozzle vérifie si son registre propose une image plus récente et, seulement dans ce cas, [se met à jour](#self-update).
+
+Les conteneurs portant le label `dev.dozzle.auto-update=true` se mettent à jour selon le même planning, juste avant Dozzle. Consultez [Mise à jour automatique des conteneurs](/fr/guide/actions#auto-updating-containers).
 
 Ce réglage s'applique immédiatement et ne nécessite pas de redémarrage.
 

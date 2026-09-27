@@ -436,6 +436,31 @@ analytics:
   query: Query
   run: Run
   results: Results
+updates:
+  title: Updates
+  count: 1 update | {count} updates
+  running: Updating…
+  subtitle: These containers run an older image than their registry serves.
+  subtitle-running: Each host updates one container at a time.
+  none: Every container runs the latest image its tag points to.
+  update-selected: Update | Update 1 | Update {count}
+  self-last: Dozzle updates last, then restarts.
+  auto: Auto
+  auto-hint: Also updated on the auto-update schedule
+  auto-footnote: Label a container {label} to update it on the auto-update schedule.
+  scheduled-running: The auto-update schedule is running now.
+  progress: "{done} of {total} finished"
+  back: Back
+  busy: Another update is already running.
+  summary: "{updated} updated"
+  summary-failed: "{updated} updated, {failed} failed"
+  status:
+    queued: Queued
+    pulling: Pulling
+    recreating: Recreating
+    done: Updated
+    up-to-date: Current
+    error: Failed
 drawer:
   maximize: Maximize
   restore: Restore
@@ -875,6 +900,7 @@ setup:
     subtitle: Dozzle pulls the new image and replaces its own container at a quiet hour. Settings, users and alerts stay.
     auto-label: Update automatically
     auto-desc: Checks for a newer image and replaces Dozzle only when there is one.
+    auto-containers: Containers labelled {label} update at the same time.
     when-label: When
     time-label: Time
     server-time: Uses the server's time zone.

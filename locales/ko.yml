@@ -329,6 +329,31 @@ analytics:
   query: 쿼리
   run: 실행
   results: 결과
+updates:
+  title: 업데이트
+  count: 업데이트 1개 | 업데이트 {count}개
+  running: 업데이트 중…
+  subtitle: 이 컨테이너들은 레지스트리보다 오래된 이미지를 실행 중입니다.
+  subtitle-running: 각 호스트는 컨테이너를 한 번에 하나씩 업데이트합니다.
+  none: 모든 컨테이너가 태그의 최신 이미지를 실행 중입니다.
+  update-selected: 업데이트 | 1개 업데이트 | {count}개 업데이트
+  self-last: Dozzle은 마지막에 업데이트된 후 다시 시작됩니다.
+  auto: 자동
+  auto-hint: 자동 업데이트 일정에 따라서도 업데이트됨
+  auto-footnote: 컨테이너에 {label} 레이블을 추가하면 자동 업데이트 일정에 따라 업데이트됩니다.
+  scheduled-running: 자동 업데이트 일정이 지금 실행 중입니다.
+  progress: "{total}개 중 {done}개 완료"
+  back: 뒤로
+  busy: 다른 업데이트가 이미 실행 중입니다.
+  summary: "{updated}개 업데이트됨"
+  summary-failed: "{updated}개 업데이트됨, {failed}개 실패"
+  status:
+    queued: 대기 중
+    pulling: 가져오는 중
+    recreating: 재생성 중
+    done: 업데이트됨
+    up-to-date: 최신
+    error: 실패
 drawer:
   maximize: 최대화
   restore: 복원
@@ -869,6 +894,7 @@ setup:
     subtitle: "Dozzle이 한가한 시간에 새 이미지를 받아 자신의 컨테이너를 교체합니다. 설정, 사용자, 알림은 유지됩니다."
     auto-label: "자동으로 업데이트"
     auto-desc: "더 새로운 이미지가 있는지 확인하고, 있을 때만 Dozzle을 교체합니다."
+    auto-containers: "{label} 레이블이 있는 컨테이너도 같은 시간에 업데이트됩니다."
     when-label: "주기"
     time-label: "시간"
     server-time: "서버의 시간대를 사용합니다."

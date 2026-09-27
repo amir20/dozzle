@@ -339,6 +339,31 @@ analytics:
   query: Kueri
   run: Jalankan
   results: Hasil
+updates:
+  title: Pembaruan
+  count: 1 pembaruan | {count} pembaruan
+  running: Memperbarui…
+  subtitle: Container ini menjalankan image yang lebih lama dari yang disediakan registry-nya.
+  subtitle-running: Setiap host memperbarui satu container sekaligus.
+  none: Semua container menjalankan image terbaru dari tag-nya.
+  update-selected: Perbarui | Perbarui 1 | Perbarui {count}
+  self-last: Dozzle diperbarui terakhir, lalu dimulai ulang.
+  auto: Otomatis
+  auto-hint: Juga diperbarui sesuai jadwal pembaruan otomatis
+  auto-footnote: Beri label {label} pada container agar diperbarui sesuai jadwal pembaruan otomatis.
+  scheduled-running: Jadwal pembaruan otomatis sedang berjalan.
+  progress: "{done} dari {total} selesai"
+  back: Kembali
+  busy: Pembaruan lain sedang berjalan.
+  summary: "{updated} diperbarui"
+  summary-failed: "{updated} diperbarui, {failed} gagal"
+  status:
+    queued: Antre
+    pulling: Mengunduh
+    recreating: Membuat ulang
+    done: Diperbarui
+    up-to-date: Terkini
+    error: Gagal
 drawer:
   maximize: Maksimalkan
   restore: Pulihkan
@@ -879,6 +904,7 @@ setup:
     subtitle: "Dozzle menarik image baru dan mengganti container-nya sendiri pada jam sepi. Pengaturan, pengguna, dan peringatan tetap ada."
     auto-label: "Perbarui otomatis"
     auto-desc: "Memeriksa image yang lebih baru dan hanya mengganti Dozzle jika ada."
+    auto-containers: Container berlabel {label} diperbarui pada waktu yang sama.
     when-label: "Kapan"
     time-label: "Waktu"
     server-time: "Memakai zona waktu server."

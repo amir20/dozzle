@@ -328,6 +328,31 @@ analytics:
   query: Query
   run: Uitvoeren
   results: Resultaten
+updates:
+  title: Updates
+  count: 1 update | {count} updates
+  running: Bijwerken…
+  subtitle: Deze containers draaien een ouder image dan hun registry aanbiedt.
+  subtitle-running: Elke host werkt één container tegelijk bij.
+  none: Alle containers draaien het nieuwste image van hun tag.
+  update-selected: Bijwerken | 1 bijwerken | {count} bijwerken
+  self-last: Dozzle wordt als laatste bijgewerkt en herstart daarna.
+  auto: Auto
+  auto-hint: Wordt ook bijgewerkt volgens het schema voor automatische updates
+  auto-footnote: Geef een container het label {label} om hem volgens het schema voor automatische updates bij te werken.
+  scheduled-running: Het schema voor automatische updates draait nu.
+  progress: "{done} van {total} klaar"
+  back: Terug
+  busy: Er loopt al een andere update.
+  summary: "{updated} bijgewerkt"
+  summary-failed: "{updated} bijgewerkt, {failed} mislukt"
+  status:
+    queued: Wachtrij
+    pulling: Ophalen
+    recreating: Opnieuw maken
+    done: Bijgewerkt
+    up-to-date: Actueel
+    error: Mislukt
 drawer:
   maximize: Maximaliseren
   restore: Herstellen
@@ -868,6 +893,7 @@ setup:
     subtitle: "Dozzle haalt de nieuwe image op en vervangt zijn eigen container op een rustig uur. Instellingen, gebruikers en meldingen blijven behouden."
     auto-label: "Automatisch bijwerken"
     auto-desc: "Controleert op een nieuwere image en vervangt Dozzle alleen als die er is."
+    auto-containers: Containers met het label {label} worden op hetzelfde moment bijgewerkt.
     when-label: "Wanneer"
     time-label: "Tijd"
     server-time: "Gebruikt de tijdzone van de server."
