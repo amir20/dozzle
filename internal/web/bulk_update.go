@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/amir20/dozzle/internal/analytics"
+	"github.com/amir20/dozzle/internal/auth"
 	"github.com/amir20/dozzle/internal/container"
 	"github.com/amir20/dozzle/internal/web/sse"
 	"github.com/rs/zerolog/log"
@@ -57,10 +58,13 @@ type bulkUpdateItem struct {
 }
 
 type bulkUpdateJob struct {
-	Trigger    string            `json:"trigger"` // "manual" or "schedule"
-	StartedAt  time.Time         `json:"startedAt"`
-	FinishedAt *time.Time        `json:"finishedAt,omitempty"`
-	Items      []*bulkUpdateItem `json:"items"`
+	Trigger string `json:"trigger"` // "manual" or "schedule"
+	// requestedBy is the user who started a manual job. Every container in it
+	// was resolved against that user's labels.
+	requestedBy string
+	StartedAt   time.Time         `json:"startedAt"`
+	FinishedAt  *time.Time        `json:"finishedAt,omitempty"`
+	Items       []*bulkUpdateItem `json:"items"`
 }
 
 type bulkUpdater struct {
@@ -103,7 +107,7 @@ var bulkUpdates = &bulkUpdater{watchers: make(map[chan struct{}]struct{})}
 // Start queues services and runs them in the background. The returned channel
 // closes when every one has finished.
 // selfService is Dozzle's own swarm service, if any (see selfSwarmService).
-func (u *bulkUpdater) Start(services []*container.ContainerService, trigger, selfService string) (<-chan struct{}, error) {
+func (u *bulkUpdater) Start(services []*container.ContainerService, trigger, selfService, requestedBy string) (<-chan struct{}, error) {
 	u.mu.Lock()
 	if u.running {
 		u.mu.Unlock()
@@ -111,7 +115,7 @@ func (u *bulkUpdater) Start(services []*container.ContainerService, trigger, sel
 	}
 
 	seen := make(map[string]*bulkUpdateItem, len(services))
-	job := &bulkUpdateJob{Trigger: trigger, StartedAt: time.Now()}
+	job := &bulkUpdateJob{Trigger: trigger, StartedAt: time.Now(), requestedBy: requestedBy}
 	for _, service := range services {
 		c := service.Container
 		self := isSelfContainer(c, selfService)
@@ -248,8 +252,16 @@ func (u *bulkUpdater) apply(item *bulkUpdateItem, p container.UpdateProgress) {
 	if p.Status == bulkError {
 		item.Error = p.Error
 	}
+	self := item.Self
 	u.mu.Unlock()
 	u.notify()
+
+	// Same as runSelfUpdate: the helper is about to replace this process, so
+	// this is the last chance to send the day's counters.
+	if self && p.Status == "recreating" {
+		analytics.Count("image.update")
+		FlushUsage()
+	}
 }
 
 // notify wakes every watcher without blocking. A watcher that has not caught
@@ -279,7 +291,7 @@ func (u *bulkUpdater) watch() (<-chan struct{}, func()) {
 
 // snapshot copies the job so it can be encoded outside the lock. visible,
 // when set, drops containers the caller is not allowed to see.
-func (u *bulkUpdater) snapshot(visible func(host, name string) bool) (bulkUpdateJob, bool) {
+func (u *bulkUpdater) snapshot(visible func(job *bulkUpdateJob, item *bulkUpdateItem) bool) (bulkUpdateJob, bool) {
 	u.mu.Lock()
 	defer u.mu.Unlock()
 	if u.job == nil {
@@ -288,7 +300,7 @@ func (u *bulkUpdater) snapshot(visible func(host, name string) bool) (bulkUpdate
 	job := *u.job
 	job.Items = make([]*bulkUpdateItem, 0, len(u.job.Items))
 	for _, item := range u.job.Items {
-		if visible != nil && !visible(item.Host, item.Name) {
+		if visible != nil && !visible(u.job, item) {
 			continue
 		}
 		copied := *item
@@ -340,7 +352,11 @@ func (h *handler) startBulkUpdate(w http.ResponseWriter, r *http.Request) {
 	}
 
 	all, _ := h.hostService.ListAllContainers(h.config.Labels)
-	if _, err := bulkUpdates.Start(services, "manual", selfSwarmService(all)); err != nil {
+	requestedBy := ""
+	if h.config.Authorization.Provider != NONE {
+		requestedBy = auth.UserFromContext(r.Context()).Username
+	}
+	if _, err := bulkUpdates.Start(services, "manual", selfSwarmService(all), requestedBy); err != nil {
 		http.Error(w, err.Error(), http.StatusConflict)
 		return
 	}
@@ -355,17 +371,23 @@ func (h *handler) startBulkUpdate(w http.ResponseWriter, r *http.Request) {
 // streamBulkUpdate sends the current job, then every change to it. A tab that
 // opens mid-update picks up where things are, not where it would have started.
 func (h *handler) streamBulkUpdate(w http.ResponseWriter, r *http.Request) {
-	// Matched by name: an updated container comes back under a new id, and
-	// the job still lists the old one.
-	var visible func(host, name string) bool
+	// A restricted user sees all of a job they started, since every container
+	// in it was checked against their labels. In anyone else's job they only
+	// see containers still visible to them by id: a name can be reused by a
+	// container they may see after the one they may not was removed.
+	var visible func(job *bulkUpdateJob, item *bulkUpdateItem) bool
 	if h.restrictedUser(r) {
+		username := auth.UserFromContext(r.Context()).Username
 		containers, _ := h.hostService.ListAllContainers(h.resolveLabels(r))
 		allowed := make(map[string]struct{}, len(containers))
 		for _, c := range containers {
-			allowed[c.Host+"/"+c.Name] = struct{}{}
+			allowed[c.Host+"/"+c.ID] = struct{}{}
 		}
-		visible = func(host, name string) bool {
-			_, ok := allowed[host+"/"+name]
+		visible = func(job *bulkUpdateJob, item *bulkUpdateItem) bool {
+			if username != "" && job.requestedBy == username {
+				return true
+			}
+			_, ok := allowed[item.Host+"/"+item.ID]
 			return ok
 		}
 	}

@@ -65,7 +65,7 @@ func TestBulkUpdate_SelfRunsLast(t *testing.T) {
 	}
 
 	u := newTestUpdater()
-	done, err := u.Start(services, "manual", "")
+	done, err := u.Start(services, "manual", "", "")
 	require.NoError(t, err)
 	waitDone(t, done)
 
@@ -90,7 +90,7 @@ func TestBulkUpdate_FailureDoesNotStopTheRest(t *testing.T) {
 	}
 
 	u := newTestUpdater()
-	done, err := u.Start(services, "manual", "")
+	done, err := u.Start(services, "manual", "", "")
 	require.NoError(t, err)
 	waitDone(t, done)
 
@@ -109,7 +109,7 @@ func TestBulkUpdate_SwarmServiceUpdatedOnce(t *testing.T) {
 	}
 
 	u := newTestUpdater()
-	done, err := u.Start(services, "manual", "")
+	done, err := u.Start(services, "manual", "", "")
 	require.NoError(t, err)
 	waitDone(t, done)
 
@@ -122,12 +122,12 @@ func TestBulkUpdate_RejectsOverlap(t *testing.T) {
 	u := newTestUpdater()
 	done, err := u.Start([]*container.ContainerService{
 		container.NewContainerService(client, container.Container{ID: "bbbbbbbbbbbb", Host: "local"}),
-	}, "manual", "")
+	}, "manual", "", "")
 	require.NoError(t, err)
 
 	_, err = u.Start([]*container.ContainerService{
 		container.NewContainerService(client, container.Container{ID: "cccccccccccc", Host: "local"}),
-	}, "schedule", "")
+	}, "schedule", "", "")
 	assert.ErrorIs(t, err, errBulkUpdateBusy)
 
 	close(block)
@@ -140,12 +140,11 @@ func TestBulkUpdate_SnapshotFiltersHidden(t *testing.T) {
 	done, err := u.Start([]*container.ContainerService{
 		container.NewContainerService(client, container.Container{ID: "bbbbbbbbbbbb", Host: "local", Name: "web"}),
 		container.NewContainerService(client, container.Container{ID: "cccccccccccc", Host: "local", Name: "db"}),
-	}, "manual", "")
+	}, "manual", "", "")
 	require.NoError(t, err)
 	waitDone(t, done)
 
-	// By name, since an updated container no longer has the id the job holds.
-	job, _ := u.snapshot(func(_, name string) bool { return name == "db" })
+	job, _ := u.snapshot(func(_ *bulkUpdateJob, item *bulkUpdateItem) bool { return item.Name == "db" })
 	require.Len(t, job.Items, 1)
 	assert.Equal(t, "cccccccccccc", job.Items[0].ID)
 }
@@ -167,7 +166,7 @@ func TestBulkUpdate_SwarmSelfServiceRunsLast(t *testing.T) {
 	}
 
 	u := newTestUpdater()
-	done, err := u.Start(services, "manual", "dozzle-svc")
+	done, err := u.Start(services, "manual", "dozzle-svc", "")
 	require.NoError(t, err)
 	waitDone(t, done)
 
@@ -204,7 +203,7 @@ func TestBulkUpdate_IdleWaitsForRunningJob(t *testing.T) {
 
 	done, err := u.Start([]*container.ContainerService{
 		container.NewContainerService(&blockingClientService{release: block}, container.Container{ID: "bbbbbbbbbbbb", Host: "local"}),
-	}, "manual", "")
+	}, "manual", "", "")
 	require.NoError(t, err)
 
 	idle := u.idle()

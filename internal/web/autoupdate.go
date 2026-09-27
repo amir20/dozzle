@@ -331,6 +331,41 @@ func (s *autoUpdateScheduler) updateLabelledContainers(ctx context.Context) {
 	if s.hostService == nil {
 		return
 	}
+	// A manual update that is running is waited out rather than costing the
+	// labelled containers a whole day. The list is only taken afterwards: that
+	// job may have recreated some of them under new ids. One can still start
+	// between the wait and Start, so a busy updater means wait again.
+	for range 5 {
+		select {
+		case <-bulkUpdates.idle():
+		case <-ctx.Done():
+			return
+		}
+		outdated, selfService := s.outdatedLabelledContainers(ctx)
+		if len(outdated) == 0 {
+			return
+		}
+		done, err := bulkUpdates.Start(outdated, "schedule", selfService, "")
+		if errors.Is(err, errBulkUpdateBusy) {
+			continue
+		}
+		if err != nil {
+			log.Warn().Err(err).Msg("auto update: skipped containers")
+			return
+		}
+		log.Info().Int("count", len(outdated)).Msg("auto update: updating labelled containers")
+		select {
+		case <-done:
+		case <-ctx.Done():
+		}
+		return
+	}
+	log.Warn().Msg("auto update: skipped containers, other updates kept running")
+}
+
+// outdatedLabelledContainers returns the labelled containers with a newer
+// image, and Dozzle's own swarm service for Start.
+func (s *autoUpdateScheduler) outdatedLabelledContainers(ctx context.Context) ([]*container.ContainerService, string) {
 	containers, errs := s.hostService.ListAllContainers(s.config.Labels)
 	for _, err := range errs {
 		log.Warn().Err(err).Msg("auto update: host unavailable, its containers are skipped")
@@ -362,27 +397,7 @@ func (s *autoUpdateScheduler) updateLabelledContainers(ctx context.Context) {
 		}
 		outdated = append(outdated, service)
 	}
-	if len(outdated) == 0 {
-		return
-	}
-
-	// A manual update that happens to be running is waited out rather than
-	// costing the labelled containers a whole day.
-	select {
-	case <-bulkUpdates.idle():
-	case <-ctx.Done():
-		return
-	}
-	done, err := bulkUpdates.Start(outdated, "schedule", selfService)
-	if err != nil {
-		log.Warn().Err(err).Msg("auto update: skipped containers")
-		return
-	}
-	log.Info().Int("count", len(outdated)).Msg("auto update: updating labelled containers")
-	select {
-	case <-done:
-	case <-ctx.Done():
-	}
+	return outdated, selfService
 }
 
 // autoUpdateAttemptPath holds the remote digest of the last scheduled update
