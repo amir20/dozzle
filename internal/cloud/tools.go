@@ -66,14 +66,27 @@ var (
 		Properties: map[string]paramProperty{},
 	})
 
-	containerIDParam = paramProperty{Type: "string", Description: "Container name or ID. You can pass the container name directly (as shown in logs, events, and find_containers) — it does not need to be the opaque ID. Resolved by exact name first, then ID, then a unique name substring. When a name matches several containers (e.g. a Swarm service with stopped task corpses, or multiple replicas), read-only tools (inspect/logs) resolve to the most relevant one — the running replica, or the most-recently-active if all are stopped — and tell you which one (and its siblings) in the result, so you don't need to look up the ID first. Write tools (start/stop/restart/remove/update) never guess between live containers: an ambiguous name fails with the candidate list so you can re-issue with an exact ID."}
-	hostIDParam      = paramProperty{Type: "string", Description: "Host name or ID (from list_hosts or find_containers). Optional — omit it when the container name is unique across all hosts; supply it (name or ID) only to scope to a specific host when a name is ambiguous."}
-	boolFalse        = false
+	containerIDParam = paramProperty{Type: "string", Description: "Container name or ID; a name works directly, no lookup needed. Resolved by ID, then exact name, then a unique name substring. A name matching several containers resolves to the running (or most recently active) one, and the result names its siblings."}
+	// writeContainerIDParam is the write tools' variant: they never pick between
+	// matches, so the read-side resolution notes would only cost tokens.
+	writeContainerIDParam = paramProperty{Type: "string", Description: "Container name or ID. Never guesses between live containers: an ambiguous name fails with the candidate list, then re-issue with the exact ID."}
+	hostIDParam           = paramProperty{Type: "string", Description: "Host name or ID (from list_hosts or find_containers). Optional — omit it when the container name is unique across all hosts; supply it (name or ID) only to scope to a specific host when a name is ambiguous."}
+	boolFalse             = false
 
 	targetedParams = mustSchema(paramSchema{
 		Type: "object",
 		Properties: map[string]paramProperty{
 			"container_id": containerIDParam,
+			"host_id":      hostIDParam,
+		},
+		Required:             []string{"container_id"},
+		AdditionalProperties: &boolFalse,
+	})
+
+	writeTargetedParams = mustSchema(paramSchema{
+		Type: "object",
+		Properties: map[string]paramProperty{
+			"container_id": writeContainerIDParam,
 			"host_id":      hostIDParam,
 		},
 		Required:             []string{"container_id"},
@@ -92,7 +105,7 @@ var (
 
 	instanceIDParam = paramProperty{
 		Type:        "string",
-		Description: "The Dozzle instance to target. Get this from list_dozzle_instances. Alerts are scoped to a whole Dozzle instance, not a single Docker host.",
+		Description: "The Dozzle instance to target. Use an instance_id from the connected-instance list you were given (or list_dozzle_instances). Alerts are scoped to a whole Dozzle instance, not a single Docker host.",
 	}
 
 	listNotificationsParams = mustSchema(paramSchema{
@@ -106,8 +119,8 @@ var (
 
 	containerExpressionParam = paramProperty{
 		Type: "string",
-		Description: `Required. expr-lang expression selecting which containers trigger the alert. Use "true" to match every container — this is the right default whenever the user asks for an alert without naming a specific target ("all my containers", "any error", "logs of type error" with no target named). Only write a filter when the user names containers or gives a pattern. Available fields when filtering: name, id, image, state, health, host, labels.
-Examples: true (match every container — default for unscoped asks); name contains "nginx"; state == "running"; image matches "redis.*"; name contains "api" && health == "healthy".`,
+		Description: `Required. expr-lang expression selecting which containers trigger the alert. Use "true" (every container) whenever the user names no specific target — that is the default. Filter only when they name containers or a pattern. Fields: name, id, image, state, health, host, labels.
+Examples: true; name contains "nginx"; image matches "redis.*"; name contains "api" && health == "healthy".`,
 	}
 
 	createLogNotificationParams = mustSchema(paramSchema{
@@ -204,7 +217,7 @@ func AvailableTools(enableActions bool, p Principal) []*pb.ToolDefinition {
 		},
 		{
 			Name:           toolFindContainers,
-			Description:    "Search for Docker containers by name, state, or health status. All parameters are optional. Returns container ID, name, image, state, health, and host. The container-scoped tools (inspect/logs/start/stop/restart/remove/update) accept a name directly, so you usually don't need to look up the ID first — use this when you want to disambiguate a name that matches multiple containers.",
+			Description:    "List or search Docker containers. With no filters it returns EVERY container, including stopped and exited ones; filter by name, image, state, or health to narrow. Returns ID, name, image, state, health, host, and start time. Container-scoped tools accept a name directly, so you don't need this just to get an ID — use it for inventory, state, or to disambiguate a name.",
 			ParametersJson: findContainerParams,
 			Scope:          pb.ToolScope_TOOL_SCOPE_INSTANCE,
 			ReadOnly:       true,
@@ -265,31 +278,31 @@ func AvailableTools(enableActions bool, p Principal) []*pb.ToolDefinition {
 			&pb.ToolDefinition{
 				Name:           toolStartContainer,
 				Description:    "Start a stopped Docker container",
-				ParametersJson: targetedParams,
+				ParametersJson: writeTargetedParams,
 				Scope:          pb.ToolScope_TOOL_SCOPE_CONTAINER,
 			},
 			&pb.ToolDefinition{
 				Name:           toolStopContainer,
 				Description:    "Stop a running Docker container",
-				ParametersJson: targetedParams,
+				ParametersJson: writeTargetedParams,
 				Scope:          pb.ToolScope_TOOL_SCOPE_CONTAINER,
 			},
 			&pb.ToolDefinition{
 				Name:           toolRestartContainer,
 				Description:    "Restart a Docker container",
-				ParametersJson: targetedParams,
+				ParametersJson: writeTargetedParams,
 				Scope:          pb.ToolScope_TOOL_SCOPE_CONTAINER,
 			},
 			&pb.ToolDefinition{
 				Name:           toolRemoveContainer,
 				Description:    "Remove a Docker container. The container must be stopped first — call stop_container if it is still running. Confirm with the user before removing, since the container is gone permanently.",
-				ParametersJson: targetedParams,
+				ParametersJson: writeTargetedParams,
 				Scope:          pb.ToolScope_TOOL_SCOPE_CONTAINER,
 			},
 			&pb.ToolDefinition{
 				Name:           toolUpdateContainer,
 				Description:    "Update a Docker container by pulling the latest version of its image and recreating it with the same configuration. If the image is already up to date, no recreation occurs. For swarm service containers, updates the service instead.",
-				ParametersJson: targetedParams,
+				ParametersJson: writeTargetedParams,
 				Scope:          pb.ToolScope_TOOL_SCOPE_CONTAINER,
 			},
 			&pb.ToolDefinition{
