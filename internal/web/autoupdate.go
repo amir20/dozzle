@@ -342,7 +342,7 @@ func (s *autoUpdateScheduler) updateLabelledContainers(ctx context.Context) {
 		if len(outdated) == 0 {
 			return
 		}
-		done, err := bulkUpdates.Start(outdated, "schedule", selfService, "")
+		done, err := bulkUpdates.Start(outdated, "schedule", selfService, "", s.flushUsage)
 		if errors.Is(err, errBulkUpdateBusy) {
 			continue
 		}

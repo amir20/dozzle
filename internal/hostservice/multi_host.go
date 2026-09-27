@@ -45,6 +45,10 @@ type MultiHostService struct {
 	cloudNotifyFn       atomic.Pointer[func()]
 	// agents is the manager when it can take agents while running, else nil.
 	agents agentAdder
+	// configMu orders config pushes against RemoveAgent, so a broadcast that
+	// listed an agent before it was removed cannot land after its config was
+	// cleared and hand the removed agent the rules and cloud key back.
+	configMu sync.Mutex
 }
 
 func NewMultiHostService(manager ClientManager, timeout time.Duration) *MultiHostService {
@@ -262,6 +266,8 @@ func (m *MultiHostService) RemoveAgent(endpoint string) error {
 	if m.agents == nil {
 		return ErrAgentsUnsupported
 	}
+	m.configMu.Lock()
+	defer m.configMu.Unlock()
 	m.clearAgentConfig(endpoint)
 	return m.agents.RemoveAgent(endpoint)
 }
@@ -490,6 +496,8 @@ func (m *MultiHostService) broadcastNotificationConfig() {
 		})
 	}
 
+	m.configMu.Lock()
+	defer m.configMu.Unlock()
 	var wg sync.WaitGroup
 	for _, client := range m.manager.List() {
 		if updater, ok := client.(NotificationConfigUpdater); ok {
@@ -519,6 +527,8 @@ func (m *MultiHostService) broadcastCloudConfig() {
 		}
 	}
 
+	m.configMu.Lock()
+	defer m.configMu.Unlock()
 	var count int
 	var wg sync.WaitGroup
 	for _, client := range m.manager.List() {

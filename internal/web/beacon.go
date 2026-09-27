@@ -160,7 +160,7 @@ var eventsBeaconInFlight atomic.Bool
 // change.
 var eventsBeaconInterval = 5 * time.Minute
 
-// eventsBeaconLast is when the last events beacon started, in unix nanoseconds.
+// eventsBeaconLast is when the last events beacon was delivered, in unix nanoseconds.
 var eventsBeaconLast atomic.Int64
 
 // sendBeaconEvent sends the events beacon for a new events stream. containers is
@@ -175,7 +175,6 @@ func sendBeaconEvent(h *handler, userAgent string, containers []container.Contai
 	if last := eventsBeaconLast.Load(); last != 0 && now.Sub(time.Unix(0, last)) < eventsBeaconInterval {
 		return
 	}
-	eventsBeaconLast.Store(now.UnixNano())
 	b := h.beaconFacts(containers, configPath)
 	b.Name = "events"
 	b.Browser = userAgent
@@ -183,7 +182,11 @@ func sendBeaconEvent(h *handler, userAgent string, containers []container.Contai
 
 	if err := sendBeacon(b); err != nil {
 		log.Debug().Err(err).Msg("error sending beacon")
+		return
 	}
+	// Only a beacon that went out starts the wait, so a failed one is retried
+	// on the next stream. The in-flight flag above keeps tabs from racing.
+	eventsBeaconLast.Store(now.UnixNano())
 }
 
 // runUsageBeacon sends the daily usage beacon until ctx ends.

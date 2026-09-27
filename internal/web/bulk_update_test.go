@@ -65,7 +65,7 @@ func TestBulkUpdate_SelfRunsLast(t *testing.T) {
 	}
 
 	u := newTestUpdater()
-	done, err := u.Start(services, "manual", "", "")
+	done, err := u.Start(services, "manual", "", "", nil)
 	require.NoError(t, err)
 	waitDone(t, done)
 
@@ -90,7 +90,7 @@ func TestBulkUpdate_FailureDoesNotStopTheRest(t *testing.T) {
 	}
 
 	u := newTestUpdater()
-	done, err := u.Start(services, "manual", "", "")
+	done, err := u.Start(services, "manual", "", "", nil)
 	require.NoError(t, err)
 	waitDone(t, done)
 
@@ -109,7 +109,7 @@ func TestBulkUpdate_SwarmServiceUpdatedOnce(t *testing.T) {
 	}
 
 	u := newTestUpdater()
-	done, err := u.Start(services, "manual", "", "")
+	done, err := u.Start(services, "manual", "", "", nil)
 	require.NoError(t, err)
 	waitDone(t, done)
 
@@ -122,12 +122,12 @@ func TestBulkUpdate_RejectsOverlap(t *testing.T) {
 	u := newTestUpdater()
 	done, err := u.Start([]*container.ContainerService{
 		container.NewContainerService(client, container.Container{ID: "bbbbbbbbbbbb", Host: "local"}),
-	}, "manual", "", "")
+	}, "manual", "", "", nil)
 	require.NoError(t, err)
 
 	_, err = u.Start([]*container.ContainerService{
 		container.NewContainerService(client, container.Container{ID: "cccccccccccc", Host: "local"}),
-	}, "schedule", "", "")
+	}, "schedule", "", "", nil)
 	assert.ErrorIs(t, err, errBulkUpdateBusy)
 
 	close(block)
@@ -140,7 +140,7 @@ func TestBulkUpdate_SnapshotFiltersHidden(t *testing.T) {
 	done, err := u.Start([]*container.ContainerService{
 		container.NewContainerService(client, container.Container{ID: "bbbbbbbbbbbb", Host: "local", Name: "web"}),
 		container.NewContainerService(client, container.Container{ID: "cccccccccccc", Host: "local", Name: "db"}),
-	}, "manual", "", "")
+	}, "manual", "", "", nil)
 	require.NoError(t, err)
 	waitDone(t, done)
 
@@ -166,7 +166,7 @@ func TestBulkUpdate_SwarmSelfServiceRunsLast(t *testing.T) {
 	}
 
 	u := newTestUpdater()
-	done, err := u.Start(services, "manual", "dozzle-svc", "")
+	done, err := u.Start(services, "manual", "dozzle-svc", "", nil)
 	require.NoError(t, err)
 	waitDone(t, done)
 
@@ -203,7 +203,7 @@ func TestBulkUpdate_IdleWaitsForRunningJob(t *testing.T) {
 
 	done, err := u.Start([]*container.ContainerService{
 		container.NewContainerService(&blockingClientService{release: block}, container.Container{ID: "bbbbbbbbbbbb", Host: "local"}),
-	}, "manual", "", "")
+	}, "manual", "", "", nil)
 	require.NoError(t, err)
 
 	idle := u.idle()

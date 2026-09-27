@@ -219,19 +219,19 @@ func TestRetriableClientManager_PublishKeepsOrder(t *testing.T) {
 		require.NoError(t, m.RemoveAgent("nas:7007|nas"))
 	}
 
-	for i := range 40 {
+	// Updates for one host collapse to its latest state while the reader lags,
+	// so what matters is that the last one it sees is the removal.
+	var last container.Host
+	for {
 		select {
-		case h := <-hosts:
-			if i%2 == 0 {
-				assert.True(t, h.Available, "update %d", i)
-			} else {
-				assert.True(t, h.Removed, "update %d", i)
-				assert.Equal(t, "nas:7007", h.Endpoint, "removal reports the address, as Hosts does")
-			}
-		case <-time.After(time.Second):
-			t.Fatalf("update %d never arrived", i)
+		case last = <-hosts:
+			continue
+		case <-time.After(200 * time.Millisecond):
 		}
+		break
 	}
+	assert.True(t, last.Removed, "the removal must not be overtaken by an earlier add")
+	assert.Equal(t, "nas:7007", last.Endpoint, "removal reports the address, as Hosts does")
 }
 
 // blockingService holds Host() until release is closed.
@@ -299,4 +299,16 @@ func TestMultiHostService_RemoveAgentClearsPushedConfig(t *testing.T) {
 
 	assert.True(t, svc.notificationCleared)
 	assert.True(t, svc.cloudCleared)
+}
+
+func TestHostSubscriber_PendingKeepsLatestPerHost(t *testing.T) {
+	sub := &hostSubscriber{ctx: t.Context(), wake: make(chan struct{}, 1)}
+	for range 100 {
+		sub.enqueue(container.Host{ID: "a", Available: true})
+		sub.enqueue(container.Host{ID: "b", Available: true})
+		sub.enqueue(container.Host{ID: "a", Removed: true})
+	}
+	require.Len(t, sub.pending, 2)
+	assert.Equal(t, "b", sub.pending[0].ID)
+	assert.True(t, sub.pending[1].Removed, "a's latest state is last")
 }

@@ -43,6 +43,9 @@ type hostSubscriber struct {
 
 func (s *hostSubscriber) enqueue(host container.Host) {
 	s.mu.Lock()
+	// Only a host's latest state matters, so a subscriber that stops reading
+	// holds at most one update per host instead of every one since.
+	s.pending = slices.DeleteFunc(s.pending, func(h container.Host) bool { return h.ID == host.ID })
 	s.pending = append(s.pending, host)
 	s.mu.Unlock()
 	select {
