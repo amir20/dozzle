@@ -31,9 +31,8 @@ const { status, loading, fetchStatus } = useSetup();
 const dialog = useTemplateRef<HTMLDialogElement>("dialog");
 const panel = useTemplateRef<InstanceType<typeof AddHostPanel>>("panel");
 const busy = computed(() => !!panel.value?.busy);
-// The status is shared with the wizard and settings, so it is usually loaded while
-// this dialog is closed. The panel mounts only while open: mounting creates the
-// private agent pair in /data, and closing resets the form for the next open.
+// The panel mounts only while open: mounting creates the private agent pair in
+// /data, and closing resets the form for the next open.
 const isOpen = ref(false);
 
 // The status is shared with the wizard, so it may already be here. Read it again

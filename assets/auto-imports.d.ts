@@ -584,7 +584,7 @@ declare global {
   export type { SelfUpdatePhase } from './composable/setup/selfUpdate'
   import('./composable/setup/selfUpdate')
   // @ts-ignore
-  export type { SetupError, SetupStepId, SetupStepState, AutoUpdateMode, AutoUpdateReason, SetupAutoUpdate, SetupAgent, SetupAgentCert, SetupStatus, SetupNextResult, SetupStepHandle, SetupCloudFacts } from './composable/setup/setup'
+  export type { SetupError, SetupStepId, SetupStepState, AutoUpdateMode, AutoUpdateReason, SetupAutoUpdate, SetupAgent, SetupAgentCert, SetupStatus, SetupNextResult, SetupStepHandle, SetupCloudFacts, SetupErrorCode } from './composable/setup/setup'
   import('./composable/setup/setup')
   // @ts-ignore
   export type { PopoverPlacement } from './composable/ui/popover'

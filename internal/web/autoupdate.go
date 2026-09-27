@@ -113,13 +113,7 @@ type autoUpdateSettings struct {
 // effectiveAutoUpdate reads dozzle.yml, with flag and env values winning.
 // Anything invalid falls back to the default rather than failing.
 func effectiveAutoUpdate(setup SetupConfig) (autoUpdateSettings, error) {
-	return effectiveAutoUpdateAt(setup, setupConfigPath)
-}
-
-// effectiveAutoUpdateAt is effectiveAutoUpdate for a caller on its own goroutine,
-// which has to read the dozzle.yml path before it starts.
-func effectiveAutoUpdateAt(setup SetupConfig, path string) (autoUpdateSettings, error) {
-	file, err := config.Load(path)
+	file, err := config.Load(setupConfigPath)
 	return autoUpdateFrom(setup, file), err
 }
 
@@ -193,16 +187,19 @@ type autoUpdateScheduler struct {
 	now         func() time.Time
 	after       func(time.Duration) <-chan time.Time
 	lastRun     string
+	// flushUsage sends the day's usage before an update replaces the process.
+	flushUsage func()
 }
 
 // RunAutoUpdateScheduler blocks until ctx is done. It does nothing outside
 // server mode or without actions, both of which are fixed for the process.
-func RunAutoUpdateScheduler(ctx context.Context, hostService HostService, cfg Config) {
+// flushUsage is Server.FlushUsage.
+func RunAutoUpdateScheduler(ctx context.Context, hostService HostService, cfg Config, flushUsage func()) {
 	if cfg.Mode != "server" || !cfg.EnableActions {
 		log.Debug().Str("mode", cfg.Mode).Bool("actions", cfg.EnableActions).Msg("auto update: scheduler not started")
 		return
 	}
-	s := &autoUpdateScheduler{config: &cfg, hostService: hostService, now: time.Now, after: time.After}
+	s := &autoUpdateScheduler{config: &cfg, hostService: hostService, now: time.Now, after: time.After, flushUsage: flushUsage}
 	s.run(ctx)
 }
 
@@ -289,7 +286,7 @@ func (s *autoUpdateScheduler) tick(ctx context.Context, now time.Time) {
 	}
 
 	log.Info().Str("image", support.self.Ref).Str("remote", result.RemoteDigest).Msg("auto update: newer image available, updating dozzle")
-	updated, err := runSelfUpdate(ctx, support.selfID, func(p container.UpdateProgress) {
+	updated, err := runSelfUpdate(ctx, support.selfID, s.flushUsage, func(p container.UpdateProgress) {
 		if p.Status == "error" {
 			log.Error().Str("error", p.Error).Msg("auto update: progress")
 		} else if p.Status != "pulling" {
@@ -345,7 +342,7 @@ func (s *autoUpdateScheduler) updateLabelledContainers(ctx context.Context) {
 		if len(outdated) == 0 {
 			return
 		}
-		done, err := bulkUpdates.Start(outdated, "schedule", selfService, "")
+		done, err := bulkUpdates.Start(outdated, "schedule", selfService, "", s.flushUsage)
 		if errors.Is(err, errBulkUpdateBusy) {
 			continue
 		}
@@ -408,8 +405,9 @@ func autoUpdateAttemptPath() string {
 
 var errSelfUpdateBusy = errors.New("an update of dozzle is already in progress")
 
-// runSelfUpdate serializes calls to selfupdate.Start.
-func runSelfUpdate(ctx context.Context, id string, progress func(container.UpdateProgress)) (bool, error) {
+// runSelfUpdate serializes calls to selfupdate.Start. flushUsage, when set, sends
+// the counted usage before the container is replaced.
+func runSelfUpdate(ctx context.Context, id string, flushUsage func(), progress func(container.UpdateProgress)) (bool, error) {
 	if !selfUpdateMu.TryLock() {
 		return false, errSelfUpdateBusy
 	}
@@ -421,7 +419,9 @@ func runSelfUpdate(ctx context.Context, id string, progress func(container.Updat
 		// is already current or a failed pull never gets here.
 		if p.Status == "recreating" {
 			analytics.Count("image.update")
-			FlushUsage()
+			if flushUsage != nil {
+				flushUsage()
+			}
 		}
 		if progress != nil {
 			progress(p)

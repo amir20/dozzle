@@ -1,4 +1,4 @@
-import { describe, expect, test, vi } from "vitest";
+import { afterEach, describe, expect, test, vi } from "vitest";
 
 vi.mock("@/stores/config", () => ({
   default: { base: "" },
@@ -17,6 +17,8 @@ import {
   setupStepConfigured,
   setupSteps,
   setupToggles,
+  SetupError,
+  useSetup,
   type SetupStatus,
 } from "./setup";
 
@@ -285,5 +287,73 @@ describe("agentImage", () => {
     expect(agentImage("sha256:3f2a9c1d4e5b6a7f8091a2b3c4d5e6f7", "v12.0.0")).toBe("amir20/dozzle:v12.0.0");
     expect(agentImage("3f2a9c1d4e5b", "v12.0.0")).toBe("amir20/dozzle:v12.0.0");
     expect(agentImage("dozzle:dev", "head")).toBe("amir20/dozzle:latest");
+  });
+
+  test("never hands out an image from the hub's own loopback registry", () => {
+    expect(agentImage("localhost:5000/dozzle:dev", "v12.0.0")).toBe("amir20/dozzle:v12.0.0");
+    expect(agentImage("localhost/dozzle:dev", "head")).toBe("amir20/dozzle:latest");
+    expect(agentImage("127.0.0.1:5000/amir20/dozzle:dev", "v12.0.0")).toBe("amir20/dozzle:v12.0.0");
+    expect(agentImage("[::1]:5000/dozzle:dev", "v12.0.0")).toBe("amir20/dozzle:v12.0.0");
+    // A registry that merely starts with the word is still a real one.
+    expect(agentImage("localhost.example.com/dozzle:v12.0.0", "v12.0.0")).toBe("localhost.example.com/dozzle:v12.0.0");
+  });
+});
+
+describe("requests", () => {
+  afterEach(() => vi.unstubAllGlobals());
+
+  test("an error carries the server's X-Dozzle-Error code", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(
+        async () =>
+          new Response("could not connect to agent: refused", {
+            status: 502,
+            headers: { "X-Dozzle-Error": "unreachable" },
+          }),
+      ),
+    );
+    const err = await useSetup()
+      .addAgent({ address: "a:7007" })
+      .catch((e) => e);
+    expect(err).toBeInstanceOf(SetupError);
+    expect(err.status).toBe(502);
+    expect(err.code).toBe("unreachable");
+    expect(err.message).toBe("could not connect to agent: refused");
+  });
+
+  test("an error without the header has no code", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => new Response("Forbidden", { status: 403 })),
+    );
+    const err = await useSetup()
+      .removeAgent("a:7007")
+      .catch((e) => e);
+    expect(err.status).toBe(403);
+    expect(err.code).toBeUndefined();
+  });
+
+  // Opening the hosts dialog and adding a host each fire their own fetch; the older
+  // one answering last must not put back the stale list.
+  test("fetchStatus keeps only the newest answer", async () => {
+    const resolvers: ((r: Response) => void)[] = [];
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(() => new Promise<Response>((resolve) => resolvers.push(resolve))),
+    );
+    const { fetchStatus, status: current, loading } = useSetup();
+    const older = fetchStatus();
+    const newer = fetchStatus();
+    resolvers[1](new Response(JSON.stringify(status({ agents: [] }))));
+    await newer;
+    expect(current.value?.agents).toEqual([]);
+    expect(loading.value).toBe(false);
+
+    resolvers[0](
+      new Response(JSON.stringify(status({ agents: [{ endpoint: "old:7007", address: "old:7007", locked: false }] }))),
+    );
+    await older;
+    expect(current.value?.agents).toEqual([]);
   });
 });

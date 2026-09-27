@@ -15,7 +15,7 @@ import (
 // the subscriber set by context would let the second registration silently
 // evict the first, and one of the two would never hear that an agent came up.
 func TestRetriableClientManager_SubscribeSharedContext(t *testing.T) {
-	m := NewRetriableClientManager(nil, time.Second, tls.Certificate{})
+	m := NewRetriableClientManager(nil, nil, time.Second, tls.Certificate{})
 
 	ctx := t.Context()
 
@@ -28,7 +28,7 @@ func TestRetriableClientManager_SubscribeSharedContext(t *testing.T) {
 }
 
 func TestRetriableClientManager_SubscribeUnregistersOnDone(t *testing.T) {
-	m := NewRetriableClientManager(nil, time.Second, tls.Certificate{})
+	m := NewRetriableClientManager(nil, nil, time.Second, tls.Certificate{})
 
 	ctx, cancel := context.WithCancel(context.Background())
 	m.Subscribe(ctx, make(chan container.Host, 1))

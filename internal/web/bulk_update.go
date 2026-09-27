@@ -62,9 +62,11 @@ type bulkUpdateJob struct {
 	// requestedBy is the user who started a manual job. Every container in it
 	// was resolved against that user's labels.
 	requestedBy string
-	StartedAt   time.Time         `json:"startedAt"`
-	FinishedAt  *time.Time        `json:"finishedAt,omitempty"`
-	Items       []*bulkUpdateItem `json:"items"`
+	// flushUsage sends the day's usage before Dozzle replaces itself. May be nil.
+	flushUsage func()
+	StartedAt  time.Time         `json:"startedAt"`
+	FinishedAt *time.Time        `json:"finishedAt,omitempty"`
+	Items      []*bulkUpdateItem `json:"items"`
 }
 
 type bulkUpdater struct {
@@ -107,7 +109,7 @@ var bulkUpdates = &bulkUpdater{watchers: make(map[chan struct{}]struct{})}
 // Start queues services and runs them in the background. The returned channel
 // closes when every one has finished.
 // selfService is Dozzle's own swarm service, if any (see selfSwarmService).
-func (u *bulkUpdater) Start(services []*container.ContainerService, trigger, selfService, requestedBy string) (<-chan struct{}, error) {
+func (u *bulkUpdater) Start(services []*container.ContainerService, trigger, selfService, requestedBy string, flushUsage func()) (<-chan struct{}, error) {
 	u.mu.Lock()
 	if u.running {
 		u.mu.Unlock()
@@ -115,7 +117,7 @@ func (u *bulkUpdater) Start(services []*container.ContainerService, trigger, sel
 	}
 
 	seen := make(map[string]*bulkUpdateItem, len(services))
-	job := &bulkUpdateJob{Trigger: trigger, StartedAt: time.Now(), requestedBy: requestedBy}
+	job := &bulkUpdateJob{Trigger: trigger, StartedAt: time.Now(), requestedBy: requestedBy, flushUsage: flushUsage}
 	for _, service := range services {
 		c := service.Container
 		self := isSelfContainer(c, selfService)
@@ -253,6 +255,7 @@ func (u *bulkUpdater) apply(item *bulkUpdateItem, p container.UpdateProgress) {
 		item.Error = p.Error
 	}
 	self := item.Self
+	flushUsage := u.job.flushUsage
 	u.mu.Unlock()
 	u.notify()
 
@@ -260,7 +263,9 @@ func (u *bulkUpdater) apply(item *bulkUpdateItem, p container.UpdateProgress) {
 	// this is the last chance to send the day's counters.
 	if self && p.Status == "recreating" {
 		analytics.Count("image.update")
-		FlushUsage()
+		if flushUsage != nil {
+			flushUsage()
+		}
 	}
 }
 
@@ -325,6 +330,11 @@ func (h *handler) startBulkUpdate(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if !isJSONRequest(r) {
+		http.Error(w, "expected application/json", http.StatusUnsupportedMediaType)
+		return
+	}
+
 	var req bulkUpdateRequest
 	if err := json.NewDecoder(http.MaxBytesReader(w, r.Body, 1<<20)).Decode(&req); err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
@@ -356,7 +366,7 @@ func (h *handler) startBulkUpdate(w http.ResponseWriter, r *http.Request) {
 	if h.config.Authorization.Provider != NONE {
 		requestedBy = auth.UserFromContext(r.Context()).Username
 	}
-	if _, err := bulkUpdates.Start(services, "manual", selfSwarmService(all), requestedBy); err != nil {
+	if _, err := bulkUpdates.Start(services, "manual", selfSwarmService(all), requestedBy, h.flushUsage); err != nil {
 		http.Error(w, err.Error(), http.StatusConflict)
 		return
 	}

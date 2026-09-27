@@ -123,7 +123,7 @@ func createHandler(client docker.UpdateClient, content fs.FS, config Config) *ch
 		content = afero.NewIOFS(fs)
 	}
 
-	manager := hostservice.NewRetriableClientManager(nil, 3*time.Second, tls.Certificate{}, docker.NewService(client, container.ContainerLabels{}))
+	manager := hostservice.NewRetriableClientManager(nil, nil, 3*time.Second, tls.Certificate{}, docker.NewService(client, container.ContainerLabels{}))
 	multiHostService := hostservice.NewMultiHostService(manager, 3*time.Second)
 	return createRouter(&handler{
 		hostService: multiHostService,

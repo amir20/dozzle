@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"mime"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -134,11 +135,11 @@ func (h *handler) setupCanRestart() bool {
 // setupPendingChanges lists what dozzle.yml asks for that this process is not
 // running with, i.e. what a restart would change. A locked setting ignores the
 // file, so it is never pending.
-func (h *handler) setupPendingChanges() (setupPending, error) {
+func (h *handler) setupPendingChanges() (setupPending, config.File, error) {
 	var p setupPending
 	file, err := config.Load(setupConfigPath)
 	if err != nil {
-		return p, err
+		return p, file, err
 	}
 	locked := h.config.Setup
 	if !locked.LockedAuthProvider && file.AuthProvider != nil && *file.AuthProvider != string(h.config.Authorization.Provider) {
@@ -150,22 +151,18 @@ func (h *handler) setupPendingChanges() (setupPending, error) {
 	if !locked.LockedEnableShell && file.EnableShell != nil && *file.EnableShell != h.config.EnableShell {
 		p.EnableShell = file.EnableShell
 	}
-	return p, nil
+	return p, file, nil
 }
 
 func (h *handler) getSetup(w http.ResponseWriter, r *http.Request) {
-	pending, err := h.setupPendingChanges()
+	pending, file, err := h.setupPendingChanges()
 	if err != nil {
 		log.Error().Err(err).Msg("could not read setup config")
 		http.Error(w, "could not read dozzle.yml", http.StatusInternalServerError)
 		return
 	}
-	// Read successfully just above, so an error here is not expected.
-	file, _ := config.Load(setupConfigPath)
 	_, canAddAgents := h.agentService()
-
-	// Already read successfully above, so an error here is not expected.
-	settings, _ := effectiveAutoUpdate(h.config.Setup)
+	settings := autoUpdateFrom(h.config.Setup, file)
 	support := checkAutoUpdateSupport(r.Context(), h.config, h.hostService)
 
 	state := setupState{
@@ -204,7 +201,22 @@ func (h *handler) getSetup(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// isJSONRequest reports whether r declares a JSON body. A cross-site form can
+// only send text/plain, form or multipart bodies without a CORS preflight, so
+// requiring JSON keeps another origin from driving a write endpoint.
+func isJSONRequest(r *http.Request) bool {
+	mt, _, _ := mime.ParseMediaType(r.Header.Get("Content-Type"))
+	return mt == "application/json"
+}
+
+// decodeSetupBody decodes a JSON body, refusing any other media type. With no
+// login (or a cookie session) a cross-site form could otherwise call these
+// routes from any page the user visits.
 func decodeSetupBody(w http.ResponseWriter, r *http.Request, v any) bool {
+	if !isJSONRequest(r) {
+		http.Error(w, "expected application/json", http.StatusUnsupportedMediaType)
+		return false
+	}
 	r.Body = http.MaxBytesReader(w, r.Body, 64<<10)
 	if err := json.NewDecoder(r.Body).Decode(v); err != nil {
 		http.Error(w, "invalid request body", http.StatusBadRequest)
@@ -407,7 +419,7 @@ func (h *handler) updateSetupConfig(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *handler) restartSetup(w http.ResponseWriter, r *http.Request) {
-	pending, err := h.setupPendingChanges()
+	pending, _, err := h.setupPendingChanges()
 	if err != nil {
 		log.Error().Err(err).Msg("could not read setup config")
 		http.Error(w, "could not read dozzle.yml", http.StatusInternalServerError)

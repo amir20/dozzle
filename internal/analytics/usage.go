@@ -87,8 +87,14 @@ func (u *Usage) AddLocale(code string) {
 	}
 	u.mu.Lock()
 	defer u.mu.Unlock()
+	u.addLocaleLocked(code, 1)
+}
+
+// addLocaleLocked adds n sessions in code, unless the map is full and code is
+// new. u.mu must be held.
+func (u *Usage) addLocaleLocked(code string, n int) {
 	if _, ok := u.locales[code]; ok || len(u.locales) < maxLocales {
-		u.locales[code]++
+		u.locales[code] += n
 	}
 }
 
@@ -134,9 +140,7 @@ func (u *Usage) Restore(s UsageSnapshot) {
 	}
 	u.mu.Lock()
 	for code, n := range s.Locales {
-		if _, ok := u.locales[code]; ok || len(u.locales) < maxLocales {
-			u.locales[code] += n
-		}
+		u.addLocaleLocked(code, n)
 	}
 	u.mu.Unlock()
 	u.AddMinutes(s.Minutes)
@@ -201,9 +205,7 @@ func SendUsage(u *Usage, base func() types.BeaconEvent, send func(types.BeaconEv
 	b := base()
 	b.Name = "usage"
 	b.Usage = s.Counts
-	if len(s.Locales) > 0 {
-		b.Locales = s.Locales
-	}
+	b.Locales = s.Locales
 	b.ActiveMinutes = BucketMinutes(s.Minutes)
 	if err := send(b); err != nil {
 		log.Debug().Err(err).Msg("error sending usage beacon")

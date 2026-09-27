@@ -16,7 +16,6 @@ import (
 	"github.com/amir20/dozzle/types"
 	"github.com/rs/zerolog/log"
 	lop "github.com/samber/lo/parallel"
-	"golang.org/x/sync/singleflight"
 )
 
 type HostUnavailableError struct {
@@ -46,9 +45,10 @@ type MultiHostService struct {
 	cloudNotifyFn       atomic.Pointer[func()]
 	// agents is the manager when it can take agents while running, else nil.
 	agents agentAdder
-	// lateListings shares one listing of a newly joined host among every
-	// subscriber that hears about it, rather than one RPC per open stream.
-	lateListings singleflight.Group
+	// configMu orders config pushes against RemoveAgent, so a broadcast that
+	// listed an agent before it was removed cannot land after its config was
+	// cleared and hand the removed agent the rules and cloud key back.
+	configMu sync.Mutex
 }
 
 func NewMultiHostService(manager ClientManager, timeout time.Duration) *MultiHostService {
@@ -150,7 +150,7 @@ func (m *MultiHostService) SubscribeContainersStarted(ctx context.Context, conta
 		// A host that joins later is new to this subscriber along with everything
 		// already running on it, so those count as started too.
 		go func() {
-			running, err := m.listLate(client)
+			running, err := m.listLate(ctx, client)
 			if err != nil {
 				log.Debug().Err(err).Msg("could not list containers of a newly added host")
 				return
@@ -187,19 +187,12 @@ func (m *MultiHostService) SubscribeContainersStarted(ctx context.Context, conta
 	}()
 }
 
-// listLate lists a newly joined host once for all the subscribers that hear about
-// it together. It runs on its own timeout, not a subscriber's context, since the
-// one subscriber that happens to start it may go away before the others are done.
-func (m *MultiHostService) listLate(client container.ClientService) ([]container.Container, error) {
-	v, err, _ := m.lateListings.Do(fmt.Sprintf("%p", client), func() (any, error) {
-		ctx, cancel := context.WithTimeout(context.Background(), m.timeout)
-		defer cancel()
-		return client.ListContainers(ctx, nil)
-	})
-	if err != nil {
-		return nil, err
-	}
-	return v.([]container.Container), nil
+// listLate lists a newly joined host for one subscriber, bounded by the timeout
+// and by that subscriber's lifetime.
+func (m *MultiHostService) listLate(ctx context.Context, client container.ClientService) ([]container.Container, error) {
+	ctx, cancel := context.WithTimeout(ctx, m.timeout)
+	defer cancel()
+	return client.ListContainers(ctx, nil)
 }
 
 // followClients calls subscribe for every client now, then again for each client
@@ -273,7 +266,36 @@ func (m *MultiHostService) RemoveAgent(endpoint string) error {
 	if m.agents == nil {
 		return ErrAgentsUnsupported
 	}
+	m.configMu.Lock()
+	defer m.configMu.Unlock()
+	m.clearAgentConfig(endpoint)
 	return m.agents.RemoveAgent(endpoint)
+}
+
+// clearAgentConfig takes back the notification and cloud config the hub pushed
+// to an agent, so it stops alerting and streaming to cloud once it is no longer
+// served. Best effort: an agent that is down keeps what it had until restarted.
+func (m *MultiHostService) clearAgentConfig(endpoint string) {
+	id := m.agents.AgentHostID(endpoint)
+	if id == "" {
+		return
+	}
+	client, ok := m.manager.Find(id)
+	if !ok {
+		return
+	}
+	updater, ok := client.(NotificationConfigUpdater)
+	if !ok {
+		return
+	}
+	ctx, cancel := context.WithTimeout(context.Background(), min(m.timeout, 3*time.Second))
+	defer cancel()
+	if err := updater.UpdateNotificationConfig(ctx, nil, nil); err != nil {
+		log.Debug().Err(err).Str("endpoint", endpoint).Msg("could not clear notification config on removed agent")
+	}
+	if err := updater.UpdateCloudConfig(ctx, nil); err != nil {
+		log.Debug().Err(err).Str("endpoint", endpoint).Msg("could not clear cloud config on removed agent")
+	}
 }
 
 func (m *MultiHostService) AgentHostID(endpoint string) string {
@@ -439,6 +461,9 @@ type NotificationConfigUpdater interface {
 
 // broadcastNotificationConfig sends current notification config to all agent clients
 func (m *MultiHostService) broadcastNotificationConfig() {
+	// Held across read and send, so an older snapshot can never go out last.
+	m.configMu.Lock()
+	defer m.configMu.Unlock()
 	notifSubs := m.notificationManager.Subscriptions()
 	notifDispatchers := m.notificationManager.Dispatchers()
 
@@ -491,6 +516,8 @@ func (m *MultiHostService) broadcastNotificationConfig() {
 
 // broadcastCloudConfig sends current cloud config to all agent clients
 func (m *MultiHostService) broadcastCloudConfig() {
+	m.configMu.Lock()
+	defer m.configMu.Unlock()
 	ncc := m.persister.CloudConfig()
 
 	var cc *types.CloudConfig

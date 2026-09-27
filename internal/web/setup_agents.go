@@ -30,6 +30,15 @@ type agentService interface {
 	AgentHostID(endpoint string) string
 }
 
+// agentErrorHeader carries a stable code for an agent error, so the UI can
+// explain it without matching the English text in the body.
+const agentErrorHeader = "X-Dozzle-Error"
+
+func agentError(w http.ResponseWriter, status int, code, msg string) {
+	w.Header().Set(agentErrorHeader, code)
+	http.Error(w, msg, status)
+}
+
 func (h *handler) agentService() (agentService, bool) {
 	s, ok := h.hostService.(agentService)
 	if !ok || !s.CanAddAgents() {
@@ -150,11 +159,11 @@ func (h *handler) addSetupAgentOnce(w http.ResponseWriter, r *http.Request) stri
 	}
 	service, ok := h.agentService()
 	if !ok {
-		http.Error(w, "agents cannot be added in this mode", http.StatusConflict)
+		agentError(w, http.StatusConflict, "unsupported-mode", "agents cannot be added in this mode")
 		return "host.add.other"
 	}
 	if !setupPersisted() {
-		http.Error(w, "data directory is not persisted", http.StatusPreconditionFailed)
+		agentError(w, http.StatusPreconditionFailed, "not-persisted", "data directory is not persisted")
 		return "host.add.other"
 	}
 
@@ -165,7 +174,7 @@ func (h *handler) addSetupAgentOnce(w http.ResponseWriter, r *http.Request) stri
 	address, name := strings.TrimSpace(req.Address), strings.TrimSpace(req.Name)
 	endpoint, err := setupAgentAddress(address, name)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		agentError(w, http.StatusBadRequest, "invalid", err.Error())
 		return "host.add.other"
 	}
 
@@ -176,7 +185,7 @@ func (h *handler) addSetupAgentOnce(w http.ResponseWriter, r *http.Request) stri
 		return "host.add.other"
 	}
 	if slices.ContainsFunc(h.setupAgents(file), func(a setupAgent) bool { return a.Address == address }) {
-		http.Error(w, "this agent is already added", http.StatusConflict)
+		agentError(w, http.StatusConflict, "exists", "this agent is already added")
 		return "host.add.duplicate"
 	}
 
@@ -184,7 +193,7 @@ func (h *handler) addSetupAgentOnce(w http.ResponseWriter, r *http.Request) stri
 	if req.Private {
 		pair, err := agentcerts.LoadAgentPair(setupDataDir())
 		if err != nil {
-			http.Error(w, "no private certificate yet, create one first", http.StatusPreconditionFailed)
+			agentError(w, http.StatusPreconditionFailed, "no-private-cert", "no private certificate yet, create one first")
 			return "host.add.other"
 		}
 		parsed, err := pair.TLS()
@@ -200,22 +209,26 @@ func (h *handler) addSetupAgentOnce(w http.ResponseWriter, r *http.Request) stri
 	// reach the page can do that during the setup window, so dials are rationed
 	// and the answer names only the kind of failure, never the raw error text.
 	if !agentDialLimiter.Allow() {
-		http.Error(w, "too many attempts, wait a minute and try again", http.StatusTooManyRequests)
+		agentError(w, http.StatusTooManyRequests, "rate-limited", "too many attempts, wait a minute and try again")
 		return "host.add.other"
 	}
 
 	host, err := service.AddAgent(r.Context(), endpoint, cert)
 	switch {
 	case errors.Is(err, hostservice.ErrAgentExists):
-		http.Error(w, "this agent is already added", http.StatusConflict)
+		agentError(w, http.StatusConflict, "exists", "this agent is already added")
 		return "host.add.duplicate"
 	case errors.Is(err, hostservice.ErrDuplicateHost):
-		http.Error(w, "this agent is already connected under another address", http.StatusConflict)
+		agentError(w, http.StatusConflict, "duplicate-host", "this agent is already connected under another address")
 		return "host.add.duplicate"
 	case err != nil:
 		log.Debug().Err(err).Str("endpoint", endpoint).Msg("setup could not connect to agent")
 		reason, outcome := dialFailure(err)
-		http.Error(w, "could not connect to agent: "+reason, http.StatusBadGateway)
+		code := "unreachable"
+		if outcome == "host.add.cert" {
+			code = "cert-mismatch"
+		}
+		agentError(w, http.StatusBadGateway, code, "could not connect to agent: "+reason)
 		return outcome
 	}
 
@@ -276,7 +289,7 @@ func (h *handler) removeSetupAgent(w http.ResponseWriter, r *http.Request) {
 	}
 	service, ok := h.agentService()
 	if !ok {
-		http.Error(w, "agents cannot be removed in this mode", http.StatusConflict)
+		agentError(w, http.StatusConflict, "unsupported-mode", "agents cannot be removed in this mode")
 		return
 	}
 
@@ -285,7 +298,7 @@ func (h *handler) removeSetupAgent(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if slices.Contains(h.config.Setup.EnvAgents, req.Endpoint) {
-		http.Error(w, "agent is set by flag or env", http.StatusConflict)
+		agentError(w, http.StatusConflict, "env-agent", "agent is set by flag or env")
 		return
 	}
 
@@ -306,7 +319,7 @@ func (h *handler) removeSetupAgent(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if !found {
-		http.Error(w, "agent not found", http.StatusNotFound)
+		agentError(w, http.StatusNotFound, "not-found", "agent not found")
 		return
 	}
 
@@ -336,16 +349,16 @@ func (h *handler) agentCert(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if _, ok := h.agentService(); !ok {
-		http.Error(w, "agents cannot be added in this mode", http.StatusConflict)
+		agentError(w, http.StatusConflict, "unsupported-mode", "agents cannot be added in this mode")
 		return
 	}
 	if h.config.Setup.CustomCert {
 		// Agents of a hub with its own pair need that pair, not a second one.
-		http.Error(w, "this hub already uses a custom certificate", http.StatusConflict)
+		agentError(w, http.StatusConflict, "custom-cert", "this hub already uses a custom certificate")
 		return
 	}
 	if !setupPersisted() {
-		http.Error(w, "data directory is not persisted", http.StatusPreconditionFailed)
+		agentError(w, http.StatusPreconditionFailed, "not-persisted", "data directory is not persisted")
 		return
 	}
 

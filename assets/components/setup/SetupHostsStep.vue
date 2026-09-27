@@ -16,14 +16,17 @@ const { status } = defineProps<{ status: SetupStatus }>();
 const { t } = useI18n();
 const panel = useTemplateRef<InstanceType<typeof AddHostPanel>>("panel");
 
+const hasAgents = computed(() => (status.agents?.length ?? 0) > 0);
+
 // A host is live the moment it is added, so there is nothing left for Next to save.
+// With none added, Next only passes the step over, the same as Skip.
 async function next(): Promise<SetupNextResult> {
-  return "advance";
+  return hasAgents.value ? "advance" : "skip";
 }
 
 const busy = computed(() => !!panel.value?.busy);
 const nextLabel = computed(() => t("setup.next"));
-const skipLabel = computed(() => ((status.agents?.length ?? 0) > 0 ? undefined : t("setup.hosts.skip")));
+const skipLabel = computed(() => (hasAgents.value ? undefined : t("setup.hosts.skip")));
 
 // Optional, like the Cloud step: the footer's Next stays plain so the panel's own
 // "Add host" is the one primary button on screen.

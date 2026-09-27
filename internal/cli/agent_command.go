@@ -209,7 +209,7 @@ func (a *AgentCmd) Run(args Args, embeddedCerts embed.FS) error {
 
 	// Create a single-host MultiHostService so the cloud client has a
 	// HostService for tool execution (list_containers, fetch_logs, etc.).
-	agentManager := hostservice.NewRetriableClientManager(nil, args.Timeout, certs, clientService)
+	agentManager := hostservice.NewRetriableClientManager(nil, nil, args.Timeout, certs, clientService)
 	agentHostService := hostservice.NewMultiHostService(agentManager, args.Timeout)
 
 	// Cloud gRPC client — connects directly to Dozzle Cloud with this agent's

@@ -136,7 +136,6 @@
 import { SetupError, type SetupAgent, type SetupAgentCert, type SetupStatus } from "@/composable/setup/setup";
 
 const { status } = defineProps<{ status: SetupStatus }>();
-const emit = defineEmits<{ added: [id: string] }>();
 
 const { t } = useI18n();
 const { addAgent, agentCert, removeAgent } = useSetup();
@@ -174,6 +173,10 @@ const cert = shallowRef<SetupAgentCert | null>(null);
 const certError = ref("");
 let certLoading = false;
 
+// Nothing to fetch for someone who cannot add a host, so the toggle is off. It
+// comes back on if a later status says they can (a refetch after the wizard).
+watch(canEdit, (editable) => (usePrivate.value = editable && !status.customCert), { immediate: true });
+
 // Fetched the first time the toggle is on while the panel is showing, not before:
 // the first call is what creates the pair in /data.
 watch(
@@ -186,17 +189,15 @@ watch(
       cert.value = await agentCert();
     } catch (e) {
       usePrivate.value = false;
-      certError.value = t("setup.hosts.private-error", { reason: e instanceof SetupError ? e.message : "" }).trim();
+      certError.value = t("setup.hosts.private-error", {
+        reason: e instanceof SetupError ? errorMessage(e) : "",
+      }).trim();
     } finally {
       certLoading = false;
     }
   },
   { immediate: true },
 );
-
-// Nothing to fetch for someone who cannot add a host, so the toggle is off. It
-// comes back on if a later status says they can (a refetch after the wizard).
-watch(canEdit, (editable) => (usePrivate.value = editable && !status.customCert), { immediate: true });
 
 // Adding before the pair arrives would quietly add the host without it.
 const waitingForCert = computed(() => usePrivate.value && !cert.value);
@@ -210,22 +211,38 @@ const agentSnippet = computed(() =>
 
 function errorMessage(e: unknown) {
   if (!(e instanceof SetupError)) return t("setup.error.generic");
-  switch (e.status) {
-    case 403:
-      return status.authProvider === "none" ? t("setup.actions.window-closed") : t("setup.actions.no-access");
-    case 409:
-      // Two addresses, one Docker engine: most often an agent beside the hub.
-      return /another address/i.test(e.message) ? t("setup.hosts.error-duplicate") : t("setup.hosts.error-exists");
-    case 412:
-      return /private certificate/i.test(e.message) ? t("setup.hosts.private-missing") : t("setup.error.no-data");
-    case 502:
-      // Reached the agent, but the two ends hold different pairs. The raw TLS
-      // error ("unknown certificate authority") says nothing about what to do.
-      // With a custom pair the snippet carries no certificate, so copying it again
-      // cannot help; the agent needs the same files mounted.
-      if (/certificate/i.test(e.message))
-        return t(status.customCert ? "setup.hosts.error-cert-custom" : "setup.hosts.error-cert");
+  if (e.status === 403)
+    return status.authProvider === "none" ? t("setup.actions.window-closed") : t("setup.actions.no-access");
+  switch (e.code) {
+    case "exists":
+      return t("setup.hosts.error-exists");
+    // Two addresses, one Docker engine: most often an agent beside the hub.
+    case "duplicate-host":
+      return t("setup.hosts.error-duplicate");
+    case "no-private-cert":
+      return t("setup.hosts.private-missing");
+    case "not-persisted":
+      return t("setup.error.no-data");
+    // Reached the agent, but the two ends hold different pairs. The raw TLS error
+    // ("unknown certificate authority") says nothing about what to do. With a custom
+    // pair the snippet carries no certificate, so copying it again cannot help; the
+    // agent needs the same files mounted.
+    case "cert-mismatch":
+      return t(status.customCert ? "setup.hosts.error-cert-custom" : "setup.hosts.error-cert");
+    case "unreachable":
       return t("setup.hosts.error-connect", { reason: e.message.replace(/^could not connect to agent:\s*/i, "") });
+    case "unsupported-mode":
+      return t("setup.hosts.error-unsupported-mode");
+    case "invalid":
+      return t("setup.hosts.error-invalid");
+    case "rate-limited":
+      return t("setup.hosts.error-rate-limited");
+    case "env-agent":
+      return t("setup.hosts.error-env-agent");
+    case "not-found":
+      return t("setup.hosts.error-not-found");
+    case "custom-cert":
+      return t("setup.hosts.error-custom-cert");
     default:
       return e.message || t("setup.error.generic");
   }
@@ -245,11 +262,10 @@ async function add() {
     added.value = host.name;
     address.value = "";
     name.value = "";
-    emit("added", host.id);
   } catch (e) {
     // The pair went missing from /data since it was fetched: drop it so turning
     // the toggle back on asks for a fresh one.
-    if (e instanceof SetupError && e.status === 412 && /private certificate/i.test(e.message)) {
+    if (e instanceof SetupError && e.code === "no-private-cert") {
       cert.value = null;
       usePrivate.value = false;
     }

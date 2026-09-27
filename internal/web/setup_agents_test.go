@@ -52,7 +52,7 @@ func agentsHandler(hosts *fakeAgentHosts, setup SetupConfig) *chi.Mux {
 	if setup.StartedAt.IsZero() {
 		setup.StartedAt = time.Now()
 	}
-	manager := hostservice.NewRetriableClientManager(nil, time.Second, tls.Certificate{})
+	manager := hostservice.NewRetriableClientManager(nil, nil, time.Second, tls.Certificate{})
 	hosts.MultiHostService = hostservice.NewMultiHostService(manager, time.Second)
 	fs := afero.NewMemMapFs()
 	afero.WriteFile(fs, "index.html", []byte("index page"), 0644)
@@ -105,6 +105,7 @@ func TestSetupAgents_ConnectFailureSavesNothing(t *testing.T) {
 	rr := doSetup(h, "POST", "/api/setup/agents", `{"address":"down:7007"}`)
 	assert.Equal(t, http.StatusBadGateway, rr.Code)
 	assert.Equal(t, "could not connect to agent: connection refused\n", rr.Body.String(), "a reason, never the raw error")
+	assert.Equal(t, "unreachable", rr.Header().Get(agentErrorHeader))
 
 	file, err := config.Load(setupConfigPath)
 	require.NoError(t, err)
@@ -124,8 +125,37 @@ func TestSetupAgents_RejectsBadInput(t *testing.T) {
 		`{"address":"nas:7007|evil"}`,
 		`{"address":"nas:7007","name":"a|b"}`,
 	} {
-		assert.Equal(t, http.StatusBadRequest, doSetup(h, "POST", "/api/setup/agents", body).Code, body)
+		rr := doSetup(h, "POST", "/api/setup/agents", body)
+		assert.Equal(t, http.StatusBadRequest, rr.Code, body)
+		assert.Equal(t, "invalid", rr.Header().Get(agentErrorHeader), body)
 	}
+}
+
+// The UI explains an error by its code, so each kind keeps one.
+func TestSetupAgents_ErrorCodes(t *testing.T) {
+	setupTestEnv(t, true)
+	hosts := &fakeAgentHosts{connected: map[string]string{}}
+	h := agentsHandler(hosts, SetupConfig{EnvAgents: []string{"env:7007"}})
+	code := func(method, path, body string) string {
+		return doSetup(h, method, path, body).Header().Get(agentErrorHeader)
+	}
+
+	require.Equal(t, http.StatusCreated, doSetup(h, "POST", "/api/setup/agents", `{"address":"nas:7007"}`).Code)
+	assert.Equal(t, "exists", code("POST", "/api/setup/agents", `{"address":"nas:7007"}`))
+	assert.Equal(t, "no-private-cert", code("POST", "/api/setup/agents", `{"address":"pi:7007","private":true}`))
+	assert.Equal(t, "env-agent", code("DELETE", "/api/setup/agents", `{"endpoint":"env:7007"}`))
+	assert.Equal(t, "not-found", code("DELETE", "/api/setup/agents", `{"endpoint":"other:7007"}`))
+
+	hosts.addErr = hostservice.ErrDuplicateHost
+	assert.Equal(t, "duplicate-host", code("POST", "/api/setup/agents", `{"address":"alias:7007"}`))
+	hosts.addErr = errors.New("remote error: tls: unknown certificate authority")
+	assert.Equal(t, "cert-mismatch", code("POST", "/api/setup/agents", `{"address":"alias:7007"}`))
+
+	custom := agentsHandler(&fakeAgentHosts{connected: map[string]string{}}, SetupConfig{CustomCert: true})
+	assert.Equal(t, "custom-cert", doSetup(custom, "POST", "/api/setup/agent-cert", "").Header().Get(agentErrorHeader))
+
+	// Success and a forbidden request carry no code.
+	assert.Empty(t, doSetup(h, "DELETE", "/api/setup/agents", `{"endpoint":"nas:7007"}`).Header().Get(agentErrorHeader))
 }
 
 // A hand edit can leave whitespace around an entry. Startup trims it before it
@@ -178,7 +208,9 @@ func TestSetupAgents_RefusedWithoutPersistedData(t *testing.T) {
 	hosts := &fakeAgentHosts{connected: map[string]string{}}
 	h := agentsHandler(hosts, SetupConfig{})
 
-	assert.Equal(t, http.StatusPreconditionFailed, doSetup(h, "POST", "/api/setup/agents", `{"address":"nas:7007"}`).Code)
+	rr := doSetup(h, "POST", "/api/setup/agents", `{"address":"nas:7007"}`)
+	assert.Equal(t, http.StatusPreconditionFailed, rr.Code)
+	assert.Equal(t, "not-persisted", rr.Header().Get(agentErrorHeader))
 	assert.Empty(t, hosts.connected)
 }
 
@@ -260,5 +292,7 @@ func TestSetupAgents_DialsAreRationed(t *testing.T) {
 	for range 2 {
 		assert.Equal(t, http.StatusBadGateway, doSetup(h, "POST", "/api/setup/agents", `{"address":"down:7007"}`).Code)
 	}
-	assert.Equal(t, http.StatusTooManyRequests, doSetup(h, "POST", "/api/setup/agents", `{"address":"down:7007"}`).Code)
+	rr := doSetup(h, "POST", "/api/setup/agents", `{"address":"down:7007"}`)
+	assert.Equal(t, http.StatusTooManyRequests, rr.Code)
+	assert.Equal(t, "rate-limited", rr.Header().Get(agentErrorHeader))
 }

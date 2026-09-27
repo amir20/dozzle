@@ -196,17 +196,28 @@ type handler struct {
 	reconciledAt time.Time
 }
 
-func CreateServer(hostService HostService, content fs.FS, config Config) *http.Server {
+// Server is the HTTP server plus the usage beacon hooks main runs around it.
+type Server struct {
+	*http.Server
+	// RunUsageBeacon sends the daily usage beacon until ctx ends.
+	RunUsageBeacon func(ctx context.Context)
+	// FlushUsage sends the usage counted since the last beacon, if any, waiting
+	// a few seconds at most. Counters otherwise only leave on the 24h tick, so
+	// without this every restart would drop up to a day of them.
+	FlushUsage func()
+}
+
+func CreateServer(hostService HostService, content fs.FS, config Config) *Server {
 	handler := &handler{
 		content:     content,
 		config:      &config,
 		hostService: hostService,
 	}
-	flush, run := handler.flushUsage, handler.runUsageBeacon
-	usageFlusher.Store(&flush)
-	usageRunner.Store(&run)
-
-	return &http.Server{Addr: config.Addr, Handler: createRouter(handler)}
+	return &Server{
+		Server:         &http.Server{Addr: config.Addr, Handler: createRouter(handler)},
+		RunUsageBeacon: handler.runUsageBeacon,
+		FlushUsage:     handler.flushUsage,
+	}
 }
 
 var fileServer http.Handler

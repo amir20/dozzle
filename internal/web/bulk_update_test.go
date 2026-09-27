@@ -3,6 +3,9 @@ package web
 import (
 	"context"
 	"errors"
+	"net/http"
+	"net/http/httptest"
+	"strings"
 	"sync"
 	"testing"
 	"time"
@@ -65,7 +68,7 @@ func TestBulkUpdate_SelfRunsLast(t *testing.T) {
 	}
 
 	u := newTestUpdater()
-	done, err := u.Start(services, "manual", "", "")
+	done, err := u.Start(services, "manual", "", "", nil)
 	require.NoError(t, err)
 	waitDone(t, done)
 
@@ -90,7 +93,7 @@ func TestBulkUpdate_FailureDoesNotStopTheRest(t *testing.T) {
 	}
 
 	u := newTestUpdater()
-	done, err := u.Start(services, "manual", "", "")
+	done, err := u.Start(services, "manual", "", "", nil)
 	require.NoError(t, err)
 	waitDone(t, done)
 
@@ -109,7 +112,7 @@ func TestBulkUpdate_SwarmServiceUpdatedOnce(t *testing.T) {
 	}
 
 	u := newTestUpdater()
-	done, err := u.Start(services, "manual", "", "")
+	done, err := u.Start(services, "manual", "", "", nil)
 	require.NoError(t, err)
 	waitDone(t, done)
 
@@ -122,12 +125,12 @@ func TestBulkUpdate_RejectsOverlap(t *testing.T) {
 	u := newTestUpdater()
 	done, err := u.Start([]*container.ContainerService{
 		container.NewContainerService(client, container.Container{ID: "bbbbbbbbbbbb", Host: "local"}),
-	}, "manual", "", "")
+	}, "manual", "", "", nil)
 	require.NoError(t, err)
 
 	_, err = u.Start([]*container.ContainerService{
 		container.NewContainerService(client, container.Container{ID: "cccccccccccc", Host: "local"}),
-	}, "schedule", "", "")
+	}, "schedule", "", "", nil)
 	assert.ErrorIs(t, err, errBulkUpdateBusy)
 
 	close(block)
@@ -140,7 +143,7 @@ func TestBulkUpdate_SnapshotFiltersHidden(t *testing.T) {
 	done, err := u.Start([]*container.ContainerService{
 		container.NewContainerService(client, container.Container{ID: "bbbbbbbbbbbb", Host: "local", Name: "web"}),
 		container.NewContainerService(client, container.Container{ID: "cccccccccccc", Host: "local", Name: "db"}),
-	}, "manual", "", "")
+	}, "manual", "", "", nil)
 	require.NoError(t, err)
 	waitDone(t, done)
 
@@ -166,7 +169,7 @@ func TestBulkUpdate_SwarmSelfServiceRunsLast(t *testing.T) {
 	}
 
 	u := newTestUpdater()
-	done, err := u.Start(services, "manual", "dozzle-svc", "")
+	done, err := u.Start(services, "manual", "dozzle-svc", "", nil)
 	require.NoError(t, err)
 	waitDone(t, done)
 
@@ -203,7 +206,7 @@ func TestBulkUpdate_IdleWaitsForRunningJob(t *testing.T) {
 
 	done, err := u.Start([]*container.ContainerService{
 		container.NewContainerService(&blockingClientService{release: block}, container.Container{ID: "bbbbbbbbbbbb", Host: "local"}),
-	}, "manual", "", "")
+	}, "manual", "", "", nil)
 	require.NoError(t, err)
 
 	idle := u.idle()
@@ -236,4 +239,17 @@ func TestAutoUpdateEnabled(t *testing.T) {
 		assert.Equal(t, want, autoUpdateEnabled(map[string]string{AutoUpdateLabel: value}), value)
 	}
 	assert.False(t, autoUpdateEnabled(nil))
+}
+
+func TestStartBulkUpdate_RefusesNonJSONBodies(t *testing.T) {
+	h := &handler{config: &Config{Authorization: Authorization{Provider: NONE}}}
+	for _, ct := range []string{"text/plain", "application/x-www-form-urlencoded", ""} {
+		req := httptest.NewRequest(http.MethodPost, "/api/updates", strings.NewReader(`{"containers":[{"host":"h","id":"c"}]}`))
+		if ct != "" {
+			req.Header.Set("Content-Type", ct)
+		}
+		rr := httptest.NewRecorder()
+		h.startBulkUpdate(rr, req)
+		assert.Equal(t, http.StatusUnsupportedMediaType, rr.Code, ct)
+	}
 }
