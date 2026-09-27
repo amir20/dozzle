@@ -29,6 +29,7 @@ export interface Config {
   // round trip asking, since everything else cloud-shaped waits on `linked`.
   cloudConfig?: CloudConfig | null;
   disableAvatars: boolean;
+  disableSetupWizard: boolean;
   releaseCheckMode: "automatic" | "manual";
   imageCheckMode: "automatic" | "manual" | "off";
   user?: {

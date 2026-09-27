@@ -80,7 +80,9 @@ export const useSwarmStore = defineStore("swarm", () => {
       grouped[group].push(container);
     }
 
-    return Object.entries(grouped).map(([name, containers]) => new GroupedContainers(name, containers));
+    return Object.entries(grouped)
+      .map(([name, containers]) => new GroupedContainers(name, containers))
+      .sort((a, b) => a.name.localeCompare(b.name));
   });
 
   return {

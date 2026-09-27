@@ -1,6 +1,6 @@
 ---
 title: 设置向导
-sourceHash: 4a73b46d7ba8
+sourceHash: 3b30130e995d
 ---
 
 # 设置向导
@@ -10,6 +10,8 @@ sourceHash: 4a73b46d7ba8
 全新安装的 Dozzle 会先打开一个简短的设置向导。它会带你完成大多数人在安装后马上要改的几件事：开启登录、允许容器操作和终端访问，以及连接 Dozzle Cloud。它保存的所有内容也都可以通过命令行参数或环境变量设置，所以向导是可选的。
 
 向导只会出现在以服务器模式运行的全新安装中。Swarm 和 Kubernetes 部署永远不会显示它。之后你可以在设置中再次打开它。
+
+对于经常创建又销毁的临时环境，设置 `DOZZLE_DISABLE_SETUP_WIZARD=true` 即可让向导不再自动打开。你仍然可以在设置中打开它。
 
 ## <Icon icon="mdi:format-list-numbered" inline /> 步骤
 
