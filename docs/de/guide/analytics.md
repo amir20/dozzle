@@ -1,6 +1,6 @@
 ---
 title: Anonyme Analysedaten
-sourceHash: 0fedd8c524b8
+sourceHash: 8421075e674a
 ---
 
 # Erhebung von Analysedaten
@@ -9,13 +9,19 @@ Dozzle erhebt über einen schlanken Beacon anonyme Nutzungsdaten, um Funktionen 
 
 ## Was wird erhoben
 
-Grob gesagt enthält der Beacon Dinge wie die Dozzle-Version, den Betriebsmodus (server, swarm, k8s, agent), den aktivierten Auth-Provider, einige Feature-Flags, die Version der Docker Engine und kleine Zählwerte (Anzahl der Hosts, Container, Filter). Zur Deduplizierung wird eine zufällige ID pro Installation mitgeschickt.
+Dozzle sendet beim Start einen Beacon und einen weiteren, wenn jemand die Oberfläche öffnet. Zusammen enthalten sie:
 
-Log-Inhalte, Container-Namen, Image-Namen, IP-Adressen oder Nutzerkennungen werden niemals übertragen. Welche Felder genau enthalten sind, ändert sich mit der Zeit. Maßgeblich sind [`types/beacon.go`](https://github.com/amir20/dozzle/blob/master/types/beacon.go) und der Sender in [`internal/analytics/http_beacon.go`](https://github.com/amir20/dozzle/blob/master/internal/analytics/http_beacon.go).
+- die Dozzle-Version, den Betriebsmodus (server, swarm, k8s, agent) und die Version der Docker Engine
+- welcher Auth-Provider aktiv ist und ob Aktionen und Shell eingeschaltet sind
+- kleine Zählwerte: Hosts, Agents, laufende Container und Filter
+- den User-Agent-String des Browsers, nur im Beacon der Oberfläche
+- die ID der Docker Engine, damit dieselbe Installation nicht doppelt gezählt wird
+
+Es werden niemals Log-Inhalte, Containernamen, Image-Namen, Hostnamen oder Benutzerkennungen übertragen. Die genauen Felder ändern sich mit der Zeit. Maßgeblich ist [`types/beacon.go`](https://github.com/amir20/dozzle/blob/master/types/beacon.go), gesendet wird von [`internal/analytics/http_beacon.go`](https://github.com/amir20/dozzle/blob/master/internal/analytics/http_beacon.go).
 
 ## Wo werden die Daten gespeichert
 
-Die Events gehen an `https://b.dozzle.dev/event`, einen kleinen Go-Dienst, der sie zur späteren Verarbeitung in eine Datei auf DigitalOcean schreibt.
+Beacons gehen an `https://b.dozzle.dev/event` und werden von [drain](https://github.com/amir20/drain) empfangen, einem Open-Source-Dienst in Go, der sie für die Auswertung in eine Datenbank und in Parquet-Dateien schreibt. drain speichert nicht die IP-Adresse, von der ein Beacon kam, und die Daten werden an keine Dritten weitergegeben.
 
 ## Deaktivieren
 

@@ -8,13 +8,19 @@ Dozzle collects anonymous usage data via a lightweight beacon to help prioritize
 
 ## What is Collected
 
-At a high level, the beacon includes things like the Dozzle version, deployment mode (server, swarm, k8s, agent), which auth provider is enabled, a few feature flags, the Docker Engine version, and small counts (number of hosts, containers, filters). A random per-install ID is included for deduplication.
+Dozzle sends a beacon when it starts, and another each time someone opens the UI. Together they include:
 
-No log contents, container names, image names, IP addresses, or user identifiers are ever transmitted. The exact set of fields evolves over time — the authoritative source is [`types/beacon.go`](https://github.com/amir20/dozzle/blob/master/types/beacon.go), and the sender is [`internal/analytics/http_beacon.go`](https://github.com/amir20/dozzle/blob/master/internal/analytics/http_beacon.go).
+- the Dozzle version, the deployment mode (server, swarm, k8s, agent) and the Docker Engine version
+- which auth provider is enabled, and whether actions and shell are turned on
+- small counts: hosts, agents, running containers and filters
+- the browser's user agent string, on the UI beacon only
+- the Docker Engine's ID, so the same install is not counted twice
+
+No log contents, container names, image names, hostnames or user identifiers are ever transmitted. The exact set of fields evolves over time. The authoritative source is [`types/beacon.go`](https://github.com/amir20/dozzle/blob/master/types/beacon.go), and the sender is [`internal/analytics/http_beacon.go`](https://github.com/amir20/dozzle/blob/master/internal/analytics/http_beacon.go).
 
 ## Where is Data Stored
 
-Events are posted to `https://b.dozzle.dev/event`, a small Go service that writes events to a flat file on DigitalOcean for later processing.
+Beacons are posted to `https://b.dozzle.dev/event` and received by [drain](https://github.com/amir20/drain), an open-source Go service that writes them to a database and to Parquet files for analysis. drain does not keep the IP address a beacon came from, and the data is not shared with any third party.
 
 ## Opting Out
 
