@@ -135,12 +135,14 @@ func LoadOrCreateAgentPair(dir string) (Pair, error) {
 	if err != nil {
 		return Pair{}, err
 	}
-	// Key first: a cert without its key is unusable, but a key left alone is
-	// only overwritten on the next try.
-	if err := writeFile(filepath.Join(dir, agentKeyFile), pair.Key, 0600); err != nil {
+	// Key first, and removed again if the cert cannot follow: a lone half is
+	// refused above, so leaving it would fail every later try.
+	keyPath := filepath.Join(dir, agentKeyFile)
+	if err := writeFile(keyPath, pair.Key, 0600); err != nil {
 		return Pair{}, err
 	}
 	if err := writeFile(filepath.Join(dir, agentCertFile), pair.Cert, 0644); err != nil {
+		_ = os.Remove(keyPath)
 		return Pair{}, err
 	}
 	return pair, nil

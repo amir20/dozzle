@@ -128,6 +128,24 @@ func TestSetupAgents_RejectsBadInput(t *testing.T) {
 	}
 }
 
+// A hand edit can leave whitespace around an entry. Startup trims it before it
+// dials, so the UI has to match the trimmed form or remove would report success
+// while the agent stays connected.
+func TestSetupAgents_RemoveHandEditedEntry(t *testing.T) {
+	setupTestEnv(t, true)
+	require.NoError(t, config.Update(setupConfigPath, func(c *config.File) {
+		c.RemoteAgents = []string{" nas:7007 "}
+	}))
+	hosts := &fakeAgentHosts{connected: map[string]string{"nas:7007": "id-nas"}}
+	h := agentsHandler(hosts, SetupConfig{})
+
+	assert.Equal(t, http.StatusNoContent, doSetup(h, "DELETE", "/api/setup/agents", `{"endpoint":"nas:7007"}`).Code)
+	file, err := config.Load(setupConfigPath)
+	require.NoError(t, err)
+	assert.Empty(t, file.RemoteAgents)
+	assert.Empty(t, hosts.connected)
+}
+
 func TestSetupAgents_Remove(t *testing.T) {
 	setupTestEnv(t, true)
 	hosts := &fakeAgentHosts{connected: map[string]string{}}
@@ -218,15 +236,16 @@ func TestSetupAgents_PrivateCertForbiddenWhenWindowClosed(t *testing.T) {
 }
 
 func TestDialFailureNamesOnlyTheKind(t *testing.T) {
-	cases := map[string]string{
-		`rpc error: code = Unavailable desc = connection error: desc = "error reading server preface: remote error: tls: unknown certificate authority"`: "the agent refused this Dozzle's certificate",
-		"dial tcp: lookup nope on 127.0.0.11:53: no such host":                            "no such host",
-		"dial tcp 10.0.0.9:7007: connect: connection refused":                             "connection refused",
-		"context deadline exceeded":                                                       "timed out",
-		`connection error: desc = "error reading server preface: http2: frame too large"`: "no Dozzle agent answered at that address",
+	cases := map[string][2]string{
+		`rpc error: code = Unavailable desc = connection error: desc = "error reading server preface: remote error: tls: unknown certificate authority"`: {"the agent refused this Dozzle's certificate", "host.add.cert"},
+		"dial tcp: lookup nope on 127.0.0.11:53: no such host":                            {"no such host", "host.add.refused"},
+		"dial tcp 10.0.0.9:7007: connect: connection refused":                             {"connection refused", "host.add.refused"},
+		"context deadline exceeded":                                                       {"timed out", "host.add.timeout"},
+		`connection error: desc = "error reading server preface: http2: frame too large"`: {"no Dozzle agent answered at that address", "host.add.refused"},
 	}
 	for raw, want := range cases {
-		assert.Equal(t, want, dialFailure(errors.New(raw)), raw)
+		reason, outcome := dialFailure(errors.New(raw))
+		assert.Equal(t, want, [2]string{reason, outcome}, raw)
 	}
 }
 

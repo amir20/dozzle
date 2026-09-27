@@ -222,6 +222,7 @@ func main() {
 			return cloudClient.Chat(ctx, message, view, userRef, principal, apiKeyFunc, emit)
 		},
 	})
+	go web.RunUsageBeacon(ctx)
 
 	if args.Mode == "server" {
 		go web.RunAutoUpdateScheduler(ctx, hostService, web.Config{
@@ -697,20 +698,16 @@ func (l *cloudHostService) SubscribeStats(ctx context.Context, samples chan<- cl
 	// One inbound channel + forwarder goroutine per service, matching
 	// SubscribeContainersStarted: a burst on one service must not stall the others.
 	var dropWarn sync.Once
-	subscribed := make(map[container.ClientService]bool)
+	subs := serviceSubscriptions{}
 	attach := func() {
-		for _, s := range l.services(false) {
-			if subscribed[s] {
-				continue
-			}
+		subs.sync(ctx, l.services(false), func(ctx context.Context, s container.ClientService) bool {
 			hostID := l.hostID(s)
 			if hostID == "" {
 				// Unstamped samples can't be told apart on the cloud side.
 				// Leave the service unsubscribed; watchNewServices re-attaches
 				// on a timer, so this resolves itself once the host answers.
-				continue
+				return false
 			}
-			subscribed[s] = true
 			ch := make(chan container.ContainerStat, 64)
 			s.SubscribeStats(ctx, ch)
 			go func() {
@@ -735,7 +732,8 @@ func (l *cloudHostService) SubscribeStats(ctx context.Context, samples chan<- cl
 					}
 				}
 			}()
-		}
+			return true
+		})
 	}
 
 	attach()
@@ -745,13 +743,9 @@ func (l *cloudHostService) SubscribeStats(ctx context.Context, samples chan<- cl
 func (l *cloudHostService) SubscribeContainersStarted(ctx context.Context, containers chan<- container.Container, filter container.ContainerFilter) {
 	// One inbound channel + forwarder goroutine per service so a slow consumer
 	// or a burst on one service can't cause the others to drop events.
-	subscribed := make(map[container.ClientService]bool)
+	subs := serviceSubscriptions{}
 	attach := func() {
-		for _, s := range l.services(false) {
-			if subscribed[s] {
-				continue
-			}
-			subscribed[s] = true
+		subs.sync(ctx, l.services(false), func(ctx context.Context, s container.ClientService) bool {
 			ch := make(chan container.Container, 64)
 			s.SubscribeContainersStarted(ctx, ch)
 			go func() {
@@ -770,9 +764,40 @@ func (l *cloudHostService) SubscribeContainersStarted(ctx context.Context, conta
 					}
 				}
 			}()
-		}
+			return true
+		})
 	}
 
 	attach()
 	l.watchNewServices(ctx, attach)
+}
+
+// serviceSubscriptions is one cloud subscription per client service, each under
+// its own context so it can end on its own.
+type serviceSubscriptions map[container.ClientService]context.CancelFunc
+
+// sync subscribes the services not yet subscribed, and ends the subscriptions of
+// services no longer listed: an agent removed from the UI would otherwise keep
+// its forwarder goroutine and channel until the cloud connection ends. start
+// returns false to leave a service for the next sync.
+func (subs serviceSubscriptions) sync(ctx context.Context, services []container.ClientService, start func(context.Context, container.ClientService) bool) {
+	listed := make(map[container.ClientService]bool, len(services))
+	for _, s := range services {
+		listed[s] = true
+		if _, ok := subs[s]; ok {
+			continue
+		}
+		subCtx, cancel := context.WithCancel(ctx)
+		if !start(subCtx, s) {
+			cancel()
+			continue
+		}
+		subs[s] = cancel
+	}
+	for s, cancel := range subs {
+		if !listed[s] {
+			cancel()
+			delete(subs, s)
+		}
+	}
 }

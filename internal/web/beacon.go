@@ -2,6 +2,7 @@ package web
 
 import (
 	"context"
+	"mime"
 	"net/http"
 	"sync/atomic"
 	"time"
@@ -74,9 +75,7 @@ func (h *handler) beaconFacts(containers []container.Container, configPath strin
 				b.PrivateAgents++
 			}
 		}
-	}
-	if settings, err := effectiveAutoUpdateAt(h.config.Setup, configPath); err == nil {
-		b.AutoUpdate = settings.Mode
+		b.AutoUpdate = autoUpdateFrom(h.config.Setup, file).Mode
 	}
 
 	b.CloudLinked = h.hostService.CloudConfig() != nil
@@ -119,18 +118,23 @@ func (h *handler) beaconFacts(containers []container.Container, configPath strin
 	return b
 }
 
-func sendBeaconEvent(h *handler, r *http.Request, containers []container.Container, complete bool, configPath string) {
-	if h.config.NoAnalytics {
+// eventsBeaconInFlight lets one events beacon run at a time. Every tab open and
+// reconnect starts one, and each dials every host, so while the beacon endpoint
+// or a host is slow they would otherwise pile up without bound.
+var eventsBeaconInFlight atomic.Bool
+
+// sendBeaconEvent sends the events beacon for a new events stream. containers is
+// nil when the list is partial or filtered to one user's labels, since either
+// would read as a smaller install; running is how many the stream listed.
+func sendBeaconEvent(h *handler, userAgent string, containers []container.Container, running int, configPath string) {
+	if h.config.NoAnalytics || !eventsBeaconInFlight.CompareAndSwap(false, true) {
 		return
 	}
-	var listed []container.Container
-	if complete {
-		listed = containers
-	}
-	b := h.beaconFacts(listed, configPath)
+	defer eventsBeaconInFlight.Store(false)
+	b := h.beaconFacts(containers, configPath)
 	b.Name = "events"
-	b.Browser = r.Header.Get("User-Agent")
-	b.RunningContainers = len(containers)
+	b.Browser = userAgent
+	b.RunningContainers = running
 
 	if err := sendBeacon(b); err != nil {
 		log.Debug().Err(err).Msg("error sending beacon")
@@ -156,6 +160,17 @@ func (h *handler) usageFacts() types.BeaconEvent {
 // usageFlushTimeout bounds the last usage beacon, sent on the way out. Shutdown
 // and a self-update both have somewhere to be.
 var usageFlushTimeout = 3 * time.Second
+
+// usageRunner is set by CreateServer so main can run the daily usage beacon under
+// its own context, which ends it on shutdown.
+var usageRunner atomic.Pointer[func(context.Context)]
+
+// RunUsageBeacon sends the daily usage beacon until ctx ends.
+func RunUsageBeacon(ctx context.Context) {
+	if f := usageRunner.Load(); f != nil {
+		(*f)(ctx)
+	}
+}
 
 // usageFlusher is set by CreateServer so main and the self-update path, which
 // have no handler, can send what is counted before the process goes away.
@@ -190,6 +205,8 @@ func (h *handler) flushUsage() {
 // buggy or hostile tab cannot turn a counter into noise.
 const maxUsagePerRequest = 1000
 
+const maxUsageMinutesPerRequest = 24 * 60
+
 type usageReport struct {
 	Counts        map[string]int `json:"counts"`
 	Locale        string         `json:"locale"`
@@ -201,6 +218,12 @@ type usageReport struct {
 func (h *handler) reportUsage(w http.ResponseWriter, r *http.Request) {
 	if h.config.NoAnalytics {
 		w.WriteHeader(http.StatusNoContent)
+		return
+	}
+	// Only JSON: a cross-site form can post text/plain without a preflight, and
+	// under no auth that would let any page a user visits inflate the counters.
+	if mt, _, _ := mime.ParseMediaType(r.Header.Get("Content-Type")); mt != "application/json" {
+		http.Error(w, "expected application/json", http.StatusUnsupportedMediaType)
 		return
 	}
 	var report usageReport
@@ -215,7 +238,9 @@ func (h *handler) reportUsage(w http.ResponseWriter, r *http.Request) {
 	if report.Locale != "" {
 		analytics.Default.AddLocale(report.Locale)
 	}
-	// A report covers at most one flush interval, so more than an hour is a bug.
-	analytics.Default.AddMinutes(min(report.ActiveMinutes, 60))
+	// A tab keeps what a failed report carried and sends it with the next one (an
+	// expired session, the hub restarting), so a report can span hours. More than
+	// a day is still a bug.
+	analytics.Default.AddMinutes(min(report.ActiveMinutes, maxUsageMinutesPerRequest))
 	w.WriteHeader(http.StatusNoContent)
 }
