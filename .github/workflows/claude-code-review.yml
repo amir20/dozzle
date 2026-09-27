@@ -21,30 +21,52 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          fetch-depth: 1
+          fetch-depth: 0
 
       - name: Run Claude Code Review
         id: claude-review
         uses: anthropics/claude-code-action@756cc22e19660d20e8cc9496b4f242475a7f7790 # v1.0.235
         with:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
-          use_sticky_comment: true
           prompt: |
             REPO: ${{ github.repository }}
             PR NUMBER: ${{ github.event.pull_request.number }}
 
-            Review this PR for real defects only: bugs, regressions, security issues,
-            and violations of rules in CLAUDE.md. Skip style, praise, and suggestions.
+            Review this PR the way a careful maintainer would before merging.
 
-            - Read the diff with `gh pr diff`. Read existing feedback with `gh pr view --comments`
-              and existing inline threads with
+            Dozzle is a widely deployed Docker log viewer. It runs next to the Docker socket,
+            often exposed on a network, so auth, escaping, path handling and anything that
+            reaches the Docker API matter more than usual. Backend is Go, frontend is Vue 3.
+
+            Read the whole diff before judging it. `gh pr diff` can be long; if the output is
+            truncated, use `git diff origin/${{ github.base_ref }}...HEAD -- <path>` one file at
+            a time until you have seen every changed file. Open surrounding code with Read and
+            Grep when a change depends on callers or callees outside the diff.
+
+            Look for:
+            1. Bugs and logic errors: wrong behavior, nil/undefined, races, leaked goroutines,
+               unclosed streams, off-by-one, broken error paths.
+            2. Security: auth or role bypass, XSS or missing escaping, path traversal, SSRF,
+               secrets in logs, anything a remote user could trigger.
+            3. Regressions: behavior an existing user relies on that silently changes.
+            4. Performance on hot paths: log streaming, SSE fan-out, stats, the container store.
+            5. Violations of rules in CLAUDE.md (translations in every locale, docs translations,
+               design system, where files go, backend package boundaries).
+
+            Do not suggest style changes, renames, speculative abstractions, extra validation
+            against trusted internal code, or tests for trivial code. Zero findings is a fine
+            outcome, but only after you have read every changed file.
+
+            Posting:
+            - Read existing feedback with `gh pr view --comments` and existing inline threads with
               `gh api repos/${{ github.repository }}/pulls/${{ github.event.pull_request.number }}/comments`.
               Don't repeat anything already raised.
             - Post each line-specific finding as an inline comment with
-              mcp__github_inline_comment__create_inline_comment. One or two sentences:
-              what breaks and under what input.
-            - Post a single summary with `gh pr comment` only for findings that don't
-              map to a line. If there are no findings at all, say "No issues found."
-              If every finding is inline, don't post a summary.
+              mcp__github_inline_comment__create_inline_comment: what breaks, under what input,
+              and the fix if it is short.
+            - Post one summary with `gh pr comment` for findings that don't map to a line.
+              If there are no findings, post "No issues found." only if you haven't already said
+              that on this PR; otherwise post nothing.
           claude_args: |
-            --allowedTools "mcp__github_inline_comment__create_inline_comment,Bash(gh pr comment:*),Bash(gh pr diff:*),Bash(gh pr view:*),Bash(gh api repos/${{ github.repository }}/pulls/${{ github.event.pull_request.number }}/comments)"
+            --model claude-opus-5-5
+            --allowedTools "Read,Grep,Glob,mcp__github_inline_comment__create_inline_comment,Bash(gh pr comment:*),Bash(gh pr diff:*),Bash(gh pr view:*),Bash(gh api repos/${{ github.repository }}/pulls/${{ github.event.pull_request.number }}/comments),Bash(git diff:*),Bash(git log:*),Bash(git show:*)"
