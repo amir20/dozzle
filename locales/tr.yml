@@ -330,6 +330,31 @@ analytics:
   query: Sorgu
   run: Çalıştır
   results: Sonuçlar
+updates:
+  title: Güncellemeler
+  count: 1 güncelleme | {count} güncelleme
+  running: Güncelleniyor…
+  subtitle: Bu container'lar, registry'lerinin sunduğundan daha eski bir image çalıştırıyor.
+  subtitle-running: Her host aynı anda bir container günceller.
+  none: Tüm container'lar tag'lerinin en güncel image'ını çalıştırıyor.
+  update-selected: Güncelle | 1 güncelle | {count} güncelle
+  self-last: Dozzle en son güncellenir, ardından yeniden başlar.
+  auto: Otomatik
+  auto-hint: Otomatik güncelleme zamanlamasıyla da güncellenir
+  auto-footnote: Bir container'ı otomatik güncelleme zamanlamasıyla güncellemek için ona {label} etiketini ekleyin.
+  scheduled-running: Otomatik güncelleme zamanlaması şu anda çalışıyor.
+  progress: "{total} içinden {done} tamamlandı"
+  back: Geri
+  busy: Zaten başka bir güncelleme çalışıyor.
+  summary: "{updated} güncellendi"
+  summary-failed: "{updated} güncellendi, {failed} başarısız"
+  status:
+    queued: Sırada
+    pulling: İndiriliyor
+    recreating: Yeniden oluşturuluyor
+    done: Güncellendi
+    up-to-date: Güncel
+    error: Başarısız
 drawer:
   maximize: Büyüt
   restore: Geri yükle
@@ -838,6 +863,7 @@ setup:
     subtitle: "Dozzle sakin bir saatte yeni imajı çeker ve kendi konteynerini değiştirir. Ayarlar, kullanıcılar ve uyarılar korunur."
     auto-label: "Otomatik güncelle"
     auto-desc: "Daha yeni bir imaj olup olmadığını kontrol eder ve yalnızca varsa Dozzle'ı değiştirir."
+    auto-containers: "{label} etiketli container'lar da aynı saatte güncellenir."
     when-label: "Ne zaman"
     time-label: "Saat"
     server-time: "Sunucunun saat dilimini kullanır."

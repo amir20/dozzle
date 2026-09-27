@@ -1,6 +1,6 @@
 ---
 title: Variables de entorno y subcomandos
-sourceHash: 234c53d68295
+sourceHash: 865e1893cd02
 ---
 
 # Variables de entorno
@@ -40,17 +40,17 @@ DOZZLE_REMOTE_AGENT=167.99.1.1:7007,167.99.1.2:7007
 
 ## Funciones
 
-| Variable                                                  | Descripción                                                                                                                                                                       | Valores                      | Por defecto                           |
-| --------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------- | ------------------------------------- |
-| `DOZZLE_ENABLE_ACTIONS`<br>`--enable-actions`             | Permite iniciar, detener, reiniciar, eliminar y actualizar contenedores desde la interfaz. Consulta [acciones](/es/guide/actions).                                                | `true`, `false`              | `false`                               |
-| `DOZZLE_ENABLE_SHELL`<br>`--enable-shell`                 | Permite conectarse a los contenedores y abrir una shell en ellos desde la interfaz. Consulta [shell](/es/guide/shell).                                                            | `true`, `false`              | `false`                               |
-| `DOZZLE_ENABLE_MCP`<br>`--enable-mcp`                     | Expone el endpoint [MCP](/es/guide/mcp) para clientes LLM.                                                                                                                        | `true`, `false`              | `false`                               |
-| `DOZZLE_DISABLE_AVATARS`<br>`--disable-avatars`           | Oculta los avatares de usuario cuando la autenticación está activada.                                                                                                             | `true`, `false`              | `false`                               |
-| `DOZZLE_DISABLE_SETUP_WIZARD`<br>`--disable-setup-wizard` | Evita que el [asistente de configuración](/es/guide/setup-wizard) se abra solo en una instalación nueva. Aún se puede abrir desde Ajustes.                                        | `true`, `false`              | `false`                               |
-| `DOZZLE_RELEASE_CHECK_MODE`<br>`--release-check-mode`     | Si Dozzle comprueba si hay nuevas versiones de sí mismo. `manual` solo comprueba cuando lo pides.                                                                                 | `automatic`, `manual`        | `automatic`                           |
-| `DOZZLE_IMAGE_CHECK_MODE`<br>`--image-check-mode`         | Si Dozzle consulta los registros en busca de imágenes de contenedor más recientes. Consulta [comprobación de actualizaciones](/es/guide/actions#comprobacion-de-actualizaciones). | `automatic`, `manual`, `off` | igual que `DOZZLE_RELEASE_CHECK_MODE` |
-| `DOZZLE_AUTO_UPDATE`<br>`--auto-update`                   | Actualiza el propio contenedor de Dozzle de forma programada. `weekly` se ejecuta el domingo. Requiere `DOZZLE_ENABLE_ACTIONS`.                                                   | `off`, `daily`, `weekly`     | `off`                                 |
-| `DOZZLE_AUTO_UPDATE_TIME`<br>`--auto-update-time`         | Hora del día a la que se ejecuta la actualización automática, en la hora local del servidor.                                                                                      | `HH:MM`, p. ej. `04:30`      | `03:00`                               |
+| Variable                                                  | Descripción                                                                                                                                                                                 | Valores                      | Por defecto                           |
+| --------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------- | ------------------------------------- |
+| `DOZZLE_ENABLE_ACTIONS`<br>`--enable-actions`             | Permite iniciar, detener, reiniciar, eliminar y actualizar contenedores desde la interfaz. Consulta [acciones](/es/guide/actions).                                                          | `true`, `false`              | `false`                               |
+| `DOZZLE_ENABLE_SHELL`<br>`--enable-shell`                 | Permite conectarse a los contenedores y abrir una shell en ellos desde la interfaz. Consulta [shell](/es/guide/shell).                                                                      | `true`, `false`              | `false`                               |
+| `DOZZLE_ENABLE_MCP`<br>`--enable-mcp`                     | Expone el endpoint [MCP](/es/guide/mcp) para clientes LLM.                                                                                                                                  | `true`, `false`              | `false`                               |
+| `DOZZLE_DISABLE_AVATARS`<br>`--disable-avatars`           | Oculta los avatares de usuario cuando la autenticación está activada.                                                                                                                       | `true`, `false`              | `false`                               |
+| `DOZZLE_DISABLE_SETUP_WIZARD`<br>`--disable-setup-wizard` | Evita que el [asistente de configuración](/es/guide/setup-wizard) se abra solo en una instalación nueva. Aún se puede abrir desde Ajustes.                                                  | `true`, `false`              | `false`                               |
+| `DOZZLE_RELEASE_CHECK_MODE`<br>`--release-check-mode`     | Si Dozzle comprueba si hay nuevas versiones de sí mismo. `manual` solo comprueba cuando lo pides.                                                                                           | `automatic`, `manual`        | `automatic`                           |
+| `DOZZLE_IMAGE_CHECK_MODE`<br>`--image-check-mode`         | Si Dozzle consulta los registros en busca de imágenes de contenedor más recientes. Consulta [comprobación de actualizaciones](/es/guide/actions#comprobacion-de-actualizaciones).           | `automatic`, `manual`, `off` | igual que `DOZZLE_RELEASE_CHECK_MODE` |
+| `DOZZLE_AUTO_UPDATE`<br>`--auto-update`                   | Actualiza el propio contenedor de Dozzle, y cualquiera etiquetado con `dev.dozzle.auto-update=true`, de forma programada. `weekly` se ejecuta el domingo. Requiere `DOZZLE_ENABLE_ACTIONS`. | `off`, `daily`, `weekly`     | `off`                                 |
+| `DOZZLE_AUTO_UPDATE_TIME`<br>`--auto-update-time`         | Hora del día a la que se ejecuta la actualización automática, en la hora local del servidor.                                                                                                | `HH:MM`, p. ej. `04:30`      | `03:00`                               |
 
 ## Autenticación
 

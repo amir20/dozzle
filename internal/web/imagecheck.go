@@ -2,11 +2,13 @@ package web
 
 import (
 	"net/http"
+	"sync"
 	"time"
 
 	"github.com/amir20/dozzle/internal/imagecheck"
 	"github.com/go-chi/chi/v5"
 	"github.com/rs/zerolog/log"
+	"golang.org/x/sync/errgroup"
 )
 
 // checkImageUpdate reports whether a newer image exists upstream for a
@@ -47,4 +49,59 @@ func (h *handler) checkImageUpdate(w http.ResponseWriter, r *http.Request) {
 	}
 
 	writeJSON(w, http.StatusOK, result)
+}
+
+type containerImageCheck struct {
+	Host   string            `json:"host"`
+	ID     string            `json:"id"`
+	Result imagecheck.Result `json:"result"`
+}
+
+// checkAllImageUpdates answers for every container the caller can see, so the
+// dashboard can count what is out of date without anyone opening each one.
+// The checker looks each image up once however many containers run it.
+func (h *handler) checkAllImageUpdates(w http.ResponseWriter, r *http.Request) {
+	force := r.URL.Query().Get("force") == "true"
+	if h.config.ImageCheckMode == imagecheck.ModeManual && !force {
+		writeJSON(w, http.StatusOK, []containerImageCheck{})
+		return
+	}
+
+	labels := h.resolveLabels(r)
+	containers, errs := h.hostService.ListAllContainers(labels)
+	for _, err := range errs {
+		log.Debug().Err(err).Msg("image update check: host unavailable")
+	}
+
+	var (
+		mu      sync.Mutex
+		results = make([]containerImageCheck, 0, len(containers))
+		group   errgroup.Group
+	)
+	// Each check inspects the container on its own host first, which is the
+	// slow half for a remote agent.
+	group.SetLimit(8)
+	for _, c := range containers {
+		if c.State == "deleted" {
+			continue
+		}
+		group.Go(func() error {
+			service, err := h.hostService.FindContainer(c.Host, c.ID, labels)
+			if err != nil {
+				return nil
+			}
+			result, err := service.CheckImageUpdate(r.Context(), force)
+			if err != nil {
+				log.Debug().Err(err).Str("container", c.Name).Msg("image update check failed")
+				return nil
+			}
+			mu.Lock()
+			results = append(results, containerImageCheck{Host: c.Host, ID: c.ID, Result: result})
+			mu.Unlock()
+			return nil
+		})
+	}
+	_ = group.Wait()
+
+	writeJSON(w, http.StatusOK, results)
 }

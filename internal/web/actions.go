@@ -13,23 +13,12 @@ import (
 func (h *handler) findContainerWithActions(w http.ResponseWriter, r *http.Request) (*container.ContainerService, bool) {
 	id := chi.URLParam(r, "id")
 
-	userLabels := h.config.Labels
-	permit := true
-	if h.config.Authorization.Provider != NONE {
-		user := auth.UserFromContext(r.Context())
-		if user.ContainerLabels.Exists() {
-			userLabels = user.ContainerLabels
-		}
-		permit = user.Roles.Has(auth.Actions)
-	}
-
-	if !permit {
-		log.Warn().Msg("user is not permitted to perform actions on container")
+	if !h.permitActions(r) {
 		http.Error(w, http.StatusText(http.StatusForbidden), http.StatusForbidden)
 		return nil, false
 	}
 
-	containerService, err := h.hostService.FindContainer(hostKey(r), id, userLabels)
+	containerService, err := h.hostService.FindContainer(hostKey(r), id, h.resolveLabels(r))
 	if err != nil {
 		log.Error().Err(err).Msg("error while trying to find container")
 		http.Error(w, err.Error(), http.StatusNotFound)
@@ -37,6 +26,16 @@ func (h *handler) findContainerWithActions(w http.ResponseWriter, r *http.Reques
 	}
 
 	return containerService, true
+}
+
+// permitActions reports whether the caller holds the actions role. Without
+// login everyone does.
+func (h *handler) permitActions(r *http.Request) bool {
+	if h.config.Authorization.Provider == NONE || auth.UserFromContext(r.Context()).Roles.Has(auth.Actions) {
+		return true
+	}
+	log.Warn().Msg("user is not permitted to perform actions on container")
+	return false
 }
 
 func (h *handler) containerActions(w http.ResponseWriter, r *http.Request) {

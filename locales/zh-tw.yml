@@ -329,6 +329,31 @@ analytics:
   query: 查詢
   run: 執行
   results: 結果
+updates:
+  title: 更新
+  count: 1 個更新 | {count} 個更新
+  running: 正在更新…
+  subtitle: 這些容器執行的映像檔比其映像檔倉庫提供的舊。
+  subtitle-running: 每台主機一次更新一個容器。
+  none: 所有容器都在執行其標籤指向的最新映像檔。
+  update-selected: 更新 | 更新 1 個 | 更新 {count} 個
+  self-last: Dozzle 最後更新，然後重新啟動。
+  auto: 自動
+  auto-hint: 也會依自動更新排程更新
+  auto-footnote: 為容器加上標籤 {label}，即可依自動更新排程更新它。
+  scheduled-running: 自動更新排程正在執行。
+  progress: 已完成 {done}/{total}
+  back: 返回
+  busy: 已有另一個更新正在執行。
+  summary: 已更新 {updated} 個
+  summary-failed: 已更新 {updated} 個，失敗 {failed} 個
+  status:
+    queued: 排隊中
+    pulling: 拉取中
+    recreating: 重建中
+    done: 已更新
+    up-to-date: 最新
+    error: 失敗
 drawer:
   maximize: 最大化
   restore: 還原
@@ -837,6 +862,7 @@ setup:
     subtitle: "Dozzle 會在閒置時段拉取新映像檔並替換自身容器。設定、使用者與警示都會保留。"
     auto-label: "自動更新"
     auto-desc: "檢查是否有更新的映像檔，只有在有新映像檔時才替換 Dozzle。"
+    auto-containers: 帶有 {label} 標籤的容器也會在同一時間更新。
     when-label: "時間"
     time-label: "時刻"
     server-time: "使用伺服器的時區。"

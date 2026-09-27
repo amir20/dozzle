@@ -1,6 +1,6 @@
 ---
 title: Einrichtungsassistent
-sourceHash: 3b30130e995d
+sourceHash: 86062f3cdbf7
 ---
 
 # Einrichtungsassistent
@@ -60,6 +60,8 @@ Ist eine Einstellung bereits über ein Flag oder eine Umgebungsvariable festgele
 ### 4. Automatische Updates
 
 Dozzle kann sich selbst aktuell halten. Wähle **Aus**, **Täglich** oder **Wöchentlich** (wöchentlich läuft am Sonntag) und eine Uhrzeit. Die Uhrzeit gilt in der lokalen Zeit des Servers, Standard ist `03:00`. Zu dieser Zeit prüft Dozzle seine Registry auf ein neueres Image und [aktualisiert sich](#self-update) nur, wenn es eines gibt.
+
+Container mit dem Label `dev.dozzle.auto-update=true` werden nach demselben Zeitplan aktualisiert, kurz bevor Dozzle selbst an der Reihe ist. Siehe [Container automatisch aktualisieren](/de/guide/actions#auto-updating-containers).
 
 Diese Einstellung gilt sofort und braucht keinen Neustart.
 

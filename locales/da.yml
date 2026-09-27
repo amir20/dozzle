@@ -327,6 +327,31 @@ analytics:
   query: Forespørgsel
   run: Kør
   results: Resultater
+updates:
+  title: Opdateringer
+  count: 1 opdatering | {count} opdateringer
+  running: Opdaterer…
+  subtitle: Disse containere kører et ældre image end det, deres registry udleverer.
+  subtitle-running: Hver vært opdaterer én container ad gangen.
+  none: Alle containere kører det nyeste image, som deres tag peger på.
+  update-selected: Opdater | Opdater 1 | Opdater {count}
+  self-last: Dozzle opdateres sidst og genstarter derefter.
+  auto: Auto
+  auto-hint: Opdateres også efter den automatiske opdateringsplan
+  auto-footnote: Giv en container labelen {label} for at opdatere den efter den automatiske opdateringsplan.
+  scheduled-running: Den automatiske opdateringsplan kører nu.
+  progress: "{done} af {total} færdige"
+  back: Tilbage
+  busy: En anden opdatering kører allerede.
+  summary: "{updated} opdateret"
+  summary-failed: "{updated} opdateret, {failed} fejlede"
+  status:
+    queued: I kø
+    pulling: Henter
+    recreating: Genopretter
+    done: Opdateret
+    up-to-date: Aktuel
+    error: Fejlet
 drawer:
   maximize: Maksimer
   restore: Gendan
@@ -835,6 +860,7 @@ setup:
     subtitle: "Dozzle henter det nye image og erstatter sin egen container på et roligt tidspunkt. Indstillinger, brugere og alarmer bevares."
     auto-label: "Opdater automatisk"
     auto-desc: "Tjekker efter et nyere image og erstatter kun Dozzle, når der er et."
+    auto-containers: Containere med labelen {label} opdateres på samme tid.
     when-label: "Hvornår"
     time-label: "Tidspunkt"
     server-time: "Bruger serverens tidszone."

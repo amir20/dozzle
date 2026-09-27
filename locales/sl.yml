@@ -332,6 +332,31 @@ analytics:
   query: Poizvedba
   run: Zaženi
   results: Rezultati
+updates:
+  title: Posodobitve
+  count: 1 posodobitev | {count} posodobitev
+  running: Posodabljanje…
+  subtitle: Ti vsebniki uporabljajo starejšo sliko, kot jo ponuja njihov register.
+  subtitle-running: Vsak gostitelj posodablja po en vsebnik naenkrat.
+  none: Vsi vsebniki uporabljajo najnovejšo sliko svoje oznake.
+  update-selected: Posodobi | Posodobi 1 | Posodobi {count}
+  self-last: Dozzle se posodobi zadnji in se nato znova zažene.
+  auto: Samodejno
+  auto-hint: Posodablja se tudi po urniku samodejnih posodobitev
+  auto-footnote: Vsebniku dodajte oznako {label}, da se posodablja po urniku samodejnih posodobitev.
+  scheduled-running: Urnik samodejnih posodobitev se pravkar izvaja.
+  progress: Končano {done} od {total}
+  back: Nazaj
+  busy: Druga posodobitev že poteka.
+  summary: "Posodobljeno: {updated}"
+  summary-failed: "Posodobljeno: {updated}, neuspešno: {failed}"
+  status:
+    queued: V vrsti
+    pulling: Prenašanje
+    recreating: Ponovno ustvarjanje
+    done: Posodobljeno
+    up-to-date: Ažurno
+    error: Napaka
 drawer:
   maximize: Maksimiraj
   restore: Obnovi
@@ -840,6 +865,7 @@ setup:
     subtitle: "Dozzle ob mirni uri prenese novo sliko in zamenja svoj vsebnik. Nastavitve, uporabniki in opozorila ostanejo."
     auto-label: "Posodabljaj samodejno"
     auto-desc: "Preveri, ali obstaja novejša slika, in zamenja Dozzle le, če ta obstaja."
+    auto-containers: Vsebniki z oznako {label} se posodobijo ob istem času.
     when-label: "Kdaj"
     time-label: "Čas"
     server-time: "Uporablja časovni pas strežnika."

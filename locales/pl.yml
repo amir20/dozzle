@@ -329,6 +329,31 @@ analytics:
   query: Zapytanie
   run: Uruchom
   results: Wyniki
+updates:
+  title: Aktualizacje
+  count: 1 aktualizacja | {count} aktualizacji
+  running: Aktualizowanie…
+  subtitle: Te kontenery używają starszego obrazu niż udostępnia ich rejestr.
+  subtitle-running: Każdy host aktualizuje jeden kontener naraz.
+  none: Wszystkie kontenery używają najnowszego obrazu swojego tagu.
+  update-selected: Aktualizuj | Aktualizuj 1 | Aktualizuj {count}
+  self-last: Dozzle aktualizuje się na końcu, a potem uruchamia ponownie.
+  auto: Auto
+  auto-hint: Aktualizowany także zgodnie z harmonogramem automatycznych aktualizacji
+  auto-footnote: Dodaj do kontenera etykietę {label}, aby aktualizować go zgodnie z harmonogramem automatycznych aktualizacji.
+  scheduled-running: Harmonogram automatycznych aktualizacji właśnie działa.
+  progress: Ukończono {done} z {total}
+  back: Wstecz
+  busy: Inna aktualizacja już trwa.
+  summary: "Zaktualizowano: {updated}"
+  summary-failed: "Zaktualizowano: {updated}, nieudane: {failed}"
+  status:
+    queued: W kolejce
+    pulling: Pobieranie
+    recreating: Odtwarzanie
+    done: Zaktualizowano
+    up-to-date: Aktualny
+    error: Błąd
 drawer:
   maximize: Maksymalizuj
   restore: Przywróć
@@ -837,6 +862,7 @@ setup:
     subtitle: "Dozzle pobiera nowy obraz i zastępuje własny kontener w spokojnej porze. Ustawienia, użytkownicy i alerty zostają."
     auto-label: "Aktualizuj automatycznie"
     auto-desc: "Sprawdza, czy jest nowszy obraz, i zastępuje Dozzle tylko wtedy, gdy jest."
+    auto-containers: Kontenery z etykietą {label} aktualizują się o tej samej porze.
     when-label: "Kiedy"
     time-label: "Godzina"
     server-time: "Używa strefy czasowej serwera."

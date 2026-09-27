@@ -1,6 +1,6 @@
 ---
 title: Asistente de configuración
-sourceHash: 3b30130e995d
+sourceHash: 86062f3cdbf7
 ---
 
 # Asistente de configuración
@@ -60,6 +60,8 @@ Si un ajuste ya está fijado por un flag o una variable de entorno, su interrupt
 ### 4. Actualización automática
 
 Dozzle puede mantenerse al día solo. Elige **Desactivada**, **Diaria** o **Semanal** (la semanal se ejecuta el domingo) y una hora del día. La hora es la local del servidor y por defecto es `03:00`. A esa hora Dozzle comprueba si su registro tiene una imagen más reciente y, solo si la hay, [se actualiza](#self-update).
+
+Los contenedores etiquetados con `dev.dozzle.auto-update=true` se actualizan con la misma programación, justo antes que Dozzle. Consulta [Actualizar contenedores automáticamente](/es/guide/actions#auto-updating-containers).
 
 Este ajuste se aplica al momento y no necesita reinicio.
 

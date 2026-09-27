@@ -234,6 +234,9 @@ func (s *autoUpdateScheduler) tick(ctx context.Context, now time.Time) {
 	}
 	s.lastRun = day
 
+	// Labelled containers first: updating Dozzle ends this process.
+	s.updateLabelledContainers(ctx)
+
 	support := checkAutoUpdateSupport(ctx, s.config, s.hostService)
 	if !support.Supported {
 		log.Debug().Str("reason", support.Reason).Msg("auto update: skipped, not supported")
@@ -292,6 +295,73 @@ func (s *autoUpdateScheduler) tick(ctx context.Context, now time.Time) {
 		log.Info().Msg("auto update: helper launched, dozzle will restart on the new image")
 	default:
 		log.Info().Msg("auto update: already up to date after pulling")
+	}
+}
+
+// AutoUpdateLabel opts a container into the auto-update schedule. It is opt in
+// on purpose: a database on a floating tag should never move on its own.
+const AutoUpdateLabel = "dev.dozzle.auto-update"
+
+func autoUpdateEnabled(labels map[string]string) bool {
+	switch strings.ToLower(strings.TrimSpace(labels[AutoUpdateLabel])) {
+	case "true", "on", "yes", "1":
+		return true
+	default:
+		return false
+	}
+}
+
+// updateLabelledContainers updates every labelled container whose registry
+// serves a newer image, and waits for them to finish. Nothing is pulled for a
+// container that is up to date: the check is a HEAD request that does not count
+// against Docker Hub's rate limit, and a pull does.
+func (s *autoUpdateScheduler) updateLabelledContainers(ctx context.Context) {
+	if s.hostService == nil {
+		return
+	}
+	containers, errs := s.hostService.ListAllContainers(s.config.Labels)
+	for _, err := range errs {
+		log.Warn().Err(err).Msg("auto update: host unavailable, its containers are skipped")
+	}
+
+	selfID := setupSelfID()
+	var outdated []*container.ContainerService
+	for _, c := range containers {
+		if c.State == "deleted" || !autoUpdateEnabled(c.Labels) {
+			continue
+		}
+		// Dozzle's own container follows the schedule by itself, with the
+		// rollback guard below.
+		if selfID != "" && len(c.ID) >= 12 && strings.HasPrefix(selfID, c.ID) {
+			continue
+		}
+		service, err := s.hostService.FindContainer(c.Host, c.ID, s.config.Labels)
+		if err != nil {
+			continue
+		}
+		checkCtx, cancel := context.WithTimeout(ctx, 30*time.Second)
+		// Forced, for the same reason as Dozzle's own check below.
+		result, err := service.CheckImageUpdate(checkCtx, true)
+		cancel()
+		if err != nil || !result.UpdateAvailable() {
+			log.Debug().Err(err).Str("container", c.Name).Str("status", string(result.Status)).Msg("auto update: container not updated")
+			continue
+		}
+		outdated = append(outdated, service)
+	}
+	if len(outdated) == 0 {
+		return
+	}
+
+	done, err := bulkUpdates.Start(outdated, "schedule")
+	if err != nil {
+		log.Warn().Err(err).Msg("auto update: skipped containers")
+		return
+	}
+	log.Info().Int("count", len(outdated)).Msg("auto update: updating labelled containers")
+	select {
+	case <-done:
+	case <-ctx.Done():
 	}
 }
 
