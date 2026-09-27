@@ -10,6 +10,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/amir20/dozzle/internal/analytics"
 	"github.com/amir20/dozzle/internal/container"
 	"github.com/amir20/dozzle/internal/container/agent"
 	"github.com/amir20/dozzle/internal/container/docker"
@@ -46,6 +47,10 @@ type RetriableClientManager struct {
 	subscribers *xsync.Map[*hostSubscriber, struct{}]
 	timeout     time.Duration
 	dial        agentDialer
+
+	// wasAvailable remembers each agent's last answer, so a disconnect is counted
+	// once when it happens rather than on every look while it stays down.
+	wasAvailable *xsync.Map[string, bool]
 }
 
 type connectedAgent struct {
@@ -169,6 +174,7 @@ func newRetriableClientManager(agents []string, agentCerts map[string]tls.Certif
 		subscribers:  xsync.NewMap[*hostSubscriber, struct{}](),
 		timeout:      timeout,
 		dial:         dial,
+		wasAvailable: xsync.NewMap[string, bool](),
 	}
 }
 
@@ -329,6 +335,7 @@ func (m *RetriableClientManager) RemoveAgent(endpoint string) error {
 	delete(m.agents, endpoint)
 	delete(m.clients, a.id)
 	m.mu.Unlock()
+	m.wasAvailable.Delete(a.id)
 
 	closeQuietly(a.closer)
 	m.publish(container.Host{ID: a.id, Endpoint: endpoint, Type: "agent", Removed: true})
@@ -404,6 +411,11 @@ func (m *RetriableClientManager) rekey(oldID string, service container.ClientSer
 		}
 	}
 	m.mu.Unlock()
+	// The availability history follows the host to its new id, so the next
+	// outage still counts and the old id does not linger.
+	if prev, ok := m.wasAvailable.LoadAndDelete(oldID); ok {
+		m.wasAvailable.Store(host.ID, prev)
+	}
 
 	log.Info().Str("name", host.Name).Str("id", host.ID).Str("previousId", oldID).Msg("host came back with a new id, updating routing")
 
@@ -465,8 +477,18 @@ func (m *RetriableClientManager) Hosts(ctx context.Context) []container.Host {
 		// revisits endpoints that never connected. Left alone, the id we hand the
 		// UI here is one Find has never heard of, and every lookup for that host
 		// fails with "host not found" until the hub itself is restarted.
+		key := r.entry.id
 		if r.host.Available && r.host.ID != "" && r.host.ID != r.entry.id {
 			r.host = m.rekey(r.entry.id, r.entry.service, r.host)
+			if _, ok := m.Find(r.host.ID); ok {
+				key = r.host.ID
+			}
+		}
+		if r.host.Type == "agent" {
+			if prev, ok := m.wasAvailable.Load(key); ok && prev && !r.host.Available {
+				analytics.Count("agent.disconnect")
+			}
+			m.wasAvailable.Store(key, r.host.Available)
 		}
 		hosts = append(hosts, r.host)
 	}

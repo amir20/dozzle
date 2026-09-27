@@ -64,7 +64,12 @@
               : $t("notifications.destination-form.cloud-unavailable")
           }}
         </p>
-        <a v-if="cloudStatusError === 'auth'" :href="cloudLinkUrl" class="btn btn-primary btn-sm">
+        <a
+          v-if="cloudStatusError === 'auth'"
+          :href="cloudLinkUrl"
+          @click="trackUsage('cloud.connect')"
+          class="btn btn-primary btn-sm"
+        >
           <mdi:link-variant class="text-base" />
           {{ $t("cloud.relink-instance") }}
         </a>
@@ -129,7 +134,7 @@
         <a :href="cloudUrl" target="_blank" rel="noreferrer noopener" class="btn btn-sm">
           {{ $t("cloud.learn-more") }}
         </a>
-        <a :href="cloudLinkUrl" class="btn btn-primary btn-sm">
+        <a :href="cloudLinkUrl" @click="trackUsage('cloud.connect')" class="btn btn-primary btn-sm">
           <mdi:link-variant class="text-base" />
           {{ $t("notifications.destination-form.link-cloud-button") }}
         </a>

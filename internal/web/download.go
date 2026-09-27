@@ -9,6 +9,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/amir20/dozzle/internal/analytics"
 	"github.com/amir20/dozzle/internal/auth"
 	"github.com/amir20/dozzle/internal/container"
 	"github.com/amir20/dozzle/internal/web/search"
@@ -17,6 +18,7 @@ import (
 )
 
 func (h *handler) downloadLogs(w http.ResponseWriter, r *http.Request) {
+	analytics.Count("logs.download")
 	hostIds := strings.Split(chi.URLParam(r, "hostIds"), ",")
 	if len(hostIds) == 0 {
 		log.Error().Msg("no container ids provided")

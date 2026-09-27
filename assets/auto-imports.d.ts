@@ -18,6 +18,7 @@ declare global {
   const SETUP_RESUME_KEY: typeof import('./composable/setup/setup').SETUP_RESUME_KEY
   const SetupError: typeof import('./composable/setup/setup').SetupError
   const TEMPLATE_VARIABLES: typeof import('./composable/editor/templateEditor').TEMPLATE_VARIABLES
+  const USAGE_FLUSH_INTERVAL: typeof import('./composable/app/usage').USAGE_FLUSH_INTERVAL
   const acceptHMRUpdate: typeof import('pinia').acceptHMRUpdate
   const agentComposeSnippet: typeof import('./composable/setup/setup').agentComposeSnippet
   const agentImage: typeof import('./composable/setup/setup').agentImage
@@ -71,6 +72,7 @@ declare global {
   const createTemplateEditor: typeof import('./composable/editor/templateEditor').createTemplateEditor
   const createTemplatePromise: typeof import('@vueuse/core').createTemplatePromise
   const createUnrefFn: typeof import('@vueuse/core').createUnrefFn
+  const createUsageBatcher: typeof import('./composable/app/usage').createUsageBatcher
   const customRef: typeof import('vue').customRef
   const dateLocale: typeof import('./stores/settings').dateLocale
   const debouncedRef: typeof import('@vueuse/core').debouncedRef
@@ -224,6 +226,7 @@ declare global {
   const size: typeof import('./stores/settings').size
   const smallerScrollbars: typeof import('./stores/settings').smallerScrollbars
   const softWrap: typeof import('./stores/settings').softWrap
+  const startUsageReporting: typeof import('./composable/app/usage').startUsageReporting
   const storeToRefs: typeof import('pinia').storeToRefs
   const stripVersion: typeof import('./utils/index').stripVersion
   const syncRef: typeof import('@vueuse/core').syncRef
@@ -241,6 +244,7 @@ declare global {
   const toValue: typeof import('vue').toValue
   const toViewLogLine: typeof import('./composable/logs/viewContext').toViewLogLine
   const toViewLogLines: typeof import('./composable/logs/viewContext').toViewLogLines
+  const trackUsage: typeof import('./composable/app/usage').trackUsage
   const triggerRef: typeof import('vue').triggerRef
   const tryFormatJson: typeof import('./utils/index').tryFormatJson
   const tryOnBeforeMount: typeof import('@vueuse/core').tryOnBeforeMount
@@ -518,6 +522,9 @@ declare global {
   export type { DrawerWidth, DrawerCloseGuard } from './composable/app/drawer'
   import('./composable/app/drawer')
   // @ts-ignore
+  export type { UsageKey } from './composable/app/usage'
+  import('./composable/app/usage')
+  // @ts-ignore
   export type { CloudAlert, CloudEvent } from './composable/cloud/cloudAlerts'
   import('./composable/cloud/cloudAlerts')
   // @ts-ignore
@@ -601,6 +608,7 @@ declare module 'vue' {
     readonly SETUP_RESUME_KEY: UnwrapRef<typeof import('./composable/setup/setup')['SETUP_RESUME_KEY']>
     readonly SetupError: UnwrapRef<typeof import('./composable/setup/setup')['SetupError']>
     readonly TEMPLATE_VARIABLES: UnwrapRef<typeof import('./composable/editor/templateEditor')['TEMPLATE_VARIABLES']>
+    readonly USAGE_FLUSH_INTERVAL: UnwrapRef<typeof import('./composable/app/usage')['USAGE_FLUSH_INTERVAL']>
     readonly acceptHMRUpdate: UnwrapRef<typeof import('pinia')['acceptHMRUpdate']>
     readonly agentComposeSnippet: UnwrapRef<typeof import('./composable/setup/setup')['agentComposeSnippet']>
     readonly agentImage: UnwrapRef<typeof import('./composable/setup/setup')['agentImage']>
@@ -654,6 +662,7 @@ declare module 'vue' {
     readonly createTemplateEditor: UnwrapRef<typeof import('./composable/editor/templateEditor')['createTemplateEditor']>
     readonly createTemplatePromise: UnwrapRef<typeof import('@vueuse/core')['createTemplatePromise']>
     readonly createUnrefFn: UnwrapRef<typeof import('@vueuse/core')['createUnrefFn']>
+    readonly createUsageBatcher: UnwrapRef<typeof import('./composable/app/usage')['createUsageBatcher']>
     readonly customRef: UnwrapRef<typeof import('vue')['customRef']>
     readonly dateLocale: UnwrapRef<typeof import('./stores/settings')['dateLocale']>
     readonly debouncedRef: UnwrapRef<typeof import('@vueuse/core')['debouncedRef']>
@@ -803,6 +812,7 @@ declare module 'vue' {
     readonly size: UnwrapRef<typeof import('./stores/settings')['size']>
     readonly smallerScrollbars: UnwrapRef<typeof import('./stores/settings')['smallerScrollbars']>
     readonly softWrap: UnwrapRef<typeof import('./stores/settings')['softWrap']>
+    readonly startUsageReporting: UnwrapRef<typeof import('./composable/app/usage')['startUsageReporting']>
     readonly storeToRefs: UnwrapRef<typeof import('pinia')['storeToRefs']>
     readonly stripVersion: UnwrapRef<typeof import('./utils/index')['stripVersion']>
     readonly syncRef: UnwrapRef<typeof import('@vueuse/core')['syncRef']>
@@ -818,6 +828,7 @@ declare module 'vue' {
     readonly toValue: UnwrapRef<typeof import('vue')['toValue']>
     readonly toViewLogLine: UnwrapRef<typeof import('./composable/logs/viewContext')['toViewLogLine']>
     readonly toViewLogLines: UnwrapRef<typeof import('./composable/logs/viewContext')['toViewLogLines']>
+    readonly trackUsage: UnwrapRef<typeof import('./composable/app/usage')['trackUsage']>
     readonly triggerRef: UnwrapRef<typeof import('vue')['triggerRef']>
     readonly tryOnBeforeMount: UnwrapRef<typeof import('@vueuse/core')['tryOnBeforeMount']>
     readonly tryOnBeforeUnmount: UnwrapRef<typeof import('@vueuse/core')['tryOnBeforeUnmount']>

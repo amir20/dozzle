@@ -5,6 +5,7 @@ import (
 	"io"
 	"net/http"
 
+	"github.com/amir20/dozzle/internal/analytics"
 	"github.com/amir20/dozzle/internal/auth"
 	"github.com/amir20/dozzle/internal/container"
 	"github.com/go-chi/chi/v5"
@@ -22,6 +23,7 @@ var upgrader = websocket.Upgrader{
 }
 
 func (h *handler) attach(w http.ResponseWriter, r *http.Request) {
+	analytics.Count("shell.attach")
 	conn, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
 		log.Error().Err(err).Msg("error while trying to upgrade connection")
@@ -62,6 +64,7 @@ func (h *handler) attach(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *handler) exec(w http.ResponseWriter, r *http.Request) {
+	analytics.Count("shell.exec")
 	conn, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
 		log.Error().Err(err).Msg("error while trying to upgrade connection")

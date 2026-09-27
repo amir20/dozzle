@@ -6,9 +6,7 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/amir20/dozzle/internal/analytics"
 	"github.com/amir20/dozzle/internal/auth"
-	"github.com/amir20/dozzle/internal/config"
 	"github.com/amir20/dozzle/internal/container"
 	"github.com/amir20/dozzle/internal/hostservice"
 	"github.com/amir20/dozzle/internal/web/sse"
@@ -172,8 +170,8 @@ func (h *handler) streamEvents(w http.ResponseWriter, r *http.Request) {
 		logWriteError(err, "error writing containers to event stream")
 	}
 
-	// Read here, not in the goroutine: the path is a test seam that tests swap.
-	go sendBeaconEvent(h, r, len(allContainers), setupConfigPath)
+	// The path is read here, not in the goroutine: it is a test seam tests swap.
+	go sendBeaconEvent(h, r, allContainers, len(errors) == 0, setupConfigPath)
 
 	// a host whose containers are all filtered out or stopped emits no stats, so without
 	// this the stream is silent and an idle proxy timeout (nginx defaults to 60s) drops it
@@ -323,45 +321,6 @@ func logWriteError(err error, msg string) {
 		level = zerolog.DebugLevel
 	}
 	log.WithLevel(level).Err(err).Msg(msg)
-}
-
-func sendBeaconEvent(h *handler, r *http.Request, runningContainers int, configPath string) {
-	if h.config.NoAnalytics {
-		return
-	}
-	// Starts from the install facts the start beacon carries, so the dashboard,
-	// which reads these rows, stops seeing agents and shell as always off.
-	b := h.config.Beacon
-	b.AuthProvider = string(h.config.Authorization.Provider)
-	b.Browser = r.Header.Get("User-Agent")
-	b.Clients = len(h.hostService.Hosts())
-	b.HasActions = h.config.EnableActions
-	b.HasShell = h.config.EnableShell
-	b.HasCustomAddress = h.config.Addr != ":8080"
-	b.HasCustomBase = h.config.Base != "/"
-	b.HasHostname = h.config.Hostname != ""
-	b.Name = "events"
-	b.RunningContainers = runningContainers
-	b.Version = h.config.Version
-	// Agents added from the UI since startup count too, the same way startup
-	// reads them: trimmed, deduplicated, and never one the env var already has.
-	if file, err := config.Load(configPath); err == nil {
-		b.FileAgents = 0
-		for _, a := range h.setupAgents(file) {
-			if !a.Locked {
-				b.FileAgents++
-			}
-		}
-	}
-
-	local, err := h.hostService.LocalHost()
-	if err == nil {
-		b.ServerID = local.ID
-	}
-
-	if err := analytics.SendBeacon(b); err != nil {
-		log.Debug().Err(err).Msg("error sending beacon")
-	}
 }
 
 // reconcileHosts re-reads host ids off the back of a stream connecting, throttled and

@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/amir20/dozzle/internal/analytics"
 	"github.com/amir20/dozzle/internal/container"
 	"github.com/amir20/dozzle/internal/notification/dispatcher"
 	"github.com/amir20/dozzle/types"
@@ -342,5 +343,7 @@ func (m *Manager) sendNotification(d dispatcher.Dispatcher, notification types.N
 
 	if err := d.Send(ctx, notification); err != nil {
 		log.Error().Err(err).Int("subscription", id).Msg("Failed to send notification")
+		return
 	}
+	analytics.Count("notify." + string(notification.Type))
 }

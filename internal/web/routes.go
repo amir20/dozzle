@@ -202,6 +202,9 @@ func CreateServer(hostService HostService, content fs.FS, config Config) *http.S
 		config:      &config,
 		hostService: hostService,
 	}
+	go handler.runUsageBeacon(context.Background())
+	flush := handler.flushUsage
+	usageFlusher.Store(&flush)
 
 	return &http.Server{Addr: config.Addr, Handler: createRouter(handler)}
 }
@@ -298,6 +301,7 @@ func createRouter(h *handler) *chi.Mux {
 					r.Get("/profile/avatar", h.avatar)
 				}
 				r.Patch("/profile", h.updateProfile)
+				r.Post("/usage", h.reportUsage)
 				r.Get("/version", h.version)
 				if log.Debug().Enabled() {
 					r.Get("/debug/store", h.debugStore)

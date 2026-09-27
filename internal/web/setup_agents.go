@@ -13,6 +13,7 @@ import (
 	"time"
 
 	"github.com/amir20/dozzle/internal/agentcerts"
+	"github.com/amir20/dozzle/internal/analytics"
 	"github.com/amir20/dozzle/internal/config"
 	"github.com/amir20/dozzle/internal/container"
 	"github.com/amir20/dozzle/internal/container/agent"
@@ -120,6 +121,16 @@ type setupAddAgentResponse struct {
 // answers, so the UI can tell a typo or a closed port apart from success right
 // away. The host shows up live, the same way a reconnecting agent does.
 func (h *handler) addSetupAgent(w http.ResponseWriter, r *http.Request) {
+	rec := &outcomeRecorder{ResponseWriter: w}
+	defer func() {
+		if outcome := addHostOutcome(rec.status, rec.body.String()); outcome != "" {
+			analytics.Count(outcome)
+		}
+	}()
+	h.addSetupAgentOnce(rec, r)
+}
+
+func (h *handler) addSetupAgentOnce(w http.ResponseWriter, r *http.Request) {
 	if !h.setupCanWrite(r) {
 		http.Error(w, http.StatusText(http.StatusForbidden), http.StatusForbidden)
 		return
@@ -337,5 +348,64 @@ func (h *handler) agentCert(w http.ResponseWriter, r *http.Request) {
 		NotAfter: pair.NotAfter.Format("2006-01-02"),
 	}); err != nil {
 		log.Error().Err(err).Msg("error encoding agent certificate")
+	}
+}
+
+// outcomeRecorder keeps the status and the start of the body, so the add-host
+// outcome can be counted from what the user was told.
+type outcomeRecorder struct {
+	http.ResponseWriter
+	status int
+	body   strings.Builder
+}
+
+func (o *outcomeRecorder) WriteHeader(status int) {
+	if o.status == 0 {
+		o.status = status
+	}
+	o.ResponseWriter.WriteHeader(status)
+}
+
+func (o *outcomeRecorder) Write(b []byte) (int, error) {
+	if o.status == 0 {
+		o.status = http.StatusOK
+	}
+	if o.body.Len() < 512 {
+		o.body.Write(b[:min(len(b), 512-o.body.Len())])
+	}
+	return o.ResponseWriter.Write(b)
+}
+
+// addHostOutcome is the usage counter for one add-host attempt, or "" when the
+// request never got as far as trying: no permission, or a body that did not
+// decode. A mode that cannot add agents is "other", not a duplicate.
+func addHostOutcome(status int, body string) string {
+	lower := strings.ToLower(body)
+	switch status {
+	case http.StatusCreated:
+		return "host.add.ok"
+	case http.StatusForbidden:
+		return ""
+	case http.StatusBadRequest:
+		if strings.Contains(lower, "invalid request body") {
+			return ""
+		}
+		return "host.add.other"
+	case http.StatusConflict:
+		if strings.Contains(lower, "already") {
+			return "host.add.duplicate"
+		}
+		return "host.add.other"
+	case http.StatusBadGateway:
+		switch {
+		case strings.Contains(lower, "certificate"):
+			return "host.add.cert"
+		case strings.Contains(lower, "deadline") || strings.Contains(lower, "timeout") || strings.Contains(lower, "timed out"):
+			return "host.add.timeout"
+		default:
+			return "host.add.refused"
+		}
+	default:
+		return "host.add.other"
 	}
 }

@@ -624,11 +624,17 @@ func (m *MultiHostService) UpdateSubscription(id int, updates map[string]any) er
 
 // Subscriptions returns all subscriptions
 func (m *MultiHostService) Subscriptions() []*notification.Subscription {
+	if m.notificationManager == nil {
+		return nil
+	}
 	return m.notificationManager.Subscriptions()
 }
 
 // Dispatchers returns all dispatchers
 func (m *MultiHostService) Dispatchers() []notification.DispatcherConfig {
+	if m.notificationManager == nil {
+		return nil
+	}
 	return m.notificationManager.Dispatchers()
 }
 

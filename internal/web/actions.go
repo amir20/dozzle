@@ -3,6 +3,7 @@ package web
 import (
 	"net/http"
 
+	"github.com/amir20/dozzle/internal/analytics"
 	"github.com/amir20/dozzle/internal/auth"
 	"github.com/amir20/dozzle/internal/container"
 	"github.com/amir20/dozzle/internal/web/sse"
@@ -60,6 +61,7 @@ func (h *handler) containerActions(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	analytics.Count("action." + string(parsedAction))
 	log.Info().Str("action", action).Str("container", containerService.Container.Name).Msg("container action performed")
 	http.Error(w, "", http.StatusNoContent)
 }
@@ -69,6 +71,7 @@ func (h *handler) containerUpdate(w http.ResponseWriter, r *http.Request) {
 	if !ok {
 		return
 	}
+	analytics.Count("action.update")
 
 	sseWriter, err := sse.NewWriter(r.Context(), w, r)
 	if err != nil {

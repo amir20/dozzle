@@ -15,7 +15,10 @@ export const usePinnedLogsStore = defineStore("pinnedLogs", () => {
   );
 
   const pinContainer = ({ id }: { id: string }) => {
-    if (!pinnedContainerIds.value.includes(id)) pinnedContainerIds.value.push(id);
+    if (!pinnedContainerIds.value.includes(id)) {
+      pinnedContainerIds.value.push(id);
+      trackUsage("pinned.open");
+    }
   };
 
   const unPinContainer = ({ id }: { id: string }) => {
