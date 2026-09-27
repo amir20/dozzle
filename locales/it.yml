@@ -757,9 +757,9 @@ setup:
   close: Chiudi
   copy: Copia
   settings-title: Configura Dozzle
-  settings-desc: Accesso, azioni sui container, shell e Dozzle Cloud in pochi passaggi.
+  settings-desc: "Accesso, azioni sui container, shell, altri host e Dozzle Cloud in pochi passaggi."
   settings-done-title: "Dozzle è configurato"
-  settings-done-desc: "L'accesso è attivo. Apri la configurazione per rivedere azioni sui container, shell e Dozzle Cloud."
+  settings-done-desc: "L'accesso è attivo. Apri la configurazione per rivedere azioni sui container, shell, altri host e Dozzle Cloud."
   settings-closed-title: "La configurazione è chiusa"
   settings-closed-desc: "Senza accesso, la configurazione accetta modifiche solo nei primi 15 minuti di una nuova installazione. Usa invece le variabili d'ambiente."
   steps:
@@ -768,6 +768,8 @@ setup:
     actions: Azioni e shell
     cloud: Dozzle Cloud
     cloud-note: Facoltativo
+    hosts: "Host"
+    hosts-note: "Facoltativo"
     update: "Aggiornamento automatico"
     update-note: "Richiede le azioni"
     restart: Riavvio
@@ -816,6 +818,36 @@ setup:
     window-closed: "Senza accesso, la configurazione accetta modifiche solo nei primi 15 minuti di una nuova installazione. Imposta questi valori con variabili d'ambiente, oppure attiva prima l'accesso."
     no-access: Il tuo account non può modificare queste impostazioni.
     restart-note: Queste modifiche hanno effetto dopo il riavvio di Dozzle.
+  hosts:
+    title: "Aggiungi un altro host"
+    subtitle: "Guarda i container delle tue altre macchine da questo Dozzle. Avvia un agente su ognuna, poi aggiungi qui il suo indirizzo."
+    run-title: "Avvia l'agente"
+    run-body: "Sull'altra macchina, aggiungi questo a un file compose e avvialo. Tieni la porta 7007 su una rete privata."
+    custom-cert: "Questo Dozzle usa un proprio certificato, quindi l'agente ha bisogno della stessa coppia o rifiuterà la connessione."
+    cert-docs: "Guida ai certificati"
+    connect-title: "Collegati"
+    address: "Indirizzo"
+    name: "Nome"
+    optional: "(facoltativo)"
+    add: "Aggiungi host"
+    connect-note: "Dozzle si collega prima di salvare. L'host compare subito, senza riavvio."
+    added: "{name} è connesso."
+    list-title: "Agenti"
+    connected: "Connesso"
+    offline: "Non connesso"
+    remove: "Rimuovi"
+    skip: "Non ora"
+    error-exists: "Questo agente è già stato aggiunto."
+    error-duplicate: "Questa macchina è già collegata come un altro host. Se questo agente condivide lo stesso motore Docker, assegnagli un DOZZLE_HOST_ID proprio."
+    error-connect: "Impossibile connettersi all'agente: {reason}"
+    error-cert: "L'agente ha un certificato diverso da questo Dozzle. Copia di nuovo lo snippet, aggiorna l'agente e ricrealo."
+    error-cert-custom: "L'agente non ha il certificato personalizzato di questo Dozzle. Fornisci all'agente gli stessi file di certificato e chiave, poi ricrealo."
+    private-label: "Certificato privato"
+    private-desc: "Solo questo Dozzle può collegarsi all'agente. Gli altri agenti non cambiano."
+    private-warning: "Questo frammento contiene una chiave privata. Trattala come una password."
+    private-pill: "privato"
+    private-error: "Impossibile creare un certificato privato, quindi si usa quello condiviso. {reason}"
+    private-missing: "Questo Dozzle non ha ancora un certificato privato. Riattiva Certificato privato, poi riprova."
   cloud:
     title: Collega Dozzle Cloud
     subtitle: Sappi quando qualcosa si rompe senza tenere una scheda aperta.

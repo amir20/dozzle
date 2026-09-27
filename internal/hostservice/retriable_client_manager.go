@@ -3,7 +3,9 @@ package hostservice
 import (
 	"context"
 	"crypto/tls"
+	"errors"
 	"fmt"
+	"io"
 	"slices"
 	"sync"
 	"time"
@@ -33,18 +35,69 @@ type hostSubscriber struct {
 type RetriableClientManager struct {
 	clients      map[string]container.ClientService
 	failedAgents []string
-	certs        tls.Certificate
-	mu           sync.RWMutex
-	subscribers  *xsync.Map[*hostSubscriber, struct{}]
-	timeout      time.Duration
+	// agents maps each connected agent's endpoint to the host id it is filed
+	// under in clients, so one can be removed by the endpoint it was added with.
+	agents map[string]connectedAgent
+	// agentCerts overrides certs for the agents that were given the hub's
+	// private pair. Every other agent keeps the pair the hub was started with.
+	agentCerts  map[string]tls.Certificate
+	certs       tls.Certificate
+	mu          sync.RWMutex
+	subscribers *xsync.Map[*hostSubscriber, struct{}]
+	timeout     time.Duration
+	dial        agentDialer
 }
 
+type connectedAgent struct {
+	id     string
+	closer io.Closer
+}
+
+// agentDialer opens a client for an agent endpoint without contacting it yet.
+// A seam so tests can add agents without a TLS server.
+type agentDialer func(endpoint string, certs tls.Certificate) (container.ClientService, io.Closer, error)
+
+func dialAgent(endpoint string, certs tls.Certificate) (container.ClientService, io.Closer, error) {
+	a, err := agent.NewClient(endpoint, certs)
+	if err != nil {
+		return nil, nil, err
+	}
+	return agent.NewService(a), a, nil
+}
+
+var (
+	ErrAgentExists   = errors.New("agent is already added")
+	ErrAgentNotFound = errors.New("agent not found")
+	ErrDuplicateHost = errors.New("another connected host already has this agent's id")
+)
+
 func NewRetriableClientManager(agents []string, timeout time.Duration, certs tls.Certificate, clients ...container.ClientService) *RetriableClientManager {
+	return newRetriableClientManager(agents, nil, timeout, certs, dialAgent, clients...)
+}
+
+// NewRetriableClientManagerWithAgentCerts is NewRetriableClientManager where
+// some agents authenticate with a pair of their own instead of certs.
+func NewRetriableClientManagerWithAgentCerts(agents []string, agentCerts map[string]tls.Certificate, timeout time.Duration, certs tls.Certificate, clients ...container.ClientService) *RetriableClientManager {
+	return newRetriableClientManager(agents, agentCerts, timeout, certs, dialAgent, clients...)
+}
+
+func newRetriableClientManager(agents []string, agentCerts map[string]tls.Certificate, timeout time.Duration, certs tls.Certificate, dial agentDialer, clients ...container.ClientService) *RetriableClientManager {
+	if agentCerts == nil {
+		agentCerts = map[string]tls.Certificate{}
+	}
+	certFor := func(endpoint string) tls.Certificate {
+		if c, ok := agentCerts[endpoint]; ok {
+			return c
+		}
+		return certs
+	}
 	type entry struct {
-		host    container.Host
-		service container.ClientService
-		failed  string // endpoint, set only for failed agents
-		ok      bool
+		host     container.Host
+		service  container.ClientService
+		closer   io.Closer
+		endpoint string // set only for agents
+		failed   string // endpoint, set only for failed agents
+		ok       bool
 	}
 
 	results := make([]entry, len(clients)+len(agents))
@@ -66,7 +119,7 @@ func NewRetriableClientManager(agents []string, timeout time.Duration, certs tls
 	for i, endpoint := range agents {
 		idx := len(clients) + i
 		wg.Go(func() {
-			a, err := agent.NewClient(endpoint, certs)
+			service, closer, err := dial(endpoint, certFor(endpoint))
 			if err != nil {
 				log.Warn().Err(err).Str("endpoint", endpoint).Msg("error creating agent client")
 				results[idx] = entry{failed: endpoint}
@@ -74,19 +127,20 @@ func NewRetriableClientManager(agents []string, timeout time.Duration, certs tls
 			}
 			ctx, cancel := context.WithTimeout(context.Background(), timeout)
 			defer cancel()
-			host, err := a.Host(ctx)
+			host, err := service.Host(ctx)
 			if err != nil {
 				log.Warn().Err(err).Str("endpoint", endpoint).Msg("error fetching host info for agent")
 				results[idx] = entry{failed: endpoint}
 				return
 			}
-			results[idx] = entry{host: host, service: agent.NewService(a), ok: true}
+			results[idx] = entry{host: host, service: service, closer: closer, endpoint: endpoint, ok: true}
 		})
 	}
 
 	wg.Wait()
 
 	clientMap := make(map[string]container.ClientService)
+	agentMap := make(map[string]connectedAgent)
 	failedList := make([]string, 0)
 	for _, r := range results {
 		if r.failed != "" {
@@ -101,14 +155,20 @@ func NewRetriableClientManager(agents []string, timeout time.Duration, certs tls
 			continue
 		}
 		clientMap[r.host.ID] = r.service
+		if r.endpoint != "" {
+			agentMap[r.endpoint] = connectedAgent{id: r.host.ID, closer: r.closer}
+		}
 	}
 
 	return &RetriableClientManager{
 		clients:      clientMap,
 		failedAgents: failedList,
+		agents:       agentMap,
+		agentCerts:   agentCerts,
 		certs:        certs,
 		subscribers:  xsync.NewMap[*hostSubscriber, struct{}](),
 		timeout:      timeout,
+		dial:         dial,
 	}
 }
 
@@ -134,6 +194,7 @@ func (m *RetriableClientManager) RetryAndList() ([]container.ClientService, []er
 		endpoint string
 		host     container.Host
 		service  container.ClientService
+		closer   io.Closer
 		err      error
 	}
 
@@ -141,7 +202,7 @@ func (m *RetriableClientManager) RetryAndList() ([]container.ClientService, []er
 	var wg sync.WaitGroup
 	for i, endpoint := range m.failedAgents {
 		wg.Go(func() {
-			a, err := agent.NewClient(endpoint, m.certs)
+			service, closer, err := m.dial(endpoint, m.certFor(endpoint))
 			if err != nil {
 				log.Warn().Err(err).Str("endpoint", endpoint).Msg("error creating agent client")
 				results[i] = retryResult{endpoint: endpoint, err: err}
@@ -149,8 +210,9 @@ func (m *RetriableClientManager) RetryAndList() ([]container.ClientService, []er
 			}
 			ctx, cancel := context.WithTimeout(context.Background(), m.timeout)
 			defer cancel()
-			h, err := a.Host(ctx)
+			h, err := service.Host(ctx)
 			if err != nil {
+				closeQuietly(closer)
 				log.Warn().Err(err).Str("endpoint", endpoint).Msg("error fetching host info for agent")
 				results[i] = retryResult{endpoint: endpoint, err: err}
 				return
@@ -158,7 +220,8 @@ func (m *RetriableClientManager) RetryAndList() ([]container.ClientService, []er
 			results[i] = retryResult{
 				endpoint: endpoint,
 				host:     h,
-				service:  agent.NewService(a),
+				service:  service,
+				closer:   closer,
 			}
 		})
 	}
@@ -173,10 +236,12 @@ func (m *RetriableClientManager) RetryAndList() ([]container.ClientService, []er
 			continue
 		}
 		if _, ok := m.clients[r.host.ID]; ok {
+			closeQuietly(r.closer)
 			log.Warn().Str("name", r.host.Name).Str("id", r.host.ID).Msg("An agent with an existing ID was found. Removing the duplicate host. For more details, see https://dozzle.dev/guide/faq#i-am-seeing-duplicate-hosts-error-in-the-logs-how-do-i-fix-it")
 			continue
 		}
 		m.clients[r.host.ID] = r.service
+		m.agents[r.endpoint] = connectedAgent{id: r.host.ID, closer: r.closer}
 		host := r.host
 		host.Available = true
 		m.publish(host)
@@ -184,6 +249,116 @@ func (m *RetriableClientManager) RetryAndList() ([]container.ClientService, []er
 	m.failedAgents = newFailed
 
 	return lo.Values(m.clients), errs
+}
+
+// AddAgent connects to an agent and, only once it answers, starts serving it
+// the same way an agent that came back on RetryAndList is served. Nothing is
+// kept when it fails, so a typo never lingers as an unavailable host. cert is
+// the pair to present to this agent, nil for the one the hub started with.
+func (m *RetriableClientManager) AddAgent(ctx context.Context, endpoint string, cert *tls.Certificate) (container.Host, error) {
+	if _, _, _, err := agent.ParseEndpoint(endpoint); err != nil {
+		return container.Host{}, err
+	}
+
+	m.mu.RLock()
+	_, connected := m.agents[endpoint]
+	failed := slices.Contains(m.failedAgents, endpoint)
+	m.mu.RUnlock()
+	if connected || failed {
+		return container.Host{}, ErrAgentExists
+	}
+
+	pair := m.certs
+	if cert != nil {
+		pair = *cert
+	}
+	service, closer, err := m.dial(endpoint, pair)
+	if err != nil {
+		return container.Host{}, err
+	}
+	ctx, cancel := context.WithTimeout(ctx, m.timeout)
+	defer cancel()
+	host, err := service.Host(ctx)
+	if err != nil {
+		closeQuietly(closer)
+		return container.Host{}, err
+	}
+
+	m.mu.Lock()
+	// Checked again: the dial above ran without the lock.
+	if _, ok := m.agents[endpoint]; ok || slices.Contains(m.failedAgents, endpoint) {
+		m.mu.Unlock()
+		closeQuietly(closer)
+		return container.Host{}, ErrAgentExists
+	}
+	if _, ok := m.clients[host.ID]; ok {
+		m.mu.Unlock()
+		closeQuietly(closer)
+		return container.Host{}, ErrDuplicateHost
+	}
+	m.clients[host.ID] = service
+	m.agents[endpoint] = connectedAgent{id: host.ID, closer: closer}
+	if cert != nil {
+		m.agentCerts[endpoint] = *cert
+	}
+	m.mu.Unlock()
+
+	log.Info().Str("endpoint", endpoint).Str("name", host.Name).Str("id", host.ID).Msg("agent added")
+	host.Available = true
+	m.publish(host)
+	return host, nil
+}
+
+// RemoveAgent stops serving an agent added by endpoint, connected or not.
+// Open streams to it end when its connection closes.
+func (m *RetriableClientManager) RemoveAgent(endpoint string) error {
+	m.mu.Lock()
+	delete(m.agentCerts, endpoint)
+	if i := slices.Index(m.failedAgents, endpoint); i >= 0 {
+		m.failedAgents = slices.Delete(m.failedAgents, i, i+1)
+		m.mu.Unlock()
+		// Never connected, so the UI lists it under its endpoint.
+		m.publish(container.Host{ID: endpoint, Endpoint: endpoint, Type: "agent", Removed: true})
+		return nil
+	}
+	a, ok := m.agents[endpoint]
+	if !ok {
+		m.mu.Unlock()
+		return ErrAgentNotFound
+	}
+	delete(m.agents, endpoint)
+	delete(m.clients, a.id)
+	m.mu.Unlock()
+
+	closeQuietly(a.closer)
+	m.publish(container.Host{ID: a.id, Endpoint: endpoint, Type: "agent", Removed: true})
+	log.Info().Str("endpoint", endpoint).Str("id", a.id).Msg("agent removed")
+	return nil
+}
+
+// certFor is the pair to present to endpoint. Callers hold m.mu.
+func (m *RetriableClientManager) certFor(endpoint string) tls.Certificate {
+	if c, ok := m.agentCerts[endpoint]; ok {
+		return c
+	}
+	return m.certs
+}
+
+// AgentHostID returns the id of the host an endpoint is connected as, or ""
+// when it is not connected.
+func (m *RetriableClientManager) AgentHostID(endpoint string) string {
+	m.mu.RLock()
+	defer m.mu.RUnlock()
+	return m.agents[endpoint].id
+}
+
+func closeQuietly(c io.Closer) {
+	if c == nil {
+		return
+	}
+	if err := c.Close(); err != nil {
+		log.Debug().Err(err).Msg("error closing agent client")
+	}
 }
 
 func (m *RetriableClientManager) List() []container.ClientService {
@@ -223,6 +398,11 @@ func (m *RetriableClientManager) rekey(oldID string, service container.ClientSer
 	}
 	delete(m.clients, oldID)
 	m.clients[host.ID] = service
+	for endpoint, a := range m.agents {
+		if a.id == oldID {
+			m.agents[endpoint] = connectedAgent{id: host.ID, closer: a.closer}
+		}
+	}
 	m.mu.Unlock()
 
 	log.Info().Str("name", host.Name).Str("id", host.ID).Str("previousId", oldID).Msg("host came back with a new id, updating routing")

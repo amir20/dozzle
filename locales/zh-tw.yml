@@ -759,9 +759,9 @@ setup:
   close: 關閉
   copy: 複製
   settings-title: 設定 Dozzle
-  settings-desc: 幾個步驟完成登入、容器操作、Shell 與 Dozzle Cloud 的設定。
+  settings-desc: "幾個步驟完成登入、容器操作、Shell、其他主機與 Dozzle Cloud 的設定。"
   settings-done-title: "Dozzle 已設定完成"
-  settings-done-desc: "登入已啟用。開啟設定精靈可檢視容器操作、Shell 與 Dozzle Cloud。"
+  settings-done-desc: "登入已啟用。開啟設定精靈可檢視容器操作、Shell、其他主機與 Dozzle Cloud。"
   settings-closed-title: "設定已關閉"
   settings-closed-desc: "未啟用登入時，設定只在新安裝的前 15 分鐘內接受變更。請改用環境變數。"
   steps:
@@ -770,6 +770,8 @@ setup:
     actions: 操作與 Shell
     cloud: Dozzle Cloud
     cloud-note: 選用
+    hosts: "主機"
+    hosts-note: "選用"
     update: "自動更新"
     update-note: "需要操作功能"
     restart: 重新啟動
@@ -818,6 +820,36 @@ setup:
     window-closed: "未開啟登入時，設定只在全新安裝後的前 15 分鐘內接受變更。請使用環境變數設定，或先開啟登入。"
     no-access: 你的帳戶無權變更這些設定。
     restart-note: 這些設定會在 Dozzle 重新啟動後生效。
+  hosts:
+    title: "新增其他主機"
+    subtitle: "在這個 Dozzle 中查看其他機器上的容器。在每台機器上執行代理程式，然後在這裡新增它的位址。"
+    run-title: "執行代理程式"
+    run-body: "在另一台機器上，將以下內容加入 compose 檔案並啟動。請讓 7007 連接埠只留在私人網路中。"
+    custom-cert: "這個 Dozzle 使用自己的憑證，因此代理程式需要同一組憑證，否則會拒絕連線。"
+    cert-docs: "憑證指南"
+    connect-title: "連線"
+    address: "位址"
+    name: "名稱"
+    optional: "（選用）"
+    add: "新增主機"
+    connect-note: "Dozzle 會先連線再儲存。主機會立即出現，不需要重新啟動。"
+    added: "已連線至 {name}。"
+    list-title: "代理程式"
+    connected: "已連線"
+    offline: "未連線"
+    remove: "移除"
+    skip: "稍後再說"
+    error-exists: "這個代理程式已經新增過了。"
+    error-duplicate: "這台機器已經以另一個主機的身分連線。如果這個代理程式使用相同的 Docker 引擎，請為它設定專屬的 DOZZLE_HOST_ID。"
+    error-connect: "無法連線至代理程式：{reason}"
+    error-cert: "代理程式的憑證與這個 Dozzle 不同。請重新複製程式碼片段，更新代理程式後重新建立。"
+    error-cert-custom: "代理程式沒有這個 Dozzle 的自訂憑證。請把相同的憑證和金鑰檔案提供給代理程式，然後重新建立。"
+    private-label: "私人憑證"
+    private-desc: "只有這個 Dozzle 能連線到代理程式。其他代理程式不受影響。"
+    private-warning: "這段內容包含私密金鑰，請像密碼一樣保管。"
+    private-pill: "私人"
+    private-error: "無法建立私人憑證，因此改用共用憑證。{reason}"
+    private-missing: "這個 Dozzle 還沒有私人憑證。請重新開啟「私人憑證」後重試。"
   cloud:
     title: 連接 Dozzle Cloud
     subtitle: 不必一直開著分頁，也能在出問題時馬上知道。

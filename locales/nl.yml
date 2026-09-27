@@ -758,9 +758,9 @@ setup:
   close: Sluiten
   copy: Kopiëren
   settings-title: Dozzle instellen
-  settings-desc: Inloggen, containeracties, shell en Dozzle Cloud in een paar stappen.
+  settings-desc: "Inloggen, containeracties, shell, andere hosts en Dozzle Cloud in een paar stappen."
   settings-done-title: "Dozzle is ingesteld"
-  settings-done-desc: "Inloggen staat aan. Open de installatie om containeracties, shell en Dozzle Cloud te bekijken."
+  settings-done-desc: "Inloggen staat aan. Open de installatie om containeracties, shell, andere hosts en Dozzle Cloud te bekijken."
   settings-closed-title: "De installatie is gesloten"
   settings-closed-desc: "Zonder login accepteert de installatie alleen wijzigingen in de eerste 15 minuten van een nieuwe installatie. Gebruik in plaats daarvan omgevingsvariabelen."
   steps:
@@ -769,6 +769,8 @@ setup:
     actions: Acties en shell
     cloud: Dozzle Cloud
     cloud-note: Optioneel
+    hosts: "Hosts"
+    hosts-note: "Optioneel"
     update: "Automatisch bijwerken"
     update-note: "Vereist acties"
     restart: Herstarten
@@ -817,6 +819,36 @@ setup:
     window-closed: "Zonder inloggen accepteert de installatie alleen wijzigingen in de eerste 15 minuten van een nieuwe installatie. Stel dit in met omgevingsvariabelen, of zet eerst inloggen aan."
     no-access: Je account kan deze instellingen niet wijzigen.
     restart-note: Deze worden actief nadat Dozzle is herstart.
+  hosts:
+    title: "Nog een host toevoegen"
+    subtitle: "Zie de containers op je andere machines vanuit deze Dozzle. Start op elke machine een agent en voeg hier het adres toe."
+    run-title: "Start de agent"
+    run-body: "Zet dit op de andere machine in een compose-bestand en start het. Houd poort 7007 op een privénetwerk."
+    custom-cert: "Deze Dozzle gebruikt een eigen certificaat, dus de agent heeft hetzelfde paar nodig, anders weigert hij de verbinding."
+    cert-docs: "Handleiding certificaten"
+    connect-title: "Maak verbinding"
+    address: "Adres"
+    name: "Naam"
+    optional: "(optioneel)"
+    add: "Host toevoegen"
+    connect-note: "Dozzle maakt eerst verbinding en slaat daarna op. De host verschijnt meteen, zonder herstart."
+    added: "{name} is verbonden."
+    list-title: "Agents"
+    connected: "Verbonden"
+    offline: "Niet verbonden"
+    remove: "Verwijderen"
+    skip: "Niet nu"
+    error-exists: "Die agent is al toegevoegd."
+    error-duplicate: "Die machine is al verbonden als een andere host. Deelt deze agent dezelfde Docker-engine, geef de agent dan een eigen DOZZLE_HOST_ID."
+    error-connect: "Kan geen verbinding maken met de agent: {reason}"
+    error-cert: "De agent heeft een ander certificaat dan deze Dozzle. Kopieer het fragment opnieuw, werk de agent bij en maak hem opnieuw aan."
+    error-cert-custom: "De agent heeft het eigen certificaat van deze Dozzle niet. Geef de agent dezelfde certificaat- en sleutelbestanden en maak hem opnieuw aan."
+    private-label: "Privécertificaat"
+    private-desc: "Alleen deze Dozzle kan verbinding maken met de agent. Andere agents veranderen niet."
+    private-warning: "Dit fragment bevat een privésleutel. Behandel het als een wachtwoord."
+    private-pill: "privé"
+    private-error: "Kan geen privécertificaat maken, dus het gedeelde wordt gebruikt. {reason}"
+    private-missing: "Deze Dozzle heeft nog geen privécertificaat. Zet Privécertificaat weer aan en probeer het opnieuw."
   cloud:
     title: Dozzle Cloud koppelen
     subtitle: Weet wanneer er iets stukgaat zonder een tabblad open te houden.

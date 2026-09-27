@@ -757,9 +757,9 @@ setup:
   close: 关闭
   copy: 复制
   settings-title: 设置 Dozzle
-  settings-desc: 几步完成登录、容器操作、Shell 和 Dozzle Cloud 的设置。
+  settings-desc: "几步完成登录、容器操作、Shell、其他主机和 Dozzle Cloud 的设置。"
   settings-done-title: "Dozzle 已完成设置"
-  settings-done-desc: "登录已开启。打开设置向导可查看容器操作、Shell 和 Dozzle Cloud。"
+  settings-done-desc: "登录已开启。打开设置向导可查看容器操作、Shell、其他主机和 Dozzle Cloud。"
   settings-closed-title: "设置已关闭"
   settings-closed-desc: "未启用登录时，设置仅在新安装后的前 15 分钟内接受更改。请改用环境变量。"
   steps:
@@ -768,6 +768,8 @@ setup:
     actions: 操作与 Shell
     cloud: Dozzle Cloud
     cloud-note: 可选
+    hosts: "主机"
+    hosts-note: "可选"
     update: "自动更新"
     update-note: "需要操作功能"
     restart: 重启
@@ -816,6 +818,36 @@ setup:
     window-closed: "未开启登录时，设置只在全新安装后的前 15 分钟内接受更改。请使用环境变量设置，或先开启登录。"
     no-access: 你的账户无权更改这些设置。
     restart-note: 这些设置将在 Dozzle 重启后生效。
+  hosts:
+    title: "添加其他主机"
+    subtitle: "在这个 Dozzle 中查看其他机器上的容器。在每台机器上运行代理，然后在这里添加它的地址。"
+    run-title: "运行代理"
+    run-body: "在另一台机器上，把以下内容加入 compose 文件并启动。请让 7007 端口只留在私有网络中。"
+    custom-cert: "这个 Dozzle 使用自己的证书，因此代理需要同一对证书，否则会拒绝连接。"
+    cert-docs: "证书指南"
+    connect-title: "连接"
+    address: "地址"
+    name: "名称"
+    optional: "（可选）"
+    add: "添加主机"
+    connect-note: "Dozzle 会先连接再保存。主机会立即出现，无需重启。"
+    added: "已连接到 {name}。"
+    list-title: "代理"
+    connected: "已连接"
+    offline: "未连接"
+    remove: "移除"
+    skip: "暂不"
+    error-exists: "这个代理已经添加过了。"
+    error-duplicate: "这台机器已经作为另一个主机连接。如果这个代理使用同一个 Docker 引擎，请给它设置独立的 DOZZLE_HOST_ID。"
+    error-connect: "无法连接到代理：{reason}"
+    error-cert: "代理的证书与这个 Dozzle 不同。请重新复制代码片段，更新代理后重新创建。"
+    error-cert-custom: "代理没有这个 Dozzle 的自定义证书。请把相同的证书和密钥文件提供给代理，然后重新创建。"
+    private-label: "私有证书"
+    private-desc: "只有这个 Dozzle 能连接到代理。其他代理不受影响。"
+    private-warning: "这段内容包含私钥，请像密码一样保管。"
+    private-pill: "私有"
+    private-error: "无法创建私有证书，因此改用共享证书。{reason}"
+    private-missing: "这个 Dozzle 还没有私有证书。请重新打开“私有证书”后重试。"
   cloud:
     title: 连接 Dozzle Cloud
     subtitle: 无需一直开着标签页，也能在出问题时第一时间知道。

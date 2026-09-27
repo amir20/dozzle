@@ -20,4 +20,5 @@ type BeaconEvent struct {
 	RemoteAgents      int    `json:"remoteAgents"`
 	RemoteClients     int    `json:"remoteClients"`
 	SubCommand        string `json:"subCommand"`
+	FileAgents        int    `json:"fileAgents"` // RemoteAgents added from the UI
 }

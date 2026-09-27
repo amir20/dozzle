@@ -1,6 +1,6 @@
 ---
 title: 代理模式
-sourceHash: a73c7ed62d8a
+sourceHash: 20dfc19418d9
 ---
 
 # 代理模式
@@ -77,6 +77,9 @@ services:
 
 > [!TIP]
 > 你可以提供多个 `DOZZLE_REMOTE_AGENT` 环境变量来连接多个代理。例如 `DOZZLE_REMOTE_AGENT=agent1:7007,agent2:7007`。
+
+> [!TIP]
+> 在服务器模式下，你也可以在界面中添加代理：使用主机列表底部的 **添加主机**，或[设置向导](/zh/guide/setup-wizard)中的主机步骤。Dozzle 会在保存之前先连接代理，主机无需重启就会出现。以这种方式添加的代理保存在 `/data/dozzle.yml` 中，因此 `/data` 必须挂载在卷上。通过 `DOZZLE_REMOTE_AGENT` 设置的代理保持不变，无法在界面中移除。
 
 ## <Icon icon="mdi:group" inline /> 主机分组
 
@@ -301,6 +304,34 @@ $ openssl genpkey -algorithm Ed25519 -out key.pem
 $ openssl req -new -key key.pem -out request.csr -subj "/C=US/ST=California/L=San Francisco/O=My Company"
 $ openssl x509 -req -in request.csr -signkey key.pem -out cert.pem -days 365
 ```
+
+### 通过界面添加的代理使用私有证书 {#private-certificate}
+
+通过 **添加主机** 添加代理时，对话框中有一个 **私有证书** 开关，新主机默认开启。开启后，即使其他人能访问 `7007` 端口，也只有这个 Dozzle 能连接到该代理。
+
+第一次使用时，Dozzle 会在 `/data/agent_cert.pem` 和 `/data/agent_key.pem` 中创建自己的证书对。这对证书永远不会被替换，所以私有代理在重启和更新后仍能正常工作。对话框中的 compose 片段会通过 `DOZZLE_CERT_PEM` 和 `DOZZLE_KEY_PEM` 把证书对传给代理：
+
+```yaml [docker-compose.yml]
+services:
+  dozzle-agent:
+    image: amir20/dozzle:vX.Y.Z # same tag as your Dozzle
+    command: agent
+    environment:
+      DOZZLE_CERT_PEM: |
+        -----BEGIN CERTIFICATE-----
+        ...
+        -----END CERTIFICATE-----
+      DOZZLE_KEY_PEM: |
+        -----BEGIN PRIVATE KEY-----
+        ...
+        -----END PRIVATE KEY-----
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    ports:
+      - 7007:7007
+```
+
+该片段包含私钥，请像密码一样保管。这个开关按主机生效：已有的代理，以及关闭开关时添加的代理，都继续使用原来的证书。Dozzle 会在 `/data/dozzle.yml` 的 `privateAgents` 中记录哪些代理是私有的。如果 Dozzle 已经在使用[自定义证书](#自定义证书)，则不会显示这个开关，因为每个代理本来就需要那对证书。 代码片段使用与你的 Dozzle 相同的镜像。旧版代理会忽略 `DOZZLE_CERT_PEM` 和 `DOZZLE_KEY_PEM`，出示内置证书，因此会被拒绝。
 
 ## <Icon icon="mdi:compare-horizontal" inline /> 代理与远程连接的对比
 

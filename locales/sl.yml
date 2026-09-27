@@ -762,9 +762,9 @@ setup:
   close: Zapri
   copy: Kopiraj
   settings-title: Nastavitev Dozzle
-  settings-desc: Prijava, dejanja na vsebnikih, lupina in Dozzle Cloud v nekaj korakih.
+  settings-desc: "Prijava, dejanja na vsebnikih, lupina, drugi gostitelji in Dozzle Cloud v nekaj korakih."
   settings-done-title: "Dozzle je nastavljen"
-  settings-done-desc: "Prijava je vklopljena. Odprite nastavitev za pregled dejanj na vsebnikih, lupine in Dozzle Cloud."
+  settings-done-desc: "Prijava je vklopljena. Odprite nastavitev za pregled dejanj na vsebnikih, lupine, drugih gostiteljev in Dozzle Cloud."
   settings-closed-title: "Nastavitev je zaprta"
   settings-closed-desc: "Brez prijave nastavitev sprejema spremembe le v prvih 15 minutah nove namestitve. Namesto tega uporabite okoljske spremenljivke."
   steps:
@@ -773,6 +773,8 @@ setup:
     actions: Dejanja in lupina
     cloud: Dozzle Cloud
     cloud-note: Neobvezno
+    hosts: "Gostitelji"
+    hosts-note: "Neobvezno"
     update: "Samodejna posodobitev"
     update-note: "Potrebuje dejanja"
     restart: Ponovni zagon
@@ -821,6 +823,36 @@ setup:
     window-closed: "Brez prijave nastavitev sprejema spremembe samo v prvih 15 minutah nove namestitve. To nastavite z okoljskimi spremenljivkami ali najprej vklopite prijavo."
     no-access: Vaš račun ne more spreminjati teh nastavitev.
     restart-note: Spremembe začnejo veljati po ponovnem zagonu Dozzle.
+  hosts:
+    title: "Dodaj drugega gostitelja"
+    subtitle: "Oglejte si vsebnike na drugih računalnikih iz tega Dozzla. Na vsakem zaženite agenta in tukaj dodajte njegov naslov."
+    run-title: "Zaženite agenta"
+    run-body: "Na drugem računalniku to dodajte v datoteko compose in jo zaženite. Vrata 7007 naj ostanejo v zasebnem omrežju."
+    custom-cert: "Ta Dozzle uporablja lastno potrdilo, zato agent potrebuje enak par, sicer bo povezavo zavrnil."
+    cert-docs: "Vodnik po potrdilih"
+    connect-title: "Povežite se"
+    address: "Naslov"
+    name: "Ime"
+    optional: "(neobvezno)"
+    add: "Dodaj gostitelja"
+    connect-note: "Dozzle se poveže, preden shrani. Gostitelj se prikaže takoj, brez ponovnega zagona."
+    added: "{name} je povezan."
+    list-title: "Agenti"
+    connected: "Povezan"
+    offline: "Ni povezan"
+    remove: "Odstrani"
+    skip: "Ne zdaj"
+    error-exists: "Ta agent je že dodan."
+    error-duplicate: "Ta naprava je že povezana kot drug gostitelj. Če ta agent uporablja isti Docker engine, mu nastavi lasten DOZZLE_HOST_ID."
+    error-connect: "Povezava z agentom ni uspela: {reason}"
+    error-cert: "Agent ima drugačno potrdilo kot ta Dozzle. Znova kopiraj izsek, posodobi agenta in ga ustvari na novo."
+    error-cert-custom: "Agent nima lastnega potrdila tega Dozzla. Agentu daj iste datoteke potrdila in ključa ter ga ustvari na novo."
+    private-label: "Zasebno potrdilo"
+    private-desc: "Z agentom se lahko poveže samo ta Dozzle. Drugi agenti ostanejo nespremenjeni."
+    private-warning: "Ta izrezek vsebuje zasebni ključ. Z njim ravnajte kot z geslom."
+    private-pill: "zasebno"
+    private-error: "Zasebnega potrdila ni bilo mogoče ustvariti, zato se uporablja skupno. {reason}"
+    private-missing: "Ta Dozzle še nima zasebnega potrdila. Znova vklopite Zasebno potrdilo in poskusite znova."
   cloud:
     title: Poveži Dozzle Cloud
     subtitle: Izvedite, ko se kaj pokvari, ne da bi imeli odprt zavihek.

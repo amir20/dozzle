@@ -17,6 +17,7 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	"golang.org/x/time/rate"
 )
 
 const testSelfID = "4f1c9b2e8d7a6b5c4d3e2f1a0b9c8d7e6f5a4b3c2d1e0f9a8b7c6d5e4f3a2b1c"
@@ -42,7 +43,11 @@ func setupTestEnv(t *testing.T, persisted bool) (string, chan string) {
 		restarts <- id
 		return nil
 	}
+	// Unlimited here; the one test about rationing installs its own.
+	oldLimiter := agentDialLimiter
+	agentDialLimiter = rate.NewLimiter(rate.Inf, 0)
 	t.Cleanup(func() {
+		agentDialLimiter = oldLimiter
 		selfUpdateInspect, selfUpdateSwarmManager = oldInspect, oldManager
 		setupConfigPath, setupPersisted, setupSelfID, setupRestartDelay, setupRestarter = oldPath, oldPersisted, oldSelf, oldDelay, oldRestarter
 	})

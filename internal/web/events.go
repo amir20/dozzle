@@ -8,10 +8,10 @@ import (
 
 	"github.com/amir20/dozzle/internal/analytics"
 	"github.com/amir20/dozzle/internal/auth"
+	"github.com/amir20/dozzle/internal/config"
 	"github.com/amir20/dozzle/internal/container"
 	"github.com/amir20/dozzle/internal/hostservice"
 	"github.com/amir20/dozzle/internal/web/sse"
-	"github.com/amir20/dozzle/types"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 )
@@ -172,7 +172,8 @@ func (h *handler) streamEvents(w http.ResponseWriter, r *http.Request) {
 		logWriteError(err, "error writing containers to event stream")
 	}
 
-	go sendBeaconEvent(h, r, len(allContainers))
+	// Read here, not in the goroutine: the path is a test seam that tests swap.
+	go sendBeaconEvent(h, r, len(allContainers), setupConfigPath)
 
 	// a host whose containers are all filtered out or stopped emits no stats, so without
 	// this the stream is silent and an idle proxy timeout (nginx defaults to 60s) drops it
@@ -324,21 +325,33 @@ func logWriteError(err error, msg string) {
 	log.WithLevel(level).Err(err).Msg(msg)
 }
 
-func sendBeaconEvent(h *handler, r *http.Request, runningContainers int) {
+func sendBeaconEvent(h *handler, r *http.Request, runningContainers int, configPath string) {
 	if h.config.NoAnalytics {
 		return
 	}
-	b := types.BeaconEvent{
-		AuthProvider:      string(h.config.Authorization.Provider),
-		Browser:           r.Header.Get("User-Agent"),
-		Clients:           len(h.hostService.Hosts()),
-		HasActions:        h.config.EnableActions,
-		HasCustomAddress:  h.config.Addr != ":8080",
-		HasCustomBase:     h.config.Base != "/",
-		HasHostname:       h.config.Hostname != "",
-		Name:              "events",
-		RunningContainers: runningContainers,
-		Version:           h.config.Version,
+	// Starts from the install facts the start beacon carries, so the dashboard,
+	// which reads these rows, stops seeing agents and shell as always off.
+	b := h.config.Beacon
+	b.AuthProvider = string(h.config.Authorization.Provider)
+	b.Browser = r.Header.Get("User-Agent")
+	b.Clients = len(h.hostService.Hosts())
+	b.HasActions = h.config.EnableActions
+	b.HasShell = h.config.EnableShell
+	b.HasCustomAddress = h.config.Addr != ":8080"
+	b.HasCustomBase = h.config.Base != "/"
+	b.HasHostname = h.config.Hostname != ""
+	b.Name = "events"
+	b.RunningContainers = runningContainers
+	b.Version = h.config.Version
+	// Agents added from the UI since startup count too, the same way startup
+	// reads them: trimmed, deduplicated, and never one the env var already has.
+	if file, err := config.Load(configPath); err == nil {
+		b.FileAgents = 0
+		for _, a := range h.setupAgents(file) {
+			if !a.Locked {
+				b.FileAgents++
+			}
+		}
 	}
 
 	local, err := h.hostService.LocalHost()
