@@ -231,12 +231,15 @@ const skipUsage: Partial<Record<SetupStepId, UsageKey>> = {
   update: "wizard.skip.update",
 };
 
-function advance(skip = false) {
+// userSkipped is false when a step's own Next leaves it unsaved (login with OIDC or
+// an existing users file): the step is still marked skipped, but that was a choice
+// made on it, not the Skip button, so it is not counted as one.
+function advance(skip = false, userSkipped = skip) {
   const id = currentId.value;
   if (id) {
     if (skip) {
       const key = skipUsage[id];
-      if (key) trackUsage(key);
+      if (key && userSkipped) trackUsage(key);
       skipped.value.add(id);
       completed.value.delete(id);
     } else {
@@ -258,7 +261,7 @@ async function onNext() {
   if (!handle.value) return;
   const result = await handle.value.next();
   if (result === "advance") advance();
-  else if (result === "skip") advance(true);
+  else if (result === "skip") advance(true, false);
   else if (result === "finish") {
     trackUsage("wizard.finished");
     close();

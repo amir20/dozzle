@@ -50,9 +50,13 @@ func NewClient(endpoint string, certificates tls.Certificate, opts ...grpc.DialO
 	}
 	caCertPool.AddCert(c)
 	tlsConfig := &tls.Config{
-		Certificates:       []tls.Certificate{certificates},
-		RootCAs:            caCertPool,
-		InsecureSkipVerify: true, // Set to true if the server's hostname does not match the certificate
+		Certificates: []tls.Certificate{certificates},
+		// Agent certs never name the host they run on, so the stock check (which
+		// includes the hostname) is off, and the chain is checked below instead.
+		InsecureSkipVerify: true,
+		VerifyPeerCertificate: func(rawCerts [][]byte, _ [][]*x509.Certificate) error {
+			return verifyAgentCert(rawCerts, caCertPool)
+		},
 	}
 
 	// Create the gRPC transport credentials
@@ -85,6 +89,37 @@ func NewClient(endpoint string, certificates tls.Certificate, opts ...grpc.DialO
 
 // ParseEndpoint splits an agent endpoint of the form "address|name|group" into
 // its parts. Name and group are optional; address is required.
+// verifyAgentCert is the hub's half of mutual TLS: the agent must present a cert
+// that chains to the hub's own, the same test the agent puts the hub through.
+// Without it any TLS server speaking the agent protocol could be added as a host
+// and be handed the notification and cloud config.
+func verifyAgentCert(rawCerts [][]byte, roots *x509.CertPool) error {
+	if len(rawCerts) == 0 {
+		return errors.New("agent presented no certificate")
+	}
+	certs := make([]*x509.Certificate, len(rawCerts))
+	for i, raw := range rawCerts {
+		c, err := x509.ParseCertificate(raw)
+		if err != nil {
+			return fmt.Errorf("failed to parse agent certificate: %w", err)
+		}
+		certs[i] = c
+	}
+	intermediates := x509.NewCertPool()
+	for _, c := range certs[1:] {
+		intermediates.AddCert(c)
+	}
+	_, err := certs[0].Verify(x509.VerifyOptions{
+		Roots:         roots,
+		Intermediates: intermediates,
+		KeyUsages:     []x509.ExtKeyUsage{x509.ExtKeyUsageAny},
+	})
+	if err != nil {
+		return fmt.Errorf("agent certificate is not trusted by this dozzle: %w", err)
+	}
+	return nil
+}
+
 func ParseEndpoint(endpoint string) (string, string, string, error) {
 	parts := strings.Split(endpoint, "|")
 	if len(parts) > 3 || parts[0] == "" {

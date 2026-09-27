@@ -155,7 +155,8 @@ const runQuery = ref(query.value);
 watchDebounced(
   query,
   (v) => {
-    if (v !== runQuery.value) trackUsage("logs.sql");
+    // Only a query that actually runs counts; before the data is loaded none does.
+    if (v !== runQuery.value && state.value === "ready") trackUsage("logs.sql");
     runQuery.value = v;
   },
   { debounce: 500 },
@@ -239,7 +240,8 @@ const examples = computed(() => {
 });
 
 function run() {
-  if (state.value !== "ready") return;
+  // The same query again changes nothing, so nothing runs and nothing counts.
+  if (state.value !== "ready" || query.value === runQuery.value) return;
   trackUsage("logs.sql");
   runQuery.value = query.value;
 }

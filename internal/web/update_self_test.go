@@ -9,6 +9,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/amir20/dozzle/internal/analytics"
 	"github.com/amir20/dozzle/internal/auth"
 	"github.com/amir20/dozzle/internal/container"
 	"github.com/amir20/dozzle/internal/imagecheck"
@@ -198,4 +199,34 @@ func TestCheckSelfUpdate_NotRegisteredWhenChecksAreOff(t *testing.T) {
 
 	swarm := createHandler(nil, nil, Config{Base: "/", Mode: "swarm", Authorization: Authorization{Provider: NONE}})
 	assert.Equal(t, http.StatusNotFound, doSetup(swarm, "GET", "/api/update/self/check", "").Code)
+}
+
+// Only an update that gets as far as replacing the container counts: one that
+// finds the image current, or fails, must not show up as an update.
+func TestRunSelfUpdate_CountsOnlyWhenRecreating(t *testing.T) {
+	// A flusher left by another test's server would send, and so take, the count.
+	oldFlusher := usageFlusher.Swap(nil)
+	t.Cleanup(func() { usageFlusher.Store(oldFlusher) })
+	cases := []struct {
+		status string
+		want   int
+	}{
+		{"up-to-date", 0},
+		{"error", 0},
+		{"recreating", 1},
+	}
+	for _, c := range cases {
+		t.Run(c.status, func(t *testing.T) {
+			stubSelfUpdateStart(t, func(_ context.Context, _ string, progress func(container.UpdateProgress)) (bool, error) {
+				progress(container.UpdateProgress{Status: c.status})
+				return c.status == "recreating", nil
+			})
+			analytics.Default.Take()
+			var seen []string
+			_, err := runSelfUpdate(context.Background(), "self", func(p container.UpdateProgress) { seen = append(seen, p.Status) })
+			require.NoError(t, err)
+			assert.Equal(t, []string{c.status}, seen)
+			assert.Equal(t, c.want, analytics.Default.Take().Counts["image.update"])
+		})
+	}
 }

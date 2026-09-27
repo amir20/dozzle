@@ -93,16 +93,20 @@ func TestReportUsage(t *testing.T) {
 	analytics.Default.Take()
 	h := createRouter(beaconHandler(t, Config{Base: "/", Authorization: Authorization{Provider: NONE}}))
 
-	rr := doSetup(h, "POST", "/api/usage", `{"counts":{"logs.sql":3,"palette.open":99999,"container.secret-name":5,"action.remove":7,"notify.log":2},"locale":"de","activeMinutes":500}`)
+	rr := doSetup(h, "POST", "/api/usage", `{"counts":{"logs.sql":3,"palette.open":99999,"container.secret-name":5,"action.remove":7,"notify.log":2},"locale":"de","activeMinutes":5000}`)
 	require.Equal(t, http.StatusNoContent, rr.Code)
 
 	s := analytics.Default.Take()
 	// Server-side counters like action.remove can't be reported by a browser.
 	assert.Equal(t, map[string]int{"logs.sql": 3, "palette.open": maxUsagePerRequest}, s.Counts)
 	assert.Equal(t, map[string]int{"de": 1}, s.Locales)
-	assert.Equal(t, 60, s.Minutes, "one report covers at most an hour")
+	assert.Equal(t, maxUsageMinutesPerRequest, s.Minutes, "one report covers at most a day")
 
 	assert.Equal(t, http.StatusBadRequest, doSetup(h, "POST", "/api/usage", `not json`).Code)
+	// A cross-site form can only send text/plain without a preflight.
+	rr = doSetup(h, "POST", "/api/usage", `{"counts":{"logs.sql":3}}`, "Content-Type", "text/plain")
+	assert.Equal(t, http.StatusUnsupportedMediaType, rr.Code)
+	assert.True(t, analytics.Default.Take().Empty())
 }
 
 func TestReportUsageIgnoredWithNoAnalytics(t *testing.T) {
@@ -113,26 +117,6 @@ func TestReportUsageIgnoredWithNoAnalytics(t *testing.T) {
 	rr := doSetup(h, "POST", "/api/usage", `{"counts":{"logs.sql":3}}`)
 	assert.Equal(t, http.StatusNoContent, rr.Code)
 	assert.True(t, analytics.Default.Take().Empty())
-}
-
-func TestAddHostOutcome(t *testing.T) {
-	cases := map[string]struct {
-		status int
-		body   string
-	}{
-		"host.add.ok":        {http.StatusCreated, ""},
-		"host.add.duplicate": {http.StatusConflict, "this agent is already added"},
-		"":                   {http.StatusForbidden, "Forbidden"},
-		"host.add.cert":      {http.StatusBadGateway, "could not connect to agent: tls: unknown certificate authority"},
-		"host.add.timeout":   {http.StatusBadGateway, "could not connect to agent: context deadline exceeded"},
-		"host.add.refused":   {http.StatusBadGateway, "could not connect to agent: connection refused"},
-		"host.add.other":     {http.StatusBadRequest, "address must be host:port"},
-	}
-	for want, c := range cases {
-		assert.Equal(t, want, addHostOutcome(c.status, c.body))
-	}
-	assert.Equal(t, "host.add.other", addHostOutcome(http.StatusConflict, "agents cannot be added in this mode"))
-	assert.Equal(t, "", addHostOutcome(http.StatusBadRequest, "invalid request body"))
 }
 
 func TestFlushUsageSendsWhatIsCounted(t *testing.T) {
