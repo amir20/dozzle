@@ -2,17 +2,11 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-## Comment Style
+## Response Style
 
-**Always use ultra-brief mode for all PR reviews and responses.**
-
-Format:
-
-- Critical issues only (bugs, security, blockers)
-- Brief bullet points, no lengthy explanations
-- Skip verbose sections (no "Strengths", "Summary", etc.)
-- Include file:line references when relevant
-- Maximum ~10-15 lines per response
+Keep chat responses brief: bullet points, `file:line` references, no "Strengths" or
+"Summary" sections. What the PR review bot looks for is set in
+`.github/workflows/claude-code-review.yml`, not here.
 
 ## Translations
 
