@@ -127,17 +127,39 @@ func (m *MultiHostService) ListAllContainersFiltered(userLabels container.Contai
 }
 
 func (m *MultiHostService) SubscribeEventsAndStats(ctx context.Context, events chan<- container.ContainerEvent, stats chan<- container.ContainerStat) {
-	for _, client := range m.manager.List() {
+	m.followClients(ctx, func(client container.ClientService, _ bool) {
 		client.SubscribeEvents(ctx, events)
 		client.SubscribeStats(ctx, stats)
-	}
+	})
 }
 
 func (m *MultiHostService) SubscribeContainersStarted(ctx context.Context, containers chan<- container.Container, filter container.ContainerFilter) {
 	newContainers := make(chan container.Container)
-	for _, client := range m.manager.List() {
+	m.followClients(ctx, func(client container.ClientService, late bool) {
 		client.SubscribeContainersStarted(ctx, newContainers)
-	}
+		if !late {
+			return
+		}
+		// A host that joins later is new to this subscriber along with everything
+		// already running on it, so those count as started too.
+		go func() {
+			running, err := client.ListContainers(ctx, nil)
+			if err != nil {
+				log.Debug().Err(err).Msg("could not list containers of a newly added host")
+				return
+			}
+			for _, c := range running {
+				if c.State != "running" {
+					continue
+				}
+				select {
+				case newContainers <- c:
+				case <-ctx.Done():
+					return
+				}
+			}
+		}()
+	})
 	// newContainers is never closed: the stores sending into it drop their
 	// subscription only after ctx ends, so a close would race their sends and panic.
 	go func() {
@@ -153,6 +175,42 @@ func (m *MultiHostService) SubscribeContainersStarted(ctx context.Context, conta
 						return
 					}
 				}
+			}
+		}
+	}()
+}
+
+// followClients calls subscribe for every client now, then again for each client
+// that becomes available later (an agent added from the UI, or one that was down
+// at startup), with late set. Without it, a subscriber only ever sees the hosts
+// that existed when it subscribed. Each client is handed over once.
+func (m *MultiHostService) followClients(ctx context.Context, subscribe func(client container.ClientService, late bool)) {
+	// Subscribe before listing, so a host added in between is not missed.
+	hosts := make(chan container.Host, 8)
+	m.manager.Subscribe(ctx, hosts)
+
+	seen := map[container.ClientService]bool{}
+	for _, client := range m.manager.List() {
+		seen[client] = true
+		subscribe(client, false)
+	}
+
+	go func() {
+		for {
+			select {
+			case <-ctx.Done():
+				return
+			case host := <-hosts:
+				if !host.Available || host.Removed {
+					continue
+				}
+				client, ok := m.manager.Find(host.ID)
+				// A re-keyed host is a client this subscriber already has.
+				if !ok || seen[client] {
+					continue
+				}
+				seen[client] = true
+				subscribe(client, true)
 			}
 		}
 	}()

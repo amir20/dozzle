@@ -44,8 +44,10 @@ export interface SetupAgentCert {
 // what the hub's snippet asks of it (DOZZLE_CERT_PEM is newer than most agents).
 // Outside a container the hub cannot see its image, so its version names the tag.
 export function agentImage(hubImage: string | undefined, version: string): string {
-  if (hubImage) return hubImage;
-  if (/^v\d+\.\d+\.\d+$/.test(version)) return `amir20/dozzle:${version}`;
+  // An image id, or a tag with no repository like dozzle:dev, only exists on the
+  // machine that built it, so another machine cannot pull it.
+  if (hubImage && hubImage.includes("/") && !/^(sha256:)?[0-9a-f]{12,64}$/.test(hubImage)) return hubImage;
+  if (/^v\d+\.\d+\.\d+(-[\w.]+)?$/.test(version)) return `amir20/dozzle:${version}`;
   // A PR build reports pr-<number>-<commit>, but only pr-<number> is published.
   const pr = version.match(/^pr-\d+/);
   if (pr) return `amir20/dozzle:${pr[0]}`;

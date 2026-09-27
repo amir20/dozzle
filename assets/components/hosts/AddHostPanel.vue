@@ -219,7 +219,10 @@ function errorMessage(e: unknown) {
     case 502:
       // Reached the agent, but the two ends hold different pairs. The raw TLS
       // error ("unknown certificate authority") says nothing about what to do.
-      if (/certificate/i.test(e.message)) return t("setup.hosts.error-cert");
+      // With a custom pair the snippet carries no certificate, so copying it again
+      // cannot help; the agent needs the same files mounted.
+      if (/certificate/i.test(e.message))
+        return t(status.customCert ? "setup.hosts.error-cert-custom" : "setup.hosts.error-cert");
       return t("setup.hosts.error-connect", { reason: e.message.replace(/^could not connect to agent:\s*/i, "") });
     default:
       return e.message || t("setup.error.generic");

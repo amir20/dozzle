@@ -841,6 +841,7 @@ setup:
     error-duplicate: "Den maskine er allerede forbundet som en anden vært. Hvis agenten deler Docker-engine med den, så giv agenten sit eget DOZZLE_HOST_ID."
     error-connect: "Kunne ikke forbinde til agenten: {reason}"
     error-cert: "Agenten har et andet certifikat end denne Dozzle. Kopiér udsnittet igen, opdater agenten og genskab den."
+    error-cert-custom: "Agenten har ikke denne Dozzles eget certifikat. Giv agenten de samme certifikat- og nøglefiler, og genskab den."
     private-label: "Privat certifikat"
     private-desc: "Kun denne Dozzle kan forbinde til agenten. Andre agenter påvirkes ikke."
     private-warning: "Dette uddrag indeholder en privat nøgle. Behandl den som en adgangskode."

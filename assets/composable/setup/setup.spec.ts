@@ -278,5 +278,12 @@ describe("agentImage", () => {
     expect(agentImage("", "pr-5258")).toBe("amir20/dozzle:pr-5258");
     expect(agentImage(undefined, "pr-5258-75b67f0")).toBe("amir20/dozzle:pr-5258");
     expect(agentImage(undefined, "head")).toBe("amir20/dozzle:latest");
+    expect(agentImage(undefined, "v12.0.0-beta.1")).toBe("amir20/dozzle:v12.0.0-beta.1");
+  });
+
+  test("never hands out an image another machine cannot pull", () => {
+    expect(agentImage("sha256:3f2a9c1d4e5b6a7f8091a2b3c4d5e6f7", "v12.0.0")).toBe("amir20/dozzle:v12.0.0");
+    expect(agentImage("3f2a9c1d4e5b", "v12.0.0")).toBe("amir20/dozzle:v12.0.0");
+    expect(agentImage("dozzle:dev", "head")).toBe("amir20/dozzle:latest");
   });
 });

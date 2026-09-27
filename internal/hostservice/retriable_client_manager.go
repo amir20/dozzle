@@ -317,6 +317,8 @@ func (m *RetriableClientManager) RemoveAgent(endpoint string) error {
 	if i := slices.Index(m.failedAgents, endpoint); i >= 0 {
 		m.failedAgents = slices.Delete(m.failedAgents, i, i+1)
 		m.mu.Unlock()
+		// Never connected, so the UI lists it under its endpoint.
+		m.publish(container.Host{ID: endpoint, Endpoint: endpoint, Type: "agent", Removed: true})
 		return nil
 	}
 	a, ok := m.agents[endpoint]
@@ -329,6 +331,7 @@ func (m *RetriableClientManager) RemoveAgent(endpoint string) error {
 	m.mu.Unlock()
 
 	closeQuietly(a.closer)
+	m.publish(container.Host{ID: a.id, Endpoint: endpoint, Type: "agent", Removed: true})
 	log.Info().Str("endpoint", endpoint).Str("id", a.id).Msg("agent removed")
 	return nil
 }

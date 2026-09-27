@@ -112,7 +112,9 @@ func main() {
 		if err != nil {
 			log.Fatal().Err(err).Msg("Could not read certificates")
 		}
-		agentManager := hostservice.NewRetriableClientManager(args.RemoteAgent, args.Timeout, certs)
+		// Only the operator's agents: dozzle.yml agents come from the server-mode UI,
+		// and the private ones among them need a pair swarm mode never loads.
+		agentManager := hostservice.NewRetriableClientManager(envAgents(args), args.Timeout, certs)
 		manager := hostservice.NewSwarmClientManager(localClient, certs, args.Timeout, agentManager, args.Filter)
 		multiHostService := hostservice.NewMultiHostService(manager, args.Timeout)
 		if err := multiHostService.StartNotificationManager(ctx); err != nil {
@@ -244,6 +246,12 @@ func main() {
 		log.Error().Err(err).Msg("failed to shut down")
 	}
 	log.Debug().Msg("shut down complete")
+}
+
+// envAgents are the agents from the flag or env var. dozzle.yml's were appended
+// after them.
+func envAgents(args cli.Args) []string {
+	return slices.Clone(args.RemoteAgent[:len(args.RemoteAgent)-len(args.FileAgents)])
 }
 
 // customCert mirrors cli.ReadCertificates: a pair from the env or on disk wins
@@ -464,7 +472,7 @@ func createServer(args cli.Args, hostService web.HostService, cloudHooks web.Clo
 			AutoUpdateTime:      lockedValue(args.Locked.AutoUpdateTime, args.AutoUpdateTime),
 			StartedAt:           web.SetupWindowStart(time.Now(), freshInstall),
 			// dozzle.yml agents were appended after the operator's.
-			EnvAgents:  slices.Clone(args.RemoteAgent[:len(args.RemoteAgent)-len(args.FileAgents)]),
+			EnvAgents:  envAgents(args),
 			CustomCert: customCert(args),
 		},
 	}

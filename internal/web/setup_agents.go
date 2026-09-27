@@ -10,6 +10,7 @@ import (
 	"slices"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/amir20/dozzle/internal/agentcerts"
 	"github.com/amir20/dozzle/internal/config"
@@ -17,6 +18,7 @@ import (
 	"github.com/amir20/dozzle/internal/container/agent"
 	"github.com/amir20/dozzle/internal/hostservice"
 	"github.com/rs/zerolog/log"
+	"golang.org/x/time/rate"
 )
 
 // agentService is a HostService that can add and remove agents while running.
@@ -170,6 +172,14 @@ func (h *handler) addSetupAgent(w http.ResponseWriter, r *http.Request) {
 		cert = &parsed
 	}
 
+	// Each add dials an address the caller picked. With no login, anyone who can
+	// reach the page can do that during the setup window, so dials are rationed
+	// and the answer names only the kind of failure, never the raw error text.
+	if !agentDialLimiter.Allow() {
+		http.Error(w, "too many attempts, wait a minute and try again", http.StatusTooManyRequests)
+		return
+	}
+
 	host, err := service.AddAgent(r.Context(), endpoint, cert)
 	switch {
 	case errors.Is(err, hostservice.ErrAgentExists):
@@ -180,7 +190,7 @@ func (h *handler) addSetupAgent(w http.ResponseWriter, r *http.Request) {
 		return
 	case err != nil:
 		log.Debug().Err(err).Str("endpoint", endpoint).Msg("setup could not connect to agent")
-		http.Error(w, "could not connect to agent: "+err.Error(), http.StatusBadGateway)
+		http.Error(w, "could not connect to agent: "+dialFailure(err), http.StatusBadGateway)
 		return
 	}
 
@@ -204,6 +214,28 @@ func (h *handler) addSetupAgent(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusCreated)
 	if err := json.NewEncoder(w).Encode(setupAddAgentResponse{ID: host.ID, Name: host.Name, Endpoint: endpoint}); err != nil {
 		log.Error().Err(err).Msg("error encoding agent")
+	}
+}
+
+// agentDialLimiter allows a burst of five adds, then one every six seconds.
+var agentDialLimiter = rate.NewLimiter(rate.Every(6*time.Second), 5)
+
+// dialFailure turns a dial error into one of a few plain reasons. The raw text
+// can quote whatever answered on that port, which says more about the network
+// than someone adding an agent needs to know.
+func dialFailure(err error) string {
+	msg := strings.ToLower(err.Error())
+	switch {
+	case strings.Contains(msg, "certificate"):
+		return "the agent refused this Dozzle's certificate"
+	case strings.Contains(msg, "no such host"), strings.Contains(msg, "server misbehaving"):
+		return "no such host"
+	case strings.Contains(msg, "connection refused"):
+		return "connection refused"
+	case strings.Contains(msg, "deadline exceeded"), strings.Contains(msg, "timeout"), strings.Contains(msg, "timed out"):
+		return "timed out"
+	default:
+		return "no Dozzle agent answered at that address"
 	}
 }
 

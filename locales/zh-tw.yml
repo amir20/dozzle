@@ -843,6 +843,7 @@ setup:
     error-duplicate: "這台機器已經以另一個主機的身分連線。如果這個代理程式使用相同的 Docker 引擎，請為它設定專屬的 DOZZLE_HOST_ID。"
     error-connect: "無法連線至代理程式：{reason}"
     error-cert: "代理程式的憑證與這個 Dozzle 不同。請重新複製程式碼片段，更新代理程式後重新建立。"
+    error-cert-custom: "代理程式沒有這個 Dozzle 的自訂憑證。請把相同的憑證和金鑰檔案提供給代理程式，然後重新建立。"
     private-label: "私人憑證"
     private-desc: "只有這個 Dozzle 能連線到代理程式。其他代理程式不受影響。"
     private-warning: "這段內容包含私密金鑰，請像密碼一樣保管。"

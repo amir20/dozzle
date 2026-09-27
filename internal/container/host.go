@@ -38,6 +38,9 @@ type Host struct {
 	// minted by the hub and never crosses the agent boundary, so the UI can drop
 	// the stale entry rather than list one machine twice until the next reload.
 	ReplacesID string `json:"replacesId,omitempty"`
+	// Removed is set on the one update sent when an agent is removed from the UI,
+	// so every open tab drops the host, not only the one that removed it.
+	Removed bool `json:"removed,omitempty"`
 }
 
 func (h Host) String() string {

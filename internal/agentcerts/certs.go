@@ -123,6 +123,13 @@ func LoadOrCreateAgentPair(dir string) (Pair, error) {
 	if err == nil || !errors.Is(err, os.ErrNotExist) {
 		return pair, err
 	}
+	// Only a dir with neither file gets a new pair. With one half left, agents may
+	// still hold the old pair, and replacing it would lock every one of them out.
+	for _, name := range []string{agentCertFile, agentKeyFile} {
+		if _, statErr := os.Stat(filepath.Join(dir, name)); statErr == nil {
+			return Pair{}, fmt.Errorf("%s exists without its other half in %s, restore it or remove both to make a new pair", name, dir)
+		}
+	}
 
 	pair, err = Generate()
 	if err != nil {

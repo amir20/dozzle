@@ -73,8 +73,8 @@ func CreateMultiHostService(embeddedCerts embed.FS, args Args) *hostservice.Mult
 			parsed, err = pair.TLS()
 		}
 		if err != nil {
-			// Those agents only accept this pair, so without it they stay down
-			// rather than being dialed with one they would refuse anyway.
+			// They are dialed with the default pair instead, which they refuse, so
+			// they show as down until the pair is restored.
 			log.Error().Err(err).Msg("Could not read the private agent certificate, agents added with it will not connect")
 		} else {
 			for _, endpoint := range args.PrivateAgents {

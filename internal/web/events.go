@@ -172,7 +172,8 @@ func (h *handler) streamEvents(w http.ResponseWriter, r *http.Request) {
 		logWriteError(err, "error writing containers to event stream")
 	}
 
-	go sendBeaconEvent(h, r, len(allContainers))
+	// Read here, not in the goroutine: the path is a test seam that tests swap.
+	go sendBeaconEvent(h, r, len(allContainers), setupConfigPath)
 
 	// a host whose containers are all filtered out or stopped emits no stats, so without
 	// this the stream is silent and an idle proxy timeout (nginx defaults to 60s) drops it
@@ -324,7 +325,7 @@ func logWriteError(err error, msg string) {
 	log.WithLevel(level).Err(err).Msg(msg)
 }
 
-func sendBeaconEvent(h *handler, r *http.Request, runningContainers int) {
+func sendBeaconEvent(h *handler, r *http.Request, runningContainers int, configPath string) {
 	if h.config.NoAnalytics {
 		return
 	}
@@ -342,9 +343,15 @@ func sendBeaconEvent(h *handler, r *http.Request, runningContainers int) {
 	b.Name = "events"
 	b.RunningContainers = runningContainers
 	b.Version = h.config.Version
-	// Agents added from the UI since startup count too.
-	if file, err := config.Load(setupConfigPath); err == nil {
-		b.FileAgents = len(file.RemoteAgents)
+	// Agents added from the UI since startup count too, the same way startup
+	// reads them: trimmed, deduplicated, and never one the env var already has.
+	if file, err := config.Load(configPath); err == nil {
+		b.FileAgents = 0
+		for _, a := range h.setupAgents(file) {
+			if !a.Locked {
+				b.FileAgents++
+			}
+		}
 	}
 
 	local, err := h.hostService.LocalHost()

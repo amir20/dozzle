@@ -7,7 +7,7 @@ import { parseEventData } from "@/utils/events";
 import { Host } from "./hosts";
 
 const { showToast, removeToast } = useToast();
-const { updateHost } = useHosts();
+const { updateHost, removeHost } = useHosts();
 const { markStale } = useStaleUI();
 // @ts-ignore
 const { t } = i18n.global;
@@ -135,6 +135,11 @@ export const useContainerStore = defineStore("container", () => {
 
     es.addEventListener("update-host", (e) => {
       const host = parseEventData<Host>(e);
+      if (host.removed) {
+        removeHost(host.id, host.endpoint);
+        containers.value = containers.value.filter((c) => c.host !== host.id);
+        return;
+      }
       updateHost(host);
     });
 

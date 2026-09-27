@@ -71,3 +71,31 @@ func TestFromEnv(t *testing.T) {
 	assert.Error(t, err)
 
 }
+
+// A pair with one half missing is broken, not absent: agents may hold it, so it
+// must never be quietly replaced by a fresh one.
+func TestLoadOrCreateAgentPairRefusesHalfAPair(t *testing.T) {
+	for _, missing := range []string{agentCertFile, agentKeyFile} {
+		dir := t.TempDir()
+		original, err := LoadOrCreateAgentPair(dir)
+		require.NoError(t, err)
+		require.NoError(t, os.Remove(filepath.Join(dir, missing)))
+
+		_, err = LoadOrCreateAgentPair(dir)
+		assert.Error(t, err, missing)
+
+		// The surviving half is untouched.
+		for _, name := range []string{agentCertFile, agentKeyFile} {
+			if name == missing {
+				continue
+			}
+			got, err := os.ReadFile(filepath.Join(dir, name))
+			require.NoError(t, err)
+			want := original.Cert
+			if name == agentKeyFile {
+				want = original.Key
+			}
+			assert.Equal(t, want, got)
+		}
+	}
+}

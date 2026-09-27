@@ -841,6 +841,7 @@ setup:
     error-duplicate: "Questa macchina è già collegata come un altro host. Se questo agente condivide lo stesso motore Docker, assegnagli un DOZZLE_HOST_ID proprio."
     error-connect: "Impossibile connettersi all'agente: {reason}"
     error-cert: "L'agente ha un certificato diverso da questo Dozzle. Copia di nuovo lo snippet, aggiorna l'agente e ricrealo."
+    error-cert-custom: "L'agente non ha il certificato personalizzato di questo Dozzle. Fornisci all'agente gli stessi file di certificato e chiave, poi ricrealo."
     private-label: "Certificato privato"
     private-desc: "Solo questo Dozzle può collegarsi all'agente. Gli altri agenti non cambiano."
     private-warning: "Questo frammento contiene una chiave privata. Trattala come una password."

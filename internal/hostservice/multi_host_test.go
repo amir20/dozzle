@@ -16,6 +16,9 @@ type listManager struct {
 
 func (m *listManager) List() []container.ClientService { return m.clients }
 
+// Subscribe is a no-op: no host joins later in these tests.
+func (m *listManager) Subscribe(context.Context, chan<- container.Host) {}
+
 // startedService hands the subscribed channel back to the test so it can play
 // the store's producer.
 type startedService struct {

@@ -16,6 +16,7 @@ import (
 	"github.com/spf13/afero"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	"golang.org/x/time/rate"
 )
 
 // fakeAgentHosts is a server-mode host service whose agents never dial out.
@@ -98,12 +99,12 @@ func TestSetupAgents_AddSavesAndLists(t *testing.T) {
 
 func TestSetupAgents_ConnectFailureSavesNothing(t *testing.T) {
 	setupTestEnv(t, true)
-	hosts := &fakeAgentHosts{connected: map[string]string{}, addErr: errors.New("connection refused")}
+	hosts := &fakeAgentHosts{connected: map[string]string{}, addErr: errors.New("dial tcp 10.0.0.9:7007: connect: connection refused")}
 	h := agentsHandler(hosts, SetupConfig{})
 
 	rr := doSetup(h, "POST", "/api/setup/agents", `{"address":"down:7007"}`)
 	assert.Equal(t, http.StatusBadGateway, rr.Code)
-	assert.Contains(t, rr.Body.String(), "connection refused")
+	assert.Equal(t, "could not connect to agent: connection refused\n", rr.Body.String(), "a reason, never the raw error")
 
 	file, err := config.Load(setupConfigPath)
 	require.NoError(t, err)
@@ -214,4 +215,31 @@ func TestSetupAgents_PrivateCertForbiddenWhenWindowClosed(t *testing.T) {
 	setupTestEnv(t, true)
 	h := agentsHandler(&fakeAgentHosts{connected: map[string]string{}}, SetupConfig{StartedAt: time.Now().Add(-time.Hour)})
 	assert.Equal(t, http.StatusForbidden, doSetup(h, "POST", "/api/setup/agent-cert", "").Code)
+}
+
+func TestDialFailureNamesOnlyTheKind(t *testing.T) {
+	cases := map[string]string{
+		`rpc error: code = Unavailable desc = connection error: desc = "error reading server preface: remote error: tls: unknown certificate authority"`: "the agent refused this Dozzle's certificate",
+		"dial tcp: lookup nope on 127.0.0.11:53: no such host":                            "no such host",
+		"dial tcp 10.0.0.9:7007: connect: connection refused":                             "connection refused",
+		"context deadline exceeded":                                                       "timed out",
+		`connection error: desc = "error reading server preface: http2: frame too large"`: "no Dozzle agent answered at that address",
+	}
+	for raw, want := range cases {
+		assert.Equal(t, want, dialFailure(errors.New(raw)), raw)
+	}
+}
+
+func TestSetupAgents_DialsAreRationed(t *testing.T) {
+	setupTestEnv(t, true)
+	old := agentDialLimiter
+	agentDialLimiter = rate.NewLimiter(rate.Every(time.Hour), 2)
+	t.Cleanup(func() { agentDialLimiter = old })
+
+	hosts := &fakeAgentHosts{connected: map[string]string{}, addErr: errors.New("connection refused")}
+	h := agentsHandler(hosts, SetupConfig{})
+	for range 2 {
+		assert.Equal(t, http.StatusBadGateway, doSetup(h, "POST", "/api/setup/agents", `{"address":"down:7007"}`).Code)
+	}
+	assert.Equal(t, http.StatusTooManyRequests, doSetup(h, "POST", "/api/setup/agents", `{"address":"down:7007"}`).Code)
 }
