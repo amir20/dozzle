@@ -36,9 +36,19 @@ const updateHost = (host: Host) => {
   return host;
 };
 
+// Only this tab hears about a removal: nothing on the events stream announces it,
+// so other tabs keep the host (shown offline) until they reload. An agent that
+// never connected is listed under its endpoint, so both keys are cleared.
+const removeHost = (...ids: (string | undefined)[]) => {
+  for (const id of ids) {
+    if (id) delete hosts.value[id];
+  }
+};
+
 export function useHosts() {
   return {
     hosts,
     updateHost,
+    removeHost,
   };
 }

@@ -19,6 +19,7 @@ declare global {
   const SetupError: typeof import('./composable/setup/setup').SetupError
   const TEMPLATE_VARIABLES: typeof import('./composable/editor/templateEditor').TEMPLATE_VARIABLES
   const acceptHMRUpdate: typeof import('pinia').acceptHMRUpdate
+  const agentComposeSnippet: typeof import('./composable/setup/setup').agentComposeSnippet
   const alertTargetFor: typeof import('./composable/notifications/alertForm').alertTargetFor
   const allLevels: typeof import('./composable/logs/logContext').allLevels
   const appendBatch: typeof import('./composable/logs/logWindow').appendBatch
@@ -567,7 +568,7 @@ declare global {
   export type { SelfUpdatePhase } from './composable/setup/selfUpdate'
   import('./composable/setup/selfUpdate')
   // @ts-ignore
-  export type { SetupError, SetupStepId, SetupStepState, AutoUpdateMode, AutoUpdateReason, SetupAutoUpdate, SetupStatus, SetupNextResult, SetupStepHandle, SetupCloudFacts } from './composable/setup/setup'
+  export type { SetupError, SetupStepId, SetupStepState, AutoUpdateMode, AutoUpdateReason, SetupAutoUpdate, SetupAgent, SetupAgentCert, SetupStatus, SetupNextResult, SetupStepHandle, SetupCloudFacts } from './composable/setup/setup'
   import('./composable/setup/setup')
   // @ts-ignore
   export type { PopoverPlacement } from './composable/ui/popover'
@@ -600,6 +601,7 @@ declare module 'vue' {
     readonly SetupError: UnwrapRef<typeof import('./composable/setup/setup')['SetupError']>
     readonly TEMPLATE_VARIABLES: UnwrapRef<typeof import('./composable/editor/templateEditor')['TEMPLATE_VARIABLES']>
     readonly acceptHMRUpdate: UnwrapRef<typeof import('pinia')['acceptHMRUpdate']>
+    readonly agentComposeSnippet: UnwrapRef<typeof import('./composable/setup/setup')['agentComposeSnippet']>
     readonly alertTargetFor: UnwrapRef<typeof import('./composable/notifications/alertForm')['alertTargetFor']>
     readonly allLevels: UnwrapRef<typeof import('./composable/logs/logContext')['allLevels']>
     readonly appendBatch: UnwrapRef<typeof import('./composable/logs/logWindow')['appendBatch']>

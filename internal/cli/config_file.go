@@ -3,6 +3,7 @@ package cli
 import (
 	"fmt"
 	"os"
+	"slices"
 	"strings"
 
 	"github.com/amir20/dozzle/internal/config"
@@ -72,6 +73,40 @@ func applyConfigFile(args *Args, file config.File, argv []string, lookupEnv func
 	if !args.Locked.AutoUpdateTime && file.AutoUpdateTime != nil {
 		args.AutoUpdateTime = *file.AutoUpdateTime
 	}
+
+	// Agents from the file join the ones from the flag or env var. One listed in
+	// both is the operator's, so it stays out of FileAgents and the UI cannot
+	// remove it.
+	args.FileAgents = nil
+	for _, endpoint := range file.RemoteAgents {
+		endpoint = strings.TrimSpace(endpoint)
+		if endpoint == "" {
+			continue
+		}
+		// Compared by address: "nas:7007" and "nas:7007|nas" are one agent, and
+		// dialing it twice only ends in a duplicate host warning.
+		sameAgent := func(existing string) bool {
+			return agentAddress(existing) == agentAddress(endpoint)
+		}
+		if slices.ContainsFunc(args.RemoteAgent, sameAgent) || slices.ContainsFunc(args.FileAgents, sameAgent) {
+			continue
+		}
+		args.FileAgents = append(args.FileAgents, endpoint)
+	}
+	args.RemoteAgent = append(args.RemoteAgent, args.FileAgents...)
+
+	args.PrivateAgents = nil
+	for _, endpoint := range file.PrivateAgents {
+		if slices.Contains(args.FileAgents, endpoint) {
+			args.PrivateAgents = append(args.PrivateAgents, endpoint)
+		}
+	}
+}
+
+// agentAddress is the host:port half of an agent endpoint ("addr|name|group").
+func agentAddress(endpoint string) string {
+	address, _, _ := strings.Cut(strings.TrimSpace(endpoint), "|")
+	return address
 }
 
 // validateAutoUpdate rejects a bad --auto-update or --auto-update-time. A bad

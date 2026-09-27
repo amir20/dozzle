@@ -760,9 +760,9 @@ setup:
   close: Kapat
   copy: Kopyala
   settings-title: Dozzle kurulumu
-  settings-desc: Giriş, konteyner işlemleri, kabuk ve Dozzle Cloud birkaç adımda.
+  settings-desc: "Giriş, konteyner işlemleri, kabuk, diğer sunucular ve Dozzle Cloud birkaç adımda."
   settings-done-title: "Dozzle kuruldu"
-  settings-done-desc: "Giriş açık. Konteyner işlemlerini, kabuğu ve Dozzle Cloud'u gözden geçirmek için kurulumu açın."
+  settings-done-desc: "Giriş açık. Konteyner işlemlerini, kabuğu, diğer sunucuları ve Dozzle Cloud'u gözden geçirmek için kurulumu açın."
   settings-closed-title: "Kurulum kapandı"
   settings-closed-desc: "Giriş olmadan kurulum, yalnızca yeni bir kurulumun ilk 15 dakikasında değişiklik kabul eder. Bunun yerine ortam değişkenlerini kullanın."
   steps:
@@ -771,6 +771,8 @@ setup:
     actions: İşlemler ve kabuk
     cloud: Dozzle Cloud
     cloud-note: İsteğe bağlı
+    hosts: "Sunucular"
+    hosts-note: "İsteğe bağlı"
     update: "Otomatik güncelleme"
     update-note: "Eylemler gerekli"
     restart: Yeniden başlat
@@ -819,6 +821,33 @@ setup:
     window-closed: "Giriş olmadan kurulum, yeni bir kurulumun yalnızca ilk 15 dakikasında değişiklik kabul eder. Bunları ortam değişkenleriyle ayarlayın veya önce girişi açın."
     no-access: Hesabınız bu ayarları değiştiremez.
     restart-note: Bunlar Dozzle yeniden başladıktan sonra geçerli olur.
+  hosts:
+    title: "Başka bir sunucu ekle"
+    subtitle: "Diğer makinelerinizdeki konteynerleri bu Dozzle'dan görün. Her birinde bir ajan çalıştırın, ardından adresini buraya ekleyin."
+    run-title: "Ajanı çalıştırın"
+    run-body: "Diğer makinede bunu bir compose dosyasına ekleyip başlatın. 7007 portunu özel bir ağda tutun."
+    custom-cert: "Bu Dozzle kendi sertifikasını kullanıyor, bu yüzden ajanın da aynı çifte ihtiyacı var, yoksa bağlantıyı reddeder."
+    cert-docs: "Sertifika rehberi"
+    connect-title: "Bağlanın"
+    address: "Adres"
+    name: "Ad"
+    optional: "(isteğe bağlı)"
+    add: "Sunucu ekle"
+    connect-note: "Dozzle kaydetmeden önce bağlanır. Sunucu yeniden başlatma olmadan hemen görünür."
+    added: "{name} bağlandı."
+    list-title: "Ajanlar"
+    connected: "Bağlı"
+    offline: "Bağlı değil"
+    remove: "Kaldır"
+    skip: "Şimdi değil"
+    error-exists: "Bu ajan zaten eklenmiş."
+    error-connect: "Ajana bağlanılamadı: {reason}"
+    private-label: "Özel sertifika"
+    private-desc: "Ajana yalnızca bu Dozzle bağlanabilir. Diğer ajanlar etkilenmez."
+    private-warning: "Bu parça özel bir anahtar içeriyor. Onu bir parola gibi saklayın."
+    private-pill: "özel"
+    private-error: "Özel sertifika oluşturulamadı, bu yüzden ortak sertifika kullanılıyor. {reason}"
+    private-missing: "Bu Dozzle'ın henüz özel sertifikası yok. Özel sertifikayı yeniden açıp tekrar deneyin."
   cloud:
     title: Dozzle Cloud'a bağlan
     subtitle: Bir sekmeyi açık tutmadan bir şeyler bozulduğunda haberdar olun.

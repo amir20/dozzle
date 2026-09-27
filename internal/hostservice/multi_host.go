@@ -2,6 +2,8 @@ package hostservice
 
 import (
 	"context"
+	"crypto/tls"
+	"errors"
 	"fmt"
 	"sync"
 	"sync/atomic"
@@ -154,6 +156,45 @@ func (m *MultiHostService) SubscribeContainersStarted(ctx context.Context, conta
 			}
 		}
 	}()
+}
+
+// agentAdder is a ClientManager that can take agents while running. Only the
+// server-mode manager is one; swarm discovers its nodes itself.
+type agentAdder interface {
+	AddAgent(ctx context.Context, endpoint string, cert *tls.Certificate) (container.Host, error)
+	RemoveAgent(endpoint string) error
+	AgentHostID(endpoint string) string
+}
+
+var ErrAgentsUnsupported = errors.New("agents cannot be added in this mode")
+
+// CanAddAgents reports whether AddAgent works in this mode.
+func (m *MultiHostService) CanAddAgents() bool {
+	_, ok := m.manager.(agentAdder)
+	return ok
+}
+
+func (m *MultiHostService) AddAgent(ctx context.Context, endpoint string, cert *tls.Certificate) (container.Host, error) {
+	adder, ok := m.manager.(agentAdder)
+	if !ok {
+		return container.Host{}, ErrAgentsUnsupported
+	}
+	return adder.AddAgent(ctx, endpoint, cert)
+}
+
+func (m *MultiHostService) RemoveAgent(endpoint string) error {
+	adder, ok := m.manager.(agentAdder)
+	if !ok {
+		return ErrAgentsUnsupported
+	}
+	return adder.RemoveAgent(endpoint)
+}
+
+func (m *MultiHostService) AgentHostID(endpoint string) string {
+	if adder, ok := m.manager.(agentAdder); ok {
+		return adder.AgentHostID(endpoint)
+	}
+	return ""
 }
 
 func (m *MultiHostService) Hosts() []container.Host {

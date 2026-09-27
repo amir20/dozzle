@@ -48,7 +48,13 @@
             <HostNavItem v-for="host in groupHosts" :key="host.id" :host="host" @click="setHost(host.id)" />
           </template>
         </template>
+
+        <NavItem v-if="canAddHost" class="text-base-content/60" @click="addHostModal?.open()">
+          <template #icon><mdi:plus class="size-4" /></template>
+          {{ $t("setup.hosts.add") }}
+        </NavItem>
       </ul>
+      <AddHostModal v-if="canAddHost" ref="addHostModal" />
     </template>
 
     <template #right>
@@ -126,6 +132,11 @@ const pinnedStore = usePinnedLogsStore();
 const { isStreaming, isMerged } = useStreamedContainers();
 
 const { hosts } = useHosts();
+
+// Adding a host is a setup write, so the row only shows to someone who could
+// save one. The server decides that when it renders the page.
+const canAddHost = computed(() => !!config.canAddHosts);
+const addHostModal = useTemplateRef<{ open: () => void }>("addHostModal");
 
 const setHost = (host: string | null) => (sessionHost.value = host);
 

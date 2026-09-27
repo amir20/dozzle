@@ -29,6 +29,14 @@ type File struct {
 	AutoUpdate *string `yaml:"autoUpdate,omitempty"`
 	// AutoUpdateTime is "HH:MM" in the server's local time.
 	AutoUpdateTime *string `yaml:"autoUpdateTime,omitempty"`
+	// RemoteAgents are agents added from the UI, in DOZZLE_REMOTE_AGENT's
+	// endpoint form. Unlike the settings above they add to the flag or env var
+	// instead of losing to it, and they connect live, so adding or removing one
+	// needs no restart.
+	RemoteAgents []string `yaml:"remoteAgents,omitempty"`
+	// PrivateAgents are the RemoteAgents that authenticate with the hub's own
+	// pair in agent_cert.pem instead of the one it was started with.
+	PrivateAgents []string `yaml:"privateAgents,omitempty"`
 	// SetupWindowStartedAt is written just before the wizard restarts Dozzle,
 	// so the restart carries the no-login window forward instead of reopening it.
 	SetupWindowStartedAt *time.Time `yaml:"setupWindowStartedAt,omitempty"`

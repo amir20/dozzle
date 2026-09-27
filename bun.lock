@@ -93,6 +93,7 @@
         "vue-component-type-helpers": "3.3.11",
         "vue-eslint-parser": "^10.4.1",
         "vue-tsc": "3.3.11",
+        "yaml": "^2.9.1",
       },
     },
   },

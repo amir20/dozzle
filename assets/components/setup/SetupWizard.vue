@@ -10,6 +10,7 @@
     <template v-if="status && currentId">
       <SetupLoginStep v-if="currentId === 'login'" ref="step" :status="status" :next-step="steps[index + 1]" />
       <SetupActionsStep v-else-if="currentId === 'actions'" ref="step" :status="status" />
+      <SetupHostsStep v-else-if="currentId === 'hosts'" ref="step" :status="status" />
       <SetupCloudStep v-else-if="currentId === 'cloud'" ref="step" :next-step="steps[index + 1]" />
       <SetupUpdateStep v-else-if="currentId === 'update'" ref="step" :status="status" />
       <SetupRestartStep
@@ -110,6 +111,7 @@ function stateOf(id: SetupStepId, i: number): SetupStepState {
 
 const notes: Partial<Record<SetupStepId, string>> = {
   login: "setup.steps.login-note",
+  hosts: "setup.steps.hosts-note",
   cloud: "setup.steps.cloud-note",
 };
 

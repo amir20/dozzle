@@ -8,10 +8,10 @@ import (
 
 	"github.com/amir20/dozzle/internal/analytics"
 	"github.com/amir20/dozzle/internal/auth"
+	"github.com/amir20/dozzle/internal/config"
 	"github.com/amir20/dozzle/internal/container"
 	"github.com/amir20/dozzle/internal/hostservice"
 	"github.com/amir20/dozzle/internal/web/sse"
-	"github.com/amir20/dozzle/types"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 )
@@ -328,17 +328,23 @@ func sendBeaconEvent(h *handler, r *http.Request, runningContainers int) {
 	if h.config.NoAnalytics {
 		return
 	}
-	b := types.BeaconEvent{
-		AuthProvider:      string(h.config.Authorization.Provider),
-		Browser:           r.Header.Get("User-Agent"),
-		Clients:           len(h.hostService.Hosts()),
-		HasActions:        h.config.EnableActions,
-		HasCustomAddress:  h.config.Addr != ":8080",
-		HasCustomBase:     h.config.Base != "/",
-		HasHostname:       h.config.Hostname != "",
-		Name:              "events",
-		RunningContainers: runningContainers,
-		Version:           h.config.Version,
+	// Starts from the install facts the start beacon carries, so the dashboard,
+	// which reads these rows, stops seeing agents and shell as always off.
+	b := h.config.Beacon
+	b.AuthProvider = string(h.config.Authorization.Provider)
+	b.Browser = r.Header.Get("User-Agent")
+	b.Clients = len(h.hostService.Hosts())
+	b.HasActions = h.config.EnableActions
+	b.HasShell = h.config.EnableShell
+	b.HasCustomAddress = h.config.Addr != ":8080"
+	b.HasCustomBase = h.config.Base != "/"
+	b.HasHostname = h.config.Hostname != ""
+	b.Name = "events"
+	b.RunningContainers = runningContainers
+	b.Version = h.config.Version
+	// Agents added from the UI since startup count too.
+	if file, err := config.Load(setupConfigPath); err == nil {
+		b.FileAgents = len(file.RemoteAgents)
 	}
 
 	local, err := h.hostService.LocalHost()

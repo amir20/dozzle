@@ -147,3 +147,23 @@ func TestValidateAutoUpdate(t *testing.T) {
 	assert.Error(t, validateAutoUpdate(Args{AutoUpdate: "hourly", Locked: Locked{AutoUpdate: true}}))
 	assert.Error(t, validateAutoUpdate(Args{AutoUpdateTime: "3:00", Locked: Locked{AutoUpdateTime: true}}))
 }
+
+func TestApplyConfigFileRemoteAgents(t *testing.T) {
+	file := config.File{
+		RemoteAgents:  []string{"nas:7007|nas", " pi:7007 ", "env:7007|renamed", "nas:7007", ""},
+		PrivateAgents: []string{"pi:7007", "env:7007", "gone:7007"},
+	}
+
+	args := Args{RemoteAgent: []string{"env:7007"}}
+	applyConfigFile(&args, file, nil, lookupFrom(nil))
+
+	assert.Equal(t, []string{"nas:7007|nas", "pi:7007"}, args.FileAgents)
+	assert.Equal(t, []string{"env:7007", "nas:7007|nas", "pi:7007"}, args.RemoteAgent)
+	// Only agents the file owns can be private; the operator's keep their pair.
+	assert.Equal(t, []string{"pi:7007"}, args.PrivateAgents)
+
+	args = Args{}
+	applyConfigFile(&args, config.File{}, nil, lookupFrom(nil))
+	assert.Empty(t, args.FileAgents)
+	assert.Empty(t, args.RemoteAgent)
+}

@@ -1,13 +1,13 @@
 ---
 title: Asistente de configuración
-sourceHash: 3b30130e995d
+sourceHash: 364d497cf753
 ---
 
 # Asistente de configuración
 
 <Badge type="warning" text="Docker Only" />
 
-Una instalación nueva de Dozzle se abre con un breve asistente de configuración. Te guía por las pocas cosas que casi todo el mundo cambia justo después de instalar: activar el inicio de sesión, permitir acciones sobre contenedores y acceso a la shell, y conectar Dozzle Cloud. Todo lo que guarda también se puede definir con flags o variables de entorno, así que el asistente es opcional.
+Una instalación nueva de Dozzle se abre con un breve asistente de configuración. Te guía por las pocas cosas que casi todo el mundo cambia justo después de instalar: activar el inicio de sesión, permitir acciones sobre contenedores y acceso a la shell, añadir otros hosts y conectar Dozzle Cloud. Todo lo que guarda también se puede definir con flags o variables de entorno, así que el asistente es opcional.
 
 El asistente solo aparece en una instalación nueva en modo servidor. Los despliegues de Swarm y Kubernetes nunca lo muestran. Puedes volver a abrirlo más tarde desde Ajustes.
 
@@ -53,11 +53,17 @@ Dos interruptores controlan lo que Dozzle puede hacer con tus contenedores:
 
 Si un ajuste ya está fijado por un flag o una variable de entorno, su interruptor es de solo lectura y lo indica. Igual que el inicio de sesión, estos interruptores necesitan `/data` en un volumen, así que siguen en solo lectura hasta que lo esté.
 
-### 3. Dozzle Cloud
+### 3. Hosts
+
+Dozzle puede mostrar contenedores de otras máquinas mediante [agentes](/es/guide/agent). Este paso muestra el archivo compose que debes ejecutar en la otra máquina y luego pide la dirección del agente, por ejemplo `10.0.0.5:7007`, y un nombre opcional. **Añadir host** se conecta al agente antes de guardar nada, así que una dirección equivocada o un certificado que no coincide se ve al momento. En cuanto se conecta, el host aparece en la barra lateral sin reiniciar.
+
+Los agentes definidos con `DOZZLE_REMOTE_AGENT` aparecen bloqueados y solo se pueden quitar desde tu archivo compose. Los agentes añadidos aquí se pueden quitar desde la misma lista. **Ahora no** salta el paso, y el mismo panel sigue disponible después desde **Añadir host** al final de la lista de hosts.
+
+### 4. Dozzle Cloud
 
 [Dozzle Cloud](/es/guide/dozzle-cloud) envía alertas en cuanto algo falla, un resumen cada mañana de lo que hay que arreglar y guarda un historial que sobrevive a los reinicios. **Conectar Dozzle Cloud** vincula esta instancia y **Ahora no** sigue adelante. Este paso se omite si la instancia ya está vinculada o si no tienes permiso para vincularla.
 
-### 4. Actualización automática
+### 5. Actualización automática
 
 Dozzle puede mantenerse al día solo. Elige **Desactivada**, **Diaria** o **Semanal** (la semanal se ejecuta el domingo) y una hora del día. La hora es la local del servidor y por defecto es `03:00`. A esa hora Dozzle comprueba si su registro tiene una imagen más reciente y, solo si la hay, [se actualiza](#self-update).
 
@@ -65,7 +71,7 @@ Este ajuste se aplica al momento y no necesita reinicio.
 
 Actualizarse es una acción, así que mientras las acciones están desactivadas este paso sigue en la lista, pero en gris y marcado con **Requiere acciones**. Activar las acciones en el paso 2 lo habilita al momento. Si esta instancia no puede actualizarse sola por otro motivo (por ejemplo, porque usa un tag de versión fijo), el paso indica el motivo en su lugar.
 
-### 5. Reinicio
+### 6. Reinicio
 
 El último paso lista los cambios guardados que todavía no están en uso. **Reiniciar Dozzle** reinicia el contenedor, espera a que vuelva y recarga la página. Si no hay nada pendiente, el paso solo indica que has terminado.
 
@@ -73,7 +79,7 @@ Si Dozzle no puede reiniciarse solo (por ejemplo, cuando no encuentra su propio 
 
 ## <Icon icon="mdi:file-cog-outline" inline /> Dónde se guardan los ajustes
 
-El asistente guarda lo que eliges en `/data/dozzle.yml`. Dozzle lee este archivo una sola vez al arrancar, por eso los cambios necesitan un reinicio. Dozzle se reinicia solo desde el asistente, así que no tienes que hacerlo a mano. Las claves de actualización automática son la excepción: Dozzle las vuelve a leer cada minuto, así que se aplican sin reiniciar.
+El asistente guarda lo que eliges en `/data/dozzle.yml`. Dozzle lee este archivo una sola vez al arrancar, por eso los cambios necesitan un reinicio. Dozzle se reinicia solo desde el asistente, así que no tienes que hacerlo a mano. Las claves de actualización automática son la excepción: Dozzle las vuelve a leer cada minuto, así que se aplican sin reiniciar. `remoteAgents` es la otra excepción: los hosts se conectan en cuanto se añaden.
 
 ```yaml [/data/dozzle.yml]
 authProvider: simple
@@ -81,17 +87,23 @@ enableActions: true
 enableShell: false
 autoUpdate: weekly
 autoUpdateTime: "03:00"
+remoteAgents:
+  - 10.0.0.5:7007|nas
+privateAgents:
+  - 10.0.0.5:7007|nas
 ```
 
-| Clave            | Valores                           | Equivale a                |
-| ---------------- | --------------------------------- | ------------------------- |
-| `authProvider`   | `none`, `simple`, `forward-proxy` | `DOZZLE_AUTH_PROVIDER`    |
-| `enableActions`  | `true`, `false`                   | `DOZZLE_ENABLE_ACTIONS`   |
-| `enableShell`    | `true`, `false`                   | `DOZZLE_ENABLE_SHELL`     |
-| `autoUpdate`     | `off`, `daily`, `weekly`          | `DOZZLE_AUTO_UPDATE`      |
-| `autoUpdateTime` | `HH:MM`, hora local del servidor  | `DOZZLE_AUTO_UPDATE_TIME` |
+| Clave            | Valores                                                                                          | Equivale a                |
+| ---------------- | ------------------------------------------------------------------------------------------------ | ------------------------- |
+| `authProvider`   | `none`, `simple`, `forward-proxy`                                                                | `DOZZLE_AUTH_PROVIDER`    |
+| `enableActions`  | `true`, `false`                                                                                  | `DOZZLE_ENABLE_ACTIONS`   |
+| `enableShell`    | `true`, `false`                                                                                  | `DOZZLE_ENABLE_SHELL`     |
+| `autoUpdate`     | `off`, `daily`, `weekly`                                                                         | `DOZZLE_AUTO_UPDATE`      |
+| `autoUpdateTime` | `HH:MM`, hora local del servidor                                                                 | `DOZZLE_AUTO_UPDATE_TIME` |
+| `remoteAgents`   | lista de direcciones de agentes                                                                  | `DOZZLE_REMOTE_AGENT`     |
+| `privateAgents`  | agentes de `remoteAgents` que usan el [certificado privado](/es/guide/agent#private-certificate) | ninguna                   |
 
-Los flags y las variables de entorno siempre tienen prioridad sobre el archivo. Si `DOZZLE_ENABLE_ACTIONS` está definida, el valor de `dozzle.yml` se ignora y el asistente muestra el interruptor bloqueado. Para volver a gestionar un ajuste desde el asistente, quita la variable de tu archivo compose.
+Los flags y las variables de entorno siempre tienen prioridad sobre el archivo. Si `DOZZLE_ENABLE_ACTIONS` está definida, el valor de `dozzle.yml` se ignora y el asistente muestra el interruptor bloqueado. Para volver a gestionar un ajuste desde el asistente, quita la variable de tu archivo compose. `remoteAgents` funciona distinto: los agentes del archivo se suman a los de `DOZZLE_REMOTE_AGENT` en lugar de ser reemplazados por ellos.
 
 ## <Icon icon="mdi:update" inline /> Cómo se actualiza Dozzle a sí mismo {#self-update}
 
@@ -115,6 +127,6 @@ Algunas instalaciones no pueden actualizarse de esta forma:
 ## <Icon icon="mdi:shield-lock-outline" inline /> Seguridad
 
 - **El inicio de sesión es el primer paso.** Un reinicio tras guardar una cuenta o un proxy activa el inicio de sesión antes de que se pueda cambiar cualquier otro ajuste.
-- **Solo un usuario con sesión iniciada puede cambiar las acciones, la shell y la actualización automática o reiniciar Dozzle.** El usuario necesita todos los roles.
+- **Solo un usuario con sesión iniciada puede cambiar las acciones, la shell y la actualización automática, añadir o quitar hosts, o reiniciar Dozzle.** El usuario necesita todos los roles.
 - **Sin inicio de sesión, solo una instalación nueva tiene una ventana de 15 minutos.** Cuando `authProvider` es `none`, estos ajustes solo se pueden cambiar durante los 15 minutos siguientes al primer arranque de una instalación nueva, es decir, una cuyo `/data` estaba vacío. Una instalación que ya tiene datos de arranques anteriores nunca tiene la ventana, así que un reinicio del host o una actualización de la imagen no pueden abrirla. Fuera de la ventana, usa variables de entorno o activa el inicio de sesión.
 - **Las rutas se siguen decidiendo al arrancar.** El asistente solo escribe en `dozzle.yml`. Los endpoints de acciones y shell se registran cuando Dozzle arranca, igual que con las variables de entorno, así que no se activa nada hasta que Dozzle se reinicia.
