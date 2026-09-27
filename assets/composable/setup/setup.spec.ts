@@ -276,6 +276,7 @@ describe("agentImage", () => {
   test("falls back to the hub's version, then latest", () => {
     expect(agentImage(undefined, "v12.0.0")).toBe("amir20/dozzle:v12.0.0");
     expect(agentImage("", "pr-5258")).toBe("amir20/dozzle:pr-5258");
+    expect(agentImage(undefined, "pr-5258-75b67f0")).toBe("amir20/dozzle:pr-5258");
     expect(agentImage(undefined, "head")).toBe("amir20/dozzle:latest");
   });
 });

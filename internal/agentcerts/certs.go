@@ -159,13 +159,20 @@ func writeFile(path string, data []byte, perm os.FileMode) error {
 	return os.Rename(tmp.Name(), path)
 }
 
+// The env vars FromEnv reads. They are not go-arg flags, so the check for
+// unknown DOZZLE_* variables has to be told about them.
+const (
+	CertEnv = "DOZZLE_CERT_PEM"
+	KeyEnv  = "DOZZLE_KEY_PEM"
+)
+
 // FromEnv parses a pair handed over in DOZZLE_CERT_PEM and DOZZLE_KEY_PEM,
 // which is how a snippet copied from the hub gives an agent the pair without
 // any files to copy. A literal \n is accepted for shells that cannot pass a
 // multi-line value. ok is false when neither is set.
 func FromEnv(lookup func(string) (string, bool)) (cert tls.Certificate, ok bool, err error) {
-	certPEM, hasCert := lookup("DOZZLE_CERT_PEM")
-	keyPEM, hasKey := lookup("DOZZLE_KEY_PEM")
+	certPEM, hasCert := lookup(CertEnv)
+	keyPEM, hasKey := lookup(KeyEnv)
 	if !hasCert && !hasKey {
 		return tls.Certificate{}, false, nil
 	}

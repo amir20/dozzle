@@ -5,6 +5,7 @@ import (
 	"reflect"
 	"strings"
 
+	"github.com/amir20/dozzle/internal/agentcerts"
 	"github.com/rs/zerolog/log"
 )
 
@@ -26,6 +27,10 @@ func ValidateEnvVars(types ...any) {
 	for _, env := range fileBackedEnvNames() {
 		expectedEnvs[env+"_FILE"] = true
 	}
+
+	// Read straight from the environment rather than through a flag.
+	expectedEnvs[agentcerts.CertEnv] = true
+	expectedEnvs[agentcerts.KeyEnv] = true
 
 	for _, env := range os.Environ() {
 		actual, _, _ := strings.Cut(env, "=")

@@ -45,7 +45,10 @@ export interface SetupAgentCert {
 // Outside a container the hub cannot see its image, so its version names the tag.
 export function agentImage(hubImage: string | undefined, version: string): string {
   if (hubImage) return hubImage;
-  if (/^(v\d+\.\d+\.\d+|pr-\d+)$/.test(version)) return `amir20/dozzle:${version}`;
+  if (/^v\d+\.\d+\.\d+$/.test(version)) return `amir20/dozzle:${version}`;
+  // A PR build reports pr-<number>-<commit>, but only pr-<number> is published.
+  const pr = version.match(/^pr-\d+/);
+  if (pr) return `amir20/dozzle:${pr[0]}`;
   return "amir20/dozzle:latest";
 }
 

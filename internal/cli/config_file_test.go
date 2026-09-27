@@ -1,9 +1,12 @@
 package cli
 
 import (
+	"bytes"
 	"testing"
 
 	"github.com/amir20/dozzle/internal/config"
+	"github.com/rs/zerolog"
+	"github.com/rs/zerolog/log"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -166,4 +169,22 @@ func TestApplyConfigFileRemoteAgents(t *testing.T) {
 	applyConfigFile(&args, config.File{}, nil, lookupFrom(nil))
 	assert.Empty(t, args.FileAgents)
 	assert.Empty(t, args.RemoteAgent)
+}
+
+// The PEM vars are read with os.LookupEnv, not go-arg, so they would otherwise
+// be reported as typos on every agent that uses a private certificate.
+func TestValidateEnvVarsKnowsCertPEM(t *testing.T) {
+	t.Setenv("DOZZLE_CERT_PEM", "x")
+	t.Setenv("DOZZLE_KEY_PEM", "x")
+	t.Setenv("DOZZLE_NOT_A_THING", "x")
+
+	var buf bytes.Buffer
+	old := log.Logger
+	log.Logger = zerolog.New(&buf)
+	t.Cleanup(func() { log.Logger = old })
+
+	ValidateEnvVars(Args{})
+	assert.NotContains(t, buf.String(), "DOZZLE_CERT_PEM")
+	assert.NotContains(t, buf.String(), "DOZZLE_KEY_PEM")
+	assert.Contains(t, buf.String(), "DOZZLE_NOT_A_THING")
 }
