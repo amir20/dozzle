@@ -3,6 +3,9 @@ package web
 import (
 	"context"
 	"errors"
+	"net/http"
+	"net/http/httptest"
+	"strings"
 	"sync"
 	"testing"
 	"time"
@@ -236,4 +239,17 @@ func TestAutoUpdateEnabled(t *testing.T) {
 		assert.Equal(t, want, autoUpdateEnabled(map[string]string{AutoUpdateLabel: value}), value)
 	}
 	assert.False(t, autoUpdateEnabled(nil))
+}
+
+func TestStartBulkUpdate_RefusesNonJSONBodies(t *testing.T) {
+	h := &handler{config: &Config{Authorization: Authorization{Provider: NONE}}}
+	for _, ct := range []string{"text/plain", "application/x-www-form-urlencoded", ""} {
+		req := httptest.NewRequest(http.MethodPost, "/api/updates", strings.NewReader(`{"containers":[{"host":"h","id":"c"}]}`))
+		if ct != "" {
+			req.Header.Set("Content-Type", ct)
+		}
+		rr := httptest.NewRecorder()
+		h.startBulkUpdate(rr, req)
+		assert.Equal(t, http.StatusUnsupportedMediaType, rr.Code, ct)
+	}
 }

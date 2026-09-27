@@ -330,6 +330,11 @@ func (h *handler) startBulkUpdate(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if !isJSONRequest(r) {
+		http.Error(w, "expected application/json", http.StatusUnsupportedMediaType)
+		return
+	}
+
 	var req bulkUpdateRequest
 	if err := json.NewDecoder(http.MaxBytesReader(w, r.Body, 1<<20)).Decode(&req); err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)

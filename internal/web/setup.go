@@ -205,8 +205,16 @@ func (h *handler) getSetup(w http.ResponseWriter, r *http.Request) {
 // cross-site form can post text/plain without a preflight, and with no login
 // (or a cookie session) that would let any page the user visits call these
 // routes, so the content type is what keeps them same-origin.
+// isJSONRequest reports whether r declares a JSON body. A cross-site form can
+// only send text/plain, form or multipart bodies without a CORS preflight, so
+// requiring JSON keeps another origin from driving a write endpoint.
+func isJSONRequest(r *http.Request) bool {
+	mt, _, _ := mime.ParseMediaType(r.Header.Get("Content-Type"))
+	return mt == "application/json"
+}
+
 func decodeSetupBody(w http.ResponseWriter, r *http.Request, v any) bool {
-	if mt, _, _ := mime.ParseMediaType(r.Header.Get("Content-Type")); mt != "application/json" {
+	if !isJSONRequest(r) {
 		http.Error(w, "expected application/json", http.StatusUnsupportedMediaType)
 		return false
 	}
