@@ -176,7 +176,9 @@ type LogoutTarget struct {
 // deployments pick up the hint without a config change.
 func (a *oidcAuthContext) LogoutRedirect(r *http.Request) *LogoutTarget {
 	idToken := ""
-	if _, claims, err := jwtauth.FromContext(r.Context()); err == nil {
+	// Only a browser session names the stored ID token; an MCP token presented
+	// here must not consume the one its user's browser still needs.
+	if _, claims, err := jwtauth.FromContext(r.Context()); err == nil && isSessionClaims(claims) {
 		sub, _ := claims["sub"].(string)
 		session, _ := claims["session"].(string)
 		if sub != "" && session != "" {

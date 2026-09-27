@@ -877,3 +877,17 @@ setup:
     conflict: To jest już ustawione lub określone przez zmienną środowiskową.
     no-data: /data nie jest zamontowany, więc nie można tego zapisać.
     window-closed: "Bez logowania konfiguracja przyjmuje zmiany tylko przez pierwsze 15 minut nowej instalacji. Zamiast tego włącz logowanie zmiennymi środowiskowymi."
+mcp-authorize:
+  title: "Autoryzuj klienta MCP"
+  subtitle: "{client} chce korzystać z Dozzle w Twoim imieniu."
+  unnamed-client: "Klient bez nazwy"
+  redirect-label: "Przekieruje Cię do"
+  access-label: "Dostęp"
+  access-value: "Odczyt kontenerów, logów i statystyk"
+  user-label: "Zalogowano jako"
+  hint: "Zezwalaj tylko klientowi, którego właśnie sam połączyłeś, i sprawdź, czy powyższy adres jest tym, którego się spodziewasz."
+  allow: "Zezwól"
+  deny: "Odmów"
+  return: "Wróć do klienta"
+  redirecting: "Powrót do klienta. Możesz zamknąć tę kartę, gdy się zakończy."
+  failed: "Nie udało się zrealizować tego żądania."

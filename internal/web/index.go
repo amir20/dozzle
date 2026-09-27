@@ -78,6 +78,20 @@ func (h *handler) executeTemplate(w http.ResponseWriter, req *http.Request) {
 	// is not what gets held instead.
 	w.Header().Set("Cache-Control", "no-store")
 
+	// The MCP consent page is one click from handing a client a token, so it
+	// must not load inside someone else's frame. The rest of the app stays
+	// embeddable, which people rely on.
+	// vue-router matches case-insensitively and with a trailing slash, so the
+	// check covers every spelling that renders the page.
+	if strings.HasPrefix(strings.ToLower(strings.TrimPrefix(req.URL.Path, "/")), "mcp/") {
+		w.Header().Set("X-Frame-Options", "DENY")
+		if csp := w.Header().Get("Content-Security-Policy"); csp != "" {
+			w.Header().Set("Content-Security-Policy", csp+" frame-ancestors 'none';")
+		} else {
+			w.Header().Set("Content-Security-Policy", "frame-ancestors 'none';")
+		}
+	}
+
 	user := auth.UserFromContext(req.Context())
 
 	// Handle unauthorized cases early

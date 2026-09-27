@@ -883,3 +883,17 @@ setup:
     conflict: This is already set, or fixed by an environment variable.
     no-data: /data is not mounted, so this can't be saved.
     window-closed: "Without a login, setup only takes changes in the first 15 minutes of a new install. Turn on login with environment variables instead."
+mcp-authorize:
+  title: "Authorize MCP client"
+  subtitle: "{client} wants to use Dozzle on your behalf."
+  unnamed-client: "An unnamed client"
+  redirect-label: "Sends you back to"
+  access-label: "Access"
+  access-value: "Read containers, logs and stats"
+  user-label: "Signed in as"
+  hint: "Only allow a client you just connected yourself, and check that the address above is one you expect."
+  allow: "Allow"
+  deny: "Deny"
+  return: "Return to the client"
+  redirecting: "Returning to the client. You can close this tab once it has finished."
+  failed: "This request could not be completed."

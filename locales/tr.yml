@@ -878,3 +878,17 @@ setup:
     conflict: Bu zaten ayarlanmış veya bir ortam değişkeniyle sabitlenmiş.
     no-data: /data bağlı değil, bu yüzden bu kaydedilemiyor.
     window-closed: "Giriş olmadan kurulum, yeni bir kurulumun yalnızca ilk 15 dakikasında değişiklik kabul eder. Bunun yerine girişi ortam değişkenleriyle açın."
+mcp-authorize:
+  title: "MCP istemcisini yetkilendir"
+  subtitle: "{client} Dozzle'ı sizin adınıza kullanmak istiyor."
+  unnamed-client: "Adsız bir istemci"
+  redirect-label: "Sizi şuraya geri gönderir"
+  access-label: "Erişim"
+  access-value: "Konteynerleri, logları ve istatistikleri okuma"
+  user-label: "Oturum açan"
+  hint: "Yalnızca az önce kendiniz bağladığınız bir istemciye izin verin ve yukarıdaki adresin beklediğiniz adres olduğunu kontrol edin."
+  allow: "İzin ver"
+  deny: "Reddet"
+  return: "İstemciye dön"
+  redirecting: "İstemciye dönülüyor. Tamamlandığında bu sekmeyi kapatabilirsiniz."
+  failed: "Bu istek tamamlanamadı."

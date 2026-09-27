@@ -875,3 +875,17 @@ setup:
     conflict: Questo è già impostato, o fissato da una variabile d'ambiente.
     no-data: /data non è montato, quindi non è possibile salvare.
     window-closed: "Senza accesso, la configurazione accetta modifiche solo nei primi 15 minuti di una nuova installazione. Attiva invece l'accesso con variabili d'ambiente."
+mcp-authorize:
+  title: "Autorizza client MCP"
+  subtitle: "{client} vuole usare Dozzle per tuo conto."
+  unnamed-client: "Un client senza nome"
+  redirect-label: "Ti rimanda a"
+  access-label: "Accesso"
+  access-value: "Leggere container, log e statistiche"
+  user-label: "Accesso effettuato come"
+  hint: "Autorizza solo un client che hai appena collegato tu stesso e verifica che l'indirizzo qui sopra sia quello previsto."
+  allow: "Consenti"
+  deny: "Nega"
+  return: "Torna al client"
+  redirecting: "Ritorno al client. Puoi chiudere questa scheda al termine."
+  failed: "Impossibile completare la richiesta."

@@ -1,6 +1,6 @@
 ---
 title: Integración con MCP
-sourceHash: 07d02a3201c5
+sourceHash: fe1cee485b1f
 ---
 
 # Integración con MCP
@@ -83,12 +83,25 @@ Añade esto a la configuración MCP de Claude Desktop:
 
 El endpoint MCP forma parte del grupo de API autenticada. Cuando la autenticación está activada, los clientes MCP deben aportar credenciales válidas.
 
-### Autenticación simple
+### Autenticación simple y OIDC
 
-Con `--auth-provider simple`, los clientes MCP tienen que incluir un token JWT válido en la cabecera `Authorization`. Para obtener un token:
+Con `--auth-provider simple` o `--auth-provider oidc`, Dozzle es un servidor de autorización OAuth para clientes MCP. Los clientes que admiten autorización MCP (VS Code, Claude Code, Claude Desktop y otros) inician sesión por su cuenta. Añade el servidor sin cabeceras y, la primera vez que el cliente se conecte, abrirá una pestaña del navegador:
+
+1. Inicia sesión en Dozzle como siempre (contraseña, GitHub o tu proveedor OIDC).
+2. Dozzle muestra una página de consentimiento con el nombre del cliente y la dirección a la que te devolverá. Elige **Permitir**.
+3. El navegador vuelve al cliente, que guarda el token y lo renueva por sí solo.
+
+El token solo funciona en `/api/mcp` y lleva los mismos roles y filtros de contenedores que tu sesión del navegador. Los tokens de acceso duran una hora. Los tokens de refresco dejan de funcionar 30 días después de aprobar el cliente, que entonces te pide aprobarlo de nuevo. Todo lo que cierra la sesión de todos en Dozzle, como editar `users.yml` o cambiar el emisor OIDC, también revoca los tokens MCP.
+
+> [!NOTE]
+> Dozzle construye sus URL de OAuth a partir de la petición, igual que el callback de OIDC. Detrás de un proxy inverso, reenvía `Host` (o `X-Forwarded-Host`) y `X-Forwarded-Proto`. Con una ruta base personalizada, algunos clientes buscan metadatos en `/.well-known/` en la raíz del dominio, así que dirige `/.well-known/` a Dozzle si puedes.
+
+#### Clientes sin soporte de OAuth
+
+Con autenticación simple, un cliente que solo puede enviar cabeceras fijas puede usar un token de sesión:
 
 1. Envía una petición `POST` a `/api/token` con tu usuario y contraseña.
-2. Configura tu cliente MCP para que envíe el token como cabecera Bearer.
+2. Configura tu cliente MCP para enviar el token como cabecera Bearer.
 
 Por ejemplo, en la configuración MCP de VS Code:
 
@@ -105,6 +118,8 @@ Por ejemplo, en la configuración MCP de VS Code:
   }
 }
 ```
+
+Con oidc esto no está disponible, porque no hay contraseña que cambiar por un token.
 
 ### Autenticación por proxy
 

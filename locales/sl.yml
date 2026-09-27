@@ -880,3 +880,17 @@ setup:
     conflict: To je že nastavljeno ali določeno z okoljsko spremenljivko.
     no-data: /data ni priklopljen, zato tega ni mogoče shraniti.
     window-closed: "Brez prijave nastavitev sprejema spremembe samo v prvih 15 minutah nove namestitve. Prijavo namesto tega vklopite z okoljskimi spremenljivkami."
+mcp-authorize:
+  title: "Avtoriziraj odjemalca MCP"
+  subtitle: "{client} želi uporabljati Dozzle v vašem imenu."
+  unnamed-client: "Neimenovan odjemalec"
+  redirect-label: "Vas vrne na"
+  access-label: "Dostop"
+  access-value: "Branje vsebnikov, dnevnikov in statistike"
+  user-label: "Prijavljeni kot"
+  hint: "Dovolite le odjemalca, ki ste ga pravkar povezali sami, in preverite, ali je zgornji naslov pričakovan."
+  allow: "Dovoli"
+  deny: "Zavrni"
+  return: "Nazaj na odjemalca"
+  redirecting: "Vračanje na odjemalca. Ko se konča, lahko ta zavihek zaprete."
+  failed: "Zahteve ni bilo mogoče dokončati."

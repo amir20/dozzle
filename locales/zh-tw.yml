@@ -877,3 +877,17 @@ setup:
     conflict: 此項已設定，或已由環境變數固定。
     no-data: 未掛載 /data，因此無法儲存。
     window-closed: "未開啟登入時，設定只在全新安裝後的前 15 分鐘內接受變更。請改用環境變數開啟登入。"
+mcp-authorize:
+  title: "授權 MCP 用戶端"
+  subtitle: "{client} 想代表您使用 Dozzle。"
+  unnamed-client: "未命名的用戶端"
+  redirect-label: "將您導回"
+  access-label: "存取權限"
+  access-value: "讀取容器、日誌與統計資料"
+  user-label: "登入身分"
+  hint: "只允許您剛剛親自連線的用戶端，並確認上方的位址符合預期。"
+  allow: "允許"
+  deny: "拒絕"
+  return: "返回用戶端"
+  redirecting: "正在返回用戶端。完成後即可關閉此分頁。"
+  failed: "無法完成此請求。"

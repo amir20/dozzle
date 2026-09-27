@@ -35,3 +35,8 @@
 - **NetworkSettings nil risk**: `docker.InspectResponse.NetworkSettings` is a pointer; `ContainerCreate` doesn't nil-check before accessing `.Networks`
 - **Destructive recreate**: stop->remove->create->start has no rollback if create fails after remove
 - **SSE parsing in frontend**: Uses manual ReadableStream reader, not EventSource; no AbortController cleanup on unmount
+
+### Auth / JWT token confusion
+
+- Session JWT = any token signed with session key WITHOUT `token_use` claim (`auth.isSessionClaims`). Any new token type signed with that key must set `token_use`, and every `jwtauth.FromContext` consumer (e.g. oidc_logout.go LogoutRedirect) must be checked for the claim
+- Session cookie is SameSite=Lax: cross-site CSRF/framing is blocked, but same-site sibling subdomains (common in homelabs) are not, so path-exact security header checks in index.go matter (vue-router matches case-insensitively and with trailing slash)

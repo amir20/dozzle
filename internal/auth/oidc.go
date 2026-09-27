@@ -45,6 +45,7 @@ type oidcAuthContext struct {
 	provider  *oidcProvider
 	tokenAuth *jwtauth.JWTAuth
 	ttl       time.Duration
+	secret    []byte
 
 	rolesClaims   []claimPath
 	filtersClaims []claimPath
@@ -78,6 +79,7 @@ func NewOIDCAuth(config OIDCConfig, base string, ttl time.Duration, secret []byt
 		provider:      provider,
 		tokenAuth:     jwtauth.New("HS256", h.Sum(nil), nil),
 		ttl:           ttl,
+		secret:        secret,
 		rolesClaims:   claimSearch(config.RolesClaim, "roles", config.ClientID),
 		filtersClaims: claimSearch(config.FiltersClaim, "filters", config.ClientID),
 		idTokens:      newIDTokenStore(config.DataDir, ttl),
@@ -294,14 +296,18 @@ func (a *oidcAuthContext) AuthMiddleware(next http.Handler) http.Handler {
 }
 
 // userFromToken rebuilds the user from the verified session. It returns nil for
-// a missing or invalid token so the request falls through to
-// RequireAuthentication as unauthenticated.
+// a missing or invalid token, or one that is not a session, so the request falls
+// through to RequireAuthentication as unauthenticated.
 func (a *oidcAuthContext) userFromToken(ctx context.Context) *User {
 	_, claims, err := jwtauth.FromContext(ctx)
-	if err != nil {
+	if err != nil || !isSessionClaims(claims) {
 		return nil
 	}
 
+	return a.UserFromClaims(claims)
+}
+
+func (a *oidcAuthContext) UserFromClaims(claims map[string]any) *User {
 	str := func(key string) string {
 		s, _ := claims[key].(string)
 		return s
@@ -315,4 +321,17 @@ func (a *oidcAuthContext) userFromToken(ctx context.Context) *User {
 	user := a.newUser(sub, str("username"), str("email"), str("name"), str("picture"), str("roles"), str("filters"))
 
 	return &user
+}
+
+func (a *oidcAuthContext) SignToken(claims map[string]any) (string, error) {
+	_, token, err := a.tokenAuth.Encode(claims)
+	return token, err
+}
+
+func (a *oidcAuthContext) VerifyToken(token string) (map[string]any, error) {
+	return verifyClaims(a.tokenAuth, token)
+}
+
+func (a *oidcAuthContext) DerivedKey(purpose string) []byte {
+	return deriveKey(a.secret, purpose)
 }

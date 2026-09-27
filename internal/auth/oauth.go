@@ -9,7 +9,6 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
-	"strings"
 	"time"
 
 	"github.com/rs/zerolog/log"
@@ -206,18 +205,7 @@ func (f *oauthFlow) callbackURL(r *http.Request) string {
 
 // absoluteURL is path under this deployment's base, as the browser reaches it.
 func (f *oauthFlow) absoluteURL(r *http.Request, path string) string {
-	scheme := "http"
-	if IsHTTPS(r) {
-		scheme = "https"
-	}
-
-	host := r.Host
-	if forwarded := r.Header.Get("X-Forwarded-Host"); forwarded != "" {
-		host, _, _ = strings.Cut(forwarded, ",")
-		host = strings.TrimSpace(host)
-	}
-
-	return scheme + "://" + host + f.base + path
+	return Origin(r) + f.base + path
 }
 
 func randomString() (string, error) {
