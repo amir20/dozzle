@@ -34,3 +34,4 @@
 ## Memory Files
 
 - [cloud_client_patterns.md](cloud_client_patterns.md) - Cloud gRPC client architecture and known patterns
+- [hostservice_fanout.md](hostservice_fanout.md) - followClients per stream, RetryAndList lock across dials, beacon has no timeout
