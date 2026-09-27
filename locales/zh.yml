@@ -838,6 +838,7 @@ setup:
     remove: "移除"
     skip: "暂不"
     error-exists: "这个代理已经添加过了。"
+    error-duplicate: "这台机器已经作为另一个主机连接。如果这个代理使用同一个 Docker 引擎，请给它设置独立的 DOZZLE_HOST_ID。"
     error-connect: "无法连接到代理：{reason}"
     private-label: "私有证书"
     private-desc: "只有这个 Dozzle 能连接到代理。其他代理不受影响。"

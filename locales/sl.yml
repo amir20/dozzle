@@ -843,6 +843,7 @@ setup:
     remove: "Odstrani"
     skip: "Ne zdaj"
     error-exists: "Ta agent je že dodan."
+    error-duplicate: "Ta naprava je že povezana kot drug gostitelj. Če ta agent uporablja isti Docker engine, mu nastavi lasten DOZZLE_HOST_ID."
     error-connect: "Povezava z agentom ni uspela: {reason}"
     private-label: "Zasebno potrdilo"
     private-desc: "Z agentom se lahko poveže samo ta Dozzle. Drugi agenti ostanejo nespremenjeni."

@@ -40,10 +40,19 @@ export interface SetupAgentCert {
   notAfter: string;
 }
 
+// The image the agent should run: the one this hub follows, so an agent never lacks
+// what the hub's snippet asks of it (DOZZLE_CERT_PEM is newer than most agents).
+// Outside a container the hub cannot see its image, so its version names the tag.
+export function agentImage(hubImage: string | undefined, version: string): string {
+  if (hubImage) return hubImage;
+  if (/^(v\d+\.\d+\.\d+|pr-\d+)$/.test(version)) return `amir20/dozzle:${version}`;
+  return "amir20/dozzle:latest";
+}
+
 // The agent compose file. With a pair, the PEMs go in as YAML literal blocks, each
 // line indented under its key so the file stays valid YAML.
-export function agentComposeSnippet(cert?: Pick<SetupAgentCert, "cert" | "key">): string {
-  const lines = ["services:", "  dozzle-agent:", "    image: amir20/dozzle:latest", "    command: agent"];
+export function agentComposeSnippet(image: string, cert?: Pick<SetupAgentCert, "cert" | "key">): string {
+  const lines = ["services:", "  dozzle-agent:", `    image: ${image}`, "    command: agent"];
   if (cert) {
     const block = (name: string, pem: string) => [
       `      ${name}: |`,

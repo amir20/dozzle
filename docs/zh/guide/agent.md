@@ -1,6 +1,6 @@
 ---
 title: 代理模式
-sourceHash: 6820fa13edc6
+sourceHash: 20dfc19418d9
 ---
 
 # 代理模式
@@ -314,7 +314,7 @@ $ openssl x509 -req -in request.csr -signkey key.pem -out cert.pem -days 365
 ```yaml [docker-compose.yml]
 services:
   dozzle-agent:
-    image: amir20/dozzle:latest
+    image: amir20/dozzle:vX.Y.Z # same tag as your Dozzle
     command: agent
     environment:
       DOZZLE_CERT_PEM: |
@@ -331,7 +331,7 @@ services:
       - 7007:7007
 ```
 
-该片段包含私钥，请像密码一样保管。这个开关按主机生效：已有的代理，以及关闭开关时添加的代理，都继续使用原来的证书。Dozzle 会在 `/data/dozzle.yml` 的 `privateAgents` 中记录哪些代理是私有的。如果 Dozzle 已经在使用[自定义证书](#自定义证书)，则不会显示这个开关，因为每个代理本来就需要那对证书。
+该片段包含私钥，请像密码一样保管。这个开关按主机生效：已有的代理，以及关闭开关时添加的代理，都继续使用原来的证书。Dozzle 会在 `/data/dozzle.yml` 的 `privateAgents` 中记录哪些代理是私有的。如果 Dozzle 已经在使用[自定义证书](#自定义证书)，则不会显示这个开关，因为每个代理本来就需要那对证书。 代码片段使用与你的 Dozzle 相同的镜像。旧版代理会忽略 `DOZZLE_CERT_PEM` 和 `DOZZLE_KEY_PEM`，出示内置证书，因此会被拒绝。
 
 ## <Icon icon="mdi:compare-horizontal" inline /> 代理与远程连接的对比
 

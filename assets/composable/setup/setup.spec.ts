@@ -8,6 +8,7 @@ vi.mock("@/stores/config", () => ({
 import { parse } from "yaml";
 import {
   agentComposeSnippet,
+  agentImage,
   setupEnvSnippet,
   setupHasPending,
   setupLoginConfigured,
@@ -254,14 +255,27 @@ describe("agentComposeSnippet", () => {
   const key = "-----BEGIN PRIVATE KEY-----\r\nMIIE\r\n-----END PRIVATE KEY-----";
 
   test("plain snippet has no environment", () => {
-    const doc = parse(agentComposeSnippet());
+    const doc = parse(agentComposeSnippet("amir20/dozzle:latest"));
     expect(doc.services["dozzle-agent"].environment).toBeUndefined();
     expect(doc.services["dozzle-agent"].ports).toEqual(["7007:7007"]);
   });
 
   test("private snippet is valid YAML that carries both PEMs intact", () => {
-    const env = parse(agentComposeSnippet({ cert, key })).services["dozzle-agent"].environment;
+    const env = parse(agentComposeSnippet("amir20/dozzle:latest", { cert, key })).services["dozzle-agent"].environment;
     expect(env.DOZZLE_CERT_PEM).toBe("-----BEGIN CERTIFICATE-----\nMIIB\nabcd\n-----END CERTIFICATE-----\n");
     expect(env.DOZZLE_KEY_PEM).toBe("-----BEGIN PRIVATE KEY-----\nMIIE\n-----END PRIVATE KEY-----\n");
+  });
+});
+
+describe("agentImage", () => {
+  test("follows the image the hub runs", () => {
+    expect(agentImage("ghcr.io/amir20/dozzle:v12.0.0", "v12.0.0")).toBe("ghcr.io/amir20/dozzle:v12.0.0");
+    expect(agentImage("amir20/dozzle:pr-5258", "pr-5258")).toBe("amir20/dozzle:pr-5258");
+  });
+
+  test("falls back to the hub's version, then latest", () => {
+    expect(agentImage(undefined, "v12.0.0")).toBe("amir20/dozzle:v12.0.0");
+    expect(agentImage("", "pr-5258")).toBe("amir20/dozzle:pr-5258");
+    expect(agentImage(undefined, "head")).toBe("amir20/dozzle:latest");
   });
 });

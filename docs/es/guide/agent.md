@@ -1,6 +1,6 @@
 ---
 title: Modo agente
-sourceHash: 6820fa13edc6
+sourceHash: 20dfc19418d9
 ---
 
 # Modo agente
@@ -314,7 +314,7 @@ La primera vez que se usa, Dozzle crea su propio par en `/data/agent_cert.pem` y
 ```yaml [docker-compose.yml]
 services:
   dozzle-agent:
-    image: amir20/dozzle:latest
+    image: amir20/dozzle:vX.Y.Z # same tag as your Dozzle
     command: agent
     environment:
       DOZZLE_CERT_PEM: |
@@ -331,7 +331,7 @@ services:
       - 7007:7007
 ```
 
-El fragmento contiene la clave privada, así que trátalo como una contraseña. La opción es por host: los agentes que ya existen, y los añadidos con la opción desactivada, siguen con su certificado. Dozzle guarda qué agentes son privados en `privateAgents` dentro de `/data/dozzle.yml`. La opción no aparece cuando Dozzle ya usa un [certificado propio](#certificados-propios), porque en ese caso todos los agentes necesitan ese par.
+El fragmento contiene la clave privada, así que trátalo como una contraseña. La opción es por host: los agentes que ya existen, y los añadidos con la opción desactivada, siguen con su certificado. Dozzle guarda qué agentes son privados en `privateAgents` dentro de `/data/dozzle.yml`. La opción no aparece cuando Dozzle ya usa un [certificado propio](#certificados-propios), porque en ese caso todos los agentes necesitan ese par. El fragmento usa la misma imagen que tu Dozzle. Un agente más antiguo ignora `DOZZLE_CERT_PEM` y `DOZZLE_KEY_PEM`, presenta el certificado integrado y es rechazado.
 
 ## <Icon icon="mdi:compare-horizontal" inline /> Comparación entre agentes y conexión remota
 

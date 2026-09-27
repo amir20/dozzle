@@ -1,6 +1,6 @@
 ---
 title: Mode agent
-sourceHash: 6820fa13edc6
+sourceHash: 20dfc19418d9
 ---
 
 # Mode agent
@@ -314,7 +314,7 @@ Quand vous ajoutez un agent avec **Ajouter l'hôte**, la fenêtre propose une op
 ```yaml [docker-compose.yml]
 services:
   dozzle-agent:
-    image: amir20/dozzle:latest
+    image: amir20/dozzle:vX.Y.Z # same tag as your Dozzle
     command: agent
     environment:
       DOZZLE_CERT_PEM: |
@@ -331,7 +331,7 @@ services:
       - 7007:7007
 ```
 
-L'extrait contient la clé privée, traitez-le donc comme un mot de passe. L'option vaut pour un seul hôte : les agents existants, et ceux ajoutés avec l'option désactivée, gardent leur certificat. Dozzle enregistre les agents privés sous `privateAgents` dans `/data/dozzle.yml`. L'option n'est pas proposée quand Dozzle utilise déjà un [certificat personnalisé](#certificats-personnalises), car chaque agent a de toute façon besoin de cette paire.
+L'extrait contient la clé privée, traitez-le donc comme un mot de passe. L'option vaut pour un seul hôte : les agents existants, et ceux ajoutés avec l'option désactivée, gardent leur certificat. Dozzle enregistre les agents privés sous `privateAgents` dans `/data/dozzle.yml`. L'option n'est pas proposée quand Dozzle utilise déjà un [certificat personnalisé](#certificats-personnalises), car chaque agent a de toute façon besoin de cette paire. L'extrait utilise la même image que votre Dozzle. Un agent plus ancien ignore `DOZZLE_CERT_PEM` et `DOZZLE_KEY_PEM`, présente le certificat intégré et se fait refuser.
 
 ## <Icon icon="mdi:compare-horizontal" inline /> Comparaison entre agents et connexion distante
 
