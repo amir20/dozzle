@@ -46,11 +46,14 @@ const (
 
 // Config is a struct for configuring the web service
 type Config struct {
-	Base               string
-	Addr               string
-	Version            string
-	Hostname           string
-	NoAnalytics        bool
+	Base        string
+	Addr        string
+	Version     string
+	Hostname    string
+	NoAnalytics bool
+	// Beacon holds the install facts known at startup (mode, agents, shell...)
+	// that every beacon this process sends repeats.
+	Beacon             types.BeaconEvent
 	Dev                bool
 	Mode               string
 	Authorization      Authorization
@@ -80,6 +83,11 @@ type SetupConfig struct {
 	AutoUpdateMode   *string
 	AutoUpdateTime   *string
 	StartedAt        time.Time
+	// EnvAgents are the agents from DOZZLE_REMOTE_AGENT, which the UI lists but
+	// cannot remove.
+	EnvAgents []string
+	// CustomCert is true when a cert pair was loaded from disk.
+	CustomCert bool
 }
 
 // CloudHooks bundles cloud-side callbacks the web layer invokes. Grouping
@@ -194,6 +202,9 @@ func CreateServer(hostService HostService, content fs.FS, config Config) *http.S
 		config:      &config,
 		hostService: hostService,
 	}
+	go handler.runUsageBeacon(context.Background())
+	flush := handler.flushUsage
+	usageFlusher.Store(&flush)
 
 	return &http.Server{Addr: config.Addr, Handler: createRouter(handler)}
 }
@@ -293,6 +304,7 @@ func createRouter(h *handler) *chi.Mux {
 					r.Get("/profile/avatar", h.avatar)
 				}
 				r.Patch("/profile", h.updateProfile)
+				r.Post("/usage", h.reportUsage)
 				r.Get("/version", h.version)
 				if log.Debug().Enabled() {
 					r.Get("/debug/store", h.debugStore)
@@ -323,6 +335,9 @@ func createRouter(h *handler) *chi.Mux {
 					r.Get("/setup", h.getSetup)
 					r.Patch("/setup/config", h.updateSetupConfig)
 					r.Post("/setup/restart", h.restartSetup)
+					r.Post("/setup/agents", h.addSetupAgent)
+					r.Delete("/setup/agents", h.removeSetupAgent)
+					r.Post("/setup/agent-cert", h.agentCert)
 					// Choosing a login only exists while there is none.
 					if h.config.Authorization.Provider == NONE {
 						r.Post("/setup/account", h.createSetupAccount)

@@ -1,6 +1,6 @@
 ---
 title: Modo agente
-sourceHash: a73c7ed62d8a
+sourceHash: 20dfc19418d9
 ---
 
 # Modo agente
@@ -77,6 +77,9 @@ Ten en cuenta que no hace falta montar el socket local de Docker al conectarte a
 
 > [!TIP]
 > Puedes conectarte a varios agentes indicando varias variables de entorno `DOZZLE_REMOTE_AGENT`. Por ejemplo, `DOZZLE_REMOTE_AGENT=agent1:7007,agent2:7007`.
+
+> [!TIP]
+> En modo servidor también puedes añadir un agente desde la interfaz, con **Añadir host** al final de la lista de hosts o en el paso Hosts del [asistente de configuración](/es/guide/setup-wizard). Dozzle se conecta al agente antes de guardarlo, y el host aparece sin reiniciar. Los agentes añadidos así se guardan en `/data/dozzle.yml`, por lo que `/data` tiene que estar en un volumen. Los agentes definidos con `DOZZLE_REMOTE_AGENT` se quedan como están y no se pueden quitar desde la interfaz.
 
 ## <Icon icon="mdi:group" inline /> Grupos de hosts
 
@@ -301,6 +304,34 @@ $ openssl genpkey -algorithm Ed25519 -out key.pem
 $ openssl req -new -key key.pem -out request.csr -subj "/C=US/ST=California/L=San Francisco/O=My Company"
 $ openssl x509 -req -in request.csr -signkey key.pem -out cert.pem -days 365
 ```
+
+### Certificado privado para agentes añadidos desde la interfaz {#private-certificate}
+
+Cuando añades un agente con **Añadir host**, el diálogo tiene una opción **Certificado privado**. Viene activada para los hosts nuevos. Con ella activada, solo este Dozzle puede conectarse al agente, aunque otros puedan llegar al puerto `7007`.
+
+La primera vez que se usa, Dozzle crea su propio par en `/data/agent_cert.pem` y `/data/agent_key.pem`. El par nunca se reemplaza, así que los agentes privados siguen funcionando tras reinicios y actualizaciones. El fragmento compose del diálogo pasa el par al agente con `DOZZLE_CERT_PEM` y `DOZZLE_KEY_PEM`:
+
+```yaml [docker-compose.yml]
+services:
+  dozzle-agent:
+    image: amir20/dozzle:vX.Y.Z # same tag as your Dozzle
+    command: agent
+    environment:
+      DOZZLE_CERT_PEM: |
+        -----BEGIN CERTIFICATE-----
+        ...
+        -----END CERTIFICATE-----
+      DOZZLE_KEY_PEM: |
+        -----BEGIN PRIVATE KEY-----
+        ...
+        -----END PRIVATE KEY-----
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    ports:
+      - 7007:7007
+```
+
+El fragmento contiene la clave privada, así que trátalo como una contraseña. La opción es por host: los agentes que ya existen, y los añadidos con la opción desactivada, siguen con su certificado. Dozzle guarda qué agentes son privados en `privateAgents` dentro de `/data/dozzle.yml`. La opción no aparece cuando Dozzle ya usa un [certificado propio](#certificados-propios), porque en ese caso todos los agentes necesitan ese par. El fragmento usa la misma imagen que tu Dozzle. Un agente más antiguo ignora `DOZZLE_CERT_PEM` y `DOZZLE_KEY_PEM`, presenta el certificado integrado y es rechazado.
 
 ## <Icon icon="mdi:compare-horizontal" inline /> Comparación entre agentes y conexión remota
 

@@ -10,6 +10,7 @@
     <template v-if="status && currentId">
       <SetupLoginStep v-if="currentId === 'login'" ref="step" :status="status" :next-step="steps[index + 1]" />
       <SetupActionsStep v-else-if="currentId === 'actions'" ref="step" :status="status" />
+      <SetupHostsStep v-else-if="currentId === 'hosts'" ref="step" :status="status" />
       <SetupCloudStep v-else-if="currentId === 'cloud'" ref="step" :next-step="steps[index + 1]" />
       <SetupUpdateStep v-else-if="currentId === 'update'" ref="step" :status="status" />
       <SetupRestartStep
@@ -57,6 +58,7 @@
 
 <script lang="ts" setup>
 import type { SetupStepHandle, SetupStepId, SetupStepState } from "@/composable/setup/setup";
+import type { UsageKey } from "@/composable/app/usage";
 import type StepModal from "@/components/ui/StepModal.vue";
 
 const { t } = useI18n();
@@ -110,6 +112,7 @@ function stateOf(id: SetupStepId, i: number): SetupStepState {
 
 const notes: Partial<Record<SetupStepId, string>> = {
   login: "setup.steps.login-note",
+  hosts: "setup.steps.hosts-note",
   cloud: "setup.steps.cloud-note",
 };
 
@@ -169,6 +172,7 @@ async function open(startAt: SetupStepId | undefined, auto: boolean) {
     return;
   }
   modal.value?.open();
+  trackUsage("wizard.shown");
 
   // Frozen for the session, so linking Cloud or saving a toggle does not shuffle
   // the rail under the user. Auto-update is always listed and only greys out.
@@ -219,10 +223,20 @@ function back() {
   if (i >= 0) index.value = i;
 }
 
+const skipUsage: Partial<Record<SetupStepId, UsageKey>> = {
+  login: "wizard.skip.login",
+  actions: "wizard.skip.actions",
+  hosts: "wizard.skip.hosts",
+  cloud: "wizard.skip.cloud",
+  update: "wizard.skip.update",
+};
+
 function advance(skip = false) {
   const id = currentId.value;
   if (id) {
     if (skip) {
+      const key = skipUsage[id];
+      if (key) trackUsage(key);
       skipped.value.add(id);
       completed.value.delete(id);
     } else {
@@ -232,6 +246,8 @@ function advance(skip = false) {
   }
   const i = neighbor(index.value, 1);
   if (i < 0) {
+    // Skipping the last step already counted as a skip, not a finish.
+    if (!skip) trackUsage("wizard.finished");
     close();
     return;
   }
@@ -243,7 +259,10 @@ async function onNext() {
   const result = await handle.value.next();
   if (result === "advance") advance();
   else if (result === "skip") advance(true);
-  else if (result === "finish") close();
+  else if (result === "finish") {
+    trackUsage("wizard.finished");
+    close();
+  }
 }
 
 // The last step lists what is pending, so it reads a fresh status on arrival.

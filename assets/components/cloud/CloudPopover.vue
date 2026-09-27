@@ -68,7 +68,12 @@
             <a :href="`${cloudUrl}`" target="_blank" rel="noreferrer noopener" class="btn btn-sm flex-1">
               {{ $t("cloud.learn-more") }}
             </a>
-            <a v-if="canLinkCloud" :href="cloudLinkUrl" class="btn btn-primary btn-sm flex-1">
+            <a
+              v-if="canLinkCloud"
+              :href="cloudLinkUrl"
+              @click="trackUsage('cloud.connect')"
+              class="btn btn-primary btn-sm flex-1"
+            >
               <mdi:link-variant class="text-base" />
               {{ $t("cloud.link-instance") }}
             </a>
@@ -113,6 +118,7 @@
               <a
                 v-if="cloudStatusError === 'auth' && canLinkCloud"
                 :href="cloudLinkUrl"
+                @click="trackUsage('cloud.connect')"
                 class="btn btn-primary btn-sm flex-1"
               >
                 <mdi:link-variant class="text-base" />

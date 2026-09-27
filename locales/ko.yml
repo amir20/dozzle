@@ -784,9 +784,9 @@ setup:
   close: 닫기
   copy: 복사
   settings-title: Dozzle 설정
-  settings-desc: 로그인, 컨테이너 작업, 셸, Dozzle Cloud를 몇 단계로 설정합니다.
+  settings-desc: "로그인, 컨테이너 작업, 셸, 다른 호스트, Dozzle Cloud를 몇 단계로 설정합니다."
   settings-done-title: "Dozzle 설정 완료"
-  settings-done-desc: "로그인이 켜져 있습니다. 설정을 열어 컨테이너 작업, 셸, Dozzle Cloud를 확인하세요."
+  settings-done-desc: "로그인이 켜져 있습니다. 설정을 열어 컨테이너 작업, 셸, 다른 호스트, Dozzle Cloud를 확인하세요."
   settings-closed-title: "설정이 닫혔습니다"
   settings-closed-desc: "로그인이 없으면 새 설치 후 첫 15분 동안만 설정 변경을 받습니다. 대신 환경 변수를 사용하세요."
   steps:
@@ -795,6 +795,8 @@ setup:
     actions: 작업 및 셸
     cloud: Dozzle Cloud
     cloud-note: 선택 사항
+    hosts: "호스트"
+    hosts-note: "선택 사항"
     update: "자동 업데이트"
     update-note: "작업 필요"
     restart: 재시작
@@ -843,6 +845,36 @@ setup:
     window-closed: "로그인이 없으면 설정은 새로 설치한 뒤 처음 15분 동안만 변경을 받습니다. 환경 변수로 설정하거나 먼저 로그인을 켜세요."
     no-access: 이 계정은 이 설정을 변경할 수 없습니다.
     restart-note: Dozzle을 재시작한 후 적용됩니다.
+  hosts:
+    title: "다른 호스트 추가"
+    subtitle: "다른 머신의 컨테이너를 이 Dozzle에서 확인하세요. 각 머신에서 에이전트를 실행한 뒤 여기에 주소를 추가합니다."
+    run-title: "에이전트 실행"
+    run-body: "다른 머신의 compose 파일에 이 내용을 추가하고 시작하세요. 7007 포트는 사설 네트워크에만 두세요."
+    custom-cert: "이 Dozzle은 자체 인증서를 사용하므로 에이전트에도 같은 인증서 쌍이 필요합니다. 없으면 연결을 거부합니다."
+    cert-docs: "인증서 가이드"
+    connect-title: "연결"
+    address: "주소"
+    name: "이름"
+    optional: "(선택)"
+    add: "호스트 추가"
+    connect-note: "Dozzle은 저장하기 전에 먼저 연결합니다. 재시작 없이 호스트가 바로 나타납니다."
+    added: "{name}에 연결되었습니다."
+    list-title: "에이전트"
+    connected: "연결됨"
+    offline: "연결 안 됨"
+    remove: "제거"
+    skip: "나중에"
+    error-exists: "이미 추가된 에이전트입니다."
+    error-duplicate: "이 머신은 이미 다른 호스트로 연결되어 있습니다. 같은 Docker 엔진을 쓰는 에이전트라면 고유한 DOZZLE_HOST_ID를 지정하세요."
+    error-connect: "에이전트에 연결할 수 없습니다: {reason}"
+    error-cert: "에이전트의 인증서가 이 Dozzle과 다릅니다. 스니펫을 다시 복사해 에이전트에 적용한 뒤 다시 생성하세요."
+    error-cert-custom: "에이전트에 이 Dozzle의 사용자 지정 인증서가 없습니다. 같은 인증서와 키 파일을 에이전트에 넣은 뒤 다시 생성하세요."
+    private-label: "비공개 인증서"
+    private-desc: "이 Dozzle만 에이전트에 연결할 수 있습니다. 다른 에이전트에는 영향이 없습니다."
+    private-warning: "이 스니펫에는 개인 키가 들어 있습니다. 비밀번호처럼 다루세요."
+    private-pill: "비공개"
+    private-error: "비공개 인증서를 만들 수 없어 공유 인증서를 사용합니다. {reason}"
+    private-missing: "이 Dozzle에는 아직 비공개 인증서가 없습니다. 비공개 인증서를 다시 켠 뒤 다시 시도하세요."
   cloud:
     title: Dozzle Cloud 연결
     subtitle: 탭을 열어 두지 않아도 문제가 생기면 알 수 있습니다.

@@ -6,7 +6,7 @@ title: Setup Wizard
 
 <Badge type="warning" text="Docker Only" />
 
-A fresh Dozzle install opens with a short setup wizard. It walks you through the few things most people change right after installing: turning on login, allowing container actions and shell access, and connecting Dozzle Cloud. Everything it saves can also be set with flags or environment variables, so the wizard is optional.
+A fresh Dozzle install opens with a short setup wizard. It walks you through the few things most people change right after installing: turning on login, allowing container actions and shell access, adding other hosts, and connecting Dozzle Cloud. Everything it saves can also be set with flags or environment variables, so the wizard is optional.
 
 The wizard only appears on a fresh install running in server mode. Swarm and Kubernetes deployments never show it. You can open it again later from Settings.
 
@@ -52,11 +52,17 @@ Two toggles control what Dozzle is allowed to do to your containers:
 
 If a setting is already fixed by a flag or environment variable, its toggle is read-only and says so. Like login, these toggles need `/data` on a volume, so they stay read-only until it is.
 
-### 3. Dozzle Cloud
+### 3. Hosts
+
+Dozzle can show containers from other machines through [agents](/guide/agent). This step shows the compose file to run on the other machine, then asks for the agent's address, such as `10.0.0.5:7007`, and an optional name. **Add host** connects to the agent before saving anything, so a wrong address or a certificate mismatch shows up right away. Once connected, the host appears in the sidebar without a restart.
+
+Agents set with `DOZZLE_REMOTE_AGENT` are listed as locked and can only be removed from your compose file. Agents added here can be removed from the same list. **Not now** skips the step, and the same panel is available later from **Add host** at the bottom of the host list.
+
+### 4. Dozzle Cloud
 
 [Dozzle Cloud](/guide/dozzle-cloud) sends alerts the moment something breaks, a morning summary of what to fix, and keeps history that survives restarts. **Connect Dozzle Cloud** links this instance, and **Not now** moves on. This step is skipped when the instance is already linked or when you are not allowed to link it.
 
-### 4. Auto-update
+### 5. Auto-update
 
 Dozzle can keep itself up to date. Pick **Off**, **Daily** or **Weekly** (weekly runs on Sunday) and a time of day. The time is in the server's local time and defaults to `03:00`. At that time Dozzle checks its registry for a newer image and, only if there is one, [updates itself](#self-update).
 
@@ -66,7 +72,7 @@ This setting applies right away and does not need a restart.
 
 Updating itself is an action, so while actions are off this step stays in the list but is greyed out with **Needs actions**. Turning actions on in step 2 makes it available right away. If this instance cannot update itself for another reason (for example it runs a pinned version tag), the step says why instead.
 
-### 5. Restart
+### 6. Restart
 
 The last step lists the changes that are saved but not running yet. **Restart Dozzle** restarts the container, waits until it is back and reloads the page. If nothing is pending, the step just says you are done.
 
@@ -74,7 +80,7 @@ If Dozzle cannot restart itself (for example when it cannot find its own contain
 
 ## <Icon icon="mdi:file-cog-outline" inline /> Where settings are saved
 
-The wizard saves its choices to `/data/dozzle.yml`. Dozzle reads this file once at startup, which is why changes need a restart to apply. Dozzle restarts itself from the wizard, so you do not need to do it by hand. The auto-update keys are the exception: Dozzle checks them again every minute, so they apply without a restart.
+The wizard saves its choices to `/data/dozzle.yml`. Dozzle reads this file once at startup, which is why changes need a restart to apply. Dozzle restarts itself from the wizard, so you do not need to do it by hand. The auto-update keys are the exception: Dozzle checks them again every minute, so they apply without a restart. `remoteAgents` is the other exception: hosts are connected the moment they are added.
 
 ```yaml [/data/dozzle.yml]
 authProvider: simple
@@ -82,17 +88,23 @@ enableActions: true
 enableShell: false
 autoUpdate: weekly
 autoUpdateTime: "03:00"
+remoteAgents:
+  - 10.0.0.5:7007|nas
+privateAgents:
+  - 10.0.0.5:7007|nas
 ```
 
-| Key              | Values                            | Same as                   |
-| ---------------- | --------------------------------- | ------------------------- |
-| `authProvider`   | `none`, `simple`, `forward-proxy` | `DOZZLE_AUTH_PROVIDER`    |
-| `enableActions`  | `true`, `false`                   | `DOZZLE_ENABLE_ACTIONS`   |
-| `enableShell`    | `true`, `false`                   | `DOZZLE_ENABLE_SHELL`     |
-| `autoUpdate`     | `off`, `daily`, `weekly`          | `DOZZLE_AUTO_UPDATE`      |
-| `autoUpdateTime` | `HH:MM`, server local time        | `DOZZLE_AUTO_UPDATE_TIME` |
+| Key              | Values                                                                                        | Same as                   |
+| ---------------- | --------------------------------------------------------------------------------------------- | ------------------------- |
+| `authProvider`   | `none`, `simple`, `forward-proxy`                                                             | `DOZZLE_AUTH_PROVIDER`    |
+| `enableActions`  | `true`, `false`                                                                               | `DOZZLE_ENABLE_ACTIONS`   |
+| `enableShell`    | `true`, `false`                                                                               | `DOZZLE_ENABLE_SHELL`     |
+| `autoUpdate`     | `off`, `daily`, `weekly`                                                                      | `DOZZLE_AUTO_UPDATE`      |
+| `autoUpdateTime` | `HH:MM`, server local time                                                                    | `DOZZLE_AUTO_UPDATE_TIME` |
+| `remoteAgents`   | list of agent addresses                                                                       | `DOZZLE_REMOTE_AGENT`     |
+| `privateAgents`  | agents in `remoteAgents` that use the [private certificate](/guide/agent#private-certificate) | none                      |
 
-Flags and environment variables always win over the file. If `DOZZLE_ENABLE_ACTIONS` is set, the value in `dozzle.yml` is ignored and the wizard shows the toggle as locked. To go back to managing a setting from the wizard, remove the variable from your compose file.
+Flags and environment variables always win over the file. If `DOZZLE_ENABLE_ACTIONS` is set, the value in `dozzle.yml` is ignored and the wizard shows the toggle as locked. To go back to managing a setting from the wizard, remove the variable from your compose file. `remoteAgents` works differently: agents from the file are added to the ones in `DOZZLE_REMOTE_AGENT` instead of being replaced by them.
 
 ## <Icon icon="mdi:update" inline /> How self-update works {#self-update}
 
@@ -116,6 +128,6 @@ Some setups cannot update this way:
 ## <Icon icon="mdi:shield-lock-outline" inline /> Security
 
 - **Login is the first step.** A restart after saving an account or proxy turns login on before any other setting can be changed.
-- **Only a signed in user can change actions, shell, auto-update or restart Dozzle.** The user needs all roles.
+- **Only a signed in user can change actions, shell, auto-update, add or remove hosts, or restart Dozzle.** The user needs all roles.
 - **Without login, only a new install gets a 15 minute window.** When `authProvider` is `none`, these settings can only be changed within 15 minutes of the first start of a new install, one whose `/data` was empty. An install that already has data from earlier runs never gets the window, so a reboot or an image update can't open it. Outside the window, use environment variables or turn on login.
 - **Routes are still decided at startup.** The wizard only writes to `dozzle.yml`. The endpoints for actions and shell are registered when Dozzle starts, exactly as with environment variables, so nothing is enabled until Dozzle restarts.

@@ -229,6 +229,8 @@ import { useCloudConfig } from "@/composable/cloud/cloudConfig";
 import { useCloudLogSearch } from "@/composable/cloud/cloudLogSearch";
 import { useCommands, type Command } from "@/composable/app/commands";
 
+trackUsage("palette.open");
+
 const close = defineEmit();
 
 const { ask, openPane } = useCloudChat();

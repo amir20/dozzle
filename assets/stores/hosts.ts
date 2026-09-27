@@ -14,6 +14,8 @@ export type Host = {
   // new id, so we drop the entry it used to live under instead of listing the
   // same machine twice
   replacesId?: string;
+  // set on the one update sent when an agent is removed, so every tab drops it
+  removed?: boolean;
 };
 
 const hosts = ref(
@@ -36,9 +38,18 @@ const updateHost = (host: Host) => {
   return host;
 };
 
+// An agent that never connected is listed under its endpoint, so both keys are
+// cleared. Other tabs hear about it as an update-host with removed set.
+const removeHost = (...ids: (string | undefined)[]) => {
+  for (const id of ids) {
+    if (id) delete hosts.value[id];
+  }
+};
+
 export function useHosts() {
   return {
     hosts,
     updateHost,
+    removeHost,
   };
 }

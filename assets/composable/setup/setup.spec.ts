@@ -5,7 +5,10 @@ vi.mock("@/stores/config", () => ({
   withBase: (path: string) => path,
 }));
 
+import { parse } from "yaml";
 import {
+  agentComposeSnippet,
+  agentImage,
   setupEnvSnippet,
   setupHasPending,
   setupLoginConfigured,
@@ -54,6 +57,17 @@ describe("setupSteps", () => {
   test("both toggles locked drops the actions step", () => {
     const s = status({ locked: { authProvider: false, enableActions: true, enableShell: true } });
     expect(setupSteps(s, unlinked)).toEqual(["login", "cloud", "restart"]);
+  });
+
+  test("hosts shows only when agents can be added live", () => {
+    expect(setupSteps(status({ canAddAgents: true }), unlinked)).toEqual([
+      "login",
+      "actions",
+      "hosts",
+      "cloud",
+      "restart",
+    ]);
+    expect(setupSteps(status({ canAddAgents: false }), unlinked)).not.toContain("hosts");
   });
 
   test("cloud is skipped when already linked", () => {
@@ -165,6 +179,16 @@ describe("setupStepConfigured", () => {
     expect(setupStepConfigured("update", status({ autoUpdate: { ...autoUpdate, mode: "weekly" } }))).toBe(true);
     expect(setupStepConfigured("update", status())).toBe(false);
   });
+  test("hosts count once an agent is listed", () => {
+    expect(setupStepConfigured("hosts", status())).toBe(false);
+    expect(setupStepConfigured("hosts", status({ agents: [] }))).toBe(false);
+    const agent = { endpoint: "10.0.0.5:7007", address: "10.0.0.5:7007", locked: true };
+    expect(setupStepConfigured("hosts", status({ agents: [agent] }))).toBe(true);
+  });
+  test("an added host is never pending, so it never asks for a restart", () => {
+    const agent = { endpoint: "10.0.0.5:7007", address: "10.0.0.5:7007", locked: false };
+    expect(setupHasPending(status({ agents: [agent] }))).toBe(false);
+  });
   test("cloud and restart are never pre-marked", () => {
     expect(setupStepConfigured("cloud", status({ enableActions: true }))).toBe(false);
     expect(setupStepConfigured("restart", status({ authProvider: "simple" }))).toBe(false);
@@ -223,5 +247,43 @@ describe("setupShouldAutoOpen", () => {
     expect(setupShouldAutoOpen({ ...base, mode: "swarm", resume: "actions" })).toBe(false);
     expect(setupShouldAutoOpen({ ...base, mode: "k8s" })).toBe(false);
     expect(setupShouldAutoOpen({ ...base, hideMenu: true, resume: "actions" })).toBe(false);
+  });
+});
+
+describe("agentComposeSnippet", () => {
+  const cert = "-----BEGIN CERTIFICATE-----\nMIIB\nabcd\n-----END CERTIFICATE-----\n";
+  const key = "-----BEGIN PRIVATE KEY-----\r\nMIIE\r\n-----END PRIVATE KEY-----";
+
+  test("plain snippet has no environment", () => {
+    const doc = parse(agentComposeSnippet("amir20/dozzle:latest"));
+    expect(doc.services["dozzle-agent"].environment).toBeUndefined();
+    expect(doc.services["dozzle-agent"].ports).toEqual(["7007:7007"]);
+  });
+
+  test("private snippet is valid YAML that carries both PEMs intact", () => {
+    const env = parse(agentComposeSnippet("amir20/dozzle:latest", { cert, key })).services["dozzle-agent"].environment;
+    expect(env.DOZZLE_CERT_PEM).toBe("-----BEGIN CERTIFICATE-----\nMIIB\nabcd\n-----END CERTIFICATE-----\n");
+    expect(env.DOZZLE_KEY_PEM).toBe("-----BEGIN PRIVATE KEY-----\nMIIE\n-----END PRIVATE KEY-----\n");
+  });
+});
+
+describe("agentImage", () => {
+  test("follows the image the hub runs", () => {
+    expect(agentImage("ghcr.io/amir20/dozzle:v12.0.0", "v12.0.0")).toBe("ghcr.io/amir20/dozzle:v12.0.0");
+    expect(agentImage("amir20/dozzle:pr-5258", "pr-5258")).toBe("amir20/dozzle:pr-5258");
+  });
+
+  test("falls back to the hub's version, then latest", () => {
+    expect(agentImage(undefined, "v12.0.0")).toBe("amir20/dozzle:v12.0.0");
+    expect(agentImage("", "pr-5258")).toBe("amir20/dozzle:pr-5258");
+    expect(agentImage(undefined, "pr-5258-75b67f0")).toBe("amir20/dozzle:pr-5258");
+    expect(agentImage(undefined, "head")).toBe("amir20/dozzle:latest");
+    expect(agentImage(undefined, "v12.0.0-beta.1")).toBe("amir20/dozzle:v12.0.0-beta.1");
+  });
+
+  test("never hands out an image another machine cannot pull", () => {
+    expect(agentImage("sha256:3f2a9c1d4e5b6a7f8091a2b3c4d5e6f7", "v12.0.0")).toBe("amir20/dozzle:v12.0.0");
+    expect(agentImage("3f2a9c1d4e5b", "v12.0.0")).toBe("amir20/dozzle:v12.0.0");
+    expect(agentImage("dozzle:dev", "head")).toBe("amir20/dozzle:latest");
   });
 });

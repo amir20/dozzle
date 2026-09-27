@@ -57,6 +57,7 @@ const values = computed(() => [
 // modal, own the #cloudLinked return.
 async function next(): Promise<SetupNextResult> {
   writeSetupResume(nextStep ?? "restart");
+  trackUsage("cloud.connect");
   window.location.assign(linkUrl);
   return "stay";
 }

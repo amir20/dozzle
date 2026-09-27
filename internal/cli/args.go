@@ -65,6 +65,11 @@ type Args struct {
 	AgentTest              *AgentTestCmd       `arg:"subcommand:agent-test" help:"tests an agent"`
 	SelfUpdate             *SelfUpdateCmd      `arg:"subcommand:self-update" help:"replaces a Dozzle container with one on its newer image (used internally by self-update)"`
 	Locked                 Locked              `arg:"-"`
+	// FileAgents are the RemoteAgent entries that came from dozzle.yml, i.e.
+	// were added from the UI rather than by a flag or env var.
+	FileAgents []string `arg:"-"`
+	// PrivateAgents are the FileAgents that use the hub's private pair.
+	PrivateAgents []string `arg:"-"`
 }
 
 type Runnable interface {

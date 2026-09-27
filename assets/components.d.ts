@@ -11,6 +11,8 @@ export {}
 /* prettier-ignore */
 declare module 'vue' {
   export interface GlobalComponents {
+    AddHostModal: typeof import('./components/hosts/AddHostModal.vue')['default']
+    AddHostPanel: typeof import('./components/hosts/AddHostPanel.vue')['default']
     AlertCard: typeof import('./components/notifications/AlertCard.vue')['default']
     AlertDot: typeof import('./components/cloud/history/AlertDot.vue')['default']
     AlertForm: typeof import('./components/notifications/AlertForm.vue')['default']
@@ -183,6 +185,7 @@ declare module 'vue' {
     'Mdi:informationOutline': typeof import('~icons/mdi/information-outline')['default']
     'Mdi:key': typeof import('~icons/mdi/key')['default']
     'Mdi:keyboardEsc': typeof import('~icons/mdi/keyboard-esc')['default']
+    'Mdi:keyOutline': typeof import('~icons/mdi/key-outline')['default']
     'Mdi:lanDisconnect': typeof import('~icons/mdi/lan-disconnect')['default']
     'Mdi:lightbulbOnOutline': typeof import('~icons/mdi/lightbulb-on-outline')['default']
     'Mdi:lightningBolt': typeof import('~icons/mdi/lightning-bolt')['default']
@@ -279,6 +282,7 @@ declare module 'vue' {
     SetupActionsStep: typeof import('./components/setup/SetupActionsStep.vue')['default']
     SetupCheckRow: typeof import('./components/setup/SetupCheckRow.vue')['default']
     SetupCloudStep: typeof import('./components/setup/SetupCloudStep.vue')['default']
+    SetupHostsStep: typeof import('./components/setup/SetupHostsStep.vue')['default']
     SetupLoginStep: typeof import('./components/setup/SetupLoginStep.vue')['default']
     SetupRestarting: typeof import('./components/setup/SetupRestarting.vue')['default']
     SetupRestartStep: typeof import('./components/setup/SetupRestartStep.vue')['default']

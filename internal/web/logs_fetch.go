@@ -14,6 +14,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/amir20/dozzle/internal/analytics"
 	"github.com/amir20/dozzle/internal/container"
 	"github.com/amir20/dozzle/internal/utils"
 	"github.com/amir20/dozzle/internal/web/search"
@@ -87,6 +88,11 @@ func parseFetchWindow(q url.Values) (fetchWindow, error) {
 }
 
 func (h *handler) fetchLogsBetweenDates(w http.ResponseWriter, r *http.Request) {
+	// everything is the SQL view and the copy button reading the whole log, not a
+	// scroll into older lines.
+	if !r.URL.Query().Has("everything") {
+		analytics.Count("logs.older")
+	}
 	plainText := strings.Contains(r.Header.Get("Accept"), "text/plain")
 	if plainText {
 		w.Header().Set("Content-Type", "text/plain; charset=UTF-8")

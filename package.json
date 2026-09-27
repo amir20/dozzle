@@ -118,7 +118,8 @@
     "vitest": "^5.0.2",
     "vue-component-type-helpers": "3.3.11",
     "vue-eslint-parser": "^10.4.1",
-    "vue-tsc": "3.3.11"
+    "vue-tsc": "3.3.11",
+    "yaml": "^2.9.1"
   },
   "simple-git-hooks": {
     "pre-commit": "bunx --bun lint-staged --allow-empty"

@@ -22,6 +22,10 @@ export interface Config {
   enableCloud: boolean;
   canLinkCloud: boolean;
   dataPersisted?: boolean;
+  // Whether this user may add agents from the UI. Absent outside server mode.
+  canAddHosts?: boolean;
+  // --no-analytics: the page must not report usage.
+  noAnalytics?: boolean;
   // Full id of the container this Dozzle runs in, absent when it cannot tell.
   selfContainerId?: string;
   cloudUrl: string;

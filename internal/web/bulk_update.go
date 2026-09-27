@@ -9,6 +9,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/amir20/dozzle/internal/analytics"
 	"github.com/amir20/dozzle/internal/container"
 	"github.com/amir20/dozzle/internal/web/sse"
 	"github.com/rs/zerolog/log"
@@ -343,6 +344,8 @@ func (h *handler) startBulkUpdate(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusConflict)
 		return
 	}
+	// Counted per container, so the number means the same as a single update.
+	analytics.Default.Add("action.update", len(services))
 	log.Info().Int("count", len(services)).Msg("bulk update started")
 	// The caller tells its own job apart from the one before by startedAt.
 	job, _ := bulkUpdates.snapshot(nil)

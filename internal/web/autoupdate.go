@@ -10,6 +10,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/amir20/dozzle/internal/analytics"
 	"github.com/amir20/dozzle/internal/config"
 	"github.com/amir20/dozzle/internal/container"
 	"github.com/amir20/dozzle/internal/imagecheck"
@@ -112,7 +113,13 @@ type autoUpdateSettings struct {
 // effectiveAutoUpdate reads dozzle.yml, with flag and env values winning.
 // Anything invalid falls back to the default rather than failing.
 func effectiveAutoUpdate(setup SetupConfig) (autoUpdateSettings, error) {
-	file, err := config.Load(setupConfigPath)
+	return effectiveAutoUpdateAt(setup, setupConfigPath)
+}
+
+// effectiveAutoUpdateAt is effectiveAutoUpdate for a caller on its own goroutine,
+// which has to read the dozzle.yml path before it starts.
+func effectiveAutoUpdateAt(setup SetupConfig, path string) (autoUpdateSettings, error) {
+	file, err := config.Load(path)
 	s := autoUpdateSettings{Mode: config.AutoUpdateOff, Time: config.DefaultAutoUpdateTime}
 	if file.AutoUpdate != nil {
 		s.Mode = *file.AutoUpdate
@@ -387,6 +394,11 @@ func runSelfUpdate(ctx context.Context, id string, progress func(container.Updat
 		return false, errSelfUpdateBusy
 	}
 	defer selfUpdateMu.Unlock()
+	// Dozzle updating itself, by hand or on the schedule.
+	analytics.Count("image.update")
+	// The helper replaces this container, usually without a clean shutdown, so
+	// this is the last chance for the day's counters, this update included.
+	FlushUsage()
 	updated, err := selfUpdateStart(ctx, id, progress)
 	if err != nil {
 		return updated, fmt.Errorf("self update: %w", err)

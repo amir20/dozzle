@@ -631,6 +631,7 @@ function open() {
   categories.value = buildCategories();
   usageReported = false;
   modal.value?.open();
+  trackUsage("cloud.welcome");
 }
 
 function close() {

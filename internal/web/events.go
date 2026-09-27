@@ -6,12 +6,10 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/amir20/dozzle/internal/analytics"
 	"github.com/amir20/dozzle/internal/auth"
 	"github.com/amir20/dozzle/internal/container"
 	"github.com/amir20/dozzle/internal/hostservice"
 	"github.com/amir20/dozzle/internal/web/sse"
-	"github.com/amir20/dozzle/types"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 )
@@ -172,7 +170,8 @@ func (h *handler) streamEvents(w http.ResponseWriter, r *http.Request) {
 		logWriteError(err, "error writing containers to event stream")
 	}
 
-	go sendBeaconEvent(h, r, len(allContainers))
+	// The path is read here, not in the goroutine: it is a test seam tests swap.
+	go sendBeaconEvent(h, r, allContainers, len(errors) == 0, setupConfigPath)
 
 	// a host whose containers are all filtered out or stopped emits no stats, so without
 	// this the stream is silent and an idle proxy timeout (nginx defaults to 60s) drops it
@@ -322,33 +321,6 @@ func logWriteError(err error, msg string) {
 		level = zerolog.DebugLevel
 	}
 	log.WithLevel(level).Err(err).Msg(msg)
-}
-
-func sendBeaconEvent(h *handler, r *http.Request, runningContainers int) {
-	if h.config.NoAnalytics {
-		return
-	}
-	b := types.BeaconEvent{
-		AuthProvider:      string(h.config.Authorization.Provider),
-		Browser:           r.Header.Get("User-Agent"),
-		Clients:           len(h.hostService.Hosts()),
-		HasActions:        h.config.EnableActions,
-		HasCustomAddress:  h.config.Addr != ":8080",
-		HasCustomBase:     h.config.Base != "/",
-		HasHostname:       h.config.Hostname != "",
-		Name:              "events",
-		RunningContainers: runningContainers,
-		Version:           h.config.Version,
-	}
-
-	local, err := h.hostService.LocalHost()
-	if err == nil {
-		b.ServerID = local.ID
-	}
-
-	if err := analytics.SendBeacon(b); err != nil {
-		log.Debug().Err(err).Msg("error sending beacon")
-	}
 }
 
 // reconcileHosts re-reads host ids off the back of a stream connecting, throttled and
