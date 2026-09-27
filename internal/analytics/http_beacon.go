@@ -6,10 +6,15 @@ import (
 	"fmt"
 	"net/http"
 	"net/http/httputil"
+	"time"
 
 	"github.com/amir20/dozzle/types"
 	"github.com/rs/zerolog/log"
 )
+
+// beaconClient bounds each POST: http.DefaultClient has no timeout, so one hung
+// request would stall the daily usage loop for good and pile up event beacons.
+var beaconClient = &http.Client{Timeout: 10 * time.Second}
 
 func SendBeacon(e types.BeaconEvent) error {
 	log.Trace().Interface("event", e).Msg("sending beacon")
@@ -23,7 +28,7 @@ func SendBeacon(e types.BeaconEvent) error {
 		return err
 	}
 
-	response, err := http.DefaultClient.Do(req)
+	response, err := beaconClient.Do(req)
 	if err != nil {
 		return err
 	}

@@ -97,6 +97,7 @@ func applyConfigFile(args *Args, file config.File, argv []string, lookupEnv func
 
 	args.PrivateAgents = nil
 	for _, endpoint := range file.PrivateAgents {
+		endpoint = strings.TrimSpace(endpoint)
 		if slices.Contains(args.FileAgents, endpoint) {
 			args.PrivateAgents = append(args.PrivateAgents, endpoint)
 		}

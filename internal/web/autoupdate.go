@@ -120,6 +120,11 @@ func effectiveAutoUpdate(setup SetupConfig) (autoUpdateSettings, error) {
 // which has to read the dozzle.yml path before it starts.
 func effectiveAutoUpdateAt(setup SetupConfig, path string) (autoUpdateSettings, error) {
 	file, err := config.Load(path)
+	return autoUpdateFrom(setup, file), err
+}
+
+// autoUpdateFrom is effectiveAutoUpdate for a dozzle.yml the caller already read.
+func autoUpdateFrom(setup SetupConfig, file config.File) autoUpdateSettings {
 	s := autoUpdateSettings{Mode: config.AutoUpdateOff, Time: config.DefaultAutoUpdateTime}
 	if file.AutoUpdate != nil {
 		s.Mode = *file.AutoUpdate
@@ -139,7 +144,7 @@ func effectiveAutoUpdateAt(setup SetupConfig, path string) (autoUpdateSettings, 
 	if !config.ValidAutoUpdateTime(s.Time) {
 		s.Time = config.DefaultAutoUpdateTime
 	}
-	return s, err
+	return s
 }
 
 type autoUpdateSupport struct {
@@ -394,12 +399,19 @@ func runSelfUpdate(ctx context.Context, id string, progress func(container.Updat
 		return false, errSelfUpdateBusy
 	}
 	defer selfUpdateMu.Unlock()
-	// Dozzle updating itself, by hand or on the schedule.
-	analytics.Count("image.update")
-	// The helper replaces this container, usually without a clean shutdown, so
-	// this is the last chance for the day's counters, this update included.
-	FlushUsage()
-	updated, err := selfUpdateStart(ctx, id, progress)
+	updated, err := selfUpdateStart(ctx, id, func(p container.UpdateProgress) {
+		// "recreating" is the point where a newer image was pulled and the helper is
+		// about to replace this container, usually without a clean shutdown, so it is
+		// the last chance for the day's counters, this update included. An image that
+		// is already current or a failed pull never gets here.
+		if p.Status == "recreating" {
+			analytics.Count("image.update")
+			FlushUsage()
+		}
+		if progress != nil {
+			progress(p)
+		}
+	})
 	if err != nil {
 		return updated, fmt.Errorf("self update: %w", err)
 	}

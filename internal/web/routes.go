@@ -202,9 +202,9 @@ func CreateServer(hostService HostService, content fs.FS, config Config) *http.S
 		config:      &config,
 		hostService: hostService,
 	}
-	go handler.runUsageBeacon(context.Background())
-	flush := handler.flushUsage
+	flush, run := handler.flushUsage, handler.runUsageBeacon
 	usageFlusher.Store(&flush)
+	usageRunner.Store(&run)
 
 	return &http.Server{Addr: config.Addr, Handler: createRouter(handler)}
 }

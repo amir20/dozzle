@@ -158,9 +158,12 @@ const addressValid = computed(() => /^[^\s|]+$/.test(address.value));
 const nameValid = computed(() => /^[^|]*$/.test(name.value));
 
 // Every agent listens on 7007 unless told otherwise, so a bare host is taken to
-// mean that port rather than rejected.
+// mean that port rather than rejected. A bare IPv6 address is all colons, so it
+// only has a port once bracketed, and gets brackets when it has none.
 function withPort(value: string) {
-  return /:\d{1,5}$/.test(value) ? value : `${value}:7007`;
+  if (/^\[.+\]:\d{1,5}$/.test(value) || /^[^:]+:\d{1,5}$/.test(value)) return value;
+  if (value.includes(":") && !value.startsWith("[")) return `[${value}]:7007`;
+  return `${value}:7007`;
 }
 
 // A private pair is only on offer while the hub runs the shared certificate. With
@@ -191,10 +194,9 @@ watch(
   { immediate: true },
 );
 
-// Nothing to fetch for someone who cannot add a host, so the toggle stays off.
-watchEffect(() => {
-  if (!canEdit.value) usePrivate.value = false;
-});
+// Nothing to fetch for someone who cannot add a host, so the toggle is off. It
+// comes back on if a later status says they can (a refetch after the wizard).
+watch(canEdit, (editable) => (usePrivate.value = editable && !status.customCert), { immediate: true });
 
 // Adding before the pair arrives would quietly add the host without it.
 const waitingForCert = computed(() => usePrivate.value && !cert.value);

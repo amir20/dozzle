@@ -44,9 +44,10 @@ watchEffect(() => {
   }
 });
 
-// Counted when a pattern is applied, so typing one query counts once, not per key.
+// Counted when a search starts. Refining it applies each debounced prefix ("e", "err",
+// "error"), so counting every applied pattern would count one query several times.
 watch(appliedSearchFilter, (value, previous) => {
-  if (value && value !== previous) trackUsage("logs.search");
+  if (value && !previous) trackUsage("logs.search");
 });
 
 const isSearching = computed(() => showSearch.value && appliedSearchFilter.value !== "");

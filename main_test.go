@@ -160,3 +160,25 @@ func TestCloudHostService_SubscribesLateJoiningAgents(t *testing.T) {
 
 	assert.Eventually(t, agent.subscribed.Load, time.Second, 5*time.Millisecond)
 }
+
+// A service that drops out of the list (an agent removed from the UI) has its
+// subscription ended, rather than keeping a forwarder alive until the cloud
+// connection closes. One still listed is never subscribed twice.
+func TestServiceSubscriptionsEndsRemovedServices(t *testing.T) {
+	a := &fakeClientService{host: container.Host{ID: "a"}}
+	b := &fakeClientService{host: container.Host{ID: "b"}}
+	subs := serviceSubscriptions{}
+	started := map[container.ClientService]context.Context{}
+	start := func(ctx context.Context, s container.ClientService) bool {
+		started[s] = ctx
+		return true
+	}
+
+	subs.sync(t.Context(), []container.ClientService{a, b}, start)
+	subs.sync(t.Context(), []container.ClientService{a}, start)
+
+	assert.Len(t, started, 2)
+	assert.NoError(t, started[a].Err())
+	assert.ErrorIs(t, started[b].Err(), context.Canceled)
+	assert.Len(t, subs, 1)
+}

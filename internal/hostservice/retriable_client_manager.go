@@ -44,6 +44,7 @@ type RetriableClientManager struct {
 	agentCerts  map[string]tls.Certificate
 	certs       tls.Certificate
 	mu          sync.RWMutex
+	retryMu     sync.Mutex
 	subscribers *xsync.Map[*hostSubscriber, struct{}]
 	timeout     time.Duration
 	dial        agentDialer
@@ -134,6 +135,7 @@ func newRetriableClientManager(agents []string, agentCerts map[string]tls.Certif
 			defer cancel()
 			host, err := service.Host(ctx)
 			if err != nil {
+				closeQuietly(closer)
 				log.Warn().Err(err).Str("endpoint", endpoint).Msg("error fetching host info for agent")
 				results[idx] = entry{failed: endpoint}
 				return
@@ -156,6 +158,7 @@ func newRetriableClientManager(agents []string, agentCerts map[string]tls.Certif
 			continue
 		}
 		if _, exists := clientMap[r.host.ID]; exists {
+			closeQuietly(r.closer)
 			log.Warn().Str("name", r.host.Name).Str("id", r.host.ID).Msg("An agent with an existing ID was found. Removing the duplicate host. For more details, see https://dozzle.dev/guide/faq#i-am-seeing-duplicate-hosts-error-in-the-logs-how-do-i-fix-it")
 			continue
 		}
@@ -189,11 +192,24 @@ func (m *RetriableClientManager) Subscribe(ctx context.Context, channel chan<- c
 }
 
 func (m *RetriableClientManager) RetryAndList() ([]container.ClientService, []error) {
-	m.mu.Lock()
-	defer m.mu.Unlock()
+	// Retries run one at a time, but the dials below happen without m.mu, so a
+	// down agent never holds up List, Find or AddAgent for the dial timeout.
+	m.retryMu.Lock()
+	defer m.retryMu.Unlock()
 
-	if len(m.failedAgents) == 0 {
-		return lo.Values(m.clients), nil
+	m.mu.RLock()
+	type attempt struct {
+		endpoint string
+		cert     tls.Certificate
+	}
+	attempts := make([]attempt, len(m.failedAgents))
+	for i, endpoint := range m.failedAgents {
+		attempts[i] = attempt{endpoint: endpoint, cert: m.certFor(endpoint)}
+	}
+	m.mu.RUnlock()
+
+	if len(attempts) == 0 {
+		return m.List(), nil
 	}
 
 	type retryResult struct {
@@ -204,14 +220,14 @@ func (m *RetriableClientManager) RetryAndList() ([]container.ClientService, []er
 		err      error
 	}
 
-	results := make([]retryResult, len(m.failedAgents))
+	results := make([]retryResult, len(attempts))
 	var wg sync.WaitGroup
-	for i, endpoint := range m.failedAgents {
+	for i, a := range attempts {
 		wg.Go(func() {
-			service, closer, err := m.dial(endpoint, m.certFor(endpoint))
+			service, closer, err := m.dial(a.endpoint, a.cert)
 			if err != nil {
-				log.Warn().Err(err).Str("endpoint", endpoint).Msg("error creating agent client")
-				results[i] = retryResult{endpoint: endpoint, err: err}
+				log.Warn().Err(err).Str("endpoint", a.endpoint).Msg("error creating agent client")
+				results[i] = retryResult{endpoint: a.endpoint, err: err}
 				return
 			}
 			ctx, cancel := context.WithTimeout(context.Background(), m.timeout)
@@ -219,12 +235,12 @@ func (m *RetriableClientManager) RetryAndList() ([]container.ClientService, []er
 			h, err := service.Host(ctx)
 			if err != nil {
 				closeQuietly(closer)
-				log.Warn().Err(err).Str("endpoint", endpoint).Msg("error fetching host info for agent")
-				results[i] = retryResult{endpoint: endpoint, err: err}
+				log.Warn().Err(err).Str("endpoint", a.endpoint).Msg("error fetching host info for agent")
+				results[i] = retryResult{endpoint: a.endpoint, err: err}
 				return
 			}
 			results[i] = retryResult{
-				endpoint: endpoint,
+				endpoint: a.endpoint,
 				host:     h,
 				service:  service,
 				closer:   closer,
@@ -234,13 +250,21 @@ func (m *RetriableClientManager) RetryAndList() ([]container.ClientService, []er
 	wg.Wait()
 
 	var errs []error
-	newFailed := make([]string, 0)
+	var published []container.Host
+	m.mu.Lock()
 	for _, r := range results {
 		if r.err != nil {
 			errs = append(errs, r.err)
-			newFailed = append(newFailed, r.endpoint)
 			continue
 		}
+		i := slices.Index(m.failedAgents, r.endpoint)
+		if i < 0 {
+			// Removed while it was being dialed.
+			closeQuietly(r.closer)
+			continue
+		}
+		// Connected or a duplicate, it is no longer retried.
+		m.failedAgents = slices.Delete(m.failedAgents, i, i+1)
 		if _, ok := m.clients[r.host.ID]; ok {
 			closeQuietly(r.closer)
 			log.Warn().Str("name", r.host.Name).Str("id", r.host.ID).Msg("An agent with an existing ID was found. Removing the duplicate host. For more details, see https://dozzle.dev/guide/faq#i-am-seeing-duplicate-hosts-error-in-the-logs-how-do-i-fix-it")
@@ -250,11 +274,15 @@ func (m *RetriableClientManager) RetryAndList() ([]container.ClientService, []er
 		m.agents[r.endpoint] = connectedAgent{id: r.host.ID, closer: r.closer}
 		host := r.host
 		host.Available = true
+		published = append(published, host)
+	}
+	clients := lo.Values(m.clients)
+	m.mu.Unlock()
+
+	for _, host := range published {
 		m.publish(host)
 	}
-	m.failedAgents = newFailed
-
-	return lo.Values(m.clients), errs
+	return clients, errs
 }
 
 // AddAgent connects to an agent and, only once it answers, starts serving it
@@ -485,10 +513,11 @@ func (m *RetriableClientManager) Hosts(ctx context.Context) []container.Host {
 			}
 		}
 		if r.host.Type == "agent" {
-			if prev, ok := m.wasAvailable.Load(key); ok && prev && !r.host.Available {
+			// LoadAndStore, not Load then Store: Hosts runs concurrently, and two callers that
+			// both saw it up would count one outage twice.
+			if prev, ok := m.wasAvailable.LoadAndStore(key, r.host.Available); ok && prev && !r.host.Available {
 				analytics.Count("agent.disconnect")
 			}
-			m.wasAvailable.Store(key, r.host.Available)
 		}
 		hosts = append(hosts, r.host)
 	}

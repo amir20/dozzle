@@ -16,6 +16,7 @@ import (
 	"github.com/amir20/dozzle/types"
 	"github.com/rs/zerolog/log"
 	lop "github.com/samber/lo/parallel"
+	"golang.org/x/sync/singleflight"
 )
 
 type HostUnavailableError struct {
@@ -43,6 +44,11 @@ type MultiHostService struct {
 	notificationManager *notification.Manager
 	persister           *notification.Persister
 	cloudNotifyFn       atomic.Pointer[func()]
+	// agents is the manager when it can take agents while running, else nil.
+	agents agentAdder
+	// lateListings shares one listing of a newly joined host among every
+	// subscriber that hears about it, rather than one RPC per open stream.
+	lateListings singleflight.Group
 }
 
 func NewMultiHostService(manager ClientManager, timeout time.Duration) *MultiHostService {
@@ -50,6 +56,7 @@ func NewMultiHostService(manager ClientManager, timeout time.Duration) *MultiHos
 		manager: manager,
 		timeout: timeout,
 	}
+	m.agents, _ = manager.(agentAdder)
 
 	return m
 }
@@ -143,7 +150,7 @@ func (m *MultiHostService) SubscribeContainersStarted(ctx context.Context, conta
 		// A host that joins later is new to this subscriber along with everything
 		// already running on it, so those count as started too.
 		go func() {
-			running, err := client.ListContainers(ctx, nil)
+			running, err := m.listLate(client)
 			if err != nil {
 				log.Debug().Err(err).Msg("could not list containers of a newly added host")
 				return
@@ -180,10 +187,26 @@ func (m *MultiHostService) SubscribeContainersStarted(ctx context.Context, conta
 	}()
 }
 
+// listLate lists a newly joined host once for all the subscribers that hear about
+// it together. It runs on its own timeout, not a subscriber's context, since the
+// one subscriber that happens to start it may go away before the others are done.
+func (m *MultiHostService) listLate(client container.ClientService) ([]container.Container, error) {
+	v, err, _ := m.lateListings.Do(fmt.Sprintf("%p", client), func() (any, error) {
+		ctx, cancel := context.WithTimeout(context.Background(), m.timeout)
+		defer cancel()
+		return client.ListContainers(ctx, nil)
+	})
+	if err != nil {
+		return nil, err
+	}
+	return v.([]container.Container), nil
+}
+
 // followClients calls subscribe for every client now, then again for each client
 // that becomes available later (an agent added from the UI, or one that was down
 // at startup), with late set. Without it, a subscriber only ever sees the hosts
-// that existed when it subscribed. Each client is handed over once.
+// that existed when it subscribed. Each client is handed over once, except after
+// a re-key (see below).
 func (m *MultiHostService) followClients(ctx context.Context, subscribe func(client container.ClientService, late bool)) {
 	// Subscribe before listing, so a host added in between is not missed.
 	hosts := make(chan container.Host, 8)
@@ -205,8 +228,16 @@ func (m *MultiHostService) followClients(ctx context.Context, subscribe func(cli
 					continue
 				}
 				client, ok := m.manager.Find(host.ID)
-				// A re-keyed host is a client this subscriber already has.
-				if !ok || seen[client] {
+				if !ok {
+					continue
+				}
+				if seen[client] {
+					// A re-key means the agent process restarted, which ended every
+					// stream this subscriber had open to it, so subscribe again. Not
+					// as late: its running containers are ones the subscriber has.
+					if host.ReplacesID != "" {
+						subscribe(client, false)
+					}
 					continue
 				}
 				seen[client] = true
@@ -228,31 +259,28 @@ var ErrAgentsUnsupported = errors.New("agents cannot be added in this mode")
 
 // CanAddAgents reports whether AddAgent works in this mode.
 func (m *MultiHostService) CanAddAgents() bool {
-	_, ok := m.manager.(agentAdder)
-	return ok
+	return m.agents != nil
 }
 
 func (m *MultiHostService) AddAgent(ctx context.Context, endpoint string, cert *tls.Certificate) (container.Host, error) {
-	adder, ok := m.manager.(agentAdder)
-	if !ok {
+	if m.agents == nil {
 		return container.Host{}, ErrAgentsUnsupported
 	}
-	return adder.AddAgent(ctx, endpoint, cert)
+	return m.agents.AddAgent(ctx, endpoint, cert)
 }
 
 func (m *MultiHostService) RemoveAgent(endpoint string) error {
-	adder, ok := m.manager.(agentAdder)
-	if !ok {
+	if m.agents == nil {
 		return ErrAgentsUnsupported
 	}
-	return adder.RemoveAgent(endpoint)
+	return m.agents.RemoveAgent(endpoint)
 }
 
 func (m *MultiHostService) AgentHostID(endpoint string) string {
-	if adder, ok := m.manager.(agentAdder); ok {
-		return adder.AgentHostID(endpoint)
+	if m.agents == nil {
+		return ""
 	}
-	return ""
+	return m.agents.AgentHostID(endpoint)
 }
 
 func (m *MultiHostService) Hosts() []container.Host {

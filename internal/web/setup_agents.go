@@ -63,7 +63,7 @@ func (h *handler) setupAgents(file config.File) []setupAgent {
 		}
 		seen[address] = true
 		a := setupAgent{Endpoint: endpoint, Address: address, Name: name, Locked: locked,
-			Private: !locked && slices.Contains(file.PrivateAgents, endpoint)}
+			Private: !locked && slices.ContainsFunc(file.PrivateAgents, sameEndpoint(endpoint))}
 		if service != nil {
 			a.HostID = service.AgentHostID(endpoint)
 		}
@@ -72,10 +72,24 @@ func (h *handler) setupAgents(file config.File) []setupAgent {
 	for _, endpoint := range h.config.Setup.EnvAgents {
 		add(endpoint, true)
 	}
-	for _, endpoint := range file.RemoteAgents {
-		add(endpoint, false)
+	// Only a mode that can add agents dials the ones in dozzle.yml (swarm keeps to
+	// the operator's), so elsewhere listing them would show hosts that never connect.
+	if service != nil {
+		for _, endpoint := range file.RemoteAgents {
+			// Trimmed the way startup reads them, so a hand-edited entry still
+			// matches the agent that was dialed under it.
+			if endpoint = strings.TrimSpace(endpoint); endpoint != "" {
+				add(endpoint, false)
+			}
+		}
 	}
 	return agents
+}
+
+// sameEndpoint matches a dozzle.yml entry to endpoint, ignoring the whitespace a
+// hand edit can leave around it.
+func sameEndpoint(endpoint string) func(string) bool {
+	return func(e string) bool { return strings.TrimSpace(e) == endpoint }
 }
 
 // setupAgentAddress checks a host:port the UI sends. The pipe is the endpoint
@@ -121,50 +135,49 @@ type setupAddAgentResponse struct {
 // answers, so the UI can tell a typo or a closed port apart from success right
 // away. The host shows up live, the same way a reconnecting agent does.
 func (h *handler) addSetupAgent(w http.ResponseWriter, r *http.Request) {
-	rec := &outcomeRecorder{ResponseWriter: w}
-	defer func() {
-		if outcome := addHostOutcome(rec.status, rec.body.String()); outcome != "" {
-			analytics.Count(outcome)
-		}
-	}()
-	h.addSetupAgentOnce(rec, r)
+	if outcome := h.addSetupAgentOnce(w, r); outcome != "" {
+		analytics.Count(outcome)
+	}
 }
 
-func (h *handler) addSetupAgentOnce(w http.ResponseWriter, r *http.Request) {
+// addSetupAgentOnce answers the request and returns the usage counter for it, or
+// "" when it never got as far as trying: no permission, or a body that did not
+// decode.
+func (h *handler) addSetupAgentOnce(w http.ResponseWriter, r *http.Request) string {
 	if !h.setupCanWrite(r) {
 		http.Error(w, http.StatusText(http.StatusForbidden), http.StatusForbidden)
-		return
+		return ""
 	}
 	service, ok := h.agentService()
 	if !ok {
 		http.Error(w, "agents cannot be added in this mode", http.StatusConflict)
-		return
+		return "host.add.other"
 	}
 	if !setupPersisted() {
 		http.Error(w, "data directory is not persisted", http.StatusPreconditionFailed)
-		return
+		return "host.add.other"
 	}
 
 	var req setupAddAgentRequest
 	if !decodeSetupBody(w, r, &req) {
-		return
+		return ""
 	}
 	address, name := strings.TrimSpace(req.Address), strings.TrimSpace(req.Name)
 	endpoint, err := setupAgentAddress(address, name)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
+		return "host.add.other"
 	}
 
 	file, err := config.Load(setupConfigPath)
 	if err != nil {
 		log.Error().Err(err).Msg("could not read setup config")
 		http.Error(w, "could not read dozzle.yml", http.StatusInternalServerError)
-		return
+		return "host.add.other"
 	}
 	if slices.ContainsFunc(h.setupAgents(file), func(a setupAgent) bool { return a.Address == address }) {
 		http.Error(w, "this agent is already added", http.StatusConflict)
-		return
+		return "host.add.duplicate"
 	}
 
 	var cert *tls.Certificate
@@ -172,13 +185,13 @@ func (h *handler) addSetupAgentOnce(w http.ResponseWriter, r *http.Request) {
 		pair, err := agentcerts.LoadAgentPair(setupDataDir())
 		if err != nil {
 			http.Error(w, "no private certificate yet, create one first", http.StatusPreconditionFailed)
-			return
+			return "host.add.other"
 		}
 		parsed, err := pair.TLS()
 		if err != nil {
 			log.Error().Err(err).Msg("could not parse the private agent certificate")
 			http.Error(w, "could not read the private certificate", http.StatusInternalServerError)
-			return
+			return "host.add.other"
 		}
 		cert = &parsed
 	}
@@ -188,21 +201,22 @@ func (h *handler) addSetupAgentOnce(w http.ResponseWriter, r *http.Request) {
 	// and the answer names only the kind of failure, never the raw error text.
 	if !agentDialLimiter.Allow() {
 		http.Error(w, "too many attempts, wait a minute and try again", http.StatusTooManyRequests)
-		return
+		return "host.add.other"
 	}
 
 	host, err := service.AddAgent(r.Context(), endpoint, cert)
 	switch {
 	case errors.Is(err, hostservice.ErrAgentExists):
 		http.Error(w, "this agent is already added", http.StatusConflict)
-		return
+		return "host.add.duplicate"
 	case errors.Is(err, hostservice.ErrDuplicateHost):
 		http.Error(w, "this agent is already connected under another address", http.StatusConflict)
-		return
+		return "host.add.duplicate"
 	case err != nil:
 		log.Debug().Err(err).Str("endpoint", endpoint).Msg("setup could not connect to agent")
-		http.Error(w, "could not connect to agent: "+dialFailure(err), http.StatusBadGateway)
-		return
+		reason, outcome := dialFailure(err)
+		http.Error(w, "could not connect to agent: "+reason, http.StatusBadGateway)
+		return outcome
 	}
 
 	if err := config.Update(setupConfigPath, func(c *config.File) {
@@ -217,7 +231,7 @@ func (h *handler) addSetupAgentOnce(w http.ResponseWriter, r *http.Request) {
 		}
 		log.Error().Err(err).Msg("could not update dozzle.yml")
 		http.Error(w, "could not write dozzle.yml", http.StatusInternalServerError)
-		return
+		return "host.add.other"
 	}
 
 	log.Info().Str("endpoint", endpoint).Str("host", host.Name).Msg("setup added an agent")
@@ -226,27 +240,28 @@ func (h *handler) addSetupAgentOnce(w http.ResponseWriter, r *http.Request) {
 	if err := json.NewEncoder(w).Encode(setupAddAgentResponse{ID: host.ID, Name: host.Name, Endpoint: endpoint}); err != nil {
 		log.Error().Err(err).Msg("error encoding agent")
 	}
+	return "host.add.ok"
 }
 
 // agentDialLimiter allows a burst of five adds, then one every six seconds.
 var agentDialLimiter = rate.NewLimiter(rate.Every(6*time.Second), 5)
 
-// dialFailure turns a dial error into one of a few plain reasons. The raw text
-// can quote whatever answered on that port, which says more about the network
-// than someone adding an agent needs to know.
-func dialFailure(err error) string {
+// dialFailure turns a dial error into one of a few plain reasons, plus the usage
+// counter for it. The raw text can quote whatever answered on that port, which
+// says more about the network than someone adding an agent needs to know.
+func dialFailure(err error) (reason, outcome string) {
 	msg := strings.ToLower(err.Error())
 	switch {
 	case strings.Contains(msg, "certificate"):
-		return "the agent refused this Dozzle's certificate"
+		return "the agent refused this Dozzle's certificate", "host.add.cert"
 	case strings.Contains(msg, "no such host"), strings.Contains(msg, "server misbehaving"):
-		return "no such host"
+		return "no such host", "host.add.refused"
 	case strings.Contains(msg, "connection refused"):
-		return "connection refused"
+		return "connection refused", "host.add.refused"
 	case strings.Contains(msg, "deadline exceeded"), strings.Contains(msg, "timeout"), strings.Contains(msg, "timed out"):
-		return "timed out"
+		return "timed out", "host.add.timeout"
 	default:
-		return "no Dozzle agent answered at that address"
+		return "no Dozzle agent answered at that address", "host.add.refused"
 	}
 }
 
@@ -276,14 +291,15 @@ func (h *handler) removeSetupAgent(w http.ResponseWriter, r *http.Request) {
 
 	found := false
 	if err := config.Update(setupConfigPath, func(c *config.File) {
+		matches := sameEndpoint(req.Endpoint)
 		c.RemoteAgents = slices.DeleteFunc(c.RemoteAgents, func(e string) bool {
-			if e == req.Endpoint {
+			if matches(e) {
 				found = true
 				return true
 			}
 			return false
 		})
-		c.PrivateAgents = slices.DeleteFunc(c.PrivateAgents, func(e string) bool { return e == req.Endpoint })
+		c.PrivateAgents = slices.DeleteFunc(c.PrivateAgents, matches)
 	}); err != nil {
 		log.Error().Err(err).Msg("could not update dozzle.yml")
 		http.Error(w, "could not write dozzle.yml", http.StatusInternalServerError)
@@ -348,64 +364,5 @@ func (h *handler) agentCert(w http.ResponseWriter, r *http.Request) {
 		NotAfter: pair.NotAfter.Format("2006-01-02"),
 	}); err != nil {
 		log.Error().Err(err).Msg("error encoding agent certificate")
-	}
-}
-
-// outcomeRecorder keeps the status and the start of the body, so the add-host
-// outcome can be counted from what the user was told.
-type outcomeRecorder struct {
-	http.ResponseWriter
-	status int
-	body   strings.Builder
-}
-
-func (o *outcomeRecorder) WriteHeader(status int) {
-	if o.status == 0 {
-		o.status = status
-	}
-	o.ResponseWriter.WriteHeader(status)
-}
-
-func (o *outcomeRecorder) Write(b []byte) (int, error) {
-	if o.status == 0 {
-		o.status = http.StatusOK
-	}
-	if o.body.Len() < 512 {
-		o.body.Write(b[:min(len(b), 512-o.body.Len())])
-	}
-	return o.ResponseWriter.Write(b)
-}
-
-// addHostOutcome is the usage counter for one add-host attempt, or "" when the
-// request never got as far as trying: no permission, or a body that did not
-// decode. A mode that cannot add agents is "other", not a duplicate.
-func addHostOutcome(status int, body string) string {
-	lower := strings.ToLower(body)
-	switch status {
-	case http.StatusCreated:
-		return "host.add.ok"
-	case http.StatusForbidden:
-		return ""
-	case http.StatusBadRequest:
-		if strings.Contains(lower, "invalid request body") {
-			return ""
-		}
-		return "host.add.other"
-	case http.StatusConflict:
-		if strings.Contains(lower, "already") {
-			return "host.add.duplicate"
-		}
-		return "host.add.other"
-	case http.StatusBadGateway:
-		switch {
-		case strings.Contains(lower, "certificate"):
-			return "host.add.cert"
-		case strings.Contains(lower, "deadline") || strings.Contains(lower, "timeout") || strings.Contains(lower, "timed out"):
-			return "host.add.timeout"
-		default:
-			return "host.add.refused"
-		}
-	default:
-		return "host.add.other"
 	}
 }

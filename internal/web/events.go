@@ -2,8 +2,10 @@ package web
 
 import (
 	"errors"
+	"maps"
 	"net"
 	"net/http"
+	"slices"
 	"time"
 
 	"github.com/amir20/dozzle/internal/auth"
@@ -171,7 +173,11 @@ func (h *handler) streamEvents(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// The path is read here, not in the goroutine: it is a test seam tests swap.
-	go sendBeaconEvent(h, r, allContainers, len(errors) == 0, setupConfigPath)
+	var beaconContainers []container.Container
+	if len(errors) == 0 && maps.EqualFunc(userLabels, h.config.Labels, slices.Equal[[]string]) {
+		beaconContainers = allContainers
+	}
+	go sendBeaconEvent(h, r.UserAgent(), beaconContainers, len(allContainers), setupConfigPath)
 
 	// a host whose containers are all filtered out or stopped emits no stats, so without
 	// this the stream is silent and an idle proxy timeout (nginx defaults to 60s) drops it

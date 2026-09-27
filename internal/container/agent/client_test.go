@@ -3,6 +3,7 @@ package agent
 import (
 	"context"
 	"crypto/tls"
+	"crypto/x509"
 	"fmt"
 	"io"
 	"net"
@@ -11,6 +12,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/amir20/dozzle/internal/agentcerts"
 	"github.com/amir20/dozzle/internal/container"
 	"github.com/amir20/dozzle/internal/imagecheck"
 	"github.com/amir20/dozzle/internal/notification/dispatcher"
@@ -295,4 +297,28 @@ func TestParseEndpoint(t *testing.T) {
 			assert.Equal(t, tt.wantGroup, group)
 		})
 	}
+}
+
+func TestVerifyAgentCert(t *testing.T) {
+	pool := func(c tls.Certificate) *x509.CertPool {
+		p := x509.NewCertPool()
+		leaf, err := x509.ParseCertificate(c.Certificate[0])
+		assert.NoError(t, err)
+		p.AddCert(leaf)
+		return p
+	}
+	pair := func() tls.Certificate {
+		p, err := agentcerts.Generate()
+		assert.NoError(t, err)
+		c, err := tls.X509KeyPair(p.Cert, p.Key)
+		assert.NoError(t, err)
+		return c
+	}
+	private, other := pair(), pair()
+
+	assert.NoError(t, verifyAgentCert(certs.Certificate, pool(certs)), "the shared cert trusts itself")
+	assert.NoError(t, verifyAgentCert(private.Certificate, pool(private)), "a private pair trusts itself")
+	assert.Error(t, verifyAgentCert(other.Certificate, pool(private)), "an agent with another pair is refused")
+	assert.Error(t, verifyAgentCert(certs.Certificate, pool(private)), "the public shared cert is refused by a private hub")
+	assert.Error(t, verifyAgentCert(nil, pool(private)))
 }
