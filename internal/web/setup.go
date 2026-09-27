@@ -69,6 +69,10 @@ type setupState struct {
 	WindowOpen      bool            `json:"windowOpen"`
 	CanWrite        bool            `json:"canWrite"`
 	AutoUpdate      setupAutoUpdate `json:"autoUpdate"`
+	Agents          []setupAgent    `json:"agents"`
+	CanAddAgents    bool            `json:"canAddAgents"`
+	// CustomCert means agents need this hub's cert pair, not the default one.
+	CustomCert bool `json:"customCert"`
 }
 
 func setupDataDir() string {
@@ -156,6 +160,9 @@ func (h *handler) getSetup(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "could not read dozzle.yml", http.StatusInternalServerError)
 		return
 	}
+	// Read successfully just above, so an error here is not expected.
+	file, _ := config.Load(setupConfigPath)
+	_, canAddAgents := h.agentService()
 
 	// Already read successfully above, so an error here is not expected.
 	settings, _ := effectiveAutoUpdate(h.config.Setup)
@@ -186,6 +193,9 @@ func (h *handler) getSetup(w http.ResponseWriter, r *http.Request) {
 			Image:          support.Image,
 			CurrentVersion: h.config.Version,
 		},
+		Agents:       h.setupAgents(file),
+		CanAddAgents: canAddAgents,
+		CustomCert:   h.config.Setup.CustomCert,
 	}
 
 	w.Header().Set("Content-Type", "application/json")

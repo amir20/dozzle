@@ -169,6 +169,10 @@ func (h *handler) executeTemplate(w http.ResponseWriter, req *http.Request) {
 		// It comes out of memory here, so the shell may as well carry it.
 		config["cloudConfig"] = h.cloudConfigPayload()
 		config["dataPersisted"] = profile.Persisted()
+		// Decided here so the sidebar's "Add host" row costs no extra request.
+		if _, ok := h.agentService(); ok && h.config.Mode == "server" {
+			config["canAddHosts"] = h.setupCanWrite(req)
+		}
 		// Lets the page tell Dozzle's own container apart from other Dozzle
 		// containers, since updating it replaces the process serving the page.
 		if id := setupSelfID(); id != "" {

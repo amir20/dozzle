@@ -765,9 +765,9 @@ setup:
   close: Close
   copy: Copy
   settings-title: Set up Dozzle
-  settings-desc: Login, container actions, shell and Dozzle Cloud in a few steps.
+  settings-desc: "Login, container actions, shell, other hosts and Dozzle Cloud in a few steps."
   settings-done-title: Dozzle is set up
-  settings-done-desc: Login is on. Open setup to review container actions, shell and Dozzle Cloud.
+  settings-done-desc: "Login is on. Open setup to review container actions, shell, other hosts and Dozzle Cloud."
   settings-closed-title: Setup is closed
   settings-closed-desc: Without a login, setup only takes changes in the first 15 minutes of a new install. Use environment variables instead.
   steps:
@@ -776,6 +776,8 @@ setup:
     actions: Actions and shell
     cloud: Dozzle Cloud
     cloud-note: Optional
+    hosts: "Hosts"
+    hosts-note: "Optional"
     update: Auto-update
     update-note: Needs actions
     restart: Restart
@@ -824,6 +826,33 @@ setup:
     window-closed: "Without a login, setup only takes changes in the first 15 minutes of a new install. Set these with environment variables, or turn on login first."
     no-access: Your account can't change these settings.
     restart-note: These take effect after Dozzle restarts.
+  hosts:
+    title: "Add another host"
+    subtitle: "See containers on your other machines from this Dozzle. Run an agent on each one, then add its address here."
+    run-title: "Run the agent"
+    run-body: "On the other machine, add this to a compose file and start it. Keep port 7007 on a private network."
+    custom-cert: "This Dozzle uses its own certificate, so the agent needs the same pair or it refuses the connection."
+    cert-docs: "Certificate guide"
+    connect-title: "Connect to it"
+    address: "Address"
+    name: "Name"
+    optional: "(optional)"
+    add: "Add host"
+    connect-note: "Dozzle connects before saving. The host shows up right away, with no restart."
+    added: "{name} is connected."
+    list-title: "Agents"
+    connected: "Connected"
+    offline: "Not connected"
+    remove: "Remove"
+    skip: "Not now"
+    error-exists: "That agent is already added."
+    error-connect: "Could not connect to the agent: {reason}"
+    private-label: "Private certificate"
+    private-desc: "Only this Dozzle can connect to the agent. Other agents are unaffected."
+    private-warning: "This snippet contains a private key. Treat it like a password."
+    private-pill: "private"
+    private-error: "Could not create a private certificate, so the shared one is used. {reason}"
+    private-missing: "This Dozzle has no private certificate yet. Turn Private certificate back on, then try again."
   cloud:
     title: Connect Dozzle Cloud
     subtitle: Know when something breaks without keeping a tab open.

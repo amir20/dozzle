@@ -1,13 +1,13 @@
 ---
 title: 设置向导
-sourceHash: 3b30130e995d
+sourceHash: 364d497cf753
 ---
 
 # 设置向导
 
 <Badge type="warning" text="Docker Only" />
 
-全新安装的 Dozzle 会先打开一个简短的设置向导。它会带你完成大多数人在安装后马上要改的几件事：开启登录、允许容器操作和终端访问，以及连接 Dozzle Cloud。它保存的所有内容也都可以通过命令行参数或环境变量设置，所以向导是可选的。
+全新安装的 Dozzle 会先打开一个简短的设置向导。它会带你完成大多数人在安装后马上要改的几件事：开启登录、允许容器操作和终端访问、添加其他主机，以及连接 Dozzle Cloud。它保存的所有内容也都可以通过命令行参数或环境变量设置，所以向导是可选的。
 
 向导只会出现在以服务器模式运行的全新安装中。Swarm 和 Kubernetes 部署永远不会显示它。之后你可以在设置中再次打开它。
 
@@ -53,11 +53,17 @@ volumes:
 
 如果某个设置已经由命令行参数或环境变量固定，它的开关会是只读的，并给出说明。和登录一样，这些开关需要 `/data` 挂载在卷上，在此之前会保持只读。
 
-### 3. Dozzle Cloud
+### 3. 主机
+
+Dozzle 可以通过[代理](/zh/guide/agent)显示其他机器上的容器。这一步会给出要在另一台机器上运行的 compose 文件，然后询问代理的地址（例如 `10.0.0.5:7007`）和一个可选的名称。**添加主机** 会在保存任何内容之前先连接代理，所以地址填错或证书不匹配会立刻显示出来。连接成功后，主机无需重启就会出现在侧边栏中。
+
+通过 `DOZZLE_REMOTE_AGENT` 设置的代理显示为锁定，只能在 compose 文件中删除。在这里添加的代理可以在同一个列表中移除。**暂不** 会跳过这一步，之后也可以通过主机列表底部的 **添加主机** 打开同一个面板。
+
+### 4. Dozzle Cloud
 
 [Dozzle Cloud](/zh/guide/dozzle-cloud) 会在出现故障的第一时间发送告警，每天早上发送一份待修复问题的摘要，并保留重启后依然存在的历史记录。**连接 Dozzle Cloud** 会关联此实例，**暂不** 则继续下一步。如果实例已经关联，或者你没有权限关联，此步骤会被跳过。
 
-### 4. 自动更新
+### 5. 自动更新
 
 Dozzle 可以让自己保持最新。选择 **关闭**、**每天** 或 **每周**（每周在周日运行），再选择一天中的时间。时间使用服务器的本地时间，默认是 `03:00`。到了这个时间，Dozzle 会检查镜像仓库中是否有更新的镜像，只有在有新镜像时才会 [更新自身](#self-update)。
 
@@ -65,7 +71,7 @@ Dozzle 可以让自己保持最新。选择 **关闭**、**每天** 或 **每周
 
 更新自身属于操作功能，所以在操作关闭时，这一步仍会留在列表中，但显示为灰色并标注 **需要操作功能**。在第 2 步开启操作后，它会立即变为可用。如果此实例因为其他原因无法更新自身（例如运行的是固定版本标签），这一步会改为说明原因。
 
-### 5. 重启
+### 6. 重启
 
 最后一步列出已保存但尚未生效的更改。**重启 Dozzle** 会重启容器，等待它恢复后重新加载页面。如果没有待处理的更改，这一步只会提示你已完成。
 
@@ -73,7 +79,7 @@ Dozzle 可以让自己保持最新。选择 **关闭**、**每天** 或 **每周
 
 ## <Icon icon="mdi:file-cog-outline" inline /> 设置保存在哪里
 
-向导会把你的选择保存到 `/data/dozzle.yml`。Dozzle 只在启动时读取一次这个文件，所以更改需要重启才能生效。Dozzle 会从向导中自行重启，你不需要手动操作。自动更新相关的键是例外：Dozzle 每分钟都会重新读取它们，所以无需重启即可生效。
+向导会把你的选择保存到 `/data/dozzle.yml`。Dozzle 只在启动时读取一次这个文件，所以更改需要重启才能生效。Dozzle 会从向导中自行重启，你不需要手动操作。自动更新相关的键是例外：Dozzle 每分钟都会重新读取它们，所以无需重启即可生效。`remoteAgents` 是另一个例外：主机在添加的那一刻就会连接。
 
 ```yaml [/data/dozzle.yml]
 authProvider: simple
@@ -81,17 +87,23 @@ enableActions: true
 enableShell: false
 autoUpdate: weekly
 autoUpdateTime: "03:00"
+remoteAgents:
+  - 10.0.0.5:7007|nas
+privateAgents:
+  - 10.0.0.5:7007|nas
 ```
 
-| 键               | 取值                              | 等同于                    |
-| ---------------- | --------------------------------- | ------------------------- |
-| `authProvider`   | `none`, `simple`, `forward-proxy` | `DOZZLE_AUTH_PROVIDER`    |
-| `enableActions`  | `true`, `false`                   | `DOZZLE_ENABLE_ACTIONS`   |
-| `enableShell`    | `true`, `false`                   | `DOZZLE_ENABLE_SHELL`     |
-| `autoUpdate`     | `off`, `daily`, `weekly`          | `DOZZLE_AUTO_UPDATE`      |
-| `autoUpdateTime` | `HH:MM`，服务器本地时间           | `DOZZLE_AUTO_UPDATE_TIME` |
+| 键               | 取值                                                                       | 等同于                    |
+| ---------------- | -------------------------------------------------------------------------- | ------------------------- |
+| `authProvider`   | `none`, `simple`, `forward-proxy`                                          | `DOZZLE_AUTH_PROVIDER`    |
+| `enableActions`  | `true`, `false`                                                            | `DOZZLE_ENABLE_ACTIONS`   |
+| `enableShell`    | `true`, `false`                                                            | `DOZZLE_ENABLE_SHELL`     |
+| `autoUpdate`     | `off`, `daily`, `weekly`                                                   | `DOZZLE_AUTO_UPDATE`      |
+| `autoUpdateTime` | `HH:MM`，服务器本地时间                                                    | `DOZZLE_AUTO_UPDATE_TIME` |
+| `remoteAgents`   | 代理地址列表                                                               | `DOZZLE_REMOTE_AGENT`     |
+| `privateAgents`  | `remoteAgents` 中使用[私有证书](/zh/guide/agent#private-certificate)的代理 | 无                        |
 
-命令行参数和环境变量始终优先于该文件。如果设置了 `DOZZLE_ENABLE_ACTIONS`，`dozzle.yml` 中的值会被忽略，向导会将该开关显示为锁定。若想重新通过向导管理某个设置，请从 compose 文件中删除对应的变量。
+命令行参数和环境变量始终优先于该文件。如果设置了 `DOZZLE_ENABLE_ACTIONS`，`dozzle.yml` 中的值会被忽略，向导会将该开关显示为锁定。若想重新通过向导管理某个设置，请从 compose 文件中删除对应的变量。`remoteAgents` 的规则不同：文件中的代理会与 `DOZZLE_REMOTE_AGENT` 中的代理合并，而不是被它们取代。
 
 ## <Icon icon="mdi:update" inline /> 自更新的工作原理 {#self-update}
 
@@ -115,6 +127,6 @@ Dozzle 可以通过自身容器上的 `Update` 操作更新自己，也可以按
 ## <Icon icon="mdi:shield-lock-outline" inline /> 安全
 
 - **登录是第一步。** 保存账户或代理后的重启会先开启登录，之后才能修改其他设置。
-- **只有已登录的用户才能修改操作、终端和自动更新设置或重启 Dozzle。** 该用户需要拥有全部角色。
+- **只有已登录的用户才能修改操作、终端和自动更新设置、添加或移除主机，或重启 Dozzle。** 该用户需要拥有全部角色。
 - **没有登录时，只有全新安装才有 15 分钟的时间窗口。** 当 `authProvider` 为 `none` 时，这些设置只能在全新安装（`/data` 为空）首次启动后的 15 分钟内修改。已经有之前运行留下数据的安装永远不会获得这个窗口，因此重启主机或更新镜像都无法打开它。窗口之外，请使用环境变量或开启登录。
 - **路由仍然在启动时决定。** 向导只会写入 `dozzle.yml`。操作和终端的接口在 Dozzle 启动时注册，与使用环境变量时完全相同，所以在 Dozzle 重启之前不会启用任何功能。

@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"crypto/tls"
 	"embed"
 	"fmt"
 	"io/fs"
@@ -11,6 +12,7 @@ import (
 	"os"
 	"os/signal"
 	"path/filepath"
+	"slices"
 	"sync"
 	"syscall"
 	"time"
@@ -18,6 +20,7 @@ import (
 	// auto-update time silently means UTC.
 	_ "time/tzdata"
 
+	dozzlecerts "github.com/amir20/dozzle/internal/agentcerts"
 	"github.com/amir20/dozzle/internal/auth"
 	"github.com/amir20/dozzle/internal/cli"
 	"github.com/amir20/dozzle/internal/cloud"
@@ -243,6 +246,16 @@ func main() {
 	log.Debug().Msg("shut down complete")
 }
 
+// customCert mirrors cli.ReadCertificates: a pair from the env or on disk wins
+// over the one built into the image.
+func customCert(args cli.Args) bool {
+	if _, ok, err := dozzlecerts.FromEnv(os.LookupEnv); ok && err == nil {
+		return true
+	}
+	_, err := tls.LoadX509KeyPair(args.CertPath, args.KeyPath)
+	return err == nil
+}
+
 // lockedValue is value when a flag or env var set it, nil when dozzle.yml decides.
 func lockedValue(locked bool, value string) *string {
 	if !locked {
@@ -424,6 +437,7 @@ func createServer(args cli.Args, hostService web.HostService, cloudHooks web.Clo
 		Version:     args.Version(),
 		Hostname:    args.Hostname,
 		NoAnalytics: args.NoAnalytics,
+		Beacon:      cli.BeaconBase(args, args.Mode),
 		Dev:         dev,
 		Mode:        args.Mode,
 		Authorization: web.Authorization{
@@ -449,6 +463,9 @@ func createServer(args cli.Args, hostService web.HostService, cloudHooks web.Clo
 			AutoUpdateMode:      lockedValue(args.Locked.AutoUpdate, args.AutoUpdate),
 			AutoUpdateTime:      lockedValue(args.Locked.AutoUpdateTime, args.AutoUpdateTime),
 			StartedAt:           web.SetupWindowStart(time.Now(), freshInstall),
+			// dozzle.yml agents were appended after the operator's.
+			EnvAgents:  slices.Clone(args.RemoteAgent[:len(args.RemoteAgent)-len(args.FileAgents)]),
+			CustomCert: customCert(args),
 		},
 	}
 

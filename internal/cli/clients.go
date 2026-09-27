@@ -2,8 +2,12 @@ package cli
 
 import (
 	"context"
+	"crypto/tls"
 	"embed"
+	"path/filepath"
 
+	dozzlecerts "github.com/amir20/dozzle/internal/agentcerts"
+	"github.com/amir20/dozzle/internal/config"
 	"github.com/amir20/dozzle/internal/container"
 	"github.com/amir20/dozzle/internal/container/docker"
 	"github.com/amir20/dozzle/internal/hostservice"
@@ -61,6 +65,24 @@ func CreateMultiHostService(embeddedCerts embed.FS, args Args) *hostservice.Mult
 		log.Fatal().Err(err).Msg("Could not read certificates")
 	}
 
-	clientManager := hostservice.NewRetriableClientManager(args.RemoteAgent, args.Timeout, certs, clients...)
+	agentCerts := map[string]tls.Certificate{}
+	if len(args.PrivateAgents) > 0 {
+		pair, err := dozzlecerts.LoadAgentPair(filepath.Dir(config.Path))
+		var parsed tls.Certificate
+		if err == nil {
+			parsed, err = pair.TLS()
+		}
+		if err != nil {
+			// Those agents only accept this pair, so without it they stay down
+			// rather than being dialed with one they would refuse anyway.
+			log.Error().Err(err).Msg("Could not read the private agent certificate, agents added with it will not connect")
+		} else {
+			for _, endpoint := range args.PrivateAgents {
+				agentCerts[endpoint] = parsed
+			}
+		}
+	}
+
+	clientManager := hostservice.NewRetriableClientManagerWithAgentCerts(args.RemoteAgent, agentCerts, args.Timeout, certs, clients...)
 	return hostservice.NewMultiHostService(clientManager, args.Timeout)
 }
