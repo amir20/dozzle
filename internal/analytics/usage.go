@@ -24,6 +24,16 @@ var UsageKeys = []string{
 	"cloud.welcome", "cloud.connect", "stream.reconnect", "agent.disconnect",
 }
 
+// BrowserUsageKeys are the counters only the browser can see, and so the only
+// ones POST /api/usage accepts. The rest are counted where they happen on the
+// server, and a report must not be able to inflate them.
+var BrowserUsageKeys = map[string]bool{
+	"logs.search": true, "logs.sql": true, "palette.open": true, "pinned.open": true,
+	"wizard.shown": true, "wizard.finished": true, "wizard.skip.login": true, "wizard.skip.actions": true,
+	"wizard.skip.hosts": true, "wizard.skip.cloud": true, "wizard.skip.update": true,
+	"cloud.welcome": true, "cloud.connect": true, "stream.reconnect": true,
+}
+
 // maxLocales bounds the locale map, which the browser fills: a client sending a
 // new code every request must not grow it without end.
 const maxLocales = 32

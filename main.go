@@ -250,6 +250,8 @@ func main() {
 	if err := srv.Shutdown(ctx); err != nil {
 		log.Error().Err(err).Msg("failed to shut down")
 	}
+	// Usage is only sent once a day, so a restart would otherwise lose it.
+	web.FlushUsage()
 	log.Debug().Msg("shut down complete")
 }
 

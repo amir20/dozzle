@@ -175,3 +175,28 @@ func TestRetriableClientManager_CountsAgentDisconnectOnce(t *testing.T) {
 
 	assert.Equal(t, 1, analytics.Default.Take().Counts["agent.disconnect"])
 }
+
+// The availability history is keyed by host id, so it has to follow a rekey and
+// go away with the agent, or ids pile up and the next outage is missed.
+func TestRetriableClientManager_AvailabilityFollowsRekeyAndRemoval(t *testing.T) {
+	closers := map[string]*closeCounter{}
+	m := newRetriableClientManager(nil, nil, time.Second, tls.Certificate{},
+		stubDialer(map[string]container.Host{"nas:7007": {ID: "old-id", Type: "agent"}}, nil, closers))
+	_, err := m.AddAgent(t.Context(), "nas:7007", nil)
+	require.NoError(t, err)
+
+	m.Hosts(context.Background())
+	_, ok := m.wasAvailable.Load("old-id")
+	require.True(t, ok)
+
+	service, _ := m.Find("old-id")
+	service.(*stubService).host = container.Host{ID: "new-id", Type: "agent"}
+	m.Hosts(context.Background())
+	_, ok = m.wasAvailable.Load("old-id")
+	assert.False(t, ok, "old id dropped on rekey")
+	_, ok = m.wasAvailable.Load("new-id")
+	assert.True(t, ok, "history moved to the new id")
+
+	require.NoError(t, m.RemoveAgent("nas:7007"))
+	assert.Equal(t, 0, m.wasAvailable.Size())
+}

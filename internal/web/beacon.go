@@ -3,6 +3,7 @@ package web
 import (
 	"context"
 	"net/http"
+	"sync/atomic"
 	"time"
 
 	"github.com/amir20/dozzle/internal/analytics"
@@ -30,9 +31,11 @@ var dozzleLabels = map[string]string{
 var knownHostTypes = map[string]bool{"local": true, "agent": true, "remote": true, "swarm": true, "k8s": true}
 
 // beaconFacts is what the events and usage beacons say about this install right
-// now: how it is set up, never what is in it. containers may be nil when the
-// caller has not listed them. configPath is dozzle.yml, passed in because the
-// path is a test seam and this runs on its own goroutine.
+// now: how it is set up, never what is in it. containers is nil when the caller
+// has not listed them, or when a host failed to list: a partial count would read
+// as a smaller install, so the container facts are left out instead. configPath
+// is dozzle.yml, passed in because the path is a test seam and callers run this
+// on their own goroutine.
 func (h *handler) beaconFacts(containers []container.Container, configPath string) types.BeaconEvent {
 	// Starts from the install facts the start beacon carries, so the dashboard,
 	// which reads these rows, stops seeing agents and shell as always off.
@@ -53,7 +56,7 @@ func (h *handler) beaconFacts(containers []container.Container, configPath strin
 		if knownHostTypes[host.Type] {
 			b.HostsByType[host.Type]++
 		}
-		if !host.Available {
+		if host.Type == "agent" && !host.Available {
 			b.AgentsDown++
 		}
 	}
@@ -72,7 +75,7 @@ func (h *handler) beaconFacts(containers []container.Container, configPath strin
 			}
 		}
 	}
-	if settings, err := effectiveAutoUpdate(h.config.Setup); err == nil {
+	if settings, err := effectiveAutoUpdateAt(h.config.Setup, configPath); err == nil {
 		b.AutoUpdate = settings.Mode
 	}
 
@@ -98,7 +101,8 @@ func (h *handler) beaconFacts(containers []container.Container, configPath strin
 	}
 
 	if containers != nil {
-		b.ContainersTotal = len(containers)
+		total := len(containers)
+		b.ContainersTotal = &total
 		b.Labels = map[string]int{}
 		for _, c := range containers {
 			for key, label := range dozzleLabels {
@@ -115,11 +119,15 @@ func (h *handler) beaconFacts(containers []container.Container, configPath strin
 	return b
 }
 
-func sendBeaconEvent(h *handler, r *http.Request, containers []container.Container, configPath string) {
+func sendBeaconEvent(h *handler, r *http.Request, containers []container.Container, complete bool, configPath string) {
 	if h.config.NoAnalytics {
 		return
 	}
-	b := h.beaconFacts(containers, configPath)
+	var listed []container.Container
+	if complete {
+		listed = containers
+	}
+	b := h.beaconFacts(listed, configPath)
 	b.Name = "events"
 	b.Browser = r.Header.Get("User-Agent")
 	b.RunningContainers = len(containers)
@@ -134,10 +142,48 @@ func (h *handler) runUsageBeacon(ctx context.Context) {
 	if h.config.NoAnalytics {
 		return
 	}
-	analytics.RunUsageBeacon(ctx, analytics.Default, usageBeaconInterval, func() types.BeaconEvent {
-		containers, _ := h.hostService.ListAllContainers(h.config.Labels)
-		return h.beaconFacts(containers, setupConfigPath)
-	}, sendBeacon)
+	analytics.RunUsageBeacon(ctx, analytics.Default, usageBeaconInterval, h.usageFacts, sendBeacon)
+}
+
+func (h *handler) usageFacts() types.BeaconEvent {
+	containers, errs := h.hostService.ListAllContainers(h.config.Labels)
+	if len(errs) > 0 {
+		containers = nil
+	}
+	return h.beaconFacts(containers, setupConfigPath)
+}
+
+// usageFlushTimeout bounds the last usage beacon, sent on the way out. Shutdown
+// and a self-update both have somewhere to be.
+var usageFlushTimeout = 3 * time.Second
+
+// usageFlusher is set by CreateServer so main and the self-update path, which
+// have no handler, can send what is counted before the process goes away.
+var usageFlusher atomic.Pointer[func()]
+
+// FlushUsage sends the usage counted since the last beacon, if any, waiting at
+// most usageFlushTimeout. Counters otherwise only leave on the 24h tick, so
+// without this every restart would drop up to a day of them.
+func FlushUsage() {
+	if f := usageFlusher.Load(); f != nil {
+		(*f)()
+	}
+}
+
+func (h *handler) flushUsage() {
+	if h.config.NoAnalytics {
+		return
+	}
+	done := make(chan struct{})
+	go func() {
+		defer close(done)
+		analytics.SendUsage(analytics.Default, h.usageFacts, sendBeacon)
+	}()
+	select {
+	case <-done:
+	case <-time.After(usageFlushTimeout):
+		log.Debug().Msg("gave up waiting for the last usage beacon")
+	}
 }
 
 // maxUsagePerRequest caps what one browser report can add to a counter, so a
@@ -162,7 +208,9 @@ func (h *handler) reportUsage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	for key, n := range report.Counts {
-		analytics.Default.Add(key, min(n, maxUsagePerRequest))
+		if analytics.BrowserUsageKeys[key] {
+			analytics.Default.Add(key, min(n, maxUsagePerRequest))
+		}
 	}
 	if report.Locale != "" {
 		analytics.Default.AddLocale(report.Locale)

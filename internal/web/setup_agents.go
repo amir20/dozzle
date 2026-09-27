@@ -122,7 +122,11 @@ type setupAddAgentResponse struct {
 // away. The host shows up live, the same way a reconnecting agent does.
 func (h *handler) addSetupAgent(w http.ResponseWriter, r *http.Request) {
 	rec := &outcomeRecorder{ResponseWriter: w}
-	defer func() { analytics.Count(addHostOutcome(rec.status, rec.body.String())) }()
+	defer func() {
+		if outcome := addHostOutcome(rec.status, rec.body.String()); outcome != "" {
+			analytics.Count(outcome)
+		}
+	}()
 	h.addSetupAgentOnce(rec, r)
 }
 
@@ -372,15 +376,27 @@ func (o *outcomeRecorder) Write(b []byte) (int, error) {
 	return o.ResponseWriter.Write(b)
 }
 
-// addHostOutcome is the usage counter for one add-host attempt.
+// addHostOutcome is the usage counter for one add-host attempt, or "" when the
+// request never got as far as trying: no permission, or a body that did not
+// decode. A mode that cannot add agents is "other", not a duplicate.
 func addHostOutcome(status int, body string) string {
+	lower := strings.ToLower(body)
 	switch status {
 	case http.StatusCreated:
 		return "host.add.ok"
+	case http.StatusForbidden:
+		return ""
+	case http.StatusBadRequest:
+		if strings.Contains(lower, "invalid request body") {
+			return ""
+		}
+		return "host.add.other"
 	case http.StatusConflict:
-		return "host.add.duplicate"
+		if strings.Contains(lower, "already") {
+			return "host.add.duplicate"
+		}
+		return "host.add.other"
 	case http.StatusBadGateway:
-		lower := strings.ToLower(body)
 		switch {
 		case strings.Contains(lower, "certificate"):
 			return "host.add.cert"

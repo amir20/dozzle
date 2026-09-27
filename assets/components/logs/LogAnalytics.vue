@@ -150,7 +150,16 @@ const { setValue, insertAtCursor } = useSQLEditorField(editorEl, {
 });
 
 const runQuery = ref(query.value);
-watchDebounced(query, (v) => (runQuery.value = v), { debounce: 500 });
+// An edit that changes the query is a run the user asked for. The first run when
+// the view opens is not, and neither is the debounce catching up after run().
+watchDebounced(
+  query,
+  (v) => {
+    if (v !== runQuery.value) trackUsage("logs.sql");
+    runQuery.value = v;
+  },
+  { debounce: 500 },
+);
 
 const url = withBase(
   `/api/hosts/${container.host}/containers/${container.id}/logs?stdout=1&stderr=1&everything&jsonOnly`,
@@ -231,6 +240,7 @@ const examples = computed(() => {
 
 function run() {
   if (state.value !== "ready") return;
+  trackUsage("logs.sql");
   runQuery.value = query.value;
 }
 
@@ -247,7 +257,6 @@ function insertColumn(name: string) {
 const results = computedAsync(
   async () => {
     if (state.value === "ready") {
-      trackUsage("logs.sql");
       return await conn.query<Record<string, any>>(runQuery.value);
     } else {
       return empty;

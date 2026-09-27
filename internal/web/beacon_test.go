@@ -25,6 +25,14 @@ type alertHosts struct {
 	dests []notification.DispatcherConfig
 }
 
+// downHosts replaces the host list, to put hosts of each kind offline.
+type downHosts struct {
+	*alertHosts
+	hosts []container.Host
+}
+
+func (d *downHosts) Hosts() []container.Host { return d.hosts }
+
 func (a *alertHosts) Subscriptions() []*notification.Subscription  { return a.subs }
 func (a *alertHosts) Dispatchers() []notification.DispatcherConfig { return a.dests }
 
@@ -68,10 +76,16 @@ func TestBeaconFacts(t *testing.T) {
 	assert.Equal(t, map[string]int{"webhook": 2, "cloud": 1}, b.Destinations)
 	assert.False(t, b.CloudLinked)
 	assert.Equal(t, "off", b.AutoUpdate)
-	assert.Equal(t, 3, b.ContainersTotal)
+	require.NotNil(t, b.ContainersTotal)
+	assert.Equal(t, 3, *b.ContainersTotal)
 	assert.Equal(t, map[string]int{"name": 1, "url": 1, "group": 1}, b.Labels)
 	assert.Equal(t, "2-5", b.Users)
 	assert.Equal(t, "server", b.Mode)
+
+	// Not listed, or a host failed to list: no container facts at all.
+	b = h.beaconFacts(nil, setupConfigPath)
+	assert.Nil(t, b.ContainersTotal)
+	assert.Nil(t, b.Labels)
 }
 
 func TestReportUsage(t *testing.T) {
@@ -79,10 +93,11 @@ func TestReportUsage(t *testing.T) {
 	analytics.Default.Take()
 	h := createRouter(beaconHandler(t, Config{Base: "/", Authorization: Authorization{Provider: NONE}}))
 
-	rr := doSetup(h, "POST", "/api/usage", `{"counts":{"logs.sql":3,"palette.open":99999,"container.secret-name":5},"locale":"de","activeMinutes":500}`)
+	rr := doSetup(h, "POST", "/api/usage", `{"counts":{"logs.sql":3,"palette.open":99999,"container.secret-name":5,"action.remove":7,"notify.log":2},"locale":"de","activeMinutes":500}`)
 	require.Equal(t, http.StatusNoContent, rr.Code)
 
 	s := analytics.Default.Take()
+	// Server-side counters like action.remove can't be reported by a browser.
 	assert.Equal(t, map[string]int{"logs.sql": 3, "palette.open": maxUsagePerRequest}, s.Counts)
 	assert.Equal(t, map[string]int{"de": 1}, s.Locales)
 	assert.Equal(t, 60, s.Minutes, "one report covers at most an hour")
@@ -107,6 +122,7 @@ func TestAddHostOutcome(t *testing.T) {
 	}{
 		"host.add.ok":        {http.StatusCreated, ""},
 		"host.add.duplicate": {http.StatusConflict, "this agent is already added"},
+		"":                   {http.StatusForbidden, "Forbidden"},
 		"host.add.cert":      {http.StatusBadGateway, "could not connect to agent: tls: unknown certificate authority"},
 		"host.add.timeout":   {http.StatusBadGateway, "could not connect to agent: context deadline exceeded"},
 		"host.add.refused":   {http.StatusBadGateway, "could not connect to agent: connection refused"},
@@ -115,6 +131,33 @@ func TestAddHostOutcome(t *testing.T) {
 	for want, c := range cases {
 		assert.Equal(t, want, addHostOutcome(c.status, c.body))
 	}
+	assert.Equal(t, "host.add.other", addHostOutcome(http.StatusConflict, "agents cannot be added in this mode"))
+	assert.Equal(t, "", addHostOutcome(http.StatusBadRequest, "invalid request body"))
+}
+
+func TestFlushUsageSendsWhatIsCounted(t *testing.T) {
+	setupTestEnv(t, true)
+	analytics.Default.Take()
+	var sent []types.BeaconEvent
+	old := sendBeacon
+	sendBeacon = func(b types.BeaconEvent) error { sent = append(sent, b); return nil }
+	t.Cleanup(func() { sendBeacon = old })
+
+	h := beaconHandler(t, Config{Base: "/", Authorization: Authorization{Provider: NONE}})
+	h.flushUsage()
+	assert.Empty(t, sent, "nothing counted, nothing sent")
+
+	analytics.Count("logs.download")
+	h.flushUsage()
+	require.Len(t, sent, 1)
+	assert.Equal(t, "usage", sent[0].Name)
+	assert.Equal(t, 1, sent[0].Usage["logs.download"])
+
+	analytics.Count("logs.download")
+	h.config.NoAnalytics = true
+	h.flushUsage()
+	assert.Len(t, sent, 1)
+	analytics.Default.Take()
 }
 
 func TestSetupAgentsCountsOutcome(t *testing.T) {
@@ -129,4 +172,23 @@ func TestSetupAgentsCountsOutcome(t *testing.T) {
 	s := analytics.Default.Take()
 	assert.Equal(t, 1, s.Counts["host.add.ok"])
 	assert.Equal(t, 1, s.Counts["host.add.duplicate"])
+}
+
+// Only agents count toward agentsDown: a local engine or a remote socket being
+// unreachable is a different problem.
+func TestBeaconFactsAgentsDownCountsOnlyAgents(t *testing.T) {
+	setupTestEnv(t, true)
+	h := beaconHandler(t, Config{Base: "/", Authorization: Authorization{Provider: NONE}})
+	h.hostService = &downHosts{
+		alertHosts: &alertHosts{MultiHostService: h.hostService.(*hostservice.MultiHostService)},
+		hosts: []container.Host{
+			{ID: "a", Type: "agent", Available: false},
+			{ID: "b", Type: "agent", Available: true},
+			{ID: "c", Type: "local", Available: false},
+			{ID: "d", Type: "remote", Available: false},
+		},
+	}
+	b := h.beaconFacts(nil, setupConfigPath)
+	assert.Equal(t, 1, b.AgentsDown)
+	assert.Equal(t, map[string]int{"agent": 2, "local": 1, "remote": 1}, b.HostsByType)
 }

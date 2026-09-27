@@ -246,7 +246,8 @@ function advance(skip = false) {
   }
   const i = neighbor(index.value, 1);
   if (i < 0) {
-    trackUsage("wizard.finished");
+    // Skipping the last step already counted as a skip, not a finish.
+    if (!skip) trackUsage("wizard.finished");
     close();
     return;
   }

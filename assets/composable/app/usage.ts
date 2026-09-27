@@ -27,7 +27,8 @@ const MINUTE = 60 * 1000;
 interface UsageDeps {
   enabled: () => boolean;
   locale: () => string;
-  post: (body: string) => void;
+  // Resolves true only when the server took the report.
+  post: (body: string) => Promise<boolean>;
   visible: () => boolean;
 }
 
@@ -47,19 +48,41 @@ export function createUsageBatcher(deps: UsageDeps) {
     if (deps.enabled() && deps.visible()) activeMinutes++;
   }
 
-  function flush() {
-    if (!deps.enabled()) return;
+  let inFlight = false;
+
+  // Counts leave memory only once the server has them. A failed report puts them
+  // back for the next one, and the locale stays unsent until one gets through.
+  async function flush() {
+    if (!deps.enabled() || inFlight) return;
     if (counts.size === 0 && activeMinutes === 0 && localeSent) return;
+    const sending = new Map(counts);
+    const minutes = activeMinutes;
+    const withLocale = !localeSent;
     const body: { counts: Record<string, number>; activeMinutes: number; locale?: string } = {
-      counts: Object.fromEntries(counts),
-      activeMinutes,
+      counts: Object.fromEntries(sending),
+      activeMinutes: minutes,
     };
-    // One session, one locale: sent with the first report only.
-    if (!localeSent) body.locale = deps.locale();
+    // One session, one locale: sent with the first report that lands.
+    if (withLocale) body.locale = deps.locale();
     counts.clear();
     activeMinutes = 0;
-    localeSent = true;
-    deps.post(JSON.stringify(body));
+
+    inFlight = true;
+    let ok = false;
+    try {
+      ok = await deps.post(JSON.stringify(body));
+    } catch {
+      ok = false;
+    } finally {
+      inFlight = false;
+    }
+
+    if (ok) {
+      if (withLocale) localeSent = true;
+      return;
+    }
+    for (const [key, n] of sending) counts.set(key, (counts.get(key) ?? 0) + n);
+    activeMinutes += minutes;
   }
 
   return { track, tick, flush };
@@ -69,15 +92,17 @@ const batcher = createUsageBatcher({
   enabled: () => !config.noAnalytics,
   locale: () => String(i18n.global.locale.value),
   visible: () => document.visibilityState === "visible",
-  post: (body) => {
-    // keepalive so a report sent as the tab closes still goes out.
+  // keepalive so a report sent as the tab closes still goes out. sendBeacon would
+  // too, but it never says whether the server took it.
+  post: (body) =>
     fetch(withBase("/api/usage"), {
       method: "POST",
       body,
       headers: { "Content-Type": "application/json" },
       keepalive: true,
-    }).catch(() => {});
-  },
+    })
+      .then((res) => res.ok)
+      .catch(() => false),
 });
 
 export function trackUsage(key: UsageKey) {
