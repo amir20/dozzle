@@ -21,6 +21,7 @@ import (
 	_ "time/tzdata"
 
 	dozzlecerts "github.com/amir20/dozzle/internal/agentcerts"
+	"github.com/amir20/dozzle/internal/analytics"
 	"github.com/amir20/dozzle/internal/auth"
 	"github.com/amir20/dozzle/internal/cli"
 	"github.com/amir20/dozzle/internal/cloud"
@@ -33,6 +34,7 @@ import (
 	"github.com/amir20/dozzle/internal/imagecheck"
 	"github.com/amir20/dozzle/internal/notification/dispatcher"
 	"github.com/amir20/dozzle/internal/web"
+	"github.com/amir20/dozzle/types"
 	"github.com/rs/zerolog/log"
 )
 
@@ -82,6 +84,9 @@ func main() {
 	}
 
 	log.Info().Msgf("Dozzle version %s", args.Version())
+	if args.NoAnalytics {
+		analytics.Default.Disable()
+	}
 	dispatcher.UserAgent = fmt.Sprintf("Dozzle/%s", args.Version())
 
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
@@ -254,6 +259,14 @@ func envAgents(args cli.Args) []string {
 	return slices.Clone(args.RemoteAgent[:len(args.RemoteAgent)-len(args.FileAgents)])
 }
 
+// beaconBase is what every beacon from the web server repeats about how this
+// process was started.
+func beaconBase(args cli.Args, simpleUsers int) types.BeaconEvent {
+	b := cli.BeaconBase(args, args.Mode)
+	b.Users = analytics.BucketUsers(simpleUsers)
+	return b
+}
+
 // customCert mirrors cli.ReadCertificates: a pair from the env or on disk wins
 // over the one built into the image.
 func customCert(args cli.Args) bool {
@@ -378,6 +391,7 @@ func createServer(args cli.Args, hostService web.HostService, cloudHooks web.Clo
 
 	var provider web.AuthProvider = web.NONE
 	var authorizer web.Authorizer
+	simpleUsers := 0
 	if args.AuthProvider == "forward-proxy" {
 		log.Debug().Msg("Using forward proxy authentication")
 		provider = web.FORWARD_PROXY
@@ -402,6 +416,7 @@ func createServer(args cli.Args, hostService web.HostService, cloudHooks web.Clo
 		}
 
 		log.Debug().Int("users", len(db.Users)).Msg("Loaded users")
+		simpleUsers = len(db.Users)
 		ttl := time.Duration(0)
 		if args.AuthTTL != "session" {
 			ttl, err = time.ParseDuration(args.AuthTTL)
@@ -445,7 +460,7 @@ func createServer(args cli.Args, hostService web.HostService, cloudHooks web.Clo
 		Version:     args.Version(),
 		Hostname:    args.Hostname,
 		NoAnalytics: args.NoAnalytics,
-		Beacon:      cli.BeaconBase(args, args.Mode),
+		Beacon:      beaconBase(args, simpleUsers),
 		Dev:         dev,
 		Mode:        args.Mode,
 		Authorization: web.Authorization{

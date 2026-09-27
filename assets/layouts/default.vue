@@ -86,6 +86,8 @@ const { railOffset, mounted: railMounted, collapsed: railCollapsed, toggleRail }
 const modal = ref<HTMLDialogElement>();
 const { open, openSearch: showFuzzySearch, closeSearch } = useFuzzySearch();
 const searchParams = new URLSearchParams(window.location.search);
+
+onMounted(startUsageReporting);
 const forceMenuHidden = ref(searchParams.has("hideMenu"));
 
 // splitpanes only reads a pane's `size` as its "given size" when the pane first

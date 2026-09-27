@@ -48,7 +48,10 @@ export const useContainerStore = defineStore("container", () => {
     onClosed: checkSession,
   });
 
+  let connectedBefore = false;
   function connect() {
+    if (connectedBefore) trackUsage("stream.reconnect");
+    connectedBefore = true;
     es?.close();
     ready.value = false;
     es = new EventSource(withBase("/api/events/stream"));

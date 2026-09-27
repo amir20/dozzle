@@ -8,6 +8,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/amir20/dozzle/internal/analytics"
 	"github.com/amir20/dozzle/internal/container"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -155,4 +156,22 @@ func firstOr(c tls.Certificate) []byte {
 		return nil
 	}
 	return c.Certificate[0]
+}
+
+// A disconnect counts once when the agent stops answering, not on every look.
+func TestRetriableClientManager_CountsAgentDisconnectOnce(t *testing.T) {
+	analytics.Default.Take()
+	closers := map[string]*closeCounter{}
+	m := newRetriableClientManager(nil, nil, time.Second, tls.Certificate{},
+		stubDialer(map[string]container.Host{"nas:7007": {ID: "nas-id", Type: "agent"}}, nil, closers))
+	_, err := m.AddAgent(t.Context(), "nas:7007", nil)
+	require.NoError(t, err)
+
+	m.Hosts(context.Background())
+	service, _ := m.Find("nas-id")
+	service.(*stubService).err = errors.New("gone")
+	m.Hosts(context.Background())
+	m.Hosts(context.Background())
+
+	assert.Equal(t, 1, analytics.Default.Take().Counts["agent.disconnect"])
 }

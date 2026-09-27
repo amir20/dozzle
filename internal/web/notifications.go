@@ -8,6 +8,7 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/amir20/dozzle/internal/analytics"
 	"github.com/amir20/dozzle/internal/auth"
 	"github.com/amir20/dozzle/internal/cache"
 	"github.com/amir20/dozzle/internal/container"
@@ -297,6 +298,7 @@ func (h *handler) createNotificationRule(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
+	analytics.Count("rules.create")
 	writeJSON(w, http.StatusCreated, subscriptionToResponse(sub, h.hostService.Dispatchers(), nil))
 }
 
@@ -331,6 +333,7 @@ func (h *handler) replaceNotificationRule(w http.ResponseWriter, r *http.Request
 		return
 	}
 
+	analytics.Count("rules.edit")
 	writeJSON(w, http.StatusOK, subscriptionToResponse(sub, h.hostService.Dispatchers(), nil))
 }
 
@@ -386,6 +389,7 @@ func (h *handler) updateNotificationRule(w http.ResponseWriter, r *http.Request)
 	agentStats := h.hostService.FetchAgentNotificationStats()
 	for _, sub := range h.hostService.Subscriptions() {
 		if sub.ID == id {
+			analytics.Count("rules.edit")
 			writeJSON(w, http.StatusOK, subscriptionToResponse(sub, dispatchers, agentStats))
 			return
 		}

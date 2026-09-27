@@ -10,6 +10,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/amir20/dozzle/internal/analytics"
 	"github.com/amir20/dozzle/internal/config"
 	"github.com/amir20/dozzle/internal/container"
 	"github.com/amir20/dozzle/internal/imagecheck"
@@ -309,6 +310,8 @@ func runSelfUpdate(ctx context.Context, id string, progress func(container.Updat
 		return false, errSelfUpdateBusy
 	}
 	defer selfUpdateMu.Unlock()
+	// Dozzle updating itself, by hand or on the schedule.
+	analytics.Count("image.update")
 	updated, err := selfUpdateStart(ctx, id, progress)
 	if err != nil {
 		return updated, fmt.Errorf("self update: %w", err)

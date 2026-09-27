@@ -12,6 +12,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/amir20/dozzle/internal/analytics"
 	"github.com/amir20/dozzle/internal/container"
 	"github.com/amir20/dozzle/internal/utils"
 	"github.com/amir20/dozzle/internal/web/search"
@@ -22,6 +23,7 @@ import (
 )
 
 func (h *handler) streamContainerLogs(w http.ResponseWriter, r *http.Request) {
+	analytics.Count("view.container")
 	id := chi.URLParam(r, "id")
 
 	h.streamLogsForContainers(w, r, func(container *container.Container) bool {
@@ -30,6 +32,7 @@ func (h *handler) streamContainerLogs(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *handler) streamLogsMerged(w http.ResponseWriter, r *http.Request) {
+	analytics.Count("view.merged")
 	ids := make(map[string]bool)
 	for id := range strings.SplitSeq(chi.URLParam(r, "ids"), ",") {
 		ids[id] = true
@@ -55,6 +58,8 @@ func (h *handler) streamLogsWithLabels(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
+	analytics.Count(labelView(labelFilters))
+
 	// all=1 comes from the Kubernetes tab with "Show all containers" on, where a
 	// finished Job pod is still listed and should open to its logs. A created
 	// container has none to read yet.
@@ -76,7 +81,21 @@ func (h *handler) streamLogsWithLabels(w http.ResponseWriter, r *http.Request) {
 	}, "")
 }
 
+// labelView names the view a label stream serves, by the label the page filters
+// on: a swarm stack, a swarm service, or a Kubernetes namespace or workload.
+func labelView(filters map[string]string) string {
+	switch {
+	case filters["com.docker.stack.namespace"] != "":
+		return "view.stack"
+	case filters["com.docker.swarm.service.name"] != "":
+		return "view.service"
+	default:
+		return "view.namespace"
+	}
+}
+
 func (h *handler) streamGroupedLogs(w http.ResponseWriter, r *http.Request) {
+	analytics.Count("view.group")
 	group := chi.URLParam(r, "group")
 
 	h.streamLogsForContainers(w, r, func(container *container.Container) bool {
@@ -85,6 +104,7 @@ func (h *handler) streamGroupedLogs(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *handler) streamHostGroupLogs(w http.ResponseWriter, r *http.Request) {
+	analytics.Count("view.host")
 	group, err := url.PathUnescape(chi.URLParam(r, "group"))
 	if err != nil || group == "" {
 		http.Error(w, "invalid group", http.StatusBadRequest)
@@ -105,6 +125,7 @@ func (h *handler) streamHostGroupLogs(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *handler) streamHostLogs(w http.ResponseWriter, r *http.Request) {
+	analytics.Count("view.host")
 	host := hostKey(r)
 	h.streamLogsForContainers(w, r, func(container *container.Container) bool {
 		return container.State == "running" && container.Host == host

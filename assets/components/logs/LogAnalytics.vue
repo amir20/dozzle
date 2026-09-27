@@ -247,6 +247,7 @@ function insertColumn(name: string) {
 const results = computedAsync(
   async () => {
     if (state.value === "ready") {
+      trackUsage("logs.sql");
       return await conn.query<Record<string, any>>(runQuery.value);
     } else {
       return empty;

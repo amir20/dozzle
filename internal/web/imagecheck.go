@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/amir20/dozzle/internal/analytics"
 	"github.com/amir20/dozzle/internal/imagecheck"
 	"github.com/go-chi/chi/v5"
 	"github.com/rs/zerolog/log"
@@ -14,6 +15,7 @@ import (
 // container is out of date is useful even when the user updates it themselves
 // through compose. Only the update button depends on actions being enabled.
 func (h *handler) checkImageUpdate(w http.ResponseWriter, r *http.Request) {
+	analytics.Count("image.check")
 	id := chi.URLParam(r, "id")
 
 	containerService, err := h.hostService.FindContainer(hostKey(r), id, h.resolveLabels(r))
