@@ -313,7 +313,7 @@ The first time it is used, Dozzle creates its own pair in `/data/agent_cert.pem`
 ```yaml [docker-compose.yml]
 services:
   dozzle-agent:
-    image: amir20/dozzle:latest
+    image: amir20/dozzle:vX.Y.Z # same tag as your Dozzle
     command: agent
     environment:
       DOZZLE_CERT_PEM: |
@@ -330,7 +330,7 @@ services:
       - 7007:7007
 ```
 
-The snippet contains the private key, so treat it like a password. The toggle is per host: agents that already exist, and any agent added with the toggle off, keep using the certificate they have. Dozzle records which agents are private under `privateAgents` in `/data/dozzle.yml`. The toggle is not offered when Dozzle already runs a [custom certificate](#custom-certificates), because every agent needs that pair anyway.
+The snippet contains the private key, so treat it like a password. The toggle is per host: agents that already exist, and any agent added with the toggle off, keep using the certificate they have. Dozzle records which agents are private under `privateAgents` in `/data/dozzle.yml`. The toggle is not offered when Dozzle already runs a [custom certificate](#custom-certificates), because every agent needs that pair anyway. The snippet uses the same image as your Dozzle. An older agent ignores `DOZZLE_CERT_PEM` and `DOZZLE_KEY_PEM`, presents the built-in certificate, and is refused.
 
 ## <Icon icon="mdi:compare-horizontal" inline /> Comparing Agents with Remote Connection
 

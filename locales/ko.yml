@@ -840,6 +840,7 @@ setup:
     remove: "제거"
     skip: "나중에"
     error-exists: "이미 추가된 에이전트입니다."
+    error-duplicate: "이 머신은 이미 다른 호스트로 연결되어 있습니다. 같은 Docker 엔진을 쓰는 에이전트라면 고유한 DOZZLE_HOST_ID를 지정하세요."
     error-connect: "에이전트에 연결할 수 없습니다: {reason}"
     private-label: "비공개 인증서"
     private-desc: "이 Dozzle만 에이전트에 연결할 수 있습니다. 다른 에이전트에는 영향이 없습니다."

@@ -20,6 +20,7 @@ declare global {
   const TEMPLATE_VARIABLES: typeof import('./composable/editor/templateEditor').TEMPLATE_VARIABLES
   const acceptHMRUpdate: typeof import('pinia').acceptHMRUpdate
   const agentComposeSnippet: typeof import('./composable/setup/setup').agentComposeSnippet
+  const agentImage: typeof import('./composable/setup/setup').agentImage
   const alertTargetFor: typeof import('./composable/notifications/alertForm').alertTargetFor
   const allLevels: typeof import('./composable/logs/logContext').allLevels
   const appendBatch: typeof import('./composable/logs/logWindow').appendBatch
@@ -602,6 +603,7 @@ declare module 'vue' {
     readonly TEMPLATE_VARIABLES: UnwrapRef<typeof import('./composable/editor/templateEditor')['TEMPLATE_VARIABLES']>
     readonly acceptHMRUpdate: UnwrapRef<typeof import('pinia')['acceptHMRUpdate']>
     readonly agentComposeSnippet: UnwrapRef<typeof import('./composable/setup/setup')['agentComposeSnippet']>
+    readonly agentImage: UnwrapRef<typeof import('./composable/setup/setup')['agentImage']>
     readonly alertTargetFor: UnwrapRef<typeof import('./composable/notifications/alertForm')['alertTargetFor']>
     readonly allLevels: UnwrapRef<typeof import('./composable/logs/logContext')['allLevels']>
     readonly appendBatch: UnwrapRef<typeof import('./composable/logs/logWindow')['appendBatch']>

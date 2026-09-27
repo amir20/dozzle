@@ -846,6 +846,7 @@ setup:
     remove: "Remove"
     skip: "Not now"
     error-exists: "That agent is already added."
+    error-duplicate: "That machine is already connected as another host. If this agent shares a Docker engine with it, give the agent its own DOZZLE_HOST_ID."
     error-connect: "Could not connect to the agent: {reason}"
     private-label: "Private certificate"
     private-desc: "Only this Dozzle can connect to the agent. Other agents are unaffected."

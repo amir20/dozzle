@@ -199,7 +199,12 @@ watchEffect(() => {
 // Adding before the pair arrives would quietly add the host without it.
 const waitingForCert = computed(() => usePrivate.value && !cert.value);
 
-const agentSnippet = computed(() => agentComposeSnippet(usePrivate.value && cert.value ? cert.value : undefined));
+const agentSnippet = computed(() =>
+  agentComposeSnippet(
+    agentImage(status.autoUpdate?.image, config.version),
+    usePrivate.value && cert.value ? cert.value : undefined,
+  ),
+);
 
 function errorMessage(e: unknown) {
   if (!(e instanceof SetupError)) return t("setup.error.generic");
@@ -207,7 +212,8 @@ function errorMessage(e: unknown) {
     case 403:
       return status.authProvider === "none" ? t("setup.actions.window-closed") : t("setup.actions.no-access");
     case 409:
-      return t("setup.hosts.error-exists");
+      // Two addresses, one Docker engine: most often an agent beside the hub.
+      return /another address/i.test(e.message) ? t("setup.hosts.error-duplicate") : t("setup.hosts.error-exists");
     case 412:
       return /private certificate/i.test(e.message) ? t("setup.hosts.private-missing") : t("setup.error.no-data");
     case 502:

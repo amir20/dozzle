@@ -850,6 +850,7 @@ setup:
     remove: "Hapus"
     skip: "Nanti saja"
     error-exists: "Agen itu sudah ditambahkan."
+    error-duplicate: "Mesin itu sudah terhubung sebagai host lain. Jika agen ini memakai Docker engine yang sama, beri agen DOZZLE_HOST_ID sendiri."
     error-connect: "Tidak dapat terhubung ke agen: {reason}"
     private-label: "Sertifikat privat"
     private-desc: "Hanya Dozzle ini yang bisa terhubung ke agen. Agen lain tidak terpengaruh."

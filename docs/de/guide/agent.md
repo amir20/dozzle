@@ -1,6 +1,6 @@
 ---
 title: Agent-Modus
-sourceHash: 6820fa13edc6
+sourceHash: 20dfc19418d9
 ---
 
 # Agent-Modus
@@ -314,7 +314,7 @@ Beim ersten Mal erzeugt Dozzle ein eigenes Paar in `/data/agent_cert.pem` und `/
 ```yaml [docker-compose.yml]
 services:
   dozzle-agent:
-    image: amir20/dozzle:latest
+    image: amir20/dozzle:vX.Y.Z # same tag as your Dozzle
     command: agent
     environment:
       DOZZLE_CERT_PEM: |
@@ -331,7 +331,7 @@ services:
       - 7007:7007
 ```
 
-Der Ausschnitt enthält den privaten Schlüssel, behandle ihn also wie ein Passwort. Der Schalter gilt pro Host: bestehende Agents und Agents, die mit ausgeschaltetem Schalter hinzugefügt wurden, behalten ihr Zertifikat. Dozzle merkt sich die privaten Agents unter `privateAgents` in `/data/dozzle.yml`. Läuft Dozzle bereits mit einem [eigenen Zertifikat](#eigene-zertifikate), gibt es den Schalter nicht, weil dann jeder Agent ohnehin dieses Paar braucht.
+Der Ausschnitt enthält den privaten Schlüssel, behandle ihn also wie ein Passwort. Der Schalter gilt pro Host: bestehende Agents und Agents, die mit ausgeschaltetem Schalter hinzugefügt wurden, behalten ihr Zertifikat. Dozzle merkt sich die privaten Agents unter `privateAgents` in `/data/dozzle.yml`. Läuft Dozzle bereits mit einem [eigenen Zertifikat](#eigene-zertifikate), gibt es den Schalter nicht, weil dann jeder Agent ohnehin dieses Paar braucht. Das Snippet verwendet dasselbe Image wie dein Dozzle. Ein älterer Agent ignoriert `DOZZLE_CERT_PEM` und `DOZZLE_KEY_PEM`, zeigt das eingebaute Zertifikat vor und wird abgewiesen.
 
 ## <Icon icon="mdi:compare-horizontal" inline /> Agents im Vergleich zu entfernten Verbindungen
 
