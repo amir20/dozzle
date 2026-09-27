@@ -66,10 +66,10 @@ var (
 		Properties: map[string]paramProperty{},
 	})
 
-	containerIDParam = paramProperty{Type: "string", Description: "Container name or ID; a name works directly, no lookup needed. Resolved by exact name, then ID, then a unique name substring. A name matching several containers resolves to the running (or most recently active) one, and the result names its siblings."}
+	containerIDParam = paramProperty{Type: "string", Description: "Container name or ID; a name works directly, no lookup needed. Resolved by ID, then exact name, then a unique name substring. A name matching several containers resolves to the running (or most recently active) one, and the result names its siblings."}
 	// writeContainerIDParam is the write tools' variant: they never pick between
 	// matches, so the read-side resolution notes would only cost tokens.
-	writeContainerIDParam = paramProperty{Type: "string", Description: "Exact container name or ID. An ambiguous name fails with the candidate list — re-issue with the exact ID."}
+	writeContainerIDParam = paramProperty{Type: "string", Description: "Container name or ID. Never guesses between live containers: an ambiguous name fails with the candidate list, then re-issue with the exact ID."}
 	hostIDParam           = paramProperty{Type: "string", Description: "Host name or ID (from list_hosts or find_containers). Optional — omit it when the container name is unique across all hosts; supply it (name or ID) only to scope to a specific host when a name is ambiguous."}
 	boolFalse             = false
 
