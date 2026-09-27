@@ -10,6 +10,7 @@ import (
 
 	"github.com/amir20/dozzle/internal/analytics"
 	"github.com/amir20/dozzle/internal/container"
+	"github.com/amir20/dozzle/types"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -199,4 +200,103 @@ func TestRetriableClientManager_AvailabilityFollowsRekeyAndRemoval(t *testing.T)
 
 	require.NoError(t, m.RemoveAgent("nas:7007"))
 	assert.Equal(t, 0, m.wasAvailable.Size())
+}
+
+// An add rolled back by a remove has to reach every subscriber in that order,
+// or a tab ends up listing an agent that is gone.
+func TestRetriableClientManager_PublishKeepsOrder(t *testing.T) {
+	closers := map[string]*closeCounter{}
+	m := newRetriableClientManager(nil, nil, time.Second, tls.Certificate{},
+		stubDialer(map[string]container.Host{"nas:7007|nas": {ID: "nas-id"}}, nil, closers))
+
+	// Unbuffered, so every update has to wait for the reader.
+	hosts := make(chan container.Host)
+	m.Subscribe(t.Context(), hosts)
+
+	for range 20 {
+		_, err := m.AddAgent(t.Context(), "nas:7007|nas", nil)
+		require.NoError(t, err)
+		require.NoError(t, m.RemoveAgent("nas:7007|nas"))
+	}
+
+	for i := range 40 {
+		select {
+		case h := <-hosts:
+			if i%2 == 0 {
+				assert.True(t, h.Available, "update %d", i)
+			} else {
+				assert.True(t, h.Removed, "update %d", i)
+				assert.Equal(t, "nas:7007", h.Endpoint, "removal reports the address, as Hosts does")
+			}
+		case <-time.After(time.Second):
+			t.Fatalf("update %d never arrived", i)
+		}
+	}
+}
+
+// blockingService holds Host() until release is closed.
+type blockingService struct {
+	container.ClientService
+	host    container.Host
+	entered chan struct{}
+	release chan struct{}
+}
+
+func (s *blockingService) Host(context.Context) (container.Host, error) {
+	s.entered <- struct{}{}
+	<-s.release
+	return s.host, nil
+}
+
+// A Hosts call that snapshotted an agent before it was removed must not report
+// it, nor leave its availability record behind.
+func TestRetriableClientManager_HostsSkipsAgentRemovedMidway(t *testing.T) {
+	svc := &blockingService{host: container.Host{ID: "nas-id", Type: "agent"}, entered: make(chan struct{}, 1), release: make(chan struct{})}
+	m := newRetriableClientManager(nil, nil, time.Second, tls.Certificate{}, nil)
+	m.clients["nas-id"] = svc
+	m.agents["nas:7007"] = connectedAgent{id: "nas-id", closer: &closeCounter{}}
+
+	done := make(chan []container.Host)
+	go func() { done <- m.Hosts(context.Background()) }()
+	<-svc.entered
+	require.NoError(t, m.RemoveAgent("nas:7007"))
+	close(svc.release)
+
+	assert.Empty(t, <-done)
+	assert.Equal(t, 0, m.wasAvailable.Size())
+}
+
+// configService records what the hub pushed to it.
+type configService struct {
+	stubService
+	notificationCleared bool
+	cloudCleared        bool
+}
+
+func (s *configService) UpdateNotificationConfig(_ context.Context, subs []types.SubscriptionConfig, dispatchers []types.DispatcherConfig) error {
+	s.notificationCleared = len(subs) == 0 && len(dispatchers) == 0
+	return nil
+}
+
+func (s *configService) UpdateCloudConfig(_ context.Context, cc *types.CloudConfig) error {
+	s.cloudCleared = cc == nil
+	return nil
+}
+
+// A removed agent still runs the hub's alerts and cloud key unless the hub takes
+// them back before it lets go of the connection.
+func TestMultiHostService_RemoveAgentClearsPushedConfig(t *testing.T) {
+	svc := &configService{host: container.Host{ID: "nas-id"}}
+	dial := func(string, tls.Certificate) (container.ClientService, io.Closer, error) {
+		return svc, &closeCounter{}, nil
+	}
+	manager := newRetriableClientManager(nil, nil, time.Second, tls.Certificate{}, dial)
+	service := NewMultiHostService(manager, time.Second)
+
+	_, err := service.AddAgent(t.Context(), "nas:7007", nil)
+	require.NoError(t, err)
+	require.NoError(t, service.RemoveAgent("nas:7007"))
+
+	assert.True(t, svc.notificationCleared)
+	assert.True(t, svc.cloudCleared)
 }

@@ -83,6 +83,6 @@ func CreateMultiHostService(embeddedCerts embed.FS, args Args) *hostservice.Mult
 		}
 	}
 
-	clientManager := hostservice.NewRetriableClientManagerWithAgentCerts(args.RemoteAgent, agentCerts, args.Timeout, certs, clients...)
+	clientManager := hostservice.NewRetriableClientManager(args.RemoteAgent, agentCerts, args.Timeout, certs, clients...)
 	return hostservice.NewMultiHostService(clientManager, args.Timeout)
 }

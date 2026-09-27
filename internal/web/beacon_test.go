@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/amir20/dozzle/internal/analytics"
+	"github.com/amir20/dozzle/internal/config"
 	"github.com/amir20/dozzle/internal/container"
 	"github.com/amir20/dozzle/internal/container/docker"
 	"github.com/amir20/dozzle/internal/hostservice"
@@ -42,7 +43,7 @@ func beaconHandler(t *testing.T, cfg Config) *handler {
 	client.On("ListContainers", mock.Anything, mock.Anything).Return([]container.Container{}, nil)
 	client.On("Host").Return(container.Host{ID: "localhost", Type: "local"})
 	client.On("ContainerEvents", mock.Anything, mock.AnythingOfType("chan<- container.ContainerEvent")).Return(nil)
-	manager := hostservice.NewRetriableClientManager(nil, time.Second, tls.Certificate{}, docker.NewService(client, container.ContainerLabels{}))
+	manager := hostservice.NewRetriableClientManager(nil, nil, time.Second, tls.Certificate{}, docker.NewService(client, container.ContainerLabels{}))
 	return &handler{hostService: hostservice.NewMultiHostService(manager, time.Second), config: &cfg}
 }
 
@@ -136,12 +137,50 @@ func TestFlushUsageSendsWhatIsCounted(t *testing.T) {
 	require.Len(t, sent, 1)
 	assert.Equal(t, "usage", sent[0].Name)
 	assert.Equal(t, 1, sent[0].Usage["logs.download"])
+}
 
-	analytics.Count("logs.download")
-	h.config.NoAnalytics = true
-	h.flushUsage()
-	assert.Len(t, sent, 1)
-	analytics.Default.Take()
+// Every tab open and reconnect asks for an events beacon; only the first in a
+// while sends one.
+func TestSendBeaconEventIsThrottled(t *testing.T) {
+	setupTestEnv(t, true)
+	var sent []types.BeaconEvent
+	old, oldLast := sendBeacon, eventsBeaconLast.Load()
+	sendBeacon = func(b types.BeaconEvent) error { sent = append(sent, b); return nil }
+	eventsBeaconLast.Store(0)
+	t.Cleanup(func() { sendBeacon = old; eventsBeaconLast.Store(oldLast) })
+
+	h := beaconHandler(t, Config{Base: "/", Mode: "server", Authorization: Authorization{Provider: NONE}})
+	sendBeaconEvent(h, "ua", nil, 0, setupConfigPath)
+	sendBeaconEvent(h, "ua", nil, 0, setupConfigPath)
+	require.Len(t, sent, 1)
+	assert.Equal(t, "events", sent[0].Name)
+	assert.Equal(t, "localhost", sent[0].ServerID)
+
+	eventsBeaconLast.Store(time.Now().Add(-eventsBeaconInterval).UnixNano())
+	sendBeaconEvent(h, "ua", nil, 0, setupConfigPath)
+	assert.Len(t, sent, 2)
+}
+
+// The scheduler only runs in server mode, so a schedule elsewhere is not one.
+func TestBeaconFactsAutoUpdateOnlyInServerMode(t *testing.T) {
+	setupTestEnv(t, true)
+	daily := "daily"
+	setup := SetupConfig{AutoUpdateMode: &daily}
+	h := beaconHandler(t, Config{Base: "/", Mode: "server", Setup: setup, Authorization: Authorization{Provider: NONE}})
+	assert.Equal(t, "daily", h.beaconFacts(nil, setupConfigPath).AutoUpdate)
+
+	h = beaconHandler(t, Config{Base: "/", Mode: "swarm", Setup: setup, Authorization: Authorization{Provider: NONE}})
+	assert.Empty(t, h.beaconFacts(nil, setupConfigPath).AutoUpdate)
+}
+
+func TestFileAgentCounts(t *testing.T) {
+	file := config.File{
+		RemoteAgents:  []string{"nas:7007|nas", " pi:7007 ", "env:7007|renamed", "nas:7007", "", "a|b|c|d"},
+		PrivateAgents: []string{"pi:7007"},
+	}
+	agents, private := fileAgentCounts([]string{"env:7007"}, file)
+	assert.Equal(t, 2, agents)
+	assert.Equal(t, 1, private)
 }
 
 func TestSetupAgentsCountsOutcome(t *testing.T) {

@@ -25,7 +25,7 @@ func (s *stubService) Host(context.Context) (container.Host, error) {
 }
 
 func managerWith(clients map[string]container.ClientService) *RetriableClientManager {
-	m := NewRetriableClientManager(nil, time.Second, tls.Certificate{})
+	m := NewRetriableClientManager(nil, nil, time.Second, tls.Certificate{})
 	m.clients = clients
 	return m
 }

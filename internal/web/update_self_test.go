@@ -204,9 +204,6 @@ func TestCheckSelfUpdate_NotRegisteredWhenChecksAreOff(t *testing.T) {
 // Only an update that gets as far as replacing the container counts: one that
 // finds the image current, or fails, must not show up as an update.
 func TestRunSelfUpdate_CountsOnlyWhenRecreating(t *testing.T) {
-	// A flusher left by another test's server would send, and so take, the count.
-	oldFlusher := usageFlusher.Swap(nil)
-	t.Cleanup(func() { usageFlusher.Store(oldFlusher) })
 	cases := []struct {
 		status string
 		want   int
@@ -223,7 +220,7 @@ func TestRunSelfUpdate_CountsOnlyWhenRecreating(t *testing.T) {
 			})
 			analytics.Default.Take()
 			var seen []string
-			_, err := runSelfUpdate(context.Background(), "self", func(p container.UpdateProgress) { seen = append(seen, p.Status) })
+			_, err := runSelfUpdate(context.Background(), "self", nil, func(p container.UpdateProgress) { seen = append(seen, p.Status) })
 			require.NoError(t, err)
 			assert.Equal(t, []string{c.status}, seen)
 			assert.Equal(t, c.want, analytics.Default.Take().Counts["image.update"])

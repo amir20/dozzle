@@ -44,9 +44,15 @@ export interface SetupAgentCert {
 // what the hub's snippet asks of it (DOZZLE_CERT_PEM is newer than most agents).
 // Outside a container the hub cannot see its image, so its version names the tag.
 export function agentImage(hubImage: string | undefined, version: string): string {
-  // An image id, or a tag with no repository like dozzle:dev, only exists on the
-  // machine that built it, so another machine cannot pull it.
-  if (hubImage && hubImage.includes("/") && !/^(sha256:)?[0-9a-f]{12,64}$/.test(hubImage)) return hubImage;
+  // An image id, a tag with no repository like dozzle:dev, or one from a registry on
+  // the hub's own loopback only exists on that machine, so another cannot pull it.
+  if (
+    hubImage &&
+    hubImage.includes("/") &&
+    !/^(sha256:)?[0-9a-f]{12,64}$/.test(hubImage) &&
+    !/^(localhost|127\.\d+\.\d+\.\d+|\[::1\])(:\d+)?\//i.test(hubImage)
+  )
+    return hubImage;
   if (/^v\d+\.\d+\.\d+(-[\w.]+)?$/.test(version)) return `amir20/dozzle:${version}`;
   // A PR build reports pr-<number>-<commit>, but only pr-<number> is published.
   const pr = version.match(/^pr-\d+/);
@@ -234,10 +240,27 @@ export function clearSetupResume() {
   }
 }
 
+// What the server's X-Dozzle-Error header says went wrong, so messages never hang
+// on the wording of the English body. Absent on 403s and 500s.
+export type SetupErrorCode =
+  | "unsupported-mode"
+  | "not-persisted"
+  | "invalid"
+  | "exists"
+  | "duplicate-host"
+  | "no-private-cert"
+  | "rate-limited"
+  | "cert-mismatch"
+  | "unreachable"
+  | "env-agent"
+  | "not-found"
+  | "custom-cert";
+
 export class SetupError extends Error {
   constructor(
     public status: number,
     message: string,
+    public code?: SetupErrorCode,
   ) {
     super(message);
   }
@@ -250,7 +273,8 @@ async function request(path: string, init?: RequestInit) {
   });
   if (!res.ok) {
     const text = await res.text().catch(() => "");
-    throw new SetupError(res.status, text.trim() || res.statusText);
+    const code = (res.headers.get("X-Dozzle-Error") || undefined) as SetupErrorCode | undefined;
+    throw new SetupError(res.status, text.trim() || res.statusText, code);
   }
   return res;
 }
@@ -260,17 +284,25 @@ const status = ref<SetupStatus | null>(null);
 const loading = ref(false);
 const loadError = ref(false);
 const wizardOpen = ref(false);
+// Several callers fire fetchStatus without waiting (opening the hosts dialog, then
+// adding one), so only the newest request may write: an older, slower answer would
+// otherwise put back a list that is already stale.
+let fetchSeq = 0;
 
 async function fetchStatus() {
+  const seq = ++fetchSeq;
   loading.value = true;
   try {
     const res = await request("/api/setup");
-    status.value = await res.json();
-    loadError.value = false;
+    const next: SetupStatus = await res.json();
+    if (seq === fetchSeq) {
+      status.value = next;
+      loadError.value = false;
+    }
   } catch {
-    loadError.value = true;
+    if (seq === fetchSeq) loadError.value = true;
   } finally {
-    loading.value = false;
+    if (seq === fetchSeq) loading.value = false;
   }
   return status.value;
 }

@@ -2,14 +2,16 @@ package web
 
 import (
 	"context"
-	"mime"
 	"net/http"
+	"slices"
+	"strings"
 	"sync/atomic"
 	"time"
 
 	"github.com/amir20/dozzle/internal/analytics"
 	"github.com/amir20/dozzle/internal/config"
 	"github.com/amir20/dozzle/internal/container"
+	"github.com/amir20/dozzle/internal/container/agent"
 	"github.com/amir20/dozzle/types"
 	"github.com/rs/zerolog/log"
 )
@@ -53,6 +55,7 @@ func (h *handler) beaconFacts(containers []container.Container, configPath strin
 	b.Clients = len(hosts)
 	b.HostsByType = map[string]int{}
 	b.AgentsDown = 0
+	b.ServerID = ""
 	for _, host := range hosts {
 		if knownHostTypes[host.Type] {
 			b.HostsByType[host.Type]++
@@ -60,22 +63,31 @@ func (h *handler) beaconFacts(containers []container.Container, configPath strin
 		if host.Type == "agent" && !host.Available {
 			b.AgentsDown++
 		}
+		if host.Type == "local" && b.ServerID == "" {
+			b.ServerID = host.ID
+		}
+	}
+	// Swarm marks every host "swarm", so only then ask for the local one, which
+	// lists the hosts again.
+	if b.ServerID == "" {
+		if local, err := h.hostService.LocalHost(); err == nil {
+			b.ServerID = local.ID
+		}
 	}
 
 	// Agents added from the UI since startup count too, the same way startup
 	// reads them: trimmed, deduplicated, and never one the env var already has.
 	if file, err := config.Load(configPath); err == nil {
+		// Only a mode that can add agents dials the ones in dozzle.yml.
 		b.FileAgents, b.PrivateAgents = 0, 0
-		for _, a := range h.setupAgents(file) {
-			if a.Locked {
-				continue
-			}
-			b.FileAgents++
-			if a.Private {
-				b.PrivateAgents++
-			}
+		if _, ok := h.agentService(); ok {
+			b.FileAgents, b.PrivateAgents = fileAgentCounts(h.config.Setup.EnvAgents, file)
 		}
-		b.AutoUpdate = autoUpdateFrom(h.config.Setup, file).Mode
+		// The scheduler only runs in server mode, so elsewhere the file's schedule
+		// does nothing.
+		if h.config.Mode == "server" {
+			b.AutoUpdate = autoUpdateFrom(h.config.Setup, file).Mode
+		}
 	}
 
 	b.CloudLinked = h.hostService.CloudConfig() != nil
@@ -111,17 +123,45 @@ func (h *handler) beaconFacts(containers []container.Container, configPath strin
 			}
 		}
 	}
-
-	if local, err := h.hostService.LocalHost(); err == nil {
-		b.ServerID = local.ID
-	}
 	return b
+}
+
+// fileAgentCounts counts dozzle.yml's agents the way setupAgents lists them,
+// without asking the host service about each one.
+func fileAgentCounts(envAgents []string, file config.File) (agents, private int) {
+	seen := map[string]bool{}
+	for _, endpoint := range envAgents {
+		if address, _, _, err := agent.ParseEndpoint(endpoint); err == nil {
+			seen[address] = true
+		}
+	}
+	for _, endpoint := range file.RemoteAgents {
+		endpoint = strings.TrimSpace(endpoint)
+		address, _, _, err := agent.ParseEndpoint(endpoint)
+		if endpoint == "" || err != nil || seen[address] {
+			continue
+		}
+		seen[address] = true
+		agents++
+		if slices.ContainsFunc(file.PrivateAgents, sameEndpoint(endpoint)) {
+			private++
+		}
+	}
+	return agents, private
 }
 
 // eventsBeaconInFlight lets one events beacon run at a time. Every tab open and
 // reconnect starts one, and each dials every host, so while the beacon endpoint
 // or a host is slow they would otherwise pile up without bound.
 var eventsBeaconInFlight atomic.Bool
+
+// eventsBeaconInterval is the least time between two events beacons. A flapping
+// connection or a room of open tabs reconnects far more often than the facts
+// change.
+var eventsBeaconInterval = 5 * time.Minute
+
+// eventsBeaconLast is when the last events beacon started, in unix nanoseconds.
+var eventsBeaconLast atomic.Int64
 
 // sendBeaconEvent sends the events beacon for a new events stream. containers is
 // nil when the list is partial or filtered to one user's labels, since either
@@ -131,6 +171,11 @@ func sendBeaconEvent(h *handler, userAgent string, containers []container.Contai
 		return
 	}
 	defer eventsBeaconInFlight.Store(false)
+	now := time.Now()
+	if last := eventsBeaconLast.Load(); last != 0 && now.Sub(time.Unix(0, last)) < eventsBeaconInterval {
+		return
+	}
+	eventsBeaconLast.Store(now.UnixNano())
 	b := h.beaconFacts(containers, configPath)
 	b.Name = "events"
 	b.Browser = userAgent
@@ -141,11 +186,8 @@ func sendBeaconEvent(h *handler, userAgent string, containers []container.Contai
 	}
 }
 
-// runUsageBeacon sends the daily usage beacon for the life of the process.
+// runUsageBeacon sends the daily usage beacon until ctx ends.
 func (h *handler) runUsageBeacon(ctx context.Context) {
-	if h.config.NoAnalytics {
-		return
-	}
 	analytics.RunUsageBeacon(ctx, analytics.Default, usageBeaconInterval, h.usageFacts, sendBeacon)
 }
 
@@ -161,34 +203,10 @@ func (h *handler) usageFacts() types.BeaconEvent {
 // and a self-update both have somewhere to be.
 var usageFlushTimeout = 3 * time.Second
 
-// usageRunner is set by CreateServer so main can run the daily usage beacon under
-// its own context, which ends it on shutdown.
-var usageRunner atomic.Pointer[func(context.Context)]
-
-// RunUsageBeacon sends the daily usage beacon until ctx ends.
-func RunUsageBeacon(ctx context.Context) {
-	if f := usageRunner.Load(); f != nil {
-		(*f)(ctx)
-	}
-}
-
-// usageFlusher is set by CreateServer so main and the self-update path, which
-// have no handler, can send what is counted before the process goes away.
-var usageFlusher atomic.Pointer[func()]
-
-// FlushUsage sends the usage counted since the last beacon, if any, waiting at
+// flushUsage sends the usage counted since the last beacon, if any, waiting at
 // most usageFlushTimeout. Counters otherwise only leave on the 24h tick, so
 // without this every restart would drop up to a day of them.
-func FlushUsage() {
-	if f := usageFlusher.Load(); f != nil {
-		(*f)()
-	}
-}
-
 func (h *handler) flushUsage() {
-	if h.config.NoAnalytics {
-		return
-	}
 	done := make(chan struct{})
 	go func() {
 		defer close(done)
@@ -220,12 +238,8 @@ func (h *handler) reportUsage(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusNoContent)
 		return
 	}
-	// Only JSON: a cross-site form can post text/plain without a preflight, and
-	// under no auth that would let any page a user visits inflate the counters.
-	if mt, _, _ := mime.ParseMediaType(r.Header.Get("Content-Type")); mt != "application/json" {
-		http.Error(w, "expected application/json", http.StatusUnsupportedMediaType)
-		return
-	}
+	// decodeSetupBody takes only JSON, so a cross-site form cannot inflate the
+	// counters.
 	var report usageReport
 	if !decodeSetupBody(w, r, &report) {
 		return

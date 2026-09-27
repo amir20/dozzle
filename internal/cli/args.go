@@ -65,6 +65,9 @@ type Args struct {
 	AgentTest              *AgentTestCmd       `arg:"subcommand:agent-test" help:"tests an agent"`
 	SelfUpdate             *SelfUpdateCmd      `arg:"subcommand:self-update" help:"replaces a Dozzle container with one on its newer image (used internally by self-update)"`
 	Locked                 Locked              `arg:"-"`
+	// EnvAgents are the RemoteAgent entries from the flag or env var, before
+	// dozzle.yml's were appended.
+	EnvAgents []string `arg:"-"`
 	// FileAgents are the RemoteAgent entries that came from dozzle.yml, i.e.
 	// were added from the UI rather than by a flag or env var.
 	FileAgents []string `arg:"-"`
@@ -86,6 +89,11 @@ func ParseArgs() (Args, any) {
 
 	ConfigureLogger(args.Level)
 
+	// Before dozzle.yml, whose agents are matched against these and appended.
+	for i, value := range args.RemoteAgent {
+		args.RemoteAgent[i] = strings.TrimSpace(value)
+	}
+
 	// dozzle.yml only configures the server; subcommands never read it.
 	if parser.Subcommand() == nil {
 		loadConfigFile(&args)
@@ -101,10 +109,6 @@ func ParseArgs() (Args, any) {
 		key := filter[:pos]
 		val := filter[pos+1:]
 		args.Filter[key] = append(args.Filter[key], val)
-	}
-
-	for i, value := range args.RemoteAgent {
-		args.RemoteAgent[i] = strings.TrimSpace(value)
 	}
 
 	for i, value := range args.RemoteHost {

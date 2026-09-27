@@ -81,7 +81,7 @@ func Test_index_inlines_cloud_config(t *testing.T) {
 		client.On("Host").Return(container.Host{ID: "localhost"})
 		client.On("ContainerEvents", mock.Anything, mock.AnythingOfType("chan<- container.ContainerEvent")).Return(nil)
 
-		manager := hostservice.NewRetriableClientManager(nil, 3*time.Second, tls.Certificate{}, docker.NewService(client, container.ContainerLabels{}))
+		manager := hostservice.NewRetriableClientManager(nil, nil, 3*time.Second, tls.Certificate{}, docker.NewService(client, container.ContainerLabels{}))
 		h := &handler{
 			hostService: &cloudLinkedService{HostService: hostservice.NewMultiHostService(manager, 3*time.Second), cc: cc},
 			content:     afero.NewIOFS(memfs),

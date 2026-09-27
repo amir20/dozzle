@@ -28,9 +28,48 @@ import (
 // caller may open several subscriptions under a single context (the cloud
 // client's log and stat streamers share one stream lifetime), and keying by
 // context would let the second registration silently evict the first.
+//
+// Each subscriber has its own queue drained by one goroutine, so publish never
+// blocks on a slow subscriber and updates still arrive in the order they were
+// published (an agent added then removed must not read as removed then added).
 type hostSubscriber struct {
 	ctx     context.Context
 	channel chan<- container.Host
+
+	mu      sync.Mutex
+	pending []container.Host
+	wake    chan struct{}
+}
+
+func (s *hostSubscriber) enqueue(host container.Host) {
+	s.mu.Lock()
+	s.pending = append(s.pending, host)
+	s.mu.Unlock()
+	select {
+	case s.wake <- struct{}{}:
+	default:
+	}
+}
+
+func (s *hostSubscriber) drain() {
+	for {
+		select {
+		case <-s.ctx.Done():
+			return
+		case <-s.wake:
+		}
+		s.mu.Lock()
+		batch := s.pending
+		s.pending = nil
+		s.mu.Unlock()
+		for _, host := range batch {
+			select {
+			case s.channel <- host:
+			case <-s.ctx.Done():
+				return
+			}
+		}
+	}
 }
 
 type RetriableClientManager struct {
@@ -77,13 +116,9 @@ var (
 	ErrDuplicateHost = errors.New("another connected host already has this agent's id")
 )
 
-func NewRetriableClientManager(agents []string, timeout time.Duration, certs tls.Certificate, clients ...container.ClientService) *RetriableClientManager {
-	return newRetriableClientManager(agents, nil, timeout, certs, dialAgent, clients...)
-}
-
-// NewRetriableClientManagerWithAgentCerts is NewRetriableClientManager where
-// some agents authenticate with a pair of their own instead of certs.
-func NewRetriableClientManagerWithAgentCerts(agents []string, agentCerts map[string]tls.Certificate, timeout time.Duration, certs tls.Certificate, clients ...container.ClientService) *RetriableClientManager {
+// NewRetriableClientManager dials agents with certs, except those in agentCerts
+// (may be nil), which authenticate with a pair of their own.
+func NewRetriableClientManager(agents []string, agentCerts map[string]tls.Certificate, timeout time.Duration, certs tls.Certificate, clients ...container.ClientService) *RetriableClientManager {
 	return newRetriableClientManager(agents, agentCerts, timeout, certs, dialAgent, clients...)
 }
 
@@ -91,12 +126,18 @@ func newRetriableClientManager(agents []string, agentCerts map[string]tls.Certif
 	if agentCerts == nil {
 		agentCerts = map[string]tls.Certificate{}
 	}
-	certFor := func(endpoint string) tls.Certificate {
-		if c, ok := agentCerts[endpoint]; ok {
-			return c
-		}
-		return certs
+	m := &RetriableClientManager{
+		clients:      make(map[string]container.ClientService),
+		failedAgents: make([]string, 0),
+		agents:       make(map[string]connectedAgent),
+		agentCerts:   agentCerts,
+		certs:        certs,
+		subscribers:  xsync.NewMap[*hostSubscriber, struct{}](),
+		timeout:      timeout,
+		dial:         dial,
+		wasAvailable: xsync.NewMap[string, bool](),
 	}
+
 	type entry struct {
 		host     container.Host
 		service  container.ClientService
@@ -125,18 +166,9 @@ func newRetriableClientManager(agents []string, agentCerts map[string]tls.Certif
 	for i, endpoint := range agents {
 		idx := len(clients) + i
 		wg.Go(func() {
-			service, closer, err := dial(endpoint, certFor(endpoint))
+			host, service, closer, err := m.connect(context.Background(), endpoint, m.certFor(endpoint))
 			if err != nil {
-				log.Warn().Err(err).Str("endpoint", endpoint).Msg("error creating agent client")
-				results[idx] = entry{failed: endpoint}
-				return
-			}
-			ctx, cancel := context.WithTimeout(context.Background(), timeout)
-			defer cancel()
-			host, err := service.Host(ctx)
-			if err != nil {
-				closeQuietly(closer)
-				log.Warn().Err(err).Str("endpoint", endpoint).Msg("error fetching host info for agent")
+				log.Warn().Err(err).Str("endpoint", endpoint).Msg("error connecting to agent")
 				results[idx] = entry{failed: endpoint}
 				return
 			}
@@ -146,47 +178,51 @@ func newRetriableClientManager(agents []string, agentCerts map[string]tls.Certif
 
 	wg.Wait()
 
-	clientMap := make(map[string]container.ClientService)
-	agentMap := make(map[string]connectedAgent)
-	failedList := make([]string, 0)
 	for _, r := range results {
 		if r.failed != "" {
-			failedList = append(failedList, r.failed)
+			m.failedAgents = append(m.failedAgents, r.failed)
 			continue
 		}
 		if !r.ok {
 			continue
 		}
-		if _, exists := clientMap[r.host.ID]; exists {
+		if _, exists := m.clients[r.host.ID]; exists {
 			closeQuietly(r.closer)
 			log.Warn().Str("name", r.host.Name).Str("id", r.host.ID).Msg("An agent with an existing ID was found. Removing the duplicate host. For more details, see https://dozzle.dev/guide/faq#i-am-seeing-duplicate-hosts-error-in-the-logs-how-do-i-fix-it")
 			continue
 		}
-		clientMap[r.host.ID] = r.service
+		m.clients[r.host.ID] = r.service
 		if r.endpoint != "" {
-			agentMap[r.endpoint] = connectedAgent{id: r.host.ID, closer: r.closer}
+			m.agents[r.endpoint] = connectedAgent{id: r.host.ID, closer: r.closer}
 		}
 	}
 
-	return &RetriableClientManager{
-		clients:      clientMap,
-		failedAgents: failedList,
-		agents:       agentMap,
-		agentCerts:   agentCerts,
-		certs:        certs,
-		subscribers:  xsync.NewMap[*hostSubscriber, struct{}](),
-		timeout:      timeout,
-		dial:         dial,
-		wasAvailable: xsync.NewMap[string, bool](),
+	return m
+}
+
+// connect dials an agent and asks it for its host, closing the client again
+// when it does not answer within the timeout.
+func (m *RetriableClientManager) connect(ctx context.Context, endpoint string, cert tls.Certificate) (container.Host, container.ClientService, io.Closer, error) {
+	service, closer, err := m.dial(endpoint, cert)
+	if err != nil {
+		return container.Host{}, nil, nil, err
 	}
+	ctx, cancel := context.WithTimeout(ctx, m.timeout)
+	defer cancel()
+	host, err := service.Host(ctx)
+	if err != nil {
+		closeQuietly(closer)
+		return container.Host{}, nil, nil, err
+	}
+	return host, service, closer, nil
 }
 
 func (m *RetriableClientManager) Subscribe(ctx context.Context, channel chan<- container.Host) {
-	sub := &hostSubscriber{ctx: ctx, channel: channel}
+	sub := &hostSubscriber{ctx: ctx, channel: channel, wake: make(chan struct{}, 1)}
 	m.subscribers.Store(sub, struct{}{})
 
 	go func() {
-		<-ctx.Done()
+		sub.drain()
 		m.subscribers.Delete(sub)
 	}()
 }
@@ -224,27 +260,11 @@ func (m *RetriableClientManager) RetryAndList() ([]container.ClientService, []er
 	var wg sync.WaitGroup
 	for i, a := range attempts {
 		wg.Go(func() {
-			service, closer, err := m.dial(a.endpoint, a.cert)
+			h, service, closer, err := m.connect(context.Background(), a.endpoint, a.cert)
 			if err != nil {
-				log.Warn().Err(err).Str("endpoint", a.endpoint).Msg("error creating agent client")
-				results[i] = retryResult{endpoint: a.endpoint, err: err}
-				return
+				log.Warn().Err(err).Str("endpoint", a.endpoint).Msg("error connecting to agent")
 			}
-			ctx, cancel := context.WithTimeout(context.Background(), m.timeout)
-			defer cancel()
-			h, err := service.Host(ctx)
-			if err != nil {
-				closeQuietly(closer)
-				log.Warn().Err(err).Str("endpoint", a.endpoint).Msg("error fetching host info for agent")
-				results[i] = retryResult{endpoint: a.endpoint, err: err}
-				return
-			}
-			results[i] = retryResult{
-				endpoint: a.endpoint,
-				host:     h,
-				service:  service,
-				closer:   closer,
-			}
+			results[i] = retryResult{endpoint: a.endpoint, host: h, service: service, closer: closer, err: err}
 		})
 	}
 	wg.Wait()
@@ -306,15 +326,8 @@ func (m *RetriableClientManager) AddAgent(ctx context.Context, endpoint string, 
 	if cert != nil {
 		pair = *cert
 	}
-	service, closer, err := m.dial(endpoint, pair)
+	host, service, closer, err := m.connect(ctx, endpoint, pair)
 	if err != nil {
-		return container.Host{}, err
-	}
-	ctx, cancel := context.WithTimeout(ctx, m.timeout)
-	defer cancel()
-	host, err := service.Host(ctx)
-	if err != nil {
-		closeQuietly(closer)
 		return container.Host{}, err
 	}
 
@@ -352,7 +365,7 @@ func (m *RetriableClientManager) RemoveAgent(endpoint string) error {
 		m.failedAgents = slices.Delete(m.failedAgents, i, i+1)
 		m.mu.Unlock()
 		// Never connected, so the UI lists it under its endpoint.
-		m.publish(container.Host{ID: endpoint, Endpoint: endpoint, Type: "agent", Removed: true})
+		m.publish(container.Host{ID: endpoint, Endpoint: agentAddr(endpoint), Type: "agent", Removed: true})
 		return nil
 	}
 	a, ok := m.agents[endpoint]
@@ -366,9 +379,18 @@ func (m *RetriableClientManager) RemoveAgent(endpoint string) error {
 	m.wasAvailable.Delete(a.id)
 
 	closeQuietly(a.closer)
-	m.publish(container.Host{ID: a.id, Endpoint: endpoint, Type: "agent", Removed: true})
+	m.publish(container.Host{ID: a.id, Endpoint: agentAddr(endpoint), Type: "agent", Removed: true})
 	log.Info().Str("endpoint", endpoint).Str("id", a.id).Msg("agent removed")
 	return nil
+}
+
+// agentAddr is the address part of an "address|name|group" endpoint, the same
+// Endpoint Hosts reports for it.
+func agentAddr(endpoint string) string {
+	if addr, _, _, err := agent.ParseEndpoint(endpoint); err == nil {
+		return addr
+	}
+	return endpoint
 }
 
 // certFor is the pair to present to endpoint. Callers hold m.mu.
@@ -454,15 +476,10 @@ func (m *RetriableClientManager) rekey(oldID string, service container.ClientSer
 }
 
 // publish tells every subscriber about a host, without blocking this caller on
-// a slow one. Mirrors what RetryAndList does when an agent first comes back.
+// a slow one, and in the order it was called.
 func (m *RetriableClientManager) publish(host container.Host) {
 	m.subscribers.Range(func(sub *hostSubscriber, _ struct{}) bool {
-		go func() {
-			select {
-			case sub.channel <- host:
-			case <-sub.ctx.Done():
-			}
-		}()
+		sub.enqueue(host)
 		return true
 	})
 }
@@ -499,6 +516,12 @@ func (m *RetriableClientManager) Hosts(ctx context.Context) []container.Host {
 
 	hosts := make([]container.Host, 0, len(results)+len(failedAgents))
 	for _, r := range results {
+		// Removed while Host() was in flight: reporting it would bring a removed
+		// host back, and its availability record with it. A concurrent Hosts may
+		// already have re-keyed it, so its new id counts as still served.
+		if !m.serves(r.entry.id, r.entry.service) && !m.serves(r.host.ID, r.entry.service) {
+			continue
+		}
 		// An agent mints its id when its own process starts, so an agent that
 		// restarted since we last looked answers under a different id than the
 		// one this map is keyed by. Nothing else notices: RetryAndList only ever
@@ -517,6 +540,11 @@ func (m *RetriableClientManager) Hosts(ctx context.Context) []container.Host {
 			// both saw it up would count one outage twice.
 			if prev, ok := m.wasAvailable.LoadAndStore(key, r.host.Available); ok && prev && !r.host.Available {
 				analytics.Count("agent.disconnect")
+			}
+			// RemoveAgent may have dropped this record between the check above
+			// and the store, which would leave it behind for good.
+			if !m.serves(key, r.entry.service) {
+				m.wasAvailable.Delete(key)
 			}
 		}
 		hosts = append(hosts, r.host)
@@ -542,6 +570,12 @@ func (m *RetriableClientManager) Hosts(ctx context.Context) []container.Host {
 	}
 
 	return hosts
+}
+
+// serves reports whether id still routes to service.
+func (m *RetriableClientManager) serves(id string, service container.ClientService) bool {
+	current, ok := m.Find(id)
+	return ok && current == service
 }
 
 func (m *RetriableClientManager) LocalClients() []container.Client {

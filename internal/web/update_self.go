@@ -84,7 +84,7 @@ func (h *handler) updateSelf(w http.ResponseWriter, r *http.Request) {
 	}
 
 	log.Info().Str("container", id).Msg("updating dozzle")
-	updated, err := runSelfUpdate(r.Context(), id, emit)
+	updated, err := runSelfUpdate(r.Context(), id, h.flushUsage, emit)
 	switch {
 	case err != nil:
 		log.Error().Err(err).Msg("dozzle update failed")

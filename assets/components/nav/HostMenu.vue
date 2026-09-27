@@ -135,7 +135,7 @@ const { hosts } = useHosts();
 
 // Adding a host is a setup write, so the row only shows to someone who could
 // save one. The server decides that when it renders the page.
-const canAddHost = computed(() => !!config.canAddHosts);
+const canAddHost = !!config.canAddHosts;
 const addHostModal = useTemplateRef<{ open: () => void }>("addHostModal");
 
 const setHost = (host: string | null) => (sessionHost.value = host);

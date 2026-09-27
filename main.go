@@ -12,7 +12,6 @@ import (
 	"os"
 	"os/signal"
 	"path/filepath"
-	"slices"
 	"sync"
 	"syscall"
 	"time"
@@ -119,7 +118,7 @@ func main() {
 		}
 		// Only the operator's agents: dozzle.yml agents come from the server-mode UI,
 		// and the private ones among them need a pair swarm mode never loads.
-		agentManager := hostservice.NewRetriableClientManager(envAgents(args), args.Timeout, certs)
+		agentManager := hostservice.NewRetriableClientManager(args.EnvAgents, nil, args.Timeout, certs)
 		manager := hostservice.NewSwarmClientManager(localClient, certs, args.Timeout, agentManager, args.Filter)
 		multiHostService := hostservice.NewMultiHostService(manager, args.Timeout)
 		if err := multiHostService.StartNotificationManager(ctx); err != nil {
@@ -222,7 +221,7 @@ func main() {
 			return cloudClient.Chat(ctx, message, view, userRef, principal, apiKeyFunc, emit)
 		},
 	})
-	go web.RunUsageBeacon(ctx)
+	go srv.RunUsageBeacon(ctx)
 
 	if args.Mode == "server" {
 		go web.RunAutoUpdateScheduler(ctx, hostService, web.Config{
@@ -233,7 +232,7 @@ func main() {
 				AutoUpdateMode: lockedValue(args.Locked.AutoUpdate, args.AutoUpdate),
 				AutoUpdateTime: lockedValue(args.Locked.AutoUpdateTime, args.AutoUpdateTime),
 			},
-		})
+		}, srv.FlushUsage)
 	}
 
 	go func() {
@@ -252,14 +251,8 @@ func main() {
 		log.Error().Err(err).Msg("failed to shut down")
 	}
 	// Usage is only sent once a day, so a restart would otherwise lose it.
-	web.FlushUsage()
+	srv.FlushUsage()
 	log.Debug().Msg("shut down complete")
-}
-
-// envAgents are the agents from the flag or env var. dozzle.yml's were appended
-// after them.
-func envAgents(args cli.Args) []string {
-	return slices.Clone(args.RemoteAgent[:len(args.RemoteAgent)-len(args.FileAgents)])
 }
 
 // beaconBase is what every beacon from the web server repeats about how this
@@ -378,7 +371,7 @@ func fileExists(filename string) bool {
 	return err == nil
 }
 
-func createServer(args cli.Args, hostService web.HostService, cloudHooks web.CloudHooks) *http.Server {
+func createServer(args cli.Args, hostService web.HostService, cloudHooks web.CloudHooks) *web.Server {
 	_, dev := os.LookupEnv("DEV")
 
 	var releaseCheckMode web.ReleaseCheckMode = web.Automatic
@@ -489,9 +482,8 @@ func createServer(args cli.Args, hostService web.HostService, cloudHooks web.Clo
 			AutoUpdateMode:      lockedValue(args.Locked.AutoUpdate, args.AutoUpdate),
 			AutoUpdateTime:      lockedValue(args.Locked.AutoUpdateTime, args.AutoUpdateTime),
 			StartedAt:           web.SetupWindowStart(time.Now(), freshInstall),
-			// dozzle.yml agents were appended after the operator's.
-			EnvAgents:  envAgents(args),
-			CustomCert: customCert(args),
+			EnvAgents:           args.EnvAgents,
+			CustomCert:          customCert(args),
 		},
 	}
 

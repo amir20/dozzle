@@ -421,3 +421,25 @@ func TestSetup_AutoUpdatePatch(t *testing.T) {
 	assert.Equal(t, "daily", state.AutoUpdate.Mode, "flag wins over the file")
 	assert.Equal(t, "04:15", state.AutoUpdate.Time, "unlocked time still comes from the file")
 }
+
+// A cross-site form can post text/plain without a preflight, so every setup
+// write takes only JSON.
+func TestSetup_RefusesNonJSONBodies(t *testing.T) {
+	setupTestEnv(t, true)
+	h := setupNoneHandler(time.Now(), SetupConfig{})
+
+	for _, route := range [][2]string{
+		{"POST", "/api/setup/account"},
+		{"POST", "/api/setup/auth"},
+		{"PATCH", "/api/setup/config"},
+		{"POST", "/api/setup/agents"},
+		{"DELETE", "/api/setup/agents"},
+	} {
+		for _, ct := range []string{"text/plain", "application/x-www-form-urlencoded", ""} {
+			rr := doSetup(h, route[0], route[1], `{"enableShell":true}`, "Content-Type", ct)
+			assert.Equal(t, http.StatusUnsupportedMediaType, rr.Code, route[1]+" "+ct)
+		}
+	}
+	rr := doSetup(h, "PATCH", "/api/setup/config", `{"enableShell":true}`, "Content-Type", "application/json; charset=utf-8")
+	assert.Equal(t, http.StatusNoContent, rr.Code)
+}

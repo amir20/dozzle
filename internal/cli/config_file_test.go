@@ -162,6 +162,7 @@ func TestApplyConfigFileRemoteAgents(t *testing.T) {
 
 	assert.Equal(t, []string{"nas:7007|nas", "pi:7007"}, args.FileAgents)
 	assert.Equal(t, []string{"env:7007", "nas:7007|nas", "pi:7007"}, args.RemoteAgent)
+	assert.Equal(t, []string{"env:7007"}, args.EnvAgents)
 	// Only agents the file owns can be private; the operator's keep their pair.
 	assert.Equal(t, []string{"pi:7007"}, args.PrivateAgents)
 
