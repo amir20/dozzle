@@ -116,10 +116,13 @@
               type="password"
               autocomplete="new-password"
               class="input focus:input-primary w-full text-base"
-              :class="{ 'input-error': confirm && confirm !== password }"
+              :class="{ 'input-error': mismatch }"
             />
           </label>
-          <p class="text-base-content/40 text-xs sm:col-span-2">{{ $t("setup.login.password-hint") }}</p>
+          <p v-if="mismatch" class="text-error text-xs sm:col-span-2" role="alert">
+            {{ $t("setup.login.mismatch") }}
+          </p>
+          <p v-else class="text-base-content/40 text-xs sm:col-span-2">{{ $t("setup.login.password-hint") }}</p>
           <!-- Enter submits; the visible button is the footer's Next. -->
           <button type="submit" class="hidden" aria-hidden="true" tabindex="-1"></button>
         </form>
@@ -194,6 +197,9 @@ const username = ref("");
 const email = ref("");
 const password = ref("");
 const confirm = ref("");
+// Flagged once the confirmation can no longer become the password, not while it is
+// still being typed out.
+const mismatch = computed(() => confirm.value !== "" && !password.value.startsWith(confirm.value));
 const usernameValid = computed(() => /^[A-Za-z0-9_.-]{1,64}$/.test(username.value));
 const accountValid = computed(
   () => usernameValid.value && password.value.length >= 8 && password.value === confirm.value,

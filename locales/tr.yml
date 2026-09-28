@@ -240,6 +240,7 @@ settings:
   new-version: "{version} mevcut"
   update-available: "Daha yeni bir imaj mevcut"
   auto-update-on: "Dozzle kendini güncel tutar"
+  auto-update-containers: "Etiketli container'lar güncel kalır"
   auto-update-daily: "Her gün {time} saatinde kontrol eder (sunucu saati)."
   auto-update-weekly: "Her hafta pazar günü {time} saatinde kontrol eder (sunucu saati)."
   show-image-update-alert: 'İmaj güncelleme uyarıları'
@@ -816,6 +817,7 @@ setup:
     password: Parola
     confirm: Parolayı onayla
     password-hint: En az 8 karakter. Kullanıcı adında harf, rakam, nokta, tire ve alt çizgi kullanılabilir.
+    mismatch: Parolalar eşleşmiyor.
     saved-volume: Bağlı bir birime kaydedildi
     after-restart: Giriş yeniden başlatmadan sonra açılır
     on: Giriş açık
@@ -917,6 +919,7 @@ setup:
     reason-pinned-tag: "Sabitlenmiş bir sürüm etiketi kullanıyorsunuz, bu yüzden çekilecek daha yeni bir şey yok. Güncelleme almak için latest gibi bir etiket kullanın."
     reason-unsupported: "Dozzle burada kendi konteynerini bulamıyor, bu yüzden kendini değiştiremez."
     reason-swarm-worker: "Dozzle bir worker düğümünde Swarm servisi olarak çalışıyor. Servisi yalnızca bir manager güncelleyebilir; Dozzle'ı bir manager üzerinde çalıştırın veya docker service update ile güncelleyin."
+    containers-still: "{label} etiketli container'lar yine de bu zamanlamaya göre güncellenir."
     pull-denied: "{image} çekilemedi. Yalnızca bu makinede bulunuyor olabilir ya da kayıt defteri docker login gerektiriyor."
   restart:
     title: Dozzle'ı yeniden başlat

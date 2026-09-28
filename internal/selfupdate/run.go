@@ -126,7 +126,7 @@ func (s *swap) forward(ctx context.Context) error {
 	s.renamed = true
 
 	logger.Info().Msg("self-update: creating replacement")
-	created, err := s.cli.ContainerCreate(ctx, replacementSpec(s.old, s.oldImage, s.name))
+	created, err := s.cli.ContainerCreate(ctx, ReplacementSpec(s.old, s.oldImage, s.name))
 	if err != nil {
 		return fmt.Errorf("create replacement: %w", err)
 	}
@@ -204,7 +204,7 @@ func (s *swap) rollback(ctx context.Context) error {
 	if s.oldGone {
 		// A --rm container removed itself on stop. Rebuild it on the image it
 		// was running; its volumes are still there, held by name.
-		spec := replacementSpec(s.old, nil, s.name)
+		spec := ReplacementSpec(s.old, nil, s.name)
 		if ref := spec.Config.Image; !imageIDRef.MatchString(ref) {
 			if spec.Config.Labels == nil {
 				spec.Config.Labels = map[string]string{}

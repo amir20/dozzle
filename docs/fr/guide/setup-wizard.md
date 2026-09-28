@@ -1,6 +1,6 @@
 ---
 title: Assistant de configuration
-sourceHash: 05d0487e6d37
+sourceHash: 5de063d00e38
 ---
 
 # Assistant de configuration
@@ -71,7 +71,7 @@ Les conteneurs portant le label `dev.dozzle.auto-update=true` se mettent à jour
 
 Ce réglage s'applique immédiatement et ne nécessite pas de redémarrage.
 
-Se mettre à jour est une action. Tant que les actions sont désactivées, cette étape reste donc dans la liste, mais grisée et marquée **Nécessite les actions**. Activer les actions à l'étape 2 la rend disponible immédiatement. Si cette instance ne peut pas se mettre à jour elle-même pour une autre raison (par exemple si elle utilise un tag de version fixe), l'étape en indique la raison à la place.
+Se mettre à jour est une action. Tant que les actions sont désactivées, cette étape reste donc dans la liste, mais grisée et marquée **Nécessite les actions**. Activer les actions à l'étape 2 la rend disponible immédiatement. Si cette instance ne peut pas se mettre à jour elle-même pour une autre raison (par exemple si elle utilise un tag de version fixe), l'étape en indique la raison. Le calendrier peut quand même être défini, et les conteneurs avec le label `dev.dozzle.auto-update=true` le suivent.
 
 ### 6. Redémarrage
 

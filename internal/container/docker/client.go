@@ -12,10 +12,11 @@ import (
 	"encoding/json"
 
 	"github.com/amir20/dozzle/internal/container"
+	"github.com/amir20/dozzle/internal/selfupdate"
 	"github.com/amir20/dozzle/internal/utils"
 	docker "github.com/moby/moby/api/types/container"
 	"github.com/moby/moby/api/types/events"
-	"github.com/moby/moby/api/types/network"
+	"github.com/moby/moby/api/types/image"
 	"github.com/moby/moby/api/types/system"
 	"github.com/moby/moby/client"
 
@@ -246,81 +247,26 @@ func (d *Client) ContainerRemove(ctx context.Context, containerID string) error 
 	return err
 }
 
+// ContainerCreate creates the replacement for the container inspectResp
+// describes, on whatever image its tag resolves to now. The old image is
+// inspected so the settings it supplied (env, labels, cmd, ...) are dropped
+// and the new image's own defaults apply: replaying them verbatim would pin a
+// container to its old image's ENV and labels forever. The old image is still
+// in the local store after the old container is removed, since nothing prunes
+// it; if it cannot be read, the replacement keeps those settings as before.
 func (d *Client) ContainerCreate(ctx context.Context, inspectResp docker.InspectResponse, name string) (string, error) {
-	sharesNamespace := sanitizeForRecreate(&inspectResp)
-
-	// Build clean EndpointsConfig with only network names and aliases,
-	// stripping runtime state (IPs, gateways, MAC addresses) that can
-	// cause conflicts when recreating. A container that shares another
-	// namespace cannot be attached to networks at all.
-	var networkingConfig *network.NetworkingConfig
-	if !sharesNamespace && inspectResp.NetworkSettings != nil && len(inspectResp.NetworkSettings.Networks) > 0 {
-		endpointsConfig := make(map[string]*network.EndpointSettings, len(inspectResp.NetworkSettings.Networks))
-		for netName, ep := range inspectResp.NetworkSettings.Networks {
-			endpointsConfig[netName] = &network.EndpointSettings{
-				Aliases: ep.Aliases,
-			}
-		}
-		networkingConfig = &network.NetworkingConfig{EndpointsConfig: endpointsConfig}
+	var oldImage *image.InspectResponse
+	if result, err := d.cli.ImageInspect(ctx, inspectResp.Image); err == nil {
+		oldImage = &result.InspectResponse
+	} else {
+		log.Warn().Err(err).Str("image", inspectResp.Image).Msg("could not inspect the old image, keeping its settings on the replacement")
 	}
 
-	resp, err := d.cli.ContainerCreate(ctx, client.ContainerCreateOptions{
-		Config:           inspectResp.Config,
-		HostConfig:       inspectResp.HostConfig,
-		NetworkingConfig: networkingConfig,
-		Platform:         nil,
-		Name:             name,
-	})
+	resp, err := d.cli.ContainerCreate(ctx, selfupdate.ReplacementSpec(inspectResp, oldImage, name))
 	if err != nil {
 		return "", err
 	}
 	return resp.ID, nil
-}
-
-// sanitizeForRecreate strips settings that Docker reports on inspect but
-// rejects on create. Inspect always fills in fields like Hostname and
-// ExposedPorts, even for containers whose network mode forbids them, so
-// replaying an inspect response verbatim fails on exactly the containers that
-// most need updating, such as anything behind a VPN sidecar
-// (network_mode: container:... or service:...).
-//
-// The rules mirror the daemon's own validateNetMode. Returns whether the
-// container shares another namespace, which also rules out attaching networks.
-func sanitizeForRecreate(inspectResp *docker.InspectResponse) bool {
-	if inspectResp.HostConfig == nil || inspectResp.Config == nil {
-		return false
-	}
-
-	hostConfig := inspectResp.HostConfig
-	config := inspectResp.Config
-	mode := string(hostConfig.NetworkMode)
-
-	isContainerMode := mode == "container" || strings.HasPrefix(mode, "container:")
-	isHostMode := mode == "host"
-
-	if isContainerMode {
-		// The namespace belongs to the other container, so none of this can
-		// be configured here.
-		config.Hostname = ""
-		config.ExposedPorts = nil
-		hostConfig.Links = nil
-		hostConfig.DNS = nil
-		hostConfig.ExtraHosts = nil
-		hostConfig.PortBindings = nil
-		hostConfig.PublishAllPorts = false
-	}
-
-	if isHostMode {
-		config.Hostname = ""
-		hostConfig.Links = nil
-	}
-
-	// A host UTS namespace owns the hostname regardless of network mode.
-	if hostConfig.UTSMode.IsHost() {
-		config.Hostname = ""
-	}
-
-	return isContainerMode || isHostMode
 }
 
 func (d *Client) ServiceUpdate(ctx context.Context, serviceID string, imageName string) error {

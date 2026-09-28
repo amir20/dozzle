@@ -142,10 +142,11 @@ func helperNetwork(self dcontainer.InspectResponse) dcontainer.NetworkMode {
 	return "bridge"
 }
 
-// replacementSpec turns the inspect of the running container into the create
-// request for its replacement on newImage.
+// ReplacementSpec turns the inspect of the running container into the create
+// request for its replacement on newImage. Both self-update and the ordinary
+// container Update action (internal/container/docker) recreate through it.
 //
-// It differs from a verbatim replay in three ways that matter for Dozzle:
+// It differs from a verbatim replay in three ways:
 //   - every volume survives, including anonymous ones (docker run -v /data):
 //     those are rewritten as mounts naming the existing volume, otherwise the
 //     engine would hand the new container a fresh empty one;
@@ -153,7 +154,7 @@ func helperNetwork(self dcontainer.InspectResponse) dcontainer.NetworkMode {
 //     dropped so the new image's own defaults apply;
 //   - runtime state (hostname from the old id, IPs, the short-id alias) is not
 //     carried over.
-func replacementSpec(old dcontainer.InspectResponse, oldImage *image.InspectResponse, name string) client.ContainerCreateOptions {
+func ReplacementSpec(old dcontainer.InspectResponse, oldImage *image.InspectResponse, name string) client.ContainerCreateOptions {
 	cfg := dcontainer.Config{}
 	if old.Config != nil {
 		cfg = *old.Config
@@ -280,8 +281,10 @@ func preserveVolumes(old dcontainer.InspectResponse, cfg *dcontainer.Config, bin
 	return result
 }
 
-// sanitizeNetworkMode mirrors internal/docker's sanitizeForRecreate: inspect
-// reports fields that create rejects for containers sharing a namespace.
+// sanitizeNetworkMode strips what inspect reports but create rejects for a
+// container sharing a namespace (a VPN sidecar, say). The rules mirror the
+// daemon's own validateNetMode. Returns whether the namespace is shared, which
+// also rules out attaching networks.
 func sanitizeNetworkMode(cfg *dcontainer.Config, hc *dcontainer.HostConfig) bool {
 	mode := string(hc.NetworkMode)
 	isContainerMode := mode == "container" || strings.HasPrefix(mode, "container:")

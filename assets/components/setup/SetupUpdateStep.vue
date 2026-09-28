@@ -11,7 +11,19 @@
     </div>
 
     <template v-else>
-      <InlineNotice v-if="blockedReason" type="info" class="mt-6">{{ blockedReason }}</InlineNotice>
+      <InlineNotice v-if="blockedReason" type="info" class="mt-6">
+        {{ blockedReason }}
+        <i18n-t
+          v-if="scheduleEditable"
+          keypath="setup.update.containers-still"
+          tag="span"
+          class="text-base-content/60 mt-1 block text-xs"
+        >
+          <template #label>
+            <code class="font-mono">dev.dozzle.auto-update=true</code>
+          </template>
+        </i18n-t>
+      </InlineNotice>
       <InlineNotice v-else-if="!status.dataPersisted" type="warning" class="mt-6">
         {{ $t("setup.error.no-data") }}
       </InlineNotice>
@@ -172,8 +184,16 @@ const blockedReason = computed(() => {
   }
 });
 
+// Dozzle not being able to replace itself does not make the schedule pointless: the
+// scheduler runs in every server-mode process and updates labelled containers first,
+// so a pinned tag or a binary outside docker still gets them updated. Only outside
+// server mode does nothing run it.
+const scheduleEditable = computed(() => autoUpdate.value.reason !== "not-server");
+
 // dozzle.yml outside a volume is lost on the next recreate, so nothing is saved there.
-const canEdit = computed(() => status.dataPersisted && status.canWrite && !status.locked.autoUpdate && !blocked.value);
+const canEdit = computed(
+  () => status.dataPersisted && status.canWrite && !status.locked.autoUpdate && scheduleEditable.value,
+);
 
 const canUpdateNow = computed(() => canSelfUpdate(status) && phase.value !== "restarting");
 

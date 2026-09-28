@@ -19,15 +19,15 @@
     <section class="grid grid-cols-1 gap-x-6 gap-y-3 sm:grid-cols-3">
       <div class="min-w-0">
         <div class="field-label">{{ $t("label.container-name") }}</div>
-        <div class="truncate font-medium" :title="container.name">{{ container.name }}</div>
+        <div class="truncate font-medium" :title="container?.name">{{ container?.name }}</div>
       </div>
       <div class="min-w-0">
         <div class="field-label">{{ $t("label.host") }}</div>
-        <div class="truncate font-medium" :title="hosts[container.host].name">{{ hosts[container.host].name }}</div>
+        <div class="truncate font-medium" :title="hostName">{{ hostName }}</div>
       </div>
       <div class="min-w-0">
         <div class="field-label">{{ $t("log-details.image") }}</div>
-        <div class="truncate font-medium" :title="container.image">{{ container.image }}</div>
+        <div class="truncate font-medium" :title="container?.image">{{ container?.image }}</div>
       </div>
     </section>
 
@@ -108,6 +108,7 @@ const list = ref<HTMLElement>();
 const container = currentContainer(toRef(() => entry.containerID));
 const visibleKeys = persistentVisibleKeysForContainer(container);
 const { hosts } = useHosts();
+const hostName = computed(() => (container.value ? hosts.value[container.value.host]?.name : undefined));
 
 const { useSortable } = await import("@vueuse/integrations/useSortable");
 
