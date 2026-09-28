@@ -14,7 +14,7 @@ import { Service, Stack } from "@/models/Stack";
 import { Container, GroupedContainers } from "@/models/Container";
 import { parseMessage } from "./loadBetween";
 import { useLogLoader } from "./logLoader";
-import { appendBatch } from "./logWindow";
+import { appendBatch, newerThanOnScreen, notOnScreen } from "./logWindow";
 import { parseEventData } from "@/utils/events";
 import { showAllContainers } from "@/stores/settings";
 
@@ -95,6 +95,8 @@ function useLogStream(url: Ref<string>, container?: Ref<Container>) {
   const { paused: scrollingPaused } = useScrollContext();
   const { streamConfig, hasComplexLogs, levels, loadingMore, containers } = useLoggingContext();
   let initial = true;
+  // Set while a reconnected stream replays lines the view already shows.
+  let resuming: ((entry: LogEntry<LogMessage>) => boolean) | null = null;
 
   const params = computed(() => {
     const params = new URLSearchParams();
@@ -158,7 +160,7 @@ function useLogStream(url: Ref<string>, container?: Ref<Container>) {
   const flushBuffer = useAdaptiveFlush(flushNow, () => initial);
   let es: EventSource | null = null;
   const reconnect = useSseReconnect({
-    connect: () => connect({ clear: true }),
+    connect: () => connect({ clear: false }),
     source: () => es,
     onClosed: checkSession,
   });
@@ -180,13 +182,27 @@ function useLogStream(url: Ref<string>, container?: Ref<Container>) {
     withBase(`${url.value}${url.value.includes("?") ? "&" : "?"}${params.value.toString()}`),
   );
 
+  // Every connect replays each container's tail. A fresh one (first open, or the url
+  // changed) starts the view over. A reconnect keeps what is on screen and drops the
+  // replayed lines it already has, so a dropped stream is a hiccup rather than a view
+  // that blanks and refills.
+  function markResuming() {
+    flushBuffer.flush();
+    resuming = newerThanOnScreen(messages.value);
+  }
+
   function connect({ clear } = { clear: true }) {
     close();
-    if (clear) clearMessages();
-    opened.value = false;
-    loading.value = true;
+    if (clear || messages.value.length === 0) {
+      clearMessages();
+      resuming = null;
+      opened.value = false;
+      loading.value = true;
+      initial = true;
+    } else {
+      markResuming();
+    }
     error.value = false;
-    initial = true;
     searchStatus.value = { active: isSearching.value, done: false, matches: 0 };
     es = new EventSource(urlWithParams.value);
     es.addEventListener("container-event", (e) => {
@@ -209,7 +225,8 @@ function useLogStream(url: Ref<string>, container?: Ref<Container>) {
 
     es.addEventListener("logs-backfill", (e) => {
       const data = parseEventData<LogEvent[]>(e);
-      const logs = data.map((e) => asLogEntry(e));
+      let logs = data.map((e) => asLogEntry(e));
+      if (resuming) logs = logs.filter(notOnScreen(messages.value));
       messages.value = [...logs, ...messages.value];
       decorateWithAlerts();
     });
@@ -227,15 +244,17 @@ function useLogStream(url: Ref<string>, container?: Ref<Container>) {
 
     es.onmessage = (e) => {
       if (e.data) {
-        buffer.push(parseMessage(e.data));
+        const entry = parseMessage(e.data);
+        if (resuming && !resuming(entry)) return;
+        buffer.push(entry);
         flushBuffer();
       }
     };
     es.onerror = () => {
       error.value = true;
-      // CLOSED means the browser has stopped retrying, so the log view would sit empty
-      // until a manual reload. Reconnecting drops and refetches rather than resuming,
-      // since the backfill the server replays would otherwise duplicate what is on screen.
+      // The browser may retry on its own (CONNECTING), and that stream replays the tail
+      // too. When it has given up (CLOSED), useSseReconnect opens a new one.
+      if (messages.value.length > 0) markResuming();
       reconnect.onError();
     };
     es.onopen = () => {

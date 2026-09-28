@@ -17,7 +17,7 @@ import { Level, type LogEntry } from "@/models/LogEntry";
 
 vi.mock("@/stores/config", () => ({
   __esModule: true,
-  default: { base: "", maxLogs: 400, hosts: [{ name: "localhost", id: "localhost" }] },
+  default: { base: "", maxLogs: 400, authProvider: "none", hosts: [{ name: "localhost", id: "localhost" }] },
   withBase: (path: string) => path,
 }));
 
@@ -217,6 +217,38 @@ describe("<ContainerEventSource />", () => {
     const messages: LogEntry<string>[] = wrapper.vm.messages;
     expect(messages).toHaveLength(opening + 1);
     expect(messages.at(-1)?.message).toBe("line 501");
+  });
+
+  test("keeps the view across a reconnect and drops the replayed tail", async () => {
+    const wrapper = createLogEventSource();
+    sources[sourceUrl].emitOpen();
+    const emit = (id: number) =>
+      sources[sourceUrl].emitMessage({
+        data: `{"ts":${1560336942459 + id}, "m":"line ${id}", "id":${id}, "rm": "line ${id}", "c": "abc"}`,
+      });
+
+    for (let id = 1; id <= 5; id++) emit(id);
+    await vi.advanceTimersByTimeAsync(200);
+    // @ts-ignore
+    const before: LogEntry<string>[] = wrapper.vm.messages;
+
+    // the mock has no static readyState constants
+    Object.assign(EventSource, { CONNECTING: 0, OPEN: 1, CLOSED: 2 });
+    const dropped = sources[sourceUrl];
+    dropped.readyState = 2;
+    dropped.emitError();
+    await vi.advanceTimersByTimeAsync(2000);
+    expect(sources[sourceUrl]).not.toBe(dropped);
+
+    sources[sourceUrl].emitOpen();
+    for (let id = 3; id <= 7; id++) emit(id);
+    await vi.advanceTimersByTimeAsync(1100);
+
+    // @ts-ignore
+    const after: LogEntry<string>[] = wrapper.vm.messages;
+    expect(after.slice(0, before.length)).toEqual(before);
+    expect(after.slice(before.length).map((m) => m.message)).toEqual(["line 6", "line 7"]);
+    wrapper.unmount();
   });
 
   describe("live bar", () => {
