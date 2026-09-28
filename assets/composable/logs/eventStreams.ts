@@ -97,6 +97,7 @@ function useLogStream(url: Ref<string>, container?: Ref<Container>) {
   let initial = true;
   // Set while a reconnected stream replays lines the view already shows.
   let resuming: ((entry: LogEntry<LogMessage>) => boolean) | null = null;
+  let sortNext = false;
 
   const params = computed(() => {
     const params = new URLSearchParams();
@@ -129,10 +130,11 @@ function useLogStream(url: Ref<string>, container?: Ref<Container>) {
     // pipes the daemon can stamp out of delivery order. With several containers a
     // batch is genuinely interleaved, and sorting every one of them (not just the
     // first) is what lets the opening window be short.
-    // A resumed search also lands here with matches from the gap mixed into the live tail.
-    if (initial || resuming || allContainers.value.length > 1) {
+    // A resumed search also lands here once, with matches from the gap mixed into the live tail.
+    if (initial || sortNext || allContainers.value.length > 1) {
       buffer.sort((a, b) => a.date.getTime() - b.date.getTime());
     }
+    sortNext = false;
     const batch = buffer;
     buffer = [];
 
@@ -241,6 +243,7 @@ function useLogStream(url: Ref<string>, container?: Ref<Container>) {
         logs = logs.filter((l) => l.date.getTime() <= newest);
         if (gap.length > 0) {
           buffer.push(...gap);
+          sortNext = true;
           flushBuffer();
         }
       }

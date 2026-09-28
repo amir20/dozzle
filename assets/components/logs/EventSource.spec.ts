@@ -248,6 +248,18 @@ describe("<ContainerEventSource />", () => {
     const after: LogEntry<string>[] = wrapper.vm.messages;
     expect(after.slice(0, before.length)).toEqual(before);
     expect(after.slice(before.length).map((m) => m.message)).toEqual(["line 6", "line 7"]);
+
+    // one container's stdout and stderr can be stamped out of delivery order, and a
+    // resume must not start sorting them
+    sources[sourceUrl].emitMessage({
+      data: `{"ts":${1560336942459 + 20}, "m":"line 20", "id":20, "rm": "line 20", "c": "abc"}`,
+    });
+    sources[sourceUrl].emitMessage({
+      data: `{"ts":${1560336942459 + 15}, "m":"line 15", "id":15, "rm": "line 15", "c": "abc"}`,
+    });
+    await vi.advanceTimersByTimeAsync(1100);
+    // @ts-ignore
+    expect(wrapper.vm.messages.slice(-2).map((m: LogEntry<string>) => m.message)).toEqual(["line 20", "line 15"]);
     wrapper.unmount();
   });
 
