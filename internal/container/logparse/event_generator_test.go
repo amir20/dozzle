@@ -270,6 +270,32 @@ func TestEventGenerator_GroupedSimpleLogs(t *testing.T) {
 	assert.Equal(t, "in function foo", fragments[2].Message)
 }
 
+// A Serilog trace (Cleanuparr, the *arr stack) puts the timestamp and level in
+// one bracket. The header has to be read as leveled, or nothing starts a group
+// and every frame ships as its own entry.
+func TestEventGenerator_GroupsSerilogStackTrace(t *testing.T) {
+	baseTime := "2026-09-28T09:58:00.046000000Z"
+	messages := []string{
+		baseTime + " [2026-09-28 09:58:00.046 ERR] [MalwareBlocker] [Radarr] Error creating download service for qBittorrent",
+		baseTime + " System.Net.Http.HttpRequestException: An error occurred while sending the request.",
+		baseTime + "  ---> System.IO.IOException: Unable to read data from the transport connection: Connection reset by peer.",
+		baseTime + "    at System.Net.Http.HttpConnection.SendAsync(HttpRequestMessage request, Boolean async, CancellationToken cancellationToken)",
+		baseTime + "    --- End of inner exception stack trace ---",
+	}
+	types := make([]container.StdType, len(messages))
+	for i := range types {
+		types[i] = container.STDOUT
+	}
+
+	g := NewEventGenerator(context.Background(), &mockLogReader{messages: messages, types: types}, container.Container{})
+	event := <-g.Events
+
+	require.NotNil(t, event)
+	assert.Equal(t, container.LogTypeGroup, event.Type)
+	assert.Equal(t, "error", event.Level)
+	assert.Len(t, event.Message.([]container.LogFragment), len(messages))
+}
+
 func TestEventGenerator_GroupIsCapped(t *testing.T) {
 	baseTime := "2020-05-13T18:55:37.772853839Z"
 	total := maxGroupLines + 10
