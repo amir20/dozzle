@@ -1,7 +1,7 @@
 /** @vitest-environment jsdom */
 import { describe, expect, test, vi } from "vitest";
 import { SimpleLogEntry, SkippedLogsEntry } from "@/models/LogEntry";
-import { appendBatch, newerThanOnScreen, notOnScreen } from "./logWindow";
+import { appendBatch, newerThanOnScreen, newestOnScreen, notOnScreen } from "./logWindow";
 
 function lines(from: number, count: number, container = "c") {
   return Array.from(
@@ -93,5 +93,12 @@ describe("notOnScreen", () => {
         .filter(keep)
         .map((m) => m.id),
     ).toEqual([0, 1, 2, 3, 4]);
+  });
+});
+
+describe("newestOnScreen", () => {
+  test("reads through a skipped entry and ignores rows that are not lines", () => {
+    const skipped = new SkippedLogsEntry(new Date(10_000), 5, lines(5, 1)[0], lines(9, 1)[0], loadSkipped);
+    expect(newestOnScreen([...lines(0, 5), skipped])).toBe(9);
   });
 });

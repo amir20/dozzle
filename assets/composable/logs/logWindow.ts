@@ -80,6 +80,18 @@ export function newerThanOnScreen(messages: LogEntry<LogMessage>[]): (entry: Log
   };
 }
 
+/** The time of the newest line the view holds, collapsed ones included. */
+export function newestOnScreen(messages: LogEntry<LogMessage>[]): number {
+  let newest = 0;
+  for (const m of messages) {
+    const line = m instanceof SkippedLogsEntry ? m.lastSkippedLog : m;
+    if (line instanceof SimpleLogEntry || line instanceof GroupedLogEntry || line instanceof ComplexLogEntry) {
+      newest = Math.max(newest, line.date.getTime());
+    }
+  }
+  return newest;
+}
+
 /** Keeps backfilled lines that are not already on screen. */
 export function notOnScreen(messages: LogEntry<LogMessage>[]): (entry: LogEntry<LogMessage>) => boolean {
   const keys = new Set(messages.map(lineKey));

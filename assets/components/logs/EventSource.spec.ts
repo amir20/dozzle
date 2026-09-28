@@ -251,6 +251,58 @@ describe("<ContainerEventSource />", () => {
     wrapper.unmount();
   });
 
+  test("keeps lines buffered before the first flush when the stream drops", async () => {
+    const wrapper = createLogEventSource();
+    sources[sourceUrl].emitOpen();
+    const emit = (id: number) =>
+      sources[sourceUrl].emitMessage({
+        data: `{"ts":${1560336942459 + id}, "m":"line ${id}", "id":${id}, "rm": "line ${id}", "c": "abc"}`,
+      });
+
+    for (let id = 1; id <= 3; id++) emit(id);
+    // the browser retries on its own: same source, still CONNECTING
+    sources[sourceUrl].readyState = 0;
+    sources[sourceUrl].emitError();
+    sources[sourceUrl].emitOpen();
+    for (let id = 1; id <= 4; id++) emit(id);
+    await vi.advanceTimersByTimeAsync(1100);
+
+    // @ts-ignore
+    const messages: LogEntry<string>[] = wrapper.vm.messages;
+    expect(messages.slice(1).map((m) => m.message)).toEqual(["line 1", "line 2", "line 3", "line 4"]);
+    wrapper.unmount();
+  });
+
+  test("puts matches from the gap after a resumed search, not above the view", async () => {
+    const wrapper = createLogEventSource({ searchFilter: "line" });
+    // the applied filter trails the typed one by a debounce
+    await vi.advanceTimersByTimeAsync(1000);
+    const url = Object.keys(sources).find((k) => k.includes("filter=line"))!;
+    const event = (id: number) => ({
+      ts: 1560336942459 + id,
+      m: `line ${id}`,
+      id,
+      rm: `line ${id}`,
+      c: "abc",
+    });
+    sources[url].emitOpen();
+    sources[url].emit("logs-backfill", { data: JSON.stringify([event(1), event(2)]) });
+    await vi.advanceTimersByTimeAsync(1100);
+
+    sources[url].readyState = 0;
+    sources[url].emitError();
+    sources[url].emitOpen();
+    sources[url].emit("logs-backfill", { data: JSON.stringify([event(0), event(2), event(3), event(4)]) });
+    await vi.advanceTimersByTimeAsync(1100);
+
+    // @ts-ignore
+    const messages: LogEntry<string>[] = wrapper.vm.messages;
+    expect(messages.map((m) => m.message)).toEqual(["line 0", "line 1", "line 2", "line 3", "line 4"]);
+    search.searchQueryFilter.value = "";
+    search.showSearch.value = false;
+    wrapper.unmount();
+  });
+
   describe("live bar", () => {
     test("lights up on an incoming batch and dims once the stream goes quiet", async () => {
       const wrapper = createLogEventSource();
