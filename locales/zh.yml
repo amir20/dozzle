@@ -237,6 +237,7 @@ settings:
   new-version: "{version} 可用"
   update-available: "有更新的镜像可用"
   auto-update-on: "Dozzle 会自动保持最新"
+  auto-update-containers: "带有标签的容器会自动保持最新"
   auto-update-daily: "每天 {time} 检查（服务器时间）。"
   auto-update-weekly: "每周日 {time} 检查（服务器时间）。"
   show-image-update-alert: '镜像更新提醒'
@@ -813,6 +814,7 @@ setup:
     password: 密码
     confirm: 确认密码
     password-hint: 至少 8 个字符。用户名可包含字母、数字、点、短横线和下划线。
+    mismatch: 两次输入的密码不一致。
     saved-volume: 已保存到挂载的卷
     after-restart: 重启后启用登录
     on: 登录已启用
@@ -914,6 +916,7 @@ setup:
     reason-pinned-tag: "你使用的是固定的版本标签，因此没有更新的镜像可拉取。请使用 latest 之类的标签来获取更新。"
     reason-unsupported: "Dozzle 在这里找不到自己的容器，因此无法替换自身。"
     reason-swarm-worker: "Dozzle 以 Swarm 服务的形式运行在工作节点上。只有管理节点才能更新服务，请在管理节点上运行 Dozzle，或使用 docker service update 更新。"
+    containers-still: 带有 {label} 标签的容器仍会按此计划更新。
     pull-denied: "无法拉取 {image}。它可能只存在于这台机器上，或者镜像仓库需要 docker login。"
   restart:
     title: 重启 Dozzle

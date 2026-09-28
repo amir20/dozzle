@@ -1,6 +1,7 @@
 import { describe, expect, test, vi } from "vitest";
 import { computed, isReactive, reactive } from "vue";
 import { Container, emptyStat, type Stat } from "./Container";
+import { useHosts, type Host } from "@/stores/hosts";
 
 vi.mock("@/stores/config", () => ({
   __esModule: true,
@@ -15,6 +16,7 @@ function makeContainer(
     command?: string;
     stats?: Stat[];
     ports?: string[];
+    host?: string;
   } = {},
 ) {
   return new Container(
@@ -25,7 +27,7 @@ function makeContainer(
     overrides.image ?? "image",
     "display-name",
     overrides.command ?? "command",
-    "localhost",
+    overrides.host ?? "localhost",
     overrides.labels ?? {},
     "running",
     0,
@@ -100,6 +102,16 @@ describe("Container.storageKey", () => {
 describe("Container.hostLabel", () => {
   test("resolves the host name from config", () => {
     expect(makeContainer().hostLabel).toBe("localhost");
+  });
+
+  test("names a host added after the page loaded", () => {
+    const { updateHost, removeHost } = useHosts();
+    const container = makeContainer({ host: "agent-1" });
+    expect(container.hostLabel).toBeUndefined();
+
+    updateHost({ id: "agent-1", name: "nas", endpoint: "10.0.0.5:7007" } as Host);
+    expect(container.hostLabel).toBe("nas");
+    removeHost("agent-1");
   });
 });
 

@@ -237,6 +237,7 @@ settings:
   new-version: "{version} tilgængelig"
   update-available: "Et nyere image er tilgængeligt"
   auto-update-on: "Dozzle holder sig selv opdateret"
+  auto-update-containers: "Containere med label holdes opdateret"
   auto-update-daily: "Tjekker dagligt kl. {time}, servertid."
   auto-update-weekly: "Tjekker ugentligt om søndagen kl. {time}, servertid."
   show-image-update-alert: 'Image-opdateringer'
@@ -813,6 +814,7 @@ setup:
     password: "Adgangskode"
     confirm: "Bekræft adgangskode"
     password-hint: "Mindst 8 tegn. Bogstaver, tal, punktummer, bindestreger og understregninger i brugernavnet."
+    mismatch: "Adgangskoderne er ikke ens."
     saved-volume: "Gemt på et monteret volume"
     after-restart: "Login slås til efter genstarten"
     "on": "Login er slået til"
@@ -914,6 +916,7 @@ setup:
     reason-pinned-tag: "Du kører et fastlåst versionstag, så der er intet nyere at hente. Brug et tag som latest for at få opdateringer."
     reason-unsupported: "Dozzle kan ikke finde sin egen container her, så den kan ikke udskifte sig selv."
     reason-swarm-worker: "Dozzle kører som en Swarm-tjeneste på en worker-node. Kun en manager kan opdatere tjenesten, så kør Dozzle på en manager, eller opdater den med docker service update."
+    containers-still: Containere med labelen {label} opdateres stadig efter denne plan.
     pull-denied: "Kunne ikke hente {image}. Det findes måske kun på denne maskine, eller registret kræver docker login."
   restart:
     title: "Genstart Dozzle"

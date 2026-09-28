@@ -1,6 +1,6 @@
 ---
 title: Asistente de configuración
-sourceHash: 05d0487e6d37
+sourceHash: 5de063d00e38
 ---
 
 # Asistente de configuración
@@ -71,7 +71,7 @@ Los contenedores etiquetados con `dev.dozzle.auto-update=true` se actualizan con
 
 Este ajuste se aplica al momento y no necesita reinicio.
 
-Actualizarse es una acción, así que mientras las acciones están desactivadas este paso sigue en la lista, pero en gris y marcado con **Requiere acciones**. Activar las acciones en el paso 2 lo habilita al momento. Si esta instancia no puede actualizarse sola por otro motivo (por ejemplo, porque usa un tag de versión fijo), el paso indica el motivo en su lugar.
+Actualizarse es una acción, así que mientras las acciones están desactivadas este paso sigue en la lista, pero en gris y marcado con **Requiere acciones**. Activar las acciones en el paso 2 lo habilita al momento. Si esta instancia no puede actualizarse sola por otro motivo (por ejemplo, porque usa un tag de versión fijo), el paso indica el motivo. La programación se puede configurar igualmente, y los contenedores con la etiqueta `dev.dozzle.auto-update=true` la siguen.
 
 ### 6. Reinicio
 

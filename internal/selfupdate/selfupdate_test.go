@@ -236,7 +236,7 @@ func fastTimings(t *testing.T) {
 func TestReplacementSpec(t *testing.T) {
 	old := dozzleContainer()
 	img := oldImage()
-	spec := replacementSpec(old, &img, "dozzle")
+	spec := ReplacementSpec(old, &img, "dozzle")
 
 	assert.Equal(t, "dozzle", spec.Name)
 	assert.Equal(t, "amir20/dozzle:latest", spec.Config.Image)
@@ -269,7 +269,7 @@ func TestReplacementSpecSharedNamespace(t *testing.T) {
 	old := dozzleContainer()
 	old.HostConfig.NetworkMode = "container:vpn"
 	old.HostConfig.PortBindings = nil
-	spec := replacementSpec(old, nil, "dozzle")
+	spec := ReplacementSpec(old, nil, "dozzle")
 	assert.Nil(t, spec.NetworkingConfig)
 	assert.Empty(t, spec.Config.Hostname)
 }
@@ -466,7 +466,7 @@ func TestRunAutoRemoveRollbackRecreatesOld(t *testing.T) {
 	// The restored container still updates: its next replacement is on the tag.
 	again := f.containers[selfID]
 	again.Config = restored.Config
-	next := replacementSpec(again, nil, "dozzle")
+	next := ReplacementSpec(again, nil, "dozzle")
 	assert.Equal(t, "amir20/dozzle:latest", next.Config.Image)
 	assert.NotContains(t, next.Config.Labels, imageRefLabel)
 	g := newFake()

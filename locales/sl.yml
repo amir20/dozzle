@@ -239,6 +239,7 @@ settings:
   new-version: "Na voljo je {version}"
   update-available: "Na voljo je novejša slika"
   auto-update-on: "Dozzle se posodablja sam"
+  auto-update-containers: "Vsebniki z oznako ostajajo posodobljeni"
   auto-update-daily: "Preveri vsak dan ob {time} po času strežnika."
   auto-update-weekly: "Preveri vsak teden v nedeljo ob {time} po času strežnika."
   show-image-update-alert: 'Opozorila o posodobitvah slik'
@@ -818,6 +819,7 @@ setup:
     password: Geslo
     confirm: Potrdi geslo
     password-hint: Vsaj 8 znakov. V uporabniškem imenu so dovoljene črke, številke, pike, vezaji in podčrtaji.
+    mismatch: Gesli se ne ujemata.
     saved-volume: Shranjeno na priklopljen nosilec
     after-restart: Prijava se vklopi po ponovnem zagonu
     on: Prijava je vklopljena
@@ -919,6 +921,7 @@ setup:
     reason-pinned-tag: "Uporabljaš pripeto oznako različice, zato ni ničesar novejšega za prenos. Za posodobitve uporabi oznako, kot je latest."
     reason-unsupported: "Dozzle tukaj ne najde svojega vsebnika, zato se ne more zamenjati sam."
     reason-swarm-worker: "Dozzle teče kot storitev Swarm na delovnem vozlišču. Storitev lahko posodobi samo upravitelj, zato Dozzle zaženite na upravitelju ali ga posodobite z docker service update."
+    containers-still: Vsebniki z oznako {label} se še vedno posodabljajo po tem urniku.
     pull-denied: "{image} ni bilo mogoče prenesti. Morda obstaja samo na tem računalniku ali register zahteva docker login."
   restart:
     title: Znova zaženi Dozzle

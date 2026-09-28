@@ -70,7 +70,7 @@ Containers labelled `dev.dozzle.auto-update=true` update on the same schedule, j
 
 This setting applies right away and does not need a restart.
 
-Updating itself is an action, so while actions are off this step stays in the list but is greyed out with **Needs actions**. Turning actions on in step 2 makes it available right away. If this instance cannot update itself for another reason (for example it runs a pinned version tag), the step says why instead.
+Updating itself is an action, so while actions are off this step stays in the list but is greyed out with **Needs actions**. Turning actions on in step 2 makes it available right away. If this instance cannot update itself for another reason (for example it runs a pinned version tag), the step says why. The schedule can still be set, and containers labelled `dev.dozzle.auto-update=true` follow it.
 
 ### 6. Restart
 

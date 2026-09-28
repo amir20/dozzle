@@ -7,14 +7,14 @@
     <div
       class="flex gap-x-2 gap-y-1 group-[.compact]:gap-y-0 has-[>_*:nth-of-type(2)]:flex-col-reverse md:mr-1 md:flex-row!"
     >
-      <RandomColorTag class="w-30 shrink-0 select-none md:w-40" :value="host.name" v-if="showHostname" />
+      <RandomColorTag class="w-30 shrink-0 select-none md:w-40" :value="host?.name ?? ''" v-if="showHostname" />
       <RandomColorTag
         v-if="showContainerName"
         class="w-30 shrink-0 select-none group-[.compact]:flex-1 md:w-40"
-        :value="container.id"
+        :value="logEntry.containerID"
         truncateRight
       >
-        {{ container.name }}
+        {{ container?.name ?? logEntry.containerID }}
       </RandomColorTag>
       <LogDate v-if="showTimestamp" :date="logEntry.date" class="shrink-0 select-none" />
     </div>
@@ -33,6 +33,8 @@ const { showHostname, showContainerName } = useLoggingContext();
 const { currentContainer } = useContainerStore();
 const { hosts } = useHosts();
 
+// A line can outlive its container: an update or recreate replaces it under a new
+// id while the lines it already wrote stay on screen.
 const container = currentContainer(toRef(() => logEntry.containerID));
-const host = computed(() => hosts.value[container.value.host]);
+const host = computed(() => (container.value ? hosts.value[container.value.host] : undefined));
 </script>

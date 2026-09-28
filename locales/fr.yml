@@ -237,6 +237,7 @@ settings:
   new-version: "{version} disponible"
   update-available: "Une image plus récente est disponible"
   auto-update-on: "Dozzle se met à jour tout seul"
+  auto-update-containers: "Les conteneurs avec le label restent à jour"
   auto-update-daily: "Vérifie chaque jour à {time}, heure du serveur."
   auto-update-weekly: "Vérifie chaque semaine, le dimanche à {time}, heure du serveur."
   show-image-update-alert: 'Alertes de mise à jour d''image'
@@ -813,6 +814,7 @@ setup:
     password: "Mot de passe"
     confirm: "Confirmer le mot de passe"
     password-hint: "Au moins 8 caractères. Lettres, chiffres, points, tirets et tirets bas dans le nom d'utilisateur."
+    mismatch: "Les mots de passe ne correspondent pas."
     saved-volume: "Enregistré sur un volume monté"
     after-restart: "La connexion sera activée après le redémarrage"
     "on": "La connexion est activée"
@@ -914,6 +916,7 @@ setup:
     reason-pinned-tag: "Vous utilisez un tag de version figé, il n'y a donc rien de plus récent à télécharger. Utilisez un tag comme latest pour recevoir les mises à jour."
     reason-unsupported: "Dozzle ne trouve pas son propre conteneur ici, il ne peut donc pas se remplacer lui-même."
     reason-swarm-worker: "Dozzle tourne comme service Swarm sur un nœud worker. Seul un manager peut mettre à jour le service : exécutez Dozzle sur un manager ou mettez-le à jour avec docker service update."
+    containers-still: Les conteneurs avec le label {label} sont toujours mis à jour selon ce calendrier.
     pull-denied: "Impossible de récupérer {image}. Elle n'existe peut-être que sur cette machine, ou le registre demande docker login."
   restart:
     title: "Redémarrer Dozzle"

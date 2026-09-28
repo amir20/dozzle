@@ -346,6 +346,7 @@ settings:
   new-version: "{version} available"
   update-available: A newer image is available
   auto-update-on: Dozzle keeps itself up to date
+  auto-update-containers: Labelled containers stay up to date
   auto-update-daily: Checks daily at {time}, server time.
   auto-update-weekly: Checks weekly on Sunday at {time}, server time.
   cloud-desc: Stream logs to Dozzle Cloud for AI-powered investigations and search across instances.
@@ -821,6 +822,7 @@ setup:
     password: Password
     confirm: Confirm password
     password-hint: At least 8 characters. Letters, numbers, dots, dashes and underscores in the username.
+    mismatch: Passwords don't match.
     saved-volume: Saved to a mounted volume
     after-restart: Login turns on after the restart
     on: Login is on
@@ -922,6 +924,7 @@ setup:
     reason-pinned-tag: You run a pinned version tag, so there is nothing newer to pull. Use a tag like latest to get updates.
     reason-unsupported: "Dozzle can't find its own container here, so it can't replace itself."
     reason-swarm-worker: "Dozzle runs as a Swarm service on a worker node. Only a manager can update the service, so run Dozzle on a manager or update it with docker service update."
+    containers-still: Containers labelled {label} still update on this schedule.
     pull-denied: "Couldn't pull {image}. It may only exist on this machine, or the registry needs docker login."
   restart:
     title: Restart Dozzle

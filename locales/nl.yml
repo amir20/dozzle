@@ -238,6 +238,7 @@ settings:
   new-version: "{version} beschikbaar"
   update-available: "Er is een nieuwere image beschikbaar"
   auto-update-on: "Dozzle houdt zichzelf up-to-date"
+  auto-update-containers: "Containers met het label blijven up-to-date"
   auto-update-daily: "Controleert dagelijks om {time}, servertijd."
   auto-update-weekly: "Controleert wekelijks op zondag om {time}, servertijd."
   show-image-update-alert: 'Image-updatemeldingen'
@@ -814,6 +815,7 @@ setup:
     password: Wachtwoord
     confirm: Wachtwoord bevestigen
     password-hint: Minstens 8 tekens. Letters, cijfers, punten, streepjes en underscores in de gebruikersnaam.
+    mismatch: De wachtwoorden komen niet overeen.
     saved-volume: Opgeslagen op een gekoppeld volume
     after-restart: Inloggen wordt ingeschakeld na de herstart
     on: Inloggen is ingeschakeld
@@ -915,6 +917,7 @@ setup:
     reason-pinned-tag: "Je gebruikt een vaste versietag, dus er is niets nieuwers om op te halen. Gebruik een tag zoals latest om updates te krijgen."
     reason-unsupported: "Dozzle kan hier zijn eigen container niet vinden en kan zichzelf dus niet vervangen."
     reason-swarm-worker: "Dozzle draait als Swarm-service op een worker-node. Alleen een manager kan de service bijwerken, dus draai Dozzle op een manager of werk het bij met docker service update."
+    containers-still: Containers met het label {label} worden nog steeds volgens dit schema bijgewerkt.
     pull-denied: "{image} kon niet worden opgehaald. Misschien bestaat het alleen op deze machine, of vraagt de registry om docker login."
   restart:
     title: Dozzle herstarten

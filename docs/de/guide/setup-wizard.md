@@ -1,6 +1,6 @@
 ---
 title: Einrichtungsassistent
-sourceHash: 05d0487e6d37
+sourceHash: 5de063d00e38
 ---
 
 # Einrichtungsassistent
@@ -71,7 +71,7 @@ Container mit dem Label `dev.dozzle.auto-update=true` werden nach demselben Zeit
 
 Diese Einstellung gilt sofort und braucht keinen Neustart.
 
-Sich selbst zu aktualisieren ist eine Aktion. Solange Aktionen aus sind, bleibt dieser Schritt deshalb in der Liste, ist aber ausgegraut und mit **Benötigt Aktionen** markiert. Schaltest du Aktionen in Schritt 2 ein, ist er sofort verfügbar. Kann sich diese Instanz aus einem anderen Grund nicht selbst aktualisieren (zum Beispiel, weil ein fester Versions-Tag läuft), nennt der Schritt stattdessen den Grund.
+Sich selbst zu aktualisieren ist eine Aktion. Solange Aktionen aus sind, bleibt dieser Schritt deshalb in der Liste, ist aber ausgegraut und mit **Benötigt Aktionen** markiert. Schaltest du Aktionen in Schritt 2 ein, ist er sofort verfügbar. Kann sich diese Instanz aus einem anderen Grund nicht selbst aktualisieren (zum Beispiel, weil ein fester Versions-Tag läuft), nennt der Schritt den Grund. Der Zeitplan lässt sich trotzdem festlegen, und Container mit dem Label `dev.dozzle.auto-update=true` folgen ihm.
 
 ### 6. Neustart
 

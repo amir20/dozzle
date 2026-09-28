@@ -239,6 +239,7 @@ settings:
   new-version: "{version} 已推出"
   update-available: "有更新的映像檔可用"
   auto-update-on: "Dozzle 會自行保持最新版本"
+  auto-update-containers: "帶有標籤的容器會保持最新版本"
   auto-update-daily: "每天 {time} 檢查（伺服器時間）。"
   auto-update-weekly: "每週日 {time} 檢查（伺服器時間）。"
   show-image-update-alert: '映像更新提醒'
@@ -815,6 +816,7 @@ setup:
     password: 密碼
     confirm: 確認密碼
     password-hint: 至少 8 個字元。使用者名稱可包含字母、數字、點、連字號與底線。
+    mismatch: 兩次輸入的密碼不一致。
     saved-volume: 已儲存到掛載的磁碟區
     after-restart: 重新啟動後啟用登入
     on: 登入已啟用
@@ -916,6 +918,7 @@ setup:
     reason-pinned-tag: "你使用的是固定的版本標籤，因此沒有更新的映像檔可拉取。請使用 latest 之類的標籤來取得更新。"
     reason-unsupported: "Dozzle 在這裡找不到自己的容器，因此無法替換自身。"
     reason-swarm-worker: "Dozzle 以 Swarm 服務的形式執行在工作節點上。只有管理節點才能更新服務，請在管理節點上執行 Dozzle，或使用 docker service update 更新。"
+    containers-still: 帶有 {label} 標籤的容器仍會依此排程更新。
     pull-denied: "無法拉取 {image}。它可能只存在於這台機器上，或者映像倉庫需要 docker login。"
   restart:
     title: 重新啟動 Dozzle

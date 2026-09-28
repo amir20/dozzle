@@ -83,6 +83,9 @@ const stale = computed(() => headline.value !== "current");
 const title = computed(() => {
   if (headline.value === "image") return t("settings.update-available");
   if (headline.value === "release") return t("settings.new-version", { version: latestRelease.value?.name });
+  // A pinned tag or a Dozzle it cannot find still runs the schedule, but only for
+  // labelled containers. actions-off is a schedule waiting on a restart, not a gap.
+  if (!autoUpdate.supported && autoUpdate.reason !== "actions-off") return t("settings.auto-update-containers");
   return t("settings.auto-update-on");
 });
 

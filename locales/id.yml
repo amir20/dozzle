@@ -245,6 +245,7 @@ settings:
   new-version: "{version} tersedia"
   update-available: "Image yang lebih baru tersedia"
   auto-update-on: "Dozzle memperbarui dirinya sendiri"
+  auto-update-containers: "Container berlabel tetap diperbarui"
   auto-update-daily: "Memeriksa setiap hari pukul {time}, waktu server."
   auto-update-weekly: "Memeriksa setiap minggu pada hari Minggu pukul {time}, waktu server."
   show-image-update-alert: 'Peringatan pembaruan image'
@@ -825,6 +826,7 @@ setup:
     password: "Kata sandi"
     confirm: "Konfirmasi kata sandi"
     password-hint: "Minimal 8 karakter. Huruf, angka, titik, tanda hubung, dan garis bawah pada nama pengguna."
+    mismatch: "Kata sandi tidak cocok."
     saved-volume: "Disimpan ke volume yang di-mount"
     after-restart: "Login aktif setelah dimulai ulang"
     "on": "Login aktif"
@@ -926,6 +928,7 @@ setup:
     reason-pinned-tag: "Anda memakai tag versi yang dipatok, jadi tidak ada yang lebih baru untuk ditarik. Gunakan tag seperti latest untuk mendapat pembaruan."
     reason-unsupported: "Dozzle tidak dapat menemukan kontainernya sendiri di sini, jadi tidak dapat mengganti dirinya sendiri."
     reason-swarm-worker: "Dozzle berjalan sebagai layanan Swarm di node worker. Hanya manager yang dapat memperbarui layanan, jadi jalankan Dozzle di manager atau perbarui dengan docker service update."
+    containers-still: Container berlabel {label} tetap diperbarui sesuai jadwal ini.
     pull-denied: "Tidak dapat menarik {image}. Image ini mungkin hanya ada di mesin ini, atau registry memerlukan docker login."
   restart:
     title: "Mulai ulang Dozzle"

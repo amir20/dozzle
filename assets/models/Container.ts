@@ -20,15 +20,9 @@ export const emptyStat = (): Stat => ({
   diskWriteTotal: 0,
 });
 
-const hosts = computed(() =>
-  config.hosts.reduce(
-    (acc, item) => {
-      acc[item.id] = item;
-      return acc;
-    },
-    {} as Record<string, { name: string; id: string }>,
-  ),
-);
+// The live hosts map, not config.hosts: that is the list the page loaded with, and an
+// agent added since then would have no name to show.
+const { hosts } = useHosts();
 
 export class GroupedContainers {
   constructor(
