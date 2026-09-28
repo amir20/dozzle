@@ -39,7 +39,8 @@ type levelMatcher struct {
 // levelTiers groups matchers by how confidently their shape identifies the log
 // level, highest confidence first:
 //
-//  1. ^<level>     start-of-line prefix: "ERROR: ...", "INF ...", "E0806 14:55:55.980915 ..."
+//  1. ^<level>     start-of-line prefix: "ERROR: ...", "INF ...", "E0806 14:55:55.980915 ...",
+//     "[09:58:00 ERR] ..."
 //  2. [<level>]    bracketed tag / single-letter: "[ERROR]", "[E]"
 //  3. > <level>    signale/consola marker: "› ℹ  info      started"
 //  4. <tag>:<level> structured prefix: "Zigbee2MQTT:info ", "::INFO::"
@@ -66,6 +67,21 @@ var singleLetterBracket = regexp.MustCompile(`\[([EWIDFTV])\]`)
 // tooling). The full "Lmmdd hh:mm:ss.uuuuuu" shape is required so ordinary
 // prose starting with a capital letter cannot match.
 var klogPrefix = regexp.MustCompile(`^([EWIDFTV])\d{4} \d{2}:\d{2}:\d{2}\.\d{6}`)
+
+// bracketedHeader matches a line that opens with a bracket holding a timestamp
+// followed by the level, the Serilog default output template
+// "[{Timestamp} {Level:u3}]" used by most .NET apps (Cleanuparr, the *arr
+// stack):
+//
+//	[2026-09-28 09:58:00.046 ERR] [MalwareBlocker] Error creating ...
+//	[09:58:00 INF] Starting up
+//
+// The timestamp is inside the bracket, so timestampRegex cannot strip it and
+// the [<level>] tier never sees a bare tag. Requiring a digit right before the
+// level keeps prose like "[Connection error]" from matching.
+func bracketedHeader(joined string) *regexp.Regexp {
+	return regexp.MustCompile(`(?i)^\[[^\]]*\d\s+(` + joined + `)\s*\]`)
+}
 
 var timestampRegex = regexp.MustCompile(`^(?:\d{4}[-/]\d{2}[-/]\d{2}(?:[T ](?:\d{2}:\d{2}:\d{2}(?:[.,]\d+)?Z?|\d{2}:\d{2}(?:AM|PM)))?\s+)`)
 
@@ -158,6 +174,7 @@ func init() {
 		{
 			{re: regexp.MustCompile(`(?i)^(` + joined + `)[^a-z]`)},
 			{re: klogPrefix, single: true},
+			{re: bracketedHeader(joined)},
 		},
 		{
 			{re: regexp.MustCompile(`(?i)\[ ?(` + joined + `) ?\]`)},

@@ -159,6 +159,12 @@ func TestGuessLogLevel(t *testing.T) {
 		{"inf Something went wrong", "info"},
 		{"crit: Something went wrong", "fatal"},
 		{"[21:01:45] [WRN] this is a test", "warn"},
+		// Serilog default template: timestamp and level share one bracket.
+		{"[2026-09-28 09:58:00.046 ERR] [MalwareBlocker] [Radarr] Error creating download service for qBittorrent", "error"},
+		{"[09:58:00 INF] Starting up", "info"},
+		{"[09:58:00 WRN] Retrying", "warn"},
+		{"[2026-09-28 09:58:00.046 +00:00 DBG] handler started", "debug"},
+		{"[Connection error] retrying", "unknown"},
 		// klog / glog format used across the Kubernetes toolchain
 		{"E0806 14:55:55.980915       1 fsHandler.go:121] failed to collect filesystem stats", "error"},
 		{"W0806 14:54:52.068675       1 info.go:52] Couldn't collect info from any of the files", "warn"},
