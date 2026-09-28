@@ -145,7 +145,10 @@ declare global {
   const mergeAlerts: typeof import('./composable/cloud/cloudAlerts').mergeAlerts
   const mergeCloudEvents: typeof import('./composable/cloud/cloudAlerts').mergeCloudEvents
   const narrowedLevels: typeof import('./composable/logs/viewContext').narrowedLevels
+  const newerThanOnScreen: typeof import('./composable/logs/logWindow').newerThanOnScreen
+  const newestOnScreen: typeof import('./composable/logs/logWindow').newestOnScreen
   const nextTick: typeof import('vue').nextTick
+  const notOnScreen: typeof import('./composable/logs/logWindow').notOnScreen
   const onActivated: typeof import('vue').onActivated
   const onBeforeMount: typeof import('vue').onBeforeMount
   const onBeforeRouteLeave: typeof import('vue-router').onBeforeRouteLeave
@@ -741,7 +744,10 @@ declare module 'vue' {
     readonly mergeAlerts: UnwrapRef<typeof import('./composable/cloud/cloudAlerts')['mergeAlerts']>
     readonly mergeCloudEvents: UnwrapRef<typeof import('./composable/cloud/cloudAlerts')['mergeCloudEvents']>
     readonly narrowedLevels: UnwrapRef<typeof import('./composable/logs/viewContext')['narrowedLevels']>
+    readonly newerThanOnScreen: UnwrapRef<typeof import('./composable/logs/logWindow')['newerThanOnScreen']>
+    readonly newestOnScreen: UnwrapRef<typeof import('./composable/logs/logWindow')['newestOnScreen']>
     readonly nextTick: UnwrapRef<typeof import('vue')['nextTick']>
+    readonly notOnScreen: UnwrapRef<typeof import('./composable/logs/logWindow')['notOnScreen']>
     readonly onActivated: UnwrapRef<typeof import('vue')['onActivated']>
     readonly onBeforeMount: UnwrapRef<typeof import('vue')['onBeforeMount']>
     readonly onBeforeRouteLeave: UnwrapRef<typeof import('vue-router')['onBeforeRouteLeave']>

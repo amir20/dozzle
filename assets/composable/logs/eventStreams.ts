@@ -14,7 +14,7 @@ import { Service, Stack } from "@/models/Stack";
 import { Container, GroupedContainers } from "@/models/Container";
 import { parseMessage } from "./loadBetween";
 import { useLogLoader } from "./logLoader";
-import { appendBatch } from "./logWindow";
+import { appendBatch, newerThanOnScreen, newestOnScreen, notOnScreen } from "./logWindow";
 import { parseEventData } from "@/utils/events";
 import { showAllContainers } from "@/stores/settings";
 
@@ -95,6 +95,9 @@ function useLogStream(url: Ref<string>, container?: Ref<Container>) {
   const { paused: scrollingPaused } = useScrollContext();
   const { streamConfig, hasComplexLogs, levels, loadingMore, containers } = useLoggingContext();
   let initial = true;
+  // Set while a reconnected stream replays lines the view already shows.
+  let resuming: ((entry: LogEntry<LogMessage>) => boolean) | null = null;
+  let sortNext = false;
 
   const params = computed(() => {
     const params = new URLSearchParams();
@@ -127,9 +130,11 @@ function useLogStream(url: Ref<string>, container?: Ref<Container>) {
     // pipes the daemon can stamp out of delivery order. With several containers a
     // batch is genuinely interleaved, and sorting every one of them (not just the
     // first) is what lets the opening window be short.
-    if (initial || allContainers.value.length > 1) {
+    // A resumed search also lands here once, with matches from the gap mixed into the live tail.
+    if (initial || sortNext || allContainers.value.length > 1) {
       buffer.sort((a, b) => a.date.getTime() - b.date.getTime());
     }
+    sortNext = false;
     const batch = buffer;
     buffer = [];
 
@@ -158,7 +163,7 @@ function useLogStream(url: Ref<string>, container?: Ref<Container>) {
   const flushBuffer = useAdaptiveFlush(flushNow, () => initial);
   let es: EventSource | null = null;
   const reconnect = useSseReconnect({
-    connect: () => connect({ clear: true }),
+    connect: () => connect({ clear: false }),
     source: () => es,
     onClosed: checkSession,
   });
@@ -180,13 +185,30 @@ function useLogStream(url: Ref<string>, container?: Ref<Container>) {
     withBase(`${url.value}${url.value.includes("?") ? "&" : "?"}${params.value.toString()}`),
   );
 
+  // Every connect replays each container's tail. A fresh one (first open, or the url
+  // changed) starts the view over. A reconnect keeps what is on screen and drops the
+  // replayed lines it already has, so a dropped stream is a hiccup rather than a view
+  // that blanks and refills.
+  function markResuming() {
+    flushBuffer.flush();
+    // A view fed only by backfill never flushed, and would still treat the next batch
+    // as the opening one that replaces the window.
+    initial = false;
+    resuming = newerThanOnScreen(messages.value);
+  }
+
   function connect({ clear } = { clear: true }) {
     close();
-    if (clear) clearMessages();
-    opened.value = false;
-    loading.value = true;
+    if (clear || (messages.value.length === 0 && buffer.length === 0)) {
+      clearMessages();
+      resuming = null;
+      opened.value = false;
+      loading.value = true;
+      initial = true;
+    } else {
+      markResuming();
+    }
     error.value = false;
-    initial = true;
     searchStatus.value = { active: isSearching.value, done: false, matches: 0 };
     es = new EventSource(urlWithParams.value);
     es.addEventListener("container-event", (e) => {
@@ -209,7 +231,23 @@ function useLogStream(url: Ref<string>, container?: Ref<Container>) {
 
     es.addEventListener("logs-backfill", (e) => {
       const data = parseEventData<LogEvent[]>(e);
-      const logs = data.map((e) => asLogEntry(e));
+      let logs = data.map((e) => asLogEntry(e)).filter(notOnScreen(messages.value));
+      if (resuming) {
+        // A search streams live from the moment it connects, so after a resume the
+        // backfill carries the matches written while the stream was down. Those belong
+        // at the bottom with the live tail, not above everything.
+        // The walk is by time across every container, so the cutoff is the view's
+        // newest line rather than each container's.
+        const newest = newestOnScreen(messages.value);
+        const gap = logs.filter((l) => l.date.getTime() > newest);
+        logs = logs.filter((l) => l.date.getTime() <= newest);
+        if (gap.length > 0) {
+          buffer.push(...gap);
+          sortNext = true;
+          flushBuffer();
+        }
+      }
+      if (logs.length === 0) return;
       messages.value = [...logs, ...messages.value];
       decorateWithAlerts();
     });
@@ -227,15 +265,17 @@ function useLogStream(url: Ref<string>, container?: Ref<Container>) {
 
     es.onmessage = (e) => {
       if (e.data) {
-        buffer.push(parseMessage(e.data));
+        const entry = parseMessage(e.data);
+        if (resuming && !resuming(entry)) return;
+        buffer.push(entry);
         flushBuffer();
       }
     };
     es.onerror = () => {
       error.value = true;
-      // CLOSED means the browser has stopped retrying, so the log view would sit empty
-      // until a manual reload. Reconnecting drops and refetches rather than resuming,
-      // since the backfill the server replays would otherwise duplicate what is on screen.
+      // The browser may retry on its own (CONNECTING), and that stream replays the tail
+      // too. When it has given up (CLOSED), useSseReconnect opens a new one.
+      if (messages.value.length > 0 || buffer.length > 0) markResuming();
       reconnect.onError();
     };
     es.onopen = () => {

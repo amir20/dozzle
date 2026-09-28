@@ -17,7 +17,7 @@ import { Level, type LogEntry } from "@/models/LogEntry";
 
 vi.mock("@/stores/config", () => ({
   __esModule: true,
-  default: { base: "", maxLogs: 400, hosts: [{ name: "localhost", id: "localhost" }] },
+  default: { base: "", maxLogs: 400, authProvider: "none", hosts: [{ name: "localhost", id: "localhost" }] },
   withBase: (path: string) => path,
 }));
 
@@ -217,6 +217,102 @@ describe("<ContainerEventSource />", () => {
     const messages: LogEntry<string>[] = wrapper.vm.messages;
     expect(messages).toHaveLength(opening + 1);
     expect(messages.at(-1)?.message).toBe("line 501");
+  });
+
+  test("keeps the view across a reconnect and drops the replayed tail", async () => {
+    const wrapper = createLogEventSource();
+    sources[sourceUrl].emitOpen();
+    const emit = (id: number) =>
+      sources[sourceUrl].emitMessage({
+        data: `{"ts":${1560336942459 + id}, "m":"line ${id}", "id":${id}, "rm": "line ${id}", "c": "abc"}`,
+      });
+
+    for (let id = 1; id <= 5; id++) emit(id);
+    await vi.advanceTimersByTimeAsync(200);
+    // @ts-ignore
+    const before: LogEntry<string>[] = wrapper.vm.messages;
+
+    // the mock has no static readyState constants
+    Object.assign(EventSource, { CONNECTING: 0, OPEN: 1, CLOSED: 2 });
+    const dropped = sources[sourceUrl];
+    dropped.readyState = 2;
+    dropped.emitError();
+    await vi.advanceTimersByTimeAsync(2000);
+    expect(sources[sourceUrl]).not.toBe(dropped);
+
+    sources[sourceUrl].emitOpen();
+    for (let id = 3; id <= 7; id++) emit(id);
+    await vi.advanceTimersByTimeAsync(1100);
+
+    // @ts-ignore
+    const after: LogEntry<string>[] = wrapper.vm.messages;
+    expect(after.slice(0, before.length)).toEqual(before);
+    expect(after.slice(before.length).map((m) => m.message)).toEqual(["line 6", "line 7"]);
+
+    // one container's stdout and stderr can be stamped out of delivery order, and a
+    // resume must not start sorting them
+    sources[sourceUrl].emitMessage({
+      data: `{"ts":${1560336942459 + 20}, "m":"line 20", "id":20, "rm": "line 20", "c": "abc"}`,
+    });
+    sources[sourceUrl].emitMessage({
+      data: `{"ts":${1560336942459 + 15}, "m":"line 15", "id":15, "rm": "line 15", "c": "abc"}`,
+    });
+    await vi.advanceTimersByTimeAsync(1100);
+    // @ts-ignore
+    expect(wrapper.vm.messages.slice(-2).map((m: LogEntry<string>) => m.message)).toEqual(["line 20", "line 15"]);
+    wrapper.unmount();
+  });
+
+  test("keeps lines buffered before the first flush when the stream drops", async () => {
+    const wrapper = createLogEventSource();
+    sources[sourceUrl].emitOpen();
+    const emit = (id: number) =>
+      sources[sourceUrl].emitMessage({
+        data: `{"ts":${1560336942459 + id}, "m":"line ${id}", "id":${id}, "rm": "line ${id}", "c": "abc"}`,
+      });
+
+    for (let id = 1; id <= 3; id++) emit(id);
+    // the browser retries on its own: same source, still CONNECTING
+    sources[sourceUrl].readyState = 0;
+    sources[sourceUrl].emitError();
+    sources[sourceUrl].emitOpen();
+    for (let id = 1; id <= 4; id++) emit(id);
+    await vi.advanceTimersByTimeAsync(1100);
+
+    // @ts-ignore
+    const messages: LogEntry<string>[] = wrapper.vm.messages;
+    expect(messages.slice(1).map((m) => m.message)).toEqual(["line 1", "line 2", "line 3", "line 4"]);
+    wrapper.unmount();
+  });
+
+  test("puts matches from the gap after a resumed search, not above the view", async () => {
+    const wrapper = createLogEventSource({ searchFilter: "line" });
+    // the applied filter trails the typed one by a debounce
+    await vi.advanceTimersByTimeAsync(1000);
+    const url = Object.keys(sources).find((k) => k.includes("filter=line"))!;
+    const event = (id: number) => ({
+      ts: 1560336942459 + id,
+      m: `line ${id}`,
+      id,
+      rm: `line ${id}`,
+      c: "abc",
+    });
+    sources[url].emitOpen();
+    sources[url].emit("logs-backfill", { data: JSON.stringify([event(1), event(2)]) });
+    await vi.advanceTimersByTimeAsync(1100);
+
+    sources[url].readyState = 0;
+    sources[url].emitError();
+    sources[url].emitOpen();
+    sources[url].emit("logs-backfill", { data: JSON.stringify([event(0), event(2), event(3), event(4)]) });
+    await vi.advanceTimersByTimeAsync(1100);
+
+    // @ts-ignore
+    const messages: LogEntry<string>[] = wrapper.vm.messages;
+    expect(messages.map((m) => m.message)).toEqual(["line 0", "line 1", "line 2", "line 3", "line 4"]);
+    search.searchQueryFilter.value = "";
+    search.showSearch.value = false;
+    wrapper.unmount();
   });
 
   describe("live bar", () => {
