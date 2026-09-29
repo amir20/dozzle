@@ -98,7 +98,7 @@
     "@playwright/test": "^1.63.0",
     "@types/lodash.debounce": "^4.0.9",
     "@types/node": "^26.6.3",
-    "@typescript-eslint/parser": "^8.70.1",
+    "@typescript-eslint/parser": "^8.71.0",
     "@vitejs/plugin-vue": "6.0.9",
     "@vue/compiler-sfc": "^3.5.43",
     "@vue/test-utils": "^2.5.1",
