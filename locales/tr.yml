@@ -64,7 +64,9 @@ log-details:
   field: Alan
   value: Değer
   fields-hint: Yeniden sıralamak için sürükleyin. Günlük akışında göstermek veya gizlemek için değiştirin.
+  chart-field: "{field} alanını SQL Analitiği'nde grafikle göster"
   toggle-all: Tüm alanları değiştir
+  toggle-field: Günlük akışında göster veya gizle
 label:
   hide-sidebar: "Kenar çubuğunu gizle"
   show-sidebar: "Kenar çubuğunu göster"
@@ -331,6 +333,9 @@ analytics:
   query: Sorgu
   run: Çalıştır
   results: Sonuçlar
+  min: Min
+  avg: Ort
+  max: Maks
 updates:
   title: Güncellemeler
   count: 1 güncelleme | {count} güncelleme

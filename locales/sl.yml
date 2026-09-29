@@ -64,7 +64,9 @@ log-details:
   field: Polje
   value: Vrednost
   fields-hint: Povlecite za spremembo vrstnega reda. Preklopite za prikaz ali skritje v toku dnevnikov.
+  chart-field: "Prikaži {field} v grafu v analitiki SQL"
   toggle-all: Preklopi vsa polja
+  toggle-field: Prikaži ali skrij v toku dnevnikov
 label:
   hide-sidebar: "Skrij stransko vrstico"
   show-sidebar: "Prikaži stransko vrstico"
@@ -333,6 +335,9 @@ analytics:
   query: Poizvedba
   run: Zaženi
   results: Rezultati
+  min: Min
+  avg: Povp
+  max: Maks
 updates:
   title: Posodobitve
   count: 1 posodobitev | {count} posodobitev

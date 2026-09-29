@@ -64,7 +64,9 @@ log-details:
   field: Feld
   value: Wert
   fields-hint: Zum Umsortieren ziehen. Umschalten, um sie im Log-Stream ein- oder auszublenden.
+  chart-field: "{field} in der SQL-Analyse als Diagramm anzeigen"
   toggle-all: Alle Felder umschalten
+  toggle-field: Im Log-Stream ein- oder ausblenden
 label:
   hide-sidebar: "Seitenleiste ausblenden"
   show-sidebar: "Seitenleiste einblenden"
@@ -328,6 +330,9 @@ analytics:
   query: Abfrage
   run: Ausführen
   results: Ergebnisse
+  min: Min
+  avg: Ø
+  max: Max
 updates:
   title: Updates
   count: 1 Update | {count} Updates

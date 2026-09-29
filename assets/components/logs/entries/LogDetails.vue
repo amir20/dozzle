@@ -59,47 +59,77 @@
         <div class="field-label">{{ $t("log-details.fields") }}</div>
         <p class="text-base-content/45 text-xs">{{ $t("log-details.fields-hint") }}</p>
       </div>
-      <table class="w-full table-fixed border-collapse text-sm">
-        <thead>
-          <tr class="border-base-content/15 border-b">
-            <th class="field-label w-1/3 pb-1.5 text-left">{{ $t("log-details.field") }}</th>
-            <th class="field-label pb-1.5 text-left max-md:hidden">{{ $t("log-details.value") }}</th>
-            <th class="w-14 pb-1.5 text-right">
-              <input
-                type="checkbox"
-                class="toggle toggle-primary toggle-xs align-middle"
-                v-model="toggleAllFields"
-                :title="$t('log-details.toggle-all')"
-              />
-            </th>
-          </tr>
-        </thead>
-        <tbody ref="list">
-          <tr v-for="{ key, value, enabled } in fields" :key="key.join('.')" class="field-row">
-            <td class="cursor-move py-1.5 pr-3 font-mono break-all">
-              <mdi:drag-vertical class="drag-handle -ml-1 inline size-4 align-middle" />
-              <span :class="{ 'opacity-40': !enabled }">{{ key.join(".") }}</span>
-            </td>
-            <td class="text-base-content/65 truncate py-1.5 pr-3 font-mono max-md:hidden">
-              <code :title="JSON.stringify(value)">{{ JSON.stringify(value) }}</code>
-            </td>
-            <td class="py-1.5 text-right">
-              <input
-                type="checkbox"
-                class="toggle toggle-primary toggle-xs align-middle"
-                :checked="enabled"
-                @change="toggleField(key)"
-              />
-            </td>
-          </tr>
-        </tbody>
-      </table>
+      <!-- One neutral panel, like every other grouped surface. Values keep the Raw
+           JSON colors above so a number reads as a number at a glance, and the
+           chart action sits on the number it charts rather than in a column of
+           identical icons at the far edge. -->
+      <div class="border-base-content/15 bg-base-200/40 overflow-hidden rounded-lg border">
+        <table class="w-full table-fixed border-collapse text-sm">
+          <thead>
+            <tr class="border-base-content/10 border-b">
+              <th class="field-label w-1/3 py-2 pr-3 pl-4 text-left">{{ $t("log-details.field") }}</th>
+              <th class="field-label py-2 pr-3 text-left max-md:hidden">{{ $t("log-details.value") }}</th>
+              <th class="w-12 py-1 pr-2 text-right">
+                <button
+                  class="icon-btn text-base-content/50 hover:text-base-content outline-hidden"
+                  :title="$t('log-details.toggle-all')"
+                  @click="toggleAllFields = !toggleAllFields"
+                >
+                  <mdi:eye-outline class="size-4" v-if="toggleAllFields" />
+                  <mdi:eye-off-outline class="size-4" v-else />
+                </button>
+              </th>
+            </tr>
+          </thead>
+          <tbody ref="list">
+            <tr
+              v-for="{ key, value, enabled } in fields"
+              :key="key.join('.')"
+              class="field-row"
+              :class="{ 'field-hidden': !enabled }"
+            >
+              <td class="relative cursor-move py-2 pr-3 pl-4 font-mono break-all">
+                <mdi:drag-vertical class="drag-handle absolute top-1/2 left-0 size-4 -translate-y-1/2" />
+                <span class="field-dim">{{ key.join(".") }}</span>
+              </td>
+              <td class="py-2 pr-3 font-mono">
+                <div class="flex min-w-0 items-center gap-2">
+                  <span class="field-dim min-w-0 truncate max-md:hidden" :title="JSON.stringify(value)">
+                    <JsonFormatted :value="value" :block="false" />
+                  </span>
+                  <button
+                    v-if="isChartable(value) && container"
+                    class="chart-btn"
+                    :title="$t('log-details.chart-field', { field: key.join('.') })"
+                    @click="chartField(key)"
+                  >
+                    <ph:chart-line-up class="size-3.5" />
+                  </button>
+                </div>
+              </td>
+              <td class="py-1 pr-2 text-right">
+                <button
+                  class="icon-btn outline-hidden"
+                  :class="enabled ? 'text-base-content/60 hover:text-base-content' : 'text-base-content/30'"
+                  :title="$t('log-details.toggle-field')"
+                  @click="toggleField(key)"
+                >
+                  <mdi:eye-outline class="size-4" v-if="enabled" />
+                  <mdi:eye-off-outline class="size-4" v-else />
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
     </section>
   </div>
 </template>
 
 <script setup lang="ts">
 import { ComplexLogEntry } from "@/models/LogEntry";
+import LogAnalytics from "@/components/logs/LogAnalytics.vue";
+import { numericFieldQuery } from "@/utils/sql";
 
 const { entry } = defineProps<{ entry: ComplexLogEntry }>();
 const { copy, copied } = useCopy();
@@ -109,6 +139,15 @@ const container = currentContainer(toRef(() => entry.containerID));
 const visibleKeys = persistentVisibleKeysForContainer(container);
 const { hosts } = useHosts();
 const hostName = computed(() => (container.value ? hosts.value[container.value.host]?.name : undefined));
+
+const showDrawer = useDrawer();
+
+const isChartable = (value: unknown) => typeof value === "number" && Number.isFinite(value);
+
+function chartField(key: string[]) {
+  if (!container.value) return;
+  showDrawer(LogAnalytics, { container: container.value, initialQuery: numericFieldQuery(key) }, "lg");
+}
 
 const { useSortable } = await import("@vueuse/integrations/useSortable");
 
@@ -240,7 +279,20 @@ useSortable(list, fields);
   @apply text-base-content/40 opacity-0 transition-opacity;
 }
 .field-row {
-  @apply border-base-content/10 border-b transition-colors;
+  @apply border-base-content/10 border-b transition-colors last:border-b-0;
+}
+/* A field hidden from the stream stays listed so it can be turned back on,
+   but reads as off: dimmed, not struck through. */
+.field-hidden .field-dim {
+  @apply opacity-35;
+}
+/* Quiet until the row is pointed at, then it lifts to primary: the one thing
+   a numeric row offers beyond show/hide. */
+.chart-btn {
+  @apply text-base-content/35 hover:bg-primary/10 hover:text-primary shrink-0 rounded p-1 transition-colors;
+}
+.field-row:hover .chart-btn {
+  @apply text-primary;
 }
 .field-row:hover {
   background-color: color-mix(in oklab, var(--color-base-content) 6%, transparent);

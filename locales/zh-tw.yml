@@ -64,7 +64,9 @@ log-details:
   field: 欄位
   value: 值
   fields-hint: 拖曳可重新排序。切換可在日誌串流中顯示或隱藏。
+  chart-field: "在 SQL 分析中以圖表顯示 {field}"
   toggle-all: 切換所有欄位
+  toggle-field: 在日誌串流中顯示或隱藏
 label:
   hide-sidebar: "隱藏側邊欄"
   show-sidebar: "顯示側邊欄"
@@ -330,6 +332,9 @@ analytics:
   query: 查詢
   run: 執行
   results: 結果
+  min: 最小
+  avg: 平均
+  max: 最大
 updates:
   title: 更新
   count: 1 個更新 | {count} 個更新

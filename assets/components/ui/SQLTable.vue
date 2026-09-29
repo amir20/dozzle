@@ -6,7 +6,7 @@
           <th
             v-for="column in columns"
             :key="column"
-            class="bg-base-100 border-base-content/15 text-base-content/50 sticky top-0 z-10 border-b px-3 py-2 text-left font-mono text-xs font-medium whitespace-nowrap"
+            class="border-base-content/15 text-base-content/50 border-b px-3 py-2 text-left font-mono text-xs font-medium whitespace-nowrap"
           >
             {{ column }}
           </th>

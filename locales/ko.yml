@@ -64,7 +64,9 @@ log-details:
   field: 필드
   value: 값
   fields-hint: 드래그하여 순서를 바꾸세요. 토글하여 로그 스트림에서 표시하거나 숨깁니다.
+  chart-field: "SQL 분석에서 {field} 차트 보기"
   toggle-all: 모든 필드 토글
+  toggle-field: 로그 스트림에서 표시 또는 숨기기
 label:
   hide-sidebar: "사이드바 숨기기"
   show-sidebar: "사이드바 표시"
@@ -330,6 +332,9 @@ analytics:
   query: 쿼리
   run: 실행
   results: 결과
+  min: 최소
+  avg: 평균
+  max: 최대
 updates:
   title: 업데이트
   count: 업데이트 1개 | 업데이트 {count}개

@@ -64,7 +64,9 @@ log-details:
   field: Field
   value: Value
   fields-hint: Drag to reorder. Toggle to show or hide in the log stream.
+  chart-field: "Chart {field} in SQL Analytics"
   toggle-all: Toggle all fields
+  toggle-field: Show or hide in the log stream
 label:
   hide-sidebar: "Hide the sidebar"
   show-sidebar: "Show the sidebar"
@@ -437,6 +439,9 @@ analytics:
   query: Query
   run: Run
   results: Results
+  min: Min
+  avg: Avg
+  max: Max
 updates:
   title: Updates
   count: 1 update | {count} updates
