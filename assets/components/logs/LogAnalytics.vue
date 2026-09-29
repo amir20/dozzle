@@ -71,12 +71,9 @@
         <div class="field-label shrink-0">{{ $t("analytics.results") }}</div>
 
         <p class="text-base-content/45 min-w-0 truncate text-xs">
-          <span class="inline-flex items-center gap-2" v-if="state === 'initializing'">
+          <template v-if="state === 'loading'"></template>
+          <span class="inline-flex items-center gap-2" v-else-if="state === 'initializing'">
             <span class="loading loading-spinner loading-xs"></span>{{ $t("analytics.creating_table") }}
-          </span>
-          <span class="inline-flex items-center gap-2" v-else-if="state === 'downloading'">
-            <span class="loading loading-spinner loading-xs"></span
-            >{{ $t("analytics.downloading", { size: formatBytes(bytes, { decimals: 1 }) }) }}
           </span>
           <span class="inline-flex items-center gap-2" v-else-if="evaluating">
             <span class="loading loading-spinner loading-xs"></span>{{ $t("analytics.evaluating_query") }}
@@ -121,7 +118,31 @@
       <!-- No height cap: the drawer is the one scroller, and a capped box inside it
            trapped the wheel halfway down the page. -->
       <div class="border-base-content/10 overflow-hidden rounded-md border">
-        <SQLTable :table="page" :loading="evaluating || state !== 'ready'" />
+        <!-- The engine is ~5 MB on first open and cached after, so the one slow wait
+             gets a real bar instead of a spinner. The logs have no known length. -->
+        <div v-if="state === 'loading' && !error" class="divide-base-content/10 divide-y text-sm">
+          <div class="flex flex-col gap-2 p-4">
+            <div class="flex items-baseline justify-between gap-2">
+              <span class="text-base-content/60">{{ $t("analytics.loading_engine") }}</span>
+              <span class="font-mono font-semibold">{{ Math.round(engineProgress * 100) }}%</span>
+            </div>
+            <div class="bg-base-content/10 h-1.5 w-full overflow-hidden rounded-full">
+              <div
+                class="bg-primary h-full rounded-full transition-[width] duration-500 motion-reduce:transition-none"
+                :style="{ width: `${engineProgress * 100}%` }"
+              ></div>
+            </div>
+          </div>
+          <div class="flex items-center justify-between gap-2 p-4">
+            <span class="text-base-content/60">{{ $t("analytics.fetching_logs") }}</span>
+            <span class="flex items-center gap-2 font-mono">
+              {{ formatBytes(bytes, { decimals: 1 }) }}
+              <mdi:check v-if="logsDone" class="text-success size-4" />
+              <span v-else class="loading loading-spinner loading-xs opacity-60"></span>
+            </span>
+          </div>
+        </div>
+        <SQLTable v-else :table="page" :loading="!error && (evaluating || state !== 'ready')" />
       </div>
     </section>
   </div>
@@ -129,7 +150,8 @@
 
 <script setup lang="ts">
 import { Container } from "@/models/Container";
-import { type Table } from "@apache-arrow/esnext-esm";
+import { Table } from "@apache-arrow/esnext-esm";
+import type { AsyncDuckDBConnection } from "@duckdb/duckdb-wasm";
 
 const { container, initialQuery } = defineProps<{
   container: Container;
@@ -141,8 +163,10 @@ const query = ref(initialQuery ?? defaultQuery);
 const error = ref<string | null>(null);
 const evaluating = ref(false);
 const pageLimit = 1000;
-const state = ref<"downloading" | "ready" | "initializing">("downloading");
+const state = ref<"loading" | "initializing" | "ready">("loading");
 const bytes = ref(0);
+const logsDone = ref(false);
+const engineProgress = ref(0);
 const columns = ref<{ name: string; type: string }[]>([]);
 const editorEl = ref<HTMLElement>();
 
@@ -174,41 +198,48 @@ const url = withBase(
   `/api/hosts/${container.host}/containers/${container.id}/logs?stdout=1&stderr=1&everything&jsonOnly`,
 );
 
-const [{ useDuckDB }, response] = await Promise.all([import(`@/composable/logs/duckdb`), fetch(url)]);
+// Nothing here is awaited in setup, so the drawer renders at once and shows progress
+// instead of sitting on the Suspense spinner. Both downloads start now and run side by
+// side: reading the logs only after the engine was up had left them mostly serial.
+const engine = useDuckDB((fraction) => (engineProgress.value = fraction));
+const abort = new AbortController();
+onUnmounted(() => abort.abort());
 
-if (!response.ok) {
-  console.log("error fetching logs from", url);
-  throw new Error(`Failed to fetch logs: ${response.statusText}`);
+let conn: AsyncDuckDBConnection | undefined;
+const empty = new Table<Record<string, any>>();
+
+async function fetchLogs(): Promise<Uint8Array> {
+  const response = await fetch(url, { signal: abort.signal });
+  if (!response.ok) throw new Error(`Failed to fetch logs: ${response.statusText}`);
+
+  const reader = response.body?.getReader();
+  if (!reader) throw new Error("No reader available from stream");
+
+  const chunks: Uint8Array[] = [];
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    chunks.push(value);
+    bytes.value += value.length;
+  }
+  logsDone.value = true;
+
+  const buffer = new Uint8Array(bytes.value);
+  let position = 0;
+  for (const chunk of chunks) {
+    buffer.set(chunk, position);
+    position += chunk.length;
+  }
+  return buffer;
 }
 
-const { db, conn } = await useDuckDB();
-const empty = await conn.query<Record<string, any>>(`SELECT 1 LIMIT 0`);
-
-onMounted(async () => {
+(async () => {
   try {
-    state.value = "downloading";
+    const [duck, buffer] = await Promise.all([engine, fetchLogs()]);
+    const { db } = duck;
+    conn = duck.conn;
 
-    const reader = response.body?.getReader();
-    if (!reader) throw new Error("No reader available from stream");
-
-    const chunks: Uint8Array[] = [];
-    bytes.value = 0;
-
-    while (true) {
-      const { done, value } = await reader.read();
-      if (done) break;
-      chunks.push(value);
-      bytes.value += value.length;
-    }
-
-    const arrayBuffer = new Uint8Array(bytes.value);
-    let position = 0;
-    for (const chunk of chunks) {
-      arrayBuffer.set(chunk, position);
-      position += chunk.length;
-    }
-
-    await db.registerFileBuffer("logs.json", arrayBuffer);
+    await db.registerFileBuffer("logs.json", buffer);
 
     state.value = "initializing";
     await conn.query(
@@ -223,12 +254,14 @@ onMounted(async () => {
 
     state.value = "ready";
   } catch (e) {
+    // Closing the drawer aborts the logs download; that is not an error to show.
+    if (abort.signal.aborted) return;
     console.error(e);
     if (e instanceof Error) {
       error.value = e.message;
     }
   }
-});
+})();
 
 const examples = computed(() => {
   const names = columns.value.map((c) => c.name);
@@ -266,7 +299,7 @@ function insertColumn(name: string) {
 
 const results = computedAsync(
   async () => {
-    if (state.value === "ready") {
+    if (state.value === "ready" && conn) {
       return await conn.query<Record<string, any>>(runQuery.value);
     } else {
       return empty;
@@ -284,9 +317,11 @@ const results = computedAsync(
   },
 );
 
+// Only the error: state is the loader's to set. The editor is live while the engine
+// loads, and flipping to ready from here showed an empty result before any table existed.
+// A failed load is never retried, so typing must not wipe its error.
 whenever(evaluating, () => {
-  error.value = null;
-  state.value = "ready";
+  if (state.value === "ready") error.value = null;
 });
 // Stats and chart cover every row the query returned, not just the page the table shows.
 const resultTable = results as unknown as Ref<Table<Record<string, any>>>;

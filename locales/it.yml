@@ -313,7 +313,8 @@ toasts:
     message: Log copiato nella clipboard
 analytics:
   creating_table: Creazione tabella temporanea...
-  downloading: Recupero dei log dei container... ({size})
+  fetching_logs: Recupero dei log dei container
+  loading_engine: Caricamento del motore SQL
   evaluating_query: Valutazione della query...
   total_records: Totale {count} record.
   showing_first: Mostrati i primi {count}.

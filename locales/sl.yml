@@ -317,7 +317,8 @@ toasts:
     title: Kopirano
     message: Kopirano v odložišče
 analytics:
-  downloading: Pridobivanje dnevnikov zabojnika... ({size})
+  fetching_logs: Pridobivanje dnevnikov zabojnika
+  loading_engine: Nalaganje mehanizma SQL
   evaluating_query: Ocenjevanje poizvedbe...
   total_records: Skupaj zapisov {count}.
   showing_first: Prikaz prvih {count}.

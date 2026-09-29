@@ -1,3 +1,4 @@
+import { statSync } from "node:fs";
 import path from "node:path";
 import { defineConfig } from "vite";
 import Vue from "@vitejs/plugin-vue";
@@ -17,6 +18,10 @@ export default defineConfig(() => ({
   define: {
     // No component uses the options API, so drop that half of the Vue runtime.
     __VUE_OPTIONS_API__: false,
+    // useDuckDB's progress bar needs the decoded size; the response only carries the brotli one.
+    __DUCKDB_WASM_SIZE__: statSync(
+      path.resolve(import.meta.dirname, "node_modules/@duckdb/duckdb-wasm/dist/duckdb-eh.wasm"),
+    ).size,
   },
   resolve: {
     alias: {

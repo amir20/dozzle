@@ -325,7 +325,8 @@ toasts:
 
 analytics:
   creating_table: Membuat tabel sementara...
-  downloading: Mengambil log kontainer... ({size})
+  fetching_logs: Mengambil log kontainer
+  loading_engine: Memuat mesin SQL
   evaluating_query: Mengevaluasi kueri...
   total_records: Total {count} entri.
   showing_first: Menampilkan {count} pertama.

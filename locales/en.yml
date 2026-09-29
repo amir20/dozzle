@@ -423,7 +423,8 @@ toasts:
 analytics:
   title: SQL Analytics
   creating_table: Creating temporary table...
-  downloading: Fetching container logs... ({size})
+  fetching_logs: Fetching container logs
+  loading_engine: Loading SQL engine
   evaluating_query: Evaluating query...
   total_records: Total {count} records.
   showing_first: Showing first {count}.

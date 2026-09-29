@@ -15,6 +15,8 @@ var compressedTypes = map[string]string{
 	".svg":  "image/svg+xml",
 	".json": "application/json",
 	".map":  "application/json",
+	// WebAssembly.instantiateStreaming rejects any other type.
+	".wasm": "application/wasm",
 }
 
 func acceptsBrotli(r *http.Request) bool {
