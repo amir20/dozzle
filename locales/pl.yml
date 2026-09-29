@@ -336,6 +336,9 @@ analytics:
   min: Min
   avg: Śr
   max: Maks
+  p50: P50
+  p95: P95
+  rows: 1 wiersz | {count} wierszy
 updates:
   title: Aktualizacje
   count: 1 aktualizacja | {count} aktualizacji
