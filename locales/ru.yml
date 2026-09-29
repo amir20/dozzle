@@ -64,7 +64,9 @@ log-details:
   field: Поле
   value: Значение
   fields-hint: Перетащите, чтобы изменить порядок. Переключите, чтобы показать или скрыть в потоке логов.
+  chart-field: "Построить график {field} в SQL-аналитике"
   toggle-all: Переключить все поля
+  toggle-field: Показать или скрыть в потоке логов
 label:
   hide-sidebar: "Скрыть боковую панель"
   show-sidebar: "Показать боковую панель"
@@ -328,6 +330,9 @@ analytics:
   query: Запрос
   run: Выполнить
   results: Результаты
+  min: Мин
+  avg: Сред
+  max: Макс
 updates:
   title: Обновления
   count: 1 обновление | {count} обновлений

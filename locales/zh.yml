@@ -64,7 +64,9 @@ log-details:
   field: 字段
   value: 值
   fields-hint: 拖动可重新排序。切换可在日志流中显示或隐藏。
+  chart-field: "在 SQL 分析中以图表显示 {field}"
   toggle-all: 切换所有字段
+  toggle-field: 在日志流中显示或隐藏
 label:
   hide-sidebar: "隐藏侧边栏"
   show-sidebar: "显示侧边栏"
@@ -328,6 +330,9 @@ analytics:
   query: 查询
   run: 运行
   results: 结果
+  min: 最小
+  avg: 平均
+  max: 最大
 updates:
   title: 更新
   count: 1 个更新 | {count} 个更新

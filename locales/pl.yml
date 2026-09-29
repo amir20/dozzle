@@ -64,7 +64,9 @@ log-details:
   field: Pole
   value: Wartość
   fields-hint: Przeciągnij, aby zmienić kolejność. Przełącz, aby pokazać lub ukryć w strumieniu logów.
+  chart-field: "Pokaż wykres {field} w analizie SQL"
   toggle-all: Przełącz wszystkie pola
+  toggle-field: Pokaż lub ukryj w strumieniu logów
 label:
   hide-sidebar: "Ukryj pasek boczny"
   show-sidebar: "Pokaż pasek boczny"
@@ -330,6 +332,9 @@ analytics:
   query: Zapytanie
   run: Uruchom
   results: Wyniki
+  min: Min
+  avg: Śr
+  max: Maks
 updates:
   title: Aktualizacje
   count: 1 aktualizacja | {count} aktualizacji

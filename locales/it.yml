@@ -64,7 +64,9 @@ log-details:
   field: Campo
   value: Valore
   fields-hint: Trascina per riordinare. Attiva o disattiva per mostrarli o nasconderli nel flusso dei log.
+  chart-field: "Mostra {field} in un grafico in Analisi SQL"
   toggle-all: Attiva o disattiva tutti i campi
+  toggle-field: Mostra o nascondi nel flusso dei log
 label:
   hide-sidebar: "Nascondi la barra laterale"
   show-sidebar: "Mostra la barra laterale"
@@ -328,6 +330,9 @@ analytics:
   query: Query
   run: Esegui
   results: Risultati
+  min: Min
+  avg: Media
+  max: Max
 updates:
   title: Aggiornamenti
   count: 1 aggiornamento | {count} aggiornamenti

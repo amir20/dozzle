@@ -64,7 +64,9 @@ log-details:
   field: Veld
   value: Waarde
   fields-hint: Sleep om te herordenen. Schakel in of uit om ze in de logstroom te tonen of te verbergen.
+  chart-field: "{field} als grafiek tonen in SQL-analyse"
   toggle-all: Alle velden omschakelen
+  toggle-field: Tonen of verbergen in de logstroom
 label:
   hide-sidebar: "Zijbalk verbergen"
   show-sidebar: "Zijbalk tonen"
@@ -329,6 +331,9 @@ analytics:
   query: Query
   run: Uitvoeren
   results: Resultaten
+  min: Min
+  avg: Gem
+  max: Max
 updates:
   title: Updates
   count: 1 update | {count} updates

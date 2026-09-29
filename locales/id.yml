@@ -65,7 +65,9 @@ log-details:
   field: Bidang
   value: Nilai
   fields-hint: Seret untuk mengurutkan ulang. Alihkan untuk menampilkan atau menyembunyikan di aliran log.
+  chart-field: "Buat grafik {field} di Analitik SQL"
   toggle-all: Alihkan semua bidang
+  toggle-field: Tampilkan atau sembunyikan di aliran log
 label:
   hide-sidebar: "Sembunyikan bilah sisi"
   show-sidebar: "Tampilkan bilah sisi"
@@ -340,6 +342,9 @@ analytics:
   query: Kueri
   run: Jalankan
   results: Hasil
+  min: Min
+  avg: Rata-rata
+  max: Maks
 updates:
   title: Pembaruan
   count: 1 pembaruan | {count} pembaruan

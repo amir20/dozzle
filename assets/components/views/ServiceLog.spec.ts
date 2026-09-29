@@ -124,7 +124,7 @@ describe("service log field settings", () => {
       await vi.waitFor(() => expect(wrapper.find("tbody .field-row").exists()).toBe(true));
       const row = wrapper.findAll("tbody .field-row").find((row) => row.find("td span").text() === key);
       expect(row, `field ${key}`).toBeDefined();
-      await row!.find("input").setValue(false);
+      await row!.find("td:last-child button").trigger("click");
       await nextTick();
     };
     try {

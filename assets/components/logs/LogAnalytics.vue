@@ -116,7 +116,11 @@
         </Popover>
       </div>
 
-      <div class="border-base-content/10 max-h-160 overflow-auto rounded-md border">
+      <SQLChart :table="resultTable" v-if="state === 'ready' && !evaluating" />
+
+      <!-- No height cap: the drawer is the one scroller, and a capped box inside it
+           trapped the wheel halfway down the page. -->
+      <div class="border-base-content/10 overflow-hidden rounded-md border">
         <SQLTable :table="page" :loading="evaluating || state !== 'ready'" />
       </div>
     </section>
@@ -127,9 +131,13 @@
 import { Container } from "@/models/Container";
 import { type Table } from "@apache-arrow/esnext-esm";
 
-const { container } = defineProps<{ container: Container }>();
+const { container, initialQuery } = defineProps<{
+  container: Container;
+  // Opens with this query instead of the default, e.g. charting one field from LogDetails.
+  initialQuery?: string;
+}>();
 const defaultQuery = "SELECT * FROM logs LIMIT 100";
-const query = ref(defaultQuery);
+const query = ref(initialQuery ?? defaultQuery);
 const error = ref<string | null>(null);
 const evaluating = ref(false);
 const pageLimit = 1000;
@@ -280,6 +288,8 @@ whenever(evaluating, () => {
   error.value = null;
   state.value = "ready";
 });
+// Stats and chart cover every row the query returned, not just the page the table shows.
+const resultTable = results as unknown as Ref<Table<Record<string, any>>>;
 const page = computed(() =>
   results.value.numRows > pageLimit ? results.value.slice(0, pageLimit) : results.value,
 ) as unknown as ComputedRef<Table<Record<string, any>>>;

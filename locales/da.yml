@@ -64,7 +64,9 @@ log-details:
   field: Felt
   value: Værdi
   fields-hint: Træk for at ændre rækkefølgen. Slå til eller fra for at vise eller skjule i logstrømmen.
+  chart-field: "Vis {field} som diagram i SQL-analyse"
   toggle-all: Slå alle felter til eller fra
+  toggle-field: Vis eller skjul i logstrømmen
 label:
   hide-sidebar: "Skjul sidepanelet"
   show-sidebar: "Vis sidepanelet"
@@ -328,6 +330,9 @@ analytics:
   query: Forespørgsel
   run: Kør
   results: Resultater
+  min: Min
+  avg: Gns
+  max: Maks
 updates:
   title: Opdateringer
   count: 1 opdatering | {count} opdateringer
