@@ -67,8 +67,12 @@
         <table class="w-full table-fixed border-collapse text-sm">
           <thead>
             <tr class="border-base-content/10 border-b">
-              <th class="field-label w-1/3 py-2 pr-3 pl-4 text-left">{{ $t("log-details.field") }}</th>
-              <th class="field-label py-2 pr-3 text-left max-md:hidden">{{ $t("log-details.value") }}</th>
+              <th class="field-label py-2 pr-3 pl-4 text-left md:w-1/3">{{ $t("log-details.field") }}</th>
+              <!-- The cell stays at every width so header and rows keep the same column
+                   count; only the label goes, since the value beside it does too. -->
+              <th class="field-label py-2 pr-3 text-left max-md:w-10">
+                <span class="max-md:hidden">{{ $t("log-details.value") }}</span>
+              </th>
               <th class="w-12 py-1 pr-2 text-right">
                 <button
                   class="icon-btn text-base-content/50 hover:text-base-content outline-hidden"
@@ -95,7 +99,10 @@
               <td class="py-2 pr-3 font-mono">
                 <div class="flex min-w-0 items-center gap-2">
                   <span class="field-dim min-w-0 truncate max-md:hidden" :title="JSON.stringify(value)">
-                    <JsonFormatted :value="value" :block="false" />
+                    <!-- A string is shown as the string it is: JsonFormatted would parse
+                         "{\"id\":1}" into an object and disagree with the Raw JSON above. -->
+                    <span v-if="typeof value === 'string'" class="text-green">{{ JSON.stringify(value) }}</span>
+                    <JsonFormatted v-else :value="value" :block="false" />
                   </span>
                   <button
                     v-if="isChartable(value) && container"

@@ -58,46 +58,72 @@ const { t } = useI18n();
 const hovered = reactive<Record<string, number>>({});
 const chartKey = ref(0);
 
+// Enough for the widest drawer: BarChart averages down to what fits anyway, so
+// handing it more only costs memory and a longer re-bucket.
+const MAX_POINTS = 1000;
+
 // A chart only when every column is a number: the moment a text column rides
 // along, the result is a listing, and bars beside it would say nothing.
+// DECIMAL never reaches here as such: useDuckDB casts it to DOUBLE.
 const series = computed<Series[]>(() => {
   const fields = table.schema.fields;
   if (table.numRows < 2 || fields.length === 0) return [];
-  if (!fields.every((f) => DataType.isInt(f.type) || DataType.isFloat(f.type) || DataType.isDecimal(f.type))) {
-    return [];
+  if (!fields.every((f) => DataType.isInt(f.type) || DataType.isFloat(f.type))) return [];
+
+  return fields.map((field) => summarize(field.name)).filter((s): s is Series => s !== null);
+});
+
+// One pass per column: stats over every row, points pre-averaged into at most
+// MAX_POINTS buckets so a large result never lands in BarChart whole.
+function summarize(name: string): Series | null {
+  const column = table.getChild(name)!;
+  const bucketSize = Math.max(1, Math.ceil(column.length / MAX_POINTS));
+
+  let count = 0;
+  let min = Infinity;
+  let max = -Infinity;
+  let sum = 0;
+  const averages: number[] = [];
+  let bucketSum = 0;
+  let bucketCount = 0;
+
+  let index = 0;
+  for (const raw of column) {
+    if (raw !== null && raw !== undefined) {
+      const value = Number(raw);
+      if (Number.isFinite(value)) {
+        count++;
+        sum += value;
+        if (value < min) min = value;
+        if (value > max) max = value;
+        bucketSum += value;
+        bucketCount++;
+      }
+    }
+    index++;
+    if (index % bucketSize === 0 || index === column.length) {
+      if (bucketCount > 0) averages.push(bucketSum / bucketCount);
+      bucketSum = 0;
+      bucketCount = 0;
+    }
   }
 
-  return fields.map((field) => {
-    const column = table.getChild(field.name)!;
-    const values: number[] = [];
-    for (const raw of column) {
-      if (raw === null || raw === undefined) continue;
-      const value = Number(raw);
-      if (Number.isFinite(value)) values.push(value);
-    }
+  // Every row NULL (say TRY_CAST over a text field): nothing was measured, and
+  // zeros for min, avg and max would claim otherwise.
+  if (count === 0) return null;
 
-    let min = Infinity;
-    let max = -Infinity;
-    let sum = 0;
-    for (const v of values) {
-      if (v < min) min = v;
-      if (v > max) max = v;
-      sum += v;
-    }
-
-    // Bars grow from zero, so a series that dips below it is lifted by its
-    // minimum. The hover still reads the real value.
-    const offset = min < 0 ? -min : 0;
-    return {
-      name: field.name,
-      points: values.map((value) => ({ value, percent: value + offset })),
-      count: values.length,
-      min: values.length ? min : 0,
-      max: values.length ? max : 0,
-      avg: values.length ? sum / values.length : 0,
-    };
-  });
-});
+  // Bars grow from zero, so a series that dips below it is lifted by its
+  // minimum. The hover still reads the real value.
+  const offset = min < 0 ? -min : 0;
+  return {
+    name,
+    points: averages.map((value) => ({ value, percent: value + offset })),
+    count,
+    min,
+    max,
+    avg: sum / count,
+  };
+}
 
 watch(
   () => table,

@@ -17,6 +17,9 @@ export async function useDuckDB() {
 
   await db.instantiate(bundle.mainModule, bundle.pthreadWorker);
   URL.revokeObjectURL(worker_url);
+  // Arrow hands DECIMAL back as an unscaled integer, so `latency_ms * 1.5` read ten
+  // times too large in both the table and the chart. Doubles are what both render.
+  await db.open({ query: { castDecimalToDouble: true } });
   const conn = await db.connect();
 
   cleanup = async () => {
