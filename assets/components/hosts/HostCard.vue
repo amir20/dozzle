@@ -156,12 +156,10 @@ const agentTooltip = computed(() =>
 
 const agentOutdated = computed(() => props.host.type === "agent" && props.host.agentVersion !== config.version);
 
-function toContainerCores(container: Container): number {
-  if (container.cpuLimit && container.cpuLimit > 0) {
-    return container.cpuLimit;
-  }
-  return props.host.nCPU ?? 1;
-}
+// Every container is divided by the host's cores, limited or not. Dividing by
+// `cpuLimit` reads as how close a container is to being throttled, which is right
+// on its own row but adds up to nonsense here: the card is a share of the host.
+const hostCores = computed(() => props.host.nCPU || 1);
 
 type TotalStat = {
   totalCPU: number;
@@ -233,9 +231,8 @@ watch(
           if (!item) {
             return acc;
           }
-          const cores = toContainerCores(container);
           return {
-            totalCPU: acc.totalCPU + item.cpu / cores,
+            totalCPU: acc.totalCPU + item.cpu / hostCores.value,
             totalMem: acc.totalMem + item.memory,
             totalMemUsage: acc.totalMemUsage + item.memoryUsage,
           };
@@ -267,9 +264,8 @@ watch(
 useIntervalFn(() => {
   totalStat.value = hostContainers.value.reduce(
     (acc, container) => {
-      const cores = toContainerCores(container);
       return {
-        totalCPU: acc.totalCPU + container.stat.cpu / cores,
+        totalCPU: acc.totalCPU + container.stat.cpu / hostCores.value,
         totalMem: acc.totalMem + container.stat.memory,
         totalMemUsage: acc.totalMemUsage + container.stat.memoryUsage,
       };
