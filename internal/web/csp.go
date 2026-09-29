@@ -4,12 +4,11 @@ import (
 	"net/http"
 )
 
-// script-src is spelled out so it does not fall back to default-src, which has to
-// allow all of cdn.jsdelivr.net for duckdb's wasm fetches. Scripts are limited to
-// the @duckdb npm scope, which only DuckDB can publish to; the worker loads its
-// bundle from there with importScripts.
-const contentSecurityPolicy = "default-src 'self' 'wasm-unsafe-eval' blob: https://cdn.jsdelivr.net https://*.duckdb.org; " +
-	"script-src 'self' 'wasm-unsafe-eval' blob: https://cdn.jsdelivr.net/npm/@duckdb/; " +
+// DuckDB's wasm, worker and extensions are all served by Dozzle, so nothing is loaded
+// from a third party. blob: covers the worker's importScripts shim, and
+// 'wasm-unsafe-eval' lets it compile the wasm.
+const contentSecurityPolicy = "default-src 'self' 'wasm-unsafe-eval' blob:; " +
+	"script-src 'self' 'wasm-unsafe-eval' blob:; " +
 	"style-src 'self' 'unsafe-inline' blob:; img-src 'self' data:; font-src 'self' data:; " +
 	"object-src 'none'; base-uri 'self';"
 

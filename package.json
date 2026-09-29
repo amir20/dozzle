@@ -16,11 +16,11 @@
   "author": "Amir Raminfar <findamir@gmail.com>",
   "scripts": {
     "agent:dev": "DEV=true air -- agent --level debug --agent-addr localhost:${AGENT_PORT:-7007}",
-    "watch:frontend": "bun --bun vite --port ${VITE_PORT:-5173} --strictPort --open http://localhost:${DOZZLE_PORT:-3100}/",
+    "watch:frontend": "bun scripts/fetch-duckdb-extensions.js && bun --bun vite --port ${VITE_PORT:-5173} --strictPort --open http://localhost:${DOZZLE_PORT:-3100}/",
     "watch:backend": "LIVE_FS=true DEV=true air -- --level debug --addr localhost:${DOZZLE_PORT:-3100}",
     "dev": "bun --bun concurrently --kill-others \"bun:watch:*\"",
     "dev:auto": "bun scripts/dev-ports.mjs bun run dev",
-    "build": "bun --bun vite build && bun scripts/compress-dist.js",
+    "build": "bun scripts/fetch-duckdb-extensions.js && bun --bun vite build && bun scripts/compress-dist.js",
     "preview": "LIVE_FS=true air -- --addr localhost:${DOZZLE_PORT:-3100}",
     "release": "bumpp",
     "lint": "bun --bun eslint .",

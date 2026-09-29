@@ -3,6 +3,7 @@ node_modules
 .idea
 .github
 dist
+public/duckdb-extensions
 .git
 e2e
 docs

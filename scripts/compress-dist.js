@@ -13,7 +13,7 @@ import { readdirSync, readFileSync, writeFileSync, unlinkSync, statSync } from "
 import { join, extname } from "node:path";
 
 const DIST = "dist";
-const COMPRESSIBLE = new Set([".js", ".css", ".svg", ".json", ".map"]);
+const COMPRESSIBLE = new Set([".js", ".css", ".svg", ".json", ".map", ".wasm"]);
 const SKIP = new Set([join(DIST, "index.html"), join(DIST, ".vite", "manifest.json")]);
 
 function* walk(dir) {
