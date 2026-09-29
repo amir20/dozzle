@@ -120,7 +120,7 @@
       <div class="border-base-content/10 overflow-hidden rounded-md border">
         <!-- The engine is ~5 MB on first open and cached after, so the one slow wait
              gets a real bar instead of a spinner. The logs have no known length. -->
-        <div v-if="state === 'loading'" class="divide-base-content/10 divide-y text-sm">
+        <div v-if="state === 'loading' && !error" class="divide-base-content/10 divide-y text-sm">
           <div class="flex flex-col gap-2 p-4">
             <div class="flex items-baseline justify-between gap-2">
               <span class="text-base-content/60">{{ $t("analytics.loading_engine") }}</span>
@@ -142,7 +142,7 @@
             </span>
           </div>
         </div>
-        <SQLTable v-else :table="page" :loading="evaluating || state !== 'ready'" />
+        <SQLTable v-else :table="page" :loading="!error && (evaluating || state !== 'ready')" />
       </div>
     </section>
   </div>
@@ -319,7 +319,10 @@ const results = computedAsync(
 
 // Only the error: state is the loader's to set. The editor is live while the engine
 // loads, and flipping to ready from here showed an empty result before any table existed.
-whenever(evaluating, () => (error.value = null));
+// A failed load is never retried, so typing must not wipe its error.
+whenever(evaluating, () => {
+  if (state.value === "ready") error.value = null;
+});
 // Stats and chart cover every row the query returned, not just the page the table shows.
 const resultTable = results as unknown as Ref<Table<Record<string, any>>>;
 const page = computed(() =>
