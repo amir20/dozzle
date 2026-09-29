@@ -8,7 +8,7 @@
 // itself rather than pinned here, where a dependency bump would silently break it.
 //
 // Only wasm_eh is fetched: useDuckDB always loads the eh bundle.
-import { existsSync, mkdirSync, readdirSync, rmSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readdirSync, renameSync, rmSync, writeFileSync } from "node:fs";
 import { createRequire } from "node:module";
 import { join } from "node:path";
 import * as duckdb from "@duckdb/duckdb-wasm/dist/duckdb-node-blocking.cjs";
@@ -44,6 +44,11 @@ for (const name of EXTENSIONS) {
   const url = `https://extensions.duckdb.org/${version}/${PLATFORM}/${name}.duckdb_extension.wasm`;
   const response = await fetch(url);
   if (!response.ok) throw new Error(`${url}: ${response.status} ${response.statusText}`);
-  writeFileSync(file, new Uint8Array(await response.arrayBuffer()));
+  // Written aside and renamed, so an interrupted build cannot leave a truncated file
+  // that the existsSync above would then trust forever. A leftover .part is simply
+  // overwritten by the next run.
+  const partial = `${file}.part`;
+  writeFileSync(partial, new Uint8Array(await response.arrayBuffer()));
+  renameSync(partial, file);
   console.log(`duckdb: fetched ${name} ${version}`);
 }
