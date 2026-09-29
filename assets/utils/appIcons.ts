@@ -145,6 +145,7 @@ const ALIASES: Record<string, string> = {
   "mastodon-streaming": "mastodon",
   "apprise-api": "apprise",
   thetorproject: "tor",
+  openlitespeed: "litespeed",
 };
 
 const stripSuffix = (name: string) => {
