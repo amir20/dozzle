@@ -314,7 +314,8 @@ toasts:
     message: Log gekopieerd naar klembord
 analytics:
   creating_table: Tijdelijke tabel wordt aangemaakt...
-  downloading: Containerlogs worden opgehaald... ({size})
+  fetching_logs: Containerlogs worden opgehaald
+  loading_engine: SQL-engine wordt geladen
   evaluating_query: Query wordt geëvalueerd...
   total_records: In totaal {count} resultaten.
   showing_first: Eerste {count} worden weergegeven.

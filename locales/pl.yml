@@ -315,7 +315,8 @@ toasts:
     message: Log skopiowany do schowka
 analytics:
   creating_table: Tworzenie tymczasowej tabeli...
-  downloading: Pobieranie logów kontenerów... ({size})
+  fetching_logs: Pobieranie logów kontenerów
+  loading_engine: Ładowanie silnika SQL
   evaluating_query: Przetwarzanie zapytania...
   total_records: Razem {count} rekordów.
   showing_first: Pokazywanie pierwszych {count}.

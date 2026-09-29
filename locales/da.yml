@@ -313,7 +313,8 @@ toasts:
     message: Log kopieret til clipboard
 analytics:
   creating_table: Opretter midlertidig tabel...
-  downloading: Henter containerlogfiler... ({size})
+  fetching_logs: Henter containerlogfiler
+  loading_engine: Indlæser SQL-motor
   evaluating_query: Evaluerer forespørgsel...
   total_records: I alt {count} poster.
   showing_first: Viser de første {count}.

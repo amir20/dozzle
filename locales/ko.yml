@@ -315,7 +315,8 @@ toasts:
     message: 로그가 클립보드에 복사되었습니다
 analytics:
   creating_table: 임시 테이블을 생성하고 있습니다...
-  downloading: 컨테이너 로그를 가져오고 있습니다... ({size})
+  fetching_logs: 컨테이너 로그를 가져오는 중
+  loading_engine: SQL 엔진을 불러오는 중
   evaluating_query: 쿼리를 실행하고 있습니다...
   total_records: 총 {count}개 기록
   showing_first: 처음 {count}개 표시

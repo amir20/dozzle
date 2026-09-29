@@ -414,7 +414,8 @@ toasts:
     message: Registro copiado al portapapeles
 analytics:
   creating_table: Creando tabla temporal...
-  downloading: Obteniendo registros de contenedores... ({size})
+  fetching_logs: Obteniendo registros de contenedores
+  loading_engine: Cargando motor SQL
   evaluating_query: Evaluando consulta...
   total_records: Total {count} registros.
   showing_first: Mostrando los primeros {count}.

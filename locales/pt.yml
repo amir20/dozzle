@@ -313,7 +313,8 @@ toasts:
     message: Log copiado para a área de transferência
 analytics:
   creating_table: Criando tabela temporária...
-  downloading: Buscando logs dos containers... ({size})
+  fetching_logs: Buscando logs dos containers
+  loading_engine: Carregando mecanismo SQL
   evaluating_query: Avaliando consulta...
   total_records: Total de {count} registros.
   showing_first: Mostrando os primeiros {count}.

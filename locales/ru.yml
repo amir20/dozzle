@@ -313,7 +313,8 @@ toasts:
     message: Лог скопирован в буфер обмена
 analytics:
   creating_table: Создание временной таблицы...
-  downloading: Получение логов контейнеров... ({size})
+  fetching_logs: Получение логов контейнеров
+  loading_engine: Загрузка SQL-движка
   evaluating_query: Выполнение запроса...
   total_records: Всего {count} записей.
   showing_first: Показаны первые {count}.

@@ -316,7 +316,8 @@ toasts:
     message: Günlük panoya kopyalandı
 analytics:
   creating_table: Geçici tablo oluşturuluyor...
-  downloading: Konteyner günlükleri alınıyor... ({size})
+  fetching_logs: Konteyner günlükleri alınıyor
+  loading_engine: SQL motoru yükleniyor
   evaluating_query: Sorgu değerlendiriliyor...
   total_records: Toplam {count} kayıt.
   showing_first: İlk {count} gösteriliyor.
