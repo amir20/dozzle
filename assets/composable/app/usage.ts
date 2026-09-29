@@ -19,6 +19,7 @@ export type UsageKey =
   | "wizard.skip.update"
   | "cloud.welcome"
   | "cloud.connect"
+  | "cloud.chat"
   | "stream.reconnect";
 
 export const USAGE_FLUSH_INTERVAL = 5 * 60 * 1000;

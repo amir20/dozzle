@@ -129,7 +129,10 @@ watch(
 );
 
 // Arriving from a log row's menu means the question is already half asked.
-onMounted(() => composer.value?.focus());
+onMounted(() => {
+  trackUsage("cloud.chat");
+  composer.value?.focus();
+});
 watch(focused, (line) => line && composer.value?.focus());
 
 function send() {
