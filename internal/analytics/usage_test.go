@@ -36,6 +36,18 @@ func TestUsageIgnoresUnknownKeysAndBadLocales(t *testing.T) {
 	assert.Equal(t, map[string]int{"en": 1, "zh-TW": 1}, s.Locales)
 }
 
+// A browser key missing from UsageKeys is accepted by POST /api/usage and then
+// dropped by Add, so it would never reach the beacon and nothing would say so.
+func TestBrowserUsageKeysAreCounted(t *testing.T) {
+	u := NewUsage()
+	want := map[string]int{}
+	for key := range BrowserUsageKeys {
+		u.Add(key, 1)
+		want[key] = 1
+	}
+	assert.Equal(t, want, u.Take().Counts)
+}
+
 func TestUsageLocalesAreBounded(t *testing.T) {
 	u := NewUsage()
 	for i := range 100 {

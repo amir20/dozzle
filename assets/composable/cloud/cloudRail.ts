@@ -20,6 +20,9 @@ const panel = ref<RailPanel>();
 const lastPanel = ref<RailPanel>("chat");
 watch(panel, (next) => {
   if (next) lastPanel.value = next;
+  // Counted on the change, not on ChatPane mounting: the rail remounts with chat
+  // still open when navigation leaves and returns to a log view.
+  if (next === "chat") trackUsage("cloud.chat");
 });
 
 /** The icon strip's width. Shared with the layout, which pads the page by it so
