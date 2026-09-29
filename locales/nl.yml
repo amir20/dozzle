@@ -334,6 +334,9 @@ analytics:
   min: Min
   avg: Gem
   max: Max
+  p50: P50
+  p95: P95
+  rows: 1 rij | {count} rijen
 updates:
   title: Updates
   count: 1 update | {count} updates

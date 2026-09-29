@@ -87,6 +87,7 @@ declare module 'vue' {
     GroupedLog: typeof import('./components/views/GroupedLog.vue')['default']
     GroupedLogItem: typeof import('./components/logs/entries/GroupedLogItem.vue')['default']
     GroupMenu: typeof import('./components/nav/GroupMenu.vue')['default']
+    Histogram: typeof import('./components/ui/Histogram.vue')['default']
     HistoricalContainerLog: typeof import('./components/views/HistoricalContainerLog.vue')['default']
     HostCard: typeof import('./components/hosts/HostCard.vue')['default']
     HostGroupLog: typeof import('./components/views/HostGroupLog.vue')['default']

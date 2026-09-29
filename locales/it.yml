@@ -333,6 +333,9 @@ analytics:
   min: Min
   avg: Media
   max: Max
+  p50: P50
+  p95: P95
+  rows: 1 riga | {count} righe
 updates:
   title: Aggiornamenti
   count: 1 aggiornamento | {count} aggiornamenti

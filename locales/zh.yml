@@ -333,6 +333,9 @@ analytics:
   min: 最小
   avg: 平均
   max: 最大
+  p50: P50
+  p95: P95
+  rows: 1 行 | {count} 行
 updates:
   title: 更新
   count: 1 个更新 | {count} 个更新
