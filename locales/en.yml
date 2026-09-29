@@ -442,6 +442,9 @@ analytics:
   min: Min
   avg: Avg
   max: Max
+  p50: P50
+  p95: P95
+  rows: 1 row | {count} rows
 updates:
   title: Updates
   count: 1 update | {count} updates

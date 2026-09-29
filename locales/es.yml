@@ -434,6 +434,9 @@ analytics:
   min: Mín
   avg: Media
   max: Máx
+  p50: P50
+  p95: P95
+  rows: 1 fila | {count} filas
 updates:
   title: Actualizaciones
   count: 1 actualización | {count} actualizaciones

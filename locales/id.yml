@@ -345,6 +345,9 @@ analytics:
   min: Min
   avg: Rata-rata
   max: Maks
+  p50: P50
+  p95: P95
+  rows: 1 baris | {count} baris
 updates:
   title: Pembaruan
   count: 1 pembaruan | {count} pembaruan

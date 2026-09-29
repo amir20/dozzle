@@ -338,6 +338,9 @@ analytics:
   min: Min
   avg: Povp
   max: Maks
+  p50: P50
+  p95: P95
+  rows: 1 vrstica | {count} vrstic
 updates:
   title: Posodobitve
   count: 1 posodobitev | {count} posodobitev

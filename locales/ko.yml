@@ -335,6 +335,9 @@ analytics:
   min: 최소
   avg: 평균
   max: 최대
+  p50: P50
+  p95: P95
+  rows: 1개 행 | {count}개 행
 updates:
   title: 업데이트
   count: 업데이트 1개 | 업데이트 {count}개

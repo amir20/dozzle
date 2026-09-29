@@ -333,6 +333,9 @@ analytics:
   min: Min
   avg: Gns
   max: Maks
+  p50: P50
+  p95: P95
+  rows: 1 række | {count} rækker
 updates:
   title: Opdateringer
   count: 1 opdatering | {count} opdateringer

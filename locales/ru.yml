@@ -333,6 +333,9 @@ analytics:
   min: Мин
   avg: Сред
   max: Макс
+  p50: P50
+  p95: P95
+  rows: 1 строка | {count} строк
 updates:
   title: Обновления
   count: 1 обновление | {count} обновлений

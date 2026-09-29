@@ -333,6 +333,9 @@ analytics:
   min: Min
   avg: Moy
   max: Max
+  p50: P50
+  p95: P95
+  rows: 1 ligne | {count} lignes
 updates:
   title: Mises à jour
   count: 1 mise à jour | {count} mises à jour
