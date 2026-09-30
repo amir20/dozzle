@@ -13,7 +13,7 @@
     ref="panel"
     popover
     class="popover-panel"
-    :class="panelClass"
+    :class="asSheet ? 'popover-sheet frosted border-base-content/10 border shadow-lg' : panelClass"
     @beforetoggle="onBeforeToggle"
     @toggle="onToggle"
     @pointerenter="onEnter"
@@ -40,6 +40,7 @@ const {
   hover = false,
   closeOnSelect = true,
   panelClass = "",
+  sheet = false,
 } = defineProps<{
   placement?: PopoverPlacement;
   /** Opens on pointer enter instead of click. Ignored on a touch screen,
@@ -48,6 +49,9 @@ const {
   /** Close when a row is picked. Rows inside a nested <details> submenu never close. */
   closeOnSelect?: boolean;
   panelClass?: string;
+  /** On a phone, open as a bottom sheet instead of hanging off the trigger. `panelClass`
+   * is desktop styling and is dropped there. */
+  sheet?: boolean;
 }>();
 
 const emit = defineEmits<{ open: []; close: [] }>();
@@ -56,12 +60,14 @@ const emit = defineEmits<{ open: []; close: [] }>();
 // hover menu on a phone opened and shut itself and the trigger looked dead.
 // Without a hovering pointer the trigger is a plain click toggle.
 const hoverable = computed(() => hover && canHover.value);
+const asSheet = computed(() => sheet && isMobile.value);
 
 const anchor = useTemplateRef<HTMLElement>("anchor");
 const panel = useTemplateRef<HTMLElement>("panel");
 
 const { isOpen, onBeforeToggle, onToggle, show, hide, toggle } = useAnchoredPopover(anchor, panel, {
   placement: () => placement,
+  sheet: () => asSheet.value,
   // Hover menus have to be reachable across the gap, so keep it tight.
   gap: () => (hoverable.value ? 2 : 4),
 });

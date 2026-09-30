@@ -20,6 +20,8 @@ export function useAnchoredPopover(
     placement?: () => PopoverPlacement;
     /** Space between the trigger and the panel. Hover menus want this small to cross. */
     gap?: () => number;
+    /** Pinned to the bottom of the viewport by CSS, so there is nothing to place. */
+    sheet?: () => boolean;
   } = {},
 ) {
   const isOpen = ref(false);
@@ -33,6 +35,11 @@ export function useAnchoredPopover(
 
   function position() {
     if (!anchor.value || !panel.value) return;
+    if (options.sheet?.()) {
+      panel.value.style.left = "";
+      panel.value.style.top = "";
+      return;
+    }
     const rect = anchor.value.getBoundingClientRect();
     const { offsetWidth: width, offsetHeight: height } = panel.value;
 

@@ -1,6 +1,7 @@
 <template>
   <Popover
     hover
+    sheet
     placement="bottom-end"
     panel-class="rounded-box bg-base-200 border-base-content/10 w-max min-w-60 border p-1.5 shadow-lg"
   >

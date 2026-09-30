@@ -965,3 +965,8 @@ mcp-authorize:
   return: "Retourner au client"
   redirecting: "Retour au client. Vous pourrez fermer cet onglet une fois terminé."
   failed: "Cette demande n'a pas pu aboutir."
+mobile-nav:
+  label: "Principal"
+  home: "Accueil"
+  browse: "Parcourir"
+  back: "Retour"

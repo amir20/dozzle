@@ -970,3 +970,8 @@ mcp-authorize:
   return: "Nazaj na odjemalca"
   redirecting: "Vračanje na odjemalca. Ko se konča, lahko ta zavihek zaprete."
   failed: "Zahteve ni bilo mogoče dokončati."
+mobile-nav:
+  label: "Glavni meni"
+  home: "Domov"
+  browse: "Brskaj"
+  back: "Nazaj"

@@ -968,3 +968,8 @@ mcp-authorize:
   return: "İstemciye dön"
   redirecting: "İstemciye dönülüyor. Tamamlandığında bu sekmeyi kapatabilirsiniz."
   failed: "Bu istek tamamlanamadı."
+mobile-nav:
+  label: "Ana menü"
+  home: "Ana sayfa"
+  browse: "Göz at"
+  back: "Geri"

@@ -965,3 +965,8 @@ mcp-authorize:
   return: "返回客户端"
   redirecting: "正在返回客户端。完成后即可关闭此标签页。"
   failed: "无法完成此请求。"
+mobile-nav:
+  label: "主菜单"
+  home: "首页"
+  browse: "浏览"
+  back: "返回"

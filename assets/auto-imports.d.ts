@@ -101,6 +101,7 @@ declare global {
   const getCurrentWatcher: typeof import('vue').getCurrentWatcher
   const getDeep: typeof import('./utils/index').getDeep
   const getK8sOwnerRefs: typeof import('./stores/k8s').getK8sOwnerRefs
+  const goBack: typeof import('./composable/app/mobileShell').goBack
   const groupContainers: typeof import('./stores/settings').groupContainers
   const groupK8sOwners: typeof import('./stores/k8s').groupK8sOwners
   const h: typeof import('vue').h
@@ -119,6 +120,7 @@ declare global {
   const isDefined: typeof import('@vueuse/core').isDefined
   const isFinished: typeof import('./composable/containers/bulkUpdate').isFinished
   const isLogEvent: typeof import('@/composable/cloud/cloudAlerts').isLogEvent
+  const isLogRoute: typeof import('./composable/app/mobileShell').isLogRoute
   const isMobile: typeof import('./composable/ui/media').isMobile
   const isObject: typeof import('./utils/index').isObject
   const isProxy: typeof import('vue').isProxy
@@ -332,6 +334,7 @@ declare global {
   const useDrawerCloseGuard: typeof import('./composable/app/drawer').useDrawerCloseGuard
   const useDropZone: typeof import('@vueuse/core').useDropZone
   const useDuckDB: typeof import('./composable/logs/duckdb').useDuckDB
+  const useEdgeSwipeBack: typeof import('./composable/app/mobileShell').useEdgeSwipeBack
   const useElementBounding: typeof import('@vueuse/core').useElementBounding
   const useElementByPoint: typeof import('@vueuse/core').useElementByPoint
   const useElementHover: typeof import('@vueuse/core').useElementHover
@@ -702,6 +705,7 @@ declare module 'vue' {
     readonly getCurrentWatcher: UnwrapRef<typeof import('vue')['getCurrentWatcher']>
     readonly getDeep: UnwrapRef<typeof import('./utils/index')['getDeep']>
     readonly getK8sOwnerRefs: UnwrapRef<typeof import('./stores/k8s')['getK8sOwnerRefs']>
+    readonly goBack: UnwrapRef<typeof import('./composable/app/mobileShell')['goBack']>
     readonly groupContainers: UnwrapRef<typeof import('./stores/settings')['groupContainers']>
     readonly groupK8sOwners: UnwrapRef<typeof import('./stores/k8s')['groupK8sOwners']>
     readonly h: UnwrapRef<typeof import('vue')['h']>
@@ -718,6 +722,7 @@ declare module 'vue' {
     readonly isDataIcon: UnwrapRef<typeof import('./utils/index')['isDataIcon']>
     readonly isDefined: UnwrapRef<typeof import('@vueuse/core')['isDefined']>
     readonly isFinished: UnwrapRef<typeof import('./composable/containers/bulkUpdate')['isFinished']>
+    readonly isLogRoute: UnwrapRef<typeof import('./composable/app/mobileShell')['isLogRoute']>
     readonly isMobile: UnwrapRef<typeof import('./composable/ui/media')['isMobile']>
     readonly isObject: UnwrapRef<typeof import('./utils/index')['isObject']>
     readonly isProxy: UnwrapRef<typeof import('vue')['isProxy']>
@@ -926,6 +931,7 @@ declare module 'vue' {
     readonly useDrawerCloseGuard: UnwrapRef<typeof import('./composable/app/drawer')['useDrawerCloseGuard']>
     readonly useDropZone: UnwrapRef<typeof import('@vueuse/core')['useDropZone']>
     readonly useDuckDB: UnwrapRef<typeof import('./composable/logs/duckdb')['useDuckDB']>
+    readonly useEdgeSwipeBack: UnwrapRef<typeof import('./composable/app/mobileShell')['useEdgeSwipeBack']>
     readonly useElementBounding: UnwrapRef<typeof import('@vueuse/core')['useElementBounding']>
     readonly useElementByPoint: UnwrapRef<typeof import('@vueuse/core')['useElementByPoint']>
     readonly useElementHover: UnwrapRef<typeof import('@vueuse/core')['useElementHover']>

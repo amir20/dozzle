@@ -30,6 +30,27 @@
   padding-bottom: env(safe-area-inset-bottom);
 }
 
+/* Fill for floating chrome on a phone (the tab bar, the log header, bottom sheets):
+ * the iOS 26+ glass look. It lands on a near-opaque base-200 first, so a browser
+ * without backdrop-filter still gets a readable solid surface, and anyone who asked
+ * for reduced transparency gets that same solid surface on purpose. Fill only:
+ * border and shadow are the element's own, since a full-width bar wants neither. */
+@utility frosted {
+  background-color: color-mix(in oklab, var(--color-base-200) 96%, transparent);
+
+  @supports (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) {
+    background-color: color-mix(in oklab, var(--color-base-200) 62%, transparent);
+    -webkit-backdrop-filter: blur(20px) saturate(1.6);
+    backdrop-filter: blur(20px) saturate(1.6);
+  }
+
+  @media (prefers-reduced-transparency: reduce) {
+    background-color: var(--color-base-200);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+}
+
 @custom-variant max-h-500 {
   @media (max-height: 500px) {
     @slot;
@@ -283,6 +304,26 @@
     white-space: normal;
   }
 
+  /* A popover opened with `sheet` on a phone: pinned to the bottom edge above the home
+   * indicator instead of hung off its trigger, where a thumb can reach every row. */
+  .popover-panel.popover-sheet {
+    inset: auto 0.5rem calc(0.5rem + env(safe-area-inset-bottom)) 0.5rem;
+    max-width: none;
+    max-height: 75svh;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    padding: 0.5rem;
+    border-radius: 1.75rem;
+  }
+
+  .popover-panel.popover-sheet::backdrop {
+    background: rgb(0 0 0 / 0.35);
+  }
+
+  .popover-sheet .menu :where(li > a, li > button, li > details > summary) {
+    min-height: 2.75rem;
+  }
+
   /* What `.dropdown` used to be: a box that wraps a trigger without changing its layout.
    * It stays positioned because triggers hang badges and status dots off it. */
   .popover-anchor {
@@ -312,15 +353,32 @@ body {
   padding-right: env(safe-area-inset-right);
 }
 
-/* Height of the mobile top nav (logo row + border). The container status bar
- * sticks right below it and the log content is padded by the same amount, so
- * they stay locked together. The safe-area inset is already handled by body. */
+/* Height the floating tab bar takes out of the bottom of the page on a phone,
+ * inset included. Pages that show it pad their end by this much so the last row
+ * can scroll clear of it. */
 :root {
-  --mobile-nav-height: 57px;
-  /* Viewport offset of the nav's bottom edge. The nav is fixed to the viewport
-   * so it sits above the body's safe-area padding, which means anything sticking
-   * to it must add the inset back in. */
-  --mobile-nav-offset: calc(var(--mobile-nav-height) + env(safe-area-inset-top));
+  --mobile-tabbar-height: calc(5.5rem + env(safe-area-inset-bottom));
+}
+
+/* On a touch screen the page should feel like an app, not a document: no
+ * rubber-banding the whole shell, no grey flash on every tap. */
+html {
+  -webkit-tap-highlight-color: transparent;
+}
+
+@media (pointer: coarse) {
+  html,
+  body {
+    overscroll-behavior-y: none;
+  }
+
+  /* iOS zooms the page into any field under 16px when it takes focus and never
+   * zooms back out. Unlayered so it beats `text-sm` on the input itself. */
+  input:not([type="checkbox"], [type="radio"], [type="range"]),
+  textarea,
+  select {
+    font-size: max(16px, 1em);
+  }
 }
 
 [class*="shadow-"] {

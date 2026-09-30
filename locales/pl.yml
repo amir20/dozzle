@@ -967,3 +967,8 @@ mcp-authorize:
   return: "Wróć do klienta"
   redirecting: "Powrót do klienta. Możesz zamknąć tę kartę, gdy się zakończy."
   failed: "Nie udało się zrealizować tego żądania."
+mobile-nav:
+  label: "Główne"
+  home: "Start"
+  browse: "Przeglądaj"
+  back: "Wstecz"

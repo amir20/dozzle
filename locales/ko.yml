@@ -967,3 +967,8 @@ mcp-authorize:
   return: "클라이언트로 돌아가기"
   redirecting: "클라이언트로 돌아가는 중입니다. 완료되면 이 탭을 닫아도 됩니다."
   failed: "요청을 완료할 수 없습니다."
+mobile-nav:
+  label: "기본 메뉴"
+  home: "홈"
+  browse: "둘러보기"
+  back: "뒤로"
