@@ -40,7 +40,7 @@ const { checkAll, checking, hasUpdate } = useImageUpdates();
 const { running, hold } = useBulkUpdate();
 const showDrawer = useDrawer();
 
-const count = computed(() => containers.value.filter((c) => c.state !== "deleted" && hasUpdate(c)).length);
+const count = computed(() => containers.value.filter(hasUpdate).length);
 
 onMounted(() => checkAll());
 

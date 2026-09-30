@@ -371,7 +371,7 @@ func (s *autoUpdateScheduler) outdatedLabelledContainers(ctx context.Context) ([
 	selfService := selfSwarmService(containers)
 	var outdated []*container.ContainerService
 	for _, c := range containers {
-		if c.State == "deleted" || !autoUpdateEnabled(c.Labels) {
+		if !updatable(c) || !autoUpdateEnabled(c.Labels) {
 			continue
 		}
 		// Dozzle's own container follows the schedule by itself, with the

@@ -68,6 +68,14 @@ function mayBeSelf(container: Container) {
   return config.hosts.find((host) => host.id === container.host)?.type === "local";
 }
 
+// Same rule as the backend's updatable: a stopped standalone container can
+// still be updated so it starts on the new image, but an exited swarm task is
+// history the orchestrator already replaced.
+function offerable(container: Container) {
+  if (container.state === "deleted") return false;
+  return !container.isSwarm || container.state === "running";
+}
+
 const checkingAll = ref(false);
 let checkedAllAt = 0;
 
@@ -100,7 +108,9 @@ async function checkAll(force = false) {
 // Dozzle is able to update itself.
 export const useImageUpdates = () => {
   const hasUpdate = (container: Container) =>
-    results.get(`${container.host}/${container.id}`)?.status === "update-available" && !mayBeSelf(container);
+    offerable(container) &&
+    results.get(`${container.host}/${container.id}`)?.status === "update-available" &&
+    !mayBeSelf(container);
 
   return { checkAll, checking: readonly(checkingAll), hasUpdate, isSelf };
 };
