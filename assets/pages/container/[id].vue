@@ -49,10 +49,10 @@ const redirectFrom = computed(
 
 // Only follow a container the user watched stop. Opening one that was already stopped is
 // a deliberate choice to read its logs, so it must not bounce to the newer one.
-const sawRunning = ref(false);
-watch(id, () => (sawRunning.value = false));
+// Keyed by id rather than a boolean so switching routes can't carry it over.
+const sawRunningId = ref<string>();
 watchEffect(() => {
-  if (currentContainer.value?.state === "running") sawRunning.value = true;
+  if (currentContainer.value?.state === "running") sawRunningId.value = currentContainer.value.id;
 });
 
 const redirectTrigger = ref(false);
@@ -61,9 +61,9 @@ watch(currentContainer, () => (redirectTrigger.value = false));
 watchEffect(() => {
   if (redirectTrigger.value) return;
   if (automaticRedirect.value === "none") return;
-  if (!sawRunning.value) return;
   const from = redirectFrom.value;
   if (!from) return;
+  if (sawRunningId.value !== from.id) return;
   if (from.state === "running") return;
   if (Date.now() - +from.finishedAt > 5 * 60 * 1000) return;
 
