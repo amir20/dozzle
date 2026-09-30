@@ -1,7 +1,7 @@
 /**
  * @vitest-environment jsdom
  */
-import { describe, expect, test } from "vitest";
+import { describe, expect, test, vi } from "vitest";
 import { effectScope, ref } from "vue";
 import { useAnchoredPopover } from "./popover";
 
@@ -67,6 +67,34 @@ describe("useAnchoredPopover", () => {
       expect(panel.matches(":popover-open")).toBe(true);
       expect(panel.style.visibility).toBe("");
     });
+  });
+
+  test("a click in the first moments after page load still opens it", () => {
+    // performance.now() counts from navigation, and a login lands on a fresh page.
+    const now = vi.spyOn(performance, "now").mockReturnValue(120);
+    try {
+      withPopover(({ toggle }, panel) => {
+        toggle();
+        expect(panel.matches(":popover-open")).toBe(true);
+      });
+    } finally {
+      now.mockRestore();
+    }
+  });
+
+  test("a toggle right after closing is still ignored", () => {
+    const now = vi.spyOn(performance, "now").mockReturnValue(5_000);
+    try {
+      withPopover(({ show, hide, toggle }, panel) => {
+        show();
+        hide();
+        now.mockReturnValue(5_100);
+        toggle();
+        expect(panel.matches(":popover-open")).toBe(false);
+      });
+    } finally {
+      now.mockRestore();
+    }
   });
 
   test("show on an already open panel is a no-op rather than a throw", () => {

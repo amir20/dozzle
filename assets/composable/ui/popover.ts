@@ -28,7 +28,10 @@ export function useAnchoredPopover(
   // A click on the trigger of an open popover is an outside click, so the browser light
   // dismisses it before the click handler runs. Without this the menu would reopen at once
   // and never close from its own button.
-  let closedAt = 0;
+  //
+  // Starts at -Infinity, not 0: performance.now() counts from page load, so a 0 here read as
+  // "just closed" for the first 250ms of every page and swallowed a click that early.
+  let closedAt = -Infinity;
 
   const placement = () => options.placement?.() ?? "bottom-start";
   const gap = () => options.gap?.() ?? 4;
