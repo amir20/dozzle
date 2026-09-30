@@ -966,3 +966,8 @@ mcp-authorize:
   return: "Terug naar de client"
   redirecting: "Terug naar de client. Je kunt dit tabblad sluiten zodra het klaar is."
   failed: "Dit verzoek kon niet worden voltooid."
+mobile-nav:
+  label: "Hoofdmenu"
+  home: "Start"
+  browse: "Bladeren"
+  back: "Terug"

@@ -1,11 +1,16 @@
 <template>
   <Popover
     hover
+    sheet
     placement="bottom-end"
     panel-class="rounded-box bg-base-200 border-base-content/10 w-max min-w-60 border p-1.5 shadow-lg"
   >
     <template #trigger>
-      <button type="button" class="icon-btn btn btn-ghost btn-sm relative w-8 gap-0 px-0 md:gap-0.5">
+      <button
+        type="button"
+        class="icon-btn btn btn-ghost btn-sm relative w-8 gap-0 px-0 md:gap-0.5"
+        data-testid="log-actions"
+      >
         <carbon:circle-solid class="text-red w-2 md:w-2.5" v-if="streamConfig.stderr" />
         <carbon:circle-solid class="text-blue w-2 md:w-2.5" v-if="streamConfig.stdout" />
         <span

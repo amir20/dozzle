@@ -965,3 +965,8 @@ mcp-authorize:
   return: "Tilbage til klienten"
   redirecting: "Vender tilbage til klienten. Du kan lukke denne fane, når det er færdigt."
   failed: "Anmodningen kunne ikke gennemføres."
+mobile-nav:
+  label: "Hovedmenu"
+  home: "Hjem"
+  browse: "Gennemse"
+  back: "Tilbage"

@@ -9,7 +9,7 @@
       :aria-label="unseenAlerts ? $t('notifications.new-alerts') : $t('title.notifications')"
       :title="unseenAlerts ? $t('notifications.new-alerts') : undefined"
       data-testid="notifications"
-      class="btn btn-circle btn-sm relative"
+      class="btn btn-circle btn-sm relative max-md:hidden"
     >
       <mdi:bell class="icon-ring size-6" />
       <!-- Severity rides the dot, the button behind it stays neutral. Same mark
@@ -27,7 +27,7 @@
       :to="{ name: '/settings' }"
       :aria-label="$t('title.settings')"
       data-testid="settings"
-      class="btn btn-circle btn-sm"
+      class="btn btn-circle btn-sm max-md:hidden"
     >
       <mdi:cog class="icon-spin size-6" />
     </router-link>

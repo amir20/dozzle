@@ -1,6 +1,6 @@
 <template>
   <div>
-    <MobileMenu v-if="isMobile && !forceMenuHidden" @search="showFuzzySearch"></MobileMenu>
+    <MobileTabBar v-if="showTabBar" @search="showFuzzySearch" />
     <Splitpanes @resized="onResized($event)">
       <Pane min-size="10" :size="menuWidth" v-if="navVisible">
         <SidePanel />
@@ -12,7 +12,7 @@
              it when a panel opens reads as the menu having done something. -->
         <div :style="{ paddingRight: `${railOffset}px` }">
           <Splitpanes>
-            <Pane class="router-view min-h-screen">
+            <Pane class="router-view min-h-screen" :class="{ 'tabbar-clearance': showTabBar }">
               <router-view></router-view>
             </Pane>
             <template v-if="!isMobile">
@@ -98,6 +98,13 @@ const forceMenuHidden = ref(searchParams.has("hideMenu"));
 // splitpanes would shrink the nav to its min-size to compensate.
 const navVisible = computed(() => !isMobile.value && !collapseNav.value && !forceMenuHidden.value);
 
+// On a phone the shell is a tab bar for the top-level pages, and a log view is pushed on
+// top of it with a back button instead: the bottom of the stream is where people read.
+const route = useRoute();
+const onLogRoute = computed(() => isLogRoute(route));
+const showTabBar = computed(() => isMobile.value && !forceMenuHidden.value && !onLogRoute.value);
+useEdgeSwipeBack(computed(() => isMobile.value && onLogRoute.value));
+
 watch(open, () => {
   if (open.value) {
     modal.value?.showModal();
@@ -159,9 +166,7 @@ function onResized({ panes, event, index }: { panes: { size: number }[]; event?:
   }
 }
 
-@media screen and (max-width: 768px) {
-  .router-view {
-    padding-top: var(--mobile-nav-height);
-  }
+.tabbar-clearance {
+  padding-bottom: var(--mobile-tabbar-height);
 }
 </style>

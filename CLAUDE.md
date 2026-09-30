@@ -418,6 +418,18 @@ rather than matching what is already there.
   flavours (`icon-float`, `icon-spin`, `icon-wiggle`, `icon-ring`) are set on the glyph.
 - Every animation has a `prefers-reduced-motion` escape.
 
+### Mobile
+
+- Under `isMobile` the shell is a floating tab bar (`shell/MobileTabBar.vue`: Home, Browse,
+  Notifications, Settings, plus a separate search button). A log route is a pushed screen:
+  no tab bar, and `ScrollableView`'s header carries a back button. Which routes count as log
+  routes is `LOG_ROUTES` in `composable/app/mobileShell.ts`; a new log view goes there.
+- Floating chrome on a phone uses the `frosted` utility (translucent fill + backdrop blur),
+  which falls back to a solid `base-200` without `backdrop-filter` or under
+  `prefers-reduced-transparency`. It is a fill only; add the border and shadow yourself. Do
+  not use daisyUI's `glass`, which paints a diagonal sheen. Panels and rows stay flat.
+- A menu that is an action list opens as a bottom sheet on a phone: pass `sheet` to `Popover`.
+
 ### Consistency rules
 
 - A panel keeps its shape across states. Loading, error and healthy branches of the same

@@ -967,3 +967,8 @@ mcp-authorize:
   return: "返回用戶端"
   redirecting: "正在返回用戶端。完成後即可關閉此分頁。"
   failed: "無法完成此請求。"
+mobile-nav:
+  label: "主選單"
+  home: "首頁"
+  browse: "瀏覽"
+  back: "返回"

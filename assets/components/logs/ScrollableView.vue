@@ -5,9 +5,14 @@
       ref="scrollableHeader"
       data-scroll-header
       data-testid="scrollable-header"
-      class="border-base-content/10 bg-base-200 sticky top-[var(--mobile-nav-offset)] z-20 border-b py-0.5 shadow-[1px_1px_2px_0_rgb(0,0,0,0.05)] md:top-0 md:py-2"
+      class="border-base-content/10 bg-base-200 max-md:frosted sticky top-0 z-20 border-b py-0.5 shadow-[1px_1px_2px_0_rgb(0,0,0,0.05)] md:py-2"
     >
-      <slot name="header"></slot>
+      <!-- A phone has no sidebar and no tab bar over a log view, so the way out is here. -->
+      <div v-if="showBack" class="flex items-center">
+        <MobileBackButton class="ms-0.5 -me-1" />
+        <div class="min-w-0 flex-1"><slot name="header"></slot></div>
+      </div>
+      <slot v-else name="header"></slot>
     </header>
     <!-- Fixed and centred on the measured log column: `main` is only the
          scroller when `scrollable` is set, so sticky would fail on the pages
@@ -41,7 +46,7 @@
     <div class="mr-16 text-right" v-if="!historical">
       <transition name="fade">
         <button
-          class="icon-btn btn btn-primary text-primary-content fixed bottom-8 rounded-sm p-3 shadow-sm transition-colors"
+          class="icon-btn btn btn-primary text-primary-content fixed bottom-[calc(1.25rem+env(safe-area-inset-bottom))] rounded-sm p-3 shadow-sm transition-colors md:bottom-8"
           :class="hasMore ? 'btn-secondary animate-bounce-fast text-secondary-content' : ''"
           @click="scrollToBottom()"
           v-show="scrollContext.paused"
@@ -60,6 +65,9 @@ const { scrollable = false, ownsViewContext = true } = defineProps<{
    *  container: the assistant should follow the primary viewer, not it. */
   ownsViewContext?: boolean;
 }>();
+
+// A pinned column is a second view beside the main one, never the page itself.
+const showBack = computed(() => isMobile.value && ownsViewContext);
 
 const hasMore = ref(false);
 const scrollObserver = ref<HTMLElement>();

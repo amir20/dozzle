@@ -7,7 +7,7 @@ test.beforeEach(async ({ page }) => {
 test.describe("default", () => {
   test("homepage", async ({ page, isMobile }) => {
     if (isMobile) {
-      await page.getByTestId("hamburger").click();
+      await page.getByTestId("browse").click();
     }
     await expect(page.getByTestId("navigation")).toHaveScreenshot();
   });
@@ -17,7 +17,7 @@ test.describe("dark", () => {
   test.use({ colorScheme: "dark" });
   test("homepage", async ({ page, isMobile }) => {
     if (isMobile) {
-      await page.getByTestId("hamburger").click();
+      await page.getByTestId("browse").click();
     }
     await expect(page.getByTestId("navigation")).toHaveScreenshot();
   });

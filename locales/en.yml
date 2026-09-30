@@ -973,3 +973,8 @@ mcp-authorize:
   return: "Return to the client"
   redirecting: "Returning to the client. You can close this tab once it has finished."
   failed: "This request could not be completed."
+mobile-nav:
+  label: "Main"
+  home: "Home"
+  browse: "Browse"
+  back: "Back"

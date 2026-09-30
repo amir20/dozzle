@@ -1,5 +1,5 @@
 <template>
-  <Popover panel-class="rounded-box bg-base-100 border-base-content/20 border p-1 shadow-sm">
+  <Popover sheet panel-class="rounded-box bg-base-100 border-base-content/20 border p-1 shadow-sm">
     <template #trigger>
       <button type="button" class="btn btn-xs md:btn-sm"><slot /> <carbon:caret-down /></button>
     </template>

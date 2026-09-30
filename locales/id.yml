@@ -977,3 +977,8 @@ mcp-authorize:
   return: "Kembali ke klien"
   redirecting: "Kembali ke klien. Anda dapat menutup tab ini setelah selesai."
   failed: "Permintaan ini tidak dapat diselesaikan."
+mobile-nav:
+  label: "Utama"
+  home: "Beranda"
+  browse: "Jelajahi"
+  back: "Kembali"
