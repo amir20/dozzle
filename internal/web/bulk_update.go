@@ -79,6 +79,17 @@ type bulkUpdater struct {
 
 const swarmServiceLabel = "com.docker.swarm.service.id"
 
+// updatable reports whether c is worth checking and offering for update. A
+// stopped standalone container still is, so it starts on the new image. An
+// exited swarm task is not: it is history the orchestrator left behind after
+// replacing it, and its service is updated through the task that is running.
+func updatable(c container.Container) bool {
+	if c.State == "deleted" {
+		return false
+	}
+	return c.Labels[swarmServiceLabel] == "" || c.State == "running"
+}
+
 // selfSwarmService is the swarm service Dozzle's own container belongs to, or
 // empty when it is not a swarm task or is not among containers.
 func selfSwarmService(containers []container.Container) string {

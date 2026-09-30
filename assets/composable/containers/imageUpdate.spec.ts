@@ -54,7 +54,7 @@ vi.mock("vue-i18n", () => ({
   }),
 }));
 
-const { useImageUpdate } = await import("./imageUpdate");
+const { useImageUpdate, useImageUpdates } = await import("./imageUpdate");
 
 let counter = 0;
 
@@ -388,5 +388,47 @@ describe("useImageUpdate", () => {
 
       expect(holder.toasts).toHaveLength(0);
     });
+  });
+});
+
+describe("useImageUpdates", () => {
+  afterEach(() => vi.unstubAllGlobals());
+
+  async function checkAll(...containers: Container[]) {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockResolvedValue({
+        ok: true,
+        json: async () =>
+          containers.map((c) => ({
+            host: c.host,
+            id: c.id,
+            result: { status: "update-available", image: c.image, checkedAt: new Date().toISOString() },
+          })),
+      }),
+    );
+    const updates = useImageUpdates();
+    await updates.checkAll(true);
+    return updates;
+  }
+
+  test("offers a stopped standalone container", async () => {
+    const stopped = container({ state: "exited" });
+    const { hasUpdate } = await checkAll(stopped);
+    expect(hasUpdate(stopped)).toBe(true);
+  });
+
+  test("skips an exited swarm task but offers the running one", async () => {
+    const old = container({ state: "exited", isSwarm: true });
+    const current = container({ state: "running", isSwarm: true });
+    const { hasUpdate } = await checkAll(old, current);
+    expect(hasUpdate(old)).toBe(false);
+    expect(hasUpdate(current)).toBe(true);
+  });
+
+  test("skips a deleted container", async () => {
+    const deleted = container({ state: "deleted" });
+    const { hasUpdate } = await checkAll(deleted);
+    expect(hasUpdate(deleted)).toBe(false);
   });
 });

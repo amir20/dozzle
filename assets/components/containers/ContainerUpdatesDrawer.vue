@@ -147,20 +147,20 @@ onScopeDispose(release);
 
 const multipleHosts = computed(() => Object.keys(hosts.value).length > 1);
 
-const candidates = computed(() =>
-  containers.value.filter((c) => c.state !== "deleted" && hasUpdate(c)).sort((a, b) => a.name.localeCompare(b.name)),
-);
+const candidates = computed(() => containers.value.filter(hasUpdate).sort((a, b) => a.name.localeCompare(b.name)));
 
-// Everything is selected to begin with; a container that appears after the
-// drawer opened (a check finishing) joins selected too.
+// Running containers are selected to begin with, and so is one that appears
+// after the drawer opened (a check finishing). A stopped one is listed but left
+// for the user to opt in, since it may be stopped on purpose.
 const selected = ref<string[]>([]);
 const seen = new Set<string>();
 watch(
   candidates,
   (list) => {
-    const fresh = list.filter((c) => !seen.has(c.id)).map((c) => c.id);
-    fresh.forEach((id) => seen.add(id));
-    if (fresh.length) selected.value = [...selected.value, ...fresh];
+    const fresh = list.filter((c) => !seen.has(c.id));
+    fresh.forEach((c) => seen.add(c.id));
+    const running = fresh.filter((c) => c.state === "running").map((c) => c.id);
+    if (running.length) selected.value = [...selected.value, ...running];
   },
   { immediate: true },
 );

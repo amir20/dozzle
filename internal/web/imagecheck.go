@@ -85,7 +85,7 @@ func (h *handler) checkAllImageUpdates(w http.ResponseWriter, r *http.Request) {
 	// slow half for a remote agent.
 	group.SetLimit(8)
 	for _, c := range containers {
-		if c.State == "deleted" {
+		if !updatable(c) {
 			continue
 		}
 		group.Go(func() error {
