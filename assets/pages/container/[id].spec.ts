@@ -5,7 +5,8 @@ import { beforeEach, describe, expect, test, vi } from "vitest";
 import type { Ref } from "vue";
 import { createI18n } from "vue-i18n";
 import { createMemoryHistory, createRouter, type Router } from "vue-router";
-import { Container, type ContainerState } from "@/models/Container";
+import { Container } from "@/models/Container";
+import type { ContainerState } from "@/types/Container";
 import { useContainerStore } from "@/stores/container";
 import { settings } from "@/stores/settings";
 import ContainerPage from "./[id].vue";
@@ -59,7 +60,7 @@ async function open(id: string) {
   await flushPromises();
 }
 
-const currentId = () => router.currentRoute.value.params.id;
+const currentId = () => (router.currentRoute.value.params as { id?: string }).id;
 
 describe("container page redirect", () => {
   beforeEach(() => {
