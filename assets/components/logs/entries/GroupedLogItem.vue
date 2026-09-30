@@ -13,6 +13,7 @@
           v-html="colorize(displayed(msg, index))"
           :class="{ 'min-h-4': msg === '' }"
         ></div>
+        <PatternMemoryChip v-if="index === 0 && logEntry.patternMemory" :memory="logEntry.patternMemory" />
       </div>
     </div>
   </LogItem>

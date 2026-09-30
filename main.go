@@ -210,7 +210,8 @@ func main() {
 		SearchLogs: cloudClient.SearchLogs,
 		GetAlerts:  cloudClient.GetAlerts,
 
-		GetRecentAlerts: cloudClient.GetRecentAlerts,
+		GetRecentAlerts:   cloudClient.GetRecentAlerts,
+		GetPatternContext: cloudClient.GetPatternContext,
 
 		GetContainerMetrics: cloudClient.GetContainerMetrics,
 

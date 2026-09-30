@@ -50,6 +50,7 @@ exports[`<ContainerEventSource /> > render html correctly > should render dates 
         <div data-v-20d3df61="" class="rounded-full size-[0.45em] min-h-1 min-w-1"></div>
       </div>
       <div class="log-message [word-break:break-word] whitespace-pre-wrap group-[.disable-wrap]:whitespace-pre">foo bar</div>
+      <!--v-if-->
     </div>
   </li>
 </ul>"
@@ -105,6 +106,7 @@ exports[`<ContainerEventSource /> > render html correctly > should render dates 
         <div data-v-20d3df61="" class="rounded-full size-[0.45em] min-h-1 min-w-1"></div>
       </div>
       <div class="log-message [word-break:break-word] whitespace-pre-wrap group-[.disable-wrap]:whitespace-pre">foo bar</div>
+      <!--v-if-->
     </div>
   </li>
 </ul>"
@@ -160,6 +162,7 @@ exports[`<ContainerEventSource /> > render html correctly > should render messag
         <div data-v-20d3df61="" class="rounded-full size-[0.45em] min-h-1 min-w-1"></div>
       </div>
       <div class="log-message [word-break:break-word] whitespace-pre-wrap group-[.disable-wrap]:whitespace-pre">This is a message.</div>
+      <!--v-if-->
     </div>
   </li>
 </ul>"

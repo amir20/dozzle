@@ -112,6 +112,9 @@ type CloudHooks struct {
 	// GetRecentAlerts fetches what fired lately across the instance, for the
 	// notifications page and the container dot. Nil when cloud is not wired.
 	GetRecentAlerts func(ctx context.Context, sinceNs int64, limit int32, subscriptionID string, includeFollowUps bool) (*cloud.AlertResult, error)
+	// GetPatternContext asks Cloud's error memory about the lines on screen:
+	// whether each one's pattern is new for its container, or louder than usual.
+	GetPatternContext func(ctx context.Context, lines []cloud.PatternLine, fromNs, toNs int64) ([]cloud.PatternContext, error)
 
 	// GetContainerMetrics reads back the stats this instance pushed for one
 	// container, past the live window the browser holds. Nil when cloud is not
@@ -369,6 +372,7 @@ func createRouter(h *handler) *chi.Mux {
 					r.Get("/search/logs", h.cloudSearchLogs)
 					r.Get("/alerts", h.cloudAlerts)
 					r.Get("/alerts/recent", h.cloudRecentAlerts)
+					r.Post("/patterns", h.cloudPatterns)
 					r.Get("/hosts/{host}/containers/{id}/metrics", h.cloudContainerMetrics)
 					r.Post("/chat", h.cloudChat)
 					r.Get("/config", h.cloudConfig)

@@ -87,6 +87,7 @@ label:
   event-suppressed-hint: Dozzle Cloud mencocokkan baris ini tetapi menahan peringatannya
   event-metric: Metrik
   event-container: Kontainer
+  memory-new: "Baru"
   host-count: Tidak ada Host | 1 Host | {count} Host
   service: Tidak ada layanan | 1 layanan | {count} layanan
   services: Layanan
@@ -134,6 +135,8 @@ label:
   groups: Grup
 
 tooltip:
+  memory-new: "Dozzle Cloud belum pernah melihat error ini di container ini. Klik untuk hanya menampilkan baris ini."
+  memory-new-since: "Pertama terlihat di container ini: {time}. Klik untuk hanya menampilkan baris ini."
   live-logs: Log ini dibekukan pada waktu ini. Klik untuk mengikuti aliran langsung.
   search: Cari kontainer (⌘ + k, ⌃k)
   pin-column: Sematkan sebagai kolom

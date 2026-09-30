@@ -246,6 +246,7 @@ declare module 'vue' {
     'Octicon:trash24': typeof import('~icons/octicon/trash24')['default']
     OwnerLog: typeof import('./components/views/OwnerLog.vue')['default']
     PageWithLinks: typeof import('./components/shell/PageWithLinks.vue')['default']
+    PatternMemoryChip: typeof import('./components/logs/entries/PatternMemoryChip.vue')['default']
     'Ph:arrowsMerge': typeof import('~icons/ph/arrows-merge')['default']
     'Ph:boundingBoxFill': typeof import('~icons/ph/bounding-box-fill')['default']
     'Ph:caretRight': typeof import('~icons/ph/caret-right')['default']

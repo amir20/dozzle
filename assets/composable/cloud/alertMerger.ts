@@ -9,6 +9,8 @@ import {
 } from "@/models/LogEntry";
 import { Container } from "@/models/Container";
 import { useCloudAlerts, mergeAlerts, attachEvents, mergeCloudEvents } from "./cloudAlerts";
+import { useCloudConfig } from "./cloudConfig";
+import { attachPatternMemory, fetchPatternContext, linesNeedingMemory } from "./patternMemory";
 
 // Cloud aggregates events on a 15s window before an alert can even exist, so
 // asking more often than that cannot surface anything sooner — it only costs
@@ -52,6 +54,10 @@ export function useAlertMerger(
   anchor?: MaybeRefOrGetter<Date | undefined>,
 ) {
   const { fetchAlerts, available: alertsAvailable } = useCloudAlerts();
+  // Error memory rides the same poll. Cloud finds the lines in the logs it was
+  // streamed, so without the streamLogs opt-in there is nothing to ask.
+  const { cloudConfig } = useCloudConfig();
+  const memoryAvailable = computed(() => !!cloudConfig.value?.linked && !!cloudConfig.value?.streamLogs);
   // Alerts already placed, so overlapping scroll windows — and a merged view,
   // where cloud reports one incident once per container it touched — don't
   // draw the same incident twice.
@@ -181,12 +187,16 @@ export function useAlertMerger(
       const wantEvents = polledThrough === undefined || newest > polledThrough;
       const startedAt = generation;
 
-      const { alerts, events } = await fetchAlerts(
-        containers.value.map((c) => c.id),
-        from,
-        to,
-        { events: wantEvents },
-      );
+      const memoryLines = memoryAvailable.value ? linesNeedingMemory(logs) : [];
+      const [{ alerts, events }, memoryHits] = await Promise.all([
+        fetchAlerts(
+          containers.value.map((c) => c.id),
+          from,
+          to,
+          { events: wantEvents },
+        ),
+        fetchPatternContext(memoryLines, from, to),
+      ]);
 
       // The window can be replaced while the request is out — a container
       // switch, or a live flush appending lines. Writing the old merge back
@@ -200,9 +210,10 @@ export function useAlertMerger(
       // Badges mutate the entries in place, so the list has to be reassigned
       // for Vue to see it — messages is a shallowRef.
       const badged = attachEvents(logs, events);
+      const remembered = attachPatternMemory(logs, memoryHits);
       const withEvents = mergeCloudEvents(logs, events, placedAlerts);
       const merged = mergeAlerts(withEvents, alerts, placedAlerts);
-      if (!badged && merged === logs) return;
+      if (!badged && !remembered && merged === logs) return;
       messages.value = [...head, ...merged, ...tail];
     } catch (err) {
       console.error(err);

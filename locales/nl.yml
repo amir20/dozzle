@@ -86,6 +86,7 @@ label:
   event-suppressed-hint: Dozzle Cloud herkende deze regel maar hield de melding tegen
   event-metric: Metriek
   event-container: Container
+  memory-new: "Nieuw"
   host-count: Geen Hosts | 1 Host | {count} Hosts
   service: Geen services | 1 service | {count} services
   services: Services
@@ -132,6 +133,8 @@ label:
   more-options: Meer opties
   groups: Groepen
 tooltip:
+  memory-new: "Dozzle Cloud heeft deze fout nog niet eerder op deze container gezien. Klik om alleen deze regels te tonen."
+  memory-new-since: "Voor het eerst gezien op deze container: {time}. Klik om alleen deze regels te tonen."
   live-logs: Deze logs zijn bevroren op dit tijdstip. Klik om de live stream te volgen.
   search: Zoek containers (⌘ + k, ⌃k)
   pin-column: Vastzetten als kolom

@@ -89,6 +89,7 @@ label:
   event-suppressed-hint: Dozzle Cloud dopasował tę linię, ale wstrzymał alert
   event-metric: Metryka
   event-container: Kontener
+  memory-new: "Nowy"
   running-containers: Działające kontenery
   all-containers: Wszystkie kontenery
   all-namespaces: Wszystkie przestrzenie nazw
@@ -132,6 +133,8 @@ label:
   more-options: Więcej opcji
   groups: Grupy
 tooltip:
+  memory-new: "Dozzle Cloud nie widział wcześniej tego błędu w tym kontenerze. Kliknij, aby pokazać tylko te wiersze."
+  memory-new-since: "Pierwszy raz widziany w tym kontenerze: {time}. Kliknij, aby pokazać tylko te wiersze."
   live-logs: Te logi są zamrożone w tym momencie. Kliknij, aby śledzić strumień na żywo.
   search: Przeszukaj kontenery (⌘ + k, ⌃k)
   pin-column: Przypnij jako kolumna
