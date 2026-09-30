@@ -32,6 +32,15 @@ service CloudToolService {
   // (user_id, api_key_id) on the connection, like everything else here.
   rpc GetRecentAlerts(GetRecentAlertsRequest) returns (GetAlertsResponse);
 
+  // Dozzle-initiated unary call: what Cloud remembers about the error and
+  // warn lines on screen. Dozzle names each line by (container_id, log_id);
+  // Cloud finds the line in the logs it was streamed, groups it into its
+  // pattern, and answers from that container's pattern memory: new, louder
+  // than usual, or known. Needs the streamLogs opt-in (the lines must be in
+  // Cloud to be found). Scoped server-side to the (user_id, api_key_id) on the
+  // connection, like everything else here.
+  rpc GetPatternContext(GetPatternContextRequest) returns (GetPatternContextResponse);
+
   // Dozzle-initiated unary call: the stats Cloud kept for one container.
   //
   // Dozzle holds a rolling 300 samples in the browser and nothing behind it, so
@@ -615,6 +624,59 @@ message EventHit {
   // lifecycle description for a container event. The only renderable text a
   // metric or event notification has, since neither carries a log line.
   string detail = 10;
+}
+
+// One log line the viewer is showing, named the way Cloud stored it.
+message PatternLineRef {
+  string container_id = 1;
+  // The FNV-32a line hash Dozzle stamps on every streamed line (LogEvent.id).
+  uint32 log_id = 2;
+}
+
+message GetPatternContextRequest {
+  // Error and warn lines currently shown. Server-capped at 500.
+  repeated PatternLineRef lines = 1;
+  // Window the lines fall in, so Cloud searches only that slice of the store.
+  int64 from_ts_ns = 2;
+  int64 to_ts_ns = 3;
+}
+
+enum PatternStatus {
+  // Seen before at a normal rate. Nothing to say.
+  PATTERN_STATUS_KNOWN = 0;
+  // Never seen on this container before the last day.
+  PATTERN_STATUS_NEW = 1;
+  // Seen before, but at several times its usual hourly rate right now.
+  PATTERN_STATUS_LOUDER = 2;
+  // Memory for this container is too young or has gaps: NEW can't be trusted
+  // yet, so nothing should be shown.
+  PATTERN_STATUS_LEARNING = 3;
+}
+
+// What Cloud remembers about one pattern, and which of the asked lines are it.
+message PatternContext {
+  string container_id = 1;
+  repeated uint32 log_ids = 2;
+  // The collapsed pattern, e.g. "connection refused to <IP4>:<N>". For the
+  // tooltip and for building a filter; never matched against lines by Dozzle.
+  string pattern = 3;
+  string level = 4;
+  PatternStatus status = 5;
+  // Log time of the first line of this pattern Cloud has seen; 0 if never.
+  int64 first_seen_ns = 6;
+  int32 days_seen = 7;
+  // Lines of this pattern in the last hour.
+  double rate_per_hour = 8;
+  // Mean lines per hour over the hours it appeared in.
+  double usual_rate_per_hour = 9;
+  // Reserved for the update the pattern first appeared after.
+  reserved 10;
+  // Reserved for signals pooled across accounts.
+  reserved 20 to 29;
+}
+
+message GetPatternContextResponse {
+  repeated PatternContext patterns = 1;
 }
 
 message GetAlertsResponse {

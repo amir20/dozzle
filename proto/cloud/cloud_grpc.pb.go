@@ -23,6 +23,7 @@ const (
 	CloudToolService_SearchLogs_FullMethodName          = "/cloud.CloudToolService/SearchLogs"
 	CloudToolService_GetAlerts_FullMethodName           = "/cloud.CloudToolService/GetAlerts"
 	CloudToolService_GetRecentAlerts_FullMethodName     = "/cloud.CloudToolService/GetRecentAlerts"
+	CloudToolService_GetPatternContext_FullMethodName   = "/cloud.CloudToolService/GetPatternContext"
 	CloudToolService_GetContainerMetrics_FullMethodName = "/cloud.CloudToolService/GetContainerMetrics"
 	CloudToolService_Chat_FullMethodName                = "/cloud.CloudToolService/Chat"
 )
@@ -54,6 +55,14 @@ type CloudToolServiceClient interface {
 	// never know a container list up front. Scoped server-side to the
 	// (user_id, api_key_id) on the connection, like everything else here.
 	GetRecentAlerts(ctx context.Context, in *GetRecentAlertsRequest, opts ...grpc.CallOption) (*GetAlertsResponse, error)
+	// Dozzle-initiated unary call: what Cloud remembers about the error and
+	// warn lines on screen. Dozzle names each line by (container_id, log_id);
+	// Cloud finds the line in the logs it was streamed, groups it into its
+	// pattern, and answers from that container's pattern memory: new, louder
+	// than usual, or known. Needs the streamLogs opt-in (the lines must be in
+	// Cloud to be found). Scoped server-side to the (user_id, api_key_id) on the
+	// connection, like everything else here.
+	GetPatternContext(ctx context.Context, in *GetPatternContextRequest, opts ...grpc.CallOption) (*GetPatternContextResponse, error)
 	// Dozzle-initiated unary call: the stats Cloud kept for one container.
 	//
 	// Dozzle holds a rolling 300 samples in the browser and nothing behind it, so
@@ -123,6 +132,16 @@ func (c *cloudToolServiceClient) GetRecentAlerts(ctx context.Context, in *GetRec
 	return out, nil
 }
 
+func (c *cloudToolServiceClient) GetPatternContext(ctx context.Context, in *GetPatternContextRequest, opts ...grpc.CallOption) (*GetPatternContextResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetPatternContextResponse)
+	err := c.cc.Invoke(ctx, CloudToolService_GetPatternContext_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *cloudToolServiceClient) GetContainerMetrics(ctx context.Context, in *GetContainerMetricsRequest, opts ...grpc.CallOption) (*GetContainerMetricsResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(GetContainerMetricsResponse)
@@ -173,6 +192,14 @@ type CloudToolServiceServer interface {
 	// never know a container list up front. Scoped server-side to the
 	// (user_id, api_key_id) on the connection, like everything else here.
 	GetRecentAlerts(context.Context, *GetRecentAlertsRequest) (*GetAlertsResponse, error)
+	// Dozzle-initiated unary call: what Cloud remembers about the error and
+	// warn lines on screen. Dozzle names each line by (container_id, log_id);
+	// Cloud finds the line in the logs it was streamed, groups it into its
+	// pattern, and answers from that container's pattern memory: new, louder
+	// than usual, or known. Needs the streamLogs opt-in (the lines must be in
+	// Cloud to be found). Scoped server-side to the (user_id, api_key_id) on the
+	// connection, like everything else here.
+	GetPatternContext(context.Context, *GetPatternContextRequest) (*GetPatternContextResponse, error)
 	// Dozzle-initiated unary call: the stats Cloud kept for one container.
 	//
 	// Dozzle holds a rolling 300 samples in the browser and nothing behind it, so
@@ -210,6 +237,9 @@ func (UnimplementedCloudToolServiceServer) GetAlerts(context.Context, *GetAlerts
 }
 func (UnimplementedCloudToolServiceServer) GetRecentAlerts(context.Context, *GetRecentAlertsRequest) (*GetAlertsResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method GetRecentAlerts not implemented")
+}
+func (UnimplementedCloudToolServiceServer) GetPatternContext(context.Context, *GetPatternContextRequest) (*GetPatternContextResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method GetPatternContext not implemented")
 }
 func (UnimplementedCloudToolServiceServer) GetContainerMetrics(context.Context, *GetContainerMetricsRequest) (*GetContainerMetricsResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method GetContainerMetrics not implemented")
@@ -299,6 +329,24 @@ func _CloudToolService_GetRecentAlerts_Handler(srv interface{}, ctx context.Cont
 	return interceptor(ctx, in, info, handler)
 }
 
+func _CloudToolService_GetPatternContext_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetPatternContextRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CloudToolServiceServer).GetPatternContext(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: CloudToolService_GetPatternContext_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CloudToolServiceServer).GetPatternContext(ctx, req.(*GetPatternContextRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _CloudToolService_GetContainerMetrics_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(GetContainerMetricsRequest)
 	if err := dec(in); err != nil {
@@ -342,6 +390,10 @@ var CloudToolService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetRecentAlerts",
 			Handler:    _CloudToolService_GetRecentAlerts_Handler,
+		},
+		{
+			MethodName: "GetPatternContext",
+			Handler:    _CloudToolService_GetPatternContext_Handler,
 		},
 		{
 			MethodName: "GetContainerMetrics",
