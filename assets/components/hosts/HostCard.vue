@@ -118,25 +118,46 @@
       />
     </div>
 
-    <!-- Host facts (disk, load, uptime, network) read from the host /proc. -->
+    <!-- Host metrics read from the host /proc: disk, load, uptime, network. -->
     <div
-      v-if="host.available && hostFacts.length"
-      class="border-base-content/10 text-base-content/60 flex flex-wrap items-center gap-x-4 gap-y-1 border-t pt-2 text-xs tabular-nums"
+      v-if="host.available && hostMetrics.length"
+      class="grid grid-cols-2 gap-3"
+      :class="hostMetrics.length > 2 ? 'sm:grid-cols-4' : ''"
     >
-      <span v-for="fact in hostFacts" :key="fact.label" class="flex items-center gap-1.5">
-        <span class="text-base-content/40">{{ fact.label }}</span>
-        <span class="text-base-content/80 font-medium">{{ fact.value }}</span>
-      </span>
+      <div
+        v-for="m in hostMetrics"
+        :key="m.key"
+        class="border-base-content/10 bg-base-200/40 flex min-w-0 flex-col gap-0.5 rounded-lg border px-3 py-2.5"
+      >
+        <div class="flex min-w-0 items-center gap-1.5 text-xs font-medium" :class="m.textClass">
+          <component :is="m.icon" class="size-3.5 shrink-0" />
+          <span class="truncate">{{ m.label }}</span>
+        </div>
+        <div class="truncate text-xl leading-tight font-semibold tabular-nums">{{ m.value }}</div>
+        <div class="text-base-content/50 truncate text-[0.6875rem] tabular-nums">{{ m.sub }}</div>
+        <div v-if="m.percent !== undefined" class="bg-base-content/10 mt-1.5 h-1 overflow-hidden rounded-full">
+          <div
+            class="h-full rounded-full transition-[width] duration-500"
+            :class="m.percent > 90 ? 'bg-error' : m.percent > 70 ? 'bg-warning' : m.bar"
+            :style="{ width: `${Math.min(Math.max(m.percent, 0), 100)}%` }"
+          ></div>
+        </div>
+      </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
+import type { Component } from "vue";
 import type { Host } from "@/stores/hosts";
 import { sessionHost } from "@/composable/app/storage";
 import { Container } from "@/models/Container";
 import PhCpu from "~icons/ph/cpu";
 import PhMemory from "~icons/ph/memory";
+import PhHardDrives from "~icons/ph/hard-drives";
+import PhGauge from "~icons/ph/gauge";
+import PhClock from "~icons/ph/clock";
+import PhNetwork from "~icons/ph/network";
 
 const props = defineProps<{
   host: Host;
@@ -222,28 +243,68 @@ const diskPercent = computed(() => {
   return total > 0 ? ((total - free) / total) * 100 : 0;
 });
 
-const hostFacts = computed(() => {
-  const facts: { label: string; value: string }[] = [];
+type HostMetric = {
+  key: string;
+  label: string;
+  value: string;
+  sub: string;
+  icon: Component;
+  textClass: string;
+  bar: string;
+  percent?: number;
+};
+
+const hostMetrics = computed<HostMetric[]>(() => {
+  const m: HostMetric[] = [];
   if (props.host.diskTotal) {
     const used = props.host.diskTotal - (props.host.diskFree ?? 0);
-    facts.push({
+    m.push({
+      key: "disk",
       label: "Disk",
-      value: `${formatBytes(used, { short: true, decimals: 1 })} / ${formatBytes(props.host.diskTotal, { short: true, decimals: 1 })} (${diskPercent.value.toFixed(0)}%)`,
+      value: `${formatBytes(used, { short: true, decimals: 1 })} / ${formatBytes(props.host.diskTotal, { short: true, decimals: 1 })}`,
+      sub: `${diskPercent.value.toFixed(0)}% used`,
+      icon: PhHardDrives,
+      textClass: "text-info",
+      bar: "bg-info",
+      percent: diskPercent.value,
     });
   }
   if (props.host.load1 !== undefined) {
-    const l = [props.host.load1, props.host.load5, props.host.load15].filter((v) => v !== undefined && v !== null);
-    facts.push({ label: "Load", value: l.map((v) => (v as number).toFixed(2)).join(" ") });
-  }
-  const up = formatUptime(props.host.uptime);
-  if (up) facts.push({ label: "Uptime", value: up });
-  if (props.host.netRxTotal !== undefined) {
-    facts.push({
-      label: "Net",
-      value: `↓ ${formatBytes(props.host.netRxTotal ?? 0, { short: true, decimals: 1 })}  ↑ ${formatBytes(props.host.netTxTotal ?? 0, { short: true, decimals: 1 })}`,
+    const l = [props.host.load1, props.host.load5, props.host.load15].filter((v) => v !== undefined && v !== null) as number[];
+    m.push({
+      key: "load",
+      label: "Load",
+      value: l.map((v) => v.toFixed(2)).join(" "),
+      sub: "1m · 5m · 15m",
+      icon: PhGauge,
+      textClass: "text-accent",
+      bar: "bg-accent",
     });
   }
-  return facts;
+  const up = formatUptime(props.host.uptime);
+  if (up) {
+    m.push({
+      key: "uptime",
+      label: "Uptime",
+      value: up,
+      sub: "since boot",
+      icon: PhClock,
+      textClass: "text-success",
+      bar: "bg-success",
+    });
+  }
+  if (props.host.netRxTotal !== undefined) {
+    m.push({
+      key: "net",
+      label: "Network",
+      value: `↓ ${formatBytes(props.host.netRxTotal ?? 0, { short: true, decimals: 1 })}`,
+      sub: `↑ ${formatBytes(props.host.netTxTotal ?? 0, { short: true, decimals: 1 })}`,
+      icon: PhNetwork,
+      textClass: "text-warning",
+      bar: "bg-warning",
+    });
+  }
+  return m;
 });
 
 const stats = reactive({ mostRecent: totalStat, weighted: useExponentialMovingAverage(totalStat) });
