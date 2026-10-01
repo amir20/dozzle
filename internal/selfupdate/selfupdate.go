@@ -203,23 +203,65 @@ func start(ctx context.Context, cli dockerAPI, selfID string, progress func(cont
 
 	progress(container.UpdateProgress{Status: "recreating"})
 	spec := helperSpec(self, img.ID)
+	if err := launchHelper(ctx, cli, spec); err != nil {
+		return fail("%w", err)
+	}
 
+	log.Info().Str("helper", spec.Name).Str("image", ref).Str("newImage", img.ID).Msg("self-update: helper started, Dozzle will be replaced shortly")
+	progress(container.UpdateProgress{Status: "done"})
+	return true, nil
+}
+
+// StartRejoin launches the helper to recreate container selfID joined to
+// networkMode, on the image it already runs. Dozzle calls it after recreating
+// the container whose network namespace it shares, since its own namespace
+// went with the old one.
+func StartRejoin(ctx context.Context, selfID string, networkMode string) error {
+	cli, err := newClient(ctx)
+	if err != nil {
+		return err
+	}
+	defer cli.Close()
+	return startRejoin(ctx, cli, selfID, networkMode)
+}
+
+func startRejoin(ctx context.Context, cli dockerAPI, selfID string, networkMode string) error {
+	if !startMu.TryLock() {
+		return fmt.Errorf("a self-update is already in progress")
+	}
+	defer startMu.Unlock()
+
+	result, err := cli.ContainerInspect(ctx, selfID, client.ContainerInspectOptions{})
+	if err != nil {
+		return fmt.Errorf("inspect failed: %w", err)
+	}
+	spec := helperSpec(result.Container, result.Container.Image)
+	spec.Config.Cmd = append(spec.Config.Cmd, "--network", networkMode)
+	if err := launchHelper(ctx, cli, spec); err != nil {
+		return err
+	}
+	log.Info().Str("helper", spec.Name).Str("networkMode", networkMode).Msg("self-update: helper started, Dozzle will rejoin its network shortly")
+	return nil
+}
+
+// launchHelper creates and starts the helper container spec describes.
+func launchHelper(ctx context.Context, cli dockerAPI, spec client.ContainerCreateOptions) error {
 	created, err := cli.ContainerCreate(ctx, spec)
 	if isConflict(err) {
 		// A helper by that name already exists. A running one is an update in
 		// progress; anything else is left over and can go.
 		existing, inspectErr := cli.ContainerInspect(ctx, spec.Name, client.ContainerInspectOptions{})
 		if inspectErr == nil && existing.Container.State != nil && existing.Container.State.Running {
-			return fail("a self-update is already in progress (%s)", spec.Name)
+			return fmt.Errorf("a self-update is already in progress (%s)", spec.Name)
 		}
 		// Not forced: the engine refuses to remove a helper that started since.
 		if _, rmErr := cli.ContainerRemove(ctx, spec.Name, client.ContainerRemoveOptions{}); rmErr != nil && !isNotFound(rmErr) {
-			return fail("remove stale helper failed: %w", rmErr)
+			return fmt.Errorf("remove stale helper failed: %w", rmErr)
 		}
 		created, err = cli.ContainerCreate(ctx, spec)
 	}
 	if err != nil {
-		return fail("create helper failed: %w", err)
+		return fmt.Errorf("create helper failed: %w", err)
 	}
 
 	// A client that disconnects must not cancel a start the daemon may already
@@ -229,12 +271,9 @@ func start(ctx context.Context, cli dockerAPI, selfID string, progress func(cont
 		if _, rmErr := cli.ContainerRemove(ctx, created.ID, client.ContainerRemoveOptions{}); rmErr != nil {
 			log.Warn().Err(rmErr).Str("helper", spec.Name).Msg("self-update: unable to remove helper that failed to start")
 		}
-		return fail("start helper failed: %w", err)
+		return fmt.Errorf("start helper failed: %w", err)
 	}
-
-	log.Info().Str("helper", spec.Name).Str("image", ref).Str("newImage", img.ID).Msg("self-update: helper started, Dozzle will be replaced shortly")
-	progress(container.UpdateProgress{Status: "done"})
-	return true, nil
+	return nil
 }
 
 func running(state *dcontainer.State) bool {
