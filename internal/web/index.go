@@ -123,6 +123,18 @@ func (h *handler) executeTemplate(w http.ResponseWriter, req *http.Request) {
 		}
 	}
 
+	// A signed-in user has nothing to do on the login page. A back swipe or a stale
+	// tab lands here after the session is already set, so send them on to where
+	// the login would have.
+	if user != nil && req.URL.Path == "login" {
+		target := auth.SafeRelativePath(req.URL.Query().Get("redirectUrl"))
+		if target == "" {
+			target = "/"
+		}
+		http.Redirect(w, req, base+target, http.StatusTemporaryRedirect)
+		return
+	}
+
 	config := map[string]any{
 		"base": base,
 	}

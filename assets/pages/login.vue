@@ -71,7 +71,7 @@
           v-for="provider in oauthProviders"
           :key="provider.name"
           :href="loginUrlFor(provider)"
-          @click="pendingProvider = provider.name"
+          @click="startProvider($event, provider)"
           :aria-busy="pendingProvider === provider.name"
           class="btn border-base-content/15 bg-base-200 hover:border-base-content/25 hover:bg-base-300 h-12 gap-2.5 font-medium shadow-none"
           :class="{
@@ -140,6 +140,17 @@ function loginUrlFor({ loginUrl }: { loginUrl: string }) {
   return redirectUrl ? `${loginUrl}&redirectUrl=${encodeURIComponent(redirectUrl)}` : loginUrl;
 }
 
+// Every navigation off this page replaces it rather than pushing, so a back swipe
+// after signing in returns to wherever the user was before, not to a login form
+// they have already filled in.
+function startProvider(event: MouseEvent, provider: { name: string; loginUrl: string }) {
+  // A modified click is asking for a new tab, which leaves this page where it is.
+  if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+  event.preventDefault();
+  pendingProvider.value = provider.name;
+  window.location.replace(loginUrlFor(provider));
+}
+
 async function onLogin() {
   loading.value = true;
   const response = await fetch(withBase("/api/token"), {
@@ -149,7 +160,7 @@ async function onLogin() {
 
   if (response.status == 200) {
     error.value = false;
-    window.location.href = safeRedirect(params.get("redirectUrl"), config.base, window.location.origin);
+    window.location.replace(safeRedirect(params.get("redirectUrl"), config.base, window.location.origin));
   } else {
     error.value = true;
   }
