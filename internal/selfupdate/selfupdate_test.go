@@ -69,6 +69,9 @@ type fakeDocker struct {
 	// worker node's engine does.
 	service        *swarm.Service
 	serviceUpdates []client.ServiceUpdateOptions
+
+	// hasMarker names the containers whose filesystem a stat finds the marker in.
+	hasMarker map[string]bool
 }
 
 func (f *fakeDocker) record(format string, args ...any) {
@@ -92,6 +95,25 @@ func (f *fakeDocker) ContainerInspect(_ context.Context, id string, _ client.Con
 		return client.ContainerInspectResult{}, notFoundErr{}
 	}
 	return client.ContainerInspectResult{Container: c}, nil
+}
+
+func (f *fakeDocker) ContainerList(context.Context, client.ContainerListOptions) (client.ContainerListResult, error) {
+	var result client.ContainerListResult
+	for id, c := range f.containers {
+		item := dcontainer.Summary{ID: id}
+		if c.HostConfig != nil {
+			item.HostConfig.NetworkMode = string(c.HostConfig.NetworkMode)
+		}
+		result.Items = append(result.Items, item)
+	}
+	return result, nil
+}
+
+func (f *fakeDocker) ContainerStatPath(_ context.Context, id string, _ client.ContainerStatPathOptions) (client.ContainerStatPathResult, error) {
+	if !f.hasMarker[id] {
+		return client.ContainerStatPathResult{}, notFoundErr{}
+	}
+	return client.ContainerStatPathResult{}, nil
 }
 
 func (f *fakeDocker) ContainerCreate(_ context.Context, opts client.ContainerCreateOptions) (client.ContainerCreateResult, error) {

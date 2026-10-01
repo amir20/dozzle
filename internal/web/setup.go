@@ -15,6 +15,7 @@ import (
 	"github.com/amir20/dozzle/internal/config"
 	"github.com/amir20/dozzle/internal/container"
 	"github.com/amir20/dozzle/internal/profile"
+	"github.com/amir20/dozzle/internal/selfupdate"
 	"github.com/rs/zerolog/log"
 )
 
@@ -26,7 +27,7 @@ const setupWindow = 15 * time.Minute
 var (
 	setupConfigPath   = config.Path
 	setupPersisted    = profile.Persisted
-	setupSelfID       = profile.SelfContainerID
+	setupSelfID       = selfupdate.SelfID
 	setupRestartDelay = 500 * time.Millisecond
 	// setupRestarter restarts this process's own container. nil means use the
 	// local docker client.

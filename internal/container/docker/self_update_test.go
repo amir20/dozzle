@@ -42,14 +42,3 @@ func TestMayBeSelf(t *testing.T) {
 	selfContainerID = func() string { return full }
 	assert.False(t, mayBeSelf(inspect("0123456789ab", "amir20/dozzle:latest", nil)), "a known id decides through isSelf")
 }
-
-func TestJoinsNetworkOf(t *testing.T) {
-	const id = "abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789"
-	assert.True(t, joinsNetworkOf("container:"+id, id, "sidecar"), "compose writes the full id")
-	assert.True(t, joinsNetworkOf("container:"+id[:12], id, "sidecar"))
-	assert.True(t, joinsNetworkOf("container:sidecar", id, "sidecar"))
-	assert.False(t, joinsNetworkOf("container:abc", id, "sidecar"), "too short to be an id")
-	assert.False(t, joinsNetworkOf("container:other", id, "sidecar"))
-	assert.False(t, joinsNetworkOf("bridge", id, "sidecar"))
-	assert.False(t, joinsNetworkOf("container:", id, ""))
-}

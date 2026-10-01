@@ -256,7 +256,7 @@ func (d *Client) NetworkDependents(ctx context.Context, id string, name string) 
 	}
 	var ids []string
 	for _, c := range list.Items {
-		if c.ID != id && joinsNetworkOf(c.HostConfig.NetworkMode, id, name) {
+		if c.ID != id && selfupdate.JoinsNetworkOf(c.HostConfig.NetworkMode, id, name) {
 			ids = append(ids, c.ID)
 		}
 	}

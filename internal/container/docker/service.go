@@ -14,7 +14,6 @@ import (
 	"github.com/amir20/dozzle/internal/container"
 	"github.com/amir20/dozzle/internal/container/logparse"
 	"github.com/amir20/dozzle/internal/imagecheck"
-	"github.com/amir20/dozzle/internal/profile"
 	"github.com/amir20/dozzle/internal/selfupdate"
 
 	"github.com/moby/moby/api/pkg/stdcopy"
@@ -36,7 +35,7 @@ type UpdateClient interface {
 }
 
 var (
-	selfContainerID = profile.SelfContainerID
+	selfContainerID = selfupdate.SelfID
 	startSelfUpdate = selfupdate.Start
 	startRejoin     = selfupdate.StartRejoin
 	hostname        = os.Hostname
@@ -339,17 +338,6 @@ func (d *Service) UpdateContainer(ctx context.Context, c container.Container, pr
 
 	progress(container.UpdateProgress{Status: "done"})
 	return true, nil
-}
-
-// joinsNetworkOf reports whether a container with this network mode shares the
-// namespace of the container id named name. The engine keeps the reference as
-// it was given: compose writes the full id, docker run whatever was typed.
-func joinsNetworkOf(mode string, id string, name string) bool {
-	ref, ok := strings.CutPrefix(mode, "container:")
-	if !ok || ref == "" {
-		return false
-	}
-	return ref == name || (len(ref) >= 12 && strings.HasPrefix(id, ref))
 }
 
 // rejoinDependents recreates every container in ids, which shared the network
