@@ -545,7 +545,7 @@ declare global {
   export type { CloudAlert, CloudEvent } from './composable/cloud/cloudAlerts'
   import('./composable/cloud/cloudAlerts')
   // @ts-ignore
-  export type { ChatMessage } from './composable/cloud/cloudChat'
+  export type { ChatStep, ChatMessage } from './composable/cloud/cloudChat'
   import('./composable/cloud/cloudChat')
   // @ts-ignore
   export type { CloudLogHit } from './composable/cloud/cloudLogSearch'

@@ -722,6 +722,26 @@ cloud-chat:
     notifications: 알림 확인 중…
     action: 작업 실행 중…
     working: 작업 중…
+  step:
+    logs: 로그 검색 중
+    containers: 컨테이너 확인 중
+    stats: 리소스 사용량 확인 중
+    inspect: 컨테이너 검사 중
+    alerts: 알림 검토 중
+    findings: 발견 사항 검토 중
+    events: 컨테이너 기록 확인 중
+    docs: 문서 읽는 중
+    notifications: 알림 설정 확인 중
+    action: 작업 실행 중
+  phase:
+    reading: 질문 읽는 중
+    reviewing: 찾은 내용 검토 중
+    writing: 답변 작성 중
+    retrying: 평소보다 오래 걸려 다시 시도 중
+  found: "{n}개 찾음"
+  nothing-found: 찾은 항목 없음
+  worked-for: "{time} 동안 작업"
+  earlier: 이전 {n}개
   placeholder: 이 로그에 대해 질문
   historical: 기록 보기
   n-containers: 컨테이너 {n}개

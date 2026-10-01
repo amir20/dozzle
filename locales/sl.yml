@@ -725,6 +725,26 @@ cloud-chat:
     notifications: Preverjam obvestila…
     action: Izvajam dejanje…
     working: Delam…
+  step:
+    logs: Iskanje po dnevnikih
+    containers: Pregled vsebnikov
+    stats: Preverjanje porabe virov
+    inspect: Pregledovanje vsebnika
+    alerts: Pregled opozoril
+    findings: Pregled ugotovitev
+    events: Preverjanje zgodovine vsebnika
+    docs: Branje dokumentacije
+    notifications: Preverjanje obvestil
+    action: Izvajanje dejanja
+  phase:
+    reading: Branje vprašanja
+    reviewing: Pregled najdenega
+    writing: Pisanje odgovora
+    retrying: Traja dlje kot običajno, ponoven poskus
+  found: "najdeno: {n}"
+  nothing-found: nič najdenega
+  worked-for: "Delo: {time}"
+  earlier: "prejšnjih: {n}"
   placeholder: Vprašaj o teh dnevnikih
   historical: zgodovinsko
   n-containers: "Vsebnikov: {n}"

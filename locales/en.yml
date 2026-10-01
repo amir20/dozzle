@@ -270,6 +270,26 @@ cloud-chat:
     notifications: Checking notifications…
     action: Running the action…
     working: Working…
+  step:
+    logs: Searching logs
+    containers: Looking at containers
+    stats: Checking resource usage
+    inspect: Inspecting the container
+    alerts: Reviewing alerts
+    findings: Reviewing findings
+    events: Checking container history
+    docs: Reading the docs
+    notifications: Checking notifications
+    action: Running the action
+  phase:
+    reading: Reading the question
+    reviewing: Going over what it found
+    writing: Writing the answer
+    retrying: Taking longer than usual, trying again
+  found: "{n} found"
+  nothing-found: nothing found
+  worked-for: Worked for {time}
+  earlier: "{n} earlier"
   placeholder: Ask about these logs
   historical: historical
   n-containers: "{n} containers"

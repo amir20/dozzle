@@ -720,6 +720,26 @@ cloud-chat:
     notifications: Vérification des notifications…
     action: Exécution de l'action…
     working: En cours…
+  step:
+    logs: Recherche dans les logs
+    containers: Examen des conteneurs
+    stats: Vérification de l'utilisation des ressources
+    inspect: Inspection du conteneur
+    alerts: Examen des alertes
+    findings: Examen des constats
+    events: Vérification de l'historique du conteneur
+    docs: Lecture de la documentation
+    notifications: Vérification des notifications
+    action: Exécution de l'action
+  phase:
+    reading: Lecture de la question
+    reviewing: Analyse des résultats
+    writing: Rédaction de la réponse
+    retrying: Plus long que d'habitude, nouvel essai
+  found: "{n} trouvés"
+  nothing-found: rien trouvé
+  worked-for: A travaillé {time}
+  earlier: "{n} précédentes"
   placeholder: Poser une question sur ces logs
   historical: historique
   n-containers: "{n} conteneurs"

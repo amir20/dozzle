@@ -40,6 +40,8 @@ declare module 'vue' {
     ChatFocusedLine: typeof import('./components/cloud/chat/ChatFocusedLine.vue')['default']
     ChatMarkdown: typeof import('./components/cloud/chat/ChatMarkdown.vue')['default']
     ChatPane: typeof import('./components/cloud/chat/ChatPane.vue')['default']
+    ChatStepRow: typeof import('./components/cloud/chat/ChatStepRow.vue')['default']
+    ChatSteps: typeof import('./components/cloud/chat/ChatSteps.vue')['default']
     ChatViewContext: typeof import('./components/cloud/chat/ChatViewContext.vue')['default']
     'Cil:checkCircle': typeof import('~icons/cil/check-circle')['default']
     'Cil:circle': typeof import('~icons/cil/circle')['default']

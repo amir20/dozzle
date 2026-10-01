@@ -722,6 +722,26 @@ cloud-chat:
     notifications: 正在檢查通知…
     action: 正在執行操作…
     working: 處理中…
+  step:
+    logs: 搜尋日誌
+    containers: 查看容器
+    stats: 檢查資源使用量
+    inspect: 檢查容器
+    alerts: 檢視警報
+    findings: 檢視發現
+    events: 檢查容器歷史
+    docs: 閱讀文件
+    notifications: 檢查通知
+    action: 執行操作
+  phase:
+    reading: 閱讀問題
+    reviewing: 整理找到的內容
+    writing: 撰寫回答
+    retrying: 比平常久，正在重試
+  found: 找到 {n} 筆
+  nothing-found: 沒有找到
+  worked-for: 花了 {time}
+  earlier: 較早的 {n} 筆
   placeholder: 就這些日誌提問
   historical: 歷史
   n-containers: "{n} 個容器"

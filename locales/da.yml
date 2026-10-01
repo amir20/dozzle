@@ -720,6 +720,26 @@ cloud-chat:
     notifications: Tjekker notifikationer…
     action: Kører handlingen…
     working: Arbejder…
+  step:
+    logs: Søger i logs
+    containers: Ser på containere
+    stats: Tjekker ressourceforbrug
+    inspect: Inspicerer containeren
+    alerts: Gennemgår alarmer
+    findings: Gennemgår fund
+    events: Tjekker containerhistorik
+    docs: Læser dokumentationen
+    notifications: Tjekker notifikationer
+    action: Udfører handlingen
+  phase:
+    reading: Læser spørgsmålet
+    reviewing: Gennemgår det fundne
+    writing: Skriver svaret
+    retrying: Tager længere tid end normalt, prøver igen
+  found: "{n} fundet"
+  nothing-found: intet fundet
+  worked-for: Arbejdede i {time}
+  earlier: "{n} tidligere"
   placeholder: Spørg om disse logs
   historical: historisk
   n-containers: "{n} containere"
