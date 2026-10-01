@@ -20,6 +20,15 @@ type Host struct {
 	ValidCerts    bool     `json:"-"`
 	NCPU          int      `json:"nCPU"`
 	MemTotal      int64    `json:"memTotal"`
+	MemUsed       uint64   `json:"memUsed,omitempty"`
+	Load1         float64  `json:"load1,omitempty"`
+	Load5         float64  `json:"load5,omitempty"`
+	Load15        float64  `json:"load15,omitempty"`
+	Uptime        uint64   `json:"uptime,omitempty"`
+	DiskTotal     uint64   `json:"diskTotal,omitempty"`
+	DiskFree      uint64   `json:"diskFree,omitempty"`
+	NetRxTotal    uint64   `json:"netRxTotal,omitempty"`
+	NetTxTotal    uint64   `json:"netTxTotal,omitempty"`
 	Endpoint      string   `json:"endpoint"`
 	DockerVersion string   `json:"dockerVersion"`
 	Runtime       string   `json:"runtime,omitempty"`
@@ -45,6 +54,28 @@ type Host struct {
 
 func (h Host) String() string {
 	return fmt.Sprintf("ID: %s, Endpoint: %s, nCPU: %d, memTotal: %d", h.ID, h.Endpoint, h.NCPU, h.MemTotal)
+}
+
+// HostMetrics carries host-level metrics read from /proc and the root filesystem.
+// They are only meaningful for the local host (remote hosts get theirs through the agent).
+type HostMetrics struct {
+	Load1      float64
+	Load5      float64
+	Load15     float64
+	Uptime     uint64
+	MemUsed    uint64
+	DiskTotal  uint64
+	DiskFree   uint64
+	NetRxTotal uint64
+	NetTxTotal uint64
+}
+
+func (h *Host) ApplyHostMetrics(m HostMetrics) {
+	h.Load1, h.Load5, h.Load15 = m.Load1, m.Load5, m.Load15
+	h.Uptime = m.Uptime
+	h.MemUsed = m.MemUsed
+	h.DiskTotal, h.DiskFree = m.DiskTotal, m.DiskFree
+	h.NetRxTotal, h.NetTxTotal = m.NetRxTotal, m.NetTxTotal
 }
 
 func ParseConnection(connection string) (Host, error) {

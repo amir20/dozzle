@@ -87,6 +87,14 @@ func NewClient(cli CLI, host container.Host, hostIDs container.HostIDResolver) *
 		host.SwarmClusterID = info.Swarm.Cluster.ID
 	}
 
+	// Host-level metrics (load, uptime, memory, disk, network) are read from the
+	// local /proc and root filesystem. Remote hosts get theirs through the agent.
+	if host.Type == "local" {
+		if m, ok := container.ReadHostMetrics(); ok {
+			host.ApplyHostMetrics(m)
+		}
+	}
+
 	return &Client{
 		cli:  cli,
 		host: host,
