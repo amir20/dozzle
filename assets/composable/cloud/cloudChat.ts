@@ -11,9 +11,31 @@ function errorText(code?: string, text?: string) {
   return text;
 }
 
+/** One entry in a turn's progress trail, as cloud sent it. See cloud.proto. */
+export type ChatStep = {
+  id: number;
+  /** Cloud's tool name; empty for a model round. */
+  tool?: string;
+  /** What a model round is doing: reading | reviewing | writing | retrying. */
+  phase?: string;
+  /** Cloud's English, for a tool or phase this build has no words for. */
+  label: string;
+  detail?: string;
+  state: "running" | "done" | "failed";
+  /** Results the call returned; 0 is nothing found, -1 not a count. */
+  count: number;
+  summary?: string;
+  durationMs: number;
+};
+
 export type ChatMessage = {
   role: "user" | "assistant";
   text: string;
+  /** What the assistant did on the way to this answer, in the order it began. */
+  steps?: ChatStep[];
+  /** When the turn started, and how long it took once it is over. */
+  startedAt?: number;
+  ms?: number;
   /** The context the turn was asked with, shown above a user message so the
    *  thread records what the assistant was looking at when it answered. */
   view?: ViewContext;
@@ -81,7 +103,7 @@ export function useCloudChat() {
     focused.value = undefined;
 
     messages.value.push({ role: "user", text: message, view });
-    const reply = reactive<ChatMessage>({ role: "assistant", text: "" });
+    const reply = reactive<ChatMessage>({ role: "assistant", text: "", steps: [], startedAt: Date.now() });
     messages.value.push(reply);
     streaming.value = true;
     status.value = "";
@@ -124,6 +146,13 @@ export function useCloudChat() {
             // The model fell back, or a round turned into a tool call. What has
             // been shown is no longer part of the answer.
             reply.text = "";
+          } else if (event.kind === "step" && event.step) {
+            // Sent on start and again on finish under the same id.
+            const step = event.step as ChatStep;
+            const steps = reply.steps!;
+            const i = steps.findIndex((s) => s.id === step.id);
+            if (i === -1) steps.push(step);
+            else steps[i] = step;
           } else if (event.kind === "status") {
             // One or the other, never both stacked: whichever arrived last is
             // what is happening now.
@@ -139,6 +168,7 @@ export function useCloudChat() {
       reply.text = errorText();
       reply.error = true;
     } finally {
+      reply.ms = Date.now() - reply.startedAt!;
       streaming.value = false;
       status.value = "";
       activity.value = "";

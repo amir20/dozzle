@@ -79,3 +79,18 @@ func TestChatToolResponse_AnswersRequestsItCannotServe(t *testing.T) {
 	assert.Equal(t, "req-3", resp.RequestId)
 	assert.False(t, resp.GetCallTool().Success)
 }
+
+func TestStepFromProto(t *testing.T) {
+	got := stepFromProto(&pb.ChatStep{
+		Id: 3, Tool: "search_logs", Label: "Searching logs", Detail: "nginx",
+		State: pb.ChatStepState_CHAT_STEP_STATE_DONE, Count: 42, Summary: "42 log entries", DurationMs: 120,
+	})
+	want := ChatStep{ID: 3, Tool: "search_logs", Label: "Searching logs", Detail: "nginx", State: "done", Count: 42, Summary: "42 log entries", DurationMS: 120}
+	if *got != want {
+		t.Fatalf("got %+v, want %+v", *got, want)
+	}
+	// A cloud that sends no state is still running: that is the enum's zero.
+	if s := stepFromProto(&pb.ChatStep{Id: 1, Phase: "reading"}); s.State != "running" {
+		t.Fatalf("zero state = %q, want running", s.State)
+	}
+}

@@ -130,7 +130,41 @@ message ChatServerEvent {
     ChatDone done = 3;
     ChatError error = 4;
     ToolRequest tool_call = 5;
+    ChatStep step = 6;
   }
+}
+
+// ChatStep is one entry in the turn's progress trail: a tool call or a model
+// round. Each is sent when it starts and again, same id, when it finishes, so
+// the pane updates it in place. A build that predates it skips the event and
+// keeps showing ChatStatus, which cloud still sends.
+//
+// The pane picks its own words from tool and phase, in the reader's language;
+// label and summary are cloud's English, for a tool or phase it does not know.
+message ChatStep {
+  int32 id = 1;
+  // The tool's name as cloud calls it (search_logs, rpc_inspect_container, …).
+  // Empty for a model round.
+  string tool = 2;
+  // What a model round is doing: reading | reviewing | writing | retrying.
+  // Empty for a tool call.
+  string phase = 3;
+  string label = 4;
+  // What the call was about, from its arguments ("nginx · \"timeout\""). Data,
+  // not prose, so it is shown as it came.
+  string detail = 5;
+  ChatStepState state = 6;
+  // How many results the call returned; 0 is nothing found, -1 a result that
+  // is not a count.
+  int32 count = 7;
+  string summary = 8;
+  int64 duration_ms = 9;
+}
+
+enum ChatStepState {
+  CHAT_STEP_STATE_RUNNING = 0;
+  CHAT_STEP_STATE_DONE = 1;
+  CHAT_STEP_STATE_FAILED = 2;
 }
 
 // ChatStatus is what the assistant is doing right now ("reading logs"), shown

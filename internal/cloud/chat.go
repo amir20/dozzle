@@ -51,7 +51,7 @@ type ViewContext struct {
 }
 
 // ChatEvent is one thing that happened during a turn, on its way to the
-// browser. Kind is "status", "delta", "reset", "done" or "error".
+// browser. Kind is "status", "step", "delta", "reset", "done" or "error".
 type ChatEvent struct {
 	Kind string `json:"kind"`
 	Text string `json:"text,omitempty"`
@@ -62,6 +62,42 @@ type ChatEvent struct {
 	Activity  string `json:"activity,omitempty"`
 	SessionID string `json:"sessionId,omitempty"`
 	Code      string `json:"code,omitempty"`
+	// Step is set on a "step" event: one entry in the turn's progress trail.
+	Step *ChatStep `json:"step,omitempty"`
+}
+
+// ChatStep is pb.ChatStep for the browser. See cloud.proto for the fields.
+type ChatStep struct {
+	ID         int32  `json:"id"`
+	Tool       string `json:"tool,omitempty"`
+	Phase      string `json:"phase,omitempty"`
+	Label      string `json:"label"`
+	Detail     string `json:"detail,omitempty"`
+	State      string `json:"state"`
+	Count      int32  `json:"count"`
+	Summary    string `json:"summary,omitempty"`
+	DurationMS int64  `json:"durationMs"`
+}
+
+func stepFromProto(s *pb.ChatStep) *ChatStep {
+	state := "running"
+	switch s.GetState() {
+	case pb.ChatStepState_CHAT_STEP_STATE_DONE:
+		state = "done"
+	case pb.ChatStepState_CHAT_STEP_STATE_FAILED:
+		state = "failed"
+	}
+	return &ChatStep{
+		ID:         s.GetId(),
+		Tool:       s.GetTool(),
+		Phase:      s.GetPhase(),
+		Label:      s.GetLabel(),
+		Detail:     s.GetDetail(),
+		State:      state,
+		Count:      s.GetCount(),
+		Summary:    s.GetSummary(),
+		DurationMS: s.GetDurationMs(),
+	}
 }
 
 // ChatCredentials is resolved per turn rather than read from the client's
@@ -140,6 +176,8 @@ func (c *Client) Chat(
 		switch t := event.GetType().(type) {
 		case *pb.ChatServerEvent_Status:
 			emit(ChatEvent{Kind: "status", Text: t.Status.GetText()})
+		case *pb.ChatServerEvent_Step:
+			emit(ChatEvent{Kind: "step", Step: stepFromProto(t.Step)})
 		case *pb.ChatServerEvent_Delta:
 			if t.Delta.GetReset_() {
 				emit(ChatEvent{Kind: "reset"})
