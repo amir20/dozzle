@@ -12,23 +12,51 @@ import (
 
 var errShort = errors.New("unexpected proc format")
 
-// hostProcRoot returns the directory holding the *host* /proc, mounted by the
-// operator at /host/proc. Without that mount we cannot tell the host's values
-// from the container's, so we report nothing rather than something wrong.
+// inContainer reports whether we are running inside a container, where /proc
+// describes the container rather than the host. Detection is heuristic (the
+// usual marker files and the init cgroup), which is all the kernel exposes.
+func inContainer() bool {
+	if _, err := os.Stat("/.dockerenv"); err == nil {
+		return true
+	}
+	if _, err := os.Stat("/run/.containerenv"); err == nil { // podman
+		return true
+	}
+	if b, err := os.ReadFile("/proc/1/cgroup"); err == nil {
+		s := string(b)
+		for _, marker := range []string{"docker", "kubepods", "containerd", "lxc", "buildkit"} {
+			if strings.Contains(s, marker) {
+				return true
+			}
+		}
+	}
+	return false
+}
+
+// hostProcRoot returns the directory holding the *host* /proc. Operators running
+// Dozzle in a container mount it at /host/proc; a native install has it at /proc.
+// In a container without the mount we cannot tell the host's values from the
+// container's, so we report nothing rather than something wrong.
 func hostProcRoot() (string, bool) {
-	const p = "/host/proc"
-	if _, err := os.Stat(p + "/loadavg"); err == nil {
-		return p, true
+	if _, err := os.Stat("/host/proc/loadavg"); err == nil {
+		return "/host/proc", true
+	}
+	if !inContainer() {
+		if _, err := os.Stat("/proc/loadavg"); err == nil {
+			return "/proc", true
+		}
 	}
 	return "", false
 }
 
-// hostRootPath returns the directory holding the host root filesystem, mounted
-// at /host/root. Disk capacity is only meaningful when that mount is present.
+// hostRootPath returns the directory holding the host root filesystem: /host/root
+// when the container mounts it, / on a native install.
 func hostRootPath() (string, bool) {
-	const p = "/host/root"
-	if _, err := os.Stat(p); err == nil {
-		return p, true
+	if _, err := os.Stat("/host/root"); err == nil {
+		return "/host/root", true
+	}
+	if !inContainer() {
+		return "/", true
 	}
 	return "", false
 }

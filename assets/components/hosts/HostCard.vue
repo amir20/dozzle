@@ -272,7 +272,9 @@ const hostMetrics = computed<HostMetric[]>(() => {
       textClass: "text-success",
     });
   }
-  if (props.host.metricsAvailable) {
+  // Network totals are cumulative, so `omitempty` dropping them means the read
+  // failed (or the interface is brand new); don't show a misleading 0.
+  if (props.host.netRxTotal !== undefined) {
     m.push({
       key: "net",
       label: t("label.network"),

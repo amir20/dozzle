@@ -51,6 +51,7 @@ func (h *handler) streamEvents(w http.ResponseWriter, r *http.Request) {
 	events := make(chan container.ContainerEvent, eventBufferSize)
 	stats := make(chan container.ContainerStat, statBufferSize)
 	availableHosts := make(chan container.Host)
+	hostRefreshes := make(chan []container.Host, 1)
 
 	h.hostService.SubscribeEventsAndStats(container.WithSubscriberName(r.Context(), "sse-events"), events, stats)
 	h.hostService.SubscribeAvailableHosts(r.Context(), availableHosts)
@@ -321,7 +322,16 @@ func (h *handler) streamEvents(w http.ResponseWriter, r *http.Request) {
 				}
 			}
 		case <-hostMetricsTicker.C:
-			for _, host := range h.hostService.Hosts() {
+			// Hosts() dials every agent, so run it off this loop: a slow agent would
+			// otherwise hold up every log line queued behind the probe.
+			go func() {
+				select {
+				case hostRefreshes <- h.hostService.Hosts():
+				case <-r.Context().Done():
+				}
+			}()
+		case hosts := <-hostRefreshes:
+			for _, host := range hosts {
 				if host.Type != "local" {
 					continue
 				}
