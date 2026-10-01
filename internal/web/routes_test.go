@@ -65,6 +65,12 @@ func (m *MockedClient) ContainerCreate(ctx context.Context, inspectResp docker_t
 	return args.Get(0).(string), args.Error(1)
 }
 
+func (m *MockedClient) NetworkDependents(ctx context.Context, id string, name string) ([]string, error) {
+	args := m.Called(ctx, id, name)
+	ids, _ := args.Get(0).([]string)
+	return ids, args.Error(1)
+}
+
 func (m *MockedClient) ServiceUpdate(ctx context.Context, serviceID string, imageName string) error {
 	args := m.Called(ctx, serviceID, imageName)
 	return args.Error(0)

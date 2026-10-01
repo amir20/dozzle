@@ -43,7 +43,20 @@ func Run(ctx context.Context, targetID string) error {
 		return err
 	}
 	defer cli.Close()
-	return run(ctx, cli, targetID)
+	return run(ctx, cli, targetID, "")
+}
+
+// Rejoin recreates targetID the same way Run does, but joined to networkMode
+// (container:<id>) and even when its image has not changed. A container that
+// shares another's network namespace by id is cut off for good once that one
+// is recreated, and restarting it fails because the id no longer exists.
+func Rejoin(ctx context.Context, targetID string, networkMode string) error {
+	cli, err := newClient(ctx)
+	if err != nil {
+		return err
+	}
+	defer cli.Close()
+	return run(ctx, cli, targetID, networkMode)
 }
 
 type swap struct {
@@ -52,6 +65,8 @@ type swap struct {
 	oldImage *image.InspectResponse
 	name     string
 	tmpName  string
+	// networkMode, when set, replaces the old container's network mode.
+	networkMode string
 
 	renamed bool
 	stopped bool
@@ -59,7 +74,7 @@ type swap struct {
 	newID   string
 }
 
-func run(ctx context.Context, cli dockerAPI, targetID string) error {
+func run(ctx context.Context, cli dockerAPI, targetID string, networkMode string) error {
 	result, err := cli.ContainerInspect(ctx, targetID, client.ContainerInspectOptions{})
 	if err != nil {
 		return fmt.Errorf("inspect %s: %w", targetID, err)
@@ -73,10 +88,11 @@ func run(ctx context.Context, cli dockerAPI, targetID string) error {
 	}
 
 	s := &swap{
-		cli:     cli,
-		old:     old,
-		name:    trimName(old.Name),
-		tmpName: oldName(trimName(old.Name), old.ID),
+		cli:         cli,
+		old:         old,
+		name:        trimName(old.Name),
+		tmpName:     oldName(trimName(old.Name), old.ID),
+		networkMode: networkMode,
 	}
 	logger := log.With().Str("container", s.name).Str("id", shortID(old.ID)).Logger()
 
@@ -85,7 +101,7 @@ func run(ctx context.Context, cli dockerAPI, targetID string) error {
 	if err != nil {
 		return fmt.Errorf("resolve image %s: %w", ref, err)
 	}
-	if newImage.ID == old.Image {
+	if newImage.ID == old.Image && networkMode == "" {
 		logger.Info().Str("image", ref).Msg("self-update: already on the latest image, nothing to do")
 		return nil
 	}
@@ -100,6 +116,7 @@ func run(ctx context.Context, cli dockerAPI, targetID string) error {
 		Str("from", shortID(old.Image)).
 		Str("to", shortID(newImage.ID)).
 		Bool("autoRemove", old.HostConfig.AutoRemove).
+		Str("networkMode", networkMode).
 		Msg("self-update: starting")
 
 	if err := s.forward(ctx); err != nil {
@@ -126,7 +143,11 @@ func (s *swap) forward(ctx context.Context) error {
 	s.renamed = true
 
 	logger.Info().Msg("self-update: creating replacement")
-	created, err := s.cli.ContainerCreate(ctx, ReplacementSpec(s.old, s.oldImage, s.name))
+	spec := ReplacementSpec(s.old, s.oldImage, s.name)
+	if s.networkMode != "" {
+		spec.HostConfig.NetworkMode = dcontainer.NetworkMode(s.networkMode)
+	}
+	created, err := s.cli.ContainerCreate(ctx, spec)
 	if err != nil {
 		return fmt.Errorf("create replacement: %w", err)
 	}
@@ -205,6 +226,9 @@ func (s *swap) rollback(ctx context.Context) error {
 		// A --rm container removed itself on stop. Rebuild it on the image it
 		// was running; its volumes are still there, held by name.
 		spec := ReplacementSpec(s.old, nil, s.name)
+		if s.networkMode != "" {
+			spec.HostConfig.NetworkMode = dcontainer.NetworkMode(s.networkMode)
+		}
 		if ref := spec.Config.Image; !imageIDRef.MatchString(ref) {
 			if spec.Config.Labels == nil {
 				spec.Config.Labels = map[string]string{}
