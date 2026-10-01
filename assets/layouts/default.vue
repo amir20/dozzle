@@ -55,7 +55,7 @@
       <template #fallback> <span class="loading loading-spinner loading-sm"></span></template>
     </Suspense>
   </SideDrawer>
-  <ToastModal />
+  <ToastModal :above-tab-bar="showTabBar" />
   <SetupWizard />
 </template>
 
