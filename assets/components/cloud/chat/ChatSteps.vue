@@ -66,8 +66,14 @@ const visible = computed(() => lookups.value.slice(hidden.value));
 
 const expanded = ref(false);
 
+// The clock only ticks while live; a finished answer keeps no timer.
 const now = ref(Date.now());
-useIntervalFn(() => (now.value = Date.now()), 1000);
+const { pause, resume } = useIntervalFn(() => (now.value = Date.now()), 1000, { immediate: false });
+watch(
+  () => props.live,
+  (live) => (live ? resume() : pause()),
+  { immediate: true },
+);
 const elapsed = computed(() =>
   props.live && props.startedAt ? Math.max(0, Math.floor((now.value - props.startedAt) / 1000)) : 0,
 );
