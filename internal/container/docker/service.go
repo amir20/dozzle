@@ -347,6 +347,10 @@ func (d *Service) UpdateContainer(ctx context.Context, c container.Container, pr
 // process halfway through.
 func (d *Service) rejoinDependents(ctx context.Context, ids []string, oldID, newID string) error {
 	var errs []error
+	// The helper stops this process within seconds, so Dozzle goes last:
+	// stopped between a remove and a create, a dependent would be lost.
+	var self *docker_types.InspectResponse
+	var selfMode string
 	for _, id := range ids {
 		inspect, err := d.client.ContainerInspect(ctx, id)
 		if err != nil {
@@ -363,9 +367,7 @@ func (d *Service) rejoinDependents(ctx context.Context, ids []string, oldID, new
 		}
 
 		if isSelf(inspect.ID) {
-			if err := startRejoin(ctx, inspect.ID, mode); err != nil {
-				errs = append(errs, fmt.Errorf("rejoin %s failed: %w", name, err))
-			}
+			self, selfMode = &inspect, mode
 			continue
 		}
 		if mayBeSelf(inspect) {
@@ -397,6 +399,11 @@ func (d *Service) rejoinDependents(ctx context.Context, ids []string, oldID, new
 			if err := d.client.ContainerActions(ctx, container.Start, depID); err != nil {
 				errs = append(errs, fmt.Errorf("start %s failed: %w", name, err))
 			}
+		}
+	}
+	if self != nil {
+		if err := startRejoin(ctx, self.ID, selfMode); err != nil {
+			errs = append(errs, fmt.Errorf("rejoin %s failed: %w", strings.TrimPrefix(self.Name, "/"), err))
 		}
 	}
 	return errors.Join(errs...)
