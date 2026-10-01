@@ -117,6 +117,17 @@
         :formatValue="(value) => formatBytes(value, { decimals: 1 })"
       />
     </div>
+
+    <!-- Host facts (disk, load, uptime, network) read from the host /proc. -->
+    <div
+      v-if="host.available && hostFacts.length"
+      class="border-base-content/10 text-base-content/60 flex flex-wrap items-center gap-x-4 gap-y-1 border-t pt-2 text-xs tabular-nums"
+    >
+      <span v-for="fact in hostFacts" :key="fact.label" class="flex items-center gap-1.5">
+        <span class="text-base-content/40">{{ fact.label }}</span>
+        <span class="text-base-content/80 font-medium">{{ fact.value }}</span>
+      </span>
+    </div>
   </div>
 </template>
 
@@ -194,6 +205,46 @@ const memHistory = computed(() =>
     value: stat.totalMemUsage,
   })),
 );
+
+const formatUptime = (secs?: number) => {
+  if (!secs) return undefined;
+  const d = Math.floor(secs / 86400);
+  const h = Math.floor((secs % 86400) / 3600);
+  const m = Math.floor((secs % 3600) / 60);
+  if (d > 0) return `${d}d ${h}h`;
+  if (h > 0) return `${h}h ${m}m`;
+  return `${m}m`;
+};
+
+const diskPercent = computed(() => {
+  const total = props.host.diskTotal ?? 0;
+  const free = props.host.diskFree ?? 0;
+  return total > 0 ? ((total - free) / total) * 100 : 0;
+});
+
+const hostFacts = computed(() => {
+  const facts: { label: string; value: string }[] = [];
+  if (props.host.diskTotal) {
+    const used = props.host.diskTotal - (props.host.diskFree ?? 0);
+    facts.push({
+      label: "Disk",
+      value: `${formatBytes(used, { short: true, decimals: 1 })} / ${formatBytes(props.host.diskTotal, { short: true, decimals: 1 })} (${diskPercent.value.toFixed(0)}%)`,
+    });
+  }
+  if (props.host.load1 !== undefined) {
+    const l = [props.host.load1, props.host.load5, props.host.load15].filter((v) => v !== undefined && v !== null);
+    facts.push({ label: "Load", value: l.map((v) => (v as number).toFixed(2)).join(" ") });
+  }
+  const up = formatUptime(props.host.uptime);
+  if (up) facts.push({ label: "Uptime", value: up });
+  if (props.host.netRxTotal !== undefined) {
+    facts.push({
+      label: "Net",
+      value: `↓ ${formatBytes(props.host.netRxTotal ?? 0, { short: true, decimals: 1 })}  ↑ ${formatBytes(props.host.netTxTotal ?? 0, { short: true, decimals: 1 })}`,
+    });
+  }
+  return facts;
+});
 
 const stats = reactive({ mostRecent: totalStat, weighted: useExponentialMovingAverage(totalStat) });
 

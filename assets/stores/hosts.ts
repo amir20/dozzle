@@ -3,6 +3,15 @@ export type Host = {
   name: string;
   nCPU: number;
   memTotal: number;
+  memUsed?: number;
+  load1?: number;
+  load5?: number;
+  load15?: number;
+  uptime?: number;
+  diskTotal?: number;
+  diskFree?: number;
+  netRxTotal?: number;
+  netTxTotal?: number;
   type: "agent" | "local" | "remote" | "swarm" | "k8s";
   endpoint: string;
   available: boolean;
