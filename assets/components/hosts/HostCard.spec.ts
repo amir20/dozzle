@@ -28,7 +28,25 @@ const MetricCardStub = defineComponent({
   },
 });
 
-const i18n = createI18n({ legacy: false, locale: "en", missingWarn: false, fallbackWarn: false, messages: { en: {} } });
+const i18n = createI18n({
+  legacy: false,
+  locale: "en",
+  missingWarn: false,
+  fallbackWarn: false,
+  messages: {
+    en: {
+      label: {
+        disk: "Disk",
+        load: "Load",
+        uptime: "Uptime",
+        network: "Network",
+        "since-boot": "since boot",
+        "load-avg": "1m · 5m · 15m",
+        "used-percent": "{percent}% used",
+      },
+    },
+  },
+});
 
 const host: Host = {
   id: "host1",
@@ -83,5 +101,37 @@ describe("<HostCard />", () => {
 
     const cpu = wrapper.findAllComponents(MetricCardStub).find((card) => card.props("label") === "CPU")!;
     expect(cpu.props("value")).toBeCloseTo(37.5);
+  });
+
+  test("renders host metric tiles when the host reports them", () => {
+    global.EventSource = EventSource;
+    const hostWithMetrics: Host = {
+      ...host,
+      memUsed: 1,
+      load1: 0.5,
+      load5: 0.4,
+      load15: 0.3,
+      uptime: 90061,
+      diskTotal: 1000,
+      diskFree: 200,
+      netRxTotal: 2048,
+      netTxTotal: 1024,
+    };
+    const wrapper = mount(HostCard, {
+      props: { host: hostWithMetrics },
+      global: {
+        plugins: [
+          i18n,
+          createTestingPinia({ createSpy: vi.fn, initialState: { container: { containers: [] } } }),
+        ],
+        stubs: { MetricCard: MetricCardStub, HostIcon: true },
+      },
+    });
+
+    const text = wrapper.text();
+    expect(text).toContain("Disk");
+    expect(text).toContain("Load");
+    expect(text).toContain("Uptime");
+    expect(text).toContain("Network");
   });
 });

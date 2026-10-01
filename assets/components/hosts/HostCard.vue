@@ -260,9 +260,9 @@ const hostMetrics = computed<HostMetric[]>(() => {
     const used = props.host.diskTotal - (props.host.diskFree ?? 0);
     m.push({
       key: "disk",
-      label: "Disk",
+      label: t("label.disk"),
       value: `${formatBytes(used, { short: true, decimals: 1 })} / ${formatBytes(props.host.diskTotal, { short: true, decimals: 1 })}`,
-      sub: `${diskPercent.value.toFixed(0)}% used`,
+      sub: t("label.used-percent", { percent: diskPercent.value.toFixed(0) }),
       icon: PhHardDrives,
       textClass: "text-info",
       bar: "bg-info",
@@ -273,9 +273,9 @@ const hostMetrics = computed<HostMetric[]>(() => {
     const l = [props.host.load1, props.host.load5, props.host.load15].filter((v) => v !== undefined && v !== null) as number[];
     m.push({
       key: "load",
-      label: "Load",
+      label: t("label.load"),
       value: l.map((v) => v.toFixed(2)).join(" "),
-      sub: "1m · 5m · 15m",
+      sub: t("label.load-avg"),
       icon: PhGauge,
       textClass: "text-accent",
       bar: "bg-accent",
@@ -285,9 +285,9 @@ const hostMetrics = computed<HostMetric[]>(() => {
   if (up) {
     m.push({
       key: "uptime",
-      label: "Uptime",
+      label: t("label.uptime"),
       value: up,
-      sub: "since boot",
+      sub: t("label.since-boot"),
       icon: PhClock,
       textClass: "text-success",
       bar: "bg-success",
@@ -296,7 +296,7 @@ const hostMetrics = computed<HostMetric[]>(() => {
   if (props.host.netRxTotal !== undefined) {
     m.push({
       key: "net",
-      label: "Network",
+      label: t("label.network"),
       value: `↓ ${formatBytes(props.host.netRxTotal ?? 0, { short: true, decimals: 1 })}`,
       sub: `↑ ${formatBytes(props.host.netTxTotal ?? 0, { short: true, decimals: 1 })}`,
       icon: PhNetwork,
