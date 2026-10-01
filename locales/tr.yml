@@ -720,6 +720,26 @@ cloud-chat:
     notifications: Bildirimler kontrol ediliyor…
     action: İşlem çalıştırılıyor…
     working: Çalışıyor…
+  step:
+    logs: Loglarda aranıyor
+    containers: Container'lara bakılıyor
+    stats: Kaynak kullanımı kontrol ediliyor
+    inspect: Container inceleniyor
+    alerts: Uyarılar gözden geçiriliyor
+    findings: Bulgular gözden geçiriliyor
+    events: Container geçmişi kontrol ediliyor
+    docs: Belgeler okunuyor
+    notifications: Bildirimler kontrol ediliyor
+    action: İşlem çalıştırılıyor
+  phase:
+    reading: Soru okunuyor
+    reviewing: Bulunanlar değerlendiriliyor
+    writing: Yanıt yazılıyor
+    retrying: Normalden uzun sürüyor, yeniden deneniyor
+  found: "{n} bulundu"
+  nothing-found: hiçbir şey bulunamadı
+  worked-for: "{time} çalıştı"
+  earlier: "{n} önceki"
   placeholder: Bu loglar hakkında sor
   historical: geçmiş
   n-containers: "{n} konteyner"
