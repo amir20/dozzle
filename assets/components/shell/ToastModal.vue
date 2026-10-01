@@ -9,7 +9,10 @@
     tag="div"
     name="toast"
     class="toast toast-end max-md:toast-center max-md:toast-bottom whitespace-normal max-md:w-full max-md:px-2"
-    :style="railOffset ? { paddingInlineEnd: `${railOffset}px` } : undefined"
+    :style="{
+      paddingInlineEnd: railOffset ? `${railOffset}px` : undefined,
+      bottom: aboveTabBar ? 'var(--mobile-tabbar-height)' : undefined,
+    }"
   >
     <div
       class="rounded-box border-base-content/10 bg-base-200 relative flex w-96 max-w-full flex-col gap-2.5 overflow-hidden border p-3.5 shadow-sm max-md:w-full"
@@ -85,6 +88,8 @@
   </TransitionGroup>
 </template>
 <script lang="ts" setup>
+// The phone tab bar floats over the bottom edge, so toasts stack above it.
+const { aboveTabBar = false } = defineProps<{ aboveTabBar?: boolean }>();
 const { toasts, removeToast } = useToast();
 // The rail is fixed to the same edge the toasts stack against, so a notice
 // would land on top of its icons. The layout pads the page by this width for
