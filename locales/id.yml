@@ -108,6 +108,12 @@ label:
   name: Nama
   cpu: CPU
   core: Tidak ada inti | 1 inti | {count} inti
+  disk: Disk
+  load: Beban
+  uptime: Waktu aktif
+  network: Jaringan
+  since-boot: sejak boot
+  load-avg: 1m · 5m · 15m
   mem: MEM
   pinned: Disematkan
   per-page: Baris per halaman

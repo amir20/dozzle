@@ -107,6 +107,12 @@ label:
   name: Ad
   cpu: CPU
   core: Çekirdek yok | 1 çekirdek | {count} çekirdek
+  disk: Disk
+  load: Yük
+  uptime: Çalışma süresi
+  network: Ağ
+  since-boot: açılıştan beri
+  load-avg: 1m · 5m · 15m
   mem: MEM
   pinned: Sabitlenmiş
   per-page: Sayfa başına satır

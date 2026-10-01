@@ -107,6 +107,7 @@ describe("<HostCard />", () => {
     global.EventSource = EventSource;
     const hostWithMetrics: Host = {
       ...host,
+      metricsAvailable: true,
       memUsed: 1,
       load1: 0.5,
       load5: 0.4,
@@ -133,5 +134,30 @@ describe("<HostCard />", () => {
     expect(text).toContain("Load");
     expect(text).toContain("Uptime");
     expect(text).toContain("Network");
+
+    // Values, not just labels: an idle-looking 0.00 load must survive, 90061s
+    // is "1d 1h", the disk is 800/1000 used (80.0%) and network has a direction.
+    expect(text).toContain("0.50 0.40 0.30");
+    expect(text).toContain("1d 1h");
+    expect(text).toContain("80.0%");
+    expect(text).toContain("↓");
+  });
+
+  test("hides host metric tiles when the host reports no metrics", () => {
+    global.EventSource = EventSource;
+    const wrapper = mount(HostCard, {
+      props: { host },
+      global: {
+        plugins: [
+          i18n,
+          createTestingPinia({ createSpy: vi.fn, initialState: { container: { containers: [] } } }),
+        ],
+        stubs: { MetricCard: MetricCardStub, HostIcon: true },
+      },
+    });
+
+    // `host` has no metricsAvailable, so nothing should render as host metrics.
+    expect(wrapper.text()).not.toContain("Disk");
+    expect(wrapper.text()).not.toContain("Load");
   });
 });

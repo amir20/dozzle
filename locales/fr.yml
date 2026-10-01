@@ -107,6 +107,12 @@ label:
   name: Nom
   cpu: CPU
   core: Aucun cœur | 1 cœur | {count} cœurs
+  disk: Disque
+  load: Charge
+  uptime: Durée de fonctionnement
+  network: Réseau
+  since-boot: depuis le démarrage
+  load-avg: 1m · 5m · 15m
   mem: MEM
   pinned: Epinglé
   per-page: Colonnes par page

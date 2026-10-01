@@ -119,11 +119,19 @@
     </div>
 
     <!-- Host metrics read from the host /proc: disk, load, uptime, network. -->
-    <div
-      v-if="host.available && host.metricsAvailable && hostMetrics.length"
-      class="grid grid-cols-2 gap-3"
-      :class="hostMetrics.length > 2 ? 'sm:grid-cols-4' : ''"
-    >
+    <div v-if="host.available && host.metricsAvailable" class="grid grid-cols-2 gap-3 sm:grid-cols-4">
+      <div
+        v-if="host.diskTotal"
+        class="border-base-content/10 bg-base-200/40 rounded-lg border px-3 py-2.5"
+      >
+        <UsageMeter
+          :label="$t('label.disk')"
+          :used="diskUsed"
+          :limit="host.diskTotal"
+          unit="bytes"
+          compact
+        />
+      </div>
       <div
         v-for="m in hostMetrics"
         :key="m.key"
@@ -135,13 +143,6 @@
         </div>
         <div class="truncate font-mono text-xl leading-tight font-semibold tabular-nums">{{ m.value }}</div>
         <div class="text-base-content/50 truncate font-mono text-[0.6875rem] tabular-nums">{{ m.sub }}</div>
-        <div v-if="m.percent !== undefined" class="bg-base-content/10 mt-1.5 h-1 overflow-hidden rounded-full">
-          <div
-            class="h-full rounded-full transition-[width] duration-500"
-            :class="m.percent > 90 ? 'bg-error' : m.percent > 70 ? 'bg-warning' : m.bar"
-            :style="{ width: `${Math.min(Math.max(m.percent, 0), 100)}%` }"
-          ></div>
-        </div>
       </div>
     </div>
   </div>
@@ -154,7 +155,6 @@ import { sessionHost } from "@/composable/app/storage";
 import { Container } from "@/models/Container";
 import PhCpu from "~icons/ph/cpu";
 import PhMemory from "~icons/ph/memory";
-import PhHardDrives from "~icons/ph/hard-drives";
 import PhGauge from "~icons/ph/gauge";
 import PhClock from "~icons/ph/clock";
 import PhNetwork from "~icons/ph/network";
@@ -237,11 +237,7 @@ const formatUptime = (secs?: number) => {
   return `${m}m`;
 };
 
-const diskPercent = computed(() => {
-  const total = props.host.diskTotal ?? 0;
-  const free = props.host.diskFree ?? 0;
-  return total > 0 ? ((total - free) / total) * 100 : 0;
-});
+const diskUsed = computed(() => (props.host.diskTotal ?? 0) - (props.host.diskFree ?? 0));
 
 type HostMetric = {
   key: string;
@@ -250,25 +246,10 @@ type HostMetric = {
   sub: string;
   icon: Component;
   textClass: string;
-  bar: string;
-  percent?: number;
 };
 
 const hostMetrics = computed<HostMetric[]>(() => {
   const m: HostMetric[] = [];
-  if (props.host.diskTotal) {
-    const used = props.host.diskTotal - (props.host.diskFree ?? 0);
-    m.push({
-      key: "disk",
-      label: t("label.disk"),
-      value: `${formatBytes(used, { short: true, decimals: 1 })} / ${formatBytes(props.host.diskTotal, { short: true, decimals: 1 })}`,
-      sub: t("label.used-percent", { percent: diskPercent.value.toFixed(0) }),
-      icon: PhHardDrives,
-      textClass: "text-info",
-      bar: "bg-info",
-      percent: diskPercent.value,
-    });
-  }
   if (props.host.metricsAvailable) {
     const l = [props.host.load1 ?? 0, props.host.load5 ?? 0, props.host.load15 ?? 0];
     m.push({
@@ -278,7 +259,6 @@ const hostMetrics = computed<HostMetric[]>(() => {
       sub: t("label.load-avg"),
       icon: PhGauge,
       textClass: "text-accent",
-      bar: "bg-accent",
     });
   }
   const up = formatUptime(props.host.uptime);
@@ -290,7 +270,6 @@ const hostMetrics = computed<HostMetric[]>(() => {
       sub: t("label.since-boot"),
       icon: PhClock,
       textClass: "text-success",
-      bar: "bg-success",
     });
   }
   if (props.host.metricsAvailable) {
@@ -301,7 +280,6 @@ const hostMetrics = computed<HostMetric[]>(() => {
       sub: `↑ ${formatBytes(props.host.netTxTotal ?? 0, { short: true, decimals: 1 })}`,
       icon: PhNetwork,
       textClass: "text-warning",
-      bar: "bg-warning",
     });
   }
   return m;

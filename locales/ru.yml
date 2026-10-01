@@ -107,6 +107,12 @@ label:
   name: Имя
   cpu: CPU
   core: Нет ядер | 1 ядро | {count} ядер
+  disk: Диск
+  load: Нагрузка
+  uptime: Время работы
+  network: Сеть
+  since-boot: с момента загрузки
+  load-avg: 1m · 5m · 15m
   mem: MEM
   pinned: Закреплено
   per-page: Строк на странице

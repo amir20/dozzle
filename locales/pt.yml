@@ -107,6 +107,12 @@ label:
   name: Nome
   cpu: CPU
   core: Sem núcleos | 1 núcleo | {count} núcleos
+  disk: Disco
+  load: Carga
+  uptime: Uptime
+  network: Rede
+  since-boot: desde o boot
+  load-avg: 1m · 5m · 15m
   mem: MEM
   pinned: Fixado
   per-page: Linhas por página

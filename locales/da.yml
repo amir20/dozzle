@@ -107,6 +107,12 @@ label:
   name: Navn
   cpu: CPU
   core: Ingen kerner | 1 kerne | {count} kerner
+  disk: Disk
+  load: Belastning
+  uptime: Oppetid
+  network: Netværk
+  since-boot: siden opstart
+  load-avg: 1m · 5m · 15m
   mem: MEM
   pinned: Fastgjort
   per-page: Rækker per side
