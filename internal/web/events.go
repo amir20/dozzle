@@ -28,6 +28,8 @@ const (
 	// minimum gap between host-id reconciliations, so a burst of reconnecting tabs
 	// dials every agent once rather than once each
 	hostReconcileInterval = 10 * time.Second
+	// how often live host metrics are re-sent to a watching client
+	hostMetricRefreshInterval = 15 * time.Second
 )
 
 func (h *handler) streamEvents(w http.ResponseWriter, r *http.Request) {
@@ -184,6 +186,12 @@ func (h *handler) streamEvents(w http.ResponseWriter, r *http.Request) {
 	ticker := time.NewTicker(keepAliveInterval)
 	defer ticker.Stop()
 
+	// Host metrics are read live in the client, so re-requesting the host list
+	// periodically keeps a watching tab's tiles current instead of frozen at the
+	// values seen when the stream opened.
+	hostMetricsTicker := time.NewTicker(hostMetricRefreshInterval)
+	defer hostMetricsTicker.Stop()
+
 	for {
 		select {
 		case <-ticker.C:
@@ -309,6 +317,16 @@ func (h *handler) streamEvents(w http.ResponseWriter, r *http.Request) {
 
 				if err := sseWriter.Event("container-health", payload); err != nil {
 					logWriteError(err, "error writing event to event stream")
+					return
+				}
+			}
+		case <-hostMetricsTicker.C:
+			for _, host := range h.hostService.Hosts() {
+				if host.Type != "local" {
+					continue
+				}
+				if err := sseWriter.Event("update-host", host); err != nil {
+					logWriteError(err, "error writing host metrics to event stream")
 					return
 				}
 			}

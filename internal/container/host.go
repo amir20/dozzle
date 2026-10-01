@@ -20,6 +20,7 @@ type Host struct {
 	ValidCerts    bool     `json:"-"`
 	NCPU          int      `json:"nCPU"`
 	MemTotal      int64    `json:"memTotal"`
+	MetricsAvailable bool   `json:"metricsAvailable,omitempty"`
 	MemUsed       uint64   `json:"memUsed,omitempty"`
 	Load1         float64  `json:"load1,omitempty"`
 	Load5         float64  `json:"load5,omitempty"`
@@ -71,6 +72,7 @@ type HostMetrics struct {
 }
 
 func (h *Host) ApplyHostMetrics(m HostMetrics) {
+	h.MetricsAvailable = true
 	h.Load1, h.Load5, h.Load15 = m.Load1, m.Load5, m.Load15
 	h.Uptime = m.Uptime
 	h.MemUsed = m.MemUsed

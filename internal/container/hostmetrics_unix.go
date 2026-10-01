@@ -12,57 +12,58 @@ import (
 
 var errShort = errors.New("unexpected proc format")
 
-// hostProcRoot returns the directory holding the host /proc. When the container
-// mounts the host proc at /host/proc we use it; otherwise we fall back to /proc
-// (which yields the container's own values).
-func hostProcRoot() string {
-	for _, p := range []string{"/host/proc", "/proc"} {
-		if _, err := os.Stat(p + "/loadavg"); err == nil {
-			return p
-		}
+// hostProcRoot returns the directory holding the *host* /proc, mounted by the
+// operator at /host/proc. Without that mount we cannot tell the host's values
+// from the container's, so we report nothing rather than something wrong.
+func hostProcRoot() (string, bool) {
+	const p = "/host/proc"
+	if _, err := os.Stat(p + "/loadavg"); err == nil {
+		return p, true
 	}
-	return "/proc"
+	return "", false
 }
 
-// hostRootPath returns the directory holding the host root filesystem, used for
-// the disk metric.
-func hostRootPath() string {
-	for _, p := range []string{"/host/root", "/host", "/"} {
-		if _, err := os.Stat(p); err == nil {
-			return p
-		}
+// hostRootPath returns the directory holding the host root filesystem, mounted
+// at /host/root. Disk capacity is only meaningful when that mount is present.
+func hostRootPath() (string, bool) {
+	const p = "/host/root"
+	if _, err := os.Stat(p); err == nil {
+		return p, true
 	}
-	return "/"
+	return "", false
 }
 
-// ReadHostMetrics reads host-level metrics. ok is false when nothing could be
-// read. Only meaningful for the local host.
+// ReadHostMetrics reads host-level metrics. ok is false when the host /proc is
+// not mounted, so callers never present container values as host values. Only
+// meaningful for the local host.
 func ReadHostMetrics() (HostMetrics, bool) {
-	var m HostMetrics
-	ok := false
-	proc := hostProcRoot()
+	proc, ok := hostProcRoot()
+	if !ok {
+		return HostMetrics{}, false
+	}
 
+	var m HostMetrics
 	if l1, l5, l15, err := readLoadAvg(proc + "/loadavg"); err == nil {
 		m.Load1, m.Load5, m.Load15 = l1, l5, l15
-		ok = true
 	}
 	if up, err := readUptime(proc + "/uptime"); err == nil {
 		m.Uptime = up
-		ok = true
 	}
 	if used, err := readMemUsed(proc + "/meminfo"); err == nil {
 		m.MemUsed = used
-		ok = true
 	}
-	if rx, tx, err := readNetDev(proc + "/net/dev"); err == nil {
+	// /proc/net/dev reflects the reader's network namespace, so mounting the
+	// host proc is not enough. /proc/<pid>/net/dev is bound to that process's
+	// namespace, so pid 1 on the mounted host proc gives the host's interfaces.
+	if rx, tx, err := readNetDev(proc + "/1/net/dev"); err == nil {
 		m.NetRxTotal, m.NetTxTotal = rx, tx
-		ok = true
 	}
-	if total, free, err := statfs(hostRootPath()); err == nil {
-		m.DiskTotal, m.DiskFree = total, free
-		ok = true
+	if root, ok := hostRootPath(); ok {
+		if total, free, err := statfs(root); err == nil {
+			m.DiskTotal, m.DiskFree = total, free
+		}
 	}
-	return m, ok
+	return m, true
 }
 
 func readLoadAvg(path string) (float64, float64, float64, error) {

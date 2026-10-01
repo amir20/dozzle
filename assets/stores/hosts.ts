@@ -3,6 +3,7 @@ export type Host = {
   name: string;
   nCPU: number;
   memTotal: number;
+  metricsAvailable?: boolean;
   memUsed?: number;
   load1?: number;
   load5?: number;

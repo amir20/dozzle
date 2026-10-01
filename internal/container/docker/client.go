@@ -87,8 +87,8 @@ func NewClient(cli CLI, host container.Host, hostIDs container.HostIDResolver) *
 		host.SwarmClusterID = info.Swarm.Cluster.ID
 	}
 
-	// Host-level metrics (load, uptime, memory, disk, network) are read from the
-	// local /proc and root filesystem. Remote hosts get theirs through the agent.
+	// Host-level metrics (load, uptime, memory, disk, network) are read live in
+	// Host() so they stay current. Remote hosts get theirs through the agent.
 	if host.Type == "local" {
 		if m, ok := container.ReadHostMetrics(); ok {
 			host.ApplyHostMetrics(m)
@@ -469,7 +469,18 @@ func (d *Client) Ping(ctx context.Context) error {
 }
 
 func (d *Client) Host() container.Host {
-	return d.host
+	h := d.host
+	// Host-level metrics are read live so they don't freeze at the value seen at
+	// startup. Only the local host can be read this way (remote hosts get theirs
+	// through the agent), and only when the host /proc is mounted.
+	if h.Type == "local" {
+		if m, ok := container.ReadHostMetrics(); ok {
+			h.ApplyHostMetrics(m)
+		} else {
+			h.MetricsAvailable = false
+		}
+	}
+	return h
 }
 
 func (d *Client) ContainerAttach(ctx context.Context, id string) (*container.ExecSession, error) {

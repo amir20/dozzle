@@ -120,7 +120,7 @@
 
     <!-- Host metrics read from the host /proc: disk, load, uptime, network. -->
     <div
-      v-if="host.available && hostMetrics.length"
+      v-if="host.available && host.metricsAvailable && hostMetrics.length"
       class="grid grid-cols-2 gap-3"
       :class="hostMetrics.length > 2 ? 'sm:grid-cols-4' : ''"
     >
@@ -133,8 +133,8 @@
           <component :is="m.icon" class="size-3.5 shrink-0" />
           <span class="truncate">{{ m.label }}</span>
         </div>
-        <div class="truncate text-xl leading-tight font-semibold tabular-nums">{{ m.value }}</div>
-        <div class="text-base-content/50 truncate text-[0.6875rem] tabular-nums">{{ m.sub }}</div>
+        <div class="truncate font-mono text-xl leading-tight font-semibold tabular-nums">{{ m.value }}</div>
+        <div class="text-base-content/50 truncate font-mono text-[0.6875rem] tabular-nums">{{ m.sub }}</div>
         <div v-if="m.percent !== undefined" class="bg-base-content/10 mt-1.5 h-1 overflow-hidden rounded-full">
           <div
             class="h-full rounded-full transition-[width] duration-500"
@@ -269,8 +269,8 @@ const hostMetrics = computed<HostMetric[]>(() => {
       percent: diskPercent.value,
     });
   }
-  if (props.host.load1 !== undefined) {
-    const l = [props.host.load1, props.host.load5, props.host.load15].filter((v) => v !== undefined && v !== null) as number[];
+  if (props.host.metricsAvailable) {
+    const l = [props.host.load1 ?? 0, props.host.load5 ?? 0, props.host.load15 ?? 0];
     m.push({
       key: "load",
       label: t("label.load"),
@@ -293,7 +293,7 @@ const hostMetrics = computed<HostMetric[]>(() => {
       bar: "bg-success",
     });
   }
-  if (props.host.netRxTotal !== undefined) {
+  if (props.host.metricsAvailable) {
     m.push({
       key: "net",
       label: t("label.network"),
