@@ -247,6 +247,22 @@ func (d *Client) ContainerRemove(ctx context.Context, containerID string) error 
 	return err
 }
 
+// NetworkDependents returns the ids of every container, running or not, that
+// shares the network namespace of the container id (named name).
+func (d *Client) NetworkDependents(ctx context.Context, id string, name string) ([]string, error) {
+	list, err := d.cli.ContainerList(ctx, client.ContainerListOptions{All: true})
+	if err != nil {
+		return nil, err
+	}
+	var ids []string
+	for _, c := range list.Items {
+		if c.ID != id && joinsNetworkOf(c.HostConfig.NetworkMode, id, name) {
+			ids = append(ids, c.ID)
+		}
+	}
+	return ids, nil
+}
+
 // ContainerCreate creates the replacement for the container inspectResp
 // describes, on whatever image its tag resolves to now. The old image is
 // inspected so the settings it supplied (env, labels, cmd, ...) are dropped

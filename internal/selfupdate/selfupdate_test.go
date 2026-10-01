@@ -383,7 +383,7 @@ func TestStartPullError(t *testing.T) {
 func TestRunSuccess(t *testing.T) {
 	fastTimings(t)
 	f := newFake()
-	require.NoError(t, run(context.Background(), f, selfID))
+	require.NoError(t, run(context.Background(), f, selfID, ""))
 	assert.Equal(t, []string{
 		"rename " + selfID + " dozzle-dozzle-old-aaaaaaaaaaaa",
 		"create dozzle",
@@ -397,7 +397,7 @@ func TestRunRollbackOnCreateFailure(t *testing.T) {
 	fastTimings(t)
 	f := newFake()
 	f.createErr = errors.New("create failed")
-	require.Error(t, run(context.Background(), f, selfID))
+	require.Error(t, run(context.Background(), f, selfID, ""))
 	assert.Equal(t, []string{
 		"rename " + selfID + " dozzle-dozzle-old-aaaaaaaaaaaa",
 		"create dozzle",
@@ -409,7 +409,7 @@ func TestRunRollbackOnStartFailure(t *testing.T) {
 	fastTimings(t)
 	f := newFake()
 	f.startErrFor = "new1"
-	require.Error(t, run(context.Background(), f, selfID))
+	require.Error(t, run(context.Background(), f, selfID, ""))
 	assert.Equal(t, []string{
 		"rename " + selfID + " dozzle-dozzle-old-aaaaaaaaaaaa",
 		"create dozzle",
@@ -425,7 +425,7 @@ func TestRunRollbackWhenReplacementExits(t *testing.T) {
 	fastTimings(t)
 	f := newFake()
 	f.newState = &dcontainer.State{Status: "exited", ExitCode: 1}
-	err := run(context.Background(), f, selfID)
+	err := run(context.Background(), f, selfID, "")
 	require.Error(t, err)
 	assert.Contains(t, err.Error(), "exit code 1")
 	assert.Equal(t, "start "+selfID, f.calls[len(f.calls)-1])
@@ -435,7 +435,7 @@ func TestRunRollbackWhenUnhealthy(t *testing.T) {
 	fastTimings(t)
 	f := newFake()
 	f.newState = &dcontainer.State{Running: true, StartedAt: "t0", Health: &dcontainer.Health{Status: dcontainer.Unhealthy}}
-	err := run(context.Background(), f, selfID)
+	err := run(context.Background(), f, selfID, "")
 	require.ErrorContains(t, err, "unhealthy")
 	assert.Contains(t, f.calls, "remove new1 volumes=false")
 }
@@ -448,7 +448,7 @@ func TestRunAutoRemoveRollbackRecreatesOld(t *testing.T) {
 	f.containers[selfID] = self
 	f.startErrFor = "new1"
 
-	require.Error(t, run(context.Background(), f, selfID))
+	require.Error(t, run(context.Background(), f, selfID, ""))
 	assert.Equal(t, []string{
 		"rename " + selfID + " dozzle-dozzle-old-aaaaaaaaaaaa",
 		"create dozzle",
@@ -514,7 +514,7 @@ func TestRunAutoRemoveSuccess(t *testing.T) {
 	self.HostConfig.AutoRemove = true
 	f.containers[selfID] = self
 
-	require.NoError(t, run(context.Background(), f, selfID))
+	require.NoError(t, run(context.Background(), f, selfID, ""))
 	assert.Equal(t, []string{
 		"rename " + selfID + " dozzle-dozzle-old-aaaaaaaaaaaa",
 		"create dozzle",
@@ -526,8 +526,27 @@ func TestRunAutoRemoveSuccess(t *testing.T) {
 func TestRunNothingToDo(t *testing.T) {
 	f := newFake()
 	f.images["amir20/dozzle:latest"] = image.InspectResponse{ID: oldImgID}
-	require.NoError(t, run(context.Background(), f, selfID))
+	require.NoError(t, run(context.Background(), f, selfID, ""))
 	assert.Empty(t, f.calls)
+}
+
+// Rejoining a recreated network namespace recreates Dozzle even on the image
+// it already runs, joined to the new container.
+func TestRunRejoin(t *testing.T) {
+	fastTimings(t)
+	f := newFake()
+	f.images["amir20/dozzle:latest"] = image.InspectResponse{ID: oldImgID}
+	require.NoError(t, run(context.Background(), f, selfID, "container:sidecar-new"))
+	assert.Contains(t, f.calls, "create dozzle")
+	assert.Equal(t, dcontainer.NetworkMode("container:sidecar-new"), f.created[0].HostConfig.NetworkMode)
+}
+
+func TestStartRejoinLaunchesHelper(t *testing.T) {
+	f := newFake()
+	require.NoError(t, startRejoin(context.Background(), f, selfID, "container:sidecar-new"))
+	assert.Equal(t, []string{"create dozzle-self-update-aaaaaaaaaaaa", "start new1"}, f.calls, "nothing is pulled")
+	assert.Equal(t, oldImgID, f.created[0].Config.Image, "the helper runs the image Dozzle already has")
+	assert.Equal(t, []string{"self-update", "--target", selfID, "--network", "container:sidecar-new"}, f.created[0].Config.Cmd)
 }
 
 func TestSupport(t *testing.T) {
