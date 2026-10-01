@@ -718,6 +718,26 @@ cloud-chat:
     notifications: Meldingen controleren…
     action: Actie uitvoeren…
     working: Bezig…
+  step:
+    logs: Logs doorzoeken
+    containers: Containers bekijken
+    stats: Resourcegebruik controleren
+    inspect: Container inspecteren
+    alerts: Waarschuwingen bekijken
+    findings: Bevindingen bekijken
+    events: Containergeschiedenis controleren
+    docs: Documentatie lezen
+    notifications: Meldingen controleren
+    action: Actie uitvoeren
+  phase:
+    reading: Vraag lezen
+    reviewing: Resultaten doornemen
+    writing: Antwoord schrijven
+    retrying: Duurt langer dan normaal, opnieuw proberen
+  found: "{n} gevonden"
+  nothing-found: niets gevonden
+  worked-for: "{time} gewerkt"
+  earlier: "{n} eerdere"
   placeholder: Vraag over deze logs
   historical: historisch
   n-containers: "{n} containers"

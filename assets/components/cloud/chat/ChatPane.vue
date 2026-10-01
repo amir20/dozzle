@@ -43,11 +43,23 @@
               </span>
               <div class="min-w-0 flex-1">
                 <InlineNotice v-if="message.error" type="error">{{ message.text }}</InlineNotice>
-                <ChatMarkdown v-else-if="message.text" :text="message.text" class="text-sm leading-relaxed" />
-                <div v-else class="text-base-content/60 flex items-center gap-2 text-sm">
-                  <span class="loading loading-dots loading-xs"></span>
-                  {{ working }}
-                </div>
+                <template v-else-if="message.text">
+                  <!-- Folds once the turn is over: the total is only known then. -->
+                  <ChatSteps
+                    v-if="message.steps?.length && message.ms !== undefined"
+                    :steps="message.steps"
+                    :ms="message.ms"
+                    class="mb-1.5"
+                  />
+                  <ChatMarkdown :text="message.text" class="text-sm leading-relaxed" />
+                </template>
+                <ChatSteps
+                  v-else
+                  :steps="message.steps ?? []"
+                  live
+                  :started-at="message.startedAt"
+                  :fallback="working"
+                />
               </div>
             </div>
           </template>

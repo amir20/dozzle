@@ -729,6 +729,26 @@ cloud-chat:
     notifications: Memeriksa notifikasi…
     action: Menjalankan aksi…
     working: Sedang bekerja…
+  step:
+    logs: Mencari di log
+    containers: Melihat container
+    stats: Memeriksa penggunaan sumber daya
+    inspect: Memeriksa container
+    alerts: Meninjau peringatan
+    findings: Meninjau temuan
+    events: Memeriksa riwayat container
+    docs: Membaca dokumentasi
+    notifications: Memeriksa notifikasi
+    action: Menjalankan aksi
+  phase:
+    reading: Membaca pertanyaan
+    reviewing: Menelaah hasil yang ditemukan
+    writing: Menulis jawaban
+    retrying: Lebih lama dari biasanya, mencoba lagi
+  found: "{n} ditemukan"
+  nothing-found: tidak ada yang ditemukan
+  worked-for: Bekerja selama {time}
+  earlier: "{n} sebelumnya"
   placeholder: Tanya tentang log ini
   historical: historis
   n-containers: "{n} kontainer"

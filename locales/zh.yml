@@ -717,6 +717,26 @@ cloud-chat:
     notifications: 正在检查通知…
     action: 正在执行操作…
     working: 处理中…
+  step:
+    logs: 搜索日志
+    containers: 查看容器
+    stats: 检查资源使用情况
+    inspect: 检查容器
+    alerts: 查看告警
+    findings: 查看发现
+    events: 检查容器历史
+    docs: 阅读文档
+    notifications: 检查通知
+    action: 执行操作
+  phase:
+    reading: 阅读问题
+    reviewing: 梳理找到的内容
+    writing: 撰写回答
+    retrying: 比平时慢，正在重试
+  found: 找到 {n} 条
+  nothing-found: 未找到
+  worked-for: 用时 {time}
+  earlier: 更早的 {n} 条
   placeholder: 就这些日志提问
   historical: 历史
   n-containers: "{n} 个容器"
