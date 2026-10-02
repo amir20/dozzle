@@ -48,6 +48,26 @@ Disk needs no extra mount. Dozzle measures the filesystem behind its own `/data`
 
 A Dozzle binary running directly on the host reads `/proc` as is, so load and uptime need no setup. Disk is read from Docker's data directory (`docker info --format '{{.DockerRootDir}}'`, usually `/var/lib/docker`), so it works as long as the user Dozzle runs as can see that directory.
 
+## Agents
+
+Each [agent](/guide/agent) reads its own machine and sends the values to the Dozzle you are looking at, so every agent's card shows its own uptime, load and disk. Give the agent container the same mounts you would give Dozzle:
+
+```yaml [docker-compose.yml]
+services:
+  dozzle-agent:
+    image: amir20/dozzle:latest
+    command: agent
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /proc:/host/proc:ro
+    ports:
+      - 7007:7007
+```
+
+Extra drives work the same way, mounted under `/host/disks` on the agent. In [Swarm mode](/guide/swarm-mode) every node runs Dozzle as its own agent, so add the mounts to the service and each node reports itself.
+
+An agent older than the Dozzle it reports to sends no metrics, and its card stays as it was. Update the agent to see them.
+
 ## More drives
 
 Disk covers Docker's own disk out of the box. To watch other drives too, mount each one under `/host/disks/<name>`. The folder name becomes the drive's label.
@@ -71,6 +91,6 @@ A native install can do the same with symlinks: `ln -s /mnt/media /host/disks/me
 
 ## Limits
 
-- Only the local host reports metrics for now. Hosts connected through an [agent](/guide/agent) or as a [remote host](/guide/remote-hosts) show CPU and memory as before, without this line.
+- A [remote host](/guide/remote-hosts) connected over TCP has nothing on its side to read the machine, so it shows CPU and memory as before, without the box. Run an agent there instead to get them.
 - If `DOCKER_HOST` points at another machine (`tcp://` or `ssh://`), Dozzle skips the read-outs, since its own `/proc` and disks say nothing about that engine.
 - Docker Desktop runs the engine in a VM. A native Dozzle binary on macOS or Windows has no `/proc` to read, and Dozzle in a container there reports the VM's numbers, not your machine's.

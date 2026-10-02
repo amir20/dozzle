@@ -1,6 +1,6 @@
 ---
 title: Métricas del host
-sourceHash: 436543366083
+sourceHash: d8c6ddcc5b09
 ---
 
 # Métricas del host
@@ -49,6 +49,26 @@ El disco no necesita ningún montaje adicional. Dozzle mide el sistema de archiv
 
 Un binario de Dozzle que se ejecuta directamente en el host lee `/proc` tal cual, así que la carga y el tiempo activo no necesitan configuración. El disco se lee del directorio de datos de Docker (`docker info --format '{{.DockerRootDir}}'`, normalmente `/var/lib/docker`), así que funciona siempre que el usuario con el que se ejecuta Dozzle pueda ver ese directorio.
 
+## Agentes
+
+Cada [agente](/es/guide/agent) lee su propia máquina y envía los valores al Dozzle que estás mirando, así que la tarjeta de cada agente muestra su propio tiempo activo, carga y disco. Dale al contenedor del agente los mismos montajes que le darías a Dozzle:
+
+```yaml [docker-compose.yml]
+services:
+  dozzle-agent:
+    image: amir20/dozzle:latest
+    command: agent
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /proc:/host/proc:ro
+    ports:
+      - 7007:7007
+```
+
+Las unidades adicionales funcionan igual, montadas en `/host/disks` en el agente. En [modo Swarm](/es/guide/swarm-mode) cada nodo ejecuta Dozzle como su propio agente, así que añade los montajes al servicio y cada nodo informa de sí mismo.
+
+Un agente más antiguo que el Dozzle al que informa no envía métricas, y su tarjeta se queda como estaba. Actualiza el agente para verlas.
+
 ## Más unidades
 
 El disco cubre el propio disco de Docker sin configuración adicional. Para vigilar también otras unidades, monta cada una en `/host/disks/<name>`. El nombre de la carpeta se convierte en la etiqueta de la unidad.
@@ -72,6 +92,6 @@ Una instalación nativa puede hacer lo mismo con enlaces simbólicos: `ln -s /mn
 
 ## Limitaciones
 
-- Por ahora solo el host local informa de métricas. Los hosts conectados mediante un [agente](/es/guide/agent) o como [host remoto](/es/guide/remote-hosts) muestran la CPU y la memoria como antes, sin esta línea.
+- Un [host remoto](/es/guide/remote-hosts) conectado por TCP no tiene nada en su lado que lea la máquina, así que muestra la CPU y la memoria como antes, sin el recuadro. Ejecuta allí un agente para obtenerlas.
 - Si `DOCKER_HOST` apunta a otra máquina (`tcp://` o `ssh://`), Dozzle omite estas lecturas, ya que su propio `/proc` y sus discos no dicen nada sobre ese motor.
 - Docker Desktop ejecuta el motor en una máquina virtual. Un binario nativo de Dozzle en macOS o Windows no tiene `/proc` que leer, y Dozzle en un contenedor allí informa de las cifras de la máquina virtual, no de las de tu equipo.

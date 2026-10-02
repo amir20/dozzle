@@ -473,6 +473,9 @@ func (c *Client) Host(ctx context.Context) (container.Host, error) {
 	if c.nameOverride != "" {
 		host.Name = c.nameOverride
 	}
+	if m, ok := hostMetricsFromProto(info.Host); ok || m.DiskTotal > 0 || len(m.Disks) > 0 {
+		host.ApplyHostMetrics(m, ok)
+	}
 
 	return host, nil
 }

@@ -34,5 +34,7 @@ func TestHostHasMetrics(t *testing.T) {
 	assert.False(t, hostHasMetrics(container.Host{Type: "local"}))
 	assert.True(t, hostHasMetrics(container.Host{Type: "local", DiskTotal: 1}))
 	assert.True(t, hostHasMetrics(container.Host{Type: "local", Disks: []container.Disk{{Name: "media", Total: 1}}}))
-	assert.False(t, hostHasMetrics(container.Host{Type: "agent", MetricsAvailable: true}))
+	// agents report their own machine now; an older one sends nothing and stays out
+	assert.True(t, hostHasMetrics(container.Host{Type: "agent", MetricsAvailable: true}))
+	assert.False(t, hostHasMetrics(container.Host{Type: "agent"}))
 }

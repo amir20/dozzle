@@ -153,3 +153,32 @@ func containerFromProto(c *pb.Container) container.Container {
 		ExitCode:      int(c.ExitCode),
 	}
 }
+
+// setHostMetricsProto copies the host-level metrics an agent reads off its own
+// machine onto the HostInfo reply.
+func setHostMetricsProto(dst *pb.Host, h container.Host) {
+	dst.MetricsAvailable = h.MetricsAvailable
+	dst.Load1, dst.Load5, dst.Load15 = h.Load1, h.Load5, h.Load15
+	dst.Uptime = h.Uptime
+	dst.DiskTotal, dst.DiskFree = h.DiskTotal, h.DiskFree
+	for _, d := range h.Disks {
+		dst.Disks = append(dst.Disks, &pb.Disk{Name: d.Name, Total: d.Total, Free: d.Free})
+	}
+}
+
+// hostMetricsFromProto is the reverse. An agent older than these fields leaves
+// them all unset, which reads as a host with no metrics to show.
+func hostMetricsFromProto(src *pb.Host) (container.HostMetrics, bool) {
+	m := container.HostMetrics{
+		Load1:     src.GetLoad1(),
+		Load5:     src.GetLoad5(),
+		Load15:    src.GetLoad15(),
+		Uptime:    src.GetUptime(),
+		DiskTotal: src.GetDiskTotal(),
+		DiskFree:  src.GetDiskFree(),
+	}
+	for _, d := range src.GetDisks() {
+		m.Disks = append(m.Disks, container.Disk{Name: d.GetName(), Total: d.GetTotal(), Free: d.GetFree()})
+	}
+	return m, src.GetMetricsAvailable()
+}

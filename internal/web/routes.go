@@ -167,6 +167,7 @@ type HostService interface {
 	SubscribeAvailableHosts(ctx context.Context, hosts chan<- container.Host)
 	LocalClients() []container.Client
 	LocalClientServices() []container.ClientService
+	ClientServices(retry bool) []container.ClientService
 	// Notification methods
 	AddSubscription(sub *notification.Subscription) error
 	RemoveSubscription(id int)
@@ -201,9 +202,9 @@ type handler struct {
 	// One shared ticker keeps every open tab's host card current. It is started
 	// lazily on the first subscriber and reads only the local host, so the work
 	// does not grow with the number of tabs and never dials an agent.
-	localHostMetricsOnce sync.Once
-	localHostMetricsMu   sync.Mutex
-	localHostMetricsSubs map[chan hostMetricsEvent]struct{}
+	hostMetricsOnce sync.Once
+	hostMetricsMu   sync.Mutex
+	hostMetricsSubs map[chan []hostMetricsEvent]struct{}
 }
 
 // Server is the HTTP server plus the usage beacon hooks main runs around it.

@@ -1,6 +1,6 @@
 ---
 title: 主机指标
-sourceHash: 436543366083
+sourceHash: d8c6ddcc5b09
 ---
 
 # 主机指标
@@ -49,6 +49,26 @@ volumes:
 
 直接在主机上运行的 Dozzle 二进制文件会原样读取 `/proc`，所以负载和运行时间无需任何配置。磁盘读数来自 Docker 的数据目录（`docker info --format '{{.DockerRootDir}}'`，通常是 `/var/lib/docker`），所以只要运行 Dozzle 的用户能访问该目录，磁盘读数就能正常工作。
 
+## 代理
+
+每个[代理](/zh/guide/agent)都会读取自己所在的机器，并把数值发送给你正在查看的 Dozzle，所以每个代理的卡片都会显示它自己的运行时间、负载和磁盘。给代理容器加上和 Dozzle 相同的挂载即可：
+
+```yaml [docker-compose.yml]
+services:
+  dozzle-agent:
+    image: amir20/dozzle:latest
+    command: agent
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /proc:/host/proc:ro
+    ports:
+      - 7007:7007
+```
+
+更多磁盘的做法也一样，在代理上挂载到 `/host/disks` 下即可。在 [Swarm 模式](/zh/guide/swarm-mode)下，每个节点都以代理身份运行 Dozzle，所以把这些挂载加到服务上，每个节点就会上报自己的数据。
+
+如果代理的版本比它所上报的 Dozzle 旧，它不会发送任何指标，它的卡片也保持原样。更新代理后即可看到这些读数。
+
 ## 更多磁盘
 
 磁盘读数默认覆盖 Docker 自己所在的磁盘。如果还想监控其他磁盘，把每一块都挂载到 `/host/disks/<name>` 下即可。目录名会成为该磁盘的标签。
@@ -72,6 +92,6 @@ Dozzle 测量一块磁盘只需要它的挂载点，并不需要其中的文件�
 
 ## 限制
 
-- 目前只有本地主机会上报这些指标。通过[代理](/zh/guide/agent)或作为[远程主机](/zh/guide/remote-hosts)连接的主机，仍然和以前一样显示 CPU 和内存，但不会有这一行。
+- 通过 TCP 连接的[远程主机](/zh/guide/remote-hosts)那一端没有任何东西可以读取机器信息，所以它仍然和以前一样显示 CPU 和内存，但不会有这个小框。改为在那台机器上运行代理即可获得这些读数。
 - 如果 `DOCKER_HOST` 指向另一台机器（`tcp://` 或 `ssh://`），Dozzle 会跳过这些读数，因为它自己的 `/proc` 和磁盘反映不了那台引擎的情况。
 - Docker Desktop 把引擎运行在虚拟机里。在 macOS 或 Windows 上直接运行的 Dozzle 二进制文件没有 `/proc` 可读，而在那里以容器方式运行的 Dozzle 报告的是虚拟机的数据，不是你这台机器的。

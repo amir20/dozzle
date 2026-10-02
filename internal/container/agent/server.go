@@ -295,17 +295,17 @@ func (s *server) HostInfo(ctx context.Context, in *pb.HostInfoRequest) (*pb.Host
 	if err != nil {
 		return nil, status.Error(codes.Internal, err.Error())
 	}
-	return &pb.HostInfoResponse{
-		Host: &pb.Host{
-			Id:            host.ID,
-			Name:          host.Name,
-			CpuCores:      uint32(host.NCPU),
-			Memory:        uint64(host.MemTotal),
-			DockerVersion: host.DockerVersion,
-			Runtime:       host.Runtime,
-			AgentVersion:  s.version,
-		},
-	}, nil
+	out := &pb.Host{
+		Id:            host.ID,
+		Name:          host.Name,
+		CpuCores:      uint32(host.NCPU),
+		Memory:        uint64(host.MemTotal),
+		DockerVersion: host.DockerVersion,
+		Runtime:       host.Runtime,
+		AgentVersion:  s.version,
+	}
+	setHostMetricsProto(out, host)
+	return &pb.HostInfoResponse{Host: out}, nil
 }
 
 func (s *server) StreamContainerStarted(in *pb.StreamContainerStartedRequest, out pb.AgentService_StreamContainerStartedServer) error {
