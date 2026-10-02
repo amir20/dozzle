@@ -48,17 +48,33 @@ func hostProcRoot() (string, bool) {
 	return "", false
 }
 
-// ReadHostMetrics reads host-level metrics. Disk is read from dockerRootDir, the
-// engine's data directory, the same way volume_monitor.go measures volume
-// sources: it works whenever that directory is visible to Dozzle and is skipped
-// when it is not. Load and uptime come from the host /proc, so ok is false when
-// it is not mounted; the caller must not present container values as host values.
+// diskPaths lists where disk usage is read from, in order. statfs only needs some
+// path on the filesystem that holds the engine's data, not the data itself, so in
+// a container /data stands in when the data directory is not mounted: a named
+// volume lives under the data directory, and a bind mount is usually on the same
+// disk. A native install has no such stand-in, since its /data is unrelated.
+func diskPaths(dockerRootDir string, containerized bool) []string {
+	var paths []string
+	if dockerRootDir != "" {
+		paths = append(paths, dockerRootDir)
+	}
+	if containerized {
+		paths = append(paths, "/data")
+	}
+	return paths
+}
+
+// ReadHostMetrics reads host-level metrics. Disk is read from the first of
+// diskPaths that statfs accepts, the same way volume_monitor.go measures volume
+// sources. Load and uptime come from the host /proc, so ok is false when it is
+// not mounted; the caller must not present container values as host values.
 // Disk is filled independently of that mount.
 func ReadHostMetrics(dockerRootDir string) (HostMetrics, bool) {
 	var m HostMetrics
-	if dockerRootDir != "" {
-		if total, free, err := statfs(dockerRootDir); err == nil {
+	for _, path := range diskPaths(dockerRootDir, inContainer()) {
+		if total, free, err := statfs(path); err == nil {
 			m.DiskTotal, m.DiskFree = total, free
+			break
 		}
 	}
 

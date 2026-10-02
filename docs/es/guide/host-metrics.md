@@ -1,6 +1,6 @@
 ---
 title: Métricas del host
-sourceHash: e10c0661efbb
+sourceHash: e4937eb24a72
 ---
 
 # Métricas del host
@@ -17,15 +17,13 @@ Se actualizan cada 15 segundos mientras haya una pestaña abierta. Cada una solo
 
 Dentro de un contenedor, `/proc` describe el contenedor y no el host. Dozzle no va a hacer pasar las cifras del contenedor por las del host, así que la carga y el tiempo activo permanecen ocultos hasta que montes el `/proc` del host en `/host/proc`.
 
-El disco se lee del directorio de datos de Docker (`docker info --format '{{.DockerRootDir}}'`, normalmente `/var/lib/docker`). Móntalo en la misma ruta para obtener la lectura del disco.
-
 ::: code-group
 
 ```sh
 docker run -d \
   -v /var/run/docker.sock:/var/run/docker.sock \
   -v /proc:/host/proc:ro \
-  -v /var/lib/docker:/var/lib/docker:ro \
+  -v dozzle_data:/data \
   -p 8080:8080 amir20/dozzle:latest
 ```
 
@@ -36,18 +34,20 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - /proc:/host/proc:ro
-      - /var/lib/docker:/var/lib/docker:ro
+      - dozzle_data:/data
     ports:
       - 8080:8080
+volumes:
+  dozzle_data:
 ```
 
 :::
 
-Los dos montajes son opcionales e independientes. Montar el directorio de datos da a Dozzle acceso de lectura al sistema de archivos de todos los contenedores, así que omítelo si solo quieres la carga y el tiempo activo.
+El disco no necesita ningún montaje adicional. Dozzle mide el sistema de archivos que hay detrás de su propio `/data`, que está en el disco de Docker tanto si `/data` es un volumen con nombre, como arriba, como si no está montado. Si en su lugar montas ahí una carpeta del host (`./data:/data`), la lectura describe el disco en el que está esa carpeta, que normalmente es el mismo.
 
 ## Ejecutar Dozzle de forma nativa
 
-Un binario de Dozzle que se ejecuta directamente en el host lee `/proc` tal cual, así que la carga y el tiempo activo no necesitan configuración. El disco funciona siempre que el usuario con el que se ejecuta Dozzle pueda ver el directorio de datos.
+Un binario de Dozzle que se ejecuta directamente en el host lee `/proc` tal cual, así que la carga y el tiempo activo no necesitan configuración. El disco se lee del directorio de datos de Docker (`docker info --format '{{.DockerRootDir}}'`, normalmente `/var/lib/docker`), así que funciona siempre que el usuario con el que se ejecuta Dozzle pueda ver ese directorio.
 
 ## Limitaciones
 

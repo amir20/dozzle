@@ -1,6 +1,6 @@
 ---
 title: Host-Metriken
-sourceHash: e10c0661efbb
+sourceHash: e4937eb24a72
 ---
 
 # Host-Metriken
@@ -17,15 +17,13 @@ Solange ein Tab offen ist, werden sie alle 15 Sekunden aktualisiert. Jeder Wert 
 
 In einem Container beschreibt `/proc` den Container und nicht den Host. Dozzle gibt die Zahlen des Containers nicht als die des Hosts aus, deshalb bleiben Last und Laufzeit ausgeblendet, bis du das `/proc` des Hosts unter `/host/proc` einbindest.
 
-Die Datenträgerbelegung wird aus dem Datenverzeichnis von Docker gelesen (`docker info --format '{{.DockerRootDir}}'`, meist `/var/lib/docker`). Binde es unter demselben Pfad ein, dann erscheint auch der Datenträgerwert.
-
 ::: code-group
 
 ```sh
 docker run -d \
   -v /var/run/docker.sock:/var/run/docker.sock \
   -v /proc:/host/proc:ro \
-  -v /var/lib/docker:/var/lib/docker:ro \
+  -v dozzle_data:/data \
   -p 8080:8080 amir20/dozzle:latest
 ```
 
@@ -36,18 +34,20 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - /proc:/host/proc:ro
-      - /var/lib/docker:/var/lib/docker:ro
+      - dozzle_data:/data
     ports:
       - 8080:8080
+volumes:
+  dozzle_data:
 ```
 
 :::
 
-Beide Mounts sind optional und unabhängig voneinander. Mit dem eingebundenen Datenverzeichnis bekommt Dozzle Lesezugriff auf das Dateisystem jedes Containers. Wenn du nur Last und Laufzeit willst, lass es also weg.
+Für den Datenträgerwert brauchst du keinen zusätzlichen Mount. Dozzle misst das Dateisystem hinter seinem eigenen `/data`, und das liegt auf dem Datenträger von Docker, egal ob `/data` wie oben ein benanntes Volume ist oder gar nicht eingebunden wird. Bindest du dort stattdessen einen Ordner des Hosts ein (`./data:/data`), beschreibt der Wert den Datenträger, auf dem dieser Ordner liegt. Meist ist das derselbe.
 
 ## Dozzle nativ betreiben
 
-Ein Dozzle-Binary, das direkt auf dem Host läuft, liest `/proc` so wie es ist. Last und Laufzeit brauchen also keine Einrichtung. Der Datenträgerwert funktioniert, solange der Benutzer, unter dem Dozzle läuft, das Datenverzeichnis sehen kann.
+Ein Dozzle-Binary, das direkt auf dem Host läuft, liest `/proc` so wie es ist. Last und Laufzeit brauchen also keine Einrichtung. Die Datenträgerbelegung wird aus dem Datenverzeichnis von Docker gelesen (`docker info --format '{{.DockerRootDir}}'`, meist `/var/lib/docker`). Das klappt, solange der Benutzer, unter dem Dozzle läuft, dieses Verzeichnis sehen kann.
 
 ## Einschränkungen
 

@@ -1,6 +1,6 @@
 ---
 title: 主机指标
-sourceHash: e10c0661efbb
+sourceHash: e4937eb24a72
 ---
 
 # 主机指标
@@ -17,15 +17,13 @@ sourceHash: e10c0661efbb
 
 在容器内部，`/proc` 描述的是容器本身，而不是主机。Dozzle 不会把容器的数据冒充成主机的数据，所以在你把主机的 `/proc` 挂载到 `/host/proc` 之前，负载和运行时间都不会显示。
 
-磁盘读数来自 Docker 的数据目录（`docker info --format '{{.DockerRootDir}}'`，通常是 `/var/lib/docker`）。把它挂载到容器内的相同路径，就能看到磁盘读数。
-
 ::: code-group
 
 ```sh
 docker run -d \
   -v /var/run/docker.sock:/var/run/docker.sock \
   -v /proc:/host/proc:ro \
-  -v /var/lib/docker:/var/lib/docker:ro \
+  -v dozzle_data:/data \
   -p 8080:8080 amir20/dozzle:latest
 ```
 
@@ -36,18 +34,20 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - /proc:/host/proc:ro
-      - /var/lib/docker:/var/lib/docker:ro
+      - dozzle_data:/data
     ports:
       - 8080:8080
+volumes:
+  dozzle_data:
 ```
 
 :::
 
-这两个挂载都是可选的，彼此独立。挂载数据目录会让 Dozzle 能读取每个容器的文件系统，所以如果你只需要负载和运行时间，就别挂它。
+磁盘读数不需要额外挂载。Dozzle 测量的是它自己的 `/data` 所在的文件系统，无论 `/data` 是像上面那样的命名卷，还是根本没有挂载，它都位于 Docker 所在的磁盘上。如果你在那里改为绑定挂载一个主机目录（`./data:/data`），读数描述的就是该目录所在的磁盘，通常也是同一块磁盘。
 
 ## 直接在主机上运行 Dozzle
 
-直接在主机上运行的 Dozzle 二进制文件会原样读取 `/proc`，所以负载和运行时间无需任何配置。只要运行 Dozzle 的用户能访问数据目录，磁盘读数也能正常工作。
+直接在主机上运行的 Dozzle 二进制文件会原样读取 `/proc`，所以负载和运行时间无需任何配置。磁盘读数来自 Docker 的数据目录（`docker info --format '{{.DockerRootDir}}'`，通常是 `/var/lib/docker`），所以只要运行 Dozzle 的用户能访问该目录，磁盘读数就能正常工作。
 
 ## 限制
 

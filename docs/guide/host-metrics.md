@@ -16,15 +16,13 @@ They refresh every 15 seconds while a tab is open. Each one only shows up when D
 
 Inside a container, `/proc` describes the container and not the host. Dozzle will not pass the container's numbers off as the host's, so load and uptime stay hidden until you mount the host's `/proc` at `/host/proc`.
 
-Disk is read from Docker's data directory (`docker info --format '{{.DockerRootDir}}'`, usually `/var/lib/docker`). Mount it at the same path to get the disk read-out.
-
 ::: code-group
 
 ```sh
 docker run -d \
   -v /var/run/docker.sock:/var/run/docker.sock \
   -v /proc:/host/proc:ro \
-  -v /var/lib/docker:/var/lib/docker:ro \
+  -v dozzle_data:/data \
   -p 8080:8080 amir20/dozzle:latest
 ```
 
@@ -35,18 +33,20 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - /proc:/host/proc:ro
-      - /var/lib/docker:/var/lib/docker:ro
+      - dozzle_data:/data
     ports:
       - 8080:8080
+volumes:
+  dozzle_data:
 ```
 
 :::
 
-Both mounts are optional and independent. Mounting the data directory gives Dozzle read access to every container's filesystem, so skip it if you only want load and uptime.
+Disk needs no extra mount. Dozzle measures the filesystem behind its own `/data`, which sits on Docker's disk whether `/data` is a named volume, as above, or not mounted at all. If you bind mount a host folder there instead (`./data:/data`), the read-out describes the disk that folder lives on, which is usually the same one.
 
 ## Running Dozzle natively
 
-A Dozzle binary running directly on the host reads `/proc` as is, so load and uptime need no setup. Disk works as long as the user Dozzle runs as can see the data directory.
+A Dozzle binary running directly on the host reads `/proc` as is, so load and uptime need no setup. Disk is read from Docker's data directory (`docker info --format '{{.DockerRootDir}}'`, usually `/var/lib/docker`), so it works as long as the user Dozzle runs as can see that directory.
 
 ## Limits
 
