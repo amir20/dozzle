@@ -30,7 +30,7 @@ services:
 
 ## Kubernetes
 
-In Kubernetes mode, containers are named `<pod>/<container>` by default. Set `dev.dozzle.name` on the pod template to override it. An annotation is the better place for it, because label values cannot contain spaces and are limited to 63 characters. If both are set, the annotation wins.
+In Kubernetes mode, containers are named `<pod>/<container>` by default. Set `dev.dozzle.name` on the pod template to override it. An annotation is the better place for it, because label values cannot contain spaces and are limited to 63 characters. If both are set, the annotation wins. The same goes for every other `dev.dozzle.*` setting, such as `dev.dozzle.url` and `dev.dozzle.icon`.
 
 ```yaml [deployment.yaml]
 spec:
@@ -40,7 +40,9 @@ spec:
         dev.dozzle.name: Public API
 ```
 
-The name applies to the whole pod, so in a pod with more than one container (init containers and sidecars included) each one keeps its own name as a suffix, for example `Public API/proxy`. Replicas of the same deployment all get the same name.
+The name applies to the whole pod. Init containers always keep their own name as a suffix, for example `Public API/migrate`, and so does every container in a pod with more than one app container, for example `Public API/proxy`.
+
+Replicas of the same deployment all get the same name, and Dozzle treats containers with the same name as one. Pinning one replica in the sidebar pins all of them, and the container title menu lists the others as earlier runs of the same container.
 
 ## Coolify Integration
 

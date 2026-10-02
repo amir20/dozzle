@@ -78,7 +78,7 @@ export class Container {
     public readonly cpuLimit: number,
     public readonly memoryLimit: number,
     stats: Stat[],
-    public readonly group?: string,
+    public group?: string,
     public health?: ContainerHealth,
     public isNew: boolean = false,
     mounts: ContainerMount[] = [],

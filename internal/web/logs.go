@@ -96,7 +96,12 @@ func labelView(filters map[string]string) string {
 
 func (h *handler) streamGroupedLogs(w http.ResponseWriter, r *http.Request) {
 	analytics.Count("view.group")
-	group := chi.URLParam(r, "group")
+	// A group name may hold a "/", which reaches chi still escaped.
+	group, err := url.PathUnescape(chi.URLParam(r, "group"))
+	if err != nil || group == "" {
+		http.Error(w, "invalid group", http.StatusBadRequest)
+		return
+	}
 
 	h.streamLogsForContainers(w, r, func(container *container.Container) bool {
 		return container.State == "running" && container.Group == group

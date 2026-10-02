@@ -1,6 +1,6 @@
 ---
 title: Grupos de contenedores
-sourceHash: 961ab7b687ad
+sourceHash: 83c35e4fb25c
 ---
 
 # Grupos de contenedores
@@ -35,7 +35,7 @@ services:
 
 ## Kubernetes
 
-En el modo Kubernetes, la barra lateral agrupa los pods por namespace y propietario. Una etiqueta o anotación `dev.dozzle.group` en la plantilla del pod además añade todos los contenedores del pod a un grupo personalizado. Usa una anotación si el nombre del grupo tiene espacios; si defines ambas, gana la anotación.
+En el modo Kubernetes, la barra lateral agrupa los pods por namespace y propietario. Una etiqueta o anotación `dev.dozzle.group` en la plantilla del pod además añade todos los contenedores del pod a un grupo personalizado. Una etiqueta y una anotación funcionan igual, así que usa una anotación si el nombre del grupo tiene espacios. Si defines ambas, gana la anotación.
 
 ```yaml [deployment.yaml]
 spec:

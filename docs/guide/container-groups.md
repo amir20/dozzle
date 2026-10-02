@@ -34,7 +34,7 @@ services:
 
 ## Kubernetes
 
-In Kubernetes mode, the sidebar groups pods by namespace and owner. A `dev.dozzle.group` label or annotation on the pod template adds every container in the pod to a custom group as well. Use an annotation if the group name has spaces; when both are set, the annotation wins.
+In Kubernetes mode, the sidebar groups pods by namespace and owner. A `dev.dozzle.group` label or annotation on the pod template adds every container in the pod to a custom group as well. A label and an annotation behave the same, so use an annotation if the group name has spaces. When both are set, the annotation wins.
 
 ```yaml [deployment.yaml]
 spec:

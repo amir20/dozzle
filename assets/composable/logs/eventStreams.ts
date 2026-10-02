@@ -42,7 +42,7 @@ export function useStackStream(stack: Ref<Stack>): LogStreamSource {
 }
 
 export function useGroupedStream(group: Ref<GroupedContainers>): LogStreamSource {
-  return useLogStream(computed(() => `/api/groups/${group.value.name}/logs/stream`));
+  return useLogStream(computed(() => `/api/groups/${encodeURIComponent(group.value.name)}/logs/stream`));
 }
 
 export function useMergedStream(containers: Ref<Container[]>): LogStreamSource {
