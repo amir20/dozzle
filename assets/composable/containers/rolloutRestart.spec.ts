@@ -13,6 +13,11 @@ vi.mock("@/stores/config", () => ({
   default: holder.config,
   withBase: (path: string) => path,
 }));
+// The owner-chain parser lives in the k8s store. Only it is used here, so what
+// the store module loads (the model, settings, the container store) is stubbed.
+vi.mock("@/models/Container", () => ({ Container: class {}, GroupedContainers: class {} }));
+vi.mock("@/stores/settings", () => ({ showAllContainers: { value: false } }));
+vi.mock("@/stores/container", () => ({ useContainerStore: () => ({}) }));
 vi.mock("@/composable/app/toast", () => ({
   useToast: () => ({ showToast: (toast: any) => holder.toasts.push(toast) }),
 }));
@@ -30,8 +35,11 @@ function pod(labels: Record<string, string>) {
 
 const deploymentPod = pod({
   "@k8s.namespace": "default",
-  "@k8s.workload.kind": "Deployment",
-  "@k8s.workload.name": "api",
+  "@k8s.owner.count": "2",
+  "@k8s.owner.0.kind": "ReplicaSet",
+  "@k8s.owner.0.name": "api-6f88b977f4",
+  "@k8s.owner.1.kind": "Deployment",
+  "@k8s.owner.1.name": "api",
 });
 
 beforeEach(() => {
@@ -57,6 +65,23 @@ describe("rolloutWorkload", () => {
   });
 
   // A bare pod has no workload labels at all.
+  // An operator's custom resource tops the chain, but the StatefulSet below it is what rolls.
+  test("finds the StatefulSet under a custom resource", () => {
+    const operatorPod = pod({
+      "@k8s.namespace": "monitoring",
+      "@k8s.owner.count": "2",
+      "@k8s.owner.0.kind": "StatefulSet",
+      "@k8s.owner.0.name": "prometheus-main",
+      "@k8s.owner.1.kind": "Prometheus",
+      "@k8s.owner.1.name": "main",
+    });
+    expect(containerWorkload(operatorPod)).toEqual({
+      namespace: "monitoring",
+      kind: "StatefulSet",
+      name: "prometheus-main",
+    });
+  });
+
   test("returns nothing for a pod without an owner", () => {
     expect(containerWorkload(pod({ "@k8s.namespace": "default" }))).toBeUndefined();
   });

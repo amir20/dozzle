@@ -16,6 +16,11 @@ import (
 func TestWorkloadVisible(t *testing.T) {
 	containers := []container.Container{{Labels: map[string]string{
 		"@k8s.namespace":     "default",
+		"@k8s.owner.count":   "2",
+		"@k8s.owner.0.kind":  "ReplicaSet",
+		"@k8s.owner.0.name":  "api-6f88b977f4",
+		"@k8s.owner.1.kind":  "Deployment",
+		"@k8s.owner.1.name":  "api",
 		"@k8s.workload.kind": "Deployment",
 		"@k8s.workload.name": "api",
 	}}}
@@ -25,6 +30,23 @@ func TestWorkloadVisible(t *testing.T) {
 	assert.False(t, workloadVisible(containers, "default", "StatefulSet", "api"))
 	assert.False(t, workloadVisible(containers, "default", "Deployment", "web"))
 	assert.False(t, workloadVisible(nil, "default", "Deployment", "api"))
+}
+
+// An operator's custom resource sits above the StatefulSet, so the StatefulSet
+// is not the top of the chain but is still what gets rolled out.
+func TestWorkloadVisibleBelowCustomResource(t *testing.T) {
+	containers := []container.Container{{Labels: map[string]string{
+		"@k8s.namespace":     "monitoring",
+		"@k8s.owner.count":   "2",
+		"@k8s.owner.0.kind":  "StatefulSet",
+		"@k8s.owner.0.name":  "prometheus-main",
+		"@k8s.owner.1.kind":  "Prometheus",
+		"@k8s.owner.1.name":  "main",
+		"@k8s.workload.kind": "Prometheus",
+		"@k8s.workload.name": "main",
+	}}}
+
+	assert.True(t, workloadVisible(containers, "monitoring", "StatefulSet", "prometheus-main"))
 }
 
 func TestNodeToHostReadsReadyCondition(t *testing.T) {

@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"slices"
+	"strconv"
 	"strings"
 	"time"
 
@@ -153,11 +154,21 @@ func (m *K8sClusterService) RolloutRestart(ctx context.Context, namespace, kind,
 	return m.client.RolloutRestart(ctx, namespace, kind, name)
 }
 
+// workloadVisible matches any link in the owner chain, not only its top: an
+// operator's custom resource can own the StatefulSet that owns the pod.
 func workloadVisible(containers []container.Container, namespace, kind, name string) bool {
 	return slices.ContainsFunc(containers, func(c container.Container) bool {
-		return c.Labels["@k8s.namespace"] == namespace &&
-			c.Labels["@k8s.workload.kind"] == kind &&
-			c.Labels["@k8s.workload.name"] == name
+		if c.Labels["@k8s.namespace"] != namespace {
+			return false
+		}
+		count, _ := strconv.Atoi(c.Labels["@k8s.owner.count"])
+		for i := range count {
+			prefix := fmt.Sprintf("@k8s.owner.%d.", i)
+			if c.Labels[prefix+"kind"] == kind && c.Labels[prefix+"name"] == name {
+				return true
+			}
+		}
+		return false
 	})
 }
 
