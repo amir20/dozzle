@@ -110,9 +110,6 @@ label:
   disk: 디스크
   load: 부하
   uptime: 가동 시간
-  network: 네트워크
-  since-boot: 부팅 이후
-  load-avg: 1m · 5m · 15m
   mem: 메모리
   pinned: 고정됨
   per-page: 페이지당 행 수

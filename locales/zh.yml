@@ -125,9 +125,6 @@ label:
   disk: 磁盘
   load: 负载
   uptime: 运行时间
-  network: 网络
-  since-boot: 自启动以来
-  load-avg: 1m · 5m · 15m
   mem: MEM
   pinned: 固定
   per-page: 每页行数

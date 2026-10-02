@@ -110,9 +110,6 @@ label:
   disk: Schijf
   load: Belasting
   uptime: Uptime
-  network: Netwerk
-  since-boot: sinds opstart
-  load-avg: 1m · 5m · 15m
   mem: MEM
   pinned: Vastgezet
   per-page: Rijen per pagina

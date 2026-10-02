@@ -110,9 +110,6 @@ label:
   disk: Datenträger
   load: Last
   uptime: Laufzeit
-  network: Netzwerk
-  since-boot: seit dem Start
-  load-avg: 1m · 5m · 15m
   mem: MEM
   pinned: Angepinnt
   per-page: Zeilen pro Seite

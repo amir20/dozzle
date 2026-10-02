@@ -7,6 +7,7 @@ import (
 	"sort"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 
 	"encoding/json"
@@ -53,6 +54,34 @@ type Client struct {
 	host          container.Host
 	info          system.Info
 	serviceLabels serviceLabelCache
+
+	// Host-level metrics are read from /proc and statfs, and Host() is called on
+	// hot paths (stats log lines, every Hosts() fan-out), so the result is cached
+	// for a few seconds rather than re-read on every call.
+	metricsMu sync.Mutex
+	metrics   container.HostMetrics
+	metricsOK bool
+	metricsAt time.Time
+}
+
+// hostMetricsCacheTTL bounds how stale the host card's numbers can be, while
+// keeping the per-call cost off Host()'s hot paths.
+const hostMetricsCacheTTL = 5 * time.Second
+
+// readHostMetrics returns the local host's metrics, re-reading them at most once
+// per TTL. metricsOK reports whether the host /proc was readable; disk can be
+// present even when it was not, since it comes from the engine's data directory.
+func (d *Client) readHostMetrics() (container.HostMetrics, bool) {
+	d.metricsMu.Lock()
+	defer d.metricsMu.Unlock()
+
+	if !d.metricsAt.IsZero() && time.Since(d.metricsAt) < hostMetricsCacheTTL {
+		return d.metrics, d.metricsOK
+	}
+
+	m, ok := container.ReadHostMetrics(d.info.DockerRootDir)
+	d.metrics, d.metricsOK, d.metricsAt = m, ok, time.Now()
+	return m, ok
 }
 
 // NewClient connects a Docker or Podman engine. hostIDs decides what this host
@@ -87,19 +116,19 @@ func NewClient(cli CLI, host container.Host, hostIDs container.HostIDResolver) *
 		host.SwarmClusterID = info.Swarm.Cluster.ID
 	}
 
-	// Host-level metrics (load, uptime, memory, disk, network) are read live in
-	// Host() so they stay current. Remote hosts get theirs through the agent.
-	if host.Type == "local" {
-		if m, ok := container.ReadHostMetrics(); ok {
-			host.ApplyHostMetrics(m)
-		}
-	}
-
-	return &Client{
+	// Host-level metrics (load, uptime, disk) are read live in Host() so they
+	// stay current. Remote hosts get theirs through the agent.
+	c := &Client{
 		cli:  cli,
 		host: host,
 		info: info,
 	}
+	if host.Type == "local" {
+		if m, ok := c.readHostMetrics(); ok || m.DiskTotal > 0 {
+			c.host.ApplyHostMetrics(m, ok)
+		}
+	}
+	return c
 }
 
 // NewLocalClient creates a new instance of Client with docker filters.
@@ -470,15 +499,12 @@ func (d *Client) Ping(ctx context.Context) error {
 
 func (d *Client) Host() container.Host {
 	h := d.host
-	// Host-level metrics are read live so they don't freeze at the value seen at
-	// startup. Only the local host can be read this way (remote hosts get theirs
-	// through the agent), and only when the host /proc is mounted.
+	// Host-level metrics are read live (and cached for a few seconds) so they
+	// don't freeze at the value seen at startup. Only the local host can be read
+	// this way; remote hosts get theirs through the agent.
 	if h.Type == "local" {
-		if m, ok := container.ReadHostMetrics(); ok {
-			h.ApplyHostMetrics(m)
-		} else {
-			h.MetricsAvailable = false
-		}
+		m, ok := d.readHostMetrics()
+		h.ApplyHostMetrics(m, ok)
 	}
 	return h
 }

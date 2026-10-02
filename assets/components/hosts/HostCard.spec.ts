@@ -39,10 +39,6 @@ const i18n = createI18n({
         disk: "Disk",
         load: "Load",
         uptime: "Uptime",
-        network: "Network",
-        "since-boot": "since boot",
-        "load-avg": "1m · 5m · 15m",
-        "used-percent": "{percent}% used",
       },
     },
   },
@@ -103,60 +99,50 @@ describe("<HostCard />", () => {
     expect(cpu.props("value")).toBeCloseTo(37.5);
   });
 
-  test("renders host metric tiles when the host reports them", () => {
+  test("renders host metrics when the host reports them", () => {
     global.EventSource = EventSource;
     const hostWithMetrics: Host = {
       ...host,
       metricsAvailable: true,
-      memUsed: 1,
       load1: 0.5,
       load5: 0.4,
       load15: 0.3,
       uptime: 90061,
       diskTotal: 1000,
       diskFree: 200,
-      netRxTotal: 2048,
-      netTxTotal: 1024,
     };
     const wrapper = mount(HostCard, {
       props: { host: hostWithMetrics },
       global: {
-        plugins: [
-          i18n,
-          createTestingPinia({ createSpy: vi.fn, initialState: { container: { containers: [] } } }),
-        ],
+        plugins: [i18n, createTestingPinia({ createSpy: vi.fn, initialState: { container: { containers: [] } } })],
         stubs: { MetricCard: MetricCardStub, HostIcon: true },
       },
     });
 
     const text = wrapper.text();
-    expect(text).toContain("Disk");
     expect(text).toContain("Load");
     expect(text).toContain("Uptime");
-    expect(text).toContain("Network");
+    expect(text).toContain("Disk");
 
     // Values, not just labels: an idle-looking 0.00 load must survive, 90061s
-    // is "1d 1h", the disk is 800/1000 used (80.0%) and network has a direction.
+    // is "1d 1h", and the disk is 800/1000 used (80%).
     expect(text).toContain("0.50 0.40 0.30");
     expect(text).toContain("1d 1h");
-    expect(text).toContain("80.0%");
-    expect(text).toContain("↓");
+    expect(text).toContain("80%");
+    expect(text).not.toContain("Network");
   });
 
-  test("hides host metric tiles when the host reports no metrics", () => {
+  test("hides host metrics when the host reports none", () => {
     global.EventSource = EventSource;
     const wrapper = mount(HostCard, {
       props: { host },
       global: {
-        plugins: [
-          i18n,
-          createTestingPinia({ createSpy: vi.fn, initialState: { container: { containers: [] } } }),
-        ],
+        plugins: [i18n, createTestingPinia({ createSpy: vi.fn, initialState: { container: { containers: [] } } })],
         stubs: { MetricCard: MetricCardStub, HostIcon: true },
       },
     });
 
-    // `host` has no metricsAvailable, so nothing should render as host metrics.
+    // `host` has no metricsAvailable and no disk, so nothing should render.
     expect(wrapper.text()).not.toContain("Disk");
     expect(wrapper.text()).not.toContain("Load");
   });

@@ -110,9 +110,6 @@ label:
   disk: Disco
   load: Carga
   uptime: Tiempo activo
-  network: Red
-  since-boot: desde el arranque
-  load-avg: 1m · 5m · 15m
   mem: MEM
   pinned: Fijado
   per-page: Filas por página

@@ -111,9 +111,6 @@ label:
   disk: Disk
   load: Load
   uptime: Uptime
-  network: Network
-  since-boot: since boot
-  load-avg: 1m · 5m · 15m
   pinned: Pinned
   per-page: Rows per page
   sort-by: Sort by

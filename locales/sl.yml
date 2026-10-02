@@ -124,9 +124,6 @@ label:
   disk: Disk
   load: Obremenitev
   uptime: Čas delovanja
-  network: Omrežje
-  since-boot: od zagona
-  load-avg: 1m · 5m · 15m
   mem: MEM
   no-logs: Zabojnik še nima dnevnika
   no-logs-hint: "Vse, kar vsebnik zapiše, se takoj pojavi tukaj."

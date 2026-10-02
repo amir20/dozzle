@@ -125,9 +125,6 @@ label:
   disk: 磁碟
   load: 負載
   uptime: 運作時間
-  network: 網路
-  since-boot: 自啟動以來
-  load-avg: 1m · 5m · 15m
   mem: MEM
   pinned: 已釘選
   per-page: 每頁列數

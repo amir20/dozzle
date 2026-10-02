@@ -49,6 +49,18 @@
       </div>
     </div>
 
+    <!-- Host read-outs in one muted line rather than another row of cards: the
+         card already carries CPU and memory, and four more tiles pushed the
+         container list below the fold. -->
+    <div
+      v-if="host.available && hasHostMetrics"
+      class="text-base-content/50 flex min-w-0 flex-wrap items-center gap-x-3 gap-y-1 font-mono text-xs tabular-nums"
+    >
+      <span v-if="host.metricsAvailable">{{ $t("label.load") }} {{ loadLabel }}</span>
+      <span v-if="uptimeLabel">{{ $t("label.uptime") }} {{ uptimeLabel }}</span>
+      <span v-if="diskLabel" :title="diskTitle">{{ $t("label.disk") }} {{ diskLabel }}</span>
+    </div>
+
     <!-- An offline host has no live numbers, so the meters give way to one line in
          the same slot rather than showing the last values as if they were current. -->
     <div
@@ -117,47 +129,15 @@
         :formatValue="(value) => formatBytes(value, { decimals: 1 })"
       />
     </div>
-
-    <!-- Host metrics read from the host /proc: disk, load, uptime, network. -->
-    <div v-if="host.available && host.metricsAvailable" class="grid grid-cols-2 gap-3 sm:grid-cols-4">
-      <div
-        v-if="host.diskTotal"
-        class="border-base-content/10 bg-base-200/40 rounded-lg border px-3 py-2.5"
-      >
-        <UsageMeter
-          :label="$t('label.disk')"
-          :used="diskUsed"
-          :limit="host.diskTotal"
-          unit="bytes"
-          compact
-        />
-      </div>
-      <div
-        v-for="m in hostMetrics"
-        :key="m.key"
-        class="border-base-content/10 bg-base-200/40 flex min-w-0 flex-col gap-0.5 rounded-lg border px-3 py-2.5"
-      >
-        <div class="flex min-w-0 items-center gap-1.5 text-xs font-medium" :class="m.textClass">
-          <component :is="m.icon" class="size-3.5 shrink-0" />
-          <span class="truncate">{{ m.label }}</span>
-        </div>
-        <div class="truncate font-mono text-xl leading-tight font-semibold tabular-nums">{{ m.value }}</div>
-        <div class="text-base-content/50 truncate font-mono text-[0.6875rem] tabular-nums">{{ m.sub }}</div>
-      </div>
-    </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import type { Component } from "vue";
 import type { Host } from "@/stores/hosts";
 import { sessionHost } from "@/composable/app/storage";
 import { Container } from "@/models/Container";
 import PhCpu from "~icons/ph/cpu";
 import PhMemory from "~icons/ph/memory";
-import PhGauge from "~icons/ph/gauge";
-import PhClock from "~icons/ph/clock";
-import PhNetwork from "~icons/ph/network";
 
 const props = defineProps<{
   host: Host;
@@ -239,53 +219,25 @@ const formatUptime = (secs?: number) => {
 
 const diskUsed = computed(() => (props.host.diskTotal ?? 0) - (props.host.diskFree ?? 0));
 
-type HostMetric = {
-  key: string;
-  label: string;
-  value: string;
-  sub: string;
-  icon: Component;
-  textClass: string;
-};
+const hasHostMetrics = computed(() => props.host.metricsAvailable || !!props.host.diskTotal);
 
-const hostMetrics = computed<HostMetric[]>(() => {
-  const m: HostMetric[] = [];
-  if (props.host.metricsAvailable) {
-    const l = [props.host.load1 ?? 0, props.host.load5 ?? 0, props.host.load15 ?? 0];
-    m.push({
-      key: "load",
-      label: t("label.load"),
-      value: l.map((v) => v.toFixed(2)).join(" "),
-      sub: t("label.load-avg"),
-      icon: PhGauge,
-      textClass: "text-accent",
-    });
-  }
-  const up = formatUptime(props.host.uptime);
-  if (up) {
-    m.push({
-      key: "uptime",
-      label: t("label.uptime"),
-      value: up,
-      sub: t("label.since-boot"),
-      icon: PhClock,
-      textClass: "text-success",
-    });
-  }
-  // Network totals are cumulative, so `omitempty` dropping them means the read
-  // failed (or the interface is brand new); don't show a misleading 0.
-  if (props.host.netRxTotal !== undefined) {
-    m.push({
-      key: "net",
-      label: t("label.network"),
-      value: `↓ ${formatBytes(props.host.netRxTotal ?? 0, { short: true, decimals: 1 })}`,
-      sub: `↑ ${formatBytes(props.host.netTxTotal ?? 0, { short: true, decimals: 1 })}`,
-      icon: PhNetwork,
-      textClass: "text-warning",
-    });
-  }
-  return m;
+const loadLabel = computed(() =>
+  [props.host.load1 ?? 0, props.host.load5 ?? 0, props.host.load15 ?? 0].map((value) => value.toFixed(2)).join(" "),
+);
+
+const uptimeLabel = computed(() => formatUptime(props.host.uptime));
+
+const diskLabel = computed(() => {
+  const total = props.host.diskTotal ?? 0;
+  if (!total) return undefined;
+  return `${Math.round((diskUsed.value / total) * 100)}%`;
 });
+
+const diskTitle = computed(() =>
+  props.host.diskTotal
+    ? `${formatBytes(diskUsed.value, { decimals: 1 })} / ${formatBytes(props.host.diskTotal, { decimals: 1 })}`
+    : undefined,
+);
 
 const stats = reactive({ mostRecent: totalStat, weighted: useExponentialMovingAverage(totalStat) });
 

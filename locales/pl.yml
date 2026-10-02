@@ -110,9 +110,6 @@ label:
   disk: Dysk
   load: Obciążenie
   uptime: Czas działania
-  network: Sieć
-  since-boot: od uruchomienia
-  load-avg: 1m · 5m · 15m
   mem: MEM
   pinned: Przypięte
   per-page: Wierszy na strone
