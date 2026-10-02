@@ -175,8 +175,9 @@ export const useImageUpdate = (container: Ref<Container>, historical: Ref<boolea
 
   // Whether Dozzle can perform the update itself. Independent of whether an
   // update is currently available, so the existing manual pull button stays
-  // available exactly as before.
-  const updatable = computed(() => !!config.enableActions && !mayBeSelf(container.value));
+  // available exactly as before. Kubernetes rolls out images through the
+  // workload, so a single pod has nothing to update.
+  const updatable = computed(() => !!config.enableActions && config.mode !== "k8s" && !mayBeSelf(container.value));
 
   // Dozzle's own standalone container replaces itself through a helper, so the
   // update waits for the new process and the menu also links the release notes.
