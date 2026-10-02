@@ -200,7 +200,7 @@ type handler struct {
 	// does not grow with the number of tabs and never dials an agent.
 	localHostMetricsOnce sync.Once
 	localHostMetricsMu   sync.Mutex
-	localHostMetricsSubs map[chan container.Host]struct{}
+	localHostMetricsSubs map[chan hostMetricsEvent]struct{}
 }
 
 // Server is the HTTP server plus the usage beacon hooks main runs around it.

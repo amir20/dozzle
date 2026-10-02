@@ -55,6 +55,11 @@ type Client struct {
 	info          system.Info
 	serviceLabels serviceLabelCache
 
+	// hostMetrics is set only when the engine runs on the machine Dozzle can read
+	// /proc and statfs on. A local client pointed at DOCKER_HOST=tcp:// or ssh://
+	// is still typed "local", but its load and disk belong to another box.
+	hostMetrics bool
+
 	// Host-level metrics are read from /proc and statfs, and Host() is called on
 	// hot paths (stats log lines, every Hosts() fan-out), so the result is cached
 	// for a few seconds rather than re-read on every call.
@@ -116,19 +121,11 @@ func NewClient(cli CLI, host container.Host, hostIDs container.HostIDResolver) *
 		host.SwarmClusterID = info.Swarm.Cluster.ID
 	}
 
-	// Host-level metrics (load, uptime, disk) are read live in Host() so they
-	// stay current. Remote hosts get theirs through the agent.
-	c := &Client{
+	return &Client{
 		cli:  cli,
 		host: host,
 		info: info,
 	}
-	if host.Type == "local" {
-		if m, ok := c.readHostMetrics(); ok || m.DiskTotal > 0 {
-			c.host.ApplyHostMetrics(m, ok)
-		}
-	}
-	return c
 }
 
 // NewLocalClient creates a new instance of Client with docker filters.
@@ -159,7 +156,15 @@ func NewLocalClient(hostname string, hostIDs container.HostIDResolver) (*Client,
 		host.Name = hostname
 	}
 
-	return NewClient(cli, host, hostIDs), nil
+	c := NewClient(cli, host, hostIDs)
+	c.hostMetrics = isLocalDaemon(cli.DaemonHost())
+	return c, nil
+}
+
+// isLocalDaemon reports whether the engine is reached over a local socket, which
+// is the only case where this machine's /proc and filesystem describe it.
+func isLocalDaemon(daemonHost string) bool {
+	return strings.HasPrefix(daemonHost, "unix://") || strings.HasPrefix(daemonHost, "npipe://")
 }
 
 func NewRemoteClient(host container.Host, hostIDs container.HostIDResolver) (*Client, error) {
@@ -500,9 +505,9 @@ func (d *Client) Ping(ctx context.Context) error {
 func (d *Client) Host() container.Host {
 	h := d.host
 	// Host-level metrics are read live (and cached for a few seconds) so they
-	// don't freeze at the value seen at startup. Only the local host can be read
-	// this way; remote hosts get theirs through the agent.
-	if h.Type == "local" {
+	// don't freeze at the value seen at startup. Only an engine on this machine
+	// can be read this way; remote hosts would get theirs through the agent.
+	if d.hostMetrics {
 		m, ok := d.readHostMetrics()
 		h.ApplyHostMetrics(m, ok)
 	}

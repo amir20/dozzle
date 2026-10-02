@@ -45,6 +45,18 @@ const updateHost = (host: Host) => {
   return host;
 };
 
+export type HostMetrics = Pick<
+  Host,
+  "id" | "metricsAvailable" | "load1" | "load5" | "load15" | "uptime" | "diskTotal" | "diskFree"
+>;
+
+// Merges a host-metrics tick into the host already known, leaving available and
+// type alone. A tick for a host this tab has not heard of yet is dropped.
+const updateHostMetrics = ({ id, ...metrics }: HostMetrics) => {
+  const host = hosts.value[id];
+  if (host) Object.assign(host, metrics);
+};
+
 // An agent that never connected is listed under its endpoint, so both keys are
 // cleared. Other tabs hear about it as an update-host with removed set.
 const removeHost = (...ids: (string | undefined)[]) => {
@@ -57,6 +69,7 @@ export function useHosts() {
   return {
     hosts,
     updateHost,
+    updateHostMetrics,
     removeHost,
   };
 }

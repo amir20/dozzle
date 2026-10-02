@@ -35,6 +35,7 @@ class FakeEventSource extends EventTarget {
 vi.stubGlobal("EventSource", FakeEventSource);
 
 const { useContainerStore } = await import("./container");
+const { useHosts } = await import("./hosts");
 
 function json(id: string, host = "localhost", state = "running"): ContainerJson {
   return {
@@ -129,5 +130,38 @@ describe("container store list reconciliation", () => {
     await nextTick();
 
     expect(store.containers.find((c) => c.id === "a")).toBe(first);
+  });
+});
+
+describe("host metrics", () => {
+  // The 15s metrics tick used to go out as update-host, which replaces the whole
+  // host. The local client's raw Host() has no `available` and no swarm `type`, so
+  // every tick marked the local host offline and hid the metrics it carried.
+  test("a host-metrics tick leaves availability and type alone", async () => {
+    const { es } = setup();
+    const { hosts } = useHosts();
+    Object.assign(hosts.value.localhost!, { available: true, type: "swarm" });
+
+    es.emit("host-metrics", { id: "localhost", metricsAvailable: true, load1: 0.5, uptime: 3600, diskTotal: 100 });
+    await nextTick();
+
+    expect(hosts.value.localhost).toMatchObject({
+      available: true,
+      type: "swarm",
+      metricsAvailable: true,
+      load1: 0.5,
+      uptime: 3600,
+      diskTotal: 100,
+    });
+  });
+
+  test("a tick for an unknown host adds nothing", async () => {
+    const { es } = setup();
+    const { hosts } = useHosts();
+
+    es.emit("host-metrics", { id: "ghost", metricsAvailable: true });
+    await nextTick();
+
+    expect(hosts.value.ghost).toBeUndefined();
   });
 });

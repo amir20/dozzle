@@ -124,9 +124,11 @@ describe("<HostCard />", () => {
     expect(text).toContain("Uptime");
     expect(text).toContain("Disk");
 
-    // Values, not just labels: an idle-looking 0.00 load must survive, 90061s
-    // is "1d 1h", and the disk is 800/1000 used (80%).
-    expect(text).toContain("0.50 0.40 0.30");
+    // Values, not just labels: the 1m load shows, 5m and 15m sit in the tooltip,
+    // 90061s is "1d 1h", and the disk is 800/1000 used (80%).
+    expect(text).toContain("0.50");
+    expect(text).not.toContain("0.40");
+    expect(wrapper.find('[title="1m 0.50 · 5m 0.40 · 15m 0.30"]').exists()).toBe(true);
     expect(text).toContain("1d 1h");
     expect(text).toContain("80%");
     expect(text).not.toContain("Network");

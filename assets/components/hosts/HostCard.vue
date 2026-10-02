@@ -47,18 +47,40 @@
           {{ $t("label.agent-outdated", { version: host.agentVersion }) }}
         </span>
       </div>
-    </div>
 
-    <!-- Host read-outs in one muted line rather than another row of cards: the
-         card already carries CPU and memory, and four more tiles pushed the
-         container list below the fold. -->
-    <div
-      v-if="host.available && hasHostMetrics"
-      class="text-base-content/50 flex min-w-0 flex-wrap items-center gap-x-3 gap-y-1 font-mono text-xs tabular-nums"
-    >
-      <span v-if="host.metricsAvailable">{{ $t("label.load") }} {{ loadLabel }}</span>
-      <span v-if="uptimeLabel">{{ $t("label.uptime") }} {{ uptimeLabel }}</span>
-      <span v-if="diskLabel" :title="diskTitle">{{ $t("label.disk") }} {{ diskLabel }}</span>
+      <!-- The machine's own read-outs, in one hairline chip pushed to the right
+           edge and led by the host's own icon. The facts on the left are about
+           what Docker runs and the meters below sum the containers, so without a
+           boundary "Load" and "Disk" read as more container numbers. Inside,
+           labels stay muted, values carry the weight, and each hides when it is
+           not known. -->
+      <div
+        v-if="host.available && hasHostMetrics"
+        class="border-base-content/10 text-base-content/50 ml-auto flex flex-wrap items-center gap-x-3 gap-y-1 rounded-md border px-2 py-0.5 text-xs tabular-nums"
+        :title="$t('label.host')"
+      >
+        <HostIcon :type="host.type" class="size-3.5 opacity-60" />
+        <span v-if="uptimeLabel">
+          {{ $t("label.uptime") }} <span class="text-base-content/80 font-mono">{{ uptimeLabel }}</span>
+        </span>
+        <span v-if="host.metricsAvailable" :title="loadTitle">
+          {{ $t("label.load") }} <span class="text-base-content/80 font-mono">{{ loadLabel }}</span>
+        </span>
+        <!-- UsageMeter's track and thresholds, inline: the component is a labelled
+             block sized for a panel row, too tall for a header fact. The fill stays
+             neutral below 70% so the bar only takes color when disk needs a look. -->
+        <span v-if="diskPercent !== undefined" class="flex items-center gap-1.5" :title="diskTitle">
+          {{ $t("label.disk") }}
+          <span class="bg-base-content/10 h-1.5 w-10 overflow-hidden rounded-full">
+            <span
+              class="block h-full rounded-full transition-[width] duration-500"
+              :class="diskPercent > 90 ? 'bg-error' : diskPercent > 70 ? 'bg-warning' : 'bg-base-content/40'"
+              :style="{ width: `${Math.min(diskPercent, 100)}%` }"
+            ></span>
+          </span>
+          <span class="text-base-content/80 font-mono">{{ diskPercent }}%</span>
+        </span>
+      </div>
     </div>
 
     <!-- An offline host has no live numbers, so the meters give way to one line in
@@ -219,19 +241,26 @@ const formatUptime = (secs?: number) => {
 
 const diskUsed = computed(() => (props.host.diskTotal ?? 0) - (props.host.diskFree ?? 0));
 
-const hasHostMetrics = computed(() => props.host.metricsAvailable || !!props.host.diskTotal);
+// Only the 1 minute average is shown; three bare numbers in a row meant nothing
+// without a legend, so the 5 and 15 minute ones live in the tooltip.
+const loadLabel = computed(() => (props.host.load1 ?? 0).toFixed(2));
 
-const loadLabel = computed(() =>
-  [props.host.load1 ?? 0, props.host.load5 ?? 0, props.host.load15 ?? 0].map((value) => value.toFixed(2)).join(" "),
-);
+const loadTitle = computed(() => {
+  const { load1 = 0, load5 = 0, load15 = 0 } = props.host;
+  return `1m ${load1.toFixed(2)} · 5m ${load5.toFixed(2)} · 15m ${load15.toFixed(2)}`;
+});
 
-const uptimeLabel = computed(() => formatUptime(props.host.uptime));
+const uptimeLabel = computed(() => (props.host.metricsAvailable ? formatUptime(props.host.uptime) : undefined));
 
-const diskLabel = computed(() => {
+const diskPercent = computed(() => {
   const total = props.host.diskTotal ?? 0;
   if (!total) return undefined;
-  return `${Math.round((diskUsed.value / total) * 100)}%`;
+  return Math.round((diskUsed.value / total) * 100);
 });
+
+const hasHostMetrics = computed(
+  () => !!uptimeLabel.value || props.host.metricsAvailable || diskPercent.value !== undefined,
+);
 
 const diskTitle = computed(() =>
   props.host.diskTotal
