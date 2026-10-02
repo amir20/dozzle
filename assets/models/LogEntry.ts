@@ -7,6 +7,7 @@ import GroupedLogItem from "@/components/logs/entries/GroupedLogItem.vue";
 import ContainerEventLogItem from "@/components/logs/entries/ContainerEventLogItem.vue";
 import SkippedEntriesLogItem from "@/components/logs/entries/SkippedEntriesLogItem.vue";
 import LoadMoreLogItem from "@/components/logs/entries/LoadMoreLogItem.vue";
+import RangeEdgeLogItem from "@/components/logs/entries/RangeEdgeLogItem.vue";
 import AlertLogItem from "@/components/logs/entries/AlertLogItem.vue";
 import CloudEventLogItem from "@/components/logs/entries/CloudEventLogItem.vue";
 
@@ -379,6 +380,27 @@ export class LoadMoreLogEntry extends LogEntry<string> {
 
   async loadMore(): Promise<void> {
     await this.loader(this);
+  }
+}
+
+export type RangeEdgeAction = { label: string; run: () => void };
+
+/**
+ * Where a time range stops, at the top or the bottom of the stream, with the
+ * ways to move that end. It takes the place of the load-more row once nothing is
+ * left to load inside the range.
+ */
+export class RangeEdgeLogEntry extends LogEntry<string> {
+  constructor(
+    date: Date,
+    public readonly edge: "start" | "end",
+    public readonly actions: RangeEdgeAction[],
+  ) {
+    super("", "", date.getTime(), date, "stderr", "info");
+  }
+
+  getComponent(): Component {
+    return RangeEdgeLogItem;
   }
 }
 

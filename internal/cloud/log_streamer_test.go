@@ -55,6 +55,10 @@ func (f *fakeClientService) UpdateContainer(_ context.Context, _ container.Conta
 func (f *fakeClientService) LogsBetweenDates(_ context.Context, _ container.Container, _ time.Time, _ time.Time, _ container.StdType) (<-chan *container.LogEvent, error) {
 	return nil, nil
 }
+func (f *fakeClientService) LogHistogram(context.Context, container.Container, time.Time, time.Time, time.Duration) (container.LogHistogram, error) {
+	return container.LogHistogram{}, nil
+}
+
 func (f *fakeClientService) RawLogs(_ context.Context, _ container.Container, _ time.Time, _ time.Time, _ container.StdType) (io.ReadCloser, error) {
 	return nil, nil
 }

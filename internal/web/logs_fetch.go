@@ -126,7 +126,12 @@ func (h *handler) fetchLogsBetweenDates(w http.ResponseWriter, r *http.Request) 
 	}
 
 	if q.Has("everything") {
-		events, err := containerService.LogsBetweenDates(r.Context(), time.Time{}, time.Now(), stdTypes)
+		// Bounded by from/to when the view is a time range; the whole log otherwise.
+		to := win.to
+		if to.IsZero() {
+			to = time.Now()
+		}
+		events, err := containerService.LogsBetweenDates(r.Context(), win.from, to, stdTypes)
 		if err != nil {
 			log.Error().Err(err).Msg("error fetching logs")
 			http.Error(w, err.Error(), http.StatusInternalServerError)

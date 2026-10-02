@@ -1,5 +1,6 @@
 import { Container } from "@/models/Container";
 import { allLevels } from "./logContext";
+import { appendRangeParams } from "./timeRange";
 
 export function useDownloadUrl(
   containers: Ref<Container[]> | ComputedRef<Container[]>,
@@ -8,10 +9,14 @@ export function useDownloadUrl(
   name?: Ref<string> | ComputedRef<string> | string,
 ) {
   const { appliedSearchFilter, inverseFilter } = useSearchFilter();
+  const { timeRange } = useLoggingContext();
 
   const downloadUrl = computed(() => {
     const params = new URLSearchParams();
     const config = toValue(streamConfig);
+
+    // The download holds what the view holds: a range, or the lines since its start.
+    appendRangeParams(params, timeRange.value);
 
     // Add stdout/stderr
     if (config.stdout) params.append("stdout", "1");
@@ -42,7 +47,10 @@ export function useDownloadUrl(
   });
 
   const isFiltered = computed(
-    () => appliedSearchFilter.value || (levels.value.size > 0 && levels.value.size < allLevels.length),
+    () =>
+      appliedSearchFilter.value ||
+      (levels.value.size > 0 && levels.value.size < allLevels.length) ||
+      timeRange.value.kind !== "live",
   );
 
   return {

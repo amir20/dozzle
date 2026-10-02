@@ -12,6 +12,7 @@ import (
 	"time"
 
 	"github.com/amir20/dozzle/internal/container"
+	"github.com/amir20/dozzle/internal/container/histogram"
 	"github.com/amir20/dozzle/internal/container/logparse"
 	"github.com/amir20/dozzle/internal/imagecheck"
 	"github.com/amir20/dozzle/internal/selfupdate"
@@ -32,6 +33,7 @@ type UpdateClient interface {
 	ContainerCreate(ctx context.Context, inspectResp docker_types.InspectResponse, name string) (string, error)
 	NetworkDependents(ctx context.Context, id string, name string) ([]string, error)
 	ServiceUpdate(ctx context.Context, serviceID string, image string) error
+	ContainerLogsTail(ctx context.Context, id string, lines int) (io.ReadCloser, error)
 }
 
 var (
@@ -64,17 +66,19 @@ func mayBeSelf(inspect docker_types.InspectResponse) bool {
 }
 
 type Service struct {
-	client  UpdateClient
-	store   *container.Store
-	checker *imagecheck.Checker
+	client     UpdateClient
+	store      *container.Store
+	checker    *imagecheck.Checker
+	histograms *histogram.Counter
 }
 
 func NewService(client UpdateClient, labels container.ContainerLabels) *Service {
 	statsCollector := NewStatsCollector(client, labels)
 	return &Service{
-		client:  client,
-		store:   container.NewStore(context.Background(), client, statsCollector, labels),
-		checker: imagecheck.Shared(),
+		client:     client,
+		store:      container.NewStore(context.Background(), client, statsCollector, labels),
+		checker:    imagecheck.Shared(),
+		histograms: histogram.NewCounter(),
 	}
 }
 
@@ -118,6 +122,30 @@ func (d *Service) LogsBetweenDates(ctx context.Context, c container.Container, f
 	dockerReader := NewLogReader(reader, c.Tty)
 	g := logparse.NewEventGenerator(ctx, dockerReader, c)
 	return g.Events, nil
+}
+
+func (d *Service) LogHistogram(ctx context.Context, c container.Container, from time.Time, to time.Time, width time.Duration) (container.LogHistogram, error) {
+	return d.histograms.Count(ctx, c.ID, from, to, width, func(ctx context.Context, lines int) (histogram.LineReader, io.Closer, error) {
+		reader, err := d.client.ContainerLogsTail(ctx, c.ID, lines)
+		if err != nil {
+			return nil, nil, err
+		}
+		return skipBadHeaders{NewLogReader(reader, c.Tty)}, reader, nil
+	})
+}
+
+// skipBadHeaders reads past a frame whose header is malformed, as the event
+// generator does, instead of ending the count there.
+type skipBadHeaders struct{ *LogReader }
+
+func (r skipBadHeaders) Read() (string, container.StdType, error) {
+	for {
+		line, std, err := r.LogReader.Read()
+		if err == ErrBadHeader {
+			continue
+		}
+		return line, std, err
+	}
 }
 
 func (d *Service) StreamLogs(ctx context.Context, c container.Container, from time.Time, stdTypes container.StdType, events chan<- *container.LogEvent) error {

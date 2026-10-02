@@ -130,6 +130,10 @@ func (m *MockClientService) ContainerAction(ctx context.Context, c container.Con
 func (m *MockClientService) LogsBetweenDates(_ context.Context, _ container.Container, _ time.Time, _ time.Time, _ container.StdType) (<-chan *container.LogEvent, error) {
 	return nil, nil
 }
+func (m *MockClientService) LogHistogram(context.Context, container.Container, time.Time, time.Time, time.Duration) (container.LogHistogram, error) {
+	return container.LogHistogram{}, nil
+}
+
 func (m *MockClientService) RawLogs(_ context.Context, _ container.Container, _ time.Time, _ time.Time, _ container.StdType) (io.ReadCloser, error) {
 	return nil, nil
 }

@@ -689,6 +689,19 @@ func (k *Client) ContainerLogsBetweenDates(ctx context.Context, id string, start
 	}, nil
 }
 
+// ContainerLogsTail returns the newest `lines` lines of the current run, oldest
+// first, with timestamps.
+func (k *Client) ContainerLogsTail(ctx context.Context, id string, lines int) (io.ReadCloser, error) {
+	namespace, podName, containerName := parsePodContainerID(id)
+	tail := int64(lines)
+	opts := &corev1.PodLogOptions{
+		Container:  containerName,
+		Timestamps: true,
+		TailLines:  &tail,
+	}
+	return k.Clientset.CoreV1().Pods(namespace).GetLogs(podName, opts).Stream(ctx)
+}
+
 func startsWithTimestamp(b []byte) bool {
 	_, err := time.Parse("2006-01-02T15:04:05", string(b[:min(len(b), len("2006-01-02T15:04:05"))]))
 	return err == nil

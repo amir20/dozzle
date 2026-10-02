@@ -167,6 +167,30 @@ func rpcErrToErr(err error) error {
 	}
 }
 
+func (c *Client) LogHistogram(ctx context.Context, containerID string, from time.Time, to time.Time, width time.Duration) (container.LogHistogram, error) {
+	resp, err := c.client.LogHistogram(ctx, &pb.LogHistogramRequest{
+		ContainerId:  containerID,
+		From:         timestamppb.New(from),
+		To:           timestamppb.New(to),
+		WidthSeconds: int64(width / time.Second),
+	})
+	if err != nil {
+		return container.LogHistogram{}, err
+	}
+
+	h := container.LogHistogram{Start: from, Width: width, Total: resp.Total, Errors: resp.Errors}
+	if resp.ScannedFrom != nil {
+		h.ScannedFrom = resp.ScannedFrom.AsTime()
+	}
+	if resp.Before != nil {
+		h.Before = resp.Before.AsTime()
+	}
+	if resp.After != nil {
+		h.After = resp.After.AsTime()
+	}
+	return h, nil
+}
+
 func (c *Client) LogsBetweenDates(ctx context.Context, containerID string, since time.Time, until time.Time, std container.StdType) (<-chan *container.LogEvent, error) {
 	stream, err := c.client.LogsBetweenDates(ctx, &pb.LogsBetweenDatesRequest{
 		ContainerId: containerID,

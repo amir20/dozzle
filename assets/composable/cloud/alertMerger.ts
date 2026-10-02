@@ -6,6 +6,7 @@ import {
   AlertLogEntry,
   CloudEventLogEntry,
   SkippedLogsEntry,
+  RangeEdgeLogEntry,
 } from "@/models/LogEntry";
 import { Container } from "@/models/Container";
 import { useCloudAlerts, mergeAlerts, attachEvents, mergeCloudEvents } from "./cloudAlerts";
@@ -33,7 +34,8 @@ export function isStreamLog(entry: LogEntry<LogMessage>): boolean {
     entry instanceof LoadMoreLogEntry ||
     entry instanceof AlertLogEntry ||
     entry instanceof CloudEventLogEntry ||
-    entry instanceof SkippedLogsEntry
+    entry instanceof SkippedLogsEntry ||
+    entry instanceof RangeEdgeLogEntry
   );
 }
 

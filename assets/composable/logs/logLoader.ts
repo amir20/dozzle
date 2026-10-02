@@ -2,16 +2,30 @@ import { ShallowRef, type Ref } from "vue";
 import { type LogMessage, LogEntry, LoadMoreLogEntry, SkippedLogsEntry } from "@/models/LogEntry";
 import { Container } from "@/models/Container";
 import { loadBetween } from "./loadBetween";
-import { useAlertMerger } from "@/composable/cloud/alertMerger";
+import { useAlertMerger, isStreamLog } from "@/composable/cloud/alertMerger";
 
 // Matches the rolling window size used for stats history
 const LOG_WINDOW_FOR_DELTA = 300;
+
+// What one windowed fetch returns at most when it is not asked for a minimum
+// (defaultFetchSize in internal/web/logs_fetch.go). Fewer means the window held
+// no more than that.
+export const FETCH_PAGE = 500;
 
 export function useLogLoader(
   messages: ShallowRef<LogEntry<LogMessage>[]>,
   containers: Ref<Container[]>,
   params: Ref<URLSearchParams>,
   loadingMore: Ref<boolean>,
+  {
+    floor,
+    startEdge,
+  }: {
+    // The start the person picked; nothing older is loaded.
+    floor?: Ref<Date | undefined>;
+    // The row that replaces the loader once the floor is reached.
+    startEdge?: () => LogEntry<LogMessage>;
+  } = {},
 ) {
   const { withAlerts, decorateVisible } = useAlertMerger(messages, containers, params);
 
@@ -37,6 +51,35 @@ export function useLogLoader(
       if (count <= LOG_WINDOW_FOR_DELTA) {
         nthByContainer.set(id, log);
       }
+    }
+
+    // With a floor, every load asks for [floor, earliest on screen] at once. Docker
+    // scans its log from the start for any window, so a narrower one costs the same
+    // and could come back empty above lines that exist, while a `min` would widen
+    // the window past the floor.
+    const start = floor?.value;
+    if (start) {
+      try {
+        loadingMore.value = true;
+        const to = existingLogs.find(isStreamLog)?.date ?? existingLogs[0].date;
+        const results = await Promise.all(
+          containers.value.map((c) =>
+            loadBetween(c, params, start, to, { lastSeenId: earliestByContainer.get(c.id)?.id }),
+          ),
+        );
+        if (results.some(({ signal }) => signal.aborted)) return;
+        const older = results.flatMap(({ logs }) => logs).sort((a, b) => a.date.getTime() - b.date.getTime());
+        const reachedFloor = results.every(({ logs }) => logs.length < FETCH_PAGE);
+        const head = reachedFloor && startEdge ? startEdge() : loader;
+        if (older.length > 0 || head !== loader) {
+          messages.value = [head, ...(await withAlerts(older)), ...existingLogs];
+        }
+      } catch (err) {
+        console.error(err);
+      } finally {
+        loadingMore.value = false;
+      }
+      return;
     }
 
     try {

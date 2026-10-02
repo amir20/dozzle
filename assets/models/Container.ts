@@ -35,6 +35,8 @@ export class HistoricalContainer {
   constructor(
     public readonly container: Container,
     public readonly date: Date,
+    // Set for a time range, where `date` is its start; absent for a single moment.
+    public readonly until?: Date,
   ) {}
 }
 

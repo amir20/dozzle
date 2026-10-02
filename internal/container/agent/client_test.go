@@ -76,6 +76,11 @@ func (m *MockedClientService) LogsBetweenDates(ctx context.Context, c container.
 	return args.Get(0).(<-chan *container.LogEvent), args.Error(1)
 }
 
+func (m *MockedClientService) LogHistogram(ctx context.Context, c container.Container, from time.Time, to time.Time, width time.Duration) (container.LogHistogram, error) {
+	args := m.Called(ctx, c, from, to, width)
+	return args.Get(0).(container.LogHistogram), args.Error(1)
+}
+
 func (m *MockedClientService) RawLogs(ctx context.Context, c container.Container, from time.Time, to time.Time, stdTypes container.StdType) (io.ReadCloser, error) {
 	args := m.Called(ctx, c, from, to, stdTypes)
 	return args.Get(0).(io.ReadCloser), args.Error(1)

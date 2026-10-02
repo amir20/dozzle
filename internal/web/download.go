@@ -72,6 +72,23 @@ func (h *handler) downloadLogs(w http.ResponseWriter, r *http.Request) {
 	// Inverse mode excludes lines matching the regex instead of keeping them.
 	inverse := r.URL.Query().Get("inverse") == "true"
 
+	// A time range narrows the download to what the view shows; without one it
+	// is the whole log up to now.
+	var from time.Time
+	to := now
+	if r.URL.Query().Has("from") {
+		if from, err = time.Parse(time.RFC3339Nano, r.URL.Query().Get("from")); err != nil {
+			http.Error(w, "from must be an RFC 3339 time", http.StatusBadRequest)
+			return
+		}
+	}
+	if r.URL.Query().Has("to") {
+		if to, err = time.Parse(time.RFC3339Nano, r.URL.Query().Get("to")); err != nil {
+			http.Error(w, "to must be an RFC 3339 time", http.StatusBadRequest)
+			return
+		}
+	}
+
 	// Parse level filters if provided
 	levels := make(map[string]struct{})
 	if r.URL.Query().Has("levels") {
@@ -151,7 +168,7 @@ func (h *handler) downloadLogs(w http.ResponseWriter, r *http.Request) {
 		// Get container logs - use LogsBetweenDates if filtering is needed, otherwise use RawLogs
 		if regex != nil || len(levels) > 0 {
 			// Fetch parsed log events for filtering
-			events, err := c.containerService.LogsBetweenDates(r.Context(), time.Time{}, now, stdTypes)
+			events, err := c.containerService.LogsBetweenDates(r.Context(), from, to, stdTypes)
 			if err != nil {
 				log.Error().Err(err).Msgf("error getting logs for container %s", c.id)
 				return
@@ -200,7 +217,7 @@ func (h *handler) downloadLogs(w http.ResponseWriter, r *http.Request) {
 			}
 		} else {
 			// No filtering needed, use raw logs for better performance
-			reader, err := c.containerService.RawLogs(r.Context(), time.Time{}, now, stdTypes)
+			reader, err := c.containerService.RawLogs(r.Context(), from, to, stdTypes)
 			if err != nil {
 				log.Error().Err(err).Msgf("error getting logs for container %s", c.id)
 				return

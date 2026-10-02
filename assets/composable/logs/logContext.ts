@@ -1,5 +1,6 @@
 import { Container } from "@/models/Container";
 import { Level } from "@/models/LogEntry";
+import type { TimeRange } from "./timeRange";
 
 type LogContext = {
   streamConfig: { stdout: boolean; stderr: boolean };
@@ -10,6 +11,9 @@ type LogContext = {
   showContainerName: boolean;
   showHostname: boolean;
   historical: boolean;
+  // The slice of the log the view was opened on. Only a route's own view has
+  // one; a pinned column is always plain live.
+  timeRange: TimeRange;
 };
 
 export const allLevels: Level[] = ["info", "debug", "warn", "error", "fatal", "trace", "unknown"];
@@ -22,7 +26,17 @@ const stderr = searchParams.has("stderr") ? searchParams.get("stderr") === "true
 
 export const provideLoggingContext = (
   containers: Ref<Container[]>,
-  { showContainerName = false, showHostname = false, historical = false } = {},
+  {
+    showContainerName = false,
+    showHostname = false,
+    historical = false,
+    timeRange = { kind: "live" },
+  }: {
+    showContainerName?: boolean;
+    showHostname?: boolean;
+    historical?: boolean;
+    timeRange?: MaybeRef<TimeRange>;
+  } = {},
 ) => {
   provide(
     loggingContextKey,
@@ -35,6 +49,7 @@ export const provideLoggingContext = (
       showContainerName,
       showHostname,
       historical,
+      timeRange,
     }),
   );
 };
@@ -51,6 +66,7 @@ export const useLoggingContext = () => {
       showContainerName: false,
       showHostname: false,
       historical: false,
+      timeRange: { kind: "live" } as TimeRange,
     }),
   );
 

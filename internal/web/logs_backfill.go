@@ -28,12 +28,14 @@ type searchStatus struct {
 
 // searchBackfill walks back from `to` across every container in doubling windows,
 // sending each pass's matches oldest first on backfill and its progress on status,
-// until it has backfillMatches of them or scans past the oldest container's birth.
-// Every send gives up once ctx is done, so the walk never outlives the client.
+// until it has backfillMatches of them, scans past the oldest container's birth,
+// or reaches floor (zero for none). Every send gives up once ctx is done, so the
+// walk never outlives the client.
 func searchBackfill(
 	ctx context.Context,
 	services []*container.ContainerService,
 	to time.Time,
+	floor time.Time,
 	stdTypes container.StdType,
 	filter logFilter,
 	backfill chan<- []*container.LogEvent,
@@ -59,6 +61,13 @@ func searchBackfill(
 	}()
 
 	for remaining > 0 {
+		if !floor.IsZero() && !to.After(floor) {
+			return
+		}
+		// The last pass stops at the floor instead of overshooting it.
+		if !floor.IsZero() && to.Add(delta).Before(floor) {
+			delta = floor.Sub(to)
+		}
 		events := make([]*container.LogEvent, 0)
 		stillRunning := false
 		for _, containerService := range services {
