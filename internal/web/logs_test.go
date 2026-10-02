@@ -20,6 +20,7 @@ import (
 	"github.com/amir20/dozzle/internal/container"
 	"github.com/amir20/dozzle/internal/web/search"
 	"github.com/beme/abide"
+	"github.com/go-chi/chi/v5"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
@@ -788,6 +789,33 @@ func Test_handler_streamLogsWithLabels_all(t *testing.T) {
 			cancel()
 			<-done
 			mockedClient.AssertNotCalled(t, "ContainerLogs", mock.Anything, "job2", mock.Anything, mock.Anything)
+		})
+	}
+}
+
+func TestPathParamDecodesOnce(t *testing.T) {
+	tests := []struct {
+		name string
+		path string
+		want string
+	}{
+		{"plain", "/groups/payments", "payments"},
+		{"space", "/groups/Payments%20team", "Payments team"},
+		{"slash", "/groups/team%2Fpayments", "team/payments"},
+		{"percent", "/groups/100%25%20uptime", "100% uptime"},
+		{"literal escape", "/groups/a%2520b", "a%20b"},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			var got string
+			var gotErr error
+			r := chi.NewRouter()
+			r.Get("/groups/{group}", func(w http.ResponseWriter, r *http.Request) {
+				got, gotErr = pathParam(r, "group")
+			})
+			r.ServeHTTP(httptest.NewRecorder(), httptest.NewRequest(http.MethodGet, tt.path, nil))
+			require.NoError(t, gotErr)
+			assert.Equal(t, tt.want, got)
 		})
 	}
 }
