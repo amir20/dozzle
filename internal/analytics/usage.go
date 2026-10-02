@@ -22,6 +22,7 @@ var UsageKeys = []string{
 	"host.add.ok", "host.add.refused", "host.add.cert", "host.add.duplicate", "host.add.timeout", "host.add.other",
 	"wizard.shown", "wizard.finished", "wizard.skip.login", "wizard.skip.actions", "wizard.skip.hosts", "wizard.skip.cloud", "wizard.skip.update",
 	"cloud.welcome", "cloud.connect", "cloud.chat", "stream.reconnect", "agent.disconnect",
+	"memory.chip.shown", "memory.chip.hover", "memory.chip.filter",
 }
 
 // BrowserUsageKeys are the counters only the browser can see, and so the only
@@ -32,6 +33,7 @@ var BrowserUsageKeys = map[string]bool{
 	"wizard.shown": true, "wizard.finished": true, "wizard.skip.login": true, "wizard.skip.actions": true,
 	"wizard.skip.hosts": true, "wizard.skip.cloud": true, "wizard.skip.update": true,
 	"cloud.welcome": true, "cloud.connect": true, "cloud.chat": true, "stream.reconnect": true,
+	"memory.chip.shown": true, "memory.chip.hover": true, "memory.chip.filter": true,
 }
 
 // maxLocales bounds the locale map, which the browser fills: a client sending a

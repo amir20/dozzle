@@ -86,6 +86,7 @@ label:
   event-suppressed-hint: Dozzle Cloud matched this line but held the alert back
   event-metric: Metric
   event-container: Container
+  memory-new: "New"
   host-count: No Hosts | 1 Host | {count} Hosts
   service: No services | 1 service | {count} services
   services: Services
@@ -132,6 +133,8 @@ label:
   more-options: More options
   groups: Groups
 tooltip:
+  memory-new: "Dozzle Cloud hasn't seen this error on this container before. Click to show only these lines."
+  memory-new-since: "First seen on this container: {time}. Click to show only these lines."
   live-logs: These logs are frozen at this point in time. Click to follow the live stream.
   search: Search containers (⌘ + k, ⌃k)
   pin-column: Pin as column

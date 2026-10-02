@@ -86,6 +86,7 @@ label:
   event-suppressed-hint: Dozzle Cloud hat diese Zeile erkannt, den Alarm aber zurückgehalten
   event-metric: Metrik
   event-container: Container
+  memory-new: "Neu"
   host-count: Keine Hosts | 1 Host | {count} Hosts
   service: Kein Service | 1 Service | {count} Services
   services: Service
@@ -132,6 +133,8 @@ label:
   more-options: Weitere Optionen
   groups: Gruppen
 tooltip:
+  memory-new: "Dozzle Cloud hat diesen Fehler in diesem Container noch nie gesehen. Klicken, um nur diese Zeilen anzuzeigen."
+  memory-new-since: "Zuerst in diesem Container gesehen: {time}. Klicken, um nur diese Zeilen anzuzeigen."
   live-logs: Diese Logs sind auf diesen Zeitpunkt eingefroren. Klicken, um dem Live-Stream zu folgen.
   search: Suche Container (⌘ + k, ⌃k)
   pin-column: Als Spalte anheften

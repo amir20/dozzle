@@ -14,9 +14,11 @@ declare global {
   const EffectScope: typeof import('vue').EffectScope
   const K8sNamespace: typeof import('./stores/k8s').K8sNamespace
   const K8sOwner: typeof import('./stores/k8s').K8sOwner
+  const MAX_PATTERN_LINES: typeof import('./composable/cloud/patternMemory').MAX_PATTERN_LINES
   const MIN_MENU_WIDTH: typeof import('./stores/settings').MIN_MENU_WIDTH
   const RAIL_WIDTH: typeof import('./composable/cloud/cloudRail').RAIL_WIDTH
   const SETUP_RESUME_KEY: typeof import('./composable/setup/setup').SETUP_RESUME_KEY
+  const SHOWN_STATUSES: typeof import('./composable/cloud/patternMemory').SHOWN_STATUSES
   const SetupError: typeof import('./composable/setup/setup').SetupError
   const TEMPLATE_VARIABLES: typeof import('./composable/editor/templateEditor').TEMPLATE_VARIABLES
   const USAGE_FLUSH_INTERVAL: typeof import('./composable/app/usage').USAGE_FLUSH_INTERVAL
@@ -29,6 +31,7 @@ declare global {
   const arrayEquals: typeof import('./utils/index').arrayEquals
   const asyncComputed: typeof import('@vueuse/core').asyncComputed
   const attachEvents: typeof import('./composable/cloud/cloudAlerts').attachEvents
+  const attachPatternMemory: typeof import('./composable/cloud/patternMemory').attachPatternMemory
   const autoResetRef: typeof import('@vueuse/core').autoResetRef
   const autoUpdateEnabled: typeof import('./composable/containers/bulkUpdate').autoUpdateEnabled
   const automaticRedirect: typeof import('./stores/settings').automaticRedirect
@@ -91,6 +94,7 @@ declare global {
   const escapeHtml: typeof import('./utils/index').escapeHtml
   const extendRef: typeof import('@vueuse/core').extendRef
   const fetchAlerts: typeof import('./composable/cloud/cloudAlerts').fetchAlerts
+  const fetchPatternContext: typeof import('./composable/cloud/patternMemory').fetchPatternContext
   const flattenJSON: typeof import('./utils/index').flattenJSON
   const flattenJSONToMap: typeof import('./utils/index').flattenJSONToMap
   const formatBytes: typeof import('./utils/index').formatBytes
@@ -131,6 +135,7 @@ declare global {
   const isStreamLog: typeof import('./composable/cloud/alertMerger').isStreamLog
   const isViewContextOwner: typeof import('./composable/logs/viewContext').isViewContextOwner
   const lightTheme: typeof import('./stores/settings').lightTheme
+  const linesNeedingMemory: typeof import('./composable/cloud/patternMemory').linesNeedingMemory
   const loadBetween: typeof import('./composable/logs/loadBetween').loadBetween
   const locale: typeof import('./stores/settings').locale
   const logMomentRoute: typeof import('./composable/logs/logJump').logMomentRoute
@@ -175,6 +180,7 @@ declare global {
   const ownerMembershipLabel: typeof import('./stores/k8s').ownerMembershipLabel
   const ownsViewContext: typeof import('@/composable/logs/viewContext').ownsViewContext
   const parseMessage: typeof import('./composable/logs/loadBetween').parseMessage
+  const patternToRegex: typeof import('./composable/cloud/patternMemory').patternToRegex
   const pausableWatch: typeof import('@vueuse/core').pausableWatch
   const payloadMode: typeof import('./composable/editor/templateEditor').payloadMode
   const persistentVisibleKeysForContainer: typeof import('./composable/app/storage').persistentVisibleKeysForContainer
@@ -551,6 +557,9 @@ declare global {
   export type { CloudSurfaceState } from './composable/cloud/cloudSurface'
   import('./composable/cloud/cloudSurface')
   // @ts-ignore
+  export type { PatternContextHit } from './composable/cloud/patternMemory'
+  import('./composable/cloud/patternMemory')
+  // @ts-ignore
   export type { BulkUpdateStatus, BulkUpdateItem, BulkUpdateJob } from './composable/containers/bulkUpdate'
   import('./composable/containers/bulkUpdate')
   // @ts-ignore
@@ -619,8 +628,10 @@ declare module 'vue' {
     readonly EffectScope: UnwrapRef<typeof import('vue')['EffectScope']>
     readonly K8sNamespace: UnwrapRef<typeof import('./stores/k8s')['K8sNamespace']>
     readonly K8sOwner: UnwrapRef<typeof import('./stores/k8s')['K8sOwner']>
+    readonly MAX_PATTERN_LINES: UnwrapRef<typeof import('./composable/cloud/patternMemory')['MAX_PATTERN_LINES']>
     readonly RAIL_WIDTH: UnwrapRef<typeof import('./composable/cloud/cloudRail')['RAIL_WIDTH']>
     readonly SETUP_RESUME_KEY: UnwrapRef<typeof import('./composable/setup/setup')['SETUP_RESUME_KEY']>
+    readonly SHOWN_STATUSES: UnwrapRef<typeof import('./composable/cloud/patternMemory')['SHOWN_STATUSES']>
     readonly SetupError: UnwrapRef<typeof import('./composable/setup/setup')['SetupError']>
     readonly TEMPLATE_VARIABLES: UnwrapRef<typeof import('./composable/editor/templateEditor')['TEMPLATE_VARIABLES']>
     readonly USAGE_FLUSH_INTERVAL: UnwrapRef<typeof import('./composable/app/usage')['USAGE_FLUSH_INTERVAL']>
@@ -633,6 +644,7 @@ declare module 'vue' {
     readonly arrayEquals: UnwrapRef<typeof import('./utils/index')['arrayEquals']>
     readonly asyncComputed: UnwrapRef<typeof import('@vueuse/core')['asyncComputed']>
     readonly attachEvents: UnwrapRef<typeof import('./composable/cloud/cloudAlerts')['attachEvents']>
+    readonly attachPatternMemory: UnwrapRef<typeof import('./composable/cloud/patternMemory')['attachPatternMemory']>
     readonly autoResetRef: UnwrapRef<typeof import('@vueuse/core')['autoResetRef']>
     readonly autoUpdateEnabled: UnwrapRef<typeof import('./composable/containers/bulkUpdate')['autoUpdateEnabled']>
     readonly automaticRedirect: UnwrapRef<typeof import('./stores/settings')['automaticRedirect']>
@@ -695,6 +707,7 @@ declare module 'vue' {
     readonly escapeHtml: UnwrapRef<typeof import('./utils/index')['escapeHtml']>
     readonly extendRef: UnwrapRef<typeof import('@vueuse/core')['extendRef']>
     readonly fetchAlerts: UnwrapRef<typeof import('./composable/cloud/cloudAlerts')['fetchAlerts']>
+    readonly fetchPatternContext: UnwrapRef<typeof import('./composable/cloud/patternMemory')['fetchPatternContext']>
     readonly flattenJSON: UnwrapRef<typeof import('./utils/index')['flattenJSON']>
     readonly flattenJSONToMap: UnwrapRef<typeof import('./utils/index')['flattenJSONToMap']>
     readonly formatBytes: UnwrapRef<typeof import('./utils/index')['formatBytes']>
@@ -733,6 +746,7 @@ declare module 'vue' {
     readonly isStreamLog: UnwrapRef<typeof import('./composable/cloud/alertMerger')['isStreamLog']>
     readonly isViewContextOwner: UnwrapRef<typeof import('./composable/logs/viewContext')['isViewContextOwner']>
     readonly lightTheme: UnwrapRef<typeof import('./stores/settings')['lightTheme']>
+    readonly linesNeedingMemory: UnwrapRef<typeof import('./composable/cloud/patternMemory')['linesNeedingMemory']>
     readonly loadBetween: UnwrapRef<typeof import('./composable/logs/loadBetween')['loadBetween']>
     readonly locale: UnwrapRef<typeof import('./stores/settings')['locale']>
     readonly logMomentRoute: UnwrapRef<typeof import('./composable/logs/logJump')['logMomentRoute']>
@@ -776,6 +790,7 @@ declare module 'vue' {
     readonly onWatcherCleanup: UnwrapRef<typeof import('vue')['onWatcherCleanup']>
     readonly ownerMembershipLabel: UnwrapRef<typeof import('./stores/k8s')['ownerMembershipLabel']>
     readonly parseMessage: UnwrapRef<typeof import('./composable/logs/loadBetween')['parseMessage']>
+    readonly patternToRegex: UnwrapRef<typeof import('./composable/cloud/patternMemory')['patternToRegex']>
     readonly pausableWatch: UnwrapRef<typeof import('@vueuse/core')['pausableWatch']>
     readonly payloadMode: UnwrapRef<typeof import('./composable/editor/templateEditor')['payloadMode']>
     readonly persistentVisibleKeysForContainer: UnwrapRef<typeof import('./composable/app/storage')['persistentVisibleKeysForContainer']>

@@ -27,6 +27,7 @@
     <div @click="containers.length > 0 && showDrawer(LogDetails, { entry: logEntry })" class="cursor-pointer">
       <ReuseTemplate :data="validValues" />
     </div>
+    <PatternMemoryChip v-if="logEntry.patternMemory" :memory="logEntry.patternMemory" />
   </LogItem>
 </template>
 <script lang="ts" setup>

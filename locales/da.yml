@@ -86,6 +86,7 @@ label:
   event-suppressed-hint: Dozzle Cloud matchede denne linje, men holdt alarmen tilbage
   event-metric: Metrik
   event-container: Container
+  memory-new: "Ny"
   host-count: Ingen Værter | 1 Vært | {count} Værter
   service: Ingen tjenester | 1 tjeneste | {count} tjenester
   services: Tjenester
@@ -132,6 +133,8 @@ label:
   more-options: Flere valgmuligheder
   groups: Grupper
 tooltip:
+  memory-new: "Dozzle Cloud har ikke set denne fejl på denne container før. Klik for kun at vise disse linjer."
+  memory-new-since: "Først set på denne container: {time}. Klik for kun at vise disse linjer."
   live-logs: Disse logs er frosset på dette tidspunkt. Klik for at følge live-streamen.
   search: Søg containere (⌘ + k, ⌃k)
   pin-column: Fastgør som kolonne

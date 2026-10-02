@@ -86,6 +86,7 @@ label:
   event-suppressed-hint: Dozzle Cloud ha rilevato questa riga ma ha trattenuto l'avviso
   event-metric: Metrica
   event-container: Container
+  memory-new: "Nuovo"
   host-count: Nessun Host | 1 Host | {count} Host
   service: Nessun servizio | 1 servizio | {count} servizi
   services: Servizi
@@ -132,6 +133,8 @@ label:
   more-options: Altre opzioni
   groups: Gruppi
 tooltip:
+  memory-new: "Dozzle Cloud non ha mai visto questo errore in questo container. Fai clic per mostrare solo queste righe."
+  memory-new-since: "Visto per la prima volta in questo container: {time}. Fai clic per mostrare solo queste righe."
   live-logs: Questi log sono congelati a questo istante. Fai clic per seguire lo streaming in tempo reale.
   search: Ricerca container (⌘ + k, ⌃k)
   pin-column: Blocca come colonna
