@@ -125,6 +125,9 @@ label:
   name: Ime
   cpu: CPU
   core: Ni jeder | 1 jedro | {count} jeder
+  disk: Disk
+  load: Obremenitev
+  uptime: Čas delovanja
   mem: MEM
   no-logs: Zabojnik še nima dnevnika
   no-logs-hint: "Vse, kar vsebnik zapiše, se takoj pojavi tukaj."

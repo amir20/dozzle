@@ -126,6 +126,9 @@ label:
   name: 名称
   cpu: CPU
   core: 无核心 | 1 个核心 | {count} 个核心
+  disk: 磁盘
+  load: 负载
+  uptime: 运行时间
   mem: MEM
   pinned: 固定
   per-page: 每页行数

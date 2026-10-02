@@ -4,11 +4,11 @@ import type { ContainerHealth, ContainerJson, ContainerStat } from "@/types/Cont
 import { Container } from "@/models/Container";
 import i18n from "@/modules/i18n";
 import { parseEventData } from "@/utils/events";
-import { Host } from "./hosts";
+import { Host, HostMetrics } from "./hosts";
 import { sessionHost } from "@/composable/app/storage";
 
 const { showToast, removeToast } = useToast();
-const { updateHost, removeHost } = useHosts();
+const { updateHost, updateHostMetrics, removeHost } = useHosts();
 const { markStale } = useStaleUI();
 // @ts-ignore
 const { t } = i18n.global;
@@ -149,6 +149,8 @@ export const useContainerStore = defineStore("container", () => {
       }
       updateHost(host);
     });
+
+    es.addEventListener("host-metrics", (e) => updateHostMetrics(parseEventData<HostMetrics>(e)));
 
     es.addEventListener("container-health", (e) => {
       const event = parseEventData<{ actorId: string; health: ContainerHealth }>(e);

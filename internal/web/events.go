@@ -28,6 +28,8 @@ const (
 	// minimum gap between host-id reconciliations, so a burst of reconnecting tabs
 	// dials every agent once rather than once each
 	hostReconcileInterval = 10 * time.Second
+	// how often live host metrics are re-sent to a watching client
+	hostMetricRefreshInterval = 15 * time.Second
 )
 
 func (h *handler) streamEvents(w http.ResponseWriter, r *http.Request) {
@@ -49,9 +51,15 @@ func (h *handler) streamEvents(w http.ResponseWriter, r *http.Request) {
 	events := make(chan container.ContainerEvent, eventBufferSize)
 	stats := make(chan container.ContainerStat, statBufferSize)
 	availableHosts := make(chan container.Host)
+	hostMetricsUpdates := make(chan hostMetricsEvent, 1)
 
 	h.hostService.SubscribeEventsAndStats(container.WithSubscriberName(r.Context(), "sse-events"), events, stats)
 	h.hostService.SubscribeAvailableHosts(r.Context(), availableHosts)
+
+	// One shared ticker feeds every tab; this just registers this stream's queue
+	// and drops it on the way out.
+	unsubscribeHostMetrics := h.subscribeLocalHostMetrics(hostMetricsUpdates)
+	defer unsubscribeHostMetrics()
 
 	// An agent mints its id when its process starts, so one that restarted since the
 	// hub last looked answers under an id nothing here is keyed by. Hosts() repairs
@@ -312,6 +320,14 @@ func (h *handler) streamEvents(w http.ResponseWriter, r *http.Request) {
 					return
 				}
 			}
+		case metrics := <-hostMetricsUpdates:
+			// Its own event rather than update-host: the raw client's Host() has no
+			// Available and no mode-specific Type, and update-host replaces the whole
+			// host, so reusing it would mark the local host offline every tick.
+			if err := sseWriter.Event("host-metrics", metrics); err != nil {
+				logWriteError(err, "error writing host metrics to event stream")
+				return
+			}
 		case <-r.Context().Done():
 			return
 		}
@@ -351,4 +367,99 @@ func (h *handler) reconcileHosts() {
 		}()
 		h.hostService.Hosts()
 	}()
+}
+
+// subscribeLocalHostMetrics registers a stream's queue for local host metrics
+// updates and returns the function that removes it. The first subscriber starts
+// the one shared ticker, so N tabs cost one read per interval rather than N
+// dials to every agent the way a per-stream Hosts() call did.
+func (h *handler) subscribeLocalHostMetrics(ch chan hostMetricsEvent) func() {
+	h.localHostMetricsOnce.Do(func() {
+		h.localHostMetricsSubs = make(map[chan hostMetricsEvent]struct{})
+		go h.broadcastLocalHostMetrics()
+	})
+	h.localHostMetricsMu.Lock()
+	h.localHostMetricsSubs[ch] = struct{}{}
+	h.localHostMetricsMu.Unlock()
+
+	return func() {
+		h.localHostMetricsMu.Lock()
+		delete(h.localHostMetricsSubs, ch)
+		h.localHostMetricsMu.Unlock()
+	}
+}
+
+func (h *handler) broadcastLocalHostMetrics() {
+	ticker := time.NewTicker(hostMetricRefreshInterval)
+	defer ticker.Stop()
+	for range ticker.C {
+		h.localHostMetricsMu.Lock()
+		hasSubscribers := len(h.localHostMetricsSubs) > 0
+		h.localHostMetricsMu.Unlock()
+		if !hasSubscribers {
+			continue
+		}
+
+		metrics, ok := h.localHostMetrics()
+		if !ok {
+			continue
+		}
+
+		h.localHostMetricsMu.Lock()
+		for ch := range h.localHostMetricsSubs {
+			select {
+			case ch <- metrics:
+			default:
+				// A tab slow to drain keeps the value it has; it will get the next one.
+			}
+		}
+		h.localHostMetricsMu.Unlock()
+	}
+}
+
+// localHostMetrics reads metrics off the local docker client only. It never dials
+// an agent, and reports false when the host has nothing to show.
+func (h *handler) localHostMetrics() (hostMetricsEvent, bool) {
+	for _, client := range h.hostService.LocalClients() {
+		host := client.Host()
+		if hostHasMetrics(host) {
+			return newHostMetricsEvent(host), true
+		}
+	}
+	return hostMetricsEvent{}, false
+}
+
+// hostMetricsEvent is the payload of the host-metrics SSE event: the host's id and
+// its metric fields, nothing else, so the client merges it into the host it has.
+// No omitempty, so a value that drops to zero overwrites the stale one.
+type hostMetricsEvent struct {
+	ID               string  `json:"id"`
+	MetricsAvailable bool    `json:"metricsAvailable"`
+	Load1            float64 `json:"load1"`
+	Load5            float64 `json:"load5"`
+	Load15           float64 `json:"load15"`
+	Uptime           uint64  `json:"uptime"`
+	DiskTotal        uint64  `json:"diskTotal"`
+	DiskFree         uint64  `json:"diskFree"`
+}
+
+func newHostMetricsEvent(host container.Host) hostMetricsEvent {
+	return hostMetricsEvent{
+		ID:               host.ID,
+		MetricsAvailable: host.MetricsAvailable,
+		Load1:            host.Load1,
+		Load5:            host.Load5,
+		Load15:           host.Load15,
+		Uptime:           host.Uptime,
+		DiskTotal:        host.DiskTotal,
+		DiskFree:         host.DiskFree,
+	}
+}
+
+// hostHasMetrics is the send gate for the metrics ticker: nothing is broadcast
+// for a host with no metrics to show. Disk counts on its own because it comes
+// from the engine's data directory and does not need the host /proc mounted, so
+// metricsAvailable is not the whole story.
+func hostHasMetrics(host container.Host) bool {
+	return host.Type == "local" && (host.MetricsAvailable || host.DiskTotal > 0)
 }

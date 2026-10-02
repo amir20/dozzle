@@ -111,6 +111,9 @@ label:
   name: Naam
   cpu: CPU
   core: Geen kernen | 1 kern | {count} kernen
+  disk: Schijf
+  load: Belasting
+  uptime: Uptime
   mem: MEM
   pinned: Vastgezet
   per-page: Rijen per pagina

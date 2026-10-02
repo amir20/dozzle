@@ -197,6 +197,13 @@ type handler struct {
 	reconcileMu  sync.Mutex
 	reconciling  bool
 	reconciledAt time.Time
+
+	// One shared ticker keeps every open tab's host card current. It is started
+	// lazily on the first subscriber and reads only the local host, so the work
+	// does not grow with the number of tabs and never dials an agent.
+	localHostMetricsOnce sync.Once
+	localHostMetricsMu   sync.Mutex
+	localHostMetricsSubs map[chan hostMetricsEvent]struct{}
 }
 
 // Server is the HTTP server plus the usage beacon hooks main runs around it.

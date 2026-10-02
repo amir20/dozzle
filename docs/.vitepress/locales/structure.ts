@@ -32,7 +32,7 @@ export const SECTIONS: Section[] = [
         items: ["authentication/simple", "authentication/oauth", "authentication/oidc", "authentication/forward-proxy"],
       },
       { group: "containers", items: ["container-names", "container-groups", "container-links", "app-icons"] },
-      { group: "hosts", items: ["agent", "remote-hosts", "hostname"] },
+      { group: "hosts", items: ["agent", "remote-hosts", "hostname", "host-metrics"] },
       { group: "control", items: ["actions", "shell"] },
       { group: "logs", items: ["sql-engine", "log-files-on-disk"] },
       { group: "tools", items: ["dtop", "mcp"] },

@@ -56,6 +56,7 @@ export const zh: Labels = {
     filters: "过滤器",
     healthcheck: "健康检查",
     "remote-hosts": "远程主机",
+    "host-metrics": "主机指标",
     "log-files-on-disk": "磁盘上的日志文件",
     "sql-engine": "SQL 引擎",
     faq: "常见问题",

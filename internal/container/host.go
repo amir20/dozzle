@@ -11,22 +11,29 @@ import (
 )
 
 type Host struct {
-	Name          string   `json:"name"`
-	ID            string   `json:"id"`
-	URL           *url.URL `json:"-"`
-	CertPath      string   `json:"-"`
-	CACertPath    string   `json:"-"`
-	KeyPath       string   `json:"-"`
-	ValidCerts    bool     `json:"-"`
-	NCPU          int      `json:"nCPU"`
-	MemTotal      int64    `json:"memTotal"`
-	Endpoint      string   `json:"endpoint"`
-	DockerVersion string   `json:"dockerVersion"`
-	Runtime       string   `json:"runtime,omitempty"`
-	AgentVersion  string   `json:"agentVersion,omitempty"`
-	Type          string   `json:"type"`
-	Available     bool     `json:"available"`
-	Swarm         bool     `json:"-"`
+	Name             string   `json:"name"`
+	ID               string   `json:"id"`
+	URL              *url.URL `json:"-"`
+	CertPath         string   `json:"-"`
+	CACertPath       string   `json:"-"`
+	KeyPath          string   `json:"-"`
+	ValidCerts       bool     `json:"-"`
+	NCPU             int      `json:"nCPU"`
+	MemTotal         int64    `json:"memTotal"`
+	MetricsAvailable bool     `json:"metricsAvailable,omitempty"`
+	Load1            float64  `json:"load1,omitempty"`
+	Load5            float64  `json:"load5,omitempty"`
+	Load15           float64  `json:"load15,omitempty"`
+	Uptime           uint64   `json:"uptime,omitempty"`
+	DiskTotal        uint64   `json:"diskTotal,omitempty"`
+	DiskFree         uint64   `json:"diskFree,omitempty"`
+	Endpoint         string   `json:"endpoint"`
+	DockerVersion    string   `json:"dockerVersion"`
+	Runtime          string   `json:"runtime,omitempty"`
+	AgentVersion     string   `json:"agentVersion,omitempty"`
+	Type             string   `json:"type"`
+	Available        bool     `json:"available"`
+	Swarm            bool     `json:"-"`
 	// SwarmClusterID identifies the swarm this node belongs to, empty outside
 	// a swarm. Every node of one swarm reports the same value, which is what
 	// lets Dozzle Cloud tell "one swarm, N replicas" apart from one API key
@@ -45,6 +52,28 @@ type Host struct {
 
 func (h Host) String() string {
 	return fmt.Sprintf("ID: %s, Endpoint: %s, nCPU: %d, memTotal: %d", h.ID, h.Endpoint, h.NCPU, h.MemTotal)
+}
+
+// HostMetrics carries host-level metrics read from /proc and the engine's data
+// directory. They are only meaningful for the local host (remote hosts get
+// theirs through the agent).
+type HostMetrics struct {
+	Load1     float64
+	Load5     float64
+	Load15    float64
+	Uptime    uint64
+	DiskTotal uint64
+	DiskFree  uint64
+}
+
+// ApplyHostMetrics copies host-level metrics onto the host. metricsAvailable is
+// false when the host /proc could not be read, which leaves load and uptime at
+// zero; disk may still be set from the engine's data directory.
+func (h *Host) ApplyHostMetrics(m HostMetrics, metricsAvailable bool) {
+	h.MetricsAvailable = metricsAvailable
+	h.Load1, h.Load5, h.Load15 = m.Load1, m.Load5, m.Load15
+	h.Uptime = m.Uptime
+	h.DiskTotal, h.DiskFree = m.DiskTotal, m.DiskFree
 }
 
 func ParseConnection(connection string) (Host, error) {

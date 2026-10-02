@@ -56,6 +56,7 @@ export const es: Labels = {
     filters: "Filtros",
     healthcheck: "Healthcheck",
     "remote-hosts": "Hosts remotos",
+    "host-metrics": "Métricas del host",
     "log-files-on-disk": "Ficheros de log en disco",
     "sql-engine": "Motor SQL",
     faq: "Preguntas frecuentes",

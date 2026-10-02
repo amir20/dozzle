@@ -112,6 +112,9 @@ label:
   cpu: CPU
   core: No cores | 1 core | {count} cores
   mem: MEM
+  disk: Disk
+  load: Load
+  uptime: Uptime
   pinned: Pinned
   per-page: Rows per page
   sort-by: Sort by

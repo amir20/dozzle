@@ -112,6 +112,9 @@ label:
   name: Nama
   cpu: CPU
   core: Tidak ada inti | 1 inti | {count} inti
+  disk: Disk
+  load: Beban
+  uptime: Waktu aktif
   mem: MEM
   pinned: Disematkan
   per-page: Baris per halaman

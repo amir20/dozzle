@@ -111,6 +111,9 @@ label:
   name: 이름
   cpu: CPU
   core: 코어 없음 | 코어 1개 | 코어 {count}개
+  disk: 디스크
+  load: 부하
+  uptime: 가동 시간
   mem: 메모리
   pinned: 고정됨
   per-page: 페이지당 행 수
