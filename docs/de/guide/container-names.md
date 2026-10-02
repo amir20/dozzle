@@ -1,6 +1,6 @@
 ---
 title: Container-Namen
-sourceHash: 31d0ec398f6d
+sourceHash: 67aa41179aae
 ---
 
 # Container-Namen
@@ -28,6 +28,20 @@ services:
 ```
 
 :::
+
+## Kubernetes
+
+Im Kubernetes-Modus heißen Container standardmäßig `<pod>/<container>`. Setze `dev.dozzle.name` am Pod-Template, um den Namen zu überschreiben. Eine Annotation eignet sich dafür besser, da Label-Werte keine Leerzeichen enthalten dürfen und auf 63 Zeichen begrenzt sind. Sind beide gesetzt, gewinnt die Annotation.
+
+```yaml [deployment.yaml]
+spec:
+  template:
+    metadata:
+      annotations:
+        dev.dozzle.name: Public API
+```
+
+Der Name gilt für den ganzen Pod. In einem Pod mit mehreren Containern (Init-Container und Sidecars eingeschlossen) behält deshalb jeder seinen eigenen Namen als Suffix, zum Beispiel `Public API/proxy`. Alle Replikas desselben Deployments bekommen denselben Namen.
 
 ## Coolify-Integration
 

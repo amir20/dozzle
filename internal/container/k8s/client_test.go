@@ -317,6 +317,61 @@ func TestResetRESTMapperThrottles(t *testing.T) {
 	assert.Equal(t, 2, mapper.resets)
 }
 
+func TestPodToContainersDefaultNameAndNoGroup(t *testing.T) {
+	client := newTestK8sClient(t)
+
+	containers := client.podToContainers(t.Context(), podWithOwner())
+	require.Len(t, containers, 1)
+	assert.Equal(t, "api-6f88b977f4-pod/api", containers[0].Name)
+	assert.Empty(t, containers[0].Group)
+}
+
+func TestPodToContainersHonorsDozzleLabels(t *testing.T) {
+	client := newTestK8sClient(t)
+	pod := podWithOwner()
+	pod.Labels["dev.dozzle.name"] = "api"
+	pod.Labels["dev.dozzle.group"] = "backend"
+
+	containers := client.podToContainers(t.Context(), pod)
+	require.Len(t, containers, 1)
+	assert.Equal(t, "api", containers[0].Name)
+	assert.Equal(t, "backend", containers[0].Group)
+}
+
+func TestPodToContainersPrefersDozzleAnnotations(t *testing.T) {
+	client := newTestK8sClient(t)
+	pod := podWithOwner()
+	pod.Labels["dev.dozzle.name"] = "api"
+	pod.Labels["dev.dozzle.group"] = "backend"
+	pod.Annotations = map[string]string{
+		"dev.dozzle.name":  "Public API",
+		"dev.dozzle.group": "Payments team",
+	}
+
+	containers := client.podToContainers(t.Context(), pod)
+	require.Len(t, containers, 1)
+	assert.Equal(t, "Public API", containers[0].Name)
+	assert.Equal(t, "Payments team", containers[0].Group)
+}
+
+func TestPodToContainersSuffixesCustomNameInMultiContainerPod(t *testing.T) {
+	client := newTestK8sClient(t)
+	pod := podWithOwner()
+	pod.Labels["dev.dozzle.name"] = "api"
+	pod.Labels["dev.dozzle.group"] = "backend"
+	pod.Spec.InitContainers = []corev1.Container{{Name: "migrate", Image: "example/migrate:latest"}}
+	pod.Spec.Containers = append(pod.Spec.Containers, corev1.Container{Name: "proxy", Image: "envoyproxy/envoy"})
+
+	containers := client.podToContainers(t.Context(), pod)
+	require.Len(t, containers, 3)
+	assert.Equal(t, "api/migrate", containers[0].Name)
+	assert.Equal(t, "api/api", containers[1].Name)
+	assert.Equal(t, "api/proxy", containers[2].Name)
+	for _, c := range containers {
+		assert.Equal(t, "backend", c.Group)
+	}
+}
+
 func podWithOwner() *corev1.Pod {
 	return &corev1.Pod{
 		APIVersion: "v1", Kind: "Pod",

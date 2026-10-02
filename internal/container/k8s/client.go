@@ -209,8 +209,23 @@ func (k *Client) podToContainers(ctx context.Context, pod *corev1.Pod) []contain
 		initLabels["@k8s.init"] = "true"
 	}
 
+	// dev.dozzle.name and dev.dozzle.group work as they do on Docker. An annotation wins
+	// over a label because label values cannot hold spaces and stop at 63 characters.
+	// The name is set on the pod, so in a pod with more than one container each keeps
+	// its own name as a suffix to stay distinguishable.
+	customName := podMetadata(pod, "dev.dozzle.name")
+	group := podMetadata(pod, "dev.dozzle.group")
+	multiple := len(pod.Spec.InitContainers)+len(pod.Spec.Containers) > 1
+
 	containers := make([]container.Container, 0, len(pod.Spec.InitContainers)+len(pod.Spec.Containers))
 	add := func(c corev1.Container, labels map[string]string) {
+		name := pod.Name + "/" + c.Name
+		if customName != "" {
+			name = customName
+			if multiple {
+				name += "/" + c.Name
+			}
+		}
 		state, containerStarted, finished := phaseToState(pod.Status.Phase), started, time.Time{}
 		var facts runFacts
 		if status, ok := statuses[c.Name]; ok {
@@ -223,7 +238,8 @@ func (k *Client) podToContainers(ctx context.Context, pod *corev1.Pod) []contain
 			ExitCode:     facts.exitCode,
 			ImageDigest:  imageDigest(statuses[c.Name].ImageID),
 			ID:           pod.Namespace + ":" + pod.Name + ":" + c.Name,
-			Name:         pod.Name + "/" + c.Name,
+			Name:         name,
+			Group:        group,
 			Image:        c.Image,
 			Created:      pod.CreationTimestamp.Time,
 			State:        state,
@@ -244,6 +260,14 @@ func (k *Client) podToContainers(ctx context.Context, pod *corev1.Pod) []contain
 		add(c, labels)
 	}
 	return containers
+}
+
+// podMetadata reads a Dozzle setting from the pod's annotations, then its labels.
+func podMetadata(pod *corev1.Pod, key string) string {
+	if value := pod.Annotations[key]; value != "" {
+		return value
+	}
+	return pod.Labels[key]
 }
 
 // containerStatusToState reads one container's own status. The pod phase stays

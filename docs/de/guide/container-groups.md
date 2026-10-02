@@ -1,6 +1,6 @@
 ---
 title: Container-Gruppen
-sourceHash: 87c26dbd0b16
+sourceHash: 961ab7b687ad
 ---
 
 # Container-Gruppen
@@ -32,3 +32,15 @@ services:
 ```
 
 :::
+
+## Kubernetes
+
+Im Kubernetes-Modus gruppiert die Seitenleiste Pods nach Namespace und Owner. Ein Label oder eine Annotation `dev.dozzle.group` am Pod-Template fügt zusätzlich alle Container des Pods einer eigenen Gruppe hinzu. Enthält der Gruppenname Leerzeichen, nimm eine Annotation. Sind beide gesetzt, gewinnt die Annotation.
+
+```yaml [deployment.yaml]
+spec:
+  template:
+    metadata:
+      labels:
+        dev.dozzle.group: myapp
+```
