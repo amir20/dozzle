@@ -5,7 +5,9 @@ package container
 import (
 	"os"
 	"path/filepath"
+	"sync/atomic"
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -37,4 +39,51 @@ func TestReadDisks(t *testing.T) {
 	assert.NotZero(t, disks[0].Total)
 
 	assert.Nil(t, readDisks(filepath.Join(root, "missing")))
+}
+
+// A stale network mount blocks stat and statfs in the kernel. The probe must
+// return within its timeout, keep the last good reading, and never stack a
+// second read behind a stuck one.
+func TestProbeDriveSurvivesAHungMount(t *testing.T) {
+	origStat, origTimeout := statDrive, driveProbeTimeout
+	t.Cleanup(func() { statDrive, driveProbeTimeout = origStat, origTimeout })
+	driveProbeTimeout = 50 * time.Millisecond
+
+	var calls atomic.Int32
+	hang := make(chan struct{})
+	var hung atomic.Bool
+	statDrive = func(string) (uint64, uint64, error) {
+		calls.Add(1)
+		if hung.Load() {
+			<-hang
+		}
+		return 1000, 400, nil
+	}
+	path := "/host/disks/nas-" + t.Name()
+
+	total, free, ok := probeDrive(path)
+	require.True(t, ok)
+	assert.Equal(t, uint64(1000), total)
+	assert.Equal(t, uint64(400), free)
+
+	// The share goes stale: the read hangs, the caller gets the last good value.
+	hung.Store(true)
+	start := time.Now()
+	total, _, ok = probeDrive(path)
+	assert.Less(t, time.Since(start), time.Second)
+	assert.True(t, ok)
+	assert.Equal(t, uint64(1000), total)
+
+	// While that read is stuck, later ticks do not start another one.
+	probeDrive(path)
+	probeDrive(path)
+	assert.Equal(t, int32(2), calls.Load())
+
+	// Once it comes back, reads resume.
+	hung.Store(false)
+	close(hang)
+	assert.Eventually(t, func() bool {
+		probeDrive(path)
+		return calls.Load() > 2
+	}, time.Second, 10*time.Millisecond)
 }

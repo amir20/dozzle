@@ -9,6 +9,8 @@ import (
 	"sort"
 	"strconv"
 	"strings"
+	"sync"
+	"time"
 )
 
 // hostDisksRoot is where operators mount extra drives to watch, one folder per
@@ -141,18 +143,81 @@ func readDisks(root string) []Disk {
 	}
 	var disks []Disk
 	for _, entry := range entries {
-		// Stat, not entry.IsDir(), so a symlink to a mount point counts: that is
-		// how a native install points /host/disks at its drives.
-		path := filepath.Join(root, entry.Name())
-		if info, err := os.Stat(path); err != nil || !info.IsDir() {
-			continue
-		}
-		total, free, err := statfs(path)
-		if err != nil || total == 0 {
+		total, free, ok := probeDrive(filepath.Join(root, entry.Name()))
+		if !ok {
 			continue
 		}
 		disks = append(disks, Disk{Name: entry.Name(), Total: total, Free: free})
 	}
 	sort.Slice(disks, func(i, j int) bool { return disks[i].Name < disks[j].Name })
 	return disks
+}
+
+// driveProbeTimeout bounds how long one tick waits on a drive. A local disk
+// answers in microseconds; anything slower is a network mount in trouble.
+var driveProbeTimeout = time.Second
+
+// statDrive measures one drive. Stat, not entry.IsDir(), so a symlink to a mount
+// point counts: that is how a native install points /host/disks at its drives.
+var statDrive = func(path string) (uint64, uint64, error) {
+	info, err := os.Stat(path)
+	if err != nil {
+		return 0, 0, err
+	}
+	if !info.IsDir() {
+		return 0, 0, errNotDir
+	}
+	return statfs(path)
+}
+
+var errNotDir = errors.New("not a directory")
+
+// driveProbe remembers one drive's last good reading and whether a read is
+// still out. A stale NFS or SMB hard mount blocks stat and statfs in the kernel
+// with no way to cancel them, so the read runs in its own goroutine: the caller
+// waits at most driveProbeTimeout and falls back to the last good value, and no
+// second read starts while the first is stuck. One dead share then costs a
+// single parked goroutine, not a hung Host() for everything that calls it.
+type driveProbe struct {
+	mu       sync.Mutex
+	inflight bool
+	ok       bool
+	total    uint64
+	free     uint64
+}
+
+var driveProbes sync.Map // path -> *driveProbe
+
+func probeDrive(path string) (total, free uint64, ok bool) {
+	value, _ := driveProbes.LoadOrStore(path, &driveProbe{})
+	p := value.(*driveProbe)
+
+	p.mu.Lock()
+	if p.inflight {
+		defer p.mu.Unlock()
+		return p.total, p.free, p.ok
+	}
+	p.inflight = true
+	p.mu.Unlock()
+
+	done := make(chan struct{})
+	go func() {
+		defer close(done)
+		total, free, err := statDrive(path)
+		p.mu.Lock()
+		defer p.mu.Unlock()
+		p.inflight = false
+		// A failed or empty read drops the drive; it was unmounted or never was one.
+		p.ok = err == nil && total > 0
+		p.total, p.free = total, free
+	}()
+
+	select {
+	case <-done:
+	case <-time.After(driveProbeTimeout):
+	}
+
+	p.mu.Lock()
+	defer p.mu.Unlock()
+	return p.total, p.free, p.ok
 }
