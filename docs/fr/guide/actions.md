@@ -1,6 +1,6 @@
 ---
 title: Actions sur les conteneurs
-sourceHash: f51478b92485
+sourceHash: 347c47e3b567
 ---
 
 # Actions sur les conteneurs
@@ -82,8 +82,11 @@ Certains conteneurs n'ont rien à comparer, et Dozzle reste silencieux plutôt q
 
 - Les images construites localement, qui n'ont pas d'empreinte de registre
 - Les références figées sur une empreinte, qui ne peuvent pas changer
-- Les registres privés, puisque Dozzle n'a pas d'identifiants propres
-- Kubernetes, où le déploiement des images relève du cluster
+- Les registres privés, puisque Dozzle n'a pas d'identifiants propres. Dans Kubernetes, cela inclut les images récupérées avec `imagePullSecrets`.
+
+### Kubernetes
+
+En mode Kubernetes, la vérification compare le digest enregistré dans le statut du pod avec celui du registre. Elle fonctionne donc sur les clusters containerd comme k3s, EKS et GKE sans permission supplémentaire. La notification est purement informative et n'est jamais accompagnée d'un bouton `Update`, car l'image d'un pod appartient à son workload. Pour un tag mouvant comme `:latest` avec `imagePullPolicy: Always`, un [redémarrage progressif](/fr/guide/k8s#rollout-restart) récupère la nouvelle image. Tout le reste passe par une modification de la spec du workload. Le bouton et le tiroir des mises à jour du tableau de bord ne s'affichent pas en mode Kubernetes.
 
 ### Mettre à jour Dozzle lui-même
 

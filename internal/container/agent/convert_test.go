@@ -12,7 +12,8 @@ import (
 
 func TestContainerProtoRoundTrip(t *testing.T) {
 	expected := container.Container{}
-	faker.FakeData(&expected, options.WithFieldsToIgnore("Stats", "MountStats"))
+	// ImageDigest is k8s only, and k8s never runs behind an agent.
+	faker.FakeData(&expected, options.WithFieldsToIgnore("Stats", "MountStats", "ImageDigest"))
 	expected.FinishedAt = expected.FinishedAt.UTC()
 	expected.Created = expected.Created.UTC()
 	expected.StartedAt = expected.StartedAt.UTC()

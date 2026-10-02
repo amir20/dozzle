@@ -210,7 +210,9 @@ export const useImageUpdate = (container: Ref<Container>, historical: Ref<boolea
       // rendered as HTML so it can carry a docs link. Image names are
       // arbitrary strings, in k8s especially.
       let message = t("alert.image-update.message", { image: escapeHtml(container.value.image) });
-      if (!config.enableActions) {
+      // Kubernetes rolls images out through the workload, so turning actions
+      // on would not give this pod an update button.
+      if (!config.enableActions && config.mode !== "k8s") {
         message += " " + t("alert.image-update.enable-actions");
       }
 

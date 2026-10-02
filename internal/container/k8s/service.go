@@ -16,8 +16,9 @@ import (
 )
 
 type Service struct {
-	client *Client
-	store  *container.Store
+	client  *Client
+	store   *container.Store
+	checker *imagecheck.Checker
 }
 
 func NewService(client *Client, labels container.ContainerLabels) *Service {
@@ -26,8 +27,9 @@ func NewService(client *Client, labels container.ContainerLabels) *Service {
 		log.Fatal().Err(err).Msg("Could not create k8s stats collector")
 	}
 	return &Service{
-		client: client,
-		store:  container.NewStore(context.Background(), client, statsCollector, labels),
+		client:  client,
+		store:   container.NewStore(context.Background(), client, statsCollector, labels),
+		checker: imagecheck.Shared(),
 	}
 }
 
@@ -107,15 +109,21 @@ func (k *Service) SubscribeContainersStarted(ctx context.Context, containers cha
 	k.store.SubscribeNewContainers(ctx, containers)
 }
 
-// CheckImageUpdate is not supported in Kubernetes mode, where image rollout is
-// the cluster's responsibility rather than Dozzle's.
+// CheckImageUpdate compares the digest the pod status records against the
+// registry. Dozzle never rolls the image out itself; a rollout restart does that
+// for a tag like :latest, and anything else is the cluster's own deploy process.
+// Registries that need imagePullSecrets report auth-required, since reading
+// secrets is a permission Dozzle does not ask for.
 func (k *Service) CheckImageUpdate(ctx context.Context, c container.Container, force bool) (imagecheck.Result, error) {
-	return imagecheck.Result{
-		Image:     c.Image,
-		Status:    imagecheck.StatusSkipped,
-		Reason:    "image update checks are not supported in Kubernetes mode",
-		CheckedAt: time.Now(),
-	}, nil
+	if imagecheck.Skipped(c.Labels) {
+		return imagecheck.Result{Image: c.Image, Status: imagecheck.StatusSkipped, CheckedAt: time.Now()}, nil
+	}
+
+	var digests []string
+	if c.ImageDigest != "" {
+		digests = []string{c.ImageDigest}
+	}
+	return k.checker.Check(ctx, c.Image, digests, force), nil
 }
 
 func (k *Service) UpdateContainer(ctx context.Context, c container.Container, progressCh chan<- container.UpdateProgress) (bool, error) {
