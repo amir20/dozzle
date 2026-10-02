@@ -221,6 +221,7 @@ func (k *Client) podToContainers(ctx context.Context, pod *corev1.Pod) []contain
 			RestartCount: facts.restarts,
 			OOMKilled:    facts.oomKilled,
 			ExitCode:     facts.exitCode,
+			ImageDigest:  imageDigest(statuses[c.Name].ImageID),
 			ID:           pod.Namespace + ":" + pod.Name + ":" + c.Name,
 			Name:         pod.Name + "/" + c.Name,
 			Image:        c.Image,
@@ -286,6 +287,18 @@ func containerRunFacts(status corev1.ContainerStatus) runFacts {
 		f.exitCode = int(t.ExitCode)
 	}
 	return f
+}
+
+// imageDigest turns a status imageID into the "repo@sha256:..." form the image
+// checker compares. containerd reports it bare, the old dockershim prefixed it with
+// docker-pullable://. An image that never came from a registry (loaded into kind,
+// built on the node) has only an image ID and no repo, so it stays uncheckable.
+func imageDigest(imageID string) string {
+	imageID = strings.TrimPrefix(imageID, "docker-pullable://")
+	if !strings.Contains(imageID, "@") {
+		return ""
+	}
+	return imageID
 }
 
 func (k *Client) resolveOwnerChain(ctx context.Context, namespace string, refs []metav1.OwnerReference) []k8sOwner {

@@ -45,6 +45,9 @@ type Container struct {
 	OOMKilled bool `json:"-"`
 	// ExitCode is the last run's exit code; meaningful only once it has exited.
 	ExitCode int `json:"-"`
+	// ImageDigest is the image the container runs, as "repo@sha256:...". Only
+	// k8s fills it, from the pod status; Docker looks up RepoDigests per check.
+	ImageDigest string `json:"-"`
 }
 
 // Mount represents a container mount point

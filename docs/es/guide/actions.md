@@ -1,6 +1,6 @@
 ---
 title: Acciones sobre contenedores
-sourceHash: f51478b92485
+sourceHash: 347c47e3b567
 ---
 
 # Acciones sobre contenedores
@@ -82,8 +82,11 @@ Algunos contenedores no tienen nada con lo que comparar, y Dozzle se calla en ve
 
 - Imágenes construidas en local, que no llevan digest de registro
 - Referencias fijadas a un digest, que no pueden cambiar
-- Registros privados, ya que Dozzle no tiene credenciales propias
-- Kubernetes, donde el despliegue de imágenes es cosa del clúster
+- Registros privados, ya que Dozzle no tiene credenciales propias. En Kubernetes esto incluye las imágenes descargadas con `imagePullSecrets`.
+
+### Kubernetes
+
+En el modo Kubernetes, la comprobación compara el digest que registra el estado del pod con el del registro, así que funciona en clústeres con containerd como k3s, EKS y GKE sin permisos adicionales. El aviso es solo informativo y nunca trae un botón `Update`, porque la imagen de un pod pertenece a su workload. Para una etiqueta que cambia como `:latest` con `imagePullPolicy: Always`, un [reinicio progresivo](/es/guide/k8s#rollout-restart) obtiene la imagen nueva. Cualquier otra cosa es un cambio en la spec del workload. El botón y el panel de actualizaciones del dashboard no se muestran en el modo Kubernetes.
 
 ### Actualizar el propio Dozzle
 
