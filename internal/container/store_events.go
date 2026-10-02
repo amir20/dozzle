@@ -3,6 +3,7 @@ package container
 import (
 	"context"
 	"slices"
+	"strconv"
 	"strings"
 	"time"
 
@@ -183,6 +184,18 @@ func (s *Store) handleEvent(event ContainerEvent) {
 		s.patch(id, func(c *Container) bool {
 			c.State = "exited"
 			c.FinishedAt = time.Now()
+			// Docker puts the exit code on the die event; a start re-inspects,
+			// which is where RestartCount and OOMKilled are refreshed.
+			if code, err := strconv.Atoi(event.ActorAttributes["exitCode"]); err == nil {
+				c.ExitCode = code
+			}
+			return true
+		})
+
+	case "oom":
+		// Sent just before the die of a run the kernel killed for memory.
+		s.patch(id, func(c *Container) bool {
+			c.OOMKilled = true
 			return true
 		})
 

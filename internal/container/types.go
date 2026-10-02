@@ -37,6 +37,14 @@ type Container struct {
 	RestartPolicy string                           `json:"-"`
 	NetworkMode   string                           `json:"-"`
 	FullyLoaded   bool                             `json:"-"`
+	// RestartCount is how many times the engine restarted the container under
+	// its restart policy (Docker) or the kubelet restarted it (k8s). Only an
+	// inspect knows it, so a list entry has 0.
+	RestartCount int `json:"-"`
+	// OOMKilled reports whether the last run ended in an out-of-memory kill.
+	OOMKilled bool `json:"-"`
+	// ExitCode is the last run's exit code; meaningful only once it has exited.
+	ExitCode int `json:"-"`
 }
 
 // Mount represents a container mount point

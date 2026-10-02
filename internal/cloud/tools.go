@@ -38,6 +38,7 @@ const (
 	toolCreateLogNotification    = "create_log_notification"
 	toolCreateMetricNotification = "create_metric_notification"
 	toolCreateEventNotification  = "create_event_notification"
+	toolRetroScan                = "retro_scan"
 )
 
 type paramProperty struct {
@@ -188,6 +189,16 @@ Examples: name == "die"; name == "oom"; name in ["die", "oom", "kill"]; name == 
 		AdditionalProperties: &boolFalse,
 	})
 
+	retroScanParams = mustSchema(paramSchema{
+		Type: "object",
+		Properties: map[string]paramProperty{
+			"since":            {Type: "string", Description: "RFC3339 start of the window. Defaults to 24 hours ago; capped at 7 days."},
+			"levels":           {Type: "string", Description: "Comma-separated levels to count and keep, e.g. \"error,fatal,warn\" (the default)."},
+			"deadline_seconds": {Type: "integer", Description: "How long the scan may run (default 60, max 300). Containers not reached are reported unscanned."},
+		},
+		AdditionalProperties: &boolFalse,
+	})
+
 	streamLogsParams = mustSchema(paramSchema{
 		Type: "object",
 		Properties: map[string]paramProperty{
@@ -263,6 +274,14 @@ func AvailableTools(enableActions bool, p Principal) []*pb.ToolDefinition {
 			ParametersJson: listNotificationsParams,
 			Scope:          pb.ToolScope_TOOL_SCOPE_INSTANCE,
 			ReadOnly:       true,
+		},
+		{
+			Name:           toolRetroScan,
+			Description:    "Read every container's logs since a point in time in one pass, returning true per-level counts, the newest matching lines, and each container's restart count and last exit. For the cloud's first look at a newly linked instance; never offered to a model.",
+			ParametersJson: retroScanParams,
+			Scope:          pb.ToolScope_TOOL_SCOPE_INSTANCE,
+			ReadOnly:       true,
+			Internal:       true,
 		},
 		{
 			Name:           toolInspectContainer,
@@ -400,6 +419,8 @@ func executeTool(ctx context.Context, name string, argsJSON string, deps ToolDep
 		return executeFetchContainerLogs(ctx, argsJSON, deps)
 	case toolInspectContainer:
 		return executeInspectContainer(argsJSON, deps)
+	case toolRetroScan:
+		return executeRetroScan(ctx, argsJSON, deps)
 	case toolListNotifications:
 		return executeListNotifications(deps)
 	case toolStartContainer, toolStopContainer, toolRestartContainer, toolRemoveContainer:

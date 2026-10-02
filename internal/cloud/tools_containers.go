@@ -204,6 +204,9 @@ func executeInspectContainer(argsJSON string, deps ToolDeps) (*pb.CallToolRespon
 			Mounts:        mountStrings(c.Mounts),
 			RestartPolicy: c.RestartPolicy,
 			NetworkMode:   c.NetworkMode,
+			RestartCount:  int32(c.RestartCount),
+			OomKilled:     c.OOMKilled,
+			ExitCode:      int32(c.ExitCode),
 		}},
 	}, nil
 }

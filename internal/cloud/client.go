@@ -405,15 +405,28 @@ func (c *Client) connect(ctx context.Context, apiKey string) (wasConnected bool,
 		// so bursts (e.g. the LLM firing 25 remove_container calls at once) run
 		// serially enough that Docker doesn't buckle. Acquire blocks inside the
 		// goroutine so the recv loop keeps processing cancel_stream requests.
-		if _, ok := req.Type.(*pb.ToolRequest_CallTool); ok {
+		//
+		// Each call gets its own context: bounded by toolCallTimeout, and
+		// registered under its request id so a cancel_stream for it ends it.
+		// Before this a call ran on the stream's lifetime, so one the cloud had
+		// stopped waiting for kept reading — a whole day of a chatty container
+		// — and kept its slot, and every later call queued behind it.
+		if callReq, ok := req.Type.(*pb.ToolRequest_CallTool); ok {
+			callCtx, callCancel := context.WithTimeout(streamLifetime, toolCallTimeout(callReq.CallTool.Name))
+			c.activeStreams.Store(req.RequestId, callCancel)
+			reqID := req.RequestId
 			wg.Go(func() {
-				if err := c.toolSem.Acquire(streamLifetime, 1); err != nil {
+				defer func() {
+					c.activeStreams.Delete(reqID)
+					callCancel()
+				}()
+				if err := c.toolSem.Acquire(callCtx, 1); err != nil {
 					return
 				}
 				defer c.toolSem.Release(1)
-				resp := c.handleRequest(streamLifetime, req)
-				if streamLifetime.Err() != nil {
-					return
+				resp := c.handleRequest(callCtx, req)
+				if streamLifetime.Err() != nil || errors.Is(callCtx.Err(), context.Canceled) {
+					return // the stream is gone, or the cloud cancelled: nobody is waiting
 				}
 				if err := sendResp(resp); err != nil {
 					log.Debug().Err(err).Msg("failed to send tool response")
@@ -466,6 +479,22 @@ func (c *Client) handleRequest(ctx context.Context, req *pb.ToolRequest) *pb.Too
 	}
 
 	return resp
+}
+
+// toolCallTimeout bounds one unary tool call. retro_scan carries its own
+// deadline (at most retroMaxDeadline) and gets a margin past it; everything
+// else is interactive and has no business running for minutes.
+func toolCallTimeout(name string) time.Duration {
+	switch name {
+	case toolRetroScan:
+		return retroMaxDeadline + 30*time.Second
+	case toolUpdateContainer:
+		// Pulls the image on this context: a multi-GB image on a slow link
+		// takes a long time, and had no bound at all before calls got one.
+		// Still cancellable by request id, which is what frees the slot.
+		return 30 * time.Minute
+	}
+	return 2 * time.Minute
 }
 
 func (c *Client) tools() []*pb.ToolDefinition {

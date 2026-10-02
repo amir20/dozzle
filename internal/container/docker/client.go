@@ -679,6 +679,11 @@ func newContainerFromJSON(c docker.InspectResponse, host string) container.Conta
 		RestartPolicy: restartPolicy,
 		NetworkMode:   string(c.HostConfig.NetworkMode),
 		FullyLoaded:   true,
+		RestartCount:  c.RestartCount,
+	}
+	if c.State != nil {
+		container.OOMKilled = c.State.OOMKilled
+		container.ExitCode = c.State.ExitCode
 	}
 
 	if createdAt, err := time.Parse(time.RFC3339Nano, c.Created); err == nil {

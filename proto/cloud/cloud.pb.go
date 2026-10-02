@@ -2055,7 +2055,12 @@ type ToolDefinition struct {
 	// all instances and merges results). Mutating tools (create/delete/deploy/
 	// restart/etc.) must leave this false — the router will require the scope
 	// argument and error if it's missing, so a write never fans out by mistake.
-	ReadOnly      bool `protobuf:"varint,5,opt,name=read_only,json=readOnly,proto3" json:"read_only,omitempty"`
+	ReadOnly bool `protobuf:"varint,5,opt,name=read_only,json=readOnly,proto3" json:"read_only,omitempty"`
+	// internal = true marks a tool for the cloud's own pipelines, never for a
+	// model: the cloud leaves it out of every LLM tool list. retro_scan reads a
+	// whole day of every container, which is not something a chat turn should
+	// be able to start.
+	Internal      bool `protobuf:"varint,6,opt,name=internal,proto3" json:"internal,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -2121,6 +2126,13 @@ func (x *ToolDefinition) GetScope() ToolScope {
 func (x *ToolDefinition) GetReadOnly() bool {
 	if x != nil {
 		return x.ReadOnly
+	}
+	return false
+}
+
+func (x *ToolDefinition) GetInternal() bool {
+	if x != nil {
+		return x.Internal
 	}
 	return false
 }
@@ -2192,6 +2204,7 @@ type CallToolResponse struct {
 	//	*CallToolResponse_FetchLogs
 	//	*CallToolResponse_InspectContainer
 	//	*CallToolResponse_Notification
+	//	*CallToolResponse_RetroScan
 	Result        isCallToolResponse_Result `protobuf_oneof:"result"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -2325,6 +2338,15 @@ func (x *CallToolResponse) GetNotification() *NotificationResult {
 	return nil
 }
 
+func (x *CallToolResponse) GetRetroScan() *RetroScanResult {
+	if x != nil {
+		if x, ok := x.Result.(*CallToolResponse_RetroScan); ok {
+			return x.RetroScan
+		}
+	}
+	return nil
+}
+
 type isCallToolResponse_Result interface {
 	isCallToolResponse_Result()
 }
@@ -2357,6 +2379,10 @@ type CallToolResponse_Notification struct {
 	Notification *NotificationResult `protobuf:"bytes,12,opt,name=notification,proto3,oneof"`
 }
 
+type CallToolResponse_RetroScan struct {
+	RetroScan *RetroScanResult `protobuf:"bytes,13,opt,name=retro_scan,json=retroScan,proto3,oneof"`
+}
+
 func (*CallToolResponse_ListHosts) isCallToolResponse_Result() {}
 
 func (*CallToolResponse_ListContainers) isCallToolResponse_Result() {}
@@ -2370,6 +2396,8 @@ func (*CallToolResponse_FetchLogs) isCallToolResponse_Result() {}
 func (*CallToolResponse_InspectContainer) isCallToolResponse_Result() {}
 
 func (*CallToolResponse_Notification) isCallToolResponse_Result() {}
+
+func (*CallToolResponse_RetroScan) isCallToolResponse_Result() {}
 
 type CancelStreamRequest struct {
 	state           protoimpl.MessageState `protogen:"open.v1"`
@@ -3064,6 +3092,9 @@ type InspectContainerResult struct {
 	Mounts        []string               `protobuf:"bytes,16,rep,name=mounts,proto3" json:"mounts,omitempty"`
 	RestartPolicy string                 `protobuf:"bytes,17,opt,name=restart_policy,json=restartPolicy,proto3" json:"restart_policy,omitempty"`
 	NetworkMode   string                 `protobuf:"bytes,18,opt,name=network_mode,json=networkMode,proto3" json:"network_mode,omitempty"`
+	RestartCount  int32                  `protobuf:"varint,20,opt,name=restart_count,json=restartCount,proto3" json:"restart_count,omitempty"`
+	OomKilled     bool                   `protobuf:"varint,21,opt,name=oom_killed,json=oomKilled,proto3" json:"oom_killed,omitempty"`
+	ExitCode      int32                  `protobuf:"varint,22,opt,name=exit_code,json=exitCode,proto3" json:"exit_code,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -3224,6 +3255,249 @@ func (x *InspectContainerResult) GetNetworkMode() string {
 	return ""
 }
 
+func (x *InspectContainerResult) GetRestartCount() int32 {
+	if x != nil {
+		return x.RestartCount
+	}
+	return 0
+}
+
+func (x *InspectContainerResult) GetOomKilled() bool {
+	if x != nil {
+		return x.OomKilled
+	}
+	return false
+}
+
+func (x *InspectContainerResult) GetExitCode() int32 {
+	if x != nil {
+		return x.ExitCode
+	}
+	return 0
+}
+
+// retro_scan: one pass over every visible container's logs since a point in
+// time, for the cloud's first look at a newly linked instance. Each container
+// is read once, all requested levels at once, so counts are true counts rather
+// than the 100-line floors fetch_container_logs gives.
+type RetroScanResult struct {
+	state      protoimpl.MessageState `protogen:"open.v1"`
+	Containers []*RetroScanContainer  `protobuf:"bytes,1,rep,name=containers,proto3" json:"containers,omitempty"`
+	// The total byte cap was hit: some containers kept their counts but lost
+	// lines (lines_truncated says which).
+	Truncated bool `protobuf:"varint,2,opt,name=truncated,proto3" json:"truncated,omitempty"`
+	// The deadline ended the scan; containers it never reached have
+	// scanned = false.
+	DeadlineExceeded bool `protobuf:"varint,3,opt,name=deadline_exceeded,json=deadlineExceeded,proto3" json:"deadline_exceeded,omitempty"`
+	unknownFields    protoimpl.UnknownFields
+	sizeCache        protoimpl.SizeCache
+}
+
+func (x *RetroScanResult) Reset() {
+	*x = RetroScanResult{}
+	mi := &file_cloud_proto_msgTypes[36]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *RetroScanResult) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*RetroScanResult) ProtoMessage() {}
+
+func (x *RetroScanResult) ProtoReflect() protoreflect.Message {
+	mi := &file_cloud_proto_msgTypes[36]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use RetroScanResult.ProtoReflect.Descriptor instead.
+func (*RetroScanResult) Descriptor() ([]byte, []int) {
+	return file_cloud_proto_rawDescGZIP(), []int{36}
+}
+
+func (x *RetroScanResult) GetContainers() []*RetroScanContainer {
+	if x != nil {
+		return x.Containers
+	}
+	return nil
+}
+
+func (x *RetroScanResult) GetTruncated() bool {
+	if x != nil {
+		return x.Truncated
+	}
+	return false
+}
+
+func (x *RetroScanResult) GetDeadlineExceeded() bool {
+	if x != nil {
+		return x.DeadlineExceeded
+	}
+	return false
+}
+
+type RetroScanContainer struct {
+	state  protoimpl.MessageState `protogen:"open.v1"`
+	Id     string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	Name   string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
+	HostId string                 `protobuf:"bytes,3,opt,name=host_id,json=hostId,proto3" json:"host_id,omitempty"`
+	State  string                 `protobuf:"bytes,4,opt,name=state,proto3" json:"state,omitempty"`
+	// RFC3339 span actually read: from the requested start, or the container's
+	// start if later, to now or to when it stopped.
+	From    string `protobuf:"bytes,5,opt,name=from,proto3" json:"from,omitempty"`
+	To      string `protobuf:"bytes,6,opt,name=to,proto3" json:"to,omitempty"`
+	Scanned bool   `protobuf:"varint,7,opt,name=scanned,proto3" json:"scanned,omitempty"`
+	// Set when the logs could not be read at all (a syslog, gelf, fluentd or none
+	// log driver). Not a scan failure.
+	Error string `protobuf:"bytes,8,opt,name=error,proto3" json:"error,omitempty"`
+	// True counts per requested level.
+	LevelCounts map[string]int64 `protobuf:"bytes,9,rep,name=level_counts,json=levelCounts,proto3" json:"level_counts,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"varint,2,opt,name=value"`
+	// The newest matching lines, oldest first, under the per-container byte cap.
+	Lines          []*LogEntry `protobuf:"bytes,10,rep,name=lines,proto3" json:"lines,omitempty"`
+	LinesTruncated bool        `protobuf:"varint,11,opt,name=lines_truncated,json=linesTruncated,proto3" json:"lines_truncated,omitempty"`
+	RestartCount   int32       `protobuf:"varint,12,opt,name=restart_count,json=restartCount,proto3" json:"restart_count,omitempty"`
+	OomKilled      bool        `protobuf:"varint,13,opt,name=oom_killed,json=oomKilled,proto3" json:"oom_killed,omitempty"`
+	ExitCode       int32       `protobuf:"varint,14,opt,name=exit_code,json=exitCode,proto3" json:"exit_code,omitempty"`
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
+}
+
+func (x *RetroScanContainer) Reset() {
+	*x = RetroScanContainer{}
+	mi := &file_cloud_proto_msgTypes[37]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *RetroScanContainer) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*RetroScanContainer) ProtoMessage() {}
+
+func (x *RetroScanContainer) ProtoReflect() protoreflect.Message {
+	mi := &file_cloud_proto_msgTypes[37]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use RetroScanContainer.ProtoReflect.Descriptor instead.
+func (*RetroScanContainer) Descriptor() ([]byte, []int) {
+	return file_cloud_proto_rawDescGZIP(), []int{37}
+}
+
+func (x *RetroScanContainer) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+func (x *RetroScanContainer) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+func (x *RetroScanContainer) GetHostId() string {
+	if x != nil {
+		return x.HostId
+	}
+	return ""
+}
+
+func (x *RetroScanContainer) GetState() string {
+	if x != nil {
+		return x.State
+	}
+	return ""
+}
+
+func (x *RetroScanContainer) GetFrom() string {
+	if x != nil {
+		return x.From
+	}
+	return ""
+}
+
+func (x *RetroScanContainer) GetTo() string {
+	if x != nil {
+		return x.To
+	}
+	return ""
+}
+
+func (x *RetroScanContainer) GetScanned() bool {
+	if x != nil {
+		return x.Scanned
+	}
+	return false
+}
+
+func (x *RetroScanContainer) GetError() string {
+	if x != nil {
+		return x.Error
+	}
+	return ""
+}
+
+func (x *RetroScanContainer) GetLevelCounts() map[string]int64 {
+	if x != nil {
+		return x.LevelCounts
+	}
+	return nil
+}
+
+func (x *RetroScanContainer) GetLines() []*LogEntry {
+	if x != nil {
+		return x.Lines
+	}
+	return nil
+}
+
+func (x *RetroScanContainer) GetLinesTruncated() bool {
+	if x != nil {
+		return x.LinesTruncated
+	}
+	return false
+}
+
+func (x *RetroScanContainer) GetRestartCount() int32 {
+	if x != nil {
+		return x.RestartCount
+	}
+	return 0
+}
+
+func (x *RetroScanContainer) GetOomKilled() bool {
+	if x != nil {
+		return x.OomKilled
+	}
+	return false
+}
+
+func (x *RetroScanContainer) GetExitCode() int32 {
+	if x != nil {
+		return x.ExitCode
+	}
+	return 0
+}
+
 // Container action result
 type ActionResult struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
@@ -3237,7 +3511,7 @@ type ActionResult struct {
 
 func (x *ActionResult) Reset() {
 	*x = ActionResult{}
-	mi := &file_cloud_proto_msgTypes[36]
+	mi := &file_cloud_proto_msgTypes[38]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3249,7 +3523,7 @@ func (x *ActionResult) String() string {
 func (*ActionResult) ProtoMessage() {}
 
 func (x *ActionResult) ProtoReflect() protoreflect.Message {
-	mi := &file_cloud_proto_msgTypes[36]
+	mi := &file_cloud_proto_msgTypes[38]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3262,7 +3536,7 @@ func (x *ActionResult) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ActionResult.ProtoReflect.Descriptor instead.
 func (*ActionResult) Descriptor() ([]byte, []int) {
-	return file_cloud_proto_rawDescGZIP(), []int{36}
+	return file_cloud_proto_rawDescGZIP(), []int{38}
 }
 
 func (x *ActionResult) GetSuccess() bool {
@@ -3304,7 +3578,7 @@ type NotificationResult struct {
 
 func (x *NotificationResult) Reset() {
 	*x = NotificationResult{}
-	mi := &file_cloud_proto_msgTypes[37]
+	mi := &file_cloud_proto_msgTypes[39]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3316,7 +3590,7 @@ func (x *NotificationResult) String() string {
 func (*NotificationResult) ProtoMessage() {}
 
 func (x *NotificationResult) ProtoReflect() protoreflect.Message {
-	mi := &file_cloud_proto_msgTypes[37]
+	mi := &file_cloud_proto_msgTypes[39]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3329,7 +3603,7 @@ func (x *NotificationResult) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use NotificationResult.ProtoReflect.Descriptor instead.
 func (*NotificationResult) Descriptor() ([]byte, []int) {
-	return file_cloud_proto_rawDescGZIP(), []int{37}
+	return file_cloud_proto_rawDescGZIP(), []int{39}
 }
 
 func (x *NotificationResult) GetSuccess() bool {
@@ -3368,7 +3642,7 @@ type SearchLogsRequest struct {
 
 func (x *SearchLogsRequest) Reset() {
 	*x = SearchLogsRequest{}
-	mi := &file_cloud_proto_msgTypes[38]
+	mi := &file_cloud_proto_msgTypes[40]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3380,7 +3654,7 @@ func (x *SearchLogsRequest) String() string {
 func (*SearchLogsRequest) ProtoMessage() {}
 
 func (x *SearchLogsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_cloud_proto_msgTypes[38]
+	mi := &file_cloud_proto_msgTypes[40]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3393,7 +3667,7 @@ func (x *SearchLogsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SearchLogsRequest.ProtoReflect.Descriptor instead.
 func (*SearchLogsRequest) Descriptor() ([]byte, []int) {
-	return file_cloud_proto_rawDescGZIP(), []int{38}
+	return file_cloud_proto_rawDescGZIP(), []int{40}
 }
 
 func (x *SearchLogsRequest) GetQuery() string {
@@ -3443,7 +3717,7 @@ type SearchLogsResponse struct {
 
 func (x *SearchLogsResponse) Reset() {
 	*x = SearchLogsResponse{}
-	mi := &file_cloud_proto_msgTypes[39]
+	mi := &file_cloud_proto_msgTypes[41]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3455,7 +3729,7 @@ func (x *SearchLogsResponse) String() string {
 func (*SearchLogsResponse) ProtoMessage() {}
 
 func (x *SearchLogsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_cloud_proto_msgTypes[39]
+	mi := &file_cloud_proto_msgTypes[41]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3468,7 +3742,7 @@ func (x *SearchLogsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SearchLogsResponse.ProtoReflect.Descriptor instead.
 func (*SearchLogsResponse) Descriptor() ([]byte, []int) {
-	return file_cloud_proto_rawDescGZIP(), []int{39}
+	return file_cloud_proto_rawDescGZIP(), []int{41}
 }
 
 func (x *SearchLogsResponse) GetHits() []*SearchLogHit {
@@ -3512,7 +3786,7 @@ type SearchLogHit struct {
 
 func (x *SearchLogHit) Reset() {
 	*x = SearchLogHit{}
-	mi := &file_cloud_proto_msgTypes[40]
+	mi := &file_cloud_proto_msgTypes[42]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3524,7 +3798,7 @@ func (x *SearchLogHit) String() string {
 func (*SearchLogHit) ProtoMessage() {}
 
 func (x *SearchLogHit) ProtoReflect() protoreflect.Message {
-	mi := &file_cloud_proto_msgTypes[40]
+	mi := &file_cloud_proto_msgTypes[42]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3537,7 +3811,7 @@ func (x *SearchLogHit) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SearchLogHit.ProtoReflect.Descriptor instead.
 func (*SearchLogHit) Descriptor() ([]byte, []int) {
-	return file_cloud_proto_rawDescGZIP(), []int{40}
+	return file_cloud_proto_rawDescGZIP(), []int{42}
 }
 
 func (x *SearchLogHit) GetTimestampNs() int64 {
@@ -3627,7 +3901,7 @@ type GetAlertsRequest struct {
 
 func (x *GetAlertsRequest) Reset() {
 	*x = GetAlertsRequest{}
-	mi := &file_cloud_proto_msgTypes[41]
+	mi := &file_cloud_proto_msgTypes[43]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3639,7 +3913,7 @@ func (x *GetAlertsRequest) String() string {
 func (*GetAlertsRequest) ProtoMessage() {}
 
 func (x *GetAlertsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_cloud_proto_msgTypes[41]
+	mi := &file_cloud_proto_msgTypes[43]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3652,7 +3926,7 @@ func (x *GetAlertsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetAlertsRequest.ProtoReflect.Descriptor instead.
 func (*GetAlertsRequest) Descriptor() ([]byte, []int) {
-	return file_cloud_proto_rawDescGZIP(), []int{41}
+	return file_cloud_proto_rawDescGZIP(), []int{43}
 }
 
 func (x *GetAlertsRequest) GetContainerIds() []string {
@@ -3764,7 +4038,7 @@ type AlertHit struct {
 
 func (x *AlertHit) Reset() {
 	*x = AlertHit{}
-	mi := &file_cloud_proto_msgTypes[42]
+	mi := &file_cloud_proto_msgTypes[44]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3776,7 +4050,7 @@ func (x *AlertHit) String() string {
 func (*AlertHit) ProtoMessage() {}
 
 func (x *AlertHit) ProtoReflect() protoreflect.Message {
-	mi := &file_cloud_proto_msgTypes[42]
+	mi := &file_cloud_proto_msgTypes[44]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3789,7 +4063,7 @@ func (x *AlertHit) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AlertHit.ProtoReflect.Descriptor instead.
 func (*AlertHit) Descriptor() ([]byte, []int) {
-	return file_cloud_proto_rawDescGZIP(), []int{42}
+	return file_cloud_proto_rawDescGZIP(), []int{44}
 }
 
 func (x *AlertHit) GetAlertId() string {
@@ -3951,7 +4225,7 @@ type EventHit struct {
 
 func (x *EventHit) Reset() {
 	*x = EventHit{}
-	mi := &file_cloud_proto_msgTypes[43]
+	mi := &file_cloud_proto_msgTypes[45]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3963,7 +4237,7 @@ func (x *EventHit) String() string {
 func (*EventHit) ProtoMessage() {}
 
 func (x *EventHit) ProtoReflect() protoreflect.Message {
-	mi := &file_cloud_proto_msgTypes[43]
+	mi := &file_cloud_proto_msgTypes[45]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3976,7 +4250,7 @@ func (x *EventHit) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use EventHit.ProtoReflect.Descriptor instead.
 func (*EventHit) Descriptor() ([]byte, []int) {
-	return file_cloud_proto_rawDescGZIP(), []int{43}
+	return file_cloud_proto_rawDescGZIP(), []int{45}
 }
 
 func (x *EventHit) GetTsNs() int64 {
@@ -4061,7 +4335,7 @@ type PatternLineRef struct {
 
 func (x *PatternLineRef) Reset() {
 	*x = PatternLineRef{}
-	mi := &file_cloud_proto_msgTypes[44]
+	mi := &file_cloud_proto_msgTypes[46]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4073,7 +4347,7 @@ func (x *PatternLineRef) String() string {
 func (*PatternLineRef) ProtoMessage() {}
 
 func (x *PatternLineRef) ProtoReflect() protoreflect.Message {
-	mi := &file_cloud_proto_msgTypes[44]
+	mi := &file_cloud_proto_msgTypes[46]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4086,7 +4360,7 @@ func (x *PatternLineRef) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PatternLineRef.ProtoReflect.Descriptor instead.
 func (*PatternLineRef) Descriptor() ([]byte, []int) {
-	return file_cloud_proto_rawDescGZIP(), []int{44}
+	return file_cloud_proto_rawDescGZIP(), []int{46}
 }
 
 func (x *PatternLineRef) GetContainerId() string {
@@ -4116,7 +4390,7 @@ type GetPatternContextRequest struct {
 
 func (x *GetPatternContextRequest) Reset() {
 	*x = GetPatternContextRequest{}
-	mi := &file_cloud_proto_msgTypes[45]
+	mi := &file_cloud_proto_msgTypes[47]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4128,7 +4402,7 @@ func (x *GetPatternContextRequest) String() string {
 func (*GetPatternContextRequest) ProtoMessage() {}
 
 func (x *GetPatternContextRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_cloud_proto_msgTypes[45]
+	mi := &file_cloud_proto_msgTypes[47]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4141,7 +4415,7 @@ func (x *GetPatternContextRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetPatternContextRequest.ProtoReflect.Descriptor instead.
 func (*GetPatternContextRequest) Descriptor() ([]byte, []int) {
-	return file_cloud_proto_rawDescGZIP(), []int{45}
+	return file_cloud_proto_rawDescGZIP(), []int{47}
 }
 
 func (x *GetPatternContextRequest) GetLines() []*PatternLineRef {
@@ -4188,7 +4462,7 @@ type PatternContext struct {
 
 func (x *PatternContext) Reset() {
 	*x = PatternContext{}
-	mi := &file_cloud_proto_msgTypes[46]
+	mi := &file_cloud_proto_msgTypes[48]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4200,7 +4474,7 @@ func (x *PatternContext) String() string {
 func (*PatternContext) ProtoMessage() {}
 
 func (x *PatternContext) ProtoReflect() protoreflect.Message {
-	mi := &file_cloud_proto_msgTypes[46]
+	mi := &file_cloud_proto_msgTypes[48]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4213,7 +4487,7 @@ func (x *PatternContext) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PatternContext.ProtoReflect.Descriptor instead.
 func (*PatternContext) Descriptor() ([]byte, []int) {
-	return file_cloud_proto_rawDescGZIP(), []int{46}
+	return file_cloud_proto_rawDescGZIP(), []int{48}
 }
 
 func (x *PatternContext) GetContainerId() string {
@@ -4288,7 +4562,7 @@ type GetPatternContextResponse struct {
 
 func (x *GetPatternContextResponse) Reset() {
 	*x = GetPatternContextResponse{}
-	mi := &file_cloud_proto_msgTypes[47]
+	mi := &file_cloud_proto_msgTypes[49]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4300,7 +4574,7 @@ func (x *GetPatternContextResponse) String() string {
 func (*GetPatternContextResponse) ProtoMessage() {}
 
 func (x *GetPatternContextResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_cloud_proto_msgTypes[47]
+	mi := &file_cloud_proto_msgTypes[49]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4313,7 +4587,7 @@ func (x *GetPatternContextResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetPatternContextResponse.ProtoReflect.Descriptor instead.
 func (*GetPatternContextResponse) Descriptor() ([]byte, []int) {
-	return file_cloud_proto_rawDescGZIP(), []int{47}
+	return file_cloud_proto_rawDescGZIP(), []int{49}
 }
 
 func (x *GetPatternContextResponse) GetPatterns() []*PatternContext {
@@ -4338,7 +4612,7 @@ type GetAlertsResponse struct {
 
 func (x *GetAlertsResponse) Reset() {
 	*x = GetAlertsResponse{}
-	mi := &file_cloud_proto_msgTypes[48]
+	mi := &file_cloud_proto_msgTypes[50]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4350,7 +4624,7 @@ func (x *GetAlertsResponse) String() string {
 func (*GetAlertsResponse) ProtoMessage() {}
 
 func (x *GetAlertsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_cloud_proto_msgTypes[48]
+	mi := &file_cloud_proto_msgTypes[50]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4363,7 +4637,7 @@ func (x *GetAlertsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetAlertsResponse.ProtoReflect.Descriptor instead.
 func (*GetAlertsResponse) Descriptor() ([]byte, []int) {
-	return file_cloud_proto_rawDescGZIP(), []int{48}
+	return file_cloud_proto_rawDescGZIP(), []int{50}
 }
 
 func (x *GetAlertsResponse) GetHits() []*AlertHit {
@@ -4528,16 +4802,17 @@ const file_cloud_proto_rawDesc = "" +
 	"\x10ListToolsRequest\"Z\n" +
 	"\x11ListToolsResponse\x12+\n" +
 	"\x05tools\x18\x01 \x03(\v2\x15.cloud.ToolDefinitionR\x05tools\x12\x18\n" +
-	"\aversion\x18\x02 \x01(\tR\aversion\"\xb4\x01\n" +
+	"\aversion\x18\x02 \x01(\tR\aversion\"\xd0\x01\n" +
 	"\x0eToolDefinition\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12 \n" +
 	"\vdescription\x18\x02 \x01(\tR\vdescription\x12'\n" +
 	"\x0fparameters_json\x18\x03 \x01(\tR\x0eparametersJson\x12&\n" +
 	"\x05scope\x18\x04 \x01(\x0e2\x10.cloud.ToolScopeR\x05scope\x12\x1b\n" +
-	"\tread_only\x18\x05 \x01(\bR\breadOnly\"L\n" +
+	"\tread_only\x18\x05 \x01(\bR\breadOnly\x12\x1a\n" +
+	"\binternal\x18\x06 \x01(\bR\binternal\"L\n" +
 	"\x0fCallToolRequest\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12%\n" +
-	"\x0earguments_json\x18\x02 \x01(\tR\rargumentsJson\"\xd1\x04\n" +
+	"\x0earguments_json\x18\x02 \x01(\tR\rargumentsJson\"\x8a\x05\n" +
 	"\x10CallToolResponse\x12\x18\n" +
 	"\asuccess\x18\x01 \x01(\bR\asuccess\x12\x14\n" +
 	"\x05error\x18\x02 \x01(\tR\x05error\x12\x16\n" +
@@ -4553,7 +4828,9 @@ const file_cloud_proto_rawDesc = "" +
 	"\n" +
 	"fetch_logs\x18\a \x01(\v2\x16.cloud.FetchLogsResultH\x00R\tfetchLogs\x12L\n" +
 	"\x11inspect_container\x18\b \x01(\v2\x1d.cloud.InspectContainerResultH\x00R\x10inspectContainer\x12?\n" +
-	"\fnotification\x18\f \x01(\v2\x19.cloud.NotificationResultH\x00R\fnotificationB\b\n" +
+	"\fnotification\x18\f \x01(\v2\x19.cloud.NotificationResultH\x00R\fnotification\x127\n" +
+	"\n" +
+	"retro_scan\x18\r \x01(\v2\x16.cloud.RetroScanResultH\x00R\tretroScanB\b\n" +
 	"\x06resultJ\x04\b\v\x10\fR\x06deploy\"A\n" +
 	"\x13CancelStreamRequest\x12*\n" +
 	"\x11stream_request_id\x18\x01 \x01(\tR\x0fstreamRequestId\"\xde\x01\n" +
@@ -4614,7 +4891,7 @@ const file_cloud_proto_rawDesc = "" +
 	"\x05level\x18\x04 \x01(\tR\x05level\"c\n" +
 	"\x0fFetchLogsResult\x12%\n" +
 	"\x0econtainer_name\x18\x01 \x01(\tR\rcontainerName\x12)\n" +
-	"\aentries\x18\x02 \x03(\v2\x0f.cloud.LogEntryR\aentries\"\xeb\x04\n" +
+	"\aentries\x18\x02 \x03(\v2\x0f.cloud.LogEntryR\aentries\"\xcc\x05\n" +
 	"\x16InspectContainerResult\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12\x14\n" +
@@ -4636,10 +4913,40 @@ const file_cloud_proto_rawDesc = "" +
 	"\x05ports\x18\x0f \x03(\tR\x05ports\x12\x16\n" +
 	"\x06mounts\x18\x10 \x03(\tR\x06mounts\x12%\n" +
 	"\x0erestart_policy\x18\x11 \x01(\tR\rrestartPolicy\x12!\n" +
-	"\fnetwork_mode\x18\x12 \x01(\tR\vnetworkMode\x1a9\n" +
+	"\fnetwork_mode\x18\x12 \x01(\tR\vnetworkMode\x12#\n" +
+	"\rrestart_count\x18\x14 \x01(\x05R\frestartCount\x12\x1d\n" +
+	"\n" +
+	"oom_killed\x18\x15 \x01(\bR\toomKilled\x12\x1b\n" +
+	"\texit_code\x18\x16 \x01(\x05R\bexitCode\x1a9\n" +
 	"\vLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01J\x04\b\x0e\x10\x0fR\x03env\"}\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01J\x04\b\x0e\x10\x0fR\x03env\"\x97\x01\n" +
+	"\x0fRetroScanResult\x129\n" +
+	"\n" +
+	"containers\x18\x01 \x03(\v2\x19.cloud.RetroScanContainerR\n" +
+	"containers\x12\x1c\n" +
+	"\ttruncated\x18\x02 \x01(\bR\ttruncated\x12+\n" +
+	"\x11deadline_exceeded\x18\x03 \x01(\bR\x10deadlineExceeded\"\xfb\x03\n" +
+	"\x12RetroScanContainer\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
+	"\x04name\x18\x02 \x01(\tR\x04name\x12\x17\n" +
+	"\ahost_id\x18\x03 \x01(\tR\x06hostId\x12\x14\n" +
+	"\x05state\x18\x04 \x01(\tR\x05state\x12\x12\n" +
+	"\x04from\x18\x05 \x01(\tR\x04from\x12\x0e\n" +
+	"\x02to\x18\x06 \x01(\tR\x02to\x12\x18\n" +
+	"\ascanned\x18\a \x01(\bR\ascanned\x12\x14\n" +
+	"\x05error\x18\b \x01(\tR\x05error\x12M\n" +
+	"\flevel_counts\x18\t \x03(\v2*.cloud.RetroScanContainer.LevelCountsEntryR\vlevelCounts\x12%\n" +
+	"\x05lines\x18\n" +
+	" \x03(\v2\x0f.cloud.LogEntryR\x05lines\x12'\n" +
+	"\x0flines_truncated\x18\v \x01(\bR\x0elinesTruncated\x12#\n" +
+	"\rrestart_count\x18\f \x01(\x05R\frestartCount\x12\x1d\n" +
+	"\n" +
+	"oom_killed\x18\r \x01(\bR\toomKilled\x12\x1b\n" +
+	"\texit_code\x18\x0e \x01(\x05R\bexitCode\x1a>\n" +
+	"\x10LevelCountsEntry\x12\x10\n" +
+	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
+	"\x05value\x18\x02 \x01(\x03R\x05value:\x028\x01\"}\n" +
 	"\fActionResult\x12\x18\n" +
 	"\asuccess\x18\x01 \x01(\bR\asuccess\x12!\n" +
 	"\fcontainer_id\x18\x02 \x01(\tR\vcontainerId\x12\x16\n" +
@@ -4776,7 +5083,7 @@ func file_cloud_proto_rawDescGZIP() []byte {
 }
 
 var file_cloud_proto_enumTypes = make([]protoimpl.EnumInfo, 3)
-var file_cloud_proto_msgTypes = make([]protoimpl.MessageInfo, 50)
+var file_cloud_proto_msgTypes = make([]protoimpl.MessageInfo, 53)
 var file_cloud_proto_goTypes = []any{
 	(ChatStepState)(0),                  // 0: cloud.ChatStepState
 	(ToolScope)(0),                      // 1: cloud.ToolScope
@@ -4817,20 +5124,23 @@ var file_cloud_proto_goTypes = []any{
 	(*LogEntry)(nil),                    // 36: cloud.LogEntry
 	(*FetchLogsResult)(nil),             // 37: cloud.FetchLogsResult
 	(*InspectContainerResult)(nil),      // 38: cloud.InspectContainerResult
-	(*ActionResult)(nil),                // 39: cloud.ActionResult
-	(*NotificationResult)(nil),          // 40: cloud.NotificationResult
-	(*SearchLogsRequest)(nil),           // 41: cloud.SearchLogsRequest
-	(*SearchLogsResponse)(nil),          // 42: cloud.SearchLogsResponse
-	(*SearchLogHit)(nil),                // 43: cloud.SearchLogHit
-	(*GetAlertsRequest)(nil),            // 44: cloud.GetAlertsRequest
-	(*AlertHit)(nil),                    // 45: cloud.AlertHit
-	(*EventHit)(nil),                    // 46: cloud.EventHit
-	(*PatternLineRef)(nil),              // 47: cloud.PatternLineRef
-	(*GetPatternContextRequest)(nil),    // 48: cloud.GetPatternContextRequest
-	(*PatternContext)(nil),              // 49: cloud.PatternContext
-	(*GetPatternContextResponse)(nil),   // 50: cloud.GetPatternContextResponse
-	(*GetAlertsResponse)(nil),           // 51: cloud.GetAlertsResponse
-	nil,                                 // 52: cloud.InspectContainerResult.LabelsEntry
+	(*RetroScanResult)(nil),             // 39: cloud.RetroScanResult
+	(*RetroScanContainer)(nil),          // 40: cloud.RetroScanContainer
+	(*ActionResult)(nil),                // 41: cloud.ActionResult
+	(*NotificationResult)(nil),          // 42: cloud.NotificationResult
+	(*SearchLogsRequest)(nil),           // 43: cloud.SearchLogsRequest
+	(*SearchLogsResponse)(nil),          // 44: cloud.SearchLogsResponse
+	(*SearchLogHit)(nil),                // 45: cloud.SearchLogHit
+	(*GetAlertsRequest)(nil),            // 46: cloud.GetAlertsRequest
+	(*AlertHit)(nil),                    // 47: cloud.AlertHit
+	(*EventHit)(nil),                    // 48: cloud.EventHit
+	(*PatternLineRef)(nil),              // 49: cloud.PatternLineRef
+	(*GetPatternContextRequest)(nil),    // 50: cloud.GetPatternContextRequest
+	(*PatternContext)(nil),              // 51: cloud.PatternContext
+	(*GetPatternContextResponse)(nil),   // 52: cloud.GetPatternContextResponse
+	(*GetAlertsResponse)(nil),           // 53: cloud.GetAlertsResponse
+	nil,                                 // 54: cloud.InspectContainerResult.LabelsEntry
+	nil,                                 // 55: cloud.RetroScanContainer.LevelCountsEntry
 }
 var file_cloud_proto_depIdxs = []int32{
 	5,  // 0: cloud.ViewContext.containers:type_name -> cloud.ViewContainer
@@ -4861,40 +5171,44 @@ var file_cloud_proto_depIdxs = []int32{
 	31, // 25: cloud.CallToolResponse.list_hosts:type_name -> cloud.ListHostsResult
 	33, // 26: cloud.CallToolResponse.list_containers:type_name -> cloud.ListContainersResult
 	35, // 27: cloud.CallToolResponse.container_stats:type_name -> cloud.ContainerStatsResult
-	39, // 28: cloud.CallToolResponse.action:type_name -> cloud.ActionResult
+	41, // 28: cloud.CallToolResponse.action:type_name -> cloud.ActionResult
 	37, // 29: cloud.CallToolResponse.fetch_logs:type_name -> cloud.FetchLogsResult
 	38, // 30: cloud.CallToolResponse.inspect_container:type_name -> cloud.InspectContainerResult
-	40, // 31: cloud.CallToolResponse.notification:type_name -> cloud.NotificationResult
-	30, // 32: cloud.ListHostsResult.hosts:type_name -> cloud.HostInfo
-	32, // 33: cloud.ListContainersResult.containers:type_name -> cloud.ContainerInfo
-	34, // 34: cloud.ContainerStatsResult.stats:type_name -> cloud.ContainerStatEntry
-	36, // 35: cloud.FetchLogsResult.entries:type_name -> cloud.LogEntry
-	52, // 36: cloud.InspectContainerResult.labels:type_name -> cloud.InspectContainerResult.LabelsEntry
-	43, // 37: cloud.SearchLogsResponse.hits:type_name -> cloud.SearchLogHit
-	47, // 38: cloud.GetPatternContextRequest.lines:type_name -> cloud.PatternLineRef
-	2,  // 39: cloud.PatternContext.status:type_name -> cloud.PatternStatus
-	49, // 40: cloud.GetPatternContextResponse.patterns:type_name -> cloud.PatternContext
-	45, // 41: cloud.GetAlertsResponse.hits:type_name -> cloud.AlertHit
-	46, // 42: cloud.GetAlertsResponse.events:type_name -> cloud.EventHit
-	19, // 43: cloud.CloudToolService.ToolStream:input_type -> cloud.ToolResponse
-	41, // 44: cloud.CloudToolService.SearchLogs:input_type -> cloud.SearchLogsRequest
-	44, // 45: cloud.CloudToolService.GetAlerts:input_type -> cloud.GetAlertsRequest
-	14, // 46: cloud.CloudToolService.GetRecentAlerts:input_type -> cloud.GetRecentAlertsRequest
-	48, // 47: cloud.CloudToolService.GetPatternContext:input_type -> cloud.GetPatternContextRequest
-	15, // 48: cloud.CloudToolService.GetContainerMetrics:input_type -> cloud.GetContainerMetricsRequest
-	7,  // 49: cloud.CloudToolService.Chat:input_type -> cloud.ChatClientEvent
-	18, // 50: cloud.CloudToolService.ToolStream:output_type -> cloud.ToolRequest
-	42, // 51: cloud.CloudToolService.SearchLogs:output_type -> cloud.SearchLogsResponse
-	51, // 52: cloud.CloudToolService.GetAlerts:output_type -> cloud.GetAlertsResponse
-	51, // 53: cloud.CloudToolService.GetRecentAlerts:output_type -> cloud.GetAlertsResponse
-	50, // 54: cloud.CloudToolService.GetPatternContext:output_type -> cloud.GetPatternContextResponse
-	17, // 55: cloud.CloudToolService.GetContainerMetrics:output_type -> cloud.GetContainerMetricsResponse
-	8,  // 56: cloud.CloudToolService.Chat:output_type -> cloud.ChatServerEvent
-	50, // [50:57] is the sub-list for method output_type
-	43, // [43:50] is the sub-list for method input_type
-	43, // [43:43] is the sub-list for extension type_name
-	43, // [43:43] is the sub-list for extension extendee
-	0,  // [0:43] is the sub-list for field type_name
+	42, // 31: cloud.CallToolResponse.notification:type_name -> cloud.NotificationResult
+	39, // 32: cloud.CallToolResponse.retro_scan:type_name -> cloud.RetroScanResult
+	30, // 33: cloud.ListHostsResult.hosts:type_name -> cloud.HostInfo
+	32, // 34: cloud.ListContainersResult.containers:type_name -> cloud.ContainerInfo
+	34, // 35: cloud.ContainerStatsResult.stats:type_name -> cloud.ContainerStatEntry
+	36, // 36: cloud.FetchLogsResult.entries:type_name -> cloud.LogEntry
+	54, // 37: cloud.InspectContainerResult.labels:type_name -> cloud.InspectContainerResult.LabelsEntry
+	40, // 38: cloud.RetroScanResult.containers:type_name -> cloud.RetroScanContainer
+	55, // 39: cloud.RetroScanContainer.level_counts:type_name -> cloud.RetroScanContainer.LevelCountsEntry
+	36, // 40: cloud.RetroScanContainer.lines:type_name -> cloud.LogEntry
+	45, // 41: cloud.SearchLogsResponse.hits:type_name -> cloud.SearchLogHit
+	49, // 42: cloud.GetPatternContextRequest.lines:type_name -> cloud.PatternLineRef
+	2,  // 43: cloud.PatternContext.status:type_name -> cloud.PatternStatus
+	51, // 44: cloud.GetPatternContextResponse.patterns:type_name -> cloud.PatternContext
+	47, // 45: cloud.GetAlertsResponse.hits:type_name -> cloud.AlertHit
+	48, // 46: cloud.GetAlertsResponse.events:type_name -> cloud.EventHit
+	19, // 47: cloud.CloudToolService.ToolStream:input_type -> cloud.ToolResponse
+	43, // 48: cloud.CloudToolService.SearchLogs:input_type -> cloud.SearchLogsRequest
+	46, // 49: cloud.CloudToolService.GetAlerts:input_type -> cloud.GetAlertsRequest
+	14, // 50: cloud.CloudToolService.GetRecentAlerts:input_type -> cloud.GetRecentAlertsRequest
+	50, // 51: cloud.CloudToolService.GetPatternContext:input_type -> cloud.GetPatternContextRequest
+	15, // 52: cloud.CloudToolService.GetContainerMetrics:input_type -> cloud.GetContainerMetricsRequest
+	7,  // 53: cloud.CloudToolService.Chat:input_type -> cloud.ChatClientEvent
+	18, // 54: cloud.CloudToolService.ToolStream:output_type -> cloud.ToolRequest
+	44, // 55: cloud.CloudToolService.SearchLogs:output_type -> cloud.SearchLogsResponse
+	53, // 56: cloud.CloudToolService.GetAlerts:output_type -> cloud.GetAlertsResponse
+	53, // 57: cloud.CloudToolService.GetRecentAlerts:output_type -> cloud.GetAlertsResponse
+	52, // 58: cloud.CloudToolService.GetPatternContext:output_type -> cloud.GetPatternContextResponse
+	17, // 59: cloud.CloudToolService.GetContainerMetrics:output_type -> cloud.GetContainerMetricsResponse
+	8,  // 60: cloud.CloudToolService.Chat:output_type -> cloud.ChatServerEvent
+	54, // [54:61] is the sub-list for method output_type
+	47, // [47:54] is the sub-list for method input_type
+	47, // [47:47] is the sub-list for extension type_name
+	47, // [47:47] is the sub-list for extension extendee
+	0,  // [0:47] is the sub-list for field type_name
 }
 
 func init() { file_cloud_proto_init() }
@@ -4933,6 +5247,7 @@ func file_cloud_proto_init() {
 		(*CallToolResponse_FetchLogs)(nil),
 		(*CallToolResponse_InspectContainer)(nil),
 		(*CallToolResponse_Notification)(nil),
+		(*CallToolResponse_RetroScan)(nil),
 	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
@@ -4940,7 +5255,7 @@ func file_cloud_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_cloud_proto_rawDesc), len(file_cloud_proto_rawDesc)),
 			NumEnums:      3,
-			NumMessages:   50,
+			NumMessages:   53,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

@@ -68,6 +68,9 @@ func containerToProto(c container.Container) pb.Container {
 		MountStats:    pbMountStats,
 		RestartPolicy: c.RestartPolicy,
 		NetworkMode:   c.NetworkMode,
+		RestartCount:  int32(c.RestartCount),
+		OomKilled:     c.OOMKilled,
+		ExitCode:      int32(c.ExitCode),
 	}
 }
 
@@ -145,5 +148,8 @@ func containerFromProto(c *pb.Container) container.Container {
 		MountStats:    mountStats,
 		RestartPolicy: c.RestartPolicy,
 		NetworkMode:   c.NetworkMode,
+		RestartCount:  int(c.RestartCount),
+		OOMKilled:     c.OomKilled,
+		ExitCode:      int(c.ExitCode),
 	}
 }
