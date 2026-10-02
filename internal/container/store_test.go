@@ -721,6 +721,34 @@ func TestStore_k8sUpdateCarriesImageDigest(t *testing.T) {
 	assert.Equal(t, "docker.io/library/nginx@sha256:abc", c.ImageDigest)
 }
 
+// Labeling a running pod renames and regroups it without a new pod.
+func TestStore_k8sUpdateCarriesNameAndGroup(t *testing.T) {
+	pod := loadedContainer("default:web-1:app", "running")
+	relabeled := pod
+	relabeled.Name = "web"
+	relabeled.Group = "frontend"
+
+	client := new(mockedClient)
+	client.On("ListContainers", mock.Anything, mock.Anything).Return([]Container{}, nil)
+	client.On("FindContainer", mock.Anything, pod.ID).Return(pod, nil)
+	client.On("Host").Return(Host{ID: "localhost"})
+	feed := feedEvents(client)
+
+	store := NewStore(t.Context(), client, newCaptureStatsCollector(), ContainerLabels{})
+	events := make(chan ContainerEvent, 16)
+	store.SubscribeEvents(t.Context(), events)
+
+	feed <- ContainerEvent{Name: "create", ActorID: pod.ID, Container: &pod}
+	waitForEvent(t, events, "create")
+	feed <- ContainerEvent{Name: "update", ActorID: pod.ID, Container: &relabeled}
+	waitForEvent(t, events, "update")
+
+	c, err := store.FindContainer(t.Context(), pod.ID, ContainerLabels{})
+	assert.NoError(t, err)
+	assert.Equal(t, "web", c.Name)
+	assert.Equal(t, "frontend", c.Group)
+}
+
 func TestStore_FindContainer(t *testing.T) {
 	partial := Container{ID: "1234", Name: "test", State: "exited", Host: "localhost", Stats: utils.NewRingBuffer[ContainerStat](300)}
 	full := partial
