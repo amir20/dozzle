@@ -16,6 +16,11 @@ const DIST = "dist";
 const COMPRESSIBLE = new Set([".js", ".css", ".svg", ".json", ".map", ".wasm"]);
 const SKIP = new Set([join(DIST, "index.html"), join(DIST, ".vite", "manifest.json")]);
 
+// Quality 11 costs about twice what 10 does and only the duckdb wasm (~36 MB) is
+// big enough for that to matter: 85s of a 100s asset build on CI at 11, half that
+// at 10, for ~70 KB more output. Everything else stays at 11.
+const LARGE_FILE = 4 * 1024 * 1024;
+
 function* walk(dir) {
   for (const entry of readdirSync(dir, { withFileTypes: true })) {
     const path = join(dir, entry.name);
@@ -39,7 +44,7 @@ for (const file of walk(DIST)) {
 
   const compressed = brotliCompressSync(readFileSync(file), {
     params: {
-      [constants.BROTLI_PARAM_QUALITY]: constants.BROTLI_MAX_QUALITY,
+      [constants.BROTLI_PARAM_QUALITY]: size > LARGE_FILE ? 10 : constants.BROTLI_MAX_QUALITY,
       [constants.BROTLI_PARAM_SIZE_HINT]: size,
     },
   });
