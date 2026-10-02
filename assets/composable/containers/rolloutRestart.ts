@@ -11,10 +11,12 @@ export function rolloutWorkload(namespace: string | undefined, kind: string | un
   return { namespace, kind, name } satisfies K8sWorkload;
 }
 
-// The top of the pod's owner chain: a Deployment rather than its ReplicaSet.
+// The outermost owner that can be rolled out: a Deployment rather than its
+// ReplicaSet, and the StatefulSet under an operator's custom resource, which
+// is the top of the chain but cannot be restarted itself.
 export function containerWorkload(container: Container) {
-  const { labels } = container;
-  return rolloutWorkload(labels["@k8s.namespace"], labels["@k8s.workload.kind"], labels["@k8s.workload.name"]);
+  const owner = getK8sOwnerRefs(container).findLast((ref) => ROLLOUT_KINDS.has(ref.kind));
+  return rolloutWorkload(container.labels["@k8s.namespace"], owner?.kind, owner?.name);
 }
 
 export const useRolloutRestart = () => {
