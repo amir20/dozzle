@@ -172,6 +172,17 @@ func (h *handler) streamLogsForContainers(w http.ResponseWriter, r *http.Request
 		return
 	}
 
+	// `since` is the start the person picked ("live, from 15 minutes ago"). The
+	// tail never replays older lines, and a search's backfill stops there too.
+	var floor time.Time
+	if r.URL.Query().Has("since") {
+		floor, err = time.Parse(time.RFC3339Nano, r.URL.Query().Get("since"))
+		if err != nil {
+			http.Error(w, "since must be an RFC 3339 time", http.StatusBadRequest)
+			return
+		}
+	}
+
 	sseWriter, err := sse.NewWriter(r.Context(), w, r)
 	if err != nil {
 		log.Error().Err(err).Msg("error creating sse writer")
@@ -191,7 +202,7 @@ func (h *handler) streamLogsForContainers(w http.ResponseWriter, r *http.Request
 
 	// With a narrowing filter the live tail starts now, and everything older
 	// arrives through the backfill walk instead of the tail's own history.
-	var since time.Time
+	since := floor
 	if filter.narrowing() {
 		since = time.Now()
 	}
@@ -221,7 +232,7 @@ func (h *handler) streamLogsForContainers(w http.ResponseWriter, r *http.Request
 		go func() {
 			resolved.Wait()
 			found := slices.DeleteFunc(services, func(s *container.ContainerService) bool { return s == nil })
-			searchBackfill(ctx, found, since, stdTypes, filter, backfill, searchStatusCh)
+			searchBackfill(ctx, found, since, floor, stdTypes, filter, backfill, searchStatusCh)
 		}()
 	}
 

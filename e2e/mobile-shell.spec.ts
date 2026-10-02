@@ -70,7 +70,7 @@ test.describe("mobile shell", () => {
     await openContainer(page);
     await page.getByTestId("log-actions").click();
 
-    const sheet = page.locator(".popover-sheet");
+    const sheet = page.locator(".popover-sheet:popover-open");
     await expect(sheet).toBeVisible();
 
     // Pinned to the bottom edge, nearly the full width, rather than hung off the trigger.

@@ -53,6 +53,10 @@ func (s *stubClientService) LogsBetweenDates(ctx context.Context, _ container.Co
 	return ch, nil
 }
 
+func (s *stubClientService) LogHistogram(context.Context, container.Container, time.Time, time.Time, time.Duration) (container.LogHistogram, error) {
+	return container.LogHistogram{}, nil
+}
+
 func (s *stubClientService) RawLogs(context.Context, container.Container, time.Time, time.Time, container.StdType) (io.ReadCloser, error) {
 	return nil, fmt.Errorf("not implemented")
 }

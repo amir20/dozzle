@@ -3,6 +3,7 @@ import { allLevels } from "./logContext";
 import {
   GroupedLogEntry,
   LoadMoreLogEntry,
+  RangeEdgeLogEntry,
   SkippedLogsEntry,
   type Level,
   type LogEntry,
@@ -85,7 +86,8 @@ export function toViewLogLines(entries: LogEntry<LogMessage>[], withContainer: b
     const entry = entries[i];
     // Placeholders are chrome, not log: the assistant reading "load more" as a
     // line is worse than the gap it stands for.
-    if (entry instanceof SkippedLogsEntry || entry instanceof LoadMoreLogEntry) continue;
+    if (entry instanceof SkippedLogsEntry || entry instanceof LoadMoreLogEntry || entry instanceof RangeEdgeLogEntry)
+      continue;
     const line = toViewLogLine(entry, withContainer);
     budget -= line.message.length;
     lines.push(line);

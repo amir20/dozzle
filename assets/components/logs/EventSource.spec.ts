@@ -132,6 +132,7 @@ describe("<ContainerEventSource />", () => {
             hasComplexLogs: ref(false),
             levels: new Set<Level>(["info"]),
             historical: ref(false),
+            timeRange: ref({ kind: "live" }),
           },
         },
       },

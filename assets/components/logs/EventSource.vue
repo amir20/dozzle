@@ -7,6 +7,13 @@
     </div>
     <span class="sr-only">Loading...</span>
   </ul>
+  <!-- A time range with nothing in it says where the log does have lines, rather
+       than the stream's "no logs yet", which reads as if the container never wrote any. -->
+  <RangeEmptyState
+    v-else-if="emptyRange && (emptyRange.kind === 'range' || !waitingForMoreLog) && !inSearch"
+    :container="entityContainer"
+    :range="emptyRange"
+  />
   <EmptyState
     v-else-if="noLogs && !waitingForMoreLog && !inSearch"
     data-testid="no-logs"
@@ -21,8 +28,9 @@
 
 <script lang="ts" setup generic="T">
 import { LogStreamSource } from "@/composable/logs/eventStreams";
-import { HistoricalContainer } from "@/models/Container";
+import { Container, HistoricalContainer } from "@/models/Container";
 import { LoadMoreLogEntry } from "@/models/LogEntry";
+import { isStreamLog } from "@/composable/cloud/alertMerger";
 const route = useRoute();
 
 const { entity, streamSource } = $defineProps<{
@@ -30,9 +38,19 @@ const { entity, streamSource } = $defineProps<{
   entity: T;
 }>();
 
-const { historical } = useLoggingContext();
+const { historical, timeRange } = useLoggingContext();
 
 const { messages, opened, loading, error, searchStatus } = streamSource(toRef(() => entity));
+
+const entityContainer = computed(
+  () => (entity instanceof HistoricalContainer ? entity.container : entity) as Container,
+);
+// Edge rows are not lines: a range holding only its two edges is empty.
+const emptyRange = computed(() => {
+  const range = timeRange.value;
+  if (range.kind === "live" || loading.value || messages.value.some(isStreamLog)) return undefined;
+  return range;
+});
 
 // While a search is running (or just finished), SearchStatus owns the empty
 // messaging, so suppress the generic "no logs" state to avoid the false signal.

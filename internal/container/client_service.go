@@ -19,6 +19,9 @@ type ClientService interface {
 	CheckImageUpdate(ctx context.Context, container Container, force bool) (imagecheck.Result, error)
 	LogsBetweenDates(ctx context.Context, container Container, from time.Time, to time.Time, stdTypes StdType) (<-chan *LogEvent, error)
 	RawLogs(context.Context, Container, time.Time, time.Time, StdType) (io.ReadCloser, error)
+	// LogHistogram counts lines per bucket of width over [from, to). from and to
+	// must already be multiples of width.
+	LogHistogram(ctx context.Context, container Container, from time.Time, to time.Time, width time.Duration) (LogHistogram, error)
 
 	// Subscriptions
 	SubscribeStats(context.Context, chan<- ContainerStat)

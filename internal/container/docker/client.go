@@ -471,6 +471,18 @@ func (d *Client) ContainerLogsBetweenDates(ctx context.Context, id string, from 
 	return reader, nil
 }
 
+// ContainerLogsTail returns the newest `lines` lines of both streams, oldest
+// first, with timestamps. Unlike a read with `since`, the daemon seeks to them
+// from the end of the log instead of decoding it from the start.
+func (d *Client) ContainerLogsTail(ctx context.Context, id string, lines int) (io.ReadCloser, error) {
+	return d.cli.ContainerLogs(ctx, id, client.ContainerLogsOptions{
+		ShowStdout: true,
+		ShowStderr: true,
+		Timestamps: true,
+		Tail:       strconv.Itoa(lines),
+	})
+}
+
 func (d *Client) Ping(ctx context.Context) error {
 	_, err := d.cli.Ping(ctx, client.PingOptions{})
 	return err

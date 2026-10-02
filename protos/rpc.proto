@@ -25,6 +25,7 @@ service AgentService {
   rpc UpdateNotificationConfig(UpdateNotificationConfigRequest) returns (UpdateNotificationConfigResponse) {}
   rpc UpdateCloudConfig(UpdateCloudConfigRequest) returns (UpdateCloudConfigResponse) {}
   rpc GetNotificationStats(GetNotificationStatsRequest) returns (GetNotificationStatsResponse) {}
+  rpc LogHistogram(LogHistogramRequest) returns (LogHistogramResponse) {}
 }
 
 message ListContainersRequest {
@@ -176,4 +177,20 @@ message GetNotificationStatsRequest {}
 
 message GetNotificationStatsResponse {
   repeated NotificationSubscriptionStats stats = 1;
+}
+
+// Counted on the agent, next to the log, so only the buckets cross the wire.
+message LogHistogramRequest {
+  string containerId = 1;
+  google.protobuf.Timestamp from = 2;
+  google.protobuf.Timestamp to = 3;
+  int64 widthSeconds = 4;
+}
+
+message LogHistogramResponse {
+  repeated uint32 total = 1;
+  repeated uint32 errors = 2;
+  google.protobuf.Timestamp scannedFrom = 3;
+  google.protobuf.Timestamp before = 4;
+  google.protobuf.Timestamp after = 5;
 }

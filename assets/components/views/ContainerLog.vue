@@ -9,6 +9,9 @@
           v-if="container.state === 'running'"
         />
 
+        <!-- On a phone the toolbar's menu carries these rows instead. -->
+        <TimeRangeMenu v-if="!closable" class="max-md:hidden" :container="container" :range="timeRange" />
+        <TimeRangeDialog v-if="!closable" />
         <ContainerActionsToolbar @clear="viewer?.clear()" :container="container" />
         <button
           type="button"
@@ -36,17 +39,20 @@
 <script lang="ts" setup>
 import ViewerWithSource from "@/components/logs/ViewerWithSource.vue";
 import { ComponentExposed } from "vue-component-type-helpers";
+import type { TimeRange } from "@/composable/logs/timeRange";
 
 const {
   id,
   showTitle = false,
   scrollable = false,
   closable = false,
+  timeRange = { kind: "live" },
 } = defineProps<{
   id: string;
   showTitle?: boolean;
   scrollable?: boolean;
   closable?: boolean;
+  timeRange?: TimeRange;
 }>();
 
 const close = defineEmit();
@@ -58,6 +64,6 @@ const viewer = useTemplateRef<ComponentExposed<typeof ViewerWithSource>>("viewer
 
 provideLoggingContext(
   toRef(() => [container.value]),
-  { showContainerName: false, showHostname: false },
+  { showContainerName: false, showHostname: false, timeRange: toRef(() => timeRange) },
 );
 </script>

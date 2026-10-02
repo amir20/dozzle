@@ -9,7 +9,9 @@ import {
   ContainerEventLogEntry,
   ComplexLogEntry,
   LoadMoreLogEntry,
+  RangeEdgeLogEntry,
 } from "@/models/LogEntry";
+import { timeRangeRoute } from "./timeRange";
 import { Service, Stack } from "@/models/Stack";
 import { Container, GroupedContainers } from "@/models/Container";
 import { parseMessage } from "./loadBetween";
@@ -93,7 +95,11 @@ function useLogStream(url: Ref<string>, container?: Ref<Container>) {
   const error = ref(false);
   const searchStatus = ref<SearchStatus>({ active: false, done: false, matches: 0 });
   const { paused: scrollingPaused } = useScrollContext();
-  const { streamConfig, hasComplexLogs, levels, loadingMore, containers } = useLoggingContext();
+  const { streamConfig, hasComplexLogs, levels, loadingMore, containers, timeRange } = useLoggingContext();
+  const router = useRouter();
+  // "Live, from 15 minutes ago": the tail starts there and loading older stops there.
+  // Only a single container's view carries one.
+  const floor = computed(() => (container && timeRange.value.kind === "since" ? timeRange.value.since : undefined));
   let initial = true;
   // Set while a reconnected stream replays lines the view already shows.
   let resuming: ((entry: LogEntry<LogMessage>) => boolean) | null = null;
@@ -122,6 +128,19 @@ function useLogStream(url: Ref<string>, container?: Ref<Container>) {
     allContainers,
     params,
     loadingMore,
+    {
+      floor,
+      startEdge: () => {
+        const start = floor.value!;
+        const earlier = (ms: number) => () =>
+          router.replace(timeRangeRoute(container!.value.id, { kind: "since", since: new Date(start.getTime() - ms) }));
+        return new RangeEdgeLogEntry(start, "start", [
+          { label: "5m", run: earlier(5 * 60_000) },
+          { label: "15m", run: earlier(15 * 60_000) },
+          { label: "1h", run: earlier(60 * 60_000) },
+        ]);
+      },
+    },
   );
 
   function flushNow() {
@@ -181,9 +200,11 @@ function useLogStream(url: Ref<string>, container?: Ref<Container>) {
     buffer = [];
   }
 
-  const urlWithParams = computed(() =>
-    withBase(`${url.value}${url.value.includes("?") ? "&" : "?"}${params.value.toString()}`),
-  );
+  const urlWithParams = computed(() => {
+    const query = new URLSearchParams(params.value);
+    if (floor.value) query.set("since", floor.value.toISOString());
+    return withBase(`${url.value}${url.value.includes("?") ? "&" : "?"}${query.toString()}`);
+  });
 
   // Every connect replays each container's tail. A fresh one (first open, or the url
   // changed) starts the view over. A reconnect keeps what is on screen and drops the

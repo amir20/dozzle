@@ -11,14 +11,16 @@ import (
 	"time"
 
 	"github.com/amir20/dozzle/internal/container"
+	"github.com/amir20/dozzle/internal/container/histogram"
 	"github.com/amir20/dozzle/internal/container/logparse"
 	"github.com/amir20/dozzle/internal/imagecheck"
 )
 
 type Service struct {
-	client  *Client
-	store   *container.Store
-	checker *imagecheck.Checker
+	client     *Client
+	store      *container.Store
+	histograms *histogram.Counter
+	checker    *imagecheck.Checker
 }
 
 func NewService(client *Client, labels container.ContainerLabels) *Service {
@@ -27,9 +29,10 @@ func NewService(client *Client, labels container.ContainerLabels) *Service {
 		log.Fatal().Err(err).Msg("Could not create k8s stats collector")
 	}
 	return &Service{
-		client:  client,
-		store:   container.NewStore(context.Background(), client, statsCollector, labels),
-		checker: imagecheck.Shared(),
+		client:     client,
+		store:      container.NewStore(context.Background(), client, statsCollector, labels),
+		histograms: histogram.NewCounter(),
+		checker:    imagecheck.Shared(),
 	}
 }
 
@@ -67,6 +70,18 @@ func (k *Service) LogsBetweenDates(ctx context.Context, c container.Container, f
 	k8sReader := NewLogReader(reader)
 	g := logparse.NewEventGenerator(ctx, k8sReader, c)
 	return g.Events, nil
+}
+
+// LogHistogram counts the current run only: the previous one is served by a
+// separate request that cannot be tailed together with this one.
+func (k *Service) LogHistogram(ctx context.Context, c container.Container, from time.Time, to time.Time, width time.Duration) (container.LogHistogram, error) {
+	return k.histograms.Count(ctx, c.ID, from, to, width, func(ctx context.Context, lines int) (histogram.LineReader, io.Closer, error) {
+		reader, err := k.client.ContainerLogsTail(ctx, c.ID, lines)
+		if err != nil {
+			return nil, nil, err
+		}
+		return NewLogReader(reader), reader, nil
+	})
 }
 
 func (k *Service) RawLogs(ctx context.Context, container container.Container, from time.Time, to time.Time, stdTypes container.StdType) (io.ReadCloser, error) {

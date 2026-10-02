@@ -100,6 +100,11 @@ func (m *MockedClient) ContainerLogsBetweenDates(ctx context.Context, id string,
 	return args.Get(0).(io.ReadCloser), args.Error(1)
 }
 
+func (m *MockedClient) ContainerLogsTail(ctx context.Context, id string, lines int) (io.ReadCloser, error) {
+	args := m.Called(ctx, id, lines)
+	return args.Get(0).(io.ReadCloser), args.Error(1)
+}
+
 func (m *MockedClient) Host() container.Host {
 	args := m.Called()
 	return args.Get(0).(container.Host)

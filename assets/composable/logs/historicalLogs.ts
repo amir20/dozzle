@@ -1,10 +1,13 @@
 import { HistoricalContainer } from "@/models/Container";
-import { LogMessage, LoadMoreLogEntry, LogEntry } from "@/models/LogEntry";
+import { LogMessage, LoadMoreLogEntry, LogEntry, RangeEdgeLogEntry } from "@/models/LogEntry";
 import { ShallowRef } from "vue";
 import { loadBetween } from "./loadBetween";
+import { FETCH_PAGE } from "./logLoader";
+import { timeRangeRoute } from "./timeRange";
 import { useAlertMerger, isStreamLog } from "@/composable/cloud/alertMerger";
 
 export function useHistoricalContainerLog(historicalContainer: Ref<HistoricalContainer>): LogStreamSource {
+  const { t } = useI18n();
   const messages: ShallowRef<LogEntry<LogMessage>[]> = shallowRef([]);
   const opened = ref(false);
   const loading = ref(true);
@@ -43,9 +46,71 @@ export function useHistoricalContainerLog(historicalContainer: Ref<HistoricalCon
   const { withAlerts, decorateVisible, alertsAvailable } = useAlertMerger(messages, containers, params, anchor);
 
   const route = useRoute();
+  const router = useRouter();
+  const until = computed(() => historicalContainer.value.until);
+
+  // The ends of a range. Moving the start opens a new window, so it navigates;
+  // moving the end only lets the bottom keep loading, so the window stays.
+  function startEdge() {
+    const { date, until: end } = historicalContainer.value;
+    const earlier = (ms: number) => () =>
+      router.replace(
+        timeRangeRoute(container.value.id, { kind: "range", from: new Date(date.getTime() - ms), until: end! }),
+      );
+    return new RangeEdgeLogEntry(date, "start", [
+      { label: "1m", run: earlier(60_000) },
+      { label: "5m", run: earlier(5 * 60_000) },
+      { label: "15m", run: earlier(15 * 60_000) },
+    ]);
+  }
+
+  function endEdge() {
+    const { date, until: end } = historicalContainer.value;
+    const later = (ms: number) => () =>
+      router.replace(
+        timeRangeRoute(container.value.id, { kind: "range", from: date, until: new Date(end!.getTime() + ms) }),
+      );
+    return new RangeEdgeLogEntry(end!, "end", [
+      { label: "1m", run: later(60_000) },
+      { label: "5m", run: later(5 * 60_000) },
+      {
+        label: t("time-range.to-now"),
+        run: () => router.push(timeRangeRoute(container.value.id, { kind: "since", since: date })),
+      },
+    ]);
+  }
+
+  // A range reads forward from its start, a page at a time, and each page is a
+  // read of the log from its beginning on Docker's side: pages are as large as
+  // a fetch allows so a range takes as few of them as it can.
+  async function loadRange(end: Date) {
+    const { logs } = await loadBetween(container, params, historicalContainer.value.date, end, {
+      maxStart: FETCH_PAGE,
+    });
+    const bottom = logs.length < FETCH_PAGE ? endEdge() : new LoadMoreLogEntry(new Date(), loadNewerLogs, false);
+    messages.value = [startEdge(), ...(await withAlerts(logs)), bottom];
+  }
+
+  // A later end reopens the bottom of a window that had reached the old one.
+  watch(until, (end, previous) => {
+    if (!end || !previous || end <= previous) return;
+    const last = messages.value.at(-1);
+    if (last instanceof RangeEdgeLogEntry && last.edge === "end") {
+      messages.value = [...messages.value.slice(0, -1), new LoadMoreLogEntry(new Date(), loadNewerLogs, false)];
+    }
+  });
+
   async function loadLogs() {
     loadingMore.value = true;
     try {
+      if (until.value) {
+        const wasLinked = alertsAvailable.value;
+        await loadRange(until.value);
+        loading.value = false;
+        opened.value = true;
+        if (!wasLinked && alertsAvailable.value) decorateVisible();
+        return;
+      }
       const lastSeenId = route.query.logId ? +route.query.logId : undefined;
       const [{ logs: before }, { logs: after }] = await Promise.all([
         loadBetween(
@@ -124,21 +189,31 @@ export function useHistoricalContainerLog(historicalContainer: Ref<HistoricalCon
       // Last real line, for the same reason loadOlderLogs skips back past the
       // synthetic rows.
       const item = messages.value.findLast(isStreamLog);
-      if (!item) return;
-      const { logs, signal } = await loadBetween(container, params, item.date, new Date(), {
-        maxStart: 100,
-        startId: item.id,
-      });
+      const end = until.value;
+      // An empty range has no line to continue from, only its start.
+      if (!item && !end) return;
+      const { logs, signal } = await loadBetween(
+        container,
+        params,
+        item?.date ?? historicalContainer.value.date,
+        end ?? new Date(),
+        {
+          maxStart: end ? FETCH_PAGE : 100,
+          startId: item?.id,
+        },
+      );
 
       if (signal.aborted) {
         return;
       }
 
-      if (!logs.length) {
+      // Inside a range, a short page means the end is reached.
+      const reachedEnd = end !== undefined && logs.length < FETCH_PAGE;
+      if (!logs.length && !reachedEnd) {
         return;
       }
 
-      const loader = messages.value.at(-1)!;
+      const loader = reachedEnd ? endEdge() : messages.value.at(-1)!;
       const rest = messages.value.slice(0, -1);
       messages.value = [...rest, ...(await withAlerts(logs)), loader];
     } catch (error) {

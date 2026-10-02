@@ -50,6 +50,7 @@ type ClientService interface {
 	CheckImageUpdate(ctx context.Context, container container.Container, force bool) (imagecheck.Result, error)
 	LogsBetweenDates(ctx context.Context, container container.Container, from time.Time, to time.Time, stdTypes container.StdType) (<-chan *container.LogEvent, error)
 	RawLogs(ctx context.Context, container container.Container, from time.Time, to time.Time, stdTypes container.StdType) (io.ReadCloser, error)
+	LogHistogram(ctx context.Context, container container.Container, from time.Time, to time.Time, width time.Duration) (container.LogHistogram, error)
 	SubscribeStats(context.Context, chan<- container.ContainerStat)
 	SubscribeEvents(context.Context, chan<- container.ContainerEvent)
 	SubscribeContainersStarted(context.Context, chan<- container.Container)
@@ -104,6 +105,30 @@ func (s *server) StreamLogs(in *pb.StreamLogsRequest, out pb.AgentService_Stream
 	}
 
 	return nil
+}
+
+func (s *server) LogHistogram(ctx context.Context, in *pb.LogHistogramRequest) (*pb.LogHistogramResponse, error) {
+	c, err := s.service.FindContainer(ctx, in.ContainerId, container.ContainerLabels{})
+	if err != nil {
+		return nil, err
+	}
+
+	h, err := s.service.LogHistogram(ctx, c, in.From.AsTime(), in.To.AsTime(), time.Duration(in.WidthSeconds)*time.Second)
+	if err != nil {
+		return nil, err
+	}
+
+	resp := &pb.LogHistogramResponse{Total: h.Total, Errors: h.Errors}
+	if !h.ScannedFrom.IsZero() {
+		resp.ScannedFrom = timestamppb.New(h.ScannedFrom)
+	}
+	if !h.Before.IsZero() {
+		resp.Before = timestamppb.New(h.Before)
+	}
+	if !h.After.IsZero() {
+		resp.After = timestamppb.New(h.After)
+	}
+	return resp, nil
 }
 
 func (s *server) LogsBetweenDates(in *pb.LogsBetweenDatesRequest, out pb.AgentService_LogsBetweenDatesServer) error {

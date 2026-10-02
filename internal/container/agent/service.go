@@ -37,6 +37,10 @@ func (a *service) LogsBetweenDates(ctx context.Context, container container.Cont
 	return a.client.LogsBetweenDates(ctx, container.ID, from, to, stdTypes)
 }
 
+func (a *service) LogHistogram(ctx context.Context, container container.Container, from time.Time, to time.Time, width time.Duration) (container.LogHistogram, error) {
+	return a.client.LogHistogram(ctx, container.ID, from, to, width)
+}
+
 func (a *service) StreamLogs(ctx context.Context, container container.Container, from time.Time, stdTypes container.StdType, events chan<- *container.LogEvent) error {
 	return a.client.StreamContainerLogs(ctx, container.ID, from, stdTypes, events)
 }

@@ -36,6 +36,7 @@ const (
 	AgentService_UpdateNotificationConfig_FullMethodName = "/protobuf.AgentService/UpdateNotificationConfig"
 	AgentService_UpdateCloudConfig_FullMethodName        = "/protobuf.AgentService/UpdateCloudConfig"
 	AgentService_GetNotificationStats_FullMethodName     = "/protobuf.AgentService/GetNotificationStats"
+	AgentService_LogHistogram_FullMethodName             = "/protobuf.AgentService/LogHistogram"
 )
 
 // AgentServiceClient is the client API for AgentService service.
@@ -59,6 +60,7 @@ type AgentServiceClient interface {
 	UpdateNotificationConfig(ctx context.Context, in *UpdateNotificationConfigRequest, opts ...grpc.CallOption) (*UpdateNotificationConfigResponse, error)
 	UpdateCloudConfig(ctx context.Context, in *UpdateCloudConfigRequest, opts ...grpc.CallOption) (*UpdateCloudConfigResponse, error)
 	GetNotificationStats(ctx context.Context, in *GetNotificationStatsRequest, opts ...grpc.CallOption) (*GetNotificationStatsResponse, error)
+	LogHistogram(ctx context.Context, in *LogHistogramRequest, opts ...grpc.CallOption) (*LogHistogramResponse, error)
 }
 
 type agentServiceClient struct {
@@ -308,6 +310,16 @@ func (c *agentServiceClient) GetNotificationStats(ctx context.Context, in *GetNo
 	return out, nil
 }
 
+func (c *agentServiceClient) LogHistogram(ctx context.Context, in *LogHistogramRequest, opts ...grpc.CallOption) (*LogHistogramResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(LogHistogramResponse)
+	err := c.cc.Invoke(ctx, AgentService_LogHistogram_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // AgentServiceServer is the server API for AgentService service.
 // All implementations must embed UnimplementedAgentServiceServer
 // for forward compatibility.
@@ -329,6 +341,7 @@ type AgentServiceServer interface {
 	UpdateNotificationConfig(context.Context, *UpdateNotificationConfigRequest) (*UpdateNotificationConfigResponse, error)
 	UpdateCloudConfig(context.Context, *UpdateCloudConfigRequest) (*UpdateCloudConfigResponse, error)
 	GetNotificationStats(context.Context, *GetNotificationStatsRequest) (*GetNotificationStatsResponse, error)
+	LogHistogram(context.Context, *LogHistogramRequest) (*LogHistogramResponse, error)
 	mustEmbedUnimplementedAgentServiceServer()
 }
 
@@ -389,6 +402,9 @@ func (UnimplementedAgentServiceServer) UpdateCloudConfig(context.Context, *Updat
 }
 func (UnimplementedAgentServiceServer) GetNotificationStats(context.Context, *GetNotificationStatsRequest) (*GetNotificationStatsResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method GetNotificationStats not implemented")
+}
+func (UnimplementedAgentServiceServer) LogHistogram(context.Context, *LogHistogramRequest) (*LogHistogramResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method LogHistogram not implemented")
 }
 func (UnimplementedAgentServiceServer) mustEmbedUnimplementedAgentServiceServer() {}
 func (UnimplementedAgentServiceServer) testEmbeddedByValue()                      {}
@@ -646,6 +662,24 @@ func _AgentService_GetNotificationStats_Handler(srv interface{}, ctx context.Con
 	return interceptor(ctx, in, info, handler)
 }
 
+func _AgentService_LogHistogram_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(LogHistogramRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AgentServiceServer).LogHistogram(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AgentService_LogHistogram_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AgentServiceServer).LogHistogram(ctx, req.(*LogHistogramRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // AgentService_ServiceDesc is the grpc.ServiceDesc for AgentService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -684,6 +718,10 @@ var AgentService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetNotificationStats",
 			Handler:    _AgentService_GetNotificationStats_Handler,
+		},
+		{
+			MethodName: "LogHistogram",
+			Handler:    _AgentService_LogHistogram_Handler,
 		},
 	},
 	Streams: []grpc.StreamDesc{

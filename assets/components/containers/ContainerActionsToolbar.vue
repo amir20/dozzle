@@ -74,6 +74,31 @@
         </a>
       </li>
       <li class="section">{{ $t("toolbar.section-filters") }}</li>
+      <!-- A phone has no room for the time chip in the title bar, so it lives here. -->
+      <li v-if="isMobile && !historical">
+        <details>
+          <summary>
+            <mdi:clock-outline />
+            {{ $t("time-range.title") }}
+            <span class="value">{{ timeLabel }}</span>
+          </summary>
+          <ul class="menu">
+            <li v-for="row in timeRows" :key="row.key">
+              <a @click="row.run()">
+                <mdi:check class="w-4" v-if="row.active" />
+                <div v-else class="w-4"></div>
+                {{ row.label }}
+              </a>
+            </li>
+            <li>
+              <a @click="customRange()">
+                <mdi:calendar-range class="w-4" />
+                {{ $t("time-range.custom") }}…
+              </a>
+            </li>
+          </ul>
+        </details>
+      </li>
       <li>
         <details>
           <summary>
@@ -289,6 +314,7 @@
 <script lang="ts" setup>
 import { Container } from "@/models/Container";
 import { allLevels } from "@/composable/logs/logContext";
+import { appendRangeParams } from "@/composable/logs/timeRange";
 import LogAnalytics from "@/components/logs/LogAnalytics.vue";
 import Terminal from "./Terminal.vue";
 
@@ -297,7 +323,15 @@ const { linked: cloudLinked } = useCloudSurface();
 const { openRail, openCloud } = useCloudRail();
 const { unseen: unseenAlerts } = useViewAlerts();
 const { enableActions, enableShell, enableDownload } = config;
-const { streamConfig, hasComplexLogs, levels } = useLoggingContext();
+const { streamConfig, hasComplexLogs, levels, timeRange } = useLoggingContext();
+const {
+  rows: timeRows,
+  label: timeLabel,
+  custom: customRange,
+} = useTimeRangeMenu(
+  () => container,
+  () => timeRange.value,
+);
 const showDrawer = useDrawer();
 
 const { container, historical = false } = defineProps<{ container: Container; historical?: boolean }>();
@@ -357,6 +391,7 @@ async function copyLogs() {
   if (streamConfig.value.stdout) params.append("stdout", "1");
   if (streamConfig.value.stderr) params.append("stderr", "1");
   params.append("everything", "1");
+  appendRangeParams(params, timeRange.value);
 
   const { appliedSearchFilter } = useSearchFilter();
   if (appliedSearchFilter.value) {

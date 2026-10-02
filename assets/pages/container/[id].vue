@@ -1,6 +1,6 @@
 <template>
   <Search />
-  <ContainerLog :id show-title :scrollable="pinnedLogs.length > 0" v-if="currentContainer" />
+  <ContainerLog :id show-title :scrollable="pinnedLogs.length > 0" :time-range="timeRange" v-if="currentContainer" />
   <NotFound v-else-if="ready" :title="$t('error.container-not-found')" :hint="$t('error.container-not-found-hint')">
     <template #icon><octicon:container-24 class="size-5" /></template>
   </NotFound>
@@ -8,8 +8,12 @@
 
 <script lang="ts" setup>
 import { type Container } from "@/models/Container";
+import { parseSince } from "@/composable/logs/timeRange";
 const route = useRoute("/container/[id]");
 const id = toRef(() => route.params.id);
+// A relative start ("last 15m") resolves when the query changes, not on every
+// render, so the stream's URL stays put while the view is open.
+const timeRange = computed(() => parseSince(route.query.since));
 const containerStore = useContainerStore();
 const currentContainer = containerStore.currentContainer(id);
 const { ready } = storeToRefs(containerStore);
