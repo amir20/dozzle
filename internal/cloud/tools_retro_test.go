@@ -6,6 +6,7 @@ import (
 	"strings"
 	"testing"
 	"time"
+	"unicode/utf8"
 
 	"github.com/amir20/dozzle/internal/container"
 	pb "github.com/amir20/dozzle/proto/cloud"
@@ -164,4 +165,31 @@ func TestRetroScanIsNeverOfferedToAModel(t *testing.T) {
 		}
 	}
 	t.Fatal("retro_scan must be listed")
+}
+
+// A crash-looping container's earlier runs are in the same log file; reading
+// only the latest run would report near-zero counts next to 40 restarts.
+func TestRetroScanReadsEveryRunInTheWindow(t *testing.T) {
+	svc := &scriptedLogs{fakeClientService: newFakeClientService("h"), logs: map[string][]*container.LogEvent{
+		"loop": lines(40, "error", "crash %d", 30*time.Minute),
+	}}
+	c := scan(t, context.Background(), svc, []container.Container{{
+		ID: "loop", State: "running", RestartCount: 40,
+		Created: scanNow.Add(-48 * time.Hour), StartedAt: scanNow.Add(-3 * time.Minute),
+	}}).Containers[0]
+	assert.EqualValues(t, 40, c.LevelCounts["error"], "every run since the window opened, not just the latest")
+	assert.Equal(t, scanNow.Add(-24*time.Hour).Format(time.RFC3339), c.From)
+}
+
+func TestClipUTF8NeverSplitsARune(t *testing.T) {
+	msg := strings.Repeat("a", 2047) + "é" + "tail"
+	got := clipUTF8(msg, 2048)
+	assert.True(t, utf8.ValidString(got))
+	assert.Equal(t, 2047, len(got), "the partial rune is dropped, not kept")
+	assert.True(t, utf8.ValidString(clipUTF8("bad \xff byte", 100)))
+}
+
+func TestUpdateContainerKeepsALongBudget(t *testing.T) {
+	assert.Greater(t, toolCallTimeout(toolUpdateContainer), 10*time.Minute, "image pulls run on the call's context")
+	assert.Greater(t, toolCallTimeout(toolRetroScan), retroMaxDeadline)
 }

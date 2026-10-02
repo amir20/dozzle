@@ -8,6 +8,7 @@ import (
 	"strings"
 	"sync"
 	"time"
+	"unicode/utf8"
 
 	"github.com/amir20/dozzle/internal/container"
 	pb "github.com/amir20/dozzle/proto/cloud"
@@ -141,9 +142,14 @@ feed:
 }
 
 func scanOne(ctx context.Context, c container.Container, since, now time.Time, levels []string, find func(container.Container) (*container.ContainerService, error)) *pb.RetroScanContainer {
+	// Clamp to when the container was created, not when its latest run
+	// started: Docker's json-file and local drivers keep one log across
+	// restarts, so a container that crash-looped forty times today and last
+	// restarted three minutes ago still has the whole day to read — and is
+	// the one a retro review most needs to see.
 	from, to := since, now
-	if c.StartedAt.After(from) {
-		from = c.StartedAt
+	if c.Created.After(from) {
+		from = c.Created
 	}
 	if c.State != "running" && !c.FinishedAt.IsZero() && c.FinishedAt.Before(to) {
 		to = c.FinishedAt
@@ -185,9 +191,7 @@ func scanOne(ctx context.Context, c container.Container, since, now time.Time, l
 		if msg == "" {
 			msg = fmt.Sprintf("%v", ev.Message)
 		}
-		if len(msg) > retroMaxLineBytes {
-			msg = msg[:retroMaxLineBytes]
-		}
+		msg = clipUTF8(msg, retroMaxLineBytes)
 		kept = append(kept, &pb.LogEntry{Timestamp: ev.Timestamp, Message: msg, Stream: ev.Stream, Level: level})
 		keptBytes += len(msg)
 		// Newest win: lines arrive oldest first, so drop from the front.
@@ -236,4 +240,20 @@ func capTotal(cs []*pb.RetroScanContainer, limit int) bool {
 		c.LinesTruncated = true
 	}
 	return true
+}
+
+// clipUTF8 cuts msg to at most n bytes on a rune boundary and replaces any
+// invalid bytes. LogEntry.message is a proto3 string: one invalid byte fails
+// the marshal, and with every container in one message that loses the whole
+// scan (grpc-go tears the stream down on a failed send).
+func clipUTF8(msg string, n int) string {
+	msg = strings.ToValidUTF8(msg, "\uFFFD")
+	if len(msg) <= n {
+		return msg
+	}
+	cut := n
+	for cut > 0 && !utf8.RuneStart(msg[cut]) {
+		cut--
+	}
+	return msg[:cut]
 }

@@ -485,8 +485,14 @@ func (c *Client) handleRequest(ctx context.Context, req *pb.ToolRequest) *pb.Too
 // deadline (at most retroMaxDeadline) and gets a margin past it; everything
 // else is interactive and has no business running for minutes.
 func toolCallTimeout(name string) time.Duration {
-	if name == toolRetroScan {
+	switch name {
+	case toolRetroScan:
 		return retroMaxDeadline + 30*time.Second
+	case toolUpdateContainer:
+		// Pulls the image on this context: a multi-GB image on a slow link
+		// takes a long time, and had no bound at all before calls got one.
+		// Still cancellable by request id, which is what frees the slot.
+		return 30 * time.Minute
 	}
 	return 2 * time.Minute
 }
