@@ -1,6 +1,6 @@
 ---
 title: Kubernetes-Unterstützung
-sourceHash: b3fed93e4dd1
+sourceHash: d55c7e2a0ec6
 ---
 
 # Kubernetes-Unterstützung
@@ -152,6 +152,20 @@ Zum Löschen von Pods braucht Dozzle eine Berechtigung, die die schreibgeschütz
 - apiGroups: [""]
   resources: ["pods"]
   verbs: ["delete"]
+```
+
+### Rollout-Neustart
+
+Für einen Workload mit mehreren Replikas ist es das falsche Werkzeug, Pods einzeln neu zu starten. Ein Container, der zu einem Deployment, StatefulSet oder DaemonSet gehört, bekommt in seinem Menü zusätzlich die Aktion **Deployment neu starten** (bzw. StatefulSet oder DaemonSet), und dieselbe Aktion steht im Menü der zusammengeführten Ansicht des Workloads in der Seitenleiste. Sie macht dasselbe wie `kubectl rollout restart`: Der Controller ersetzt alle Pods nach der Rollout-Strategie des Workloads, `maxUnavailable` wird also eingehalten. Ein Pod mit `imagePullPolicy: Always` lädt dabei sein Image neu, so bekommt ein `:latest`-Tag ein neues Image.
+
+Jobs, CronJobs und eigenständige ReplicaSets lassen sich nicht ausrollen, deshalb erscheint die Aktion bei ihnen nicht. Wie jede andere Aktion erreicht sie nur Workloads, deren Pods die Filter von Dozzle passieren.
+
+Für den Rollout braucht Dozzle die Berechtigung, den Workload zu patchen. Füge diese Regel zur ClusterRole hinzu:
+
+```yaml
+- apiGroups: ["apps"]
+  resources: ["deployments", "statefulsets", "daemonsets"]
+  verbs: ["patch"]
 ```
 
 ## <Icon icon="mdi:filter-variant" inline /> Namespaces und Filter

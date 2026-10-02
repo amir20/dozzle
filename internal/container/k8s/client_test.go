@@ -345,6 +345,42 @@ func replicaSetOwner() k8sOwner {
 	})
 }
 
+func TestRolloutRestartStampsPodTemplate(t *testing.T) {
+	deployment := &appsv1.Deployment{Namespace: "default", Name: "api"}
+	statefulSet := &appsv1.StatefulSet{Namespace: "default", Name: "db"}
+	daemonSet := &appsv1.DaemonSet{Namespace: "default", Name: "agent"}
+	client := &Client{Clientset: k8sfake.NewSimpleClientset(deployment, statefulSet, daemonSet)}
+	apps := client.Clientset.AppsV1()
+
+	require.NoError(t, client.RolloutRestart(t.Context(), "default", "Deployment", "api"))
+	require.NoError(t, client.RolloutRestart(t.Context(), "default", "StatefulSet", "db"))
+	require.NoError(t, client.RolloutRestart(t.Context(), "default", "DaemonSet", "agent"))
+
+	d, err := apps.Deployments("default").Get(t.Context(), "api", metav1.GetOptions{})
+	require.NoError(t, err)
+	assert.NotEmpty(t, d.Spec.Template.Annotations["kubectl.kubernetes.io/restartedAt"])
+	s, err := apps.StatefulSets("default").Get(t.Context(), "db", metav1.GetOptions{})
+	require.NoError(t, err)
+	assert.NotEmpty(t, s.Spec.Template.Annotations["kubectl.kubernetes.io/restartedAt"])
+	ds, err := apps.DaemonSets("default").Get(t.Context(), "agent", metav1.GetOptions{})
+	require.NoError(t, err)
+	assert.NotEmpty(t, ds.Spec.Template.Annotations["kubectl.kubernetes.io/restartedAt"])
+}
+
+func TestRolloutRestartRefusesOtherKinds(t *testing.T) {
+	client := &Client{Clientset: k8sfake.NewSimpleClientset()}
+
+	err := client.RolloutRestart(t.Context(), "default", "CronJob", "nightly")
+	assert.ErrorIs(t, err, errors.ErrUnsupported)
+}
+
+func TestRolloutRestartReportsMissingWorkload(t *testing.T) {
+	client := &Client{Clientset: k8sfake.NewSimpleClientset()}
+
+	err := client.RolloutRestart(t.Context(), "default", "Deployment", "gone")
+	assert.True(t, apierrors.IsNotFound(err))
+}
+
 func newTestK8sClient(t *testing.T, objects ...runtime.Object) *Client {
 	scheme := runtime.NewScheme()
 	require.NoError(t, corev1.AddToScheme(scheme))

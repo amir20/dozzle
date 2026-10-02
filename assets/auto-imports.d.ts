@@ -52,6 +52,7 @@ declare global {
   const computedInject: typeof import('@vueuse/core').computedInject
   const computedWithControl: typeof import('@vueuse/core').computedWithControl
   const config: typeof import('./stores/config').default
+  const containerWorkload: typeof import('./composable/containers/rolloutRestart').containerWorkload
   const controlledComputed: typeof import('@vueuse/core').controlledComputed
   const controlledRef: typeof import('@vueuse/core').controlledRef
   const createApp: typeof import('vue').createApp
@@ -211,6 +212,7 @@ declare global {
   const relativeTimeTick: typeof import('./composable/ui/timeTicker').relativeTimeTick
   const resolveComponent: typeof import('vue').resolveComponent
   const resolveRef: typeof import('@vueuse/core').resolveRef
+  const rolloutWorkload: typeof import('./composable/containers/rolloutRestart').rolloutWorkload
   const routeKind: typeof import('./composable/logs/viewContext').routeKind
   const safeRedirect: typeof import('./composable/ui/safeRedirect').safeRedirect
   const scrollContextKey: typeof import('./composable/logs/scrollContext').scrollContextKey
@@ -433,6 +435,7 @@ declare global {
   const useRefHistory: typeof import('@vueuse/core').useRefHistory
   const useResizeObserver: typeof import('@vueuse/core').useResizeObserver
   const useResolvedTheme: typeof import('./composable/app/theme').useResolvedTheme
+  const useRolloutRestart: typeof import('./composable/containers/rolloutRestart').useRolloutRestart
   const useRoute: typeof import('vue-router/auto').useRoute
   const useRouter: typeof import('vue-router/auto').useRouter
   const useSQLEditorField: typeof import('./composable/editor/useSQLEditorField').useSQLEditorField
@@ -569,6 +572,9 @@ declare global {
   export type { ImageUpdateStatus, ImageUpdateResult } from './composable/containers/imageUpdate'
   import('./composable/containers/imageUpdate')
   // @ts-ignore
+  export type { K8sWorkload } from './composable/containers/rolloutRestart'
+  import('./composable/containers/rolloutRestart')
+  // @ts-ignore
   export type { ExprEditorOptions } from './composable/editor/exprEditor'
   import('./composable/editor/exprEditor')
   // @ts-ignore
@@ -665,6 +671,7 @@ declare module 'vue' {
     readonly computedInject: UnwrapRef<typeof import('@vueuse/core')['computedInject']>
     readonly computedWithControl: UnwrapRef<typeof import('@vueuse/core')['computedWithControl']>
     readonly config: UnwrapRef<typeof import('./stores/config')['default']>
+    readonly containerWorkload: UnwrapRef<typeof import('./composable/containers/rolloutRestart')['containerWorkload']>
     readonly controlledComputed: UnwrapRef<typeof import('@vueuse/core')['controlledComputed']>
     readonly controlledRef: UnwrapRef<typeof import('@vueuse/core')['controlledRef']>
     readonly createApp: UnwrapRef<typeof import('vue')['createApp']>
@@ -820,6 +827,7 @@ declare module 'vue' {
     readonly refWithControl: UnwrapRef<typeof import('@vueuse/core')['refWithControl']>
     readonly relativeTimeTick: UnwrapRef<typeof import('./composable/ui/timeTicker')['relativeTimeTick']>
     readonly resolveComponent: UnwrapRef<typeof import('vue')['resolveComponent']>
+    readonly rolloutWorkload: UnwrapRef<typeof import('./composable/containers/rolloutRestart')['rolloutWorkload']>
     readonly routeKind: UnwrapRef<typeof import('./composable/logs/viewContext')['routeKind']>
     readonly safeRedirect: UnwrapRef<typeof import('./composable/ui/safeRedirect')['safeRedirect']>
     readonly scrollContextKey: UnwrapRef<typeof import('./composable/logs/scrollContext')['scrollContextKey']>
@@ -1039,6 +1047,7 @@ declare module 'vue' {
     readonly useRefHistory: UnwrapRef<typeof import('@vueuse/core')['useRefHistory']>
     readonly useResizeObserver: UnwrapRef<typeof import('@vueuse/core')['useResizeObserver']>
     readonly useResolvedTheme: UnwrapRef<typeof import('./composable/app/theme')['useResolvedTheme']>
+    readonly useRolloutRestart: UnwrapRef<typeof import('./composable/containers/rolloutRestart')['useRolloutRestart']>
     readonly useRoute: UnwrapRef<typeof import('vue-router/auto')['useRoute']>
     readonly useRouter: UnwrapRef<typeof import('vue-router/auto')['useRouter']>
     readonly useSQLEditorField: UnwrapRef<typeof import('./composable/editor/useSQLEditorField')['useSQLEditorField']>

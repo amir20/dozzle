@@ -131,19 +131,32 @@
           </a>
         </li>
       </template>
+
+      <template v-if="workload">
+        <li class="section">{{ $t("toolbar.section-workload") }}</li>
+        <li>
+          <button @click="rolloutRestart(workload)" :disabled="restarting">
+            <carbon:renew :class="{ 'animate-spin': restarting, 'text-secondary': restarting }" />
+            {{ $t("toolbar.rollout-restart", { kind: workload.kind }) }}
+          </button>
+        </li>
+      </template>
     </ul>
   </Popover>
 </template>
 
 <script lang="ts" setup>
 import { allLevels } from "@/composable/logs/logContext";
+import type { K8sWorkload } from "@/composable/containers/rolloutRestart";
 
 const { showSearch } = useSearchFilter();
 const { enableDownload } = config;
 const clear = defineEmit();
 const { t } = useI18n();
 
-const { name } = defineProps<{ name?: string }>();
+// A k8s workload adds a rollout restart; every other merged view leaves it unset.
+const { name, workload } = defineProps<{ name?: string; workload?: K8sWorkload }>();
+const { restarting, rolloutRestart } = useRolloutRestart();
 
 const { streamConfig, showHostname, showContainerName, containers, levels } = useLoggingContext();
 

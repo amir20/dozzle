@@ -13,6 +13,8 @@ toolbar:
   stop: Hentikan
   start: Mulai
   restart: Mulai ulang
+  rollout-restart: "Mulai ulang {kind}"
+  rollout-restart-done: "{workload} sedang meluncurkan pod baru."
   update: Perbarui
   update-service: Perbarui Layanan
   update-pulling: Mengunduh image terbaru...
@@ -47,6 +49,7 @@ toolbar:
   section-export: Ekspor
   section-container: Kontainer
   section-image: Image
+  section-workload: "Workload"
 action:
   copy-log: Salin log
   copy-link: Salin permalink

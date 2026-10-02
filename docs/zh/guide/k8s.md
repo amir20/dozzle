@@ -1,6 +1,6 @@
 ---
 title: Kubernetes 支持
-sourceHash: b3fed93e4dd1
+sourceHash: d55c7e2a0ec6
 ---
 
 # Kubernetes 支持
@@ -151,6 +151,20 @@ kubectl top pod
 - apiGroups: [""]
   resources: ["pods"]
   verbs: ["delete"]
+```
+
+### 滚动重启
+
+对于有多个副本的工作负载，逐个重启 Pod 并不合适。属于 Deployment、StatefulSet 或 DaemonSet 的容器，其菜单中还会多出一个 **重启 Deployment**（或 StatefulSet、DaemonSet）操作，侧边栏中该工作负载的合并视图菜单里也有同样的操作。它的效果与 `kubectl rollout restart` 相同：控制器按照工作负载自身的发布策略替换所有 Pod，因此会遵守 `maxUnavailable`。`imagePullPolicy: Always` 的 Pod 会在此过程中重新拉取镜像，`:latest` 标签就是这样获取新镜像的。
+
+Job、CronJob 和独立的 ReplicaSet 无法滚动重启，因此不会显示该操作。和其他操作一样，它只作用于 Pod 通过 Dozzle 过滤条件的工作负载。
+
+滚动重启需要修补（patch）工作负载的权限。请在 ClusterRole 中添加以下规则：
+
+```yaml
+- apiGroups: ["apps"]
+  resources: ["deployments", "statefulsets", "daemonsets"]
+  verbs: ["patch"]
 ```
 
 ## <Icon icon="mdi:filter-variant" inline /> 命名空间与过滤

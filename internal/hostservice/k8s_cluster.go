@@ -2,6 +2,7 @@ package hostservice
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"slices"
 	"strings"
@@ -134,6 +135,30 @@ func (m *K8sClusterService) FindContainer(host string, id string, labels contain
 	}
 
 	return container.NewContainerService(m.client, c), nil
+}
+
+// ErrWorkloadNotFound means none of the workload's pods are visible to the caller.
+var ErrWorkloadNotFound = errors.New("workload not found")
+
+// RolloutRestart restarts a workload only if the caller can see at least one of its
+// pods, so a label filter that hides a workload also keeps it from being restarted.
+func (m *K8sClusterService) RolloutRestart(ctx context.Context, namespace, kind, name string, labels container.ContainerLabels) error {
+	containers, err := m.client.ListContainers(ctx, labels)
+	if err != nil {
+		return err
+	}
+	if !workloadVisible(containers, namespace, kind, name) {
+		return ErrWorkloadNotFound
+	}
+	return m.client.RolloutRestart(ctx, namespace, kind, name)
+}
+
+func workloadVisible(containers []container.Container, namespace, kind, name string) bool {
+	return slices.ContainsFunc(containers, func(c container.Container) bool {
+		return c.Labels["@k8s.namespace"] == namespace &&
+			c.Labels["@k8s.workload.kind"] == kind &&
+			c.Labels["@k8s.workload.name"] == name
+	})
 }
 
 func (m *K8sClusterService) ListContainersForHost(host string, labels container.ContainerLabels) ([]container.Container, error) {

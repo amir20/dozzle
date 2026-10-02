@@ -13,6 +13,8 @@ toolbar:
   stop: Остановить
   start: Запустить
   restart: Перезапустить
+  rollout-restart: "Перезапустить {kind}"
+  rollout-restart-done: "{workload} разворачивает новые поды."
   update: Обновить
   update-service: Обновить Сервис
   update-pulling: Загрузка последнего образа...
@@ -47,6 +49,7 @@ toolbar:
   section-export: Экспорт
   section-container: Контейнер
   section-image: Образ
+  section-workload: "Рабочая нагрузка"
 action:
   copy-log: Копировать лог
   copy-link: Копировать постоянную ссылку

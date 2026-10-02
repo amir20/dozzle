@@ -10,7 +10,12 @@
           </ContainerDropdown>
         </div>
         <MultiContainerStat class="ml-auto" :containers="owner.containers" />
-        <MultiContainerActionToolbar class="max-md:hidden" :name="owner.name" @clear="viewer?.clear()" />
+        <MultiContainerActionToolbar
+          class="max-md:hidden"
+          :name="owner.name"
+          :workload="workload"
+          @clear="viewer?.clear()"
+        />
       </div>
     </template>
     <template #default>
@@ -30,6 +35,7 @@ const { owner, scrollable = false } = defineProps<{
 }>();
 
 const viewer = ref<ComponentExposed<typeof ViewerWithSource>>();
+const workload = computed(() => rolloutWorkload(owner.namespaceName, owner.kind, owner.name));
 
 provideLoggingContext(
   toRef(() => owner.containers),
