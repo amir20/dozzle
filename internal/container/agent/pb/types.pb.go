@@ -102,6 +102,9 @@ type Container struct {
 	NetworkMode   string                 `protobuf:"bytes,24,opt,name=networkMode,proto3" json:"networkMode,omitempty"`
 	MountStats    []*MountStat           `protobuf:"bytes,25,rep,name=mountStats,proto3" json:"mountStats,omitempty"`
 	Mounts        []*Mount               `protobuf:"bytes,26,rep,name=mounts,proto3" json:"mounts,omitempty"`
+	RestartCount  int32                  `protobuf:"varint,27,opt,name=restartCount,proto3" json:"restartCount,omitempty"`
+	OomKilled     bool                   `protobuf:"varint,28,opt,name=oomKilled,proto3" json:"oomKilled,omitempty"`
+	ExitCode      int32                  `protobuf:"varint,29,opt,name=exitCode,proto3" json:"exitCode,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -309,6 +312,27 @@ func (x *Container) GetMounts() []*Mount {
 		return x.Mounts
 	}
 	return nil
+}
+
+func (x *Container) GetRestartCount() int32 {
+	if x != nil {
+		return x.RestartCount
+	}
+	return 0
+}
+
+func (x *Container) GetOomKilled() bool {
+	if x != nil {
+		return x.OomKilled
+	}
+	return false
+}
+
+func (x *Container) GetExitCode() int32 {
+	if x != nil {
+		return x.ExitCode
+	}
+	return 0
 }
 
 type ContainerStat struct {
@@ -1423,7 +1447,7 @@ var File_types_proto protoreflect.FileDescriptor
 
 const file_types_proto_rawDesc = "" +
 	"\n" +
-	"\vtypes.proto\x12\bprotobuf\x1a\x19google/protobuf/any.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xf6\x06\n" +
+	"\vtypes.proto\x12\bprotobuf\x1a\x19google/protobuf/any.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xd4\a\n" +
 	"\tContainer\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12\x14\n" +
@@ -1452,7 +1476,10 @@ const file_types_proto_rawDesc = "" +
 	"\n" +
 	"mountStats\x18\x19 \x03(\v2\x13.protobuf.MountStatR\n" +
 	"mountStats\x12'\n" +
-	"\x06mounts\x18\x1a \x03(\v2\x0f.protobuf.MountR\x06mounts\x1a9\n" +
+	"\x06mounts\x18\x1a \x03(\v2\x0f.protobuf.MountR\x06mounts\x12\"\n" +
+	"\frestartCount\x18\x1b \x01(\x05R\frestartCount\x12\x1c\n" +
+	"\toomKilled\x18\x1c \x01(\bR\toomKilled\x12\x1a\n" +
+	"\bexitCode\x18\x1d \x01(\x05R\bexitCode\x1a9\n" +
 	"\vLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01J\x04\b\x16\x10\x17\"\xa5\x02\n" +

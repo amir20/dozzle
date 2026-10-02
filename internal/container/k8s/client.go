@@ -211,23 +211,28 @@ func (k *Client) podToContainers(ctx context.Context, pod *corev1.Pod) []contain
 	containers := make([]container.Container, 0, len(pod.Spec.InitContainers)+len(pod.Spec.Containers))
 	add := func(c corev1.Container, labels map[string]string) {
 		state, containerStarted, finished := phaseToState(pod.Status.Phase), started, time.Time{}
+		var facts runFacts
 		if status, ok := statuses[c.Name]; ok {
 			state, containerStarted, finished = containerStatusToState(status, started)
+			facts = containerRunFacts(status)
 		}
 		containers = append(containers, container.Container{
-			ID:          pod.Namespace + ":" + pod.Name + ":" + c.Name,
-			Name:        pod.Name + "/" + c.Name,
-			Image:       c.Image,
-			Created:     pod.CreationTimestamp.Time,
-			State:       state,
-			StartedAt:   containerStarted,
-			FinishedAt:  finished,
-			Command:     strings.Join(c.Command, " "),
-			Host:        pod.Spec.NodeName,
-			Tty:         c.TTY,
-			Labels:      labels,
-			Stats:       utils.NewRingBuffer[container.ContainerStat](300),
-			FullyLoaded: true,
+			RestartCount: facts.restarts,
+			OOMKilled:    facts.oomKilled,
+			ExitCode:     facts.exitCode,
+			ID:           pod.Namespace + ":" + pod.Name + ":" + c.Name,
+			Name:         pod.Name + "/" + c.Name,
+			Image:        c.Image,
+			Created:      pod.CreationTimestamp.Time,
+			State:        state,
+			StartedAt:    containerStarted,
+			FinishedAt:   finished,
+			Command:      strings.Join(c.Command, " "),
+			Host:         pod.Spec.NodeName,
+			Tty:          c.TTY,
+			Labels:       labels,
+			Stats:        utils.NewRingBuffer[container.ContainerStat](300),
+			FullyLoaded:  true,
 		})
 	}
 	for _, c := range pod.Spec.InitContainers {
@@ -258,6 +263,28 @@ func containerStatusToState(status corev1.ContainerStatus, podStarted time.Time)
 	default:
 		return "created", podStarted, time.Time{}
 	}
+}
+
+type runFacts struct {
+	restarts  int
+	oomKilled bool
+	exitCode  int
+}
+
+// containerRunFacts reads what the last run ended with. A crash-looping
+// container is Waiting with the facts on LastTerminationState; one that ended
+// for good carries them on State.
+func containerRunFacts(status corev1.ContainerStatus) runFacts {
+	f := runFacts{restarts: int(status.RestartCount)}
+	t := status.State.Terminated
+	if t == nil {
+		t = status.LastTerminationState.Terminated
+	}
+	if t != nil {
+		f.oomKilled = t.Reason == "OOMKilled"
+		f.exitCode = int(t.ExitCode)
+	}
+	return f
 }
 
 func (k *Client) resolveOwnerChain(ctx context.Context, namespace string, refs []metav1.OwnerReference) []k8sOwner {

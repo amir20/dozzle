@@ -35,7 +35,7 @@ func TestAvailableTools_WithActionsEnabled(t *testing.T) {
 	assert.Contains(t, names, "create_log_notification")
 	assert.Contains(t, names, "create_metric_notification")
 	assert.Contains(t, names, "create_event_notification")
-	assert.Len(t, tools, 17)
+	assert.Len(t, tools, 18)
 }
 
 func TestAvailableTools_WithActionsDisabled(t *testing.T) {
@@ -53,7 +53,7 @@ func TestAvailableTools_WithActionsDisabled(t *testing.T) {
 	assert.Contains(t, names, "get_running_container_stats")
 	assert.Contains(t, names, "fetch_container_logs")
 	assert.Contains(t, names, "list_notifications")
-	assert.Len(t, tools, 9)
+	assert.Len(t, tools, 10)
 }
 
 func TestAvailableTools_ParametersAreValid(t *testing.T) {

@@ -37,6 +37,9 @@ message Container {
   string networkMode = 24;
   repeated MountStat mountStats = 25;
   repeated Mount mounts = 26;
+  int32 restartCount = 27;
+  bool oomKilled = 28;
+  int32 exitCode = 29;
 }
 
 message ContainerStat {

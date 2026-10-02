@@ -357,6 +357,11 @@ message ToolDefinition {
   // restart/etc.) must leave this false — the router will require the scope
   // argument and error if it's missing, so a write never fans out by mistake.
   bool read_only = 5;
+  // internal = true marks a tool for the cloud's own pipelines, never for a
+  // model: the cloud leaves it out of every LLM tool list. retro_scan reads a
+  // whole day of every container, which is not something a chat turn should
+  // be able to start.
+  bool internal = 6;
 }
 
 enum ToolScope {
@@ -393,6 +398,7 @@ message CallToolResponse {
     FetchLogsResult fetch_logs = 7;
     InspectContainerResult inspect_container = 8;
     NotificationResult notification = 12;
+    RetroScanResult retro_scan = 13;
   }
 
   // 11 was DeployResult deploy, removed with the native compose deploy feature.
@@ -496,6 +502,46 @@ message InspectContainerResult {
   repeated string mounts = 16;
   string restart_policy = 17;
   string network_mode = 18;
+  int32 restart_count = 20;
+  bool oom_killed = 21;
+  int32 exit_code = 22;
+}
+
+// retro_scan: one pass over every visible container's logs since a point in
+// time, for the cloud's first look at a newly linked instance. Each container
+// is read once, all requested levels at once, so counts are true counts rather
+// than the 100-line floors fetch_container_logs gives.
+message RetroScanResult {
+  repeated RetroScanContainer containers = 1;
+  // The total byte cap was hit: some containers kept their counts but lost
+  // lines (lines_truncated says which).
+  bool truncated = 2;
+  // The deadline ended the scan; containers it never reached have
+  // scanned = false.
+  bool deadline_exceeded = 3;
+}
+
+message RetroScanContainer {
+  string id = 1;
+  string name = 2;
+  string host_id = 3;
+  string state = 4;
+  // RFC3339 span actually read: from the requested start, or the container's
+  // start if later, to now or to when it stopped.
+  string from = 5;
+  string to = 6;
+  bool scanned = 7;
+  // Set when the logs could not be read at all (a syslog, gelf, fluentd or none
+  // log driver). Not a scan failure.
+  string error = 8;
+  // True counts per requested level.
+  map<string, int64> level_counts = 9;
+  // The newest matching lines, oldest first, under the per-container byte cap.
+  repeated LogEntry lines = 10;
+  bool lines_truncated = 11;
+  int32 restart_count = 12;
+  bool oom_killed = 13;
+  int32 exit_code = 14;
 }
 
 // Container action result

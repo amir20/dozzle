@@ -93,10 +93,12 @@ func TestStore_die(t *testing.T) {
 			ctx := args.Get(0).(context.Context)
 			events := args.Get(1).(chan<- ContainerEvent)
 			<-ready
+			events <- ContainerEvent{Name: "oom", ActorID: "1234", Host: "localhost"}
 			events <- ContainerEvent{
-				Name:    "die",
-				ActorID: "1234",
-				Host:    "localhost",
+				Name:            "die",
+				ActorID:         "1234",
+				Host:            "localhost",
+				ActorAttributes: map[string]string{"exitCode": "137"},
 			}
 			<-ctx.Done()
 		})
@@ -120,9 +122,12 @@ func TestStore_die(t *testing.T) {
 	store.SubscribeEvents(t.Context(), events)
 	close(ready)
 	<-events
+	<-events
 
 	containers, _ := store.ListContainers(t.Context(), ContainerLabels{})
 	assert.Equal(t, containers[0].State, "exited")
+	assert.Equal(t, 137, containers[0].ExitCode, "the die event carries the exit code")
+	assert.True(t, containers[0].OOMKilled, "the oom event marks the kill")
 }
 
 func TestStore_updateCreatedToExitedBroadcastsStart(t *testing.T) {

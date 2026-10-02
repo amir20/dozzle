@@ -173,3 +173,19 @@ func TestContainerEventsReportsInitialPodsAsUpdatesAndNewOnesAsCreates(t *testin
 		}
 	}
 }
+
+func TestContainerRunFactsReadsTheLastRun(t *testing.T) {
+	crashLoop := corev1.ContainerStatus{
+		RestartCount:         31,
+		State:                corev1.ContainerState{Waiting: &corev1.ContainerStateWaiting{Reason: "CrashLoopBackOff"}},
+		LastTerminationState: corev1.ContainerState{Terminated: &corev1.ContainerStateTerminated{Reason: "OOMKilled", ExitCode: 137}},
+	}
+	f := containerRunFacts(crashLoop)
+	if f.restarts != 31 || !f.oomKilled || f.exitCode != 137 {
+		t.Fatalf("crash loop facts = %+v", f)
+	}
+	done := corev1.ContainerStatus{State: corev1.ContainerState{Terminated: &corev1.ContainerStateTerminated{Reason: "Error", ExitCode: 1}}}
+	if f := containerRunFacts(done); f.oomKilled || f.exitCode != 1 {
+		t.Fatalf("terminated facts = %+v", f)
+	}
+}
