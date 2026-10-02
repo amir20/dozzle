@@ -24,8 +24,8 @@ services:
       - DOZZLE_NO_ANALYTICS=1
       - DOZZLE_HOSTNAME=custom name
     healthcheck: *dozzle-healthcheck
-    build:
-      context: .
+    image: dozzle_e2e:local
+    pull_policy: never
   simple-auth:
     container_name: dozzle_e2e_simple-auth
     volumes:
@@ -36,8 +36,8 @@ services:
       - DOZZLE_AUTH_PROVIDER=simple
       - DOZZLE_NO_ANALYTICS=1
     healthcheck: *dozzle-healthcheck
-    build:
-      context: .
+    image: dozzle_e2e:local
+    pull_policy: never
   dozzle:
     container_name: dozzle_e2e_dozzle
     volumes:
@@ -50,6 +50,11 @@ services:
     # Deliberately no healthcheck: this container is the subject of the visual
     # snapshots, and a healthcheck makes a health badge appear in the sidebar
     # (HostMenu.vue), which shifts the reference images.
+    # The only service that builds. Every other dozzle instance runs this same
+    # image by tag, so bake makes one target instead of seven: each target used
+    # to export its own copy of the cache and load its own copy of the image.
+    # The others set pull_policy: never, or compose tries Docker Hub for the tag.
+    image: dozzle_e2e:local
     build:
       context: .
   # Dedicated instance + noisy container so log streaming can be asserted without
@@ -63,8 +68,8 @@ services:
       - DOZZLE_NO_ANALYTICS=1
       - DOZZLE_HOSTNAME=logs
     healthcheck: *dozzle-healthcheck
-    build:
-      context: .
+    image: dozzle_e2e:local
+    pull_policy: never
     depends_on:
       - logspam
   logspam:
@@ -81,8 +86,8 @@ services:
       - DOZZLE_FILTER=name=^dozzle_e2e_dozzle$$
       - DOZZLE_NO_ANALYTICS=1
     healthcheck: *dozzle-healthcheck
-    build:
-      context: .
+    image: dozzle_e2e:local
+    pull_policy: never
     depends_on:
       proxy:
         condition: service_healthy
@@ -93,8 +98,8 @@ services:
       - DOZZLE_NO_ANALYTICS=1
       - DOZZLE_LEVEL=debug
     healthcheck: *dozzle-healthcheck
-    build:
-      context: .
+    image: dozzle_e2e:local
+    pull_policy: never
     depends_on:
       agent:
         condition: service_healthy
@@ -113,8 +118,8 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - ./e2e/data/notifications.yml:/data/notifications.yml:ro
-    build:
-      context: .
+    image: dozzle_e2e:local
+    pull_policy: never
   proxy:
     container_name: dozzle_e2e_proxy
     image: tecnativa/docker-socket-proxy
