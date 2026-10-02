@@ -11,6 +11,22 @@ import (
 	"k8s.io/apimachinery/pkg/api/resource"
 )
 
+// A workload is matched on namespace, kind and name together, so a same-named
+// Deployment in another namespace never counts as visible.
+func TestWorkloadVisible(t *testing.T) {
+	containers := []container.Container{{Labels: map[string]string{
+		"@k8s.namespace":     "default",
+		"@k8s.workload.kind": "Deployment",
+		"@k8s.workload.name": "api",
+	}}}
+
+	assert.True(t, workloadVisible(containers, "default", "Deployment", "api"))
+	assert.False(t, workloadVisible(containers, "prod", "Deployment", "api"))
+	assert.False(t, workloadVisible(containers, "default", "StatefulSet", "api"))
+	assert.False(t, workloadVisible(containers, "default", "Deployment", "web"))
+	assert.False(t, workloadVisible(nil, "default", "Deployment", "api"))
+}
+
 func TestNodeToHostReadsReadyCondition(t *testing.T) {
 	node := &corev1.Node{
 		Name: "worker-2",

@@ -44,6 +44,10 @@ func (k *Service) ListContainers(ctx context.Context, labels container.Container
 	return k.store.ListContainers(ctx, labels)
 }
 
+func (k *Service) RolloutRestart(ctx context.Context, namespace, kind, name string) error {
+	return k.client.RolloutRestart(ctx, namespace, kind, name)
+}
+
 func (k *Service) Host(ctx context.Context) (container.Host, error) {
 	return k.client.Host(), nil
 }

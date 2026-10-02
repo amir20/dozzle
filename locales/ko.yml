@@ -13,6 +13,8 @@ toolbar:
   stop: 중지
   start: 시작
   restart: 다시 시작
+  rollout-restart: "{kind} 다시 시작"
+  rollout-restart-done: "{workload}에서 새 파드를 배포하는 중입니다."
   update: 업데이트
   update-service: 서비스 업데이트
   update-pulling: 최신 이미지 가져오는 중...
@@ -47,6 +49,7 @@ toolbar:
   section-export: 내보내기
   section-container: 컨테이너
   section-image: 이미지
+  section-workload: "워크로드"
 action:
   copy-log: 로그 복사
   copy-link: 영구 링크 복사

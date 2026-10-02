@@ -23,6 +23,7 @@ import (
 	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime/schema"
+	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/client-go/discovery"
 	"k8s.io/client-go/discovery/cached/memory"
 	"k8s.io/client-go/dynamic"
@@ -855,6 +856,34 @@ func (k *Client) ContainerActions(ctx context.Context, action container.Containe
 	return pods.Delete(ctx, podName, metav1.DeleteOptions{
 		Preconditions: &metav1.Preconditions{UID: &pod.UID},
 	})
+}
+
+// RolloutRestart does what `kubectl rollout restart` does: it stamps the pod template
+// with the current time, and the controller replaces every pod under its own rollout
+// strategy, so maxUnavailable is respected and pods pull their image again if their
+// pull policy says so. Only the three kinds kubectl supports can be restarted.
+func (k *Client) RolloutRestart(ctx context.Context, namespace, kind, name string) error {
+	patch := fmt.Appendf(nil, `{"spec":{"template":{"metadata":{"annotations":{"kubectl.kubernetes.io/restartedAt":%q}}}}}`, time.Now().Format(time.RFC3339))
+	apps := k.Clientset.AppsV1()
+	opts := metav1.PatchOptions{}
+
+	var err error
+	switch kind {
+	case "Deployment":
+		_, err = apps.Deployments(namespace).Patch(ctx, name, types.StrategicMergePatchType, patch, opts)
+	case "StatefulSet":
+		_, err = apps.StatefulSets(namespace).Patch(ctx, name, types.StrategicMergePatchType, patch, opts)
+	case "DaemonSet":
+		_, err = apps.DaemonSets(namespace).Patch(ctx, name, types.StrategicMergePatchType, patch, opts)
+	default:
+		return fmt.Errorf("%s cannot be rolled out, only Deployment, StatefulSet and DaemonSet: %w", kind, errors.ErrUnsupported)
+	}
+	if err != nil {
+		return err
+	}
+
+	log.Info().Str("kind", kind).Str("name", name).Str("namespace", namespace).Msg("rollout restart")
+	return nil
 }
 
 func (k *Client) ContainerAttach(ctx context.Context, id string) (*container.ExecSession, error) {
