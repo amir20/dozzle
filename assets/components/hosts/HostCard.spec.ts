@@ -39,6 +39,7 @@ const i18n = createI18n({
         disk: "Disk",
         load: "Load",
         uptime: "Uptime",
+        core: "No cores | 1 core | {count} cores",
       },
     },
   },
@@ -128,7 +129,7 @@ describe("<HostCard />", () => {
     // 90061s is "1d 1h", and the disk is 800/1000 used (80%).
     expect(text).toContain("0.50");
     expect(text).not.toContain("0.40");
-    expect(wrapper.find('[title="1m 0.50 · 5m 0.40 · 15m 0.30"]').exists()).toBe(true);
+    expect(wrapper.find('[title="1m 0.50 · 5m 0.40 · 15m 0.30 · 4 cores"]').exists()).toBe(true);
     expect(text).toContain("1d 1h");
     expect(text).toContain("80%");
     expect(text).not.toContain("Network");
@@ -147,5 +148,40 @@ describe("<HostCard />", () => {
     // `host` has no metricsAvailable and no disk, so nothing should render.
     expect(wrapper.text()).not.toContain("Disk");
     expect(wrapper.text()).not.toContain("Load");
+  });
+
+  function mountWith(extra: Partial<Host>) {
+    global.EventSource = EventSource;
+    return mount(HostCard, {
+      props: { host: { ...host, ...extra } },
+      global: {
+        plugins: [i18n, createTestingPinia({ createSpy: vi.fn, initialState: { container: { containers: [] } } })],
+        stubs: { MetricCard: MetricCardStub, HostIcon: true },
+      },
+    });
+  }
+
+  // nCPU is 4: load only takes color once there is more than one runnable task per core.
+  test.each([
+    [3.9, "text-base-content/80"],
+    [4.1, "text-warning"],
+    [8.1, "text-error"],
+  ])("load %s on 4 cores is %s", (load1, expected) => {
+    const wrapper = mountWith({ metricsAvailable: true, load1 });
+    expect(wrapper.find(`span.font-mono.${expected.replace("/", "\\/")}`).text()).toBe(load1.toFixed(2));
+  });
+
+  // The bar follows the fullest drive, since that is the one that runs out, and the
+  // tooltip names each one once there is more than Docker's.
+  test("extra drives join the disk read-out", () => {
+    const wrapper = mountWith({
+      diskTotal: 1000,
+      diskFree: 600,
+      disks: [{ name: "media", total: 1000, free: 50 }],
+    });
+
+    expect(wrapper.text()).toContain("95%");
+    const title = wrapper.find('[title*="media"]').attributes("title")!;
+    expect(title.split("\n")).toEqual(["Docker 400 Bytes / 1000 Bytes (40%)", "media 950 Bytes / 1000 Bytes (95%)"]);
   });
 });

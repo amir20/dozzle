@@ -5,9 +5,15 @@ package container
 import (
 	"errors"
 	"os"
+	"path/filepath"
+	"sort"
 	"strconv"
 	"strings"
 )
+
+// hostDisksRoot is where operators mount extra drives to watch, one folder per
+// drive, next to /host/proc so everything describing the host lives under /host.
+const hostDisksRoot = "/host/disks"
 
 var errShort = errors.New("unexpected proc format")
 
@@ -78,6 +84,8 @@ func ReadHostMetrics(dockerRootDir string) (HostMetrics, bool) {
 		}
 	}
 
+	m.Disks = readDisks(hostDisksRoot)
+
 	proc, ok := hostProcRoot()
 	if !ok {
 		return m, false
@@ -120,4 +128,31 @@ func readUptime(path string) (uint64, error) {
 		return 0, err
 	}
 	return uint64(secs), nil
+}
+
+// readDisks reads each folder under root as one drive, named after the folder and
+// sorted by name so the tooltip order is stable. statfs only needs the mount
+// point, so an empty folder on the drive is enough. A folder statfs rejects is
+// skipped rather than shown as an empty drive.
+func readDisks(root string) []Disk {
+	entries, err := os.ReadDir(root)
+	if err != nil {
+		return nil
+	}
+	var disks []Disk
+	for _, entry := range entries {
+		// Stat, not entry.IsDir(), so a symlink to a mount point counts: that is
+		// how a native install points /host/disks at its drives.
+		path := filepath.Join(root, entry.Name())
+		if info, err := os.Stat(path); err != nil || !info.IsDir() {
+			continue
+		}
+		total, free, err := statfs(path)
+		if err != nil || total == 0 {
+			continue
+		}
+		disks = append(disks, Disk{Name: entry.Name(), Total: total, Free: free})
+	}
+	sort.Slice(disks, func(i, j int) bool { return disks[i].Name < disks[j].Name })
+	return disks
 }

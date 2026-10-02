@@ -7,7 +7,7 @@ title: Host Metrics
 The host card can show three read-outs for the machine Docker runs on. They sit in a small box on the right of the card's header, marked with the host's icon, so they are not mistaken for the container totals in the CPU and memory meters below:
 
 - **Uptime**, how long the host has been up
-- **Load**, the 1 minute load average (hover it for the 5 and 15 minute ones)
+- **Load**, the 1 minute load average, which turns yellow once it passes the number of cores and red past twice that (hover it for the 5 and 15 minute ones and the core count)
 - **Disk**, how full the filesystem holding Docker's data directory is, as a small bar that turns yellow past 70% and red past 90% (hover it for used and total)
 
 They refresh every 15 seconds while a tab is open. Each one only shows up when Dozzle can read a real value for it, so on a default install the box may be missing or carry only some of them.
@@ -47,6 +47,27 @@ Disk needs no extra mount. Dozzle measures the filesystem behind its own `/data`
 ## Running Dozzle natively
 
 A Dozzle binary running directly on the host reads `/proc` as is, so load and uptime need no setup. Disk is read from Docker's data directory (`docker info --format '{{.DockerRootDir}}'`, usually `/var/lib/docker`), so it works as long as the user Dozzle runs as can see that directory.
+
+## More drives
+
+Disk covers Docker's own disk out of the box. To watch other drives too, mount each one under `/host/disks/<name>`. The folder name becomes the drive's label.
+
+```yaml [docker-compose.yml]
+services:
+  dozzle:
+    image: amir20/dozzle:latest
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /proc:/host/proc:ro
+      - /mnt/media:/host/disks/media:ro
+      - /mnt/backup:/host/disks/backup:ro
+```
+
+The bar then shows the fullest drive, since that is the one that runs out first, and hovering it lists every drive with its used and total.
+
+Dozzle only needs the mount point to measure a drive, not its files. Mounting a drive's root still lets Dozzle read what is on it, so if that matters, create an empty folder on the drive and mount that instead (`/mnt/media/.dozzle:/host/disks/media:ro`). It sits on the same filesystem and reports the same numbers.
+
+A native install can do the same with symlinks: `ln -s /mnt/media /host/disks/media`.
 
 ## Limits
 

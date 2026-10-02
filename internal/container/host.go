@@ -27,6 +27,7 @@ type Host struct {
 	Uptime           uint64   `json:"uptime,omitempty"`
 	DiskTotal        uint64   `json:"diskTotal,omitempty"`
 	DiskFree         uint64   `json:"diskFree,omitempty"`
+	Disks            []Disk   `json:"disks,omitempty"`
 	Endpoint         string   `json:"endpoint"`
 	DockerVersion    string   `json:"dockerVersion"`
 	Runtime          string   `json:"runtime,omitempty"`
@@ -64,6 +65,16 @@ type HostMetrics struct {
 	Uptime    uint64
 	DiskTotal uint64
 	DiskFree  uint64
+	// Disks are the extra drives an operator opted into by mounting them under
+	// /host/disks/<name>; DiskTotal and DiskFree stay Docker's own disk.
+	Disks []Disk
+}
+
+// Disk is one extra drive's usage, named after its folder under /host/disks.
+type Disk struct {
+	Name  string `json:"name"`
+	Total uint64 `json:"total"`
+	Free  uint64 `json:"free"`
 }
 
 // ApplyHostMetrics copies host-level metrics onto the host. metricsAvailable is
@@ -74,6 +85,7 @@ func (h *Host) ApplyHostMetrics(m HostMetrics, metricsAvailable bool) {
 	h.Load1, h.Load5, h.Load15 = m.Load1, m.Load5, m.Load15
 	h.Uptime = m.Uptime
 	h.DiskTotal, h.DiskFree = m.DiskTotal, m.DiskFree
+	h.Disks = m.Disks
 }
 
 func ParseConnection(connection string) (Host, error) {

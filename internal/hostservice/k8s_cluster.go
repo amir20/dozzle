@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"reflect"
 	"slices"
 	"strconv"
 	"strings"
@@ -110,7 +111,8 @@ func (m *K8sClusterService) watchNodes(ctx context.Context, client *k8s.Client) 
 // setHost records a host and tells subscribers, but only when something they can see
 // changed: nodes report status every few seconds with nothing new in it.
 func (m *K8sClusterService) setHost(host container.Host) {
-	if previous, ok := m.hosts.Load(host.ID); ok && previous == host {
+	// DeepEqual, not ==: Host carries a Disks slice, so it is no longer comparable.
+	if previous, ok := m.hosts.Load(host.ID); ok && reflect.DeepEqual(previous, host) {
 		return
 	}
 	m.hosts.Store(host.ID, host)

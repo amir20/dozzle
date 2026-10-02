@@ -10,6 +10,8 @@ export type Host = {
   uptime?: number;
   diskTotal?: number;
   diskFree?: number;
+  // extra drives mounted under /host/disks/<name>; diskTotal/diskFree stay Docker's own
+  disks?: { name: string; total: number; free: number }[];
   type: "agent" | "local" | "remote" | "swarm" | "k8s";
   endpoint: string;
   available: boolean;
@@ -47,7 +49,7 @@ const updateHost = (host: Host) => {
 
 export type HostMetrics = Pick<
   Host,
-  "id" | "metricsAvailable" | "load1" | "load5" | "load15" | "uptime" | "diskTotal" | "diskFree"
+  "id" | "metricsAvailable" | "load1" | "load5" | "load15" | "uptime" | "diskTotal" | "diskFree" | "disks"
 >;
 
 // Merges a host-metrics tick into the host already known, leaving available and
