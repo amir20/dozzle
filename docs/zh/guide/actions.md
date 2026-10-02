@@ -1,6 +1,6 @@
 ---
 title: 容器操作
-sourceHash: f51478b92485
+sourceHash: 347c47e3b567
 ---
 
 # 容器操作
@@ -82,8 +82,11 @@ services:
 
 - 本地构建的镜像，它们没有仓库摘要
 - 固定到某个摘要的引用，它们不会变化
-- 私有仓库，因为 Dozzle 自己没有凭据
-- Kubernetes，镜像的更新发布由集群负责
+- 私有仓库，因为 Dozzle 自己没有凭据。在 Kubernetes 中，这也包括通过 `imagePullSecrets` 拉取的镜像。
+
+### Kubernetes
+
+在 Kubernetes 模式下，检查会把 Pod 状态中记录的摘要与仓库进行比较，因此在 k3s、EKS、GKE 等基于 containerd 的集群上无需额外权限即可使用。该提示仅供参考，不会附带 `Update` 按钮，因为 Pod 的镜像由其工作负载决定。对于 `:latest` 这类会变动的标签，并且设置了 `imagePullPolicy: Always`，执行一次[滚动重启](/zh/guide/k8s#rollout-restart)即可获取新镜像。其他情况则需要修改工作负载的 spec。在 Kubernetes 模式下，仪表盘不会显示更新按钮和更新抽屉。
 
 ### 更新 Dozzle 自身
 

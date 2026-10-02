@@ -81,8 +81,11 @@ Some containers have nothing to compare, and Dozzle stays quiet rather than gues
 
 - Images built locally, which carry no registry digest
 - References pinned to a digest, which cannot drift
-- Private registries, since Dozzle has no credentials of its own
-- Kubernetes, where image rollout belongs to the cluster
+- Private registries, since Dozzle has no credentials of its own. In Kubernetes that includes images pulled with `imagePullSecrets`.
+
+### Kubernetes
+
+In Kubernetes mode the check compares the digest in the pod's status against the registry, so it works on containerd clusters such as k3s, EKS and GKE without extra permissions. The notice is informational and never comes with an `Update` button, because a pod's image belongs to its workload. For a moving tag like `:latest` with `imagePullPolicy: Always`, a [rollout restart](/guide/k8s#rollout-restart) picks up the new image. Anything else is a change to the workload's spec. The dashboard's updates button and drawer are not shown in Kubernetes mode.
 
 ### Updating Dozzle itself
 

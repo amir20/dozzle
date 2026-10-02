@@ -252,6 +252,9 @@ func (s *Store) handleUpdate(event ContainerEvent) {
 		leftCreated := c.State == "created" && (update.State == "exited" || update.State == "restarting")
 		started = c.State != "running" && (update.State == "running" || leftCreated)
 		c.Name = update.Name
+		// A pod created while Pending has no imageID yet, and a restart can pull a
+		// new digest, so only the update knows what the container runs now.
+		c.ImageDigest = update.ImageDigest
 		c.State = update.State
 		c.Labels = update.Labels
 		c.StartedAt = update.StartedAt

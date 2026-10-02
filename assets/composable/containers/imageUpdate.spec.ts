@@ -359,6 +359,22 @@ describe("useImageUpdate", () => {
       expect(holder.toasts[0].message).toContain("alert.image-update.enable-actions");
     });
 
+    // In k8s there is no per-pod update to unlock, so the notice stays informational.
+    test("neither offers an update nor suggests actions in Kubernetes mode", async () => {
+      holder.config.mode = "k8s";
+      holder.config.enableActions = false;
+      holder.showAlertSetting!.value = true;
+      try {
+        mockCheck({ status: "update-available", remoteDigest: "sha256:new" });
+        await run(container());
+
+        expect(holder.toasts[0].action).toBeUndefined();
+        expect(holder.toasts[0].message).not.toContain("alert.image-update.enable-actions");
+      } finally {
+        delete holder.config.mode;
+      }
+    });
+
     test("does not nag about actions when they are already enabled", async () => {
       holder.showAlertSetting!.value = true;
       mockCheck({ status: "update-available", remoteDigest: "sha256:new" });
