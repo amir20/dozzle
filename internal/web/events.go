@@ -373,10 +373,10 @@ func (h *handler) reconcileHosts() {
 	}()
 }
 
-// subscribeHostMetrics registers a stream's queue for local host metrics
-// updates and returns the function that removes it. The first subscriber starts
-// the one shared ticker, so N tabs cost one read per interval rather than N
-// dials to every agent the way a per-stream Hosts() call did.
+// subscribeHostMetrics registers a stream's queue for host metrics updates and
+// returns the function that removes it. The first subscriber starts the one
+// shared ticker, so N tabs cost one read of each host per interval rather than
+// N reads the way a per-stream Hosts() call did.
 func (h *handler) subscribeHostMetrics(ch chan []hostMetricsEvent) func() {
 	h.hostMetricsOnce.Do(func() {
 		h.hostMetricsSubs = make(map[chan []hostMetricsEvent]struct{})
@@ -446,11 +446,24 @@ func (h *handler) collectHostMetrics() []hostMetricsEvent {
 	}
 	wg.Wait()
 
+	return collapseHostMetrics(results)
+}
+
+// collapseHostMetrics drops the hosts that had nothing to show and keeps one
+// event per host id. In swarm mode a node can be reached both as the local
+// client and as an agent; both report the same machine, so one event is enough.
+func collapseHostMetrics(results []*hostMetricsEvent) []hostMetricsEvent {
 	batch := make([]hostMetricsEvent, 0, len(results))
+	seen := make(map[string]struct{}, len(results))
 	for _, event := range results {
-		if event != nil {
-			batch = append(batch, *event)
+		if event == nil {
+			continue
 		}
+		if _, dup := seen[event.ID]; dup {
+			continue
+		}
+		seen[event.ID] = struct{}{}
+		batch = append(batch, *event)
 	}
 	return batch
 }

@@ -200,8 +200,9 @@ type handler struct {
 	reconciledAt time.Time
 
 	// One shared ticker keeps every open tab's host card current. It is started
-	// lazily on the first subscriber and reads only the local host, so the work
-	// does not grow with the number of tabs and never dials an agent.
+	// lazily on the first subscriber and reads each host once per interval, the
+	// agents over the connections they already hold, so the work grows with the
+	// number of hosts and not with the number of tabs.
 	hostMetricsOnce sync.Once
 	hostMetricsMu   sync.Mutex
 	hostMetricsSubs map[chan []hostMetricsEvent]struct{}
