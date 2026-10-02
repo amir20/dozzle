@@ -32,6 +32,7 @@ declare module 'vue' {
     'Carbon:logoKubernetes': typeof import('~icons/carbon/logo-kubernetes')['default']
     'Carbon:macShift': typeof import('~icons/carbon/mac-shift')['default']
     'Carbon:play': typeof import('~icons/carbon/play')['default']
+    'Carbon:renew': typeof import('~icons/carbon/renew')['default']
     'Carbon:restart': typeof import('~icons/carbon/restart')['default']
     'Carbon:stopFilledAlt': typeof import('~icons/carbon/stop-filled-alt')['default']
     'Carbon:upgrade': typeof import('~icons/carbon/upgrade')['default']

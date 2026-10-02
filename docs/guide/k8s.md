@@ -153,6 +153,20 @@ Deleting pods needs a permission the read-only role above does not grant. Add th
   verbs: ["delete"]
 ```
 
+### Rollout Restart
+
+Restarting one pod at a time is the wrong tool for a workload with several replicas. A container that belongs to a Deployment, StatefulSet or DaemonSet also gets a **Restart Deployment** (or StatefulSet, or DaemonSet) action in its menu, and the same action sits in the menu of the workload's merged view in the sidebar. It does what `kubectl rollout restart` does: the controller replaces every pod following the workload's own rollout strategy, so `maxUnavailable` is respected. A pod with `imagePullPolicy: Always` pulls its image again on the way, which is how a `:latest` tag picks up a new image.
+
+Jobs, CronJobs and bare ReplicaSets cannot be rolled out, so the action does not appear for them. Like every other action, it only reaches workloads whose pods pass Dozzle's filters.
+
+Rolling out needs permission to patch the workload. Add this rule to the ClusterRole:
+
+```yaml
+- apiGroups: ["apps"]
+  resources: ["deployments", "statefulsets", "daemonsets"]
+  verbs: ["patch"]
+```
+
 ## <Icon icon="mdi:filter-variant" inline /> Namespaces and Filters
 
 ### Namespaces

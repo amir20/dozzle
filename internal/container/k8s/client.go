@@ -23,6 +23,7 @@ import (
 	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime/schema"
+	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/client-go/discovery"
 	"k8s.io/client-go/discovery/cached/memory"
 	"k8s.io/client-go/dynamic"
@@ -220,6 +221,7 @@ func (k *Client) podToContainers(ctx context.Context, pod *corev1.Pod) []contain
 			RestartCount: facts.restarts,
 			OOMKilled:    facts.oomKilled,
 			ExitCode:     facts.exitCode,
+			ImageDigest:  imageDigest(statuses[c.Name].ImageID),
 			ID:           pod.Namespace + ":" + pod.Name + ":" + c.Name,
 			Name:         pod.Name + "/" + c.Name,
 			Image:        c.Image,
@@ -285,6 +287,18 @@ func containerRunFacts(status corev1.ContainerStatus) runFacts {
 		f.exitCode = int(t.ExitCode)
 	}
 	return f
+}
+
+// imageDigest turns a status imageID into the "repo@sha256:..." form the image
+// checker compares. containerd reports it bare, the old dockershim prefixed it with
+// docker-pullable://. An image that never came from a registry (loaded into kind,
+// built on the node) has only an image ID and no repo, so it stays uncheckable.
+func imageDigest(imageID string) string {
+	imageID = strings.TrimPrefix(imageID, "docker-pullable://")
+	if !strings.Contains(imageID, "@") {
+		return ""
+	}
+	return imageID
 }
 
 func (k *Client) resolveOwnerChain(ctx context.Context, namespace string, refs []metav1.OwnerReference) []k8sOwner {
@@ -868,6 +882,34 @@ func (k *Client) ContainerActions(ctx context.Context, action container.Containe
 	return pods.Delete(ctx, podName, metav1.DeleteOptions{
 		Preconditions: &metav1.Preconditions{UID: &pod.UID},
 	})
+}
+
+// RolloutRestart does what `kubectl rollout restart` does: it stamps the pod template
+// with the current time, and the controller replaces every pod under its own rollout
+// strategy, so maxUnavailable is respected and pods pull their image again if their
+// pull policy says so. Only the three kinds kubectl supports can be restarted.
+func (k *Client) RolloutRestart(ctx context.Context, namespace, kind, name string) error {
+	patch := fmt.Appendf(nil, `{"spec":{"template":{"metadata":{"annotations":{"kubectl.kubernetes.io/restartedAt":%q}}}}}`, time.Now().Format(time.RFC3339))
+	apps := k.Clientset.AppsV1()
+	opts := metav1.PatchOptions{}
+
+	var err error
+	switch kind {
+	case "Deployment":
+		_, err = apps.Deployments(namespace).Patch(ctx, name, types.StrategicMergePatchType, patch, opts)
+	case "StatefulSet":
+		_, err = apps.StatefulSets(namespace).Patch(ctx, name, types.StrategicMergePatchType, patch, opts)
+	case "DaemonSet":
+		_, err = apps.DaemonSets(namespace).Patch(ctx, name, types.StrategicMergePatchType, patch, opts)
+	default:
+		return fmt.Errorf("%s cannot be rolled out, only Deployment, StatefulSet and DaemonSet: %w", kind, errors.ErrUnsupported)
+	}
+	if err != nil {
+		return err
+	}
+
+	log.Info().Str("kind", kind).Str("name", name).Str("namespace", namespace).Msg("rollout restart")
+	return nil
 }
 
 func (k *Client) ContainerAttach(ctx context.Context, id string) (*container.ExecSession, error) {

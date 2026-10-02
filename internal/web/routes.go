@@ -309,6 +309,9 @@ func createRouter(h *handler) *chi.Mux {
 					if h.config.Mode == "server" {
 						r.Post("/update/self", h.updateSelf)
 					}
+					if h.config.Mode == "k8s" {
+						r.Post("/k8s/workloads/{namespace}/{kind}/{name}/restart", h.rolloutRestart)
+					}
 				}
 				if h.config.EnableShell {
 					r.Get("/hosts/{host}/containers/{id}/attach", h.attach)

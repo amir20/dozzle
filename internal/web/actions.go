@@ -1,11 +1,14 @@
 package web
 
 import (
+	"context"
+	"errors"
 	"net/http"
 
 	"github.com/amir20/dozzle/internal/analytics"
 	"github.com/amir20/dozzle/internal/auth"
 	"github.com/amir20/dozzle/internal/container"
+	"github.com/amir20/dozzle/internal/hostservice"
 	"github.com/amir20/dozzle/internal/web/sse"
 	"github.com/go-chi/chi/v5"
 	"github.com/rs/zerolog/log"
@@ -100,4 +103,40 @@ func (h *handler) containerUpdate(w http.ResponseWriter, r *http.Request) {
 	}
 
 	log.Info().Str("container", containerService.Container.Name).Msg("container update completed")
+}
+
+// workloadRestarter is implemented by the k8s host service only.
+type workloadRestarter interface {
+	RolloutRestart(ctx context.Context, namespace, kind, name string, labels container.ContainerLabels) error
+}
+
+func (h *handler) rolloutRestart(w http.ResponseWriter, r *http.Request) {
+	if !h.permitActions(r) {
+		http.Error(w, http.StatusText(http.StatusForbidden), http.StatusForbidden)
+		return
+	}
+
+	restarter, ok := h.hostService.(workloadRestarter)
+	if !ok {
+		http.Error(w, "rollout restart is only supported in Kubernetes mode", http.StatusNotFound)
+		return
+	}
+
+	namespace, kind, name := chi.URLParam(r, "namespace"), chi.URLParam(r, "kind"), chi.URLParam(r, "name")
+	err := restarter.RolloutRestart(r.Context(), namespace, kind, name, h.resolveLabels(r))
+	switch {
+	case errors.Is(err, hostservice.ErrWorkloadNotFound):
+		http.Error(w, err.Error(), http.StatusNotFound)
+		return
+	case errors.Is(err, errors.ErrUnsupported):
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	case err != nil:
+		log.Error().Err(err).Str("kind", kind).Str("name", name).Msg("error while trying to rollout restart")
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	analytics.Count("action.rollout-restart")
+	http.Error(w, "", http.StatusNoContent)
 }

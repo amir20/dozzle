@@ -13,6 +13,8 @@ toolbar:
   stop: Stop
   start: Start
   restart: Neustarten
+  rollout-restart: "{kind} neu starten"
+  rollout-restart-done: "{workload} rollt neue Pods aus."
   update: Aktualisieren
   update-service: Service Aktualisieren
   update-pulling: Neuestes Image wird geladen...
@@ -47,6 +49,7 @@ toolbar:
   section-export: Export
   section-container: Container
   section-image: Image
+  section-workload: "Workload"
 action:
   copy-log: Log kopieren
   copy-link: Permalink kopieren

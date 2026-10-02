@@ -1,6 +1,6 @@
 ---
 title: Container-Aktionen
-sourceHash: f51478b92485
+sourceHash: 347c47e3b567
 ---
 
 # Container-Aktionen
@@ -82,8 +82,11 @@ Bei manchen Containern gibt es nichts zu vergleichen, und Dozzle bleibt still st
 
 - Lokal gebaute Images, die keinen Registry-Digest tragen
 - Referenzen, die auf einen Digest gepinnt sind und sich daher nicht verändern können
-- Private Registries, da Dozzle keine eigenen Zugangsdaten hat
-- Kubernetes, wo das Ausrollen von Images Sache des Clusters ist
+- Private Registries, da Dozzle keine eigenen Zugangsdaten hat. In Kubernetes gilt das auch für Images, die über `imagePullSecrets` geladen werden.
+
+### Kubernetes
+
+Im Kubernetes-Modus vergleicht die Prüfung den Digest aus dem Pod-Status mit der Registry. Auf containerd-Clustern wie k3s, EKS und GKE funktioniert das ohne zusätzliche Berechtigungen. Der Hinweis dient nur zur Information und kommt nie mit einem `Update`-Button, weil das Image eines Pods zu seinem Workload gehört. Bei einem wandernden Tag wie `:latest` mit `imagePullPolicy: Always` holt ein [Rollout-Neustart](/de/guide/k8s#rollout-restart) das neue Image. Alles andere ist eine Änderung an der Spec des Workloads. Der Update-Button und die Update-Schublade im Dashboard werden im Kubernetes-Modus nicht angezeigt.
 
 ### Dozzle selbst aktualisieren
 

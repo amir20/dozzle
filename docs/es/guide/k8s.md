@@ -1,6 +1,6 @@
 ---
 title: Compatibilidad con Kubernetes
-sourceHash: b3fed93e4dd1
+sourceHash: d55c7e2a0ec6
 ---
 
 # Compatibilidad con Kubernetes
@@ -153,6 +153,20 @@ Borrar pods requiere un permiso que el rol de solo lectura de arriba no concede.
 - apiGroups: [""]
   resources: ["pods"]
   verbs: ["delete"]
+```
+
+### Reinicio progresivo
+
+Reiniciar los pods de uno en uno no es la herramienta adecuada para un workload con varias réplicas. Un contenedor que pertenece a un Deployment, StatefulSet o DaemonSet también tiene la acción **Reiniciar Deployment** (o StatefulSet, o DaemonSet) en su menú, y la misma acción está en el menú de la vista combinada del workload en la barra lateral. Hace lo mismo que `kubectl rollout restart`: el controlador reemplaza todos los pods según la estrategia de despliegue del workload, así que se respeta `maxUnavailable`. Un pod con `imagePullPolicy: Always` vuelve a descargar su imagen en el proceso, que es como una etiqueta `:latest` obtiene una imagen nueva.
+
+Los Jobs, los CronJobs y los ReplicaSets sueltos no se pueden redesplegar, así que la acción no aparece para ellos. Como cualquier otra acción, solo llega a los workloads cuyos pods pasan los filtros de Dozzle.
+
+El redespliegue necesita permiso para hacer patch del workload. Añade esta regla al ClusterRole:
+
+```yaml
+- apiGroups: ["apps"]
+  resources: ["deployments", "statefulsets", "daemonsets"]
+  verbs: ["patch"]
 ```
 
 ## <Icon icon="mdi:filter-variant" inline /> Namespaces y filtros

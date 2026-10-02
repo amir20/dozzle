@@ -128,8 +128,38 @@ jobs:
           bun-version-file: package.json
       - name: Install dependencies
         run: bun install --frozen-lockfile
+      # These images do not depend on the build, so fetch them while it runs
+      # instead of after. The pull outlives this step; compose skips whatever
+      # has landed by the time it starts and fetches the rest itself.
+      - name: Pull test images in the background
+        run: nohup docker compose pull --quiet playwright proxy logspam > /tmp/pull.log 2>&1 &
       - name: Set up Docker Buildx
+        id: buildx
         uses: docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069 # v4.4.1
+      # Same cache-dance as dev.yml, see the note there. Without it the go build
+      # runs on empty mounts and re-downloads and recompiles every dependency,
+      # ~70s, and any frontend change invalidates that layer because dist is
+      # copied in before it. The key is separate from dev.yml's: this job only
+      # builds amd64, and whichever job saved a shared key first would own it.
+      - name: Restore Go caches
+        id: go-cache
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: |
+            go-build-cache
+            go-mod-cache
+          key: go-int-${{ hashFiles('go.sum') }}
+          restore-keys: go-int-
+      - name: Inject Go caches into the builder
+        uses: reproducible-containers/buildkit-cache-dance@5422eac04292c961a382e0f584ea0f03ad9da723 # v3.4.0
+        with:
+          builder: ${{ steps.buildx.outputs.name }}
+          cache-map: |
+            {
+              "go-build-cache": "/root/.cache/go-build",
+              "go-mod-cache": "/go/pkg/mod"
+            }
+          skip-extraction: ${{ steps.go-cache.outputs.cache-hit == 'true' }}
       - name: Generate certs
         if: ${{ !inputs.release-certs }}
         run: make shared_key.pem shared_cert.pem

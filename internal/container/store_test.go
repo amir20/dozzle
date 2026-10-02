@@ -694,6 +694,33 @@ func testK8sUpdateNotifies(t *testing.T, state string) {
 	assert.Equal(t, state, c.State)
 }
 
+// A pod is first seen Pending, before the runtime reports which image it pulled.
+func TestStore_k8sUpdateCarriesImageDigest(t *testing.T) {
+	pending := loadedContainer("default:web-1:app", "created")
+	running := pending
+	running.State = "running"
+	running.ImageDigest = "docker.io/library/nginx@sha256:abc"
+
+	client := new(mockedClient)
+	client.On("ListContainers", mock.Anything, mock.Anything).Return([]Container{}, nil)
+	client.On("FindContainer", mock.Anything, pending.ID).Return(pending, nil)
+	client.On("Host").Return(Host{ID: "localhost"})
+	feed := feedEvents(client)
+
+	store := NewStore(t.Context(), client, newCaptureStatsCollector(), ContainerLabels{})
+	events := make(chan ContainerEvent, 16)
+	store.SubscribeEvents(t.Context(), events)
+
+	feed <- ContainerEvent{Name: "create", ActorID: pending.ID, Container: &pending}
+	waitForEvent(t, events, "create")
+	feed <- ContainerEvent{Name: "update", ActorID: pending.ID, Container: &running}
+	waitForEvent(t, events, "update")
+
+	c, err := store.FindContainer(t.Context(), pending.ID, ContainerLabels{})
+	assert.NoError(t, err)
+	assert.Equal(t, "docker.io/library/nginx@sha256:abc", c.ImageDigest)
+}
+
 func TestStore_FindContainer(t *testing.T) {
 	partial := Container{ID: "1234", Name: "test", State: "exited", Host: "localhost", Stats: utils.NewRingBuffer[ContainerStat](300)}
 	full := partial

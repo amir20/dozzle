@@ -228,6 +228,13 @@
             {{ $t("toolbar.restart") }}
           </button>
         </li>
+        <!-- Restart above replaces this one pod; this rolls every pod of the workload. -->
+        <li v-if="workload">
+          <button @click="rolloutRestart(workload)" :disabled="rollingOut" :title="`${workload.kind}/${workload.name}`">
+            <carbon:renew :class="{ 'animate-spin': rollingOut, 'text-secondary': rollingOut }" />
+            {{ $t("toolbar.rollout-restart", { kind: workload.kind }) }}
+          </button>
+        </li>
         <li v-if="imageUpdatable">
           <button @click="update({ self: isSelfContainer })" :disabled="actionStates.update">
             <carbon:upgrade />
@@ -331,6 +338,8 @@ const { container, historical = false } = defineProps<{ container: Container; hi
 const clear = defineEmit();
 const { actionStates, start, stop, restart, update } = useContainerActions(toRef(() => container));
 const canStartStop = config.mode !== "k8s";
+const workload = computed(() => containerWorkload(container));
+const { restarting: rollingOut, rolloutRestart } = useRolloutRestart();
 const {
   showAlert: showImageUpdateAlert,
   isSelf: isSelfContainer,

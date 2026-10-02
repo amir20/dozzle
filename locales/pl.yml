@@ -13,6 +13,8 @@ toolbar:
   stop: Stop
   start: Start
   restart: Restart
+  rollout-restart: "Uruchom ponownie {kind}"
+  rollout-restart-done: "{workload} wdraża nowe pody."
   update: Aktualizuj
   update-service: Aktualizuj Usługę
   update-pulling: Pobieranie najnowszego obrazu...
@@ -47,6 +49,7 @@ toolbar:
   section-export: Eksport
   section-container: Kontener
   section-image: Obraz
+  section-workload: "Obciążenie"
 action:
   copy-log: Skopiuj log
   copy-link: Skopiuj permalink

@@ -33,7 +33,10 @@ toolbar:
   section-export: Izvoz
   section-container: Vsebnik
   section-image: Slika
+  section-workload: "Delovna obremenitev"
   restart: Ponovni zagon
+  rollout-restart: "Znova zaženi {kind}"
+  rollout-restart-done: "{workload} uvaja nove pode."
   update: Posodobi
   update-service: Posodobi Storitev
   update-pulling: Prenašanje najnovejše slike...

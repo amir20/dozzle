@@ -13,6 +13,8 @@ toolbar:
   stop: 停止
   start: 啟動
   restart: 重新啟動
+  rollout-restart: "重新啟動 {kind}"
+  rollout-restart-done: "{workload} 正在滾動部署新的 Pod。"
   update: 更新
   update-service: 更新服務
   update-pulling: 正在拉取最新映像檔...
@@ -47,6 +49,7 @@ toolbar:
   section-export: 匯出
   section-container: 容器
   section-image: 映像
+  section-workload: "工作負載"
 action:
   copy-log: 複製日誌
   copy-link: 複製永久連結

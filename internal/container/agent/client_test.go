@@ -126,7 +126,7 @@ func (m *MockedClientService) CheckImageUpdate(ctx context.Context, c container.
 var wantedContainer = container.Container{}
 
 func init() {
-	faker.FakeData(&wantedContainer, options.WithFieldsToIgnore("Stats", "MountStats", "Ports"))
+	faker.FakeData(&wantedContainer, options.WithFieldsToIgnore("Stats", "MountStats", "Ports", "ImageDigest"))
 	wantedContainer.FinishedAt = wantedContainer.FinishedAt.UTC()
 	wantedContainer.Created = wantedContainer.Created.UTC()
 	wantedContainer.StartedAt = wantedContainer.StartedAt.UTC()

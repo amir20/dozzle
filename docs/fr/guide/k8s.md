@@ -1,6 +1,6 @@
 ---
 title: Prise en charge de Kubernetes
-sourceHash: b3fed93e4dd1
+sourceHash: d55c7e2a0ec6
 ---
 
 # Prise en charge de Kubernetes
@@ -153,6 +153,20 @@ Supprimer des pods demande une permission que le rôle en lecture seule ci-dessu
 - apiGroups: [""]
   resources: ["pods"]
   verbs: ["delete"]
+```
+
+### Redémarrage progressif
+
+Redémarrer les pods un par un n'est pas le bon outil pour un workload à plusieurs réplicas. Un conteneur qui appartient à un Deployment, un StatefulSet ou un DaemonSet propose aussi l'action **Redémarrer Deployment** (ou StatefulSet, ou DaemonSet) dans son menu, et la même action figure dans le menu de la vue fusionnée du workload dans la barre latérale. Elle fait la même chose que `kubectl rollout restart` : le contrôleur remplace tous les pods selon la stratégie de déploiement du workload, donc `maxUnavailable` est respecté. Un pod en `imagePullPolicy: Always` retélécharge son image au passage, c'est ainsi qu'un tag `:latest` récupère une nouvelle image.
+
+Les Jobs, les CronJobs et les ReplicaSets isolés ne peuvent pas être redéployés, l'action n'apparaît donc pas pour eux. Comme toutes les autres actions, elle ne s'applique qu'aux workloads dont les pods passent les filtres de Dozzle.
+
+Le redéploiement nécessite le droit de patcher le workload. Ajoutez cette règle au ClusterRole :
+
+```yaml
+- apiGroups: ["apps"]
+  resources: ["deployments", "statefulsets", "daemonsets"]
+  verbs: ["patch"]
 ```
 
 ## <Icon icon="mdi:filter-variant" inline /> Namespaces et filtres

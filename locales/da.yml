@@ -13,6 +13,8 @@ toolbar:
   stop: Stop
   start: Start
   restart: Genstart
+  rollout-restart: "Genstart {kind}"
+  rollout-restart-done: "{workload} ruller nye pods ud."
   update: Opdater
   update-service: Opdater Tjeneste
   update-pulling: Henter seneste image...
@@ -47,6 +49,7 @@ toolbar:
   section-export: Eksport
   section-container: Container
   section-image: Image
+  section-workload: "Workload"
 action:
   copy-log: Kopier log
   copy-link: Kopier permalink

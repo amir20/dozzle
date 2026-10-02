@@ -13,6 +13,8 @@ toolbar:
   stop: Durdur
   start: Başlat
   restart: Yeniden Başlat
+  rollout-restart: "{kind} yeniden başlat"
+  rollout-restart-done: "{workload} yeni pod'ları dağıtıyor."
   update: Güncelle
   update-service: Servisi Güncelle
   update-pulling: En son imaj indiriliyor...
@@ -47,6 +49,7 @@ toolbar:
   section-export: Dışa aktar
   section-container: Konteyner
   section-image: İmaj
+  section-workload: "İş yükü"
 action:
   copy-log: Günlüğü kopyala
   copy-link: Kalıcı bağlantıyı kopyala
