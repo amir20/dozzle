@@ -1,6 +1,6 @@
 ---
 title: Nombres de contenedores
-sourceHash: 31d0ec398f6d
+sourceHash: cafa1526d194
 ---
 
 # Nombres de contenedores
@@ -28,6 +28,22 @@ services:
 ```
 
 :::
+
+## Kubernetes
+
+En el modo Kubernetes, los contenedores se llaman `<pod>/<container>` por defecto. Define `dev.dozzle.name` en la plantilla del pod para cambiarlo. Es mejor usar una anotación, porque los valores de las etiquetas no pueden contener espacios y tienen un límite de 63 caracteres. Si defines ambas, gana la anotación. Lo mismo vale para cualquier otro ajuste `dev.dozzle.*`, como `dev.dozzle.url` y `dev.dozzle.icon`.
+
+```yaml [deployment.yaml]
+spec:
+  template:
+    metadata:
+      annotations:
+        dev.dozzle.name: Public API
+```
+
+El nombre se aplica a todo el pod. Los contenedores de inicialización siempre conservan su propio nombre como sufijo, por ejemplo `Public API/migrate`, y lo mismo ocurre con cada contenedor de un pod con más de un contenedor de aplicación, por ejemplo `Public API/proxy`.
+
+Todas las réplicas de un mismo deployment reciben el mismo nombre, y Dozzle trata los contenedores con el mismo nombre como uno solo. Fijar una réplica en la barra lateral las fija todas, y el menú del título del contenedor muestra las demás como ejecuciones anteriores del mismo contenedor.
 
 ## Integración con Coolify
 

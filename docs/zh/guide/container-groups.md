@@ -1,6 +1,6 @@
 ---
 title: 容器分组
-sourceHash: 87c26dbd0b16
+sourceHash: 83c35e4fb25c
 ---
 
 # 容器分组
@@ -32,3 +32,15 @@ services:
 ```
 
 :::
+
+## Kubernetes
+
+在 Kubernetes 模式下，侧边栏按命名空间和所有者对 Pod 进行分组。在 Pod 模板上添加 `dev.dozzle.group` 标签或注解，还会把该 Pod 中的所有容器加入一个自定义分组。标签和注解的效果相同，因此如果分组名称包含空格，请使用注解。两者都设置时，以注解为准。
+
+```yaml [deployment.yaml]
+spec:
+  template:
+    metadata:
+      labels:
+        dev.dozzle.group: myapp
+```

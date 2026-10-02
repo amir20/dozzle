@@ -94,9 +94,24 @@ func labelView(filters map[string]string) string {
 	}
 }
 
+// pathParam reads a URL param that may hold a "/". chi routes on RawPath, and so
+// returns the param still escaped, only when Go set RawPath (in practice for %2F);
+// otherwise the param is already decoded and unescaping again would mangle a "%".
+func pathParam(r *http.Request, key string) (string, error) {
+	value := chi.URLParam(r, key)
+	if r.URL.RawPath == "" {
+		return value, nil
+	}
+	return url.PathUnescape(value)
+}
+
 func (h *handler) streamGroupedLogs(w http.ResponseWriter, r *http.Request) {
 	analytics.Count("view.group")
-	group := chi.URLParam(r, "group")
+	group, err := pathParam(r, "group")
+	if err != nil || group == "" {
+		http.Error(w, "invalid group", http.StatusBadRequest)
+		return
+	}
 
 	h.streamLogsForContainers(w, r, func(container *container.Container) bool {
 		return container.State == "running" && container.Group == group
@@ -105,7 +120,7 @@ func (h *handler) streamGroupedLogs(w http.ResponseWriter, r *http.Request) {
 
 func (h *handler) streamHostGroupLogs(w http.ResponseWriter, r *http.Request) {
 	analytics.Count("view.host")
-	group, err := url.PathUnescape(chi.URLParam(r, "group"))
+	group, err := pathParam(r, "group")
 	if err != nil || group == "" {
 		http.Error(w, "invalid group", http.StatusBadRequest)
 		return

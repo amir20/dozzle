@@ -127,6 +127,7 @@ export const useContainerStore = defineStore("container", () => {
       const existing = allContainersById.value[container.id];
       if (existing) {
         existing.name = container.name;
+        existing.group = container.group;
         existing.state = container.state;
         existing.health = container.health;
         existing.startedAt = new Date(container.startedAt);

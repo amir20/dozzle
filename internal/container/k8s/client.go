@@ -164,6 +164,14 @@ func (k *Client) podToContainers(ctx context.Context, pod *corev1.Pod) []contain
 	// Build labels map with pod labels, namespace, and owner reference
 	labels := make(map[string]string)
 	maps.Copy(labels, pod.Labels)
+	// Every dev.dozzle.* setting works as an annotation too, and the annotation wins:
+	// label values cannot hold spaces, a URL or a data URI, and stop at 63 characters.
+	// Folding them into labels keeps one source for the backend and the UI alike.
+	for key, value := range pod.Annotations {
+		if strings.HasPrefix(key, "dev.dozzle.") && value != "" {
+			labels[key] = value
+		}
+	}
 	labels["namespace"] = pod.Namespace
 	labels["@k8s.namespace"] = pod.Namespace
 
@@ -209,8 +217,22 @@ func (k *Client) podToContainers(ctx context.Context, pod *corev1.Pod) []contain
 		initLabels["@k8s.init"] = "true"
 	}
 
+	// The name is set on the pod, so it only stays bare on the pod's one app container.
+	// Init containers (migrations, native sidecars) always keep their own name as a
+	// suffix, so a single-app pod with an init container still reads as the app.
+	customName := labels["dev.dozzle.name"]
+	group := labels["dev.dozzle.group"]
+	multipleApps := len(pod.Spec.Containers) > 1
+
 	containers := make([]container.Container, 0, len(pod.Spec.InitContainers)+len(pod.Spec.Containers))
-	add := func(c corev1.Container, labels map[string]string) {
+	add := func(c corev1.Container, labels map[string]string, isInit bool) {
+		name := pod.Name + "/" + c.Name
+		if customName != "" {
+			name = customName
+			if isInit || multipleApps {
+				name += "/" + c.Name
+			}
+		}
 		state, containerStarted, finished := phaseToState(pod.Status.Phase), started, time.Time{}
 		var facts runFacts
 		if status, ok := statuses[c.Name]; ok {
@@ -223,7 +245,8 @@ func (k *Client) podToContainers(ctx context.Context, pod *corev1.Pod) []contain
 			ExitCode:     facts.exitCode,
 			ImageDigest:  imageDigest(statuses[c.Name].ImageID),
 			ID:           pod.Namespace + ":" + pod.Name + ":" + c.Name,
-			Name:         pod.Name + "/" + c.Name,
+			Name:         name,
+			Group:        group,
 			Image:        c.Image,
 			Created:      pod.CreationTimestamp.Time,
 			State:        state,
@@ -238,10 +261,10 @@ func (k *Client) podToContainers(ctx context.Context, pod *corev1.Pod) []contain
 		})
 	}
 	for _, c := range pod.Spec.InitContainers {
-		add(c, initLabels)
+		add(c, initLabels, true)
 	}
 	for _, c := range pod.Spec.Containers {
-		add(c, labels)
+		add(c, labels, false)
 	}
 	return containers
 }

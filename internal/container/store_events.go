@@ -252,6 +252,8 @@ func (s *Store) handleUpdate(event ContainerEvent) {
 		leftCreated := c.State == "created" && (update.State == "exited" || update.State == "restarting")
 		started = c.State != "running" && (update.State == "running" || leftCreated)
 		c.Name = update.Name
+		// Name and group both come from dev.dozzle.* on the pod, which can change in place.
+		c.Group = update.Group
 		// A pod created while Pending has no imageID yet, and a restart can pull a
 		// new digest, so only the update knows what the container runs now.
 		c.ImageDigest = update.ImageDigest

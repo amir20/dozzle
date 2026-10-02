@@ -1,6 +1,6 @@
 ---
 title: 容器名称
-sourceHash: 31d0ec398f6d
+sourceHash: cafa1526d194
 ---
 
 # 容器名称
@@ -28,6 +28,22 @@ services:
 ```
 
 :::
+
+## Kubernetes
+
+在 Kubernetes 模式下，容器默认命名为 `<pod>/<container>`。在 Pod 模板上设置 `dev.dozzle.name` 即可覆盖它。更推荐使用注解（annotation），因为标签值不能包含空格，且长度上限为 63 个字符。如果两者都设置了，以注解为准。其他所有 `dev.dozzle.*` 设置也同样如此，例如 `dev.dozzle.url` 和 `dev.dozzle.icon`。
+
+```yaml [deployment.yaml]
+spec:
+  template:
+    metadata:
+      annotations:
+        dev.dozzle.name: Public API
+```
+
+该名称作用于整个 Pod。init 容器始终会以自己的名称作为后缀，例如 `Public API/migrate`；在包含多个应用容器的 Pod 中，每个容器也是如此，例如 `Public API/proxy`。
+
+同一 Deployment 的所有副本会得到相同的名称，而 Dozzle 会把同名的容器视为同一个容器。在侧边栏中固定其中一个副本会固定所有副本，容器标题菜单也会把其他副本列为同一容器的历史运行记录。
 
 ## Coolify 集成
 
