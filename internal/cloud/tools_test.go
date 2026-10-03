@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"io"
+	"sync/atomic"
 	"testing"
 	"time"
 
@@ -14,7 +15,7 @@ import (
 )
 
 func TestAvailableTools_WithActionsEnabled(t *testing.T) {
-	tools := AvailableTools(true, Principal{})
+	tools := AvailableTools(ToolDeps{EnableActions: true})
 
 	names := make([]string, len(tools))
 	for i, tool := range tools {
@@ -39,7 +40,7 @@ func TestAvailableTools_WithActionsEnabled(t *testing.T) {
 }
 
 func TestAvailableTools_WithActionsDisabled(t *testing.T) {
-	tools := AvailableTools(false, Principal{})
+	tools := AvailableTools(ToolDeps{})
 
 	names := make([]string, len(tools))
 	for i, tool := range tools {
@@ -57,7 +58,7 @@ func TestAvailableTools_WithActionsDisabled(t *testing.T) {
 }
 
 func TestAvailableTools_ParametersAreValid(t *testing.T) {
-	tools := AvailableTools(true, Principal{})
+	tools := AvailableTools(ToolDeps{EnableActions: true})
 
 	for _, tool := range tools {
 		assert.NotEmpty(t, tool.Name)
@@ -112,6 +113,11 @@ func withResolver(m *MockHostService, containers ...container.Container) {
 
 type MockClientService struct {
 	mock.Mock
+	// imageResults answers CheckImageUpdate by container ID; anything absent
+	// is up to date.
+	imageResults map[string]imagecheck.Result
+	// imageForced records the force flag of the last CheckImageUpdate.
+	imageForced atomic.Bool
 }
 
 func (m *MockClientService) FindContainer(_ context.Context, _ string, _ container.ContainerLabels) (container.Container, error) {
@@ -152,8 +158,12 @@ func (m *MockClientService) Exec(_ context.Context, _ container.Container, _ []s
 	return nil
 }
 
-func (m *MockClientService) CheckImageUpdate(_ context.Context, _ container.Container, _ bool) (imagecheck.Result, error) {
-	return imagecheck.Result{Status: imagecheck.StatusUpToDate}, nil
+func (m *MockClientService) CheckImageUpdate(_ context.Context, c container.Container, force bool) (imagecheck.Result, error) {
+	m.imageForced.Store(force)
+	if r, ok := m.imageResults[c.ID]; ok {
+		return r, nil
+	}
+	return imagecheck.Result{Image: c.Image, Status: imagecheck.StatusUpToDate}, nil
 }
 
 func (m *MockClientService) UpdateContainer(_ context.Context, _ container.Container, progressCh chan<- container.UpdateProgress) (bool, error) {

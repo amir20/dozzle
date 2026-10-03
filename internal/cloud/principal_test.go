@@ -69,21 +69,21 @@ func Test_UserPrincipal_needsTheRole(t *testing.T) {
 
 // The model should never be offered a tool it will then be refused for.
 func Test_AvailableTools_followsThePrincipal(t *testing.T) {
-	all := toolNames(AvailableTools(true, Principal{}))
+	all := toolNames(AvailableTools(ToolDeps{EnableActions: true}))
 	assert.Contains(t, all, toolStartContainer)
 	assert.Contains(t, all, toolCreateLogNotification)
 
-	viewer := toolNames(AvailableTools(true, UserPrincipal(nil, auth.Download)))
+	viewer := toolNames(AvailableTools(ToolDeps{EnableActions: true, Principal: UserPrincipal(nil, auth.Download)}))
 	assert.NotContains(t, viewer, toolStartContainer)
 	assert.NotContains(t, viewer, toolCreateLogNotification)
 	assert.NotContains(t, viewer, toolListNotifications)
 	assert.Contains(t, viewer, toolFetchContainerLogs)
 
-	operator := toolNames(AvailableTools(true, UserPrincipal(nil, auth.Actions)))
+	operator := toolNames(AvailableTools(ToolDeps{EnableActions: true, Principal: UserPrincipal(nil, auth.Actions)}))
 	assert.Contains(t, operator, toolStartContainer)
 	assert.NotContains(t, operator, toolCreateLogNotification)
 
-	background := toolNames(AvailableTools(true, InstancePrincipal(nil)))
+	background := toolNames(AvailableTools(ToolDeps{EnableActions: true, Principal: InstancePrincipal(nil)}))
 	assert.NotContains(t, background, toolStartContainer)
 	assert.Contains(t, background, toolListAllContainers)
 }

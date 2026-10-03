@@ -16,6 +16,7 @@ import (
 	"github.com/amir20/dozzle/internal/container/agent"
 	"github.com/amir20/dozzle/internal/container/docker"
 	"github.com/amir20/dozzle/internal/hostservice"
+	"github.com/amir20/dozzle/internal/imagecheck"
 	"github.com/amir20/dozzle/internal/notification"
 	"github.com/amir20/dozzle/internal/notification/dispatcher"
 	"github.com/amir20/dozzle/internal/utils"
@@ -227,9 +228,10 @@ func (a *AgentCmd) Run(args Args, embeddedCerts embed.FS) error {
 		return ""
 	}
 	cloudClient := cloud.NewClient(apiKeyFunc, instanceID, args.Version(), cloud.ToolDeps{
-		EnableActions: false, // agents don't host action tools today
-		HostService:   agentHostService,
-		Principal:     cloud.APIKeyPrincipal(args.Filter),
+		EnableActions:  false, // agents don't host action tools today
+		ImageCheckMode: imagecheck.Mode(args.ImageCheckMode),
+		HostService:    agentHostService,
+		Principal:      cloud.APIKeyPrincipal(args.Filter),
 	})
 	// An agent is always an agent, whatever the hub in front of it is running as.
 	cloudClient.SetDeployment("agent", swarmClusterID)

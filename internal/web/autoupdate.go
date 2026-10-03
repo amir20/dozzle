@@ -369,30 +369,24 @@ func (s *autoUpdateScheduler) outdatedLabelledContainers(ctx context.Context) ([
 	}
 
 	selfService := selfSwarmService(containers)
-	var outdated []*container.ContainerService
+	labelled := make([]container.Container, 0, len(containers))
 	for _, c := range containers {
-		if !updatable(c) || !autoUpdateEnabled(c.Labels) {
-			continue
-		}
 		// Dozzle's own container follows the schedule by itself, with the
 		// rollback guard below. A labelled replica of its swarm service would
 		// roll this one too, in the middle of everything else.
-		if isSelfContainer(c, selfService) {
+		if autoUpdateEnabled(c.Labels) && !isSelfContainer(c, selfService) {
+			labelled = append(labelled, c)
+		}
+	}
+
+	var outdated []*container.ContainerService
+	// Forced, for the same reason as Dozzle's own check below.
+	for _, u := range container.CheckImageUpdates(ctx, s.hostService, labelled, true) {
+		if !u.Result.UpdateAvailable() {
+			log.Debug().Str("container", u.Container.Name).Str("status", string(u.Result.Status)).Str("reason", u.Result.Reason).Msg("auto update: container not updated")
 			continue
 		}
-		service, err := s.hostService.FindContainer(c.Host, c.ID, s.config.Labels)
-		if err != nil {
-			continue
-		}
-		checkCtx, cancel := context.WithTimeout(ctx, 30*time.Second)
-		// Forced, for the same reason as Dozzle's own check below.
-		result, err := service.CheckImageUpdate(checkCtx, true)
-		cancel()
-		if err != nil || !result.UpdateAvailable() {
-			log.Debug().Err(err).Str("container", c.Name).Str("status", string(result.Status)).Msg("auto update: container not updated")
-			continue
-		}
-		outdated = append(outdated, service)
+		outdated = append(outdated, u.Service)
 	}
 	return outdated, selfService
 }

@@ -374,3 +374,12 @@ func TestCacheIsBounded(t *testing.T) {
 
 	assert.LessOrEqual(t, size, maxCacheEntries)
 }
+
+func TestMode_Allows(t *testing.T) {
+	assert.True(t, ModeAutomatic.Allows(false))
+	assert.True(t, ModeAutomatic.Allows(true))
+	assert.False(t, ModeManual.Allows(false), "manual never checks on its own")
+	assert.True(t, ModeManual.Allows(true))
+	assert.False(t, ModeOff.Allows(true))
+	assert.False(t, Mode("").Allows(true), "the zero mode allows nothing")
+}

@@ -499,7 +499,7 @@ func toolCallTimeout(name string) time.Duration {
 
 func (c *Client) tools() []*pb.ToolDefinition {
 	c.toolsOnce.Do(func() {
-		c.cachedTools = AvailableTools(c.deps.EnableActions, c.deps.Principal)
+		c.cachedTools = AvailableTools(c.deps)
 	})
 	return c.cachedTools
 }
