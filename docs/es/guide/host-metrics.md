@@ -1,6 +1,6 @@
 ---
 title: Métricas del host
-sourceHash: d8c6ddcc5b09
+sourceHash: 205b21c203e4
 ---
 
 # Métricas del host
@@ -47,7 +47,7 @@ El disco no necesita ningún montaje adicional. Dozzle mide el sistema de archiv
 
 ## Ejecutar Dozzle de forma nativa
 
-Un binario de Dozzle que se ejecuta directamente en el host lee `/proc` tal cual, así que la carga y el tiempo activo no necesitan configuración. El disco se lee del directorio de datos de Docker (`docker info --format '{{.DockerRootDir}}'`, normalmente `/var/lib/docker`), así que funciona siempre que el usuario con el que se ejecuta Dozzle pueda ver ese directorio.
+Un binario de Dozzle que se ejecuta directamente en el host lee `/proc` tal cual, así que la carga y el tiempo activo no necesitan configuración. El disco se lee del directorio de datos de Docker (`docker info | grep "Docker Root Dir"`, normalmente `/var/lib/docker`), así que funciona siempre que el usuario con el que se ejecuta Dozzle pueda ver ese directorio.
 
 ## Agentes
 

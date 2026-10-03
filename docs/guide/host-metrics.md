@@ -46,7 +46,7 @@ Disk needs no extra mount. Dozzle measures the filesystem behind its own `/data`
 
 ## Running Dozzle natively
 
-A Dozzle binary running directly on the host reads `/proc` as is, so load and uptime need no setup. Disk is read from Docker's data directory (`docker info --format '{{.DockerRootDir}}'`, usually `/var/lib/docker`), so it works as long as the user Dozzle runs as can see that directory.
+A Dozzle binary running directly on the host reads `/proc` as is, so load and uptime need no setup. Disk is read from Docker's data directory (`docker info | grep "Docker Root Dir"`, usually `/var/lib/docker`), so it works as long as the user Dozzle runs as can see that directory.
 
 ## Agents
 
