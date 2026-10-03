@@ -49,11 +49,15 @@ export function useTimeRangeMenu(
     ];
   });
 
+  // A stopped container has nothing left to stream, so its "live" view is just
+  // the logs it wrote and the chip should not claim otherwise.
+  const stopped = computed(() => toValue(container).state !== "running");
+
   const label = computed(() => {
     const current = toValue(range);
     switch (current.kind) {
       case "live":
-        return toValue(anchor) ? t("time-range.title") : t("time-range.live");
+        return toValue(anchor) || stopped.value ? t("time-range.title") : t("time-range.live");
       case "since":
         return current.relative
           ? t("time-range.last-short", { span: current.relative })
@@ -66,7 +70,7 @@ export function useTimeRangeMenu(
   });
 
   /** Live and "since" both follow new lines, which the chip marks with a dot. */
-  const following = computed(() => toValue(range).kind !== "range" && !toValue(anchor));
+  const following = computed(() => toValue(range).kind !== "range" && !toValue(anchor) && !stopped.value);
 
   function custom() {
     customRequest.value = { container: toValue(container), range: toValue(range), anchor: toValue(anchor) };
