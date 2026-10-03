@@ -69,4 +69,19 @@ describe("<MultiContainerStat />", () => {
 
     expect(recalculate).toHaveBeenCalled();
   });
+
+  test("leaves a stopped container's last sample out of the total", async () => {
+    vi.useFakeTimers();
+    const stopped = makeContainer("b", 50);
+    stopped.state = "exited";
+    const wrapper = mount(MultiContainerStat as any, {
+      props: { containers: [makeContainer("a", 10), stopped] },
+      global: { plugins: [i18n], stubs: { BarChart: BarChartStub, IOCard: true } },
+    });
+
+    await vi.advanceTimersByTimeAsync(1100);
+    const [cpu] = wrapper.findAllComponents(BarChartStub);
+    expect(cpu.props("chartData").at(-1).value).toBe(10);
+    vi.useRealTimers();
+  });
 });

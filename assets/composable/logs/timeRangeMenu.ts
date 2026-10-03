@@ -1,4 +1,4 @@
-import type { Container } from "@/models/Container";
+import { isStopped, type Container } from "@/models/Container";
 import { RELATIVE_SPANS, formatRange, timeRangeRoute, type RelativeSpan, type TimeRange } from "./timeRange";
 
 export type CustomRangeRequest = { container: Container; range: TimeRange; anchor?: Date };
@@ -30,6 +30,10 @@ export function useTimeRangeMenu(
     else router.push(to);
   }
 
+  // A stopped container has nothing left to stream, so its "live" view is just
+  // the logs it wrote and nothing should claim otherwise.
+  const stopped = computed(() => isStopped(toValue(container)));
+
   const rows = computed(() => {
     const current = toValue(range);
     const frozen = !!toValue(anchor);
@@ -37,7 +41,7 @@ export function useTimeRangeMenu(
       {
         key: "live",
         label: t("time-range.live"),
-        active: current.kind === "live" && !frozen,
+        active: current.kind === "live" && !frozen && !stopped.value,
         run: () => go({ kind: "live" }),
       },
       ...(Object.keys(RELATIVE_SPANS) as RelativeSpan[]).map((span) => ({
@@ -48,10 +52,6 @@ export function useTimeRangeMenu(
       })),
     ];
   });
-
-  // A stopped container has nothing left to stream, so its "live" view is just
-  // the logs it wrote and the chip should not claim otherwise.
-  const stopped = computed(() => toValue(container).state !== "running");
 
   const label = computed(() => {
     const current = toValue(range);

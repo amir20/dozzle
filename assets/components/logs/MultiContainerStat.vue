@@ -69,7 +69,7 @@
 </template>
 
 <script lang="ts" setup>
-import { Container, Stat, emptyStat } from "@/models/Container";
+import { Container, Stat, emptyStat, isStopped } from "@/models/Container";
 import StatCard from "@/components/ui/StatCard.vue";
 import IOCard from "@/components/ui/IOCard.vue";
 import BarChart from "@/components/ui/BarChart.vue";
@@ -185,10 +185,13 @@ useIntervalFn(() => {
   const previousStat = totalStat.value;
   totalStat.value = containers.reduce((acc, container) => {
     const cores = toContainerCores(container);
+    // A stopped container keeps its last sample, which is not what it uses now.
+    // Its I/O counters stay in so the totals do not drop and fake a rate.
+    const running = !isStopped(container);
     return {
-      cpu: acc.cpu + container.stat.cpu / cores,
-      memory: acc.memory + container.stat.memory,
-      memoryUsage: acc.memoryUsage + container.stat.memoryUsage,
+      cpu: acc.cpu + (running ? container.stat.cpu / cores : 0),
+      memory: acc.memory + (running ? container.stat.memory : 0),
+      memoryUsage: acc.memoryUsage + (running ? container.stat.memoryUsage : 0),
       networkRxTotal: acc.networkRxTotal + container.stat.networkRxTotal,
       networkTxTotal: acc.networkTxTotal + container.stat.networkTxTotal,
       diskReadTotal: acc.diskReadTotal + container.stat.diskReadTotal,
