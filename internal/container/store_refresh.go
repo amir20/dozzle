@@ -401,7 +401,11 @@ func touchedByLoop(before *Container, current *Container) bool {
 // the result is FullyLoaded and never fetched again.
 func keepLoopFields(from *Container, to *Container) {
 	to.State = from.State
-	if from.Health != "" {
+	// A die clears health, and "" alone would read as unknown and let a fetch taken
+	// while the container still ran put its old health back.
+	if from.State == "exited" || from.State == "dead" {
+		to.Health = ""
+	} else if from.Health != "" {
 		to.Health = from.Health
 	}
 	if !from.StartedAt.IsZero() {

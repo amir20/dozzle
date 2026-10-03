@@ -114,6 +114,7 @@ export const useContainerStore = defineStore("container", () => {
           case "die":
             container.state = "exited";
             container.finishedAt = new Date(event.time);
+            container.health = undefined;
             break;
           case "destroy":
             container.state = "deleted";

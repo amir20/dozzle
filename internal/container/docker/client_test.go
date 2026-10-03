@@ -394,3 +394,29 @@ func Test_newContainerFromJSON_labelPriority(t *testing.T) {
 		})
 	}
 }
+
+func Test_newContainerFromJSON_healthOnlyWhileRunning(t *testing.T) {
+	inspect := func(state *docker.State) docker.InspectResponse {
+		return docker.InspectResponse{
+			ID:         "abcdefghijklmnopqrst",
+			Name:       "/health",
+			State:      state,
+			HostConfig: &docker.HostConfig{},
+			Config:     &docker.Config{},
+		}
+	}
+
+	running := newContainerFromJSON(inspect(&docker.State{
+		Status:  "running",
+		Running: true,
+		Health:  &docker.Health{Status: "healthy"},
+	}), "localhost")
+	assert.Equal(t, "healthy", running.Health)
+
+	// Docker reports the last check of a stopped container, flipped to unhealthy by the kill.
+	exited := newContainerFromJSON(inspect(&docker.State{
+		Status: "exited",
+		Health: &docker.Health{Status: "unhealthy"},
+	}), "localhost")
+	assert.Empty(t, exited.Health)
+}
