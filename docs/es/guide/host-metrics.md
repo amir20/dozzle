@@ -1,11 +1,11 @@
 ---
 title: Métricas del host
-sourceHash: 205b21c203e4
+sourceHash: 5d6314385b49
 ---
 
 # Métricas del host
 
-La tarjeta del host puede mostrar tres lecturas de la máquina en la que corre Docker. Están en un pequeño recuadro a la derecha de la cabecera de la tarjeta, marcado con el icono del host, para que no se confundan con los totales de los contenedores en los medidores de CPU y memoria de abajo:
+La tarjeta del host puede mostrar tres lecturas de la máquina en la que corre Docker. Están en un pequeño recuadro a la derecha de la cabecera de la tarjeta, marcado con un icono de pulso, para que no se confundan con los totales de los contenedores en los medidores de CPU y memoria de abajo. En el móvil, el disco pasa a ser un tercer medidor junto a CPU y memoria, y el tiempo activo y la carga bajan a una línea debajo de los medidores:
 
 - **Tiempo activo**, cuánto tiempo lleva encendido el host
 - **Carga**, la media de carga de 1 minuto, que se vuelve amarilla cuando supera el número de núcleos y roja por encima del doble (pasa el ratón por encima para ver las de 5 y 15 minutos y el número de núcleos)

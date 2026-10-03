@@ -1,11 +1,11 @@
 ---
 title: Métriques de l'hôte
-sourceHash: 205b21c203e4
+sourceHash: 5d6314385b49
 ---
 
 # Métriques de l'hôte
 
-La carte de l'hôte peut afficher trois indicateurs sur la machine où tourne Docker. Ils se trouvent dans un petit encadré à droite de l'en-tête de la carte, marqué de l'icône de l'hôte, pour qu'on ne les confonde pas avec les totaux des conteneurs affichés dans les jauges de CPU et de mémoire en dessous :
+La carte de l'hôte peut afficher trois indicateurs sur la machine où tourne Docker. Ils se trouvent dans un petit encadré à droite de l'en-tête de la carte, marqué d'une icône de pouls, pour qu'on ne les confonde pas avec les totaux des conteneurs affichés dans les jauges de CPU et de mémoire en dessous. Sur un téléphone, le disque devient une troisième jauge à côté du CPU et de la mémoire, et la durée de fonctionnement et la charge passent sur une ligne sous les jauges :
 
 - **Durée de fonctionnement**, depuis combien de temps l'hôte est démarré
 - **Charge**, la charge moyenne sur 1 minute, qui passe au jaune dès qu'elle dépasse le nombre de cœurs et au rouge au-delà du double (survolez-la pour voir celles sur 5 et 15 minutes ainsi que le nombre de cœurs)

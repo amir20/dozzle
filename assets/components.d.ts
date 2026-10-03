@@ -272,6 +272,7 @@ declare module 'vue' {
     'Ph:mapPinSimple': typeof import('~icons/ph/map-pin-simple')['default']
     'Ph:mapPinSimpleFill': typeof import('~icons/ph/map-pin-simple-fill')['default']
     'Ph:memory': typeof import('~icons/ph/memory')['default']
+    'Ph:pulse': typeof import('~icons/ph/pulse')['default']
     'Ph:stack': typeof import('~icons/ph/stack')['default']
     'Ph:stackSimple': typeof import('~icons/ph/stack-simple')['default']
     Popover: typeof import('./components/ui/Popover.vue')['default']

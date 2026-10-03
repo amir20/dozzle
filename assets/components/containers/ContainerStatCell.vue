@@ -1,8 +1,28 @@
 <template>
   <div v-if="!isRunning" class="text-base-content/40 text-sm">&mdash;</div>
-  <div v-else-if="isMobile" class="flex w-fit items-center gap-1.5 px-2.5 py-1 tabular-nums">
-    <component :is="type === 'cpu' ? PhCpu : PhMemory" class="text-base-content/40 size-3.5 shrink-0" />
-    <span class="text-[13px] font-semibold">{{ displayValue }}</span>
+  <!-- The host card's meter cell at row size: the number over a thin bar, CPU in
+       primary and memory in secondary until either needs a look. A bare number
+       said nothing about how close to the limit it was. -->
+  <div v-else-if="isMobile" class="flex min-w-0 flex-col gap-1 px-2.5 py-1.5 tabular-nums">
+    <div class="flex items-center gap-1.5">
+      <component :is="type === 'cpu' ? PhCpu : PhMemory" class="text-base-content/40 size-3.5 shrink-0" />
+      <span class="text-[13px] font-semibold">{{ mobileValue }}</span>
+    </div>
+    <div class="bg-base-content/10 h-1 overflow-hidden rounded-full">
+      <div
+        class="h-full rounded-full transition-[width] duration-500"
+        :class="
+          averageValue > 90
+            ? 'bg-error'
+            : averageValue > 70
+              ? 'bg-warning'
+              : type === 'cpu'
+                ? 'bg-primary'
+                : 'bg-secondary'
+        "
+        :style="{ width: `${Math.min(Math.max(averageValue, 0), 100)}%` }"
+      ></div>
+    </div>
   </div>
   <div v-else class="flex flex-row items-center gap-2">
     <template v-if="mode === 'chart'">
@@ -89,6 +109,11 @@ const displayValue = computed(() => {
   }
   return formatBytes(hovered.value ?? container.movingAverage.memoryUsage);
 });
+
+// Short units on a phone, where the cell is a fixed width: "420M", not "419.98 MB".
+const mobileValue = computed(() =>
+  type === "cpu" ? displayValue.value : formatBytes(container.movingAverage.memoryUsage, { short: true, decimals: 1 }),
+);
 
 // A text colour, not a background: BarChart strokes its bars in `currentColor`.
 const barClass = computed(() => {
