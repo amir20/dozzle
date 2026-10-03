@@ -33,29 +33,32 @@
            disagrees with the server: a matching one said nothing and read like a
            second runtime version. -->
       <div class="text-base-content/50 flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1 text-xs tabular-nums">
-        <template v-if="host.available">
-          <span>{{ $t("label.container", hostContainers.length) }}</span>
-          <span class="text-base-content/25">·</span>
-          <span>{{ runtimeLabel }} {{ host.dockerVersion }}</span>
-          <!-- On a phone the host chip is gone (disk joins the meters below), so
-               uptime and load ride along as two more plain facts. -->
-          <template v-if="isMobile">
-            <template v-if="uptimeLabel">
-              <span class="text-base-content/25">·</span>
-              <span>{{ $t("label.uptime") }} {{ uptimeLabel }}</span>
+        <!-- Each fact draws its own "·" in the 16px to its left, and the row is
+             shifted 16px into a clipped box. Whichever fact starts a line, the
+             first or one that wrapped, has its dot cut off, so a wrap never leaves
+             a dot hanging at the end of the line above. -->
+        <div class="min-w-0 overflow-hidden">
+          <div
+            class="*:before:text-base-content/25 -ml-4 flex flex-wrap gap-y-1 *:relative *:pl-4 *:before:absolute *:before:left-0 *:before:w-4 *:before:text-center *:before:content-['·']"
+          >
+            <template v-if="host.available">
+              <span>{{ $t("label.container", hostContainers.length) }}</span>
+              <span>{{ runtimeLabel }} {{ host.dockerVersion }}</span>
+              <!-- On a phone the host chip is gone (disk joins the meters below), so
+                   uptime and load ride along as two more plain facts. -->
+              <template v-if="isMobile">
+                <span v-if="uptimeLabel">{{ $t("label.uptime") }} {{ uptimeLabel }}</span>
+                <span v-if="host.metricsAvailable" :title="loadTitle">
+                  {{ $t("label.load") }} <span class="font-mono" :class="loadClass">{{ loadLabel }}</span>
+                </span>
+              </template>
             </template>
-            <template v-if="host.metricsAvailable">
-              <span class="text-base-content/25">·</span>
-              <span :title="loadTitle">
-                {{ $t("label.load") }} <span class="font-mono" :class="loadClass">{{ loadLabel }}</span>
-              </span>
-            </template>
-          </template>
-        </template>
-        <span v-else>{{ $t("label.host-unreachable") }}</span>
+            <span v-else>{{ $t("label.host-unreachable") }}</span>
+          </div>
+        </div>
         <span
           v-if="agentOutdated"
-          class="status-pill status-pill-warning ml-1"
+          class="status-pill status-pill-warning"
           :title="$t('tooltip.agent-version-mismatch', { version: host.agentVersion, current: config.version })"
         >
           {{ $t("label.agent-outdated", { version: host.agentVersion }) }}
