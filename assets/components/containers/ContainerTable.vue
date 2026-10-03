@@ -75,7 +75,7 @@
         <tbody>
           <template v-if="!ready">
             <tr v-for="i in skeletonRows" :key="`skeleton-${i}`" role="status" class="animate-pulse">
-              <td v-if="isVisible('name')" class="max-w-80 max-md:max-w-none">
+              <td v-if="isVisible('name')" class="max-w-80 max-md:w-full max-md:max-w-0">
                 <div class="flex items-center gap-2">
                   <div class="bg-base-content/50 size-6 shrink-0 rounded-full opacity-50"></div>
                   <div class="bg-base-content/50 h-3 w-40 max-w-full rounded-full opacity-50"></div>
@@ -115,7 +115,7 @@
             ]"
             class="hover:bg-base-200/60"
           >
-            <td v-if="isVisible('name')" class="max-w-80 max-md:max-w-none">
+            <td v-if="isVisible('name')" class="max-w-80 max-md:w-full max-md:max-w-0">
               <div class="flex items-center gap-2 max-md:items-start">
                 <ContainerIcon
                   :state="container.state"
@@ -146,11 +146,11 @@
                   <div v-if="container.customGroup" class="text-base-content/50 truncate text-xs">
                     {{ container.customGroup }}
                   </div>
-                  <!-- Same hairline-split chip as the log toolbar's stats, so a number
-                       looks the same on the way into a container as it does inside. -->
+                  <!-- The host card's meter strip at row size: two halves spanning the
+                       row, so the bars are long enough to read at a glance. -->
                   <div
                     v-if="isMobile && container.state === 'running'"
-                    class="bg-base-content/5.5 divide-base-content/10 mt-1.5 flex w-fit items-stretch divide-x rounded-lg"
+                    class="bg-base-content/5.5 divide-base-content/10 mt-1.5 grid grid-cols-2 divide-x rounded-lg"
                   >
                     <ContainerStatCell
                       :container="container"

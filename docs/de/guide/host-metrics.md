@@ -1,11 +1,11 @@
 ---
 title: Host-Metriken
-sourceHash: 205b21c203e4
+sourceHash: 5d6314385b49
 ---
 
 # Host-Metriken
 
-Die Host-Karte kann drei Werte für die Maschine anzeigen, auf der Docker läuft. Sie stehen in einem kleinen Kasten rechts im Kopf der Karte, gekennzeichnet mit dem Symbol des Hosts, damit man sie nicht mit den Container-Summen in den Anzeigen für CPU und Arbeitsspeicher darunter verwechselt:
+Die Host-Karte kann drei Werte für die Maschine anzeigen, auf der Docker läuft. Sie stehen in einem kleinen Kasten rechts im Kopf der Karte, gekennzeichnet mit einem Puls-Symbol, damit man sie nicht mit den Container-Summen in den Anzeigen für CPU und Arbeitsspeicher darunter verwechselt. Auf dem Handy wird der Speicherplatz zu einer dritten Anzeige neben CPU und Arbeitsspeicher, und Laufzeit und Last rücken in eine Zeile unter den Anzeigen:
 
 - **Laufzeit**, wie lange der Host schon läuft
 - **Last**, der Load Average über 1 Minute, der gelb wird, sobald er die Anzahl der Kerne übersteigt, und rot ab dem Doppelten davon (beim Darüberfahren mit der Maus erscheinen die Werte für 5 und 15 Minuten und die Anzahl der Kerne)

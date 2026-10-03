@@ -13,9 +13,21 @@ import (
 	"time"
 )
 
-// hostDisksRoot is where operators mount extra drives to watch, one folder per
-// drive, next to /host/proc so everything describing the host lives under /host.
-const hostDisksRoot = "/host/disks"
+// hostRoot is where a containerized Dozzle finds the host: its /proc at
+// /host/proc, and the extra drives operators mount to watch at /host/disks, one
+// folder per drive. DOZZLE_DEV_HOST_ROOT moves it for local development only: a
+// native binary on macOS has no /proc, Docker's data directory is inside Docker
+// Desktop's VM, and /host cannot be created on a read-only system volume, so
+// without it no host read-out ever appears under `make dev`. Not documented on
+// purpose.
+var hostRoot = func() string {
+	if dir := os.Getenv("DOZZLE_DEV_HOST_ROOT"); dir != "" {
+		return dir
+	}
+	return "/host"
+}()
+
+var hostDisksRoot = filepath.Join(hostRoot, "disks")
 
 var errShort = errors.New("unexpected proc format")
 
@@ -40,13 +52,18 @@ func inContainer() bool {
 	return false
 }
 
+func fileExists(path string) bool {
+	_, err := os.Stat(path)
+	return err == nil
+}
+
 // hostProcRoot returns the directory holding the *host* /proc. Operators running
 // Dozzle in a container mount it at /host/proc; a native install has it at /proc.
 // In a container without the mount we cannot tell the host's values from the
 // container's, so we report nothing rather than something wrong.
 func hostProcRoot() (string, bool) {
-	if _, err := os.Stat("/host/proc/loadavg"); err == nil {
-		return "/host/proc", true
+	if proc := filepath.Join(hostRoot, "proc"); fileExists(filepath.Join(proc, "loadavg")) {
+		return proc, true
 	}
 	if !inContainer() {
 		if _, err := os.Stat("/proc/loadavg"); err == nil {

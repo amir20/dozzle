@@ -4,7 +4,7 @@ title: Host Metrics
 
 # Host Metrics
 
-The host card can show three read-outs for the machine Docker runs on. They sit in a small box on the right of the card's header, marked with the host's icon, so they are not mistaken for the container totals in the CPU and memory meters below:
+The host card can show three read-outs for the machine Docker runs on. They sit in a small box on the right of the card's header, marked with a pulse icon, so they are not mistaken for the container totals in the CPU and memory meters below. On a phone, disk becomes a third meter next to CPU and memory, and uptime and load move to a line under the meters:
 
 - **Uptime**, how long the host has been up
 - **Load**, the 1 minute load average, which turns yellow once it passes the number of cores and red past twice that (hover it for the 5 and 15 minute ones and the core count)

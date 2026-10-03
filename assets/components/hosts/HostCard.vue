@@ -49,19 +49,18 @@
       </div>
 
       <!-- The machine's own read-outs, in one hairline chip pushed to the right
-           edge and led by the host's own icon. On a phone it cannot share the
-           name's line, so it takes a full-width row of its own instead of
-           hanging off the right under the name. The facts on the left are about
+           edge and led by a pulse, not the host's own icon, which the name already
+           wears. The facts on the left are about
            what Docker runs and the meters below sum the containers, so without a
            boundary "Load" and "Disk" read as more container numbers. Inside,
            labels stay muted, values carry the weight, and each hides when it is
-           not known. -->
+           not known. A phone has no room beside the name; see the footer below. -->
       <div
-        v-if="host.available && hasHostMetrics"
-        class="border-base-content/10 text-base-content/50 flex w-full flex-wrap items-center gap-x-3 gap-y-1 rounded-md border px-2 py-0.5 text-xs tabular-nums sm:ml-auto sm:w-auto"
+        v-if="host.available && hasHostMetrics && !isMobile"
+        class="border-base-content/10 text-base-content/50 ml-auto flex flex-wrap items-center gap-x-3 gap-y-1 rounded-md border px-2 py-0.5 text-xs tabular-nums"
         :title="$t('label.host')"
       >
-        <HostIcon :type="host.type" class="size-3.5 opacity-60" />
+        <ph:pulse class="size-3.5 opacity-60" />
         <span v-if="uptimeLabel">
           {{ $t("label.uptime") }} <span class="text-base-content/80 font-mono">{{ uptimeLabel }}</span>
         </span>
@@ -101,17 +100,27 @@
 
     <!-- Two charts at half a phone's width are too narrow to read a trend from and
          push the container list below the fold, so a phone gets the numbers alone,
-         split into two halves that span the card, each over a thin meter so the
-         width it takes carries load rather than empty space. -->
+         split into cells that span the card, each over a thin meter so the width
+         it takes carries load rather than empty space. Disk is a third cell here
+         rather than a chip of its own under the name. -->
     <div
       v-else-if="stats && isMobile"
-      class="bg-base-content/5.5 divide-base-content/10 grid grid-cols-2 divide-x rounded-lg tabular-nums"
+      class="bg-base-content/5.5 divide-base-content/10 grid divide-x rounded-lg tabular-nums"
+      :class="meters.length === 3 ? 'grid-cols-3' : 'grid-cols-2'"
     >
-      <div v-for="meter in meters" :key="meter.key" class="flex min-w-0 flex-col gap-1.5 px-3 py-2">
+      <div
+        v-for="meter in meters"
+        :key="meter.key"
+        class="flex min-w-0 flex-col gap-1.5 py-2"
+        :class="meters.length === 3 ? 'px-2.5' : 'px-3'"
+        :title="meter.title ?? `${meter.value} / ${meter.limit}`"
+      >
         <div class="flex min-w-0 items-center gap-1.5">
           <component :is="meter.icon" class="text-base-content/40 size-3.5 shrink-0" />
           <span class="text-[13px] font-semibold">{{ meter.value }}</span>
-          <span class="text-base-content/45 truncate text-[11px]">/ {{ meter.limit }}</span>
+          <!-- Three cells leave no room for the limit, and a truncated "/." read as
+               a glitch; it moves to the tooltip instead. -->
+          <span v-if="meters.length < 3" class="text-base-content/45 truncate text-[11px]">/ {{ meter.limit }}</span>
         </div>
         <div class="bg-base-content/10 h-1 overflow-hidden rounded-full">
           <div
@@ -153,15 +162,39 @@
         :formatValue="(value) => formatBytes(value, { decimals: 1 })"
       />
     </div>
+
+    <!-- On a phone, disk is a cell in the strip above and uptime and load trail
+         it as a footer. Under the name they read as facts about Docker; led by
+         the same pulse as the desktop chip and sitting under the host's disk,
+         they read as the machine's. -->
+    <div
+      v-if="isMobile && host.available && (uptimeLabel || host.metricsAvailable)"
+      class="text-base-content/50 -mt-1 flex flex-wrap items-center justify-end gap-x-2 gap-y-1 px-1 text-xs tabular-nums"
+    >
+      <ph:pulse class="size-3.5 opacity-60" :title="$t('label.host')" />
+      <template v-if="uptimeLabel">
+        <span>
+          {{ $t("label.uptime") }} <span class="text-base-content/80 font-mono">{{ uptimeLabel }}</span>
+        </span>
+      </template>
+      <template v-if="host.metricsAvailable">
+        <span v-if="uptimeLabel" class="text-base-content/25">·</span>
+        <span :title="loadTitle">
+          {{ $t("label.load") }} <span class="font-mono" :class="loadClass">{{ loadLabel }}</span>
+        </span>
+      </template>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
+import type { Component } from "vue";
 import type { Host } from "@/stores/hosts";
 import { sessionHost } from "@/composable/app/storage";
 import { Container } from "@/models/Container";
 import PhCpu from "~icons/ph/cpu";
 import PhMemory from "~icons/ph/memory";
+import PhHardDrives from "~icons/ph/hard-drives";
 
 const props = defineProps<{
   host: Host;
@@ -288,8 +321,14 @@ const diskTitle = computed(() =>
 
 const stats = reactive({ mostRecent: totalStat, weighted: useExponentialMovingAverage(totalStat) });
 
+// The fullest drive, since that is the one the bar shows.
+const fullestDrive = computed(() =>
+  drives.value.length ? drives.value.reduce((a, b) => (b.percent > a.percent ? b : a)) : undefined,
+);
+
 const meters = computed(() => {
   const { totalCPU, totalMemUsage } = stats.weighted.movingAverage;
+  const disk = fullestDrive.value;
   return [
     {
       key: "cpu",
@@ -307,7 +346,20 @@ const meters = computed(() => {
       percent: props.host.memTotal ? (totalMemUsage / props.host.memTotal) * 100 : 0,
       bar: "bg-secondary",
     },
-  ];
+    ...(disk
+      ? [
+          {
+            key: "disk",
+            icon: PhHardDrives,
+            value: `${disk.percent}%`,
+            limit: formatBytes(disk.total, { short: true, decimals: 0 }),
+            percent: disk.percent,
+            bar: "bg-accent",
+            title: diskTitle.value,
+          },
+        ]
+      : []),
+  ] as { key: string; icon: Component; value: string; limit: string; percent: number; bar: string; title?: string }[];
 });
 
 watch(
