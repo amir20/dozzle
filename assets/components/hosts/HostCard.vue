@@ -64,7 +64,7 @@
           {{ $t("label.uptime") }} <span class="text-base-content/80 font-mono">{{ uptimeLabel }}</span>
         </span>
         <span v-if="host.metricsAvailable" :title="loadTitle">
-          {{ $t("label.load") }} <span class="text-base-content/80 font-mono">{{ loadLabel }}</span>
+          {{ $t("label.load") }} <span class="font-mono" :class="loadClass">{{ loadLabel }}</span>
         </span>
         <!-- UsageMeter's track and thresholds, inline: the component is a labelled
              block sized for a panel row, too tall for a header fact. The fill stays
@@ -239,33 +239,49 @@ const formatUptime = (secs?: number) => {
   return `${m}m`;
 };
 
-const diskUsed = computed(() => (props.host.diskTotal ?? 0) - (props.host.diskFree ?? 0));
-
 // Only the 1 minute average is shown; three bare numbers in a row meant nothing
 // without a legend, so the 5 and 15 minute ones live in the tooltip.
 const loadLabel = computed(() => (props.host.load1 ?? 0).toFixed(2));
 
 const loadTitle = computed(() => {
   const { load1 = 0, load5 = 0, load15 = 0 } = props.host;
-  return `1m ${load1.toFixed(2)} · 5m ${load5.toFixed(2)} · 15m ${load15.toFixed(2)}`;
+  return `1m ${load1.toFixed(2)} · 5m ${load5.toFixed(2)} · 15m ${load15.toFixed(2)} · ${t("label.core", hostCores.value)}`;
+});
+
+// A load figure only means something against the core count: 0.9 is idle on 12
+// cores and saturated on 1. Past one runnable task per core it warns, past two it
+// errors, the same way the disk bar takes color only when it needs a look.
+const loadClass = computed(() => {
+  const perCore = (props.host.load1 ?? 0) / hostCores.value;
+  return perCore > 2 ? "text-error" : perCore > 1 ? "text-warning" : "text-base-content/80";
 });
 
 const uptimeLabel = computed(() => (props.host.metricsAvailable ? formatUptime(props.host.uptime) : undefined));
 
-const diskPercent = computed(() => {
+// Docker's own disk first, then any drive mounted under /host/disks. The bar shows
+// the fullest one, since that is the one that will run out; the tooltip lists all.
+const drives = computed(() => {
+  const list = (props.host.disks ?? []).map(({ name, total, free }) => ({ name, total, used: total - free }));
   const total = props.host.diskTotal ?? 0;
-  if (!total) return undefined;
-  return Math.round((diskUsed.value / total) * 100);
+  if (total) list.unshift({ name: runtimeLabel.value, total, used: total - (props.host.diskFree ?? 0) });
+  return list.map((drive) => ({ ...drive, percent: Math.round((drive.used / drive.total) * 100) }));
 });
+
+const diskPercent = computed(() =>
+  drives.value.length ? Math.max(...drives.value.map((drive) => drive.percent)) : undefined,
+);
 
 const hasHostMetrics = computed(
   () => !!uptimeLabel.value || props.host.metricsAvailable || diskPercent.value !== undefined,
 );
 
 const diskTitle = computed(() =>
-  props.host.diskTotal
-    ? `${formatBytes(diskUsed.value, { decimals: 1 })} / ${formatBytes(props.host.diskTotal, { decimals: 1 })}`
-    : undefined,
+  drives.value
+    .map((drive) => {
+      const usage = `${formatBytes(drive.used, { decimals: 1 })} / ${formatBytes(drive.total, { decimals: 1 })}`;
+      return drives.value.length > 1 ? `${drive.name} ${usage} (${drive.percent}%)` : usage;
+    })
+    .join("\n"),
 );
 
 const stats = reactive({ mostRecent: totalStat, weighted: useExponentialMovingAverage(totalStat) });

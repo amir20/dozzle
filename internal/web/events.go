@@ -441,9 +441,15 @@ type hostMetricsEvent struct {
 	Uptime           uint64  `json:"uptime"`
 	DiskTotal        uint64  `json:"diskTotal"`
 	DiskFree         uint64  `json:"diskFree"`
+	// Always an array, never null, so a drive that was unmounted clears.
+	Disks []container.Disk `json:"disks"`
 }
 
 func newHostMetricsEvent(host container.Host) hostMetricsEvent {
+	disks := host.Disks
+	if disks == nil {
+		disks = []container.Disk{}
+	}
 	return hostMetricsEvent{
 		ID:               host.ID,
 		MetricsAvailable: host.MetricsAvailable,
@@ -453,6 +459,7 @@ func newHostMetricsEvent(host container.Host) hostMetricsEvent {
 		Uptime:           host.Uptime,
 		DiskTotal:        host.DiskTotal,
 		DiskFree:         host.DiskFree,
+		Disks:            disks,
 	}
 }
 
@@ -461,5 +468,5 @@ func newHostMetricsEvent(host container.Host) hostMetricsEvent {
 // from the engine's data directory and does not need the host /proc mounted, so
 // metricsAvailable is not the whole story.
 func hostHasMetrics(host container.Host) bool {
-	return host.Type == "local" && (host.MetricsAvailable || host.DiskTotal > 0)
+	return host.Type == "local" && (host.MetricsAvailable || host.DiskTotal > 0 || len(host.Disks) > 0)
 }

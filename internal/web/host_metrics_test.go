@@ -26,10 +26,13 @@ func TestHostMetricsEventCarriesOnlyMetrics(t *testing.T) {
 	assert.Equal(t, 1.5, got["load1"])
 	// zero values are sent so a value that drops to zero replaces the stale one
 	assert.Contains(t, got, "uptime")
+	// and an empty array, not null, so an unmounted drive clears
+	assert.Equal(t, []any{}, got["disks"])
 }
 
 func TestHostHasMetrics(t *testing.T) {
 	assert.False(t, hostHasMetrics(container.Host{Type: "local"}))
 	assert.True(t, hostHasMetrics(container.Host{Type: "local", DiskTotal: 1}))
+	assert.True(t, hostHasMetrics(container.Host{Type: "local", Disks: []container.Disk{{Name: "media", Total: 1}}}))
 	assert.False(t, hostHasMetrics(container.Host{Type: "agent", MetricsAvailable: true}))
 }

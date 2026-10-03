@@ -1,6 +1,6 @@
 ---
 title: Host-Metriken
-sourceHash: e4937eb24a72
+sourceHash: 436543366083
 ---
 
 # Host-Metriken
@@ -8,7 +8,7 @@ sourceHash: e4937eb24a72
 Die Host-Karte kann drei Werte für die Maschine anzeigen, auf der Docker läuft. Sie stehen in einem kleinen Kasten rechts im Kopf der Karte, gekennzeichnet mit dem Symbol des Hosts, damit man sie nicht mit den Container-Summen in den Anzeigen für CPU und Arbeitsspeicher darunter verwechselt:
 
 - **Laufzeit**, wie lange der Host schon läuft
-- **Last**, der Load Average über 1 Minute (beim Darüberfahren mit der Maus erscheinen die Werte für 5 und 15 Minuten)
+- **Last**, der Load Average über 1 Minute, der gelb wird, sobald er die Anzahl der Kerne übersteigt, und rot ab dem Doppelten davon (beim Darüberfahren mit der Maus erscheinen die Werte für 5 und 15 Minuten und die Anzahl der Kerne)
 - **Datenträger**, wie voll das Dateisystem mit dem Datenverzeichnis von Docker ist, als kleiner Balken, der ab 70% gelb und ab 90% rot wird (beim Darüberfahren mit der Maus erscheinen belegter und gesamter Speicher)
 
 Solange ein Tab offen ist, werden sie alle 15 Sekunden aktualisiert. Jeder Wert erscheint nur, wenn Dozzle dafür einen echten Wert lesen kann. Bei einer Standardinstallation fehlt der Kasten also womöglich ganz oder zeigt nur einen Teil davon.
@@ -48,6 +48,27 @@ Für den Datenträgerwert brauchst du keinen zusätzlichen Mount. Dozzle misst d
 ## Dozzle nativ betreiben
 
 Ein Dozzle-Binary, das direkt auf dem Host läuft, liest `/proc` so wie es ist. Last und Laufzeit brauchen also keine Einrichtung. Die Datenträgerbelegung wird aus dem Datenverzeichnis von Docker gelesen (`docker info --format '{{.DockerRootDir}}'`, meist `/var/lib/docker`). Das klappt, solange der Benutzer, unter dem Dozzle läuft, dieses Verzeichnis sehen kann.
+
+## Weitere Laufwerke
+
+Der Datenträgerwert deckt von Haus aus den Datenträger von Docker ab. Um auch andere Laufwerke zu beobachten, bindest du jedes davon unter `/host/disks/<name>` ein. Der Ordnername wird zur Bezeichnung des Laufwerks.
+
+```yaml [docker-compose.yml]
+services:
+  dozzle:
+    image: amir20/dozzle:latest
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /proc:/host/proc:ro
+      - /mnt/media:/host/disks/media:ro
+      - /mnt/backup:/host/disks/backup:ro
+```
+
+Der Balken zeigt dann das vollste Laufwerk, denn das ist dasjenige, dem zuerst der Platz ausgeht. Beim Darüberfahren mit der Maus erscheint jedes Laufwerk mit belegtem und gesamtem Speicher.
+
+Dozzle braucht zum Messen eines Laufwerks nur den Einhängepunkt, nicht seine Dateien. Bindest du das Wurzelverzeichnis eines Laufwerks ein, kann Dozzle trotzdem lesen, was darauf liegt. Wenn dir das wichtig ist, leg auf dem Laufwerk einen leeren Ordner an und binde stattdessen diesen ein (`/mnt/media/.dozzle:/host/disks/media:ro`). Er liegt auf demselben Dateisystem und meldet dieselben Zahlen.
+
+Eine native Installation erreicht dasselbe mit symbolischen Links: `ln -s /mnt/media /host/disks/media`.
 
 ## Einschränkungen
 
