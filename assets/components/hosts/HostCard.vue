@@ -37,6 +37,20 @@
           <span>{{ $t("label.container", hostContainers.length) }}</span>
           <span class="text-base-content/25">·</span>
           <span>{{ runtimeLabel }} {{ host.dockerVersion }}</span>
+          <!-- On a phone the host chip is gone (disk joins the meters below), so
+               uptime and load ride along as two more plain facts. -->
+          <template v-if="isMobile">
+            <template v-if="uptimeLabel">
+              <span class="text-base-content/25">·</span>
+              <span>{{ $t("label.uptime") }} {{ uptimeLabel }}</span>
+            </template>
+            <template v-if="host.metricsAvailable">
+              <span class="text-base-content/25">·</span>
+              <span :title="loadTitle">
+                {{ $t("label.load") }} <span class="font-mono" :class="loadClass">{{ loadLabel }}</span>
+              </span>
+            </template>
+          </template>
         </template>
         <span v-else>{{ $t("label.host-unreachable") }}</span>
         <span
@@ -57,7 +71,7 @@
            labels stay muted, values carry the weight, and each hides when it is
            not known. -->
       <div
-        v-if="host.available && hasHostMetrics"
+        v-if="host.available && hasHostMetrics && !isMobile"
         class="border-base-content/10 text-base-content/50 flex w-full flex-wrap items-center gap-x-3 gap-y-1 rounded-md border px-2 py-0.5 text-xs tabular-nums sm:ml-auto sm:w-auto"
         :title="$t('label.host')"
       >
@@ -100,26 +114,33 @@
     </div>
 
     <!-- Two charts at half a phone's width are too narrow to read a trend from and
-         push the container list below the fold, so a phone gets the numbers alone,
-         split into two halves that span the card, each over a thin meter so the
-         width it takes carries load rather than empty space. -->
+         push the container list below the fold, so a phone gets one row per meter:
+         icon, a bar that takes the spare width, and the number. Disk joins as a third
+         row instead of a separate bordered chip, so the card has one surface for
+         numbers, not two. Bars are neutral until 70%, the same as the disk read-out,
+         because the chart colors (secondary is amber) read as a warning on a meter. -->
     <div
       v-else-if="stats && isMobile"
-      class="bg-base-content/5.5 divide-base-content/10 grid grid-cols-2 divide-x rounded-lg tabular-nums"
+      class="bg-base-content/5.5 divide-base-content/10 grid grid-cols-[auto_1fr_auto] divide-y rounded-lg tabular-nums"
     >
-      <div v-for="meter in meters" :key="meter.key" class="flex min-w-0 flex-col gap-1.5 px-3 py-2">
-        <div class="flex min-w-0 items-center gap-1.5">
-          <component :is="meter.icon" class="text-base-content/40 size-3.5 shrink-0" />
-          <span class="text-[13px] font-semibold">{{ meter.value }}</span>
-          <span class="text-base-content/45 truncate text-[11px]">/ {{ meter.limit }}</span>
-        </div>
+      <div
+        v-for="meter in meters"
+        :key="meter.key"
+        class="col-span-3 grid grid-cols-subgrid items-center gap-3 px-3 py-2"
+        :title="meter.title"
+      >
+        <component :is="meter.icon" class="text-base-content/40 size-3.5" />
         <div class="bg-base-content/10 h-1 overflow-hidden rounded-full">
           <div
             class="h-full rounded-full transition-[width] duration-500"
-            :class="meter.percent > 90 ? 'bg-error' : meter.percent > 70 ? 'bg-warning' : meter.bar"
+            :class="meter.percent > 90 ? 'bg-error' : meter.percent > 70 ? 'bg-warning' : 'bg-base-content/40'"
             :style="{ width: `${Math.min(Math.max(meter.percent, 0), 100)}%` }"
           ></div>
         </div>
+        <span class="text-right text-xs">
+          <span class="font-mono font-semibold">{{ meter.value }}</span>
+          <span class="text-base-content/45"> / {{ meter.limit }}</span>
+        </span>
       </div>
     </div>
 
@@ -162,6 +183,7 @@ import { sessionHost } from "@/composable/app/storage";
 import { Container } from "@/models/Container";
 import PhCpu from "~icons/ph/cpu";
 import PhMemory from "~icons/ph/memory";
+import PhHardDrives from "~icons/ph/hard-drives";
 
 const props = defineProps<{
   host: Host;
@@ -290,24 +312,40 @@ const stats = reactive({ mostRecent: totalStat, weighted: useExponentialMovingAv
 
 const meters = computed(() => {
   const { totalCPU, totalMemUsage } = stats.weighted.movingAverage;
-  return [
+  const list = [
     {
       key: "cpu",
       icon: PhCpu,
+      title: t("label.cpu"),
       value: `${totalCPU.toFixed(1)}%`,
       limit: t("label.core", props.host.nCPU ?? 0),
       percent: totalCPU,
-      bar: "bg-primary",
     },
     {
       key: "mem",
       icon: PhMemory,
+      title: t("label.mem"),
       value: formatBytes(totalMemUsage, { short: true, decimals: 1 }),
       limit: formatBytes(props.host.memTotal, { short: true, decimals: 1 }),
       percent: props.host.memTotal ? (totalMemUsage / props.host.memTotal) * 100 : 0,
-      bar: "bg-secondary",
     },
   ];
+  // The fullest drive, same as the desktop chip; the tooltip lists every one.
+  const fullest = drives.value.reduce<(typeof drives.value)[number] | undefined>(
+    (max, drive) => (!max || drive.percent > max.percent ? drive : max),
+    undefined,
+  );
+  if (fullest) {
+    list.push({
+      key: "disk",
+      icon: PhHardDrives,
+      title: `${t("label.disk")}\n${diskTitle.value}`,
+      value: `${fullest.percent}%`,
+      limit: formatBytes(fullest.total, { short: true, decimals: 1 }),
+      percent: fullest.percent,
+    });
+  }
+  return list;
 });
 
 watch(
