@@ -1,6 +1,6 @@
 ---
 title: Host-Metriken
-sourceHash: d8c6ddcc5b09
+sourceHash: 205b21c203e4
 ---
 
 # Host-Metriken
@@ -47,7 +47,7 @@ Für den Datenträgerwert brauchst du keinen zusätzlichen Mount. Dozzle misst d
 
 ## Dozzle nativ betreiben
 
-Ein Dozzle-Binary, das direkt auf dem Host läuft, liest `/proc` so wie es ist. Last und Laufzeit brauchen also keine Einrichtung. Die Datenträgerbelegung wird aus dem Datenverzeichnis von Docker gelesen (`docker info --format '{{.DockerRootDir}}'`, meist `/var/lib/docker`). Das klappt, solange der Benutzer, unter dem Dozzle läuft, dieses Verzeichnis sehen kann.
+Ein Dozzle-Binary, das direkt auf dem Host läuft, liest `/proc` so wie es ist. Last und Laufzeit brauchen also keine Einrichtung. Die Datenträgerbelegung wird aus dem Datenverzeichnis von Docker gelesen (`docker info | grep "Docker Root Dir"`, meist `/var/lib/docker`). Das klappt, solange der Benutzer, unter dem Dozzle läuft, dieses Verzeichnis sehen kann.
 
 ## Agents
 

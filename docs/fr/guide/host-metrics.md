@@ -1,6 +1,6 @@
 ---
 title: Métriques de l'hôte
-sourceHash: d8c6ddcc5b09
+sourceHash: 205b21c203e4
 ---
 
 # Métriques de l'hôte
@@ -47,7 +47,7 @@ Le disque ne demande aucun montage supplémentaire. Dozzle mesure le système de
 
 ## Dozzle en natif
 
-Un binaire Dozzle lancé directement sur l'hôte lit `/proc` tel quel, la charge et la durée de fonctionnement ne demandent donc aucune configuration. Le disque est lu depuis le répertoire de données de Docker (`docker info --format '{{.DockerRootDir}}'`, en général `/var/lib/docker`), il fonctionne donc tant que l'utilisateur sous lequel tourne Dozzle peut voir ce répertoire.
+Un binaire Dozzle lancé directement sur l'hôte lit `/proc` tel quel, la charge et la durée de fonctionnement ne demandent donc aucune configuration. Le disque est lu depuis le répertoire de données de Docker (`docker info | grep "Docker Root Dir"`, en général `/var/lib/docker`), il fonctionne donc tant que l'utilisateur sous lequel tourne Dozzle peut voir ce répertoire.
 
 ## Agents
 

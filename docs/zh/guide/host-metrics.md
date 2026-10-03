@@ -1,6 +1,6 @@
 ---
 title: 主机指标
-sourceHash: d8c6ddcc5b09
+sourceHash: 205b21c203e4
 ---
 
 # 主机指标
@@ -47,7 +47,7 @@ volumes:
 
 ## 直接在主机上运行 Dozzle
 
-直接在主机上运行的 Dozzle 二进制文件会原样读取 `/proc`，所以负载和运行时间无需任何配置。磁盘读数来自 Docker 的数据目录（`docker info --format '{{.DockerRootDir}}'`，通常是 `/var/lib/docker`），所以只要运行 Dozzle 的用户能访问该目录，磁盘读数就能正常工作。
+直接在主机上运行的 Dozzle 二进制文件会原样读取 `/proc`，所以负载和运行时间无需任何配置。磁盘读数来自 Docker 的数据目录（`docker info | grep "Docker Root Dir"`，通常是 `/var/lib/docker`），所以只要运行 Dozzle 的用户能访问该目录，磁盘读数就能正常工作。
 
 ## 代理
 
