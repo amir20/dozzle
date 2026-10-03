@@ -93,6 +93,28 @@ describe("Container.name", () => {
   });
 });
 
+describe("Container.health", () => {
+  test("reads nothing once the container stops, and comes back with it", () => {
+    const container = reactive(makeContainer());
+    container.health = "healthy";
+    expect(container.health).toBe("healthy");
+
+    container.state = "exited";
+    expect(container.health).toBeUndefined();
+
+    container.state = "running";
+    container.health = "starting";
+    expect(container.health).toBe("starting");
+  });
+
+  test("a paused container keeps its health", () => {
+    const container = reactive(makeContainer());
+    container.health = "healthy";
+    container.state = "paused";
+    expect(container.health).toBe("healthy");
+  });
+});
+
 describe("Container.storageKey", () => {
   test("combines stripped image with command", () => {
     expect(makeContainer({ image: "nginx:1.25", command: "run" }).storageKey).toBe("nginx:run");

@@ -184,6 +184,8 @@ func (s *Store) handleEvent(event ContainerEvent) {
 		s.patch(id, func(c *Container) bool {
 			c.State = "exited"
 			c.FinishedAt = time.Now()
+			// A healthcheck only runs while the container does.
+			c.Health = ""
 			// Docker puts the exit code on the die event; a start re-inspects,
 			// which is where RestartCount and OOMKilled are refreshed.
 			if code, err := strconv.Atoi(event.ActorAttributes["exitCode"]); err == nil {

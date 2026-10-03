@@ -51,6 +51,7 @@ export class HistoricalContainer {
 export class Container {
   private _stat: Ref<Stat>;
   private _name: string;
+  private _health?: ContainerHealth;
   // Shallow, and `markRaw` on the array inside it: a Container lives in the store's
   // deeply reactive `containers` array, so a plain `ref` here would proxy the window
   // and all 300 `Stat`s in it. Every tick then pays for a proxy plus a deep array
@@ -89,12 +90,13 @@ export class Container {
     public readonly memoryLimit: number,
     stats: Stat[],
     public group?: string,
-    public health?: ContainerHealth,
+    health?: ContainerHealth,
     public isNew: boolean = false,
     mounts: ContainerMount[] = [],
     mountStats: Record<string, MountStat> = {},
     public readonly ports: string[] = [],
   ) {
+    this._health = health;
     this.mounts = mounts;
     this.mountStats = mountStats;
     const defaultStat = emptyStat();
@@ -262,6 +264,17 @@ export class Container {
           .replace(`.${this.labels["com.docker.swarm.task.id"]}`, "")
           .replace(`.${this.labels["com.docker.swarm.node.id"]}`, "")
       : this._name;
+  }
+
+  set health(health: ContainerHealth | undefined) {
+    this._health = health;
+  }
+
+  // A healthcheck only runs while the container does, and Docker keeps the last
+  // result (flipped to unhealthy by the kill) after it stops. Neither describes a
+  // stopped container, so every surface reads no health for one.
+  get health(): ContainerHealth | undefined {
+    return isStopped(this) ? undefined : this._health;
   }
 
   get swarmId() {

@@ -760,7 +760,9 @@ func newContainerFromJSON(c docker.InspectResponse, host string) container.Conta
 		container.FinishedAt = stoppedAt.UTC()
 	}
 
-	if c.State.Health != nil {
+	// Docker keeps the last health status after a container stops, flipped to
+	// "unhealthy" by the kill. Neither describes a container that is not running.
+	if c.State.Health != nil && c.State.Running {
 		container.Health = strings.ToLower(string(c.State.Health.Status))
 	}
 

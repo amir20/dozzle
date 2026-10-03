@@ -80,10 +80,11 @@ func TestStore_die(t *testing.T) {
 	client := new(mockedClient)
 	client.On("ListContainers", mock.Anything, mock.Anything).Return([]Container{
 		{
-			ID:    "1234",
-			Name:  "test",
-			State: "running",
-			Stats: utils.NewRingBuffer[ContainerStat](300),
+			ID:     "1234",
+			Name:   "test",
+			State:  "running",
+			Health: "healthy",
+			Stats:  utils.NewRingBuffer[ContainerStat](300),
 		},
 	}, nil)
 
@@ -128,6 +129,7 @@ func TestStore_die(t *testing.T) {
 	assert.Equal(t, containers[0].State, "exited")
 	assert.Equal(t, 137, containers[0].ExitCode, "the die event carries the exit code")
 	assert.True(t, containers[0].OOMKilled, "the oom event marks the kill")
+	assert.Empty(t, containers[0].Health, "a stopped container has no health")
 }
 
 func TestStore_updateCreatedToExitedBroadcastsStart(t *testing.T) {
