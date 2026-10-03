@@ -139,8 +139,8 @@ label:
     empty: "Ni ujemajočih se dnevnikov"
     empty-hint: "Preiskani vsi dnevniki. Poskusite z drugim izrazom ali počistite iskanje."
 tooltip:
-  memory-new: "Dozzle Cloud te napake v tem vsebniku še ni videl. Kliknite za prikaz samo teh vrstic."
-  memory-new-since: "Prvič opažena v tem vsebniku: {time}. Kliknite za prikaz samo teh vrstic."
+  memory-new: "Dozzle Cloud te napake v tem vsebniku še ni videl. Kliknite za prikaz v kontekstu."
+  memory-new-since: "Prvič opažena v tem vsebniku: {time}. Kliknite za prikaz, kje se je začela."
   live-logs: Ti dnevniki so zamrznjeni na tem trenutku. Kliknite za spremljanje živega toka.
   search: Iskanje zabojnikov (⌘ + k, ⌃k)
   pin-column: Pripni kot stolpec

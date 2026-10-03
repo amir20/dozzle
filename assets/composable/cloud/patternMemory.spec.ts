@@ -7,7 +7,7 @@ import {
   attachPatternMemory,
   fetchPatternContext,
   linesNeedingMemory,
-  patternToRegex,
+  chipMoment,
   MAX_PATTERN_LINES,
   type PatternContextHit,
 } from "./patternMemory";
@@ -115,16 +115,27 @@ describe("attachPatternMemory", () => {
   });
 });
 
-describe("patternToRegex", () => {
-  test("turns placeholders into wildcards and escapes the rest", () => {
-    const re = new RegExp(patternToRegex("connection refused to <IP4>:<N> (after <N> retries)"));
-    expect(re.test("connection refused to 10.0.0.1:5432 (after 3 retries)")).toBe(true);
-    expect(re.test("connection refused to 10.0.0.1:5432 after 3 retries")).toBe(false);
+describe("chipMoment", () => {
+  const memory = (firstSeenMs?: number) => ({
+    status: "new" as const,
+    pattern: "x",
+    ratePerHour: 0,
+    usualRatePerHour: 0,
+    firstSeen: firstSeenMs === undefined ? undefined : firstSeenMs * 1_000_000,
   });
 
-  test("real collapse_nums output", () => {
-    // From VictoriaLogs v1.52.0 `collapse_nums prettify`.
-    const re = new RegExp(patternToRegex("request <UUID> failed at <DATETIME> in <N>ms"));
-    expect(re.test("request 9f1c2e4a-8b3d-4c1e-9a7f-2b6d5e8c1f0a failed at 2026-09-30T12:00:01Z in 812ms")).toBe(true);
+  test("lands on the first occurrence when it is earlier than the line", () => {
+    const line = log(10_000_000);
+    expect(chipMoment(memory(4_000_000), line)).toEqual({ containerId: "abc", date: new Date(4_000_000) });
+  });
+
+  test("lands on the line itself when it is the first occurrence", () => {
+    const line = log(10_000_000);
+    expect(chipMoment(memory(10_000_000), line)).toEqual({ containerId: "abc", date: line.date, logId: line.id });
+  });
+
+  test("lands on the line itself without a first sighting", () => {
+    const line = log(10_000_000);
+    expect(chipMoment(memory(), line)).toEqual({ containerId: "abc", date: line.date, logId: line.id });
   });
 });

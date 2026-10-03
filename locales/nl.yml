@@ -139,8 +139,8 @@ label:
   more-options: Meer opties
   groups: Groepen
 tooltip:
-  memory-new: "Dozzle Cloud heeft deze fout nog niet eerder op deze container gezien. Klik om alleen deze regels te tonen."
-  memory-new-since: "Voor het eerst gezien op deze container: {time}. Klik om alleen deze regels te tonen."
+  memory-new: "Dozzle Cloud heeft deze fout nog niet eerder op deze container gezien. Klik om hem in context te zien."
+  memory-new-since: "Voor het eerst gezien op deze container: {time}. Klik om te zien waar hij begon."
   live-logs: Deze logs zijn bevroren op dit tijdstip. Klik om de live stream te volgen.
   search: Zoek containers (⌘ + k, ⌃k)
   pin-column: Vastzetten als kolom

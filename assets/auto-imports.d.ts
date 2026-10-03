@@ -42,6 +42,7 @@ declare global {
   const canHover: typeof import('./composable/ui/media').canHover
   const canSelfUpdate: typeof import('./composable/setup/selfUpdate').canSelfUpdate
   const checkSession: typeof import('./composable/app/session').checkSession
+  const chipMoment: typeof import('./composable/cloud/patternMemory').chipMoment
   const clearCloudWelcomePending: typeof import('./composable/cloud/cloudWelcome').clearCloudWelcomePending
   const clearSetupResume: typeof import('./composable/setup/setup').clearSetupResume
   const cloudWelcomePending: typeof import('./composable/cloud/cloudWelcome').cloudWelcomePending
@@ -191,7 +192,6 @@ declare global {
   const parseRange: typeof import('./composable/logs/timeRange').parseRange
   const parseSince: typeof import('./composable/logs/timeRange').parseSince
   const parseTime: typeof import('./composable/logs/timeRange').parseTime
-  const patternToRegex: typeof import('./composable/cloud/patternMemory').patternToRegex
   const pausableWatch: typeof import('@vueuse/core').pausableWatch
   const payloadMode: typeof import('./composable/editor/templateEditor').payloadMode
   const persistentVisibleKeysForContainer: typeof import('./composable/app/storage').persistentVisibleKeysForContainer
@@ -685,6 +685,7 @@ declare module 'vue' {
     readonly canHover: UnwrapRef<typeof import('./composable/ui/media')['canHover']>
     readonly canSelfUpdate: UnwrapRef<typeof import('./composable/setup/selfUpdate')['canSelfUpdate']>
     readonly checkSession: UnwrapRef<typeof import('./composable/app/session')['checkSession']>
+    readonly chipMoment: UnwrapRef<typeof import('./composable/cloud/patternMemory')['chipMoment']>
     readonly clearCloudWelcomePending: UnwrapRef<typeof import('./composable/cloud/cloudWelcome')['clearCloudWelcomePending']>
     readonly clearSetupResume: UnwrapRef<typeof import('./composable/setup/setup')['clearSetupResume']>
     readonly cloudWelcomePending: UnwrapRef<typeof import('./composable/cloud/cloudWelcome')['cloudWelcomePending']>
@@ -831,7 +832,6 @@ declare module 'vue' {
     readonly parseRange: UnwrapRef<typeof import('./composable/logs/timeRange')['parseRange']>
     readonly parseSince: UnwrapRef<typeof import('./composable/logs/timeRange')['parseSince']>
     readonly parseTime: UnwrapRef<typeof import('./composable/logs/timeRange')['parseTime']>
-    readonly patternToRegex: UnwrapRef<typeof import('./composable/cloud/patternMemory')['patternToRegex']>
     readonly pausableWatch: UnwrapRef<typeof import('@vueuse/core')['pausableWatch']>
     readonly payloadMode: UnwrapRef<typeof import('./composable/editor/templateEditor')['payloadMode']>
     readonly persistentVisibleKeysForContainer: UnwrapRef<typeof import('./composable/app/storage')['persistentVisibleKeysForContainer']>

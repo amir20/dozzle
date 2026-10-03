@@ -5,7 +5,7 @@
       class="log-message [word-break:break-word] whitespace-pre-wrap group-[.disable-wrap]:whitespace-pre"
       v-html="colorize(displayed)"
     ></div>
-    <PatternMemoryChip v-if="logEntry.patternMemory" :memory="logEntry.patternMemory" />
+    <PatternMemoryChip v-if="logEntry.patternMemory" :memory="logEntry.patternMemory" :log-entry="logEntry" />
   </LogItem>
 </template>
 <script lang="ts" setup>

@@ -139,8 +139,8 @@ label:
   more-options: Mais opções
   groups: Grupos
 tooltip:
-  memory-new: "O Dozzle Cloud nunca viu este erro neste contêiner. Clique para mostrar apenas estas linhas."
-  memory-new-since: "Visto pela primeira vez neste contêiner: {time}. Clique para mostrar apenas estas linhas."
+  memory-new: "O Dozzle Cloud nunca viu este erro neste contêiner. Clique para vê-lo no contexto."
+  memory-new-since: "Visto pela primeira vez neste contêiner: {time}. Clique para ver onde começou."
   live-logs: Estes logs estão congelados neste momento. Clique para acompanhar a transmissão ao vivo.
   search: Pesquisar containers (⌘ + k, ⌃k)
   pin-column: Fixar como coluna

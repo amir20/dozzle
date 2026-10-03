@@ -1,4 +1,5 @@
 import type { LogEntry, LogMessage, PatternMemory } from "@/models/LogEntry";
+import type { LogMoment } from "@/composable/logs/logJump";
 
 /**
  * Error memory: whether an error or warn line's pattern is new for its
@@ -111,19 +112,16 @@ export function attachPatternMemory(logs: LogEntry<LogMessage>[], hits: PatternC
   return changed;
 }
 
-/** The placeholders VictoriaLogs' `collapse_nums prettify` writes into a pattern. */
-const PLACEHOLDER = /<(?:N|IP4|UUID|TIME|DATE|DATETIME|W)>/g;
-
 /**
- * A regex matching the lines of a pattern, for "show only these lines".
- *
- * This is the one place a pattern is turned back into a matcher. It only
- * drives a search filter, so if it ever drifts from how Cloud collapses lines
- * the worst case is a filter that misses some lines — never a mislabelled one.
+ * Where a memory chip's click lands. NEW says "this started recently", so the
+ * answer is the history at its first occurrence, where a deploy or a restart
+ * just above explains it. Without a first sighting earlier than this line, the
+ * line itself is where it started, and it is pinpointed by its id.
  */
-export function patternToRegex(pattern: string): string {
-  return pattern
-    .split(PLACEHOLDER)
-    .map((part) => part.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"))
-    .join(".+?");
+export function chipMoment(memory: PatternMemory, log: LogEntry<LogMessage>): LogMoment {
+  const started = memory.firstSeen ? new Date(memory.firstSeen / 1_000_000) : undefined;
+  if (started && started.getTime() < log.date.getTime() - 1000) {
+    return { containerId: log.containerID, date: started };
+  }
+  return { containerId: log.containerID, date: log.date, logId: log.id };
 }

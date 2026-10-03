@@ -139,8 +139,8 @@ label:
   more-options: Flere valgmuligheder
   groups: Grupper
 tooltip:
-  memory-new: "Dozzle Cloud har ikke set denne fejl på denne container før. Klik for kun at vise disse linjer."
-  memory-new-since: "Først set på denne container: {time}. Klik for kun at vise disse linjer."
+  memory-new: "Dozzle Cloud har ikke set denne fejl på denne container før. Klik for at se den i sammenhæng."
+  memory-new-since: "Først set på denne container: {time}. Klik for at se, hvor den startede."
   live-logs: Disse logs er frosset på dette tidspunkt. Klik for at følge live-streamen.
   search: Søg containere (⌘ + k, ⌃k)
   pin-column: Fastgør som kolonne
