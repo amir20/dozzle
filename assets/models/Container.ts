@@ -24,6 +24,14 @@ export const emptyStat = (): Stat => ({
 // agent added since then would have no name to show.
 const { hosts } = useHosts();
 
+/**
+ * Down for good: it writes no more logs and reports no more stats until it is
+ * started again. Paused and restarting containers are on their way back, and a
+ * restarting one still carries the previous run's finishedAt, so neither counts.
+ */
+export const isStopped = (container: { state: ContainerState }) =>
+  container.state === "exited" || container.state === "dead" || container.state === "deleted";
+
 export class GroupedContainers {
   constructor(
     public readonly name: string,

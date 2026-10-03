@@ -21,6 +21,7 @@
 
 <script lang="ts" setup>
 import { AlertLogEntry, CloudEventLogEntry, type LogEntry, type LogMessage } from "@/models/LogEntry";
+import { isStopped } from "@/models/Container";
 
 const { progress, currentDate, available } = useScrollContext();
 
@@ -90,10 +91,8 @@ function measure() {
   const time = Number.isFinite(next) ? from + (next - from) * through : from;
 
   const container = containers.value[0];
-  // Only a container that is down for good has an end; a restarting one still
-  // carries the previous run's finishedAt while its life goes on.
-  const stopped = container.state === "exited" || container.state === "dead";
-  const end = stopped && isSet(container.finishedAt) ? container.finishedAt.getTime() : Date.now();
+  // Only a container that is down for good has an end.
+  const end = isStopped(container) && isSet(container.finishedAt) ? container.finishedAt.getTime() : Date.now();
   const span = end - container.created.getTime();
   progress.value = span > 0 ? (time - container.created.getTime()) / span : 1;
   currentDate.value = new Date(time);

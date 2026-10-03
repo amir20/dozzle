@@ -127,7 +127,7 @@ describe("<ContainerEventSource />", () => {
                 host: "localhost",
                 created: new Date(0),
                 finishedAt: new Date(0),
-                state: "running",
+                state,
               },
             ]),
             streamConfig: reactive({ stdout: true, stderr: true }),
