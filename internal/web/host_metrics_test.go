@@ -34,5 +34,18 @@ func TestHostHasMetrics(t *testing.T) {
 	assert.False(t, hostHasMetrics(container.Host{Type: "local"}))
 	assert.True(t, hostHasMetrics(container.Host{Type: "local", DiskTotal: 1}))
 	assert.True(t, hostHasMetrics(container.Host{Type: "local", Disks: []container.Disk{{Name: "media", Total: 1}}}))
-	assert.False(t, hostHasMetrics(container.Host{Type: "agent", MetricsAvailable: true}))
+	// agents report their own machine now; an older one sends nothing and stays out
+	assert.True(t, hostHasMetrics(container.Host{Type: "agent", MetricsAvailable: true}))
+	assert.False(t, hostHasMetrics(container.Host{Type: "agent"}))
+}
+
+// A swarm node reached both locally and as an agent reports twice per tick;
+// hosts with nothing to show come back nil.
+func TestCollapseHostMetrics(t *testing.T) {
+	a := hostMetricsEvent{ID: "a", Load1: 1}
+	b := hostMetricsEvent{ID: "b", Load1: 2}
+	dup := hostMetricsEvent{ID: "a", Load1: 1}
+
+	got := collapseHostMetrics([]*hostMetricsEvent{&a, nil, &b, &dup})
+	assert.Equal(t, []hostMetricsEvent{a, b}, got)
 }

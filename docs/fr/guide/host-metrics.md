@@ -1,6 +1,6 @@
 ---
 title: Métriques de l'hôte
-sourceHash: 436543366083
+sourceHash: d8c6ddcc5b09
 ---
 
 # Métriques de l'hôte
@@ -49,6 +49,26 @@ Le disque ne demande aucun montage supplémentaire. Dozzle mesure le système de
 
 Un binaire Dozzle lancé directement sur l'hôte lit `/proc` tel quel, la charge et la durée de fonctionnement ne demandent donc aucune configuration. Le disque est lu depuis le répertoire de données de Docker (`docker info --format '{{.DockerRootDir}}'`, en général `/var/lib/docker`), il fonctionne donc tant que l'utilisateur sous lequel tourne Dozzle peut voir ce répertoire.
 
+## Agents
+
+Chaque [agent](/fr/guide/agent) lit sa propre machine et envoie les valeurs au Dozzle que vous consultez, si bien que la carte de chaque agent affiche sa propre durée de fonctionnement, sa charge et son disque. Donnez au conteneur de l'agent les mêmes montages que ceux que vous donneriez à Dozzle :
+
+```yaml [docker-compose.yml]
+services:
+  dozzle-agent:
+    image: amir20/dozzle:latest
+    command: agent
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /proc:/host/proc:ro
+    ports:
+      - 7007:7007
+```
+
+Les disques supplémentaires fonctionnent de la même façon, montés sous `/host/disks` sur l'agent. En [mode Swarm](/fr/guide/swarm-mode), chaque nœud fait tourner Dozzle comme son propre agent, ajoutez donc les montages au service et chaque nœud remontera ses propres valeurs.
+
+Un agent plus ancien que le Dozzle auquel il se rapporte n'envoie aucune métrique, et sa carte reste telle qu'elle était. Mettez l'agent à jour pour les voir.
+
 ## Plus de disques
 
 Par défaut, le disque couvre celui de Docker. Pour surveiller aussi d'autres disques, montez chacun d'eux sous `/host/disks/<name>`. Le nom du dossier devient le libellé du disque.
@@ -72,6 +92,6 @@ Une installation native peut faire de même avec des liens symboliques : `ln -s 
 
 ## Limites
 
-- Pour l'instant, seul l'hôte local remonte ces métriques. Les hôtes connectés via un [agent](/fr/guide/agent) ou en tant qu'[hôte distant](/fr/guide/remote-hosts) affichent le CPU et la mémoire comme avant, sans cette ligne.
+- Un [hôte distant](/fr/guide/remote-hosts) connecté en TCP n'a rien de son côté pour lire la machine, il affiche donc le CPU et la mémoire comme avant, sans l'encadré. Faites plutôt tourner un agent dessus pour les obtenir.
 - Si `DOCKER_HOST` pointe vers une autre machine (`tcp://` ou `ssh://`), Dozzle n'affiche pas ces indicateurs, puisque son propre `/proc` et ses propres disques ne disent rien de ce moteur.
 - Docker Desktop fait tourner le moteur dans une VM. Un binaire Dozzle natif sur macOS ou Windows n'a pas de `/proc` à lire, et Dozzle dans un conteneur y remonte les chiffres de la VM, pas ceux de votre machine.

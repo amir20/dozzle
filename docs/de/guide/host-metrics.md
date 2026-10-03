@@ -1,6 +1,6 @@
 ---
 title: Host-Metriken
-sourceHash: 436543366083
+sourceHash: d8c6ddcc5b09
 ---
 
 # Host-Metriken
@@ -49,6 +49,26 @@ Für den Datenträgerwert brauchst du keinen zusätzlichen Mount. Dozzle misst d
 
 Ein Dozzle-Binary, das direkt auf dem Host läuft, liest `/proc` so wie es ist. Last und Laufzeit brauchen also keine Einrichtung. Die Datenträgerbelegung wird aus dem Datenverzeichnis von Docker gelesen (`docker info --format '{{.DockerRootDir}}'`, meist `/var/lib/docker`). Das klappt, solange der Benutzer, unter dem Dozzle läuft, dieses Verzeichnis sehen kann.
 
+## Agents
+
+Jeder [Agent](/de/guide/agent) liest seine eigene Maschine aus und schickt die Werte an das Dozzle, das du gerade ansiehst. So zeigt die Karte jedes Agents ihre eigene Laufzeit, Last und Datenträgerbelegung. Gib dem Agent-Container dieselben Mounts, die du auch Dozzle geben würdest:
+
+```yaml [docker-compose.yml]
+services:
+  dozzle-agent:
+    image: amir20/dozzle:latest
+    command: agent
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /proc:/host/proc:ro
+    ports:
+      - 7007:7007
+```
+
+Weitere Laufwerke funktionieren genauso, eingebunden unter `/host/disks` auf dem Agent. Im [Swarm-Modus](/de/guide/swarm-mode) betreibt jeder Node Dozzle als seinen eigenen Agent. Füge die Mounts also dem Service hinzu, dann meldet sich jeder Node selbst.
+
+Ein Agent, der älter ist als das Dozzle, an das er meldet, schickt keine Metriken, und seine Karte bleibt wie bisher. Aktualisiere den Agent, um sie zu sehen.
+
 ## Weitere Laufwerke
 
 Der Datenträgerwert deckt von Haus aus den Datenträger von Docker ab. Um auch andere Laufwerke zu beobachten, bindest du jedes davon unter `/host/disks/<name>` ein. Der Ordnername wird zur Bezeichnung des Laufwerks.
@@ -72,6 +92,6 @@ Eine native Installation erreicht dasselbe mit symbolischen Links: `ln -s /mnt/m
 
 ## Einschränkungen
 
-- Vorerst liefert nur der lokale Host Metriken. Hosts, die über einen [Agent](/de/guide/agent) oder als [entfernter Host](/de/guide/remote-hosts) verbunden sind, zeigen CPU und Arbeitsspeicher wie bisher, aber ohne diese Zeile.
+- Ein [entfernter Host](/de/guide/remote-hosts), der über TCP verbunden ist, hat auf seiner Seite nichts, das die Maschine auslesen könnte. Er zeigt daher CPU und Arbeitsspeicher wie bisher, aber ohne den Kasten. Betreibe dort stattdessen einen Agent, um die Werte zu bekommen.
 - Wenn `DOCKER_HOST` auf eine andere Maschine zeigt (`tcp://` oder `ssh://`), lässt Dozzle die Werte weg, denn das eigene `/proc` und die eigenen Datenträger sagen nichts über diese Engine aus.
 - Docker Desktop betreibt die Engine in einer VM. Ein natives Dozzle-Binary unter macOS oder Windows hat kein `/proc` zum Lesen, und Dozzle in einem Container meldet dort die Werte der VM, nicht die deines Rechners.

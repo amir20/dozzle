@@ -267,6 +267,11 @@ func (m *K8sClusterService) LocalClientServices() []container.ClientService {
 	return []container.ClientService{m.client}
 }
 
+// ClientServices is the one cluster client: k8s mode has no agents to add.
+func (m *K8sClusterService) ClientServices(_ bool) []container.ClientService {
+	return m.LocalClientServices()
+}
+
 // StartNotificationManager initializes and starts the notification manager for k8s mode
 func (m *K8sClusterService) StartNotificationManager(ctx context.Context) error {
 	clients := m.LocalClientServices()

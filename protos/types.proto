@@ -121,6 +121,22 @@ message Host {
   string agentVersion = 11;
   string dockerVersion = 12;
   string runtime = 13;
+  // Host-level metrics, read by the agent off its own machine. An older agent
+  // leaves them unset, which reads as "no metrics" rather than zero load.
+  bool metricsAvailable = 14;
+  double load1 = 15;
+  double load5 = 16;
+  double load15 = 17;
+  uint64 uptime = 18;
+  uint64 diskTotal = 19;
+  uint64 diskFree = 20;
+  repeated Disk disks = 21;
+}
+
+message Disk {
+  string name = 1;
+  uint64 total = 2;
+  uint64 free = 3;
 }
 
 enum ContainerAction {

@@ -49,14 +49,16 @@
       </div>
 
       <!-- The machine's own read-outs, in one hairline chip pushed to the right
-           edge and led by the host's own icon. The facts on the left are about
+           edge and led by the host's own icon. On a phone it cannot share the
+           name's line, so it takes a full-width row of its own instead of
+           hanging off the right under the name. The facts on the left are about
            what Docker runs and the meters below sum the containers, so without a
            boundary "Load" and "Disk" read as more container numbers. Inside,
            labels stay muted, values carry the weight, and each hides when it is
            not known. -->
       <div
         v-if="host.available && hasHostMetrics"
-        class="border-base-content/10 text-base-content/50 ml-auto flex flex-wrap items-center gap-x-3 gap-y-1 rounded-md border px-2 py-0.5 text-xs tabular-nums"
+        class="border-base-content/10 text-base-content/50 flex w-full flex-wrap items-center gap-x-3 gap-y-1 rounded-md border px-2 py-0.5 text-xs tabular-nums sm:ml-auto sm:w-auto"
         :title="$t('label.host')"
       >
         <HostIcon :type="host.type" class="size-3.5 opacity-60" />
