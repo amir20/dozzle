@@ -157,7 +157,7 @@ func TestCapTotalDropsLinesFromTheQuietestFirst(t *testing.T) {
 }
 
 func TestRetroScanIsNeverOfferedToAModel(t *testing.T) {
-	for _, d := range AvailableTools(false, Principal{Kind: PrincipalInstance}) {
+	for _, d := range AvailableTools(ToolDeps{Principal: Principal{Kind: PrincipalInstance}}) {
 		if d.Name == toolRetroScan {
 			assert.True(t, d.Internal)
 			assert.True(t, d.ReadOnly)

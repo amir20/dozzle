@@ -6,6 +6,7 @@ import (
 	"fmt"
 
 	"github.com/amir20/dozzle/internal/container"
+	"github.com/amir20/dozzle/internal/imagecheck"
 	"github.com/amir20/dozzle/internal/notification"
 	pb "github.com/amir20/dozzle/proto/cloud"
 	"github.com/rs/zerolog/log"
@@ -39,6 +40,7 @@ const (
 	toolCreateMetricNotification = "create_metric_notification"
 	toolCreateEventNotification  = "create_event_notification"
 	toolRetroScan                = "retro_scan"
+	toolCheckImageUpdates        = "check_image_updates"
 )
 
 type paramProperty struct {
@@ -199,6 +201,16 @@ Examples: name == "die"; name == "oom"; name in ["die", "oom", "kill"]; name == 
 		AdditionalProperties: &boolFalse,
 	})
 
+	checkImageUpdatesParams = mustSchema(paramSchema{
+		Type: "object",
+		Properties: map[string]paramProperty{
+			"name":    {Type: "string", Description: "Optional container name to check (partial match supported). Omit to check every container."},
+			"image":   {Type: "string", Description: "Optional image name to check (partial match supported)."},
+			"refresh": {Type: "boolean", Description: "Optional. Ask the registries again instead of answering from the cache, which can be up to 6 hours old. Only when the user says they just pushed an image or doubts the answer."},
+		},
+		AdditionalProperties: &boolFalse,
+	})
+
 	streamLogsParams = mustSchema(paramSchema{
 		Type: "object",
 		Properties: map[string]paramProperty{
@@ -213,11 +225,11 @@ Examples: name == "die"; name == "oom"; name in ["die", "oom", "kill"]; name == 
 	})
 )
 
-// AvailableTools returns the list of tool definitions based on configuration.
-// AvailableTools lists the tools a principal may actually invoke. Filtering
+// AvailableTools lists the tools deps' principal may actually invoke. Filtering
 // here rather than only at dispatch means the model never proposes something it
 // will then be refused for.
-func AvailableTools(enableActions bool, p Principal) []*pb.ToolDefinition {
+func AvailableTools(deps ToolDeps) []*pb.ToolDefinition {
+	enableActions, p := deps.EnableActions, deps.Principal
 	tools := []*pb.ToolDefinition{
 		{
 			Name:           toolListHosts,
@@ -290,6 +302,18 @@ func AvailableTools(enableActions bool, p Principal) []*pb.ToolDefinition {
 			Scope:          pb.ToolScope_TOOL_SCOPE_CONTAINER,
 			ReadOnly:       true,
 		},
+	}
+
+	// A cloud call is someone asking, so manual mode answers it too. Off means
+	// Dozzle never contacts a registry, so the tool does not exist.
+	if deps.ImageCheckMode.Allows(true) {
+		tools = append(tools, &pb.ToolDefinition{
+			Name:           toolCheckImageUpdates,
+			Description:    "Check which containers run an outdated image: asks each image's registry whether its tag now points to a newer image than the one the container runs. Use it for \"what needs updating\" or \"is X up to date\". Each container's status is up-to-date, update-available, pinned (digest-pinned, cannot drift), not-checkable (built locally), auth-required (private registry), skipped (opted out by label) or unknown. Updating is a separate step: call update_container only after the user confirms which containers to update.",
+			ParametersJson: checkImageUpdatesParams,
+			Scope:          pb.ToolScope_TOOL_SCOPE_INSTANCE,
+			ReadOnly:       true,
+		})
 	}
 
 	if enableActions {
@@ -367,7 +391,10 @@ type NotificationService interface {
 // (e.g., k8s); notification tools will then return a "not configured" error.
 type ToolDeps struct {
 	EnableActions bool
-	HostService   ToolHostService
+	// ImageCheckMode is --image-check-mode. The zero value offers no image
+	// update checks.
+	ImageCheckMode imagecheck.Mode
+	HostService    ToolHostService
 	// Principal is who the call runs as. The zero value is PrincipalAPIKey,
 	// which is what every tool call meant before principals existed, so an
 	// unset field never grants more than it used to.
@@ -423,6 +450,8 @@ func executeTool(ctx context.Context, name string, argsJSON string, deps ToolDep
 		return executeRetroScan(ctx, argsJSON, deps)
 	case toolListNotifications:
 		return executeListNotifications(deps)
+	case toolCheckImageUpdates:
+		return executeCheckImageUpdates(ctx, argsJSON, deps)
 	case toolStartContainer, toolStopContainer, toolRestartContainer, toolRemoveContainer:
 		return executeContainerAction(ctx, name, argsJSON, deps)
 	case toolUpdateContainer:

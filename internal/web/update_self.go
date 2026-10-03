@@ -29,7 +29,7 @@ func (h *handler) checkSelfUpdate(w http.ResponseWriter, r *http.Request) {
 		// A digest or a full version tag never moves, so there is nothing to ask
 		// a registry.
 		result.Status = imagecheck.StatusPinned
-	case h.config.ImageCheckMode == imagecheck.ModeManual && !force:
+	case !h.config.ImageCheckMode.Allows(force):
 		// Manual mode means Dozzle never reaches a registry on its own, and this
 		// runs whenever someone opens settings.
 		result.Status = imagecheck.StatusSkipped

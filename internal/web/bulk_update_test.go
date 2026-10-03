@@ -256,9 +256,9 @@ func TestStartBulkUpdate_RefusesNonJSONBodies(t *testing.T) {
 
 func TestUpdatable(t *testing.T) {
 	swarm := map[string]string{swarmServiceLabel: "svc"}
-	assert.True(t, updatable(container.Container{State: "running"}))
-	assert.True(t, updatable(container.Container{State: "exited"}), "a stopped standalone container can still start on a new image")
-	assert.False(t, updatable(container.Container{State: "deleted"}))
-	assert.True(t, updatable(container.Container{State: "running", Labels: swarm}))
-	assert.False(t, updatable(container.Container{State: "exited", Labels: swarm}), "an exited swarm task was already replaced")
+	assert.True(t, container.Updatable(container.Container{State: "running"}))
+	assert.True(t, container.Updatable(container.Container{State: "exited"}), "a stopped standalone container can still start on a new image")
+	assert.False(t, container.Updatable(container.Container{State: "deleted"}))
+	assert.True(t, container.Updatable(container.Container{State: "running", Labels: swarm}))
+	assert.False(t, container.Updatable(container.Container{State: "exited", Labels: swarm}), "an exited swarm task was already replaced")
 }

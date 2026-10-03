@@ -183,6 +183,7 @@ func main() {
 
 	cloudClient := cloud.NewClient(apiKeyFunc, instanceID, args.Version(), cloud.ToolDeps{
 		EnableActions:       args.EnableActions,
+		ImageCheckMode:      imagecheck.Mode(args.ImageCheckMode),
 		HostService:         cloudHostService,
 		Principal:           cloud.APIKeyPrincipal(args.Filter),
 		NotificationService: notificationService,

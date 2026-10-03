@@ -33,6 +33,14 @@ func ParseMode(input string) (Mode, error) {
 	}
 }
 
+// Allows reports whether a check may contact a registry. explicit means a
+// person asked for this check, rather than it running because a page opened.
+// It says nothing about the digest cache: an explicit check can still be
+// answered from it. The zero Mode allows nothing.
+func (m Mode) Allows(explicit bool) bool {
+	return m == ModeAutomatic || (m == ModeManual && explicit)
+}
+
 // Status is the outcome of an update check for a single container.
 type Status string
 

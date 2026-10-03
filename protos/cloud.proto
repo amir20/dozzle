@@ -440,6 +440,20 @@ message ContainerInfo {
   string host_name = 10;
   string host_id = 12;
   string group = 11;
+  // Set only by check_image_updates; every other listing leaves it empty.
+  ImageUpdate image_update = 13;
+}
+
+// Whether the registry serves a newer image than the one a container runs.
+message ImageUpdate {
+  // up-to-date, update-available, pinned, not-checkable, auth-required,
+  // skipped or unknown (imagecheck.Status).
+  string status = 1;
+  string local_digest = 2;
+  string remote_digest = 3;
+  string reason = 4;
+  // Unix seconds. A cached answer can be hours old; refresh re-asks.
+  int64 checked_at = 5;
 }
 
 message ListContainersResult {
