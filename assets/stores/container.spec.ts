@@ -131,6 +131,83 @@ describe("container store list reconciliation", () => {
 
     expect(store.containers.find((c) => c.id === "a")).toBe(first);
   });
+
+  // A start reaches the store only as a re-list, so a container that already exists
+  // has to pick up its new run's times from it.
+  test("a re-list refreshes when a known container started and finished", async () => {
+    const { store, es } = setup();
+
+    es.emit("containers-changed", [json("a", "localhost", "exited")]);
+    await nextTick();
+
+    const restarted = { ...json("a"), startedAt: "2030-01-01T00:00:00Z", finishedAt: "2029-12-31T00:00:00Z" };
+    es.emit("containers-changed", [restarted]);
+    await nextTick();
+
+    expect(store.containers[0].startedAt.toISOString()).toBe("2030-01-01T00:00:00.000Z");
+    expect(store.containers[0].finishedAt.toISOString()).toBe("2029-12-31T00:00:00.000Z");
+  });
+});
+
+describe("events stream reconnect", () => {
+  beforeEach(() => vi.clearAllMocks());
+
+  function reconnect(es: FakeEventSource) {
+    es.onopen?.(new Event("open"));
+  }
+
+  // Emptying the store on open unmounted every log view gated on a container being
+  // there (or on ready), and the remount lost its scroll, older pages and stream.
+  test("keeps the containers it has and stays ready until the replay lands", async () => {
+    const { store, es } = setup();
+    reconnect(es);
+    es.emit("containers-changed", [json("a"), json("b")]);
+    await nextTick();
+    const [a, b] = store.containers;
+
+    reconnect(es);
+    await nextTick();
+    expect(store.ready).toBe(true);
+    expect(store.containers).toEqual([a, b]);
+
+    es.emit("containers-changed", [json("a"), json("b")]);
+    await nextTick();
+    expect(store.containers[0]).toBe(a);
+    expect(store.containers[1]).toBe(b);
+  });
+
+  // The list sent on connect covers every host, so a host it no longer names went away
+  // (or emptied) while the tab was disconnected and its containers go with it.
+  test("the replay drops containers and hosts it no longer carries", async () => {
+    const { store, es } = setup();
+    reconnect(es);
+    es.emit("containers-changed", [json("a1", "hostA"), json("b1", "hostB")]);
+    await nextTick();
+
+    reconnect(es);
+    es.emit("containers-changed", [json("a1", "hostA")]);
+    await nextTick();
+
+    expect(store.containers.map((c) => c.id)).toEqual(["a1"]);
+  });
+
+  // The replay is not news. A container that started while the tab was disconnected
+  // is not one the person just watched appear.
+  test("nothing in the replay is flagged as new, but later lists are", async () => {
+    const { store, es } = setup();
+    reconnect(es);
+    es.emit("containers-changed", [json("a")]);
+    await nextTick();
+
+    reconnect(es);
+    es.emit("containers-changed", [json("a"), json("b")]);
+    await nextTick();
+    expect(store.containers.find((c) => c.id === "b")?.isNew).toBe(false);
+
+    es.emit("containers-changed", [json("a"), json("b"), json("c")]);
+    await nextTick();
+    expect(store.containers.find((c) => c.id === "c")?.isNew).toBe(true);
+  });
 });
 
 describe("host metrics", () => {
