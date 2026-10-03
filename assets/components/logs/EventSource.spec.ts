@@ -13,6 +13,7 @@ import SearchStatus from "./SearchStatus.vue";
 import IndeterminateBar from "@/components/ui/IndeterminateBar.vue";
 import LogViewer from "./LogViewer.vue";
 import { Container } from "@/models/Container";
+import type { ContainerState } from "@/types/Container";
 import { Level, type LogEntry } from "@/models/LogEntry";
 
 vi.mock("@/stores/config", () => ({
@@ -53,7 +54,8 @@ describe("<ContainerEventSource />", () => {
     {
       searchFilter = "",
       hourStyle = "auto",
-    }: { searchFilter?: string | undefined; hourStyle?: "auto" | "24" | "12" } = {
+      state = "running",
+    }: { searchFilter?: string | undefined; hourStyle?: "auto" | "24" | "12"; state?: ContainerState } = {
       hourStyle: "auto",
     },
   ) {
@@ -153,7 +155,7 @@ describe("<ContainerEventSource />", () => {
           "command",
           "localhost",
           {},
-          "created",
+          state,
           0,
           0,
           [],
@@ -330,6 +332,11 @@ describe("<ContainerEventSource />", () => {
 
       await vi.advanceTimersByTimeAsync(2100);
       expect(wrapper.findComponent(IndeterminateBar).props("intensity")).toBe(0);
+    });
+
+    test("is hidden for a stopped container", () => {
+      const wrapper = createLogEventSource({ state: "exited" });
+      expect(wrapper.findComponent(IndeterminateBar).exists()).toBe(false);
     });
   });
 

@@ -23,7 +23,7 @@
     <template #icon><mdi:text-box-outline class="size-6" /></template>
   </EmptyState>
   <slot :messages="messages" v-else></slot>
-  <IndeterminateBar :color :intensity="streaming ? 1 : 0" v-if="!historical" />
+  <IndeterminateBar :color :intensity="streaming ? 1 : 0" v-if="!historical && !stopped" />
 </template>
 
 <script lang="ts" setup generic="T">
@@ -62,6 +62,10 @@ const color = computed(() => {
   if (opened.value) return "primary";
   return "error";
 });
+
+// A stopped container has nothing more to send, so the bar would only imply a
+// stream that is not there.
+const stopped = computed(() => entity instanceof Container && entity.state !== "running");
 
 // The bar reflects real throughput. `messages` is a shallow ref replaced once
 // per buffer flush, so every arriving batch relights it and it fades back after
