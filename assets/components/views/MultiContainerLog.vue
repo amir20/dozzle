@@ -48,6 +48,7 @@ const containers = computed(() =>
     return [container];
   }),
 );
+useMarkDropped(() => containers.value);
 
 provideLoggingContext(containers, { showContainerName: true, showHostname: false });
 const visibleKeys = useVisibleKeysByContainer();

@@ -409,6 +409,7 @@ declare global {
   const useLoggingContext: typeof import('./composable/logs/logContext').useLoggingContext
   const useMagicKeys: typeof import('@vueuse/core').useMagicKeys
   const useManualRefHistory: typeof import('@vueuse/core').useManualRefHistory
+  const useMarkDropped: typeof import('./composable/logs/stickyEntity').useMarkDropped
   const useMediaControls: typeof import('@vueuse/core').useMediaControls
   const useMediaQuery: typeof import('@vueuse/core').useMediaQuery
   const useMemoize: typeof import('@vueuse/core').useMemoize
@@ -1048,6 +1049,7 @@ declare module 'vue' {
     readonly useLoggingContext: UnwrapRef<typeof import('./composable/logs/logContext')['useLoggingContext']>
     readonly useMagicKeys: UnwrapRef<typeof import('@vueuse/core')['useMagicKeys']>
     readonly useManualRefHistory: UnwrapRef<typeof import('@vueuse/core')['useManualRefHistory']>
+    readonly useMarkDropped: UnwrapRef<typeof import('./composable/logs/stickyEntity')['useMarkDropped']>
     readonly useMediaControls: UnwrapRef<typeof import('@vueuse/core')['useMediaControls']>
     readonly useMediaQuery: UnwrapRef<typeof import('@vueuse/core')['useMediaQuery']>
     readonly useMemoize: UnwrapRef<typeof import('@vueuse/core')['useMemoize']>
