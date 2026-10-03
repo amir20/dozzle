@@ -1000,9 +1000,26 @@ func TestStore_mergeFetched(t *testing.T) {
 		assert.True(t, found)
 		assert.True(t, updated)
 		assert.Equal(t, "exited", c.State)
-		assert.Equal(t, "unhealthy", c.Health)
+		assert.Empty(t, c.Health, "a stopped container has no health")
 		assert.Equal(t, "nginx", c.Image)
 		assert.Same(t, prev.Stats, c.Stats)
+	})
+
+	t.Run("a die during the fetch drops the health the fetch saw", func(t *testing.T) {
+		store := newStore()
+		prev := &Container{ID: "1234", State: "running", Health: "healthy"}
+		store.containers.Store("1234", prev)
+		died := *prev
+		died.State = "exited"
+		died.Health = ""
+		store.containers.Store("1234", &died)
+
+		healthy := loadedContainer("1234", "running")
+		healthy.Health = "healthy"
+		c, _, updated := store.mergeFetched(prev, healthy)
+		assert.True(t, updated)
+		assert.Equal(t, "exited", c.State)
+		assert.Empty(t, c.Health)
 	})
 
 	t.Run("keeps a fully loaded entry stored during the fetch", func(t *testing.T) {
@@ -1331,7 +1348,7 @@ func TestStore_mergeFetchedKeepsInspectDataOverListEntry(t *testing.T) {
 	assert.Equal(t, "exited", got.State, "the die is newer than the inspect")
 	assert.Equal(t, died.FinishedAt, got.FinishedAt)
 	assert.Equal(t, startedAt, got.StartedAt, "the list entry never knew StartedAt")
-	assert.Equal(t, "healthy", got.Health)
+	assert.Empty(t, got.Health, "the inspect saw a health the die has since ended")
 }
 
 // A destroy the loop handled during the list must not be undone by the list entry.
