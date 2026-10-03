@@ -8,20 +8,21 @@
     class="chip memory-chip mt-0.5 cursor-pointer select-none"
     :title="tooltip"
     @mouseenter="hovered"
-    @click.stop="filterToPattern"
+    @click.stop="openWhereItStarted"
   >
     {{ $t("label.memory-new") }}
   </button>
 </template>
 
 <script lang="ts" setup>
-import type { PatternMemory } from "@/models/LogEntry";
-import { SHOWN_STATUSES, patternToRegex } from "@/composable/cloud/patternMemory";
+import type { LogEntry, LogMessage, PatternMemory } from "@/models/LogEntry";
+import { SHOWN_STATUSES, chipMoment } from "@/composable/cloud/patternMemory";
 
-const { memory } = defineProps<{ memory?: PatternMemory }>();
+const { memory, logEntry } = defineProps<{ memory?: PatternMemory; logEntry: LogEntry<LogMessage> }>();
 
 const { t, locale } = useI18n();
-const { searchQueryFilter, showSearch } = useSearchFilter();
+const { resetSearch } = useSearchFilter();
+const { jumpTo } = useLogJump();
 
 const tooltip = computed(() => {
   if (!memory?.firstSeen) return t("tooltip.memory-new");
@@ -41,11 +42,11 @@ function hovered() {
   trackUsage("memory.chip.hover");
 }
 
-function filterToPattern() {
+function openWhereItStarted() {
   if (!memory) return;
-  trackUsage("memory.chip.filter");
-  searchQueryFilter.value = patternToRegex(memory.pattern);
-  showSearch.value = true;
+  trackUsage("memory.chip.open");
+  resetSearch();
+  jumpTo(chipMoment(memory, logEntry));
 }
 </script>
 

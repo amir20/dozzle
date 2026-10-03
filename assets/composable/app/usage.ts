@@ -23,7 +23,7 @@ export type UsageKey =
   | "stream.reconnect"
   | "memory.chip.shown"
   | "memory.chip.hover"
-  | "memory.chip.filter";
+  | "memory.chip.open";
 
 export const USAGE_FLUSH_INTERVAL = 5 * 60 * 1000;
 const MINUTE = 60 * 1000;

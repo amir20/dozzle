@@ -139,8 +139,8 @@ label:
   more-options: Weitere Optionen
   groups: Gruppen
 tooltip:
-  memory-new: "Dozzle Cloud hat diesen Fehler in diesem Container noch nie gesehen. Klicken, um nur diese Zeilen anzuzeigen."
-  memory-new-since: "Zuerst in diesem Container gesehen: {time}. Klicken, um nur diese Zeilen anzuzeigen."
+  memory-new: "Dozzle Cloud hat diesen Fehler in diesem Container noch nie gesehen. Klicken, um ihn im Kontext zu sehen."
+  memory-new-since: "Zuerst in diesem Container gesehen: {time}. Klicken, um zu sehen, wo er begann."
   live-logs: Diese Logs sind auf diesen Zeitpunkt eingefroren. Klicken, um dem Live-Stream zu folgen.
   search: Suche Container (⌘ + k, ⌃k)
   pin-column: Als Spalte anheften

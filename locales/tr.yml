@@ -139,8 +139,8 @@ label:
   more-options: Diğer seçenekler
   groups: Gruplar
 tooltip:
-  memory-new: "Dozzle Cloud bu hatayı bu container'da daha önce görmedi. Yalnızca bu satırları göstermek için tıklayın."
-  memory-new-since: "Bu container'da ilk görülme: {time}. Yalnızca bu satırları göstermek için tıklayın."
+  memory-new: "Dozzle Cloud bu hatayı bu container'da daha önce görmedi. Bağlamında görmek için tıklayın."
+  memory-new-since: "Bu container'da ilk görülme: {time}. Nerede başladığını görmek için tıklayın."
   live-logs: Bu günlükler bu ana sabitlenmiştir. Canlı akışı izlemek için tıklayın.
   search: Konteynerlerde ara (⌘ + k, ⌃k)
   pin-column: Sütun olarak sabitle

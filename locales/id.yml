@@ -141,8 +141,8 @@ label:
   groups: Grup
 
 tooltip:
-  memory-new: "Dozzle Cloud belum pernah melihat error ini di container ini. Klik untuk hanya menampilkan baris ini."
-  memory-new-since: "Pertama terlihat di container ini: {time}. Klik untuk hanya menampilkan baris ini."
+  memory-new: "Dozzle Cloud belum pernah melihat error ini di container ini. Klik untuk melihatnya dalam konteks."
+  memory-new-since: "Pertama terlihat di container ini: {time}. Klik untuk melihat di mana error ini dimulai."
   live-logs: Log ini dibekukan pada waktu ini. Klik untuk mengikuti aliran langsung.
   search: Cari kontainer (⌘ + k, ⌃k)
   pin-column: Sematkan sebagai kolom

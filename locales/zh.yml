@@ -139,8 +139,8 @@ label:
   k8s-menu: Kubernetes
   group-menu: 自定义组
 tooltip:
-  memory-new: "Dozzle Cloud 之前未在此容器中见过此错误。点击仅显示这些行。"
-  memory-new-since: "首次在此容器中出现：{time}。点击仅显示这些行。"
+  memory-new: "Dozzle Cloud 之前未在此容器中见过此错误。点击在上下文中查看。"
+  memory-new-since: "首次在此容器中出现：{time}。点击查看它从哪里开始。"
   live-logs: 这些日志已冻结在该时间点。点击以查看实时日志流。
   search: 搜索 (⌘ + k, ⌃k)
   pin-column: 固定为列

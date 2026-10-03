@@ -139,8 +139,8 @@ label:
   more-options: 추가 옵션
   groups: 그룹
 tooltip:
-  memory-new: "Dozzle Cloud가 이 컨테이너에서 이 오류를 본 적이 없습니다. 클릭하면 이 줄만 표시합니다."
-  memory-new-since: "이 컨테이너에서 처음 발견: {time}. 클릭하면 이 줄만 표시합니다."
+  memory-new: "Dozzle Cloud가 이 컨테이너에서 이 오류를 본 적이 없습니다. 클릭하면 맥락 속에서 볼 수 있습니다."
+  memory-new-since: "이 컨테이너에서 처음 발견: {time}. 클릭하면 처음 시작된 곳을 볼 수 있습니다."
   live-logs: 이 로그는 해당 시점에 고정되어 있습니다. 실시간 스트림을 보려면 클릭하세요.
   search: 컨테이너 검색 (⌘ + k, ⌃k)
   pin-column: 열로 고정
