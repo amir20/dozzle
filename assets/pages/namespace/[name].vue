@@ -1,6 +1,9 @@
 <template>
   <Search />
   <NamespaceLog :namespace="namespace" :scrollable="pinnedLogs.length > 0" v-if="namespace" />
+  <NotFound v-else-if="ready" :title="$t('error.nothing-running')" :hint="$t('error.nothing-running-hint')">
+    <template #icon><ph:stack class="size-5" /></template>
+  </NotFound>
 </template>
 
 <script lang="ts" setup>
@@ -14,7 +17,11 @@ const { pinnedLogs } = storeToRefs(pinnedLogsStore);
 
 const k8sStore = useK8sStore();
 const { namespaces } = storeToRefs(k8sStore);
-const namespace = computed(() => namespaces.value.find((ns) => ns.name === route.params.name));
+// Held while its pods stop and restart, so the view keeps its stream and scrollback.
+const namespace = useStickyEntity(
+  () => namespaces.value.find((ns) => ns.name === route.params.name),
+  () => route.params.name,
+);
 
 watchEffect(() => {
   if (ready.value) {

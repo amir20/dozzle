@@ -245,6 +245,18 @@ function useLogStream(url: Ref<string>, container?: Ref<Container>) {
         event.name,
       );
 
+      // A stopped container answers every connect with its stop, stamped when it
+      // stopped. Before a "since" floor it is not part of the window, and it would
+      // hide the empty state that offers the nearest lines. On a reconnect it is the
+      // row already on screen.
+      if (floor.value && containerEvent.date < floor.value) return;
+      const sameEvent = (m: LogEntry<LogMessage>) =>
+        m instanceof ContainerEventLogEntry &&
+        m.id === containerEvent.id &&
+        m.containerID === containerEvent.containerID &&
+        m.event === containerEvent.event;
+      if (messages.value.some(sameEvent) || buffer.some(sameEvent)) return;
+
       buffer.push(containerEvent);
       flushBuffer();
       flushBuffer.flush();

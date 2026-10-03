@@ -147,6 +147,7 @@ tooltip:
   unpin-column: Frigør kolonne
   merge-stream: Flet ind i strømmen
   merge-stream-hint: Åbn en container for at flette med den
+  merge-stream-other-host: "Kun containere på samme vært kan flettes"
   unmerge-stream: Fjern fra strømmen
   merge-all: Sammenlæg alt i én stream
   network-io: "Netværk: ↑ {tx}/s · ↓ {rx}/s"
@@ -182,6 +183,8 @@ error:
   logs-skipped: Vis {total} skjulte indtastninger
   container-not-found: Container ikke fundet
   container-not-found-hint: Den kan være fjernet, eller dens vært kan ikke længere nås.
+  nothing-running: "Intet kører her"
+  nothing-running-hint: "Ingen af containerne i denne visning kører. Logs vises her, så snart en starter."
   action-failed: Handling Mislykkedes
   update-failed: Opdatering Mislykkedes
   unable-to-complete-action: Kan ikke fuldføre handling

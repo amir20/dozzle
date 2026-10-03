@@ -147,6 +147,7 @@ tooltip:
   unpin-column: Unpin column
   merge-stream: Merge into stream
   merge-stream-hint: Open a container to merge it with
+  merge-stream-other-host: "Only containers on the same host can be merged"
   unmerge-stream: Remove from stream
   merge-all: Merge all into one stream
   network-io: "Network: ↑ {tx}/s · ↓ {rx}/s"
@@ -182,6 +183,8 @@ error:
   logs-skipped: Show {total} hidden entries
   container-not-found: Container not found
   container-not-found-hint: It may have been removed, or its host is no longer reachable.
+  nothing-running: "Nothing running here"
+  nothing-running-hint: "None of the containers in this view are running. Logs show up here once one starts."
   action-failed: Action Failed
   update-failed: Update Failed
   unable-to-complete-action: Unable to complete action

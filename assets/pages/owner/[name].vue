@@ -1,6 +1,9 @@
 <template>
   <Search />
   <OwnerLog :owner="owner" :scrollable="pinnedLogs.length > 0" v-if="owner" />
+  <NotFound v-else-if="ready" :title="$t('error.nothing-running')" :hint="$t('error.nothing-running-hint')">
+    <template #icon><ph:stack-simple class="size-5" /></template>
+  </NotFound>
 </template>
 
 <script lang="ts" setup>
@@ -21,7 +24,11 @@ const ownerKey = computed(() => {
     return String(route.params.name);
   }
 });
-const owner = computed(() => owners.value.find((o) => o.key === ownerKey.value));
+// Held while its pods are replaced (a rollout restart), so the view keeps its stream and scrollback.
+const owner = useStickyEntity(
+  () => owners.value.find((o) => o.key === ownerKey.value),
+  () => ownerKey.value,
+);
 
 watchEffect(() => {
   if (ready.value) {

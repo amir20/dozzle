@@ -147,6 +147,7 @@ tooltip:
   unpin-column: Desanclar columna
   merge-stream: Combinar en el flujo
   merge-stream-hint: Abre un contenedor para combinarlo
+  merge-stream-other-host: "Solo se pueden combinar contenedores del mismo host"
   unmerge-stream: Quitar del flujo
   merge-all: Fusionar todo en un flujo
   network-io: "Red: ↑ {tx}/s · ↓ {rx}/s"
@@ -182,6 +183,8 @@ error:
   logs-skipped: Mostrar {total} entradas ocultas
   container-not-found: Contenedor no encontrado.
   container-not-found-hint: Puede que se haya eliminado o que su host ya no esté accesible.
+  nothing-running: "No hay nada en ejecución"
+  nothing-running-hint: "Ninguno de los contenedores de esta vista está en ejecución. Los logs aparecerán aquí en cuanto se inicie uno."
   action-failed: Acción Fallida
   update-failed: Actualización Fallida
   unable-to-complete-action: No se pudo completar la acción

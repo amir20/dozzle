@@ -1,5 +1,5 @@
 <template>
-  <ScrollableView :scrollable="scrollable" v-if="stack.name">
+  <ScrollableView :scrollable="scrollable" v-if="found">
     <template #header>
       <div class="mx-2 flex items-center gap-2 md:ml-4">
         <div class="@container flex flex-1 items-center gap-1.5 md:gap-2">
@@ -17,6 +17,9 @@
       <ViewerWithSource ref="viewer" :stream-source="useStackStream" :entity="stack" :visible-keys="visibleKeys" />
     </template>
   </ScrollableView>
+  <NotFound v-else-if="ready" :title="$t('error.nothing-running')" :hint="$t('error.nothing-running-hint')">
+    <template #icon><ph:stack class="size-5" /></template>
+  </NotFound>
 </template>
 
 <script lang="ts" setup>
@@ -31,7 +34,13 @@ const { name, scrollable = false } = defineProps<{
 const viewer = ref<ComponentExposed<typeof ViewerWithSource>>();
 const store = useSwarmStore();
 const { stacks } = storeToRefs(store) as unknown as { stacks: Ref<Stack[]> };
-const stack = computed(() => stacks.value.find((s) => s.name === name) ?? new Stack("", [], []));
+// Held while its members stop and restart, so the view keeps its stream and scrollback.
+const found = useStickyEntity(
+  () => stacks.value.find((s) => s.name === name),
+  () => name,
+);
+const stack = computed(() => found.value ?? new Stack("", [], []));
+const { ready } = storeToRefs(useContainerStore());
 provideLoggingContext(
   toRef(() => stack.value.containers),
   { showContainerName: true, showHostname: false },

@@ -17,11 +17,15 @@
       />
     </template>
   </ScrollableView>
+  <NotFound v-else-if="ready" :title="$t('error.container-not-found')" :hint="$t('error.container-not-found-hint')">
+    <template #icon><octicon:container-24 class="size-5" /></template>
+  </NotFound>
 </template>
 
 <script lang="ts" setup>
 import ViewerWithSource from "@/components/logs/ViewerWithSource.vue";
 import { ComponentExposed } from "vue-component-type-helpers";
+import { Container } from "@/models/Container";
 
 const { ids = [], scrollable = false } = defineProps<{
   ids?: string[];
@@ -31,7 +35,20 @@ const { ids = [], scrollable = false } = defineProps<{
 const containerStore = useContainerStore();
 const viewer = ref<ComponentExposed<typeof ViewerWithSource>>();
 const { allContainersById, ready } = storeToRefs(containerStore);
-const containers = computed(() => ids.map((id) => allContainersById.value[id]));
+// A container the store has dropped (removed, or replaced by a compose recreate)
+// stays as the last object seen, so the view and its stream carry on and its stop
+// still reads in the log. An id that never resolved, from a stale link, is left out.
+// Plain map, not reactive: it only remembers, it never triggers.
+const lastSeen = new Map<string, Container>();
+const containers = computed(() =>
+  ids.flatMap((id) => {
+    const container = allContainersById.value[id] ?? lastSeen.get(id);
+    if (!container) return [];
+    lastSeen.set(id, container);
+    return [container];
+  }),
+);
+useMarkDropped(() => containers.value);
 
 provideLoggingContext(containers, { showContainerName: true, showHostname: false });
 const visibleKeys = useVisibleKeysByContainer();

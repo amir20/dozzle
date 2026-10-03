@@ -200,24 +200,16 @@
       <li class="section" v-if="showContainerSection">{{ $t("toolbar.section-container") }}</li>
       <template v-if="enableActions && !historical">
         <!-- Kubernetes has no stop or start for one container, only restart. -->
-        <li v-if="canStartStop">
-          <button
-            @click="stop()"
-            :disabled="actionStates.stop || actionStates.restart"
-            v-if="container.state == 'running'"
-          >
+        <li v-if="canStartStop && power">
+          <button @click="stop()" :disabled="actionStates.stop || actionStates.restart" v-if="power === 'stop'">
             <carbon:stop-filled-alt /> {{ $t("toolbar.stop") }}
           </button>
 
-          <button
-            @click="start()"
-            :disabled="actionStates.start || actionStates.restart"
-            v-if="container.state != 'running'"
-          >
+          <button @click="start()" :disabled="actionStates.start || actionStates.restart" v-else>
             <carbon:play /> {{ $t("toolbar.start") }}
           </button>
         </li>
-        <li>
+        <li v-if="power">
           <button @click="restart()" :disabled="disableRestart">
             <carbon:restart
               :class="{
@@ -312,7 +304,7 @@
 </template>
 
 <script lang="ts" setup>
-import { Container } from "@/models/Container";
+import { Container, powerAction } from "@/models/Container";
 import { allLevels } from "@/composable/logs/logContext";
 import { appendRangeParams } from "@/composable/logs/timeRange";
 import LogAnalytics from "@/components/logs/LogAnalytics.vue";
@@ -500,6 +492,8 @@ const { downloadUrl, isFiltered } = useDownloadUrl(
   toRef(() => container.name),
 );
 
+// Nothing to act on once the container is deleted, and Docker will not start a paused one.
+const power = computed(() => powerAction(container));
 const disableRestart = computed(() => actionStates.stop || actionStates.start || actionStates.restart);
 
 // The section header is shared by container actions and the shell entries, so it

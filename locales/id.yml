@@ -149,6 +149,7 @@ tooltip:
   unpin-column: Lepas sematan kolom
   merge-stream: Gabungkan ke aliran
   merge-stream-hint: Buka kontainer untuk digabungkan
+  merge-stream-other-host: "Hanya kontainer di host yang sama yang dapat digabungkan"
   unmerge-stream: Hapus dari aliran
   merge-all: Gabungkan semua ke dalam satu aliran
   network-io: "Jaringan: ↑ {tx}/s · ↓ {rx}/s"
@@ -185,6 +186,8 @@ error:
   logs-skipped: Tampilkan {total} entri tersembunyi
   container-not-found: Kontainer tidak ditemukan
   container-not-found-hint: Kontainer mungkin telah dihapus, atau host-nya tidak lagi dapat dijangkau.
+  nothing-running: "Tidak ada yang berjalan di sini"
+  nothing-running-hint: "Tidak ada kontainer di tampilan ini yang sedang berjalan. Log akan muncul di sini begitu salah satunya dimulai."
   action-failed: Tindakan Gagal
   update-failed: Pembaruan Gagal
   unable-to-complete-action: Tidak dapat menyelesaikan tindakan

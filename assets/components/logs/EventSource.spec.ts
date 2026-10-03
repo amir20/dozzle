@@ -11,6 +11,8 @@ import { createRouter, createWebHistory } from "vue-router";
 import { default as Component } from "./EventSource.vue";
 import SearchStatus from "./SearchStatus.vue";
 import IndeterminateBar from "@/components/ui/IndeterminateBar.vue";
+import ContainerEventLogItem from "./entries/ContainerEventLogItem.vue";
+import type { TimeRange } from "@/composable/logs/timeRange";
 import LogViewer from "./LogViewer.vue";
 import { Container } from "@/models/Container";
 import type { ContainerState } from "@/types/Container";
@@ -55,7 +57,13 @@ describe("<ContainerEventSource />", () => {
       searchFilter = "",
       hourStyle = "auto",
       state = "running",
-    }: { searchFilter?: string | undefined; hourStyle?: "auto" | "24" | "12"; state?: ContainerState } = {
+      timeRange = { kind: "live" },
+    }: {
+      searchFilter?: string | undefined;
+      hourStyle?: "auto" | "24" | "12";
+      state?: ContainerState;
+      timeRange?: TimeRange;
+    } = {
       hourStyle: "auto",
     },
   ) {
@@ -134,7 +142,7 @@ describe("<ContainerEventSource />", () => {
             hasComplexLogs: ref(false),
             levels: new Set<Level>(["info"]),
             historical: ref(false),
-            timeRange: ref({ kind: "live" }),
+            timeRange: ref(timeRange),
           },
         },
       },
@@ -337,6 +345,31 @@ describe("<ContainerEventSource />", () => {
     test("is hidden for a stopped container", () => {
       const wrapper = createLogEventSource({ state: "exited" });
       expect(wrapper.findComponent(IndeterminateBar).exists()).toBe(false);
+    });
+  });
+
+  describe("container events", () => {
+    const stopped = (time: string) => ({
+      data: JSON.stringify({ actorId: "abc", name: "container-stopped", time }),
+    });
+
+    test("a stop replayed by a reconnect is not added twice", async () => {
+      const wrapper = createLogEventSource();
+      sources[sourceUrl].emitOpen();
+      sources[sourceUrl].emit("container-event", stopped("2026-10-03T10:00:00Z"));
+      sources[sourceUrl].emit("container-event", stopped("2026-10-03T10:00:00Z"));
+      await vi.advanceTimersByTimeAsync(300);
+      expect(wrapper.findAllComponents(ContainerEventLogItem)).toHaveLength(1);
+    });
+
+    test("a stop before a since floor leaves the range empty", async () => {
+      const since = new Date("2026-10-03T10:00:00Z");
+      const wrapper = createLogEventSource({ timeRange: { kind: "since", since } });
+      const url = Object.keys(sources).find((u) => u.includes("since="))!;
+      sources[url].emitOpen();
+      sources[url].emit("container-event", stopped("2026-10-03T08:00:00Z"));
+      await vi.advanceTimersByTimeAsync(300);
+      expect(wrapper.findAllComponents(ContainerEventLogItem)).toHaveLength(0);
     });
   });
 

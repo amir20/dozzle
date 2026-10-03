@@ -105,6 +105,9 @@
             :key="container.id"
             v-memo="[
               container.id,
+              container.name,
+              container.customGroup,
+              container.hostLabel,
               container.state,
               container.health,
               statMode,

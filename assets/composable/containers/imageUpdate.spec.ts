@@ -78,6 +78,7 @@ function container(overrides: Partial<Container> = {}): Container {
     host: "localhost",
     image: "nginx:latest",
     isSwarm: false,
+    state: "running",
     ...overrides,
   } as Container;
 }

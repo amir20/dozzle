@@ -1,5 +1,5 @@
 <template>
-  <ScrollableView :scrollable="scrollable" v-if="service.name">
+  <ScrollableView :scrollable="scrollable" v-if="found">
     <template #header>
       <div class="mx-2 flex items-center gap-2 md:ml-4">
         <ph:stack-simple />
@@ -12,6 +12,9 @@
       <ViewerWithSource ref="viewer" :stream-source="useServiceStream" :entity="service" :visible-keys="visibleKeys" />
     </template>
   </ScrollableView>
+  <NotFound v-else-if="ready" :title="$t('error.nothing-running')" :hint="$t('error.nothing-running-hint')">
+    <template #icon><ph:stack-simple class="size-5" /></template>
+  </NotFound>
 </template>
 
 <script lang="ts" setup>
@@ -27,7 +30,13 @@ const { name, scrollable = false } = defineProps<{
 const viewer = ref<ComponentExposed<typeof ViewerWithSource>>();
 const store = useSwarmStore();
 const { services } = storeToRefs(store) as unknown as { services: Ref<Service[]> };
-const service = computed(() => services.value.find((s) => s.name === name) ?? new Service("", []));
+// Held while its replicas stop and restart, so the view keeps its stream and scrollback.
+const found = useStickyEntity(
+  () => services.value.find((s) => s.name === name),
+  () => name,
+);
+const service = computed(() => found.value ?? new Service("", []));
+const { ready } = storeToRefs(useContainerStore());
 const visibleKeys = useVisibleKeysByContainer();
 
 provideLoggingContext(

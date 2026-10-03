@@ -25,12 +25,25 @@ export const emptyStat = (): Stat => ({
 const { hosts } = useHosts();
 
 /**
- * Down for good: it writes no more logs and reports no more stats until it is
- * started again. Paused and restarting containers are on their way back, and a
- * restarting one still carries the previous run's finishedAt, so neither counts.
+ * Not running and not about to: it writes no more logs and reports no more stats
+ * until someone starts it. That includes one that was created and never started.
+ * Paused and restarting containers are on their way back, and a restarting one
+ * still carries the previous run's finishedAt, so neither counts.
  */
 export const isStopped = (container: { state: ContainerState }) =>
-  container.state === "exited" || container.state === "dead" || container.state === "deleted";
+  container.state === "exited" ||
+  container.state === "dead" ||
+  container.state === "deleted" ||
+  container.state === "created";
+
+/**
+ * Which of start and stop the container takes. Docker refuses to start a paused
+ * container but stops one fine, and a deleted one takes neither.
+ */
+export const powerAction = (container: { state: ContainerState }): "start" | "stop" | undefined => {
+  if (container.state === "deleted") return undefined;
+  return isStopped(container) ? "start" : "stop";
+};
 
 export class GroupedContainers {
   constructor(

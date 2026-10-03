@@ -147,6 +147,7 @@ tooltip:
   unpin-column: 取消固定列
   merge-stream: 合并到日志流
   merge-stream-hint: 打开一个容器以进行合并
+  merge-stream-other-host: "只能合并同一主机上的容器"
   unmerge-stream: 从日志流移除
   merge-all: 将所有内容合并到一个流中
   network-io: "网络：↑ {tx}/s · ↓ {rx}/s"
@@ -182,6 +183,8 @@ error:
   logs-skipped: 显示 {total} 个隐藏条目
   container-not-found: 容器未找到。
   container-not-found-hint: 它可能已被删除，或其主机已无法访问。
+  nothing-running: "这里没有运行中的容器"
+  nothing-running-hint: "此视图中的容器都没有在运行。只要有一个启动，日志就会显示在这里。"
   action-failed: 操作失败
   update-failed: 更新失败
   unable-to-complete-action: 无法完成操作

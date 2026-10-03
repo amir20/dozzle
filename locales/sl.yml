@@ -147,6 +147,7 @@ tooltip:
   unpin-column: Odpni stolpec
   merge-stream: Združi s tokom
   merge-stream-hint: Odprite vsebnik za združevanje
+  merge-stream-other-host: "Združiti je mogoče le vsebnike na istem gostitelju"
   unmerge-stream: Odstrani iz toka
   merge-all: Združi vse v en tok
   network-io: "Omrežje: ↑ {tx}/s · ↓ {rx}/s"
@@ -191,6 +192,8 @@ error:
       povezovanjem z API-jem. Preverite omrežno povezavo in poskusite znova.
   container-not-found: Zabojnika ni bilo mogoče najti
   container-not-found-hint: Morda je bil odstranjen ali pa njegov gostitelj ni več dosegljiv.
+  nothing-running: "Tu nič ne teče"
+  nothing-running-hint: "Noben vsebnik v tem pogledu ne teče. Dnevniki se prikažejo tukaj, ko se kateri zažene."
   action-failed: Dejanje Neuspešno
   update-failed: Posodobitev Neuspešna
   unable-to-complete-action: Dejanja ni mogoče dokončati
