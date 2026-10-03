@@ -99,7 +99,7 @@
           <button
             type="button"
             class="nav-btn icon-btn hover:text-error! ms-auto disabled:pointer-events-none disabled:opacity-40"
-            v-if="isRunning && canStartStop"
+            v-if="canStartStop && power === 'stop'"
             :disabled="actionStates.stop || actionStates.restart"
             :title="$t('toolbar.stop')"
             :aria-label="$t('toolbar.stop')"
@@ -110,7 +110,7 @@
           <button
             type="button"
             class="nav-btn icon-btn hover:text-success! ms-auto disabled:pointer-events-none disabled:opacity-40"
-            v-else-if="canStartStop"
+            v-else-if="canStartStop && power === 'start'"
             :disabled="actionStates.start || actionStates.restart"
             :title="$t('toolbar.start')"
             :aria-label="$t('toolbar.start')"
@@ -121,6 +121,7 @@
 
           <button
             type="button"
+            v-if="power"
             class="nav-btn icon-btn disabled:pointer-events-none disabled:opacity-40"
             :class="{ 'ms-auto': !canStartStop }"
             :disabled="actionStates.stop || actionStates.start || actionStates.restart"
@@ -137,7 +138,7 @@
 </template>
 
 <script lang="ts" setup>
-import { Container } from "@/models/Container";
+import { Container, powerAction } from "@/models/Container";
 import Terminal from "@/components/containers/Terminal.vue";
 import { useStreamedContainers } from "@/composable/containers/streamedContainers";
 
@@ -154,6 +155,7 @@ const { actionStates, start, stop, restart } = useContainerActions(toRef(() => c
 
 const host = computed(() => hosts.value[container.host]);
 const isRunning = computed(() => container.state === "running");
+const power = computed(() => powerAction(container));
 const canStartStop = config.mode !== "k8s";
 const imageTag = computed(() => container.image.replace(/@sha.*/, ""));
 const shortUrl = computed(() => container.url?.replace(/^https?:\/\//, "").replace(/\/$/, ""));
@@ -162,12 +164,22 @@ const { ids: streamedIds, toggle: toggleMerge } = useStreamedContainers();
 
 const isMerged = computed(() => streamedIds.value.includes(container.id));
 
+// A merged stream is served by one host, so a container on another host would be
+// listed in the view and never streamed.
+const { allContainersById } = storeToRefs(useContainerStore());
+const otherHost = computed(() => {
+  if (isMerged.value) return false;
+  const streamedHost = allContainersById.value[streamedIds.value[0]]?.host;
+  return !!streamedHost && streamedHost !== container.host;
+});
+
 // Nothing to merge into from a dashboard or a group view, and removing the last
 // id would leave a merged view with no containers in it.
-const canMerge = computed(() => streamedIds.value.length > (isMerged.value ? 1 : 0));
+const canMerge = computed(() => streamedIds.value.length > (isMerged.value ? 1 : 0) && !otherHost.value);
 
 const mergeTitle = computed(() => {
   if (streamedIds.value.length === 0) return t("tooltip.merge-stream-hint");
+  if (otherHost.value) return t("tooltip.merge-stream-other-host");
   return isMerged.value ? t("tooltip.unmerge-stream") : t("tooltip.merge-stream");
 });
 

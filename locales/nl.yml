@@ -147,6 +147,7 @@ tooltip:
   unpin-column: Kolom losmaken
   merge-stream: Samenvoegen met stream
   merge-stream-hint: Open een container om mee samen te voegen
+  merge-stream-other-host: "Alleen containers op dezelfde host kunnen worden samengevoegd"
   unmerge-stream: Verwijderen uit stream
   merge-all: Voeg alles samen in één stream
   network-io: "Netwerk: ↑ {tx}/s · ↓ {rx}/s"
@@ -182,6 +183,8 @@ error:
   logs-skipped: Toon {total} verborgen items
   container-not-found: Container niet gevonden
   container-not-found-hint: Mogelijk is hij verwijderd, of is de host niet meer bereikbaar.
+  nothing-running: "Hier draait niets"
+  nothing-running-hint: "Geen van de containers in deze weergave draait. Logs verschijnen hier zodra er een start."
   action-failed: Actie Mislukt
   update-failed: Update Mislukt
   unable-to-complete-action: Kan actie niet voltooien

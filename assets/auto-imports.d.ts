@@ -41,6 +41,7 @@ declare global {
   const buildViewContext: typeof import('./composable/logs/viewContext').buildViewContext
   const canHover: typeof import('./composable/ui/media').canHover
   const canSelfUpdate: typeof import('./composable/setup/selfUpdate').canSelfUpdate
+  const canUpdate: typeof import('./composable/containers/imageUpdate').canUpdate
   const checkSession: typeof import('./composable/app/session').checkSession
   const chipMoment: typeof import('./composable/cloud/patternMemory').chipMoment
   const clearCloudWelcomePending: typeof import('./composable/cloud/cloudWelcome').clearCloudWelcomePending
@@ -140,6 +141,7 @@ declare global {
   const isReactive: typeof import('vue').isReactive
   const isReadonly: typeof import('vue').isReadonly
   const isRef: typeof import('vue').isRef
+  const isSelf: typeof import('./composable/containers/imageUpdate').isSelf
   const isShallow: typeof import('vue').isShallow
   const isStreamLog: typeof import('./composable/cloud/alertMerger').isStreamLog
   const isViewContextOwner: typeof import('./composable/logs/viewContext').isViewContextOwner
@@ -477,6 +479,7 @@ declare global {
   const useStackStream: typeof import('./composable/logs/eventStreams').useStackStream
   const useStaleUI: typeof import('./composable/app/staleUI').useStaleUI
   const useStepper: typeof import('@vueuse/core').useStepper
+  const useStickyEntity: typeof import('./composable/logs/stickyEntity').useStickyEntity
   const useStorage: typeof import('@vueuse/core').useStorage
   const useStorageAsync: typeof import('@vueuse/core').useStorageAsync
   const useStreamedContainers: typeof import('./composable/containers/streamedContainers').useStreamedContainers
@@ -684,6 +687,7 @@ declare module 'vue' {
     readonly buildViewContext: UnwrapRef<typeof import('./composable/logs/viewContext')['buildViewContext']>
     readonly canHover: UnwrapRef<typeof import('./composable/ui/media')['canHover']>
     readonly canSelfUpdate: UnwrapRef<typeof import('./composable/setup/selfUpdate')['canSelfUpdate']>
+    readonly canUpdate: UnwrapRef<typeof import('./composable/containers/imageUpdate')['canUpdate']>
     readonly checkSession: UnwrapRef<typeof import('./composable/app/session')['checkSession']>
     readonly chipMoment: UnwrapRef<typeof import('./composable/cloud/patternMemory')['chipMoment']>
     readonly clearCloudWelcomePending: UnwrapRef<typeof import('./composable/cloud/cloudWelcome')['clearCloudWelcomePending']>
@@ -781,6 +785,7 @@ declare module 'vue' {
     readonly isReactive: UnwrapRef<typeof import('vue')['isReactive']>
     readonly isReadonly: UnwrapRef<typeof import('vue')['isReadonly']>
     readonly isRef: UnwrapRef<typeof import('vue')['isRef']>
+    readonly isSelf: UnwrapRef<typeof import('./composable/containers/imageUpdate')['isSelf']>
     readonly isShallow: UnwrapRef<typeof import('vue')['isShallow']>
     readonly isStreamLog: UnwrapRef<typeof import('./composable/cloud/alertMerger')['isStreamLog']>
     readonly isViewContextOwner: UnwrapRef<typeof import('./composable/logs/viewContext')['isViewContextOwner']>
@@ -1113,6 +1118,7 @@ declare module 'vue' {
     readonly useStackStream: UnwrapRef<typeof import('./composable/logs/eventStreams')['useStackStream']>
     readonly useStaleUI: UnwrapRef<typeof import('./composable/app/staleUI')['useStaleUI']>
     readonly useStepper: UnwrapRef<typeof import('@vueuse/core')['useStepper']>
+    readonly useStickyEntity: UnwrapRef<typeof import('./composable/logs/stickyEntity')['useStickyEntity']>
     readonly useStorage: UnwrapRef<typeof import('@vueuse/core')['useStorage']>
     readonly useStorageAsync: UnwrapRef<typeof import('@vueuse/core')['useStorageAsync']>
     readonly useStreamedContainers: UnwrapRef<typeof import('./composable/containers/streamedContainers')['useStreamedContainers']>

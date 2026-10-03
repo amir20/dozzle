@@ -147,6 +147,7 @@ tooltip:
   unpin-column: Открепить столбец
   merge-stream: Объединить с потоком
   merge-stream-hint: Откройте контейнер, чтобы объединить с ним
+  merge-stream-other-host: "Объединять можно только контейнеры на одном хосте"
   unmerge-stream: Убрать из потока
   merge-all: Объединить все в один поток
   network-io: "Сеть: ↑ {tx}/s · ↓ {rx}/s"
@@ -182,6 +183,8 @@ error:
   logs-skipped: Показать {total} скрытых записей
   container-not-found: Контейнер не найден.
   container-not-found-hint: Возможно, он был удалён или его хост больше недоступен.
+  nothing-running: "Здесь ничего не запущено"
+  nothing-running-hint: "Ни один контейнер в этом представлении не запущен. Логи появятся здесь, как только какой-нибудь запустится."
   action-failed: Действие не выполнено
   update-failed: Обновление не выполнено
   unable-to-complete-action: Не удалось выполнить действие

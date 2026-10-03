@@ -1,5 +1,5 @@
 <template>
-  <ScrollableView :scrollable="scrollable" v-if="group.containers.length && ready">
+  <ScrollableView :scrollable="scrollable" v-if="found && ready">
     <template #header>
       <div class="mx-2 flex items-center gap-2 md:ml-4">
         <ContainerDropdown :containers="group.containers">
@@ -13,6 +13,9 @@
       <ViewerWithSource ref="viewer" :stream-source="useGroupedStream" :entity="group" :visible-keys="visibleKeys" />
     </template>
   </ScrollableView>
+  <NotFound v-else-if="ready" :title="$t('error.nothing-running')" :hint="$t('error.nothing-running-hint')">
+    <template #icon><octicon:container-24 class="size-5" /></template>
+  </NotFound>
 </template>
 
 <script lang="ts" setup>
@@ -33,7 +36,12 @@ const { ready } = storeToRefs(containerStore);
 const swarmStore = useSwarmStore();
 const { customGroups } = storeToRefs(swarmStore);
 
-const group = computed(() => customGroups.value.find((g) => g.name === name) ?? new GroupedContainers("", []));
+// Held while its members stop and restart, so the view keeps its stream and scrollback.
+const found = useStickyEntity(
+  () => customGroups.value.find((g) => g.name === name),
+  () => name,
+);
+const group = computed(() => found.value ?? new GroupedContainers("", []));
 
 provideLoggingContext(
   toRef(() => group.value.containers),

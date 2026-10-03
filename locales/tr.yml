@@ -147,6 +147,7 @@ tooltip:
   unpin-column: Sütun sabitlemesini kaldır
   merge-stream: Akışa birleştir
   merge-stream-hint: Birleştirmek için bir konteyner açın
+  merge-stream-other-host: "Yalnızca aynı ana makinedeki konteynerler birleştirilebilir"
   unmerge-stream: Akıştan çıkar
   merge-all: Tümünü tek bir akışta birleştir
   network-io: "Ağ: ↑ {tx}/sn · ↓ {rx}/sn"
@@ -182,6 +183,8 @@ error:
   logs-skipped: "{total} gizli girişi göster"
   container-not-found: Konteyner bulunamadı
   container-not-found-hint: Kaldırılmış olabilir ya da ana makinesine artık ulaşılamıyor.
+  nothing-running: "Burada çalışan bir şey yok"
+  nothing-running-hint: "Bu görünümdeki konteynerlerin hiçbiri çalışmıyor. Biri başladığında loglar burada görünür."
   action-failed: İşlem Başarısız
   update-failed: Güncelleme Başarısız
   unable-to-complete-action: İşlem tamamlanamadı

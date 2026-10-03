@@ -147,6 +147,7 @@ tooltip:
   unpin-column: 取消釘選欄位
   merge-stream: 合併到串流
   merge-stream-hint: 開啟一個容器以進行合併
+  merge-stream-other-host: "只能合併同一主機上的容器"
   unmerge-stream: 從串流移除
   merge-all: 將所有內容合併到一個流中
   network-io: "網路：↑ {tx}/s · ↓ {rx}/s"
@@ -182,6 +183,8 @@ error:
   logs-skipped: 顯示 {total} 個隱藏項目
   container-not-found: 找不到容器
   container-not-found-hint: 它可能已被移除，或其主機已無法連線。
+  nothing-running: "這裡沒有執行中的容器"
+  nothing-running-hint: "此檢視中的容器都沒有在執行。只要有一個啟動，日誌就會顯示在這裡。"
   action-failed: 操作失敗
   update-failed: 更新失敗
   unable-to-complete-action: 無法完成操作

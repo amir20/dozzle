@@ -147,6 +147,7 @@ tooltip:
   unpin-column: Odepnij kolumnę
   merge-stream: Scal ze strumieniem
   merge-stream-hint: Otwórz kontener, aby go scalić
+  merge-stream-other-host: "Scalać można tylko kontenery z tego samego hosta"
   unmerge-stream: Usuń ze strumienia
   merge-all: Scal wszystko w jeden strumień
   network-io: "Sieć: ↑ {tx}/s · ↓ {rx}/s"
@@ -182,6 +183,8 @@ error:
   logs-skipped: Pokaż {total} ukrytych wpisów
   container-not-found: Kontener nie został znaleziony
   container-not-found-hint: Mógł zostać usunięty lub jego host nie jest już osiągalny.
+  nothing-running: "Nic tu nie działa"
+  nothing-running-hint: "Żaden z kontenerów w tym widoku nie działa. Logi pojawią się tutaj, gdy któryś się uruchomi."
   action-failed: Akcja Nieudana
   update-failed: Aktualizacja Nieudana
   unable-to-complete-action: Nie można ukończyć akcji

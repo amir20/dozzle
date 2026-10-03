@@ -1,5 +1,6 @@
 import type { Component } from "vue";
-import { Container } from "@/models/Container";
+import { Container, powerAction } from "@/models/Container";
+import { canUpdate, isSelf } from "@/composable/containers/imageUpdate";
 import { useContainerActions } from "@/composable/containers/containerActions";
 import config from "@/stores/config";
 import {
@@ -65,7 +66,8 @@ export function useCommands() {
     const list: Command[] = [];
 
     const container = currentContainer.value;
-    if (container && config.enableActions) {
+    // A deleted container has nothing left to act on.
+    if (container && config.enableActions && powerAction(container)) {
       const name = container.name;
       list.push({
         id: "container.restart",
@@ -77,7 +79,8 @@ export function useCommands() {
       });
       // Kubernetes has no stop, start or image update for one container, only restart.
       if (config.mode !== "k8s") {
-        if (container.state === "running") {
+        const power = powerAction(container);
+        if (power === "stop") {
           list.push({
             id: "container.stop",
             section: "container",
@@ -86,7 +89,7 @@ export function useCommands() {
             keywords: "stop kill halt",
             perform: stop,
           });
-        } else {
+        } else if (power === "start") {
           list.push({
             id: "container.start",
             section: "container",
@@ -96,14 +99,18 @@ export function useCommands() {
             perform: start,
           });
         }
-        list.push({
-          id: "container.update",
-          section: "container",
-          icon: mdiDownload,
-          title: t("command-palette.update-container", { name }),
-          keywords: "update pull recreate upgrade",
-          perform: update,
-        });
+        // Same gate and self-update handling as the toolbar, so the palette cannot
+        // update Dozzle out from under the page or offer what the backend refuses.
+        if (canUpdate(container)) {
+          list.push({
+            id: "container.update",
+            section: "container",
+            icon: mdiDownload,
+            title: t("command-palette.update-container", { name }),
+            keywords: "update pull recreate upgrade",
+            perform: () => update({ self: isSelf(container) }),
+          });
+        }
       }
     }
 

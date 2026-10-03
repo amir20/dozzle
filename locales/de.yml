@@ -147,6 +147,7 @@ tooltip:
   unpin-column: Spalte lösen
   merge-stream: In den Stream einfügen
   merge-stream-hint: Zum Zusammenführen zuerst einen Container öffnen
+  merge-stream-other-host: "Nur Container auf demselben Host lassen sich zusammenführen"
   unmerge-stream: Aus dem Stream entfernen
   merge-all: Alles in einen Stream zusammenführen
   network-io: "Netzwerk: ↑ {tx}/s · ↓ {rx}/s"
@@ -182,6 +183,8 @@ error:
   logs-skipped: Zeige {total} versteckte Einträge
   container-not-found: Container nicht gefunden.
   container-not-found-hint: Er wurde möglicherweise entfernt, oder sein Host ist nicht mehr erreichbar.
+  nothing-running: "Hier läuft nichts"
+  nothing-running-hint: "Keiner der Container in dieser Ansicht läuft. Logs erscheinen hier, sobald einer startet."
   action-failed: Aktion fehlgeschlagen
   update-failed: Aktualisierung fehlgeschlagen
   unable-to-complete-action: Aktion konnte nicht abgeschlossen werden

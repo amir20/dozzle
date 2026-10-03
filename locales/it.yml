@@ -147,6 +147,7 @@ tooltip:
   unpin-column: Sblocca colonna
   merge-stream: Unisci al flusso
   merge-stream-hint: Apri un container per unirlo
+  merge-stream-other-host: "Si possono unire solo container sullo stesso host"
   unmerge-stream: Rimuovi dal flusso
   merge-all: Unisci tutto in un flusso
   network-io: "Rete: ↑ {tx}/s · ↓ {rx}/s"
@@ -182,6 +183,8 @@ error:
   logs-skipped: Mostra {total} voci nascoste
   container-not-found: Container non trovato
   container-not-found-hint: Potrebbe essere stato rimosso, oppure il suo host non è più raggiungibile.
+  nothing-running: "Qui non è in esecuzione nulla"
+  nothing-running-hint: "Nessuno dei container di questa vista è in esecuzione. I log appariranno qui appena uno si avvia."
   action-failed: Azione Fallita
   update-failed: Aggiornamento Fallito
   unable-to-complete-action: Impossibile completare l'azione

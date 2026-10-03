@@ -14,7 +14,10 @@ const { pinnedLogs } = storeToRefs(pinnedLogsStore);
 
 const stackStore = useSwarmStore();
 const { stacks } = storeToRefs(stackStore);
-const stack = computed(() => stacks.value.find((s) => s.name === route.params.name));
+const stack = useStickyEntity(
+  () => stacks.value.find((s) => s.name === route.params.name),
+  () => route.params.name,
+);
 
 watchEffect(() => {
   if (ready.value) {

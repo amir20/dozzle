@@ -10,7 +10,7 @@ import MultiContainerStat from "./MultiContainerStat.vue";
 
 vi.mock("@/stores/config", () => ({
   __esModule: true,
-  default: { hosts: [], base: "" },
+  default: { hosts: [{ id: "host1", name: "host1", nCPU: 4, memTotal: 1000 }], base: "" },
   withBase: (path: string) => path,
 }));
 
@@ -39,10 +39,18 @@ function stat(cpu: number): Stat {
   };
 }
 
-function makeContainer(id: string, cpu: number): Container {
+function makeContainer(id: string, cpu: number, cpuLimit = 0): Container {
   const stats = Array.from({ length: 10 }, () => stat(cpu));
   const now = new Date();
-  return new Container(id, now, now, now, "img", id, "cmd", "host1", {}, "running", 0, 0, stats);
+  return new Container(id, now, now, now, "img", id, "cmd", "host1", {}, "running", cpuLimit, 0, stats);
+}
+
+function lastCpu(containers: Container[]) {
+  const wrapper = mount(MultiContainerStat as any, {
+    props: { containers },
+    global: { plugins: [i18n], stubs: { BarChart: BarChartStub, IOCard: true } },
+  });
+  return () => wrapper.findAllComponents(BarChartStub)[0].props("chartData").at(-1).value;
 }
 
 describe("<MultiContainerStat />", () => {
@@ -72,16 +80,22 @@ describe("<MultiContainerStat />", () => {
 
   test("leaves a stopped container's last sample out of the total", async () => {
     vi.useFakeTimers();
-    const stopped = makeContainer("b", 50);
+    const stopped = makeContainer("b", 400);
     stopped.state = "exited";
-    const wrapper = mount(MultiContainerStat as any, {
-      props: { containers: [makeContainer("a", 10), stopped] },
-      global: { plugins: [i18n], stubs: { BarChart: BarChartStub, IOCard: true } },
-    });
-
+    // One core of four in use; the stopped one's four cores are history.
+    const cpu = lastCpu([makeContainer("a", 100), stopped]);
+    expect(cpu()).toBe(25);
     await vi.advanceTimersByTimeAsync(1100);
-    const [cpu] = wrapper.findAllComponents(BarChartStub);
-    expect(cpu.props("chartData").at(-1).value).toBe(10);
+    expect(cpu()).toBe(25);
+    vi.useRealTimers();
+  });
+
+  test("measures cpu against the cores the containers can use", async () => {
+    vi.useFakeTimers();
+    // Two half-core containers, both pegged, are using all of one core.
+    const cpu = lastCpu([makeContainer("a", 50, 0.5), makeContainer("b", 50, 0.5)]);
+    await vi.advanceTimersByTimeAsync(1100);
+    expect(cpu()).toBe(100);
     vi.useRealTimers();
   });
 });

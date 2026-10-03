@@ -95,57 +95,13 @@ const diskRate = ref({ read: 0, write: 0 });
 
 const roundCPU = (num: number) => (Number.isInteger(num) ? num.toFixed(0) : num.toFixed(1));
 
-function toContainerCores(container: Container): number {
-  if (container.cpuLimit && container.cpuLimit > 0) {
-    return container.cpuLimit;
-  }
-  const hostInfo = hosts.value[container.host];
-  return hostInfo?.nCPU ?? 1;
-}
-
-watch(
-  () => containers,
-  () => {
-    const initial: Stat[] = [];
-    for (let i = 1; i <= 300; i++) {
-      const stat = containers.reduce((acc, container) => {
-        const item = container.statsHistory.at(-i);
-        if (!item) {
-          return acc;
-        }
-        const cores = toContainerCores(container);
-        return {
-          cpu: acc.cpu + item.cpu / cores,
-          memory: acc.memory + item.memory,
-          memoryUsage: acc.memoryUsage + item.memoryUsage,
-          networkRxTotal: acc.networkRxTotal + item.networkRxTotal,
-          networkTxTotal: acc.networkTxTotal + item.networkTxTotal,
-          diskReadTotal: acc.diskReadTotal + item.diskReadTotal,
-          diskWriteTotal: acc.diskWriteTotal + item.diskWriteTotal,
-        };
-      }, emptyStat());
-      initial.push(stat);
-    }
-    totalStat.value = initial[0];
-    reset({ initial: initial.reverse() });
-    // `max`, not `min`: the two only differ when one container's history is
-    // shorter than another's, which means that container did not exist yet, and
-    // zero is its honest contribution to a total. Taking the min would let one
-    // newly created container blank the sampled region for everything else.
-    sampledCount.value = Math.min(300, Math.max(0, ...containers.map((c) => c.sampledStats)));
-    // Charts cache their downsampled bars and only patch the last bar per tick;
-    // a container switch replaces the whole series, so force a full recalculate.
-    nextTick(() => {
-      cpuChart.value?.recalculate();
-      memoryChart.value?.recalculate();
-    });
-  },
-  { immediate: true },
-);
-
+// What the total is measured against. A stopped container is not using its share,
+// so it only counts when nothing in the view is running.
 const limits = computed(() => {
+  const running = containers.filter((c) => !isStopped(c));
+  const counted = running.length > 0 ? running : containers;
   const containersByHost = new Map<string, Container[]>();
-  containers.forEach((container) => {
+  counted.forEach((container) => {
     if (!containersByHost.has(container.host)) {
       containersByHost.set(container.host, []);
     }
@@ -181,23 +137,68 @@ const limits = computed(() => {
   return { cpu: totalCpu, memory: totalMemory };
 });
 
-useIntervalFn(() => {
-  const previousStat = totalStat.value;
-  totalStat.value = containers.reduce((acc, container) => {
-    const cores = toContainerCores(container);
-    // A stopped container keeps its last sample, which is not what it uses now.
-    // Its I/O counters stay in so the totals do not drop and fake a rate.
+// Docker reports cpu as 100 per core, so the raw figures add up and the sum is then
+// taken against the cores the view can use. Adding each container's own percentage
+// instead mixed denominators: two half-core containers at full load read 200% of one.
+// A stopped container keeps its last sample, which is not what it uses now, so it adds
+// no cpu or memory. Its I/O counters stay in so the totals do not drop and fake a rate.
+function sum(samples: { container: Container; stat: Stat }[]): Stat {
+  const raw = samples.reduce((acc, { container, stat }) => {
     const running = !isStopped(container);
     return {
-      cpu: acc.cpu + (running ? container.stat.cpu / cores : 0),
-      memory: acc.memory + (running ? container.stat.memory : 0),
-      memoryUsage: acc.memoryUsage + (running ? container.stat.memoryUsage : 0),
-      networkRxTotal: acc.networkRxTotal + container.stat.networkRxTotal,
-      networkTxTotal: acc.networkTxTotal + container.stat.networkTxTotal,
-      diskReadTotal: acc.diskReadTotal + container.stat.diskReadTotal,
-      diskWriteTotal: acc.diskWriteTotal + container.stat.diskWriteTotal,
+      cpu: acc.cpu + (running ? stat.cpu : 0),
+      memory: acc.memory + (running ? stat.memory : 0),
+      memoryUsage: acc.memoryUsage + (running ? stat.memoryUsage : 0),
+      networkRxTotal: acc.networkRxTotal + stat.networkRxTotal,
+      networkTxTotal: acc.networkTxTotal + stat.networkTxTotal,
+      diskReadTotal: acc.diskReadTotal + stat.diskReadTotal,
+      diskWriteTotal: acc.diskWriteTotal + stat.diskWriteTotal,
     };
   }, emptyStat());
+  const { cpu, memory } = limits.value;
+  return {
+    ...raw,
+    cpu: raw.cpu / (cpu || 1),
+    memory: memory > 0 ? (raw.memoryUsage / memory) * 100 : raw.memory,
+  };
+}
+
+// Keyed on the ids rather than the array, which the store hands over fresh on every
+// list update: reseeding then would paint a stopped container's history back in.
+watch(
+  () => containers.map((c) => c.id).join(","),
+  () => {
+    const initial: Stat[] = [];
+    for (let i = 1; i <= 300; i++) {
+      initial.push(
+        sum(
+          containers.flatMap((container) => {
+            const stat = container.statsHistory.at(-i);
+            return stat ? [{ container, stat }] : [];
+          }),
+        ),
+      );
+    }
+    totalStat.value = initial[0];
+    reset({ initial: initial.reverse() });
+    // `max`, not `min`: the two only differ when one container's history is
+    // shorter than another's, which means that container did not exist yet, and
+    // zero is its honest contribution to a total. Taking the min would let one
+    // newly created container blank the sampled region for everything else.
+    sampledCount.value = Math.min(300, Math.max(0, ...containers.map((c) => c.sampledStats)));
+    // Charts cache their downsampled bars and only patch the last bar per tick;
+    // a container switch replaces the whole series, so force a full recalculate.
+    nextTick(() => {
+      cpuChart.value?.recalculate();
+      memoryChart.value?.recalculate();
+    });
+  },
+  { immediate: true },
+);
+
+useIntervalFn(() => {
+  const previousStat = totalStat.value;
+  totalStat.value = sum(containers.map((container) => ({ container, stat: container.stat })));
   sampledCount.value = Math.min(300, sampledCount.value + 1);
 
   networkRate.value = {
