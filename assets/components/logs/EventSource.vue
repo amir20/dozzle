@@ -28,7 +28,7 @@
 
 <script lang="ts" setup generic="T">
 import { LogStreamSource } from "@/composable/logs/eventStreams";
-import { Container, HistoricalContainer } from "@/models/Container";
+import { Container, HistoricalContainer, isStopped } from "@/models/Container";
 import { LoadMoreLogEntry } from "@/models/LogEntry";
 import { isStreamLog } from "@/composable/cloud/alertMerger";
 const route = useRoute();
@@ -38,7 +38,7 @@ const { entity, streamSource } = $defineProps<{
   entity: T;
 }>();
 
-const { historical, timeRange } = useLoggingContext();
+const { historical, timeRange, containers } = useLoggingContext();
 
 const { messages, opened, loading, error, searchStatus } = streamSource(toRef(() => entity));
 
@@ -63,9 +63,9 @@ const color = computed(() => {
   return "error";
 });
 
-// A stopped container has nothing more to send, so the bar would only imply a
-// stream that is not there.
-const stopped = computed(() => entity instanceof Container && entity.state !== "running");
+// Once everything in the view has stopped there is nothing more to send, and the
+// bar would only imply a stream that is not there.
+const stopped = computed(() => containers.value.length > 0 && containers.value.every(isStopped));
 
 // The bar reflects real throughput. `messages` is a shallow ref replaced once
 // per buffer flush, so every arriving batch relights it and it fades back after
