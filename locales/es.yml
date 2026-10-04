@@ -369,6 +369,8 @@ settings:
   advanced: Avanzado
   setup: "Configuración"
   about: Acerca de
+  general: General
+  updates: Actualizaciones
   reset: Restablecer valores predeterminados
   sponsor: Patrocinar
   new-version: "{version} disponible"

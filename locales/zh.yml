@@ -248,6 +248,8 @@ settings:
   advanced: 高级
   setup: "设置"
   about: 关于
+  general: 常规
+  updates: 更新
   reset: 恢复默认设置
   sponsor: 赞助
   new-version: "{version} 可用"

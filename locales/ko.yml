@@ -250,6 +250,8 @@ settings:
   advanced: 고급
   setup: "설정"
   about: 정보
+  general: 일반
+  updates: 업데이트
   reset: 기본값으로 재설정
   sponsor: 후원하기
   new-version: "{version} 사용 가능"

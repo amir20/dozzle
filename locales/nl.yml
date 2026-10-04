@@ -249,6 +249,8 @@ settings:
   advanced: Geavanceerd
   setup: "Instellen"
   about: Over
+  general: Algemeen
+  updates: Updates
   reset: Standaardwaarden herstellen
   sponsor: Sponsoren
   new-version: "{version} beschikbaar"

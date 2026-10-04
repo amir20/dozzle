@@ -248,6 +248,8 @@ settings:
   advanced: Дополнительно
   setup: "Настройка"
   about: О программе
+  general: Общие
+  updates: Обновления
   reset: Сбросить настройки
   sponsor: Поддержать
   new-version: "Доступна версия {version}"

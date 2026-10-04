@@ -377,6 +377,8 @@ settings:
   advanced: Advanced
   setup: Setup
   about: About
+  general: General
+  updates: Updates
   reset: Reset to defaults
   sponsor: Sponsor
   new-version: "{version} available"

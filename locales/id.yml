@@ -256,6 +256,8 @@ settings:
   advanced: Lanjutan
   setup: "Penyiapan"
   about: Tentang
+  general: Umum
+  updates: Pembaruan
   reset: Kembalikan ke default
   sponsor: Sponsori
   new-version: "{version} tersedia"

@@ -251,6 +251,8 @@ settings:
   advanced: Gelişmiş
   setup: "Kurulum"
   about: Hakkında
+  general: Genel
+  updates: Güncellemeler
   reset: Varsayılanlara sıfırla
   sponsor: Sponsor ol
   new-version: "{version} mevcut"

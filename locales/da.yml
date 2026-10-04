@@ -248,6 +248,8 @@ settings:
   advanced: Avanceret
   setup: "Opsætning"
   about: Om
+  general: Generelt
+  updates: Opdateringer
   reset: Nulstil til standard
   sponsor: Sponsorer
   new-version: "{version} tilgængelig"

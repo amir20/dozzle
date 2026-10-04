@@ -248,6 +248,8 @@ settings:
   advanced: Erweitert
   setup: "Einrichtung"
   about: Über
+  general: Allgemein
+  updates: Aktualisierungen
   reset: Auf Standard zurücksetzen
   sponsor: Sponsern
   new-version: "{version} verfügbar"

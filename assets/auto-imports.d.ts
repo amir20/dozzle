@@ -20,6 +20,7 @@ declare global {
   const MIN_MENU_WIDTH: typeof import('./stores/settings').MIN_MENU_WIDTH
   const RAIL_WIDTH: typeof import('./composable/cloud/cloudRail').RAIL_WIDTH
   const RELATIVE_SPANS: typeof import('./composable/logs/timeRange').RELATIVE_SPANS
+  const SETTINGS_PAGE_IDS: typeof import('./composable/app/settingsPages').SETTINGS_PAGE_IDS
   const SETUP_RESUME_KEY: typeof import('./composable/setup/setup').SETUP_RESUME_KEY
   const SHOWN_STATUSES: typeof import('./composable/cloud/patternMemory').SHOWN_STATUSES
   const SetupError: typeof import('./composable/setup/setup').SetupError
@@ -121,6 +122,7 @@ declare global {
   const goBack: typeof import('./composable/app/mobileShell').goBack
   const groupContainers: typeof import('./stores/settings').groupContainers
   const groupK8sOwners: typeof import('./stores/k8s').groupK8sOwners
+  const guardSettingsRoutes: typeof import('./composable/app/settingsPages').guardSettingsRoutes
   const h: typeof import('vue').h
   const hasIcon: typeof import('./utils/index').hasIcon
   const hasViewContext: typeof import('./composable/logs/viewContext').hasViewContext
@@ -250,6 +252,8 @@ declare global {
   const setMapStoreSuffix: typeof import('pinia').setMapStoreSuffix
   const setTitle: typeof import('./composable/app/title').setTitle
   const settings: typeof import('./stores/settings').settings
+  const settingsPages: typeof import('./composable/app/settingsPages').settingsPages
+  const settingsRedirect: typeof import('./composable/app/settingsPages').settingsRedirect
   const setupEnvSnippet: typeof import('./composable/setup/setup').setupEnvSnippet
   const setupHasPending: typeof import('./composable/setup/setup').setupHasPending
   const setupLoginConfigured: typeof import('./composable/setup/setup').setupLoginConfigured
@@ -579,6 +583,9 @@ declare global {
   export type { DrawerWidth, DrawerCloseGuard } from './composable/app/drawer'
   import('./composable/app/drawer')
   // @ts-ignore
+  export type { SettingsPageId, SettingsPageConfig } from './composable/app/settingsPages'
+  import('./composable/app/settingsPages')
+  // @ts-ignore
   export type { UsageKey } from './composable/app/usage'
   import('./composable/app/usage')
   // @ts-ignore
@@ -685,6 +692,7 @@ declare module 'vue' {
     readonly MAX_PATTERN_LINES: UnwrapRef<typeof import('./composable/cloud/patternMemory')['MAX_PATTERN_LINES']>
     readonly RAIL_WIDTH: UnwrapRef<typeof import('./composable/cloud/cloudRail')['RAIL_WIDTH']>
     readonly RELATIVE_SPANS: UnwrapRef<typeof import('./composable/logs/timeRange')['RELATIVE_SPANS']>
+    readonly SETTINGS_PAGE_IDS: UnwrapRef<typeof import('./composable/app/settingsPages')['SETTINGS_PAGE_IDS']>
     readonly SETUP_RESUME_KEY: UnwrapRef<typeof import('./composable/setup/setup')['SETUP_RESUME_KEY']>
     readonly SHOWN_STATUSES: UnwrapRef<typeof import('./composable/cloud/patternMemory')['SHOWN_STATUSES']>
     readonly SetupError: UnwrapRef<typeof import('./composable/setup/setup')['SetupError']>
@@ -786,6 +794,7 @@ declare module 'vue' {
     readonly goBack: UnwrapRef<typeof import('./composable/app/mobileShell')['goBack']>
     readonly groupContainers: UnwrapRef<typeof import('./stores/settings')['groupContainers']>
     readonly groupK8sOwners: UnwrapRef<typeof import('./stores/k8s')['groupK8sOwners']>
+    readonly guardSettingsRoutes: UnwrapRef<typeof import('./composable/app/settingsPages')['guardSettingsRoutes']>
     readonly h: UnwrapRef<typeof import('vue')['h']>
     readonly hasIcon: UnwrapRef<typeof import('./utils/index')['hasIcon']>
     readonly hasViewContext: UnwrapRef<typeof import('./composable/logs/viewContext')['hasViewContext']>
@@ -911,6 +920,8 @@ declare module 'vue' {
     readonly setMapStoreSuffix: UnwrapRef<typeof import('pinia')['setMapStoreSuffix']>
     readonly setTitle: UnwrapRef<typeof import('./composable/app/title')['setTitle']>
     readonly settings: UnwrapRef<typeof import('./stores/settings')['settings']>
+    readonly settingsPages: UnwrapRef<typeof import('./composable/app/settingsPages')['settingsPages']>
+    readonly settingsRedirect: UnwrapRef<typeof import('./composable/app/settingsPages')['settingsRedirect']>
     readonly setupEnvSnippet: UnwrapRef<typeof import('./composable/setup/setup')['setupEnvSnippet']>
     readonly setupHasPending: UnwrapRef<typeof import('./composable/setup/setup')['setupHasPending']>
     readonly setupLoginConfigured: UnwrapRef<typeof import('./composable/setup/setup')['setupLoginConfigured']>

@@ -250,6 +250,8 @@ settings:
   advanced: 進階
   setup: "設定"
   about: 關於
+  general: 一般
+  updates: 更新
   reset: 重設為預設值
   sponsor: 贊助
   new-version: "{version} 已推出"

@@ -250,6 +250,8 @@ settings:
   advanced: Zaawansowane
   setup: "Konfiguracja"
   about: O programie
+  general: Ogólne
+  updates: Aktualizacje
   reset: Przywróć domyślne
   sponsor: Wesprzyj
   new-version: "{version} jest dostępna"

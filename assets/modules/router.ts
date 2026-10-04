@@ -2,6 +2,8 @@ import { type App } from "vue";
 import { createRouter, createWebHistory, type Router } from "vue-router";
 import { routes } from "vue-router/auto-routes";
 import { setupLayouts } from "virtual:generated-layouts";
+import config from "@/stores/config";
+import { guardSettingsRoutes, settingsPages } from "@/composable/app/settingsPages";
 
 export const router = createRouter({
   history: createWebHistory(withBase("/")),
@@ -40,6 +42,7 @@ export const install = (app: App) => {
   router.beforeEach(() => {
     navigating = true;
   });
+  guardSettingsRoutes(router, settingsPages(config));
   router.afterEach(() => {
     navigating = false;
   });

@@ -250,6 +250,8 @@ settings:
   advanced: Napredno
   setup: "Nastavitev"
   about: O programu
+  general: Splošno
+  updates: Posodobitve
   reset: Ponastavi na privzeto
   sponsor: Podpri
   new-version: "Na voljo je {version}"
