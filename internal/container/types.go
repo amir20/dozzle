@@ -10,6 +10,7 @@ import (
 	"time"
 	"unicode/utf8"
 
+	"github.com/amir20/dozzle/internal/updatepolicy"
 	"github.com/amir20/dozzle/internal/utils"
 )
 
@@ -270,19 +271,17 @@ const (
 	UpdateRunLabel = "dev.dozzle.update-run"
 )
 
-// AutoUpdateLabel opts a container into the auto-update schedule. It is opt in
-// on purpose: a database on a floating tag should never move on its own. It is
-// also the consent for Dozzle Cloud to watch the updates the schedule makes.
-const AutoUpdateLabel = "dev.dozzle.auto-update"
+// AutoUpdateLabel is the older label that opted a container into the
+// auto-update schedule. It is still read as dev.dozzle.update=auto. See
+// updatepolicy.
+const AutoUpdateLabel = updatepolicy.LegacyAutoLabel
 
-// AutoUpdateEnabled reports whether labels opt a container into the schedule.
+// AutoUpdateEnabled reports whether labels alone put a container on the
+// schedule. A choice saved from the UI or the instance-wide mode can too; ask
+// the web package's policy for the whole answer.
 func AutoUpdateEnabled(labels map[string]string) bool {
-	switch strings.ToLower(strings.TrimSpace(labels[AutoUpdateLabel])) {
-	case "true", "on", "yes", "1":
-		return true
-	default:
-		return false
-	}
+	p, ok := updatepolicy.FromLabels(labels)
+	return ok && p == updatepolicy.Auto
 }
 
 // Where an update came from. See ContainerUpdateEvent.Source.

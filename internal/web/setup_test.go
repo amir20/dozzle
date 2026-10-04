@@ -359,7 +359,7 @@ func TestSetup_AutoUpdateStatus(t *testing.T) {
 	require.Equal(t, http.StatusOK, rr.Code)
 	var raw map[string]json.RawMessage
 	require.NoError(t, json.Unmarshal(rr.Body.Bytes(), &raw))
-	assert.JSONEq(t, `{"mode":"off","time":"03:00","supported":true,"image":"amir20/dozzle:latest","currentVersion":"v8.12.0"}`, string(raw["autoUpdate"]))
+	assert.JSONEq(t, `{"mode":"off","time":"03:00","supported":true,"image":"amir20/dozzle:latest","currentVersion":"v8.12.0","containers":"picked"}`, string(raw["autoUpdate"]))
 
 	state := getSetupState(t, setupNoneHandler(time.Now(), SetupConfig{}))
 	assert.False(t, state.AutoUpdate.Supported)

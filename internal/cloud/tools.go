@@ -8,6 +8,7 @@ import (
 	"github.com/amir20/dozzle/internal/container"
 	"github.com/amir20/dozzle/internal/imagecheck"
 	"github.com/amir20/dozzle/internal/notification"
+	"github.com/amir20/dozzle/internal/updatepolicy"
 	pb "github.com/amir20/dozzle/proto/cloud"
 	"github.com/rs/zerolog/log"
 )
@@ -426,6 +427,20 @@ type ToolDeps struct {
 	// update when they started it, which lets the update be pushed (consent
 	// "checkbox"). May be nil.
 	UpdateWatched func(e container.ContainerUpdateEvent) bool
+	// UpdatePolicy is a container's auto-update policy: its label, the choice
+	// saved in dozzle.yml, or the instance's mode. Nil reads the label alone.
+	UpdatePolicy func(c container.Container) updatepolicy.Policy
+}
+
+// updatePolicy is c's policy, by deps.UpdatePolicy when set.
+func (d ToolDeps) updatePolicy(c container.Container) updatepolicy.Policy {
+	if d.UpdatePolicy != nil {
+		return d.UpdatePolicy(c)
+	}
+	if p, ok := updatepolicy.FromLabels(c.Labels); ok {
+		return p
+	}
+	return updatepolicy.Manual
 }
 
 // scoped returns the host service already confined to the principal's labels.

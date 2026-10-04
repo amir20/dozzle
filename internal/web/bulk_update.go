@@ -226,6 +226,7 @@ func (u *bulkUpdater) run(job *bulkUpdateJob) {
 	job.FinishedAt = &now
 	u.running = false
 	u.mu.Unlock()
+	recordAutoUpdateResults(job)
 	u.notify()
 }
 

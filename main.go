@@ -189,6 +189,7 @@ func main() {
 		NotificationService: notificationService,
 		RolledBack:          web.RecordRolledBack,
 		UpdateWatched:       web.UpdateWatched,
+		UpdatePolicy:        web.UpdatePolicy,
 	})
 	cloudClient.SetDeployment(args.Mode, swarmClusterID)
 	cloudClient.SetStreamLogsFunc(func() bool {

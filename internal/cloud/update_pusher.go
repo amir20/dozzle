@@ -8,6 +8,7 @@ import (
 
 	"github.com/amir20/dozzle/internal/container"
 	"github.com/amir20/dozzle/internal/notification"
+	"github.com/amir20/dozzle/internal/updatepolicy"
 	pb "github.com/amir20/dozzle/proto/cloud"
 	"github.com/rs/zerolog/log"
 )
@@ -17,8 +18,9 @@ import (
 // update, but only the ones the user agreed to share. An update is pushed when
 // one of these holds, and the reason travels with it as ContainerUpdate.consent:
 //
-//   - schedule: the auto-update schedule made it. The dev.dozzle.auto-update
-//     label is the user's opt-in, to the update and to Cloud watching it.
+//   - schedule: the auto-update schedule made it. Putting a container on the
+//     schedule (dev.dozzle.update=auto, the UI choice, or "Everything") is the
+//     user's opt-in, to the update and to Cloud watching it.
 //   - checkbox: the user started it from the Dozzle UI with "Have Dozzle Cloud
 //     watch this update" ticked.
 //   - rule: an enabled lifecycle (event) rule that notifies Dozzle Cloud
@@ -108,8 +110,10 @@ type updatePusher struct {
 	labels  container.ContainerLabels
 	rules   NotificationService
 	watched func(container.ContainerUpdateEvent) bool
-	ledger  *updateLedger
-	send    func(resp *pb.ToolResponse) error
+	// scheduled reports whether a container is on the auto-update schedule.
+	scheduled func(container.Container) bool
+	ledger    *updateLedger
+	send      func(resp *pb.ToolResponse) error
 }
 
 func newUpdatePusher(hosts UpdateStreamHostService, deps ToolDeps, ledger *updateLedger, send func(resp *pb.ToolResponse) error) *updatePusher {
@@ -118,8 +122,11 @@ func newUpdatePusher(hosts UpdateStreamHostService, deps ToolDeps, ledger *updat
 		labels:  deps.Principal.Labels,
 		rules:   deps.NotificationService,
 		watched: deps.UpdateWatched,
-		ledger:  ledger,
-		send:    send,
+		scheduled: func(c container.Container) bool {
+			return deps.updatePolicy(c) == updatepolicy.Auto
+		},
+		ledger: ledger,
+		send:   send,
 	}
 }
 
@@ -238,8 +245,8 @@ func (p *updatePusher) hostNames() map[string]string {
 	return names
 }
 
-// sendSnapshot sends what every covered container runs now: one labelled for
-// the auto-update schedule, or matched by a lifecycle rule that notifies
+// sendSnapshot sends what every covered container runs now: one on the
+// auto-update schedule, or matched by a lifecycle rule that notifies
 // Cloud. Cloud diffs it against what it recorded, which is how it learns of an
 // update Dozzle made while the link was down. Containers the user never agreed
 // to share are left out, and nothing is sent when that leaves none.
@@ -257,7 +264,7 @@ func (p *updatePusher) sendSnapshot() error {
 		if c.ImageID == "" || c.Name == "" || c.State == "created" || c.State == "deleted" {
 			continue
 		}
-		if !container.AutoUpdateEnabled(c.Labels) && !p.ruleMatches(c, hostNames) {
+		if !p.scheduled(c) && !p.ruleMatches(c, hostNames) {
 			continue
 		}
 		// A list entry may not know the digest or start time yet; an inspect does.

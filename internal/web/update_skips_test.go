@@ -42,7 +42,7 @@ func (h *labelledHosts) FindContainer(_ string, id string, _ container.Container
 }
 
 func outdatedNames(s *autoUpdateScheduler) []string {
-	outdated, _ := s.outdatedLabelledContainers(context.Background())
+	outdated, _ := s.outdatedAutoContainers(context.Background())
 	var names []string
 	for _, cs := range outdated {
 		names = append(names, cs.Container.Name)

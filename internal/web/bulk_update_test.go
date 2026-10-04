@@ -289,12 +289,12 @@ func (s *blockingClientService) UpdateContainer(ctx context.Context, _ container
 
 func TestAutoUpdateEnabled(t *testing.T) {
 	for value, want := range map[string]bool{
-		"true": true, "TRUE": true, " yes ": true, "1": true, "on": true,
+		"true": true, "TRUE": true, " yes ": true, "1": true, "on": true, "auto": true,
 		"false": false, "": false, "no": false, "maybe": false,
 	} {
-		assert.Equal(t, want, autoUpdateEnabled(map[string]string{AutoUpdateLabel: value}), value)
+		assert.Equal(t, want, container.AutoUpdateEnabled(map[string]string{AutoUpdateLabel: value}), value)
 	}
-	assert.False(t, autoUpdateEnabled(nil))
+	assert.False(t, container.AutoUpdateEnabled(nil))
 }
 
 func TestStartBulkUpdate_RefusesNonJSONBodies(t *testing.T) {
