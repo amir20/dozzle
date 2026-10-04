@@ -97,20 +97,18 @@ async function next(): Promise<SetupNextResult> {
 const method = computed(() => form.value?.method);
 const saving = computed(() => !!form.value?.saving);
 
+// While choosing, Next is the form's own save button.
 const nextLabel = computed(() => {
   if (!status.dataPersisted || status.authProvider !== "none") return t("setup.next");
   if (status.pending.authProvider) return status.canRestart ? t("setup.restart.button") : t("setup.next");
-  if (method.value === "account" && !status.usersFileExists) return t("setup.login.create-account");
-  if (method.value === "proxy") return t("setup.login.use-proxy");
-  return t("setup.next");
+  return form.value?.saveLabel || t("setup.next");
 });
 
 const nextDisabled = computed(() => {
   if (phase.value !== "idle" || saving.value) return true;
   if (!status.dataPersisted) return true;
   if (status.authProvider !== "none" || status.pending.authProvider) return false;
-  if (method.value === "account" && !status.usersFileExists) return !form.value?.accountValid;
-  return false;
+  return !!form.value?.savable && !form.value.canSave;
 });
 
 const busy = computed(() => saving.value || phase.value === "restarting");

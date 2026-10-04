@@ -3,7 +3,7 @@
        server page in Settings. Renders nothing when they can be changed. -->
   <InlineNotice v-if="!status.dataPersisted" type="warning">{{ $t("setup.error.no-data") }}</InlineNotice>
   <InlineNotice v-else-if="!status.canWrite" type="info">
-    {{ status.authProvider === "none" ? $t("setup.actions.window-closed") : $t("setup.actions.no-access") }}
+    {{ $t(setupAccessMessageKey(status)) }}
   </InlineNotice>
 </template>
 

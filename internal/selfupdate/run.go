@@ -4,7 +4,8 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/amir20/dozzle/internal/container/swap"
+	"github.com/amir20/dozzle/internal/container"
+	"github.com/amir20/dozzle/internal/container/docker/swap"
 	"github.com/moby/moby/api/types/image"
 	"github.com/moby/moby/client"
 	"github.com/rs/zerolog/log"
@@ -13,7 +14,7 @@ import (
 // Run recreates targetID from the image its tag now points to, keeping its
 // config, networks and volumes, and puts the old container back if the new one
 // does not come up. The swap itself, and why its order keeps --rm containers
-// safe, is in internal/container/swap.
+// safe, is in internal/container/docker/swap.
 func Run(ctx context.Context, targetID string) error {
 	cli, err := newClient(ctx)
 	if err != nil {
@@ -45,7 +46,7 @@ func run(ctx context.Context, cli dockerAPI, targetID string, networkMode string
 	if old.Config == nil || old.HostConfig == nil {
 		return fmt.Errorf("inspect %s: incomplete container config", targetID)
 	}
-	if old.Config.Labels[swarmLabel] != "" {
+	if old.Config.Labels[container.SwarmServiceNameLabel] != "" {
 		return ErrSwarm
 	}
 
@@ -100,7 +101,7 @@ func run(ctx context.Context, cli dockerAPI, targetID string, networkMode string
 	// never get here (ErrSwarm), since the swarm manager replaces them and
 	// each node keeps its own images.
 	if imageChanged {
-		swap.CleanupImage(ctx, imageAPI{cli}, old)
+		swap.CleanupImage(ctx, cli, old)
 	}
 	return nil
 }

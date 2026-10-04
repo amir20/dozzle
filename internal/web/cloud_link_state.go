@@ -44,20 +44,20 @@ func (s *cloudLinkStates) issue(owner string) (string, error) {
 	if s.states == nil {
 		s.states = make(map[string]cloudLinkState)
 	}
+	// Minting needs no CSRF check because the caller never learns a forged
+	// state, but a forged burst must not grow the map without bound. One pass
+	// drops what expired and finds the oldest live state, which goes if the
+	// map is still full. States are added one at a time, so one is enough.
+	var oldest string
+	var oldestExpires time.Time
 	for k, v := range s.states {
 		if now.After(v.expires) {
 			delete(s.states, k)
+		} else if oldest == "" || v.expires.Before(oldestExpires) {
+			oldest, oldestExpires = k, v.expires
 		}
 	}
-	// Minting needs no CSRF check because the caller never learns a forged
-	// state, but a forged burst must not grow the map without bound.
-	for len(s.states) >= cloudLinkStateMax {
-		var oldest string
-		for k, v := range s.states {
-			if oldest == "" || v.expires.Before(s.states[oldest].expires) {
-				oldest = k
-			}
-		}
+	if len(s.states) >= cloudLinkStateMax {
 		delete(s.states, oldest)
 	}
 	s.states[state] = cloudLinkState{owner: owner, expires: now.Add(cloudLinkStateTTL)}

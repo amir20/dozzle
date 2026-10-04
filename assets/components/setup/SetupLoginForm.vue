@@ -5,7 +5,13 @@
     <!-- Already running with a provider. -->
     <template v-if="state === 'on'">
       <div class="border-base-content/15 bg-base-200/40 divide-base-content/10 divide-y rounded-lg border">
-        <SetupCheckRow :label="$t('setup.login.on')" :value="`auth: ${status.authProvider}`" />
+        <ReadOnlyRow :label="$t('setup.login.on')" :value="`auth: ${status.authProvider}`">
+          <template #icon>
+            <div class="bg-success/10 text-success shrink-0 rounded-full p-1">
+              <mdi:check class="size-3.5" />
+            </div>
+          </template>
+        </ReadOnlyRow>
         <div v-if="standalone" class="p-2">
           <a
             href="https://dozzle.dev/guide/authentication"
@@ -25,12 +31,24 @@
     <!-- Saved, waiting for a restart. -->
     <template v-else-if="status.pending.authProvider">
       <div class="border-base-content/15 bg-base-200/40 divide-base-content/10 divide-y rounded-lg border">
-        <SetupCheckRow
+        <ReadOnlyRow
           v-if="status.pending.authProvider === 'simple'"
           :label="$t('setup.login.saved-volume')"
           value="/data/users.yml"
-        />
-        <SetupCheckRow :label="$t('setup.login.after-restart')" :value="`auth: ${status.pending.authProvider}`" />
+        >
+          <template #icon>
+            <div class="bg-success/10 text-success shrink-0 rounded-full p-1">
+              <mdi:check class="size-3.5" />
+            </div>
+          </template>
+        </ReadOnlyRow>
+        <ReadOnlyRow :label="$t('setup.login.after-restart')" :value="`auth: ${status.pending.authProvider}`">
+          <template #icon>
+            <div class="bg-success/10 text-success shrink-0 rounded-full p-1">
+              <mdi:check class="size-3.5" />
+            </div>
+          </template>
+        </ReadOnlyRow>
       </div>
       <!-- In Settings the restart banner above says the same, with the same snippet. -->
       <template v-if="!status.canRestart && !standalone">
@@ -43,13 +61,13 @@
     <template v-else-if="state === 'off'">
       <SetupAccessNotice v-if="!status.locked.authProvider" :status="status" />
       <div class="border-base-content/15 bg-base-200/40 divide-base-content/10 divide-y rounded-lg border">
-        <div class="flex items-center gap-3 p-4">
-          <div class="bg-warning/10 text-warning shrink-0 rounded-full p-1">
-            <mdi:lock-open-variant-outline class="size-3.5" />
-          </div>
-          <span class="min-w-0 flex-1 text-sm">{{ $t("settings.login-off") }}</span>
-          <span class="text-base-content/60 shrink-0 font-mono text-xs">auth: none</span>
-        </div>
+        <ReadOnlyRow :label="$t('settings.login-off')" value="auth: none">
+          <template #icon>
+            <div class="bg-warning/10 text-warning shrink-0 rounded-full p-1">
+              <mdi:lock-open-variant-outline class="size-3.5" />
+            </div>
+          </template>
+        </ReadOnlyRow>
       </div>
       <SetupLocked v-if="status.locked.authProvider" env="DOZZLE_AUTH_PROVIDER" class="-mt-3" />
     </template>
@@ -133,8 +151,20 @@
           v-if="!status.usersFileExists"
           class="border-base-content/15 bg-base-200/40 divide-base-content/10 divide-y rounded-lg border"
         >
-          <SetupCheckRow :label="$t('setup.login.saved-volume')" value="/data/users.yml" />
-          <SetupCheckRow :label="$t('setup.login.after-restart')" value="auth: simple" />
+          <ReadOnlyRow :label="$t('setup.login.saved-volume')" value="/data/users.yml">
+            <template #icon>
+              <div class="bg-success/10 text-success shrink-0 rounded-full p-1">
+                <mdi:check class="size-3.5" />
+              </div>
+            </template>
+          </ReadOnlyRow>
+          <ReadOnlyRow :label="$t('setup.login.after-restart')" value="auth: simple">
+            <template #icon>
+              <div class="bg-success/10 text-success shrink-0 rounded-full p-1">
+                <mdi:check class="size-3.5" />
+              </div>
+            </template>
+          </ReadOnlyRow>
         </div>
       </template>
 
@@ -175,7 +205,14 @@
       </template>
 
       <div v-if="standalone && saveLabel">
-        <button type="button" class="btn btn-primary btn-sm" :disabled="!canSave || saving" @click="save">
+        <!-- Plain while the restart banner above offers its own primary Restart. -->
+        <button
+          type="button"
+          class="btn btn-sm"
+          :class="{ 'btn-primary': !restartOffered }"
+          :disabled="!canSave || saving"
+          @click="save"
+        >
           <span v-if="saving" class="loading loading-spinner loading-xs"></span>
           {{ saveLabel }}
         </button>
@@ -238,6 +275,9 @@ const saveLabel = computed(() => {
   return method.value === "account" ? t("setup.login.create-account") : t("setup.login.use-proxy");
 });
 
+// What Settings' restart banner checks before it shows its Restart button.
+const restartOffered = computed(() => setupPendingChanges(status).length > 0 && setupCanRestartNow(status));
+
 const saving = ref(false);
 const error = ref("");
 
@@ -284,5 +324,5 @@ function onSubmit() {
   else emit("submit");
 }
 
-defineExpose({ method, accountValid, savable, save, saving, error });
+defineExpose({ method, savable, canSave, saveLabel, save, saving, error });
 </script>

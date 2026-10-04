@@ -46,6 +46,32 @@ type fakeDocker struct {
 	goneAfter map[string]int
 	// newState is what an inspect of a created container reports.
 	newState *dcontainer.State
+	// stopErr fails every stop, after the container did stop, unless
+	// stopLeftRunning says it did not.
+	stopErr         error
+	stopLeftRunning bool
+	// removeErrFor is a container id whose removal fails and leaves it there.
+	removeErrFor string
+
+	images         map[string]image.InspectResponse
+	removedImages  []string
+	imageRemoveErr error
+}
+
+func (f *fakeDocker) ImageInspect(_ context.Context, id string, _ ...client.ImageInspectOption) (client.ImageInspectResult, error) {
+	img, ok := f.images[id]
+	if !ok {
+		return client.ImageInspectResult{}, notFoundErr{}
+	}
+	return client.ImageInspectResult{InspectResponse: img}, nil
+}
+
+func (f *fakeDocker) ImageRemove(_ context.Context, id string, opts client.ImageRemoveOptions) (client.ImageRemoveResult, error) {
+	if opts.Force || opts.PruneChildren {
+		return client.ImageRemoveResult{}, errors.New("cleanup must never force or prune")
+	}
+	f.removedImages = append(f.removedImages, id)
+	return client.ImageRemoveResult{}, f.imageRemoveErr
 }
 
 func (f *fakeDocker) record(format string, args ...any) {
@@ -101,10 +127,15 @@ func (f *fakeDocker) ContainerStop(_ context.Context, id string, _ client.Contai
 	if _, removing := f.goneAfter[id]; removing {
 		return client.ContainerStopResult{}, nil
 	}
-	if c, ok := f.containers[id]; ok && c.HostConfig != nil && c.HostConfig.AutoRemove {
+	if c, ok := f.containers[id]; ok && c.HostConfig != nil && c.HostConfig.AutoRemove && !f.stopLeftRunning {
 		delete(f.containers, id)
+	} else if ok && c.State != nil && !f.stopLeftRunning {
+		state := *c.State
+		state.Running = false
+		c.State = &state
+		f.containers[id] = c
 	}
-	return client.ContainerStopResult{}, nil
+	return client.ContainerStopResult{}, f.stopErr
 }
 
 func (f *fakeDocker) ContainerRename(_ context.Context, id string, opts client.ContainerRenameOptions) (client.ContainerRenameResult, error) {
@@ -116,6 +147,9 @@ func (f *fakeDocker) ContainerRemove(_ context.Context, id string, opts client.C
 	f.record("remove %s volumes=%v", id, opts.RemoveVolumes)
 	if opts.Force {
 		f.forced = append(f.forced, id)
+	}
+	if id == f.removeErrFor {
+		return client.ContainerRemoveResult{}, errors.New("remove failed")
 	}
 	delete(f.containers, id)
 	return client.ContainerRemoveResult{}, nil
@@ -436,4 +470,97 @@ func TestRollbackKeepsReplacementWhileOldStillRemoving(t *testing.T) {
 	f, s := slowRemoval(t, 1_000_000)
 	require.ErrorContains(t, s.rollback(context.Background()), "keeping replacement")
 	assert.NotContains(t, f.calls, "remove new1 volumes=false")
+}
+
+// A stop that errors may still have stopped the container, so the rollback
+// starts it regardless: starting one that is still running is a no-op.
+func TestSwapRollbackStartsOldWhenStopErrored(t *testing.T) {
+	fastTimings(t)
+	f := newFake()
+	f.stopErr = errors.New("stop timed out")
+	result, err := swapApp(f, Options{})
+	require.ErrorContains(t, err, "stop old container")
+	assert.Equal(t, Result{RolledBack: true, RestoredID: appID, OldStopped: true}, result)
+	assert.Equal(t, []string{
+		"rename " + appID + " dozzle-dozzle-old-aaaaaaaaaaaa",
+		"create dozzle",
+		"stop " + appID,
+		"remove new1 volumes=false",
+		"rename " + appID + " dozzle",
+		"start " + appID,
+	}, f.calls)
+}
+
+// A stop that errors with the old container still running is no stop: the
+// rollback puts the name back without waiting on a --rm removal that is not
+// coming, and reports nothing stopped.
+func TestSwapRollbackStopErroredStillRunning(t *testing.T) {
+	fastTimings(t)
+	f := newFake()
+	old := f.containers[appID]
+	old.HostConfig.AutoRemove = true
+	f.containers[appID] = old
+	f.stopErr = errors.New("stop timed out")
+	f.stopLeftRunning = true
+	result, err := swapApp(f, Options{})
+	require.ErrorContains(t, err, "stop old container")
+	assert.Equal(t, Result{RolledBack: true, RestoredID: appID}, result)
+	assert.Equal(t, []string{
+		"rename " + appID + " dozzle-dozzle-old-aaaaaaaaaaaa",
+		"create dozzle",
+		"stop " + appID,
+		"remove new1 volumes=false",
+		"rename " + appID + " dozzle",
+	}, f.calls)
+}
+
+// A replacement that cannot be removed keeps the name, so the rollback gives
+// up, but it still starts the old container under its temporary name.
+func TestSwapRollbackStartsOldWhenReplacementStays(t *testing.T) {
+	fastTimings(t)
+	f := newFake()
+	f.startErrFor = "new1"
+	f.removeErrFor = "new1"
+	_, err := swapApp(f, Options{})
+	require.ErrorContains(t, err, "rollback failed: remove replacement")
+	assert.Equal(t, "start "+appID, f.calls[len(f.calls)-1])
+	assert.NotContains(t, f.calls, "rename "+appID+" dozzle", "the name is still taken")
+}
+
+func TestRollbackKeepingReplacementStartsOld(t *testing.T) {
+	f, s := slowRemoval(t, 1_000_000)
+	require.Error(t, s.rollback(context.Background()))
+	assert.Equal(t, "start "+appID, f.calls[len(f.calls)-1], "tried, though a --rm container still removing itself may refuse")
+}
+
+func TestCleanupImage(t *testing.T) {
+	const older = "sha256:0000000000000000000000000000000000000000000000000000000000000009"
+	tests := []struct {
+		name      string
+		previous  string // the outgoing container's previous-image label
+		images    map[string]image.InspectResponse
+		removeErr error
+		removed   []string
+	}{
+		{name: "removes the image before the previous one", previous: older, images: map[string]image.InspectResponse{older: {ID: older}}, removed: []string{older}},
+		// Removing by id without force would untag and delete an image whose
+		// tags share one repository.
+		{name: "keeps a tagged image", previous: older, images: map[string]image.InspectResponse{older: {ID: older, RepoTags: []string{"myapp:1.4.0"}}}},
+		{name: "image already gone", previous: older},
+		{name: "a refused removal is only logged", previous: older, images: map[string]image.InspectResponse{older: {ID: older}}, removeErr: errors.New("image is being used by running container"), removed: []string{older}},
+		{name: "first update removes nothing", images: map[string]image.InspectResponse{older: {ID: older}}},
+		{name: "never the image just replaced", previous: oldImgID, images: map[string]image.InspectResponse{oldImgID: {ID: oldImgID}}},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			f := newFake()
+			f.images, f.imageRemoveErr = tt.images, tt.removeErr
+			old := appContainer()
+			if tt.previous != "" {
+				old.Config.Labels[container.PreviousImageLabel] = tt.previous
+			}
+			CleanupImage(context.Background(), f, old)
+			assert.Equal(t, tt.removed, f.removedImages)
+		})
+	}
 }

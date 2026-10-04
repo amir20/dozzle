@@ -1,10 +1,9 @@
 <template>
   <!-- SIDEBAR -->
-  <section>
-    <h2 class="text-base-content/60 mb-2 text-xs font-semibold tracking-wide uppercase">
-      {{ $t("settings.sidebar") }}
-    </h2>
-    <div class="card card-border bg-base-200/40 divide-base-content/10 divide-y overflow-hidden">
+  <SettingsSection :title="$t('settings.sidebar')">
+    <div
+      class="border-base-content/15 bg-base-200/40 divide-base-content/10 divide-y overflow-hidden rounded-lg border"
+    >
       <SettingRow tag="label" :label="$t('settings.show-stopped-containers')" class="px-4">
         <input type="checkbox" class="toggle toggle-primary toggle-sm" v-model="showAllContainers" />
       </SettingRow>
@@ -32,7 +31,7 @@
         <input type="checkbox" class="toggle toggle-primary toggle-sm" v-model="showAppIcons" />
       </SettingRow>
     </div>
-  </section>
+  </SettingsSection>
 </template>
 
 <script lang="ts" setup>

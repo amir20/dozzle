@@ -14,6 +14,7 @@ import (
 
 	"github.com/amir20/dozzle/internal/agentcerts"
 	"github.com/amir20/dozzle/internal/container"
+	"github.com/amir20/dozzle/internal/container/agent/pb"
 	"github.com/amir20/dozzle/internal/imagecheck"
 	"github.com/amir20/dozzle/internal/notification/dispatcher"
 	"github.com/amir20/dozzle/internal/utils"
@@ -25,6 +26,8 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 	"google.golang.org/grpc/test/bufconn"
 )
 
@@ -305,6 +308,33 @@ func TestRollbackContainerReturnsAgentError(t *testing.T) {
 	assert.Equal(t, []container.UpdateProgress{{Status: container.UpdateError, Error: "container no longer runs the expected image"}}, got)
 }
 
+// oldAgent is an agent that predates rollbacks: the RPC fails at the first
+// Recv with Unimplemented.
+type oldAgent struct {
+	pb.AgentServiceClient
+}
+
+type unimplementedStream struct {
+	grpc.ServerStreamingClient[pb.UpdateContainerProgress]
+}
+
+func (unimplementedStream) Recv() (*pb.UpdateContainerProgress, error) {
+	return nil, status.Error(codes.Unimplemented, "unknown method RollbackContainer for service protobuf.AgentService")
+}
+
+func (oldAgent) RollbackContainer(context.Context, *pb.RollbackContainerRequest, ...grpc.CallOption) (grpc.ServerStreamingClient[pb.UpdateContainerProgress], error) {
+	return unimplementedStream{}, nil
+}
+
+func TestRollbackContainerOnOldAgent(t *testing.T) {
+	rpc := &Client{client: oldAgent{}, endpoint: "10.0.0.5:7007", nameOverride: "nas"}
+	progress := make(chan container.UpdateProgress, 1)
+	err := rpc.RollbackContainer(context.Background(), "123456", container.RollbackOptions{}, progress)
+	require.EqualError(t, err, "agent on host nas is too old to roll back; upgrade it")
+	_, open := <-progress
+	assert.False(t, open)
+}
+
 var streamedLogEvents = []*container.LogEvent{
 	{Id: 1, Type: container.LogTypeSingle, Message: "2026-09-13T22:28:56Z INF ready", RawMessage: "2026-09-13T22:28:56Z INF ready", Timestamp: 1789424936000, Level: "info", Stream: "stdout", TimestampPrefix: 21},
 	{Id: 2, Type: container.LogTypeGroup, Message: []container.LogFragment{
@@ -424,4 +454,25 @@ func TestVerifyAgentCert(t *testing.T) {
 	assert.Error(t, verifyAgentCert(other.Certificate, pool(private)), "an agent with another pair is refused")
 	assert.Error(t, verifyAgentCert(certs.Certificate, pool(private)), "the public shared cert is refused by a private hub")
 	assert.Error(t, verifyAgentCert(nil, pool(private)))
+}
+
+// A request that ends before the swap starts cancels the stream (a pull on a
+// wedged daemon must not pin it); once detached, the stream outlives it.
+func TestSwapStreamContext(t *testing.T) {
+	ctx, cancel := context.WithCancel(context.Background())
+	streamCtx, _, stop := swapStreamContext(ctx)
+	defer stop()
+	cancel()
+	select {
+	case <-streamCtx.Done():
+	case <-time.After(time.Second):
+		t.Fatal("stream not cancelled with the request before the swap started")
+	}
+
+	ctx, cancel = context.WithCancel(context.Background())
+	streamCtx, detach, stop2 := swapStreamContext(ctx)
+	defer stop2()
+	assert.True(t, detach())
+	cancel()
+	assert.NoError(t, streamCtx.Err(), "detached stream outlives the request")
 }

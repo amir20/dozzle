@@ -6,7 +6,7 @@ import (
 	"testing"
 
 	"github.com/amir20/dozzle/internal/container"
-	"github.com/amir20/dozzle/internal/container/swap"
+	"github.com/amir20/dozzle/internal/container/docker/swap"
 	docker_types "github.com/moby/moby/api/types/container"
 	"github.com/moby/moby/api/types/image"
 	"github.com/stretchr/testify/assert"
@@ -78,11 +78,11 @@ func TestRollbackContainerCleanupRemovesImageRolledBackFrom(t *testing.T) {
 	cli := newRollbackClient(t, updatedApp(nil))
 	run := runRollback(&Service{client: cli}, container.RollbackOptions{})
 	require.NoError(t, run.err)
-	assert.Equal(t, []string{oldImageID}, cli.removed, "an untagged image rolled back from goes")
+	assert.Equal(t, []string{oldImageID}, cli.engine.RemovedImages, "an untagged image rolled back from goes")
 
 	// A refusal (another container uses it) is only logged.
 	cli = newRollbackClient(t, updatedApp(nil))
-	cli.removeErr = assert.AnError
+	cli.engine.ImageRemoveErr = assert.AnError
 	run = runRollback(&Service{client: cli}, container.RollbackOptions{})
 	require.NoError(t, run.err)
 	assert.Equal(t, "done", run.last.Status)
@@ -97,7 +97,7 @@ func TestRollbackContainerCleanupKeepsATaggedImage(t *testing.T) {
 	cli.images[oldImageID] = img
 	run := runRollback(&Service{client: cli}, container.RollbackOptions{})
 	require.NoError(t, run.err)
-	assert.Empty(t, cli.removed)
+	assert.Empty(t, cli.engine.RemovedImages)
 }
 
 // Nothing is ever pulled: the tag names the image being rolled back from, and
@@ -168,7 +168,7 @@ func TestRollbackContainerUndoneWhenPreviousImageFails(t *testing.T) {
 	require.ErrorContains(t, run.err, "still runs its current image")
 	assert.Equal(t, []string{"recreating", "rolled-back"}, run.statuses)
 	assert.Equal(t, "start "+appID, cli.engine.Calls[len(cli.engine.Calls)-1], "the current container runs again")
-	assert.Empty(t, cli.removed, "nothing is cleaned up")
+	assert.Empty(t, cli.engine.RemovedImages, "nothing is cleaned up")
 	assert.Nil(t, run.last.Result, "nothing changed, so there is nothing to record")
 }
 

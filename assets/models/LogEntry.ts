@@ -272,6 +272,19 @@ export class DeployLogEntry extends LogEntry<string> {
     super("", update.newId, -date.getTime(), date, "stderr", "");
   }
 
+  /**
+   * Names one update: the container it left running and when it finished. The
+   * container alone is not enough, since a rollback leaves the old container
+   * running again, under the same id as the update it undid.
+   */
+  static key(containerID: string, date: Date): string {
+    return `${containerID}@${date.getTime()}`;
+  }
+
+  public get updateKey(): string {
+    return DeployLogEntry.key(this.containerID, this.date);
+  }
+
   getComponent(): Component {
     return DeployLogItem;
   }

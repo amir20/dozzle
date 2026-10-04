@@ -397,6 +397,8 @@ func (s *server) RollbackContainer(req *pb.RollbackContainerRequest, out pb.Agen
 // sendUpdateProgress forwards an update's or a rollback's progress to the
 // stream until the service closes progressCh, then returns its error. The
 // error is sent as a progress status too, so the client reads it from there.
+// The service sends without giving up, so once the stream fails the rest is
+// drained: a swap already under way finishes instead of blocking forever.
 func sendUpdateProgress(progressCh <-chan container.UpdateProgress, errCh <-chan error, send func(*pb.UpdateContainerProgress) error) error {
 	for progress := range progressCh {
 		if err := send(&pb.UpdateContainerProgress{
@@ -407,6 +409,8 @@ func sendUpdateProgress(progressCh <-chan container.UpdateProgress, errCh <-chan
 			Error:   progress.Error,
 			Result:  updateResultToProto(progress.Result),
 		}); err != nil {
+			for range progressCh {
+			}
 			return err
 		}
 	}

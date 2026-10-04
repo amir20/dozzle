@@ -20,15 +20,14 @@ describe("shortDigest", () => {
 });
 
 describe("updateLabels", () => {
-  test("names the tags when they moved", () => {
-    expect(updateLabels({ fromRef: "app:1.4.1", toRef: "app:1.4.2" })).toEqual({ from: "1.4.1", to: "1.4.2" });
+  test("names the tag alone when no digest is known", () => {
+    expect(updateLabels({ imageRef: "app:1.4" })).toEqual({ from: "1.4", to: "1.4" });
   });
 
-  test("adds the digest when the tag did not move", () => {
+  test("adds each side's digest to the tag", () => {
     expect(
       updateLabels({
-        fromRef: "app:latest",
-        toRef: "app:latest",
+        imageRef: "app:latest",
         fromDigest: "app@sha256:aaaaaaaaaaaaaaaa",
         toDigest: "sha256:bbbbbbbbbbbbbbbb",
       }),
@@ -38,8 +37,7 @@ describe("updateLabels", () => {
   test("falls back to image ids for an image built locally", () => {
     expect(
       updateLabels({
-        fromRef: "app",
-        toRef: "app",
+        imageRef: "app",
         fromImageId: "sha256:111111111111aa",
         toImageId: "sha256:222222222222bb",
       }),

@@ -381,8 +381,9 @@ describe("<ContainerEventSource />", () => {
         name: "test",
         oldId: "old",
         newId: "abc",
-        fromRef: "test:1.4.1",
-        toRef: "test:1.4.2",
+        imageRef: "test:latest",
+        fromDigest: "sha256:aaaaaaaaaaaa1111",
+        toDigest: "sha256:bbbbbbbbbbbb2222",
         at,
         source: "schedule",
       }),
@@ -400,10 +401,10 @@ describe("<ContainerEventSource />", () => {
 
       const marker = wrapper.findComponent(DeployLogItem);
       expect(marker.exists()).toBe(true);
-      expect(marker.text()).toContain("1.4.1");
-      expect(marker.text()).toContain("1.4.2");
+      expect(marker.text()).toContain("aaaaaaaaaaaa");
+      expect(marker.text()).toContain("bbbbbbbbbbbb");
       const html = wrapper.html();
-      expect(html.indexOf("1.4.2")).toBeLessThan(html.indexOf("First line."));
+      expect(html.indexOf("bbbbbbbbbbbb")).toBeLessThan(html.indexOf("First line."));
     });
 
     // A container updated a day before the opening tail: placed above it, the

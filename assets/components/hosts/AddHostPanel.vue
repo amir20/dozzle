@@ -207,8 +207,7 @@ const agentSnippet = computed(() =>
 
 function errorMessage(e: unknown) {
   if (!(e instanceof SetupError)) return t("setup.error.generic");
-  if (e.status === 403)
-    return status.authProvider === "none" ? t("setup.actions.window-closed") : t("setup.actions.no-access");
+  if (e.status === 403) return t(setupAccessMessageKey(status));
   switch (e.code) {
     case "exists":
       return t("setup.hosts.error-exists");

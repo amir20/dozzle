@@ -69,6 +69,16 @@ describe("SetupLoginForm in Settings", () => {
     expect(wrapper.findAll("input[type=password]")).toHaveLength(2);
   });
 
+  // The restart banner above owns the one primary button while it shows.
+  test("the save button is plain while a restart is offered", () => {
+    const button = (s: SetupStatus) =>
+      mountForm(s)
+        .findAll("button")
+        .find((b) => b.text() === "Create account")!;
+    expect(button(status()).classes()).toContain("btn-primary");
+    expect(button(status({ pending: { enableActions: true } })).classes()).not.toContain("btn-primary");
+  });
+
   test("creates the account with its own button", async () => {
     const wrapper = mountForm(status());
     await wrapper.find("input[autocomplete=username]").setValue("admin");

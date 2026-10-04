@@ -234,11 +234,18 @@ func executeCheckImageUpdates(ctx context.Context, argsJSON string, deps ToolDep
 		}
 	}
 
-	updates, errs := deps.scoped().CheckImageUpdates(ctx, args.Refresh, func(c container.Container) bool {
-		return (args.Name == "" || containsIgnoreCase(c.Name, args.Name)) &&
-			(args.Image == "" || containsIgnoreCase(c.Image, args.Image))
-	})
+	containers, errs := deps.scoped().ListAllContainers()
 	logHostErrors(errs)
+	var matched []container.Container
+	for _, c := range containers {
+		if (args.Name == "" || containsIgnoreCase(c.Name, args.Name)) &&
+			(args.Image == "" || containsIgnoreCase(c.Image, args.Image)) {
+			matched = append(matched, c)
+		}
+	}
+	// The listing is scoped, so each lookup after it can skip the labels
+	// rather than re-list a host per container.
+	updates := container.CheckImageUpdates(ctx, deps.HostService, matched, args.Refresh)
 	hostNames := buildHostNameMap(deps.HostService)
 
 	result := make([]*pb.ContainerInfo, len(updates))

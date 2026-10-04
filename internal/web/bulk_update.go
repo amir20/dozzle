@@ -79,15 +79,13 @@ type bulkUpdater struct {
 	watchers map[chan struct{}]struct{}
 }
 
-const swarmServiceLabel = "com.docker.swarm.service.id"
-
 // selfSwarmService is the swarm service Dozzle's own container belongs to, or
 // empty when it is not a swarm task or is not among containers.
 func selfSwarmService(containers []container.Container) string {
 	selfID := setupSelfID()
 	for _, c := range containers {
 		if selfID != "" && len(c.ID) >= 12 && strings.HasPrefix(selfID, c.ID) {
-			return c.Labels[swarmServiceLabel]
+			return c.Labels[container.SwarmServiceIDLabel]
 		}
 	}
 	return ""
@@ -101,7 +99,7 @@ func isSelfContainer(c container.Container, selfService string) bool {
 	if selfID != "" && len(c.ID) >= 12 && strings.HasPrefix(selfID, c.ID) {
 		return true
 	}
-	return selfService != "" && c.Labels[swarmServiceLabel] == selfService
+	return selfService != "" && c.Labels[container.SwarmServiceIDLabel] == selfService
 }
 
 // bulkUpdates is shared by the handler and the scheduler, which are built
@@ -127,7 +125,7 @@ func (u *bulkUpdater) Start(services []*container.ContainerService, trigger, sel
 		// rolls the whole service, and the rest would roll it again. If any of
 		// them is Dozzle's, the one kept still has to go last.
 		key := c.Host + "/" + c.ID
-		if id := c.Labels[swarmServiceLabel]; id != "" {
+		if id := c.Labels[container.SwarmServiceIDLabel]; id != "" {
 			key = "service/" + id
 		}
 		if kept, ok := seen[key]; ok {

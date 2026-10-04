@@ -3,13 +3,15 @@ package docker
 import (
 	"context"
 	"errors"
+	"fmt"
 	"io"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/amir20/dozzle/internal/container"
-	"github.com/amir20/dozzle/internal/container/swap"
-	"github.com/amir20/dozzle/internal/container/swap/swaptest"
+	"github.com/amir20/dozzle/internal/container/docker/swap"
+	"github.com/amir20/dozzle/internal/container/docker/swap/swaptest"
 	docker_types "github.com/moby/moby/api/types/container"
 	"github.com/moby/moby/api/types/image"
 	"github.com/moby/moby/client"
@@ -31,10 +33,9 @@ type updateClient struct {
 	UpdateClient
 	engine *swaptest.Fake
 
-	pullBody   string
+	pullBody string
+	// images are shared with engine, which the image cleanup runs against.
 	images     map[string]image.InspectResponse
-	removeErr  error
-	removed    []string
 	dependents []string
 	// calls are what rejoinDependents asked for.
 	calls []string
@@ -59,11 +60,6 @@ func (u *updateClient) ImageInspect(_ context.Context, ref string) (image.Inspec
 		return image.InspectResponse{}, errors.New("no such image")
 	}
 	return img, nil
-}
-
-func (u *updateClient) ImageRemove(_ context.Context, id string) error {
-	u.removed = append(u.removed, id)
-	return u.removeErr
 }
 
 func (u *updateClient) NetworkDependents(context.Context, string, string) ([]string, error) {
@@ -105,14 +101,17 @@ func newUpdateClient(t *testing.T, old docker_types.InspectResponse) *updateClie
 	selfContainerID = func() string { return "" }
 	hostname = func() (string, error) { return "somehost", nil }
 
+	images := map[string]image.InspectResponse{
+		oldImageID: {ID: oldImageID, RepoDigests: []string{"ghcr.io/other/nginx@sha256:aaa", "nginx@sha256:bbb"}},
+		// Left dangling by the update before last.
+		olderImage: {ID: olderImage},
+	}
+	engine := swaptest.New(old)
+	engine.Images = images
 	return &updateClient{
-		engine:   swaptest.New(old),
+		engine:   engine,
 		pullBody: `{"status":"Downloading","id":"layer1","progressDetail":{"current":1,"total":2}}`,
-		images: map[string]image.InspectResponse{
-			oldImageID: {ID: oldImageID, RepoDigests: []string{"ghcr.io/other/nginx@sha256:aaa", "nginx@sha256:bbb"}},
-			// Left dangling by the update before last.
-			olderImage: {ID: olderImage},
-		},
+		images:   images,
 	}
 }
 
@@ -155,7 +154,7 @@ func TestUpdateContainerSwapsAndStampsLabels(t *testing.T) {
 	labels := cli.engine.Created[0].Config.Labels
 	assert.Equal(t, oldImageID, labels[container.PreviousImageLabel])
 	assert.Equal(t, "nginx@sha256:bbb", labels[container.PreviousRefLabel], "the digest of the repository the tag names")
-	assert.Empty(t, cli.removed, "the first update has no image before the previous one")
+	assert.Empty(t, cli.engine.RemovedImages, "the first update has no image before the previous one")
 
 	require.NotNil(t, run.last.Result, "done carries what the update changed")
 	assert.Equal(t, container.UpdateResult{
@@ -178,46 +177,10 @@ func TestUpdateContainerLocalImageHasNoPreviousRef(t *testing.T) {
 	assert.NotContains(t, labels, container.PreviousRefLabel, "a built image has no digest, and the old container's is stale")
 }
 
-func TestUpdateContainerRolledBackOnStartFailure(t *testing.T) {
-	cli := newUpdateClient(t, appInspect(map[string]string{container.PreviousImageLabel: olderImage}))
-	cli.engine.StartErrFor = "new1"
-	run := runUpdate(cli)
-
-	require.ErrorContains(t, run.err, "rolled back")
-	assert.False(t, run.updated)
-	assert.Equal(t, []string{"pulling", "recreating", "rolled-back"}, run.statuses)
-	assert.Contains(t, run.last.Error, "start replacement")
-	assert.Equal(t, []string{
-		"rename " + appID + " app-dozzle-old-abc000000000",
-		"create app",
-		"stop " + appID,
-		"start new1",
-		"remove new1",
-		"rename " + appID + " app",
-		"start " + appID,
-	}, cli.engine.Calls)
-	assert.Empty(t, cli.removed, "no image is cleaned up after a rollback")
-	require.NotNil(t, run.last.Result)
-	assert.True(t, run.last.Result.RolledBack)
-	assert.Equal(t, appID[:12], run.last.Result.NewID, "the old container runs again")
-}
-
-func TestUpdateContainerRolledBackOnUnhealthy(t *testing.T) {
-	cli := newUpdateClient(t, appInspect(map[string]string{container.PreviousImageLabel: olderImage}))
-	cli.engine.NewState = &docker_types.State{Running: true, StartedAt: "t0", Health: &docker_types.Health{Status: docker_types.Unhealthy}}
-	run := runUpdate(cli)
-
-	require.ErrorContains(t, run.err, "unhealthy")
-	assert.Equal(t, []string{"pulling", "recreating", "verifying", "rolled-back"}, run.statuses)
-	assert.Contains(t, cli.engine.Calls, "remove new1")
-	assert.Equal(t, "start "+appID, cli.engine.Calls[len(cli.engine.Calls)-1], "the old container runs again")
-	assert.Empty(t, cli.removed, "no image is cleaned up after a rollback")
-}
-
 // A rollback stopped the old container, so anything joined to its network
 // namespace lost it and has to rejoin the restored one.
 func TestUpdateContainerRollbackRejoinsDependents(t *testing.T) {
-	cli := newUpdateClient(t, appInspect(nil))
+	cli := newUpdateClient(t, appInspect(map[string]string{container.PreviousImageLabel: olderImage}))
 	cli.engine.StartErrFor = "new1"
 	cli.engine.Containers["dep-id"] = docker_types.InspectResponse{
 		ID:         "dep-id",
@@ -229,9 +192,15 @@ func TestUpdateContainerRollbackRejoinsDependents(t *testing.T) {
 	cli.dependents = []string{"dep-id"}
 	run := runUpdate(cli)
 
-	require.Error(t, run.err)
-	assert.Equal(t, "rolled-back", run.last.Status)
+	require.ErrorContains(t, run.err, "rolled back")
+	assert.False(t, run.updated)
+	assert.Equal(t, []string{"pulling", "recreating", "rolled-back"}, run.statuses)
+	assert.Contains(t, run.last.Error, "start replacement")
 	assert.Equal(t, []string{"stop dep-id", "remove dep-id", "create dep container:" + appID, "start new-dep"}, cli.calls)
+	assert.Empty(t, cli.engine.RemovedImages, "no image is cleaned up after a rollback")
+	require.NotNil(t, run.last.Result)
+	assert.True(t, run.last.Result.RolledBack)
+	assert.Equal(t, appID[:12], run.last.Result.NewID, "the old container runs again")
 }
 
 func TestUpdateContainerRejoinsDependentsAfterCommit(t *testing.T) {
@@ -266,62 +235,15 @@ func TestUpdateContainerRefusesStoppedContainer(t *testing.T) {
 	assert.Empty(t, cli.engine.Calls)
 }
 
-func TestUpdateContainerCleanupRemovesTheImageBeforeThePrevious(t *testing.T) {
+// What CleanupImage removes is tested in package swap; this is that it runs
+// once the update committed.
+func TestUpdateContainerCleansUpAfterCommit(t *testing.T) {
 	cli := newUpdateClient(t, appInspect(map[string]string{container.PreviousImageLabel: olderImage}))
 	run := runUpdate(cli)
 
 	require.NoError(t, run.err)
 	assert.Equal(t, "done", run.last.Status)
-	assert.Equal(t, []string{olderImage}, cli.removed, "the image just replaced stays as the rollback target")
-}
-
-// Removing by id without force would untag and delete an image whose tags
-// share one repository, so cleanup only touches an untagged leftover.
-func TestUpdateContainerCleanupKeepsATaggedImage(t *testing.T) {
-	cli := newUpdateClient(t, appInspect(map[string]string{container.PreviousImageLabel: olderImage}))
-	cli.images[olderImage] = image.InspectResponse{ID: olderImage, RepoTags: []string{"myapp:1.4.0"}}
-	run := runUpdate(cli)
-
-	require.NoError(t, run.err)
-	assert.Equal(t, "done", run.last.Status)
-	assert.Empty(t, cli.removed)
-}
-
-func TestUpdateContainerCleanupImageAlreadyGone(t *testing.T) {
-	cli := newUpdateClient(t, appInspect(map[string]string{container.PreviousImageLabel: olderImage}))
-	delete(cli.images, olderImage)
-	run := runUpdate(cli)
-
-	require.NoError(t, run.err)
-	assert.Equal(t, "done", run.last.Status)
-	assert.Empty(t, cli.removed)
-}
-
-func TestUpdateContainerCleanupImageInUse(t *testing.T) {
-	cli := newUpdateClient(t, appInspect(map[string]string{container.PreviousImageLabel: olderImage}))
-	cli.removeErr = errors.New("conflict: unable to delete 111111111111 (cannot be forced) - image is being used by running container")
-	run := runUpdate(cli)
-
-	require.NoError(t, run.err, "a refused removal never fails the update")
-	assert.True(t, run.updated)
-	assert.Equal(t, "done", run.last.Status)
-	assert.Equal(t, []string{olderImage}, cli.removed)
-}
-
-func TestUpdateContainerCleanupFirstUpdateRemovesNothing(t *testing.T) {
-	cli := newUpdateClient(t, appInspect(nil))
-	run := runUpdate(cli)
-
-	require.NoError(t, run.err)
-	assert.Empty(t, cli.removed, "the container never went through an update, so there is no image before the previous one")
-}
-
-func TestUpdateContainerCleanupNeverTheImageJustReplaced(t *testing.T) {
-	cli := newUpdateClient(t, appInspect(map[string]string{container.PreviousImageLabel: oldImageID}))
-	run := runUpdate(cli)
-
-	require.NoError(t, run.err)
-	assert.Empty(t, cli.removed)
+	assert.Equal(t, []string{olderImage}, cli.engine.RemovedImages, "the image just replaced stays as the rollback target")
 }
 
 func TestUpdateContainerPullErrorDetail(t *testing.T) {
@@ -335,4 +257,35 @@ func TestUpdateContainerPullErrorDetail(t *testing.T) {
 	assert.Equal(t, "error", run.last.Status)
 	assert.Contains(t, run.last.Error, "manifest unknown")
 	assert.Empty(t, cli.engine.Calls, "nothing is recreated")
+}
+
+// The request ending mid-swap must not lose the update's record: the final
+// progress carries the Result, and it is recorded even though nobody reads it.
+func TestUpdateRecordedAfterRequestCancelled(t *testing.T) {
+	cli := newUpdateClient(t, appInspect(nil))
+	svc := &Service{client: cli}
+	c := container.Container{ID: appID, Name: "app", Host: fmt.Sprintf("cancelled-%d", time.Now().UnixNano())}
+	cs := container.NewContainerService(svc, c)
+
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+	progressCh := make(chan container.UpdateProgress)
+	go func() {
+		for p := range progressCh {
+			if p.Status == container.UpdateVerifying {
+				// The client goes away and stops reading.
+				cancel()
+				return
+			}
+		}
+	}()
+
+	updated, err := cs.Update(ctx, container.UpdateSourceDozzle, progressCh)
+	require.NoError(t, err)
+	assert.True(t, updated)
+
+	record, ok := container.Updates.Latest(c.Host, "new1")
+	require.True(t, ok, "the update is recorded")
+	assert.Equal(t, container.UpdateSourceDozzle, record.Source)
+	assert.Equal(t, appID[:12], record.OldID)
 }

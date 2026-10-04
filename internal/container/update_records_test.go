@@ -63,7 +63,7 @@ func TestContainerServiceRecordsUpdates(t *testing.T) {
 	require.True(t, ok)
 	assert.Equal(t, UpdateSourceSchedule, got.Source)
 	assert.Equal(t, "web", got.Name)
-	assert.Equal(t, "nginx:latest", got.ToRef)
+	assert.Equal(t, "nginx:latest", got.ImageRef)
 	assert.Equal(t, "nginx@sha256:b", got.ToDigest)
 	select {
 	case e := <-sub:

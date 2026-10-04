@@ -349,8 +349,9 @@ function eventKey(event: CloudEvent): string {
 /**
  * Puts Dozzle Cloud's verdicts on the update markers in a time-sorted run.
  *
- * A verdict is matched to its marker by container: an update is identified by
- * the container it created, so each container has at most one. Where no marker
+ * A verdict is matched to its marker by container and finish time: a rollback
+ * leaves the old container running again, so one container can stand for two
+ * updates. Where no marker
  * stands for the update (Dozzle no longer remembers it: an agent's host, or a
  * restart since), Dozzle Cloud's record of it is spliced in by time instead.
  *
@@ -368,14 +369,14 @@ export function mergeDeploys(
 
   const markers = new Map<string, DeployLogEntry>();
   for (const l of logs) {
-    if (l instanceof DeployLogEntry) markers.set(l.containerID, l);
+    if (l instanceof DeployLogEntry) markers.set(l.updateKey, l);
   }
 
   let changed = false;
   const fresh: DeployLogEntry[] = [];
   for (const event of deploys) {
     const key = deployKey(event.deploy);
-    const marker = markers.get(event.containerId);
+    const marker = markers.get(DeployLogEntry.key(event.containerId, new Date(event.ts / 1_000_000)));
     if (marker) {
       seen.add(key);
       if (!sameVerdict(marker.verdict, event.deploy)) {
@@ -388,7 +389,7 @@ export function mergeDeploys(
     seen.add(key);
     const entry = new DeployLogEntry(updateFromCloud(event), new Date(event.ts / 1_000_000));
     entry.verdict = event.deploy;
-    markers.set(entry.containerID, entry);
+    markers.set(entry.updateKey, entry);
     fresh.push(entry);
   }
   if (fresh.length === 0) return { logs, changed };
@@ -429,8 +430,7 @@ function updateFromCloud(event: CloudEvent & { deploy: DeployVerdict }): Contain
     name: d.container ?? "",
     oldId: "",
     newId: event.containerId,
-    fromRef: d.fromRef,
-    toRef: d.toRef,
+    imageRef: d.toRef || d.fromRef,
     fromDigest: d.fromDigest,
     toDigest: d.toDigest,
     at: new Date(event.ts / 1_000_000).toISOString(),

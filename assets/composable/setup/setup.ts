@@ -208,6 +208,27 @@ export function setupHasPending(status: SetupStatus): boolean {
   return Object.values(status.pending).some((v) => v !== undefined && v !== null);
 }
 
+// The schedule as the server reports it, or an off one where it reports none, so the
+// update forms always have something to render.
+export function setupAutoUpdate(status: SetupStatus): SetupAutoUpdate {
+  return (
+    status.autoUpdate ?? {
+      mode: "off",
+      time: "03:00",
+      supported: false,
+      reason: "not-server",
+      image: "",
+      currentVersion: "",
+    }
+  );
+}
+
+// Why this browser can't change server settings, once the volume is in place: the
+// open window has closed, or this account has no access.
+export function setupAccessMessageKey(status: SetupStatus): string {
+  return status.authProvider === "none" ? "setup.actions.window-closed" : "setup.actions.no-access";
+}
+
 // Whether this browser may change server settings at all: the same rule for every
 // setup step and every server page in Settings. dozzle.yml outside a volume is lost
 // on the next recreate, so nothing is saved there either.
