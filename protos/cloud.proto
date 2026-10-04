@@ -95,7 +95,7 @@ message ViewLogLine {
   string level = 2;
   // Set only on a view that merges several containers, where a line is
   // ambiguous without it.
-  string container_id = 3;
+  string container_id = 3;  // matches ContainerUpdate.new_container_id for the update that produced it
   string message = 4;
 }
 
@@ -273,8 +273,12 @@ message ToolResponse {
 }
 
 // One container update, pushed by Dozzle after the swap commits or rolls
-// back. Cloud keys it on (host, name, to_digest), so a live push and a later
-// ImageSnapshot of the same update are recorded once.
+// back. The identity of an update is the container it produced: Cloud keys it
+// on (host, name, new_container_id). An ImageSnapshotEntry's container_id is
+// that same id, so a live push and a later snapshot of the same update are
+// recorded once. Digests are not part of the key: to_digest is empty for a
+// locally built image, and a repeat A→B after a rollback reuses the same
+// digest, yet each is a separate update with its own new container.
 //
 // Times are unix nanoseconds, like the other pushed batches.
 message ContainerUpdate {
@@ -285,7 +289,7 @@ message ContainerUpdate {
   string from_ref = 5;             // image reference before the update (repo:tag)
   string to_ref = 6;               // image reference after the update (repo:tag)
   string from_digest = 7;          // repo digest before (sha256:…), empty for a locally built image
-  string to_digest = 8;            // repo digest after (sha256:…)
+  string to_digest = 8;            // repo digest after (sha256:…), empty for a locally built image
   string from_image_id = 9;        // local image id before; the rollback target
   string to_image_id = 10;         // local image id after
   int64 old_started_at = 11;       // when the old container last started, unix nanoseconds; anchors Cloud's "previous startup" baseline
@@ -314,7 +318,7 @@ message ImageSnapshot {
 message ImageSnapshotEntry {
   string host = 1;          // host id
   string name = 2;          // container name
-  string container_id = 3;
+  string container_id = 3;  // matches ContainerUpdate.new_container_id for the update that produced it
   string image_id = 4;      // local image id
   string digest = 5;        // repo digest (sha256:…), empty for a locally built image
   string ref = 6;           // image reference (repo:tag)
@@ -655,7 +659,7 @@ message SearchLogsResponse {
 message SearchLogHit {
   int64 timestamp_ns = 1;
   string host_id = 2;
-  string container_id = 3;
+  string container_id = 3;  // matches ContainerUpdate.new_container_id for the update that produced it
   string container_name = 4;
   // Full log line as indexed.
   string message = 5;
@@ -755,7 +759,7 @@ message EventHit {
   int64 ts_ns = 1;
   // FNV-32a hash of the line that matched, 0 for metric and event types.
   uint32 log_id = 2;
-  string container_id = 3;
+  string container_id = 3;  // matches ContainerUpdate.new_container_id for the update that produced it
   string host_id = 4;
   string level = 5;
   string message = 6;

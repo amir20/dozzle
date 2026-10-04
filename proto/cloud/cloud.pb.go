@@ -327,7 +327,7 @@ type ViewLogLine struct {
 	Level       string                 `protobuf:"bytes,2,opt,name=level,proto3" json:"level,omitempty"`
 	// Set only on a view that merges several containers, where a line is
 	// ambiguous without it.
-	ContainerId   string `protobuf:"bytes,3,opt,name=container_id,json=containerId,proto3" json:"container_id,omitempty"`
+	ContainerId   string `protobuf:"bytes,3,opt,name=container_id,json=containerId,proto3" json:"container_id,omitempty"` // matches ContainerUpdate.new_container_id for the update that produced it
 	Message       string `protobuf:"bytes,4,opt,name=message,proto3" json:"message,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -1623,8 +1623,12 @@ func (*ToolResponse_ContainerUpdate) isToolResponse_Type() {}
 func (*ToolResponse_ImageSnapshot) isToolResponse_Type() {}
 
 // One container update, pushed by Dozzle after the swap commits or rolls
-// back. Cloud keys it on (host, name, to_digest), so a live push and a later
-// ImageSnapshot of the same update are recorded once.
+// back. The identity of an update is the container it produced: Cloud keys it
+// on (host, name, new_container_id). An ImageSnapshotEntry's container_id is
+// that same id, so a live push and a later snapshot of the same update are
+// recorded once. Digests are not part of the key: to_digest is empty for a
+// locally built image, and a repeat A→B after a rollback reuses the same
+// digest, yet each is a separate update with its own new container.
 //
 // Times are unix nanoseconds, like the other pushed batches.
 type ContainerUpdate struct {
@@ -1636,7 +1640,7 @@ type ContainerUpdate struct {
 	FromRef        string                 `protobuf:"bytes,5,opt,name=from_ref,json=fromRef,proto3" json:"from_ref,omitempty"`                        // image reference before the update (repo:tag)
 	ToRef          string                 `protobuf:"bytes,6,opt,name=to_ref,json=toRef,proto3" json:"to_ref,omitempty"`                              // image reference after the update (repo:tag)
 	FromDigest     string                 `protobuf:"bytes,7,opt,name=from_digest,json=fromDigest,proto3" json:"from_digest,omitempty"`               // repo digest before (sha256:…), empty for a locally built image
-	ToDigest       string                 `protobuf:"bytes,8,opt,name=to_digest,json=toDigest,proto3" json:"to_digest,omitempty"`                     // repo digest after (sha256:…)
+	ToDigest       string                 `protobuf:"bytes,8,opt,name=to_digest,json=toDigest,proto3" json:"to_digest,omitempty"`                     // repo digest after (sha256:…), empty for a locally built image
 	FromImageId    string                 `protobuf:"bytes,9,opt,name=from_image_id,json=fromImageId,proto3" json:"from_image_id,omitempty"`          // local image id before; the rollback target
 	ToImageId      string                 `protobuf:"bytes,10,opt,name=to_image_id,json=toImageId,proto3" json:"to_image_id,omitempty"`               // local image id after
 	OldStartedAt   int64                  `protobuf:"varint,11,opt,name=old_started_at,json=oldStartedAt,proto3" json:"old_started_at,omitempty"`     // when the old container last started, unix nanoseconds; anchors Cloud's "previous startup" baseline
@@ -1848,13 +1852,13 @@ func (x *ImageSnapshot) GetEntries() []*ImageSnapshotEntry {
 // One container in an ImageSnapshot.
 type ImageSnapshotEntry struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Host          string                 `protobuf:"bytes,1,opt,name=host,proto3" json:"host,omitempty"` // host id
-	Name          string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"` // container name
-	ContainerId   string                 `protobuf:"bytes,3,opt,name=container_id,json=containerId,proto3" json:"container_id,omitempty"`
-	ImageId       string                 `protobuf:"bytes,4,opt,name=image_id,json=imageId,proto3" json:"image_id,omitempty"`        // local image id
-	Digest        string                 `protobuf:"bytes,5,opt,name=digest,proto3" json:"digest,omitempty"`                         // repo digest (sha256:…), empty for a locally built image
-	Ref           string                 `protobuf:"bytes,6,opt,name=ref,proto3" json:"ref,omitempty"`                               // image reference (repo:tag)
-	StartedAt     int64                  `protobuf:"varint,7,opt,name=started_at,json=startedAt,proto3" json:"started_at,omitempty"` // unix nanoseconds
+	Host          string                 `protobuf:"bytes,1,opt,name=host,proto3" json:"host,omitempty"`                                  // host id
+	Name          string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`                                  // container name
+	ContainerId   string                 `protobuf:"bytes,3,opt,name=container_id,json=containerId,proto3" json:"container_id,omitempty"` // matches ContainerUpdate.new_container_id for the update that produced it
+	ImageId       string                 `protobuf:"bytes,4,opt,name=image_id,json=imageId,proto3" json:"image_id,omitempty"`             // local image id
+	Digest        string                 `protobuf:"bytes,5,opt,name=digest,proto3" json:"digest,omitempty"`                              // repo digest (sha256:…), empty for a locally built image
+	Ref           string                 `protobuf:"bytes,6,opt,name=ref,proto3" json:"ref,omitempty"`                                    // image reference (repo:tag)
+	StartedAt     int64                  `protobuf:"varint,7,opt,name=started_at,json=startedAt,proto3" json:"started_at,omitempty"`      // unix nanoseconds
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -4212,7 +4216,7 @@ type SearchLogHit struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	TimestampNs   int64                  `protobuf:"varint,1,opt,name=timestamp_ns,json=timestampNs,proto3" json:"timestamp_ns,omitempty"`
 	HostId        string                 `protobuf:"bytes,2,opt,name=host_id,json=hostId,proto3" json:"host_id,omitempty"`
-	ContainerId   string                 `protobuf:"bytes,3,opt,name=container_id,json=containerId,proto3" json:"container_id,omitempty"`
+	ContainerId   string                 `protobuf:"bytes,3,opt,name=container_id,json=containerId,proto3" json:"container_id,omitempty"` // matches ContainerUpdate.new_container_id for the update that produced it
 	ContainerName string                 `protobuf:"bytes,4,opt,name=container_name,json=containerName,proto3" json:"container_name,omitempty"`
 	// Full log line as indexed.
 	Message string `protobuf:"bytes,5,opt,name=message,proto3" json:"message,omitempty"`
@@ -4642,7 +4646,7 @@ type EventHit struct {
 	TsNs  int64                  `protobuf:"varint,1,opt,name=ts_ns,json=tsNs,proto3" json:"ts_ns,omitempty"`
 	// FNV-32a hash of the line that matched, 0 for metric and event types.
 	LogId       uint32 `protobuf:"varint,2,opt,name=log_id,json=logId,proto3" json:"log_id,omitempty"`
-	ContainerId string `protobuf:"bytes,3,opt,name=container_id,json=containerId,proto3" json:"container_id,omitempty"`
+	ContainerId string `protobuf:"bytes,3,opt,name=container_id,json=containerId,proto3" json:"container_id,omitempty"` // matches ContainerUpdate.new_container_id for the update that produced it
 	HostId      string `protobuf:"bytes,4,opt,name=host_id,json=hostId,proto3" json:"host_id,omitempty"`
 	Level       string `protobuf:"bytes,5,opt,name=level,proto3" json:"level,omitempty"`
 	Message     string `protobuf:"bytes,6,opt,name=message,proto3" json:"message,omitempty"`

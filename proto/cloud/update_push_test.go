@@ -78,23 +78,37 @@ func TestImageSnapshotRoundTrip(t *testing.T) {
 // The field numbers inside ContainerUpdate, by name. A renumbering would make
 // Cloud read one field as another without any error.
 func TestContainerUpdateFieldNumbers(t *testing.T) {
-	want := map[string]int32{
+	assertFieldNumbers(t, &ContainerUpdate{}, map[string]int32{
 		"host": 1, "name": 2, "old_container_id": 3, "new_container_id": 4,
 		"from_ref": 5, "to_ref": 6, "from_digest": 7, "to_digest": 8,
 		"from_image_id": 9, "to_image_id": 10, "old_started_at": 11, "at": 12,
 		"source": 13, "run_id": 14, "consent": 15, "rolled_back": 16,
-	}
-	fields := (&ContainerUpdate{}).ProtoReflect().Descriptor().Fields()
+	})
+}
+
+// ImageSnapshotEntry.container_id is the other half of the dedup key Cloud
+// shares with ContainerUpdate.new_container_id, so its numbers are pinned too.
+func TestImageSnapshotEntryFieldNumbers(t *testing.T) {
+	assertFieldNumbers(t, &ImageSnapshotEntry{}, map[string]int32{
+		"host": 1, "name": 2, "container_id": 3, "image_id": 4,
+		"digest": 5, "ref": 6, "started_at": 7,
+	})
+}
+
+func assertFieldNumbers(t *testing.T, m proto.Message, want map[string]int32) {
+	t.Helper()
+	desc := m.ProtoReflect().Descriptor()
+	fields := desc.Fields()
 	if fields.Len() != len(want) {
-		t.Fatalf("ContainerUpdate has %d fields, want %d", fields.Len(), len(want))
+		t.Fatalf("%s has %d fields, want %d", desc.Name(), fields.Len(), len(want))
 	}
 	for name, num := range want {
 		f := fields.ByName(protoreflect.Name(name))
 		if f == nil {
-			t.Fatalf("missing field %s", name)
+			t.Fatalf("%s is missing field %s", desc.Name(), name)
 		}
 		if int32(f.Number()) != num {
-			t.Errorf("%s is field %d, want %d", name, f.Number(), num)
+			t.Errorf("%s.%s is field %d, want %d", desc.Name(), name, f.Number(), num)
 		}
 	}
 }
