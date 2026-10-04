@@ -49,6 +49,10 @@ type Container struct {
 	// ImageDigest is the image the container runs, as "repo@sha256:...". Only
 	// k8s fills it, from the pod status; Docker looks up RepoDigests per check.
 	ImageDigest string `json:"-"`
+	// SizeRw is how many bytes the container's writable layer holds. Measuring it
+	// walks the layer, so the size monitor fills it in on its own schedule; nil
+	// until the first measurement.
+	SizeRw *int64 `json:"sizeRw,omitempty"`
 }
 
 // Mount represents a container mount point

@@ -44,6 +44,8 @@ export type ContainerJson = {
   readonly mounts?: ContainerMount[];
   readonly ports?: string[];
   readonly mountStats?: Record<string, MountStat>;
+  // bytes in the writable layer; absent until the server has measured it
+  readonly sizeRw?: number;
   readonly health?: ContainerHealth;
   readonly group?: string;
 };

@@ -203,6 +203,34 @@ func Test_dockerClient_FindContainer_error(t *testing.T) {
 	proxy.AssertExpectations(t)
 }
 
+func Test_dockerClient_ContainerSizes(t *testing.T) {
+	proxy := new(mockedProxy)
+	proxy.On("ContainerList", mock.Anything, mock.Anything).Return([]docker.Summary{
+		{ID: "abcdefghijklmnopqrst", SizeRw: 2048},
+		{ID: "1234567890_abcxyzdef"},
+	}, nil)
+	client := &Client{cli: proxy, host: container.Host{ID: "localhost"}}
+
+	sizes, err := client.ContainerSizes(context.Background())
+	require.NoError(t, err)
+	assert.Equal(t, map[string]int64{"abcdefghijkl": 2048, "1234567890_a": 0}, sizes, "keyed by the short ID the store uses")
+}
+
+func Test_dockerClient_ContainerSize(t *testing.T) {
+	size := int64(4096)
+	proxy := new(mockedProxy)
+	proxy.On("ContainerInspect", mock.Anything, "measured").Return(docker.InspectResponse{SizeRw: &size}, nil)
+	proxy.On("ContainerInspect", mock.Anything, "unmeasured").Return(docker.InspectResponse{}, nil)
+	client := &Client{cli: proxy, host: container.Host{ID: "localhost"}}
+
+	got, err := client.ContainerSize(context.Background(), "measured")
+	require.NoError(t, err)
+	assert.Equal(t, int64(4096), got)
+
+	_, err = client.ContainerSize(context.Background(), "unmeasured")
+	assert.Error(t, err, "a missing size is not 0 bytes")
+}
+
 func Test_dockerClient_ContainerActions_happy(t *testing.T) {
 	proxy := new(mockedProxy)
 	client := &Client{cli: proxy, host: container.Host{ID: "localhost"}, info: system.Info{}}

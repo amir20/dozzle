@@ -108,6 +108,8 @@ export class Container {
     mounts: ContainerMount[] = [],
     mountStats: Record<string, MountStat> = {},
     public readonly ports: string[] = [],
+    // bytes in the writable layer; undefined until the server has measured it
+    public sizeRw?: number,
   ) {
     this._health = health;
     this.mounts = mounts;
@@ -358,6 +360,7 @@ export class Container {
       c.mounts ?? [],
       c.mountStats ?? {},
       c.ports ?? [],
+      c.sizeRw,
     );
   }
 }

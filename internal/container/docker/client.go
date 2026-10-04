@@ -308,6 +308,36 @@ func (d *Client) ContainerInspect(ctx context.Context, containerID string) (dock
 	return result.Container, err
 }
 
+// the store type-asserts for it, so a changed signature would silently turn sizes off
+var _ container.SizeReader = (*Client)(nil)
+
+// ContainerSizes lists every container with its writable layer measured. The
+// daemon walks each layer to answer, so this is for the one batch at startup.
+func (d *Client) ContainerSizes(ctx context.Context) (map[string]int64, error) {
+	list, err := d.cli.ContainerList(ctx, client.ContainerListOptions{All: true, Size: true})
+	if err != nil {
+		return nil, err
+	}
+	sizes := make(map[string]int64, len(list.Items))
+	for _, c := range list.Items {
+		// keyed like the store, by the short ID
+		sizes[c.ID[:12]] = c.SizeRw
+	}
+	return sizes, nil
+}
+
+// ContainerSize measures one container's writable layer.
+func (d *Client) ContainerSize(ctx context.Context, id string) (int64, error) {
+	result, err := d.cli.ContainerInspect(ctx, id, client.ContainerInspectOptions{Size: true})
+	if err != nil {
+		return 0, err
+	}
+	if result.Container.SizeRw == nil {
+		return 0, fmt.Errorf("daemon did not report a size for %s", id)
+	}
+	return *result.Container.SizeRw, nil
+}
+
 func (d *Client) ContainerRemove(ctx context.Context, containerID string) error {
 	_, err := d.cli.ContainerRemove(ctx, containerID, client.ContainerRemoveOptions{})
 	return err

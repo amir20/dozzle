@@ -147,6 +147,24 @@ describe("container store list reconciliation", () => {
     expect(store.containers[0].startedAt.toISOString()).toBe("2030-01-01T00:00:00.000Z");
     expect(store.containers[0].finishedAt.toISOString()).toBe("2029-12-31T00:00:00.000Z");
   });
+
+  // The server measures sizes on its own schedule and sends each as an update. A later
+  // list without a size must not blank a size already shown.
+  test("a measured size arrives as an update and survives a list without one", async () => {
+    const { store, es } = setup();
+
+    es.emit("containers-changed", [json("a")]);
+    await nextTick();
+    expect(store.containers[0].sizeRw).toBeUndefined();
+
+    es.emit("container-updated", { ...json("a"), sizeRw: 2048 });
+    await nextTick();
+    expect(store.containers[0].sizeRw).toBe(2048);
+
+    es.emit("containers-changed", [json("a"), json("b")]);
+    await nextTick();
+    expect(store.containers.find((c) => c.id === "a")?.sizeRw).toBe(2048);
+  });
 });
 
 describe("events stream reconnect", () => {

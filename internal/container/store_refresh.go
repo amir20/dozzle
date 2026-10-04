@@ -133,7 +133,11 @@ func (s *Store) ensureFresh(ctx context.Context) error {
 			return nil, err
 		}
 		s.freshGen.Store(gen)
-		if !first {
+		if first {
+			// stopped containers never send stats, so this is their one measurement
+			// unless they run and die again
+			go s.sizeMonitor.measureAll(s.ctx)
+		} else {
 			s.replay(missed)
 		}
 		return nil, nil
@@ -330,6 +334,9 @@ func carryOverStats(from *Container, to *Container) {
 	}
 	if from.MountStats != nil {
 		to.MountStats = from.MountStats
+	}
+	if to.SizeRw == nil {
+		to.SizeRw = from.SizeRw
 	}
 }
 

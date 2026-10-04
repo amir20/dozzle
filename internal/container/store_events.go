@@ -115,6 +115,7 @@ func (s *Store) run() {
 		case stat := <-stats:
 			if container, ok := s.containers.Load(stat.ID); ok && container.Stats != nil {
 				s.volumeMonitor.observe(container, stat)
+				s.sizeMonitor.observe(container, stat)
 				stat.ID = ""
 				container.Stats.Push(stat)
 			}
@@ -175,6 +176,7 @@ func (s *Store) handleEvent(event ContainerEvent) {
 		log.Debug().Str("id", id).Msg("container destroyed")
 		s.containers.Delete(id)
 		delete(s.announced, id)
+		s.sizeMonitor.forget(id)
 
 	case "update":
 		s.handleUpdate(event)
@@ -193,6 +195,7 @@ func (s *Store) handleEvent(event ContainerEvent) {
 			}
 			return true
 		})
+		s.sizeMonitor.died(id)
 
 	case "oom":
 		// Sent just before the die of a run the kernel killed for memory.
