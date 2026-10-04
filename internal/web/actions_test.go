@@ -276,3 +276,91 @@ func Test_handler_containerUpdate_not_found(t *testing.T) {
 	handler.ServeHTTP(rr, req)
 	assert.Equal(t, 404, rr.Code)
 }
+
+func rollbackClient(t *testing.T) *MockedClient {
+	m := new(MockedClient)
+	c := container.Container{ID: "123", Name: "test-container", Host: "localhost", ImageDigest: "test@sha256:new"}
+	m.On("FindContainer", mock.Anything, "123").Return(c, nil)
+	m.On("Host").Return(container.Host{ID: "localhost"})
+	m.On("ListContainers", mock.Anything, mock.Anything).Return([]container.Container{c}, nil)
+	m.On("ContainerEvents", mock.Anything, mock.Anything).Return(nil)
+
+	inspectResp := docker_types.InspectResponse{
+		ID:    "123",
+		Name:  "/test-container",
+		Image: "sha256:new",
+		State: &docker_types.State{Running: true, Status: "running"},
+		Config: &docker_types.Config{
+			Image: "test:v1",
+			Labels: map[string]string{
+				container.PreviousImageLabel: "sha256:prev",
+				container.PreviousRefLabel:   "test@sha256:prev",
+			},
+		},
+		HostConfig:      &docker_types.HostConfig{},
+		NetworkSettings: &docker_types.NetworkSettings{},
+	}
+	m.On("ContainerInspect", mock.Anything, "123").Return(inspectResp, nil)
+	m.On("NetworkDependents", mock.Anything, mock.Anything, "test-container").Return(nil, nil)
+	swaptest.FastTimings(t)
+	m.engine = swaptest.New(inspectResp)
+	m.engine.NewIDs = []string{"new-123"}
+	return m
+}
+
+// The previous image was pruned, so it comes back by digest, and the schedule
+// then leaves the image rolled back from alone.
+func Test_handler_containerRollback(t *testing.T) {
+	setupTestEnv(t, true)
+	m := rollbackClient(t)
+	m.On("ImagePull", mock.Anything, "test@sha256:prev").Return(io.NopCloser(strings.NewReader(`{"status":"Pulling","id":"l1"}`+"\n")), nil)
+	m.On("ImageID", mock.Anything, "test@sha256:prev").Return("sha256:prev", nil)
+
+	handler := createHandler(m, nil, Config{Base: "/", EnableActions: true, Authorization: Authorization{Provider: NONE}})
+	req, err := http.NewRequest("POST", "/api/hosts/localhost/containers/123/actions/rollback?to=sha256:prev", nil)
+	require.NoError(t, err)
+
+	rr := httptest.NewRecorder()
+	handler.ServeHTTP(rr, req)
+	assert.Equal(t, 200, rr.Code)
+	assert.Contains(t, rr.Body.String(), `"pulling"`)
+	assert.Contains(t, rr.Body.String(), `"verifying"`)
+	assert.Contains(t, rr.Body.String(), `"done"`)
+	require.Len(t, m.engine.Created, 1)
+	assert.Equal(t, "sha256:prev", m.engine.Created[0].Config.Image)
+	assert.Equal(t, container.UpdateSourceRollback, m.engine.Created[0].Config.Labels[container.UpdateSourceLabel])
+
+	assert.True(t, skippedUpdate("localhost/test-container", "sha256:new"), "the schedule skips the image rolled back from")
+	assert.False(t, skippedUpdate("localhost/test-container", "sha256:fixed"), "until a newer one is pushed")
+	assert.False(t, skippedUpdate("localhost/test-container", "sha256:new"), "which forgets the skip")
+}
+
+// The UI names the image it offered. Anything else is refused, untouched.
+func Test_handler_containerRollback_wrong_target(t *testing.T) {
+	setupTestEnv(t, true)
+	m := rollbackClient(t)
+
+	handler := createHandler(m, nil, Config{Base: "/", EnableActions: true, Authorization: Authorization{Provider: NONE}})
+	req, err := http.NewRequest("POST", "/api/hosts/localhost/containers/123/actions/rollback?to=sha256:other", nil)
+	require.NoError(t, err)
+
+	rr := httptest.NewRecorder()
+	handler.ServeHTTP(rr, req)
+	assert.Equal(t, 200, rr.Code)
+	assert.Contains(t, rr.Body.String(), `"error"`)
+	assert.Contains(t, rr.Body.String(), "not the image this container ran before")
+	assert.Empty(t, m.engine.Created)
+	assert.False(t, skippedUpdate("localhost/test-container", "sha256:new"))
+}
+
+func Test_handler_containerRollback_needs_actions(t *testing.T) {
+	m := rollbackClient(t)
+	handler := createHandler(m, nil, Config{Base: "/", EnableActions: false, Authorization: Authorization{Provider: NONE}})
+	req, err := http.NewRequest("POST", "/api/hosts/localhost/containers/123/actions/rollback", nil)
+	require.NoError(t, err)
+
+	rr := httptest.NewRecorder()
+	handler.ServeHTTP(rr, req)
+	assert.NotEqual(t, 200, rr.Code)
+	assert.Empty(t, m.engine.Created)
+}

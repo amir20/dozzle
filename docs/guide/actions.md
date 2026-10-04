@@ -130,3 +130,15 @@ Dozzle keeps the image the container ran until now, so the container can still g
 Cleanup only runs after the update has gone through and the old container is gone. A rolled back update removes nothing. Dozzle only removes an untagged image that no container uses: an image that still has a tag, such as one you pulled or built yourself, is kept, and the removal is not forced, so Docker refuses while any other container, running or stopped, still uses it. A refusal never fails the update.
 
 Containers on [remote agents](/guide/agent) are cleaned up the same way. Swarm services are not cleaned up, since each node keeps its own images and Swarm prunes its own task history.
+
+## Rolling back {#rolling-back}
+
+After a container is updated, the container's menu offers **Roll back to** the image it ran before, and each updated container in the Updates drawer gets a **Roll back** link. Dozzle knows that image from its own update, through the `dev.dozzle.previous-image` label the update left on the container, or from the updates it saw on the host since it started, which covers an update made by Watchtower or `docker compose`. The item only appears when Dozzle knows the previous image.
+
+A rollback swaps the container the same way an update does: the current container is kept until the previous image has stayed up, and is put back if it does not. Settings and volumes stay as they are. If the previous image was removed from the host, Dozzle pulls it again by its digest. It never pulls a tag, since the tag now names the newer image, so an image built locally that is gone cannot be restored.
+
+Dozzle asks before it rolls back, and warns about two things. The newer version may have migrated the data in the container's volumes to a format the older one cannot read. And for a compose project, the next `docker compose pull` brings the newer image back unless the compose file pins the older one.
+
+The auto-update schedule then leaves the newer image alone for that container until its tag points to a newer one again. Once the rollback has stayed up, the image rolled back from is [cleaned up](#cleaning-up-old-images) like any old image, so it is removed only when no tag points to it any more.
+
+Rollback works for standalone containers, including containers on [remote agents](/guide/agent). It is not available for Swarm services, Kubernetes, or Dozzle's own container.

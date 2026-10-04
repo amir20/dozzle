@@ -44,6 +44,11 @@ func (c *ContainerService) Update(ctx context.Context, opts UpdateOptions, progr
 	return c.clientService.UpdateContainer(ctx, c.Container, opts, progressCh)
 }
 
+// Rollback swaps the container back to the image it ran before its last update.
+func (c *ContainerService) Rollback(ctx context.Context, opts RollbackOptions, progressCh chan<- UpdateProgress) error {
+	return c.clientService.RollbackContainer(ctx, c.Container, opts, progressCh)
+}
+
 func (c *ContainerService) CheckImageUpdate(ctx context.Context, force bool) (imagecheck.Result, error) {
 	return c.clientService.CheckImageUpdate(ctx, c.Container, force)
 }

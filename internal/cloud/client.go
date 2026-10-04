@@ -488,8 +488,9 @@ func toolCallTimeout(name string) time.Duration {
 	switch name {
 	case toolRetroScan:
 		return retroMaxDeadline + 30*time.Second
-	case toolUpdateContainer:
-		// Pulls the image on this context: a multi-GB image on a slow link
+	case toolUpdateContainer, toolRollbackContainer:
+		// Pulls the image (a rollback pulls the previous one by digest when it
+		// was pruned) on this context: a multi-GB image on a slow link
 		// takes a long time, and had no bound at all before calls got one.
 		// Still cancellable by request id, which is what frees the slot.
 		return 30 * time.Minute

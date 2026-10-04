@@ -150,3 +150,39 @@ describe("useContainerActions update progress", () => {
     expect(toast?.message).toBe("toolbar.update-rolled-back<br>replacement is &lt;b&gt;unhealthy&lt;/b&gt;");
   });
 });
+
+describe("useContainerActions rollback", () => {
+  beforeEach(() => {
+    holder.toasts = [];
+  });
+
+  test("asks for the target the UI offered, and reports success", async () => {
+    const actions = run([{ status: "recreating" }, { status: "verifying" }, { status: "done" }]);
+
+    const done = await actions.rollback("sha256:prev");
+
+    expect(done).toBe(true);
+    expect(fetch).toHaveBeenCalledWith("/api/hosts/localhost/containers/abc/actions/rollback?to=sha256%3Aprev", {
+      method: "POST",
+    });
+    expect(holder.toasts.find((t) => t.id === "container-rollback")).toBeUndefined();
+    expect(holder.toasts.at(-1)).toMatchObject({ type: "info", message: "rollback.done" });
+    expect(actions.actionStates.rollback).toBe(false);
+  });
+
+  test("an undone rollback is a warning with the reason", async () => {
+    const actions = run([{ status: "recreating" }, { status: "rolled-back", error: "replacement is unhealthy" }]);
+
+    expect(await actions.rollback("sha256:prev")).toBe(false);
+    const toast = holder.toasts.find((t) => t.type === "warning");
+    expect(toast?.title).toBe("rollback.failed");
+    expect(toast?.message).toBe("rollback.undone<br>replacement is unhealthy");
+  });
+
+  test("a refusal is an error", async () => {
+    const actions = run([{ status: "error", error: "no previous image to roll back to" }]);
+
+    expect(await actions.rollback("sha256:prev")).toBe(false);
+    expect(holder.toasts.find((t) => t.type === "error")?.message).toBe("no previous image to roll back to");
+  });
+});

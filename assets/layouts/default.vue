@@ -56,6 +56,7 @@
     </Suspense>
   </SideDrawer>
   <ToastModal :above-tab-bar="showTabBar" />
+  <RollbackDialog v-if="enableActions" />
   <SetupWizard />
 </template>
 
@@ -65,6 +66,7 @@ import { collapseNav } from "@/stores/settings";
 import SideDrawer from "@/components/shell/SideDrawer.vue";
 
 usePinnedColumnsInUrl();
+const { enableActions } = config;
 const pinnedLogsStore = usePinnedLogsStore();
 const { pinnedLogs } = storeToRefs(pinnedLogsStore);
 

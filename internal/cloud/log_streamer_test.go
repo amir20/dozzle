@@ -52,6 +52,10 @@ func (f *fakeClientService) UpdateContainer(_ context.Context, _ container.Conta
 	close(progressCh)
 	return false, nil
 }
+func (f *fakeClientService) RollbackContainer(_ context.Context, _ container.Container, _ container.RollbackOptions, progressCh chan<- container.UpdateProgress) error {
+	close(progressCh)
+	return nil
+}
 func (f *fakeClientService) LogsBetweenDates(_ context.Context, _ container.Container, _ time.Time, _ time.Time, _ container.StdType) (<-chan *container.LogEvent, error) {
 	return nil, nil
 }

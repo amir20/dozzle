@@ -51,6 +51,7 @@ declare global {
   const collapseNav: typeof import('./stores/settings').collapseNav
   const colorize: typeof import('./utils/index').colorize
   const compact: typeof import('./stores/settings').compact
+  const composeManaged: typeof import('./composable/containers/rollback').composeManaged
   const computed: typeof import('vue').computed
   const computedAsync: typeof import('@vueuse/core').computedAsync
   const computedEager: typeof import('@vueuse/core').computedEager
@@ -123,6 +124,7 @@ declare global {
   const hashCode: typeof import('./utils/index').hashCode
   const highlightErrors: typeof import('./stores/settings').highlightErrors
   const highlightSubstringInHtml: typeof import('./utils/index').highlightSubstringInHtml
+  const holdsData: typeof import('./composable/containers/rollback').holdsData
   const hourStyle: typeof import('./stores/settings').hourStyle
   const iconSlugForImage: typeof import('./utils/index').iconSlugForImage
   const iconUrl: typeof import('./utils/index').iconUrl
@@ -223,6 +225,7 @@ declare global {
   const refThrottled: typeof import('@vueuse/core').refThrottled
   const refWithControl: typeof import('@vueuse/core').refWithControl
   const relativeTimeTick: typeof import('./composable/ui/timeTicker').relativeTimeTick
+  const requestRollback: typeof import('./composable/containers/rollback').requestRollback
   const resolveComponent: typeof import('vue').resolveComponent
   const resolveRef: typeof import('@vueuse/core').resolveRef
   const rolloutWorkload: typeof import('./composable/containers/rolloutRestart').rolloutWorkload
@@ -453,6 +456,7 @@ declare global {
   const useRefHistory: typeof import('@vueuse/core').useRefHistory
   const useResizeObserver: typeof import('@vueuse/core').useResizeObserver
   const useResolvedTheme: typeof import('./composable/app/theme').useResolvedTheme
+  const useRollbackRequest: typeof import('./composable/containers/rollback').useRollbackRequest
   const useRolloutRestart: typeof import('./composable/containers/rolloutRestart').useRolloutRestart
   const useRoute: typeof import('vue-router/auto').useRoute
   const useRouter: typeof import('vue-router/auto').useRouter
@@ -699,6 +703,7 @@ declare module 'vue' {
     readonly collapseNav: UnwrapRef<typeof import('./stores/settings')['collapseNav']>
     readonly colorize: UnwrapRef<typeof import('./utils/index')['colorize']>
     readonly compact: UnwrapRef<typeof import('./stores/settings')['compact']>
+    readonly composeManaged: UnwrapRef<typeof import('./composable/containers/rollback')['composeManaged']>
     readonly computed: UnwrapRef<typeof import('vue')['computed']>
     readonly computedAsync: UnwrapRef<typeof import('@vueuse/core')['computedAsync']>
     readonly computedEager: UnwrapRef<typeof import('@vueuse/core')['computedEager']>
@@ -770,6 +775,7 @@ declare module 'vue' {
     readonly hasViewContext: UnwrapRef<typeof import('./composable/logs/viewContext')['hasViewContext']>
     readonly hashCode: UnwrapRef<typeof import('./utils/index')['hashCode']>
     readonly highlightErrors: UnwrapRef<typeof import('./stores/settings')['highlightErrors']>
+    readonly holdsData: UnwrapRef<typeof import('./composable/containers/rollback')['holdsData']>
     readonly hourStyle: UnwrapRef<typeof import('./stores/settings')['hourStyle']>
     readonly iconSlugForImage: UnwrapRef<typeof import('./utils/index')['iconSlugForImage']>
     readonly iconUrl: UnwrapRef<typeof import('./utils/index')['iconUrl']>
@@ -868,6 +874,7 @@ declare module 'vue' {
     readonly refThrottled: UnwrapRef<typeof import('@vueuse/core')['refThrottled']>
     readonly refWithControl: UnwrapRef<typeof import('@vueuse/core')['refWithControl']>
     readonly relativeTimeTick: UnwrapRef<typeof import('./composable/ui/timeTicker')['relativeTimeTick']>
+    readonly requestRollback: UnwrapRef<typeof import('./composable/containers/rollback')['requestRollback']>
     readonly resolveComponent: UnwrapRef<typeof import('vue')['resolveComponent']>
     readonly rolloutWorkload: UnwrapRef<typeof import('./composable/containers/rolloutRestart')['rolloutWorkload']>
     readonly routeKind: UnwrapRef<typeof import('./composable/logs/viewContext')['routeKind']>
@@ -1094,6 +1101,7 @@ declare module 'vue' {
     readonly useRefHistory: UnwrapRef<typeof import('@vueuse/core')['useRefHistory']>
     readonly useResizeObserver: UnwrapRef<typeof import('@vueuse/core')['useResizeObserver']>
     readonly useResolvedTheme: UnwrapRef<typeof import('./composable/app/theme')['useResolvedTheme']>
+    readonly useRollbackRequest: UnwrapRef<typeof import('./composable/containers/rollback')['useRollbackRequest']>
     readonly useRolloutRestart: UnwrapRef<typeof import('./composable/containers/rolloutRestart')['useRolloutRestart']>
     readonly useRoute: UnwrapRef<typeof import('vue-router/auto')['useRoute']>
     readonly useRouter: UnwrapRef<typeof import('vue-router/auto')['useRouter']>

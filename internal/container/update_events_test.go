@@ -208,6 +208,26 @@ func TestUpdateTracker_recreatedRmContainerIsNotAnUpdate(t *testing.T) {
 	assert.False(t, ok)
 }
 
+// A rollback also runs the previous image by id, as a recreated --rm container
+// does, but it is an update of its own, from the rollback source.
+func TestUpdateTracker_rollbackIsAnUpdate(t *testing.T) {
+	tr := newUpdateTracker()
+	tr.seen(runningOn("aaa", "web", imageX, t0, nil))
+	_, ok := tr.started(runningOn("bbb", "web", imageY, t1, map[string]string{PreviousImageLabel: imageX, UpdateSourceLabel: UpdateSourceSchedule, UpdateRunLabel: "run-1"}))
+	require.True(t, ok)
+
+	event, ok := tr.started(runningOn("ccc", "web", imageX, t1.Add(time.Hour), map[string]string{
+		restoredRefLabel:   "nginx:latest",
+		PreviousImageLabel: imageY,
+		UpdateSourceLabel:  UpdateSourceRollback,
+	}))
+	require.True(t, ok)
+	assert.Equal(t, UpdateSourceRollback, event.Source)
+	assert.Empty(t, event.RunID)
+	assert.Equal(t, imageY, event.FromImageID)
+	assert.Equal(t, imageX, event.ToImageID)
+}
+
 // Going back to the old image by hand is an update like any other.
 func TestUpdateTracker_manualDowngradeIsAnUpdate(t *testing.T) {
 	tr := newUpdateTracker()

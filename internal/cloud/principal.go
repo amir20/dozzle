@@ -65,6 +65,7 @@ var mutatingTools = map[string]auth.Role{
 	toolRestartContainer:         auth.Actions,
 	toolRemoveContainer:          auth.Actions,
 	toolUpdateContainer:          auth.Actions,
+	toolRollbackContainer:        auth.Actions,
 	toolCreateLogNotification:    auth.Notifications,
 	toolCreateMetricNotification: auth.Notifications,
 	toolCreateEventNotification:  auth.Notifications,

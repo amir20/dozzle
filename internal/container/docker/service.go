@@ -267,32 +267,8 @@ func (d *Service) UpdateContainer(ctx context.Context, c container.Container, op
 	imageName := swap.ImageRef(inspectResp.Config)
 
 	// 2. Pull image with progress
-	reader, err := d.client.ImagePull(ctx, imageName)
-	if err != nil {
-		return fail(fmt.Errorf("pull failed: %w", err))
-	}
-	defer reader.Close()
-
-	decoder := json.NewDecoder(reader)
-	for {
-		var event pullEvent
-		if err := decoder.Decode(&event); err == io.EOF {
-			break
-		} else if err != nil {
-			return fail(fmt.Errorf("pull decode failed: %w", err))
-		}
-		if event.ErrorDetail != nil {
-			// The stream still ends cleanly, so without this a failed pull
-			// reads as "already up to date".
-			return fail(fmt.Errorf("pull failed: %s", event.ErrorDetail.Message))
-		}
-
-		progress(container.UpdateProgress{
-			Status:  container.UpdatePulling,
-			Layer:   event.ID,
-			Current: event.ProgressDetail.Current,
-			Total:   event.ProgressDetail.Total,
-		})
+	if err := d.pull(ctx, imageName, progress); err != nil {
+		return fail(err)
 	}
 
 	// 3. Compare what the tag resolves to now against what the container is
@@ -408,6 +384,37 @@ func (d *Service) UpdateContainer(ctx context.Context, c container.Container, op
 	return true, nil
 }
 
+// pull pulls ref, reporting each layer's progress.
+func (d *Service) pull(ctx context.Context, ref string, progress func(container.UpdateProgress)) error {
+	reader, err := d.client.ImagePull(ctx, ref)
+	if err != nil {
+		return fmt.Errorf("pull failed: %w", err)
+	}
+	defer reader.Close()
+
+	decoder := json.NewDecoder(reader)
+	for {
+		var event pullEvent
+		if err := decoder.Decode(&event); err == io.EOF {
+			return nil
+		} else if err != nil {
+			return fmt.Errorf("pull decode failed: %w", err)
+		}
+		if event.ErrorDetail != nil {
+			// The stream still ends cleanly, so without this a failed pull
+			// reads as "already up to date".
+			return fmt.Errorf("pull failed: %s", event.ErrorDetail.Message)
+		}
+
+		progress(container.UpdateProgress{
+			Status:  container.UpdatePulling,
+			Layer:   event.ID,
+			Current: event.ProgressDetail.Current,
+			Total:   event.ProgressDetail.Total,
+		})
+	}
+}
+
 // updateSource is what the new container's dev.dozzle.update-source says.
 func updateSource(opts container.UpdateOptions) string {
 	if opts.Source == "" {
@@ -494,31 +501,40 @@ func previousRef(img *image.InspectResponse, ref string) string {
 // so Docker refuses while any container still uses the image, and every
 // failure is only logged: the update already succeeded.
 func (d *Service) cleanupImage(ctx context.Context, old docker_types.InspectResponse) {
-	logger := log.With().Str("container", strings.TrimPrefix(old.Name, "/")).Logger()
 	previous := old.Config.Labels[container.PreviousImageLabel]
-	if previous == "" {
-		logger.Debug().Msg("update cleanup: nothing to remove, the container has no previous image yet")
-		return
-	}
 	if previous == old.Image {
 		// Never the image just replaced: it is the rollback target. An image
 		// the replacement runs is refused by the engine below.
 		return
 	}
-	img, err := d.client.ImageInspect(ctx, previous)
+	d.removeImage(ctx, old, previous, "the image before the previous one")
+}
+
+// removeImage removes imageID once old's update or rollback committed. Only a
+// leftover is removed: an image that still has a tag is skipped, since the
+// engine would untag and delete it when its tags share one repository. Never
+// forced, so Docker refuses while any container uses the image, and that
+// refusal, like any failure, is only logged.
+func (d *Service) removeImage(ctx context.Context, old docker_types.InspectResponse, imageID, what string) {
+	logger := log.With().Str("container", strings.TrimPrefix(old.Name, "/")).Logger()
+	if imageID == "" {
+		logger.Debug().Msg("update cleanup: nothing to remove, the container has no previous image yet")
+		return
+	}
+	img, err := d.client.ImageInspect(ctx, imageID)
 	if err != nil {
-		logger.Debug().Err(err).Str("image", previous).Msg("update cleanup: image not inspectable, nothing removed")
+		logger.Debug().Err(err).Str("image", imageID).Msg("update cleanup: image not inspectable, nothing removed")
 		return
 	}
 	if len(img.RepoTags) > 0 {
-		logger.Debug().Str("image", previous).Strs("tags", img.RepoTags).Msg("update cleanup: image is still tagged, kept")
+		logger.Debug().Str("image", imageID).Strs("tags", img.RepoTags).Msg("update cleanup: image is still tagged, kept")
 		return
 	}
-	if err := d.client.ImageRemove(ctx, previous); err != nil {
-		logger.Debug().Err(err).Str("image", previous).Msg("update cleanup: image not removed")
+	if err := d.client.ImageRemove(ctx, imageID); err != nil {
+		logger.Debug().Err(err).Str("image", imageID).Msg("update cleanup: image not removed")
 		return
 	}
-	logger.Info().Str("image", previous).Msg("update cleanup: removed the image before the previous one")
+	logger.Info().Str("image", imageID).Msgf("update cleanup: removed %s", what)
 }
 
 // rejoinDependents recreates every container in ids, which shared the network

@@ -2,6 +2,7 @@ package container
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"math"
 	"strconv"
@@ -281,6 +282,10 @@ const (
 	UpdateSourceWatchtower = "watchtower"
 	// UpdateSourceExternal is anything else: compose, a script, by hand.
 	UpdateSourceExternal = "external"
+	// UpdateSourceRollback is a rollback: the container went back to the image
+	// it ran before its last update. A container a rollback created has no
+	// rollback target of its own.
+	UpdateSourceRollback = "rollback"
 )
 
 // UpdateOptions say what started an update. An agent gets them with each
@@ -292,6 +297,40 @@ type UpdateOptions struct {
 	Source string
 	// RunID groups the updates of one bulk run. Empty outside a run.
 	RunID string
+}
+
+// RollbackOptions are what one rollback follows.
+type RollbackOptions struct {
+	// ToImageID is the image id the caller expects to go back to, as the UI
+	// showed it. Empty takes the container's own rollback target. One that is
+	// not the container's previous image is refused: a rollback never runs an
+	// image the container did not run before.
+	ToImageID string
+	// ExpectedFromDigest refuses the rollback unless the container still runs
+	// this digest (repo@sha256:... or sha256:...), so a stale request cannot
+	// roll back a container that has moved on since.
+	ExpectedFromDigest string
+}
+
+var (
+	// ErrRollbackUnsupported is returned where a rollback cannot run: a swarm
+	// service, Kubernetes, Dozzle's own container.
+	ErrRollbackUnsupported = errors.New("rollback is not supported")
+	// ErrNoRollbackTarget means the container has no previous image Dozzle
+	// knows of.
+	ErrNoRollbackTarget = errors.New("no previous image to roll back to")
+	// ErrDigestMismatch means the container no longer runs the digest the
+	// rollback expected.
+	ErrDigestMismatch = errors.New("container no longer runs the expected image")
+)
+
+// DigestOf is the sha256:... part of a repo@sha256:... reference, or ref
+// itself when it is already a bare digest.
+func DigestOf(ref string) string {
+	if _, digest, found := strings.Cut(ref, "@"); found {
+		return digest
+	}
+	return ref
 }
 
 type LogEvent struct {

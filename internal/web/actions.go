@@ -105,6 +105,56 @@ func (h *handler) containerUpdate(w http.ResponseWriter, r *http.Request) {
 	log.Info().Str("container", containerService.Container.Name).Msg("container update completed")
 }
 
+// containerRollback swaps a container back to the image it ran before its last
+// update, streaming progress like containerUpdate. ?to= is the image id the UI
+// offered, so a container whose target changed since is refused rather than
+// rolled back somewhere else.
+func (h *handler) containerRollback(w http.ResponseWriter, r *http.Request) {
+	containerService, ok := h.findContainerWithActions(w, r)
+	if !ok {
+		return
+	}
+	analytics.Count("action.rollback")
+
+	sseWriter, err := sse.NewWriter(r.Context(), w, r)
+	if err != nil {
+		log.Error().Err(err).Msg("error creating SSE writer")
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	defer sseWriter.Close()
+
+	progressCh := make(chan container.UpdateProgress, 50)
+	errCh := make(chan error, 1)
+
+	go func() {
+		errCh <- containerService.Rollback(r.Context(), container.RollbackOptions{
+			ToImageID: r.URL.Query().Get("to"),
+		}, progressCh)
+	}()
+
+	for progress := range progressCh {
+		if err := sseWriter.Event("update-progress", progress); err != nil {
+			log.Error().Err(err).Msg("error writing SSE event")
+			// The rollback carries on without its watcher; the schedule must
+			// still learn that it happened.
+			go func() {
+				if err := <-errCh; err == nil {
+					RecordRolledBack(containerService.Container)
+				}
+			}()
+			return
+		}
+	}
+
+	if err := <-errCh; err != nil {
+		log.Error().Err(err).Str("container", containerService.Container.Name).Msg("container rollback failed")
+		return
+	}
+	RecordRolledBack(containerService.Container)
+	log.Info().Str("container", containerService.Container.Name).Msg("container rollback completed")
+}
+
 // workloadRestarter is implemented by the k8s host service only.
 type workloadRestarter interface {
 	RolloutRestart(ctx context.Context, namespace, kind, name string, labels container.ContainerLabels) error

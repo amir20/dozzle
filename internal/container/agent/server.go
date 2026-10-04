@@ -47,6 +47,7 @@ type ClientService interface {
 	Host(ctx context.Context) (container.Host, error)
 	ContainerAction(ctx context.Context, container container.Container, action container.ContainerAction) error
 	UpdateContainer(ctx context.Context, container container.Container, opts container.UpdateOptions, progressCh chan<- container.UpdateProgress) (bool, error)
+	RollbackContainer(ctx context.Context, container container.Container, opts container.RollbackOptions, progressCh chan<- container.UpdateProgress) error
 	CheckImageUpdate(ctx context.Context, container container.Container, force bool) (imagecheck.Result, error)
 	LogsBetweenDates(ctx context.Context, container container.Container, from time.Time, to time.Time, stdTypes container.StdType) (<-chan *container.LogEvent, error)
 	RawLogs(ctx context.Context, container container.Container, from time.Time, to time.Time, stdTypes container.StdType) (io.ReadCloser, error)
@@ -372,8 +373,34 @@ func (s *server) UpdateContainer(req *pb.UpdateContainerRequest, out pb.AgentSer
 		errCh <- err
 	}()
 
+	return sendUpdateProgress(progressCh, errCh, out.Send)
+}
+
+func (s *server) RollbackContainer(req *pb.RollbackContainerRequest, out pb.AgentService_RollbackContainerServer) error {
+	c, err := s.service.FindContainer(out.Context(), req.ContainerId, container.ContainerLabels{})
+	if err != nil {
+		return status.Error(codes.NotFound, err.Error())
+	}
+
+	progressCh := make(chan container.UpdateProgress)
+	errCh := make(chan error, 1)
+
+	go func() {
+		errCh <- s.service.RollbackContainer(out.Context(), c, container.RollbackOptions{
+			ToImageID:          req.ToImageId,
+			ExpectedFromDigest: req.ExpectedFromDigest,
+		}, progressCh)
+	}()
+
+	return sendUpdateProgress(progressCh, errCh, out.Send)
+}
+
+// sendUpdateProgress forwards an update's or a rollback's progress to the
+// stream until the service closes progressCh, then returns its error. The
+// error is sent as a progress status too, so the client reads it from there.
+func sendUpdateProgress(progressCh <-chan container.UpdateProgress, errCh <-chan error, send func(*pb.UpdateContainerProgress) error) error {
 	for progress := range progressCh {
-		if err := out.Send(&pb.UpdateContainerProgress{
+		if err := send(&pb.UpdateContainerProgress{
 			Status:  progress.Status,
 			Layer:   progress.Layer,
 			Current: progress.Current,
