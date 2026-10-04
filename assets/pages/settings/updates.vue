@@ -52,13 +52,13 @@
       </div>
       <div class="p-2">
         <a
-          href="https://dozzle.dev/guide/moving-from-watchtower"
+          href="https://dozzle.dev/guide/actions#auto-updating-containers"
           target="_blank"
           rel="noopener"
           class="hover:bg-base-300 flex items-center gap-2 rounded-md px-2 py-1.5 text-sm transition-colors"
         >
-          <mdi:swap-horizontal class="size-4 opacity-60" />
-          <span class="flex-1">{{ $t("auto-update.watchtower") }}</span>
+          <mdi:book-open-variant class="size-4 opacity-60" />
+          <span class="flex-1">{{ $t("auto-update.learn-more") }}</span>
           <mdi:open-in-new class="size-3.5 opacity-40" />
         </a>
       </div>

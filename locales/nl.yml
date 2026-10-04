@@ -1074,7 +1074,7 @@ update-marker:
     rolled_back: "Teruggezet"
     kept: "Behouden"
 auto-update:
-  page-desc: "Dozzle houdt je containers volgens schema up-to-date, zoals Watchtower."
+  page-desc: "Dozzle houdt je containers volgens schema up-to-date."
   schedule-label: "Automatisch bijwerken"
   schedule-desc: "Zoekt op dit tijdstip naar nieuwere images en werkt alleen bij wat veranderd is. Gebruikt de tijdzone van de server."
   "off": "Uit"
@@ -1120,7 +1120,7 @@ auto-update:
   safety-verify: "Elke update wordt gevolgd en teruggedraaid als de nieuwe container faalt."
   safety-cleanup: "Het oude image wordt daarna verwijderd. Eén vorig image blijft bewaard om terug te draaien."
   safety-skip: "Images vastgezet op een digest, lokaal gebouwd of uit een privéregistry worden overgeslagen."
-  watchtower: "Overstappen van Watchtower"
+  learn-more: "Zo werkt automatisch bijwerken"
   footnote: "{link} bepaalt welke containers zichzelf bijwerken."
   footnote-link: "Instellingen → Updates"
   save-failed: "Opslaan mislukt. Probeer het opnieuw."

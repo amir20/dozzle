@@ -1078,7 +1078,7 @@ update-marker:
     rolled_back: "Povrnjeno"
     kept: "Obdržano"
 auto-update:
-  page-desc: "Dozzle po urniku posodablja vaše vsebnike, tako kot Watchtower."
+  page-desc: "Dozzle po urniku posodablja vaše vsebnike."
   schedule-label: "Samodejno posodabljaj"
   schedule-desc: "Ob tem času poišče novejše slike in posodobi samo, kar se je spremenilo. Uporablja časovni pas strežnika."
   "off": "Izklopljeno"
@@ -1124,7 +1124,7 @@ auto-update:
   safety-verify: "Vsaka posodobitev se spremlja in razveljavi, če novi vsebnik odpove."
   safety-cleanup: "Stara slika se nato odstrani. Ena prejšnja slika ostane za povrnitev."
   safety-skip: "Slike, pripete na digest, zgrajene lokalno ali iz zasebnega registra, se preskočijo."
-  watchtower: "Prehod z Watchtower"
+  learn-more: "Kako deluje samodejno posodabljanje"
   footnote: "{link} določa, kateri vsebniki se posodabljajo sami."
   footnote-link: "Nastavitve → Posodobitve"
   save-failed: "Shranjevanje ni uspelo. Poskusite znova."

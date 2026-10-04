@@ -1075,7 +1075,7 @@ update-marker:
     rolled_back: "롤백됨"
     kept: "유지됨"
 auto-update:
-  page-desc: "Dozzle은 Watchtower처럼 일정에 따라 컨테이너를 최신 상태로 유지합니다."
+  page-desc: "Dozzle은 일정에 따라 컨테이너를 최신 상태로 유지합니다."
   schedule-label: "자동 업데이트"
   schedule-desc: "이 시간에 새 이미지를 찾아 바뀐 것만 업데이트합니다. 서버 시간대를 사용합니다."
   "off": "끔"
@@ -1121,7 +1121,7 @@ auto-update:
   safety-verify: "업데이트마다 새 컨테이너가 정상인지 지켜보고, 실패하면 되돌립니다."
   safety-cleanup: "이전 이미지는 나중에 삭제합니다. 되돌리기용으로 이전 이미지 하나는 남겨 둡니다."
   safety-skip: "다이제스트로 고정된 이미지, 로컬 빌드 이미지, 비공개 레지스트리 이미지는 건너뜁니다."
-  watchtower: "Watchtower에서 옮겨오기"
+  learn-more: "자동 업데이트 작동 방식"
   footnote: "{link}에서 스스로 업데이트할 컨테이너를 정합니다."
   footnote-link: "설정 → 업데이트"
   save-failed: "저장하지 못했습니다. 다시 시도하세요."

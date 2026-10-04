@@ -1085,7 +1085,7 @@ update-marker:
     rolled_back: "Dikembalikan"
     kept: "Dipertahankan"
 auto-update:
-  page-desc: "Dozzle menjaga kontainer Anda tetap terbaru sesuai jadwal, seperti Watchtower."
+  page-desc: "Dozzle menjaga kontainer Anda tetap terbaru sesuai jadwal."
   schedule-label: "Perbarui otomatis"
   schedule-desc: "Mencari image yang lebih baru pada jam ini dan hanya memperbarui yang berubah. Memakai zona waktu server."
   "off": "Mati"
@@ -1131,7 +1131,7 @@ auto-update:
   safety-verify: "Setiap pembaruan dipantau dan dibatalkan jika kontainer baru gagal."
   safety-cleanup: "Image lama dihapus setelahnya. Satu image sebelumnya disimpan untuk rollback."
   safety-skip: "Image yang disematkan ke digest, dibangun lokal, atau dari registry privat dilewati."
-  watchtower: "Pindah dari Watchtower"
+  learn-more: "Cara kerja pembaruan otomatis"
   footnote: "{link} menentukan kontainer mana yang memperbarui dirinya sendiri."
   footnote-link: "Pengaturan → Pembaruan"
   save-failed: "Gagal menyimpan. Coba lagi."

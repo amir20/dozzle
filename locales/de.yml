@@ -1073,7 +1073,7 @@ update-marker:
     rolled_back: "Zurückgesetzt"
     kept: "Behalten"
 auto-update:
-  page-desc: "Dozzle hält deine Container nach Zeitplan aktuell, so wie Watchtower."
+  page-desc: "Dozzle hält deine Container nach Zeitplan aktuell."
   schedule-label: "Automatisch aktualisieren"
   schedule-desc: "Sucht zu dieser Zeit nach neueren Images und aktualisiert nur, was sich geändert hat. Nutzt die Zeitzone des Servers."
   "off": "Aus"
@@ -1119,7 +1119,7 @@ auto-update:
   safety-verify: "Jedes Update wird überwacht und zurückgesetzt, wenn der neue Container ausfällt."
   safety-cleanup: "Das alte Image wird danach entfernt. Ein vorheriges Image bleibt zum Zurücksetzen erhalten."
   safety-skip: "Images mit festem Digest, lokal gebaute und solche aus privaten Registries werden übersprungen."
-  watchtower: "Umstieg von Watchtower"
+  learn-more: "So funktionieren automatische Updates"
   footnote: "{link} legt fest, welche Container sich selbst aktualisieren."
   footnote-link: "Einstellungen → Updates"
   save-failed: "Speichern fehlgeschlagen. Versuch es noch einmal."

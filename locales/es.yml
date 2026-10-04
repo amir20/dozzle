@@ -1073,7 +1073,7 @@ update-marker:
     rolled_back: "Revertida"
     kept: "Conservada"
 auto-update:
-  page-desc: "Dozzle mantiene tus contenedores actualizados según un horario, como Watchtower."
+  page-desc: "Dozzle mantiene tus contenedores actualizados según un horario."
   schedule-label: "Actualizar automáticamente"
   schedule-desc: "Busca imágenes más nuevas a esta hora y actualiza solo lo que cambió. Usa la zona horaria del servidor."
   "off": "Desactivado"
@@ -1119,7 +1119,7 @@ auto-update:
   safety-verify: "Cada actualización se vigila y se revierte si el nuevo contenedor falla."
   safety-cleanup: "La imagen antigua se elimina después. Se conserva una imagen anterior para revertir."
   safety-skip: "Se omiten las imágenes fijadas a un digest, construidas localmente o de un registro privado."
-  watchtower: "Pasar de Watchtower a Dozzle"
+  learn-more: "Cómo funciona la actualización automática"
   footnote: "{link} decide qué contenedores se actualizan solos."
   footnote-link: "Ajustes → Actualizaciones"
   save-failed: "No se pudo guardar. Inténtalo de nuevo."

@@ -1075,7 +1075,7 @@ update-marker:
     rolled_back: "Przywrócono"
     kept: "Zachowano"
 auto-update:
-  page-desc: "Dozzle aktualizuje twoje kontenery według harmonogramu, tak jak Watchtower."
+  page-desc: "Dozzle aktualizuje twoje kontenery według harmonogramu."
   schedule-label: "Aktualizuj automatycznie"
   schedule-desc: "O tej porze szuka nowszych obrazów i aktualizuje tylko to, co się zmieniło. Używa strefy czasowej serwera."
   "off": "Wyłączone"
@@ -1121,7 +1121,7 @@ auto-update:
   safety-verify: "Każda aktualizacja jest obserwowana i cofana, jeśli nowy kontener zawiedzie."
   safety-cleanup: "Stary obraz jest potem usuwany. Jeden poprzedni obraz zostaje do wycofania."
   safety-skip: "Obrazy przypięte do digestu, zbudowane lokalnie lub z prywatnego rejestru są pomijane."
-  watchtower: "Przejście z Watchtower"
+  learn-more: "Jak działa automatyczna aktualizacja"
   footnote: "{link} decyduje, które kontenery aktualizują się same."
   footnote-link: "Ustawienia → Aktualizacje"
   save-failed: "Nie udało się zapisać. Spróbuj ponownie."

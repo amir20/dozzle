@@ -1075,7 +1075,7 @@ update-marker:
     rolled_back: "已回復"
     kept: "已保留"
 auto-update:
-  page-desc: "Dozzle 會像 Watchtower 一樣，依排程讓你的容器保持最新。"
+  page-desc: "Dozzle 會依排程讓你的容器保持最新。"
   schedule-label: "自動更新"
   schedule-desc: "在此時間尋找較新的映像檔，只更新有變動的部分。使用伺服器時區。"
   "off": "關閉"
@@ -1121,7 +1121,7 @@ auto-update:
   safety-verify: "每次更新都會確認新容器能穩定執行，失敗則回復。"
   safety-cleanup: "舊映像檔隨後會被刪除，並保留一個上一版映像檔用於回復。"
   safety-skip: "固定到摘要、本機建置或來自私有登錄庫的映像檔會被略過。"
-  watchtower: "從 Watchtower 移轉"
+  learn-more: "自動更新如何運作"
   footnote: "{link}決定哪些容器自動更新。"
   footnote-link: "設定 → 更新"
   save-failed: "儲存失敗，請重試。"

@@ -1076,7 +1076,7 @@ update-marker:
     rolled_back: "Geri alındı"
     kept: "Tutuldu"
 auto-update:
-  page-desc: "Dozzle, Watchtower gibi konteynerlerinizi bir zamanlamayla güncel tutar."
+  page-desc: "Dozzle konteynerlerinizi bir zamanlamayla güncel tutar."
   schedule-label: "Otomatik güncelle"
   schedule-desc: "Bu saatte daha yeni imajları arar ve yalnızca değişeni günceller. Sunucunun saat dilimini kullanır."
   "off": "Kapalı"
@@ -1122,7 +1122,7 @@ auto-update:
   safety-verify: "Her güncelleme izlenir ve yeni konteyner başarısız olursa geri alınır."
   safety-cleanup: "Eski imaj sonra kaldırılır. Geri almak için bir önceki imaj saklanır."
   safety-skip: "Bir digest'e sabitlenmiş, yerelde derlenmiş ya da özel kayıt defterinden gelen imajlar atlanır."
-  watchtower: "Watchtower'dan geçiş"
+  learn-more: "Otomatik güncelleme nasıl çalışır"
   footnote: "{link} hangi konteynerlerin kendiliğinden güncelleneceğini belirler."
   footnote-link: "Ayarlar → Güncellemeler"
   save-failed: "Kaydedilemedi. Tekrar deneyin."
