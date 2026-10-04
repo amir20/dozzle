@@ -262,7 +262,79 @@ message ToolResponse {
     // request_id is empty for stats batches — like log batches, they are not
     // replies to a ToolRequest.
     StatsBatch stats_batch = 5;
+    // Unsolicited server-push: one container update Dozzle finished (or rolled
+    // back), so Cloud can watch what the new image does. request_id is empty.
+    ContainerUpdate container_update = 6;
+    // Unsolicited server-push, sent on connect: what every container runs
+    // right now, so Cloud can record updates that happened while the link was
+    // down. request_id is empty.
+    ImageSnapshot image_snapshot = 7;
   }
+}
+
+// One container update, pushed by Dozzle after the swap commits or rolls
+// back. The identity of an update is the container it produced: Cloud keys it
+// on (host, name, new_container_id). An ImageSnapshotEntry's container_id is
+// that same id, so a live push and a later snapshot of the same update are
+// recorded once. Digests are not part of the key: to_digest is empty for a
+// locally built image, and a repeat A→B after a rollback reuses the same
+// digest, yet each is a separate update with its own new container.
+//
+// A rolled-back swap is the one exception: it produced no lasting container,
+// and new_container_id is whatever runs the old version again — usually
+// old_container_id itself, which already keys the update that created it.
+// Cloud keys a rolled_back record on (host, name, old_container_id, at)
+// instead, and never matches it against a snapshot entry.
+//
+// Times are unix nanoseconds, like the other pushed batches.
+message ContainerUpdate {
+  string host = 1;                 // host id the container runs on
+  string name = 2;                 // container name; stable across the swap
+  string old_container_id = 3;     // the container that was replaced
+  string new_container_id = 4;     // the container that replaced it; when rolled_back, the one running the old version again (usually old_container_id)
+  string from_ref = 5;             // image reference before the update (repo:tag)
+  string to_ref = 6;               // image reference after the update (repo:tag)
+  string from_digest = 7;          // repo digest before (sha256:…), empty for a locally built image
+  string to_digest = 8;            // repo digest after (sha256:…), empty for a locally built image
+  string from_image_id = 9;        // local image id before; the rollback target
+  string to_image_id = 10;         // local image id after
+  int64 old_started_at = 11;       // when the old container last started, unix nanoseconds; anchors Cloud's "previous startup" baseline
+  int64 at = 12;                   // when the update finished, unix nanoseconds
+  // Who started it: schedule | dozzle | cloud | watchtower | external |
+  // rollback. A rollback is the user undoing an earlier update: it creates a
+  // new container under the same name, keyed like any other update, and Cloud
+  // records it as the user's decision on the update it undoes rather than
+  // judging it as a new deploy.
+  string source = 13;
+  // Groups the updates of one scheduled or bulk run; empty for a single update.
+  string run_id = 14;
+  // Why Dozzle was allowed to send it: rule (an enabled lifecycle rule
+  // matched) | checkbox (the user ticked "watch this update") | schedule (the
+  // container's auto-update label is the opt-in).
+  string consent = 15;
+  // True when Dozzle's own swap failed its stability check and restored the
+  // old container. Cloud records the verdict and needs no judge.
+  bool rolled_back = 16;
+}
+
+// What every container runs right now, sent once each time Dozzle connects.
+// Cloud diffs it against the updates it already recorded: a container_id it
+// has no update for, under a name it last saw running a different image_id,
+// becomes an update with source=missed. Comparing image ids rather than
+// digests also catches a locally built image, whose digest is empty.
+message ImageSnapshot {
+  repeated ImageSnapshotEntry entries = 1;
+}
+
+// One container in an ImageSnapshot.
+message ImageSnapshotEntry {
+  string host = 1;          // host id
+  string name = 2;          // container name
+  string container_id = 3;  // matches ContainerUpdate.new_container_id for the update that produced it
+  string image_id = 4;      // local image id
+  string digest = 5;        // repo digest (sha256:…), empty for a locally built image
+  string ref = 6;           // image reference (repo:tag)
+  int64 started_at = 7;     // unix nanoseconds
 }
 
 // Batch of log lines from one or more containers. Dozzle pushes these
