@@ -364,3 +364,44 @@ func Test_handler_containerRollback_needs_actions(t *testing.T) {
 	assert.NotEqual(t, 200, rr.Code)
 	assert.Empty(t, m.engine.Created)
 }
+
+// The UI asks for the target before it offers a rollback, and sends its image
+// id back as ?to=.
+func Test_handler_containerRollbackTarget(t *testing.T) {
+	for name, tc := range map[string]struct {
+		labels map[string]string
+		code   int
+		body   string
+	}{
+		"updated by Dozzle": {
+			labels: map[string]string{container.PreviousImageLabel: "sha256:prev", container.PreviousRefLabel: "test@sha256:prev"},
+			code:   http.StatusOK,
+			body:   `{"imageId":"sha256:prev","ref":"test@sha256:prev"}`,
+		},
+		"never updated": {code: http.StatusNoContent},
+		"made by a rollback": {
+			labels: map[string]string{container.PreviousImageLabel: "sha256:prev", container.UpdateSourceLabel: container.UpdateSourceRollback},
+			code:   http.StatusNoContent,
+		},
+	} {
+		t.Run(name, func(t *testing.T) {
+			m := new(MockedClient)
+			c := container.Container{ID: "123", Name: "test-container", Host: "localhost", ImageID: "sha256:new", Labels: tc.labels}
+			m.On("FindContainer", mock.Anything, "123").Return(c, nil)
+			m.On("Host").Return(container.Host{ID: "localhost"})
+			m.On("ListContainers", mock.Anything, mock.Anything).Return([]container.Container{c}, nil)
+			m.On("ContainerEvents", mock.Anything, mock.Anything).Return(nil)
+
+			handler := createHandler(m, nil, Config{Base: "/", EnableActions: true, Authorization: Authorization{Provider: NONE}})
+			req, err := http.NewRequest("GET", "/api/hosts/localhost/containers/123/rollback-target", nil)
+			require.NoError(t, err)
+			rr := httptest.NewRecorder()
+			handler.ServeHTTP(rr, req)
+
+			assert.Equal(t, tc.code, rr.Code)
+			if tc.body != "" {
+				assert.JSONEq(t, tc.body, rr.Body.String())
+			}
+		})
+	}
+}

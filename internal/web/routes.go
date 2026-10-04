@@ -315,6 +315,7 @@ func createRouter(h *handler) *chi.Mux {
 				if h.config.EnableActions {
 					r.Post("/hosts/{host}/containers/{id}/actions/update", h.containerUpdate)
 					r.Post("/hosts/{host}/containers/{id}/actions/rollback", h.containerRollback)
+					r.Get("/hosts/{host}/containers/{id}/rollback-target", h.containerRollbackTarget)
 					r.Post("/hosts/{host}/containers/{id}/actions/{action}", h.containerActions)
 					r.Post("/updates", h.startBulkUpdate)
 					r.Get("/updates/stream", h.streamBulkUpdate)

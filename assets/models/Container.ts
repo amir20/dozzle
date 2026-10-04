@@ -53,26 +53,6 @@ export interface RollbackTarget {
   ref?: string;
 }
 
-// Labels an update leaves on the container it creates (container.PreviousImageLabel and friends).
-const PREVIOUS_IMAGE_LABEL = "dev.dozzle.previous-image";
-const PREVIOUS_REF_LABEL = "dev.dozzle.previous-ref";
-const UPDATE_SOURCE_LABEL = "dev.dozzle.update-source";
-
-/**
- * Where a rollback would take the container: the image its last update replaced, as
- * the update recorded it. A container a rollback created points back at the newer
- * image, so it has none, and neither does a swarm task, which updates as a service.
- */
-export const rollbackTarget = (container: {
-  labels: Record<string, string>;
-  isSwarm: boolean;
-}): RollbackTarget | undefined => {
-  const labels = container.labels;
-  const imageId = labels[PREVIOUS_IMAGE_LABEL]?.trim();
-  if (!imageId || container.isSwarm || labels[UPDATE_SOURCE_LABEL] === "rollback") return undefined;
-  return { imageId, ref: labels[PREVIOUS_REF_LABEL]?.trim() || undefined };
-};
-
 /**
  * A short name for a rollback target: `immich-server@sha256:4f2a9c1d0e3b` for a
  * registry image, the 12-character id for one built locally.
@@ -338,10 +318,6 @@ export class Container {
 
   get isSwarm() {
     return Boolean(this.labels["com.docker.swarm.service.id"]);
-  }
-
-  get rollbackTarget() {
-    return rollbackTarget(this);
   }
 
   public updateStat(stat: Stat) {

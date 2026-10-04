@@ -49,6 +49,18 @@ func (c *ContainerService) Rollback(ctx context.Context, opts RollbackOptions, p
 	return c.clientService.RollbackContainer(ctx, c.Container, opts, progressCh)
 }
 
+// RollbackTarget is where Rollback would take the container. The host's update
+// events count when its service keeps them, which a Docker host and an agent
+// both do, so a target known only from an update Watchtower or compose made is
+// found on either.
+func (c *ContainerService) RollbackTarget() (RollbackTarget, error) {
+	var events []ContainerUpdateEvent
+	if history, ok := c.clientService.(UpdateHistory); ok {
+		events = history.RecentUpdates()
+	}
+	return RollbackTargetOf(c.Container.ID, c.Container.ImageID, c.Container.Labels, events)
+}
+
 func (c *ContainerService) CheckImageUpdate(ctx context.Context, force bool) (imagecheck.Result, error) {
 	return c.clientService.CheckImageUpdate(ctx, c.Container, force)
 }

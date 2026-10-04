@@ -250,9 +250,16 @@ func TestRollbackContainerPrefersUpdateEvents(t *testing.T) {
 	require.NoError(t, run.err)
 	assert.Equal(t, watchtowerFrom, cli.engine.Created[0].Config.Image, "the image Watchtower replaced, not the stale label's")
 
-	// The stale label is still a target the caller may name.
+	// The stale label is not a target, even named: it would skip the version
+	// Watchtower replaced.
 	cli = newRollbackClient(t, old)
 	run = runRollback(&Service{client: cli, store: store}, container.RollbackOptions{ToImageID: olderImage})
+	require.ErrorIs(t, run.err, container.ErrNoRollbackTarget)
+	assert.Empty(t, cli.engine.Calls)
+
+	cli = newRollbackClient(t, old)
+	cli.images[watchtowerFrom] = image.InspectResponse{ID: watchtowerFrom}
+	run = runRollback(&Service{client: cli, store: store}, container.RollbackOptions{ToImageID: watchtowerFrom})
 	require.NoError(t, run.err)
-	assert.Equal(t, olderImage, cli.engine.Created[0].Config.Image)
+	assert.Equal(t, watchtowerFrom, cli.engine.Created[0].Config.Image)
 }

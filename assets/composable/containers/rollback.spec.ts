@@ -1,45 +1,106 @@
 /**
  * @vitest-environment jsdom
  */
-import { describe, expect, test } from "vitest";
-import { rollbackLabel, rollbackTarget } from "@/models/Container";
-import { composeManaged, holdsData } from "./rollback";
+import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
+import { rollbackLabel } from "@/models/Container";
 
-const updated = {
-  "dev.dozzle.previous-image": "sha256:4f2a9c1d0e3b5a6b7c8d9e0f",
-  "dev.dozzle.previous-ref": "ghcr.io/immich-app/immich-server@sha256:abcdef1234567890",
-  "dev.dozzle.update-source": "schedule",
+vi.mock("@/stores/config", () => ({
+  default: { enableActions: true, hosts: [] },
+  withBase: (path: string) => path,
+}));
+
+const { composeManaged, holdsData, isRollingBack, loadRollbackTarget, markRollingBack, rollbackTargetOf } =
+  await import("./rollback");
+
+const target = {
+  imageId: "sha256:4f2a9c1d0e3b5a6b7c8d9e0f",
+  ref: "ghcr.io/immich-app/immich-server@sha256:abcdef1234567890",
 };
 
-describe("rollbackTarget", () => {
-  test("is the image the last update replaced", () => {
-    expect(rollbackTarget({ labels: updated, isSwarm: false })).toEqual({
-      imageId: "sha256:4f2a9c1d0e3b5a6b7c8d9e0f",
-      ref: "ghcr.io/immich-app/immich-server@sha256:abcdef1234567890",
-    });
+let seq = 0;
+// A container id no other test has asked about, since answers are kept per id.
+const fresh = (extra: Record<string, unknown> = {}) => ({
+  host: "agent-1",
+  id: `c${++seq}`,
+  isSwarm: false,
+  state: "running" as const,
+  ...extra,
+});
+
+function respond(status: number, body?: unknown) {
+  const fetch = vi.fn().mockResolvedValue({ status, json: async () => body });
+  vi.stubGlobal("fetch", fetch);
+  return fetch;
+}
+
+describe("rollback target", () => {
+  beforeEach(() => vi.useFakeTimers({ toFake: ["setTimeout"] }));
+  afterEach(() => {
+    vi.useRealTimers();
+    vi.unstubAllGlobals();
   });
 
-  test("is unknown without an update, for a swarm task, and after a rollback", () => {
-    expect(rollbackTarget({ labels: {}, isSwarm: false })).toBeUndefined();
-    expect(rollbackTarget({ labels: updated, isSwarm: true })).toBeUndefined();
-    expect(
-      rollbackTarget({ labels: { ...updated, "dev.dozzle.update-source": "rollback" }, isSwarm: false }),
-    ).toBeUndefined();
+  test("comes from the server, for an agent host like a local one", async () => {
+    const fetch = respond(200, target);
+    const c = fresh();
+    expect(rollbackTargetOf(c)).toBeUndefined();
+
+    await loadRollbackTarget(c);
+    expect(fetch).toHaveBeenCalledWith(`/api/hosts/agent-1/containers/${c.id}/rollback-target`);
+    expect(rollbackTargetOf(c)).toEqual(target);
+
+    await loadRollbackTarget(c);
+    expect(fetch).toHaveBeenCalledTimes(1);
   });
 
-  test("an image built locally has no ref", () => {
-    expect(rollbackTarget({ labels: { "dev.dozzle.previous-image": "sha256:aaa" }, isSwarm: false })).toEqual({
-      imageId: "sha256:aaa",
-      ref: undefined,
-    });
+  test("none is asked again later, in case the update was recorded after the first ask", async () => {
+    const fetch = respond(204);
+    const c = fresh();
+    await loadRollbackTarget(c);
+    expect(rollbackTargetOf(c)).toBeUndefined();
+
+    await loadRollbackTarget(c);
+    expect(fetch).toHaveBeenCalledTimes(1);
+
+    vi.advanceTimersByTime(60_000);
+    respond(200, target);
+    await loadRollbackTarget(c);
+    expect(rollbackTargetOf(c)).toEqual(target);
+  });
+
+  test("is not asked for a swarm task or a deleted container", async () => {
+    const fetch = respond(200, target);
+    await loadRollbackTarget(fresh({ isSwarm: true }));
+    await loadRollbackTarget(fresh({ state: "deleted" }));
+    expect(fetch).not.toHaveBeenCalled();
+  });
+
+  test("a failed ask is asked again", async () => {
+    vi.stubGlobal("fetch", vi.fn().mockRejectedValue(new Error("offline")));
+    const c = fresh();
+    await loadRollbackTarget(c);
+    expect(rollbackTargetOf(c)).toBeUndefined();
+
+    respond(200, target);
+    await loadRollbackTarget(c);
+    expect(rollbackTargetOf(c)).toEqual(target);
+  });
+});
+
+describe("rolling back", () => {
+  test("is shared by every surface for the container", () => {
+    const c = fresh();
+    expect(isRollingBack(c)).toBe(false);
+    markRollingBack({ host: c.host, id: c.id }, true);
+    expect(isRollingBack(c)).toBe(true);
+    markRollingBack(c, false);
+    expect(isRollingBack(c)).toBe(false);
   });
 });
 
 describe("rollbackLabel", () => {
   test("names the repository and a short digest", () => {
-    expect(rollbackLabel(rollbackTarget({ labels: updated, isSwarm: false })!)).toBe(
-      "immich-server@sha256:abcdef123456",
-    );
+    expect(rollbackLabel(target)).toBe("immich-server@sha256:abcdef123456");
   });
 
   test("falls back to the short image id", () => {

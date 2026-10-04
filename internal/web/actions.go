@@ -2,6 +2,7 @@ package web
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"net/http"
 
@@ -103,6 +104,26 @@ func (h *handler) containerUpdate(w http.ResponseWriter, r *http.Request) {
 	}
 
 	log.Info().Str("container", containerService.Container.Name).Msg("container update completed")
+}
+
+// containerRollbackTarget answers what the container's rollback would go back
+// to, the same target containerRollback takes, as JSON, or 204 when it has
+// none. The UI offers the rollback only with one, and sends its image id back
+// as ?to=.
+func (h *handler) containerRollbackTarget(w http.ResponseWriter, r *http.Request) {
+	containerService, ok := h.findContainerWithActions(w, r)
+	if !ok {
+		return
+	}
+	target, err := containerService.RollbackTarget()
+	if err != nil {
+		w.WriteHeader(http.StatusNoContent)
+		return
+	}
+	w.Header().Set("Content-Type", "application/json")
+	if err := json.NewEncoder(w).Encode(target); err != nil {
+		log.Error().Err(err).Msg("error writing rollback target")
+	}
 }
 
 // containerRollback swaps a container back to the image it ran before its last
