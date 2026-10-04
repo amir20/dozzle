@@ -246,8 +246,20 @@ settings:
   sidebar: 사이드바
   behavior: 동작
   advanced: 고급
-  setup: "설정"
   about: 정보
+  general: 일반
+  updates: 업데이트
+  security: "보안"
+  hosts: "호스트"
+  login-desc: "Dozzle을 열 수 있는 사람. 로그인이 없으면 접근할 수 있는 누구나 로그를 읽을 수 있습니다."
+  login-off: "로그인 없음"
+  login-docs: "인증 가이드"
+  set-by-flags: "이 모드에서는 플래그나 환경 변수로 설정합니다."
+  hosts-found: "이 모드에서는 Dozzle이 이 호스트를 직접 찾습니다."
+  after-restart: "재시작 후"
+  restart-pending: "재시작 후 적용되는 변경 1개 | 재시작 후 적용되는 변경 {count}개"
+  run-setup: "설정 다시 실행"
+  run-setup-desc: "로그인, 작업, 호스트, Dozzle Cloud, 업데이트를 차례로 안내합니다. 안의 모든 항목은 설정에도 있습니다."
   reset: 기본값으로 재설정
   sponsor: 후원하기
   new-version: "{version} 사용 가능"
@@ -825,12 +837,6 @@ setup:
   finish-later: 나중에 완료
   close: 닫기
   copy: 복사
-  settings-title: Dozzle 설정
-  settings-desc: "로그인, 컨테이너 작업, 셸, 다른 호스트, Dozzle Cloud를 몇 단계로 설정합니다."
-  settings-done-title: "Dozzle 설정 완료"
-  settings-done-desc: "로그인이 켜져 있습니다. 설정을 열어 컨테이너 작업, 셸, 다른 호스트, Dozzle Cloud를 확인하세요."
-  settings-closed-title: "설정이 닫혔습니다"
-  settings-closed-desc: "로그인이 없으면 새 설치 후 첫 15분 동안만 설정 변경을 받습니다. 대신 환경 변수를 사용하세요."
   steps:
     login: 로그인
     login-note: 가장 먼저 하세요

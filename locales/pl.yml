@@ -246,8 +246,20 @@ settings:
   sidebar: Pasek boczny
   behavior: Zachowanie
   advanced: Zaawansowane
-  setup: "Konfiguracja"
   about: O programie
+  general: Ogólne
+  updates: Aktualizacje
+  security: "Bezpieczeństwo"
+  hosts: "Hosty"
+  login-desc: "Kto może otworzyć Dozzle. Bez logowania każdy, kto do niego dotrze, może czytać Twoje logi."
+  login-off: "Brak logowania"
+  login-docs: "Przewodnik po uwierzytelnianiu"
+  set-by-flags: "W tym trybie ustawiane flagami lub zmiennymi środowiskowymi."
+  hosts-found: "W tym trybie Dozzle sam znajduje te hosty."
+  after-restart: "Po restarcie"
+  restart-pending: "Zmiany obowiązujące po restarcie: 1 | Zmiany obowiązujące po restarcie: {count}"
+  run-setup: "Uruchom konfigurację ponownie"
+  run-setup-desc: "Prowadzony przegląd logowania, akcji, hostów, Dozzle Cloud i aktualizacji. Wszystko, co zawiera, jest też w Ustawieniach."
   reset: Przywróć domyślne
   sponsor: Wesprzyj
   new-version: "{version} jest dostępna"
@@ -825,12 +837,6 @@ setup:
   finish-later: Dokończ później
   close: Zamknij
   copy: Kopiuj
-  settings-title: Skonfiguruj Dozzle
-  settings-desc: "Logowanie, akcje kontenerów, powłoka, inne hosty i Dozzle Cloud w kilku krokach."
-  settings-done-title: "Dozzle jest skonfigurowany"
-  settings-done-desc: "Logowanie jest włączone. Otwórz konfigurację, aby przejrzeć akcje kontenerów, powłokę, inne hosty i Dozzle Cloud."
-  settings-closed-title: "Konfiguracja jest zamknięta"
-  settings-closed-desc: "Bez logowania konfiguracja przyjmuje zmiany tylko przez pierwsze 15 minut nowej instalacji. Zamiast tego użyj zmiennych środowiskowych."
   steps:
     login: Logowanie
     login-note: Zrób to najpierw

@@ -14,7 +14,8 @@ test("has dashboard text", async ({ page }) => {
 
 test("click on settings button", async ({ page }) => {
   await page.getByTestId("settings").click();
-  await expect(page.getByRole("heading", { name: "Logs" })).toBeVisible();
+  await expect(page).toHaveURL(/\/settings\/general$/);
+  await expect(page.getByRole("heading", { name: "Appearance" })).toBeVisible();
 });
 
 test("shortcut for fuzzy search", async ({ page }) => {

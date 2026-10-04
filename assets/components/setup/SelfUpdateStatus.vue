@@ -69,8 +69,8 @@
 import type { SetupAutoUpdate, SetupStatus } from "@/composable/setup/setup";
 
 // The parent only mounts this when auto-update is on, so the panel is about what
-// the schedule will do, not about turning it on. Changing the schedule is still
-// the wizard's job.
+// the schedule will do, not about turning it on. The schedule form sits below it on
+// Settings → Updates.
 const { status, autoUpdate } = defineProps<{ status: SetupStatus; autoUpdate: SetupAutoUpdate }>();
 
 const { t } = useI18n();

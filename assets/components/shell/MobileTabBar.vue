@@ -98,13 +98,13 @@ watch(
 
 const active = computed(() => {
   if (browsing.value) return "browse";
+  // Every settings page is a child of /settings, and all of them light the same tab.
+  if (typeof route.name === "string" && route.name.startsWith("/settings")) return "settings";
   switch (route.name) {
     case "/":
       return "home";
     case "/notifications":
       return "notifications";
-    case "/settings":
-      return "settings";
     default:
       return undefined;
   }

@@ -11,77 +11,10 @@
     </div>
 
     <template v-else>
-      <InlineNotice v-if="blockedReason" type="info" class="mt-6">
-        {{ blockedReason }}
-        <i18n-t
-          v-if="scheduleEditable"
-          keypath="setup.update.containers-still"
-          tag="span"
-          class="text-base-content/60 mt-1 block text-xs"
-        >
-          <template #label>
-            <code class="font-mono">dev.dozzle.auto-update=true</code>
-          </template>
-        </i18n-t>
-      </InlineNotice>
-      <InlineNotice v-else-if="!status.dataPersisted" type="warning" class="mt-6">
-        {{ $t("setup.error.no-data") }}
-      </InlineNotice>
-      <InlineNotice v-else-if="!status.canWrite" type="info" class="mt-6">
-        {{ status.authProvider === "none" ? $t("setup.actions.window-closed") : $t("setup.actions.no-access") }}
-      </InlineNotice>
+      <!-- The same form as Settings → Updates, saved on Next instead of on change. -->
+      <AutoUpdateForm ref="form" :status="status" class="mt-6" />
 
-      <div class="border-base-content/15 bg-base-200/40 divide-base-content/10 mt-6 divide-y rounded-lg border">
-        <label class="flex items-start justify-between gap-3 p-4">
-          <span class="min-w-0 flex-1">
-            <span class="block text-sm font-medium">{{ $t("setup.update.auto-label") }}</span>
-            <span class="text-base-content/60 mt-0.5 block text-xs">{{ $t("setup.update.auto-desc") }}</span>
-            <i18n-t keypath="setup.update.auto-containers" tag="span" class="text-base-content/40 mt-1 block text-xs">
-              <template #label>
-                <code class="font-mono">dev.dozzle.auto-update=true</code>
-              </template>
-            </i18n-t>
-            <span v-if="status.locked.autoUpdate" class="text-base-content/40 mt-1 flex items-center gap-1 text-xs">
-              <mdi:lock-outline class="size-3.5" />
-              {{ $t("setup.actions.locked", { env: "DOZZLE_AUTO_UPDATE" }) }}
-            </span>
-          </span>
-          <input
-            v-model="enabled"
-            type="checkbox"
-            class="toggle toggle-primary toggle-sm mt-0.5 shrink-0"
-            :disabled="!canEdit"
-          />
-        </label>
-
-        <div class="flex flex-wrap items-center justify-between gap-3 p-4">
-          <span class="min-w-0">
-            <span class="block text-sm font-medium" :class="{ 'text-base-content/40': !enabled }">
-              {{ $t("setup.update.when-label") }}
-            </span>
-            <span class="text-base-content/40 mt-0.5 block text-xs">{{ $t("setup.update.server-time") }}</span>
-          </span>
-          <span class="flex items-center gap-2">
-            <select
-              v-model="schedule"
-              class="select select-sm w-auto"
-              :aria-label="$t('setup.update.when-label')"
-              :disabled="!canEdit || !enabled"
-            >
-              <option value="daily">{{ $t("setup.update.daily") }}</option>
-              <option value="weekly">{{ $t("setup.update.weekly") }}</option>
-            </select>
-            <select
-              v-model="time"
-              class="select select-sm w-auto font-mono"
-              :aria-label="$t('setup.update.time-label')"
-              :disabled="!canEdit || !enabled"
-            >
-              <option v-for="option in times" :key="option" :value="option">{{ option }}</option>
-            </select>
-          </span>
-        </div>
-
+      <div class="border-base-content/15 bg-base-200/40 divide-base-content/10 mt-4 divide-y rounded-lg border">
         <div class="flex flex-wrap items-center justify-between gap-3 p-4">
           <span class="min-w-0">
             <span class="block text-sm font-medium">{{ $t("setup.update.version-label") }}</span>
@@ -138,14 +71,16 @@
 </template>
 
 <script lang="ts" setup>
-import type { AutoUpdateMode, SetupAutoUpdate, SetupNextResult, SetupStatus } from "@/composable/setup/setup";
+import type { SetupAutoUpdate, SetupNextResult, SetupStatus } from "@/composable/setup/setup";
+import AutoUpdateForm from "./AutoUpdateForm.vue";
 
 const { status } = defineProps<{ status: SetupStatus }>();
 
 const { t } = useI18n();
-const { saveConfig } = useSetup();
 // Coming back from the restart lands on this step again, showing the version it now runs.
 const { phase, progress, error, errorDetail, updateNow: runUpdate } = useSelfUpdate({ resume: "update" });
+
+const form = useTemplateRef<InstanceType<typeof AutoUpdateForm>>("form");
 
 // The wizard only mounts this step when the server reports autoUpdate.
 const autoUpdate = computed<SetupAutoUpdate>(
@@ -160,75 +95,22 @@ const autoUpdate = computed<SetupAutoUpdate>(
     },
 );
 
-const enabled = ref(autoUpdate.value.mode !== "off");
-// Turning the toggle on picks weekly unless the file already had a schedule.
-const schedule = ref<Exclude<AutoUpdateMode, "off">>(autoUpdate.value.mode === "daily" ? "daily" : "weekly");
-const time = ref(autoUpdate.value.time || "03:00");
-const times = computed(() => setupUpdateTimes(autoUpdate.value.time));
-
-const saving = ref(false);
-
-// actions-off is not a blocker here: the step only shows when actions are on or about
-// to be, so the schedule can be saved now and starts working after the restart.
-const blocked = computed(() => !autoUpdate.value.supported && autoUpdate.value.reason !== "actions-off");
-
-const blockedReason = computed(() => {
-  if (!blocked.value) return "";
-  switch (autoUpdate.value.reason) {
-    case "pinned-tag":
-      return t("setup.update.reason-pinned-tag");
-    case "swarm-worker":
-      return t("setup.update.reason-swarm-worker");
-    default:
-      return t("setup.update.reason-unsupported");
-  }
-});
-
-// Dozzle not being able to replace itself does not make the schedule pointless: the
-// scheduler runs in every server-mode process and updates labelled containers first,
-// so a pinned tag or a binary outside docker still gets them updated. Only outside
-// server mode does nothing run it.
-const scheduleEditable = computed(() => autoUpdate.value.reason !== "not-server");
-
-// dozzle.yml outside a volume is lost on the next recreate, so nothing is saved there.
-const canEdit = computed(
-  () => status.dataPersisted && status.canWrite && !status.locked.autoUpdate && scheduleEditable.value,
-);
-
 const canUpdateNow = computed(() => canSelfUpdate(status) && phase.value !== "restarting");
-
-const mode = computed<AutoUpdateMode>(() => (enabled.value ? schedule.value : "off"));
-
 const updateNow = () => runUpdate(autoUpdate.value.image);
-
-function changed() {
-  return mode.value !== autoUpdate.value.mode || (enabled.value && time.value !== autoUpdate.value.time);
-}
 
 async function next(): Promise<SetupNextResult> {
   error.value = "";
   errorDetail.value = "";
-  if (!canEdit.value || !changed()) return "advance";
-
-  saving.value = true;
-  try {
-    // Applies right away: the scheduler re-reads dozzle.yml every minute.
-    await saveConfig({ autoUpdate: { mode: mode.value, time: time.value } });
-    return "advance";
-  } catch (e) {
-    error.value = e instanceof SetupError && e.status === 409 ? t("setup.error.conflict") : t("setup.error.generic");
-    return "stay";
-  } finally {
-    saving.value = false;
-  }
+  return (await form.value?.save()) === false ? "stay" : "advance";
 }
 
+const saving = computed(() => !!form.value?.saving);
 const nextLabel = computed(() => t("setup.next"));
 const nextDisabled = computed(() => saving.value || phase.value === "pulling" || phase.value === "restarting");
 const busy = computed(() => saving.value || phase.value === "pulling" || phase.value === "restarting");
-// No separate skip: the toggle is the choice, and leaving it off then Next already
-// declines. A "Not now" beside Next would do exactly the same thing.
-const dirty = computed(() => canEdit.value && changed());
+// No separate skip: the form is the choice, and leaving the schedule off then Next
+// already declines. A "Not now" beside Next would do exactly the same thing.
+const dirty = computed(() => !!form.value?.dirty);
 
 defineExpose({ nextLabel, nextDisabled, nextPlain: false, dirty, busy, next });
 </script>

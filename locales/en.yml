@@ -373,8 +373,20 @@ settings:
   sidebar: Sidebar
   behavior: Behavior
   advanced: Advanced
-  setup: Setup
   about: About
+  general: General
+  updates: Updates
+  security: "Security"
+  hosts: "Hosts"
+  login-desc: "Who can open Dozzle. Without login, anyone who reaches it can read your logs."
+  login-off: "No login"
+  login-docs: "Authentication guide"
+  set-by-flags: "Set with flags or environment variables in this mode."
+  hosts-found: "Dozzle finds these hosts by itself in this mode."
+  after-restart: "After restart"
+  restart-pending: "1 change applies after a restart | {count} changes apply after a restart"
+  run-setup: "Run setup again"
+  run-setup-desc: "A guided pass over login, actions, hosts, Dozzle Cloud and updates. Everything in it is also in Settings."
   reset: Reset to defaults
   sponsor: Sponsor
   new-version: "{version} available"
@@ -831,12 +843,6 @@ setup:
   finish-later: Finish later
   close: Close
   copy: Copy
-  settings-title: Set up Dozzle
-  settings-desc: "Login, container actions, shell, other hosts and Dozzle Cloud in a few steps."
-  settings-done-title: Dozzle is set up
-  settings-done-desc: "Login is on. Open setup to review container actions, shell, other hosts and Dozzle Cloud."
-  settings-closed-title: Setup is closed
-  settings-closed-desc: Without a login, setup only takes changes in the first 15 minutes of a new install. Use environment variables instead.
   steps:
     login: Login
     login-note: Do this first
