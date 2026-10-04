@@ -252,8 +252,10 @@ func (u *bulkUpdater) runItem(item *bulkUpdateItem, opts container.UpdateOptions
 		item.Status = bulkError
 		item.Error = err.Error()
 	}
+	status := item.Status
 	u.mu.Unlock()
 	u.notify()
+	updateWatches.settle(item.service.Container.Host, item.service.Container.ID, status)
 
 	if err != nil {
 		log.Error().Err(err).Str("container", item.Name).Msg("bulk update: container update failed")

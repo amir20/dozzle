@@ -51,7 +51,7 @@ const (
 	updateChanBuf = 64
 	// updateLedgerMax bounds the ledger. Past it the ledger starts over, which
 	// at worst sends an update twice: Cloud keys updates on (host, name,
-	// to_digest), so a repeat is recorded once.
+	// new_container_id), so a repeat is recorded once.
 	updateLedgerMax = 1024
 )
 

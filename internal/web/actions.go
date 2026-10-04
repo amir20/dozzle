@@ -109,15 +109,28 @@ func (h *handler) containerUpdate(w http.ResponseWriter, r *http.Request) {
 		errCh <- err
 	}()
 
+	// Drained to the end even after the client went away, so the update's
+	// final status still decides what happens to the watch choice.
+	var status string
+	clientGone := false
 	for progress := range progressCh {
+		status = progress.Status
+		if clientGone {
+			continue
+		}
 		if err := sseWriter.Event("update-progress", progress); err != nil {
 			log.Error().Err(err).Msg("error writing SSE event")
-			return
+			clientGone = true
 		}
 	}
 
-	if err := <-errCh; err != nil {
+	err = <-errCh
+	updateWatches.settle(containerService.Container.Host, containerService.Container.ID, status)
+	if err != nil {
 		log.Error().Err(err).Msg("container update failed")
+	}
+	if clientGone {
+		return
 	}
 
 	log.Info().Str("container", containerService.Container.Name).Msg("container update completed")

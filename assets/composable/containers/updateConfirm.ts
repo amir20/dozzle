@@ -14,14 +14,15 @@ export function requestUpdate(container: Container) {
 
 /**
  * Whether Dozzle Cloud can be told about an update of the container. The update
- * is recorded by the host that runs it, and only a Docker host this Dozzle
- * talks to directly reports it: an agent keeps its own, a swarm service rolls
- * out without one, and Dozzle's own update replaces the process that would.
+ * is recorded by the host that runs it: a Docker host this Dozzle talks to
+ * directly, or an agent, which this Dozzle reads its updates from. A swarm
+ * service rolls out without one, and Dozzle's own update replaces the process
+ * that would send it.
  */
 export function cloudWatchable(
   container: Pick<Container, "isSwarm">,
   hostType: Host["type"] | undefined,
   self = false,
 ) {
-  return !self && !container.isSwarm && (hostType === "local" || hostType === "remote");
+  return !self && !container.isSwarm && (hostType === "local" || hostType === "remote" || hostType === "agent");
 }

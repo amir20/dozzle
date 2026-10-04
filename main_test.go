@@ -185,7 +185,7 @@ func TestServiceSubscriptionsEndsRemovedServices(t *testing.T) {
 }
 
 // fakeUpdateHistoryService is a host that keeps update events, as a local
-// docker daemon does. An agent keeps its own and offers none.
+// docker daemon and an agent both do.
 type fakeUpdateHistoryService struct {
 	fakeClientService
 	recent []container.ContainerUpdateEvent
@@ -198,34 +198,58 @@ func (f *fakeUpdateHistoryService) SubscribeUpdates(_ context.Context, ch chan<-
 	f.subs <- ch
 }
 
-// The cloud view forwards the update events of every host that keeps them, and
-// skips agents, whose events stay on the agent.
-func TestCloudHostService_ForwardsUpdateEvents(t *testing.T) {
-	event := container.ContainerUpdateEvent{Host: "local-id", Name: "immich", NewID: "new"}
-	local := &fakeUpdateHistoryService{
-		host:   container.Host{ID: "local-id", Name: "hub", Type: "local"},
-		recent: []container.ContainerUpdateEvent{event},
+func newFakeUpdateHistoryService(host container.Host, recent ...container.ContainerUpdateEvent) *fakeUpdateHistoryService {
+	return &fakeUpdateHistoryService{
+		host:   host,
+		recent: recent,
 		subs:   make(chan chan<- container.ContainerUpdateEvent, 1),
 	}
-	mgr := &fakeClientManager{
-		local: local,
-		agent: &fakeClientService{host: container.Host{ID: "agent-id", Name: "home-assistant", Type: "agent"}},
-	}
+}
+
+// The cloud view forwards the update events of every host that keeps them: a
+// local daemon and an agent alike, so an agent host's updates reach Cloud too.
+func TestCloudHostService_ForwardsUpdateEvents(t *testing.T) {
+	localEvent := container.ContainerUpdateEvent{Host: "local-id", Name: "immich", NewID: "new"}
+	agentEvent := container.ContainerUpdateEvent{Host: "agent-id", Name: "homeassistant", NewID: "new2"}
+	local := newFakeUpdateHistoryService(container.Host{ID: "local-id", Name: "hub", Type: "local"}, localEvent)
+	agent := newFakeUpdateHistoryService(container.Host{ID: "agent-id", Name: "home-assistant", Type: "agent"}, agentEvent)
+	mgr := &fakeClientManager{local: local, agent: agent}
 	svc, ok := newCloudHostService("server", hostservice.NewMultiHostService(mgr, time.Second)).(cloud.UpdateStreamHostService)
 	if !assert.True(t, ok, "the cloud host service must keep update history") {
 		return
 	}
 
-	assert.Equal(t, []container.ContainerUpdateEvent{event}, svc.RecentUpdates())
+	assert.ElementsMatch(t, []container.ContainerUpdateEvent{localEvent, agentEvent}, svc.RecentUpdates())
 
-	out := make(chan container.ContainerUpdateEvent, 1)
+	out := make(chan container.ContainerUpdateEvent, 2)
 	svc.SubscribeUpdates(t.Context(), out)
-	hostCh := <-local.subs
-	hostCh <- event
-	select {
-	case got := <-out:
-		assert.Equal(t, event, got)
-	case <-time.After(time.Second):
-		t.Fatal("update event was not forwarded")
+	for _, tc := range []struct {
+		host  *fakeUpdateHistoryService
+		event container.ContainerUpdateEvent
+	}{{local, localEvent}, {agent, agentEvent}} {
+		select {
+		case hostCh := <-tc.host.subs:
+			hostCh <- tc.event
+		case <-time.After(time.Second):
+			t.Fatalf("%s was not subscribed", tc.event.Host)
+		}
+		select {
+		case got := <-out:
+			assert.Equal(t, tc.event, got)
+		case <-time.After(time.Second):
+			t.Fatalf("update event from %s was not forwarded", tc.event.Host)
+		}
 	}
+}
+
+// A host whose service keeps no update events is skipped, not waited on.
+func TestCloudHostService_SkipsHostsWithoutUpdateHistory(t *testing.T) {
+	event := container.ContainerUpdateEvent{Host: "local-id", Name: "immich", NewID: "new"}
+	local := newFakeUpdateHistoryService(container.Host{ID: "local-id", Name: "hub", Type: "local"}, event)
+	mgr := &fakeClientManager{
+		local: local,
+		agent: &fakeClientService{host: container.Host{ID: "agent-id", Name: "home-assistant", Type: "agent"}},
+	}
+	svc := newCloudHostService("server", hostservice.NewMultiHostService(mgr, time.Second)).(cloud.UpdateStreamHostService)
+	assert.Equal(t, []container.ContainerUpdateEvent{event}, svc.RecentUpdates())
 }

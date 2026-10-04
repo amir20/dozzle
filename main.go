@@ -737,7 +737,8 @@ func (l *cloudHostService) SubscribeStats(ctx context.Context, samples chan<- cl
 }
 
 // RecentUpdates is the kept update events of every host that keeps them,
-// oldest first within each host. Agents keep theirs on the agent for now.
+// oldest first within each host. A local or remote daemon keeps them here; an
+// agent keeps its own and its service reads them over gRPC.
 func (l *cloudHostService) RecentUpdates() []container.ContainerUpdateEvent {
 	var all []container.ContainerUpdateEvent
 	for _, s := range l.services(false) {
