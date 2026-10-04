@@ -1,6 +1,6 @@
 ---
 title: Vos données
-sourceHash: f11dd8e45cb5
+sourceHash: c00d40084d58
 ---
 
 # Vos données
@@ -54,6 +54,7 @@ Le filtre s'exécute sur votre instance Dozzle **avant que les logs ne quittent 
 - **Les lignes de log** transmises par vos instances reliées, pour la recherche plein texte.
 - **Les évènements et alertes** qui ont correspondu à vos règles, avec leurs enquêtes et constats.
 - **Les métadonnées de conteneurs et d'hôtes** — noms, images, états, consommation de ressources.
+- **Les mises à jour de conteneurs** — de quelle image vers quelle image un conteneur est passé, et quand. Envoyées seulement pour une mise à jour faite par le planning de mise à jour automatique, et pour une restauration.
 - **Votre compte** — adresse e-mail, offre, réglages des canaux de notification.
 - **L'historique de chat** avec l'agent.
 

@@ -1,6 +1,6 @@
 ---
 title: 容器操作
-sourceHash: a6e53c733740
+sourceHash: a5b7715163fe
 ---
 
 # 容器操作
@@ -66,14 +66,14 @@ services:
       DOZZLE_IMAGE_CHECK_MODE: off
 ```
 
-要让某一个容器不再提示（比如一个刻意固定了版本的容器），给它加上标签：
+要让某一个容器不再被检查（比如一个刻意固定了版本的容器），给它加上标签。这也会让它不参与[自动更新计划](#auto-updating-containers)。
 
 ```yaml [docker-compose.yml]
 services:
   database:
     image: postgres:18-alpine
     labels:
-      dev.dozzle.update-check: false
+      dev.dozzle.update: off
 ```
 
 发现更新时也可以显示通知。该功能默认关闭，位于设置中。
@@ -106,21 +106,34 @@ Dozzle 自身容器上的 `Update` 操作会就地更新 Dozzle。它拉取新�
 
 ## 自动更新容器 {#auto-updating-containers}
 
-Dozzle 可以按计划更新容器。用标签让某个容器加入：
+Dozzle 可以按计划更新容器。在 **设置 → 更新** 或 [设置向导](/zh/guide/setup-wizard#auto-update) 中设置：
 
-```yaml [docker-compose.yml]
+- **时间：** 关闭、每天或每周（周日），以及一天中的时间。等同于 `DOZZLE_AUTO_UPDATE` 和 `DOZZLE_AUTO_UPDATE_TIME`。
+- **哪些容器：** **仅 Dozzle**、**有标签的容器**（默认）或 **全部**。无论选哪一项，Dozzle 自身都会按计划更新。
+
+容器上的一个标签决定其余的部分：
+
+| `dev.dozzle.update` | 结果                                                                 |
+| ------------------- | -------------------------------------------------------------------- |
+| `auto`              | 按计划更新，除非 **哪些容器** 选的是 **仅 Dozzle**                   |
+| _（无标签）_        | 选 **全部** 时按计划更新。否则会被检查并显示为可用更新，由你手动应用 |
+| `off`               | 从不检查，从不更新                                                   |
+
+```yaml
 services:
-  whoami:
-    image: traefik/whoami:latest
+  app:
+    image: ghcr.io/example/app:latest
     labels:
-      dev.dozzle.auto-update: true
+      dev.dozzle.update: auto
 ```
 
-带有该标签的容器遵循与 [Dozzle 自身的自动更新](/zh/guide/setup-wizard#auto-update) 相同的计划，你可以在设置向导中设置，也可以通过 `DOZZLE_AUTO_UPDATE` 和 `DOZZLE_AUTO_UPDATE_TIME` 设置。到了这个时间，Dozzle 会把每个带标签的容器与其镜像仓库进行比对，只更新有新镜像的容器。这些容器先更新，Dozzle 最后更新。
+旧标签仍然有效：`dev.dozzle.auto-update=true` 视为 `auto`，`dev.dozzle.update-check=false` 视为 `off`。
 
-自动更新是刻意设计为需要主动开启的。使用 `postgres:latest` 这类浮动标签的数据库，可能会升级到一个无法读取现有数据文件的新主版本，所以只给那些你愿意在无人看管时被替换的容器加标签。Dozzle [无法检查](#哪些情况无法检查) 的容器（例如来自私有仓库的容器）永远不会被自动更新。
+到了计划时间，Dozzle 会把计划中的每个容器与其镜像仓库进行比对，只更新有新镜像的容器，Dozzle 自身最后更新。每次更新都是上文所述的安全替换，因此新容器如果无法稳定运行，旧容器会被换回来。不健康的容器、Dozzle [无法检查](#哪些情况无法检查) 的容器，以及从当前提供的镜像[回滚](#rolling-back)过的容器都会被跳过。**设置 → 更新** 会列出下一次运行将要更新的容器。
 
-自动更新在服务器模式下运行，也包括 [远程代理](/zh/guide/agent) 上的容器。它需要开启操作。
+选 **全部** 时，使用 `postgres:latest` 这类浮动标签的数据库可能会升级到一个无法读取现有数据文件的主版本。选择 **全部** 时会列出把数据保存在命名卷中的容器。给这些容器加上 `dev.dozzle.update: off` 标签即可将其排除。选 **全部** 时，已停止的容器不会被更新，除非它带有 `auto` 标签。
+
+**哪些容器** 作为 `updateContainers` 保存在 [`dozzle.yml`](/zh/guide/setup-wizard#dozzle-yml) 中，因此在界面中修改它需要把 `/data` 放在卷上。自动更新在服务器模式下运行，也包括 [远程代理](/zh/guide/agent) 上的容器，并且需要开启操作。从 Watchtower 迁移过来？请参阅 [从 Watchtower 迁移](/zh/guide/moving-from-watchtower)。
 
 ## 清理旧镜像 {#cleaning-up-old-images}
 
@@ -131,3 +144,15 @@ Dozzle 会保留容器之前运行的镜像，以便还能回退到它，并删�
 只有在更新完成且旧容器已删除之后才会清理。已回滚的更新不会删除任何镜像。Dozzle 只删除没有标签且没有容器使用的镜像：仍带有标签的镜像（例如你自己拉取或构建的镜像）会被保留，并且删除不强制，因此只要还有其他容器（无论运行中还是已停止）在使用它，Docker 就会拒绝删除。删除被拒绝不会导致更新失败。
 
 [远程代理](/zh/guide/agent) 上的容器也以同样方式清理，Dozzle 自身的容器也是如此：新的 Dozzle 稳定运行后，[自更新](/zh/guide/setup-wizard#self-update) 的辅助容器会删除再之前的那个镜像。Swarm 服务（包括以 Swarm 服务运行的 Dozzle）不会被清理，因为每个节点保存自己的镜像，并且 Swarm 会自行清理任务历史。
+
+## 回滚 {#rolling-back}
+
+回滚更新是 [Dozzle Cloud](/zh/guide/dozzle-cloud) 的功能。Dozzle Cloud 会关注计划所做的每次更新，当新版本开始出现故障时，会提出回滚。随后 Dozzle 会把容器换回它之前运行的镜像，也就是其 `dev.dozzle.previous-image` 标签所指的镜像，方式与更新相同：当前容器会一直保留，直到之前的镜像稳定运行；如果没有稳定运行，就把当前容器放回去。设置和卷保持不变。回滚不会拉取任何镜像，因此如果之前的镜像已不在主机上，回滚会失败，容器保持原样。
+
+回滚后的容器会带上 `dev.dozzle.rolled-back-from` 标签，记录它离开的那个镜像，自动更新计划会跳过它，直到它的标签指向更新的镜像。回滚稳定运行后，被回滚的镜像会像其他旧镜像一样被[清理](#cleaning-up-old-images)，因此只有在不再有标签指向它时才会被删除。
+
+回滚适用于独立容器，也包括 [远程代理](/zh/guide/agent) 上的容器。Swarm 服务、Kubernetes 和 Dozzle 自身的容器不支持回滚。
+
+## 日志视图中的更新
+
+当 Dozzle 更新一个容器时（按计划、从 Dozzle 界面或从 Dozzle Cloud），新容器的日志会以一个标记开头，写明它从哪个镜像换到哪个镜像，以及是谁发起的更新。回滚和被撤销的更新也会被标记。连接了 Dozzle Cloud 时，标记还会显示 Dozzle Cloud 对这次更新的判断，并附有前往 Dozzle Cloud 的链接。Dozzle 只在内存中保存最近的更新，因此 Dozzle 重启后标记会消失。

@@ -1,6 +1,6 @@
 ---
 title: Actions sur les conteneurs
-sourceHash: a6e53c733740
+sourceHash: a5b7715163fe
 ---
 
 # Actions sur les conteneurs
@@ -66,14 +66,14 @@ services:
       DOZZLE_IMAGE_CHECK_MODE: off
 ```
 
-Pour faire taire un seul conteneur, par exemple un conteneur volontairement figé sur une version, ajoutez-lui ce label :
+Pour ne plus vérifier un seul conteneur, par exemple un conteneur volontairement figé sur une version, ajoutez-lui ce label. Il sort aussi du [planning de mise à jour automatique](#auto-updating-containers).
 
 ```yaml [docker-compose.yml]
 services:
   database:
     image: postgres:18-alpine
     labels:
-      dev.dozzle.update-check: false
+      dev.dozzle.update: off
 ```
 
 Une notification peut aussi être affichée quand une mise à jour est trouvée. Elle est désactivée par défaut et se trouve dans les paramètres.
@@ -106,21 +106,34 @@ Avec `DOZZLE_IMAGE_CHECK_MODE=manual`, le bouton affiche **Rechercher des mises 
 
 ## Mise à jour automatique des conteneurs {#auto-updating-containers}
 
-Dozzle peut mettre à jour des conteneurs selon un planning. Activez-la pour un conteneur avec un label :
+Dozzle peut mettre à jour des conteneurs selon un planning. Cela se règle dans **Paramètres → Mises à jour** ou dans l'[assistant de configuration](/fr/guide/setup-wizard#auto-update) :
 
-```yaml [docker-compose.yml]
+- **Quand :** désactivé, tous les jours ou chaque semaine le dimanche, à une heure donnée. Équivalent à `DOZZLE_AUTO_UPDATE` et `DOZZLE_AUTO_UPDATE_TIME`.
+- **Quels conteneurs :** **Dozzle seulement**, **Conteneurs avec label** (par défaut) ou **Tout**. Dozzle lui-même suit le planning dans les trois cas.
+
+Un label sur le conteneur décide du reste :
+
+| `dev.dozzle.update` | Ce qui se passe                                                                                                      |
+| ------------------- | -------------------------------------------------------------------------------------------------------------------- |
+| `auto`              | Mis à jour selon le planning, sauf si **Quels conteneurs** vaut **Dozzle seulement**                                 |
+| _(aucun label)_     | Mis à jour selon le planning avec **Tout**. Sinon vérifié et affiché comme mise à jour, que vous appliquez vous-même |
+| `off`               | Jamais vérifié, jamais mis à jour                                                                                    |
+
+```yaml
 services:
-  whoami:
-    image: traefik/whoami:latest
+  app:
+    image: ghcr.io/example/app:latest
     labels:
-      dev.dozzle.auto-update: true
+      dev.dozzle.update: auto
 ```
 
-Les conteneurs portant ce label suivent le même planning que [la mise à jour automatique de Dozzle](/fr/guide/setup-wizard#auto-update), que vous définissez dans l'assistant de configuration ou avec `DOZZLE_AUTO_UPDATE` et `DOZZLE_AUTO_UPDATE_TIME`. À cette heure, Dozzle compare chaque conteneur étiqueté à son registre et ne met à jour que ceux qui ont une image plus récente. Les conteneurs passent d'abord et Dozzle en dernier.
+Les anciens labels fonctionnent toujours : `dev.dozzle.auto-update=true` est lu comme `auto`, et `dev.dozzle.update-check=false` comme `off`.
 
-La mise à jour automatique est volontairement opt-in. Une base de données sur un tag flottant comme `postgres:latest` peut passer à une nouvelle version majeure dont elle ne sait pas lire les fichiers de données, donc n'ajoutez ce label qu'aux conteneurs que vous acceptez de voir remplacés sans surveillance. Les conteneurs que Dozzle [ne peut pas vérifier](#ce-qui-ne-peut-pas-etre-verifie), comme ceux d'un registre privé, ne sont jamais mis à jour automatiquement.
+À l'heure prévue, Dozzle compare chaque conteneur du planning à son registre et ne met à jour que ceux qui ont une image plus récente, Dozzle lui-même en dernier. Chaque mise à jour est l'échange sûr décrit plus haut : si le nouveau conteneur ne reste pas en marche, l'ancien est remis en place. Les conteneurs en mauvaise santé, ceux que Dozzle [ne peut pas vérifier](#ce-qui-ne-peut-pas-etre-verifie) et ceux qui ont été [restaurés](#rolling-back) depuis l'image proposée sont ignorés. **Paramètres → Mises à jour** liste les conteneurs que la prochaine exécution mettra à jour.
 
-La mise à jour automatique fonctionne en mode serveur, y compris pour les conteneurs sur des [agents distants](/fr/guide/agent). Elle nécessite que les actions soient activées.
+Avec **Tout**, une base de données sur un tag flottant comme `postgres:latest` peut passer à une version majeure dont elle ne sait pas lire les fichiers de données. Choisir **Tout** liste les conteneurs qui gardent des données dans des volumes nommés. Ajoutez-leur le label `dev.dozzle.update: off` pour les exclure. Les conteneurs arrêtés ne sont pas touchés avec **Tout**, sauf s'ils portent le label `auto`.
+
+**Quels conteneurs** est enregistré dans [`dozzle.yml`](/fr/guide/setup-wizard#dozzle-yml) sous `updateContainers`, donc le modifier depuis l'interface nécessite `/data` sur un volume. La mise à jour automatique fonctionne en mode serveur, y compris pour les conteneurs des [agents distants](/fr/guide/agent), et nécessite les actions. Vous venez de Watchtower ? Consultez [Passer de Watchtower à Dozzle](/fr/guide/moving-from-watchtower).
 
 ## Nettoyer les anciennes images {#cleaning-up-old-images}
 
@@ -131,3 +144,15 @@ Dozzle garde l'image sur laquelle le conteneur tournait jusque-là, pour qu'il p
 Le nettoyage n'a lieu qu'une fois la mise à jour aboutie et l'ancien conteneur supprimé. Une mise à jour restaurée ne supprime rien. Dozzle ne supprime qu'une image sans tag qu'aucun conteneur n'utilise : une image qui a encore un tag, par exemple une image que vous avez téléchargée ou construite vous-même, est conservée, et la suppression n'est pas forcée, donc Docker refuse tant qu'un autre conteneur, démarré ou arrêté, l'utilise encore. Un refus ne fait jamais échouer la mise à jour.
 
 Les conteneurs sur des [agents distants](/fr/guide/agent) sont nettoyés de la même façon, tout comme le propre conteneur de Dozzle : le conteneur auxiliaire de la [mise à jour automatique](/fr/guide/setup-wizard#self-update) supprime l'image d'avant la précédente une fois que le nouveau Dozzle reste en marche. Les services Swarm, y compris Dozzle lorsqu'il tourne comme service Swarm, ne sont pas nettoyés, car chaque nœud garde ses propres images et Swarm élague lui-même son historique de tâches.
+
+## Restaurer la version précédente {#rolling-back}
+
+Annuler une mise à jour est une fonctionnalité de [Dozzle Cloud](/fr/guide/dozzle-cloud). Dozzle Cloud surveille chaque mise à jour faite par le planning et, quand la nouvelle version commence à échouer, propose de revenir en arrière. Dozzle remet alors le conteneur sur l'image qu'il exécutait avant, celle que nomme son label `dev.dozzle.previous-image`, de la même façon qu'une mise à jour : le conteneur actuel est conservé jusqu'à ce que l'image précédente reste en marche, et remis en place sinon. Les réglages et les volumes ne changent pas. Rien n'est téléchargé : si l'image précédente n'est plus sur l'hôte, la restauration échoue et le conteneur reste tel quel.
+
+Le conteneur restauré porte le label `dev.dozzle.rolled-back-from` avec l'image qu'il a quittée, et le planning de mise à jour automatique le laisse de côté jusqu'à ce que son tag pointe vers une image plus récente. Une fois la restauration stable, l'image quittée est [nettoyée](#cleaning-up-old-images) comme toute ancienne image, donc supprimée seulement quand plus aucun tag ne pointe vers elle.
+
+La restauration fonctionne pour les conteneurs autonomes, y compris ceux des [agents distants](/fr/guide/agent). Elle n'est pas disponible pour les services Swarm, Kubernetes ni le conteneur de Dozzle lui-même.
+
+## Les mises à jour dans les logs
+
+Quand Dozzle met à jour un conteneur, selon le planning, depuis l'interface de Dozzle ou depuis Dozzle Cloud, les logs du nouveau conteneur commencent par un repère qui indique l'image de départ et d'arrivée et ce qui a lancé la mise à jour. Une restauration et une mise à jour annulée sont aussi repérées. Avec Dozzle Cloud relié, le repère montre aussi l'avis de Dozzle Cloud sur la mise à jour, avec un lien vers celle-ci. Dozzle garde ses mises à jour récentes en mémoire, donc le repère disparaît après un redémarrage de Dozzle.

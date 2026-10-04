@@ -1,6 +1,6 @@
 ---
 title: Container-Aktionen
-sourceHash: a6e53c733740
+sourceHash: a5b7715163fe
 ---
 
 # Container-Aktionen
@@ -66,14 +66,14 @@ services:
       DOZZLE_IMAGE_CHECK_MODE: off
 ```
 
-Um einen einzelnen Container ruhigzustellen, etwa einen bewusst auf eine Version gepinnten, versiehst du ihn mit einem Label:
+Um einen einzelnen Container nicht mehr zu prüfen, etwa einen bewusst auf eine Version gepinnten, versiehst du ihn mit einem Label. Damit bleibt er auch aus dem [Zeitplan für automatische Updates](#auto-updating-containers) heraus.
 
 ```yaml [docker-compose.yml]
 services:
   database:
     image: postgres:18-alpine
     labels:
-      dev.dozzle.update-check: false
+      dev.dozzle.update: off
 ```
 
 Bei einem gefundenen Update kann auch eine Benachrichtigung erscheinen. Sie ist standardmäßig aus und findet sich unter den Einstellungen.
@@ -106,21 +106,34 @@ Mit `DOZZLE_IMAGE_CHECK_MODE=manual` lautet der Button **Nach Updates suchen**, 
 
 ## Container automatisch aktualisieren {#auto-updating-containers}
 
-Dozzle kann Container nach Zeitplan aktualisieren. Einen Container nimmst du per Label mit auf:
+Dozzle kann Container nach Zeitplan aktualisieren. Eingerichtet wird das unter **Einstellungen → Aktualisierungen** oder im [Einrichtungsassistenten](/de/guide/setup-wizard#auto-update):
 
-```yaml [docker-compose.yml]
+- **Wann:** aus, täglich oder wöchentlich am Sonntag, zu einer Uhrzeit. Entspricht `DOZZLE_AUTO_UPDATE` und `DOZZLE_AUTO_UPDATE_TIME`.
+- **Welche Container:** **Nur Dozzle**, **Container mit Label** (Standard) oder **Alles**. Dozzle selbst folgt dem Zeitplan in allen drei Fällen.
+
+Ein Label am Container entscheidet den Rest:
+
+| `dev.dozzle.update` | Was passiert                                                                                                    |
+| ------------------- | --------------------------------------------------------------------------------------------------------------- |
+| `auto`              | Wird nach Zeitplan aktualisiert, außer **Welche Container** steht auf **Nur Dozzle**                            |
+| _(kein Label)_      | Wird bei **Alles** nach Zeitplan aktualisiert. Sonst geprüft und als Update angezeigt, das du selbst einspielst |
+| `off`               | Wird nie geprüft und nie aktualisiert                                                                           |
+
+```yaml
 services:
-  whoami:
-    image: traefik/whoami:latest
+  app:
+    image: ghcr.io/example/app:latest
     labels:
-      dev.dozzle.auto-update: true
+      dev.dozzle.update: auto
 ```
 
-Container mit diesem Label folgen demselben Zeitplan wie [das automatische Update von Dozzle selbst](/de/guide/setup-wizard#auto-update), den du im Einrichtungsassistenten oder mit `DOZZLE_AUTO_UPDATE` und `DOZZLE_AUTO_UPDATE_TIME` festlegst. Zu dieser Zeit prüft Dozzle jeden markierten Container gegen seine Registry und aktualisiert nur die, für die es ein neueres Image gibt. Erst kommen die Container dran, Dozzle zuletzt.
+Ältere Labels funktionieren weiter: `dev.dozzle.auto-update=true` gilt als `auto` und `dev.dozzle.update-check=false` als `off`.
 
-Das automatische Update ist bewusst Opt-in. Eine Datenbank auf einem beweglichen Tag wie `postgres:latest` kann auf eine neue Hauptversion springen, deren Datendateien sie nicht lesen kann. Versieh also nur Container mit dem Label, bei denen es dich nicht stört, wenn sie ohne dein Zutun ersetzt werden. Container, die Dozzle [nicht prüfen kann](#was-sich-nicht-prufen-lasst), etwa solche aus einer privaten Registry, werden nie automatisch aktualisiert.
+Zur geplanten Zeit prüft Dozzle jeden Container im Zeitplan gegen seine Registry und aktualisiert nur die, für die es ein neueres Image gibt, Dozzle selbst zuletzt. Jedes Update ist der oben beschriebene sichere Austausch: Bleibt ein neuer Container nicht stabil, kommt der alte zurück. Übersprungen werden Container, die ungesund sind, die Dozzle [nicht prüfen kann](#was-sich-nicht-prufen-lasst) oder die vom angebotenen Image [zurückgerollt](#rolling-back) wurden. **Einstellungen → Aktualisierungen** listet die Container, die der nächste Lauf aktualisiert.
 
-Das automatische Update läuft im Server-Modus, auch für Container auf [Remote-Agents](/de/guide/agent). Es setzt eingeschaltete Aktionen voraus.
+Bei **Alles** kann eine Datenbank auf einem beweglichen Tag wie `postgres:latest` auf eine Hauptversion springen, deren Datendateien sie nicht lesen kann. Wählst du **Alles**, werden die Container aufgelistet, die Daten in benannten Volumes halten. Gib ihnen das Label `dev.dozzle.update: off`, um sie herauszunehmen. Gestoppte Container bleiben bei **Alles** unberührt, außer sie haben das Label `auto`.
+
+**Welche Container** wird als `updateContainers` in der [`dozzle.yml`](/de/guide/setup-wizard#dozzle-yml) gespeichert. Eine Änderung in der Oberfläche braucht deshalb `/data` auf einem Volume. Automatische Updates laufen im Servermodus, auch für Container auf [Remote-Agents](/de/guide/agent), und setzen eingeschaltete Aktionen voraus. Du kommst von Watchtower? Siehe [Umstieg von Watchtower](/de/guide/moving-from-watchtower).
 
 ## Alte Images aufräumen {#cleaning-up-old-images}
 
@@ -131,3 +144,15 @@ Dozzle behält das Image, mit dem der Container bisher lief, damit er noch dorth
 Aufgeräumt wird erst, wenn das Update durch ist und der alte Container entfernt ist. Ein zurückgerolltes Update entfernt nichts. Dozzle entfernt nur ein Image ohne Tag, das kein Container nutzt: Ein Image, das noch ein Tag hat, etwa eines, das du selbst gepullt oder gebaut hast, bleibt erhalten, und das Entfernen geschieht ohne Zwang, also verweigert Docker es, solange ein anderer Container es noch nutzt, ob laufend oder gestoppt. Eine Weigerung lässt das Update nie fehlschlagen.
 
 Container auf [Remote-Agents](/de/guide/agent) werden genauso aufgeräumt, ebenso der eigene Container von Dozzle: Der Hilfscontainer des [Selbst-Updates](/de/guide/setup-wizard#self-update) entfernt das Image vor dem vorherigen, sobald das neue Dozzle stabil läuft. Swarm-Services, auch ein als Swarm-Service laufendes Dozzle, werden nicht aufgeräumt, da jeder Node seine eigenen Images hat und Swarm seinen Task-Verlauf selbst bereinigt.
+
+## Zurückrollen {#rolling-back}
+
+Ein Update zurückzurollen ist eine Funktion von [Dozzle Cloud](/de/guide/dozzle-cloud). Dozzle Cloud beobachtet jedes Update aus dem Zeitplan und bietet an, es zurückzurollen, wenn die neue Version Fehler zeigt. Dozzle tauscht den Container dann zurück auf das Image, das er vorher lief und das sein Label `dev.dozzle.previous-image` nennt, genauso wie bei einem Update: Der aktuelle Container bleibt erhalten, bis das vorherige Image stabil läuft, und kommt zurück, wenn nicht. Einstellungen und Volumes bleiben, wie sie sind. Es wird nichts heruntergeladen: Liegt das vorherige Image nicht mehr auf dem Host, schlägt das Zurückrollen fehl und der Container bleibt unverändert.
+
+Der zurückgerollte Container bekommt das Label `dev.dozzle.rolled-back-from` mit dem Image, das er verlassen hat, und der Zeitplan für automatische Updates lässt ihn in Ruhe, bis sein Tag auf ein neueres Image zeigt. Sobald das Zurückrollen stabil läuft, wird das verlassene Image wie jedes alte Image [aufgeräumt](#cleaning-up-old-images), also nur entfernt, wenn kein Tag mehr darauf zeigt.
+
+Zurückrollen funktioniert für eigenständige Container, auch auf [Remote-Agents](/de/guide/agent). Für Swarm-Services, Kubernetes und den eigenen Container von Dozzle ist es nicht verfügbar.
+
+## Updates in der Log-Ansicht
+
+Aktualisiert Dozzle einen Container, nach Zeitplan, aus der Dozzle-Oberfläche oder aus Dozzle Cloud, beginnen die Logs des neuen Containers mit einer Markierung. Sie nennt das Image vorher und nachher und wer das Update gestartet hat. Auch ein Zurückrollen und ein rückgängig gemachtes Update werden markiert. Ist Dozzle Cloud verbunden, zeigt die Markierung außerdem, wie Dozzle Cloud das Update einschätzt, mit einem Link dorthin. Dozzle hält seine letzten Updates im Speicher, nach einem Neustart von Dozzle ist die Markierung also weg.

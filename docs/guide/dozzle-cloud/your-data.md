@@ -53,6 +53,7 @@ The filter runs on your Dozzle instance **before logs leave the host**, so dropp
 - **Log lines** forwarded from your linked instances, for full-text search.
 - **Events and alerts** that matched your rules, with their investigations and findings.
 - **Container and host metadata** — names, images, states, resource usage.
+- **Container updates** — which image a container moved from and to, and when. Sent only for an update the auto-update schedule made, and for a rollback.
 - **Your account** — email address, plan, notification channel settings.
 - **Chat history** with the agent.
 

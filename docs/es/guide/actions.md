@@ -1,6 +1,6 @@
 ---
 title: Acciones sobre contenedores
-sourceHash: a6e53c733740
+sourceHash: a5b7715163fe
 ---
 
 # Acciones sobre contenedores
@@ -66,14 +66,14 @@ services:
       DOZZLE_IMAGE_CHECK_MODE: off
 ```
 
-Para silenciar un contenedor concreto, por ejemplo uno fijado a una versión a propósito, ponle esta etiqueta:
+Para dejar de comprobar un contenedor concreto, por ejemplo uno fijado a una versión a propósito, ponle esta etiqueta. También lo saca de la [actualización automática programada](#auto-updating-containers).
 
 ```yaml [docker-compose.yml]
 services:
   database:
     image: postgres:18-alpine
     labels:
-      dev.dozzle.update-check: false
+      dev.dozzle.update: off
 ```
 
 También se puede mostrar una notificación cuando hay una actualización. Viene desactivada y está en Configuración.
@@ -106,21 +106,34 @@ Con `DOZZLE_IMAGE_CHECK_MODE=manual`, el botón dice **Buscar actualizaciones** 
 
 ## Actualizar contenedores automáticamente {#auto-updating-containers}
 
-Dozzle puede actualizar contenedores de forma programada. Activa un contenedor con una etiqueta:
+Dozzle puede actualizar contenedores de forma programada. Se configura en **Configuración → Actualizaciones** o en el [asistente de configuración](/es/guide/setup-wizard#auto-update):
 
-```yaml [docker-compose.yml]
+- **Cuándo:** desactivada, a diario o cada semana el domingo, a una hora del día. Igual que `DOZZLE_AUTO_UPDATE` y `DOZZLE_AUTO_UPDATE_TIME`.
+- **Qué contenedores:** **Solo Dozzle**, **Contenedores con etiqueta** (por defecto) o **Todo**. Dozzle sigue la programación en los tres casos.
+
+Una etiqueta en el contenedor decide el resto:
+
+| `dev.dozzle.update` | Qué pasa                                                                                                             |
+| ------------------- | -------------------------------------------------------------------------------------------------------------------- |
+| `auto`              | Se actualiza según la programación, salvo que **Qué contenedores** sea **Solo Dozzle**                               |
+| _(sin etiqueta)_    | Se actualiza según la programación con **Todo**. Si no, se comprueba y se muestra como actualización, que aplicas tú |
+| `off`               | Nunca se comprueba ni se actualiza                                                                                   |
+
+```yaml
 services:
-  whoami:
-    image: traefik/whoami:latest
+  app:
+    image: ghcr.io/example/app:latest
     labels:
-      dev.dozzle.auto-update: true
+      dev.dozzle.update: auto
 ```
 
-Los contenedores etiquetados siguen la misma programación que [la actualización automática del propio Dozzle](/es/guide/setup-wizard#auto-update), que se configura en el asistente de configuración o con `DOZZLE_AUTO_UPDATE` y `DOZZLE_AUTO_UPDATE_TIME`. A esa hora Dozzle comprueba cada contenedor etiquetado contra su registro y actualiza solo los que tienen una imagen más reciente. Primero van los contenedores y Dozzle va el último.
+Las etiquetas antiguas siguen funcionando: `dev.dozzle.auto-update=true` cuenta como `auto`, y `dev.dozzle.update-check=false` como `off`.
 
-La actualización automática hay que activarla a propósito. Una base de datos con un tag flotante como `postgres:latest` puede saltar a una nueva versión mayor cuyos archivos de datos ya no sabe leer, así que etiqueta solo los contenedores que no te importe ver reemplazados sin estar pendiente. Los contenedores que Dozzle [no puede comprobar](#lo-que-no-se-puede-comprobar), como los de un registro privado, nunca se actualizan automáticamente.
+A la hora programada, Dozzle compara cada contenedor de la programación con su registro y actualiza solo los que tienen una imagen más reciente, el propio Dozzle el último. Cada actualización es el intercambio seguro descrito arriba: si el contenedor nuevo no se mantiene en marcha, vuelve el anterior. Se omiten los contenedores que no están sanos, los que Dozzle [no puede comprobar](#lo-que-no-se-puede-comprobar) y los que se [revirtieron](#rolling-back) desde la imagen que se ofrece. **Configuración → Actualizaciones** muestra los contenedores que actualizará la próxima ejecución.
 
-La actualización automática funciona en modo servidor, incluidos los contenedores en [agentes remotos](/es/guide/agent). Requiere las acciones activadas.
+Con **Todo**, una base de datos con un tag flotante como `postgres:latest` puede saltar a una versión mayor cuyos archivos de datos no sabe leer. Al elegir **Todo** se muestran los contenedores que guardan datos en volúmenes con nombre. Ponles la etiqueta `dev.dozzle.update: off` para dejarlos fuera. Con **Todo**, los contenedores detenidos no se tocan, salvo que tengan la etiqueta `auto`.
+
+**Qué contenedores** se guarda en [`dozzle.yml`](/es/guide/setup-wizard#dozzle-yml) como `updateContainers`, así que cambiarlo desde la interfaz requiere `/data` en un volumen. La actualización automática funciona en modo servidor, también para los contenedores de [agentes remotos](/es/guide/agent), y requiere las acciones activadas. ¿Vienes de Watchtower? Consulta [Pasar de Watchtower a Dozzle](/es/guide/moving-from-watchtower).
 
 ## Limpiar imágenes antiguas {#cleaning-up-old-images}
 
@@ -131,3 +144,15 @@ Dozzle conserva la imagen con la que funcionaba el contenedor hasta ahora, para 
 La limpieza solo se hace cuando la actualización se ha completado y el contenedor antiguo ya no existe. Una actualización revertida no elimina nada. Dozzle solo elimina una imagen sin tag que ningún contenedor use: una imagen que aún tiene un tag, como una que descargaste o construiste tú, se conserva, y la eliminación no se fuerza, así que Docker se niega mientras otro contenedor, en marcha o detenido, la siga usando. Una negativa nunca hace fallar la actualización.
 
 Los contenedores en [agentes remotos](/es/guide/agent) se limpian de la misma forma, y también el propio contenedor de Dozzle: el contenedor auxiliar de la [autoactualización](/es/guide/setup-wizard#self-update) elimina la imagen anterior a la previa en cuanto el nuevo Dozzle sigue en marcha. Los servicios de Swarm, incluido Dozzle cuando se ejecuta como uno, no se limpian, porque cada nodo guarda sus propias imágenes y Swarm poda su propio historial de tareas.
+
+## Revertir una actualización {#rolling-back}
+
+Revertir una actualización es una función de [Dozzle Cloud](/es/guide/dozzle-cloud). Dozzle Cloud vigila cada actualización que hace la programación y, cuando la nueva versión empieza a fallar, ofrece revertirla. Dozzle vuelve entonces a poner el contenedor en la imagen que ejecutaba antes, la que indica su etiqueta `dev.dozzle.previous-image`, igual que en una actualización: el contenedor actual se conserva hasta que la imagen anterior se mantiene en marcha, y vuelve a ponerse si no. La configuración y los volúmenes no cambian. No se descarga nada: si la imagen anterior ya no está en el host, la reversión falla y el contenedor queda como estaba.
+
+El contenedor revertido lleva la etiqueta `dev.dozzle.rolled-back-from` con la imagen que dejó, y la actualización automática programada lo deja en paz hasta que su tag apunte a una imagen más reciente. Cuando la reversión se mantiene estable, la imagen que se dejó se [limpia](#cleaning-up-old-images) como cualquier imagen antigua, así que solo se elimina cuando ya ningún tag apunta a ella.
+
+La reversión funciona con contenedores independientes, también los de [agentes remotos](/es/guide/agent). No está disponible para servicios de Swarm, Kubernetes ni el propio contenedor de Dozzle.
+
+## Actualizaciones en la vista de logs
+
+Cuando Dozzle actualiza un contenedor, según la programación, desde la interfaz de Dozzle o desde Dozzle Cloud, los logs del contenedor nuevo empiezan con una marca que indica la imagen de origen y de destino y qué inició la actualización. También se marcan una reversión y una actualización deshecha. Con Dozzle Cloud vinculado, la marca muestra además lo que Dozzle Cloud opina de la actualización, con un enlace a ella. Dozzle guarda sus actualizaciones recientes en memoria, así que la marca desaparece cuando Dozzle se reinicia.

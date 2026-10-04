@@ -65,14 +65,14 @@ services:
       DOZZLE_IMAGE_CHECK_MODE: off
 ```
 
-To silence a single container, such as one deliberately pinned to a version, label it:
+To stop checking a single container, such as one deliberately pinned to a version, label it. That also keeps it off the [auto-update schedule](#auto-updating-containers).
 
 ```yaml [docker-compose.yml]
 services:
   database:
     image: postgres:18-alpine
     labels:
-      dev.dozzle.update-check: false
+      dev.dozzle.update: off
 ```
 
 A notification can also be shown when an update is found. It is off by default and lives under Settings.
@@ -103,23 +103,36 @@ If Dozzle's own container is in the list, it always goes last, because updating 
 
 With `DOZZLE_IMAGE_CHECK_MODE=manual`, the button reads **Check for updates** until you press it. With actions off, the dashboard looks exactly as it does today, and each container's own menu still says when an update is available.
 
-## Auto-updating containers
+## Auto-updating containers {#auto-updating-containers}
 
-Dozzle can update containers on a schedule. Opt a container in with a label:
+Dozzle can update containers on a schedule. Set it up under **Settings → Updates** or in the [setup wizard](/guide/setup-wizard#auto-update):
 
-```yaml [docker-compose.yml]
+- **When:** off, daily or weekly on Sunday, at a time of day. The same as `DOZZLE_AUTO_UPDATE` and `DOZZLE_AUTO_UPDATE_TIME`.
+- **Which containers:** **Dozzle only**, **Labelled containers** (the default) or **Everything**. Dozzle itself follows the schedule in all three.
+
+One label on a container decides the rest:
+
+| `dev.dozzle.update` | What happens                                                                                            |
+| ------------------- | ------------------------------------------------------------------------------------------------------- |
+| `auto`              | Updated on the schedule, unless **Which containers** is **Dozzle only**                                 |
+| _(no label)_        | Updated on the schedule under **Everything**. Otherwise checked and shown as an update, which you apply |
+| `off`               | Never checked, never updated                                                                            |
+
+```yaml
 services:
-  whoami:
-    image: traefik/whoami:latest
+  app:
+    image: ghcr.io/example/app:latest
     labels:
-      dev.dozzle.auto-update: true
+      dev.dozzle.update: auto
 ```
 
-Labelled containers follow the same schedule as [Dozzle's own auto-update](/guide/setup-wizard#auto-update), which you set in the setup wizard or with `DOZZLE_AUTO_UPDATE` and `DOZZLE_AUTO_UPDATE_TIME`. At that time Dozzle checks each labelled container against its registry and updates only the ones with a newer image. Containers go first and Dozzle goes last.
+Older labels still work: `dev.dozzle.auto-update=true` reads as `auto`, and `dev.dozzle.update-check=false` as `off`.
 
-Auto-update is opt in on purpose. A database on a floating tag like `postgres:latest` can move to a new major version that its data files cannot read, so only label containers you are happy to see replaced without watching. Containers Dozzle [cannot check](#what-cannot-be-checked), such as ones from a private registry, are never auto-updated.
+At the scheduled time Dozzle checks each container on the schedule against its registry and updates only the ones with a newer image, Dozzle itself last. Every update is the safe swap described above, so a new container that fails to stay up is replaced by the old one again. Containers that are unhealthy, that Dozzle [cannot check](#what-cannot-be-checked), or that were [rolled back](#rolling-back) from the image on offer are skipped. **Settings → Updates** lists the containers the next run will update.
 
-Auto-update runs in server mode, including containers on [remote agents](/guide/agent). It needs actions on.
+Under **Everything**, a database on a floating tag like `postgres:latest` can move to a major version its data files cannot read. Picking **Everything** lists the containers that keep data in named volumes. Label those `dev.dozzle.update: off` to keep them out. Stopped containers are left alone under **Everything** unless they are labelled `auto`.
+
+**Which containers** is saved in [`dozzle.yml`](/guide/setup-wizard#dozzle-yml) as `updateContainers`, so changing it from the UI needs `/data` on a volume. Auto-update runs in server mode, including containers on [remote agents](/guide/agent), and needs actions on. Coming from Watchtower? See [Moving from Watchtower](/guide/moving-from-watchtower).
 
 ## Cleaning up old images {#cleaning-up-old-images}
 
@@ -130,3 +143,15 @@ Dozzle keeps the image the container ran until now, so the container can still g
 Cleanup only runs after the update has gone through and the old container is gone. A rolled back update removes nothing. Dozzle only removes an untagged image that no container uses: an image that still has a tag, such as one you pulled or built yourself, is kept, and the removal is not forced, so Docker refuses while any other container, running or stopped, still uses it. A refusal never fails the update.
 
 Containers on [remote agents](/guide/agent) are cleaned up the same way, and so is Dozzle's own container: the [self-update](/guide/setup-wizard#self-update) helper removes the image before the previous one once the new Dozzle has stayed up. Swarm services, including Dozzle running as one, are not cleaned up, since each node keeps its own images and Swarm prunes its own task history.
+
+## Rolling back {#rolling-back}
+
+Rolling an update back is a [Dozzle Cloud](/guide/dozzle-cloud) feature. Dozzle Cloud watches each update the schedule makes and, when the new version starts failing, offers to roll it back. Dozzle then swaps the container back to the image it ran before, the one its `dev.dozzle.previous-image` label names, the same way an update swaps it: the current container is kept until the previous image has stayed up, and is put back if it does not. Settings and volumes stay as they are. Nothing is pulled, so if the previous image is no longer on the host the rollback fails and the container is left alone.
+
+The rolled back container is labelled `dev.dozzle.rolled-back-from` with the image it left, and the auto-update schedule leaves it alone until its tag points to a newer image. Once the rollback has stayed up, the image rolled back from is [cleaned up](#cleaning-up-old-images) like any old image, so it is removed only when no tag points to it any more.
+
+Rollback works for standalone containers, including containers on [remote agents](/guide/agent). It is not available for Swarm services, Kubernetes, or Dozzle's own container.
+
+## Updates in the log view
+
+When Dozzle updates a container, on the schedule, from the Dozzle UI or from Dozzle Cloud, the logs of the new container start with a marker that names the image it moved from and to and what started the update. A rollback and an update that was undone are marked too. With Dozzle Cloud linked, the marker also shows what Dozzle Cloud made of the update, with a link to it there. Dozzle keeps its recent updates in memory, so the marker is gone after Dozzle restarts.

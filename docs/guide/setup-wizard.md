@@ -64,13 +64,13 @@ Agents set with `DOZZLE_REMOTE_AGENT` are listed as locked and can only be remov
 
 ### 5. Auto-update {#auto-update}
 
-Dozzle can keep itself up to date. Pick **Off**, **Daily** or **Weekly** (weekly runs on Sunday) and a time of day. The time is in the server's local time and defaults to `03:00`. At that time Dozzle checks its registry for a newer image and, only if there is one, [updates itself](#self-update).
+Dozzle can keep itself and your containers up to date. Pick **Off**, **Daily** or **Weekly** (weekly runs on Sunday) and a time of day. The time is in the server's local time and defaults to `03:00`. At that time Dozzle checks for newer images and updates only what changed, [itself](#self-update) last.
 
-Containers labelled `dev.dozzle.auto-update=true` update on the same schedule, just before Dozzle does. See [Auto-updating containers](/guide/actions#auto-updating-containers).
+**Which containers** decides what else the schedule updates: **Dozzle only**, **Labelled containers** (the default, the ones labelled `dev.dozzle.update=auto`) or **Everything**. See [Auto-updating containers](/guide/actions#auto-updating-containers).
 
-This setting applies right away and does not need a restart. The same schedule is under **Settings → Updates**, next to **Update now**, where a change is saved as you make it.
+These settings apply right away and do not need a restart. They are also under **Settings → Updates**, next to **Update now** and the list of containers the schedule will update, where a change is saved as you make it.
 
-Updating itself is an action, so while actions are off this step stays in the list but is greyed out with **Needs actions**. Turning actions on in step 2 makes it available right away. If this instance cannot update itself for another reason (for example it runs a pinned version tag), the step says why. The schedule can still be set, and containers labelled `dev.dozzle.auto-update=true` follow it.
+Updating is an action, so while actions are off this step stays in the list but is greyed out with **Needs actions**. Turning actions on in step 2 makes it available right away. If this instance cannot update itself for another reason (for example it runs a pinned version tag), the step says why. The schedule can still be set, and other containers follow it.
 
 ### 6. Restart
 
@@ -78,7 +78,7 @@ The last step lists the changes that are saved but not running yet. **Restart Do
 
 If Dozzle cannot restart itself (for example when it cannot find its own container), the wizard shows the environment variables to add to your compose file instead. Settings shows the same on every page while changes are waiting: a banner that counts them, with **Restart Dozzle** or those lines.
 
-## <Icon icon="mdi:file-cog-outline" inline /> Where settings are saved
+## <Icon icon="mdi:file-cog-outline" inline /> Where settings are saved {#dozzle-yml}
 
 The wizard saves its choices to `/data/dozzle.yml`. Dozzle reads this file once at startup, which is why changes need a restart to apply. Dozzle restarts itself from the wizard, so you do not need to do it by hand. The auto-update keys are the exception: Dozzle checks them again every minute, so they apply without a restart. `remoteAgents` is the other exception: hosts are connected the moment they are added.
 
@@ -88,21 +88,23 @@ enableActions: true
 enableShell: false
 autoUpdate: weekly
 autoUpdateTime: "03:00"
+updateContainers: labelled
 remoteAgents:
   - 10.0.0.5:7007|nas
 privateAgents:
   - 10.0.0.5:7007|nas
 ```
 
-| Key              | Values                                                                                        | Same as                   |
-| ---------------- | --------------------------------------------------------------------------------------------- | ------------------------- |
-| `authProvider`   | `none`, `simple`, `forward-proxy`                                                             | `DOZZLE_AUTH_PROVIDER`    |
-| `enableActions`  | `true`, `false`                                                                               | `DOZZLE_ENABLE_ACTIONS`   |
-| `enableShell`    | `true`, `false`                                                                               | `DOZZLE_ENABLE_SHELL`     |
-| `autoUpdate`     | `off`, `daily`, `weekly`                                                                      | `DOZZLE_AUTO_UPDATE`      |
-| `autoUpdateTime` | `HH:MM`, server local time                                                                    | `DOZZLE_AUTO_UPDATE_TIME` |
-| `remoteAgents`   | list of agent addresses                                                                       | `DOZZLE_REMOTE_AGENT`     |
-| `privateAgents`  | agents in `remoteAgents` that use the [private certificate](/guide/agent#private-certificate) | none                      |
+| Key                | Values                                                                                              | Same as                   |
+| ------------------ | --------------------------------------------------------------------------------------------------- | ------------------------- |
+| `authProvider`     | `none`, `simple`, `forward-proxy`                                                                   | `DOZZLE_AUTH_PROVIDER`    |
+| `enableActions`    | `true`, `false`                                                                                     | `DOZZLE_ENABLE_ACTIONS`   |
+| `enableShell`      | `true`, `false`                                                                                     | `DOZZLE_ENABLE_SHELL`     |
+| `autoUpdate`       | `off`, `daily`, `weekly`                                                                            | `DOZZLE_AUTO_UPDATE`      |
+| `autoUpdateTime`   | `HH:MM`, server local time                                                                          | `DOZZLE_AUTO_UPDATE_TIME` |
+| `updateContainers` | `off` (Dozzle only), `labelled`, `all`. Which containers the schedule updates. Absent is `labelled` | none                      |
+| `remoteAgents`     | list of agent addresses                                                                             | `DOZZLE_REMOTE_AGENT`     |
+| `privateAgents`    | agents in `remoteAgents` that use the [private certificate](/guide/agent#private-certificate)       | none                      |
 
 Flags and environment variables always win over the file. If `DOZZLE_ENABLE_ACTIONS` is set, the value in `dozzle.yml` is ignored and the wizard shows the toggle as locked. To go back to managing a setting from the wizard, remove the variable from your compose file. `remoteAgents` works differently: agents from the file are added to the ones in `DOZZLE_REMOTE_AGENT` instead of being replaced by them.
 
