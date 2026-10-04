@@ -381,6 +381,10 @@ updates:
   busy: Pembaruan lain sedang berjalan.
   summary: "{updated} diperbarui"
   summary-failed: "{updated} diperbarui, {failed} gagal"
+  confirm-title: "Perbarui {name}?"
+  confirm-body: "Menarik {image} lalu membuat ulang kontainer dengannya."
+  watch-in-cloud: "Biarkan Dozzle Cloud memantau pembaruan ini"
+  watch-in-cloud-hint: "Hanya image yang berubah dan waktunya yang dikirim."
   status:
     queued: Antre
     pulling: Mengunduh
@@ -672,7 +676,7 @@ cloud:
     push-title: "Ketahui saat sesuatu rusak"
     push-body: "Pemindaian harian adalah ringkasan sekali sehari. Untuk apa pun yang ingin Anda ketahui pukul 3 pagi, aktifkan notifikasi push."
     recommended: "Disarankan"
-    lifecycle-desc: "Crash, healthcheck gagal, OOM kill, dan restart."
+    lifecycle-desc: "Crash, healthcheck gagal, OOM kill, restart, dan pembaruan."
     metrics-desc: "CPU, memori, dan disk yang melewati ambang batas dan bertahan di sana."
     logs-desc: "Tangkap baris error dan fatal begitu masuk."
     logs-caution: "Kategori paling berisik, dan satu-satunya tanpa jeda, jadi kontainer yang crash berulang akan memberi notifikasi di setiap baris. Mulailah dari siklus hidup dan tambahkan ini setelah Anda tahu kontainer mana yang berisik."

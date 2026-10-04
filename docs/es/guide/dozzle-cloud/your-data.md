@@ -1,6 +1,6 @@
 ---
 title: Tus datos
-sourceHash: f11dd8e45cb5
+sourceHash: 128873b85ef9
 ---
 
 # Tus datos
@@ -54,6 +54,7 @@ El filtro se ejecuta en tu instancia de Dozzle **antes de que los logs salgan de
 - **Líneas de log** reenviadas desde tus instancias vinculadas, para la búsqueda de texto completo.
 - **Eventos y alertas** que coincidieron con tus reglas, con sus investigaciones y hallazgos.
 - **Metadatos de contenedores y hosts** — nombres, imágenes, estados, uso de recursos.
+- **Actualizaciones de contenedores** — de qué imagen a qué imagen pasó un contenedor, y cuándo. Solo se envían para un contenedor en el calendario de actualización automática, uno sobre el que una regla de ciclo de vida notifica a Cloud, o una actualización iniciada con la casilla **Que Dozzle Cloud vigile esta actualización** marcada.
 - **Tu cuenta** — dirección de correo, plan, configuración de los canales de notificación.
 - **Historial de chat** con el agente.
 

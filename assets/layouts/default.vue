@@ -57,6 +57,7 @@
   </SideDrawer>
   <ToastModal :above-tab-bar="showTabBar" />
   <RollbackDialog v-if="enableActions" />
+  <UpdateDialog v-if="enableActions" />
   <SetupWizard />
 </template>
 

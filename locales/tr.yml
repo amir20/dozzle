@@ -372,6 +372,10 @@ updates:
   busy: Zaten başka bir güncelleme çalışıyor.
   summary: "{updated} güncellendi"
   summary-failed: "{updated} güncellendi, {failed} başarısız"
+  confirm-title: "{name} güncellensin mi?"
+  confirm-body: "{image} imajını çeker ve konteyneri onunla yeniden oluşturur."
+  watch-in-cloud: "Bu güncellemeyi Dozzle Cloud izlesin"
+  watch-in-cloud-hint: "Yalnızca hangi imajın ne zaman değiştiği gönderilir."
   status:
     queued: Sırada
     pulling: İndiriliyor
@@ -663,7 +667,7 @@ cloud:
     push-title: "Bir şey bozulduğu anda haberdar olun"
     push-body: "Günlük tarama, günde bir kez gelen bir özettir. Gecenin üçünde bilmek isteyeceğiniz her şey için anlık bildirimleri açın."
     recommended: "Önerilen"
-    lifecycle-desc: "Çökmeler, başarısız healthcheck'ler, OOM sonlandırmaları ve yeniden başlatmalar."
+    lifecycle-desc: "Çökmeler, başarısız healthcheck'ler, OOM sonlandırmaları, yeniden başlatmalar ve güncellemeler."
     metrics-desc: "Eşiği aşan ve orada kalan CPU, bellek ve disk."
     logs-desc: "error ve fatal satırlarını aktıkları anda yakalayın."
     logs-caution: "En gürültülü kategori ve bekleme süresi olmayan tek kategori, bu yüzden çökme döngüsündeki bir konteyner her satırda bildirim gönderir. Yaşam döngüsüyle başlayın ve hangi konteynerlerin gürültülü olduğunu öğrendikten sonra bunları ekleyin."

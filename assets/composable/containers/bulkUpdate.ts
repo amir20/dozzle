@@ -69,7 +69,8 @@ export function useBulkUpdate() {
 
   const running = computed(() => job.value?.running ?? false);
 
-  async function start(containers: Container[]) {
+  // `watchInCloud` is "Have Dozzle Cloud watch this update", for every container.
+  async function start(containers: Container[], { watchInCloud = false }: { watchInCloud?: boolean } = {}) {
     // Held from before the POST, so the first snapshot of the new job is not missed.
     const release = hold();
     let startedAt: string;
@@ -77,7 +78,7 @@ export function useBulkUpdate() {
       const response = await fetch(withBase("/api/updates"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ containers: containers.map(({ host, id }) => ({ host, id })) }),
+        body: JSON.stringify({ containers: containers.map(({ host, id }) => ({ host, id })), watchInCloud }),
       });
       if (!response.ok) {
         release();

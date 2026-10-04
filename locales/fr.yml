@@ -369,6 +369,10 @@ updates:
   busy: Une autre mise à jour est déjà en cours.
   summary: "{updated} mis à jour"
   summary-failed: "{updated} mis à jour, {failed} en échec"
+  confirm-title: "Mettre à jour {name} ?"
+  confirm-body: "Télécharge {image} et recrée le conteneur avec."
+  watch-in-cloud: "Laisser Dozzle Cloud surveiller cette mise à jour"
+  watch-in-cloud-hint: "Seuls l'image modifiée et le moment du changement sont envoyés."
   status:
     queued: En attente
     pulling: Téléchargement
@@ -660,7 +664,7 @@ cloud:
     push-title: "Soyez prévenu dès que quelque chose casse"
     push-body: "L'analyse quotidienne est un résumé une fois par jour. Pour tout ce que vous voudriez savoir à 3 h du matin, activez les notifications push."
     recommended: "Recommandé"
-    lifecycle-desc: "Plantages, healthchecks en échec, kills OOM et redémarrages."
+    lifecycle-desc: "Plantages, healthchecks en échec, kills OOM, redémarrages et mises à jour."
     metrics-desc: "CPU, mémoire et disque qui dépassent un seuil et y restent."
     logs-desc: "Repérer les lignes error et fatal dès leur arrivée."
     logs-caution: "La catégorie la plus bruyante, et la seule sans délai d'attente : un conteneur en boucle de plantage notifie à chaque ligne. Commencez par le cycle de vie et ajoutez celles-ci une fois que vous savez quels conteneurs sont bavards."

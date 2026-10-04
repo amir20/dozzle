@@ -270,6 +270,21 @@ const (
 	UpdateRunLabel = "dev.dozzle.update-run"
 )
 
+// AutoUpdateLabel opts a container into the auto-update schedule. It is opt in
+// on purpose: a database on a floating tag should never move on its own. It is
+// also the consent for Dozzle Cloud to watch the updates the schedule makes.
+const AutoUpdateLabel = "dev.dozzle.auto-update"
+
+// AutoUpdateEnabled reports whether labels opt a container into the schedule.
+func AutoUpdateEnabled(labels map[string]string) bool {
+	switch strings.ToLower(strings.TrimSpace(labels[AutoUpdateLabel])) {
+	case "true", "on", "yes", "1":
+		return true
+	default:
+		return false
+	}
+}
+
 // Where an update came from. See ContainerUpdateEvent.Source.
 const (
 	// UpdateSourceSchedule is the auto-update schedule.

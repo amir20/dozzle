@@ -498,6 +498,10 @@ updates:
   busy: Another update is already running.
   summary: "{updated} updated"
   summary-failed: "{updated} updated, {failed} failed"
+  confirm-title: "Update {name}?"
+  confirm-body: "Pulls {image} and recreates the container on it."
+  watch-in-cloud: "Have Dozzle Cloud watch this update"
+  watch-in-cloud-hint: "Only which image changed, and when, is sent."
   status:
     queued: Queued
     pulling: Pulling
@@ -789,7 +793,7 @@ cloud:
     push-title: Get told the moment something breaks
     push-body: The daily scan is a once-a-day summary. For anything you would want to know about at 3am, turn on push notifications.
     recommended: Recommended
-    lifecycle-desc: Crashes, failed healthchecks, OOM kills and restarts.
+    lifecycle-desc: "Crashes, failed healthchecks, OOM kills, restarts and updates."
     metrics-desc: CPU, memory and disk crossing a threshold and staying there.
     logs-desc: Match error and fatal lines the moment they stream in.
     logs-caution: The loudest category, and the only one with no cooldown, so a crash-looping container notifies on every line. Start with lifecycle and add these once you know which containers are noisy.

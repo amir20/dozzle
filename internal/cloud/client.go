@@ -59,6 +59,10 @@ type Client struct {
 	connMu        sync.Mutex
 	cancelCurrent context.CancelFunc
 
+	// updates remembers which container updates were pushed, across
+	// reconnects. See update_pusher.go.
+	updates *updateLedger
+
 	// unaryConn / unaryClient are lazily initialized and shared across every
 	// Dozzle-initiated unary call (SearchLogs, GetAlerts) so we don't pay the
 	// TLS handshake per keystroke or per scroll. Same target / TLS as the main
@@ -106,6 +110,7 @@ func NewClient(apiKeyFunc func() string, instanceID string, version string, deps
 		toolSem:    semaphore.NewWeighted(maxConcurrent),
 		streamSem:  semaphore.NewWeighted(maxConcurrentStreams),
 		startCh:    make(chan struct{}, 1),
+		updates:    newUpdateLedger(),
 	}
 }
 
@@ -327,6 +332,23 @@ func (c *Client) connect(ctx context.Context, apiKey string) (wasConnected bool,
 		} else {
 			log.Debug().Msg("host service does not support stats streaming; skipping")
 		}
+	}
+
+	// Container updates are not log content, so the log-streaming toggle does
+	// not apply: what may be sent is decided per update, by the consent rule
+	// in update_pusher.go.
+	if uhs, ok := c.deps.HostService.(UpdateStreamHostService); ok {
+		if c.updates == nil {
+			// A Client built by hand rather than by NewClient. connect runs
+			// on Run's goroutine only, so this cannot race.
+			c.updates = newUpdateLedger()
+		}
+		pusher := newUpdatePusher(uhs, c.deps, c.updates, sendResp)
+		wg.Go(func() {
+			pusher.run(streamLifetime)
+		})
+	} else {
+		log.Debug().Msg("host service does not keep update history; skipping update pushes")
 	}
 
 	defer func() {

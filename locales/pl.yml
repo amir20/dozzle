@@ -371,6 +371,10 @@ updates:
   busy: Inna aktualizacja już trwa.
   summary: "Zaktualizowano: {updated}"
   summary-failed: "Zaktualizowano: {updated}, nieudane: {failed}"
+  confirm-title: "Zaktualizować {name}?"
+  confirm-body: "Pobiera {image} i tworzy kontener na nowo z tego obrazu."
+  watch-in-cloud: "Niech Dozzle Cloud obserwuje tę aktualizację"
+  watch-in-cloud-hint: "Wysyłane jest tylko to, który obraz się zmienił i kiedy."
   status:
     queued: W kolejce
     pulling: Pobieranie
@@ -662,7 +666,7 @@ cloud:
     push-title: "Dowiedz się w chwili, gdy coś się psuje"
     push-body: "Codzienne skanowanie to podsumowanie raz dziennie. Dla wszystkiego, o czym chciałbyś wiedzieć o 3 w nocy, włącz powiadomienia push."
     recommended: "Zalecane"
-    lifecycle-desc: "Awarie, nieudane healthchecki, zabicia OOM i restarty."
+    lifecycle-desc: "Awarie, nieudane healthchecki, zabicia OOM, restarty i aktualizacje."
     metrics-desc: "CPU, pamięć i dysk przekraczające próg i utrzymujące się powyżej niego."
     logs-desc: "Wychwytuj linie error i fatal w chwili, gdy napływają."
     logs-caution: "Najgłośniejsza kategoria i jedyna bez okresu wyciszenia, więc kontener w pętli awarii powiadamia przy każdej linii. Zacznij od cyklu życia i dodaj te, gdy będziesz wiedzieć, które kontenery są głośne."

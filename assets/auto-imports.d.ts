@@ -46,6 +46,7 @@ declare global {
   const chipMoment: typeof import('./composable/cloud/patternMemory').chipMoment
   const clearCloudWelcomePending: typeof import('./composable/cloud/cloudWelcome').clearCloudWelcomePending
   const clearSetupResume: typeof import('./composable/setup/setup').clearSetupResume
+  const cloudWatchable: typeof import('./composable/containers/updateConfirm').cloudWatchable
   const cloudWelcomePending: typeof import('./composable/cloud/cloudWelcome').cloudWelcomePending
   const collapseCloudRail: typeof import('./stores/settings').collapseCloudRail
   const collapseNav: typeof import('./stores/settings').collapseNav
@@ -229,6 +230,7 @@ declare global {
   const refWithControl: typeof import('@vueuse/core').refWithControl
   const relativeTimeTick: typeof import('./composable/ui/timeTicker').relativeTimeTick
   const requestRollback: typeof import('./composable/containers/rollback').requestRollback
+  const requestUpdate: typeof import('./composable/containers/updateConfirm').requestUpdate
   const resolveComponent: typeof import('vue').resolveComponent
   const resolveRef: typeof import('@vueuse/core').resolveRef
   const rollbackTargetOf: typeof import('./composable/containers/rollback').rollbackTargetOf
@@ -519,6 +521,7 @@ declare global {
   const useToast: typeof import('./composable/app/toast').useToast
   const useToggle: typeof import('@vueuse/core').useToggle
   const useTransition: typeof import('@vueuse/core').useTransition
+  const useUpdateRequest: typeof import('./composable/containers/updateConfirm').useUpdateRequest
   const useUrlSearchParams: typeof import('@vueuse/core').useUrlSearchParams
   const useUserMedia: typeof import('@vueuse/core').useUserMedia
   const useVModel: typeof import('@vueuse/core').useVModel
@@ -702,6 +705,7 @@ declare module 'vue' {
     readonly chipMoment: UnwrapRef<typeof import('./composable/cloud/patternMemory')['chipMoment']>
     readonly clearCloudWelcomePending: UnwrapRef<typeof import('./composable/cloud/cloudWelcome')['clearCloudWelcomePending']>
     readonly clearSetupResume: UnwrapRef<typeof import('./composable/setup/setup')['clearSetupResume']>
+    readonly cloudWatchable: UnwrapRef<typeof import('./composable/containers/updateConfirm')['cloudWatchable']>
     readonly cloudWelcomePending: UnwrapRef<typeof import('./composable/cloud/cloudWelcome')['cloudWelcomePending']>
     readonly collapseCloudRail: UnwrapRef<typeof import('./stores/settings')['collapseCloudRail']>
     readonly collapseNav: UnwrapRef<typeof import('./stores/settings')['collapseNav']>
@@ -882,6 +886,7 @@ declare module 'vue' {
     readonly refWithControl: UnwrapRef<typeof import('@vueuse/core')['refWithControl']>
     readonly relativeTimeTick: UnwrapRef<typeof import('./composable/ui/timeTicker')['relativeTimeTick']>
     readonly requestRollback: UnwrapRef<typeof import('./composable/containers/rollback')['requestRollback']>
+    readonly requestUpdate: UnwrapRef<typeof import('./composable/containers/updateConfirm')['requestUpdate']>
     readonly resolveComponent: UnwrapRef<typeof import('vue')['resolveComponent']>
     readonly rollbackTargetOf: UnwrapRef<typeof import('./composable/containers/rollback')['rollbackTargetOf']>
     readonly rolloutWorkload: UnwrapRef<typeof import('./composable/containers/rolloutRestart')['rolloutWorkload']>
@@ -1168,6 +1173,7 @@ declare module 'vue' {
     readonly useToast: UnwrapRef<typeof import('./composable/app/toast')['useToast']>
     readonly useToggle: UnwrapRef<typeof import('@vueuse/core')['useToggle']>
     readonly useTransition: UnwrapRef<typeof import('@vueuse/core')['useTransition']>
+    readonly useUpdateRequest: UnwrapRef<typeof import('./composable/containers/updateConfirm')['useUpdateRequest']>
     readonly useUrlSearchParams: UnwrapRef<typeof import('@vueuse/core')['useUrlSearchParams']>
     readonly useUserMedia: UnwrapRef<typeof import('@vueuse/core')['useUserMedia']>
     readonly useVModel: UnwrapRef<typeof import('@vueuse/core')['useVModel']>

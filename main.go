@@ -188,6 +188,7 @@ func main() {
 		Principal:           cloud.APIKeyPrincipal(args.Filter),
 		NotificationService: notificationService,
 		RolledBack:          web.RecordRolledBack,
+		UpdateWatched:       web.UpdateWatched,
 	})
 	cloudClient.SetDeployment(args.Mode, swarmClusterID)
 	cloudClient.SetStreamLogsFunc(func() bool {
@@ -723,6 +724,53 @@ func (l *cloudHostService) SubscribeStats(ctx context.Context, samples chan<- cl
 							dropWarn.Do(func() {
 								log.Warn().Msg("cloud stats: consumer is not keeping up, dropping samples (further drops are silent)")
 							})
+						}
+					}
+				}
+			}()
+			return true
+		})
+	}
+
+	attach()
+	l.watchNewServices(ctx, attach)
+}
+
+// RecentUpdates is the kept update events of every host that keeps them,
+// oldest first within each host. Agents keep theirs on the agent for now.
+func (l *cloudHostService) RecentUpdates() []container.ContainerUpdateEvent {
+	var all []container.ContainerUpdateEvent
+	for _, s := range l.services(false) {
+		if h, ok := s.(container.UpdateHistory); ok {
+			all = append(all, h.RecentUpdates()...)
+		}
+	}
+	return all
+}
+
+// SubscribeUpdates sends the update events of every host that keeps them to
+// ch until ctx ends. The store's send never blocks, so each host gets a buffer
+// of its own and a forwarder that does the same.
+func (l *cloudHostService) SubscribeUpdates(ctx context.Context, updates chan<- container.ContainerUpdateEvent) {
+	subs := serviceSubscriptions{}
+	attach := func() {
+		subs.sync(ctx, l.services(false), func(ctx context.Context, s container.ClientService) bool {
+			h, ok := s.(container.UpdateHistory)
+			if !ok {
+				return false
+			}
+			ch := make(chan container.ContainerUpdateEvent, 16)
+			h.SubscribeUpdates(ctx, ch)
+			go func() {
+				for {
+					select {
+					case <-ctx.Done():
+						return
+					case e := <-ch:
+						select {
+						case updates <- e:
+						case <-ctx.Done():
+							return
 						}
 					}
 				}

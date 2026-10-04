@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"strings"
 	"sync"
 	"time"
 
@@ -300,17 +299,12 @@ func (s *autoUpdateScheduler) tick(ctx context.Context, now time.Time) {
 	}
 }
 
-// AutoUpdateLabel opts a container into the auto-update schedule. It is opt in
-// on purpose: a database on a floating tag should never move on its own.
-const AutoUpdateLabel = "dev.dozzle.auto-update"
+// AutoUpdateLabel opts a container into the auto-update schedule. See
+// container.AutoUpdateLabel.
+const AutoUpdateLabel = container.AutoUpdateLabel
 
 func autoUpdateEnabled(labels map[string]string) bool {
-	switch strings.ToLower(strings.TrimSpace(labels[AutoUpdateLabel])) {
-	case "true", "on", "yes", "1":
-		return true
-	default:
-		return false
-	}
+	return container.AutoUpdateEnabled(labels)
 }
 
 // updateLabelledContainers updates every labelled container whose registry

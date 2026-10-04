@@ -374,6 +374,10 @@ updates:
   busy: Druga posodobitev že poteka.
   summary: "Posodobljeno: {updated}"
   summary-failed: "Posodobljeno: {updated}, neuspešno: {failed}"
+  confirm-title: "Posodobim {name}?"
+  confirm-body: "Prenese {image} in z njo znova ustvari vsebnik."
+  watch-in-cloud: "Naj Dozzle Cloud spremlja to posodobitev"
+  watch-in-cloud-hint: "Pošlje se samo, katera slika se je spremenila in kdaj."
   status:
     queued: V vrsti
     pulling: Prenašanje
@@ -665,7 +669,7 @@ cloud:
     push-title: "Izvedite v trenutku, ko se kaj pokvari"
     push-body: "Dnevni pregled je povzetek enkrat na dan. Za vse, kar bi želeli vedeti ob treh zjutraj, vklopite potisna obvestila."
     recommended: "Priporočeno"
-    lifecycle-desc: "Sesutja, neuspeli healthcheck, uboji OOM in ponovni zagoni."
+    lifecycle-desc: "Sesutja, neuspeli healthcheck, uboji OOM, ponovni zagoni in posodobitve."
     metrics-desc: "CPU, pomnilnik in disk, ki presežejo prag in tam ostanejo."
     logs-desc: "Zaznajte vrstice error in fatal takoj, ko pritečejo."
     logs-caution: "Najglasnejša kategorija in edina brez mirovanja, zato vsebnik v zanki sesutij obvesti ob vsaki vrstici. Začnite z življenjskim ciklom in te dodajte, ko boste vedeli, kateri vsebniki so glasni."
