@@ -18,13 +18,21 @@ const (
 	sizeRefreshInterval = 5 * time.Minute
 	sizeQueueSize       = 64
 	sizeTimeout         = 30 * time.Second
+	// sizeBatchTimeout is longer: the batch walks every layer on the host, and on a
+	// big one that alone takes minutes.
+	sizeBatchTimeout = 2 * time.Minute
+	// sizeBatchAttempts bounds the retries, since each one walks the whole host again.
+	sizeBatchAttempts = 3
 )
 
 // sizeTracker is shared between observe (the event loop) and the worker.
-// lastCheckNanos is the last attempt, as UnixNano; zero means never.
+// lastCheckNanos is the last attempt, as UnixNano; zero means never. baselined is
+// set once lastWriteTotal holds a real reading: DiskWriteTotal counts from the
+// container's start, so before that a whole lifetime of writes would read as new.
 type sizeTracker struct {
 	lastWriteTotal atomic.Uint64
 	lastCheckNanos atomic.Int64
+	baselined      atomic.Bool
 }
 
 // sizeMonitor keeps Container.SizeRw current without walking anything nobody is
@@ -65,17 +73,36 @@ func (m *sizeMonitor) start(ctx context.Context) {
 	go m.worker(ctx)
 }
 
-// measureAll measures every container in one call.
+// measureAll measures every container in one call. It is the only measurement a
+// stopped container gets, so a failure is retried a few times.
 func (m *sizeMonitor) measureAll(ctx context.Context) {
 	if m == nil {
 		return
 	}
-	ctx, cancel := context.WithTimeout(ctx, sizeTimeout)
+	backoff := m.store.timing.retryMin
+	for attempt := 1; ; attempt++ {
+		err := m.tryMeasureAll(ctx)
+		if err == nil {
+			return
+		}
+		if attempt == sizeBatchAttempts {
+			log.Warn().Err(err).Msg("could not measure container sizes, stopped containers will show none")
+			return
+		}
+		log.Debug().Err(err).Dur("retry_in", backoff).Msg("could not measure container sizes, retrying")
+		if !SleepOrDone(ctx, backoff) {
+			return
+		}
+		backoff = NextBackoff(backoff, m.store.timing.retryMax)
+	}
+}
+
+func (m *sizeMonitor) tryMeasureAll(ctx context.Context) error {
+	ctx, cancel := context.WithTimeout(ctx, sizeBatchTimeout)
 	defer cancel()
 	sizes, err := m.reader.ContainerSizes(ctx)
 	if err != nil {
-		log.Debug().Err(err).Msg("could not measure container sizes")
-		return
+		return err
 	}
 	now := time.Now().UnixNano()
 	for id, size := range sizes {
@@ -83,6 +110,7 @@ func (m *sizeMonitor) measureAll(ctx context.Context) {
 		t, _ := m.trackers.LoadOrCompute(id, func() (*sizeTracker, bool) { return &sizeTracker{}, false })
 		t.lastCheckNanos.Store(now)
 	}
+	return nil
 }
 
 // observe is called for every stat. It queues a measurement when the container has
@@ -91,12 +119,14 @@ func (m *sizeMonitor) observe(c *Container, stat ContainerStat) {
 	if m == nil {
 		return
 	}
-	t, loaded := m.trackers.LoadOrCompute(c.ID, func() (*sizeTracker, bool) {
+	t, _ := m.trackers.LoadOrCompute(c.ID, func() (*sizeTracker, bool) {
 		return &sizeTracker{}, false
 	})
-	if !loaded {
-		// the first stat is the baseline, not a write
+	// The first stat is the baseline, not a write, even when the batch created the
+	// tracker earlier. Only the event loop calls observe, so this cannot race itself.
+	if !t.baselined.Load() {
 		t.lastWriteTotal.Store(stat.DiskWriteTotal)
+		t.baselined.Store(true)
 	}
 
 	last := t.lastWriteTotal.Load()
@@ -170,6 +200,7 @@ func (m *sizeMonitor) measure(ctx context.Context, id string) {
 	if c.Stats != nil {
 		if data := c.Stats.Data(); len(data) > 0 {
 			t.lastWriteTotal.Store(data[len(data)-1].DiskWriteTotal)
+			t.baselined.Store(true)
 		}
 	}
 	t.lastCheckNanos.Store(time.Now().UnixNano())

@@ -18,11 +18,18 @@ type sizedClient struct {
 	all      map[string]int64
 	one      map[string]int64
 	measured []string
+	// batches to fail before one succeeds
+	allFails  int
+	allCalled int
 }
 
 func (c *sizedClient) ContainerSizes(context.Context) (map[string]int64, error) {
 	c.mu.Lock()
 	defer c.mu.Unlock()
+	c.allCalled++
+	if c.allCalled <= c.allFails {
+		return nil, errors.New("timed out")
+	}
 	return c.all, nil
 }
 
@@ -155,6 +162,46 @@ func TestSizeMonitor_measureAll(t *testing.T) {
 	assert.Equal(t, int64(0), *two.SizeRw, "an empty layer is a size, not unknown")
 	_, ok := store.containers.Load("gone")
 	assert.False(t, ok)
+}
+
+// DiskWriteTotal counts from the container's start. The batch creates the tracker
+// before any stat arrives, and the first stat must still be read as the baseline,
+// or a database's lifetime of writes would re-walk it right after the batch did.
+func TestSizeMonitor_firstStatAfterBatchIsBaseline(t *testing.T) {
+	client := &sizedClient{mockedClient: new(mockedClient), all: map[string]int64{"1": 100}}
+	store := bareStore(t, client)
+	c := loadedContainer("1", "running")
+	store.containers.Store("1", &c)
+	m := newSizeMonitor(store, client)
+
+	m.measureAll(t.Context())
+	measured, _ := store.containers.Load("1")
+
+	m.observe(measured, ContainerStat{ID: "1", DiskWriteTotal: 50 * sizeWriteThreshold})
+	assert.False(t, queued(m), "lifetime writes before the batch are not new writes")
+
+	tr, _ := m.trackers.Load("1")
+	tr.lastCheckNanos.Store(time.Now().Add(-sizeRefreshInterval).UnixNano())
+	m.observe(measured, ContainerStat{ID: "1", DiskWriteTotal: 50 * sizeWriteThreshold})
+	assert.False(t, queued(m), "nor do they count as writing something by the interval")
+}
+
+func TestSizeMonitor_measureAllRetries(t *testing.T) {
+	client := &sizedClient{mockedClient: new(mockedClient), all: map[string]int64{"1": 100}, allFails: sizeBatchAttempts - 1}
+	store := bareStore(t, client)
+	c := loadedContainer("1", "exited")
+	store.containers.Store("1", &c)
+
+	newSizeMonitor(store, client).measureAll(t.Context())
+
+	stored, _ := store.containers.Load("1")
+	if assert.NotNil(t, stored.SizeRw, "a stopped container has no other chance to be measured") {
+		assert.Equal(t, int64(100), *stored.SizeRw)
+	}
+
+	client.allFails, client.allCalled = sizeBatchAttempts, 0
+	newSizeMonitor(store, client).measureAll(t.Context())
+	assert.Equal(t, sizeBatchAttempts, client.allCalled, "each retry walks the whole host, so they are bounded")
 }
 
 func TestCarryOverStatsKeepsSize(t *testing.T) {
