@@ -9,7 +9,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/amir20/dozzle/internal/container/swap"
+	"github.com/amir20/dozzle/internal/container/docker/swap"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"

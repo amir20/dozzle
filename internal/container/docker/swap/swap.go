@@ -44,8 +44,9 @@ var (
 	PollInterval = time.Second
 )
 
-// API is the slice of the moby client a swap uses.
+// API is the slice of the moby client a swap and its image cleanup use.
 type API interface {
+	ImageAPI
 	ContainerInspect(ctx context.Context, containerID string, options client.ContainerInspectOptions) (client.ContainerInspectResult, error)
 	ContainerCreate(ctx context.Context, options client.ContainerCreateOptions) (client.ContainerCreateResult, error)
 	ContainerStart(ctx context.Context, containerID string, options client.ContainerStartOptions) (client.ContainerStartResult, error)
@@ -152,21 +153,24 @@ func newSwap(cli API, old dcontainer.InspectResponse, opts Options) *swap {
 	}
 }
 
-func (s *swap) spec() client.ContainerCreateOptions {
-	spec := ReplacementSpec(s.old, s.opts.OldImage, s.name)
+// spec is the container to create in place of old: on image when set, pinned
+// by id with the reference it followed kept in ImageRefLabel, and with labels
+// applied (an empty value removes one). oldImage is as Options.OldImage.
+func (s *swap) spec(oldImage *image.InspectResponse, image string, labels map[string]string) client.ContainerCreateOptions {
+	spec := ReplacementSpec(s.old, oldImage, s.name)
 	if s.opts.NetworkMode != "" {
 		spec.HostConfig.NetworkMode = dcontainer.NetworkMode(s.opts.NetworkMode)
 	}
-	if s.opts.Image != "" {
+	if image != "" {
 		if ref := spec.Config.Image; ref != "" && !IsImageID(ref) {
 			if spec.Config.Labels == nil {
 				spec.Config.Labels = map[string]string{}
 			}
 			spec.Config.Labels[ImageRefLabel] = ref
 		}
-		spec.Config.Image = s.opts.Image
+		spec.Config.Image = image
 	}
-	for k, v := range s.opts.Labels {
+	for k, v := range labels {
 		if v == "" {
 			delete(spec.Config.Labels, k)
 			continue
@@ -187,17 +191,20 @@ func (s *swap) forward(ctx context.Context) error {
 	s.renamed = true
 
 	s.logger.Info().Msg(s.prefix + ": creating replacement")
-	created, err := s.cli.ContainerCreate(ctx, s.spec())
+	created, err := s.cli.ContainerCreate(ctx, s.spec(s.opts.OldImage, s.opts.Image, s.opts.Labels))
 	if err != nil {
 		return fmt.Errorf("create replacement: %w", err)
 	}
 	s.newID = created.ID
 
 	s.logger.Info().Msg(s.prefix + ": stopping old container")
+	// Marked before the call: a stop that errors may still have stopped it,
+	// and starting a container that is still running is a no-op, so the
+	// rollback always starts it.
+	s.stopped = true
 	if _, err := s.cli.ContainerStop(ctx, s.old.ID, client.ContainerStopOptions{}); err != nil && !isNotFound(err) {
 		return fmt.Errorf("stop old container: %w", err)
 	}
-	s.stopped = true
 
 	if s.old.HostConfig.AutoRemove {
 		if err := s.waitGone(ctx, s.old.ID); err != nil {
@@ -243,7 +250,7 @@ func (s *swap) rollback(ctx context.Context) error {
 	// replacement is that something, so it stays until the old one is gone.
 	if s.newID != "" && s.stopped && !s.oldGone && s.old.HostConfig.AutoRemove {
 		if err := s.waitGone(ctx, s.old.ID); err != nil {
-			return fmt.Errorf("old container still being removed, keeping replacement %s so its volumes survive: %w", shortID(s.newID), err)
+			return s.startOldUnderTmpName(ctx, fmt.Errorf("old container still being removed, keeping replacement %s so its volumes survive: %w", shortID(s.newID), err))
 		}
 		s.oldGone = true
 	}
@@ -256,7 +263,7 @@ func (s *swap) rollback(ctx context.Context) error {
 			// giving up. Until it does the name is taken and nothing below can
 			// succeed.
 			if waitErr := s.waitGone(ctx, s.newID); waitErr != nil {
-				return fmt.Errorf("remove replacement: %w", err)
+				return s.startOldUnderTmpName(ctx, fmt.Errorf("remove replacement: %w", err))
 			}
 		}
 	}
@@ -272,17 +279,7 @@ func (s *swap) rollback(ctx context.Context) error {
 	if s.oldGone {
 		// A --rm container removed itself on stop. Rebuild it on the image it
 		// was running; its volumes are still there, held by name.
-		spec := ReplacementSpec(s.old, nil, s.name)
-		if s.opts.NetworkMode != "" {
-			spec.HostConfig.NetworkMode = dcontainer.NetworkMode(s.opts.NetworkMode)
-		}
-		if ref := spec.Config.Image; !IsImageID(ref) {
-			if spec.Config.Labels == nil {
-				spec.Config.Labels = map[string]string{}
-			}
-			spec.Config.Labels[ImageRefLabel] = ref
-		}
-		spec.Config.Image = s.old.Image
+		spec := s.spec(nil, s.old.Image, nil)
 		s.logger.Info().Str("image", shortID(s.old.Image)).Msg("rollback: recreating old container")
 		created, err := s.cli.ContainerCreate(ctx, spec)
 		if err != nil {
@@ -310,6 +307,20 @@ func (s *swap) rollback(ctx context.Context) error {
 		}
 	}
 	return errors.Join(errs...)
+}
+
+// startOldUnderTmpName is for a rollback that has to give up while the
+// replacement still holds the name: the old container, if it is still there,
+// is started under its temporary name, so the service at least runs again.
+func (s *swap) startOldUnderTmpName(ctx context.Context, err error) error {
+	if !s.stopped || s.oldGone {
+		return err
+	}
+	s.logger.Info().Str("name", s.tmpName).Msg("rollback: starting old container under its temporary name")
+	if _, startErr := s.cli.ContainerStart(ctx, s.old.ID, client.ContainerStartOptions{}); startErr != nil {
+		return fmt.Errorf("%w; start old container: %v", err, startErr)
+	}
+	return err
 }
 
 func (s *swap) waitGone(ctx context.Context, id string) error {

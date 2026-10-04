@@ -7,7 +7,7 @@ import (
 	"time"
 
 	"github.com/amir20/dozzle/internal/container"
-	"github.com/amir20/dozzle/internal/container/swap"
+	"github.com/amir20/dozzle/internal/container/docker/swap"
 	dcontainer "github.com/moby/moby/api/types/container"
 	"github.com/moby/moby/api/types/swarm"
 	"github.com/moby/moby/client"
@@ -20,8 +20,7 @@ import (
 // policies, so Dozzle just asks it to.
 
 const (
-	swarmServiceIDLabel = "com.docker.swarm.service.id"
-	swarmTaskNameLabel  = "com.docker.swarm.task.name"
+	swarmTaskNameLabel = "com.docker.swarm.task.name"
 
 	// ReasonSwarmWorker means Dozzle is a swarm task on a worker node. Only a
 	// manager can update a service, and a worker's engine refuses the call.
@@ -79,7 +78,7 @@ func SwarmPrimary(labels map[string]string) bool {
 func updateService(ctx context.Context, cli dockerAPI, serviceID, ref string, progress func(container.UpdateProgress)) (bool, error) {
 	fail := func(format string, args ...any) (bool, error) {
 		err := fmt.Errorf(format, args...)
-		progress(container.UpdateProgress{Status: "error", Error: err.Error()})
+		progress(container.UpdateProgress{Status: container.UpdateError, Error: err.Error()})
 		return false, err
 	}
 
@@ -99,11 +98,11 @@ func updateService(ctx context.Context, cli dockerAPI, serviceID, ref string, pr
 	}
 	if taskImageRef(svc.Spec.TaskTemplate.ContainerSpec.Image) == ref && time.Since(svc.UpdatedAt) < recentServiceUpdate {
 		log.Info().Str("service", serviceID).Time("updatedAt", svc.UpdatedAt).Msg("self-update: service was updated moments ago, not starting another rollout")
-		progress(container.UpdateProgress{Status: "done"})
+		progress(container.UpdateProgress{Status: container.UpdateDone})
 		return true, nil
 	}
 
-	progress(container.UpdateProgress{Status: "recreating"})
+	progress(container.UpdateProgress{Status: container.UpdateRecreating})
 	svc.Spec.TaskTemplate.ContainerSpec.Image = ref
 	svc.Spec.TaskTemplate.ForceUpdate++
 	// The manager has to answer before this returns, so a client that
@@ -112,13 +111,13 @@ func updateService(ctx context.Context, cli dockerAPI, serviceID, ref string, pr
 		return fail("service update failed: %w", err)
 	}
 	log.Info().Str("service", serviceID).Str("image", ref).Msg("self-update: asked the swarm manager to roll the service onto the new image")
-	progress(container.UpdateProgress{Status: "done"})
+	progress(container.UpdateProgress{Status: container.UpdateDone})
 	return true, nil
 }
 
 // SwarmServiceID is the id of the service a swarm task belongs to, or "".
 func SwarmServiceID(labels map[string]string) string {
-	return labels[swarmServiceIDLabel]
+	return labels[container.SwarmServiceIDLabel]
 }
 
 // SwarmManager reports whether the local engine can update the service, i.e.

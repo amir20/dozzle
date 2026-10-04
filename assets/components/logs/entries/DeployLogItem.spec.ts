@@ -18,8 +18,9 @@ const update: ContainerUpdate = {
   name: "app",
   oldId: "old",
   newId: "new",
-  fromRef: "app:1.4.1",
-  toRef: "app:1.4.2",
+  imageRef: "app:latest",
+  fromDigest: "sha256:aaaaaaaaaaaa1111",
+  toDigest: "sha256:bbbbbbbbbbbb2222",
   at: "2026-10-03T03:00:00Z",
   source: "schedule",
 };
@@ -41,8 +42,8 @@ const cloudLink = (wrapper: ReturnType<typeof mountMarker>) => wrapper.find("a")
 describe("<DeployLogItem />", () => {
   test("shows the images and who made the update", () => {
     const wrapper = mountMarker();
-    expect(wrapper.text()).toContain("1.4.1");
-    expect(wrapper.text()).toContain("1.4.2");
+    expect(wrapper.text()).toContain("latest (aaaaaaaaaaaa)");
+    expect(wrapper.text()).toContain("latest (bbbbbbbbbbbb)");
     expect(wrapper.text()).toContain("update-marker.by.schedule");
     expect(wrapper.find("button").exists()).toBe(false);
   });

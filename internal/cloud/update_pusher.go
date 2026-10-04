@@ -2,8 +2,6 @@ package cloud
 
 import (
 	"context"
-	"strconv"
-	"sync"
 	"time"
 
 	"github.com/amir20/dozzle/internal/container"
@@ -24,59 +22,23 @@ import (
 //
 // Updates made from the Dozzle UI or by Cloud's update_container tool are not
 // sent. Only the update record goes, never log content.
-const consentSchedule = "schedule"
 
-const (
-	// updateChanBuf absorbs a scheduled night finishing several containers
-	// while the pusher is busy sending one.
-	updateChanBuf = 64
-	// updateLedgerMax bounds the ledger. Past it the ledger starts over, which
-	// at worst sends an update twice: Cloud keys updates on (host, name,
-	// new_container_id), so a repeat is recorded once.
-	updateLedgerMax = 1024
-)
-
-// updateLedger remembers what was pushed across reconnects, so the replay of
-// recent updates on each connect sends only what Cloud has not had.
-type updateLedger struct {
-	mu   sync.Mutex
-	sent map[string]struct{}
-}
-
-func newUpdateLedger() *updateLedger {
-	return &updateLedger{sent: make(map[string]struct{})}
-}
-
-func updateKey(r container.UpdateRecord) string {
-	return r.Host + "|" + r.Name + "|" + r.NewID + "|" + strconv.FormatBool(r.RolledBack) + "|" + strconv.FormatInt(r.At.UnixNano(), 10)
-}
-
-func (l *updateLedger) hasSent(r container.UpdateRecord) bool {
-	l.mu.Lock()
-	defer l.mu.Unlock()
-	_, ok := l.sent[updateKey(r)]
-	return ok
-}
-
-func (l *updateLedger) record(r container.UpdateRecord) {
-	l.mu.Lock()
-	defer l.mu.Unlock()
-	if len(l.sent) >= updateLedgerMax {
-		l.sent = make(map[string]struct{})
-	}
-	l.sent[updateKey(r)] = struct{}{}
-}
+// updateChanBuf absorbs a scheduled night finishing several containers while
+// the pusher is busy sending one.
+const updateChanBuf = 64
 
 // shared reports whether r may be sent to Dozzle Cloud.
 func shared(r container.UpdateRecord) bool {
 	return r.Source == container.UpdateSourceSchedule || r.Source == container.UpdateSourceRollback
 }
 
-// pushUpdates sends every shared update recorded before this connection that
-// Cloud has not had yet, then each new one as it is recorded, until ctx ends.
-func pushUpdates(ctx context.Context, records *container.UpdateRecords, ledger *updateLedger, send func(*pb.ToolResponse) error) {
+// pushUpdates sends every shared update kept from before this connection, then
+// each new one as it is recorded, until ctx ends. Cloud keys updates on (host,
+// name, new_container_id), and rollbacks on (host, name, old_container_id, at),
+// so one it already has is recorded once however often it is sent.
+func pushUpdates(ctx context.Context, records *container.UpdateRecords, send func(*pb.ToolResponse) error) {
 	// Subscribed before the replay, so an update recorded while it runs is
-	// not missed. One that arrives both ways is sent once, by the ledger.
+	// not missed. One that arrives both ways is sent twice, which Cloud dedupes.
 	updates := make(chan container.UpdateRecord, updateChanBuf)
 	records.Subscribe(ctx, updates)
 
@@ -86,7 +48,7 @@ func pushUpdates(ctx context.Context, records *container.UpdateRecords, ledger *
 		if ctx.Err() != nil {
 			return
 		}
-		pushUpdate(r, ledger, send)
+		pushUpdate(r, send)
 	}
 
 	for {
@@ -94,13 +56,13 @@ func pushUpdates(ctx context.Context, records *container.UpdateRecords, ledger *
 		case <-ctx.Done():
 			return
 		case r := <-updates:
-			pushUpdate(r, ledger, send)
+			pushUpdate(r, send)
 		}
 	}
 }
 
-func pushUpdate(r container.UpdateRecord, ledger *updateLedger, send func(*pb.ToolResponse) error) {
-	if !shared(r) || ledger.hasSent(r) {
+func pushUpdate(r container.UpdateRecord, send func(*pb.ToolResponse) error) {
+	if !shared(r) {
 		return
 	}
 	resp := &pb.ToolResponse{Type: &pb.ToolResponse_ContainerUpdate{ContainerUpdate: containerUpdateProto(r)}}
@@ -109,7 +71,6 @@ func pushUpdate(r container.UpdateRecord, ledger *updateLedger, send func(*pb.To
 		log.Debug().Err(err).Str("container", r.Name).Msg("update pusher: send failed")
 		return
 	}
-	ledger.record(r)
 	log.Debug().Str("container", r.Name).Str("source", r.Source).Bool("rolledBack", r.RolledBack).Msg("update pusher: sent update")
 }
 
@@ -119,8 +80,7 @@ func containerUpdateProto(r container.UpdateRecord) *pb.ContainerUpdate {
 		Name:           r.Name,
 		OldContainerId: r.OldID,
 		NewContainerId: r.NewID,
-		FromRef:        r.FromRef,
-		ToRef:          r.ToRef,
+		ImageRef:       r.ImageRef,
 		FromDigest:     digestOnly(r.FromDigest),
 		ToDigest:       digestOnly(r.ToDigest),
 		FromImageId:    r.FromImageID,
@@ -128,15 +88,12 @@ func containerUpdateProto(r container.UpdateRecord) *pb.ContainerUpdate {
 		OldStartedAt:   unixNano(r.OldStartedAt),
 		At:             unixNano(r.At),
 		Source:         r.Source,
-		// The schedule is the only consent this build sends updates under. A
-		// rollback carries it too: it ends an update Cloud already judged.
-		Consent:    consentSchedule,
-		RolledBack: r.RolledBack,
+		RolledBack:     r.RolledBack,
 	}
 }
 
 // digestOnly is the sha256:... part of a repo@sha256:... reference, which is
-// what cloud.proto carries. The repository is in the ref fields.
+// what cloud.proto carries. The repository is in image_ref.
 func digestOnly(ref string) string {
 	if ref == "" {
 		return ""

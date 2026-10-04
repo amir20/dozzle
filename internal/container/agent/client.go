@@ -507,11 +507,14 @@ func (c *Client) ContainerAction(ctx context.Context, containerId string, action
 func (c *Client) UpdateContainer(ctx context.Context, containerID string, progressCh chan<- container.UpdateProgress) (bool, error) {
 	defer close(progressCh)
 
-	stream, err := c.client.UpdateContainer(ctx, &pb.UpdateContainerRequest{ContainerId: containerID})
+	// The swap on the agent finishes even if this request goes away, so the
+	// stream outlives it too: its last progress carries the Result the update
+	// is recorded from.
+	stream, err := c.client.UpdateContainer(context.WithoutCancel(ctx), &pb.UpdateContainerRequest{ContainerId: containerID})
 	if err != nil {
 		return false, err
 	}
-	return receiveUpdateProgress(ctx, stream, progressCh)
+	return receiveUpdateProgress(stream, progressCh)
 }
 
 // RollbackContainer swaps a container on the agent back to the image it ran
@@ -519,20 +522,33 @@ func (c *Client) UpdateContainer(ctx context.Context, containerID string, progre
 func (c *Client) RollbackContainer(ctx context.Context, containerID string, opts container.RollbackOptions, progressCh chan<- container.UpdateProgress) error {
 	defer close(progressCh)
 
-	stream, err := c.client.RollbackContainer(ctx, &pb.RollbackContainerRequest{
+	// Outlives the request for the same reason as UpdateContainer.
+	stream, err := c.client.RollbackContainer(context.WithoutCancel(ctx), &pb.RollbackContainerRequest{
 		ContainerId:        containerID,
 		ExpectedFromDigest: opts.ExpectedFromDigest,
 	})
-	if err != nil {
-		return err
+	if err == nil {
+		_, err = receiveUpdateProgress(stream, progressCh)
 	}
-	_, err = receiveUpdateProgress(ctx, stream, progressCh)
+	// An agent older than rollbacks has no such method.
+	if status.Code(err) == codes.Unimplemented {
+		return fmt.Errorf("agent on host %s is too old to roll back; upgrade it", c.hostLabel())
+	}
 	return err
+}
+
+// hostLabel names the agent's host for a message: its name override, or its
+// endpoint.
+func (c *Client) hostLabel() string {
+	if c.nameOverride != "" {
+		return c.nameOverride
+	}
+	return c.endpoint
 }
 
 // receiveUpdateProgress relays an update's or a rollback's progress until the
 // stream ends, and reports whether it ended on done.
-func receiveUpdateProgress(ctx context.Context, stream interface {
+func receiveUpdateProgress(stream interface {
 	Recv() (*pb.UpdateContainerProgress, error)
 }, progressCh chan<- container.UpdateProgress) (bool, error) {
 	updated := false
@@ -549,17 +565,13 @@ func receiveUpdateProgress(ctx context.Context, stream interface {
 			updated = true
 		}
 
-		select {
-		case progressCh <- container.UpdateProgress{
+		progressCh <- container.UpdateProgress{
 			Status:  progress.Status,
 			Layer:   progress.Layer,
 			Current: progress.Current,
 			Total:   progress.Total,
 			Error:   progress.Error,
 			Result:  updateResultFromProto(progress.GetResult()),
-		}:
-		case <-ctx.Done():
-			return false, ctx.Err()
 		}
 	}
 }

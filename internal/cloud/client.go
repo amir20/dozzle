@@ -60,10 +60,8 @@ type Client struct {
 	connMu        sync.Mutex
 	cancelCurrent context.CancelFunc
 
-	// updates remembers which container updates were pushed, across
-	// reconnects, and updateRecords is where they are read from: nil is
+	// updateRecords is where pushed container updates are read from: nil is
 	// container.Updates. See update_pusher.go.
-	updates       *updateLedger
 	updateRecords *container.UpdateRecords
 
 	// unaryConn / unaryClient are lazily initialized and shared across every
@@ -113,9 +111,11 @@ func NewClient(apiKeyFunc func() string, instanceID string, version string, deps
 		toolSem:    semaphore.NewWeighted(maxConcurrent),
 		streamSem:  semaphore.NewWeighted(maxConcurrentStreams),
 		startCh:    make(chan struct{}, 1),
-		updates:    newUpdateLedger(),
 	}
 }
+
+// deploymentAgent is the mode a remote agent passes to SetDeployment.
+const deploymentAgent = "agent"
 
 // SetDeployment records what kind of Dozzle process this is ("server",
 // "swarm", "k8s" or "agent") and, on a swarm node, which swarm it belongs to.
@@ -338,19 +338,18 @@ func (c *Client) connect(ctx context.Context, apiKey string) (wasConnected bool,
 	}
 
 	// Container updates are not log content, so the log-streaming toggle does
-	// not apply: which updates may be sent is decided in update_pusher.go.
-	if c.updates == nil {
-		// A Client built by hand rather than by NewClient. connect runs on
-		// Run's goroutine only, so this cannot race.
-		c.updates = newUpdateLedger()
+	// not apply: which updates may be sent is decided in update_pusher.go. An
+	// agent records none (the server that asked for an update records it), so
+	// it has nothing to push.
+	if c.mode != deploymentAgent {
+		records := c.updateRecords
+		if records == nil {
+			records = container.Updates
+		}
+		wg.Go(func() {
+			pushUpdates(streamLifetime, records, sendResp)
+		})
 	}
-	records := c.updateRecords
-	if records == nil {
-		records = container.Updates
-	}
-	wg.Go(func() {
-		pushUpdates(streamLifetime, records, c.updates, sendResp)
-	})
 
 	defer func() {
 		// Cancel all active log streams before shutting down

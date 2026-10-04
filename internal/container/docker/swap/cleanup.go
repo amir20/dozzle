@@ -8,14 +8,15 @@ import (
 	"github.com/amir20/dozzle/internal/imagecheck"
 	dcontainer "github.com/moby/moby/api/types/container"
 	"github.com/moby/moby/api/types/image"
+	"github.com/moby/moby/client"
 	"github.com/rs/zerolog/log"
 )
 
-// ImageAPI is what CleanupImage needs from the engine. Removal is by id, never
-// forced and never pruning children.
+// ImageAPI is the slice of the moby client CleanupImage uses. Removal is by
+// id, never forced and never pruning children.
 type ImageAPI interface {
-	ImageInspect(ctx context.Context, ref string) (image.InspectResponse, error)
-	ImageRemove(ctx context.Context, imageID string) error
+	ImageInspect(ctx context.Context, imageID string, opts ...client.ImageInspectOption) (client.ImageInspectResult, error)
+	ImageRemove(ctx context.Context, imageID string, options client.ImageRemoveOptions) (client.ImageRemoveResult, error)
 }
 
 // PreviousLabels are the labels an update stamps on the replacement for old,
@@ -82,16 +83,16 @@ func RemoveLeftoverImage(ctx context.Context, cli ImageAPI, old dcontainer.Inspe
 	if imageID == "" {
 		return
 	}
-	img, err := cli.ImageInspect(ctx, imageID)
+	result, err := cli.ImageInspect(ctx, imageID)
 	if err != nil {
 		logger.Debug().Err(err).Str("image", imageID).Msg("update cleanup: image not inspectable, nothing removed")
 		return
 	}
-	if len(img.RepoTags) > 0 {
-		logger.Debug().Str("image", imageID).Strs("tags", img.RepoTags).Msg("update cleanup: image is still tagged, kept")
+	if len(result.RepoTags) > 0 {
+		logger.Debug().Str("image", imageID).Strs("tags", result.RepoTags).Msg("update cleanup: image is still tagged, kept")
 		return
 	}
-	if err := cli.ImageRemove(ctx, imageID); err != nil {
+	if _, err := cli.ImageRemove(ctx, imageID, client.ImageRemoveOptions{}); err != nil {
 		logger.Debug().Err(err).Str("image", imageID).Msg("update cleanup: image not removed")
 		return
 	}

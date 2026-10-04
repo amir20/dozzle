@@ -10,7 +10,7 @@ vi.mock("@/stores/config", () => ({
   withBase: (path: string) => path,
 }));
 
-import AutoUpdateForm from "./AutoUpdateForm.vue";
+import SetupAutoUpdateForm from "./SetupAutoUpdateForm.vue";
 import type { SetupStatus } from "@/composable/setup/setup";
 
 const i18n = createI18n({
@@ -74,11 +74,11 @@ beforeEach(() => {
 afterEach(() => vi.unstubAllGlobals());
 
 const mountForm = (s: SetupStatus, autosave = false) =>
-  mount(AutoUpdateForm, { props: { status: s, autosave }, global: { plugins: [i18n] } });
+  mount(SetupAutoUpdateForm, { props: { status: s, autosave }, global: { plugins: [i18n] } });
 
 const patches = () => calls.filter((c) => c.init?.method === "PATCH").map((c) => JSON.parse(c.init!.body as string));
 
-describe("AutoUpdateForm", () => {
+describe("SetupAutoUpdateForm", () => {
   test("shows the saved schedule", () => {
     const wrapper = mountForm(status());
     expect((wrapper.find("input[type=checkbox]").element as HTMLInputElement).checked).toBe(true);

@@ -4,15 +4,14 @@
   <section class="flex flex-wrap items-center justify-between gap-3">
     <div class="flex flex-wrap items-center gap-2.5">
       <span class="text-[0.9375rem] font-semibold">Dozzle</span>
-      <span class="badge badge-soft badge-sm">{{ config.version }}</span>
+      <span class="status-pill status-pill-neutral">{{ config.version }}</span>
       <a
         v-if="hasRelease"
         :href="latestRelease?.htmlUrl"
         target="_blank"
         rel="noopener noreferrer"
-        class="badge badge-soft badge-warning badge-sm hover:bg-warning/15"
+        class="status-pill status-pill-warning hover:bg-warning/15 transition-colors"
       >
-        <span class="status status-warning"></span>
         {{ $t("settings.new-version", { version: latestRelease?.name }) }}
       </a>
     </div>
@@ -28,8 +27,7 @@
 
   <!-- The wizard is a guided pass over the server pages, so it can always be run
        again. The setup API only exists in server mode. -->
-  <section v-if="server" class="flex flex-col gap-3">
-    <h2 class="text-base-content/60 text-xs font-semibold tracking-wide uppercase">{{ $t("setup.title") }}</h2>
+  <SettingsSection v-if="server" :title="$t('setup.title')">
     <div class="border-base-content/15 bg-base-200/40 flex flex-wrap items-center gap-3 rounded-lg border p-4">
       <span class="bg-base-content/10 text-base-content/70 shrink-0 rounded-full p-2">
         <mdi:rocket-launch-outline class="size-5" />
@@ -41,7 +39,7 @@
         {{ $t("settings.run-setup") }}
       </button>
     </div>
-  </section>
+  </SettingsSection>
 </template>
 
 <script lang="ts" setup>

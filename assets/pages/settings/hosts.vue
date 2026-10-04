@@ -1,12 +1,7 @@
 <template>
   <!-- The host list's Add host panel, agents first. Swarm and Kubernetes find their
        hosts themselves, so there it only lists them. -->
-  <section class="flex flex-col gap-4">
-    <div>
-      <h2 class="text-base-content/60 text-xs font-semibold tracking-wide uppercase">{{ $t("settings.hosts") }}</h2>
-      <p class="text-base-content/60 mt-1 text-sm">{{ $t("setup.hosts.subtitle") }}</p>
-    </div>
-
+  <SettingsSection :title="$t('settings.hosts')" :desc="$t('setup.hosts.subtitle')">
     <AddHostPanel v-if="status?.canAddAgents" :status="status" list-first />
     <SetupStatusMissing v-else-if="server && !status" :loading="loading" />
     <template v-else>
@@ -29,7 +24,7 @@
         </li>
       </ul>
     </template>
-  </section>
+  </SettingsSection>
 </template>
 
 <script lang="ts" setup>

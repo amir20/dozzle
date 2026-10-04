@@ -15,7 +15,6 @@ const (
 	HelperLabel = "dev.dozzle.self-update"
 
 	defaultSocket = "/var/run/docker.sock"
-	swarmLabel    = "com.docker.swarm.service.name"
 )
 
 func shortID(id string) string {

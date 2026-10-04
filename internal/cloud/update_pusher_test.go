@@ -43,18 +43,18 @@ func (s *sentUpdates) names() []string {
 func record(name, source string, at time.Time) container.UpdateRecord {
 	return container.UpdateRecord{
 		Host: "nas", Name: name, OldID: "old-" + name, NewID: "new-" + name,
-		FromRef: "nginx:latest", ToRef: "nginx:latest",
+		ImageRef:   "nginx:latest",
 		FromDigest: "nginx@sha256:aaa", ToDigest: "nginx@sha256:bbb",
 		FromImageID: "sha256:1", ToImageID: "sha256:2",
 		At: at, Source: source,
 	}
 }
 
-func runPusher(t *testing.T, records *container.UpdateRecords, ledger *updateLedger, sent *sentUpdates) (stop func()) {
+func runPusher(t *testing.T, records *container.UpdateRecords, sent *sentUpdates) (stop func()) {
 	ctx, cancel := context.WithCancel(t.Context())
 	done := make(chan struct{})
 	go func() {
-		pushUpdates(ctx, records, ledger, sent.send)
+		pushUpdates(ctx, records, sent.send)
 		close(done)
 	}()
 	return func() {
@@ -75,7 +75,7 @@ func TestPushUpdates_OnlyScheduleAndRollbacks(t *testing.T) {
 	records.Add(undone)
 
 	sent := &sentUpdates{}
-	stop := runPusher(t, records, newUpdateLedger(), sent)
+	stop := runPusher(t, records, sent)
 	require.Eventually(t, func() bool { return len(sent.names()) == 2 }, time.Second, 5*time.Millisecond)
 
 	// One that lands while connected goes straight out.
@@ -89,33 +89,28 @@ func TestPushUpdates_OnlyScheduleAndRollbacks(t *testing.T) {
 	assert.Equal(t, "sha256:bbb", first.GetToDigest())
 	assert.Equal(t, "new-scheduled", first.GetNewContainerId())
 	assert.Equal(t, at.UnixNano(), first.GetAt())
-	assert.Equal(t, consentSchedule, first.GetConsent())
+	assert.Equal(t, "nginx:latest", first.GetImageRef())
 	assert.True(t, sent.got[1].GetRolledBack())
 	assert.Equal(t, container.UpdateSourceRollback, sent.got[2].GetSource())
 }
 
-// A reconnect replays what Cloud has not had, and nothing it has.
-func TestPushUpdates_ReplaysUnsentOnReconnect(t *testing.T) {
+// Each connection replays every kept update: Cloud dedupes what it already has.
+func TestPushUpdates_ReplaysOnReconnect(t *testing.T) {
 	at := time.Date(2026, 10, 1, 3, 0, 0, 0, time.UTC)
 	records := container.NewUpdateRecords()
-	ledger := newUpdateLedger()
 	records.Add(record("first", container.UpdateSourceSchedule, at))
 
 	sent := &sentUpdates{}
-	stop := runPusher(t, records, ledger, sent)
+	stop := runPusher(t, records, sent)
 	require.Eventually(t, func() bool { return len(sent.names()) == 1 }, time.Second, 5*time.Millisecond)
 	stop()
 
 	// Made while the link was down.
 	records.Add(record("offline", container.UpdateSourceSchedule, at.Add(time.Minute)))
-	// And one whose send failed.
-	failing := &sentUpdates{fail: true}
-	stop = runPusher(t, records, ledger, failing)
-	stop()
 
 	again := &sentUpdates{}
-	stop = runPusher(t, records, ledger, again)
-	require.Eventually(t, func() bool { return len(again.names()) == 1 }, time.Second, 5*time.Millisecond)
+	stop = runPusher(t, records, again)
+	require.Eventually(t, func() bool { return len(again.names()) == 2 }, time.Second, 5*time.Millisecond)
 	stop()
-	assert.Equal(t, []string{"offline"}, again.names())
+	assert.Equal(t, []string{"first", "offline"}, again.names())
 }

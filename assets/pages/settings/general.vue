@@ -1,11 +1,10 @@
 <template>
   <!-- APPEARANCE: app-wide only. Anything that changes how a log line looks is in Logs,
        under the preview it changes. -->
-  <section>
-    <h2 class="text-base-content/60 mb-2 text-xs font-semibold tracking-wide uppercase">
-      {{ $t("settings.appearance") }}
-    </h2>
-    <div class="card card-border bg-base-200/40 divide-base-content/10 divide-y overflow-hidden">
+  <SettingsSection :title="$t('settings.appearance')">
+    <div
+      class="border-base-content/15 bg-base-200/40 divide-base-content/10 divide-y overflow-hidden rounded-lg border"
+    >
       <SettingRow :label="$t('settings.color-scheme')" class="px-4">
         <div class="flex gap-3">
           <button
@@ -51,14 +50,13 @@
         />
       </SettingRow>
     </div>
-  </section>
+  </SettingsSection>
 
   <!-- BEHAVIOR -->
-  <section>
-    <h2 class="text-base-content/60 mb-2 text-xs font-semibold tracking-wide uppercase">
-      {{ $t("settings.behavior") }}
-    </h2>
-    <div class="card card-border bg-base-200/40 divide-base-content/10 divide-y overflow-hidden">
+  <SettingsSection :title="$t('settings.behavior')">
+    <div
+      class="border-base-content/15 bg-base-200/40 divide-base-content/10 divide-y overflow-hidden rounded-lg border"
+    >
       <SettingRow
         :label="$t('settings.automatic-redirect')"
         :description="$t('settings.automatic-redirect-desc')"
@@ -88,10 +86,12 @@
         <input type="checkbox" class="toggle toggle-primary toggle-sm" v-model="showImageUpdateAlert" />
       </SettingRow>
     </div>
-  </section>
+  </SettingsSection>
 
   <!-- ADVANCED: the two settings almost nobody changes, folded away. -->
-  <details class="collapse-arrow card-border bg-base-200/40 divide-base-content/10 group/advanced collapse divide-y">
+  <details
+    class="collapse-arrow border-base-content/15 bg-base-200/40 divide-base-content/10 group/advanced collapse divide-y rounded-lg border"
+  >
     <summary class="collapse-title text-base-content/70 flex items-center gap-2 text-sm font-medium">
       <span class="flex-1">{{ $t("settings.advanced") }}</span>
       <span class="text-base-content/40 hidden text-xs font-normal group-open/advanced:hidden @xl:inline">

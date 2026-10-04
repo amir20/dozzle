@@ -9,7 +9,11 @@ import (
 	"golang.org/x/sync/errgroup"
 )
 
-const swarmServiceLabel = "com.docker.swarm.service.id"
+// Labels the swarm manager puts on every task container.
+const (
+	SwarmServiceIDLabel   = "com.docker.swarm.service.id"
+	SwarmServiceNameLabel = "com.docker.swarm.service.name"
+)
 
 // Updatable reports whether c is worth checking for an update. A stopped
 // standalone container still is, so it shows that an update is waiting, but it
@@ -19,7 +23,7 @@ func Updatable(c Container) bool {
 	if c.State == "deleted" {
 		return false
 	}
-	return c.Labels[swarmServiceLabel] == "" || c.State == "running"
+	return c.Labels[SwarmServiceIDLabel] == "" || c.State == "running"
 }
 
 // ContainerFinder resolves a listed container to the service that can check it.

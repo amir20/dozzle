@@ -14,6 +14,7 @@ import (
 
 	"github.com/amir20/dozzle/internal/agentcerts"
 	"github.com/amir20/dozzle/internal/container"
+	"github.com/amir20/dozzle/internal/container/agent/pb"
 	"github.com/amir20/dozzle/internal/imagecheck"
 	"github.com/amir20/dozzle/internal/notification/dispatcher"
 	"github.com/amir20/dozzle/internal/utils"
@@ -25,6 +26,8 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 	"google.golang.org/grpc/test/bufconn"
 )
 
@@ -303,6 +306,33 @@ func TestRollbackContainerReturnsAgentError(t *testing.T) {
 		got = append(got, p)
 	}
 	assert.Equal(t, []container.UpdateProgress{{Status: container.UpdateError, Error: "container no longer runs the expected image"}}, got)
+}
+
+// oldAgent is an agent that predates rollbacks: the RPC fails at the first
+// Recv with Unimplemented.
+type oldAgent struct {
+	pb.AgentServiceClient
+}
+
+type unimplementedStream struct {
+	grpc.ServerStreamingClient[pb.UpdateContainerProgress]
+}
+
+func (unimplementedStream) Recv() (*pb.UpdateContainerProgress, error) {
+	return nil, status.Error(codes.Unimplemented, "unknown method RollbackContainer for service protobuf.AgentService")
+}
+
+func (oldAgent) RollbackContainer(context.Context, *pb.RollbackContainerRequest, ...grpc.CallOption) (grpc.ServerStreamingClient[pb.UpdateContainerProgress], error) {
+	return unimplementedStream{}, nil
+}
+
+func TestRollbackContainerOnOldAgent(t *testing.T) {
+	rpc := &Client{client: oldAgent{}, endpoint: "10.0.0.5:7007", nameOverride: "nas"}
+	progress := make(chan container.UpdateProgress, 1)
+	err := rpc.RollbackContainer(context.Background(), "123456", container.RollbackOptions{}, progress)
+	require.EqualError(t, err, "agent on host nas is too old to roll back; upgrade it")
+	_, open := <-progress
+	assert.False(t, open)
 }
 
 var streamedLogEvents = []*container.LogEvent{

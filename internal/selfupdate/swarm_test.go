@@ -21,9 +21,9 @@ func swarmFake() *fakeDocker {
 	self := f.containers[selfID]
 	self.Config.Image = "amir20/dozzle:latest@sha256:1111111111111111111111111111111111111111111111111111111111111111"
 	self.Config.Labels = map[string]string{
-		swarmLabel:          "dozzle_dozzle",
-		swarmServiceIDLabel: serviceID,
-		swarmTaskNameLabel:  "dozzle_dozzle.1.y04ozihyqwcgbnywww2s2q15y",
+		container.SwarmServiceNameLabel: "dozzle_dozzle",
+		container.SwarmServiceIDLabel:   serviceID,
+		swarmTaskNameLabel:              "dozzle_dozzle.1.y04ozihyqwcgbnywww2s2q15y",
 	}
 	f.containers[selfID] = self
 	f.service = &swarm.Service{
