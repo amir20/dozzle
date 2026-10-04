@@ -269,7 +269,6 @@ settings:
   new-version: "{version} 已推出"
   update-available: "有更新的映像檔可用"
   auto-update-on: "Dozzle 會自行保持最新版本"
-  auto-update-containers: "你的容器會保持最新"
   show-image-update-alert: "映像更新提醒"
   show-image-update-alert-desc: "當執行中的映像有較新的標籤時通知。"
   cloud-desc: 將日誌串流至 Dozzle Cloud，進行 AI 驅動的調查和跨實例搜尋。

@@ -267,7 +267,6 @@ settings:
   new-version: "{version} tilgængelig"
   update-available: "Et nyere image er tilgængeligt"
   auto-update-on: "Dozzle holder sig selv opdateret"
-  auto-update-containers: "Dine containere holdes opdateret"
   show-image-update-alert: "Image-opdateringer"
   show-image-update-alert-desc: "Giv besked, når der findes et nyere tag til et kørende image."
   cloud-desc: Stream logs til Dozzle Cloud for AI-drevne undersøgelser og søgning på tværs af installationer.

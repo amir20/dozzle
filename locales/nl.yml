@@ -268,7 +268,6 @@ settings:
   new-version: "{version} beschikbaar"
   update-available: "Er is een nieuwere image beschikbaar"
   auto-update-on: "Dozzle houdt zichzelf up-to-date"
-  auto-update-containers: "Je containers blijven up-to-date"
   show-image-update-alert: "Image-updatemeldingen"
   show-image-update-alert-desc: "Melden wanneer er een nieuwere tag van een draaiende image bestaat."
   cloud-desc: Stream logs naar Dozzle Cloud voor AI-gestuurde analyses en zoeken over instanties heen.

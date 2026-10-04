@@ -275,7 +275,6 @@ settings:
   new-version: "{version} tersedia"
   update-available: "Image yang lebih baru tersedia"
   auto-update-on: "Dozzle memperbarui dirinya sendiri"
-  auto-update-containers: "Kontainer Anda tetap terbaru"
   show-image-update-alert: "Peringatan pembaruan image"
   show-image-update-alert-desc: "Beri tahu jika ada tag lebih baru untuk image yang sedang berjalan."
   cloud-desc: Streaming log ke Dozzle Cloud untuk investigasi bertenaga AI dan pencarian lintas instans.

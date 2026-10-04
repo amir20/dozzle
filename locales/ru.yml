@@ -267,7 +267,6 @@ settings:
   new-version: "Доступна версия {version}"
   update-available: "Доступен более новый образ"
   auto-update-on: "Dozzle обновляется сам"
-  auto-update-containers: "Ваши контейнеры остаются актуальными"
   show-image-update-alert: "Уведомления об обновлениях образов"
   show-image-update-alert-desc: "Сообщать, когда у запущенного образа есть более новый тег."
   cloud-desc: Передавайте логи в Dozzle Cloud для аналитики с использованием ИИ и поиска по экземплярам.

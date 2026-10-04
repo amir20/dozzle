@@ -396,7 +396,6 @@ settings:
   new-version: "{version} available"
   update-available: A newer image is available
   auto-update-on: Dozzle keeps itself up to date
-  auto-update-containers: "Your containers stay up to date"
   cloud-desc: Stream logs to Dozzle Cloud for AI-powered investigations and search across instances.
   locale: Language
   small-scrollbars: Thin scrollbars

@@ -388,7 +388,6 @@ settings:
   new-version: "{version} disponible"
   update-available: "Hay una imagen más reciente disponible"
   auto-update-on: "Dozzle se mantiene actualizado"
-  auto-update-containers: "Tus contenedores se mantienen al día"
   show-image-update-alert: "Alertas de actualización de imagen"
   show-image-update-alert-desc: "Avisa cuando existe una etiqueta más nueva de una imagen en ejecución."
   cloud-desc: Transmite logs a Dozzle Cloud para investigaciones con IA y búsqueda entre instancias.

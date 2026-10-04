@@ -10,7 +10,8 @@
     </InlineNotice>
 
     <!-- Only when Dozzle can replace itself: otherwise the card has nothing to offer,
-         and the form's notice already says why. -->
+         and the form's notice already says why. A pinned tag's newer release is About's
+         to announce, since there is nothing here to pull it with. -->
     <SetupSelfUpdateStatus v-if="status && running?.supported" :status="status" :auto-update="running" />
 
     <!-- With actions off, the notice above is the one thing to fix, so the form stays quiet. -->

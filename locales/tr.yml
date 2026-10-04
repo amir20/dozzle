@@ -270,7 +270,6 @@ settings:
   new-version: "{version} mevcut"
   update-available: "Daha yeni bir imaj mevcut"
   auto-update-on: "Dozzle kendini güncel tutar"
-  auto-update-containers: "Konteynerleriniz güncel kalıyor"
   show-image-update-alert: "İmaj güncelleme uyarıları"
   show-image-update-alert-desc: "Çalışan bir imajın daha yeni bir etiketi olduğunda bildir."
   cloud-desc: AI destekli incelemeler ve örnekler arasında arama için logları Dozzle Cloud'a aktarın.
