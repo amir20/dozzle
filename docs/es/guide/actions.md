@@ -1,6 +1,6 @@
 ---
 title: Acciones sobre contenedores
-sourceHash: aeaf37848c2c
+sourceHash: 43d27d69a1ca
 ---
 
 # Acciones sobre contenedores
@@ -129,7 +129,7 @@ services:
 
 A la hora programada, Dozzle compara cada contenedor automático con su registro y actualiza solo los que tienen una imagen más reciente, Dozzle el último. Cada actualización se vigila y se revierte si el nuevo contenedor falla. Se omiten los contenedores que no están sanos, los que Dozzle [no puede comprobar](#lo-que-no-se-puede-comprobar) y los que alguien [revirtió](#rolling-back) desde la imagen ofrecida.
 
-Con **Todo**, una base de datos con una etiqueta móvil como `postgres:latest` puede pasar a una versión mayor que no lea sus archivos de datos. La página Actualizaciones lista los contenedores que guardan datos en volúmenes con nombre y los deja en manual con un clic.
+Con **Todo**, una base de datos con una etiqueta móvil como `postgres:latest` puede pasar a una versión mayor que no lea sus archivos de datos. La página Actualizaciones lista los contenedores que guardan datos en volúmenes con nombre y los deja en manual con un clic. Con **Todo**, los contenedores detenidos no se tocan salvo que una etiqueta o una elección los ponga en Automático.
 
 Lo que eliges en la interfaz se guarda en [`dozzle.yml`](/es/guide/setup-wizard), así que necesita `/data` en un volumen. La actualización automática funciona en modo servidor, incluidos los contenedores en [agentes remotos](/es/guide/agent), y necesita las acciones activadas. ¿Vienes de Watchtower? Consulta [Pasar de Watchtower a Dozzle](/es/guide/moving-from-watchtower).
 

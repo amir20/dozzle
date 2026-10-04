@@ -427,20 +427,24 @@ type ToolDeps struct {
 	// update when they started it, which lets the update be pushed (consent
 	// "checkbox"). May be nil.
 	UpdateWatched func(e container.ContainerUpdateEvent) bool
-	// UpdatePolicy is a container's auto-update policy: its label, the choice
-	// saved in dozzle.yml, or the instance's mode. Nil reads the label alone.
-	UpdatePolicy func(c container.Container) updatepolicy.Policy
+	// UpdatePolicies reads the auto-update settings once and returns each
+	// container's policy from them: its label, the choice saved in dozzle.yml,
+	// or the instance's mode. Called once per batch of containers. Nil reads
+	// the label alone.
+	UpdatePolicies func() func(c container.Container) updatepolicy.Policy
 }
 
-// updatePolicy is c's policy, by deps.UpdatePolicy when set.
-func (d ToolDeps) updatePolicy(c container.Container) updatepolicy.Policy {
-	if d.UpdatePolicy != nil {
-		return d.UpdatePolicy(c)
+// updatePolicies returns a container's policy, by deps.UpdatePolicies when set.
+func (d ToolDeps) updatePolicies() func(c container.Container) updatepolicy.Policy {
+	if d.UpdatePolicies != nil {
+		return d.UpdatePolicies()
 	}
-	if p, ok := updatepolicy.FromLabels(c.Labels); ok {
-		return p
+	return func(c container.Container) updatepolicy.Policy {
+		if p, ok := updatepolicy.FromLabels(c.Labels); ok {
+			return p
+		}
+		return updatepolicy.Manual
 	}
-	return updatepolicy.Manual
 }
 
 // scoped returns the host service already confined to the principal's labels.

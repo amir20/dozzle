@@ -235,9 +235,10 @@ func executeCheckImageUpdates(ctx context.Context, argsJSON string, deps ToolDep
 		}
 	}
 
+	policy := deps.updatePolicies()
 	updates, errs := deps.scoped().CheckImageUpdates(ctx, args.Refresh, func(c container.Container) bool {
 		// Updates set off are never checked, from here or anywhere else.
-		if deps.updatePolicy(c) == updatepolicy.Off {
+		if policy(c) == updatepolicy.Off {
 			return false
 		}
 		return (args.Name == "" || containsIgnoreCase(c.Name, args.Name)) &&

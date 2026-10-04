@@ -12,6 +12,7 @@
 
 import type { Container } from "@/models/Container";
 import type { ImageUpdateResult } from "@/composable/containers/imageUpdate";
+import { useSetup } from "@/composable/setup/setup";
 
 export type UpdatePolicy = "auto" | "manual" | "off";
 export type UpdatePolicySource = "label" | "choice" | "default";
@@ -156,7 +157,11 @@ export function useUpdatePolicies() {
       body: JSON.stringify({ containers: containers.map(({ host, id }) => ({ host, id })), policy }),
     });
     if (!res.ok) throw new UpdatePolicyError(res.status, res.headers.get("X-Dozzle-Error") ?? undefined);
-    await fetchPolicies(true);
+    const before = state.value?.mode;
+    const after = (await fetchPolicies(true))?.mode;
+    // Picking Automatic under Dozzle only moves the server to picked. Which
+    // containers reads the mode from the setup status, so that has to follow.
+    if (before && after && before !== after) await useSetup().fetchStatus();
   }
 
   return {

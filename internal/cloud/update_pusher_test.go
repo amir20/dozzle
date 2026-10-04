@@ -405,11 +405,13 @@ func TestUpdatePusher_SnapshotFollowsUpdatePolicy(t *testing.T) {
 	other := immichContainer(nil)
 	other.ID, other.Name = "pg0000000000", "postgres"
 	hosts := &fakeUpdateHosts{containers: []container.Container{picked, other}}
-	p, sent := newTestPusher(hosts, ToolDeps{UpdatePolicy: func(c container.Container) updatepolicy.Policy {
-		if c.Name == "immich" {
-			return updatepolicy.Auto
+	p, sent := newTestPusher(hosts, ToolDeps{UpdatePolicies: func() func(container.Container) updatepolicy.Policy {
+		return func(c container.Container) updatepolicy.Policy {
+			if c.Name == "immich" {
+				return updatepolicy.Auto
+			}
+			return updatepolicy.Manual
 		}
-		return updatepolicy.Manual
 	}})
 	require.NoError(t, p.sendSnapshot())
 	require.Len(t, sent.snapshots, 1)

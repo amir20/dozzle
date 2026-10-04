@@ -110,23 +110,21 @@ type updatePusher struct {
 	labels  container.ContainerLabels
 	rules   NotificationService
 	watched func(container.ContainerUpdateEvent) bool
-	// scheduled reports whether a container is on the auto-update schedule.
-	scheduled func(container.Container) bool
-	ledger    *updateLedger
-	send      func(resp *pb.ToolResponse) error
+	// policies reads the auto-update settings once, for one snapshot.
+	policies func() func(container.Container) updatepolicy.Policy
+	ledger   *updateLedger
+	send     func(resp *pb.ToolResponse) error
 }
 
 func newUpdatePusher(hosts UpdateStreamHostService, deps ToolDeps, ledger *updateLedger, send func(resp *pb.ToolResponse) error) *updatePusher {
 	return &updatePusher{
-		hosts:   hosts,
-		labels:  deps.Principal.Labels,
-		rules:   deps.NotificationService,
-		watched: deps.UpdateWatched,
-		scheduled: func(c container.Container) bool {
-			return deps.updatePolicy(c) == updatepolicy.Auto
-		},
-		ledger: ledger,
-		send:   send,
+		hosts:    hosts,
+		labels:   deps.Principal.Labels,
+		rules:    deps.NotificationService,
+		watched:  deps.UpdateWatched,
+		policies: deps.updatePolicies,
+		ledger:   ledger,
+		send:     send,
 	}
 }
 
@@ -256,6 +254,7 @@ func (p *updatePusher) sendSnapshot() error {
 		log.Debug().Err(err).Msg("update pusher: host unavailable for the image snapshot")
 	}
 	hostNames := p.hostNames()
+	policy := p.policies()
 
 	snapshot := &pb.ImageSnapshot{}
 	for _, c := range containers {
@@ -264,7 +263,7 @@ func (p *updatePusher) sendSnapshot() error {
 		if c.ImageID == "" || c.Name == "" || c.State == "created" || c.State == "deleted" {
 			continue
 		}
-		if !p.scheduled(c) && !p.ruleMatches(c, hostNames) {
+		if policy(c) != updatepolicy.Auto && !p.ruleMatches(c, hostNames) {
 			continue
 		}
 		// A list entry may not know the digest or start time yet; an inspect does.

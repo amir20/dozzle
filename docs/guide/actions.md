@@ -128,7 +128,7 @@ services:
 
 At the scheduled time Dozzle checks each automatic container against its registry and updates only the ones with a newer image, Dozzle itself last. Each update is watched and rolled back if the new container fails. Containers that are unhealthy, that Dozzle [cannot check](#what-cannot-be-checked), or that someone [rolled back](#rolling-back) from the image on offer are skipped.
 
-Under **Everything**, a database on a floating tag like `postgres:latest` can move to a major version its data files cannot read. The Updates page lists the containers that keep data in named volumes and keeps them manual in one click.
+Under **Everything**, a database on a floating tag like `postgres:latest` can move to a major version its data files cannot read. The Updates page lists the containers that keep data in named volumes and keeps them manual in one click. Stopped containers are left alone under **Everything** unless a label or a choice sets them to Automatic.
 
 Choices made in the UI are saved in [`dozzle.yml`](/guide/setup-wizard), so they need `/data` on a volume. Auto-update runs in server mode, including containers on [remote agents](/guide/agent), and needs actions on. Coming from Watchtower? See [Moving from Watchtower](/guide/moving-from-watchtower).
 

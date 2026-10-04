@@ -367,6 +367,14 @@ func scheduledContainers(containers []container.Container, policies updatePolici
 		if decision.Policy != updatepolicy.Auto {
 			continue
 		}
+		// Everything reaches containers nobody looked at, and a stopped one is
+		// usually stopped on purpose: a one-shot job that exited, or something
+		// switched off. Like Watchtower without --include-stopped, only a label
+		// or a choice made for that container updates it while it is stopped.
+		if decision.Source == updatepolicy.SourceDefault && c.State != "running" {
+			log.Debug().Str("container", c.Name).Str("state", c.State).Msg("auto update: container not updated, it is not running")
+			continue
+		}
 		// A container that is already failing its healthcheck would fail the
 		// swap's own check, so the update would only roll back. Worse, it would
 		// replace the one thing someone may be debugging right now.

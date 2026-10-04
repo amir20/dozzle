@@ -5,7 +5,17 @@ vi.mock("@/stores/config", () => ({
   withBase: (path: string) => path,
 }));
 
-import { type ContainerUpdatePolicy, heldBack, imageStatusKind, policyLock, riskyContainers } from "./updatePolicy";
+const fetchStatus = vi.fn();
+vi.mock("@/composable/setup/setup", () => ({ useSetup: () => ({ fetchStatus }) }));
+
+import {
+  type ContainerUpdatePolicy,
+  heldBack,
+  imageStatusKind,
+  policyLock,
+  riskyContainers,
+  useUpdatePolicies,
+} from "./updatePolicy";
 
 const entry = (over: Partial<ContainerUpdatePolicy>): ContainerUpdatePolicy => ({
   host: "nas",
@@ -72,5 +82,40 @@ describe("imageStatusKind", () => {
     expect(imageStatusKind("manual", result("auth-required"))).toBe("private");
     expect(imageStatusKind("manual", result("skipped"))).toBe("off");
     expect(imageStatusKind("manual", result("unknown"))).toBe("unknown");
+  });
+});
+
+describe("setPolicy", () => {
+  const answer = (mode: string) => ({ mode, persisted: true, canChoose: true, containers: [] });
+  const respond = (...modes: string[]) => {
+    const queue = [...modes];
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async (_url: string, init?: RequestInit) =>
+        init?.method === "POST" ? new Response(null, { status: 204 }) : Response.json(answer(queue.shift()!)),
+      ),
+    );
+  };
+
+  // Picking Automatic under Dozzle only moves the server to picked, and Which
+  // containers reads that from the setup status.
+  test("refetches the setup status when the mode moved", async () => {
+    fetchStatus.mockClear();
+    respond("dozzle", "picked");
+    const { fetchPolicies, setPolicy } = useUpdatePolicies();
+    await fetchPolicies(true);
+    await setPolicy([{ host: "nas", id: "a" }], "auto");
+    expect(fetchStatus).toHaveBeenCalledOnce();
+    vi.unstubAllGlobals();
+  });
+
+  test("leaves the setup status alone when the mode stayed", async () => {
+    fetchStatus.mockClear();
+    respond("picked", "picked");
+    const { fetchPolicies, setPolicy } = useUpdatePolicies();
+    await fetchPolicies(true);
+    await setPolicy([{ host: "nas", id: "a" }], "auto");
+    expect(fetchStatus).not.toHaveBeenCalled();
+    vi.unstubAllGlobals();
   });
 });

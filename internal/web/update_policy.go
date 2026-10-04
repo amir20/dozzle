@@ -67,10 +67,12 @@ func (p updatePolicies) decide(c container.Container) updatepolicy.Decision {
 	return updatepolicy.Resolve(c.Labels, p.choice(c), p.mode)
 }
 
-// UpdatePolicy is a container's effective policy, reading dozzle.yml now. The
-// cloud client asks it which containers are on the schedule.
-func UpdatePolicy(c container.Container) updatepolicy.Policy {
-	return loadUpdatePolicies().decide(c).Policy
+// UpdatePolicies reads dozzle.yml once and returns each container's effective
+// policy from it. The cloud client asks it which containers are on the
+// schedule, once per batch of containers rather than once per container.
+func UpdatePolicies() func(c container.Container) updatepolicy.Policy {
+	p := loadUpdatePolicies()
+	return func(c container.Container) updatepolicy.Policy { return p.decide(c).Policy }
 }
 
 // lastAutoUpdate is how a container's last scheduled update ended. It lives in

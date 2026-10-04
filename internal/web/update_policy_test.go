@@ -77,6 +77,21 @@ func TestScheduledContainers_ChoicesAndModes(t *testing.T) {
 	assert.Equal(t, []string{"labelled", "legacy"}, names(got))
 }
 
+// Everything leaves a stopped container alone unless someone chose auto for
+// it, by label or from the UI.
+func TestScheduledContainers_EverythingSkipsStopped(t *testing.T) {
+	setupTestEnv(t, true)
+	fleet := append(policyFleet(),
+		container.Container{ID: "a00000000007", Name: "migrate", EngineName: "migrate", Host: "nas", State: "exited"},
+		container.Container{ID: "a00000000008", Name: "fresh", EngineName: "fresh", Host: "nas", State: "created"},
+		container.Container{ID: "a00000000009", Name: "parked", EngineName: "parked", Host: "nas", State: "exited", Labels: map[string]string{updatepolicy.Label: "auto"}},
+		container.Container{ID: "a00000000010", Name: "picked", EngineName: "picked", Host: "nas", State: "exited"},
+	)
+	writeUpdatePolicies(t, "all", map[string]string{"nas/picked": "auto"})
+	got := scheduledContainers(fleet, loadUpdatePolicies(), "")
+	assert.Equal(t, []string{"web", "Postgres", "labelled", "legacy", "parked", "picked"}, names(got))
+}
+
 // The scheduler never checks a container that is not on the schedule, and only
 // updates the ones the registry says are outdated.
 func TestAutoUpdate_OutdatedFollowsPolicy(t *testing.T) {
@@ -292,4 +307,19 @@ func TestCheckAllImageUpdates_SkipsOff(t *testing.T) {
 			assert.Equal(t, imagecheck.StatusSkipped, r.Result.Status)
 		}
 	}
+}
+
+// The cloud client's decider reads dozzle.yml when it is made, and keeps that
+// answer for the whole batch.
+func TestUpdatePolicies_ReadsOncePerBatch(t *testing.T) {
+	setupTestEnv(t, true)
+	writeUpdatePolicies(t, "all", map[string]string{"nas/web": "off"})
+	policy := UpdatePolicies()
+	fleet := policyFleet()
+	assert.Equal(t, updatepolicy.Off, policy(fleet[0]))
+	assert.Equal(t, updatepolicy.Auto, policy(fleet[1]))
+
+	writeUpdatePolicies(t, "dozzle", nil)
+	assert.Equal(t, updatepolicy.Auto, policy(fleet[1]), "a batch keeps the settings it started with")
+	assert.Equal(t, updatepolicy.Manual, UpdatePolicies()(fleet[1]))
 }

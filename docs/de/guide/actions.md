@@ -1,6 +1,6 @@
 ---
 title: Container-Aktionen
-sourceHash: aeaf37848c2c
+sourceHash: 43d27d69a1ca
 ---
 
 # Container-Aktionen
@@ -129,7 +129,7 @@ services:
 
 Zur geplanten Zeit prüft Dozzle jeden automatischen Container gegen seine Registry und aktualisiert nur die mit einem neueren Image, sich selbst zuletzt. Jedes Update wird überwacht und zurückgesetzt, wenn der neue Container ausfällt. Übersprungen werden Container, die unhealthy sind, die Dozzle [nicht prüfen kann](#was-sich-nicht-prufen-lasst) oder die jemand vom angebotenen Image [zurückgesetzt](#rolling-back) hat.
 
-Bei **Alles** kann eine Datenbank mit beweglichem Tag wie `postgres:latest` auf eine Hauptversion wechseln, die ihre Datendateien nicht lesen kann. Die Updates-Seite listet die Container, die Daten in benannten Volumes halten, und lässt sie mit einem Klick manuell.
+Bei **Alles** kann eine Datenbank mit beweglichem Tag wie `postgres:latest` auf eine Hauptversion wechseln, die ihre Datendateien nicht lesen kann. Die Updates-Seite listet die Container, die Daten in benannten Volumes halten, und lässt sie mit einem Klick manuell. Gestoppte Container bleiben bei **Alles** unberührt, außer ein Label oder eine Auswahl stellt sie auf Automatisch.
 
 In der UI getroffene Entscheidungen werden in [`dozzle.yml`](/de/guide/setup-wizard) gespeichert und brauchen daher `/data` auf einem Volume. Automatische Updates laufen im Server-Modus, auch für Container auf [entfernten Agents](/de/guide/agent), und setzen Aktionen voraus. Du kommst von Watchtower? Siehe [Umstieg von Watchtower](/de/guide/moving-from-watchtower).
 
