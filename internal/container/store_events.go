@@ -168,6 +168,7 @@ func (s *Store) handleEvent(event ContainerEvent) {
 
 	case "start":
 		if added, ok := s.addContainer(id, defaultTimeout); ok {
+			s.updates.started(added)
 			s.notifyNewContainer(added)
 		}
 
@@ -175,6 +176,7 @@ func (s *Store) handleEvent(event ContainerEvent) {
 		log.Debug().Str("id", id).Msg("container destroyed")
 		s.containers.Delete(id)
 		delete(s.announced, id)
+		s.updates.gone(id)
 
 	case "update":
 		s.handleUpdate(event)

@@ -943,8 +943,12 @@ func (*ContainerActionResponse) Descriptor() ([]byte, []int) {
 }
 
 type UpdateContainerRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	ContainerId   string                 `protobuf:"bytes,1,opt,name=containerId,proto3" json:"containerId,omitempty"`
+	state       protoimpl.MessageState `protogen:"open.v1"`
+	ContainerId string                 `protobuf:"bytes,1,opt,name=containerId,proto3" json:"containerId,omitempty"`
+	// source and runId are stamped on the new container (dev.dozzle.update-source
+	// and dev.dozzle.update-run), so the update event says what started it.
+	Source        string `protobuf:"bytes,3,opt,name=source,proto3" json:"source,omitempty"`
+	RunId         string `protobuf:"bytes,4,opt,name=runId,proto3" json:"runId,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -982,6 +986,20 @@ func (*UpdateContainerRequest) Descriptor() ([]byte, []int) {
 func (x *UpdateContainerRequest) GetContainerId() string {
 	if x != nil {
 		return x.ContainerId
+	}
+	return ""
+}
+
+func (x *UpdateContainerRequest) GetSource() string {
+	if x != nil {
+		return x.Source
+	}
+	return ""
+}
+
+func (x *UpdateContainerRequest) GetRunId() string {
+	if x != nil {
+		return x.RunId
 	}
 	return ""
 }
@@ -1976,9 +1994,11 @@ const file_rpc_proto_rawDesc = "" +
 	"\x16ContainerActionRequest\x12 \n" +
 	"\vcontainerId\x18\x01 \x01(\tR\vcontainerId\x121\n" +
 	"\x06action\x18\x02 \x01(\x0e2\x19.protobuf.ContainerActionR\x06action\"\x19\n" +
-	"\x17ContainerActionResponse\"@\n" +
+	"\x17ContainerActionResponse\"n\n" +
 	"\x16UpdateContainerRequest\x12 \n" +
-	"\vcontainerId\x18\x01 \x01(\tR\vcontainerIdJ\x04\b\x02\x10\x03\"\x8d\x01\n" +
+	"\vcontainerId\x18\x01 \x01(\tR\vcontainerId\x12\x16\n" +
+	"\x06source\x18\x03 \x01(\tR\x06source\x12\x14\n" +
+	"\x05runId\x18\x04 \x01(\tR\x05runIdJ\x04\b\x02\x10\x03\"\x8d\x01\n" +
 	"\x17UpdateContainerProgress\x12\x16\n" +
 	"\x06status\x18\x01 \x01(\tR\x06status\x12\x14\n" +
 	"\x05layer\x18\x02 \x01(\tR\x05layer\x12\x18\n" +

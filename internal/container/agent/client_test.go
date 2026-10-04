@@ -114,9 +114,9 @@ func (m *MockedClientService) Exec(ctx context.Context, c container.Container, c
 	return args.Error(0)
 }
 
-func (m *MockedClientService) UpdateContainer(ctx context.Context, c container.Container, progressCh chan<- container.UpdateProgress) (bool, error) {
+func (m *MockedClientService) UpdateContainer(ctx context.Context, c container.Container, opts container.UpdateOptions, progressCh chan<- container.UpdateProgress) (bool, error) {
 	defer close(progressCh)
-	args := m.Called(ctx, c)
+	args := m.Called(ctx, c, opts)
 	for _, p := range args.Get(0).([]container.UpdateProgress) {
 		progressCh <- p
 	}
@@ -173,7 +173,7 @@ func init() {
 
 	mockService.On("Client").Return(nil)
 
-	mockService.On("UpdateContainer", mock.Anything, mock.Anything).Return([]container.UpdateProgress{
+	mockService.On("UpdateContainer", mock.Anything, mock.Anything, container.UpdateOptions{Source: container.UpdateSourceSchedule, RunID: "run-1"}).Return([]container.UpdateProgress{
 		{Status: container.UpdateRecreating},
 		{Status: container.UpdateVerifying},
 		{Status: container.UpdateRolledBack, Error: "replacement is unhealthy"},
@@ -218,13 +218,14 @@ func TestListContainers(t *testing.T) {
 	}, containers)
 }
 
-// The swap's statuses come back from the agent as they are.
-func TestUpdateContainerCarriesStatuses(t *testing.T) {
+// What started the update reaches the agent with the request, and the swap's
+// statuses come back as they are.
+func TestUpdateContainerCarriesSourceAndStatuses(t *testing.T) {
 	rpc, err := NewClient("passthrough://bufnet", certs, grpc.WithContextDialer(bufDialer))
 	require.NoError(t, err)
 
 	progress := make(chan container.UpdateProgress, 10)
-	updated, err := rpc.UpdateContainer(context.Background(), "123456", progress)
+	updated, err := rpc.UpdateContainer(context.Background(), "123456", container.UpdateOptions{Source: container.UpdateSourceSchedule, RunID: "run-1"}, progress)
 	require.NoError(t, err)
 	assert.False(t, updated, "a rolled back update did not update anything")
 

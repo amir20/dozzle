@@ -123,10 +123,14 @@ type updateRun struct {
 	err      error
 }
 
-func runUpdate(cli *updateClient) updateRun {
+func runUpdate(cli *updateClient, opts ...container.UpdateOptions) updateRun {
 	svc := &Service{client: cli}
 	ch := make(chan container.UpdateProgress, 100)
-	updated, err := svc.UpdateContainer(context.Background(), container.Container{ID: appID, Name: "app"}, ch)
+	var o container.UpdateOptions
+	if len(opts) > 0 {
+		o = opts[0]
+	}
+	updated, err := svc.UpdateContainer(context.Background(), container.Container{ID: appID, Name: "app"}, o, ch)
 	run := updateRun{updated: updated, err: err}
 	for p := range ch {
 		if len(run.statuses) == 0 || run.statuses[len(run.statuses)-1] != p.Status {

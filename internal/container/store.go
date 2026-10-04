@@ -79,6 +79,9 @@ type Store struct {
 	// a request, the event loop adding a container, or a refresh filling in a list
 	// entry. Each of them merges the result its own way, so only the call is shared.
 	inspects singleflight.Group
+
+	// updates turns starts into update events. See update_events.go.
+	updates *updateTracker
 }
 
 const defaultTimeout = 10 * time.Second
@@ -102,6 +105,7 @@ func newStore(ctx context.Context, client Client, statsCollect StatsCollector, l
 		events:                  make(chan ContainerEvent),
 		ctx:                     ctx,
 		labels:                  labels,
+		updates:                 newUpdateTracker(),
 	}
 	s.volumeMonitor = newVolumeMonitor(s)
 	s.volumeMonitor.start(ctx)
