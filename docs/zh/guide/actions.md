@@ -1,6 +1,6 @@
 ---
 title: 容器操作
-sourceHash: 4c26ca983b70
+sourceHash: aeaf37848c2c
 ---
 
 # 容器操作
@@ -66,14 +66,14 @@ services:
       DOZZLE_IMAGE_CHECK_MODE: off
 ```
 
-要让某一个容器不再提示（比如一个刻意固定了版本的容器），给它加上标签：
+要停止检查某一个容器（比如一个刻意固定了版本的容器），给它加上标签。这样它也会退出 [自动更新计划](/zh/guide/actions#auto-updating-containers)。
 
 ```yaml [docker-compose.yml]
 services:
   database:
     image: postgres:18-alpine
     labels:
-      dev.dozzle.update-check: false
+      dev.dozzle.update: off
 ```
 
 发现更新时也可以显示通知。该功能默认关闭，位于设置中。
@@ -106,21 +106,32 @@ Dozzle 自身容器上的 `Update` 操作会就地更新 Dozzle。它拉取新�
 
 ## 自动更新容器 {#auto-updating-containers}
 
-Dozzle 可以按计划更新容器。用标签让某个容器加入：
+Dozzle 可以像 Watchtower 一样按计划更新容器。在 **设置 → 更新** 或 [设置向导](/zh/guide/setup-wizard#auto-update) 中设置：
+
+- **时间：** 关闭、每天或每周日，以及一天中的时间。等同于 `DOZZLE_AUTO_UPDATE` 和 `DOZZLE_AUTO_UPDATE_TIME`。
+- **哪些容器：** **仅 Dozzle**、**Dozzle 和我选择的容器**（默认）或 **全部**。这决定了没人为其做过选择的容器如何处理。
+
+每个容器是 **自动**、**手动** 或 **关闭** 之一。可以在更新页面、更新抽屉里的 **自动更新** 复选框或容器菜单中选择。也可以用一个标签来设置，标签优先于界面中的选择：
+
+| `dev.dozzle.update` | 结果                                   |
+| ------------------- | -------------------------------------- |
+| `auto`              | 按计划更新                             |
+| _（无标签）_        | 手动：会检查并显示为可用更新，由你应用 |
+| `off`               | 从不检查，从不更新                     |
 
 ```yaml [docker-compose.yml]
 services:
   whoami:
     image: traefik/whoami:latest
     labels:
-      dev.dozzle.auto-update: true
+      dev.dozzle.update: auto
 ```
 
-带有该标签的容器遵循与 [Dozzle 自身的自动更新](/zh/guide/setup-wizard#auto-update) 相同的计划，你可以在设置向导中设置，也可以通过 `DOZZLE_AUTO_UPDATE` 和 `DOZZLE_AUTO_UPDATE_TIME` 设置。到了这个时间，Dozzle 会把每个带标签的容器与其镜像仓库进行比对，只更新有新镜像的容器。这些容器先更新，Dozzle 最后更新。
+到了计划时间，Dozzle 会把每个自动容器与其镜像仓库比对，只更新有新镜像的容器，Dozzle 自身最后更新。每次更新都会被观察，如果新容器失败就会回滚。不健康的容器、Dozzle [无法检查](#哪些情况无法检查) 的容器，以及有人从当前提供的镜像 [回滚](#rolling-back) 过的容器都会被跳过。
 
-自动更新是刻意设计为需要主动开启的。使用 `postgres:latest` 这类浮动标签的数据库，可能会升级到一个无法读取现有数据文件的新主版本，所以只给那些你愿意在无人看管时被替换的容器加标签。Dozzle [无法检查](#哪些情况无法检查) 的容器（例如来自私有仓库的容器）永远不会被自动更新。
+选择 **全部** 时，使用 `postgres:latest` 这类浮动标签的数据库可能升级到无法读取其数据文件的主版本。更新页面会列出在命名卷中保存数据的容器，并可以一键把它们保持为手动。
 
-自动更新在服务器模式下运行，也包括 [远程代理](/zh/guide/agent) 上的容器。它需要开启操作。
+在界面中做出的选择保存在 [`dozzle.yml`](/zh/guide/setup-wizard) 中，因此需要把 `/data` 挂载为卷。自动更新在服务器模式下运行，也包括 [远程代理](/zh/guide/agent) 上的容器，并且需要开启操作功能。从 Watchtower 迁移过来？请参阅 [从 Watchtower 迁移](/zh/guide/moving-from-watchtower)。
 
 ## 清理旧镜像 {#cleaning-up-old-images}
 

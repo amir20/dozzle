@@ -42,6 +42,7 @@ export const zh: Labels = {
     "authentication/oidc": "OpenID Connect",
     "authentication/forward-proxy": "前置代理",
     actions: "操作",
+    "moving-from-watchtower": "从 Watchtower 迁移",
     "app-icons": "图标",
     shell: "终端访问",
     mcp: "MCP 集成",

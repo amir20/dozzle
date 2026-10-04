@@ -1,6 +1,6 @@
 ---
 title: Acciones sobre contenedores
-sourceHash: 4c26ca983b70
+sourceHash: aeaf37848c2c
 ---
 
 # Acciones sobre contenedores
@@ -66,14 +66,14 @@ services:
       DOZZLE_IMAGE_CHECK_MODE: off
 ```
 
-Para silenciar un contenedor concreto, por ejemplo uno fijado a una versión a propósito, ponle esta etiqueta:
+Para dejar de comprobar un contenedor concreto, por ejemplo uno fijado a una versión a propósito, ponle esta etiqueta. También lo saca de la [programación de actualizaciones automáticas](/es/guide/actions#auto-updating-containers).
 
 ```yaml [docker-compose.yml]
 services:
   database:
     image: postgres:18-alpine
     labels:
-      dev.dozzle.update-check: false
+      dev.dozzle.update: off
 ```
 
 También se puede mostrar una notificación cuando hay una actualización. Viene desactivada y está en Ajustes.
@@ -106,21 +106,32 @@ Con `DOZZLE_IMAGE_CHECK_MODE=manual`, el botón dice **Buscar actualizaciones** 
 
 ## Actualizar contenedores automáticamente {#auto-updating-containers}
 
-Dozzle puede actualizar contenedores de forma programada. Activa un contenedor con una etiqueta:
+Dozzle puede actualizar contenedores de forma programada, como Watchtower. Se configura en **Ajustes → Actualizaciones** o en el [asistente de configuración](/es/guide/setup-wizard#auto-update):
+
+- **Cuándo:** desactivado, cada día o cada domingo, a una hora del día. Lo mismo que `DOZZLE_AUTO_UPDATE` y `DOZZLE_AUTO_UPDATE_TIME`.
+- **Qué contenedores:** **Solo Dozzle**, **Dozzle y los contenedores que elija** (por defecto) o **Todo**. Así se trata un contenedor para el que nadie ha elegido.
+
+Cada contenedor está en **Automático**, **Manual** o **Desactivado**. Elígelo en la página Actualizaciones, con **Actualizar automáticamente** en el panel de actualizaciones o desde el menú del contenedor. O fíjalo con una etiqueta, que manda sobre la interfaz:
+
+| `dev.dozzle.update` | Qué pasa                                                             |
+| ------------------- | -------------------------------------------------------------------- |
+| `auto`              | Se actualiza según la programación                                   |
+| _(sin etiqueta)_    | Manual: se comprueba y se muestra como actualización, que aplicas tú |
+| `off`               | Nunca se comprueba ni se actualiza                                   |
 
 ```yaml [docker-compose.yml]
 services:
   whoami:
     image: traefik/whoami:latest
     labels:
-      dev.dozzle.auto-update: true
+      dev.dozzle.update: auto
 ```
 
-Los contenedores etiquetados siguen la misma programación que [la actualización automática del propio Dozzle](/es/guide/setup-wizard#auto-update), que se configura en el asistente de configuración o con `DOZZLE_AUTO_UPDATE` y `DOZZLE_AUTO_UPDATE_TIME`. A esa hora Dozzle comprueba cada contenedor etiquetado contra su registro y actualiza solo los que tienen una imagen más reciente. Primero van los contenedores y Dozzle va el último.
+A la hora programada, Dozzle compara cada contenedor automático con su registro y actualiza solo los que tienen una imagen más reciente, Dozzle el último. Cada actualización se vigila y se revierte si el nuevo contenedor falla. Se omiten los contenedores que no están sanos, los que Dozzle [no puede comprobar](#lo-que-no-se-puede-comprobar) y los que alguien [revirtió](#rolling-back) desde la imagen ofrecida.
 
-La actualización automática hay que activarla a propósito. Una base de datos con un tag flotante como `postgres:latest` puede saltar a una nueva versión mayor cuyos archivos de datos ya no sabe leer, así que etiqueta solo los contenedores que no te importe ver reemplazados sin estar pendiente. Los contenedores que Dozzle [no puede comprobar](#lo-que-no-se-puede-comprobar), como los de un registro privado, nunca se actualizan automáticamente.
+Con **Todo**, una base de datos con una etiqueta móvil como `postgres:latest` puede pasar a una versión mayor que no lea sus archivos de datos. La página Actualizaciones lista los contenedores que guardan datos en volúmenes con nombre y los deja en manual con un clic.
 
-La actualización automática funciona en modo servidor, incluidos los contenedores en [agentes remotos](/es/guide/agent). Requiere las acciones activadas.
+Lo que eliges en la interfaz se guarda en [`dozzle.yml`](/es/guide/setup-wizard), así que necesita `/data` en un volumen. La actualización automática funciona en modo servidor, incluidos los contenedores en [agentes remotos](/es/guide/agent), y necesita las acciones activadas. ¿Vienes de Watchtower? Consulta [Pasar de Watchtower a Dozzle](/es/guide/moving-from-watchtower).
 
 ## Limpiar imágenes antiguas {#cleaning-up-old-images}
 

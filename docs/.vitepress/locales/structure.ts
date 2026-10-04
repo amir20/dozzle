@@ -33,7 +33,7 @@ export const SECTIONS: Section[] = [
       },
       { group: "containers", items: ["container-names", "container-groups", "container-links", "app-icons"] },
       { group: "hosts", items: ["agent", "remote-hosts", "hostname", "host-metrics"] },
-      { group: "control", items: ["actions", "shell"] },
+      { group: "control", items: ["actions", "moving-from-watchtower", "shell"] },
       { group: "logs", items: ["sql-engine", "log-files-on-disk"] },
       { group: "tools", items: ["dtop", "mcp"] },
       "alerts-and-webhooks",
