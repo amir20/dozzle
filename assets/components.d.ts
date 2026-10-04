@@ -75,6 +75,7 @@ declare module 'vue' {
     ContainerUpdatesButton: typeof import('./components/containers/ContainerUpdatesButton.vue')['default']
     ContainerUpdatesDrawer: typeof import('./components/containers/ContainerUpdatesDrawer.vue')['default']
     DateTime: typeof import('./components/ui/DateTime.vue')['default']
+    DeployLogItem: typeof import('./components/logs/entries/DeployLogItem.vue')['default']
     DestinationCard: typeof import('./components/notifications/DestinationCard.vue')['default']
     DestinationForm: typeof import('./components/notifications/DestinationForm.vue')['default']
     DiscoveryHint: typeof import('./components/ui/DiscoveryHint.vue')['default']

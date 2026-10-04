@@ -8,6 +8,7 @@ import {
   asLogEntry,
   ContainerEventLogEntry,
   ComplexLogEntry,
+  DeployLogEntry,
   LoadMoreLogEntry,
   RangeEdgeLogEntry,
 } from "@/models/LogEntry";
@@ -18,6 +19,7 @@ import { parseMessage } from "./loadBetween";
 import { useLogLoader } from "./logLoader";
 import { appendBatch, newerThanOnScreen, newestOnScreen, notOnScreen } from "./logWindow";
 import { parseEventData } from "@/utils/events";
+import type { ContainerUpdate } from "@/models/ContainerUpdate";
 import { showAllContainers } from "@/stores/settings";
 
 const { isSearching, appliedSearchFilter, inverseFilter } = useSearchFilter();
@@ -260,6 +262,22 @@ function useLogStream(url: Ref<string>, container?: Ref<Container>) {
       buffer.push(containerEvent);
       flushBuffer();
       flushBuffer.flush();
+    });
+
+    // The update that created a container arrives before its first line, so the
+    // marker sorts to the top of the new container's stream. A reconnect sends
+    // it again; the copy on screen is kept, with any verdict it has gained.
+    es.addEventListener("container-update", (e) => {
+      const update = parseEventData<ContainerUpdate>(e);
+      const marker = new DeployLogEntry(update, new Date(update.at));
+      if (Number.isNaN(marker.date.getTime())) return;
+      if (floor.value && marker.date < floor.value) return;
+      const sameUpdate = (m: LogEntry<LogMessage>) =>
+        m instanceof DeployLogEntry && m.containerID === marker.containerID;
+      if (messages.value.some(sameUpdate) || buffer.some(sameUpdate)) return;
+
+      buffer.push(marker);
+      flushBuffer();
     });
 
     es.addEventListener("logs-backfill", (e) => {

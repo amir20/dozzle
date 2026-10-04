@@ -1063,3 +1063,23 @@ rollback:
   done: "Откат на предыдущий образ выполнен"
   failed: "Откат не удался"
   unable: "Не удалось откатить контейнер"
+update-marker:
+  updated: "Обновлено"
+  rolled-back: "Откачено"
+  undone: "Обновление отменено"
+  roll-back: "Откатить"
+  by:
+    schedule: "по расписанию автообновления"
+    dozzle: "из Dozzle"
+    cloud: "из Dozzle Cloud"
+    watchtower: "через Watchtower"
+    external: "вне Dozzle"
+  verdict:
+    pending: "Dozzle Cloud следит за этим обновлением"
+    clean: "Выглядит нормально"
+    regressed: "Похоже, сломано"
+    unsure: "Возможна проблема"
+    rolled_back_by_dozzle: "Dozzle вернул предыдущий контейнер"
+  decision:
+    rolled_back: "Откачено"
+    kept: "Оставлено"

@@ -1063,3 +1063,23 @@ rollback:
   done: "已回滚到之前的镜像"
   failed: "回滚失败"
   unable: "无法回滚容器"
+update-marker:
+  updated: "已更新"
+  rolled-back: "已回滚"
+  undone: "更新已撤销"
+  roll-back: "回滚"
+  by:
+    schedule: "由自动更新计划"
+    dozzle: "来自 Dozzle"
+    cloud: "来自 Dozzle Cloud"
+    watchtower: "由 Watchtower"
+    external: "在 Dozzle 之外"
+  verdict:
+    pending: "Dozzle Cloud 正在观察此次更新"
+    clean: "看起来正常"
+    regressed: "看起来有问题"
+    unsure: "可能有问题"
+    rolled_back_by_dozzle: "Dozzle 已恢复之前的容器"
+  decision:
+    rolled_back: "已回滚"
+    kept: "已保留"

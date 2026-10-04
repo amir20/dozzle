@@ -258,6 +258,8 @@ func (h *handler) streamLogsForContainers(w http.ResponseWriter, r *http.Request
 	defer ticker.Stop()
 	sseWriter.Retry(reconnectDelay)
 	sseWriter.Ping()
+	// Before any line, so the marker leads the container an update created.
+	writeUpdateMarkers(sseWriter, h.recentUpdates(), existingContainers...)
 loop:
 	for {
 		select {
@@ -283,6 +285,9 @@ loop:
 				if err := sseWriter.Event("container-event", event); err != nil {
 					log.Error().Err(err).Msg("error encoding container event")
 				}
+				// The store records an update before it announces the start, so a
+				// container an update just created already has its event here.
+				writeUpdateMarkers(sseWriter, h.recentUpdates(), containerService.Container)
 				go tailContainerLogs(ctx, containerService, since, stdTypes, liveLogs, events)
 			}
 

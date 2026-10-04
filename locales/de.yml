@@ -1063,3 +1063,23 @@ rollback:
   done: "Auf das vorherige Image zurückgesetzt"
   failed: "Zurücksetzen fehlgeschlagen"
   unable: "Container konnte nicht zurückgesetzt werden"
+update-marker:
+  updated: "Aktualisiert"
+  rolled-back: "Zurückgesetzt"
+  undone: "Update rückgängig gemacht"
+  roll-back: "Zurücksetzen"
+  by:
+    schedule: "durch den Auto-Update-Zeitplan"
+    dozzle: "aus Dozzle"
+    cloud: "aus Dozzle Cloud"
+    watchtower: "durch Watchtower"
+    external: "außerhalb von Dozzle"
+  verdict:
+    pending: "Dozzle Cloud beobachtet dieses Update"
+    clean: "Sieht gut aus"
+    regressed: "Sieht fehlerhaft aus"
+    unsure: "Könnte ein Problem haben"
+    rolled_back_by_dozzle: "Dozzle hat den vorherigen Container wiederhergestellt"
+  decision:
+    rolled_back: "Zurückgesetzt"
+    kept: "Behalten"

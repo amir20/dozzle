@@ -1064,3 +1064,23 @@ rollback:
   done: "Teruggezet naar de vorige image"
   failed: "Terugzetten mislukt"
   unable: "Kan container niet terugzetten"
+update-marker:
+  updated: "Bijgewerkt"
+  rolled-back: "Teruggezet"
+  undone: "Update ongedaan gemaakt"
+  roll-back: "Terugzetten"
+  by:
+    schedule: "door het automatische updateschema"
+    dozzle: "vanuit Dozzle"
+    cloud: "vanuit Dozzle Cloud"
+    watchtower: "door Watchtower"
+    external: "buiten Dozzle"
+  verdict:
+    pending: "Dozzle Cloud houdt deze update in de gaten"
+    clean: "Ziet er goed uit"
+    regressed: "Lijkt kapot"
+    unsure: "Kan een probleem hebben"
+    rolled_back_by_dozzle: "Dozzle heeft de vorige container teruggezet"
+  decision:
+    rolled_back: "Teruggezet"
+    kept: "Behouden"

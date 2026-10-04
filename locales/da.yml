@@ -1063,3 +1063,23 @@ rollback:
   done: "Rullet tilbage til det forrige image"
   failed: "Tilbagerulning mislykkedes"
   unable: "Kan ikke rulle containeren tilbage"
+update-marker:
+  updated: "Opdateret"
+  rolled-back: "Rullet tilbage"
+  undone: "Opdatering fortrudt"
+  roll-back: "Rul tilbage"
+  by:
+    schedule: "af den automatiske opdateringsplan"
+    dozzle: "fra Dozzle"
+    cloud: "fra Dozzle Cloud"
+    watchtower: "af Watchtower"
+    external: "uden for Dozzle"
+  verdict:
+    pending: "Dozzle Cloud holder øje med denne opdatering"
+    clean: "Ser fin ud"
+    regressed: "Ser ødelagt ud"
+    unsure: "Kan have et problem"
+    rolled_back_by_dozzle: "Dozzle satte den forrige container tilbage"
+  decision:
+    rolled_back: "Rullet tilbage"
+    kept: "Beholdt"

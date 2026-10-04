@@ -10,6 +10,8 @@ import LoadMoreLogItem from "@/components/logs/entries/LoadMoreLogItem.vue";
 import RangeEdgeLogItem from "@/components/logs/entries/RangeEdgeLogItem.vue";
 import AlertLogItem from "@/components/logs/entries/AlertLogItem.vue";
 import CloudEventLogItem from "@/components/logs/entries/CloudEventLogItem.vue";
+import DeployLogItem from "@/components/logs/entries/DeployLogItem.vue";
+import type { ContainerUpdate, DeployVerdict } from "@/models/ContainerUpdate";
 
 export type JSONValue = string | number | boolean | JSONObject | Array<JSONValue>;
 export type JSONObject = { [x: string]: JSONValue };
@@ -248,6 +250,38 @@ export class ContainerEventLogEntry extends LogEntry<string> {
   }
   getComponent(): Component {
     return ContainerEventLogItem;
+  }
+}
+
+/**
+ * The update that created the container: "1.4.1 → 1.4.2", at the top of the new
+ * container's lines. Dozzle sends it on the stream from its update history; for an
+ * update Dozzle no longer remembers (an agent, or a restart since) Dozzle Cloud's
+ * record of it stands in. Dozzle Cloud's verdict is filled in once it answers.
+ */
+export class DeployLogEntry extends LogEntry<string> {
+  private readonly _verdict = shallowRef<DeployVerdict | undefined>();
+
+  constructor(
+    public readonly update: ContainerUpdate,
+    date: Date,
+  ) {
+    // Keyed on the negated time: LogList needs a number unique among the rows,
+    // and a container-started row can share the very millisecond the update
+    // finished in. Log ids are unsigned hashes, so a negative one is free.
+    super("", update.newId, -date.getTime(), date, "stderr", "");
+  }
+
+  getComponent(): Component {
+    return DeployLogItem;
+  }
+
+  /** Dozzle Cloud's verdict on this update, once it answers. */
+  public get verdict(): DeployVerdict | undefined {
+    return this._verdict.value;
+  }
+  public set verdict(verdict: DeployVerdict | undefined) {
+    this._verdict.value = verdict;
   }
 }
 

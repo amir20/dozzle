@@ -790,6 +790,36 @@ message EventHit {
   // lifecycle description for a container event. The only renderable text a
   // metric or event notification has, since neither carries a log line.
   string detail = 10;
+  // Set only when type is 'deploy': an image update Dozzle Cloud judged.
+  // container_id is then the container the update created (the 12-character
+  // new_container_id of the ContainerUpdate), and ts_ns when the update
+  // finished. alert_id is empty and suppressed is false.
+  DeployHit deploy = 11;
+}
+
+// What Dozzle Cloud made of one container update, for the update marker in
+// the log stream.
+message DeployHit {
+  // Opaque, sqids-encoded, like AlertHit.alert_id.
+  string deploy_id = 1;
+  // The container name the update was recorded under.
+  string container = 2;
+  // The refs and bare sha256: digests the update moved between. Either digest
+  // is empty for an image built locally.
+  string from_ref = 3;
+  string to_ref = 4;
+  string from_digest = 5;
+  string to_digest = 6;
+  // 'pending' | 'clean' | 'regressed' | 'unsure' | 'rolled_back_by_dozzle'.
+  // 'pending' means the judge has not answered yet.
+  string verdict = 7;
+  // One short sentence on why, for the marker. Empty while pending.
+  string reason = 8;
+  // 'rolled_back' | 'kept' | '': what the person decided on a regression.
+  string decision = 9;
+  // Deep link to the update in Dozzle Cloud. Empty when there is nothing to
+  // open there.
+  string url = 10;
 }
 
 // One log line the viewer is showing, named the way Cloud stored it.

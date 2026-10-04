@@ -20,7 +20,7 @@
 </template>
 
 <script lang="ts" setup>
-import { AlertLogEntry, CloudEventLogEntry, type LogEntry, type LogMessage } from "@/models/LogEntry";
+import { AlertLogEntry, CloudEventLogEntry, DeployLogEntry, type LogEntry, type LogMessage } from "@/models/LogEntry";
 import { isStopped } from "@/models/Container";
 
 const { progress, currentDate, available } = useScrollContext();
@@ -31,11 +31,13 @@ const { messages } = defineProps<{
 
 const { containers } = useLoggingContext();
 
-// Only real log output gets the row tint. Alert and cloud-event rows already
-// carry their own level marker and deliberately leave the row background alone,
+// Only real log output gets the row tint. Alert, cloud-event and update rows
+// already carry their own marker and deliberately leave the row background alone,
 // so tinting them would fight styling they own.
 const rowLevel = (item: LogEntry<LogMessage>) =>
-  item instanceof AlertLogEntry || item instanceof CloudEventLogEntry ? undefined : item.level;
+  item instanceof AlertLogEntry || item instanceof CloudEventLogEntry || item instanceof DeployLogEntry
+    ? undefined
+    : item.level;
 
 const route = useRoute();
 const permalinkLogId = computed(() => (typeof route.query.logId === "string" ? route.query.logId : ""));

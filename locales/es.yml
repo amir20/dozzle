@@ -1063,3 +1063,23 @@ rollback:
   done: "Revertido a la imagen anterior"
   failed: "Error al revertir"
   unable: "No se puede revertir el contenedor"
+update-marker:
+  updated: "Actualizado"
+  rolled-back: "Revertido"
+  undone: "Actualización deshecha"
+  roll-back: "Revertir"
+  by:
+    schedule: "por la programación de actualizaciones"
+    dozzle: "desde Dozzle"
+    cloud: "desde Dozzle Cloud"
+    watchtower: "por Watchtower"
+    external: "fuera de Dozzle"
+  verdict:
+    pending: "Dozzle Cloud está vigilando esta actualización"
+    clean: "Parece correcta"
+    regressed: "Parece rota"
+    unsure: "Puede tener un problema"
+    rolled_back_by_dozzle: "Dozzle restauró el contenedor anterior"
+  decision:
+    rolled_back: "Revertida"
+    kept: "Conservada"

@@ -1,5 +1,6 @@
 import { useCloudConfig } from "./cloudConfig";
-import { AlertLogEntry, CloudEventLogEntry, LogEntry, type LogMessage } from "@/models/LogEntry";
+import { AlertLogEntry, CloudEventLogEntry, DeployLogEntry, LogEntry, type LogMessage } from "@/models/LogEntry";
+import type { ContainerUpdate, DeployVerdict } from "@/models/ContainerUpdate";
 
 /**
  * One alert anchored inside a scroll window, as returned by
@@ -48,14 +49,21 @@ export interface CloudEvent {
   ts: number;
   logId?: number;
   containerId: string;
+  hostId?: string;
   level?: string;
   message?: string;
+  /** log | metric | event, or deploy for Dozzle Cloud's verdict on an update. */
   type?: string;
   /** Human-readable summary; the only renderable text a non-log event has. */
   detail?: string;
   /** Opaque id of the alert this event reached, empty when it reached none. */
   alertId?: string;
   suppressed: boolean;
+  /**
+   * Set on a deploy event: the verdict on the update that created `containerId`,
+   * at `ts`. It goes on that update's marker, never on a row of its own.
+   */
+  deploy?: DeployVerdict;
 }
 
 interface CloudAlertsResponse {
@@ -281,6 +289,11 @@ function isLogEvent(event: CloudEvent): boolean {
   return (event.type ?? "log") === "log";
 }
 
+/** A deploy event is Dozzle Cloud's verdict on an update, not a notification. */
+function isDeployEvent(event: CloudEvent): event is CloudEvent & { deploy: DeployVerdict } {
+  return event.type === "deploy" && !!event.deploy;
+}
+
 /**
  * Splices metric and container events into the stream as their own rows.
  *
@@ -301,7 +314,7 @@ export function mergeCloudEvents(
   const fresh: CloudEvent[] = [];
   const batch = new Set<string>();
   for (const event of events) {
-    if (isLogEvent(event) || !event.suppressed) continue;
+    if (isLogEvent(event) || isDeployEvent(event) || !event.suppressed) continue;
     const key = eventKey(event);
     if (seen.has(key) || batch.has(key)) continue;
     batch.add(key);
@@ -331,4 +344,96 @@ export function mergeCloudEvents(
 
 function eventKey(event: CloudEvent): string {
   return `event:${event.containerId}:${event.ts}`;
+}
+
+/**
+ * Puts Dozzle Cloud's verdicts on the update markers in a time-sorted run.
+ *
+ * A verdict is matched to its marker by container: an update is identified by
+ * the container it created, so each container has at most one. Where no marker
+ * stands for the update (Dozzle no longer remembers it: an agent's host, or a
+ * restart since), Dozzle Cloud's record of it is spliced in by time instead.
+ *
+ * `seen` carries the updates already placed by earlier loads, like mergeAlerts.
+ * Returns the run, a new array when a marker was added, and whether a verdict on
+ * a marker already in it changed, which needs a re-render of its own.
+ */
+export function mergeDeploys(
+  logs: LogEntry<LogMessage>[],
+  events: CloudEvent[],
+  seen: Set<string>,
+): { logs: LogEntry<LogMessage>[]; changed: boolean } {
+  const deploys = events.filter(isDeployEvent);
+  if (deploys.length === 0) return { logs, changed: false };
+
+  const markers = new Map<string, DeployLogEntry>();
+  for (const l of logs) {
+    if (l instanceof DeployLogEntry) markers.set(l.containerID, l);
+  }
+
+  let changed = false;
+  const fresh: DeployLogEntry[] = [];
+  for (const event of deploys) {
+    const key = deployKey(event.deploy);
+    const marker = markers.get(event.containerId);
+    if (marker) {
+      seen.add(key);
+      if (!sameVerdict(marker.verdict, event.deploy)) {
+        marker.verdict = event.deploy;
+        changed = true;
+      }
+      continue;
+    }
+    if (seen.has(key)) continue;
+    seen.add(key);
+    const entry = new DeployLogEntry(updateFromCloud(event), new Date(event.ts / 1_000_000));
+    entry.verdict = event.deploy;
+    markers.set(entry.containerID, entry);
+    fresh.push(entry);
+  }
+  if (fresh.length === 0) return { logs, changed };
+
+  fresh.sort((a, b) => a.date.getTime() - b.date.getTime());
+  const merged: LogEntry<LogMessage>[] = [];
+  let pending = 0;
+  for (const log of logs) {
+    while (pending < fresh.length && fresh[pending].date.getTime() <= log.date.getTime()) {
+      merged.push(fresh[pending++]);
+    }
+    merged.push(log);
+  }
+  while (pending < fresh.length) merged.push(fresh[pending++]);
+  return { logs: merged, changed };
+}
+
+function deployKey(deploy: DeployVerdict): string {
+  return `deploy:${deploy.deployId}`;
+}
+
+function sameVerdict(a: DeployVerdict | undefined, b: DeployVerdict): boolean {
+  return (
+    !!a &&
+    a.deployId === b.deployId &&
+    a.verdict === b.verdict &&
+    (a.reason ?? "") === (b.reason ?? "") &&
+    (a.decision ?? "") === (b.decision ?? "") &&
+    (a.url ?? "") === (b.url ?? "")
+  );
+}
+
+/** Dozzle Cloud's record of an update, in the shape Dozzle sends its own. */
+function updateFromCloud(event: CloudEvent & { deploy: DeployVerdict }): ContainerUpdate {
+  const d = event.deploy;
+  return {
+    host: event.hostId ?? "",
+    name: d.container ?? "",
+    oldId: "",
+    newId: event.containerId,
+    fromRef: d.fromRef,
+    toRef: d.toRef,
+    fromDigest: d.fromDigest,
+    toDigest: d.toDigest,
+    at: new Date(event.ts / 1_000_000).toISOString(),
+    source: "",
+  };
 }

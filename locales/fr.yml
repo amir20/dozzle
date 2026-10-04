@@ -1063,3 +1063,23 @@ rollback:
   done: "Retour à l'image précédente effectué"
   failed: "Échec du retour en arrière"
   unable: "Impossible de revenir en arrière pour ce conteneur"
+update-marker:
+  updated: "Mis à jour"
+  rolled-back: "Retour en arrière"
+  undone: "Mise à jour annulée"
+  roll-back: "Revenir en arrière"
+  by:
+    schedule: "par la planification des mises à jour"
+    dozzle: "depuis Dozzle"
+    cloud: "depuis Dozzle Cloud"
+    watchtower: "par Watchtower"
+    external: "en dehors de Dozzle"
+  verdict:
+    pending: "Dozzle Cloud surveille cette mise à jour"
+    clean: "Semble correcte"
+    regressed: "Semble cassée"
+    unsure: "Pourrait poser problème"
+    rolled_back_by_dozzle: "Dozzle a remis le conteneur précédent"
+  decision:
+    rolled_back: "Annulée"
+    kept: "Conservée"
