@@ -378,7 +378,7 @@ settings:
   after-restart: "Tras reiniciar"
   restart-pending: "1 cambio se aplica tras un reinicio | {count} cambios se aplican tras un reinicio"
   run-setup: "Volver a ejecutar la configuración"
-  run-setup-desc: "Un recorrido guiado por inicio de sesión, acciones, hosts, Dozzle Cloud y actualizaciones. Todo lo que contiene también está en Ajustes."
+  run-setup-desc: "Un recorrido guiado por inicio de sesión, acciones, hosts, Dozzle Cloud y actualizaciones. Todo lo que contiene también está en Configuración."
   reset: Restablecer valores predeterminados
   sponsor: Patrocinar
   new-version: "{version} disponible"
@@ -981,7 +981,7 @@ setup:
     done-title: "Todo listo"
     done-body: "Nada necesita un reinicio. Puede volver aquí desde Configuración cuando quiera."
     nothing-title: "Nada que reiniciar"
-    nothing-body: "Esta vez no se configuró ningún paso. Abre la configuración desde Ajustes cuando quieras."
+    nothing-body: "Esta vez no se configuró ningún paso. Abre el asistente desde Configuración cuando quieras."
     done: "Hecho"
   error:
     generic: "Algo salió mal. Inténtelo de nuevo."

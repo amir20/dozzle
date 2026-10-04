@@ -26,7 +26,10 @@ const i18n = createI18n({
   messages: {
     en: {
       settings: { "restart-pending": "1 change applies after a restart | {count} changes apply after a restart" },
-      setup: { restart: { button: "Restart Dozzle", manual: "Dozzle can't restart itself here." } },
+      setup: {
+        restart: { button: "Restart Dozzle", manual: "Dozzle can't restart itself here." },
+        actions: { "window-closed": "Setup window closed.", "no-access": "Your account can't change these settings." },
+      },
     },
   },
 });
@@ -101,5 +104,29 @@ describe("SetupRestartBanner", () => {
     const snippet = wrapper.find("pre").text();
     expect(snippet).toContain('DOZZLE_ENABLE_ACTIONS: "true"');
     expect(snippet).toContain('DOZZLE_ENABLE_SHELL: "true"');
+  });
+
+  test("when this account may not restart it says why, without the compose lines", () => {
+    const wrapper = mountBanner(status({ canWrite: false }));
+    expect(wrapper.text()).not.toContain("Restart Dozzle");
+    expect(wrapper.text()).not.toContain("Dozzle can't restart itself here.");
+    expect(wrapper.find("pre").exists()).toBe(false);
+    expect(wrapper.text()).toContain("Your account can't change these settings.");
+  });
+
+  test("without a login and outside the window it points at the window", () => {
+    const wrapper = mountBanner(status({ canWrite: false, authProvider: "none" }));
+    expect(wrapper.text()).toContain("Setup window closed.");
+    expect(wrapper.find("pre").exists()).toBe(false);
+  });
+
+  test("counts the schedule the restart starts, as the list shows it", () => {
+    const wrapper = mountBanner(
+      status({
+        pending: { enableActions: true },
+        autoUpdate: { mode: "daily", time: "03:00", supported: true, image: "amir20/dozzle", currentVersion: "v10" },
+      }),
+    );
+    expect(wrapper.text()).toContain("2 changes apply after a restart");
   });
 });

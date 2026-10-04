@@ -11,7 +11,7 @@ Los iconos van incluidos en Dozzle. Nunca se descargan de una CDN, así que nada
 
 ## Cómo desactivarlo
 
-La opción está en **Ajustes → Barra lateral → Iconos de apps**. Es un ajuste por perfil, así que solo afecta a tu navegador.
+La opción está en **Configuración → Barra lateral → Iconos de apps**. Es un ajuste por perfil, así que solo afecta a tu navegador.
 
 ## Cómo funciona la coincidencia
 
