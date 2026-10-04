@@ -23,12 +23,14 @@ type recordingClientService struct {
 	order    []string
 	fail     map[string]bool
 	rollBack map[string]bool
+	opts     []container.UpdateOptions
 }
 
-func (s *recordingClientService) UpdateContainer(ctx context.Context, c container.Container, progressCh chan<- container.UpdateProgress) (bool, error) {
+func (s *recordingClientService) UpdateContainer(ctx context.Context, c container.Container, opts container.UpdateOptions, progressCh chan<- container.UpdateProgress) (bool, error) {
 	defer close(progressCh)
 	s.mu.Lock()
 	s.order = append(s.order, c.ID)
+	s.opts = append(s.opts, opts)
 	s.mu.Unlock()
 
 	progressCh <- container.UpdateProgress{Status: "pulling", Layer: "a", Current: 5, Total: 10}
@@ -128,6 +130,33 @@ func TestBulkUpdate_RolledBackStaysRolledBack(t *testing.T) {
 	assert.Equal(t, "rolled-back", job.Items[0].Status)
 	assert.Equal(t, "replacement is unhealthy", job.Items[0].Error)
 	assert.Equal(t, "done", job.Items[1].Status)
+	require.NotEmpty(t, job.RunID)
+	want := container.UpdateOptions{Source: container.UpdateSourceSchedule, RunID: job.RunID}
+	assert.Equal(t, []container.UpdateOptions{want, want}, client.opts)
+}
+
+// Every container in a run carries the same run id, and each run gets its own,
+// so one scheduled night reads as one group.
+func TestBulkUpdate_StampsSourceAndRun(t *testing.T) {
+	client := &recordingClientService{}
+	start := func(trigger string) bulkUpdateJob {
+		u := newTestUpdater()
+		done, err := u.Start([]*container.ContainerService{
+			container.NewContainerService(client, container.Container{ID: "bbbbbbbbbbbb", Host: "local", Name: "web"}),
+		}, trigger, "", "", nil)
+		require.NoError(t, err)
+		waitDone(t, done)
+		job, _ := u.snapshot(nil)
+		return job
+	}
+
+	manual := start("manual")
+	scheduled := start("schedule")
+	assert.NotEqual(t, manual.RunID, scheduled.RunID)
+	assert.Equal(t, []container.UpdateOptions{
+		{Source: container.UpdateSourceDozzle, RunID: manual.RunID},
+		{Source: container.UpdateSourceSchedule, RunID: scheduled.RunID},
+	}, client.opts)
 }
 
 func TestBulkUpdate_SwarmServiceUpdatedOnce(t *testing.T) {
@@ -252,7 +281,7 @@ type blockingClientService struct {
 	release chan struct{}
 }
 
-func (s *blockingClientService) UpdateContainer(ctx context.Context, _ container.Container, progressCh chan<- container.UpdateProgress) (bool, error) {
+func (s *blockingClientService) UpdateContainer(ctx context.Context, _ container.Container, _ container.UpdateOptions, progressCh chan<- container.UpdateProgress) (bool, error) {
 	defer close(progressCh)
 	<-s.release
 	return false, nil

@@ -46,7 +46,7 @@ type ClientService interface {
 	ListContainers(ctx context.Context, filter container.ContainerLabels) ([]container.Container, error)
 	Host(ctx context.Context) (container.Host, error)
 	ContainerAction(ctx context.Context, container container.Container, action container.ContainerAction) error
-	UpdateContainer(ctx context.Context, container container.Container, progressCh chan<- container.UpdateProgress) (bool, error)
+	UpdateContainer(ctx context.Context, container container.Container, opts container.UpdateOptions, progressCh chan<- container.UpdateProgress) (bool, error)
 	CheckImageUpdate(ctx context.Context, container container.Container, force bool) (imagecheck.Result, error)
 	LogsBetweenDates(ctx context.Context, container container.Container, from time.Time, to time.Time, stdTypes container.StdType) (<-chan *container.LogEvent, error)
 	RawLogs(ctx context.Context, container container.Container, from time.Time, to time.Time, stdTypes container.StdType) (io.ReadCloser, error)
@@ -368,7 +368,7 @@ func (s *server) UpdateContainer(req *pb.UpdateContainerRequest, out pb.AgentSer
 	errCh := make(chan error, 1)
 
 	go func() {
-		_, err := s.service.UpdateContainer(out.Context(), c, progressCh)
+		_, err := s.service.UpdateContainer(out.Context(), c, container.UpdateOptions{Source: req.Source, RunID: req.RunId}, progressCh)
 		errCh <- err
 	}()
 

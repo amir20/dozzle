@@ -212,6 +212,7 @@ func (s *Store) applyList(previous map[string]*Container, containers []Container
 	listed := make(map[string]struct{}, len(containers))
 	for _, c := range containers {
 		listed[c.ID] = struct{}{}
+		s.updates.seen(c)
 		before := previous[c.ID]
 		if stored, touched := s.storeListed(before, c, full); !stored || touched {
 			continue
@@ -442,5 +443,8 @@ func (s *Store) mergeFetched(prev *Container, fetched Container) (current *Conta
 		updated = true
 		return &fetched, xsync.UpdateOp
 	})
+	if updated {
+		s.updates.seen(*current)
+	}
 	return current, found, updated
 }

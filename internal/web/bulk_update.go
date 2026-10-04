@@ -2,6 +2,8 @@ package web
 
 import (
 	"context"
+	"crypto/rand"
+	"encoding/hex"
 	"encoding/json"
 	"errors"
 	"net/http"
@@ -61,11 +63,16 @@ type bulkUpdateItem struct {
 
 type bulkUpdateJob struct {
 	Trigger string `json:"trigger"` // "manual" or "schedule"
+	// RunID is stamped on every container the job updates. See
+	// container.UpdateRunLabel.
+	RunID string `json:"runId"`
 	// requestedBy is the user who started a manual job. Every container in it
 	// was resolved against that user's labels.
 	requestedBy string
 	// flushUsage sends the day's usage before Dozzle replaces itself. May be nil.
 	flushUsage func()
+	// opts is what every update in the job is stamped with.
+	opts       container.UpdateOptions
 	StartedAt  time.Time         `json:"startedAt"`
 	FinishedAt *time.Time        `json:"finishedAt,omitempty"`
 	Items      []*bulkUpdateItem `json:"items"`
@@ -118,8 +125,15 @@ func (u *bulkUpdater) Start(services []*container.ContainerService, trigger, sel
 		return nil, errBulkUpdateBusy
 	}
 
+	// Every container in the run is stamped with what started it and the run
+	// it belongs to, so one scheduled night reads as one group of updates.
+	opts := container.UpdateOptions{Source: container.UpdateSourceDozzle, RunID: newRunID()}
+	if trigger == "schedule" {
+		opts.Source = container.UpdateSourceSchedule
+	}
+
 	seen := make(map[string]*bulkUpdateItem, len(services))
-	job := &bulkUpdateJob{Trigger: trigger, StartedAt: time.Now(), requestedBy: requestedBy, flushUsage: flushUsage}
+	job := &bulkUpdateJob{Trigger: trigger, RunID: opts.RunID, StartedAt: time.Now(), requestedBy: requestedBy, flushUsage: flushUsage, opts: opts}
 	for _, service := range services {
 		c := service.Container
 		self := isSelfContainer(c, selfService)
@@ -161,6 +175,13 @@ func (u *bulkUpdater) Start(services []*container.ContainerService, trigger, sel
 	return done, nil
 }
 
+// newRunID is a random id for one bulk run.
+func newRunID() string {
+	b := make([]byte, 8)
+	_, _ = rand.Read(b)
+	return hex.EncodeToString(b)
+}
+
 // idle closes once no job is running.
 func (u *bulkUpdater) idle() <-chan struct{} {
 	u.mu.Lock()
@@ -188,7 +209,7 @@ func (u *bulkUpdater) run(job *bulkUpdateJob) {
 	for _, items := range byHost {
 		wg.Go(func() {
 			for _, item := range items {
-				u.runItem(item)
+				u.runItem(item, job.opts)
 			}
 		})
 	}
@@ -197,7 +218,7 @@ func (u *bulkUpdater) run(job *bulkUpdateJob) {
 	// Everything else is finished, so marking the job done here lets watchers
 	// see the full result before Dozzle goes away.
 	if self != nil {
-		u.runItem(self)
+		u.runItem(self, job.opts)
 	}
 
 	u.mu.Lock()
@@ -208,14 +229,14 @@ func (u *bulkUpdater) run(job *bulkUpdateJob) {
 	u.notify()
 }
 
-func (u *bulkUpdater) runItem(item *bulkUpdateItem) {
+func (u *bulkUpdater) runItem(item *bulkUpdateItem, opts container.UpdateOptions) {
 	ctx, cancel := context.WithTimeout(context.Background(), bulkItemTimeout)
 	defer cancel()
 
 	progressCh := make(chan container.UpdateProgress, 50)
 	errCh := make(chan error, 1)
 	go func() {
-		_, err := item.service.Update(ctx, progressCh)
+		_, err := item.service.Update(ctx, opts, progressCh)
 		errCh <- err
 	}()
 

@@ -45,8 +45,14 @@ type Container struct {
 	OOMKilled bool `json:"-"`
 	// ExitCode is the last run's exit code; meaningful only once it has exited.
 	ExitCode int `json:"-"`
-	// ImageDigest is the image the container runs, as "repo@sha256:...". Only
-	// k8s fills it, from the pod status; Docker looks up RepoDigests per check.
+	// ImageID is the local image id the container runs ("sha256:..."). It is
+	// what tells an update apart from a restart: a tag can move without the
+	// container changing, but a new image id means a new image. Empty for k8s.
+	ImageID string `json:"-"`
+	// ImageDigest is the image the container runs, as "repo@sha256:...": the
+	// first RepoDigest for the repository the container was created from. k8s
+	// fills it from the pod status. Empty for an image built locally, and for a
+	// Docker container known only from a list.
 	ImageDigest string `json:"-"`
 }
 
@@ -249,7 +255,38 @@ const (
 	// pulled again by digest once it is gone locally. Absent for an image
 	// built locally, which has no registry digest.
 	PreviousRefLabel = "dev.dozzle.previous-ref"
+	// UpdateSourceLabel is what started the update that created the container,
+	// one of the UpdateSource* values. See ContainerUpdateEvent.Source.
+	UpdateSourceLabel = "dev.dozzle.update-source"
+	// UpdateRunLabel groups the updates of one bulk run, such as one scheduled
+	// night. Absent for an update that was not part of a run.
+	UpdateRunLabel = "dev.dozzle.update-run"
 )
+
+// Where an update came from. See ContainerUpdateEvent.Source.
+const (
+	// UpdateSourceSchedule is the auto-update schedule.
+	UpdateSourceSchedule = "schedule"
+	// UpdateSourceDozzle is someone in the Dozzle UI, one container or a bulk run.
+	UpdateSourceDozzle = "dozzle"
+	// UpdateSourceCloud is Dozzle Cloud's update_container tool.
+	UpdateSourceCloud = "cloud"
+	// UpdateSourceWatchtower is Watchtower, told apart by its labels.
+	UpdateSourceWatchtower = "watchtower"
+	// UpdateSourceExternal is anything else: compose, a script, by hand.
+	UpdateSourceExternal = "external"
+)
+
+// UpdateOptions say what started an update. An agent gets them with each
+// request, so the container it creates is stamped the same way.
+type UpdateOptions struct {
+	// Source is what started the update, one of the UpdateSource* values that
+	// Dozzle itself starts. It is stamped on the new container, so the update
+	// event says where it came from. Empty reads as UpdateSourceDozzle.
+	Source string
+	// RunID groups the updates of one bulk run. Empty outside a run.
+	RunID string
+}
 
 type LogEvent struct {
 	Type        LogType `json:"t,omitempty"`

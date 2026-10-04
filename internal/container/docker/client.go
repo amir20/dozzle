@@ -14,6 +14,7 @@ import (
 
 	"github.com/amir20/dozzle/internal/container"
 	"github.com/amir20/dozzle/internal/container/swap"
+	"github.com/amir20/dozzle/internal/imagecheck"
 	"github.com/amir20/dozzle/internal/selfupdate"
 	"github.com/amir20/dozzle/internal/utils"
 	docker "github.com/moby/moby/api/types/container"
@@ -70,6 +71,11 @@ type Client struct {
 	metrics   container.HostMetrics
 	metricsOK bool
 	metricsAt time.Time
+
+	// repoDigests caches an image id's RepoDigests, which every inspect needs for
+	// the container's ImageDigest. An image id never changes content, so only an
+	// image that had none yet (built locally, not pushed) is looked up again.
+	repoDigests sync.Map // image id -> []string
 }
 
 // hostMetricsCacheTTL bounds how stale the host card's numbers can be, while
@@ -227,6 +233,9 @@ func (d *Client) FindContainer(ctx context.Context, id string) (container.Contai
 	if result, err := d.cli.ContainerInspect(ctx, id, client.ContainerInspectOptions{}); err == nil {
 		c := newContainerFromJSON(result.Container, d.host.ID)
 		d.mergeServiceLabels(ctx, &c)
+		if c.ImageID != "" && result.Container.Config != nil {
+			c.ImageDigest = RepoDigest(d.cachedRepoDigests(ctx, c.ImageID), swap.ImageRef(result.Container.Config))
+		}
 		return c, nil
 	} else {
 		return container.Container{}, err
@@ -269,6 +278,41 @@ func (d *Client) ImageRepoDigests(ctx context.Context, imageID string) ([]string
 	}
 
 	return result.RepoDigests, nil
+}
+
+// cachedRepoDigests is ImageRepoDigests through the cache. A failed lookup is
+// not an error worth failing an inspect over: the container just has no digest.
+func (d *Client) cachedRepoDigests(ctx context.Context, imageID string) []string {
+	if cached, ok := d.repoDigests.Load(imageID); ok {
+		return cached.([]string)
+	}
+	digests, err := d.ImageRepoDigests(ctx, imageID)
+	if err != nil {
+		log.Debug().Err(err).Str("imageId", imageID).Msg("unable to inspect image for its digest")
+		return nil
+	}
+	if len(digests) > 0 {
+		d.repoDigests.Store(imageID, digests)
+	}
+	return digests
+}
+
+// RepoDigest picks the digest for the repository ref names out of an image's
+// RepoDigests, falling back to the first one: an image can carry digests for
+// several repositories, and only the one it was pulled as is comparable. Empty
+// when there are none, as for an image built locally.
+func RepoDigest(digests []string, ref string) string {
+	if len(digests) == 0 {
+		return ""
+	}
+	if want, err := imagecheck.ParseReference(ref); err == nil {
+		for _, digest := range digests {
+			if got, err := imagecheck.ParseReference(digest); err == nil && got.Registry == want.Registry && got.Repository == want.Repository {
+				return digest
+			}
+		}
+	}
+	return digests[0]
 }
 
 // ImageID resolves an image reference to the local image ID it currently
@@ -690,6 +734,7 @@ func newContainer(c docker.Summary, host string) container.Container {
 		ID:      c.ID[:12],
 		Name:    name,
 		Image:   c.Image,
+		ImageID: c.ImageID,
 		Command: c.Command,
 		Created: time.Unix(c.Created, 0),
 		State:   string(c.State),
@@ -750,6 +795,7 @@ func newContainerFromJSON(c docker.InspectResponse, host string) container.Conta
 		ID:            c.ID[:12],
 		Name:          name,
 		Image:         c.Config.Image,
+		ImageID:       c.Image,
 		Command:       strings.Join(c.Config.Entrypoint, " ") + " " + strings.Join(c.Config.Cmd, " "),
 		State:         string(c.State.Status),
 		Host:          host,

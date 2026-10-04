@@ -235,7 +235,7 @@ func (d *Service) CheckImageUpdate(ctx context.Context, c container.Container, f
 	return d.checker.Check(ctx, swap.ImageRef(inspect.Config), digests, force), nil
 }
 
-func (d *Service) UpdateContainer(ctx context.Context, c container.Container, progressCh chan<- container.UpdateProgress) (bool, error) {
+func (d *Service) UpdateContainer(ctx context.Context, c container.Container, opts container.UpdateOptions, progressCh chan<- container.UpdateProgress) (bool, error) {
 	defer close(progressCh)
 
 	// The consumer is a request: an SSE handler that returns the moment a write
@@ -301,7 +301,8 @@ func (d *Service) UpdateContainer(ctx context.Context, c container.Container, pr
 	// happens whenever it was pulled or built before the container was
 	// recreated.
 	updated := false
-	if newImageID, err := d.client.ImageID(ctx, imageName); err != nil {
+	newImageID, err := d.client.ImageID(ctx, imageName)
+	if err != nil {
 		log.Warn().Err(err).Str("image", imageName).Msg("unable to resolve pulled image, falling back to recreate")
 		updated = true
 	} else {
@@ -366,7 +367,7 @@ func (d *Service) UpdateContainer(ctx context.Context, c container.Container, pr
 
 	result, err := swap.Swap(ctx, d.client.SwapAPI(), inspectResp, swap.Options{
 		OldImage:    oldImage,
-		Labels:      swap.PreviousLabels(inspectResp, oldImage, imageName),
+		Labels:      withUpdateLabels(swap.PreviousLabels(inspectResp, oldImage, imageName), opts),
 		OnVerifying: func() { progress(container.UpdateProgress{Status: container.UpdateVerifying}) },
 	})
 	if err != nil {
@@ -378,6 +379,7 @@ func (d *Service) UpdateContainer(ctx context.Context, c container.Container, pr
 			}
 		}
 		if result.RolledBack {
+			d.recordRolledBack(ctx, c, inspectResp, oldImage, imageName, newImageID, result, opts)
 			progress(container.UpdateProgress{Status: container.UpdateRolledBack, Error: err.Error()})
 			return false, fmt.Errorf("update rolled back: %w", err)
 		}
@@ -396,6 +398,81 @@ func (d *Service) UpdateContainer(ctx context.Context, c container.Container, pr
 
 	progress(container.UpdateProgress{Status: container.UpdateDone})
 	return true, nil
+}
+
+// withUpdateLabels adds the update's source and run to the labels the new
+// container carries. The update event reads them back off its start; an empty
+// run clears one the old container was updated in.
+func withUpdateLabels(labels map[string]string, opts container.UpdateOptions) map[string]string {
+	labels[container.UpdateSourceLabel] = updateSource(opts)
+	labels[container.UpdateRunLabel] = opts.RunID
+	return labels
+}
+
+// updateSource is what the new container's dev.dozzle.update-source says.
+func updateSource(opts container.UpdateOptions) string {
+	if opts.Source == "" {
+		return container.UpdateSourceDozzle
+	}
+	return opts.Source
+}
+
+// recordRolledBack adds the update a swap tried and undid to the host's update
+// events. The store cannot see it on its own: the replacement may never have
+// started, and the old container coming back is not an update.
+func (d *Service) recordRolledBack(ctx context.Context, c container.Container, old docker_types.InspectResponse, oldImage *image.InspectResponse, ref, newImageID string, result swap.Result, opts container.UpdateOptions) {
+	if d.store == nil {
+		return
+	}
+	event := container.ContainerUpdateEvent{
+		Host:        c.Host,
+		Name:        c.Name,
+		OldID:       shortContainerID(old.ID),
+		NewID:       shortContainerID(result.RestoredID),
+		FromRef:     old.Config.Image,
+		ToRef:       old.Config.Image,
+		FromDigest:  swap.PreviousRef(oldImage, ref),
+		FromImageID: old.Image,
+		ToImageID:   newImageID,
+		Source:      updateSource(opts),
+		RunID:       opts.RunID,
+	}
+	if old.State != nil {
+		if startedAt, err := time.Parse(time.RFC3339Nano, old.State.StartedAt); err == nil {
+			event.OldStartedAt = startedAt.UTC()
+		}
+	}
+	if newImageID != "" {
+		if img, err := d.client.ImageInspect(ctx, newImageID); err == nil {
+			event.ToDigest = RepoDigest(img.RepoDigests, ref)
+		}
+	}
+	d.store.RecordRolledBack(event)
+}
+
+// shortContainerID is the 12-character id the store keys containers by.
+func shortContainerID(id string) string {
+	if len(id) > 12 {
+		return id[:12]
+	}
+	return id
+}
+
+var _ container.UpdateHistory = (*Service)(nil)
+
+// RecentUpdates is this host's last update events, oldest first.
+func (d *Service) RecentUpdates() []container.ContainerUpdateEvent {
+	if d.store == nil {
+		return nil
+	}
+	return d.store.RecentUpdates()
+}
+
+// SubscribeUpdates sends this host's update events to ch until ctx ends.
+func (d *Service) SubscribeUpdates(ctx context.Context, ch chan<- container.ContainerUpdateEvent) {
+	if d.store != nil {
+		d.store.SubscribeUpdates(ctx, ch)
+	}
 }
 
 // rejoinDependents recreates every container in ids, which shared the network

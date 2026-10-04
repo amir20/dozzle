@@ -122,6 +122,7 @@ type MockClientService struct {
 	// updateProgress is what UpdateContainer reports, and updateErr what it returns.
 	updateProgress []container.UpdateProgress
 	updateErr      error
+	updateOpts     container.UpdateOptions
 }
 
 func (m *MockClientService) FindContainer(_ context.Context, _ string, _ container.ContainerLabels) (container.Container, error) {
@@ -170,8 +171,9 @@ func (m *MockClientService) CheckImageUpdate(_ context.Context, c container.Cont
 	return imagecheck.Result{Image: c.Image, Status: imagecheck.StatusUpToDate}, nil
 }
 
-func (m *MockClientService) UpdateContainer(_ context.Context, _ container.Container, progressCh chan<- container.UpdateProgress) (bool, error) {
+func (m *MockClientService) UpdateContainer(_ context.Context, _ container.Container, opts container.UpdateOptions, progressCh chan<- container.UpdateProgress) (bool, error) {
 	defer close(progressCh)
+	m.updateOpts = opts
 	for _, p := range m.updateProgress {
 		progressCh <- p
 	}
@@ -188,6 +190,7 @@ func TestExecuteTool_UpdateContainerRolledBackFails(t *testing.T) {
 	deps := ToolDeps{HostService: mockHost, EnableActions: true}
 	resp := ExecuteTool(context.Background(), "update_container", `{"container_id":"abc123"}`, deps)
 	assert.True(t, resp.Success, resp.Error)
+	assert.Equal(t, container.UpdateOptions{Source: container.UpdateSourceCloud}, mockClient.updateOpts, "the update is stamped as the cloud tool's")
 
 	// A rolled back update is a failure, and says so.
 	mockClient.updateProgress = []container.UpdateProgress{{Status: container.UpdateRolledBack, Error: "replacement is unhealthy"}}

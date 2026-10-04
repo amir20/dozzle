@@ -82,7 +82,6 @@ type Container struct {
 	Image         string                 `protobuf:"bytes,3,opt,name=image,proto3" json:"image,omitempty"`
 	Status        string                 `protobuf:"bytes,4,opt,name=status,proto3" json:"status,omitempty"` // deprecated
 	State         string                 `protobuf:"bytes,5,opt,name=state,proto3" json:"state,omitempty"`
-	ImageId       string                 `protobuf:"bytes,6,opt,name=ImageId,proto3" json:"ImageId,omitempty"` // deprecated
 	Created       *timestamppb.Timestamp `protobuf:"bytes,7,opt,name=created,proto3" json:"created,omitempty"`
 	Started       *timestamppb.Timestamp `protobuf:"bytes,8,opt,name=started,proto3" json:"started,omitempty"`
 	Health        string                 `protobuf:"bytes,9,opt,name=health,proto3" json:"health,omitempty"`
@@ -105,6 +104,11 @@ type Container struct {
 	RestartCount  int32                  `protobuf:"varint,27,opt,name=restartCount,proto3" json:"restartCount,omitempty"`
 	OomKilled     bool                   `protobuf:"varint,28,opt,name=oomKilled,proto3" json:"oomKilled,omitempty"`
 	ExitCode      int32                  `protobuf:"varint,29,opt,name=exitCode,proto3" json:"exitCode,omitempty"`
+	// imageId is the local image id ("sha256:..."), imageDigest the image as
+	// repo@sha256:... (empty for an image built locally). Together they tell an
+	// update apart from a restart.
+	ImageId       string `protobuf:"bytes,30,opt,name=imageId,proto3" json:"imageId,omitempty"`
+	ImageDigest   string `protobuf:"bytes,31,opt,name=imageDigest,proto3" json:"imageDigest,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -170,13 +174,6 @@ func (x *Container) GetStatus() string {
 func (x *Container) GetState() string {
 	if x != nil {
 		return x.State
-	}
-	return ""
-}
-
-func (x *Container) GetImageId() string {
-	if x != nil {
-		return x.ImageId
 	}
 	return ""
 }
@@ -333,6 +330,20 @@ func (x *Container) GetExitCode() int32 {
 		return x.ExitCode
 	}
 	return 0
+}
+
+func (x *Container) GetImageId() string {
+	if x != nil {
+		return x.ImageId
+	}
+	return ""
+}
+
+func (x *Container) GetImageDigest() string {
+	if x != nil {
+		return x.ImageDigest
+	}
+	return ""
 }
 
 type ContainerStat struct {
@@ -1573,14 +1584,13 @@ var File_types_proto protoreflect.FileDescriptor
 
 const file_types_proto_rawDesc = "" +
 	"\n" +
-	"\vtypes.proto\x12\bprotobuf\x1a\x19google/protobuf/any.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xd4\a\n" +
+	"\vtypes.proto\x12\bprotobuf\x1a\x19google/protobuf/any.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xfc\a\n" +
 	"\tContainer\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12\x14\n" +
 	"\x05image\x18\x03 \x01(\tR\x05image\x12\x16\n" +
 	"\x06status\x18\x04 \x01(\tR\x06status\x12\x14\n" +
-	"\x05state\x18\x05 \x01(\tR\x05state\x12\x18\n" +
-	"\aImageId\x18\x06 \x01(\tR\aImageId\x124\n" +
+	"\x05state\x18\x05 \x01(\tR\x05state\x124\n" +
 	"\acreated\x18\a \x01(\v2\x1a.google.protobuf.TimestampR\acreated\x124\n" +
 	"\astarted\x18\b \x01(\v2\x1a.google.protobuf.TimestampR\astarted\x12\x16\n" +
 	"\x06health\x18\t \x01(\tR\x06health\x12\x12\n" +
@@ -1605,10 +1615,12 @@ const file_types_proto_rawDesc = "" +
 	"\x06mounts\x18\x1a \x03(\v2\x0f.protobuf.MountR\x06mounts\x12\"\n" +
 	"\frestartCount\x18\x1b \x01(\x05R\frestartCount\x12\x1c\n" +
 	"\toomKilled\x18\x1c \x01(\bR\toomKilled\x12\x1a\n" +
-	"\bexitCode\x18\x1d \x01(\x05R\bexitCode\x1a9\n" +
+	"\bexitCode\x18\x1d \x01(\x05R\bexitCode\x12\x18\n" +
+	"\aimageId\x18\x1e \x01(\tR\aimageId\x12 \n" +
+	"\vimageDigest\x18\x1f \x01(\tR\vimageDigest\x1a9\n" +
 	"\vLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01J\x04\b\x16\x10\x17\"\xa5\x02\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01J\x04\b\x06\x10\aJ\x04\b\x16\x10\x17\"\xa5\x02\n" +
 	"\rContainerStat\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x1e\n" +
 	"\n" +

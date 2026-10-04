@@ -107,6 +107,10 @@ message ContainerActionResponse {}
 message UpdateContainerRequest {
   string containerId = 1;
   reserved 2;
+  // source and runId are stamped on the new container (dev.dozzle.update-source
+  // and dev.dozzle.update-run), so the update event says what started it.
+  string source = 3;
+  string runId = 4;
 }
 
 message UpdateContainerProgress {

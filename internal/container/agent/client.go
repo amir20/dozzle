@@ -504,10 +504,10 @@ func (c *Client) ContainerAction(ctx context.Context, containerId string, action
 	return err
 }
 
-func (c *Client) UpdateContainer(ctx context.Context, containerID string, progressCh chan<- container.UpdateProgress) (bool, error) {
+func (c *Client) UpdateContainer(ctx context.Context, containerID string, opts container.UpdateOptions, progressCh chan<- container.UpdateProgress) (bool, error) {
 	defer close(progressCh)
 
-	stream, err := c.client.UpdateContainer(ctx, &pb.UpdateContainerRequest{ContainerId: containerID})
+	stream, err := c.client.UpdateContainer(ctx, &pb.UpdateContainerRequest{ContainerId: containerID, Source: opts.Source, RunId: opts.RunID})
 	if err != nil {
 		return false, err
 	}

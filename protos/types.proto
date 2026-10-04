@@ -13,7 +13,10 @@ message Container {
   string image = 3;
   string status = 4; // deprecated
   string state = 5;
-  string ImageId = 6; // deprecated
+  // Field 6 was a deprecated `string ImageId` nothing filled. imageId (30)
+  // replaces it on a new tag, so an old agent's field 6 can never be read as
+  // the new one.
+  reserved 6;
   google.protobuf.Timestamp created = 7;
   google.protobuf.Timestamp started = 8;
   string health = 9;
@@ -40,6 +43,11 @@ message Container {
   int32 restartCount = 27;
   bool oomKilled = 28;
   int32 exitCode = 29;
+  // imageId is the local image id ("sha256:..."), imageDigest the image as
+  // repo@sha256:... (empty for an image built locally). Together they tell an
+  // update apart from a restart.
+  string imageId = 30;
+  string imageDigest = 31;
 }
 
 message ContainerStat {
