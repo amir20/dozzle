@@ -22,6 +22,7 @@ import (
 	"github.com/go-faker/faker/v4/pkg/options"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
+	"github.com/stretchr/testify/require"
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/test/bufconn"
@@ -113,9 +114,13 @@ func (m *MockedClientService) Exec(ctx context.Context, c container.Container, c
 	return args.Error(0)
 }
 
-func (m *MockedClientService) UpdateContainer(ctx context.Context, c container.Container, progressCh chan<- container.UpdateProgress) (bool, error) {
-	args := m.Called(ctx, c, progressCh)
-	return args.Bool(0), args.Error(1)
+func (m *MockedClientService) UpdateContainer(ctx context.Context, c container.Container, opts container.UpdateOptions, progressCh chan<- container.UpdateProgress) (bool, error) {
+	defer close(progressCh)
+	args := m.Called(ctx, c, opts)
+	for _, p := range args.Get(0).([]container.UpdateProgress) {
+		progressCh <- p
+	}
+	return args.Bool(1), args.Error(2)
 }
 
 func (m *MockedClientService) CheckImageUpdate(ctx context.Context, c container.Container, force bool) (imagecheck.Result, error) {
@@ -168,6 +173,12 @@ func init() {
 
 	mockService.On("Client").Return(nil)
 
+	mockService.On("UpdateContainer", mock.Anything, mock.Anything, container.UpdateOptions{Cleanup: true}).Return([]container.UpdateProgress{
+		{Status: container.UpdateRecreating},
+		{Status: container.UpdateVerifying},
+		{Status: container.UpdateRolledBack, Error: "replacement is unhealthy"},
+	}, false, nil)
+
 	mockService.On("StreamLogs", mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(nil).Run(func(args mock.Arguments) {
 		events := args.Get(4).(chan<- *container.LogEvent)
 		for _, e := range streamedLogEvents {
@@ -205,6 +216,28 @@ func TestListContainers(t *testing.T) {
 	assert.Equal(t, []container.Container{
 		wantedContainer,
 	}, containers)
+}
+
+// The server's cleanup setting reaches the agent with the request, and the
+// swap's statuses come back as they are.
+func TestUpdateContainerCarriesCleanupAndStatuses(t *testing.T) {
+	rpc, err := NewClient("passthrough://bufnet", certs, grpc.WithContextDialer(bufDialer))
+	require.NoError(t, err)
+
+	progress := make(chan container.UpdateProgress, 10)
+	updated, err := rpc.UpdateContainer(context.Background(), "123456", container.UpdateOptions{Cleanup: true}, progress)
+	require.NoError(t, err)
+	assert.False(t, updated, "a rolled back update did not update anything")
+
+	var got []container.UpdateProgress
+	for p := range progress {
+		got = append(got, p)
+	}
+	assert.Equal(t, []container.UpdateProgress{
+		{Status: container.UpdateRecreating},
+		{Status: container.UpdateVerifying},
+		{Status: container.UpdateRolledBack, Error: "replacement is unhealthy"},
+	}, got)
 }
 
 var streamedLogEvents = []*container.LogEvent{

@@ -1,6 +1,6 @@
 ---
 title: Container-Aktionen
-sourceHash: 347c47e3b567
+sourceHash: 6878c6f4761b
 ---
 
 # Container-Aktionen
@@ -10,6 +10,8 @@ sourceHash: 347c47e3b567
 Dozzle unterstützt Container-Aktionen: Über das Dropdown-Menü rechts neben den Container-Statistiken kannst du Container `start`en, `stop`pen, neu starten (`restart`), entfernen (`remove`) und aktualisieren (`update`). Diese Funktion ist standardmäßig **deaktiviert** und lässt sich aktivieren, indem du die Umgebungsvariable `DOZZLE_ENABLE_ACTIONS` auf `true` setzt.
 
 Die Aktion `update` lädt das neueste Image für den Container und erstellt ihn mit derselben Konfiguration neu — praktisch, um einen Container an Ort und Stelle zu aktualisieren, ohne seine Compose-Datei zu bearbeiten. `update` hat nur dann einen spürbaren Effekt, wenn das Image ein bewegliches Tag nutzt (z. B. `latest`, `stable`); bei einem fest gepinnten Tag wird schlicht dasselbe Image erneut geladen.
+
+Der alte Container bleibt umbenannt erhalten, bis der neue 10 Sekunden lang ohne Neustart gelaufen ist und, falls sein Image einen Healthcheck hat, als gesund gemeldet wurde. Startet der neue Container nicht, beendet er sich, startet er neu oder wird er ungesund, entfernt Dozzle ihn und stellt den alten wieder her. Das Update meldet dann **zurückgerollt** mit dem Grund. Der neue Container bekommt das Label `dev.dozzle.previous-image` mit der Image-ID, die er ersetzt hat, und `dev.dozzle.previous-ref` mit dem Digest `repo@sha256:…` dieses Images (fehlt bei lokal gebauten Images).
 
 > [!WARNING]
 > `remove` und `update` erstellen den Container neu. Daten in **anonymen Volumes** oder in der beschreibbaren Schicht des Containers gehen dabei verloren. Benannte Volumes und Bind-Mounts bleiben erhalten.
@@ -119,3 +121,23 @@ Container mit diesem Label folgen demselben Zeitplan wie [das automatische Updat
 Das automatische Update ist bewusst Opt-in. Eine Datenbank auf einem beweglichen Tag wie `postgres:latest` kann auf eine neue Hauptversion springen, deren Datendateien sie nicht lesen kann. Versieh also nur Container mit dem Label, bei denen es dich nicht stört, wenn sie ohne dein Zutun ersetzt werden. Container, die Dozzle [nicht prüfen kann](#was-sich-nicht-prufen-lasst), etwa solche aus einer privaten Registry, werden nie automatisch aktualisiert.
 
 Das automatische Update läuft im Server-Modus, auch für Container auf [Remote-Agents](/de/guide/agent). Es setzt eingeschaltete Aktionen voraus.
+
+## Alte Images aufräumen {#cleaning-up-old-images}
+
+Jedes Update lässt das ersetzte Image auf dem Host zurück. Mit `DOZZLE_AUTO_UPDATE_CLEANUP=true` entfernt Dozzle nach einem Update alte Images, ähnlich wie Watchtowers `--cleanup`. Die Option ist standardmäßig aus und gilt für jedes Update: geplant, über die Aktion `Update` eines Containers oder über die Update-Leiste.
+
+Dozzle behält das Image, mit dem der Container bisher lief, damit er noch dorthin zurück kann, und entfernt das davor. Ein Update von 1.4.1 auf 1.4.2 entfernt 1.4.0 und behält 1.4.1, sodass jeder Container höchstens ein Ersatz-Image behält. Welches Image entfernt wird, liest Dozzle aus dem Label `dev.dozzle.previous-image` des alten Containers. Das erste Update nach dem Einschalten entfernt deshalb nichts.
+
+Aufgeräumt wird erst, wenn der neue Container stabil läuft und der alte entfernt ist. Ein zurückgerolltes Update entfernt nichts. Das Image wird per ID und ohne Zwang entfernt, also verweigert Docker das, solange ein anderer Container es noch nutzt, ob laufend oder gestoppt, oder ein anderes Tag darauf zeigt. Eine Weigerung lässt das Update nie fehlschlagen.
+
+Um die alten Images eines Containers zu behalten, etwa bei einem Image, das du auch von Hand startest, versieh ihn mit diesem Label:
+
+```yaml [docker-compose.yml]
+services:
+  whoami:
+    image: traefik/whoami:latest
+    labels:
+      dev.dozzle.update-cleanup: false
+```
+
+Die Einstellung lässt sich auch als `autoUpdateCleanup` in der [`dozzle.yml`](/de/guide/setup-wizard) speichern. Container auf [Remote-Agents](/de/guide/agent) folgen der Einstellung des Dozzle, mit dem sie verbunden sind. Swarm-Services werden nicht aufgeräumt, da jeder Node seine eigenen Images hat und Swarm seinen Task-Verlauf selbst bereinigt.

@@ -12,6 +12,7 @@ import (
 	"time"
 
 	"github.com/amir20/dozzle/internal/container"
+	"github.com/amir20/dozzle/internal/container/swap"
 	dockerspec "github.com/moby/docker-image-spec/specs-go/v1"
 	dcontainer "github.com/moby/moby/api/types/container"
 	"github.com/moby/moby/api/types/image"
@@ -250,50 +251,11 @@ func newFake() *fakeDocker {
 }
 
 func fastTimings(t *testing.T) {
-	prev := []time.Duration{stableFor, healthTimeout, goneTimeout, pollInterval}
-	stableFor, healthTimeout, goneTimeout, pollInterval = 5*time.Millisecond, 20*time.Millisecond, 20*time.Millisecond, time.Millisecond
-	t.Cleanup(func() { stableFor, healthTimeout, goneTimeout, pollInterval = prev[0], prev[1], prev[2], prev[3] })
-}
-
-func TestReplacementSpec(t *testing.T) {
-	old := dozzleContainer()
-	img := oldImage()
-	spec := ReplacementSpec(old, &img, "dozzle")
-
-	assert.Equal(t, "dozzle", spec.Name)
-	assert.Equal(t, "amir20/dozzle:latest", spec.Config.Image)
-	assert.Empty(t, spec.Config.Hostname, "hostname derived from the old id is dropped")
-	assert.Equal(t, []string{"DOZZLE_LEVEL=debug"}, spec.Config.Env, "image env is dropped, user env kept")
-	assert.Nil(t, spec.Config.Entrypoint, "image entrypoint is left to the new image")
-	assert.Equal(t, map[string]string{"com.docker.compose.service": "dozzle"}, spec.Config.Labels)
-
-	assert.Equal(t, []string{"/var/run/docker.sock:/var/run/docker.sock", "named:/named"}, spec.HostConfig.Binds)
-	assert.Equal(t, []mount.Mount{
-		{Type: mount.TypeVolume, Source: "anon-data", Target: "/data"},
-		{Type: mount.TypeVolume, Source: "anon-cache", Target: "/cache", ReadOnly: true},
-	}, spec.HostConfig.Mounts, "anonymous volumes are reused by name")
-	assert.Nil(t, spec.Config.Volumes)
-
-	require.NotNil(t, spec.NetworkingConfig)
-	ep := spec.NetworkingConfig.EndpointsConfig["app_default"]
-	require.NotNil(t, ep)
-	assert.Equal(t, []string{"dozzle"}, ep.Aliases)
-	assert.Empty(t, ep.NetworkID)
-	assert.Empty(t, ep.EndpointID)
-
-	// The inspect is not mutated.
-	assert.Equal(t, "aaaaaaaaaaaa", old.Config.Hostname)
-	assert.Len(t, old.Config.Volumes, 2)
-	assert.Len(t, old.NetworkSettings.Networks["app_default"].Aliases, 2)
-}
-
-func TestReplacementSpecSharedNamespace(t *testing.T) {
-	old := dozzleContainer()
-	old.HostConfig.NetworkMode = "container:vpn"
-	old.HostConfig.PortBindings = nil
-	spec := ReplacementSpec(old, nil, "dozzle")
-	assert.Nil(t, spec.NetworkingConfig)
-	assert.Empty(t, spec.Config.Hostname)
+	prev := []time.Duration{swap.StableFor, swap.HealthTimeout, swap.GoneTimeout, swap.PollInterval}
+	swap.StableFor, swap.HealthTimeout, swap.GoneTimeout, swap.PollInterval = 5*time.Millisecond, 20*time.Millisecond, 20*time.Millisecond, time.Millisecond
+	t.Cleanup(func() {
+		swap.StableFor, swap.HealthTimeout, swap.GoneTimeout, swap.PollInterval = prev[0], prev[1], prev[2], prev[3]
+	})
 }
 
 func TestHelperSpec(t *testing.T) {
@@ -482,51 +444,20 @@ func TestRunAutoRemoveRollbackRecreatesOld(t *testing.T) {
 	}, f.calls)
 	restored := f.created[1]
 	assert.Equal(t, oldImgID, restored.Config.Image)
-	assert.Equal(t, "amir20/dozzle:latest", ImageRef(restored.Config), "the tag survives so the next update can pull it")
+	assert.Equal(t, "amir20/dozzle:latest", swap.ImageRef(restored.Config), "the tag survives so the next update can pull it")
 	assert.Contains(t, restored.HostConfig.Mounts, mount.Mount{Type: mount.TypeVolume, Source: "anon-data", Target: "/data"})
 
 	// The restored container still updates: its next replacement is on the tag.
 	again := f.containers[selfID]
 	again.Config = restored.Config
-	next := ReplacementSpec(again, nil, "dozzle")
+	next := swap.ReplacementSpec(again, nil, "dozzle")
 	assert.Equal(t, "amir20/dozzle:latest", next.Config.Image)
-	assert.NotContains(t, next.Config.Labels, imageRefLabel)
+	assert.NotContains(t, next.Config.Labels, swap.ImageRefLabel)
 	g := newFake()
 	g.containers[selfID] = again
 	ok, reason, ref := support(context.Background(), g, selfID)
 	assert.True(t, ok, reason)
 	assert.Equal(t, "amir20/dozzle:latest", ref)
-}
-
-// The old --rm container is still removing itself when the forward wait gave
-// up. Removing the replacement then would leave its anonymous volumes
-// unreferenced for that removal to delete.
-func slowRemoval(t *testing.T, inspectsUntilGone int) (*fakeDocker, *swap) {
-	fastTimings(t)
-	f := newFake()
-	old := f.containers[selfID]
-	old.HostConfig.AutoRemove = true
-	f.containers[selfID] = old
-	f.containers["new1"] = dcontainer.InspectResponse{ID: "new1", State: &dcontainer.State{}}
-	f.goneAfter = map[string]int{selfID: inspectsUntilGone}
-	return f, &swap{cli: f, old: old, name: "dozzle", tmpName: oldName("dozzle", selfID), renamed: true, stopped: true, newID: "new1"}
-}
-
-func TestRollbackWaitsForOldRemovalBeforeRemovingReplacement(t *testing.T) {
-	f, s := slowRemoval(t, 3)
-	require.NoError(t, s.rollback(context.Background()))
-	assert.Equal(t, []string{
-		"gone " + selfID,
-		"remove new1 volumes=false",
-		"create dozzle",
-		"start new1", // the fake numbers ids by creates, and this swap made none
-	}, f.calls)
-}
-
-func TestRollbackKeepsReplacementWhileOldStillRemoving(t *testing.T) {
-	f, s := slowRemoval(t, 1_000_000)
-	require.ErrorContains(t, s.rollback(context.Background()), "keeping replacement")
-	assert.NotContains(t, f.calls, "remove new1 volumes=false")
 }
 
 func TestRunAutoRemoveSuccess(t *testing.T) {

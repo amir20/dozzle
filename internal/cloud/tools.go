@@ -400,6 +400,16 @@ type ToolDeps struct {
 	// unset field never grants more than it used to.
 	Principal           Principal
 	NotificationService NotificationService
+	// UpdateOptions are the server's update settings (--auto-update-cleanup),
+	// read at each update. Nil means the defaults.
+	UpdateOptions func() container.UpdateOptions
+}
+
+func (d ToolDeps) updateOptions() container.UpdateOptions {
+	if d.UpdateOptions == nil {
+		return container.UpdateOptions{}
+	}
+	return d.UpdateOptions()
 }
 
 // scoped returns the host service already confined to the principal's labels.

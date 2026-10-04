@@ -943,8 +943,11 @@ func (*ContainerActionResponse) Descriptor() ([]byte, []int) {
 }
 
 type UpdateContainerRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	ContainerId   string                 `protobuf:"bytes,1,opt,name=containerId,proto3" json:"containerId,omitempty"`
+	state       protoimpl.MessageState `protogen:"open.v1"`
+	ContainerId string                 `protobuf:"bytes,1,opt,name=containerId,proto3" json:"containerId,omitempty"`
+	// cleanup follows the server's --auto-update-cleanup: once the update
+	// commits, remove the image the replaced container had itself replaced.
+	Cleanup       bool `protobuf:"varint,2,opt,name=cleanup,proto3" json:"cleanup,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -984,6 +987,13 @@ func (x *UpdateContainerRequest) GetContainerId() string {
 		return x.ContainerId
 	}
 	return ""
+}
+
+func (x *UpdateContainerRequest) GetCleanup() bool {
+	if x != nil {
+		return x.Cleanup
+	}
+	return false
 }
 
 type UpdateContainerProgress struct {
@@ -1976,9 +1986,10 @@ const file_rpc_proto_rawDesc = "" +
 	"\x16ContainerActionRequest\x12 \n" +
 	"\vcontainerId\x18\x01 \x01(\tR\vcontainerId\x121\n" +
 	"\x06action\x18\x02 \x01(\x0e2\x19.protobuf.ContainerActionR\x06action\"\x19\n" +
-	"\x17ContainerActionResponse\":\n" +
+	"\x17ContainerActionResponse\"T\n" +
 	"\x16UpdateContainerRequest\x12 \n" +
-	"\vcontainerId\x18\x01 \x01(\tR\vcontainerId\"\x8d\x01\n" +
+	"\vcontainerId\x18\x01 \x01(\tR\vcontainerId\x12\x18\n" +
+	"\acleanup\x18\x02 \x01(\bR\acleanup\"\x8d\x01\n" +
 	"\x17UpdateContainerProgress\x12\x16\n" +
 	"\x06status\x18\x01 \x01(\tR\x06status\x12\x14\n" +
 	"\x05layer\x18\x02 \x01(\tR\x05layer\x12\x18\n" +

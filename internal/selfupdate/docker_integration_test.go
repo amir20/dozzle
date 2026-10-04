@@ -9,6 +9,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/amir20/dozzle/internal/container/swap"
+
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -22,9 +24,9 @@ func TestRunAgainstDocker(t *testing.T) {
 	if os.Getenv("SELFUPDATE_DOCKER_IT") == "" {
 		t.Skip("set SELFUPDATE_DOCKER_IT=1 to run against the local docker daemon")
 	}
-	prev := stableFor
-	stableFor = 2 * time.Second
-	t.Cleanup(func() { stableFor = prev })
+	prev := swap.StableFor
+	swap.StableFor = 2 * time.Second
+	t.Cleanup(func() { swap.StableFor = prev })
 
 	for _, rm := range []bool{false, true} {
 		for _, fail := range []bool{false, true} {

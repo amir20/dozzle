@@ -19,6 +19,8 @@ toolbar:
   update-service: Servisi Güncelle
   update-pulling: En son imaj indiriliyor...
   update-recreating: Konteyner yeniden oluşturuluyor...
+  update-verifying: Yeni konteynerin çalışmaya devam ettiği kontrol ediliyor...
+  update-rolled-back: Yeni konteyner çalışmaya devam etmedi, bu yüzden önceki geri yüklendi.
   update-done: Konteyner başarıyla güncellendi
   update-up-to-date: Zaten güncel
   update-available: 'Güncelleme mevcut'
@@ -374,7 +376,9 @@ updates:
     queued: Sırada
     pulling: İndiriliyor
     recreating: Yeniden oluşturuluyor
+    verifying: Doğrulanıyor
     done: Güncellendi
+    rolled-back: Geri alındı
     up-to-date: Güncel
     error: Başarısız
 drawer:

@@ -143,6 +143,24 @@ func TestApplyConfigFileAutoUpdate(t *testing.T) {
 	assert.Equal(t, Locked{AutoUpdateTime: true}, args.Locked)
 }
 
+func TestApplyConfigFileAutoUpdateCleanup(t *testing.T) {
+	file := config.File{AutoUpdateCleanup: new(true)}
+
+	args := Args{}
+	applyConfigFile(&args, file, nil, lookupFrom(nil))
+	assert.True(t, args.AutoUpdateCleanup)
+	assert.Equal(t, Locked{}, args.Locked)
+
+	args = Args{}
+	applyConfigFile(&args, file, nil, lookupFrom(map[string]string{"DOZZLE_AUTO_UPDATE_CLEANUP": "false"}))
+	assert.False(t, args.AutoUpdateCleanup, "the env var wins over dozzle.yml")
+	assert.Equal(t, Locked{AutoUpdateCleanup: true}, args.Locked)
+
+	args = Args{AutoUpdateCleanup: true}
+	applyConfigFile(&args, config.File{AutoUpdateCleanup: new(false)}, []string{"--auto-update-cleanup"}, lookupFrom(nil))
+	assert.True(t, args.AutoUpdateCleanup, "the flag wins over dozzle.yml")
+}
+
 func TestValidateAutoUpdate(t *testing.T) {
 	assert.NoError(t, validateAutoUpdate(Args{}))
 	assert.NoError(t, validateAutoUpdate(Args{AutoUpdate: "bogus", AutoUpdateTime: "25:00"}), "file values are not fatal")

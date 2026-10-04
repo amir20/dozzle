@@ -1,6 +1,6 @@
 ---
 title: 环境变量与子命令
-sourceHash: 865e1893cd02
+sourceHash: 7a5e507f36f1
 ---
 
 # 环境变量
@@ -51,6 +51,7 @@ DOZZLE_REMOTE_AGENT=167.99.1.1:7007,167.99.1.2:7007
 | `DOZZLE_IMAGE_CHECK_MODE`<br>`--image-check-mode`         | Dozzle 是否到镜像仓库检查更新的容器镜像。参见[更新检查](/zh/guide/actions#更新检查)。                                                        | `automatic`、`manual`、`off` | 与 `DOZZLE_RELEASE_CHECK_MODE` 相同 |
 | `DOZZLE_AUTO_UPDATE`<br>`--auto-update`                   | 按计划更新 Dozzle 自身的容器，以及所有带有 `dev.dozzle.auto-update=true` 标签的容器。`weekly` 在周日运行。需要开启 `DOZZLE_ENABLE_ACTIONS`。 | `off`、`daily`、`weekly`     | `off`                               |
 | `DOZZLE_AUTO_UPDATE_TIME`<br>`--auto-update-time`         | 每天运行自动更新的时间，按服务器本地时间计算。                                                                                               | `HH:MM`，例如 `04:30`        | `03:00`                             |
+| `DOZZLE_AUTO_UPDATE_CLEANUP`<br>`--auto-update-cleanup`   | 每次容器更新后，删除刚被替换的镜像之前的那个镜像。仅适用于 Docker 主机和代理。参见 [清理旧镜像](/zh/guide/actions#cleaning-up-old-images)。  | `true`, `false`              | `false`                             |
 
 ## 身份验证
 

@@ -10,6 +10,7 @@ import (
 	"testing"
 
 	"github.com/amir20/dozzle/internal/container"
+	"github.com/amir20/dozzle/internal/container/swap/swaptest"
 	docker_types "github.com/moby/moby/api/types/container"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -126,7 +127,6 @@ func Test_handler_containerUpdate_new_image(t *testing.T) {
 	c := container.Container{ID: "123"}
 
 	m.On("FindContainer", mock.Anything, "123").Return(c, nil)
-	m.On("ContainerActions", mock.Anything, container.Start, "new-123").Return(nil)
 	m.On("Host").Return(container.Host{ID: "localhost"})
 	m.On("ListContainers", mock.Anything, mock.Anything).Return([]container.Container{c}, nil)
 	m.On("ContainerEvents", mock.Anything, mock.Anything).Return(nil)
@@ -137,6 +137,7 @@ func Test_handler_containerUpdate_new_image(t *testing.T) {
 		Config: &docker_types.Config{
 			Image: "test:v1",
 		},
+		HostConfig:      &docker_types.HostConfig{},
 		NetworkSettings: &docker_types.NetworkSettings{},
 	}
 	m.On("ContainerInspect", mock.Anything, "123").Return(inspectResp, nil)
@@ -146,8 +147,9 @@ func Test_handler_containerUpdate_new_image(t *testing.T) {
 	m.On("ImagePull", mock.Anything, "test:v1").Return(io.NopCloser(strings.NewReader(pullResp)), nil)
 	m.On("ImageID", mock.Anything, "test:v1").Return("sha256:new", nil)
 	m.On("NetworkDependents", mock.Anything, mock.Anything, "test-container").Return(nil, nil)
-	m.On("ContainerRemove", mock.Anything, "123").Return(nil)
-	m.On("ContainerCreate", mock.Anything, mock.Anything, "test-container").Return("new-123", nil)
+	swaptest.FastTimings(t)
+	m.engine = swaptest.New(inspectResp)
+	m.engine.NewIDs = []string{"new-123"}
 
 	handler := createHandler(m, nil, Config{Base: "/", EnableActions: true, Authorization: Authorization{Provider: NONE}})
 	req, err := http.NewRequest("POST", "/api/hosts/localhost/containers/123/actions/update", nil)
@@ -156,7 +158,9 @@ func Test_handler_containerUpdate_new_image(t *testing.T) {
 	rr := httptest.NewRecorder()
 	handler.ServeHTTP(rr, req)
 	assert.Equal(t, 200, rr.Code)
+	assert.Contains(t, rr.Body.String(), `"verifying"`)
 	assert.Contains(t, rr.Body.String(), `"done"`)
+	assert.Equal(t, "sha256:old", m.engine.Created[0].Config.Labels[container.PreviousImageLabel])
 }
 
 // A container joined to the updated one's network namespace by id (compose's
@@ -168,19 +172,22 @@ func Test_handler_containerUpdate_rejoins_network_dependents(t *testing.T) {
 	c := container.Container{ID: "123", State: "running"}
 
 	m.On("FindContainer", mock.Anything, "123").Return(c, nil)
-	m.On("ContainerActions", mock.Anything, container.Stop, "123").Return(nil)
-	m.On("ContainerActions", mock.Anything, container.Start, "new-123").Return(nil)
 	m.On("Host").Return(container.Host{ID: "localhost"})
 	m.On("ListContainers", mock.Anything, mock.Anything).Return([]container.Container{c}, nil)
 	m.On("ContainerEvents", mock.Anything, mock.Anything).Return(nil)
 
-	m.On("ContainerInspect", mock.Anything, "123").Return(docker_types.InspectResponse{
+	sidecar := docker_types.InspectResponse{
 		ID:              oldID,
 		Name:            "/sidecar",
 		Image:           "sha256:old",
 		Config:          &docker_types.Config{Image: "test:v1"},
+		HostConfig:      &docker_types.HostConfig{},
 		NetworkSettings: &docker_types.NetworkSettings{},
-	}, nil)
+	}
+	m.On("ContainerInspect", mock.Anything, "123").Return(sidecar, nil)
+	swaptest.FastTimings(t)
+	m.engine = swaptest.New(sidecar)
+	m.engine.NewIDs = []string{"new-123"}
 	m.On("ContainerInspect", mock.Anything, "app-id").Return(docker_types.InspectResponse{
 		ID:         "app-id",
 		Name:       "/app",
@@ -194,8 +201,6 @@ func Test_handler_containerUpdate_rejoins_network_dependents(t *testing.T) {
 	m.On("ImagePull", mock.Anything, "test:v1").Return(io.NopCloser(strings.NewReader(pullResp)), nil)
 	m.On("ImageID", mock.Anything, "test:v1").Return("sha256:new", nil)
 	m.On("NetworkDependents", mock.Anything, oldID, "sidecar").Return([]string{"app-id"}, nil)
-	m.On("ContainerRemove", mock.Anything, "123").Return(nil)
-	m.On("ContainerCreate", mock.Anything, mock.Anything, "sidecar").Return("new-123", nil)
 
 	m.On("ContainerActions", mock.Anything, container.Stop, "app-id").Return(nil)
 	m.On("ContainerRemove", mock.Anything, "app-id").Return(nil)
@@ -222,7 +227,6 @@ func Test_handler_containerUpdate_recreates_when_image_already_local(t *testing.
 	c := container.Container{ID: "123"}
 
 	m.On("FindContainer", mock.Anything, "123").Return(c, nil)
-	m.On("ContainerActions", mock.Anything, container.Start, "new-123").Return(nil)
 	m.On("Host").Return(container.Host{ID: "localhost"})
 	m.On("ListContainers", mock.Anything, mock.Anything).Return([]container.Container{c}, nil)
 	m.On("ContainerEvents", mock.Anything, mock.Anything).Return(nil)
@@ -233,6 +237,7 @@ func Test_handler_containerUpdate_recreates_when_image_already_local(t *testing.
 		Config: &docker_types.Config{
 			Image: "test:v1",
 		},
+		HostConfig:      &docker_types.HostConfig{},
 		NetworkSettings: &docker_types.NetworkSettings{},
 	}
 	m.On("ContainerInspect", mock.Anything, "123").Return(inspectResp, nil)
@@ -243,8 +248,9 @@ func Test_handler_containerUpdate_recreates_when_image_already_local(t *testing.
 	// The tag nonetheless points somewhere else than the running container.
 	m.On("ImageID", mock.Anything, "test:v1").Return("sha256:new", nil)
 	m.On("NetworkDependents", mock.Anything, mock.Anything, "test-container").Return(nil, nil)
-	m.On("ContainerRemove", mock.Anything, "123").Return(nil)
-	m.On("ContainerCreate", mock.Anything, mock.Anything, "test-container").Return("new-123", nil)
+	swaptest.FastTimings(t)
+	m.engine = swaptest.New(inspectResp)
+	m.engine.NewIDs = []string{"new-123"}
 
 	handler := createHandler(m, nil, Config{Base: "/", EnableActions: true, Authorization: Authorization{Provider: NONE}})
 	req, err := http.NewRequest("POST", "/api/hosts/localhost/containers/123/actions/update", nil)

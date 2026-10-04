@@ -87,7 +87,7 @@ func (h *handler) containerUpdate(w http.ResponseWriter, r *http.Request) {
 	errCh := make(chan error, 1)
 
 	go func() {
-		_, err := containerService.Update(r.Context(), progressCh)
+		_, err := containerService.Update(r.Context(), UpdateOptions(h.config.Setup), progressCh)
 		errCh <- err
 	}()
 

@@ -214,12 +214,52 @@ func ParseContainerAction(input string) (ContainerAction, error) {
 	}
 }
 
+// Statuses an update reports, in the order they can arrive. Every update ends
+// on exactly one of done, up-to-date, rolled-back or error.
+const (
+	UpdatePulling    = "pulling"
+	UpdateRecreating = "recreating"
+	// UpdateVerifying means the replacement started and is being watched to
+	// stay up (and healthy, if it has a healthcheck) before the old one goes.
+	UpdateVerifying = "verifying"
+	UpdateDone      = "done"
+	UpdateUpToDate  = "up-to-date"
+	// UpdateRolledBack means the replacement failed and the previous
+	// container was put back. Error says why the replacement failed.
+	UpdateRolledBack = "rolled-back"
+	UpdateError      = "error"
+)
+
 type UpdateProgress struct {
-	Status  string `json:"status"`  // "pulling", "recreating", "done", "error", "up-to-date"
+	Status  string `json:"status"`  // one of the Update* statuses above
 	Layer   string `json:"layer"`   // Docker layer ID (pull events only)
 	Current int64  `json:"current"` // Bytes downloaded
 	Total   int64  `json:"total"`   // Total bytes for layer
-	Error   string `json:"error"`   // Only when Status="error"
+	Error   string `json:"error"`   // Only when Status is "error" or "rolled-back"
+}
+
+// Labels an update leaves on the container it creates, and reads back on the
+// next one.
+const (
+	// PreviousImageLabel is the image id the container ran before its last
+	// update: the rollback target, and what --auto-update-cleanup removes on
+	// the update after.
+	PreviousImageLabel = "dev.dozzle.previous-image"
+	// PreviousRefLabel is that image as repo@sha256:digest, so it can be
+	// pulled again by digest once it is gone locally. Absent for an image
+	// built locally, which has no registry digest.
+	PreviousRefLabel = "dev.dozzle.previous-ref"
+	// UpdateCleanupLabel set to false keeps --auto-update-cleanup off this
+	// container, for images someone also runs by hand.
+	UpdateCleanupLabel = "dev.dozzle.update-cleanup"
+)
+
+// UpdateOptions are the server-wide settings an update follows. An agent gets
+// them with each request, so it needs no flags of its own.
+type UpdateOptions struct {
+	// Cleanup removes the image the replaced container had itself replaced,
+	// once the update commits. See --auto-update-cleanup.
+	Cleanup bool
 }
 
 type LogEvent struct {

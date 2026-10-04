@@ -42,6 +42,7 @@ type Args struct {
 	EnableShell            bool                `arg:"--enable-shell,env:DOZZLE_ENABLE_SHELL" default:"false" help:"enables shell access to containers from the web interface."`
 	AutoUpdate             string              `arg:"--auto-update,env:DOZZLE_AUTO_UPDATE" default:"" help:"updates Dozzle's own container on a schedule: off, daily or weekly (Sunday). Requires --enable-actions."`
 	AutoUpdateTime         string              `arg:"--auto-update-time,env:DOZZLE_AUTO_UPDATE_TIME" default:"" help:"sets the HH:MM, in server local time, that --auto-update runs at. Defaults to 03:00."`
+	AutoUpdateCleanup      bool                `arg:"--auto-update-cleanup,env:DOZZLE_AUTO_UPDATE_CLEANUP" default:"false" help:"removes the image before the previous one after a container update, keeping the one just replaced for rollback. Applies to scheduled, manual and bulk updates on Docker hosts and agents."`
 	EnableMCP              bool                `arg:"--enable-mcp,env:DOZZLE_ENABLE_MCP" default:"false" help:"enables the MCP (Model Context Protocol) endpoint for LLM integration."`
 	DisableAvatars         bool                `arg:"--disable-avatars,env:DOZZLE_DISABLE_AVATARS" default:"false" help:"disables avatars for authenticated users."`
 	DisableSetupWizard     bool                `arg:"--disable-setup-wizard,env:DOZZLE_DISABLE_SETUP_WIZARD" default:"false" help:"stops the setup wizard from opening by itself on a fresh install."`

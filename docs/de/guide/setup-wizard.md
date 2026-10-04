@@ -1,6 +1,6 @@
 ---
 title: Einrichtungsassistent
-sourceHash: 5de063d00e38
+sourceHash: 41f82e7cd34e
 ---
 
 # Einrichtungsassistent
@@ -89,21 +89,23 @@ enableActions: true
 enableShell: false
 autoUpdate: weekly
 autoUpdateTime: "03:00"
+autoUpdateCleanup: true
 remoteAgents:
   - 10.0.0.5:7007|nas
 privateAgents:
   - 10.0.0.5:7007|nas
 ```
 
-| Schlüssel        | Werte                                                                                               | Entspricht                |
-| ---------------- | --------------------------------------------------------------------------------------------------- | ------------------------- |
-| `authProvider`   | `none`, `simple`, `forward-proxy`                                                                   | `DOZZLE_AUTH_PROVIDER`    |
-| `enableActions`  | `true`, `false`                                                                                     | `DOZZLE_ENABLE_ACTIONS`   |
-| `enableShell`    | `true`, `false`                                                                                     | `DOZZLE_ENABLE_SHELL`     |
-| `autoUpdate`     | `off`, `daily`, `weekly`                                                                            | `DOZZLE_AUTO_UPDATE`      |
-| `autoUpdateTime` | `HH:MM`, lokale Zeit des Servers                                                                    | `DOZZLE_AUTO_UPDATE_TIME` |
-| `remoteAgents`   | Liste von Agent-Adressen                                                                            | `DOZZLE_REMOTE_AGENT`     |
-| `privateAgents`  | Agents aus `remoteAgents`, die das [private Zertifikat](/de/guide/agent#private-certificate) nutzen | keine                     |
+| Schlüssel           | Werte                                                                                               | Entspricht                   |
+| ------------------- | --------------------------------------------------------------------------------------------------- | ---------------------------- |
+| `authProvider`      | `none`, `simple`, `forward-proxy`                                                                   | `DOZZLE_AUTH_PROVIDER`       |
+| `enableActions`     | `true`, `false`                                                                                     | `DOZZLE_ENABLE_ACTIONS`      |
+| `enableShell`       | `true`, `false`                                                                                     | `DOZZLE_ENABLE_SHELL`        |
+| `autoUpdate`        | `off`, `daily`, `weekly`                                                                            | `DOZZLE_AUTO_UPDATE`         |
+| `autoUpdateTime`    | `HH:MM`, lokale Zeit des Servers                                                                    | `DOZZLE_AUTO_UPDATE_TIME`    |
+| `autoUpdateCleanup` | `true`, `false`. Siehe [alte Images aufräumen](/de/guide/actions#cleaning-up-old-images)            | `DOZZLE_AUTO_UPDATE_CLEANUP` |
+| `remoteAgents`      | Liste von Agent-Adressen                                                                            | `DOZZLE_REMOTE_AGENT`        |
+| `privateAgents`     | Agents aus `remoteAgents`, die das [private Zertifikat](/de/guide/agent#private-certificate) nutzen | keine                        |
 
 Flags und Umgebungsvariablen haben immer Vorrang vor der Datei. Ist `DOZZLE_ENABLE_ACTIONS` gesetzt, wird der Wert in `dozzle.yml` ignoriert und der Assistent zeigt den Schalter als gesperrt an. Um eine Einstellung wieder über den Assistenten zu verwalten, entferne die Variable aus deiner Compose-Datei. `remoteAgents` verhält sich anders: Agents aus der Datei kommen zu denen aus `DOZZLE_REMOTE_AGENT` hinzu, statt von ihnen ersetzt zu werden.
 

@@ -19,6 +19,8 @@ toolbar:
   update-service: Atualizar Serviço
   update-pulling: Baixando imagem mais recente...
   update-recreating: Recriando container...
+  update-verifying: Verificando se o novo container continua em execução...
+  update-rolled-back: O novo container não continuou em execução, então o anterior foi restaurado.
   update-done: Container atualizado com sucesso
   update-up-to-date: Já está atualizado
   update-available: 'Atualização disponível'
@@ -371,7 +373,9 @@ updates:
     queued: Na fila
     pulling: Baixando
     recreating: Recriando
+    verifying: Verificando
     done: Atualizado
+    rolled-back: Revertido
     up-to-date: Em dia
     error: Falhou
 drawer:

@@ -10,6 +10,8 @@ Dozzle supports container actions, which allows you to `start`, `stop`, `restart
 
 The `update` action pulls the latest image for the container and recreates it with the same configuration — useful for upgrading a container in place without editing its compose file. `update` only has a meaningful effect when the image uses a moving tag (e.g. `latest`, `stable`); a pinned tag will simply re-pull the same image.
 
+The old container is kept, renamed, until the new one has run for 10 seconds without restarting, and has reported healthy if its image has a healthcheck. If the new container fails to start, exits, restarts or turns unhealthy, Dozzle removes it and puts the old one back, and the update reports **rolled back** with the reason. The new container is labelled `dev.dozzle.previous-image` with the image id it replaced, and `dev.dozzle.previous-ref` with that image's `repo@sha256:…` digest (absent for images built locally).
+
 > [!WARNING]
 > `remove` and `update` recreate the container. Data written to **anonymous volumes** or the container's writable layer will be lost. Named volumes and bind mounts are preserved.
 
@@ -118,3 +120,23 @@ Labelled containers follow the same schedule as [Dozzle's own auto-update](/guid
 Auto-update is opt in on purpose. A database on a floating tag like `postgres:latest` can move to a new major version that its data files cannot read, so only label containers you are happy to see replaced without watching. Containers Dozzle [cannot check](#what-cannot-be-checked), such as ones from a private registry, are never auto-updated.
 
 Auto-update runs in server mode, including containers on [remote agents](/guide/agent). It needs actions on.
+
+## Cleaning up old images {#cleaning-up-old-images}
+
+Every update leaves the image it replaced on the host. With `DOZZLE_AUTO_UPDATE_CLEANUP=true`, Dozzle removes old images after an update, like Watchtower's `--cleanup`. It is off by default and applies to every update: scheduled, from a container's `Update` action, or from the Updates drawer.
+
+Dozzle keeps the image the container ran until now, so the container can still go back to it, and removes the one before that. An update from 1.4.1 to 1.4.2 removes 1.4.0 and keeps 1.4.1, so each container keeps at most one spare image. Dozzle reads which image to remove from the old container's `dev.dozzle.previous-image` label, so the first update after turning cleanup on removes nothing.
+
+Cleanup only runs after the new container has stayed up and the old one is gone. A rolled back update removes nothing. The image is removed by id, without force, so Docker refuses while any other container, running or stopped, still uses it, or while another tag points at it. A refusal never fails the update.
+
+To keep a container's old images, for example for an image you also run by hand, label it:
+
+```yaml [docker-compose.yml]
+services:
+  whoami:
+    image: traefik/whoami:latest
+    labels:
+      dev.dozzle.update-cleanup: false
+```
+
+The setting can also be saved as `autoUpdateCleanup` in [`dozzle.yml`](/guide/setup-wizard). Containers on [remote agents](/guide/agent) follow the setting of the Dozzle they are connected to. Swarm services are not cleaned up, since each node keeps its own images and Swarm prunes its own task history.

@@ -1,6 +1,6 @@
 ---
 title: Acciones sobre contenedores
-sourceHash: 347c47e3b567
+sourceHash: 6878c6f4761b
 ---
 
 # Acciones sobre contenedores
@@ -10,6 +10,8 @@ sourceHash: 347c47e3b567
 Dozzle permite ejecutar acciones sobre los contenedores: `start`, `stop`, `restart`, `remove` y `update` desde el menú desplegable de la derecha, junto a las estadísticas del contenedor. Esta función está **desactivada** por defecto y se activa poniendo la variable de entorno `DOZZLE_ENABLE_ACTIONS` a `true`.
 
 La acción `update` descarga la última imagen del contenedor y lo recrea con la misma configuración, algo útil para actualizar un contenedor sin tocar su archivo de Compose. `update` solo tiene efecto real cuando la imagen usa una etiqueta móvil (por ejemplo, `latest` o `stable`); con una etiqueta fija se volverá a descargar la misma imagen.
+
+El contenedor antiguo se conserva, renombrado, hasta que el nuevo lleva 10 segundos en marcha sin reiniciarse y, si su imagen tiene healthcheck, se ha declarado sano. Si el nuevo contenedor no arranca, termina, se reinicia o pasa a no sano, Dozzle lo elimina y vuelve a poner el antiguo, y la actualización indica **revertido** con el motivo. El nuevo contenedor lleva la etiqueta `dev.dozzle.previous-image` con el id de la imagen que reemplazó, y `dev.dozzle.previous-ref` con el digest `repo@sha256:…` de esa imagen (no existe para imágenes construidas localmente).
 
 > [!WARNING]
 > `remove` y `update` recrean el contenedor. Se perderán los datos escritos en **volúmenes anónimos** o en la capa de escritura del contenedor. Los volúmenes con nombre y los bind mounts se conservan.
@@ -119,3 +121,23 @@ Los contenedores etiquetados siguen la misma programación que [la actualizació
 La actualización automática hay que activarla a propósito. Una base de datos con un tag flotante como `postgres:latest` puede saltar a una nueva versión mayor cuyos archivos de datos ya no sabe leer, así que etiqueta solo los contenedores que no te importe ver reemplazados sin estar pendiente. Los contenedores que Dozzle [no puede comprobar](#lo-que-no-se-puede-comprobar), como los de un registro privado, nunca se actualizan automáticamente.
 
 La actualización automática funciona en modo servidor, incluidos los contenedores en [agentes remotos](/es/guide/agent). Requiere las acciones activadas.
+
+## Limpiar imágenes antiguas {#cleaning-up-old-images}
+
+Cada actualización deja en el host la imagen que reemplazó. Con `DOZZLE_AUTO_UPDATE_CLEANUP=true`, Dozzle elimina las imágenes antiguas después de una actualización, como el `--cleanup` de Watchtower. Está desactivado por defecto y se aplica a todas las actualizaciones: programadas, desde la acción `Update` de un contenedor o desde el panel de actualizaciones.
+
+Dozzle conserva la imagen con la que funcionaba el contenedor hasta ahora, para que aún pueda volver a ella, y elimina la anterior. Una actualización de 1.4.1 a 1.4.2 elimina 1.4.0 y conserva 1.4.1, así que cada contenedor guarda como mucho una imagen de reserva. Dozzle lee qué imagen eliminar de la etiqueta `dev.dozzle.previous-image` del contenedor antiguo, por lo que la primera actualización tras activar la limpieza no elimina nada.
+
+La limpieza solo se hace cuando el nuevo contenedor se ha mantenido en marcha y el antiguo ya no existe. Una actualización revertida no elimina nada. La imagen se elimina por id y sin forzar, así que Docker se niega mientras otro contenedor, en marcha o detenido, la siga usando, o mientras otro tag apunte a ella. Una negativa nunca hace fallar la actualización.
+
+Para conservar las imágenes antiguas de un contenedor, por ejemplo de una imagen que también ejecutas a mano, ponle esta etiqueta:
+
+```yaml [docker-compose.yml]
+services:
+  whoami:
+    image: traefik/whoami:latest
+    labels:
+      dev.dozzle.update-cleanup: false
+```
+
+El ajuste también se puede guardar como `autoUpdateCleanup` en [`dozzle.yml`](/es/guide/setup-wizard). Los contenedores en [agentes remotos](/es/guide/agent) siguen el ajuste del Dozzle al que están conectados. Los servicios de Swarm no se limpian, porque cada nodo guarda sus propias imágenes y Swarm poda su propio historial de tareas.

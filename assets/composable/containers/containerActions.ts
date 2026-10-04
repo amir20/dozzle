@@ -4,7 +4,9 @@ type ContainerActions = "start" | "stop" | "restart";
 
 // One event of the update-progress stream, mirroring container.UpdateProgress.
 export interface UpdateProgress {
-  status: "pulling" | "recreating" | "done" | "up-to-date" | "error";
+  // verifying: the new container started and is being watched to stay up.
+  // rolled-back: it did not, and the previous container was put back.
+  status: "pulling" | "recreating" | "verifying" | "done" | "up-to-date" | "rolled-back" | "error";
   layer?: string;
   current?: number;
   total?: number;
@@ -135,6 +137,16 @@ export const useContainerActions = (container: Ref<Container>) => {
           // The pull is done; recreating cannot report progress, so the
           // bar goes away rather than sitting at an arbitrary value.
           updateToast(toastId, { message: t("toolbar.update-recreating"), progress: undefined });
+        } else if (data.status === "verifying") {
+          updateToast(toastId, { message: t("toolbar.update-verifying"), progress: undefined });
+        } else if (data.status === "rolled-back") {
+          removeToast(toastId);
+          showToast({
+            type: "warning",
+            // Same as an error: the reason quotes the engine's own text.
+            message: t("toolbar.update-rolled-back") + (data.error ? `<br>${escapeHtml(data.error)}` : ""),
+            title: t("error.update-failed"),
+          });
         } else if (data.status === "done" && self) {
           restarting = true;
           updateToast(toastId, { message: t("setup.update.restarting"), progress: undefined });

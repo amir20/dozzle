@@ -1,6 +1,6 @@
 ---
 title: Actions sur les conteneurs
-sourceHash: 347c47e3b567
+sourceHash: 6878c6f4761b
 ---
 
 # Actions sur les conteneurs
@@ -10,6 +10,8 @@ sourceHash: 347c47e3b567
 Dozzle propose des actions sur les conteneurs, qui vous permettent de les démarrer (`start`), arrêter (`stop`), redémarrer (`restart`), supprimer (`remove`) et mettre à jour (`update`) depuis le menu déroulant à droite, à côté des statistiques du conteneur. Cette fonctionnalité est **désactivée** par défaut et s'active en mettant la variable d'environnement `DOZZLE_ENABLE_ACTIONS` à `true`.
 
 L'action `update` récupère la dernière image du conteneur et le recrée avec la même configuration, ce qui est pratique pour mettre à niveau un conteneur sur place sans modifier son fichier compose. `update` n'a un effet réel que si l'image utilise un tag mouvant (par ex. `latest`, `stable`) ; avec un tag figé, la même image sera simplement retéléchargée.
+
+L'ancien conteneur est conservé, renommé, jusqu'à ce que le nouveau ait tourné 10 secondes sans redémarrer et se soit déclaré sain si son image a un healthcheck. Si le nouveau conteneur ne démarre pas, s'arrête, redémarre ou devient non sain, Dozzle le supprime et remet l'ancien en place, et la mise à jour indique **restauré** avec la raison. Le nouveau conteneur reçoit le label `dev.dozzle.previous-image` avec l'id de l'image qu'il remplace, et `dev.dozzle.previous-ref` avec le digest `repo@sha256:…` de cette image (absent pour les images construites localement).
 
 > [!WARNING]
 > `remove` et `update` recréent le conteneur. Les données écrites dans des **volumes anonymes** ou dans la couche inscriptible du conteneur seront perdues. Les volumes nommés et les bind mounts sont préservés.
@@ -119,3 +121,23 @@ Les conteneurs portant ce label suivent le même planning que [la mise à jour a
 La mise à jour automatique est volontairement opt-in. Une base de données sur un tag flottant comme `postgres:latest` peut passer à une nouvelle version majeure dont elle ne sait pas lire les fichiers de données, donc n'ajoutez ce label qu'aux conteneurs que vous acceptez de voir remplacés sans surveillance. Les conteneurs que Dozzle [ne peut pas vérifier](#ce-qui-ne-peut-pas-etre-verifie), comme ceux d'un registre privé, ne sont jamais mis à jour automatiquement.
 
 La mise à jour automatique fonctionne en mode serveur, y compris pour les conteneurs sur des [agents distants](/fr/guide/agent). Elle nécessite que les actions soient activées.
+
+## Nettoyer les anciennes images {#cleaning-up-old-images}
+
+Chaque mise à jour laisse sur l'hôte l'image qu'elle remplace. Avec `DOZZLE_AUTO_UPDATE_CLEANUP=true`, Dozzle supprime les anciennes images après une mise à jour, comme le `--cleanup` de Watchtower. L'option est désactivée par défaut et s'applique à toutes les mises à jour : planifiées, lancées depuis l'action `Update` d'un conteneur ou depuis le panneau des mises à jour.
+
+Dozzle garde l'image sur laquelle le conteneur tournait jusque-là, pour qu'il puisse encore y revenir, et supprime celle d'avant. Une mise à jour de 1.4.1 vers 1.4.2 supprime 1.4.0 et garde 1.4.1, donc chaque conteneur garde au plus une image de réserve. Dozzle lit l'image à supprimer dans le label `dev.dozzle.previous-image` de l'ancien conteneur, donc la première mise à jour après l'activation ne supprime rien.
+
+Le nettoyage n'a lieu qu'une fois que le nouveau conteneur est resté démarré et que l'ancien a été supprimé. Une mise à jour restaurée ne supprime rien. L'image est supprimée par id, sans forcer, donc Docker refuse tant qu'un autre conteneur, démarré ou arrêté, l'utilise encore, ou qu'un autre tag pointe dessus. Un refus ne fait jamais échouer la mise à jour.
+
+Pour garder les anciennes images d'un conteneur, par exemple pour une image que vous lancez aussi à la main, ajoutez-lui ce label :
+
+```yaml [docker-compose.yml]
+services:
+  whoami:
+    image: traefik/whoami:latest
+    labels:
+      dev.dozzle.update-cleanup: false
+```
+
+Le réglage peut aussi être enregistré sous `autoUpdateCleanup` dans [`dozzle.yml`](/fr/guide/setup-wizard). Les conteneurs sur des [agents distants](/fr/guide/agent) suivent le réglage du Dozzle auquel ils sont connectés. Les services Swarm ne sont pas nettoyés, car chaque nœud garde ses propres images et Swarm élague lui-même son historique de tâches.

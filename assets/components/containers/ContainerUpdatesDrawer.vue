@@ -27,6 +27,7 @@
             ></span>
             <mdi:check v-else-if="item.status === 'done' || item.status === 'up-to-date'" class="size-4" />
             <mdi:alert-circle-outline v-else-if="item.status === 'error'" class="size-4" />
+            <mdi:restore v-else-if="item.status === 'rolled-back'" class="size-4" />
             <mdi:clock-outline v-else class="size-4" />
           </div>
           <div class="min-w-0 flex-1">
@@ -187,8 +188,11 @@ function pill(status: BulkUpdateStatus) {
       return "status-pill-success";
     case "error":
       return "status-pill-error";
+    case "rolled-back":
+      return "status-pill-warning";
     case "pulling":
     case "recreating":
+    case "verifying":
       return "status-pill-primary";
     default:
       return "status-pill-neutral";
@@ -201,6 +205,8 @@ function tint(item: BulkUpdateItem) {
       return "bg-success/10 text-success";
     case "error":
       return "bg-error/10 text-error";
+    case "rolled-back":
+      return "bg-warning/10 text-warning";
     case "queued":
     case "up-to-date":
       return "bg-base-content/5 text-base-content/60";

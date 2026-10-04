@@ -19,6 +19,8 @@ toolbar:
   update-service: Обновить Сервис
   update-pulling: Загрузка последнего образа...
   update-recreating: Пересоздание контейнера...
+  update-verifying: Проверка, что новый контейнер продолжает работать...
+  update-rolled-back: Новый контейнер не смог стабильно работать, поэтому предыдущий восстановлен.
   update-done: Контейнер успешно обновлён
   update-up-to-date: Уже обновлён
   update-available: 'Доступно обновление'
@@ -371,7 +373,9 @@ updates:
     queued: В очереди
     pulling: Загрузка
     recreating: Пересоздание
+    verifying: Проверка
     done: Обновлён
+    rolled-back: Откачено
     up-to-date: Актуален
     error: Ошибка
 drawer:

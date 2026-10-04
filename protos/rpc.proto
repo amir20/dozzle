@@ -106,6 +106,9 @@ message ContainerActionResponse {}
 
 message UpdateContainerRequest {
   string containerId = 1;
+  // cleanup follows the server's --auto-update-cleanup: once the update
+  // commits, remove the image the replaced container had itself replaced.
+  bool cleanup = 2;
 }
 
 message UpdateContainerProgress {

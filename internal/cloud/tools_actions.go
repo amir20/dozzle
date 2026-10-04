@@ -73,7 +73,7 @@ func executeUpdateContainer(ctx context.Context, argsJSON string, deps ToolDeps)
 	var updateErr error
 	done := make(chan struct{})
 	go func() {
-		updated, updateErr = cs.Update(ctx, progressCh)
+		updated, updateErr = cs.Update(ctx, deps.updateOptions(), progressCh)
 		close(done)
 	}()
 	for range progressCh {

@@ -19,6 +19,8 @@ toolbar:
   update-service: Update Service
   update-pulling: Pulling latest image...
   update-recreating: Recreating container...
+  update-verifying: Checking the new container stays up...
+  update-rolled-back: The new container did not stay up, so the previous one was restored.
   update-done: Container updated successfully
   update-up-to-date: Already up to date
   update-available: Update available
@@ -500,7 +502,9 @@ updates:
     queued: Queued
     pulling: Pulling
     recreating: Recreating
+    verifying: Verifying
     done: Updated
+    rolled-back: Rolled back
     up-to-date: Current
     error: Failed
 drawer:

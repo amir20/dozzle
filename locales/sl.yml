@@ -41,6 +41,8 @@ toolbar:
   update-service: Posodobi Storitev
   update-pulling: Prenašanje najnovejše slike...
   update-recreating: Ponovno ustvarjanje zabojnika...
+  update-verifying: Preverjanje, ali novi zabojnik ostane zagnan...
+  update-rolled-back: Novi zabojnik ni ostal zagnan, zato je bil obnovljen prejšnji.
   update-done: Zabojnik uspešno posodobljen
   update-up-to-date: Že posodobljen
   update-available: 'Na voljo je posodobitev'
@@ -376,7 +378,9 @@ updates:
     queued: V vrsti
     pulling: Prenašanje
     recreating: Ponovno ustvarjanje
+    verifying: Preverjanje
     done: Posodobljeno
+    rolled-back: Povrnjeno
     up-to-date: Ažurno
     error: Napaka
 drawer:

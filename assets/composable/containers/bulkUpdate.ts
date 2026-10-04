@@ -1,6 +1,7 @@
 import { Container } from "@/models/Container";
 
-export type BulkUpdateStatus = "queued" | "pulling" | "recreating" | "done" | "up-to-date" | "error";
+export type BulkUpdateStatus =
+  "queued" | "pulling" | "recreating" | "verifying" | "done" | "up-to-date" | "rolled-back" | "error";
 
 // Mirrors bulkUpdateItem in internal/web/bulk_update.go.
 export interface BulkUpdateItem {
@@ -30,7 +31,7 @@ export function autoUpdateEnabled(container: Container) {
 }
 
 export function isFinished(status: BulkUpdateStatus) {
-  return status === "done" || status === "up-to-date" || status === "error";
+  return status === "done" || status === "up-to-date" || status === "rolled-back" || status === "error";
 }
 
 // One job and one stream per tab, however many surfaces show it. The stream is
@@ -103,7 +104,8 @@ export function useBulkUpdate() {
     release();
     if (items.length === 0) return;
 
-    const failed = items.filter((i) => i.status === "error").length;
+    // A rolled back container is running its old version again: not updated.
+    const failed = items.filter((i) => i.status === "error" || i.status === "rolled-back").length;
     const updated = items.filter((i) => i.status === "done").length;
     showToast(
       {

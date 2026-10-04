@@ -187,6 +187,9 @@ func main() {
 		HostService:         cloudHostService,
 		Principal:           cloud.APIKeyPrincipal(args.Filter),
 		NotificationService: notificationService,
+		UpdateOptions: func() container.UpdateOptions {
+			return web.UpdateOptions(web.SetupConfig{AutoUpdateCleanup: lockedBool(args.Locked.AutoUpdateCleanup, args.AutoUpdateCleanup)})
+		},
 	})
 	cloudClient.SetDeployment(args.Mode, swarmClusterID)
 	cloudClient.SetStreamLogsFunc(func() bool {
@@ -231,8 +234,9 @@ func main() {
 			EnableActions: args.EnableActions,
 			Version:       args.Version(),
 			Setup: web.SetupConfig{
-				AutoUpdateMode: lockedValue(args.Locked.AutoUpdate, args.AutoUpdate),
-				AutoUpdateTime: lockedValue(args.Locked.AutoUpdateTime, args.AutoUpdateTime),
+				AutoUpdateMode:    lockedValue(args.Locked.AutoUpdate, args.AutoUpdate),
+				AutoUpdateTime:    lockedValue(args.Locked.AutoUpdateTime, args.AutoUpdateTime),
+				AutoUpdateCleanup: lockedBool(args.Locked.AutoUpdateCleanup, args.AutoUpdateCleanup),
 			},
 		}, srv.FlushUsage)
 	}
@@ -277,6 +281,13 @@ func customCert(args cli.Args) bool {
 
 // lockedValue is value when a flag or env var set it, nil when dozzle.yml decides.
 func lockedValue(locked bool, value string) *string {
+	if !locked {
+		return nil
+	}
+	return &value
+}
+
+func lockedBool(locked bool, value bool) *bool {
 	if !locked {
 		return nil
 	}
@@ -483,6 +494,7 @@ func createServer(args cli.Args, hostService web.HostService, cloudHooks web.Clo
 			LockedAutoUpdate:    args.Locked.AutoUpdate || args.Locked.AutoUpdateTime,
 			AutoUpdateMode:      lockedValue(args.Locked.AutoUpdate, args.AutoUpdate),
 			AutoUpdateTime:      lockedValue(args.Locked.AutoUpdateTime, args.AutoUpdateTime),
+			AutoUpdateCleanup:   lockedBool(args.Locked.AutoUpdateCleanup, args.AutoUpdateCleanup),
 			StartedAt:           web.SetupWindowStart(time.Now(), freshInstall),
 			EnvAgents:           args.EnvAgents,
 			CustomCert:          customCert(args),

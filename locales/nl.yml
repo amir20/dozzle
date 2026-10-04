@@ -19,6 +19,8 @@ toolbar:
   update-service: Service Bijwerken
   update-pulling: Laatste image ophalen...
   update-recreating: Container opnieuw aanmaken...
+  update-verifying: Controleren of de nieuwe container blijft draaien...
+  update-rolled-back: De nieuwe container bleef niet draaien, dus de vorige is hersteld.
   update-done: Container succesvol bijgewerkt
   update-up-to-date: Al bijgewerkt
   update-available: 'Update beschikbaar'
@@ -372,7 +374,9 @@ updates:
     queued: Wachtrij
     pulling: Ophalen
     recreating: Opnieuw maken
+    verifying: Controleren
     done: Bijgewerkt
+    rolled-back: Teruggedraaid
     up-to-date: Actueel
     error: Mislukt
 drawer:

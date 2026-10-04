@@ -2,6 +2,7 @@ package cloud
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"io"
 	"sync/atomic"
@@ -118,6 +119,11 @@ type MockClientService struct {
 	imageResults map[string]imagecheck.Result
 	// imageForced records the force flag of the last CheckImageUpdate.
 	imageForced atomic.Bool
+	// updateOpts records the options of the last UpdateContainer.
+	updateOpts container.UpdateOptions
+	// updateProgress is what UpdateContainer reports, and updateErr what it returns.
+	updateProgress []container.UpdateProgress
+	updateErr      error
 }
 
 func (m *MockClientService) FindContainer(_ context.Context, _ string, _ container.ContainerLabels) (container.Container, error) {
@@ -166,9 +172,35 @@ func (m *MockClientService) CheckImageUpdate(_ context.Context, c container.Cont
 	return imagecheck.Result{Image: c.Image, Status: imagecheck.StatusUpToDate}, nil
 }
 
-func (m *MockClientService) UpdateContainer(_ context.Context, _ container.Container, progressCh chan<- container.UpdateProgress) (bool, error) {
-	close(progressCh)
-	return false, nil
+func (m *MockClientService) UpdateContainer(_ context.Context, _ container.Container, opts container.UpdateOptions, progressCh chan<- container.UpdateProgress) (bool, error) {
+	defer close(progressCh)
+	m.updateOpts = opts
+	for _, p := range m.updateProgress {
+		progressCh <- p
+	}
+	return false, m.updateErr
+}
+
+func TestExecuteTool_UpdateContainerFollowsServerOptions(t *testing.T) {
+	mockClient := &MockClientService{}
+	mockHost := &MockHostService{}
+	c := container.Container{ID: "abc123", Name: "nginx", Host: "local", State: "running"}
+	withResolver(mockHost, c)
+	mockHost.On("FindContainer", "local", "abc123", container.ContainerLabels(nil)).Return(container.NewContainerService(mockClient, c), nil)
+
+	deps := ToolDeps{HostService: mockHost, EnableActions: true, UpdateOptions: func() container.UpdateOptions {
+		return container.UpdateOptions{Cleanup: true}
+	}}
+	resp := ExecuteTool(context.Background(), "update_container", `{"container_id":"abc123"}`, deps)
+	assert.True(t, resp.Success, resp.Error)
+	assert.Equal(t, container.UpdateOptions{Cleanup: true}, mockClient.updateOpts)
+
+	// A rolled back update is a failure, and says so.
+	mockClient.updateProgress = []container.UpdateProgress{{Status: container.UpdateRolledBack, Error: "replacement is unhealthy"}}
+	mockClient.updateErr = errors.New("update rolled back: replacement is unhealthy")
+	resp = ExecuteTool(context.Background(), "update_container", `{"container_id":"abc123"}`, deps)
+	assert.False(t, resp.Success)
+	assert.Contains(t, resp.Error, "rolled back")
 }
 
 func TestExecuteTool_ListRunningContainers(t *testing.T) {

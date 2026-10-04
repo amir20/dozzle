@@ -1,6 +1,6 @@
 ---
 title: 容器操作
-sourceHash: 347c47e3b567
+sourceHash: 6878c6f4761b
 ---
 
 # 容器操作
@@ -10,6 +10,8 @@ sourceHash: 347c47e3b567
 Dozzle 支持容器操作，你可以通过容器统计信息右侧的下拉菜单对容器执行 `start`、`stop`、`restart`、`remove` 和 `update`。该功能默认**禁用**，把环境变量 `DOZZLE_ENABLE_ACTIONS` 设为 `true` 即可启用。
 
 `update` 操作会拉取容器的最新镜像，并用相同的配置重新创建它，适合在不改动 compose 文件的情况下就地升级容器。只有当镜像使用会移动的标签（比如 `latest`、`stable`）时，`update` 才有实际效果；固定的标签只会重新拉取同一个镜像。
+
+旧容器会被重命名并保留，直到新容器连续运行 10 秒且没有重启，并且在镜像带有健康检查时报告为健康。如果新容器无法启动、退出、重启或变为不健康，Dozzle 会删除它并恢复旧容器，更新会显示**已回滚**及原因。新容器会带上标签 `dev.dozzle.previous-image`（被替换的镜像 ID）和 `dev.dozzle.previous-ref`（该镜像的 `repo@sha256:…` 摘要，本地构建的镜像没有此标签）。
 
 > [!WARNING]
 > `remove` 和 `update` 会重新创建容器。写入**匿名卷**或容器可写层的数据会丢失。具名卷和绑定挂载则会保留。
@@ -119,3 +121,23 @@ services:
 自动更新是刻意设计为需要主动开启的。使用 `postgres:latest` 这类浮动标签的数据库，可能会升级到一个无法读取现有数据文件的新主版本，所以只给那些你愿意在无人看管时被替换的容器加标签。Dozzle [无法检查](#哪些情况无法检查) 的容器（例如来自私有仓库的容器）永远不会被自动更新。
 
 自动更新在服务器模式下运行，也包括 [远程代理](/zh/guide/agent) 上的容器。它需要开启操作。
+
+## 清理旧镜像 {#cleaning-up-old-images}
+
+每次更新都会在主机上留下被替换的镜像。设置 `DOZZLE_AUTO_UPDATE_CLEANUP=true` 后，Dozzle 会在更新后删除旧镜像，类似 Watchtower 的 `--cleanup`。该选项默认关闭，适用于所有更新：定时更新、容器的 `Update` 操作，以及更新面板。
+
+Dozzle 会保留容器之前运行的镜像，以便还能回退到它，并删除再之前的那个。从 1.4.1 更新到 1.4.2 会删除 1.4.0 并保留 1.4.1，因此每个容器最多保留一个备用镜像。Dozzle 从旧容器的 `dev.dozzle.previous-image` 标签读取要删除的镜像，所以开启清理后的第一次更新不会删除任何镜像。
+
+只有在新容器稳定运行且旧容器已删除之后才会清理。已回滚的更新不会删除任何镜像。镜像按 ID 删除且不强制，因此只要还有其他容器（无论运行中还是已停止）在使用它，或者还有其他标签指向它，Docker 就会拒绝删除。删除被拒绝不会导致更新失败。
+
+如果想保留某个容器的旧镜像（例如你也会手动运行的镜像），给它加上这个标签：
+
+```yaml [docker-compose.yml]
+services:
+  whoami:
+    image: traefik/whoami:latest
+    labels:
+      dev.dozzle.update-cleanup: false
+```
+
+该设置也可以作为 `autoUpdateCleanup` 保存在 [`dozzle.yml`](/zh/guide/setup-wizard) 中。[远程代理](/zh/guide/agent) 上的容器遵循其所连接的 Dozzle 的设置。Swarm 服务不会被清理，因为每个节点保存自己的镜像，并且 Swarm 会自行清理任务历史。

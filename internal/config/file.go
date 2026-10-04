@@ -29,6 +29,9 @@ type File struct {
 	AutoUpdate *string `yaml:"autoUpdate,omitempty"`
 	// AutoUpdateTime is "HH:MM" in the server's local time.
 	AutoUpdateTime *string `yaml:"autoUpdateTime,omitempty"`
+	// AutoUpdateCleanup removes old images after an update, keeping the one
+	// just replaced for rollback. Read at every update, like the schedule.
+	AutoUpdateCleanup *bool `yaml:"autoUpdateCleanup,omitempty"`
 	// RemoteAgents are agents added from the UI, in DOZZLE_REMOTE_AGENT's
 	// endpoint form. Unlike the settings above they add to the flag or env var
 	// instead of losing to it, and they connect live, so adding or removing one
