@@ -73,7 +73,7 @@ const kind = computed(() => {
   return { label: "update-marker.updated", icon: MdiUpdate };
 });
 
-const SOURCES = ["schedule", "dozzle", "cloud", "watchtower", "external"];
+const SOURCES = ["schedule", "dozzle", "cloud", "external"];
 // Only the kinds there are strings for: a newer Dozzle Cloud can send one this
 // build does not know, which shows no label rather than its key.
 const VERDICTS = ["pending", "clean", "regressed", "unsure", "rolled_back_by_dozzle"];
@@ -88,9 +88,12 @@ const decisionLabel = computed(() =>
     ? `update-marker.decision.${verdict.value.decision}`
     : undefined,
 );
-const sourceLabel = computed(() =>
-  SOURCES.includes(update.value.source) ? `update-marker.by.${update.value.source}` : undefined,
-);
+// The app never names another tool: an update another updater made reads as
+// made outside Dozzle, like any other.
+const sourceLabel = computed(() => {
+  const source = update.value.source === "watchtower" ? "external" : update.value.source;
+  return SOURCES.includes(source) ? `update-marker.by.${source}` : undefined;
+});
 
 // The container this update left running, while it still runs. Rolling back acts
 // on it, and goes to the image its last update replaced, which is this update's

@@ -37,8 +37,8 @@ const update: ContainerUpdate = {
   source: "schedule",
 };
 
-function mountMarker(verdict?: Partial<DeployVerdict>) {
-  const entry = new DeployLogEntry(update, new Date(update.at));
+function mountMarker(verdict?: Partial<DeployVerdict>, source = update.source) {
+  const entry = new DeployLogEntry({ ...update, source }, new Date(update.at));
   if (verdict) entry.verdict = { deployId: "d1", verdict: "regressed", ...verdict } as DeployVerdict;
   return mount(DeployLogItem, {
     props: { logEntry: entry },
@@ -70,5 +70,12 @@ describe("<DeployLogItem />", () => {
     const wrapper = mountMarker({ verdict: "something_new" as DeployVerdict["verdict"], reason: "why" });
     expect(wrapper.text()).not.toContain("update-marker.verdict.");
     expect(wrapper.text()).toContain("why");
+  });
+
+  // The app never names another tool.
+  test("an update another updater made reads as made outside Dozzle", () => {
+    const wrapper = mountMarker(undefined, "watchtower");
+    expect(wrapper.text()).toContain("update-marker.by.external");
+    expect(wrapper.text().toLowerCase()).not.toContain("watchtower");
   });
 });

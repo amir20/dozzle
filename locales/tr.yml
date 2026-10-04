@@ -1075,7 +1075,6 @@ update-marker:
     schedule: "otomatik güncelleme zamanlamasıyla"
     dozzle: "Dozzle'dan"
     cloud: "Dozzle Cloud'dan"
-    watchtower: "Watchtower tarafından"
     external: "Dozzle dışında"
   verdict:
     pending: "Dozzle Cloud bu güncellemeyi izliyor"

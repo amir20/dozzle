@@ -1074,7 +1074,6 @@ update-marker:
     schedule: "由自動更新排程"
     dozzle: "來自 Dozzle"
     cloud: "來自 Dozzle Cloud"
-    watchtower: "由 Watchtower"
     external: "在 Dozzle 之外"
   verdict:
     pending: "Dozzle Cloud 正在觀察這次更新"

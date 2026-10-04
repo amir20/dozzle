@@ -1072,7 +1072,6 @@ update-marker:
     schedule: "durch den Auto-Update-Zeitplan"
     dozzle: "aus Dozzle"
     cloud: "aus Dozzle Cloud"
-    watchtower: "durch Watchtower"
     external: "außerhalb von Dozzle"
   verdict:
     pending: "Dozzle Cloud beobachtet dieses Update"

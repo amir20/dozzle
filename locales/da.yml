@@ -1072,7 +1072,6 @@ update-marker:
     schedule: "af den automatiske opdateringsplan"
     dozzle: "fra Dozzle"
     cloud: "fra Dozzle Cloud"
-    watchtower: "af Watchtower"
     external: "uden for Dozzle"
   verdict:
     pending: "Dozzle Cloud holder øje med denne opdatering"

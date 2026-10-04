@@ -1074,7 +1074,6 @@ update-marker:
     schedule: "przez harmonogram automatycznych aktualizacji"
     dozzle: "z Dozzle"
     cloud: "z Dozzle Cloud"
-    watchtower: "przez Watchtower"
     external: "poza Dozzle"
   verdict:
     pending: "Dozzle Cloud obserwuje tę aktualizację"

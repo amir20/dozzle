@@ -1084,7 +1084,6 @@ update-marker:
     schedule: "oleh jadwal pembaruan otomatis"
     dozzle: "dari Dozzle"
     cloud: "dari Dozzle Cloud"
-    watchtower: "oleh Watchtower"
     external: "di luar Dozzle"
   verdict:
     pending: "Dozzle Cloud sedang memantau pembaruan ini"

@@ -1072,7 +1072,6 @@ update-marker:
     schedule: "dalla pianificazione degli aggiornamenti"
     dozzle: "da Dozzle"
     cloud: "da Dozzle Cloud"
-    watchtower: "da Watchtower"
     external: "fuori da Dozzle"
   verdict:
     pending: "Dozzle Cloud sta controllando questo aggiornamento"

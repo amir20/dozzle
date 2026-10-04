@@ -1074,7 +1074,6 @@ update-marker:
     schedule: "자동 업데이트 일정에 의해"
     dozzle: "Dozzle에서"
     cloud: "Dozzle Cloud에서"
-    watchtower: "Watchtower에 의해"
     external: "Dozzle 외부에서"
   verdict:
     pending: "Dozzle Cloud가 이 업데이트를 지켜보고 있습니다"

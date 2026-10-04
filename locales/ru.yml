@@ -1072,7 +1072,6 @@ update-marker:
     schedule: "по расписанию автообновления"
     dozzle: "из Dozzle"
     cloud: "из Dozzle Cloud"
-    watchtower: "через Watchtower"
     external: "вне Dozzle"
   verdict:
     pending: "Dozzle Cloud следит за этим обновлением"

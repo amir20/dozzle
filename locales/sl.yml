@@ -1077,7 +1077,6 @@ update-marker:
     schedule: "po urniku samodejnih posodobitev"
     dozzle: "iz Dozzle"
     cloud: "iz Dozzle Cloud"
-    watchtower: "prek Watchtower"
     external: "zunaj Dozzle"
   verdict:
     pending: "Dozzle Cloud spremlja to posodobitev"

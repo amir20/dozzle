@@ -1073,7 +1073,6 @@ update-marker:
     schedule: "door het automatische updateschema"
     dozzle: "vanuit Dozzle"
     cloud: "vanuit Dozzle Cloud"
-    watchtower: "door Watchtower"
     external: "buiten Dozzle"
   verdict:
     pending: "Dozzle Cloud houdt deze update in de gaten"

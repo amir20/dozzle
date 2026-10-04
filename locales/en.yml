@@ -1080,7 +1080,6 @@ update-marker:
     schedule: "by the auto-update schedule"
     dozzle: "from Dozzle"
     cloud: "from Dozzle Cloud"
-    watchtower: "by Watchtower"
     external: "outside Dozzle"
   verdict:
     pending: "Dozzle Cloud is watching this update"
