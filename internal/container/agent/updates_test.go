@@ -77,8 +77,7 @@ func (h *historyService) record(e container.ContainerUpdateEvent, live bool) {
 	}
 }
 
-// testAgent serves an agent over bufconn and can be restarted behind the same
-// address, as an agent restart or a network blip looks to the server.
+// testAgent serves an agent over bufconn.
 type testAgent struct {
 	t        *testing.T
 	register func(*grpc.Server)
@@ -104,11 +103,6 @@ func (a *testAgent) start() {
 	a.server = grpc.NewServer(grpc.Creds(creds))
 	a.register(a.server)
 	go a.server.Serve(lis)
-}
-
-func (a *testAgent) restart() {
-	a.server.Stop()
-	a.start()
 }
 
 func (a *testAgent) client() *Client {
