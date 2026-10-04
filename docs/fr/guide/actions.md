@@ -1,6 +1,6 @@
 ---
 title: Actions sur les conteneurs
-sourceHash: b77ad4fdc46b
+sourceHash: 121d4b250806
 ---
 
 # Actions sur les conteneurs
@@ -109,7 +109,7 @@ Avec `DOZZLE_IMAGE_CHECK_MODE=manual`, le bouton affiche **Rechercher des mises 
 Dozzle peut mettre à jour des conteneurs selon un planning. Cela se règle dans **Paramètres → Mises à jour** ou dans l'[assistant de configuration](/fr/guide/setup-wizard#auto-update) :
 
 - **Quand :** désactivé, tous les jours ou chaque semaine le dimanche, à une heure donnée. Équivalent à `DOZZLE_AUTO_UPDATE` et `DOZZLE_AUTO_UPDATE_TIME`.
-- **Quels conteneurs :** **Dozzle seulement**, **Conteneurs avec label** (par défaut) ou **Tout**. Dozzle lui-même suit le planning dans les trois cas.
+- **Quels conteneurs :** **Dozzle seulement**, **Conteneurs avec label** (par défaut) ou **Tout**. Dozzle lui-même suit le planning dans les trois cas. Équivalent à `DOZZLE_UPDATE_CONTAINERS` (`off`, `labelled` ou `all`).
 
 Un label sur le conteneur décide du reste :
 

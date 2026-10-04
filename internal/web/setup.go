@@ -42,6 +42,8 @@ type setupLocked struct {
 	EnableActions bool `json:"enableActions"`
 	EnableShell   bool `json:"enableShell"`
 	AutoUpdate    bool `json:"autoUpdate"`
+	// UpdateContainers is which containers the schedule updates.
+	UpdateContainers bool `json:"updateContainers"`
 }
 
 type setupPending struct {
@@ -182,6 +184,8 @@ func (h *handler) getSetup(w http.ResponseWriter, r *http.Request) {
 			EnableActions: h.config.Setup.LockedEnableActions,
 			EnableShell:   h.config.Setup.LockedEnableShell,
 			AutoUpdate:    h.config.Setup.LockedAutoUpdate,
+
+			UpdateContainers: h.config.Setup.UpdateContainers != nil,
 		},
 		Pending:    pending,
 		CanRestart: h.setupCanRestart(),
@@ -194,7 +198,7 @@ func (h *handler) getSetup(w http.ResponseWriter, r *http.Request) {
 			Reason:         support.Reason,
 			Image:          support.Image,
 			CurrentVersion: h.config.Version,
-			Containers:     updateModeFrom(file),
+			Containers:     updateModeFrom(h.config.Setup, file),
 		},
 		Agents:       h.setupAgents(file),
 		CanAddAgents: canAddAgents,
@@ -363,8 +367,8 @@ type setupConfigRequest struct {
 	EnableActions *bool                   `json:"enableActions"`
 	EnableShell   *bool                   `json:"enableShell"`
 	AutoUpdate    *setupAutoUpdateRequest `json:"autoUpdate"`
-	// UpdateContainers is off, labelled or all. It has no flag or env var,
-	// so it is never locked, and like the schedule it applies at the next run.
+	// UpdateContainers is off, labelled or all. Like the schedule it applies at
+	// the next run.
 	UpdateContainers *string `json:"updateContainers"`
 }
 
@@ -390,7 +394,8 @@ func (h *handler) updateSetupConfig(w http.ResponseWriter, r *http.Request) {
 	}
 	if (req.EnableActions != nil && h.config.Setup.LockedEnableActions) ||
 		(req.EnableShell != nil && h.config.Setup.LockedEnableShell) ||
-		(req.AutoUpdate != nil && h.config.Setup.LockedAutoUpdate) {
+		(req.AutoUpdate != nil && h.config.Setup.LockedAutoUpdate) ||
+		(req.UpdateContainers != nil && h.config.Setup.UpdateContainers != nil) {
 		http.Error(w, "setting is set by flag or env", http.StatusConflict)
 		return
 	}

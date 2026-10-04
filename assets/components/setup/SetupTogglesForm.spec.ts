@@ -81,15 +81,14 @@ describe("SetupTogglesForm", () => {
 
   test("a switch fixed by a variable is locked and names it", () => {
     const wrapper = mountForm(status({ locked: { authProvider: false, enableActions: true, enableShell: false } }));
-    const [actions, shell] = wrapper.findAll("input[type=checkbox]");
-    expect(actions.attributes("disabled")).toBeDefined();
-    expect(shell.attributes("disabled")).toBeUndefined();
+    // Only shell is still a switch; the locked one reads as text.
+    expect(wrapper.findAll("input[type=checkbox]")).toHaveLength(1);
     expect(wrapper.text()).toContain("Set by DOZZLE_ENABLE_ACTIONS");
   });
 
-  test("an account without every role sees the switches read-only", () => {
+  test("an account without every role sees the values as text", () => {
     const wrapper = mountForm(status({ canWrite: false }), true);
-    for (const toggle of wrapper.findAll("input[type=checkbox]")) expect(toggle.attributes("disabled")).toBeDefined();
+    expect(wrapper.find("input[type=checkbox]").exists()).toBe(false);
   });
 
   test("a saved switch waiting for a restart says so in Settings", () => {

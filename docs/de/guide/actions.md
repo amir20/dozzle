@@ -1,6 +1,6 @@
 ---
 title: Container-Aktionen
-sourceHash: b77ad4fdc46b
+sourceHash: 121d4b250806
 ---
 
 # Container-Aktionen
@@ -109,7 +109,7 @@ Mit `DOZZLE_IMAGE_CHECK_MODE=manual` lautet der Button **Nach Updates suchen**, 
 Dozzle kann Container nach Zeitplan aktualisieren. Eingerichtet wird das unter **Einstellungen → Aktualisierungen** oder im [Einrichtungsassistenten](/de/guide/setup-wizard#auto-update):
 
 - **Wann:** aus, täglich oder wöchentlich am Sonntag, zu einer Uhrzeit. Entspricht `DOZZLE_AUTO_UPDATE` und `DOZZLE_AUTO_UPDATE_TIME`.
-- **Welche Container:** **Nur Dozzle**, **Container mit Label** (Standard) oder **Alles**. Dozzle selbst folgt dem Zeitplan in allen drei Fällen.
+- **Welche Container:** **Nur Dozzle**, **Container mit Label** (Standard) oder **Alles**. Dozzle selbst folgt dem Zeitplan in allen drei Fällen. Entspricht `DOZZLE_UPDATE_CONTAINERS` (`off`, `labelled` oder `all`).
 
 Ein Label am Container entscheidet den Rest:
 

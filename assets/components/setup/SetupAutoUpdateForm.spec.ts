@@ -114,14 +114,30 @@ describe("SetupAutoUpdateForm", () => {
     expect(wrapper.text()).toContain("setup.error.generic");
   });
 
-  test("a schedule pinned by DOZZLE_AUTO_UPDATE is read-only and says so", () => {
+  test("a schedule pinned by DOZZLE_AUTO_UPDATE is read-only text and says so", () => {
     const s = status({ locked: { authProvider: false, enableActions: false, enableShell: false, autoUpdate: true } });
     const wrapper = mountForm(s);
-    expect(wrapper.find("input[type=checkbox]").attributes("disabled")).toBeDefined();
-    expect(wrapper.find("select").attributes("disabled")).toBeDefined();
+    expect(wrapper.find("input[type=checkbox]").exists()).toBe(false);
+    expect(wrapper.find("select").exists()).toBe(false);
     expect(wrapper.text()).toContain("setup.actions.locked");
-    // Which containers has no env var, so the lock does not hold it.
-    expect(wrapper.find("fieldset").attributes("disabled")).toBeUndefined();
+    // Which containers has its own env var, so this lock does not hold it.
+    expect(wrapper.findAll("input[type=radio]")).toHaveLength(3);
+  });
+
+  test("which containers pinned by DOZZLE_UPDATE_CONTAINERS is read-only text and says so", () => {
+    const s = status({
+      locked: { authProvider: false, enableActions: false, enableShell: false, updateContainers: true },
+    });
+    const wrapper = mountForm(s);
+    expect(wrapper.find("input[type=radio]").exists()).toBe(false);
+    expect(wrapper.text()).toContain("auto-update.mode-labelled");
+    expect(wrapper.find("input[type=checkbox]").exists()).toBe(true);
+  });
+
+  test("with the no-login window closed, everything is text and the notice names the env vars", () => {
+    const wrapper = mountForm(status({ canWrite: false, authProvider: "none" }));
+    expect(wrapper.find("input").exists()).toBe(false);
+    expect(wrapper.text()).toContain("setup.actions.window-closed-env");
   });
 
   test("shows which containers, labelled when never chosen", () => {
@@ -153,7 +169,7 @@ describe("SetupAutoUpdateForm", () => {
 
   test("without a volume nothing can be changed", () => {
     const wrapper = mountForm(status({ dataPersisted: false }));
-    expect(wrapper.find("input[type=checkbox]").attributes("disabled")).toBeDefined();
+    expect(wrapper.find("input").exists()).toBe(false);
     expect(wrapper.text()).toContain("setup.error.no-data");
     expect((wrapper.vm as unknown as { dirty: boolean }).dirty).toBe(false);
   });

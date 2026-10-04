@@ -242,6 +242,7 @@ placeholder:
   search: 搜索
 settings:
   subtitle: 此浏览器的偏好设置。更改会自动保存。
+  subtitle-server: "这个 Dozzle 的设置，所有使用者共用。"
   appearance: 外观
   logs: 日志
   sidebar: 侧边栏
@@ -266,9 +267,6 @@ settings:
   new-version: "{version} 可用"
   update-available: "有更新的镜像可用"
   auto-update-on: "Dozzle 会自动保持最新"
-  auto-update-containers: "你的容器会保持最新"
-  auto-update-daily: "每天 {time} 检查（服务器时间）。"
-  auto-update-weekly: "每周日 {time} 检查（服务器时间）。"
   show-image-update-alert: "镜像更新提醒"
   show-image-update-alert-desc: "当运行中的镜像有更新的标签时通知。"
   cloud-desc: 将日志流式传输到 Dozzle Cloud，进行 AI 驱动的调查和跨实例搜索。
@@ -276,10 +274,13 @@ settings:
   small-scrollbars: 细滚动条
   small-scrollbars-desc: "更细的滚动条，在小屏幕上很实用。"
   show-timestamps: 显示时间戳
+  show-timestamps-desc: "显示每一行的写入时间。"
   soft-wrap: 自动换行
+  soft-wrap-desc: "长行自动换行，而不是横向滚动。"
   highlight-errors: 高亮错误行
   highlight-errors-desc: "彩色级别标记始终显示。"
-  datetime-format: 日期和时间
+  date-format: "日期格式"
+  time-format: "时间格式"
   font-size: 字体大小
   color-scheme: 主题
   show-stopped-containers: 显示已停止的容器
@@ -309,12 +310,12 @@ settings:
     none: 无
   grouping:
     always: 始终
-    at-least-2: 至少 2 个
+    at-least-2: "2 个以上的分组"
     never: 从不
   hour:
     auto: 自动
-    12: "12"
-    24: "24"
+    "12": "12 小时制"
+    "24": "24 小时制"
   log:
     preview: 这是默认日志样式
     warning: 警告日志看起来像这样
@@ -895,6 +896,7 @@ setup:
     shell-warning: 容器的 Shell 访问权限通常等同于主机的访问权限。除非需要，否则请保持关闭。
     locked: "由 {env} 设置"
     window-closed: "未开启登录时，设置只在全新安装后的前 15 分钟内接受更改。请使用环境变量设置，或先开启登录。"
+    window-closed-env: "没有登录时，设置只在新安装后的前 15 分钟内接受更改。请在 compose 文件中设置 {envs}，或先开启登录。"
     no-access: 你的账户无权更改这些设置。
     restart-note: 这些设置将在 Dozzle 重启后生效。
   hosts:
@@ -951,7 +953,7 @@ setup:
     title: "让容器保持最新"
     subtitle: "Dozzle 会在空闲时段查找更新的镜像，并更新自身和你选择的容器。设置、用户和告警都会保留。"
     auto-label: "自动更新"
-    auto-desc: "检查是否有更新的镜像，仅在有新镜像时替换 Dozzle。"
+    auto-desc: "检查是否有更新的镜像，有的话就更新 Dozzle 和下方的容器。"
     when-label: "时间"
     time-label: "时刻"
     server-time: "使用服务器的时区。"

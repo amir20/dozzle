@@ -17,17 +17,24 @@ import (
 // updatepolicy for the rules; this file reads the dozzle.yml half and lists
 // what the schedule will do, for Settings → Updates.
 
-// loadUpdateMode reads the mode from dozzle.yml. An unreadable file is the
-// default, which is how Dozzle behaved before the mode existed.
-func loadUpdateMode() updatepolicy.Mode {
+// loadUpdateMode reads the mode from dozzle.yml, with the flag or env var
+// winning. An unreadable file is the default, which is how Dozzle behaved
+// before the mode existed.
+func loadUpdateMode(setup SetupConfig) updatepolicy.Mode {
+	if setup.UpdateContainers != nil {
+		return updatepolicy.ParseMode(*setup.UpdateContainers)
+	}
 	file, err := config.Load(setupConfigPath)
 	if err != nil {
 		log.Warn().Err(err).Msg("auto update: could not read dozzle.yml, using the default mode")
 	}
-	return updateModeFrom(file)
+	return updateModeFrom(setup, file)
 }
 
-func updateModeFrom(file config.File) updatepolicy.Mode {
+func updateModeFrom(setup SetupConfig, file config.File) updatepolicy.Mode {
+	if setup.UpdateContainers != nil {
+		return updatepolicy.ParseMode(*setup.UpdateContainers)
+	}
 	if file.UpdateContainers == nil {
 		return updatepolicy.DefaultMode
 	}
@@ -95,7 +102,7 @@ func (h *handler) getUpdatePolicies(w http.ResponseWriter, r *http.Request) {
 	selfService := selfSwarmService(containers)
 
 	resp := updatePoliciesResponse{
-		Mode:       loadUpdateMode(),
+		Mode:       loadUpdateMode(h.config.Setup),
 		Containers: make([]containerUpdatePolicy, 0, len(containers)),
 	}
 	for _, c := range containers {

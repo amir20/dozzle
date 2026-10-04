@@ -363,6 +363,7 @@ command-palette:
   open-settings: Abrir configuración
 settings:
   subtitle: Preferencias para este navegador. Los cambios se guardan automáticamente.
+  subtitle-server: "Ajustes de este Dozzle, compartidos por todos los que lo usan."
   appearance: Apariencia
   logs: Logs
   sidebar: Barra lateral
@@ -387,9 +388,6 @@ settings:
   new-version: "{version} disponible"
   update-available: "Hay una imagen más reciente disponible"
   auto-update-on: "Dozzle se mantiene actualizado"
-  auto-update-containers: "Tus contenedores se mantienen al día"
-  auto-update-daily: "Comprueba a diario a las {time}, hora del servidor."
-  auto-update-weekly: "Comprueba cada semana, los domingos a las {time}, hora del servidor."
   show-image-update-alert: "Alertas de actualización de imagen"
   show-image-update-alert-desc: "Avisa cuando existe una etiqueta más nueva de una imagen en ejecución."
   cloud-desc: Transmite logs a Dozzle Cloud para investigaciones con IA y búsqueda entre instancias.
@@ -397,10 +395,13 @@ settings:
   small-scrollbars: Barras de desplazamiento finas
   small-scrollbars-desc: "Barras de desplazamiento más finas, útiles en pantallas pequeñas."
   show-timestamps: Mostrar marcas de tiempo
+  show-timestamps-desc: "Muestra cuándo se escribió cada línea."
   soft-wrap: Ajuste de línea
+  soft-wrap-desc: "Ajusta las líneas largas en lugar de desplazarte de lado."
   highlight-errors: Resaltar líneas de error
   highlight-errors-desc: "El marcador de nivel de color siempre se muestra."
-  datetime-format: Fecha y hora
+  date-format: "Formato de fecha"
+  time-format: "Formato de hora"
   font-size: Tamaño de fuente
   color-scheme: Tema
   show-stopped-containers: Mostrar contenedores parados
@@ -430,12 +431,12 @@ settings:
     none: Ninguno
   grouping:
     always: Siempre
-    at-least-2: Al menos 2
+    at-least-2: "Grupos de 2 o más"
     never: Nunca
   hour:
     auto: Auto
-    12: "12"
-    24: "24"
+    "12": "12 horas"
+    "24": "24 horas"
   log:
     preview: Esta es una vista previa de los registros
     warning: Un registro de advertencia se ve así
@@ -895,6 +896,7 @@ setup:
     shell-warning: "El acceso shell a un contenedor suele equivaler al acceso al host. Déjelo desactivado a menos que lo necesite."
     locked: "Definido por {env}"
     window-closed: "Sin inicio de sesión, la configuración solo acepta cambios en los primeros 15 minutos de una instalación nueva. Define estos valores con variables de entorno o activa antes el inicio de sesión."
+    window-closed-env: "Sin inicio de sesión, la configuración solo acepta cambios en los primeros 15 minutos de una instalación nueva. Define {envs} en tu archivo compose o activa antes el inicio de sesión."
     no-access: "Su cuenta no puede cambiar estos ajustes."
     restart-note: "Estos cambios se aplican cuando Dozzle se reinicia."
   hosts:
@@ -951,7 +953,7 @@ setup:
     title: "Mantén los contenedores al día"
     subtitle: "A una hora tranquila, Dozzle busca imágenes más nuevas y se actualiza a sí mismo y a los contenedores que elijas. Los ajustes, usuarios y alertas se mantienen."
     auto-label: "Actualizar automáticamente"
-    auto-desc: "Busca una imagen más reciente y reemplaza Dozzle solo cuando la hay."
+    auto-desc: "Busca imágenes más recientes y actualiza Dozzle y los contenedores de abajo cuando las hay."
     when-label: "Cuándo"
     time-label: "Hora"
     server-time: "Usa la zona horaria del servidor."

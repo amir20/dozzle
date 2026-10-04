@@ -244,6 +244,7 @@ placeholder:
   search: Szukaj
 settings:
   subtitle: Preferencje dla tej przeglądarki. Zmiany zapisują się automatycznie.
+  subtitle-server: "Ustawienia tego Dozzle, wspólne dla wszystkich, którzy z niego korzystają."
   appearance: Wygląd
   logs: Logi
   sidebar: Pasek boczny
@@ -268,9 +269,6 @@ settings:
   new-version: "{version} jest dostępna"
   update-available: "Dostępny jest nowszy obraz"
   auto-update-on: "Dozzle sam się aktualizuje"
-  auto-update-containers: "Twoje kontenery są aktualne"
-  auto-update-daily: "Sprawdza codziennie o {time} czasu serwera."
-  auto-update-weekly: "Sprawdza co tydzień w niedzielę o {time} czasu serwera."
   show-image-update-alert: "Alerty aktualizacji obrazu"
   show-image-update-alert-desc: "Powiadamiaj, gdy istnieje nowszy tag uruchomionego obrazu."
   cloud-desc: Przesyłaj logi do Dozzle Cloud w celu analiz wspomaganych przez AI i wyszukiwania między instancjami.
@@ -278,10 +276,13 @@ settings:
   small-scrollbars: Cienkie paski przewijania
   small-scrollbars-desc: "Cieńsze paski przewijania, przydatne na mniejszych ekranach."
   show-timestamps: Pokaż date i godzinę
+  show-timestamps-desc: "Pokazuje, kiedy zapisano każdy wiersz."
   soft-wrap: Zawijanie wierszy
+  soft-wrap-desc: "Zawija długie wiersze zamiast przewijać w bok."
   highlight-errors: Wyróżniaj wiersze błędów
   highlight-errors-desc: "Kolorowy znacznik poziomu jest zawsze widoczny."
-  datetime-format: Data i godzina
+  date-format: "Format daty"
+  time-format: "Format godziny"
   font-size: Rozmiar czcionki
   color-scheme: Motyw
   show-stopped-containers: Pokaż zatrzymane kontenery
@@ -311,12 +312,12 @@ settings:
     none: Brak
   grouping:
     always: Zawsze
-    at-least-2: Co najmniej 2
+    at-least-2: "Grupy od 2"
     never: Nigdy
   hour:
     auto: Auto
-    12: "12"
-    24: "24"
+    "12": "12-godzinny"
+    "24": "24-godzinny"
   log:
     preview: To jest podgląd logów
     warning: Log ostrzeżenia wygląda tak
@@ -897,6 +898,7 @@ setup:
     shell-warning: Dostęp do powłoki kontenera często oznacza to samo co dostęp do hosta. Pozostaw wyłączone, chyba że go potrzebujesz.
     locked: "Ustawione przez {env}"
     window-closed: "Bez logowania konfiguracja przyjmuje zmiany tylko przez pierwsze 15 minut nowej instalacji. Ustaw te opcje zmiennymi środowiskowymi albo najpierw włącz logowanie."
+    window-closed-env: "Bez logowania konfiguracja przyjmuje zmiany tylko przez pierwsze 15 minut nowej instalacji. Ustaw {envs} w pliku compose albo najpierw włącz logowanie."
     no-access: Twoje konto nie może zmieniać tych ustawień.
     restart-note: Zmiany zaczną działać po restarcie Dozzle.
   hosts:
@@ -953,7 +955,7 @@ setup:
     title: "Utrzymuj kontenery aktualne"
     subtitle: "W spokojnej porze Dozzle szuka nowszych obrazów i aktualizuje siebie oraz wybrane kontenery. Ustawienia, użytkownicy i alerty zostają."
     auto-label: "Aktualizuj automatycznie"
-    auto-desc: "Sprawdza, czy jest nowszy obraz, i zastępuje Dozzle tylko wtedy, gdy jest."
+    auto-desc: "Sprawdza, czy są nowsze obrazy, i aktualizuje Dozzle oraz kontenery poniżej, gdy są."
     when-label: "Kiedy"
     time-label: "Godzina"
     server-time: "Używa strefy czasowej serwera."

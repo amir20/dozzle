@@ -1,6 +1,6 @@
 ---
 title: Variables d'environnement et sous-commandes
-sourceHash: 4f67e805c4b4
+sourceHash: 4c23a95b6d25
 ---
 
 # Variables d'environnement
@@ -51,6 +51,7 @@ DOZZLE_REMOTE_AGENT=167.99.1.1:7007,167.99.1.2:7007
 | `DOZZLE_IMAGE_CHECK_MODE`<br>`--image-check-mode`         | Indique si Dozzle interroge les registres pour trouver des images de conteneurs plus récentes. Voir [vérification des mises à jour](/fr/guide/actions#verification-des-mises-a-jour).                                                                                    | `automatic`, `manual`, `off` | identique à `DOZZLE_RELEASE_CHECK_MODE` |
 | `DOZZLE_AUTO_UPDATE`<br>`--auto-update`                   | Met à jour Dozzle, et les conteneurs réglés pour se mettre à jour automatiquement, selon un planning. `weekly` s'exécute le dimanche. Nécessite `DOZZLE_ENABLE_ACTIONS`. Consultez [mise à jour automatique des conteneurs](/fr/guide/actions#auto-updating-containers). | `off`, `daily`, `weekly`     | `off`                                   |
 | `DOZZLE_AUTO_UPDATE_TIME`<br>`--auto-update-time`         | Heure de la journée à laquelle la mise à jour automatique s'exécute, dans l'heure locale du serveur.                                                                                                                                                                     | `HH:MM`, par ex. `04:30`     | `03:00`                                 |
+| `DOZZLE_UPDATE_CONTAINERS`<br>`--update-containers`       | Les conteneurs que la mise à jour automatique met à jour en plus de Dozzle : `off` pour Dozzle seulement, `labelled` pour ceux étiquetés `dev.dozzle.update=auto`, `all` pour tout conteneur non étiqueté `dev.dozzle.update=off`.                                       | `off`, `labelled`, `all`     | `labelled`                              |
 
 ## Authentification
 

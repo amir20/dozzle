@@ -108,7 +108,7 @@ With `DOZZLE_IMAGE_CHECK_MODE=manual`, the button reads **Check for updates** un
 Dozzle can update containers on a schedule. Set it up under **Settings → Updates** or in the [setup wizard](/guide/setup-wizard#auto-update):
 
 - **When:** off, daily or weekly on Sunday, at a time of day. The same as `DOZZLE_AUTO_UPDATE` and `DOZZLE_AUTO_UPDATE_TIME`.
-- **Which containers:** **Dozzle only**, **Labelled containers** (the default) or **Everything**. Dozzle itself follows the schedule in all three.
+- **Which containers:** **Dozzle only**, **Labelled containers** (the default) or **Everything**. Dozzle itself follows the schedule in all three. The same as `DOZZLE_UPDATE_CONTAINERS` (`off`, `labelled` or `all`).
 
 One label on a container decides the rest:
 

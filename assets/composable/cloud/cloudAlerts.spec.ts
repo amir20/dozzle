@@ -384,6 +384,15 @@ describe("mergeDeploys", () => {
     expect(m.verdict?.decision).toBe("kept");
   });
 
+  // A real wall-clock time in nanoseconds is past 2^53, and this one divides back
+  // to a hair under its millisecond.
+  test("finds the marker when the nanosecond time does not divide back exactly", () => {
+    const at = 1_790_000_000_002;
+    const m = marker(at);
+    mergeDeploys([m], [deployEvent({ ts: at * 1_000_000 })], new Set());
+    expect(m.verdict?.verdict).toBe("regressed");
+  });
+
   // An update Dozzle no longer remembers (an agent, or a restart since) shows
   // from Dozzle Cloud's record, placed by time.
   test("splices in a marker from Dozzle Cloud where Dozzle has none", () => {

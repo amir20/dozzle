@@ -8,6 +8,7 @@ import (
 
 	"github.com/amir20/dozzle/internal/config"
 	"github.com/amir20/dozzle/internal/container/agent"
+	"github.com/amir20/dozzle/internal/updatepolicy"
 	"github.com/rs/zerolog/log"
 )
 
@@ -19,8 +20,9 @@ type Locked struct {
 	EnableShell   bool
 	// AutoUpdate and AutoUpdateTime are locked separately, but the wizard shows
 	// the schedule read-only when either is.
-	AutoUpdate     bool
-	AutoUpdateTime bool
+	AutoUpdate       bool
+	AutoUpdateTime   bool
+	UpdateContainers bool
 }
 
 // setByOperator reports whether flag appears in argv (as flag or flag=value,
@@ -55,6 +57,8 @@ func applyConfigFile(args *Args, file config.File, argv []string, lookupEnv func
 
 		AutoUpdate:     setByOperator(argv, lookupEnv, "auto-update", "DOZZLE_AUTO_UPDATE"),
 		AutoUpdateTime: setByOperator(argv, lookupEnv, "auto-update-time", "DOZZLE_AUTO_UPDATE_TIME"),
+
+		UpdateContainers: setByOperator(argv, lookupEnv, "update-containers", "DOZZLE_UPDATE_CONTAINERS"),
 	}
 
 	if !args.Locked.AuthProvider && file.AuthProvider != nil {
@@ -73,6 +77,9 @@ func applyConfigFile(args *Args, file config.File, argv []string, lookupEnv func
 	}
 	if !args.Locked.AutoUpdateTime && file.AutoUpdateTime != nil {
 		args.AutoUpdateTime = *file.AutoUpdateTime
+	}
+	if !args.Locked.UpdateContainers && file.UpdateContainers != nil {
+		args.UpdateContainers = *file.UpdateContainers
 	}
 
 	// Agents from the file join the ones from the flag or env var. One listed in
@@ -108,7 +115,8 @@ func applyConfigFile(args *Args, file config.File, argv []string, lookupEnv func
 	}
 }
 
-// validateAutoUpdate rejects a bad --auto-update or --auto-update-time. A bad
+// validateAutoUpdate rejects a bad --auto-update, --auto-update-time or
+// --update-containers. A bad
 // value in dozzle.yml is not fatal: the scheduler treats it as the default.
 func validateAutoUpdate(args Args) error {
 	if args.Locked.AutoUpdate && args.AutoUpdate != "" && !config.ValidAutoUpdateMode(args.AutoUpdate) {
@@ -116,6 +124,9 @@ func validateAutoUpdate(args Args) error {
 	}
 	if args.Locked.AutoUpdateTime && args.AutoUpdateTime != "" && !config.ValidAutoUpdateTime(args.AutoUpdateTime) {
 		return fmt.Errorf("invalid auto update time %q (expected HH:MM)", args.AutoUpdateTime)
+	}
+	if args.Locked.UpdateContainers && args.UpdateContainers != "" && !updatepolicy.ValidMode(args.UpdateContainers) {
+		return fmt.Errorf("invalid update containers mode %q (expected off, labelled or all)", args.UpdateContainers)
 	}
 	return nil
 }

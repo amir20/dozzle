@@ -245,6 +245,7 @@ placeholder:
   search: Ara
 settings:
   subtitle: Bu tarayıcı için tercihler. Değişiklikler otomatik olarak kaydedilir.
+  subtitle-server: "Bu Dozzle'ın ayarları, onu kullanan herkes için ortaktır."
   appearance: Görünüm
   logs: Loglar
   sidebar: Kenar çubuğu
@@ -269,9 +270,6 @@ settings:
   new-version: "{version} mevcut"
   update-available: "Daha yeni bir imaj mevcut"
   auto-update-on: "Dozzle kendini güncel tutar"
-  auto-update-containers: "Konteynerleriniz güncel kalıyor"
-  auto-update-daily: "Her gün {time} saatinde kontrol eder (sunucu saati)."
-  auto-update-weekly: "Her hafta pazar günü {time} saatinde kontrol eder (sunucu saati)."
   show-image-update-alert: "İmaj güncelleme uyarıları"
   show-image-update-alert-desc: "Çalışan bir imajın daha yeni bir etiketi olduğunda bildir."
   cloud-desc: AI destekli incelemeler ve örnekler arasında arama için logları Dozzle Cloud'a aktarın.
@@ -279,10 +277,13 @@ settings:
   small-scrollbars: İnce kaydırma çubukları
   small-scrollbars-desc: "Daha ince kaydırma çubukları, küçük ekranlarda kullanışlıdır."
   show-timestamps: Zaman damgalarını göster
+  show-timestamps-desc: "Her satırın ne zaman yazıldığını gösterir."
   soft-wrap: Satır kaydırma
+  soft-wrap-desc: "Yana kaydırmak yerine uzun satırları kaydırır."
   highlight-errors: Hata satırlarını vurgula
   highlight-errors-desc: "Renkli seviye işareti her zaman gösterilir."
-  datetime-format: Tarih ve saat
+  date-format: "Tarih biçimi"
+  time-format: "Saat biçimi"
   font-size: Yazı boyutu
   color-scheme: Tema
   show-stopped-containers: Durdurulan konteynerleri göster
@@ -312,12 +313,12 @@ settings:
     none: Hiçbiri
   grouping:
     always: Her zaman
-    at-least-2: En az 2
+    at-least-2: "2 veya daha fazla grup"
     never: Asla
   hour:
     auto: Otomatik
-    12: "12"
-    24: "24"
+    "12": "12 saat"
+    "24": "24 saat"
   log:
     preview: Bu, logların bir önizlemesidir
     warning: Bir uyarı logu böyle görünür
@@ -898,6 +899,7 @@ setup:
     shell-warning: Bir konteynerin kabuğuna erişim çoğu zaman sunucuya erişim kadar güçlüdür. İhtiyacınız yoksa kapalı bırakın.
     locked: "{env} ile ayarlandı"
     window-closed: "Giriş olmadan kurulum, yeni bir kurulumun yalnızca ilk 15 dakikasında değişiklik kabul eder. Bunları ortam değişkenleriyle ayarlayın veya önce girişi açın."
+    window-closed-env: "Giriş olmadan kurulum, yeni bir kurulumun yalnızca ilk 15 dakikasında değişiklik kabul eder. Compose dosyanızda {envs} ayarlayın veya önce girişi açın."
     no-access: Hesabınız bu ayarları değiştiremez.
     restart-note: Bunlar Dozzle yeniden başladıktan sonra geçerli olur.
   hosts:
@@ -954,7 +956,7 @@ setup:
     title: "Konteynerleri güncel tutun"
     subtitle: "Sakin bir saatte Dozzle daha yeni imajları arar, kendini ve seçtiğiniz konteynerleri günceller. Ayarlar, kullanıcılar ve uyarılar korunur."
     auto-label: "Otomatik güncelle"
-    auto-desc: "Daha yeni bir imaj olup olmadığını kontrol eder ve yalnızca varsa Dozzle'ı değiştirir."
+    auto-desc: "Daha yeni imajlar olup olmadığını kontrol eder ve varsa Dozzle'ı ve aşağıdaki konteynerleri günceller."
     when-label: "Ne zaman"
     time-label: "Saat"
     server-time: "Sunucunun saat dilimini kullanır."

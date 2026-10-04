@@ -242,6 +242,7 @@ placeholder:
   search: Søg
 settings:
   subtitle: Indstillinger for denne browser. Ændringer gemmes automatisk.
+  subtitle-server: "Indstillinger for denne Dozzle, delt af alle, der bruger den."
   appearance: Udseende
   logs: Logs
   sidebar: Sidepanel
@@ -266,9 +267,6 @@ settings:
   new-version: "{version} tilgængelig"
   update-available: "Et nyere image er tilgængeligt"
   auto-update-on: "Dozzle holder sig selv opdateret"
-  auto-update-containers: "Dine containere holdes opdateret"
-  auto-update-daily: "Tjekker dagligt kl. {time}, servertid."
-  auto-update-weekly: "Tjekker ugentligt om søndagen kl. {time}, servertid."
   show-image-update-alert: "Image-opdateringer"
   show-image-update-alert-desc: "Giv besked, når der findes et nyere tag til et kørende image."
   cloud-desc: Stream logs til Dozzle Cloud for AI-drevne undersøgelser og søgning på tværs af installationer.
@@ -276,10 +274,13 @@ settings:
   small-scrollbars: Tynde rullebjælker
   small-scrollbars-desc: "Tyndere scrollbarer, praktisk på mindre skærme."
   show-timestamps: Vis tids stempler
+  show-timestamps-desc: "Vis hvornår hver linje blev skrevet."
   soft-wrap: Linjeombrydning
+  soft-wrap-desc: "Ombryd lange linjer i stedet for at rulle sidelæns."
   highlight-errors: Fremhæv fejllinjer
   highlight-errors-desc: "Den farvede niveaumarkør vises altid."
-  datetime-format: Dato og tid
+  date-format: "Datoformat"
+  time-format: "Tidsformat"
   font-size: Skriftstørrelse
   color-scheme: Tema
   show-stopped-containers: Vis stoppet containere
@@ -309,12 +310,12 @@ settings:
     none: Ingen
   grouping:
     always: Altid
-    at-least-2: Mindst 2
+    at-least-2: "Grupper med 2 eller flere"
     never: Aldrig
   hour:
     auto: Auto
-    12: "12"
-    24: "24"
+    "12": "12-timers"
+    "24": "24-timers"
   log:
     preview: Dette er en forhåndsvisning af loggene
     warning: En advarselslog ser sådan ud
@@ -895,6 +896,7 @@ setup:
     shell-warning: "Shell-adgang til en container er ofte lige så god som adgang til værten. Lad den være slået fra, medmindre du har brug for den."
     locked: "Sat af {env}"
     window-closed: "Uden login tager opsætningen kun imod ændringer i de første 15 minutter af en ny installation. Sæt disse med miljøvariabler, eller slå login til først."
+    window-closed-env: "Uden login tager opsætningen kun imod ændringer i de første 15 minutter af en ny installation. Sæt {envs} i din compose-fil, eller slå login til først."
     no-access: "Din konto kan ikke ændre disse indstillinger."
     restart-note: "Disse træder i kraft, når Dozzle genstarter."
   hosts:
@@ -951,7 +953,7 @@ setup:
     title: "Hold containere opdateret"
     subtitle: "På et roligt tidspunkt søger Dozzle efter nyere images og opdaterer sig selv og de containere, du vælger. Indstillinger, brugere og alarmer bevares."
     auto-label: "Opdater automatisk"
-    auto-desc: "Tjekker efter et nyere image og erstatter kun Dozzle, når der er et."
+    auto-desc: "Tjekker efter nyere images og opdaterer Dozzle og containerne nedenfor, når der er et."
     when-label: "Hvornår"
     time-label: "Tidspunkt"
     server-time: "Bruger serverens tidszone."

@@ -359,6 +359,11 @@ function eventKey(event: CloudEvent): string {
  * Returns the run, a new array when a marker was added, and whether a verdict on
  * a marker already in it changed, which needs a re-render of its own.
  */
+// Nanoseconds past 2^53 are not exact, so ts / 1e6 can land a hair under the
+// millisecond and Date truncates it to the one before. The marker key matches on
+// the exact millisecond, so round back to it.
+const deployDate = (ts: number) => new Date(Math.round(ts / 1_000_000));
+
 export function mergeDeploys(
   logs: LogEntry<LogMessage>[],
   events: CloudEvent[],
@@ -376,7 +381,7 @@ export function mergeDeploys(
   const fresh: DeployLogEntry[] = [];
   for (const event of deploys) {
     const key = deployKey(event.deploy);
-    const marker = markers.get(DeployLogEntry.key(event.containerId, new Date(event.ts / 1_000_000)));
+    const marker = markers.get(DeployLogEntry.key(event.containerId, deployDate(event.ts)));
     if (marker) {
       seen.add(key);
       if (!sameVerdict(marker.verdict, event.deploy)) {
@@ -387,7 +392,7 @@ export function mergeDeploys(
     }
     if (seen.has(key)) continue;
     seen.add(key);
-    const entry = new DeployLogEntry(updateFromCloud(event), new Date(event.ts / 1_000_000));
+    const entry = new DeployLogEntry(updateFromCloud(event), deployDate(event.ts));
     entry.verdict = event.deploy;
     markers.set(entry.updateKey, entry);
     fresh.push(entry);

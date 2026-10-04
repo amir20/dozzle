@@ -2,7 +2,7 @@
   <!-- Container actions and shell: the same two switches in the setup wizard and on
        Settings → Security. The wizard saves on Next; Settings saves as you change them. -->
   <div class="flex flex-col gap-4">
-    <SetupAccessNotice :status="status" />
+    <SetupAccessNotice v-if="notices" :status="status" />
 
     <div class="border-base-content/15 bg-base-200/40 divide-base-content/10 divide-y rounded-lg border">
       <label v-for="field in fields" :key="field.id" class="flex items-start justify-between gap-3 p-4">
@@ -18,11 +18,16 @@
           <SetupLocked v-if="status.locked[field.id]" :env="field.env" class="mt-1" />
         </span>
         <input
+          v-if="canEdit(field.id)"
           v-model="draft[field.id]"
           type="checkbox"
           class="toggle toggle-primary toggle-sm mt-0.5 shrink-0"
-          :disabled="!canEdit(field.id) || saving"
+          :disabled="saving"
         />
+        <!-- Read only, so text. -->
+        <span v-else class="shrink-0 text-sm" :class="{ 'text-base-content/60': !draft[field.id] }">
+          {{ draft[field.id] ? $t("setup.restart.on") : $t("setup.restart.off") }}
+        </span>
       </label>
 
       <div class="flex items-start gap-3 p-4">
@@ -40,8 +45,14 @@
 <script lang="ts" setup>
 import type { SetupStatus } from "@/composable/setup/setup";
 
-const { status, autosave = false } = defineProps<{
+const {
+  status,
+  autosave = false,
+  notices = true,
+} = defineProps<{
   status: SetupStatus;
+  // False when the page already shows the access notice for every form on it.
+  notices?: boolean;
   // Save every change right away, as the rest of Settings does. The wizard saves on Next.
   autosave?: boolean;
 }>();

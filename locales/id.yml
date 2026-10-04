@@ -250,6 +250,7 @@ placeholder:
 
 settings:
   subtitle: Preferensi untuk browser ini. Perubahan disimpan secara otomatis.
+  subtitle-server: "Pengaturan untuk Dozzle ini, dipakai bersama oleh semua penggunanya."
   appearance: Tampilan
   logs: Log
   sidebar: Bilah sisi
@@ -274,9 +275,6 @@ settings:
   new-version: "{version} tersedia"
   update-available: "Image yang lebih baru tersedia"
   auto-update-on: "Dozzle memperbarui dirinya sendiri"
-  auto-update-containers: "Kontainer Anda tetap terbaru"
-  auto-update-daily: "Memeriksa setiap hari pukul {time}, waktu server."
-  auto-update-weekly: "Memeriksa setiap minggu pada hari Minggu pukul {time}, waktu server."
   show-image-update-alert: "Peringatan pembaruan image"
   show-image-update-alert-desc: "Beri tahu jika ada tag lebih baru untuk image yang sedang berjalan."
   cloud-desc: Streaming log ke Dozzle Cloud untuk investigasi bertenaga AI dan pencarian lintas instans.
@@ -284,10 +282,13 @@ settings:
   small-scrollbars: Scrollbar tipis
   small-scrollbars-desc: "Bilah gulir lebih tipis, berguna pada layar kecil."
   show-timestamps: Tampilkan cap waktu
+  show-timestamps-desc: "Tampilkan kapan setiap baris ditulis."
   soft-wrap: Bungkus baris
+  soft-wrap-desc: "Bungkus baris panjang alih-alih menggulir ke samping."
   highlight-errors: Sorot baris galat
   highlight-errors-desc: "Penanda level berwarna selalu ditampilkan."
-  datetime-format: Tanggal dan waktu
+  date-format: "Format tanggal"
+  time-format: "Format waktu"
   font-size: Ukuran font
   color-scheme: Tema
   show-stopped-containers: Tampilkan kontainer yang dihentikan
@@ -317,12 +318,12 @@ settings:
     none: Tidak ada
   grouping:
     always: Selalu
-    at-least-2: Setidaknya 2
+    at-least-2: "Grup berisi 2 atau lebih"
     never: Tidak pernah
   hour:
     auto: Auto
-    12: "12"
-    24: "24"
+    "12": "12 jam"
+    "24": "24 jam"
   log:
     preview: Ini adalah pratinjau log
     warning: Log peringatan seperti ini
@@ -907,6 +908,7 @@ setup:
     shell-warning: "Akses shell ke kontainer sering kali setara dengan akses ke host. Biarkan nonaktif kecuali Anda membutuhkannya."
     locked: "Disetel oleh {env}"
     window-closed: "Tanpa login, penyiapan hanya menerima perubahan pada 15 menit pertama instalasi baru. Setel ini dengan variabel lingkungan, atau aktifkan login terlebih dahulu."
+    window-closed-env: "Tanpa login, penyiapan hanya menerima perubahan pada 15 menit pertama instalasi baru. Setel {envs} di file compose Anda, atau aktifkan login terlebih dahulu."
     no-access: "Akun Anda tidak dapat mengubah pengaturan ini."
     restart-note: "Perubahan ini berlaku setelah Dozzle dimulai ulang."
   hosts:
@@ -963,7 +965,7 @@ setup:
     title: "Jaga kontainer tetap terbaru"
     subtitle: "Pada jam yang sepi, Dozzle mencari image yang lebih baru dan memperbarui dirinya serta kontainer yang Anda pilih. Pengaturan, pengguna, dan peringatan tetap ada."
     auto-label: "Perbarui otomatis"
-    auto-desc: "Memeriksa image yang lebih baru dan hanya mengganti Dozzle jika ada."
+    auto-desc: "Memeriksa image yang lebih baru dan memperbarui Dozzle serta kontainer di bawah jika ada."
     when-label: "Kapan"
     time-label: "Waktu"
     server-time: "Memakai zona waktu server."

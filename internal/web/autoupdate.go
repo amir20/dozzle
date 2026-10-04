@@ -409,7 +409,7 @@ func (s *autoUpdateScheduler) outdatedScheduledContainers(ctx context.Context) (
 	}
 
 	selfService := selfSwarmService(containers)
-	scheduled := scheduledContainers(containers, loadUpdateMode(), selfService)
+	scheduled := scheduledContainers(containers, loadUpdateMode(s.config.Setup), selfService)
 
 	var outdated []*container.ContainerService
 	// Forced, for the same reason as Dozzle's own check below. Pinned digests,
