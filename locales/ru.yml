@@ -248,6 +248,8 @@ settings:
   advanced: Дополнительно
   setup: "Настройка"
   about: О программе
+  general: Общие
+  updates: Обновления
   reset: Сбросить настройки
   sponsor: Поддержать
   new-version: "Доступна версия {version}"
@@ -1063,3 +1065,22 @@ rollback:
   done: "Откат на предыдущий образ выполнен"
   failed: "Откат не удался"
   unable: "Не удалось откатить контейнер"
+update-marker:
+  updated: "Обновлено"
+  rolled-back: "Откачено"
+  undone: "Обновление отменено"
+  roll-back: "Откатить"
+  by:
+    schedule: "по расписанию автообновления"
+    dozzle: "из Dozzle"
+    cloud: "из Dozzle Cloud"
+    external: "вне Dozzle"
+  verdict:
+    pending: "Dozzle Cloud следит за этим обновлением"
+    clean: "Выглядит нормально"
+    regressed: "Похоже, сломано"
+    unsure: "Возможна проблема"
+    rolled_back_by_dozzle: "Dozzle вернул предыдущий контейнер"
+  decision:
+    rolled_back: "Откачено"
+    kept: "Оставлено"

@@ -20,11 +20,15 @@ export function useLogLoader(
   {
     floor,
     startEdge,
+    loadedOlder,
   }: {
     // The start the person picked; nothing older is loaded.
     floor?: Ref<Date | undefined>;
     // The row that replaces the loader once the floor is reached.
     startEdge?: () => LogEntry<LogMessage>;
+    // Called after each load of older lines, with the containers whose every line
+    // back to their start (or the floor) is now on screen.
+    loadedOlder?: (reachedStart: Set<string>) => void;
   } = {},
 ) {
   const { withAlerts, decorateVisible } = useAlertMerger(messages, containers, params);
@@ -42,7 +46,9 @@ export function useLogLoader(
     const nthByContainer = new Map<string, LogEntry<LogMessage>>();
     for (const log of existingLogs) {
       const id = log.containerID;
-      if (!id || !containerIDs.has(id)) continue;
+      // Rows that are not lines, like an update marker dated when its container
+      // started, say nothing about how far back the lines on screen go.
+      if (!id || !containerIDs.has(id) || !isStreamLog(log)) continue;
       if (!earliestByContainer.has(id)) {
         earliestByContainer.set(id, log);
       }
@@ -74,6 +80,7 @@ export function useLogLoader(
         if (older.length > 0 || head !== loader) {
           messages.value = [head, ...(await withAlerts(older)), ...existingLogs];
         }
+        loadedOlder?.(new Set(containers.value.filter((_, i) => results[i].logs.length < FETCH_PAGE).map((c) => c.id)));
       } catch (err) {
         console.error(err);
       } finally {
@@ -85,11 +92,12 @@ export function useLogLoader(
     try {
       loadingMore.value = true;
       const minPerContainer = Math.ceil(100 / containers.value.length);
+      const firstOnScreen = (existingLogs.find(isStreamLog) ?? existingLogs[0]).date;
 
       const results = await Promise.all(
         containers.value.map((c) => {
           const earliest = earliestByContainer.get(c.id);
-          const to = earliest?.date ?? existingLogs[0].date;
+          const to = earliest?.date ?? firstOnScreen;
           const nth = nthByContainer.get(c.id);
           const delta = to.getTime() - (nth?.date ?? to).getTime();
           const from = new Date(to.getTime() + (delta !== 0 ? delta : -60_000));
@@ -108,6 +116,14 @@ export function useLogLoader(
       if (allNewLogs.length > 0) {
         messages.value = [loader, ...(await withAlerts(allNewLogs)), ...existingLogs];
       }
+      // Fewer than asked for means the window widened back to the container's start.
+      loadedOlder?.(
+        new Set(
+          containers.value
+            .filter((_, i) => !results[i].signal.aborted && results[i].logs.length < minPerContainer)
+            .map((c) => c.id),
+        ),
+      );
     } catch (err) {
       console.error(err);
     } finally {

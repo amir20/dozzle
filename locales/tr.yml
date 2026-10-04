@@ -251,6 +251,8 @@ settings:
   advanced: Gelişmiş
   setup: "Kurulum"
   about: Hakkında
+  general: Genel
+  updates: Güncellemeler
   reset: Varsayılanlara sıfırla
   sponsor: Sponsor ol
   new-version: "{version} mevcut"
@@ -1066,3 +1068,22 @@ rollback:
   done: "Önceki imaja geri alındı"
   failed: "Geri alma başarısız"
   unable: "Konteyner geri alınamadı"
+update-marker:
+  updated: "Güncellendi"
+  rolled-back: "Geri alındı"
+  undone: "Güncelleme geri alındı"
+  roll-back: "Geri al"
+  by:
+    schedule: "otomatik güncelleme zamanlamasıyla"
+    dozzle: "Dozzle'dan"
+    cloud: "Dozzle Cloud'dan"
+    external: "Dozzle dışında"
+  verdict:
+    pending: "Dozzle Cloud bu güncellemeyi izliyor"
+    clean: "Sorunsuz görünüyor"
+    regressed: "Bozuk görünüyor"
+    unsure: "Bir sorun olabilir"
+    rolled_back_by_dozzle: "Dozzle önceki konteyneri geri getirdi"
+  decision:
+    rolled_back: "Geri alındı"
+    kept: "Tutuldu"

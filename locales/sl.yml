@@ -250,6 +250,8 @@ settings:
   advanced: Napredno
   setup: "Nastavitev"
   about: O programu
+  general: Splošno
+  updates: Posodobitve
   reset: Ponastavi na privzeto
   sponsor: Podpri
   new-version: "Na voljo je {version}"
@@ -1068,3 +1070,22 @@ rollback:
   done: "Povrnjeno na prejšnjo sliko"
   failed: "Povrnitev ni uspela"
   unable: "Zabojnika ni mogoče povrniti"
+update-marker:
+  updated: "Posodobljeno"
+  rolled-back: "Povrnjeno"
+  undone: "Posodobitev razveljavljena"
+  roll-back: "Povrni"
+  by:
+    schedule: "po urniku samodejnih posodobitev"
+    dozzle: "iz Dozzle"
+    cloud: "iz Dozzle Cloud"
+    external: "zunaj Dozzle"
+  verdict:
+    pending: "Dozzle Cloud spremlja to posodobitev"
+    clean: "Videti je v redu"
+    regressed: "Videti je pokvarjeno"
+    unsure: "Morda ima težavo"
+    rolled_back_by_dozzle: "Dozzle je obnovil prejšnji vsebnik"
+  decision:
+    rolled_back: "Povrnjeno"
+    kept: "Obdržano"

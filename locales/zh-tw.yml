@@ -250,6 +250,8 @@ settings:
   advanced: 進階
   setup: "設定"
   about: 關於
+  general: 一般
+  updates: 更新
   reset: 重設為預設值
   sponsor: 贊助
   new-version: "{version} 已推出"
@@ -1065,3 +1067,22 @@ rollback:
   done: "已回復到先前的映像"
   failed: "回復失敗"
   unable: "無法回復容器"
+update-marker:
+  updated: "已更新"
+  rolled-back: "已回復"
+  undone: "更新已撤銷"
+  roll-back: "回復"
+  by:
+    schedule: "由自動更新排程"
+    dozzle: "來自 Dozzle"
+    cloud: "來自 Dozzle Cloud"
+    external: "在 Dozzle 之外"
+  verdict:
+    pending: "Dozzle Cloud 正在觀察這次更新"
+    clean: "看起來正常"
+    regressed: "看起來有問題"
+    unsure: "可能有問題"
+    rolled_back_by_dozzle: "Dozzle 已還原先前的容器"
+  decision:
+    rolled_back: "已回復"
+    kept: "已保留"

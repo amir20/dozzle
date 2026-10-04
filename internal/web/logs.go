@@ -213,6 +213,8 @@ func (h *handler) streamLogsForContainers(w http.ResponseWriter, r *http.Request
 	liveLogs := make(chan *container.LogEvent)
 	events := make(chan *container.ContainerEvent, 1)
 	backfill := make(chan []*container.LogEvent)
+	updates := make(chan container.ContainerUpdateEvent)
+	opening := newHostUpdates()
 	searchStatusCh := make(chan searchStatus)
 
 	// With a narrowing filter the live tail starts now, and everything older
@@ -239,6 +241,9 @@ func (h *handler) streamLogsForContainers(w http.ResponseWriter, r *http.Request
 				log.Error().Err(err).Msg("error while finding container")
 				return
 			}
+			// Apart from the tail: an agent answers over gRPC, and its lines
+			// should not wait on it.
+			go sendUpdateMarker(ctx, containerService, opening.get(containerService), updates)
 			tailContainerLogs(ctx, containerService, since, stdTypes, liveLogs, events)
 		}()
 	}
@@ -283,7 +288,16 @@ loop:
 				if err := sseWriter.Event("container-event", event); err != nil {
 					log.Error().Err(err).Msg("error encoding container event")
 				}
+				// The store records an update before it announces the start, so a
+				// container an update just created already has its event here. Read
+				// fresh, since the stream's opening read predates it.
+				go sendUpdateMarker(ctx, containerService, containerService.RecentUpdates, updates)
 				go tailContainerLogs(ctx, containerService, since, stdTypes, liveLogs, events)
+			}
+
+		case update := <-updates:
+			if err := sseWriter.Event("container-update", update); err != nil {
+				log.Error().Err(err).Msg("error encoding container update")
 			}
 
 		case event := <-events:

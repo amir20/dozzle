@@ -250,6 +250,8 @@ settings:
   advanced: 고급
   setup: "설정"
   about: 정보
+  general: 일반
+  updates: 업데이트
   reset: 기본값으로 재설정
   sponsor: 후원하기
   new-version: "{version} 사용 가능"
@@ -1065,3 +1067,22 @@ rollback:
   done: "이전 이미지로 롤백했습니다"
   failed: "롤백 실패"
   unable: "컨테이너를 롤백할 수 없습니다"
+update-marker:
+  updated: "업데이트됨"
+  rolled-back: "롤백됨"
+  undone: "업데이트 취소됨"
+  roll-back: "롤백"
+  by:
+    schedule: "자동 업데이트 일정에 의해"
+    dozzle: "Dozzle에서"
+    cloud: "Dozzle Cloud에서"
+    external: "Dozzle 외부에서"
+  verdict:
+    pending: "Dozzle Cloud가 이 업데이트를 지켜보고 있습니다"
+    clean: "정상으로 보임"
+    regressed: "문제가 있어 보임"
+    unsure: "문제가 있을 수 있음"
+    rolled_back_by_dozzle: "Dozzle이 이전 컨테이너를 복원함"
+  decision:
+    rolled_back: "롤백됨"
+    kept: "유지됨"

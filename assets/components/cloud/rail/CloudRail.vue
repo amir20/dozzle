@@ -104,7 +104,7 @@
       :aria-label="$t('cloud-rail.title')"
     >
       <router-link
-        :to="{ name: '/settings', hash: '#cloud' }"
+        :to="{ name: '/settings/cloud' }"
         class="bg-info/10 text-info rounded-full p-1.5 transition-opacity hover:opacity-80"
         :title="$t('cloud.title')"
         :aria-label="$t('cloud.title')"

@@ -5,11 +5,13 @@ import {
   LoadMoreLogEntry,
   AlertLogEntry,
   CloudEventLogEntry,
+  DeployLogEntry,
   SkippedLogsEntry,
   RangeEdgeLogEntry,
 } from "@/models/LogEntry";
 import { Container } from "@/models/Container";
-import { useCloudAlerts, mergeAlerts, attachEvents, mergeCloudEvents } from "./cloudAlerts";
+import { useCloudAlerts, mergeAlerts, attachEvents, mergeCloudEvents, mergeDeploys } from "./cloudAlerts";
+import { awaitingVerdict } from "@/models/ContainerUpdate";
 import { useCloudConfig } from "./cloudConfig";
 import { attachPatternMemory, fetchPatternContext, linesNeedingMemory } from "./patternMemory";
 
@@ -34,6 +36,7 @@ export function isStreamLog(entry: LogEntry<LogMessage>): boolean {
     entry instanceof LoadMoreLogEntry ||
     entry instanceof AlertLogEntry ||
     entry instanceof CloudEventLogEntry ||
+    entry instanceof DeployLogEntry ||
     entry instanceof SkippedLogsEntry ||
     entry instanceof RangeEdgeLogEntry
   );
@@ -134,7 +137,8 @@ export function useAlertMerger(
         events: true,
       });
       attachEvents(logs, events);
-      return mergeAlerts(mergeCloudEvents(logs, events, placedAlerts), alerts, placedAlerts);
+      const { logs: withDeploys } = mergeDeploys(logs, events, placedAlerts);
+      return mergeAlerts(mergeCloudEvents(withDeploys, events, placedAlerts), alerts, placedAlerts);
     } catch (err) {
       console.error(err);
       return logs;
@@ -186,7 +190,12 @@ export function useAlertMerger(
       // Origins only, like scrollback. An incident already running when this
       // window opens shows through the per-line badges instead, which is both
       // more precise and cheaper than a second block.
-      const wantEvents = polledThrough === undefined || newest > polledThrough;
+      // An update marker still waiting on its verdict asks too: the verdict
+      // lands without a new line, and a quiet container would never see it.
+      const wantEvents =
+        polledThrough === undefined ||
+        newest > polledThrough ||
+        logs.some((l) => l instanceof DeployLogEntry && awaitingVerdict(l.date, l.verdict));
       const startedAt = generation;
 
       const memoryLines = memoryAvailable.value ? linesNeedingMemory(logs) : [];
@@ -213,9 +222,10 @@ export function useAlertMerger(
       // for Vue to see it — messages is a shallowRef.
       const badged = attachEvents(logs, events);
       const remembered = attachPatternMemory(logs, memoryHits);
-      const withEvents = mergeCloudEvents(logs, events, placedAlerts);
+      const { logs: withDeploys, changed: judged } = mergeDeploys(logs, events, placedAlerts);
+      const withEvents = mergeCloudEvents(withDeploys, events, placedAlerts);
       const merged = mergeAlerts(withEvents, alerts, placedAlerts);
-      if (!badged && !remembered && merged === logs) return;
+      if (!badged && !remembered && !judged && merged === logs) return;
       messages.value = [...head, ...merged, ...tail];
     } catch (err) {
       console.error(err);

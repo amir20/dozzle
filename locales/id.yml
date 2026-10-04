@@ -256,6 +256,8 @@ settings:
   advanced: Lanjutan
   setup: "Penyiapan"
   about: Tentang
+  general: Umum
+  updates: Pembaruan
   reset: Kembalikan ke default
   sponsor: Sponsori
   new-version: "{version} tersedia"
@@ -1075,3 +1077,22 @@ rollback:
   done: "Dikembalikan ke image sebelumnya"
   failed: "Pengembalian Gagal"
   unable: "Tidak dapat mengembalikan kontainer"
+update-marker:
+  updated: "Diperbarui"
+  rolled-back: "Dikembalikan"
+  undone: "Pembaruan dibatalkan"
+  roll-back: "Kembalikan"
+  by:
+    schedule: "oleh jadwal pembaruan otomatis"
+    dozzle: "dari Dozzle"
+    cloud: "dari Dozzle Cloud"
+    external: "di luar Dozzle"
+  verdict:
+    pending: "Dozzle Cloud sedang memantau pembaruan ini"
+    clean: "Tampak baik"
+    regressed: "Tampak rusak"
+    unsure: "Mungkin bermasalah"
+    rolled_back_by_dozzle: "Dozzle memulihkan kontainer sebelumnya"
+  decision:
+    rolled_back: "Dikembalikan"
+    kept: "Dipertahankan"

@@ -377,6 +377,8 @@ settings:
   advanced: Advanced
   setup: Setup
   about: About
+  general: General
+  updates: Updates
   reset: Reset to defaults
   sponsor: Sponsor
   new-version: "{version} available"
@@ -1071,3 +1073,22 @@ rollback:
   done: "Rolled back to the previous image"
   failed: "Rollback Failed"
   unable: "Unable to roll back container"
+update-marker:
+  updated: "Updated"
+  rolled-back: "Rolled back"
+  undone: "Update undone"
+  roll-back: "Roll back"
+  by:
+    schedule: "by the auto-update schedule"
+    dozzle: "from Dozzle"
+    cloud: "from Dozzle Cloud"
+    external: "outside Dozzle"
+  verdict:
+    pending: "Dozzle Cloud is watching this update"
+    clean: "Looks fine"
+    regressed: "Looks broken"
+    unsure: "May have a problem"
+    rolled_back_by_dozzle: "Dozzle put the previous container back"
+  decision:
+    rolled_back: "Rolled back"
+    kept: "Kept"

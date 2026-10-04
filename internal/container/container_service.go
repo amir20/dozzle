@@ -54,11 +54,17 @@ func (c *ContainerService) Rollback(ctx context.Context, opts RollbackOptions, p
 // both do, so a target known only from an update Watchtower or compose made is
 // found on either.
 func (c *ContainerService) RollbackTarget() (RollbackTarget, error) {
-	var events []ContainerUpdateEvent
+	return RollbackTargetOf(c.Container.ID, c.Container.ImageID, c.Container.Labels, c.RecentUpdates())
+}
+
+// RecentUpdates is the update events of the container's host, oldest first. A
+// Docker host keeps its own; an agent's are read from the agent. Empty for a
+// host that keeps none.
+func (c *ContainerService) RecentUpdates() []ContainerUpdateEvent {
 	if history, ok := c.clientService.(UpdateHistory); ok {
-		events = history.RecentUpdates()
+		return history.RecentUpdates()
 	}
-	return RollbackTargetOf(c.Container.ID, c.Container.ImageID, c.Container.Labels, events)
+	return nil
 }
 
 func (c *ContainerService) CheckImageUpdate(ctx context.Context, force bool) (imagecheck.Result, error) {

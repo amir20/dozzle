@@ -8,6 +8,7 @@ import type { CloudAlert } from "./cloudAlerts";
 import {
   AlertLogEntry,
   CloudEventLogEntry,
+  DeployLogEntry,
   LoadMoreLogEntry,
   SimpleLogEntry,
   SkippedLogsEntry,
@@ -92,6 +93,11 @@ describe("isStreamLog", () => {
     expect(isStreamLog(new CloudEventLogEntry({ ts: ns(1), containerId: "abc", suppressed: true }, new Date(1)))).toBe(
       false,
     );
+    expect(
+      isStreamLog(
+        new DeployLogEntry({ host: "h", name: "app", oldId: "o", newId: "abc", at: "", source: "" }, new Date(1)),
+      ),
+    ).toBe(false);
     expect(isStreamLog(new SkippedLogsEntry(new Date(), 1, log(1, 1) as any, log(2, 2) as any, async () => {}))).toBe(
       false,
     );
@@ -132,6 +138,45 @@ describe("useAlertMerger", () => {
       decorateVisible();
       await vi.advanceTimersByTimeAsync(500);
       expect(shapeOf(messages.value)).toEqual(["loader", "alert:a1", "log:1", "log:2", "loader"]);
+    });
+  });
+
+  // A verdict lands without a new line, so a quiet container keeps asking for
+  // events while its update marker waits on one.
+  test("asks for events while an update marker waits on its verdict", async () => {
+    const now = Date.now();
+    const marker = new DeployLogEntry(
+      { host: "h", name: "app", oldId: "o", newId: "abc", at: new Date(now).toISOString(), source: "schedule" },
+      new Date(now),
+    );
+    const messages = shallowRef<LogEntry<LogMessage>[]>([marker, log(1, now + 10)]);
+    const deploy = (verdict: string) => ({
+      ts: ns(now),
+      containerId: "abc",
+      type: "deploy",
+      suppressed: false,
+      deploy: { deployId: "d1", verdict },
+    });
+    global.fetch = vi
+      .fn()
+      .mockResolvedValue({ ok: true, json: async () => ({ hits: [], events: [deploy("pending")] }) });
+
+    await withMerger(messages, async ({ decorateVisible }) => {
+      decorateVisible();
+      await vi.advanceTimersByTimeAsync(500);
+      expect(marker.verdict?.verdict).toBe("pending");
+
+      global.fetch = vi
+        .fn()
+        .mockResolvedValue({ ok: true, json: async () => ({ hits: [], events: [deploy("clean")] }) });
+      await vi.advanceTimersByTimeAsync(15_000);
+      expect(new URL((global.fetch as any).mock.lastCall[0], "http://localhost").searchParams.get("events")).toBe("1");
+      expect(marker.verdict?.verdict).toBe("clean");
+      expect(messages.value.filter((m) => m instanceof DeployLogEntry)).toHaveLength(1);
+
+      // Settled: the next poll of an unchanged window leaves events out.
+      await vi.advanceTimersByTimeAsync(15_000);
+      expect(new URL((global.fetch as any).mock.lastCall[0], "http://localhost").searchParams.get("events")).toBeNull();
     });
   });
 

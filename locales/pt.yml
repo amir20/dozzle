@@ -248,6 +248,8 @@ settings:
   advanced: Avançado
   setup: "Configuração"
   about: Sobre
+  general: Geral
+  updates: Atualizações
   reset: Restaurar padrões
   sponsor: Patrocinar
   new-version: "{version} disponível"
@@ -1063,3 +1065,22 @@ rollback:
   done: "Revertido para a imagem anterior"
   failed: "Falha ao reverter"
   unable: "Não foi possível reverter o container"
+update-marker:
+  updated: "Atualizado"
+  rolled-back: "Revertido"
+  undone: "Atualização desfeita"
+  roll-back: "Reverter"
+  by:
+    schedule: "pelo agendamento de atualizações"
+    dozzle: "pelo Dozzle"
+    cloud: "pelo Dozzle Cloud"
+    external: "fora do Dozzle"
+  verdict:
+    pending: "O Dozzle Cloud está acompanhando esta atualização"
+    clean: "Parece normal"
+    regressed: "Parece quebrada"
+    unsure: "Pode ter um problema"
+    rolled_back_by_dozzle: "O Dozzle restaurou o contêiner anterior"
+  decision:
+    rolled_back: "Revertida"
+    kept: "Mantida"

@@ -250,6 +250,8 @@ settings:
   advanced: Zaawansowane
   setup: "Konfiguracja"
   about: O programie
+  general: Ogólne
+  updates: Aktualizacje
   reset: Przywróć domyślne
   sponsor: Wesprzyj
   new-version: "{version} jest dostępna"
@@ -1065,3 +1067,22 @@ rollback:
   done: "Przywrócono poprzedni obraz"
   failed: "Przywracanie nie powiodło się"
   unable: "Nie można przywrócić kontenera"
+update-marker:
+  updated: "Zaktualizowano"
+  rolled-back: "Przywrócono"
+  undone: "Aktualizacja cofnięta"
+  roll-back: "Przywróć"
+  by:
+    schedule: "przez harmonogram automatycznych aktualizacji"
+    dozzle: "z Dozzle"
+    cloud: "z Dozzle Cloud"
+    external: "poza Dozzle"
+  verdict:
+    pending: "Dozzle Cloud obserwuje tę aktualizację"
+    clean: "Wygląda dobrze"
+    regressed: "Wygląda na zepsutą"
+    unsure: "Może mieć problem"
+    rolled_back_by_dozzle: "Dozzle przywrócił poprzedni kontener"
+  decision:
+    rolled_back: "Przywrócono"
+    kept: "Zachowano"
