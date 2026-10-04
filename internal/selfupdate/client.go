@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	cerrdefs "github.com/containerd/errdefs"
+	"github.com/moby/moby/api/types/image"
 	"github.com/moby/moby/client"
 )
 
@@ -20,10 +21,25 @@ type dockerAPI interface {
 	ContainerRename(ctx context.Context, containerID string, options client.ContainerRenameOptions) (client.ContainerRenameResult, error)
 	ContainerRemove(ctx context.Context, containerID string, options client.ContainerRemoveOptions) (client.ContainerRemoveResult, error)
 	ImageInspect(ctx context.Context, imageID string, opts ...client.ImageInspectOption) (client.ImageInspectResult, error)
+	ImageRemove(ctx context.Context, imageID string, options client.ImageRemoveOptions) (client.ImageRemoveResult, error)
 	ImagePull(ctx context.Context, refStr string, options client.ImagePullOptions) (client.ImagePullResponse, error)
 	ServiceInspect(ctx context.Context, serviceID string, options client.ServiceInspectOptions) (client.ServiceInspectResult, error)
 	ServiceUpdate(ctx context.Context, serviceID string, options client.ServiceUpdateOptions) (client.ServiceUpdateResult, error)
 	Close() error
+}
+
+// imageAPI adapts dockerAPI to the slice swap.CleanupImage uses. The removal
+// is never forced and never prunes children, as for any other update.
+type imageAPI struct{ cli dockerAPI }
+
+func (a imageAPI) ImageInspect(ctx context.Context, ref string) (image.InspectResponse, error) {
+	result, err := a.cli.ImageInspect(ctx, ref)
+	return result.InspectResponse, err
+}
+
+func (a imageAPI) ImageRemove(ctx context.Context, imageID string) error {
+	_, err := a.cli.ImageRemove(ctx, imageID, client.ImageRemoveOptions{Force: false, PruneChildren: false})
+	return err
 }
 
 // newClient connects to the engine the same way Dozzle's local client does:

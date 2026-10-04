@@ -19,14 +19,16 @@ toolbar:
   update-service: 更新服务
   update-pulling: 正在拉取最新镜像...
   update-recreating: 正在重新创建容器...
+  update-verifying: 正在确认新容器持续运行...
+  update-rolled-back: 新容器未能持续运行，已恢复之前的容器。
   update-done: 容器更新成功
   update-up-to-date: 已是最新版本
-  update-available: '有可用更新'
-  check-for-updates: '检查更新'
-  checking-for-updates: '正在检查更新...'
-  no-updates: '没有更新'
-  dismiss-update: '忽略此更新'
-  view-release-notes: '查看发行说明'
+  update-available: "有可用更新"
+  check-for-updates: "检查更新"
+  checking-for-updates: "正在检查更新..."
+  no-updates: "没有更新"
+  dismiss-update: "忽略此更新"
+  view-release-notes: "查看发行说明"
   show-hostname: 显示主机名
   show-container-name: 显示容器名称
   shell: 终端
@@ -190,6 +192,7 @@ error:
   unable-to-complete-action: 无法完成操作
   invalid-action: 无效操作
   unable-to-update: 无法更新容器
+  start-container-first: 请先启动容器
   something-went-wrong: 出了点问题
   unknown-error: 未知错误
   events-stream:
@@ -202,8 +205,8 @@ error:
       Dozzle UI在连接到API时超时。请检查网络连接并重试。
 alert:
   image-update:
-    title: '有可用更新'
-    message: '{image} 已发布更新的镜像。'
+    title: "有可用更新"
+    message: "{image} 已发布更新的镜像。"
     enable-actions: '<a href="https://dozzle.dev/guide/actions" target="_blank" rel="noreferrer noopener">启用操作</a>即可在此拉取并重建容器。'
   redirected:
     title: 重定向到新容器
@@ -263,35 +266,35 @@ settings:
   new-version: "{version} 可用"
   update-available: "有更新的镜像可用"
   auto-update-on: "Dozzle 会自动保持最新"
-  auto-update-containers: "带有标签的容器会自动保持最新"
+  auto-update-containers: "你的容器会保持最新"
   auto-update-daily: "每天 {time} 检查（服务器时间）。"
   auto-update-weekly: "每周日 {time} 检查（服务器时间）。"
-  show-image-update-alert: '镜像更新提醒'
-  show-image-update-alert-desc: '当运行中的镜像有更新的标签时通知。'
+  show-image-update-alert: "镜像更新提醒"
+  show-image-update-alert-desc: "当运行中的镜像有更新的标签时通知。"
   cloud-desc: 将日志流式传输到 Dozzle Cloud，进行 AI 驱动的调查和跨实例搜索。
   locale: 语言
   small-scrollbars: 细滚动条
-  small-scrollbars-desc: '更细的滚动条，在小屏幕上很实用。'
+  small-scrollbars-desc: "更细的滚动条，在小屏幕上很实用。"
   show-timestamps: 显示时间戳
   soft-wrap: 自动换行
   highlight-errors: 高亮错误行
-  highlight-errors-desc: '彩色级别标记始终显示。'
+  highlight-errors-desc: "彩色级别标记始终显示。"
   datetime-format: 日期和时间
   font-size: 字体大小
   color-scheme: 主题
   show-stopped-containers: 显示已停止的容器
   group-containers: 容器分组
-  group-containers-desc: '按 Compose 项目、Swarm 堆栈或 dev.dozzle.group。'
-  show-app-icons: '应用图标'
-  show-app-icons-desc: '随 Dozzle 内置，绝不从互联网下载。'
+  group-containers-desc: "按 Compose 项目、Swarm 堆栈或 dev.dozzle.group。"
+  show-app-icons: "应用图标"
+  show-app-icons-desc: "随 Dozzle 内置，绝不从互联网下载。"
   search: 搜索日志
-  search-desc: '查看容器时替代浏览器的查找功能。'
+  search-desc: "查看容器时替代浏览器的查找功能。"
   show-std: 显示stdout和stderr标签
-  show-std-desc: '标示该行来自 stdout 还是 stderr。'
+  show-std-desc: "标示该行来自 stdout 还是 stderr。"
   automatic-redirect: 跟随重新创建的容器
-  automatic-redirect-desc: '容器被替换时，跳转到新容器。'
+  automatic-redirect-desc: "容器被替换时，跳转到新容器。"
   compact: 紧凑模式
-  compact-desc: '缩小间距，让屏幕显示更多行。'
+  compact-desc: "缩小间距，让屏幕显示更多行。"
   size:
     small: 小
     medium: 中
@@ -383,7 +386,9 @@ updates:
     queued: 排队中
     pulling: 拉取中
     recreating: 重建中
+    verifying: 验证中
     done: 已更新
+    rolled-back: 已回滚
     up-to-date: 最新
     error: 失败
 drawer:
@@ -943,11 +948,10 @@ setup:
   update:
     pill-on: "使用操作功能 · 已开启"
     pill-pending: "随操作功能一起开启"
-    title: "让 Dozzle 保持最新"
-    subtitle: "Dozzle 会在空闲时段拉取新镜像并替换自身容器。设置、用户和告警都会保留。"
+    title: "让容器保持最新"
+    subtitle: "Dozzle 会在空闲时段查找更新的镜像，并更新自身和你选择的容器。设置、用户和告警都会保留。"
     auto-label: "自动更新"
     auto-desc: "检查是否有更新的镜像，仅在有新镜像时替换 Dozzle。"
-    auto-containers: 带有 {label} 标签的容器也会在同一时间更新。
     when-label: "时间"
     time-label: "时刻"
     server-time: "使用服务器的时区。"
@@ -963,7 +967,6 @@ setup:
     reason-pinned-tag: "你使用的是固定的版本标签，因此没有更新的镜像可拉取。请使用 latest 之类的标签来获取更新。"
     reason-unsupported: "Dozzle 在这里找不到自己的容器，因此无法替换自身。"
     reason-swarm-worker: "Dozzle 以 Swarm 服务的形式运行在工作节点上。只有管理节点才能更新服务，请在管理节点上运行 Dozzle，或使用 docker service update 更新。"
-    containers-still: 带有 {label} 标签的容器仍会按此计划更新。
     pull-denied: "无法拉取 {image}。它可能只存在于这台机器上，或者镜像仓库需要 docker login。"
   restart:
     title: 重启 Dozzle
@@ -1045,3 +1048,50 @@ time-range:
   jump-before: "更早的日志 · {time}"
   jump-after: "更晚的日志 · {time}"
   empty-window: "此时段内没有日志"
+update-marker:
+  updated: "已更新"
+  rolled-back: "已回滚"
+  undone: "更新已撤销"
+  roll-back: "回滚"
+  by:
+    schedule: "由自动更新计划"
+    dozzle: "来自 Dozzle"
+    cloud: "来自 Dozzle Cloud"
+  verdict:
+    pending: "Dozzle Cloud 正在观察此次更新"
+    clean: "看起来正常"
+    regressed: "看起来有问题"
+    unsure: "可能有问题"
+    rolled_back_by_dozzle: "Dozzle 已恢复之前的容器"
+  decision:
+    rolled_back: "已回滚"
+    kept: "已保留"
+auto-update:
+  which-label: "哪些容器"
+  mode-off: "仅 Dozzle"
+  mode-off-desc: "其他容器只做检查，等你手动更新。"
+  mode-all: "全部"
+  risky: "{count} 个容器把数据存放在命名卷中。数据库可能升级到无法读取其数据的版本。 | {count} 个容器把数据存放在命名卷中。数据库可能升级到无法读取其数据的版本。"
+  containers-still: "其他容器仍按此计划更新。"
+  needs-actions: "容器操作关闭期间，不会自动更新任何内容。"
+  containers: "容器"
+  status-current: "已是最新"
+  status-available: "有可用更新"
+  status-pending: "尚未检查"
+  status-off: "不检查"
+  status-pinned: "已固定到摘要"
+  status-local: "本地构建"
+  status-private: "私有仓库"
+  status-unknown: "无法检查"
+  safety-title: "安全保障"
+  safety-verify: "每次更新都会确认新容器能稳定运行，失败则回滚。"
+  safety-cleanup: "旧镜像随后会被删除，并保留一个上一版本镜像用于回滚。"
+  safety-skip: "固定到摘要、本地构建或来自私有仓库的镜像会被跳过。"
+  learn-more: "自动更新如何工作"
+  footnote: "{link}决定哪些容器自动更新。"
+  footnote-link: "设置 → 更新"
+  mode-labelled: "有标签的容器"
+  mode-labelled-desc: "以及标有 {label} 的容器。"
+  mode-all-desc: "除标有 {label} 的容器外的所有容器。"
+  risky-hint: "为容器加上 {label} 标签即可将其排除。"
+  empty: "没有容器会自动更新。为容器加上 {label} 标签即可加入。"

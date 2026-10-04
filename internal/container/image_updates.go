@@ -11,9 +11,9 @@ import (
 
 const swarmServiceLabel = "com.docker.swarm.service.id"
 
-// Updatable reports whether c is worth checking and offering for update. A
-// stopped standalone container still is, so it starts on the new image. An
-// exited swarm task is not: it is history the orchestrator left behind after
+// Updatable reports whether c is worth checking for an update. A stopped
+// standalone container still is, so it shows that an update is waiting, but it
+// is only updated once someone starts it (see ErrNotRunning). An exited swarm task is not: it is history the orchestrator left behind after
 // replacing it, and its service is updated through the task that is running.
 func Updatable(c Container) bool {
 	if c.State == "deleted" {

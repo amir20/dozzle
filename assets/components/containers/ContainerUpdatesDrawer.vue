@@ -27,12 +27,15 @@
             ></span>
             <mdi:check v-else-if="item.status === 'done' || item.status === 'up-to-date'" class="size-4" />
             <mdi:alert-circle-outline v-else-if="item.status === 'error'" class="size-4" />
+            <mdi:restore v-else-if="item.status === 'rolled-back'" class="size-4" />
             <mdi:clock-outline v-else class="size-4" />
           </div>
           <div class="min-w-0 flex-1">
             <div class="truncate text-sm font-medium">{{ item.name }}</div>
             <div class="text-base-content/60 truncate font-mono text-xs">{{ item.image }}</div>
-            <div v-if="item.error" class="text-base-content/60 mt-1 text-xs wrap-anywhere">{{ item.error }}</div>
+            <div v-if="item.error" class="text-base-content/60 mt-1 text-xs wrap-anywhere">
+              {{ updateErrorText(item.error, $t) }}
+            </div>
           </div>
           <span class="status-pill shrink-0" :class="pill(item.status)">
             {{ $t(`updates.status.${item.status}`) }}
@@ -54,7 +57,15 @@
             :ref="(el) => container.id === focus && (focusEl = el as HTMLElement)"
             class="hover:bg-base-300/40 flex items-start gap-3 p-4 transition-colors"
           >
-            <input v-model="selected" type="checkbox" class="checkbox checkbox-sm mt-0.5" :value="container.id" />
+            <!-- A stopped container is listed, since its update is waiting, but
+                 never updated: it has to be started first. -->
+            <input
+              v-model="selected"
+              type="checkbox"
+              class="checkbox checkbox-sm mt-0.5"
+              :value="container.id"
+              :disabled="container.state !== 'running'"
+            />
             <ContainerIcon :state="container.state" :health="container.health" :slug="container.icon" class="size-6" />
             <div class="min-w-0 flex-1">
               <div class="truncate text-sm font-medium">{{ container.name }}</div>
@@ -64,9 +75,12 @@
                   <span class="text-base-content/40"> · {{ container.hostLabel }}</span>
                 </template>
               </div>
+              <div v-if="container.state !== 'running'" class="text-base-content/60 mt-1 text-xs">
+                {{ $t("error.start-container-first") }}
+              </div>
             </div>
             <span
-              v-if="autoUpdateEnabled(container)"
+              v-if="autoUpdates(container, updateMode)"
               class="status-pill status-pill-neutral shrink-0"
               :title="$t('updates.auto-hint')"
             >
@@ -78,9 +92,16 @@
       </template>
 
       <p class="text-base-content/40 text-xs">
-        <i18n-t keypath="updates.auto-footnote">
+        <!-- In server mode Settings → Updates holds the whole answer; elsewhere only the
+             label does. -->
+        <i18n-t v-if="config.mode === 'server'" keypath="auto-update.footnote">
+          <template #link>
+            <router-link to="/settings/updates" class="link">{{ $t("auto-update.footnote-link") }}</router-link>
+          </template>
+        </i18n-t>
+        <i18n-t v-else keypath="updates.auto-footnote">
           <template #label>
-            <code class="font-mono">{{ AUTO_UPDATE_LABEL }}=true</code>
+            <code class="font-mono">{{ UPDATE_LABEL }}=auto</code>
           </template>
         </i18n-t>
       </p>
@@ -125,13 +146,9 @@
 
 <script lang="ts" setup>
 import { Container } from "@/models/Container";
-import {
-  AUTO_UPDATE_LABEL,
-  type BulkUpdateItem,
-  type BulkUpdateStatus,
-  autoUpdateEnabled,
-  isFinished,
-} from "@/composable/containers/bulkUpdate";
+import { type BulkUpdateItem, type BulkUpdateStatus, isFinished } from "@/composable/containers/bulkUpdate";
+import { updateErrorText } from "@/composable/containers/containerActions";
+import { DEFAULT_UPDATE_CONTAINERS_MODE, UPDATE_LABEL, autoUpdates } from "@/composable/containers/updatePolicy";
 
 const { focus } = defineProps<{ focus?: string }>();
 
@@ -147,11 +164,17 @@ onScopeDispose(release);
 
 const multipleHosts = computed(() => Object.keys(hosts.value).length > 1);
 
+// Which containers the schedule updates is a server setting; anywhere else only the
+// label decides, as it always has.
+const { status: setupStatus, fetchStatus } = useSetup();
+if (config.mode === "server" && !setupStatus.value) fetchStatus();
+const updateMode = computed(() => setupStatus.value?.autoUpdate?.containers ?? DEFAULT_UPDATE_CONTAINERS_MODE);
+
 const candidates = computed(() => containers.value.filter(hasUpdate).sort((a, b) => a.name.localeCompare(b.name)));
 
 // Running containers are selected to begin with, and so is one that appears
-// after the drawer opened (a check finishing). A stopped one is listed but left
-// for the user to opt in, since it may be stopped on purpose.
+// after the drawer opened (a check finishing). A stopped one is listed but cannot
+// be selected: it is never updated until someone starts it.
 const selected = ref<string[]>([]);
 const seen = new Set<string>();
 watch(
@@ -165,7 +188,10 @@ watch(
   { immediate: true },
 );
 
-const selectedContainers = computed(() => candidates.value.filter((c) => selected.value.includes(c.id)));
+// A container stopped after it was selected drops out too.
+const selectedContainers = computed(() =>
+  candidates.value.filter((c) => c.state === "running" && selected.value.includes(c.id)),
+);
 const selfSelected = computed(() => selectedContainers.value.some(isSelf));
 
 const showingJob = ref(!!job.value?.running);
@@ -187,8 +213,11 @@ function pill(status: BulkUpdateStatus) {
       return "status-pill-success";
     case "error":
       return "status-pill-error";
+    case "rolled-back":
+      return "status-pill-warning";
     case "pulling":
     case "recreating":
+    case "verifying":
       return "status-pill-primary";
     default:
       return "status-pill-neutral";
@@ -201,6 +230,8 @@ function tint(item: BulkUpdateItem) {
       return "bg-success/10 text-success";
     case "error":
       return "bg-error/10 text-error";
+    case "rolled-back":
+      return "bg-warning/10 text-warning";
     case "queued":
     case "up-to-date":
       return "bg-base-content/5 text-base-content/60";

@@ -42,6 +42,7 @@ export const de: Labels = {
     "authentication/oidc": "OpenID Connect",
     "authentication/forward-proxy": "Forward Proxy",
     actions: "Aktionen",
+    "moving-from-watchtower": "Umstieg von Watchtower",
     "app-icons": "Symbole",
     shell: "Shell-Zugriff",
     mcp: "MCP-Integration",

@@ -30,6 +30,7 @@ const (
 	AgentService_HostInfo_FullMethodName                 = "/protobuf.AgentService/HostInfo"
 	AgentService_ContainerAction_FullMethodName          = "/protobuf.AgentService/ContainerAction"
 	AgentService_UpdateContainer_FullMethodName          = "/protobuf.AgentService/UpdateContainer"
+	AgentService_RollbackContainer_FullMethodName        = "/protobuf.AgentService/RollbackContainer"
 	AgentService_CheckImageUpdate_FullMethodName         = "/protobuf.AgentService/CheckImageUpdate"
 	AgentService_ContainerExec_FullMethodName            = "/protobuf.AgentService/ContainerExec"
 	AgentService_ContainerAttach_FullMethodName          = "/protobuf.AgentService/ContainerAttach"
@@ -54,6 +55,7 @@ type AgentServiceClient interface {
 	HostInfo(ctx context.Context, in *HostInfoRequest, opts ...grpc.CallOption) (*HostInfoResponse, error)
 	ContainerAction(ctx context.Context, in *ContainerActionRequest, opts ...grpc.CallOption) (*ContainerActionResponse, error)
 	UpdateContainer(ctx context.Context, in *UpdateContainerRequest, opts ...grpc.CallOption) (grpc.ServerStreamingClient[UpdateContainerProgress], error)
+	RollbackContainer(ctx context.Context, in *RollbackContainerRequest, opts ...grpc.CallOption) (grpc.ServerStreamingClient[UpdateContainerProgress], error)
 	CheckImageUpdate(ctx context.Context, in *CheckImageUpdateRequest, opts ...grpc.CallOption) (*CheckImageUpdateResponse, error)
 	ContainerExec(ctx context.Context, opts ...grpc.CallOption) (grpc.BidiStreamingClient[ContainerExecRequest, ContainerExecResponse], error)
 	ContainerAttach(ctx context.Context, opts ...grpc.CallOption) (grpc.BidiStreamingClient[ContainerAttachRequest, ContainerAttachResponse], error)
@@ -244,6 +246,25 @@ func (c *agentServiceClient) UpdateContainer(ctx context.Context, in *UpdateCont
 // This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
 type AgentService_UpdateContainerClient = grpc.ServerStreamingClient[UpdateContainerProgress]
 
+func (c *agentServiceClient) RollbackContainer(ctx context.Context, in *RollbackContainerRequest, opts ...grpc.CallOption) (grpc.ServerStreamingClient[UpdateContainerProgress], error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	stream, err := c.cc.NewStream(ctx, &AgentService_ServiceDesc.Streams[7], AgentService_RollbackContainer_FullMethodName, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	x := &grpc.GenericClientStream[RollbackContainerRequest, UpdateContainerProgress]{ClientStream: stream}
+	if err := x.ClientStream.SendMsg(in); err != nil {
+		return nil, err
+	}
+	if err := x.ClientStream.CloseSend(); err != nil {
+		return nil, err
+	}
+	return x, nil
+}
+
+// This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
+type AgentService_RollbackContainerClient = grpc.ServerStreamingClient[UpdateContainerProgress]
+
 func (c *agentServiceClient) CheckImageUpdate(ctx context.Context, in *CheckImageUpdateRequest, opts ...grpc.CallOption) (*CheckImageUpdateResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(CheckImageUpdateResponse)
@@ -256,7 +277,7 @@ func (c *agentServiceClient) CheckImageUpdate(ctx context.Context, in *CheckImag
 
 func (c *agentServiceClient) ContainerExec(ctx context.Context, opts ...grpc.CallOption) (grpc.BidiStreamingClient[ContainerExecRequest, ContainerExecResponse], error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	stream, err := c.cc.NewStream(ctx, &AgentService_ServiceDesc.Streams[7], AgentService_ContainerExec_FullMethodName, cOpts...)
+	stream, err := c.cc.NewStream(ctx, &AgentService_ServiceDesc.Streams[8], AgentService_ContainerExec_FullMethodName, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -269,7 +290,7 @@ type AgentService_ContainerExecClient = grpc.BidiStreamingClient[ContainerExecRe
 
 func (c *agentServiceClient) ContainerAttach(ctx context.Context, opts ...grpc.CallOption) (grpc.BidiStreamingClient[ContainerAttachRequest, ContainerAttachResponse], error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	stream, err := c.cc.NewStream(ctx, &AgentService_ServiceDesc.Streams[8], AgentService_ContainerAttach_FullMethodName, cOpts...)
+	stream, err := c.cc.NewStream(ctx, &AgentService_ServiceDesc.Streams[9], AgentService_ContainerAttach_FullMethodName, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -335,6 +356,7 @@ type AgentServiceServer interface {
 	HostInfo(context.Context, *HostInfoRequest) (*HostInfoResponse, error)
 	ContainerAction(context.Context, *ContainerActionRequest) (*ContainerActionResponse, error)
 	UpdateContainer(*UpdateContainerRequest, grpc.ServerStreamingServer[UpdateContainerProgress]) error
+	RollbackContainer(*RollbackContainerRequest, grpc.ServerStreamingServer[UpdateContainerProgress]) error
 	CheckImageUpdate(context.Context, *CheckImageUpdateRequest) (*CheckImageUpdateResponse, error)
 	ContainerExec(grpc.BidiStreamingServer[ContainerExecRequest, ContainerExecResponse]) error
 	ContainerAttach(grpc.BidiStreamingServer[ContainerAttachRequest, ContainerAttachResponse]) error
@@ -384,6 +406,9 @@ func (UnimplementedAgentServiceServer) ContainerAction(context.Context, *Contain
 }
 func (UnimplementedAgentServiceServer) UpdateContainer(*UpdateContainerRequest, grpc.ServerStreamingServer[UpdateContainerProgress]) error {
 	return status.Error(codes.Unimplemented, "method UpdateContainer not implemented")
+}
+func (UnimplementedAgentServiceServer) RollbackContainer(*RollbackContainerRequest, grpc.ServerStreamingServer[UpdateContainerProgress]) error {
+	return status.Error(codes.Unimplemented, "method RollbackContainer not implemented")
 }
 func (UnimplementedAgentServiceServer) CheckImageUpdate(context.Context, *CheckImageUpdateRequest) (*CheckImageUpdateResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method CheckImageUpdate not implemented")
@@ -576,6 +601,17 @@ func _AgentService_UpdateContainer_Handler(srv interface{}, stream grpc.ServerSt
 // This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
 type AgentService_UpdateContainerServer = grpc.ServerStreamingServer[UpdateContainerProgress]
 
+func _AgentService_RollbackContainer_Handler(srv interface{}, stream grpc.ServerStream) error {
+	m := new(RollbackContainerRequest)
+	if err := stream.RecvMsg(m); err != nil {
+		return err
+	}
+	return srv.(AgentServiceServer).RollbackContainer(m, &grpc.GenericServerStream[RollbackContainerRequest, UpdateContainerProgress]{ServerStream: stream})
+}
+
+// This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
+type AgentService_RollbackContainerServer = grpc.ServerStreamingServer[UpdateContainerProgress]
+
 func _AgentService_CheckImageUpdate_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(CheckImageUpdateRequest)
 	if err := dec(in); err != nil {
@@ -758,6 +794,11 @@ var AgentService_ServiceDesc = grpc.ServiceDesc{
 		{
 			StreamName:    "UpdateContainer",
 			Handler:       _AgentService_UpdateContainer_Handler,
+			ServerStreams: true,
+		},
+		{
+			StreamName:    "RollbackContainer",
+			Handler:       _AgentService_RollbackContainer_Handler,
 			ServerStreams: true,
 		},
 		{

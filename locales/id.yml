@@ -19,14 +19,16 @@ toolbar:
   update-service: Perbarui Layanan
   update-pulling: Mengunduh image terbaru...
   update-recreating: Membuat ulang kontainer...
+  update-verifying: Memeriksa kontainer baru tetap berjalan...
+  update-rolled-back: Kontainer baru tidak tetap berjalan, jadi kontainer sebelumnya dipulihkan.
   update-done: Kontainer berhasil diperbarui
   update-up-to-date: Sudah versi terbaru
-  update-available: 'Pembaruan tersedia'
-  check-for-updates: 'Periksa pembaruan'
-  checking-for-updates: 'Memeriksa pembaruan...'
-  no-updates: 'Tidak ada pembaruan'
-  dismiss-update: 'Abaikan pembaruan ini'
-  view-release-notes: 'Lihat catatan rilis'
+  update-available: "Pembaruan tersedia"
+  check-for-updates: "Periksa pembaruan"
+  checking-for-updates: "Memeriksa pembaruan..."
+  no-updates: "Tidak ada pembaruan"
+  dismiss-update: "Abaikan pembaruan ini"
+  view-release-notes: "Lihat catatan rilis"
   show-hostname: Tampilkan nama host
   show-container-name: Tampilkan nama kontainer
   shell: Shell
@@ -193,6 +195,7 @@ error:
   unable-to-complete-action: Tidak dapat menyelesaikan tindakan
   invalid-action: Tindakan tidak valid
   unable-to-update: Tidak dapat memperbarui kontainer
+  start-container-first: Jalankan kontainer terlebih dahulu
   something-went-wrong: Terjadi kesalahan
   unknown-error: Kesalahan tidak diketahui
   events-stream:
@@ -206,8 +209,8 @@ error:
 
 alert:
   image-update:
-    title: 'Pembaruan tersedia'
-    message: 'Image yang lebih baru telah dirilis untuk {image}.'
+    title: "Pembaruan tersedia"
+    message: "Image yang lebih baru telah dirilis untuk {image}."
     enable-actions: '<a href="https://dozzle.dev/guide/actions" target="_blank" rel="noreferrer noopener">Aktifkan aksi</a> untuk mengunduh dan membuat ulang kontainer dari sini.'
   redirected:
     title: Dialihkan ke kontainer baru
@@ -271,35 +274,35 @@ settings:
   new-version: "{version} tersedia"
   update-available: "Image yang lebih baru tersedia"
   auto-update-on: "Dozzle memperbarui dirinya sendiri"
-  auto-update-containers: "Container berlabel tetap diperbarui"
+  auto-update-containers: "Kontainer Anda tetap terbaru"
   auto-update-daily: "Memeriksa setiap hari pukul {time}, waktu server."
   auto-update-weekly: "Memeriksa setiap minggu pada hari Minggu pukul {time}, waktu server."
-  show-image-update-alert: 'Peringatan pembaruan image'
-  show-image-update-alert-desc: 'Beri tahu jika ada tag lebih baru untuk image yang sedang berjalan.'
+  show-image-update-alert: "Peringatan pembaruan image"
+  show-image-update-alert-desc: "Beri tahu jika ada tag lebih baru untuk image yang sedang berjalan."
   cloud-desc: Streaming log ke Dozzle Cloud untuk investigasi bertenaga AI dan pencarian lintas instans.
   locale: Bahasa
   small-scrollbars: Scrollbar tipis
-  small-scrollbars-desc: 'Bilah gulir lebih tipis, berguna pada layar kecil.'
+  small-scrollbars-desc: "Bilah gulir lebih tipis, berguna pada layar kecil."
   show-timestamps: Tampilkan cap waktu
   soft-wrap: Bungkus baris
   highlight-errors: Sorot baris galat
-  highlight-errors-desc: 'Penanda level berwarna selalu ditampilkan.'
+  highlight-errors-desc: "Penanda level berwarna selalu ditampilkan."
   datetime-format: Tanggal dan waktu
   font-size: Ukuran font
   color-scheme: Tema
   show-stopped-containers: Tampilkan kontainer yang dihentikan
   group-containers: Kelompokkan kontainer
-  group-containers-desc: 'Berdasarkan proyek Compose, stack Swarm, atau dev.dozzle.group.'
-  show-app-icons: 'Ikon aplikasi'
-  show-app-icons-desc: 'Disertakan bersama Dozzle, tidak pernah diunduh dari internet.'
+  group-containers-desc: "Berdasarkan proyek Compose, stack Swarm, atau dev.dozzle.group."
+  show-app-icons: "Ikon aplikasi"
+  show-app-icons-desc: "Disertakan bersama Dozzle, tidak pernah diunduh dari internet."
   search: Cari log dengan
-  search-desc: 'Menggantikan pencarian browser saat melihat kontainer.'
+  search-desc: "Menggantikan pencarian browser saat melihat kontainer."
   show-std: Tampilkan label stdout dan stderr
-  show-std-desc: 'Tandai apakah baris berasal dari stdout atau stderr.'
+  show-std-desc: "Tandai apakah baris berasal dari stdout atau stderr."
   automatic-redirect: Ikuti kontainer yang dibuat ulang
-  automatic-redirect-desc: 'Saat kontainer diganti, pindah ke yang baru.'
+  automatic-redirect-desc: "Saat kontainer diganti, pindah ke yang baru."
   compact: Mode ringkas
-  compact-desc: 'Jarak lebih rapat agar lebih banyak baris muat di layar.'
+  compact-desc: "Jarak lebih rapat agar lebih banyak baris muat di layar."
   size:
     small: Kecil
     medium: Sedang
@@ -395,7 +398,9 @@ updates:
     queued: Antre
     pulling: Mengunduh
     recreating: Membuat ulang
+    verifying: Memverifikasi
     done: Diperbarui
+    rolled-back: Dikembalikan
     up-to-date: Terkini
     error: Gagal
 drawer:
@@ -955,11 +960,10 @@ setup:
   update:
     pill-on: "Memakai aksi · aktif"
     pill-pending: "Aktif bersama aksi"
-    title: "Jaga Dozzle tetap terbaru"
-    subtitle: "Dozzle menarik image baru dan mengganti container-nya sendiri pada jam sepi. Pengaturan, pengguna, dan peringatan tetap ada."
+    title: "Jaga kontainer tetap terbaru"
+    subtitle: "Pada jam yang sepi, Dozzle mencari image yang lebih baru dan memperbarui dirinya serta kontainer yang Anda pilih. Pengaturan, pengguna, dan peringatan tetap ada."
     auto-label: "Perbarui otomatis"
     auto-desc: "Memeriksa image yang lebih baru dan hanya mengganti Dozzle jika ada."
-    auto-containers: Container berlabel {label} diperbarui pada waktu yang sama.
     when-label: "Kapan"
     time-label: "Waktu"
     server-time: "Memakai zona waktu server."
@@ -975,7 +979,6 @@ setup:
     reason-pinned-tag: "Anda memakai tag versi yang dipatok, jadi tidak ada yang lebih baru untuk ditarik. Gunakan tag seperti latest untuk mendapat pembaruan."
     reason-unsupported: "Dozzle tidak dapat menemukan kontainernya sendiri di sini, jadi tidak dapat mengganti dirinya sendiri."
     reason-swarm-worker: "Dozzle berjalan sebagai layanan Swarm di node worker. Hanya manager yang dapat memperbarui layanan, jadi jalankan Dozzle di manager atau perbarui dengan docker service update."
-    containers-still: Container berlabel {label} tetap diperbarui sesuai jadwal ini.
     pull-denied: "Tidak dapat menarik {image}. Image ini mungkin hanya ada di mesin ini, atau registry memerlukan docker login."
   restart:
     title: "Mulai ulang Dozzle"
@@ -1057,3 +1060,50 @@ time-range:
   jump-before: "Baris sebelumnya · {time}"
   jump-after: "Baris berikutnya · {time}"
   empty-window: "Tidak ada log di jendela ini"
+update-marker:
+  updated: "Diperbarui"
+  rolled-back: "Dikembalikan"
+  undone: "Pembaruan dibatalkan"
+  roll-back: "Kembalikan"
+  by:
+    schedule: "oleh jadwal pembaruan otomatis"
+    dozzle: "dari Dozzle"
+    cloud: "dari Dozzle Cloud"
+  verdict:
+    pending: "Dozzle Cloud sedang memantau pembaruan ini"
+    clean: "Tampak baik"
+    regressed: "Tampak rusak"
+    unsure: "Mungkin bermasalah"
+    rolled_back_by_dozzle: "Dozzle memulihkan kontainer sebelumnya"
+  decision:
+    rolled_back: "Dikembalikan"
+    kept: "Dipertahankan"
+auto-update:
+  which-label: "Kontainer mana"
+  mode-off: "Hanya Dozzle"
+  mode-off-desc: "Kontainer lain diperiksa dan menunggu Anda memperbaruinya."
+  mode-all: "Semuanya"
+  risky: "{count} kontainer menyimpan data di volume bernama. Database bisa pindah ke versi yang tidak bisa membaca datanya. | {count} kontainer menyimpan data di volume bernama. Database bisa pindah ke versi yang tidak bisa membaca datanya."
+  containers-still: "Kontainer lain tetap diperbarui dengan jadwal ini."
+  needs-actions: "Tidak ada yang diperbarui sendiri selama aksi kontainer dimatikan."
+  containers: "Kontainer"
+  status-current: "Terbaru"
+  status-available: "Pembaruan tersedia"
+  status-pending: "Belum diperiksa"
+  status-off: "Tidak diperiksa"
+  status-pinned: "Disematkan ke digest"
+  status-local: "Dibangun secara lokal"
+  status-private: "Registry privat"
+  status-unknown: "Tidak bisa diperiksa"
+  safety-title: "Jaring pengaman"
+  safety-verify: "Setiap pembaruan dipantau dan dibatalkan jika kontainer baru gagal."
+  safety-cleanup: "Image lama dihapus setelahnya. Satu image sebelumnya disimpan untuk rollback."
+  safety-skip: "Image yang disematkan ke digest, dibangun lokal, atau dari registry privat dilewati."
+  learn-more: "Cara kerja pembaruan otomatis"
+  footnote: "{link} menentukan kontainer mana yang memperbarui dirinya sendiri."
+  footnote-link: "Pengaturan → Pembaruan"
+  mode-labelled: "Kontainer berlabel"
+  mode-labelled-desc: "Ditambah kontainer dengan label {label}."
+  mode-all-desc: "Setiap kontainer, kecuali yang berlabel {label}."
+  risky-hint: "Beri label {label} pada kontainer untuk mengecualikannya."
+  empty: "Tidak ada kontainer yang diperbarui sendiri. Beri label {label} pada kontainer untuk menambahkannya."

@@ -19,9 +19,10 @@ import (
 // records the order the updates ran in.
 type recordingClientService struct {
 	container.ClientService
-	mu    sync.Mutex
-	order []string
-	fail  map[string]bool
+	mu       sync.Mutex
+	order    []string
+	fail     map[string]bool
+	rollBack map[string]bool
 }
 
 func (s *recordingClientService) UpdateContainer(ctx context.Context, c container.Container, progressCh chan<- container.UpdateProgress) (bool, error) {
@@ -35,6 +36,12 @@ func (s *recordingClientService) UpdateContainer(ctx context.Context, c containe
 	if s.fail[c.ID] {
 		progressCh <- container.UpdateProgress{Status: "error", Error: "pull failed"}
 		return false, errors.New("pull failed")
+	}
+	if s.rollBack[c.ID] {
+		progressCh <- container.UpdateProgress{Status: "recreating"}
+		progressCh <- container.UpdateProgress{Status: "verifying"}
+		progressCh <- container.UpdateProgress{Status: "rolled-back", Error: "replacement is unhealthy"}
+		return false, errors.New("update rolled back: replacement is unhealthy")
 	}
 	progressCh <- container.UpdateProgress{Status: "recreating"}
 	progressCh <- container.UpdateProgress{Status: "done"}
@@ -62,9 +69,9 @@ func TestBulkUpdate_SelfRunsLast(t *testing.T) {
 
 	client := &recordingClientService{}
 	services := []*container.ContainerService{
-		container.NewContainerService(client, container.Container{ID: "aaaaaaaaaaaa", Host: "local", Name: "dozzle"}),
-		container.NewContainerService(client, container.Container{ID: "bbbbbbbbbbbb", Host: "local", Name: "web"}),
-		container.NewContainerService(client, container.Container{ID: "cccccccccccc", Host: "local", Name: "db"}),
+		container.NewContainerService(client, container.Container{ID: "aaaaaaaaaaaa", State: "running", Host: "local", Name: "dozzle"}),
+		container.NewContainerService(client, container.Container{ID: "bbbbbbbbbbbb", State: "running", Host: "local", Name: "web"}),
+		container.NewContainerService(client, container.Container{ID: "cccccccccccc", State: "running", Host: "local", Name: "db"}),
 	}
 
 	u := newTestUpdater()
@@ -88,8 +95,8 @@ func TestBulkUpdate_SelfRunsLast(t *testing.T) {
 func TestBulkUpdate_FailureDoesNotStopTheRest(t *testing.T) {
 	client := &recordingClientService{fail: map[string]bool{"bbbbbbbbbbbb": true}}
 	services := []*container.ContainerService{
-		container.NewContainerService(client, container.Container{ID: "bbbbbbbbbbbb", Host: "local", Name: "web"}),
-		container.NewContainerService(client, container.Container{ID: "cccccccccccc", Host: "local", Name: "db"}),
+		container.NewContainerService(client, container.Container{ID: "bbbbbbbbbbbb", State: "running", Host: "local", Name: "web"}),
+		container.NewContainerService(client, container.Container{ID: "cccccccccccc", State: "running", Host: "local", Name: "db"}),
 	}
 
 	u := newTestUpdater()
@@ -103,12 +110,53 @@ func TestBulkUpdate_FailureDoesNotStopTheRest(t *testing.T) {
 	assert.Equal(t, "done", job.Items[1].Status)
 }
 
+// A stopped container is refused without asking its host, and the rest of the
+// job still runs.
+func TestBulkUpdate_StoppedContainerRefused(t *testing.T) {
+	client := &recordingClientService{}
+	services := []*container.ContainerService{
+		container.NewContainerService(client, container.Container{ID: "bbbbbbbbbbbb", State: "exited", Host: "local", Name: "web"}),
+		container.NewContainerService(client, container.Container{ID: "cccccccccccc", State: "running", Host: "local", Name: "db"}),
+	}
+
+	u := newTestUpdater()
+	done, err := u.Start(services, "manual", "", "", nil)
+	require.NoError(t, err)
+	waitDone(t, done)
+
+	job, _ := u.snapshot(nil)
+	assert.Equal(t, "error", job.Items[0].Status)
+	assert.Equal(t, container.ErrNotRunning.Error(), job.Items[0].Error)
+	assert.Equal(t, "done", job.Items[1].Status)
+	assert.Equal(t, []string{"cccccccccccc"}, client.order)
+}
+
+// A rolled back container ends the job as rolled back, not failed, with the
+// reason the new one was refused.
+func TestBulkUpdate_RolledBackStaysRolledBack(t *testing.T) {
+	client := &recordingClientService{rollBack: map[string]bool{"bbbbbbbbbbbb": true}}
+	services := []*container.ContainerService{
+		container.NewContainerService(client, container.Container{ID: "bbbbbbbbbbbb", State: "running", Host: "local", Name: "web"}),
+		container.NewContainerService(client, container.Container{ID: "cccccccccccc", State: "running", Host: "local", Name: "db"}),
+	}
+
+	u := newTestUpdater()
+	done, err := u.Start(services, "schedule", "", "", nil)
+	require.NoError(t, err)
+	waitDone(t, done)
+
+	job, _ := u.snapshot(nil)
+	assert.Equal(t, "rolled-back", job.Items[0].Status)
+	assert.Equal(t, "replacement is unhealthy", job.Items[0].Error)
+	assert.Equal(t, "done", job.Items[1].Status)
+}
+
 func TestBulkUpdate_SwarmServiceUpdatedOnce(t *testing.T) {
 	client := &recordingClientService{}
 	labels := map[string]string{"com.docker.swarm.service.id": "svc1"}
 	services := []*container.ContainerService{
-		container.NewContainerService(client, container.Container{ID: "bbbbbbbbbbbb", Host: "node1", Labels: labels}),
-		container.NewContainerService(client, container.Container{ID: "cccccccccccc", Host: "node2", Labels: labels}),
+		container.NewContainerService(client, container.Container{ID: "bbbbbbbbbbbb", State: "running", Host: "node1", Labels: labels}),
+		container.NewContainerService(client, container.Container{ID: "cccccccccccc", State: "running", Host: "node2", Labels: labels}),
 	}
 
 	u := newTestUpdater()
@@ -124,12 +172,12 @@ func TestBulkUpdate_RejectsOverlap(t *testing.T) {
 	client := &blockingClientService{release: block}
 	u := newTestUpdater()
 	done, err := u.Start([]*container.ContainerService{
-		container.NewContainerService(client, container.Container{ID: "bbbbbbbbbbbb", Host: "local"}),
+		container.NewContainerService(client, container.Container{ID: "bbbbbbbbbbbb", State: "running", Host: "local"}),
 	}, "manual", "", "", nil)
 	require.NoError(t, err)
 
 	_, err = u.Start([]*container.ContainerService{
-		container.NewContainerService(client, container.Container{ID: "cccccccccccc", Host: "local"}),
+		container.NewContainerService(client, container.Container{ID: "cccccccccccc", State: "running", Host: "local"}),
 	}, "schedule", "", "", nil)
 	assert.ErrorIs(t, err, errBulkUpdateBusy)
 
@@ -141,8 +189,8 @@ func TestBulkUpdate_SnapshotFiltersHidden(t *testing.T) {
 	client := &recordingClientService{}
 	u := newTestUpdater()
 	done, err := u.Start([]*container.ContainerService{
-		container.NewContainerService(client, container.Container{ID: "bbbbbbbbbbbb", Host: "local", Name: "web"}),
-		container.NewContainerService(client, container.Container{ID: "cccccccccccc", Host: "local", Name: "db"}),
+		container.NewContainerService(client, container.Container{ID: "bbbbbbbbbbbb", State: "running", Host: "local", Name: "web"}),
+		container.NewContainerService(client, container.Container{ID: "cccccccccccc", State: "running", Host: "local", Name: "db"}),
 	}, "manual", "", "", nil)
 	require.NoError(t, err)
 	waitDone(t, done)
@@ -163,9 +211,9 @@ func TestBulkUpdate_SwarmSelfServiceRunsLast(t *testing.T) {
 	client := &recordingClientService{}
 	dozzle := map[string]string{swarmServiceLabel: "dozzle-svc"}
 	services := []*container.ContainerService{
-		container.NewContainerService(client, container.Container{ID: "dddddddddddd", Host: "node2", Name: "dozzle.2", Labels: dozzle}),
-		container.NewContainerService(client, container.Container{ID: "aaaaaaaaaaaa", Host: "node1", Name: "dozzle.1", Labels: dozzle}),
-		container.NewContainerService(client, container.Container{ID: "bbbbbbbbbbbb", Host: "node2", Name: "web"}),
+		container.NewContainerService(client, container.Container{ID: "dddddddddddd", State: "running", Host: "node2", Name: "dozzle.2", Labels: dozzle}),
+		container.NewContainerService(client, container.Container{ID: "aaaaaaaaaaaa", State: "running", Host: "node1", Name: "dozzle.1", Labels: dozzle}),
+		container.NewContainerService(client, container.Container{ID: "bbbbbbbbbbbb", State: "running", Host: "node2", Name: "web"}),
 	}
 
 	u := newTestUpdater()
@@ -205,7 +253,7 @@ func TestBulkUpdate_IdleWaitsForRunningJob(t *testing.T) {
 	}
 
 	done, err := u.Start([]*container.ContainerService{
-		container.NewContainerService(&blockingClientService{release: block}, container.Container{ID: "bbbbbbbbbbbb", Host: "local"}),
+		container.NewContainerService(&blockingClientService{release: block}, container.Container{ID: "bbbbbbbbbbbb", State: "running", Host: "local"}),
 	}, "manual", "", "", nil)
 	require.NoError(t, err)
 
@@ -229,16 +277,6 @@ func (s *blockingClientService) UpdateContainer(ctx context.Context, _ container
 	defer close(progressCh)
 	<-s.release
 	return false, nil
-}
-
-func TestAutoUpdateEnabled(t *testing.T) {
-	for value, want := range map[string]bool{
-		"true": true, "TRUE": true, " yes ": true, "1": true, "on": true,
-		"false": false, "": false, "no": false, "maybe": false,
-	} {
-		assert.Equal(t, want, autoUpdateEnabled(map[string]string{AutoUpdateLabel: value}), value)
-	}
-	assert.False(t, autoUpdateEnabled(nil))
 }
 
 func TestStartBulkUpdate_RefusesNonJSONBodies(t *testing.T) {

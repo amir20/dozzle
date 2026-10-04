@@ -40,7 +40,7 @@ type Args struct {
 	AuthOidcScopes         string              `arg:"--auth-oidc-scopes,env:DOZZLE_AUTH_OIDC_SCOPES" help:"sets extra OpenID Connect scopes to request on top of openid, profile and email, separated by commas. Needed when the issuer only releases the roles claim for a custom scope, as Authelia does."`
 	EnableActions          bool                `arg:"--enable-actions,env:DOZZLE_ENABLE_ACTIONS" default:"false" help:"enables essential actions on containers from the web interface."`
 	EnableShell            bool                `arg:"--enable-shell,env:DOZZLE_ENABLE_SHELL" default:"false" help:"enables shell access to containers from the web interface."`
-	AutoUpdate             string              `arg:"--auto-update,env:DOZZLE_AUTO_UPDATE" default:"" help:"updates Dozzle's own container on a schedule: off, daily or weekly (Sunday). Requires --enable-actions."`
+	AutoUpdate             string              `arg:"--auto-update,env:DOZZLE_AUTO_UPDATE" default:"" help:"updates Dozzle, and the containers set to update automatically, on a schedule: off, daily or weekly (Sunday). Requires --enable-actions."`
 	AutoUpdateTime         string              `arg:"--auto-update-time,env:DOZZLE_AUTO_UPDATE_TIME" default:"" help:"sets the HH:MM, in server local time, that --auto-update runs at. Defaults to 03:00."`
 	EnableMCP              bool                `arg:"--enable-mcp,env:DOZZLE_ENABLE_MCP" default:"false" help:"enables the MCP (Model Context Protocol) endpoint for LLM integration."`
 	DisableAvatars         bool                `arg:"--disable-avatars,env:DOZZLE_DISABLE_AVATARS" default:"false" help:"disables avatars for authenticated users."`

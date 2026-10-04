@@ -20,6 +20,7 @@ func TestToolSchemasStayCompact(t *testing.T) {
 		toolRestartContainer:         650,
 		toolRemoveContainer:          800,
 		toolUpdateContainer:          850,
+		toolRollbackContainer:        950,
 		toolCreateLogNotification:    1800,
 		toolCreateMetricNotification: 1950,
 		toolCreateEventNotification:  1800,
@@ -42,6 +43,10 @@ func TestWriteToolsUseWriteSchema(t *testing.T) {
 		case toolStartContainer, toolStopContainer, toolRestartContainer, toolRemoveContainer, toolUpdateContainer:
 			if tool.ParametersJson != writeTargetedParams {
 				t.Errorf("%s should use writeTargetedParams", tool.Name)
+			}
+		case toolRollbackContainer:
+			if tool.ParametersJson != rollbackContainerParams {
+				t.Errorf("%s should use rollbackContainerParams", tool.Name)
 			}
 		case toolInspectContainer:
 			if tool.ParametersJson != targetedParams {

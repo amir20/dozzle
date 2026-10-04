@@ -19,14 +19,16 @@ toolbar:
   update-service: Обновить Сервис
   update-pulling: Загрузка последнего образа...
   update-recreating: Пересоздание контейнера...
+  update-verifying: Проверка, что новый контейнер продолжает работать...
+  update-rolled-back: Новый контейнер не смог стабильно работать, поэтому предыдущий восстановлен.
   update-done: Контейнер успешно обновлён
   update-up-to-date: Уже обновлён
-  update-available: 'Доступно обновление'
-  check-for-updates: 'Проверить обновления'
-  checking-for-updates: 'Проверка обновлений...'
-  no-updates: 'Обновлений нет'
-  dismiss-update: 'Скрыть это обновление'
-  view-release-notes: 'Посмотреть примечания к выпуску'
+  update-available: "Доступно обновление"
+  check-for-updates: "Проверить обновления"
+  checking-for-updates: "Проверка обновлений..."
+  no-updates: "Обновлений нет"
+  dismiss-update: "Скрыть это обновление"
+  view-release-notes: "Посмотреть примечания к выпуску"
   show-hostname: Показать имя хоста
   show-container-name: Показать имя контейнера
   shell: Оболочка
@@ -190,6 +192,7 @@ error:
   unable-to-complete-action: Не удалось выполнить действие
   invalid-action: Недопустимое действие
   unable-to-update: Не удалось обновить контейнер
+  start-container-first: Сначала запустите контейнер
   something-went-wrong: Что-то пошло не так
   unknown-error: Неизвестная ошибка
   events-stream:
@@ -202,8 +205,8 @@ error:
       Dozzle UI превысил время ожидания при подключении к API. Пожалуйста, проверьте сетевое подключение и повторите попытку.
 alert:
   image-update:
-    title: 'Доступно обновление'
-    message: 'Для {image} опубликован более новый образ.'
+    title: "Доступно обновление"
+    message: "Для {image} опубликован более новый образ."
     enable-actions: '<a href="https://dozzle.dev/guide/actions" target="_blank" rel="noreferrer noopener">Включите действия</a>, чтобы загрузить его и пересоздать контейнер отсюда.'
   redirected:
     title: Перенаправлен на новый контейнер
@@ -263,35 +266,35 @@ settings:
   new-version: "Доступна версия {version}"
   update-available: "Доступен более новый образ"
   auto-update-on: "Dozzle обновляется сам"
-  auto-update-containers: "Контейнеры с меткой обновляются сами"
+  auto-update-containers: "Ваши контейнеры остаются актуальными"
   auto-update-daily: "Проверяет ежедневно в {time} по времени сервера."
   auto-update-weekly: "Проверяет еженедельно по воскресеньям в {time} по времени сервера."
-  show-image-update-alert: 'Уведомления об обновлениях образов'
-  show-image-update-alert-desc: 'Сообщать, когда у запущенного образа есть более новый тег.'
+  show-image-update-alert: "Уведомления об обновлениях образов"
+  show-image-update-alert-desc: "Сообщать, когда у запущенного образа есть более новый тег."
   cloud-desc: Передавайте логи в Dozzle Cloud для аналитики с использованием ИИ и поиска по экземплярам.
   locale: Язык
   small-scrollbars: Тонкие полосы прокрутки
-  small-scrollbars-desc: 'Более тонкие полосы прокрутки, удобно на небольших экранах.'
+  small-scrollbars-desc: "Более тонкие полосы прокрутки, удобно на небольших экранах."
   show-timestamps: Показывать временные метки
   soft-wrap: Перенос строк
   highlight-errors: Подсвечивать строки с ошибками
-  highlight-errors-desc: 'Цветная метка уровня отображается всегда.'
+  highlight-errors-desc: "Цветная метка уровня отображается всегда."
   datetime-format: Дата и время
   font-size: Размер шрифта
   color-scheme: Тема
   show-stopped-containers: Показывать остановленные контейнеры
   group-containers: Группировать контейнеры
-  group-containers-desc: 'По проекту Compose, стеку Swarm или dev.dozzle.group.'
-  show-app-icons: 'Значки приложений'
-  show-app-icons-desc: 'Входят в состав Dozzle и никогда не загружаются из интернета.'
+  group-containers-desc: "По проекту Compose, стеку Swarm или dev.dozzle.group."
+  show-app-icons: "Значки приложений"
+  show-app-icons-desc: "Входят в состав Dozzle и никогда не загружаются из интернета."
   search: Поиск по логам
-  search-desc: 'Заменяет поиск браузера при просмотре контейнера.'
+  search-desc: "Заменяет поиск браузера при просмотре контейнера."
   show-std: Показывать метки stdout и stderr
-  show-std-desc: 'Помечает, из stdout или stderr пришла строка.'
+  show-std-desc: "Помечает, из stdout или stderr пришла строка."
   automatic-redirect: Следовать за пересозданными контейнерами
-  automatic-redirect-desc: 'Когда контейнер заменён, переходить к новому.'
+  automatic-redirect-desc: "Когда контейнер заменён, переходить к новому."
   compact: Компактный режим
-  compact-desc: 'Меньшие отступы, чтобы на экране помещалось больше строк.'
+  compact-desc: "Меньшие отступы, чтобы на экране помещалось больше строк."
   size:
     small: Маленький
     medium: Средний
@@ -383,7 +386,9 @@ updates:
     queued: В очереди
     pulling: Загрузка
     recreating: Пересоздание
+    verifying: Проверка
     done: Обновлён
+    rolled-back: Откачено
     up-to-date: Актуален
     error: Ошибка
 drawer:
@@ -943,11 +948,10 @@ setup:
   update:
     pill-on: "Использует действия · вкл"
     pill-pending: "Включится вместе с действиями"
-    title: "Обновляйте Dozzle автоматически"
-    subtitle: "Dozzle загружает новый образ и заменяет собственный контейнер в спокойное время. Настройки, пользователи и оповещения сохраняются."
+    title: "Держите контейнеры в актуальном состоянии"
+    subtitle: "В тихий час Dozzle ищет новые образы и обновляет себя и выбранные вами контейнеры. Настройки, пользователи и оповещения сохраняются."
     auto-label: "Обновлять автоматически"
     auto-desc: "Проверяет наличие более нового образа и заменяет Dozzle, только если он есть."
-    auto-containers: Контейнеры с меткой {label} обновляются в то же время.
     when-label: "Когда"
     time-label: "Время"
     server-time: "Используется часовой пояс сервера."
@@ -963,7 +967,6 @@ setup:
     reason-pinned-tag: "Вы используете закреплённый тег версии, поэтому загружать нечего. Используйте тег вроде latest, чтобы получать обновления."
     reason-unsupported: "Здесь Dozzle не может найти собственный контейнер, поэтому не может заменить себя."
     reason-swarm-worker: "Dozzle работает как сервис Swarm на рабочем узле. Обновить сервис может только менеджер, поэтому запустите Dozzle на менеджере или обновите его командой docker service update."
-    containers-still: Контейнеры с меткой {label} по-прежнему обновляются по этому расписанию.
     pull-denied: "Не удалось загрузить {image}. Возможно, образ есть только на этой машине или реестру нужен docker login."
   restart:
     title: Перезапустить Dozzle
@@ -1045,3 +1048,50 @@ time-range:
   jump-before: "Более ранние строки · {time}"
   jump-after: "Более поздние строки · {time}"
   empty-window: "В этом окне нет логов"
+update-marker:
+  updated: "Обновлено"
+  rolled-back: "Откачено"
+  undone: "Обновление отменено"
+  roll-back: "Откатить"
+  by:
+    schedule: "по расписанию автообновления"
+    dozzle: "из Dozzle"
+    cloud: "из Dozzle Cloud"
+  verdict:
+    pending: "Dozzle Cloud следит за этим обновлением"
+    clean: "Выглядит нормально"
+    regressed: "Похоже, сломано"
+    unsure: "Возможна проблема"
+    rolled_back_by_dozzle: "Dozzle вернул предыдущий контейнер"
+  decision:
+    rolled_back: "Откачено"
+    kept: "Оставлено"
+auto-update:
+  which-label: "Какие контейнеры"
+  mode-off: "Только Dozzle"
+  mode-off-desc: "Остальные контейнеры проверяются и ждут, пока вы их обновите."
+  mode-all: "Все"
+  risky: "{count} контейнер хранит данные в именованном томе. База данных может перейти на версию, которая не прочитает её данные. | Контейнеров с данными в именованных томах: {count}. База данных может перейти на версию, которая не прочитает её данные."
+  containers-still: "Остальные контейнеры по-прежнему обновляются по этому расписанию."
+  needs-actions: "Пока действия с контейнерами выключены, ничего не обновляется само."
+  containers: "Контейнеры"
+  status-current: "Актуален"
+  status-available: "Есть обновление"
+  status-pending: "Ещё не проверен"
+  status-off: "Не проверяется"
+  status-pinned: "Закреплён на дайджесте"
+  status-local: "Собран локально"
+  status-private: "Приватный реестр"
+  status-unknown: "Не удаётся проверить"
+  safety-title: "Страховка"
+  safety-verify: "За каждым обновлением следят и откатывают его, если новый контейнер не работает."
+  safety-cleanup: "Старый образ потом удаляется. Один предыдущий образ остаётся для отката."
+  safety-skip: "Образы, закреплённые на дайджесте, собранные локально или из приватного реестра, пропускаются."
+  learn-more: "Как работает автообновление"
+  footnote: "{link} определяет, какие контейнеры обновляются сами."
+  footnote-link: "Настройки → Обновления"
+  mode-labelled: "Контейнеры с меткой"
+  mode-labelled-desc: "Плюс контейнеры с меткой {label}."
+  mode-all-desc: "Все контейнеры, кроме помеченных {label}."
+  risky-hint: "Добавьте контейнеру метку {label}, чтобы исключить его."
+  empty: "Ни один контейнер не обновляется сам. Добавьте контейнеру метку {label}, чтобы включить его."

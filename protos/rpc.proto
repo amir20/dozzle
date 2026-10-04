@@ -19,6 +19,7 @@ service AgentService {
   rpc HostInfo(HostInfoRequest) returns (HostInfoResponse) {}
   rpc ContainerAction(ContainerActionRequest) returns (ContainerActionResponse) {}
   rpc UpdateContainer(UpdateContainerRequest) returns (stream UpdateContainerProgress) {}
+  rpc RollbackContainer(RollbackContainerRequest) returns (stream UpdateContainerProgress) {}
   rpc CheckImageUpdate(CheckImageUpdateRequest) returns (CheckImageUpdateResponse) {}
   rpc ContainerExec(stream ContainerExecRequest) returns (stream ContainerExecResponse) {}
   rpc ContainerAttach(stream ContainerAttachRequest) returns (stream ContainerAttachResponse) {}
@@ -106,6 +107,16 @@ message ContainerActionResponse {}
 
 message UpdateContainerRequest {
   string containerId = 1;
+  reserved 2;
+}
+
+// RollbackContainerRequest swaps a container back to the image it ran before
+// its last update. Progress streams with the same statuses as an update.
+message RollbackContainerRequest {
+  string containerId = 1;
+  // expectedFromDigest refuses the rollback unless the container still runs
+  // this digest (repo@sha256:... or sha256:...).
+  string expectedFromDigest = 2;
 }
 
 message UpdateContainerProgress {
@@ -114,6 +125,21 @@ message UpdateContainerProgress {
   int64 current = 3;
   int64 total = 4;
   string error = 5;
+  // result is set on the last progress of a swap that ran, committed or
+  // undone, so the server can record the update.
+  UpdateResult result = 6;
+}
+
+// UpdateResult is container.UpdateResult: what one swap changed.
+message UpdateResult {
+  string oldId = 1;
+  string newId = 2;
+  string fromImageId = 3;
+  string toImageId = 4;
+  string fromDigest = 5;
+  string toDigest = 6;
+  google.protobuf.Timestamp oldStartedAt = 7;
+  bool rolledBack = 8;
 }
 
 message CheckImageUpdateRequest {

@@ -2,6 +2,7 @@ package container
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"math"
 	"strconv"
@@ -214,12 +215,111 @@ func ParseContainerAction(input string) (ContainerAction, error) {
 	}
 }
 
+// Statuses an update reports, in the order they can arrive. Every update ends
+// on exactly one of done, up-to-date, rolled-back or error.
+const (
+	UpdatePulling    = "pulling"
+	UpdateRecreating = "recreating"
+	// UpdateVerifying means the replacement started and is being watched to
+	// stay up (and healthy, if it has a healthcheck) before the old one goes.
+	UpdateVerifying = "verifying"
+	UpdateDone      = "done"
+	UpdateUpToDate  = "up-to-date"
+	// UpdateRolledBack means the replacement failed and the previous
+	// container was put back. Error says why the replacement failed.
+	UpdateRolledBack = "rolled-back"
+	UpdateError      = "error"
+)
+
 type UpdateProgress struct {
-	Status  string `json:"status"`  // "pulling", "recreating", "done", "error", "up-to-date"
+	Status  string `json:"status"`  // one of the Update* statuses above
 	Layer   string `json:"layer"`   // Docker layer ID (pull events only)
 	Current int64  `json:"current"` // Bytes downloaded
 	Total   int64  `json:"total"`   // Total bytes for layer
-	Error   string `json:"error"`   // Only when Status="error"
+	Error   string `json:"error"`   // Only when Status is "error" or "rolled-back"
+	// Result is set on the last progress of a swap that ran, whether it
+	// committed ("done") or was undone ("rolled-back"). It is what the update
+	// record needs, and never reaches the browser.
+	Result *UpdateResult `json:"-"`
+}
+
+// UpdateResult is what one swap changed, as the host that ran it saw it. An
+// agent sends it back with its last progress, so the server records updates on
+// agent hosts the same way as its own.
+type UpdateResult struct {
+	// OldID is the container that ran before, NewID the one running now: the
+	// replacement, or the old one put back when RolledBack.
+	OldID string
+	NewID string
+	// FromImageID and ToImageID are local image ids, FromDigest and ToDigest
+	// the same images as repo@sha256:... (empty for an image built locally).
+	FromImageID  string
+	ToImageID    string
+	FromDigest   string
+	ToDigest     string
+	OldStartedAt time.Time
+	// RolledBack means the new container did not stay up and the old one was
+	// put back.
+	RolledBack bool
+}
+
+// Labels an update leaves on the container it creates, and reads back on the
+// next one.
+const (
+	// PreviousImageLabel is the image id the container ran before its last
+	// update: the rollback target, and what cleanup removes on the update
+	// after.
+	PreviousImageLabel = "dev.dozzle.previous-image"
+	// PreviousRefLabel is that image as repo@sha256:digest, so it can be
+	// pulled again by digest once it is gone locally. Absent for an image
+	// built locally, which has no registry digest.
+	PreviousRefLabel = "dev.dozzle.previous-ref"
+	// RolledBackFromLabel is the image a rollback moved the container away
+	// from, as repo@sha256:digest (or the image id for an image built
+	// locally). The auto-update schedule leaves the container alone while its
+	// registry still offers that image, and the next update clears it.
+	RolledBackFromLabel = "dev.dozzle.rolled-back-from"
+)
+
+// RollbackOptions are what one rollback checks before it runs.
+type RollbackOptions struct {
+	// ExpectedFromDigest refuses the rollback unless the container still runs
+	// this digest (repo@sha256:... or sha256:...), so a stale request cannot
+	// roll back a container that has moved on since.
+	ExpectedFromDigest string
+}
+
+var (
+	// ErrNotRunning refuses an update or rollback of a container that is not
+	// running. A stopped container may be stopped on purpose, and only someone
+	// starting it decides it should run again. The text is what people read,
+	// in the UI and in Dozzle Cloud; assets/composable/containers/
+	// containerActions.ts matches it to show it translated.
+	ErrNotRunning = errors.New("start the container first")
+	// ErrRollbackUnsupported is returned where a rollback cannot run: a swarm
+	// service, Kubernetes, Dozzle's own container.
+	ErrRollbackUnsupported = errors.New("rollback is not supported")
+	// ErrNoRollbackTarget means the container has no previous image Dozzle
+	// knows of, or that image is gone from the host.
+	ErrNoRollbackTarget = errors.New("no previous image to roll back to")
+	// ErrDigestMismatch means the container no longer runs the digest the
+	// rollback expected.
+	ErrDigestMismatch = errors.New("container no longer runs the expected image")
+)
+
+// DigestOf is the sha256:... part of a repo@sha256:... reference, or ref
+// itself when it is already a bare digest.
+func DigestOf(ref string) string {
+	if _, digest, found := strings.Cut(ref, "@"); found {
+		return digest
+	}
+	return ref
+}
+
+// SameImageID compares image ids with or without their sha256: prefix.
+func SameImageID(a, b string) bool {
+	a, b = strings.TrimPrefix(a, "sha256:"), strings.TrimPrefix(b, "sha256:")
+	return a != "" && a == b
 }
 
 type LogEvent struct {

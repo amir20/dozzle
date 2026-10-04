@@ -13,7 +13,13 @@ vi.mock("@/stores/config", () => ({
 import AutoUpdateForm from "./AutoUpdateForm.vue";
 import type { SetupStatus } from "@/composable/setup/setup";
 
-const i18n = createI18n({ legacy: false, locale: "en", missingWarn: false, fallbackWarn: false, messages: { en: {} } });
+const i18n = createI18n({
+  legacy: false,
+  locale: "en",
+  missingWarn: false,
+  fallbackWarn: false,
+  messages: { en: { "auto-update": { "risky-hint": "Label one {label} to keep it out." } } },
+});
 
 function status(over: Partial<SetupStatus> = {}): SetupStatus {
   return {
@@ -41,6 +47,14 @@ function status(over: Partial<SetupStatus> = {}): SetupStatus {
 
 let calls: { url: string; init?: RequestInit }[];
 let patchStatus = 204;
+const policies = {
+  mode: "labelled",
+  containers: [
+    { host: "nas", id: "a", name: "postgres", image: "postgres:16", state: "running", volumes: ["pgdata"] },
+    { host: "nas", id: "b", name: "web", image: "nginx:latest", state: "running" },
+    { host: "nas", id: "c", name: "frozen-db", image: "mysql:8", state: "running", label: "off", volumes: ["data"] },
+  ],
+};
 
 beforeEach(() => {
   calls = [];
@@ -50,6 +64,7 @@ beforeEach(() => {
     vi.fn(async (url: string, init?: RequestInit) => {
       calls.push({ url, init });
       if (url === "/api/setup") return new Response(JSON.stringify(status()));
+      if (url === "/api/updates/policy") return new Response(JSON.stringify(policies));
       if (init?.method === "PATCH") return new Response(null, { status: patchStatus });
       return new Response(null, { status: 200 });
     }),
@@ -105,6 +120,35 @@ describe("AutoUpdateForm", () => {
     expect(wrapper.find("input[type=checkbox]").attributes("disabled")).toBeDefined();
     expect(wrapper.find("select").attributes("disabled")).toBeDefined();
     expect(wrapper.text()).toContain("setup.actions.locked");
+    // Which containers has no env var, so the lock does not hold it.
+    expect(wrapper.find("fieldset").attributes("disabled")).toBeUndefined();
+  });
+
+  test("shows which containers, labelled when never chosen", () => {
+    const wrapper = mountForm(status());
+    const checked = wrapper.findAll("input[type=radio]").find((r) => (r.element as HTMLInputElement).checked);
+    expect((checked!.element as HTMLInputElement).value).toBe("labelled");
+  });
+
+  test("Settings saves which containers as it changes", async () => {
+    const wrapper = mountForm(status(), true);
+    await wrapper.find("input[type=radio][value=all]").setValue(true);
+    await flushPromises();
+    expect(patches()).toEqual([{ updateContainers: "all" }]);
+  });
+
+  // All reaches databases nobody labelled, so it says which ones and how to keep
+  // them out.
+  test("all warns about unlabelled containers with named volumes", async () => {
+    const wrapper = mountForm(status({ autoUpdate: { ...status().autoUpdate!, containers: "all" } }));
+    await flushPromises();
+    expect(wrapper.text()).toContain("auto-update.risky");
+    expect(wrapper.text()).toContain("postgres");
+    expect(wrapper.text()).not.toContain("frozen-db");
+    expect(wrapper.text()).toContain("dev.dozzle.update=off");
+
+    await wrapper.find("input[type=radio][value=labelled]").setValue(true);
+    expect(wrapper.text()).not.toContain("auto-update.risky");
   });
 
   test("without a volume nothing can be changed", () => {

@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/amir20/dozzle/internal/container"
+	"github.com/amir20/dozzle/internal/container/swap"
 	dcontainer "github.com/moby/moby/api/types/container"
 	"github.com/moby/moby/api/types/swarm"
 	"github.com/moby/moby/client"
@@ -46,7 +47,7 @@ func taskImageRef(ref string) string {
 // SelfRef is the reference to pull and compare for a container, whether it is
 // a plain container or a swarm task.
 func SelfRef(cfg *dcontainer.Config) string {
-	ref := ImageRef(cfg)
+	ref := swap.ImageRef(cfg)
 	if cfg != nil && SwarmTask(cfg.Labels) {
 		return taskImageRef(ref)
 	}

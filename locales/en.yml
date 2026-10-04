@@ -19,6 +19,8 @@ toolbar:
   update-service: Update Service
   update-pulling: Pulling latest image...
   update-recreating: Recreating container...
+  update-verifying: Checking the new container stays up...
+  update-rolled-back: The new container did not stay up, so the previous one was restored.
   update-done: Container updated successfully
   update-up-to-date: Already up to date
   update-available: Update available
@@ -190,6 +192,7 @@ error:
   unable-to-complete-action: Unable to complete action
   invalid-action: Invalid action
   unable-to-update: Unable to update container
+  start-container-first: Start the container first
   something-went-wrong: Something went wrong
   unknown-error: Unknown error
   events-stream:
@@ -392,7 +395,7 @@ settings:
   new-version: "{version} available"
   update-available: A newer image is available
   auto-update-on: Dozzle keeps itself up to date
-  auto-update-containers: Labelled containers stay up to date
+  auto-update-containers: "Your containers stay up to date"
   auto-update-daily: Checks daily at {time}, server time.
   auto-update-weekly: Checks weekly on Sunday at {time}, server time.
   cloud-desc: Stream logs to Dozzle Cloud for AI-powered investigations and search across instances.
@@ -512,7 +515,9 @@ updates:
     queued: Queued
     pulling: Pulling
     recreating: Recreating
+    verifying: Verifying
     done: Updated
+    rolled-back: Rolled back
     up-to-date: Current
     error: Failed
 drawer:
@@ -951,11 +956,10 @@ setup:
   update:
     pill-on: "Uses actions · on"
     pill-pending: Turns on with actions
-    title: Keep Dozzle up to date
-    subtitle: Dozzle pulls the new image and replaces its own container at a quiet hour. Settings, users and alerts stay.
+    title: "Keep containers up to date"
+    subtitle: "At a quiet hour, Dozzle looks for newer images and updates itself and the containers you choose. Settings, users and alerts stay."
     auto-label: Update automatically
     auto-desc: Checks for a newer image and replaces Dozzle only when there is one.
-    auto-containers: Containers labelled {label} update at the same time.
     when-label: When
     time-label: Time
     server-time: Uses the server's time zone.
@@ -971,7 +975,6 @@ setup:
     reason-pinned-tag: You run a pinned version tag, so there is nothing newer to pull. Use a tag like latest to get updates.
     reason-unsupported: "Dozzle can't find its own container here, so it can't replace itself."
     reason-swarm-worker: "Dozzle runs as a Swarm service on a worker node. Only a manager can update the service, so run Dozzle on a manager or update it with docker service update."
-    containers-still: Containers labelled {label} still update on this schedule.
     pull-denied: "Couldn't pull {image}. It may only exist on this machine, or the registry needs docker login."
   restart:
     title: Restart Dozzle
@@ -1053,3 +1056,50 @@ time-range:
   jump-before: "Earlier lines · {time}"
   jump-after: "Later lines · {time}"
   empty-window: "No logs in this window"
+update-marker:
+  updated: "Updated"
+  rolled-back: "Rolled back"
+  undone: "Update undone"
+  roll-back: "Roll back"
+  by:
+    schedule: "by the auto-update schedule"
+    dozzle: "from Dozzle"
+    cloud: "from Dozzle Cloud"
+  verdict:
+    pending: "Dozzle Cloud is watching this update"
+    clean: "Looks fine"
+    regressed: "Looks broken"
+    unsure: "May have a problem"
+    rolled_back_by_dozzle: "Dozzle put the previous container back"
+  decision:
+    rolled_back: "Rolled back"
+    kept: "Kept"
+auto-update:
+  which-label: "Which containers"
+  mode-off: "Dozzle only"
+  mode-off-desc: "Other containers are checked and wait for you to update them."
+  mode-all: "Everything"
+  risky: "{count} container keeps data in a named volume. A database can move to a version its data can't read. | {count} containers keep data in named volumes. A database can move to a version its data can't read."
+  containers-still: "Other containers still update on this schedule."
+  needs-actions: "Nothing updates on its own while container actions are off."
+  containers: "Containers"
+  status-current: "Up to date"
+  status-available: "Update available"
+  status-pending: "Not checked yet"
+  status-off: "Not checked"
+  status-pinned: "Pinned to a digest"
+  status-local: "Built locally"
+  status-private: "Private registry"
+  status-unknown: "Can't check"
+  safety-title: "Safety net"
+  safety-verify: "Each update is watched to stay up, and rolled back if the new container fails."
+  safety-cleanup: "The old image is removed afterwards. One previous image is kept for rolling back."
+  safety-skip: "Images pinned to a digest, built locally or from a private registry are skipped."
+  learn-more: "How auto-update works"
+  footnote: "{link} decides which containers update on their own."
+  footnote-link: "Settings → Updates"
+  mode-labelled: "Labelled containers"
+  mode-labelled-desc: "Plus the containers labelled {label}."
+  mode-all-desc: "Every container, unless it is labelled {label}."
+  risky-hint: "Label one {label} to keep it out."
+  empty: "No container updates on its own. Label one {label} to add it."

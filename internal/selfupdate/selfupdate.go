@@ -16,8 +16,8 @@ import (
 	"sync"
 
 	"github.com/amir20/dozzle/internal/container"
+	"github.com/amir20/dozzle/internal/container/swap"
 	"github.com/amir20/dozzle/internal/imagecheck"
-	dcontainer "github.com/moby/moby/api/types/container"
 	"github.com/moby/moby/client"
 	"github.com/rs/zerolog/log"
 )
@@ -42,9 +42,6 @@ var ErrSwarm = errors.New("selfupdate: container is managed by a swarm service")
 // never move, so pulling them again can never produce anything newer.
 var versionTag = regexp.MustCompile(`^v?\d+\.\d+\.\d+([-+].*)?$`)
 
-// imageIDRef matches a container created from a bare image id.
-var imageIDRef = regexp.MustCompile(`^(sha256:)?[0-9a-f]{12,64}$`)
-
 // SwarmTask reports whether a container with these labels belongs to a swarm
 // service, which Start updates through the manager rather than the helper.
 func SwarmTask(labels map[string]string) bool {
@@ -54,7 +51,7 @@ func SwarmTask(labels map[string]string) bool {
 // Pinned reports whether pulling ref again can never bring a newer image: a
 // digest, a bare image id, or a full version tag.
 func Pinned(ref string) bool {
-	if imageIDRef.MatchString(ref) {
+	if swap.IsImageID(ref) {
 		return true
 	}
 	parsed, err := imagecheck.ParseReference(ref)
@@ -155,7 +152,7 @@ func start(ctx context.Context, cli dockerAPI, selfID string, progress func(cont
 	swarmTask := SwarmTask(self.Config.Labels)
 
 	ref := SelfRef(self.Config)
-	if imageIDRef.MatchString(ref) {
+	if swap.IsImageID(ref) {
 		// Created from an image id: there is no tag to pull.
 		progress(container.UpdateProgress{Status: "up-to-date"})
 		return false, nil
@@ -274,10 +271,6 @@ func launchHelper(ctx context.Context, cli dockerAPI, spec client.ContainerCreat
 		return fmt.Errorf("start helper failed: %w", err)
 	}
 	return nil
-}
-
-func running(state *dcontainer.State) bool {
-	return state != nil && state.Running && !state.Restarting
 }
 
 func trimName(name string) string {

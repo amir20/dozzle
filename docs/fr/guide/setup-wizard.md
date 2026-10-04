@@ -1,6 +1,6 @@
 ---
 title: Assistant de configuration
-sourceHash: 2870c9e30b6e
+sourceHash: 010e55cb94e5
 ---
 
 # Assistant de configuration
@@ -63,15 +63,15 @@ Les agents définis par `DOZZLE_REMOTE_AGENT` sont affichés comme verrouillés 
 
 [Dozzle Cloud](/fr/guide/dozzle-cloud) envoie des alertes dès que quelque chose casse, un résumé matinal de ce qu'il faut corriger, et conserve un historique qui survit aux redémarrages. **Connecter Dozzle Cloud** relie cette instance, et **Pas maintenant** continue. Cette étape est ignorée si l'instance est déjà reliée ou si vous n'avez pas le droit de la relier.
 
-### 5. Mise à jour automatique
+### 5. Mise à jour automatique {#auto-update}
 
-Dozzle peut se tenir à jour tout seul. Choisissez **Désactivée**, **Quotidienne** ou **Hebdomadaire** (le dimanche) et une heure. L'heure est celle du serveur, `03:00` par défaut. À cette heure, Dozzle vérifie si son registre propose une image plus récente et, seulement dans ce cas, [se met à jour](#self-update).
+Dozzle peut se tenir à jour, ainsi que vos conteneurs. Choisissez **Désactivée**, **Quotidienne** ou **Hebdomadaire** (le dimanche) et une heure. L'heure est celle du serveur, `03:00` par défaut. À cette heure, Dozzle cherche des images plus récentes et ne met à jour que ce qui a changé, [lui-même](#self-update) en dernier.
 
-Les conteneurs portant le label `dev.dozzle.auto-update=true` se mettent à jour selon le même planning, juste avant Dozzle. Consultez [Mise à jour automatique des conteneurs](/fr/guide/actions#auto-updating-containers).
+**Quels conteneurs** décide de ce que le planning met à jour en plus : **Dozzle seulement**, **Conteneurs avec label** (par défaut, ceux qui portent le label `dev.dozzle.update=auto`) ou **Tout**. Consultez [Mise à jour automatique des conteneurs](/fr/guide/actions#auto-updating-containers).
 
-Ce réglage s'applique immédiatement et ne nécessite pas de redémarrage. La même planification se trouve dans **Paramètres → Mises à jour**, à côté de **Mettre à jour maintenant**, où chaque modification est enregistrée dès que vous la faites.
+Ces réglages s'appliquent immédiatement et ne nécessitent pas de redémarrage. Ils se trouvent aussi dans **Paramètres → Mises à jour**, à côté de **Mettre à jour maintenant** et de la liste des conteneurs que le planning mettra à jour, où chaque modification est enregistrée dès que vous la faites.
 
-Se mettre à jour est une action. Tant que les actions sont désactivées, cette étape reste donc dans la liste, mais grisée et marquée **Nécessite les actions**. Activer les actions à l'étape 2 la rend disponible immédiatement. Si cette instance ne peut pas se mettre à jour elle-même pour une autre raison (par exemple si elle utilise un tag de version fixe), l'étape en indique la raison. Le calendrier peut quand même être défini, et les conteneurs avec le label `dev.dozzle.auto-update=true` le suivent.
+Mettre à jour est une action. Tant que les actions sont désactivées, cette étape reste donc dans la liste, mais grisée et marquée **Nécessite les actions**. Activer les actions à l'étape 2 la rend disponible immédiatement. Si cette instance ne peut pas se mettre à jour elle-même pour une autre raison (par exemple si elle utilise un tag de version fixe), l'étape en indique la raison. Le calendrier peut quand même être défini, et les autres conteneurs le suivent.
 
 ### 6. Redémarrage
 
@@ -79,7 +79,7 @@ La dernière étape liste les modifications enregistrées mais pas encore active
 
 Si Dozzle ne peut pas redémarrer tout seul (par exemple s'il ne trouve pas son propre conteneur), l'assistant affiche à la place les variables d'environnement à ajouter à votre fichier compose. Les paramètres affichent la même chose sur chaque page tant que des modifications attendent : un bandeau qui les compte, avec **Redémarrer Dozzle** ou ces lignes.
 
-## <Icon icon="mdi:file-cog-outline" inline /> Où les paramètres sont enregistrés
+## <Icon icon="mdi:file-cog-outline" inline /> Où les paramètres sont enregistrés {#dozzle-yml}
 
 L'assistant enregistre vos choix dans `/data/dozzle.yml`. Dozzle lit ce fichier une seule fois au démarrage, c'est pourquoi les modifications nécessitent un redémarrage. Dozzle redémarre tout seul depuis l'assistant, vous n'avez donc pas à le faire à la main. Les clés de mise à jour automatique font exception : Dozzle les relit chaque minute, elles s'appliquent donc sans redémarrage. `remoteAgents` est l'autre exception : les hôtes sont connectés dès qu'ils sont ajoutés.
 
@@ -89,21 +89,23 @@ enableActions: true
 enableShell: false
 autoUpdate: weekly
 autoUpdateTime: "03:00"
+updateContainers: labelled
 remoteAgents:
   - 10.0.0.5:7007|nas
 privateAgents:
   - 10.0.0.5:7007|nas
 ```
 
-| Clé              | Valeurs                                                                                           | Équivalent à              |
-| ---------------- | ------------------------------------------------------------------------------------------------- | ------------------------- |
-| `authProvider`   | `none`, `simple`, `forward-proxy`                                                                 | `DOZZLE_AUTH_PROVIDER`    |
-| `enableActions`  | `true`, `false`                                                                                   | `DOZZLE_ENABLE_ACTIONS`   |
-| `enableShell`    | `true`, `false`                                                                                   | `DOZZLE_ENABLE_SHELL`     |
-| `autoUpdate`     | `off`, `daily`, `weekly`                                                                          | `DOZZLE_AUTO_UPDATE`      |
-| `autoUpdateTime` | `HH:MM`, heure locale du serveur                                                                  | `DOZZLE_AUTO_UPDATE_TIME` |
-| `remoteAgents`   | liste d'adresses d'agents                                                                         | `DOZZLE_REMOTE_AGENT`     |
-| `privateAgents`  | agents de `remoteAgents` qui utilisent le [certificat privé](/fr/guide/agent#private-certificate) | aucune                    |
+| Clé                | Valeurs                                                                                                        | Équivalent à              |
+| ------------------ | -------------------------------------------------------------------------------------------------------------- | ------------------------- |
+| `authProvider`     | `none`, `simple`, `forward-proxy`                                                                              | `DOZZLE_AUTH_PROVIDER`    |
+| `enableActions`    | `true`, `false`                                                                                                | `DOZZLE_ENABLE_ACTIONS`   |
+| `enableShell`      | `true`, `false`                                                                                                | `DOZZLE_ENABLE_SHELL`     |
+| `autoUpdate`       | `off`, `daily`, `weekly`                                                                                       | `DOZZLE_AUTO_UPDATE`      |
+| `autoUpdateTime`   | `HH:MM`, heure locale du serveur                                                                               | `DOZZLE_AUTO_UPDATE_TIME` |
+| `updateContainers` | `off` (Dozzle seulement), `labelled`, `all`. Les conteneurs que le planning met à jour. Absent vaut `labelled` | aucune                    |
+| `remoteAgents`     | liste d'adresses d'agents                                                                                      | `DOZZLE_REMOTE_AGENT`     |
+| `privateAgents`    | agents de `remoteAgents` qui utilisent le [certificat privé](/fr/guide/agent#private-certificate)              | aucune                    |
 
 Les flags et les variables d'environnement l'emportent toujours sur le fichier. Si `DOZZLE_ENABLE_ACTIONS` est défini, la valeur de `dozzle.yml` est ignorée et l'assistant affiche l'interrupteur comme verrouillé. Pour gérer à nouveau un réglage depuis l'assistant, retirez la variable de votre fichier compose. `remoteAgents` fonctionne autrement : les agents du fichier s'ajoutent à ceux de `DOZZLE_REMOTE_AGENT` au lieu d'être remplacés par eux.
 
@@ -114,7 +116,7 @@ Dozzle se met à jour lui-même via l'action `Update` sur son propre conteneur o
 1. Dozzle récupère le tag d'image qu'il exécute. Si le tag pointe toujours vers l'image en cours, il s'arrête là et indique qu'il est à jour.
 2. Dozzle lance, à partir de la nouvelle image, un conteneur auxiliaire éphémère qui a accès au même socket Docker. Dozzle disparaît quelques secondes plus tard.
 3. Le conteneur auxiliaire renomme l'ancien conteneur et crée un remplaçant sous le nom d'origine avec la même configuration, les mêmes réseaux et les mêmes volumes. Ce n'est qu'ensuite qu'il arrête l'ancien conteneur et démarre le remplaçant. Les volumes anonymes sont conservés aussi, donc les données de `/data` survivent même sans volume nommé.
-4. Le conteneur auxiliaire attend que le remplaçant reste en marche (et en bonne santé, s'il a un healthcheck). Si c'est le cas, l'ancien conteneur est supprimé sans toucher à ses volumes. Sinon, le remplaçant est supprimé, l'ancien conteneur reprend son nom et redémarre.
+4. Le conteneur auxiliaire attend que le remplaçant reste en marche (et en bonne santé, s'il a un healthcheck). Si c'est le cas, l'ancien conteneur est supprimé sans toucher à ses volumes, et l'image d'avant la précédente est [nettoyée](/fr/guide/actions#cleaning-up-old-images) comme après toute autre mise à jour. Sinon, le remplaçant est supprimé, l'ancien conteneur reprend son nom et redémarre.
 
 Les conteneurs lancés avec `--rm` se mettent à jour de la même façon. L'ancien conteneur se supprime en s'arrêtant, mais le remplaçant détient déjà ses volumes à ce moment-là, donc ils sont conservés. Si la mise à jour doit revenir en arrière, le conteneur auxiliaire recrée l'ancien conteneur à partir de sa configuration enregistrée.
 

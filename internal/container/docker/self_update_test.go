@@ -107,3 +107,23 @@ func TestRejoinDependentsSelfGoesLast(t *testing.T) {
 		"rejoin aaaaaaaaaaaa container:new-sidecar",
 	}, cli.calls)
 }
+
+// A dependent that was stopped is recreated against the replacement but not
+// started: it was stopped before the update, and stays that way.
+func TestRejoinDependentsLeavesStoppedDependentStopped(t *testing.T) {
+	const (
+		oldID = "1111111111110000000000000000000000000000000000000000000000000000"
+		app   = "bbbbbbbbbbbb0000000000000000000000000000000000000000000000000000"
+	)
+	joined := &docker_types.HostConfig{NetworkMode: "container:" + oldID}
+	cli := &rejoinClient{containers: map[string]docker_types.InspectResponse{
+		app: {ID: app, Name: "/app", State: &docker_types.State{Status: "exited"}, HostConfig: joined, Config: &docker_types.Config{}},
+	}}
+
+	svc := &Service{client: cli}
+	require.NoError(t, svc.rejoinDependents(context.Background(), []string{app}, oldID, "new-vpn"))
+	assert.Equal(t, []string{
+		"remove " + app,
+		"create app",
+	}, cli.calls)
+}

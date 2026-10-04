@@ -73,6 +73,12 @@ func (h *handler) containerUpdate(w http.ResponseWriter, r *http.Request) {
 	if !ok {
 		return
 	}
+	// A stopped container is never updated. The host refuses one too, but
+	// this answers before the progress stream opens.
+	if containerService.Container.State != "running" {
+		http.Error(w, container.ErrNotRunning.Error(), http.StatusConflict)
+		return
+	}
 	analytics.Count("action.update")
 
 	sseWriter, err := sse.NewWriter(r.Context(), w, r)
@@ -87,7 +93,7 @@ func (h *handler) containerUpdate(w http.ResponseWriter, r *http.Request) {
 	errCh := make(chan error, 1)
 
 	go func() {
-		_, err := containerService.Update(r.Context(), progressCh)
+		_, err := containerService.Update(r.Context(), container.UpdateSourceDozzle, progressCh)
 		errCh <- err
 	}()
 

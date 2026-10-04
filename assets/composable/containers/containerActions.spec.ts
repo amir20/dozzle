@@ -27,7 +27,7 @@ vi.mock("@/composable/app/toast", () => ({
   }),
 }));
 
-const { useContainerActions } = await import("./containerActions");
+const { NOT_RUNNING_ERROR, useContainerActions } = await import("./containerActions");
 
 // Builds an SSE body the update endpoint would produce.
 function sseStream(events: Record<string, unknown>[]) {
@@ -124,5 +124,44 @@ describe("useContainerActions update progress", () => {
 
     const message = holder.toasts.find((t) => t.type === "error")?.message;
     expect(message).toBe("pull failed: &lt;img src=x onerror=&quot;alert(1)&quot;&gt;");
+  });
+
+  test("says it is verifying once the new container started", async () => {
+    const actions = run([{ status: "recreating" }, { status: "verifying" }]);
+
+    await actions.update();
+    expect(progressToast()?.message).toBe("toolbar.update-verifying");
+  });
+
+  // The old container is back, so this is not a success, and the reason quotes
+  // the engine's own text.
+  test("reports a rollback as a warning with the escaped reason", async () => {
+    const actions = run([
+      { status: "recreating" },
+      { status: "verifying" },
+      { status: "rolled-back", error: "replacement is <b>unhealthy</b>" },
+    ]);
+
+    await actions.update();
+
+    expect(progressToast()).toBeUndefined();
+    const toast = holder.toasts.find((t) => t.type === "warning");
+    expect(toast?.title).toBe("error.update-failed");
+    expect(toast?.message).toBe("toolbar.update-rolled-back<br>replacement is &lt;b&gt;unhealthy&lt;/b&gt;");
+  });
+
+  // A stopped container is never updated: refused up front, or by the host.
+  test("says to start a stopped container first", async () => {
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue({ ok: false, status: 409 }));
+    const scope = effectScope();
+    const actions = scope.run(() =>
+      useContainerActions(shallowRef({ id: "abc", host: "localhost", image: "nginx:latest" } as Container)),
+    )!;
+    await actions.update();
+    expect(holder.toasts.find((t) => t.type === "error")?.message).toBe("error.start-container-first");
+
+    holder.toasts = [];
+    await run([{ status: "error", error: NOT_RUNNING_ERROR }]).update();
+    expect(holder.toasts.find((t) => t.type === "error")?.message).toBe("error.start-container-first");
   });
 });

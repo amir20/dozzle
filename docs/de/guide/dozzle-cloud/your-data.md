@@ -1,6 +1,6 @@
 ---
 title: Deine Daten
-sourceHash: f11dd8e45cb5
+sourceHash: c00d40084d58
 ---
 
 # Deine Daten
@@ -54,6 +54,7 @@ Der Filter läuft auf deiner Dozzle-Instanz, **bevor Logs den Host verlassen**. 
 - **Log-Zeilen**, die von deinen verbundenen Instanzen weitergeleitet wurden, für die Volltextsuche.
 - **Ereignisse und Alarme**, die deine Regeln getroffen haben, samt Untersuchungen und Befunden.
 - **Container- und Host-Metadaten** — Namen, Images, Zustände, Ressourcenverbrauch.
+- **Container-Updates** — von welchem Image auf welches ein Container gewechselt ist, und wann. Nur für Updates aus dem Zeitplan für automatische Updates und für ein Zurückrollen gesendet.
 - **Dein Konto** — E-Mail-Adresse, Tarif, Einstellungen der Benachrichtigungskanäle.
 - **Chat-Verlauf** mit dem Agent.
 

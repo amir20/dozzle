@@ -267,7 +267,7 @@ func toolActivity(name string) string {
 		return "inspect"
 	case toolListNotifications, toolCreateLogNotification, toolCreateMetricNotification, toolCreateEventNotification:
 		return "notifications"
-	case toolStartContainer, toolStopContainer, toolRestartContainer, toolRemoveContainer, toolUpdateContainer:
+	case toolStartContainer, toolStopContainer, toolRestartContainer, toolRemoveContainer, toolUpdateContainer, toolRollbackContainer:
 		return "action"
 	default:
 		return "working"

@@ -15,6 +15,7 @@ import (
 	"github.com/amir20/dozzle/internal/container"
 	"github.com/amir20/dozzle/internal/imagecheck"
 	"github.com/amir20/dozzle/internal/selfupdate"
+	"github.com/amir20/dozzle/internal/updatepolicy"
 	docker_types "github.com/moby/moby/api/types/container"
 	"github.com/rs/zerolog/log"
 )
@@ -44,6 +45,9 @@ type selfImage struct {
 	// schedule to that one so the service is not rolled once per replica.
 	SecondaryReplica bool
 	RepoDigests      []string
+	// Labels are the container's, so dev.dozzle.update=off can stop Dozzle
+	// updating itself too.
+	Labels map[string]string
 }
 
 // Seams for tests, so nothing here reaches docker or a registry.
@@ -84,6 +88,7 @@ func inspectSelf(ctx context.Context, hostService HostService, id string) (selfI
 		}
 		self := selfImage{ImageID: inspect.Image}
 		if inspect.Config != nil {
+			self.Labels = inspect.Config.Labels
 			self.Ref = selfupdate.SelfRef(inspect.Config)
 			self.Swarm = selfupdate.SwarmTask(inspect.Config.Labels)
 			if self.Swarm {
@@ -243,12 +248,16 @@ func (s *autoUpdateScheduler) tick(ctx context.Context, now time.Time) {
 	}
 	s.lastRun = day
 
-	// Labelled containers first: updating Dozzle ends this process.
-	s.updateLabelledContainers(ctx)
+	// Other containers first: updating Dozzle ends this process.
+	s.updateScheduledContainers(ctx)
 
 	support := checkAutoUpdateSupport(ctx, s.config, s.hostService)
 	if !support.Supported {
 		log.Debug().Str("reason", support.Reason).Msg("auto update: skipped, not supported")
+		return
+	}
+	if p, ok := updatepolicy.FromLabels(support.self.Labels); ok && p != updatepolicy.Auto {
+		log.Debug().Str("policy", string(p)).Msg("auto update: skipped, dozzle's own label keeps it off the schedule")
 		return
 	}
 	if support.self.SecondaryReplica {
@@ -307,29 +316,16 @@ func (s *autoUpdateScheduler) tick(ctx context.Context, now time.Time) {
 	}
 }
 
-// AutoUpdateLabel opts a container into the auto-update schedule. It is opt in
-// on purpose: a database on a floating tag should never move on its own.
-const AutoUpdateLabel = "dev.dozzle.auto-update"
-
-func autoUpdateEnabled(labels map[string]string) bool {
-	switch strings.ToLower(strings.TrimSpace(labels[AutoUpdateLabel])) {
-	case "true", "on", "yes", "1":
-		return true
-	default:
-		return false
-	}
-}
-
-// updateLabelledContainers updates every labelled container whose registry
-// serves a newer image, and waits for them to finish. Nothing is pulled for a
-// container that is up to date: the check is a HEAD request that does not count
-// against Docker Hub's rate limit, and a pull does.
-func (s *autoUpdateScheduler) updateLabelledContainers(ctx context.Context) {
+// updateScheduledContainers updates every container on the schedule whose
+// registry serves a newer image, and waits for them to finish. Nothing is
+// pulled for a container that is up to date: the check is a HEAD request that
+// does not count against Docker Hub's rate limit, and a pull does.
+func (s *autoUpdateScheduler) updateScheduledContainers(ctx context.Context) {
 	if s.hostService == nil {
 		return
 	}
 	// A manual update that is running is waited out rather than costing the
-	// labelled containers a whole day. The list is only taken afterwards: that
+	// scheduled containers a whole day. The list is only taken afterwards: that
 	// job may have recreated some of them under new ids. One can still start
 	// between the wait and Start, so a busy updater means wait again.
 	for range 5 {
@@ -338,7 +334,7 @@ func (s *autoUpdateScheduler) updateLabelledContainers(ctx context.Context) {
 		case <-ctx.Done():
 			return
 		}
-		outdated, selfService := s.outdatedLabelledContainers(ctx)
+		outdated, selfService := s.outdatedScheduledContainers(ctx)
 		if len(outdated) == 0 {
 			return
 		}
@@ -350,7 +346,7 @@ func (s *autoUpdateScheduler) updateLabelledContainers(ctx context.Context) {
 			log.Warn().Err(err).Msg("auto update: skipped containers")
 			return
 		}
-		log.Info().Int("count", len(outdated)).Msg("auto update: updating labelled containers")
+		log.Info().Int("count", len(outdated)).Msg("auto update: updating containers")
 		select {
 		case <-done:
 		case <-ctx.Done():
@@ -360,30 +356,72 @@ func (s *autoUpdateScheduler) updateLabelledContainers(ctx context.Context) {
 	log.Warn().Msg("auto update: skipped containers, other updates kept running")
 }
 
-// outdatedLabelledContainers returns the labelled containers with a newer
+// scheduledContainers picks the containers the schedule may update under
+// mode: auto by their label or by the mode, running and healthy. Dozzle itself is left
+// out; it follows the schedule on its own, last.
+func scheduledContainers(containers []container.Container, mode updatepolicy.Mode, selfService string) []container.Container {
+	picked := make([]container.Container, 0, len(containers))
+	for _, c := range containers {
+		// A replica of Dozzle's own swarm service would roll this one too, in
+		// the middle of everything else.
+		if isSelfContainer(c, selfService) {
+			continue
+		}
+		if updatepolicy.Resolve(c.Labels, mode) != updatepolicy.Auto {
+			continue
+		}
+		// A stopped container is never updated, labelled or not: it is
+		// usually stopped on purpose, a one-shot job that exited or something
+		// switched off. It is updated on the first run after someone starts it.
+		if c.State != "running" {
+			log.Debug().Str("container", c.Name).Str("state", c.State).Msg("auto update: container not updated, it is not running")
+			continue
+		}
+		// A container that is already failing its healthcheck would fail the
+		// swap's own check, so the update would only roll back. Worse, it would
+		// replace the one thing someone may be debugging right now.
+		if c.Health == "unhealthy" {
+			log.Info().Str("container", c.Name).Msg("auto update: container not updated, it is unhealthy")
+			continue
+		}
+		picked = append(picked, c)
+	}
+	return picked
+}
+
+// rolledBackFrom reports whether someone rolled c back from the image remote
+// names. Its tag usually still names that image, and applying it again would
+// undo the rollback every night. A newer image is updated to as usual.
+func rolledBackFrom(c container.Container, remote string) bool {
+	from := c.Labels[container.RolledBackFromLabel]
+	if from == "" || remote == "" {
+		return false
+	}
+	return container.DigestOf(from) == container.DigestOf(remote)
+}
+
+// outdatedScheduledContainers returns the scheduled containers with a newer
 // image, and Dozzle's own swarm service for Start.
-func (s *autoUpdateScheduler) outdatedLabelledContainers(ctx context.Context) ([]*container.ContainerService, string) {
+func (s *autoUpdateScheduler) outdatedScheduledContainers(ctx context.Context) ([]*container.ContainerService, string) {
 	containers, errs := s.hostService.ListAllContainers(s.config.Labels)
 	for _, err := range errs {
 		log.Warn().Err(err).Msg("auto update: host unavailable, its containers are skipped")
 	}
 
 	selfService := selfSwarmService(containers)
-	labelled := make([]container.Container, 0, len(containers))
-	for _, c := range containers {
-		// Dozzle's own container follows the schedule by itself, with the
-		// rollback guard below. A labelled replica of its swarm service would
-		// roll this one too, in the middle of everything else.
-		if autoUpdateEnabled(c.Labels) && !isSelfContainer(c, selfService) {
-			labelled = append(labelled, c)
-		}
-	}
+	scheduled := scheduledContainers(containers, loadUpdateMode(), selfService)
 
 	var outdated []*container.ContainerService
-	// Forced, for the same reason as Dozzle's own check below.
-	for _, u := range container.CheckImageUpdates(ctx, s.hostService, labelled, true) {
+	// Forced, for the same reason as Dozzle's own check below. Pinned digests,
+	// images built locally and private registries never report an update, so
+	// they are never touched.
+	for _, u := range container.CheckImageUpdates(ctx, s.hostService, scheduled, true) {
 		if !u.Result.UpdateAvailable() {
 			log.Debug().Str("container", u.Container.Name).Str("status", string(u.Result.Status)).Str("reason", u.Result.Reason).Msg("auto update: container not updated")
+			continue
+		}
+		if rolledBackFrom(u.Container, u.Result.RemoteDigest) {
+			log.Info().Str("container", u.Container.Name).Str("remote", u.Result.RemoteDigest).Msg("auto update: container not updated, it was rolled back from this image")
 			continue
 		}
 		outdated = append(outdated, u.Service)

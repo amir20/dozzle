@@ -146,6 +146,18 @@ func (k *Service) UpdateContainer(ctx context.Context, c container.Container, pr
 	return false, fmt.Errorf("update container is not supported in Kubernetes mode")
 }
 
+// RollbackContainer is not supported: Dozzle never rolls a pod's image out, so
+// it has nothing to roll back. The cluster's own deploy process owns that.
+func (k *Service) RollbackContainer(ctx context.Context, c container.Container, _ container.RollbackOptions, progressCh chan<- container.UpdateProgress) error {
+	defer close(progressCh)
+	err := fmt.Errorf("%w in Kubernetes mode", container.ErrRollbackUnsupported)
+	select {
+	case progressCh <- container.UpdateProgress{Status: container.UpdateError, Error: err.Error()}:
+	case <-ctx.Done():
+	}
+	return err
+}
+
 func (k *Service) Attach(ctx context.Context, c container.Container, events container.ExecEventReader, stdout io.Writer) error {
 	cancelCtx, cancel := context.WithCancel(ctx)
 	session, err := k.client.ContainerAttach(cancelCtx, c.ID)

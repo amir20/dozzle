@@ -68,8 +68,8 @@ function mayBeSelf(container: Container) {
   return config.hosts.find((host) => host.id === container.host)?.type === "local";
 }
 
-// Same rule as the backend's updatable: a stopped standalone container can
-// still be updated so it starts on the new image, but an exited swarm task is
+// Same rule as the backend's Updatable: a stopped standalone container is still
+// checked, so it shows that an update is waiting, but an exited swarm task is
 // history the orchestrator already replaced.
 function offerable(container: Container) {
   if (container.state === "deleted") return false;
@@ -79,10 +79,17 @@ function offerable(container: Container) {
 /**
  * Whether Dozzle can update this container itself, whether or not an update is
  * waiting. Kubernetes rolls out images through the workload, so a single pod has
- * nothing to update. Shared by the toolbar and the command palette.
+ * nothing to update, and a stopped container is never updated: it has to be
+ * started first. Shared by the toolbar and the command palette.
  */
 export function canUpdate(container: Container) {
-  return !!config.enableActions && config.mode !== "k8s" && !mayBeSelf(container) && offerable(container);
+  return (
+    !!config.enableActions &&
+    config.mode !== "k8s" &&
+    !mayBeSelf(container) &&
+    offerable(container) &&
+    container.state === "running"
+  );
 }
 
 const checkingAll = ref(false);
@@ -113,15 +120,18 @@ async function checkAll(force = false) {
   }
 }
 
-// What the dashboard offers to update: containers with a newer image that
-// Dozzle is able to update itself.
+// What the dashboard lists as having an update: containers with a newer image
+// that Dozzle is able to update itself once they run.
 export const useImageUpdates = () => {
   const hasUpdate = (container: Container) =>
     offerable(container) &&
     results.get(`${container.host}/${container.id}`)?.status === "update-available" &&
     !mayBeSelf(container);
 
-  return { checkAll, checking: readonly(checkingAll), hasUpdate, isSelf };
+  // The last check of a container, for lists that show every container's status.
+  const resultFor = (container: Pick<Container, "host" | "id">) => results.get(`${container.host}/${container.id}`);
+
+  return { checkAll, checking: readonly(checkingAll), hasUpdate, isSelf, resultFor };
 };
 
 export const useImageUpdate = (container: Ref<Container>, historical: Ref<boolean> | boolean = false) => {

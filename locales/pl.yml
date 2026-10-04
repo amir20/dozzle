@@ -19,14 +19,16 @@ toolbar:
   update-service: Aktualizuj Usługę
   update-pulling: Pobieranie najnowszego obrazu...
   update-recreating: Tworzenie kontenera od nowa...
+  update-verifying: Sprawdzanie, czy nowy kontener działa stabilnie...
+  update-rolled-back: Nowy kontener nie działał stabilnie, więc przywrócono poprzedni.
   update-done: Kontener zaktualizowany pomyślnie
   update-up-to-date: Już aktualny
-  update-available: 'Dostępna aktualizacja'
-  check-for-updates: 'Sprawdź aktualizacje'
-  checking-for-updates: 'Sprawdzanie aktualizacji...'
-  no-updates: 'Brak aktualizacji'
-  dismiss-update: 'Odrzuć tę aktualizację'
-  view-release-notes: 'Zobacz informacje o wersji'
+  update-available: "Dostępna aktualizacja"
+  check-for-updates: "Sprawdź aktualizacje"
+  checking-for-updates: "Sprawdzanie aktualizacji..."
+  no-updates: "Brak aktualizacji"
+  dismiss-update: "Odrzuć tę aktualizację"
+  view-release-notes: "Zobacz informacje o wersji"
   show-hostname: Pokaż nazwę hosta
   show-container-name: Pokaż nazwę kontenera
   shell: Shell
@@ -190,6 +192,7 @@ error:
   unable-to-complete-action: Nie można ukończyć akcji
   invalid-action: Nieprawidłowa akcja
   unable-to-update: Nie można zaktualizować kontenera
+  start-container-first: Najpierw uruchom kontener
   something-went-wrong: Coś poszło nie tak
   unknown-error: Nieznany błąd
   events-stream:
@@ -203,8 +206,8 @@ error:
       Przekroczono limit czasu w trakcie połączenia do API. Sprawdź ustawienia sieciowe.
 alert:
   image-update:
-    title: 'Dostępna aktualizacja'
-    message: 'Opublikowano nowszy obraz dla {image}.'
+    title: "Dostępna aktualizacja"
+    message: "Opublikowano nowszy obraz dla {image}."
     enable-actions: '<a href="https://dozzle.dev/guide/actions" target="_blank" rel="noreferrer noopener">Włącz akcje</a>, aby pobrać go i odtworzyć kontener stąd.'
   redirected:
     title: Przekierowywanie do nowego kontenera
@@ -265,35 +268,35 @@ settings:
   new-version: "{version} jest dostępna"
   update-available: "Dostępny jest nowszy obraz"
   auto-update-on: "Dozzle sam się aktualizuje"
-  auto-update-containers: "Kontenery z etykietą są aktualizowane"
+  auto-update-containers: "Twoje kontenery są aktualne"
   auto-update-daily: "Sprawdza codziennie o {time} czasu serwera."
   auto-update-weekly: "Sprawdza co tydzień w niedzielę o {time} czasu serwera."
-  show-image-update-alert: 'Alerty aktualizacji obrazu'
-  show-image-update-alert-desc: 'Powiadamiaj, gdy istnieje nowszy tag uruchomionego obrazu.'
+  show-image-update-alert: "Alerty aktualizacji obrazu"
+  show-image-update-alert-desc: "Powiadamiaj, gdy istnieje nowszy tag uruchomionego obrazu."
   cloud-desc: Przesyłaj logi do Dozzle Cloud w celu analiz wspomaganych przez AI i wyszukiwania między instancjami.
   locale: Język
   small-scrollbars: Cienkie paski przewijania
-  small-scrollbars-desc: 'Cieńsze paski przewijania, przydatne na mniejszych ekranach.'
+  small-scrollbars-desc: "Cieńsze paski przewijania, przydatne na mniejszych ekranach."
   show-timestamps: Pokaż date i godzinę
   soft-wrap: Zawijanie wierszy
   highlight-errors: Wyróżniaj wiersze błędów
-  highlight-errors-desc: 'Kolorowy znacznik poziomu jest zawsze widoczny.'
+  highlight-errors-desc: "Kolorowy znacznik poziomu jest zawsze widoczny."
   datetime-format: Data i godzina
   font-size: Rozmiar czcionki
   color-scheme: Motyw
   show-stopped-containers: Pokaż zatrzymane kontenery
   group-containers: Grupuj kontenery
-  group-containers-desc: 'Według projektu Compose, stosu Swarm lub dev.dozzle.group.'
-  show-app-icons: 'Ikony aplikacji'
-  show-app-icons-desc: 'Dołączone do Dozzle, nigdy nie pobierane z internetu.'
+  group-containers-desc: "Według projektu Compose, stosu Swarm lub dev.dozzle.group."
+  show-app-icons: "Ikony aplikacji"
+  show-app-icons-desc: "Dołączone do Dozzle, nigdy nie pobierane z internetu."
   search: Szukaj w logach za pomocą
-  search-desc: 'Zastępuje wyszukiwanie przeglądarki podczas przeglądania kontenera.'
+  search-desc: "Zastępuje wyszukiwanie przeglądarki podczas przeglądania kontenera."
   show-std: Pokaż etykiety dla stdout i stderr
-  show-std-desc: 'Oznacza, czy wiersz pochodzi ze stdout czy ze stderr.'
+  show-std-desc: "Oznacza, czy wiersz pochodzi ze stdout czy ze stderr."
   automatic-redirect: Podążaj za odtworzonymi kontenerami
-  automatic-redirect-desc: 'Gdy kontener zostanie zastąpiony, przejdź do nowego.'
+  automatic-redirect-desc: "Gdy kontener zostanie zastąpiony, przejdź do nowego."
   compact: Tryb kompaktowy
-  compact-desc: 'Mniejsze odstępy, aby zmieścić więcej wierszy na ekranie.'
+  compact-desc: "Mniejsze odstępy, aby zmieścić więcej wierszy na ekranie."
   size:
     small: Mały
     medium: Średni
@@ -385,7 +388,9 @@ updates:
     queued: W kolejce
     pulling: Pobieranie
     recreating: Odtwarzanie
+    verifying: Sprawdzanie
     done: Zaktualizowano
+    rolled-back: Wycofano
     up-to-date: Aktualny
     error: Błąd
 drawer:
@@ -945,11 +950,10 @@ setup:
   update:
     pill-on: "Używa akcji · włączone"
     pill-pending: "Włączy się razem z akcjami"
-    title: "Utrzymuj Dozzle w najnowszej wersji"
-    subtitle: "Dozzle pobiera nowy obraz i zastępuje własny kontener w spokojnej porze. Ustawienia, użytkownicy i alerty zostają."
+    title: "Utrzymuj kontenery aktualne"
+    subtitle: "W spokojnej porze Dozzle szuka nowszych obrazów i aktualizuje siebie oraz wybrane kontenery. Ustawienia, użytkownicy i alerty zostają."
     auto-label: "Aktualizuj automatycznie"
     auto-desc: "Sprawdza, czy jest nowszy obraz, i zastępuje Dozzle tylko wtedy, gdy jest."
-    auto-containers: Kontenery z etykietą {label} aktualizują się o tej samej porze.
     when-label: "Kiedy"
     time-label: "Godzina"
     server-time: "Używa strefy czasowej serwera."
@@ -965,7 +969,6 @@ setup:
     reason-pinned-tag: "Używasz przypiętego tagu wersji, więc nie ma nic nowszego do pobrania. Użyj tagu takiego jak latest, aby otrzymywać aktualizacje."
     reason-unsupported: "Dozzle nie może tutaj znaleźć własnego kontenera, więc nie może się sam zastąpić."
     reason-swarm-worker: "Dozzle działa jako usługa Swarm na węźle worker. Tylko manager może zaktualizować usługę, więc uruchom Dozzle na managerze albo zaktualizuj go poleceniem docker service update."
-    containers-still: Kontenery z etykietą {label} nadal aktualizują się według tego harmonogramu.
     pull-denied: "Nie udało się pobrać {image}. Może istnieje tylko na tej maszynie albo rejestr wymaga docker login."
   restart:
     title: Zrestartuj Dozzle
@@ -1047,3 +1050,50 @@ time-range:
   jump-before: "Wcześniejsze linie · {time}"
   jump-after: "Późniejsze linie · {time}"
   empty-window: "Brak logów w tym oknie"
+update-marker:
+  updated: "Zaktualizowano"
+  rolled-back: "Przywrócono"
+  undone: "Aktualizacja cofnięta"
+  roll-back: "Przywróć"
+  by:
+    schedule: "przez harmonogram automatycznych aktualizacji"
+    dozzle: "z Dozzle"
+    cloud: "z Dozzle Cloud"
+  verdict:
+    pending: "Dozzle Cloud obserwuje tę aktualizację"
+    clean: "Wygląda dobrze"
+    regressed: "Wygląda na zepsutą"
+    unsure: "Może mieć problem"
+    rolled_back_by_dozzle: "Dozzle przywrócił poprzedni kontener"
+  decision:
+    rolled_back: "Przywrócono"
+    kept: "Zachowano"
+auto-update:
+  which-label: "Które kontenery"
+  mode-off: "Tylko Dozzle"
+  mode-off-desc: "Pozostałe kontenery są sprawdzane i czekają, aż je zaktualizujesz."
+  mode-all: "Wszystko"
+  risky: "{count} kontener trzyma dane w nazwanym wolumenie. Baza danych może przejść na wersję, która nie odczyta jej danych. | Kontenery ({count}) trzymają dane w nazwanych wolumenach. Baza danych może przejść na wersję, która nie odczyta jej danych."
+  containers-still: "Pozostałe kontenery nadal są aktualizowane według tego harmonogramu."
+  needs-actions: "Nic nie aktualizuje się samo, dopóki akcje kontenerów są wyłączone."
+  containers: "Kontenery"
+  status-current: "Aktualny"
+  status-available: "Dostępna aktualizacja"
+  status-pending: "Jeszcze nie sprawdzony"
+  status-off: "Nie sprawdzany"
+  status-pinned: "Przypięty do digestu"
+  status-local: "Zbudowany lokalnie"
+  status-private: "Prywatny rejestr"
+  status-unknown: "Nie można sprawdzić"
+  safety-title: "Siatka bezpieczeństwa"
+  safety-verify: "Każda aktualizacja jest obserwowana i cofana, jeśli nowy kontener zawiedzie."
+  safety-cleanup: "Stary obraz jest potem usuwany. Jeden poprzedni obraz zostaje do wycofania."
+  safety-skip: "Obrazy przypięte do digestu, zbudowane lokalnie lub z prywatnego rejestru są pomijane."
+  learn-more: "Jak działa automatyczna aktualizacja"
+  footnote: "{link} decyduje, które kontenery aktualizują się same."
+  footnote-link: "Ustawienia → Aktualizacje"
+  mode-labelled: "Kontenery z etykietą"
+  mode-labelled-desc: "Plus kontenery z etykietą {label}."
+  mode-all-desc: "Każdy kontener, chyba że ma etykietę {label}."
+  risky-hint: "Dodaj kontenerowi etykietę {label}, aby go pominąć."
+  empty: "Żaden kontener nie aktualizuje się sam. Dodaj kontenerowi etykietę {label}, aby go dołączyć."
