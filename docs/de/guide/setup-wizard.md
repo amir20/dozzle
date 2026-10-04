@@ -1,6 +1,6 @@
 ---
 title: Einrichtungsassistent
-sourceHash: 5de063d00e38
+sourceHash: 73028954a861
 ---
 
 # Einrichtungsassistent
@@ -63,7 +63,7 @@ Agents aus `DOZZLE_REMOTE_AGENT` werden als gesperrt angezeigt und lassen sich n
 
 [Dozzle Cloud](/de/guide/dozzle-cloud) schickt Alerts, sobald etwas kaputtgeht, eine morgendliche Zusammenfassung dessen, was zu beheben ist, und bewahrt einen Verlauf, der Neustarts übersteht. **Dozzle Cloud verbinden** verknüpft diese Instanz, **Nicht jetzt** geht weiter. Dieser Schritt entfällt, wenn die Instanz bereits verknüpft ist oder du sie nicht verknüpfen darfst.
 
-### 5. Automatische Updates
+### 5. Automatische Updates {#auto-update}
 
 Dozzle kann sich selbst aktuell halten. Wähle **Aus**, **Täglich** oder **Wöchentlich** (wöchentlich läuft am Sonntag) und eine Uhrzeit. Die Uhrzeit gilt in der lokalen Zeit des Servers, Standard ist `03:00`. Zu dieser Zeit prüft Dozzle seine Registry auf ein neueres Image und [aktualisiert sich](#self-update) nur, wenn es eines gibt.
 

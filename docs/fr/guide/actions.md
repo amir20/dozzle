@@ -1,6 +1,6 @@
 ---
 title: Actions sur les conteneurs
-sourceHash: e31674a9bc64
+sourceHash: 63fb00d5d695
 ---
 
 # Actions sur les conteneurs
@@ -14,7 +14,7 @@ L'action `update` récupère la dernière image du conteneur et le recrée avec 
 L'ancien conteneur est conservé, renommé, jusqu'à ce que le nouveau ait tourné 10 secondes sans redémarrer et se soit déclaré sain si son image a un healthcheck. Si le nouveau conteneur ne démarre pas, s'arrête, redémarre ou devient non sain, Dozzle le supprime et remet l'ancien en place, et la mise à jour indique **restauré** avec la raison. Le nouveau conteneur reçoit le label `dev.dozzle.previous-image` avec l'id de l'image qu'il remplace, et `dev.dozzle.previous-ref` avec le digest `repo@sha256:…` de cette image (absent pour les images construites localement). Un conteneur qui ne tournait pas, comme une tâche ponctuelle déjà terminée, est recréé sur la nouvelle image et laissé arrêté : il n'est ni relancé ni vérifié.
 
 > [!WARNING]
-> `remove` et `update` recréent le conteneur. Les données écrites dans des **volumes anonymes** ou dans la couche inscriptible du conteneur seront perdues. Les volumes nommés et les bind mounts sont préservés.
+> `remove` supprime le conteneur : les données de sa couche inscriptible sont perdues et ses volumes anonymes restent derrière lui, détachés. `update` recrée le conteneur et conserve tous les volumes, anonymes compris, ainsi que tous les bind mounts. Seules les données écrites dans la couche inscriptible du conteneur sont perdues.
 
 ::: code-group
 
@@ -116,7 +116,7 @@ services:
       dev.dozzle.auto-update: true
 ```
 
-Les conteneurs portant ce label suivent le même planning que [la mise à jour automatique de Dozzle](/fr/guide/setup-wizard#_4-mise-a-jour-automatique), que vous définissez dans l'assistant de configuration ou avec `DOZZLE_AUTO_UPDATE` et `DOZZLE_AUTO_UPDATE_TIME`. À cette heure, Dozzle compare chaque conteneur étiqueté à son registre et ne met à jour que ceux qui ont une image plus récente. Les conteneurs passent d'abord et Dozzle en dernier.
+Les conteneurs portant ce label suivent le même planning que [la mise à jour automatique de Dozzle](/fr/guide/setup-wizard#auto-update), que vous définissez dans l'assistant de configuration ou avec `DOZZLE_AUTO_UPDATE` et `DOZZLE_AUTO_UPDATE_TIME`. À cette heure, Dozzle compare chaque conteneur étiqueté à son registre et ne met à jour que ceux qui ont une image plus récente. Les conteneurs passent d'abord et Dozzle en dernier.
 
 La mise à jour automatique est volontairement opt-in. Une base de données sur un tag flottant comme `postgres:latest` peut passer à une nouvelle version majeure dont elle ne sait pas lire les fichiers de données, donc n'ajoutez ce label qu'aux conteneurs que vous acceptez de voir remplacés sans surveillance. Les conteneurs que Dozzle [ne peut pas vérifier](#ce-qui-ne-peut-pas-etre-verifie), comme ceux d'un registre privé, ne sont jamais mis à jour automatiquement.
 

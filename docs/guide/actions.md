@@ -13,7 +13,7 @@ The `update` action pulls the latest image for the container and recreates it wi
 The old container is kept, renamed, until the new one has run for 10 seconds without restarting, and has reported healthy if its image has a healthcheck. If the new container fails to start, exits, restarts or turns unhealthy, Dozzle removes it and puts the old one back, and the update reports **rolled back** with the reason. The new container is labelled `dev.dozzle.previous-image` with the image id it replaced, and `dev.dozzle.previous-ref` with that image's `repo@sha256:…` digest (absent for images built locally). A container that was not running, such as a one-shot job that already exited, is recreated on the new image and left stopped, so it is not rerun and not checked.
 
 > [!WARNING]
-> `remove` and `update` recreate the container. Data written to **anonymous volumes** or the container's writable layer will be lost. Named volumes and bind mounts are preserved.
+> `remove` deletes the container: data in its writable layer is lost, and its anonymous volumes are left behind, detached. `update` recreates the container and keeps every volume, anonymous ones included, and every bind mount. Only data written to the container's writable layer is lost.
 
 ::: code-group
 
@@ -115,7 +115,7 @@ services:
       dev.dozzle.auto-update: true
 ```
 
-Labelled containers follow the same schedule as [Dozzle's own auto-update](/guide/setup-wizard#_4-auto-update), which you set in the setup wizard or with `DOZZLE_AUTO_UPDATE` and `DOZZLE_AUTO_UPDATE_TIME`. At that time Dozzle checks each labelled container against its registry and updates only the ones with a newer image. Containers go first and Dozzle goes last.
+Labelled containers follow the same schedule as [Dozzle's own auto-update](/guide/setup-wizard#auto-update), which you set in the setup wizard or with `DOZZLE_AUTO_UPDATE` and `DOZZLE_AUTO_UPDATE_TIME`. At that time Dozzle checks each labelled container against its registry and updates only the ones with a newer image. Containers go first and Dozzle goes last.
 
 Auto-update is opt in on purpose. A database on a floating tag like `postgres:latest` can move to a new major version that its data files cannot read, so only label containers you are happy to see replaced without watching. Containers Dozzle [cannot check](#what-cannot-be-checked), such as ones from a private registry, are never auto-updated.
 

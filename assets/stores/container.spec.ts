@@ -149,6 +149,88 @@ describe("container store list reconciliation", () => {
   });
 });
 
+describe("container update swap", () => {
+  beforeEach(() => vi.clearAllMocks());
+
+  const OLD = "app-dozzle-old-0123456789ab";
+  const named = (id: string, name: string, state = "running") => ({ ...json(id, "localhost", state), name });
+
+  // An update renames the old container out of the way and keeps it until the new one
+  // has stayed up for 10s or more. Listed, it showed as a second container that whole time.
+  test("hides the renamed old container but keeps it findable under its own name", async () => {
+    const { store, es } = setup();
+    es.emit("containers-changed", [named("old", "app"), named("db", "db")]);
+    await nextTick();
+    const old = store.findContainerById("old");
+
+    es.emit("containers-changed", [named("old", OLD), named("db", "db"), named("new", "app", "created")]);
+    await nextTick();
+
+    expect(store.containers.map((c) => c.id).sort()).toEqual(["db", "new"]);
+    expect(store.visibleContainers.map((c) => c.id)).toEqual(["db"]);
+    expect(store.findContainerById("old")).toBe(old);
+    expect(old.name).toBe("app");
+
+    // Its die still lands, so an open view can follow the replacement.
+    es.emit("container-event", { actorId: "old", name: "die", time: new Date().toISOString() });
+    await nextTick();
+    expect(old.state).toBe("exited");
+
+    // Committed: the old one is removed and drops out of the next list.
+    es.emit("containers-changed", [named("db", "db"), named("new", "app")]);
+    await nextTick();
+    expect(store.findContainerById("old")).toBeUndefined();
+    expect(store.containers.map((c) => c.id).sort()).toEqual(["db", "new"]);
+  });
+
+  test("a rollback that renames it back lists it again", async () => {
+    const { store, es } = setup();
+    es.emit("containers-changed", [named("old", "app")]);
+    await nextTick();
+    es.emit("containers-changed", [named("old", OLD), named("new", "app", "created")]);
+    await nextTick();
+    expect(store.containers.map((c) => c.id)).toEqual(["new"]);
+
+    es.emit("containers-changed", [named("old", "app")]);
+    await nextTick();
+    expect(store.containers.map((c) => c.id)).toEqual(["old"]);
+    expect(store.containers[0].name).toBe("app");
+  });
+
+  test("a rename that arrives as an update is hidden too", async () => {
+    const { store, es } = setup();
+    es.emit("containers-changed", [named("old", "app")]);
+    await nextTick();
+
+    es.emit("container-updated", named("old", OLD));
+    await nextTick();
+    expect(store.containers).toHaveLength(0);
+    expect(store.findContainerById("old")?.name).toBe("app");
+
+    es.emit("container-updated", named("old", "app"));
+    await nextTick();
+    expect(store.containers.map((c) => c.id)).toEqual(["old"]);
+  });
+
+  // A tab opened mid-update never saw the container under its own name.
+  test("a leftover seen for the first time is hidden under its original name", async () => {
+    const { store, es } = setup();
+    es.emit("containers-changed", [named("old", OLD), named("new", "app", "created")]);
+    await nextTick();
+
+    expect(store.containers.map((c) => c.id)).toEqual(["new"]);
+    expect(store.findContainerById("old")?.name).toBe("app");
+  });
+
+  // Only Dozzle's own suffix is a swap: a name that merely ends in "-old" is not.
+  test("ordinary names are left alone", async () => {
+    const { store, es } = setup();
+    es.emit("containers-changed", [named("a", "app-old"), named("b", "app-dozzle-old-xyz")]);
+    await nextTick();
+    expect(store.containers).toHaveLength(2);
+  });
+});
+
 describe("events stream reconnect", () => {
   beforeEach(() => vi.clearAllMocks());
 

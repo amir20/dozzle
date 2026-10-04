@@ -13,8 +13,23 @@ const { markStale } = useStaleUI();
 // @ts-ignore
 const { t } = i18n.global;
 
+// An update renames the outgoing container to <name>-dozzle-old-<short id> and keeps it
+// until the replacement has stayed up, which takes 10s or more (see
+// internal/container/swap/spec.go OldName). Listed, it would show up as a second,
+// oddly named container for that whole time.
+const SWAP_OLD_NAME = /^(.+)-dozzle-old-[0-9a-f]{12}$/;
+
+function swapOriginalName(name: string): string | undefined {
+  return SWAP_OLD_NAME.exec(name)?.[1];
+}
+
 export const useContainerStore = defineStore("container", () => {
   const containers: Ref<Container[]> = ref([]);
+  // Containers an update has renamed out of the way. They are kept out of `containers`,
+  // so nothing lists or counts them, but stay findable by id under their own name: a log
+  // view open on one keeps streaming and follows the replacement once it dies. A
+  // rollback renames one back, which moves it back into `containers`.
+  const swapping: Ref<Container[]> = ref([]);
 
   let es: EventSource | null = null;
   // True once the first list has arrived, and never false again: views gate their
@@ -26,7 +41,7 @@ export const useContainerStore = defineStore("container", () => {
   let replaying = false;
 
   const allContainersById = computed(() =>
-    containers.value.reduce(
+    [...containers.value, ...swapping.value].reduce(
       (acc, container) => {
         acc[container.id] = container;
         return acc;
@@ -133,7 +148,12 @@ export const useContainerStore = defineStore("container", () => {
       const container = parseEventData<ContainerJson>(e);
       const existing = allContainersById.value[container.id];
       if (existing) {
-        existing.name = container.name;
+        if (swapOriginalName(container.name) !== undefined) {
+          hideSwapping(existing);
+        } else {
+          unhideSwapping(existing);
+          existing.name = container.name;
+        }
         existing.group = container.group;
         existing.state = container.state;
         existing.health = container.health;
@@ -152,6 +172,7 @@ export const useContainerStore = defineStore("container", () => {
         // The sidebar would stay on a host that no longer exists, with no way back.
         if (sessionHost.value === host.id || sessionHost.value === host.endpoint) sessionHost.value = null;
         containers.value = containers.value.filter((c) => c.host !== host.id);
+        swapping.value = swapping.value.filter((c) => c.host !== host.id);
         return;
       }
       updateHost(host);
@@ -202,19 +223,36 @@ export const useContainerStore = defineStore("container", () => {
     }
   })();
 
+  function hideSwapping(container: Container) {
+    if (swapping.value.includes(container)) return;
+    containers.value = containers.value.filter((c) => c !== container);
+    swapping.value = [...swapping.value, container];
+  }
+
+  function unhideSwapping(container: Container) {
+    if (!swapping.value.includes(container)) return;
+    swapping.value = swapping.value.filter((c) => c !== container);
+    containers.value = [...containers.value, container];
+  }
+
   const updateContainers = (containersPayload: ContainerJson[], full = false) => {
     const flagNew = ready.value && !full;
-    const existingContainers = containersPayload.filter((c) => allContainersById.value[c.id]);
-    const newContainers = containersPayload.filter((c) => !allContainersById.value[c.id]);
+    const listed = new Map(containersPayload.map((c) => [c.id, c]));
+    const listedHosts = new Set(containersPayload.map((c) => c.host));
+    const previouslySwapping = new Set(swapping.value);
 
-    existingContainers.forEach((c) => {
+    containersPayload.forEach((c) => {
       const existing = allContainersById.value[c.id];
-      if (flagNew && existing.state !== "running" && c.state === "running") {
+      if (!existing) return;
+      const swapped = swapOriginalName(c.name) !== undefined;
+      if (!swapped && flagNew && existing.state !== "running" && c.state === "running") {
         existing.isNew = true;
       }
       existing.state = c.state;
       existing.health = c.health;
-      existing.name = c.name;
+      // A swap leftover keeps the name it had, so a view open on it still finds its
+      // replacement by name.
+      if (!swapped) existing.name = c.name;
       existing.group = c.group;
       // A start reaches here as a re-list, with no event of its own, so this is the
       // only place a restarted container learns when its new run began.
@@ -222,13 +260,19 @@ export const useContainerStore = defineStore("container", () => {
       existing.finishedAt = new Date(c.finishedAt);
     });
 
-    const mapped = newContainers.map((c) => {
-      const container = Container.fromJSON(c);
-      if (flagNew) {
-        container.isNew = true;
-      }
-      return container;
-    });
+    const mapped = containersPayload
+      .filter((c) => !allContainersById.value[c.id])
+      .map((c) => {
+        const container = Container.fromJSON(c);
+        const original = swapOriginalName(c.name);
+        if (original !== undefined) {
+          // A tab opened mid-update: hidden straight away, under its own name.
+          container.name = original;
+        } else if (flagNew) {
+          container.isNew = true;
+        }
+        return container;
+      });
 
     // `containers-changed` is the authoritative list for every host it names, so a
     // container of a named host that is missing from it is gone and is dropped here.
@@ -244,11 +288,19 @@ export const useContainerStore = defineStore("container", () => {
     // (gone, unreachable, or emptied while the tab was disconnected). The others are one
     // host's list after a start, a rename, or a stale-host repair, and treating one of
     // those as the whole world would drop every other host.
-    const listedHosts = new Set(containersPayload.map((c) => c.host));
-    const stillListed = new Set(containersPayload.map((c) => c.id));
-    const kept = containers.value.filter((c) => stillListed.has(c.id) || (!full && !listedHosts.has(c.host)));
+    const kept = [...containers.value, ...swapping.value].filter(
+      (c) => listed.has(c.id) || (!full && !listedHosts.has(c.host)),
+    );
 
-    containers.value = [...kept, ...mapped];
+    // What the list calls a swap leftover is hidden, a rollback that renamed one back
+    // brings it back, and one the list does not mention stays where it was.
+    const hidden = (c: Container) => {
+      const json = listed.get(c.id);
+      return json ? swapOriginalName(json.name) !== undefined : previouslySwapping.has(c);
+    };
+    const next = [...kept, ...mapped];
+    containers.value = next.filter((c) => !hidden(c));
+    swapping.value = next.filter(hidden);
   };
 
   const currentContainer = (id: Ref<string>) => computed(() => allContainersById.value[id.value]);

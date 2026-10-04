@@ -1,6 +1,6 @@
 ---
 title: Asistente de configuración
-sourceHash: 5de063d00e38
+sourceHash: 73028954a861
 ---
 
 # Asistente de configuración
@@ -63,7 +63,7 @@ Los agentes definidos con `DOZZLE_REMOTE_AGENT` aparecen bloqueados y solo se pu
 
 [Dozzle Cloud](/es/guide/dozzle-cloud) envía alertas en cuanto algo falla, un resumen cada mañana de lo que hay que arreglar y guarda un historial que sobrevive a los reinicios. **Conectar Dozzle Cloud** vincula esta instancia y **Ahora no** sigue adelante. Este paso se omite si la instancia ya está vinculada o si no tienes permiso para vincularla.
 
-### 5. Actualización automática
+### 5. Actualización automática {#auto-update}
 
 Dozzle puede mantenerse al día solo. Elige **Desactivada**, **Diaria** o **Semanal** (la semanal se ejecuta el domingo) y una hora del día. La hora es la local del servidor y por defecto es `03:00`. A esa hora Dozzle comprueba si su registro tiene una imagen más reciente y, solo si la hay, [se actualiza](#self-update).
 

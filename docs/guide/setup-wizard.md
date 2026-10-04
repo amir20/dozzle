@@ -62,7 +62,7 @@ Agents set with `DOZZLE_REMOTE_AGENT` are listed as locked and can only be remov
 
 [Dozzle Cloud](/guide/dozzle-cloud) sends alerts the moment something breaks, a morning summary of what to fix, and keeps history that survives restarts. **Connect Dozzle Cloud** links this instance, and **Not now** moves on. This step is skipped when the instance is already linked or when you are not allowed to link it.
 
-### 5. Auto-update
+### 5. Auto-update {#auto-update}
 
 Dozzle can keep itself up to date. Pick **Off**, **Daily** or **Weekly** (weekly runs on Sunday) and a time of day. The time is in the server's local time and defaults to `03:00`. At that time Dozzle checks its registry for a newer image and, only if there is one, [updates itself](#self-update).
 

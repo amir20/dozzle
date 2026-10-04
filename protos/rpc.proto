@@ -106,11 +106,7 @@ message ContainerActionResponse {}
 
 message UpdateContainerRequest {
   string containerId = 1;
-  // cleanup asks the agent to remove, once the update commits, the image the
-  // replaced container had itself replaced. Cleanup is always on, so a current
-  // server always sends true and a current agent cleans up whatever this says;
-  // the field stays so an agent that still reads it keeps cleaning up.
-  bool cleanup = 2;
+  reserved 2;
 }
 
 message UpdateContainerProgress {

@@ -98,12 +98,33 @@ func TestRejoinDependentsSelfGoesLast(t *testing.T) {
 	}
 
 	svc := &Service{client: cli}
-	require.NoError(t, svc.rejoinDependents(context.Background(), []string{self, app}, oldID, "new-sidecar"))
+	require.NoError(t, svc.rejoinDependents(context.Background(), []string{self, app}, oldID, "new-sidecar", true))
 	assert.Equal(t, []string{
 		"stop " + app,
 		"remove " + app,
 		"create app",
 		"start new-app",
 		"rejoin aaaaaaaaaaaa container:new-sidecar",
+	}, cli.calls)
+}
+
+// A replacement left stopped has no namespace to offer, so a dependent is
+// recreated against it but not started: start would only fail the update.
+func TestRejoinDependentsParentStoppedLeavesDependentStopped(t *testing.T) {
+	const (
+		oldID = "1111111111110000000000000000000000000000000000000000000000000000"
+		app   = "bbbbbbbbbbbb0000000000000000000000000000000000000000000000000000"
+	)
+	joined := &docker_types.HostConfig{NetworkMode: "container:" + oldID}
+	cli := &rejoinClient{containers: map[string]docker_types.InspectResponse{
+		app: {ID: app, Name: "/app", State: &docker_types.State{Running: true}, HostConfig: joined, Config: &docker_types.Config{}},
+	}}
+
+	svc := &Service{client: cli}
+	require.NoError(t, svc.rejoinDependents(context.Background(), []string{app}, oldID, "new-vpn", false))
+	assert.Equal(t, []string{
+		"stop " + app,
+		"remove " + app,
+		"create app",
 	}, cli.calls)
 }

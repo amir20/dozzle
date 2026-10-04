@@ -507,7 +507,7 @@ func (c *Client) ContainerAction(ctx context.Context, containerId string, action
 func (c *Client) UpdateContainer(ctx context.Context, containerID string, progressCh chan<- container.UpdateProgress) (bool, error) {
 	defer close(progressCh)
 
-	stream, err := c.client.UpdateContainer(ctx, &pb.UpdateContainerRequest{ContainerId: containerID, Cleanup: true})
+	stream, err := c.client.UpdateContainer(ctx, &pb.UpdateContainerRequest{ContainerId: containerID})
 	if err != nil {
 		return false, err
 	}

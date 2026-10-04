@@ -173,7 +173,7 @@ func (s *swap) forward(ctx context.Context) error {
 	}
 	s.newID = created.ID
 
-	if !running(s.old.State) {
+	if !Running(s.old.State) {
 		// A container that was not running (a one-shot job, an init container
 		// that already exited) is not started by an update: starting it would
 		// rerun it, and WaitStable would roll back one that exits cleanly. The
@@ -293,7 +293,7 @@ func (s *swap) rollback(ctx context.Context) error {
 		}
 	}
 
-	if s.stopped && running(s.old.State) {
+	if s.stopped && Running(s.old.State) {
 		s.logger.Info().Msg("rollback: starting old container")
 		if _, err := s.cli.ContainerStart(ctx, s.old.ID, client.ContainerStartOptions{}); err != nil {
 			errs = append(errs, fmt.Errorf("start old container: %w", err))
@@ -331,7 +331,7 @@ func WaitStable(ctx context.Context, cli API, id string) error {
 			return nil, fmt.Errorf("inspect replacement: %w", err)
 		}
 		state := result.Container.State
-		if !running(state) {
+		if !Running(state) {
 			if state == nil {
 				return nil, fmt.Errorf("replacement is not running")
 			}
@@ -382,7 +382,9 @@ func WaitStable(ctx context.Context, cli API, id string) error {
 	}
 }
 
-func running(state *dcontainer.State) bool {
+// Running reports whether Swap treats a container as running: one that is not
+// is replaced but left stopped.
+func Running(state *dcontainer.State) bool {
 	return state != nil && state.Running && !state.Restarting
 }
 
