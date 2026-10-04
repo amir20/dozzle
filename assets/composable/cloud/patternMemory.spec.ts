@@ -11,7 +11,14 @@ import {
   MAX_PATTERN_LINES,
   type PatternContextHit,
 } from "./patternMemory";
-import { ComplexLogEntry, SimpleLogEntry, type Level, type LogEntry, type LogMessage } from "@/models/LogEntry";
+import {
+  AlertLogEntry,
+  ComplexLogEntry,
+  SimpleLogEntry,
+  type Level,
+  type LogEntry,
+  type LogMessage,
+} from "@/models/LogEntry";
 
 function log(id: number, level: Level = "error", containerID = "abc"): LogEntry<LogMessage> {
   return new SimpleLogEntry(`line ${id}`, containerID, id, new Date(id), level, "stderr", `line ${id}`);
@@ -36,6 +43,25 @@ describe("linesNeedingMemory", () => {
   test("asks only about error and warn lines, newest first", () => {
     const logs = [log(1, "error"), log(2, "info"), log(3, "warn"), log(4, "debug"), log(5, "fatal")];
     expect(linesNeedingMemory(logs).map((l) => l.id)).toEqual([5, 3, 1]);
+  });
+
+  test("never asks about an alert row, whose id is a timestamp", () => {
+    const ts = 1_791_146_775_319_000_000;
+    const alert = new AlertLogEntry(
+      {
+        alertId: "a1",
+        containerId: "abc",
+        hostId: "h",
+        ts,
+        headline: "db down",
+        level: "error",
+        eventCount: 1,
+        createdAt: ts,
+        isOrigin: true,
+      },
+      new Date(ts / 1_000_000),
+    );
+    expect(linesNeedingMemory([log(1), alert]).map((l) => l.id)).toEqual([1]);
   });
 
   test("skips lines that already have an answer", () => {
