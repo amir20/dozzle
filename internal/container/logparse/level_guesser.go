@@ -43,7 +43,7 @@ type levelMatcher struct {
 //     "[09:58:00 ERR] ..."
 //  2. [<level>]    bracketed tag / single-letter: "[ERROR]", "[E]"
 //  3. > <level>    signale/consola marker: "› ℹ  info      started"
-//  4. <tag>:<level> structured prefix: "Zigbee2MQTT:info ", "::INFO::", "[1]: INFO "
+//  4. <tag>:<level> structured prefix: "Zigbee2MQTT:info ", "::INFO::", "[1]: INFO " (a gap only before upper-case)
 //  5. "<LEVEL>"    quoted upper-case value: LL="ERROR"
 //  6. <sp><level>[/|:-] separator: " error:", " info|"
 //  7. <sp><LEVEL><sp> bare upper-case token mid-line: "123 ERROR foo"
@@ -183,7 +183,12 @@ func init() {
 		// Signale/consola: the level is the first word after the "›" marker. [^a-z]
 		// cannot cross a letter, so only that first word is considered.
 		{{re: regexp.MustCompile(`(?i)\x{203a}[^a-z]*(` + joined + `)(?:[^a-z0-9]|$)`)}},
-		{{re: regexp.MustCompile(`(?i):\s*(` + joined + `)(?:[^a-z0-9]|$)`)}},
+		// A gap after the colon is only allowed for an upper-case level, so
+		// "[1]: INFO" matches but prose like "msg: error handling" does not.
+		{
+			{re: regexp.MustCompile(`(?i):(` + joined + `)(?:[^a-z0-9]|$)`)},
+			{re: regexp.MustCompile(`:\s+(` + upper + `)(?:\s|$)`)},
+		},
 		{{re: regexp.MustCompile(`"(` + upper + `)"`)}},
 		{{re: regexp.MustCompile(`(?i) (` + joined + `)[/|:-]`)}},
 		{{re: regexp.MustCompile(`\s(` + upper + `)\s`)}},

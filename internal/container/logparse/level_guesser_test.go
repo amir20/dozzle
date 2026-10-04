@@ -325,6 +325,9 @@ func TestGuessLogLevel(t *testing.T) {
 		{"ordinary prose containing notice", "unknown"},
 		{"ordinary prose containing critical", "unknown"},
 		{"ordinary prose containing fail", "unknown"},
+		{"msg: error handling enabled", "unknown"},
+		{"config loaded: critical=false", "unknown"},
+		{"user: info requested", "unknown"},
 		{nilOrderedMap, "unknown"},
 		{nil, "unknown"},
 	}
