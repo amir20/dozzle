@@ -371,6 +371,10 @@ updates:
   busy: 다른 업데이트가 이미 실행 중입니다.
   summary: "{updated}개 업데이트됨"
   summary-failed: "{updated}개 업데이트됨, {failed}개 실패"
+  confirm-title: "{name}을(를) 업데이트할까요?"
+  confirm-body: "{image}을(를) 가져와 컨테이너를 다시 만듭니다."
+  watch-in-cloud: "Dozzle Cloud가 이 업데이트를 지켜보게 하기"
+  watch-in-cloud-hint: "어떤 이미지가 언제 바뀌었는지만 전송됩니다."
   status:
     queued: 대기 중
     pulling: 가져오는 중
@@ -662,7 +666,7 @@ cloud:
     push-title: "문제가 생기는 순간 바로 알아채세요"
     push-body: "일일 스캔은 하루에 한 번 오는 요약입니다. 새벽 3시에도 알고 싶은 일이라면 푸시 알림을 켜세요."
     recommended: "권장"
-    lifecycle-desc: "충돌, 실패한 healthcheck, OOM 종료, 재시작."
+    lifecycle-desc: "충돌, 실패한 healthcheck, OOM 종료, 재시작, 업데이트."
     metrics-desc: "임계값을 넘어 그 상태로 유지되는 CPU, 메모리, 디스크."
     logs-desc: "error와 fatal 줄이 들어오는 즉시 감지합니다."
     logs-caution: "가장 시끄러운 항목이자 대기 시간이 없는 유일한 항목이라, 충돌을 반복하는 컨테이너는 모든 줄마다 알림을 보냅니다. 수명 주기부터 시작하고, 어떤 컨테이너가 시끄러운지 파악한 뒤에 추가하세요."

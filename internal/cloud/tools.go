@@ -422,6 +422,10 @@ type ToolDeps struct {
 	// container as it was before, so the auto-update schedule leaves the image
 	// rolled back from alone. May be nil.
 	RolledBack func(c container.Container)
+	// UpdateWatched reports whether the user asked Dozzle Cloud to watch an
+	// update when they started it, which lets the update be pushed (consent
+	// "checkbox"). May be nil.
+	UpdateWatched func(e container.ContainerUpdateEvent) bool
 }
 
 // scoped returns the host service already confined to the principal's labels.

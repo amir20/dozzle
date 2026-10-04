@@ -101,6 +101,7 @@
     <div
       class="bg-base-100 border-base-content/10 sticky bottom-0 z-10 -mx-4 mt-auto flex flex-wrap items-center gap-2 border-t p-4"
     >
+      <UpdateWatchCheckbox v-if="!showingJob && offerWatch" v-model="watchInCloud" class="mb-2 w-full" />
       <span v-if="!showingJob && selfSelected" class="text-base-content/60 mr-auto text-xs">
         {{ $t("updates.self-last") }}
       </span>
@@ -180,6 +181,15 @@ watch(
 const selectedContainers = computed(() => candidates.value.filter((c) => selected.value.includes(c.id)));
 const selfSelected = computed(() => selectedContainers.value.some(isSelf));
 
+// "Have Dozzle Cloud watch this update", asked only when linked and only when
+// at least one selected update is one Dozzle Cloud can be told about.
+const { linked: cloudLinked } = useCloudSurface();
+const watchInCloud = ref(true);
+const offerWatch = computed(
+  () =>
+    cloudLinked.value && selectedContainers.value.some((c) => cloudWatchable(c, hosts.value[c.host]?.type, isSelf(c))),
+);
+
 const showingJob = ref(!!job.value?.running);
 watch(running, (now) => now && (showingJob.value = true));
 
@@ -210,7 +220,7 @@ watchEffect(() => {
 
 function updateSelected() {
   showingJob.value = true;
-  start(selectedContainers.value);
+  start(selectedContainers.value, { watchInCloud: offerWatch.value && watchInCloud.value });
 }
 
 function pill(status: BulkUpdateStatus) {

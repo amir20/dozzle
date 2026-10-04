@@ -370,6 +370,10 @@ updates:
   busy: Er loopt al een andere update.
   summary: "{updated} bijgewerkt"
   summary-failed: "{updated} bijgewerkt, {failed} mislukt"
+  confirm-title: "{name} bijwerken?"
+  confirm-body: "Haalt {image} op en maakt de container daarmee opnieuw aan."
+  watch-in-cloud: "Laat Dozzle Cloud deze update in de gaten houden"
+  watch-in-cloud-hint: "Alleen welke image veranderde en wanneer wordt verstuurd."
   status:
     queued: Wachtrij
     pulling: Ophalen
@@ -661,7 +665,7 @@ cloud:
     push-title: "Weet het op het moment dat er iets stukgaat"
     push-body: "De dagelijkse scan is een samenvatting van één keer per dag. Voor alles waarvan je het om 3 uur 's nachts wilt weten, zet je pushmeldingen aan."
     recommended: "Aanbevolen"
-    lifecycle-desc: "Crashes, mislukte healthchecks, OOM-kills en herstarts."
+    lifecycle-desc: "Crashes, mislukte healthchecks, OOM-kills, herstarts en updates."
     metrics-desc: "CPU, geheugen en schijf die een drempel overschrijden en daarboven blijven."
     logs-desc: "Error- en fatal-regels herkennen zodra ze binnenkomen."
     logs-caution: "De luidruchtigste categorie, en de enige zonder afkoelperiode, dus een container in een crashlus meldt bij elke regel. Begin met levenscyclus en voeg deze toe zodra je weet welke containers luidruchtig zijn."

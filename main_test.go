@@ -7,6 +7,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/amir20/dozzle/internal/cloud"
 	"github.com/amir20/dozzle/internal/container"
 	"github.com/amir20/dozzle/internal/hostservice"
 	"github.com/stretchr/testify/assert"
@@ -181,4 +182,50 @@ func TestServiceSubscriptionsEndsRemovedServices(t *testing.T) {
 	assert.NoError(t, started[a].Err())
 	assert.ErrorIs(t, started[b].Err(), context.Canceled)
 	assert.Len(t, subs, 1)
+}
+
+// fakeUpdateHistoryService is a host that keeps update events, as a local
+// docker daemon does. An agent keeps its own and offers none.
+type fakeUpdateHistoryService struct {
+	fakeClientService
+	recent []container.ContainerUpdateEvent
+	subs   chan chan<- container.ContainerUpdateEvent
+}
+
+func (f *fakeUpdateHistoryService) RecentUpdates() []container.ContainerUpdateEvent { return f.recent }
+
+func (f *fakeUpdateHistoryService) SubscribeUpdates(_ context.Context, ch chan<- container.ContainerUpdateEvent) {
+	f.subs <- ch
+}
+
+// The cloud view forwards the update events of every host that keeps them, and
+// skips agents, whose events stay on the agent.
+func TestCloudHostService_ForwardsUpdateEvents(t *testing.T) {
+	event := container.ContainerUpdateEvent{Host: "local-id", Name: "immich", NewID: "new"}
+	local := &fakeUpdateHistoryService{
+		host:   container.Host{ID: "local-id", Name: "hub", Type: "local"},
+		recent: []container.ContainerUpdateEvent{event},
+		subs:   make(chan chan<- container.ContainerUpdateEvent, 1),
+	}
+	mgr := &fakeClientManager{
+		local: local,
+		agent: &fakeClientService{host: container.Host{ID: "agent-id", Name: "home-assistant", Type: "agent"}},
+	}
+	svc, ok := newCloudHostService("server", hostservice.NewMultiHostService(mgr, time.Second)).(cloud.UpdateStreamHostService)
+	if !assert.True(t, ok, "the cloud host service must keep update history") {
+		return
+	}
+
+	assert.Equal(t, []container.ContainerUpdateEvent{event}, svc.RecentUpdates())
+
+	out := make(chan container.ContainerUpdateEvent, 1)
+	svc.SubscribeUpdates(t.Context(), out)
+	hostCh := <-local.subs
+	hostCh <- event
+	select {
+	case got := <-out:
+		assert.Equal(t, event, got)
+	case <-time.After(time.Second):
+		t.Fatal("update event was not forwarded")
+	}
 }

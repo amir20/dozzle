@@ -228,7 +228,7 @@
           </button>
         </li>
         <li v-if="imageUpdatable">
-          <button @click="update({ self: isSelfContainer })" :disabled="actionStates.update">
+          <button @click="startUpdate()" :disabled="actionStates.update">
             <carbon:upgrade />
             {{ container.isSwarm ? $t("toolbar.update-service") : $t("toolbar.update") }}
             <span v-if="showImageUpdateAlert" class="bg-warning size-1.5 rounded-full"></span>
@@ -348,6 +348,17 @@ watch(
   },
   { immediate: true },
 );
+const { hosts } = useHosts();
+
+// Asks first only when there is something to ask: whether Dozzle Cloud should
+// watch the update. Otherwise the update runs on the click, as it always has.
+function startUpdate() {
+  if (cloudLinked.value && cloudWatchable(container, hosts.value[container.host]?.type, isSelfContainer.value)) {
+    requestUpdate(container);
+  } else {
+    update({ self: isSelfContainer.value });
+  }
+}
 const workload = computed(() => containerWorkload(container));
 const { restarting: rollingOut, rolloutRestart } = useRolloutRestart();
 const {

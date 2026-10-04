@@ -369,6 +369,10 @@ updates:
   busy: En anden opdatering kører allerede.
   summary: "{updated} opdateret"
   summary-failed: "{updated} opdateret, {failed} fejlede"
+  confirm-title: "Opdater {name}?"
+  confirm-body: "Henter {image} og genopretter containeren med det."
+  watch-in-cloud: "Lad Dozzle Cloud overvåge denne opdatering"
+  watch-in-cloud-hint: "Kun hvilket image der ændrede sig, og hvornår, bliver sendt."
   status:
     queued: I kø
     pulling: Henter
@@ -660,7 +664,7 @@ cloud:
     push-title: "Få besked i det øjeblik noget går i stykker"
     push-body: "Den daglige scanning er et sammendrag én gang om dagen. Til alt det, du gerne vil vide klokken 3 om natten, slår du push-notifikationer til."
     recommended: "Anbefalet"
-    lifecycle-desc: "Nedbrud, fejlede healthchecks, OOM-kills og genstarter."
+    lifecycle-desc: "Nedbrud, fejlede healthchecks, OOM-kills, genstarter og opdateringer."
     metrics-desc: "CPU, hukommelse og disk der krydser en grænse og bliver der."
     logs-desc: "Fang error- og fatal-linjer i det øjeblik de strømmer ind."
     logs-caution: "Den mest larmende kategori og den eneste uden afkølingsperiode, så en container i nedbrudsløkke notificerer på hver eneste linje. Start med livscyklus og tilføj disse, når du ved, hvilke containere der larmer."

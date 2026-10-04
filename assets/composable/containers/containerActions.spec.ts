@@ -186,3 +186,26 @@ describe("useContainerActions rollback", () => {
     expect(holder.toasts.find((t) => t.type === "error")?.message).toBe("no previous image to roll back to");
   });
 });
+
+describe("useContainerActions update watch", () => {
+  beforeEach(() => {
+    holder.toasts = [];
+  });
+
+  test("sends the watch choice as a JSON body", async () => {
+    const actions = run([{ status: "done" }]);
+    await actions.update({ watchInCloud: true });
+
+    const [, init] = (fetch as ReturnType<typeof vi.fn>).mock.calls[0];
+    expect(init.headers).toEqual({ "Content-Type": "application/json" });
+    expect(JSON.parse(init.body)).toEqual({ watchInCloud: true });
+  });
+
+  test("sends no body when nothing was asked", async () => {
+    const actions = run([{ status: "done" }]);
+    await actions.update();
+
+    const [, init] = (fetch as ReturnType<typeof vi.fn>).mock.calls[0];
+    expect(init).toEqual({ method: "POST" });
+  });
+});

@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"io"
 	"net/http"
 
 	"github.com/amir20/dozzle/internal/analytics"
@@ -69,12 +70,28 @@ func (h *handler) containerActions(w http.ResponseWriter, r *http.Request) {
 	http.Error(w, "", http.StatusNoContent)
 }
 
+// updateRequest is the optional body of a single update.
+type updateRequest struct {
+	// WatchInCloud is "Have Dozzle Cloud watch this update". See update_watch.go.
+	WatchInCloud bool `json:"watchInCloud"`
+}
+
 func (h *handler) containerUpdate(w http.ResponseWriter, r *http.Request) {
 	containerService, ok := h.findContainerWithActions(w, r)
 	if !ok {
 		return
 	}
 	analytics.Count("action.update")
+
+	// The body is optional: an older UI, and anything scripted, posts none.
+	var req updateRequest
+	if isJSONRequest(r) {
+		if err := json.NewDecoder(http.MaxBytesReader(w, r.Body, 1<<10)).Decode(&req); err != nil && !errors.Is(err, io.EOF) {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+	}
+	updateWatches.set(containerService.Container.Host, containerService.Container.ID, req.WatchInCloud)
 
 	sseWriter, err := sse.NewWriter(r.Context(), w, r)
 	if err != nil {

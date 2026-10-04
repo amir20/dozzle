@@ -116,7 +116,8 @@ export const useContainerActions = (container: Ref<Container>) => {
 
   // Runs one streamed action and reports its progress in a single toast.
   // Returns whether it ended on "done".
-  async function streamAction(url: string, toastId: string, copy: ProgressCopy, self: boolean) {
+  // `body`, when given, is sent as JSON.
+  async function streamAction(url: string, toastId: string, copy: ProgressCopy, self: boolean, body?: object) {
     const pullProgress = createPullProgress();
     let restarting = false;
     let done = false;
@@ -124,7 +125,12 @@ export const useContainerActions = (container: Ref<Container>) => {
     showToast({ id: toastId, title: copy.title, message: copy.pulling, type: "info" }, { once: true });
 
     try {
-      const response = await fetch(withBase(url), { method: "POST" });
+      const response = await fetch(
+        withBase(url),
+        body
+          ? { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) }
+          : { method: "POST" },
+      );
       if (!response.ok) {
         removeToast(toastId);
         showToast({ type: "error", message: copy.unable, title: copy.failed });
@@ -188,7 +194,9 @@ export const useContainerActions = (container: Ref<Container>) => {
   // `self` is Dozzle's own container. "done" there means a helper container was
   // launched to replace it, so the page waits for the new one to answer instead
   // of reporting success while the old process is about to go away.
-  async function update({ self = false }: { self?: boolean } = {}) {
+  // `watchInCloud` is "Have Dozzle Cloud watch this update"; left out, the
+  // update is not watched.
+  async function update({ self = false, watchInCloud }: { self?: boolean; watchInCloud?: boolean } = {}) {
     actionStates.update = true;
     try {
       await streamAction(
@@ -206,6 +214,7 @@ export const useContainerActions = (container: Ref<Container>) => {
           upToDate: t("toolbar.update-up-to-date"),
         },
         self,
+        watchInCloud === undefined ? undefined : { watchInCloud },
       );
     } finally {
       actionStates.update = false;

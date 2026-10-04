@@ -371,6 +371,10 @@ updates:
   busy: 已有另一個更新正在執行。
   summary: 已更新 {updated} 個
   summary-failed: 已更新 {updated} 個，失敗 {failed} 個
+  confirm-title: "更新 {name}？"
+  confirm-body: "拉取 {image} 並用它重新建立容器。"
+  watch-in-cloud: "讓 Dozzle Cloud 關注這次更新"
+  watch-in-cloud-hint: "只會傳送哪個映像檔在何時變更。"
   status:
     queued: 排隊中
     pulling: 拉取中
@@ -662,7 +666,7 @@ cloud:
     push-title: "出問題的那一刻就知道"
     push-body: "每日掃描是一天一次的彙總。凡是你凌晨三點也想知道的事，就開啟推播通知。"
     recommended: "建議"
-    lifecycle-desc: "當機、健康檢查失敗、OOM 終止和重新啟動。"
+    lifecycle-desc: "當機、健康檢查失敗、OOM 終止、重新啟動和更新。"
     metrics-desc: "CPU、記憶體和磁碟越過門檻並持續保持。"
     logs-desc: "在 error 和 fatal 行進入時立即比對。"
     logs-caution: "最吵的一類，也是唯一沒有冷卻時間的一類，因此反覆當機的容器會在每一行都發通知。先從生命週期開始，等你清楚哪些容器比較吵之後再加上這些。"

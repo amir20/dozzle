@@ -369,6 +369,10 @@ updates:
   busy: Já existe outra atualização em andamento.
   summary: "{updated} atualizados"
   summary-failed: "{updated} atualizados, {failed} com falha"
+  confirm-title: "Atualizar {name}?"
+  confirm-body: "Baixa {image} e recria o contêiner com ela."
+  watch-in-cloud: "Deixar o Dozzle Cloud acompanhar esta atualização"
+  watch-in-cloud-hint: "Só é enviado qual imagem mudou e quando."
   status:
     queued: Na fila
     pulling: Baixando
@@ -660,7 +664,7 @@ cloud:
     push-title: "Saiba no momento em que algo falha"
     push-body: "A análise diária é um resumo uma vez por dia. Para tudo o que quereria saber às 3 da manhã, ative as notificações push."
     recommended: "Recomendado"
-    lifecycle-desc: "Falhas, healthchecks sem sucesso, kills por OOM e reinícios."
+    lifecycle-desc: "Falhas, healthchecks sem sucesso, kills por OOM, reinícios e atualizações."
     metrics-desc: "CPU, memória e disco a ultrapassar um limite e a mantê-lo."
     logs-desc: "Detetar linhas de error e fatal assim que chegam."
     logs-caution: "A categoria mais ruidosa, e a única sem tempo de espera, por isso um contentor em ciclo de falhas notifica em cada linha. Comece pelo ciclo de vida e acrescente estas quando souber que contentores são ruidosos."

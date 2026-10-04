@@ -345,6 +345,9 @@ type bulkUpdateRequest struct {
 		Host string `json:"host"`
 		ID   string `json:"id"`
 	} `json:"containers"`
+	// WatchInCloud is "Have Dozzle Cloud watch this update", for every
+	// container in the run. See update_watch.go.
+	WatchInCloud bool `json:"watchInCloud"`
 }
 
 // startBulkUpdate resolves each container the way a single update would, so a
@@ -391,7 +394,12 @@ func (h *handler) startBulkUpdate(w http.ResponseWriter, r *http.Request) {
 	if h.config.Authorization.Provider != NONE {
 		requestedBy = auth.UserFromContext(r.Context()).Username
 	}
+	// Recorded before the run starts, so no update can finish ahead of its
+	// choice. A run refused as busy puts back what was there: those containers
+	// may belong to the run that is busy.
+	restore := updateWatches.setAll(services, req.WatchInCloud)
 	if _, err := bulkUpdates.Start(services, "manual", selfSwarmService(all), requestedBy, h.flushUsage); err != nil {
+		restore()
 		http.Error(w, err.Error(), http.StatusConflict)
 		return
 	}

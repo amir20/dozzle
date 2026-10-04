@@ -369,6 +369,10 @@ updates:
   busy: Es läuft bereits ein anderes Update.
   summary: "{updated} aktualisiert"
   summary-failed: "{updated} aktualisiert, {failed} fehlgeschlagen"
+  confirm-title: "{name} aktualisieren?"
+  confirm-body: "Lädt {image} herunter und erstellt den Container damit neu."
+  watch-in-cloud: "Dieses Update von Dozzle Cloud überwachen lassen"
+  watch-in-cloud-hint: "Gesendet wird nur, welches Image sich wann geändert hat."
   status:
     queued: Wartet
     pulling: Lädt
@@ -660,7 +664,7 @@ cloud:
     push-title: "Erfahren Sie sofort, wenn etwas kaputtgeht"
     push-body: "Der tägliche Scan ist eine Zusammenfassung einmal am Tag. Für alles, was Sie um 3 Uhr nachts wissen möchten, aktivieren Sie Push-Benachrichtigungen."
     recommended: "Empfohlen"
-    lifecycle-desc: "Abstürze, fehlgeschlagene Healthchecks, OOM-Kills und Neustarts."
+    lifecycle-desc: "Abstürze, fehlgeschlagene Healthchecks, OOM-Kills, Neustarts und Updates."
     metrics-desc: "CPU, Arbeitsspeicher und Speicherplatz, die einen Schwellenwert überschreiten und dort bleiben."
     logs-desc: "Fehler- und Fatal-Zeilen erkennen, sobald sie eintreffen."
     logs-caution: "Die lauteste Kategorie und die einzige ohne Abklingzeit, sodass ein Container in einer Absturzschleife bei jeder Zeile benachrichtigt. Beginnen Sie mit dem Lebenszyklus und ergänzen Sie diese, sobald Sie wissen, welche Container laut sind."

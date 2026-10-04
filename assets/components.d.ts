@@ -328,6 +328,8 @@ declare module 'vue' {
     TimeRangeMenu: typeof import('./components/logs/TimeRangeMenu.vue')['default']
     ToastModal: typeof import('./components/shell/ToastModal.vue')['default']
     Toggle: typeof import('./components/ui/Toggle.vue')['default']
+    UpdateDialog: typeof import('./components/containers/UpdateDialog.vue')['default']
+    UpdateWatchCheckbox: typeof import('./components/containers/UpdateWatchCheckbox.vue')['default']
     UsageMeter: typeof import('./components/ui/UsageMeter.vue')['default']
     ViewerWithSource: typeof import('./components/logs/ViewerWithSource.vue')['default']
     VolumeWarning: typeof import('./components/containers/VolumeWarning.vue')['default']
