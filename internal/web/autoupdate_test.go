@@ -302,16 +302,3 @@ func TestAutoUpdate_Helpers(t *testing.T) {
 	require.NoError(t, err)
 	assert.Equal(t, autoUpdateSettings{Mode: "off", Time: "03:00"}, settings)
 }
-
-func TestUpdateOptions_FileAppliesLiveAndFlagsWin(t *testing.T) {
-	setupTestEnv(t, true)
-	assert.Equal(t, container.UpdateOptions{}, UpdateOptions(SetupConfig{}), "off by default")
-
-	on, off := true, false
-	require.NoError(t, config.Update(setupConfigPath, func(c *config.File) { c.AutoUpdateCleanup = &on }))
-	assert.Equal(t, container.UpdateOptions{Cleanup: true}, UpdateOptions(SetupConfig{}), "dozzle.yml is read at every update")
-	assert.Equal(t, container.UpdateOptions{}, UpdateOptions(SetupConfig{AutoUpdateCleanup: &off}), "a flag or env var wins")
-
-	require.NoError(t, config.Update(setupConfigPath, func(c *config.File) { c.AutoUpdateCleanup = &off }))
-	assert.Equal(t, container.UpdateOptions{Cleanup: true}, UpdateOptions(SetupConfig{AutoUpdateCleanup: &on}))
-}

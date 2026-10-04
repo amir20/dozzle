@@ -1,6 +1,6 @@
 ---
 title: 设置向导
-sourceHash: 41f82e7cd34e
+sourceHash: 5de063d00e38
 ---
 
 # 设置向导
@@ -89,23 +89,21 @@ enableActions: true
 enableShell: false
 autoUpdate: weekly
 autoUpdateTime: "03:00"
-autoUpdateCleanup: true
 remoteAgents:
   - 10.0.0.5:7007|nas
 privateAgents:
   - 10.0.0.5:7007|nas
 ```
 
-| 键                  | 取值                                                                         | 等同于                       |
-| ------------------- | ---------------------------------------------------------------------------- | ---------------------------- |
-| `authProvider`      | `none`, `simple`, `forward-proxy`                                            | `DOZZLE_AUTH_PROVIDER`       |
-| `enableActions`     | `true`, `false`                                                              | `DOZZLE_ENABLE_ACTIONS`      |
-| `enableShell`       | `true`, `false`                                                              | `DOZZLE_ENABLE_SHELL`        |
-| `autoUpdate`        | `off`, `daily`, `weekly`                                                     | `DOZZLE_AUTO_UPDATE`         |
-| `autoUpdateTime`    | `HH:MM`，服务器本地时间                                                      | `DOZZLE_AUTO_UPDATE_TIME`    |
-| `autoUpdateCleanup` | `true`、`false`。参见 [清理旧镜像](/zh/guide/actions#cleaning-up-old-images) | `DOZZLE_AUTO_UPDATE_CLEANUP` |
-| `remoteAgents`      | 代理地址列表                                                                 | `DOZZLE_REMOTE_AGENT`        |
-| `privateAgents`     | `remoteAgents` 中使用[私有证书](/zh/guide/agent#private-certificate)的代理   | 无                           |
+| 键               | 取值                                                                       | 等同于                    |
+| ---------------- | -------------------------------------------------------------------------- | ------------------------- |
+| `authProvider`   | `none`, `simple`, `forward-proxy`                                          | `DOZZLE_AUTH_PROVIDER`    |
+| `enableActions`  | `true`, `false`                                                            | `DOZZLE_ENABLE_ACTIONS`   |
+| `enableShell`    | `true`, `false`                                                            | `DOZZLE_ENABLE_SHELL`     |
+| `autoUpdate`     | `off`, `daily`, `weekly`                                                   | `DOZZLE_AUTO_UPDATE`      |
+| `autoUpdateTime` | `HH:MM`，服务器本地时间                                                    | `DOZZLE_AUTO_UPDATE_TIME` |
+| `remoteAgents`   | 代理地址列表                                                               | `DOZZLE_REMOTE_AGENT`     |
+| `privateAgents`  | `remoteAgents` 中使用[私有证书](/zh/guide/agent#private-certificate)的代理 | 无                        |
 
 命令行参数和环境变量始终优先于该文件。如果设置了 `DOZZLE_ENABLE_ACTIONS`，`dozzle.yml` 中的值会被忽略，向导会将该开关显示为锁定。若想重新通过向导管理某个设置，请从 compose 文件中删除对应的变量。`remoteAgents` 的规则不同：文件中的代理会与 `DOZZLE_REMOTE_AGENT` 中的代理合并，而不是被它们取代。
 

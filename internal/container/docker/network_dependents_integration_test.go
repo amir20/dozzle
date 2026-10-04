@@ -51,7 +51,7 @@ func TestUpdateRejoinsNetworkDependentsAgainstDocker(t *testing.T) {
 	require.NoError(t, err)
 
 	progress := make(chan container.UpdateProgress, 1000)
-	updated, err := svc.UpdateContainer(context.Background(), c, container.UpdateOptions{}, progress)
+	updated, err := svc.UpdateContainer(context.Background(), c, progress)
 	require.NoError(t, err)
 	assert.True(t, updated)
 

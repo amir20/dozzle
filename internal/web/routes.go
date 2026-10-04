@@ -82,10 +82,7 @@ type SetupConfig struct {
 	LockedAutoUpdate bool
 	AutoUpdateMode   *string
 	AutoUpdateTime   *string
-	// AutoUpdateCleanup is --auto-update-cleanup when set by a flag or env
-	// var, nil when dozzle.yml decides.
-	AutoUpdateCleanup *bool
-	StartedAt         time.Time
+	StartedAt        time.Time
 	// EnvAgents are the agents from DOZZLE_REMOTE_AGENT, which the UI lists but
 	// cannot remove.
 	EnvAgents []string

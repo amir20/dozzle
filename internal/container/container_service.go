@@ -40,8 +40,8 @@ func (c *ContainerService) Action(ctx context.Context, action ContainerAction) e
 	return c.clientService.ContainerAction(ctx, c.Container, action)
 }
 
-func (c *ContainerService) Update(ctx context.Context, opts UpdateOptions, progressCh chan<- UpdateProgress) (bool, error) {
-	return c.clientService.UpdateContainer(ctx, c.Container, opts, progressCh)
+func (c *ContainerService) Update(ctx context.Context, progressCh chan<- UpdateProgress) (bool, error) {
+	return c.clientService.UpdateContainer(ctx, c.Container, progressCh)
 }
 
 func (c *ContainerService) CheckImageUpdate(ctx context.Context, force bool) (imagecheck.Result, error) {

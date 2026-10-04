@@ -123,10 +123,10 @@ type updateRun struct {
 	err      error
 }
 
-func runUpdate(cli *updateClient, opts container.UpdateOptions) updateRun {
+func runUpdate(cli *updateClient) updateRun {
 	svc := &Service{client: cli}
 	ch := make(chan container.UpdateProgress, 100)
-	updated, err := svc.UpdateContainer(context.Background(), container.Container{ID: appID, Name: "app"}, opts, ch)
+	updated, err := svc.UpdateContainer(context.Background(), container.Container{ID: appID, Name: "app"}, ch)
 	run := updateRun{updated: updated, err: err}
 	for p := range ch {
 		if len(run.statuses) == 0 || run.statuses[len(run.statuses)-1] != p.Status {
@@ -139,7 +139,7 @@ func runUpdate(cli *updateClient, opts container.UpdateOptions) updateRun {
 
 func TestUpdateContainerSwapsAndStampsLabels(t *testing.T) {
 	cli := newUpdateClient(t, appInspect(map[string]string{container.PreviousRefLabel: "nginx@sha256:stale"}))
-	run := runUpdate(cli, container.UpdateOptions{})
+	run := runUpdate(cli)
 
 	require.NoError(t, run.err)
 	assert.True(t, run.updated)
@@ -155,13 +155,13 @@ func TestUpdateContainerSwapsAndStampsLabels(t *testing.T) {
 	labels := cli.engine.Created[0].Config.Labels
 	assert.Equal(t, oldImageID, labels[container.PreviousImageLabel])
 	assert.Equal(t, "nginx@sha256:bbb", labels[container.PreviousRefLabel], "the digest of the repository the tag names")
-	assert.Empty(t, cli.removed, "cleanup is off")
+	assert.Empty(t, cli.removed, "the first update has no image before the previous one")
 }
 
 func TestUpdateContainerLocalImageHasNoPreviousRef(t *testing.T) {
 	cli := newUpdateClient(t, appInspect(map[string]string{container.PreviousRefLabel: "nginx@sha256:stale"}))
 	cli.images[oldImageID] = image.InspectResponse{ID: oldImageID}
-	run := runUpdate(cli, container.UpdateOptions{})
+	run := runUpdate(cli)
 
 	require.NoError(t, run.err)
 	labels := cli.engine.Created[0].Config.Labels
@@ -172,7 +172,7 @@ func TestUpdateContainerLocalImageHasNoPreviousRef(t *testing.T) {
 func TestUpdateContainerRolledBackOnStartFailure(t *testing.T) {
 	cli := newUpdateClient(t, appInspect(map[string]string{container.PreviousImageLabel: olderImage}))
 	cli.engine.StartErrFor = "new1"
-	run := runUpdate(cli, container.UpdateOptions{Cleanup: true})
+	run := runUpdate(cli)
 
 	require.ErrorContains(t, run.err, "rolled back")
 	assert.False(t, run.updated)
@@ -193,7 +193,7 @@ func TestUpdateContainerRolledBackOnStartFailure(t *testing.T) {
 func TestUpdateContainerRolledBackOnUnhealthy(t *testing.T) {
 	cli := newUpdateClient(t, appInspect(map[string]string{container.PreviousImageLabel: olderImage}))
 	cli.engine.NewState = &docker_types.State{Running: true, StartedAt: "t0", Health: &docker_types.Health{Status: docker_types.Unhealthy}}
-	run := runUpdate(cli, container.UpdateOptions{Cleanup: true})
+	run := runUpdate(cli)
 
 	require.ErrorContains(t, run.err, "unhealthy")
 	assert.Equal(t, []string{"pulling", "recreating", "verifying", "rolled-back"}, run.statuses)
@@ -215,7 +215,7 @@ func TestUpdateContainerRollbackRejoinsDependents(t *testing.T) {
 		HostConfig: &docker_types.HostConfig{NetworkMode: "container:" + appID},
 	}
 	cli.dependents = []string{"dep-id"}
-	run := runUpdate(cli, container.UpdateOptions{})
+	run := runUpdate(cli)
 
 	require.Error(t, run.err)
 	assert.Equal(t, "rolled-back", run.last.Status)
@@ -233,7 +233,7 @@ func TestUpdateContainerRejoinsDependentsAfterCommit(t *testing.T) {
 		HostConfig: &docker_types.HostConfig{NetworkMode: "container:" + appID},
 	}
 	cli.dependents = []string{"dep-id"}
-	run := runUpdate(cli, container.UpdateOptions{})
+	run := runUpdate(cli)
 
 	require.NoError(t, run.err)
 	assert.Equal(t, []string{"stop dep-id", "remove dep-id", "create dep container:new-app", "start new-dep"}, cli.calls)
@@ -246,7 +246,7 @@ func TestUpdateContainerStoppedOneShotIsDone(t *testing.T) {
 	old.State = &docker_types.State{Status: "exited", ExitCode: 0}
 	cli := newUpdateClient(t, old)
 	cli.engine.NewState = &docker_types.State{Status: "created"}
-	run := runUpdate(cli, container.UpdateOptions{})
+	run := runUpdate(cli)
 
 	require.NoError(t, run.err)
 	assert.True(t, run.updated)
@@ -259,7 +259,7 @@ func TestUpdateContainerStoppedOneShotIsDone(t *testing.T) {
 
 func TestUpdateContainerCleanupRemovesTheImageBeforeThePrevious(t *testing.T) {
 	cli := newUpdateClient(t, appInspect(map[string]string{container.PreviousImageLabel: olderImage}))
-	run := runUpdate(cli, container.UpdateOptions{Cleanup: true})
+	run := runUpdate(cli)
 
 	require.NoError(t, run.err)
 	assert.Equal(t, "done", run.last.Status)
@@ -271,7 +271,7 @@ func TestUpdateContainerCleanupRemovesTheImageBeforeThePrevious(t *testing.T) {
 func TestUpdateContainerCleanupKeepsATaggedImage(t *testing.T) {
 	cli := newUpdateClient(t, appInspect(map[string]string{container.PreviousImageLabel: olderImage}))
 	cli.images[olderImage] = image.InspectResponse{ID: olderImage, RepoTags: []string{"myapp:1.4.0"}}
-	run := runUpdate(cli, container.UpdateOptions{Cleanup: true})
+	run := runUpdate(cli)
 
 	require.NoError(t, run.err)
 	assert.Equal(t, "done", run.last.Status)
@@ -281,7 +281,7 @@ func TestUpdateContainerCleanupKeepsATaggedImage(t *testing.T) {
 func TestUpdateContainerCleanupImageAlreadyGone(t *testing.T) {
 	cli := newUpdateClient(t, appInspect(map[string]string{container.PreviousImageLabel: olderImage}))
 	delete(cli.images, olderImage)
-	run := runUpdate(cli, container.UpdateOptions{Cleanup: true})
+	run := runUpdate(cli)
 
 	require.NoError(t, run.err)
 	assert.Equal(t, "done", run.last.Status)
@@ -291,7 +291,7 @@ func TestUpdateContainerCleanupImageAlreadyGone(t *testing.T) {
 func TestUpdateContainerCleanupImageInUse(t *testing.T) {
 	cli := newUpdateClient(t, appInspect(map[string]string{container.PreviousImageLabel: olderImage}))
 	cli.removeErr = errors.New("conflict: unable to delete 111111111111 (cannot be forced) - image is being used by running container")
-	run := runUpdate(cli, container.UpdateOptions{Cleanup: true})
+	run := runUpdate(cli)
 
 	require.NoError(t, run.err, "a refused removal never fails the update")
 	assert.True(t, run.updated)
@@ -299,20 +299,9 @@ func TestUpdateContainerCleanupImageInUse(t *testing.T) {
 	assert.Equal(t, []string{olderImage}, cli.removed)
 }
 
-func TestUpdateContainerCleanupOptOutLabel(t *testing.T) {
-	cli := newUpdateClient(t, appInspect(map[string]string{
-		container.PreviousImageLabel: olderImage,
-		container.UpdateCleanupLabel: "false",
-	}))
-	run := runUpdate(cli, container.UpdateOptions{Cleanup: true})
-
-	require.NoError(t, run.err)
-	assert.Empty(t, cli.removed)
-}
-
 func TestUpdateContainerCleanupFirstUpdateRemovesNothing(t *testing.T) {
 	cli := newUpdateClient(t, appInspect(nil))
-	run := runUpdate(cli, container.UpdateOptions{Cleanup: true})
+	run := runUpdate(cli)
 
 	require.NoError(t, run.err)
 	assert.Empty(t, cli.removed, "the container never went through an update, so there is no image before the previous one")
@@ -320,7 +309,7 @@ func TestUpdateContainerCleanupFirstUpdateRemovesNothing(t *testing.T) {
 
 func TestUpdateContainerCleanupNeverTheImageJustReplaced(t *testing.T) {
 	cli := newUpdateClient(t, appInspect(map[string]string{container.PreviousImageLabel: oldImageID}))
-	run := runUpdate(cli, container.UpdateOptions{Cleanup: true})
+	run := runUpdate(cli)
 
 	require.NoError(t, run.err)
 	assert.Empty(t, cli.removed)
@@ -330,7 +319,7 @@ func TestUpdateContainerPullErrorDetail(t *testing.T) {
 	cli := newUpdateClient(t, appInspect(nil))
 	cli.pullBody = `{"status":"Pulling from library/nginx","id":"latest"}` + "\n" +
 		`{"errorDetail":{"message":"manifest unknown"},"error":"manifest unknown"}`
-	run := runUpdate(cli, container.UpdateOptions{})
+	run := runUpdate(cli)
 
 	require.ErrorContains(t, run.err, "manifest unknown")
 	assert.False(t, run.updated)

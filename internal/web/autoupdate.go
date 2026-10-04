@@ -141,20 +141,6 @@ func autoUpdateFrom(setup SetupConfig, file config.File) autoUpdateSettings {
 	return s
 }
 
-// UpdateOptions are the settings every container update on this server follows,
-// scheduled, manual, bulk or from the cloud: --auto-update-cleanup when it was
-// set, otherwise dozzle.yml's autoUpdateCleanup, read again on every call.
-func UpdateOptions(setup SetupConfig) container.UpdateOptions {
-	if setup.AutoUpdateCleanup != nil {
-		return container.UpdateOptions{Cleanup: *setup.AutoUpdateCleanup}
-	}
-	file, err := config.Load(setupConfigPath)
-	if err != nil {
-		log.Debug().Err(err).Msg("update: could not read dozzle.yml, cleanup stays off")
-	}
-	return container.UpdateOptions{Cleanup: file.AutoUpdateCleanup != nil && *file.AutoUpdateCleanup}
-}
-
 type autoUpdateSupport struct {
 	Supported bool
 	Reason    string
@@ -356,7 +342,7 @@ func (s *autoUpdateScheduler) updateLabelledContainers(ctx context.Context) {
 		if len(outdated) == 0 {
 			return
 		}
-		done, err := bulkUpdates.Start(outdated, "schedule", selfService, "", UpdateOptions(s.config.Setup), s.flushUsage)
+		done, err := bulkUpdates.Start(outdated, "schedule", selfService, "", s.flushUsage)
 		if errors.Is(err, errBulkUpdateBusy) {
 			continue
 		}

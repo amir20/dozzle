@@ -1,6 +1,6 @@
 ---
 title: 容器操作
-sourceHash: ce5fe1716730
+sourceHash: e31674a9bc64
 ---
 
 # 容器操作
@@ -124,20 +124,10 @@ services:
 
 ## 清理旧镜像 {#cleaning-up-old-images}
 
-每次更新都会在主机上留下被替换的镜像。设置 `DOZZLE_AUTO_UPDATE_CLEANUP=true` 后，Dozzle 会在更新后删除旧镜像，类似 Watchtower 的 `--cleanup`。该选项默认关闭，适用于所有更新：定时更新、容器的 `Update` 操作，以及更新面板。
+每次更新都会在主机上留下被替换的镜像，因此 Dozzle 会在更新后删除旧镜像，类似 Watchtower 的 `--cleanup`。清理始终进行，适用于所有更新：定时更新、容器的 `Update` 操作，以及更新面板。无需任何开关。
 
-Dozzle 会保留容器之前运行的镜像，以便还能回退到它，并删除再之前的那个。从 1.4.1 更新到 1.4.2 会删除 1.4.0 并保留 1.4.1，因此每个容器最多保留一个备用镜像。Dozzle 从旧容器的 `dev.dozzle.previous-image` 标签读取要删除的镜像，所以开启清理后的第一次更新不会删除任何镜像。
+Dozzle 会保留容器之前运行的镜像，以便还能回退到它，并删除再之前的那个。从 1.4.1 更新到 1.4.2 会删除 1.4.0 并保留 1.4.1，因此每个容器最多保留一个备用镜像。Dozzle 从旧容器的 `dev.dozzle.previous-image` 标签读取要删除的镜像，所以容器的第一次更新不会删除任何镜像。
 
-只有在更新完成且旧容器已删除之后才会清理。已回滚的更新不会删除任何镜像。Dozzle 只删除没有标签且没有容器使用的镜像：仍带有标签的镜像会被保留，并且删除不强制，因此只要还有其他容器（无论运行中还是已停止）在使用它，Docker 就会拒绝删除。删除被拒绝不会导致更新失败。
+只有在更新完成且旧容器已删除之后才会清理。已回滚的更新不会删除任何镜像。Dozzle 只删除没有标签且没有容器使用的镜像：仍带有标签的镜像（例如你自己拉取或构建的镜像）会被保留，并且删除不强制，因此只要还有其他容器（无论运行中还是已停止）在使用它，Docker 就会拒绝删除。删除被拒绝不会导致更新失败。
 
-如果想保留某个容器的旧镜像（例如你也会手动运行的镜像），给它加上这个标签：
-
-```yaml [docker-compose.yml]
-services:
-  whoami:
-    image: traefik/whoami:latest
-    labels:
-      dev.dozzle.update-cleanup: false
-```
-
-该设置也可以作为 `autoUpdateCleanup` 保存在 [`dozzle.yml`](/zh/guide/setup-wizard) 中。[远程代理](/zh/guide/agent) 上的容器遵循其所连接的 Dozzle 的设置。Swarm 服务不会被清理，因为每个节点保存自己的镜像，并且 Swarm 会自行清理任务历史。
+[远程代理](/zh/guide/agent) 上的容器也以同样方式清理。Swarm 服务不会被清理，因为每个节点保存自己的镜像，并且 Swarm 会自行清理任务历史。

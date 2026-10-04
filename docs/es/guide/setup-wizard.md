@@ -1,6 +1,6 @@
 ---
 title: Asistente de configuración
-sourceHash: 41f82e7cd34e
+sourceHash: 5de063d00e38
 ---
 
 # Asistente de configuración
@@ -89,23 +89,21 @@ enableActions: true
 enableShell: false
 autoUpdate: weekly
 autoUpdateTime: "03:00"
-autoUpdateCleanup: true
 remoteAgents:
   - 10.0.0.5:7007|nas
 privateAgents:
   - 10.0.0.5:7007|nas
 ```
 
-| Clave               | Valores                                                                                          | Equivale a                   |
-| ------------------- | ------------------------------------------------------------------------------------------------ | ---------------------------- |
-| `authProvider`      | `none`, `simple`, `forward-proxy`                                                                | `DOZZLE_AUTH_PROVIDER`       |
-| `enableActions`     | `true`, `false`                                                                                  | `DOZZLE_ENABLE_ACTIONS`      |
-| `enableShell`       | `true`, `false`                                                                                  | `DOZZLE_ENABLE_SHELL`        |
-| `autoUpdate`        | `off`, `daily`, `weekly`                                                                         | `DOZZLE_AUTO_UPDATE`         |
-| `autoUpdateTime`    | `HH:MM`, hora local del servidor                                                                 | `DOZZLE_AUTO_UPDATE_TIME`    |
-| `autoUpdateCleanup` | `true`, `false`. Consulta [limpiar imágenes antiguas](/es/guide/actions#cleaning-up-old-images)  | `DOZZLE_AUTO_UPDATE_CLEANUP` |
-| `remoteAgents`      | lista de direcciones de agentes                                                                  | `DOZZLE_REMOTE_AGENT`        |
-| `privateAgents`     | agentes de `remoteAgents` que usan el [certificado privado](/es/guide/agent#private-certificate) | ninguna                      |
+| Clave            | Valores                                                                                          | Equivale a                |
+| ---------------- | ------------------------------------------------------------------------------------------------ | ------------------------- |
+| `authProvider`   | `none`, `simple`, `forward-proxy`                                                                | `DOZZLE_AUTH_PROVIDER`    |
+| `enableActions`  | `true`, `false`                                                                                  | `DOZZLE_ENABLE_ACTIONS`   |
+| `enableShell`    | `true`, `false`                                                                                  | `DOZZLE_ENABLE_SHELL`     |
+| `autoUpdate`     | `off`, `daily`, `weekly`                                                                         | `DOZZLE_AUTO_UPDATE`      |
+| `autoUpdateTime` | `HH:MM`, hora local del servidor                                                                 | `DOZZLE_AUTO_UPDATE_TIME` |
+| `remoteAgents`   | lista de direcciones de agentes                                                                  | `DOZZLE_REMOTE_AGENT`     |
+| `privateAgents`  | agentes de `remoteAgents` que usan el [certificado privado](/es/guide/agent#private-certificate) | ninguna                   |
 
 Los flags y las variables de entorno siempre tienen prioridad sobre el archivo. Si `DOZZLE_ENABLE_ACTIONS` está definida, el valor de `dozzle.yml` se ignora y el asistente muestra el interruptor bloqueado. Para volver a gestionar un ajuste desde el asistente, quita la variable de tu archivo compose. `remoteAgents` funciona distinto: los agentes del archivo se suman a los de `DOZZLE_REMOTE_AGENT` en lugar de ser reemplazados por ellos.
 

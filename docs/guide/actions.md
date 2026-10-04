@@ -123,20 +123,10 @@ Auto-update runs in server mode, including containers on [remote agents](/guide/
 
 ## Cleaning up old images {#cleaning-up-old-images}
 
-Every update leaves the image it replaced on the host. With `DOZZLE_AUTO_UPDATE_CLEANUP=true`, Dozzle removes old images after an update, like Watchtower's `--cleanup`. It is off by default and applies to every update: scheduled, from a container's `Update` action, or from the Updates drawer.
+Every update leaves the image it replaced on the host, so Dozzle removes old images after an update, like Watchtower's `--cleanup`. It always runs, for every update: scheduled, from a container's `Update` action, or from the Updates drawer. There is nothing to turn on.
 
-Dozzle keeps the image the container ran until now, so the container can still go back to it, and removes the one before that. An update from 1.4.1 to 1.4.2 removes 1.4.0 and keeps 1.4.1, so each container keeps at most one spare image. Dozzle reads which image to remove from the old container's `dev.dozzle.previous-image` label, so the first update after turning cleanup on removes nothing.
+Dozzle keeps the image the container ran until now, so the container can still go back to it, and removes the one before that. An update from 1.4.1 to 1.4.2 removes 1.4.0 and keeps 1.4.1, so each container keeps at most one spare image. Dozzle reads which image to remove from the old container's `dev.dozzle.previous-image` label, so a container's first update removes nothing.
 
-Cleanup only runs after the update has gone through and the old container is gone. A rolled back update removes nothing. Dozzle only removes an untagged image that no container uses: an image that still has a tag is kept, and the removal is not forced, so Docker refuses while any other container, running or stopped, still uses it. A refusal never fails the update.
+Cleanup only runs after the update has gone through and the old container is gone. A rolled back update removes nothing. Dozzle only removes an untagged image that no container uses: an image that still has a tag, such as one you pulled or built yourself, is kept, and the removal is not forced, so Docker refuses while any other container, running or stopped, still uses it. A refusal never fails the update.
 
-To keep a container's old images, for example for an image you also run by hand, label it:
-
-```yaml [docker-compose.yml]
-services:
-  whoami:
-    image: traefik/whoami:latest
-    labels:
-      dev.dozzle.update-cleanup: false
-```
-
-The setting can also be saved as `autoUpdateCleanup` in [`dozzle.yml`](/guide/setup-wizard). Containers on [remote agents](/guide/agent) follow the setting of the Dozzle they are connected to. Swarm services are not cleaned up, since each node keeps its own images and Swarm prunes its own task history.
+Containers on [remote agents](/guide/agent) are cleaned up the same way. Swarm services are not cleaned up, since each node keeps its own images and Swarm prunes its own task history.

@@ -1,6 +1,6 @@
 ---
 title: Container-Aktionen
-sourceHash: ce5fe1716730
+sourceHash: e31674a9bc64
 ---
 
 # Container-Aktionen
@@ -124,20 +124,10 @@ Das automatische Update läuft im Server-Modus, auch für Container auf [Remote-
 
 ## Alte Images aufräumen {#cleaning-up-old-images}
 
-Jedes Update lässt das ersetzte Image auf dem Host zurück. Mit `DOZZLE_AUTO_UPDATE_CLEANUP=true` entfernt Dozzle nach einem Update alte Images, ähnlich wie Watchtowers `--cleanup`. Die Option ist standardmäßig aus und gilt für jedes Update: geplant, über die Aktion `Update` eines Containers oder über die Update-Leiste.
+Jedes Update lässt das ersetzte Image auf dem Host zurück, deshalb entfernt Dozzle nach einem Update alte Images, ähnlich wie Watchtowers `--cleanup`. Das passiert immer, bei jedem Update: geplant, über die Aktion `Update` eines Containers oder über die Update-Leiste. Es muss nichts eingeschaltet werden.
 
-Dozzle behält das Image, mit dem der Container bisher lief, damit er noch dorthin zurück kann, und entfernt das davor. Ein Update von 1.4.1 auf 1.4.2 entfernt 1.4.0 und behält 1.4.1, sodass jeder Container höchstens ein Ersatz-Image behält. Welches Image entfernt wird, liest Dozzle aus dem Label `dev.dozzle.previous-image` des alten Containers. Das erste Update nach dem Einschalten entfernt deshalb nichts.
+Dozzle behält das Image, mit dem der Container bisher lief, damit er noch dorthin zurück kann, und entfernt das davor. Ein Update von 1.4.1 auf 1.4.2 entfernt 1.4.0 und behält 1.4.1, sodass jeder Container höchstens ein Ersatz-Image behält. Welches Image entfernt wird, liest Dozzle aus dem Label `dev.dozzle.previous-image` des alten Containers. Das erste Update eines Containers entfernt deshalb nichts.
 
-Aufgeräumt wird erst, wenn das Update durch ist und der alte Container entfernt ist. Ein zurückgerolltes Update entfernt nichts. Dozzle entfernt nur ein Image ohne Tag, das kein Container nutzt: Ein Image, das noch ein Tag hat, bleibt erhalten, und das Entfernen geschieht ohne Zwang, also verweigert Docker es, solange ein anderer Container es noch nutzt, ob laufend oder gestoppt. Eine Weigerung lässt das Update nie fehlschlagen.
+Aufgeräumt wird erst, wenn das Update durch ist und der alte Container entfernt ist. Ein zurückgerolltes Update entfernt nichts. Dozzle entfernt nur ein Image ohne Tag, das kein Container nutzt: Ein Image, das noch ein Tag hat, etwa eines, das du selbst gepullt oder gebaut hast, bleibt erhalten, und das Entfernen geschieht ohne Zwang, also verweigert Docker es, solange ein anderer Container es noch nutzt, ob laufend oder gestoppt. Eine Weigerung lässt das Update nie fehlschlagen.
 
-Um die alten Images eines Containers zu behalten, etwa bei einem Image, das du auch von Hand startest, versieh ihn mit diesem Label:
-
-```yaml [docker-compose.yml]
-services:
-  whoami:
-    image: traefik/whoami:latest
-    labels:
-      dev.dozzle.update-cleanup: false
-```
-
-Die Einstellung lässt sich auch als `autoUpdateCleanup` in der [`dozzle.yml`](/de/guide/setup-wizard) speichern. Container auf [Remote-Agents](/de/guide/agent) folgen der Einstellung des Dozzle, mit dem sie verbunden sind. Swarm-Services werden nicht aufgeräumt, da jeder Node seine eigenen Images hat und Swarm seinen Task-Verlauf selbst bereinigt.
+Container auf [Remote-Agents](/de/guide/agent) werden genauso aufgeräumt. Swarm-Services werden nicht aufgeräumt, da jeder Node seine eigenen Images hat und Swarm seinen Task-Verlauf selbst bereinigt.

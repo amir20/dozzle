@@ -1,6 +1,6 @@
 ---
 title: Actions sur les conteneurs
-sourceHash: ce5fe1716730
+sourceHash: e31674a9bc64
 ---
 
 # Actions sur les conteneurs
@@ -124,20 +124,10 @@ La mise à jour automatique fonctionne en mode serveur, y compris pour les conte
 
 ## Nettoyer les anciennes images {#cleaning-up-old-images}
 
-Chaque mise à jour laisse sur l'hôte l'image qu'elle remplace. Avec `DOZZLE_AUTO_UPDATE_CLEANUP=true`, Dozzle supprime les anciennes images après une mise à jour, comme le `--cleanup` de Watchtower. L'option est désactivée par défaut et s'applique à toutes les mises à jour : planifiées, lancées depuis l'action `Update` d'un conteneur ou depuis le panneau des mises à jour.
+Chaque mise à jour laisse sur l'hôte l'image qu'elle remplace, donc Dozzle supprime les anciennes images après une mise à jour, comme le `--cleanup` de Watchtower. Le nettoyage a toujours lieu, pour toutes les mises à jour : planifiées, lancées depuis l'action `Update` d'un conteneur ou depuis le panneau des mises à jour. Il n'y a rien à activer.
 
-Dozzle garde l'image sur laquelle le conteneur tournait jusque-là, pour qu'il puisse encore y revenir, et supprime celle d'avant. Une mise à jour de 1.4.1 vers 1.4.2 supprime 1.4.0 et garde 1.4.1, donc chaque conteneur garde au plus une image de réserve. Dozzle lit l'image à supprimer dans le label `dev.dozzle.previous-image` de l'ancien conteneur, donc la première mise à jour après l'activation ne supprime rien.
+Dozzle garde l'image sur laquelle le conteneur tournait jusque-là, pour qu'il puisse encore y revenir, et supprime celle d'avant. Une mise à jour de 1.4.1 vers 1.4.2 supprime 1.4.0 et garde 1.4.1, donc chaque conteneur garde au plus une image de réserve. Dozzle lit l'image à supprimer dans le label `dev.dozzle.previous-image` de l'ancien conteneur, donc la première mise à jour d'un conteneur ne supprime rien.
 
-Le nettoyage n'a lieu qu'une fois la mise à jour aboutie et l'ancien conteneur supprimé. Une mise à jour restaurée ne supprime rien. Dozzle ne supprime qu'une image sans tag qu'aucun conteneur n'utilise : une image qui a encore un tag est conservée, et la suppression n'est pas forcée, donc Docker refuse tant qu'un autre conteneur, démarré ou arrêté, l'utilise encore. Un refus ne fait jamais échouer la mise à jour.
+Le nettoyage n'a lieu qu'une fois la mise à jour aboutie et l'ancien conteneur supprimé. Une mise à jour restaurée ne supprime rien. Dozzle ne supprime qu'une image sans tag qu'aucun conteneur n'utilise : une image qui a encore un tag, par exemple une image que vous avez téléchargée ou construite vous-même, est conservée, et la suppression n'est pas forcée, donc Docker refuse tant qu'un autre conteneur, démarré ou arrêté, l'utilise encore. Un refus ne fait jamais échouer la mise à jour.
 
-Pour garder les anciennes images d'un conteneur, par exemple pour une image que vous lancez aussi à la main, ajoutez-lui ce label :
-
-```yaml [docker-compose.yml]
-services:
-  whoami:
-    image: traefik/whoami:latest
-    labels:
-      dev.dozzle.update-cleanup: false
-```
-
-Le réglage peut aussi être enregistré sous `autoUpdateCleanup` dans [`dozzle.yml`](/fr/guide/setup-wizard). Les conteneurs sur des [agents distants](/fr/guide/agent) suivent le réglage du Dozzle auquel ils sont connectés. Les services Swarm ne sont pas nettoyés, car chaque nœud garde ses propres images et Swarm élague lui-même son historique de tâches.
+Les conteneurs sur des [agents distants](/fr/guide/agent) sont nettoyés de la même façon. Les services Swarm ne sont pas nettoyés, car chaque nœud garde ses propres images et Swarm élague lui-même son historique de tâches.

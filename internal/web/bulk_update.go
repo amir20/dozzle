@@ -66,8 +66,6 @@ type bulkUpdateJob struct {
 	requestedBy string
 	// flushUsage sends the day's usage before Dozzle replaces itself. May be nil.
 	flushUsage func()
-	// opts is what every update in the job follows.
-	opts       container.UpdateOptions
 	StartedAt  time.Time         `json:"startedAt"`
 	FinishedAt *time.Time        `json:"finishedAt,omitempty"`
 	Items      []*bulkUpdateItem `json:"items"`
@@ -113,7 +111,7 @@ var bulkUpdates = &bulkUpdater{watchers: make(map[chan struct{}]struct{})}
 // Start queues services and runs them in the background. The returned channel
 // closes when every one has finished.
 // selfService is Dozzle's own swarm service, if any (see selfSwarmService).
-func (u *bulkUpdater) Start(services []*container.ContainerService, trigger, selfService, requestedBy string, opts container.UpdateOptions, flushUsage func()) (<-chan struct{}, error) {
+func (u *bulkUpdater) Start(services []*container.ContainerService, trigger, selfService, requestedBy string, flushUsage func()) (<-chan struct{}, error) {
 	u.mu.Lock()
 	if u.running {
 		u.mu.Unlock()
@@ -121,7 +119,7 @@ func (u *bulkUpdater) Start(services []*container.ContainerService, trigger, sel
 	}
 
 	seen := make(map[string]*bulkUpdateItem, len(services))
-	job := &bulkUpdateJob{Trigger: trigger, StartedAt: time.Now(), requestedBy: requestedBy, flushUsage: flushUsage, opts: opts}
+	job := &bulkUpdateJob{Trigger: trigger, StartedAt: time.Now(), requestedBy: requestedBy, flushUsage: flushUsage}
 	for _, service := range services {
 		c := service.Container
 		self := isSelfContainer(c, selfService)
@@ -190,7 +188,7 @@ func (u *bulkUpdater) run(job *bulkUpdateJob) {
 	for _, items := range byHost {
 		wg.Go(func() {
 			for _, item := range items {
-				u.runItem(item, job.opts)
+				u.runItem(item)
 			}
 		})
 	}
@@ -199,7 +197,7 @@ func (u *bulkUpdater) run(job *bulkUpdateJob) {
 	// Everything else is finished, so marking the job done here lets watchers
 	// see the full result before Dozzle goes away.
 	if self != nil {
-		u.runItem(self, job.opts)
+		u.runItem(self)
 	}
 
 	u.mu.Lock()
@@ -210,14 +208,14 @@ func (u *bulkUpdater) run(job *bulkUpdateJob) {
 	u.notify()
 }
 
-func (u *bulkUpdater) runItem(item *bulkUpdateItem, opts container.UpdateOptions) {
+func (u *bulkUpdater) runItem(item *bulkUpdateItem) {
 	ctx, cancel := context.WithTimeout(context.Background(), bulkItemTimeout)
 	defer cancel()
 
 	progressCh := make(chan container.UpdateProgress, 50)
 	errCh := make(chan error, 1)
 	go func() {
-		_, err := item.service.Update(ctx, opts, progressCh)
+		_, err := item.service.Update(ctx, progressCh)
 		errCh <- err
 	}()
 
@@ -372,7 +370,7 @@ func (h *handler) startBulkUpdate(w http.ResponseWriter, r *http.Request) {
 	if h.config.Authorization.Provider != NONE {
 		requestedBy = auth.UserFromContext(r.Context()).Username
 	}
-	if _, err := bulkUpdates.Start(services, "manual", selfSwarmService(all), requestedBy, UpdateOptions(h.config.Setup), h.flushUsage); err != nil {
+	if _, err := bulkUpdates.Start(services, "manual", selfSwarmService(all), requestedBy, h.flushUsage); err != nil {
 		http.Error(w, err.Error(), http.StatusConflict)
 		return
 	}

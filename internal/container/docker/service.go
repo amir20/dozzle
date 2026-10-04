@@ -235,7 +235,7 @@ func (d *Service) CheckImageUpdate(ctx context.Context, c container.Container, f
 	return d.checker.Check(ctx, swap.ImageRef(inspect.Config), digests, force), nil
 }
 
-func (d *Service) UpdateContainer(ctx context.Context, c container.Container, opts container.UpdateOptions, progressCh chan<- container.UpdateProgress) (bool, error) {
+func (d *Service) UpdateContainer(ctx context.Context, c container.Container, progressCh chan<- container.UpdateProgress) (bool, error) {
 	defer close(progressCh)
 
 	// The consumer is a request: an SSE handler that returns the moment a write
@@ -393,9 +393,7 @@ func (d *Service) UpdateContainer(ctx context.Context, c container.Container, op
 		return true, err
 	}
 
-	if opts.Cleanup {
-		d.cleanupImage(ctx, inspectResp)
-	}
+	d.cleanupImage(ctx, inspectResp)
 
 	progress(container.UpdateProgress{Status: container.UpdateDone})
 	return true, nil
@@ -428,10 +426,6 @@ func previousRef(img *image.InspectResponse, ref string) string {
 // failure is only logged: the update already succeeded.
 func (d *Service) cleanupImage(ctx context.Context, old docker_types.InspectResponse) {
 	logger := log.With().Str("container", strings.TrimPrefix(old.Name, "/")).Logger()
-	if strings.EqualFold(strings.TrimSpace(old.Config.Labels[container.UpdateCleanupLabel]), "false") {
-		logger.Debug().Msg("update cleanup: skipped by label")
-		return
-	}
 	previous := old.Config.Labels[container.PreviousImageLabel]
 	if previous == "" {
 		logger.Debug().Msg("update cleanup: nothing to remove, the container has no previous image yet")

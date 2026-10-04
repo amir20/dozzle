@@ -242,25 +242,14 @@ type UpdateProgress struct {
 // next one.
 const (
 	// PreviousImageLabel is the image id the container ran before its last
-	// update: the rollback target, and what --auto-update-cleanup removes on
-	// the update after.
+	// update: the rollback target, and what cleanup removes on the update
+	// after.
 	PreviousImageLabel = "dev.dozzle.previous-image"
 	// PreviousRefLabel is that image as repo@sha256:digest, so it can be
 	// pulled again by digest once it is gone locally. Absent for an image
 	// built locally, which has no registry digest.
 	PreviousRefLabel = "dev.dozzle.previous-ref"
-	// UpdateCleanupLabel set to false keeps --auto-update-cleanup off this
-	// container, for images someone also runs by hand.
-	UpdateCleanupLabel = "dev.dozzle.update-cleanup"
 )
-
-// UpdateOptions are the server-wide settings an update follows. An agent gets
-// them with each request, so it needs no flags of its own.
-type UpdateOptions struct {
-	// Cleanup removes the image the replaced container had itself replaced,
-	// once the update commits. See --auto-update-cleanup.
-	Cleanup bool
-}
 
 type LogEvent struct {
 	Type        LogType `json:"t,omitempty"`

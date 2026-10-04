@@ -15,7 +15,7 @@ type ClientService interface {
 	ListContainers(ctx context.Context, filter ContainerLabels) ([]Container, error)
 	Host(ctx context.Context) (Host, error)
 	ContainerAction(ctx context.Context, container Container, action ContainerAction) error
-	UpdateContainer(ctx context.Context, container Container, opts UpdateOptions, progressCh chan<- UpdateProgress) (bool, error)
+	UpdateContainer(ctx context.Context, container Container, progressCh chan<- UpdateProgress) (bool, error)
 	CheckImageUpdate(ctx context.Context, container Container, force bool) (imagecheck.Result, error)
 	LogsBetweenDates(ctx context.Context, container Container, from time.Time, to time.Time, stdTypes StdType) (<-chan *LogEvent, error)
 	RawLogs(context.Context, Container, time.Time, time.Time, StdType) (io.ReadCloser, error)

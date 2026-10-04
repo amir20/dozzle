@@ -48,7 +48,7 @@ func (f *fakeClientService) CheckImageUpdate(_ context.Context, _ container.Cont
 	return imagecheck.Result{Status: imagecheck.StatusUpToDate}, nil
 }
 
-func (f *fakeClientService) UpdateContainer(_ context.Context, _ container.Container, _ container.UpdateOptions, progressCh chan<- container.UpdateProgress) (bool, error) {
+func (f *fakeClientService) UpdateContainer(_ context.Context, _ container.Container, progressCh chan<- container.UpdateProgress) (bool, error) {
 	close(progressCh)
 	return false, nil
 }

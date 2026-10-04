@@ -945,8 +945,10 @@ func (*ContainerActionResponse) Descriptor() ([]byte, []int) {
 type UpdateContainerRequest struct {
 	state       protoimpl.MessageState `protogen:"open.v1"`
 	ContainerId string                 `protobuf:"bytes,1,opt,name=containerId,proto3" json:"containerId,omitempty"`
-	// cleanup follows the server's --auto-update-cleanup: once the update
-	// commits, remove the image the replaced container had itself replaced.
+	// cleanup asks the agent to remove, once the update commits, the image the
+	// replaced container had itself replaced. Cleanup is always on, so a current
+	// server always sends true and a current agent cleans up whatever this says;
+	// the field stays so an agent that still reads it keeps cleaning up.
 	Cleanup       bool `protobuf:"varint,2,opt,name=cleanup,proto3" json:"cleanup,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache

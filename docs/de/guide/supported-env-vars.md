@@ -1,6 +1,6 @@
 ---
 title: Umgebungsvariablen und Unterbefehle
-sourceHash: 7a5e507f36f1
+sourceHash: 865e1893cd02
 ---
 
 # Umgebungsvariablen
@@ -51,7 +51,6 @@ DOZZLE_REMOTE_AGENT=167.99.1.1:7007,167.99.1.2:7007
 | `DOZZLE_IMAGE_CHECK_MODE`<br>`--image-check-mode`         | Ob Dozzle in Registries nach neueren Container-Images sucht. Siehe [Update-Prüfung](/de/guide/actions#update-prufung).                                                             | `automatic`, `manual`, `off` | wie `DOZZLE_RELEASE_CHECK_MODE` |
 | `DOZZLE_AUTO_UPDATE`<br>`--auto-update`                   | Aktualisiert den eigenen Container von Dozzle und alle mit dem Label `dev.dozzle.auto-update=true` nach Zeitplan. `weekly` läuft am Sonntag. Setzt `DOZZLE_ENABLE_ACTIONS` voraus. | `off`, `daily`, `weekly`     | `off`                           |
 | `DOZZLE_AUTO_UPDATE_TIME`<br>`--auto-update-time`         | Uhrzeit, zu der das automatische Update läuft, in der lokalen Zeit des Servers.                                                                                                    | `HH:MM`, z. B. `04:30`       | `03:00`                         |
-| `DOZZLE_AUTO_UPDATE_CLEANUP`<br>`--auto-update-cleanup`   | Entfernt nach jedem Container-Update das Image vor dem gerade ersetzten. Nur Docker-Hosts und Agents. Siehe [alte Images aufräumen](/de/guide/actions#cleaning-up-old-images).     | `true`, `false`              | `false`                         |
 
 ## Authentifizierung
 

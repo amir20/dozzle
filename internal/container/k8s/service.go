@@ -141,7 +141,7 @@ func (k *Service) CheckImageUpdate(ctx context.Context, c container.Container, f
 	return k.checker.Check(ctx, c.Image, digests, force), nil
 }
 
-func (k *Service) UpdateContainer(ctx context.Context, c container.Container, _ container.UpdateOptions, progressCh chan<- container.UpdateProgress) (bool, error) {
+func (k *Service) UpdateContainer(ctx context.Context, c container.Container, progressCh chan<- container.UpdateProgress) (bool, error) {
 	defer close(progressCh)
 	return false, fmt.Errorf("update container is not supported in Kubernetes mode")
 }

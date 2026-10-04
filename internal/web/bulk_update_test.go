@@ -21,16 +21,14 @@ type recordingClientService struct {
 	container.ClientService
 	mu       sync.Mutex
 	order    []string
-	opts     []container.UpdateOptions
 	fail     map[string]bool
 	rollBack map[string]bool
 }
 
-func (s *recordingClientService) UpdateContainer(ctx context.Context, c container.Container, opts container.UpdateOptions, progressCh chan<- container.UpdateProgress) (bool, error) {
+func (s *recordingClientService) UpdateContainer(ctx context.Context, c container.Container, progressCh chan<- container.UpdateProgress) (bool, error) {
 	defer close(progressCh)
 	s.mu.Lock()
 	s.order = append(s.order, c.ID)
-	s.opts = append(s.opts, opts)
 	s.mu.Unlock()
 
 	progressCh <- container.UpdateProgress{Status: "pulling", Layer: "a", Current: 5, Total: 10}
@@ -77,7 +75,7 @@ func TestBulkUpdate_SelfRunsLast(t *testing.T) {
 	}
 
 	u := newTestUpdater()
-	done, err := u.Start(services, "manual", "", "", container.UpdateOptions{}, nil)
+	done, err := u.Start(services, "manual", "", "", nil)
 	require.NoError(t, err)
 	waitDone(t, done)
 
@@ -102,7 +100,7 @@ func TestBulkUpdate_FailureDoesNotStopTheRest(t *testing.T) {
 	}
 
 	u := newTestUpdater()
-	done, err := u.Start(services, "manual", "", "", container.UpdateOptions{}, nil)
+	done, err := u.Start(services, "manual", "", "", nil)
 	require.NoError(t, err)
 	waitDone(t, done)
 
@@ -113,7 +111,7 @@ func TestBulkUpdate_FailureDoesNotStopTheRest(t *testing.T) {
 }
 
 // A rolled back container ends the job as rolled back, not failed, with the
-// reason the new one was refused, and every update follows the job's options.
+// reason the new one was refused.
 func TestBulkUpdate_RolledBackStaysRolledBack(t *testing.T) {
 	client := &recordingClientService{rollBack: map[string]bool{"bbbbbbbbbbbb": true}}
 	services := []*container.ContainerService{
@@ -122,7 +120,7 @@ func TestBulkUpdate_RolledBackStaysRolledBack(t *testing.T) {
 	}
 
 	u := newTestUpdater()
-	done, err := u.Start(services, "schedule", "", "", container.UpdateOptions{Cleanup: true}, nil)
+	done, err := u.Start(services, "schedule", "", "", nil)
 	require.NoError(t, err)
 	waitDone(t, done)
 
@@ -130,7 +128,6 @@ func TestBulkUpdate_RolledBackStaysRolledBack(t *testing.T) {
 	assert.Equal(t, "rolled-back", job.Items[0].Status)
 	assert.Equal(t, "replacement is unhealthy", job.Items[0].Error)
 	assert.Equal(t, "done", job.Items[1].Status)
-	assert.Equal(t, []container.UpdateOptions{{Cleanup: true}, {Cleanup: true}}, client.opts)
 }
 
 func TestBulkUpdate_SwarmServiceUpdatedOnce(t *testing.T) {
@@ -142,7 +139,7 @@ func TestBulkUpdate_SwarmServiceUpdatedOnce(t *testing.T) {
 	}
 
 	u := newTestUpdater()
-	done, err := u.Start(services, "manual", "", "", container.UpdateOptions{}, nil)
+	done, err := u.Start(services, "manual", "", "", nil)
 	require.NoError(t, err)
 	waitDone(t, done)
 
@@ -155,12 +152,12 @@ func TestBulkUpdate_RejectsOverlap(t *testing.T) {
 	u := newTestUpdater()
 	done, err := u.Start([]*container.ContainerService{
 		container.NewContainerService(client, container.Container{ID: "bbbbbbbbbbbb", Host: "local"}),
-	}, "manual", "", "", container.UpdateOptions{}, nil)
+	}, "manual", "", "", nil)
 	require.NoError(t, err)
 
 	_, err = u.Start([]*container.ContainerService{
 		container.NewContainerService(client, container.Container{ID: "cccccccccccc", Host: "local"}),
-	}, "schedule", "", "", container.UpdateOptions{}, nil)
+	}, "schedule", "", "", nil)
 	assert.ErrorIs(t, err, errBulkUpdateBusy)
 
 	close(block)
@@ -173,7 +170,7 @@ func TestBulkUpdate_SnapshotFiltersHidden(t *testing.T) {
 	done, err := u.Start([]*container.ContainerService{
 		container.NewContainerService(client, container.Container{ID: "bbbbbbbbbbbb", Host: "local", Name: "web"}),
 		container.NewContainerService(client, container.Container{ID: "cccccccccccc", Host: "local", Name: "db"}),
-	}, "manual", "", "", container.UpdateOptions{}, nil)
+	}, "manual", "", "", nil)
 	require.NoError(t, err)
 	waitDone(t, done)
 
@@ -199,7 +196,7 @@ func TestBulkUpdate_SwarmSelfServiceRunsLast(t *testing.T) {
 	}
 
 	u := newTestUpdater()
-	done, err := u.Start(services, "manual", "dozzle-svc", "", container.UpdateOptions{}, nil)
+	done, err := u.Start(services, "manual", "dozzle-svc", "", nil)
 	require.NoError(t, err)
 	waitDone(t, done)
 
@@ -236,7 +233,7 @@ func TestBulkUpdate_IdleWaitsForRunningJob(t *testing.T) {
 
 	done, err := u.Start([]*container.ContainerService{
 		container.NewContainerService(&blockingClientService{release: block}, container.Container{ID: "bbbbbbbbbbbb", Host: "local"}),
-	}, "manual", "", "", container.UpdateOptions{}, nil)
+	}, "manual", "", "", nil)
 	require.NoError(t, err)
 
 	idle := u.idle()
@@ -255,7 +252,7 @@ type blockingClientService struct {
 	release chan struct{}
 }
 
-func (s *blockingClientService) UpdateContainer(ctx context.Context, _ container.Container, _ container.UpdateOptions, progressCh chan<- container.UpdateProgress) (bool, error) {
+func (s *blockingClientService) UpdateContainer(ctx context.Context, _ container.Container, progressCh chan<- container.UpdateProgress) (bool, error) {
 	defer close(progressCh)
 	<-s.release
 	return false, nil

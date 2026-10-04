@@ -21,8 +21,6 @@ type Locked struct {
 	// the schedule read-only when either is.
 	AutoUpdate     bool
 	AutoUpdateTime bool
-	// AutoUpdateCleanup is not in the wizard; locked, dozzle.yml's value is ignored.
-	AutoUpdateCleanup bool
 }
 
 // setByOperator reports whether flag appears in argv (as flag or flag=value,
@@ -57,8 +55,6 @@ func applyConfigFile(args *Args, file config.File, argv []string, lookupEnv func
 
 		AutoUpdate:     setByOperator(argv, lookupEnv, "auto-update", "DOZZLE_AUTO_UPDATE"),
 		AutoUpdateTime: setByOperator(argv, lookupEnv, "auto-update-time", "DOZZLE_AUTO_UPDATE_TIME"),
-
-		AutoUpdateCleanup: setByOperator(argv, lookupEnv, "auto-update-cleanup", "DOZZLE_AUTO_UPDATE_CLEANUP"),
 	}
 
 	if !args.Locked.AuthProvider && file.AuthProvider != nil {
@@ -77,9 +73,6 @@ func applyConfigFile(args *Args, file config.File, argv []string, lookupEnv func
 	}
 	if !args.Locked.AutoUpdateTime && file.AutoUpdateTime != nil {
 		args.AutoUpdateTime = *file.AutoUpdateTime
-	}
-	if !args.Locked.AutoUpdateCleanup && file.AutoUpdateCleanup != nil {
-		args.AutoUpdateCleanup = *file.AutoUpdateCleanup
 	}
 
 	// Agents from the file join the ones from the flag or env var. One listed in
