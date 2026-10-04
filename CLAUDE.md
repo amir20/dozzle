@@ -47,6 +47,32 @@ When posting anything to GitHub, write like a human maintainer, not an AI assist
 - Lowercase casual tone is fine. Contractions are fine. Short sentences are fine.
 - Don't over-explain tradeoffs. State the decision, give one reason, stop.
 
+## Scope Discipline
+
+Small first versions win. Building is cheap here; reviewing and maintaining is not.
+
+- **Agree the scope as a changelog before any code.** For a new feature, write what
+  ships (user-visible bullets) and an explicit "Not in this release" list, and get it
+  approved. Anything not on the ship list is out of scope, however reasonable it looks.
+- **A plan is a menu, not a work order.** Build phase 1 only. Later phases start after
+  phase 1 has merged, unless the user asks for more.
+- **Reuse before you add.** A new table, RPC, proto field, flag, label or setting needs a
+  one-line reason why an existing one (labels, existing events, existing alert channels,
+  existing pages) can't do it. Prefer one delivery surface to several.
+- **Stop at ~1,000 lines.** If a PR's non-test, non-generated diff passes ~1,000 lines,
+  stop and check scope with the user before continuing.
+- **One feature, one PR per repo.** Unrelated work (e.g. a settings redesign during an
+  updates feature) gets its own PR off main, never a layer in the same stack. Avoid
+  stacks deeper than two; with a GitHub stack, merge from the bottom.
+- **Subagents and workflows get the out-of-scope list.** Every implementation prompt
+  includes "not in scope" and the rule: a deviation that adds behaviour is reported,
+  not built.
+- **Review fixes fix; they don't extend.** Addressing feedback must not add new
+  mechanisms. If a fix needs one, raise it as a scope question.
+- **Audit size before review, not after.** When a body of work is done, report its size
+  per feature (code, tests, generated) next to its user impact, so cuts happen before
+  review time is spent.
+
 ## Project Overview
 
 Dozzle is a lightweight, web-based Docker log viewer with real-time monitoring capabilities. It's a hybrid application with:
