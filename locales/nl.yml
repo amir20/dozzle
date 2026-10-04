@@ -247,10 +247,20 @@ settings:
   sidebar: Zijbalk
   behavior: Gedrag
   advanced: Geavanceerd
-  setup: "Instellen"
   about: Over
   general: Algemeen
   updates: Updates
+  security: "Beveiliging"
+  hosts: "Hosts"
+  login-desc: "Wie Dozzle kan openen. Zonder login kan iedereen die het bereikt je logs lezen."
+  login-off: "Geen login"
+  login-docs: "Handleiding authenticatie"
+  set-by-flags: "In deze modus ingesteld met flags of omgevingsvariabelen."
+  hosts-found: "In deze modus vindt Dozzle deze hosts zelf."
+  after-restart: "Na herstart"
+  restart-pending: "1 wijziging geldt na een herstart | {count} wijzigingen gelden na een herstart"
+  run-setup: "Installatie opnieuw doorlopen"
+  run-setup-desc: "Een begeleide ronde langs login, acties, hosts, Dozzle Cloud en updates. Alles daarin staat ook in Instellingen."
   reset: Standaardwaarden herstellen
   sponsor: Sponsoren
   new-version: "{version} beschikbaar"
@@ -831,12 +841,6 @@ setup:
   finish-later: Later afronden
   close: Sluiten
   copy: Kopiëren
-  settings-title: Dozzle instellen
-  settings-desc: "Inloggen, containeracties, shell, andere hosts en Dozzle Cloud in een paar stappen."
-  settings-done-title: "Dozzle is ingesteld"
-  settings-done-desc: "Inloggen staat aan. Open de installatie om containeracties, shell, andere hosts en Dozzle Cloud te bekijken."
-  settings-closed-title: "De installatie is gesloten"
-  settings-closed-desc: "Zonder login accepteert de installatie alleen wijzigingen in de eerste 15 minuten van een nieuwe installatie. Gebruik in plaats daarvan omgevingsvariabelen."
   steps:
     login: Inloggen
     login-note: Doe dit eerst

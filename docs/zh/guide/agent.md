@@ -1,6 +1,6 @@
 ---
 title: 代理模式
-sourceHash: 20dfc19418d9
+sourceHash: 1612be6887f8
 ---
 
 # 代理模式
@@ -79,7 +79,7 @@ services:
 > 你可以提供多个 `DOZZLE_REMOTE_AGENT` 环境变量来连接多个代理。例如 `DOZZLE_REMOTE_AGENT=agent1:7007,agent2:7007`。
 
 > [!TIP]
-> 在服务器模式下，你也可以在界面中添加代理：使用主机列表底部的 **添加主机**，或[设置向导](/zh/guide/setup-wizard)中的主机步骤。Dozzle 会在保存之前先连接代理，主机无需重启就会出现。以这种方式添加的代理保存在 `/data/dozzle.yml` 中，因此 `/data` 必须挂载在卷上。通过 `DOZZLE_REMOTE_AGENT` 设置的代理保持不变，无法在界面中移除。
+> 在服务器模式下，你也可以在界面中添加代理：使用主机列表底部的 **添加主机**、**设置 → 主机**，或[设置向导](/zh/guide/setup-wizard)中的主机步骤。Dozzle 会在保存之前先连接代理，主机无需重启就会出现。以这种方式添加的代理保存在 `/data/dozzle.yml` 中，因此 `/data` 必须挂载在卷上。通过 `DOZZLE_REMOTE_AGENT` 设置的代理保持不变，无法在界面中移除。
 
 ## <Icon icon="mdi:group" inline /> 主机分组
 

@@ -208,6 +208,44 @@ export function setupHasPending(status: SetupStatus): boolean {
   return Object.values(status.pending).some((v) => v !== undefined && v !== null);
 }
 
+// Whether this browser may change server settings at all: the same rule for every
+// setup step and every server page in Settings. dozzle.yml outside a volume is lost
+// on the next recreate, so nothing is saved there either.
+export function setupCanEdit(status: SetupStatus): boolean {
+  return status.dataPersisted && status.canWrite;
+}
+
+// Mirrors the server's rule for POST /api/setup/restart: anyone who can change setup,
+// or anyone at all while the only pending change is the login that ends the open window.
+export function setupCanRestartNow(status: SetupStatus): boolean {
+  return status.canRestart && (status.canWrite || (status.authProvider === "none" && !!status.pending.authProvider));
+}
+
+export interface SetupPendingChange {
+  key: "auth" | "actions" | "shell" | "update";
+  // The provider, the toggle, or the schedule's mode.
+  value: string | boolean;
+  // The schedule's time, on the update row.
+  time?: string;
+}
+
+// What the next restart changes, in the order the wizard's last step and the settings
+// banner list them.
+export function setupPendingChanges(status: SetupStatus): SetupPendingChange[] {
+  const { authProvider, enableActions, enableShell } = status.pending;
+  const rows: SetupPendingChange[] = [];
+  if (authProvider != null) rows.push({ key: "auth", value: authProvider });
+  if (enableActions != null) rows.push({ key: "actions", value: enableActions });
+  if (enableShell != null) rows.push({ key: "shell", value: enableShell });
+  // Auto-update is saved already and needs no restart of its own, but it cannot run
+  // until the actions this restart turns on. Listed so the restart reads as what starts it.
+  const update = status.autoUpdate;
+  if (update && update.mode !== "off" && !status.enableActions && enableActions === true) {
+    rows.push({ key: "update", value: update.mode, time: update.time });
+  }
+  return rows;
+}
+
 // The compose lines that do the same as the pending changes, for installs that
 // cannot restart themselves.
 export function setupEnvSnippet(status: SetupStatus): string {
@@ -270,6 +308,17 @@ export class SetupError extends Error {
   }
 }
 
+// The message for a failed login save or the restart that follows it. Login writes
+// only run with auth off, so a 403 there is always the closed window.
+export function setupLoginErrorKey(e: unknown): string {
+  if (e instanceof SetupError) {
+    if (e.status === 409) return "setup.error.conflict";
+    if (e.status === 412) return "setup.error.no-data";
+    if (e.status === 403) return "setup.error.window-closed";
+  }
+  return "setup.error.generic";
+}
+
 async function request(path: string, init?: RequestInit) {
   const res = await fetch(withBase(path), {
     ...init,
@@ -283,7 +332,7 @@ async function request(path: string, init?: RequestInit) {
   return res;
 }
 
-// Shared across the layout's wizard and the settings entry that reopens it.
+// Shared across the layout's wizard and the settings pages.
 const status = ref<SetupStatus | null>(null);
 const loading = ref(false);
 const loadError = ref(false);
@@ -366,7 +415,8 @@ export function useSetup() {
   // The restart lands ~500ms after the 202, so a response right away is still the
   // old process. Back means it answered after failing once, or after 2s. A self-update
   // keeps the old process up for much longer, so it passes mustGoDown.
-  async function waitForRestart({ timeout = 60_000, interval = 500, mustGoDown = false } = {}) {
+  // Lands on `to` once back: the wizard starts over at /, Settings returns to its page.
+  async function waitForRestart({ timeout = 60_000, interval = 500, mustGoDown = false, to = "/" } = {}) {
     const started = Date.now();
     let failed = false;
     while (Date.now() - started < timeout) {
@@ -380,7 +430,7 @@ export function useSetup() {
       }
       if (!ok) failed = true;
       else if (failed || (!mustGoDown && Date.now() - started >= 2000)) {
-        window.location.assign(withBase("/"));
+        window.location.assign(withBase(to));
         return true;
       }
     }
@@ -415,4 +465,30 @@ export function useSetup() {
     waitForRestart,
     openWizard,
   };
+}
+
+// Restarting Dozzle to apply what is pending: the wizard's last step and the banner on
+// every settings page run the same sequence. The page goes away on success, so only
+// a failure or a slow restart is ever left to show.
+export function useSetupRestart() {
+  const { t } = useI18n();
+  const { restart, waitForRestart } = useSetup();
+  const phase = ref<"idle" | "restarting" | "timeout">("idle");
+  const error = ref("");
+
+  async function restartNow({ to }: { to?: string } = {}): Promise<boolean> {
+    error.value = "";
+    phase.value = "restarting";
+    try {
+      await restart();
+    } catch {
+      phase.value = "idle";
+      error.value = t("setup.error.generic");
+      return false;
+    }
+    if (!(await waitForRestart({ to }))) phase.value = "timeout";
+    return true;
+  }
+
+  return { phase, error, restartNow };
 }

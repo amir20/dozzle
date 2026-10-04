@@ -15,11 +15,28 @@ const server: SettingsPageConfig = { mode: "server", enableCloud: true, canLinkC
 
 describe("settingsPages", () => {
   test("server mode with cloud shows every page, preferences first and About last", () => {
-    expect(settingsPages(server)).toEqual(["general", "logs", "sidebar", "updates", "cloud", "setup", "about"]);
+    expect(settingsPages(server)).toEqual([
+      "general",
+      "logs",
+      "sidebar",
+      "security",
+      "hosts",
+      "updates",
+      "cloud",
+      "about",
+    ]);
   });
 
-  test("swarm has no setup and no self-update", () => {
-    expect(settingsPages({ ...server, mode: "swarm" })).toEqual(["general", "logs", "sidebar", "cloud", "about"]);
+  test("swarm keeps Security and Hosts as read-only status, without self-update", () => {
+    expect(settingsPages({ ...server, mode: "swarm" })).toEqual([
+      "general",
+      "logs",
+      "sidebar",
+      "security",
+      "hosts",
+      "cloud",
+      "about",
+    ]);
   });
 
   test("kubernetes shows nothing about updates", () => {
@@ -47,14 +64,25 @@ describe("settingsRedirect", () => {
     ["#behavior", "/settings/general"],
     ["#logs", "/settings/logs"],
     ["#sidebar", "/settings/sidebar"],
-    ["#setup", "/settings/setup"],
+    ["#setup", "/settings/about"],
     ["#cloud", "/settings/cloud"],
   ])("old anchor %s lands on %s", (hash, target) => {
     expect(settingsRedirect("/settings", hash, all)).toBe(target);
   });
 
   test("an old anchor for a page this install hides opens the first page", () => {
-    expect(settingsRedirect("/settings", "#setup", swarm)).toBe("/settings/general");
+    expect(settingsRedirect("/settings", "#cloud", settingsPages({ ...server, enableCloud: false }))).toBe(
+      "/settings/general",
+    );
+  });
+
+  test("the old Setup page lands on About, where Run setup again lives", () => {
+    expect(settingsRedirect("/settings/setup", "", all)).toBe("/settings/about");
+    expect(settingsRedirect("/settings/setup/", "", swarm)).toBe("/settings/about");
+  });
+
+  test("a page name that collides with an object key is not a moved page", () => {
+    expect(settingsRedirect("/settings/constructor", "", all)).toBeUndefined();
   });
 
   test("an unknown anchor opens the first page", () => {
@@ -63,7 +91,7 @@ describe("settingsRedirect", () => {
 
   test("a hidden page falls back to the first page", () => {
     expect(settingsRedirect("/settings/updates", "", swarm)).toBe("/settings/general");
-    expect(settingsRedirect("/settings/setup/", "", swarm)).toBe("/settings/general");
+    expect(settingsRedirect("/settings/updates/", "", swarm)).toBe("/settings/general");
   });
 
   test("a visible page, an unknown page and other routes pass through", () => {
@@ -82,11 +110,13 @@ describe("guardSettingsRoutes", () => {
       history: createMemoryHistory(),
       routes: [
         { path: "/", name: "/", component: Blank },
+        // Like the app's [...all].vue, which is what a removed page used to fall into.
+        { path: "/:all(.*)*", name: "/[...all]", component: Blank },
         {
           path: "/settings",
           name: "/settings",
           component: Blank,
-          children: ["general", "logs", "sidebar", "updates", "cloud", "setup", "about"].map((id) => ({
+          children: ["general", "logs", "sidebar", "security", "hosts", "updates", "cloud", "about"].map((id) => ({
             path: id,
             name: `/settings/${id}`,
             component: Blank,
@@ -122,6 +152,12 @@ describe("guardSettingsRoutes", () => {
     expect(router.currentRoute.value.fullPath).toBe("/settings/general");
   });
 
+  test("a bookmark to the old Setup page opens About", async () => {
+    const router = makeRouter();
+    await router.push("/settings/setup");
+    expect(router.currentRoute.value.fullPath).toBe("/settings/about");
+  });
+
   test("a visible page is left alone", async () => {
     const router = makeRouter();
     await router.push("/settings/about");
@@ -137,7 +173,8 @@ describe("isPreferencePage", () => {
   });
 
   test("server and install pages have nothing a reset would put back", () => {
-    for (const id of ["updates", "cloud", "setup", "about"]) expect(isPreferencePage(`/settings/${id}`)).toBe(false);
+    for (const id of ["security", "hosts", "updates", "cloud", "about"])
+      expect(isPreferencePage(`/settings/${id}`)).toBe(false);
     expect(isPreferencePage("/settings")).toBe(false);
     expect(isPreferencePage("/container/abc")).toBe(false);
   });

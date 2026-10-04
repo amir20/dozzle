@@ -246,10 +246,20 @@ settings:
   sidebar: Seitenleiste
   behavior: Verhalten
   advanced: Erweitert
-  setup: "Einrichtung"
   about: Über
   general: Allgemein
   updates: Aktualisierungen
+  security: "Sicherheit"
+  hosts: "Hosts"
+  login-desc: "Wer Dozzle öffnen kann. Ohne Anmeldung kann jeder, der es erreicht, Ihre Logs lesen."
+  login-off: "Keine Anmeldung"
+  login-docs: "Anleitung zur Authentifizierung"
+  set-by-flags: "In diesem Modus über Flags oder Umgebungsvariablen festgelegt."
+  hosts-found: "Dozzle findet diese Hosts in diesem Modus selbst."
+  after-restart: "Nach Neustart"
+  restart-pending: "1 Änderung gilt nach einem Neustart | {count} Änderungen gelten nach einem Neustart"
+  run-setup: "Einrichtung erneut starten"
+  run-setup-desc: "Eine geführte Runde durch Anmeldung, Aktionen, Hosts, Dozzle Cloud und Updates. Alles darin gibt es auch in den Einstellungen."
   reset: Auf Standard zurücksetzen
   sponsor: Sponsern
   new-version: "{version} verfügbar"
@@ -830,12 +840,6 @@ setup:
   finish-later: "Später abschließen"
   close: "Schließen"
   copy: "Kopieren"
-  settings-title: "Dozzle einrichten"
-  settings-desc: "Anmeldung, Container-Aktionen, Shell, weitere Hosts und Dozzle Cloud in wenigen Schritten."
-  settings-done-title: "Dozzle ist eingerichtet"
-  settings-done-desc: "Die Anmeldung ist aktiv. Öffnen Sie die Einrichtung, um Container-Aktionen, Shell, weitere Hosts und Dozzle Cloud zu prüfen."
-  settings-closed-title: "Die Einrichtung ist geschlossen"
-  settings-closed-desc: "Ohne Anmeldung nimmt die Einrichtung nur in den ersten 15 Minuten einer neuen Installation Änderungen an. Verwenden Sie stattdessen Umgebungsvariablen."
   steps:
     login: "Anmeldung"
     login-note: "Zuerst erledigen"

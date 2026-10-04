@@ -4,31 +4,38 @@ import type { Config } from "@/stores/config";
 // Settings is one route per page under /settings. Which pages an install shows is a
 // pure function of the injected config, so the nav and the route guard agree and both
 // are testable without a browser.
-export type SettingsPageId = "general" | "logs" | "sidebar" | "updates" | "cloud" | "setup" | "about";
+export type SettingsPageId = "general" | "logs" | "sidebar" | "security" | "hosts" | "updates" | "cloud" | "about";
 
 export const SETTINGS_PAGE_IDS: readonly SettingsPageId[] = [
   "general",
   "logs",
   "sidebar",
+  "security",
+  "hosts",
   "updates",
   "cloud",
-  "setup",
   "about",
 ];
+
+// The pages that describe the server rather than this browser. The first one opens
+// the nav's second group.
+export const SERVER_PAGES: readonly SettingsPageId[] = ["security", "hosts", "updates", "cloud"];
 
 export type SettingsPageConfig = Pick<Config, "mode" | "enableCloud" | "canLinkCloud">;
 
 export function settingsPages(cfg: SettingsPageConfig): SettingsPageId[] {
-  // Setup and the self-update schedule only exist in server mode, so swarm and
-  // Kubernetes get neither page.
+  // The self-update schedule only exists in server mode. Security and Hosts show in
+  // every mode: swarm and Kubernetes have no setup API, so there they only report
+  // what flags and the orchestrator decided.
   const server = cfg.mode === "server";
   const visible: Record<SettingsPageId, boolean> = {
     general: true,
     logs: true,
     sidebar: true,
+    security: true,
+    hosts: true,
     updates: server,
     cloud: Boolean(cfg.enableCloud && cfg.canLinkCloud),
-    setup: server,
     about: true,
   };
   return SETTINGS_PAGE_IDS.filter((id) => visible[id]);
@@ -58,8 +65,14 @@ const LEGACY_HASHES: Record<string, SettingsPageId> = {
   "#behavior": "general",
   "#logs": "logs",
   "#sidebar": "sidebar",
-  "#setup": "setup",
+  // The Setup card that reopened the wizard is "Run setup again" on About now.
+  "#setup": "about",
   "#cloud": "cloud",
+};
+
+// Pages that no longer exist, and the page that took over what they held.
+const MOVED_PAGES: Record<string, SettingsPageId> = {
+  setup: "about",
 };
 
 const isPageId = (id: string): id is SettingsPageId => (SETTINGS_PAGE_IDS as readonly string[]).includes(id);
@@ -75,7 +88,10 @@ export function settingsRedirect(path: string, hash: string, pages: SettingsPage
     return `/settings/${target}`;
   }
   const match = /^\/settings\/([^/]+)$/.exec(trimmed);
-  if (match && isPageId(match[1]) && !pages.includes(match[1])) return `/settings/${pages[0]}`;
+  if (!match) return undefined;
+  const moved = Object.hasOwn(MOVED_PAGES, match[1]) ? MOVED_PAGES[match[1]] : undefined;
+  if (moved) return `/settings/${pages.includes(moved) ? moved : pages[0]}`;
+  if (isPageId(match[1]) && !pages.includes(match[1])) return `/settings/${pages[0]}`;
   return undefined;
 }
 

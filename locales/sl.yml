@@ -248,10 +248,20 @@ settings:
   sidebar: Stranska vrstica
   behavior: Vedenje
   advanced: Napredno
-  setup: "Nastavitev"
   about: O programu
   general: Splošno
   updates: Posodobitve
+  security: "Varnost"
+  hosts: "Gostitelji"
+  login-desc: "Kdo lahko odpre Dozzle. Brez prijave lahko vsak, ki ga doseže, bere vaše dnevnike."
+  login-off: "Brez prijave"
+  login-docs: "Vodnik za overjanje"
+  set-by-flags: "V tem načinu se nastavi z zastavicami ali okoljskimi spremenljivkami."
+  hosts-found: "V tem načinu Dozzle te gostitelje najde sam."
+  after-restart: "Po ponovnem zagonu"
+  restart-pending: "Sprememb po ponovnem zagonu: 1 | Sprememb po ponovnem zagonu: {count}"
+  run-setup: "Znova zaženi nastavitev"
+  run-setup-desc: "Vodeni pregled prijave, dejanj, gostiteljev, Dozzle Cloud in posodobitev. Vse v njem je tudi v Nastavitvah."
   reset: Ponastavi na privzeto
   sponsor: Podpri
   new-version: "Na voljo je {version}"
@@ -835,12 +845,6 @@ setup:
   finish-later: Dokončaj pozneje
   close: Zapri
   copy: Kopiraj
-  settings-title: Nastavitev Dozzle
-  settings-desc: "Prijava, dejanja na vsebnikih, lupina, drugi gostitelji in Dozzle Cloud v nekaj korakih."
-  settings-done-title: "Dozzle je nastavljen"
-  settings-done-desc: "Prijava je vklopljena. Odprite nastavitev za pregled dejanj na vsebnikih, lupine, drugih gostiteljev in Dozzle Cloud."
-  settings-closed-title: "Nastavitev je zaprta"
-  settings-closed-desc: "Brez prijave nastavitev sprejema spremembe le v prvih 15 minutah nove namestitve. Namesto tega uporabite okoljske spremenljivke."
   steps:
     login: Prijava
     login-note: To naredite najprej

@@ -1,6 +1,6 @@
 ---
 title: 环境变量与子命令
-sourceHash: 106a7af00ec5
+sourceHash: 4f67e805c4b4
 ---
 
 # 环境变量
@@ -46,7 +46,7 @@ DOZZLE_REMOTE_AGENT=167.99.1.1:7007,167.99.1.2:7007
 | `DOZZLE_ENABLE_SHELL`<br>`--enable-shell`                 | 允许在界面中附加到容器或在容器内运行 shell。参见 [shell](/zh/guide/shell)。                                                                                          | `true`、`false`              | `false`                             |
 | `DOZZLE_ENABLE_MCP`<br>`--enable-mcp`                     | 为 LLM 客户端开放 [MCP](/zh/guide/mcp) 端点。                                                                                                                        | `true`、`false`              | `false`                             |
 | `DOZZLE_DISABLE_AVATARS`<br>`--disable-avatars`           | 启用身份验证时隐藏用户头像。                                                                                                                                         | `true`、`false`              | `false`                             |
-| `DOZZLE_DISABLE_SETUP_WIZARD`<br>`--disable-setup-wizard` | 阻止[设置向导](/zh/guide/setup-wizard)在全新安装时自动打开。仍然可以在设置中打开它。                                                                                 | `true`、`false`              | `false`                             |
+| `DOZZLE_DISABLE_SETUP_WIZARD`<br>`--disable-setup-wizard` | 阻止[设置向导](/zh/guide/setup-wizard)在全新安装时自动打开。仍然可以在 **设置 → 关于** 中运行它。                                                                    | `true`、`false`              | `false`                             |
 | `DOZZLE_RELEASE_CHECK_MODE`<br>`--release-check-mode`     | Dozzle 是否检查自身的新版本。`manual` 只在你主动要求时检查。                                                                                                         | `automatic`、`manual`        | `automatic`                         |
 | `DOZZLE_IMAGE_CHECK_MODE`<br>`--image-check-mode`         | Dozzle 是否到镜像仓库检查更新的容器镜像。参见[更新检查](/zh/guide/actions#更新检查)。                                                                                | `automatic`、`manual`、`off` | 与 `DOZZLE_RELEASE_CHECK_MODE` 相同 |
 | `DOZZLE_AUTO_UPDATE`<br>`--auto-update`                   | 按计划更新 Dozzle 以及设为自动更新的容器。`weekly` 在周日运行。需要开启 `DOZZLE_ENABLE_ACTIONS`。请参阅 [自动更新容器](/zh/guide/actions#auto-updating-containers)。 | `off`、`daily`、`weekly`     | `off`                               |

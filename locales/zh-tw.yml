@@ -248,10 +248,20 @@ settings:
   sidebar: 側邊欄
   behavior: 行為
   advanced: 進階
-  setup: "設定"
   about: 關於
   general: 一般
   updates: 更新
+  security: "安全性"
+  hosts: "主機"
+  login-desc: "誰可以開啟 Dozzle。沒有登入時，任何能連到它的人都能讀取你的日誌。"
+  login-off: "未啟用登入"
+  login-docs: "驗證指南"
+  set-by-flags: "在此模式下透過參數或環境變數設定。"
+  hosts-found: "在此模式下 Dozzle 會自行找到這些主機。"
+  after-restart: "重新啟動後生效"
+  restart-pending: "1 項變更在重新啟動後生效 | {count} 項變更在重新啟動後生效"
+  run-setup: "重新執行設定"
+  run-setup-desc: "依序引導登入、操作、主機、Dozzle Cloud 和更新。其中所有內容也都在設定中。"
   reset: 重設為預設值
   sponsor: 贊助
   new-version: "{version} 已推出"
@@ -832,12 +842,6 @@ setup:
   finish-later: 稍後完成
   close: 關閉
   copy: 複製
-  settings-title: 設定 Dozzle
-  settings-desc: "幾個步驟完成登入、容器操作、Shell、其他主機與 Dozzle Cloud 的設定。"
-  settings-done-title: "Dozzle 已設定完成"
-  settings-done-desc: "登入已啟用。開啟設定精靈可檢視容器操作、Shell、其他主機與 Dozzle Cloud。"
-  settings-closed-title: "設定已關閉"
-  settings-closed-desc: "未啟用登入時，設定只在新安裝的前 15 分鐘內接受變更。請改用環境變數。"
   steps:
     login: 登入
     login-note: 請先完成此步驟

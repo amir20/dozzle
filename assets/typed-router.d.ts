@@ -144,8 +144,9 @@ declare module 'vue-router/auto-routes' {
       | '/settings/about'
       | '/settings/cloud'
       | '/settings/general'
+      | '/settings/hosts'
       | '/settings/logs'
-      | '/settings/setup'
+      | '/settings/security'
       | '/settings/sidebar'
       | '/settings/updates'
     >,
@@ -170,6 +171,13 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
+    '/settings/hosts': RouteRecordInfo<
+      '/settings/hosts',
+      '/settings/hosts',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
     '/settings/logs': RouteRecordInfo<
       '/settings/logs',
       '/settings/logs',
@@ -177,9 +185,9 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
-    '/settings/setup': RouteRecordInfo<
-      '/settings/setup',
-      '/settings/setup',
+    '/settings/security': RouteRecordInfo<
+      '/settings/security',
+      '/settings/security',
       Record<never, never>,
       Record<never, never>,
       | never
@@ -352,8 +360,9 @@ declare module 'vue-router/auto-routes' {
         | '/settings/about'
         | '/settings/cloud'
         | '/settings/general'
+        | '/settings/hosts'
         | '/settings/logs'
-        | '/settings/setup'
+        | '/settings/security'
         | '/settings/sidebar'
         | '/settings/updates'
       views:
@@ -385,6 +394,14 @@ declare module 'vue-router/auto-routes' {
       pathParamNames:
         | never
     }
+    'assets/pages/settings/hosts.vue': {
+      routes:
+        | '/settings/hosts'
+      views:
+        | never
+      pathParamNames:
+        | never
+    }
     'assets/pages/settings/logs.vue': {
       routes:
         | '/settings/logs'
@@ -393,9 +410,9 @@ declare module 'vue-router/auto-routes' {
       pathParamNames:
         | never
     }
-    'assets/pages/settings/setup.vue': {
+    'assets/pages/settings/security.vue': {
       routes:
-        | '/settings/setup'
+        | '/settings/security'
       views:
         | never
       pathParamNames:

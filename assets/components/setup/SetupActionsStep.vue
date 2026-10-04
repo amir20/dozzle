@@ -26,116 +26,30 @@
       </div>
     </div>
 
-    <!-- Same rule as the login step: anything saved without a volume is gone on the next recreate. -->
-    <InlineNotice v-if="!status.dataPersisted" type="warning" class="mt-4">{{
-      $t("setup.error.no-data")
-    }}</InlineNotice>
-    <InlineNotice v-else-if="!status.canWrite" type="info" class="mt-4">
-      {{ status.authProvider === "none" ? $t("setup.actions.window-closed") : $t("setup.actions.no-access") }}
-    </InlineNotice>
-
-    <div class="border-base-content/15 bg-base-200/40 divide-base-content/10 mt-4 divide-y rounded-lg border">
-      <label class="flex items-start justify-between gap-3 p-4">
-        <span class="min-w-0 flex-1">
-          <span class="block text-sm font-medium">{{ $t("setup.actions.actions-label") }}</span>
-          <span class="text-base-content/60 mt-0.5 block text-xs">{{ $t("setup.actions.actions-desc") }}</span>
-          <span v-if="status.locked.enableActions" class="text-base-content/40 mt-1 flex items-center gap-1 text-xs">
-            <mdi:lock-outline class="size-3.5" />
-            {{ $t("setup.actions.locked", { env: "DOZZLE_ENABLE_ACTIONS" }) }}
-          </span>
-        </span>
-        <input
-          v-model="enableActions"
-          type="checkbox"
-          class="toggle toggle-primary toggle-sm mt-0.5 shrink-0"
-          :disabled="!canEdit('enableActions')"
-        />
-      </label>
-
-      <label class="flex items-start justify-between gap-3 p-4">
-        <span class="min-w-0 flex-1">
-          <span class="block text-sm font-medium">{{ $t("setup.actions.shell-label") }}</span>
-          <span class="text-base-content/60 mt-0.5 block text-xs">{{ $t("setup.actions.shell-desc") }}</span>
-          <span v-if="status.locked.enableShell" class="text-base-content/40 mt-1 flex items-center gap-1 text-xs">
-            <mdi:lock-outline class="size-3.5" />
-            {{ $t("setup.actions.locked", { env: "DOZZLE_ENABLE_SHELL" }) }}
-          </span>
-        </span>
-        <input
-          v-model="enableShell"
-          type="checkbox"
-          class="toggle toggle-primary toggle-sm mt-0.5 shrink-0"
-          :disabled="!canEdit('enableShell')"
-        />
-      </label>
-
-      <div class="flex items-start gap-3 p-4">
-        <div class="bg-warning/10 text-warning shrink-0 rounded-full p-1.5">
-          <mdi:console class="size-4" />
-        </div>
-        <p class="text-base-content/60 text-xs leading-relaxed">{{ $t("setup.actions.shell-warning") }}</p>
-      </div>
-    </div>
+    <!-- The same switches as Settings → Security, saved on Next instead of on change. -->
+    <SetupTogglesForm ref="form" :status="status" class="mt-4" />
 
     <p class="text-base-content/40 mt-3 text-xs">{{ $t("setup.actions.restart-note") }}</p>
-
-    <InlineNotice v-if="error" type="error" class="mt-4">{{ error }}</InlineNotice>
   </div>
 </template>
 
 <script lang="ts" setup>
 import type { SetupNextResult, SetupStatus } from "@/composable/setup/setup";
+import SetupTogglesForm from "./SetupTogglesForm.vue";
 
-const { status } = defineProps<{ status: SetupStatus }>();
+defineProps<{ status: SetupStatus }>();
 
 const { t } = useI18n();
-const { saveConfig } = useSetup();
-
-type Field = "enableActions" | "enableShell";
-
-const initial = setupToggles(status);
-const enableActions = ref(initial.enableActions);
-const enableShell = ref(initial.enableShell);
-const saving = ref(false);
-const error = ref("");
-
-function canEdit(field: Field) {
-  return status.dataPersisted && status.canWrite && !status.locked[field];
-}
-
-function changes() {
-  const current = setupToggles(status);
-  const patch: Partial<Record<Field, boolean>> = {};
-  if (canEdit("enableActions") && enableActions.value !== current.enableActions) {
-    patch.enableActions = enableActions.value;
-  }
-  if (canEdit("enableShell") && enableShell.value !== current.enableShell) {
-    patch.enableShell = enableShell.value;
-  }
-  return patch;
-}
-
-const dirty = computed(() => Object.keys(changes()).length > 0);
+const form = useTemplateRef<InstanceType<typeof SetupTogglesForm>>("form");
 
 async function next(): Promise<SetupNextResult> {
-  error.value = "";
-  const patch = changes();
-  if (Object.keys(patch).length === 0) return "advance";
-
-  saving.value = true;
-  try {
-    await saveConfig(patch);
-    return "advance";
-  } catch {
-    error.value = t("setup.error.generic");
-    return "stay";
-  } finally {
-    saving.value = false;
-  }
+  return (await form.value?.save()) === false ? "stay" : "advance";
 }
 
+const saving = computed(() => !!form.value?.saving);
+const dirty = computed(() => !!form.value?.dirty);
+const actionsDraft = computed(() => form.value?.actionsDraft);
 const nextLabel = computed(() => t("setup.next"));
-const nextDisabled = computed(() => saving.value);
 
-defineExpose({ nextLabel, nextDisabled, nextPlain: false, actionsDraft: enableActions, dirty, busy: saving, next });
+defineExpose({ nextLabel, nextDisabled: saving, nextPlain: false, actionsDraft, dirty, busy: saving, next });
 </script>

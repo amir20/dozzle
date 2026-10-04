@@ -8,22 +8,14 @@
         {{ $t("auto-update.containers-still") }}
       </span>
     </InlineNotice>
-    <InlineNotice v-else-if="!status.dataPersisted" type="warning">
-      {{ $t("setup.error.no-data") }}
-    </InlineNotice>
-    <InlineNotice v-else-if="!status.canWrite" type="info">
-      {{ status.authProvider === "none" ? $t("setup.actions.window-closed") : $t("setup.actions.no-access") }}
-    </InlineNotice>
+    <SetupAccessNotice v-else :status="status" />
 
     <div class="border-base-content/15 bg-base-200/40 divide-base-content/10 divide-y rounded-lg border">
       <div class="flex flex-wrap items-start justify-between gap-3 p-4">
         <span class="min-w-0 flex-1">
           <span class="block text-sm font-medium">{{ $t("auto-update.schedule-label") }}</span>
           <span class="text-base-content/60 mt-0.5 block text-xs">{{ $t("auto-update.schedule-desc") }}</span>
-          <span v-if="status.locked.autoUpdate" class="text-base-content/40 mt-1 flex items-center gap-1 text-xs">
-            <mdi:lock-outline class="size-3.5" />
-            {{ $t("setup.actions.locked", { env: "DOZZLE_AUTO_UPDATE" }) }}
-          </span>
+          <SetupLocked v-if="status.locked.autoUpdate" env="DOZZLE_AUTO_UPDATE" class="mt-1" />
         </span>
         <span class="flex items-center gap-2">
           <select
@@ -160,7 +152,7 @@ const blockedReason = computed(() => {
 const scheduleEditable = computed(() => autoUpdate.value.reason !== "not-server");
 
 // dozzle.yml outside a volume is lost on the next recreate, so nothing is saved there.
-const canEdit = computed(() => status.dataPersisted && status.canWrite && scheduleEditable.value);
+const canEdit = computed(() => setupCanEdit(status) && scheduleEditable.value);
 const canEditSchedule = computed(() => canEdit.value && !status.locked.autoUpdate);
 
 const scheduleChanged = () =>
