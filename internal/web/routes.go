@@ -206,6 +206,8 @@ type handler struct {
 	hostMetricsOnce sync.Once
 	hostMetricsMu   sync.Mutex
 	hostMetricsSubs map[chan []hostMetricsEvent]struct{}
+
+	cloudLinks cloudLinkStates
 }
 
 // Server is the HTTP server plus the usage beacon hooks main runs around it.
@@ -396,9 +398,12 @@ func createRouter(h *handler) *chi.Mux {
 					// different cloud account for everyone on the instance.
 					r.With(h.requireCloudRole).Patch("/config", h.updateCloudConfig)
 					r.With(h.requireCloudRole).Delete("/config", h.deleteCloudConfig)
-					// Cloud callback handles the OAuth-style code exchange. It must stay
-					// authenticated so an unauthenticated attacker cannot force-link the
-					// instance to their own cloud account via SetCloudConfig.
+					// Linking is a round trip through Dozzle Cloud. /link mints the
+					// state the callback demands back, so a cross-site navigation
+					// carrying the session cookie cannot link the instance to an
+					// attacker's account. The callback must also stay authenticated
+					// so an unauthenticated caller cannot reach SetCloudConfig.
+					r.With(h.requireCloudRole).Post("/link", h.startCloudLink)
 					r.With(h.requireCloudRole).Get("/callback", h.cloudCallback)
 				})
 
