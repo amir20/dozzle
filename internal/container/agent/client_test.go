@@ -455,3 +455,24 @@ func TestVerifyAgentCert(t *testing.T) {
 	assert.Error(t, verifyAgentCert(certs.Certificate, pool(private)), "the public shared cert is refused by a private hub")
 	assert.Error(t, verifyAgentCert(nil, pool(private)))
 }
+
+// A request that ends before the swap starts cancels the stream (a pull on a
+// wedged daemon must not pin it); once detached, the stream outlives it.
+func TestSwapStreamContext(t *testing.T) {
+	ctx, cancel := context.WithCancel(context.Background())
+	streamCtx, _, stop := swapStreamContext(ctx)
+	defer stop()
+	cancel()
+	select {
+	case <-streamCtx.Done():
+	case <-time.After(time.Second):
+		t.Fatal("stream not cancelled with the request before the swap started")
+	}
+
+	ctx, cancel = context.WithCancel(context.Background())
+	streamCtx, detach, stop2 := swapStreamContext(ctx)
+	defer stop2()
+	assert.True(t, detach())
+	cancel()
+	assert.NoError(t, streamCtx.Err(), "detached stream outlives the request")
+}

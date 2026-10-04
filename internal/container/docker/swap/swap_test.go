@@ -46,8 +46,10 @@ type fakeDocker struct {
 	goneAfter map[string]int
 	// newState is what an inspect of a created container reports.
 	newState *dcontainer.State
-	// stopErr fails every stop, after the container did stop.
-	stopErr error
+	// stopErr fails every stop, after the container did stop, unless
+	// stopLeftRunning says it did not.
+	stopErr         error
+	stopLeftRunning bool
 	// removeErrFor is a container id whose removal fails and leaves it there.
 	removeErrFor string
 
@@ -125,8 +127,13 @@ func (f *fakeDocker) ContainerStop(_ context.Context, id string, _ client.Contai
 	if _, removing := f.goneAfter[id]; removing {
 		return client.ContainerStopResult{}, nil
 	}
-	if c, ok := f.containers[id]; ok && c.HostConfig != nil && c.HostConfig.AutoRemove {
+	if c, ok := f.containers[id]; ok && c.HostConfig != nil && c.HostConfig.AutoRemove && !f.stopLeftRunning {
 		delete(f.containers, id)
+	} else if ok && c.State != nil && !f.stopLeftRunning {
+		state := *c.State
+		state.Running = false
+		c.State = &state
+		f.containers[id] = c
 	}
 	return client.ContainerStopResult{}, f.stopErr
 }
@@ -481,6 +488,29 @@ func TestSwapRollbackStartsOldWhenStopErrored(t *testing.T) {
 		"remove new1 volumes=false",
 		"rename " + appID + " dozzle",
 		"start " + appID,
+	}, f.calls)
+}
+
+// A stop that errors with the old container still running is no stop: the
+// rollback puts the name back without waiting on a --rm removal that is not
+// coming, and reports nothing stopped.
+func TestSwapRollbackStopErroredStillRunning(t *testing.T) {
+	fastTimings(t)
+	f := newFake()
+	old := f.containers[appID]
+	old.HostConfig.AutoRemove = true
+	f.containers[appID] = old
+	f.stopErr = errors.New("stop timed out")
+	f.stopLeftRunning = true
+	result, err := swapApp(f, Options{})
+	require.ErrorContains(t, err, "stop old container")
+	assert.Equal(t, Result{RolledBack: true, RestoredID: appID}, result)
+	assert.Equal(t, []string{
+		"rename " + appID + " dozzle-dozzle-old-aaaaaaaaaaaa",
+		"create dozzle",
+		"stop " + appID,
+		"remove new1 volumes=false",
+		"rename " + appID + " dozzle",
 	}, f.calls)
 }
 

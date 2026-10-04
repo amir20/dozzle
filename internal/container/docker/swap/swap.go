@@ -198,13 +198,13 @@ func (s *swap) forward(ctx context.Context) error {
 	s.newID = created.ID
 
 	s.logger.Info().Msg(s.prefix + ": stopping old container")
-	// Marked before the call: a stop that errors may still have stopped it,
-	// and starting a container that is still running is a no-op, so the
-	// rollback always starts it.
-	s.stopped = true
 	if _, err := s.cli.ContainerStop(ctx, s.old.ID, client.ContainerStopOptions{}); err != nil && !isNotFound(err) {
+		// A stop that errors may still have stopped it, so the rollback starts
+		// it unless it is plainly still running.
+		s.stopped = !s.running(ctx, s.old.ID)
 		return fmt.Errorf("stop old container: %w", err)
 	}
+	s.stopped = true
 
 	if s.old.HostConfig.AutoRemove {
 		if err := s.waitGone(ctx, s.old.ID); err != nil {
@@ -230,6 +230,13 @@ func (s *swap) forward(ctx context.Context) error {
 		s.removeOld(ctx)
 	}
 	return nil
+}
+
+// running reports whether the daemon says id is running. An inspect that
+// fails reads as not running.
+func (s *swap) running(ctx context.Context, id string) bool {
+	result, err := s.cli.ContainerInspect(ctx, id, client.ContainerInspectOptions{})
+	return err == nil && result.Container.State != nil && result.Container.State.Running
 }
 
 // removeOld commits the swap by removing the old container. Failing to is

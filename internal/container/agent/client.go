@@ -507,14 +507,24 @@ func (c *Client) ContainerAction(ctx context.Context, containerId string, action
 func (c *Client) UpdateContainer(ctx context.Context, containerID string, progressCh chan<- container.UpdateProgress) (bool, error) {
 	defer close(progressCh)
 
-	// The swap on the agent finishes even if this request goes away, so the
-	// stream outlives it too: its last progress carries the Result the update
-	// is recorded from.
-	stream, err := c.client.UpdateContainer(context.WithoutCancel(ctx), &pb.UpdateContainerRequest{ContainerId: containerID})
+	streamCtx, detach, cancel := swapStreamContext(ctx)
+	defer cancel()
+	stream, err := c.client.UpdateContainer(streamCtx, &pb.UpdateContainerRequest{ContainerId: containerID})
 	if err != nil {
 		return false, err
 	}
-	return receiveUpdateProgress(stream, progressCh)
+	return receiveUpdateProgress(stream, progressCh, detach)
+}
+
+// swapStreamContext is the context an update or rollback stream runs under.
+// It follows ctx until detach is called, which receiveUpdateProgress does once
+// the agent reports recreating: before that, a request that times out still
+// cancels a pull on a wedged daemon; after it, the swap on the agent finishes
+// regardless, and the stream has to outlive the request too, because its last
+// progress carries the Result the update is recorded from.
+func swapStreamContext(ctx context.Context) (streamCtx context.Context, detach func() bool, cancel context.CancelFunc) {
+	streamCtx, cancel = context.WithCancel(context.WithoutCancel(ctx))
+	return streamCtx, context.AfterFunc(ctx, cancel), cancel
 }
 
 // RollbackContainer swaps a container on the agent back to the image it ran
@@ -522,13 +532,14 @@ func (c *Client) UpdateContainer(ctx context.Context, containerID string, progre
 func (c *Client) RollbackContainer(ctx context.Context, containerID string, opts container.RollbackOptions, progressCh chan<- container.UpdateProgress) error {
 	defer close(progressCh)
 
-	// Outlives the request for the same reason as UpdateContainer.
-	stream, err := c.client.RollbackContainer(context.WithoutCancel(ctx), &pb.RollbackContainerRequest{
+	streamCtx, detach, cancel := swapStreamContext(ctx)
+	defer cancel()
+	stream, err := c.client.RollbackContainer(streamCtx, &pb.RollbackContainerRequest{
 		ContainerId:        containerID,
 		ExpectedFromDigest: opts.ExpectedFromDigest,
 	})
 	if err == nil {
-		_, err = receiveUpdateProgress(stream, progressCh)
+		_, err = receiveUpdateProgress(stream, progressCh, detach)
 	}
 	// An agent older than rollbacks has no such method.
 	if status.Code(err) == codes.Unimplemented {
@@ -547,10 +558,11 @@ func (c *Client) hostLabel() string {
 }
 
 // receiveUpdateProgress relays an update's or a rollback's progress until the
-// stream ends, and reports whether it ended on done.
+// stream ends, and reports whether it ended on done. It calls detach when the
+// swap starts (see swapStreamContext).
 func receiveUpdateProgress(stream interface {
 	Recv() (*pb.UpdateContainerProgress, error)
-}, progressCh chan<- container.UpdateProgress) (bool, error) {
+}, progressCh chan<- container.UpdateProgress, detach func() bool) (bool, error) {
 	updated := false
 	for {
 		progress, err := stream.Recv()
@@ -561,7 +573,10 @@ func receiveUpdateProgress(stream interface {
 			return false, err
 		}
 
-		if progress.Status == container.UpdateDone {
+		switch progress.Status {
+		case container.UpdateRecreating:
+			detach()
+		case container.UpdateDone:
 			updated = true
 		}
 
