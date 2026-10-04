@@ -343,7 +343,8 @@ func (s *Store) RecordRolledBack(event ContainerUpdateEvent) {
 }
 
 // UpdateHistory is a client service whose host keeps update events. The Docker
-// service does; an agent's events stay on the agent for now.
+// service keeps its own; an agent's service reads the agent's over gRPC, and
+// is empty for an agent too old to keep them.
 type UpdateHistory interface {
 	RecentUpdates() []ContainerUpdateEvent
 	SubscribeUpdates(ctx context.Context, ch chan<- ContainerUpdateEvent)

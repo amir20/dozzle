@@ -37,6 +37,8 @@ const (
 	AgentService_UpdateCloudConfig_FullMethodName        = "/protobuf.AgentService/UpdateCloudConfig"
 	AgentService_GetNotificationStats_FullMethodName     = "/protobuf.AgentService/GetNotificationStats"
 	AgentService_LogHistogram_FullMethodName             = "/protobuf.AgentService/LogHistogram"
+	AgentService_RecentUpdates_FullMethodName            = "/protobuf.AgentService/RecentUpdates"
+	AgentService_StreamUpdates_FullMethodName            = "/protobuf.AgentService/StreamUpdates"
 )
 
 // AgentServiceClient is the client API for AgentService service.
@@ -61,6 +63,8 @@ type AgentServiceClient interface {
 	UpdateCloudConfig(ctx context.Context, in *UpdateCloudConfigRequest, opts ...grpc.CallOption) (*UpdateCloudConfigResponse, error)
 	GetNotificationStats(ctx context.Context, in *GetNotificationStatsRequest, opts ...grpc.CallOption) (*GetNotificationStatsResponse, error)
 	LogHistogram(ctx context.Context, in *LogHistogramRequest, opts ...grpc.CallOption) (*LogHistogramResponse, error)
+	RecentUpdates(ctx context.Context, in *RecentUpdatesRequest, opts ...grpc.CallOption) (*RecentUpdatesResponse, error)
+	StreamUpdates(ctx context.Context, in *StreamUpdatesRequest, opts ...grpc.CallOption) (grpc.ServerStreamingClient[StreamUpdatesResponse], error)
 }
 
 type agentServiceClient struct {
@@ -320,6 +324,35 @@ func (c *agentServiceClient) LogHistogram(ctx context.Context, in *LogHistogramR
 	return out, nil
 }
 
+func (c *agentServiceClient) RecentUpdates(ctx context.Context, in *RecentUpdatesRequest, opts ...grpc.CallOption) (*RecentUpdatesResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(RecentUpdatesResponse)
+	err := c.cc.Invoke(ctx, AgentService_RecentUpdates_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *agentServiceClient) StreamUpdates(ctx context.Context, in *StreamUpdatesRequest, opts ...grpc.CallOption) (grpc.ServerStreamingClient[StreamUpdatesResponse], error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	stream, err := c.cc.NewStream(ctx, &AgentService_ServiceDesc.Streams[9], AgentService_StreamUpdates_FullMethodName, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	x := &grpc.GenericClientStream[StreamUpdatesRequest, StreamUpdatesResponse]{ClientStream: stream}
+	if err := x.ClientStream.SendMsg(in); err != nil {
+		return nil, err
+	}
+	if err := x.ClientStream.CloseSend(); err != nil {
+		return nil, err
+	}
+	return x, nil
+}
+
+// This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
+type AgentService_StreamUpdatesClient = grpc.ServerStreamingClient[StreamUpdatesResponse]
+
 // AgentServiceServer is the server API for AgentService service.
 // All implementations must embed UnimplementedAgentServiceServer
 // for forward compatibility.
@@ -342,6 +375,8 @@ type AgentServiceServer interface {
 	UpdateCloudConfig(context.Context, *UpdateCloudConfigRequest) (*UpdateCloudConfigResponse, error)
 	GetNotificationStats(context.Context, *GetNotificationStatsRequest) (*GetNotificationStatsResponse, error)
 	LogHistogram(context.Context, *LogHistogramRequest) (*LogHistogramResponse, error)
+	RecentUpdates(context.Context, *RecentUpdatesRequest) (*RecentUpdatesResponse, error)
+	StreamUpdates(*StreamUpdatesRequest, grpc.ServerStreamingServer[StreamUpdatesResponse]) error
 	mustEmbedUnimplementedAgentServiceServer()
 }
 
@@ -405,6 +440,12 @@ func (UnimplementedAgentServiceServer) GetNotificationStats(context.Context, *Ge
 }
 func (UnimplementedAgentServiceServer) LogHistogram(context.Context, *LogHistogramRequest) (*LogHistogramResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method LogHistogram not implemented")
+}
+func (UnimplementedAgentServiceServer) RecentUpdates(context.Context, *RecentUpdatesRequest) (*RecentUpdatesResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method RecentUpdates not implemented")
+}
+func (UnimplementedAgentServiceServer) StreamUpdates(*StreamUpdatesRequest, grpc.ServerStreamingServer[StreamUpdatesResponse]) error {
+	return status.Error(codes.Unimplemented, "method StreamUpdates not implemented")
 }
 func (UnimplementedAgentServiceServer) mustEmbedUnimplementedAgentServiceServer() {}
 func (UnimplementedAgentServiceServer) testEmbeddedByValue()                      {}
@@ -680,6 +721,35 @@ func _AgentService_LogHistogram_Handler(srv interface{}, ctx context.Context, de
 	return interceptor(ctx, in, info, handler)
 }
 
+func _AgentService_RecentUpdates_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(RecentUpdatesRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AgentServiceServer).RecentUpdates(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AgentService_RecentUpdates_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AgentServiceServer).RecentUpdates(ctx, req.(*RecentUpdatesRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _AgentService_StreamUpdates_Handler(srv interface{}, stream grpc.ServerStream) error {
+	m := new(StreamUpdatesRequest)
+	if err := stream.RecvMsg(m); err != nil {
+		return err
+	}
+	return srv.(AgentServiceServer).StreamUpdates(m, &grpc.GenericServerStream[StreamUpdatesRequest, StreamUpdatesResponse]{ServerStream: stream})
+}
+
+// This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
+type AgentService_StreamUpdatesServer = grpc.ServerStreamingServer[StreamUpdatesResponse]
+
 // AgentService_ServiceDesc is the grpc.ServiceDesc for AgentService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -722,6 +792,10 @@ var AgentService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "LogHistogram",
 			Handler:    _AgentService_LogHistogram_Handler,
+		},
+		{
+			MethodName: "RecentUpdates",
+			Handler:    _AgentService_RecentUpdates_Handler,
 		},
 	},
 	Streams: []grpc.StreamDesc{
@@ -771,6 +845,11 @@ var AgentService_ServiceDesc = grpc.ServiceDesc{
 			Handler:       _AgentService_ContainerAttach_Handler,
 			ServerStreams: true,
 			ClientStreams: true,
+		},
+		{
+			StreamName:    "StreamUpdates",
+			Handler:       _AgentService_StreamUpdates_Handler,
+			ServerStreams: true,
 		},
 	},
 	Metadata: "rpc.proto",

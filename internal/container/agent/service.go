@@ -17,11 +17,22 @@ import (
 type service struct {
 	client *Client
 	host   atomic.Pointer[container.Host]
+	// noHistoryLogged is set once an agent too old to keep update events was
+	// noticed, so it is logged once rather than on every read.
+	noHistoryLogged atomic.Bool
+	// updateRetry and noHistoryRetry are the waits before the update stream
+	// is opened again. See SubscribeUpdates.
+	updateRetry    time.Duration
+	noHistoryRetry time.Duration
+	// updateStreams counts running update subscriptions, for tests.
+	updateStreams sync.WaitGroup
 }
 
 func NewService(client *Client) ClientService {
 	return &service{
-		client: client,
+		client:         client,
+		updateRetry:    updateStreamRetry,
+		noHistoryRetry: noHistoryRetry,
 	}
 }
 

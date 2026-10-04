@@ -1,6 +1,8 @@
 package agent
 
 import (
+	"time"
+
 	"github.com/amir20/dozzle/internal/container"
 	"github.com/amir20/dozzle/internal/container/agent/pb"
 	"github.com/amir20/dozzle/internal/utils"
@@ -187,4 +189,62 @@ func hostMetricsFromProto(src *pb.Host) (container.HostMetrics, bool) {
 		m.Disks = append(m.Disks, container.Disk{Name: d.GetName(), Total: d.GetTotal(), Free: d.GetFree()})
 	}
 	return m, src.GetMetricsAvailable()
+}
+
+func updateEventToProto(e container.ContainerUpdateEvent) *pb.ContainerUpdateEvent {
+	return &pb.ContainerUpdateEvent{
+		Host:         e.Host,
+		Name:         e.Name,
+		EngineName:   e.EngineName,
+		OldId:        e.OldID,
+		NewId:        e.NewID,
+		FromRef:      e.FromRef,
+		ToRef:        e.ToRef,
+		FromDigest:   e.FromDigest,
+		ToDigest:     e.ToDigest,
+		FromImageId:  e.FromImageID,
+		ToImageId:    e.ToImageID,
+		OldStartedAt: timeToProto(e.OldStartedAt),
+		At:           timeToProto(e.At),
+		Source:       e.Source,
+		RunId:        e.RunID,
+		RolledBack:   e.RolledBack,
+	}
+}
+
+func updateEventFromProto(e *pb.ContainerUpdateEvent) container.ContainerUpdateEvent {
+	return container.ContainerUpdateEvent{
+		Host:         e.GetHost(),
+		Name:         e.GetName(),
+		EngineName:   e.GetEngineName(),
+		OldID:        e.GetOldId(),
+		NewID:        e.GetNewId(),
+		FromRef:      e.GetFromRef(),
+		ToRef:        e.GetToRef(),
+		FromDigest:   e.GetFromDigest(),
+		ToDigest:     e.GetToDigest(),
+		FromImageID:  e.GetFromImageId(),
+		ToImageID:    e.GetToImageId(),
+		OldStartedAt: timeFromProto(e.GetOldStartedAt()),
+		At:           timeFromProto(e.GetAt()),
+		Source:       e.GetSource(),
+		RunID:        e.GetRunId(),
+		RolledBack:   e.GetRolledBack(),
+	}
+}
+
+// timeToProto leaves a zero time unset, so it reads back as zero rather than
+// as the Unix epoch.
+func timeToProto(t time.Time) *timestamppb.Timestamp {
+	if t.IsZero() {
+		return nil
+	}
+	return timestamppb.New(t)
+}
+
+func timeFromProto(t *timestamppb.Timestamp) time.Time {
+	if t == nil {
+		return time.Time{}
+	}
+	return t.AsTime()
 }

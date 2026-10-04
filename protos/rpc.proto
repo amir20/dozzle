@@ -26,6 +26,8 @@ service AgentService {
   rpc UpdateCloudConfig(UpdateCloudConfigRequest) returns (UpdateCloudConfigResponse) {}
   rpc GetNotificationStats(GetNotificationStatsRequest) returns (GetNotificationStatsResponse) {}
   rpc LogHistogram(LogHistogramRequest) returns (LogHistogramResponse) {}
+  rpc RecentUpdates(RecentUpdatesRequest) returns (RecentUpdatesResponse) {}
+  rpc StreamUpdates(StreamUpdatesRequest) returns (stream StreamUpdatesResponse) {}
 }
 
 message ListContainersRequest {
@@ -198,4 +200,39 @@ message LogHistogramResponse {
   google.protobuf.Timestamp scannedFrom = 3;
   google.protobuf.Timestamp before = 4;
   google.protobuf.Timestamp after = 5;
+}
+
+// An update the agent saw on its own host: container.ContainerUpdateEvent.
+// The agent keeps the record, so the server reads it rather than working
+// updates out again from events.
+message ContainerUpdateEvent {
+  string host = 1;
+  string name = 2;
+  string engineName = 3;
+  string oldId = 4;
+  string newId = 5;
+  string fromRef = 6;
+  string toRef = 7;
+  string fromDigest = 8;
+  string toDigest = 9;
+  string fromImageId = 10;
+  string toImageId = 11;
+  google.protobuf.Timestamp oldStartedAt = 12;
+  google.protobuf.Timestamp at = 13;
+  string source = 14;
+  string runId = 15;
+  bool rolledBack = 16;
+}
+
+message RecentUpdatesRequest {}
+
+// The agent's kept update events, oldest first.
+message RecentUpdatesResponse {
+  repeated ContainerUpdateEvent events = 1;
+}
+
+message StreamUpdatesRequest {}
+
+message StreamUpdatesResponse {
+  ContainerUpdateEvent event = 1;
 }
