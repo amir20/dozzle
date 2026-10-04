@@ -73,6 +73,7 @@ func containerToProto(c container.Container) pb.Container {
 		ExitCode:      int32(c.ExitCode),
 		ImageId:       c.ImageID,
 		ImageDigest:   c.ImageDigest,
+		EngineName:    c.EngineName,
 	}
 }
 
@@ -155,6 +156,7 @@ func containerFromProto(c *pb.Container) container.Container {
 		ExitCode:      int(c.ExitCode),
 		ImageID:       c.ImageId,
 		ImageDigest:   c.ImageDigest,
+		EngineName:    c.EngineName,
 	}
 }
 

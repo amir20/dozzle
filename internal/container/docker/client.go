@@ -700,13 +700,17 @@ func coolifyName(labels map[string]string) string {
 }
 
 func newContainer(c docker.Summary, host string) container.Container {
+	engineName := ""
+	if len(c.Names) > 0 {
+		engineName = strings.TrimPrefix(c.Names[0], "/")
+	}
 	name := "no name"
 	if c.Labels["dev.dozzle.name"] != "" {
 		name = c.Labels["dev.dozzle.name"]
 	} else if n := coolifyName(c.Labels); n != "" {
 		name = n
-	} else if len(c.Names) > 0 {
-		name = strings.TrimPrefix(c.Names[0], "/")
+	} else if engineName != "" {
+		name = engineName
 	}
 
 	group := ""
@@ -731,29 +735,31 @@ func newContainer(c docker.Summary, host string) container.Container {
 	}
 
 	return container.Container{
-		ID:      c.ID[:12],
-		Name:    name,
-		Image:   c.Image,
-		ImageID: c.ImageID,
-		Command: c.Command,
-		Created: time.Unix(c.Created, 0),
-		State:   string(c.State),
-		Host:    host,
-		Labels:  c.Labels,
-		Stats:   utils.NewRingBuffer[container.ContainerStat](300), // 300 seconds of stats
-		Group:   group,
-		Ports:   ports,
+		ID:         c.ID[:12],
+		Name:       name,
+		EngineName: engineName,
+		Image:      c.Image,
+		ImageID:    c.ImageID,
+		Command:    c.Command,
+		Created:    time.Unix(c.Created, 0),
+		State:      string(c.State),
+		Host:       host,
+		Labels:     c.Labels,
+		Stats:      utils.NewRingBuffer[container.ContainerStat](300), // 300 seconds of stats
+		Group:      group,
+		Ports:      ports,
 	}
 }
 
 func newContainerFromJSON(c docker.InspectResponse, host string) container.Container {
+	engineName := strings.TrimPrefix(c.Name, "/")
 	name := "no name"
 	if c.Config.Labels["dev.dozzle.name"] != "" {
 		name = c.Config.Labels["dev.dozzle.name"]
 	} else if n := coolifyName(c.Config.Labels); n != "" {
 		name = n
-	} else if len(c.Name) > 0 {
-		name = strings.TrimPrefix(c.Name, "/")
+	} else if engineName != "" {
+		name = engineName
 	}
 
 	group := ""
@@ -794,6 +800,7 @@ func newContainerFromJSON(c docker.InspectResponse, host string) container.Conta
 	container := container.Container{
 		ID:            c.ID[:12],
 		Name:          name,
+		EngineName:    engineName,
 		Image:         c.Config.Image,
 		ImageID:       c.Image,
 		Command:       strings.Join(c.Config.Entrypoint, " ") + " " + strings.Join(c.Config.Cmd, " "),

@@ -418,6 +418,9 @@ func keepLoopFields(from *Container, to *Container) {
 	if from.Name != "" {
 		to.Name = from.Name
 	}
+	if from.EngineName != "" {
+		to.EngineName = from.EngineName
+	}
 }
 
 // mergeFetched stores a container fetched from the client over prev, the entry the

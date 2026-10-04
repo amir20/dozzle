@@ -54,6 +54,12 @@ type Container struct {
 	// fills it from the pod status. Empty for an image built locally, and for a
 	// Docker container known only from a list.
 	ImageDigest string `json:"-"`
+	// EngineName is the name the engine knows the container by: Docker's own
+	// name without the leading slash, or pod/container for k8s. Name is what
+	// the UI shows and dev.dozzle.name, coolify and service labels override it,
+	// so two containers can share a Name but never an EngineName. Empty for a
+	// Docker container with no name.
+	EngineName string `json:"-"`
 }
 
 // Mount represents a container mount point
