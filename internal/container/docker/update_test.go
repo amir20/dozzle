@@ -156,6 +156,15 @@ func TestUpdateContainerSwapsAndStampsLabels(t *testing.T) {
 	assert.Equal(t, oldImageID, labels[container.PreviousImageLabel])
 	assert.Equal(t, "nginx@sha256:bbb", labels[container.PreviousRefLabel], "the digest of the repository the tag names")
 	assert.Empty(t, cli.removed, "the first update has no image before the previous one")
+
+	require.NotNil(t, run.last.Result, "done carries what the update changed")
+	assert.Equal(t, container.UpdateResult{
+		OldID:       appID[:12],
+		NewID:       "new1",
+		FromImageID: oldImageID,
+		ToImageID:   newImageID,
+		FromDigest:  "nginx@sha256:bbb",
+	}, *run.last.Result)
 }
 
 func TestUpdateContainerLocalImageHasNoPreviousRef(t *testing.T) {
@@ -188,6 +197,9 @@ func TestUpdateContainerRolledBackOnStartFailure(t *testing.T) {
 		"start " + appID,
 	}, cli.engine.Calls)
 	assert.Empty(t, cli.removed, "no image is cleaned up after a rollback")
+	require.NotNil(t, run.last.Result)
+	assert.True(t, run.last.Result.RolledBack)
+	assert.Equal(t, appID[:12], run.last.Result.NewID, "the old container runs again")
 }
 
 func TestUpdateContainerRolledBackOnUnhealthy(t *testing.T) {

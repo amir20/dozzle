@@ -254,10 +254,23 @@ func (h *handler) streamLogsForContainers(w http.ResponseWriter, r *http.Request
 	newContainers := make(chan container.Container)
 	h.hostService.SubscribeContainersStarted(ctx, newContainers, containerFilter)
 
+	// Update markers: the update that created a container this stream shows,
+	// so the viewer can put "1.4.1 → 1.4.2" above its first lines. An update
+	// is recorded once its swap is done, after the new container started, so
+	// one that finishes while the stream is open arrives on updates.
+	markers := newUpdateMarkers(container.Updates, existingContainers)
+	updates := make(chan container.UpdateRecord, 16)
+	markers.records.Subscribe(ctx, updates)
+
 	ticker := time.NewTicker(5 * time.Second)
 	defer ticker.Stop()
 	sseWriter.Retry(reconnectDelay)
 	sseWriter.Ping()
+	for _, u := range markers.opening() {
+		if err := sseWriter.Event("container-update", u); err != nil {
+			log.Error().Err(err).Msg("error encoding container update")
+		}
+	}
 loop:
 	for {
 		select {
@@ -283,7 +296,19 @@ loop:
 				if err := sseWriter.Event("container-event", event); err != nil {
 					log.Error().Err(err).Msg("error encoding container event")
 				}
+				if u, ok := markers.started(c); ok {
+					if err := sseWriter.Event("container-update", u); err != nil {
+						log.Error().Err(err).Msg("error encoding container update")
+					}
+				}
 				go tailContainerLogs(ctx, containerService, since, stdTypes, liveLogs, events)
+			}
+
+		case u := <-updates:
+			if markers.shows(u) {
+				if err := sseWriter.Event("container-update", u); err != nil {
+					log.Error().Err(err).Msg("error encoding container update")
+				}
 			}
 
 		case event := <-events:

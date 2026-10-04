@@ -301,7 +301,8 @@ func (d *Service) UpdateContainer(ctx context.Context, c container.Container, pr
 	// happens whenever it was pulled or built before the container was
 	// recreated.
 	updated := false
-	if newImageID, err := d.client.ImageID(ctx, imageName); err != nil {
+	newImageID, err := d.client.ImageID(ctx, imageName)
+	if err != nil {
 		log.Warn().Err(err).Str("image", imageName).Msg("unable to resolve pulled image, falling back to recreate")
 		updated = true
 	} else {
@@ -378,24 +379,58 @@ func (d *Service) UpdateContainer(ctx context.Context, c container.Container, pr
 			}
 		}
 		if result.RolledBack {
-			progress(container.UpdateProgress{Status: container.UpdateRolledBack, Error: err.Error()})
+			undone := d.updateResult(ctx, inspectResp, oldImage, imageName, result.RestoredID, newImageID)
+			undone.RolledBack = true
+			progress(container.UpdateProgress{Status: container.UpdateRolledBack, Error: err.Error(), Result: &undone})
 			return false, fmt.Errorf("update rolled back: %w", err)
 		}
 		return fail(err)
 	}
+	done := d.updateResult(ctx, inspectResp, oldImage, imageName, result.NewID, newImageID)
 
 	// A container that was not running is replaced but left stopped, so its
 	// dependents cannot start against it either.
 	parentRunning := swap.Running(inspectResp.State)
 	if err := d.rejoinDependents(ctx, dependents, inspectResp.ID, result.NewID, parentRunning); err != nil {
-		progress(container.UpdateProgress{Status: container.UpdateError, Error: err.Error()})
+		progress(container.UpdateProgress{Status: container.UpdateError, Error: err.Error(), Result: &done})
 		return true, err
 	}
 
 	swap.CleanupImage(ctx, d.client, inspectResp)
 
-	progress(container.UpdateProgress{Status: container.UpdateDone})
+	progress(container.UpdateProgress{Status: container.UpdateDone, Result: &done})
 	return true, nil
+}
+
+// updateResult is what a swap of old (running oldImage, nil when it could not
+// be inspected, and following ref) changed: newID runs now, on toImageID.
+func (d *Service) updateResult(ctx context.Context, old docker_types.InspectResponse, oldImage *image.InspectResponse, ref, newID, toImageID string) container.UpdateResult {
+	r := container.UpdateResult{
+		OldID:       shortContainerID(old.ID),
+		NewID:       shortContainerID(newID),
+		FromImageID: old.Image,
+		ToImageID:   toImageID,
+		FromDigest:  swap.PreviousRef(oldImage, ref),
+	}
+	if old.State != nil {
+		if startedAt, err := time.Parse(time.RFC3339Nano, old.State.StartedAt); err == nil {
+			r.OldStartedAt = startedAt.UTC()
+		}
+	}
+	if toImageID != "" {
+		if img, err := d.client.ImageInspect(ctx, toImageID); err == nil {
+			r.ToDigest = swap.PreviousRef(&img, ref)
+		}
+	}
+	return r
+}
+
+// shortContainerID is the 12-character id the store keys containers by.
+func shortContainerID(id string) string {
+	if len(id) > 12 {
+		return id[:12]
+	}
+	return id
 }
 
 // rejoinDependents recreates every container in ids, which shared the network

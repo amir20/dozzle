@@ -511,7 +511,30 @@ func (c *Client) UpdateContainer(ctx context.Context, containerID string, progre
 	if err != nil {
 		return false, err
 	}
+	return receiveUpdateProgress(ctx, stream, progressCh)
+}
 
+// RollbackContainer swaps a container on the agent back to the image it ran
+// before its last update.
+func (c *Client) RollbackContainer(ctx context.Context, containerID string, opts container.RollbackOptions, progressCh chan<- container.UpdateProgress) error {
+	defer close(progressCh)
+
+	stream, err := c.client.RollbackContainer(ctx, &pb.RollbackContainerRequest{
+		ContainerId:        containerID,
+		ExpectedFromDigest: opts.ExpectedFromDigest,
+	})
+	if err != nil {
+		return err
+	}
+	_, err = receiveUpdateProgress(ctx, stream, progressCh)
+	return err
+}
+
+// receiveUpdateProgress relays an update's or a rollback's progress until the
+// stream ends, and reports whether it ended on done.
+func receiveUpdateProgress(ctx context.Context, stream interface {
+	Recv() (*pb.UpdateContainerProgress, error)
+}, progressCh chan<- container.UpdateProgress) (bool, error) {
 	updated := false
 	for {
 		progress, err := stream.Recv()
@@ -522,7 +545,7 @@ func (c *Client) UpdateContainer(ctx context.Context, containerID string, progre
 			return false, err
 		}
 
-		if progress.Status == "done" {
+		if progress.Status == container.UpdateDone {
 			updated = true
 		}
 
@@ -533,6 +556,7 @@ func (c *Client) UpdateContainer(ctx context.Context, containerID string, progre
 			Current: progress.Current,
 			Total:   progress.Total,
 			Error:   progress.Error,
+			Result:  updateResultFromProto(progress.GetResult()),
 		}:
 		case <-ctx.Done():
 			return false, ctx.Err()

@@ -258,16 +258,6 @@ func (s *blockingClientService) UpdateContainer(ctx context.Context, _ container
 	return false, nil
 }
 
-func TestAutoUpdateEnabled(t *testing.T) {
-	for value, want := range map[string]bool{
-		"true": true, "TRUE": true, " yes ": true, "1": true, "on": true,
-		"false": false, "": false, "no": false, "maybe": false,
-	} {
-		assert.Equal(t, want, autoUpdateEnabled(map[string]string{AutoUpdateLabel: value}), value)
-	}
-	assert.False(t, autoUpdateEnabled(nil))
-}
-
 func TestStartBulkUpdate_RefusesNonJSONBodies(t *testing.T) {
 	h := &handler{config: &Config{Authorization: Authorization{Provider: NONE}}}
 	for _, ct := range []string{"text/plain", "application/x-www-form-urlencoded", ""} {

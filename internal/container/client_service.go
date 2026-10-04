@@ -16,6 +16,10 @@ type ClientService interface {
 	Host(ctx context.Context) (Host, error)
 	ContainerAction(ctx context.Context, container Container, action ContainerAction) error
 	UpdateContainer(ctx context.Context, container Container, progressCh chan<- UpdateProgress) (bool, error)
+	// RollbackContainer swaps the container back to the image it ran before
+	// its last update, reporting progress like UpdateContainer and closing
+	// progressCh when it returns.
+	RollbackContainer(ctx context.Context, container Container, opts RollbackOptions, progressCh chan<- UpdateProgress) error
 	CheckImageUpdate(ctx context.Context, container Container, force bool) (imagecheck.Result, error)
 	LogsBetweenDates(ctx context.Context, container Container, from time.Time, to time.Time, stdTypes StdType) (<-chan *LogEvent, error)
 	RawLogs(context.Context, Container, time.Time, time.Time, StdType) (io.ReadCloser, error)

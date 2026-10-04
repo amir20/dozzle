@@ -10,6 +10,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/amir20/dozzle/internal/container"
 	"github.com/amir20/dozzle/internal/notification/dispatcher"
 	pb "github.com/amir20/dozzle/proto/cloud"
 	"github.com/rs/zerolog/log"
@@ -59,6 +60,12 @@ type Client struct {
 	connMu        sync.Mutex
 	cancelCurrent context.CancelFunc
 
+	// updates remembers which container updates were pushed, across
+	// reconnects, and updateRecords is where they are read from: nil is
+	// container.Updates. See update_pusher.go.
+	updates       *updateLedger
+	updateRecords *container.UpdateRecords
+
 	// unaryConn / unaryClient are lazily initialized and shared across every
 	// Dozzle-initiated unary call (SearchLogs, GetAlerts) so we don't pay the
 	// TLS handshake per keystroke or per scroll. Same target / TLS as the main
@@ -106,6 +113,7 @@ func NewClient(apiKeyFunc func() string, instanceID string, version string, deps
 		toolSem:    semaphore.NewWeighted(maxConcurrent),
 		streamSem:  semaphore.NewWeighted(maxConcurrentStreams),
 		startCh:    make(chan struct{}, 1),
+		updates:    newUpdateLedger(),
 	}
 }
 
@@ -329,6 +337,21 @@ func (c *Client) connect(ctx context.Context, apiKey string) (wasConnected bool,
 		}
 	}
 
+	// Container updates are not log content, so the log-streaming toggle does
+	// not apply: which updates may be sent is decided in update_pusher.go.
+	if c.updates == nil {
+		// A Client built by hand rather than by NewClient. connect runs on
+		// Run's goroutine only, so this cannot race.
+		c.updates = newUpdateLedger()
+	}
+	records := c.updateRecords
+	if records == nil {
+		records = container.Updates
+	}
+	wg.Go(func() {
+		pushUpdates(streamLifetime, records, c.updates, sendResp)
+	})
+
 	defer func() {
 		// Cancel all active log streams before shutting down
 		c.activeStreams.Range(func(key, value any) bool {
@@ -493,6 +516,10 @@ func toolCallTimeout(name string) time.Duration {
 		// takes a long time, and had no bound at all before calls got one.
 		// Still cancellable by request id, which is what frees the slot.
 		return 30 * time.Minute
+	case toolRollbackContainer:
+		// Pulls nothing, but the swap waits for the previous image to stay up
+		// and, with a healthcheck, healthy, which can take minutes.
+		return 10 * time.Minute
 	}
 	return 2 * time.Minute
 }

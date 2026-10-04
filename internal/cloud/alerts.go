@@ -83,6 +83,27 @@ type EventHit struct {
 	// Suppressed means the event produced no notification of its own: it was
 	// folded into an alert already sent, or never reached one at all.
 	Suppressed bool `json:"suppressed"`
+	// Deploy is set when Type is "deploy": Dozzle Cloud's verdict on the
+	// update that created ContainerID. The viewer puts it on that update's
+	// marker rather than adding a row of its own.
+	Deploy *DeployHit `json:"deploy,omitempty"`
+}
+
+// DeployHit is Dozzle Cloud's verdict on one container update.
+type DeployHit struct {
+	// DeployID is opaque, like AlertHit.AlertID.
+	DeployID   string `json:"deployId"`
+	Container  string `json:"container,omitempty"`
+	FromRef    string `json:"fromRef,omitempty"`
+	ToRef      string `json:"toRef,omitempty"`
+	FromDigest string `json:"fromDigest,omitempty"`
+	ToDigest   string `json:"toDigest,omitempty"`
+	// Verdict is pending, clean, regressed, unsure or rolled_back_by_dozzle.
+	Verdict string `json:"verdict"`
+	Reason  string `json:"reason,omitempty"`
+	// Decision is rolled_back or kept once someone decided a regression.
+	Decision string `json:"decision,omitempty"`
+	URL      string `json:"url,omitempty"`
 }
 
 // GetAlerts fetches the alerts that fired on these containers inside a window,
@@ -165,9 +186,30 @@ func alertResultFromProto(resp *pb.GetAlertsResponse) *AlertResult {
 			Detail:      e.GetDetail(),
 			AlertID:     e.GetAlertId(),
 			Suppressed:  e.GetSuppressed(),
+			Deploy:      deployHitFromProto(e.GetDeploy()),
 		})
 	}
 	return &AlertResult{Hits: hits, Events: events, Truncated: resp.GetTruncated()}
+}
+
+// deployHitFromProto converts a deploy verdict. nil stays nil: only deploy
+// events carry one.
+func deployHitFromProto(d *pb.DeployHit) *DeployHit {
+	if d == nil {
+		return nil
+	}
+	return &DeployHit{
+		DeployID:   d.GetDeployId(),
+		Container:  d.GetContainer(),
+		FromRef:    d.GetFromRef(),
+		ToRef:      d.GetToRef(),
+		FromDigest: d.GetFromDigest(),
+		ToDigest:   d.GetToDigest(),
+		Verdict:    d.GetVerdict(),
+		Reason:     d.GetReason(),
+		Decision:   d.GetDecision(),
+		URL:        httpURL(d.GetUrl()),
+	}
 }
 
 // httpURL drops anything that is not an absolute http(s) URL. The viewer puts

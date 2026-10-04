@@ -361,6 +361,10 @@ func createRouter(h *handler) *chi.Mux {
 
 				// Setup wizard. Server mode only; swarm and k8s never show it.
 				if h.config.Mode == "server" {
+					// What the auto-update schedule will update, for
+					// Settings → Updates. Read only: the mode is saved with
+					// the rest of setup, and labels are set in compose.
+					r.Get("/updates/policy", h.getUpdatePolicies)
 					r.Get("/setup", h.getSetup)
 					r.Patch("/setup/config", h.updateSetupConfig)
 					r.Post("/setup/restart", h.restartSetup)

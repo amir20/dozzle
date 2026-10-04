@@ -188,7 +188,7 @@ func (u *bulkUpdater) run(job *bulkUpdateJob) {
 	for _, items := range byHost {
 		wg.Go(func() {
 			for _, item := range items {
-				u.runItem(item)
+				u.runItem(item, updateSource(job.Trigger))
 			}
 		})
 	}
@@ -197,7 +197,7 @@ func (u *bulkUpdater) run(job *bulkUpdateJob) {
 	// Everything else is finished, so marking the job done here lets watchers
 	// see the full result before Dozzle goes away.
 	if self != nil {
-		u.runItem(self)
+		u.runItem(self, updateSource(job.Trigger))
 	}
 
 	u.mu.Lock()
@@ -208,14 +208,22 @@ func (u *bulkUpdater) run(job *bulkUpdateJob) {
 	u.notify()
 }
 
-func (u *bulkUpdater) runItem(item *bulkUpdateItem) {
+// updateSource is what the update record says started a job's updates.
+func updateSource(trigger string) string {
+	if trigger == "schedule" {
+		return container.UpdateSourceSchedule
+	}
+	return container.UpdateSourceDozzle
+}
+
+func (u *bulkUpdater) runItem(item *bulkUpdateItem, source string) {
 	ctx, cancel := context.WithTimeout(context.Background(), bulkItemTimeout)
 	defer cancel()
 
 	progressCh := make(chan container.UpdateProgress, 50)
 	errCh := make(chan error, 1)
 	go func() {
-		_, err := item.service.Update(ctx, progressCh)
+		_, err := item.service.Update(ctx, source, progressCh)
 		errCh <- err
 	}()
 

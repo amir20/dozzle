@@ -36,6 +36,7 @@ const (
 	toolRestartContainer         = "restart_container"
 	toolRemoveContainer          = "remove_container"
 	toolUpdateContainer          = "update_container"
+	toolRollbackContainer        = "rollback_container"
 	toolCreateLogNotification    = "create_log_notification"
 	toolCreateMetricNotification = "create_metric_notification"
 	toolCreateEventNotification  = "create_event_notification"
@@ -93,6 +94,17 @@ var (
 			"host_id":      hostIDParam,
 		},
 		Required:             []string{"container_id"},
+		AdditionalProperties: &boolFalse,
+	})
+
+	rollbackContainerParams = mustSchema(paramSchema{
+		Type: "object",
+		Properties: map[string]paramProperty{
+			"container_id":         writeContainerIDParam,
+			"host_id":              hostIDParam,
+			"expected_from_digest": {Type: "string", Description: "The digest the container runs now (repo@sha256:... or sha256:...). Refused if it runs anything else."},
+		},
+		Required:             []string{"container_id", "expected_from_digest"},
 		AdditionalProperties: &boolFalse,
 	})
 
@@ -349,6 +361,12 @@ func AvailableTools(deps ToolDeps) []*pb.ToolDefinition {
 				Scope:          pb.ToolScope_TOOL_SCOPE_CONTAINER,
 			},
 			&pb.ToolDefinition{
+				Name:           toolRollbackContainer,
+				Description:    "Roll a Docker container back to the image it ran before its last update, keeping its configuration and volumes. Only after the user confirms. Not for swarm services.",
+				ParametersJson: rollbackContainerParams,
+				Scope:          pb.ToolScope_TOOL_SCOPE_CONTAINER,
+			},
+			&pb.ToolDefinition{
 				Name:           toolCreateLogNotification,
 				Description:    "Create an alert that fires when a container log line matches a filter. Requires a container_expression selecting which containers to watch and a log_expression matched against each log line. Alerts are delivered through the user's Dozzle Cloud channels.",
 				ParametersJson: createLogNotificationParams,
@@ -456,6 +474,8 @@ func executeTool(ctx context.Context, name string, argsJSON string, deps ToolDep
 		return executeContainerAction(ctx, name, argsJSON, deps)
 	case toolUpdateContainer:
 		return executeUpdateContainer(ctx, argsJSON, deps)
+	case toolRollbackContainer:
+		return executeRollbackContainer(ctx, argsJSON, deps)
 	case toolCreateLogNotification:
 		return executeCreateLogNotification(argsJSON, deps)
 	case toolCreateMetricNotification:

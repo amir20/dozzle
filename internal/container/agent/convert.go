@@ -182,3 +182,43 @@ func hostMetricsFromProto(src *pb.Host) (container.HostMetrics, bool) {
 	}
 	return m, src.GetMetricsAvailable()
 }
+
+func updateResultToProto(r *container.UpdateResult) *pb.UpdateResult {
+	if r == nil {
+		return nil
+	}
+	out := &pb.UpdateResult{
+		OldId:       r.OldID,
+		NewId:       r.NewID,
+		FromImageId: r.FromImageID,
+		ToImageId:   r.ToImageID,
+		FromDigest:  r.FromDigest,
+		ToDigest:    r.ToDigest,
+		RolledBack:  r.RolledBack,
+	}
+	// A zero time is left unset, so it reads back as zero rather than as the
+	// Unix epoch.
+	if !r.OldStartedAt.IsZero() {
+		out.OldStartedAt = timestamppb.New(r.OldStartedAt)
+	}
+	return out
+}
+
+func updateResultFromProto(r *pb.UpdateResult) *container.UpdateResult {
+	if r == nil {
+		return nil
+	}
+	out := &container.UpdateResult{
+		OldID:       r.GetOldId(),
+		NewID:       r.GetNewId(),
+		FromImageID: r.GetFromImageId(),
+		ToImageID:   r.GetToImageId(),
+		FromDigest:  r.GetFromDigest(),
+		ToDigest:    r.GetToDigest(),
+		RolledBack:  r.GetRolledBack(),
+	}
+	if t := r.GetOldStartedAt(); t != nil {
+		out.OldStartedAt = t.AsTime()
+	}
+	return out
+}

@@ -85,6 +85,10 @@ func (a *service) UpdateContainer(ctx context.Context, c container.Container, pr
 	return a.client.UpdateContainer(ctx, c.ID, progressCh)
 }
 
+func (a *service) RollbackContainer(ctx context.Context, c container.Container, opts container.RollbackOptions, progressCh chan<- container.UpdateProgress) error {
+	return a.client.RollbackContainer(ctx, c.ID, opts, progressCh)
+}
+
 func (a *service) CheckImageUpdate(ctx context.Context, c container.Container, force bool) (imagecheck.Result, error) {
 	return a.client.CheckImageUpdate(ctx, c.ID, force)
 }

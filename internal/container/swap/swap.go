@@ -61,6 +61,11 @@ type Options struct {
 	OldImage *image.InspectResponse
 	// NetworkMode, when set, replaces the old container's network mode.
 	NetworkMode string
+	// Image, when set, is what the replacement runs instead of the reference
+	// the old container follows: a rollback runs the previous image by id. The
+	// reference itself is kept in ImageRefLabel, so the replacement still
+	// follows its tag for update checks and the next update.
+	Image string
 	// Labels are set on the replacement only. An empty value removes the label.
 	Labels map[string]string
 	// OnVerifying is called once the replacement has started, before it is
@@ -145,6 +150,15 @@ func (s *swap) spec() client.ContainerCreateOptions {
 	spec := ReplacementSpec(s.old, s.opts.OldImage, s.name)
 	if s.opts.NetworkMode != "" {
 		spec.HostConfig.NetworkMode = dcontainer.NetworkMode(s.opts.NetworkMode)
+	}
+	if s.opts.Image != "" {
+		if ref := spec.Config.Image; ref != "" && !IsImageID(ref) {
+			if spec.Config.Labels == nil {
+				spec.Config.Labels = map[string]string{}
+			}
+			spec.Config.Labels[ImageRefLabel] = ref
+		}
+		spec.Config.Image = s.opts.Image
 	}
 	for k, v := range s.opts.Labels {
 		if v == "" {
