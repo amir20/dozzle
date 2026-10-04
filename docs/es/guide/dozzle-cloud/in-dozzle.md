@@ -19,7 +19,7 @@ Por eso una instalación sin Cloud muestra una sección de historial vacía con 
 
 ## El carril de Cloud
 
-Una franja de iconos en el borde derecho de la vista de logs, con el panel que uno de ellos abre. Solo se monta cuando Cloud está enlazado y solo en una vista que tenga logs en pantalla, así que nunca aparece en la página de inicio ni en los ajustes.
+Una franja de iconos en el borde derecho de la vista de logs, con el panel que uno de ellos abre. Solo se monta cuando Cloud está enlazado y solo en una vista que tenga logs en pantalla, así que nunca aparece en la página de inicio ni en Configuración.
 
 El panel se coloca **al lado** del flujo, no encima: la página reserva exactamente su ancho, de modo que nada del carril tapa jamás las líneas de las que habla. En un teléfono no hay sitio para una franja permanente, así que el panel pasa a ser una hoja a pantalla completa que se abre desde la barra de herramientas o la paleta de comandos.
 

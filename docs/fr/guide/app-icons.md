@@ -1,6 +1,6 @@
 ---
 title: Icônes d'applications
-sourceHash: 2b128908b958
+sourceHash: 10013a575b03
 ---
 
 # Icônes d'applications
@@ -11,7 +11,7 @@ Les icônes sont embarquées dans Dozzle. Elles ne sont jamais téléchargées d
 
 ## Désactiver la fonctionnalité
 
-Le réglage se trouve dans **Paramètres → Options → Afficher les icônes d'applications**. C'est un paramètre par profil, il ne s'applique donc qu'à votre navigateur.
+Le réglage se trouve dans **Paramètres → Barre latérale → Icônes d'applications**. C'est un paramètre par profil, il ne s'applique donc qu'à votre navigateur.
 
 ## Comment fonctionne la correspondance
 

@@ -252,8 +252,20 @@ settings:
   sidebar: Bilah sisi
   behavior: Perilaku
   advanced: Lanjutan
-  setup: "Penyiapan"
   about: Tentang
+  general: Umum
+  updates: Pembaruan
+  security: "Keamanan"
+  hosts: "Host"
+  login-desc: "Siapa yang bisa membuka Dozzle. Tanpa login, siapa pun yang bisa menjangkaunya dapat membaca log Anda."
+  login-off: "Tanpa login"
+  login-docs: "Panduan autentikasi"
+  set-by-flags: "Diatur dengan flag atau variabel lingkungan dalam mode ini."
+  hosts-found: "Dalam mode ini Dozzle menemukan host ini sendiri."
+  after-restart: "Setelah restart"
+  restart-pending: "1 perubahan berlaku setelah restart | {count} perubahan berlaku setelah restart"
+  run-setup: "Jalankan penyiapan lagi"
+  run-setup-desc: "Panduan langkah demi langkah untuk login, aksi, host, Dozzle Cloud, dan pembaruan. Semua isinya juga ada di Pengaturan."
   reset: Kembalikan ke default
   sponsor: Sponsori
   new-version: "{version} tersedia"
@@ -835,12 +847,6 @@ setup:
   finish-later: "Selesaikan nanti"
   close: "Tutup"
   copy: "Salin"
-  settings-title: "Siapkan Dozzle"
-  settings-desc: "Login, aksi kontainer, shell, host lain, dan Dozzle Cloud dalam beberapa langkah."
-  settings-done-title: "Dozzle sudah disiapkan"
-  settings-done-desc: "Login aktif. Buka penyiapan untuk meninjau aksi kontainer, shell, host lain, dan Dozzle Cloud."
-  settings-closed-title: "Penyiapan sudah ditutup"
-  settings-closed-desc: "Tanpa login, penyiapan hanya menerima perubahan dalam 15 menit pertama instalasi baru. Gunakan variabel lingkungan sebagai gantinya."
   steps:
     login: "Login"
     login-note: "Lakukan ini dulu"

@@ -74,7 +74,7 @@ services:
       dev.dozzle.update-check: false
 ```
 
-También se puede mostrar una notificación cuando hay una actualización. Viene desactivada y está en Ajustes.
+También se puede mostrar una notificación cuando hay una actualización. Viene desactivada y está en Configuración.
 
 ### Lo que no se puede comprobar
 

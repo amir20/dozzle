@@ -247,8 +247,20 @@ settings:
   sidebar: Kenar çubuğu
   behavior: Davranış
   advanced: Gelişmiş
-  setup: "Kurulum"
   about: Hakkında
+  general: Genel
+  updates: Güncellemeler
+  security: "Güvenlik"
+  hosts: "Sunucular"
+  login-desc: "Dozzle'ı kimin açabileceği. Giriş olmadan ona ulaşan herkes loglarınızı okuyabilir."
+  login-off: "Giriş yok"
+  login-docs: "Kimlik doğrulama rehberi"
+  set-by-flags: "Bu modda bayraklar veya ortam değişkenleriyle ayarlanır."
+  hosts-found: "Bu modda Dozzle bu sunucuları kendisi bulur."
+  after-restart: "Yeniden başlatmadan sonra"
+  restart-pending: "1 değişiklik yeniden başlatmadan sonra geçerli olur | {count} değişiklik yeniden başlatmadan sonra geçerli olur"
+  run-setup: "Kurulumu yeniden çalıştır"
+  run-setup-desc: "Giriş, eylemler, sunucular, Dozzle Cloud ve güncellemeler üzerinden adım adım geçiş. İçindeki her şey Ayarlar'da da var."
   reset: Varsayılanlara sıfırla
   sponsor: Sponsor ol
   new-version: "{version} mevcut"
@@ -826,12 +838,6 @@ setup:
   finish-later: Daha sonra bitir
   close: Kapat
   copy: Kopyala
-  settings-title: Dozzle kurulumu
-  settings-desc: "Giriş, konteyner işlemleri, kabuk, diğer sunucular ve Dozzle Cloud birkaç adımda."
-  settings-done-title: "Dozzle kuruldu"
-  settings-done-desc: "Giriş açık. Konteyner işlemlerini, kabuğu, diğer sunucuları ve Dozzle Cloud'u gözden geçirmek için kurulumu açın."
-  settings-closed-title: "Kurulum kapandı"
-  settings-closed-desc: "Giriş olmadan kurulum, yalnızca yeni bir kurulumun ilk 15 dakikasında değişiklik kabul eder. Bunun yerine ortam değişkenlerini kullanın."
   steps:
     login: Giriş
     login-note: Önce bunu yapın

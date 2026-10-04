@@ -17,8 +17,11 @@ declare global {
   const K8sOwner: typeof import('./stores/k8s').K8sOwner
   const MAX_PATTERN_LINES: typeof import('./composable/cloud/patternMemory').MAX_PATTERN_LINES
   const MIN_MENU_WIDTH: typeof import('./stores/settings').MIN_MENU_WIDTH
+  const PREFERENCE_PAGES: typeof import('./composable/app/settingsPages').PREFERENCE_PAGES
   const RAIL_WIDTH: typeof import('./composable/cloud/cloudRail').RAIL_WIDTH
   const RELATIVE_SPANS: typeof import('./composable/logs/timeRange').RELATIVE_SPANS
+  const SERVER_PAGES: typeof import('./composable/app/settingsPages').SERVER_PAGES
+  const SETTINGS_PAGE_IDS: typeof import('./composable/app/settingsPages').SETTINGS_PAGE_IDS
   const SETUP_RESUME_KEY: typeof import('./composable/setup/setup').SETUP_RESUME_KEY
   const SHOWN_STATUSES: typeof import('./composable/cloud/patternMemory').SHOWN_STATUSES
   const SetupError: typeof import('./composable/setup/setup').SetupError
@@ -117,6 +120,7 @@ declare global {
   const goBack: typeof import('./composable/app/mobileShell').goBack
   const groupContainers: typeof import('./stores/settings').groupContainers
   const groupK8sOwners: typeof import('./stores/k8s').groupK8sOwners
+  const guardSettingsRoutes: typeof import('./composable/app/settingsPages').guardSettingsRoutes
   const h: typeof import('vue').h
   const hasIcon: typeof import('./utils/index').hasIcon
   const hasViewContext: typeof import('./composable/logs/viewContext').hasViewContext
@@ -137,11 +141,13 @@ declare global {
   const isLogRoute: typeof import('./composable/app/mobileShell').isLogRoute
   const isMobile: typeof import('./composable/ui/media').isMobile
   const isObject: typeof import('./utils/index').isObject
+  const isPreferencePage: typeof import('./composable/app/settingsPages').isPreferencePage
   const isProxy: typeof import('vue').isProxy
   const isReactive: typeof import('vue').isReactive
   const isReadonly: typeof import('vue').isReadonly
   const isRef: typeof import('vue').isRef
   const isSelf: typeof import('./composable/containers/imageUpdate').isSelf
+  const isSettingsPageSwitch: typeof import('./composable/app/settingsPages').isSettingsPageSwitch
   const isShallow: typeof import('vue').isShallow
   const isStreamLog: typeof import('./composable/cloud/alertMerger').isStreamLog
   const isViewContextOwner: typeof import('./composable/logs/viewContext').isViewContextOwner
@@ -236,9 +242,15 @@ declare global {
   const setMapStoreSuffix: typeof import('pinia').setMapStoreSuffix
   const setTitle: typeof import('./composable/app/title').setTitle
   const settings: typeof import('./stores/settings').settings
+  const settingsPages: typeof import('./composable/app/settingsPages').settingsPages
+  const settingsRedirect: typeof import('./composable/app/settingsPages').settingsRedirect
+  const setupCanEdit: typeof import('./composable/setup/setup').setupCanEdit
+  const setupCanRestartNow: typeof import('./composable/setup/setup').setupCanRestartNow
   const setupEnvSnippet: typeof import('./composable/setup/setup').setupEnvSnippet
   const setupHasPending: typeof import('./composable/setup/setup').setupHasPending
   const setupLoginConfigured: typeof import('./composable/setup/setup').setupLoginConfigured
+  const setupLoginErrorKey: typeof import('./composable/setup/setup').setupLoginErrorKey
+  const setupPendingChanges: typeof import('./composable/setup/setup').setupPendingChanges
   const setupShouldAutoOpen: typeof import('./composable/setup/setup').setupShouldAutoOpen
   const setupStepConfigured: typeof import('./composable/setup/setup').setupStepConfigured
   const setupSteps: typeof import('./composable/setup/setup').setupSteps
@@ -471,6 +483,7 @@ declare global {
   const useServiceStream: typeof import('./composable/logs/eventStreams').useServiceStream
   const useSessionStorage: typeof import('@vueuse/core').useSessionStorage
   const useSetup: typeof import('./composable/setup/setup').useSetup
+  const useSetupRestart: typeof import('./composable/setup/setup').useSetupRestart
   const useShare: typeof import('@vueuse/core').useShare
   const useSimpleRefHistory: typeof import('./utils/index').useSimpleRefHistory
   const useSlots: typeof import('vue').useSlots
@@ -562,6 +575,9 @@ declare global {
   export type { DrawerWidth, DrawerCloseGuard } from './composable/app/drawer'
   import('./composable/app/drawer')
   // @ts-ignore
+  export type { SettingsPageId, SettingsPageConfig } from './composable/app/settingsPages'
+  import('./composable/app/settingsPages')
+  // @ts-ignore
   export type { UsageKey } from './composable/app/usage'
   import('./composable/app/usage')
   // @ts-ignore
@@ -634,7 +650,7 @@ declare global {
   export type { SelfUpdatePhase } from './composable/setup/selfUpdate'
   import('./composable/setup/selfUpdate')
   // @ts-ignore
-  export type { SetupError, SetupStepId, SetupStepState, AutoUpdateMode, AutoUpdateReason, SetupAutoUpdate, SetupAgent, SetupAgentCert, SetupStatus, SetupNextResult, SetupStepHandle, SetupCloudFacts, SetupErrorCode } from './composable/setup/setup'
+  export type { SetupError, SetupStepId, SetupStepState, AutoUpdateMode, AutoUpdateReason, SetupAutoUpdate, SetupAgent, SetupAgentCert, SetupStatus, SetupNextResult, SetupStepHandle, SetupCloudFacts, SetupPendingChange, SetupErrorCode } from './composable/setup/setup'
   import('./composable/setup/setup')
   // @ts-ignore
   export type { PopoverPlacement } from './composable/ui/popover'
@@ -665,8 +681,11 @@ declare module 'vue' {
     readonly K8sNamespace: UnwrapRef<typeof import('./stores/k8s')['K8sNamespace']>
     readonly K8sOwner: UnwrapRef<typeof import('./stores/k8s')['K8sOwner']>
     readonly MAX_PATTERN_LINES: UnwrapRef<typeof import('./composable/cloud/patternMemory')['MAX_PATTERN_LINES']>
+    readonly PREFERENCE_PAGES: UnwrapRef<typeof import('./composable/app/settingsPages')['PREFERENCE_PAGES']>
     readonly RAIL_WIDTH: UnwrapRef<typeof import('./composable/cloud/cloudRail')['RAIL_WIDTH']>
     readonly RELATIVE_SPANS: UnwrapRef<typeof import('./composable/logs/timeRange')['RELATIVE_SPANS']>
+    readonly SERVER_PAGES: UnwrapRef<typeof import('./composable/app/settingsPages')['SERVER_PAGES']>
+    readonly SETTINGS_PAGE_IDS: UnwrapRef<typeof import('./composable/app/settingsPages')['SETTINGS_PAGE_IDS']>
     readonly SETUP_RESUME_KEY: UnwrapRef<typeof import('./composable/setup/setup')['SETUP_RESUME_KEY']>
     readonly SHOWN_STATUSES: UnwrapRef<typeof import('./composable/cloud/patternMemory')['SHOWN_STATUSES']>
     readonly SetupError: UnwrapRef<typeof import('./composable/setup/setup')['SetupError']>
@@ -765,6 +784,7 @@ declare module 'vue' {
     readonly goBack: UnwrapRef<typeof import('./composable/app/mobileShell')['goBack']>
     readonly groupContainers: UnwrapRef<typeof import('./stores/settings')['groupContainers']>
     readonly groupK8sOwners: UnwrapRef<typeof import('./stores/k8s')['groupK8sOwners']>
+    readonly guardSettingsRoutes: UnwrapRef<typeof import('./composable/app/settingsPages')['guardSettingsRoutes']>
     readonly h: UnwrapRef<typeof import('vue')['h']>
     readonly hasIcon: UnwrapRef<typeof import('./utils/index')['hasIcon']>
     readonly hasViewContext: UnwrapRef<typeof import('./composable/logs/viewContext')['hasViewContext']>
@@ -783,11 +803,13 @@ declare module 'vue' {
     readonly isLogRoute: UnwrapRef<typeof import('./composable/app/mobileShell')['isLogRoute']>
     readonly isMobile: UnwrapRef<typeof import('./composable/ui/media')['isMobile']>
     readonly isObject: UnwrapRef<typeof import('./utils/index')['isObject']>
+    readonly isPreferencePage: UnwrapRef<typeof import('./composable/app/settingsPages')['isPreferencePage']>
     readonly isProxy: UnwrapRef<typeof import('vue')['isProxy']>
     readonly isReactive: UnwrapRef<typeof import('vue')['isReactive']>
     readonly isReadonly: UnwrapRef<typeof import('vue')['isReadonly']>
     readonly isRef: UnwrapRef<typeof import('vue')['isRef']>
     readonly isSelf: UnwrapRef<typeof import('./composable/containers/imageUpdate')['isSelf']>
+    readonly isSettingsPageSwitch: UnwrapRef<typeof import('./composable/app/settingsPages')['isSettingsPageSwitch']>
     readonly isShallow: UnwrapRef<typeof import('vue')['isShallow']>
     readonly isStreamLog: UnwrapRef<typeof import('./composable/cloud/alertMerger')['isStreamLog']>
     readonly isViewContextOwner: UnwrapRef<typeof import('./composable/logs/viewContext')['isViewContextOwner']>
@@ -880,9 +902,15 @@ declare module 'vue' {
     readonly setMapStoreSuffix: UnwrapRef<typeof import('pinia')['setMapStoreSuffix']>
     readonly setTitle: UnwrapRef<typeof import('./composable/app/title')['setTitle']>
     readonly settings: UnwrapRef<typeof import('./stores/settings')['settings']>
+    readonly settingsPages: UnwrapRef<typeof import('./composable/app/settingsPages')['settingsPages']>
+    readonly settingsRedirect: UnwrapRef<typeof import('./composable/app/settingsPages')['settingsRedirect']>
+    readonly setupCanEdit: UnwrapRef<typeof import('./composable/setup/setup')['setupCanEdit']>
+    readonly setupCanRestartNow: UnwrapRef<typeof import('./composable/setup/setup')['setupCanRestartNow']>
     readonly setupEnvSnippet: UnwrapRef<typeof import('./composable/setup/setup')['setupEnvSnippet']>
     readonly setupHasPending: UnwrapRef<typeof import('./composable/setup/setup')['setupHasPending']>
     readonly setupLoginConfigured: UnwrapRef<typeof import('./composable/setup/setup')['setupLoginConfigured']>
+    readonly setupLoginErrorKey: UnwrapRef<typeof import('./composable/setup/setup')['setupLoginErrorKey']>
+    readonly setupPendingChanges: UnwrapRef<typeof import('./composable/setup/setup')['setupPendingChanges']>
     readonly setupShouldAutoOpen: UnwrapRef<typeof import('./composable/setup/setup')['setupShouldAutoOpen']>
     readonly setupStepConfigured: UnwrapRef<typeof import('./composable/setup/setup')['setupStepConfigured']>
     readonly setupSteps: UnwrapRef<typeof import('./composable/setup/setup')['setupSteps']>
@@ -1112,6 +1140,7 @@ declare module 'vue' {
     readonly useServiceStream: UnwrapRef<typeof import('./composable/logs/eventStreams')['useServiceStream']>
     readonly useSessionStorage: UnwrapRef<typeof import('@vueuse/core')['useSessionStorage']>
     readonly useSetup: UnwrapRef<typeof import('./composable/setup/setup')['useSetup']>
+    readonly useSetupRestart: UnwrapRef<typeof import('./composable/setup/setup')['useSetupRestart']>
     readonly useShare: UnwrapRef<typeof import('@vueuse/core')['useShare']>
     readonly useSimpleRefHistory: UnwrapRef<typeof import('./utils/index')['useSimpleRefHistory']>
     readonly useSlots: UnwrapRef<typeof import('vue')['useSlots']>

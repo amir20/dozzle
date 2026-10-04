@@ -1,6 +1,6 @@
 ---
 title: App-Icons
-sourceHash: 2b128908b958
+sourceHash: 10013a575b03
 ---
 
 # App-Icons
@@ -11,7 +11,7 @@ Die Icons sind in Dozzle enthalten. Sie werden nie von einem CDN geladen, es ver
 
 ## Abschalten
 
-Der Schalter liegt unter **Einstellungen → Optionen → App-Icons anzeigen**. Es ist eine Einstellung pro Profil und gilt damit nur für deinen Browser.
+Der Schalter liegt unter **Einstellungen → Seitenleiste → App-Symbole**. Es ist eine Einstellung pro Profil und gilt damit nur für deinen Browser.
 
 ## Wie die Zuordnung funktioniert
 

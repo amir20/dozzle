@@ -26,12 +26,7 @@
       </div>
 
       <template v-else>
-        <div class="border-base-content/15 bg-base-200/40 divide-base-content/10 mt-6 divide-y rounded-lg border">
-          <div v-for="change in changes" :key="change.key" class="flex items-center justify-between gap-3 p-4">
-            <span class="text-sm">{{ change.label }}</span>
-            <span class="font-mono text-xs font-semibold">{{ change.value }}</span>
-          </div>
-        </div>
+        <SetupPendingList :status="status" class="mt-6" />
 
         <div v-if="!allowed" class="mt-4 flex flex-col gap-3">
           <p class="text-sm">{{ $t("setup.restart.manual") }}</p>
@@ -52,49 +47,17 @@ const { status, anythingSet = true } = defineProps<{ status: SetupStatus; anythi
 const emit = defineEmits<{ seen: [] }>();
 
 const { t } = useI18n();
-const { restart, waitForRestart } = useSetup();
+// The same restart as the banner on every settings page.
+const { phase, error, restartNow } = useSetupRestart();
 
-const phase = ref<"idle" | "restarting" | "timeout">("idle");
-const error = ref("");
-
-// Mirrors the server's rule for POST /api/setup/restart.
-const allowed = computed(
-  () => status.canRestart && (status.canWrite || (status.authProvider === "none" && !!status.pending.authProvider)),
-);
-
-const changes = computed(() => {
-  const { authProvider, enableActions, enableShell } = status.pending;
-  const on = (v: boolean) => (v ? t("setup.restart.on") : t("setup.restart.off"));
-  const rows: { key: string; label: string; value: string }[] = [];
-  if (authProvider != null) rows.push({ key: "auth", label: t("setup.restart.change-auth"), value: authProvider });
-  if (enableActions != null)
-    rows.push({ key: "actions", label: t("setup.actions.actions-label"), value: on(enableActions) });
-  if (enableShell != null) rows.push({ key: "shell", label: t("setup.actions.shell-label"), value: on(enableShell) });
-  // Auto-update is saved already and needs no restart of its own, but it cannot run
-  // until the actions this restart turns on. Listed so the restart reads as what starts it.
-  const update = status.autoUpdate;
-  if (update && update.mode !== "off" && !status.enableActions && enableActions === true) {
-    const when = update.mode === "daily" ? t("setup.update.daily") : t("setup.update.weekly");
-    rows.push({ key: "update", label: t("setup.steps.update"), value: `${when} · ${update.time}` });
-  }
-  return rows;
-});
+const allowed = computed(() => setupCanRestartNow(status));
 
 async function next(): Promise<SetupNextResult> {
   if (!setupHasPending(status) || !allowed.value) return "finish";
-  error.value = "";
   // Nothing left to resume: the wizard is done once this lands.
   clearSetupResume();
   emit("seen");
-  phase.value = "restarting";
-  try {
-    await restart();
-  } catch {
-    phase.value = "idle";
-    error.value = t("setup.error.generic");
-    return "stay";
-  }
-  if (!(await waitForRestart())) phase.value = "timeout";
+  await restartNow();
   return "stay";
 }
 

@@ -2,6 +2,8 @@ import { type App } from "vue";
 import { createRouter, createWebHistory, type Router } from "vue-router";
 import { routes } from "vue-router/auto-routes";
 import { setupLayouts } from "virtual:generated-layouts";
+import config from "@/stores/config";
+import { guardSettingsRoutes, isSettingsPageSwitch, settingsPages } from "@/composable/app/settingsPages";
 
 export const router = createRouter({
   history: createWebHistory(withBase("/")),
@@ -9,8 +11,13 @@ export const router = createRouter({
   // Only hashes that name something on the page are honoured. Everything else
   // keeps the browser's own behaviour, which is what the log views want: they
   // restore their own scroll position. `#cloudLinked` is a signal to the cloud
-  // popover rather than an anchor, so it has to fall through rather than warn.
-  scrollBehavior: (to) => (to.hash && document.querySelector(to.hash) ? { el: to.hash } : undefined),
+  // popover rather than an anchor, so it has to fall through rather than warn. Switching
+  // settings pages starts the new page at its top.
+  scrollBehavior: (to, from) => {
+    if (to.hash && document.querySelector(to.hash)) return { el: to.hash };
+    if (isSettingsPageSwitch(to.path, from.path)) return { top: 0 };
+    return undefined;
+  },
 });
 
 // After an upgrade the hashed chunks of the old build are gone, so a route this tab has not
@@ -40,6 +47,7 @@ export const install = (app: App) => {
   router.beforeEach(() => {
     navigating = true;
   });
+  guardSettingsRoutes(router, settingsPages(config));
   router.afterEach(() => {
     navigating = false;
   });
