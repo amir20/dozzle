@@ -30,9 +30,10 @@
       </button>
     </template>
 
-    <!-- Read only: what the mode and the labels add up to. Labels are set in compose. -->
+    <!-- Read only: what the mode and the labels add up to. Labels are set in compose.
+         The empty state keeps the panel, so nothing reshuffles when a label lands. -->
     <div
-      v-if="rows.length"
+      v-if="policies"
       class="border-base-content/15 bg-base-200/40 divide-base-content/10 divide-y rounded-lg border"
     >
       <div v-for="row in rows" :key="`${row.host}/${row.id}`" class="flex items-start gap-3 p-4">
@@ -47,38 +48,37 @@
           {{ $t(`auto-update.status-${statusOf(row)}`) }}
         </span>
       </div>
+      <p v-if="!rows.length && mode === 'off'" class="text-base-content/60 p-4 text-sm">
+        {{ $t("auto-update.mode-off-desc") }}
+      </p>
+      <i18n-t v-else-if="!rows.length" keypath="auto-update.empty" tag="p" class="text-base-content/60 p-4 text-sm">
+        <template #label>
+          <code class="font-mono">{{ UPDATE_LABEL }}=auto</code>
+        </template>
+      </i18n-t>
     </div>
-    <p v-else-if="policies && mode === 'off'" class="text-base-content/60 text-sm">
-      {{ $t("auto-update.mode-off-desc") }}
-    </p>
-    <i18n-t v-else-if="policies" keypath="auto-update.empty" tag="p" class="text-base-content/60 text-sm">
-      <template #label>
-        <code class="font-mono">{{ UPDATE_LABEL }}=auto</code>
-      </template>
-    </i18n-t>
   </SettingsSection>
 
+  <!-- Static reassurance, so it reads as footnotes rather than a panel of its own. -->
   <SettingsSection :title="$t('auto-update.safety-title')">
-    <div class="border-base-content/15 bg-base-200/40 divide-base-content/10 divide-y rounded-lg border">
-      <div v-for="line in safety" :key="line.key" class="flex items-start gap-3 p-4">
-        <div class="bg-info/10 text-info shrink-0 rounded-full p-1.5">
-          <component :is="line.icon" class="size-4" />
-        </div>
-        <p class="text-sm">{{ $t(`auto-update.safety-${line.key}`) }}</p>
-      </div>
-      <div class="p-2">
+    <ul class="text-base-content/60 flex flex-col gap-1.5 text-xs">
+      <li v-for="line in safety" :key="line.key" class="flex items-start gap-2">
+        <component :is="line.icon" class="mt-px size-3.5 shrink-0 opacity-60" />
+        {{ $t(`auto-update.safety-${line.key}`) }}
+      </li>
+      <li>
         <a
           href="https://dozzle.dev/guide/actions#auto-updating-containers"
           target="_blank"
           rel="noopener"
-          class="hover:bg-base-300 flex items-center gap-2 rounded-md px-2 py-1.5 text-sm transition-colors"
+          class="hover:text-base-content inline-flex items-center gap-2 transition-colors"
         >
-          <mdi:book-open-variant class="size-4 opacity-60" />
-          <span class="flex-1">{{ $t("auto-update.learn-more") }}</span>
-          <mdi:open-in-new class="size-3.5 opacity-40" />
+          <mdi:book-open-variant class="size-3.5 shrink-0 opacity-60" />
+          {{ $t("auto-update.learn-more") }}
+          <mdi:open-in-new class="size-3 opacity-40" />
         </a>
-      </div>
-    </div>
+      </li>
+    </ul>
   </SettingsSection>
 </template>
 

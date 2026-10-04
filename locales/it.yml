@@ -267,8 +267,6 @@ settings:
   update-available: "È disponibile un'immagine più recente"
   auto-update-on: "Dozzle si mantiene aggiornato"
   auto-update-containers: "I tuoi container restano aggiornati"
-  auto-update-daily: "Controlla ogni giorno alle {time}, ora del server."
-  auto-update-weekly: "Controlla ogni settimana, la domenica alle {time}, ora del server."
   show-image-update-alert: "Avvisi aggiornamento immagine"
   show-image-update-alert-desc: "Avvisa quando esiste un tag più recente di un'immagine in esecuzione."
   cloud-desc: Trasmetti i log a Dozzle Cloud per analisi basate su IA e ricerca tra le istanze.
@@ -895,6 +893,7 @@ setup:
     shell-warning: L'accesso shell a un container spesso equivale all'accesso all'host. Lascialo disattivato a meno che non ti serva.
     locked: "Impostato da {env}"
     window-closed: "Senza accesso, la configurazione accetta modifiche solo nei primi 15 minuti di una nuova installazione. Imposta questi valori con variabili d'ambiente, oppure attiva prima l'accesso."
+    window-closed-env: "Senza accesso, la configurazione accetta modifiche solo nei primi 15 minuti di una nuova installazione. Imposta {envs} nel file compose, oppure attiva prima l'accesso."
     no-access: Il tuo account non può modificare queste impostazioni.
     restart-note: Queste modifiche hanno effetto dopo il riavvio di Dozzle.
   hosts:
@@ -951,12 +950,13 @@ setup:
     title: "Tieni aggiornati i container"
     subtitle: "In un'ora tranquilla, Dozzle cerca immagini più recenti e aggiorna se stesso e i container che scegli. Impostazioni, utenti e avvisi restano."
     auto-label: "Aggiorna automaticamente"
-    auto-desc: "Controlla se c'è un'immagine più recente e sostituisce Dozzle solo quando esiste."
+    auto-desc: "Controlla se ci sono immagini più recenti e aggiorna Dozzle e i container qui sotto quando esistono."
     when-label: "Quando"
     time-label: "Ora"
     server-time: "Usa il fuso orario del server."
     daily: "Ogni giorno"
     weekly: "Ogni settimana, la domenica"
+    off: "Disattivato"
     version-label: "Versione"
     update-now: "Aggiorna ora"
     pulling: "Download della nuova immagine"

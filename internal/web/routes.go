@@ -82,6 +82,9 @@ type SetupConfig struct {
 	LockedAutoUpdate bool
 	AutoUpdateMode   *string
 	AutoUpdateTime   *string
+	// UpdateContainers is the mode from --update-containers or its env var, nil
+	// when dozzle.yml decides.
+	UpdateContainers *string
 	StartedAt        time.Time
 	// EnvAgents are the agents from DOZZLE_REMOTE_AGENT, which the UI lists but
 	// cannot remove.

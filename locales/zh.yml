@@ -267,8 +267,6 @@ settings:
   update-available: "有更新的镜像可用"
   auto-update-on: "Dozzle 会自动保持最新"
   auto-update-containers: "你的容器会保持最新"
-  auto-update-daily: "每天 {time} 检查（服务器时间）。"
-  auto-update-weekly: "每周日 {time} 检查（服务器时间）。"
   show-image-update-alert: "镜像更新提醒"
   show-image-update-alert-desc: "当运行中的镜像有更新的标签时通知。"
   cloud-desc: 将日志流式传输到 Dozzle Cloud，进行 AI 驱动的调查和跨实例搜索。
@@ -895,6 +893,7 @@ setup:
     shell-warning: 容器的 Shell 访问权限通常等同于主机的访问权限。除非需要，否则请保持关闭。
     locked: "由 {env} 设置"
     window-closed: "未开启登录时，设置只在全新安装后的前 15 分钟内接受更改。请使用环境变量设置，或先开启登录。"
+    window-closed-env: "没有登录时，设置只在新安装后的前 15 分钟内接受更改。请在 compose 文件中设置 {envs}，或先开启登录。"
     no-access: 你的账户无权更改这些设置。
     restart-note: 这些设置将在 Dozzle 重启后生效。
   hosts:
@@ -951,12 +950,13 @@ setup:
     title: "让容器保持最新"
     subtitle: "Dozzle 会在空闲时段查找更新的镜像，并更新自身和你选择的容器。设置、用户和告警都会保留。"
     auto-label: "自动更新"
-    auto-desc: "检查是否有更新的镜像，仅在有新镜像时替换 Dozzle。"
+    auto-desc: "检查是否有更新的镜像，有的话就更新 Dozzle 和下方的容器。"
     when-label: "时间"
     time-label: "时刻"
     server-time: "使用服务器的时区。"
     daily: "每天"
     weekly: "每周日"
+    off: "关闭"
     version-label: "版本"
     update-now: "立即更新"
     pulling: "正在拉取新镜像"

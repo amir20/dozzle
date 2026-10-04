@@ -269,8 +269,6 @@ settings:
   update-available: "더 새로운 이미지를 사용할 수 있습니다"
   auto-update-on: "Dozzle가 스스로 최신 상태를 유지합니다"
   auto-update-containers: "컨테이너가 최신 상태로 유지됩니다"
-  auto-update-daily: "매일 {time}(서버 시간)에 확인합니다."
-  auto-update-weekly: "매주 일요일 {time}(서버 시간)에 확인합니다."
   show-image-update-alert: "이미지 업데이트 알림"
   show-image-update-alert-desc: "실행 중인 이미지에 더 새로운 태그가 있으면 알립니다."
   cloud-desc: Dozzle Cloud로 로그를 스트리밍하여 AI 기반 조사 및 인스턴스 간 검색을 수행합니다.
@@ -897,6 +895,7 @@ setup:
     shell-warning: 컨테이너의 셸 접근은 호스트 접근과 다름없는 경우가 많습니다. 필요하지 않다면 꺼 두세요.
     locked: "{env}에 의해 설정됨"
     window-closed: "로그인이 없으면 설정은 새로 설치한 뒤 처음 15분 동안만 변경을 받습니다. 환경 변수로 설정하거나 먼저 로그인을 켜세요."
+    window-closed-env: "로그인이 없으면 설정은 새로 설치한 뒤 처음 15분 동안만 변경을 받습니다. compose 파일에 {envs}을(를) 설정하거나 먼저 로그인을 켜세요."
     no-access: 이 계정은 이 설정을 변경할 수 없습니다.
     restart-note: Dozzle을 재시작한 후 적용됩니다.
   hosts:
@@ -953,12 +952,13 @@ setup:
     title: "컨테이너를 최신 상태로 유지"
     subtitle: "한가한 시간에 Dozzle이 새 이미지를 찾아 자신과 선택한 컨테이너를 업데이트합니다. 설정, 사용자, 알림은 그대로 유지됩니다."
     auto-label: "자동으로 업데이트"
-    auto-desc: "더 새로운 이미지가 있는지 확인하고, 있을 때만 Dozzle을 교체합니다."
+    auto-desc: "더 새로운 이미지가 있는지 확인하고, 있으면 Dozzle과 아래 컨테이너를 업데이트합니다."
     when-label: "주기"
     time-label: "시간"
     server-time: "서버의 시간대를 사용합니다."
     daily: "매일"
     weekly: "매주 일요일"
+    off: "꺼짐"
     version-label: "버전"
     update-now: "지금 업데이트"
     pulling: "새 이미지를 받는 중"

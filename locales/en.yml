@@ -396,8 +396,6 @@ settings:
   update-available: A newer image is available
   auto-update-on: Dozzle keeps itself up to date
   auto-update-containers: "Your containers stay up to date"
-  auto-update-daily: Checks daily at {time}, server time.
-  auto-update-weekly: Checks weekly on Sunday at {time}, server time.
   cloud-desc: Stream logs to Dozzle Cloud for AI-powered investigations and search across instances.
   locale: Language
   small-scrollbars: Thin scrollbars
@@ -903,6 +901,7 @@ setup:
     shell-warning: Shell access to a container is often as good as access to the host. Leave it off unless you need it.
     locked: "Set by {env}"
     window-closed: "Without a login, setup only takes changes in the first 15 minutes of a new install. Set these with environment variables, or turn on login first."
+    window-closed-env: "Without a login, setup only takes changes in the first 15 minutes of a new install. Set {envs} in your compose file, or turn on login first."
     no-access: Your account can't change these settings.
     restart-note: These take effect after Dozzle restarts.
   hosts:
@@ -959,12 +958,13 @@ setup:
     title: "Keep containers up to date"
     subtitle: "At a quiet hour, Dozzle looks for newer images and updates itself and the containers you choose. Settings, users and alerts stay."
     auto-label: Update automatically
-    auto-desc: Checks for a newer image and replaces Dozzle only when there is one.
+    auto-desc: "Updates Dozzle and the containers below whenever a newer image is out."
     when-label: When
     time-label: Time
     server-time: Uses the server's time zone.
     daily: Daily
     weekly: Weekly on Sunday
+    off: "Off"
     version-label: Version
     update-now: Update now
     pulling: Pulling the new image

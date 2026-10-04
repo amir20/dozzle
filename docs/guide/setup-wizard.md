@@ -95,16 +95,16 @@ privateAgents:
   - 10.0.0.5:7007|nas
 ```
 
-| Key                | Values                                                                                              | Same as                   |
-| ------------------ | --------------------------------------------------------------------------------------------------- | ------------------------- |
-| `authProvider`     | `none`, `simple`, `forward-proxy`                                                                   | `DOZZLE_AUTH_PROVIDER`    |
-| `enableActions`    | `true`, `false`                                                                                     | `DOZZLE_ENABLE_ACTIONS`   |
-| `enableShell`      | `true`, `false`                                                                                     | `DOZZLE_ENABLE_SHELL`     |
-| `autoUpdate`       | `off`, `daily`, `weekly`                                                                            | `DOZZLE_AUTO_UPDATE`      |
-| `autoUpdateTime`   | `HH:MM`, server local time                                                                          | `DOZZLE_AUTO_UPDATE_TIME` |
-| `updateContainers` | `off` (Dozzle only), `labelled`, `all`. Which containers the schedule updates. Absent is `labelled` | none                      |
-| `remoteAgents`     | list of agent addresses                                                                             | `DOZZLE_REMOTE_AGENT`     |
-| `privateAgents`    | agents in `remoteAgents` that use the [private certificate](/guide/agent#private-certificate)       | none                      |
+| Key                | Values                                                                                              | Same as                    |
+| ------------------ | --------------------------------------------------------------------------------------------------- | -------------------------- |
+| `authProvider`     | `none`, `simple`, `forward-proxy`                                                                   | `DOZZLE_AUTH_PROVIDER`     |
+| `enableActions`    | `true`, `false`                                                                                     | `DOZZLE_ENABLE_ACTIONS`    |
+| `enableShell`      | `true`, `false`                                                                                     | `DOZZLE_ENABLE_SHELL`      |
+| `autoUpdate`       | `off`, `daily`, `weekly`                                                                            | `DOZZLE_AUTO_UPDATE`       |
+| `autoUpdateTime`   | `HH:MM`, server local time                                                                          | `DOZZLE_AUTO_UPDATE_TIME`  |
+| `updateContainers` | `off` (Dozzle only), `labelled`, `all`. Which containers the schedule updates. Absent is `labelled` | `DOZZLE_UPDATE_CONTAINERS` |
+| `remoteAgents`     | list of agent addresses                                                                             | `DOZZLE_REMOTE_AGENT`      |
+| `privateAgents`    | agents in `remoteAgents` that use the [private certificate](/guide/agent#private-certificate)       | none                       |
 
 Flags and environment variables always win over the file. If `DOZZLE_ENABLE_ACTIONS` is set, the value in `dozzle.yml` is ignored and the wizard shows the toggle as locked. To go back to managing a setting from the wizard, remove the variable from your compose file. `remoteAgents` works differently: agents from the file are added to the ones in `DOZZLE_REMOTE_AGENT` instead of being replaced by them.
 

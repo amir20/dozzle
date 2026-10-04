@@ -29,11 +29,8 @@
         <div class="text-sm font-medium">{{ title }}</div>
         <!-- The tag first: it is what the schedule follows and what Update now pulls. -->
         <div class="text-base-content/60 mt-0.5 truncate text-xs">
-          <template v-if="autoUpdate.image">
-            <span class="font-mono">{{ autoUpdate.image }}</span>
-            ·
-          </template>
-          {{ schedule }}
+          <!-- The schedule is the row below, so only what that row cannot say. -->
+          <span class="font-mono">{{ autoUpdate.image || autoUpdate.currentVersion }}</span>
         </div>
       </div>
       <button
@@ -120,12 +117,6 @@ const title = computed(() => {
   if (!autoUpdate.supported && autoUpdate.reason !== "actions-off") return t("settings.auto-update-containers");
   return t("settings.auto-update-on");
 });
-
-const schedule = computed(() =>
-  autoUpdate.mode === "daily"
-    ? t("settings.auto-update-daily", { time: autoUpdate.time })
-    : t("settings.auto-update-weekly", { time: autoUpdate.time }),
-);
 
 defineExpose({ phase });
 </script>

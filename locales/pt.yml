@@ -267,8 +267,6 @@ settings:
   update-available: "Está disponível uma imagem mais recente"
   auto-update-on: "O Dozzle mantém-se atualizado"
   auto-update-containers: "Seus contêineres ficam atualizados"
-  auto-update-daily: "Verifica diariamente às {time}, hora do servidor."
-  auto-update-weekly: "Verifica semanalmente, aos domingos às {time}, hora do servidor."
   show-image-update-alert: "Alertas de atualização de imagem"
   show-image-update-alert-desc: "Avisa quando existe uma tag mais recente de uma imagem em execução."
   cloud-desc: Transmita logs para o Dozzle Cloud para investigações com IA e busca entre instâncias.
@@ -895,6 +893,7 @@ setup:
     shell-warning: Acesso ao shell de um contêiner muitas vezes equivale a acesso ao host. Deixe desativado a menos que precise.
     locked: "Definido por {env}"
     window-closed: "Sem login, a configuração só aceita alterações nos primeiros 15 minutos de uma instalação nova. Defina isto com variáveis de ambiente ou ative o login primeiro."
+    window-closed-env: "Sem login, a configuração só aceita alterações nos primeiros 15 minutos de uma instalação nova. Defina {envs} no seu arquivo compose ou ative o login primeiro."
     no-access: Sua conta não pode alterar estas configurações.
     restart-note: Estas alterações entram em vigor depois que o Dozzle reiniciar.
   hosts:
@@ -951,12 +950,13 @@ setup:
     title: "Mantenha os contêineres atualizados"
     subtitle: "Em um horário tranquilo, o Dozzle procura imagens mais novas e atualiza a si mesmo e os contêineres que você escolher. Configurações, usuários e alertas continuam."
     auto-label: "Atualizar automaticamente"
-    auto-desc: "Verifica se há uma imagem mais nova e substitui o Dozzle somente quando houver."
+    auto-desc: "Verifica se há imagens mais novas e atualiza o Dozzle e os contêineres abaixo quando houver."
     when-label: "Quando"
     time-label: "Horário"
     server-time: "Usa o fuso horário do servidor."
     daily: "Diariamente"
     weekly: "Semanalmente, aos domingos"
+    off: "Desligado"
     version-label: "Versão"
     update-now: "Atualizar agora"
     pulling: "Baixando a nova imagem"

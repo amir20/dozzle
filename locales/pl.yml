@@ -269,8 +269,6 @@ settings:
   update-available: "Dostępny jest nowszy obraz"
   auto-update-on: "Dozzle sam się aktualizuje"
   auto-update-containers: "Twoje kontenery są aktualne"
-  auto-update-daily: "Sprawdza codziennie o {time} czasu serwera."
-  auto-update-weekly: "Sprawdza co tydzień w niedzielę o {time} czasu serwera."
   show-image-update-alert: "Alerty aktualizacji obrazu"
   show-image-update-alert-desc: "Powiadamiaj, gdy istnieje nowszy tag uruchomionego obrazu."
   cloud-desc: Przesyłaj logi do Dozzle Cloud w celu analiz wspomaganych przez AI i wyszukiwania między instancjami.
@@ -897,6 +895,7 @@ setup:
     shell-warning: Dostęp do powłoki kontenera często oznacza to samo co dostęp do hosta. Pozostaw wyłączone, chyba że go potrzebujesz.
     locked: "Ustawione przez {env}"
     window-closed: "Bez logowania konfiguracja przyjmuje zmiany tylko przez pierwsze 15 minut nowej instalacji. Ustaw te opcje zmiennymi środowiskowymi albo najpierw włącz logowanie."
+    window-closed-env: "Bez logowania konfiguracja przyjmuje zmiany tylko przez pierwsze 15 minut nowej instalacji. Ustaw {envs} w pliku compose albo najpierw włącz logowanie."
     no-access: Twoje konto nie może zmieniać tych ustawień.
     restart-note: Zmiany zaczną działać po restarcie Dozzle.
   hosts:
@@ -953,12 +952,13 @@ setup:
     title: "Utrzymuj kontenery aktualne"
     subtitle: "W spokojnej porze Dozzle szuka nowszych obrazów i aktualizuje siebie oraz wybrane kontenery. Ustawienia, użytkownicy i alerty zostają."
     auto-label: "Aktualizuj automatycznie"
-    auto-desc: "Sprawdza, czy jest nowszy obraz, i zastępuje Dozzle tylko wtedy, gdy jest."
+    auto-desc: "Sprawdza, czy są nowsze obrazy, i aktualizuje Dozzle oraz kontenery poniżej, gdy są."
     when-label: "Kiedy"
     time-label: "Godzina"
     server-time: "Używa strefy czasowej serwera."
     daily: "Codziennie"
     weekly: "Co tydzień w niedzielę"
+    off: "Wyłączone"
     version-label: "Wersja"
     update-now: "Aktualizuj teraz"
     pulling: "Pobieranie nowego obrazu"

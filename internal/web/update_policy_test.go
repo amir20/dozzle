@@ -104,7 +104,7 @@ func policyFleet() []container.Container {
 // it did before: the containers labelled for it, and nothing else.
 func TestScheduledContainers_UpgradeChangesNothing(t *testing.T) {
 	setupTestEnv(t, true)
-	got := scheduledContainers(policyFleet(), loadUpdateMode(), "")
+	got := scheduledContainers(policyFleet(), loadUpdateMode(SetupConfig{}), "")
 	assert.Equal(t, []string{"labelled", "legacy"}, names(got), "unhealthy, off, unlabelled and Dozzle itself are left out")
 }
 
@@ -112,16 +112,20 @@ func TestScheduledContainers_Modes(t *testing.T) {
 	setupTestEnv(t, true)
 
 	writeUpdateMode(t, "all")
-	got := scheduledContainers(policyFleet(), loadUpdateMode(), "")
+	got := scheduledContainers(policyFleet(), loadUpdateMode(SetupConfig{}), "")
 	assert.Equal(t, []string{"web", "Postgres", "labelled", "legacy"}, names(got), "everything but off, unhealthy and Dozzle")
 
 	writeUpdateMode(t, "off")
-	got = scheduledContainers(policyFleet(), loadUpdateMode(), "")
+	got = scheduledContainers(policyFleet(), loadUpdateMode(SetupConfig{}), "")
 	assert.Empty(t, got, "off moves no container, labelled or not")
 
 	writeUpdateMode(t, "labelled")
-	got = scheduledContainers(policyFleet(), loadUpdateMode(), "")
+	got = scheduledContainers(policyFleet(), loadUpdateMode(SetupConfig{}), "")
 	assert.Equal(t, []string{"labelled", "legacy"}, names(got))
+
+	env := "all"
+	got = scheduledContainers(policyFleet(), loadUpdateMode(SetupConfig{UpdateContainers: &env}), "")
+	assert.Equal(t, []string{"web", "Postgres", "labelled", "legacy"}, names(got), "the env var wins over the file")
 }
 
 // All leaves a stopped container alone unless its label asks for updates.

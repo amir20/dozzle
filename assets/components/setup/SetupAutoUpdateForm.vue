@@ -8,52 +8,69 @@
         {{ $t("auto-update.containers-still") }}
       </span>
     </InlineNotice>
-    <SetupAccessNotice v-else :status="status" />
+    <SetupAccessNotice v-else :status="status" :envs="unlockedEnvs" />
 
     <div class="border-base-content/15 bg-base-200/40 divide-base-content/10 divide-y rounded-lg border">
-      <label class="flex items-start justify-between gap-3 p-4">
+      <template v-if="canEditSchedule">
+        <label class="flex items-start justify-between gap-3 p-4">
+          <span class="min-w-0 flex-1">
+            <span class="block text-sm font-medium">{{ $t("setup.update.auto-label") }}</span>
+            <span class="text-base-content/60 mt-0.5 block text-xs">{{ $t("setup.update.auto-desc") }}</span>
+          </span>
+          <input
+            v-model="enabled"
+            type="checkbox"
+            class="toggle toggle-primary toggle-sm mt-0.5 shrink-0"
+            :disabled="saving"
+          />
+        </label>
+
+        <div class="flex flex-wrap items-center justify-between gap-3 p-4">
+          <span class="min-w-0">
+            <span class="block text-sm font-medium" :class="{ 'text-base-content/40': !enabled }">
+              {{ $t("setup.update.when-label") }}
+            </span>
+            <span class="text-base-content/40 mt-0.5 block text-xs">{{ $t("setup.update.server-time") }}</span>
+          </span>
+          <span class="flex items-center gap-2">
+            <select
+              v-model="schedule"
+              class="select select-sm w-auto"
+              :aria-label="$t('setup.update.when-label')"
+              :disabled="!enabled || saving"
+            >
+              <option value="daily">{{ $t("setup.update.daily") }}</option>
+              <option value="weekly">{{ $t("setup.update.weekly") }}</option>
+            </select>
+            <select
+              v-model="time"
+              class="select select-sm w-auto font-mono"
+              :aria-label="$t('setup.update.time-label')"
+              :disabled="!enabled || saving"
+            >
+              <option v-for="option in times" :key="option" :value="option">{{ option }}</option>
+            </select>
+          </span>
+        </div>
+      </template>
+
+      <!-- Read only, so text: the toggle and the schedule fold into one value. -->
+      <div v-else class="flex items-start justify-between gap-3 p-4">
         <span class="min-w-0 flex-1">
           <span class="block text-sm font-medium">{{ $t("setup.update.auto-label") }}</span>
           <span class="text-base-content/60 mt-0.5 block text-xs">{{ $t("setup.update.auto-desc") }}</span>
           <SetupLocked v-if="status.locked.autoUpdate" env="DOZZLE_AUTO_UPDATE" class="mt-1" />
         </span>
-        <input
-          v-model="enabled"
-          type="checkbox"
-          class="toggle toggle-primary toggle-sm mt-0.5 shrink-0"
-          :disabled="!canEditSchedule || saving"
-        />
-      </label>
-
-      <div class="flex flex-wrap items-center justify-between gap-3 p-4">
-        <span class="min-w-0">
-          <span class="block text-sm font-medium" :class="{ 'text-base-content/40': !enabled }">
-            {{ $t("setup.update.when-label") }}
-          </span>
-          <span class="text-base-content/40 mt-0.5 block text-xs">{{ $t("setup.update.server-time") }}</span>
+        <span v-if="autoUpdate.mode === 'off'" class="text-base-content/60 shrink-0 text-sm">
+          {{ $t("setup.update.off") }}
         </span>
-        <span class="flex items-center gap-2">
-          <select
-            v-model="schedule"
-            class="select select-sm w-auto"
-            :aria-label="$t('setup.update.when-label')"
-            :disabled="!canEditSchedule || !enabled || saving"
-          >
-            <option value="daily">{{ $t("setup.update.daily") }}</option>
-            <option value="weekly">{{ $t("setup.update.weekly") }}</option>
-          </select>
-          <select
-            v-model="time"
-            class="select select-sm w-auto font-mono"
-            :aria-label="$t('setup.update.time-label')"
-            :disabled="!canEditSchedule || !enabled || saving"
-          >
-            <option v-for="option in times" :key="option" :value="option">{{ option }}</option>
-          </select>
+        <span v-else class="shrink-0 text-right text-sm">
+          {{ $t(`setup.update.${autoUpdate.mode}`) }}
+          <span class="text-base-content/60 block font-mono text-xs">{{ autoUpdate.time }}</span>
         </span>
       </div>
 
-      <fieldset class="p-4" :disabled="!canEdit || saving">
+      <fieldset v-if="canEditContainers" class="p-4" :disabled="saving">
         <legend class="contents">
           <span class="block text-sm font-medium">{{ $t("auto-update.which-label") }}</span>
         </legend>
@@ -70,7 +87,7 @@
               :name="`update-containers-${uid}`"
               :value="option"
             />
-            <span class="min-w-0">
+            <span class="min-w-0 flex-1">
               <span class="block text-sm">{{ $t(`auto-update.mode-${option}`) }}</span>
               <i18n-t
                 :keypath="`auto-update.mode-${option}-desc`"
@@ -82,9 +99,35 @@
                 </template>
               </i18n-t>
             </span>
+            <!-- How many containers each choice reaches, so the choice is not abstract. -->
+            <span v-if="counts && option !== 'off'" class="text-base-content/60 shrink-0 font-mono text-xs">
+              {{ counts[option] }}
+            </span>
           </label>
         </div>
       </fieldset>
+
+      <div v-else class="flex items-start justify-between gap-3 p-4">
+        <span class="min-w-0 flex-1">
+          <span class="block text-sm font-medium">{{ $t("auto-update.which-label") }}</span>
+          <i18n-t
+            :keypath="`auto-update.mode-${savedContainers}-desc`"
+            tag="span"
+            class="text-base-content/60 mt-0.5 block text-xs"
+          >
+            <template #label>
+              <code class="font-mono">{{ savedContainers === "all" ? OFF_LABEL : AUTO_LABEL }}</code>
+            </template>
+          </i18n-t>
+          <SetupLocked v-if="status.locked.updateContainers" env="DOZZLE_UPDATE_CONTAINERS" class="mt-1" />
+        </span>
+        <span class="shrink-0 text-right text-sm">
+          {{ $t(`auto-update.mode-${savedContainers}`) }}
+          <span v-if="counts && savedContainers !== 'off'" class="text-base-content/60 block font-mono text-xs">
+            {{ counts[savedContainers] }}
+          </span>
+        </span>
+      </div>
 
       <!-- Everything reaches the databases too, which is the one way it goes badly. -->
       <div v-if="containers === 'all' && risky.length" class="flex items-start gap-3 p-4">
@@ -118,6 +161,7 @@ import {
   type ContainerUpdatePolicy,
   type UpdateContainersMode,
   riskyContainers,
+  willAutoUpdate,
 } from "@/composable/containers/updatePolicy";
 
 const { status, autosave = false } = defineProps<{
@@ -172,9 +216,24 @@ const blockedReason = computed(() => {
 const scheduleEditable = computed(() => autoUpdate.value.reason !== "not-server");
 
 // dozzle.yml outside a volume is lost on the next recreate, so nothing is saved there.
-// Which containers has no flag or env var, so the schedule's lock does not hold it.
+// The schedule and which containers have their own env vars, so each has its own lock.
 const canEdit = computed(() => setupCanEdit(status) && scheduleEditable.value);
 const canEditSchedule = computed(() => canEdit.value && !status.locked.autoUpdate);
+const canEditContainers = computed(() => canEdit.value && !status.locked.updateContainers);
+
+// What the access notice points at instead: the env vars that would still change something.
+const unlockedEnvs = computed(() => [
+  ...(status.locked.autoUpdate ? [] : ["DOZZLE_AUTO_UPDATE"]),
+  ...(status.locked.updateContainers ? [] : ["DOZZLE_UPDATE_CONTAINERS"]),
+]);
+
+const counts = computed(() => {
+  const list = policies.value?.containers as ContainerUpdatePolicy[] | undefined;
+  if (!list) return undefined;
+  return Object.fromEntries(
+    UPDATE_CONTAINERS_MODES.map((mode) => [mode, list.filter((c) => willAutoUpdate(c, mode)).length]),
+  ) as Record<UpdateContainersMode, number>;
+});
 
 const mode = computed<AutoUpdateMode>(() => (enabled.value ? schedule.value : "off"));
 
@@ -182,7 +241,9 @@ const scheduleChanged = () =>
   mode.value !== autoUpdate.value.mode || (enabled.value && time.value !== autoUpdate.value.time);
 const containersChanged = () => containers.value !== savedContainers.value;
 
-const dirty = computed(() => canEdit.value && ((canEditSchedule.value && scheduleChanged()) || containersChanged()));
+const dirty = computed(
+  () => (canEditSchedule.value && scheduleChanged()) || (canEditContainers.value && containersChanged()),
+);
 
 async function save(): Promise<boolean> {
   // Putting a failed value back runs this again with nothing to save, and that must
@@ -194,7 +255,7 @@ async function save(): Promise<boolean> {
     // Applies right away: the scheduler re-reads dozzle.yml every minute.
     const patch: Parameters<typeof saveConfig>[0] = {};
     if (canEditSchedule.value && scheduleChanged()) patch.autoUpdate = { mode: mode.value, time: time.value };
-    if (containersChanged()) patch.updateContainers = containers.value;
+    if (canEditContainers.value && containersChanged()) patch.updateContainers = containers.value;
     await saveConfig(patch);
     return true;
   } catch (e) {

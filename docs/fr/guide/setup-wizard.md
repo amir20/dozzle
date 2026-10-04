@@ -1,6 +1,6 @@
 ---
 title: Assistant de configuration
-sourceHash: 010e55cb94e5
+sourceHash: 2be5cf1d7f88
 ---
 
 # Assistant de configuration
@@ -96,16 +96,16 @@ privateAgents:
   - 10.0.0.5:7007|nas
 ```
 
-| Clé                | Valeurs                                                                                                        | Équivalent à              |
-| ------------------ | -------------------------------------------------------------------------------------------------------------- | ------------------------- |
-| `authProvider`     | `none`, `simple`, `forward-proxy`                                                                              | `DOZZLE_AUTH_PROVIDER`    |
-| `enableActions`    | `true`, `false`                                                                                                | `DOZZLE_ENABLE_ACTIONS`   |
-| `enableShell`      | `true`, `false`                                                                                                | `DOZZLE_ENABLE_SHELL`     |
-| `autoUpdate`       | `off`, `daily`, `weekly`                                                                                       | `DOZZLE_AUTO_UPDATE`      |
-| `autoUpdateTime`   | `HH:MM`, heure locale du serveur                                                                               | `DOZZLE_AUTO_UPDATE_TIME` |
-| `updateContainers` | `off` (Dozzle seulement), `labelled`, `all`. Les conteneurs que le planning met à jour. Absent vaut `labelled` | aucune                    |
-| `remoteAgents`     | liste d'adresses d'agents                                                                                      | `DOZZLE_REMOTE_AGENT`     |
-| `privateAgents`    | agents de `remoteAgents` qui utilisent le [certificat privé](/fr/guide/agent#private-certificate)              | aucune                    |
+| Clé                | Valeurs                                                                                                        | Équivalent à               |
+| ------------------ | -------------------------------------------------------------------------------------------------------------- | -------------------------- |
+| `authProvider`     | `none`, `simple`, `forward-proxy`                                                                              | `DOZZLE_AUTH_PROVIDER`     |
+| `enableActions`    | `true`, `false`                                                                                                | `DOZZLE_ENABLE_ACTIONS`    |
+| `enableShell`      | `true`, `false`                                                                                                | `DOZZLE_ENABLE_SHELL`      |
+| `autoUpdate`       | `off`, `daily`, `weekly`                                                                                       | `DOZZLE_AUTO_UPDATE`       |
+| `autoUpdateTime`   | `HH:MM`, heure locale du serveur                                                                               | `DOZZLE_AUTO_UPDATE_TIME`  |
+| `updateContainers` | `off` (Dozzle seulement), `labelled`, `all`. Les conteneurs que le planning met à jour. Absent vaut `labelled` | `DOZZLE_UPDATE_CONTAINERS` |
+| `remoteAgents`     | liste d'adresses d'agents                                                                                      | `DOZZLE_REMOTE_AGENT`      |
+| `privateAgents`    | agents de `remoteAgents` qui utilisent le [certificat privé](/fr/guide/agent#private-certificate)              | aucune                     |
 
 Les flags et les variables d'environnement l'emportent toujours sur le fichier. Si `DOZZLE_ENABLE_ACTIONS` est défini, la valeur de `dozzle.yml` est ignorée et l'assistant affiche l'interrupteur comme verrouillé. Pour gérer à nouveau un réglage depuis l'assistant, retirez la variable de votre fichier compose. `remoteAgents` fonctionne autrement : les agents du fichier s'ajoutent à ceux de `DOZZLE_REMOTE_AGENT` au lieu d'être remplacés par eux.
 

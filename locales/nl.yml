@@ -268,8 +268,6 @@ settings:
   update-available: "Er is een nieuwere image beschikbaar"
   auto-update-on: "Dozzle houdt zichzelf up-to-date"
   auto-update-containers: "Je containers blijven up-to-date"
-  auto-update-daily: "Controleert dagelijks om {time}, servertijd."
-  auto-update-weekly: "Controleert wekelijks op zondag om {time}, servertijd."
   show-image-update-alert: "Image-updatemeldingen"
   show-image-update-alert-desc: "Melden wanneer er een nieuwere tag van een draaiende image bestaat."
   cloud-desc: Stream logs naar Dozzle Cloud voor AI-gestuurde analyses en zoeken over instanties heen.
@@ -896,6 +894,7 @@ setup:
     shell-warning: Shelltoegang tot een container staat vaak gelijk aan toegang tot de host. Laat het uit, tenzij je het nodig hebt.
     locked: "Ingesteld door {env}"
     window-closed: "Zonder inloggen accepteert de installatie alleen wijzigingen in de eerste 15 minuten van een nieuwe installatie. Stel dit in met omgevingsvariabelen, of zet eerst inloggen aan."
+    window-closed-env: "Zonder inloggen accepteert de installatie alleen wijzigingen in de eerste 15 minuten van een nieuwe installatie. Stel {envs} in je compose-bestand in, of zet eerst inloggen aan."
     no-access: Je account kan deze instellingen niet wijzigen.
     restart-note: Deze worden actief nadat Dozzle is herstart.
   hosts:
@@ -952,12 +951,13 @@ setup:
     title: "Houd containers up-to-date"
     subtitle: "Op een rustig uur zoekt Dozzle naar nieuwere images en werkt het zichzelf en de containers die jij kiest bij. Instellingen, gebruikers en meldingen blijven."
     auto-label: "Automatisch bijwerken"
-    auto-desc: "Controleert op een nieuwere image en vervangt Dozzle alleen als die er is."
+    auto-desc: "Controleert op nieuwere images en werkt Dozzle en de containers hieronder bij als die er zijn."
     when-label: "Wanneer"
     time-label: "Tijd"
     server-time: "Gebruikt de tijdzone van de server."
     daily: "Dagelijks"
     weekly: "Wekelijks op zondag"
+    off: "Uit"
     version-label: "Versie"
     update-now: "Nu bijwerken"
     pulling: "Nieuwe image ophalen"

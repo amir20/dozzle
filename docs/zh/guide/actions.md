@@ -1,6 +1,6 @@
 ---
 title: 容器操作
-sourceHash: b77ad4fdc46b
+sourceHash: 121d4b250806
 ---
 
 # 容器操作
@@ -109,7 +109,7 @@ Dozzle 自身容器上的 `Update` 操作会就地更新 Dozzle。它拉取新�
 Dozzle 可以按计划更新容器。在 **设置 → 更新** 或 [设置向导](/zh/guide/setup-wizard#auto-update) 中设置：
 
 - **时间：** 关闭、每天或每周（周日），以及一天中的时间。等同于 `DOZZLE_AUTO_UPDATE` 和 `DOZZLE_AUTO_UPDATE_TIME`。
-- **哪些容器：** **仅 Dozzle**、**有标签的容器**（默认）或 **全部**。无论选哪一项，Dozzle 自身都会按计划更新。
+- **哪些容器：** **仅 Dozzle**、**有标签的容器**（默认）或 **全部**。无论选哪一项，Dozzle 自身都会按计划更新。等同于 `DOZZLE_UPDATE_CONTAINERS`（`off`、`labelled` 或 `all`）。
 
 容器上的一个标签决定其余的部分：
 

@@ -420,6 +420,14 @@ func TestSetup_AutoUpdatePatch(t *testing.T) {
 	assert.True(t, state.Locked.AutoUpdate)
 	assert.Equal(t, "daily", state.AutoUpdate.Mode, "flag wins over the file")
 	assert.Equal(t, "04:15", state.AutoUpdate.Time, "unlocked time still comes from the file")
+	assert.False(t, state.Locked.UpdateContainers)
+
+	containers := "all"
+	pinned := setupNoneHandler(time.Now(), SetupConfig{UpdateContainers: &containers})
+	assert.Equal(t, http.StatusConflict, doSetup(pinned, "PATCH", "/api/setup/config", `{"updateContainers":"off"}`).Code)
+	state = getSetupState(t, pinned)
+	assert.True(t, state.Locked.UpdateContainers)
+	assert.Equal(t, "all", string(state.AutoUpdate.Containers), "env wins over the file")
 }
 
 // A cross-site form can post text/plain without a preflight, so every setup

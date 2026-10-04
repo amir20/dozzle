@@ -89,7 +89,13 @@ export interface SetupStatus {
   usersFileExists: boolean;
   enableActions: boolean;
   enableShell: boolean;
-  locked: { authProvider: boolean; enableActions: boolean; enableShell: boolean; autoUpdate?: boolean };
+  locked: {
+    authProvider: boolean;
+    enableActions: boolean;
+    enableShell: boolean;
+    autoUpdate?: boolean;
+    updateContainers?: boolean;
+  };
   pending: { authProvider?: string; enableActions?: boolean; enableShell?: boolean };
   canRestart: boolean;
   windowOpen: boolean;
