@@ -133,7 +133,7 @@ func NewClient(cli CLI, host container.Host, hostIDs container.HostIDResolver) *
 
 // NewLocalClient creates a new instance of Client with docker filters.
 func NewLocalClient(hostname string, hostIDs container.HostIDResolver) (*Client, error) {
-	cli, err := client.New(client.FromEnv, client.WithUserAgent("Docker-Client/Dozzle"), client.WithResponseHook(healthEventCompat))
+	cli, err := client.New(client.FromEnv, client.WithUserAgent("Docker-Client/Dozzle"))
 
 	if err != nil {
 		return nil, err
@@ -186,7 +186,7 @@ func NewRemoteClient(host container.Host, hostIDs container.HostIDResolver) (*Cl
 		log.Debug().Msg("Not using TLS for remote client")
 	}
 
-	opts = append(opts, client.WithUserAgent("Docker-Client/Dozzle"), client.WithResponseHook(healthEventCompat))
+	opts = append(opts, client.WithUserAgent("Docker-Client/Dozzle"))
 
 	cli, err := client.New(opts...)
 
@@ -497,7 +497,7 @@ func (d *Client) ContainerEvents(ctx context.Context, messages chan<- container.
 				select {
 				case messages <- container.ContainerEvent{
 					ActorID:         message.Actor.ID[:12],
-					Name:            string(message.Action),
+					Name:            d.healthAction(ctx, string(message.Action), message.Actor.ID),
 					Host:            d.host.ID,
 					ActorAttributes: message.Actor.Attributes,
 					Time:            time.Now(),
