@@ -274,10 +274,13 @@ settings:
   small-scrollbars: Tynde rullebjælker
   small-scrollbars-desc: "Tyndere scrollbarer, praktisk på mindre skærme."
   show-timestamps: Vis tids stempler
+  show-timestamps-desc: "Vis hvornår hver linje blev skrevet."
   soft-wrap: Linjeombrydning
+  soft-wrap-desc: "Ombryd lange linjer i stedet for at rulle sidelæns."
   highlight-errors: Fremhæv fejllinjer
   highlight-errors-desc: "Den farvede niveaumarkør vises altid."
-  datetime-format: Dato og tid
+  date-format: "Datoformat"
+  time-format: "Tidsformat"
   font-size: Skriftstørrelse
   color-scheme: Tema
   show-stopped-containers: Vis stoppet containere
@@ -307,12 +310,12 @@ settings:
     none: Ingen
   grouping:
     always: Altid
-    at-least-2: Mindst 2
+    at-least-2: "Grupper med 2 eller flere"
     never: Aldrig
   hour:
     auto: Auto
-    12: "12"
-    24: "24"
+    "12": "12-timers"
+    "24": "24-timers"
   log:
     preview: Dette er en forhåndsvisning af loggene
     warning: En advarselslog ser sådan ud

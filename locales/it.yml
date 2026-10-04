@@ -274,10 +274,13 @@ settings:
   small-scrollbars: Barre di scorrimento sottili
   small-scrollbars-desc: "Barre di scorrimento più sottili, utili su schermi piccoli."
   show-timestamps: Visualizza timestamp
+  show-timestamps-desc: "Mostra quando è stata scritta ogni riga."
   soft-wrap: A capo automatico
+  soft-wrap-desc: "Manda a capo le righe lunghe invece di scorrere di lato."
   highlight-errors: Evidenzia le righe di errore
   highlight-errors-desc: "L'indicatore colorato del livello è sempre visibile."
-  datetime-format: Data e ora
+  date-format: "Formato data"
+  time-format: "Formato ora"
   font-size: Dimensione carattere
   color-scheme: Tema
   show-stopped-containers: Visualizza i container arrestati
@@ -307,12 +310,12 @@ settings:
     none: Nessuno
   grouping:
     always: Sempre
-    at-least-2: Almeno 2
+    at-least-2: "Gruppi di 2 o più"
     never: Mai
   hour:
     auto: Auto
-    12: "12"
-    24: "24"
+    "12": "12 ore"
+    "24": "24 ore"
   log:
     preview: Questa è un'anteprima dei log
     warning: Un log di avviso appare così

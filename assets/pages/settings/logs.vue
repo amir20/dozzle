@@ -30,10 +30,20 @@
       <SettingRow tag="label" :label="$t('settings.compact')" :description="$t('settings.compact-desc')" class="px-4">
         <input type="checkbox" class="toggle toggle-primary toggle-sm" v-model="compact" />
       </SettingRow>
-      <SettingRow tag="label" :label="$t('settings.show-timestamps')" class="px-4">
+      <SettingRow
+        tag="label"
+        :label="$t('settings.show-timestamps')"
+        :description="$t('settings.show-timestamps-desc')"
+        class="px-4"
+      >
         <input type="checkbox" class="toggle toggle-primary toggle-sm" v-model="showTimestamp" />
       </SettingRow>
-      <SettingRow tag="label" :label="$t('settings.soft-wrap')" class="px-4">
+      <SettingRow
+        tag="label"
+        :label="$t('settings.soft-wrap')"
+        :description="$t('settings.soft-wrap-desc')"
+        class="px-4"
+      >
         <input type="checkbox" class="toggle toggle-primary toggle-sm" v-model="softWrap" />
       </SettingRow>
       <SettingRow
@@ -44,18 +54,21 @@
       >
         <input type="checkbox" class="toggle toggle-primary toggle-sm" v-model="highlightErrors" />
       </SettingRow>
-      <SettingRow :label="$t('settings.datetime-format')" class="px-4">
+      <!-- One row each: two unlabelled "Auto" menus side by side read as the same thing. -->
+      <SettingRow :label="$t('settings.date-format')" class="px-4">
         <DropdownMenu
           plain
           v-model="dateLocale"
           :options="[
-            { label: 'Auto', value: 'auto' },
+            { label: $t('settings.hour.auto'), value: 'auto' },
             { label: 'MM/DD/YYYY', value: 'en-US' },
             { label: 'DD/MM/YYYY', value: 'en-GB' },
             { label: 'DD.MM.YYYY', value: 'de-DE' },
             { label: 'YYYY-MM-DD', value: 'en-CA' },
           ]"
         />
+      </SettingRow>
+      <SettingRow :label="$t('settings.time-format')" class="px-4">
         <DropdownMenu
           plain
           v-model="hourStyle"

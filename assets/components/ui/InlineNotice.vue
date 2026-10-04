@@ -17,7 +17,11 @@
     </div>
     <!-- Actions sit on the end of the row rather than under it: every notice that has
          them here is a one-line question with one or two short answers. -->
-    <div v-if="$slots.actions" class="flex shrink-0 flex-wrap items-center gap-2">
+    <!-- A plain btn is the same fill as the notice, so it gets an edge to read as a button. -->
+    <div
+      v-if="$slots.actions"
+      class="[&_.btn:not(.btn-primary)]:border-base-content/20 flex shrink-0 flex-wrap items-center gap-2"
+    >
       <slot name="actions" />
     </div>
   </div>

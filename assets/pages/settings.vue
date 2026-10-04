@@ -4,8 +4,9 @@
       <Links />
     </section>
 
-    <div class="flex flex-wrap items-end justify-between gap-x-4 gap-y-1">
-      <div>
+    <!-- Reset stays beside the title, so on a phone it does not drop under the subtitle. -->
+    <div class="flex items-start justify-between gap-4">
+      <div class="min-w-0">
         <h1 class="text-2xl font-bold">{{ $t("title.settings") }}</h1>
         <!-- Every page says whose settings these are, so the nav never moves between pages. -->
         <p class="text-base-content/60 text-sm">
@@ -15,7 +16,7 @@
       <button
         v-if="isPreferencePage(route.path)"
         type="button"
-        class="btn btn-ghost btn-xs text-base-content/60"
+        class="btn btn-ghost btn-xs text-base-content/60 mt-1.5 shrink-0"
         @click="reset"
       >
         {{ $t("settings.reset") }}

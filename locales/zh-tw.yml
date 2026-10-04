@@ -276,10 +276,13 @@ settings:
   small-scrollbars: 細捲軸
   small-scrollbars-desc: "較細的捲軸，在小螢幕上很實用。"
   show-timestamps: 顯示時間戳記
+  show-timestamps-desc: "顯示每一行的寫入時間。"
   soft-wrap: 自動換行
+  soft-wrap-desc: "長行自動換行，而不是橫向捲動。"
   highlight-errors: 醒目提示錯誤行
   highlight-errors-desc: "彩色等級標記會一直顯示。"
-  datetime-format: 日期和時間
+  date-format: "日期格式"
+  time-format: "時間格式"
   font-size: 字型大小
   color-scheme: 主題
   show-stopped-containers: 顯示已停止的容器
@@ -309,12 +312,12 @@ settings:
     none: 無
   grouping:
     always: 總是
-    at-least-2: 至少 2 個
+    at-least-2: "2 個以上的群組"
     never: 從不
   hour:
     auto: 自動
-    12: "12"
-    24: "24"
+    "12": "12 小時制"
+    "24": "24 小時制"
   log:
     preview: 這是日誌的預覽
     warning: 警告日誌看起來是這樣的

@@ -276,10 +276,13 @@ settings:
   small-scrollbars: Cienkie paski przewijania
   small-scrollbars-desc: "Cieńsze paski przewijania, przydatne na mniejszych ekranach."
   show-timestamps: Pokaż date i godzinę
+  show-timestamps-desc: "Pokazuje, kiedy zapisano każdy wiersz."
   soft-wrap: Zawijanie wierszy
+  soft-wrap-desc: "Zawija długie wiersze zamiast przewijać w bok."
   highlight-errors: Wyróżniaj wiersze błędów
   highlight-errors-desc: "Kolorowy znacznik poziomu jest zawsze widoczny."
-  datetime-format: Data i godzina
+  date-format: "Format daty"
+  time-format: "Format godziny"
   font-size: Rozmiar czcionki
   color-scheme: Motyw
   show-stopped-containers: Pokaż zatrzymane kontenery
@@ -309,12 +312,12 @@ settings:
     none: Brak
   grouping:
     always: Zawsze
-    at-least-2: Co najmniej 2
+    at-least-2: "Grupy od 2"
     never: Nigdy
   hour:
     auto: Auto
-    12: "12"
-    24: "24"
+    "12": "12-godzinny"
+    "24": "24-godzinny"
   log:
     preview: To jest podgląd logów
     warning: Log ostrzeżenia wygląda tak

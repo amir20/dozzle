@@ -276,10 +276,13 @@ settings:
   small-scrollbars: Tanki drsniki
   small-scrollbars-desc: "Tanjši drsniki, priročno na manjših zaslonih."
   show-timestamps: Prikaži časovne žige
+  show-timestamps-desc: "Prikaže, kdaj je bila vsaka vrstica zapisana."
   soft-wrap: Prelom vrstic
+  soft-wrap-desc: "Dolge vrstice prelomi, namesto da se pomikajo vstran."
   highlight-errors: Označi vrstice z napakami
   highlight-errors-desc: "Barvna oznaka ravni je vedno prikazana."
-  datetime-format: Datum in čas
+  date-format: "Oblika datuma"
+  time-format: "Oblika časa"
   font-size: Velikost pisave
   color-scheme: Tema
   show-stopped-containers: Prikaži ustavljene zabojnike
@@ -307,12 +310,12 @@ settings:
     none: Brez
   grouping:
     always: Vedno
-    at-least-2: Vsaj 2
+    at-least-2: "Skupine z 2 ali več"
     never: Nikoli
   hour:
     auto: Samodejno
-    12: "12"
-    24: "24"
+    "12": "12-urna"
+    "24": "24-urna"
   log:
     preview: To je predogled dnevnikov
     warning: Dnevnik opozoril izgleda tako

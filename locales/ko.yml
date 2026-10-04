@@ -276,10 +276,13 @@ settings:
   small-scrollbars: 얇은 스크롤바
   small-scrollbars-desc: "더 얇은 스크롤바로, 작은 화면에서 유용합니다."
   show-timestamps: 타임스탬프 표시
+  show-timestamps-desc: "각 줄이 기록된 시각을 표시합니다."
   soft-wrap: 자동 줄바꿈
+  soft-wrap-desc: "긴 줄을 옆으로 스크롤하는 대신 줄바꿈합니다."
   highlight-errors: 오류 줄 강조
   highlight-errors-desc: "색상 레벨 표시는 항상 보입니다."
-  datetime-format: 날짜 및 시간
+  date-format: "날짜 형식"
+  time-format: "시간 형식"
   font-size: 글꼴 크기
   color-scheme: 테마
   show-stopped-containers: 중지된 컨테이너 보기
@@ -309,12 +312,12 @@ settings:
     none: 안 함
   grouping:
     always: 항상
-    at-least-2: 최소 2개
+    at-least-2: "2개 이상인 그룹"
     never: 안 함
   hour:
     auto: 자동
-    12: "12"
-    24: "24"
+    "12": "12시간제"
+    "24": "24시간제"
   log:
     preview: 로그 미리보기입니다
     warning: 경고 로그는 이렇게 표시됩니다

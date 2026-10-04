@@ -274,10 +274,13 @@ settings:
   small-scrollbars: Barres de défilement fines
   small-scrollbars-desc: "Barres de défilement plus fines, pratiques sur les petits écrans."
   show-timestamps: Afficher les horodatages
+  show-timestamps-desc: "Affiche quand chaque ligne a été écrite."
   soft-wrap: Retour à la ligne
+  soft-wrap-desc: "Renvoie les longues lignes à la ligne au lieu de défiler sur le côté."
   highlight-errors: Mettre en évidence les lignes d'erreur
   highlight-errors-desc: "Le marqueur de niveau coloré est toujours affiché."
-  datetime-format: Date et heure
+  date-format: "Format de date"
+  time-format: "Format de l'heure"
   font-size: Taille de police
   color-scheme: Thème
   show-stopped-containers: Afficher les conteneurs arrêtés
@@ -307,12 +310,12 @@ settings:
     none: Aucun
   grouping:
     always: Toujours
-    at-least-2: Au moins 2
+    at-least-2: "Groupes de 2 ou plus"
     never: Jamais
   hour:
     auto: Auto
-    12: "12"
-    24: "24"
+    "12": "12 heures"
+    "24": "24 heures"
   log:
     preview: Voici un aperçu des logs
     warning: Un log d'avertissement ressemble à ceci

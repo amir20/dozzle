@@ -150,7 +150,7 @@ const added = ref("");
 const agents = computed(() => status.agents ?? []);
 const canEdit = computed(() => setupCanEdit(status));
 
-const remoteAgentSnippet = ["environment:", "  DOZZLE_REMOTE_AGENT: 10.0.0.5:7007"].join("\n");
+const remoteAgentSnippet = ["environment:", "  DOZZLE_REMOTE_AGENT: <agent-ip>:7007"].join("\n");
 
 // The endpoint grammar is address|name|group, so a pipe in either field would
 // quietly turn into a name or a group.

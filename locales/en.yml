@@ -401,10 +401,13 @@ settings:
   small-scrollbars: Thin scrollbars
   small-scrollbars-desc: Thinner scrollbars, handy on smaller displays.
   show-timestamps: Show timestamps
+  show-timestamps-desc: "Show when each line was written."
   soft-wrap: Soft wrap
+  soft-wrap-desc: "Wrap long lines instead of scrolling sideways."
   highlight-errors: Highlight error rows
   highlight-errors-desc: The colored level marker is always shown.
-  datetime-format: Date and time
+  date-format: "Date format"
+  time-format: "Time format"
   font-size: Font size
   color-scheme: Theme
   show-stopped-containers: Show stopped containers
@@ -436,12 +439,12 @@ settings:
     none: None
   grouping:
     always: Always
-    at-least-2: At least 2
+    at-least-2: "Groups of 2 or more"
     never: Never
   hour:
     auto: Auto
-    12: "12"
-    24: "24"
+    "12": "12-hour"
+    "24": "24-hour"
   log:
     preview: This is a preview of the logs
     warning: A warning log looks like this

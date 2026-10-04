@@ -282,10 +282,13 @@ settings:
   small-scrollbars: Scrollbar tipis
   small-scrollbars-desc: "Bilah gulir lebih tipis, berguna pada layar kecil."
   show-timestamps: Tampilkan cap waktu
+  show-timestamps-desc: "Tampilkan kapan setiap baris ditulis."
   soft-wrap: Bungkus baris
+  soft-wrap-desc: "Bungkus baris panjang alih-alih menggulir ke samping."
   highlight-errors: Sorot baris galat
   highlight-errors-desc: "Penanda level berwarna selalu ditampilkan."
-  datetime-format: Tanggal dan waktu
+  date-format: "Format tanggal"
+  time-format: "Format waktu"
   font-size: Ukuran font
   color-scheme: Tema
   show-stopped-containers: Tampilkan kontainer yang dihentikan
@@ -315,12 +318,12 @@ settings:
     none: Tidak ada
   grouping:
     always: Selalu
-    at-least-2: Setidaknya 2
+    at-least-2: "Grup berisi 2 atau lebih"
     never: Tidak pernah
   hour:
     auto: Auto
-    12: "12"
-    24: "24"
+    "12": "12 jam"
+    "24": "24 jam"
   log:
     preview: Ini adalah pratinjau log
     warning: Log peringatan seperti ini

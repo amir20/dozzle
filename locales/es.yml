@@ -395,10 +395,13 @@ settings:
   small-scrollbars: Barras de desplazamiento finas
   small-scrollbars-desc: "Barras de desplazamiento más finas, útiles en pantallas pequeñas."
   show-timestamps: Mostrar marcas de tiempo
+  show-timestamps-desc: "Muestra cuándo se escribió cada línea."
   soft-wrap: Ajuste de línea
+  soft-wrap-desc: "Ajusta las líneas largas en lugar de desplazarte de lado."
   highlight-errors: Resaltar líneas de error
   highlight-errors-desc: "El marcador de nivel de color siempre se muestra."
-  datetime-format: Fecha y hora
+  date-format: "Formato de fecha"
+  time-format: "Formato de hora"
   font-size: Tamaño de fuente
   color-scheme: Tema
   show-stopped-containers: Mostrar contenedores parados
@@ -428,12 +431,12 @@ settings:
     none: Ninguno
   grouping:
     always: Siempre
-    at-least-2: Al menos 2
+    at-least-2: "Grupos de 2 o más"
     never: Nunca
   hour:
     auto: Auto
-    12: "12"
-    24: "24"
+    "12": "12 horas"
+    "24": "24 horas"
   log:
     preview: Esta es una vista previa de los registros
     warning: Un registro de advertencia se ve así
