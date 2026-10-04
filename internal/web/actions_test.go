@@ -10,7 +10,7 @@ import (
 	"testing"
 
 	"github.com/amir20/dozzle/internal/container"
-	"github.com/amir20/dozzle/internal/container/swap/swaptest"
+	"github.com/amir20/dozzle/internal/container/docker/swap/swaptest"
 	docker_types "github.com/moby/moby/api/types/container"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"

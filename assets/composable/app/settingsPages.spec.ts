@@ -128,40 +128,12 @@ describe("guardSettingsRoutes", () => {
     return router;
   }
 
-  test("the settings button's named route lands on the first page", async () => {
+  // The cases themselves are settingsRedirect's, above. This only checks the guard
+  // wires it in: the hash is dropped and the query kept.
+  test("redirects through settingsRedirect, keeping the query", async () => {
     const router = makeRouter();
-    await router.push({ name: "/settings" });
-    expect(router.currentRoute.value.fullPath).toBe("/settings/general");
-  });
-
-  test("an old hash link lands on its page without the hash", async () => {
-    const router = makeRouter();
-    await router.push("/settings#cloud");
-    expect(router.currentRoute.value.fullPath).toBe("/settings/cloud");
-  });
-
-  test("the query survives the redirect", async () => {
-    const router = makeRouter();
-    await router.push("/settings?from=palette");
-    expect(router.currentRoute.value.fullPath).toBe("/settings/general?from=palette");
-  });
-
-  test("a page this install hides is not rendered empty", async () => {
-    const router = makeRouter({ ...server, mode: "k8s" });
-    await router.push("/settings/updates");
-    expect(router.currentRoute.value.fullPath).toBe("/settings/general");
-  });
-
-  test("a bookmark to the old Setup page opens About", async () => {
-    const router = makeRouter();
-    await router.push("/settings/setup");
-    expect(router.currentRoute.value.fullPath).toBe("/settings/about");
-  });
-
-  test("a visible page is left alone", async () => {
-    const router = makeRouter();
-    await router.push("/settings/about");
-    expect(router.currentRoute.value.fullPath).toBe("/settings/about");
+    await router.push("/settings?from=palette#cloud");
+    expect(router.currentRoute.value.fullPath).toBe("/settings/cloud?from=palette");
   });
 });
 

@@ -256,6 +256,8 @@ declare global {
   const settings: typeof import('./stores/settings').settings
   const settingsPages: typeof import('./composable/app/settingsPages').settingsPages
   const settingsRedirect: typeof import('./composable/app/settingsPages').settingsRedirect
+  const setupAccessMessageKey: typeof import('./composable/setup/setup').setupAccessMessageKey
+  const setupAutoUpdate: typeof import('./composable/setup/setup').setupAutoUpdate
   const setupCanEdit: typeof import('./composable/setup/setup').setupCanEdit
   const setupCanRestartNow: typeof import('./composable/setup/setup').setupCanRestartNow
   const setupEnvSnippet: typeof import('./composable/setup/setup').setupEnvSnippet
@@ -935,6 +937,8 @@ declare module 'vue' {
     readonly settings: UnwrapRef<typeof import('./stores/settings')['settings']>
     readonly settingsPages: UnwrapRef<typeof import('./composable/app/settingsPages')['settingsPages']>
     readonly settingsRedirect: UnwrapRef<typeof import('./composable/app/settingsPages')['settingsRedirect']>
+    readonly setupAccessMessageKey: UnwrapRef<typeof import('./composable/setup/setup')['setupAccessMessageKey']>
+    readonly setupAutoUpdate: UnwrapRef<typeof import('./composable/setup/setup')['setupAutoUpdate']>
     readonly setupCanEdit: UnwrapRef<typeof import('./composable/setup/setup')['setupCanEdit']>
     readonly setupCanRestartNow: UnwrapRef<typeof import('./composable/setup/setup')['setupCanRestartNow']>
     readonly setupEnvSnippet: UnwrapRef<typeof import('./composable/setup/setup')['setupEnvSnippet']>

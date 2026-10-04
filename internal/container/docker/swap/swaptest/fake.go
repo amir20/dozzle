@@ -10,8 +10,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/amir20/dozzle/internal/container/swap"
+	"github.com/amir20/dozzle/internal/container/docker/swap"
 	dcontainer "github.com/moby/moby/api/types/container"
+	"github.com/moby/moby/api/types/image"
 	"github.com/moby/moby/client"
 )
 
@@ -39,6 +40,13 @@ type Fake struct {
 	StartErrFor string
 	// CreateErr fails the next create.
 	CreateErr error
+
+	// Images are what an image inspect finds, by id.
+	Images map[string]image.InspectResponse
+	// RemovedImages are the image removals asked for, in order.
+	RemovedImages []string
+	// ImageRemoveErr fails every image removal.
+	ImageRemoveErr error
 }
 
 var _ swap.API = (*Fake)(nil)
@@ -131,4 +139,21 @@ func (f *Fake) ContainerRemove(_ context.Context, id string, _ client.ContainerR
 	f.record("remove %s", id)
 	delete(f.Containers, id)
 	return client.ContainerRemoveResult{}, nil
+}
+
+func (f *Fake) ImageInspect(_ context.Context, id string, _ ...client.ImageInspectOption) (client.ImageInspectResult, error) {
+	f.mu.Lock()
+	defer f.mu.Unlock()
+	img, ok := f.Images[id]
+	if !ok {
+		return client.ImageInspectResult{}, notFoundErr{}
+	}
+	return client.ImageInspectResult{InspectResponse: img}, nil
+}
+
+func (f *Fake) ImageRemove(_ context.Context, id string, _ client.ImageRemoveOptions) (client.ImageRemoveResult, error) {
+	f.mu.Lock()
+	defer f.mu.Unlock()
+	f.RemovedImages = append(f.RemovedImages, id)
+	return client.ImageRemoveResult{}, f.ImageRemoveErr
 }

@@ -13,7 +13,7 @@ import (
 	"encoding/json"
 
 	"github.com/amir20/dozzle/internal/container"
-	"github.com/amir20/dozzle/internal/container/swap"
+	"github.com/amir20/dozzle/internal/container/docker/swap"
 	"github.com/amir20/dozzle/internal/selfupdate"
 	"github.com/amir20/dozzle/internal/utils"
 	docker "github.com/moby/moby/api/types/container"
@@ -288,17 +288,8 @@ func (d *Client) ImageInspect(ctx context.Context, ref string) (image.InspectRes
 	return result.InspectResponse, err
 }
 
-// ImageRemove removes one image by id. It is never forced and never prunes
-// untagged parents, so the engine refuses while any container, running or
-// stopped, still uses it. It does not protect tags: an image whose tags all
-// belong to one repository is untagged and deleted, so callers that must keep
-// tagged images check RepoTags first.
-func (d *Client) ImageRemove(ctx context.Context, imageID string) error {
-	_, err := d.cli.ImageRemove(ctx, imageID, client.ImageRemoveOptions{Force: false, PruneChildren: false})
-	return err
-}
-
-// SwapAPI is the engine client a container swap runs against.
+// SwapAPI is the engine client a container swap, and the image cleanup after
+// it, run against.
 func (d *Client) SwapAPI() swap.API {
 	return d.cli
 }

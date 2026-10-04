@@ -209,7 +209,7 @@ func TestBulkUpdate_SwarmSelfServiceRunsLast(t *testing.T) {
 	t.Cleanup(func() { setupSelfID = prev })
 
 	client := &recordingClientService{}
-	dozzle := map[string]string{swarmServiceLabel: "dozzle-svc"}
+	dozzle := map[string]string{container.SwarmServiceIDLabel: "dozzle-svc"}
 	services := []*container.ContainerService{
 		container.NewContainerService(client, container.Container{ID: "dddddddddddd", State: "running", Host: "node2", Name: "dozzle.2", Labels: dozzle}),
 		container.NewContainerService(client, container.Container{ID: "aaaaaaaaaaaa", State: "running", Host: "node1", Name: "dozzle.1", Labels: dozzle}),
@@ -233,12 +233,12 @@ func TestIsSelfContainer(t *testing.T) {
 	t.Cleanup(func() { setupSelfID = prev })
 
 	containers := []container.Container{
-		{ID: "aaaaaaaaaaaa", Labels: map[string]string{swarmServiceLabel: "svc"}},
-		{ID: "bbbbbbbbbbbb", Labels: map[string]string{swarmServiceLabel: "other"}},
+		{ID: "aaaaaaaaaaaa", Labels: map[string]string{container.SwarmServiceIDLabel: "svc"}},
+		{ID: "bbbbbbbbbbbb", Labels: map[string]string{container.SwarmServiceIDLabel: "other"}},
 	}
 	service := selfSwarmService(containers)
 	assert.Equal(t, "svc", service)
-	assert.True(t, isSelfContainer(container.Container{ID: "cccccccccccc", Labels: map[string]string{swarmServiceLabel: "svc"}}, service))
+	assert.True(t, isSelfContainer(container.Container{ID: "cccccccccccc", Labels: map[string]string{container.SwarmServiceIDLabel: "svc"}}, service))
 	assert.False(t, isSelfContainer(containers[1], service))
 	assert.False(t, isSelfContainer(container.Container{ID: "cccccccccccc"}, ""))
 }
@@ -293,7 +293,7 @@ func TestStartBulkUpdate_RefusesNonJSONBodies(t *testing.T) {
 }
 
 func TestUpdatable(t *testing.T) {
-	swarm := map[string]string{swarmServiceLabel: "svc"}
+	swarm := map[string]string{container.SwarmServiceIDLabel: "svc"}
 	assert.True(t, container.Updatable(container.Container{State: "running"}))
 	assert.True(t, container.Updatable(container.Container{State: "exited"}), "a stopped standalone container can still start on a new image")
 	assert.False(t, container.Updatable(container.Container{State: "deleted"}))

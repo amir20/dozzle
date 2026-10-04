@@ -73,17 +73,11 @@ func executeUpdateContainer(ctx context.Context, argsJSON string, deps ToolDeps)
 		return nil, notRunningError(cs.Container)
 	}
 
-	progressCh := make(chan container.UpdateProgress)
 	var updated bool
-	var updateErr error
-	done := make(chan struct{})
-	go func() {
-		updated, updateErr = cs.Update(ctx, container.UpdateSourceCloud, progressCh)
-		close(done)
-	}()
-	for range progressCh {
-	}
-	<-done
+	updateErr := runIgnoringProgress(func(progressCh chan<- container.UpdateProgress) (err error) {
+		updated, err = cs.Update(ctx, container.UpdateSourceCloud, progressCh)
+		return err
+	})
 	if updateErr != nil {
 		return nil, fmt.Errorf("update failed: %w", updateErr)
 	}
@@ -102,6 +96,22 @@ func executeUpdateContainer(ctx context.Context, argsJSON string, deps ToolDeps)
 			Message:     message,
 		}},
 	}, nil
+}
+
+// runIgnoringProgress runs an update or a rollback, which closes the channel
+// it is given when it ends, and drains its progress so it never blocks.
+func runIgnoringProgress(run func(chan<- container.UpdateProgress) error) error {
+	progressCh := make(chan container.UpdateProgress)
+	var err error
+	done := make(chan struct{})
+	go func() {
+		err = run(progressCh)
+		close(done)
+	}()
+	for range progressCh {
+	}
+	<-done
+	return err
 }
 
 // notRunningError refuses to update or roll back c, which is not running.
@@ -141,18 +151,11 @@ func executeRollbackContainer(ctx context.Context, argsJSON string, deps ToolDep
 		return nil, notRunningError(cs.Container)
 	}
 
-	progressCh := make(chan container.UpdateProgress)
-	var rollbackErr error
-	done := make(chan struct{})
-	go func() {
-		rollbackErr = cs.Rollback(ctx, container.RollbackOptions{
+	rollbackErr := runIgnoringProgress(func(progressCh chan<- container.UpdateProgress) error {
+		return cs.Rollback(ctx, container.RollbackOptions{
 			ExpectedFromDigest: args.ExpectedFromDigest,
 		}, progressCh)
-		close(done)
-	}()
-	for range progressCh {
-	}
-	<-done
+	})
 	if rollbackErr != nil {
 		return nil, fmt.Errorf("rollback failed: %w", rollbackErr)
 	}

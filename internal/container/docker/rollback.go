@@ -6,7 +6,7 @@ import (
 	"strings"
 
 	"github.com/amir20/dozzle/internal/container"
-	"github.com/amir20/dozzle/internal/container/swap"
+	"github.com/amir20/dozzle/internal/container/docker/swap"
 	"github.com/moby/moby/api/types/image"
 	"github.com/rs/zerolog/log"
 )
@@ -23,14 +23,9 @@ import (
 func (d *Service) RollbackContainer(ctx context.Context, c container.Container, opts container.RollbackOptions, progressCh chan<- container.UpdateProgress) error {
 	defer close(progressCh)
 
-	// See UpdateContainer: an unguarded send outlives the request.
-	reqCtx := ctx
-	progress := func(p container.UpdateProgress) {
-		select {
-		case progressCh <- p:
-		case <-reqCtx.Done():
-		}
-	}
+	// See UpdateContainer: every consumer drains progressCh until it is
+	// closed, so the final progress and its Result are never dropped.
+	progress := func(p container.UpdateProgress) { progressCh <- p }
 	fail := func(err error) error {
 		progress(container.UpdateProgress{Status: container.UpdateError, Error: err.Error()})
 		return err
@@ -43,7 +38,7 @@ func (d *Service) RollbackContainer(ctx context.Context, c container.Container, 
 	if inspectResp.Config == nil {
 		return fail(fmt.Errorf("inspect failed: container has no config"))
 	}
-	if inspectResp.Config.Labels["com.docker.swarm.service.name"] != "" || c.Labels["com.docker.swarm.service.name"] != "" {
+	if inspectResp.Config.Labels[container.SwarmServiceNameLabel] != "" || c.Labels[container.SwarmServiceNameLabel] != "" {
 		return fail(fmt.Errorf("%w for swarm services", container.ErrRollbackUnsupported))
 	}
 	if isSelf(c.ID) || mayBeSelf(inspectResp) {
@@ -85,22 +80,11 @@ func (d *Service) RollbackContainer(ctx context.Context, c container.Container, 
 		return fail(fmt.Errorf("%w: the previous image %s is no longer on this host", container.ErrNoRollbackTarget, shortImageID(previous)))
 	}
 
-	progress(container.UpdateProgress{Status: container.UpdateRecreating})
-
-	containerName := strings.TrimPrefix(inspectResp.Name, "/")
-	dependents, err := d.client.NetworkDependents(ctx, inspectResp.ID, containerName)
-	if err != nil {
-		return fail(fmt.Errorf("list dependents failed: %w", err))
-	}
-
-	// As with an update, nothing may stop the swap halfway.
-	ctx = context.WithoutCancel(ctx)
-
 	rolledBackFrom := fromDigest
 	if rolledBackFrom == "" {
 		rolledBackFrom = inspectResp.Image
 	}
-	result, err := swap.Swap(ctx, d.client.SwapAPI(), inspectResp, swap.Options{
+	result, rejoinErr, err := d.swapAndRejoin(ctx, inspectResp, swap.Options{
 		// The current image's own settings are dropped, so the previous
 		// image's defaults apply again.
 		OldImage: fromImage,
@@ -112,15 +96,10 @@ func (d *Service) RollbackContainer(ctx context.Context, c container.Container, 
 			container.PreviousRefLabel:    "",
 			container.RolledBackFromLabel: rolledBackFrom,
 		},
-		OnVerifying: func() { progress(container.UpdateProgress{Status: container.UpdateVerifying}) },
-		LogPrefix:   "rollback",
-	})
+		LogPrefix: "rollback",
+	}, progress)
+	ctx = context.WithoutCancel(ctx)
 	if err != nil {
-		if result.OldStopped && result.RolledBack {
-			if rejoinErr := d.rejoinDependents(ctx, dependents, inspectResp.ID, result.RestoredID); rejoinErr != nil {
-				err = fmt.Errorf("%w; %v", err, rejoinErr)
-			}
-		}
 		if result.RolledBack {
 			// The rollback itself was undone: the container still runs the
 			// image it ran before, so there is no change to record.
@@ -139,16 +118,16 @@ func (d *Service) RollbackContainer(ctx context.Context, c container.Container, 
 		ToDigest:    swap.PreviousRef(&target, ref),
 	}
 
-	if err := d.rejoinDependents(ctx, dependents, inspectResp.ID, result.NewID); err != nil {
-		progress(container.UpdateProgress{Status: container.UpdateError, Error: err.Error(), Result: &done})
-		return err
+	if rejoinErr != nil {
+		progress(container.UpdateProgress{Status: container.UpdateError, Error: rejoinErr.Error(), Result: &done})
+		return rejoinErr
 	}
 
 	// Once someone rolled back, the image rolled back from is no longer worth
 	// keeping. Usually its tag still names it, and then it stays.
-	swap.RemoveLeftoverImage(ctx, d.client, inspectResp, inspectResp.Image, "the image rolled back from")
+	swap.RemoveLeftoverImage(ctx, d.client.SwapAPI(), inspectResp, inspectResp.Image, "the image rolled back from")
 
-	log.Info().Str("container", containerName).Str("from", inspectResp.Image).Str("to", target.ID).Msg("rollback: done")
+	log.Info().Str("container", strings.TrimPrefix(inspectResp.Name, "/")).Str("from", inspectResp.Image).Str("to", target.ID).Msg("rollback: done")
 	progress(container.UpdateProgress{Status: container.UpdateDone, Result: &done})
 	return nil
 }

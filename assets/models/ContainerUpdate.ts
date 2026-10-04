@@ -11,8 +11,8 @@ export interface ContainerUpdate {
   oldId: string;
   /** The container the update left running: the replacement, or the old one put back. */
   newId: string;
-  fromRef?: string;
-  toRef?: string;
+  /** repo:tag. An update keeps the ref and moves what it resolves to. */
+  imageRef?: string;
   /** repo@sha256:... from Dozzle, bare sha256:... from Dozzle Cloud. */
   fromDigest?: string;
   toDigest?: string;
@@ -63,27 +63,27 @@ export function shortDigest(digest: string | undefined): string {
 }
 
 /**
- * How an update's two images read: "1.4.1" and "1.4.2", or, when the tag did not
- * move (latest → latest), the tag with the digest. The same rule Dozzle Cloud's
- * messages use, so the marker and the alert name the images alike.
+ * How an update's two images read. The tag does not move (latest → latest), so
+ * each side is the tag with its digest: "latest (aaaaaaaaaaaa)". The same rule
+ * Dozzle Cloud's messages use, so the marker and the alert name the images alike.
  */
 export function updateLabels(
-  update: Pick<ContainerUpdate, "fromRef" | "toRef" | "fromDigest" | "toDigest" | "fromImageId" | "toImageId">,
+  update: Pick<ContainerUpdate, "imageRef" | "fromDigest" | "toDigest" | "fromImageId" | "toImageId">,
 ): {
   from: string;
   to: string;
 } {
-  let from = imageTag(update.fromRef);
-  let to = imageTag(update.toRef);
-  if (from === to || from === "") {
-    const fd = shortDigest(update.fromDigest || update.fromImageId);
-    const td = shortDigest(update.toDigest || update.toImageId);
-    if (from && fd) from = `${from} (${fd})`;
-    if (to && td) to = `${to} (${td})`;
-    if (!from && fd) from = fd;
-    if (!to && td) to = td;
-  }
-  return { from, to };
+  const tag = imageTag(update.imageRef);
+  const label = (digest: string) => (tag && digest ? `${tag} (${digest})` : tag || digest);
+  return {
+    from: label(shortDigest(update.fromDigest || update.fromImageId)),
+    to: label(shortDigest(update.toDigest || update.toImageId)),
+  };
+}
+
+/** A regression, or a maybe, that nobody has kept or rolled back yet. */
+export function undecidedRegression(verdict: DeployVerdict | undefined): boolean {
+  return !!verdict && (verdict.verdict === "regressed" || verdict.verdict === "unsure") && !verdict.decision;
 }
 
 // The judge has not answered for long past this, so an open marker stops asking.
@@ -97,5 +97,5 @@ const VERDICT_WAIT_MS = 6 * 60 * 60 * 1000;
 export function awaitingVerdict(at: Date, verdict: DeployVerdict | undefined, now = Date.now()): boolean {
   if (now - at.getTime() > VERDICT_WAIT_MS) return false;
   if (!verdict || verdict.verdict === "pending") return true;
-  return (verdict.verdict === "regressed" || verdict.verdict === "unsure") && !verdict.decision;
+  return undecidedRegression(verdict);
 }

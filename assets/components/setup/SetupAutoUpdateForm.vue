@@ -135,17 +135,7 @@ const uid = useId();
 const AUTO_LABEL = `${UPDATE_LABEL}=auto`;
 const OFF_LABEL = `${UPDATE_LABEL}=off`;
 
-const autoUpdate = computed<SetupAutoUpdate>(
-  () =>
-    status.autoUpdate ?? {
-      mode: "off",
-      time: "03:00",
-      supported: false,
-      reason: "not-server",
-      image: "",
-      currentVersion: "",
-    },
-);
+const autoUpdate = computed(() => setupAutoUpdate(status));
 
 const enabled = ref(autoUpdate.value.mode !== "off");
 // Turning the toggle on picks weekly unless the file already had a schedule.

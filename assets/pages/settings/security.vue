@@ -1,25 +1,15 @@
 <template>
   <!-- Who can sign in, and what Dozzle may do to containers: the wizard's first two
        steps, as the same components. -->
-  <section class="flex flex-col gap-4">
-    <div>
-      <h2 class="text-base-content/60 text-xs font-semibold tracking-wide uppercase">{{ $t("setup.steps.login") }}</h2>
-      <p class="text-base-content/60 mt-1 text-sm">{{ $t("settings.login-desc") }}</p>
-    </div>
+  <SettingsSection :title="$t('setup.steps.login')" :desc="$t('settings.login-desc')">
     <SetupLoginForm v-if="status" :status="status" standalone />
     <SetupStatusMissing v-else-if="server" :loading="loading" />
     <div v-else class="border-base-content/15 bg-base-200/40 divide-base-content/10 divide-y rounded-lg border">
       <ReadOnlyRow :label="$t('setup.restart.change-auth')" :value="`auth: ${config.authProvider}`" />
     </div>
-  </section>
+  </SettingsSection>
 
-  <section class="flex flex-col gap-4">
-    <div>
-      <h2 class="text-base-content/60 text-xs font-semibold tracking-wide uppercase">
-        {{ $t("setup.steps.actions") }}
-      </h2>
-      <p class="text-base-content/60 mt-1 text-sm">{{ $t("setup.actions.subtitle") }}</p>
-    </div>
+  <SettingsSection :title="$t('setup.steps.actions')" :desc="$t('setup.actions.subtitle')">
     <SetupTogglesForm v-if="status" :status="status" autosave />
     <SetupStatusMissing v-else-if="server" :loading="loading" />
     <template v-else>
@@ -29,7 +19,7 @@
       </div>
       <p class="text-base-content/40 text-xs">{{ $t("settings.set-by-flags") }}</p>
     </template>
-  </section>
+  </SettingsSection>
 </template>
 
 <script lang="ts" setup>

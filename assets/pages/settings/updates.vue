@@ -1,12 +1,7 @@
 <template>
   <!-- Written so nobody needs the docs: when, which, what will update, and what keeps
        it safe. -->
-  <section class="flex flex-col gap-4">
-    <div>
-      <h2 class="text-base-content/60 text-xs font-semibold tracking-wide uppercase">{{ $t("settings.updates") }}</h2>
-      <p class="text-base-content/60 mt-1 text-sm">{{ $t("setup.update.subtitle") }}</p>
-    </div>
-
+  <SettingsSection :title="$t('settings.updates')" :desc="$t('setup.update.subtitle')">
     <InlineNotice v-if="status && !status.enableActions" type="info">
       {{ $t("auto-update.needs-actions") }}
       <template #actions>
@@ -14,17 +9,15 @@
       </template>
     </InlineNotice>
 
-    <SelfUpdateStatus v-if="status && scheduled" :status="status" :auto-update="scheduled" />
+    <SetupSelfUpdateStatus v-if="status && scheduled" :status="status" :auto-update="scheduled" />
 
-    <AutoUpdateForm v-if="status" :status="status" autosave />
+    <SetupAutoUpdateForm v-if="status" :status="status" autosave />
     <SetupStatusMissing v-else :loading="loading" />
-  </section>
+  </SettingsSection>
 
-  <section v-if="status" class="flex flex-col gap-3">
-    <div class="flex items-end justify-between gap-3">
-      <h2 class="text-base-content/60 text-xs font-semibold tracking-wide uppercase">
-        {{ $t("auto-update.containers") }}
-      </h2>
+  <!-- With the schedule off nothing updates on its own, whatever the labels say. -->
+  <SettingsSection v-if="status && scheduled" :title="$t('auto-update.containers')">
+    <template #actions>
       <button
         v-if="config.imageCheckMode !== 'off' && rows.length"
         type="button"
@@ -35,7 +28,7 @@
         <span v-if="checking" class="loading loading-spinner size-3"></span>
         {{ $t("toolbar.check-for-updates") }}
       </button>
-    </div>
+    </template>
 
     <!-- Read only: what the mode and the labels add up to. Labels are set in compose. -->
     <div
@@ -63,12 +56,9 @@
         <code class="font-mono">{{ UPDATE_LABEL }}=auto</code>
       </template>
     </i18n-t>
-  </section>
+  </SettingsSection>
 
-  <section class="flex flex-col gap-3">
-    <h2 class="text-base-content/60 text-xs font-semibold tracking-wide uppercase">
-      {{ $t("auto-update.safety-title") }}
-    </h2>
+  <SettingsSection :title="$t('auto-update.safety-title')">
     <div class="border-base-content/15 bg-base-200/40 divide-base-content/10 divide-y rounded-lg border">
       <div v-for="line in safety" :key="line.key" class="flex items-start gap-3 p-4">
         <div class="bg-info/10 text-info shrink-0 rounded-full p-1.5">
@@ -89,7 +79,7 @@
         </a>
       </div>
     </div>
-  </section>
+  </SettingsSection>
 </template>
 
 <script lang="ts" setup>
@@ -123,7 +113,9 @@ const scheduled = computed(() => {
 const mode = computed(() => status.value?.autoUpdate?.containers ?? DEFAULT_UPDATE_CONTAINERS_MODE);
 
 const rows = computed(() =>
-  ((policies.value?.containers ?? []) as ContainerUpdatePolicy[]).filter((c) => willAutoUpdate(c, mode.value)),
+  scheduled.value
+    ? ((policies.value?.containers ?? []) as ContainerUpdatePolicy[]).filter((c) => willAutoUpdate(c, mode.value))
+    : [],
 );
 const multipleHosts = computed(() => Object.keys(hosts.value).length > 1);
 const hostName = (id: string) => hosts.value[id]?.name ?? id;

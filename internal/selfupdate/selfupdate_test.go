@@ -12,7 +12,7 @@ import (
 	"time"
 
 	"github.com/amir20/dozzle/internal/container"
-	"github.com/amir20/dozzle/internal/container/swap"
+	"github.com/amir20/dozzle/internal/container/docker/swap"
 	dockerspec "github.com/moby/docker-image-spec/specs-go/v1"
 	dcontainer "github.com/moby/moby/api/types/container"
 	"github.com/moby/moby/api/types/image"
@@ -474,103 +474,17 @@ func TestRunSelfUpdateKeepsATaggedImage(t *testing.T) {
 	assert.Empty(t, f.removedImages)
 }
 
-func TestRunRollbackOnCreateFailure(t *testing.T) {
-	fastTimings(t)
+// A --rm Dozzle that a failed self-update recreated runs its old image by id,
+// with its tag in a label (see package swap). It must still be updatable.
+func TestSupportRestoredContainer(t *testing.T) {
 	f := newFake()
-	f.createErr = errors.New("create failed")
-	require.Error(t, run(context.Background(), f, selfID, ""))
-	assert.Equal(t, []string{
-		"rename " + selfID + " dozzle-dozzle-old-aaaaaaaaaaaa",
-		"create dozzle",
-		"rename " + selfID + " dozzle",
-	}, f.calls, "old container was never stopped, so it is only renamed back")
-}
-
-func TestRunRollbackOnStartFailure(t *testing.T) {
-	fastTimings(t)
-	f := newFake()
-	f.startErrFor = "new1"
-	require.Error(t, run(context.Background(), f, selfID, ""))
-	assert.Equal(t, []string{
-		"rename " + selfID + " dozzle-dozzle-old-aaaaaaaaaaaa",
-		"create dozzle",
-		"stop " + selfID,
-		"start new1",
-		"remove new1 volumes=false",
-		"rename " + selfID + " dozzle",
-		"start " + selfID,
-	}, f.calls)
-}
-
-func TestRunRollbackWhenReplacementExits(t *testing.T) {
-	fastTimings(t)
-	f := newFake()
-	f.newState = &dcontainer.State{Status: "exited", ExitCode: 1}
-	err := run(context.Background(), f, selfID, "")
-	require.Error(t, err)
-	assert.Contains(t, err.Error(), "exit code 1")
-	assert.Equal(t, "start "+selfID, f.calls[len(f.calls)-1])
-}
-
-func TestRunRollbackWhenUnhealthy(t *testing.T) {
-	fastTimings(t)
-	f := newFake()
-	f.newState = &dcontainer.State{Running: true, StartedAt: "t0", Health: &dcontainer.Health{Status: dcontainer.Unhealthy}}
-	err := run(context.Background(), f, selfID, "")
-	require.ErrorContains(t, err, "unhealthy")
-	assert.Contains(t, f.calls, "remove new1 volumes=false")
-}
-
-func TestRunAutoRemoveRollbackRecreatesOld(t *testing.T) {
-	fastTimings(t)
-	f := newFake()
-	self := f.containers[selfID]
-	self.HostConfig.AutoRemove = true
-	f.containers[selfID] = self
-	f.startErrFor = "new1"
-
-	require.Error(t, run(context.Background(), f, selfID, ""))
-	assert.Equal(t, []string{
-		"rename " + selfID + " dozzle-dozzle-old-aaaaaaaaaaaa",
-		"create dozzle",
-		"stop " + selfID,
-		"start new1",
-		"remove new1 volumes=false",
-		"create dozzle",
-		"start new2",
-	}, f.calls)
-	restored := f.created[1]
-	assert.Equal(t, oldImgID, restored.Config.Image)
-	assert.Equal(t, "amir20/dozzle:latest", swap.ImageRef(restored.Config), "the tag survives so the next update can pull it")
-	assert.Contains(t, restored.HostConfig.Mounts, mount.Mount{Type: mount.TypeVolume, Source: "anon-data", Target: "/data"})
-
-	// The restored container still updates: its next replacement is on the tag.
-	again := f.containers[selfID]
-	again.Config = restored.Config
-	next := swap.ReplacementSpec(again, nil, "dozzle")
-	assert.Equal(t, "amir20/dozzle:latest", next.Config.Image)
-	assert.NotContains(t, next.Config.Labels, swap.ImageRefLabel)
-	g := newFake()
-	g.containers[selfID] = again
-	ok, reason, ref := support(context.Background(), g, selfID)
+	restored := f.containers[selfID]
+	restored.Config.Labels[swap.ImageRefLabel] = restored.Config.Image
+	restored.Config.Image = oldImgID
+	f.containers[selfID] = restored
+	ok, reason, ref := support(context.Background(), f, selfID)
 	assert.True(t, ok, reason)
 	assert.Equal(t, "amir20/dozzle:latest", ref)
-}
-
-func TestRunAutoRemoveSuccess(t *testing.T) {
-	fastTimings(t)
-	f := newFake()
-	self := f.containers[selfID]
-	self.HostConfig.AutoRemove = true
-	f.containers[selfID] = self
-
-	require.NoError(t, run(context.Background(), f, selfID, ""))
-	assert.Equal(t, []string{
-		"rename " + selfID + " dozzle-dozzle-old-aaaaaaaaaaaa",
-		"create dozzle",
-		"stop " + selfID,
-		"start new1",
-	}, f.calls, "the replacement exists before the stop, and there is nothing left to remove")
 }
 
 func TestRunNothingToDo(t *testing.T) {

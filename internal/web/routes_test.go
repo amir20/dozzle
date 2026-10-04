@@ -11,8 +11,8 @@ import (
 
 	"github.com/amir20/dozzle/internal/container"
 	"github.com/amir20/dozzle/internal/container/docker"
-	"github.com/amir20/dozzle/internal/container/swap"
-	"github.com/amir20/dozzle/internal/container/swap/swaptest"
+	"github.com/amir20/dozzle/internal/container/docker/swap"
+	"github.com/amir20/dozzle/internal/container/docker/swap/swaptest"
 	"github.com/amir20/dozzle/internal/hostservice"
 	"github.com/go-chi/chi/v5"
 	docker_types "github.com/moby/moby/api/types/container"
@@ -58,11 +58,6 @@ func (m *MockedClient) ImageID(ctx context.Context, ref string) (string, error) 
 
 func (m *MockedClient) ImageInspect(ctx context.Context, ref string) (image.InspectResponse, error) {
 	return image.InspectResponse{}, errors.New("no such image")
-}
-
-func (m *MockedClient) ImageRemove(ctx context.Context, imageID string) error {
-	args := m.Called(ctx, imageID)
-	return args.Error(0)
 }
 
 func (m *MockedClient) SwapAPI() swap.API {

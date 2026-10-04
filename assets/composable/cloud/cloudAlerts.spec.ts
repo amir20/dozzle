@@ -366,8 +366,8 @@ describe("mergeDeploys", () => {
     entries.map((e) => (e instanceof DeployLogEntry ? `deploy:${e.containerID}` : `log:${e.id}`));
 
   test("puts the verdict on the marker for the container the update created", () => {
-    const m = marker(90);
-    const logs = [m, log(10, 100)];
+    const m = marker(150);
+    const logs = [m, log(10, 200)];
     const seen = new Set<string>();
 
     const first = mergeDeploys(logs, [deployEvent()], seen);
@@ -392,7 +392,7 @@ describe("mergeDeploys", () => {
     const { logs: merged } = mergeDeploys(logs, [deployEvent()], seen);
     expect(shape(merged)).toEqual(["log:10", "deploy:abc", "log:11"]);
     const placed = merged[1] as DeployLogEntry;
-    expect(placed.update.toRef).toBe("app:1.4.2");
+    expect(placed.update.imageRef).toBe("app:1.4.2");
     expect(placed.update.host).toBe("h");
     expect(placed.verdict?.verdict).toBe("regressed");
 
@@ -405,6 +405,30 @@ describe("mergeDeploys", () => {
     const { logs } = mergeDeploys([m, log(10, 100)], [deployEvent({ ts: ns(300) })], new Set());
     expect(m.verdict).toBeUndefined();
     expect(shape(logs)).toEqual(["deploy:other", "log:10", "deploy:abc"]);
+  });
+
+  // A rollback leaves the old container running again, so its record carries the
+  // same container id as the update it undid. Both are kept, each with its own verdict.
+  test("tells two updates on the same container apart by when they finished", () => {
+    const updated = marker(90);
+    const undone = marker(150);
+    const seen = new Set<string>();
+    const { logs } = mergeDeploys([updated, log(10, 100), undone], [deployEvent()], seen);
+    expect(shape(logs)).toEqual(["deploy:abc", "log:10", "deploy:abc"]);
+    expect(undone.verdict?.verdict).toBe("regressed");
+    expect(updated.verdict).toBeUndefined();
+
+    // Dozzle Cloud's copy of the earlier update is not mistaken for the later one.
+    const earlier = deployEvent({ ts: ns(90) }, "clean");
+    earlier.deploy!.deployId = "d0";
+    mergeDeploys(logs, [earlier], seen);
+    expect(updated.verdict?.verdict).toBe("clean");
+    expect(undone.verdict?.verdict).toBe("regressed");
+  });
+
+  test("DeployLogEntry.updateKey differs for a rollback on the same container", () => {
+    expect(marker(90).updateKey).not.toBe(marker(150).updateKey);
+    expect(marker(90).updateKey).toBe(marker(90).updateKey);
   });
 
   // A verdict is not a notification, so it never becomes a cloud-event row.

@@ -2,7 +2,6 @@ package docker
 
 import (
 	"context"
-	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
@@ -12,9 +11,9 @@ import (
 	"time"
 
 	"github.com/amir20/dozzle/internal/container"
+	"github.com/amir20/dozzle/internal/container/docker/swap"
 	"github.com/amir20/dozzle/internal/container/histogram"
 	"github.com/amir20/dozzle/internal/container/logparse"
-	"github.com/amir20/dozzle/internal/container/swap"
 	"github.com/amir20/dozzle/internal/imagecheck"
 	"github.com/amir20/dozzle/internal/selfupdate"
 
@@ -31,14 +30,14 @@ type UpdateClient interface {
 	ImageRepoDigests(ctx context.Context, imageID string) ([]string, error)
 	ImageID(ctx context.Context, ref string) (string, error)
 	ImageInspect(ctx context.Context, ref string) (image.InspectResponse, error)
-	ImageRemove(ctx context.Context, imageID string) error
 	ContainerInspect(ctx context.Context, containerID string) (docker_types.InspectResponse, error)
 	ContainerRemove(ctx context.Context, containerID string) error
 	ContainerCreate(ctx context.Context, inspectResp docker_types.InspectResponse, name string) (string, error)
 	NetworkDependents(ctx context.Context, id string, name string) ([]string, error)
 	ServiceUpdate(ctx context.Context, serviceID string, image string) error
 	ContainerLogsTail(ctx context.Context, id string, lines int) (io.ReadCloser, error)
-	// SwapAPI is the engine client UpdateContainer swaps containers with.
+	// SwapAPI is the engine client UpdateContainer swaps containers, and
+	// cleans up images, with.
 	SwapAPI() swap.API
 }
 
@@ -186,20 +185,6 @@ func (d *Service) ContainerAction(ctx context.Context, container container.Conta
 	return d.client.ContainerActions(ctx, action, container.ID)
 }
 
-type pullEvent struct {
-	Status         string `json:"status"`
-	ProgressDetail struct {
-		Current int64 `json:"current"`
-		Total   int64 `json:"total"`
-	} `json:"progressDetail"`
-	ID string `json:"id"`
-	// ErrorDetail is how the engine reports a pull that failed after the
-	// stream started: a missing tag, a registry that refused, a full disk.
-	ErrorDetail *struct {
-		Message string `json:"message"`
-	} `json:"errorDetail"`
-}
-
 // CheckImageUpdate reports whether the registry serves a newer image than the
 // one this container is running.
 func (d *Service) CheckImageUpdate(ctx context.Context, c container.Container, force bool) (imagecheck.Result, error) {
@@ -238,18 +223,13 @@ func (d *Service) CheckImageUpdate(ctx context.Context, c container.Container, f
 func (d *Service) UpdateContainer(ctx context.Context, c container.Container, progressCh chan<- container.UpdateProgress) (bool, error) {
 	defer close(progressCh)
 
-	// The consumer is a request: an SSE handler that returns the moment a write
-	// to the client fails, or an agent stream that ends with its RPC. An
-	// unguarded send outlives it and parks this goroutine mid-update forever.
-	// The request's own context decides, even after the work below stops
-	// listening to it.
-	reqCtx := ctx
-	progress := func(p container.UpdateProgress) {
-		select {
-		case progressCh <- p:
-		case <-reqCtx.Done():
-		}
-	}
+	// Every send is unguarded, so the final done or rolled-back, which carries
+	// the Result the update is recorded from, is never dropped because the
+	// request ended. Every consumer drains progressCh until it is closed:
+	// ContainerService.recorded, which records the Result and forwards to the
+	// request only while it lasts, and the agent server, which keeps reading
+	// after its stream fails.
+	progress := func(p container.UpdateProgress) { progressCh <- p }
 	fail := func(err error) (bool, error) {
 		progress(container.UpdateProgress{Status: container.UpdateError, Error: err.Error()})
 		return false, err
@@ -278,26 +258,8 @@ func (d *Service) UpdateContainer(ctx context.Context, c container.Container, pr
 	}
 	defer reader.Close()
 
-	decoder := json.NewDecoder(reader)
-	for {
-		var event pullEvent
-		if err := decoder.Decode(&event); err == io.EOF {
-			break
-		} else if err != nil {
-			return fail(fmt.Errorf("pull decode failed: %w", err))
-		}
-		if event.ErrorDetail != nil {
-			// The stream still ends cleanly, so without this a failed pull
-			// reads as "already up to date".
-			return fail(fmt.Errorf("pull failed: %s", event.ErrorDetail.Message))
-		}
-
-		progress(container.UpdateProgress{
-			Status:  container.UpdatePulling,
-			Layer:   event.ID,
-			Current: event.ProgressDetail.Current,
-			Total:   event.ProgressDetail.Total,
-		})
+	if err := swap.ReadPull(reader, progress); err != nil {
+		return fail(err)
 	}
 
 	// 3. Compare what the tag resolves to now against what the container is
@@ -320,10 +282,10 @@ func (d *Service) UpdateContainer(ctx context.Context, c container.Container, pr
 	}
 
 	// 4. Check if this is a swarm service
-	serviceName := c.Labels["com.docker.swarm.service.name"]
+	serviceName := c.Labels[container.SwarmServiceNameLabel]
 	if serviceName != "" {
 		progress(container.UpdateProgress{Status: container.UpdateRecreating})
-		serviceID := c.Labels["com.docker.swarm.service.id"]
+		serviceID := c.Labels[container.SwarmServiceIDLabel]
 		if err := d.client.ServiceUpdate(ctx, serviceID, imageName); err != nil {
 			return fail(fmt.Errorf("service update failed: %w", err))
 		}
@@ -343,46 +305,24 @@ func (d *Service) UpdateContainer(ctx context.Context, c container.Container, pr
 
 	// 6. Standalone container: swap it for one on the new image, keeping the
 	// old one until the new one has stayed up.
-	progress(container.UpdateProgress{Status: container.UpdateRecreating})
-
-	containerName := strings.TrimPrefix(inspectResp.Name, "/")
-
-	// Containers joined to this one's network namespace (network_mode:
-	// service:x in compose) lose it with the old container, so they are
-	// recreated after it.
-	dependents, err := d.client.NetworkDependents(ctx, inspectResp.ID, containerName)
-	if err != nil {
-		return fail(fmt.Errorf("list dependents failed: %w", err))
-	}
-
-	// From here on the old container is going away, so a client that
-	// disconnects must not leave the swap half done. That includes Dozzle
-	// itself when it shares this container's network.
-	ctx = context.WithoutCancel(ctx)
 
 	// The old image's own settings are dropped from the replacement so the
 	// new image's defaults apply. It is still in the local store: nothing has
-	// removed it yet, and the old container still uses it.
+	// removed it yet, and the old container still uses it. Not cancellable,
+	// so a client leaving now cannot make the replacement keep them.
 	var oldImage *image.InspectResponse
-	if img, err := d.client.ImageInspect(ctx, inspectResp.Image); err == nil {
+	if img, err := d.client.ImageInspect(context.WithoutCancel(ctx), inspectResp.Image); err == nil {
 		oldImage = &img
 	} else {
 		log.Warn().Err(err).Str("image", inspectResp.Image).Msg("could not inspect the old image, keeping its settings on the replacement")
 	}
 
-	result, err := swap.Swap(ctx, d.client.SwapAPI(), inspectResp, swap.Options{
-		OldImage:    oldImage,
-		Labels:      swap.PreviousLabels(inspectResp, oldImage, imageName),
-		OnVerifying: func() { progress(container.UpdateProgress{Status: container.UpdateVerifying}) },
-	})
+	result, rejoinErr, err := d.swapAndRejoin(ctx, inspectResp, swap.Options{
+		OldImage: oldImage,
+		Labels:   swap.PreviousLabels(inspectResp, oldImage, imageName),
+	}, progress)
+	ctx = context.WithoutCancel(ctx)
 	if err != nil {
-		// Whatever happened, a stopped old container took its namespace with
-		// it, so dependents rejoin whichever container now holds the name.
-		if result.OldStopped && result.RolledBack {
-			if rejoinErr := d.rejoinDependents(ctx, dependents, inspectResp.ID, result.RestoredID); rejoinErr != nil {
-				err = fmt.Errorf("%w; %v", err, rejoinErr)
-			}
-		}
 		if result.RolledBack {
 			undone := d.updateResult(ctx, inspectResp, oldImage, imageName, result.RestoredID, newImageID)
 			undone.RolledBack = true
@@ -393,15 +333,49 @@ func (d *Service) UpdateContainer(ctx context.Context, c container.Container, pr
 	}
 	done := d.updateResult(ctx, inspectResp, oldImage, imageName, result.NewID, newImageID)
 
-	if err := d.rejoinDependents(ctx, dependents, inspectResp.ID, result.NewID); err != nil {
-		progress(container.UpdateProgress{Status: container.UpdateError, Error: err.Error(), Result: &done})
-		return true, err
+	if rejoinErr != nil {
+		progress(container.UpdateProgress{Status: container.UpdateError, Error: rejoinErr.Error(), Result: &done})
+		return true, rejoinErr
 	}
 
-	swap.CleanupImage(ctx, d.client, inspectResp)
+	swap.CleanupImage(ctx, d.client.SwapAPI(), inspectResp)
 
 	progress(container.UpdateProgress{Status: container.UpdateDone, Result: &done})
 	return true, nil
+}
+
+// swapAndRejoin reports recreating, swaps old as opts describe, and moves the
+// containers joined to old's network namespace (network_mode: service:x in
+// compose), which lose it with the old container, onto whichever container
+// holds it afterwards. From the swap on, ctx being cancelled is ignored: a
+// client that disconnects must not leave the swap half done, and that
+// includes Dozzle itself when it shares old's network.
+//
+// err is the swap's (with a failed rejoin after a rollback added to it), or a
+// failure to list the dependents before anything was touched. rejoinErr is a
+// failure to move them after a swap that committed.
+func (d *Service) swapAndRejoin(ctx context.Context, old docker_types.InspectResponse, opts swap.Options, progress func(container.UpdateProgress)) (result swap.Result, rejoinErr error, err error) {
+	progress(container.UpdateProgress{Status: container.UpdateRecreating})
+
+	dependents, err := d.client.NetworkDependents(ctx, old.ID, strings.TrimPrefix(old.Name, "/"))
+	if err != nil {
+		return swap.Result{}, nil, fmt.Errorf("list dependents failed: %w", err)
+	}
+
+	ctx = context.WithoutCancel(ctx)
+	opts.OnVerifying = func() { progress(container.UpdateProgress{Status: container.UpdateVerifying}) }
+	result, err = swap.Swap(ctx, d.client.SwapAPI(), old, opts)
+	if err != nil {
+		// A stopped old container took its namespace with it, so dependents
+		// rejoin whichever container now holds the name.
+		if result.OldStopped && result.RolledBack {
+			if rejoinErr := d.rejoinDependents(ctx, dependents, old.ID, result.RestoredID); rejoinErr != nil {
+				err = fmt.Errorf("%w; %v", err, rejoinErr)
+			}
+		}
+		return result, nil, err
+	}
+	return result, d.rejoinDependents(ctx, dependents, old.ID, result.NewID), nil
 }
 
 // updateResult is what a swap of old (running oldImage, nil when it could not

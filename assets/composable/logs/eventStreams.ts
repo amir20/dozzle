@@ -200,7 +200,7 @@ function useLogStream(url: Ref<string>, container?: Ref<Container>) {
   }
 
   const sameUpdate = (marker: DeployLogEntry) => (m: LogEntry<LogMessage>) =>
-    m instanceof DeployLogEntry && m.containerID === marker.containerID;
+    m instanceof DeployLogEntry && m.updateKey === marker.updateKey;
 
   // Places each waiting marker the window now reaches. reachedStart names the
   // containers whose every line back to their start has been loaded.

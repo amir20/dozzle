@@ -29,10 +29,11 @@ type UpdateRecord struct {
 	Name string `json:"name"`
 	// OldID is the container that ran before, NewID the one the update left
 	// running: the replacement, or the old one put back when RolledBack.
-	OldID       string `json:"oldId"`
-	NewID       string `json:"newId"`
-	FromRef     string `json:"fromRef,omitempty"`
-	ToRef       string `json:"toRef,omitempty"`
+	OldID string `json:"oldId"`
+	NewID string `json:"newId"`
+	// ImageRef is the image reference (repo:tag). An update keeps it and
+	// moves what it resolves to, so it is the same before and after.
+	ImageRef    string `json:"imageRef,omitempty"`
 	FromDigest  string `json:"fromDigest,omitempty"`
 	ToDigest    string `json:"toDigest,omitempty"`
 	FromImageID string `json:"fromImageId,omitempty"`
@@ -135,8 +136,7 @@ func newUpdateRecord(c Container, source string, result UpdateResult, at time.Ti
 		Name:         c.Name,
 		OldID:        result.OldID,
 		NewID:        result.NewID,
-		FromRef:      c.Image,
-		ToRef:        c.Image,
+		ImageRef:     c.Image,
 		FromDigest:   result.FromDigest,
 		ToDigest:     result.ToDigest,
 		FromImageID:  result.FromImageID,

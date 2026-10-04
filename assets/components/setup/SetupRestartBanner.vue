@@ -18,7 +18,7 @@
       </template>
       <!-- It can, but not for this account: say why, as the toggles do. -->
       <p v-else>
-        {{ status.authProvider === "none" ? $t("setup.actions.window-closed") : $t("setup.actions.no-access") }}
+        {{ $t(setupAccessMessageKey(status)) }}
       </p>
     </div>
     <p v-if="error" class="text-error mt-2 text-xs" role="alert">{{ error }}</p>

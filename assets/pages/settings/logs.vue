@@ -1,8 +1,9 @@
 <template>
   <!-- LOGS -->
-  <section>
-    <h2 class="text-base-content/60 mb-2 text-xs font-semibold tracking-wide uppercase">{{ $t("settings.logs") }}</h2>
-    <div class="card card-border bg-base-200/40 divide-base-content/10 divide-y overflow-hidden">
+  <SettingsSection :title="$t('settings.logs')">
+    <div
+      class="border-base-content/15 bg-base-200/40 divide-base-content/10 divide-y overflow-hidden rounded-lg border"
+    >
       <div ref="previewEl">
         <LogList
           :messages="fakeMessages"
@@ -66,7 +67,7 @@
         />
       </SettingRow>
     </div>
-  </section>
+  </SettingsSection>
 </template>
 
 <script lang="ts" setup>

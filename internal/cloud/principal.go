@@ -1,7 +1,6 @@
 package cloud
 
 import (
-	"context"
 	"fmt"
 
 	"github.com/amir20/dozzle/internal/auth"
@@ -115,20 +114,6 @@ func (s scopedHost) ListAllContainers() ([]container.Container, []error) {
 
 func (s scopedHost) FindContainer(host string, id string) (*container.ContainerService, error) {
 	return s.hosts.FindContainer(host, id, s.labels)
-}
-
-// CheckImageUpdates checks every container the principal can see, keeping
-// those keep says to. The listing is scoped, so each lookup after it can skip
-// the labels rather than re-list a host per container.
-func (s scopedHost) CheckImageUpdates(ctx context.Context, force bool, keep func(container.Container) bool) ([]container.ImageUpdate, []error) {
-	containers, errs := s.ListAllContainers()
-	kept := containers[:0]
-	for _, c := range containers {
-		if keep(c) {
-			kept = append(kept, c)
-		}
-	}
-	return container.CheckImageUpdates(ctx, s.hosts, kept, force), errs
 }
 
 // Hosts is not label-scoped. A host is not a container, and the rest of the app
