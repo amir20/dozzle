@@ -18,6 +18,7 @@ declare global {
   const MARKER_START_SLACK_MS: typeof import('./composable/logs/updateMarkers').MARKER_START_SLACK_MS
   const MAX_PATTERN_LINES: typeof import('./composable/cloud/patternMemory').MAX_PATTERN_LINES
   const MIN_MENU_WIDTH: typeof import('./stores/settings').MIN_MENU_WIDTH
+  const PREFERENCE_PAGES: typeof import('./composable/app/settingsPages').PREFERENCE_PAGES
   const RAIL_WIDTH: typeof import('./composable/cloud/cloudRail').RAIL_WIDTH
   const RELATIVE_SPANS: typeof import('./composable/logs/timeRange').RELATIVE_SPANS
   const SETTINGS_PAGE_IDS: typeof import('./composable/app/settingsPages').SETTINGS_PAGE_IDS
@@ -145,12 +146,14 @@ declare global {
   const isLogRoute: typeof import('./composable/app/mobileShell').isLogRoute
   const isMobile: typeof import('./composable/ui/media').isMobile
   const isObject: typeof import('./utils/index').isObject
+  const isPreferencePage: typeof import('./composable/app/settingsPages').isPreferencePage
   const isProxy: typeof import('vue').isProxy
   const isReactive: typeof import('vue').isReactive
   const isReadonly: typeof import('vue').isReadonly
   const isRef: typeof import('vue').isRef
   const isRollingBack: typeof import('./composable/containers/rollback').isRollingBack
   const isSelf: typeof import('./composable/containers/imageUpdate').isSelf
+  const isSettingsPageSwitch: typeof import('./composable/app/settingsPages').isSettingsPageSwitch
   const isShallow: typeof import('vue').isShallow
   const isStreamLog: typeof import('./composable/cloud/alertMerger').isStreamLog
   const isViewContextOwner: typeof import('./composable/logs/viewContext').isViewContextOwner
@@ -690,6 +693,7 @@ declare module 'vue' {
     readonly K8sOwner: UnwrapRef<typeof import('./stores/k8s')['K8sOwner']>
     readonly MARKER_START_SLACK_MS: UnwrapRef<typeof import('./composable/logs/updateMarkers')['MARKER_START_SLACK_MS']>
     readonly MAX_PATTERN_LINES: UnwrapRef<typeof import('./composable/cloud/patternMemory')['MAX_PATTERN_LINES']>
+    readonly PREFERENCE_PAGES: UnwrapRef<typeof import('./composable/app/settingsPages')['PREFERENCE_PAGES']>
     readonly RAIL_WIDTH: UnwrapRef<typeof import('./composable/cloud/cloudRail')['RAIL_WIDTH']>
     readonly RELATIVE_SPANS: UnwrapRef<typeof import('./composable/logs/timeRange')['RELATIVE_SPANS']>
     readonly SETTINGS_PAGE_IDS: UnwrapRef<typeof import('./composable/app/settingsPages')['SETTINGS_PAGE_IDS']>
@@ -815,12 +819,14 @@ declare module 'vue' {
     readonly isLogRoute: UnwrapRef<typeof import('./composable/app/mobileShell')['isLogRoute']>
     readonly isMobile: UnwrapRef<typeof import('./composable/ui/media')['isMobile']>
     readonly isObject: UnwrapRef<typeof import('./utils/index')['isObject']>
+    readonly isPreferencePage: UnwrapRef<typeof import('./composable/app/settingsPages')['isPreferencePage']>
     readonly isProxy: UnwrapRef<typeof import('vue')['isProxy']>
     readonly isReactive: UnwrapRef<typeof import('vue')['isReactive']>
     readonly isReadonly: UnwrapRef<typeof import('vue')['isReadonly']>
     readonly isRef: UnwrapRef<typeof import('vue')['isRef']>
     readonly isRollingBack: UnwrapRef<typeof import('./composable/containers/rollback')['isRollingBack']>
     readonly isSelf: UnwrapRef<typeof import('./composable/containers/imageUpdate')['isSelf']>
+    readonly isSettingsPageSwitch: UnwrapRef<typeof import('./composable/app/settingsPages')['isSettingsPageSwitch']>
     readonly isShallow: UnwrapRef<typeof import('vue')['isShallow']>
     readonly isStreamLog: UnwrapRef<typeof import('./composable/cloud/alertMerger')['isStreamLog']>
     readonly isViewContextOwner: UnwrapRef<typeof import('./composable/logs/viewContext')['isViewContextOwner']>

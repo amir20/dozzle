@@ -34,6 +34,22 @@ export function settingsPages(cfg: SettingsPageConfig): SettingsPageId[] {
   return SETTINGS_PAGE_IDS.filter((id) => visible[id]);
 }
 
+// The pages that hold this browser's preferences, the ones "Reset to defaults" puts back.
+// The rest describe the server or this install, so a reset there would change settings
+// the page does not show.
+export const PREFERENCE_PAGES: readonly SettingsPageId[] = ["general", "logs", "sidebar"];
+
+export const isPreferencePage = (path: string): boolean => {
+  const match = /^\/settings\/([^/]+)\/?$/.exec(path);
+  return Boolean(match && (PREFERENCE_PAGES as readonly string[]).includes(match[1]));
+};
+
+// Moving from one settings page to another opens the new page at its top. The nav is
+// sticky, so without this a click after scrolling down a long page lands mid-way into
+// the next one with its title off screen.
+export const isSettingsPageSwitch = (to: string, from: string): boolean =>
+  to !== from && /^\/settings\/[^/]+\/?$/.test(to) && /^\/settings(\/|$)/.test(from);
+
 // Settings used to be one scrolling page with an anchor per section. Old links and
 // bookmarks still carry those anchors, so each one lands on the page that now holds it.
 const LEGACY_HASHES: Record<string, SettingsPageId> = {

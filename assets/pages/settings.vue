@@ -9,7 +9,12 @@
         <h1 class="text-2xl font-bold">{{ $t("title.settings") }}</h1>
         <p class="text-base-content/60 text-sm">{{ $t("settings.subtitle") }}</p>
       </div>
-      <button type="button" class="btn btn-ghost btn-xs text-base-content/60" @click="reset">
+      <button
+        v-if="isPreferencePage(route.path)"
+        type="button"
+        class="btn btn-ghost btn-xs text-base-content/60"
+        @click="reset"
+      >
         {{ $t("settings.reset") }}
       </button>
     </div>
@@ -67,7 +72,7 @@ import IconSetup from "~icons/mdi/rocket-launch-outline";
 import IconAbout from "~icons/mdi/information-outline";
 
 import { settings, DEFAULT_SETTINGS, type Settings } from "@/stores/settings";
-import { settingsPages, type SettingsPageId } from "@/composable/app/settingsPages";
+import { isPreferencePage, settingsPages, type SettingsPageId } from "@/composable/app/settingsPages";
 
 const { t } = useI18n();
 

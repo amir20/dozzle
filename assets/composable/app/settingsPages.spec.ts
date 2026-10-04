@@ -2,7 +2,14 @@ import { describe, expect, test } from "vitest";
 import { createMemoryHistory, createRouter } from "vue-router";
 import { defineComponent } from "vue";
 
-import { guardSettingsRoutes, settingsPages, settingsRedirect, type SettingsPageConfig } from "./settingsPages";
+import {
+  guardSettingsRoutes,
+  isPreferencePage,
+  isSettingsPageSwitch,
+  settingsPages,
+  settingsRedirect,
+  type SettingsPageConfig,
+} from "./settingsPages";
 
 const server: SettingsPageConfig = { mode: "server", enableCloud: true, canLinkCloud: true };
 
@@ -119,5 +126,33 @@ describe("guardSettingsRoutes", () => {
     const router = makeRouter();
     await router.push("/settings/about");
     expect(router.currentRoute.value.fullPath).toBe("/settings/about");
+  });
+});
+
+describe("isPreferencePage", () => {
+  test("reset belongs to the pages that show preferences", () => {
+    expect(isPreferencePage("/settings/general")).toBe(true);
+    expect(isPreferencePage("/settings/logs")).toBe(true);
+    expect(isPreferencePage("/settings/sidebar/")).toBe(true);
+  });
+
+  test("server and install pages have nothing a reset would put back", () => {
+    for (const id of ["updates", "cloud", "setup", "about"]) expect(isPreferencePage(`/settings/${id}`)).toBe(false);
+    expect(isPreferencePage("/settings")).toBe(false);
+    expect(isPreferencePage("/container/abc")).toBe(false);
+  });
+});
+
+describe("isSettingsPageSwitch", () => {
+  test("another settings page opens at its top", () => {
+    expect(isSettingsPageSwitch("/settings/sidebar", "/settings/logs")).toBe(true);
+    expect(isSettingsPageSwitch("/settings/general", "/settings")).toBe(true);
+  });
+
+  test("the same page, or arriving from elsewhere, keeps the browser's behaviour", () => {
+    expect(isSettingsPageSwitch("/settings/logs", "/settings/logs")).toBe(false);
+    expect(isSettingsPageSwitch("/settings/logs", "/container/abc")).toBe(false);
+    expect(isSettingsPageSwitch("/container/abc", "/settings/logs")).toBe(false);
+    expect(isSettingsPageSwitch("/settingsx/a", "/settings/logs")).toBe(false);
   });
 });
