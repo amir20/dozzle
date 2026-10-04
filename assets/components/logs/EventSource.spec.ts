@@ -406,6 +406,21 @@ describe("<ContainerEventSource />", () => {
       expect(html.indexOf("1.4.2")).toBeLessThan(html.indexOf("First line."));
     });
 
+    // A container updated a day before the opening tail: placed above it, the
+    // marker would become the oldest row and send load-older back to the update.
+    test("waits while the window does not reach the update", async () => {
+      const wrapper = createLogEventSource();
+      sources[sourceUrl].emitOpen();
+      sources[sourceUrl].emit("container-update", update("2019-06-11T10:55:40.000Z"));
+      sources[sourceUrl].emitMessage({
+        data: `{"ts":1560336942459, "m":"First line.", "id":1, "rm": "First line.", "c": "abc"}`,
+      });
+      await vi.advanceTimersByTimeAsync(300);
+
+      expect(wrapper.findComponent(DeployLogItem).exists()).toBe(false);
+      expect(wrapper.html()).toContain("First line.");
+    });
+
     test("a marker replayed by a reconnect is not added twice", async () => {
       const wrapper = createLogEventSource();
       sources[sourceUrl].emitOpen();

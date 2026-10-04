@@ -46,13 +46,33 @@ func (s historyService) RecentUpdates() []container.ContainerUpdateEvent { retur
 func (s historyService) SubscribeUpdates(context.Context, chan<- container.ContainerUpdateEvent) {
 }
 
-// historyHosts serves the hosts of a real MultiHostService, with update history.
-type historyHosts struct {
-	*hostservice.MultiHostService
-	services []container.ClientService
+func Test_hostUpdates_reads_each_host_once(t *testing.T) {
+	reads := 0
+	counting := countingHistory{reads: &reads, events: []container.ContainerUpdateEvent{{Host: "agent", NewID: "a"}}}
+	u := newHostUpdates()
+	for _, id := range []string{"a", "b", "c"} {
+		s := container.NewContainerService(counting, container.Container{ID: id, Host: "agent"})
+		u.get(s)()
+	}
+	assert.Equal(t, 1, reads, "a stack on one agent asks it once")
+
+	other := container.NewContainerService(counting, container.Container{ID: "d", Host: "other"})
+	u.get(other)()
+	assert.Equal(t, 2, reads, "each host is read on its own")
 }
 
-func (h historyHosts) ClientServices(bool) []container.ClientService { return h.services }
+// countingHistory counts its reads, like an agent answering over gRPC.
+type countingHistory struct {
+	container.ClientService
+	reads  *int
+	events []container.ContainerUpdateEvent
+}
+
+func (s countingHistory) RecentUpdates() []container.ContainerUpdateEvent {
+	*s.reads++
+	return s.events
+}
+func (s countingHistory) SubscribeUpdates(context.Context, chan<- container.ContainerUpdateEvent) {}
 
 func Test_handler_streamLogs_sends_update_marker(t *testing.T) {
 	ctx, cancel := context.WithCancel(t.Context())
@@ -76,17 +96,14 @@ func Test_handler_streamLogs_sends_update_marker(t *testing.T) {
 	mockedClient.On("ContainerEvents", mock.Anything, mock.AnythingOfType("chan<- container.ContainerEvent")).Return(nil).
 		Run(func(mock.Arguments) { time.Sleep(50 * time.Millisecond) })
 
-	service := docker.NewService(mockedClient, container.ContainerLabels{})
+	// The host's own service keeps the history, as a Docker host and an agent do.
+	service := &historyService{ClientService: docker.NewService(mockedClient, container.ContainerLabels{}), events: []container.ContainerUpdateEvent{
+		{Host: "localhost", Name: "app", OldID: "abcdef", NewID: id, FromRef: "app:1.4.1", ToRef: "app:1.4.2", Source: "schedule", At: started},
+		{Host: "localhost", Name: "other", OldID: "zzz", NewID: "yyy", Source: "dozzle", At: started},
+	}}
 	manager := hostservice.NewRetriableClientManager(nil, nil, 3*time.Second, tls.Certificate{}, service)
-	hosts := historyHosts{
-		MultiHostService: hostservice.NewMultiHostService(manager, 3*time.Second),
-		services: []container.ClientService{historyService{ClientService: service, events: []container.ContainerUpdateEvent{
-			{Host: "localhost", Name: "app", OldID: "abcdef", NewID: id, FromRef: "app:1.4.1", ToRef: "app:1.4.2", Source: "schedule", At: started},
-			{Host: "localhost", Name: "other", OldID: "zzz", NewID: "yyy", Source: "dozzle", At: started},
-		}}},
-	}
 	router := createRouter(&handler{
-		hostService: hosts,
+		hostService: hostservice.NewMultiHostService(manager, 3*time.Second),
 		config:      &Config{Base: "/", Authorization: Authorization{Provider: NONE}},
 	})
 
@@ -106,6 +123,4 @@ func Test_handler_streamLogs_sends_update_marker(t *testing.T) {
 	assert.Contains(t, body, `"newId":"123456"`)
 	assert.Contains(t, body, `"toRef":"app:1.4.2"`)
 	assert.NotContains(t, body, `"newId":"yyy"`, "only the streamed container's update is sent")
-	assert.Less(t, bytes.Index(rr.Body.Bytes(), []byte("container-update")), bytes.Index(rr.Body.Bytes(), []byte("INFO up")),
-		"the marker comes before the container's first line")
 }

@@ -20,6 +20,13 @@ import { useLogLoader } from "./logLoader";
 import { appendBatch, newerThanOnScreen, newestOnScreen, notOnScreen } from "./logWindow";
 import { parseEventData } from "@/utils/events";
 import type { ContainerUpdate } from "@/models/ContainerUpdate";
+import {
+  MARKER_START_SLACK_MS,
+  firstLineByContainer,
+  insertMarker,
+  repositionMarkers,
+  windowReachesUpdate,
+} from "./updateMarkers";
 import { showAllContainers } from "@/stores/settings";
 
 const { isSearching, appliedSearchFilter, inverseFilter } = useSearchFilter();
@@ -106,6 +113,12 @@ function useLogStream(url: Ref<string>, container?: Ref<Container>) {
   // Set while a reconnected stream replays lines the view already shows.
   let resuming: ((entry: LogEntry<LogMessage>) => boolean) | null = null;
   let sortNext = false;
+  // Update markers whose container's start the window has not reached yet. One is
+  // dated when its container started, which for a container updated yesterday is far
+  // above the opening tail; placed there, it would claim the lines in between and
+  // become the oldest thing on screen. It waits here instead, until the lines around
+  // its update are loaded.
+  let pendingMarkers: DeployLogEntry[] = [];
 
   const params = computed(() => {
     const params = new URLSearchParams();
@@ -132,6 +145,10 @@ function useLogStream(url: Ref<string>, container?: Ref<Container>) {
     loadingMore,
     {
       floor,
+      loadedOlder: (reachedStart) => {
+        messages.value = repositionMarkers(messages.value);
+        settleMarkers({ reachedStart });
+      },
       startEdge: () => {
         const start = floor.value!;
         const earlier = (ms: number) => () =>
@@ -178,7 +195,31 @@ function useLogStream(url: Ref<string>, container?: Ref<Container>) {
         loadSkipped: loadSkippedLogs,
       });
     }
+    settleMarkers({ opening: wasInitial });
     if (wasInitial) decorateWithAlerts();
+  }
+
+  const sameUpdate = (marker: DeployLogEntry) => (m: LogEntry<LogMessage>) =>
+    m instanceof DeployLogEntry && m.containerID === marker.containerID;
+
+  // Places each waiting marker the window now reaches. reachedStart names the
+  // containers whose every line back to their start has been loaded.
+  function settleMarkers({ opening = false, reachedStart }: { opening?: boolean; reachedStart?: Set<string> } = {}) {
+    if (pendingMarkers.length === 0) return;
+    const first = firstLineByContainer(messages.value);
+    const ready: DeployLogEntry[] = [];
+    pendingMarkers = pendingMarkers.filter((marker) => {
+      // Dozzle Cloud's copy of the update got there first, merged with the lines.
+      if (messages.value.some(sameUpdate(marker))) return false;
+      // A container with no line yet: the opening window has nothing older to wait
+      // for, and one just updated has only lines to come.
+      const silent =
+        !first.has(marker.containerID) && (opening || Date.now() - marker.date.getTime() <= MARKER_START_SLACK_MS);
+      const reached = reachedStart?.has(marker.containerID) || windowReachesUpdate(marker, first) || silent;
+      if (reached) ready.push(marker);
+      return !reached;
+    });
+    if (ready.length > 0) messages.value = ready.reduce(insertMarker, messages.value);
   }
 
   const flushBuffer = useAdaptiveFlush(flushNow, () => initial);
@@ -200,6 +241,7 @@ function useLogStream(url: Ref<string>, container?: Ref<Container>) {
     flushBuffer.cancel();
     messages.value = [];
     buffer = [];
+    pendingMarkers = [];
   }
 
   const urlWithParams = computed(() => {
@@ -264,19 +306,19 @@ function useLogStream(url: Ref<string>, container?: Ref<Container>) {
       flushBuffer.flush();
     });
 
-    // The update that created a container arrives before its first line, so the
-    // marker sorts to the top of the new container's stream. A reconnect sends
-    // it again; the copy on screen is kept, with any verdict it has gained.
+    // The update that created a container, dated when it started. It can come
+    // before or after the container's lines, from a host that answers slower than
+    // the tail. A reconnect sends it again; the copy on screen is kept, with any
+    // verdict it has gained.
     es.addEventListener("container-update", (e) => {
       const update = parseEventData<ContainerUpdate>(e);
       const marker = new DeployLogEntry(update, new Date(update.at));
       if (Number.isNaN(marker.date.getTime())) return;
       if (floor.value && marker.date < floor.value) return;
-      const sameUpdate = (m: LogEntry<LogMessage>) =>
-        m instanceof DeployLogEntry && m.containerID === marker.containerID;
-      if (messages.value.some(sameUpdate) || buffer.some(sameUpdate)) return;
+      const same = sameUpdate(marker);
+      if (messages.value.some(same) || buffer.some(same) || pendingMarkers.some(same)) return;
 
-      buffer.push(marker);
+      pendingMarkers.push(marker);
       flushBuffer();
     });
 
@@ -299,7 +341,8 @@ function useLogStream(url: Ref<string>, container?: Ref<Container>) {
         }
       }
       if (logs.length === 0) return;
-      messages.value = [...logs, ...messages.value];
+      messages.value = repositionMarkers([...logs, ...messages.value]);
+      settleMarkers();
       decorateWithAlerts();
     });
 

@@ -1,30 +1,19 @@
 package web
 
 import (
+	"context"
 	"slices"
+	"sync"
 
 	"github.com/amir20/dozzle/internal/container"
-	"github.com/amir20/dozzle/internal/web/sse"
-	"github.com/rs/zerolog/log"
 )
 
 // The update marker: a log stream opens on a container that an update created
-// with the update that created it, so the viewer can put "1.4.1 → 1.4.2" at the
-// top of the new container's lines. It is read from the host's update history,
-// keyed on the container the update produced, so a redirect to the new id after
-// an update finds it without carrying anything over.
-
-// recentUpdates is the kept update events of every host that keeps them. An
-// agent keeps its own on the agent, so its containers get no marker yet.
-func (h *handler) recentUpdates() []container.ContainerUpdateEvent {
-	var all []container.ContainerUpdateEvent
-	for _, s := range h.hostService.ClientServices(false) {
-		if history, ok := s.(container.UpdateHistory); ok {
-			all = append(all, history.RecentUpdates()...)
-		}
-	}
-	return all
-}
+// with the update that created it, so the viewer can put "1.4.1 → 1.4.2" above
+// the new container's lines. It is read from the update history of the
+// container's own host, a Docker host's or an agent's, keyed on the container
+// the update produced, so a redirect to the new id after an update finds it
+// without carrying anything over.
 
 // updateFor is the newest update that left c running under its name: the one
 // whose new container is c. A rolled back swap counts too, since the container
@@ -38,17 +27,40 @@ func updateFor(events []container.ContainerUpdateEvent, c container.Container) (
 	return container.ContainerUpdateEvent{}, false
 }
 
-// writeUpdateMarkers sends a container-update event for each container in cs
-// that an update created. events is read once by the caller and shared.
-func writeUpdateMarkers(w *sse.Writer, events []container.ContainerUpdateEvent, cs ...container.Container) {
-	if len(events) == 0 {
+// sendUpdateMarker sends the update that created the container, if one did, to
+// out. recent reads the host's update events. The marker is dated, so it may
+// arrive after the container's first lines; the viewer places it.
+func sendUpdateMarker(ctx context.Context, s *container.ContainerService, recent func() []container.ContainerUpdateEvent, out chan<- container.ContainerUpdateEvent) {
+	e, ok := updateFor(recent(), s.Container)
+	if !ok {
 		return
 	}
-	for _, c := range cs {
-		if e, ok := updateFor(events, c); ok {
-			if err := w.Event("container-update", e); err != nil {
-				log.Error().Err(err).Msg("error encoding container update")
-			}
-		}
+	select {
+	case out <- e:
+	case <-ctx.Done():
 	}
+}
+
+// hostUpdates reads each host's update events once for the containers a stream
+// opens with. A stack on one agent would otherwise ask that agent once per
+// container.
+type hostUpdates struct {
+	mu     sync.Mutex
+	byHost map[string]func() []container.ContainerUpdateEvent
+}
+
+func newHostUpdates() *hostUpdates {
+	return &hostUpdates{byHost: make(map[string]func() []container.ContainerUpdateEvent)}
+}
+
+// get is the shared read of s's host.
+func (u *hostUpdates) get(s *container.ContainerService) func() []container.ContainerUpdateEvent {
+	u.mu.Lock()
+	defer u.mu.Unlock()
+	read, ok := u.byHost[s.Container.Host]
+	if !ok {
+		read = sync.OnceValue(s.RecentUpdates)
+		u.byHost[s.Container.Host] = read
+	}
+	return read
 }

@@ -27,13 +27,13 @@
       <!-- Empty until Dozzle Cloud answers. -->
       <div v-if="verdict" class="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-xs">
         <component :is="verdictIcon" class="verdict-icon size-3.5 shrink-0" />
-        <span class="font-semibold">{{ $t(`update-marker.verdict.${verdict.verdict}`) }}</span>
+        <span v-if="verdictLabel" class="font-semibold">{{ $t(verdictLabel) }}</span>
         <template v-if="verdict.reason">
-          <span class="opacity-40">&middot;</span>
+          <span v-if="verdictLabel" class="opacity-40">&middot;</span>
           <span class="wrap-anywhere opacity-70">{{ verdict.reason }}</span>
         </template>
-        <span v-if="verdict.decision" class="status-pill status-pill-neutral">
-          {{ $t(`update-marker.decision.${verdict.decision}`) }}
+        <span v-if="decisionLabel" class="status-pill status-pill-neutral">
+          {{ $t(decisionLabel) }}
         </span>
         <a v-if="verdict.url" :href="verdict.url" target="_blank" rel="noopener" class="act ml-auto">
           {{ $t("label.alert-view-in-cloud") }}
@@ -74,6 +74,20 @@ const kind = computed(() => {
 });
 
 const SOURCES = ["schedule", "dozzle", "cloud", "watchtower", "external"];
+// Only the kinds there are strings for: a newer Dozzle Cloud can send one this
+// build does not know, which shows no label rather than its key.
+const VERDICTS = ["pending", "clean", "regressed", "unsure", "rolled_back_by_dozzle"];
+const DECISIONS = ["rolled_back", "kept"];
+const verdictLabel = computed(() =>
+  verdict.value && VERDICTS.includes(verdict.value.verdict)
+    ? `update-marker.verdict.${verdict.value.verdict}`
+    : undefined,
+);
+const decisionLabel = computed(() =>
+  verdict.value?.decision && DECISIONS.includes(verdict.value.decision)
+    ? `update-marker.decision.${verdict.value.decision}`
+    : undefined,
+);
 const sourceLabel = computed(() =>
   SOURCES.includes(update.value.source) ? `update-marker.by.${update.value.source}` : undefined,
 );
@@ -82,10 +96,18 @@ const sourceLabel = computed(() =>
 // on it, and goes to the image its last update replaced, which is this update's
 // only while this container is the one it created.
 const current = computed(() => store.findContainerById(update.value.newId));
+watch(
+  current,
+  (c) => {
+    if (enableActions && c) loadRollbackTarget(c);
+  },
+  { immediate: true },
+);
 const canRollBack = computed(() => {
   const c = current.value;
-  if (!enableActions || !c || c.state === "deleted" || !c.rollbackTarget) return false;
+  if (!enableActions || !c || c.state === "deleted" || !rollbackTargetOf(c) || isRollingBack(c)) return false;
   if (update.value.rolledBack || update.value.source === "rollback") return false;
+  // Dozzle Cloud records a rollback Dozzle pushed as the decision on this update.
   return verdict.value?.decision !== "rolled_back";
 });
 
