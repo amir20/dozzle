@@ -290,7 +290,9 @@ func (d *Client) ImageInspect(ctx context.Context, ref string) (image.InspectRes
 
 // ImageRemove removes one image by id. It is never forced and never prunes
 // untagged parents, so the engine refuses while any container, running or
-// stopped, still uses it, or another tag still points at it.
+// stopped, still uses it. It does not protect tags: an image whose tags all
+// belong to one repository is untagged and deleted, so callers that must keep
+// tagged images check RepoTags first.
 func (d *Client) ImageRemove(ctx context.Context, imageID string) error {
 	_, err := d.cli.ImageRemove(ctx, imageID, client.ImageRemoveOptions{Force: false, PruneChildren: false})
 	return err

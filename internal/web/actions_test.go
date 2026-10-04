@@ -134,6 +134,7 @@ func Test_handler_containerUpdate_new_image(t *testing.T) {
 	inspectResp := docker_types.InspectResponse{
 		Name:  "/test-container",
 		Image: "sha256:old",
+		State: &docker_types.State{Running: true, Status: "running"},
 		Config: &docker_types.Config{
 			Image: "test:v1",
 		},
@@ -180,6 +181,7 @@ func Test_handler_containerUpdate_rejoins_network_dependents(t *testing.T) {
 		ID:              oldID,
 		Name:            "/sidecar",
 		Image:           "sha256:old",
+		State:           &docker_types.State{Running: true, Status: "running"},
 		Config:          &docker_types.Config{Image: "test:v1"},
 		HostConfig:      &docker_types.HostConfig{},
 		NetworkSettings: &docker_types.NetworkSettings{},
@@ -234,6 +236,7 @@ func Test_handler_containerUpdate_recreates_when_image_already_local(t *testing.
 	inspectResp := docker_types.InspectResponse{
 		Name:  "/test-container",
 		Image: "sha256:old",
+		State: &docker_types.State{Running: true, Status: "running"},
 		Config: &docker_types.Config{
 			Image: "test:v1",
 		},

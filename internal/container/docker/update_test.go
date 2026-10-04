@@ -110,6 +110,8 @@ func newUpdateClient(t *testing.T, old docker_types.InspectResponse) *updateClie
 		pullBody: `{"status":"Downloading","id":"layer1","progressDetail":{"current":1,"total":2}}`,
 		images: map[string]image.InspectResponse{
 			oldImageID: {ID: oldImageID, RepoDigests: []string{"ghcr.io/other/nginx@sha256:aaa", "nginx@sha256:bbb"}},
+			// Left dangling by the update before last.
+			olderImage: {ID: olderImage},
 		},
 	}
 }
@@ -237,6 +239,24 @@ func TestUpdateContainerRejoinsDependentsAfterCommit(t *testing.T) {
 	assert.Equal(t, []string{"stop dep-id", "remove dep-id", "create dep container:new-app", "start new-dep"}, cli.calls)
 }
 
+// A scheduled update lists every container, stopped ones included. A one-shot
+// job that already exited moves to the new image and stays stopped.
+func TestUpdateContainerStoppedOneShotIsDone(t *testing.T) {
+	old := appInspect(nil)
+	old.State = &docker_types.State{Status: "exited", ExitCode: 0}
+	cli := newUpdateClient(t, old)
+	cli.engine.NewState = &docker_types.State{Status: "created"}
+	run := runUpdate(cli, container.UpdateOptions{})
+
+	require.NoError(t, run.err)
+	assert.True(t, run.updated)
+	assert.Equal(t, "done", run.last.Status)
+	assert.NotContains(t, run.statuses, "verifying")
+	for _, call := range cli.engine.Calls {
+		assert.NotContains(t, call, "start", "the replacement is left stopped")
+	}
+}
+
 func TestUpdateContainerCleanupRemovesTheImageBeforeThePrevious(t *testing.T) {
 	cli := newUpdateClient(t, appInspect(map[string]string{container.PreviousImageLabel: olderImage}))
 	run := runUpdate(cli, container.UpdateOptions{Cleanup: true})
@@ -244,6 +264,28 @@ func TestUpdateContainerCleanupRemovesTheImageBeforeThePrevious(t *testing.T) {
 	require.NoError(t, run.err)
 	assert.Equal(t, "done", run.last.Status)
 	assert.Equal(t, []string{olderImage}, cli.removed, "the image just replaced stays as the rollback target")
+}
+
+// Removing by id without force would untag and delete an image whose tags
+// share one repository, so cleanup only touches an untagged leftover.
+func TestUpdateContainerCleanupKeepsATaggedImage(t *testing.T) {
+	cli := newUpdateClient(t, appInspect(map[string]string{container.PreviousImageLabel: olderImage}))
+	cli.images[olderImage] = image.InspectResponse{ID: olderImage, RepoTags: []string{"myapp:1.4.0"}}
+	run := runUpdate(cli, container.UpdateOptions{Cleanup: true})
+
+	require.NoError(t, run.err)
+	assert.Equal(t, "done", run.last.Status)
+	assert.Empty(t, cli.removed)
+}
+
+func TestUpdateContainerCleanupImageAlreadyGone(t *testing.T) {
+	cli := newUpdateClient(t, appInspect(map[string]string{container.PreviousImageLabel: olderImage}))
+	delete(cli.images, olderImage)
+	run := runUpdate(cli, container.UpdateOptions{Cleanup: true})
+
+	require.NoError(t, run.err)
+	assert.Equal(t, "done", run.last.Status)
+	assert.Empty(t, cli.removed)
 }
 
 func TestUpdateContainerCleanupImageInUse(t *testing.T) {

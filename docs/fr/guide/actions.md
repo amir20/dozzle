@@ -1,6 +1,6 @@
 ---
 title: Actions sur les conteneurs
-sourceHash: 6878c6f4761b
+sourceHash: ce5fe1716730
 ---
 
 # Actions sur les conteneurs
@@ -11,7 +11,7 @@ Dozzle propose des actions sur les conteneurs, qui vous permettent de les démar
 
 L'action `update` récupère la dernière image du conteneur et le recrée avec la même configuration, ce qui est pratique pour mettre à niveau un conteneur sur place sans modifier son fichier compose. `update` n'a un effet réel que si l'image utilise un tag mouvant (par ex. `latest`, `stable`) ; avec un tag figé, la même image sera simplement retéléchargée.
 
-L'ancien conteneur est conservé, renommé, jusqu'à ce que le nouveau ait tourné 10 secondes sans redémarrer et se soit déclaré sain si son image a un healthcheck. Si le nouveau conteneur ne démarre pas, s'arrête, redémarre ou devient non sain, Dozzle le supprime et remet l'ancien en place, et la mise à jour indique **restauré** avec la raison. Le nouveau conteneur reçoit le label `dev.dozzle.previous-image` avec l'id de l'image qu'il remplace, et `dev.dozzle.previous-ref` avec le digest `repo@sha256:…` de cette image (absent pour les images construites localement).
+L'ancien conteneur est conservé, renommé, jusqu'à ce que le nouveau ait tourné 10 secondes sans redémarrer et se soit déclaré sain si son image a un healthcheck. Si le nouveau conteneur ne démarre pas, s'arrête, redémarre ou devient non sain, Dozzle le supprime et remet l'ancien en place, et la mise à jour indique **restauré** avec la raison. Le nouveau conteneur reçoit le label `dev.dozzle.previous-image` avec l'id de l'image qu'il remplace, et `dev.dozzle.previous-ref` avec le digest `repo@sha256:…` de cette image (absent pour les images construites localement). Un conteneur qui ne tournait pas, comme une tâche ponctuelle déjà terminée, est recréé sur la nouvelle image et laissé arrêté : il n'est ni relancé ni vérifié.
 
 > [!WARNING]
 > `remove` et `update` recréent le conteneur. Les données écrites dans des **volumes anonymes** ou dans la couche inscriptible du conteneur seront perdues. Les volumes nommés et les bind mounts sont préservés.
@@ -128,7 +128,7 @@ Chaque mise à jour laisse sur l'hôte l'image qu'elle remplace. Avec `DOZZLE_AU
 
 Dozzle garde l'image sur laquelle le conteneur tournait jusque-là, pour qu'il puisse encore y revenir, et supprime celle d'avant. Une mise à jour de 1.4.1 vers 1.4.2 supprime 1.4.0 et garde 1.4.1, donc chaque conteneur garde au plus une image de réserve. Dozzle lit l'image à supprimer dans le label `dev.dozzle.previous-image` de l'ancien conteneur, donc la première mise à jour après l'activation ne supprime rien.
 
-Le nettoyage n'a lieu qu'une fois que le nouveau conteneur est resté démarré et que l'ancien a été supprimé. Une mise à jour restaurée ne supprime rien. L'image est supprimée par id, sans forcer, donc Docker refuse tant qu'un autre conteneur, démarré ou arrêté, l'utilise encore, ou qu'un autre tag pointe dessus. Un refus ne fait jamais échouer la mise à jour.
+Le nettoyage n'a lieu qu'une fois la mise à jour aboutie et l'ancien conteneur supprimé. Une mise à jour restaurée ne supprime rien. Dozzle ne supprime qu'une image sans tag qu'aucun conteneur n'utilise : une image qui a encore un tag est conservée, et la suppression n'est pas forcée, donc Docker refuse tant qu'un autre conteneur, démarré ou arrêté, l'utilise encore. Un refus ne fait jamais échouer la mise à jour.
 
 Pour garder les anciennes images d'un conteneur, par exemple pour une image que vous lancez aussi à la main, ajoutez-lui ce label :
 

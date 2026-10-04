@@ -421,8 +421,11 @@ func previousRef(img *image.InspectResponse, ref string) string {
 // cleanupImage removes the image the outgoing container had itself replaced,
 // read from its previous-image label. The image it ran until now is kept as
 // the rollback target, so at most one spare image per container stays behind.
-// Docker refuses while anything still uses the image, and every failure is
-// only logged: the update already succeeded.
+// Only a leftover is removed: an image that still has a tag is skipped, since
+// the engine would untag and delete it when its tags share one repository.
+// An update leaves the old image untagged anyway. The removal is not forced,
+// so Docker refuses while any container still uses the image, and every
+// failure is only logged: the update already succeeded.
 func (d *Service) cleanupImage(ctx context.Context, old docker_types.InspectResponse) {
 	logger := log.With().Str("container", strings.TrimPrefix(old.Name, "/")).Logger()
 	if strings.EqualFold(strings.TrimSpace(old.Config.Labels[container.UpdateCleanupLabel]), "false") {
@@ -437,6 +440,15 @@ func (d *Service) cleanupImage(ctx context.Context, old docker_types.InspectResp
 	if previous == old.Image {
 		// Never the image just replaced: it is the rollback target. An image
 		// the replacement runs is refused by the engine below.
+		return
+	}
+	img, err := d.client.ImageInspect(ctx, previous)
+	if err != nil {
+		logger.Debug().Err(err).Str("image", previous).Msg("update cleanup: image not inspectable, nothing removed")
+		return
+	}
+	if len(img.RepoTags) > 0 {
+		logger.Debug().Str("image", previous).Strs("tags", img.RepoTags).Msg("update cleanup: image is still tagged, kept")
 		return
 	}
 	if err := d.client.ImageRemove(ctx, previous); err != nil {

@@ -10,7 +10,7 @@ Dozzle supports container actions, which allows you to `start`, `stop`, `restart
 
 The `update` action pulls the latest image for the container and recreates it with the same configuration — useful for upgrading a container in place without editing its compose file. `update` only has a meaningful effect when the image uses a moving tag (e.g. `latest`, `stable`); a pinned tag will simply re-pull the same image.
 
-The old container is kept, renamed, until the new one has run for 10 seconds without restarting, and has reported healthy if its image has a healthcheck. If the new container fails to start, exits, restarts or turns unhealthy, Dozzle removes it and puts the old one back, and the update reports **rolled back** with the reason. The new container is labelled `dev.dozzle.previous-image` with the image id it replaced, and `dev.dozzle.previous-ref` with that image's `repo@sha256:…` digest (absent for images built locally).
+The old container is kept, renamed, until the new one has run for 10 seconds without restarting, and has reported healthy if its image has a healthcheck. If the new container fails to start, exits, restarts or turns unhealthy, Dozzle removes it and puts the old one back, and the update reports **rolled back** with the reason. The new container is labelled `dev.dozzle.previous-image` with the image id it replaced, and `dev.dozzle.previous-ref` with that image's `repo@sha256:…` digest (absent for images built locally). A container that was not running, such as a one-shot job that already exited, is recreated on the new image and left stopped, so it is not rerun and not checked.
 
 > [!WARNING]
 > `remove` and `update` recreate the container. Data written to **anonymous volumes** or the container's writable layer will be lost. Named volumes and bind mounts are preserved.
@@ -127,7 +127,7 @@ Every update leaves the image it replaced on the host. With `DOZZLE_AUTO_UPDATE_
 
 Dozzle keeps the image the container ran until now, so the container can still go back to it, and removes the one before that. An update from 1.4.1 to 1.4.2 removes 1.4.0 and keeps 1.4.1, so each container keeps at most one spare image. Dozzle reads which image to remove from the old container's `dev.dozzle.previous-image` label, so the first update after turning cleanup on removes nothing.
 
-Cleanup only runs after the new container has stayed up and the old one is gone. A rolled back update removes nothing. The image is removed by id, without force, so Docker refuses while any other container, running or stopped, still uses it, or while another tag points at it. A refusal never fails the update.
+Cleanup only runs after the update has gone through and the old container is gone. A rolled back update removes nothing. Dozzle only removes an untagged image that no container uses: an image that still has a tag is kept, and the removal is not forced, so Docker refuses while any other container, running or stopped, still uses it. A refusal never fails the update.
 
 To keep a container's old images, for example for an image you also run by hand, label it:
 

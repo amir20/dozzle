@@ -3,6 +3,8 @@
 // the ordinary container Update action both recreate through it.
 //
 // The order is rename old, create new, stop old, start new, verify, remove old.
+// A container that was not running is only renamed, recreated and removed:
+// its replacement is left stopped, as it was.
 // Creating before stopping is what makes --rm containers safe: the engine
 // removes a --rm container on stop and deletes its anonymous volumes with it,
 // but skips any volume another container still references (checked against
@@ -171,6 +173,16 @@ func (s *swap) forward(ctx context.Context) error {
 	}
 	s.newID = created.ID
 
+	if !running(s.old.State) {
+		// A container that was not running (a one-shot job, an init container
+		// that already exited) is not started by an update: starting it would
+		// rerun it, and WaitStable would roll back one that exits cleanly. The
+		// replacement stays stopped, as a stopped dependent does.
+		s.logger.Info().Msg(s.prefix + ": old container was not running, leaving the replacement stopped")
+		s.removeOld(ctx)
+		return nil
+	}
+
 	s.logger.Info().Msg(s.prefix + ": stopping old container")
 	if _, err := s.cli.ContainerStop(ctx, s.old.ID, client.ContainerStopOptions{}); err != nil && !isNotFound(err) {
 		return fmt.Errorf("stop old container: %w", err)
@@ -198,14 +210,19 @@ func (s *swap) forward(ctx context.Context) error {
 	}
 
 	if !s.oldGone {
-		s.logger.Info().Msg(s.prefix + ": removing old container (volumes kept)")
-		if _, err := s.cli.ContainerRemove(ctx, s.old.ID, client.ContainerRemoveOptions{}); err != nil && !isNotFound(err) {
-			// The update itself worked; a leftover stopped container is untidy,
-			// not a reason to roll back.
-			s.logger.Warn().Err(err).Str("old", s.tmpName).Msg(s.prefix + ": unable to remove old container, remove it by hand")
-		}
+		s.removeOld(ctx)
 	}
 	return nil
+}
+
+// removeOld commits the swap by removing the old container. Failing to is
+// only logged: the update itself worked, and a leftover stopped container is
+// untidy, not a reason to roll back.
+func (s *swap) removeOld(ctx context.Context) {
+	s.logger.Info().Msg(s.prefix + ": removing old container (volumes kept)")
+	if _, err := s.cli.ContainerRemove(ctx, s.old.ID, client.ContainerRemoveOptions{}); err != nil && !isNotFound(err) {
+		s.logger.Warn().Err(err).Str("old", s.tmpName).Msg(s.prefix + ": unable to remove old container, remove it by hand")
+	}
 }
 
 func (s *swap) rollback(ctx context.Context) error {
