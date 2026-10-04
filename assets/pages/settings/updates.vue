@@ -10,7 +10,7 @@
     <InlineNotice v-if="status && !status.enableActions" type="info">
       {{ $t("auto-update.needs-actions") }}
       <template #actions>
-        <router-link to="/settings/setup" class="btn btn-sm">{{ $t("settings.setup") }}</router-link>
+        <router-link to="/settings/security" class="btn btn-sm">{{ $t("settings.security") }}</router-link>
       </template>
     </InlineNotice>
 

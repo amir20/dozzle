@@ -246,10 +246,20 @@ settings:
   sidebar: Barra laterale
   behavior: Comportamento
   advanced: Avanzate
-  setup: "Configurazione"
   about: Informazioni
   general: Generale
   updates: Aggiornamenti
+  security: "Sicurezza"
+  hosts: "Host"
+  login-desc: "Chi può aprire Dozzle. Senza accesso, chiunque lo raggiunga può leggere i tuoi log."
+  login-off: "Nessun accesso"
+  login-docs: "Guida all'autenticazione"
+  set-by-flags: "In questa modalità si imposta con flag o variabili d'ambiente."
+  hosts-found: "In questa modalità Dozzle trova questi host da solo."
+  after-restart: "Dopo il riavvio"
+  restart-pending: "1 modifica si applica dopo un riavvio | {count} modifiche si applicano dopo un riavvio"
+  run-setup: "Esegui di nuovo la configurazione"
+  run-setup-desc: "Un percorso guidato tra accesso, azioni, host, Dozzle Cloud e aggiornamenti. Tutto ciò che contiene è anche nelle Impostazioni."
   reset: Ripristina predefiniti
   sponsor: Sponsorizza
   new-version: "{version} disponibile"
@@ -830,12 +840,6 @@ setup:
   finish-later: Termina più tardi
   close: Chiudi
   copy: Copia
-  settings-title: Configura Dozzle
-  settings-desc: "Accesso, azioni sui container, shell, altri host e Dozzle Cloud in pochi passaggi."
-  settings-done-title: "Dozzle è configurato"
-  settings-done-desc: "L'accesso è attivo. Apri la configurazione per rivedere azioni sui container, shell, altri host e Dozzle Cloud."
-  settings-closed-title: "La configurazione è chiusa"
-  settings-closed-desc: "Senza accesso, la configurazione accetta modifiche solo nei primi 15 minuti di una nuova installazione. Usa invece le variabili d'ambiente."
   steps:
     login: Accesso
     login-note: Fai questo per primo

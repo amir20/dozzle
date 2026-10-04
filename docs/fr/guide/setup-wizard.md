@@ -1,17 +1,17 @@
 ---
 title: Assistant de configuration
-sourceHash: 7f6f31a7c5a1
+sourceHash: 9f77a52d6bd0
 ---
 
 # Assistant de configuration
 
 <Badge type="warning" text="Docker Only" />
 
-Une nouvelle installation de Dozzle s'ouvre sur un court assistant de configuration. Il vous guide à travers les quelques réglages que la plupart des gens modifient juste après l'installation : activer la connexion, autoriser les actions sur les conteneurs et l'accès shell, ajouter d'autres hôtes et connecter Dozzle Cloud. Tout ce qu'il enregistre peut aussi être défini par des flags ou des variables d'environnement, l'assistant est donc facultatif.
+Une nouvelle installation de Dozzle s'ouvre sur un court assistant de configuration. Il vous guide à travers les quelques réglages que la plupart des gens modifient juste après l'installation : activer la connexion, autoriser les actions sur les conteneurs et l'accès shell, ajouter d'autres hôtes et connecter Dozzle Cloud. Tout ce qu'il enregistre peut aussi être défini par des flags ou des variables d'environnement, l'assistant est donc facultatif. Tout ce qu'il fait se trouve aussi dans les paramètres : **Sécurité** pour la connexion, les actions et le shell, **Hôtes**, **Mises à jour** et **Dozzle Cloud**. L'assistant parcourt simplement ces mêmes pages dans l'ordre.
 
-L'assistant n'apparaît que sur une nouvelle installation en mode serveur. Les déploiements Swarm et Kubernetes ne l'affichent jamais. Vous pouvez le rouvrir plus tard depuis les paramètres.
+L'assistant n'apparaît que sur une nouvelle installation en mode serveur. Les déploiements Swarm et Kubernetes ne l'affichent jamais. Leurs paramètres affichent la connexion, les actions, le shell et les hôtes en lecture seule. Vous pouvez relancer l'assistant à tout moment depuis **Paramètres → À propos**.
 
-Pour les environnements jetables, créés et détruits souvent, définissez `DOZZLE_DISABLE_SETUP_WIZARD=true` afin que l'assistant ne s'ouvre jamais tout seul. Il reste accessible depuis les paramètres.
+Pour les environnements jetables, créés et détruits souvent, définissez `DOZZLE_DISABLE_SETUP_WIZARD=true` afin que l'assistant ne s'ouvre jamais tout seul. Il reste possible de le lancer depuis **Paramètres → À propos**.
 
 ## <Icon icon="mdi:format-list-numbered" inline /> Étapes
 
@@ -42,7 +42,7 @@ Une fois `/data` persistant, choisissez l'une des trois options :
 
 Si Dozzle n'est accessible que sur votre propre réseau, **Continuer sans connexion** permet de passer cette étape.
 
-Une fois un compte ou un proxy enregistré, Dozzle redémarre immédiatement pour que la connexion soit active avant toute autre modification. Vous arrivez sur la page de connexion, et l'assistant reprend à l'étape suivante une fois connecté.
+Une fois un compte ou un proxy enregistré, Dozzle redémarre immédiatement pour que la connexion soit active avant toute autre modification. Vous arrivez sur la page de connexion, et l'assistant reprend à l'étape suivante une fois connecté. **Paramètres → Sécurité** propose le même choix tant qu'aucune connexion n'est configurée, puis affiche le fournisseur.
 
 ### 2. Actions et shell
 
@@ -51,13 +51,13 @@ Deux interrupteurs définissent ce que Dozzle a le droit de faire à vos contene
 - **Démarrer, arrêter et redémarrer** active les [actions sur les conteneurs](/fr/guide/actions) (`enableActions`).
 - **Shell** active la possibilité de [s'attacher et d'exécuter des commandes](/fr/guide/shell) dans les conteneurs (`enableShell`). Il est désactivé par défaut. Un accès shell à un conteneur vaut souvent un accès à l'hôte, ne l'activez donc que si vous en avez besoin.
 
-Si un réglage est déjà fixé par un flag ou une variable d'environnement, son interrupteur est en lecture seule et l'indique. Comme la connexion, ces interrupteurs ont besoin de `/data` sur un volume et restent en lecture seule tant que ce n'est pas le cas.
+Si un réglage est déjà fixé par un flag ou une variable d'environnement, son interrupteur est en lecture seule et l'indique. Comme la connexion, ces interrupteurs ont besoin de `/data` sur un volume et restent en lecture seule tant que ce n'est pas le cas. Les mêmes interrupteurs se trouvent dans **Paramètres → Sécurité**, où chaque modification est enregistrée aussitôt.
 
 ### 3. Hôtes
 
 Dozzle peut afficher les conteneurs d'autres machines grâce aux [agents](/fr/guide/agent). Cette étape montre le fichier compose à lancer sur l'autre machine, puis demande l'adresse de l'agent, par exemple `10.0.0.5:7007`, et un nom facultatif. **Ajouter l'hôte** se connecte à l'agent avant d'enregistrer quoi que ce soit : une mauvaise adresse ou un certificat qui ne correspond pas se voit tout de suite. Une fois connecté, l'hôte apparaît dans la barre latérale sans redémarrage.
 
-Les agents définis par `DOZZLE_REMOTE_AGENT` sont affichés comme verrouillés et ne peuvent être retirés que de votre fichier compose. Les agents ajoutés ici peuvent être retirés depuis la même liste. **Plus tard** passe l'étape, et le même panneau reste accessible ensuite via **Ajouter l'hôte** en bas de la liste des hôtes.
+Les agents définis par `DOZZLE_REMOTE_AGENT` sont affichés comme verrouillés et ne peuvent être retirés que de votre fichier compose. Les agents ajoutés ici peuvent être retirés depuis la même liste. **Plus tard** passe l'étape, et le même panneau reste accessible ensuite dans **Paramètres → Hôtes** et via **Ajouter l'hôte** en bas de la liste des hôtes.
 
 ### 4. Dozzle Cloud
 
@@ -77,7 +77,7 @@ Mettre à jour est une action : tant que les actions sont désactivées, cette �
 
 La dernière étape liste les modifications enregistrées mais pas encore actives. **Redémarrer Dozzle** redémarre le conteneur, attend qu'il soit de retour et recharge la page. S'il n'y a rien en attente, l'étape indique simplement que vous avez terminé.
 
-Si Dozzle ne peut pas redémarrer tout seul (par exemple s'il ne trouve pas son propre conteneur), l'assistant affiche à la place les variables d'environnement à ajouter à votre fichier compose.
+Si Dozzle ne peut pas redémarrer tout seul (par exemple s'il ne trouve pas son propre conteneur), l'assistant affiche à la place les variables d'environnement à ajouter à votre fichier compose. Les paramètres affichent la même chose sur chaque page tant que des modifications attendent : un bandeau qui les compte, avec **Redémarrer Dozzle** ou ces lignes.
 
 ## <Icon icon="mdi:file-cog-outline" inline /> Où les paramètres sont enregistrés
 
@@ -134,6 +134,6 @@ Certaines installations ne peuvent pas se mettre à jour ainsi :
 ## <Icon icon="mdi:shield-lock-outline" inline /> Sécurité
 
 - **La connexion est la première étape.** Un redémarrage après l'enregistrement d'un compte ou d'un proxy active la connexion avant que tout autre réglage puisse être modifié.
-- **Seul un utilisateur connecté peut modifier les actions, le shell et la mise à jour automatique, ajouter ou retirer des hôtes, ou redémarrer Dozzle.** L'utilisateur doit avoir tous les rôles.
+- **Seul un utilisateur connecté peut modifier les actions, le shell et la mise à jour automatique, ajouter ou retirer des hôtes, ou redémarrer Dozzle.** L'utilisateur doit avoir tous les rôles. Les paramètres suivent les mêmes règles et indiquent pourquoi une valeur est en lecture seule.
 - **Sans connexion, seule une nouvelle installation a une fenêtre de 15 minutes.** Quand `authProvider` vaut `none`, ces réglages ne peuvent être modifiés que dans les 15 minutes qui suivent le premier démarrage d'une nouvelle installation, c'est-à-dire dont `/data` était vide. Une installation qui a déjà des données de démarrages précédents n'a jamais cette fenêtre, un redémarrage de l'hôte ou une mise à jour de l'image ne peut donc pas l'ouvrir. En dehors de la fenêtre, utilisez les variables d'environnement ou activez la connexion.
 - **Les routes sont toujours décidées au démarrage.** L'assistant écrit uniquement dans `dozzle.yml`. Les endpoints des actions et du shell sont enregistrés au démarrage de Dozzle, exactement comme avec les variables d'environnement, donc rien n'est activé tant que Dozzle n'a pas redémarré.

@@ -1,6 +1,6 @@
 ---
 title: Umgebungsvariablen und Unterbefehle
-sourceHash: 106a7af00ec5
+sourceHash: 4f67e805c4b4
 ---
 
 # Umgebungsvariablen
@@ -46,7 +46,7 @@ DOZZLE_REMOTE_AGENT=167.99.1.1:7007,167.99.1.2:7007
 | `DOZZLE_ENABLE_SHELL`<br>`--enable-shell`                 | Erlaubt, sich aus der Oberfläche an Container anzuhängen und darin eine Shell zu starten. Siehe [Shell](/de/guide/shell).                                                                                                                                   | `true`, `false`              | `false`                         |
 | `DOZZLE_ENABLE_MCP`<br>`--enable-mcp`                     | Stellt den [MCP](/de/guide/mcp)-Endpunkt für LLM-Clients bereit.                                                                                                                                                                                            | `true`, `false`              | `false`                         |
 | `DOZZLE_DISABLE_AVATARS`<br>`--disable-avatars`           | Blendet Benutzeravatare aus, wenn die Authentifizierung aktiv ist.                                                                                                                                                                                          | `true`, `false`              | `false`                         |
-| `DOZZLE_DISABLE_SETUP_WIZARD`<br>`--disable-setup-wizard` | Verhindert, dass sich der [Einrichtungsassistent](/de/guide/setup-wizard) bei einer frischen Installation von selbst öffnet. In den Einstellungen lässt er sich weiterhin öffnen.                                                                           | `true`, `false`              | `false`                         |
+| `DOZZLE_DISABLE_SETUP_WIZARD`<br>`--disable-setup-wizard` | Verhindert, dass sich der [Einrichtungsassistent](/de/guide/setup-wizard) bei einer frischen Installation von selbst öffnet. Unter **Einstellungen → Über** lässt er sich weiterhin starten.                                                                | `true`, `false`              | `false`                         |
 | `DOZZLE_RELEASE_CHECK_MODE`<br>`--release-check-mode`     | Ob Dozzle nach neuen eigenen Releases sucht. `manual` prüft nur, wenn du danach fragst.                                                                                                                                                                     | `automatic`, `manual`        | `automatic`                     |
 | `DOZZLE_IMAGE_CHECK_MODE`<br>`--image-check-mode`         | Ob Dozzle in Registries nach neueren Container-Images sucht. Siehe [Update-Prüfung](/de/guide/actions#update-prufung).                                                                                                                                      | `automatic`, `manual`, `off` | wie `DOZZLE_RELEASE_CHECK_MODE` |
 | `DOZZLE_AUTO_UPDATE`<br>`--auto-update`                   | Aktualisiert Dozzle und die Container, die automatisch aktualisiert werden sollen, nach Zeitplan. `weekly` läuft am Sonntag. Setzt `DOZZLE_ENABLE_ACTIONS` voraus. Siehe [Container automatisch aktualisieren](/de/guide/actions#auto-updating-containers). | `off`, `daily`, `weekly`     | `off`                           |

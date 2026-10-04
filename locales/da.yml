@@ -246,10 +246,20 @@ settings:
   sidebar: Sidepanel
   behavior: Adfærd
   advanced: Avanceret
-  setup: "Opsætning"
   about: Om
   general: Generelt
   updates: Opdateringer
+  security: "Sikkerhed"
+  hosts: "Værter"
+  login-desc: "Hvem kan åbne Dozzle. Uden login kan alle, der når den, læse dine logs."
+  login-off: "Intet login"
+  login-docs: "Guide til godkendelse"
+  set-by-flags: "Angives med flag eller miljøvariabler i denne tilstand."
+  hosts-found: "Dozzle finder selv disse værter i denne tilstand."
+  after-restart: "Efter genstart"
+  restart-pending: "1 ændring træder i kraft efter en genstart | {count} ændringer træder i kraft efter en genstart"
+  run-setup: "Kør opsætning igen"
+  run-setup-desc: "En guidet gennemgang af login, handlinger, værter, Dozzle Cloud og opdateringer. Alt i den findes også i Indstillinger."
   reset: Nulstil til standard
   sponsor: Sponsorer
   new-version: "{version} tilgængelig"
@@ -830,12 +840,6 @@ setup:
   finish-later: "Gør færdig senere"
   close: "Luk"
   copy: "Kopiér"
-  settings-title: "Opsæt Dozzle"
-  settings-desc: "Login, containerhandlinger, shell, andre værter og Dozzle Cloud i få trin."
-  settings-done-title: "Dozzle er sat op"
-  settings-done-desc: "Login er slået til. Åbn opsætningen for at gennemgå containerhandlinger, shell, andre værter og Dozzle Cloud."
-  settings-closed-title: "Opsætningen er lukket"
-  settings-closed-desc: "Uden login tager opsætningen kun imod ændringer i de første 15 minutter af en ny installation. Brug miljøvariabler i stedet."
   steps:
     login: "Login"
     login-note: "Gør dette først"

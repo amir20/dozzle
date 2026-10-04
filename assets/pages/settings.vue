@@ -7,7 +7,8 @@
     <div class="flex flex-wrap items-end justify-between gap-x-4 gap-y-1">
       <div>
         <h1 class="text-2xl font-bold">{{ $t("title.settings") }}</h1>
-        <p class="text-base-content/60 text-sm">{{ $t("settings.subtitle") }}</p>
+        <!-- Only the preference pages save to this browser; the rest describe the server. -->
+        <p v-if="isPreferencePage(route.path)" class="text-base-content/60 text-sm">{{ $t("settings.subtitle") }}</p>
       </div>
       <button
         v-if="isPreferencePage(route.path)"
@@ -55,6 +56,7 @@
       </ul>
 
       <div class="flex max-w-4xl min-w-0 flex-1 flex-col gap-8">
+        <SetupRestartBanner v-if="setupStatus" :status="setupStatus" />
         <RouterView />
       </div>
     </div>
@@ -68,19 +70,19 @@ import IconLogs from "~icons/mdi/format-list-text";
 import IconSidebar from "~icons/mdi/dock-left";
 import IconUpdates from "~icons/mdi/package-down";
 import IconCloud from "~icons/mdi/cloud-outline";
-import IconSetup from "~icons/mdi/rocket-launch-outline";
+import IconSecurity from "~icons/mdi/shield-lock-outline";
+import IconHosts from "~icons/mdi/server-network";
 import IconAbout from "~icons/mdi/information-outline";
 
 import { settings, DEFAULT_SETTINGS, type Settings } from "@/stores/settings";
-import { isPreferencePage, settingsPages, type SettingsPageId } from "@/composable/app/settingsPages";
+import { isPreferencePage, settingsPages, SERVER_PAGES, type SettingsPageId } from "@/composable/app/settingsPages";
 
 const { t } = useI18n();
 
 setTitle(t("title.settings"));
 const { hasRelease } = useAnnouncements();
-// Setup, Updates and About all read the setup status, so the layout fetches it once
-// instead of each page waiting for someone to open the wizard. The API only exists
-// in server mode.
+// Every server page and the restart banner read the setup status, so the layout
+// fetches it once instead of each page asking. The API only exists in server mode.
 const { status: setupStatus, fetchStatus } = useSetup();
 if (config.mode === "server" && !setupStatus.value) fetchStatus();
 
@@ -88,9 +90,10 @@ const icons: Record<SettingsPageId, Component> = {
   general: IconGeneral,
   logs: IconLogs,
   sidebar: IconSidebar,
+  security: IconSecurity,
+  hosts: IconHosts,
   updates: IconUpdates,
   cloud: IconCloud,
-  setup: IconSetup,
   about: IconAbout,
 };
 
@@ -98,16 +101,17 @@ const labels = computed<Record<SettingsPageId, string>>(() => ({
   general: t("settings.general"),
   logs: t("settings.logs"),
   sidebar: t("settings.sidebar"),
+  security: t("settings.security"),
+  hosts: t("settings.hosts"),
   updates: t("settings.updates"),
   cloud: t("cloud.title"),
-  setup: t("settings.setup"),
   about: t("settings.about"),
 }));
 
 const visible = settingsPages(config);
 const pages = computed(() => {
   // A hairline opening each group: the server pages, then About.
-  const server = visible.find((id) => id === "updates" || id === "cloud" || id === "setup");
+  const server = visible.find((id) => SERVER_PAGES.includes(id));
   return visible.map((id) => ({
     id,
     to: `/settings/${id}` as const,
@@ -117,7 +121,7 @@ const pages = computed(() => {
   }));
 });
 
-// The chip row scrolls sideways, so a page opened from a link (About, Setup) can sit
+// The chip row scrolls sideways, so a page opened from a link (About, Security) can sit
 // past the edge. Bring the active chip into view whenever the page changes.
 const route = useRoute();
 const chipsEl = useTemplateRef("chipsEl");

@@ -1,6 +1,6 @@
 ---
 title: Mode agent
-sourceHash: 20dfc19418d9
+sourceHash: 1612be6887f8
 ---
 
 # Mode agent
@@ -79,7 +79,7 @@ Notez qu'il n'est pas nécessaire de monter le socket Docker local pour se conne
 > Vous pouvez vous connecter à plusieurs agents en fournissant plusieurs variables d'environnement `DOZZLE_REMOTE_AGENT`. Par exemple, `DOZZLE_REMOTE_AGENT=agent1:7007,agent2:7007`.
 
 > [!TIP]
-> En mode serveur, vous pouvez aussi ajouter un agent depuis l'interface, avec **Ajouter l'hôte** en bas de la liste des hôtes ou l'étape Hôtes de l'[assistant de configuration](/fr/guide/setup-wizard). Dozzle se connecte à l'agent avant de l'enregistrer, et l'hôte apparaît sans redémarrage. Les agents ajoutés ainsi sont enregistrés dans `/data/dozzle.yml`, donc `/data` doit être sur un volume. Les agents définis par `DOZZLE_REMOTE_AGENT` restent tels quels et ne peuvent pas être retirés depuis l'interface.
+> En mode serveur, vous pouvez aussi ajouter un agent depuis l'interface, avec **Ajouter l'hôte** en bas de la liste des hôtes, dans **Paramètres → Hôtes** ou à l'étape Hôtes de l'[assistant de configuration](/fr/guide/setup-wizard). Dozzle se connecte à l'agent avant de l'enregistrer, et l'hôte apparaît sans redémarrage. Les agents ajoutés ainsi sont enregistrés dans `/data/dozzle.yml`, donc `/data` doit être sur un volume. Les agents définis par `DOZZLE_REMOTE_AGENT` restent tels quels et ne peuvent pas être retirés depuis l'interface.
 
 ## <Icon icon="mdi:group" inline /> Groupes d'hôtes
 

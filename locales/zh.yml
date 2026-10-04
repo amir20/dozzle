@@ -246,10 +246,20 @@ settings:
   sidebar: 侧边栏
   behavior: 行为
   advanced: 高级
-  setup: "设置"
   about: 关于
   general: 常规
   updates: 更新
+  security: "安全"
+  hosts: "主机"
+  login-desc: "谁可以打开 Dozzle。没有登录时，任何能访问它的人都能读取你的日志。"
+  login-off: "未启用登录"
+  login-docs: "身份验证指南"
+  set-by-flags: "在此模式下通过参数或环境变量设置。"
+  hosts-found: "在此模式下 Dozzle 会自行发现这些主机。"
+  after-restart: "重启后生效"
+  restart-pending: "1 项更改在重启后生效 | {count} 项更改在重启后生效"
+  run-setup: "重新运行设置"
+  run-setup-desc: "依次引导登录、操作、主机、Dozzle Cloud 和更新。其中所有内容也都在设置中。"
   reset: 恢复默认设置
   sponsor: 赞助
   new-version: "{version} 可用"
@@ -830,12 +840,6 @@ setup:
   finish-later: 稍后完成
   close: 关闭
   copy: 复制
-  settings-title: 设置 Dozzle
-  settings-desc: "几步完成登录、容器操作、Shell、其他主机和 Dozzle Cloud 的设置。"
-  settings-done-title: "Dozzle 已完成设置"
-  settings-done-desc: "登录已开启。打开设置向导可查看容器操作、Shell、其他主机和 Dozzle Cloud。"
-  settings-closed-title: "设置已关闭"
-  settings-closed-desc: "未启用登录时，设置仅在新安装后的前 15 分钟内接受更改。请改用环境变量。"
   steps:
     login: 登录
     login-note: 请先完成此步
