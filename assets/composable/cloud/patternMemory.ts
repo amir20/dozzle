@@ -1,4 +1,11 @@
-import type { LogEntry, LogMessage, PatternMemory } from "@/models/LogEntry";
+import {
+  ComplexLogEntry,
+  GroupedLogEntry,
+  SimpleLogEntry,
+  type LogEntry,
+  type LogMessage,
+  type PatternMemory,
+} from "@/models/LogEntry";
 import type { LogMoment } from "@/composable/logs/logJump";
 
 /**
@@ -46,6 +53,10 @@ export function linesNeedingMemory(logs: LogEntry<LogMessage>[]): LogEntry<LogMe
   const out: LogEntry<LogMessage>[] = [];
   for (let i = logs.length - 1; i >= 0 && out.length < MAX_PATTERN_LINES; i--) {
     const log = logs[i];
+    // Only lines the container printed carry a log id Cloud knows. Alert and
+    // event rows have a level too, but their id is a timestamp: one of them in
+    // the batch overflows the uint32 log id and fails the whole request.
+    if (!(log instanceof SimpleLogEntry || log instanceof ComplexLogEntry || log instanceof GroupedLogEntry)) continue;
     if (!log.id || !log.level || !MEMORY_LEVELS.has(log.level)) continue;
     if (log.patternMemory || (asks.get(log) ?? 0) >= MAX_ASKS) continue;
     out.push(log);
