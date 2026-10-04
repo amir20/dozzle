@@ -389,6 +389,7 @@ func touchedByLoop(before *Container, current *Container) bool {
 	return before.State != current.State ||
 		before.Health != current.Health ||
 		before.Name != current.Name ||
+		before.EngineName != current.EngineName ||
 		before.FullyLoaded != current.FullyLoaded ||
 		!before.StartedAt.Equal(current.StartedAt) ||
 		!before.FinishedAt.Equal(current.FinishedAt) ||
