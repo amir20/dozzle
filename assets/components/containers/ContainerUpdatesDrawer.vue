@@ -34,6 +34,17 @@
             <div class="truncate text-sm font-medium">{{ item.name }}</div>
             <div class="text-base-content/60 truncate font-mono text-xs">{{ item.image }}</div>
             <div v-if="item.error" class="text-base-content/60 mt-1 text-xs wrap-anywhere">{{ item.error }}</div>
+            <!-- The container now runs under a new id; whatever holds its name is
+                 what a rollback acts on, and only while it still has a target. -->
+            <button
+              v-if="item.status === 'done' && rollbackCandidate(item)"
+              type="button"
+              class="text-base-content/60 hover:text-base-content mt-1 inline-flex items-center gap-1 text-xs transition-colors"
+              @click="requestRollback(rollbackCandidate(item)!)"
+            >
+              <mdi:restore class="size-3.5" />
+              {{ $t("rollback.link") }}
+            </button>
           </div>
           <span class="status-pill shrink-0" :class="pill(item.status)">
             {{ $t(`updates.status.${item.status}`) }}
@@ -176,6 +187,14 @@ const finishedCount = computed(() => job.value?.items.filter((i) => isFinished(i
 
 const focusEl = ref<HTMLElement>();
 onMounted(() => focusEl.value?.scrollIntoView({ block: "center" }));
+
+// The container that holds the item's name now, if a rollback can take it back.
+function rollbackCandidate(item: BulkUpdateItem) {
+  if (!config.enableActions) return undefined;
+  return containers.value.find(
+    (c) => c.host === item.host && c.name === item.name && c.state !== "deleted" && c.rollbackTarget,
+  );
+}
 
 function updateSelected() {
   showingJob.value = true;

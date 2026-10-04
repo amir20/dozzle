@@ -267,32 +267,8 @@ func (d *Service) UpdateContainer(ctx context.Context, c container.Container, op
 	imageName := swap.ImageRef(inspectResp.Config)
 
 	// 2. Pull image with progress
-	reader, err := d.client.ImagePull(ctx, imageName)
-	if err != nil {
-		return fail(fmt.Errorf("pull failed: %w", err))
-	}
-	defer reader.Close()
-
-	decoder := json.NewDecoder(reader)
-	for {
-		var event pullEvent
-		if err := decoder.Decode(&event); err == io.EOF {
-			break
-		} else if err != nil {
-			return fail(fmt.Errorf("pull decode failed: %w", err))
-		}
-		if event.ErrorDetail != nil {
-			// The stream still ends cleanly, so without this a failed pull
-			// reads as "already up to date".
-			return fail(fmt.Errorf("pull failed: %s", event.ErrorDetail.Message))
-		}
-
-		progress(container.UpdateProgress{
-			Status:  container.UpdatePulling,
-			Layer:   event.ID,
-			Current: event.ProgressDetail.Current,
-			Total:   event.ProgressDetail.Total,
-		})
+	if err := d.pull(ctx, imageName, progress); err != nil {
+		return fail(err)
 	}
 
 	// 3. Compare what the tag resolves to now against what the container is
@@ -407,6 +383,37 @@ func withUpdateLabels(labels map[string]string, opts container.UpdateOptions) ma
 	labels[container.UpdateSourceLabel] = updateSource(opts)
 	labels[container.UpdateRunLabel] = opts.RunID
 	return labels
+}
+
+// pull pulls ref, reporting each layer's progress.
+func (d *Service) pull(ctx context.Context, ref string, progress func(container.UpdateProgress)) error {
+	reader, err := d.client.ImagePull(ctx, ref)
+	if err != nil {
+		return fmt.Errorf("pull failed: %w", err)
+	}
+	defer reader.Close()
+
+	decoder := json.NewDecoder(reader)
+	for {
+		var event pullEvent
+		if err := decoder.Decode(&event); err == io.EOF {
+			return nil
+		} else if err != nil {
+			return fmt.Errorf("pull decode failed: %w", err)
+		}
+		if event.ErrorDetail != nil {
+			// The stream still ends cleanly, so without this a failed pull
+			// reads as "already up to date".
+			return fmt.Errorf("pull failed: %s", event.ErrorDetail.Message)
+		}
+
+		progress(container.UpdateProgress{
+			Status:  container.UpdatePulling,
+			Layer:   event.ID,
+			Current: event.ProgressDetail.Current,
+			Total:   event.ProgressDetail.Total,
+		})
+	}
 }
 
 // updateSource is what the new container's dev.dozzle.update-source says.

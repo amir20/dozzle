@@ -234,6 +234,15 @@
             <span v-if="showImageUpdateAlert" class="bg-warning size-1.5 rounded-full"></span>
           </button>
         </li>
+        <!-- Only while the last update left a previous image to go back to. -->
+        <li v-if="container.rollbackTarget && container.state !== 'deleted'">
+          <button @click="requestRollback(container)" :disabled="actionStates.rollback || actionStates.update">
+            <mdi:restore />
+            <span class="truncate">
+              {{ $t("rollback.menu", { target: rollbackLabel(container.rollbackTarget) }) }}
+            </span>
+          </button>
+        </li>
       </template>
 
       <template v-if="enableShell && !historical">
@@ -304,7 +313,7 @@
 </template>
 
 <script lang="ts" setup>
-import { Container, powerAction } from "@/models/Container";
+import { Container, powerAction, rollbackLabel } from "@/models/Container";
 import { allLevels } from "@/composable/logs/logContext";
 import { appendRangeParams } from "@/composable/logs/timeRange";
 import LogAnalytics from "@/components/logs/LogAnalytics.vue";

@@ -1,6 +1,6 @@
 ---
 title: Actions sur les conteneurs
-sourceHash: a6e53c733740
+sourceHash: 1bc77bb2b87e
 ---
 
 # Actions sur les conteneurs
@@ -131,3 +131,15 @@ Dozzle garde l'image sur laquelle le conteneur tournait jusque-là, pour qu'il p
 Le nettoyage n'a lieu qu'une fois la mise à jour aboutie et l'ancien conteneur supprimé. Une mise à jour restaurée ne supprime rien. Dozzle ne supprime qu'une image sans tag qu'aucun conteneur n'utilise : une image qui a encore un tag, par exemple une image que vous avez téléchargée ou construite vous-même, est conservée, et la suppression n'est pas forcée, donc Docker refuse tant qu'un autre conteneur, démarré ou arrêté, l'utilise encore. Un refus ne fait jamais échouer la mise à jour.
 
 Les conteneurs sur des [agents distants](/fr/guide/agent) sont nettoyés de la même façon, tout comme le propre conteneur de Dozzle : le conteneur auxiliaire de la [mise à jour automatique](/fr/guide/setup-wizard#self-update) supprime l'image d'avant la précédente une fois que le nouveau Dozzle reste en marche. Les services Swarm, y compris Dozzle lorsqu'il tourne comme service Swarm, ne sont pas nettoyés, car chaque nœud garde ses propres images et Swarm élague lui-même son historique de tâches.
+
+## Revenir en arrière {#rolling-back}
+
+Après la mise à jour d'un conteneur, le menu du conteneur propose **Revenir à** l'image qu'il exécutait avant, et chaque conteneur mis à jour dans le tiroir des mises à jour reçoit un lien **Revenir en arrière**. Dozzle connaît cette image par sa propre mise à jour, grâce au label `dev.dozzle.previous-image` que la mise à jour a laissé sur le conteneur, ou par les mises à jour qu'il a vues sur l'hôte depuis son démarrage, ce qui couvre une mise à jour faite par Watchtower ou `docker compose`. L'entrée n'apparaît que si Dozzle connaît l'image précédente.
+
+Le retour en arrière remplace le conteneur de la même façon qu'une mise à jour : le conteneur actuel est conservé jusqu'à ce que l'image précédente soit restée démarrée, et il est remis en place sinon. Les paramètres et les volumes restent inchangés. Si l'image précédente a été supprimée de l'hôte, Dozzle la télécharge à nouveau par son digest. Il ne télécharge jamais un tag, puisque le tag désigne désormais l'image la plus récente, donc une image construite localement qui a disparu ne peut pas être restaurée.
+
+Dozzle demande confirmation avant de revenir en arrière et prévient de deux choses. La version plus récente a peut-être migré les données des volumes du conteneur vers un format que l'ancienne ne sait pas lire. Et pour un projet compose, le prochain `docker compose pull` ramène l'image plus récente, sauf si le fichier compose épingle l'ancienne.
+
+La planification des mises à jour automatiques ignore ensuite l'image plus récente pour ce conteneur, jusqu'à ce que son tag pointe à nouveau vers une image plus récente. Une fois que le retour en arrière est resté démarré, l'image quittée est [nettoyée](#cleaning-up-old-images) comme toute ancienne image, donc elle n'est supprimée que lorsqu'aucun tag ne la désigne plus.
+
+Le retour en arrière fonctionne pour les conteneurs autonomes, y compris ceux des [agents distants](/fr/guide/agent). Il n'est pas disponible pour les services Swarm, Kubernetes ni pour le conteneur de Dozzle lui-même.

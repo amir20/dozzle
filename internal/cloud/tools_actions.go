@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"strings"
 
 	"github.com/amir20/dozzle/internal/container"
 	pb "github.com/amir20/dozzle/proto/cloud"
@@ -95,6 +96,65 @@ func executeUpdateContainer(ctx context.Context, argsJSON string, deps ToolDeps)
 			ContainerId: cs.Container.ID,
 			Action:      "update",
 			Message:     message,
+		}},
+	}, nil
+}
+
+type rollbackContainerArgs struct {
+	ContainerID        string `json:"container_id"`
+	Host               string `json:"host_id"`
+	ExpectedFromDigest string `json:"expected_from_digest"`
+}
+
+// executeRollbackContainer swaps a container back to the image it ran before
+// its last update. The caller names the digest it expects the container to run
+// now, so a request made against an older state (a stale button, a second
+// update since) is refused rather than rolling back something else.
+func executeRollbackContainer(ctx context.Context, argsJSON string, deps ToolDeps) (*pb.CallToolResponse, error) {
+	var args rollbackContainerArgs
+	if err := json.Unmarshal([]byte(argsJSON), &args); err != nil {
+		return nil, fmt.Errorf("failed to parse arguments: %w", err)
+	}
+	if strings.TrimSpace(args.ExpectedFromDigest) == "" {
+		return nil, fmt.Errorf("expected_from_digest is required")
+	}
+
+	hostID, containerID, err := resolveContainerRef(args.ContainerID, args.Host, deps)
+	if err != nil {
+		return nil, err
+	}
+
+	cs, err := deps.scoped().FindContainer(hostID, containerID)
+	if err != nil {
+		return nil, fmt.Errorf("container not found: %w", err)
+	}
+
+	progressCh := make(chan container.UpdateProgress)
+	var rollbackErr error
+	done := make(chan struct{})
+	go func() {
+		rollbackErr = cs.Rollback(ctx, container.RollbackOptions{
+			ExpectedFromDigest: args.ExpectedFromDigest,
+		}, progressCh)
+		close(done)
+	}()
+	for range progressCh {
+	}
+	<-done
+	if rollbackErr != nil {
+		return nil, fmt.Errorf("rollback failed: %w", rollbackErr)
+	}
+	if deps.RolledBack != nil {
+		deps.RolledBack(cs.Container)
+	}
+
+	return &pb.CallToolResponse{
+		Success: true,
+		Result: &pb.CallToolResponse_Action{Action: &pb.ActionResult{
+			Success:     true,
+			ContainerId: cs.Container.ID,
+			Action:      "rollback",
+			Message:     fmt.Sprintf("Rolled back container %s to the image it ran before its last update.", cs.Container.Name),
 		}},
 	}, nil
 }

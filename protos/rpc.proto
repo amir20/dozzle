@@ -19,6 +19,7 @@ service AgentService {
   rpc HostInfo(HostInfoRequest) returns (HostInfoResponse) {}
   rpc ContainerAction(ContainerActionRequest) returns (ContainerActionResponse) {}
   rpc UpdateContainer(UpdateContainerRequest) returns (stream UpdateContainerProgress) {}
+  rpc RollbackContainer(RollbackContainerRequest) returns (stream UpdateContainerProgress) {}
   rpc CheckImageUpdate(CheckImageUpdateRequest) returns (CheckImageUpdateResponse) {}
   rpc ContainerExec(stream ContainerExecRequest) returns (stream ContainerExecResponse) {}
   rpc ContainerAttach(stream ContainerAttachRequest) returns (stream ContainerAttachResponse) {}
@@ -113,6 +114,18 @@ message UpdateContainerRequest {
   // and dev.dozzle.update-run), so the update event says what started it.
   string source = 3;
   string runId = 4;
+}
+
+// RollbackContainerRequest swaps a container back to the image it ran before
+// its last update. Progress streams with the same statuses as an update.
+message RollbackContainerRequest {
+  string containerId = 1;
+  // toImageId, when set, must be the container's previous image: what the
+  // server's UI showed. Empty takes the container's own target.
+  string toImageId = 2;
+  // expectedFromDigest refuses the rollback unless the container still runs
+  // this digest (repo@sha256:... or sha256:...).
+  string expectedFromDigest = 3;
 }
 
 message UpdateContainerProgress {

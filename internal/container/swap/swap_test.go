@@ -271,6 +271,25 @@ func TestSwapStampsLabels(t *testing.T) {
 	assert.NotContains(t, appContainer().Config.Labels, "dev.dozzle.previous-image", "the inspect is not mutated")
 }
 
+// A rollback runs the previous image by id, and the tag it followed moves to
+// a label so update checks still see the tag.
+func TestSwapRunsGivenImage(t *testing.T) {
+	fastTimings(t)
+	f := newFake()
+	previous := "sha256:0000000000000000000000000000000000000000000000000000000000000002"
+	_, err := swapApp(f, Options{Image: previous})
+	require.NoError(t, err)
+	spec := f.created[0]
+	assert.Equal(t, previous, spec.Config.Image)
+	assert.Equal(t, "amir20/dozzle:latest", spec.Config.Labels[ImageRefLabel])
+	assert.Equal(t, "amir20/dozzle:latest", ImageRef(spec.Config), "the replacement still follows its tag")
+
+	// Swapping it forward again drops the pin.
+	again := ReplacementSpec(dcontainer.InspectResponse{ID: "new1", Config: spec.Config, HostConfig: spec.HostConfig}, nil, "dozzle")
+	assert.Equal(t, "amir20/dozzle:latest", again.Config.Image)
+	assert.NotContains(t, again.Config.Labels, ImageRefLabel)
+}
+
 func TestSwapRollbackOnCreateFailure(t *testing.T) {
 	fastTimings(t)
 	f := newFake()

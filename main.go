@@ -187,6 +187,7 @@ func main() {
 		HostService:         cloudHostService,
 		Principal:           cloud.APIKeyPrincipal(args.Filter),
 		NotificationService: notificationService,
+		RolledBack:          web.RecordRolledBack,
 	})
 	cloudClient.SetDeployment(args.Mode, swarmClusterID)
 	cloudClient.SetStreamLogsFunc(func() bool {

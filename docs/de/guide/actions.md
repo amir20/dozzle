@@ -1,6 +1,6 @@
 ---
 title: Container-Aktionen
-sourceHash: a6e53c733740
+sourceHash: 1bc77bb2b87e
 ---
 
 # Container-Aktionen
@@ -131,3 +131,15 @@ Dozzle behält das Image, mit dem der Container bisher lief, damit er noch dorth
 Aufgeräumt wird erst, wenn das Update durch ist und der alte Container entfernt ist. Ein zurückgerolltes Update entfernt nichts. Dozzle entfernt nur ein Image ohne Tag, das kein Container nutzt: Ein Image, das noch ein Tag hat, etwa eines, das du selbst gepullt oder gebaut hast, bleibt erhalten, und das Entfernen geschieht ohne Zwang, also verweigert Docker es, solange ein anderer Container es noch nutzt, ob laufend oder gestoppt. Eine Weigerung lässt das Update nie fehlschlagen.
 
 Container auf [Remote-Agents](/de/guide/agent) werden genauso aufgeräumt, ebenso der eigene Container von Dozzle: Der Hilfscontainer des [Selbst-Updates](/de/guide/setup-wizard#self-update) entfernt das Image vor dem vorherigen, sobald das neue Dozzle stabil läuft. Swarm-Services, auch ein als Swarm-Service laufendes Dozzle, werden nicht aufgeräumt, da jeder Node seine eigenen Images hat und Swarm seinen Task-Verlauf selbst bereinigt.
+
+## Zurücksetzen {#rolling-back}
+
+Nachdem ein Container aktualisiert wurde, bietet das Menü des Containers **Zurücksetzen auf** das Image an, das er vorher ausgeführt hat, und jeder aktualisierte Container im Updates-Drawer erhält einen Link **Zurücksetzen**. Dozzle kennt dieses Image aus seinem eigenen Update, über das Label `dev.dozzle.previous-image`, das das Update am Container hinterlassen hat, oder aus den Updates, die es seit seinem Start auf dem Host beobachtet hat. Das deckt auch ein Update durch Watchtower oder `docker compose` ab. Der Eintrag erscheint nur, wenn Dozzle das vorherige Image kennt.
+
+Das Zurücksetzen tauscht den Container genauso aus wie ein Update: Der aktuelle Container bleibt erhalten, bis das vorherige Image stabil läuft, und wird wiederhergestellt, wenn nicht. Einstellungen und Volumes bleiben unverändert. Wurde das vorherige Image vom Host entfernt, lädt Dozzle es über seinen Digest erneut. Ein Tag wird nie geladen, da der Tag inzwischen das neuere Image bezeichnet. Ein lokal gebautes Image, das nicht mehr vorhanden ist, lässt sich daher nicht wiederherstellen.
+
+Dozzle fragt vor dem Zurücksetzen nach und warnt vor zwei Dingen. Die neuere Version hat die Daten in den Volumes des Containers womöglich in ein Format migriert, das die ältere nicht lesen kann. Und bei einem Compose-Projekt holt der nächste `docker compose pull` das neuere Image zurück, sofern die Compose-Datei nicht das ältere festlegt.
+
+Der Auto-Update-Zeitplan lässt das neuere Image für diesen Container danach aus, bis sein Tag wieder auf ein neueres zeigt. Sobald das Zurücksetzen stabil läuft, wird das Image, von dem zurückgesetzt wurde, wie jedes alte Image [aufgeräumt](#cleaning-up-old-images). Es wird also nur entfernt, wenn kein Tag mehr darauf zeigt.
+
+Zurücksetzen funktioniert für eigenständige Container, auch auf [Remote-Agents](/de/guide/agent). Für Swarm-Services, Kubernetes und Dozzles eigenen Container ist es nicht verfügbar.

@@ -123,6 +123,15 @@ func (m *MockedClientService) UpdateContainer(ctx context.Context, c container.C
 	return args.Bool(1), args.Error(2)
 }
 
+func (m *MockedClientService) RollbackContainer(ctx context.Context, c container.Container, opts container.RollbackOptions, progressCh chan<- container.UpdateProgress) error {
+	defer close(progressCh)
+	args := m.Called(ctx, c, opts)
+	for _, p := range args.Get(0).([]container.UpdateProgress) {
+		progressCh <- p
+	}
+	return args.Error(1)
+}
+
 func (m *MockedClientService) CheckImageUpdate(ctx context.Context, c container.Container, force bool) (imagecheck.Result, error) {
 	args := m.Called(ctx, c, force)
 	return args.Get(0).(imagecheck.Result), args.Error(1)
@@ -178,6 +187,15 @@ func init() {
 		{Status: container.UpdateVerifying},
 		{Status: container.UpdateRolledBack, Error: "replacement is unhealthy"},
 	}, false, nil)
+
+	mockService.On("RollbackContainer", mock.Anything, mock.Anything, container.RollbackOptions{ToImageID: "sha256:prev", ExpectedFromDigest: "sha256:now"}).Return([]container.UpdateProgress{
+		{Status: container.UpdatePulling, Layer: "l1", Current: 1, Total: 2},
+		{Status: container.UpdateRecreating},
+		{Status: container.UpdateDone},
+	}, nil)
+	mockService.On("RollbackContainer", mock.Anything, mock.Anything, container.RollbackOptions{ExpectedFromDigest: "sha256:moved"}).Return([]container.UpdateProgress{
+		{Status: container.UpdateError, Error: "container no longer runs the expected image"},
+	}, container.ErrDigestMismatch)
 
 	mockService.On("StreamLogs", mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(nil).Run(func(args mock.Arguments) {
 		events := args.Get(4).(chan<- *container.LogEvent)
@@ -238,6 +256,43 @@ func TestUpdateContainerCarriesSourceAndStatuses(t *testing.T) {
 		{Status: container.UpdateVerifying},
 		{Status: container.UpdateRolledBack, Error: "replacement is unhealthy"},
 	}, got)
+}
+
+// A rollback's options reach the agent, and its progress comes back like an
+// update's.
+func TestRollbackContainerCarriesOptionsAndStatuses(t *testing.T) {
+	rpc, err := NewClient("passthrough://bufnet", certs, grpc.WithContextDialer(bufDialer))
+	require.NoError(t, err)
+
+	progress := make(chan container.UpdateProgress, 10)
+	err = rpc.RollbackContainer(context.Background(), "123456", container.RollbackOptions{ToImageID: "sha256:prev", ExpectedFromDigest: "sha256:now"}, progress)
+	require.NoError(t, err)
+
+	var got []container.UpdateProgress
+	for p := range progress {
+		got = append(got, p)
+	}
+	assert.Equal(t, []container.UpdateProgress{
+		{Status: container.UpdatePulling, Layer: "l1", Current: 1, Total: 2},
+		{Status: container.UpdateRecreating},
+		{Status: container.UpdateDone},
+	}, got)
+}
+
+// A refused rollback fails the call, with the reason in the stream too.
+func TestRollbackContainerReturnsAgentError(t *testing.T) {
+	rpc, err := NewClient("passthrough://bufnet", certs, grpc.WithContextDialer(bufDialer))
+	require.NoError(t, err)
+
+	progress := make(chan container.UpdateProgress, 10)
+	err = rpc.RollbackContainer(context.Background(), "123456", container.RollbackOptions{ExpectedFromDigest: "sha256:moved"}, progress)
+	require.ErrorContains(t, err, "expected image")
+
+	var got []container.UpdateProgress
+	for p := range progress {
+		got = append(got, p)
+	}
+	assert.Equal(t, []container.UpdateProgress{{Status: container.UpdateError, Error: "container no longer runs the expected image"}}, got)
 }
 
 var streamedLogEvents = []*container.LogEvent{

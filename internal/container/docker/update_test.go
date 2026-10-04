@@ -31,7 +31,11 @@ type updateClient struct {
 	UpdateClient
 	engine *swaptest.Fake
 
-	pullBody   string
+	pullBody string
+	// pulled is every reference pulled, in order.
+	pulled []string
+	// ids is what ImageID resolves a reference to, newImageID when absent.
+	ids        map[string]string
 	images     map[string]image.InspectResponse
 	removeErr  error
 	removed    []string
@@ -45,11 +49,15 @@ func (u *updateClient) ContainerInspect(ctx context.Context, id string) (docker_
 	return result.Container, err
 }
 
-func (u *updateClient) ImagePull(context.Context, string) (io.ReadCloser, error) {
+func (u *updateClient) ImagePull(_ context.Context, ref string) (io.ReadCloser, error) {
+	u.pulled = append(u.pulled, ref)
 	return io.NopCloser(strings.NewReader(u.pullBody)), nil
 }
 
-func (u *updateClient) ImageID(context.Context, string) (string, error) {
+func (u *updateClient) ImageID(_ context.Context, ref string) (string, error) {
+	if id, ok := u.ids[ref]; ok {
+		return id, nil
+	}
 	return newImageID, nil
 }
 

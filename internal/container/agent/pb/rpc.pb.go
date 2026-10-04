@@ -1004,6 +1004,72 @@ func (x *UpdateContainerRequest) GetRunId() string {
 	return ""
 }
 
+// RollbackContainerRequest swaps a container back to the image it ran before
+// its last update. Progress streams with the same statuses as an update.
+type RollbackContainerRequest struct {
+	state       protoimpl.MessageState `protogen:"open.v1"`
+	ContainerId string                 `protobuf:"bytes,1,opt,name=containerId,proto3" json:"containerId,omitempty"`
+	// toImageId, when set, must be the container's previous image: what the
+	// server's UI showed. Empty takes the container's own target.
+	ToImageId string `protobuf:"bytes,2,opt,name=toImageId,proto3" json:"toImageId,omitempty"`
+	// expectedFromDigest refuses the rollback unless the container still runs
+	// this digest (repo@sha256:... or sha256:...).
+	ExpectedFromDigest string `protobuf:"bytes,3,opt,name=expectedFromDigest,proto3" json:"expectedFromDigest,omitempty"`
+	unknownFields      protoimpl.UnknownFields
+	sizeCache          protoimpl.SizeCache
+}
+
+func (x *RollbackContainerRequest) Reset() {
+	*x = RollbackContainerRequest{}
+	mi := &file_rpc_proto_msgTypes[21]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *RollbackContainerRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*RollbackContainerRequest) ProtoMessage() {}
+
+func (x *RollbackContainerRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_rpc_proto_msgTypes[21]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use RollbackContainerRequest.ProtoReflect.Descriptor instead.
+func (*RollbackContainerRequest) Descriptor() ([]byte, []int) {
+	return file_rpc_proto_rawDescGZIP(), []int{21}
+}
+
+func (x *RollbackContainerRequest) GetContainerId() string {
+	if x != nil {
+		return x.ContainerId
+	}
+	return ""
+}
+
+func (x *RollbackContainerRequest) GetToImageId() string {
+	if x != nil {
+		return x.ToImageId
+	}
+	return ""
+}
+
+func (x *RollbackContainerRequest) GetExpectedFromDigest() string {
+	if x != nil {
+		return x.ExpectedFromDigest
+	}
+	return ""
+}
+
 type UpdateContainerProgress struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Status        string                 `protobuf:"bytes,1,opt,name=status,proto3" json:"status,omitempty"`
@@ -1017,7 +1083,7 @@ type UpdateContainerProgress struct {
 
 func (x *UpdateContainerProgress) Reset() {
 	*x = UpdateContainerProgress{}
-	mi := &file_rpc_proto_msgTypes[21]
+	mi := &file_rpc_proto_msgTypes[22]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1029,7 +1095,7 @@ func (x *UpdateContainerProgress) String() string {
 func (*UpdateContainerProgress) ProtoMessage() {}
 
 func (x *UpdateContainerProgress) ProtoReflect() protoreflect.Message {
-	mi := &file_rpc_proto_msgTypes[21]
+	mi := &file_rpc_proto_msgTypes[22]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1042,7 +1108,7 @@ func (x *UpdateContainerProgress) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateContainerProgress.ProtoReflect.Descriptor instead.
 func (*UpdateContainerProgress) Descriptor() ([]byte, []int) {
-	return file_rpc_proto_rawDescGZIP(), []int{21}
+	return file_rpc_proto_rawDescGZIP(), []int{22}
 }
 
 func (x *UpdateContainerProgress) GetStatus() string {
@@ -1090,7 +1156,7 @@ type CheckImageUpdateRequest struct {
 
 func (x *CheckImageUpdateRequest) Reset() {
 	*x = CheckImageUpdateRequest{}
-	mi := &file_rpc_proto_msgTypes[22]
+	mi := &file_rpc_proto_msgTypes[23]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1102,7 +1168,7 @@ func (x *CheckImageUpdateRequest) String() string {
 func (*CheckImageUpdateRequest) ProtoMessage() {}
 
 func (x *CheckImageUpdateRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_rpc_proto_msgTypes[22]
+	mi := &file_rpc_proto_msgTypes[23]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1115,7 +1181,7 @@ func (x *CheckImageUpdateRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CheckImageUpdateRequest.ProtoReflect.Descriptor instead.
 func (*CheckImageUpdateRequest) Descriptor() ([]byte, []int) {
-	return file_rpc_proto_rawDescGZIP(), []int{22}
+	return file_rpc_proto_rawDescGZIP(), []int{23}
 }
 
 func (x *CheckImageUpdateRequest) GetContainerId() string {
@@ -1146,7 +1212,7 @@ type CheckImageUpdateResponse struct {
 
 func (x *CheckImageUpdateResponse) Reset() {
 	*x = CheckImageUpdateResponse{}
-	mi := &file_rpc_proto_msgTypes[23]
+	mi := &file_rpc_proto_msgTypes[24]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1158,7 +1224,7 @@ func (x *CheckImageUpdateResponse) String() string {
 func (*CheckImageUpdateResponse) ProtoMessage() {}
 
 func (x *CheckImageUpdateResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_rpc_proto_msgTypes[23]
+	mi := &file_rpc_proto_msgTypes[24]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1171,7 +1237,7 @@ func (x *CheckImageUpdateResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CheckImageUpdateResponse.ProtoReflect.Descriptor instead.
 func (*CheckImageUpdateResponse) Descriptor() ([]byte, []int) {
-	return file_rpc_proto_rawDescGZIP(), []int{23}
+	return file_rpc_proto_rawDescGZIP(), []int{24}
 }
 
 func (x *CheckImageUpdateResponse) GetStatus() string {
@@ -1231,7 +1297,7 @@ type ContainerExecRequest struct {
 
 func (x *ContainerExecRequest) Reset() {
 	*x = ContainerExecRequest{}
-	mi := &file_rpc_proto_msgTypes[24]
+	mi := &file_rpc_proto_msgTypes[25]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1243,7 +1309,7 @@ func (x *ContainerExecRequest) String() string {
 func (*ContainerExecRequest) ProtoMessage() {}
 
 func (x *ContainerExecRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_rpc_proto_msgTypes[24]
+	mi := &file_rpc_proto_msgTypes[25]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1256,7 +1322,7 @@ func (x *ContainerExecRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ContainerExecRequest.ProtoReflect.Descriptor instead.
 func (*ContainerExecRequest) Descriptor() ([]byte, []int) {
-	return file_rpc_proto_rawDescGZIP(), []int{24}
+	return file_rpc_proto_rawDescGZIP(), []int{25}
 }
 
 func (x *ContainerExecRequest) GetContainerId() string {
@@ -1324,7 +1390,7 @@ type ResizePayload struct {
 
 func (x *ResizePayload) Reset() {
 	*x = ResizePayload{}
-	mi := &file_rpc_proto_msgTypes[25]
+	mi := &file_rpc_proto_msgTypes[26]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1336,7 +1402,7 @@ func (x *ResizePayload) String() string {
 func (*ResizePayload) ProtoMessage() {}
 
 func (x *ResizePayload) ProtoReflect() protoreflect.Message {
-	mi := &file_rpc_proto_msgTypes[25]
+	mi := &file_rpc_proto_msgTypes[26]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1349,7 +1415,7 @@ func (x *ResizePayload) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ResizePayload.ProtoReflect.Descriptor instead.
 func (*ResizePayload) Descriptor() ([]byte, []int) {
-	return file_rpc_proto_rawDescGZIP(), []int{25}
+	return file_rpc_proto_rawDescGZIP(), []int{26}
 }
 
 func (x *ResizePayload) GetWidth() uint32 {
@@ -1375,7 +1441,7 @@ type ContainerExecResponse struct {
 
 func (x *ContainerExecResponse) Reset() {
 	*x = ContainerExecResponse{}
-	mi := &file_rpc_proto_msgTypes[26]
+	mi := &file_rpc_proto_msgTypes[27]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1387,7 +1453,7 @@ func (x *ContainerExecResponse) String() string {
 func (*ContainerExecResponse) ProtoMessage() {}
 
 func (x *ContainerExecResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_rpc_proto_msgTypes[26]
+	mi := &file_rpc_proto_msgTypes[27]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1400,7 +1466,7 @@ func (x *ContainerExecResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ContainerExecResponse.ProtoReflect.Descriptor instead.
 func (*ContainerExecResponse) Descriptor() ([]byte, []int) {
-	return file_rpc_proto_rawDescGZIP(), []int{26}
+	return file_rpc_proto_rawDescGZIP(), []int{27}
 }
 
 func (x *ContainerExecResponse) GetStdout() []byte {
@@ -1424,7 +1490,7 @@ type ContainerAttachRequest struct {
 
 func (x *ContainerAttachRequest) Reset() {
 	*x = ContainerAttachRequest{}
-	mi := &file_rpc_proto_msgTypes[27]
+	mi := &file_rpc_proto_msgTypes[28]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1436,7 +1502,7 @@ func (x *ContainerAttachRequest) String() string {
 func (*ContainerAttachRequest) ProtoMessage() {}
 
 func (x *ContainerAttachRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_rpc_proto_msgTypes[27]
+	mi := &file_rpc_proto_msgTypes[28]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1449,7 +1515,7 @@ func (x *ContainerAttachRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ContainerAttachRequest.ProtoReflect.Descriptor instead.
 func (*ContainerAttachRequest) Descriptor() ([]byte, []int) {
-	return file_rpc_proto_rawDescGZIP(), []int{27}
+	return file_rpc_proto_rawDescGZIP(), []int{28}
 }
 
 func (x *ContainerAttachRequest) GetContainerId() string {
@@ -1509,7 +1575,7 @@ type ContainerAttachResponse struct {
 
 func (x *ContainerAttachResponse) Reset() {
 	*x = ContainerAttachResponse{}
-	mi := &file_rpc_proto_msgTypes[28]
+	mi := &file_rpc_proto_msgTypes[29]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1521,7 +1587,7 @@ func (x *ContainerAttachResponse) String() string {
 func (*ContainerAttachResponse) ProtoMessage() {}
 
 func (x *ContainerAttachResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_rpc_proto_msgTypes[28]
+	mi := &file_rpc_proto_msgTypes[29]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1534,7 +1600,7 @@ func (x *ContainerAttachResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ContainerAttachResponse.ProtoReflect.Descriptor instead.
 func (*ContainerAttachResponse) Descriptor() ([]byte, []int) {
-	return file_rpc_proto_rawDescGZIP(), []int{28}
+	return file_rpc_proto_rawDescGZIP(), []int{29}
 }
 
 func (x *ContainerAttachResponse) GetStdout() []byte {
@@ -1554,7 +1620,7 @@ type UpdateNotificationConfigRequest struct {
 
 func (x *UpdateNotificationConfigRequest) Reset() {
 	*x = UpdateNotificationConfigRequest{}
-	mi := &file_rpc_proto_msgTypes[29]
+	mi := &file_rpc_proto_msgTypes[30]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1566,7 +1632,7 @@ func (x *UpdateNotificationConfigRequest) String() string {
 func (*UpdateNotificationConfigRequest) ProtoMessage() {}
 
 func (x *UpdateNotificationConfigRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_rpc_proto_msgTypes[29]
+	mi := &file_rpc_proto_msgTypes[30]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1579,7 +1645,7 @@ func (x *UpdateNotificationConfigRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateNotificationConfigRequest.ProtoReflect.Descriptor instead.
 func (*UpdateNotificationConfigRequest) Descriptor() ([]byte, []int) {
-	return file_rpc_proto_rawDescGZIP(), []int{29}
+	return file_rpc_proto_rawDescGZIP(), []int{30}
 }
 
 func (x *UpdateNotificationConfigRequest) GetSubscriptions() []*NotificationSubscription {
@@ -1604,7 +1670,7 @@ type UpdateNotificationConfigResponse struct {
 
 func (x *UpdateNotificationConfigResponse) Reset() {
 	*x = UpdateNotificationConfigResponse{}
-	mi := &file_rpc_proto_msgTypes[30]
+	mi := &file_rpc_proto_msgTypes[31]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1616,7 +1682,7 @@ func (x *UpdateNotificationConfigResponse) String() string {
 func (*UpdateNotificationConfigResponse) ProtoMessage() {}
 
 func (x *UpdateNotificationConfigResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_rpc_proto_msgTypes[30]
+	mi := &file_rpc_proto_msgTypes[31]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1629,7 +1695,7 @@ func (x *UpdateNotificationConfigResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateNotificationConfigResponse.ProtoReflect.Descriptor instead.
 func (*UpdateNotificationConfigResponse) Descriptor() ([]byte, []int) {
-	return file_rpc_proto_rawDescGZIP(), []int{30}
+	return file_rpc_proto_rawDescGZIP(), []int{31}
 }
 
 type UpdateCloudConfigRequest struct {
@@ -1641,7 +1707,7 @@ type UpdateCloudConfigRequest struct {
 
 func (x *UpdateCloudConfigRequest) Reset() {
 	*x = UpdateCloudConfigRequest{}
-	mi := &file_rpc_proto_msgTypes[31]
+	mi := &file_rpc_proto_msgTypes[32]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1653,7 +1719,7 @@ func (x *UpdateCloudConfigRequest) String() string {
 func (*UpdateCloudConfigRequest) ProtoMessage() {}
 
 func (x *UpdateCloudConfigRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_rpc_proto_msgTypes[31]
+	mi := &file_rpc_proto_msgTypes[32]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1666,7 +1732,7 @@ func (x *UpdateCloudConfigRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateCloudConfigRequest.ProtoReflect.Descriptor instead.
 func (*UpdateCloudConfigRequest) Descriptor() ([]byte, []int) {
-	return file_rpc_proto_rawDescGZIP(), []int{31}
+	return file_rpc_proto_rawDescGZIP(), []int{32}
 }
 
 func (x *UpdateCloudConfigRequest) GetCloudConfig() *NotificationCloudConfig {
@@ -1684,7 +1750,7 @@ type UpdateCloudConfigResponse struct {
 
 func (x *UpdateCloudConfigResponse) Reset() {
 	*x = UpdateCloudConfigResponse{}
-	mi := &file_rpc_proto_msgTypes[32]
+	mi := &file_rpc_proto_msgTypes[33]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1696,7 +1762,7 @@ func (x *UpdateCloudConfigResponse) String() string {
 func (*UpdateCloudConfigResponse) ProtoMessage() {}
 
 func (x *UpdateCloudConfigResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_rpc_proto_msgTypes[32]
+	mi := &file_rpc_proto_msgTypes[33]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1709,7 +1775,7 @@ func (x *UpdateCloudConfigResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateCloudConfigResponse.ProtoReflect.Descriptor instead.
 func (*UpdateCloudConfigResponse) Descriptor() ([]byte, []int) {
-	return file_rpc_proto_rawDescGZIP(), []int{32}
+	return file_rpc_proto_rawDescGZIP(), []int{33}
 }
 
 type GetNotificationStatsRequest struct {
@@ -1720,7 +1786,7 @@ type GetNotificationStatsRequest struct {
 
 func (x *GetNotificationStatsRequest) Reset() {
 	*x = GetNotificationStatsRequest{}
-	mi := &file_rpc_proto_msgTypes[33]
+	mi := &file_rpc_proto_msgTypes[34]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1732,7 +1798,7 @@ func (x *GetNotificationStatsRequest) String() string {
 func (*GetNotificationStatsRequest) ProtoMessage() {}
 
 func (x *GetNotificationStatsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_rpc_proto_msgTypes[33]
+	mi := &file_rpc_proto_msgTypes[34]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1745,7 +1811,7 @@ func (x *GetNotificationStatsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetNotificationStatsRequest.ProtoReflect.Descriptor instead.
 func (*GetNotificationStatsRequest) Descriptor() ([]byte, []int) {
-	return file_rpc_proto_rawDescGZIP(), []int{33}
+	return file_rpc_proto_rawDescGZIP(), []int{34}
 }
 
 type GetNotificationStatsResponse struct {
@@ -1757,7 +1823,7 @@ type GetNotificationStatsResponse struct {
 
 func (x *GetNotificationStatsResponse) Reset() {
 	*x = GetNotificationStatsResponse{}
-	mi := &file_rpc_proto_msgTypes[34]
+	mi := &file_rpc_proto_msgTypes[35]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1769,7 +1835,7 @@ func (x *GetNotificationStatsResponse) String() string {
 func (*GetNotificationStatsResponse) ProtoMessage() {}
 
 func (x *GetNotificationStatsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_rpc_proto_msgTypes[34]
+	mi := &file_rpc_proto_msgTypes[35]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1782,7 +1848,7 @@ func (x *GetNotificationStatsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetNotificationStatsResponse.ProtoReflect.Descriptor instead.
 func (*GetNotificationStatsResponse) Descriptor() ([]byte, []int) {
-	return file_rpc_proto_rawDescGZIP(), []int{34}
+	return file_rpc_proto_rawDescGZIP(), []int{35}
 }
 
 func (x *GetNotificationStatsResponse) GetStats() []*NotificationSubscriptionStats {
@@ -1805,7 +1871,7 @@ type LogHistogramRequest struct {
 
 func (x *LogHistogramRequest) Reset() {
 	*x = LogHistogramRequest{}
-	mi := &file_rpc_proto_msgTypes[35]
+	mi := &file_rpc_proto_msgTypes[36]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1817,7 +1883,7 @@ func (x *LogHistogramRequest) String() string {
 func (*LogHistogramRequest) ProtoMessage() {}
 
 func (x *LogHistogramRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_rpc_proto_msgTypes[35]
+	mi := &file_rpc_proto_msgTypes[36]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1830,7 +1896,7 @@ func (x *LogHistogramRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use LogHistogramRequest.ProtoReflect.Descriptor instead.
 func (*LogHistogramRequest) Descriptor() ([]byte, []int) {
-	return file_rpc_proto_rawDescGZIP(), []int{35}
+	return file_rpc_proto_rawDescGZIP(), []int{36}
 }
 
 func (x *LogHistogramRequest) GetContainerId() string {
@@ -1874,7 +1940,7 @@ type LogHistogramResponse struct {
 
 func (x *LogHistogramResponse) Reset() {
 	*x = LogHistogramResponse{}
-	mi := &file_rpc_proto_msgTypes[36]
+	mi := &file_rpc_proto_msgTypes[37]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1886,7 +1952,7 @@ func (x *LogHistogramResponse) String() string {
 func (*LogHistogramResponse) ProtoMessage() {}
 
 func (x *LogHistogramResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_rpc_proto_msgTypes[36]
+	mi := &file_rpc_proto_msgTypes[37]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1899,7 +1965,7 @@ func (x *LogHistogramResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use LogHistogramResponse.ProtoReflect.Descriptor instead.
 func (*LogHistogramResponse) Descriptor() ([]byte, []int) {
-	return file_rpc_proto_rawDescGZIP(), []int{36}
+	return file_rpc_proto_rawDescGZIP(), []int{37}
 }
 
 func (x *LogHistogramResponse) GetTotal() []uint32 {
@@ -1964,7 +2030,7 @@ type ContainerUpdateEvent struct {
 
 func (x *ContainerUpdateEvent) Reset() {
 	*x = ContainerUpdateEvent{}
-	mi := &file_rpc_proto_msgTypes[37]
+	mi := &file_rpc_proto_msgTypes[38]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1976,7 +2042,7 @@ func (x *ContainerUpdateEvent) String() string {
 func (*ContainerUpdateEvent) ProtoMessage() {}
 
 func (x *ContainerUpdateEvent) ProtoReflect() protoreflect.Message {
-	mi := &file_rpc_proto_msgTypes[37]
+	mi := &file_rpc_proto_msgTypes[38]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1989,7 +2055,7 @@ func (x *ContainerUpdateEvent) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ContainerUpdateEvent.ProtoReflect.Descriptor instead.
 func (*ContainerUpdateEvent) Descriptor() ([]byte, []int) {
-	return file_rpc_proto_rawDescGZIP(), []int{37}
+	return file_rpc_proto_rawDescGZIP(), []int{38}
 }
 
 func (x *ContainerUpdateEvent) GetHost() string {
@@ -2112,7 +2178,7 @@ type RecentUpdatesRequest struct {
 
 func (x *RecentUpdatesRequest) Reset() {
 	*x = RecentUpdatesRequest{}
-	mi := &file_rpc_proto_msgTypes[38]
+	mi := &file_rpc_proto_msgTypes[39]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2124,7 +2190,7 @@ func (x *RecentUpdatesRequest) String() string {
 func (*RecentUpdatesRequest) ProtoMessage() {}
 
 func (x *RecentUpdatesRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_rpc_proto_msgTypes[38]
+	mi := &file_rpc_proto_msgTypes[39]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2137,7 +2203,7 @@ func (x *RecentUpdatesRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RecentUpdatesRequest.ProtoReflect.Descriptor instead.
 func (*RecentUpdatesRequest) Descriptor() ([]byte, []int) {
-	return file_rpc_proto_rawDescGZIP(), []int{38}
+	return file_rpc_proto_rawDescGZIP(), []int{39}
 }
 
 // The agent's kept update events, oldest first.
@@ -2150,7 +2216,7 @@ type RecentUpdatesResponse struct {
 
 func (x *RecentUpdatesResponse) Reset() {
 	*x = RecentUpdatesResponse{}
-	mi := &file_rpc_proto_msgTypes[39]
+	mi := &file_rpc_proto_msgTypes[40]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2162,7 +2228,7 @@ func (x *RecentUpdatesResponse) String() string {
 func (*RecentUpdatesResponse) ProtoMessage() {}
 
 func (x *RecentUpdatesResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_rpc_proto_msgTypes[39]
+	mi := &file_rpc_proto_msgTypes[40]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2175,7 +2241,7 @@ func (x *RecentUpdatesResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RecentUpdatesResponse.ProtoReflect.Descriptor instead.
 func (*RecentUpdatesResponse) Descriptor() ([]byte, []int) {
-	return file_rpc_proto_rawDescGZIP(), []int{39}
+	return file_rpc_proto_rawDescGZIP(), []int{40}
 }
 
 func (x *RecentUpdatesResponse) GetEvents() []*ContainerUpdateEvent {
@@ -2193,7 +2259,7 @@ type StreamUpdatesRequest struct {
 
 func (x *StreamUpdatesRequest) Reset() {
 	*x = StreamUpdatesRequest{}
-	mi := &file_rpc_proto_msgTypes[40]
+	mi := &file_rpc_proto_msgTypes[41]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2205,7 +2271,7 @@ func (x *StreamUpdatesRequest) String() string {
 func (*StreamUpdatesRequest) ProtoMessage() {}
 
 func (x *StreamUpdatesRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_rpc_proto_msgTypes[40]
+	mi := &file_rpc_proto_msgTypes[41]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2218,7 +2284,7 @@ func (x *StreamUpdatesRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use StreamUpdatesRequest.ProtoReflect.Descriptor instead.
 func (*StreamUpdatesRequest) Descriptor() ([]byte, []int) {
-	return file_rpc_proto_rawDescGZIP(), []int{40}
+	return file_rpc_proto_rawDescGZIP(), []int{41}
 }
 
 type StreamUpdatesResponse struct {
@@ -2230,7 +2296,7 @@ type StreamUpdatesResponse struct {
 
 func (x *StreamUpdatesResponse) Reset() {
 	*x = StreamUpdatesResponse{}
-	mi := &file_rpc_proto_msgTypes[41]
+	mi := &file_rpc_proto_msgTypes[42]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2242,7 +2308,7 @@ func (x *StreamUpdatesResponse) String() string {
 func (*StreamUpdatesResponse) ProtoMessage() {}
 
 func (x *StreamUpdatesResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_rpc_proto_msgTypes[41]
+	mi := &file_rpc_proto_msgTypes[42]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2255,7 +2321,7 @@ func (x *StreamUpdatesResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use StreamUpdatesResponse.ProtoReflect.Descriptor instead.
 func (*StreamUpdatesResponse) Descriptor() ([]byte, []int) {
-	return file_rpc_proto_rawDescGZIP(), []int{41}
+	return file_rpc_proto_rawDescGZIP(), []int{42}
 }
 
 func (x *StreamUpdatesResponse) GetEvent() *ContainerUpdateEvent {
@@ -2326,7 +2392,11 @@ const file_rpc_proto_rawDesc = "" +
 	"\x16UpdateContainerRequest\x12 \n" +
 	"\vcontainerId\x18\x01 \x01(\tR\vcontainerId\x12\x16\n" +
 	"\x06source\x18\x03 \x01(\tR\x06source\x12\x14\n" +
-	"\x05runId\x18\x04 \x01(\tR\x05runIdJ\x04\b\x02\x10\x03\"\x8d\x01\n" +
+	"\x05runId\x18\x04 \x01(\tR\x05runIdJ\x04\b\x02\x10\x03\"\x8a\x01\n" +
+	"\x18RollbackContainerRequest\x12 \n" +
+	"\vcontainerId\x18\x01 \x01(\tR\vcontainerId\x12\x1c\n" +
+	"\ttoImageId\x18\x02 \x01(\tR\ttoImageId\x12.\n" +
+	"\x12expectedFromDigest\x18\x03 \x01(\tR\x12expectedFromDigest\"\x8d\x01\n" +
 	"\x17UpdateContainerProgress\x12\x16\n" +
 	"\x06status\x18\x01 \x01(\tR\x06status\x12\x14\n" +
 	"\x05layer\x18\x02 \x01(\tR\x05layer\x12\x18\n" +
@@ -2411,7 +2481,7 @@ const file_rpc_proto_rawDesc = "" +
 	"\x06events\x18\x01 \x03(\v2\x1e.protobuf.ContainerUpdateEventR\x06events\"\x16\n" +
 	"\x14StreamUpdatesRequest\"M\n" +
 	"\x15StreamUpdatesResponse\x124\n" +
-	"\x05event\x18\x01 \x01(\v2\x1e.protobuf.ContainerUpdateEventR\x05event2\x93\x0e\n" +
+	"\x05event\x18\x01 \x01(\v2\x1e.protobuf.ContainerUpdateEventR\x05event2\xf3\x0e\n" +
 	"\fAgentService\x12U\n" +
 	"\x0eListContainers\x12\x1f.protobuf.ListContainersRequest\x1a .protobuf.ListContainersResponse\"\x00\x12R\n" +
 	"\rFindContainer\x12\x1e.protobuf.FindContainerRequest\x1a\x1f.protobuf.FindContainerResponse\"\x00\x12K\n" +
@@ -2424,7 +2494,8 @@ const file_rpc_proto_rawDesc = "" +
 	"\x16StreamContainerStarted\x12'.protobuf.StreamContainerStartedRequest\x1a(.protobuf.StreamContainerStartedResponse\"\x000\x01\x12C\n" +
 	"\bHostInfo\x12\x19.protobuf.HostInfoRequest\x1a\x1a.protobuf.HostInfoResponse\"\x00\x12X\n" +
 	"\x0fContainerAction\x12 .protobuf.ContainerActionRequest\x1a!.protobuf.ContainerActionResponse\"\x00\x12Z\n" +
-	"\x0fUpdateContainer\x12 .protobuf.UpdateContainerRequest\x1a!.protobuf.UpdateContainerProgress\"\x000\x01\x12[\n" +
+	"\x0fUpdateContainer\x12 .protobuf.UpdateContainerRequest\x1a!.protobuf.UpdateContainerProgress\"\x000\x01\x12^\n" +
+	"\x11RollbackContainer\x12\".protobuf.RollbackContainerRequest\x1a!.protobuf.UpdateContainerProgress\"\x000\x01\x12[\n" +
 	"\x10CheckImageUpdate\x12!.protobuf.CheckImageUpdateRequest\x1a\".protobuf.CheckImageUpdateResponse\"\x00\x12V\n" +
 	"\rContainerExec\x12\x1e.protobuf.ContainerExecRequest\x1a\x1f.protobuf.ContainerExecResponse\"\x00(\x010\x01\x12\\\n" +
 	"\x0fContainerAttach\x12 .protobuf.ContainerAttachRequest\x1a!.protobuf.ContainerAttachResponse\"\x00(\x010\x01\x12s\n" +
@@ -2447,7 +2518,7 @@ func file_rpc_proto_rawDescGZIP() []byte {
 	return file_rpc_proto_rawDescData
 }
 
-var file_rpc_proto_msgTypes = make([]protoimpl.MessageInfo, 44)
+var file_rpc_proto_msgTypes = make([]protoimpl.MessageInfo, 45)
 var file_rpc_proto_goTypes = []any{
 	(*ListContainersRequest)(nil),            // 0: protobuf.ListContainersRequest
 	(*RepeatedString)(nil),                   // 1: protobuf.RepeatedString
@@ -2470,72 +2541,73 @@ var file_rpc_proto_goTypes = []any{
 	(*ContainerActionRequest)(nil),           // 18: protobuf.ContainerActionRequest
 	(*ContainerActionResponse)(nil),          // 19: protobuf.ContainerActionResponse
 	(*UpdateContainerRequest)(nil),           // 20: protobuf.UpdateContainerRequest
-	(*UpdateContainerProgress)(nil),          // 21: protobuf.UpdateContainerProgress
-	(*CheckImageUpdateRequest)(nil),          // 22: protobuf.CheckImageUpdateRequest
-	(*CheckImageUpdateResponse)(nil),         // 23: protobuf.CheckImageUpdateResponse
-	(*ContainerExecRequest)(nil),             // 24: protobuf.ContainerExecRequest
-	(*ResizePayload)(nil),                    // 25: protobuf.ResizePayload
-	(*ContainerExecResponse)(nil),            // 26: protobuf.ContainerExecResponse
-	(*ContainerAttachRequest)(nil),           // 27: protobuf.ContainerAttachRequest
-	(*ContainerAttachResponse)(nil),          // 28: protobuf.ContainerAttachResponse
-	(*UpdateNotificationConfigRequest)(nil),  // 29: protobuf.UpdateNotificationConfigRequest
-	(*UpdateNotificationConfigResponse)(nil), // 30: protobuf.UpdateNotificationConfigResponse
-	(*UpdateCloudConfigRequest)(nil),         // 31: protobuf.UpdateCloudConfigRequest
-	(*UpdateCloudConfigResponse)(nil),        // 32: protobuf.UpdateCloudConfigResponse
-	(*GetNotificationStatsRequest)(nil),      // 33: protobuf.GetNotificationStatsRequest
-	(*GetNotificationStatsResponse)(nil),     // 34: protobuf.GetNotificationStatsResponse
-	(*LogHistogramRequest)(nil),              // 35: protobuf.LogHistogramRequest
-	(*LogHistogramResponse)(nil),             // 36: protobuf.LogHistogramResponse
-	(*ContainerUpdateEvent)(nil),             // 37: protobuf.ContainerUpdateEvent
-	(*RecentUpdatesRequest)(nil),             // 38: protobuf.RecentUpdatesRequest
-	(*RecentUpdatesResponse)(nil),            // 39: protobuf.RecentUpdatesResponse
-	(*StreamUpdatesRequest)(nil),             // 40: protobuf.StreamUpdatesRequest
-	(*StreamUpdatesResponse)(nil),            // 41: protobuf.StreamUpdatesResponse
-	nil,                                      // 42: protobuf.ListContainersRequest.FilterEntry
-	nil,                                      // 43: protobuf.FindContainerRequest.FilterEntry
-	(*Container)(nil),                        // 44: protobuf.Container
-	(*timestamppb.Timestamp)(nil),            // 45: google.protobuf.Timestamp
-	(*LogEvent)(nil),                         // 46: protobuf.LogEvent
-	(*ContainerEvent)(nil),                   // 47: protobuf.ContainerEvent
-	(*ContainerStat)(nil),                    // 48: protobuf.ContainerStat
-	(*Host)(nil),                             // 49: protobuf.Host
-	(ContainerAction)(0),                     // 50: protobuf.ContainerAction
-	(*NotificationSubscription)(nil),         // 51: protobuf.NotificationSubscription
-	(*NotificationDispatcher)(nil),           // 52: protobuf.NotificationDispatcher
-	(*NotificationCloudConfig)(nil),          // 53: protobuf.NotificationCloudConfig
-	(*NotificationSubscriptionStats)(nil),    // 54: protobuf.NotificationSubscriptionStats
+	(*RollbackContainerRequest)(nil),         // 21: protobuf.RollbackContainerRequest
+	(*UpdateContainerProgress)(nil),          // 22: protobuf.UpdateContainerProgress
+	(*CheckImageUpdateRequest)(nil),          // 23: protobuf.CheckImageUpdateRequest
+	(*CheckImageUpdateResponse)(nil),         // 24: protobuf.CheckImageUpdateResponse
+	(*ContainerExecRequest)(nil),             // 25: protobuf.ContainerExecRequest
+	(*ResizePayload)(nil),                    // 26: protobuf.ResizePayload
+	(*ContainerExecResponse)(nil),            // 27: protobuf.ContainerExecResponse
+	(*ContainerAttachRequest)(nil),           // 28: protobuf.ContainerAttachRequest
+	(*ContainerAttachResponse)(nil),          // 29: protobuf.ContainerAttachResponse
+	(*UpdateNotificationConfigRequest)(nil),  // 30: protobuf.UpdateNotificationConfigRequest
+	(*UpdateNotificationConfigResponse)(nil), // 31: protobuf.UpdateNotificationConfigResponse
+	(*UpdateCloudConfigRequest)(nil),         // 32: protobuf.UpdateCloudConfigRequest
+	(*UpdateCloudConfigResponse)(nil),        // 33: protobuf.UpdateCloudConfigResponse
+	(*GetNotificationStatsRequest)(nil),      // 34: protobuf.GetNotificationStatsRequest
+	(*GetNotificationStatsResponse)(nil),     // 35: protobuf.GetNotificationStatsResponse
+	(*LogHistogramRequest)(nil),              // 36: protobuf.LogHistogramRequest
+	(*LogHistogramResponse)(nil),             // 37: protobuf.LogHistogramResponse
+	(*ContainerUpdateEvent)(nil),             // 38: protobuf.ContainerUpdateEvent
+	(*RecentUpdatesRequest)(nil),             // 39: protobuf.RecentUpdatesRequest
+	(*RecentUpdatesResponse)(nil),            // 40: protobuf.RecentUpdatesResponse
+	(*StreamUpdatesRequest)(nil),             // 41: protobuf.StreamUpdatesRequest
+	(*StreamUpdatesResponse)(nil),            // 42: protobuf.StreamUpdatesResponse
+	nil,                                      // 43: protobuf.ListContainersRequest.FilterEntry
+	nil,                                      // 44: protobuf.FindContainerRequest.FilterEntry
+	(*Container)(nil),                        // 45: protobuf.Container
+	(*timestamppb.Timestamp)(nil),            // 46: google.protobuf.Timestamp
+	(*LogEvent)(nil),                         // 47: protobuf.LogEvent
+	(*ContainerEvent)(nil),                   // 48: protobuf.ContainerEvent
+	(*ContainerStat)(nil),                    // 49: protobuf.ContainerStat
+	(*Host)(nil),                             // 50: protobuf.Host
+	(ContainerAction)(0),                     // 51: protobuf.ContainerAction
+	(*NotificationSubscription)(nil),         // 52: protobuf.NotificationSubscription
+	(*NotificationDispatcher)(nil),           // 53: protobuf.NotificationDispatcher
+	(*NotificationCloudConfig)(nil),          // 54: protobuf.NotificationCloudConfig
+	(*NotificationSubscriptionStats)(nil),    // 55: protobuf.NotificationSubscriptionStats
 }
 var file_rpc_proto_depIdxs = []int32{
-	42, // 0: protobuf.ListContainersRequest.filter:type_name -> protobuf.ListContainersRequest.FilterEntry
-	44, // 1: protobuf.ListContainersResponse.containers:type_name -> protobuf.Container
-	43, // 2: protobuf.FindContainerRequest.filter:type_name -> protobuf.FindContainerRequest.FilterEntry
-	44, // 3: protobuf.FindContainerResponse.container:type_name -> protobuf.Container
-	45, // 4: protobuf.StreamLogsRequest.since:type_name -> google.protobuf.Timestamp
-	46, // 5: protobuf.StreamLogsResponse.event:type_name -> protobuf.LogEvent
-	45, // 6: protobuf.LogsBetweenDatesRequest.since:type_name -> google.protobuf.Timestamp
-	45, // 7: protobuf.LogsBetweenDatesRequest.until:type_name -> google.protobuf.Timestamp
-	45, // 8: protobuf.StreamRawBytesRequest.since:type_name -> google.protobuf.Timestamp
-	45, // 9: protobuf.StreamRawBytesRequest.until:type_name -> google.protobuf.Timestamp
-	47, // 10: protobuf.StreamEventsResponse.event:type_name -> protobuf.ContainerEvent
-	48, // 11: protobuf.StreamStatsResponse.stat:type_name -> protobuf.ContainerStat
-	49, // 12: protobuf.HostInfoResponse.host:type_name -> protobuf.Host
-	44, // 13: protobuf.StreamContainerStartedResponse.container:type_name -> protobuf.Container
-	50, // 14: protobuf.ContainerActionRequest.action:type_name -> protobuf.ContainerAction
-	25, // 15: protobuf.ContainerExecRequest.resize:type_name -> protobuf.ResizePayload
-	25, // 16: protobuf.ContainerAttachRequest.resize:type_name -> protobuf.ResizePayload
-	51, // 17: protobuf.UpdateNotificationConfigRequest.subscriptions:type_name -> protobuf.NotificationSubscription
-	52, // 18: protobuf.UpdateNotificationConfigRequest.dispatchers:type_name -> protobuf.NotificationDispatcher
-	53, // 19: protobuf.UpdateCloudConfigRequest.cloudConfig:type_name -> protobuf.NotificationCloudConfig
-	54, // 20: protobuf.GetNotificationStatsResponse.stats:type_name -> protobuf.NotificationSubscriptionStats
-	45, // 21: protobuf.LogHistogramRequest.from:type_name -> google.protobuf.Timestamp
-	45, // 22: protobuf.LogHistogramRequest.to:type_name -> google.protobuf.Timestamp
-	45, // 23: protobuf.LogHistogramResponse.scannedFrom:type_name -> google.protobuf.Timestamp
-	45, // 24: protobuf.LogHistogramResponse.before:type_name -> google.protobuf.Timestamp
-	45, // 25: protobuf.LogHistogramResponse.after:type_name -> google.protobuf.Timestamp
-	45, // 26: protobuf.ContainerUpdateEvent.oldStartedAt:type_name -> google.protobuf.Timestamp
-	45, // 27: protobuf.ContainerUpdateEvent.at:type_name -> google.protobuf.Timestamp
-	37, // 28: protobuf.RecentUpdatesResponse.events:type_name -> protobuf.ContainerUpdateEvent
-	37, // 29: protobuf.StreamUpdatesResponse.event:type_name -> protobuf.ContainerUpdateEvent
+	43, // 0: protobuf.ListContainersRequest.filter:type_name -> protobuf.ListContainersRequest.FilterEntry
+	45, // 1: protobuf.ListContainersResponse.containers:type_name -> protobuf.Container
+	44, // 2: protobuf.FindContainerRequest.filter:type_name -> protobuf.FindContainerRequest.FilterEntry
+	45, // 3: protobuf.FindContainerResponse.container:type_name -> protobuf.Container
+	46, // 4: protobuf.StreamLogsRequest.since:type_name -> google.protobuf.Timestamp
+	47, // 5: protobuf.StreamLogsResponse.event:type_name -> protobuf.LogEvent
+	46, // 6: protobuf.LogsBetweenDatesRequest.since:type_name -> google.protobuf.Timestamp
+	46, // 7: protobuf.LogsBetweenDatesRequest.until:type_name -> google.protobuf.Timestamp
+	46, // 8: protobuf.StreamRawBytesRequest.since:type_name -> google.protobuf.Timestamp
+	46, // 9: protobuf.StreamRawBytesRequest.until:type_name -> google.protobuf.Timestamp
+	48, // 10: protobuf.StreamEventsResponse.event:type_name -> protobuf.ContainerEvent
+	49, // 11: protobuf.StreamStatsResponse.stat:type_name -> protobuf.ContainerStat
+	50, // 12: protobuf.HostInfoResponse.host:type_name -> protobuf.Host
+	45, // 13: protobuf.StreamContainerStartedResponse.container:type_name -> protobuf.Container
+	51, // 14: protobuf.ContainerActionRequest.action:type_name -> protobuf.ContainerAction
+	26, // 15: protobuf.ContainerExecRequest.resize:type_name -> protobuf.ResizePayload
+	26, // 16: protobuf.ContainerAttachRequest.resize:type_name -> protobuf.ResizePayload
+	52, // 17: protobuf.UpdateNotificationConfigRequest.subscriptions:type_name -> protobuf.NotificationSubscription
+	53, // 18: protobuf.UpdateNotificationConfigRequest.dispatchers:type_name -> protobuf.NotificationDispatcher
+	54, // 19: protobuf.UpdateCloudConfigRequest.cloudConfig:type_name -> protobuf.NotificationCloudConfig
+	55, // 20: protobuf.GetNotificationStatsResponse.stats:type_name -> protobuf.NotificationSubscriptionStats
+	46, // 21: protobuf.LogHistogramRequest.from:type_name -> google.protobuf.Timestamp
+	46, // 22: protobuf.LogHistogramRequest.to:type_name -> google.protobuf.Timestamp
+	46, // 23: protobuf.LogHistogramResponse.scannedFrom:type_name -> google.protobuf.Timestamp
+	46, // 24: protobuf.LogHistogramResponse.before:type_name -> google.protobuf.Timestamp
+	46, // 25: protobuf.LogHistogramResponse.after:type_name -> google.protobuf.Timestamp
+	46, // 26: protobuf.ContainerUpdateEvent.oldStartedAt:type_name -> google.protobuf.Timestamp
+	46, // 27: protobuf.ContainerUpdateEvent.at:type_name -> google.protobuf.Timestamp
+	38, // 28: protobuf.RecentUpdatesResponse.events:type_name -> protobuf.ContainerUpdateEvent
+	38, // 29: protobuf.StreamUpdatesResponse.event:type_name -> protobuf.ContainerUpdateEvent
 	1,  // 30: protobuf.ListContainersRequest.FilterEntry.value:type_name -> protobuf.RepeatedString
 	1,  // 31: protobuf.FindContainerRequest.FilterEntry.value:type_name -> protobuf.RepeatedString
 	0,  // 32: protobuf.AgentService.ListContainers:input_type -> protobuf.ListContainersRequest
@@ -2549,37 +2621,39 @@ var file_rpc_proto_depIdxs = []int32{
 	14, // 40: protobuf.AgentService.HostInfo:input_type -> protobuf.HostInfoRequest
 	18, // 41: protobuf.AgentService.ContainerAction:input_type -> protobuf.ContainerActionRequest
 	20, // 42: protobuf.AgentService.UpdateContainer:input_type -> protobuf.UpdateContainerRequest
-	22, // 43: protobuf.AgentService.CheckImageUpdate:input_type -> protobuf.CheckImageUpdateRequest
-	24, // 44: protobuf.AgentService.ContainerExec:input_type -> protobuf.ContainerExecRequest
-	27, // 45: protobuf.AgentService.ContainerAttach:input_type -> protobuf.ContainerAttachRequest
-	29, // 46: protobuf.AgentService.UpdateNotificationConfig:input_type -> protobuf.UpdateNotificationConfigRequest
-	31, // 47: protobuf.AgentService.UpdateCloudConfig:input_type -> protobuf.UpdateCloudConfigRequest
-	33, // 48: protobuf.AgentService.GetNotificationStats:input_type -> protobuf.GetNotificationStatsRequest
-	35, // 49: protobuf.AgentService.LogHistogram:input_type -> protobuf.LogHistogramRequest
-	38, // 50: protobuf.AgentService.RecentUpdates:input_type -> protobuf.RecentUpdatesRequest
-	40, // 51: protobuf.AgentService.StreamUpdates:input_type -> protobuf.StreamUpdatesRequest
-	2,  // 52: protobuf.AgentService.ListContainers:output_type -> protobuf.ListContainersResponse
-	4,  // 53: protobuf.AgentService.FindContainer:output_type -> protobuf.FindContainerResponse
-	6,  // 54: protobuf.AgentService.StreamLogs:output_type -> protobuf.StreamLogsResponse
-	6,  // 55: protobuf.AgentService.LogsBetweenDates:output_type -> protobuf.StreamLogsResponse
-	9,  // 56: protobuf.AgentService.StreamRawBytes:output_type -> protobuf.StreamRawBytesResponse
-	11, // 57: protobuf.AgentService.StreamEvents:output_type -> protobuf.StreamEventsResponse
-	13, // 58: protobuf.AgentService.StreamStats:output_type -> protobuf.StreamStatsResponse
-	17, // 59: protobuf.AgentService.StreamContainerStarted:output_type -> protobuf.StreamContainerStartedResponse
-	15, // 60: protobuf.AgentService.HostInfo:output_type -> protobuf.HostInfoResponse
-	19, // 61: protobuf.AgentService.ContainerAction:output_type -> protobuf.ContainerActionResponse
-	21, // 62: protobuf.AgentService.UpdateContainer:output_type -> protobuf.UpdateContainerProgress
-	23, // 63: protobuf.AgentService.CheckImageUpdate:output_type -> protobuf.CheckImageUpdateResponse
-	26, // 64: protobuf.AgentService.ContainerExec:output_type -> protobuf.ContainerExecResponse
-	28, // 65: protobuf.AgentService.ContainerAttach:output_type -> protobuf.ContainerAttachResponse
-	30, // 66: protobuf.AgentService.UpdateNotificationConfig:output_type -> protobuf.UpdateNotificationConfigResponse
-	32, // 67: protobuf.AgentService.UpdateCloudConfig:output_type -> protobuf.UpdateCloudConfigResponse
-	34, // 68: protobuf.AgentService.GetNotificationStats:output_type -> protobuf.GetNotificationStatsResponse
-	36, // 69: protobuf.AgentService.LogHistogram:output_type -> protobuf.LogHistogramResponse
-	39, // 70: protobuf.AgentService.RecentUpdates:output_type -> protobuf.RecentUpdatesResponse
-	41, // 71: protobuf.AgentService.StreamUpdates:output_type -> protobuf.StreamUpdatesResponse
-	52, // [52:72] is the sub-list for method output_type
-	32, // [32:52] is the sub-list for method input_type
+	21, // 43: protobuf.AgentService.RollbackContainer:input_type -> protobuf.RollbackContainerRequest
+	23, // 44: protobuf.AgentService.CheckImageUpdate:input_type -> protobuf.CheckImageUpdateRequest
+	25, // 45: protobuf.AgentService.ContainerExec:input_type -> protobuf.ContainerExecRequest
+	28, // 46: protobuf.AgentService.ContainerAttach:input_type -> protobuf.ContainerAttachRequest
+	30, // 47: protobuf.AgentService.UpdateNotificationConfig:input_type -> protobuf.UpdateNotificationConfigRequest
+	32, // 48: protobuf.AgentService.UpdateCloudConfig:input_type -> protobuf.UpdateCloudConfigRequest
+	34, // 49: protobuf.AgentService.GetNotificationStats:input_type -> protobuf.GetNotificationStatsRequest
+	36, // 50: protobuf.AgentService.LogHistogram:input_type -> protobuf.LogHistogramRequest
+	39, // 51: protobuf.AgentService.RecentUpdates:input_type -> protobuf.RecentUpdatesRequest
+	41, // 52: protobuf.AgentService.StreamUpdates:input_type -> protobuf.StreamUpdatesRequest
+	2,  // 53: protobuf.AgentService.ListContainers:output_type -> protobuf.ListContainersResponse
+	4,  // 54: protobuf.AgentService.FindContainer:output_type -> protobuf.FindContainerResponse
+	6,  // 55: protobuf.AgentService.StreamLogs:output_type -> protobuf.StreamLogsResponse
+	6,  // 56: protobuf.AgentService.LogsBetweenDates:output_type -> protobuf.StreamLogsResponse
+	9,  // 57: protobuf.AgentService.StreamRawBytes:output_type -> protobuf.StreamRawBytesResponse
+	11, // 58: protobuf.AgentService.StreamEvents:output_type -> protobuf.StreamEventsResponse
+	13, // 59: protobuf.AgentService.StreamStats:output_type -> protobuf.StreamStatsResponse
+	17, // 60: protobuf.AgentService.StreamContainerStarted:output_type -> protobuf.StreamContainerStartedResponse
+	15, // 61: protobuf.AgentService.HostInfo:output_type -> protobuf.HostInfoResponse
+	19, // 62: protobuf.AgentService.ContainerAction:output_type -> protobuf.ContainerActionResponse
+	22, // 63: protobuf.AgentService.UpdateContainer:output_type -> protobuf.UpdateContainerProgress
+	22, // 64: protobuf.AgentService.RollbackContainer:output_type -> protobuf.UpdateContainerProgress
+	24, // 65: protobuf.AgentService.CheckImageUpdate:output_type -> protobuf.CheckImageUpdateResponse
+	27, // 66: protobuf.AgentService.ContainerExec:output_type -> protobuf.ContainerExecResponse
+	29, // 67: protobuf.AgentService.ContainerAttach:output_type -> protobuf.ContainerAttachResponse
+	31, // 68: protobuf.AgentService.UpdateNotificationConfig:output_type -> protobuf.UpdateNotificationConfigResponse
+	33, // 69: protobuf.AgentService.UpdateCloudConfig:output_type -> protobuf.UpdateCloudConfigResponse
+	35, // 70: protobuf.AgentService.GetNotificationStats:output_type -> protobuf.GetNotificationStatsResponse
+	37, // 71: protobuf.AgentService.LogHistogram:output_type -> protobuf.LogHistogramResponse
+	40, // 72: protobuf.AgentService.RecentUpdates:output_type -> protobuf.RecentUpdatesResponse
+	42, // 73: protobuf.AgentService.StreamUpdates:output_type -> protobuf.StreamUpdatesResponse
+	53, // [53:74] is the sub-list for method output_type
+	32, // [32:53] is the sub-list for method input_type
 	32, // [32:32] is the sub-list for extension type_name
 	32, // [32:32] is the sub-list for extension extendee
 	0,  // [0:32] is the sub-list for field type_name
@@ -2591,11 +2665,11 @@ func file_rpc_proto_init() {
 		return
 	}
 	file_types_proto_init()
-	file_rpc_proto_msgTypes[24].OneofWrappers = []any{
+	file_rpc_proto_msgTypes[25].OneofWrappers = []any{
 		(*ContainerExecRequest_Stdin)(nil),
 		(*ContainerExecRequest_Resize)(nil),
 	}
-	file_rpc_proto_msgTypes[27].OneofWrappers = []any{
+	file_rpc_proto_msgTypes[28].OneofWrappers = []any{
 		(*ContainerAttachRequest_Stdin)(nil),
 		(*ContainerAttachRequest_Resize)(nil),
 	}
@@ -2605,7 +2679,7 @@ func file_rpc_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_rpc_proto_rawDesc), len(file_rpc_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   44,
+			NumMessages:   45,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

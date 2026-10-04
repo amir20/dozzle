@@ -1,6 +1,6 @@
 ---
 title: Acciones sobre contenedores
-sourceHash: a6e53c733740
+sourceHash: 1bc77bb2b87e
 ---
 
 # Acciones sobre contenedores
@@ -131,3 +131,15 @@ Dozzle conserva la imagen con la que funcionaba el contenedor hasta ahora, para 
 La limpieza solo se hace cuando la actualización se ha completado y el contenedor antiguo ya no existe. Una actualización revertida no elimina nada. Dozzle solo elimina una imagen sin tag que ningún contenedor use: una imagen que aún tiene un tag, como una que descargaste o construiste tú, se conserva, y la eliminación no se fuerza, así que Docker se niega mientras otro contenedor, en marcha o detenido, la siga usando. Una negativa nunca hace fallar la actualización.
 
 Los contenedores en [agentes remotos](/es/guide/agent) se limpian de la misma forma, y también el propio contenedor de Dozzle: el contenedor auxiliar de la [autoactualización](/es/guide/setup-wizard#self-update) elimina la imagen anterior a la previa en cuanto el nuevo Dozzle sigue en marcha. Los servicios de Swarm, incluido Dozzle cuando se ejecuta como uno, no se limpian, porque cada nodo guarda sus propias imágenes y Swarm poda su propio historial de tareas.
+
+## Revertir {#rolling-back}
+
+Después de actualizar un contenedor, el menú del contenedor ofrece **Revertir a** la imagen que ejecutaba antes, y cada contenedor actualizado en el panel de actualizaciones recibe un enlace **Revertir**. Dozzle conoce esa imagen por su propia actualización, mediante la etiqueta `dev.dozzle.previous-image` que la actualización dejó en el contenedor, o por las actualizaciones que vio en el host desde que arrancó, lo que cubre una actualización hecha por Watchtower o `docker compose`. La opción solo aparece cuando Dozzle conoce la imagen anterior.
+
+Revertir reemplaza el contenedor igual que una actualización: el contenedor actual se conserva hasta que la imagen anterior se mantiene en marcha, y se restaura si no lo hace. La configuración y los volúmenes no cambian. Si la imagen anterior se eliminó del host, Dozzle la descarga de nuevo por su digest. Nunca descarga un tag, porque el tag ya apunta a la imagen más nueva, así que una imagen construida localmente que ya no está no se puede recuperar.
+
+Dozzle pide confirmación antes de revertir y avisa de dos cosas. La versión más nueva puede haber migrado los datos de los volúmenes del contenedor a un formato que la anterior no puede leer. Y en un proyecto compose, el siguiente `docker compose pull` vuelve a traer la imagen más nueva, salvo que el archivo compose fije la anterior.
+
+Después, la programación de actualizaciones automáticas omite la imagen más nueva para ese contenedor hasta que su tag apunte otra vez a una más reciente. Cuando la reversión se ha mantenido en marcha, la imagen desde la que se revirtió se [limpia](#cleaning-up-old-images) como cualquier imagen antigua, así que solo se elimina cuando ya no la nombra ningún tag.
+
+Revertir funciona con contenedores independientes, incluidos los de [agentes remotos](/es/guide/agent). No está disponible para servicios de Swarm, Kubernetes ni para el propio contenedor de Dozzle.

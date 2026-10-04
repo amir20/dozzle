@@ -4,8 +4,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"os"
-	"path/filepath"
 	"strings"
 	"sync"
 	"time"
@@ -264,7 +262,7 @@ func (s *autoUpdateScheduler) tick(ctx context.Context, now time.Time) {
 	if !result.UpdateAvailable() {
 		if result.Status == imagecheck.StatusUpToDate {
 			// Whatever was attempted last stuck.
-			_ = os.Remove(autoUpdateAttemptPath())
+			clearUpdateSkip(selfSkipKey)
 		}
 		log.Debug().Str("image", support.self.Ref).Str("status", string(result.Status)).Str("reason", result.Reason).Msg("auto update: no update available")
 		return
@@ -274,16 +272,11 @@ func (s *autoUpdateScheduler) tick(ctx context.Context, now time.Time) {
 	// so every later tick would see the same update and repeat the outage. The
 	// remote digest is written down before launching; still being offered that
 	// digest afterwards means the attempt did not stick.
-	attempt := autoUpdateAttemptPath()
-	if result.RemoteDigest != "" {
-		if prev, err := os.ReadFile(attempt); err == nil && strings.TrimSpace(string(prev)) == result.RemoteDigest {
-			log.Warn().Str("image", support.self.Ref).Str("remote", result.RemoteDigest).Msg("auto update: skipped, an update to this image already failed and was rolled back")
-			return
-		}
-		if err := os.WriteFile(attempt, []byte(result.RemoteDigest+"\n"), 0644); err != nil {
-			log.Warn().Err(err).Msg("auto update: could not record the attempted image")
-		}
+	if skippedUpdate(selfSkipKey, result.RemoteDigest) {
+		log.Warn().Str("image", support.self.Ref).Str("remote", result.RemoteDigest).Msg("auto update: skipped, an update to this image already failed and was rolled back")
+		return
 	}
+	recordUpdateSkip(selfSkipKey, result.RemoteDigest)
 
 	log.Info().Str("image", support.self.Ref).Str("remote", result.RemoteDigest).Msg("auto update: newer image available, updating dozzle")
 	updated, err := runSelfUpdate(ctx, support.selfID, s.flushUsage, func(p container.UpdateProgress) {
@@ -295,7 +288,7 @@ func (s *autoUpdateScheduler) tick(ctx context.Context, now time.Time) {
 	})
 	if !updated {
 		// No helper ran, so nothing was rolled back: the next tick may try again.
-		_ = os.Remove(attempt)
+		clearUpdateSkip(selfSkipKey)
 	}
 	switch {
 	case err != nil:
@@ -382,19 +375,24 @@ func (s *autoUpdateScheduler) outdatedLabelledContainers(ctx context.Context) ([
 	var outdated []*container.ContainerService
 	// Forced, for the same reason as Dozzle's own check below.
 	for _, u := range container.CheckImageUpdates(ctx, s.hostService, labelled, true) {
+		key := containerSkipKey(u.Container)
 		if !u.Result.UpdateAvailable() {
+			if u.Result.Status == imagecheck.StatusUpToDate {
+				// Updated by hand to whatever was skipped, or the tag went back.
+				clearUpdateSkip(key)
+			}
 			log.Debug().Str("container", u.Container.Name).Str("status", string(u.Result.Status)).Str("reason", u.Result.Reason).Msg("auto update: container not updated")
+			continue
+		}
+		// Someone rolled this container back from the image its tag still
+		// names. Applying it again would undo that every night.
+		if skippedUpdate(key, u.Result.RemoteDigest) {
+			log.Info().Str("container", u.Container.Name).Str("remote", u.Result.RemoteDigest).Msg("auto update: container not updated, it was rolled back from this image")
 			continue
 		}
 		outdated = append(outdated, u.Service)
 	}
 	return outdated, selfService
-}
-
-// autoUpdateAttemptPath holds the remote digest of the last scheduled update
-// that launched a helper, next to dozzle.yml.
-func autoUpdateAttemptPath() string {
-	return filepath.Join(filepath.Dir(setupConfigPath), "auto-update-attempt")
 }
 
 var errSelfUpdateBusy = errors.New("an update of dozzle is already in progress")

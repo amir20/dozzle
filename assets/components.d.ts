@@ -286,6 +286,7 @@ declare module 'vue' {
     RangeEmptyState: typeof import('./components/logs/RangeEmptyState.vue')['default']
     RelativeTime: typeof import('./components/ui/RelativeTime.vue')['default']
     'Ri:terminalWindowFill': typeof import('~icons/ri/terminal-window-fill')['default']
+    RollbackDialog: typeof import('./components/containers/RollbackDialog.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
     ScrollableView: typeof import('./components/logs/ScrollableView.vue')['default']

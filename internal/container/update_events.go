@@ -226,9 +226,16 @@ func (t *updateTracker) restoringLocked(c Container, prev imageRecord) bool {
 			continue
 		}
 		return e.NewID == prev.containerID && e.FromImageID == imageIdentity(c) &&
-			(e.OldID == c.ID || c.Labels[restoredRefLabel] != "")
+			(e.OldID == c.ID || (c.Labels[restoredRefLabel] != "" && !rollbackOf(c, prev)))
 	}
 	return false
+}
+
+// rollbackOf reports whether c is a rollback of the container prev recorded:
+// one that runs its previous image by id too, and so carries the same label as
+// a recreated --rm container, but says it replaced prev's image.
+func rollbackOf(c Container, prev imageRecord) bool {
+	return c.Labels[UpdateSourceLabel] == UpdateSourceRollback && c.Labels[PreviousImageLabel] == prev.imageID
 }
 
 // rolledBack records a swap that put the old container back.
