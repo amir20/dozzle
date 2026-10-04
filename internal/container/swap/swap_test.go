@@ -8,6 +8,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/amir20/dozzle/internal/container"
 	dockerspec "github.com/moby/docker-image-spec/specs-go/v1"
 	dcontainer "github.com/moby/moby/api/types/container"
 	"github.com/moby/moby/api/types/image"
@@ -233,27 +234,18 @@ func TestSwapSuccess(t *testing.T) {
 	}, f.calls)
 }
 
-// A one-shot container that already exited is recreated on the new image but
-// not started: starting it would rerun the job, and one that exits cleanly
-// would fail WaitStable and be rolled back on every update.
-func TestSwapStoppedContainerStaysStopped(t *testing.T) {
+// A stopped container may be stopped on purpose, so it is never swapped:
+// nothing is renamed, created or removed.
+func TestSwapRefusesStoppedContainer(t *testing.T) {
 	fastTimings(t)
 	f := newFake()
 	old := f.containers[appID]
 	old.State = &dcontainer.State{Status: "exited", ExitCode: 0}
 	f.containers[appID] = old
-	// What the replacement would do if it were started: run and exit 0.
-	f.newState = &dcontainer.State{Status: "created"}
-	verifying := 0
-	result, err := swapApp(f, Options{OnVerifying: func() { verifying++ }})
-	require.NoError(t, err)
-	assert.Equal(t, Result{NewID: "new1"}, result, "committed, and never stopped anything")
-	assert.Zero(t, verifying, "never started, so never verified")
-	assert.Equal(t, []string{
-		"rename " + appID + " dozzle-dozzle-old-aaaaaaaaaaaa",
-		"create dozzle",
-		"remove " + appID + " volumes=false",
-	}, f.calls)
+	result, err := swapApp(f, Options{})
+	require.ErrorIs(t, err, container.ErrNotRunning)
+	assert.Equal(t, Result{}, result)
+	assert.Empty(t, f.calls)
 }
 
 func TestSwapStampsLabels(t *testing.T) {

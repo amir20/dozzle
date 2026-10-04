@@ -1,6 +1,6 @@
 ---
 title: Umstieg von Watchtower
-sourceHash: de6ae3b34bcd
+sourceHash: 3c48dbce256f
 ---
 
 # Umstieg von Watchtower
@@ -61,6 +61,6 @@ Die Labels von Watchtower werden nicht gelesen. Ersetze `com.centurylinklabs.wat
 
 - Der alte Container bleibt erhalten, bis der neue stabil läuft und, falls er einen Healthcheck hat, gesund ist. Sonst kommt der alte zurück.
 - Ungesunde Container werden übersprungen.
-- Bei **Alles** bleiben gestoppte Container unberührt, außer sie haben das Label `auto`.
+- Gestoppte Container werden nie aktualisiert, auch nicht mit dem Label `auto`.
 - Mit [Dozzle Cloud](/de/guide/dozzle-cloud) lässt sich ein Update aus dem Zeitplan, das Fehler zeigt, [zurückrollen](/de/guide/actions#rolling-back). Der Zeitplan lässt diesen Container dann in Ruhe, bis ein neueres Image erscheint.
 - Auf einen Digest gepinnte und lokal gebaute Images werden übersprungen, weil es nichts Neueres zum Vergleichen gibt.

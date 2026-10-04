@@ -23,12 +23,12 @@ toolbar:
   update-rolled-back: 새 컨테이너가 계속 실행되지 않아 이전 컨테이너를 복원했습니다.
   update-done: 컨테이너가 성공적으로 업데이트되었습니다
   update-up-to-date: 이미 최신 버전입니다
-  update-available: '업데이트 사용 가능'
-  check-for-updates: '업데이트 확인'
-  checking-for-updates: '업데이트 확인 중...'
-  no-updates: '업데이트 없음'
-  dismiss-update: '이 업데이트 무시'
-  view-release-notes: '릴리스 노트 보기'
+  update-available: "업데이트 사용 가능"
+  check-for-updates: "업데이트 확인"
+  checking-for-updates: "업데이트 확인 중..."
+  no-updates: "업데이트 없음"
+  dismiss-update: "이 업데이트 무시"
+  view-release-notes: "릴리스 노트 보기"
   show-hostname: 호스트 이름 보기
   show-container-name: 컨테이너 이름 보기
   shell: 셸
@@ -192,6 +192,7 @@ error:
   unable-to-complete-action: 작업을 완료할 수 없습니다
   invalid-action: 잘못된 작업
   unable-to-update: 컨테이너를 업데이트할 수 없습니다
+  start-container-first: 먼저 컨테이너를 시작하세요
   something-went-wrong: 문제가 발생했습니다
   unknown-error: 알 수 없는 오류
   events-stream:
@@ -205,8 +206,8 @@ error:
       Dozzle UI가 API 연결 중에 시간 초과되었습니다. 네트워크 상태를 확인하고 다시 시도해 주세요.
 alert:
   image-update:
-    title: '업데이트 사용 가능'
-    message: '{image}의 새로운 이미지가 게시되었습니다.'
+    title: "업데이트 사용 가능"
+    message: "{image}의 새로운 이미지가 게시되었습니다."
     enable-actions: '여기에서 내려받아 다시 생성하려면 <a href="https://dozzle.dev/guide/actions" target="_blank" rel="noreferrer noopener">액션을 활성화</a>하세요.'
   redirected:
     title: 새 컨테이너로 이동했습니다
@@ -270,32 +271,32 @@ settings:
   auto-update-containers: "컨테이너가 최신 상태로 유지됩니다"
   auto-update-daily: "매일 {time}(서버 시간)에 확인합니다."
   auto-update-weekly: "매주 일요일 {time}(서버 시간)에 확인합니다."
-  show-image-update-alert: '이미지 업데이트 알림'
-  show-image-update-alert-desc: '실행 중인 이미지에 더 새로운 태그가 있으면 알립니다.'
+  show-image-update-alert: "이미지 업데이트 알림"
+  show-image-update-alert-desc: "실행 중인 이미지에 더 새로운 태그가 있으면 알립니다."
   cloud-desc: Dozzle Cloud로 로그를 스트리밍하여 AI 기반 조사 및 인스턴스 간 검색을 수행합니다.
   locale: 언어
   small-scrollbars: 얇은 스크롤바
-  small-scrollbars-desc: '더 얇은 스크롤바로, 작은 화면에서 유용합니다.'
+  small-scrollbars-desc: "더 얇은 스크롤바로, 작은 화면에서 유용합니다."
   show-timestamps: 타임스탬프 표시
   soft-wrap: 자동 줄바꿈
   highlight-errors: 오류 줄 강조
-  highlight-errors-desc: '색상 레벨 표시는 항상 보입니다.'
+  highlight-errors-desc: "색상 레벨 표시는 항상 보입니다."
   datetime-format: 날짜 및 시간
   font-size: 글꼴 크기
   color-scheme: 테마
   show-stopped-containers: 중지된 컨테이너 보기
   group-containers: 컨테이너 그룹화
-  group-containers-desc: 'Compose 프로젝트, Swarm 스택 또는 dev.dozzle.group 기준.'
-  show-app-icons: '앱 아이콘'
-  show-app-icons-desc: 'Dozzle에 포함되어 있으며 인터넷에서 가져오지 않습니다.'
+  group-containers-desc: "Compose 프로젝트, Swarm 스택 또는 dev.dozzle.group 기준."
+  show-app-icons: "앱 아이콘"
+  show-app-icons-desc: "Dozzle에 포함되어 있으며 인터넷에서 가져오지 않습니다."
   search: 로그 검색
-  search-desc: '컨테이너를 보는 동안 브라우저의 찾기 기능을 대체합니다.'
+  search-desc: "컨테이너를 보는 동안 브라우저의 찾기 기능을 대체합니다."
   show-std: stdout 및 stderr 라벨 표시
-  show-std-desc: '줄이 stdout에서 왔는지 stderr에서 왔는지 표시합니다.'
+  show-std-desc: "줄이 stdout에서 왔는지 stderr에서 왔는지 표시합니다."
   automatic-redirect: 재생성된 컨테이너 따라가기
-  automatic-redirect-desc: '컨테이너가 교체되면 새 컨테이너로 이동합니다.'
+  automatic-redirect-desc: "컨테이너가 교체되면 새 컨테이너로 이동합니다."
   compact: 컴팩트 모드
-  compact-desc: '간격을 좁혀 화면에 더 많은 줄을 표시합니다.'
+  compact-desc: "간격을 좁혀 화면에 더 많은 줄을 표시합니다."
   size:
     small: 작게
     medium: 중간

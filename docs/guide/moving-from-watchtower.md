@@ -60,6 +60,6 @@ Older Dozzle labels are still accepted: `dev.dozzle.auto-update=true` reads as `
 
 - The old container is kept until the new one has stayed up, and healthy if it has a healthcheck. If not, the old one is put back.
 - Unhealthy containers are skipped.
-- Under **Everything**, stopped containers are left alone unless they are labelled `auto`.
+- Stopped containers are never updated, even when they are labelled `auto`.
 - With [Dozzle Cloud](/guide/dozzle-cloud), a scheduled update that starts failing can be [rolled back](/guide/actions#rolling-back). The schedule then leaves that container alone until a newer image is published.
 - Images pinned to a digest and images built locally are skipped, since there is nothing newer to compare against.

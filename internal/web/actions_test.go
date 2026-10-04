@@ -19,7 +19,7 @@ import (
 
 func mockedClient() *MockedClient {
 	mockedClient := new(MockedClient)
-	c := container.Container{ID: "123"}
+	c := container.Container{ID: "123", State: "running"}
 
 	mockedClient.On("FindContainer", mock.Anything, "123").Return(c, nil)
 	mockedClient.On("FindContainer", mock.Anything, "456").Return(container.Container{}, errors.New("container not found"))
@@ -100,6 +100,7 @@ func Test_handler_containerUpdate_up_to_date(t *testing.T) {
 
 	inspectResp := docker_types.InspectResponse{
 		Image: "sha256:current",
+		State: &docker_types.State{Running: true, Status: "running"},
 		Config: &docker_types.Config{
 			Image: "test:v1",
 		},
@@ -122,9 +123,31 @@ func Test_handler_containerUpdate_up_to_date(t *testing.T) {
 	assert.Contains(t, rr.Body.String(), `"up-to-date"`)
 }
 
+// A stopped container is refused before the progress stream opens, and the
+// host is never asked.
+func Test_handler_containerUpdate_stopped(t *testing.T) {
+	m := new(MockedClient)
+	c := container.Container{ID: "123", State: "exited"}
+	m.On("FindContainer", mock.Anything, "123").Return(c, nil)
+	m.On("Host").Return(container.Host{ID: "localhost"})
+	m.On("ListContainers", mock.Anything, mock.Anything).Return([]container.Container{c}, nil)
+	m.On("ContainerEvents", mock.Anything, mock.Anything).Return(nil)
+
+	handler := createHandler(m, nil, Config{Base: "/", EnableActions: true, Authorization: Authorization{Provider: NONE}})
+	req, err := http.NewRequest("POST", "/api/hosts/localhost/containers/123/actions/update", nil)
+	require.NoError(t, err)
+
+	rr := httptest.NewRecorder()
+	handler.ServeHTTP(rr, req)
+	assert.Equal(t, http.StatusConflict, rr.Code)
+	assert.Contains(t, rr.Body.String(), container.ErrNotRunning.Error())
+	m.AssertNotCalled(t, "ContainerInspect", mock.Anything, mock.Anything)
+	m.AssertNotCalled(t, "ImagePull", mock.Anything, mock.Anything)
+}
+
 func Test_handler_containerUpdate_new_image(t *testing.T) {
 	m := new(MockedClient)
-	c := container.Container{ID: "123"}
+	c := container.Container{ID: "123", State: "running"}
 
 	m.On("FindContainer", mock.Anything, "123").Return(c, nil)
 	m.On("Host").Return(container.Host{ID: "localhost"})
@@ -226,7 +249,7 @@ func Test_handler_containerUpdate_rejoins_network_dependents(t *testing.T) {
 // on locally, which happens when the image was pulled or built beforehand.
 func Test_handler_containerUpdate_recreates_when_image_already_local(t *testing.T) {
 	m := new(MockedClient)
-	c := container.Container{ID: "123"}
+	c := container.Container{ID: "123", State: "running"}
 
 	m.On("FindContainer", mock.Anything, "123").Return(c, nil)
 	m.On("Host").Return(container.Host{ID: "localhost"})

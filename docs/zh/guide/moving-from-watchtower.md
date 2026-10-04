@@ -1,6 +1,6 @@
 ---
 title: 从 Watchtower 迁移
-sourceHash: de6ae3b34bcd
+sourceHash: 3c48dbce256f
 ---
 
 # 从 Watchtower 迁移
@@ -61,6 +61,6 @@ Dozzle 不读取 Watchtower 的标签。把 `com.centurylinklabs.watchtower.enab
 
 - 旧容器会一直保留，直到新容器稳定运行（如果有健康检查，还要处于健康状态）。否则会恢复旧容器。
 - 不健康的容器会被跳过。
-- 选 **全部** 时，已停止的容器不会被更新，除非它带有 `auto` 标签。
+- 已停止的容器永远不会被更新，即使它带有 `auto` 标签。
 - 使用 [Dozzle Cloud](/zh/guide/dozzle-cloud) 时，开始出错的计划更新可以被[回滚](/zh/guide/actions#rolling-back)。之后在发布更新的镜像之前，计划会跳过该容器。
 - 固定到摘要的镜像和本地构建的镜像会被跳过，因为没有更新的版本可比较。

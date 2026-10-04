@@ -23,12 +23,12 @@ toolbar:
   update-rolled-back: Yeni konteyner çalışmaya devam etmedi, bu yüzden önceki geri yüklendi.
   update-done: Konteyner başarıyla güncellendi
   update-up-to-date: Zaten güncel
-  update-available: 'Güncelleme mevcut'
-  check-for-updates: 'Güncellemeleri denetle'
-  checking-for-updates: 'Güncellemeler denetleniyor...'
-  no-updates: 'Güncelleme yok'
-  dismiss-update: 'Bu güncellemeyi yoksay'
-  view-release-notes: 'Sürüm notlarını görüntüle'
+  update-available: "Güncelleme mevcut"
+  check-for-updates: "Güncellemeleri denetle"
+  checking-for-updates: "Güncellemeler denetleniyor..."
+  no-updates: "Güncelleme yok"
+  dismiss-update: "Bu güncellemeyi yoksay"
+  view-release-notes: "Sürüm notlarını görüntüle"
   show-hostname: Sunucu adını göster
   show-container-name: Konteyner adını göster
   shell: Kabuk
@@ -192,6 +192,7 @@ error:
   unable-to-complete-action: İşlem tamamlanamadı
   invalid-action: Geçersiz işlem
   unable-to-update: Konteyner güncellenemedi
+  start-container-first: Önce konteyneri başlatın
   something-went-wrong: Bir şeyler ters gitti
   unknown-error: Bilinmeyen hata
   events-stream:
@@ -206,8 +207,8 @@ error:
       bağlantısını kontrol edin ve tekrar deneyin.
 alert:
   image-update:
-    title: 'Güncelleme mevcut'
-    message: '{image} için daha yeni bir imaj yayımlandı.'
+    title: "Güncelleme mevcut"
+    message: "{image} için daha yeni bir imaj yayımlandı."
     enable-actions: 'Buradan indirip yeniden oluşturmak için <a href="https://dozzle.dev/guide/actions" target="_blank" rel="noreferrer noopener">eylemleri etkinleştirin</a>.'
   redirected:
     title: Yeni konteynere yönlendirildi
@@ -271,32 +272,32 @@ settings:
   auto-update-containers: "Konteynerleriniz güncel kalıyor"
   auto-update-daily: "Her gün {time} saatinde kontrol eder (sunucu saati)."
   auto-update-weekly: "Her hafta pazar günü {time} saatinde kontrol eder (sunucu saati)."
-  show-image-update-alert: 'İmaj güncelleme uyarıları'
-  show-image-update-alert-desc: 'Çalışan bir imajın daha yeni bir etiketi olduğunda bildir.'
+  show-image-update-alert: "İmaj güncelleme uyarıları"
+  show-image-update-alert-desc: "Çalışan bir imajın daha yeni bir etiketi olduğunda bildir."
   cloud-desc: AI destekli incelemeler ve örnekler arasında arama için logları Dozzle Cloud'a aktarın.
   locale: Dil
   small-scrollbars: İnce kaydırma çubukları
-  small-scrollbars-desc: 'Daha ince kaydırma çubukları, küçük ekranlarda kullanışlıdır.'
+  small-scrollbars-desc: "Daha ince kaydırma çubukları, küçük ekranlarda kullanışlıdır."
   show-timestamps: Zaman damgalarını göster
   soft-wrap: Satır kaydırma
   highlight-errors: Hata satırlarını vurgula
-  highlight-errors-desc: 'Renkli seviye işareti her zaman gösterilir.'
+  highlight-errors-desc: "Renkli seviye işareti her zaman gösterilir."
   datetime-format: Tarih ve saat
   font-size: Yazı boyutu
   color-scheme: Tema
   show-stopped-containers: Durdurulan konteynerleri göster
   group-containers: Konteynerleri grupla
-  group-containers-desc: 'Compose projesi, Swarm yığını veya dev.dozzle.group ile.'
-  show-app-icons: 'Uygulama simgeleri'
-  show-app-icons-desc: 'Dozzle ile birlikte gelir, asla internetten indirilmez.'
+  group-containers-desc: "Compose projesi, Swarm yığını veya dev.dozzle.group ile."
+  show-app-icons: "Uygulama simgeleri"
+  show-app-icons-desc: "Dozzle ile birlikte gelir, asla internetten indirilmez."
   search: Loglarda ara
-  search-desc: 'Bir konteyner görüntülenirken tarayıcının bulma özelliğinin yerini alır.'
+  search-desc: "Bir konteyner görüntülenirken tarayıcının bulma özelliğinin yerini alır."
   show-std: stdout ve stderr etiketlerini göster
-  show-std-desc: 'Satırın stdout''tan mı stderr''den mi geldiğini gösterir.'
+  show-std-desc: "Satırın stdout'tan mı stderr'den mi geldiğini gösterir."
   automatic-redirect: Yeniden oluşturulan konteynerleri takip et
-  automatic-redirect-desc: 'Bir konteyner değiştirildiğinde yenisine geç.'
+  automatic-redirect-desc: "Bir konteyner değiştirildiğinde yenisine geç."
   compact: Kompakt mod
-  compact-desc: 'Ekrana daha fazla satır sığması için daha sıkı aralık.'
+  compact-desc: "Ekrana daha fazla satır sığması için daha sıkı aralık."
   size:
     small: Küçük
     medium: Orta

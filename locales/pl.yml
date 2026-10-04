@@ -23,12 +23,12 @@ toolbar:
   update-rolled-back: Nowy kontener nie działał stabilnie, więc przywrócono poprzedni.
   update-done: Kontener zaktualizowany pomyślnie
   update-up-to-date: Już aktualny
-  update-available: 'Dostępna aktualizacja'
-  check-for-updates: 'Sprawdź aktualizacje'
-  checking-for-updates: 'Sprawdzanie aktualizacji...'
-  no-updates: 'Brak aktualizacji'
-  dismiss-update: 'Odrzuć tę aktualizację'
-  view-release-notes: 'Zobacz informacje o wersji'
+  update-available: "Dostępna aktualizacja"
+  check-for-updates: "Sprawdź aktualizacje"
+  checking-for-updates: "Sprawdzanie aktualizacji..."
+  no-updates: "Brak aktualizacji"
+  dismiss-update: "Odrzuć tę aktualizację"
+  view-release-notes: "Zobacz informacje o wersji"
   show-hostname: Pokaż nazwę hosta
   show-container-name: Pokaż nazwę kontenera
   shell: Shell
@@ -192,6 +192,7 @@ error:
   unable-to-complete-action: Nie można ukończyć akcji
   invalid-action: Nieprawidłowa akcja
   unable-to-update: Nie można zaktualizować kontenera
+  start-container-first: Najpierw uruchom kontener
   something-went-wrong: Coś poszło nie tak
   unknown-error: Nieznany błąd
   events-stream:
@@ -205,8 +206,8 @@ error:
       Przekroczono limit czasu w trakcie połączenia do API. Sprawdź ustawienia sieciowe.
 alert:
   image-update:
-    title: 'Dostępna aktualizacja'
-    message: 'Opublikowano nowszy obraz dla {image}.'
+    title: "Dostępna aktualizacja"
+    message: "Opublikowano nowszy obraz dla {image}."
     enable-actions: '<a href="https://dozzle.dev/guide/actions" target="_blank" rel="noreferrer noopener">Włącz akcje</a>, aby pobrać go i odtworzyć kontener stąd.'
   redirected:
     title: Przekierowywanie do nowego kontenera
@@ -270,32 +271,32 @@ settings:
   auto-update-containers: "Twoje kontenery są aktualne"
   auto-update-daily: "Sprawdza codziennie o {time} czasu serwera."
   auto-update-weekly: "Sprawdza co tydzień w niedzielę o {time} czasu serwera."
-  show-image-update-alert: 'Alerty aktualizacji obrazu'
-  show-image-update-alert-desc: 'Powiadamiaj, gdy istnieje nowszy tag uruchomionego obrazu.'
+  show-image-update-alert: "Alerty aktualizacji obrazu"
+  show-image-update-alert-desc: "Powiadamiaj, gdy istnieje nowszy tag uruchomionego obrazu."
   cloud-desc: Przesyłaj logi do Dozzle Cloud w celu analiz wspomaganych przez AI i wyszukiwania między instancjami.
   locale: Język
   small-scrollbars: Cienkie paski przewijania
-  small-scrollbars-desc: 'Cieńsze paski przewijania, przydatne na mniejszych ekranach.'
+  small-scrollbars-desc: "Cieńsze paski przewijania, przydatne na mniejszych ekranach."
   show-timestamps: Pokaż date i godzinę
   soft-wrap: Zawijanie wierszy
   highlight-errors: Wyróżniaj wiersze błędów
-  highlight-errors-desc: 'Kolorowy znacznik poziomu jest zawsze widoczny.'
+  highlight-errors-desc: "Kolorowy znacznik poziomu jest zawsze widoczny."
   datetime-format: Data i godzina
   font-size: Rozmiar czcionki
   color-scheme: Motyw
   show-stopped-containers: Pokaż zatrzymane kontenery
   group-containers: Grupuj kontenery
-  group-containers-desc: 'Według projektu Compose, stosu Swarm lub dev.dozzle.group.'
-  show-app-icons: 'Ikony aplikacji'
-  show-app-icons-desc: 'Dołączone do Dozzle, nigdy nie pobierane z internetu.'
+  group-containers-desc: "Według projektu Compose, stosu Swarm lub dev.dozzle.group."
+  show-app-icons: "Ikony aplikacji"
+  show-app-icons-desc: "Dołączone do Dozzle, nigdy nie pobierane z internetu."
   search: Szukaj w logach za pomocą
-  search-desc: 'Zastępuje wyszukiwanie przeglądarki podczas przeglądania kontenera.'
+  search-desc: "Zastępuje wyszukiwanie przeglądarki podczas przeglądania kontenera."
   show-std: Pokaż etykiety dla stdout i stderr
-  show-std-desc: 'Oznacza, czy wiersz pochodzi ze stdout czy ze stderr.'
+  show-std-desc: "Oznacza, czy wiersz pochodzi ze stdout czy ze stderr."
   automatic-redirect: Podążaj za odtworzonymi kontenerami
-  automatic-redirect-desc: 'Gdy kontener zostanie zastąpiony, przejdź do nowego.'
+  automatic-redirect-desc: "Gdy kontener zostanie zastąpiony, przejdź do nowego."
   compact: Tryb kompaktowy
-  compact-desc: 'Mniejsze odstępy, aby zmieścić więcej wierszy na ekranie.'
+  compact-desc: "Mniejsze odstępy, aby zmieścić więcej wierszy na ekranie."
   size:
     small: Mały
     medium: Średni

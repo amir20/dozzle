@@ -45,12 +45,12 @@ toolbar:
   update-rolled-back: Novi zabojnik ni ostal zagnan, zato je bil obnovljen prejšnji.
   update-done: Zabojnik uspešno posodobljen
   update-up-to-date: Že posodobljen
-  update-available: 'Na voljo je posodobitev'
-  check-for-updates: 'Preveri posodobitve'
-  checking-for-updates: 'Preverjanje posodobitev...'
-  no-updates: 'Ni posodobitev'
-  dismiss-update: 'Opusti to posodobitev'
-  view-release-notes: 'Poglej opombe ob izdaji'
+  update-available: "Na voljo je posodobitev"
+  check-for-updates: "Preveri posodobitve"
+  checking-for-updates: "Preverjanje posodobitev..."
+  no-updates: "Ni posodobitev"
+  dismiss-update: "Opusti to posodobitev"
+  view-release-notes: "Poglej opombe ob izdaji"
   show-hostname: Prikaži ime gostitelja
 action:
   copy-log: Kopiraj dnevnik
@@ -201,12 +201,13 @@ error:
   unable-to-complete-action: Dejanja ni mogoče dokončati
   invalid-action: Neveljavno dejanje
   unable-to-update: Zabojnika ni mogoče posodobiti
+  start-container-first: Najprej zaženite vsebnik
   something-went-wrong: Nekaj je šlo narobe
   unknown-error: Neznana napaka
 alert:
   image-update:
-    title: 'Na voljo je posodobitev'
-    message: 'Za {image} je bila objavljena novejša slika.'
+    title: "Na voljo je posodobitev"
+    message: "Za {image} je bila objavljena novejša slika."
     enable-actions: '<a href="https://dozzle.dev/guide/actions" target="_blank" rel="noreferrer noopener">Omogoči dejanja</a> za prenos in ponovno ustvarjanje od tu.'
   redirected:
     title: Preusmerjeno v nov zabojnik
@@ -270,30 +271,30 @@ settings:
   auto-update-containers: "Vaši vsebniki ostajajo posodobljeni"
   auto-update-daily: "Preveri vsak dan ob {time} po času strežnika."
   auto-update-weekly: "Preveri vsak teden v nedeljo ob {time} po času strežnika."
-  show-image-update-alert: 'Opozorila o posodobitvah slik'
-  show-image-update-alert-desc: 'Obvesti, ko obstaja novejša oznaka slike, ki se izvaja.'
+  show-image-update-alert: "Opozorila o posodobitvah slik"
+  show-image-update-alert-desc: "Obvesti, ko obstaja novejša oznaka slike, ki se izvaja."
   cloud-desc: Pretakajte dnevnike v Dozzle Cloud za preiskave z umetno inteligenco in iskanje med instancami.
   locale: Jezik
   small-scrollbars: Tanki drsniki
-  small-scrollbars-desc: 'Tanjši drsniki, priročno na manjših zaslonih.'
+  small-scrollbars-desc: "Tanjši drsniki, priročno na manjših zaslonih."
   show-timestamps: Prikaži časovne žige
   soft-wrap: Prelom vrstic
   highlight-errors: Označi vrstice z napakami
-  highlight-errors-desc: 'Barvna oznaka ravni je vedno prikazana.'
+  highlight-errors-desc: "Barvna oznaka ravni je vedno prikazana."
   datetime-format: Datum in čas
   font-size: Velikost pisave
   color-scheme: Tema
   show-stopped-containers: Prikaži ustavljene zabojnike
   group-containers: Združi zabojnike
-  group-containers-desc: 'Po projektu Compose, skladu Swarm ali dev.dozzle.group.'
-  show-app-icons: 'Ikone aplikacij'
-  show-app-icons-desc: 'Priložene Dozzlu, nikoli prenesene z interneta.'
+  group-containers-desc: "Po projektu Compose, skladu Swarm ali dev.dozzle.group."
+  show-app-icons: "Ikone aplikacij"
+  show-app-icons-desc: "Priložene Dozzlu, nikoli prenesene z interneta."
   search: Iskanje po dnevnikih s
-  search-desc: 'Nadomesti iskanje brskalnika med ogledom zabojnika.'
+  search-desc: "Nadomesti iskanje brskalnika med ogledom zabojnika."
   show-std: Prikaži oznake stdout in stderr
-  show-std-desc: 'Označi, ali vrstica prihaja iz stdout ali stderr.'
+  show-std-desc: "Označi, ali vrstica prihaja iz stdout ali stderr."
   compact: Kompaktni način
-  compact-desc: 'Manjši razmiki, da se na zaslon prilega več vrstic.'
+  compact-desc: "Manjši razmiki, da se na zaslon prilega več vrstic."
   size:
     small: Majhna
     medium: Srednja
@@ -327,7 +328,7 @@ settings:
       consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et
       dolore magna aliqua.
   automatic-redirect: Sledi ponovno ustvarjenim zabojnikom
-  automatic-redirect-desc: 'Ko je zabojnik zamenjan, skoči na novega.'
+  automatic-redirect-desc: "Ko je zabojnik zamenjan, skoči na novega."
 releases:
   features: ena nova funkcija | {count} funkcij
   bugFixes: en popravek napake | {count} popravkov

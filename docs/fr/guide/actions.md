@@ -1,6 +1,6 @@
 ---
 title: Actions sur les conteneurs
-sourceHash: a5b7715163fe
+sourceHash: b77ad4fdc46b
 ---
 
 # Actions sur les conteneurs
@@ -11,7 +11,7 @@ Dozzle propose des actions sur les conteneurs, qui vous permettent de les démar
 
 L'action `update` récupère la dernière image du conteneur et le recrée avec la même configuration, ce qui est pratique pour mettre à niveau un conteneur sur place sans modifier son fichier compose. `update` n'a un effet réel que si l'image utilise un tag mouvant (par ex. `latest`, `stable`) ; avec un tag figé, la même image sera simplement retéléchargée.
 
-L'ancien conteneur est conservé, renommé, jusqu'à ce que le nouveau ait tourné 10 secondes sans redémarrer et se soit déclaré sain si son image a un healthcheck. Si le nouveau conteneur ne démarre pas, s'arrête, redémarre ou devient non sain, Dozzle le supprime et remet l'ancien en place, et la mise à jour indique **restauré** avec la raison. Le nouveau conteneur reçoit le label `dev.dozzle.previous-image` avec l'id de l'image qu'il remplace, et `dev.dozzle.previous-ref` avec le digest `repo@sha256:…` de cette image (absent pour les images construites localement). Un conteneur qui ne tournait pas, comme une tâche ponctuelle déjà terminée, est recréé sur la nouvelle image et laissé arrêté : il n'est ni relancé ni vérifié.
+L'ancien conteneur est conservé, renommé, jusqu'à ce que le nouveau ait tourné 10 secondes sans redémarrer et se soit déclaré sain si son image a un healthcheck. Si le nouveau conteneur ne démarre pas, s'arrête, redémarre ou devient non sain, Dozzle le supprime et remet l'ancien en place, et la mise à jour indique **restauré** avec la raison. Le nouveau conteneur reçoit le label `dev.dozzle.previous-image` avec l'id de l'image qu'il remplace, et `dev.dozzle.previous-ref` avec le digest `repo@sha256:…` de cette image (absent pour les images construites localement). Un conteneur arrêté n'est jamais mis à jour, car il peut être arrêté exprès. Une image plus récente reste signalée, mais **Mettre à jour** n'est pas proposé, le planning l'ignore, et une mise à jour demandée malgré tout, depuis Dozzle Cloud par exemple, est refusée avec « Démarrez d'abord le conteneur ». Une fois démarré, il peut être mis à jour.
 
 > [!WARNING]
 > `remove` supprime le conteneur : les données de sa couche inscriptible sont perdues et ses volumes anonymes restent derrière lui, détachés. `update` recrée le conteneur et conserve tous les volumes, anonymes compris, ainsi que tous les bind mounts. Seules les données écrites dans la couche inscriptible du conteneur sont perdues.
@@ -129,9 +129,9 @@ services:
 
 Les anciens labels fonctionnent toujours : `dev.dozzle.auto-update=true` est lu comme `auto`, et `dev.dozzle.update-check=false` comme `off`.
 
-À l'heure prévue, Dozzle compare chaque conteneur du planning à son registre et ne met à jour que ceux qui ont une image plus récente, Dozzle lui-même en dernier. Chaque mise à jour est l'échange sûr décrit plus haut : si le nouveau conteneur ne reste pas en marche, l'ancien est remis en place. Les conteneurs en mauvaise santé, ceux que Dozzle [ne peut pas vérifier](#ce-qui-ne-peut-pas-etre-verifie) et ceux qui ont été [restaurés](#rolling-back) depuis l'image proposée sont ignorés. **Paramètres → Mises à jour** liste les conteneurs que la prochaine exécution mettra à jour.
+À l'heure prévue, Dozzle compare chaque conteneur du planning à son registre et ne met à jour que ceux qui ont une image plus récente, Dozzle lui-même en dernier. Chaque mise à jour est l'échange sûr décrit plus haut : si le nouveau conteneur ne reste pas en marche, l'ancien est remis en place. Les conteneurs arrêtés ou en mauvaise santé, ceux que Dozzle [ne peut pas vérifier](#ce-qui-ne-peut-pas-etre-verifie) et ceux qui ont été [restaurés](#rolling-back) depuis l'image proposée sont ignorés. **Paramètres → Mises à jour** liste les conteneurs que la prochaine exécution mettra à jour.
 
-Avec **Tout**, une base de données sur un tag flottant comme `postgres:latest` peut passer à une version majeure dont elle ne sait pas lire les fichiers de données. Choisir **Tout** liste les conteneurs qui gardent des données dans des volumes nommés. Ajoutez-leur le label `dev.dozzle.update: off` pour les exclure. Les conteneurs arrêtés ne sont pas touchés avec **Tout**, sauf s'ils portent le label `auto`.
+Avec **Tout**, une base de données sur un tag flottant comme `postgres:latest` peut passer à une version majeure dont elle ne sait pas lire les fichiers de données. Choisir **Tout** liste les conteneurs qui gardent des données dans des volumes nommés. Ajoutez-leur le label `dev.dozzle.update: off` pour les exclure.
 
 **Quels conteneurs** est enregistré dans [`dozzle.yml`](/fr/guide/setup-wizard#dozzle-yml) sous `updateContainers`, donc le modifier depuis l'interface nécessite `/data` sur un volume. La mise à jour automatique fonctionne en mode serveur, y compris pour les conteneurs des [agents distants](/fr/guide/agent), et nécessite les actions. Vous venez de Watchtower ? Consultez [Passer de Watchtower à Dozzle](/fr/guide/moving-from-watchtower).
 

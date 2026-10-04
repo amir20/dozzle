@@ -23,12 +23,12 @@ toolbar:
   update-rolled-back: Il nuovo container non è rimasto attivo, quindi è stato ripristinato quello precedente.
   update-done: Container aggiornato con successo
   update-up-to-date: Già aggiornato
-  update-available: 'Aggiornamento disponibile'
-  check-for-updates: 'Controlla aggiornamenti'
-  checking-for-updates: 'Ricerca aggiornamenti...'
-  no-updates: 'Nessun aggiornamento'
-  dismiss-update: 'Ignora questo aggiornamento'
-  view-release-notes: 'Vedi note di rilascio'
+  update-available: "Aggiornamento disponibile"
+  check-for-updates: "Controlla aggiornamenti"
+  checking-for-updates: "Ricerca aggiornamenti..."
+  no-updates: "Nessun aggiornamento"
+  dismiss-update: "Ignora questo aggiornamento"
+  view-release-notes: "Vedi note di rilascio"
   show-hostname: Mostra nome host
   show-container-name: Mostra nome container
   shell: Shell
@@ -192,6 +192,7 @@ error:
   unable-to-complete-action: Impossibile completare l'azione
   invalid-action: Azione non valida
   unable-to-update: Impossibile aggiornare il container
+  start-container-first: Avvia prima il container
   something-went-wrong: Qualcosa è andato storto
   unknown-error: Errore sconosciuto
   events-stream:
@@ -204,8 +205,8 @@ error:
       Dozzle UI timed out durante la connessione alle API. Controlla la configurazione di rete e riprova.
 alert:
   image-update:
-    title: 'Aggiornamento disponibile'
-    message: 'È stata pubblicata un''immagine più recente per {image}.'
+    title: "Aggiornamento disponibile"
+    message: "È stata pubblicata un'immagine più recente per {image}."
     enable-actions: '<a href="https://dozzle.dev/guide/actions" target="_blank" rel="noreferrer noopener">Abilita le azioni</a> per scaricarla e ricreare il container da qui.'
   redirected:
     title: Reindirizzamento ad un nuovo container
@@ -268,12 +269,12 @@ settings:
   auto-update-containers: "I tuoi container restano aggiornati"
   auto-update-daily: "Controlla ogni giorno alle {time}, ora del server."
   auto-update-weekly: "Controlla ogni settimana, la domenica alle {time}, ora del server."
-  show-image-update-alert: 'Avvisi aggiornamento immagine'
-  show-image-update-alert-desc: 'Avvisa quando esiste un tag più recente di un''immagine in esecuzione.'
+  show-image-update-alert: "Avvisi aggiornamento immagine"
+  show-image-update-alert-desc: "Avvisa quando esiste un tag più recente di un'immagine in esecuzione."
   cloud-desc: Trasmetti i log a Dozzle Cloud per analisi basate su IA e ricerca tra le istanze.
   locale: Lingua
   small-scrollbars: Barre di scorrimento sottili
-  small-scrollbars-desc: 'Barre di scorrimento più sottili, utili su schermi piccoli.'
+  small-scrollbars-desc: "Barre di scorrimento più sottili, utili su schermi piccoli."
   show-timestamps: Visualizza timestamp
   soft-wrap: A capo automatico
   highlight-errors: Evidenzia le righe di errore
@@ -283,17 +284,17 @@ settings:
   color-scheme: Tema
   show-stopped-containers: Visualizza i container arrestati
   group-containers: Raggruppa container
-  group-containers-desc: 'Per progetto Compose, stack Swarm o dev.dozzle.group.'
-  show-app-icons: 'Icone delle app'
-  show-app-icons-desc: 'Incluse in Dozzle, mai scaricate da internet.'
+  group-containers-desc: "Per progetto Compose, stack Swarm o dev.dozzle.group."
+  show-app-icons: "Icone delle app"
+  show-app-icons-desc: "Incluse in Dozzle, mai scaricate da internet."
   search: Cerca nei log con
-  search-desc: 'Sostituisce la ricerca del browser mentre visualizzi un container.'
+  search-desc: "Sostituisce la ricerca del browser mentre visualizzi un container."
   show-std: Visualizza stdout e stderr
-  show-std-desc: 'Indica se una riga proviene da stdout o da stderr.'
+  show-std-desc: "Indica se una riga proviene da stdout o da stderr."
   automatic-redirect: Segui i container ricreati
-  automatic-redirect-desc: 'Quando un container viene sostituito, passa a quello nuovo.'
+  automatic-redirect-desc: "Quando un container viene sostituito, passa a quello nuovo."
   compact: Modalità compatta
-  compact-desc: 'Spaziatura ridotta per mostrare più righe sullo schermo.'
+  compact-desc: "Spaziatura ridotta per mostrare più righe sullo schermo."
   size:
     small: Piccolo
     medium: Medio

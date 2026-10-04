@@ -2,6 +2,16 @@ import { Container } from "@/models/Container";
 
 type ContainerActions = "start" | "stop" | "restart";
 
+// container.ErrNotRunning: the host refuses to update a container that is not
+// running. Matched to show it translated.
+export const NOT_RUNNING_ERROR = "start the container first";
+
+/** An update error as people should read it: translated when it is a known one. */
+export function updateErrorText(error: string | undefined, t: (key: string) => string) {
+  if (!error) return undefined;
+  return error === NOT_RUNNING_ERROR ? t("error.start-container-first") : error;
+}
+
 // One event of the update-progress stream, mirroring container.UpdateProgress.
 export interface UpdateProgress {
   // verifying: the new container started and is being watched to stay up.
@@ -124,7 +134,9 @@ export const useContainerActions = (container: Ref<Container>) => {
       const response = await fetch(withBase(updateUrl), { method: "POST" });
       if (!response.ok) {
         removeToast(toastId);
-        showToast({ type: "error", message: t("error.unable-to-update"), title: t("error.update-failed") });
+        // 409: the container is not running, and a stopped container is never updated.
+        const message = response.status === 409 ? t("error.start-container-first") : t("error.unable-to-update");
+        showToast({ type: "error", message, title: t("error.update-failed") });
         return;
       }
 
@@ -165,7 +177,7 @@ export const useContainerActions = (container: Ref<Container>) => {
           showToast({
             type: "error",
             // Toasts render HTML, and pull errors carry the registry's own text.
-            message: data.error ? escapeHtml(data.error) : t("error.unknown-error"),
+            message: data.error ? escapeHtml(updateErrorText(data.error, t)!) : t("error.unknown-error"),
             title: t("error.update-failed"),
           });
         }

@@ -23,12 +23,12 @@ toolbar:
   update-rolled-back: Новый контейнер не смог стабильно работать, поэтому предыдущий восстановлен.
   update-done: Контейнер успешно обновлён
   update-up-to-date: Уже обновлён
-  update-available: 'Доступно обновление'
-  check-for-updates: 'Проверить обновления'
-  checking-for-updates: 'Проверка обновлений...'
-  no-updates: 'Обновлений нет'
-  dismiss-update: 'Скрыть это обновление'
-  view-release-notes: 'Посмотреть примечания к выпуску'
+  update-available: "Доступно обновление"
+  check-for-updates: "Проверить обновления"
+  checking-for-updates: "Проверка обновлений..."
+  no-updates: "Обновлений нет"
+  dismiss-update: "Скрыть это обновление"
+  view-release-notes: "Посмотреть примечания к выпуску"
   show-hostname: Показать имя хоста
   show-container-name: Показать имя контейнера
   shell: Оболочка
@@ -192,6 +192,7 @@ error:
   unable-to-complete-action: Не удалось выполнить действие
   invalid-action: Недопустимое действие
   unable-to-update: Не удалось обновить контейнер
+  start-container-first: Сначала запустите контейнер
   something-went-wrong: Что-то пошло не так
   unknown-error: Неизвестная ошибка
   events-stream:
@@ -204,8 +205,8 @@ error:
       Dozzle UI превысил время ожидания при подключении к API. Пожалуйста, проверьте сетевое подключение и повторите попытку.
 alert:
   image-update:
-    title: 'Доступно обновление'
-    message: 'Для {image} опубликован более новый образ.'
+    title: "Доступно обновление"
+    message: "Для {image} опубликован более новый образ."
     enable-actions: '<a href="https://dozzle.dev/guide/actions" target="_blank" rel="noreferrer noopener">Включите действия</a>, чтобы загрузить его и пересоздать контейнер отсюда.'
   redirected:
     title: Перенаправлен на новый контейнер
@@ -268,32 +269,32 @@ settings:
   auto-update-containers: "Ваши контейнеры остаются актуальными"
   auto-update-daily: "Проверяет ежедневно в {time} по времени сервера."
   auto-update-weekly: "Проверяет еженедельно по воскресеньям в {time} по времени сервера."
-  show-image-update-alert: 'Уведомления об обновлениях образов'
-  show-image-update-alert-desc: 'Сообщать, когда у запущенного образа есть более новый тег.'
+  show-image-update-alert: "Уведомления об обновлениях образов"
+  show-image-update-alert-desc: "Сообщать, когда у запущенного образа есть более новый тег."
   cloud-desc: Передавайте логи в Dozzle Cloud для аналитики с использованием ИИ и поиска по экземплярам.
   locale: Язык
   small-scrollbars: Тонкие полосы прокрутки
-  small-scrollbars-desc: 'Более тонкие полосы прокрутки, удобно на небольших экранах.'
+  small-scrollbars-desc: "Более тонкие полосы прокрутки, удобно на небольших экранах."
   show-timestamps: Показывать временные метки
   soft-wrap: Перенос строк
   highlight-errors: Подсвечивать строки с ошибками
-  highlight-errors-desc: 'Цветная метка уровня отображается всегда.'
+  highlight-errors-desc: "Цветная метка уровня отображается всегда."
   datetime-format: Дата и время
   font-size: Размер шрифта
   color-scheme: Тема
   show-stopped-containers: Показывать остановленные контейнеры
   group-containers: Группировать контейнеры
-  group-containers-desc: 'По проекту Compose, стеку Swarm или dev.dozzle.group.'
-  show-app-icons: 'Значки приложений'
-  show-app-icons-desc: 'Входят в состав Dozzle и никогда не загружаются из интернета.'
+  group-containers-desc: "По проекту Compose, стеку Swarm или dev.dozzle.group."
+  show-app-icons: "Значки приложений"
+  show-app-icons-desc: "Входят в состав Dozzle и никогда не загружаются из интернета."
   search: Поиск по логам
-  search-desc: 'Заменяет поиск браузера при просмотре контейнера.'
+  search-desc: "Заменяет поиск браузера при просмотре контейнера."
   show-std: Показывать метки stdout и stderr
-  show-std-desc: 'Помечает, из stdout или stderr пришла строка.'
+  show-std-desc: "Помечает, из stdout или stderr пришла строка."
   automatic-redirect: Следовать за пересозданными контейнерами
-  automatic-redirect-desc: 'Когда контейнер заменён, переходить к новому.'
+  automatic-redirect-desc: "Когда контейнер заменён, переходить к новому."
   compact: Компактный режим
-  compact-desc: 'Меньшие отступы, чтобы на экране помещалось больше строк.'
+  compact-desc: "Меньшие отступы, чтобы на экране помещалось больше строк."
   size:
     small: Маленький
     medium: Средний

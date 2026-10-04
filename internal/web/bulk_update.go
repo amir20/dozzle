@@ -217,6 +217,18 @@ func updateSource(trigger string) string {
 }
 
 func (u *bulkUpdater) runItem(item *bulkUpdateItem, source string) {
+	// A stopped container is never updated. The host refuses one too, but an
+	// older agent would not.
+	if item.service.Container.State != "running" {
+		u.mu.Lock()
+		item.Status = bulkError
+		item.Error = container.ErrNotRunning.Error()
+		u.mu.Unlock()
+		u.notify()
+		log.Info().Str("container", item.Name).Msg("bulk update: container not updated, it is not running")
+		return
+	}
+
 	ctx, cancel := context.WithTimeout(context.Background(), bulkItemTimeout)
 	defer cancel()
 

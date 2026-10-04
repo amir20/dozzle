@@ -23,12 +23,12 @@ toolbar:
   update-rolled-back: O novo container não continuou em execução, então o anterior foi restaurado.
   update-done: Container atualizado com sucesso
   update-up-to-date: Já está atualizado
-  update-available: 'Atualização disponível'
-  check-for-updates: 'Procurar atualizações'
-  checking-for-updates: 'Procurando atualizações...'
-  no-updates: 'Sem atualizações'
-  dismiss-update: 'Dispensar esta atualização'
-  view-release-notes: 'Ver notas de lançamento'
+  update-available: "Atualização disponível"
+  check-for-updates: "Procurar atualizações"
+  checking-for-updates: "Procurando atualizações..."
+  no-updates: "Sem atualizações"
+  dismiss-update: "Dispensar esta atualização"
+  view-release-notes: "Ver notas de lançamento"
   show-hostname: Mostrar nome do host
   show-container-name: Mostrar nome do container
   shell: Shell
@@ -192,6 +192,7 @@ error:
   unable-to-complete-action: Não foi possível completar a ação
   invalid-action: Ação inválida
   unable-to-update: Não foi possível atualizar o container
+  start-container-first: Inicie o container primeiro
   something-went-wrong: Algo deu errado
   unknown-error: Erro desconhecido
   events-stream:
@@ -204,8 +205,8 @@ error:
       A interface do Dozzle atingiu o tempo limite ao conectar-se à API. Verifique a conexão de rede e tente novamente.
 alert:
   image-update:
-    title: 'Atualização disponível'
-    message: 'Uma imagem mais recente foi publicada para {image}.'
+    title: "Atualização disponível"
+    message: "Uma imagem mais recente foi publicada para {image}."
     enable-actions: '<a href="https://dozzle.dev/guide/actions" target="_blank" rel="noreferrer noopener">Ative as ações</a> para baixá-la e recriar o contêiner aqui.'
   redirected:
     title: Redirecionado para novo container
@@ -268,32 +269,32 @@ settings:
   auto-update-containers: "Seus contêineres ficam atualizados"
   auto-update-daily: "Verifica diariamente às {time}, hora do servidor."
   auto-update-weekly: "Verifica semanalmente, aos domingos às {time}, hora do servidor."
-  show-image-update-alert: 'Alertas de atualização de imagem'
-  show-image-update-alert-desc: 'Avisa quando existe uma tag mais recente de uma imagem em execução.'
+  show-image-update-alert: "Alertas de atualização de imagem"
+  show-image-update-alert-desc: "Avisa quando existe uma tag mais recente de uma imagem em execução."
   cloud-desc: Transmita logs para o Dozzle Cloud para investigações com IA e busca entre instâncias.
   locale: Idioma
   small-scrollbars: Barras de rolagem finas
-  small-scrollbars-desc: 'Barras de rolagem mais finas, úteis em telas menores.'
+  small-scrollbars-desc: "Barras de rolagem mais finas, úteis em telas menores."
   show-timestamps: Mostrar marcas de tempo
   soft-wrap: Quebra de linha
   highlight-errors: Destacar linhas de erro
-  highlight-errors-desc: 'O marcador colorido de nível é sempre exibido.'
+  highlight-errors-desc: "O marcador colorido de nível é sempre exibido."
   datetime-format: Data e hora
   font-size: Tamanho da fonte
   color-scheme: Tema
   show-stopped-containers: Mostrar containers parados
   group-containers: Agrupar containers
-  group-containers-desc: 'Por projeto Compose, stack Swarm ou dev.dozzle.group.'
-  show-app-icons: 'Ícones de apps'
-  show-app-icons-desc: 'Incluídos no Dozzle, nunca baixados da internet.'
+  group-containers-desc: "Por projeto Compose, stack Swarm ou dev.dozzle.group."
+  show-app-icons: "Ícones de apps"
+  show-app-icons-desc: "Incluídos no Dozzle, nunca baixados da internet."
   search: Pesquisar logs com
-  search-desc: 'Substitui a busca do navegador ao visualizar um container.'
+  search-desc: "Substitui a busca do navegador ao visualizar um container."
   show-std: Mostrar rótulos stdout e stderr
-  show-std-desc: 'Indica se a linha veio do stdout ou do stderr.'
+  show-std-desc: "Indica se a linha veio do stdout ou do stderr."
   automatic-redirect: Seguir containers recriados
-  automatic-redirect-desc: 'Quando um container é substituído, vá para o novo.'
+  automatic-redirect-desc: "Quando um container é substituído, vá para o novo."
   compact: Modo compacto
-  compact-desc: 'Espaçamento menor para caber mais linhas na tela.'
+  compact-desc: "Espaçamento menor para caber mais linhas na tela."
   size:
     small: Pequeno
     medium: Médio

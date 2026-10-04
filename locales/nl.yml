@@ -23,12 +23,12 @@ toolbar:
   update-rolled-back: De nieuwe container bleef niet draaien, dus de vorige is hersteld.
   update-done: Container succesvol bijgewerkt
   update-up-to-date: Al bijgewerkt
-  update-available: 'Update beschikbaar'
-  check-for-updates: 'Controleren op updates'
-  checking-for-updates: 'Bezig met controleren op updates...'
-  no-updates: 'Geen updates'
-  dismiss-update: 'Deze update negeren'
-  view-release-notes: 'Release-opmerkingen bekijken'
+  update-available: "Update beschikbaar"
+  check-for-updates: "Controleren op updates"
+  checking-for-updates: "Bezig met controleren op updates..."
+  no-updates: "Geen updates"
+  dismiss-update: "Deze update negeren"
+  view-release-notes: "Release-opmerkingen bekijken"
   show-hostname: Toon hostnaam
   show-container-name: Toon containernaam
   shell: Shell
@@ -192,6 +192,7 @@ error:
   unable-to-complete-action: Kan actie niet voltooien
   invalid-action: Ongeldige actie
   unable-to-update: Kan container niet bijwerken
+  start-container-first: Start eerst de container
   something-went-wrong: Er is iets misgegaan
   unknown-error: Onbekende fout
   events-stream:
@@ -205,8 +206,8 @@ error:
       De verbinding met de API is verlopen. Controleer je netwerkverbinding en probeer het opnieuw.
 alert:
   image-update:
-    title: 'Update beschikbaar'
-    message: 'Er is een nieuwere image gepubliceerd voor {image}.'
+    title: "Update beschikbaar"
+    message: "Er is een nieuwere image gepubliceerd voor {image}."
     enable-actions: '<a href="https://dozzle.dev/guide/actions" target="_blank" rel="noreferrer noopener">Schakel acties in</a> om deze hier op te halen en opnieuw aan te maken.'
   redirected:
     title: Doorgestuurd naar nieuwe container
@@ -269,32 +270,32 @@ settings:
   auto-update-containers: "Je containers blijven up-to-date"
   auto-update-daily: "Controleert dagelijks om {time}, servertijd."
   auto-update-weekly: "Controleert wekelijks op zondag om {time}, servertijd."
-  show-image-update-alert: 'Image-updatemeldingen'
-  show-image-update-alert-desc: 'Melden wanneer er een nieuwere tag van een draaiende image bestaat.'
+  show-image-update-alert: "Image-updatemeldingen"
+  show-image-update-alert-desc: "Melden wanneer er een nieuwere tag van een draaiende image bestaat."
   cloud-desc: Stream logs naar Dozzle Cloud voor AI-gestuurde analyses en zoeken over instanties heen.
   locale: Taal
   small-scrollbars: Smalle scrollbalken
-  small-scrollbars-desc: 'Dunnere schuifbalken, handig op kleinere schermen.'
+  small-scrollbars-desc: "Dunnere schuifbalken, handig op kleinere schermen."
   show-timestamps: Tijdstempel tonen
   soft-wrap: Regelafbreking
   highlight-errors: Foutregels markeren
-  highlight-errors-desc: 'De gekleurde niveaumarkering wordt altijd getoond.'
+  highlight-errors-desc: "De gekleurde niveaumarkering wordt altijd getoond."
   datetime-format: Datum en tijd
   font-size: Lettergrootte
   color-scheme: Thema
   show-stopped-containers: Gestopte containers tonen
   group-containers: Containers groeperen
-  group-containers-desc: 'Op Compose-project, Swarm-stack of dev.dozzle.group.'
-  show-app-icons: 'App-pictogrammen'
-  show-app-icons-desc: 'Meegeleverd met Dozzle, nooit van internet opgehaald.'
+  group-containers-desc: "Op Compose-project, Swarm-stack of dev.dozzle.group."
+  show-app-icons: "App-pictogrammen"
+  show-app-icons-desc: "Meegeleverd met Dozzle, nooit van internet opgehaald."
   search: Logs doorzoeken met
-  search-desc: 'Vervangt het zoeken van de browser tijdens het bekijken van een container.'
+  search-desc: "Vervangt het zoeken van de browser tijdens het bekijken van een container."
   show-std: Toon stdout- en stderr-labels
-  show-std-desc: 'Geef aan of een regel van stdout of stderr komt.'
+  show-std-desc: "Geef aan of een regel van stdout of stderr komt."
   automatic-redirect: Opnieuw gemaakte containers volgen
-  automatic-redirect-desc: 'Wanneer een container wordt vervangen, spring naar de nieuwe.'
+  automatic-redirect-desc: "Wanneer een container wordt vervangen, spring naar de nieuwe."
   compact: Compacte modus
-  compact-desc: 'Kleinere tussenruimte zodat er meer regels op het scherm passen.'
+  compact-desc: "Kleinere tussenruimte zodat er meer regels op het scherm passen."
   size:
     small: Klein
     medium: Middel

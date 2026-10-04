@@ -1,6 +1,6 @@
 ---
 title: Acciones sobre contenedores
-sourceHash: a5b7715163fe
+sourceHash: b77ad4fdc46b
 ---
 
 # Acciones sobre contenedores
@@ -11,7 +11,7 @@ Dozzle permite ejecutar acciones sobre los contenedores: `start`, `stop`, `resta
 
 La acción `update` descarga la última imagen del contenedor y lo recrea con la misma configuración, algo útil para actualizar un contenedor sin tocar su archivo de Compose. `update` solo tiene efecto real cuando la imagen usa una etiqueta móvil (por ejemplo, `latest` o `stable`); con una etiqueta fija se volverá a descargar la misma imagen.
 
-El contenedor antiguo se conserva, renombrado, hasta que el nuevo lleva 10 segundos en marcha sin reiniciarse y, si su imagen tiene healthcheck, se ha declarado sano. Si el nuevo contenedor no arranca, termina, se reinicia o pasa a no sano, Dozzle lo elimina y vuelve a poner el antiguo, y la actualización indica **revertido** con el motivo. El nuevo contenedor lleva la etiqueta `dev.dozzle.previous-image` con el id de la imagen que reemplazó, y `dev.dozzle.previous-ref` con el digest `repo@sha256:…` de esa imagen (no existe para imágenes construidas localmente). Un contenedor que no estaba en marcha, como una tarea puntual que ya terminó, se recrea con la nueva imagen y se deja detenido, así que no se vuelve a ejecutar ni se comprueba.
+El contenedor antiguo se conserva, renombrado, hasta que el nuevo lleva 10 segundos en marcha sin reiniciarse y, si su imagen tiene healthcheck, se ha declarado sano. Si el nuevo contenedor no arranca, termina, se reinicia o pasa a no sano, Dozzle lo elimina y vuelve a poner el antiguo, y la actualización indica **revertido** con el motivo. El nuevo contenedor lleva la etiqueta `dev.dozzle.previous-image` con el id de la imagen que reemplazó, y `dev.dozzle.previous-ref` con el digest `repo@sha256:…` de esa imagen (no existe para imágenes construidas localmente). Un contenedor detenido nunca se actualiza, porque puede estar detenido a propósito. Se sigue mostrando que hay una imagen más reciente, pero no se ofrece **Actualizar**, la programación lo omite, y una actualización pedida de todos modos, por ejemplo desde Dozzle Cloud, se rechaza con «Inicia primero el contenedor». Cuando se inicia, ya se puede actualizar.
 
 > [!WARNING]
 > `remove` elimina el contenedor: se pierden los datos de su capa de escritura y sus volúmenes anónimos quedan sueltos, sin contenedor. `update` recrea el contenedor y conserva todos los volúmenes, también los anónimos, y todos los bind mounts. Solo se pierden los datos escritos en la capa de escritura del contenedor.
@@ -129,9 +129,9 @@ services:
 
 Las etiquetas antiguas siguen funcionando: `dev.dozzle.auto-update=true` cuenta como `auto`, y `dev.dozzle.update-check=false` como `off`.
 
-A la hora programada, Dozzle compara cada contenedor de la programación con su registro y actualiza solo los que tienen una imagen más reciente, el propio Dozzle el último. Cada actualización es el intercambio seguro descrito arriba: si el contenedor nuevo no se mantiene en marcha, vuelve el anterior. Se omiten los contenedores que no están sanos, los que Dozzle [no puede comprobar](#lo-que-no-se-puede-comprobar) y los que se [revirtieron](#rolling-back) desde la imagen que se ofrece. **Configuración → Actualizaciones** muestra los contenedores que actualizará la próxima ejecución.
+A la hora programada, Dozzle compara cada contenedor de la programación con su registro y actualiza solo los que tienen una imagen más reciente, el propio Dozzle el último. Cada actualización es el intercambio seguro descrito arriba: si el contenedor nuevo no se mantiene en marcha, vuelve el anterior. Se omiten los contenedores detenidos o que no están sanos, los que Dozzle [no puede comprobar](#lo-que-no-se-puede-comprobar) y los que se [revirtieron](#rolling-back) desde la imagen que se ofrece. **Configuración → Actualizaciones** muestra los contenedores que actualizará la próxima ejecución.
 
-Con **Todo**, una base de datos con un tag flotante como `postgres:latest` puede saltar a una versión mayor cuyos archivos de datos no sabe leer. Al elegir **Todo** se muestran los contenedores que guardan datos en volúmenes con nombre. Ponles la etiqueta `dev.dozzle.update: off` para dejarlos fuera. Con **Todo**, los contenedores detenidos no se tocan, salvo que tengan la etiqueta `auto`.
+Con **Todo**, una base de datos con un tag flotante como `postgres:latest` puede saltar a una versión mayor cuyos archivos de datos no sabe leer. Al elegir **Todo** se muestran los contenedores que guardan datos en volúmenes con nombre. Ponles la etiqueta `dev.dozzle.update: off` para dejarlos fuera.
 
 **Qué contenedores** se guarda en [`dozzle.yml`](/es/guide/setup-wizard#dozzle-yml) como `updateContainers`, así que cambiarlo desde la interfaz requiere `/data` en un volumen. La actualización automática funciona en modo servidor, también para los contenedores de [agentes remotos](/es/guide/agent), y requiere las acciones activadas. ¿Vienes de Watchtower? Consulta [Pasar de Watchtower a Dozzle](/es/guide/moving-from-watchtower).
 

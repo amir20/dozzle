@@ -33,7 +33,9 @@
           <div class="min-w-0 flex-1">
             <div class="truncate text-sm font-medium">{{ item.name }}</div>
             <div class="text-base-content/60 truncate font-mono text-xs">{{ item.image }}</div>
-            <div v-if="item.error" class="text-base-content/60 mt-1 text-xs wrap-anywhere">{{ item.error }}</div>
+            <div v-if="item.error" class="text-base-content/60 mt-1 text-xs wrap-anywhere">
+              {{ updateErrorText(item.error, $t) }}
+            </div>
           </div>
           <span class="status-pill shrink-0" :class="pill(item.status)">
             {{ $t(`updates.status.${item.status}`) }}
@@ -55,7 +57,15 @@
             :ref="(el) => container.id === focus && (focusEl = el as HTMLElement)"
             class="hover:bg-base-300/40 flex items-start gap-3 p-4 transition-colors"
           >
-            <input v-model="selected" type="checkbox" class="checkbox checkbox-sm mt-0.5" :value="container.id" />
+            <!-- A stopped container is listed, since its update is waiting, but
+                 never updated: it has to be started first. -->
+            <input
+              v-model="selected"
+              type="checkbox"
+              class="checkbox checkbox-sm mt-0.5"
+              :value="container.id"
+              :disabled="container.state !== 'running'"
+            />
             <ContainerIcon :state="container.state" :health="container.health" :slug="container.icon" class="size-6" />
             <div class="min-w-0 flex-1">
               <div class="truncate text-sm font-medium">{{ container.name }}</div>
@@ -64,6 +74,9 @@
                 <template v-if="multipleHosts">
                   <span class="text-base-content/40"> · {{ container.hostLabel }}</span>
                 </template>
+              </div>
+              <div v-if="container.state !== 'running'" class="text-base-content/60 mt-1 text-xs">
+                {{ $t("error.start-container-first") }}
               </div>
             </div>
             <span
@@ -134,6 +147,7 @@
 <script lang="ts" setup>
 import { Container } from "@/models/Container";
 import { type BulkUpdateItem, type BulkUpdateStatus, isFinished } from "@/composable/containers/bulkUpdate";
+import { updateErrorText } from "@/composable/containers/containerActions";
 import { DEFAULT_UPDATE_CONTAINERS_MODE, UPDATE_LABEL, autoUpdates } from "@/composable/containers/updatePolicy";
 
 const { focus } = defineProps<{ focus?: string }>();
@@ -159,8 +173,8 @@ const updateMode = computed(() => setupStatus.value?.autoUpdate?.containers ?? D
 const candidates = computed(() => containers.value.filter(hasUpdate).sort((a, b) => a.name.localeCompare(b.name)));
 
 // Running containers are selected to begin with, and so is one that appears
-// after the drawer opened (a check finishing). A stopped one is listed but left
-// for the user to opt in, since it may be stopped on purpose.
+// after the drawer opened (a check finishing). A stopped one is listed but cannot
+// be selected: it is never updated until someone starts it.
 const selected = ref<string[]>([]);
 const seen = new Set<string>();
 watch(
@@ -174,7 +188,10 @@ watch(
   { immediate: true },
 );
 
-const selectedContainers = computed(() => candidates.value.filter((c) => selected.value.includes(c.id)));
+// A container stopped after it was selected drops out too.
+const selectedContainers = computed(() =>
+  candidates.value.filter((c) => c.state === "running" && selected.value.includes(c.id)),
+);
 const selfSelected = computed(() => selectedContainers.value.some(isSelf));
 
 const showingJob = ref(!!job.value?.running);

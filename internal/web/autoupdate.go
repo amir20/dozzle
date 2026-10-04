@@ -357,7 +357,7 @@ func (s *autoUpdateScheduler) updateScheduledContainers(ctx context.Context) {
 }
 
 // scheduledContainers picks the containers the schedule may update under
-// mode: auto by their label or by the mode, and healthy. Dozzle itself is left
+// mode: auto by their label or by the mode, running and healthy. Dozzle itself is left
 // out; it follows the schedule on its own, last.
 func scheduledContainers(containers []container.Container, mode updatepolicy.Mode, selfService string) []container.Container {
 	picked := make([]container.Container, 0, len(containers))
@@ -370,10 +370,10 @@ func scheduledContainers(containers []container.Container, mode updatepolicy.Mod
 		if updatepolicy.Resolve(c.Labels, mode) != updatepolicy.Auto {
 			continue
 		}
-		// All reaches containers nobody looked at, and a stopped one is
-		// usually stopped on purpose: a one-shot job that exited, or something
-		// switched off. Only a label updates a container while it is stopped.
-		if _, labelled := updatepolicy.FromLabels(c.Labels); !labelled && c.State != "running" {
+		// A stopped container is never updated, labelled or not: it is
+		// usually stopped on purpose, a one-shot job that exited or something
+		// switched off. It is updated on the first run after someone starts it.
+		if c.State != "running" {
 			log.Debug().Str("container", c.Name).Str("state", c.State).Msg("auto update: container not updated, it is not running")
 			continue
 		}

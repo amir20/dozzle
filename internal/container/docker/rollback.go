@@ -49,6 +49,11 @@ func (d *Service) RollbackContainer(ctx context.Context, c container.Container, 
 	if isSelf(c.ID) || mayBeSelf(inspectResp) {
 		return fail(fmt.Errorf("%w for Dozzle's own container, update it instead", container.ErrRollbackUnsupported))
 	}
+	// The swap refuses one anyway; checked here so nothing is inspected or
+	// listed for it first.
+	if !swap.Running(inspectResp.State) {
+		return fail(container.ErrNotRunning)
+	}
 
 	ref := swap.ImageRef(inspectResp.Config)
 	var fromImage *image.InspectResponse
@@ -112,7 +117,7 @@ func (d *Service) RollbackContainer(ctx context.Context, c container.Container, 
 	})
 	if err != nil {
 		if result.OldStopped && result.RolledBack {
-			if rejoinErr := d.rejoinDependents(ctx, dependents, inspectResp.ID, result.RestoredID, true); rejoinErr != nil {
+			if rejoinErr := d.rejoinDependents(ctx, dependents, inspectResp.ID, result.RestoredID); rejoinErr != nil {
 				err = fmt.Errorf("%w; %v", err, rejoinErr)
 			}
 		}
@@ -134,9 +139,7 @@ func (d *Service) RollbackContainer(ctx context.Context, c container.Container, 
 		ToDigest:    swap.PreviousRef(&target, ref),
 	}
 
-	// As with an update, a container that was not running is left stopped,
-	// and so are its dependents.
-	if err := d.rejoinDependents(ctx, dependents, inspectResp.ID, result.NewID, swap.Running(inspectResp.State)); err != nil {
+	if err := d.rejoinDependents(ctx, dependents, inspectResp.ID, result.NewID); err != nil {
 		progress(container.UpdateProgress{Status: container.UpdateError, Error: err.Error(), Result: &done})
 		return err
 	}

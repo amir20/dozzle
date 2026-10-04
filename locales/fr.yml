@@ -23,12 +23,12 @@ toolbar:
   update-rolled-back: Le nouveau conteneur ne restait pas démarré, le précédent a donc été restauré.
   update-done: Conteneur mis à jour avec succès
   update-up-to-date: Déjà à jour
-  update-available: 'Mise à jour disponible'
-  check-for-updates: 'Rechercher des mises à jour'
-  checking-for-updates: 'Recherche de mises à jour...'
-  no-updates: 'Aucune mise à jour'
-  dismiss-update: 'Ignorer cette mise à jour'
-  view-release-notes: 'Voir les notes de version'
+  update-available: "Mise à jour disponible"
+  check-for-updates: "Rechercher des mises à jour"
+  checking-for-updates: "Recherche de mises à jour..."
+  no-updates: "Aucune mise à jour"
+  dismiss-update: "Ignorer cette mise à jour"
+  view-release-notes: "Voir les notes de version"
   show-hostname: Afficher le nom d'hôte
   show-container-name: Afficher le nom du conteneur
   shell: Shell
@@ -192,6 +192,7 @@ error:
   unable-to-complete-action: Impossible de terminer l'action
   invalid-action: Action non valide
   unable-to-update: Impossible de mettre à jour le conteneur
+  start-container-first: "Démarrez d'abord le conteneur"
   something-went-wrong: Quelque chose s'est mal passé
   unknown-error: Erreur inconnue
   events-stream:
@@ -204,8 +205,8 @@ error:
       La connexion de l'interface utilisateur de Dozzle à l'API a mis trop de temps. Veuillez vérifier la connexion et réessayez.
 alert:
   image-update:
-    title: 'Mise à jour disponible'
-    message: 'Une image plus récente a été publiée pour {image}.'
+    title: "Mise à jour disponible"
+    message: "Une image plus récente a été publiée pour {image}."
     enable-actions: '<a href="https://dozzle.dev/guide/actions" target="_blank" rel="noreferrer noopener">Activez les actions</a> pour la télécharger et recréer le conteneur ici.'
   redirected:
     title: Redirigé vers le nouveau conteneur
@@ -268,12 +269,12 @@ settings:
   auto-update-containers: "Vos conteneurs restent à jour"
   auto-update-daily: "Vérifie chaque jour à {time}, heure du serveur."
   auto-update-weekly: "Vérifie chaque semaine, le dimanche à {time}, heure du serveur."
-  show-image-update-alert: 'Alertes de mise à jour d''image'
-  show-image-update-alert-desc: 'Prévenir lorsqu''un tag plus récent d''une image en cours d''exécution existe.'
+  show-image-update-alert: "Alertes de mise à jour d'image"
+  show-image-update-alert-desc: "Prévenir lorsqu'un tag plus récent d'une image en cours d'exécution existe."
   cloud-desc: Diffusez les logs vers Dozzle Cloud pour des analyses assistées par IA et la recherche entre instances.
   locale: Langue
   small-scrollbars: Barres de défilement fines
-  small-scrollbars-desc: 'Barres de défilement plus fines, pratiques sur les petits écrans.'
+  small-scrollbars-desc: "Barres de défilement plus fines, pratiques sur les petits écrans."
   show-timestamps: Afficher les horodatages
   soft-wrap: Retour à la ligne
   highlight-errors: Mettre en évidence les lignes d'erreur
@@ -283,17 +284,17 @@ settings:
   color-scheme: Thème
   show-stopped-containers: Afficher les conteneurs arrêtés
   group-containers: Grouper les conteneurs
-  group-containers-desc: 'Par projet Compose, stack Swarm ou dev.dozzle.group.'
-  show-app-icons: 'Icônes d''applications'
-  show-app-icons-desc: 'Fournies avec Dozzle, jamais téléchargées depuis Internet.'
+  group-containers-desc: "Par projet Compose, stack Swarm ou dev.dozzle.group."
+  show-app-icons: "Icônes d'applications"
+  show-app-icons-desc: "Fournies avec Dozzle, jamais téléchargées depuis Internet."
   search: Rechercher dans les logs avec
-  search-desc: 'Remplace la recherche du navigateur lors de l''affichage d''un conteneur.'
+  search-desc: "Remplace la recherche du navigateur lors de l'affichage d'un conteneur."
   show-std: Afficher les étiquettes stdout et stderr
-  show-std-desc: 'Indique si une ligne provient de stdout ou de stderr.'
+  show-std-desc: "Indique si une ligne provient de stdout ou de stderr."
   automatic-redirect: Suivre les conteneurs recréés
-  automatic-redirect-desc: 'Quand un conteneur est remplacé, passer au nouveau.'
+  automatic-redirect-desc: "Quand un conteneur est remplacé, passer au nouveau."
   compact: Mode compact
-  compact-desc: 'Espacement réduit pour afficher plus de lignes à l''écran.'
+  compact-desc: "Espacement réduit pour afficher plus de lignes à l'écran."
   size:
     small: Petit
     medium: Moyen

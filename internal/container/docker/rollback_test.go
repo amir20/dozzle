@@ -149,6 +149,17 @@ func TestRollbackContainerUnsupportedForSwarm(t *testing.T) {
 	assert.Empty(t, cli.engine.Calls)
 }
 
+// Like an update, a rollback never touches a container someone stopped.
+func TestRollbackContainerRefusesStoppedContainer(t *testing.T) {
+	old := updatedApp(nil)
+	old.State = &docker_types.State{Status: "exited"}
+	cli := newRollbackClient(t, old)
+	run := runRollback(&Service{client: cli}, container.RollbackOptions{})
+	require.ErrorIs(t, run.err, container.ErrNotRunning)
+	assert.Equal(t, "error", run.last.Status)
+	assert.Empty(t, cli.engine.Calls)
+}
+
 func TestRollbackContainerUndoneWhenPreviousImageFails(t *testing.T) {
 	cli := newRollbackClient(t, updatedApp(nil))
 	cli.engine.StartErrFor = "new1"

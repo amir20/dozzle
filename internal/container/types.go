@@ -290,6 +290,12 @@ type RollbackOptions struct {
 }
 
 var (
+	// ErrNotRunning refuses an update or rollback of a container that is not
+	// running. A stopped container may be stopped on purpose, and only someone
+	// starting it decides it should run again. The text is what people read,
+	// in the UI and in Dozzle Cloud; assets/composable/containers/
+	// containerActions.ts matches it to show it translated.
+	ErrNotRunning = errors.New("start the container first")
 	// ErrRollbackUnsupported is returned where a rollback cannot run: a swarm
 	// service, Kubernetes, Dozzle's own container.
 	ErrRollbackUnsupported = errors.New("rollback is not supported")

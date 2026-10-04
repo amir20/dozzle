@@ -263,6 +263,11 @@ func (d *Service) UpdateContainer(ctx context.Context, c container.Container, pr
 	if inspectResp.Config == nil {
 		return fail(fmt.Errorf("inspect failed: container has no config"))
 	}
+	// Checked before the pull: there is nothing to pull for a container that
+	// will not be swapped.
+	if !swap.Running(inspectResp.State) {
+		return fail(container.ErrNotRunning)
+	}
 
 	imageName := swap.ImageRef(inspectResp.Config)
 
@@ -374,7 +379,7 @@ func (d *Service) UpdateContainer(ctx context.Context, c container.Container, pr
 		// Whatever happened, a stopped old container took its namespace with
 		// it, so dependents rejoin whichever container now holds the name.
 		if result.OldStopped && result.RolledBack {
-			if rejoinErr := d.rejoinDependents(ctx, dependents, inspectResp.ID, result.RestoredID, true); rejoinErr != nil {
+			if rejoinErr := d.rejoinDependents(ctx, dependents, inspectResp.ID, result.RestoredID); rejoinErr != nil {
 				err = fmt.Errorf("%w; %v", err, rejoinErr)
 			}
 		}
@@ -388,10 +393,7 @@ func (d *Service) UpdateContainer(ctx context.Context, c container.Container, pr
 	}
 	done := d.updateResult(ctx, inspectResp, oldImage, imageName, result.NewID, newImageID)
 
-	// A container that was not running is replaced but left stopped, so its
-	// dependents cannot start against it either.
-	parentRunning := swap.Running(inspectResp.State)
-	if err := d.rejoinDependents(ctx, dependents, inspectResp.ID, result.NewID, parentRunning); err != nil {
+	if err := d.rejoinDependents(ctx, dependents, inspectResp.ID, result.NewID); err != nil {
 		progress(container.UpdateProgress{Status: container.UpdateError, Error: err.Error(), Result: &done})
 		return true, err
 	}
@@ -435,11 +437,11 @@ func shortContainerID(id string) string {
 
 // rejoinDependents recreates every container in ids, which shared the network
 // namespace of oldID, joined to newID instead. Each keeps its own image; one
-// that was stopped is recreated but left stopped, and so is every one when
-// newID is not running (start would fail with no namespace to join). Dozzle's own container is
-// handed to the self-update helper, since recreating it here would stop this
-// process halfway through.
-func (d *Service) rejoinDependents(ctx context.Context, ids []string, oldID, newID string, parentRunning bool) error {
+// that was stopped is recreated but left stopped. newID is running: only a
+// running container is swapped. Dozzle's own container is handed to the
+// self-update helper, since recreating it here would stop this process halfway
+// through.
+func (d *Service) rejoinDependents(ctx context.Context, ids []string, oldID, newID string) error {
 	var errs []error
 	// The helper stops this process within seconds, so Dozzle goes last:
 	// stopped between a remove and a create, a dependent would be lost.
@@ -489,10 +491,7 @@ func (d *Service) rejoinDependents(ctx context.Context, ids []string, oldID, new
 			errs = append(errs, fmt.Errorf("create %s failed: %w", name, err))
 			continue
 		}
-		if wasRunning && !parentRunning {
-			log.Info().Str("container", name).Msg("left stopped: the container it shares a network with is not running")
-		}
-		if wasRunning && parentRunning {
+		if wasRunning {
 			if err := d.client.ContainerActions(ctx, container.Start, depID); err != nil {
 				errs = append(errs, fmt.Errorf("start %s failed: %w", name, err))
 			}

@@ -23,12 +23,12 @@ toolbar:
   update-rolled-back: Den nye container blev ikke ved med at køre, så den forrige blev gendannet.
   update-done: Container opdateret succesfuldt
   update-up-to-date: Allerede opdateret
-  update-available: 'Opdatering tilgængelig'
-  check-for-updates: 'Søg efter opdateringer'
-  checking-for-updates: 'Søger efter opdateringer...'
-  no-updates: 'Ingen opdateringer'
-  dismiss-update: 'Afvis denne opdatering'
-  view-release-notes: 'Se udgivelsesnoter'
+  update-available: "Opdatering tilgængelig"
+  check-for-updates: "Søg efter opdateringer"
+  checking-for-updates: "Søger efter opdateringer..."
+  no-updates: "Ingen opdateringer"
+  dismiss-update: "Afvis denne opdatering"
+  view-release-notes: "Se udgivelsesnoter"
   show-hostname: Vis værtsnavn
   show-container-name: Vis containernavn
   shell: Shell
@@ -192,6 +192,7 @@ error:
   unable-to-complete-action: Kan ikke fuldføre handling
   invalid-action: Ugyldig handling
   unable-to-update: Kan ikke opdatere container
+  start-container-first: Start containeren først
   something-went-wrong: Noget gik galt
   unknown-error: Ukendt fejl
   events-stream:
@@ -204,8 +205,8 @@ error:
       Dozzle UI timed ud inden der blev forbundet til API. Tjek venligst din internet forbindelse og prøv igen.
 alert:
   image-update:
-    title: 'Opdatering tilgængelig'
-    message: 'Et nyere image er udgivet til {image}.'
+    title: "Opdatering tilgængelig"
+    message: "Et nyere image er udgivet til {image}."
     enable-actions: '<a href="https://dozzle.dev/guide/actions" target="_blank" rel="noreferrer noopener">Aktivér handlinger</a> for at hente den og genskabe containeren herfra.'
   redirected:
     title: Omdirigeret til ny container
@@ -268,32 +269,32 @@ settings:
   auto-update-containers: "Dine containere holdes opdateret"
   auto-update-daily: "Tjekker dagligt kl. {time}, servertid."
   auto-update-weekly: "Tjekker ugentligt om søndagen kl. {time}, servertid."
-  show-image-update-alert: 'Image-opdateringer'
-  show-image-update-alert-desc: 'Giv besked, når der findes et nyere tag til et kørende image.'
+  show-image-update-alert: "Image-opdateringer"
+  show-image-update-alert-desc: "Giv besked, når der findes et nyere tag til et kørende image."
   cloud-desc: Stream logs til Dozzle Cloud for AI-drevne undersøgelser og søgning på tværs af installationer.
   locale: Sprog
   small-scrollbars: Tynde rullebjælker
-  small-scrollbars-desc: 'Tyndere scrollbarer, praktisk på mindre skærme.'
+  small-scrollbars-desc: "Tyndere scrollbarer, praktisk på mindre skærme."
   show-timestamps: Vis tids stempler
   soft-wrap: Linjeombrydning
   highlight-errors: Fremhæv fejllinjer
-  highlight-errors-desc: 'Den farvede niveaumarkør vises altid.'
+  highlight-errors-desc: "Den farvede niveaumarkør vises altid."
   datetime-format: Dato og tid
   font-size: Skriftstørrelse
   color-scheme: Tema
   show-stopped-containers: Vis stoppet containere
   group-containers: Gruppér containere
-  group-containers-desc: 'Efter Compose-projekt, Swarm-stack eller dev.dozzle.group.'
-  show-app-icons: 'App-ikoner'
-  show-app-icons-desc: 'Følger med Dozzle og hentes aldrig fra internettet.'
+  group-containers-desc: "Efter Compose-projekt, Swarm-stack eller dev.dozzle.group."
+  show-app-icons: "App-ikoner"
+  show-app-icons-desc: "Følger med Dozzle og hentes aldrig fra internettet."
   search: Søg i logs med
-  search-desc: 'Erstatter browserens søgning, mens du ser en container.'
+  search-desc: "Erstatter browserens søgning, mens du ser en container."
   show-std: Vis stdout og stderr mærker
-  show-std-desc: 'Markér om en linje kom fra stdout eller stderr.'
+  show-std-desc: "Markér om en linje kom fra stdout eller stderr."
   automatic-redirect: Følg genskabte containere
-  automatic-redirect-desc: 'Når en container udskiftes, hop til den nye.'
+  automatic-redirect-desc: "Når en container udskiftes, hop til den nye."
   compact: Kompakt tilstand
-  compact-desc: 'Tættere afstand, så flere linjer kan være på skærmen.'
+  compact-desc: "Tættere afstand, så flere linjer kan være på skærmen."
   size:
     small: Lille
     medium: Mellem

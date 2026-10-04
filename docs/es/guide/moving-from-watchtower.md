@@ -1,6 +1,6 @@
 ---
 title: Pasar de Watchtower a Dozzle
-sourceHash: de6ae3b34bcd
+sourceHash: 3c48dbce256f
 ---
 
 # Pasar de Watchtower a Dozzle
@@ -61,6 +61,6 @@ Las etiquetas antiguas de Dozzle se siguen aceptando: `dev.dozzle.auto-update=tr
 
 - El contenedor anterior se conserva hasta que el nuevo se mantiene en marcha, y sano si tiene healthcheck. Si no, vuelve el anterior.
 - Los contenedores que no están sanos se omiten.
-- Con **Todo**, los contenedores detenidos no se tocan, salvo que tengan la etiqueta `auto`.
+- Los contenedores detenidos nunca se actualizan, aunque tengan la etiqueta `auto`.
 - Con [Dozzle Cloud](/es/guide/dozzle-cloud), una actualización programada que empieza a fallar se puede [revertir](/es/guide/actions#rolling-back). La programación deja ese contenedor en paz hasta que se publique una imagen más reciente.
 - Las imágenes fijadas a un digest y las construidas en local se omiten, porque no hay nada más reciente con qué compararlas.

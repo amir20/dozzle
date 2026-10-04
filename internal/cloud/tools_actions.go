@@ -68,6 +68,10 @@ func executeUpdateContainer(ctx context.Context, argsJSON string, deps ToolDeps)
 	if err != nil {
 		return nil, fmt.Errorf("container not found: %w", err)
 	}
+	// The host refuses too; this answers without a round trip to an agent.
+	if cs.Container.State != "running" {
+		return nil, notRunningError(cs.Container)
+	}
 
 	progressCh := make(chan container.UpdateProgress)
 	var updated bool
@@ -100,6 +104,11 @@ func executeUpdateContainer(ctx context.Context, argsJSON string, deps ToolDeps)
 	}, nil
 }
 
+// notRunningError refuses to update or roll back c, which is not running.
+func notRunningError(c container.Container) error {
+	return fmt.Errorf("container %s is %s. Start the container first: a stopped container is never updated or rolled back", c.Name, c.State)
+}
+
 type rollbackContainerArgs struct {
 	ContainerID        string `json:"container_id"`
 	Host               string `json:"host_id"`
@@ -127,6 +136,9 @@ func executeRollbackContainer(ctx context.Context, argsJSON string, deps ToolDep
 	cs, err := deps.scoped().FindContainer(hostID, containerID)
 	if err != nil {
 		return nil, fmt.Errorf("container not found: %w", err)
+	}
+	if cs.Container.State != "running" {
+		return nil, notRunningError(cs.Container)
 	}
 
 	progressCh := make(chan container.UpdateProgress)

@@ -356,13 +356,13 @@ func AvailableTools(deps ToolDeps) []*pb.ToolDefinition {
 			},
 			&pb.ToolDefinition{
 				Name:           toolUpdateContainer,
-				Description:    "Update a Docker container by pulling the latest version of its image and recreating it with the same configuration. If the image is already up to date, no recreation occurs. For swarm service containers, updates the service instead.",
+				Description:    "Update a Docker container by pulling the latest version of its image and recreating it with the same configuration. If the image is already up to date, no recreation occurs. For swarm service containers, updates the service instead. A stopped container is never updated: it has to be started first.",
 				ParametersJson: writeTargetedParams,
 				Scope:          pb.ToolScope_TOOL_SCOPE_CONTAINER,
 			},
 			&pb.ToolDefinition{
 				Name:           toolRollbackContainer,
-				Description:    "Roll a Docker container back to the image it ran before its last update, keeping its configuration and volumes. Only after the user confirms. Not for swarm services.",
+				Description:    "Roll a Docker container back to the image it ran before its last update, keeping its configuration and volumes. Only after the user confirms. Not for swarm services or stopped containers.",
 				ParametersJson: rollbackContainerParams,
 				Scope:          pb.ToolScope_TOOL_SCOPE_CONTAINER,
 			},

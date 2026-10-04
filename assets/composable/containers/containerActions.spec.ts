@@ -27,7 +27,7 @@ vi.mock("@/composable/app/toast", () => ({
   }),
 }));
 
-const { useContainerActions } = await import("./containerActions");
+const { NOT_RUNNING_ERROR, useContainerActions } = await import("./containerActions");
 
 // Builds an SSE body the update endpoint would produce.
 function sseStream(events: Record<string, unknown>[]) {
@@ -148,5 +148,20 @@ describe("useContainerActions update progress", () => {
     const toast = holder.toasts.find((t) => t.type === "warning");
     expect(toast?.title).toBe("error.update-failed");
     expect(toast?.message).toBe("toolbar.update-rolled-back<br>replacement is &lt;b&gt;unhealthy&lt;/b&gt;");
+  });
+
+  // A stopped container is never updated: refused up front, or by the host.
+  test("says to start a stopped container first", async () => {
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue({ ok: false, status: 409 }));
+    const scope = effectScope();
+    const actions = scope.run(() =>
+      useContainerActions(shallowRef({ id: "abc", host: "localhost", image: "nginx:latest" } as Container)),
+    )!;
+    await actions.update();
+    expect(holder.toasts.find((t) => t.type === "error")?.message).toBe("error.start-container-first");
+
+    holder.toasts = [];
+    await run([{ status: "error", error: NOT_RUNNING_ERROR }]).update();
+    expect(holder.toasts.find((t) => t.type === "error")?.message).toBe("error.start-container-first");
   });
 });

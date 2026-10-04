@@ -268,6 +268,26 @@ func TestExecuteTool_UpdateContainerRolledBackFails(t *testing.T) {
 	assert.Contains(t, resp.Error, "rolled back")
 }
 
+// A stopped container is refused before the host is asked, for an update and
+// a rollback alike.
+func TestExecuteTool_UpdateAndRollbackRefuseStoppedContainer(t *testing.T) {
+	mockClient := &MockClientService{updateErr: errors.New("the host was asked")}
+	mockHost := &MockHostService{}
+	c := container.Container{ID: "abc123", Name: "backup", Host: "local", State: "exited"}
+	withResolver(mockHost, c)
+	mockHost.On("FindContainer", "local", "abc123", container.ContainerLabels(nil)).Return(container.NewContainerService(mockClient, c), nil)
+
+	deps := ToolDeps{HostService: mockHost, EnableActions: true}
+	resp := ExecuteTool(context.Background(), toolUpdateContainer, `{"container_id":"abc123"}`, deps)
+	assert.False(t, resp.Success)
+	assert.Contains(t, resp.Error, "Start the container first")
+
+	resp = ExecuteTool(context.Background(), toolRollbackContainer, `{"container_id":"abc123","expected_from_digest":"backup@sha256:new"}`, deps)
+	assert.False(t, resp.Success)
+	assert.Contains(t, resp.Error, "Start the container first")
+	assert.Empty(t, mockClient.rollbackOpts.ExpectedFromDigest, "nothing reached the container")
+}
+
 func TestExecuteTool_ListRunningContainers(t *testing.T) {
 	mockHost := &MockHostService{}
 	mockHost.On("ListAllContainers", container.ContainerLabels(nil)).Return([]container.Container{

@@ -23,12 +23,12 @@ toolbar:
   update-rolled-back: Der neue Container lief nicht stabil, deshalb wurde der vorherige wiederhergestellt.
   update-done: Container erfolgreich aktualisiert
   update-up-to-date: Bereits aktuell
-  update-available: 'Update verfügbar'
-  check-for-updates: 'Nach Updates suchen'
-  checking-for-updates: 'Suche nach Updates...'
-  no-updates: 'Keine Updates'
-  dismiss-update: 'Dieses Update ausblenden'
-  view-release-notes: 'Versionshinweise anzeigen'
+  update-available: "Update verfügbar"
+  check-for-updates: "Nach Updates suchen"
+  checking-for-updates: "Suche nach Updates..."
+  no-updates: "Keine Updates"
+  dismiss-update: "Dieses Update ausblenden"
+  view-release-notes: "Versionshinweise anzeigen"
   show-hostname: Host-Name anzeigen
   show-container-name: Container-Name anzeigen
   shell: Shell
@@ -192,6 +192,7 @@ error:
   unable-to-complete-action: Aktion konnte nicht abgeschlossen werden
   invalid-action: Ungültige Aktion
   unable-to-update: Container konnte nicht aktualisiert werden
+  start-container-first: Starten Sie zuerst den Container
   something-went-wrong: Etwas ist schiefgelaufen
   unknown-error: Unbekannter Fehler
   events-stream:
@@ -204,8 +205,8 @@ error:
       Das Dozzle UI hat beim Verbinden mit der API eine Zeitüberschreitung. Bitte überprüfen Sie die Netzwerkverbindung und versuchen Sie es erneut.
 alert:
   image-update:
-    title: 'Update verfügbar'
-    message: 'Für {image} wurde ein neueres Image veröffentlicht.'
+    title: "Update verfügbar"
+    message: "Für {image} wurde ein neueres Image veröffentlicht."
     enable-actions: '<a href="https://dozzle.dev/guide/actions" target="_blank" rel="noreferrer noopener">Aktionen aktivieren</a>, um es von hier aus zu laden und neu zu erstellen.'
   redirected:
     title: Zu neuem Container umgeleitet
@@ -268,32 +269,32 @@ settings:
   auto-update-containers: "Deine Container bleiben aktuell"
   auto-update-daily: "Prüft täglich um {time}, Serverzeit."
   auto-update-weekly: "Prüft wöchentlich sonntags um {time}, Serverzeit."
-  show-image-update-alert: 'Image-Update-Hinweise'
-  show-image-update-alert-desc: 'Benachrichtigen, wenn ein neuerer Tag eines laufenden Images existiert.'
+  show-image-update-alert: "Image-Update-Hinweise"
+  show-image-update-alert-desc: "Benachrichtigen, wenn ein neuerer Tag eines laufenden Images existiert."
   cloud-desc: Streamen Sie Logs an Dozzle Cloud für KI-gestützte Analysen und Suche über Instanzen hinweg.
   locale: Sprache
   small-scrollbars: Schmale Scrollleisten
-  small-scrollbars-desc: 'Schmalere Scrollleisten, praktisch auf kleineren Bildschirmen.'
+  small-scrollbars-desc: "Schmalere Scrollleisten, praktisch auf kleineren Bildschirmen."
   show-timestamps: Zeige Zeitstempel
   soft-wrap: Zeilenumbruch
   highlight-errors: Fehlerzeilen hervorheben
-  highlight-errors-desc: 'Die farbige Level-Markierung wird immer angezeigt.'
+  highlight-errors-desc: "Die farbige Level-Markierung wird immer angezeigt."
   datetime-format: Datum und Uhrzeit
   font-size: Schriftgröße
   color-scheme: Design
   show-stopped-containers: Zeige gestoppte Container
   group-containers: Container gruppieren
-  group-containers-desc: 'Nach Compose-Projekt, Swarm-Stack oder dev.dozzle.group.'
-  show-app-icons: 'App-Symbole'
-  show-app-icons-desc: 'In Dozzle enthalten, nie aus dem Internet geladen.'
+  group-containers-desc: "Nach Compose-Projekt, Swarm-Stack oder dev.dozzle.group."
+  show-app-icons: "App-Symbole"
+  show-app-icons-desc: "In Dozzle enthalten, nie aus dem Internet geladen."
   search: Logs durchsuchen mit
-  search-desc: 'Ersetzt die Browsersuche, während ein Container angezeigt wird.'
+  search-desc: "Ersetzt die Browsersuche, während ein Container angezeigt wird."
   show-std: Zeige stdout und stderr Labels
-  show-std-desc: 'Kennzeichnen, ob eine Zeile von stdout oder stderr stammt.'
+  show-std-desc: "Kennzeichnen, ob eine Zeile von stdout oder stderr stammt."
   automatic-redirect: Neu erstellten Containern folgen
-  automatic-redirect-desc: 'Wird ein Container ersetzt, zum neuen springen.'
+  automatic-redirect-desc: "Wird ein Container ersetzt, zum neuen springen."
   compact: Kompaktmodus
-  compact-desc: 'Engere Abstände, damit mehr Zeilen auf den Bildschirm passen.'
+  compact-desc: "Engere Abstände, damit mehr Zeilen auf den Bildschirm passen."
   size:
     small: Klein
     medium: Mittel

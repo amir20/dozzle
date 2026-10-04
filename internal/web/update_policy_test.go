@@ -125,7 +125,8 @@ func TestScheduledContainers_Modes(t *testing.T) {
 }
 
 // All leaves a stopped container alone unless its label asks for updates.
-func TestScheduledContainers_AllSkipsStopped(t *testing.T) {
+// A stopped container is never updated, whatever the mode or its label says.
+func TestScheduledContainers_SkipsStopped(t *testing.T) {
 	fleet := append(policyFleet(),
 		container.Container{ID: "a00000000007", Name: "migrate", Host: "nas", State: "exited"},
 		container.Container{ID: "a00000000008", Name: "fresh", Host: "nas", State: "created"},
@@ -133,7 +134,9 @@ func TestScheduledContainers_AllSkipsStopped(t *testing.T) {
 	)
 	setupTestEnv(t, true)
 	got := scheduledContainers(fleet, updatepolicy.ModeAll, "")
-	assert.Equal(t, []string{"web", "Postgres", "labelled", "legacy", "parked"}, names(got))
+	assert.Equal(t, []string{"web", "Postgres", "labelled", "legacy"}, names(got))
+	got = scheduledContainers(fleet, updatepolicy.ModeLabelled, "")
+	assert.NotContains(t, names(got), "parked")
 }
 
 // The scheduler never checks a container that is not on the schedule, and only

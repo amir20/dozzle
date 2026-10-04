@@ -23,12 +23,12 @@ toolbar:
   update-rolled-back: 新容器未能持续运行，已恢复之前的容器。
   update-done: 容器更新成功
   update-up-to-date: 已是最新版本
-  update-available: '有可用更新'
-  check-for-updates: '检查更新'
-  checking-for-updates: '正在检查更新...'
-  no-updates: '没有更新'
-  dismiss-update: '忽略此更新'
-  view-release-notes: '查看发行说明'
+  update-available: "有可用更新"
+  check-for-updates: "检查更新"
+  checking-for-updates: "正在检查更新..."
+  no-updates: "没有更新"
+  dismiss-update: "忽略此更新"
+  view-release-notes: "查看发行说明"
   show-hostname: 显示主机名
   show-container-name: 显示容器名称
   shell: 终端
@@ -192,6 +192,7 @@ error:
   unable-to-complete-action: 无法完成操作
   invalid-action: 无效操作
   unable-to-update: 无法更新容器
+  start-container-first: 请先启动容器
   something-went-wrong: 出了点问题
   unknown-error: 未知错误
   events-stream:
@@ -204,8 +205,8 @@ error:
       Dozzle UI在连接到API时超时。请检查网络连接并重试。
 alert:
   image-update:
-    title: '有可用更新'
-    message: '{image} 已发布更新的镜像。'
+    title: "有可用更新"
+    message: "{image} 已发布更新的镜像。"
     enable-actions: '<a href="https://dozzle.dev/guide/actions" target="_blank" rel="noreferrer noopener">启用操作</a>即可在此拉取并重建容器。'
   redirected:
     title: 重定向到新容器
@@ -268,32 +269,32 @@ settings:
   auto-update-containers: "你的容器会保持最新"
   auto-update-daily: "每天 {time} 检查（服务器时间）。"
   auto-update-weekly: "每周日 {time} 检查（服务器时间）。"
-  show-image-update-alert: '镜像更新提醒'
-  show-image-update-alert-desc: '当运行中的镜像有更新的标签时通知。'
+  show-image-update-alert: "镜像更新提醒"
+  show-image-update-alert-desc: "当运行中的镜像有更新的标签时通知。"
   cloud-desc: 将日志流式传输到 Dozzle Cloud，进行 AI 驱动的调查和跨实例搜索。
   locale: 语言
   small-scrollbars: 细滚动条
-  small-scrollbars-desc: '更细的滚动条，在小屏幕上很实用。'
+  small-scrollbars-desc: "更细的滚动条，在小屏幕上很实用。"
   show-timestamps: 显示时间戳
   soft-wrap: 自动换行
   highlight-errors: 高亮错误行
-  highlight-errors-desc: '彩色级别标记始终显示。'
+  highlight-errors-desc: "彩色级别标记始终显示。"
   datetime-format: 日期和时间
   font-size: 字体大小
   color-scheme: 主题
   show-stopped-containers: 显示已停止的容器
   group-containers: 容器分组
-  group-containers-desc: '按 Compose 项目、Swarm 堆栈或 dev.dozzle.group。'
-  show-app-icons: '应用图标'
-  show-app-icons-desc: '随 Dozzle 内置，绝不从互联网下载。'
+  group-containers-desc: "按 Compose 项目、Swarm 堆栈或 dev.dozzle.group。"
+  show-app-icons: "应用图标"
+  show-app-icons-desc: "随 Dozzle 内置，绝不从互联网下载。"
   search: 搜索日志
-  search-desc: '查看容器时替代浏览器的查找功能。'
+  search-desc: "查看容器时替代浏览器的查找功能。"
   show-std: 显示stdout和stderr标签
-  show-std-desc: '标示该行来自 stdout 还是 stderr。'
+  show-std-desc: "标示该行来自 stdout 还是 stderr。"
   automatic-redirect: 跟随重新创建的容器
-  automatic-redirect-desc: '容器被替换时，跳转到新容器。'
+  automatic-redirect-desc: "容器被替换时，跳转到新容器。"
   compact: 紧凑模式
-  compact-desc: '缩小间距，让屏幕显示更多行。'
+  compact-desc: "缩小间距，让屏幕显示更多行。"
   size:
     small: 小
     medium: 中

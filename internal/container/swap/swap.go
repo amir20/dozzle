@@ -3,8 +3,9 @@
 // the ordinary container Update action both recreate through it.
 //
 // The order is rename old, create new, stop old, start new, verify, remove old.
-// A container that was not running is only renamed, recreated and removed:
-// its replacement is left stopped, as it was.
+// Only a running container is swapped: one that is stopped is refused with
+// container.ErrNotRunning, since starting its replacement would run something
+// someone stopped.
 // Creating before stopping is what makes --rm containers safe: the engine
 // removes a --rm container on stop and deletes its anonymous volumes with it,
 // but skips any volume another container still references (checked against
@@ -22,6 +23,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/amir20/dozzle/internal/container"
 	cerrdefs "github.com/containerd/errdefs"
 	dcontainer "github.com/moby/moby/api/types/container"
 	"github.com/moby/moby/api/types/image"
@@ -110,10 +112,14 @@ type swap struct {
 // Swap replaces old with a container created from its config, verifies the
 // replacement stays up, and only then removes old. If any step fails, the
 // replacement is removed and old is put back. The rollback runs even when ctx
-// is cancelled.
+// is cancelled. old must be running, or nothing is touched and the error is
+// container.ErrNotRunning.
 func Swap(ctx context.Context, cli API, old dcontainer.InspectResponse, opts Options) (Result, error) {
 	if old.Config == nil || old.HostConfig == nil {
 		return Result{}, fmt.Errorf("inspect %s: incomplete container config", shortID(old.ID))
+	}
+	if !Running(old.State) {
+		return Result{}, container.ErrNotRunning
 	}
 	s := newSwap(cli, old, opts)
 
@@ -186,16 +192,6 @@ func (s *swap) forward(ctx context.Context) error {
 		return fmt.Errorf("create replacement: %w", err)
 	}
 	s.newID = created.ID
-
-	if !Running(s.old.State) {
-		// A container that was not running (a one-shot job, an init container
-		// that already exited) is not started by an update: starting it would
-		// rerun it, and WaitStable would roll back one that exits cleanly. The
-		// replacement stays stopped, as a stopped dependent does.
-		s.logger.Info().Msg(s.prefix + ": old container was not running, leaving the replacement stopped")
-		s.removeOld(ctx)
-		return nil
-	}
 
 	s.logger.Info().Msg(s.prefix + ": stopping old container")
 	if _, err := s.cli.ContainerStop(ctx, s.old.ID, client.ContainerStopOptions{}); err != nil && !isNotFound(err) {
@@ -307,7 +303,7 @@ func (s *swap) rollback(ctx context.Context) error {
 		}
 	}
 
-	if s.stopped && Running(s.old.State) {
+	if s.stopped {
 		s.logger.Info().Msg("rollback: starting old container")
 		if _, err := s.cli.ContainerStart(ctx, s.old.ID, client.ContainerStartOptions{}); err != nil {
 			errs = append(errs, fmt.Errorf("start old container: %w", err))
@@ -397,7 +393,7 @@ func WaitStable(ctx context.Context, cli API, id string) error {
 }
 
 // Running reports whether Swap treats a container as running: one that is not
-// is replaced but left stopped.
+// is refused.
 func Running(state *dcontainer.State) bool {
 	return state != nil && state.Running && !state.Restarting
 }

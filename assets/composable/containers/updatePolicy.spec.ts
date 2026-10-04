@@ -52,9 +52,10 @@ describe("resolvePolicy", () => {
 });
 
 describe("willAutoUpdate", () => {
-  test("all leaves a stopped container alone unless its label asks", () => {
+  test("never updates a stopped container, whatever its label says", () => {
     expect(willAutoUpdate(entry({ state: "exited" }), "all")).toBe(false);
-    expect(willAutoUpdate(entry({ state: "exited", label: "auto" }), "all")).toBe(true);
+    expect(willAutoUpdate(entry({ state: "exited", label: "auto" }), "all")).toBe(false);
+    expect(willAutoUpdate(entry({ state: "exited", label: "auto" }), "labelled")).toBe(false);
     expect(willAutoUpdate(entry({}), "all")).toBe(true);
   });
 

@@ -90,11 +90,10 @@ export function resolvePolicy(label: UpdatePolicy | undefined, mode: UpdateConta
 
 /**
  * Whether the schedule would update this container under mode. Like the scheduler,
- * "all" leaves a stopped container alone unless its label asks for updates.
+ * it never updates a stopped container, whatever its label says.
  */
 export function willAutoUpdate(entry: Pick<ContainerUpdatePolicy, "label" | "state">, mode: UpdateContainersMode) {
-  if (resolvePolicy(entry.label, mode) !== "auto") return false;
-  return !!entry.label || entry.state === "running";
+  return entry.state === "running" && resolvePolicy(entry.label, mode) === "auto";
 }
 
 /** Containers "all" would reach that keep data in named volumes. */

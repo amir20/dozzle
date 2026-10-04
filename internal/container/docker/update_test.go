@@ -251,22 +251,19 @@ func TestUpdateContainerRejoinsDependentsAfterCommit(t *testing.T) {
 	assert.Equal(t, []string{"stop dep-id", "remove dep-id", "create dep container:new-app", "start new-dep"}, cli.calls)
 }
 
-// A scheduled update lists every container, stopped ones included. A one-shot
-// job that already exited moves to the new image and stays stopped.
-func TestUpdateContainerStoppedOneShotIsDone(t *testing.T) {
+// A stopped container is refused before anything is pulled, whoever asked.
+func TestUpdateContainerRefusesStoppedContainer(t *testing.T) {
 	old := appInspect(nil)
 	old.State = &docker_types.State{Status: "exited", ExitCode: 0}
 	cli := newUpdateClient(t, old)
-	cli.engine.NewState = &docker_types.State{Status: "created"}
+	cli.pullBody = "not json, so a pull would fail the test differently"
 	run := runUpdate(cli)
 
-	require.NoError(t, run.err)
-	assert.True(t, run.updated)
-	assert.Equal(t, "done", run.last.Status)
-	assert.NotContains(t, run.statuses, "verifying")
-	for _, call := range cli.engine.Calls {
-		assert.NotContains(t, call, "start", "the replacement is left stopped")
-	}
+	require.ErrorIs(t, run.err, container.ErrNotRunning)
+	assert.False(t, run.updated)
+	assert.Equal(t, []string{"error"}, run.statuses)
+	assert.Equal(t, container.ErrNotRunning.Error(), run.last.Error)
+	assert.Empty(t, cli.engine.Calls)
 }
 
 func TestUpdateContainerCleanupRemovesTheImageBeforeThePrevious(t *testing.T) {

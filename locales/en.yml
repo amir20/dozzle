@@ -192,6 +192,7 @@ error:
   unable-to-complete-action: Unable to complete action
   invalid-action: Invalid action
   unable-to-update: Unable to update container
+  start-container-first: Start the container first
   something-went-wrong: Something went wrong
   unknown-error: Unknown error
   events-stream:

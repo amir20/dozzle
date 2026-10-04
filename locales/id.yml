@@ -23,12 +23,12 @@ toolbar:
   update-rolled-back: Kontainer baru tidak tetap berjalan, jadi kontainer sebelumnya dipulihkan.
   update-done: Kontainer berhasil diperbarui
   update-up-to-date: Sudah versi terbaru
-  update-available: 'Pembaruan tersedia'
-  check-for-updates: 'Periksa pembaruan'
-  checking-for-updates: 'Memeriksa pembaruan...'
-  no-updates: 'Tidak ada pembaruan'
-  dismiss-update: 'Abaikan pembaruan ini'
-  view-release-notes: 'Lihat catatan rilis'
+  update-available: "Pembaruan tersedia"
+  check-for-updates: "Periksa pembaruan"
+  checking-for-updates: "Memeriksa pembaruan..."
+  no-updates: "Tidak ada pembaruan"
+  dismiss-update: "Abaikan pembaruan ini"
+  view-release-notes: "Lihat catatan rilis"
   show-hostname: Tampilkan nama host
   show-container-name: Tampilkan nama kontainer
   shell: Shell
@@ -195,6 +195,7 @@ error:
   unable-to-complete-action: Tidak dapat menyelesaikan tindakan
   invalid-action: Tindakan tidak valid
   unable-to-update: Tidak dapat memperbarui kontainer
+  start-container-first: Jalankan kontainer terlebih dahulu
   something-went-wrong: Terjadi kesalahan
   unknown-error: Kesalahan tidak diketahui
   events-stream:
@@ -208,8 +209,8 @@ error:
 
 alert:
   image-update:
-    title: 'Pembaruan tersedia'
-    message: 'Image yang lebih baru telah dirilis untuk {image}.'
+    title: "Pembaruan tersedia"
+    message: "Image yang lebih baru telah dirilis untuk {image}."
     enable-actions: '<a href="https://dozzle.dev/guide/actions" target="_blank" rel="noreferrer noopener">Aktifkan aksi</a> untuk mengunduh dan membuat ulang kontainer dari sini.'
   redirected:
     title: Dialihkan ke kontainer baru
@@ -276,32 +277,32 @@ settings:
   auto-update-containers: "Kontainer Anda tetap terbaru"
   auto-update-daily: "Memeriksa setiap hari pukul {time}, waktu server."
   auto-update-weekly: "Memeriksa setiap minggu pada hari Minggu pukul {time}, waktu server."
-  show-image-update-alert: 'Peringatan pembaruan image'
-  show-image-update-alert-desc: 'Beri tahu jika ada tag lebih baru untuk image yang sedang berjalan.'
+  show-image-update-alert: "Peringatan pembaruan image"
+  show-image-update-alert-desc: "Beri tahu jika ada tag lebih baru untuk image yang sedang berjalan."
   cloud-desc: Streaming log ke Dozzle Cloud untuk investigasi bertenaga AI dan pencarian lintas instans.
   locale: Bahasa
   small-scrollbars: Scrollbar tipis
-  small-scrollbars-desc: 'Bilah gulir lebih tipis, berguna pada layar kecil.'
+  small-scrollbars-desc: "Bilah gulir lebih tipis, berguna pada layar kecil."
   show-timestamps: Tampilkan cap waktu
   soft-wrap: Bungkus baris
   highlight-errors: Sorot baris galat
-  highlight-errors-desc: 'Penanda level berwarna selalu ditampilkan.'
+  highlight-errors-desc: "Penanda level berwarna selalu ditampilkan."
   datetime-format: Tanggal dan waktu
   font-size: Ukuran font
   color-scheme: Tema
   show-stopped-containers: Tampilkan kontainer yang dihentikan
   group-containers: Kelompokkan kontainer
-  group-containers-desc: 'Berdasarkan proyek Compose, stack Swarm, atau dev.dozzle.group.'
-  show-app-icons: 'Ikon aplikasi'
-  show-app-icons-desc: 'Disertakan bersama Dozzle, tidak pernah diunduh dari internet.'
+  group-containers-desc: "Berdasarkan proyek Compose, stack Swarm, atau dev.dozzle.group."
+  show-app-icons: "Ikon aplikasi"
+  show-app-icons-desc: "Disertakan bersama Dozzle, tidak pernah diunduh dari internet."
   search: Cari log dengan
-  search-desc: 'Menggantikan pencarian browser saat melihat kontainer.'
+  search-desc: "Menggantikan pencarian browser saat melihat kontainer."
   show-std: Tampilkan label stdout dan stderr
-  show-std-desc: 'Tandai apakah baris berasal dari stdout atau stderr.'
+  show-std-desc: "Tandai apakah baris berasal dari stdout atau stderr."
   automatic-redirect: Ikuti kontainer yang dibuat ulang
-  automatic-redirect-desc: 'Saat kontainer diganti, pindah ke yang baru.'
+  automatic-redirect-desc: "Saat kontainer diganti, pindah ke yang baru."
   compact: Mode ringkas
-  compact-desc: 'Jarak lebih rapat agar lebih banyak baris muat di layar.'
+  compact-desc: "Jarak lebih rapat agar lebih banyak baris muat di layar."
   size:
     small: Kecil
     medium: Sedang

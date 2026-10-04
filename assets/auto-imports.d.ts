@@ -18,6 +18,7 @@ declare global {
   const MARKER_START_SLACK_MS: typeof import('./composable/logs/updateMarkers').MARKER_START_SLACK_MS
   const MAX_PATTERN_LINES: typeof import('./composable/cloud/patternMemory').MAX_PATTERN_LINES
   const MIN_MENU_WIDTH: typeof import('./stores/settings').MIN_MENU_WIDTH
+  const NOT_RUNNING_ERROR: typeof import('./composable/containers/containerActions').NOT_RUNNING_ERROR
   const PREFERENCE_PAGES: typeof import('./composable/app/settingsPages').PREFERENCE_PAGES
   const RAIL_WIDTH: typeof import('./composable/cloud/cloudRail').RAIL_WIDTH
   const RELATIVE_SPANS: typeof import('./composable/logs/timeRange').RELATIVE_SPANS
@@ -309,6 +310,7 @@ declare global {
   const unref: typeof import('vue').unref
   const unrefElement: typeof import('@vueuse/core').unrefElement
   const until: typeof import('@vueuse/core').until
+  const updateErrorText: typeof import('./composable/containers/containerActions').updateErrorText
   const useActiveElement: typeof import('@vueuse/core').useActiveElement
   const useAlertForm: typeof import('./composable/notifications/alertForm').useAlertForm
   const useAlertMerger: typeof import('./composable/cloud/alertMerger').useAlertMerger
@@ -699,6 +701,7 @@ declare module 'vue' {
     readonly K8sOwner: UnwrapRef<typeof import('./stores/k8s')['K8sOwner']>
     readonly MARKER_START_SLACK_MS: UnwrapRef<typeof import('./composable/logs/updateMarkers')['MARKER_START_SLACK_MS']>
     readonly MAX_PATTERN_LINES: UnwrapRef<typeof import('./composable/cloud/patternMemory')['MAX_PATTERN_LINES']>
+    readonly NOT_RUNNING_ERROR: UnwrapRef<typeof import('./composable/containers/containerActions')['NOT_RUNNING_ERROR']>
     readonly PREFERENCE_PAGES: UnwrapRef<typeof import('./composable/app/settingsPages')['PREFERENCE_PAGES']>
     readonly RAIL_WIDTH: UnwrapRef<typeof import('./composable/cloud/cloudRail')['RAIL_WIDTH']>
     readonly RELATIVE_SPANS: UnwrapRef<typeof import('./composable/logs/timeRange')['RELATIVE_SPANS']>
@@ -983,6 +986,7 @@ declare module 'vue' {
     readonly unref: UnwrapRef<typeof import('vue')['unref']>
     readonly unrefElement: UnwrapRef<typeof import('@vueuse/core')['unrefElement']>
     readonly until: UnwrapRef<typeof import('@vueuse/core')['until']>
+    readonly updateErrorText: UnwrapRef<typeof import('./composable/containers/containerActions')['updateErrorText']>
     readonly useActiveElement: UnwrapRef<typeof import('@vueuse/core')['useActiveElement']>
     readonly useAlertForm: UnwrapRef<typeof import('./composable/notifications/alertForm')['useAlertForm']>
     readonly useAlertMerger: UnwrapRef<typeof import('./composable/cloud/alertMerger')['useAlertMerger']>

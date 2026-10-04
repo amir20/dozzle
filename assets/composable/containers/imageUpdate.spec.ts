@@ -54,7 +54,7 @@ vi.mock("vue-i18n", () => ({
   }),
 }));
 
-const { useImageUpdate, useImageUpdates } = await import("./imageUpdate");
+const { canUpdate, useImageUpdate, useImageUpdates } = await import("./imageUpdate");
 
 let counter = 0;
 
@@ -441,10 +441,12 @@ describe("useImageUpdates", () => {
     return updates;
   }
 
-  test("offers a stopped standalone container", async () => {
+  test("lists a stopped standalone container, but never offers to update it", async () => {
     const stopped = container({ state: "exited" });
     const { hasUpdate } = await checkAll(stopped);
     expect(hasUpdate(stopped)).toBe(true);
+    expect(canUpdate(stopped)).toBe(false);
+    expect(canUpdate(container({ state: "running" }))).toBe(true);
   });
 
   test("skips an exited swarm task but offers the running one", async () => {

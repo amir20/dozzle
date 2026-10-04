@@ -1,6 +1,6 @@
 ---
 title: Container-Aktionen
-sourceHash: a5b7715163fe
+sourceHash: b77ad4fdc46b
 ---
 
 # Container-Aktionen
@@ -11,7 +11,7 @@ Dozzle unterstützt Container-Aktionen: Über das Dropdown-Menü rechts neben de
 
 Die Aktion `update` lädt das neueste Image für den Container und erstellt ihn mit derselben Konfiguration neu — praktisch, um einen Container an Ort und Stelle zu aktualisieren, ohne seine Compose-Datei zu bearbeiten. `update` hat nur dann einen spürbaren Effekt, wenn das Image ein bewegliches Tag nutzt (z. B. `latest`, `stable`); bei einem fest gepinnten Tag wird schlicht dasselbe Image erneut geladen.
 
-Der alte Container bleibt umbenannt erhalten, bis der neue 10 Sekunden lang ohne Neustart gelaufen ist und, falls sein Image einen Healthcheck hat, als gesund gemeldet wurde. Startet der neue Container nicht, beendet er sich, startet er neu oder wird er ungesund, entfernt Dozzle ihn und stellt den alten wieder her. Das Update meldet dann **zurückgerollt** mit dem Grund. Der neue Container bekommt das Label `dev.dozzle.previous-image` mit der Image-ID, die er ersetzt hat, und `dev.dozzle.previous-ref` mit dem Digest `repo@sha256:…` dieses Images (fehlt bei lokal gebauten Images). Ein Container, der nicht lief, etwa ein einmaliger Job, der sich schon beendet hat, wird auf dem neuen Image neu erstellt und bleibt gestoppt. Er wird also weder erneut ausgeführt noch geprüft.
+Der alte Container bleibt umbenannt erhalten, bis der neue 10 Sekunden lang ohne Neustart gelaufen ist und, falls sein Image einen Healthcheck hat, als gesund gemeldet wurde. Startet der neue Container nicht, beendet er sich, startet er neu oder wird er ungesund, entfernt Dozzle ihn und stellt den alten wieder her. Das Update meldet dann **zurückgerollt** mit dem Grund. Der neue Container bekommt das Label `dev.dozzle.previous-image` mit der Image-ID, die er ersetzt hat, und `dev.dozzle.previous-ref` mit dem Digest `repo@sha256:…` dieses Images (fehlt bei lokal gebauten Images). Ein gestoppter Container wird nie aktualisiert, denn er kann absichtlich gestoppt sein. Ein neueres Image wird für ihn weiterhin angezeigt, aber **Aktualisieren** wird nicht angeboten, der Zeitplan überspringt ihn, und ein Update, das trotzdem angefordert wird, etwa aus Dozzle Cloud, wird mit „Starten Sie zuerst den Container“ abgelehnt. Sobald er läuft, lässt er sich aktualisieren.
 
 > [!WARNING]
 > `remove` löscht den Container: Daten in seiner beschreibbaren Schicht gehen verloren, und seine anonymen Volumes bleiben losgelöst zurück. `update` erstellt den Container neu und behält jedes Volume, auch anonyme, sowie jeden Bind-Mount. Verloren gehen nur Daten, die in die beschreibbare Schicht des Containers geschrieben wurden.
@@ -129,9 +129,9 @@ services:
 
 Ältere Labels funktionieren weiter: `dev.dozzle.auto-update=true` gilt als `auto` und `dev.dozzle.update-check=false` als `off`.
 
-Zur geplanten Zeit prüft Dozzle jeden Container im Zeitplan gegen seine Registry und aktualisiert nur die, für die es ein neueres Image gibt, Dozzle selbst zuletzt. Jedes Update ist der oben beschriebene sichere Austausch: Bleibt ein neuer Container nicht stabil, kommt der alte zurück. Übersprungen werden Container, die ungesund sind, die Dozzle [nicht prüfen kann](#was-sich-nicht-prufen-lasst) oder die vom angebotenen Image [zurückgerollt](#rolling-back) wurden. **Einstellungen → Aktualisierungen** listet die Container, die der nächste Lauf aktualisiert.
+Zur geplanten Zeit prüft Dozzle jeden Container im Zeitplan gegen seine Registry und aktualisiert nur die, für die es ein neueres Image gibt, Dozzle selbst zuletzt. Jedes Update ist der oben beschriebene sichere Austausch: Bleibt ein neuer Container nicht stabil, kommt der alte zurück. Übersprungen werden Container, die gestoppt oder ungesund sind, die Dozzle [nicht prüfen kann](#was-sich-nicht-prufen-lasst) oder die vom angebotenen Image [zurückgerollt](#rolling-back) wurden. **Einstellungen → Aktualisierungen** listet die Container, die der nächste Lauf aktualisiert.
 
-Bei **Alles** kann eine Datenbank auf einem beweglichen Tag wie `postgres:latest` auf eine Hauptversion springen, deren Datendateien sie nicht lesen kann. Wählst du **Alles**, werden die Container aufgelistet, die Daten in benannten Volumes halten. Gib ihnen das Label `dev.dozzle.update: off`, um sie herauszunehmen. Gestoppte Container bleiben bei **Alles** unberührt, außer sie haben das Label `auto`.
+Bei **Alles** kann eine Datenbank auf einem beweglichen Tag wie `postgres:latest` auf eine Hauptversion springen, deren Datendateien sie nicht lesen kann. Wählst du **Alles**, werden die Container aufgelistet, die Daten in benannten Volumes halten. Gib ihnen das Label `dev.dozzle.update: off`, um sie herauszunehmen.
 
 **Welche Container** wird als `updateContainers` in der [`dozzle.yml`](/de/guide/setup-wizard#dozzle-yml) gespeichert. Eine Änderung in der Oberfläche braucht deshalb `/data` auf einem Volume. Automatische Updates laufen im Servermodus, auch für Container auf [Remote-Agents](/de/guide/agent), und setzen eingeschaltete Aktionen voraus. Du kommst von Watchtower? Siehe [Umstieg von Watchtower](/de/guide/moving-from-watchtower).
 
