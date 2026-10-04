@@ -38,9 +38,6 @@ const { nextStep } = defineProps<{ nextStep?: SetupStepId }>();
 const { t } = useI18n();
 
 const cloudUrl = config.cloudUrl;
-const callbackUrl = `${window.location.origin}${withBase("/")}`;
-// Same link flow as CloudPopover, tagged so Cloud can tell where the link came from.
-const linkUrl = `${cloudUrl}/link?appUrl=${encodeURIComponent(callbackUrl)}&from=setup`;
 
 const values = computed(() => [
   { key: "alerts", icon: MdiBellRingOutline, title: t("setup.cloud.alerts-title"), body: t("setup.cloud.alerts-body") },
@@ -57,8 +54,8 @@ const values = computed(() => [
 // modal, own the #cloudLinked return.
 async function next(): Promise<SetupNextResult> {
   writeSetupResume(nextStep ?? "restart");
-  trackUsage("cloud.connect");
-  window.location.assign(linkUrl);
+  // Same link flow as CloudPopover, tagged so Cloud can tell where the link came from.
+  await startCloudLink("setup");
   return "stay";
 }
 

@@ -58,6 +58,11 @@ func (h *handler) cloudCallback(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "missing token parameter", http.StatusBadRequest)
 		return
 	}
+	if !h.cloudLinks.consume(r.URL.Query().Get("state"), cloudLinkOwner(r)) {
+		log.Warn().Msg("cloud callback without a state this user started, refusing to link")
+		http.Error(w, "this link was not started from this Dozzle, start it again from Dozzle", http.StatusForbidden)
+		return
+	}
 
 	cloudURL := os.Getenv("DOLIGENCE_URL")
 	if cloudURL == "" {

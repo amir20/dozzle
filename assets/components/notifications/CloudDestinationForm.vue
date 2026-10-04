@@ -64,15 +64,14 @@
               : $t("notifications.destination-form.cloud-unavailable")
           }}
         </p>
-        <a
+        <button
           v-if="cloudStatusError === 'auth'"
-          :href="cloudLinkUrl"
-          @click="trackUsage('cloud.connect')"
           class="btn btn-primary btn-sm"
+          @click="startCloudLink('notifications')"
         >
           <mdi:link-variant class="text-base" />
           {{ $t("cloud.relink-instance") }}
-        </a>
+        </button>
         <button v-else class="btn btn-sm" @click="fetchCloudStatus">
           <mdi:refresh class="text-base" />
           {{ $t("button.retry") }}
@@ -134,10 +133,10 @@
         <a :href="cloudUrl" target="_blank" rel="noreferrer noopener" class="btn btn-sm">
           {{ $t("cloud.learn-more") }}
         </a>
-        <a :href="cloudLinkUrl" @click="trackUsage('cloud.connect')" class="btn btn-primary btn-sm">
+        <button class="btn btn-primary btn-sm" @click="startCloudLink('notifications')">
           <mdi:link-variant class="text-base" />
           {{ $t("notifications.destination-form.link-cloud-button") }}
-        </a>
+        </button>
       </div>
     </div>
 
@@ -163,8 +162,6 @@ const { destination, close } = defineProps<{
 const { t } = useI18n();
 
 const cloudUrl = config.cloudUrl;
-const callbackUrl = `${window.location.origin}${withBase("/")}`;
-const cloudLinkUrl = `${cloudUrl}/link?appUrl=${encodeURIComponent(callbackUrl)}&from=notifications`;
 const cloudSettingsUrl = `${cloudUrl}/settings`;
 
 const { cloudStatus, cloudStatusError, isLoadingCloudStatus, fetchCloudStatus } = useCloudConfig();

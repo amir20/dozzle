@@ -10,10 +10,10 @@
             <a :href="`${cloudUrl}`" target="_blank" rel="noreferrer noopener" class="btn btn-sm">
               {{ $t("cloud.learn-more") }}
             </a>
-            <a :href="cloudLinkUrl" @click="trackUsage('cloud.connect')" class="btn btn-primary btn-sm">
+            <button class="btn btn-primary btn-sm" @click="startCloudLink('cloud')">
               <mdi:link-variant class="text-base" />
               {{ $t("cloud.link-instance") }}
-            </a>
+            </button>
           </div>
         </div>
       </div>
@@ -41,15 +41,10 @@
             {{ cloudStatusError === "auth" ? $t("cloud.error") : $t("cloud.error-unavailable") }}
           </p>
           <div class="mt-3 flex flex-wrap gap-2">
-            <a
-              v-if="cloudStatusError === 'auth'"
-              :href="cloudLinkUrl"
-              @click="trackUsage('cloud.connect')"
-              class="btn btn-primary btn-sm"
-            >
+            <button v-if="cloudStatusError === 'auth'" class="btn btn-primary btn-sm" @click="startCloudLink('cloud')">
               <mdi:link-variant class="text-base" />
               {{ $t("cloud.relink-instance") }}
-            </a>
+            </button>
             <button v-else class="btn btn-sm" @click="fetchCloudStatus">
               <mdi:refresh class="text-base" />
               {{ $t("button.retry") }}
@@ -186,8 +181,6 @@
 
 <script lang="ts" setup>
 const cloudUrl = config.cloudUrl;
-const callbackUrl = `${window.location.origin}${withBase("/")}`;
-const cloudLinkUrl = `${cloudUrl}/link?appUrl=${encodeURIComponent(callbackUrl)}&from=cloud`;
 
 const { cloudConfig, cloudStatus, cloudStatusError, isLoadingCloudStatus, fetchCloudStatus, clearCloudState } =
   useCloudConfig();
