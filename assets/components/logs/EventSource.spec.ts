@@ -12,6 +12,7 @@ import { default as Component } from "./EventSource.vue";
 import SearchStatus from "./SearchStatus.vue";
 import IndeterminateBar from "@/components/ui/IndeterminateBar.vue";
 import ContainerEventLogItem from "./entries/ContainerEventLogItem.vue";
+import DeployLogItem from "./entries/DeployLogItem.vue";
 import type { TimeRange } from "@/composable/logs/timeRange";
 import LogViewer from "./LogViewer.vue";
 import { Container } from "@/models/Container";
@@ -370,6 +371,63 @@ describe("<ContainerEventSource />", () => {
       sources[url].emit("container-event", stopped("2026-10-03T08:00:00Z"));
       await vi.advanceTimersByTimeAsync(300);
       expect(wrapper.findAllComponents(ContainerEventLogItem)).toHaveLength(0);
+    });
+  });
+
+  describe("update marker", () => {
+    const update = (at: string) => ({
+      data: JSON.stringify({
+        host: "localhost",
+        name: "test",
+        oldId: "old",
+        newId: "abc",
+        fromRef: "test:1.4.1",
+        toRef: "test:1.4.2",
+        at,
+        source: "schedule",
+      }),
+    });
+
+    // The update arrives before the new container's first line, and leads it.
+    test("puts the update at the top of the new container's lines", async () => {
+      const wrapper = createLogEventSource();
+      sources[sourceUrl].emitOpen();
+      sources[sourceUrl].emit("container-update", update("2019-06-12T10:55:40.000Z"));
+      sources[sourceUrl].emitMessage({
+        data: `{"ts":1560336942459, "m":"First line.", "id":1, "rm": "First line.", "c": "abc"}`,
+      });
+      await vi.advanceTimersByTimeAsync(300);
+
+      const marker = wrapper.findComponent(DeployLogItem);
+      expect(marker.exists()).toBe(true);
+      expect(marker.text()).toContain("1.4.1");
+      expect(marker.text()).toContain("1.4.2");
+      const html = wrapper.html();
+      expect(html.indexOf("1.4.2")).toBeLessThan(html.indexOf("First line."));
+    });
+
+    // A container updated a day before the opening tail: placed above it, the
+    // marker would become the oldest row and send load-older back to the update.
+    test("waits while the window does not reach the update", async () => {
+      const wrapper = createLogEventSource();
+      sources[sourceUrl].emitOpen();
+      sources[sourceUrl].emit("container-update", update("2019-06-11T10:55:40.000Z"));
+      sources[sourceUrl].emitMessage({
+        data: `{"ts":1560336942459, "m":"First line.", "id":1, "rm": "First line.", "c": "abc"}`,
+      });
+      await vi.advanceTimersByTimeAsync(300);
+
+      expect(wrapper.findComponent(DeployLogItem).exists()).toBe(false);
+      expect(wrapper.html()).toContain("First line.");
+    });
+
+    test("a marker replayed by a reconnect is not added twice", async () => {
+      const wrapper = createLogEventSource();
+      sources[sourceUrl].emitOpen();
+      sources[sourceUrl].emit("container-update", update("2019-06-12T10:55:40.000Z"));
+      sources[sourceUrl].emit("container-update", update("2019-06-12T10:55:40.000Z"));
+      await vi.advanceTimersByTimeAsync(300);
+      expect(wrapper.findAllComponents(DeployLogItem)).toHaveLength(1);
     });
   });
 

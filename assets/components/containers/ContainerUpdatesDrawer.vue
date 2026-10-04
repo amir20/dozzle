@@ -67,7 +67,7 @@
               </div>
             </div>
             <span
-              v-if="autoUpdateEnabled(container)"
+              v-if="autoUpdates(container, updateMode)"
               class="status-pill status-pill-neutral shrink-0"
               :title="$t('updates.auto-hint')"
             >
@@ -79,9 +79,16 @@
       </template>
 
       <p class="text-base-content/40 text-xs">
-        <i18n-t keypath="updates.auto-footnote">
+        <!-- In server mode Settings → Updates holds the whole answer; elsewhere only the
+             label does. -->
+        <i18n-t v-if="config.mode === 'server'" keypath="auto-update.footnote">
+          <template #link>
+            <router-link to="/settings/updates" class="link">{{ $t("auto-update.footnote-link") }}</router-link>
+          </template>
+        </i18n-t>
+        <i18n-t v-else keypath="updates.auto-footnote">
           <template #label>
-            <code class="font-mono">{{ AUTO_UPDATE_LABEL }}=true</code>
+            <code class="font-mono">{{ UPDATE_LABEL }}=auto</code>
           </template>
         </i18n-t>
       </p>
@@ -126,13 +133,8 @@
 
 <script lang="ts" setup>
 import { Container } from "@/models/Container";
-import {
-  AUTO_UPDATE_LABEL,
-  type BulkUpdateItem,
-  type BulkUpdateStatus,
-  autoUpdateEnabled,
-  isFinished,
-} from "@/composable/containers/bulkUpdate";
+import { type BulkUpdateItem, type BulkUpdateStatus, isFinished } from "@/composable/containers/bulkUpdate";
+import { DEFAULT_UPDATE_CONTAINERS_MODE, UPDATE_LABEL, autoUpdates } from "@/composable/containers/updatePolicy";
 
 const { focus } = defineProps<{ focus?: string }>();
 
@@ -147,6 +149,12 @@ const release = hold();
 onScopeDispose(release);
 
 const multipleHosts = computed(() => Object.keys(hosts.value).length > 1);
+
+// Which containers the schedule updates is a server setting; anywhere else only the
+// label decides, as it always has.
+const { status: setupStatus, fetchStatus } = useSetup();
+if (config.mode === "server" && !setupStatus.value) fetchStatus();
+const updateMode = computed(() => setupStatus.value?.autoUpdate?.containers ?? DEFAULT_UPDATE_CONTAINERS_MODE);
 
 const candidates = computed(() => containers.value.filter(hasUpdate).sort((a, b) => a.name.localeCompare(b.name)));
 

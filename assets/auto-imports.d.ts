@@ -8,13 +8,14 @@
 // biome-ignore lint: disable
 export {}
 declare global {
-  const AUTO_UPDATE_LABEL: typeof import('./composable/containers/bulkUpdate').AUTO_UPDATE_LABEL
   const DEFAULT_MENU_WIDTH: typeof import('./stores/settings').DEFAULT_MENU_WIDTH
   const DEFAULT_SETTINGS: typeof import('./stores/settings').DEFAULT_SETTINGS
+  const DEFAULT_UPDATE_CONTAINERS_MODE: typeof import('./composable/containers/updatePolicy').DEFAULT_UPDATE_CONTAINERS_MODE
   const EffectScope: typeof import('vue').EffectScope
   const FETCH_PAGE: typeof import('./composable/logs/logLoader').FETCH_PAGE
   const K8sNamespace: typeof import('./stores/k8s').K8sNamespace
   const K8sOwner: typeof import('./stores/k8s').K8sOwner
+  const MARKER_START_SLACK_MS: typeof import('./composable/logs/updateMarkers').MARKER_START_SLACK_MS
   const MAX_PATTERN_LINES: typeof import('./composable/cloud/patternMemory').MAX_PATTERN_LINES
   const MIN_MENU_WIDTH: typeof import('./stores/settings').MIN_MENU_WIDTH
   const PREFERENCE_PAGES: typeof import('./composable/app/settingsPages').PREFERENCE_PAGES
@@ -26,6 +27,8 @@ declare global {
   const SHOWN_STATUSES: typeof import('./composable/cloud/patternMemory').SHOWN_STATUSES
   const SetupError: typeof import('./composable/setup/setup').SetupError
   const TEMPLATE_VARIABLES: typeof import('./composable/editor/templateEditor').TEMPLATE_VARIABLES
+  const UPDATE_CONTAINERS_MODES: typeof import('./composable/containers/updatePolicy').UPDATE_CONTAINERS_MODES
+  const UPDATE_LABEL: typeof import('./composable/containers/updatePolicy').UPDATE_LABEL
   const USAGE_FLUSH_INTERVAL: typeof import('./composable/app/usage').USAGE_FLUSH_INTERVAL
   const acceptHMRUpdate: typeof import('pinia').acceptHMRUpdate
   const agentComposeSnippet: typeof import('./composable/setup/setup').agentComposeSnippet
@@ -39,7 +42,7 @@ declare global {
   const attachEvents: typeof import('./composable/cloud/cloudAlerts').attachEvents
   const attachPatternMemory: typeof import('./composable/cloud/patternMemory').attachPatternMemory
   const autoResetRef: typeof import('@vueuse/core').autoResetRef
-  const autoUpdateEnabled: typeof import('./composable/containers/bulkUpdate').autoUpdateEnabled
+  const autoUpdates: typeof import('./composable/containers/updatePolicy').autoUpdates
   const automaticRedirect: typeof import('./stores/settings').automaticRedirect
   const buildViewContext: typeof import('./composable/logs/viewContext').buildViewContext
   const canHover: typeof import('./composable/ui/media').canHover
@@ -104,6 +107,7 @@ declare global {
   const extendRef: typeof import('@vueuse/core').extendRef
   const fetchAlerts: typeof import('./composable/cloud/cloudAlerts').fetchAlerts
   const fetchPatternContext: typeof import('./composable/cloud/patternMemory').fetchPatternContext
+  const firstLineByContainer: typeof import('./composable/logs/updateMarkers').firstLineByContainer
   const flattenJSON: typeof import('./utils/index').flattenJSON
   const flattenJSONToMap: typeof import('./utils/index').flattenJSONToMap
   const formatBytes: typeof import('./utils/index').formatBytes
@@ -131,8 +135,10 @@ declare global {
   const iconSlugForImage: typeof import('./utils/index').iconSlugForImage
   const iconUrl: typeof import('./utils/index').iconUrl
   const ignorableWatch: typeof import('@vueuse/core').ignorableWatch
+  const imageStatusKind: typeof import('./composable/containers/updatePolicy').imageStatusKind
   const inject: typeof import('vue').inject
   const injectLocal: typeof import('@vueuse/core').injectLocal
+  const insertMarker: typeof import('./composable/logs/updateMarkers').insertMarker
   const isDataIcon: typeof import('./utils/index').isDataIcon
   const isDefined: typeof import('@vueuse/core').isDefined
   const isEmptyHistogram: typeof import('./composable/logs/logHistogram').isEmptyHistogram
@@ -151,6 +157,7 @@ declare global {
   const isShallow: typeof import('vue').isShallow
   const isStreamLog: typeof import('./composable/cloud/alertMerger').isStreamLog
   const isViewContextOwner: typeof import('./composable/logs/viewContext').isViewContextOwner
+  const labelPolicy: typeof import('./composable/containers/updatePolicy').labelPolicy
   const lightTheme: typeof import('./stores/settings').lightTheme
   const linesNeedingMemory: typeof import('./composable/cloud/patternMemory').linesNeedingMemory
   const loadBetween: typeof import('./composable/logs/loadBetween').loadBetween
@@ -168,6 +175,7 @@ declare global {
   const menuWidth: typeof import('./stores/settings').menuWidth
   const mergeAlerts: typeof import('./composable/cloud/cloudAlerts').mergeAlerts
   const mergeCloudEvents: typeof import('./composable/cloud/cloudAlerts').mergeCloudEvents
+  const mergeDeploys: typeof import('./composable/cloud/cloudAlerts').mergeDeploys
   const narrowedLevels: typeof import('./composable/logs/viewContext').narrowedLevels
   const newerThanOnScreen: typeof import('./composable/logs/logWindow').newerThanOnScreen
   const newestOnScreen: typeof import('./composable/logs/logWindow').newestOnScreen
@@ -229,8 +237,11 @@ declare global {
   const refThrottled: typeof import('@vueuse/core').refThrottled
   const refWithControl: typeof import('@vueuse/core').refWithControl
   const relativeTimeTick: typeof import('./composable/ui/timeTicker').relativeTimeTick
+  const repositionMarkers: typeof import('./composable/logs/updateMarkers').repositionMarkers
   const resolveComponent: typeof import('vue').resolveComponent
+  const resolvePolicy: typeof import('./composable/containers/updatePolicy').resolvePolicy
   const resolveRef: typeof import('@vueuse/core').resolveRef
+  const riskyContainers: typeof import('./composable/containers/updatePolicy').riskyContainers
   const rolloutWorkload: typeof import('./composable/containers/rolloutRestart').rolloutWorkload
   const routeKind: typeof import('./composable/logs/viewContext').routeKind
   const safeRedirect: typeof import('./composable/ui/safeRedirect').safeRedirect
@@ -524,6 +535,7 @@ declare global {
   const useToast: typeof import('./composable/app/toast').useToast
   const useToggle: typeof import('@vueuse/core').useToggle
   const useTransition: typeof import('@vueuse/core').useTransition
+  const useUpdatePolicies: typeof import('./composable/containers/updatePolicy').useUpdatePolicies
   const useUrlSearchParams: typeof import('@vueuse/core').useUrlSearchParams
   const useUserMedia: typeof import('@vueuse/core').useUserMedia
   const useVModel: typeof import('@vueuse/core').useVModel
@@ -560,6 +572,8 @@ declare global {
   const watchTriggerable: typeof import('@vueuse/core').watchTriggerable
   const watchWithFilter: typeof import('@vueuse/core').watchWithFilter
   const whenever: typeof import('@vueuse/core').whenever
+  const willAutoUpdate: typeof import('./composable/containers/updatePolicy').willAutoUpdate
+  const windowReachesUpdate: typeof import('./composable/logs/updateMarkers').windowReachesUpdate
   const withBase: typeof import('./stores/config').withBase
   const writeSetupResume: typeof import('./composable/setup/setup').writeSetupResume
 }
@@ -610,6 +624,9 @@ declare global {
   // @ts-ignore
   export type { K8sWorkload } from './composable/containers/rolloutRestart'
   import('./composable/containers/rolloutRestart')
+  // @ts-ignore
+  export type { UpdatePolicy, UpdateContainersMode, ContainerUpdatePolicy, UpdatePolicies, ImageStatusKind } from './composable/containers/updatePolicy'
+  import('./composable/containers/updatePolicy')
   // @ts-ignore
   export type { ExprEditorOptions } from './composable/editor/exprEditor'
   import('./composable/editor/exprEditor')
@@ -674,12 +691,13 @@ import { UnwrapRef } from 'vue'
 declare module 'vue' {
   interface GlobalComponents {}
   interface ComponentCustomProperties {
-    readonly AUTO_UPDATE_LABEL: UnwrapRef<typeof import('./composable/containers/bulkUpdate')['AUTO_UPDATE_LABEL']>
     readonly DEFAULT_SETTINGS: UnwrapRef<typeof import('./stores/settings')['DEFAULT_SETTINGS']>
+    readonly DEFAULT_UPDATE_CONTAINERS_MODE: UnwrapRef<typeof import('./composable/containers/updatePolicy')['DEFAULT_UPDATE_CONTAINERS_MODE']>
     readonly EffectScope: UnwrapRef<typeof import('vue')['EffectScope']>
     readonly FETCH_PAGE: UnwrapRef<typeof import('./composable/logs/logLoader')['FETCH_PAGE']>
     readonly K8sNamespace: UnwrapRef<typeof import('./stores/k8s')['K8sNamespace']>
     readonly K8sOwner: UnwrapRef<typeof import('./stores/k8s')['K8sOwner']>
+    readonly MARKER_START_SLACK_MS: UnwrapRef<typeof import('./composable/logs/updateMarkers')['MARKER_START_SLACK_MS']>
     readonly MAX_PATTERN_LINES: UnwrapRef<typeof import('./composable/cloud/patternMemory')['MAX_PATTERN_LINES']>
     readonly PREFERENCE_PAGES: UnwrapRef<typeof import('./composable/app/settingsPages')['PREFERENCE_PAGES']>
     readonly RAIL_WIDTH: UnwrapRef<typeof import('./composable/cloud/cloudRail')['RAIL_WIDTH']>
@@ -690,6 +708,8 @@ declare module 'vue' {
     readonly SHOWN_STATUSES: UnwrapRef<typeof import('./composable/cloud/patternMemory')['SHOWN_STATUSES']>
     readonly SetupError: UnwrapRef<typeof import('./composable/setup/setup')['SetupError']>
     readonly TEMPLATE_VARIABLES: UnwrapRef<typeof import('./composable/editor/templateEditor')['TEMPLATE_VARIABLES']>
+    readonly UPDATE_CONTAINERS_MODES: UnwrapRef<typeof import('./composable/containers/updatePolicy')['UPDATE_CONTAINERS_MODES']>
+    readonly UPDATE_LABEL: UnwrapRef<typeof import('./composable/containers/updatePolicy')['UPDATE_LABEL']>
     readonly USAGE_FLUSH_INTERVAL: UnwrapRef<typeof import('./composable/app/usage')['USAGE_FLUSH_INTERVAL']>
     readonly acceptHMRUpdate: UnwrapRef<typeof import('pinia')['acceptHMRUpdate']>
     readonly agentComposeSnippet: UnwrapRef<typeof import('./composable/setup/setup')['agentComposeSnippet']>
@@ -703,7 +723,7 @@ declare module 'vue' {
     readonly attachEvents: UnwrapRef<typeof import('./composable/cloud/cloudAlerts')['attachEvents']>
     readonly attachPatternMemory: UnwrapRef<typeof import('./composable/cloud/patternMemory')['attachPatternMemory']>
     readonly autoResetRef: UnwrapRef<typeof import('@vueuse/core')['autoResetRef']>
-    readonly autoUpdateEnabled: UnwrapRef<typeof import('./composable/containers/bulkUpdate')['autoUpdateEnabled']>
+    readonly autoUpdates: UnwrapRef<typeof import('./composable/containers/updatePolicy')['autoUpdates']>
     readonly automaticRedirect: UnwrapRef<typeof import('./stores/settings')['automaticRedirect']>
     readonly buildViewContext: UnwrapRef<typeof import('./composable/logs/viewContext')['buildViewContext']>
     readonly canHover: UnwrapRef<typeof import('./composable/ui/media')['canHover']>
@@ -768,6 +788,7 @@ declare module 'vue' {
     readonly extendRef: UnwrapRef<typeof import('@vueuse/core')['extendRef']>
     readonly fetchAlerts: UnwrapRef<typeof import('./composable/cloud/cloudAlerts')['fetchAlerts']>
     readonly fetchPatternContext: UnwrapRef<typeof import('./composable/cloud/patternMemory')['fetchPatternContext']>
+    readonly firstLineByContainer: UnwrapRef<typeof import('./composable/logs/updateMarkers')['firstLineByContainer']>
     readonly flattenJSON: UnwrapRef<typeof import('./utils/index')['flattenJSON']>
     readonly flattenJSONToMap: UnwrapRef<typeof import('./utils/index')['flattenJSONToMap']>
     readonly formatBytes: UnwrapRef<typeof import('./utils/index')['formatBytes']>
@@ -794,8 +815,10 @@ declare module 'vue' {
     readonly iconSlugForImage: UnwrapRef<typeof import('./utils/index')['iconSlugForImage']>
     readonly iconUrl: UnwrapRef<typeof import('./utils/index')['iconUrl']>
     readonly ignorableWatch: UnwrapRef<typeof import('@vueuse/core')['ignorableWatch']>
+    readonly imageStatusKind: UnwrapRef<typeof import('./composable/containers/updatePolicy')['imageStatusKind']>
     readonly inject: UnwrapRef<typeof import('vue')['inject']>
     readonly injectLocal: UnwrapRef<typeof import('@vueuse/core')['injectLocal']>
+    readonly insertMarker: UnwrapRef<typeof import('./composable/logs/updateMarkers')['insertMarker']>
     readonly isDataIcon: UnwrapRef<typeof import('./utils/index')['isDataIcon']>
     readonly isDefined: UnwrapRef<typeof import('@vueuse/core')['isDefined']>
     readonly isEmptyHistogram: UnwrapRef<typeof import('./composable/logs/logHistogram')['isEmptyHistogram']>
@@ -813,6 +836,7 @@ declare module 'vue' {
     readonly isShallow: UnwrapRef<typeof import('vue')['isShallow']>
     readonly isStreamLog: UnwrapRef<typeof import('./composable/cloud/alertMerger')['isStreamLog']>
     readonly isViewContextOwner: UnwrapRef<typeof import('./composable/logs/viewContext')['isViewContextOwner']>
+    readonly labelPolicy: UnwrapRef<typeof import('./composable/containers/updatePolicy')['labelPolicy']>
     readonly lightTheme: UnwrapRef<typeof import('./stores/settings')['lightTheme']>
     readonly linesNeedingMemory: UnwrapRef<typeof import('./composable/cloud/patternMemory')['linesNeedingMemory']>
     readonly loadBetween: UnwrapRef<typeof import('./composable/logs/loadBetween')['loadBetween']>
@@ -830,6 +854,7 @@ declare module 'vue' {
     readonly menuWidth: UnwrapRef<typeof import('./stores/settings')['menuWidth']>
     readonly mergeAlerts: UnwrapRef<typeof import('./composable/cloud/cloudAlerts')['mergeAlerts']>
     readonly mergeCloudEvents: UnwrapRef<typeof import('./composable/cloud/cloudAlerts')['mergeCloudEvents']>
+    readonly mergeDeploys: UnwrapRef<typeof import('./composable/cloud/cloudAlerts')['mergeDeploys']>
     readonly narrowedLevels: UnwrapRef<typeof import('./composable/logs/viewContext')['narrowedLevels']>
     readonly newerThanOnScreen: UnwrapRef<typeof import('./composable/logs/logWindow')['newerThanOnScreen']>
     readonly newestOnScreen: UnwrapRef<typeof import('./composable/logs/logWindow')['newestOnScreen']>
@@ -890,7 +915,10 @@ declare module 'vue' {
     readonly refThrottled: UnwrapRef<typeof import('@vueuse/core')['refThrottled']>
     readonly refWithControl: UnwrapRef<typeof import('@vueuse/core')['refWithControl']>
     readonly relativeTimeTick: UnwrapRef<typeof import('./composable/ui/timeTicker')['relativeTimeTick']>
+    readonly repositionMarkers: UnwrapRef<typeof import('./composable/logs/updateMarkers')['repositionMarkers']>
     readonly resolveComponent: UnwrapRef<typeof import('vue')['resolveComponent']>
+    readonly resolvePolicy: UnwrapRef<typeof import('./composable/containers/updatePolicy')['resolvePolicy']>
+    readonly riskyContainers: UnwrapRef<typeof import('./composable/containers/updatePolicy')['riskyContainers']>
     readonly rolloutWorkload: UnwrapRef<typeof import('./composable/containers/rolloutRestart')['rolloutWorkload']>
     readonly routeKind: UnwrapRef<typeof import('./composable/logs/viewContext')['routeKind']>
     readonly safeRedirect: UnwrapRef<typeof import('./composable/ui/safeRedirect')['safeRedirect']>
@@ -1181,6 +1209,7 @@ declare module 'vue' {
     readonly useToast: UnwrapRef<typeof import('./composable/app/toast')['useToast']>
     readonly useToggle: UnwrapRef<typeof import('@vueuse/core')['useToggle']>
     readonly useTransition: UnwrapRef<typeof import('@vueuse/core')['useTransition']>
+    readonly useUpdatePolicies: UnwrapRef<typeof import('./composable/containers/updatePolicy')['useUpdatePolicies']>
     readonly useUrlSearchParams: UnwrapRef<typeof import('@vueuse/core')['useUrlSearchParams']>
     readonly useUserMedia: UnwrapRef<typeof import('@vueuse/core')['useUserMedia']>
     readonly useVModel: UnwrapRef<typeof import('@vueuse/core')['useVModel']>
@@ -1217,6 +1246,8 @@ declare module 'vue' {
     readonly watchTriggerable: UnwrapRef<typeof import('@vueuse/core')['watchTriggerable']>
     readonly watchWithFilter: UnwrapRef<typeof import('@vueuse/core')['watchWithFilter']>
     readonly whenever: UnwrapRef<typeof import('@vueuse/core')['whenever']>
+    readonly willAutoUpdate: UnwrapRef<typeof import('./composable/containers/updatePolicy')['willAutoUpdate']>
+    readonly windowReachesUpdate: UnwrapRef<typeof import('./composable/logs/updateMarkers')['windowReachesUpdate']>
     readonly withBase: UnwrapRef<typeof import('./stores/config')['withBase']>
     readonly writeSetupResume: UnwrapRef<typeof import('./composable/setup/setup')['writeSetupResume']>
   }
