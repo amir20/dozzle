@@ -5,13 +5,13 @@ import { describe, expect, test } from "vitest";
 import { cloudWatchable } from "./updateConfirm";
 
 describe("cloudWatchable", () => {
-  test("a container on a Docker host Dozzle talks to directly", () => {
+  test("a container on a Docker host Dozzle talks to directly, or on an agent", () => {
     expect(cloudWatchable({ isSwarm: false }, "local")).toBe(true);
     expect(cloudWatchable({ isSwarm: false }, "remote")).toBe(true);
+    expect(cloudWatchable({ isSwarm: false }, "agent")).toBe(true);
   });
 
-  test("not on an agent, swarm or k8s host, nor before the host is known", () => {
-    expect(cloudWatchable({ isSwarm: false }, "agent")).toBe(false);
+  test("not on a swarm or k8s host, nor before the host is known", () => {
     expect(cloudWatchable({ isSwarm: false }, "swarm")).toBe(false);
     expect(cloudWatchable({ isSwarm: false }, "k8s")).toBe(false);
     expect(cloudWatchable({ isSwarm: false }, undefined)).toBe(false);

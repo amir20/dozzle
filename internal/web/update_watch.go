@@ -87,10 +87,27 @@ func (w *updateWatchList) setAll(services []*container.ContainerService, watched
 	}
 }
 
+// settle drops the choice for an update that ended without a swap: already up
+// to date, failed, or abandoned. No event comes for it, and a choice left
+// behind would wait under a container id that is still running.
+func (w *updateWatchList) settle(host, id, status string) {
+	if status == container.UpdateDone || status == container.UpdateRolledBack {
+		return
+	}
+	w.mu.Lock()
+	defer w.mu.Unlock()
+	delete(w.at, watchKey(host, id))
+}
+
 // watched reports whether the update event was started with the checkbox
 // ticked. A rolled back swap reports the container it tried to replace as
-// OldID too, so both outcomes of a watched update are watched.
+// OldID too, so both outcomes of a watched update are watched. Only an update
+// Dozzle made can match: the checkbox says nothing about one Watchtower or
+// compose makes to the same container later.
 func (w *updateWatchList) watched(event container.ContainerUpdateEvent) bool {
+	if event.Source != container.UpdateSourceDozzle {
+		return false
+	}
 	w.mu.Lock()
 	defer w.mu.Unlock()
 	at, ok := w.at[watchKey(event.Host, event.OldID)]
