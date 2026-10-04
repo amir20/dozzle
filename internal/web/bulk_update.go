@@ -30,6 +30,8 @@ const (
 	bulkUpToDate = "up-to-date"
 	bulkDone     = "done"
 	bulkError    = "error"
+	// bulkRolledBack is final: the new container failed and the old one is back.
+	bulkRolledBack = container.UpdateRolledBack
 
 	// Generous, since a pull of a multi-gigabyte image on a slow link is
 	// legitimate. It only exists so a wedged daemon cannot pin the job forever.
@@ -223,7 +225,9 @@ func (u *bulkUpdater) runItem(item *bulkUpdateItem) {
 
 	err := <-errCh
 	u.mu.Lock()
-	if err != nil && item.Status != bulkError {
+	// A rolled back update already says what went wrong, and that the old
+	// container is back.
+	if err != nil && item.Status != bulkError && item.Status != bulkRolledBack {
 		item.Status = bulkError
 		item.Error = err.Error()
 	}
@@ -251,7 +255,7 @@ func (u *bulkUpdater) apply(item *bulkUpdateItem, p container.UpdateProgress) {
 			item.Total += layer[1]
 		}
 	}
-	if p.Status == bulkError {
+	if p.Status == bulkError || p.Status == bulkRolledBack {
 		item.Error = p.Error
 	}
 	self := item.Self

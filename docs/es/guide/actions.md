@@ -1,6 +1,6 @@
 ---
 title: Acciones sobre contenedores
-sourceHash: 347c47e3b567
+sourceHash: a6e53c733740
 ---
 
 # Acciones sobre contenedores
@@ -11,8 +11,10 @@ Dozzle permite ejecutar acciones sobre los contenedores: `start`, `stop`, `resta
 
 La acción `update` descarga la última imagen del contenedor y lo recrea con la misma configuración, algo útil para actualizar un contenedor sin tocar su archivo de Compose. `update` solo tiene efecto real cuando la imagen usa una etiqueta móvil (por ejemplo, `latest` o `stable`); con una etiqueta fija se volverá a descargar la misma imagen.
 
+El contenedor antiguo se conserva, renombrado, hasta que el nuevo lleva 10 segundos en marcha sin reiniciarse y, si su imagen tiene healthcheck, se ha declarado sano. Si el nuevo contenedor no arranca, termina, se reinicia o pasa a no sano, Dozzle lo elimina y vuelve a poner el antiguo, y la actualización indica **revertido** con el motivo. El nuevo contenedor lleva la etiqueta `dev.dozzle.previous-image` con el id de la imagen que reemplazó, y `dev.dozzle.previous-ref` con el digest `repo@sha256:…` de esa imagen (no existe para imágenes construidas localmente). Un contenedor que no estaba en marcha, como una tarea puntual que ya terminó, se recrea con la nueva imagen y se deja detenido, así que no se vuelve a ejecutar ni se comprueba.
+
 > [!WARNING]
-> `remove` y `update` recrean el contenedor. Se perderán los datos escritos en **volúmenes anónimos** o en la capa de escritura del contenedor. Los volúmenes con nombre y los bind mounts se conservan.
+> `remove` elimina el contenedor: se pierden los datos de su capa de escritura y sus volúmenes anónimos quedan sueltos, sin contenedor. `update` recrea el contenedor y conserva todos los volúmenes, también los anónimos, y todos los bind mounts. Solo se pierden los datos escritos en la capa de escritura del contenedor.
 
 ::: code-group
 
@@ -114,8 +116,18 @@ services:
       dev.dozzle.auto-update: true
 ```
 
-Los contenedores etiquetados siguen la misma programación que [la actualización automática del propio Dozzle](/es/guide/setup-wizard#_4-actualizacion-automatica), que se configura en el asistente de configuración o con `DOZZLE_AUTO_UPDATE` y `DOZZLE_AUTO_UPDATE_TIME`. A esa hora Dozzle comprueba cada contenedor etiquetado contra su registro y actualiza solo los que tienen una imagen más reciente. Primero van los contenedores y Dozzle va el último.
+Los contenedores etiquetados siguen la misma programación que [la actualización automática del propio Dozzle](/es/guide/setup-wizard#auto-update), que se configura en el asistente de configuración o con `DOZZLE_AUTO_UPDATE` y `DOZZLE_AUTO_UPDATE_TIME`. A esa hora Dozzle comprueba cada contenedor etiquetado contra su registro y actualiza solo los que tienen una imagen más reciente. Primero van los contenedores y Dozzle va el último.
 
 La actualización automática hay que activarla a propósito. Una base de datos con un tag flotante como `postgres:latest` puede saltar a una nueva versión mayor cuyos archivos de datos ya no sabe leer, así que etiqueta solo los contenedores que no te importe ver reemplazados sin estar pendiente. Los contenedores que Dozzle [no puede comprobar](#lo-que-no-se-puede-comprobar), como los de un registro privado, nunca se actualizan automáticamente.
 
 La actualización automática funciona en modo servidor, incluidos los contenedores en [agentes remotos](/es/guide/agent). Requiere las acciones activadas.
+
+## Limpiar imágenes antiguas {#cleaning-up-old-images}
+
+Cada actualización deja en el host la imagen que reemplazó, así que Dozzle elimina las imágenes antiguas después de una actualización, como el `--cleanup` de Watchtower. Siempre se hace, en todas las actualizaciones: programadas, desde la acción `Update` de un contenedor o desde el panel de actualizaciones. No hay nada que activar.
+
+Dozzle conserva la imagen con la que funcionaba el contenedor hasta ahora, para que aún pueda volver a ella, y elimina la anterior. Una actualización de 1.4.1 a 1.4.2 elimina 1.4.0 y conserva 1.4.1, así que cada contenedor guarda como mucho una imagen de reserva. Dozzle lee qué imagen eliminar de la etiqueta `dev.dozzle.previous-image` del contenedor antiguo, por lo que la primera actualización de un contenedor no elimina nada.
+
+La limpieza solo se hace cuando la actualización se ha completado y el contenedor antiguo ya no existe. Una actualización revertida no elimina nada. Dozzle solo elimina una imagen sin tag que ningún contenedor use: una imagen que aún tiene un tag, como una que descargaste o construiste tú, se conserva, y la eliminación no se fuerza, así que Docker se niega mientras otro contenedor, en marcha o detenido, la siga usando. Una negativa nunca hace fallar la actualización.
+
+Los contenedores en [agentes remotos](/es/guide/agent) se limpian de la misma forma, y también el propio contenedor de Dozzle: el contenedor auxiliar de la [autoactualización](/es/guide/setup-wizard#self-update) elimina la imagen anterior a la previa en cuanto el nuevo Dozzle sigue en marcha. Los servicios de Swarm, incluido Dozzle cuando se ejecuta como uno, no se limpian, porque cada nodo guarda sus propias imágenes y Swarm poda su propio historial de tareas.

@@ -1,6 +1,6 @@
 ---
 title: Container-Aktionen
-sourceHash: 347c47e3b567
+sourceHash: a6e53c733740
 ---
 
 # Container-Aktionen
@@ -11,8 +11,10 @@ Dozzle unterstützt Container-Aktionen: Über das Dropdown-Menü rechts neben de
 
 Die Aktion `update` lädt das neueste Image für den Container und erstellt ihn mit derselben Konfiguration neu — praktisch, um einen Container an Ort und Stelle zu aktualisieren, ohne seine Compose-Datei zu bearbeiten. `update` hat nur dann einen spürbaren Effekt, wenn das Image ein bewegliches Tag nutzt (z. B. `latest`, `stable`); bei einem fest gepinnten Tag wird schlicht dasselbe Image erneut geladen.
 
+Der alte Container bleibt umbenannt erhalten, bis der neue 10 Sekunden lang ohne Neustart gelaufen ist und, falls sein Image einen Healthcheck hat, als gesund gemeldet wurde. Startet der neue Container nicht, beendet er sich, startet er neu oder wird er ungesund, entfernt Dozzle ihn und stellt den alten wieder her. Das Update meldet dann **zurückgerollt** mit dem Grund. Der neue Container bekommt das Label `dev.dozzle.previous-image` mit der Image-ID, die er ersetzt hat, und `dev.dozzle.previous-ref` mit dem Digest `repo@sha256:…` dieses Images (fehlt bei lokal gebauten Images). Ein Container, der nicht lief, etwa ein einmaliger Job, der sich schon beendet hat, wird auf dem neuen Image neu erstellt und bleibt gestoppt. Er wird also weder erneut ausgeführt noch geprüft.
+
 > [!WARNING]
-> `remove` und `update` erstellen den Container neu. Daten in **anonymen Volumes** oder in der beschreibbaren Schicht des Containers gehen dabei verloren. Benannte Volumes und Bind-Mounts bleiben erhalten.
+> `remove` löscht den Container: Daten in seiner beschreibbaren Schicht gehen verloren, und seine anonymen Volumes bleiben losgelöst zurück. `update` erstellt den Container neu und behält jedes Volume, auch anonyme, sowie jeden Bind-Mount. Verloren gehen nur Daten, die in die beschreibbare Schicht des Containers geschrieben wurden.
 
 ::: code-group
 
@@ -114,8 +116,18 @@ services:
       dev.dozzle.auto-update: true
 ```
 
-Container mit diesem Label folgen demselben Zeitplan wie [das automatische Update von Dozzle selbst](/de/guide/setup-wizard#_4-automatische-updates), den du im Einrichtungsassistenten oder mit `DOZZLE_AUTO_UPDATE` und `DOZZLE_AUTO_UPDATE_TIME` festlegst. Zu dieser Zeit prüft Dozzle jeden markierten Container gegen seine Registry und aktualisiert nur die, für die es ein neueres Image gibt. Erst kommen die Container dran, Dozzle zuletzt.
+Container mit diesem Label folgen demselben Zeitplan wie [das automatische Update von Dozzle selbst](/de/guide/setup-wizard#auto-update), den du im Einrichtungsassistenten oder mit `DOZZLE_AUTO_UPDATE` und `DOZZLE_AUTO_UPDATE_TIME` festlegst. Zu dieser Zeit prüft Dozzle jeden markierten Container gegen seine Registry und aktualisiert nur die, für die es ein neueres Image gibt. Erst kommen die Container dran, Dozzle zuletzt.
 
 Das automatische Update ist bewusst Opt-in. Eine Datenbank auf einem beweglichen Tag wie `postgres:latest` kann auf eine neue Hauptversion springen, deren Datendateien sie nicht lesen kann. Versieh also nur Container mit dem Label, bei denen es dich nicht stört, wenn sie ohne dein Zutun ersetzt werden. Container, die Dozzle [nicht prüfen kann](#was-sich-nicht-prufen-lasst), etwa solche aus einer privaten Registry, werden nie automatisch aktualisiert.
 
 Das automatische Update läuft im Server-Modus, auch für Container auf [Remote-Agents](/de/guide/agent). Es setzt eingeschaltete Aktionen voraus.
+
+## Alte Images aufräumen {#cleaning-up-old-images}
+
+Jedes Update lässt das ersetzte Image auf dem Host zurück, deshalb entfernt Dozzle nach einem Update alte Images, ähnlich wie Watchtowers `--cleanup`. Das passiert immer, bei jedem Update: geplant, über die Aktion `Update` eines Containers oder über die Update-Leiste. Es muss nichts eingeschaltet werden.
+
+Dozzle behält das Image, mit dem der Container bisher lief, damit er noch dorthin zurück kann, und entfernt das davor. Ein Update von 1.4.1 auf 1.4.2 entfernt 1.4.0 und behält 1.4.1, sodass jeder Container höchstens ein Ersatz-Image behält. Welches Image entfernt wird, liest Dozzle aus dem Label `dev.dozzle.previous-image` des alten Containers. Das erste Update eines Containers entfernt deshalb nichts.
+
+Aufgeräumt wird erst, wenn das Update durch ist und der alte Container entfernt ist. Ein zurückgerolltes Update entfernt nichts. Dozzle entfernt nur ein Image ohne Tag, das kein Container nutzt: Ein Image, das noch ein Tag hat, etwa eines, das du selbst gepullt oder gebaut hast, bleibt erhalten, und das Entfernen geschieht ohne Zwang, also verweigert Docker es, solange ein anderer Container es noch nutzt, ob laufend oder gestoppt. Eine Weigerung lässt das Update nie fehlschlagen.
+
+Container auf [Remote-Agents](/de/guide/agent) werden genauso aufgeräumt, ebenso der eigene Container von Dozzle: Der Hilfscontainer des [Selbst-Updates](/de/guide/setup-wizard#self-update) entfernt das Image vor dem vorherigen, sobald das neue Dozzle stabil läuft. Swarm-Services, auch ein als Swarm-Service laufendes Dozzle, werden nicht aufgeräumt, da jeder Node seine eigenen Images hat und Swarm seinen Task-Verlauf selbst bereinigt.

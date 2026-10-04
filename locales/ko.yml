@@ -19,6 +19,8 @@ toolbar:
   update-service: 서비스 업데이트
   update-pulling: 최신 이미지 가져오는 중...
   update-recreating: 컨테이너 재생성 중...
+  update-verifying: 새 컨테이너가 계속 실행되는지 확인 중...
+  update-rolled-back: 새 컨테이너가 계속 실행되지 않아 이전 컨테이너를 복원했습니다.
   update-done: 컨테이너가 성공적으로 업데이트되었습니다
   update-up-to-date: 이미 최신 버전입니다
   update-available: '업데이트 사용 가능'
@@ -385,7 +387,9 @@ updates:
     queued: 대기 중
     pulling: 가져오는 중
     recreating: 재생성 중
+    verifying: 확인 중
     done: 업데이트됨
+    rolled-back: 롤백됨
     up-to-date: 최신
     error: 실패
 drawer:

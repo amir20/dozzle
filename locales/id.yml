@@ -19,6 +19,8 @@ toolbar:
   update-service: Perbarui Layanan
   update-pulling: Mengunduh image terbaru...
   update-recreating: Membuat ulang kontainer...
+  update-verifying: Memeriksa kontainer baru tetap berjalan...
+  update-rolled-back: Kontainer baru tidak tetap berjalan, jadi kontainer sebelumnya dipulihkan.
   update-done: Kontainer berhasil diperbarui
   update-up-to-date: Sudah versi terbaru
   update-available: 'Pembaruan tersedia'
@@ -395,7 +397,9 @@ updates:
     queued: Antre
     pulling: Mengunduh
     recreating: Membuat ulang
+    verifying: Memverifikasi
     done: Diperbarui
+    rolled-back: Dikembalikan
     up-to-date: Terkini
     error: Gagal
 drawer:

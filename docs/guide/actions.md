@@ -10,8 +10,10 @@ Dozzle supports container actions, which allows you to `start`, `stop`, `restart
 
 The `update` action pulls the latest image for the container and recreates it with the same configuration — useful for upgrading a container in place without editing its compose file. `update` only has a meaningful effect when the image uses a moving tag (e.g. `latest`, `stable`); a pinned tag will simply re-pull the same image.
 
+The old container is kept, renamed, until the new one has run for 10 seconds without restarting, and has reported healthy if its image has a healthcheck. If the new container fails to start, exits, restarts or turns unhealthy, Dozzle removes it and puts the old one back, and the update reports **rolled back** with the reason. The new container is labelled `dev.dozzle.previous-image` with the image id it replaced, and `dev.dozzle.previous-ref` with that image's `repo@sha256:…` digest (absent for images built locally). A container that was not running, such as a one-shot job that already exited, is recreated on the new image and left stopped, so it is not rerun and not checked.
+
 > [!WARNING]
-> `remove` and `update` recreate the container. Data written to **anonymous volumes** or the container's writable layer will be lost. Named volumes and bind mounts are preserved.
+> `remove` deletes the container: data in its writable layer is lost, and its anonymous volumes are left behind, detached. `update` recreates the container and keeps every volume, anonymous ones included, and every bind mount. Only data written to the container's writable layer is lost.
 
 ::: code-group
 
@@ -113,8 +115,18 @@ services:
       dev.dozzle.auto-update: true
 ```
 
-Labelled containers follow the same schedule as [Dozzle's own auto-update](/guide/setup-wizard#_4-auto-update), which you set in the setup wizard or with `DOZZLE_AUTO_UPDATE` and `DOZZLE_AUTO_UPDATE_TIME`. At that time Dozzle checks each labelled container against its registry and updates only the ones with a newer image. Containers go first and Dozzle goes last.
+Labelled containers follow the same schedule as [Dozzle's own auto-update](/guide/setup-wizard#auto-update), which you set in the setup wizard or with `DOZZLE_AUTO_UPDATE` and `DOZZLE_AUTO_UPDATE_TIME`. At that time Dozzle checks each labelled container against its registry and updates only the ones with a newer image. Containers go first and Dozzle goes last.
 
 Auto-update is opt in on purpose. A database on a floating tag like `postgres:latest` can move to a new major version that its data files cannot read, so only label containers you are happy to see replaced without watching. Containers Dozzle [cannot check](#what-cannot-be-checked), such as ones from a private registry, are never auto-updated.
 
 Auto-update runs in server mode, including containers on [remote agents](/guide/agent). It needs actions on.
+
+## Cleaning up old images {#cleaning-up-old-images}
+
+Every update leaves the image it replaced on the host, so Dozzle removes old images after an update, like Watchtower's `--cleanup`. It always runs, for every update: scheduled, from a container's `Update` action, or from the Updates drawer. There is nothing to turn on.
+
+Dozzle keeps the image the container ran until now, so the container can still go back to it, and removes the one before that. An update from 1.4.1 to 1.4.2 removes 1.4.0 and keeps 1.4.1, so each container keeps at most one spare image. Dozzle reads which image to remove from the old container's `dev.dozzle.previous-image` label, so a container's first update removes nothing.
+
+Cleanup only runs after the update has gone through and the old container is gone. A rolled back update removes nothing. Dozzle only removes an untagged image that no container uses: an image that still has a tag, such as one you pulled or built yourself, is kept, and the removal is not forced, so Docker refuses while any other container, running or stopped, still uses it. A refusal never fails the update.
+
+Containers on [remote agents](/guide/agent) are cleaned up the same way, and so is Dozzle's own container: the [self-update](/guide/setup-wizard#self-update) helper removes the image before the previous one once the new Dozzle has stayed up. Swarm services, including Dozzle running as one, are not cleaned up, since each node keeps its own images and Swarm prunes its own task history.

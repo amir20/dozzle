@@ -19,6 +19,8 @@ toolbar:
   update-service: Opdater Tjeneste
   update-pulling: Henter seneste image...
   update-recreating: Genskaber container...
+  update-verifying: Kontrollerer, at den nye container bliver kørende...
+  update-rolled-back: Den nye container blev ikke ved med at køre, så den forrige blev gendannet.
   update-done: Container opdateret succesfuldt
   update-up-to-date: Allerede opdateret
   update-available: 'Opdatering tilgængelig'
@@ -383,7 +385,9 @@ updates:
     queued: I kø
     pulling: Henter
     recreating: Genopretter
+    verifying: Kontrollerer
     done: Opdateret
+    rolled-back: Rullet tilbage
     up-to-date: Aktuel
     error: Fejlet
 drawer:

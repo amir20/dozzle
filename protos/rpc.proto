@@ -106,6 +106,7 @@ message ContainerActionResponse {}
 
 message UpdateContainerRequest {
   string containerId = 1;
+  reserved 2;
 }
 
 message UpdateContainerProgress {

@@ -63,7 +63,7 @@ Los agentes definidos con `DOZZLE_REMOTE_AGENT` aparecen bloqueados y solo se pu
 
 [Dozzle Cloud](/es/guide/dozzle-cloud) envía alertas en cuanto algo falla, un resumen cada mañana de lo que hay que arreglar y guarda un historial que sobrevive a los reinicios. **Conectar Dozzle Cloud** vincula esta instancia y **Ahora no** sigue adelante. Este paso se omite si la instancia ya está vinculada o si no tienes permiso para vincularla.
 
-### 5. Actualización automática
+### 5. Actualización automática {#auto-update}
 
 Dozzle puede mantenerse al día solo. Elige **Desactivada**, **Diaria** o **Semanal** (la semanal se ejecuta el domingo) y una hora del día. La hora es la local del servidor y por defecto es `03:00`. A esa hora Dozzle comprueba si su registro tiene una imagen más reciente y, solo si la hay, [se actualiza](#self-update).
 
@@ -114,7 +114,7 @@ Dozzle se actualiza con la acción `Update` sobre su propio contenedor o con la 
 1. Dozzle descarga el tag de imagen que está ejecutando. Si el tag sigue apuntando a la imagen en uso, se detiene ahí e informa de que está al día.
 2. Dozzle arranca, a partir de la nueva imagen, un contenedor auxiliar de corta duración con acceso al mismo socket de Docker. Unos segundos después Dozzle desaparece.
 3. El contenedor auxiliar renombra el contenedor antiguo y crea un reemplazo con el nombre original y la misma configuración, redes y volúmenes. Solo entonces detiene el contenedor antiguo y arranca el reemplazo. Los volúmenes anónimos también se conservan, así que los datos de `/data` sobreviven aunque no haya un volumen con nombre.
-4. El contenedor auxiliar espera a que el reemplazo siga en marcha (y sano, si tiene healthcheck). Si lo consigue, se elimina el contenedor antiguo sin tocar sus volúmenes. Si no, se elimina el reemplazo y el contenedor antiguo recupera su nombre y vuelve a arrancar.
+4. El contenedor auxiliar espera a que el reemplazo siga en marcha (y sano, si tiene healthcheck). Si lo consigue, se elimina el contenedor antiguo sin tocar sus volúmenes, y la imagen anterior a la previa se [limpia](/es/guide/actions#cleaning-up-old-images) como tras cualquier otra actualización. Si no, se elimina el reemplazo y el contenedor antiguo recupera su nombre y vuelve a arrancar.
 
 Los contenedores arrancados con `--rm` se actualizan igual. El contenedor antiguo se borra solo al detenerse, pero para entonces el reemplazo ya tiene sus volúmenes, así que se conservan. Si la actualización tiene que volver atrás, el contenedor auxiliar recrea el contenedor antiguo a partir de su configuración guardada.
 

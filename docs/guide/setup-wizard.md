@@ -62,7 +62,7 @@ Agents set with `DOZZLE_REMOTE_AGENT` are listed as locked and can only be remov
 
 [Dozzle Cloud](/guide/dozzle-cloud) sends alerts the moment something breaks, a morning summary of what to fix, and keeps history that survives restarts. **Connect Dozzle Cloud** links this instance, and **Not now** moves on. This step is skipped when the instance is already linked or when you are not allowed to link it.
 
-### 5. Auto-update
+### 5. Auto-update {#auto-update}
 
 Dozzle can keep itself up to date. Pick **Off**, **Daily** or **Weekly** (weekly runs on Sunday) and a time of day. The time is in the server's local time and defaults to `03:00`. At that time Dozzle checks its registry for a newer image and, only if there is one, [updates itself](#self-update).
 
@@ -113,7 +113,7 @@ Dozzle updates itself from the `Update` action on its own container or on the au
 1. Dozzle pulls the image tag it is running. If the tag still points at the image already running, it stops there and reports it is up to date.
 2. Dozzle starts a short-lived helper container from the new image, with access to the same Docker socket. Dozzle goes away a few seconds later.
 3. The helper renames the old container and creates a replacement under the original name with the same configuration, networks and volumes. Only then does it stop the old container and start the replacement. Anonymous volumes are kept too, so data in `/data` survives even without a named volume.
-4. The helper waits for the replacement to stay running (and healthy, if it has a healthcheck). If it does, the old container is removed and its volumes are left alone. If it does not, the replacement is removed and the old container is renamed back and started again.
+4. The helper waits for the replacement to stay running (and healthy, if it has a healthcheck). If it does, the old container is removed and its volumes are left alone, and the image before the previous one is [cleaned up](/guide/actions#cleaning-up-old-images) like after any other update. If it does not, the replacement is removed and the old container is renamed back and started again.
 
 Containers started with `--rm` update the same way. The old container deletes itself when it stops, but by then the replacement already holds its volumes, so they survive. If the update rolls back, the helper recreates the old container from its saved configuration.
 

@@ -3,6 +3,7 @@ package web
 import (
 	"context"
 	"crypto/tls"
+	"errors"
 	"time"
 
 	"io"
@@ -10,9 +11,12 @@ import (
 
 	"github.com/amir20/dozzle/internal/container"
 	"github.com/amir20/dozzle/internal/container/docker"
+	"github.com/amir20/dozzle/internal/container/swap"
+	"github.com/amir20/dozzle/internal/container/swap/swaptest"
 	"github.com/amir20/dozzle/internal/hostservice"
 	"github.com/go-chi/chi/v5"
 	docker_types "github.com/moby/moby/api/types/container"
+	"github.com/moby/moby/api/types/image"
 	"github.com/moby/moby/api/types/system"
 
 	"github.com/stretchr/testify/mock"
@@ -23,6 +27,8 @@ import (
 type MockedClient struct {
 	mock.Mock
 	container.Client
+	// engine is what an update swaps containers with.
+	engine *swaptest.Fake
 }
 
 func (m *MockedClient) FindContainer(ctx context.Context, id string) (container.Container, error) {
@@ -48,6 +54,22 @@ func (m *MockedClient) ImageRepoDigests(ctx context.Context, imageID string) ([]
 func (m *MockedClient) ImageID(ctx context.Context, ref string) (string, error) {
 	args := m.Called(ctx, ref)
 	return args.String(0), args.Error(1)
+}
+
+func (m *MockedClient) ImageInspect(ctx context.Context, ref string) (image.InspectResponse, error) {
+	return image.InspectResponse{}, errors.New("no such image")
+}
+
+func (m *MockedClient) ImageRemove(ctx context.Context, imageID string) error {
+	args := m.Called(ctx, imageID)
+	return args.Error(0)
+}
+
+func (m *MockedClient) SwapAPI() swap.API {
+	if m.engine == nil {
+		m.engine = swaptest.New()
+	}
+	return m.engine
 }
 
 func (m *MockedClient) ContainerInspect(ctx context.Context, containerID string) (docker_types.InspectResponse, error) {

@@ -1976,9 +1976,9 @@ const file_rpc_proto_rawDesc = "" +
 	"\x16ContainerActionRequest\x12 \n" +
 	"\vcontainerId\x18\x01 \x01(\tR\vcontainerId\x121\n" +
 	"\x06action\x18\x02 \x01(\x0e2\x19.protobuf.ContainerActionR\x06action\"\x19\n" +
-	"\x17ContainerActionResponse\":\n" +
+	"\x17ContainerActionResponse\"@\n" +
 	"\x16UpdateContainerRequest\x12 \n" +
-	"\vcontainerId\x18\x01 \x01(\tR\vcontainerId\"\x8d\x01\n" +
+	"\vcontainerId\x18\x01 \x01(\tR\vcontainerIdJ\x04\b\x02\x10\x03\"\x8d\x01\n" +
 	"\x17UpdateContainerProgress\x12\x16\n" +
 	"\x06status\x18\x01 \x01(\tR\x06status\x12\x14\n" +
 	"\x05layer\x18\x02 \x01(\tR\x05layer\x12\x18\n" +

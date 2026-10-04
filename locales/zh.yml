@@ -19,6 +19,8 @@ toolbar:
   update-service: 更新服务
   update-pulling: 正在拉取最新镜像...
   update-recreating: 正在重新创建容器...
+  update-verifying: 正在确认新容器持续运行...
+  update-rolled-back: 新容器未能持续运行，已恢复之前的容器。
   update-done: 容器更新成功
   update-up-to-date: 已是最新版本
   update-available: '有可用更新'
@@ -383,7 +385,9 @@ updates:
     queued: 排队中
     pulling: 拉取中
     recreating: 重建中
+    verifying: 验证中
     done: 已更新
+    rolled-back: 已回滚
     up-to-date: 最新
     error: 失败
 drawer:

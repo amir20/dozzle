@@ -1,4 +1,4 @@
-package selfupdate
+package swap
 
 import (
 	"net/netip"

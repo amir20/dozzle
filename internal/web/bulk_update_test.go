@@ -19,9 +19,10 @@ import (
 // records the order the updates ran in.
 type recordingClientService struct {
 	container.ClientService
-	mu    sync.Mutex
-	order []string
-	fail  map[string]bool
+	mu       sync.Mutex
+	order    []string
+	fail     map[string]bool
+	rollBack map[string]bool
 }
 
 func (s *recordingClientService) UpdateContainer(ctx context.Context, c container.Container, progressCh chan<- container.UpdateProgress) (bool, error) {
@@ -35,6 +36,12 @@ func (s *recordingClientService) UpdateContainer(ctx context.Context, c containe
 	if s.fail[c.ID] {
 		progressCh <- container.UpdateProgress{Status: "error", Error: "pull failed"}
 		return false, errors.New("pull failed")
+	}
+	if s.rollBack[c.ID] {
+		progressCh <- container.UpdateProgress{Status: "recreating"}
+		progressCh <- container.UpdateProgress{Status: "verifying"}
+		progressCh <- container.UpdateProgress{Status: "rolled-back", Error: "replacement is unhealthy"}
+		return false, errors.New("update rolled back: replacement is unhealthy")
 	}
 	progressCh <- container.UpdateProgress{Status: "recreating"}
 	progressCh <- container.UpdateProgress{Status: "done"}
@@ -100,6 +107,26 @@ func TestBulkUpdate_FailureDoesNotStopTheRest(t *testing.T) {
 	job, _ := u.snapshot(nil)
 	assert.Equal(t, "error", job.Items[0].Status)
 	assert.Equal(t, "pull failed", job.Items[0].Error)
+	assert.Equal(t, "done", job.Items[1].Status)
+}
+
+// A rolled back container ends the job as rolled back, not failed, with the
+// reason the new one was refused.
+func TestBulkUpdate_RolledBackStaysRolledBack(t *testing.T) {
+	client := &recordingClientService{rollBack: map[string]bool{"bbbbbbbbbbbb": true}}
+	services := []*container.ContainerService{
+		container.NewContainerService(client, container.Container{ID: "bbbbbbbbbbbb", Host: "local", Name: "web"}),
+		container.NewContainerService(client, container.Container{ID: "cccccccccccc", Host: "local", Name: "db"}),
+	}
+
+	u := newTestUpdater()
+	done, err := u.Start(services, "schedule", "", "", nil)
+	require.NoError(t, err)
+	waitDone(t, done)
+
+	job, _ := u.snapshot(nil)
+	assert.Equal(t, "rolled-back", job.Items[0].Status)
+	assert.Equal(t, "replacement is unhealthy", job.Items[0].Error)
 	assert.Equal(t, "done", job.Items[1].Status)
 }
 
