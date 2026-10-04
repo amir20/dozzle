@@ -63,7 +63,7 @@
           <SetupLocked v-if="status.locked.autoUpdate" env="DOZZLE_AUTO_UPDATE" class="mt-1" />
         </span>
         <span v-if="autoUpdate.mode === 'off'" class="text-base-content/60 shrink-0 text-sm">
-          {{ $t("setup.update.off") }}
+          {{ $t("setup.restart.off") }}
         </span>
         <span v-else class="shrink-0 text-right text-sm">
           {{ $t(`setup.update.${autoUpdate.mode}`) }}

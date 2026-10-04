@@ -245,6 +245,7 @@ placeholder:
   search: Ara
 settings:
   subtitle: Bu tarayıcı için tercihler. Değişiklikler otomatik olarak kaydedilir.
+  subtitle-server: "Bu Dozzle'ın ayarları, onu kullanan herkes için ortaktır."
   appearance: Görünüm
   logs: Loglar
   sidebar: Kenar çubuğu
@@ -959,7 +960,6 @@ setup:
     server-time: "Sunucunun saat dilimini kullanır."
     daily: "Günlük"
     weekly: "Her pazar"
-    off: "Kapalı"
     version-label: "Sürüm"
     update-now: "Şimdi güncelle"
     pulling: "Yeni imaj çekiliyor"

@@ -250,6 +250,7 @@ placeholder:
 
 settings:
   subtitle: Preferensi untuk browser ini. Perubahan disimpan secara otomatis.
+  subtitle-server: "Pengaturan untuk Dozzle ini, dipakai bersama oleh semua penggunanya."
   appearance: Tampilan
   logs: Log
   sidebar: Bilah sisi
@@ -968,7 +969,6 @@ setup:
     server-time: "Memakai zona waktu server."
     daily: "Harian"
     weekly: "Mingguan pada hari Minggu"
-    off: "Mati"
     version-label: "Versi"
     update-now: "Perbarui sekarang"
     pulling: "Menarik image baru"

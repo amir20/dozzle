@@ -371,6 +371,7 @@ command-palette:
   open-settings: Open settings
 settings:
   subtitle: Preferences for this browser. Changes save automatically.
+  subtitle-server: "Settings for this Dozzle, shared by everyone who uses it."
   appearance: Appearance
   logs: Logs
   sidebar: Sidebar
@@ -964,7 +965,6 @@ setup:
     server-time: Uses the server's time zone.
     daily: Daily
     weekly: Weekly on Sunday
-    off: "Off"
     version-label: Version
     update-now: Update now
     pulling: Pulling the new image

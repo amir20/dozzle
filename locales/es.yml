@@ -363,6 +363,7 @@ command-palette:
   open-settings: Abrir configuración
 settings:
   subtitle: Preferencias para este navegador. Los cambios se guardan automáticamente.
+  subtitle-server: "Ajustes de este Dozzle, compartidos por todos los que lo usan."
   appearance: Apariencia
   logs: Logs
   sidebar: Barra lateral
@@ -956,7 +957,6 @@ setup:
     server-time: "Usa la zona horaria del servidor."
     daily: "Diariamente"
     weekly: "Semanalmente el domingo"
-    off: "Desactivada"
     version-label: "Versión"
     update-now: "Actualizar ahora"
     pulling: "Descargando la nueva imagen"

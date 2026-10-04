@@ -7,8 +7,10 @@
     <div class="flex flex-wrap items-end justify-between gap-x-4 gap-y-1">
       <div>
         <h1 class="text-2xl font-bold">{{ $t("title.settings") }}</h1>
-        <!-- Only the preference pages save to this browser; the rest describe the server. -->
-        <p v-if="isPreferencePage(route.path)" class="text-base-content/60 text-sm">{{ $t("settings.subtitle") }}</p>
+        <!-- Every page says whose settings these are, so the nav never moves between pages. -->
+        <p class="text-base-content/60 text-sm">
+          {{ isPreferencePage(route.path) ? $t("settings.subtitle") : $t("settings.subtitle-server") }}
+        </p>
       </div>
       <button
         v-if="isPreferencePage(route.path)"

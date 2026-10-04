@@ -242,6 +242,7 @@ placeholder:
   search: Recherche
 settings:
   subtitle: Préférences pour ce navigateur. Les modifications sont enregistrées automatiquement.
+  subtitle-server: "Réglages de ce Dozzle, partagés par tous ceux qui l'utilisent."
   appearance: Apparence
   logs: Logs
   sidebar: Barre latérale
@@ -956,7 +957,6 @@ setup:
     server-time: "Utilise le fuseau horaire du serveur."
     daily: "Tous les jours"
     weekly: "Chaque semaine le dimanche"
-    off: "Désactivée"
     version-label: "Version"
     update-now: "Mettre à jour maintenant"
     pulling: "Téléchargement de la nouvelle image"

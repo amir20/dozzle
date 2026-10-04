@@ -242,6 +242,7 @@ placeholder:
   search: Søg
 settings:
   subtitle: Indstillinger for denne browser. Ændringer gemmes automatisk.
+  subtitle-server: "Indstillinger for denne Dozzle, delt af alle, der bruger den."
   appearance: Udseende
   logs: Logs
   sidebar: Sidepanel
@@ -956,7 +957,6 @@ setup:
     server-time: "Bruger serverens tidszone."
     daily: "Dagligt"
     weekly: "Ugentligt om søndagen"
-    off: "Fra"
     version-label: "Version"
     update-now: "Opdater nu"
     pulling: "Henter det nye image"

@@ -243,6 +243,7 @@ placeholder:
   search: Zoeken
 settings:
   subtitle: Voorkeuren voor deze browser. Wijzigingen worden automatisch opgeslagen.
+  subtitle-server: "Instellingen voor deze Dozzle, gedeeld door iedereen die hem gebruikt."
   appearance: Weergave
   logs: Logs
   sidebar: Zijbalk
@@ -957,7 +958,6 @@ setup:
     server-time: "Gebruikt de tijdzone van de server."
     daily: "Dagelijks"
     weekly: "Wekelijks op zondag"
-    off: "Uit"
     version-label: "Versie"
     update-now: "Nu bijwerken"
     pulling: "Nieuwe image ophalen"

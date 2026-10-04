@@ -244,6 +244,7 @@ placeholder:
   search: 搜尋
 settings:
   subtitle: 此瀏覽器的偏好設定。變更會自動儲存。
+  subtitle-server: "這個 Dozzle 的設定，所有使用者共用。"
   appearance: 外觀
   logs: 日誌
   sidebar: 側邊欄
@@ -958,7 +959,6 @@ setup:
     server-time: "使用伺服器的時區。"
     daily: "每天"
     weekly: "每週日"
-    off: "關閉"
     version-label: "版本"
     update-now: "立即更新"
     pulling: "正在拉取新映像檔"

@@ -59,7 +59,7 @@
 
     <!-- No login, and nothing here can change that. -->
     <template v-else-if="state === 'off'">
-      <SetupAccessNotice v-if="!status.locked.authProvider" :status="status" />
+      <SetupAccessNotice v-if="notices && !status.locked.authProvider" :status="status" />
       <div class="border-base-content/15 bg-base-200/40 divide-base-content/10 divide-y rounded-lg border">
         <ReadOnlyRow :label="$t('settings.login-off')" value="auth: none">
           <template #icon>
@@ -75,7 +75,9 @@
     <!-- Pick one. -->
     <template v-else>
       <!-- Said up front, so nobody fills in the form only to have it refused. -->
-      <InlineNotice v-if="!status.canWrite" type="warning">{{ $t("setup.error.window-closed") }}</InlineNotice>
+      <InlineNotice v-if="notices && !status.canWrite" type="warning">{{
+        $t("setup.error.window-closed")
+      }}</InlineNotice>
       <div role="tablist" class="tabs tabs-box tabs-sm w-fit">
         <button
           v-for="tab in tabs"
@@ -226,8 +228,14 @@
 <script lang="ts" setup>
 import type { SetupStatus } from "@/composable/setup/setup";
 
-const { status, standalone = false } = defineProps<{
+const {
+  status,
+  standalone = false,
+  notices = true,
+} = defineProps<{
   status: SetupStatus;
+  // False when the page already shows the access notice for every form on it.
+  notices?: boolean;
   // Settings: a button of its own, a docs link once login is on, and a plain status
   // where nothing can be saved. The wizard drives saving from its footer.
   standalone?: boolean;

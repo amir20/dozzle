@@ -242,6 +242,7 @@ placeholder:
   search: Suche
 settings:
   subtitle: Einstellungen für diesen Browser. Änderungen werden automatisch gespeichert.
+  subtitle-server: "Einstellungen für dieses Dozzle, für alle, die es nutzen."
   appearance: Darstellung
   logs: Logs
   sidebar: Seitenleiste
@@ -956,7 +957,6 @@ setup:
     server-time: "Verwendet die Zeitzone des Servers."
     daily: "Täglich"
     weekly: "Wöchentlich am Sonntag"
-    off: "Aus"
     version-label: "Version"
     update-now: "Jetzt aktualisieren"
     pulling: "Neues Image wird geladen"

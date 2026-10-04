@@ -244,6 +244,7 @@ placeholder:
   search: Iskanje
 settings:
   subtitle: Nastavitve za ta brskalnik. Spremembe se shranijo samodejno.
+  subtitle-server: "Nastavitve za ta Dozzle, skupne vsem, ki ga uporabljajo."
   appearance: Videz
   logs: Dnevniki
   sidebar: Stranska vrstica
@@ -961,7 +962,6 @@ setup:
     server-time: "Uporablja časovni pas strežnika."
     daily: "Dnevno"
     weekly: "Tedensko ob nedeljah"
-    off: "Izklopljeno"
     version-label: "Različica"
     update-now: "Posodobi zdaj"
     pulling: "Prenašanje nove slike"

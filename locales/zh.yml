@@ -242,6 +242,7 @@ placeholder:
   search: 搜索
 settings:
   subtitle: 此浏览器的偏好设置。更改会自动保存。
+  subtitle-server: "这个 Dozzle 的设置，所有使用者共用。"
   appearance: 外观
   logs: 日志
   sidebar: 侧边栏
@@ -956,7 +957,6 @@ setup:
     server-time: "使用服务器的时区。"
     daily: "每天"
     weekly: "每周日"
-    off: "关闭"
     version-label: "版本"
     update-now: "立即更新"
     pulling: "正在拉取新镜像"
