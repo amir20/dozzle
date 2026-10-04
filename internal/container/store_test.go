@@ -1023,6 +1023,28 @@ func TestStore_mergeFetched(t *testing.T) {
 		assert.Empty(t, c.Health)
 	})
 
+	// A container with a pinned display name changes only its engine name on
+	// rename (compose's temp name to the real one). A fetch that saw the temp
+	// name must not put it back, or the next start is looked up under it.
+	t.Run("keeps an engine name the event loop renamed during the fetch", func(t *testing.T) {
+		store := newStore()
+		labels := map[string]string{"dev.dozzle.name": "web"}
+		prev := &Container{ID: "1234", Name: "web", EngineName: "abc123_web", State: "running", Labels: labels}
+		store.containers.Store("1234", prev)
+		renamed := *prev
+		renamed.EngineName = "web-1"
+		store.containers.Store("1234", &renamed)
+
+		stale := loadedContainer("1234", "running")
+		stale.Name = "web"
+		stale.EngineName = "abc123_web"
+		stale.Labels = labels
+		c, _, updated := store.mergeFetched(prev, stale)
+		assert.True(t, updated)
+		assert.Equal(t, "web-1", c.EngineName)
+		assert.Equal(t, "web", c.Name)
+	})
+
 	t.Run("keeps a fully loaded entry stored during the fetch", func(t *testing.T) {
 		store := newStore()
 		prev := &Container{ID: "1234", State: "running"}
