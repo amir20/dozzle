@@ -255,6 +255,7 @@ func TestStore_rename(t *testing.T) {
 		}
 		result := run(t, initial, map[string]string{"name": "new-docker-name"})
 		assert.Equal(t, "custom-name", result.Name)
+		assert.Equal(t, "new-docker-name", result.EngineName, "the engine name follows every rename")
 	})
 
 	t.Run("keeps custom name from coolify.serviceName label", func(t *testing.T) {

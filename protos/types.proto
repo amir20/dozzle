@@ -48,6 +48,9 @@ message Container {
   // update apart from a restart.
   string imageId = 30;
   string imageDigest = 31;
+  // engineName is the engine's own name for the container, before
+  // dev.dozzle.name and other display overrides.
+  string engineName = 32;
 }
 
 message ContainerStat {

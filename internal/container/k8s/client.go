@@ -226,7 +226,8 @@ func (k *Client) podToContainers(ctx context.Context, pod *corev1.Pod) []contain
 
 	containers := make([]container.Container, 0, len(pod.Spec.InitContainers)+len(pod.Spec.Containers))
 	add := func(c corev1.Container, labels map[string]string, isInit bool) {
-		name := pod.Name + "/" + c.Name
+		engineName := pod.Name + "/" + c.Name
+		name := engineName
 		if customName != "" {
 			name = customName
 			if isInit || multipleApps {
@@ -246,6 +247,7 @@ func (k *Client) podToContainers(ctx context.Context, pod *corev1.Pod) []contain
 			ImageDigest:  imageDigest(statuses[c.Name].ImageID),
 			ID:           pod.Namespace + ":" + pod.Name + ":" + c.Name,
 			Name:         name,
+			EngineName:   engineName,
 			Group:        group,
 			Image:        c.Image,
 			Created:      pod.CreationTimestamp.Time,

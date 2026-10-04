@@ -12,7 +12,9 @@ import (
 )
 
 // ContainerUpdateEvent records that the container under a name now runs a
-// different image than the last one seen under that name.
+// different image than the last one seen under that name. The name is the
+// engine's (EngineName), never the display name: dev.dozzle.name and other
+// labels can give two different containers the same display name.
 //
 // It is worked out from starts by name, never from what started the update, so
 // every way of updating a container reads the same: Watchtower's stop, remove,
@@ -20,7 +22,10 @@ import (
 // Dozzle's own swap. A restart keeps its image and is not an update.
 type ContainerUpdateEvent struct {
 	Host string `json:"host"`
-	Name string `json:"name"`
+	// Name is the display name, for the UI. EngineName is the engine's own
+	// name for the container, which is what the event is worked out from.
+	Name       string `json:"name"`
+	EngineName string `json:"engineName"`
 	// OldID is the container that ran before. NewID is the one that runs under
 	// the name now: the replacement, or for a rolled back swap the old
 	// container put back (a recreation of it for a --rm one).
@@ -67,7 +72,7 @@ const (
 	restoredRefLabel = "dev.dozzle.self-update.image"
 )
 
-// imageRecord is the last image seen under a name.
+// imageRecord is the last image seen under an engine name.
 type imageRecord struct {
 	containerID string
 	imageID     string
@@ -82,7 +87,7 @@ type imageRecord struct {
 // Store built by hand in a test) records nothing.
 type updateTracker struct {
 	mu          sync.Mutex
-	byName      map[string]imageRecord
+	byName      map[string]imageRecord // keyed by EngineName
 	events      []ContainerUpdateEvent
 	subscribers *xsync.Map[context.Context, chan<- ContainerUpdateEvent]
 	now         func() time.Time
@@ -112,17 +117,17 @@ func imageIdentity(c Container) string {
 // container that was only created never ran, so it says nothing about the name.
 func (t *updateTracker) seen(c Container) {
 	identity := imageIdentity(c)
-	if t == nil || identity == "" || c.Name == "" {
+	if t == nil || identity == "" || c.EngineName == "" {
 		return
 	}
 	t.mu.Lock()
 	defer t.mu.Unlock()
-	prev, ok := t.byName[c.Name]
+	prev, ok := t.byName[c.EngineName]
 	switch {
 	case !ok && c.State != "created":
-		t.byName[c.Name] = recordOf(c, imageRecord{})
+		t.byName[c.EngineName] = recordOf(c, imageRecord{})
 	case ok && prev.containerID == c.ID:
-		t.byName[c.Name] = recordOf(c, prev)
+		t.byName[c.EngineName] = recordOf(c, prev)
 	}
 }
 
@@ -150,13 +155,13 @@ func recordOf(c Container, prev imageRecord) imageRecord {
 // started records a start and returns the update it amounts to, if any.
 func (t *updateTracker) started(c Container) (ContainerUpdateEvent, bool) {
 	identity := imageIdentity(c)
-	if t == nil || identity == "" || c.Name == "" {
+	if t == nil || identity == "" || c.EngineName == "" {
 		return ContainerUpdateEvent{}, false
 	}
 
 	t.mu.Lock()
-	prev, ok := t.byName[c.Name]
-	t.byName[c.Name] = recordOf(c, prev)
+	prev, ok := t.byName[c.EngineName]
+	t.byName[c.EngineName] = recordOf(c, prev)
 	t.pruneLocked()
 	if !ok || prev.containerID == c.ID || prev.imageID == identity || t.restoringLocked(c, prev) {
 		t.mu.Unlock()
@@ -166,6 +171,7 @@ func (t *updateTracker) started(c Container) (ContainerUpdateEvent, bool) {
 	event := ContainerUpdateEvent{
 		Host:         c.Host,
 		Name:         c.Name,
+		EngineName:   c.EngineName,
 		OldID:        prev.containerID,
 		NewID:        c.ID,
 		FromRef:      prev.ref,
@@ -216,8 +222,7 @@ func updateSource(c Container, prev imageRecord) (source, runID string) {
 // RolledBack set, so the start is not a second update.
 func (t *updateTracker) restoringLocked(c Container, prev imageRecord) bool {
 	for _, e := range slices.Backward(t.events) {
-
-		if e.Name != c.Name || e.RolledBack {
+		if e.EngineName != c.EngineName || e.RolledBack {
 			continue
 		}
 		return e.NewID == prev.containerID && e.FromImageID == imageIdentity(c) &&

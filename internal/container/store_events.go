@@ -224,13 +224,17 @@ func (s *Store) handleEvent(event ContainerEvent) {
 
 	case "rename":
 		s.patch(id, func(c *Container) bool {
+			// The engine name always follows: it is what the update tracker
+			// keys on, and a rename is exactly how compose and Dozzle's swap
+			// move a name from one container to the next.
+			c.EngineName = event.ActorAttributes["name"]
 			// A dev.dozzle.name or coolify.serviceName label pins a custom
 			// display name (see newContainer). That name must survive a
 			// docker-level rename, so only follow the rename when the name
 			// actually comes from Docker.
 			if c.Labels["dev.dozzle.name"] != "" || c.Labels["coolify.serviceName"] != "" {
-				log.Debug().Str("id", id).Msg("ignoring rename: container has a custom name label")
-				return false
+				log.Debug().Str("id", id).Msg("keeping display name on rename: container has a custom name label")
+				return true
 			}
 			log.Debug().Str("id", id).Str("name", event.ActorAttributes["name"]).Msg("container renamed")
 			c.Name = event.ActorAttributes["name"]
@@ -256,6 +260,7 @@ func (s *Store) handleUpdate(event ContainerEvent) {
 		leftCreated := c.State == "created" && (update.State == "exited" || update.State == "restarting")
 		started = c.State != "running" && (update.State == "running" || leftCreated)
 		c.Name = update.Name
+		c.EngineName = update.EngineName
 		// Name and group both come from dev.dozzle.* on the pod, which can change in place.
 		c.Group = update.Group
 		// A pod created while Pending has no imageID yet, and a restart can pull a

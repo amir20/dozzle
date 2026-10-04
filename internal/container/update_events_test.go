@@ -26,6 +26,7 @@ func runningOn(id, name, imageID string, startedAt time.Time, labels map[string]
 	return Container{
 		ID:          id,
 		Name:        name,
+		EngineName:  name,
 		Host:        "host1",
 		Image:       "nginx:latest",
 		ImageID:     imageID,
@@ -51,6 +52,7 @@ func TestUpdateTracker_watchtower(t *testing.T) {
 	assert.Equal(t, ContainerUpdateEvent{
 		Host:         "host1",
 		Name:         "web",
+		EngineName:   "web",
 		OldID:        "aaa",
 		NewID:        "bbb",
 		FromRef:      "nginx:latest",
@@ -99,7 +101,7 @@ func TestUpdateTracker_createdContainerDoesNotSeedName(t *testing.T) {
 func TestUpdateTracker_listEntryKeepsInspectData(t *testing.T) {
 	tr := newUpdateTracker()
 	tr.seen(runningOn("aaa", "web", imageX, t0, nil))
-	tr.seen(Container{ID: "aaa", Name: "web", ImageID: imageX, State: "running"})
+	tr.seen(Container{ID: "aaa", Name: "web", EngineName: "web", ImageID: imageX, State: "running"})
 
 	event, ok := tr.started(runningOn("bbb", "web", imageY, t1, nil))
 	require.True(t, ok)
@@ -180,7 +182,7 @@ func TestUpdateTracker_restoredOldContainerIsNotAnUpdate(t *testing.T) {
 	_, ok = tr.started(runningOn("aaa", "web", imageX, t1.Add(time.Minute), nil))
 	assert.False(t, ok)
 
-	tr.rolledBack(ContainerUpdateEvent{Name: "web", OldID: "aaa", NewID: "aaa", FromImageID: imageX, ToImageID: imageY, Source: UpdateSourceDozzle})
+	tr.rolledBack(ContainerUpdateEvent{Name: "web", EngineName: "web", OldID: "aaa", NewID: "aaa", FromImageID: imageX, ToImageID: imageY, Source: UpdateSourceDozzle})
 	events := tr.recent()
 	require.Len(t, events, 2)
 	assert.False(t, events[0].RolledBack)
@@ -246,10 +248,49 @@ func TestUpdateTracker_prunesGoneRecords(t *testing.T) {
 	assert.Len(t, tr.byName, 1)
 }
 
+// dev.dozzle.name and other labels can give two containers one display name.
+// They are still two names to the engine, so restarting either is never an
+// update from the other's image.
+func TestUpdateTracker_sharedDisplayName(t *testing.T) {
+	tr := newUpdateTracker()
+	labels := map[string]string{"dev.dozzle.name": "db"}
+	pg15 := runningOn("aaa", "db", imageX, t0, labels)
+	pg15.EngineName, pg15.Image = "db-15", "postgres:15"
+	pg16 := runningOn("bbb", "db", imageY, t0, labels)
+	pg16.EngineName, pg16.Image = "db-16", "postgres:16"
+	tr.seen(pg15)
+	tr.seen(pg16)
+
+	for range 2 {
+		pg16.StartedAt = pg16.StartedAt.Add(time.Minute)
+		_, ok := tr.started(pg16)
+		assert.False(t, ok, "restarting postgres:16 is not an update from postgres:15")
+		pg15.StartedAt = pg15.StartedAt.Add(time.Minute)
+		_, ok = tr.started(pg15)
+		assert.False(t, ok, "restarting postgres:15 is not an update from postgres:16")
+	}
+	assert.Empty(t, tr.recent())
+	assert.Len(t, tr.byName, 2)
+}
+
+// Containers without a name have no engine name, and are never tracked under
+// a shared "no name".
+func TestUpdateTracker_noEngineName(t *testing.T) {
+	tr := newUpdateTracker()
+	first := runningOn("aaa", "no name", imageX, t0, nil)
+	first.EngineName = ""
+	second := runningOn("bbb", "no name", imageY, t1, nil)
+	second.EngineName = ""
+	tr.seen(first)
+	_, ok := tr.started(second)
+	assert.False(t, ok)
+	assert.Empty(t, tr.byName)
+}
+
 func TestUpdateTracker_kubernetesDigest(t *testing.T) {
 	tr := newUpdateTracker()
-	tr.seen(Container{ID: "p1", Name: "web", ImageDigest: "nginx@sha256:a", State: "running"})
-	event, ok := tr.started(Container{ID: "p2", Name: "web", ImageDigest: "nginx@sha256:b", State: "running"})
+	tr.seen(Container{ID: "p1", Name: "web", EngineName: "web", ImageDigest: "nginx@sha256:a", State: "running"})
+	event, ok := tr.started(Container{ID: "p2", Name: "web", EngineName: "web", ImageDigest: "nginx@sha256:b", State: "running"})
 	require.True(t, ok, "without an image id the digest identifies the image")
 	assert.Equal(t, "nginx@sha256:b", event.ToImageID)
 }
@@ -315,6 +356,35 @@ func TestStore_watchtowerUpdate(t *testing.T) {
 	assert.Equal(t, imageY, event.ToImageID)
 	assert.Equal(t, UpdateSourceWatchtower, event.Source)
 	assert.Equal(t, []ContainerUpdateEvent{event}, store.RecentUpdates())
+}
+
+// The reviewer's repro: two containers labelled dev.dozzle.name: db, one on
+// postgres:15 and one on postgres:16. docker restart of either is a restart.
+func TestStore_sharedDisplayNameRestarts(t *testing.T) {
+	labels := map[string]string{"dev.dozzle.name": "db"}
+	pg15 := runningOn("aaa", "db", imageX, t0, labels)
+	pg15.EngineName, pg15.Image = "db-15", "postgres:15"
+	pg16 := runningOn("bbb", "db", imageY, t0, labels)
+	pg16.EngineName, pg16.Image = "db-16", "postgres:16"
+	restarted15, restarted16 := pg15, pg16
+	restarted15.StartedAt, restarted16.StartedAt = t1, t1
+	client := new(mockedClient)
+	client.On("FindContainer", mock.Anything, "aaa").Return(restarted15, nil)
+	client.On("FindContainer", mock.Anything, "bbb").Return(restarted16, nil)
+	feed, store, events, updates := storeWithUpdates(t, client, pg15, pg16)
+
+	for _, id := range []string{"bbb", "aaa", "bbb", "aaa"} {
+		feed <- ContainerEvent{Name: "die", ActorID: id}
+		feed <- ContainerEvent{Name: "start", ActorID: id}
+		waitForEvent(t, events, "start")
+	}
+
+	assert.Empty(t, store.RecentUpdates())
+	select {
+	case e := <-updates:
+		t.Fatalf("a restart was recorded as an update: %+v", e)
+	default:
+	}
 }
 
 // compose creates the new container under a temporary name, removes the old
@@ -398,7 +468,7 @@ func TestStore_dozzleSwapRolledBack(t *testing.T) {
 	feed <- ContainerEvent{Name: "start", ActorID: "aaa"}
 	waitForEvent(t, events, "start")
 
-	store.RecordRolledBack(ContainerUpdateEvent{Host: "host1", Name: "app", OldID: "aaa", NewID: "aaa", FromImageID: imageX, ToImageID: imageY, Source: UpdateSourceDozzle})
+	store.RecordRolledBack(ContainerUpdateEvent{Host: "host1", Name: "app", EngineName: "app", OldID: "aaa", NewID: "aaa", FromImageID: imageX, ToImageID: imageY, Source: UpdateSourceDozzle})
 	rolledBack := waitForUpdate(t, updates)
 	assert.True(t, rolledBack.RolledBack)
 

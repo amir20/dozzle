@@ -107,8 +107,11 @@ type Container struct {
 	// imageId is the local image id ("sha256:..."), imageDigest the image as
 	// repo@sha256:... (empty for an image built locally). Together they tell an
 	// update apart from a restart.
-	ImageId       string `protobuf:"bytes,30,opt,name=imageId,proto3" json:"imageId,omitempty"`
-	ImageDigest   string `protobuf:"bytes,31,opt,name=imageDigest,proto3" json:"imageDigest,omitempty"`
+	ImageId     string `protobuf:"bytes,30,opt,name=imageId,proto3" json:"imageId,omitempty"`
+	ImageDigest string `protobuf:"bytes,31,opt,name=imageDigest,proto3" json:"imageDigest,omitempty"`
+	// engineName is the engine's own name for the container, before
+	// dev.dozzle.name and other display overrides.
+	EngineName    string `protobuf:"bytes,32,opt,name=engineName,proto3" json:"engineName,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -342,6 +345,13 @@ func (x *Container) GetImageId() string {
 func (x *Container) GetImageDigest() string {
 	if x != nil {
 		return x.ImageDigest
+	}
+	return ""
+}
+
+func (x *Container) GetEngineName() string {
+	if x != nil {
+		return x.EngineName
 	}
 	return ""
 }
@@ -1584,7 +1594,7 @@ var File_types_proto protoreflect.FileDescriptor
 
 const file_types_proto_rawDesc = "" +
 	"\n" +
-	"\vtypes.proto\x12\bprotobuf\x1a\x19google/protobuf/any.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xfc\a\n" +
+	"\vtypes.proto\x12\bprotobuf\x1a\x19google/protobuf/any.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\x9c\b\n" +
 	"\tContainer\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12\x14\n" +
@@ -1617,7 +1627,10 @@ const file_types_proto_rawDesc = "" +
 	"\toomKilled\x18\x1c \x01(\bR\toomKilled\x12\x1a\n" +
 	"\bexitCode\x18\x1d \x01(\x05R\bexitCode\x12\x18\n" +
 	"\aimageId\x18\x1e \x01(\tR\aimageId\x12 \n" +
-	"\vimageDigest\x18\x1f \x01(\tR\vimageDigest\x1a9\n" +
+	"\vimageDigest\x18\x1f \x01(\tR\vimageDigest\x12\x1e\n" +
+	"\n" +
+	"engineName\x18  \x01(\tR\n" +
+	"engineName\x1a9\n" +
 	"\vLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01J\x04\b\x06\x10\aJ\x04\b\x16\x10\x17\"\xa5\x02\n" +

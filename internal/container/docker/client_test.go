@@ -314,8 +314,17 @@ func Test_newContainer_labelPriority(t *testing.T) {
 			c := newContainer(summary, "localhost")
 			assert.Equal(t, tt.expectedName, c.Name)
 			assert.Equal(t, tt.expectedGroup, c.Group)
+			assert.Equal(t, "docker-name", c.EngineName, "labels change the display name only")
 		})
 	}
+}
+
+// A container with no name shows as "no name", but that is not a name the
+// engine knows it by, so two of them never share an engine name.
+func Test_newContainer_noNameHasNoEngineName(t *testing.T) {
+	c := newContainer(docker.Summary{ID: "abcdefghijklmnopqrst"}, "localhost")
+	assert.Equal(t, "no name", c.Name)
+	assert.Empty(t, c.EngineName)
 }
 
 func Test_newContainer_ports(t *testing.T) {
@@ -391,6 +400,7 @@ func Test_newContainerFromJSON_labelPriority(t *testing.T) {
 			c := newContainerFromJSON(json, "localhost")
 			assert.Equal(t, tt.expectedName, c.Name)
 			assert.Equal(t, tt.expectedGroup, c.Group)
+			assert.Equal(t, "docker-name", c.EngineName, "labels change the display name only")
 		})
 	}
 }

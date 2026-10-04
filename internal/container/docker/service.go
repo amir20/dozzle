@@ -426,6 +426,7 @@ func (d *Service) recordRolledBack(ctx context.Context, c container.Container, o
 	event := container.ContainerUpdateEvent{
 		Host:        c.Host,
 		Name:        c.Name,
+		EngineName:  strings.TrimPrefix(old.Name, "/"),
 		OldID:       shortContainerID(old.ID),
 		NewID:       shortContainerID(result.RestoredID),
 		FromRef:     old.Config.Image,
