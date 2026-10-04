@@ -263,7 +263,7 @@ settings:
   new-version: "{version} tersedia"
   update-available: "Image yang lebih baru tersedia"
   auto-update-on: "Dozzle memperbarui dirinya sendiri"
-  auto-update-containers: "Container berlabel tetap diperbarui"
+  auto-update-containers: "Kontainer Anda tetap terbaru"
   auto-update-daily: "Memeriksa setiap hari pukul {time}, waktu server."
   auto-update-weekly: "Memeriksa setiap minggu pada hari Minggu pukul {time}, waktu server."
   show-image-update-alert: 'Peringatan pembaruan image'
@@ -374,9 +374,6 @@ updates:
   none: Semua container menjalankan image terbaru dari tag-nya.
   update-selected: Perbarui | Perbarui 1 | Perbarui {count}
   self-last: Dozzle diperbarui terakhir, lalu dimulai ulang.
-  auto: Otomatis
-  auto-hint: Juga diperbarui sesuai jadwal pembaruan otomatis
-  auto-footnote: Beri label {label} pada container agar diperbarui sesuai jadwal pembaruan otomatis.
   scheduled-running: Jadwal pembaruan otomatis sedang berjalan.
   progress: "{done} dari {total} selesai"
   back: Kembali
@@ -959,16 +956,8 @@ setup:
   update:
     pill-on: "Memakai aksi · aktif"
     pill-pending: "Aktif bersama aksi"
-    title: "Jaga Dozzle tetap terbaru"
-    subtitle: "Dozzle menarik image baru dan mengganti container-nya sendiri pada jam sepi. Pengaturan, pengguna, dan peringatan tetap ada."
-    auto-label: "Perbarui otomatis"
-    auto-desc: "Memeriksa image yang lebih baru dan hanya mengganti Dozzle jika ada."
-    auto-containers: Container berlabel {label} diperbarui pada waktu yang sama.
-    when-label: "Kapan"
-    time-label: "Waktu"
-    server-time: "Memakai zona waktu server."
-    daily: "Harian"
-    weekly: "Mingguan pada hari Minggu"
+    title: "Jaga kontainer tetap terbaru"
+    subtitle: "Pada jam yang sepi, Dozzle mencari image yang lebih baru dan memperbarui dirinya serta kontainer yang Anda pilih. Pengaturan, pengguna, dan peringatan tetap ada."
     version-label: "Versi"
     update-now: "Perbarui sekarang"
     pulling: "Menarik image baru"
@@ -979,7 +968,6 @@ setup:
     reason-pinned-tag: "Anda memakai tag versi yang dipatok, jadi tidak ada yang lebih baru untuk ditarik. Gunakan tag seperti latest untuk mendapat pembaruan."
     reason-unsupported: "Dozzle tidak dapat menemukan kontainernya sendiri di sini, jadi tidak dapat mengganti dirinya sendiri."
     reason-swarm-worker: "Dozzle berjalan sebagai layanan Swarm di node worker. Hanya manager yang dapat memperbarui layanan, jadi jalankan Dozzle di manager atau perbarui dengan docker service update."
-    containers-still: Container berlabel {label} tetap diperbarui sesuai jadwal ini.
     pull-denied: "Tidak dapat menarik {image}. Image ini mungkin hanya ada di mesin ini, atau registry memerlukan docker login."
   restart:
     title: "Mulai ulang Dozzle"
@@ -1096,3 +1084,54 @@ update-marker:
   decision:
     rolled_back: "Dikembalikan"
     kept: "Dipertahankan"
+auto-update:
+  page-desc: "Dozzle menjaga kontainer Anda tetap terbaru sesuai jadwal."
+  schedule-label: "Perbarui otomatis"
+  schedule-desc: "Mencari image yang lebih baru pada jam ini dan hanya memperbarui yang berubah. Memakai zona waktu server."
+  "off": "Mati"
+  daily: "Setiap hari"
+  weekly: "Setiap Minggu"
+  time-label: "Jam"
+  which-label: "Kontainer mana"
+  mode-dozzle: "Hanya Dozzle"
+  mode-dozzle-desc: "Kontainer lain diperiksa dan menunggu Anda memperbaruinya."
+  mode-picked: "Dozzle dan kontainer yang saya pilih"
+  mode-picked-desc: "Ditambah setiap kontainer yang diatur Otomatis, di sini atau dengan label."
+  mode-all: "Semuanya"
+  mode-all-desc: "Setiap kontainer diperbarui kecuali diatur ke Manual atau Mati."
+  risky: "{count} kontainer menyimpan data di volume bernama. Database bisa pindah ke versi yang tidak bisa membaca datanya. | {count} kontainer menyimpan data di volume bernama. Database bisa pindah ke versi yang tidak bisa membaca datanya."
+  keep-manual: "Biarkan ini manual"
+  containers-still: "Kontainer lain tetap diperbarui dengan jadwal ini."
+  needs-volume: "Butuh /data di sebuah volume, atau gunakan label dev.dozzle.update."
+  needs-actions: "Tidak ada yang diperbarui sendiri selama aksi kontainer dimatikan."
+  set-by-label: "Diatur oleh label"
+  menu: "Pembaruan otomatis"
+  checkbox: "Perbarui otomatis"
+  policy-auto: "Otomatis"
+  policy-manual: "Manual"
+  policy-off: "Mati"
+  policy-auto-desc: "Diperbarui sesuai jadwal"
+  policy-manual-desc: "Diperiksa, Anda yang memperbarui"
+  policy-off-desc: "Tidak pernah diperiksa atau diperbarui"
+  dozzle-only-waits: "Menunggu selama Kontainer mana diatur ke Hanya Dozzle."
+  self: "Memperbarui dirinya sendiri"
+  containers: "Kontainer"
+  empty: "Tidak ada kontainer untuk ditampilkan."
+  status-current: "Terbaru"
+  status-available: "Pembaruan tersedia"
+  status-pending: "Belum diperiksa"
+  status-off: "Tidak diperiksa"
+  status-pinned: "Disematkan ke digest"
+  status-local: "Dibangun secara lokal"
+  status-private: "Registry privat"
+  status-unknown: "Tidak bisa diperiksa"
+  last-done: "Diperbarui {time}"
+  last-failed: "Pembaruan gagal {time}"
+  safety-title: "Jaring pengaman"
+  safety-verify: "Setiap pembaruan dipantau dan dibatalkan jika kontainer baru gagal."
+  safety-cleanup: "Image lama dihapus setelahnya. Satu image sebelumnya disimpan untuk rollback."
+  safety-skip: "Image yang disematkan ke digest, dibangun lokal, atau dari registry privat dilewati."
+  learn-more: "Cara kerja pembaruan otomatis"
+  footnote: "{link} menentukan kontainer mana yang memperbarui dirinya sendiri."
+  footnote-link: "Pengaturan → Pembaruan"
+  save-failed: "Gagal menyimpan. Coba lagi."

@@ -1,6 +1,6 @@
 ---
 title: Einrichtungsassistent
-sourceHash: 570b8bcf6e3a
+sourceHash: 7f6f31a7c5a1
 ---
 
 # Einrichtungsassistent
@@ -65,13 +65,13 @@ Agents aus `DOZZLE_REMOTE_AGENT` werden als gesperrt angezeigt und lassen sich n
 
 ### 5. Automatische Updates {#auto-update}
 
-Dozzle kann sich selbst aktuell halten. Wähle **Aus**, **Täglich** oder **Wöchentlich** (wöchentlich läuft am Sonntag) und eine Uhrzeit. Die Uhrzeit gilt in der lokalen Zeit des Servers, Standard ist `03:00`. Zu dieser Zeit prüft Dozzle seine Registry auf ein neueres Image und [aktualisiert sich](#self-update) nur, wenn es eines gibt.
+Dozzle kann sich selbst und deine Container aktuell halten. Wähle **Aus**, **Täglich** oder **Wöchentlich** (wöchentlich läuft am Sonntag) und eine Uhrzeit. Die Uhrzeit gilt in der lokalen Zeit des Servers, Standard ist `03:00`. Zu dieser Zeit sucht Dozzle nach neueren Images und aktualisiert nur, was sich geändert hat, [sich selbst](#self-update) zuletzt.
 
-Container mit dem Label `dev.dozzle.auto-update=true` werden nach demselben Zeitplan aktualisiert, kurz bevor Dozzle selbst an der Reihe ist. Siehe [Container automatisch aktualisieren](/de/guide/actions#auto-updating-containers).
+**Welche Container** legt fest, was mit einem Container passiert, für den niemand etwas gewählt hat: **Nur Dozzle**, **Dozzle und ausgewählte Container** (Standard, und so verhielt sich Dozzle, bevor es diese Wahl gab) oder **Alles**. Siehe [Container automatisch aktualisieren](/de/guide/actions#auto-updating-containers).
 
-Diese Einstellung gilt sofort und braucht keinen Neustart.
+Diese Einstellungen gelten sofort und brauchen keinen Neustart. Du findest sie auch unter **Einstellungen → Updates**.
 
-Sich selbst zu aktualisieren ist eine Aktion. Solange Aktionen aus sind, bleibt dieser Schritt deshalb in der Liste, ist aber ausgegraut und mit **Benötigt Aktionen** markiert. Schaltest du Aktionen in Schritt 2 ein, ist er sofort verfügbar. Kann sich diese Instanz aus einem anderen Grund nicht selbst aktualisieren (zum Beispiel, weil ein fester Versions-Tag läuft), nennt der Schritt den Grund. Der Zeitplan lässt sich trotzdem festlegen, und Container mit dem Label `dev.dozzle.auto-update=true` folgen ihm.
+Aktualisieren ist eine Aktion. Solange Aktionen aus sind, bleibt dieser Schritt in der Liste, ist aber mit **Braucht Aktionen** ausgegraut. Schaltest du Aktionen in Schritt 2 ein, ist er sofort verfügbar. Kann sich diese Instanz aus einem anderen Grund nicht selbst aktualisieren (zum Beispiel weil sie einen festen Versions-Tag nutzt), sagt der Schritt warum. Der Zeitplan lässt sich trotzdem setzen, und andere Container folgen ihm.
 
 ### 6. Neustart
 
@@ -89,21 +89,26 @@ enableActions: true
 enableShell: false
 autoUpdate: weekly
 autoUpdateTime: "03:00"
+updateContainers: picked
+containerUpdates:
+  4f1c9b2e8d7a/immich: auto
 remoteAgents:
   - 10.0.0.5:7007|nas
 privateAgents:
   - 10.0.0.5:7007|nas
 ```
 
-| Schlüssel        | Werte                                                                                               | Entspricht                |
-| ---------------- | --------------------------------------------------------------------------------------------------- | ------------------------- |
-| `authProvider`   | `none`, `simple`, `forward-proxy`                                                                   | `DOZZLE_AUTH_PROVIDER`    |
-| `enableActions`  | `true`, `false`                                                                                     | `DOZZLE_ENABLE_ACTIONS`   |
-| `enableShell`    | `true`, `false`                                                                                     | `DOZZLE_ENABLE_SHELL`     |
-| `autoUpdate`     | `off`, `daily`, `weekly`                                                                            | `DOZZLE_AUTO_UPDATE`      |
-| `autoUpdateTime` | `HH:MM`, lokale Zeit des Servers                                                                    | `DOZZLE_AUTO_UPDATE_TIME` |
-| `remoteAgents`   | Liste von Agent-Adressen                                                                            | `DOZZLE_REMOTE_AGENT`     |
-| `privateAgents`  | Agents aus `remoteAgents`, die das [private Zertifikat](/de/guide/agent#private-certificate) nutzen | keine                     |
+| Schlüssel          | Werte                                                                                                                         | Entspricht                |
+| ------------------ | ----------------------------------------------------------------------------------------------------------------------------- | ------------------------- |
+| `authProvider`     | `none`, `simple`, `forward-proxy`                                                                                             | `DOZZLE_AUTH_PROVIDER`    |
+| `enableActions`    | `true`, `false`                                                                                                               | `DOZZLE_ENABLE_ACTIONS`   |
+| `enableShell`      | `true`, `false`                                                                                                               | `DOZZLE_ENABLE_SHELL`     |
+| `autoUpdate`       | `off`, `daily`, `weekly`                                                                                                      | `DOZZLE_AUTO_UPDATE`      |
+| `autoUpdateTime`   | `HH:MM`, lokale Zeit des Servers                                                                                              | `DOZZLE_AUTO_UPDATE_TIME` |
+| `updateContainers` | `dozzle`, `picked`, `all`. Wie ein Container behandelt wird, für den niemand etwas gewählt hat. Fehlt der Wert, gilt `picked` | keins                     |
+| `containerUpdates` | `<Host-ID>/<Containername>: auto`, `manual` oder `off`, wie in der UI gewählt                                                 | Label `dev.dozzle.update` |
+| `remoteAgents`     | Liste von Agent-Adressen                                                                                                      | `DOZZLE_REMOTE_AGENT`     |
+| `privateAgents`    | Agents aus `remoteAgents`, die das [private Zertifikat](/de/guide/agent#private-certificate) nutzen                           | keine                     |
 
 Flags und Umgebungsvariablen haben immer Vorrang vor der Datei. Ist `DOZZLE_ENABLE_ACTIONS` gesetzt, wird der Wert in `dozzle.yml` ignoriert und der Assistent zeigt den Schalter als gesperrt an. Um eine Einstellung wieder über den Assistenten zu verwalten, entferne die Variable aus deiner Compose-Datei. `remoteAgents` verhält sich anders: Agents aus der Datei kommen zu denen aus `DOZZLE_REMOTE_AGENT` hinzu, statt von ihnen ersetzt zu werden.
 

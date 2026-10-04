@@ -29,6 +29,14 @@ type File struct {
 	AutoUpdate *string `yaml:"autoUpdate,omitempty"`
 	// AutoUpdateTime is "HH:MM" in the server's local time.
 	AutoUpdateTime *string `yaml:"autoUpdateTime,omitempty"`
+	// UpdateContainers is how the schedule treats a container with no
+	// dev.dozzle.update label and no choice below: dozzle, picked or all.
+	// Absent is picked. There is no flag or env var for it. Read at every run.
+	UpdateContainers *string `yaml:"updateContainers,omitempty"`
+	// ContainerUpdates is the auto, manual or off chosen from the UI, keyed by
+	// "<host id>/<container name>" with the engine's own name, which survives
+	// the recreate an update does. A label on the container wins over it.
+	ContainerUpdates map[string]string `yaml:"containerUpdates,omitempty"`
 	// RemoteAgents are agents added from the UI, in DOZZLE_REMOTE_AGENT's
 	// endpoint form. Unlike the settings above they add to the flag or env var
 	// instead of losing to it, and they connect live, so adding or removing one

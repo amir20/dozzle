@@ -65,14 +65,14 @@ services:
       DOZZLE_IMAGE_CHECK_MODE: off
 ```
 
-To silence a single container, such as one deliberately pinned to a version, label it:
+To stop checking a single container, such as one deliberately pinned to a version, label it. That also keeps it off the [auto-update schedule](#auto-updating-containers).
 
 ```yaml [docker-compose.yml]
 services:
   database:
     image: postgres:18-alpine
     labels:
-      dev.dozzle.update-check: false
+      dev.dozzle.update: off
 ```
 
 A notification can also be shown when an update is found. It is off by default and lives under Settings.
@@ -103,23 +103,34 @@ If Dozzle's own container is in the list, it always goes last, because updating 
 
 With `DOZZLE_IMAGE_CHECK_MODE=manual`, the button reads **Check for updates** until you press it. With actions off, the dashboard looks exactly as it does today, and each container's own menu still says when an update is available.
 
-## Auto-updating containers
+## Auto-updating containers {#auto-updating-containers}
 
-Dozzle can update containers on a schedule. Opt a container in with a label:
+Dozzle can update containers on a schedule, like Watchtower. Set it up under **Settings → Updates** or in the [setup wizard](/guide/setup-wizard#auto-update):
+
+- **When:** off, daily or weekly on Sunday, at a time of day. The same as `DOZZLE_AUTO_UPDATE` and `DOZZLE_AUTO_UPDATE_TIME`.
+- **Which containers:** **Dozzle only**, **Dozzle and containers I pick** (the default) or **Everything**. This is how a container is treated when nobody chose for it.
+
+Each container is **Automatic**, **Manual** or **Off**. Choose on the Updates page, with **Update automatically** in the Updates drawer, or from the container's menu. Or set it with one label, which wins over the UI:
+
+| `dev.dozzle.update` | What happens                                            |
+| ------------------- | ------------------------------------------------------- |
+| `auto`              | Updated on the schedule                                 |
+| _(no label)_        | Manual: checked and shown as an update, which you apply |
+| `off`               | Never checked, never updated                            |
 
 ```yaml [docker-compose.yml]
 services:
   whoami:
     image: traefik/whoami:latest
     labels:
-      dev.dozzle.auto-update: true
+      dev.dozzle.update: auto
 ```
 
-Labelled containers follow the same schedule as [Dozzle's own auto-update](/guide/setup-wizard#auto-update), which you set in the setup wizard or with `DOZZLE_AUTO_UPDATE` and `DOZZLE_AUTO_UPDATE_TIME`. At that time Dozzle checks each labelled container against its registry and updates only the ones with a newer image. Containers go first and Dozzle goes last.
+At the scheduled time Dozzle checks each automatic container against its registry and updates only the ones with a newer image, Dozzle itself last. Each update is watched and rolled back if the new container fails. Containers that are unhealthy, that Dozzle [cannot check](#what-cannot-be-checked), or that someone [rolled back](#rolling-back) from the image on offer are skipped.
 
-Auto-update is opt in on purpose. A database on a floating tag like `postgres:latest` can move to a new major version that its data files cannot read, so only label containers you are happy to see replaced without watching. Containers Dozzle [cannot check](#what-cannot-be-checked), such as ones from a private registry, are never auto-updated.
+Under **Everything**, a database on a floating tag like `postgres:latest` can move to a major version its data files cannot read. The Updates page lists the containers that keep data in named volumes and keeps them manual in one click. Stopped containers are left alone under **Everything** unless a label or a choice sets them to Automatic.
 
-Auto-update runs in server mode, including containers on [remote agents](/guide/agent). It needs actions on.
+Choices made in the UI are saved in [`dozzle.yml`](/guide/setup-wizard), so they need `/data` on a volume. Auto-update runs in server mode, including containers on [remote agents](/guide/agent), and needs actions on. Coming from Watchtower? See [Moving from Watchtower](/guide/moving-from-watchtower).
 
 ## Cleaning up old images {#cleaning-up-old-images}
 

@@ -3,6 +3,8 @@
 // The step list is a pure function of GET /api/setup plus two cloud facts, so the
 // rules for "which steps does this install see" are testable without a browser.
 
+import type { UpdateContainersMode } from "@/composable/containers/updatePolicy";
+
 export type SetupStepId = "login" | "actions" | "hosts" | "cloud" | "update" | "restart";
 export type SetupStepState = "done" | "current" | "todo" | "skipped" | "disabled";
 
@@ -17,6 +19,8 @@ export interface SetupAutoUpdate {
   reason?: AutoUpdateReason;
   image: string;
   currentVersion: string;
+  // How a container with no label or choice is treated. Absent on older servers.
+  containers?: UpdateContainersMode;
 }
 
 // An agent this hub connects to. A locked one came from DOZZLE_REMOTE_AGENT and can
@@ -322,6 +326,7 @@ export function useSetup() {
     enableActions?: boolean;
     enableShell?: boolean;
     autoUpdate?: { mode: AutoUpdateMode; time: string };
+    updateContainers?: UpdateContainersMode;
   }) {
     if (Object.keys(patch).length === 0) return;
     await request("/api/setup/config", { method: "PATCH", body: JSON.stringify(patch) });

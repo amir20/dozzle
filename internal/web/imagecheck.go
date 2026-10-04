@@ -7,6 +7,7 @@ import (
 	"github.com/amir20/dozzle/internal/analytics"
 	"github.com/amir20/dozzle/internal/container"
 	"github.com/amir20/dozzle/internal/imagecheck"
+	"github.com/amir20/dozzle/internal/updatepolicy"
 	"github.com/go-chi/chi/v5"
 	"github.com/rs/zerolog/log"
 )
@@ -42,6 +43,13 @@ func (h *handler) checkImageUpdate(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Off from the UI is the same as dev.dozzle.update=off: never checked. The
+	// label itself is answered by the service, on whichever host runs it.
+	if h.config.Mode == "server" && loadUpdatePolicies().decide(containerService.Container).Policy == updatepolicy.Off {
+		writeJSON(w, http.StatusOK, offResult(containerService.Container))
+		return
+	}
+
 	result, err := containerService.CheckImageUpdate(r.Context(), force)
 	if err != nil {
 		log.Error().Err(err).Str("container", id).Msg("error while checking for image update")
@@ -73,11 +81,32 @@ func (h *handler) checkAllImageUpdates(w http.ResponseWriter, r *http.Request) {
 		log.Debug().Err(err).Msg("image update check: host unavailable")
 	}
 
-	updates := container.CheckImageUpdates(r.Context(), h.hostService, containers, force)
-	results := make([]containerImageCheck, len(updates))
-	for i, u := range updates {
-		results[i] = containerImageCheck{Host: u.Container.Host, ID: u.Container.ID, Result: u.Result}
+	var results []containerImageCheck
+	if h.config.Mode == "server" {
+		policies := loadUpdatePolicies()
+		checked := containers[:0:0]
+		for _, c := range containers {
+			if policies.decide(c).Policy == updatepolicy.Off {
+				results = append(results, containerImageCheck{Host: c.Host, ID: c.ID, Result: offResult(c)})
+				continue
+			}
+			checked = append(checked, c)
+		}
+		containers = checked
+	}
+
+	for _, u := range container.CheckImageUpdates(r.Context(), h.hostService, containers, force) {
+		results = append(results, containerImageCheck{Host: u.Container.Host, ID: u.Container.ID, Result: u.Result})
+	}
+	if results == nil {
+		results = []containerImageCheck{}
 	}
 
 	writeJSON(w, http.StatusOK, results)
+}
+
+// offResult answers for a container whose updates are off, without asking any
+// registry.
+func offResult(c container.Container) imagecheck.Result {
+	return imagecheck.Result{Image: c.Image, Status: imagecheck.StatusSkipped, Reason: "updates are off for this container", CheckedAt: time.Now()}
 }

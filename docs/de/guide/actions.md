@@ -1,6 +1,6 @@
 ---
 title: Container-Aktionen
-sourceHash: 1bc77bb2b87e
+sourceHash: 231211f4e5e3
 ---
 
 # Container-Aktionen
@@ -66,14 +66,14 @@ services:
       DOZZLE_IMAGE_CHECK_MODE: off
 ```
 
-Um einen einzelnen Container ruhigzustellen, etwa einen bewusst auf eine Version gepinnten, versiehst du ihn mit einem Label:
+Um einen einzelnen Container nicht mehr zu prüfen, etwa einen bewusst auf eine Version gepinnten, versiehst du ihn mit einem Label. Damit fällt er auch aus dem [Zeitplan für automatische Updates](/de/guide/actions#auto-updating-containers).
 
 ```yaml [docker-compose.yml]
 services:
   database:
     image: postgres:18-alpine
     labels:
-      dev.dozzle.update-check: false
+      dev.dozzle.update: off
 ```
 
 Bei einem gefundenen Update kann auch eine Benachrichtigung erscheinen. Sie ist standardmäßig aus und findet sich unter den Einstellungen.
@@ -106,21 +106,32 @@ Mit `DOZZLE_IMAGE_CHECK_MODE=manual` lautet der Button **Nach Updates suchen**, 
 
 ## Container automatisch aktualisieren {#auto-updating-containers}
 
-Dozzle kann Container nach Zeitplan aktualisieren. Einen Container nimmst du per Label mit auf:
+Dozzle kann Container nach Zeitplan aktualisieren, so wie Watchtower. Eingerichtet wird das unter **Einstellungen → Updates** oder im [Einrichtungsassistenten](/de/guide/setup-wizard#auto-update):
+
+- **Wann:** aus, täglich oder wöchentlich am Sonntag, zu einer Uhrzeit. Dasselbe wie `DOZZLE_AUTO_UPDATE` und `DOZZLE_AUTO_UPDATE_TIME`.
+- **Welche Container:** **Nur Dozzle**, **Dozzle und ausgewählte Container** (Standard) oder **Alles**. So wird ein Container behandelt, für den niemand etwas gewählt hat.
+
+Jeder Container steht auf **Automatisch**, **Manuell** oder **Aus**. Das wählst du auf der Updates-Seite, mit **Automatisch aktualisieren** in der Updates-Leiste oder im Menü des Containers. Oder du setzt es mit einem Label, das Vorrang vor der UI hat:
+
+| `dev.dozzle.update` | Was passiert                                                     |
+| ------------------- | ---------------------------------------------------------------- |
+| `auto`              | Wird nach Zeitplan aktualisiert                                  |
+| _(kein Label)_      | Manuell: wird geprüft und als Update angezeigt, das du anwendest |
+| `off`               | Wird nie geprüft und nie aktualisiert                            |
 
 ```yaml [docker-compose.yml]
 services:
   whoami:
     image: traefik/whoami:latest
     labels:
-      dev.dozzle.auto-update: true
+      dev.dozzle.update: auto
 ```
 
-Container mit diesem Label folgen demselben Zeitplan wie [das automatische Update von Dozzle selbst](/de/guide/setup-wizard#auto-update), den du im Einrichtungsassistenten oder mit `DOZZLE_AUTO_UPDATE` und `DOZZLE_AUTO_UPDATE_TIME` festlegst. Zu dieser Zeit prüft Dozzle jeden markierten Container gegen seine Registry und aktualisiert nur die, für die es ein neueres Image gibt. Erst kommen die Container dran, Dozzle zuletzt.
+Zur geplanten Zeit prüft Dozzle jeden automatischen Container gegen seine Registry und aktualisiert nur die mit einem neueren Image, sich selbst zuletzt. Jedes Update wird überwacht und zurückgesetzt, wenn der neue Container ausfällt. Übersprungen werden Container, die unhealthy sind, die Dozzle [nicht prüfen kann](#was-sich-nicht-prufen-lasst) oder die jemand vom angebotenen Image [zurückgesetzt](#rolling-back) hat.
 
-Das automatische Update ist bewusst Opt-in. Eine Datenbank auf einem beweglichen Tag wie `postgres:latest` kann auf eine neue Hauptversion springen, deren Datendateien sie nicht lesen kann. Versieh also nur Container mit dem Label, bei denen es dich nicht stört, wenn sie ohne dein Zutun ersetzt werden. Container, die Dozzle [nicht prüfen kann](#was-sich-nicht-prufen-lasst), etwa solche aus einer privaten Registry, werden nie automatisch aktualisiert.
+Bei **Alles** kann eine Datenbank mit beweglichem Tag wie `postgres:latest` auf eine Hauptversion wechseln, die ihre Datendateien nicht lesen kann. Die Updates-Seite listet die Container, die Daten in benannten Volumes halten, und lässt sie mit einem Klick manuell. Gestoppte Container bleiben bei **Alles** unberührt, außer ein Label oder eine Auswahl stellt sie auf Automatisch.
 
-Das automatische Update läuft im Server-Modus, auch für Container auf [Remote-Agents](/de/guide/agent). Es setzt eingeschaltete Aktionen voraus.
+In der UI getroffene Entscheidungen werden in [`dozzle.yml`](/de/guide/setup-wizard) gespeichert und brauchen daher `/data` auf einem Volume. Automatische Updates laufen im Server-Modus, auch für Container auf [entfernten Agents](/de/guide/agent), und setzen Aktionen voraus. Du kommst von Watchtower? Siehe [Umstieg von Watchtower](/de/guide/moving-from-watchtower).
 
 ## Alte Images aufräumen {#cleaning-up-old-images}
 

@@ -257,7 +257,7 @@ settings:
   new-version: "{version} 已推出"
   update-available: "有更新的映像檔可用"
   auto-update-on: "Dozzle 會自行保持最新版本"
-  auto-update-containers: "帶有標籤的容器會保持最新版本"
+  auto-update-containers: "你的容器會保持最新"
   auto-update-daily: "每天 {time} 檢查（伺服器時間）。"
   auto-update-weekly: "每週日 {time} 檢查（伺服器時間）。"
   show-image-update-alert: '映像更新提醒'
@@ -364,9 +364,6 @@ updates:
   none: 所有容器都在執行其標籤指向的最新映像檔。
   update-selected: 更新 | 更新 1 個 | 更新 {count} 個
   self-last: Dozzle 最後更新，然後重新啟動。
-  auto: 自動
-  auto-hint: 也會依自動更新排程更新
-  auto-footnote: 為容器加上標籤 {label}，即可依自動更新排程更新它。
   scheduled-running: 自動更新排程正在執行。
   progress: 已完成 {done}/{total}
   back: 返回
@@ -949,16 +946,8 @@ setup:
   update:
     pill-on: "使用操作功能 · 已開啟"
     pill-pending: "隨操作功能一起開啟"
-    title: "讓 Dozzle 保持最新"
-    subtitle: "Dozzle 會在閒置時段拉取新映像檔並替換自身容器。設定、使用者與警示都會保留。"
-    auto-label: "自動更新"
-    auto-desc: "檢查是否有更新的映像檔，只有在有新映像檔時才替換 Dozzle。"
-    auto-containers: 帶有 {label} 標籤的容器也會在同一時間更新。
-    when-label: "時間"
-    time-label: "時刻"
-    server-time: "使用伺服器的時區。"
-    daily: "每天"
-    weekly: "每週日"
+    title: "讓容器保持最新"
+    subtitle: "Dozzle 會在空閒時段尋找較新的映像檔，並更新自身和你選擇的容器。設定、使用者和警示都會保留。"
     version-label: "版本"
     update-now: "立即更新"
     pulling: "正在拉取新映像檔"
@@ -969,7 +958,6 @@ setup:
     reason-pinned-tag: "你使用的是固定的版本標籤，因此沒有更新的映像檔可拉取。請使用 latest 之類的標籤來取得更新。"
     reason-unsupported: "Dozzle 在這裡找不到自己的容器，因此無法替換自身。"
     reason-swarm-worker: "Dozzle 以 Swarm 服務的形式執行在工作節點上。只有管理節點才能更新服務，請在管理節點上執行 Dozzle，或使用 docker service update 更新。"
-    containers-still: 帶有 {label} 標籤的容器仍會依此排程更新。
     pull-denied: "無法拉取 {image}。它可能只存在於這台機器上，或者映像倉庫需要 docker login。"
   restart:
     title: 重新啟動 Dozzle
@@ -1086,3 +1074,54 @@ update-marker:
   decision:
     rolled_back: "已回復"
     kept: "已保留"
+auto-update:
+  page-desc: "Dozzle 會依排程讓你的容器保持最新。"
+  schedule-label: "自動更新"
+  schedule-desc: "在此時間尋找較新的映像檔，只更新有變動的部分。使用伺服器時區。"
+  "off": "關閉"
+  daily: "每天"
+  weekly: "每週日"
+  time-label: "時間"
+  which-label: "哪些容器"
+  mode-dozzle: "僅 Dozzle"
+  mode-dozzle-desc: "其他容器只做檢查，等你手動更新。"
+  mode-picked: "Dozzle 和我挑選的容器"
+  mode-picked-desc: "以及在這裡或透過標籤設為自動的每個容器。"
+  mode-all: "全部"
+  mode-all-desc: "除非設為手動或關閉，否則每個容器都會更新。"
+  risky: "{count} 個容器把資料存放在具名磁碟區中。資料庫可能升級到無法讀取其資料的版本。 | {count} 個容器把資料存放在具名磁碟區中。資料庫可能升級到無法讀取其資料的版本。"
+  keep-manual: "將這些保持為手動"
+  containers-still: "其他容器仍依此排程更新。"
+  needs-volume: "需要將 /data 掛載為磁碟區，或使用 dev.dozzle.update 標籤。"
+  needs-actions: "容器操作關閉期間，不會自動更新任何內容。"
+  set-by-label: "由標籤設定"
+  menu: "自動更新"
+  checkbox: "自動更新"
+  policy-auto: "自動"
+  policy-manual: "手動"
+  policy-off: "關閉"
+  policy-auto-desc: "依排程更新"
+  policy-manual-desc: "只檢查，由你更新"
+  policy-off-desc: "從不檢查或更新"
+  dozzle-only-waits: "在「哪些容器」為「僅 Dozzle」時等待。"
+  self: "自行更新"
+  containers: "容器"
+  empty: "沒有可顯示的容器。"
+  status-current: "已是最新"
+  status-available: "有可用更新"
+  status-pending: "尚未檢查"
+  status-off: "不檢查"
+  status-pinned: "已固定到摘要"
+  status-local: "本機建置"
+  status-private: "私有登錄庫"
+  status-unknown: "無法檢查"
+  last-done: "{time}已更新"
+  last-failed: "{time}更新失敗"
+  safety-title: "安全保障"
+  safety-verify: "每次更新都會確認新容器能穩定執行，失敗則回復。"
+  safety-cleanup: "舊映像檔隨後會被刪除，並保留一個上一版映像檔用於回復。"
+  safety-skip: "固定到摘要、本機建置或來自私有登錄庫的映像檔會被略過。"
+  learn-more: "自動更新如何運作"
+  footnote: "{link}決定哪些容器自動更新。"
+  footnote-link: "設定 → 更新"
+  save-failed: "儲存失敗，請重試。"

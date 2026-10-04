@@ -42,6 +42,7 @@ export const es: Labels = {
     "authentication/oidc": "OpenID Connect",
     "authentication/forward-proxy": "Proxy inverso",
     actions: "Acciones",
+    "moving-from-watchtower": "Pasar de Watchtower a Dozzle",
     "app-icons": "Iconos",
     shell: "Acceso a la shell",
     mcp: "Integración MCP",

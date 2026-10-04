@@ -24,12 +24,6 @@ export interface BulkUpdateJob {
   running: boolean;
 }
 
-export const AUTO_UPDATE_LABEL = "dev.dozzle.auto-update";
-
-export function autoUpdateEnabled(container: Container) {
-  return ["true", "on", "yes", "1"].includes(container.labels[AUTO_UPDATE_LABEL]?.trim().toLowerCase() ?? "");
-}
-
 export function isFinished(status: BulkUpdateStatus) {
   return status === "done" || status === "up-to-date" || status === "rolled-back" || status === "error";
 }

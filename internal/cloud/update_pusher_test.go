@@ -9,6 +9,7 @@ import (
 
 	"github.com/amir20/dozzle/internal/container"
 	"github.com/amir20/dozzle/internal/notification"
+	"github.com/amir20/dozzle/internal/updatepolicy"
 	pb "github.com/amir20/dozzle/proto/cloud"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -395,4 +396,31 @@ func TestUpdatePusher_NoSnapshotWithoutConsent(t *testing.T) {
 	p, sent := newTestPusher(hosts, ToolDeps{})
 	require.NoError(t, p.sendSnapshot())
 	assert.Empty(t, sent.snapshots)
+}
+
+// A container put on the schedule from the UI, or by "Everything", is covered
+// the same as a labelled one: the policy, not the label, is the consent.
+func TestUpdatePusher_SnapshotFollowsUpdatePolicy(t *testing.T) {
+	picked := immichContainer(nil)
+	other := immichContainer(nil)
+	other.ID, other.Name = "pg0000000000", "postgres"
+	hosts := &fakeUpdateHosts{containers: []container.Container{picked, other}}
+	p, sent := newTestPusher(hosts, ToolDeps{UpdatePolicies: func() func(container.Container) updatepolicy.Policy {
+		return func(c container.Container) updatepolicy.Policy {
+			if c.Name == "immich" {
+				return updatepolicy.Auto
+			}
+			return updatepolicy.Manual
+		}
+	}})
+	require.NoError(t, p.sendSnapshot())
+	require.Len(t, sent.snapshots, 1)
+	require.Len(t, sent.snapshots[0].Entries, 1)
+	assert.Equal(t, "immich", sent.snapshots[0].Entries[0].Name)
+
+	// Without the dependency, the new label is read on its own.
+	labelled := immichContainer(map[string]string{updatepolicy.Label: "auto"})
+	p, sent = newTestPusher(&fakeUpdateHosts{containers: []container.Container{labelled}}, ToolDeps{})
+	require.NoError(t, p.sendSnapshot())
+	require.Len(t, sent.snapshots, 1)
 }

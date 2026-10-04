@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/amir20/dozzle/internal/updatepolicy"
 	"strings"
 	"time"
 
@@ -234,7 +235,12 @@ func executeCheckImageUpdates(ctx context.Context, argsJSON string, deps ToolDep
 		}
 	}
 
+	policy := deps.updatePolicies()
 	updates, errs := deps.scoped().CheckImageUpdates(ctx, args.Refresh, func(c container.Container) bool {
+		// Updates set off are never checked, from here or anywhere else.
+		if policy(c) == updatepolicy.Off {
+			return false
+		}
 		return (args.Name == "" || containsIgnoreCase(c.Name, args.Name)) &&
 			(args.Image == "" || containsIgnoreCase(c.Image, args.Image))
 	})

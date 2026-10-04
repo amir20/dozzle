@@ -1,6 +1,6 @@
 ---
 title: 设置向导
-sourceHash: 570b8bcf6e3a
+sourceHash: 7f6f31a7c5a1
 ---
 
 # 设置向导
@@ -65,13 +65,13 @@ Dozzle 可以通过[代理](/zh/guide/agent)显示其他机器上的容器。这
 
 ### 5. 自动更新 {#auto-update}
 
-Dozzle 可以让自己保持最新。选择 **关闭**、**每天** 或 **每周**（每周在周日运行），再选择一天中的时间。时间使用服务器的本地时间，默认是 `03:00`。到了这个时间，Dozzle 会检查镜像仓库中是否有更新的镜像，只有在有新镜像时才会 [更新自身](#self-update)。
+Dozzle 可以让自己和你的容器保持最新。选择 **关闭**、**每天** 或 **每周日**，再选择一天中的时间。时间使用服务器的本地时间，默认是 `03:00`。到了这个时间，Dozzle 会查找更新的镜像，只更新有变化的部分，[自身](#self-update) 最后更新。
 
-带有 `dev.dozzle.auto-update=true` 标签的容器会按同一计划更新，就在 Dozzle 更新之前。请参阅 [自动更新容器](/zh/guide/actions#auto-updating-containers)。
+**哪些容器** 决定没人做过选择的容器如何处理：**仅 Dozzle**、**Dozzle 和我选择的容器**（默认，也是这个选项出现之前 Dozzle 的行为）或 **全部**。请参阅 [自动更新容器](/zh/guide/actions#auto-updating-containers)。
 
-此设置立即生效，不需要重启。
+这些设置会立即生效，不需要重启。你也可以在 **设置 → 更新** 中找到它们。
 
-更新自身属于操作功能，所以在操作关闭时，这一步仍会留在列表中，但显示为灰色并标注 **需要操作功能**。在第 2 步开启操作后，它会立即变为可用。如果此实例因为其他原因无法更新自身（例如运行的是固定版本标签），这一步会说明原因。计划仍然可以设置，带有 `dev.dozzle.auto-update=true` 标签的容器会按它更新。
+更新属于操作，因此在操作关闭时，这一步仍会留在列表中，但会变灰并显示 **需要开启操作**。在第 2 步开启操作后，它会立即可用。如果此实例因为其他原因无法更新自身（例如使用了固定的版本标签），这一步会说明原因。计划仍然可以设置，其他容器会按它更新。
 
 ### 6. 重启
 
@@ -89,21 +89,26 @@ enableActions: true
 enableShell: false
 autoUpdate: weekly
 autoUpdateTime: "03:00"
+updateContainers: picked
+containerUpdates:
+  4f1c9b2e8d7a/immich: auto
 remoteAgents:
   - 10.0.0.5:7007|nas
 privateAgents:
   - 10.0.0.5:7007|nas
 ```
 
-| 键               | 取值                                                                       | 等同于                    |
-| ---------------- | -------------------------------------------------------------------------- | ------------------------- |
-| `authProvider`   | `none`, `simple`, `forward-proxy`                                          | `DOZZLE_AUTH_PROVIDER`    |
-| `enableActions`  | `true`, `false`                                                            | `DOZZLE_ENABLE_ACTIONS`   |
-| `enableShell`    | `true`, `false`                                                            | `DOZZLE_ENABLE_SHELL`     |
-| `autoUpdate`     | `off`, `daily`, `weekly`                                                   | `DOZZLE_AUTO_UPDATE`      |
-| `autoUpdateTime` | `HH:MM`，服务器本地时间                                                    | `DOZZLE_AUTO_UPDATE_TIME` |
-| `remoteAgents`   | 代理地址列表                                                               | `DOZZLE_REMOTE_AGENT`     |
-| `privateAgents`  | `remoteAgents` 中使用[私有证书](/zh/guide/agent#private-certificate)的代理 | 无                        |
+| 键                 | 取值                                                                       | 等同于                    |
+| ------------------ | -------------------------------------------------------------------------- | ------------------------- |
+| `authProvider`     | `none`, `simple`, `forward-proxy`                                          | `DOZZLE_AUTH_PROVIDER`    |
+| `enableActions`    | `true`, `false`                                                            | `DOZZLE_ENABLE_ACTIONS`   |
+| `enableShell`      | `true`, `false`                                                            | `DOZZLE_ENABLE_SHELL`     |
+| `autoUpdate`       | `off`, `daily`, `weekly`                                                   | `DOZZLE_AUTO_UPDATE`      |
+| `autoUpdateTime`   | `HH:MM`，服务器本地时间                                                    | `DOZZLE_AUTO_UPDATE_TIME` |
+| `updateContainers` | `dozzle`、`picked`、`all`。没人做过选择的容器如何处理。缺省为 `picked`     | 无                        |
+| `containerUpdates` | `<主机 ID>/<容器名>: auto`、`manual` 或 `off`，即界面中的选择              | `dev.dozzle.update` 标签  |
+| `remoteAgents`     | 代理地址列表                                                               | `DOZZLE_REMOTE_AGENT`     |
+| `privateAgents`    | `remoteAgents` 中使用[私有证书](/zh/guide/agent#private-certificate)的代理 | 无                        |
 
 命令行参数和环境变量始终优先于该文件。如果设置了 `DOZZLE_ENABLE_ACTIONS`，`dozzle.yml` 中的值会被忽略，向导会将该开关显示为锁定。若想重新通过向导管理某个设置，请从 compose 文件中删除对应的变量。`remoteAgents` 的规则不同：文件中的代理会与 `DOZZLE_REMOTE_AGENT` 中的代理合并，而不是被它们取代。
 

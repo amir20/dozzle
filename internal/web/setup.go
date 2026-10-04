@@ -16,6 +16,7 @@ import (
 	"github.com/amir20/dozzle/internal/container"
 	"github.com/amir20/dozzle/internal/profile"
 	"github.com/amir20/dozzle/internal/selfupdate"
+	"github.com/amir20/dozzle/internal/updatepolicy"
 	"github.com/rs/zerolog/log"
 )
 
@@ -56,6 +57,9 @@ type setupAutoUpdate struct {
 	Reason         string `json:"reason,omitempty"`
 	Image          string `json:"image"`
 	CurrentVersion string `json:"currentVersion"`
+	// Containers is how a container with no label or choice is treated:
+	// dozzle, picked or all.
+	Containers updatepolicy.Mode `json:"containers"`
 }
 
 type setupState struct {
@@ -190,6 +194,7 @@ func (h *handler) getSetup(w http.ResponseWriter, r *http.Request) {
 			Reason:         support.Reason,
 			Image:          support.Image,
 			CurrentVersion: h.config.Version,
+			Containers:     updatePoliciesFrom(file).mode,
 		},
 		Agents:       h.setupAgents(file),
 		CanAddAgents: canAddAgents,
@@ -358,6 +363,9 @@ type setupConfigRequest struct {
 	EnableActions *bool                   `json:"enableActions"`
 	EnableShell   *bool                   `json:"enableShell"`
 	AutoUpdate    *setupAutoUpdateRequest `json:"autoUpdate"`
+	// UpdateContainers is dozzle, picked or all. It has no flag or env var,
+	// so it is never locked, and like the schedule it applies at the next run.
+	UpdateContainers *string `json:"updateContainers"`
 }
 
 // updateSetupConfig only writes dozzle.yml. Action and shell routes are decided
@@ -392,8 +400,16 @@ func (h *handler) updateSetupConfig(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if req.EnableActions != nil || req.EnableShell != nil || req.AutoUpdate != nil {
+	if req.UpdateContainers != nil && !updatepolicy.ValidMode(*req.UpdateContainers) {
+		http.Error(w, "invalid container mode", http.StatusBadRequest)
+		return
+	}
+
+	if req.EnableActions != nil || req.EnableShell != nil || req.AutoUpdate != nil || req.UpdateContainers != nil {
 		err := config.Update(setupConfigPath, func(c *config.File) {
+			if req.UpdateContainers != nil {
+				c.UpdateContainers = req.UpdateContainers
+			}
 			if req.AutoUpdate != nil {
 				mode, at := req.AutoUpdate.Mode, req.AutoUpdate.Time
 				c.AutoUpdate = &mode
@@ -413,6 +429,9 @@ func (h *handler) updateSetupConfig(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
+	if req.UpdateContainers != nil {
+		log.Info().Str("containers", *req.UpdateContainers).Msg("setup changed which containers auto update")
+	}
 	if req.AutoUpdate != nil {
 		log.Info().Str("mode", req.AutoUpdate.Mode).Str("time", req.AutoUpdate.Time).Msg("setup changed the auto update schedule")
 	}
