@@ -6,11 +6,11 @@ title: Setup Wizard
 
 <Badge type="warning" text="Docker Only" />
 
-A fresh Dozzle install opens with a short setup wizard. It walks you through the few things most people change right after installing: turning on login, allowing container actions and shell access, adding other hosts, and connecting Dozzle Cloud. Everything it saves can also be set with flags or environment variables, so the wizard is optional.
+A fresh Dozzle install opens with a short setup wizard. It walks you through the few things most people change right after installing: turning on login, allowing container actions and shell access, adding other hosts, and connecting Dozzle Cloud. Everything it saves can also be set with flags or environment variables, so the wizard is optional. Everything it does is also in Settings: **Security** for login, actions and shell, **Hosts**, **Updates** and **Dozzle Cloud**. The wizard is a guided pass over the same pages.
 
-The wizard only appears on a fresh install running in server mode. Swarm and Kubernetes deployments never show it. You can open it again later from Settings.
+The wizard only appears on a fresh install running in server mode. Swarm and Kubernetes deployments never show it. Their Settings show login, actions, shell and hosts read-only. You can run the wizard again any time from **Settings → About**.
 
-For throwaway environments that are created and torn down often, set `DOZZLE_DISABLE_SETUP_WIZARD=true` so the wizard never opens by itself. It can still be opened from Settings.
+For throwaway environments that are created and torn down often, set `DOZZLE_DISABLE_SETUP_WIZARD=true` so the wizard never opens by itself. It can still be run from **Settings → About**.
 
 ## <Icon icon="mdi:format-list-numbered" inline /> Steps
 
@@ -41,7 +41,7 @@ Once `/data` is persisted, pick one of three options:
 
 If Dozzle is only reachable on your own network, **Continue without login** skips this step.
 
-After an account or proxy is saved, Dozzle restarts right away so login is on before anything else is changed. You land on the login page, and the wizard continues with the next step once you sign in.
+After an account or proxy is saved, Dozzle restarts right away so login is on before anything else is changed. You land on the login page, and the wizard continues with the next step once you sign in. **Settings → Security** offers the same choice while no login is configured, and shows the provider once there is one.
 
 ### 2. Actions and shell
 
@@ -50,13 +50,13 @@ Two toggles control what Dozzle is allowed to do to your containers:
 - **Start, stop and restart** turns on [container actions](/guide/actions) (`enableActions`).
 - **Shell** turns on [attaching and running commands](/guide/shell) inside containers (`enableShell`). It is off by default. Shell access to a container is often as good as access to the host, so only turn it on if you need it.
 
-If a setting is already fixed by a flag or environment variable, its toggle is read-only and says so. Like login, these toggles need `/data` on a volume, so they stay read-only until it is.
+If a setting is already fixed by a flag or environment variable, its toggle is read-only and says so. Like login, these toggles need `/data` on a volume, so they stay read-only until it is. The same toggles are under **Settings → Security**, where a change is saved as you make it.
 
 ### 3. Hosts
 
 Dozzle can show containers from other machines through [agents](/guide/agent). This step shows the compose file to run on the other machine, then asks for the agent's address, such as `10.0.0.5:7007`, and an optional name. **Add host** connects to the agent before saving anything, so a wrong address or a certificate mismatch shows up right away. Once connected, the host appears in the sidebar without a restart.
 
-Agents set with `DOZZLE_REMOTE_AGENT` are listed as locked and can only be removed from your compose file. Agents added here can be removed from the same list. **Not now** skips the step, and the same panel is available later from **Add host** at the bottom of the host list.
+Agents set with `DOZZLE_REMOTE_AGENT` are listed as locked and can only be removed from your compose file. Agents added here can be removed from the same list. **Not now** skips the step, and the same panel is available later under **Settings → Hosts** and from **Add host** at the bottom of the host list.
 
 ### 4. Dozzle Cloud
 
@@ -68,7 +68,7 @@ Dozzle can keep itself up to date. Pick **Off**, **Daily** or **Weekly** (weekly
 
 Containers labelled `dev.dozzle.auto-update=true` update on the same schedule, just before Dozzle does. See [Auto-updating containers](/guide/actions#auto-updating-containers).
 
-This setting applies right away and does not need a restart.
+This setting applies right away and does not need a restart. The same schedule is under **Settings → Updates**, next to **Update now**, where a change is saved as you make it.
 
 Updating itself is an action, so while actions are off this step stays in the list but is greyed out with **Needs actions**. Turning actions on in step 2 makes it available right away. If this instance cannot update itself for another reason (for example it runs a pinned version tag), the step says why. The schedule can still be set, and containers labelled `dev.dozzle.auto-update=true` follow it.
 
@@ -76,7 +76,7 @@ Updating itself is an action, so while actions are off this step stays in the li
 
 The last step lists the changes that are saved but not running yet. **Restart Dozzle** restarts the container, waits until it is back and reloads the page. If nothing is pending, the step just says you are done.
 
-If Dozzle cannot restart itself (for example when it cannot find its own container), the wizard shows the environment variables to add to your compose file instead.
+If Dozzle cannot restart itself (for example when it cannot find its own container), the wizard shows the environment variables to add to your compose file instead. Settings shows the same on every page while changes are waiting: a banner that counts them, with **Restart Dozzle** or those lines.
 
 ## <Icon icon="mdi:file-cog-outline" inline /> Where settings are saved
 
@@ -128,6 +128,6 @@ Some setups cannot update this way:
 ## <Icon icon="mdi:shield-lock-outline" inline /> Security
 
 - **Login is the first step.** A restart after saving an account or proxy turns login on before any other setting can be changed.
-- **Only a signed in user can change actions, shell, auto-update, add or remove hosts, or restart Dozzle.** The user needs all roles.
+- **Only a signed in user can change actions, shell, auto-update, add or remove hosts, or restart Dozzle.** The user needs all roles. Settings follows the same rules and says why a value is read-only.
 - **Without login, only a new install gets a 15 minute window.** When `authProvider` is `none`, these settings can only be changed within 15 minutes of the first start of a new install, one whose `/data` was empty. An install that already has data from earlier runs never gets the window, so a reboot or an image update can't open it. Outside the window, use environment variables or turn on login.
 - **Routes are still decided at startup.** The wizard only writes to `dozzle.yml`. The endpoints for actions and shell are registered when Dozzle starts, exactly as with environment variables, so nothing is enabled until Dozzle restarts.

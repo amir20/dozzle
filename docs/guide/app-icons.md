@@ -10,7 +10,7 @@ Icons are bundled with Dozzle. They are never fetched from a CDN, so nothing abo
 
 ## Turning it off
 
-The toggle lives under **Settings → Options → Show app icons**. It is a per profile setting, so it applies to your browser only.
+The toggle lives under **Settings → Sidebar → App icons**. It is a per profile setting, so it applies to your browser only.
 
 ## How matching works
 

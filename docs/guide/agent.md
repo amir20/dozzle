@@ -78,7 +78,7 @@ Note that it is not necessary to mount the local Docker socket when connecting t
 > You can connect to multiple agents by providing multiple `DOZZLE_REMOTE_AGENT` environment variables. For example, `DOZZLE_REMOTE_AGENT=agent1:7007,agent2:7007`.
 
 > [!TIP]
-> In server mode you can also add an agent from the UI, with **Add host** at the bottom of the host list or the Hosts step of the [setup wizard](/guide/setup-wizard). Dozzle connects to the agent before saving it, and the host shows up without a restart. Agents added this way are saved in `/data/dozzle.yml`, so `/data` has to be on a volume. Agents set with `DOZZLE_REMOTE_AGENT` stay as they are and can't be removed from the UI.
+> In server mode you can also add an agent from the UI, with **Add host** at the bottom of the host list, under **Settings → Hosts**, or in the Hosts step of the [setup wizard](/guide/setup-wizard). Dozzle connects to the agent before saving it, and the host shows up without a restart. Agents added this way are saved in `/data/dozzle.yml`, so `/data` has to be on a volume. Agents set with `DOZZLE_REMOTE_AGENT` stay as they are and can't be removed from the UI.
 
 ## <Icon icon="mdi:group" inline /> Host Groups
 
