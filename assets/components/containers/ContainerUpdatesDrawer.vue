@@ -60,39 +60,56 @@
           v-if="candidates.length"
           class="border-base-content/15 bg-base-200/40 divide-base-content/10 divide-y rounded-lg border"
         >
-          <label
+          <div
             v-for="container in candidates"
             :key="container.id"
             :ref="(el) => container.id === focus && (focusEl = el as HTMLElement)"
-            class="hover:bg-base-300/40 flex items-start gap-3 p-4 transition-colors"
+            class="hover:bg-base-300/40 flex flex-wrap items-start gap-3 p-4 transition-colors"
           >
-            <input v-model="selected" type="checkbox" class="checkbox checkbox-sm mt-0.5" :value="container.id" />
-            <ContainerIcon :state="container.state" :health="container.health" :slug="container.icon" class="size-6" />
-            <div class="min-w-0 flex-1">
-              <div class="truncate text-sm font-medium">{{ container.name }}</div>
-              <div class="text-base-content/60 truncate font-mono text-xs">
-                {{ container.image }}
-                <template v-if="multipleHosts">
-                  <span class="text-base-content/40"> · {{ container.hostLabel }}</span>
-                </template>
+            <label class="flex min-w-0 flex-1 items-start gap-3">
+              <input v-model="selected" type="checkbox" class="checkbox checkbox-sm mt-0.5" :value="container.id" />
+              <ContainerIcon
+                :state="container.state"
+                :health="container.health"
+                :slug="container.icon"
+                class="size-6"
+              />
+              <div class="min-w-0 flex-1">
+                <div class="truncate text-sm font-medium">{{ container.name }}</div>
+                <div class="text-base-content/60 truncate font-mono text-xs">
+                  {{ container.image }}
+                  <template v-if="multipleHosts">
+                    <span class="text-base-content/40"> · {{ container.hostLabel }}</span>
+                  </template>
+                </div>
               </div>
-            </div>
-            <span
-              v-if="autoUpdateEnabled(container)"
-              class="status-pill status-pill-neutral shrink-0"
-              :title="$t('updates.auto-hint')"
+            </label>
+            <!-- Picking a container here is the quickest way onto the schedule. A label
+                 decides on its own, so it shows the answer instead of a control. -->
+            <label
+              v-if="autoEntry(container) && !isSelf(container)"
+              class="text-base-content/60 flex shrink-0 items-center gap-1.5 pt-0.5 text-xs"
+              :title="autoTitle(container)"
             >
-              {{ $t("updates.auto") }}
-            </span>
-          </label>
+              <input
+                type="checkbox"
+                class="checkbox checkbox-xs"
+                :checked="autoEntry(container)!.policy === 'auto'"
+                :disabled="!!autoLock(container) || savingAuto === container.id"
+                @change="setAuto(container, ($event.target as HTMLInputElement).checked)"
+              />
+              {{ $t("auto-update.checkbox") }}
+              <mdi:lock-outline v-if="autoLock(container) === 'label'" class="size-3.5" />
+            </label>
+          </div>
         </div>
         <p v-else class="text-base-content/60 text-sm">{{ $t("updates.none") }}</p>
       </template>
 
-      <p class="text-base-content/40 text-xs">
-        <i18n-t keypath="updates.auto-footnote">
-          <template #label>
-            <code class="font-mono">{{ AUTO_UPDATE_LABEL }}=true</code>
+      <p v-if="updatePoliciesAvailable()" class="text-base-content/40 text-xs">
+        <i18n-t keypath="auto-update.footnote">
+          <template #link>
+            <router-link to="/settings/updates" class="link">{{ $t("auto-update.footnote-link") }}</router-link>
           </template>
         </i18n-t>
       </p>
@@ -138,13 +155,8 @@
 
 <script lang="ts" setup>
 import { Container } from "@/models/Container";
-import {
-  AUTO_UPDATE_LABEL,
-  type BulkUpdateItem,
-  type BulkUpdateStatus,
-  autoUpdateEnabled,
-  isFinished,
-} from "@/composable/containers/bulkUpdate";
+import { type BulkUpdateItem, type BulkUpdateStatus, isFinished } from "@/composable/containers/bulkUpdate";
+import { policyLock, updatePoliciesAvailable } from "@/composable/containers/updatePolicy";
 
 const { focus } = defineProps<{ focus?: string }>();
 
@@ -159,6 +171,32 @@ const release = hold();
 onScopeDispose(release);
 
 const multipleHosts = computed(() => Object.keys(hosts.value).length > 1);
+
+// "Update automatically" per row. Server mode only, and only once the policies are in.
+const { t } = useI18n();
+const { showToast } = useToast();
+const { policies, fetchPolicies, policyFor, setPolicy } = useUpdatePolicies();
+fetchPolicies(true);
+const autoEntry = (c: Container) => (updatePoliciesAvailable() ? policyFor(c) : undefined);
+const autoLock = (c: Container) => policyLock(autoEntry(c), policies.value);
+function autoTitle(c: Container) {
+  const lock = autoLock(c);
+  if (lock === "label") return t("auto-update.set-by-label");
+  if (lock === "volume") return t("auto-update.needs-volume");
+  return undefined;
+}
+const savingAuto = ref<string>();
+async function setAuto(c: Container, on: boolean) {
+  savingAuto.value = c.id;
+  try {
+    await setPolicy([c], on ? "auto" : "manual");
+  } catch {
+    showToast({ type: "error", title: t("auto-update.menu"), message: t("auto-update.save-failed") }, { expire: 5000 });
+    await fetchPolicies(true);
+  } finally {
+    savingAuto.value = undefined;
+  }
+}
 
 const candidates = computed(() => containers.value.filter(hasUpdate).sort((a, b) => a.name.localeCompare(b.name)));
 

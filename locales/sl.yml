@@ -257,7 +257,7 @@ settings:
   new-version: "Na voljo je {version}"
   update-available: "Na voljo je novejša slika"
   auto-update-on: "Dozzle se posodablja sam"
-  auto-update-containers: "Vsebniki z oznako ostajajo posodobljeni"
+  auto-update-containers: "Vaši vsebniki ostajajo posodobljeni"
   auto-update-daily: "Preveri vsak dan ob {time} po času strežnika."
   auto-update-weekly: "Preveri vsak teden v nedeljo ob {time} po času strežnika."
   show-image-update-alert: 'Opozorila o posodobitvah slik'
@@ -367,9 +367,6 @@ updates:
   none: Vsi vsebniki uporabljajo najnovejšo sliko svoje oznake.
   update-selected: Posodobi | Posodobi 1 | Posodobi {count}
   self-last: Dozzle se posodobi zadnji in se nato znova zažene.
-  auto: Samodejno
-  auto-hint: Posodablja se tudi po urniku samodejnih posodobitev
-  auto-footnote: Vsebniku dodajte oznako {label}, da se posodablja po urniku samodejnih posodobitev.
   scheduled-running: Urnik samodejnih posodobitev se pravkar izvaja.
   progress: Končano {done} od {total}
   back: Nazaj
@@ -952,16 +949,8 @@ setup:
   update:
     pill-on: "Uporablja dejanja · vklopljeno"
     pill-pending: "Vklopi se z dejanji"
-    title: "Ohrani Dozzle posodobljen"
-    subtitle: "Dozzle ob mirni uri prenese novo sliko in zamenja svoj vsebnik. Nastavitve, uporabniki in opozorila ostanejo."
-    auto-label: "Posodabljaj samodejno"
-    auto-desc: "Preveri, ali obstaja novejša slika, in zamenja Dozzle le, če ta obstaja."
-    auto-containers: Vsebniki z oznako {label} se posodobijo ob istem času.
-    when-label: "Kdaj"
-    time-label: "Čas"
-    server-time: "Uporablja časovni pas strežnika."
-    daily: "Dnevno"
-    weekly: "Tedensko ob nedeljah"
+    title: "Ohranjajte vsebnike posodobljene"
+    subtitle: "Ob mirni uri Dozzle poišče novejše slike ter posodobi sebe in vsebnike, ki jih izberete. Nastavitve, uporabniki in opozorila ostanejo."
     version-label: "Različica"
     update-now: "Posodobi zdaj"
     pulling: "Prenašanje nove slike"
@@ -972,7 +961,6 @@ setup:
     reason-pinned-tag: "Uporabljaš pripeto oznako različice, zato ni ničesar novejšega za prenos. Za posodobitve uporabi oznako, kot je latest."
     reason-unsupported: "Dozzle tukaj ne najde svojega vsebnika, zato se ne more zamenjati sam."
     reason-swarm-worker: "Dozzle teče kot storitev Swarm na delovnem vozlišču. Storitev lahko posodobi samo upravitelj, zato Dozzle zaženite na upravitelju ali ga posodobite z docker service update."
-    containers-still: Vsebniki z oznako {label} se še vedno posodabljajo po tem urniku.
     pull-denied: "{image} ni bilo mogoče prenesti. Morda obstaja samo na tem računalniku ali register zahteva docker login."
   restart:
     title: Znova zaženi Dozzle
@@ -1089,3 +1077,54 @@ update-marker:
   decision:
     rolled_back: "Povrnjeno"
     kept: "Obdržano"
+auto-update:
+  page-desc: "Dozzle po urniku posodablja vaše vsebnike, tako kot Watchtower."
+  schedule-label: "Samodejno posodabljaj"
+  schedule-desc: "Ob tem času poišče novejše slike in posodobi samo, kar se je spremenilo. Uporablja časovni pas strežnika."
+  "off": "Izklopljeno"
+  daily: "Vsak dan"
+  weekly: "Vsako nedeljo"
+  time-label: "Čas"
+  which-label: "Kateri vsebniki"
+  mode-dozzle: "Samo Dozzle"
+  mode-dozzle-desc: "Drugi vsebniki se preverijo in počakajo, da jih posodobite."
+  mode-picked: "Dozzle in vsebniki, ki jih izberem"
+  mode-picked-desc: "Plus vsak vsebnik, nastavljen na Samodejno, tukaj ali z oznako."
+  mode-all: "Vse"
+  mode-all-desc: "Vsak vsebnik se posodobi, razen če je nastavljen na Ročno ali Izklopljeno."
+  risky: "{count} vsebnik hrani podatke v poimenovanem nosilcu. Baza podatkov lahko preide na različico, ki njenih podatkov ne zna prebrati. | Vsebniki s podatki v poimenovanih nosilcih: {count}. Baza podatkov lahko preide na različico, ki njenih podatkov ne zna prebrati."
+  keep-manual: "Pusti jih ročne"
+  containers-still: "Drugi vsebniki se še vedno posodabljajo po tem urniku."
+  needs-volume: "Potrebuje /data na nosilcu ali uporabite oznako dev.dozzle.update."
+  needs-actions: "Dokler so dejanja vsebnikov izklopljena, se nič ne posodobi samo."
+  set-by-label: "Nastavljeno z oznako"
+  menu: "Samodejna posodobitev"
+  checkbox: "Samodejno posodabljaj"
+  policy-auto: "Samodejno"
+  policy-manual: "Ročno"
+  policy-off: "Izklopljeno"
+  policy-auto-desc: "Posodobljen po urniku"
+  policy-manual-desc: "Preverjen, posodobite ga vi"
+  policy-off-desc: "Nikoli preverjen ali posodobljen"
+  dozzle-only-waits: "Čaka, dokler je pri Kateri vsebniki izbrano Samo Dozzle."
+  self: "Posodablja samega sebe"
+  containers: "Vsebniki"
+  empty: "Ni vsebnikov za prikaz."
+  status-current: "Posodobljen"
+  status-available: "Na voljo je posodobitev"
+  status-pending: "Še ni preverjen"
+  status-off: "Ni preverjen"
+  status-pinned: "Pripet na digest"
+  status-local: "Zgrajen lokalno"
+  status-private: "Zasebni register"
+  status-unknown: "Ni mogoče preveriti"
+  last-done: "Posodobljen {time}"
+  last-failed: "Posodobitev ni uspela {time}"
+  safety-title: "Varnostna mreža"
+  safety-verify: "Vsaka posodobitev se spremlja in razveljavi, če novi vsebnik odpove."
+  safety-cleanup: "Stara slika se nato odstrani. Ena prejšnja slika ostane za povrnitev."
+  safety-skip: "Slike, pripete na digest, zgrajene lokalno ali iz zasebnega registra, se preskočijo."
+  watchtower: "Prehod z Watchtower"
+  footnote: "{link} določa, kateri vsebniki se posodabljajo sami."
+  footnote-link: "Nastavitve → Posodobitve"
+  save-failed: "Shranjevanje ni uspelo. Poskusite znova."

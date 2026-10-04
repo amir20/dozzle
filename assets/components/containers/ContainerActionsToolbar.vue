@@ -243,6 +243,31 @@
             </span>
           </button>
         </li>
+        <!-- Automatic, manual or off for the schedule. Dozzle itself always follows it. -->
+        <li v-if="autoPolicy && !isSelfContainer">
+          <details>
+            <summary>
+              <mdi:autorenew />
+              {{ $t("auto-update.menu") }}
+              <span class="value">{{ $t(`auto-update.policy-${shownPolicy}`) }}</span>
+            </summary>
+            <ul class="menu">
+              <li v-for="policy in UPDATE_POLICIES" :key="policy" :class="{ 'menu-disabled': !!autoLock }">
+                <button type="button" :disabled="!!autoLock || savingPolicy" @click="choosePolicy(policy)">
+                  <mdi:check class="w-4" v-if="shownPolicy === policy" />
+                  <div v-else class="w-4"></div>
+                  <span class="flex flex-col">
+                    <span>{{ $t(`auto-update.policy-${policy}`) }}</span>
+                    <span class="text-base-content/50 text-xs">{{ $t(`auto-update.policy-${policy}-desc`) }}</span>
+                  </span>
+                </button>
+              </li>
+              <li v-if="autoLockHint" class="text-base-content/50 px-3 py-1 text-xs whitespace-normal">
+                {{ autoLockHint }}
+              </li>
+            </ul>
+          </details>
+        </li>
       </template>
 
       <template v-if="enableShell && !historical">
@@ -314,6 +339,14 @@
 
 <script lang="ts" setup>
 import { Container, powerAction, rollbackLabel } from "@/models/Container";
+import {
+  type UpdatePolicy,
+  UPDATE_LABEL,
+  UPDATE_POLICIES,
+  heldBack,
+  policyLock,
+  updatePoliciesAvailable,
+} from "@/composable/containers/updatePolicy";
 import { allLevels } from "@/composable/logs/logContext";
 import { appendRangeParams } from "@/composable/logs/timeRange";
 import LogAnalytics from "@/components/logs/LogAnalytics.vue";
@@ -528,6 +561,35 @@ const disableRestart = computed(() => actionStates.stop || actionStates.start ||
 // The section header is shared by container actions and the shell entries, so it
 // only shows when at least one of them is actually rendered.
 const showContainerSection = computed(() => (enableActions || enableShell) && !historical);
+
+// Auto-update for this container, from the same policies the Updates page lists.
+const { policies, fetchPolicies, policyFor, setPolicy } = useUpdatePolicies();
+if (enableActions && updatePoliciesAvailable()) fetchPolicies();
+const autoPolicy = computed(() => (updatePoliciesAvailable() ? policyFor(container) : undefined));
+const autoLock = computed(() => policyLock(autoPolicy.value, policies.value));
+// What was chosen, even while Dozzle only holds an Automatic back. A label always wins.
+const shownPolicy = computed(() =>
+  autoPolicy.value?.source === "label"
+    ? autoPolicy.value.policy
+    : (autoPolicy.value?.choice ?? autoPolicy.value?.policy),
+);
+const autoLockHint = computed(() => {
+  if (autoLock.value === "label") return `${t("auto-update.set-by-label")} · ${UPDATE_LABEL}`;
+  if (autoLock.value === "volume") return t("auto-update.needs-volume");
+  if (autoPolicy.value && heldBack(autoPolicy.value)) return t("auto-update.dozzle-only-waits");
+  return "";
+});
+const savingPolicy = ref(false);
+async function choosePolicy(policy: UpdatePolicy) {
+  savingPolicy.value = true;
+  try {
+    await setPolicy([container], policy);
+  } catch {
+    showToast({ type: "error", title: t("auto-update.menu"), message: t("auto-update.save-failed") }, { expire: 5000 });
+  } finally {
+    savingPolicy.value = false;
+  }
+}
 
 // Collapsed submenus say what they are currently set to, so the menu answers
 // "what am I looking at?" without being opened.

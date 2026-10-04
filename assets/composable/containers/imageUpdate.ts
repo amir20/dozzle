@@ -121,7 +121,10 @@ export const useImageUpdates = () => {
     results.get(`${container.host}/${container.id}`)?.status === "update-available" &&
     !mayBeSelf(container);
 
-  return { checkAll, checking: readonly(checkingAll), hasUpdate, isSelf };
+  // The last check of a container, for lists that show every container's status.
+  const resultFor = (container: Pick<Container, "host" | "id">) => results.get(`${container.host}/${container.id}`);
+
+  return { checkAll, checking: readonly(checkingAll), hasUpdate, isSelf, resultFor };
 };
 
 export const useImageUpdate = (container: Ref<Container>, historical: Ref<boolean> | boolean = false) => {

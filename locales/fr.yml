@@ -255,7 +255,7 @@ settings:
   new-version: "{version} disponible"
   update-available: "Une image plus récente est disponible"
   auto-update-on: "Dozzle se met à jour tout seul"
-  auto-update-containers: "Les conteneurs avec le label restent à jour"
+  auto-update-containers: "Vos conteneurs restent à jour"
   auto-update-daily: "Vérifie chaque jour à {time}, heure du serveur."
   auto-update-weekly: "Vérifie chaque semaine, le dimanche à {time}, heure du serveur."
   show-image-update-alert: 'Alertes de mise à jour d''image'
@@ -362,9 +362,6 @@ updates:
   none: Tous les conteneurs utilisent la dernière image de leur tag.
   update-selected: Mettre à jour | Mettre à jour 1 | Mettre à jour {count}
   self-last: Dozzle se met à jour en dernier, puis redémarre.
-  auto: Auto
-  auto-hint: Aussi mis à jour selon la planification automatique
-  auto-footnote: Ajoutez le label {label} à un conteneur pour le mettre à jour selon la planification automatique.
   scheduled-running: La mise à jour automatique planifiée est en cours.
   progress: "{done} sur {total} terminés"
   back: Retour
@@ -947,16 +944,8 @@ setup:
   update:
     pill-on: "Utilise les actions · activé"
     pill-pending: "S'active avec les actions"
-    title: "Garder Dozzle à jour"
-    subtitle: "Dozzle télécharge la nouvelle image et remplace son propre conteneur à une heure creuse. Les paramètres, utilisateurs et alertes sont conservés."
-    auto-label: "Mettre à jour automatiquement"
-    auto-desc: "Vérifie s'il existe une image plus récente et ne remplace Dozzle que s'il y en a une."
-    auto-containers: Les conteneurs avec le label {label} sont mis à jour à la même heure.
-    when-label: "Quand"
-    time-label: "Heure"
-    server-time: "Utilise le fuseau horaire du serveur."
-    daily: "Tous les jours"
-    weekly: "Chaque semaine le dimanche"
+    title: "Garder les conteneurs à jour"
+    subtitle: "À une heure calme, Dozzle cherche des images plus récentes et se met à jour, ainsi que les conteneurs de votre choix. Paramètres, utilisateurs et alertes sont conservés."
     version-label: "Version"
     update-now: "Mettre à jour maintenant"
     pulling: "Téléchargement de la nouvelle image"
@@ -967,7 +956,6 @@ setup:
     reason-pinned-tag: "Vous utilisez un tag de version figé, il n'y a donc rien de plus récent à télécharger. Utilisez un tag comme latest pour recevoir les mises à jour."
     reason-unsupported: "Dozzle ne trouve pas son propre conteneur ici, il ne peut donc pas se remplacer lui-même."
     reason-swarm-worker: "Dozzle tourne comme service Swarm sur un nœud worker. Seul un manager peut mettre à jour le service : exécutez Dozzle sur un manager ou mettez-le à jour avec docker service update."
-    containers-still: Les conteneurs avec le label {label} sont toujours mis à jour selon ce calendrier.
     pull-denied: "Impossible de récupérer {image}. Elle n'existe peut-être que sur cette machine, ou le registre demande docker login."
   restart:
     title: "Redémarrer Dozzle"
@@ -1084,3 +1072,54 @@ update-marker:
   decision:
     rolled_back: "Annulée"
     kept: "Conservée"
+auto-update:
+  page-desc: "Dozzle garde vos conteneurs à jour selon un planning, comme Watchtower."
+  schedule-label: "Mettre à jour automatiquement"
+  schedule-desc: "Cherche des images plus récentes à cette heure et ne met à jour que ce qui a changé. Utilise le fuseau horaire du serveur."
+  "off": "Désactivé"
+  daily: "Tous les jours"
+  weekly: "Chaque dimanche"
+  time-label: "Heure"
+  which-label: "Quels conteneurs"
+  mode-dozzle: "Dozzle seulement"
+  mode-dozzle-desc: "Les autres conteneurs sont vérifiés et attendent que vous les mettiez à jour."
+  mode-picked: "Dozzle et les conteneurs que je choisis"
+  mode-picked-desc: "Plus chaque conteneur réglé sur Automatique, ici ou par label."
+  mode-all: "Tout"
+  mode-all-desc: "Chaque conteneur est mis à jour, sauf s'il est réglé sur Manuel ou Désactivé."
+  risky: "{count} conteneur garde des données dans un volume nommé. Une base de données peut passer à une version incapable de lire ses données. | {count} conteneurs gardent des données dans des volumes nommés. Une base de données peut passer à une version incapable de lire ses données."
+  keep-manual: "Les garder en manuel"
+  containers-still: "Les autres conteneurs sont toujours mis à jour selon ce planning."
+  needs-volume: "Nécessite /data sur un volume, ou utilisez le label dev.dozzle.update."
+  needs-actions: "Rien ne se met à jour tout seul tant que les actions sur les conteneurs sont désactivées."
+  set-by-label: "Défini par label"
+  menu: "Mise à jour auto"
+  checkbox: "Mettre à jour automatiquement"
+  policy-auto: "Automatique"
+  policy-manual: "Manuel"
+  policy-off: "Désactivé"
+  policy-auto-desc: "Mis à jour selon le planning"
+  policy-manual-desc: "Vérifié, mis à jour par vous"
+  policy-off-desc: "Jamais vérifié ni mis à jour"
+  dozzle-only-waits: "En attente tant que Quels conteneurs est sur Dozzle seulement."
+  self: "Se met à jour lui-même"
+  containers: "Conteneurs"
+  empty: "Aucun conteneur à afficher."
+  status-current: "À jour"
+  status-available: "Mise à jour disponible"
+  status-pending: "Pas encore vérifié"
+  status-off: "Non vérifié"
+  status-pinned: "Épinglé sur un digest"
+  status-local: "Construit localement"
+  status-private: "Registre privé"
+  status-unknown: "Vérification impossible"
+  last-done: "Mis à jour {time}"
+  last-failed: "Échec de la mise à jour {time}"
+  safety-title: "Filet de sécurité"
+  safety-verify: "Chaque mise à jour est surveillée et annulée si le nouveau conteneur échoue."
+  safety-cleanup: "L'ancienne image est supprimée ensuite. Une image précédente est conservée pour revenir en arrière."
+  safety-skip: "Les images épinglées sur un digest, construites localement ou issues d'un registre privé sont ignorées."
+  watchtower: "Passer de Watchtower à Dozzle"
+  footnote: "{link} décide quels conteneurs se mettent à jour tout seuls."
+  footnote-link: "Paramètres → Mises à jour"
+  save-failed: "Enregistrement impossible. Réessayez."

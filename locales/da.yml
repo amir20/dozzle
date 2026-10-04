@@ -255,7 +255,7 @@ settings:
   new-version: "{version} tilgængelig"
   update-available: "Et nyere image er tilgængeligt"
   auto-update-on: "Dozzle holder sig selv opdateret"
-  auto-update-containers: "Containere med label holdes opdateret"
+  auto-update-containers: "Dine containere holdes opdateret"
   auto-update-daily: "Tjekker dagligt kl. {time}, servertid."
   auto-update-weekly: "Tjekker ugentligt om søndagen kl. {time}, servertid."
   show-image-update-alert: 'Image-opdateringer'
@@ -362,9 +362,6 @@ updates:
   none: Alle containere kører det nyeste image, som deres tag peger på.
   update-selected: Opdater | Opdater 1 | Opdater {count}
   self-last: Dozzle opdateres sidst og genstarter derefter.
-  auto: Auto
-  auto-hint: Opdateres også efter den automatiske opdateringsplan
-  auto-footnote: Giv en container labelen {label} for at opdatere den efter den automatiske opdateringsplan.
   scheduled-running: Den automatiske opdateringsplan kører nu.
   progress: "{done} af {total} færdige"
   back: Tilbage
@@ -947,16 +944,8 @@ setup:
   update:
     pill-on: "Bruger handlinger · til"
     pill-pending: "Slås til med handlinger"
-    title: "Hold Dozzle opdateret"
-    subtitle: "Dozzle henter det nye image og erstatter sin egen container på et roligt tidspunkt. Indstillinger, brugere og alarmer bevares."
-    auto-label: "Opdater automatisk"
-    auto-desc: "Tjekker efter et nyere image og erstatter kun Dozzle, når der er et."
-    auto-containers: Containere med labelen {label} opdateres på samme tid.
-    when-label: "Hvornår"
-    time-label: "Tidspunkt"
-    server-time: "Bruger serverens tidszone."
-    daily: "Dagligt"
-    weekly: "Ugentligt om søndagen"
+    title: "Hold containere opdateret"
+    subtitle: "På et roligt tidspunkt søger Dozzle efter nyere images og opdaterer sig selv og de containere, du vælger. Indstillinger, brugere og alarmer bevares."
     version-label: "Version"
     update-now: "Opdater nu"
     pulling: "Henter det nye image"
@@ -967,7 +956,6 @@ setup:
     reason-pinned-tag: "Du kører et fastlåst versionstag, så der er intet nyere at hente. Brug et tag som latest for at få opdateringer."
     reason-unsupported: "Dozzle kan ikke finde sin egen container her, så den kan ikke udskifte sig selv."
     reason-swarm-worker: "Dozzle kører som en Swarm-tjeneste på en worker-node. Kun en manager kan opdatere tjenesten, så kør Dozzle på en manager, eller opdater den med docker service update."
-    containers-still: Containere med labelen {label} opdateres stadig efter denne plan.
     pull-denied: "Kunne ikke hente {image}. Det findes måske kun på denne maskine, eller registret kræver docker login."
   restart:
     title: "Genstart Dozzle"
@@ -1084,3 +1072,54 @@ update-marker:
   decision:
     rolled_back: "Rullet tilbage"
     kept: "Beholdt"
+auto-update:
+  page-desc: "Dozzle holder dine containere opdateret efter en tidsplan, ligesom Watchtower."
+  schedule-label: "Opdater automatisk"
+  schedule-desc: "Søger efter nyere images på dette tidspunkt og opdaterer kun det, der er ændret. Bruger serverens tidszone."
+  "off": "Fra"
+  daily: "Dagligt"
+  weekly: "Hver søndag"
+  time-label: "Tidspunkt"
+  which-label: "Hvilke containere"
+  mode-dozzle: "Kun Dozzle"
+  mode-dozzle-desc: "Andre containere bliver tjekket og venter på, at du opdaterer dem."
+  mode-picked: "Dozzle og containere jeg vælger"
+  mode-picked-desc: "Plus hver container sat til Automatisk, her eller med en label."
+  mode-all: "Alt"
+  mode-all-desc: "Alle containere opdateres, medmindre de står på Manuel eller Fra."
+  risky: "{count} container gemmer data i et navngivet volume. En database kan skifte til en version, der ikke kan læse dens data. | {count} containere gemmer data i navngivne volumes. En database kan skifte til en version, der ikke kan læse dens data."
+  keep-manual: "Behold disse manuelle"
+  containers-still: "Andre containere opdateres stadig efter denne tidsplan."
+  needs-volume: "Kræver /data på et volume, eller brug labelen dev.dozzle.update."
+  needs-actions: "Intet opdateres af sig selv, så længe containerhandlinger er slået fra."
+  set-by-label: "Sat med label"
+  menu: "Auto-opdatering"
+  checkbox: "Opdater automatisk"
+  policy-auto: "Automatisk"
+  policy-manual: "Manuel"
+  policy-off: "Fra"
+  policy-auto-desc: "Opdateres efter tidsplanen"
+  policy-manual-desc: "Tjekkes, du opdaterer"
+  policy-off-desc: "Tjekkes og opdateres aldrig"
+  dozzle-only-waits: "Venter, så længe Hvilke containere står på Kun Dozzle."
+  self: "Opdaterer sig selv"
+  containers: "Containere"
+  empty: "Ingen containere at vise."
+  status-current: "Opdateret"
+  status-available: "Opdatering tilgængelig"
+  status-pending: "Ikke tjekket endnu"
+  status-off: "Ikke tjekket"
+  status-pinned: "Fastlåst til et digest"
+  status-local: "Bygget lokalt"
+  status-private: "Privat registry"
+  status-unknown: "Kan ikke tjekke"
+  last-done: "Opdateret {time}"
+  last-failed: "Opdatering mislykkedes {time}"
+  safety-title: "Sikkerhedsnet"
+  safety-verify: "Hver opdatering overvåges og rulles tilbage, hvis den nye container fejler."
+  safety-cleanup: "Det gamle image fjernes bagefter. Ét tidligere image beholdes til tilbagerulning."
+  safety-skip: "Images fastlåst til et digest, bygget lokalt eller fra et privat registry springes over."
+  watchtower: "Skift fra Watchtower"
+  footnote: "{link} bestemmer, hvilke containere der opdaterer sig selv."
+  footnote-link: "Indstillinger → Opdateringer"
+  save-failed: "Kunne ikke gemme. Prøv igen."

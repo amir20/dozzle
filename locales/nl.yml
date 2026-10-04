@@ -256,7 +256,7 @@ settings:
   new-version: "{version} beschikbaar"
   update-available: "Er is een nieuwere image beschikbaar"
   auto-update-on: "Dozzle houdt zichzelf up-to-date"
-  auto-update-containers: "Containers met het label blijven up-to-date"
+  auto-update-containers: "Je containers blijven up-to-date"
   auto-update-daily: "Controleert dagelijks om {time}, servertijd."
   auto-update-weekly: "Controleert wekelijks op zondag om {time}, servertijd."
   show-image-update-alert: 'Image-updatemeldingen'
@@ -363,9 +363,6 @@ updates:
   none: Alle containers draaien het nieuwste image van hun tag.
   update-selected: Bijwerken | 1 bijwerken | {count} bijwerken
   self-last: Dozzle wordt als laatste bijgewerkt en herstart daarna.
-  auto: Auto
-  auto-hint: Wordt ook bijgewerkt volgens het schema voor automatische updates
-  auto-footnote: Geef een container het label {label} om hem volgens het schema voor automatische updates bij te werken.
   scheduled-running: Het schema voor automatische updates draait nu.
   progress: "{done} van {total} klaar"
   back: Terug
@@ -948,16 +945,8 @@ setup:
   update:
     pill-on: "Gebruikt acties · aan"
     pill-pending: "Gaat aan met acties"
-    title: "Houd Dozzle up-to-date"
-    subtitle: "Dozzle haalt de nieuwe image op en vervangt zijn eigen container op een rustig uur. Instellingen, gebruikers en meldingen blijven behouden."
-    auto-label: "Automatisch bijwerken"
-    auto-desc: "Controleert op een nieuwere image en vervangt Dozzle alleen als die er is."
-    auto-containers: Containers met het label {label} worden op hetzelfde moment bijgewerkt.
-    when-label: "Wanneer"
-    time-label: "Tijd"
-    server-time: "Gebruikt de tijdzone van de server."
-    daily: "Dagelijks"
-    weekly: "Wekelijks op zondag"
+    title: "Houd containers up-to-date"
+    subtitle: "Op een rustig uur zoekt Dozzle naar nieuwere images en werkt het zichzelf en de containers die jij kiest bij. Instellingen, gebruikers en meldingen blijven."
     version-label: "Versie"
     update-now: "Nu bijwerken"
     pulling: "Nieuwe image ophalen"
@@ -968,7 +957,6 @@ setup:
     reason-pinned-tag: "Je gebruikt een vaste versietag, dus er is niets nieuwers om op te halen. Gebruik een tag zoals latest om updates te krijgen."
     reason-unsupported: "Dozzle kan hier zijn eigen container niet vinden en kan zichzelf dus niet vervangen."
     reason-swarm-worker: "Dozzle draait als Swarm-service op een worker-node. Alleen een manager kan de service bijwerken, dus draai Dozzle op een manager of werk het bij met docker service update."
-    containers-still: Containers met het label {label} worden nog steeds volgens dit schema bijgewerkt.
     pull-denied: "{image} kon niet worden opgehaald. Misschien bestaat het alleen op deze machine, of vraagt de registry om docker login."
   restart:
     title: Dozzle herstarten
@@ -1085,3 +1073,54 @@ update-marker:
   decision:
     rolled_back: "Teruggezet"
     kept: "Behouden"
+auto-update:
+  page-desc: "Dozzle houdt je containers volgens schema up-to-date, zoals Watchtower."
+  schedule-label: "Automatisch bijwerken"
+  schedule-desc: "Zoekt op dit tijdstip naar nieuwere images en werkt alleen bij wat veranderd is. Gebruikt de tijdzone van de server."
+  "off": "Uit"
+  daily: "Dagelijks"
+  weekly: "Wekelijks op zondag"
+  time-label: "Tijd"
+  which-label: "Welke containers"
+  mode-dozzle: "Alleen Dozzle"
+  mode-dozzle-desc: "Andere containers worden gecontroleerd en wachten tot jij ze bijwerkt."
+  mode-picked: "Dozzle en containers die ik kies"
+  mode-picked-desc: "Plus elke container die hier of met een label op Automatisch staat."
+  mode-all: "Alles"
+  mode-all-desc: "Elke container wordt bijgewerkt, tenzij hij op Handmatig of Uit staat."
+  risky: "{count} container bewaart data in een benoemd volume. Een database kan naar een versie gaan die zijn data niet kan lezen. | {count} containers bewaren data in benoemde volumes. Een database kan naar een versie gaan die zijn data niet kan lezen."
+  keep-manual: "Deze handmatig houden"
+  containers-still: "Andere containers worden nog steeds volgens dit schema bijgewerkt."
+  needs-volume: "Vereist /data op een volume, of gebruik het label dev.dozzle.update."
+  needs-actions: "Niets wordt vanzelf bijgewerkt zolang containeracties uit staan."
+  set-by-label: "Ingesteld via label"
+  menu: "Automatisch bijwerken"
+  checkbox: "Automatisch bijwerken"
+  policy-auto: "Automatisch"
+  policy-manual: "Handmatig"
+  policy-off: "Uit"
+  policy-auto-desc: "Bijgewerkt volgens schema"
+  policy-manual-desc: "Gecontroleerd, door jou bijgewerkt"
+  policy-off-desc: "Nooit gecontroleerd of bijgewerkt"
+  dozzle-only-waits: "Wacht zolang Welke containers op Alleen Dozzle staat."
+  self: "Werkt zichzelf bij"
+  containers: "Containers"
+  empty: "Geen containers om te tonen."
+  status-current: "Up-to-date"
+  status-available: "Update beschikbaar"
+  status-pending: "Nog niet gecontroleerd"
+  status-off: "Niet gecontroleerd"
+  status-pinned: "Vastgezet op een digest"
+  status-local: "Lokaal gebouwd"
+  status-private: "Privéregistry"
+  status-unknown: "Kan niet controleren"
+  last-done: "Bijgewerkt {time}"
+  last-failed: "Bijwerken mislukt {time}"
+  safety-title: "Vangnet"
+  safety-verify: "Elke update wordt gevolgd en teruggedraaid als de nieuwe container faalt."
+  safety-cleanup: "Het oude image wordt daarna verwijderd. Eén vorig image blijft bewaard om terug te draaien."
+  safety-skip: "Images vastgezet op een digest, lokaal gebouwd of uit een privéregistry worden overgeslagen."
+  watchtower: "Overstappen van Watchtower"
+  footnote: "{link} bepaalt welke containers zichzelf bijwerken."
+  footnote-link: "Instellingen → Updates"
+  save-failed: "Opslaan mislukt. Probeer het opnieuw."
