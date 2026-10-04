@@ -234,12 +234,12 @@
             <span v-if="showImageUpdateAlert" class="bg-warning size-1.5 rounded-full"></span>
           </button>
         </li>
-        <!-- Only while the last update left a previous image to go back to. -->
-        <li v-if="container.rollbackTarget && container.state !== 'deleted'">
-          <button @click="requestRollback(container)" :disabled="actionStates.rollback || actionStates.update">
+        <!-- Only while the host knows the image the container ran before its last update. -->
+        <li v-if="rollbackTarget && container.state !== 'deleted' && !isSelfContainer">
+          <button @click="requestRollback(container)" :disabled="isRollingBack(container) || actionStates.update">
             <mdi:restore />
             <span class="truncate">
-              {{ $t("rollback.menu", { target: rollbackLabel(container.rollbackTarget) }) }}
+              {{ $t("rollback.menu", { target: rollbackLabel(rollbackTarget) }) }}
             </span>
           </button>
         </li>
@@ -339,6 +339,15 @@ const { container, historical = false } = defineProps<{ container: Container; hi
 const clear = defineEmit();
 const { actionStates, start, stop, restart, update } = useContainerActions(toRef(() => container));
 const canStartStop = config.mode !== "k8s";
+// Asked once per container id, which every update and rollback changes.
+const rollbackTarget = computed(() => rollbackTargetOf(container));
+watch(
+  () => `${container.host}/${container.id}/${container.state}`,
+  () => {
+    if (enableActions && !historical) loadRollbackTarget(container);
+  },
+  { immediate: true },
+);
 const workload = computed(() => containerWorkload(container));
 const { restarting: rollingOut, rolloutRestart } = useRolloutRestart();
 const {

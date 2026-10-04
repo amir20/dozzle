@@ -37,7 +37,7 @@ const dialog = useTemplateRef<HTMLDialogElement>("dialog");
 
 // Kept after the dialog closes: the rollback it started still reports on it.
 const shown = shallowRef<Container>();
-const target = computed(() => shown.value?.rollbackTarget);
+const target = computed(() => shown.value && rollbackTargetOf(shown.value));
 const { rollback } = useContainerActions(toRef(() => shown.value as Container));
 
 watch(request, (container) => {

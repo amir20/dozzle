@@ -188,13 +188,25 @@ const finishedCount = computed(() => job.value?.items.filter((i) => isFinished(i
 const focusEl = ref<HTMLElement>();
 onMounted(() => focusEl.value?.scrollIntoView({ block: "center" }));
 
-// The container that holds the item's name now, if a rollback can take it back.
-function rollbackCandidate(item: BulkUpdateItem) {
-  if (!config.enableActions) return undefined;
-  return containers.value.find(
-    (c) => c.host === item.host && c.name === item.name && c.state !== "deleted" && c.rollbackTarget,
-  );
+// The container that holds a finished item's name now.
+function successor(item: BulkUpdateItem) {
+  if (!config.enableActions || item.status !== "done") return undefined;
+  return containers.value.find((c) => c.host === item.host && c.name === item.name && c.state !== "deleted");
 }
+
+// The successor, if the host knows where a rollback would take it.
+function rollbackCandidate(item: BulkUpdateItem) {
+  const c = successor(item);
+  return c && rollbackTargetOf(c) && !isRollingBack(c) ? c : undefined;
+}
+
+// Asks for each successor's target as it appears.
+watchEffect(() => {
+  for (const item of job.value?.items ?? []) {
+    const c = successor(item);
+    if (c) loadRollbackTarget(c);
+  }
+});
 
 function updateSelected() {
   showingJob.value = true;

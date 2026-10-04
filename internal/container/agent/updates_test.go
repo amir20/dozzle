@@ -299,3 +299,21 @@ func (s *syncWriter) Write(p []byte) (int, error) {
 	defer s.mu.Unlock()
 	return s.w.Write(p)
 }
+
+// A container Watchtower updated on an agent host has a rollback target the
+// server finds the same way as for a local container: from the agent's events,
+// over the labels Watchtower copied.
+func TestRollbackTargetFromAgentHistory(t *testing.T) {
+	e := updateEvent("web", "bbb", time.Date(2026, 10, 3, 4, 0, 0, 0, time.UTC))
+	e.NewID = "0123456789ab"
+	e.Source = container.UpdateSourceWatchtower
+	svc := NewService(agentWithHistory(t, newHistoryService(e)).client())
+
+	c := container.Container{ID: e.NewID, ImageID: e.ToImageID, Labels: map[string]string{
+		container.PreviousImageLabel: "sha256:stale",
+		container.UpdateSourceLabel:  container.UpdateSourceRollback,
+	}}
+	target, err := container.NewContainerService(svc, c).RollbackTarget()
+	require.NoError(t, err)
+	assert.Equal(t, container.RollbackTarget{ImageID: "sha256:from", Ref: "nginx@sha256:aaa"}, target)
+}

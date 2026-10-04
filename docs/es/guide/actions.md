@@ -1,6 +1,6 @@
 ---
 title: Acciones sobre contenedores
-sourceHash: 63fb00d5d695
+sourceHash: 4c26ca983b70
 ---
 
 # Acciones sobre contenedores

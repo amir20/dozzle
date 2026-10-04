@@ -143,6 +143,7 @@ declare global {
   const isReactive: typeof import('vue').isReactive
   const isReadonly: typeof import('vue').isReadonly
   const isRef: typeof import('vue').isRef
+  const isRollingBack: typeof import('./composable/containers/rollback').isRollingBack
   const isSelf: typeof import('./composable/containers/imageUpdate').isSelf
   const isShallow: typeof import('vue').isShallow
   const isStreamLog: typeof import('./composable/cloud/alertMerger').isStreamLog
@@ -150,6 +151,7 @@ declare global {
   const lightTheme: typeof import('./stores/settings').lightTheme
   const linesNeedingMemory: typeof import('./composable/cloud/patternMemory').linesNeedingMemory
   const loadBetween: typeof import('./composable/logs/loadBetween').loadBetween
+  const loadRollbackTarget: typeof import('./composable/containers/rollback').loadRollbackTarget
   const locale: typeof import('./stores/settings').locale
   const logMomentRoute: typeof import('./composable/logs/logJump').logMomentRoute
   const loggingContextKey: typeof import('./composable/logs/logContext').loggingContextKey
@@ -161,6 +163,7 @@ declare global {
   const mapWritableState: typeof import('pinia').mapWritableState
   const markCloudWelcomePending: typeof import('./composable/cloud/cloudWelcome').markCloudWelcomePending
   const markRaw: typeof import('vue').markRaw
+  const markRollingBack: typeof import('./composable/containers/rollback').markRollingBack
   const menuWidth: typeof import('./stores/settings').menuWidth
   const mergeAlerts: typeof import('./composable/cloud/cloudAlerts').mergeAlerts
   const mergeCloudEvents: typeof import('./composable/cloud/cloudAlerts').mergeCloudEvents
@@ -228,6 +231,7 @@ declare global {
   const requestRollback: typeof import('./composable/containers/rollback').requestRollback
   const resolveComponent: typeof import('vue').resolveComponent
   const resolveRef: typeof import('@vueuse/core').resolveRef
+  const rollbackTargetOf: typeof import('./composable/containers/rollback').rollbackTargetOf
   const rolloutWorkload: typeof import('./composable/containers/rolloutRestart').rolloutWorkload
   const routeKind: typeof import('./composable/logs/viewContext').routeKind
   const safeRedirect: typeof import('./composable/ui/safeRedirect').safeRedirect
@@ -793,6 +797,7 @@ declare module 'vue' {
     readonly isReactive: UnwrapRef<typeof import('vue')['isReactive']>
     readonly isReadonly: UnwrapRef<typeof import('vue')['isReadonly']>
     readonly isRef: UnwrapRef<typeof import('vue')['isRef']>
+    readonly isRollingBack: UnwrapRef<typeof import('./composable/containers/rollback')['isRollingBack']>
     readonly isSelf: UnwrapRef<typeof import('./composable/containers/imageUpdate')['isSelf']>
     readonly isShallow: UnwrapRef<typeof import('vue')['isShallow']>
     readonly isStreamLog: UnwrapRef<typeof import('./composable/cloud/alertMerger')['isStreamLog']>
@@ -800,6 +805,7 @@ declare module 'vue' {
     readonly lightTheme: UnwrapRef<typeof import('./stores/settings')['lightTheme']>
     readonly linesNeedingMemory: UnwrapRef<typeof import('./composable/cloud/patternMemory')['linesNeedingMemory']>
     readonly loadBetween: UnwrapRef<typeof import('./composable/logs/loadBetween')['loadBetween']>
+    readonly loadRollbackTarget: UnwrapRef<typeof import('./composable/containers/rollback')['loadRollbackTarget']>
     readonly locale: UnwrapRef<typeof import('./stores/settings')['locale']>
     readonly logMomentRoute: UnwrapRef<typeof import('./composable/logs/logJump')['logMomentRoute']>
     readonly loggingContextKey: UnwrapRef<typeof import('./composable/logs/logContext')['loggingContextKey']>
@@ -811,6 +817,7 @@ declare module 'vue' {
     readonly mapWritableState: UnwrapRef<typeof import('pinia')['mapWritableState']>
     readonly markCloudWelcomePending: UnwrapRef<typeof import('./composable/cloud/cloudWelcome')['markCloudWelcomePending']>
     readonly markRaw: UnwrapRef<typeof import('vue')['markRaw']>
+    readonly markRollingBack: UnwrapRef<typeof import('./composable/containers/rollback')['markRollingBack']>
     readonly menuWidth: UnwrapRef<typeof import('./stores/settings')['menuWidth']>
     readonly mergeAlerts: UnwrapRef<typeof import('./composable/cloud/cloudAlerts')['mergeAlerts']>
     readonly mergeCloudEvents: UnwrapRef<typeof import('./composable/cloud/cloudAlerts')['mergeCloudEvents']>
@@ -876,6 +883,7 @@ declare module 'vue' {
     readonly relativeTimeTick: UnwrapRef<typeof import('./composable/ui/timeTicker')['relativeTimeTick']>
     readonly requestRollback: UnwrapRef<typeof import('./composable/containers/rollback')['requestRollback']>
     readonly resolveComponent: UnwrapRef<typeof import('vue')['resolveComponent']>
+    readonly rollbackTargetOf: UnwrapRef<typeof import('./composable/containers/rollback')['rollbackTargetOf']>
     readonly rolloutWorkload: UnwrapRef<typeof import('./composable/containers/rolloutRestart')['rolloutWorkload']>
     readonly routeKind: UnwrapRef<typeof import('./composable/logs/viewContext')['routeKind']>
     readonly safeRedirect: UnwrapRef<typeof import('./composable/ui/safeRedirect')['safeRedirect']>

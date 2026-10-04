@@ -3,7 +3,6 @@ package docker
 import (
 	"context"
 	"fmt"
-	"slices"
 	"strings"
 
 	"github.com/amir20/dozzle/internal/container"
@@ -12,14 +11,6 @@ import (
 	"github.com/moby/moby/api/types/image"
 	"github.com/rs/zerolog/log"
 )
-
-// rollbackTarget is an image a container ran before its last update.
-type rollbackTarget struct {
-	imageID string
-	// ref is the image as repo@sha256:digest, to pull it again by digest once
-	// it is gone locally. Empty for an image built locally.
-	ref string
-}
 
 // RollbackContainer swaps c back to the image it ran before its last update,
 // with the same swap an update uses: the current container is kept until the
@@ -77,7 +68,7 @@ func (d *Service) RollbackContainer(ctx context.Context, c container.Container, 
 		return fail(fmt.Errorf("%w: it runs %s, not %s", container.ErrDigestMismatch, running, opts.ExpectedFromDigest))
 	}
 
-	target, err := d.rollbackTarget(c, inspectResp, opts.ToImageID)
+	target, err := d.rollbackTarget(inspectResp, opts.ToImageID)
 	if err != nil {
 		return fail(err)
 	}
@@ -147,70 +138,41 @@ func (d *Service) RollbackContainer(ctx context.Context, c container.Container, 
 }
 
 // rollbackTarget is the image the container ran before the update that
-// created it. The host's update events know that for any update Dozzle saw,
-// whoever made it. The previous-image label covers an update made before
-// Dozzle started, but it only says what Dozzle's own last update replaced:
-// Watchtower copies every label, so after a later Watchtower update the label
-// may name an older image, which is why the events win.
+// created it, as container.RollbackTargetOf works it out from this host's
+// update events and the container's labels. The UI asks the same question
+// through the container service, so it offers what this would pick.
 //
 // want, when set, must be that target; it is what the UI showed the user.
-func (d *Service) rollbackTarget(c container.Container, inspect docker_types.InspectResponse, want string) (rollbackTarget, error) {
-	var candidates []rollbackTarget
-	labels := inspect.Config.Labels
-	madeByRollback := labels[container.UpdateSourceLabel] == container.UpdateSourceRollback
-
-	if d.store != nil && !madeByRollback {
-		events := d.store.RecentUpdates()
-		for _, e := range slices.Backward(events) {
-			if e.Name != c.Name || e.RolledBack || e.NewID != shortContainerID(inspect.ID) {
-				continue
-			}
-			if e.Source == container.UpdateSourceRollback {
-				madeByRollback = true
-			} else if e.FromImageID != "" && e.FromImageID != inspect.Image {
-				candidates = append(candidates, rollbackTarget{imageID: e.FromImageID, ref: e.FromDigest})
-			}
-			break
-		}
+// Only the one target is accepted: an older image the labels still name is
+// never one, since rolling back to it would skip a version.
+func (d *Service) rollbackTarget(inspect docker_types.InspectResponse, want string) (container.RollbackTarget, error) {
+	target, err := container.RollbackTargetOf(inspect.ID, inspect.Image, inspect.Config.Labels, d.RecentUpdates())
+	if err != nil {
+		return container.RollbackTarget{}, err
 	}
-	if madeByRollback {
-		return rollbackTarget{}, fmt.Errorf("%w: the container was already rolled back", container.ErrNoRollbackTarget)
+	if want != "" && !container.SameImageID(target.ImageID, want) {
+		return container.RollbackTarget{}, fmt.Errorf("%w: %s is not the image this container ran before", container.ErrNoRollbackTarget, want)
 	}
-	if previous := labels[container.PreviousImageLabel]; previous != "" && previous != inspect.Image {
-		candidates = append(candidates, rollbackTarget{imageID: previous, ref: labels[container.PreviousRefLabel]})
-	}
-
-	if len(candidates) == 0 {
-		return rollbackTarget{}, container.ErrNoRollbackTarget
-	}
-	if want == "" {
-		return candidates[0], nil
-	}
-	for _, candidate := range candidates {
-		if sameImageID(candidate.imageID, want) {
-			return candidate, nil
-		}
-	}
-	return rollbackTarget{}, fmt.Errorf("%w: %s is not the image this container ran before", container.ErrNoRollbackTarget, want)
+	return target, nil
 }
 
 // ensureImage makes sure target is in the local store and returns its id. An
 // image that was pruned is pulled again by digest. A tag is never pulled: it
 // names the newest image, the very one being rolled back from.
-func (d *Service) ensureImage(ctx context.Context, target rollbackTarget, progress func(container.UpdateProgress)) (string, error) {
-	if img, err := d.client.ImageInspect(ctx, target.imageID); err == nil {
+func (d *Service) ensureImage(ctx context.Context, target container.RollbackTarget, progress func(container.UpdateProgress)) (string, error) {
+	if img, err := d.client.ImageInspect(ctx, target.ImageID); err == nil {
 		return img.ID, nil
 	}
-	if !strings.Contains(target.ref, "@sha256:") {
-		return "", fmt.Errorf("the previous image %s is no longer on this host, and it has no registry digest to pull it by", shortImageID(target.imageID))
+	if !strings.Contains(target.Ref, "@sha256:") {
+		return "", fmt.Errorf("the previous image %s is no longer on this host, and it has no registry digest to pull it by", shortImageID(target.ImageID))
 	}
-	log.Info().Str("ref", target.ref).Msg("rollback: previous image is gone, pulling it by digest")
-	if err := d.pull(ctx, target.ref, progress); err != nil {
-		return "", fmt.Errorf("the previous image is no longer on this host and pulling %s failed: %w", target.ref, err)
+	log.Info().Str("ref", target.Ref).Msg("rollback: previous image is gone, pulling it by digest")
+	if err := d.pull(ctx, target.Ref, progress); err != nil {
+		return "", fmt.Errorf("the previous image is no longer on this host and pulling %s failed: %w", target.Ref, err)
 	}
-	id, err := d.client.ImageID(ctx, target.ref)
+	id, err := d.client.ImageID(ctx, target.Ref)
 	if err != nil {
-		return "", fmt.Errorf("resolve pulled image %s: %w", target.ref, err)
+		return "", fmt.Errorf("resolve pulled image %s: %w", target.Ref, err)
 	}
 	return id, nil
 }
@@ -222,7 +184,7 @@ func runsDigest(imageID string, img *image.InspectResponse, expected string) boo
 	if want == "" {
 		return false
 	}
-	if sameImageID(imageID, want) {
+	if container.SameImageID(imageID, want) {
 		return true
 	}
 	if img == nil {
@@ -234,12 +196,6 @@ func runsDigest(imageID string, img *image.InspectResponse, expected string) boo
 		}
 	}
 	return false
-}
-
-// sameImageID compares image ids with or without their sha256: prefix.
-func sameImageID(a, b string) bool {
-	a, b = strings.TrimPrefix(a, "sha256:"), strings.TrimPrefix(b, "sha256:")
-	return a != "" && a == b
 }
 
 func shortImageID(id string) string {

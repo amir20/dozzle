@@ -1,4 +1,5 @@
 import { Container } from "@/models/Container";
+import { markRollingBack } from "./rollback";
 
 type ContainerActions = "start" | "stop" | "restart";
 
@@ -213,8 +214,12 @@ export const useContainerActions = (container: Ref<Container>) => {
 
   // Swaps the container back to `toImageId`, the target the UI offered. The
   // server refuses anything that is not this container's previous image.
+  // The running flag is shared, since the dialog that starts a rollback is not
+  // the toolbar or drawer row that offered it.
   async function rollback(toImageId: string) {
+    const target = { host: container.value.host, id: container.value.id };
     actionStates.rollback = true;
+    markRollingBack(target, true);
     try {
       return await streamAction(
         `/api/hosts/${container.value.host}/containers/${container.value.id}/actions/rollback?to=${encodeURIComponent(toImageId)}`,
@@ -234,6 +239,7 @@ export const useContainerActions = (container: Ref<Container>) => {
       );
     } finally {
       actionStates.rollback = false;
+      markRollingBack(target, false);
     }
   }
 
