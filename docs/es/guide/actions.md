@@ -1,6 +1,6 @@
 ---
 title: Acciones sobre contenedores
-sourceHash: 63fb00d5d695
+sourceHash: a6e53c733740
 ---
 
 # Acciones sobre contenedores
@@ -130,4 +130,4 @@ Dozzle conserva la imagen con la que funcionaba el contenedor hasta ahora, para 
 
 La limpieza solo se hace cuando la actualización se ha completado y el contenedor antiguo ya no existe. Una actualización revertida no elimina nada. Dozzle solo elimina una imagen sin tag que ningún contenedor use: una imagen que aún tiene un tag, como una que descargaste o construiste tú, se conserva, y la eliminación no se fuerza, así que Docker se niega mientras otro contenedor, en marcha o detenido, la siga usando. Una negativa nunca hace fallar la actualización.
 
-Los contenedores en [agentes remotos](/es/guide/agent) se limpian de la misma forma. Los servicios de Swarm no se limpian, porque cada nodo guarda sus propias imágenes y Swarm poda su propio historial de tareas.
+Los contenedores en [agentes remotos](/es/guide/agent) se limpian de la misma forma, y también el propio contenedor de Dozzle: el contenedor auxiliar de la [autoactualización](/es/guide/setup-wizard#self-update) elimina la imagen anterior a la previa en cuanto el nuevo Dozzle sigue en marcha. Los servicios de Swarm, incluido Dozzle cuando se ejecuta como uno, no se limpian, porque cada nodo guarda sus propias imágenes y Swarm poda su propio historial de tareas.

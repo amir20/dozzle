@@ -1,6 +1,6 @@
 ---
 title: Container-Aktionen
-sourceHash: 63fb00d5d695
+sourceHash: a6e53c733740
 ---
 
 # Container-Aktionen
@@ -130,4 +130,4 @@ Dozzle behält das Image, mit dem der Container bisher lief, damit er noch dorth
 
 Aufgeräumt wird erst, wenn das Update durch ist und der alte Container entfernt ist. Ein zurückgerolltes Update entfernt nichts. Dozzle entfernt nur ein Image ohne Tag, das kein Container nutzt: Ein Image, das noch ein Tag hat, etwa eines, das du selbst gepullt oder gebaut hast, bleibt erhalten, und das Entfernen geschieht ohne Zwang, also verweigert Docker es, solange ein anderer Container es noch nutzt, ob laufend oder gestoppt. Eine Weigerung lässt das Update nie fehlschlagen.
 
-Container auf [Remote-Agents](/de/guide/agent) werden genauso aufgeräumt. Swarm-Services werden nicht aufgeräumt, da jeder Node seine eigenen Images hat und Swarm seinen Task-Verlauf selbst bereinigt.
+Container auf [Remote-Agents](/de/guide/agent) werden genauso aufgeräumt, ebenso der eigene Container von Dozzle: Der Hilfscontainer des [Selbst-Updates](/de/guide/setup-wizard#self-update) entfernt das Image vor dem vorherigen, sobald das neue Dozzle stabil läuft. Swarm-Services, auch ein als Swarm-Service laufendes Dozzle, werden nicht aufgeräumt, da jeder Node seine eigenen Images hat und Swarm seinen Task-Verlauf selbst bereinigt.

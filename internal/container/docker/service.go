@@ -365,12 +365,8 @@ func (d *Service) UpdateContainer(ctx context.Context, c container.Container, pr
 	}
 
 	result, err := swap.Swap(ctx, d.client.SwapAPI(), inspectResp, swap.Options{
-		OldImage: oldImage,
-		Labels: map[string]string{
-			container.PreviousImageLabel: inspectResp.Image,
-			// Empty clears a ref the old container carried from its own update.
-			container.PreviousRefLabel: previousRef(oldImage, imageName),
-		},
+		OldImage:    oldImage,
+		Labels:      swap.PreviousLabels(inspectResp, oldImage, imageName),
 		OnVerifying: func() { progress(container.UpdateProgress{Status: container.UpdateVerifying}) },
 	})
 	if err != nil {
@@ -396,63 +392,10 @@ func (d *Service) UpdateContainer(ctx context.Context, c container.Container, pr
 		return true, err
 	}
 
-	d.cleanupImage(ctx, inspectResp)
+	swap.CleanupImage(ctx, d.client, inspectResp)
 
 	progress(container.UpdateProgress{Status: container.UpdateDone})
 	return true, nil
-}
-
-// previousRef is the old image as repo@sha256:digest for the repository ref
-// names, falling back to any digest the image has. Empty for an image built
-// locally.
-func previousRef(img *image.InspectResponse, ref string) string {
-	if img == nil || len(img.RepoDigests) == 0 {
-		return ""
-	}
-	if want, err := imagecheck.ParseReference(ref); err == nil {
-		for _, digest := range img.RepoDigests {
-			if got, err := imagecheck.ParseReference(digest); err == nil && got.Registry == want.Registry && got.Repository == want.Repository {
-				return digest
-			}
-		}
-	}
-	return img.RepoDigests[0]
-}
-
-// cleanupImage removes the image the outgoing container had itself replaced,
-// read from its previous-image label. The image it ran until now is kept as
-// the rollback target, so at most one spare image per container stays behind.
-// Only a leftover is removed: an image that still has a tag is skipped, since
-// the engine would untag and delete it when its tags share one repository.
-// An update leaves the old image untagged anyway. The removal is not forced,
-// so Docker refuses while any container still uses the image, and every
-// failure is only logged: the update already succeeded.
-func (d *Service) cleanupImage(ctx context.Context, old docker_types.InspectResponse) {
-	logger := log.With().Str("container", strings.TrimPrefix(old.Name, "/")).Logger()
-	previous := old.Config.Labels[container.PreviousImageLabel]
-	if previous == "" {
-		logger.Debug().Msg("update cleanup: nothing to remove, the container has no previous image yet")
-		return
-	}
-	if previous == old.Image {
-		// Never the image just replaced: it is the rollback target. An image
-		// the replacement runs is refused by the engine below.
-		return
-	}
-	img, err := d.client.ImageInspect(ctx, previous)
-	if err != nil {
-		logger.Debug().Err(err).Str("image", previous).Msg("update cleanup: image not inspectable, nothing removed")
-		return
-	}
-	if len(img.RepoTags) > 0 {
-		logger.Debug().Str("image", previous).Strs("tags", img.RepoTags).Msg("update cleanup: image is still tagged, kept")
-		return
-	}
-	if err := d.client.ImageRemove(ctx, previous); err != nil {
-		logger.Debug().Err(err).Str("image", previous).Msg("update cleanup: image not removed")
-		return
-	}
-	logger.Info().Str("image", previous).Msg("update cleanup: removed the image before the previous one")
 }
 
 // rejoinDependents recreates every container in ids, which shared the network

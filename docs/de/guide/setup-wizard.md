@@ -1,6 +1,6 @@
 ---
 title: Einrichtungsassistent
-sourceHash: 73028954a861
+sourceHash: 570b8bcf6e3a
 ---
 
 # Einrichtungsassistent
@@ -114,7 +114,7 @@ Dozzle aktualisiert sich über die `Update`-Aktion am eigenen Container oder nac
 1. Dozzle zieht den Image-Tag, den es gerade ausführt. Zeigt der Tag noch auf das laufende Image, hört es hier auf und meldet, dass es aktuell ist.
 2. Dozzle startet aus dem neuen Image einen kurzlebigen Hilfscontainer mit Zugriff auf denselben Docker-Socket. Wenige Sekunden später ist Dozzle weg.
 3. Der Hilfscontainer benennt den alten Container um und legt unter dem ursprünglichen Namen einen Ersatz mit derselben Konfiguration, denselben Netzwerken und Volumes an. Erst dann stoppt er den alten Container und startet den Ersatz. Auch anonyme Volumes bleiben erhalten, die Daten in `/data` überstehen das Update also auch ohne benanntes Volume.
-4. Der Hilfscontainer wartet, bis der Ersatz stabil läuft (und gesund ist, falls er einen Healthcheck hat). Klappt das, wird der alte Container entfernt und seine Volumes bleiben unangetastet. Klappt es nicht, wird der Ersatz entfernt und der alte Container zurückbenannt und wieder gestartet.
+4. Der Hilfscontainer wartet, bis der Ersatz stabil läuft (und gesund ist, falls er einen Healthcheck hat). Klappt das, wird der alte Container entfernt und seine Volumes bleiben unangetastet, und das Image vor dem vorherigen wird wie nach jedem anderen Update [aufgeräumt](/de/guide/actions#cleaning-up-old-images). Klappt es nicht, wird der Ersatz entfernt und der alte Container zurückbenannt und wieder gestartet.
 
 Mit `--rm` gestartete Container werden genauso aktualisiert. Der alte Container löscht sich beim Stoppen selbst, aber der Ersatz hält seine Volumes zu diesem Zeitpunkt schon, deshalb bleiben sie erhalten. Muss das Update zurückgerollt werden, legt der Hilfscontainer den alten Container aus seiner gespeicherten Konfiguration neu an.
 

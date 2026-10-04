@@ -73,6 +73,10 @@ type fakeDocker struct {
 
 	// hasMarker names the containers whose filesystem a stat finds the marker in.
 	hasMarker map[string]bool
+
+	// removedImages are the image ids removed, and removeOpts how.
+	removedImages []string
+	removeOpts    []client.ImageRemoveOptions
 }
 
 func (f *fakeDocker) record(format string, args ...any) {
@@ -173,6 +177,16 @@ func (f *fakeDocker) ImageInspect(_ context.Context, ref string, _ ...client.Ima
 		return client.ImageInspectResult{}, notFoundErr{}
 	}
 	return client.ImageInspectResult{InspectResponse: img}, nil
+}
+
+func (f *fakeDocker) ImageRemove(_ context.Context, id string, opts client.ImageRemoveOptions) (client.ImageRemoveResult, error) {
+	f.record("remove image %s", id)
+	f.mu.Lock()
+	f.removedImages = append(f.removedImages, id)
+	f.removeOpts = append(f.removeOpts, opts)
+	f.mu.Unlock()
+	delete(f.images, id)
+	return client.ImageRemoveResult{}, nil
 }
 
 func (f *fakeDocker) ImagePull(_ context.Context, ref string, _ client.ImagePullOptions) (client.ImagePullResponse, error) {
@@ -377,6 +391,89 @@ func TestRunSuccess(t *testing.T) {
 	}, f.calls)
 }
 
+// A self-update leaves the same trail as any other update: the replacement
+// names the image it replaced, and the first one has nothing to clean up.
+func TestRunFirstSelfUpdateStampsPreviousImage(t *testing.T) {
+	fastTimings(t)
+	f := newFake()
+	old := oldImage()
+	old.RepoDigests = []string{"amir20/dozzle@sha256:v1"}
+	f.images[oldImgID] = old
+
+	require.NoError(t, run(context.Background(), f, selfID, ""))
+	labels := f.created[0].Config.Labels
+	assert.Equal(t, oldImgID, labels[container.PreviousImageLabel])
+	assert.Equal(t, "amir20/dozzle@sha256:v1", labels[container.PreviousRefLabel])
+	assert.Empty(t, f.removedImages, "the first update has no image before the previous one")
+}
+
+func TestRunSelfUpdateLocalImageHasNoPreviousRef(t *testing.T) {
+	fastTimings(t)
+	f := newFake()
+	self := f.containers[selfID]
+	self.Config.Labels[container.PreviousRefLabel] = "amir20/dozzle@sha256:stale"
+	f.containers[selfID] = self
+
+	require.NoError(t, run(context.Background(), f, selfID, ""))
+	labels := f.created[0].Config.Labels
+	assert.Equal(t, oldImgID, labels[container.PreviousImageLabel])
+	assert.NotContains(t, labels, container.PreviousRefLabel, "a built image has no digest, and the old container's is stale")
+}
+
+// The second self-update removes the image from before the first one and keeps
+// the one it just replaced as the spare.
+func TestRunSecondSelfUpdateRemovesTheImageBeforeThePrevious(t *testing.T) {
+	fastTimings(t)
+	const v3 = "sha256:0000000000000000000000000000000000000000000000000000000000000003"
+	f := newFake()
+	require.NoError(t, run(context.Background(), f, selfID, ""))
+	require.Empty(t, f.removedImages)
+
+	// Dozzle now runs the replacement, on v2, and the tag has moved to v3.
+	second := dozzleContainer()
+	second.ID = "bbbbbbbbbbbb2222222222222222222222222222222222222222222222222222"
+	second.Image = newImgID
+	second.Config = f.created[0].Config
+	g := newFake()
+	g.containers = map[string]dcontainer.InspectResponse{second.ID: second}
+	g.images[newImgID] = image.InspectResponse{ID: newImgID}
+	g.images["amir20/dozzle:latest"] = image.InspectResponse{ID: v3}
+
+	require.NoError(t, run(context.Background(), g, second.ID, ""))
+	assert.Equal(t, []string{oldImgID}, g.removedImages, "v1 goes, v2 stays as the rollback target")
+	assert.Equal(t, []client.ImageRemoveOptions{{}}, g.removeOpts, "never forced, never pruning")
+	assert.Contains(t, g.images, newImgID)
+	assert.Equal(t, newImgID, g.created[0].Config.Labels[container.PreviousImageLabel])
+	assert.Equal(t, "remove image "+oldImgID, g.calls[len(g.calls)-1], "cleanup runs once the old container is gone")
+}
+
+func TestRunRolledBackSelfUpdateRemovesNothing(t *testing.T) {
+	fastTimings(t)
+	const v0 = "sha256:0000000000000000000000000000000000000000000000000000000000000009"
+	f := newFake()
+	self := f.containers[selfID]
+	self.Config.Labels[container.PreviousImageLabel] = v0
+	f.containers[selfID] = self
+	f.images[v0] = image.InspectResponse{ID: v0}
+	f.startErrFor = "new1"
+
+	require.Error(t, run(context.Background(), f, selfID, ""))
+	assert.Empty(t, f.removedImages)
+}
+
+func TestRunSelfUpdateKeepsATaggedImage(t *testing.T) {
+	fastTimings(t)
+	const v0 = "sha256:0000000000000000000000000000000000000000000000000000000000000009"
+	f := newFake()
+	self := f.containers[selfID]
+	self.Config.Labels[container.PreviousImageLabel] = v0
+	f.containers[selfID] = self
+	f.images[v0] = image.InspectResponse{ID: v0, RepoTags: []string{"amir20/dozzle:v8.11.0"}}
+
+	require.NoError(t, run(context.Background(), f, selfID, ""))
+	assert.Empty(t, f.removedImages)
+}
+
 func TestRunRollbackOnCreateFailure(t *testing.T) {
 	fastTimings(t)
 	f := newFake()
@@ -492,6 +589,23 @@ func TestRunRejoin(t *testing.T) {
 	require.NoError(t, run(context.Background(), f, selfID, "container:sidecar-new"))
 	assert.Contains(t, f.calls, "create dozzle")
 	assert.Equal(t, dcontainer.NetworkMode("container:sidecar-new"), f.created[0].HostConfig.NetworkMode)
+}
+
+// A rejoin onto the same image is not an update: the labels from Dozzle's last
+// update stay and no image is removed.
+func TestRunRejoinKeepsPreviousImage(t *testing.T) {
+	fastTimings(t)
+	const v0 = "sha256:0000000000000000000000000000000000000000000000000000000000000009"
+	f := newFake()
+	self := f.containers[selfID]
+	self.Config.Labels[container.PreviousImageLabel] = v0
+	f.containers[selfID] = self
+	f.images[v0] = image.InspectResponse{ID: v0}
+	f.images["amir20/dozzle:latest"] = image.InspectResponse{ID: oldImgID}
+
+	require.NoError(t, run(context.Background(), f, selfID, "container:sidecar-new"))
+	assert.Equal(t, v0, f.created[0].Config.Labels[container.PreviousImageLabel])
+	assert.Empty(t, f.removedImages)
 }
 
 func TestStartRejoinLaunchesHelper(t *testing.T) {

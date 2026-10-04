@@ -75,14 +75,32 @@ func run(ctx context.Context, cli dockerAPI, targetID string, networkMode string
 		Str("networkMode", networkMode).
 		Msg("self-update: starting")
 
+	// A new image is stamped and cleaned up exactly as any other container
+	// update does it (see docker.Service.UpdateContainer). A rejoin onto the
+	// image Dozzle already runs is not an update: the replacement keeps the
+	// old container's labels and no image is removed.
+	imageChanged := newImage.ID != old.Image
+	var labels map[string]string
+	if imageChanged {
+		labels = swap.PreviousLabels(old, oldImage, ref)
+	}
+
 	swapped, err := swap.Swap(ctx, cli, old, swap.Options{
 		OldImage:    oldImage,
 		NetworkMode: networkMode,
+		Labels:      labels,
 		LogPrefix:   "self-update",
 	})
 	if err != nil {
 		return err
 	}
 	logger.Info().Str("newId", shortID(swapped.NewID)).Msg("self-update: done")
+
+	// Only after the swap committed: a rollback returned above. Swarm tasks
+	// never get here (ErrSwarm), since the swarm manager replaces them and
+	// each node keeps its own images.
+	if imageChanged {
+		swap.CleanupImage(ctx, imageAPI{cli}, old)
+	}
 	return nil
 }

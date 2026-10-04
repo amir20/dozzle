@@ -1,6 +1,6 @@
 ---
 title: Actions sur les conteneurs
-sourceHash: 63fb00d5d695
+sourceHash: a6e53c733740
 ---
 
 # Actions sur les conteneurs
@@ -130,4 +130,4 @@ Dozzle garde l'image sur laquelle le conteneur tournait jusque-là, pour qu'il p
 
 Le nettoyage n'a lieu qu'une fois la mise à jour aboutie et l'ancien conteneur supprimé. Une mise à jour restaurée ne supprime rien. Dozzle ne supprime qu'une image sans tag qu'aucun conteneur n'utilise : une image qui a encore un tag, par exemple une image que vous avez téléchargée ou construite vous-même, est conservée, et la suppression n'est pas forcée, donc Docker refuse tant qu'un autre conteneur, démarré ou arrêté, l'utilise encore. Un refus ne fait jamais échouer la mise à jour.
 
-Les conteneurs sur des [agents distants](/fr/guide/agent) sont nettoyés de la même façon. Les services Swarm ne sont pas nettoyés, car chaque nœud garde ses propres images et Swarm élague lui-même son historique de tâches.
+Les conteneurs sur des [agents distants](/fr/guide/agent) sont nettoyés de la même façon, tout comme le propre conteneur de Dozzle : le conteneur auxiliaire de la [mise à jour automatique](/fr/guide/setup-wizard#self-update) supprime l'image d'avant la précédente une fois que le nouveau Dozzle reste en marche. Les services Swarm, y compris Dozzle lorsqu'il tourne comme service Swarm, ne sont pas nettoyés, car chaque nœud garde ses propres images et Swarm élague lui-même son historique de tâches.
