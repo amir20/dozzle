@@ -9,14 +9,18 @@
       </template>
     </InlineNotice>
 
-    <SetupSelfUpdateStatus v-if="status && scheduled" :status="status" :auto-update="scheduled" />
+    <!-- Only when Dozzle can replace itself: otherwise the card has nothing to offer,
+         and the form's notice already says why. -->
+    <SetupSelfUpdateStatus v-if="status && running?.supported" :status="status" :auto-update="running" />
 
-    <SetupAutoUpdateForm v-if="status" :status="status" autosave />
+    <!-- With actions off, the notice above is the one thing to fix, so the form stays quiet. -->
+    <SetupAutoUpdateForm v-if="status" :status="status" :notices="status.enableActions" autosave />
     <SetupStatusMissing v-else :loading="loading" />
   </SettingsSection>
 
-  <!-- With the schedule off nothing updates on its own, whatever the labels say. -->
-  <SettingsSection v-if="status && scheduled" :title="$t('auto-update.containers')">
+  <!-- With the schedule off, or actions off, nothing updates on its own, whatever the
+       labels say, so there is no list to show. -->
+  <SettingsSection v-if="status && running" :title="$t('auto-update.containers')">
     <template #actions>
       <button
         v-if="config.imageCheckMode !== 'off' && rows.length"
@@ -104,16 +108,17 @@ const { checkAll, checking, resultFor } = useImageUpdates();
 fetchPolicies();
 checkAll();
 
-const scheduled = computed(() => {
+// The schedule as it will actually run: on, and with actions on to run it.
+const running = computed(() => {
   const update = status.value?.autoUpdate;
-  return update && update.mode !== "off" ? update : undefined;
+  return status.value?.enableActions && update && update.mode !== "off" ? update : undefined;
 });
 
 // The saved mode: the list says what the next run will do.
 const mode = computed(() => status.value?.autoUpdate?.containers ?? DEFAULT_UPDATE_CONTAINERS_MODE);
 
 const rows = computed(() =>
-  scheduled.value
+  running.value
     ? ((policies.value?.containers ?? []) as ContainerUpdatePolicy[]).filter((c) => willAutoUpdate(c, mode.value))
     : [],
 );

@@ -2,7 +2,8 @@
   <!-- When and which containers: the same two questions in the setup wizard and on
        Settings → Updates. The wizard saves on Next; Settings saves as you change it. -->
   <div class="flex flex-col gap-4">
-    <InlineNotice v-if="blockedReason" type="info">
+    <template v-if="!notices" />
+    <InlineNotice v-else-if="blockedReason" type="info">
       {{ blockedReason }}
       <span v-if="scheduleEditable && containers !== 'off'" class="text-base-content/60 mt-1 block text-xs">
         {{ $t("auto-update.containers-still") }}
@@ -99,10 +100,6 @@
                 </template>
               </i18n-t>
             </span>
-            <!-- How many containers each choice reaches, so the choice is not abstract. -->
-            <span v-if="counts && option !== 'off'" class="text-base-content/60 shrink-0 font-mono text-xs">
-              {{ counts[option] }}
-            </span>
           </label>
         </div>
       </fieldset>
@@ -123,9 +120,6 @@
         </span>
         <span class="shrink-0 text-right text-sm">
           {{ $t(`auto-update.mode-${savedContainers}`) }}
-          <span v-if="counts && savedContainers !== 'off'" class="text-base-content/60 block font-mono text-xs">
-            {{ counts[savedContainers] }}
-          </span>
         </span>
       </div>
 
@@ -161,11 +155,16 @@ import {
   type ContainerUpdatePolicy,
   type UpdateContainersMode,
   riskyContainers,
-  willAutoUpdate,
 } from "@/composable/containers/updatePolicy";
 
-const { status, autosave = false } = defineProps<{
+const {
+  status,
+  autosave = false,
+  notices = true,
+} = defineProps<{
   status: SetupStatus;
+  // False when the page shows a notice that outranks this form's own.
+  notices?: boolean;
   // Save every change right away, as the rest of Settings does. The wizard saves on Next.
   autosave?: boolean;
 }>();
@@ -226,14 +225,6 @@ const unlockedEnvs = computed(() => [
   ...(status.locked.autoUpdate ? [] : ["DOZZLE_AUTO_UPDATE"]),
   ...(status.locked.updateContainers ? [] : ["DOZZLE_UPDATE_CONTAINERS"]),
 ]);
-
-const counts = computed(() => {
-  const list = policies.value?.containers as ContainerUpdatePolicy[] | undefined;
-  if (!list) return undefined;
-  return Object.fromEntries(
-    UPDATE_CONTAINERS_MODES.map((mode) => [mode, list.filter((c) => willAutoUpdate(c, mode)).length]),
-  ) as Record<UpdateContainersMode, number>;
-});
 
 const mode = computed<AutoUpdateMode>(() => (enabled.value ? schedule.value : "off"));
 
