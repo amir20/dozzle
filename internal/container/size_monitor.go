@@ -87,18 +87,23 @@ func (m *sizeMonitor) start(ctx context.Context) {
 }
 
 // measureAll measures every container in one call. It is the only measurement a
-// stopped container gets, so a failure is retried a few times.
+// stopped container gets, so a failure is retried a few times. The first volume walk
+// follows it, whether or not it succeeded, so the two never hit the daemon at once.
 func (m *sizeMonitor) measureAll(ctx context.Context) {
 	if m == nil {
 		return
 	}
+	m.measureLayers(ctx)
+	if ctx.Err() == nil && m.claimVolumes() {
+		m.measureVolumes(ctx)
+	}
+}
+
+func (m *sizeMonitor) measureLayers(ctx context.Context) {
 	backoff := m.store.timing.retryMin
 	for attempt := 1; ; attempt++ {
 		err := m.tryMeasureAll(ctx)
 		if err == nil {
-			if m.claimVolumes() {
-				m.measureVolumes(ctx)
-			}
 			return
 		}
 		if attempt == sizeBatchAttempts {
@@ -166,7 +171,9 @@ func (m *sizeMonitor) observe(c *Container, stat ContainerStat) {
 	if m == nil {
 		return
 	}
-	if m.claimVolumes() {
+	// The first walk belongs to measureAll, which runs it after the layer batch. Until
+	// then a stat claiming it would put both walks on the daemon at once.
+	if m.lastVolumesNanos.Load() != 0 && m.claimVolumes() {
 		go m.measureVolumes(m.store.ctx)
 	}
 	t, _ := m.trackers.LoadOrCompute(c.ID, func() (*sizeTracker, bool) {

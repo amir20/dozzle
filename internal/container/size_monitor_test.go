@@ -263,12 +263,38 @@ func TestSizeMonitor_statsTriggerOneVolumeWalk(t *testing.T) {
 	m := newSizeMonitor(bareStore(t, client), client)
 	c := loadedContainer("1", "running")
 
+	m.observe(&c, ContainerStat{ID: "1"})
+	assert.False(t, m.volumesRunning.Load(), "the first walk waits for the layer batch, not for a stat")
+	assert.Equal(t, int32(0), client.volumesCalled.Load())
+
+	// the batch ran its walk a while ago
+	m.lastVolumesNanos.Store(time.Now().Add(-volumeRefreshInterval).UnixNano())
 	for range 5 {
 		m.observe(&c, ContainerStat{ID: "1"})
 	}
 	assert.Eventually(t, func() bool { return client.volumesCalled.Load() == 1 && !m.volumesRunning.Load() }, 5*time.Second, 5*time.Millisecond)
 	m.observe(&c, ContainerStat{ID: "1"})
 	assert.Equal(t, int32(1), client.volumesCalled.Load(), "stats inside the interval walk nothing")
+}
+
+// The layer batch and the first volume walk both walk the whole host, so they run one
+// after the other, and a batch that gives up still leaves volumes measured.
+func TestSizeMonitor_volumesFollowTheBatch(t *testing.T) {
+	client := &sizedClient{
+		mockedClient: new(mockedClient),
+		allFails:     sizeBatchAttempts,
+		volumes:      map[string][]VolumeUsage{"1": {{Name: "data", Size: 5, Links: 1}}},
+	}
+	store := bareStore(t, client)
+	c := loadedContainer("1", "exited")
+	store.containers.Store("1", &c)
+
+	newSizeMonitor(store, client).measureAll(t.Context())
+
+	assert.Equal(t, sizeBatchAttempts, client.allCalled)
+	assert.Equal(t, int32(1), client.volumesCalled.Load())
+	stored, _ := store.containers.Load("1")
+	assert.Len(t, stored.Volumes, 1)
 }
 
 func TestCarryOverStatsKeepsVolumes(t *testing.T) {
