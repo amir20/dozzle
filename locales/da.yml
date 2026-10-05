@@ -114,6 +114,7 @@ label:
   cpu: CPU
   core: Ingen kerner | 1 kerne | {count} kerner
   disk: Disk
+  reclaimable: Kan frigøres
   load: Belastning
   uptime: Oppetid
   mem: MEM
@@ -158,6 +159,10 @@ tooltip:
   memory-usage: "Hukommelse {used} / {total}"
   disk-layer: "Skrivbart lag: {size}"
   disk-volume-shared: "{name}: {size} (delt af {count} containere)"
+  reclaimable-images: "Ubrugte images: {count} · {size}"
+  reclaimable-volumes: "Ubrugte volumes: {count} · {size}"
+  reclaimable-containers: "Stoppede containere: {count} · {size}"
+  reclaimable-build-cache: "Build-cache: {size}"
   volumes: Volumener
   volume-unreachable: ikke tilgængelig fra denne host
   volume-full: "{destination} er {pct} fuld"

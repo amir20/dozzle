@@ -24,14 +24,15 @@ type sizedClient struct {
 	allCalled int
 
 	volumes       map[string][]VolumeUsage
+	reclaimable   Reclaimable
 	volumesCalled atomic.Int32
 }
 
-func (c *sizedClient) VolumeSizes(context.Context) (map[string][]VolumeUsage, error) {
+func (c *sizedClient) DiskUsage(context.Context) (DiskUsage, error) {
 	c.volumesCalled.Add(1)
 	c.mu.Lock()
 	defer c.mu.Unlock()
-	return c.volumes, nil
+	return DiskUsage{Volumes: c.volumes, Reclaimable: c.reclaimable}, nil
 }
 
 func (c *sizedClient) ContainerSizes(context.Context) (map[string]int64, error) {
@@ -295,6 +296,30 @@ func TestSizeMonitor_volumesFollowTheBatch(t *testing.T) {
 	assert.Equal(t, int32(1), client.volumesCalled.Load())
 	stored, _ := store.containers.Load("1")
 	assert.Len(t, stored.Volumes, 1)
+}
+
+// The engine reports images, volumes and build cache. Stopped containers come from the
+// layer sizes the store already has, so their layers are not walked a second time.
+func TestSizeMonitor_reclaimable(t *testing.T) {
+	client := &sizedClient{mockedClient: new(mockedClient), reclaimable: Reclaimable{Images: 3, ImagesSize: 300, BuildCacheSize: 7}}
+	store := bareStore(t, client)
+	size := func(n int64) *int64 { return &n }
+	for _, c := range []Container{
+		{ID: "running", State: "running", SizeRw: size(1000)},
+		{ID: "paused", State: "paused", SizeRw: size(1000)},
+		{ID: "exited", State: "exited", SizeRw: size(40)},
+		{ID: "created", State: "created", SizeRw: size(2)},
+		{ID: "unmeasured", State: "exited"},
+	} {
+		store.containers.Store(c.ID, &c)
+	}
+	m := newSizeMonitor(store, client)
+	assert.Nil(t, store.Reclaimable(), "nothing is known before the first walk")
+
+	assert.True(t, m.claimVolumes())
+	m.measureVolumes(t.Context())
+
+	assert.Equal(t, &Reclaimable{Images: 3, ImagesSize: 300, Containers: 2, ContainersSize: 42, BuildCacheSize: 7}, store.Reclaimable())
 }
 
 func TestCarryOverStatsKeepsVolumes(t *testing.T) {

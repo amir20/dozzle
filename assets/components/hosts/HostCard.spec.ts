@@ -40,6 +40,13 @@ const i18n = createI18n({
         load: "Load",
         uptime: "Uptime",
         core: "No cores | 1 core | {count} cores",
+        reclaimable: "Reclaimable",
+      },
+      tooltip: {
+        "reclaimable-images": "Unused images: {count} · {size}",
+        "reclaimable-volumes": "Unused volumes: {count} · {size}",
+        "reclaimable-containers": "Stopped containers: {count} · {size}",
+        "reclaimable-build-cache": "Build cache: {size}",
       },
     },
   },
@@ -160,6 +167,37 @@ describe("<HostCard />", () => {
       },
     });
   }
+
+  // The total is `docker system df`'s RECLAIMABLE, and the tooltip says where it sits.
+  // It shows on its own, without /proc metrics, since it comes from the engine.
+  test("shows what the host could reclaim", () => {
+    const wrapper = mountWith({
+      reclaimable: {
+        images: 31,
+        imagesSize: 4 * 1024 ** 3,
+        volumes: 2,
+        volumesSize: 512 * 1024 ** 2,
+        containers: 4,
+        containersSize: 256 * 1024 ** 2,
+        buildCacheSize: 256 * 1024 ** 2,
+      },
+    });
+
+    expect(wrapper.text()).toContain("Reclaimable");
+    expect(wrapper.text()).toContain("5 GB");
+    expect(wrapper.find("[title^='Unused images: 31 · 4 GB']").attributes("title")).toBe(
+      [
+        "Unused images: 31 · 4 GB",
+        "Unused volumes: 2 · 512 MB",
+        "Stopped containers: 4 · 256 MB",
+        "Build cache: 256 MB",
+      ].join("\n"),
+    );
+  });
+
+  test("hides reclaimable before the first measurement", () => {
+    expect(mountWith({ reclaimable: null }).text()).not.toContain("Reclaimable");
+  });
 
   // nCPU is 4: load only takes color once there is more than one runnable task per core.
   test.each([

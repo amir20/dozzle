@@ -18,7 +18,7 @@ It does not count:
 - **Bind mounts**, such as `./data:/var/lib/postgresql/data`
 - **The image** the container runs, which every container from that image shares
 - **Docker's own log file** for the container
-- **Volumes no container uses**, since they have no row to show up on
+- **Volumes no container uses**, since they have no row to show up on. They count toward the host's [reclaimable space](#reclaimable-space) instead.
 
 ## Bind mounts
 
@@ -30,7 +30,9 @@ du -sh /data/postgres
 
 To watch the disk those folders live on, mount it on the host card as described in [Host Metrics](/guide/host-metrics#more-drives).
 
-Volumes no container uses, often left behind by containers that were removed, show up in `docker system df -v` with `LINKS 0`.
+## Reclaimable space
+
+The host card shows **Reclaimable** next to its disk meter: space held by things no container is using, the same total as the `RECLAIMABLE` column of `docker system df`. Hover it to see how much sits in unused images, unused volumes, stopped containers and build cache. It refreshes along with the volumes, so at most every 20 minutes.
 
 ## When it updates
 

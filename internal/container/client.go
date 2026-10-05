@@ -69,8 +69,17 @@ type SizeReader interface {
 	ContainerSizes(ctx context.Context) (map[string]int64, error)
 	// ContainerSize measures one container.
 	ContainerSize(ctx context.Context, id string) (int64, error)
-	// VolumeSizes measures every volume on the host and returns, per container, the
-	// ones it mounts. There is no way to measure one volume, so this is always a
-	// walk of all of them.
-	VolumeSizes(ctx context.Context) (map[string][]VolumeUsage, error)
+	// DiskUsage measures every volume on the host, and reads what images and build
+	// cache nothing uses. There is no way to measure one volume, so this is always
+	// a walk of all of them.
+	DiskUsage(ctx context.Context) (DiskUsage, error)
+}
+
+// DiskUsage is one DiskUsage call's result.
+type DiskUsage struct {
+	// Volumes are the volumes each container mounts, keyed by container ID.
+	Volumes map[string][]VolumeUsage
+	// Reclaimable leaves the container fields zero: stopped containers' layers are
+	// already in the store, and asking Docker again would walk them all a second time.
+	Reclaimable Reclaimable
 }

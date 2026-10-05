@@ -114,6 +114,7 @@ label:
   cpu: CPU
   core: Sem núcleos | 1 núcleo | {count} núcleos
   disk: Disco
+  reclaimable: Recuperável
   load: Carga
   uptime: Uptime
   mem: MEM
@@ -158,6 +159,10 @@ tooltip:
   memory-usage: "Memória {used} / {total}"
   disk-layer: "Camada gravável: {size}"
   disk-volume-shared: "{name}: {size} (partilhado por {count} contentores)"
+  reclaimable-images: "Imagens não usadas: {count} · {size}"
+  reclaimable-volumes: "Volumes não usados: {count} · {size}"
+  reclaimable-containers: "Contentores parados: {count} · {size}"
+  reclaimable-build-cache: "Cache de build: {size}"
   volumes: Volumes
   volume-unreachable: inacessível a partir deste host
   volume-full: "{destination} está {pct} cheio"

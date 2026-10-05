@@ -115,6 +115,7 @@ label:
   core: No cores | 1 core | {count} cores
   mem: MEM
   disk: Disk
+  reclaimable: Reclaimable
   load: Load
   uptime: Uptime
   pinned: Pinned
@@ -158,6 +159,10 @@ tooltip:
   memory-usage: "Memory {used} / {total}"
   disk-layer: "Writable layer: {size}"
   disk-volume-shared: "{name}: {size} (shared by {count} containers)"
+  reclaimable-images: "Unused images: {count} · {size}"
+  reclaimable-volumes: "Unused volumes: {count} · {size}"
+  reclaimable-containers: "Stopped containers: {count} · {size}"
+  reclaimable-build-cache: "Build cache: {size}"
   volumes: Volumes
   volume-unreachable: not reachable from this host
   volume-full: "{destination} is {pct} full"

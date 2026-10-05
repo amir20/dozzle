@@ -141,6 +141,18 @@ message Host {
   uint64 diskTotal = 19;
   uint64 diskFree = 20;
   repeated Disk disks = 21;
+  // unset until the agent has measured it, or when its engine cannot
+  Reclaimable reclaimable = 22;
+}
+
+message Reclaimable {
+  int64 images = 1;
+  int64 imagesSize = 2;
+  int64 volumes = 3;
+  int64 volumesSize = 4;
+  int64 containers = 5;
+  int64 containersSize = 6;
+  int64 buildCacheSize = 7;
 }
 
 message Disk {

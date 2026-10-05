@@ -114,6 +114,7 @@ label:
   cpu: CPU
   core: Çekirdek yok | 1 çekirdek | {count} çekirdek
   disk: Disk
+  reclaimable: Geri kazanılabilir
   load: Yük
   uptime: Çalışma süresi
   mem: MEM
@@ -158,6 +159,10 @@ tooltip:
   memory-usage: "Bellek {used} / {total}"
   disk-layer: "Yazılabilir katman: {size}"
   disk-volume-shared: "{name}: {size} ({count} konteyner tarafından paylaşılıyor)"
+  reclaimable-images: "Kullanılmayan imajlar: {count} · {size}"
+  reclaimable-volumes: "Kullanılmayan birimler: {count} · {size}"
+  reclaimable-containers: "Durdurulmuş konteynerler: {count} · {size}"
+  reclaimable-build-cache: "Derleme önbelleği: {size}"
   volumes: Birimler
   volume-unreachable: bu sunucudan erişilemiyor
   volume-full: "{destination} {pct} dolu"

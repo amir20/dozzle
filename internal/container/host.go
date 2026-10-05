@@ -28,13 +28,16 @@ type Host struct {
 	DiskTotal        uint64   `json:"diskTotal,omitempty"`
 	DiskFree         uint64   `json:"diskFree,omitempty"`
 	Disks            []Disk   `json:"disks,omitempty"`
-	Endpoint         string   `json:"endpoint"`
-	DockerVersion    string   `json:"dockerVersion"`
-	Runtime          string   `json:"runtime,omitempty"`
-	AgentVersion     string   `json:"agentVersion,omitempty"`
-	Type             string   `json:"type"`
-	Available        bool     `json:"available"`
-	Swarm            bool     `json:"-"`
+	// Reclaimable is nil until the size monitor has measured it, and always on
+	// engines that cannot (k8s).
+	Reclaimable   *Reclaimable `json:"reclaimable,omitempty"`
+	Endpoint      string       `json:"endpoint"`
+	DockerVersion string       `json:"dockerVersion"`
+	Runtime       string       `json:"runtime,omitempty"`
+	AgentVersion  string       `json:"agentVersion,omitempty"`
+	Type          string       `json:"type"`
+	Available     bool         `json:"available"`
+	Swarm         bool         `json:"-"`
 	// SwarmClusterID identifies the swarm this node belongs to, empty outside
 	// a swarm. Every node of one swarm reports the same value, which is what
 	// lets Dozzle Cloud tell "one swarm, N replicas" apart from one API key
@@ -68,6 +71,21 @@ type HostMetrics struct {
 	// Disks are the extra drives an operator opted into by mounting them under
 	// /host/disks/<name>; DiskTotal and DiskFree stay Docker's own disk.
 	Disks []Disk
+	// Reclaimable comes from the engine rather than the machine, but it travels
+	// with the rest so an agent sends it on the same reply.
+	Reclaimable *Reclaimable
+}
+
+// Reclaimable is what `docker system df` counts as reclaimable: space held by
+// things no container is using.
+type Reclaimable struct {
+	Images         int64 `json:"images"`
+	ImagesSize     int64 `json:"imagesSize"`
+	Volumes        int64 `json:"volumes"`
+	VolumesSize    int64 `json:"volumesSize"`
+	Containers     int64 `json:"containers"`
+	ContainersSize int64 `json:"containersSize"`
+	BuildCacheSize int64 `json:"buildCacheSize"`
 }
 
 // Disk is one extra drive's usage, named after its folder under /host/disks.
@@ -86,6 +104,7 @@ func (h *Host) ApplyHostMetrics(m HostMetrics, metricsAvailable bool) {
 	h.Uptime = m.Uptime
 	h.DiskTotal, h.DiskFree = m.DiskTotal, m.DiskFree
 	h.Disks = m.Disks
+	h.Reclaimable = m.Reclaimable
 }
 
 func ParseConnection(connection string) (Host, error) {

@@ -178,6 +178,14 @@ func setHostMetricsProto(dst *pb.Host, h container.Host) {
 	for _, d := range h.Disks {
 		dst.Disks = append(dst.Disks, &pb.Disk{Name: d.Name, Total: d.Total, Free: d.Free})
 	}
+	if r := h.Reclaimable; r != nil {
+		dst.Reclaimable = &pb.Reclaimable{
+			Images: r.Images, ImagesSize: r.ImagesSize,
+			Volumes: r.Volumes, VolumesSize: r.VolumesSize,
+			Containers: r.Containers, ContainersSize: r.ContainersSize,
+			BuildCacheSize: r.BuildCacheSize,
+		}
+	}
 }
 
 // hostMetricsFromProto is the reverse. An agent older than these fields leaves
@@ -193,6 +201,14 @@ func hostMetricsFromProto(src *pb.Host) (container.HostMetrics, bool) {
 	}
 	for _, d := range src.GetDisks() {
 		m.Disks = append(m.Disks, container.Disk{Name: d.GetName(), Total: d.GetTotal(), Free: d.GetFree()})
+	}
+	if r := src.GetReclaimable(); r != nil {
+		m.Reclaimable = &container.Reclaimable{
+			Images: r.GetImages(), ImagesSize: r.GetImagesSize(),
+			Volumes: r.GetVolumes(), VolumesSize: r.GetVolumesSize(),
+			Containers: r.GetContainers(), ContainersSize: r.GetContainersSize(),
+			BuildCacheSize: r.GetBuildCacheSize(),
+		}
 	}
 	return m, src.GetMetricsAvailable()
 }

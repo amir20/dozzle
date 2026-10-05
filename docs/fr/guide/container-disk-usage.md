@@ -1,6 +1,6 @@
 ---
 title: Utilisation du disque par conteneur
-sourceHash: 014e7b970963
+sourceHash: 36536624d20d
 ---
 
 # Utilisation du disque par conteneur
@@ -19,7 +19,7 @@ Ne sont pas comptés :
 - **Les bind mounts**, comme `./data:/var/lib/postgresql/data`
 - **L'image** sur laquelle tourne le conteneur, partagée par tous les conteneurs de cette image
 - **Le fichier de log de Docker** pour ce conteneur
-- **Les volumes qu'aucun conteneur n'utilise**, puisqu'ils n'ont pas de ligne où apparaître
+- **Les volumes qu'aucun conteneur n'utilise**, puisqu'ils n'ont pas de ligne où apparaître. Ils comptent à la place dans l'[espace récupérable](#espace-recuperable) de l'hôte.
 
 ## Bind mounts
 
@@ -31,7 +31,9 @@ du -sh /data/postgres
 
 Pour surveiller le disque sur lequel se trouvent ces dossiers, montez-le sur la carte de l'hôte comme décrit dans [Métriques de l'hôte](/fr/guide/host-metrics#plus-de-disques).
 
-Les volumes qu'aucun conteneur n'utilise, souvent laissés par des conteneurs supprimés, apparaissent dans `docker system df -v` avec `LINKS 0`.
+## Espace récupérable
+
+La carte de l'hôte affiche **Récupérable** à côté de son indicateur de disque : l'espace occupé par ce qu'aucun conteneur n'utilise, le même total que la colonne `RECLAIMABLE` de `docker system df`. Survolez-le pour voir la part des images inutilisées, des volumes inutilisés, des conteneurs arrêtés et du cache de build. Il est actualisé en même temps que les volumes, donc au plus toutes les 20 minutes.
 
 ## Quand la valeur est mise à jour
 

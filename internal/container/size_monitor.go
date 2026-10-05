@@ -149,20 +149,28 @@ func (m *sizeMonitor) claimVolumes() bool {
 	return true
 }
 
-// measureVolumes runs a walk claimed with claimVolumes.
+// measureVolumes runs a walk claimed with claimVolumes, and with it works out what
+// the host could reclaim.
 func (m *sizeMonitor) measureVolumes(ctx context.Context) {
 	defer m.volumesRunning.Store(false)
 	ctx, cancel := context.WithTimeout(ctx, sizeBatchTimeout)
 	defer cancel()
-	volumes, err := m.reader.VolumeSizes(ctx)
+	usage, err := m.reader.DiskUsage(ctx)
 	if err != nil {
 		log.Debug().Err(err).Msg("could not measure volume sizes")
 		return
 	}
-	m.store.containers.Range(func(id string, _ *Container) bool {
-		m.store.applyVolumes(id, volumes[id])
+	reclaimable := usage.Reclaimable
+	m.store.containers.Range(func(id string, c *Container) bool {
+		m.store.applyVolumes(id, usage.Volumes[id])
+		// what `docker container prune` would remove
+		if c.SizeRw != nil && c.State != "running" && c.State != "paused" && c.State != "restarting" {
+			reclaimable.Containers++
+			reclaimable.ContainersSize += *c.SizeRw
+		}
 		return true
 	})
+	m.store.reclaimable.Store(&reclaimable)
 }
 
 // observe is called for every stat. It queues a measurement when the container has

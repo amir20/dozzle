@@ -45,8 +45,10 @@ type Store struct {
 	statsCollector StatsCollector
 	volumeMonitor  *volumeMonitor
 	sizeMonitor    *sizeMonitor
-	ctx            context.Context
-	timing         storeTiming
+	// reclaimable is the host's, as of the last volume walk; nil before it.
+	reclaimable atomic.Pointer[Reclaimable]
+	ctx         context.Context
+	timing      storeTiming
 
 	// the event loop
 	events chan ContainerEvent
@@ -156,6 +158,12 @@ func (s *Store) applySize(id string, size int64) {
 		Time:      time.Now(),
 		Container: updated,
 	})
+}
+
+// Reclaimable is what the host could free as of the last volume walk, or nil when
+// none has run (or the client cannot measure).
+func (s *Store) Reclaimable() *Reclaimable {
+	return s.reclaimable.Load()
 }
 
 // applyVolumes records the volumes a container mounts and broadcasts an "update"
