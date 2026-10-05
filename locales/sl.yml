@@ -128,6 +128,11 @@ label:
   cpu: CPU
   core: Ni jeder | 1 jedro | {count} jeder
   disk: Disk
+  reclaimable: Za sprostitev
+  unused-images: "Neuporabljene slike"
+  unused-volumes: "Neuporabljeni nosilci"
+  stopped-containers: "Ustavljeni vsebniki"
+  build-cache: "Predpomnilnik gradenj"
   load: Obremenitev
   uptime: Čas delovanja
   mem: MEM
@@ -158,6 +163,7 @@ tooltip:
   memory-usage: "Pomnilnik {used} / {total}"
   disk-layer: "Zapisljiva plast: {size}"
   disk-volume-shared: "{name}: {size} (v skupni rabi {count} vsebnikov)"
+  reclaimable-source: "Enak skupni seštevek, kot ga poroča {command}."
   volumes: Nosilci
   volume-unreachable: nedosegljivo iz tega gostitelja
   volume-full: "{destination} je {pct} poln"

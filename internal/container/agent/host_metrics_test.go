@@ -19,6 +19,7 @@ func TestHostMetricsRoundTrip(t *testing.T) {
 		DiskTotal:        1000,
 		DiskFree:         400,
 		Disks:            []container.Disk{{Name: "media", Total: 2000, Free: 100}},
+		Reclaimable:      &container.Reclaimable{Images: 1, ImagesSize: 2, Volumes: 3, VolumesSize: 4, Containers: 5, ContainersSize: 6, BuildCacheSize: 7},
 	}
 
 	var out pb.Host
@@ -28,7 +29,8 @@ func TestHostMetricsRoundTrip(t *testing.T) {
 	assert.True(t, ok)
 	assert.Equal(t, container.HostMetrics{
 		Load1: 1.5, Load5: 1.2, Load15: 0.9, Uptime: 3600, DiskTotal: 1000, DiskFree: 400,
-		Disks: []container.Disk{{Name: "media", Total: 2000, Free: 100}},
+		Disks:       []container.Disk{{Name: "media", Total: 2000, Free: 100}},
+		Reclaimable: host.Reclaimable,
 	}, m)
 }
 
@@ -39,4 +41,5 @@ func TestHostMetricsFromOldAgent(t *testing.T) {
 	assert.False(t, ok)
 	assert.Zero(t, m.DiskTotal)
 	assert.Empty(t, m.Disks)
+	assert.Nil(t, m.Reclaimable, "unknown, not zero")
 }

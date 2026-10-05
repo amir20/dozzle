@@ -114,6 +114,11 @@ label:
   cpu: CPU
   core: 코어 없음 | 코어 1개 | 코어 {count}개
   disk: 디스크
+  reclaimable: 회수 가능
+  unused-images: "사용하지 않는 이미지"
+  unused-volumes: "사용하지 않는 볼륨"
+  stopped-containers: "중지된 컨테이너"
+  build-cache: "빌드 캐시"
   load: 부하
   uptime: 가동 시간
   mem: 메모리
@@ -158,6 +163,7 @@ tooltip:
   memory-usage: "메모리 {used} / {total}"
   disk-layer: "쓰기 가능 레이어: {size}"
   disk-volume-shared: "{name}: {size} (컨테이너 {count}개가 공유)"
+  reclaimable-source: "{command}가 보고하는 합계와 같습니다."
   volumes: 볼륨
   volume-unreachable: 이 호스트에서 접근할 수 없음
   volume-full: "{destination}이(가) {pct} 사용 중"

@@ -331,13 +331,20 @@ func (d *Client) ContainerSize(ctx context.Context, id string) (int64, error) {
 	return *result.Container.SizeRw, nil
 }
 
-// VolumeSizes measures every volume, the same walk as `docker system df -v`, and
+// DiskUsage measures every volume, the same walk as `docker system df -v`, and
 // matches them to the containers that mount them. The match comes from a plain
 // list, since a stopped container that was never inspected has no mounts in the store.
-func (d *Client) VolumeSizes(ctx context.Context) (map[string][]container.VolumeUsage, error) {
-	du, err := d.cli.DiskUsage(ctx, client.DiskUsageOptions{Volumes: true, Verbose: true})
+// Images and build cache ride along: their sizes are stored, so they add no walk.
+// Containers are left out, since that would walk every layer again.
+func (d *Client) DiskUsage(ctx context.Context) (container.DiskUsage, error) {
+	du, err := d.cli.DiskUsage(ctx, client.DiskUsageOptions{Volumes: true, Images: true, BuildCache: true, Verbose: true})
 	if err != nil {
-		return nil, err
+		return container.DiskUsage{}, err
+	}
+	reclaimable := container.Reclaimable{
+		Images:         du.Images.TotalCount - du.Images.ActiveCount,
+		ImagesSize:     du.Images.Reclaimable,
+		BuildCacheSize: du.BuildCache.Reclaimable,
 	}
 	byName := make(map[string]container.VolumeUsage, len(du.Volumes.Items))
 	for _, v := range du.Volumes.Items {
@@ -346,11 +353,15 @@ func (d *Client) VolumeSizes(ctx context.Context) (map[string][]container.Volume
 			continue
 		}
 		byName[v.Name] = container.VolumeUsage{Name: v.Name, Size: v.UsageData.Size, Links: v.UsageData.RefCount}
+		if v.UsageData.RefCount == 0 {
+			reclaimable.Volumes++
+			reclaimable.VolumesSize += v.UsageData.Size
+		}
 	}
 
 	list, err := d.cli.ContainerList(ctx, client.ContainerListOptions{All: true})
 	if err != nil {
-		return nil, err
+		return container.DiskUsage{}, err
 	}
 	volumes := make(map[string][]container.VolumeUsage)
 	for _, c := range list.Items {
@@ -363,7 +374,7 @@ func (d *Client) VolumeSizes(ctx context.Context) (map[string][]container.Volume
 			volumes[c.ID[:12]] = append(volumes[c.ID[:12]], v)
 		}
 	}
-	return volumes, nil
+	return container.DiskUsage{Volumes: volumes, Reclaimable: reclaimable}, nil
 }
 
 func (d *Client) ContainerRemove(ctx context.Context, containerID string) error {

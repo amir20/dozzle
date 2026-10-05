@@ -115,6 +115,11 @@ label:
   cpu: CPU
   core: Tidak ada inti | 1 inti | {count} inti
   disk: Disk
+  reclaimable: Dapat dibebaskan
+  unused-images: "Image tidak terpakai"
+  unused-volumes: "Volume tidak terpakai"
+  stopped-containers: "Kontainer berhenti"
+  build-cache: "Cache build"
   load: Beban
   uptime: Waktu aktif
   mem: MEM
@@ -160,6 +165,7 @@ tooltip:
   memory-usage: "Memori {used} / {total}"
   disk-layer: "Lapisan yang dapat ditulis: {size}"
   disk-volume-shared: "{name}: {size} (dipakai bersama oleh {count} kontainer)"
+  reclaimable-source: "Total yang sama dengan yang dilaporkan {command}."
   volumes: Volume
   volume-unreachable: tidak dapat dijangkau dari host ini
   volume-full: "{destination} terisi {pct}"

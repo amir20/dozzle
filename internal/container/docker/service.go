@@ -484,7 +484,9 @@ func (d *Service) ListContainers(ctx context.Context, labels container.Container
 }
 
 func (d *Service) Host(ctx context.Context) (container.Host, error) {
-	return d.client.Host(), nil
+	host := d.client.Host()
+	host.Reclaimable = d.store.Reclaimable()
+	return host, nil
 }
 
 func (d *Service) SubscribeStats(ctx context.Context, stats chan<- container.ContainerStat) {

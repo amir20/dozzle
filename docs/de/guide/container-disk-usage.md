@@ -1,6 +1,6 @@
 ---
 title: Speicherbelegung der Container
-sourceHash: 014e7b970963
+sourceHash: 36536624d20d
 ---
 
 # Speicherbelegung der Container
@@ -19,7 +19,7 @@ Nicht gezählt werden:
 - **Bind Mounts**, etwa `./data:/var/lib/postgresql/data`
 - **Das Image**, auf dem der Container läuft und das sich alle Container dieses Images teilen
 - **Dockers eigene Logdatei** für den Container
-- **Volumes, die kein Container nutzt**, da es für sie keine Zeile gibt, in der sie erscheinen könnten
+- **Volumes, die kein Container nutzt**, da es für sie keine Zeile gibt, in der sie erscheinen könnten. Sie zählen stattdessen zum [freigebbaren Speicher](#freigebbarer-speicher) des Hosts.
 
 ## Bind Mounts
 
@@ -31,7 +31,9 @@ du -sh /data/postgres
 
 Um den Datenträger im Blick zu behalten, auf dem diese Ordner liegen, binde ihn auf der Host-Karte ein, wie unter [Host-Metriken](/de/guide/host-metrics#weitere-laufwerke) beschrieben.
 
-Volumes, die kein Container nutzt und die oft von entfernten Containern übrig bleiben, erscheinen in `docker system df -v` mit `LINKS 0`.
+## Freigebbarer Speicher
+
+Die Host-Karte zeigt **Freigebbar** neben ihrer Datenträger-Anzeige: Speicher, den Dinge belegen, die kein Container nutzt, dieselbe Summe wie in der Spalte `RECLAIMABLE` von `docker system df`. Fahre mit der Maus darüber, um zu sehen, wie viel davon auf ungenutzte Images, ungenutzte Volumes, gestoppte Container und den Build-Cache entfällt. Der Wert wird zusammen mit den Volumes aktualisiert, also höchstens alle 20 Minuten.
 
 ## Wann der Wert aktualisiert wird
 

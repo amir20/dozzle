@@ -81,6 +81,7 @@
           </span>
           <span class="text-base-content/80 font-mono">{{ diskPercent }}%</span>
         </span>
+        <HostReclaimable v-if="host.reclaimable" :reclaimable="host.reclaimable" />
       </div>
     </div>
 
@@ -168,7 +169,7 @@
          the same pulse as the desktop chip and sitting under the host's disk,
          they read as the machine's. -->
     <div
-      v-if="isMobile && host.available && (uptimeLabel || host.metricsAvailable)"
+      v-if="isMobile && host.available && (uptimeLabel || host.metricsAvailable || host.reclaimable)"
       class="text-base-content/50 -mt-1 flex flex-wrap items-center justify-end gap-x-2 gap-y-1 px-1 text-xs tabular-nums"
     >
       <ph:pulse class="size-3.5 opacity-60" :title="$t('label.host')" />
@@ -182,6 +183,10 @@
         <span :title="loadTitle">
           {{ $t("label.load") }} <span class="font-mono" :class="loadClass">{{ loadLabel }}</span>
         </span>
+      </template>
+      <template v-if="host.reclaimable">
+        <span v-if="uptimeLabel || host.metricsAvailable" class="text-base-content/25">·</span>
+        <HostReclaimable :reclaimable="host.reclaimable" />
       </template>
     </div>
   </div>
@@ -307,7 +312,10 @@ const diskPercent = computed(() =>
 );
 
 const hasHostMetrics = computed(
-  () => !!uptimeLabel.value || props.host.metricsAvailable || diskPercent.value !== undefined,
+  () =>
+    // reclaimable comes from the engine, so it shows even without /proc metrics; it
+    // stays null until the host's first volume walk
+    !!uptimeLabel.value || props.host.metricsAvailable || diskPercent.value !== undefined || !!props.host.reclaimable,
 );
 
 const diskTitle = computed(() =>

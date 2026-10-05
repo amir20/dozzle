@@ -40,7 +40,7 @@ func (m *mockedProxy) ContainerList(context.Context, client.ContainerListOptions
 
 func (m *mockedProxy) DiskUsage(context.Context, client.DiskUsageOptions) (client.DiskUsageResult, error) {
 	args := m.Called()
-	return client.DiskUsageResult{Volumes: client.VolumesDiskUsage{Items: args.Get(0).([]volume.Volume)}}, args.Error(1)
+	return args.Get(0).(client.DiskUsageResult), args.Error(1)
 }
 
 func (m *mockedProxy) ContainerLogs(ctx context.Context, id string, options client.ContainerLogsOptions) (client.ContainerLogsResult, error) {
@@ -223,13 +223,19 @@ func Test_dockerClient_ContainerSizes(t *testing.T) {
 	assert.Equal(t, map[string]int64{"abcdefghijkl": 2048, "1234567890_a": 0}, sizes, "keyed by the short ID the store uses")
 }
 
-func Test_dockerClient_VolumeSizes(t *testing.T) {
+func Test_dockerClient_DiskUsage(t *testing.T) {
 	proxy := new(mockedProxy)
-	proxy.On("DiskUsage").Return([]volume.Volume{
-		{Name: "clickhouse_data", UsageData: &volume.UsageData{Size: 23 << 30, RefCount: 1}},
-		{Name: "shared", UsageData: &volume.UsageData{Size: 10, RefCount: 2}},
-		{Name: "plugin", UsageData: &volume.UsageData{Size: -1, RefCount: 1}},
-		{Name: "orphan", UsageData: &volume.UsageData{Size: 99, RefCount: 0}},
+	proxy.On("DiskUsage").Return(client.DiskUsageResult{
+		Images:     client.ImagesDiskUsage{TotalCount: 30, ActiveCount: 12, Reclaimable: 4 << 30},
+		BuildCache: client.BuildCacheDiskUsage{Reclaimable: 7},
+		Volumes: client.VolumesDiskUsage{Items: []volume.Volume{
+			{Name: "clickhouse_data", UsageData: &volume.UsageData{Size: 23 << 30, RefCount: 1}},
+			{Name: "shared", UsageData: &volume.UsageData{Size: 10, RefCount: 2}},
+			{Name: "plugin", UsageData: &volume.UsageData{Size: -1, RefCount: 1}},
+			{Name: "orphan", UsageData: &volume.UsageData{Size: 99, RefCount: 0}},
+			{Name: "orphan-empty", UsageData: &volume.UsageData{Size: 0, RefCount: 0}},
+			{Name: "orphan-plugin", UsageData: &volume.UsageData{Size: -1, RefCount: 0}},
+		}},
 	}, nil)
 	proxy.On("ContainerList", mock.Anything, mock.Anything).Return([]docker.Summary{
 		{ID: "abcdefghijklmnopqrst", State: "exited", Mounts: []docker.MountPoint{
@@ -244,7 +250,7 @@ func Test_dockerClient_VolumeSizes(t *testing.T) {
 	}, nil)
 	client := &Client{cli: proxy, host: container.Host{ID: "localhost"}}
 
-	volumes, err := client.VolumeSizes(context.Background())
+	usage, err := client.DiskUsage(context.Background())
 	require.NoError(t, err)
 	assert.Equal(t, map[string][]container.VolumeUsage{
 		"abcdefghijkl": {
@@ -252,7 +258,13 @@ func Test_dockerClient_VolumeSizes(t *testing.T) {
 			{Name: "shared", Destination: "/shared", Size: 10, Links: 2},
 		},
 		"1234567890_a": {{Name: "shared", Destination: "/shared", Size: 10, Links: 2}},
-	}, volumes, "bind mounts and volumes the driver cannot size are left out")
+	}, usage.Volumes, "bind mounts and volumes the driver cannot size are left out")
+	assert.Equal(t, container.Reclaimable{
+		Images: 18, ImagesSize: 4 << 30,
+		// a volume the driver cannot size is neither counted nor sized
+		Volumes: 2, VolumesSize: 99,
+		BuildCacheSize: 7,
+	}, usage.Reclaimable, "stopped containers are left to the store")
 }
 
 func Test_dockerClient_ContainerSize(t *testing.T) {

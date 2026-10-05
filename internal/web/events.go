@@ -482,6 +482,8 @@ type hostMetricsEvent struct {
 	DiskFree         uint64  `json:"diskFree"`
 	// Always an array, never null, so a drive that was unmounted clears.
 	Disks []container.Disk `json:"disks"`
+	// null until the host's first volume walk
+	Reclaimable *container.Reclaimable `json:"reclaimable"`
 }
 
 func newHostMetricsEvent(host container.Host) hostMetricsEvent {
@@ -499,13 +501,15 @@ func newHostMetricsEvent(host container.Host) hostMetricsEvent {
 		DiskTotal:        host.DiskTotal,
 		DiskFree:         host.DiskFree,
 		Disks:            disks,
+		Reclaimable:      host.Reclaimable,
 	}
 }
 
 // hostHasMetrics is the send gate for the metrics ticker: nothing is broadcast
 // for a host with no metrics to show. Disk counts on its own because it comes
 // from the engine's data directory and does not need the host /proc mounted, so
-// metricsAvailable is not the whole story.
+// metricsAvailable is not the whole story. Reclaimable comes from the engine API,
+// so it counts on its own too.
 func hostHasMetrics(host container.Host) bool {
-	return host.MetricsAvailable || host.DiskTotal > 0 || len(host.Disks) > 0
+	return host.MetricsAvailable || host.DiskTotal > 0 || len(host.Disks) > 0 || host.Reclaimable != nil
 }

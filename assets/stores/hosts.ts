@@ -12,6 +12,8 @@ export type Host = {
   diskFree?: number;
   // extra drives mounted under /host/disks/<name>; diskTotal/diskFree stay Docker's own
   disks?: { name: string; total: number; free: number }[];
+  // what `docker system df` calls reclaimable; null until the first volume walk
+  reclaimable?: Reclaimable | null;
   type: "agent" | "local" | "remote" | "swarm" | "k8s";
   endpoint: string;
   available: boolean;
@@ -25,6 +27,17 @@ export type Host = {
   replacesId?: string;
   // set on the one update sent when an agent is removed, so every tab drops it
   removed?: boolean;
+};
+
+// space held by things no container is using, counts and bytes per kind
+export type Reclaimable = {
+  images: number;
+  imagesSize: number;
+  volumes: number;
+  volumesSize: number;
+  containers: number;
+  containersSize: number;
+  buildCacheSize: number;
 };
 
 const hosts = ref(
@@ -49,7 +62,16 @@ const updateHost = (host: Host) => {
 
 export type HostMetrics = Pick<
   Host,
-  "id" | "metricsAvailable" | "load1" | "load5" | "load15" | "uptime" | "diskTotal" | "diskFree" | "disks"
+  | "id"
+  | "metricsAvailable"
+  | "load1"
+  | "load5"
+  | "load15"
+  | "uptime"
+  | "diskTotal"
+  | "diskFree"
+  | "disks"
+  | "reclaimable"
 >;
 
 // Merges a host-metrics tick into the host already known, leaving available and

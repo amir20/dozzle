@@ -114,6 +114,11 @@ label:
   cpu: CPU
   core: Geen kernen | 1 kern | {count} kernen
   disk: Schijf
+  reclaimable: Vrij te maken
+  unused-images: "Ongebruikte images"
+  unused-volumes: "Ongebruikte volumes"
+  stopped-containers: "Gestopte containers"
+  build-cache: "Buildcache"
   load: Belasting
   uptime: Uptime
   mem: MEM
@@ -158,6 +163,7 @@ tooltip:
   memory-usage: "Geheugen {used} / {total}"
   disk-layer: "Beschrijfbare laag: {size}"
   disk-volume-shared: "{name}: {size} (gedeeld door {count} containers)"
+  reclaimable-source: "Hetzelfde totaal als {command} meldt."
   volumes: Volumes
   volume-unreachable: niet bereikbaar vanaf deze host
   volume-full: "{destination} is {pct} vol"

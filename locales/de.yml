@@ -114,6 +114,11 @@ label:
   cpu: CPU
   core: Keine Kerne | 1 Kern | {count} Kerne
   disk: Datenträger
+  reclaimable: Freigebbar
+  unused-images: "Ungenutzte Images"
+  unused-volumes: "Ungenutzte Volumes"
+  stopped-containers: "Gestoppte Container"
+  build-cache: "Build-Cache"
   load: Last
   uptime: Laufzeit
   mem: MEM
@@ -158,6 +163,7 @@ tooltip:
   memory-usage: "Speicher {used} / {total}"
   disk-layer: "Beschreibbare Schicht: {size}"
   disk-volume-shared: "{name}: {size} (geteilt von {count} Containern)"
+  reclaimable-source: "Dieselbe Summe, die {command} meldet."
   volumes: Volumes
   volume-unreachable: von diesem Host nicht erreichbar
   volume-full: "{destination} ist zu {pct} voll"

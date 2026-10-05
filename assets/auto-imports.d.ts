@@ -680,7 +680,7 @@ declare global {
   export type { Config, Profile } from './stores/config'
   import('./stores/config')
   // @ts-ignore
-  export type { Host, HostMetrics } from './stores/hosts'
+  export type { Host, Reclaimable, HostMetrics } from './stores/hosts'
   import('./stores/hosts')
   // @ts-ignore
   export type { K8sNamespace, K8sOwner, K8sOwnerRef } from './stores/k8s'
