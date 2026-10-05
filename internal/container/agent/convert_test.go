@@ -23,4 +23,8 @@ func TestContainerProtoRoundTrip(t *testing.T) {
 	actual := containerFromProto(&pb)
 
 	assert.Equal(t, expected, actual)
+
+	expected.SizeRw = nil
+	pb = containerToProto(expected)
+	assert.Nil(t, containerFromProto(&pb).SizeRw, "a container not measured yet stays unknown, not 0")
 }

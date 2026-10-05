@@ -44,6 +44,7 @@ export const zh: Labels = {
     actions: "操作",
     "moving-from-watchtower": "从 Watchtower 迁移",
     "app-icons": "图标",
+    "container-disk-usage": "磁盘占用",
     shell: "终端访问",
     mcp: "MCP 集成",
     agent: "Agent 模式",

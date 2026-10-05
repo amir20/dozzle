@@ -59,3 +59,14 @@ type Client interface {
 	ContainerAttach(ctx context.Context, id string) (*ExecSession, error)
 	ContainerExec(ctx context.Context, id string, cmd []string) (*ExecSession, error)
 }
+
+// SizeReader is implemented by clients that can report how much a container's
+// writable layer holds. Docker works it out by walking the layer on every call
+// and keeps nothing, so the store asks rarely (see size_monitor.go). k8s has no
+// equivalent, and its client does not implement it.
+type SizeReader interface {
+	// ContainerSizes measures every container in one call.
+	ContainerSizes(ctx context.Context) (map[string]int64, error)
+	// ContainerSize measures one container.
+	ContainerSize(ctx context.Context, id string) (int64, error)
+}

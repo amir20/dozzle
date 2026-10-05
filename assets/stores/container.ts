@@ -142,6 +142,9 @@ export const useContainerStore = defineStore("container", () => {
         if (container.mountStats) {
           existing.updateMountStats(container.mountStats);
         }
+        if (container.sizeRw !== undefined) {
+          existing.sizeRw = container.sizeRw;
+        }
       }
     });
 
@@ -220,6 +223,7 @@ export const useContainerStore = defineStore("container", () => {
       // only place a restarted container learns when its new run began.
       existing.startedAt = new Date(c.startedAt);
       existing.finishedAt = new Date(c.finishedAt);
+      if (c.sizeRw !== undefined) existing.sizeRw = c.sizeRw;
     });
 
     const mapped = newContainers.map((c) => {

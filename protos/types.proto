@@ -40,6 +40,8 @@ message Container {
   int32 restartCount = 27;
   bool oomKilled = 28;
   int32 exitCode = 29;
+  // unset until the agent has measured the writable layer
+  optional int64 sizeRw = 30;
 }
 
 message ContainerStat {

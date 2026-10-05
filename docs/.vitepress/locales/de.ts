@@ -44,6 +44,7 @@ export const de: Labels = {
     actions: "Aktionen",
     "moving-from-watchtower": "Umstieg von Watchtower",
     "app-icons": "Symbole",
+    "container-disk-usage": "Speicherbelegung",
     shell: "Shell-Zugriff",
     mcp: "MCP-Integration",
     agent: "Agent-Modus",

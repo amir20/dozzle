@@ -105,6 +105,8 @@ type Container struct {
 	RestartCount  int32                  `protobuf:"varint,27,opt,name=restartCount,proto3" json:"restartCount,omitempty"`
 	OomKilled     bool                   `protobuf:"varint,28,opt,name=oomKilled,proto3" json:"oomKilled,omitempty"`
 	ExitCode      int32                  `protobuf:"varint,29,opt,name=exitCode,proto3" json:"exitCode,omitempty"`
+	// unset until the agent has measured the writable layer
+	SizeRw        *int64 `protobuf:"varint,30,opt,name=sizeRw,proto3,oneof" json:"sizeRw,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -331,6 +333,13 @@ func (x *Container) GetOomKilled() bool {
 func (x *Container) GetExitCode() int32 {
 	if x != nil {
 		return x.ExitCode
+	}
+	return 0
+}
+
+func (x *Container) GetSizeRw() int64 {
+	if x != nil && x.SizeRw != nil {
+		return *x.SizeRw
 	}
 	return 0
 }
@@ -1573,7 +1582,7 @@ var File_types_proto protoreflect.FileDescriptor
 
 const file_types_proto_rawDesc = "" +
 	"\n" +
-	"\vtypes.proto\x12\bprotobuf\x1a\x19google/protobuf/any.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xd4\a\n" +
+	"\vtypes.proto\x12\bprotobuf\x1a\x19google/protobuf/any.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xfc\a\n" +
 	"\tContainer\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12\x14\n" +
@@ -1605,10 +1614,12 @@ const file_types_proto_rawDesc = "" +
 	"\x06mounts\x18\x1a \x03(\v2\x0f.protobuf.MountR\x06mounts\x12\"\n" +
 	"\frestartCount\x18\x1b \x01(\x05R\frestartCount\x12\x1c\n" +
 	"\toomKilled\x18\x1c \x01(\bR\toomKilled\x12\x1a\n" +
-	"\bexitCode\x18\x1d \x01(\x05R\bexitCode\x1a9\n" +
+	"\bexitCode\x18\x1d \x01(\x05R\bexitCode\x12\x1b\n" +
+	"\x06sizeRw\x18\x1e \x01(\x03H\x00R\x06sizeRw\x88\x01\x01\x1a9\n" +
 	"\vLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01J\x04\b\x16\x10\x17\"\xa5\x02\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01B\t\n" +
+	"\a_sizeRwJ\x04\b\x16\x10\x17\"\xa5\x02\n" +
 	"\rContainerStat\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x1e\n" +
 	"\n" +
@@ -1807,6 +1818,7 @@ func file_types_proto_init() {
 	if File_types_proto != nil {
 		return
 	}
+	file_types_proto_msgTypes[0].OneofWrappers = []any{}
 	file_types_proto_msgTypes[14].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{

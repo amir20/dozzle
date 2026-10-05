@@ -97,6 +97,9 @@
               <td v-if="isVisible('mem')">
                 <div class="bg-base-content/50 h-3 w-full rounded-full opacity-50"></div>
               </td>
+              <td v-if="isVisible('disk')">
+                <div class="bg-base-content/50 h-3 w-12 rounded-full opacity-50"></div>
+              </td>
             </tr>
           </template>
           <tr
@@ -110,6 +113,7 @@
               container.hostLabel,
               container.state,
               container.health,
+              container.sizeRw,
               statMode,
               isMobile,
               showAppIcons,
@@ -186,6 +190,12 @@
             </td>
             <td v-if="isVisible('mem')">
               <ContainerStatCell :container="container" type="mem" :host="hosts[container.host]" :mode="statMode" />
+            </td>
+            <td v-if="isVisible('disk')" class="text-base-content/70 font-mono whitespace-nowrap">
+              <template v-if="container.sizeRw !== undefined">{{
+                formatBytes(container.sizeRw, { decimals: 1 })
+              }}</template>
+              <span v-else class="text-base-content/40">&ndash;</span>
             </td>
           </tr>
         </tbody>
@@ -288,6 +298,13 @@ const fields: Record<
     mobileVisible: false,
     customClass: "min-w-48 max-md:min-w-0",
   },
+  disk: {
+    label: "label.disk",
+    // not measured yet sorts below an empty layer
+    sortFunc: (a: Container, b: Container) => ((a.sizeRw ?? -1) - (b.sizeRw ?? -1)) * direction.value,
+    mobileVisible: false,
+    customClass: "w-1",
+  },
 };
 
 const { containers } = defineProps<{
@@ -331,6 +348,7 @@ const paginated = computed(() => {
 const sortOptions = computed(() =>
   Object.entries(fields)
     .filter(([key]) => key !== "host" || Object.keys(hosts.value).length > 1)
+    .filter(([key]) => key !== "disk" || config.mode !== "k8s")
     .map(([key, value]) => ({ label: t(value.mobileLabel ?? value.label), value: key })),
 );
 
@@ -357,6 +375,8 @@ function sort(field: keys) {
   }
 }
 function isVisible(field: keys) {
+  // k8s has no writable-layer size to report
+  if (field === "disk" && config.mode === "k8s") return false;
   return fields[field].mobileVisible || !isMobile.value;
 }
 </script>

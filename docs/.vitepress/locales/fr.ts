@@ -44,6 +44,7 @@ export const fr: Labels = {
     actions: "Actions",
     "moving-from-watchtower": "Passer de Watchtower à Dozzle",
     "app-icons": "Icônes",
+    "container-disk-usage": "Utilisation du disque",
     shell: "Accès shell",
     mcp: "Intégration MCP",
     agent: "Mode agent",

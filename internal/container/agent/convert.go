@@ -71,6 +71,7 @@ func containerToProto(c container.Container) pb.Container {
 		RestartCount:  int32(c.RestartCount),
 		OomKilled:     c.OOMKilled,
 		ExitCode:      int32(c.ExitCode),
+		SizeRw:        c.SizeRw,
 	}
 }
 
@@ -151,6 +152,7 @@ func containerFromProto(c *pb.Container) container.Container {
 		RestartCount:  int(c.RestartCount),
 		OOMKilled:     c.OomKilled,
 		ExitCode:      int(c.ExitCode),
+		SizeRw:        c.SizeRw,
 	}
 }
 
