@@ -115,6 +115,10 @@ label:
   core: Brak rdzeni | 1 rdzeń | {count} rdzeni
   disk: Dysk
   reclaimable: Do odzyskania
+  unused-images: "Nieużywane obrazy"
+  unused-volumes: "Nieużywane wolumeny"
+  stopped-containers: "Zatrzymane kontenery"
+  build-cache: "Pamięć podręczna buildów"
   load: Obciążenie
   uptime: Czas działania
   mem: MEM
@@ -159,10 +163,7 @@ tooltip:
   memory-usage: "Pamięć {used} / {total}"
   disk-layer: "Warstwa zapisywalna: {size}"
   disk-volume-shared: "{name}: {size} (współdzielony przez {count} kontenery)"
-  reclaimable-images: "Nieużywane obrazy: {count} · {size}"
-  reclaimable-volumes: "Nieużywane wolumeny: {count} · {size}"
-  reclaimable-containers: "Zatrzymane kontenery: {count} · {size}"
-  reclaimable-build-cache: "Pamięć podręczna buildów: {size}"
+  reclaimable-source: "Ta sama suma, którą podaje {command}."
   volumes: Wolumeny
   volume-unreachable: nieosiągalne z tego hosta
   volume-full: "{destination} zapełniony w {pct}"

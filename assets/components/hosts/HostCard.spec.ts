@@ -41,12 +41,13 @@ const i18n = createI18n({
         uptime: "Uptime",
         core: "No cores | 1 core | {count} cores",
         reclaimable: "Reclaimable",
+        "unused-images": "Unused images",
+        "unused-volumes": "Unused volumes",
+        "stopped-containers": "Stopped containers",
+        "build-cache": "Build cache",
       },
       tooltip: {
-        "reclaimable-images": "Unused images: {count} · {size}",
-        "reclaimable-volumes": "Unused volumes: {count} · {size}",
-        "reclaimable-containers": "Stopped containers: {count} · {size}",
-        "reclaimable-build-cache": "Build cache: {size}",
+        "reclaimable-source": "Same total as {command} reports.",
       },
     },
   },
@@ -183,16 +184,18 @@ describe("<HostCard />", () => {
       },
     });
 
-    expect(wrapper.text()).toContain("Reclaimable");
-    expect(wrapper.text()).toContain("5 GB");
-    expect(wrapper.find("[title^='Unused images: 31 · 4 GB']").attributes("title")).toBe(
-      [
-        "Unused images: 31 · 4 GB",
-        "Unused volumes: 2 · 512 MB",
-        "Stopped containers: 4 · 256 MB",
-        "Build cache: 256 MB",
-      ].join("\n"),
-    );
+    const trigger = wrapper.findAll("button").find((b) => b.text().startsWith("Reclaimable"));
+    expect(trigger?.text()).toBe("Reclaimable 5 GB");
+
+    // the panel lists every kind with its count and size, in a fixed order
+    const rows = wrapper.findAll("li").map((li) => li.findAll("span").map((s) => s.text()));
+    expect(rows).toEqual([
+      ["Unused images", "31", "4 GB"],
+      ["Unused volumes", "2", "512 MB"],
+      ["Stopped containers", "4", "256 MB"],
+      ["Build cache", "256 MB"],
+    ]);
+    expect(wrapper.text()).toContain("Same total as docker system df reports.");
   });
 
   test("hides reclaimable before the first measurement", () => {

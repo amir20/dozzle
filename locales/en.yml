@@ -116,6 +116,10 @@ label:
   mem: MEM
   disk: Disk
   reclaimable: Reclaimable
+  unused-images: "Unused images"
+  unused-volumes: "Unused volumes"
+  stopped-containers: "Stopped containers"
+  build-cache: "Build cache"
   load: Load
   uptime: Uptime
   pinned: Pinned
@@ -159,10 +163,7 @@ tooltip:
   memory-usage: "Memory {used} / {total}"
   disk-layer: "Writable layer: {size}"
   disk-volume-shared: "{name}: {size} (shared by {count} containers)"
-  reclaimable-images: "Unused images: {count} · {size}"
-  reclaimable-volumes: "Unused volumes: {count} · {size}"
-  reclaimable-containers: "Stopped containers: {count} · {size}"
-  reclaimable-build-cache: "Build cache: {size}"
+  reclaimable-source: "Same total as {command} reports."
   volumes: Volumes
   volume-unreachable: not reachable from this host
   volume-full: "{destination} is {pct} full"

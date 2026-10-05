@@ -130,6 +130,10 @@ label:
   core: 無核心 | 1 個核心 | {count} 個核心
   disk: 磁碟
   reclaimable: 可回收
+  unused-images: "未使用的映像"
+  unused-volumes: "未使用的磁碟區"
+  stopped-containers: "已停止的容器"
+  build-cache: "建置快取"
   load: 負載
   uptime: 運作時間
   mem: MEM
@@ -159,10 +163,7 @@ tooltip:
   memory-usage: "記憶體 {used} / {total}"
   disk-layer: "可寫層：{size}"
   disk-volume-shared: "{name}：{size}（由 {count} 個容器共用）"
-  reclaimable-images: "未使用的映像：{count} · {size}"
-  reclaimable-volumes: "未使用的磁碟區：{count} · {size}"
-  reclaimable-containers: "已停止的容器：{count} · {size}"
-  reclaimable-build-cache: "建置快取：{size}"
+  reclaimable-source: "與 {command} 回報的總數相同。"
   volumes: 卷
   volume-unreachable: 無法從此主機存取
   volume-full: "{destination} 已使用 {pct}"

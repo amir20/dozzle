@@ -101,6 +101,7 @@ declare module 'vue' {
     HostLog: typeof import('./components/views/HostLog.vue')['default']
     HostMenu: typeof import('./components/nav/HostMenu.vue')['default']
     HostNavItem: typeof import('./components/nav/HostNavItem.vue')['default']
+    HostReclaimable: typeof import('./components/hosts/HostReclaimable.vue')['default']
     IndeterminateBar: typeof import('./components/ui/IndeterminateBar.vue')['default']
     InlineNotice: typeof import('./components/ui/InlineNotice.vue')['default']
     IOCard: typeof import('./components/ui/IOCard.vue')['default']

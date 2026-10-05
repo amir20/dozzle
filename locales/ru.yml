@@ -115,6 +115,10 @@ label:
   core: Нет ядер | 1 ядро | {count} ядер
   disk: Диск
   reclaimable: Можно освободить
+  unused-images: "Неиспользуемые образы"
+  unused-volumes: "Неиспользуемые тома"
+  stopped-containers: "Остановленные контейнеры"
+  build-cache: "Кеш сборки"
   load: Нагрузка
   uptime: Время работы
   mem: MEM
@@ -159,10 +163,7 @@ tooltip:
   memory-usage: "Память {used} / {total}"
   disk-layer: "Записываемый слой: {size}"
   disk-volume-shared: "{name}: {size} (общий для {count} контейнеров)"
-  reclaimable-images: "Неиспользуемые образы: {count} · {size}"
-  reclaimable-volumes: "Неиспользуемые тома: {count} · {size}"
-  reclaimable-containers: "Остановленные контейнеры: {count} · {size}"
-  reclaimable-build-cache: "Кеш сборки: {size}"
+  reclaimable-source: "Та же сумма, что показывает {command}."
   volumes: Тома
   volume-unreachable: недоступно с этого хоста
   volume-full: "{destination} заполнено на {pct}"

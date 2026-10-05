@@ -115,6 +115,10 @@ label:
   core: Nessun core | 1 core | {count} core
   disk: Disco
   reclaimable: Recuperabile
+  unused-images: "Immagini inutilizzate"
+  unused-volumes: "Volumi inutilizzati"
+  stopped-containers: "Container fermi"
+  build-cache: "Cache di build"
   load: Carico
   uptime: Tempo di attività
   mem: MEM
@@ -159,10 +163,7 @@ tooltip:
   memory-usage: "Memoria {used} / {total}"
   disk-layer: "Livello scrivibile: {size}"
   disk-volume-shared: "{name}: {size} (condiviso da {count} container)"
-  reclaimable-images: "Immagini inutilizzate: {count} · {size}"
-  reclaimable-volumes: "Volumi inutilizzati: {count} · {size}"
-  reclaimable-containers: "Container fermi: {count} · {size}"
-  reclaimable-build-cache: "Cache di build: {size}"
+  reclaimable-source: "Lo stesso totale riportato da {command}."
   volumes: Volumi
   volume-unreachable: non raggiungibile da questo host
   volume-full: "{destination} è pieno al {pct}"
