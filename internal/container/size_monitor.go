@@ -23,6 +23,10 @@ const (
 	sizeBatchTimeout = 2 * time.Minute
 	// sizeBatchAttempts bounds the retries, since each one walks the whole host again.
 	sizeBatchAttempts = 3
+	// volumeRefreshInterval spaces out volume walks. Docker cannot measure one
+	// volume, so every refresh walks all of them, and a database volume is often the
+	// biggest thing on the host.
+	volumeRefreshInterval = 20 * time.Minute
 )
 
 // sizeTracker is shared between observe (the event loop) and the worker.
@@ -41,6 +45,10 @@ type sizeTracker struct {
 // subscriber is connected, and a stopped one once more when it dies, since its
 // layer cannot change after that.
 //
+// Volumes are coarser: one walk covers every volume on the host, so they are measured
+// after the batch and then at most once per volumeRefreshInterval, again only while
+// stats flow.
+//
 // A nil *sizeMonitor is a client that cannot measure sizes, and every method is a no-op.
 type sizeMonitor struct {
 	store    *Store
@@ -48,6 +56,11 @@ type sizeMonitor struct {
 	queue    chan string
 	pending  *xsync.Map[string, struct{}]
 	trackers *xsync.Map[string, *sizeTracker]
+
+	// lastVolumesNanos is when the last volume walk started; volumesRunning keeps it
+	// to one at a time.
+	lastVolumesNanos atomic.Int64
+	volumesRunning   atomic.Bool
 }
 
 func newSizeMonitor(store *Store, client Client) *sizeMonitor {
@@ -83,6 +96,9 @@ func (m *sizeMonitor) measureAll(ctx context.Context) {
 	for attempt := 1; ; attempt++ {
 		err := m.tryMeasureAll(ctx)
 		if err == nil {
+			if m.claimVolumes() {
+				m.measureVolumes(ctx)
+			}
 			return
 		}
 		if attempt == sizeBatchAttempts {
@@ -113,11 +129,45 @@ func (m *sizeMonitor) tryMeasureAll(ctx context.Context) error {
 	return nil
 }
 
+// claimVolumes reports whether a volume walk is due and, if so, claims it, so only
+// one caller runs it.
+func (m *sizeMonitor) claimVolumes() bool {
+	last := m.lastVolumesNanos.Load()
+	if last != 0 && time.Since(time.Unix(0, last)) < volumeRefreshInterval {
+		return false
+	}
+	if !m.volumesRunning.CompareAndSwap(false, true) {
+		return false
+	}
+	// stamped on the attempt, so a failure waits out the interval too
+	m.lastVolumesNanos.Store(time.Now().UnixNano())
+	return true
+}
+
+// measureVolumes runs a walk claimed with claimVolumes.
+func (m *sizeMonitor) measureVolumes(ctx context.Context) {
+	defer m.volumesRunning.Store(false)
+	ctx, cancel := context.WithTimeout(ctx, sizeBatchTimeout)
+	defer cancel()
+	volumes, err := m.reader.VolumeSizes(ctx)
+	if err != nil {
+		log.Debug().Err(err).Msg("could not measure volume sizes")
+		return
+	}
+	m.store.containers.Range(func(id string, _ *Container) bool {
+		m.store.applyVolumes(id, volumes[id])
+		return true
+	})
+}
+
 // observe is called for every stat. It queues a measurement when the container has
 // never been measured, has written a lot since, or has written anything and is due.
 func (m *sizeMonitor) observe(c *Container, stat ContainerStat) {
 	if m == nil {
 		return
+	}
+	if m.claimVolumes() {
+		go m.measureVolumes(m.store.ctx)
 	}
 	t, _ := m.trackers.LoadOrCompute(c.ID, func() (*sizeTracker, bool) {
 		return &sizeTracker{}, false

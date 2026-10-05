@@ -145,6 +145,8 @@ export const useContainerStore = defineStore("container", () => {
         if (container.sizeRw !== undefined) {
           existing.sizeRw = container.sizeRw;
         }
+        // An update always carries the whole container, so no volumes means none now.
+        existing.volumes = container.volumes ?? [];
       }
     });
 
@@ -224,6 +226,7 @@ export const useContainerStore = defineStore("container", () => {
       existing.startedAt = new Date(c.startedAt);
       existing.finishedAt = new Date(c.finishedAt);
       if (c.sizeRw !== undefined) existing.sizeRw = c.sizeRw;
+      if (c.volumes !== undefined) existing.volumes = c.volumes;
     });
 
     const mapped = newContainers.map((c) => {

@@ -106,7 +106,8 @@ type Container struct {
 	OomKilled     bool                   `protobuf:"varint,28,opt,name=oomKilled,proto3" json:"oomKilled,omitempty"`
 	ExitCode      int32                  `protobuf:"varint,29,opt,name=exitCode,proto3" json:"exitCode,omitempty"`
 	// unset until the agent has measured the writable layer
-	SizeRw        *int64 `protobuf:"varint,30,opt,name=sizeRw,proto3,oneof" json:"sizeRw,omitempty"`
+	SizeRw        *int64         `protobuf:"varint,30,opt,name=sizeRw,proto3,oneof" json:"sizeRw,omitempty"`
+	Volumes       []*VolumeUsage `protobuf:"bytes,31,rep,name=volumes,proto3" json:"volumes,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -344,6 +345,81 @@ func (x *Container) GetSizeRw() int64 {
 	return 0
 }
 
+func (x *Container) GetVolumes() []*VolumeUsage {
+	if x != nil {
+		return x.Volumes
+	}
+	return nil
+}
+
+type VolumeUsage struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Name          string                 `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
+	Destination   string                 `protobuf:"bytes,2,opt,name=destination,proto3" json:"destination,omitempty"`
+	Size          int64                  `protobuf:"varint,3,opt,name=size,proto3" json:"size,omitempty"`
+	Links         int64                  `protobuf:"varint,4,opt,name=links,proto3" json:"links,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *VolumeUsage) Reset() {
+	*x = VolumeUsage{}
+	mi := &file_types_proto_msgTypes[1]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *VolumeUsage) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*VolumeUsage) ProtoMessage() {}
+
+func (x *VolumeUsage) ProtoReflect() protoreflect.Message {
+	mi := &file_types_proto_msgTypes[1]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use VolumeUsage.ProtoReflect.Descriptor instead.
+func (*VolumeUsage) Descriptor() ([]byte, []int) {
+	return file_types_proto_rawDescGZIP(), []int{1}
+}
+
+func (x *VolumeUsage) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+func (x *VolumeUsage) GetDestination() string {
+	if x != nil {
+		return x.Destination
+	}
+	return ""
+}
+
+func (x *VolumeUsage) GetSize() int64 {
+	if x != nil {
+		return x.Size
+	}
+	return 0
+}
+
+func (x *VolumeUsage) GetLinks() int64 {
+	if x != nil {
+		return x.Links
+	}
+	return 0
+}
+
 type ContainerStat struct {
 	state          protoimpl.MessageState `protogen:"open.v1"`
 	Id             string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
@@ -360,7 +436,7 @@ type ContainerStat struct {
 
 func (x *ContainerStat) Reset() {
 	*x = ContainerStat{}
-	mi := &file_types_proto_msgTypes[1]
+	mi := &file_types_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -372,7 +448,7 @@ func (x *ContainerStat) String() string {
 func (*ContainerStat) ProtoMessage() {}
 
 func (x *ContainerStat) ProtoReflect() protoreflect.Message {
-	mi := &file_types_proto_msgTypes[1]
+	mi := &file_types_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -385,7 +461,7 @@ func (x *ContainerStat) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ContainerStat.ProtoReflect.Descriptor instead.
 func (*ContainerStat) Descriptor() ([]byte, []int) {
-	return file_types_proto_rawDescGZIP(), []int{1}
+	return file_types_proto_rawDescGZIP(), []int{2}
 }
 
 func (x *ContainerStat) GetId() string {
@@ -456,7 +532,7 @@ type Mount struct {
 
 func (x *Mount) Reset() {
 	*x = Mount{}
-	mi := &file_types_proto_msgTypes[2]
+	mi := &file_types_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -468,7 +544,7 @@ func (x *Mount) String() string {
 func (*Mount) ProtoMessage() {}
 
 func (x *Mount) ProtoReflect() protoreflect.Message {
-	mi := &file_types_proto_msgTypes[2]
+	mi := &file_types_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -481,7 +557,7 @@ func (x *Mount) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Mount.ProtoReflect.Descriptor instead.
 func (*Mount) Descriptor() ([]byte, []int) {
-	return file_types_proto_rawDescGZIP(), []int{2}
+	return file_types_proto_rawDescGZIP(), []int{3}
 }
 
 func (x *Mount) GetType() string {
@@ -526,7 +602,7 @@ type MountStat struct {
 
 func (x *MountStat) Reset() {
 	*x = MountStat{}
-	mi := &file_types_proto_msgTypes[3]
+	mi := &file_types_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -538,7 +614,7 @@ func (x *MountStat) String() string {
 func (*MountStat) ProtoMessage() {}
 
 func (x *MountStat) ProtoReflect() protoreflect.Message {
-	mi := &file_types_proto_msgTypes[3]
+	mi := &file_types_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -551,7 +627,7 @@ func (x *MountStat) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use MountStat.ProtoReflect.Descriptor instead.
 func (*MountStat) Descriptor() ([]byte, []int) {
-	return file_types_proto_rawDescGZIP(), []int{3}
+	return file_types_proto_rawDescGZIP(), []int{4}
 }
 
 func (x *MountStat) GetDestination() string {
@@ -606,7 +682,7 @@ type LogFragment struct {
 
 func (x *LogFragment) Reset() {
 	*x = LogFragment{}
-	mi := &file_types_proto_msgTypes[4]
+	mi := &file_types_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -618,7 +694,7 @@ func (x *LogFragment) String() string {
 func (*LogFragment) ProtoMessage() {}
 
 func (x *LogFragment) ProtoReflect() protoreflect.Message {
-	mi := &file_types_proto_msgTypes[4]
+	mi := &file_types_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -631,7 +707,7 @@ func (x *LogFragment) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use LogFragment.ProtoReflect.Descriptor instead.
 func (*LogFragment) Descriptor() ([]byte, []int) {
-	return file_types_proto_rawDescGZIP(), []int{4}
+	return file_types_proto_rawDescGZIP(), []int{5}
 }
 
 func (x *LogFragment) GetMessage() string {
@@ -665,7 +741,7 @@ type LogEvent struct {
 
 func (x *LogEvent) Reset() {
 	*x = LogEvent{}
-	mi := &file_types_proto_msgTypes[5]
+	mi := &file_types_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -677,7 +753,7 @@ func (x *LogEvent) String() string {
 func (*LogEvent) ProtoMessage() {}
 
 func (x *LogEvent) ProtoReflect() protoreflect.Message {
-	mi := &file_types_proto_msgTypes[5]
+	mi := &file_types_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -690,7 +766,7 @@ func (x *LogEvent) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use LogEvent.ProtoReflect.Descriptor instead.
 func (*LogEvent) Descriptor() ([]byte, []int) {
-	return file_types_proto_rawDescGZIP(), []int{5}
+	return file_types_proto_rawDescGZIP(), []int{6}
 }
 
 func (x *LogEvent) GetId() uint32 {
@@ -765,7 +841,7 @@ type SingleMessage struct {
 
 func (x *SingleMessage) Reset() {
 	*x = SingleMessage{}
-	mi := &file_types_proto_msgTypes[6]
+	mi := &file_types_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -777,7 +853,7 @@ func (x *SingleMessage) String() string {
 func (*SingleMessage) ProtoMessage() {}
 
 func (x *SingleMessage) ProtoReflect() protoreflect.Message {
-	mi := &file_types_proto_msgTypes[6]
+	mi := &file_types_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -790,7 +866,7 @@ func (x *SingleMessage) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SingleMessage.ProtoReflect.Descriptor instead.
 func (*SingleMessage) Descriptor() ([]byte, []int) {
-	return file_types_proto_rawDescGZIP(), []int{6}
+	return file_types_proto_rawDescGZIP(), []int{7}
 }
 
 func (x *SingleMessage) GetMessage() string {
@@ -809,7 +885,7 @@ type GroupMessage struct {
 
 func (x *GroupMessage) Reset() {
 	*x = GroupMessage{}
-	mi := &file_types_proto_msgTypes[7]
+	mi := &file_types_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -821,7 +897,7 @@ func (x *GroupMessage) String() string {
 func (*GroupMessage) ProtoMessage() {}
 
 func (x *GroupMessage) ProtoReflect() protoreflect.Message {
-	mi := &file_types_proto_msgTypes[7]
+	mi := &file_types_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -834,7 +910,7 @@ func (x *GroupMessage) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GroupMessage.ProtoReflect.Descriptor instead.
 func (*GroupMessage) Descriptor() ([]byte, []int) {
-	return file_types_proto_rawDescGZIP(), []int{7}
+	return file_types_proto_rawDescGZIP(), []int{8}
 }
 
 func (x *GroupMessage) GetFragments() []*LogFragment {
@@ -853,7 +929,7 @@ type ComplexMessage struct {
 
 func (x *ComplexMessage) Reset() {
 	*x = ComplexMessage{}
-	mi := &file_types_proto_msgTypes[8]
+	mi := &file_types_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -865,7 +941,7 @@ func (x *ComplexMessage) String() string {
 func (*ComplexMessage) ProtoMessage() {}
 
 func (x *ComplexMessage) ProtoReflect() protoreflect.Message {
-	mi := &file_types_proto_msgTypes[8]
+	mi := &file_types_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -878,7 +954,7 @@ func (x *ComplexMessage) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ComplexMessage.ProtoReflect.Descriptor instead.
 func (*ComplexMessage) Descriptor() ([]byte, []int) {
-	return file_types_proto_rawDescGZIP(), []int{8}
+	return file_types_proto_rawDescGZIP(), []int{9}
 }
 
 func (x *ComplexMessage) GetData() []byte {
@@ -902,7 +978,7 @@ type ContainerEvent struct {
 
 func (x *ContainerEvent) Reset() {
 	*x = ContainerEvent{}
-	mi := &file_types_proto_msgTypes[9]
+	mi := &file_types_proto_msgTypes[10]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -914,7 +990,7 @@ func (x *ContainerEvent) String() string {
 func (*ContainerEvent) ProtoMessage() {}
 
 func (x *ContainerEvent) ProtoReflect() protoreflect.Message {
-	mi := &file_types_proto_msgTypes[9]
+	mi := &file_types_proto_msgTypes[10]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -927,7 +1003,7 @@ func (x *ContainerEvent) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ContainerEvent.ProtoReflect.Descriptor instead.
 func (*ContainerEvent) Descriptor() ([]byte, []int) {
-	return file_types_proto_rawDescGZIP(), []int{9}
+	return file_types_proto_rawDescGZIP(), []int{10}
 }
 
 func (x *ContainerEvent) GetActorId() string {
@@ -1003,7 +1079,7 @@ type Host struct {
 
 func (x *Host) Reset() {
 	*x = Host{}
-	mi := &file_types_proto_msgTypes[10]
+	mi := &file_types_proto_msgTypes[11]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1015,7 +1091,7 @@ func (x *Host) String() string {
 func (*Host) ProtoMessage() {}
 
 func (x *Host) ProtoReflect() protoreflect.Message {
-	mi := &file_types_proto_msgTypes[10]
+	mi := &file_types_proto_msgTypes[11]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1028,7 +1104,7 @@ func (x *Host) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Host.ProtoReflect.Descriptor instead.
 func (*Host) Descriptor() ([]byte, []int) {
-	return file_types_proto_rawDescGZIP(), []int{10}
+	return file_types_proto_rawDescGZIP(), []int{11}
 }
 
 func (x *Host) GetId() string {
@@ -1189,7 +1265,7 @@ type Disk struct {
 
 func (x *Disk) Reset() {
 	*x = Disk{}
-	mi := &file_types_proto_msgTypes[11]
+	mi := &file_types_proto_msgTypes[12]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1201,7 +1277,7 @@ func (x *Disk) String() string {
 func (*Disk) ProtoMessage() {}
 
 func (x *Disk) ProtoReflect() protoreflect.Message {
-	mi := &file_types_proto_msgTypes[11]
+	mi := &file_types_proto_msgTypes[12]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1214,7 +1290,7 @@ func (x *Disk) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Disk.ProtoReflect.Descriptor instead.
 func (*Disk) Descriptor() ([]byte, []int) {
-	return file_types_proto_rawDescGZIP(), []int{11}
+	return file_types_proto_rawDescGZIP(), []int{12}
 }
 
 func (x *Disk) GetName() string {
@@ -1256,7 +1332,7 @@ type NotificationSubscription struct {
 
 func (x *NotificationSubscription) Reset() {
 	*x = NotificationSubscription{}
-	mi := &file_types_proto_msgTypes[12]
+	mi := &file_types_proto_msgTypes[13]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1268,7 +1344,7 @@ func (x *NotificationSubscription) String() string {
 func (*NotificationSubscription) ProtoMessage() {}
 
 func (x *NotificationSubscription) ProtoReflect() protoreflect.Message {
-	mi := &file_types_proto_msgTypes[12]
+	mi := &file_types_proto_msgTypes[13]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1281,7 +1357,7 @@ func (x *NotificationSubscription) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use NotificationSubscription.ProtoReflect.Descriptor instead.
 func (*NotificationSubscription) Descriptor() ([]byte, []int) {
-	return file_types_proto_rawDescGZIP(), []int{12}
+	return file_types_proto_rawDescGZIP(), []int{13}
 }
 
 func (x *NotificationSubscription) GetId() int32 {
@@ -1368,7 +1444,7 @@ type NotificationDispatcher struct {
 
 func (x *NotificationDispatcher) Reset() {
 	*x = NotificationDispatcher{}
-	mi := &file_types_proto_msgTypes[13]
+	mi := &file_types_proto_msgTypes[14]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1380,7 +1456,7 @@ func (x *NotificationDispatcher) String() string {
 func (*NotificationDispatcher) ProtoMessage() {}
 
 func (x *NotificationDispatcher) ProtoReflect() protoreflect.Message {
-	mi := &file_types_proto_msgTypes[13]
+	mi := &file_types_proto_msgTypes[14]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1393,7 +1469,7 @@ func (x *NotificationDispatcher) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use NotificationDispatcher.ProtoReflect.Descriptor instead.
 func (*NotificationDispatcher) Descriptor() ([]byte, []int) {
-	return file_types_proto_rawDescGZIP(), []int{13}
+	return file_types_proto_rawDescGZIP(), []int{14}
 }
 
 func (x *NotificationDispatcher) GetId() int32 {
@@ -1454,7 +1530,7 @@ type NotificationCloudConfig struct {
 
 func (x *NotificationCloudConfig) Reset() {
 	*x = NotificationCloudConfig{}
-	mi := &file_types_proto_msgTypes[14]
+	mi := &file_types_proto_msgTypes[15]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1466,7 +1542,7 @@ func (x *NotificationCloudConfig) String() string {
 func (*NotificationCloudConfig) ProtoMessage() {}
 
 func (x *NotificationCloudConfig) ProtoReflect() protoreflect.Message {
-	mi := &file_types_proto_msgTypes[14]
+	mi := &file_types_proto_msgTypes[15]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1479,7 +1555,7 @@ func (x *NotificationCloudConfig) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use NotificationCloudConfig.ProtoReflect.Descriptor instead.
 func (*NotificationCloudConfig) Descriptor() ([]byte, []int) {
-	return file_types_proto_rawDescGZIP(), []int{14}
+	return file_types_proto_rawDescGZIP(), []int{15}
 }
 
 func (x *NotificationCloudConfig) GetApiKey() string {
@@ -1522,7 +1598,7 @@ type NotificationSubscriptionStats struct {
 
 func (x *NotificationSubscriptionStats) Reset() {
 	*x = NotificationSubscriptionStats{}
-	mi := &file_types_proto_msgTypes[15]
+	mi := &file_types_proto_msgTypes[16]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1534,7 +1610,7 @@ func (x *NotificationSubscriptionStats) String() string {
 func (*NotificationSubscriptionStats) ProtoMessage() {}
 
 func (x *NotificationSubscriptionStats) ProtoReflect() protoreflect.Message {
-	mi := &file_types_proto_msgTypes[15]
+	mi := &file_types_proto_msgTypes[16]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1547,7 +1623,7 @@ func (x *NotificationSubscriptionStats) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use NotificationSubscriptionStats.ProtoReflect.Descriptor instead.
 func (*NotificationSubscriptionStats) Descriptor() ([]byte, []int) {
-	return file_types_proto_rawDescGZIP(), []int{15}
+	return file_types_proto_rawDescGZIP(), []int{16}
 }
 
 func (x *NotificationSubscriptionStats) GetSubscriptionId() int32 {
@@ -1582,7 +1658,7 @@ var File_types_proto protoreflect.FileDescriptor
 
 const file_types_proto_rawDesc = "" +
 	"\n" +
-	"\vtypes.proto\x12\bprotobuf\x1a\x19google/protobuf/any.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xfc\a\n" +
+	"\vtypes.proto\x12\bprotobuf\x1a\x19google/protobuf/any.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xad\b\n" +
 	"\tContainer\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12\x14\n" +
@@ -1615,11 +1691,17 @@ const file_types_proto_rawDesc = "" +
 	"\frestartCount\x18\x1b \x01(\x05R\frestartCount\x12\x1c\n" +
 	"\toomKilled\x18\x1c \x01(\bR\toomKilled\x12\x1a\n" +
 	"\bexitCode\x18\x1d \x01(\x05R\bexitCode\x12\x1b\n" +
-	"\x06sizeRw\x18\x1e \x01(\x03H\x00R\x06sizeRw\x88\x01\x01\x1a9\n" +
+	"\x06sizeRw\x18\x1e \x01(\x03H\x00R\x06sizeRw\x88\x01\x01\x12/\n" +
+	"\avolumes\x18\x1f \x03(\v2\x15.protobuf.VolumeUsageR\avolumes\x1a9\n" +
 	"\vLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01B\t\n" +
-	"\a_sizeRwJ\x04\b\x16\x10\x17\"\xa5\x02\n" +
+	"\a_sizeRwJ\x04\b\x16\x10\x17\"m\n" +
+	"\vVolumeUsage\x12\x12\n" +
+	"\x04name\x18\x01 \x01(\tR\x04name\x12 \n" +
+	"\vdestination\x18\x02 \x01(\tR\vdestination\x12\x12\n" +
+	"\x04size\x18\x03 \x01(\x03R\x04size\x12\x14\n" +
+	"\x05links\x18\x04 \x01(\x03R\x05links\"\xa5\x02\n" +
 	"\rContainerStat\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x1e\n" +
 	"\n" +
@@ -1760,57 +1842,59 @@ func file_types_proto_rawDescGZIP() []byte {
 }
 
 var file_types_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_types_proto_msgTypes = make([]protoimpl.MessageInfo, 20)
+var file_types_proto_msgTypes = make([]protoimpl.MessageInfo, 21)
 var file_types_proto_goTypes = []any{
 	(ContainerAction)(0),                  // 0: protobuf.ContainerAction
 	(*Container)(nil),                     // 1: protobuf.Container
-	(*ContainerStat)(nil),                 // 2: protobuf.ContainerStat
-	(*Mount)(nil),                         // 3: protobuf.Mount
-	(*MountStat)(nil),                     // 4: protobuf.MountStat
-	(*LogFragment)(nil),                   // 5: protobuf.LogFragment
-	(*LogEvent)(nil),                      // 6: protobuf.LogEvent
-	(*SingleMessage)(nil),                 // 7: protobuf.SingleMessage
-	(*GroupMessage)(nil),                  // 8: protobuf.GroupMessage
-	(*ComplexMessage)(nil),                // 9: protobuf.ComplexMessage
-	(*ContainerEvent)(nil),                // 10: protobuf.ContainerEvent
-	(*Host)(nil),                          // 11: protobuf.Host
-	(*Disk)(nil),                          // 12: protobuf.Disk
-	(*NotificationSubscription)(nil),      // 13: protobuf.NotificationSubscription
-	(*NotificationDispatcher)(nil),        // 14: protobuf.NotificationDispatcher
-	(*NotificationCloudConfig)(nil),       // 15: protobuf.NotificationCloudConfig
-	(*NotificationSubscriptionStats)(nil), // 16: protobuf.NotificationSubscriptionStats
-	nil,                                   // 17: protobuf.Container.LabelsEntry
-	nil,                                   // 18: protobuf.ContainerEvent.ActorAttributesEntry
-	nil,                                   // 19: protobuf.Host.LabelsEntry
-	nil,                                   // 20: protobuf.NotificationDispatcher.HeadersEntry
-	(*timestamppb.Timestamp)(nil),         // 21: google.protobuf.Timestamp
-	(*anypb.Any)(nil),                     // 22: google.protobuf.Any
+	(*VolumeUsage)(nil),                   // 2: protobuf.VolumeUsage
+	(*ContainerStat)(nil),                 // 3: protobuf.ContainerStat
+	(*Mount)(nil),                         // 4: protobuf.Mount
+	(*MountStat)(nil),                     // 5: protobuf.MountStat
+	(*LogFragment)(nil),                   // 6: protobuf.LogFragment
+	(*LogEvent)(nil),                      // 7: protobuf.LogEvent
+	(*SingleMessage)(nil),                 // 8: protobuf.SingleMessage
+	(*GroupMessage)(nil),                  // 9: protobuf.GroupMessage
+	(*ComplexMessage)(nil),                // 10: protobuf.ComplexMessage
+	(*ContainerEvent)(nil),                // 11: protobuf.ContainerEvent
+	(*Host)(nil),                          // 12: protobuf.Host
+	(*Disk)(nil),                          // 13: protobuf.Disk
+	(*NotificationSubscription)(nil),      // 14: protobuf.NotificationSubscription
+	(*NotificationDispatcher)(nil),        // 15: protobuf.NotificationDispatcher
+	(*NotificationCloudConfig)(nil),       // 16: protobuf.NotificationCloudConfig
+	(*NotificationSubscriptionStats)(nil), // 17: protobuf.NotificationSubscriptionStats
+	nil,                                   // 18: protobuf.Container.LabelsEntry
+	nil,                                   // 19: protobuf.ContainerEvent.ActorAttributesEntry
+	nil,                                   // 20: protobuf.Host.LabelsEntry
+	nil,                                   // 21: protobuf.NotificationDispatcher.HeadersEntry
+	(*timestamppb.Timestamp)(nil),         // 22: google.protobuf.Timestamp
+	(*anypb.Any)(nil),                     // 23: google.protobuf.Any
 }
 var file_types_proto_depIdxs = []int32{
-	21, // 0: protobuf.Container.created:type_name -> google.protobuf.Timestamp
-	21, // 1: protobuf.Container.started:type_name -> google.protobuf.Timestamp
-	17, // 2: protobuf.Container.labels:type_name -> protobuf.Container.LabelsEntry
-	2,  // 3: protobuf.Container.stats:type_name -> protobuf.ContainerStat
-	21, // 4: protobuf.Container.finished:type_name -> google.protobuf.Timestamp
-	4,  // 5: protobuf.Container.mountStats:type_name -> protobuf.MountStat
-	3,  // 6: protobuf.Container.mounts:type_name -> protobuf.Mount
-	21, // 7: protobuf.MountStat.lastChecked:type_name -> google.protobuf.Timestamp
-	22, // 8: protobuf.LogEvent.message:type_name -> google.protobuf.Any
-	21, // 9: protobuf.LogEvent.timestamp:type_name -> google.protobuf.Timestamp
-	5,  // 10: protobuf.GroupMessage.fragments:type_name -> protobuf.LogFragment
-	21, // 11: protobuf.ContainerEvent.timestamp:type_name -> google.protobuf.Timestamp
-	18, // 12: protobuf.ContainerEvent.actorAttributes:type_name -> protobuf.ContainerEvent.ActorAttributesEntry
-	1,  // 13: protobuf.ContainerEvent.container:type_name -> protobuf.Container
-	19, // 14: protobuf.Host.labels:type_name -> protobuf.Host.LabelsEntry
-	12, // 15: protobuf.Host.disks:type_name -> protobuf.Disk
-	20, // 16: protobuf.NotificationDispatcher.headers:type_name -> protobuf.NotificationDispatcher.HeadersEntry
-	21, // 17: protobuf.NotificationCloudConfig.expiresAt:type_name -> google.protobuf.Timestamp
-	21, // 18: protobuf.NotificationSubscriptionStats.lastTriggeredAt:type_name -> google.protobuf.Timestamp
-	19, // [19:19] is the sub-list for method output_type
-	19, // [19:19] is the sub-list for method input_type
-	19, // [19:19] is the sub-list for extension type_name
-	19, // [19:19] is the sub-list for extension extendee
-	0,  // [0:19] is the sub-list for field type_name
+	22, // 0: protobuf.Container.created:type_name -> google.protobuf.Timestamp
+	22, // 1: protobuf.Container.started:type_name -> google.protobuf.Timestamp
+	18, // 2: protobuf.Container.labels:type_name -> protobuf.Container.LabelsEntry
+	3,  // 3: protobuf.Container.stats:type_name -> protobuf.ContainerStat
+	22, // 4: protobuf.Container.finished:type_name -> google.protobuf.Timestamp
+	5,  // 5: protobuf.Container.mountStats:type_name -> protobuf.MountStat
+	4,  // 6: protobuf.Container.mounts:type_name -> protobuf.Mount
+	2,  // 7: protobuf.Container.volumes:type_name -> protobuf.VolumeUsage
+	22, // 8: protobuf.MountStat.lastChecked:type_name -> google.protobuf.Timestamp
+	23, // 9: protobuf.LogEvent.message:type_name -> google.protobuf.Any
+	22, // 10: protobuf.LogEvent.timestamp:type_name -> google.protobuf.Timestamp
+	6,  // 11: protobuf.GroupMessage.fragments:type_name -> protobuf.LogFragment
+	22, // 12: protobuf.ContainerEvent.timestamp:type_name -> google.protobuf.Timestamp
+	19, // 13: protobuf.ContainerEvent.actorAttributes:type_name -> protobuf.ContainerEvent.ActorAttributesEntry
+	1,  // 14: protobuf.ContainerEvent.container:type_name -> protobuf.Container
+	20, // 15: protobuf.Host.labels:type_name -> protobuf.Host.LabelsEntry
+	13, // 16: protobuf.Host.disks:type_name -> protobuf.Disk
+	21, // 17: protobuf.NotificationDispatcher.headers:type_name -> protobuf.NotificationDispatcher.HeadersEntry
+	22, // 18: protobuf.NotificationCloudConfig.expiresAt:type_name -> google.protobuf.Timestamp
+	22, // 19: protobuf.NotificationSubscriptionStats.lastTriggeredAt:type_name -> google.protobuf.Timestamp
+	20, // [20:20] is the sub-list for method output_type
+	20, // [20:20] is the sub-list for method input_type
+	20, // [20:20] is the sub-list for extension type_name
+	20, // [20:20] is the sub-list for extension extendee
+	0,  // [0:20] is the sub-list for field type_name
 }
 
 func init() { file_types_proto_init() }
@@ -1819,14 +1903,14 @@ func file_types_proto_init() {
 		return
 	}
 	file_types_proto_msgTypes[0].OneofWrappers = []any{}
-	file_types_proto_msgTypes[14].OneofWrappers = []any{}
+	file_types_proto_msgTypes[15].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_types_proto_rawDesc), len(file_types_proto_rawDesc)),
 			NumEnums:      1,
-			NumMessages:   20,
+			NumMessages:   21,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

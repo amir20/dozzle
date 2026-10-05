@@ -156,6 +156,8 @@ tooltip:
   disk-io: "Schijf: ↑ {write}/s · ↓ {read}/s"
   cpu-usage: "CPU {cpu}% / {cores} kernen"
   memory-usage: "Geheugen {used} / {total}"
+  disk-layer: "Beschrijfbare laag: {size}"
+  disk-volume-shared: "{name}: {size} (gedeeld door {count} containers)"
   volumes: Volumes
   volume-unreachable: niet bereikbaar vanaf deze host
   volume-full: "{destination} is {pct} vol"

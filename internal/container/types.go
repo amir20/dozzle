@@ -53,6 +53,20 @@ type Container struct {
 	// walks the layer, so the size monitor fills it in on its own schedule; nil
 	// until the first measurement.
 	SizeRw *int64 `json:"sizeRw,omitempty"`
+	// Volumes are the Docker-managed volumes the container mounts, with their size.
+	// Docker measures every volume on the host in one walk, so these refresh far less
+	// often than SizeRw. Bind mounts are never here: Docker cannot measure them.
+	Volumes []VolumeUsage `json:"volumes,omitempty"`
+}
+
+// VolumeUsage is one volume a container mounts.
+type VolumeUsage struct {
+	Name        string `json:"name"`
+	Destination string `json:"destination"`
+	Size        int64  `json:"size"`
+	// Links is how many containers use the volume, this one included, so a volume
+	// with Links > 1 is counted in each of their totals.
+	Links int64 `json:"links"`
 }
 
 // Mount represents a container mount point

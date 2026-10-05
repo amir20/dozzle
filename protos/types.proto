@@ -42,6 +42,14 @@ message Container {
   int32 exitCode = 29;
   // unset until the agent has measured the writable layer
   optional int64 sizeRw = 30;
+  repeated VolumeUsage volumes = 31;
+}
+
+message VolumeUsage {
+  string name = 1;
+  string destination = 2;
+  int64 size = 3;
+  int64 links = 4;
 }
 
 message ContainerStat {

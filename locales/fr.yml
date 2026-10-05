@@ -156,6 +156,8 @@ tooltip:
   disk-io: "Disque : ↑ {write}/s · ↓ {read}/s"
   cpu-usage: "CPU {cpu}% / {cores} cœurs"
   memory-usage: "Mémoire {used} / {total}"
+  disk-layer: "Couche inscriptible : {size}"
+  disk-volume-shared: "{name} : {size} (partagé par {count} conteneurs)"
   volumes: Volumes
   volume-unreachable: inaccessible depuis cet hôte
   volume-full: "{destination} est plein à {pct}"

@@ -3,6 +3,7 @@ package container
 import (
 	"context"
 	"errors"
+	"slices"
 	"sync/atomic"
 	"time"
 
@@ -142,6 +143,29 @@ func (s *Store) applySize(id string, size int64) {
 			return false
 		}
 		c.SizeRw = &size
+		return true
+	})
+	if !ok {
+		return
+	}
+
+	s.broadcast(ContainerEvent{
+		Name:      "update",
+		Host:      updated.Host,
+		ActorID:   updated.ID,
+		Time:      time.Now(),
+		Container: updated,
+	})
+}
+
+// applyVolumes records the volumes a container mounts and broadcasts an "update"
+// when they changed.
+func (s *Store) applyVolumes(id string, volumes []VolumeUsage) {
+	updated, ok := s.patch(id, func(c *Container) bool {
+		if slices.Equal(c.Volumes, volumes) {
+			return false
+		}
+		c.Volumes = volumes
 		return true
 	})
 	if !ok {

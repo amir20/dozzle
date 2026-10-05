@@ -69,4 +69,8 @@ type SizeReader interface {
 	ContainerSizes(ctx context.Context) (map[string]int64, error)
 	// ContainerSize measures one container.
 	ContainerSize(ctx context.Context, id string) (int64, error)
+	// VolumeSizes measures every volume on the host and returns, per container, the
+	// ones it mounts. There is no way to measure one volume, so this is always a
+	// walk of all of them.
+	VolumeSizes(ctx context.Context) (map[string][]VolumeUsage, error)
 }

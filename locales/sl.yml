@@ -156,6 +156,8 @@ tooltip:
   disk-io: "Disk: ↑ {write}/s · ↓ {read}/s"
   cpu-usage: "CPE {cpu}% / {cores} jeder"
   memory-usage: "Pomnilnik {used} / {total}"
+  disk-layer: "Zapisljiva plast: {size}"
+  disk-volume-shared: "{name}: {size} (v skupni rabi {count} vsebnikov)"
   volumes: Nosilci
   volume-unreachable: nedosegljivo iz tega gostitelja
   volume-full: "{destination} je {pct} poln"

@@ -158,6 +158,8 @@ tooltip:
   disk-io: "Disk: ↑ {write}/s · ↓ {read}/s"
   cpu-usage: "CPU {cpu}% / {cores} core"
   memory-usage: "Memori {used} / {total}"
+  disk-layer: "Lapisan yang dapat ditulis: {size}"
+  disk-volume-shared: "{name}: {size} (dipakai bersama oleh {count} kontainer)"
   volumes: Volume
   volume-unreachable: tidak dapat dijangkau dari host ini
   volume-full: "{destination} terisi {pct}"

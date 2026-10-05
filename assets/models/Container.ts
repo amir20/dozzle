@@ -5,6 +5,7 @@ import type {
   ContainerStat,
   ContainerState,
   MountStat,
+  VolumeUsage,
 } from "@/types/Container";
 import { Ref, ShallowRef } from "vue";
 
@@ -110,6 +111,7 @@ export class Container {
     public readonly ports: string[] = [],
     // bytes in the writable layer; undefined until the server has measured it
     public sizeRw?: number,
+    public volumes: VolumeUsage[] = [],
   ) {
     this._health = health;
     this.mounts = mounts;
@@ -152,6 +154,13 @@ export class Container {
 
   get hostLabel() {
     return hosts.value[this.host]?.name;
+  }
+
+  // Writable layer plus every volume the container mounts. A shared volume counts in
+  // each container that uses it. Undefined until something has been measured.
+  get diskTotal(): number | undefined {
+    if (this.sizeRw === undefined && this.volumes.length === 0) return undefined;
+    return this.volumes.reduce((sum, v) => sum + v.size, this.sizeRw ?? 0);
   }
 
   get storageKey() {
@@ -361,6 +370,7 @@ export class Container {
       c.mountStats ?? {},
       c.ports ?? [],
       c.sizeRw,
+      c.volumes ?? [],
     );
   }
 }
