@@ -338,6 +338,9 @@ func carryOverStats(from *Container, to *Container) {
 	if to.SizeRw == nil {
 		to.SizeRw = from.SizeRw
 	}
+	if to.Volumes == nil {
+		to.Volumes = from.Volumes
+	}
 }
 
 // storeListed stores a list entry taken during a refresh. It reports whether it did,

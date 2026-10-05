@@ -44,6 +44,11 @@ func containerToProto(c container.Container) pb.Container {
 		})
 	}
 
+	var pbVolumes []*pb.VolumeUsage
+	for _, v := range c.Volumes {
+		pbVolumes = append(pbVolumes, &pb.VolumeUsage{Name: v.Name, Destination: v.Destination, Size: v.Size, Links: v.Links})
+	}
+
 	return pb.Container{
 		Id:            c.ID,
 		Name:          c.Name,
@@ -72,6 +77,7 @@ func containerToProto(c container.Container) pb.Container {
 		OomKilled:     c.OOMKilled,
 		ExitCode:      int32(c.ExitCode),
 		SizeRw:        c.SizeRw,
+		Volumes:       pbVolumes,
 	}
 }
 
@@ -125,6 +131,11 @@ func containerFromProto(c *pb.Container) container.Container {
 		}
 	}
 
+	var volumes []container.VolumeUsage
+	for _, v := range c.Volumes {
+		volumes = append(volumes, container.VolumeUsage{Name: v.Name, Destination: v.Destination, Size: v.Size, Links: v.Links})
+	}
+
 	return container.Container{
 		ID:            c.Id,
 		Name:          c.Name,
@@ -153,6 +164,7 @@ func containerFromProto(c *pb.Container) container.Container {
 		OOMKilled:     c.OomKilled,
 		ExitCode:      int(c.ExitCode),
 		SizeRw:        c.SizeRw,
+		Volumes:       volumes,
 	}
 }
 

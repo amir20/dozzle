@@ -156,6 +156,8 @@ tooltip:
   disk-io: "Disk: ↑ {write}/s · ↓ {read}/s"
   cpu-usage: "CPU {cpu}% / {cores} kerner"
   memory-usage: "Hukommelse {used} / {total}"
+  disk-layer: "Skrivbart lag: {size}"
+  disk-volume-shared: "{name}: {size} (delt af {count} containere)"
   volumes: Volumener
   volume-unreachable: ikke tilgængelig fra denne host
   volume-full: "{destination} er {pct} fuld"

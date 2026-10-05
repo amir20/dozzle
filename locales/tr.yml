@@ -156,6 +156,8 @@ tooltip:
   disk-io: "Disk: ↑ {write}/sn · ↓ {read}/sn"
   cpu-usage: "CPU {cpu}% / {cores} çekirdek"
   memory-usage: "Bellek {used} / {total}"
+  disk-layer: "Yazılabilir katman: {size}"
+  disk-volume-shared: "{name}: {size} ({count} konteyner tarafından paylaşılıyor)"
   volumes: Birimler
   volume-unreachable: bu sunucudan erişilemiyor
   volume-full: "{destination} {pct} dolu"

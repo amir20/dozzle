@@ -156,6 +156,8 @@ tooltip:
   disk-io: "디스크: ↑ {write}/s · ↓ {read}/s"
   cpu-usage: "CPU {cpu}% / {cores} 코어"
   memory-usage: "메모리 {used} / {total}"
+  disk-layer: "쓰기 가능 레이어: {size}"
+  disk-volume-shared: "{name}: {size} (컨테이너 {count}개가 공유)"
   volumes: 볼륨
   volume-unreachable: 이 호스트에서 접근할 수 없음
   volume-full: "{destination}이(가) {pct} 사용 중"

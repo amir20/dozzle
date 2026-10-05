@@ -19,6 +19,7 @@ import (
 	docker "github.com/moby/moby/api/types/container"
 	"github.com/moby/moby/api/types/events"
 	"github.com/moby/moby/api/types/image"
+	"github.com/moby/moby/api/types/mount"
 	"github.com/moby/moby/api/types/system"
 	"github.com/moby/moby/client"
 
@@ -50,6 +51,7 @@ type CLI interface {
 	ServiceInspect(ctx context.Context, serviceID string, opts client.ServiceInspectOptions) (client.ServiceInspectResult, error)
 	ServiceList(ctx context.Context, options client.ServiceListOptions) (client.ServiceListResult, error)
 	ServiceUpdate(ctx context.Context, serviceID string, options client.ServiceUpdateOptions) (client.ServiceUpdateResult, error)
+	DiskUsage(ctx context.Context, options client.DiskUsageOptions) (client.DiskUsageResult, error)
 }
 
 type Client struct {
@@ -327,6 +329,41 @@ func (d *Client) ContainerSize(ctx context.Context, id string) (int64, error) {
 		return 0, fmt.Errorf("daemon did not report a size for %s", id)
 	}
 	return *result.Container.SizeRw, nil
+}
+
+// VolumeSizes measures every volume, the same walk as `docker system df -v`, and
+// matches them to the containers that mount them. The match comes from a plain
+// list, since a stopped container that was never inspected has no mounts in the store.
+func (d *Client) VolumeSizes(ctx context.Context) (map[string][]container.VolumeUsage, error) {
+	du, err := d.cli.DiskUsage(ctx, client.DiskUsageOptions{Volumes: true, Verbose: true})
+	if err != nil {
+		return nil, err
+	}
+	byName := make(map[string]container.VolumeUsage, len(du.Volumes.Items))
+	for _, v := range du.Volumes.Items {
+		// -1 is a driver that cannot say, such as most volume plugins
+		if v.UsageData == nil || v.UsageData.Size < 0 {
+			continue
+		}
+		byName[v.Name] = container.VolumeUsage{Name: v.Name, Size: v.UsageData.Size, Links: v.UsageData.RefCount}
+	}
+
+	list, err := d.cli.ContainerList(ctx, client.ContainerListOptions{All: true})
+	if err != nil {
+		return nil, err
+	}
+	volumes := make(map[string][]container.VolumeUsage)
+	for _, c := range list.Items {
+		for _, m := range c.Mounts {
+			v, ok := byName[m.Name]
+			if m.Type != mount.TypeVolume || !ok {
+				continue
+			}
+			v.Destination = m.Destination
+			volumes[c.ID[:12]] = append(volumes[c.ID[:12]], v)
+		}
+	}
+	return volumes, nil
 }
 
 func (d *Client) ContainerRemove(ctx context.Context, containerID string) error {

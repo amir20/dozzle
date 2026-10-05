@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"sync"
+	"sync/atomic"
 	"testing"
 	"time"
 
@@ -21,6 +22,16 @@ type sizedClient struct {
 	// batches to fail before one succeeds
 	allFails  int
 	allCalled int
+
+	volumes       map[string][]VolumeUsage
+	volumesCalled atomic.Int32
+}
+
+func (c *sizedClient) VolumeSizes(context.Context) (map[string][]VolumeUsage, error) {
+	c.volumesCalled.Add(1)
+	c.mu.Lock()
+	defer c.mu.Unlock()
+	return c.volumes, nil
 }
 
 func (c *sizedClient) ContainerSizes(context.Context) (map[string]int64, error) {
@@ -204,6 +215,95 @@ func TestSizeMonitor_measureAllRetries(t *testing.T) {
 	assert.Equal(t, sizeBatchAttempts, client.allCalled, "each retry walks the whole host, so they are bounded")
 }
 
+func TestSizeMonitor_measureVolumes(t *testing.T) {
+	data := VolumeUsage{Name: "clickhouse_data", Destination: "/var/lib/clickhouse", Size: 23 << 30, Links: 1}
+	client := &sizedClient{mockedClient: new(mockedClient), volumes: map[string][]VolumeUsage{"db": {data}}}
+	store := bareStore(t, client)
+	for _, id := range []string{"db", "web"} {
+		c := loadedContainer(id, "running")
+		store.containers.Store(id, &c)
+	}
+	events := make(chan ContainerEvent, 4)
+	store.subscribers.Store(t.Context(), &eventSubscriber{ch: events, name: "test"})
+	m := newSizeMonitor(store, client)
+
+	assert.True(t, m.claimVolumes())
+	m.measureVolumes(t.Context())
+
+	db, _ := store.containers.Load("db")
+	web, _ := store.containers.Load("web")
+	assert.Equal(t, []VolumeUsage{data}, db.Volumes)
+	assert.Nil(t, web.Volumes)
+	assert.Len(t, events, 1, "only the container whose volumes changed broadcasts")
+
+	// the volume is removed along with its container's mount
+	client.volumes = nil
+	m.lastVolumesNanos.Store(0)
+	assert.True(t, m.claimVolumes())
+	m.measureVolumes(t.Context())
+	db, _ = store.containers.Load("db")
+	assert.Nil(t, db.Volumes)
+}
+
+func TestSizeMonitor_volumesAtMostOncePerInterval(t *testing.T) {
+	client := &sizedClient{mockedClient: new(mockedClient)}
+	m := newSizeMonitor(bareStore(t, client), client)
+
+	assert.True(t, m.claimVolumes(), "the first walk is due")
+	assert.False(t, m.claimVolumes(), "a walk already running is not started again")
+	m.volumesRunning.Store(false)
+	assert.False(t, m.claimVolumes(), "a walk that just ran is not due")
+
+	m.lastVolumesNanos.Store(time.Now().Add(-volumeRefreshInterval).UnixNano())
+	assert.True(t, m.claimVolumes(), "due again after the interval")
+}
+
+func TestSizeMonitor_statsTriggerOneVolumeWalk(t *testing.T) {
+	client := &sizedClient{mockedClient: new(mockedClient)}
+	m := newSizeMonitor(bareStore(t, client), client)
+	c := loadedContainer("1", "running")
+
+	m.observe(&c, ContainerStat{ID: "1"})
+	assert.False(t, m.volumesRunning.Load(), "the first walk waits for the layer batch, not for a stat")
+	assert.Equal(t, int32(0), client.volumesCalled.Load())
+
+	// the batch ran its walk a while ago
+	m.lastVolumesNanos.Store(time.Now().Add(-volumeRefreshInterval).UnixNano())
+	for range 5 {
+		m.observe(&c, ContainerStat{ID: "1"})
+	}
+	assert.Eventually(t, func() bool { return client.volumesCalled.Load() == 1 && !m.volumesRunning.Load() }, 5*time.Second, 5*time.Millisecond)
+	m.observe(&c, ContainerStat{ID: "1"})
+	assert.Equal(t, int32(1), client.volumesCalled.Load(), "stats inside the interval walk nothing")
+}
+
+// The layer batch and the first volume walk both walk the whole host, so they run one
+// after the other, and a batch that gives up still leaves volumes measured.
+func TestSizeMonitor_volumesFollowTheBatch(t *testing.T) {
+	client := &sizedClient{
+		mockedClient: new(mockedClient),
+		allFails:     sizeBatchAttempts,
+		volumes:      map[string][]VolumeUsage{"1": {{Name: "data", Size: 5, Links: 1}}},
+	}
+	store := bareStore(t, client)
+	c := loadedContainer("1", "exited")
+	store.containers.Store("1", &c)
+
+	newSizeMonitor(store, client).measureAll(t.Context())
+
+	assert.Equal(t, sizeBatchAttempts, client.allCalled)
+	assert.Equal(t, int32(1), client.volumesCalled.Load())
+	stored, _ := store.containers.Load("1")
+	assert.Len(t, stored.Volumes, 1)
+}
+
+func TestCarryOverStatsKeepsVolumes(t *testing.T) {
+	from := Container{ID: "1", Volumes: []VolumeUsage{{Name: "data", Size: 1}}}
+	to := Container{ID: "1"}
+	carryOverStats(&from, &to)
+	assert.Equal(t, from.Volumes, to.Volumes)
+}
+
 func TestCarryOverStatsKeepsSize(t *testing.T) {
 	size := int64(42)
 	from := Container{ID: "1", SizeRw: &size}
@@ -224,6 +324,7 @@ func TestStore_measuresAtBootAndOnDie(t *testing.T) {
 		mockedClient: base,
 		all:          map[string]int64{"running": 1, "stopped": 2},
 		one:          map[string]int64{"running": 3},
+		volumes:      map[string][]VolumeUsage{"stopped": {{Name: "data", Size: 9, Links: 1}}},
 	}
 
 	store := NewStore(t.Context(), client, newCaptureStatsCollector(), ContainerLabels{})
@@ -231,6 +332,10 @@ func TestStore_measuresAtBootAndOnDie(t *testing.T) {
 		c, _ := store.containers.Load("stopped")
 		return c != nil && c.SizeRw != nil && *c.SizeRw == 2
 	}, 5*time.Second, 5*time.Millisecond, "a stopped container is measured once after the first list")
+	assert.Eventually(t, func() bool {
+		c, _ := store.containers.Load("stopped")
+		return len(c.Volumes) == 1
+	}, 5*time.Second, 5*time.Millisecond, "volumes are measured right after the batch, stopped containers included")
 
 	events <- ContainerEvent{Name: "die", ActorID: "running", Host: "localhost"}
 	assert.Eventually(t, func() bool {

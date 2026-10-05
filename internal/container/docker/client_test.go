@@ -15,7 +15,9 @@ import (
 	"net/netip"
 
 	docker "github.com/moby/moby/api/types/container"
+	"github.com/moby/moby/api/types/mount"
 	"github.com/moby/moby/api/types/system"
+	"github.com/moby/moby/api/types/volume"
 	"github.com/moby/moby/client"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -34,6 +36,11 @@ func (m *mockedProxy) ContainerList(context.Context, client.ContainerListOptions
 		panic("containers is not of type []docker.Summary")
 	}
 	return client.ContainerListResult{Items: containers}, args.Error(1)
+}
+
+func (m *mockedProxy) DiskUsage(context.Context, client.DiskUsageOptions) (client.DiskUsageResult, error) {
+	args := m.Called()
+	return client.DiskUsageResult{Volumes: client.VolumesDiskUsage{Items: args.Get(0).([]volume.Volume)}}, args.Error(1)
 }
 
 func (m *mockedProxy) ContainerLogs(ctx context.Context, id string, options client.ContainerLogsOptions) (client.ContainerLogsResult, error) {
@@ -214,6 +221,38 @@ func Test_dockerClient_ContainerSizes(t *testing.T) {
 	sizes, err := client.ContainerSizes(context.Background())
 	require.NoError(t, err)
 	assert.Equal(t, map[string]int64{"abcdefghijkl": 2048, "1234567890_a": 0}, sizes, "keyed by the short ID the store uses")
+}
+
+func Test_dockerClient_VolumeSizes(t *testing.T) {
+	proxy := new(mockedProxy)
+	proxy.On("DiskUsage").Return([]volume.Volume{
+		{Name: "clickhouse_data", UsageData: &volume.UsageData{Size: 23 << 30, RefCount: 1}},
+		{Name: "shared", UsageData: &volume.UsageData{Size: 10, RefCount: 2}},
+		{Name: "plugin", UsageData: &volume.UsageData{Size: -1, RefCount: 1}},
+		{Name: "orphan", UsageData: &volume.UsageData{Size: 99, RefCount: 0}},
+	}, nil)
+	proxy.On("ContainerList", mock.Anything, mock.Anything).Return([]docker.Summary{
+		{ID: "abcdefghijklmnopqrst", State: "exited", Mounts: []docker.MountPoint{
+			{Type: mount.TypeVolume, Name: "clickhouse_data", Destination: "/var/lib/clickhouse"},
+			{Type: mount.TypeVolume, Name: "shared", Destination: "/shared"},
+			{Type: mount.TypeVolume, Name: "plugin", Destination: "/remote"},
+			{Type: mount.TypeBind, Source: "/data/pg", Destination: "/var/lib/postgresql/data"},
+		}},
+		{ID: "1234567890_abcxyzdef", Mounts: []docker.MountPoint{
+			{Type: mount.TypeVolume, Name: "shared", Destination: "/shared"},
+		}},
+	}, nil)
+	client := &Client{cli: proxy, host: container.Host{ID: "localhost"}}
+
+	volumes, err := client.VolumeSizes(context.Background())
+	require.NoError(t, err)
+	assert.Equal(t, map[string][]container.VolumeUsage{
+		"abcdefghijkl": {
+			{Name: "clickhouse_data", Destination: "/var/lib/clickhouse", Size: 23 << 30, Links: 1},
+			{Name: "shared", Destination: "/shared", Size: 10, Links: 2},
+		},
+		"1234567890_a": {{Name: "shared", Destination: "/shared", Size: 10, Links: 2}},
+	}, volumes, "bind mounts and volumes the driver cannot size are left out")
 }
 
 func Test_dockerClient_ContainerSize(t *testing.T) {

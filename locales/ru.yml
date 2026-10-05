@@ -156,6 +156,8 @@ tooltip:
   disk-io: "Диск: ↑ {write}/s · ↓ {read}/s"
   cpu-usage: "ЦП {cpu}% / {cores} ядер"
   memory-usage: "Память {used} / {total}"
+  disk-layer: "Записываемый слой: {size}"
+  disk-volume-shared: "{name}: {size} (общий для {count} контейнеров)"
   volumes: Тома
   volume-unreachable: недоступно с этого хоста
   volume-full: "{destination} заполнено на {pct}"

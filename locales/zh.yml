@@ -156,6 +156,8 @@ tooltip:
   disk-io: "磁盘：↑ {write}/s · ↓ {read}/s"
   cpu-usage: "CPU {cpu}% / {cores} 核"
   memory-usage: "内存 {used} / {total}"
+  disk-layer: "可写层：{size}"
+  disk-volume-shared: "{name}：{size}（由 {count} 个容器共享）"
   volumes: 卷
   volume-unreachable: 无法从此主机访问
   volume-full: "{destination} 已使用 {pct}"
