@@ -252,13 +252,8 @@ func (d *Service) UpdateContainer(ctx context.Context, c container.Container, pr
 	imageName := swap.ImageRef(inspectResp.Config)
 
 	// 2. Pull image with progress
-	reader, err := d.client.ImagePull(ctx, imageName)
-	if err != nil {
-		return fail(fmt.Errorf("pull failed: %w", err))
-	}
-	defer reader.Close()
-
-	if err := swap.ReadPull(reader, progress); err != nil {
+	pull := func() (io.ReadCloser, error) { return d.client.ImagePull(ctx, imageName) }
+	if err := swap.Pull(ctx, pull, progress); err != nil {
 		return fail(err)
 	}
 
