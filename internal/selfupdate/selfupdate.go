@@ -9,6 +9,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"io"
 	"regexp"
 	"strings"
 	"sync"
@@ -139,13 +140,8 @@ func start(ctx context.Context, cli dockerAPI, selfID string, progress func(cont
 		return false, nil
 	}
 
-	reader, err := cli.ImagePull(ctx, ref, client.ImagePullOptions{})
-	if err != nil {
-		return fail("pull failed: %w", err)
-	}
-	err = swap.ReadPull(reader, progress)
-	reader.Close()
-	if err != nil {
+	pull := func() (io.ReadCloser, error) { return cli.ImagePull(ctx, ref, client.ImagePullOptions{}) }
+	if err := swap.Pull(ctx, pull, progress); err != nil {
 		return fail("%w", err)
 	}
 
