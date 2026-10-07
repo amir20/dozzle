@@ -4,7 +4,8 @@
       <SearchInline class="hidden max-w-sm flex-1 md:flex" />
       <Links class="ml-auto">
         <template #more-items>
-          <Tag class="font-mono">{{ config.version }}</Tag>
+          <!-- Settings › About has it on a phone, where the top bar has no room to spare. -->
+          <Tag class="font-mono max-md:hidden">{{ config.version }}</Tag>
         </template>
       </Links>
     </section>

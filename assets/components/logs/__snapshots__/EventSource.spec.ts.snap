@@ -31,7 +31,7 @@ exports[`<ContainerEventSource /> > render html correctly > should render dates 
       <!--v-if-->
       <!-- On a phone the tags stack under the timestamp, so they drop to the small
          size: a whole-size chip made every line two lines tall. -->
-      <div class="flex gap-x-2 gap-y-0.5 group-[.compact]:gap-y-0 has-[>_*:nth-of-type(2)]:flex-col-reverse md:mr-1 md:gap-y-1 md:flex-row!">
+      <div class="flex gap-x-2 gap-y-0.5 group-[.compact]:gap-y-0 has-[>_*:nth-of-type(2)]:flex-col-reverse md:mr-1 md:flex-row! md:gap-y-1">
         <!--v-if-->
         <!--v-if-->
         <!-- Deliberately unboxed: in a wall of monospace text the timestamp is a
@@ -89,7 +89,7 @@ exports[`<ContainerEventSource /> > render html correctly > should render dates 
       <!--v-if-->
       <!-- On a phone the tags stack under the timestamp, so they drop to the small
          size: a whole-size chip made every line two lines tall. -->
-      <div class="flex gap-x-2 gap-y-0.5 group-[.compact]:gap-y-0 has-[>_*:nth-of-type(2)]:flex-col-reverse md:mr-1 md:gap-y-1 md:flex-row!">
+      <div class="flex gap-x-2 gap-y-0.5 group-[.compact]:gap-y-0 has-[>_*:nth-of-type(2)]:flex-col-reverse md:mr-1 md:flex-row! md:gap-y-1">
         <!--v-if-->
         <!--v-if-->
         <!-- Deliberately unboxed: in a wall of monospace text the timestamp is a
@@ -147,7 +147,7 @@ exports[`<ContainerEventSource /> > render html correctly > should render messag
       <!--v-if-->
       <!-- On a phone the tags stack under the timestamp, so they drop to the small
          size: a whole-size chip made every line two lines tall. -->
-      <div class="flex gap-x-2 gap-y-0.5 group-[.compact]:gap-y-0 has-[>_*:nth-of-type(2)]:flex-col-reverse md:mr-1 md:gap-y-1 md:flex-row!">
+      <div class="flex gap-x-2 gap-y-0.5 group-[.compact]:gap-y-0 has-[>_*:nth-of-type(2)]:flex-col-reverse md:mr-1 md:flex-row! md:gap-y-1">
         <!--v-if-->
         <!--v-if-->
         <!-- Deliberately unboxed: in a wall of monospace text the timestamp is a

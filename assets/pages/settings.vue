@@ -28,6 +28,7 @@
       ref="chipsEl"
       role="tablist"
       class="tabs tabs-box tabs-sm flex-nowrap overflow-x-auto @3xl:hidden"
+      :style="chipsMask"
       :aria-label="$t('title.settings')"
     >
       <router-link
@@ -132,6 +133,17 @@ const revealActiveChip = () =>
   chipsEl.value?.querySelector(".tab-active")?.scrollIntoView?.({ block: "nearest", inline: "nearest" });
 watch(() => route.path, revealActiveChip, { flush: "post" });
 onMounted(revealActiveChip);
+
+// A chip cut by the edge read as a rendering bug, so each side that has more to
+// scroll fades out instead.
+const { arrivedState } = useScroll(chipsEl);
+const chipsMask = computed(() => {
+  const start = arrivedState.left ? "0px" : "1.5rem";
+  const end = arrivedState.right ? "0px" : "1.5rem";
+  return {
+    maskImage: `linear-gradient(to right, transparent, #000 ${start}, #000 calc(100% - ${end}), transparent)`,
+  };
+});
 
 // Only the preferences these pages show. Nav width and collapsed panels are layout
 // state the user set somewhere else and would not expect a reset here to touch.

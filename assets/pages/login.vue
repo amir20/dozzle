@@ -3,7 +3,7 @@
        384px card horizontally scrolled the login page on every phone. `max-w-full`
        does not save it, because the hero shrinks to fit its content and resolves a
        percentage max-width against a width it is still computing. -->
-  <div class="card bg-base-100 w-full max-w-96 shadow-2xl">
+  <div class="card border-base-content/15 bg-base-200/40 w-full max-w-96 rounded-lg border">
     <div class="card-body gap-6">
       <div class="flex flex-col items-center gap-3 text-center">
         <Logo class="size-12" />
