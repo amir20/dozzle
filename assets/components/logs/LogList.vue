@@ -196,8 +196,11 @@ ul {
     text-indent: -1.5ch;
   }
 
+  /* An inline-block inherits the hanging indent above, which drew the match 1.5ch to the
+     left of its own highlight. */
   :deep(mark) {
     @apply bg-secondary inline-block rounded-xs;
+    text-indent: 0;
     animation: pops 200ms ease-out;
   }
 
