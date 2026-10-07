@@ -1,12 +1,14 @@
 <template>
   <!-- Why server settings are read-only here, the same in every setup step and every
        server page in Settings. Renders nothing when they can be changed. -->
-  <InlineNotice v-if="!status.dataPersisted" type="warning">{{ $t("setup.error.no-data") }}</InlineNotice>
+  <InlineNotice v-if="!status.dataPersisted" v-bind="$attrs" type="warning">{{
+    $t("setup.error.no-data")
+  }}</InlineNotice>
   <template v-else-if="!status.canWrite">
     <!-- A form that knows its env vars names them, and stays quiet once every one is set. -->
     <template v-if="envs && status.authProvider === 'none'">
-      <InlineNotice v-if="envs.length" type="info">
-        <i18n-t keypath="setup.actions.window-closed-env" tag="span">
+      <InlineNotice v-if="envs.length" v-bind="$attrs" type="info">
+        <i18n-t scope="global" keypath="setup.actions.window-closed-env" tag="span">
           <template #envs>
             <template v-for="part in envParts" :key="part.key">
               <code v-if="part.env" class="font-mono">{{ part.value }}</code>
@@ -16,12 +18,15 @@
         </i18n-t>
       </InlineNotice>
     </template>
-    <InlineNotice v-else type="info">{{ $t(setupAccessMessageKey(status)) }}</InlineNotice>
+    <InlineNotice v-else v-bind="$attrs" type="info">{{ $t(setupAccessMessageKey(status)) }}</InlineNotice>
   </template>
 </template>
 
 <script lang="ts" setup>
 import type { SetupStatus } from "@/composable/setup/setup";
+
+// The root is a v-if chain, so a caller's class goes to whichever notice renders.
+defineOptions({ inheritAttrs: false });
 
 const { envs } = defineProps<{
   status: SetupStatus;

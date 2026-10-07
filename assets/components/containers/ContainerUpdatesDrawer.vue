@@ -94,12 +94,12 @@
       <p class="text-base-content/40 text-xs">
         <!-- In server mode Settings → Updates holds the whole answer; elsewhere only the
              label does. -->
-        <i18n-t v-if="config.mode === 'server'" keypath="auto-update.footnote">
+        <i18n-t scope="global" v-if="config.mode === 'server'" keypath="auto-update.footnote">
           <template #link>
             <router-link to="/settings/updates" class="link">{{ $t("auto-update.footnote-link") }}</router-link>
           </template>
         </i18n-t>
-        <i18n-t v-else keypath="updates.auto-footnote">
+        <i18n-t scope="global" v-else keypath="updates.auto-footnote">
           <template #label>
             <code class="font-mono">{{ UPDATE_LABEL }}=auto</code>
           </template>
