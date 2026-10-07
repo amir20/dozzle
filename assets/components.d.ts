@@ -241,6 +241,7 @@ declare module 'vue' {
     'Mdi:update': typeof import('~icons/mdi/update')['default']
     'Mdi:viewDashboardOutline': typeof import('~icons/mdi/view-dashboard-outline')['default']
     'Mdi:webhook': typeof import('~icons/mdi/webhook')['default']
+    MemoryNewChip: typeof import('./components/logs/entries/MemoryNewChip.vue')['default']
     MetricAlertFields: typeof import('./components/notifications/MetricAlertFields.vue')['default']
     MetricCard: typeof import('./components/ui/MetricCard.vue')['default']
     MobileBackButton: typeof import('./components/shell/MobileBackButton.vue')['default']

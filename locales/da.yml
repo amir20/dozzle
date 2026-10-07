@@ -72,6 +72,13 @@ log-details:
   chart-field: "Vis {field} som diagram i SQL-analyse"
   toggle-all: Slå alle felter til eller fra
   toggle-field: Vis eller skjul i logstrømmen
+  memory-title: "Ny for denne container"
+  memory-explain: "Dozzle Cloud har ikke set dette mønster på denne container før. Linjer, der kun adskiller sig i tal, ID'er eller adresser, tæller som ét mønster."
+  memory-pattern: "Mønster"
+  memory-first-seen: "Først set"
+  memory-first-seen-now: "Med denne linje"
+  memory-last-hour: "Seneste time"
+  memory-lines: "Ingen linjer | 1 linje | {count} linjer"
 label:
   hide-sidebar: "Skjul sidepanelet"
   show-sidebar: "Vis sidepanelet"

@@ -5,12 +5,12 @@
   <button
     v-if="memory && SHOWN_STATUSES.has(memory.status)"
     type="button"
-    class="chip memory-chip mt-0.5 cursor-pointer select-none"
+    class="mt-0.5 inline-flex shrink-0 select-none"
     :title="tooltip"
     @mouseenter="hovered"
     @click.stop="openWhereItStarted"
   >
-    {{ $t("label.memory-new") }}
+    <MemoryNewChip />
   </button>
 </template>
 
@@ -49,13 +49,3 @@ function openWhereItStarted() {
   jumpTo(chipMoment(memory, logEntry));
 }
 </script>
-
-<style scoped>
-@reference "@/main.css";
-.chip {
-  background-color: transparent;
-  color: var(--color-warning);
-  border: 1px solid color-mix(in oklab, var(--color-warning) 45%, transparent);
-  @apply inline-flex shrink-0 items-center gap-1 rounded-xs px-1.5 py-px font-sans text-[0.62rem] font-bold tracking-wider uppercase;
-}
-</style>

@@ -72,6 +72,13 @@ log-details:
   chart-field: "Afficher {field} en graphique dans l’analyse SQL"
   toggle-all: Basculer tous les champs
   toggle-field: Afficher ou masquer dans le flux de logs
+  memory-title: "Nouveau pour ce conteneur"
+  memory-explain: "Dozzle Cloud n'avait jamais vu ce motif sur ce conteneur. Les lignes qui ne diffèrent que par des nombres, des identifiants ou des adresses comptent comme un seul motif."
+  memory-pattern: "Motif"
+  memory-first-seen: "Vu pour la première fois"
+  memory-first-seen-now: "Avec cette ligne"
+  memory-last-hour: "Dernière heure"
+  memory-lines: "Aucune ligne | 1 ligne | {count} lignes"
 label:
   hide-sidebar: "Masquer la barre latérale"
   show-sidebar: "Afficher la barre latérale"

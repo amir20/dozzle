@@ -72,6 +72,13 @@ log-details:
   chart-field: "SQL 분석에서 {field} 차트 보기"
   toggle-all: 모든 필드 토글
   toggle-field: 로그 스트림에서 표시 또는 숨기기
+  memory-title: "이 컨테이너에서 새로 발생"
+  memory-explain: "Dozzle Cloud가 이 컨테이너에서 이 패턴을 본 적이 없습니다. 숫자, ID, 주소만 다른 줄은 하나의 패턴으로 계산됩니다."
+  memory-pattern: "패턴"
+  memory-first-seen: "처음 발견"
+  memory-first-seen-now: "이 줄에서"
+  memory-last-hour: "지난 1시간"
+  memory-lines: "줄 없음 | 1줄 | {count}줄"
 label:
   hide-sidebar: "사이드바 숨기기"
   show-sidebar: "사이드바 표시"

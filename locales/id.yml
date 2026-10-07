@@ -73,6 +73,13 @@ log-details:
   chart-field: "Buat grafik {field} di Analitik SQL"
   toggle-all: Alihkan semua bidang
   toggle-field: Tampilkan atau sembunyikan di aliran log
+  memory-title: "Baru untuk kontainer ini"
+  memory-explain: "Dozzle Cloud belum pernah melihat pola ini di kontainer ini. Baris yang hanya berbeda pada angka, ID, atau alamat dihitung sebagai satu pola."
+  memory-pattern: "Pola"
+  memory-first-seen: "Pertama terlihat"
+  memory-first-seen-now: "Dengan baris ini"
+  memory-last-hour: "Satu jam terakhir"
+  memory-lines: "Tidak ada baris | 1 baris | {count} baris"
 label:
   hide-sidebar: "Sembunyikan bilah sisi"
   show-sidebar: "Tampilkan bilah sisi"

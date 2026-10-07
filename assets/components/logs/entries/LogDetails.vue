@@ -14,6 +14,38 @@
   </header>
 
   <div class="mt-5 flex flex-col gap-6">
+    <!-- What the "New" chip on the line means, spelled out with what Cloud
+         remembers about the pattern. Shown only when the chip is. -->
+    <section v-if="memory" class="border-base-content/15 bg-base-200/40 flex flex-col gap-3 rounded-lg border p-4">
+      <div class="flex items-center gap-2">
+        <MemoryNewChip />
+        <span class="font-semibold">{{ $t("log-details.memory-title") }}</span>
+      </div>
+      <p class="text-base-content/70 text-sm">{{ $t("log-details.memory-explain") }}</p>
+      <div class="grid grid-cols-1 gap-x-6 gap-y-3 sm:grid-cols-3">
+        <div class="min-w-0 sm:col-span-3">
+          <div class="field-label">{{ $t("log-details.memory-pattern") }}</div>
+          <div class="font-mono text-sm [overflow-wrap:anywhere]">{{ memory.pattern }}</div>
+        </div>
+        <div class="min-w-0">
+          <div class="field-label">{{ $t("log-details.memory-first-seen") }}</div>
+          <div class="font-medium">
+            <template v-if="firstSeen">
+              {{ firstSeenText }}
+              <span class="text-base-content/55 text-xs font-normal">(<RelativeTime :date="firstSeen" />)</span>
+            </template>
+            <template v-else>{{ $t("log-details.memory-first-seen-now") }}</template>
+          </div>
+        </div>
+        <div class="min-w-0">
+          <div class="field-label">{{ $t("log-details.memory-last-hour") }}</div>
+          <div class="font-medium">
+            {{ $t("log-details.memory-lines", Math.round(memory.ratePerHour)) }}
+          </div>
+        </div>
+      </div>
+    </section>
+
     <!-- Facts about where the line came from. Small labels, plain values: this
          is context for the payload below, not the headline. -->
     <section class="grid grid-cols-1 gap-x-6 gap-y-3 sm:grid-cols-3">
@@ -137,6 +169,7 @@
 import { ComplexLogEntry } from "@/models/LogEntry";
 import LogAnalytics from "@/components/logs/LogAnalytics.vue";
 import { numericFieldQuery } from "@/utils/sql";
+import { SHOWN_STATUSES } from "@/composable/cloud/patternMemory";
 
 const { entry } = defineProps<{ entry: ComplexLogEntry }>();
 const { copy, copied } = useCopy();
@@ -148,6 +181,15 @@ const { hosts } = useHosts();
 const hostName = computed(() => (container.value ? hosts.value[container.value.host]?.name : undefined));
 
 const showDrawer = useDrawer();
+
+const memory = computed(() =>
+  entry.patternMemory && SHOWN_STATUSES.has(entry.patternMemory.status) ? entry.patternMemory : undefined,
+);
+const firstSeen = computed(() => (memory.value?.firstSeen ? new Date(memory.value.firstSeen / 1_000_000) : undefined));
+const { locale } = useI18n();
+const firstSeenText = computed(() =>
+  firstSeen.value?.toLocaleString(locale.value, { dateStyle: "medium", timeStyle: "short" }),
+);
 
 const isChartable = (value: unknown) => typeof value === "number" && Number.isFinite(value);
 
