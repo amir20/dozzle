@@ -72,7 +72,14 @@
           ]"
         />
       </SettingRow>
-      <SettingRow tag="label" :label="$t('settings.search')" :description="$t('settings.search-desc')" class="px-4">
+      <!-- It only changes what a keyboard shortcut does, so a touch screen has nothing to set. -->
+      <SettingRow
+        v-if="canHover"
+        tag="label"
+        :label="$t('settings.search')"
+        :description="$t('settings.search-desc')"
+        class="px-4"
+      >
         <template #label-suffix><key-shortcut char="f" /></template>
         <input type="checkbox" class="toggle toggle-primary toggle-sm" v-model="search" />
       </SettingRow>
