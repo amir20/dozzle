@@ -1,7 +1,7 @@
 <template>
   <div
-    class="card bg-base-100 border"
-    :class="confirmingDelete ? 'border-error/50' : 'hover:border-primary border-transparent'"
+    class="card bg-base-200/40 rounded-lg border transition-colors"
+    :class="confirmingDelete ? 'border-error/50' : 'border-base-content/15 hover:border-base-content/35'"
   >
     <!-- Both states share one grid cell, so the card is always as tall as the taller of the two
          and asking to confirm doesn't resize it. Confirming replaces the card rather than
@@ -48,12 +48,10 @@
             </div>
             <div class="min-w-0 flex-1">
               <h4 class="truncate font-semibold">{{ destination.name }}</h4>
-              <p class="text-base-content/60 truncate text-sm">
-                {{
-                  destination.type === "webhook"
-                    ? $t("notifications.destination.http-webhook")
-                    : $t("notifications.destination.dozzle-cloud")
-                }}
+              <!-- The type, unless the name already says it (the cloud destination is named
+                   after it), in which case the line would only repeat the title. -->
+              <p v-if="typeLabel !== destination.name || webhookHost" class="text-base-content/60 truncate text-sm">
+                {{ typeLabel }}
                 <!-- Two webhooks are otherwise indistinguishable once named vaguely. -->
                 <span v-if="webhookHost" class="text-base-content/45">· {{ webhookHost }}</span>
               </p>
@@ -114,6 +112,12 @@ const showDrawer = useDrawer();
 
 const confirmingDelete = ref(false);
 const isDeleting = ref(false);
+
+const typeLabel = computed(() =>
+  destination.type === "webhook"
+    ? t("notifications.destination.http-webhook")
+    : t("notifications.destination.dozzle-cloud"),
+);
 
 /** Host of the webhook URL, so cards for two webhooks aren't identical. */
 const webhookHost = computed(() => {

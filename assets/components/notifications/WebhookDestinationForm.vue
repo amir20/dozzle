@@ -1,9 +1,9 @@
 <template>
   <div class="flex min-h-full flex-1 flex-col">
     <div class="space-y-6 pb-8">
-      <!-- 1. Name -->
+      <!-- Name -->
       <section>
-        <FormStepHeading :step="1" :title="$t('notifications.destination-form.name')" required />
+        <FormStepHeading :step="firstStep" :title="$t('notifications.destination-form.name')" required />
         <input
           ref="nameInput"
           v-model="name"
@@ -20,9 +20,9 @@
         <p v-else class="text-base-content/60 mt-1 text-xs">{{ $t("notifications.destination-form.name-hint") }}</p>
       </section>
 
-      <!-- 2. Webhook URL -->
+      <!-- Webhook URL -->
       <section>
-        <FormStepHeading :step="2" :title="$t('notifications.destination-form.webhook-url')" required />
+        <FormStepHeading :step="firstStep + 1" :title="$t('notifications.destination-form.webhook-url')" required />
         <input
           v-model="webhookUrl"
           type="url"
@@ -35,9 +35,9 @@
         </p>
       </section>
 
-      <!-- 3. Payload -->
+      <!-- Payload -->
       <section>
-        <FormStepHeading :step="3" :title="$t('notifications.destination-form.payload-format')" />
+        <FormStepHeading :step="firstStep + 2" :title="$t('notifications.destination-form.payload-format')" />
         <div class="mb-2 flex flex-wrap gap-2">
           <button
             v-for="format in FORMATS"
@@ -80,9 +80,9 @@
         <TemplateVariables @insert="insertSnippet" />
       </section>
 
-      <!-- 4. Custom Headers -->
+      <!-- Custom Headers -->
       <section>
-        <FormStepHeading :step="4" :title="$t('notifications.destination-form.headers')" />
+        <FormStepHeading :step="firstStep + 3" :title="$t('notifications.destination-form.headers')" />
         <p class="text-base-content/60 mb-2 text-sm">{{ $t("notifications.destination-form.headers-hint") }}</p>
         <div class="space-y-2">
           <div v-for="(header, index) in headers" :key="header.key" class="flex items-center gap-2">
@@ -120,9 +120,10 @@
     </div>
 
     <!-- Actions -->
-    <!-- Opaque and full-bleed: the parent's padding would otherwise leave the scrolling content
-         visible down both sides of the bar. -->
-    <div class="bg-base-100 border-base-content/10 sticky bottom-0 z-10 -mx-4 mt-auto border-t p-4">
+    <!-- Opaque and full-bleed: the form's p-4 and the drawer's p-6 would otherwise leave the
+         scrolling content visible down both sides of the bar and under it. -bottom-6 sticks it
+         past the drawer's bottom padding, onto the edge of the screen. -->
+    <div class="bg-base-100 border-base-content/10 sticky -bottom-6 z-10 -mx-10 mt-auto -mb-10 border-t px-10 py-4">
       <InlineNotice v-if="error" type="error" class="mb-3">{{ error }}</InlineNotice>
 
       <!-- Cleared whenever the request changes, so a green tick always describes what is on screen -->
@@ -179,6 +180,9 @@ const props = defineProps<{
   existingDispatchers?: Dispatcher[];
   isEditing: boolean;
 }>();
+
+// When creating, DestinationForm's type picker is step 1 and these steps follow it.
+const firstStep = computed(() => (props.isEditing ? 1 : 2));
 
 const { t } = useI18n();
 
