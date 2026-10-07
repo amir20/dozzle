@@ -353,8 +353,11 @@ func tailContainerLogs(ctx context.Context, containerService *container.Containe
 
 	if errors.Is(err, io.EOF) {
 		log.Debug().Str("container", c.ID).Msg("streaming ended")
+		// c is the container as it was when the tail began, so a container that
+		// restarts still carries its previous run's FinishedAt. Only trust it when
+		// it belongs to this run.
 		finishedAt := c.FinishedAt
-		if c.FinishedAt.IsZero() {
+		if !finishedAt.After(c.StartedAt) {
 			finishedAt = time.Now()
 		}
 		select {

@@ -166,6 +166,52 @@ func Test_handler_streamLogs_happy_container_stopped(t *testing.T) {
 	mockedClient.AssertExpectations(t)
 }
 
+func Test_handler_streamLogs_container_stopped_ignores_previous_run(t *testing.T) {
+	id := "123456"
+	ctx, cancel := context.WithCancel(context.Background())
+	req, err := http.NewRequestWithContext(ctx, "GET", "/api/hosts/localhost/containers/"+id+"/logs/stream", nil)
+	q := req.URL.Query()
+	q.Add("stdout", "true")
+	q.Add("stderr", "true")
+	addAllLogLevels(q)
+
+	req.URL.RawQuery = q.Encode()
+	require.NoError(t, err, "NewRequest should not return an error.")
+
+	// a restarting container: FinishedAt is the previous run's stop, before this run started
+	started := time.Now().Add(-10 * time.Second).UTC()
+	previousStop := started.Add(-12 * time.Second)
+	mockedClient := new(MockedClient)
+	mockedClient.On("FindContainer", mock.Anything, id).Return(container.Container{ID: id, Host: "localhost", StartedAt: started, FinishedAt: previousStop}, nil)
+	mockedClient.On("ContainerLogs", mock.Anything, id, started, container.STDALL).Return(io.NopCloser(strings.NewReader("")), io.EOF).
+		Run(func(args mock.Arguments) {
+			go func() {
+				time.Sleep(50 * time.Millisecond)
+				cancel()
+			}()
+		})
+	mockedClient.On("Host").Return(container.Host{
+		ID: "localhost",
+	})
+	mockedClient.On("ListContainers", mock.Anything, mock.Anything).Return([]container.Container{
+		{ID: id, Name: "test", Host: "localhost", State: "running"},
+	}, nil)
+	mockedClient.On("ContainerEvents", mock.Anything, mock.AnythingOfType("chan<- container.ContainerEvent")).Return(nil)
+
+	handler := createDefaultHandler(mockedClient)
+	rr := httptest.NewRecorder()
+	handler.ServeHTTP(rr, req)
+
+	m := regexp.MustCompile(`"name":"container-stopped"[^}]*"time":"([^"]*)"`).FindStringSubmatch(rr.Body.String())
+	if m == nil {
+		m = regexp.MustCompile(`"time":"([^"]*)"[^}]*"name":"container-stopped"`).FindStringSubmatch(rr.Body.String())
+	}
+	require.NotNil(t, m, "expected a container-stopped event, got %s", rr.Body.String())
+	stoppedAt, err := time.Parse(time.RFC3339Nano, m[1])
+	require.NoError(t, err)
+	assert.False(t, stoppedAt.Before(started), "stopped at %s, before this run started at %s", stoppedAt, started)
+}
+
 func Test_handler_streamLogs_search_status_exhausted(t *testing.T) {
 	ctx, cancel := context.WithCancel(context.Background())
 
