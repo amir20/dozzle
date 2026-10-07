@@ -72,6 +72,13 @@ log-details:
   chart-field: "在 SQL 分析中以图表显示 {field}"
   toggle-all: 切换所有字段
   toggle-field: 在日志流中显示或隐藏
+  memory-title: "此容器的新模式"
+  memory-explain: "Dozzle Cloud 之前未在此容器上见过此模式。仅在数字、ID 或地址上不同的行会视为同一模式。"
+  memory-pattern: "模式"
+  memory-first-seen: "首次出现"
+  memory-first-seen-now: "就是这一行"
+  memory-last-hour: "过去一小时"
+  memory-lines: "无 | 1 行 | {count} 行"
 label:
   hide-sidebar: "隐藏侧边栏"
   show-sidebar: "显示侧边栏"

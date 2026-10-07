@@ -72,6 +72,13 @@ log-details:
   chart-field: "{field} als grafiek tonen in SQL-analyse"
   toggle-all: Alle velden omschakelen
   toggle-field: Tonen of verbergen in de logstroom
+  memory-title: "Nieuw voor deze container"
+  memory-explain: "Dozzle Cloud heeft dit patroon nog niet eerder op deze container gezien. Regels die alleen verschillen in getallen, ID's of adressen tellen als één patroon."
+  memory-pattern: "Patroon"
+  memory-first-seen: "Eerst gezien"
+  memory-first-seen-now: "Met deze regel"
+  memory-last-hour: "Afgelopen uur"
+  memory-lines: "Geen regels | 1 regel | {count} regels"
 label:
   hide-sidebar: "Zijbalk verbergen"
   show-sidebar: "Zijbalk tonen"

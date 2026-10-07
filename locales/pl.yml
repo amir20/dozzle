@@ -72,6 +72,13 @@ log-details:
   chart-field: "Pokaż wykres {field} w analizie SQL"
   toggle-all: Przełącz wszystkie pola
   toggle-field: Pokaż lub ukryj w strumieniu logów
+  memory-title: "Nowe dla tego kontenera"
+  memory-explain: "Dozzle Cloud nie widział wcześniej tego wzorca w tym kontenerze. Wiersze różniące się tylko liczbami, identyfikatorami lub adresami liczą się jako jeden wzorzec."
+  memory-pattern: "Wzorzec"
+  memory-first-seen: "Pierwsze wystąpienie"
+  memory-first-seen-now: "W tym wierszu"
+  memory-last-hour: "Ostatnia godzina"
+  memory-lines: "Brak wierszy | 1 wiersz | {count} wierszy"
 label:
   hide-sidebar: "Ukryj pasek boczny"
   show-sidebar: "Pokaż pasek boczny"

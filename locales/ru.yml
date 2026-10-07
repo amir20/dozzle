@@ -72,6 +72,13 @@ log-details:
   chart-field: "Построить график {field} в SQL-аналитике"
   toggle-all: Переключить все поля
   toggle-field: Показать или скрыть в потоке логов
+  memory-title: "Впервые в этом контейнере"
+  memory-explain: "Dozzle Cloud ещё не встречал этот шаблон в этом контейнере. Строки, отличающиеся только числами, идентификаторами или адресами, считаются одним шаблоном."
+  memory-pattern: "Шаблон"
+  memory-first-seen: "Впервые замечено"
+  memory-first-seen-now: "В этой строке"
+  memory-last-hour: "Последний час"
+  memory-lines: "Нет строк | 1 строка | {count} строк"
 label:
   hide-sidebar: "Скрыть боковую панель"
   show-sidebar: "Показать боковую панель"

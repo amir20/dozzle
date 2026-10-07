@@ -72,6 +72,13 @@ log-details:
   chart-field: "Chart {field} in SQL Analytics"
   toggle-all: Toggle all fields
   toggle-field: Show or hide in the log stream
+  memory-title: "New for this container"
+  memory-explain: "Dozzle Cloud hasn't seen this pattern on this container before. Lines that differ only in numbers, IDs or addresses count as one pattern."
+  memory-pattern: "Pattern"
+  memory-first-seen: "First seen"
+  memory-first-seen-now: "With this line"
+  memory-last-hour: "Last hour"
+  memory-lines: "No lines | 1 line | {count} lines"
 label:
   hide-sidebar: "Hide the sidebar"
   show-sidebar: "Show the sidebar"

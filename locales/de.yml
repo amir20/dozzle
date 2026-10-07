@@ -72,6 +72,13 @@ log-details:
   chart-field: "{field} in der SQL-Analyse als Diagramm anzeigen"
   toggle-all: Alle Felder umschalten
   toggle-field: Im Log-Stream ein- oder ausblenden
+  memory-title: "Neu für diesen Container"
+  memory-explain: "Dozzle Cloud hat dieses Muster auf diesem Container noch nicht gesehen. Zeilen, die sich nur in Zahlen, IDs oder Adressen unterscheiden, zählen als ein Muster."
+  memory-pattern: "Muster"
+  memory-first-seen: "Zuerst gesehen"
+  memory-first-seen-now: "Mit dieser Zeile"
+  memory-last-hour: "Letzte Stunde"
+  memory-lines: "Keine Zeilen | 1 Zeile | {count} Zeilen"
 label:
   hide-sidebar: "Seitenleiste ausblenden"
   show-sidebar: "Seitenleiste einblenden"

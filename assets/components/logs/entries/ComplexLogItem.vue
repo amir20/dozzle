@@ -24,7 +24,9 @@
   </DefineTemplate>
   <LogItem :logEntry>
     <LogLevel class="flex select-none" :level="logEntry.level" :event="logEntry.matchedEvent" />
-    <div @click="containers.length > 0 && showDrawer(LogDetails, { entry: logEntry })" class="cursor-pointer">
+    <!-- min-w-0 lets a long unbroken value (a token, an id) wrap instead of
+         widening the row and pushing the memory chip off the right edge. -->
+    <div @click="containers.length > 0 && showDrawer(LogDetails, { entry: logEntry })" class="min-w-0 cursor-pointer">
       <ReuseTemplate :data="validValues" />
     </div>
     <PatternMemoryChip v-if="logEntry.patternMemory" :memory="logEntry.patternMemory" :log-entry="logEntry" />
@@ -63,7 +65,7 @@ function preventDefaultOnLinks(event: MouseEvent) {
 }
 
 .value {
-  @apply text-base-content font-bold;
+  @apply text-base-content font-bold [overflow-wrap:anywhere];
 }
 
 .array {

@@ -72,6 +72,13 @@ log-details:
   chart-field: "Mostra {field} in un grafico in Analisi SQL"
   toggle-all: Attiva o disattiva tutti i campi
   toggle-field: Mostra o nascondi nel flusso dei log
+  memory-title: "Nuovo per questo container"
+  memory-explain: "Dozzle Cloud non aveva mai visto questo schema su questo container. Le righe che differiscono solo per numeri, ID o indirizzi contano come un unico schema."
+  memory-pattern: "Schema"
+  memory-first-seen: "Visto per la prima volta"
+  memory-first-seen-now: "Con questa riga"
+  memory-last-hour: "Ultima ora"
+  memory-lines: "Nessuna riga | 1 riga | {count} righe"
 label:
   hide-sidebar: "Nascondi la barra laterale"
   show-sidebar: "Mostra la barra laterale"

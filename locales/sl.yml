@@ -72,6 +72,13 @@ log-details:
   chart-field: "Prikaži {field} v grafu v analitiki SQL"
   toggle-all: Preklopi vsa polja
   toggle-field: Prikaži ali skrij v toku dnevnikov
+  memory-title: "Novo za ta zabojnik"
+  memory-explain: "Dozzle Cloud tega vzorca na tem zabojniku še ni videl. Vrstice, ki se razlikujejo le po številkah, ID-jih ali naslovih, štejejo kot en vzorec."
+  memory-pattern: "Vzorec"
+  memory-first-seen: "Prvič viden"
+  memory-first-seen-now: "S to vrstico"
+  memory-last-hour: "Zadnja ura"
+  memory-lines: "Ni vrstic | 1 vrstica | {count} vrstic"
 label:
   hide-sidebar: "Skrij stransko vrstico"
   show-sidebar: "Prikaži stransko vrstico"

@@ -72,6 +72,13 @@ log-details:
   chart-field: "Graficar {field} en Análisis SQL"
   toggle-all: Alternar todos los campos
   toggle-field: Mostrar u ocultar en el flujo de registros
+  memory-title: "Nuevo en este contenedor"
+  memory-explain: "Dozzle Cloud no había visto este patrón en este contenedor. Las líneas que solo difieren en números, IDs o direcciones cuentan como un mismo patrón."
+  memory-pattern: "Patrón"
+  memory-first-seen: "Visto por primera vez"
+  memory-first-seen-now: "Con esta línea"
+  memory-last-hour: "Última hora"
+  memory-lines: "Ninguna línea | 1 línea | {count} líneas"
 label:
   hide-sidebar: "Ocultar la barra lateral"
   show-sidebar: "Mostrar la barra lateral"
