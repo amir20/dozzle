@@ -132,7 +132,7 @@
                   <mdi:message-outline class="text-primary size-5 shrink-0" />
                   <div class="flex min-w-0 flex-1 flex-col">
                     <span class="text-primary truncate text-sm">
-                      <i18n-t keypath="cloud-chat.ask-for">
+                      <i18n-t scope="global" keypath="cloud-chat.ask-for">
                         <template #query>
                           <span class="font-mono">{{ query }}</span>
                         </template>
@@ -152,7 +152,7 @@
                   />
                   <div class="flex min-w-0 flex-1 flex-col">
                     <span class="truncate text-sm" :class="cloudSearch.available.value ? 'text-primary' : ''">
-                      <i18n-t keypath="cloud-search.search-logs-for">
+                      <i18n-t scope="global" keypath="cloud-search.search-logs-for">
                         <template #query>
                           <span class="font-mono">{{ query }}</span>
                         </template>
@@ -170,7 +170,7 @@
                       </template>
                     </span>
                   </div>
-                  <template v-if="cloudSearch.available.value">
+                  <template v-if="cloudSearch.available.value && canHover">
                     <kbd class="kbd kbd-xs shrink-0">⇧</kbd>
                     <kbd class="kbd kbd-xs shrink-0">↵</kbd>
                   </template>
@@ -199,8 +199,18 @@
       </span>
 
       <!-- Cloud status. Skipped while the log search row is on screen, which
-           already carries the same call to action. -->
-      <span v-if="cloudSearch.available.value" class="ml-auto flex shrink-0 items-center gap-1.5">
+           already carries the same call to action. A failed status check wins over
+           the config, the same as the cloud icon in the top bar. -->
+      <span v-if="cloudConfig?.linked && cloudStatusError" class="ml-auto flex shrink-0 items-center gap-1.5">
+        <mdi:cloud-alert-outline
+          class="size-3.5"
+          :class="cloudStatusError === 'unavailable' ? 'text-warning' : 'text-error'"
+        />
+        <RouterLink to="/settings/cloud" class="link link-hover" @click.stop>
+          {{ $t("cloud-search.cloud-error") }}
+        </RouterLink>
+      </span>
+      <span v-else-if="cloudSearch.available.value" class="ml-auto flex shrink-0 items-center gap-1.5">
         <mdi:cloud-check-outline class="text-primary size-3.5" />
         {{ $t("cloud-search.cloud-connected") }}
       </span>
@@ -265,7 +275,9 @@ const { visibleContainers } = storeToRefs(containerStore);
 const swarmStore = useSwarmStore();
 const { stacks, services } = storeToRefs(swarmStore);
 
-const { cloudConfig } = useCloudConfig();
+const { cloudConfig, cloudStatusError, ensureCloudStatus } = useCloudConfig();
+// A log page on a phone has no cloud icon to have asked already.
+ensureCloudStatus();
 // Mounted only so the log search row can read `available`. We don't render
 // the hits inside the popup. The composable's debounced watch short-circuits
 // on an empty query, so opening the modal alone does not fire a request.

@@ -16,7 +16,7 @@
       <template v-if="cloudReady">{{ $t("cloud-search.hero-title-cloud") }}</template>
       <template v-else>{{ $t("cloud-search.hero-title-plain") }}</template>
     </span>
-    <span class="ml-auto flex items-center gap-1">
+    <span v-if="canHover" class="ml-auto flex items-center gap-1">
       <kbd class="kbd kbd-xs">⌘</kbd>
       <kbd class="kbd kbd-xs">K</kbd>
     </span>

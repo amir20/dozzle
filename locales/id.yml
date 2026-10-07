@@ -824,6 +824,7 @@ cloud-search:
   open-container: "buka kontainer"
   search-logs-shortcut: "cari log"
   cloud-connected: "Cloud terhubung"
+  cloud-error: "Kesalahan koneksi Cloud"
   results-page-title: "Pencarian log"
   no-results: "Tidak ada baris log yang cocok."
   search-failed: "Pencarian Cloud gagal."

@@ -813,6 +813,7 @@ cloud-search:
   open-container: "container openen"
   search-logs-shortcut: "logs zoeken"
   cloud-connected: "Cloud verbonden"
+  cloud-error: "Cloud-verbindingsfout"
   results-page-title: "Logs doorzoeken"
   no-results: "Geen overeenkomende logregels."
   search-failed: "Cloud-zoekopdracht mislukt."

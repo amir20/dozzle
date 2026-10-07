@@ -339,6 +339,7 @@ cloud-search:
   open-container: "abrir contenedor"
   search-logs-shortcut: "buscar logs"
   cloud-connected: "Cloud conectado"
+  cloud-error: "Error de conexión con Cloud"
   results-page-title: "Búsqueda de logs"
   no-results: "No hay líneas de log coincidentes."
   search-failed: "La búsqueda en Cloud falló."

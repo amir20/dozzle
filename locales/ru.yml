@@ -812,6 +812,7 @@ cloud-search:
   open-container: "открыть контейнер"
   search-logs-shortcut: "поиск логов"
   cloud-connected: "Cloud подключён"
+  cloud-error: "Ошибка подключения к Cloud"
   results-page-title: "Поиск по логам"
   no-results: "Совпадений в логах не найдено."
   search-failed: "Поиск в Cloud не удался."

@@ -1,5 +1,7 @@
 <template>
   <PageWithLinks>
+    <!-- The top bar's search box is desktop-only, and it is the only place the query shows. -->
+    <SearchInline class="md:hidden" />
     <section>
       <!-- Header -->
       <div class="mb-5 flex items-center gap-3">

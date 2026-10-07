@@ -814,6 +814,7 @@ cloud-search:
   open-container: "打開容器"
   search-logs-shortcut: "搜尋日誌"
   cloud-connected: "Cloud 已連接"
+  cloud-error: "Cloud 連線錯誤"
   results-page-title: "日誌搜尋"
   no-results: "沒有匹配的日誌行。"
   search-failed: "Cloud 搜尋失敗。"
