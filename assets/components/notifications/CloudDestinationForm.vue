@@ -141,7 +141,7 @@
     </div>
 
     <!-- Actions. Same sticky, full-bleed bar as the webhook form next door. -->
-    <div class="bg-base-100 border-base-content/10 sticky bottom-0 z-10 -mx-4 mt-auto border-t p-4">
+    <div class="bg-base-100 border-base-content/10 sticky -bottom-6 z-10 -mx-10 mt-auto -mb-10 border-t px-10 py-4">
       <div class="flex items-center justify-end">
         <button class="btn" @click="close?.()">
           {{ $t("notifications.destination-form.close") }}

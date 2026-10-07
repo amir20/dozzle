@@ -1,7 +1,11 @@
 <template>
   <dialog ref="panel" class="modal-right modal items-start outline-hidden backdrop:bg-none">
-    <div class="modal-box" :width="maximized ? 'full' : width">
-      <div class="pt-safe relative">
+    <!-- On a phone the drawer is a screen of its own: a sliver of page beside it is too
+         narrow to read and too narrow to tap as a backdrop. -->
+    <div class="modal-box" :width="maximized || isMobile ? 'full' : width">
+      <!-- h-full gives an occupant's min-h-full something to resolve against, so a short
+           form's mt-auto footer reaches the bottom instead of stopping under its content. -->
+      <div class="pt-safe relative h-full">
         <div class="absolute right-0 z-10 flex items-center gap-3">
           <button
             v-if="!isMobile"
