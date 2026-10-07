@@ -4,13 +4,19 @@
 
     <LogStd :std="logEntry.std" class="shrink-0 select-none" v-if="showStd" />
 
+    <!-- On a phone the tags stack under the timestamp, so they drop to the small
+         size: a whole-size chip made every line two lines tall. -->
     <div
-      class="flex gap-x-2 gap-y-1 group-[.compact]:gap-y-0 has-[>_*:nth-of-type(2)]:flex-col-reverse md:mr-1 md:flex-row!"
+      class="flex gap-x-2 gap-y-0.5 group-[.compact]:gap-y-0 has-[>_*:nth-of-type(2)]:flex-col-reverse md:mr-1 md:flex-row! md:gap-y-1"
     >
-      <RandomColorTag class="w-30 shrink-0 select-none md:w-40" :value="host?.name ?? ''" v-if="showHostname" />
+      <RandomColorTag
+        class="w-30 shrink-0 select-none max-md:text-xs max-md:leading-4 md:w-40"
+        :value="host?.name ?? ''"
+        v-if="showHostname"
+      />
       <RandomColorTag
         v-if="showContainerName"
-        class="w-30 shrink-0 select-none group-[.compact]:flex-1 md:w-40"
+        class="w-30 shrink-0 select-none group-[.compact]:flex-1 max-md:text-xs max-md:leading-4 md:w-40"
         :value="logEntry.containerID"
         truncateRight
       >
