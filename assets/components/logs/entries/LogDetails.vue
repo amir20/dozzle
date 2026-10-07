@@ -16,9 +16,9 @@
   <div class="mt-5 flex flex-col gap-6">
     <!-- What the "New" chip on the line means, spelled out with what Cloud
          remembers about the pattern. Shown only when the chip is. -->
-    <section v-if="memory" class="memory-panel flex flex-col gap-3 rounded-lg border p-4">
+    <section v-if="memory" class="border-base-content/15 bg-base-200/40 flex flex-col gap-3 rounded-lg border p-4">
       <div class="flex items-center gap-2">
-        <span class="memory-chip">{{ $t("label.memory-new") }}</span>
+        <MemoryNewChip />
         <span class="font-semibold">{{ $t("log-details.memory-title") }}</span>
       </div>
       <p class="text-base-content/70 text-sm">{{ $t("log-details.memory-explain") }}</p>
@@ -313,17 +313,6 @@ useSortable(list, fields);
 .level-pill[data-pill-level="error"],
 .level-pill[data-pill-level="fatal"] {
   --pill: var(--color-red);
-}
-
-/* Same warning tint as the chip on the line, so the two read as one thing. */
-.memory-panel {
-  border-color: color-mix(in oklab, var(--color-warning) 35%, transparent);
-  background-color: color-mix(in oklab, var(--color-warning) 6%, transparent);
-}
-.memory-chip {
-  color: var(--color-warning);
-  border: 1px solid color-mix(in oklab, var(--color-warning) 45%, transparent);
-  @apply inline-flex shrink-0 items-center rounded-xs px-1.5 py-px font-sans text-[0.62rem] font-bold tracking-wider uppercase;
 }
 
 [data-std="stdout"] {
