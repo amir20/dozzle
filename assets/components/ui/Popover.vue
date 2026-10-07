@@ -3,7 +3,7 @@
     ref="anchor"
     v-bind="$attrs"
     class="popover-anchor"
-    @click="hoverable || toggle()"
+    @click="hoverable ? show() : toggle()"
     @pointerenter="onEnter"
     @pointerleave="onLeave"
   >
@@ -59,6 +59,10 @@ const emit = defineEmits<{ open: []; close: [] }>();
 // A tap sends pointerenter on touch-down and pointerleave on touch-up, so a
 // hover menu on a phone opened and shut itself and the trigger looked dead.
 // Without a hovering pointer the trigger is a plain click toggle.
+//
+// With one, a click still has to show: hovering already opened the panel, and pressing the
+// trigger is an outside click to it, so light dismiss shuts it before the click lands. A
+// mouse user who hovers and then clicks would otherwise watch the menu close.
 const hoverable = computed(() => hover && canHover.value);
 const asSheet = computed(() => sheet && isMobile.value);
 
