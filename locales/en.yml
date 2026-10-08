@@ -347,6 +347,7 @@ cloud-search:
   open-container: open container
   search-logs-shortcut: search logs
   cloud-connected: Cloud connected
+  cloud-error: Cloud connection error
   results-page-title: Logs search
   no-results: No matching log lines.
   search-failed: Cloud search failed.

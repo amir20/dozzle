@@ -56,7 +56,13 @@
       <p v-if="!rows.length && mode === 'off'" class="text-base-content/60 p-4 text-sm">
         {{ $t("auto-update.mode-off-desc") }}
       </p>
-      <i18n-t v-else-if="!rows.length" keypath="auto-update.empty" tag="p" class="text-base-content/60 p-4 text-sm">
+      <i18n-t
+        scope="global"
+        v-else-if="!rows.length"
+        keypath="auto-update.empty"
+        tag="p"
+        class="text-base-content/60 p-4 text-sm"
+      >
         <template #label>
           <code class="font-mono">{{ UPDATE_LABEL }}=auto</code>
         </template>

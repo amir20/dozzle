@@ -1,5 +1,6 @@
 <template>
-  <div class="inline-flex items-center">
+  <!-- A touch screen has no keyboard to press it on, so the hint is noise there. -->
+  <div v-if="canHover" class="inline-flex items-center">
     <template v-if="modifiers.includes('shift')">
       <carbon:mac-shift />
     </template>

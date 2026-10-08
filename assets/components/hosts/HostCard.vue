@@ -61,8 +61,11 @@
         :title="$t('label.host')"
       >
         <ph:pulse class="size-3.5 opacity-60" />
+        <!-- A mono space is a whole cell wide, so "3d 4h" read as two values; the
+             negative word-spacing pulls it back to a normal gap. -->
         <span v-if="uptimeLabel">
-          {{ $t("label.uptime") }} <span class="text-base-content/80 font-mono">{{ uptimeLabel }}</span>
+          {{ $t("label.uptime") }}
+          <span class="text-base-content/80 font-mono [word-spacing:-0.4ch]">{{ uptimeLabel }}</span>
         </span>
         <span v-if="host.metricsAvailable" :title="loadTitle">
           {{ $t("label.load") }} <span class="font-mono" :class="loadClass">{{ loadLabel }}</span>
@@ -92,7 +95,7 @@
       class="bg-base-content/5.5 text-base-content/50 flex items-center gap-2 rounded-lg px-3 py-2.5 text-xs"
     >
       <mdi:lan-disconnect class="size-3.5 shrink-0 opacity-60" />
-      <i18n-t keypath="label.agent-unreachable" tag="span" class="truncate">
+      <i18n-t scope="global" keypath="label.agent-unreachable" tag="span" class="truncate">
         <template #endpoint>
           <span class="font-mono">{{ host.endpoint }}</span>
         </template>
@@ -175,7 +178,8 @@
       <ph:pulse class="size-3.5 opacity-60" :title="$t('label.host')" />
       <template v-if="uptimeLabel">
         <span>
-          {{ $t("label.uptime") }} <span class="text-base-content/80 font-mono">{{ uptimeLabel }}</span>
+          {{ $t("label.uptime") }}
+          <span class="text-base-content/80 font-mono [word-spacing:-0.4ch]">{{ uptimeLabel }}</span>
         </span>
       </template>
       <template v-if="host.metricsAvailable">

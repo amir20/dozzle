@@ -91,6 +91,7 @@
             <span class="min-w-0 flex-1">
               <span class="block text-sm">{{ $t(`auto-update.mode-${option}`) }}</span>
               <i18n-t
+                scope="global"
                 :keypath="`auto-update.mode-${option}-desc`"
                 tag="span"
                 class="text-base-content/60 block text-xs"
@@ -108,6 +109,7 @@
         <span class="min-w-0 flex-1">
           <span class="block text-sm font-medium">{{ $t("auto-update.which-label") }}</span>
           <i18n-t
+            scope="global"
             :keypath="`auto-update.mode-${savedContainers}-desc`"
             tag="span"
             class="text-base-content/60 mt-0.5 block text-xs"
@@ -133,7 +135,7 @@
           <p class="text-base-content/60 mt-1 truncate font-mono text-xs">
             {{ risky.map((c) => c.name).join(", ") }}
           </p>
-          <i18n-t keypath="auto-update.risky-hint" tag="p" class="text-base-content/60 mt-2 text-xs">
+          <i18n-t scope="global" keypath="auto-update.risky-hint" tag="p" class="text-base-content/60 mt-2 text-xs">
             <template #label>
               <code class="font-mono">{{ OFF_LABEL }}</code>
             </template>

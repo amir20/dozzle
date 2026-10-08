@@ -140,8 +140,12 @@ ul {
       background-color: color-mix(in oklab, var(--color-base-content) 2.5%, transparent);
     }
 
-    &:hover {
-      background-color: color-mix(in oklab, var(--color-base-content) 8%, transparent);
+    /* Only where a pointer can rest: a tap sticks :hover on until the next tap,
+       which left a highlighted row behind every scroll on a phone. */
+    @media (hover: hover) {
+      &:hover {
+        background-color: color-mix(in oklab, var(--color-base-content) 8%, transparent);
+      }
     }
 
     &.log-permalink-target {
@@ -160,9 +164,11 @@ ul {
       background-color: color-mix(in oklab, var(--color-red) 5%, transparent);
     }
 
-    &[data-log-level="error"]:hover,
-    &[data-log-level="fatal"]:hover {
-      background-color: color-mix(in oklab, var(--color-red) 12%, transparent);
+    @media (hover: hover) {
+      &[data-log-level="error"]:hover,
+      &[data-log-level="fatal"]:hover {
+        background-color: color-mix(in oklab, var(--color-red) 12%, transparent);
+      }
     }
   }
 

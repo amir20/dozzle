@@ -812,6 +812,7 @@ cloud-search:
   open-container: "åbn container"
   search-logs-shortcut: "søg logs"
   cloud-connected: "Cloud tilsluttet"
+  cloud-error: "Fejl i Cloud-forbindelsen"
   results-page-title: "Logsøgning"
   no-results: "Ingen matchende loglinjer."
   search-failed: "Cloud-søgning mislykkedes."

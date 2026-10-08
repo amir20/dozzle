@@ -170,6 +170,7 @@ declare module 'vue' {
     'Mdi:close': typeof import('~icons/mdi/close')['default']
     'Mdi:closeCircle': typeof import('~icons/mdi/close-circle')['default']
     'Mdi:cloud': typeof import('~icons/mdi/cloud')['default']
+    'Mdi:cloudAlertOutline': typeof import('~icons/mdi/cloud-alert-outline')['default']
     'Mdi:cloudCheckOutline': typeof import('~icons/mdi/cloud-check-outline')['default']
     'Mdi:cloudOffOutline': typeof import('~icons/mdi/cloud-off-outline')['default']
     'Mdi:cloudOutline': typeof import('~icons/mdi/cloud-outline')['default']

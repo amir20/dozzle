@@ -815,6 +815,7 @@ cloud-search:
   open-container: "konteyneri aç"
   search-logs-shortcut: "logları ara"
   cloud-connected: "Cloud bağlı"
+  cloud-error: "Cloud bağlantı hatası"
   results-page-title: "Log araması"
   no-results: "Eşleşen log satırı yok."
   search-failed: "Cloud araması başarısız oldu."

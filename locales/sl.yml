@@ -817,6 +817,7 @@ cloud-search:
   open-container: "odpri vsebnik"
   search-logs-shortcut: "išči po dnevnikih"
   cloud-connected: "Cloud povezan"
+  cloud-error: "Napaka povezave s Cloud"
   results-page-title: "Iskanje dnevnikov"
   no-results: "Ni ujemajočih se vrstic dnevnika."
   search-failed: "Iskanje v Cloudu ni uspelo."

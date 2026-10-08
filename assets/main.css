@@ -297,10 +297,11 @@
     height: auto;
     max-width: calc(100vw - 1rem);
     background: none;
-    color: inherit;
     /* The top layer decides where a panel PAINTS, not what it inherits: the element is still
      * a child of whatever triggered it. A panel hung off a table cell inherited daisyUI's
-     * `white-space: nowrap` and ran its prose straight out the side of its own box. */
+     * `white-space: nowrap` and ran its prose straight out the side of its own box, and the
+     * sort menu inside a muted toolbar greyed out every option it had. */
+    color: var(--color-base-content);
     white-space: normal;
   }
 

@@ -8,7 +8,7 @@
       <!-- empty title: the host chip's own "Host" tooltip would pop up over the panel -->
       <button type="button" title="" class="hover:bg-base-content/10 -mx-1 rounded px-1 transition-colors">
         {{ $t("label.reclaimable") }}
-        <span class="text-base-content/80 font-mono">{{ size(total) }}</span>
+        <span class="text-base-content/80 font-mono [word-spacing:-0.4ch]">{{ size(total) }}</span>
       </button>
     </template>
 
@@ -36,7 +36,7 @@
     </ul>
 
     <div class="bg-base-content/10 my-3 h-px"></div>
-    <i18n-t keypath="tooltip.reclaimable-source" tag="p" class="text-base-content/40">
+    <i18n-t scope="global" keypath="tooltip.reclaimable-source" tag="p" class="text-base-content/40">
       <template #command>
         <code class="font-mono">docker system df</code>
       </template>

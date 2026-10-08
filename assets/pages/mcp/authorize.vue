@@ -6,7 +6,7 @@
         <div>
           <h1 class="text-xl font-semibold">{{ $t("mcp-authorize.title") }}</h1>
           <p v-if="request" class="text-base-content/60 mt-1 text-sm">
-            <i18n-t keypath="mcp-authorize.subtitle">
+            <i18n-t scope="global" keypath="mcp-authorize.subtitle">
               <template #client>
                 <span class="text-base-content font-semibold">{{
                   request.clientName || $t("mcp-authorize.unnamed-client")

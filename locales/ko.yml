@@ -814,6 +814,7 @@ cloud-search:
   open-container: "컨테이너 열기"
   search-logs-shortcut: "로그 검색"
   cloud-connected: "Cloud 연결됨"
+  cloud-error: "Cloud 연결 오류"
   results-page-title: "로그 검색"
   no-results: "일치하는 로그 라인이 없습니다."
   search-failed: "Cloud 검색 실패."

@@ -812,6 +812,7 @@ cloud-search:
   open-container: "ouvrir le conteneur"
   search-logs-shortcut: "rechercher des logs"
   cloud-connected: "Cloud connecté"
+  cloud-error: "Erreur de connexion au Cloud"
   results-page-title: "Recherche de logs"
   no-results: "Aucune ligne de log ne correspond."
   search-failed: "La recherche Cloud a échoué."
