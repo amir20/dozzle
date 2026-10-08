@@ -42,6 +42,7 @@ export const zh: Labels = {
     "authentication/oidc": "OpenID Connect",
     "authentication/forward-proxy": "前置代理",
     actions: "操作",
+    updates: "更新",
     "moving-from-watchtower": "从 Watchtower 迁移",
     "app-icons": "图标",
     "container-disk-usage": "磁盘占用",
