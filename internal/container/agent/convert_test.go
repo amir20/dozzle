@@ -13,7 +13,12 @@ import (
 func TestContainerProtoRoundTrip(t *testing.T) {
 	expected := container.Container{}
 	// ImageDigest is k8s only, and k8s never runs behind an agent.
-	faker.FakeData(&expected, options.WithFieldsToIgnore("Stats", "MountStats", "ImageDigest"))
+	// Protobuf hands an empty slice or map back as nil, which assert.Equal reads as a
+	// difference, so at least one element keeps a zero-volume roll from failing at random.
+	faker.FakeData(&expected,
+		options.WithFieldsToIgnore("Stats", "MountStats", "ImageDigest"),
+		options.WithRandomMapAndSliceMinSize(1),
+	)
 	expected.FinishedAt = expected.FinishedAt.UTC()
 	expected.Created = expected.Created.UTC()
 	expected.StartedAt = expected.StartedAt.UTC()
