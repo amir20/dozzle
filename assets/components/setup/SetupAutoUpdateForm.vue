@@ -51,6 +51,7 @@
             >
               <option v-for="option in times" :key="option" :value="option">{{ option }}</option>
             </select>
+            <span v-if="autoUpdate.zone" class="text-base-content/60 font-mono text-xs">{{ autoUpdate.zone }}</span>
           </span>
         </div>
       </template>
@@ -60,14 +61,14 @@
         <span class="min-w-0 flex-1">
           <span class="block text-sm font-medium">{{ $t("setup.update.auto-label") }}</span>
           <span class="text-base-content/60 mt-0.5 block text-xs">{{ $t("setup.update.auto-desc") }}</span>
-          <SetupLocked v-if="status.locked.autoUpdate" env="DOZZLE_AUTO_UPDATE" class="mt-1" />
+          <SetupLocked v-if="status.locked.autoUpdate" :env="scheduleLockedBy" class="mt-1" />
         </span>
         <span v-if="autoUpdate.mode === 'off'" class="text-base-content/60 shrink-0 text-sm">
           {{ $t("setup.restart.off") }}
         </span>
         <span v-else class="shrink-0 text-right text-sm">
           {{ $t(`setup.update.${autoUpdate.mode}`) }}
-          <span class="text-base-content/60 block font-mono text-xs">{{ autoUpdate.time }}</span>
+          <span class="text-base-content/60 block font-mono text-xs">{{ scheduleTime }}</span>
         </span>
       </div>
 
@@ -227,6 +228,16 @@ const unlockedEnvs = computed(() => [
   ...(status.locked.autoUpdate ? [] : ["DOZZLE_AUTO_UPDATE"]),
   ...(status.locked.updateContainers ? [] : ["DOZZLE_UPDATE_CONTAINERS"]),
 ]);
+
+// The schedule has two variables; name the ones that fixed it. An older server only says
+// that one of them did.
+const scheduleLockedBy = computed(() => {
+  const { autoUpdateMode, autoUpdateTime } = status.locked;
+  if (autoUpdateMode === undefined && autoUpdateTime === undefined) return "DOZZLE_AUTO_UPDATE";
+  return [...(autoUpdateMode ? ["DOZZLE_AUTO_UPDATE"] : []), ...(autoUpdateTime ? ["DOZZLE_AUTO_UPDATE_TIME"] : [])];
+});
+
+const scheduleTime = computed(() => [autoUpdate.value.time, autoUpdate.value.zone].filter(Boolean).join(" "));
 
 const mode = computed<AutoUpdateMode>(() => (enabled.value ? schedule.value : "off"));
 

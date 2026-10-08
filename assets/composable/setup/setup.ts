@@ -21,6 +21,8 @@ export interface SetupAutoUpdate {
   currentVersion: string;
   // Which containers the schedule updates besides Dozzle. Absent from an older server.
   containers?: UpdateContainersMode;
+  // The time zone time is in, e.g. "UTC". Absent from an older server.
+  zone?: string;
 }
 
 // An agent this hub connects to. A locked one came from DOZZLE_REMOTE_AGENT and can
@@ -94,6 +96,9 @@ export interface SetupStatus {
     enableActions: boolean;
     enableShell: boolean;
     autoUpdate?: boolean;
+    // Which of the schedule's two settings is fixed. Absent from an older server.
+    autoUpdateMode?: boolean;
+    autoUpdateTime?: boolean;
     updateContainers?: boolean;
   };
   pending: { authProvider?: string; enableActions?: boolean; enableShell?: boolean };

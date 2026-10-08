@@ -41,7 +41,12 @@ type setupLocked struct {
 	AuthProvider  bool `json:"authProvider"`
 	EnableActions bool `json:"enableActions"`
 	EnableShell   bool `json:"enableShell"`
-	AutoUpdate    bool `json:"autoUpdate"`
+	// AutoUpdate is true when the schedule is fixed by either of its flags;
+	// AutoUpdateMode and AutoUpdateTime say which, so the page names the right
+	// one.
+	AutoUpdate     bool `json:"autoUpdate"`
+	AutoUpdateMode bool `json:"autoUpdateMode"`
+	AutoUpdateTime bool `json:"autoUpdateTime"`
 	// UpdateContainers is which containers the schedule updates.
 	UpdateContainers bool `json:"updateContainers"`
 }
@@ -62,6 +67,9 @@ type setupAutoUpdate struct {
 	// Containers is which containers the schedule updates besides Dozzle:
 	// off, labelled or all.
 	Containers updatepolicy.Mode `json:"containers"`
+	// Zone names the time zone Time is in: this process's local zone, which in
+	// a container is UTC unless TZ is set. E.g. "UTC" or "PDT".
+	Zone string `json:"zone"`
 }
 
 type setupState struct {
@@ -180,10 +188,12 @@ func (h *handler) getSetup(w http.ResponseWriter, r *http.Request) {
 		EnableActions:   h.config.EnableActions,
 		EnableShell:     h.config.EnableShell,
 		Locked: setupLocked{
-			AuthProvider:  h.config.Setup.LockedAuthProvider,
-			EnableActions: h.config.Setup.LockedEnableActions,
-			EnableShell:   h.config.Setup.LockedEnableShell,
-			AutoUpdate:    h.config.Setup.LockedAutoUpdate,
+			AuthProvider:   h.config.Setup.LockedAuthProvider,
+			EnableActions:  h.config.Setup.LockedEnableActions,
+			EnableShell:    h.config.Setup.LockedEnableShell,
+			AutoUpdate:     h.config.Setup.LockedAutoUpdate,
+			AutoUpdateMode: h.config.Setup.AutoUpdateMode != nil,
+			AutoUpdateTime: h.config.Setup.AutoUpdateTime != nil,
 
 			UpdateContainers: h.config.Setup.UpdateContainers != nil,
 		},
@@ -199,6 +209,7 @@ func (h *handler) getSetup(w http.ResponseWriter, r *http.Request) {
 			Image:          support.Image,
 			CurrentVersion: h.config.Version,
 			Containers:     updateModeFrom(h.config.Setup, file),
+			Zone:           serverZone(time.Now()),
 		},
 		Agents:       h.setupAgents(file),
 		CanAddAgents: canAddAgents,
@@ -209,6 +220,13 @@ func (h *handler) getSetup(w http.ResponseWriter, r *http.Request) {
 	if err := json.NewEncoder(w).Encode(state); err != nil {
 		log.Error().Err(err).Msg("error encoding setup state")
 	}
+}
+
+// serverZone names the time zone the schedule runs in, this process's local
+// zone.
+func serverZone(now time.Time) string {
+	name, _ := now.Zone()
+	return name
 }
 
 // isJSONRequest reports whether r declares a JSON body. A cross-site form can
