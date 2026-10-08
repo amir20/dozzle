@@ -141,6 +141,15 @@ describe("SetupAutoUpdateForm", () => {
     expect(wrapper.text()).toContain("UTC");
   });
 
+  test("a Dozzle that can't replace itself still says why the schedule is read-only", () => {
+    const s = status({ canWrite: false, authProvider: "simple" });
+    s.autoUpdate = { ...s.autoUpdate!, supported: false, reason: "no-container" };
+    const wrapper = mountForm(s);
+    expect(wrapper.text()).toContain("setup.update.reason-unsupported");
+    expect(wrapper.text()).toContain("setup.actions.no-access");
+    expect(wrapper.find("input").exists()).toBe(false);
+  });
+
   test("which containers pinned by DOZZLE_UPDATE_CONTAINERS is read-only text and says so", () => {
     const s = status({
       locked: { authProvider: false, enableActions: false, enableShell: false, updateContainers: true },
