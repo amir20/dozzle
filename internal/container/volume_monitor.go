@@ -2,6 +2,8 @@ package container
 
 import (
 	"context"
+	"errors"
+	"io/fs"
 	"sync/atomic"
 	"time"
 
@@ -130,7 +132,12 @@ func (v *volumeMonitor) refresh(id string) {
 		}
 		total, free, err := statfs(m.Source)
 		if err != nil {
-			log.Debug().Err(err).Str("id", c.ID).Str("source", m.Source).Str("dest", m.Destination).Msg("statfs failed")
+			// A missing path is the usual case, not a fault: in a container,
+			// Dozzle only sees the host paths mounted into it, and this runs
+			// for every mount every minute.
+			if !errors.Is(err, fs.ErrNotExist) {
+				log.Debug().Err(err).Str("id", c.ID).Str("source", m.Source).Str("dest", m.Destination).Msg("statfs failed")
+			}
 			stats[m.Destination] = ms
 			continue
 		}
