@@ -359,7 +359,7 @@ func TestSetup_AutoUpdateStatus(t *testing.T) {
 	require.Equal(t, http.StatusOK, rr.Code)
 	var raw map[string]json.RawMessage
 	require.NoError(t, json.Unmarshal(rr.Body.Bytes(), &raw))
-	assert.JSONEq(t, `{"mode":"off","time":"03:00","supported":true,"image":"amir20/dozzle:latest","currentVersion":"v8.12.0","containers":"labelled"}`, string(raw["autoUpdate"]))
+	assert.JSONEq(t, `{"mode":"off","time":"03:00","supported":true,"image":"amir20/dozzle:latest","currentVersion":"v8.12.0","containers":"labelled","zone":"`+serverZone(time.Now())+`"}`, string(raw["autoUpdate"]))
 
 	state := getSetupState(t, setupNoneHandler(time.Now(), SetupConfig{}))
 	assert.False(t, state.AutoUpdate.Supported)
@@ -418,6 +418,9 @@ func TestSetup_AutoUpdatePatch(t *testing.T) {
 	assert.Equal(t, http.StatusConflict, doSetup(locked, "PATCH", "/api/setup/config", `{"autoUpdate":{"mode":"off","time":"04:15"}}`).Code)
 	state = getSetupState(t, locked)
 	assert.True(t, state.Locked.AutoUpdate)
+	assert.True(t, state.Locked.AutoUpdateMode)
+	assert.False(t, state.Locked.AutoUpdateTime, "only the mode came from a flag")
+	assert.NotEmpty(t, state.AutoUpdate.Zone, "the time says which zone it is in")
 	assert.Equal(t, "daily", state.AutoUpdate.Mode, "flag wins over the file")
 	assert.Equal(t, "04:15", state.AutoUpdate.Time, "unlocked time still comes from the file")
 	assert.False(t, state.Locked.UpdateContainers)

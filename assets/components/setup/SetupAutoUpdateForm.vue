@@ -2,14 +2,17 @@
   <!-- When and which containers: the same two questions in the setup wizard and on
        Settings → Updates. The wizard saves on Next; Settings saves as you change it. -->
   <div class="flex flex-col gap-4">
-    <template v-if="!notices" />
-    <InlineNotice v-else-if="blockedReason" type="info">
-      {{ blockedReason }}
-      <span v-if="scheduleEditable && containers !== 'off'" class="text-base-content/60 mt-1 block text-xs">
-        {{ $t("auto-update.containers-still") }}
-      </span>
-    </InlineNotice>
-    <SetupAccessNotice v-else :status="status" :envs="unlockedEnvs" />
+    <!-- Both can apply: Dozzle can't replace itself, and this browser can't change the
+         schedule. The first must not hide why the form below is read-only. -->
+    <template v-if="notices">
+      <InlineNotice v-if="blockedReason" type="info">
+        {{ blockedReason }}
+        <span v-if="scheduleEditable && containers !== 'off'" class="text-base-content/60 mt-1 block text-xs">
+          {{ $t("auto-update.containers-still") }}
+        </span>
+      </InlineNotice>
+      <SetupAccessNotice :status="status" :envs="unlockedEnvs" />
+    </template>
 
     <div class="border-base-content/15 bg-base-200/40 divide-base-content/10 divide-y rounded-lg border">
       <template v-if="canEditSchedule">
@@ -51,6 +54,7 @@
             >
               <option v-for="option in times" :key="option" :value="option">{{ option }}</option>
             </select>
+            <span v-if="autoUpdate.zone" class="text-base-content/60 font-mono text-xs">{{ autoUpdate.zone }}</span>
           </span>
         </div>
       </template>
@@ -60,14 +64,14 @@
         <span class="min-w-0 flex-1">
           <span class="block text-sm font-medium">{{ $t("setup.update.auto-label") }}</span>
           <span class="text-base-content/60 mt-0.5 block text-xs">{{ $t("setup.update.auto-desc") }}</span>
-          <SetupLocked v-if="status.locked.autoUpdate" env="DOZZLE_AUTO_UPDATE" class="mt-1" />
+          <SetupLocked v-if="status.locked.autoUpdate" :env="scheduleLockedBy" class="mt-1" />
         </span>
         <span v-if="autoUpdate.mode === 'off'" class="text-base-content/60 shrink-0 text-sm">
           {{ $t("setup.restart.off") }}
         </span>
         <span v-else class="shrink-0 text-right text-sm">
           {{ $t(`setup.update.${autoUpdate.mode}`) }}
-          <span class="text-base-content/60 block font-mono text-xs">{{ autoUpdate.time }}</span>
+          <span class="text-base-content/60 block font-mono text-xs">{{ scheduleTime }}</span>
         </span>
       </div>
 
@@ -227,6 +231,16 @@ const unlockedEnvs = computed(() => [
   ...(status.locked.autoUpdate ? [] : ["DOZZLE_AUTO_UPDATE"]),
   ...(status.locked.updateContainers ? [] : ["DOZZLE_UPDATE_CONTAINERS"]),
 ]);
+
+// The schedule has two variables; name the ones that fixed it. An older server only says
+// that one of them did.
+const scheduleLockedBy = computed(() => {
+  const { autoUpdateMode, autoUpdateTime } = status.locked;
+  if (autoUpdateMode === undefined && autoUpdateTime === undefined) return "DOZZLE_AUTO_UPDATE";
+  return [...(autoUpdateMode ? ["DOZZLE_AUTO_UPDATE"] : []), ...(autoUpdateTime ? ["DOZZLE_AUTO_UPDATE_TIME"] : [])];
+});
+
+const scheduleTime = computed(() => [autoUpdate.value.time, autoUpdate.value.zone].filter(Boolean).join(" "));
 
 const mode = computed<AutoUpdateMode>(() => (enabled.value ? schedule.value : "off"));
 
