@@ -466,8 +466,10 @@ rather than matching what is already there.
   component instead of copying the classes.
 - Do not repeat the container's title inside its own content: a drawer header already names
   the thing, so the panel below leads with what the header cannot say.
-- Drawer footers are sticky, opaque and full-bleed:
-  `bg-base-100 border-base-content/10 sticky bottom-0 z-10 -mx-4 mt-auto border-t px-4 py-4`.
+- Drawer footers are sticky, opaque and full-bleed, bled over the drawer's `p-6` and padded
+  clear of the home indicator:
+  `bg-base-100 border-base-content/10 sticky -bottom-6 z-10 -mx-6 -mb-6 mt-auto border-t px-10 pt-4 pb-[max(1rem,env(safe-area-inset-bottom))]`
+  (widen `-mx`/`-mb` by any padding the occupant adds of its own).
 
 ## Where files go
 

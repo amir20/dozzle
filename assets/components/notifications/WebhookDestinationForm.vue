@@ -123,7 +123,9 @@
     <!-- Opaque and full-bleed: the form's p-4 and the drawer's p-6 would otherwise leave the
          scrolling content visible down both sides of the bar and under it. -bottom-6 sticks it
          past the drawer's bottom padding, onto the edge of the screen. -->
-    <div class="bg-base-100 border-base-content/10 sticky -bottom-6 z-10 -mx-10 mt-auto -mb-10 border-t px-10 py-4">
+    <div
+      class="bg-base-100 border-base-content/10 sticky -bottom-6 z-10 -mx-10 mt-auto -mb-10 border-t px-10 pt-4 pb-[max(1rem,env(safe-area-inset-bottom))]"
+    >
       <InlineNotice v-if="error" type="error" class="mb-3">{{ error }}</InlineNotice>
 
       <!-- Cleared whenever the request changes, so a green tick always describes what is on screen -->

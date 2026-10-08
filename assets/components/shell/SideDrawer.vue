@@ -73,7 +73,9 @@ useEventListener(panel, "close", () => (open.value = false));
 @reference "@/main.css";
 
 .modal-right :where(.modal-box) {
-  @apply bg-base-100 fixed right-0 h-lvh max-h-screen translate-x-24 scale-100 rounded-none shadow-none;
+  /* dvh, not lvh or 100vh: on iOS those are the largest viewport, which runs under the
+     browser's toolbar, so a footer pinned to the bottom of the drawer lands off screen. */
+  @apply bg-base-100 fixed right-0 h-dvh max-h-dvh translate-x-24 scale-100 rounded-none shadow-none;
 
   &[width="md"] {
     @apply max-w-3xl;

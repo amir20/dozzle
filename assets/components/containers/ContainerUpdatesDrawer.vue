@@ -108,7 +108,7 @@
     </div>
 
     <div
-      class="bg-base-100 border-base-content/10 sticky bottom-0 z-10 -mx-4 mt-auto flex flex-wrap items-center gap-2 border-t p-4"
+      class="bg-base-100 border-base-content/10 sticky -bottom-6 z-10 -mx-6 mt-auto -mb-6 flex flex-wrap items-center gap-2 border-t px-10 pt-4 pb-[max(1rem,env(safe-area-inset-bottom))]"
     >
       <span v-if="!showingJob && selfSelected" class="text-base-content/60 mr-auto text-xs">
         {{ $t("updates.self-last") }}
