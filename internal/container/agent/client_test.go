@@ -143,7 +143,12 @@ func (m *MockedClientService) CheckImageUpdate(ctx context.Context, c container.
 var wantedContainer = container.Container{}
 
 func init() {
-	faker.FakeData(&wantedContainer, options.WithFieldsToIgnore("Stats", "MountStats", "Ports", "ImageDigest"))
+	// An empty slice or map comes back from protobuf as nil, which assert.Equal treats as
+	// different, so a run that rolled zero volumes (or labels, env, mounts) failed at random.
+	faker.FakeData(&wantedContainer,
+		options.WithFieldsToIgnore("Stats", "MountStats", "Ports", "ImageDigest"),
+		options.WithRandomMapAndSliceMinSize(1),
+	)
 	wantedContainer.FinishedAt = wantedContainer.FinishedAt.UTC()
 	wantedContainer.Created = wantedContainer.Created.UTC()
 	wantedContainer.StartedAt = wantedContainer.StartedAt.UTC()
