@@ -160,6 +160,13 @@ describe("SetupAutoUpdateForm", () => {
     expect(wrapper.find("input[type=checkbox]").exists()).toBe(true);
   });
 
+  test("without a login the schedule stays editable after the window closes", () => {
+    const wrapper = mountForm(status({ canWrite: false, canWriteUpdates: true, authProvider: "none" }));
+    expect(wrapper.find("input[type=checkbox]").exists()).toBe(true);
+    expect(wrapper.findAll("input[type=radio]")).toHaveLength(3);
+    expect(wrapper.text()).not.toContain("setup.actions.window-closed");
+  });
+
   test("with the no-login window closed, everything is text and the notice names the env vars", () => {
     const wrapper = mountForm(status({ canWrite: false, authProvider: "none" }));
     expect(wrapper.find("input").exists()).toBe(false);

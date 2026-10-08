@@ -73,17 +73,20 @@ type setupAutoUpdate struct {
 }
 
 type setupState struct {
-	Mode            string          `json:"mode"`
-	DataPersisted   bool            `json:"dataPersisted"`
-	AuthProvider    string          `json:"authProvider"`
-	UsersFileExists bool            `json:"usersFileExists"`
-	EnableActions   bool            `json:"enableActions"`
-	EnableShell     bool            `json:"enableShell"`
-	Locked          setupLocked     `json:"locked"`
-	Pending         setupPending    `json:"pending"`
-	CanRestart      bool            `json:"canRestart"`
-	WindowOpen      bool            `json:"windowOpen"`
-	CanWrite        bool            `json:"canWrite"`
+	Mode            string       `json:"mode"`
+	DataPersisted   bool         `json:"dataPersisted"`
+	AuthProvider    string       `json:"authProvider"`
+	UsersFileExists bool         `json:"usersFileExists"`
+	EnableActions   bool         `json:"enableActions"`
+	EnableShell     bool         `json:"enableShell"`
+	Locked          setupLocked  `json:"locked"`
+	Pending         setupPending `json:"pending"`
+	CanRestart      bool         `json:"canRestart"`
+	WindowOpen      bool         `json:"windowOpen"`
+	CanWrite        bool         `json:"canWrite"`
+	// CanWriteUpdates is CanWrite for the update schedule and which containers
+	// it updates, which stay writable after the no-login window closes.
+	CanWriteUpdates bool            `json:"canWriteUpdates"`
 	AutoUpdate      setupAutoUpdate `json:"autoUpdate"`
 	Agents          []setupAgent    `json:"agents"`
 	CanAddAgents    bool            `json:"canAddAgents"`
@@ -141,6 +144,20 @@ func (h *handler) setupCanWrite(r *http.Request) bool {
 	// Role.Has matches any bit, so compare the whole mask: setup is for
 	// someone who holds every role.
 	return user != nil && user.Roles&auth.All == auth.All
+}
+
+// setupCanWriteUpdates is setupCanWrite for the auto-update settings. Without
+// a login, and with actions on, they stay writable after the window closes:
+// they only decide when Dozzle does what it may already do, and anyone
+// reaching it can already update a container by hand. With actions off that
+// is not true, and a schedule saved now would start unseen once actions are
+// turned on, so the window applies. Login, actions and shell always keep it.
+// With a login, it is the same admin rule as everything else.
+func (h *handler) setupCanWriteUpdates(r *http.Request) bool {
+	if h.config.Authorization.Provider == NONE {
+		return h.config.EnableActions || h.setupCanWrite(r)
+	}
+	return h.setupCanWrite(r)
 }
 
 func (h *handler) setupCanRestart() bool {
@@ -201,6 +218,8 @@ func (h *handler) getSetup(w http.ResponseWriter, r *http.Request) {
 		CanRestart: h.setupCanRestart(),
 		WindowOpen: h.setupWindowOpen(),
 		CanWrite:   h.setupCanWrite(r),
+
+		CanWriteUpdates: h.setupCanWriteUpdates(r),
 		AutoUpdate: setupAutoUpdate{
 			Mode:           settings.Mode,
 			Time:           settings.Time,
@@ -394,7 +413,14 @@ type setupConfigRequest struct {
 // at startup, so nothing here turns them on without a restart. The auto-update
 // schedule is the exception: the scheduler re-reads the file every minute.
 func (h *handler) updateSetupConfig(w http.ResponseWriter, r *http.Request) {
-	if !h.setupCanWrite(r) {
+	// The body decides which rule applies: only the auto-update settings may be
+	// changed outside the no-login window.
+	var req setupConfigRequest
+	if !decodeSetupBody(w, r, &req) {
+		return
+	}
+	onlyUpdates := req.EnableActions == nil && req.EnableShell == nil
+	if !h.setupCanWrite(r) && !(onlyUpdates && h.setupCanWriteUpdates(r)) {
 		http.Error(w, http.StatusText(http.StatusForbidden), http.StatusForbidden)
 		return
 	}
@@ -403,11 +429,6 @@ func (h *handler) updateSetupConfig(w http.ResponseWriter, r *http.Request) {
 	// recreate, and the setting with it.
 	if !setupPersisted() {
 		http.Error(w, "data directory is not persisted", http.StatusPreconditionFailed)
-		return
-	}
-
-	var req setupConfigRequest
-	if !decodeSetupBody(w, r, &req) {
 		return
 	}
 	if (req.EnableActions != nil && h.config.Setup.LockedEnableActions) ||

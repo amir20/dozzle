@@ -259,6 +259,7 @@ declare global {
   const setupAccessMessageKey: typeof import('./composable/setup/setup').setupAccessMessageKey
   const setupAutoUpdate: typeof import('./composable/setup/setup').setupAutoUpdate
   const setupCanEdit: typeof import('./composable/setup/setup').setupCanEdit
+  const setupCanEditUpdates: typeof import('./composable/setup/setup').setupCanEditUpdates
   const setupCanRestartNow: typeof import('./composable/setup/setup').setupCanRestartNow
   const setupEnvSnippet: typeof import('./composable/setup/setup').setupEnvSnippet
   const setupHasPending: typeof import('./composable/setup/setup').setupHasPending
@@ -940,6 +941,7 @@ declare module 'vue' {
     readonly setupAccessMessageKey: UnwrapRef<typeof import('./composable/setup/setup')['setupAccessMessageKey']>
     readonly setupAutoUpdate: UnwrapRef<typeof import('./composable/setup/setup')['setupAutoUpdate']>
     readonly setupCanEdit: UnwrapRef<typeof import('./composable/setup/setup')['setupCanEdit']>
+    readonly setupCanEditUpdates: UnwrapRef<typeof import('./composable/setup/setup')['setupCanEditUpdates']>
     readonly setupCanRestartNow: UnwrapRef<typeof import('./composable/setup/setup')['setupCanRestartNow']>
     readonly setupEnvSnippet: UnwrapRef<typeof import('./composable/setup/setup')['setupEnvSnippet']>
     readonly setupHasPending: UnwrapRef<typeof import('./composable/setup/setup')['setupHasPending']>
