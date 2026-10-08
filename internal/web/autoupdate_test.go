@@ -128,6 +128,25 @@ func TestAutoUpdate_WaitsStartDelay(t *testing.T) {
 	assert.Equal(t, 1, starts)
 }
 
+func TestAutoUpdate_TurnedOffDuringStartDelay(t *testing.T) {
+	setupTestEnv(t, true)
+	rec := stubAutoUpdate(t, imagecheck.StatusUpdateAvailable)
+	writeSchedule(t, "daily", "03:00")
+	s := newTestScheduler(serverActions)
+	s.startDelay = func() time.Duration { return 4 * time.Minute }
+	s.after = func(time.Duration) <-chan time.Time {
+		writeSchedule(t, "off", "03:00")
+		ch := make(chan time.Time, 1)
+		ch <- time.Time{}
+		return ch
+	}
+
+	s.tick(context.Background(), at(14, "03:00"))
+	checks, starts := rec.counts()
+	assert.Equal(t, 0, checks)
+	assert.Equal(t, 0, starts)
+}
+
 func TestAutoUpdate_CancelDuringStartDelay(t *testing.T) {
 	setupTestEnv(t, true)
 	rec := stubAutoUpdate(t, imagecheck.StatusUpdateAvailable)

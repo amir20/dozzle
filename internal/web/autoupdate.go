@@ -269,6 +269,11 @@ func (s *autoUpdateScheduler) tick(ctx context.Context, now time.Time) {
 			return
 		case <-s.after(delay):
 		}
+		// The schedule may have been switched off while this run waited.
+		if settings, _ := effectiveAutoUpdate(s.config.Setup); settings.Mode == config.AutoUpdateOff {
+			log.Debug().Msg("auto update: turned off during the start delay")
+			return
+		}
 	}
 
 	// Other containers first: updating Dozzle ends this process.
