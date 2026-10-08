@@ -105,6 +105,8 @@ export interface SetupStatus {
   canRestart: boolean;
   windowOpen: boolean;
   canWrite: boolean;
+  // canWrite for the update schedule. Absent from an older server.
+  canWriteUpdates?: boolean;
   // Applies live, so it never shows up in pending. Absent on servers without self-update.
   autoUpdate?: SetupAutoUpdate;
   // Absent on servers that predate adding hosts from the UI.
@@ -245,6 +247,13 @@ export function setupAccessMessageKey(status: SetupStatus): string {
 // on the next recreate, so nothing is saved there either.
 export function setupCanEdit(status: SetupStatus): boolean {
   return status.dataPersisted && status.canWrite;
+}
+
+// setupCanEdit for the update schedule and which containers it updates. Without a
+// login these stay changeable after the first 15 minutes: they only decide when
+// Dozzle does what it may already do. An older server only reports canWrite.
+export function setupCanEditUpdates(status: SetupStatus): boolean {
+  return status.dataPersisted && (status.canWriteUpdates ?? status.canWrite);
 }
 
 // Mirrors the server's rule for POST /api/setup/restart: anyone who can change setup,

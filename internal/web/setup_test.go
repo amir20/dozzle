@@ -410,8 +410,16 @@ func TestSetup_AutoUpdatePatch(t *testing.T) {
 	assert.Equal(t, "04:15", state.AutoUpdate.Time)
 	assert.Equal(t, setupPending{}, state.Pending, "auto update applies live")
 
+	// Without a login the schedule stays changeable after the window closes;
+	// actions and shell do not.
 	closed := setupNoneHandler(time.Now().Add(-time.Hour), SetupConfig{})
-	assert.Equal(t, http.StatusForbidden, doSetup(closed, "PATCH", "/api/setup/config", `{"autoUpdate":{"mode":"daily","time":"04:15"}}`).Code)
+	assert.Equal(t, http.StatusNoContent, doSetup(closed, "PATCH", "/api/setup/config", `{"autoUpdate":{"mode":"daily","time":"04:15"},"updateContainers":"all"}`).Code)
+	assert.Equal(t, http.StatusForbidden, doSetup(closed, "PATCH", "/api/setup/config", `{"enableActions":true}`).Code)
+	assert.Equal(t, http.StatusForbidden, doSetup(closed, "PATCH", "/api/setup/config", `{"autoUpdate":{"mode":"weekly","time":"04:15"},"enableShell":true}`).Code)
+	closedState := getSetupState(t, closed)
+	assert.False(t, closedState.CanWrite)
+	assert.True(t, closedState.CanWriteUpdates)
+	require.Equal(t, http.StatusNoContent, doSetup(h, "PATCH", "/api/setup/config", `{"autoUpdate":{"mode":"weekly","time":"04:15"}}`).Code)
 
 	mode := "daily"
 	locked := setupNoneHandler(time.Now(), SetupConfig{LockedAutoUpdate: true, AutoUpdateMode: &mode})

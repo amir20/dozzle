@@ -2,17 +2,9 @@
   <!-- When and which containers: the same two questions in the setup wizard and on
        Settings → Updates. The wizard saves on Next; Settings saves as you change it. -->
   <div class="flex flex-col gap-4">
-    <!-- Both can apply: Dozzle can't replace itself, and this browser can't change the
-         schedule. The first must not hide why the form below is read-only. -->
-    <template v-if="notices">
-      <InlineNotice v-if="blockedReason" type="info">
-        {{ blockedReason }}
-        <span v-if="scheduleEditable && containers !== 'off'" class="text-base-content/60 mt-1 block text-xs">
-          {{ $t("auto-update.containers-still") }}
-        </span>
-      </InlineNotice>
-      <SetupAccessNotice :status="status" :envs="unlockedEnvs" />
-    </template>
+    <!-- Only why the form below can't be changed. That Dozzle can't replace itself is a
+         note inside the card: the schedule still runs for the other containers. -->
+    <SetupAccessNotice v-if="notices && !editable" :status="status" :envs="unlockedEnvs" />
 
     <div class="border-base-content/15 bg-base-200/40 divide-base-content/10 divide-y rounded-lg border">
       <template v-if="canEditSchedule">
@@ -129,6 +121,16 @@
         </span>
       </div>
 
+      <div v-if="blockedReason" class="text-base-content/60 flex items-start gap-2 p-4 text-xs">
+        <mdi:information-outline class="mt-px size-3.5 shrink-0" />
+        <span>
+          {{ blockedReason }}
+          <template v-if="scheduleEditable && containers !== 'off'">{{
+            " " + $t("auto-update.containers-still")
+          }}</template>
+        </span>
+      </div>
+
       <!-- Everything reaches the databases too, which is the one way it goes badly. -->
       <div v-if="containers === 'all' && risky.length" class="flex items-start gap-3 p-4">
         <div class="bg-warning/10 text-warning shrink-0 rounded-full p-1.5">
@@ -222,7 +224,8 @@ const scheduleEditable = computed(() => autoUpdate.value.reason !== "not-server"
 
 // dozzle.yml outside a volume is lost on the next recreate, so nothing is saved there.
 // The schedule and which containers have their own env vars, so each has its own lock.
-const canEdit = computed(() => setupCanEdit(status) && scheduleEditable.value);
+const editable = computed(() => setupCanEditUpdates(status));
+const canEdit = computed(() => editable.value && scheduleEditable.value);
 const canEditSchedule = computed(() => canEdit.value && !status.locked.autoUpdate);
 const canEditContainers = computed(() => canEdit.value && !status.locked.updateContainers);
 

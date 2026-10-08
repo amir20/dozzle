@@ -14,9 +14,10 @@
          to announce, since there is nothing here to pull it with. -->
     <SetupSelfUpdateStatus v-if="status && running?.supported" :status="status" :auto-update="running" />
 
-    <!-- With actions off, the notice above is the one thing to fix, so the form stays quiet. -->
-    <SetupAutoUpdateForm v-if="status" :status="status" :notices="status.enableActions" autosave />
-    <SetupStatusMissing v-else :loading="loading" />
+    <!-- With actions off nothing updates on its own, so there is nothing to choose: the
+         notice above is the one thing on the page. -->
+    <SetupAutoUpdateForm v-if="status?.enableActions" :status="status" autosave />
+    <SetupStatusMissing v-else-if="!status" :loading="loading" />
   </SettingsSection>
 
   <!-- With the schedule off, or actions off, nothing updates on its own, whatever the
