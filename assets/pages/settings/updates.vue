@@ -80,7 +80,7 @@
       </li>
       <li>
         <a
-          href="https://dozzle.dev/guide/actions#auto-updating-containers"
+          href="https://dozzle.dev/guide/updates#auto-updating-containers"
           target="_blank"
           rel="noopener"
           class="hover:text-base-content inline-flex items-center gap-2 transition-colors"

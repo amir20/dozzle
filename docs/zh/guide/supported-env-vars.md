@@ -1,6 +1,6 @@
 ---
 title: 环境变量与子命令
-sourceHash: 55326b03f277
+sourceHash: d85601289c22
 ---
 
 # 环境变量
@@ -48,8 +48,8 @@ DOZZLE_REMOTE_AGENT=167.99.1.1:7007,167.99.1.2:7007
 | `DOZZLE_DISABLE_AVATARS`<br>`--disable-avatars`           | 启用身份验证时隐藏用户头像。                                                                                                                                              | `true`、`false`              | `false`                             |
 | `DOZZLE_DISABLE_SETUP_WIZARD`<br>`--disable-setup-wizard` | 阻止[设置向导](/zh/guide/setup-wizard)在全新安装时自动打开。仍然可以在 **设置 → 关于** 中运行它。                                                                         | `true`、`false`              | `false`                             |
 | `DOZZLE_RELEASE_CHECK_MODE`<br>`--release-check-mode`     | Dozzle 是否检查自身的新版本。`manual` 只在你主动要求时检查。                                                                                                              | `automatic`、`manual`        | `automatic`                         |
-| `DOZZLE_IMAGE_CHECK_MODE`<br>`--image-check-mode`         | Dozzle 是否到镜像仓库检查更新的容器镜像。参见[更新检查](/zh/guide/actions#更新检查)。                                                                                     | `automatic`、`manual`、`off` | 与 `DOZZLE_RELEASE_CHECK_MODE` 相同 |
-| `DOZZLE_AUTO_UPDATE`<br>`--auto-update`                   | 按计划更新 Dozzle，以及设为自动更新的容器。`weekly` 在周日运行。需要开启 `DOZZLE_ENABLE_ACTIONS`。请参阅[自动更新容器](/zh/guide/actions#auto-updating-containers)。      | `off`、`daily`、`weekly`     | `off`                               |
+| `DOZZLE_IMAGE_CHECK_MODE`<br>`--image-check-mode`         | Dozzle 是否到镜像仓库检查更新的容器镜像。参见[更新检查](/zh/guide/updates#update-checking)。                                                                              | `automatic`、`manual`、`off` | 与 `DOZZLE_RELEASE_CHECK_MODE` 相同 |
+| `DOZZLE_AUTO_UPDATE`<br>`--auto-update`                   | 按计划更新 Dozzle，以及设为自动更新的容器。`weekly` 在周日运行。需要开启 `DOZZLE_ENABLE_ACTIONS`。请参阅[自动更新容器](/zh/guide/updates#auto-updating-containers)。      | `off`、`daily`、`weekly`     | `off`                               |
 | `DOZZLE_AUTO_UPDATE_TIME`<br>`--auto-update-time`         | 每天运行自动更新的时间，按服务器本地时间计算。实际会在该时间后随机延迟 1–10 分钟开始，避开整点。                                                                          | `HH:MM`，例如 `04:30`        | `03:00`                             |
 | `DOZZLE_UPDATE_CONTAINERS`<br>`--update-containers`       | 自动更新除 Dozzle 之外还更新哪些容器：`off` 只更新 Dozzle，`labelled` 更新带有 `dev.dozzle.update=auto` 标签的容器，`all` 更新所有未标记 `dev.dozzle.update=off` 的容器。 | `off`、`labelled`、`all`     | `labelled`                          |
 

@@ -1,6 +1,6 @@
 ---
 title: Assistant de configuration
-sourceHash: 2be5cf1d7f88
+sourceHash: 3c82d0e2c2d2
 ---
 
 # Assistant de configuration
@@ -67,7 +67,7 @@ Les agents définis par `DOZZLE_REMOTE_AGENT` sont affichés comme verrouillés 
 
 Dozzle peut se tenir à jour, ainsi que vos conteneurs. Choisissez **Désactivée**, **Quotidienne** ou **Hebdomadaire** (le dimanche) et une heure. L'heure est celle du serveur, `03:00` par défaut. À cette heure, Dozzle cherche des images plus récentes et ne met à jour que ce qui a changé, [lui-même](#self-update) en dernier.
 
-**Quels conteneurs** décide de ce que le planning met à jour en plus : **Dozzle seulement**, **Conteneurs avec label** (par défaut, ceux qui portent le label `dev.dozzle.update=auto`) ou **Tout**. Consultez [Mise à jour automatique des conteneurs](/fr/guide/actions#auto-updating-containers).
+**Quels conteneurs** décide de ce que le planning met à jour en plus : **Dozzle seulement**, **Conteneurs avec label** (par défaut, ceux qui portent le label `dev.dozzle.update=auto`) ou **Tout**. Consultez [Mise à jour automatique des conteneurs](/fr/guide/updates#auto-updating-containers).
 
 Ces réglages s'appliquent immédiatement et ne nécessitent pas de redémarrage. Ils se trouvent aussi dans **Paramètres → Mises à jour**, à côté de **Mettre à jour maintenant** et de la liste des conteneurs que le planning mettra à jour, où chaque modification est enregistrée dès que vous la faites.
 
@@ -116,7 +116,7 @@ Dozzle se met à jour lui-même via l'action `Update` sur son propre conteneur o
 1. Dozzle récupère le tag d'image qu'il exécute. Si le tag pointe toujours vers l'image en cours, il s'arrête là et indique qu'il est à jour.
 2. Dozzle lance, à partir de la nouvelle image, un conteneur auxiliaire éphémère qui a accès au même socket Docker. Dozzle disparaît quelques secondes plus tard.
 3. Le conteneur auxiliaire renomme l'ancien conteneur et crée un remplaçant sous le nom d'origine avec la même configuration, les mêmes réseaux et les mêmes volumes. Ce n'est qu'ensuite qu'il arrête l'ancien conteneur et démarre le remplaçant. Les volumes anonymes sont conservés aussi, donc les données de `/data` survivent même sans volume nommé.
-4. Le conteneur auxiliaire attend que le remplaçant reste en marche (et en bonne santé, s'il a un healthcheck). Si c'est le cas, l'ancien conteneur est supprimé sans toucher à ses volumes, et l'image d'avant la précédente est [nettoyée](/fr/guide/actions#cleaning-up-old-images) comme après toute autre mise à jour. Sinon, le remplaçant est supprimé, l'ancien conteneur reprend son nom et redémarre.
+4. Le conteneur auxiliaire attend que le remplaçant reste en marche (et en bonne santé, s'il a un healthcheck). Si c'est le cas, l'ancien conteneur est supprimé sans toucher à ses volumes, et l'image d'avant la précédente est [nettoyée](/fr/guide/updates#cleaning-up-old-images) comme après toute autre mise à jour. Sinon, le remplaçant est supprimé, l'ancien conteneur reprend son nom et redémarre.
 
 Les conteneurs lancés avec `--rm` se mettent à jour de la même façon. L'ancien conteneur se supprime en s'arrêtant, mais le remplaçant détient déjà ses volumes à ce moment-là, donc ils sont conservés. Si la mise à jour doit revenir en arrière, le conteneur auxiliaire recrée l'ancien conteneur à partir de sa configuration enregistrée.
 

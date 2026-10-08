@@ -1,6 +1,6 @@
 ---
 title: Umgebungsvariablen und Unterbefehle
-sourceHash: 55326b03f277
+sourceHash: d85601289c22
 ---
 
 # Umgebungsvariablen
@@ -48,8 +48,8 @@ DOZZLE_REMOTE_AGENT=167.99.1.1:7007,167.99.1.2:7007
 | `DOZZLE_DISABLE_AVATARS`<br>`--disable-avatars`           | Blendet Benutzeravatare aus, wenn die Authentifizierung aktiv ist.                                                                                                                                                                                          | `true`, `false`              | `false`                         |
 | `DOZZLE_DISABLE_SETUP_WIZARD`<br>`--disable-setup-wizard` | Verhindert, dass sich der [Einrichtungsassistent](/de/guide/setup-wizard) bei einer frischen Installation von selbst öffnet. Unter **Einstellungen → Über** lässt er sich weiterhin starten.                                                                | `true`, `false`              | `false`                         |
 | `DOZZLE_RELEASE_CHECK_MODE`<br>`--release-check-mode`     | Ob Dozzle nach neuen eigenen Releases sucht. `manual` prüft nur, wenn du danach fragst.                                                                                                                                                                     | `automatic`, `manual`        | `automatic`                     |
-| `DOZZLE_IMAGE_CHECK_MODE`<br>`--image-check-mode`         | Ob Dozzle in Registries nach neueren Container-Images sucht. Siehe [Update-Prüfung](/de/guide/actions#update-prufung).                                                                                                                                      | `automatic`, `manual`, `off` | wie `DOZZLE_RELEASE_CHECK_MODE` |
-| `DOZZLE_AUTO_UPDATE`<br>`--auto-update`                   | Aktualisiert Dozzle und die Container, die automatisch aktualisiert werden sollen, nach Zeitplan. `weekly` läuft am Sonntag. Setzt `DOZZLE_ENABLE_ACTIONS` voraus. Siehe [Container automatisch aktualisieren](/de/guide/actions#auto-updating-containers). | `off`, `daily`, `weekly`     | `off`                           |
+| `DOZZLE_IMAGE_CHECK_MODE`<br>`--image-check-mode`         | Ob Dozzle in Registries nach neueren Container-Images sucht. Siehe [Update-Prüfung](/de/guide/updates#update-checking).                                                                                                                                     | `automatic`, `manual`, `off` | wie `DOZZLE_RELEASE_CHECK_MODE` |
+| `DOZZLE_AUTO_UPDATE`<br>`--auto-update`                   | Aktualisiert Dozzle und die Container, die automatisch aktualisiert werden sollen, nach Zeitplan. `weekly` läuft am Sonntag. Setzt `DOZZLE_ENABLE_ACTIONS` voraus. Siehe [Container automatisch aktualisieren](/de/guide/updates#auto-updating-containers). | `off`, `daily`, `weekly`     | `off`                           |
 | `DOZZLE_AUTO_UPDATE_TIME`<br>`--auto-update-time`         | Uhrzeit, zu der das automatische Update läuft, in der lokalen Zeit des Servers. Es startet zufällig 1–10 Minuten später, nicht zur vollen Stunde.                                                                                                           | `HH:MM`, z. B. `04:30`       | `03:00`                         |
 | `DOZZLE_UPDATE_CONTAINERS`<br>`--update-containers`       | Welche Container das automatische Update neben Dozzle aktualisiert: `off` nur Dozzle, `labelled` die mit `dev.dozzle.update=auto` markierten, `all` jeden Container ohne `dev.dozzle.update=off`.                                                           | `off`, `labelled`, `all`     | `labelled`                      |
 
