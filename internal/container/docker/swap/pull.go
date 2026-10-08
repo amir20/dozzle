@@ -15,13 +15,17 @@ import (
 )
 
 const (
-	// pullAttempts bounds a pull the registry keeps rate-limiting.
-	pullAttempts = 4
-	// minRetryAfter floors the registry's retry-after. A registry can answer
-	// with well under a millisecond, and retrying that fast meets the same limit.
-	minRetryAfter = time.Second
-	// maxRetryAfter is the longest wait honoured. A longer one fails the pull
-	// rather than holding up the rest of the run.
+	// pullAttempts bounds a pull the registry keeps rate-limiting. With the
+	// backoff below the last attempt comes over two minutes after the first.
+	pullAttempts = 6
+	// minRetryAfter is the first wait, doubled on every attempt after. ghcr.io
+	// answers with a retry-after well under a millisecond, but its limit is
+	// shared by every client and counted per minute: at a busy time it keeps
+	// refusing for well over a minute, so the waits have to outlast that.
+	minRetryAfter = 5 * time.Second
+	// maxRetryAfter is the longest wait honoured, and the backoff stops growing
+	// there. A longer retry-after fails the pull rather than holding up the
+	// rest of the run.
 	maxRetryAfter = time.Minute
 )
 
@@ -39,7 +43,8 @@ var wait = func(ctx context.Context, d time.Duration) error {
 
 // Pull starts a pull with start and reads it to the end like ReadPull. When
 // the registry answers toomanyrequests it waits the retry-after the error
-// gives, floored at minRetryAfter, and pulls again, up to pullAttempts times.
+// gives, floored at a backoff that starts at minRetryAfter and doubles up to
+// maxRetryAfter, and pulls again, up to pullAttempts times.
 // Any other error, or a retry-after over maxRetryAfter, fails at once.
 func Pull(ctx context.Context, start func() (io.ReadCloser, error), progress func(container.UpdateProgress)) error {
 	for attempt := 1; ; attempt++ {
@@ -48,6 +53,7 @@ func Pull(ctx context.Context, start func() (io.ReadCloser, error), progress fun
 			return nil
 		}
 		delay, ok := retryAfter(err)
+		delay = max(delay, backoff(attempt))
 		if !ok || attempt == pullAttempts || delay > maxRetryAfter {
 			return err
 		}
@@ -65,6 +71,12 @@ func pullOnce(start func() (io.ReadCloser, error), progress func(container.Updat
 	}
 	defer reader.Close()
 	return ReadPull(reader, progress)
+}
+
+// backoff is the shortest wait after the given failed attempt: minRetryAfter,
+// doubled for every attempt before it, capped at maxRetryAfter.
+func backoff(attempt int) time.Duration {
+	return min(minRetryAfter<<(attempt-1), maxRetryAfter)
 }
 
 // retryAfter reports whether err is a registry rate limit and how long to wait.

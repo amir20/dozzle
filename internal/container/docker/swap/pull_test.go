@@ -3,6 +3,7 @@ package swap
 import (
 	"context"
 	"errors"
+	"fmt"
 	"io"
 	"strings"
 	"testing"
@@ -101,6 +102,12 @@ func TestPullGivesUpAfterAttempts(t *testing.T) {
 	}
 	if *calls != pullAttempts || len(*waits) != pullAttempts-1 {
 		t.Fatalf("calls = %d, waits = %d", *calls, len(*waits))
+	}
+	// Sub-millisecond retry-afters back off exponentially, capped at a minute,
+	// so the attempts span well over the minute the registry counts in.
+	want := []time.Duration{5 * time.Second, 10 * time.Second, 20 * time.Second, 40 * time.Second, time.Minute}
+	if fmt.Sprint(*waits) != fmt.Sprint(want) {
+		t.Fatalf("waits = %v, want %v", *waits, want)
 	}
 }
 
