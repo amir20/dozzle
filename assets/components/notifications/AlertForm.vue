@@ -185,7 +185,9 @@
 
     <!-- Actions stay reachable in a form this tall. Bled over the drawer's p-6 on every side
          but the top, like the destination form's bar. -->
-    <div class="bg-base-100 border-base-content/10 sticky -bottom-6 z-10 -mx-6 mt-auto -mb-6 border-t px-10 py-4">
+    <div
+      class="bg-base-100 border-base-content/10 sticky -bottom-6 z-10 -mx-6 mt-auto -mb-6 border-t px-10 pt-4 pb-[max(1rem,env(safe-area-inset-bottom))]"
+    >
       <InlineNotice v-if="saveError" type="error" class="mb-3">{{ saveError }}</InlineNotice>
 
       <div v-if="confirmingDiscard" class="flex flex-wrap items-center justify-end gap-2">
