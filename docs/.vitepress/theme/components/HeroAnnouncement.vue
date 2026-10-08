@@ -6,11 +6,11 @@ import { useRoute } from "vitepress";
 // than in index.md so the pill does not have to be repeated, and re-translated,
 // in five home pages.
 const COPY = {
-  en: { badge: "v11", label: "A new look, and sign in with GitHub", href: "/guide/whats-new" },
-  de: { badge: "v11", label: "Neues Design und Anmeldung mit GitHub", href: "/de/guide/whats-new" },
-  fr: { badge: "v11", label: "Nouveau design et connexion avec GitHub", href: "/fr/guide/whats-new" },
-  es: { badge: "v11", label: "Nuevo diseño e inicio de sesión con GitHub", href: "/es/guide/whats-new" },
-  zh: { badge: "v11", label: "全新界面，支持 GitHub 登录", href: "/zh/guide/whats-new" },
+  en: { badge: "v11.3", label: "Safe container updates, on a schedule", href: "/guide/updates" },
+  de: { badge: "v11.3", label: "Sichere Container-Updates, nach Zeitplan", href: "/de/guide/updates" },
+  fr: { badge: "v11.3", label: "Mises à jour sûres des conteneurs, planifiées", href: "/fr/guide/updates" },
+  es: { badge: "v11.3", label: "Actualizaciones seguras de contenedores, programadas", href: "/es/guide/updates" },
+  zh: { badge: "v11.3", label: "安全的容器更新，支持定时执行", href: "/zh/guide/updates" },
 } as const;
 
 type Locale = keyof typeof COPY;
