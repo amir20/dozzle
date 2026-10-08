@@ -2,7 +2,8 @@ package container
 
 import (
 	"context"
-	"strings"
+	"errors"
+	"io/fs"
 	"sync/atomic"
 	"time"
 
@@ -35,14 +36,7 @@ type volumeMonitor struct {
 	queue    chan string
 	pending  *xsync.Map[string, struct{}]
 	trackers *xsync.Map[string, *volumeTracker]
-	// failing holds the mounts whose last statfs failed, keyed by
-	// failingKey. A host path Dozzle can't see (it isn't mounted into
-	// Dozzle's own container) fails on every refresh, so the failure is
-	// logged once and again only after the mount has worked in between.
-	failing *xsync.Map[string, struct{}]
 }
-
-func failingKey(id, source string) string { return id + "\x00" + source }
 
 func newVolumeMonitor(store *Store) *volumeMonitor {
 	return &volumeMonitor{
@@ -50,7 +44,6 @@ func newVolumeMonitor(store *Store) *volumeMonitor {
 		queue:    make(chan string, volumeQueueSize),
 		pending:  xsync.NewMap[string, struct{}](),
 		trackers: xsync.NewMap[string, *volumeTracker](),
-		failing:  xsync.NewMap[string, struct{}](),
 	}
 }
 
@@ -119,12 +112,6 @@ func (v *volumeMonitor) refresh(id string) {
 	c, ok := v.store.containers.Load(id)
 	if !ok {
 		v.trackers.Delete(id)
-		v.failing.Range(func(k string, _ struct{}) bool {
-			if strings.HasPrefix(k, id+"\x00") {
-				v.failing.Delete(k)
-			}
-			return true
-		})
 		return
 	}
 
@@ -145,13 +132,15 @@ func (v *volumeMonitor) refresh(id string) {
 		}
 		total, free, err := statfs(m.Source)
 		if err != nil {
-			if _, seen := v.failing.LoadOrStore(failingKey(c.ID, m.Source), struct{}{}); !seen {
-				log.Debug().Err(err).Str("id", c.ID).Str("source", m.Source).Str("dest", m.Destination).Msg("statfs failed; not logged again until it works")
+			// A missing path is the usual case, not a fault: in a container,
+			// Dozzle only sees the host paths mounted into it, and this runs
+			// for every mount every minute.
+			if !errors.Is(err, fs.ErrNotExist) {
+				log.Debug().Err(err).Str("id", c.ID).Str("source", m.Source).Str("dest", m.Destination).Msg("statfs failed")
 			}
 			stats[m.Destination] = ms
 			continue
 		}
-		v.failing.Delete(failingKey(c.ID, m.Source))
 		ms.Available = true
 		ms.Total = total
 		ms.Free = free
