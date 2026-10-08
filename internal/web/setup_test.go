@@ -410,15 +410,21 @@ func TestSetup_AutoUpdatePatch(t *testing.T) {
 	assert.Equal(t, "04:15", state.AutoUpdate.Time)
 	assert.Equal(t, setupPending{}, state.Pending, "auto update applies live")
 
-	// Without a login the schedule stays changeable after the window closes;
-	// actions and shell do not.
-	closed := setupNoneHandler(time.Now().Add(-time.Hour), SetupConfig{})
+	// Without a login and with actions on, the schedule stays changeable after
+	// the window closes; actions and shell do not.
+	closed := createHandler(nil, nil, Config{Base: "/", Mode: "server", EnableActions: true, Authorization: Authorization{Provider: NONE}, Setup: SetupConfig{StartedAt: time.Now().Add(-time.Hour)}})
 	assert.Equal(t, http.StatusNoContent, doSetup(closed, "PATCH", "/api/setup/config", `{"autoUpdate":{"mode":"daily","time":"04:15"},"updateContainers":"all"}`).Code)
 	assert.Equal(t, http.StatusForbidden, doSetup(closed, "PATCH", "/api/setup/config", `{"enableActions":true}`).Code)
 	assert.Equal(t, http.StatusForbidden, doSetup(closed, "PATCH", "/api/setup/config", `{"autoUpdate":{"mode":"weekly","time":"04:15"},"enableShell":true}`).Code)
 	closedState := getSetupState(t, closed)
 	assert.False(t, closedState.CanWrite)
 	assert.True(t, closedState.CanWriteUpdates)
+
+	// With actions off a saved schedule would start unseen once actions are
+	// turned on, so the window still applies.
+	actionsOff := setupNoneHandler(time.Now().Add(-time.Hour), SetupConfig{})
+	assert.Equal(t, http.StatusForbidden, doSetup(actionsOff, "PATCH", "/api/setup/config", `{"autoUpdate":{"mode":"daily","time":"04:15"},"updateContainers":"all"}`).Code)
+	assert.False(t, getSetupState(t, actionsOff).CanWriteUpdates)
 	require.Equal(t, http.StatusNoContent, doSetup(h, "PATCH", "/api/setup/config", `{"autoUpdate":{"mode":"weekly","time":"04:15"}}`).Code)
 
 	mode := "daily"

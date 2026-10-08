@@ -147,14 +147,15 @@ func (h *handler) setupCanWrite(r *http.Request) bool {
 }
 
 // setupCanWriteUpdates is setupCanWrite for the auto-update settings. Without
-// a login they stay writable after the window closes: they only decide when
-// Dozzle does what it may already do, and with actions on anyone reaching it
-// can already update a container by hand. Login, actions and shell decide
-// what it may do at all, so they keep the window. With a login, it is the
-// same admin rule as everything else.
+// a login, and with actions on, they stay writable after the window closes:
+// they only decide when Dozzle does what it may already do, and anyone
+// reaching it can already update a container by hand. With actions off that
+// is not true, and a schedule saved now would start unseen once actions are
+// turned on, so the window applies. Login, actions and shell always keep it.
+// With a login, it is the same admin rule as everything else.
 func (h *handler) setupCanWriteUpdates(r *http.Request) bool {
 	if h.config.Authorization.Provider == NONE {
-		return true
+		return h.config.EnableActions || h.setupCanWrite(r)
 	}
 	return h.setupCanWrite(r)
 }
