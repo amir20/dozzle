@@ -3,12 +3,12 @@
 layout: home
 
 titleTemplate: Visualiseur de logs Docker en temps réel
-description: Dozzle est un visualiseur de logs léger et open source pour Docker, Swarm et Kubernetes. Diffusez vos logs, suivez les statistiques en direct et déboguez vos conteneurs depuis votre navigateur.
+description: Dozzle est un visualiseur de logs léger et open source pour Docker, Swarm et Kubernetes. Diffusez vos logs, suivez les statistiques en direct et mettez à jour vos conteneurs en toute sécurité depuis votre navigateur.
 
 hero:
   name: "Dozzle"
   text: "Voyez ce que font vos conteneurs"
-  tagline: Logs Docker, statistiques et débogage en temps réel, dans votre navigateur.
+  tagline: Logs Docker, statistiques et mises à jour en temps réel, dans votre navigateur.
   actions:
     - theme: brand
       text: Démarrer
@@ -19,23 +19,31 @@ hero:
 
 features:
   - title: Logs en temps réel
-    details: Diffusez les logs des conteneurs au fil de l'eau. Cherchez, filtrez et suivez plusieurs conteneurs sans toucher à l'hôte.
+    details: Diffusez les logs des conteneurs au fil de l'eau. Cherchez, filtrez par niveau ou par période et interrogez les champs JSON en SQL sans toucher à l'hôte.
     icon:
       src: /icons/document.svg
       width: 36
       height: 36
     link: /fr/guide/what-is-dozzle#advanced-log-handling
     linkText: En savoir plus
-  - title: Statistiques et métriques en direct
-    details: Suivez l'utilisation du CPU, de la mémoire et du réseau en temps réel, avec un historique graphique sur chaque conteneur.
+  - title: Métriques des conteneurs et des hôtes
+    details: Suivez le CPU, la mémoire, le réseau et le disque de chaque conteneur, ainsi que la charge, le disque et l'uptime de chaque hôte.
     icon:
       src: /icons/chart-line-data.svg
       width: 36
       height: 36
     link: /fr/guide/what-is-dozzle#real-time-monitoring
     linkText: En savoir plus
-  - title: Multi-hôtes et Swarm
-    details: Connectez-vous à plusieurs hôtes Docker et clusters Swarm depuis une seule interface, sécurisée par des agents TLS.
+  - title: Mises à jour sûres
+    details: Repérez les images obsolètes et mettez à jour vos conteneurs un par un, en lot ou selon un planning. Si un nouveau conteneur ne tient pas, l'ancien revient.
+    icon:
+      src: /icons/update-now.svg
+      width: 36
+      height: 36
+    link: /fr/guide/updates
+    linkText: En savoir plus
+  - title: Docker, Swarm et Kubernetes
+    details: Surveillez plusieurs hôtes Docker, clusters Swarm ou un cluster Kubernetes depuis une seule interface. Ajoutez des agents TLS directement depuis le navigateur.
     icon:
       src: /icons/network-3.svg
       width: 36
@@ -51,36 +59,28 @@ features:
     link: /fr/guide/alerts-and-webhooks
     linkText: En savoir plus
   - title: Dozzle Cloud
-    details: Une couche managée optionnelle qui regroupe les pannes répétées, résume ce qui a cassé et vous joint par e-mail, Telegram ou Discord.
+    details: Une couche managée optionnelle qui garde la mémoire des alertes, signale les erreurs nouvelles pour un conteneur et vous dit ce qui a cassé par e-mail, Telegram ou Discord.
     icon:
       src: /icons/cloud.svg
       width: 36
       height: 36
     link: /fr/guide/dozzle-cloud
     linkText: En savoir plus
-  - title: Accès shell et exec
-    details: Attachez-vous aux conteneurs en cours d'exécution ou exécutez des commandes depuis le navigateur quand il faut creuser.
+  - title: Shell et actions
+    details: Démarrez, arrêtez et redémarrez vos conteneurs, lancez un redémarrage de rollout Kubernetes ou ouvrez un shell quand il faut creuser.
     icon:
       src: /icons/terminal.svg
       width: 36
       height: 36
-    link: /fr/guide/shell
-    linkText: En savoir plus
-  - title: Auto-hébergé et privé
-    details: Tourne sur votre propre infrastructure, avec authentification simple ou par proxy. Vos logs ne quittent jamais votre réseau.
-    icon:
-      src: /icons/locked.svg
-      width: 36
-      height: 36
-    link: /fr/guide/authentication
+    link: /fr/guide/actions
     linkText: En savoir plus
   - title: MCP pour les assistants IA
-    details: Exposez conteneurs, logs et statistiques via le Model Context Protocol pour que votre agent de code débogue avec vous.
+    details: Exposez conteneurs, logs et statistiques via le Model Context Protocol, avec connexion OAuth, pour que votre agent de code débogue avec vous.
     icon:
       src: /icons/ai.svg
       width: 36
       height: 36
     link: /fr/guide/mcp
     linkText: En savoir plus
-sourceHash: d045bec3b85e
+sourceHash: 135ab46c4cca
 ---

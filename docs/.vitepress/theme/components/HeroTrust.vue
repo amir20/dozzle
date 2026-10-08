@@ -6,6 +6,7 @@ const cues = [
   { icon: "mdi:scale-balance", label: "MIT licensed" },
   { icon: "mdi:package-variant-closed", label: "Single binary, no database" },
   { icon: "mdi:server-security", label: "Self-hosted, your logs stay on your network" },
+  { icon: "mdi:account-key-outline", label: "Sign in with GitHub or OIDC" },
 ];
 
 const released = computed(() => {

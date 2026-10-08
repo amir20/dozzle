@@ -3,12 +3,12 @@
 layout: home
 
 titleTemplate: Docker-Logs in Echtzeit
-description: Dozzle ist ein schlanker, quelloffener Log-Viewer für Docker, Swarm und Kubernetes. Streame Logs, verfolge Live-Statistiken und debugge Container direkt im Browser.
+description: Dozzle ist ein schlanker, quelloffener Log-Viewer für Docker, Swarm und Kubernetes. Streame Logs, verfolge Live-Statistiken und aktualisiere Container sicher direkt im Browser.
 
 hero:
   name: "Dozzle"
   text: "Sieh, was deine Container gerade tun"
-  tagline: Docker-Logs, Statistiken und Fehlersuche in Echtzeit — direkt im Browser.
+  tagline: Docker-Logs, Statistiken und Updates in Echtzeit — direkt im Browser.
   actions:
     - theme: brand
       text: Loslegen
@@ -19,23 +19,31 @@ hero:
 
 features:
   - title: Logs in Echtzeit
-    details: Streame Container-Logs, während sie entstehen. Suche, filtere und verfolge sie über Container hinweg, ohne den Host anzufassen.
+    details: Streame Container-Logs, während sie entstehen. Suche, filtere nach Level oder Zeitraum und frage JSON-Felder mit SQL ab, ohne den Host anzufassen.
     icon:
       src: /icons/document.svg
       width: 36
       height: 36
     link: /de/guide/what-is-dozzle#advanced-log-handling
     linkText: Mehr erfahren
-  - title: Live-Statistiken und Metriken
-    details: Verfolge CPU-, Speicher- und Netzwerkauslastung in Echtzeit, mit fortlaufenden Verlaufsdiagrammen für jeden Container.
+  - title: Container- und Host-Metriken
+    details: Verfolge CPU, Speicher, Netzwerk und Festplatte für jeden Container, dazu Last, Festplatte und Uptime für jeden Host.
     icon:
       src: /icons/chart-line-data.svg
       width: 36
       height: 36
     link: /de/guide/what-is-dozzle#real-time-monitoring
     linkText: Mehr erfahren
-  - title: Multi-Host und Swarm
-    details: Verbinde dich aus einer einzigen Oberfläche mit mehreren Docker-Hosts und Swarm-Clustern, abgesichert über TLS-Agents.
+  - title: Sichere Updates
+    details: Erkenne veraltete Images und aktualisiere Container einzeln, gesammelt oder nach Zeitplan. Läuft ein neuer Container nicht stabil, kommt der alte zurück.
+    icon:
+      src: /icons/update-now.svg
+      width: 36
+      height: 36
+    link: /de/guide/updates
+    linkText: Mehr erfahren
+  - title: Docker, Swarm und Kubernetes
+    details: Behalte mehrere Docker-Hosts, Swarm-Cluster oder einen Kubernetes-Cluster in einer Oberfläche im Blick. TLS-Agents fügst du direkt im Browser hinzu.
     icon:
       src: /icons/network-3.svg
       width: 36
@@ -51,36 +59,28 @@ features:
     link: /de/guide/alerts-and-webhooks
     linkText: Mehr erfahren
   - title: Dozzle Cloud
-    details: Eine optionale verwaltete Ebene, die wiederkehrende Fehler bündelt, zusammenfasst was kaputt ist, und dich per E-Mail, Telegram oder Discord erreicht.
+    details: Eine optionale verwaltete Ebene, die sich Alarme merkt, Fehler markiert, die für einen Container neu sind, und dir per E-Mail, Telegram oder Discord sagt, was kaputt ist.
     icon:
       src: /icons/cloud.svg
       width: 36
       height: 36
     link: /de/guide/dozzle-cloud
     linkText: Mehr erfahren
-  - title: Shell- und Exec-Zugriff
-    details: Hänge dich an laufende Container an oder führe Befehle direkt aus dem Browser aus, wenn du tiefer graben musst.
+  - title: Shell und Aktionen
+    details: Starte, stoppe und starte Container neu, löse einen Kubernetes-Rollout-Neustart aus oder öffne eine Shell, wenn du tiefer graben musst.
     icon:
       src: /icons/terminal.svg
       width: 36
       height: 36
-    link: /de/guide/shell
-    linkText: Mehr erfahren
-  - title: Selbst gehostet und privat
-    details: Läuft in deiner eigenen Infrastruktur, mit einfacher Auth oder Forward-Proxy-Auth. Deine Logs verlassen nie dein Netzwerk.
-    icon:
-      src: /icons/locked.svg
-      width: 36
-      height: 36
-    link: /de/guide/authentication
+    link: /de/guide/actions
     linkText: Mehr erfahren
   - title: MCP für KI-Assistenten
-    details: Stelle Container, Logs und Statistiken über das Model Context Protocol bereit, damit dein Coding-Agent mit dir zusammen debuggen kann.
+    details: Stelle Container, Logs und Statistiken über das Model Context Protocol mit OAuth-Anmeldung bereit, damit dein Coding-Agent mit dir zusammen debuggen kann.
     icon:
       src: /icons/ai.svg
       width: 36
       height: 36
     link: /de/guide/mcp
     linkText: Mehr erfahren
-sourceHash: d045bec3b85e
+sourceHash: 135ab46c4cca
 ---

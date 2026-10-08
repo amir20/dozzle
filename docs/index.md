@@ -3,12 +3,12 @@
 layout: home
 
 titleTemplate: Real-time Docker Log Viewer
-description: Dozzle is a lightweight, open-source log viewer for Docker, Swarm, and Kubernetes. Stream logs, watch live stats, and debug containers from your browser.
+description: Dozzle is a lightweight, open-source log viewer for Docker, Swarm, and Kubernetes. Stream logs, watch live stats, and update containers safely from your browser.
 
 hero:
   name: "Dozzle"
   text: "See what your containers are doing"
-  tagline: Real-time Docker logs, stats, and debugging — in your browser.
+  tagline: Real-time Docker logs, stats, and updates — in your browser.
   actions:
     - theme: brand
       text: Get Started
@@ -19,23 +19,31 @@ hero:
 
 features:
   - title: Real-time Logs
-    details: Stream container logs as they happen. Search, filter, and follow across containers without touching the host.
+    details: Stream container logs as they happen. Search, filter by level or time range, and query JSON fields with SQL without touching the host.
     icon:
       src: /icons/document.svg
       width: 36
       height: 36
     link: /guide/what-is-dozzle#advanced-log-handling
     linkText: Learn More
-  - title: Live Stats & Metrics
-    details: Watch CPU, memory, and network usage update in real time, with rolling history charts on every container.
+  - title: Container & Host Metrics
+    details: Watch CPU, memory, network, and disk for every container, with load, disk, and uptime for each host.
     icon:
       src: /icons/chart-line-data.svg
       width: 36
       height: 36
     link: /guide/what-is-dozzle#real-time-monitoring
     linkText: Learn More
-  - title: Multi-host & Swarm
-    details: Connect to multiple Docker hosts and Swarm clusters from a single UI, secured with TLS agents.
+  - title: Safe Updates
+    details: Spot outdated images and update containers one by one, in bulk, or on a schedule. If a new container fails to stay up, the old one comes back.
+    icon:
+      src: /icons/update-now.svg
+      width: 36
+      height: 36
+    link: /guide/updates
+    linkText: Learn More
+  - title: Docker, Swarm & Kubernetes
+    details: Watch many Docker hosts, Swarm clusters, or a Kubernetes cluster from one UI. Add TLS agents straight from the browser.
     icon:
       src: /icons/network-3.svg
       width: 36
@@ -51,31 +59,23 @@ features:
     link: /guide/alerts-and-webhooks
     linkText: Learn More
   - title: Dozzle Cloud
-    details: An optional managed layer that groups repeated failures, summarizes what broke, and reaches you on email, Telegram, or Discord.
+    details: An optional managed layer that remembers alerts, flags errors that are new to a container, and tells you what broke on email, Telegram, or Discord.
     icon:
       src: /icons/cloud.svg
       width: 36
       height: 36
     link: /guide/dozzle-cloud
     linkText: Learn More
-  - title: Shell & Exec Access
-    details: Attach to running containers or exec commands directly from the browser when you need to dig deeper.
+  - title: Shell & Actions
+    details: Start, stop, and restart containers, roll out a Kubernetes restart, or open a shell when you need to dig deeper.
     icon:
       src: /icons/terminal.svg
       width: 36
       height: 36
-    link: /guide/shell
-    linkText: Learn More
-  - title: Self-hosted & Private
-    details: Runs in your own infrastructure with simple or forward-proxy auth. Your logs never leave your network.
-    icon:
-      src: /icons/locked.svg
-      width: 36
-      height: 36
-    link: /guide/authentication
+    link: /guide/actions
     linkText: Learn More
   - title: MCP for AI Assistants
-    details: Expose containers, logs, and stats over the Model Context Protocol so your coding agent can debug alongside you.
+    details: Expose containers, logs, and stats over the Model Context Protocol, with OAuth sign-in, so your coding agent can debug alongside you.
     icon:
       src: /icons/ai.svg
       width: 36
