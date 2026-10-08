@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"math/rand/v2"
 	"os"
 	"path/filepath"
 	"strings"
@@ -192,6 +193,8 @@ type autoUpdateScheduler struct {
 	now         func() time.Time
 	after       func(time.Duration) <-chan time.Time
 	lastRun     string
+	// startDelay is how long a due run waits before it starts. Nil starts at once.
+	startDelay func() time.Duration
 	// flushUsage sends the day's usage before an update replaces the process.
 	flushUsage func()
 }
@@ -204,7 +207,7 @@ func RunAutoUpdateScheduler(ctx context.Context, hostService HostService, cfg Co
 		log.Debug().Str("mode", cfg.Mode).Bool("actions", cfg.EnableActions).Msg("auto update: scheduler not started")
 		return
 	}
-	s := &autoUpdateScheduler{config: &cfg, hostService: hostService, now: time.Now, after: time.After, flushUsage: flushUsage}
+	s := &autoUpdateScheduler{config: &cfg, hostService: hostService, now: time.Now, after: time.After, startDelay: autoUpdateStartDelay, flushUsage: flushUsage}
 	s.run(ctx)
 }
 
@@ -220,6 +223,16 @@ func (s *autoUpdateScheduler) run(ctx context.Context) {
 		}
 		s.tick(ctx, s.now())
 	}
+}
+
+// autoUpdateStartDelay picks a random start between one and ten minutes after
+// the scheduled time. Update tools everywhere run on the hour, and registries
+// limit pulls across all their clients: ghcr.io, which serves lscr.io, refused
+// linuxserver pulls for over a minute at 03:00 UTC while the same pulls went
+// through at any other time. Every install on the default 03:00 starting in
+// the same second only adds to that.
+func autoUpdateStartDelay() time.Duration {
+	return time.Minute + rand.N(9*time.Minute)
 }
 
 // due reports whether settings schedule an update in now's minute.
@@ -247,6 +260,16 @@ func (s *autoUpdateScheduler) tick(ctx context.Context, now time.Time) {
 		return
 	}
 	s.lastRun = day
+
+	if s.startDelay != nil {
+		delay := s.startDelay()
+		log.Debug().Dur("delay", delay).Msg("auto update: due, starting after a random delay")
+		select {
+		case <-ctx.Done():
+			return
+		case <-s.after(delay):
+		}
+	}
 
 	// Other containers first: updating Dozzle ends this process.
 	s.updateScheduledContainers(ctx)

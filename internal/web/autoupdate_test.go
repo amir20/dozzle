@@ -108,6 +108,49 @@ func TestAutoUpdate_DailyFiresOncePerDay(t *testing.T) {
 	assert.Equal(t, 2, starts)
 }
 
+func TestAutoUpdate_WaitsStartDelay(t *testing.T) {
+	setupTestEnv(t, true)
+	rec := stubAutoUpdate(t, imagecheck.StatusUpdateAvailable)
+	writeSchedule(t, "daily", "03:00")
+	s := newTestScheduler(serverActions)
+	s.startDelay = func() time.Duration { return 4 * time.Minute }
+	var waited []time.Duration
+	s.after = func(d time.Duration) <-chan time.Time {
+		waited = append(waited, d)
+		ch := make(chan time.Time, 1)
+		ch <- time.Time{}
+		return ch
+	}
+
+	s.tick(context.Background(), at(14, "03:00"))
+	_, starts := rec.counts()
+	assert.Equal(t, []time.Duration{4 * time.Minute}, waited)
+	assert.Equal(t, 1, starts)
+}
+
+func TestAutoUpdate_CancelDuringStartDelay(t *testing.T) {
+	setupTestEnv(t, true)
+	rec := stubAutoUpdate(t, imagecheck.StatusUpdateAvailable)
+	writeSchedule(t, "daily", "03:00")
+	s := newTestScheduler(serverActions)
+	s.startDelay = func() time.Duration { return time.Hour }
+	ctx, cancel := context.WithCancel(context.Background())
+	cancel()
+
+	s.tick(ctx, at(14, "03:00"))
+	checks, starts := rec.counts()
+	assert.Equal(t, 0, checks)
+	assert.Equal(t, 0, starts)
+}
+
+func TestAutoUpdate_StartDelayOffTheHour(t *testing.T) {
+	for range 1000 {
+		d := autoUpdateStartDelay()
+		require.GreaterOrEqual(t, d, time.Minute)
+		require.Less(t, d, 10*time.Minute)
+	}
+}
+
 func TestAutoUpdate_WeeklyOnlySunday(t *testing.T) {
 	setupTestEnv(t, true)
 	rec := stubAutoUpdate(t, imagecheck.StatusUpdateAvailable)
