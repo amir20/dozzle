@@ -103,7 +103,9 @@ jobs:
       - name: Setup Go
         uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
         with:
-          go-version: "1.27.2"
+          # Held at 1.27.1 until staticcheck can read 1.27.2 export data
+          # (dominikh/go-tools#1832). Bump this with the next staticcheck release.
+          go-version: "1.27.1"
           check-latest: true
           # This job shares a cache key with go-test (go version + go.sum hash) and
           # setup-go only writes on a miss. Staticcheck is much faster, so it always
