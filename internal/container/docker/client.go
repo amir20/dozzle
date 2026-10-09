@@ -60,6 +60,10 @@ type Client struct {
 	info          system.Info
 	serviceLabels serviceLabelCache
 
+	// layerSizesCheap is false on a storage driver that sizes a layer by walking the
+	// container's whole filesystem; see layerSizesCheap.
+	layerSizesCheap bool
+
 	// hostMetrics is set only when the engine runs on the machine Dozzle can read
 	// /proc and statfs on. A local client pointed at DOCKER_HOST=tcp:// or ssh://
 	// is still typed "local", but its load and disk belong to another box.
@@ -127,9 +131,31 @@ func NewClient(cli CLI, host container.Host, hostIDs container.HostIDResolver) *
 	}
 
 	return &Client{
-		cli:  cli,
-		host: host,
-		info: info,
+		cli:             cli,
+		host:            host,
+		info:            info,
+		layerSizesCheap: layerSizesCheap(info),
+	}
+}
+
+// layerSizesCheap reports whether the daemon can size a writable layer by reading
+// only that layer. Every other driver diffs the container's whole filesystem against
+// its image, so one batch over every container walks every image on the host.
+// overlay is Podman's name for overlay2, and overlayfs the containerd snapshotter's.
+func layerSizesCheap(info system.Info) bool {
+	switch info.Driver {
+	case "overlay2":
+		// overlay2 falls back to the same full diff when the kernel cannot do a native one
+		for _, kv := range info.DriverStatus {
+			if kv[0] == "Native Overlay Diff" && kv[1] == "false" {
+				return false
+			}
+		}
+		return true
+	case "overlay", "overlayfs":
+		return true
+	default:
+		return false
 	}
 }
 
@@ -307,6 +333,9 @@ var _ container.SizeReader = (*Client)(nil)
 // ContainerSizes lists every container with its writable layer measured. The
 // daemon walks each layer to answer, so this is for the one batch at startup.
 func (d *Client) ContainerSizes(ctx context.Context) (map[string]int64, error) {
+	if !d.layerSizesCheap {
+		return nil, container.ErrLayerSizeUnsupported
+	}
 	list, err := d.cli.ContainerList(ctx, client.ContainerListOptions{All: true, Size: true})
 	if err != nil {
 		return nil, err
@@ -321,6 +350,9 @@ func (d *Client) ContainerSizes(ctx context.Context) (map[string]int64, error) {
 
 // ContainerSize measures one container's writable layer.
 func (d *Client) ContainerSize(ctx context.Context, id string) (int64, error) {
+	if !d.layerSizesCheap {
+		return 0, container.ErrLayerSizeUnsupported
+	}
 	result, err := d.cli.ContainerInspect(ctx, id, client.ContainerInspectOptions{Size: true})
 	if err != nil {
 		return 0, err
@@ -334,10 +366,12 @@ func (d *Client) ContainerSize(ctx context.Context, id string) (int64, error) {
 // DiskUsage measures every volume, the same walk as `docker system df -v`, and
 // matches them to the containers that mount them. The match comes from a plain
 // list, since a stopped container that was never inspected has no mounts in the store.
-// Images and build cache ride along: their sizes are stored, so they add no walk.
-// Containers are left out, since that would walk every layer again.
+// Image sizes ride along: they are stored, so they add no walk. Containers are left
+// out, since that would walk every layer again. Build cache only comes along where
+// layers are cheap: BuildKit sizes a cache record it has not sized yet with the
+// driver's own diff, which on the other drivers is the same full walk.
 func (d *Client) DiskUsage(ctx context.Context) (container.DiskUsage, error) {
-	du, err := d.cli.DiskUsage(ctx, client.DiskUsageOptions{Volumes: true, Images: true, BuildCache: true, Verbose: true})
+	du, err := d.cli.DiskUsage(ctx, client.DiskUsageOptions{Volumes: true, Images: true, BuildCache: d.layerSizesCheap, Verbose: true})
 	if err != nil {
 		return container.DiskUsage{}, err
 	}

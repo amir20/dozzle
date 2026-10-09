@@ -22,6 +22,8 @@ type sizedClient struct {
 	// batches to fail before one succeeds
 	allFails  int
 	allCalled int
+	// allErr is what the failing batches return; nil is a plain error
+	allErr error
 
 	volumes       map[string][]VolumeUsage
 	reclaimable   Reclaimable
@@ -40,6 +42,9 @@ func (c *sizedClient) ContainerSizes(context.Context) (map[string]int64, error) 
 	defer c.mu.Unlock()
 	c.allCalled++
 	if c.allCalled <= c.allFails {
+		if c.allErr != nil {
+			return nil, c.allErr
+		}
 		return nil, errors.New("timed out")
 	}
 	return c.all, nil
@@ -214,6 +219,33 @@ func TestSizeMonitor_measureAllRetries(t *testing.T) {
 	client.allFails, client.allCalled = sizeBatchAttempts, 0
 	newSizeMonitor(store, client).measureAll(t.Context())
 	assert.Equal(t, sizeBatchAttempts, client.allCalled, "each retry walks the whole host, so they are bounded")
+}
+
+// The daemon keeps walking after a timeout, so a retry would stack a second walk on it.
+func TestSizeMonitor_measureAllDoesNotRetryTimeout(t *testing.T) {
+	client := &sizedClient{mockedClient: new(mockedClient), allFails: sizeBatchAttempts, allErr: context.DeadlineExceeded}
+	store := bareStore(t, client)
+
+	newSizeMonitor(store, client).measureAll(t.Context())
+
+	assert.Equal(t, 1, client.allCalled)
+	assert.Equal(t, int32(1), client.volumesCalled.Load(), "volumes are still measured")
+}
+
+func TestSizeMonitor_layersOffOnUnsupportedDriver(t *testing.T) {
+	client := &sizedClient{mockedClient: new(mockedClient), allFails: sizeBatchAttempts, allErr: ErrLayerSizeUnsupported}
+	store := bareStore(t, client)
+	c := loadedContainer("1", "running")
+	store.containers.Store("1", &c)
+	m := newSizeMonitor(store, client)
+
+	m.measureAll(t.Context())
+	assert.Equal(t, 1, client.allCalled, "an unsupported driver is not retried")
+	assert.Equal(t, int32(1), client.volumesCalled.Load(), "volumes are still measured")
+
+	m.observe(&c, ContainerStat{ID: "1", DiskWriteTotal: 2 * sizeWriteThreshold})
+	m.died("1")
+	assert.False(t, queued(m), "no layer is measured one at a time either")
 }
 
 func TestSizeMonitor_measureVolumes(t *testing.T) {
