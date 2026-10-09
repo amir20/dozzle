@@ -2,6 +2,7 @@ package container
 
 import (
 	"context"
+	"errors"
 	"sync/atomic"
 	"time"
 
@@ -22,6 +23,8 @@ const (
 	// big one that alone takes minutes.
 	sizeBatchTimeout = 2 * time.Minute
 	// sizeBatchAttempts bounds the retries, since each one walks the whole host again.
+	// A timeout is never retried: the daemon keeps walking after we hang up, and a
+	// retry would start a second walk on top of the first.
 	sizeBatchAttempts = 3
 	// volumeRefreshInterval spaces out volume walks. Docker cannot measure one
 	// volume, so every refresh walks all of them, and a database volume is often the
@@ -61,6 +64,10 @@ type sizeMonitor struct {
 	// to one at a time.
 	lastVolumesNanos atomic.Int64
 	volumesRunning   atomic.Bool
+
+	// layersOff is set once the client says its storage driver cannot size a layer
+	// cheaply. Volumes are still measured.
+	layersOff atomic.Bool
 }
 
 func newSizeMonitor(store *Store, client Client) *sizeMonitor {
@@ -106,6 +113,15 @@ func (m *sizeMonitor) measureLayers(ctx context.Context) {
 		if err == nil {
 			return
 		}
+		if errors.Is(err, ErrLayerSizeUnsupported) {
+			m.layersOff.Store(true)
+			log.Info().Err(err).Msg("container sizes are off for this host")
+			return
+		}
+		if errors.Is(err, context.DeadlineExceeded) {
+			log.Warn().Err(err).Msg("measuring container sizes timed out, stopped containers will show none")
+			return
+		}
 		if attempt == sizeBatchAttempts {
 			log.Warn().Err(err).Msg("could not measure container sizes, stopped containers will show none")
 			return
@@ -123,6 +139,10 @@ func (m *sizeMonitor) tryMeasureAll(ctx context.Context) error {
 	defer cancel()
 	sizes, err := m.reader.ContainerSizes(ctx)
 	if err != nil {
+		if errors.Is(ctx.Err(), context.DeadlineExceeded) {
+			// the engine client does not always wrap the context's error
+			return ctx.Err()
+		}
 		return err
 	}
 	now := time.Now().UnixNano()
@@ -184,6 +204,9 @@ func (m *sizeMonitor) observe(c *Container, stat ContainerStat) {
 	if m.lastVolumesNanos.Load() != 0 && m.claimVolumes() {
 		go m.measureVolumes(m.store.ctx)
 	}
+	if m.layersOff.Load() {
+		return
+	}
 	t, _ := m.trackers.LoadOrCompute(c.ID, func() (*sizeTracker, bool) {
 		return &sizeTracker{}, false
 	})
@@ -215,7 +238,7 @@ func (m *sizeMonitor) observe(c *Container, stat ContainerStat) {
 
 // died measures a container one last time: nothing writes to its layer once it stops.
 func (m *sizeMonitor) died(id string) {
-	if m == nil {
+	if m == nil || m.layersOff.Load() {
 		return
 	}
 	m.enqueue(id)

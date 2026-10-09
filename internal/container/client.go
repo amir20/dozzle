@@ -2,6 +2,7 @@ package container
 
 import (
 	"context"
+	"errors"
 	"io"
 	"time"
 )
@@ -74,6 +75,12 @@ type SizeReader interface {
 	// a walk of all of them.
 	DiskUsage(ctx context.Context) (DiskUsage, error)
 }
+
+// ErrLayerSizeUnsupported is what a SizeReader returns for a container's layer when
+// its storage driver can only size one by diffing the container's whole filesystem
+// against its image (btrfs, zfs, vfs, overlay2 without native diff). On those a batch
+// over every container can run the daemon out of memory, so layers are not sized.
+var ErrLayerSizeUnsupported = errors.New("storage driver cannot size a layer without walking its whole filesystem")
 
 // DiskUsage is one DiskUsage call's result.
 type DiskUsage struct {

@@ -216,7 +216,7 @@ func Test_dockerClient_ContainerSizes(t *testing.T) {
 		{ID: "abcdefghijklmnopqrst", SizeRw: 2048},
 		{ID: "1234567890_abcxyzdef"},
 	}, nil)
-	client := &Client{cli: proxy, host: container.Host{ID: "localhost"}}
+	client := &Client{cli: proxy, host: container.Host{ID: "localhost"}, layerSizesCheap: true}
 
 	sizes, err := client.ContainerSizes(context.Background())
 	require.NoError(t, err)
@@ -272,7 +272,7 @@ func Test_dockerClient_ContainerSize(t *testing.T) {
 	proxy := new(mockedProxy)
 	proxy.On("ContainerInspect", mock.Anything, "measured").Return(docker.InspectResponse{SizeRw: &size}, nil)
 	proxy.On("ContainerInspect", mock.Anything, "unmeasured").Return(docker.InspectResponse{}, nil)
-	client := &Client{cli: proxy, host: container.Host{ID: "localhost"}}
+	client := &Client{cli: proxy, host: container.Host{ID: "localhost"}, layerSizesCheap: true}
 
 	got, err := client.ContainerSize(context.Background(), "measured")
 	require.NoError(t, err)
@@ -280,6 +280,42 @@ func Test_dockerClient_ContainerSize(t *testing.T) {
 
 	_, err = client.ContainerSize(context.Background(), "unmeasured")
 	assert.Error(t, err, "a missing size is not 0 bytes")
+}
+
+// btrfs and friends size a layer by diffing the whole filesystem, which ran a
+// Synology daemon out of memory (#5371). They are refused without asking the daemon.
+func Test_dockerClient_layerSizesRefusedOnFullWalkDrivers(t *testing.T) {
+	proxy := new(mockedProxy)
+	client := &Client{cli: proxy, host: container.Host{ID: "localhost"}}
+
+	_, err := client.ContainerSizes(context.Background())
+	assert.ErrorIs(t, err, container.ErrLayerSizeUnsupported)
+	_, err = client.ContainerSize(context.Background(), "abc")
+	assert.ErrorIs(t, err, container.ErrLayerSizeUnsupported)
+	proxy.AssertNotCalled(t, "ContainerList", mock.Anything, mock.Anything)
+	proxy.AssertNotCalled(t, "ContainerInspect", mock.Anything, mock.Anything)
+}
+
+func Test_layerSizesCheap(t *testing.T) {
+	for _, tc := range []struct {
+		driver string
+		status [][2]string
+		want   bool
+	}{
+		{"overlay2", [][2]string{{"Native Overlay Diff", "true"}}, true},
+		{"overlay2", nil, true},
+		{"overlay2", [][2]string{{"Native Overlay Diff", "false"}}, false},
+		{"overlay", nil, true},
+		{"overlayfs", [][2]string{{"driver-type", "io.containerd.snapshotter.v1"}}, true},
+		{"btrfs", nil, false},
+		{"zfs", nil, false},
+		{"vfs", nil, false},
+		{"fuse-overlayfs", nil, false},
+		{"", nil, false},
+	} {
+		got := layerSizesCheap(system.Info{Driver: tc.driver, DriverStatus: tc.status})
+		assert.Equal(t, tc.want, got, "%s %v", tc.driver, tc.status)
+	}
 }
 
 func Test_dockerClient_ContainerActions_happy(t *testing.T) {
