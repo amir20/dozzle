@@ -34,7 +34,7 @@ jobs:
       # `bun --bun` and runs on the bun runtime, but `test` and `typecheck` do not:
       # under --bun vitest's jsdom workers fail to start and vue-tsc reports a false
       # TS2614, so both run on node through their shebangs.
-      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         name: Install Node
         with:
           node-version: latest
@@ -88,8 +88,7 @@ jobs:
       - name: Install Go
         uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
         with:
-          go-version: "1.27.1"
-          check-latest: true
+          go-version-file: go.mod
       - name: Run Go Tests with Coverage
         run: make test-ci
 
@@ -103,8 +102,7 @@ jobs:
       - name: Setup Go
         uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
         with:
-          go-version: "1.27.1"
-          check-latest: true
+          go-version-file: go.mod
           # This job shares a cache key with go-test (go version + go.sum hash) and
           # setup-go only writes on a miss. Staticcheck is much faster, so it always
           # won the race to populate, and its build cache has no -race artifacts in
@@ -112,10 +110,11 @@ jobs:
           cache: false
       - name: Generate dependencies
         run: make fake_assets shared_key.pem shared_cert.pem
-      - name: Stactic checker
-        uses: dominikh/staticcheck-action@9716614d4101e79b4340dd97b10e54d68234e431 # v1.4.1
-        with:
-          install-go: false
+      # staticcheck is a go.mod tool so it builds against the module's
+      # golang.org/x/tools; the release binary's older x/tools can't read
+      # newer Go export data.
+      - name: Static checker
+        run: go tool staticcheck ./...
 
   int-test:
     name: Integration Tests
