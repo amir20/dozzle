@@ -269,7 +269,11 @@ func (c *CloudDispatcher) TakeOver(old *CloudDispatcher) {
 	queue := old.closeLocked()
 	old.mu.Unlock()
 
-	c.breaker.Store(old.breaker.Load())
+	// Only a transient pause carries over. A fresh dispatcher is how agents
+	// leave the 6h auth breaker after the user re-links, so that one resets.
+	if b := old.breaker.Load(); b != nil && b.retryable {
+		c.breaker.Store(b)
+	}
 	if len(queue) == 0 {
 		return
 	}

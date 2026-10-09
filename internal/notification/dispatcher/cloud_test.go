@@ -286,3 +286,29 @@ func TestCloudDispatcher_CloseDiscardsQueue(t *testing.T) {
 	require.Error(t, d.Send(context.Background(), newTestNotification("after-reset")))
 	assert.Equal(t, 0, d.queueLen())
 }
+
+// A same-key handoff keeps a transient pause but drops the 6h auth one, which
+// agents only ever leave by getting a fresh dispatcher.
+func TestCloudDispatcher_TakeOverCarriesOnlyRetryableBreaker(t *testing.T) {
+	for _, tc := range []struct {
+		name      string
+		retryable bool
+	}{
+		{"server error carries over", true},
+		{"auth failure resets", false},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			old := newTestCloudDispatcher("http://127.0.0.1:0")
+			old.trip(time.Hour, "reason", tc.retryable)
+
+			d := newTestCloudDispatcher("http://127.0.0.1:0")
+			d.TakeOver(old)
+
+			if tc.retryable {
+				assert.NotNil(t, d.breaker.Load())
+			} else {
+				assert.Nil(t, d.breaker.Load())
+			}
+		})
+	}
+}
