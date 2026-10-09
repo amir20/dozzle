@@ -335,15 +335,23 @@ func (m *Manager) ClearCloudDispatcher() {
 	log.Debug().Msg("Cleared cloud dispatcher")
 }
 
-// closeCloudDispatcher drops the retry queue of a cloud dispatcher that was
-// just replaced, so it never resends with a removed or rotated key.
+// closeCloudDispatcher retires a cloud dispatcher that was just replaced. Its
+// retry queue moves to the replacement when the key is unchanged (agents get
+// the same config rebroadcast whenever a host reconnects), and is dropped
+// otherwise, so it never resends with a removed or rotated key.
 func closeCloudDispatcher(old *dispatcher.Dispatcher, replacement dispatcher.Dispatcher) {
 	if old == nil || *old == replacement {
 		return
 	}
-	if cd, ok := (*old).(*dispatcher.CloudDispatcher); ok {
-		cd.Close()
+	oldCD, ok := (*old).(*dispatcher.CloudDispatcher)
+	if !ok {
+		return
 	}
+	if newCD, ok := replacement.(*dispatcher.CloudDispatcher); ok && newCD.APIKey == oldCD.APIKey && newCD.URL == oldCD.URL {
+		newCD.TakeOver(oldCD)
+		return
+	}
+	oldCD.Close()
 }
 
 // ResetCloudDispatcherBreaker clears the cloud dispatcher's circuit breaker, if set.

@@ -248,9 +248,42 @@ func (c *CloudDispatcher) post(ctx context.Context, notification types.Notificat
 func (c *CloudDispatcher) Close() {
 	c.mu.Lock()
 	defer c.mu.Unlock()
+	if len(c.queue) > 0 {
+		log.Warn().Str("cloud", c.Name).Int("dropped", len(c.queue)).Msg("dropped queued notifications, cloud dispatcher replaced")
+	}
+	c.closeLocked()
+}
+
+func (c *CloudDispatcher) closeLocked() []*queuedNotification {
+	queue := c.queue
 	c.closed = true
 	c.stopTimerLocked()
 	c.queue = nil
+	return queue
+}
+
+// TakeOver moves old's queue and breaker into c and closes old. Used when the
+// config is rebroadcast with the same key, so pending alerts survive the swap.
+func (c *CloudDispatcher) TakeOver(old *CloudDispatcher) {
+	old.mu.Lock()
+	queue := old.closeLocked()
+	old.mu.Unlock()
+
+	c.breaker.Store(old.breaker.Load())
+	if len(queue) == 0 {
+		return
+	}
+
+	c.mu.Lock()
+	defer c.mu.Unlock()
+	c.queue = append(queue, c.queue...)
+	if over := len(c.queue) - maxQueued; over > 0 {
+		c.queue = c.queue[over:]
+		c.dropped += over
+	}
+	if !c.flushing && c.flushTimer == nil {
+		c.scheduleLocked()
+	}
 }
 
 // enqueue adds a notification to the retry queue, dropping the oldest when
