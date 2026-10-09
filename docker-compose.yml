@@ -139,7 +139,7 @@ services:
 
   playwright:
     container_name: dozzle_e2e_playwright
-    image: mcr.microsoft.com/playwright:v1.63.0-jammy
+    image: mcr.microsoft.com/playwright:v1.64.0-jammy
     working_dir: /app
     volumes:
       - .:/app
