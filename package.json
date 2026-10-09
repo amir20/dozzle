@@ -95,7 +95,7 @@
     "@iconify-json/svg-spinners": "^1.2.4",
     "@iconify/vue": "^5.0.3",
     "@pinia/testing": "^2.0.1",
-    "@playwright/test": "^1.63.0",
+    "@playwright/test": "^1.64.0",
     "@types/lodash.debounce": "^4.0.9",
     "@types/node": "^26.6.4",
     "@typescript-eslint/parser": "^8.71.1",
