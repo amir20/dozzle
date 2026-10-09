@@ -366,10 +366,12 @@ func (d *Client) ContainerSize(ctx context.Context, id string) (int64, error) {
 // DiskUsage measures every volume, the same walk as `docker system df -v`, and
 // matches them to the containers that mount them. The match comes from a plain
 // list, since a stopped container that was never inspected has no mounts in the store.
-// Images and build cache ride along: their sizes are stored, so they add no walk.
-// Containers are left out, since that would walk every layer again.
+// Image sizes ride along: they are stored, so they add no walk. Containers are left
+// out, since that would walk every layer again. Build cache only comes along where
+// layers are cheap: BuildKit sizes a cache record it has not sized yet with the
+// driver's own diff, which on the other drivers is the same full walk.
 func (d *Client) DiskUsage(ctx context.Context) (container.DiskUsage, error) {
-	du, err := d.cli.DiskUsage(ctx, client.DiskUsageOptions{Volumes: true, Images: true, BuildCache: true, Verbose: true})
+	du, err := d.cli.DiskUsage(ctx, client.DiskUsageOptions{Volumes: true, Images: true, BuildCache: d.layerSizesCheap, Verbose: true})
 	if err != nil {
 		return container.DiskUsage{}, err
 	}

@@ -38,8 +38,8 @@ func (m *mockedProxy) ContainerList(context.Context, client.ContainerListOptions
 	return client.ContainerListResult{Items: containers}, args.Error(1)
 }
 
-func (m *mockedProxy) DiskUsage(context.Context, client.DiskUsageOptions) (client.DiskUsageResult, error) {
-	args := m.Called()
+func (m *mockedProxy) DiskUsage(_ context.Context, options client.DiskUsageOptions) (client.DiskUsageResult, error) {
+	args := m.Called(options)
 	return args.Get(0).(client.DiskUsageResult), args.Error(1)
 }
 
@@ -225,7 +225,7 @@ func Test_dockerClient_ContainerSizes(t *testing.T) {
 
 func Test_dockerClient_DiskUsage(t *testing.T) {
 	proxy := new(mockedProxy)
-	proxy.On("DiskUsage").Return(client.DiskUsageResult{
+	proxy.On("DiskUsage", mock.MatchedBy(func(o client.DiskUsageOptions) bool { return o.BuildCache })).Return(client.DiskUsageResult{
 		Images:     client.ImagesDiskUsage{TotalCount: 30, ActiveCount: 12, Reclaimable: 4 << 30},
 		BuildCache: client.BuildCacheDiskUsage{Reclaimable: 7},
 		Volumes: client.VolumesDiskUsage{Items: []volume.Volume{
@@ -248,7 +248,7 @@ func Test_dockerClient_DiskUsage(t *testing.T) {
 			{Type: mount.TypeVolume, Name: "shared", Destination: "/shared"},
 		}},
 	}, nil)
-	client := &Client{cli: proxy, host: container.Host{ID: "localhost"}}
+	client := &Client{cli: proxy, host: container.Host{ID: "localhost"}, layerSizesCheap: true}
 
 	usage, err := client.DiskUsage(context.Background())
 	require.NoError(t, err)
@@ -265,6 +265,19 @@ func Test_dockerClient_DiskUsage(t *testing.T) {
 		Volumes: 2, VolumesSize: 99,
 		BuildCacheSize: 7,
 	}, usage.Reclaimable, "stopped containers are left to the store")
+}
+
+func Test_dockerClient_DiskUsageSkipsBuildCacheOnFullWalkDrivers(t *testing.T) {
+	proxy := new(mockedProxy)
+	proxy.On("DiskUsage", mock.MatchedBy(func(o client.DiskUsageOptions) bool {
+		return o.Volumes && o.Images && !o.BuildCache
+	})).Return(client.DiskUsageResult{}, nil)
+	proxy.On("ContainerList", mock.Anything, mock.Anything).Return([]docker.Summary{}, nil)
+	client := &Client{cli: proxy, host: container.Host{ID: "localhost"}}
+
+	_, err := client.DiskUsage(context.Background())
+	require.NoError(t, err)
+	proxy.AssertExpectations(t)
 }
 
 func Test_dockerClient_ContainerSize(t *testing.T) {
