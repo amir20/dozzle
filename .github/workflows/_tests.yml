@@ -103,9 +103,7 @@ jobs:
       - name: Setup Go
         uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
         with:
-          # Held at 1.27.1 until staticcheck can read 1.27.2 export data
-          # (dominikh/go-tools#1832). Bump this with the next staticcheck release.
-          go-version: "1.27.1"
+          go-version: "1.27.2"
           check-latest: true
           # This job shares a cache key with go-test (go version + go.sum hash) and
           # setup-go only writes on a miss. Staticcheck is much faster, so it always
@@ -114,10 +112,11 @@ jobs:
           cache: false
       - name: Generate dependencies
         run: make fake_assets shared_key.pem shared_cert.pem
-      - name: Stactic checker
-        uses: dominikh/staticcheck-action@9716614d4101e79b4340dd97b10e54d68234e431 # v1.4.1
-        with:
-          install-go: false
+      # staticcheck is a go.mod tool so it builds against the module's
+      # golang.org/x/tools; the release binary's older x/tools can't read
+      # newer Go export data.
+      - name: Static checker
+        run: go tool staticcheck ./...
 
   int-test:
     name: Integration Tests
