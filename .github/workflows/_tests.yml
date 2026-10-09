@@ -88,8 +88,7 @@ jobs:
       - name: Install Go
         uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
         with:
-          go-version: "1.27.2"
-          check-latest: true
+          go-version-file: go.mod
       - name: Run Go Tests with Coverage
         run: make test-ci
 
@@ -103,8 +102,7 @@ jobs:
       - name: Setup Go
         uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
         with:
-          go-version: "1.27.2"
-          check-latest: true
+          go-version-file: go.mod
           # This job shares a cache key with go-test (go version + go.sum hash) and
           # setup-go only writes on a miss. Staticcheck is much faster, so it always
           # won the race to populate, and its build cache has no -race artifacts in
