@@ -2,12 +2,15 @@ package dispatcher
 
 import (
 	"context"
+	"encoding/json"
+	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"sync/atomic"
 	"testing"
 	"time"
 
+	"github.com/amir20/dozzle/types"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -98,17 +101,16 @@ func TestCloudDispatcher_ServerErrorTripsShortBreaker(t *testing.T) {
 			d := newTestCloudDispatcher(srv.URL)
 
 			start := time.Now()
-			require.Error(t, d.Send(context.Background(), newTestNotification("first")))
+			require.NoError(t, d.Send(context.Background(), newTestNotification("first")))
 			require.EqualValues(t, 1, hits.Load())
 
 			b := d.breaker.Load()
 			require.NotNil(t, b)
 			assert.WithinDuration(t, start.Add(tc.want), b.until, 2*time.Second)
 
-			err := d.Send(context.Background(), newTestNotification("second"))
-			require.Error(t, err)
-			assert.Contains(t, err.Error(), "server error (503)")
+			require.NoError(t, d.Send(context.Background(), newTestNotification("second")))
 			assert.EqualValues(t, 1, hits.Load(), "breaker should block second send")
+			assert.Equal(t, 2, d.queueLen(), "both sends wait in the retry queue")
 		})
 	}
 }
@@ -127,4 +129,135 @@ func TestCloudDispatcher_ServerErrorBreakerExpires(t *testing.T) {
 
 	require.NoError(t, d.Send(context.Background(), newTestNotification("after-expiry")))
 	assert.EqualValues(t, 1, hits.Load())
+}
+
+func (c *CloudDispatcher) queueLen() int {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+	return len(c.queue)
+}
+
+// A notification that hits a 5xx is held and delivered, in order, once cloud
+// is back.
+func TestCloudDispatcher_QueuedNotificationsResentInOrder(t *testing.T) {
+	var hits atomic.Int32
+	received := make(chan string, 10)
+	srv := httptest.NewServer(http.HandlerFunc(func(rw http.ResponseWriter, r *http.Request) {
+		if hits.Add(1) == 1 {
+			rw.Header().Set("Retry-After", "1")
+			rw.WriteHeader(http.StatusBadGateway)
+			return
+		}
+		var n types.Notification
+		_ = json.NewDecoder(r.Body).Decode(&n)
+		received <- n.Detail
+		rw.WriteHeader(http.StatusOK)
+	}))
+	defer srv.Close()
+
+	d := newTestCloudDispatcher(srv.URL)
+
+	require.NoError(t, d.Send(context.Background(), newTestNotification("first")))
+	require.NoError(t, d.Send(context.Background(), newTestNotification("second")))
+	require.EqualValues(t, 1, hits.Load())
+
+	for _, want := range []string{"first", "second"} {
+		select {
+		case got := <-received:
+			assert.Equal(t, want, got)
+		case <-time.After(5 * time.Second):
+			t.Fatalf("timed out waiting for %q", want)
+		}
+	}
+	assert.Eventually(t, func() bool { return d.queueLen() == 0 }, time.Second, 10*time.Millisecond)
+}
+
+// A network failure is retried just like a 5xx.
+func TestCloudDispatcher_NetworkErrorQueues(t *testing.T) {
+	srv := httptest.NewServer(http.HandlerFunc(func(rw http.ResponseWriter, r *http.Request) {}))
+	srv.Close()
+
+	d := newTestCloudDispatcher(srv.URL)
+	require.NoError(t, d.Send(context.Background(), newTestNotification("first")))
+	assert.Equal(t, 1, d.queueLen())
+	b := d.breaker.Load()
+	require.NotNil(t, b)
+	assert.True(t, b.retryable)
+}
+
+// ResetBreaker resends the queue right away instead of waiting out the pause.
+func TestCloudDispatcher_ResetBreakerFlushesQueue(t *testing.T) {
+	var hits atomic.Int32
+	srv := httptest.NewServer(http.HandlerFunc(func(rw http.ResponseWriter, r *http.Request) {
+		hits.Add(1)
+		rw.WriteHeader(http.StatusOK)
+	}))
+	defer srv.Close()
+
+	d := newTestCloudDispatcher(srv.URL)
+	d.trip(time.Hour, "server error (503)", true)
+	require.NoError(t, d.Send(context.Background(), newTestNotification("queued")))
+	require.EqualValues(t, 0, hits.Load())
+
+	d.ResetBreaker()
+	assert.Eventually(t, func() bool { return hits.Load() == 1 && d.queueLen() == 0 }, 2*time.Second, 10*time.Millisecond)
+}
+
+// The queue is capped; the oldest notifications go first.
+func TestCloudDispatcher_QueueDropsOldestWhenFull(t *testing.T) {
+	d := newTestCloudDispatcher("http://127.0.0.1:0")
+	d.trip(time.Hour, "server error (503)", true)
+	for i := range maxQueued + 5 {
+		require.NoError(t, d.Send(context.Background(), newTestNotification(fmt.Sprint(i))))
+	}
+
+	d.mu.Lock()
+	defer d.mu.Unlock()
+	d.stopTimerLocked()
+	require.Len(t, d.queue, maxQueued)
+	assert.Equal(t, "5", d.queue[0].notification.Detail)
+	assert.Equal(t, 5, d.dropped)
+}
+
+// Notifications older than maxQueueAge are dropped instead of resent.
+func TestCloudDispatcher_ExpiredNotificationsDropped(t *testing.T) {
+	var hits atomic.Int32
+	srv := httptest.NewServer(http.HandlerFunc(func(rw http.ResponseWriter, r *http.Request) {
+		hits.Add(1)
+		rw.WriteHeader(http.StatusOK)
+	}))
+	defer srv.Close()
+
+	d := newTestCloudDispatcher(srv.URL)
+	d.queue = []*queuedNotification{
+		{notification: newTestNotification("stale"), queuedAt: time.Now().Add(-maxQueueAge - time.Second)},
+		{notification: newTestNotification("fresh"), queuedAt: time.Now()},
+	}
+	d.flushing = true
+	d.flush()
+
+	assert.EqualValues(t, 1, hits.Load(), "only the fresh notification is resent")
+	assert.Equal(t, 0, d.queueLen())
+}
+
+// A rejected API key empties the queue; resending cannot succeed.
+func TestCloudDispatcher_AuthFailureDropsQueue(t *testing.T) {
+	var hits atomic.Int32
+	srv := httptest.NewServer(http.HandlerFunc(func(rw http.ResponseWriter, r *http.Request) {
+		hits.Add(1)
+		rw.WriteHeader(http.StatusUnauthorized)
+	}))
+	defer srv.Close()
+
+	d := newTestCloudDispatcher(srv.URL)
+	now := time.Now()
+	d.queue = []*queuedNotification{
+		{notification: newTestNotification("a"), queuedAt: now},
+		{notification: newTestNotification("b"), queuedAt: now},
+	}
+	d.flushing = true
+	d.flush()
+
+	assert.EqualValues(t, 1, hits.Load())
+	assert.Equal(t, 0, d.queueLen())
 }
