@@ -34,6 +34,7 @@ type CloudDispatcher struct {
 	queue      []*queuedNotification
 	flushTimer *time.Timer
 	flushing   bool
+	closed     bool
 	dropped    int
 }
 
@@ -102,7 +103,7 @@ func (c *CloudDispatcher) ResetBreaker() {
 	c.breaker.Store(nil)
 	c.mu.Lock()
 	defer c.mu.Unlock()
-	if len(c.queue) > 0 && !c.flushing {
+	if len(c.queue) > 0 && !c.flushing && !c.closed {
 		c.stopTimerLocked()
 		c.flushing = true
 		go c.flush()
@@ -127,8 +128,7 @@ func parseRetryAfter(header string, def time.Duration) time.Duration {
 // and Send returns nil.
 func (c *CloudDispatcher) Send(ctx context.Context, notification types.Notification) error {
 	if b := c.breaker.Load(); b != nil && time.Now().Before(b.until) {
-		if b.retryable {
-			c.enqueue(notification)
+		if b.retryable && c.enqueue(notification) {
 			return nil
 		}
 		log.Debug().
@@ -143,14 +143,12 @@ func (c *CloudDispatcher) Send(ctx context.Context, notification types.Notificat
 	c.mu.Lock()
 	pending := len(c.queue) > 0
 	c.mu.Unlock()
-	if pending {
-		c.enqueue(notification)
+	if pending && c.enqueue(notification) {
 		return nil
 	}
 
 	err := c.post(ctx, notification)
-	if errors.Is(err, errTransient) {
-		c.enqueue(notification)
+	if errors.Is(err, errTransient) && c.enqueue(notification) {
 		return nil
 	}
 	return err
@@ -244,11 +242,25 @@ func (c *CloudDispatcher) post(ctx context.Context, notification types.Notificat
 	return nil
 }
 
-// enqueue adds a notification to the retry queue, dropping the oldest when
-// full, and makes sure a flush is scheduled.
-func (c *CloudDispatcher) enqueue(notification types.Notification) {
+// Close stops any scheduled resend and discards the queue. Called when the
+// dispatcher is replaced or cloud is disconnected, so queued notifications are
+// never sent with a key the user has removed.
+func (c *CloudDispatcher) Close() {
 	c.mu.Lock()
 	defer c.mu.Unlock()
+	c.closed = true
+	c.stopTimerLocked()
+	c.queue = nil
+}
+
+// enqueue adds a notification to the retry queue, dropping the oldest when
+// full, and makes sure a flush is scheduled. It reports false once closed.
+func (c *CloudDispatcher) enqueue(notification types.Notification) bool {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+	if c.closed {
+		return false
+	}
 	if len(c.queue) >= maxQueued {
 		c.queue = c.queue[1:]
 		c.dropped++
@@ -258,6 +270,7 @@ func (c *CloudDispatcher) enqueue(notification types.Notification) {
 	if !c.flushing && c.flushTimer == nil {
 		c.scheduleLocked()
 	}
+	return true
 }
 
 // scheduleLocked arms a one-shot timer for when the breaker closes. A timer
@@ -293,6 +306,11 @@ func (c *CloudDispatcher) stopTimerLocked() {
 func (c *CloudDispatcher) flush() {
 	for {
 		c.mu.Lock()
+		if c.closed {
+			c.flushing = false
+			c.mu.Unlock()
+			return
+		}
 		c.dropExpiredLocked()
 		if c.dropped > 0 {
 			log.Warn().Str("cloud", c.Name).Int("dropped", c.dropped).Msg("dropped queued notifications, cloud unavailable for too long")

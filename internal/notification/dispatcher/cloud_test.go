@@ -261,3 +261,28 @@ func TestCloudDispatcher_AuthFailureDropsQueue(t *testing.T) {
 	assert.EqualValues(t, 1, hits.Load())
 	assert.Equal(t, 0, d.queueLen())
 }
+
+// Once closed, nothing queued is resent and new failures are not queued.
+func TestCloudDispatcher_CloseDiscardsQueue(t *testing.T) {
+	var hits atomic.Int32
+	srv := httptest.NewServer(http.HandlerFunc(func(rw http.ResponseWriter, r *http.Request) {
+		hits.Add(1)
+		rw.WriteHeader(http.StatusBadGateway)
+	}))
+	defer srv.Close()
+
+	d := newTestCloudDispatcher(srv.URL)
+	require.NoError(t, d.Send(context.Background(), newTestNotification("queued")))
+	require.Equal(t, 1, d.queueLen())
+
+	d.Close()
+	assert.Equal(t, 0, d.queueLen())
+	d.mu.Lock()
+	assert.Nil(t, d.flushTimer)
+	d.mu.Unlock()
+
+	assert.Error(t, d.Send(context.Background(), newTestNotification("after-close")), "a closed dispatcher reports the failure instead of queuing")
+	d.ResetBreaker()
+	require.Error(t, d.Send(context.Background(), newTestNotification("after-reset")))
+	assert.Equal(t, 0, d.queueLen())
+}

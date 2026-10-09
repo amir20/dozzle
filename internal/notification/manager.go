@@ -146,23 +146,23 @@ func (m *Manager) UpdateSubscription(id int, updates map[string]any) error {
 
 		// Clone the subscription
 		updated := &Subscription{
-			ID:                  sub.ID,
-			Name:                sub.Name,
-			Enabled:             sub.Enabled,
-			DispatcherID:        sub.DispatcherID,
-			ContainerExpression: sub.ContainerExpression,
-			ContainerProgram:    sub.ContainerProgram,
-			LogExpression:       sub.LogExpression,
-			LogProgram:          sub.LogProgram,
-			MetricExpression:    sub.MetricExpression,
-			MetricProgram:       sub.MetricProgram,
-			EventExpression:     sub.EventExpression,
-			EventProgram:        sub.EventProgram,
-			EventCooldowns:      sub.EventCooldowns,
-			Cooldown:            sub.Cooldown,
-			SampleWindow:        sub.SampleWindow,
-			MetricCooldowns:     sub.MetricCooldowns,
-			MetricSampleBuffers: sub.MetricSampleBuffers,
+			ID:                    sub.ID,
+			Name:                  sub.Name,
+			Enabled:               sub.Enabled,
+			DispatcherID:          sub.DispatcherID,
+			ContainerExpression:   sub.ContainerExpression,
+			ContainerProgram:      sub.ContainerProgram,
+			LogExpression:         sub.LogExpression,
+			LogProgram:            sub.LogProgram,
+			MetricExpression:      sub.MetricExpression,
+			MetricProgram:         sub.MetricProgram,
+			EventExpression:       sub.EventExpression,
+			EventProgram:          sub.EventProgram,
+			EventCooldowns:        sub.EventCooldowns,
+			Cooldown:              sub.Cooldown,
+			SampleWindow:          sub.SampleWindow,
+			MetricCooldowns:       sub.MetricCooldowns,
+			MetricSampleBuffers:   sub.MetricSampleBuffers,
 			TriggeredContainerIDs: sub.TriggeredContainerIDs,
 		}
 
@@ -325,14 +325,25 @@ func (m *Manager) RemoveDispatcher(id int) {
 
 // SetCloudDispatcher sets the dedicated cloud dispatcher used for subscriptions with DispatcherID == 0.
 func (m *Manager) SetCloudDispatcher(d dispatcher.Dispatcher) {
-	m.cloudDispatcher.Store(&d)
+	closeCloudDispatcher(m.cloudDispatcher.Swap(&d), d)
 	log.Debug().Msg("Set cloud dispatcher")
 }
 
 // ClearCloudDispatcher removes the cloud dispatcher.
 func (m *Manager) ClearCloudDispatcher() {
-	m.cloudDispatcher.Store(nil)
+	closeCloudDispatcher(m.cloudDispatcher.Swap(nil), nil)
 	log.Debug().Msg("Cleared cloud dispatcher")
+}
+
+// closeCloudDispatcher drops the retry queue of a cloud dispatcher that was
+// just replaced, so it never resends with a removed or rotated key.
+func closeCloudDispatcher(old *dispatcher.Dispatcher, replacement dispatcher.Dispatcher) {
+	if old == nil || *old == replacement {
+		return
+	}
+	if cd, ok := (*old).(*dispatcher.CloudDispatcher); ok {
+		cd.Close()
+	}
 }
 
 // ResetCloudDispatcherBreaker clears the cloud dispatcher's circuit breaker, if set.
@@ -344,7 +355,6 @@ func (m *Manager) ResetCloudDispatcherBreaker() {
 		}
 	}
 }
-
 
 // getDispatcher resolves a dispatcher by subscription's DispatcherID.
 // DispatcherID == 0 means the cloud dispatcher; otherwise lookup in the dispatchers map.
