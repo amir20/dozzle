@@ -42,6 +42,10 @@ type Settings struct {
 	// stays silent instead of injecting a false that overrides the frontend's
 	// default of true.
 	HighlightErrors *bool `json:"highlightErrors,omitempty"`
+	// Same reason as HighlightErrors: the frontend defaults this to true.
+	ShowAppIcons         *bool `json:"showAppIcons,omitempty"`
+	ShowImageUpdateAlert bool  `json:"showImageUpdateAlert"`
+	TerminalFontSize     int   `json:"terminalFontSize,omitempty"`
 }
 
 type Profile struct {
