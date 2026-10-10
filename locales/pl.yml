@@ -33,6 +33,7 @@ toolbar:
   show-container-name: Pokaż nazwę kontenera
   shell: Shell
   attach: Dołącz
+  inspect: "Inspekcja"
   copy-permalink: Kopiuj link stały
   copy-image: "Kopiuj tag obrazu"
   pin: "Przypnij"
@@ -1115,3 +1116,26 @@ auto-update:
   mode-all-desc: "Każdy kontener, chyba że ma etykietę {label}."
   risky-hint: "Dodaj kontenerowi etykietę {label}, aby go pominąć."
   empty: "Żaden kontener nie aktualizuje się sam. Dodaj kontenerowi etykietę {label}, aby go dołączyć."
+inspect:
+  overview: "Przegląd"
+  ports: "Porty"
+  mounts: "Montowania"
+  env: "Środowisko"
+  labels: "Etykiety"
+  id: "ID"
+  command: "Polecenie"
+  created: "Utworzono"
+  started: "Uruchomiono"
+  finished: "Zakończono"
+  restart-policy: "Zasady restartu"
+  network: "Sieć"
+  memory-limit: "Limit pamięci"
+  cpu-limit: "Limit CPU"
+  unlimited: "Bez limitu"
+  oom-killed: "Zabity przez OOM"
+  exit-code: "Kod wyjścia {code}"
+  restarts: "Restarty: {count}"
+  show-value: "Pokaż wartość"
+  hide-value: "Ukryj wartość"
+  env-hidden: "Wartości są ukryte. Ich odczyt wymaga dostępu do powłoki."
+  load-failed: "Nie udało się wczytać szczegółów kontenera."

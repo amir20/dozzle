@@ -33,6 +33,7 @@ toolbar:
   show-container-name: 显示容器名称
   shell: 终端
   attach: 附加
+  inspect: "检查"
   copy-permalink: 复制永久链接
   copy-image: "复制镜像标签"
   pin: "置顶"
@@ -1113,3 +1114,26 @@ auto-update:
   mode-all-desc: "除标有 {label} 的容器外的所有容器。"
   risky-hint: "为容器加上 {label} 标签即可将其排除。"
   empty: "没有容器会自动更新。为容器加上 {label} 标签即可加入。"
+inspect:
+  overview: "概览"
+  ports: "端口"
+  mounts: "挂载"
+  env: "环境变量"
+  labels: "标签"
+  id: "ID"
+  command: "命令"
+  created: "创建于"
+  started: "启动于"
+  finished: "结束于"
+  restart-policy: "重启策略"
+  network: "网络"
+  memory-limit: "内存限制"
+  cpu-limit: "CPU 限制"
+  unlimited: "无限制"
+  oom-killed: "因 OOM 被终止"
+  exit-code: "退出码 {code}"
+  restarts: "重启次数：{count}"
+  show-value: "显示值"
+  hide-value: "隐藏值"
+  env-hidden: "值已隐藏。查看需要 shell 权限。"
+  load-failed: "无法加载容器详情。"

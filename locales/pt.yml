@@ -33,6 +33,7 @@ toolbar:
   show-container-name: Mostrar nome do container
   shell: Shell
   attach: Anexar
+  inspect: "Inspecionar"
   copy-permalink: Copiar link permanente
   copy-image: "Copiar tag da imagem"
   pin: "Fixar"
@@ -1113,3 +1114,26 @@ auto-update:
   mode-all-desc: "Todos os contêineres, exceto os que têm o rótulo {label}."
   risky-hint: "Adicione o rótulo {label} a um contêiner para deixá-lo de fora."
   empty: "Nenhum contêiner se atualiza sozinho. Adicione o rótulo {label} a um contêiner para incluí-lo."
+inspect:
+  overview: "Visão geral"
+  ports: "Portas"
+  mounts: "Montagens"
+  env: "Ambiente"
+  labels: "Labels"
+  id: "ID"
+  command: "Comando"
+  created: "Criado"
+  started: "Iniciado"
+  finished: "Finalizado"
+  restart-policy: "Política de reinício"
+  network: "Rede"
+  memory-limit: "Limite de memória"
+  cpu-limit: "Limite de CPU"
+  unlimited: "Ilimitado"
+  oom-killed: "Encerrado por OOM"
+  exit-code: "Saída {code}"
+  restarts: "Reinícios: {count}"
+  show-value: "Mostrar valor"
+  hide-value: "Ocultar valor"
+  env-hidden: "Os valores estão ocultos. Lê-los requer acesso ao shell."
+  load-failed: "Não foi possível carregar os detalhes do contêiner."

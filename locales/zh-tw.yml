@@ -33,6 +33,7 @@ toolbar:
   show-container-name: 顯示容器名稱
   shell: 終端機
   attach: 附加
+  inspect: "檢查"
   copy-permalink: 複製永久連結
   copy-image: "複製映像標籤"
   pin: "置頂"
@@ -1115,3 +1116,26 @@ auto-update:
   mode-all-desc: "除了標有 {label} 的容器以外的所有容器。"
   risky-hint: "為容器加上 {label} 標籤即可將其排除。"
   empty: "沒有容器會自動更新。為容器加上 {label} 標籤即可加入。"
+inspect:
+  overview: "概覽"
+  ports: "連接埠"
+  mounts: "掛載"
+  env: "環境變數"
+  labels: "標籤"
+  id: "ID"
+  command: "指令"
+  created: "建立於"
+  started: "啟動於"
+  finished: "結束於"
+  restart-policy: "重新啟動原則"
+  network: "網路"
+  memory-limit: "記憶體限制"
+  cpu-limit: "CPU 限制"
+  unlimited: "無限制"
+  oom-killed: "因 OOM 被終止"
+  exit-code: "結束碼 {code}"
+  restarts: "重新啟動次數：{count}"
+  show-value: "顯示值"
+  hide-value: "隱藏值"
+  env-hidden: "值已隱藏。檢視需要 shell 權限。"
+  load-failed: "無法載入容器詳細資料。"

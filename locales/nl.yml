@@ -33,6 +33,7 @@ toolbar:
   show-container-name: Toon containernaam
   shell: Shell
   attach: Koppelen
+  inspect: "Inspecteren"
   copy-permalink: Permanente link kopiëren
   copy-image: "Image-tag kopiëren"
   pin: "Vastzetten"
@@ -1114,3 +1115,26 @@ auto-update:
   mode-all-desc: "Elke container, behalve met het label {label}."
   risky-hint: "Geef een container het label {label} om hem uit te sluiten."
   empty: "Geen enkele container werkt zichzelf bij. Geef een container het label {label} om hem toe te voegen."
+inspect:
+  overview: "Overzicht"
+  ports: "Poorten"
+  mounts: "Mounts"
+  env: "Omgeving"
+  labels: "Labels"
+  id: "ID"
+  command: "Commando"
+  created: "Aangemaakt"
+  started: "Gestart"
+  finished: "Gestopt"
+  restart-policy: "Herstartbeleid"
+  network: "Netwerk"
+  memory-limit: "Geheugenlimiet"
+  cpu-limit: "CPU-limiet"
+  unlimited: "Onbeperkt"
+  oom-killed: "Gestopt door OOM"
+  exit-code: "Exit {code}"
+  restarts: "Herstarts: {count}"
+  show-value: "Waarde tonen"
+  hide-value: "Waarde verbergen"
+  env-hidden: "Waarden zijn verborgen. Om ze te lezen is shell-toegang nodig."
+  load-failed: "Containerdetails konden niet worden geladen."

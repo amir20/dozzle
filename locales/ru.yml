@@ -33,6 +33,7 @@ toolbar:
   show-container-name: Показать имя контейнера
   shell: Оболочка
   attach: Подключить
+  inspect: "Инспектировать"
   copy-permalink: Скопировать постоянную ссылку
   copy-image: "Копировать тег образа"
   pin: "Закрепить"
@@ -1113,3 +1114,26 @@ auto-update:
   mode-all-desc: "Все контейнеры, кроме помеченных {label}."
   risky-hint: "Добавьте контейнеру метку {label}, чтобы исключить его."
   empty: "Ни один контейнер не обновляется сам. Добавьте контейнеру метку {label}, чтобы включить его."
+inspect:
+  overview: "Обзор"
+  ports: "Порты"
+  mounts: "Монтирования"
+  env: "Окружение"
+  labels: "Метки"
+  id: "ID"
+  command: "Команда"
+  created: "Создан"
+  started: "Запущен"
+  finished: "Завершён"
+  restart-policy: "Политика перезапуска"
+  network: "Сеть"
+  memory-limit: "Лимит памяти"
+  cpu-limit: "Лимит CPU"
+  unlimited: "Без ограничений"
+  oom-killed: "Убит по OOM"
+  exit-code: "Код выхода {code}"
+  restarts: "Перезапуски: {count}"
+  show-value: "Показать значение"
+  hide-value: "Скрыть значение"
+  env-hidden: "Значения скрыты. Для их чтения нужен доступ к shell."
+  load-failed: "Не удалось загрузить сведения о контейнере."

@@ -33,6 +33,7 @@ toolbar:
   show-container-name: Tampilkan nama kontainer
   shell: Shell
   attach: Lampirkan
+  inspect: "Inspeksi"
   copy-permalink: Salin tautan permanen
   copy-image: "Salin tag image"
   pin: "Sematkan"
@@ -1125,3 +1126,26 @@ auto-update:
   mode-all-desc: "Setiap kontainer, kecuali yang berlabel {label}."
   risky-hint: "Beri label {label} pada kontainer untuk mengecualikannya."
   empty: "Tidak ada kontainer yang diperbarui sendiri. Beri label {label} pada kontainer untuk menambahkannya."
+inspect:
+  overview: "Ringkasan"
+  ports: "Port"
+  mounts: "Mount"
+  env: "Lingkungan"
+  labels: "Label"
+  id: "ID"
+  command: "Perintah"
+  created: "Dibuat"
+  started: "Dimulai"
+  finished: "Selesai"
+  restart-policy: "Kebijakan restart"
+  network: "Jaringan"
+  memory-limit: "Batas memori"
+  cpu-limit: "Batas CPU"
+  unlimited: "Tanpa batas"
+  oom-killed: "Dihentikan OOM"
+  exit-code: "Keluar {code}"
+  restarts: "Restart: {count}"
+  show-value: "Tampilkan nilai"
+  hide-value: "Sembunyikan nilai"
+  env-hidden: "Nilai disembunyikan. Membacanya memerlukan akses shell."
+  load-failed: "Gagal memuat detail kontainer."

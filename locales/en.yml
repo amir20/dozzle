@@ -33,6 +33,7 @@ toolbar:
   show-container-name: Show container name
   shell: Shell
   attach: Attach
+  inspect: "Inspect"
   copy-permalink: Copy permanent link
   copy-image: Copy image tag
   pin: Pin
@@ -1121,3 +1122,26 @@ auto-update:
   mode-all-desc: "Every container, unless it is labelled {label}."
   risky-hint: "Label one {label} to keep it out."
   empty: "No container updates on its own. Label one {label} to add it."
+inspect:
+  overview: "Overview"
+  ports: "Ports"
+  mounts: "Mounts"
+  env: "Environment"
+  labels: "Labels"
+  id: "ID"
+  command: "Command"
+  created: "Created"
+  started: "Started"
+  finished: "Finished"
+  restart-policy: "Restart policy"
+  network: "Network"
+  memory-limit: "Memory limit"
+  cpu-limit: "CPU limit"
+  unlimited: "Unlimited"
+  oom-killed: "OOM killed"
+  exit-code: "Exit {code}"
+  restarts: "Restarts: {count}"
+  show-value: "Show value"
+  hide-value: "Hide value"
+  env-hidden: "Values are hidden. Reading them needs shell access."
+  load-failed: "Could not load container details."

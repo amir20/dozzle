@@ -33,6 +33,7 @@ toolbar:
   show-container-name: Afficher le nom du conteneur
   shell: Shell
   attach: Attacher
+  inspect: "Inspecter"
   copy-permalink: Copier le lien permanent
   copy-image: "Copier le tag de l'image"
   pin: "Épingler"
@@ -1113,3 +1114,26 @@ auto-update:
   mode-all-desc: "Tous les conteneurs, sauf ceux avec le label {label}."
   risky-hint: "Ajoutez le label {label} à un conteneur pour l'exclure."
   empty: "Aucun conteneur ne se met à jour tout seul. Ajoutez le label {label} à un conteneur pour l'inclure."
+inspect:
+  overview: "Aperçu"
+  ports: "Ports"
+  mounts: "Montages"
+  env: "Environnement"
+  labels: "Labels"
+  id: "ID"
+  command: "Commande"
+  created: "Créé"
+  started: "Démarré"
+  finished: "Terminé"
+  restart-policy: "Politique de redémarrage"
+  network: "Réseau"
+  memory-limit: "Limite mémoire"
+  cpu-limit: "Limite CPU"
+  unlimited: "Illimité"
+  oom-killed: "Tué par OOM"
+  exit-code: "Sortie {code}"
+  restarts: "Redémarrages : {count}"
+  show-value: "Afficher la valeur"
+  hide-value: "Masquer la valeur"
+  env-hidden: "Les valeurs sont masquées. Les lire nécessite l'accès shell."
+  load-failed: "Impossible de charger les détails du conteneur."
