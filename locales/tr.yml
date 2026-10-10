@@ -33,6 +33,7 @@ toolbar:
   show-container-name: Konteyner adını göster
   shell: Kabuk
   attach: Bağla
+  inspect: "İncele"
   copy-permalink: Kalıcı bağlantıyı kopyala
   copy-image: "İmaj etiketini kopyala"
   pin: "Sabitle"
@@ -1116,3 +1117,27 @@ auto-update:
   mode-all-desc: "{label} etiketli olanlar dışında her konteyner."
   risky-hint: "Bir konteyneri dışarıda tutmak için ona {label} etiketini ekleyin."
   empty: "Hiçbir konteyner kendi kendine güncellenmiyor. Eklemek için bir konteynere {label} etiketini ekleyin."
+inspect:
+  title: "İncele"
+  overview: "Genel bakış"
+  ports: "Portlar"
+  mounts: "Bağlamalar"
+  env: "Ortam"
+  labels: "Etiketler"
+  id: "ID"
+  command: "Komut"
+  created: "Oluşturuldu"
+  started: "Başlatıldı"
+  finished: "Bitti"
+  restart-policy: "Yeniden başlatma politikası"
+  network: "Ağ"
+  memory-limit: "Bellek sınırı"
+  cpu-limit: "CPU sınırı"
+  unlimited: "Sınırsız"
+  oom-killed: "OOM ile sonlandırıldı"
+  exit-code: "Çıkış {code}"
+  restarts: "Yeniden başlatma: {count}"
+  show-value: "Değeri göster"
+  hide-value: "Değeri gizle"
+  env-hidden: "Değerler gizli. Okumak için kabuk erişimi gerekir."
+  load-failed: "Konteyner ayrıntıları yüklenemedi."

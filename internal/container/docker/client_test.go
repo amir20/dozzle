@@ -16,6 +16,7 @@ import (
 
 	docker "github.com/moby/moby/api/types/container"
 	"github.com/moby/moby/api/types/mount"
+	"github.com/moby/moby/api/types/network"
 	"github.com/moby/moby/api/types/system"
 	"github.com/moby/moby/api/types/volume"
 	"github.com/moby/moby/client"
@@ -547,4 +548,19 @@ func Test_newContainerFromJSON_healthOnlyWhileRunning(t *testing.T) {
 		Health: &docker.Health{Status: "unhealthy"},
 	}), "localhost")
 	assert.Empty(t, exited.Health)
+}
+
+// A binding with no HostIp is the zero netip.Addr, which must not print as "invalid IP".
+func Test_newContainerFromJSON_portWithoutHostIP(t *testing.T) {
+	c := newContainerFromJSON(docker.InspectResponse{
+		ID:    "abcdefghijklmnopqrst",
+		Name:  "/ports",
+		State: &docker.State{Status: "running", Running: true},
+		HostConfig: &docker.HostConfig{PortBindings: network.PortMap{
+			network.MustParsePort("5432/tcp"): {{HostPort: "5432"}},
+		}},
+		Config: &docker.Config{},
+	}, "localhost")
+
+	assert.Equal(t, []string{":5432->5432/tcp"}, c.Ports)
 }

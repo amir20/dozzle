@@ -15,6 +15,7 @@ toolbar:
   show-container-name: Prikaži ime zabojnika
   shell: Lupina
   attach: Priloži
+  inspect: "Preglej"
   copy-permalink: Kopiraj trajno povezavo
   copy-image: "Kopiraj oznako slike"
   pin: "Pripni"
@@ -1118,3 +1119,27 @@ auto-update:
   mode-all-desc: "Vsak vsebnik, razen tistih z oznako {label}."
   risky-hint: "Vsebniku dodajte oznako {label}, da ga izključite."
   empty: "Noben vsebnik se ne posodablja sam. Vsebniku dodajte oznako {label}, da ga vključite."
+inspect:
+  title: "Preglej"
+  overview: "Pregled"
+  ports: "Vrata"
+  mounts: "Priklopi"
+  env: "Okolje"
+  labels: "Oznake"
+  id: "ID"
+  command: "Ukaz"
+  created: "Ustvarjeno"
+  started: "Zagnano"
+  finished: "Končano"
+  restart-policy: "Pravilo ponovnega zagona"
+  network: "Omrežje"
+  memory-limit: "Omejitev pomnilnika"
+  cpu-limit: "Omejitev CPU"
+  unlimited: "Neomejeno"
+  oom-killed: "Ustavljen zaradi OOM"
+  exit-code: "Izhod {code}"
+  restarts: "Ponovni zagoni: {count}"
+  show-value: "Pokaži vrednost"
+  hide-value: "Skrij vrednost"
+  env-hidden: "Vrednosti so skrite. Za branje je potreben dostop do lupine."
+  load-failed: "Podrobnosti vsebnika ni bilo mogoče naložiti."

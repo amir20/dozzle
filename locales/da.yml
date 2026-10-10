@@ -33,6 +33,7 @@ toolbar:
   show-container-name: Vis containernavn
   shell: Shell
   attach: Tilknyt
+  inspect: "Inspicér"
   copy-permalink: Kopiér permanent link
   copy-image: "Kopiér image-tag"
   pin: "Fastgør"
@@ -1113,3 +1114,27 @@ auto-update:
   mode-all-desc: "Alle containere, undtagen dem med labelen {label}."
   risky-hint: "Giv en container labelen {label} for at holde den udenfor."
   empty: "Ingen container opdateres af sig selv. Giv en container labelen {label} for at tilføje den."
+inspect:
+  title: "Inspicér"
+  overview: "Oversigt"
+  ports: "Porte"
+  mounts: "Mounts"
+  env: "Miljø"
+  labels: "Labels"
+  id: "ID"
+  command: "Kommando"
+  created: "Oprettet"
+  started: "Startet"
+  finished: "Afsluttet"
+  restart-policy: "Genstartspolitik"
+  network: "Netværk"
+  memory-limit: "Hukommelsesgrænse"
+  cpu-limit: "CPU-grænse"
+  unlimited: "Ubegrænset"
+  oom-killed: "Stoppet pga. hukommelse (OOM)"
+  exit-code: "Exit {code}"
+  restarts: "Genstarter: {count}"
+  show-value: "Vis værdi"
+  hide-value: "Skjul værdi"
+  env-hidden: "Værdierne er skjult. Det kræver shell-adgang at læse dem."
+  load-failed: "Kunne ikke indlæse containerdetaljer."

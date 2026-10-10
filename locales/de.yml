@@ -33,6 +33,7 @@ toolbar:
   show-container-name: Container-Name anzeigen
   shell: Shell
   attach: Anhängen
+  inspect: "Inspizieren"
   copy-permalink: Permanentlink kopieren
   copy-image: "Image-Tag kopieren"
   pin: "Anheften"
@@ -1113,3 +1114,27 @@ auto-update:
   mode-all-desc: "Jeder Container, außer er hat das Label {label}."
   risky-hint: "Mit dem Label {label} bleibt ein Container außen vor."
   empty: "Kein Container aktualisiert sich von selbst. Mit dem Label {label} kommt einer dazu."
+inspect:
+  title: "Inspizieren"
+  overview: "Übersicht"
+  ports: "Ports"
+  mounts: "Mounts"
+  env: "Umgebung"
+  labels: "Labels"
+  id: "ID"
+  command: "Befehl"
+  created: "Erstellt"
+  started: "Gestartet"
+  finished: "Beendet"
+  restart-policy: "Neustart-Richtlinie"
+  network: "Netzwerk"
+  memory-limit: "Speicherlimit"
+  cpu-limit: "CPU-Limit"
+  unlimited: "Unbegrenzt"
+  oom-killed: "OOM beendet"
+  exit-code: "Exit {code}"
+  restarts: "Neustarts: {count}"
+  show-value: "Wert anzeigen"
+  hide-value: "Wert ausblenden"
+  env-hidden: "Werte sind ausgeblendet. Zum Lesen ist Shell-Zugriff nötig."
+  load-failed: "Container-Details konnten nicht geladen werden."

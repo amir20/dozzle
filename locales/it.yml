@@ -33,6 +33,7 @@ toolbar:
   show-container-name: Mostra nome container
   shell: Shell
   attach: Collega
+  inspect: "Ispeziona"
   copy-permalink: Copia link permanente
   copy-image: "Copia tag immagine"
   pin: "Fissa"
@@ -1113,3 +1114,27 @@ auto-update:
   mode-all-desc: "Ogni container, tranne quelli con l'etichetta {label}."
   risky-hint: "Aggiungi l'etichetta {label} a un container per escluderlo."
   empty: "Nessun container si aggiorna da solo. Aggiungi l'etichetta {label} a un container per includerlo."
+inspect:
+  title: "Ispeziona"
+  overview: "Panoramica"
+  ports: "Porte"
+  mounts: "Mount"
+  env: "Ambiente"
+  labels: "Etichette"
+  id: "ID"
+  command: "Comando"
+  created: "Creato"
+  started: "Avviato"
+  finished: "Terminato"
+  restart-policy: "Criterio di riavvio"
+  network: "Rete"
+  memory-limit: "Limite memoria"
+  cpu-limit: "Limite CPU"
+  unlimited: "Illimitato"
+  oom-killed: "Terminato per OOM"
+  exit-code: "Uscita {code}"
+  restarts: "Riavvii: {count}"
+  show-value: "Mostra valore"
+  hide-value: "Nascondi valore"
+  env-hidden: "I valori sono nascosti. Per leggerli serve l'accesso alla shell."
+  load-failed: "Impossibile caricare i dettagli del container."

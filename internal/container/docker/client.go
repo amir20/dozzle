@@ -826,7 +826,12 @@ func newContainerFromJSON(c docker.InspectResponse, host string) container.Conta
 	for port, bindings := range c.HostConfig.PortBindings {
 		for _, b := range bindings {
 			if b.HostPort != "" {
-				ports = append(ports, fmt.Sprintf("%s:%s->%s", b.HostIP, b.HostPort, port))
+				// An unset HostIP is the zero netip.Addr, which prints as "invalid IP".
+				ip := ""
+				if b.HostIP.IsValid() {
+					ip = b.HostIP.String()
+				}
+				ports = append(ports, fmt.Sprintf("%s:%s->%s", ip, b.HostPort, port))
 			} else {
 				ports = append(ports, port.String())
 			}

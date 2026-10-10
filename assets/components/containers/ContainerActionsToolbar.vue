@@ -197,7 +197,12 @@
       </li>
 
       <!-- Container Actions (Enabled via config) -->
-      <li class="section" v-if="showContainerSection">{{ $t("toolbar.section-container") }}</li>
+      <li class="section" v-if="!historical">{{ $t("toolbar.section-container") }}</li>
+      <li v-if="!historical">
+        <a @click="showDrawer(ContainerInspect, { container })">
+          <mdi:information-outline /> {{ $t("toolbar.inspect") }}
+        </a>
+      </li>
       <template v-if="enableActions && !historical">
         <!-- Kubernetes has no stop or start for one container, only restart. -->
         <li v-if="canStartStop && power">
@@ -310,6 +315,7 @@ import { appendRangeParams } from "@/composable/logs/timeRange";
 // Drawer-only, and it drags in apache-arrow; loading it eagerly put both on every log view.
 const LogAnalytics = defineAsyncComponent(() => import("@/components/logs/LogAnalytics.vue"));
 import Terminal from "./Terminal.vue";
+import ContainerInspect from "./ContainerInspect.vue";
 
 const { showSearch } = useSearchFilter();
 const { linked: cloudLinked } = useCloudSurface();
@@ -499,8 +505,6 @@ const disableRestart = computed(() => actionStates.stop || actionStates.start ||
 
 // The section header is shared by container actions and the shell entries, so it
 // only shows when at least one of them is actually rendered.
-const showContainerSection = computed(() => (enableActions || enableShell) && !historical);
-
 // Collapsed submenus say what they are currently set to, so the menu answers
 // "what am I looking at?" without being opened.
 const streamSummary = computed(() => {
