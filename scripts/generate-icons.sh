@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
-# Regenerates every raster icon and the docs copy of the logo from assets/logo.svg.
+# Regenerates every raster icon and the docs copies of the logo from assets/logo.svg
+# (and assets/logo-16.svg for the 16px favicon).
 #
 # The PNGs and the .ico are committed, so this is a maintainer tool rather than a
 # build step. Run it after touching assets/logo.svg and commit whatever changes,
@@ -38,10 +39,14 @@ render_full assets/logo.svg 192 public/favicon.png
 render assets/logo.svg 512 "$tmp/apple.png"
 magick "$tmp/apple.png" -background "$APPLE_BG" -alpha remove -alpha off public/apple-touch-icon.png
 
-for size in 16 24 32 48; do
+# 16px comes from logo-16.svg, the mark redrawn on the pixel grid: scaled down, the
+# full mark's ball tips and eye corners blur into each other.
+render_full assets/logo-16.svg 16 "$tmp/ico-16.png"
+for size in 24 32 48; do
   render_full assets/logo.svg "$size" "$tmp/ico-$size.png"
 done
 magick "$tmp/ico-16.png" "$tmp/ico-24.png" "$tmp/ico-32.png" "$tmp/ico-48.png" public/favicon.ico
+cp public/favicon.ico docs/public/favicon.ico
 
 cp assets/logo.svg docs/public/logo.svg
 

@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16">
+  <!-- logo.svg redrawn on the 16px grid for the favicon: the ball tips merge into the
+       antennae and the eyes snap to whole pixels, where the full mark would blur. -->
+  <path fill="#FF9A0E" fill-rule="evenodd" d="M3 6.5C3 5 5 4 8 4s5 1 5 2.5V12c0 1.2-1 2-2.4 2H5.4C4 14 3 13.2 3 12ZM4.5 8h3v3h-3ZM8.5 8h3v3h-3Z"/>
+  <path stroke="#FF9A0E" stroke-width="1.6" stroke-linecap="round" d="M5.2 4.6 4.3 1.8M10.8 4.6l.9-2.8"/>
+</svg>

@@ -10,8 +10,7 @@
     >
       <div class="flex min-h-0 flex-1 flex-col gap-3 p-3">
         <div class="flex shrink-0 items-center gap-2">
-          <Logo class="size-9 shrink-0" aria-hidden="true" />
-          <span class="truncate text-2xl font-light tracking-tight">Dozzle</span>
+          <BrandMark />
           <ProBadge />
         </div>
         <div class="bg-base-content/10 h-px shrink-0"></div>
@@ -83,8 +82,6 @@
 </template>
 
 <script lang="ts" setup>
-import Logo from "@/logo.svg";
-
 defineEmits<{ search: [] }>();
 
 const route = useRoute();

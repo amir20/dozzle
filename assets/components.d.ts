@@ -22,6 +22,7 @@ declare module 'vue' {
     AlertRowActions: typeof import('./components/cloud/history/AlertRowActions.vue')['default']
     Announcements: typeof import('./components/shell/Announcements.vue')['default']
     BarChart: typeof import('./components/ui/BarChart.vue')['default']
+    BrandMark: typeof import('./components/shell/BrandMark.vue')['default']
     CalendarRange: typeof import('./components/ui/CalendarRange.vue')['default']
     'Carbon:add': typeof import('~icons/carbon/add')['default']
     'Carbon:caretDown': typeof import('~icons/carbon/caret-down')['default']
