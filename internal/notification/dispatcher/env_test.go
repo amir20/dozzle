@@ -127,3 +127,13 @@ func TestExpandedURLErrorsDoNotLeakValue(t *testing.T) {
 	assert.False(t, result.Success)
 	assert.NotContains(t, result.Error, "hunter2")
 }
+
+func TestSendTest_ScrubsEnvValueFromHostErrors(t *testing.T) {
+	t.Setenv("HOOK_SECRET", "hunter2")
+	w, err := NewWebhookDispatcher("t", "http://${HOOK_SECRET}.invalid/hook", "", nil)
+	require.NoError(t, err)
+
+	result := w.SendTest(context.Background(), newTestNotification("x"))
+	assert.False(t, result.Success)
+	assert.NotContains(t, result.Error, "hunter2")
+}

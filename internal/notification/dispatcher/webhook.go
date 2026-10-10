@@ -275,7 +275,7 @@ func (w *WebhookDispatcher) SendTest(ctx context.Context, notification types.Not
 
 	req, err := http.NewRequestWithContext(ctx, http.MethodPost, target, bytes.NewReader(payload))
 	if err != nil {
-		return TestResult{Success: false, Error: fmt.Sprintf("failed to create request: %v", err)}
+		return TestResult{Success: false, Error: w.scrub(fmt.Sprintf("failed to create request: %v", err))}
 	}
 
 	for k, v := range w.Headers {
@@ -296,7 +296,7 @@ func (w *WebhookDispatcher) SendTest(ctx context.Context, notification types.Not
 		if urlErr, ok := errors.AsType[*url.Error](err); ok {
 			urlErr.URL = redactURL(urlErr.URL)
 		}
-		return TestResult{Success: false, Error: fmt.Sprintf("failed to send webhook: %v", err)}
+		return TestResult{Success: false, Error: w.scrub(fmt.Sprintf("failed to send webhook: %v", err))}
 	}
 	defer resp.Body.Close()
 
@@ -307,7 +307,7 @@ func (w *WebhookDispatcher) SendTest(ctx context.Context, notification types.Not
 		responseBody, _ := io.ReadAll(limitedReader)
 		log.Debug().
 			Str("webhook", w.Name).
-			Str("url", redactURL(target)).
+			Str("url", w.scrub(redactURL(target))).
 			Int("status_code", resp.StatusCode).
 			Str("payload", string(payload)).
 			Str("response_body", string(responseBody)).
@@ -320,6 +320,16 @@ func (w *WebhookDispatcher) SendTest(ctx context.Context, notification types.Not
 	}
 
 	return TestResult{Success: true, StatusCode: resp.StatusCode}
+}
+
+// scrub removes the values of variables referenced in the URL and headers from msg.
+func (w *WebhookDispatcher) scrub(msg string) string {
+	refs := make([]string, 0, len(w.Headers)+1)
+	refs = append(refs, w.URL)
+	for _, v := range w.Headers {
+		refs = append(refs, v)
+	}
+	return scrubEnv(msg, refs...)
 }
 
 // executeJSONTemplate parses the template as JSON, resolves Go template placeholders

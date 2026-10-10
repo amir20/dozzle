@@ -52,6 +52,21 @@ func expandEnv(s string) (string, error) {
 	return expanded, nil
 }
 
+// scrubEnv removes the values of every variable referenced in refs from msg.
+// Errors from a failed send can quote the expanded URL in places redactURL does
+// not reach (a DNS error names the host), and they are returned to whoever edits
+// webhooks, so a placeholder must never come back as its value.
+func scrubEnv(msg string, refs ...string) string {
+	for _, ref := range refs {
+		for _, m := range envRef.FindAllStringSubmatch(ref, -1) {
+			if v := os.Getenv(m[1]); v != "" {
+				msg = strings.ReplaceAll(msg, v, "[redacted]")
+			}
+		}
+	}
+	return msg
+}
+
 // redactURL keeps only scheme and host, since webhook URLs often carry the
 // token in the path or query.
 func redactURL(raw string) string {
