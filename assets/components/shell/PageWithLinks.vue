@@ -1,6 +1,12 @@
 <template>
   <div class="flex flex-col gap-5 p-4 md:px-8">
     <section class="flex items-center gap-4">
+      <!-- A phone has no sidebar or inline search, so without the wordmark the left
+           half of the bar is empty. Same mark the Browse tab leads with. -->
+      <div class="flex min-w-0 items-center gap-2 md:hidden">
+        <Logo class="size-8 shrink-0" aria-hidden="true" />
+        <span class="truncate text-xl font-light tracking-tight">Dozzle</span>
+      </div>
       <SearchInline class="hidden max-w-sm flex-1 md:flex" />
       <Links class="ml-auto">
         <template #more-items>
@@ -12,3 +18,6 @@
     <slot></slot>
   </div>
 </template>
+<script lang="ts" setup>
+import Logo from "@/logo.svg";
+</script>
