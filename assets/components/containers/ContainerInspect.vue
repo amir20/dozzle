@@ -142,6 +142,7 @@ watch(
   () => `${container.host}/${container.id}`,
   () => {
     details.value = undefined;
+    error.value = false;
     revealed.value = new Set();
     load();
   },
