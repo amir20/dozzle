@@ -1,6 +1,6 @@
 ---
 title: Preguntas frecuentes
-sourceHash: 45f3e3d59e43
+sourceHash: aeb309f338cb
 ---
 
 # Preguntas frecuentes
@@ -108,7 +108,7 @@ http:
 
 ## Tenemos herramientas que usan Dozzle cuando se crea un contenedor. ¿Cómo consigo un enlace directo a un contenedor por nombre?
 
-Dozzle tiene una [ruta](https://github.com/amir20/dozzle/blob/master/assets/pages/show.vue) especial que sirve para buscar contenedores por nombre y redirigir a ese contenedor. Por ejemplo, si tienes un contenedor con nombre `"foo.bar"` e id `abc123`, puedes enviar a tus usuarios a `/show?name=foo.bar`, que redirigirá a `/container/abc123`.
+Dozzle tiene una [ruta](https://github.com/amir20/dozzle/blob/main/assets/pages/show.vue) especial que sirve para buscar contenedores por nombre y redirigir a ese contenedor. Por ejemplo, si tienes un contenedor con nombre `"foo.bar"` e id `abc123`, puedes enviar a tus usuarios a `/show?name=foo.bar`, que redirigirá a `/container/abc123`.
 
 Para abrir varios contenedores en una vista combinada, separa los nombres con comas: `/show?name=foo,bar` redirige a `/merged/<ids>`. Si varios contenedores tienen el mismo nombre, se usa el que se inició más recientemente. Añade `host=<host id>` para buscar solo en ese host, por ejemplo `/show?name=foo,bar&host=abc`. Los nombres sin coincidencias se omiten.
 

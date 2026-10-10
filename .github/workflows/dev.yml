@@ -1,11 +1,11 @@
 on:
   push:
     branches:
-      - master
+      - main
   pull_request:
     types: [opened, reopened, synchronize, ready_for_review]
     branches:
-      - master
+      - main
 name: Push container
 
 permissions:

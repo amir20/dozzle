@@ -23,7 +23,7 @@ export function canSelfUpdate(status: SetupStatus): boolean {
 }
 
 // What an update would actually pull. This is a question about the tag the
-// container follows, not about the newest release: :master gets whatever master
+// container follows, not about the newest release: :main gets whatever main
 // points at now, and a release number says nothing about it. The endpoint runs
 // the same check the auto-update scheduler does.
 //
@@ -48,7 +48,7 @@ export function useSelfUpdateCheck() {
 }
 
 // What the About panel can honestly say. The tag decides what an update brings,
-// so when the check has an answer it is the answer: a container on :master is
+// so when the check has an answer it is the answer: a container on :main is
 // never told about a release it would not get. A release is worth naming only
 // when the tag cannot move it (a pinned version tag, where switching tags is
 // the update) or when nothing could be checked at all: pinned, manual,

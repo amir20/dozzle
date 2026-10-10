@@ -12,7 +12,7 @@ func TestOnReleaseLine(t *testing.T) {
 	for _, version := range []string{"v11.1.0", "11.1.0", "v11.1.0-beta.1"} {
 		assert.True(t, OnReleaseLine(version), version)
 	}
-	for _, version := range []string{"master-1d901bf", "pr-5216-abc1234", "local", "head", "", "v11.1"} {
+	for _, version := range []string{"main-1d901bf", "pr-5216-abc1234", "local", "head", "", "v11.1"} {
 		assert.False(t, OnReleaseLine(version), version)
 	}
 }

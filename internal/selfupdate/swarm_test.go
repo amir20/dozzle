@@ -38,8 +38,8 @@ func swarmFake() *fakeDocker {
 }
 
 func TestTaskImageRef(t *testing.T) {
-	assert.Equal(t, "amir20/dozzle:master", taskImageRef("amir20/dozzle:master@sha256:abc"))
-	assert.Equal(t, "amir20/dozzle:master", taskImageRef("amir20/dozzle:master"))
+	assert.Equal(t, "amir20/dozzle:main", taskImageRef("amir20/dozzle:main@sha256:abc"))
+	assert.Equal(t, "amir20/dozzle:main", taskImageRef("amir20/dozzle:main"))
 	assert.Equal(t, "localhost:5000/dozzle:latest", taskImageRef("localhost:5000/dozzle:latest@sha256:abc"))
 }
 

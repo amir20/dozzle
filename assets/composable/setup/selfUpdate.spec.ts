@@ -8,7 +8,7 @@ vi.mock("@/stores/config", () => ({
 import { selfUpdateHeadline } from "./selfUpdate";
 
 describe("selfUpdateHeadline", () => {
-  // The bug this replaced: a container on :master was offered the newest
+  // The bug this replaced: a container on :main was offered the newest
   // release, which is not what pulling that tag would ever give it.
   test("the tag's answer wins over the release feed", () => {
     expect(selfUpdateHeadline("update-available", true)).toBe("image");

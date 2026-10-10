@@ -107,7 +107,7 @@ http:
 
 ## We have tools that use Dozzle when a new container is created. How can I get a direct link to a container by name?
 
-Dozzle has a special [route](https://github.com/amir20/dozzle/blob/master/assets/pages/show.vue) that can be used to search containers by name and then forward to that container. For example, if you have a container with name `"foo.bar"` and id `abc123`, you can send your users to `/show?name=foo.bar` which will be forwarded to `/container/abc123`.
+Dozzle has a special [route](https://github.com/amir20/dozzle/blob/main/assets/pages/show.vue) that can be used to search containers by name and then forward to that container. For example, if you have a container with name `"foo.bar"` and id `abc123`, you can send your users to `/show?name=foo.bar` which will be forwarded to `/container/abc123`.
 
 To open several containers in one merged view, separate the names with commas: `/show?name=foo,bar` forwards to `/merged/<ids>`. When more than one container has the same name, the most recently started one wins. Add `host=<host id>` to only match containers on that host, e.g. `/show?name=foo,bar&host=abc`. Names that match nothing are skipped.
 
