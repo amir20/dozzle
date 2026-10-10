@@ -126,23 +126,31 @@ const error = ref(false);
 const revealed = ref(new Set<number>());
 const labelsCollapsed = ref(true);
 
+async function load() {
+  try {
+    const response = await fetch(withBase(`/api/hosts/${container.host}/containers/${container.id}/inspect`));
+    if (!response.ok) throw new Error(await response.text());
+    details.value = await response.json();
+    error.value = false;
+  } catch (e) {
+    console.error(e);
+    error.value = true;
+  }
+}
+
 watch(
   () => `${container.host}/${container.id}`,
-  async () => {
+  () => {
     details.value = undefined;
-    error.value = false;
     revealed.value = new Set();
-    try {
-      const response = await fetch(withBase(`/api/hosts/${container.host}/containers/${container.id}/inspect`));
-      if (!response.ok) throw new Error(await response.text());
-      details.value = await response.json();
-    } catch (e) {
-      console.error(e);
-      error.value = true;
-    }
+    load();
   },
   { immediate: true },
 );
+
+// Restart count, exit code and OOM only change when the container does, so a state
+// change while the drawer is open refreshes them in place.
+watch(() => container.state, load);
 
 function toggle(i: number) {
   const next = new Set(revealed.value);
