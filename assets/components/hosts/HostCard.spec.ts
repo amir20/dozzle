@@ -213,7 +213,7 @@ describe("<HostCard />", () => {
   });
 
   // The bar follows the fullest drive, since that is the one that runs out, and the
-  // tooltip names each one once there is more than Docker's.
+  // popover lists every drive, Docker's first.
   test("extra drives join the disk read-out", () => {
     const wrapper = mountWith({
       diskTotal: 1000,
@@ -221,8 +221,12 @@ describe("<HostCard />", () => {
       disks: [{ name: "media", total: 1000, free: 50 }],
     });
 
-    expect(wrapper.text()).toContain("95%");
-    const title = wrapper.find('[title*="media"]').attributes("title")!;
-    expect(title.split("\n")).toEqual(["Docker 400 Bytes / 1000 Bytes (40%)", "media 950 Bytes / 1000 Bytes (95%)"]);
+    const trigger = wrapper.findAll("button").find((b) => b.text().startsWith("Disk"));
+    expect(trigger?.text().replace(/\s+/g, " ")).toBe("Disk 95%");
+    const rows = wrapper.findAll("li").filter((li) => li.text().includes("Bytes /"));
+    expect(rows.map((li) => li.findAll("span").map((s) => s.text()))).toEqual([
+      ["Docker", "400 Bytes / 1000 Bytes", "40%"],
+      ["media", "950 Bytes / 1000 Bytes", "95%"],
+    ]);
   });
 });
