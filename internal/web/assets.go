@@ -23,6 +23,10 @@ func acceptsBrotli(r *http.Request) bool {
 	return strings.Contains(r.Header.Get("Accept-Encoding"), "br")
 }
 
+func acceptsGzip(r *http.Request) bool {
+	return strings.Contains(r.Header.Get("Accept-Encoding"), "gzip")
+}
+
 // contentTypeFor resolves the type from the original name, since the file on disk is
 // the `.br` sibling. The table is hardcoded rather than read via mime.TypeByExtension
 // because the runtime image has no system mime database.

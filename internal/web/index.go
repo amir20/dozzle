@@ -1,11 +1,15 @@
 package web
 
 import (
+	"bytes"
+	"compress/gzip"
 	"html/template"
 	"io"
+	"io/fs"
 	"sort"
 	"strconv"
 	"strings"
+	"sync"
 
 	"encoding/json"
 
@@ -29,8 +33,8 @@ func (h *handler) index(w http.ResponseWriter, req *http.Request) {
 
 // serveAsset serves a built asset, reporting whether it handled the request; anything
 // unknown falls through to the SPA template. Text assets exist only as the `.br`
-// sibling written by scripts/compress-dist.js, so they are served as-is to the usual
-// client and inflated for the rare one that does not accept brotli.
+// sibling written by scripts/compress-dist.js, so they are served as-is to a client that
+// accepts brotli, re-encoded as gzip for one that only takes that, and inflated otherwise.
 func (h *handler) serveAsset(w http.ResponseWriter, req *http.Request, name string) bool {
 	if file, err := h.content.Open(name); err == nil {
 		file.Close()
@@ -58,8 +62,50 @@ func (h *handler) serveAsset(w http.ResponseWriter, req *http.Request, name stri
 		return true
 	}
 
+	if acceptsGzip(req) {
+		w.Header().Set("Content-Encoding", "gzip")
+		if gz, ok := gzipped(name, file); ok {
+			w.Header().Set("Content-Length", strconv.Itoa(len(gz)))
+			w.Write(gz)
+			return true
+		}
+		gw := gzip.NewWriter(w)
+		defer gw.Close()
+		io.Copy(gw, brotli.NewReader(file))
+		return true
+	}
+
 	io.Copy(w, brotli.NewReader(file))
 	return true
+}
+
+// Chrome and Firefox only offer brotli over HTTPS, so anyone opening Dozzle at
+// http://<lan-ip> asks for gzip. Inflating to identity sent every chunk at full size,
+// several times what br would be. Each asset is re-encoded once on first request and
+// kept, since the set is fixed for the life of the binary. Anything whose `.br` is
+// bigger than maxCachedGzip (the duckdb wasm) is gzipped on the fly instead of held.
+const maxCachedGzip = 1 << 20
+
+var gzipCache sync.Map // asset name -> []byte
+
+func gzipped(name string, file fs.File) ([]byte, bool) {
+	if cached, ok := gzipCache.Load(name); ok {
+		return cached.([]byte), true
+	}
+	if stat, err := file.Stat(); err != nil || stat.Size() > maxCachedGzip {
+		return nil, false
+	}
+
+	var buf bytes.Buffer
+	gw, _ := gzip.NewWriterLevel(&buf, gzip.BestCompression)
+	if _, err := io.Copy(gw, brotli.NewReader(file)); err != nil {
+		return nil, false
+	}
+	if err := gw.Close(); err != nil {
+		return nil, false
+	}
+	cached, _ := gzipCache.LoadOrStore(name, buf.Bytes())
+	return cached.([]byte), true
 }
 
 func (h *handler) executeTemplate(w http.ResponseWriter, req *http.Request) {

@@ -2,6 +2,7 @@ package web
 
 import (
 	"bytes"
+	"compress/gzip"
 	"io"
 	"net/http"
 	"net/http/httptest"
@@ -80,6 +81,26 @@ func TestServeAsset(t *testing.T) {
 		body, err := io.ReadAll(res.Body)
 		require.NoError(t, err)
 		assert.Equal(t, assetJS, string(body))
+	})
+
+	t.Run("re-encodes as gzip for a client that only accepts gzip", func(t *testing.T) {
+		for range 2 { // the second request is served from the cache
+			req := assetRequest("assets/app-abc12345.js", "gzip, deflate")
+			w := httptest.NewRecorder()
+
+			require.True(t, h.serveAsset(w, req, req.URL.Path))
+			res := w.Result()
+
+			assert.Equal(t, "gzip", res.Header.Get("Content-Encoding"))
+			assert.Equal(t, "text/javascript; charset=utf-8", res.Header.Get("Content-Type"))
+			assert.NotEmpty(t, res.Header.Get("Content-Length"))
+
+			gr, err := gzip.NewReader(res.Body)
+			require.NoError(t, err)
+			body, err := io.ReadAll(gr)
+			require.NoError(t, err)
+			assert.Equal(t, assetJS, string(body))
+		}
 	})
 
 	t.Run("serves already-compressed assets untouched", func(t *testing.T) {
