@@ -80,6 +80,8 @@ import { useFuzzySearch } from "@/composable/app/fuzzySearch";
 
 // Pulls fuse.js (~48 KB) with it, and the palette only renders once the user opens it.
 const FuzzySearchModal = defineAsyncComponent(() => import("@/components/search/FuzzySearchModal.vue"));
+// Only rendered for pinned columns; the route's own view imports it when it needs it.
+const ContainerLog = defineAsyncComponent(() => import("@/components/views/ContainerLog.vue"));
 
 const { railOffset, mounted: railMounted, collapsed: railCollapsed, toggleRail } = useCloudRail();
 

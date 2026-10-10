@@ -167,7 +167,8 @@
 
 <script setup lang="ts">
 import { ComplexLogEntry } from "@/models/LogEntry";
-import LogAnalytics from "@/components/logs/LogAnalytics.vue";
+// Drawer-only, and it drags in apache-arrow; loading it eagerly put both on every log view.
+const LogAnalytics = defineAsyncComponent(() => import("@/components/logs/LogAnalytics.vue"));
 import { numericFieldQuery } from "@/utils/sql";
 import { SHOWN_STATUSES } from "@/composable/cloud/patternMemory";
 

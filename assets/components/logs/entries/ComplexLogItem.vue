@@ -35,7 +35,7 @@
 <script lang="ts" setup>
 import stripAnsi from "strip-ansi";
 import { type ComplexLogEntry } from "@/models/LogEntry";
-import LogDetails from "./LogDetails.vue";
+const LogDetails = defineAsyncComponent(() => import("./LogDetails.vue"));
 
 const { logEntry } = defineProps<{
   logEntry: ComplexLogEntry;

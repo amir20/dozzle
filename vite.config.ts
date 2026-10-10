@@ -46,6 +46,20 @@ export default defineConfig(() => ({
     assetsInlineLimit: (filePath: string) => (filePath.includes("assets/icons/apps/") ? false : undefined),
     rollupOptions: {
       input: "assets/main.ts",
+      // Left to itself rolldown split what the first page needs into ~75 chunks, over
+      // half of them under 2 KB. Over plain HTTP/1.1 (how most installs are reached)
+      // that is six requests at a time, so the shell waited on round trips rather than
+      // bytes. Everything the entry loads up front goes into two chunks instead:
+      // dependencies, which survive a Dozzle upgrade in the browser cache, and the app.
+      // Lazy pages and drawers still split as before.
+      output: {
+        codeSplitting: {
+          groups: [
+            { name: "vendor", test: /node_modules/, tags: ["$initial" as const] },
+            { name: "app", tags: ["$initial" as const] },
+          ],
+        },
+      },
     },
     modulePreload: {
       polyfill: false,
