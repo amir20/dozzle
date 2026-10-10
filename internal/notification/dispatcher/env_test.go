@@ -118,9 +118,7 @@ func TestExpandedURLErrorsDoNotLeakValue(t *testing.T) {
 
 	// Same check at send time, when the value changes after the dispatcher was built.
 	t.Setenv("HOOK_SECRET", "example.com")
-	w, err := NewWebhookDispatcher("t", "http://[${HOOK_SECRET}", "", nil)
-	require.Error(t, err)
-	w, err = NewWebhookDispatcher("t", "https://${HOOK_SECRET}/hook", "", nil)
+	w, err := NewWebhookDispatcher("t", "https://${HOOK_SECRET}/hook", "", nil)
 	require.NoError(t, err)
 	t.Setenv("HOOK_SECRET", "[hunter2")
 	result := w.SendTest(context.Background(), newTestNotification("x"))
