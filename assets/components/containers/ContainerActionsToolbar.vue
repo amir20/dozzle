@@ -503,8 +503,6 @@ const { downloadUrl, isFiltered } = useDownloadUrl(
 const power = computed(() => powerAction(container));
 const disableRestart = computed(() => actionStates.stop || actionStates.start || actionStates.restart);
 
-// The section header is shared by container actions and the shell entries, so it
-// only shows when at least one of them is actually rendered.
 // Collapsed submenus say what they are currently set to, so the menu answers
 // "what am I looking at?" without being opened.
 const streamSummary = computed(() => {
