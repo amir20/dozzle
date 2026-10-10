@@ -167,9 +167,14 @@
   @apply text-7xl font-light;
 }
 
+/* Same lockup as the app's sidebar: the mark beside a light, lowercase,
+   tightly tracked wordmark. */
 .VPNavBarTitle .title {
-  @apply text-3xl font-light;
-  text-transform: uppercase;
+  @apply text-2xl font-light tracking-tight;
+}
+
+.VPNavBarTitle .logo {
+  height: 32px;
 }
 
 .VPHero .container .image {
