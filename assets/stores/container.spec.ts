@@ -51,7 +51,6 @@ function json(id: string, host = "localhost", state = "running"): ContainerJson 
     state,
     cpuLimit: 0,
     memoryLimit: 0,
-    stats: [],
     mounts: [],
     mountStats: {},
     ports: [],

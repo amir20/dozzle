@@ -1,6 +1,6 @@
 import { describe, expect, test, vi } from "vitest";
 import { computed, isReactive, reactive } from "vue";
-import { Container, emptyStat, type Stat } from "./Container";
+import { Container, decodeStats, emptyStat, type Stat } from "./Container";
 import { useHosts, type Host } from "@/stores/hosts";
 
 vi.mock("@/stores/config", () => ({
@@ -434,5 +434,52 @@ describe("Container.traefikUrls", () => {
       "traefik.http.routers.g.rule": "Host(`g.example.com`)",
     };
     expect(makeContainer({ labels }).traefikUrls).toEqual([]);
+  });
+});
+
+describe("decodeStats", () => {
+  test("rebuilds one stat per point, summing the delta-encoded columns", () => {
+    const stats = decodeStats({
+      cpu: [1.5, 0.5, 0],
+      memory: [2, 2.5, 1],
+      memoryUsage: [1000, 200, -300],
+      networkRxTotal: [5000, 100, -5060],
+      networkTxTotal: [10, 0, -10],
+      diskReadTotal: [7, 0, -7],
+      diskWriteTotal: [100, 50, -150],
+    });
+    expect(stats).toEqual([
+      {
+        cpu: 1.5,
+        memory: 2,
+        memoryUsage: 1000,
+        networkRxTotal: 5000,
+        networkTxTotal: 10,
+        diskReadTotal: 7,
+        diskWriteTotal: 100,
+      },
+      {
+        cpu: 0.5,
+        memory: 2.5,
+        memoryUsage: 1200,
+        networkRxTotal: 5100,
+        networkTxTotal: 10,
+        diskReadTotal: 7,
+        diskWriteTotal: 150,
+      },
+      {
+        cpu: 0,
+        memory: 1,
+        memoryUsage: 900,
+        networkRxTotal: 40,
+        networkTxTotal: 0,
+        diskReadTotal: 0,
+        diskWriteTotal: 0,
+      },
+    ]);
+  });
+
+  test("a container without history decodes to none", () => {
+    expect(decodeStats(undefined)).toEqual([]);
   });
 });
