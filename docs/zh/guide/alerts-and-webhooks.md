@@ -1,6 +1,6 @@
 ---
 title: 警报
-sourceHash: 71776f8fae5c
+sourceHash: 45b8d8fa144a
 ---
 
 # 警报
@@ -80,6 +80,24 @@ Webhook 会向你指定的 URL 发送一个 HTTP POST 请求。Dozzle 为常用�
 
 > [!TIP]
 > 保存前可以用**测试**按钮确认 webhook 是否正常工作。
+
+#### 不把 URL 写进文件
+
+Slack、Discord 等服务的 Webhook URL 本身就包含令牌。如果想把 `notifications.yml` 放进版本控制，可以把 URL 放到环境变量里，然后在 URL 或任意请求头的值中用 `${VAR}` 引用它。在表单中直接输入也同样有效。
+
+```yaml
+dispatchers:
+  - id: 1
+    name: Slack
+    type: webhook
+    url: ${SLACK_WEBHOOK_URL}
+    headers:
+      Authorization: Bearer ${NTFY_TOKEN}
+```
+
+Dozzle 保存和显示的是占位符本身。变量的值在发送通知时才读取，读取的是实际发送该通知的那个 Dozzle 的环境。使用[代理](/zh/guide/agent)时，代理上容器的警报由该代理发送，所以每个代理上也要设置这个变量。如果代理上缺少该变量，发送会失败并提示 `environment variable ... is not set`。
+
+只有 `${VAR}` 形式会被展开，单独的 `$VAR` 保持原样。以 `DOZZLE_`、`AWS_`、`GOOGLE_`、`AZURE_`、`KUBERNETES_` 或 `DOCKER_` 开头的变量会被拒绝，因为任何能编辑 Webhook 的人都能决定它发往哪里。Dozzle 环境中的其他变量都可以通过这种方式读取，所以不要在那里存放无关的密钥。
 
 ### Dozzle Cloud
 

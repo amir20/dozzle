@@ -3,6 +3,7 @@ package dispatcher
 import (
 	"bytes"
 	"context"
+	"crypto/tls"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -12,6 +13,7 @@ import (
 	"net/url"
 	"slices"
 	"strings"
+	"syscall"
 	"text/template"
 	"time"
 
@@ -159,13 +161,24 @@ type WebhookDispatcher struct {
 
 // NewWebhookDispatcher creates a new webhook dispatcher
 // If templateStr is empty, the notification will be marshaled as JSON directly
+//
+// rawURL and header values may contain ${VAR} placeholders. They are kept as
+// written, so the placeholder is what gets saved, shown and synced to agents,
+// and expanded from the sending process's environment on every send. An unset
+// variable is not an error here: on a multi-host setup the variable may only
+// exist on the agent that does the sending.
 func NewWebhookDispatcher(name, rawURL, templateStr string, headers map[string]string) (*WebhookDispatcher, error) {
-	parsed, err := url.Parse(rawURL)
-	if err != nil {
-		return nil, fmt.Errorf("invalid webhook URL: %w", err)
+	headerValues := make([]string, 0, len(headers))
+	for _, v := range headers {
+		headerValues = append(headerValues, v)
 	}
-	if scheme := strings.ToLower(parsed.Scheme); scheme != "http" && scheme != "https" {
-		return nil, fmt.Errorf("invalid webhook URL scheme %q: only http and https are allowed", parsed.Scheme)
+	if err := checkEnvRefs(append(headerValues, rawURL)...); err != nil {
+		return nil, err
+	}
+	if expanded, err := expandEnv(rawURL); err == nil {
+		if err := validateWebhookURL(rawURL, expanded); err != nil {
+			return nil, err
+		}
 	}
 
 	w := &WebhookDispatcher{
@@ -193,6 +206,32 @@ func NewWebhookDispatcher(name, rawURL, templateStr string, headers map[string]s
 	}
 
 	return w, nil
+}
+
+// validateWebhookURL checks expanded, the URL after ${VAR} expansion. When raw
+// had a placeholder the error says nothing about the input: url.Parse quotes it,
+// and the error is returned to whoever edits webhooks, which would hand them the
+// variable's value.
+func validateWebhookURL(raw, expanded string) error {
+	if raw != expanded {
+		parsed, err := url.Parse(expanded)
+		if err != nil {
+			return errors.New("invalid webhook URL after expanding environment variables")
+		}
+		if scheme := strings.ToLower(parsed.Scheme); scheme != "http" && scheme != "https" {
+			return errors.New("invalid webhook URL scheme after expanding environment variables: only http and https are allowed")
+		}
+		return nil
+	}
+
+	parsed, err := url.Parse(raw)
+	if err != nil {
+		return fmt.Errorf("invalid webhook URL: %w", err)
+	}
+	if scheme := strings.ToLower(parsed.Scheme); scheme != "http" && scheme != "https" {
+		return fmt.Errorf("invalid webhook URL scheme %q: only http and https are allowed", parsed.Scheme)
+	}
+	return nil
 }
 
 // TestResult contains the result of a webhook test
@@ -228,13 +267,25 @@ func (w *WebhookDispatcher) SendTest(ctx context.Context, notification types.Not
 		}
 	}
 
-	req, err := http.NewRequestWithContext(ctx, http.MethodPost, w.URL, bytes.NewReader(payload))
+	target, err := expandEnv(w.URL)
 	if err != nil {
-		return TestResult{Success: false, Error: fmt.Sprintf("failed to create request: %v", err)}
+		return TestResult{Success: false, Error: fmt.Sprintf("invalid webhook URL: %v", err)}
+	}
+	if err := validateWebhookURL(w.URL, target); err != nil {
+		return TestResult{Success: false, Error: err.Error()}
+	}
+
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, target, bytes.NewReader(payload))
+	if err != nil {
+		return TestResult{Success: false, Error: w.scrub(fmt.Sprintf("failed to create request: %v", err))}
 	}
 
 	for k, v := range w.Headers {
-		req.Header.Set(k, v)
+		expanded, err := expandEnv(v)
+		if err != nil {
+			return TestResult{Success: false, Error: fmt.Sprintf("invalid header %s: %v", k, err)}
+		}
+		req.Header.Set(k, expanded)
 	}
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("User-Agent", UserAgent)
@@ -244,7 +295,13 @@ func (w *WebhookDispatcher) SendTest(ctx context.Context, notification types.Not
 		if errors.Is(err, errBlockedAddress) {
 			return TestResult{Success: false, Error: errBlockedAddress.Error()}
 		}
-		return TestResult{Success: false, Error: fmt.Sprintf("failed to send webhook: %v", err)}
+		if target != w.URL {
+			return TestResult{Success: false, Error: "failed to send webhook to " + w.URL + ": " + sendErrorKind(err)}
+		}
+		if urlErr, ok := errors.AsType[*url.Error](err); ok {
+			urlErr.URL = redactURL(urlErr.URL)
+		}
+		return TestResult{Success: false, Error: w.scrub(fmt.Sprintf("failed to send webhook: %v", err))}
 	}
 	defer resp.Body.Close()
 
@@ -255,7 +312,7 @@ func (w *WebhookDispatcher) SendTest(ctx context.Context, notification types.Not
 		responseBody, _ := io.ReadAll(limitedReader)
 		log.Debug().
 			Str("webhook", w.Name).
-			Str("url", w.URL).
+			Str("url", w.logURL(target)).
 			Int("status_code", resp.StatusCode).
 			Str("payload", string(payload)).
 			Str("response_body", string(responseBody)).
@@ -268,6 +325,48 @@ func (w *WebhookDispatcher) SendTest(ctx context.Context, notification types.Not
 	}
 
 	return TestResult{Success: true, StatusCode: resp.StatusCode}
+}
+
+// logURL is the URL safe to log: the placeholder as written when the URL came
+// from the environment, otherwise scheme and host.
+func (w *WebhookDispatcher) logURL(target string) string {
+	if target != w.URL {
+		return w.URL
+	}
+	return w.scrub(redactURL(target))
+}
+
+// sendErrorKind describes a failed request without quoting it. It is used when
+// the URL came from the environment: the error text names the host, and a value
+// containing "/", "@" or %XX escapes can put any part of it there, so nothing
+// from the error itself is safe to return.
+func sendErrorKind(err error) string {
+	if _, ok := errors.AsType[*net.DNSError](err); ok {
+		return "could not resolve host"
+	}
+	if errors.Is(err, context.DeadlineExceeded) {
+		return "request timed out"
+	}
+	if netErr, ok := errors.AsType[net.Error](err); ok && netErr.Timeout() {
+		return "request timed out"
+	}
+	if errors.Is(err, syscall.ECONNREFUSED) {
+		return "connection refused"
+	}
+	if _, ok := errors.AsType[*tls.CertificateVerificationError](err); ok {
+		return "TLS certificate verification failed"
+	}
+	return "request failed"
+}
+
+// scrub removes the values of variables referenced in the URL and headers from msg.
+func (w *WebhookDispatcher) scrub(msg string) string {
+	refs := make([]string, 0, len(w.Headers)+1)
+	refs = append(refs, w.URL)
+	for _, v := range w.Headers {
+		refs = append(refs, v)
+	}
+	return scrubEnv(msg, refs...)
 }
 
 // executeJSONTemplate parses the template as JSON, resolves Go template placeholders

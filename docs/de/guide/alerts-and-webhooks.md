@@ -1,6 +1,6 @@
 ---
 title: Alarme
-sourceHash: 71776f8fae5c
+sourceHash: 45b8d8fa144a
 ---
 
 # Alarme
@@ -80,6 +80,24 @@ Du kannst auch ein eigenes Payload-Template mit der `text/template`-Syntax von G
 
 > [!TIP]
 > Nutze den Button **Test**, um deinen Webhook vor dem Speichern zu prüfen.
+
+#### Die URL aus der Datei heraushalten
+
+Webhook-URLs für Slack, Discord und ähnliche Dienste enthalten das Token. Um `notifications.yml` in der Versionsverwaltung zu halten, lege die URL in eine Umgebungsvariable und verweise mit `${VAR}` in der URL oder in einem beliebigen Header-Wert darauf. Das funktioniert genauso, wenn du es im Formular eingibst.
+
+```yaml
+dispatchers:
+  - id: 1
+    name: Slack
+    type: webhook
+    url: ${SLACK_WEBHOOK_URL}
+    headers:
+      Authorization: Bearer ${NTFY_TOKEN}
+```
+
+Dozzle speichert und zeigt den Platzhalter. Der Wert wird erst beim Senden einer Benachrichtigung gelesen, und zwar aus der Umgebung der Dozzle-Instanz, die sie sendet. Mit [Agents](/de/guide/agent) werden Alarme für die Container eines Agents von diesem Agent gesendet, setze die Variable also auch auf jedem Agent. Fehlt sie dort, schlägt das Senden mit `environment variable ... is not set` fehl.
+
+Nur die Form `${VAR}` wird ersetzt, ein einfaches `$VAR` bleibt unverändert. Variablen, die mit `DOZZLE_`, `AWS_`, `GOOGLE_`, `AZURE_`, `KUBERNETES_` oder `DOCKER_` beginnen, werden abgelehnt, denn wer einen Webhook bearbeiten darf, bestimmt auch, wohin er sendet. Jede andere Variable in der Umgebung von Dozzle lässt sich so auslesen, bewahre dort also keine fremden Geheimnisse auf.
 
 ### Dozzle Cloud
 

@@ -80,6 +80,24 @@ You can also write your own payload template using Go's `text/template` syntax. 
 > [!TIP]
 > Use the **Test** button to verify your webhook is working before saving.
 
+#### Keeping the URL out of the file
+
+Webhook URLs for Slack, Discord and similar services contain the token. To keep `notifications.yml` in version control, put the URL in an environment variable and reference it with `${VAR}` in the URL or any header value. The same works when typing into the form.
+
+```yaml
+dispatchers:
+  - id: 1
+    name: Slack
+    type: webhook
+    url: ${SLACK_WEBHOOK_URL}
+    headers:
+      Authorization: Bearer ${NTFY_TOKEN}
+```
+
+The placeholder is what Dozzle saves and shows. The value is read when a notification is sent, from the environment of whichever Dozzle sends it. With [agents](/guide/agent), alerts on an agent's containers are sent by that agent, so set the variable on each agent too. If it is missing there, the send fails with `environment variable ... is not set`.
+
+Only the `${VAR}` form is expanded; a bare `$VAR` is left as is. Variables starting with `DOZZLE_`, `AWS_`, `GOOGLE_`, `AZURE_`, `KUBERNETES_` or `DOCKER_` are refused, since anyone who can edit a webhook decides where it posts. Any other variable in Dozzle's environment can be read this way, so don't keep unrelated secrets there.
+
 ### Dozzle Cloud
 
 Linked instances get **Dozzle Cloud** as a destination automatically. Unlike a raw webhook it groups repeated failures into a single notification, summarizes what happened, and fans out to email, Telegram, Discord, Slack, ntfy, and browser push without configuring each one here. See [Dozzle Cloud](/guide/dozzle-cloud).

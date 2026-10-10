@@ -25,7 +25,8 @@
         <FormStepHeading :step="firstStep + 1" :title="$t('notifications.destination-form.webhook-url')" required />
         <input
           v-model="webhookUrl"
-          type="url"
+          type="text"
+          inputmode="url"
           class="input focus:input-primary w-full text-base"
           :class="{ 'input-primary': isValidUrl, 'input-error': webhookUrl.trim() && !isValidUrl }"
           :placeholder="$t('notifications.destination-form.webhook-url-placeholder')"
@@ -280,6 +281,8 @@ function headersToRecord(): Record<string, string> | undefined {
 const isValidUrl = computed(() => {
   const trimmed = webhookUrl.value.trim();
   if (!trimmed) return false;
+  // ${VAR} is expanded from the environment on the host that sends, so only the server can check it.
+  if (/\$\{[A-Za-z_][A-Za-z0-9_]*\}/.test(trimmed)) return true;
   try {
     const url = new URL(trimmed);
     return url.protocol === "http:" || url.protocol === "https:";
