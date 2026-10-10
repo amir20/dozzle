@@ -124,7 +124,7 @@ export function buildThemeConfig(base: string, t: Labels, version: string) {
       },
     ],
     editLink: {
-      pattern: "https://github.com/amir20/dozzle/edit/master/docs/:path",
+      pattern: "https://github.com/amir20/dozzle/edit/main/docs/:path",
       text: t.ui.editLink,
     },
     footer: {
