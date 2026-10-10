@@ -182,7 +182,7 @@ func (m *Manager) HandleNotificationConfig(subscriptions []types.SubscriptionCon
 			Headers:  dc.Headers,
 		})
 		if err != nil {
-			log.Warn().Err(err).Str("name", dc.Name).Str("type", dc.Type).Msg("Skipping unknown dispatcher type")
+			log.Warn().Err(err).Str("name", dc.Name).Str("type", dc.Type).Msg("Skipping invalid dispatcher")
 			continue
 		}
 		m.dispatchers.Store(dc.ID, d)

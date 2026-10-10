@@ -159,13 +159,28 @@ type WebhookDispatcher struct {
 
 // NewWebhookDispatcher creates a new webhook dispatcher
 // If templateStr is empty, the notification will be marshaled as JSON directly
+//
+// rawURL and header values may contain ${VAR} placeholders. They are kept as
+// written, so the placeholder is what gets saved, shown and synced to agents,
+// and expanded from the sending process's environment on every send. An unset
+// variable is not an error here: on a multi-host setup the variable may only
+// exist on the agent that does the sending.
 func NewWebhookDispatcher(name, rawURL, templateStr string, headers map[string]string) (*WebhookDispatcher, error) {
-	parsed, err := url.Parse(rawURL)
-	if err != nil {
-		return nil, fmt.Errorf("invalid webhook URL: %w", err)
+	headerValues := make([]string, 0, len(headers))
+	for _, v := range headers {
+		headerValues = append(headerValues, v)
 	}
-	if scheme := strings.ToLower(parsed.Scheme); scheme != "http" && scheme != "https" {
-		return nil, fmt.Errorf("invalid webhook URL scheme %q: only http and https are allowed", parsed.Scheme)
+	if err := checkEnvRefs(append(headerValues, rawURL)...); err != nil {
+		return nil, err
+	}
+	if !envRef.MatchString(rawURL) {
+		if err := validateWebhookURL(rawURL); err != nil {
+			return nil, err
+		}
+	} else if expanded, err := expandEnv(rawURL); err == nil {
+		if err := validateWebhookURL(expanded); err != nil {
+			return nil, err
+		}
 	}
 
 	w := &WebhookDispatcher{
@@ -193,6 +208,17 @@ func NewWebhookDispatcher(name, rawURL, templateStr string, headers map[string]s
 	}
 
 	return w, nil
+}
+
+func validateWebhookURL(raw string) error {
+	parsed, err := url.Parse(raw)
+	if err != nil {
+		return fmt.Errorf("invalid webhook URL: %w", err)
+	}
+	if scheme := strings.ToLower(parsed.Scheme); scheme != "http" && scheme != "https" {
+		return fmt.Errorf("invalid webhook URL scheme %q: only http and https are allowed", parsed.Scheme)
+	}
+	return nil
 }
 
 // TestResult contains the result of a webhook test
@@ -228,13 +254,25 @@ func (w *WebhookDispatcher) SendTest(ctx context.Context, notification types.Not
 		}
 	}
 
-	req, err := http.NewRequestWithContext(ctx, http.MethodPost, w.URL, bytes.NewReader(payload))
+	target, err := expandEnv(w.URL)
+	if err != nil {
+		return TestResult{Success: false, Error: fmt.Sprintf("invalid webhook URL: %v", err)}
+	}
+	if err := validateWebhookURL(target); err != nil {
+		return TestResult{Success: false, Error: err.Error()}
+	}
+
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, target, bytes.NewReader(payload))
 	if err != nil {
 		return TestResult{Success: false, Error: fmt.Sprintf("failed to create request: %v", err)}
 	}
 
 	for k, v := range w.Headers {
-		req.Header.Set(k, v)
+		expanded, err := expandEnv(v)
+		if err != nil {
+			return TestResult{Success: false, Error: fmt.Sprintf("invalid header %s: %v", k, err)}
+		}
+		req.Header.Set(k, expanded)
 	}
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("User-Agent", UserAgent)
@@ -243,6 +281,9 @@ func (w *WebhookDispatcher) SendTest(ctx context.Context, notification types.Not
 	if err != nil {
 		if errors.Is(err, errBlockedAddress) {
 			return TestResult{Success: false, Error: errBlockedAddress.Error()}
+		}
+		if urlErr, ok := errors.AsType[*url.Error](err); ok {
+			urlErr.URL = redactURL(urlErr.URL)
 		}
 		return TestResult{Success: false, Error: fmt.Sprintf("failed to send webhook: %v", err)}
 	}
@@ -255,7 +296,7 @@ func (w *WebhookDispatcher) SendTest(ctx context.Context, notification types.Not
 		responseBody, _ := io.ReadAll(limitedReader)
 		log.Debug().
 			Str("webhook", w.Name).
-			Str("url", w.URL).
+			Str("url", redactURL(target)).
 			Int("status_code", resp.StatusCode).
 			Str("payload", string(payload)).
 			Str("response_body", string(responseBody)).
