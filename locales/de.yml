@@ -1115,7 +1115,6 @@ auto-update:
   risky-hint: "Mit dem Label {label} bleibt ein Container außen vor."
   empty: "Kein Container aktualisiert sich von selbst. Mit dem Label {label} kommt einer dazu."
 inspect:
-  title: "Inspizieren"
   overview: "Übersicht"
   ports: "Ports"
   mounts: "Mounts"

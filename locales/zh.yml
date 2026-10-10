@@ -1115,7 +1115,6 @@ auto-update:
   risky-hint: "为容器加上 {label} 标签即可将其排除。"
   empty: "没有容器会自动更新。为容器加上 {label} 标签即可加入。"
 inspect:
-  title: "检查"
   overview: "概览"
   ports: "端口"
   mounts: "挂载"

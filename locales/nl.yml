@@ -1116,7 +1116,6 @@ auto-update:
   risky-hint: "Geef een container het label {label} om hem uit te sluiten."
   empty: "Geen enkele container werkt zichzelf bij. Geef een container het label {label} om hem toe te voegen."
 inspect:
-  title: "Inspecteren"
   overview: "Overzicht"
   ports: "Poorten"
   mounts: "Mounts"

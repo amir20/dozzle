@@ -1115,7 +1115,6 @@ auto-update:
   risky-hint: "Adicione o rótulo {label} a um contêiner para deixá-lo de fora."
   empty: "Nenhum contêiner se atualiza sozinho. Adicione o rótulo {label} a um contêiner para incluí-lo."
 inspect:
-  title: "Inspecionar"
   overview: "Visão geral"
   ports: "Portas"
   mounts: "Montagens"

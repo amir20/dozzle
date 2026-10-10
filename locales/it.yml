@@ -1115,7 +1115,6 @@ auto-update:
   risky-hint: "Aggiungi l'etichetta {label} a un container per escluderlo."
   empty: "Nessun container si aggiorna da solo. Aggiungi l'etichetta {label} a un container per includerlo."
 inspect:
-  title: "Ispeziona"
   overview: "Panoramica"
   ports: "Porte"
   mounts: "Mount"

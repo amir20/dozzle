@@ -1115,7 +1115,6 @@ auto-update:
   risky-hint: "Ponle a uno la etiqueta {label} para dejarlo fuera."
   empty: "Ningún contenedor se actualiza solo. Ponle a uno la etiqueta {label} para añadirlo."
 inspect:
-  title: "Inspeccionar"
   overview: "Resumen"
   ports: "Puertos"
   mounts: "Montajes"

@@ -1118,7 +1118,6 @@ auto-update:
   risky-hint: "Bir konteyneri dışarıda tutmak için ona {label} etiketini ekleyin."
   empty: "Hiçbir konteyner kendi kendine güncellenmiyor. Eklemek için bir konteynere {label} etiketini ekleyin."
 inspect:
-  title: "İncele"
   overview: "Genel bakış"
   ports: "Portlar"
   mounts: "Bağlamalar"

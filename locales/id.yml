@@ -1127,7 +1127,6 @@ auto-update:
   risky-hint: "Beri label {label} pada kontainer untuk mengecualikannya."
   empty: "Tidak ada kontainer yang diperbarui sendiri. Beri label {label} pada kontainer untuk menambahkannya."
 inspect:
-  title: "Inspeksi"
   overview: "Ringkasan"
   ports: "Port"
   mounts: "Mount"

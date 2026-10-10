@@ -1117,7 +1117,6 @@ auto-update:
   risky-hint: "Dodaj kontenerowi etykietę {label}, aby go pominąć."
   empty: "Żaden kontener nie aktualizuje się sam. Dodaj kontenerowi etykietę {label}, aby go dołączyć."
 inspect:
-  title: "Inspekcja"
   overview: "Przegląd"
   ports: "Porty"
   mounts: "Montowania"

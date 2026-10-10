@@ -1115,7 +1115,6 @@ auto-update:
   risky-hint: "Giv en container labelen {label} for at holde den udenfor."
   empty: "Ingen container opdateres af sig selv. Giv en container labelen {label} for at tilføje den."
 inspect:
-  title: "Inspicér"
   overview: "Oversigt"
   ports: "Porte"
   mounts: "Mounts"

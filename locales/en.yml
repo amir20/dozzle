@@ -1123,7 +1123,6 @@ auto-update:
   risky-hint: "Label one {label} to keep it out."
   empty: "No container updates on its own. Label one {label} to add it."
 inspect:
-  title: "Inspect"
   overview: "Overview"
   ports: "Ports"
   mounts: "Mounts"

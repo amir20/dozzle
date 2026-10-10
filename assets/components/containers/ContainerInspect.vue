@@ -2,7 +2,7 @@
   <div class="flex min-h-full flex-col">
     <div class="space-y-6 p-4 pb-8">
       <div class="pr-20">
-        <h2 class="text-2xl font-bold">{{ $t("inspect.title") }}</h2>
+        <h2 class="truncate text-2xl font-bold">{{ container.name }}</h2>
         <p class="text-base-content/60 truncate font-mono text-sm">{{ container.image }}</p>
       </div>
 

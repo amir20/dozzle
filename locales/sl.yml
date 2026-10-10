@@ -1120,7 +1120,6 @@ auto-update:
   risky-hint: "Vsebniku dodajte oznako {label}, da ga izključite."
   empty: "Noben vsebnik se ne posodablja sam. Vsebniku dodajte oznako {label}, da ga vključite."
 inspect:
-  title: "Preglej"
   overview: "Pregled"
   ports: "Vrata"
   mounts: "Priklopi"

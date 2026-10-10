@@ -1117,7 +1117,6 @@ auto-update:
   risky-hint: "제외하려면 컨테이너에 {label} 라벨을 붙이세요."
   empty: "스스로 업데이트되는 컨테이너가 없습니다. 추가하려면 컨테이너에 {label} 라벨을 붙이세요."
 inspect:
-  title: "검사"
   overview: "개요"
   ports: "포트"
   mounts: "마운트"
