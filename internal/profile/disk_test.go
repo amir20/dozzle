@@ -24,12 +24,13 @@ func TestSettingsRoundTrip(t *testing.T) {
 	assert.Equal(t, float64(16), got["terminalFontSize"])
 }
 
-func TestSettingsOmitsUnsetShowAppIcons(t *testing.T) {
+func TestSettingsOmitsUnsetFields(t *testing.T) {
 	out, err := json.Marshal(Settings{})
 	require.NoError(t, err)
 
 	var got map[string]any
 	require.NoError(t, json.Unmarshal(out, &got))
 	assert.NotContains(t, got, "showAppIcons")
+	assert.NotContains(t, got, "showImageUpdateAlert")
 	assert.NotContains(t, got, "terminalFontSize")
 }
