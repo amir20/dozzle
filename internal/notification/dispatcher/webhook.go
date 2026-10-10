@@ -173,12 +173,8 @@ func NewWebhookDispatcher(name, rawURL, templateStr string, headers map[string]s
 	if err := checkEnvRefs(append(headerValues, rawURL)...); err != nil {
 		return nil, err
 	}
-	if !envRef.MatchString(rawURL) {
-		if err := validateWebhookURL(rawURL); err != nil {
-			return nil, err
-		}
-	} else if expanded, err := expandEnv(rawURL); err == nil {
-		if err := validateWebhookURL(expanded); err != nil {
+	if expanded, err := expandEnv(rawURL); err == nil {
+		if err := validateWebhookURL(rawURL, expanded); err != nil {
 			return nil, err
 		}
 	}
@@ -210,7 +206,22 @@ func NewWebhookDispatcher(name, rawURL, templateStr string, headers map[string]s
 	return w, nil
 }
 
-func validateWebhookURL(raw string) error {
+// validateWebhookURL checks expanded, the URL after ${VAR} expansion. When raw
+// had a placeholder the error says nothing about the input: url.Parse quotes it,
+// and the error is returned to whoever edits webhooks, which would hand them the
+// variable's value.
+func validateWebhookURL(raw, expanded string) error {
+	if raw != expanded {
+		parsed, err := url.Parse(expanded)
+		if err != nil {
+			return errors.New("invalid webhook URL after expanding environment variables")
+		}
+		if scheme := strings.ToLower(parsed.Scheme); scheme != "http" && scheme != "https" {
+			return errors.New("invalid webhook URL scheme after expanding environment variables: only http and https are allowed")
+		}
+		return nil
+	}
+
 	parsed, err := url.Parse(raw)
 	if err != nil {
 		return fmt.Errorf("invalid webhook URL: %w", err)
@@ -258,7 +269,7 @@ func (w *WebhookDispatcher) SendTest(ctx context.Context, notification types.Not
 	if err != nil {
 		return TestResult{Success: false, Error: fmt.Sprintf("invalid webhook URL: %v", err)}
 	}
-	if err := validateWebhookURL(target); err != nil {
+	if err := validateWebhookURL(w.URL, target); err != nil {
 		return TestResult{Success: false, Error: err.Error()}
 	}
 

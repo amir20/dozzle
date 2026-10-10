@@ -100,3 +100,30 @@ func TestExpandEnv_LeavesBareDollarAlone(t *testing.T) {
 	require.NoError(t, err)
 	assert.Equal(t, "https://example.com/$FOO?x=bar", out)
 }
+
+func TestExpandedURLErrorsDoNotLeakValue(t *testing.T) {
+	cases := map[string]string{
+		"http://[${HOOK_SECRET}":  "hunter2",
+		"${HOOK_SECRET}":          "tok3n:abc",
+		"http://x:${HOOK_SECRET}": "notaport",
+	}
+	for raw, value := range cases {
+		t.Setenv("HOOK_SECRET", value)
+
+		_, err := NewWebhookDispatcher("t", raw, "", nil)
+		require.Error(t, err, raw)
+		assert.NotContains(t, err.Error(), value, raw)
+		assert.NotContains(t, err.Error(), strings.SplitN(value, ":", 2)[0], raw)
+	}
+
+	// Same check at send time, when the value changes after the dispatcher was built.
+	t.Setenv("HOOK_SECRET", "example.com")
+	w, err := NewWebhookDispatcher("t", "http://[${HOOK_SECRET}", "", nil)
+	require.Error(t, err)
+	w, err = NewWebhookDispatcher("t", "https://${HOOK_SECRET}/hook", "", nil)
+	require.NoError(t, err)
+	t.Setenv("HOOK_SECRET", "[hunter2")
+	result := w.SendTest(context.Background(), newTestNotification("x"))
+	assert.False(t, result.Success)
+	assert.NotContains(t, result.Error, "hunter2")
+}
