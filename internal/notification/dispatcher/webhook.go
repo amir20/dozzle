@@ -3,6 +3,7 @@ package dispatcher
 import (
 	"bytes"
 	"context"
+	"crypto/tls"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -12,6 +13,7 @@ import (
 	"net/url"
 	"slices"
 	"strings"
+	"syscall"
 	"text/template"
 	"time"
 
@@ -293,6 +295,9 @@ func (w *WebhookDispatcher) SendTest(ctx context.Context, notification types.Not
 		if errors.Is(err, errBlockedAddress) {
 			return TestResult{Success: false, Error: errBlockedAddress.Error()}
 		}
+		if target != w.URL {
+			return TestResult{Success: false, Error: "failed to send webhook to " + w.URL + ": " + sendErrorKind(err)}
+		}
 		if urlErr, ok := errors.AsType[*url.Error](err); ok {
 			urlErr.URL = redactURL(urlErr.URL)
 		}
@@ -307,7 +312,7 @@ func (w *WebhookDispatcher) SendTest(ctx context.Context, notification types.Not
 		responseBody, _ := io.ReadAll(limitedReader)
 		log.Debug().
 			Str("webhook", w.Name).
-			Str("url", w.scrub(redactURL(target))).
+			Str("url", w.logURL(target)).
 			Int("status_code", resp.StatusCode).
 			Str("payload", string(payload)).
 			Str("response_body", string(responseBody)).
@@ -320,6 +325,38 @@ func (w *WebhookDispatcher) SendTest(ctx context.Context, notification types.Not
 	}
 
 	return TestResult{Success: true, StatusCode: resp.StatusCode}
+}
+
+// logURL is the URL safe to log: the placeholder as written when the URL came
+// from the environment, otherwise scheme and host.
+func (w *WebhookDispatcher) logURL(target string) string {
+	if target != w.URL {
+		return w.URL
+	}
+	return w.scrub(redactURL(target))
+}
+
+// sendErrorKind describes a failed request without quoting it. It is used when
+// the URL came from the environment: the error text names the host, and a value
+// containing "/", "@" or %XX escapes can put any part of it there, so nothing
+// from the error itself is safe to return.
+func sendErrorKind(err error) string {
+	if _, ok := errors.AsType[*net.DNSError](err); ok {
+		return "could not resolve host"
+	}
+	if errors.Is(err, context.DeadlineExceeded) {
+		return "request timed out"
+	}
+	if netErr, ok := errors.AsType[net.Error](err); ok && netErr.Timeout() {
+		return "request timed out"
+	}
+	if errors.Is(err, syscall.ECONNREFUSED) {
+		return "connection refused"
+	}
+	if _, ok := errors.AsType[*tls.CertificateVerificationError](err); ok {
+		return "TLS certificate verification failed"
+	}
+	return "request failed"
 }
 
 // scrub removes the values of variables referenced in the URL and headers from msg.

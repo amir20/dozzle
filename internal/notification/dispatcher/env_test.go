@@ -135,3 +135,24 @@ func TestSendTest_ScrubsEnvValueFromHostErrors(t *testing.T) {
 	assert.False(t, result.Success)
 	assert.NotContains(t, result.Error, "hunter2")
 }
+
+func TestSendTest_EnvURLErrorsNameNoPartOfValue(t *testing.T) {
+	for _, value := range []string{
+		"hunter2.invalid/rest-of-token",
+		"user:pw@hunter2.invalid",
+		"%68unter2.invalid",
+	} {
+		t.Setenv("HOOK_SECRET", value)
+		w, err := NewWebhookDispatcher("t", "http://${HOOK_SECRET}", "", nil)
+		if err != nil {
+			// Rejected up front (url.Parse refuses %68 in a host); the message must not leak either.
+			assert.NotContains(t, err.Error(), "hunter2", value)
+			continue
+		}
+
+		result := w.SendTest(context.Background(), newTestNotification("x"))
+		assert.False(t, result.Success)
+		assert.NotContains(t, result.Error, "hunter2", value)
+		assert.Contains(t, result.Error, "${HOOK_SECRET}", value)
+	}
+}
