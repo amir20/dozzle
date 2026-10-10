@@ -70,8 +70,9 @@ import stripAnsi from "strip-ansi";
 import { Container } from "@/models/Container";
 import { LogEntry, SimpleLogEntry, ComplexLogEntry, GroupedLogEntry, JSONObject } from "@/models/LogEntry";
 import { toViewLogLine } from "@/composable/logs/viewContext";
-import LogDetails from "./LogDetails.vue";
-import AlertForm from "@/components/notifications/AlertForm.vue";
+// Both only ever open in the drawer, so they load when it does.
+const LogDetails = defineAsyncComponent(() => import("./LogDetails.vue"));
+const AlertForm = defineAsyncComponent(() => import("@/components/notifications/AlertForm.vue"));
 
 const { logEntry, container } = defineProps<{
   logEntry: LogEntry<string | JSONObject>;

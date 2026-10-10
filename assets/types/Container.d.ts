@@ -9,6 +9,11 @@ export interface ContainerStat {
   readonly diskWriteTotal: number;
 }
 
+// The stats history as one array per field, oldest first. memoryUsage and the four
+// totals are delta-encoded: the first value is absolute and each one after it is the
+// difference from the previous. See statColumns in internal/container/types.go.
+export type StatColumns = { readonly [K in Exclude<keyof ContainerStat, "id">]: number[] };
+
 export interface ContainerMount {
   readonly type: string;
   readonly source: string;
@@ -47,8 +52,7 @@ export type ContainerJson = {
   readonly cpuLimit: number;
   readonly memoryLimit: number;
   readonly labels: Record<string, string>;
-  // history points carry no id; the server drops it since the container already keys them
-  readonly stats: Omit<ContainerStat, "id">[];
+  readonly stats?: StatColumns;
   readonly mounts?: ContainerMount[];
   readonly ports?: string[];
   readonly mountStats?: Record<string, MountStat>;

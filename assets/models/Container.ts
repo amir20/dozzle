@@ -5,6 +5,7 @@ import type {
   ContainerStat,
   ContainerState,
   MountStat,
+  StatColumns,
   VolumeUsage,
 } from "@/types/Container";
 import { Ref, ShallowRef } from "vue";
@@ -20,6 +21,18 @@ export const emptyStat = (): Stat => ({
   diskReadTotal: 0,
   diskWriteTotal: 0,
 });
+
+const DELTA_ENCODED = ["memoryUsage", "networkRxTotal", "networkTxTotal", "diskReadTotal", "diskWriteTotal"] as const;
+
+// Turns the columnar history the server sends back into one Stat per point.
+export function decodeStats(columns: StatColumns | undefined): Stat[] {
+  if (!columns) return [];
+  const sums = Object.fromEntries(DELTA_ENCODED.map((k) => [k, 0])) as Record<(typeof DELTA_ENCODED)[number], number>;
+  return columns.cpu.map((cpu, i) => {
+    for (const k of DELTA_ENCODED) sums[k] += columns[k][i];
+    return { cpu, memory: columns.memory[i], ...sums };
+  });
+}
 
 // The live hosts map, not config.hosts: that is the list the page loaded with, and an
 // agent added since then would have no name to show.
@@ -362,7 +375,7 @@ export class Container {
       c.state,
       c.cpuLimit,
       c.memoryLimit,
-      c.stats ?? [],
+      decodeStats(c.stats),
       c.group,
       c.health,
       false,

@@ -934,5 +934,11 @@ func (h *handler) getReleases(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	writeJSON(w, http.StatusOK, result)
+	// The notes are rendered HTML, around 100 KB, and compress about tenfold.
+	w.Header().Set("Content-Type", "application/json")
+	writer, done := compressedWriter(w, r)
+	defer done()
+	if err := json.NewEncoder(writer).Encode(result); err != nil {
+		log.Error().Err(err).Msg("error encoding releases")
+	}
 }

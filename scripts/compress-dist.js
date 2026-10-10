@@ -5,7 +5,7 @@
 // smaller and free at request time. The uncompressed copies are removed rather
 // than kept alongside, so the embedded FS (and the binary) shrinks instead of
 // doubling; internal/web/index.go serves the `.br` sibling and inflates it for
-// the rare client that does not send `Accept-Encoding: br`.
+// a client that does not send `Accept-Encoding: br` (re-encoded as gzip when it can).
 //
 // index.html and .vite/manifest.json are left alone: Go reads and parses both.
 import { constants, brotliCompressSync } from "node:zlib";

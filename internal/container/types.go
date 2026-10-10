@@ -155,6 +155,83 @@ func appendFloat(b []byte, v float64, decimals int) []byte {
 	return strconv.AppendFloat(b, v, 'f', -1, 64)
 }
 
+// MarshalJSON swaps the stats history for its columnar form; every other field is
+// encoded as the struct tags say.
+func (c Container) MarshalJSON() ([]byte, error) {
+	type plain Container
+	var stats *statColumns
+	if c.Stats != nil {
+		stats = &statColumns{c.Stats.Data()}
+	}
+	return json.Marshal(struct {
+		plain
+		Stats *statColumns `json:"stats,omitempty"`
+	}{plain(c), stats})
+}
+
+// statColumns writes a stats history as one array per field instead of one object per
+// point. The first containers-changed event of a stream carries all 300 points for every
+// container, and as objects the keys and the cumulative byte counters were most of it:
+// counters run to ten digits and barely move between samples. Every point is still sent.
+// Integer series (memoryUsage and the four totals) are delta-encoded: the first value is
+// absolute and each one after it is the difference from the previous, so a reader sums
+// as it goes. A counter that resets (a restart) just gives a negative delta.
+type statColumns struct{ points []ContainerStat }
+
+func (s statColumns) MarshalJSON() ([]byte, error) {
+	data := s.points
+
+	b := make([]byte, 0, 32*len(data)+128)
+	b = append(b, `{"cpu":`...)
+	b = appendColumn(b, data, func(b []byte, _, cur ContainerStat) []byte { return appendFloat(b, cur.CPUPercent, 2) })
+	b = append(b, `,"memory":`...)
+	b = appendColumn(b, data, func(b []byte, _, cur ContainerStat) []byte { return appendFloat(b, cur.MemoryPercent, 2) })
+	b = append(b, `,"memoryUsage":`...)
+	b = appendColumn(b, data, func(b []byte, prev, cur ContainerStat) []byte {
+		return strconv.AppendInt(b, roundedInt(cur.MemoryUsage)-roundedInt(prev.MemoryUsage), 10)
+	})
+	b = append(b, `,"networkRxTotal":`...)
+	b = appendColumn(b, data, func(b []byte, prev, cur ContainerStat) []byte {
+		return strconv.AppendInt(b, int64(cur.NetworkRxTotal-prev.NetworkRxTotal), 10)
+	})
+	b = append(b, `,"networkTxTotal":`...)
+	b = appendColumn(b, data, func(b []byte, prev, cur ContainerStat) []byte {
+		return strconv.AppendInt(b, int64(cur.NetworkTxTotal-prev.NetworkTxTotal), 10)
+	})
+	b = append(b, `,"diskReadTotal":`...)
+	b = appendColumn(b, data, func(b []byte, prev, cur ContainerStat) []byte {
+		return strconv.AppendInt(b, int64(cur.DiskReadTotal-prev.DiskReadTotal), 10)
+	})
+	b = append(b, `,"diskWriteTotal":`...)
+	b = appendColumn(b, data, func(b []byte, prev, cur ContainerStat) []byte {
+		return strconv.AppendInt(b, int64(cur.DiskWriteTotal-prev.DiskWriteTotal), 10)
+	})
+	b = append(b, '}')
+	return b, nil
+}
+
+// appendColumn writes one field of every point as a JSON array. The first point is
+// paired with a zero stat, so a delta-encoded column starts with its absolute value.
+func appendColumn(b []byte, data []ContainerStat, write func(b []byte, prev, cur ContainerStat) []byte) []byte {
+	b = append(b, '[')
+	var prev ContainerStat
+	for i, cur := range data {
+		if i > 0 {
+			b = append(b, ',')
+		}
+		b = write(b, prev, cur)
+		prev = cur
+	}
+	return append(b, ']')
+}
+
+func roundedInt(v float64) int64 {
+	if math.IsNaN(v) || math.IsInf(v, 0) {
+		return 0
+	}
+	return int64(math.Round(v))
+}
+
 // ContainerEvent represents events that are triggered
 type ContainerEvent struct {
 	Name            string            `json:"name"`
