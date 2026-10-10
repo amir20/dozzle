@@ -145,7 +145,7 @@ func selfCheckHandler(mode imagecheck.Mode) http.Handler {
 func TestCheckSelfUpdate_ReportsTheImageCheck(t *testing.T) {
 	setupTestEnv(t, true)
 	selfUpdateInspect = func(context.Context, HostService, string) (selfImage, error) {
-		return selfImage{Ref: "amir20/dozzle:master", RepoDigests: []string{"amir20/dozzle@sha256:old"}}, nil
+		return selfImage{Ref: "amir20/dozzle:main", RepoDigests: []string{"amir20/dozzle@sha256:old"}}, nil
 	}
 	calls := stubSelfUpdateCheck(t, imagecheck.Result{Status: imagecheck.StatusUpdateAvailable, RemoteDigest: "sha256:new"})
 
@@ -155,7 +155,7 @@ func TestCheckSelfUpdate_ReportsTheImageCheck(t *testing.T) {
 	var result imagecheck.Result
 	require.NoError(t, json.Unmarshal(rr.Body.Bytes(), &result))
 	assert.Equal(t, imagecheck.StatusUpdateAvailable, result.Status)
-	assert.Equal(t, "amir20/dozzle:master", result.Image)
+	assert.Equal(t, "amir20/dozzle:main", result.Image)
 	assert.Equal(t, 1, *calls)
 }
 

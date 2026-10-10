@@ -1,6 +1,6 @@
 ---
 title: Analíticas anónimas
-sourceHash: 0fedd8c524b8
+sourceHash: 6581eaa120ce
 ---
 
 # Recopilación de datos analíticos
@@ -11,7 +11,7 @@ Dozzle recopila datos de uso anónimos mediante una baliza ligera para ayudar a 
 
 A grandes rasgos, la baliza incluye cosas como la versión de Dozzle, el modo de despliegue (server, swarm, k8s, agent), qué proveedor de autenticación está activo, algunos indicadores de funciones, la versión del motor de Docker y unos pocos recuentos (número de hosts, contenedores, filtros). También se incluye un identificador aleatorio por instalación para eliminar duplicados.
 
-Nunca se transmite el contenido de los logs, ni nombres de contenedores, ni nombres de imágenes, ni direcciones IP, ni identificadores de usuario. El conjunto exacto de campos va cambiando con el tiempo. La fuente autoritativa es [`types/beacon.go`](https://github.com/amir20/dozzle/blob/master/types/beacon.go), y quien los envía es [`internal/analytics/http_beacon.go`](https://github.com/amir20/dozzle/blob/master/internal/analytics/http_beacon.go).
+Nunca se transmite el contenido de los logs, ni nombres de contenedores, ni nombres de imágenes, ni direcciones IP, ni identificadores de usuario. El conjunto exacto de campos va cambiando con el tiempo. La fuente autoritativa es [`types/beacon.go`](https://github.com/amir20/dozzle/blob/main/types/beacon.go), y quien los envía es [`internal/analytics/http_beacon.go`](https://github.com/amir20/dozzle/blob/main/internal/analytics/http_beacon.go).
 
 ## Dónde se almacenan los datos
 

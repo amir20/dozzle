@@ -18,7 +18,7 @@ var (
 	markdownRenderer = html.New()
 
 	// releaseVersion matches a version Dozzle was released under, e.g. v11.1.0
-	// or v11.1.0-beta.1. A dev build (master-<sha>, pr-123-<sha>, local) does not.
+	// or v11.1.0-beta.1. A dev build (main-<sha>, pr-123-<sha>, local) does not.
 	releaseVersion = regexp.MustCompile(`^v?\d+\.\d+\.\d+([-+].*)?$`)
 )
 
@@ -101,7 +101,7 @@ func Fetch(currentVersion string) ([]Release, error) {
 	}
 
 	// Latest means "newer than what you run", which only has an answer on the
-	// release line. A dev build (master-<sha>, a PR image, a local build) sits
+	// release line. A dev build (main-<sha>, a PR image, a local build) sits
 	// off it and matches no tag, so every release would otherwise read as an
 	// update waiting to be installed. The notes still list, they just stop
 	// claiming that.

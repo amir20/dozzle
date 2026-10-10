@@ -75,7 +75,7 @@ func TestAutoUpdate_SwarmPrimaryOnManagerUpdates(t *testing.T) {
 	rec := stubAutoUpdate(t, imagecheck.StatusUpdateAvailable)
 	writeSchedule(t, "daily", "03:00")
 	selfUpdateInspect = func(context.Context, HostService, string) (selfImage, error) {
-		return selfImage{Ref: "amir20/dozzle:master", Swarm: true, ServiceID: "svc"}, nil
+		return selfImage{Ref: "amir20/dozzle:main", Swarm: true, ServiceID: "svc"}, nil
 	}
 
 	newTestScheduler(serverActions).tick(context.Background(), at(14, "03:00"))

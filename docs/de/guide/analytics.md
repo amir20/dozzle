@@ -1,6 +1,6 @@
 ---
 title: Anonyme Analysedaten
-sourceHash: 0fedd8c524b8
+sourceHash: 6581eaa120ce
 ---
 
 # Erhebung von Analysedaten
@@ -11,7 +11,7 @@ Dozzle erhebt über einen schlanken Beacon anonyme Nutzungsdaten, um Funktionen 
 
 Grob gesagt enthält der Beacon Dinge wie die Dozzle-Version, den Betriebsmodus (server, swarm, k8s, agent), den aktivierten Auth-Provider, einige Feature-Flags, die Version der Docker Engine und kleine Zählwerte (Anzahl der Hosts, Container, Filter). Zur Deduplizierung wird eine zufällige ID pro Installation mitgeschickt.
 
-Log-Inhalte, Container-Namen, Image-Namen, IP-Adressen oder Nutzerkennungen werden niemals übertragen. Welche Felder genau enthalten sind, ändert sich mit der Zeit. Maßgeblich sind [`types/beacon.go`](https://github.com/amir20/dozzle/blob/master/types/beacon.go) und der Sender in [`internal/analytics/http_beacon.go`](https://github.com/amir20/dozzle/blob/master/internal/analytics/http_beacon.go).
+Log-Inhalte, Container-Namen, Image-Namen, IP-Adressen oder Nutzerkennungen werden niemals übertragen. Welche Felder genau enthalten sind, ändert sich mit der Zeit. Maßgeblich sind [`types/beacon.go`](https://github.com/amir20/dozzle/blob/main/types/beacon.go) und der Sender in [`internal/analytics/http_beacon.go`](https://github.com/amir20/dozzle/blob/main/internal/analytics/http_beacon.go).
 
 ## Wo werden die Daten gespeichert
 

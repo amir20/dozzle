@@ -14,7 +14,7 @@ import (
 
 // checkSelfUpdate reports what updating Dozzle would actually pull: the same
 // check the scheduler makes, against the tag this container follows. Release
-// tags say nothing here. A container on amir20/dozzle:master is offered
+// tags say nothing here. A container on amir20/dozzle:main is offered
 // whatever that tag now points at, not the newest release.
 func (h *handler) checkSelfUpdate(w http.ResponseWriter, r *http.Request) {
 	support := checkAutoUpdateSupport(r.Context(), h.config, h.hostService)
