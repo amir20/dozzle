@@ -70,20 +70,7 @@
         <span v-if="host.metricsAvailable" :title="loadTitle">
           {{ $t("label.load") }} <span class="font-mono" :class="loadClass">{{ loadLabel }}</span>
         </span>
-        <!-- UsageMeter's track and thresholds, inline: the component is a labelled
-             block sized for a panel row, too tall for a header fact. The fill stays
-             neutral below 70% so the bar only takes color when disk needs a look. -->
-        <span v-if="diskPercent !== undefined" class="flex items-center gap-1.5" :title="diskTitle">
-          {{ $t("label.disk") }}
-          <span class="bg-base-content/10 h-1.5 w-10 overflow-hidden rounded-full">
-            <span
-              class="block h-full rounded-full transition-[width] duration-500"
-              :class="diskPercent > 90 ? 'bg-error' : diskPercent > 70 ? 'bg-warning' : 'bg-base-content/40'"
-              :style="{ width: `${Math.min(diskPercent, 100)}%` }"
-            ></span>
-          </span>
-          <span class="text-base-content/80 font-mono">{{ diskPercent }}%</span>
-        </span>
+        <HostDisks v-if="drives.length" :drives="drives" />
         <HostReclaimable v-if="host.reclaimable" :reclaimable="host.reclaimable" />
       </div>
     </div>
@@ -303,7 +290,7 @@ const loadClass = computed(() => {
 const uptimeLabel = computed(() => (props.host.metricsAvailable ? formatUptime(props.host.uptime) : undefined));
 
 // Docker's own disk first, then any drive mounted under /host/disks. The bar shows
-// the fullest one, since that is the one that will run out; the tooltip lists all.
+// the fullest one, since that is the one that will run out; the popover lists all.
 const drives = computed(() => {
   const list = (props.host.disks ?? []).map(({ name, total, free }) => ({ name, total, used: total - free }));
   const total = props.host.diskTotal ?? 0;
