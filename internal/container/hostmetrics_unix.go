@@ -75,15 +75,21 @@ func hostProcRoot() (string, bool) {
 
 // diskPaths lists where disk usage is read from, in order. statfs only needs some
 // path on the filesystem that holds the engine's data, not the data itself, so in
-// a container /data stands in when the data directory is not mounted: a named
-// volume lives under the data directory, and a bind mount is usually on the same
-// disk. A native install has no such stand-in, since its /data is unrelated.
-func diskPaths(dockerRootDir string, containerized bool) []string {
+// a container /etc/hostname stands in when the data directory is not mounted:
+// Docker bind mounts it from <data root>/containers/<id>/hostname, so it is on
+// Docker's disk whatever the operator mounted at /data. Podman mounts it from its
+// run root instead, usually a tmpfs under /run, so it is only trusted on Docker.
+// /data is the last resort; a bind mount there can sit on another disk. A native
+// install has no such stand-in, since its /etc/hostname and /data are unrelated.
+func diskPaths(dockerRootDir string, containerized, docker bool) []string {
 	var paths []string
 	if dockerRootDir != "" {
 		paths = append(paths, dockerRootDir)
 	}
 	if containerized {
+		if docker {
+			paths = append(paths, "/etc/hostname")
+		}
 		paths = append(paths, "/data")
 	}
 	return paths
@@ -93,10 +99,11 @@ func diskPaths(dockerRootDir string, containerized bool) []string {
 // diskPaths that statfs accepts, the same way volume_monitor.go measures volume
 // sources. Load and uptime come from the host /proc, so ok is false when it is
 // not mounted; the caller must not present container values as host values.
-// Disk is filled independently of that mount.
-func ReadHostMetrics(dockerRootDir string) (HostMetrics, bool) {
+// Disk is filled independently of that mount. docker is false for Podman, whose
+// /etc/hostname is not on its data disk.
+func ReadHostMetrics(dockerRootDir string, docker bool) (HostMetrics, bool) {
 	var m HostMetrics
-	for _, path := range diskPaths(dockerRootDir, inContainer()) {
+	for _, path := range diskPaths(dockerRootDir, inContainer(), docker) {
 		if total, free, err := statfs(path); err == nil {
 			m.DiskTotal, m.DiskFree = total, free
 			break

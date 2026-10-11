@@ -42,7 +42,7 @@ volumes:
 
 :::
 
-Disk needs no extra mount. Dozzle measures the filesystem behind its own `/data`, which sits on Docker's disk whether `/data` is a named volume, as above, or not mounted at all. If you bind mount a host folder there instead (`./data:/data`), the read-out describes the disk that folder lives on, which is usually the same one.
+Disk needs no extra mount. Docker keeps every container's `/etc/hostname` in its own data directory, so Dozzle measures the filesystem behind that file and gets Docker's disk, even when `/data` is a bind mount on another disk. Podman keeps that file on a small tmpfs instead, so under Podman Dozzle measures its own `/data`: a named volume there sits on Podman's disk, while a bind mounted host folder (`./data:/data`) reports the disk that folder lives on.
 
 ## Running Dozzle natively
 

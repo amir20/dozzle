@@ -1,6 +1,6 @@
 ---
 title: Host-Metriken
-sourceHash: 5d6314385b49
+sourceHash: 91058273c335
 ---
 
 # Host-Metriken
@@ -43,7 +43,7 @@ volumes:
 
 :::
 
-Für den Datenträgerwert brauchst du keinen zusätzlichen Mount. Dozzle misst das Dateisystem hinter seinem eigenen `/data`, und das liegt auf dem Datenträger von Docker, egal ob `/data` wie oben ein benanntes Volume ist oder gar nicht eingebunden wird. Bindest du dort stattdessen einen Ordner des Hosts ein (`./data:/data`), beschreibt der Wert den Datenträger, auf dem dieser Ordner liegt. Meist ist das derselbe.
+Für den Datenträgerwert brauchst du keinen zusätzlichen Mount. Docker legt die `/etc/hostname` jedes Containers in seinem eigenen Datenverzeichnis ab. Dozzle misst also das Dateisystem hinter dieser Datei und erhält so den Datenträger von Docker, auch wenn `/data` ein Bind-Mount auf einem anderen Datenträger ist. Podman legt diese Datei dagegen auf ein kleines tmpfs, deshalb misst Dozzle unter Podman sein eigenes `/data`: Ein benanntes Volume dort liegt auf dem Datenträger von Podman, ein eingebundener Ordner des Hosts (`./data:/data`) zeigt dagegen den Datenträger, auf dem dieser Ordner liegt.
 
 ## Dozzle nativ betreiben
 

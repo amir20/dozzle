@@ -1,6 +1,6 @@
 ---
 title: Métricas del host
-sourceHash: 5d6314385b49
+sourceHash: 91058273c335
 ---
 
 # Métricas del host
@@ -43,7 +43,7 @@ volumes:
 
 :::
 
-El disco no necesita ningún montaje adicional. Dozzle mide el sistema de archivos que hay detrás de su propio `/data`, que está en el disco de Docker tanto si `/data` es un volumen con nombre, como arriba, como si no está montado. Si en su lugar montas ahí una carpeta del host (`./data:/data`), la lectura describe el disco en el que está esa carpeta, que normalmente es el mismo.
+El disco no necesita ningún montaje adicional. Docker guarda el `/etc/hostname` de cada contenedor en su propio directorio de datos, así que Dozzle mide el sistema de archivos que hay detrás de ese archivo y obtiene el disco de Docker, aunque `/data` sea un montaje enlazado en otro disco. Podman, en cambio, guarda ese archivo en un tmpfs pequeño, así que con Podman Dozzle mide su propio `/data`: un volumen con nombre ahí está en el disco de Podman, mientras que una carpeta del host montada (`./data:/data`) muestra el disco en el que está esa carpeta.
 
 ## Ejecutar Dozzle de forma nativa
 
