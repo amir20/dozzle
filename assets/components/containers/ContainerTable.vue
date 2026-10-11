@@ -129,12 +129,12 @@
                   :state="container.state"
                   :health="container.health"
                   :slug="container.icon"
-                  class="size-6 max-md:mt-0.5"
+                  class="size-6"
                 />
                 <div class="min-w-0 flex-1">
-                  <div class="flex items-baseline gap-2">
+                  <div class="flex items-center gap-2 max-md:h-6">
                     <router-link
-                      class="min-w-0 flex-1 truncate font-medium"
+                      class="min-w-0 flex-1 truncate font-medium max-md:text-base"
                       :to="{ name: '/container/[id]', params: { id: container.id } }"
                       :title="container.name"
                     >
