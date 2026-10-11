@@ -11,10 +11,11 @@ test("has right title", async ({ page }) => {
 });
 
 test("shows the labeled remote host", async ({ page }) => {
-  // The host column on the dashboard, rather than a bare getByText: the label also
+  // The host card's name on the dashboard, rather than a bare getByText: the label also
   // appears in the sidebar and the merge link, and which of them exist depends on
-  // whether containers have loaded yet.
-  await expect(page.getByRole("cell", { name: "remote-host" }).first()).toBeVisible();
+  // whether containers have loaded yet. Not the table's host column, which only shows
+  // with more than one host.
+  await expect(page.getByRole("button", { name: "remote-host", exact: true }).first()).toBeVisible();
 });
 
 test("select running container", async ({ page }) => {
