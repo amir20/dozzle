@@ -85,8 +85,6 @@
 </template>
 
 <script lang="ts" setup>
-import { useCompactOnScroll } from "@/composable/ui/compactOnScroll";
-
 defineEmits<{ search: [] }>();
 
 const route = useRoute();

@@ -8,6 +8,7 @@
 // biome-ignore lint: disable
 export {}
 declare global {
+  const COMPACT_OFFSET_PX: typeof import('./composable/ui/compactOnScroll').COMPACT_OFFSET_PX
   const DEFAULT_MENU_WIDTH: typeof import('./stores/settings').DEFAULT_MENU_WIDTH
   const DEFAULT_SETTINGS: typeof import('./stores/settings').DEFAULT_SETTINGS
   const DEFAULT_UPDATE_CONTAINERS_MODE: typeof import('./composable/containers/updatePolicy').DEFAULT_UPDATE_CONTAINERS_MODE
@@ -22,6 +23,7 @@ declare global {
   const PREFERENCE_PAGES: typeof import('./composable/app/settingsPages').PREFERENCE_PAGES
   const RAIL_WIDTH: typeof import('./composable/cloud/cloudRail').RAIL_WIDTH
   const RELATIVE_SPANS: typeof import('./composable/logs/timeRange').RELATIVE_SPANS
+  const SCROLL_JITTER_PX: typeof import('./composable/ui/compactOnScroll').SCROLL_JITTER_PX
   const SERVER_PAGES: typeof import('./composable/app/settingsPages').SERVER_PAGES
   const SETTINGS_PAGE_IDS: typeof import('./composable/app/settingsPages').SETTINGS_PAGE_IDS
   const SETUP_RESUME_KEY: typeof import('./composable/setup/setup').SETUP_RESUME_KEY
@@ -180,6 +182,7 @@ declare global {
   const narrowedLevels: typeof import('./composable/logs/viewContext').narrowedLevels
   const newerThanOnScreen: typeof import('./composable/logs/logWindow').newerThanOnScreen
   const newestOnScreen: typeof import('./composable/logs/logWindow').newestOnScreen
+  const nextCompact: typeof import('./composable/ui/compactOnScroll').nextCompact
   const nextTick: typeof import('vue').nextTick
   const notOnScreen: typeof import('./composable/logs/logWindow').notOnScreen
   const onActivated: typeof import('vue').onActivated
@@ -355,6 +358,7 @@ declare global {
   const useCloudWelcome: typeof import('./composable/cloud/cloudWelcome').useCloudWelcome
   const useColorMode: typeof import('@vueuse/core').useColorMode
   const useCommands: typeof import('./composable/app/commands').useCommands
+  const useCompactOnScroll: typeof import('./composable/ui/compactOnScroll').useCompactOnScroll
   const useConfirmDialog: typeof import('@vueuse/core').useConfirmDialog
   const useContainerActions: typeof import('./composable/containers/containerActions').useContainerActions
   const useContainerStore: typeof import('./stores/container').useContainerStore
@@ -675,6 +679,9 @@ declare global {
   export type { SetupError, SetupStepId, SetupStepState, AutoUpdateMode, AutoUpdateReason, SetupAutoUpdate, SetupAgent, SetupAgentCert, SetupStatus, SetupNextResult, SetupStepHandle, SetupCloudFacts, SetupPendingChange, SetupErrorCode } from './composable/setup/setup'
   import('./composable/setup/setup')
   // @ts-ignore
+  export type { ScrollSample } from './composable/ui/compactOnScroll'
+  import('./composable/ui/compactOnScroll')
+  // @ts-ignore
   export type { PopoverPlacement } from './composable/ui/popover'
   import('./composable/ui/popover')
   // @ts-ignore
@@ -696,6 +703,7 @@ import { UnwrapRef } from 'vue'
 declare module 'vue' {
   interface GlobalComponents {}
   interface ComponentCustomProperties {
+    readonly COMPACT_OFFSET_PX: UnwrapRef<typeof import('./composable/ui/compactOnScroll')['COMPACT_OFFSET_PX']>
     readonly DEFAULT_SETTINGS: UnwrapRef<typeof import('./stores/settings')['DEFAULT_SETTINGS']>
     readonly DEFAULT_UPDATE_CONTAINERS_MODE: UnwrapRef<typeof import('./composable/containers/updatePolicy')['DEFAULT_UPDATE_CONTAINERS_MODE']>
     readonly EffectScope: UnwrapRef<typeof import('vue')['EffectScope']>
@@ -708,6 +716,7 @@ declare module 'vue' {
     readonly PREFERENCE_PAGES: UnwrapRef<typeof import('./composable/app/settingsPages')['PREFERENCE_PAGES']>
     readonly RAIL_WIDTH: UnwrapRef<typeof import('./composable/cloud/cloudRail')['RAIL_WIDTH']>
     readonly RELATIVE_SPANS: UnwrapRef<typeof import('./composable/logs/timeRange')['RELATIVE_SPANS']>
+    readonly SCROLL_JITTER_PX: UnwrapRef<typeof import('./composable/ui/compactOnScroll')['SCROLL_JITTER_PX']>
     readonly SERVER_PAGES: UnwrapRef<typeof import('./composable/app/settingsPages')['SERVER_PAGES']>
     readonly SETTINGS_PAGE_IDS: UnwrapRef<typeof import('./composable/app/settingsPages')['SETTINGS_PAGE_IDS']>
     readonly SETUP_RESUME_KEY: UnwrapRef<typeof import('./composable/setup/setup')['SETUP_RESUME_KEY']>
@@ -864,6 +873,7 @@ declare module 'vue' {
     readonly narrowedLevels: UnwrapRef<typeof import('./composable/logs/viewContext')['narrowedLevels']>
     readonly newerThanOnScreen: UnwrapRef<typeof import('./composable/logs/logWindow')['newerThanOnScreen']>
     readonly newestOnScreen: UnwrapRef<typeof import('./composable/logs/logWindow')['newestOnScreen']>
+    readonly nextCompact: UnwrapRef<typeof import('./composable/ui/compactOnScroll')['nextCompact']>
     readonly nextTick: UnwrapRef<typeof import('vue')['nextTick']>
     readonly notOnScreen: UnwrapRef<typeof import('./composable/logs/logWindow')['notOnScreen']>
     readonly onActivated: UnwrapRef<typeof import('vue')['onActivated']>
@@ -1034,6 +1044,7 @@ declare module 'vue' {
     readonly useCloudWelcome: UnwrapRef<typeof import('./composable/cloud/cloudWelcome')['useCloudWelcome']>
     readonly useColorMode: UnwrapRef<typeof import('@vueuse/core')['useColorMode']>
     readonly useCommands: UnwrapRef<typeof import('./composable/app/commands')['useCommands']>
+    readonly useCompactOnScroll: UnwrapRef<typeof import('./composable/ui/compactOnScroll')['useCompactOnScroll']>
     readonly useConfirmDialog: UnwrapRef<typeof import('@vueuse/core')['useConfirmDialog']>
     readonly useContainerActions: UnwrapRef<typeof import('./composable/containers/containerActions')['useContainerActions']>
     readonly useContainerStore: UnwrapRef<typeof import('./stores/container')['useContainerStore']>
