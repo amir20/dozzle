@@ -116,9 +116,9 @@
     "ts-node": "^10.9.2",
     "typescript": "npm:typescript-native-bridge@6.0.3-bridge.18.tsgo.7.0.2",
     "vitest": "^5.0.3",
-    "vue-component-type-helpers": "3.3.12",
+    "vue-component-type-helpers": "3.3.13",
     "vue-eslint-parser": "^10.4.1",
-    "vue-tsc": "3.3.12",
+    "vue-tsc": "3.3.13",
     "yaml": "^2.9.1"
   },
   "simple-git-hooks": {
