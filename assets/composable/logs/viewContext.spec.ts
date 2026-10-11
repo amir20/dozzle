@@ -95,4 +95,17 @@ describe("toViewLogLines", () => {
     const [line] = toViewLogLines([grouped], false);
     expect(line.message).toBe('bad query: b\' UPDATE "stock_picking" SET\nsee https://example.com/x & retry');
   });
+
+  test("keeps the indentation of a traceback", () => {
+    const grouped = new GroupedLogEntry(
+      ["Traceback:", "    File &#34;x.py&#34;, line 1", "\tat com.Foo.bar()"],
+      "abc",
+      1,
+      at(1),
+      "error",
+      "stderr",
+    );
+    const [line] = toViewLogLines([grouped], false);
+    expect(line.message).toBe('Traceback:\n    File "x.py", line 1\n\tat com.Foo.bar()');
+  });
 });
