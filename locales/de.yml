@@ -122,6 +122,7 @@ label:
   cpu: CPU
   core: Keine Kerne | 1 Kern | {count} Kerne
   disk: Datenträger
+  network: Netzwerk
   reclaimable: Freigebbar
   unused-images: "Ungenutzte Images"
   unused-volumes: "Ungenutzte Volumes"

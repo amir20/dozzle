@@ -122,6 +122,7 @@ label:
   cpu: CPU
   core: 코어 없음 | 코어 1개 | 코어 {count}개
   disk: 디스크
+  network: 네트워크
   reclaimable: 회수 가능
   unused-images: "사용하지 않는 이미지"
   unused-volumes: "사용하지 않는 볼륨"

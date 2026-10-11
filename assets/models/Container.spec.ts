@@ -1,6 +1,6 @@
 import { describe, expect, test, vi } from "vitest";
 import { computed, isReactive, reactive } from "vue";
-import { Container, decodeStats, emptyStat, type Stat } from "./Container";
+import { Container, decodeStats, emptyStat, networkRate, type Stat } from "./Container";
 import { useHosts, type Host } from "@/stores/hosts";
 
 vi.mock("@/stores/config", () => ({
@@ -481,5 +481,36 @@ describe("decodeStats", () => {
 
   test("a container without history decodes to none", () => {
     expect(decodeStats(undefined)).toEqual([]);
+  });
+});
+
+describe("networkRate", () => {
+  test("is undefined until two real samples exist", () => {
+    const c = makeContainer();
+    expect(networkRate(c)).toBeUndefined();
+    c.updateStat(makeStat({ networkRxTotal: 100 }));
+    expect(networkRate(c)).toBeUndefined();
+  });
+
+  test("is the difference between the last two samples", () => {
+    const c = makeContainer();
+    c.updateStat(makeStat({ networkRxTotal: 100, networkTxTotal: 50 }));
+    c.updateStat(makeStat({ networkRxTotal: 1124, networkTxTotal: 60 }));
+    expect(networkRate(c)).toEqual({ rx: 1024, tx: 10 });
+  });
+
+  test("never goes negative when a counter resets", () => {
+    const c = makeContainer();
+    c.updateStat(makeStat({ networkRxTotal: 500 }));
+    c.updateStat(makeStat({ networkRxTotal: 0 }));
+    expect(networkRate(c)).toEqual({ rx: 0, tx: 0 });
+  });
+
+  test("is undefined for a stopped container", () => {
+    const c = makeContainer();
+    c.updateStat(makeStat());
+    c.updateStat(makeStat({ networkRxTotal: 10 }));
+    c.state = "exited";
+    expect(networkRate(c)).toBeUndefined();
   });
 });

@@ -123,6 +123,7 @@ label:
   cpu: CPU
   core: Tidak ada inti | 1 inti | {count} inti
   disk: Disk
+  network: Jaringan
   reclaimable: Dapat dibebaskan
   unused-images: "Image tidak terpakai"
   unused-volumes: "Volume tidak terpakai"

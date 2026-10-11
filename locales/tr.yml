@@ -122,6 +122,7 @@ label:
   cpu: CPU
   core: Çekirdek yok | 1 çekirdek | {count} çekirdek
   disk: Disk
+  network: Ağ
   reclaimable: Geri kazanılabilir
   unused-images: "Kullanılmayan imajlar"
   unused-volumes: "Kullanılmayan birimler"

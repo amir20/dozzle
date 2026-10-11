@@ -51,6 +51,20 @@ export const isStopped = (container: { state: ContainerState }) =>
   container.state === "created";
 
 /**
+ * Bytes per sample between the last two real samples, which at the collectors' one
+ * second cadence is bytes per second. Undefined until there are two to compare, or
+ * once the container stops reporting.
+ */
+export const networkRate = (container: Container): { rx: number; tx: number } | undefined => {
+  if (isStopped(container) || container.sampledStats < 2) return undefined;
+  const [prev, last] = container.statsHistory.slice(-2);
+  return {
+    rx: Math.max(0, last.networkRxTotal - prev.networkRxTotal),
+    tx: Math.max(0, last.networkTxTotal - prev.networkTxTotal),
+  };
+};
+
+/**
  * Which of start and stop the container takes. Docker refuses to start a paused
  * container but stops one fine, and a deleted one takes neither.
  */

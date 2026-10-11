@@ -122,6 +122,7 @@ label:
   cpu: CPU
   core: Ingen kerner | 1 kerne | {count} kerner
   disk: Disk
+  network: Netværk
   reclaimable: Kan frigøres
   unused-images: "Ubrugte images"
   unused-volumes: "Ubrugte volumes"

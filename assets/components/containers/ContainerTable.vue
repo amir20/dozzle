@@ -85,9 +85,6 @@
               <td v-if="isVisible('host')">
                 <div class="bg-base-content/50 h-3 w-20 rounded-full opacity-50"></div>
               </td>
-              <td v-if="isVisible('state')">
-                <div class="bg-base-content/50 h-3 w-16 rounded-full opacity-50"></div>
-              </td>
               <td v-if="isVisible('created')">
                 <div class="bg-base-content/50 h-3 w-24 rounded-full opacity-50"></div>
               </td>
@@ -97,7 +94,10 @@
               <td v-if="isVisible('mem')">
                 <div class="bg-base-content/50 h-3 w-full rounded-full opacity-50"></div>
               </td>
-              <td v-if="isVisible('disk')">
+              <td v-if="isVisible('net')" class="max-xl:hidden">
+                <div class="bg-base-content/50 h-3 w-16 rounded-full opacity-50"></div>
+              </td>
+              <td v-if="isVisible('disk')" class="max-xl:hidden">
                 <div class="bg-base-content/50 h-3 w-12 rounded-full opacity-50"></div>
               </td>
             </tr>
@@ -177,12 +177,6 @@
               </div>
             </td>
             <td v-if="isVisible('host')" class="text-base-content/70">{{ container.hostLabel }}</td>
-            <td v-if="isVisible('state')">
-              <span class="inline-flex items-center gap-1.5">
-                <span class="size-1.5 shrink-0 rounded-full" :class="statusDot(container)"></span>
-                {{ container.health ?? container.state }}
-              </span>
-            </td>
             <td v-if="isVisible('created')" class="text-base-content/70">
               <RelativeTime :date="container.created" />
             </td>
@@ -192,9 +186,12 @@
             <td v-if="isVisible('mem')">
               <ContainerStatCell :container="container" type="mem" :host="hosts[container.host]" :mode="statMode" />
             </td>
+            <td v-if="isVisible('net')" class="max-xl:hidden">
+              <ContainerNetCell :container="container" />
+            </td>
             <td
               v-if="isVisible('disk')"
-              class="text-base-content/70 font-mono whitespace-nowrap"
+              class="text-base-content/70 font-mono whitespace-nowrap max-xl:hidden"
               :title="diskBreakdown(container)"
             >
               <template v-if="container.diskTotal !== undefined">{{
@@ -240,12 +237,13 @@
 </template>
 
 <script setup lang="ts">
-import { Container } from "@/models/Container";
+import { Container, networkRate } from "@/models/Container";
 import { showAppIcons } from "@/stores/settings";
 import { toRefs } from "@vueuse/core";
 
 const { t } = useI18n();
 const { hosts } = useHosts();
+const multiHost = computed(() => Object.keys(hosts.value).length > 1);
 const selectedHost = ref(null);
 // Same gate as the dashboard's updates button: without actions there is
 // nothing a mark on the row could lead to.
@@ -260,6 +258,8 @@ const fields: Record<
     sortFunc: (a: Container, b: Container) => number;
     mobileVisible: boolean;
     customClass?: string;
+    // sortable from the dropdown, but no column: the icon's dot already shows it
+    sortOnly?: boolean;
   }
 > = {
   name: {
@@ -280,7 +280,7 @@ const fields: Record<
     sortFunc: (a: Container, b: Container) =>
       (a.health ?? a.state).localeCompare(b.health ?? b.state) * direction.value,
     mobileVisible: false,
-    customClass: "w-1",
+    sortOnly: true,
   },
   created: {
     label: "label.created",
@@ -303,13 +303,25 @@ const fields: Record<
     mobileVisible: false,
     customClass: "min-w-48 max-md:min-w-0",
   },
+  net: {
+    label: "label.network",
+    sortFunc: (a: Container, b: Container) => (netTotal(a) - netTotal(b)) * direction.value,
+    mobileVisible: false,
+    customClass: "w-1 max-xl:hidden",
+  },
   disk: {
     label: "label.disk",
     // not measured yet sorts below an empty layer
     sortFunc: (a: Container, b: Container) => ((a.diskTotal ?? -1) - (b.diskTotal ?? -1)) * direction.value,
     mobileVisible: false,
-    customClass: "w-1",
+    customClass: "w-1 max-xl:hidden",
   },
+};
+
+// stopped or not yet measured sorts below an idle container
+const netTotal = (container: Container) => {
+  const rate = networkRate(container);
+  return rate ? rate.rx + rate.tx : -1;
 };
 
 const { containers } = defineProps<{
@@ -352,8 +364,8 @@ const paginated = computed(() => {
 
 const sortOptions = computed(() =>
   Object.entries(fields)
-    .filter(([key]) => key !== "host" || Object.keys(hosts.value).length > 1)
-    .filter(([key]) => key !== "disk" || config.mode !== "k8s")
+    .filter(([key]) => key !== "host" || multiHost.value)
+    .filter(([key]) => (key !== "disk" && key !== "net") || config.mode !== "k8s")
     .map(([key, value]) => ({ label: t(value.mobileLabel ?? value.label), value: key })),
 );
 
@@ -379,13 +391,6 @@ function diskBreakdown(container: Container) {
   return lines.join("\n");
 }
 
-function statusDot(container: Container) {
-  if (container.health === "unhealthy") return "bg-error";
-  if (container.health === "starting") return "bg-warning";
-  if (container.state === "running") return "bg-success";
-  return "bg-base-content/30";
-}
-
 function sort(field: keys) {
   if (sortField.value === field) {
     direction.value *= -1;
@@ -395,8 +400,11 @@ function sort(field: keys) {
   }
 }
 function isVisible(field: keys) {
-  // k8s has no writable-layer size to report
-  if (field === "disk" && config.mode === "k8s") return false;
+  if (fields[field].sortOnly) return false;
+  // one host means every row would say the same thing
+  if (field === "host" && !multiHost.value) return false;
+  // k8s has no writable-layer size to report, and its metrics API no network counters
+  if ((field === "disk" || field === "net") && config.mode === "k8s") return false;
   return fields[field].mobileVisible || !isMobile.value;
 }
 </script>

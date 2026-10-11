@@ -137,6 +137,7 @@ label:
   cpu: CPU
   core: 無核心 | 1 個核心 | {count} 個核心
   disk: 磁碟
+  network: 網路
   reclaimable: 可回收
   unused-images: "未使用的映像"
   unused-volumes: "未使用的磁碟區"

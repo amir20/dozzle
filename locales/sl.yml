@@ -136,6 +136,7 @@ label:
   cpu: CPU
   core: Ni jeder | 1 jedro | {count} jeder
   disk: Disk
+  network: Omrežje
   reclaimable: Za sprostitev
   unused-images: "Neuporabljene slike"
   unused-volumes: "Neuporabljeni nosilci"

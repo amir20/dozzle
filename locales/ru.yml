@@ -122,6 +122,7 @@ label:
   cpu: CPU
   core: Нет ядер | 1 ядро | {count} ядер
   disk: Диск
+  network: Сеть
   reclaimable: Можно освободить
   unused-images: "Неиспользуемые образы"
   unused-volumes: "Неиспользуемые тома"
