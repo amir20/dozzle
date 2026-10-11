@@ -121,7 +121,7 @@ Cleanup only runs after the update has gone through and the old container is gon
 
 Containers on [remote agents](/guide/agent) are cleaned up the same way, and so is Dozzle's own container: the [self-update](/guide/setup-wizard#self-update) helper removes the image before the previous one once the new Dozzle has stayed up. Swarm services, including Dozzle running as one, are not cleaned up, since each node keeps its own images and Swarm prunes its own task history.
 
-## Rolling back {#rolling-back}
+## Rolling back <CloudBadge /> {#rolling-back}
 
 Rolling an update back is a [Dozzle Cloud](/guide/dozzle-cloud) feature. Dozzle Cloud watches each update the schedule makes and, when the new version starts failing, offers to roll it back. Dozzle then swaps the container back to the image it ran before, the one its `dev.dozzle.previous-image` label names, the same way an update swaps it: the current container is kept until the previous image has stayed up, and is put back if it does not. Settings and volumes stay as they are. Nothing is pulled, so if the previous image is no longer on the host the rollback fails and the container is left alone.
 
@@ -131,4 +131,6 @@ Rollback works for standalone containers, including containers on [remote agents
 
 ## Updates in the log view
 
-When Dozzle updates a container, on the schedule, from the Dozzle UI or from Dozzle Cloud, the logs of the new container start with a marker that names the image it moved from and to and what started the update. A rollback and an update that was undone are marked too. With Dozzle Cloud linked, the marker also shows what Dozzle Cloud made of the update, with a link to it there. Dozzle keeps its recent updates in memory, so the marker is gone after Dozzle restarts.
+When Dozzle updates a container, on the schedule, from the Dozzle UI or from Dozzle Cloud, the logs of the new container start with a marker that names the image it moved from and to and what started the update. An update that was undone is marked too. Dozzle keeps its recent updates in memory, so the marker is gone after Dozzle restarts.
+
+<CloudBadge /> With Dozzle Cloud linked, the marker also shows what Dozzle Cloud made of the update, with a link to it there. Rollbacks are marked as well, and the markers of scheduled updates and rollbacks come back after a restart.

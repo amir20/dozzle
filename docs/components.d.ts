@@ -12,6 +12,7 @@ export {}
 declare module 'vue' {
   export interface GlobalComponents {
     BuyMeCoffee: typeof import('./.vitepress/theme/components/BuyMeCoffee.vue')['default']
+    CloudBadge: typeof import('./.vitepress/theme/components/CloudBadge.vue')['default']
     Counter: typeof import('./.vitepress/theme/components/Counter.vue')['default']
     FinalCta: typeof import('./.vitepress/theme/components/FinalCta.vue')['default']
     HeroAnnouncement: typeof import('./.vitepress/theme/components/HeroAnnouncement.vue')['default']

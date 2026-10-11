@@ -1,6 +1,6 @@
 ---
 title: Container-Updates
-sourceHash: a35cd1ae0876
+sourceHash: b9d784191b46
 ---
 
 # Container-Updates
@@ -122,7 +122,7 @@ Aufgeräumt wird erst, wenn das Update durch ist und der alte Container entfernt
 
 Container auf [Remote-Agents](/de/guide/agent) werden genauso aufgeräumt, ebenso der eigene Container von Dozzle: Der Hilfscontainer des [Selbst-Updates](/de/guide/setup-wizard#self-update) entfernt das Image vor dem vorherigen, sobald das neue Dozzle stabil läuft. Swarm-Services, auch ein als Swarm-Service laufendes Dozzle, werden nicht aufgeräumt, da jeder Node seine eigenen Images hat und Swarm seinen Task-Verlauf selbst bereinigt.
 
-## Zurückrollen {#rolling-back}
+## Zurückrollen <CloudBadge /> {#rolling-back}
 
 Ein Update zurückzurollen ist eine Funktion von [Dozzle Cloud](/de/guide/dozzle-cloud). Dozzle Cloud beobachtet jedes Update aus dem Zeitplan und bietet an, es zurückzurollen, wenn die neue Version Fehler zeigt. Dozzle tauscht den Container dann zurück auf das Image, das er vorher lief und das sein Label `dev.dozzle.previous-image` nennt, genauso wie bei einem Update: Der aktuelle Container bleibt erhalten, bis das vorherige Image stabil läuft, und kommt zurück, wenn nicht. Einstellungen und Volumes bleiben, wie sie sind. Es wird nichts heruntergeladen: Liegt das vorherige Image nicht mehr auf dem Host, schlägt das Zurückrollen fehl und der Container bleibt unverändert.
 
@@ -132,4 +132,6 @@ Zurückrollen funktioniert für eigenständige Container, auch auf [Remote-Agent
 
 ## Updates in der Log-Ansicht
 
-Aktualisiert Dozzle einen Container, nach Zeitplan, aus der Dozzle-Oberfläche oder aus Dozzle Cloud, beginnen die Logs des neuen Containers mit einer Markierung. Sie nennt das Image vorher und nachher und wer das Update gestartet hat. Auch ein Zurückrollen und ein rückgängig gemachtes Update werden markiert. Ist Dozzle Cloud verbunden, zeigt die Markierung außerdem, wie Dozzle Cloud das Update einschätzt, mit einem Link dorthin. Dozzle hält seine letzten Updates im Speicher, nach einem Neustart von Dozzle ist die Markierung also weg.
+Aktualisiert Dozzle einen Container, nach Zeitplan, aus der Dozzle-Oberfläche oder aus Dozzle Cloud, beginnen die Logs des neuen Containers mit einer Markierung. Sie nennt das Image vorher und nachher und wer das Update gestartet hat. Auch ein rückgängig gemachtes Update wird markiert. Dozzle hält seine letzten Updates im Speicher, nach einem Neustart von Dozzle ist die Markierung also weg.
+
+<CloudBadge /> Ist Dozzle Cloud verbunden, zeigt die Markierung außerdem, wie Dozzle Cloud das Update einschätzt, mit einem Link dorthin. Auch ein Zurückrollen wird markiert, und die Markierungen von Updates aus dem Zeitplan und von Zurückrollungen kommen nach einem Neustart wieder.

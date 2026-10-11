@@ -98,7 +98,7 @@ The placeholder is what Dozzle saves and shows. The value is read when a notific
 
 Only the `${VAR}` form is expanded; a bare `$VAR` is left as is. Variables starting with `DOZZLE_`, `AWS_`, `GOOGLE_`, `AZURE_`, `KUBERNETES_` or `DOCKER_` are refused, since anyone who can edit a webhook decides where it posts. Any other variable in Dozzle's environment can be read this way, so don't keep unrelated secrets there.
 
-### Dozzle Cloud
+### Dozzle Cloud <CloudBadge />
 
 Linked instances get **Dozzle Cloud** as a destination automatically. Unlike a raw webhook it groups repeated failures into a single notification, summarizes what happened, and fans out to email, Telegram, Discord, Slack, ntfy, and browser push without configuring each one here. See [Dozzle Cloud](/guide/dozzle-cloud).
 

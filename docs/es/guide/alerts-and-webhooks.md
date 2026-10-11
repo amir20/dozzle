@@ -1,6 +1,6 @@
 ---
 title: Alertas
-sourceHash: 45b8d8fa144a
+sourceHash: 5e7e00f70c1f
 ---
 
 # Alertas
@@ -99,7 +99,7 @@ Dozzle guarda y muestra el marcador tal cual. El valor se lee al enviar una noti
 
 Solo se expande la forma `${VAR}`; un `$VAR` suelto se deja igual. Se rechazan las variables que empiezan por `DOZZLE_`, `AWS_`, `GOOGLE_`, `AZURE_`, `KUBERNETES_` o `DOCKER_`, porque quien puede editar un webhook decide a dónde envía. Cualquier otra variable del entorno de Dozzle se puede leer así, así que no guardes ahí secretos que no tengan relación.
 
-### Dozzle Cloud
+### Dozzle Cloud <CloudBadge />
 
 Las instancias vinculadas obtienen **Dozzle Cloud** como destino automáticamente. A diferencia de un webhook simple, agrupa los fallos repetidos en una sola notificación, resume lo que ha pasado y reparte a correo, Telegram, Discord, Slack, ntfy y notificaciones del navegador sin configurar cada uno aquí. Consulta [Dozzle Cloud](/es/guide/dozzle-cloud).
 
