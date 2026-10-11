@@ -23,6 +23,12 @@ describe("iconSlugForImage", () => {
     ["openrct2/openrct2-cli:develop", "openrct2"],
     ["thetorproject/snowflake-proxy:latest", "tor"],
     ["thetorproject/webtunnel-bridge:latest", "tor"],
+    ["public.ecr.aws/zinclabs/openobserve:latest", "open-observe"],
+    ["instantlinux/nut-upsd:latest", "nut"],
+    ["cglatot/pasta:latest", "pastatool"],
+    ["cr.fluentbit.io/fluent/fluent-bit:3.2", "fluent-bit"],
+    ["ghcr.io/browserless/chromium:latest", "browserless"],
+    ["ghcr.io/jokob-sk/netalertx:latest", "netalertx"],
   ])("resolves %s", (image, slug) => {
     expect(iconSlugForImage(image)).toBe(slug);
   });

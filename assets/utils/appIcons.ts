@@ -146,6 +146,9 @@ const ALIASES: Record<string, string> = {
   "apprise-api": "apprise",
   thetorproject: "tor",
   openlitespeed: "litespeed",
+  openobserve: "open-observe",
+  "nut-upsd": "nut",
+  pasta: "pastatool",
 };
 
 const stripSuffix = (name: string) => {
