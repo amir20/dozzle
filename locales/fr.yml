@@ -122,6 +122,7 @@ label:
   cpu: CPU
   core: Aucun cœur | 1 cœur | {count} cœurs
   disk: Disque
+  network: Réseau
   reclaimable: Récupérable
   unused-images: "Images inutilisées"
   unused-volumes: "Volumes inutilisés"

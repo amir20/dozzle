@@ -122,6 +122,7 @@ label:
   cpu: CPU
   core: Brak rdzeni | 1 rdzeń | {count} rdzeni
   disk: Dysk
+  network: Sieć
   reclaimable: Do odzyskania
   unused-images: "Nieużywane obrazy"
   unused-volumes: "Nieużywane wolumeny"

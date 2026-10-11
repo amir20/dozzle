@@ -123,6 +123,7 @@ label:
   core: No cores | 1 core | {count} cores
   mem: MEM
   disk: Disk
+  network: Network
   reclaimable: Reclaimable
   unused-images: "Unused images"
   unused-volumes: "Unused volumes"
