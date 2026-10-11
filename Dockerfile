@@ -4,7 +4,7 @@
 #
 # No node in this stage. `bun run build` runs vite and compress-dist.js on the
 # bun runtime (see the --bun flags in package.json).
-FROM --platform=$BUILDPLATFORM oven/bun:1.4.2-alpine AS assets
+FROM --platform=$BUILDPLATFORM oven/bun:1.4.3-alpine AS assets
 
 ENV CI=true
 
