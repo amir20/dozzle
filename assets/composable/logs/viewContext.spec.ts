@@ -1,7 +1,7 @@
 /** @vitest-environment jsdom */
 import { describe, expect, test } from "vitest";
 import { narrowedLevels, routeKind, toViewLogLines } from "./viewContext";
-import { SimpleLogEntry, SkippedLogsEntry, type Level } from "@/models/LogEntry";
+import { GroupedLogEntry, SimpleLogEntry, SkippedLogsEntry, type Level } from "@/models/LogEntry";
 
 describe("routeKind", () => {
   test("names the shape of the page, not the route", () => {
@@ -78,5 +78,34 @@ describe("toViewLogLines", () => {
   test("strips the colour the terminal put there", () => {
     const [line] = toViewLogLines([simple(1, "\u001b[31mred\u001b[0m")], false);
     expect(line.message).toBe("red");
+  });
+
+  test("sends a grouped entry as text, not the HTML the viewer renders", () => {
+    const grouped = new GroupedLogEntry(
+      [
+        "bad query: b&#39; UPDATE &#34;stock_picking&#34; <mark>SET</mark>",
+        'see <a href="https://example.com/x" target="_blank" rel="noopener noreferrer external">https://example.com/x</a> &amp; retry',
+      ],
+      "abc",
+      1,
+      at(1),
+      "error",
+      "stderr",
+    );
+    const [line] = toViewLogLines([grouped], false);
+    expect(line.message).toBe('bad query: b\' UPDATE "stock_picking" SET\nsee https://example.com/x & retry');
+  });
+
+  test("keeps the indentation of a traceback", () => {
+    const grouped = new GroupedLogEntry(
+      ["Traceback:", "    File &#34;x.py&#34;, line 1", "\tat com.Foo.bar()"],
+      "abc",
+      1,
+      at(1),
+      "error",
+      "stderr",
+    );
+    const [line] = toViewLogLines([grouped], false);
+    expect(line.message).toBe('Traceback:\n    File "x.py", line 1\n\tat com.Foo.bar()');
   });
 });

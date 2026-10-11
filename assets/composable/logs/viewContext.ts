@@ -63,8 +63,20 @@ const MAX_LINES = 150;
 const MAX_LINE_CHARS = 2000;
 const MAX_TOTAL_CHARS = 120_000;
 
+/** A grouped entry has no raw text: its fragments arrive as the HTML the server
+ * rendered for the viewer (escaped, URLs as anchors, search hits in <mark>).
+ * The assistant should read the log, not the markup, so decode it back. The
+ * parser starts in body mode because a full document drops leading whitespace
+ * into <head>, which would flatten an indented traceback. */
+function htmlToText(html: string): string {
+  return new DOMParser().parseFromString("<body>" + html, "text/html").body.textContent ?? "";
+}
+
 export function toViewLogLine(entry: LogEntry<LogMessage>, withContainer = false): ViewLogLine {
-  const text = entry instanceof GroupedLogEntry ? entry.message.join("\n") : entry.rawMessage || String(entry.message);
+  const text =
+    entry instanceof GroupedLogEntry
+      ? entry.message.map(htmlToText).join("\n")
+      : entry.rawMessage || String(entry.message);
   const message = stripAnsi(text);
 
   return {
