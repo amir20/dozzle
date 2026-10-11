@@ -1,6 +1,6 @@
 ---
 title: Mises à jour des conteneurs
-sourceHash: a35cd1ae0876
+sourceHash: b9d784191b46
 ---
 
 # Mises à jour des conteneurs
@@ -122,7 +122,7 @@ Le nettoyage n'a lieu qu'une fois la mise à jour aboutie et l'ancien conteneur 
 
 Les conteneurs sur des [agents distants](/fr/guide/agent) sont nettoyés de la même façon, tout comme le propre conteneur de Dozzle : le conteneur auxiliaire de la [mise à jour automatique](/fr/guide/setup-wizard#self-update) supprime l'image d'avant la précédente une fois que le nouveau Dozzle reste en marche. Les services Swarm, y compris Dozzle lorsqu'il tourne comme service Swarm, ne sont pas nettoyés, car chaque nœud garde ses propres images et Swarm élague lui-même son historique de tâches.
 
-## Restaurer la version précédente {#rolling-back}
+## Restaurer la version précédente <CloudBadge /> {#rolling-back}
 
 Annuler une mise à jour est une fonctionnalité de [Dozzle Cloud](/fr/guide/dozzle-cloud). Dozzle Cloud surveille chaque mise à jour faite par le planning et, quand la nouvelle version commence à échouer, propose de revenir en arrière. Dozzle remet alors le conteneur sur l'image qu'il exécutait avant, celle que nomme son label `dev.dozzle.previous-image`, de la même façon qu'une mise à jour : le conteneur actuel est conservé jusqu'à ce que l'image précédente reste en marche, et remis en place sinon. Les réglages et les volumes ne changent pas. Rien n'est téléchargé : si l'image précédente n'est plus sur l'hôte, la restauration échoue et le conteneur reste tel quel.
 
@@ -132,4 +132,6 @@ La restauration fonctionne pour les conteneurs autonomes, y compris ceux des [ag
 
 ## Les mises à jour dans les logs
 
-Quand Dozzle met à jour un conteneur, selon le planning, depuis l'interface de Dozzle ou depuis Dozzle Cloud, les logs du nouveau conteneur commencent par un repère qui indique l'image de départ et d'arrivée et ce qui a lancé la mise à jour. Une restauration et une mise à jour annulée sont aussi repérées. Avec Dozzle Cloud relié, le repère montre aussi l'avis de Dozzle Cloud sur la mise à jour, avec un lien vers celle-ci. Dozzle garde ses mises à jour récentes en mémoire, donc le repère disparaît après un redémarrage de Dozzle.
+Quand Dozzle met à jour un conteneur, selon le planning, depuis l'interface de Dozzle ou depuis Dozzle Cloud, les logs du nouveau conteneur commencent par un repère qui indique l'image de départ et d'arrivée et ce qui a lancé la mise à jour. Une mise à jour annulée est aussi repérée. Dozzle garde ses mises à jour récentes en mémoire, donc le repère disparaît après un redémarrage de Dozzle.
+
+<CloudBadge /> Avec Dozzle Cloud relié, le repère montre aussi l'avis de Dozzle Cloud sur la mise à jour, avec un lien vers celle-ci. Les restaurations sont aussi repérées, et les repères des mises à jour planifiées et des restaurations reviennent après un redémarrage.

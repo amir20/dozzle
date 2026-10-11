@@ -1,6 +1,6 @@
 ---
 title: Actualizaciones de contenedores
-sourceHash: a35cd1ae0876
+sourceHash: b9d784191b46
 ---
 
 # Actualizaciones de contenedores
@@ -122,7 +122,7 @@ La limpieza solo se hace cuando la actualización se ha completado y el contened
 
 Los contenedores en [agentes remotos](/es/guide/agent) se limpian de la misma forma, y también el propio contenedor de Dozzle: el contenedor auxiliar de la [autoactualización](/es/guide/setup-wizard#self-update) elimina la imagen anterior a la previa en cuanto el nuevo Dozzle sigue en marcha. Los servicios de Swarm, incluido Dozzle cuando se ejecuta como uno, no se limpian, porque cada nodo guarda sus propias imágenes y Swarm poda su propio historial de tareas.
 
-## Revertir una actualización {#rolling-back}
+## Revertir una actualización <CloudBadge /> {#rolling-back}
 
 Revertir una actualización es una función de [Dozzle Cloud](/es/guide/dozzle-cloud). Dozzle Cloud vigila cada actualización que hace la programación y, cuando la nueva versión empieza a fallar, ofrece revertirla. Dozzle vuelve entonces a poner el contenedor en la imagen que ejecutaba antes, la que indica su etiqueta `dev.dozzle.previous-image`, igual que en una actualización: el contenedor actual se conserva hasta que la imagen anterior se mantiene en marcha, y vuelve a ponerse si no. La configuración y los volúmenes no cambian. No se descarga nada: si la imagen anterior ya no está en el host, la reversión falla y el contenedor queda como estaba.
 
@@ -132,4 +132,6 @@ La reversión funciona con contenedores independientes, también los de [agentes
 
 ## Actualizaciones en la vista de logs
 
-Cuando Dozzle actualiza un contenedor, según la programación, desde la interfaz de Dozzle o desde Dozzle Cloud, los logs del contenedor nuevo empiezan con una marca que indica la imagen de origen y de destino y qué inició la actualización. También se marcan una reversión y una actualización deshecha. Con Dozzle Cloud vinculado, la marca muestra además lo que Dozzle Cloud opina de la actualización, con un enlace a ella. Dozzle guarda sus actualizaciones recientes en memoria, así que la marca desaparece cuando Dozzle se reinicia.
+Cuando Dozzle actualiza un contenedor, según la programación, desde la interfaz de Dozzle o desde Dozzle Cloud, los logs del contenedor nuevo empiezan con una marca que indica la imagen de origen y de destino y qué inició la actualización. También se marca una actualización deshecha. Dozzle guarda sus actualizaciones recientes en memoria, así que la marca desaparece cuando Dozzle se reinicia.
+
+<CloudBadge /> Con Dozzle Cloud vinculado, la marca muestra además lo que Dozzle Cloud opina de la actualización, con un enlace a ella. También se marcan las reversiones, y las marcas de las actualizaciones programadas y de las reversiones vuelven después de un reinicio.

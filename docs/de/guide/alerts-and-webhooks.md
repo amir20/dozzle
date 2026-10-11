@@ -1,6 +1,6 @@
 ---
 title: Alarme
-sourceHash: 45b8d8fa144a
+sourceHash: 5e7e00f70c1f
 ---
 
 # Alarme
@@ -99,7 +99,7 @@ Dozzle speichert und zeigt den Platzhalter. Der Wert wird erst beim Senden einer
 
 Nur die Form `${VAR}` wird ersetzt, ein einfaches `$VAR` bleibt unverändert. Variablen, die mit `DOZZLE_`, `AWS_`, `GOOGLE_`, `AZURE_`, `KUBERNETES_` oder `DOCKER_` beginnen, werden abgelehnt, denn wer einen Webhook bearbeiten darf, bestimmt auch, wohin er sendet. Jede andere Variable in der Umgebung von Dozzle lässt sich so auslesen, bewahre dort also keine fremden Geheimnisse auf.
 
-### Dozzle Cloud
+### Dozzle Cloud <CloudBadge />
 
 Verbundene Instanzen bekommen **Dozzle Cloud** automatisch als Ziel. Anders als ein reiner Webhook bündelt es wiederkehrende Fehler zu einer einzigen Benachrichtigung, fasst zusammen was passiert ist, und verteilt an E-Mail, Telegram, Discord, Slack, ntfy und Browser-Push, ohne dass du jeden Kanal hier einrichten musst. Siehe [Dozzle Cloud](/de/guide/dozzle-cloud).
 

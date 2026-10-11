@@ -1,6 +1,6 @@
 ---
 title: 容器更新
-sourceHash: a35cd1ae0876
+sourceHash: b9d784191b46
 ---
 
 # 容器更新
@@ -122,7 +122,7 @@ Dozzle 会保留容器之前运行的镜像，以便还能回退到它，并删�
 
 [远程代理](/zh/guide/agent) 上的容器也以同样方式清理，Dozzle 自身的容器也是如此：新的 Dozzle 稳定运行后，[自更新](/zh/guide/setup-wizard#self-update) 的辅助容器会删除再之前的那个镜像。Swarm 服务（包括以 Swarm 服务运行的 Dozzle）不会被清理，因为每个节点保存自己的镜像，并且 Swarm 会自行清理任务历史。
 
-## 回滚 {#rolling-back}
+## 回滚 <CloudBadge /> {#rolling-back}
 
 回滚更新是 [Dozzle Cloud](/zh/guide/dozzle-cloud) 的功能。Dozzle Cloud 会关注计划所做的每次更新，当新版本开始出现故障时，会提出回滚。随后 Dozzle 会把容器换回它之前运行的镜像，也就是其 `dev.dozzle.previous-image` 标签所指的镜像，方式与更新相同：当前容器会一直保留，直到之前的镜像稳定运行；如果没有稳定运行，就把当前容器放回去。设置和卷保持不变。回滚不会拉取任何镜像，因此如果之前的镜像已不在主机上，回滚会失败，容器保持原样。
 
@@ -132,4 +132,6 @@ Dozzle 会保留容器之前运行的镜像，以便还能回退到它，并删�
 
 ## 日志视图中的更新
 
-当 Dozzle 更新一个容器时（按计划、从 Dozzle 界面或从 Dozzle Cloud），新容器的日志会以一个标记开头，写明它从哪个镜像换到哪个镜像，以及是谁发起的更新。回滚和被撤销的更新也会被标记。连接了 Dozzle Cloud 时，标记还会显示 Dozzle Cloud 对这次更新的判断，并附有前往 Dozzle Cloud 的链接。Dozzle 只在内存中保存最近的更新，因此 Dozzle 重启后标记会消失。
+当 Dozzle 更新一个容器时（按计划、从 Dozzle 界面或从 Dozzle Cloud），新容器的日志会以一个标记开头，写明它从哪个镜像换到哪个镜像，以及是谁发起的更新。被撤销的更新也会被标记。Dozzle 只在内存中保存最近的更新，因此 Dozzle 重启后标记会消失。
+
+<CloudBadge /> 连接了 Dozzle Cloud 时，标记还会显示 Dozzle Cloud 对这次更新的判断，并附有前往 Dozzle Cloud 的链接。回滚也会被标记，而且计划更新和回滚的标记在重启后会重新出现。

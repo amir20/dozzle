@@ -1,6 +1,6 @@
 ---
 title: 警报
-sourceHash: 45b8d8fa144a
+sourceHash: 5e7e00f70c1f
 ---
 
 # 警报
@@ -99,7 +99,7 @@ Dozzle 保存和显示的是占位符本身。变量的值在发送通知时才�
 
 只有 `${VAR}` 形式会被展开，单独的 `$VAR` 保持原样。以 `DOZZLE_`、`AWS_`、`GOOGLE_`、`AZURE_`、`KUBERNETES_` 或 `DOCKER_` 开头的变量会被拒绝，因为任何能编辑 Webhook 的人都能决定它发往哪里。Dozzle 环境中的其他变量都可以通过这种方式读取，所以不要在那里存放无关的密钥。
 
-### Dozzle Cloud
+### Dozzle Cloud <CloudBadge />
 
 已连接的实例会自动获得 **Dozzle Cloud** 这个目标。和原始 webhook 不同，它会把重复的故障聚合成一条通知、总结发生了什么，并分发到邮件、Telegram、Discord、Slack、ntfy 和浏览器推送，无需在这里逐个配置。详见 [Dozzle Cloud](/zh/guide/dozzle-cloud)。
 
