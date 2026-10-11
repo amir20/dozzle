@@ -45,6 +45,9 @@ export const useContainerStore = defineStore("container", () => {
   });
 
   let errorTimer: ReturnType<typeof setTimeout> | null = null;
+  // Set when the stream has been down long enough to tell the user (the same moment
+  // the toast below appears), so the logo can show it too.
+  const disconnected = ref(false);
 
   // the server heartbeats every 20s, so three misses means the connection is gone even if
   // the browser still calls it OPEN
@@ -68,6 +71,7 @@ export const useContainerStore = defineStore("container", () => {
       if (errorTimer === null && es?.readyState !== EventSource.OPEN) {
         errorTimer = setTimeout(() => {
           errorTimer = null;
+          disconnected.value = true;
           showToast(
             {
               id: "events-stream",
@@ -176,6 +180,7 @@ export const useContainerStore = defineStore("container", () => {
       if (openedBefore) trackUsage("stream.reconnect");
       openedBefore = true;
       reconnect.onOpen();
+      disconnected.value = false;
       if (errorTimer !== null) {
         clearTimeout(errorTimer);
         errorTimer = null;
@@ -294,6 +299,7 @@ export const useContainerStore = defineStore("container", () => {
     findContainerById,
     containerNames,
     ready,
+    disconnected,
   };
 });
 

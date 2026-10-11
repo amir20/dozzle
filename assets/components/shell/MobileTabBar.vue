@@ -10,8 +10,7 @@
     >
       <div class="flex min-h-0 flex-1 flex-col gap-3 p-3">
         <div class="flex shrink-0 items-center gap-2">
-          <Logo class="size-9 shrink-0" aria-hidden="true" />
-          <span class="truncate text-2xl font-light tracking-tight">Dozzle</span>
+          <BrandMark />
           <ProBadge />
         </div>
         <div class="bg-base-content/10 h-px shrink-0"></div>
@@ -20,8 +19,11 @@
     </div>
   </transition>
 
+  <!-- Scrolling down shrinks the bar out of the way and scrolling up brings it back,
+       the same as Dozzle Cloud's. Never while Browse is open, which is a full screen. -->
   <nav
-    class="fixed inset-x-3 bottom-[calc(0.75rem+env(safe-area-inset-bottom))] z-40 flex items-end gap-2"
+    class="tab-bar fixed inset-x-3 bottom-[calc(0.75rem+env(safe-area-inset-bottom))] z-40 flex items-end gap-2"
+    :class="{ compact: compact && !browsing }"
     :aria-label="$t('mobile-nav.label')"
   >
     <div class="frosted border-base-content/10 flex flex-1 rounded-full border p-1 shadow-lg">
@@ -83,12 +85,11 @@
 </template>
 
 <script lang="ts" setup>
-import Logo from "@/logo.svg";
-
 defineEmits<{ search: [] }>();
 
 const route = useRoute();
 const browsing = ref(false);
+const compact = useCompactOnScroll();
 const { unseen: unseenAlerts } = useRecentAlerts();
 
 watch(
@@ -122,6 +123,39 @@ const active = computed(() => {
   @apply max-w-full truncate;
 }
 
+/* Scaled from the bottom edge so the bar shrinks toward the home indicator. Labels fade
+ * but stay in the accessibility tree; the icon drops into the space they leave. */
+.tab-bar {
+  transform-origin: bottom center;
+  transition: scale 300ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.tab-item svg,
+.tab-item span {
+  transition-duration: 300ms;
+  transition-timing-function: cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.tab-item svg {
+  transition-property: translate;
+}
+
+.tab-item span {
+  transition-property: opacity;
+}
+
+.tab-bar.compact {
+  scale: 0.8;
+}
+
+.tab-bar.compact .tab-item svg {
+  translate: 0 6px;
+}
+
+.tab-bar.compact .tab-item span {
+  opacity: 0;
+}
+
 .tab-item.active {
   @apply bg-base-content/10 text-primary;
 }
@@ -138,7 +172,10 @@ const active = computed(() => {
 
 @media (prefers-reduced-motion: reduce) {
   .browse-enter-active,
-  .browse-leave-active {
+  .browse-leave-active,
+  .tab-bar,
+  .tab-item svg,
+  .tab-item span {
     @apply transition-none;
   }
 }

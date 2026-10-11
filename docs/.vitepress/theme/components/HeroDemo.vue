@@ -328,7 +328,7 @@ const alt = "The Dozzle interface streaming container logs in real time";
       <div class="sidebar" aria-hidden="true">
         <div class="brand">
           <img :src="logo" alt="" class="logo" />
-          <span class="wordmark">Dozzle</span>
+          <span class="wordmark">dozzle</span>
         </div>
 
         <div class="rule"></div>

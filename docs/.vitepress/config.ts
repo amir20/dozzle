@@ -103,6 +103,7 @@ export default defineConfig({
   ],
   themeConfig: {
     logo: "/logo.svg",
+    siteTitle: "dozzle",
     search: {
       provider: "local",
       options: {
