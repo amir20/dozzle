@@ -1,14 +1,11 @@
 <template>
   <div v-if="!isRunning" class="text-base-content/40 text-sm">&mdash;</div>
-  <!-- The host card's meter cell at row size: the number over a thin bar, CPU in
-       primary and memory in secondary until either needs a look. A bare number
-       said nothing about how close to the limit it was. -->
-  <div v-else-if="isMobile" class="flex min-w-0 flex-col gap-1 px-2.5 py-1.5 tabular-nums">
-    <div class="flex items-center gap-1.5">
-      <component :is="type === 'cpu' ? PhCpu : PhMemory" class="text-base-content/40 size-3.5 shrink-0" />
-      <span class="text-[13px] font-semibold">{{ mobileValue }}</span>
-    </div>
-    <div class="bg-base-content/10 h-1 overflow-hidden rounded-full">
+  <!-- The host card's meter cell at row size, laid out like the desktop cell: glyph,
+       bar, then the number in a fixed right-aligned slot, so bars and figures line up
+       from row to row instead of each value pushing its bar around. -->
+  <div v-else-if="isMobile" class="flex min-w-0 items-center gap-2 px-2.5 py-2 tabular-nums">
+    <component :is="type === 'cpu' ? PhCpu : PhMemory" class="text-base-content/40 size-3.5 shrink-0" />
+    <div class="bg-base-content/10 h-1 min-w-0 flex-1 overflow-hidden rounded-full">
       <div
         class="h-full rounded-full transition-[width] duration-500"
         :class="
@@ -23,6 +20,7 @@
         :style="{ width: `${Math.min(Math.max(averageValue, 0), 100)}%` }"
       ></div>
     </div>
+    <span class="min-w-11 text-right font-mono text-xs font-semibold">{{ mobileValue }}</span>
   </div>
   <div v-else class="flex flex-row items-center gap-2">
     <template v-if="mode === 'chart'">
