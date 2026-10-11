@@ -75,16 +75,18 @@ func hostProcRoot() (string, bool) {
 
 // diskPaths lists where disk usage is read from, in order. statfs only needs some
 // path on the filesystem that holds the engine's data, not the data itself, so in
-// a container /data stands in when the data directory is not mounted: a named
-// volume lives under the data directory, and a bind mount is usually on the same
-// disk. A native install has no such stand-in, since its /data is unrelated.
+// a container /etc/hostname stands in when the data directory is not mounted:
+// Docker bind mounts it from <data root>/containers/<id>/hostname, so it is on
+// Docker's disk whatever the operator mounted at /data. /data is the last resort
+// for runtimes that do not; a bind mount there can sit on another disk. A native
+// install has no such stand-in, since its /etc/hostname and /data are unrelated.
 func diskPaths(dockerRootDir string, containerized bool) []string {
 	var paths []string
 	if dockerRootDir != "" {
 		paths = append(paths, dockerRootDir)
 	}
 	if containerized {
-		paths = append(paths, "/data")
+		paths = append(paths, "/etc/hostname", "/data")
 	}
 	return paths
 }

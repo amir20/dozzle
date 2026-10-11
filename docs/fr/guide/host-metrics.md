@@ -1,6 +1,6 @@
 ---
 title: Métriques de l'hôte
-sourceHash: 5d6314385b49
+sourceHash: 8a5d7593ddc6
 ---
 
 # Métriques de l'hôte
@@ -43,7 +43,7 @@ volumes:
 
 :::
 
-Le disque ne demande aucun montage supplémentaire. Dozzle mesure le système de fichiers qui se trouve derrière son propre `/data`, lequel repose sur le disque de Docker, que `/data` soit un volume nommé, comme ci-dessus, ou qu'il ne soit pas monté du tout. Si vous y montez plutôt un dossier de l'hôte (`./data:/data`), l'indicateur décrit le disque sur lequel se trouve ce dossier, qui est en général le même.
+Le disque ne demande aucun montage supplémentaire. Docker range le `/etc/hostname` de chaque conteneur dans son propre répertoire de données, donc Dozzle mesure le système de fichiers derrière ce fichier et obtient le disque de Docker, même quand `/data` est un montage lié sur un autre disque.
 
 ## Dozzle en natif
 

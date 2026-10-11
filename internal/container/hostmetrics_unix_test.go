@@ -13,12 +13,12 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-// In a container /data stands in for an unmounted data directory; natively it is
-// some unrelated path and must not be read.
+// In a container /etc/hostname, then /data, stand in for an unmounted data
+// directory; natively they are unrelated paths and must not be read.
 func TestDiskPaths(t *testing.T) {
-	assert.Equal(t, []string{"/var/lib/docker", "/data"}, diskPaths("/var/lib/docker", true))
+	assert.Equal(t, []string{"/var/lib/docker", "/etc/hostname", "/data"}, diskPaths("/var/lib/docker", true))
 	assert.Equal(t, []string{"/var/lib/docker"}, diskPaths("/var/lib/docker", false))
-	assert.Equal(t, []string{"/data"}, diskPaths("", true))
+	assert.Equal(t, []string{"/etc/hostname", "/data"}, diskPaths("", true))
 	assert.Empty(t, diskPaths("", false))
 }
 
