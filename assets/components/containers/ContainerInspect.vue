@@ -25,12 +25,30 @@
 
       <section class="space-y-3">
         <h3 class="text-base-content/60 text-xs font-semibold tracking-wide uppercase">{{ $t("inspect.overview") }}</h3>
-        <dl class="border-base-content/15 bg-base-200/40 divide-base-content/10 divide-y rounded-lg border">
-          <div v-for="row in overview" :key="row.label" class="flex items-baseline gap-4 px-4 py-3">
-            <dt class="text-base-content/60 w-32 shrink-0 text-sm">{{ row.label }}</dt>
-            <dd class="min-w-0 flex-1 text-right font-mono text-xs wrap-anywhere">{{ row.value }}</dd>
-          </div>
-        </dl>
+        <!-- One panel: the short facts as a grid of label-over-value cells, then the
+             command in full. A row per fact spread eight short values across the
+             drawer's width with nothing but empty space between label and value. -->
+        <div class="border-base-content/15 bg-base-200/40 divide-base-content/10 divide-y rounded-lg border">
+          <dl class="grid grid-cols-[repeat(auto-fill,minmax(9rem,1fr))] gap-x-6 gap-y-4 p-4">
+            <div v-for="row in overview" :key="row.label" class="min-w-0">
+              <dt class="text-base-content/60 text-xs">{{ row.label }}</dt>
+              <dd
+                class="mt-1 truncate font-mono text-sm"
+                :class="{ 'text-base-content/40': row.muted }"
+                :title="row.date ? dateFormat.format(row.date) : row.value"
+              >
+                <RelativeTime v-if="row.date" :date="row.date" />
+                <template v-else>{{ row.value }}</template>
+              </dd>
+            </div>
+          </dl>
+          <dl v-if="container.command" class="space-y-2 p-4">
+            <dt class="text-base-content/60 text-xs">{{ $t("inspect.command") }}</dt>
+            <dd class="bg-base-content/5 rounded-md px-3 py-2 font-mono text-xs wrap-anywhere">
+              {{ container.command }}
+            </dd>
+          </dl>
+        </div>
       </section>
 
       <section v-if="container.ports.length" class="space-y-3">
@@ -182,31 +200,33 @@ const healthClass = computed(() =>
       : "status-pill-neutral",
 );
 
-const dateFormat = new Intl.DateTimeFormat(undefined, { dateStyle: "medium", timeStyle: "medium" });
+const dateFormat = new Intl.DateTimeFormat(undefined, { dateStyle: "medium", timeStyle: "short" });
 
 const overview = computed(() => {
-  const rows = [
-    { label: t("inspect.id"), value: container.id.slice(0, 12) },
-    { label: t("inspect.command"), value: container.command },
-    { label: t("inspect.created"), value: dateFormat.format(container.created) },
-  ];
+  const rows: { label: string; value: string; date?: Date; muted?: boolean }[] = [];
   if (container.state === "running") {
-    rows.push({ label: t("inspect.started"), value: dateFormat.format(container.startedAt) });
+    rows.push({ label: t("inspect.started"), value: "", date: container.startedAt });
   } else if (container.finishedAt.getTime() > 0) {
-    rows.push({ label: t("inspect.finished"), value: dateFormat.format(container.finishedAt) });
+    rows.push({ label: t("inspect.finished"), value: "", date: container.finishedAt });
   }
+  rows.push({ label: t("inspect.created"), value: "", date: container.created });
+  rows.push({ label: t("inspect.id"), value: container.id.slice(0, 12) });
   if (details.value?.restartPolicy)
     rows.push({ label: t("inspect.restart-policy"), value: details.value.restartPolicy });
   if (details.value?.networkMode) rows.push({ label: t("inspect.network"), value: details.value.networkMode });
+  // "Unlimited" is Docker's default, not a setting anyone chose, so it is muted to let
+  // a real limit stand out.
   rows.push({
     label: t("inspect.memory-limit"),
     value: container.memoryLimit > 0 ? formatBytes(container.memoryLimit) : t("inspect.unlimited"),
+    muted: !(container.memoryLimit > 0),
   });
   rows.push({
     label: t("inspect.cpu-limit"),
     value: container.cpuLimit > 0 ? `${container.cpuLimit}` : t("inspect.unlimited"),
+    muted: !(container.cpuLimit > 0),
   });
-  return rows.filter((row) => row.value);
+  return rows.filter((row) => row.value || row.date);
 });
 
 // Docker's `ip:host->container/proto`. A binding on every interface has no ip, so it
