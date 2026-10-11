@@ -93,7 +93,7 @@ func (d *Client) readHostMetrics() (container.HostMetrics, bool) {
 		return d.metrics, d.metricsOK
 	}
 
-	m, ok := container.ReadHostMetrics(d.info.DockerRootDir)
+	m, ok := container.ReadHostMetrics(d.info.DockerRootDir, d.host.Runtime == "docker")
 	d.metrics, d.metricsOK, d.metricsAt = m, ok, time.Now()
 	return m, ok
 }
