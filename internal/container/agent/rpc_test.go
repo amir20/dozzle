@@ -9,6 +9,7 @@ import (
 	"strings"
 	"sync"
 	"testing"
+	"testing/iotest"
 	"time"
 
 	"github.com/amir20/dozzle/internal/container"
@@ -66,6 +67,7 @@ type fakeService struct {
 	started   []container.Container
 	logs      []*container.LogEvent
 	raw       []byte
+	rawErr    error
 	histogram container.LogHistogram
 	image     imagecheck.Result
 	actionErr error
@@ -129,6 +131,9 @@ func (f *fakeService) LogsBetweenDates(_ context.Context, c container.Container,
 }
 
 func (f *fakeService) RawLogs(context.Context, container.Container, time.Time, time.Time, container.StdType) (io.ReadCloser, error) {
+	if f.rawErr != nil {
+		return io.NopCloser(io.MultiReader(bytes.NewReader(f.raw), iotest.ErrReader(f.rawErr))), nil
+	}
 	return io.NopCloser(bytes.NewReader(f.raw)), nil
 }
 
@@ -342,6 +347,38 @@ func TestStreamRawBytesOverAgent(t *testing.T) {
 	got, err := io.ReadAll(r)
 	require.NoError(t, err)
 	assert.Equal(t, raw, got)
+}
+
+func TestStreamRawBytesFailsMidStream(t *testing.T) {
+	rpc := newTestAgent(t, &fakeService{raw: []byte("partial"), rawErr: errors.New("daemon went away")}, &recordingHandler{})
+
+	r, err := rpc.StreamRawBytes(context.Background(), "abc", time.Time{}, time.Now(), container.STDALL)
+	require.NoError(t, err)
+	got, err := io.ReadAll(r)
+	assert.Equal(t, "partial", string(got))
+	assert.ErrorContains(t, err, "daemon went away", "a cut-off download must not read as complete")
+}
+
+func TestStreamRawBytesStopsOnCancel(t *testing.T) {
+	// More than a pipe write can hold, so the agent is still sending when the hub cancels.
+	rpc := newTestAgent(t, &fakeService{raw: bytes.Repeat([]byte("x"), 1<<20)}, &recordingHandler{})
+
+	ctx, cancel := context.WithCancel(context.Background())
+	r, err := rpc.StreamRawBytes(ctx, "abc", time.Time{}, time.Now(), container.STDALL)
+	require.NoError(t, err)
+	cancel()
+
+	done := make(chan error, 1)
+	go func() {
+		_, err := io.Copy(io.Discard, r)
+		done <- err
+	}()
+	select {
+	case err := <-done:
+		assert.ErrorIs(t, err, context.Canceled)
+	case <-time.After(5 * time.Second):
+		t.Fatal("download kept going after the request was cancelled")
+	}
 }
 
 func TestLogHistogramOverAgent(t *testing.T) {
