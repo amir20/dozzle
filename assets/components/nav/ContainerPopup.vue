@@ -160,28 +160,11 @@ const canStartStop = config.mode !== "k8s";
 const imageTag = computed(() => stripImageDigest(container.image));
 const shortUrl = computed(() => container.url?.replace(/^https?:\/\//, "").replace(/\/$/, ""));
 
-const { ids: streamedIds, toggle: toggleMerge } = useStreamedContainers();
+const { isStreaming, canToggle, toggleTitle, toggle: toggleMerge } = useStreamedContainers();
 
-const isMerged = computed(() => streamedIds.value.includes(container.id));
-
-// A merged stream is served by one host, so a container on another host would be
-// listed in the view and never streamed.
-const { allContainersById } = storeToRefs(useContainerStore());
-const otherHost = computed(() => {
-  if (isMerged.value) return false;
-  const streamedHost = allContainersById.value[streamedIds.value[0]]?.host;
-  return !!streamedHost && streamedHost !== container.host;
-});
-
-// Nothing to merge into from a dashboard or a group view, and removing the last
-// id would leave a merged view with no containers in it.
-const canMerge = computed(() => streamedIds.value.length > (isMerged.value ? 1 : 0) && !otherHost.value);
-
-const mergeTitle = computed(() => {
-  if (streamedIds.value.length === 0) return t("tooltip.merge-stream-hint");
-  if (otherHost.value) return t("tooltip.merge-stream-other-host");
-  return isMerged.value ? t("tooltip.unmerge-stream") : t("tooltip.merge-stream");
-});
+const isMerged = computed(() => isStreaming(container.id));
+const canMerge = computed(() => canToggle(container));
+const mergeTitle = computed(() => toggleTitle(container));
 
 const isPinnedColumn = computed(() => pinnedStore.isPinned(container));
 const togglePinnedColumn = () =>

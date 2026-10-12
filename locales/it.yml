@@ -821,6 +821,8 @@ cloud-search:
   no-matches: "Nessun container o comando corrisponde"
   nav-hint: "naviga"
   pin-shortcut: "blocca colonna"
+  merge-shortcut: "unisci allo stream"
+  unmerge-shortcut: "rimuovi dallo stream"
   search-logs-for: 'Cerca log per "{query}"'
   across-containers: "indicizzati su tutti i tuoi container"
   connect-to-enable: "Connetti Dozzle Cloud per cercare nei log"

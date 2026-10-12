@@ -352,6 +352,8 @@ cloud-search:
   no-matches: No containers or commands match
   nav-hint: navigate
   pin-shortcut: pin column
+  merge-shortcut: merge into stream
+  unmerge-shortcut: remove from stream
   search-logs-for: Search logs for "{query}"
   across-containers: indexed across all your containers
   connect-to-enable: Connect Dozzle Cloud to search logs

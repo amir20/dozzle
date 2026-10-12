@@ -821,6 +821,8 @@ cloud-search:
   no-matches: "没有匹配的容器或命令"
   nav-hint: "导航"
   pin-shortcut: "固定列"
+  merge-shortcut: "合并到日志流"
+  unmerge-shortcut: "从日志流中移除"
   search-logs-for: '搜索日志 "{query}"'
   across-containers: "已在所有容器中建立索引"
   connect-to-enable: "连接 Dozzle Cloud 以搜索日志"

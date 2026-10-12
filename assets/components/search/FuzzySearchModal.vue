@@ -17,6 +17,8 @@
         @keydown.enter.exact.prevent="onEnter"
         @keydown.shift.enter.exact.prevent="runLogSearch"
         @keydown.alt.enter.exact.prevent="onPin"
+        @keydown.meta.enter.exact.prevent="onMerge"
+        @keydown.ctrl.enter.exact.prevent="onMerge"
         v-model="query"
         :placeholder="placeholderCopy"
       />
@@ -116,10 +118,24 @@
                     </span>
                   </div>
                   <RelativeTime :date="entry.item.created" class="text-base-content/40 shrink-0 text-xs" />
+                  <!-- Only offered where it would work: something is streaming, and the
+                       container is on the same host. The sidebar popup explains the rest. -->
+                  <button
+                    v-if="entry.item.type === 'container' && canMergeItem(entry.item)"
+                    type="button"
+                    class="text-base-content/40 hover:text-secondary shrink-0"
+                    :class="{ 'text-secondary': isStreaming(entry.item.id) }"
+                    :title="mergeTitleFor(entry.item)"
+                    :aria-label="mergeTitleFor(entry.item)"
+                    :aria-pressed="isStreaming(entry.item.id)"
+                    @click.stop.prevent="mergeItem(entry.item)"
+                  >
+                    <ph:arrows-merge class="size-4" />
+                  </button>
                   <button
                     v-if="entry.item.type === 'container' && !isMobile"
                     type="button"
-                    class="text-base-content/40 hover:text-secondary shrink-0 cursor-pointer"
+                    class="text-base-content/40 hover:text-secondary shrink-0"
                     :title="$t('tooltip.pin-column')"
                     @click.stop.prevent="addColumn(entry.item)"
                   >
@@ -193,9 +209,22 @@
       <span v-if="enterHint" class="hidden items-center gap-1 sm:flex">
         <kbd class="kbd kbd-xs">↵</kbd> <span class="ml-0.5">{{ enterHint }}</span>
       </span>
-      <span v-if="selectedEntry?.kind === 'container'" class="hidden items-center gap-1 sm:flex">
+      <!-- Pin and merge only apply to a container, not to a service or stack row. -->
+      <span v-if="selectedContainerItem" class="hidden items-center gap-1 sm:flex">
         <kbd class="kbd kbd-xs">⌥</kbd><kbd class="kbd kbd-xs">↵</kbd>
         <span class="ml-0.5">{{ $t("cloud-search.pin-shortcut") }}</span>
+      </span>
+      <span
+        v-if="selectedContainerItem && canMergeItem(selectedContainerItem)"
+        class="hidden items-center gap-1 sm:flex"
+      >
+        <kbd class="kbd kbd-xs">{{ isMac ? "⌘" : "Ctrl" }}</kbd
+        ><kbd class="kbd kbd-xs">↵</kbd>
+        <span class="ml-0.5">{{
+          isStreaming(selectedContainerItem.id)
+            ? $t("cloud-search.unmerge-shortcut")
+            : $t("cloud-search.merge-shortcut")
+        }}</span>
       </span>
 
       <!-- Cloud status. Skipped while the log search row is on screen, which
@@ -549,11 +578,45 @@ function onEnter() {
   if (entry) activate(entry);
 }
 
-function onPin() {
-  // Alt+Enter pins a container column. Only meaningful when a container row is
-  // selected, not a command or the log search row.
+// Pin and merge are only meaningful on a container row, not a service, stack,
+// command or the log search row.
+const selectedContainerItem = computed(() => {
   const entry = selectedEntry.value;
-  if (entry?.kind === "container" && entry.item.type === "container") addColumn(entry.item);
+  return entry?.kind === "container" && entry.item.type === "container" ? entry.item : undefined;
+});
+
+function onPin() {
+  // Alt+Enter pins a container column.
+  if (selectedContainerItem.value) addColumn(selectedContainerItem.value);
+}
+
+// Both Cmd and Ctrl+Enter work everywhere; the footer names the one the platform uses.
+const isMac = /(Mac|iPhone|iPod|iPad)/i.test(navigator.userAgent);
+
+// Cmd/Ctrl+Enter adds the container to the stream on screen, or takes it out.
+function onMerge() {
+  const item = selectedContainerItem.value;
+  if (item && canMergeItem(item)) mergeItem(item);
+}
+
+const { isStreaming, canToggle, toggleTitle, toggle: toggleMerge } = useStreamedContainers();
+const { allContainersById } = storeToRefs(useContainerStore());
+
+// A palette row carries the host's label for display, so the merge rules read the
+// container itself for its host id.
+function canMergeItem(item: Item) {
+  const container = allContainersById.value[item.id];
+  return !!container && canToggle(container);
+}
+
+function mergeTitleFor(item: Item) {
+  const container = allContainersById.value[item.id];
+  return container ? toggleTitle(container) : "";
+}
+
+function mergeItem(item: Item) {
+  toggleMerge(item.id);
+  close();
 }
 
 // The palette is already a text box the user typed a question into, so this

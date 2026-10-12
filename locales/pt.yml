@@ -821,6 +821,8 @@ cloud-search:
   no-matches: "Nenhum container ou comando corresponde"
   nav-hint: "navegar"
   pin-shortcut: "fixar coluna"
+  merge-shortcut: "mesclar no fluxo"
+  unmerge-shortcut: "remover do fluxo"
   search-logs-for: 'Buscar logs por "{query}"'
   across-containers: "indexados em todos os seus containers"
   connect-to-enable: "Conectar Dozzle Cloud para buscar logs"
