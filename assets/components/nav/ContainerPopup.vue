@@ -157,7 +157,7 @@ const host = computed(() => hosts.value[container.host]);
 const isRunning = computed(() => container.state === "running");
 const power = computed(() => powerAction(container));
 const canStartStop = config.mode !== "k8s";
-const imageTag = computed(() => container.image.replace(/@sha.*/, ""));
+const imageTag = computed(() => stripImageDigest(container.image));
 const shortUrl = computed(() => container.url?.replace(/^https?:\/\//, "").replace(/\/$/, ""));
 
 const { ids: streamedIds, toggle: toggleMerge } = useStreamedContainers();

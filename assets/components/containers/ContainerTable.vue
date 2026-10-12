@@ -151,8 +151,20 @@
                       class="text-base-content/50 shrink-0 text-xs"
                     />
                   </div>
-                  <div v-if="container.customGroup" class="text-base-content/50 truncate text-xs">
-                    {{ container.customGroup }}
+                  <!-- The image rides on the muted line under the name rather than in a
+                       column of its own: the table has no width to spare. Phones keep
+                       just the group, the row there is already full. -->
+                  <div
+                    v-if="isMobile ? container.customGroup : container.customGroup || container.image"
+                    class="text-base-content/50 truncate text-xs"
+                  >
+                    <span>{{ container.customGroup }}</span
+                    ><template v-if="!isMobile && container.image"
+                      ><span v-if="container.customGroup" class="text-base-content/30 mx-1">·</span
+                      ><span class="font-mono" :title="container.image">{{
+                        shortImageRef(container.image)
+                      }}</span></template
+                    >
                   </div>
                   <!-- The host card's meter strip at row size: two halves spanning the
                        row, so the bars are long enough to read at a glance. -->
