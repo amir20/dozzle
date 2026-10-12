@@ -121,6 +121,10 @@ func Test_searchBackfill_dense_stops_after_first_window(t *testing.T) {
 
 	assert.Equal(t, 1, fake.reads)
 	assert.Equal(t, "capped", r.final.Reason)
+	// 10 older matches were dropped, so the results only reach the oldest kept
+	got := r.matches()
+	require.Len(t, got, backfillMatches)
+	assert.True(t, r.final.ScannedTo.Equal(time.UnixMilli(got[0].Timestamp)))
 }
 
 func Test_searchBackfill_long_read_keeps_newest_matches(t *testing.T) {

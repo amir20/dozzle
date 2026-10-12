@@ -87,7 +87,7 @@ func searchBackfill(
 	if !floor.IsZero() && from.Before(floor) {
 		from = floor
 	}
-	events, _, err := scanMatches(ctx, services, from, to, stdTypes, filter, backfillMatches, nil)
+	events, seen, err := scanMatches(ctx, services, from, to, stdTypes, filter, backfillMatches, nil)
 	if err != nil {
 		log.Error().Err(err).Msg("error while fetching logs")
 		return
@@ -96,6 +96,10 @@ func searchBackfill(
 		return
 	}
 	scannedTo = from
+	if seen > len(events) {
+		// matches older than the oldest one kept were dropped
+		scannedTo = time.UnixMilli(events[0].Timestamp)
+	}
 	if found >= backfillMatches {
 		reason = "capped"
 		return
@@ -118,7 +122,7 @@ func searchBackfill(
 
 	remaining := backfillMatches - found
 	lastSent := time.Now()
-	events, seen, err := scanMatches(ctx, services, oldest, from, stdTypes, filter, remaining, func(progress float64, seen int) {
+	events, seen, err = scanMatches(ctx, services, oldest, from, stdTypes, filter, remaining, func(progress float64, seen int) {
 		if time.Since(lastSent) < searchProgressEvery {
 			return
 		}
