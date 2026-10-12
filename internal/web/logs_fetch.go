@@ -88,17 +88,11 @@ func parseFetchWindow(q url.Values) (fetchWindow, error) {
 }
 
 func (h *handler) fetchLogsBetweenDates(w http.ResponseWriter, r *http.Request) {
-	// everything is the SQL view and the copy button reading the whole log, not a
-	// scroll into older lines.
+	// everything is the SQL view reading the whole log, not a scroll into older lines.
 	if !r.URL.Query().Has("everything") {
 		analytics.Count("logs.older")
 	}
-	plainText := strings.Contains(r.Header.Get("Accept"), "text/plain")
-	if plainText {
-		w.Header().Set("Content-Type", "text/plain; charset=UTF-8")
-	} else {
-		w.Header().Set("Content-Type", "application/x-jsonl; charset=UTF-8")
-	}
+	w.Header().Set("Content-Type", "application/x-jsonl; charset=UTF-8")
 
 	stdTypes := parseStdTypes(r)
 	if stdTypes == 0 {
@@ -139,7 +133,7 @@ func (h *handler) fetchLogsBetweenDates(w http.ResponseWriter, r *http.Request) 
 		}
 		writer, done := compressedWriter(w, r)
 		defer done()
-		writeAllLogs(writer, events, filter, q.Has("jsonOnly"), plainText)
+		writeAllLogs(writer, events, filter, q.Has("jsonOnly"), false)
 		return
 	}
 
@@ -174,8 +168,9 @@ func compressedWriter(w http.ResponseWriter, r *http.Request) (io.Writer, func()
 	return gzWriter, func() { gzWriter.Close() }
 }
 
-// writeAllLogs streams a container's whole history for a download. Unlike the
-// windowed fetch, an empty level set here means every level.
+// writeAllLogs streams a container's whole history, as JSON lines for the SQL view
+// or as plain text for a copy. Unlike the windowed fetch, an empty level set here
+// means every level.
 func writeAllLogs(writer io.Writer, events <-chan *container.LogEvent, filter logFilter, onlyComplex, plainText bool) {
 	encoder := json.NewEncoder(writer)
 	for event := range events {

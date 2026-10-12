@@ -239,8 +239,6 @@
 
 <script lang="ts" setup>
 import { Container, powerAction } from "@/models/Container";
-import { allLevels } from "@/composable/logs/logContext";
-import { appendRangeParams } from "@/composable/logs/timeRange";
 // Drawer-only, and it drags in apache-arrow; loading it eagerly put both on every log view.
 const LogAnalytics = defineAsyncComponent(() => import("@/components/logs/LogAnalytics.vue"));
 import Terminal from "./Terminal.vue";
@@ -251,7 +249,7 @@ const { linked: cloudLinked } = useCloudSurface();
 const { openRail, openCloud } = useCloudRail();
 const { unseen: unseenAlerts } = useViewAlerts();
 const { enableActions, enableShell, enableDownload } = config;
-const { streamConfig, hasComplexLogs, levels, timeRange } = useLoggingContext();
+const { hasComplexLogs, timeRange } = useLoggingContext();
 const {
   rows: timeRows,
   label: timeLabel,
@@ -306,9 +304,7 @@ const { latestRelease } = useAnnouncements();
 const releaseNotesUrl = computed(() => latestRelease.value?.htmlUrl ?? "https://github.com/amir20/dozzle/releases");
 
 const router = useRouter();
-const { copy, copyLazy } = useCopy();
-const { t } = useI18n();
-const { showToast, removeToast } = useToast();
+const { copy } = useCopy();
 
 async function copyPermalink() {
   const url = router.resolve({
@@ -323,76 +319,10 @@ async function copyImageReference() {
   await copy(container.image, { message: escapeHtml(container.image) });
 }
 
-async function copyLogs() {
-  const params = new URLSearchParams();
-  if (streamConfig.value.stdout) params.append("stdout", "1");
-  if (streamConfig.value.stderr) params.append("stderr", "1");
-  params.append("everything", "1");
-  appendRangeParams(params, timeRange.value);
-
-  const { appliedSearchFilter } = useSearchFilter();
-  if (appliedSearchFilter.value) {
-    params.append("filter", appliedSearchFilter.value);
-  }
-
-  const selectedLevels = Array.from(levels.value);
-  if (selectedLevels.length > 0 && selectedLevels.length < allLevels.length) {
-    selectedLevels.forEach((level) => params.append("levels", level));
-  }
-
-  const url = withBase(`/api/hosts/${container.host}/containers/${container.id}/logs?${params.toString()}`);
-
-  const toastId = "copy-logs";
-  showToast(
-    {
-      id: toastId,
-      title: t("toolbar.copying-logs"),
-      message: "",
-      type: "info",
-    },
-    { once: true },
-  );
-
-  // The success toast belongs to the copy, not to the download: on http the
-  // clipboard is out of reach, and the logs arriving is not the same as them
-  // landing somewhere the user can paste. A failed download has already been
-  // reported by then, so it is swallowed here.
-  await copyLazy(
-    () =>
-      fetch(url, { headers: { Accept: "text/plain" } })
-        .then((response) => {
-          if (!response.ok) throw new Error(response.statusText);
-          return response.text();
-        })
-        .then((text) => {
-          removeToast(toastId);
-          return text;
-        })
-        .catch((err) => {
-          removeToast(toastId);
-          showToast(
-            {
-              title: "Error",
-              message: escapeHtml(err.message),
-              type: "error",
-            },
-            { expire: 5000 },
-          );
-          throw err;
-        }),
-    // A browser only allows the fallback copy for a few seconds after the click,
-    // which a long download can outlast, so the notice offers the same content as
-    // a file rather than dead-ending.
-    { action: enableDownload ? { label: t("toolbar.download"), handler: downloadLogs } : undefined },
-  ).catch(() => {});
-}
-
-function downloadLogs() {
-  const link = document.createElement("a");
-  link.href = downloadUrl.value;
-  link.download = "";
-  link.click();
-}
+const { downloadUrl, isFiltered, copyLogs, downloadLogs } = useContainerLogs(
+  () => [container],
+  () => container.name,
+);
 
 // A pinned column mounts its own toolbar; only the page's acts on a key, or one press
 // would open a drawer per column.
@@ -450,14 +380,6 @@ const pinned = computed({
     }
   },
 });
-
-const containerRef = computed(() => [container]);
-const { downloadUrl, isFiltered } = useDownloadUrl(
-  containerRef,
-  streamConfig,
-  levels,
-  toRef(() => container.name),
-);
 
 // Nothing to act on once the container is deleted, and Docker will not start a paused one.
 const power = computed(() => powerAction(container));

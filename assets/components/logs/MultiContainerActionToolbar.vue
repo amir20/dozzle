@@ -49,16 +49,21 @@
         </a>
       </li>
 
-      <template v-if="enableDownload">
-        <li class="section">{{ $t("toolbar.section-export") }}</li>
-        <li>
-          <a :href="downloadUrl" download>
-            <octicon:download-24 />
-            {{ isFiltered ? $t("toolbar.download-filtered") : $t("toolbar.download") }}
-            <KeyShortcut char="d" :modifiers="[]" />
-          </a>
-        </li>
-      </template>
+      <li class="section">{{ $t("toolbar.section-export") }}</li>
+      <li v-if="enableDownload">
+        <a :href="downloadUrl" download>
+          <octicon:download-24 />
+          {{ isFiltered ? $t("toolbar.download-filtered") : $t("toolbar.download") }}
+          <KeyShortcut char="d" :modifiers="[]" />
+        </a>
+      </li>
+      <li>
+        <a @click="copyLogs()">
+          <mdi:content-copy />
+          {{ isFiltered ? $t("toolbar.copy-filtered-logs") : $t("toolbar.copy-logs") }}
+          <KeyShortcut char="c" :modifiers="[]" />
+        </a>
+      </li>
 
       <template v-if="workload">
         <li class="section">{{ $t("toolbar.section-workload") }}</li>
@@ -84,18 +89,10 @@ const clear = defineEmit();
 const { name, workload } = defineProps<{ name?: string; workload?: K8sWorkload }>();
 const { restarting, rolloutRestart } = useRolloutRestart();
 
-const { streamConfig, showHostname, showContainerName, containers, levels } = useLoggingContext();
+const { showHostname, showContainerName, containers } = useLoggingContext();
 
-const { downloadUrl, isFiltered } = useDownloadUrl(containers, streamConfig, levels, name);
+const { downloadUrl, isFiltered, copyLogs, downloadLogs } = useContainerLogs(containers, () => name);
 
-useLetterShortcut(
-  "d",
-  () => {
-    const link = document.createElement("a");
-    link.href = downloadUrl.value;
-    link.download = "";
-    link.click();
-  },
-  enableDownload,
-);
+useLetterShortcut("d", downloadLogs, enableDownload);
+useLetterShortcut("c", () => copyLogs());
 </script>
