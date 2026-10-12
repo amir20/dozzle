@@ -7,9 +7,7 @@ import (
 	"net/http"
 	"net/url"
 	"runtime"
-	"slices"
 	"strings"
-	"sync"
 	"time"
 
 	"github.com/amir20/dozzle/internal/analytics"
@@ -38,14 +36,18 @@ func (h *handler) streamContainerLogs(w http.ResponseWriter, r *http.Request) {
 	}
 
 	wanted := make(map[containerRef]struct{}, len(refs))
+	unique := make([]containerRef, 0, len(refs))
 	for _, ref := range refs {
-		wanted[ref] = struct{}{}
+		if _, seen := wanted[ref]; !seen {
+			wanted[ref] = struct{}{}
+			unique = append(unique, ref)
+		}
 	}
 
 	h.streamLogsForContainers(w, r, func(c *container.Container) bool {
 		_, ok := wanted[containerRef{c.Host, c.ID}]
 		return ok
-	}, streamScope{containers: wanted})
+	}, streamScope{containers: unique})
 }
 
 func (h *handler) streamLogsWithLabels(w http.ResponseWriter, r *http.Request) {
@@ -161,19 +163,14 @@ type streamScope struct {
 	host string
 	// containers names exactly the containers the stream shows, so nothing is
 	// listed at all: each is found in its own host's store when its tail starts.
-	containers map[containerRef]struct{}
+	containers []containerRef
 }
 
-// listStreamContainers returns the containers a new stream starts with.
-func (h *handler) listStreamContainers(scope streamScope, labels container.ContainerLabels, containerFilter container.ContainerFilter) []container.Container {
+// listStreamContainers returns the containers a new stream starts with. Each is
+// still resolved, and ACL checked, before anything about it is sent.
+func (h *handler) listStreamContainers(scope streamScope, labels container.ContainerLabels, containerFilter container.ContainerFilter) []containerRef {
 	if scope.containers != nil {
-		// Only Host and ID are read before each container is resolved, and the
-		// lookup that resolves it is also the ACL check.
-		containers := make([]container.Container, 0, len(scope.containers))
-		for ref := range scope.containers {
-			containers = append(containers, container.Container{Host: ref.host, ID: ref.id})
-		}
-		return containers
+		return scope.containers
 	}
 
 	if scope.host == "" {
@@ -181,20 +178,24 @@ func (h *handler) listStreamContainers(scope streamScope, labels container.Conta
 		if len(errs) > 0 {
 			log.Warn().Err(errs[0]).Msg("error while listing containers")
 		}
-		return containers
+		refs := make([]containerRef, len(containers))
+		for i, c := range containers {
+			refs[i] = containerRef{c.Host, c.ID}
+		}
+		return refs
 	}
 
 	hostContainers, err := h.hostService.ListContainersForHost(scope.host, labels)
 	if err != nil {
 		log.Warn().Err(err).Str("host", scope.host).Msg("error while listing containers")
 	}
-	var containers []container.Container
+	var refs []containerRef
 	for _, c := range hostContainers {
 		if containerFilter(&c) {
-			containers = append(containers, c)
+			refs = append(refs, containerRef{c.Host, c.ID})
 		}
 	}
-	return containers
+	return refs
 }
 
 func (h *handler) streamLogsForContainers(w http.ResponseWriter, r *http.Request, containerFilter container.ContainerFilter, scope streamScope) {
@@ -231,7 +232,7 @@ func (h *handler) streamLogsForContainers(w http.ResponseWriter, r *http.Request
 
 	ctx := r.Context()
 	userLabels := h.resolveLabels(r)
-	existingContainers := h.listStreamContainers(scope, userLabels, containerFilter)
+	refs := h.listStreamContainers(scope, userLabels, containerFilter)
 
 	liveLogs := make(chan *container.LogEvent)
 	events := make(chan *container.ContainerEvent, 1)
@@ -246,38 +247,18 @@ func (h *handler) streamLogsForContainers(w http.ResponseWriter, r *http.Request
 	}
 
 	// Each container is resolved once and shared by its tail and the backfill
-	// walk: for an agent host FindContainer is a gRPC round-trip. Lookups run in
-	// parallel so one slow host doesn't hold up every other container's tail.
-	services := make([]*container.ContainerService, len(existingContainers))
-	var resolved sync.WaitGroup
-	resolved.Add(len(existingContainers))
-	for i, c := range existingContainers {
-		go func() {
-			containerService, err := h.hostService.FindContainer(c.Host, c.ID, userLabels)
-			if err == nil {
-				services[i] = containerService
-			}
-			resolved.Done()
-			if err != nil {
-				// A merged view keeps a container it saw removed, so not-found is routine.
-				level := log.Error()
-				if errors.Is(err, container.ErrContainerNotFound) {
-					level = log.Debug()
-				}
-				level.Err(err).Msg("error while finding container")
-				return
-			}
-			tailContainerLogs(ctx, containerService, since, stdTypes, liveLogs, events)
-		}()
-	}
-
-	if filter.narrowing() {
-		go func() {
-			resolved.Wait()
-			found := slices.DeleteFunc(services, func(s *container.ContainerService) bool { return s == nil })
-			searchBackfill(ctx, found, since, floor, stdTypes, filter, backfill, searchStatusCh)
-		}()
-	}
+	// walk: for an agent host FindContainer is a gRPC round-trip. A tail starts as
+	// soon as its own container resolves, so one slow host doesn't hold up the rest.
+	opened := make(chan []*container.ContainerService, 1)
+	go func() {
+		services, _ := h.resolveContainers(refs, userLabels, func(s *container.ContainerService) {
+			go tailContainerLogs(ctx, s, since, stdTypes, liveLogs, events)
+		})
+		opened <- services
+		if filter.narrowing() {
+			searchBackfill(ctx, services, since, floor, stdTypes, filter, backfill, searchStatusCh)
+		}
+	}()
 
 	newContainers := make(chan container.Container)
 	h.hostService.SubscribeContainersStarted(ctx, newContainers, containerFilter)
@@ -285,8 +266,9 @@ func (h *handler) streamLogsForContainers(w http.ResponseWriter, r *http.Request
 	// Update markers: the update that created a container this stream shows,
 	// so the viewer can put "1.4.1 → 1.4.2" above its first lines. An update
 	// is recorded once its swap is done, after the new container started, so
-	// one that finishes while the stream is open arrives on updates.
-	markers := newUpdateMarkers(container.Updates, existingContainers)
+	// one that finishes while the stream is open arrives on updates. Only a
+	// container that resolved is marked, since the lookup is the ACL check.
+	markers := newUpdateMarkers(container.Updates)
 	updates := make(chan container.UpdateRecord, 16)
 	markers.records.Subscribe(ctx, updates)
 
@@ -294,14 +276,16 @@ func (h *handler) streamLogsForContainers(w http.ResponseWriter, r *http.Request
 	defer ticker.Stop()
 	sseWriter.Retry(reconnectDelay)
 	sseWriter.Ping()
-	for _, u := range markers.opening() {
-		if err := sseWriter.Event("container-update", u); err != nil {
-			log.Error().Err(err).Msg("error encoding container update")
-		}
-	}
 loop:
 	for {
 		select {
+		case services := <-opened:
+			for _, u := range markers.opened(services) {
+				if err := sseWriter.Event("container-update", u); err != nil {
+					log.Error().Err(err).Msg("error encoding container update")
+				}
+			}
+
 		case logEvent := <-liveLogs:
 			if !filter.matches(logEvent) {
 				continue

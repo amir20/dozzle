@@ -26,8 +26,8 @@ import (
 )
 
 var (
-	devContainer  = container.Container{ID: "dev123", Name: "dev-allowed", State: "running", Labels: map[string]string{"env": "dev"}}
-	prodContainer = container.Container{ID: "prod456", Name: "prod-secret", State: "running", Labels: map[string]string{"env": "prod"}}
+	devContainer  = container.Container{ID: "dev123", Host: "localhost", Name: "dev-allowed", State: "running", Labels: map[string]string{"env": "dev"}}
+	prodContainer = container.Container{ID: "prod456", Host: "localhost", Name: "prod-secret", State: "running", Labels: map[string]string{"env": "prod"}}
 	devLabels     = container.ContainerLabels{"env": []string{"dev"}}
 )
 
@@ -44,6 +44,8 @@ func restrictedHandler(t *testing.T) *handler {
 	client.On("FindContainer", mock.Anything, "prod456").Return(prodContainer, nil)
 	client.On("ContainerLogsBetweenDates", mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).
 		Return(io.NopCloser(strings.NewReader("")), nil)
+	client.On("ContainerLogs", mock.Anything, mock.Anything, mock.Anything, mock.Anything).
+		Return(io.NopCloser(strings.NewReader("")), io.EOF)
 
 	manager := hostservice.NewRetriableClientManager(nil, nil, 3*time.Second, tls.Certificate{}, docker.NewService(client, container.ContainerLabels{}))
 	return &handler{
@@ -128,6 +130,50 @@ func Test_cloudAlerts_all_out_of_scope_returns_empty(t *testing.T) {
 	require.Equal(t, http.StatusOK, rr.Code)
 	assert.False(t, called, "cloud should not be queried for out-of-scope containers")
 	assert.NotContains(t, rr.Body.String(), "leak")
+}
+
+// A stream names its containers itself, so one outside the user's labels must not
+// leak its update record (name, image, digests) through a container-update event.
+func Test_streamContainerLogs_no_update_marker_out_of_scope(t *testing.T) {
+	prev := container.Updates
+	container.Updates = container.NewUpdateRecords()
+	t.Cleanup(func() { container.Updates = prev })
+	at := time.Now()
+	container.Updates.Add(container.UpdateRecord{Host: "localhost", Name: "dev-allowed", NewID: "dev123", At: at})
+	container.Updates.Add(container.UpdateRecord{Host: "localhost", Name: "prod-secret", NewID: "prod456", At: at})
+
+	for _, tc := range []struct {
+		query  string
+		marker bool
+	}{
+		{query: "container=localhost/prod456", marker: false},
+		{query: "container=localhost/dev123&container=localhost/prod456", marker: true},
+	} {
+		t.Run(tc.query, func(t *testing.T) {
+			h := restrictedHandler(t)
+			ctx, cancel := context.WithCancel(context.Background())
+			req := httptest.NewRequest(http.MethodGet, "/api/containers/logs/stream?stdout=1&stderr=1&"+tc.query, nil).
+				WithContext(auth.WithUser(ctx, auth.User{ContainerLabels: devLabels}))
+			q := req.URL.Query()
+			addAllLogLevels(q)
+			req.URL.RawQuery = q.Encode()
+
+			rr := httptest.NewRecorder()
+			done := make(chan struct{})
+			go func() {
+				defer close(done)
+				h.streamContainerLogs(rr, req)
+			}()
+			time.Sleep(300 * time.Millisecond)
+			cancel()
+			<-done
+
+			body := rr.Body.String()
+			assert.NotContains(t, body, "prod-secret")
+			assert.NotContains(t, body, "prod456")
+			assert.Equal(t, tc.marker, strings.Contains(body, "container-update"))
+		})
+	}
 }
 
 func Test_requireNotificationsRole(t *testing.T) {

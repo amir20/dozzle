@@ -13,19 +13,17 @@ type updateMarkers struct {
 
 type markerKey struct{ host, id string }
 
-func newUpdateMarkers(records *container.UpdateRecords, containers []container.Container) *updateMarkers {
-	m := &updateMarkers{records: records, shown: make(map[markerKey]bool, len(containers))}
-	for _, c := range containers {
-		m.shown[markerKey{c.Host, c.ID}] = true
-	}
-	return m
+func newUpdateMarkers(records *container.UpdateRecords) *updateMarkers {
+	return &updateMarkers{records: records, shown: make(map[markerKey]bool)}
 }
 
-// opening is the updates that created the containers the stream opened with.
-func (m *updateMarkers) opening() []container.UpdateRecord {
+// opened adds the containers the stream opened with, once they have resolved,
+// and returns the updates that created them.
+func (m *updateMarkers) opened(services []*container.ContainerService) []container.UpdateRecord {
 	var out []container.UpdateRecord
-	for key := range m.shown {
-		if u, ok := m.records.Latest(key.host, key.id); ok {
+	for _, s := range services {
+		m.shown[markerKey{s.Container.Host, s.Container.ID}] = true
+		if u, ok := m.records.Latest(s.Container.Host, s.Container.ID); ok {
 			out = append(out, u)
 		}
 	}

@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"slices"
 	"strings"
 	"time"
 
@@ -14,6 +15,7 @@ import (
 	"github.com/amir20/dozzle/internal/auth"
 	"github.com/amir20/dozzle/internal/container"
 	"github.com/rs/zerolog/log"
+	"golang.org/x/sync/errgroup"
 )
 
 // containerLogs is the whole log (or the view's time range) of any number of
@@ -115,22 +117,59 @@ func (h *handler) findContainers(values []string, labels container.ContainerLabe
 	if err != nil {
 		return nil, http.StatusBadRequest, err
 	}
-	services := make([]*container.ContainerService, 0, len(refs))
-	for _, ref := range refs {
-		service, err := h.hostService.FindContainer(ref.host, ref.id, labels)
-		if errors.Is(err, container.ErrContainerNotFound) {
-			log.Debug().Str("host", ref.host).Str("id", ref.id).Msg("skipping a container that is gone")
-			continue
-		}
-		if err != nil {
-			return nil, http.StatusNotFound, err
-		}
-		services = append(services, service)
+	services, err := h.resolveContainers(refs, labels, nil)
+	if err != nil {
+		return nil, http.StatusNotFound, err
 	}
 	if len(services) == 0 {
 		return nil, http.StatusNotFound, container.ErrContainerNotFound
 	}
 	return services, 0, nil
+}
+
+// resolveConcurrency bounds the lookups one request runs at once. For an agent
+// host each one is a gRPC round-trip.
+const resolveConcurrency = 8
+
+// resolveContainers finds each ref in its host's store, several at a time so one
+// slow host does not hold up the rest, and returns those found in request order.
+// The lookup is also the ACL check. A container that is gone, or outside the
+// user's labels, is skipped; the first other error is returned along with every
+// container that did resolve. found, when set, is called from the lookup's
+// goroutine as soon as its container resolves.
+func (h *handler) resolveContainers(refs []containerRef, labels container.ContainerLabels, found func(*container.ContainerService)) ([]*container.ContainerService, error) {
+	services := make([]*container.ContainerService, len(refs))
+	errs := make([]error, len(refs))
+	var group errgroup.Group
+	group.SetLimit(resolveConcurrency)
+	for i, ref := range refs {
+		group.Go(func() error {
+			service, err := h.hostService.FindContainer(ref.host, ref.id, labels)
+			if err != nil {
+				errs[i] = err
+				return nil
+			}
+			services[i] = service
+			if found != nil {
+				found(service)
+			}
+			return nil
+		})
+	}
+	group.Wait()
+
+	var firstErr error
+	for i, err := range errs {
+		if errors.Is(err, container.ErrContainerNotFound) {
+			log.Debug().Str("host", refs[i].host).Str("id", refs[i].id).Msg("skipping a container that is gone")
+		} else if err != nil {
+			log.Error().Err(err).Str("host", refs[i].host).Str("id", refs[i].id).Msg("error while finding container")
+			if firstErr == nil {
+				firstErr = err
+			}
+		}
+	}
+	return slices.DeleteFunc(services, func(s *container.ContainerService) bool { return s == nil }), firstErr
 }
 
 // writeLogsJSON writes each container's JSON events as JSON lines, one container
