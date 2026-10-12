@@ -88,10 +88,7 @@ func parseFetchWindow(q url.Values) (fetchWindow, error) {
 }
 
 func (h *handler) fetchLogsBetweenDates(w http.ResponseWriter, r *http.Request) {
-	// everything is the SQL view reading the whole log, not a scroll into older lines.
-	if !r.URL.Query().Has("everything") {
-		analytics.Count("logs.older")
-	}
+	analytics.Count("logs.older")
 	w.Header().Set("Content-Type", "application/x-jsonl; charset=UTF-8")
 
 	stdTypes := parseStdTypes(r)
@@ -116,24 +113,6 @@ func (h *handler) fetchLogsBetweenDates(w http.ResponseWriter, r *http.Request) 
 	win, err := parseFetchWindow(q)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
-	}
-
-	if q.Has("everything") {
-		// Bounded by from/to when the view is a time range; the whole log otherwise.
-		to := win.to
-		if to.IsZero() {
-			to = time.Now()
-		}
-		events, err := containerService.LogsBetweenDates(r.Context(), win.from, to, stdTypes)
-		if err != nil {
-			log.Error().Err(err).Msg("error fetching logs")
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
-		}
-		writer, done := compressedWriter(w, r)
-		defer done()
-		writeAllLogs(writer, events, filter, q.Has("jsonOnly"), false)
 		return
 	}
 

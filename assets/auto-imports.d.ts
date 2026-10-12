@@ -40,6 +40,7 @@ declare global {
   const agentImage: typeof import('./composable/setup/setup').agentImage
   const alertTargetFor: typeof import('./composable/notifications/alertForm').alertTargetFor
   const allLevels: typeof import('./composable/logs/logContext').allLevels
+  const analyticsLogsUrl: typeof import('./composable/logs/analyticsTable').analyticsLogsUrl
   const appendBatch: typeof import('./composable/logs/logWindow').appendBatch
   const appendRangeParams: typeof import('./composable/logs/timeRange').appendRangeParams
   const arrayEquals: typeof import('./utils/index').arrayEquals
@@ -85,6 +86,7 @@ declare global {
   const createHighlightStyle: typeof import('./composable/editor/editorTheme').createHighlightStyle
   const createInjectionState: typeof import('@vueuse/core').createInjectionState
   const createLogHints: typeof import('./composable/editor/exprEditor').createLogHints
+  const createLogsTableSql: typeof import('./composable/logs/analyticsTable').createLogsTableSql
   const createMetricHints: typeof import('./composable/editor/exprEditor').createMetricHints
   const createPinia: typeof import('pinia').createPinia
   const createPullProgress: typeof import('./composable/containers/containerActions').createPullProgress
@@ -753,6 +755,7 @@ declare module 'vue' {
     readonly agentImage: UnwrapRef<typeof import('./composable/setup/setup')['agentImage']>
     readonly alertTargetFor: UnwrapRef<typeof import('./composable/notifications/alertForm')['alertTargetFor']>
     readonly allLevels: UnwrapRef<typeof import('./composable/logs/logContext')['allLevels']>
+    readonly analyticsLogsUrl: UnwrapRef<typeof import('./composable/logs/analyticsTable')['analyticsLogsUrl']>
     readonly appendBatch: UnwrapRef<typeof import('./composable/logs/logWindow')['appendBatch']>
     readonly appendRangeParams: UnwrapRef<typeof import('./composable/logs/timeRange')['appendRangeParams']>
     readonly arrayEquals: UnwrapRef<typeof import('./utils/index')['arrayEquals']>
@@ -797,6 +800,7 @@ declare module 'vue' {
     readonly createHighlightStyle: UnwrapRef<typeof import('./composable/editor/editorTheme')['createHighlightStyle']>
     readonly createInjectionState: UnwrapRef<typeof import('@vueuse/core')['createInjectionState']>
     readonly createLogHints: UnwrapRef<typeof import('./composable/editor/exprEditor')['createLogHints']>
+    readonly createLogsTableSql: UnwrapRef<typeof import('./composable/logs/analyticsTable')['createLogsTableSql']>
     readonly createMetricHints: UnwrapRef<typeof import('./composable/editor/exprEditor')['createMetricHints']>
     readonly createPinia: UnwrapRef<typeof import('pinia')['createPinia']>
     readonly createPullProgress: UnwrapRef<typeof import('./composable/containers/containerActions')['createPullProgress']>

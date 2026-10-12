@@ -3,6 +3,7 @@ package web
 import (
 	"archive/zip"
 	"bytes"
+	"encoding/json"
 	"io"
 	"time"
 
@@ -240,4 +241,116 @@ func Test_handler_container_logs_text_filtered_parses(t *testing.T) {
 	h.ServeHTTP(rr, req)
 	require.Equal(t, http.StatusOK, rr.Code)
 	require.Equal(t, "", rr.Body.String(), "a search that matches nothing copies nothing")
+}
+
+// jsonlHandler serves containers on localhost, each with the given raw log lines.
+func jsonlHandler(t *testing.T, logs map[string][]byte) http.Handler {
+	t.Helper()
+	mockedClient := new(MockedClient)
+	list := []container.Container{}
+	for id, data := range logs {
+		mockedClient.On("FindContainer", mock.Anything, id).Return(container.Container{ID: id, Name: id}, nil)
+		mockedClient.On("ContainerLogsBetweenDates", mock.Anything, id, mock.Anything, mock.Anything, container.STDALL).
+			Return(io.NopCloser(bytes.NewReader(data)), nil).
+			Once()
+		list = append(list, container.Container{ID: id, Name: id, State: "running"})
+	}
+	mockedClient.On("Host").Return(container.Host{ID: "localhost"})
+	mockedClient.On("ContainerEvents", mock.Anything, mock.AnythingOfType("chan<- container.ContainerEvent")).Return(nil)
+	mockedClient.On("ListContainers", mock.Anything, mock.Anything).Return(list, nil)
+	return createDefaultHandler(mockedClient)
+}
+
+// getJSONL fetches format=jsonl for query and decodes the events it wrote.
+func getJSONL(t *testing.T, h http.Handler, query string) []*container.LogEvent {
+	t.Helper()
+	req, err := http.NewRequest("GET", "/api/containers/logs?format=jsonl&stdout=1&stderr=1&"+query, nil)
+	require.NoError(t, err)
+	rr := httptest.NewRecorder()
+	h.ServeHTTP(rr, req)
+	require.Equal(t, http.StatusOK, rr.Code)
+	require.Equal(t, "application/x-jsonl; charset=UTF-8", rr.Header().Get("Content-Type"))
+
+	var events []*container.LogEvent
+	decoder := json.NewDecoder(rr.Body)
+	for decoder.More() {
+		event := &container.LogEvent{}
+		require.NoError(t, decoder.Decode(event))
+		events = append(events, event)
+	}
+	return events
+}
+
+// jsonOnly feeds the SQL analytics view, which builds a DuckDB table with
+// `unnest(m)`. That only works when every `m` is an object, so anything that is
+// not a complex event has to be dropped here. Filtering on "the message is not a
+// string" is not enough: grouped events carry a []string, which makes DuckDB
+// infer the column as JSON and fails the whole table with a binder error.
+func Test_handler_container_logs_jsonl_jsonOnly(t *testing.T) {
+	// A single line, a two line group (an ERROR followed by an unlevelled
+	// continuation close in time), and a complex JSON line.
+	data := concatMessages(
+		"2020-05-13T18:55:37.772853839Z INFO Testing stdout logs...\n",
+		"2020-05-13T18:55:38.772853839Z ERROR something blew up\n",
+		"2020-05-13T18:55:38.782853839Z     at foo.bar(baz.go:1)\n",
+		"2020-05-13T18:56:37.772853839Z {\"msg\":\"a complex log message\"}\n",
+	)
+
+	tests := []struct {
+		name      string
+		query     string
+		wantTypes []container.LogType
+	}{
+		{
+			name:      "jsonOnly keeps complex events only",
+			query:     "jsonOnly=1",
+			wantTypes: []container.LogType{container.LogTypeComplex},
+		},
+		{
+			name:      "without jsonOnly every event is sent",
+			wantTypes: []container.LogType{container.LogTypeSingle, container.LogTypeGroup, container.LogTypeComplex},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			h := jsonlHandler(t, map[string][]byte{"123456": data})
+			events := getJSONL(t, h, "container=localhost/123456&"+tt.query)
+
+			types := make([]container.LogType, 0, len(events))
+			for _, event := range events {
+				types = append(types, event.Type)
+			}
+			require.Equal(t, tt.wantTypes, types)
+
+			if tt.query == "" {
+				return
+			}
+			for _, event := range events {
+				// unnest(m) rejects anything that is not a struct, so every
+				// message the analytics view sees must decode to an object.
+				require.IsType(t, map[string]any{}, event.Message)
+			}
+		})
+	}
+}
+
+// The SQL view loads a merged view in one request and takes `_container` from `c`,
+// so every event has to name its container and containers must not interleave.
+func Test_handler_container_logs_jsonl_several_containers(t *testing.T) {
+	h := jsonlHandler(t, map[string][]byte{
+		"aaa111": concatMessages(
+			"2020-05-13T18:55:37.772853839Z {\"from\":\"a\",\"n\":1}\n",
+			"2020-05-13T18:56:37.772853839Z {\"from\":\"a\",\"n\":2}\n",
+		),
+		"bbb222": concatMessages("2020-05-13T18:55:00.000000000Z {\"from\":\"b\"}\n"),
+	})
+
+	events := getJSONL(t, h, "jsonOnly=1&container=localhost/bbb222&container=localhost/aaa111")
+
+	got := make([]string, 0, len(events))
+	for _, event := range events {
+		got = append(got, event.ContainerID+":"+event.Message.(map[string]any)["from"].(string))
+	}
+	require.Equal(t, []string{"bbb222:b", "aaa111:a", "aaa111:a"}, got)
 }

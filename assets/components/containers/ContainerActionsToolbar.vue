@@ -49,7 +49,7 @@
         </a>
       </li>
       <li v-if="hasComplexLogs">
-        <a @click="showDrawer(LogAnalytics, { container }, 'lg')">
+        <a @click="openAnalytics()">
           <ph:file-sql /> {{ $t("analytics.title") }}
           <KeyShortcut v-if="isMainView" char="s" :modifiers="[]" />
         </a>
@@ -328,7 +328,7 @@ const { downloadUrl, isFiltered, copyLogs, downloadLogs } = useContainerLogs(
 // would open a drawer per column.
 const isMainView = isViewContextOwner();
 const canShell = isMainView && enableShell && !historical;
-const openAnalytics = () => showDrawer(LogAnalytics, { container }, "lg");
+const openAnalytics = () => showDrawer(LogAnalytics, { containers: [container] }, "lg");
 const openTerminal = (action: "attach" | "exec") => showDrawer(Terminal, { container, action }, "lg");
 
 useLetterShortcut("s", openAnalytics, () => isMainView && hasComplexLogs.value);

@@ -17,12 +17,15 @@ import (
 
 // containerLogs is the whole log (or the view's time range) of any number of
 // containers in one response, each named as `container=<host>/<id>` and filtered
-// the way the log viewer filters. `format=zip` is the download: one file per container. Otherwise it is
-// plain text for the copy button, each container under a `── name ──` header when
-// there is more than one.
+// the way the log viewer filters. `format=zip` is the download: one file per container.
+// `format=jsonl` is the SQL view's table: LogEvents as JSON lines, each carrying its
+// container id in `c`, and only the JSON ones with `jsonOnly`. Otherwise it is plain
+// text for the copy button, each container under a `── name ──` header when there is
+// more than one.
 func (h *handler) containerLogs(w http.ResponseWriter, r *http.Request) {
 	q := r.URL.Query()
-	zipped := q.Get("format") == "zip"
+	format := q.Get("format")
+	zipped := format == "zip"
 
 	if zipped && h.config.Authorization.Provider != NONE && !auth.UserFromContext(r.Context()).Roles.Has(auth.Download) {
 		log.Warn().Msg("user is not permitted to download logs from container")
@@ -66,6 +69,14 @@ func (h *handler) containerLogs(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if format == "jsonl" {
+		w.Header().Set("Content-Type", "application/x-jsonl; charset=UTF-8")
+		writer, done := compressedWriter(w, r)
+		defer done()
+		writeLogsJSON(writer, r, services, win.from, to, stdTypes, filter, q.Has("jsonOnly"))
+		return
+	}
+
 	analytics.Count("logs.copy")
 	w.Header().Set("Content-Type", "text/plain; charset=UTF-8")
 	writer, done := compressedWriter(w, r)
@@ -93,6 +104,20 @@ func (h *handler) findContainers(refs []string, labels container.ContainerLabels
 		services = append(services, service)
 	}
 	return services, 0, nil
+}
+
+// writeLogsJSON writes each container's events as JSON lines, one container after
+// another in request order. The response has started, so a container that fails is
+// logged and skipped rather than cutting the table short.
+func writeLogsJSON(w io.Writer, r *http.Request, services []*container.ContainerService, from, to time.Time, stdTypes container.StdType, filter logFilter, onlyComplex bool) {
+	for _, service := range services {
+		events, err := service.LogsBetweenDates(r.Context(), from, to, stdTypes)
+		if err != nil {
+			log.Error().Err(err).Str("container", service.Container.ID).Msg("error fetching logs")
+			continue
+		}
+		writeAllLogs(w, events, filter, onlyComplex, false)
+	}
 }
 
 // writeLogsText writes each container's lines as the single-container text fetch

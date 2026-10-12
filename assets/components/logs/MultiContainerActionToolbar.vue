@@ -25,6 +25,12 @@
           <KeyShortcut char="l" :modifiers="['shift', 'meta']" />
         </a>
       </li>
+      <li v-if="hasComplexLogs">
+        <a @click="openAnalytics()">
+          <ph:file-sql /> {{ $t("analytics.title") }}
+          <KeyShortcut char="s" :modifiers="[]" />
+        </a>
+      </li>
 
       <!-- The filter chip beside this menu carries these, except on a phone. -->
       <template v-if="isMobile">
@@ -127,6 +133,8 @@ import type { Component } from "vue";
 import CarbonRestart from "~icons/carbon/restart";
 import CarbonStopFilledAlt from "~icons/carbon/stop-filled-alt";
 import CarbonPlay from "~icons/carbon/play";
+// Drawer-only, and it drags in apache-arrow; loading it eagerly put both on every log view.
+const LogAnalytics = defineAsyncComponent(() => import("@/components/logs/LogAnalytics.vue"));
 
 defineOptions({ inheritAttrs: false });
 
@@ -138,12 +146,16 @@ const clear = defineEmit();
 const { name, workload } = defineProps<{ name?: string; workload?: K8sWorkload }>();
 const { restarting, rolloutRestart } = useRolloutRestart();
 
-const { showHostname, showContainerName, containers } = useLoggingContext();
+const { showHostname, showContainerName, containers, hasComplexLogs } = useLoggingContext();
 
 const { downloadUrl, isFiltered, copyLogs, downloadLogs } = useContainerLogs(containers, () => name);
 
+const showDrawer = useDrawer();
+const openAnalytics = () => showDrawer(LogAnalytics, { containers: toValue(containers), name }, "lg");
+
 useLetterShortcut("d", downloadLogs, enableDownload);
 useLetterShortcut("c", () => copyLogs());
+useLetterShortcut("s", openAnalytics, () => hasComplexLogs.value);
 
 // Restart, stop and start for every container in the view, behind a confirm.
 const MAX_NAMES = 8;

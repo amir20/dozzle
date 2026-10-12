@@ -196,7 +196,7 @@ const isChartable = (value: unknown) => typeof value === "number" && Number.isFi
 
 function chartField(key: string[]) {
   if (!container.value) return;
-  showDrawer(LogAnalytics, { container: container.value, initialQuery: numericFieldQuery(key) }, "lg");
+  showDrawer(LogAnalytics, { containers: [container.value], initialQuery: numericFieldQuery(key) }, "lg");
 }
 
 const { useSortable } = await import("@vueuse/integrations/useSortable");

@@ -87,9 +87,6 @@ Content-Type: text/html
 {"t":"single","m":"INFO Testing stdout logs...","rm":"INFO Testing stdout logs...","ts":1589396137772,"id":466600245,"l":"info","s":"stdout","c":"123456"}
 {"t":"single","m":"INFO Testing stderr logs...","rm":"INFO Testing stderr logs...","ts":1589396197772,"id":1101501603,"l":"info","s":"stderr","c":"123456"}
 
-/* snapshot: Test_handler_between_dates_with_everything_complex */
-{"t":"complex","m":{"msg":"a complex log message"},"rm":"{\"msg\":\"a complex log message\"}","ts":1589396197772,"id":62280847,"l":"unknown","s":"stdout","c":"123456"}
-
 /* snapshot: Test_handler_between_dates_with_fill */
 {"t":"single","m":"INFO Testing stdout logs...","rm":"INFO Testing stdout logs...","ts":1589396137772,"id":466600245,"l":"info","s":"stdout","c":"123456"}
 {"t":"single","m":"INFO Testing stderr logs...","rm":"INFO Testing stderr logs...","ts":1589396197772,"id":1101501603,"l":"info","s":"stderr","c":"123456"}
