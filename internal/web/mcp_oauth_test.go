@@ -34,7 +34,7 @@ func newMCPOAuthServer(t *testing.T, base string) *httptest.Server {
 				Users: map[string]*auth.User{
 					"amir": {
 						Username: "amir",
-						Password: "$2a$10$4Tvzu0ms9shlv4B8pIfqI.TM9CoqsamsAznP91A1NGuwg/68SGS1m",
+						Password: "$2a$04$gma4F9WIu3g1ILzyj5Xvv.3sBkbmX20wDHNE.1oNw0mJvB9G.Vb0C",
 					},
 				},
 			}, time.Hour, testSecret),
