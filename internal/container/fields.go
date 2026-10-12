@@ -30,7 +30,8 @@ func (f Fields[V]) Get(key string) (V, bool) {
 	return zero, false
 }
 
-// Set replaces the value for key in place, or appends it if key is new.
+// Set replaces the value for key in place, or appends it if key is new. It
+// scans linearly; to build Fields from untrusted input, append and call Compact.
 func (f *Fields[V]) Set(key string, value V) {
 	for i := range *f {
 		if (*f)[i].Key == key {
@@ -40,6 +41,41 @@ func (f *Fields[V]) Set(key string, value V) {
 	}
 	*f = append(*f, Field[V]{Key: key, Value: value})
 }
+
+// Compact removes duplicate keys, keeping each key's first position and last
+// value, like repeated Set calls. Small objects compare directly; past
+// compactIndexAt keys an index keeps a line with huge numbers of keys linear.
+func (f Fields[V]) Compact() Fields[V] {
+	if len(f) < 2 {
+		return f
+	}
+	out := f[:0]
+	if len(f) <= compactIndexAt {
+	next:
+		for _, field := range f {
+			for i := range out {
+				if out[i].Key == field.Key {
+					out[i].Value = field.Value
+					continue next
+				}
+			}
+			out = append(out, field)
+		}
+		return out
+	}
+	index := make(map[string]int, len(f))
+	for _, field := range f {
+		if i, ok := index[field.Key]; ok {
+			out[i].Value = field.Value
+			continue
+		}
+		index[field.Key] = len(out)
+		out = append(out, field)
+	}
+	return out
+}
+
+const compactIndexAt = 32
 
 // Log lines are not always well-formed: duplicate keys keep the last value
 // and invalid UTF-8 becomes U+FFFD, matching encoding/json v1.
@@ -97,12 +133,12 @@ func (f *Fields[V]) UnmarshalJSONFrom(dec *jsontext.Decoder) error {
 		if !ok && value != nil {
 			return &json.UnmarshalTypeError{Value: kindName(value)}
 		}
-		out.Set(key, v)
+		out = append(out, Field[V]{Key: key, Value: v})
 	}
 	if _, err := dec.ReadToken(); err != nil {
 		return err
 	}
-	*f = out
+	*f = out.Compact()
 	return nil
 }
 
@@ -163,7 +199,8 @@ func kindName(v any) string {
 
 func (f Fields[V]) MarshalJSON() ([]byte, error) {
 	var buf bytes.Buffer
-	enc := jsontext.NewEncoder(&buf)
+	// Logfmt values hold raw container bytes; bad UTF-8 becomes U+FFFD as in v1.
+	enc := jsontext.NewEncoder(&buf, jsontext.AllowInvalidUTF8(true))
 	if err := f.MarshalJSONTo(enc); err != nil {
 		return nil, err
 	}

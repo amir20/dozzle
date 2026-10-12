@@ -2,7 +2,10 @@ package container
 
 import (
 	"encoding/json"
+	"fmt"
+	"strings"
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -109,4 +112,67 @@ func BenchmarkFieldsMarshal(b *testing.B) {
 			b.Fatal(err)
 		}
 	}
+}
+
+// Logfmt values and prefix words hold raw container bytes, which may not be
+// UTF-8. They must still encode, through Fields directly and through v1 as
+// part of a LogEvent, with bad bytes as U+FFFD.
+func TestFieldsMarshalInvalidUTF8(t *testing.T) {
+	f := Fields[string]{{Key: "msg", Value: "caf\xe9"}, {Key: "k\xff", Value: "v"}}
+
+	out, err := f.MarshalJSON()
+	require.NoError(t, err)
+	assert.Equal(t, "{\"msg\":\"caf�\",\"k�\":\"v\"}", string(out))
+
+	event, err := json.Marshal(LogEvent{Message: f})
+	require.NoError(t, err)
+	assert.Contains(t, string(event), "\"m\":{\"msg\":\"caf�\"")
+
+	anyOut, err := json.Marshal(Fields[any]{{Key: "nested", Value: Fields[any]{{Key: "m", Value: "\xe9"}}}})
+	require.NoError(t, err)
+	assert.Equal(t, "{\"nested\":{\"m\":\"�\"}}", string(anyOut))
+}
+
+func TestFieldsCompact(t *testing.T) {
+	assert.Equal(t,
+		Fields[string]{{"a", "3"}, {"b", "2"}},
+		Fields[string]{{"a", "1"}, {"b", "2"}, {"a", "3"}}.Compact(),
+	)
+
+	// Past the index threshold the result must be the same.
+	var big Fields[int]
+	for i := range 100 {
+		big = append(big, Field[int]{Key: fmt.Sprint(i % 40), Value: i})
+	}
+	compacted := big.Compact()
+	require.Len(t, compacted, 40)
+	for i, field := range compacted {
+		assert.Equal(t, fmt.Sprint(i), field.Key)
+		last := 80 + i
+		if i >= 20 {
+			last = 40 + i
+		}
+		assert.Equal(t, last, field.Value, "key %s keeps its last value", field.Key)
+	}
+}
+
+// A single huge line (k8s does not cap line length) must not go quadratic in
+// its key count.
+func TestParseFieldsManyKeysIsLinear(t *testing.T) {
+	var sb strings.Builder
+	sb.WriteByte('{')
+	for i := range 100_000 {
+		if i > 0 {
+			sb.WriteByte(',')
+		}
+		fmt.Fprintf(&sb, `"k%d":1`, i)
+	}
+	sb.WriteString(`,"k0":2}`)
+
+	start := time.Now()
+	f, err := ParseFields([]byte(sb.String()))
+	require.NoError(t, err)
+	assert.Less(t, time.Since(start), 2*time.Second)
+	require.Len(t, f, 100_000)
+	assert.Equal(t, Field[any]{Key: "k0", Value: 2.0}, f[0])
 }

@@ -39,7 +39,7 @@ func ParseLogFmt(log string) (container.Fields[string], error) {
 					escaping = true
 				} else if char == '"' {
 					value = unescapeQuoted(log[start-1 : i+1])
-					result.Set(key, value)
+					result = append(result, container.Field[string]{Key: key, Value: value})
 					inQuotes = false
 					isKey = true
 					start = i + 2
@@ -50,7 +50,7 @@ func ParseLogFmt(log string) (container.Fields[string], error) {
 					start = i + 1
 				} else if char == ' ' {
 					value = log[start:i]
-					result.Set(key, value)
+					result = append(result, container.Field[string]{Key: key, Value: value})
 					isKey = true
 					start = i + 1
 				}
@@ -64,7 +64,7 @@ func ParseLogFmt(log string) (container.Fields[string], error) {
 			return nil, errors.New("invalid format: unclosed quotes")
 		}
 		value = log[start:]
-		result.Set(key, value)
+		result = append(result, container.Field[string]{Key: key, Value: value})
 	} else if isKey && start < len(log) {
 		return nil, errors.New("invalid format: unexpected key without value")
 	}
@@ -74,10 +74,10 @@ func ParseLogFmt(log string) (container.Fields[string], error) {
 			return nil, errors.New("invalid format: unclosed quotes")
 		}
 		value = log[start:]
-		result.Set(key, value)
+		result = append(result, container.Field[string]{Key: key, Value: value})
 	}
 
-	return result, nil
+	return result.Compact(), nil
 }
 
 // unescapeQuoted decodes a quoted logfmt value (including the surrounding
