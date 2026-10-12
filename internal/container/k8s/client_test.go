@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"slices"
 	"testing"
 	"time"
 
@@ -487,4 +488,67 @@ func newTestK8sClient(t *testing.T, objects ...runtime.Object) *Client {
 		namespace:     []string{"default"},
 		ownerCache:    make(map[string]ownerLookupResult),
 	}
+}
+
+func podIn(namespace, name string) *corev1.Pod {
+	return &corev1.Pod{
+		APIVersion: "v1", Kind: "Pod",
+		Namespace: namespace,
+		Name:      name,
+		Spec: corev1.PodSpec{
+			Containers: []corev1.Container{{Name: "app", Image: "example/app:latest"}},
+		},
+		Status: corev1.PodStatus{Phase: corev1.PodRunning},
+	}
+}
+
+// listClient watches every namespace in order, with the first one answering
+// slowest, so results are only in input order if they are placed by index
+// rather than by completion.
+func listClient(t *testing.T, failing ...string) *Client {
+	client := newTestK8sClient(t)
+	client.namespace = []string{"c", "a", "b"}
+	clientset := k8sfake.NewSimpleClientset(podIn("a", "pod-a"), podIn("b", "pod-b"), podIn("c", "pod-c"))
+	clientset.PrependReactor("list", "pods", func(action k8stesting.Action) (bool, runtime.Object, error) {
+		ns := action.GetNamespace()
+		if ns == "c" {
+			time.Sleep(50 * time.Millisecond)
+		}
+		if slices.Contains(failing, ns) {
+			return true, nil, fmt.Errorf("namespace %s is forbidden", ns)
+		}
+		return false, nil, nil
+	})
+	client.Clientset = clientset
+	return client
+}
+
+func containerIDs(containers []container.Container) []string {
+	ids := make([]string, 0, len(containers))
+	for _, c := range containers {
+		ids = append(ids, c.ID)
+	}
+	return ids
+}
+
+func TestListContainersKeepsNamespaceOrder(t *testing.T) {
+	containers, err := listClient(t).ListContainers(t.Context(), nil)
+
+	require.NoError(t, err)
+	assert.Equal(t, []string{"c:pod-c:app", "a:pod-a:app", "b:pod-b:app"}, containerIDs(containers))
+}
+
+// One namespace the service account cannot list must not hide the others.
+func TestListContainersSkipsAFailingNamespace(t *testing.T) {
+	containers, err := listClient(t, "a").ListContainers(t.Context(), nil)
+
+	require.NoError(t, err)
+	assert.Equal(t, []string{"c:pod-c:app", "b:pod-b:app"}, containerIDs(containers))
+}
+
+func TestListContainersFailsWhenEveryNamespaceFails(t *testing.T) {
+	containers, err := listClient(t, "a", "b", "c").ListContainers(t.Context(), nil)
+
+	require.Error(t, err)
+	assert.Nil(t, containers)
 }

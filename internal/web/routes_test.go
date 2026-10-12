@@ -8,6 +8,7 @@ import (
 
 	"io"
 	"io/fs"
+	"testing/fstest"
 
 	"github.com/amir20/dozzle/internal/container"
 	"github.com/amir20/dozzle/internal/container/docker"
@@ -20,8 +21,6 @@ import (
 	"github.com/moby/moby/api/types/system"
 
 	"github.com/stretchr/testify/mock"
-
-	"github.com/spf13/afero"
 )
 
 type MockedClient struct {
@@ -146,9 +145,7 @@ func createHandler(client docker.UpdateClient, content fs.FS, config Config) *ch
 	}
 
 	if content == nil {
-		fs := afero.NewMemMapFs()
-		afero.WriteFile(fs, "index.html", []byte("index page"), 0644)
-		content = afero.NewIOFS(fs)
+		content = fstest.MapFS{"index.html": {Data: []byte("index page")}}
 	}
 
 	manager := hostservice.NewRetriableClientManager(nil, nil, 3*time.Second, tls.Certificate{}, docker.NewService(client, container.ContainerLabels{}))

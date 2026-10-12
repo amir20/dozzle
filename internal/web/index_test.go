@@ -7,13 +7,13 @@ import (
 	"net/http/httptest"
 	"strings"
 	"testing"
+	"testing/fstest"
 	"time"
 
 	"github.com/amir20/dozzle/internal/container"
 	"github.com/amir20/dozzle/internal/container/docker"
 	"github.com/amir20/dozzle/internal/hostservice"
 	"github.com/amir20/dozzle/internal/notification"
-	"github.com/spf13/afero"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
@@ -70,11 +70,10 @@ func Test_index_inlines_cloud_config(t *testing.T) {
 	render := func(t *testing.T, cc *notification.CloudConfig) (map[string]any, string) {
 		t.Helper()
 
-		memfs := afero.NewMemMapFs()
 		// The same script context the real shell uses: html/template escapes for the
 		// context it is in, so the config only survives as JSON inside this tag.
 		const tmpl = `<script type="application/json" id="config__json">{{ marshal .Config }}</script>`
-		require.NoError(t, afero.WriteFile(memfs, "index.html", []byte(tmpl), 0644))
+		memfs := fstest.MapFS{"index.html": {Data: []byte(tmpl)}}
 
 		client := new(MockedClient)
 		client.On("ListContainers", mock.Anything, mock.Anything).Return([]container.Container{}, nil)
@@ -84,7 +83,7 @@ func Test_index_inlines_cloud_config(t *testing.T) {
 		manager := hostservice.NewRetriableClientManager(nil, nil, 3*time.Second, tls.Certificate{}, docker.NewService(client, container.ContainerLabels{}))
 		h := &handler{
 			hostService: &cloudLinkedService{HostService: hostservice.NewMultiHostService(manager, 3*time.Second), cc: cc},
-			content:     afero.NewIOFS(memfs),
+			content:     memfs,
 			config:      &Config{Base: "/", Authorization: Authorization{Provider: NONE}},
 		}
 

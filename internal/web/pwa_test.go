@@ -5,10 +5,10 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
+	"testing/fstest"
 	"time"
 
 	"github.com/amir20/dozzle/internal/auth"
-	"github.com/spf13/afero"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -16,10 +16,9 @@ import (
 func pwaHandler(t *testing.T, config Config) http.Handler {
 	t.Helper()
 
-	fs := afero.NewMemMapFs()
-	require.NoError(t, afero.WriteFile(fs, "index.html", []byte("index page"), 0644))
+	fs := fstest.MapFS{"index.html": {Data: []byte("index page")}}
 
-	return createHandler(nil, afero.NewIOFS(fs), config)
+	return createHandler(nil, fs, config)
 }
 
 func get(t *testing.T, handler http.Handler, url string) *httptest.ResponseRecorder {

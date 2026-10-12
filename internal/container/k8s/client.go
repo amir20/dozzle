@@ -31,9 +31,6 @@ import (
 
 	"github.com/rs/zerolog/log"
 
-	"github.com/samber/lo"
-	lop "github.com/samber/lo/parallel"
-
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/kubernetes/scheme"
 	"k8s.io/client-go/rest"
@@ -597,35 +594,46 @@ func (k *Client) ListContainers(ctx context.Context, labels container.ContainerL
 	if selector != "" {
 		log.Debug().Str("selector", selector).Msg("Listing containers with labels")
 	}
-	containerList := lop.Map(k.namespace, func(namespace string, index int) lo.Tuple2[[]container.Container, error] {
-		pods, err := k.Clientset.CoreV1().Pods(namespace).List(ctx, metav1.ListOptions{LabelSelector: selector})
-		if err != nil {
-			return lo.T2[[]container.Container, error](nil, fmt.Errorf("failed to list pods in namespace %s: %w", namespace, err))
-		}
-		var containers []container.Container
-		for _, pod := range pods.Items {
-			for _, c := range k.podToContainers(ctx, &pod) {
-				if metadataLabels.Exists() && !matchesContainerLabels(c.Labels, metadataLabels) {
-					continue
-				}
-				containers = append(containers, c)
+	type result struct {
+		containers []container.Container
+		err        error
+	}
+	// One goroutine per namespace, each writing its own slot so the result
+	// keeps namespace order.
+	containerList := make([]result, len(k.namespace))
+	var wg sync.WaitGroup
+	for i, namespace := range k.namespace {
+		wg.Go(func() {
+			pods, err := k.Clientset.CoreV1().Pods(namespace).List(ctx, metav1.ListOptions{LabelSelector: selector})
+			if err != nil {
+				containerList[i] = result{err: fmt.Errorf("failed to list pods in namespace %s: %w", namespace, err)}
+				return
 			}
-		}
-		return lo.T2[[]container.Container, error](containers, nil)
-	})
+			var containers []container.Container
+			for _, pod := range pods.Items {
+				for _, c := range k.podToContainers(ctx, &pod) {
+					if metadataLabels.Exists() && !matchesContainerLabels(c.Labels, metadataLabels) {
+						continue
+					}
+					containers = append(containers, c)
+				}
+			}
+			containerList[i] = result{containers: containers}
+		})
+	}
+	wg.Wait()
 
 	var containers []container.Container
 	var lastError error
 	success := false
-	for _, t2 := range containerList {
-		items, err := t2.Unpack()
-		if err != nil {
-			log.Error().Err(err).Msg("failed to fetch containers")
-			lastError = err
+	for _, r := range containerList {
+		if r.err != nil {
+			log.Error().Err(r.err).Msg("failed to fetch containers")
+			lastError = r.err
 			continue
 		}
 		success = true
-		containers = append(containers, items...)
+		containers = append(containers, r.containers...)
 	}
 
 	if !success {

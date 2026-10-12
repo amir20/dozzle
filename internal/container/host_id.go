@@ -1,8 +1,9 @@
 package container
 
 import (
+	"cmp"
+
 	"github.com/google/uuid"
-	"github.com/samber/lo"
 )
 
 // EngineIdentity is everything a backend can say about the thing it just
@@ -75,7 +76,7 @@ func (s StaticHostID) Resolve(EngineIdentity) string {
 type DerivedHostID struct{}
 
 func (DerivedHostID) Resolve(engine EngineIdentity) string {
-	return lo.CoalesceOrEmpty(engine.SwarmNodeID, podmanHostID(engine), engine.EngineID, engine.Fallback)
+	return cmp.Or(engine.SwarmNodeID, podmanHostID(engine), engine.EngineID, engine.Fallback)
 }
 
 // dozzleHostNamespace seeds the derived ids below. It is a random constant

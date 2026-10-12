@@ -8,10 +8,10 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
+	"testing/fstest"
 
 	"github.com/amir20/dozzle/internal/container"
 	"github.com/amir20/dozzle/internal/hostservice"
-	"github.com/spf13/afero"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -30,9 +30,7 @@ func (f *fakeRestarter) RolloutRestart(_ context.Context, namespace, kind, name 
 }
 
 func rolloutRouter(hostService HostService, mode string) http.Handler {
-	memFs := afero.NewMemMapFs()
-	afero.WriteFile(memFs, "index.html", []byte("index page"), 0644)
-	var content fs.FS = afero.NewIOFS(memFs)
+	var content fs.FS = fstest.MapFS{"index.html": {Data: []byte("index page")}}
 	return createRouter(&handler{
 		hostService: hostService,
 		content:     content,

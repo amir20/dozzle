@@ -9,7 +9,6 @@ import (
 
 	"github.com/puzpuzpuz/xsync/v4"
 	"github.com/rs/zerolog/log"
-	"github.com/samber/lo"
 	"golang.org/x/sync/singleflight"
 )
 
@@ -216,9 +215,11 @@ func (s *Store) userFilterIDs(ctx context.Context, labels ContainerLabels) (map[
 	if len(validContainers) == 0 {
 		log.Warn().Interface("userLabels", labels).Msg("no containers found with user labels")
 	}
-	return lo.KeyBy(validContainers, func(item Container) string {
-		return item.ID
-	}), nil
+	byID := make(map[string]Container, len(validContainers))
+	for _, c := range validContainers {
+		byID[c.ID] = c
+	}
+	return byID, nil
 }
 
 func (s *Store) ListContainers(ctx context.Context, labels ContainerLabels) ([]Container, error) {

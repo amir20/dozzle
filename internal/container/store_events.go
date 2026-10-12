@@ -9,7 +9,6 @@ import (
 
 	"github.com/puzpuzpuz/xsync/v4"
 	"github.com/rs/zerolog/log"
-	"github.com/samber/lo"
 )
 
 // matchesLabels is a cheap pre-check against the store's filter, so an update for a
@@ -71,7 +70,8 @@ func (s *Store) listedEntry(ctx context.Context, id string) *Container {
 		log.Warn().Err(err).Str("id", id).Msg("failed to list containers while adding container")
 		return nil
 	}
-	if listed, ok := lo.Find(list, func(item Container) bool { return item.ID == id }); ok {
+	if i := slices.IndexFunc(list, func(item Container) bool { return item.ID == id }); i >= 0 {
+		listed := list[i]
 		return &listed
 	}
 	return nil

@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"maps"
 	"slices"
 	"sync"
 	"time"
@@ -16,8 +17,6 @@ import (
 	"github.com/amir20/dozzle/internal/container/docker"
 
 	"github.com/puzpuzpuz/xsync/v4"
-	"github.com/samber/lo"
-	lop "github.com/samber/lo/parallel"
 
 	"github.com/rs/zerolog/log"
 )
@@ -299,7 +298,7 @@ func (m *RetriableClientManager) RetryAndList() ([]container.ClientService, []er
 		host.Available = true
 		published = append(published, host)
 	}
-	clients := lo.Values(m.clients)
+	clients := slices.AppendSeq(make([]container.ClientService, 0, len(m.clients)), maps.Values(m.clients))
 	m.mu.Unlock()
 
 	for _, host := range published {
@@ -425,7 +424,7 @@ func (m *RetriableClientManager) List() []container.ClientService {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 
-	return lo.Values(m.clients)
+	return slices.AppendSeq(make([]container.ClientService, 0, len(m.clients)), maps.Values(m.clients))
 }
 
 func (m *RetriableClientManager) Find(id string) (container.ClientService, bool) {
@@ -505,17 +504,22 @@ func (m *RetriableClientManager) Hosts(ctx context.Context) []container.Host {
 		host  container.Host
 	}
 
-	results := lop.Map(entries, func(e entry, _ int) result {
-		host, err := e.service.Host(ctx)
-		if err != nil {
-			log.Warn().Err(err).Str("host", host.Name).Msg("error fetching host info for client")
-			host.Available = false
-		} else {
-			host.Available = true
-		}
+	results := make([]result, len(entries))
+	var wg sync.WaitGroup
+	for i, e := range entries {
+		wg.Go(func() {
+			host, err := e.service.Host(ctx)
+			if err != nil {
+				log.Warn().Err(err).Str("host", host.Name).Msg("error fetching host info for client")
+				host.Available = false
+			} else {
+				host.Available = true
+			}
 
-		return result{entry: e, host: host}
-	})
+			results[i] = result{entry: e, host: host}
+		})
+	}
+	wg.Wait()
 
 	hosts := make([]container.Host, 0, len(results)+len(failedAgents))
 	for _, r := range results {
