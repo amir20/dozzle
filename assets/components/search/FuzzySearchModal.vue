@@ -123,7 +123,7 @@
                   <button
                     v-if="entry.item.type === 'container' && canToggle(entry.item.id)"
                     type="button"
-                    class="text-base-content/40 hover:text-secondary shrink-0"
+                    class="text-base-content/40 hover:text-secondary relative shrink-0 after:absolute after:-inset-2 after:content-['']"
                     :class="{ 'text-secondary': isStreaming(entry.item.id) }"
                     :title="toggleTitle(entry.item.id)"
                     :aria-label="toggleTitle(entry.item.id)"
@@ -135,7 +135,7 @@
                   <button
                     v-if="entry.item.type === 'container' && !isMobile"
                     type="button"
-                    class="text-base-content/40 hover:text-secondary shrink-0"
+                    class="text-base-content/40 hover:text-secondary relative shrink-0 after:absolute after:-inset-2 after:content-['']"
                     :title="$t('tooltip.pin-column')"
                     @click.stop.prevent="addColumn(entry.item)"
                   >
