@@ -8,7 +8,6 @@ import (
 	"github.com/amir20/dozzle/internal/container"
 
 	"github.com/rs/zerolog/log"
-	orderedmap "github.com/wk8/go-ordered-map/v2"
 )
 
 // URL marker regex compiled once for performance
@@ -27,10 +26,10 @@ func EscapeHTMLValues(logEvent *container.LogEvent) {
 			value[i].Message = escapeAndProcessMarkers(fragment.Message)
 		}
 
-	case *orderedmap.OrderedMap[string, any]:
+	case container.Fields[any]:
 		escapeAnyMap(value)
 
-	case *orderedmap.OrderedMap[string, string]:
+	case container.Fields[string]:
 		escapeStringMap(value)
 
 	case map[string]any:
@@ -64,14 +63,14 @@ func escapeAndProcessMarkers(value string) string {
 	return value
 }
 
-func escapeAnyMap(orderedMap *orderedmap.OrderedMap[string, any]) {
-	for pair := orderedMap.Oldest(); pair != nil; pair = pair.Next() {
+func escapeAnyMap(fields container.Fields[any]) {
+	for i, pair := range fields {
 		switch value := pair.Value.(type) {
 		case string:
-			orderedMap.Set(pair.Key, escapeAndProcessMarkers(value))
-		case *orderedmap.OrderedMap[string, any]:
+			fields[i].Value = escapeAndProcessMarkers(value)
+		case container.Fields[any]:
 			escapeAnyMap(value)
-		case *orderedmap.OrderedMap[string, string]:
+		case container.Fields[string]:
 			escapeStringMap(value)
 		case map[string]any:
 			escapeMapStringInterface(value)
@@ -79,16 +78,15 @@ func escapeAnyMap(orderedMap *orderedmap.OrderedMap[string, any]) {
 			escapeStringMapString(value)
 		case []any:
 			escapeSlice(value)
-			orderedMap.Set(pair.Key, value)
 		default:
 			log.Trace().Type("type", value).Msg("unknown logEvent type")
 		}
 	}
 }
 
-func escapeStringMap(orderedMap *orderedmap.OrderedMap[string, string]) {
-	for pair := orderedMap.Oldest(); pair != nil; pair = pair.Next() {
-		orderedMap.Set(pair.Key, escapeAndProcessMarkers(pair.Value))
+func escapeStringMap(fields container.Fields[string]) {
+	for i, pair := range fields {
+		fields[i].Value = escapeAndProcessMarkers(pair.Value)
 	}
 }
 
@@ -118,9 +116,9 @@ func escapeSlice(slice []any) {
 		switch val := val.(type) {
 		case string:
 			slice[i] = escapeAndProcessMarkers(val)
-		case *orderedmap.OrderedMap[string, any]:
+		case container.Fields[any]:
 			escapeAnyMap(val)
-		case *orderedmap.OrderedMap[string, string]:
+		case container.Fields[string]:
 			escapeStringMap(val)
 		case map[string]any:
 			escapeMapStringInterface(val)

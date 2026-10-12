@@ -10,7 +10,6 @@ import (
 	"github.com/puzpuzpuz/xsync/v4"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	orderedmap "github.com/wk8/go-ordered-map/v2"
 )
 
 func TestSubscription_MatchesLog(t *testing.T) {
@@ -385,54 +384,46 @@ func TestFromLogEvent_OrderedMapConversion(t *testing.T) {
 		want       bool
 	}{
 		{
-			name:       "orderedmap string any - matches number field",
+			name:       "fields any - matches number field",
 			expression: `message.value > 0`,
 			logEvent: container.LogEvent{
-				Message: orderedmap.New[string, any](
-					orderedmap.WithInitialData(
-						orderedmap.Pair[string, any]{Key: "value", Value: 123},
-						orderedmap.Pair[string, any]{Key: "name", Value: "test"},
-					),
-				),
+				Message: container.Fields[any]{
+					{Key: "value", Value: 123},
+					{Key: "name", Value: "test"},
+				},
 			},
 			want: true,
 		},
 		{
-			name:       "orderedmap string any - matches string field",
+			name:       "fields any - matches string field",
 			expression: `message.name == "test"`,
 			logEvent: container.LogEvent{
-				Message: orderedmap.New[string, any](
-					orderedmap.WithInitialData(
-						orderedmap.Pair[string, any]{Key: "value", Value: 123},
-						orderedmap.Pair[string, any]{Key: "name", Value: "test"},
-					),
-				),
+				Message: container.Fields[any]{
+					{Key: "value", Value: 123},
+					{Key: "name", Value: "test"},
+				},
 			},
 			want: true,
 		},
 		{
-			name:       "orderedmap string string - matches field",
+			name:       "fields string - matches field",
 			expression: `message.level == "error"`,
 			logEvent: container.LogEvent{
-				Message: orderedmap.New[string, string](
-					orderedmap.WithInitialData(
-						orderedmap.Pair[string, string]{Key: "level", Value: "error"},
-						orderedmap.Pair[string, string]{Key: "msg", Value: "something failed"},
-					),
-				),
+				Message: container.Fields[string]{
+					{Key: "level", Value: "error"},
+					{Key: "msg", Value: "something failed"},
+				},
 			},
 			want: true,
 		},
 		{
-			name:       "orderedmap string string - does not match",
+			name:       "fields string - does not match",
 			expression: `message.level == "error"`,
 			logEvent: container.LogEvent{
-				Message: orderedmap.New[string, string](
-					orderedmap.WithInitialData(
-						orderedmap.Pair[string, string]{Key: "level", Value: "info"},
-						orderedmap.Pair[string, string]{Key: "msg", Value: "all good"},
-					),
-				),
+				Message: container.Fields[string]{
+					{Key: "level", Value: "info"},
+					{Key: "msg", Value: "all good"},
+				},
 			},
 			want: false,
 		},
@@ -458,6 +449,31 @@ func TestFromLogEvent_OrderedMapConversion(t *testing.T) {
 			got := sub.MatchesLog(notificationLog)
 			assert.Equal(t, tt.want, got)
 		})
+	}
+}
+
+// Nested objects decode as container.Fields; expr and webhook templates index
+// by key, so they must arrive as plain maps at every depth.
+func TestFromLogEvent_NestedFieldsBecomeMaps(t *testing.T) {
+	fields, err := container.ParseFields([]byte(`{"user":{"name":"amir","roles":[{"r":"admin"}]},"status":500}`))
+	require.NoError(t, err)
+
+	notificationLog := FromLogEvent(container.LogEvent{Message: fields})
+	assert.Equal(t, map[string]any{
+		"user":   map[string]any{"name": "amir", "roles": []any{map[string]any{"r": "admin"}}},
+		"status": 500.0,
+	}, notificationLog.Message)
+
+	for expression, want := range map[string]bool{
+		`message.user.name == "amir"`:         true,
+		`message.user.roles[0].r == "admin"`:  true,
+		`message.status >= 500`:               true,
+		`message.user.name == "someone else"`: false,
+	} {
+		program, err := expr.Compile(expression, expr.Env(types.NotificationLog{}), expr.AsBool())
+		require.NoError(t, err, expression)
+		sub := &Subscription{LogProgram: program}
+		assert.Equal(t, want, sub.MatchesLog(notificationLog), expression)
 	}
 }
 

@@ -7,7 +7,6 @@ import (
 
 	"github.com/amir20/dozzle/internal/container"
 	"github.com/rs/zerolog/log"
-	orderedmap "github.com/wk8/go-ordered-map/v2"
 )
 
 // PatternMatcher defines the interface for a regex pattern matcher
@@ -69,10 +68,10 @@ func (pm *PatternMatcher) MarkInLogEvent(logEvent *container.LogEvent) bool {
 		}
 		return found
 
-	case *orderedmap.OrderedMap[string, any]:
+	case container.Fields[any]:
 		return pm.markMapAny(value)
 
-	case *orderedmap.OrderedMap[string, string]:
+	case container.Fields[string]:
 		return pm.markMapString(value)
 
 	case map[string]any:
@@ -95,14 +94,14 @@ func (pm *PatternMatcher) MarkInLogEvent(logEvent *container.LogEvent) bool {
 	return false
 }
 
-func (pm *PatternMatcher) markMapAny(orderedMap *orderedmap.OrderedMap[string, any]) bool {
+func (pm *PatternMatcher) markMapAny(fields container.Fields[any]) bool {
 	found := false
-	for pair := orderedMap.Oldest(); pair != nil; pair = pair.Next() {
+	for i, pair := range fields {
 		switch value := pair.Value.(type) {
 		case string:
 			if replaced, matched := pm.markString(value); matched {
 				found = true
-				orderedMap.Set(pair.Key, replaced)
+				fields[i].Value = replaced
 			}
 
 		case []any:
@@ -110,12 +109,12 @@ func (pm *PatternMatcher) markMapAny(orderedMap *orderedmap.OrderedMap[string, a
 				found = true
 			}
 
-		case *orderedmap.OrderedMap[string, any]:
+		case container.Fields[any]:
 			if pm.markMapAny(value) {
 				found = true
 			}
 
-		case *orderedmap.OrderedMap[string, string]:
+		case container.Fields[string]:
 			if pm.markMapString(value) {
 				found = true
 			}
@@ -128,7 +127,7 @@ func (pm *PatternMatcher) markMapAny(orderedMap *orderedmap.OrderedMap[string, a
 		case int, float64, bool:
 			formatted := fmt.Sprintf("%v", value)
 			if pm.Regex.MatchString(formatted) {
-				orderedMap.Set(pair.Key, pm.Regex.ReplaceAllString(formatted, pm.MarkerStart+"$0"+pm.MarkerEnd))
+				fields[i].Value = pm.Regex.ReplaceAllString(formatted, pm.MarkerStart+"$0"+pm.MarkerEnd)
 				found = true
 			}
 
@@ -173,12 +172,12 @@ func (pm *PatternMatcher) markMap(data map[string]any) bool {
 	return found
 }
 
-func (pm *PatternMatcher) markMapString(orderedMap *orderedmap.OrderedMap[string, string]) bool {
+func (pm *PatternMatcher) markMapString(fields container.Fields[string]) bool {
 	found := false
-	for pair := orderedMap.Oldest(); pair != nil; pair = pair.Next() {
+	for i, pair := range fields {
 		if replaced, matched := pm.markString(pair.Value); matched {
 			found = true
-			orderedMap.Set(pair.Key, replaced)
+			fields[i].Value = replaced
 		}
 	}
 	return found

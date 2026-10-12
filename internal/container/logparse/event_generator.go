@@ -2,7 +2,6 @@ package logparse
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"hash/fnv"
 	"math"
@@ -13,8 +12,6 @@ import (
 	"github.com/amir20/dozzle/internal/container"
 
 	"encoding/json"
-
-	orderedmap "github.com/wk8/go-ordered-map/v2"
 
 	"github.com/rs/zerolog/log"
 )
@@ -341,14 +338,7 @@ func createEvent(message string, streamType container.StdType) *container.LogEve
 			if message == "" {
 				logEvent.Message = "" // empty message so do nothing
 			} else if json.Valid([]byte(message)) {
-				data := orderedmap.New[string, any]()
-				if err := json.Unmarshal([]byte(message), &data); err != nil {
-					if jsonErr, ok := errors.AsType[*json.UnmarshalTypeError](err); ok {
-						if jsonErr.Value == "string" {
-							log.Warn().Err(err).Str("value", jsonErr.Value).Msg("failed to unmarshal json")
-						}
-					}
-				} else {
+				if data, err := container.ParseFields([]byte(message)); err == nil {
 					if data == nil {
 						logEvent.Message = ""
 					} else {

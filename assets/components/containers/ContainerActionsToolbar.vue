@@ -220,7 +220,8 @@ const {
   /** Carry the time, stream and level rows, for where the filter chip is not shown. */
   filters?: boolean;
 }>();
-const clear = defineEmit();
+const emit = defineEmits<{ clear: [] }>();
+const clear = () => emit("clear");
 const { actionStates, start, stop, restart, update } = useContainerActions(toRef(() => container));
 const canStartStop = config.mode !== "k8s";
 const workload = computed(() => containerWorkload(container));

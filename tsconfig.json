@@ -19,8 +19,7 @@
     "types": [
       "vitest",
       "vite/client",
-      "unplugin-vue-macros/macros-global",
-      "vite-plugin-vue-layouts/client",
+      "vite-plugin-vue-layouts-next/client",
       "unplugin-icons/types/vue"
     ]
   },

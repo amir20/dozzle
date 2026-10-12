@@ -10,8 +10,7 @@ import { createI18n } from "vue-i18n";
 import { useRoute, useRouter } from "vue-router";
 import { router } from "@/modules/router";
 
-// @ts-ignore
-import EventSource, { sources } from "eventsourcemock";
+import EventSource from "@/testing/eventSourceMock";
 
 vi.mock("vue-router");
 
@@ -168,6 +167,7 @@ describe("<FuzzySearchModal />", () => {
     await wrapper.find("input").setValue("baz");
     await wrapper.find("input").trigger("keydown.enter");
     expect(useRouter().push).toHaveBeenCalledWith({ name: "/container/[id]", params: { id: "567" } });
+    expect(wrapper.emitted("close")).toHaveLength(1);
   });
 
   test("offers no merge when nothing is streaming", async () => {
