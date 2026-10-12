@@ -3,6 +3,7 @@ package web
 import (
 	"archive/zip"
 	"bufio"
+	"bytes"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -225,6 +226,10 @@ func writeLogsJSON(w io.Writer, r *http.Request, services []*container.Container
 // does, one container at a time so a big stack holds one log stream open.
 func writeLogsText(w io.Writer, r *http.Request, services []*container.ContainerService, from, to time.Time, stdTypes container.StdType, filter logFilter, headers []string) {
 	for i, service := range services {
+		// The client went away; the rest would only log one error each.
+		if r.Context().Err() != nil {
+			return
+		}
 		if len(services) > 1 {
 			if i > 0 {
 				fmt.Fprint(w, "\n")
@@ -270,14 +275,24 @@ func writeRawText(w io.Writer, r io.Reader) error {
 	for {
 		chunk, err := br.ReadSlice('\n')
 		if err == bufio.ErrBufferFull {
-			// A line longer than the buffer: gather it before writing it whole.
-			long = append(long, chunk...)
+			// A line longer than the buffer is gathered, but only up to the cap
+			// the parsed path clips at; past it the rest is read and dropped, so a
+			// TTY that never writes a newline cannot grow this without bound.
+			if len(long) <= container.MaxLogLineBytes {
+				long = append(long, chunk...)
+			}
 			continue
 		}
 		line := chunk
 		if long != nil {
-			line = append(long, chunk...)
-			long = long[:0:0]
+			if len(long) <= container.MaxLogLineBytes {
+				line = append(long, chunk...)
+			} else if bytes.HasSuffix(chunk, []byte("\n")) {
+				line = append(long, '\n')
+			} else {
+				line = long
+			}
+			long = nil
 		}
 		if len(line) > 0 {
 			if _, werr := io.WriteString(w, rawCopyLine(line)); werr != nil {
@@ -302,7 +317,7 @@ func rawCopyLine(line []byte) string {
 	if !strings.HasSuffix(text, "\n") {
 		text += "\n"
 	}
-	return container.StripANSI(text)
+	return container.StripANSI(container.TruncateLogLine(text))
 }
 
 // copyHeaders names each container in a copy: its name, plus its host's name when
