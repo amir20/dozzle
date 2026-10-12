@@ -181,7 +181,14 @@ func scanMatches(
 		}
 		logs, err := s.LogsBetweenDates(ctx, start, to, stdTypes)
 		if err != nil {
-			return nil, 0, err
+			if ctx.Err() != nil {
+				return nil, 0, ctx.Err()
+			}
+			// One unreachable container (an agent gone away) must not throw
+			// away what the others matched.
+			log.Error().Err(err).Str("container", s.Container.ID).Msg("error fetching logs for search")
+			done += to.Sub(start)
+			continue
 		}
 		var kept []*container.LogEvent
 		for event := range logs {
