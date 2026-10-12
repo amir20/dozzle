@@ -1,0 +1,166 @@
+
+[Test_createRoutes_simple_redirect - 1]
+HTTP/1.1 307 Temporary Redirect
+Connection: close
+Cache-Control: no-store
+Content-Security-Policy: default-src 'self' 'wasm-unsafe-eval' blob:; script-src 'self' 'wasm-unsafe-eval' blob:; style-src 'self' 'unsafe-inline' blob:; img-src 'self' data:; font-src 'self' data:; object-src 'none'; base-uri 'self';
+Content-Type: text/html; charset=utf-8
+Location: /login?redirectUrl=%2F
+
+<a href="/login?redirectUrl=%2F">Temporary Redirect</a>.
+---
+
+[Test_createRoutes_index - 1]
+HTTP/1.1 200 OK
+Connection: close
+Cache-Control: no-store
+Content-Security-Policy: default-src 'self' 'wasm-unsafe-eval' blob:; script-src 'self' 'wasm-unsafe-eval' blob:; style-src 'self' 'unsafe-inline' blob:; img-src 'self' data:; font-src 'self' data:; object-src 'none'; base-uri 'self';
+Content-Type: text/html; charset=utf-8
+
+index page
+---
+
+[Test_createRoutes_redirect - 1]
+HTTP/1.1 301 Moved Permanently
+Connection: close
+Content-Security-Policy: default-src 'self' 'wasm-unsafe-eval' blob:; script-src 'self' 'wasm-unsafe-eval' blob:; style-src 'self' 'unsafe-inline' blob:; img-src 'self' data:; font-src 'self' data:; object-src 'none'; base-uri 'self';
+Content-Type: text/html; charset=utf-8
+Location: /foobar/
+
+<a href="/foobar/">Moved Permanently</a>.
+---
+
+[Test_createRoutes_foobar - 1]
+HTTP/1.1 200 OK
+Connection: close
+Cache-Control: no-store
+Content-Security-Policy: default-src 'self' 'wasm-unsafe-eval' blob:; script-src 'self' 'wasm-unsafe-eval' blob:; style-src 'self' 'unsafe-inline' blob:; img-src 'self' data:; font-src 'self' data:; object-src 'none'; base-uri 'self';
+Content-Type: text/html; charset=utf-8
+
+foo page
+---
+
+[Test_createRoutes_version - 1]
+HTTP/1.1 200 OK
+Connection: close
+Content-Security-Policy: default-src 'self' 'wasm-unsafe-eval' blob:; script-src 'self' 'wasm-unsafe-eval' blob:; style-src 'self' 'unsafe-inline' blob:; img-src 'self' data:; font-src 'self' data:; object-src 'none'; base-uri 'self';
+Content-Type: text/html
+
+<pre>dev</pre>
+---
+
+[Test_handler_streamEvents_happy - 1]
+HTTP/1.1 200 OK
+Connection: close
+Cache-Control: no-transform
+Cache-Control: no-cache
+Connection: keep-alive
+Content-Security-Policy: default-src 'self' 'wasm-unsafe-eval' blob:; script-src 'self' 'wasm-unsafe-eval' blob:; style-src 'self' 'unsafe-inline' blob:; img-src 'self' data:; font-src 'self' data:; object-src 'none'; base-uri 'self';
+Content-Type: text/event-stream
+X-Accel-Buffering: no
+
+retry: 3000
+
+event: server-version
+data: {"version":""}
+
+
+event: containers-changed
+data: [{"id":"1234","name":"test","image":"test","command":"","created":"0001-01-01T00:00:00Z","startedAt":"0001-01-01T00:00:00Z","finishedAt":"0001-01-01T00:00:00Z","state":"","memoryLimit":0,"cpuLimit":0,"stats":{"cpu":[],"memory":[],"memoryUsage":[],"networkRxTotal":[],"networkTxTotal":[],"diskReadTotal":[],"diskWriteTotal":[]}}]
+
+
+event: containers-changed
+data: [{"id":"1234","name":"test","image":"test","command":"","created":"0001-01-01T00:00:00Z","startedAt":"0001-01-01T00:00:00Z","finishedAt":"0001-01-01T00:00:00Z","state":"","memoryLimit":0,"cpuLimit":0,"stats":{"cpu":[],"memory":[],"memoryUsage":[],"networkRxTotal":[],"networkTxTotal":[],"diskReadTotal":[],"diskWriteTotal":[]}}]
+
+
+event: container-event
+data: {"name":"start","host":"localhost","actorId":"1234","time":"0001-01-01T00:00:00Z"}
+---
+
+[Test_handler_streamEvents_filtered - 1]
+HTTP/1.1 200 OK
+Connection: close
+Cache-Control: no-transform
+Cache-Control: no-cache
+Connection: keep-alive
+Content-Security-Policy: default-src 'self' 'wasm-unsafe-eval' blob:; script-src 'self' 'wasm-unsafe-eval' blob:; style-src 'self' 'unsafe-inline' blob:; img-src 'self' data:; font-src 'self' data:; object-src 'none'; base-uri 'self';
+Content-Type: text/event-stream
+X-Accel-Buffering: no
+
+retry: 3000
+
+event: server-version
+data: {"version":""}
+
+
+event: containers-changed
+data: [{"id":"visible","name":"visible","image":"test","command":"","created":"0001-01-01T00:00:00Z","startedAt":"0001-01-01T00:00:00Z","finishedAt":"0001-01-01T00:00:00Z","state":"","memoryLimit":0,"cpuLimit":0,"stats":{"cpu":[],"memory":[],"memoryUsage":[],"networkRxTotal":[],"networkTxTotal":[],"diskReadTotal":[],"diskWriteTotal":[]}}]
+
+
+event: containers-changed
+data: [{"id":"visible","name":"visible","image":"test","command":"","created":"0001-01-01T00:00:00Z","startedAt":"0001-01-01T00:00:00Z","finishedAt":"0001-01-01T00:00:00Z","state":"","memoryLimit":0,"cpuLimit":0,"stats":{"cpu":[],"memory":[],"memoryUsage":[],"networkRxTotal":[],"networkTxTotal":[],"diskReadTotal":[],"diskWriteTotal":[]}}]
+
+
+event: container-event
+data: {"name":"start","host":"localhost","actorId":"visible","time":"0001-01-01T00:00:00Z"}
+---
+
+[Test_handler_streamLogs_happy - 1]
+retry: 3000
+
+:ping 
+
+data: {"t":"single","m":"INFO Testing logs...\n","ts":0,"id":3835490584,"l":"info","s":"stdout","c":"123456"}
+
+
+event: container-event
+data: {"name":"container-stopped","host":"localhost","actorId":"123456","time":"<removed>"}
+---
+
+[Test_handler_streamLogs_happy_with_id - 1]
+retry: 3000
+
+:ping 
+
+data: {"t":"single","m":"INFO Testing logs...","rm":"INFO Testing logs...","ts":1589396137772,"id":2908612274,"l":"info","s":"stdout","c":"123456"}
+id: 1589396137772
+
+
+event: container-event
+data: {"name":"container-stopped","host":"localhost","actorId":"123456","time":"<removed>"}
+---
+
+[Test_handler_streamLogs_happy_container_stopped - 1]
+retry: 3000
+
+:ping 
+
+event: container-event
+data: {"name":"container-stopped","host":"localhost","actorId":"123456","time":"<removed>"}
+---
+
+[Test_handler_streamLogs_error_reading - 1]
+retry: 3000
+
+:ping
+---
+
+[Test_handler_streamLogs_error_std - 1]
+HTTP/1.1 400 Bad Request
+Connection: close
+Content-Security-Policy: default-src 'self' 'wasm-unsafe-eval' blob:; script-src 'self' 'wasm-unsafe-eval' blob:; style-src 'self' 'unsafe-inline' blob:; img-src 'self' data:; font-src 'self' data:; object-src 'none'; base-uri 'self';
+Content-Type: text/plain; charset=utf-8
+X-Content-Type-Options: nosniff
+
+stdout or stderr is required
+---
+
+[Test_handler_between_dates - 1]
+{"t":"single","m":"INFO Testing stdout logs...","rm":"INFO Testing stdout logs...","ts":1589396137772,"id":466600245,"l":"info","s":"stdout","c":"123456"}
+{"t":"single","m":"INFO Testing stderr logs...","rm":"INFO Testing stderr logs...","ts":1589396197772,"id":1101501603,"l":"info","s":"stderr","c":"123456"}
+---
+
+[Test_handler_between_dates_with_fill - 1]
+{"t":"single","m":"INFO Testing stdout logs...","rm":"INFO Testing stdout logs...","ts":1589396137772,"id":466600245,"l":"info","s":"stdout","c":"123456"}
+{"t":"single","m":"INFO Testing stderr logs...","rm":"INFO Testing stderr logs...","ts":1589396197772,"id":1101501603,"l":"info","s":"stderr","c":"123456"}
+---

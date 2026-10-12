@@ -12,7 +12,6 @@ import (
 	"testing"
 
 	"github.com/amir20/dozzle/internal/auth"
-	"github.com/beme/abide"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
@@ -45,7 +44,7 @@ func Test_createRoutes_simple_redirect(t *testing.T) {
 	rr := httptest.NewRecorder()
 
 	handler.ServeHTTP(rr, req)
-	abide.AssertHTTPResponse(t, t.Name(), rr.Result())
+	matchHTTPSnapshot(t, rr.Result())
 }
 
 func Test_createRoutes_simple_valid_token(t *testing.T) {

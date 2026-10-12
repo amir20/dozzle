@@ -6,7 +6,6 @@ import (
 
 	"testing"
 
-	"github.com/beme/abide"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
@@ -23,7 +22,7 @@ func Test_createRoutes_index(t *testing.T) {
 	rr := httptest.NewRecorder()
 
 	handler.ServeHTTP(rr, req)
-	abide.AssertHTTPResponse(t, t.Name(), rr.Result())
+	matchHTTPSnapshot(t, rr.Result())
 }
 
 func Test_createRoutes_redirect(t *testing.T) {
@@ -36,7 +35,7 @@ func Test_createRoutes_redirect(t *testing.T) {
 	rr := httptest.NewRecorder()
 
 	handler.ServeHTTP(rr, req)
-	abide.AssertHTTPResponse(t, t.Name(), rr.Result())
+	matchHTTPSnapshot(t, rr.Result())
 }
 
 func Test_createRoutes_foobar(t *testing.T) {
@@ -49,7 +48,7 @@ func Test_createRoutes_foobar(t *testing.T) {
 	rr := httptest.NewRecorder()
 
 	handler.ServeHTTP(rr, req)
-	abide.AssertHTTPResponse(t, t.Name(), rr.Result())
+	matchHTTPSnapshot(t, rr.Result())
 }
 
 func Test_createRoutes_foobar_file(t *testing.T) {
@@ -75,5 +74,5 @@ func Test_createRoutes_version(t *testing.T) {
 	rr := httptest.NewRecorder()
 
 	handler.ServeHTTP(rr, req)
-	abide.AssertHTTPResponse(t, t.Name(), rr.Result())
+	matchHTTPSnapshot(t, rr.Result())
 }

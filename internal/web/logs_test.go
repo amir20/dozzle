@@ -20,7 +20,6 @@ import (
 	"github.com/amir20/dozzle/internal/container"
 	"github.com/amir20/dozzle/internal/container/docker"
 	"github.com/amir20/dozzle/internal/web/search"
-	"github.com/beme/abide"
 	"github.com/go-chi/chi/v5"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -79,7 +78,7 @@ func Test_handler_streamLogs_happy(t *testing.T) {
 	rr := httptest.NewRecorder()
 	handler.ServeHTTP(rr, req)
 	reader := strings.NewReader(regexp.MustCompile(`"time":"[^"]*"`).ReplaceAllString(rr.Body.String(), `"time":"<removed>"`))
-	abide.AssertReader(t, t.Name(), reader)
+	matchReaderSnapshot(t, reader)
 	mockedClient.AssertExpectations(t)
 }
 
@@ -125,7 +124,7 @@ func Test_handler_streamLogs_happy_with_id(t *testing.T) {
 	rr := httptest.NewRecorder()
 	handler.ServeHTTP(rr, req)
 	reader := strings.NewReader(regexp.MustCompile(`"time":"[^"]*"`).ReplaceAllString(rr.Body.String(), `"time":"<removed>"`))
-	abide.AssertReader(t, t.Name(), reader)
+	matchReaderSnapshot(t, reader)
 	mockedClient.AssertExpectations(t)
 }
 
@@ -163,7 +162,7 @@ func Test_handler_streamLogs_happy_container_stopped(t *testing.T) {
 	rr := httptest.NewRecorder()
 	handler.ServeHTTP(rr, req)
 	reader := strings.NewReader(regexp.MustCompile(`"time":"[^"]*"`).ReplaceAllString(rr.Body.String(), `"time":"<removed>"`))
-	abide.AssertReader(t, t.Name(), reader)
+	matchReaderSnapshot(t, reader)
 	mockedClient.AssertExpectations(t)
 }
 
@@ -336,7 +335,7 @@ func Test_handler_streamLogs_error_reading(t *testing.T) {
 	rr := httptest.NewRecorder()
 	handler.ServeHTTP(rr, req)
 	reader := strings.NewReader(regexp.MustCompile(`"time":"[^"]*"`).ReplaceAllString(rr.Body.String(), `"time":"<removed>"`))
-	abide.AssertReader(t, t.Name(), reader)
+	matchReaderSnapshot(t, reader)
 	mockedClient.AssertExpectations(t)
 }
 
@@ -362,7 +361,7 @@ func Test_handler_streamLogs_error_std(t *testing.T) {
 	handler := createDefaultHandler(mockedClient)
 	rr := httptest.NewRecorder()
 	handler.ServeHTTP(rr, req)
-	abide.AssertHTTPResponse(t, t.Name(), rr.Result())
+	matchHTTPSnapshot(t, rr.Result())
 }
 
 func Test_handler_between_dates(t *testing.T) {
@@ -402,7 +401,7 @@ func Test_handler_between_dates(t *testing.T) {
 	rr := httptest.NewRecorder()
 	handler.ServeHTTP(rr, req)
 	reader := strings.NewReader(regexp.MustCompile(`"time":"[^"]*"`).ReplaceAllString(rr.Body.String(), `"time":"<removed>"`))
-	abide.AssertReader(t, t.Name(), reader)
+	matchReaderSnapshot(t, reader)
 	mockedClient.AssertExpectations(t)
 }
 
@@ -456,7 +455,7 @@ func Test_handler_between_dates_with_fill(t *testing.T) {
 	rr := httptest.NewRecorder()
 	handler.ServeHTTP(rr, req)
 	reader := strings.NewReader(regexp.MustCompile(`"time":"[^"]*"`).ReplaceAllString(rr.Body.String(), `"time":"<removed>"`))
-	abide.AssertReader(t, t.Name(), reader)
+	matchReaderSnapshot(t, reader)
 	mockedClient.AssertExpectations(t)
 }
 
