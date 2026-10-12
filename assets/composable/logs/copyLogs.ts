@@ -50,7 +50,7 @@ export async function mapLimit<T, R>(items: T[], limit: number, fn: (item: T) =>
  */
 export function useCopyLogs(containers: MaybeRefOrGetter<Container[]>, fallback?: () => void) {
   const { streamConfig, levels, timeRange } = useLoggingContext();
-  const { appliedSearchFilter } = useSearchFilter();
+  const { appliedSearchFilter, inverseFilter } = useSearchFilter();
   const { copyLazy } = useCopy();
   const { t } = useI18n();
   const { showToast, removeToast } = useToast();
@@ -64,6 +64,7 @@ export function useCopyLogs(containers: MaybeRefOrGetter<Container[]>, fallback?
 
     if (appliedSearchFilter.value) {
       params.append("filter", appliedSearchFilter.value);
+      if (inverseFilter.value) params.append("inverse", "true");
     }
 
     const selectedLevels = Array.from(levels.value);
@@ -95,6 +96,7 @@ export function useCopyLogs(containers: MaybeRefOrGetter<Container[]>, fallback?
 
   async function copyLogs() {
     const list = [...toValue(containers)];
+    if (list.length === 0) return;
     const toastId = "copy-logs";
     showToast(
       {
