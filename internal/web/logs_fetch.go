@@ -207,17 +207,27 @@ const windowedFetchConcurrency = 4
 // applying to each one, and merges the results by time.
 func fetchWindowedLogsMerged(ctx context.Context, services []*container.ContainerService, win fetchWindow, filter logFilter, stdTypes container.StdType) ([]*container.LogEvent, error) {
 	results := make([][]*container.LogEvent, len(services))
-	g, ctx := errgroup.WithContext(ctx)
+	errs := make([]error, len(services))
+	var g errgroup.Group
 	g.SetLimit(windowedFetchConcurrency)
 	for i, service := range services {
 		g.Go(func() error {
-			events, err := fetchWindowedLogs(ctx, service, win, filter, stdTypes)
-			results[i] = events
-			return err
+			results[i], errs[i] = fetchWindowedLogs(ctx, service, win, filter, stdTypes)
+			return nil
 		})
 	}
-	if err := g.Wait(); err != nil {
-		return nil, err
+	g.Wait()
+	// One container that fails to read leaves a gap in the page, not an empty view;
+	// only a page where nothing could be read is an error.
+	failed := 0
+	for i, err := range errs {
+		if err != nil {
+			failed++
+			log.Warn().Err(err).Str("container", services[i].Container.ID).Msg("error fetching older logs")
+		}
+	}
+	if failed == len(services) {
+		return nil, errs[0]
 	}
 	return mergeByTime(results), nil
 }
