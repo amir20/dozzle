@@ -200,7 +200,7 @@
 
     <!-- Footer: what the keys do for the current selection, plus cloud status. -->
     <div
-      class="bg-base-300/40 border-base-content/10 text-base-content/50 flex items-center gap-3 border-t px-4 py-2 text-[11px]"
+      class="bg-base-300/40 border-base-content/10 text-base-content/50 flex items-center gap-4 border-t px-4 py-2 text-[11px] whitespace-nowrap"
     >
       <span v-if="flatEntries.length > 1" class="hidden items-center gap-1 sm:flex">
         <kbd class="kbd kbd-xs">↑</kbd><kbd class="kbd kbd-xs">↓</kbd>
@@ -210,13 +210,13 @@
         <kbd class="kbd kbd-xs">↵</kbd> <span class="ml-0.5">{{ enterHint }}</span>
       </span>
       <!-- Pin and merge only apply to a container, not to a service or stack row. -->
-      <span v-if="selectedContainerItem" class="hidden items-center gap-1 sm:flex">
+      <span v-if="selectedContainerItem" class="hidden items-center gap-1 md:flex">
         <kbd class="kbd kbd-xs">⌥</kbd><kbd class="kbd kbd-xs">↵</kbd>
         <span class="ml-0.5">{{ $t("cloud-search.pin-shortcut") }}</span>
       </span>
       <span
         v-if="selectedContainerItem && canToggle(selectedContainerItem.id)"
-        class="hidden items-center gap-1 sm:flex"
+        class="hidden items-center gap-1 md:flex"
       >
         <kbd class="kbd kbd-xs">{{ isMac ? "⌘" : "Ctrl" }}</kbd
         ><kbd class="kbd kbd-xs">↵</kbd>
