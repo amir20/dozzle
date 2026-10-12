@@ -3,6 +3,7 @@ package web
 import (
 	"archive/zip"
 	"bytes"
+	"context"
 	"encoding/json"
 	"errors"
 	"io"
@@ -10,10 +11,12 @@ import (
 
 	"net/http"
 	"net/http/httptest"
+	"strconv"
 	"strings"
 	"testing"
 
 	"github.com/amir20/dozzle/internal/container"
+	"github.com/amir20/dozzle/internal/container/docker"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 )
@@ -371,4 +374,146 @@ func Test_handler_container_logs_jsonl_several_containers(t *testing.T) {
 		got = append(got, event.ContainerID+":"+event.Message.(map[string]any)["from"].(string))
 	}
 	require.Equal(t, []string{"bbb222:b", "aaa111:a", "aaa111:a"}, got)
+}
+
+// windowedHandler serves containers on localhost created at created, each with the
+// given raw log lines, read once.
+func windowedHandler(t *testing.T, created time.Time, logs map[string][]byte) http.Handler {
+	t.Helper()
+	mockedClient := new(MockedClient)
+	list := []container.Container{}
+	for id, data := range logs {
+		mockedClient.On("FindContainer", mock.Anything, id).Return(container.Container{ID: id, Name: id, Created: created}, nil)
+		mockedClient.On("ContainerLogsBetweenDates", mock.Anything, id, mock.Anything, mock.Anything, container.STDALL).
+			Return(io.NopCloser(bytes.NewReader(data)), nil).
+			Once()
+		list = append(list, container.Container{ID: id, Name: id, State: "running", Created: created})
+	}
+	mockedClient.On("Host").Return(container.Host{ID: "localhost"})
+	mockedClient.On("ContainerEvents", mock.Anything, mock.AnythingOfType("chan<- container.ContainerEvent")).Return(nil)
+	mockedClient.On("ListContainers", mock.Anything, mock.Anything).Return(list, nil)
+	return createDefaultHandler(mockedClient)
+}
+
+// rawTexts names each event as `<container>:<message>`.
+func rawTexts(events []*container.LogEvent) []string {
+	got := make([]string, 0, len(events))
+	for _, event := range events {
+		got = append(got, event.ContainerID+":"+event.RawMessage)
+	}
+	return got
+}
+
+const windowQuery = "levels=info&from=2020-05-13T18:00:00Z&to=2020-05-13T19:00:00Z"
+
+// Loading older lines in a merged view is one request: every container's page comes
+// back in one response, merged by time, with a tie going to the container named first.
+func Test_handler_container_logs_windowed_merges_by_time(t *testing.T) {
+	h := windowedHandler(t, time.Date(2020, 5, 13, 0, 0, 0, 0, time.UTC), map[string][]byte{
+		"aaa111": concatMessages(
+			"2020-05-13T18:55:01.000000000Z INFO a1\n",
+			"2020-05-13T18:55:03.000000000Z INFO a2\n",
+			"2020-05-13T18:55:05.000000000Z INFO a3\n",
+		),
+		"bbb222": concatMessages(
+			"2020-05-13T18:55:02.000000000Z INFO b1\n",
+			"2020-05-13T18:55:03.000000000Z INFO b2\n",
+		),
+	})
+
+	events := getJSONL(t, h, windowQuery+"&container=localhost/bbb222&container=localhost/aaa111")
+	require.Equal(t, []string{"aaa111:INFO a1", "bbb222:INFO b1", "bbb222:INFO b2", "aaa111:INFO a2", "aaa111:INFO a3"}, rawTexts(events))
+}
+
+// `min` is per container: a chatty one is cut to its newest `min` lines, and a quiet
+// one with fewer sends what it has, which is how the client tells it reached its start.
+func Test_handler_container_logs_windowed_min_per_container(t *testing.T) {
+	// Created after the window opens, so each read stops after one pass.
+	h := windowedHandler(t, time.Date(2020, 5, 13, 18, 30, 0, 0, time.UTC), map[string][]byte{
+		"aaa111": concatMessages(
+			"2020-05-13T18:55:01.000000000Z INFO a1\n",
+			"2020-05-13T18:55:03.000000000Z INFO a2\n",
+			"2020-05-13T18:55:05.000000000Z INFO a3\n",
+		),
+		"bbb222": concatMessages("2020-05-13T18:55:04.000000000Z INFO b1\n"),
+	})
+
+	events := getJSONL(t, h, windowQuery+"&min=2&container=localhost/aaa111&container=localhost/bbb222")
+	require.Equal(t, []string{"aaa111:INFO a2", "bbb222:INFO b1", "aaa111:INFO a3"}, rawTexts(events))
+}
+
+// A container that is gone (a merged view keeps one the store dropped) is left out
+// of the page; only a page where none is found is a 404.
+func Test_handler_container_logs_windowed_unknown_container(t *testing.T) {
+	h := windowedHandler(t, time.Date(2020, 5, 13, 18, 30, 0, 0, time.UTC), map[string][]byte{
+		"aaa111": concatMessages("2020-05-13T18:55:01.000000000Z INFO a1\n"),
+	})
+
+	events := getJSONL(t, h, windowQuery+"&container=localhost/zzz999&container=localhost/aaa111")
+	require.Equal(t, []string{"aaa111:INFO a1"}, rawTexts(events))
+
+	req, err := http.NewRequest("GET", "/api/containers/logs?format=jsonl&stdout=1&stderr=1&"+windowQuery+"&container=localhost/zzz999", nil)
+	require.NoError(t, err)
+	rr := httptest.NewRecorder()
+	h.ServeHTTP(rr, req)
+	require.Equal(t, http.StatusNotFound, rr.Code)
+}
+
+func Test_mergeByTime(t *testing.T) {
+	at := func(c string, ts int64) *container.LogEvent {
+		return &container.LogEvent{ContainerID: c, Timestamp: ts}
+	}
+	// A container's own order is kept even where it is not by time: stdout and
+	// stderr are separate pipes.
+	merged := mergeByTime([][]*container.LogEvent{
+		{at("a", 1), at("a", 5), at("a", 4)},
+		{at("b", 1), at("b", 3)},
+		{},
+	})
+	got := make([]string, 0, len(merged))
+	for _, e := range merged {
+		got = append(got, e.ContainerID+strconv.FormatInt(e.Timestamp, 10))
+	}
+	require.Equal(t, []string{"a1", "b1", "b3", "a5", "a4"}, got)
+}
+
+// A read that stops early, at lastSeenId, closes its log stream right away rather
+// than leaving it open until the whole request ends.
+func Test_fetchWindowedLogs_cancels_each_read(t *testing.T) {
+	created := time.Date(2020, 5, 13, 0, 0, 0, 0, time.UTC)
+	data := concatMessages(
+		"2020-05-13T18:55:01.000000000Z INFO a1\n",
+		"2020-05-13T18:55:03.000000000Z INFO a2\n",
+		"2020-05-13T18:55:05.000000000Z INFO a3\n",
+	)
+	var reads []context.Context
+	mockedClient := new(MockedClient)
+	mockedClient.On("ContainerEvents", mock.Anything, mock.Anything).Return(nil)
+	mockedClient.On("ListContainers", mock.Anything, mock.Anything).Return([]container.Container{}, nil)
+	mockedClient.On("Host").Return(container.Host{ID: "localhost"})
+	for range 2 {
+		mockedClient.On("ContainerLogsBetweenDates", mock.Anything, "aaa111", mock.Anything, mock.Anything, container.STDALL).
+			Run(func(args mock.Arguments) { reads = append(reads, args.Get(0).(context.Context)) }).
+			Return(io.NopCloser(bytes.NewReader(data)), nil).
+			Once()
+	}
+
+	c := container.Container{ID: "aaa111", Name: "aaa111", Created: created}
+	service := container.NewContainerService(docker.NewService(mockedClient, nil), c)
+
+	// Find a2's id by reading everything once.
+	all, err := fetchWindowedLogs(t.Context(), service, fetchWindow{
+		from: created, to: created.Add(24 * time.Hour), size: 10, maxStart: 10,
+	}, logFilter{levels: map[string]struct{}{"info": {}}}, container.STDALL)
+	require.NoError(t, err)
+	require.Len(t, all, 3)
+
+	reads = nil
+	events, err := fetchWindowedLogs(t.Context(), service, fetchWindow{
+		from: created, to: created.Add(24 * time.Hour), size: 10, maxStart: 10, lastSeenId: all[1].Id,
+	}, logFilter{levels: map[string]struct{}{"info": {}}}, container.STDALL)
+	require.NoError(t, err)
+	require.Len(t, events, 1)
+	require.Len(t, reads, 1)
+	require.Error(t, reads[0].Err(), "the read's context is cancelled once it returns")
 }

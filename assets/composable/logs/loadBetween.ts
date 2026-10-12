@@ -7,8 +7,14 @@ export function parseMessage(data: string): LogEntry<LogMessage> {
   return asLogEntry(e);
 }
 
+/**
+ * One page of lines from any number of containers in one request, merged by time.
+ * `min` applies to each container; `lastSeenId` matches only the container that
+ * line belongs to. `startId` applies to every container, and one that never sees
+ * that id sends nothing, so pass it with a single container only.
+ */
 export async function loadBetween(
-  container: Container | Ref<Container>,
+  containers: Container[],
   params: Ref<URLSearchParams>,
   from: Date,
   to: Date,
@@ -19,34 +25,24 @@ export async function loadBetween(
     maxStart,
   }: { lastSeenId?: number; startId?: number; min?: number; maxStart?: number } = {},
 ) {
-  const c = toValue(container);
-  const url = `/api/hosts/${c.host}/containers/${c.id}/logs`;
   const abortController = new AbortController();
   const signal = abortController.signal;
 
-  function buildUrl() {
-    const loadMoreParams = new URLSearchParams(params.value);
-    loadMoreParams.append("from", from.toISOString());
-    loadMoreParams.append("to", to.toISOString());
-    if (min) {
-      loadMoreParams.append("min", String(min));
-    }
-    if (maxStart) {
-      loadMoreParams.append("maxStart", String(maxStart));
-    }
-    if (lastSeenId) {
-      loadMoreParams.append("lastSeenId", String(lastSeenId));
-    }
-    if (startId) {
-      loadMoreParams.append("startId", String(startId));
-    }
-    return withBase(`${url}?${loadMoreParams.toString()}`);
-  }
+  const query = new URLSearchParams(params.value);
+  query.set("format", "jsonl");
+  for (const c of containers) query.append("container", `${c.host}/${c.id}`);
+  query.set("from", from.toISOString());
+  query.set("to", to.toISOString());
+  if (min) query.set("min", String(min));
+  if (maxStart) query.set("maxStart", String(maxStart));
+  if (lastSeenId) query.set("lastSeenId", String(lastSeenId));
+  if (startId) query.set("startId", String(startId));
 
-  const fullUrl = buildUrl();
   const stopWatcher = watchOnce(params, () => abortController.abort("stream changed"));
-  const logs = await (await fetch(fullUrl, { signal })).text();
+  const response = await fetch(withBase(`/api/containers/logs?${query}`), { signal });
   stopWatcher();
+  if (!response.ok) throw new Error(`loading logs failed: ${response.status} ${(await response.text()).trim()}`);
+  const logs = await response.text();
 
   if (!logs) return { logs: [] as LogEntry<LogMessage>[], signal };
 
