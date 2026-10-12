@@ -384,6 +384,7 @@ analytics:
   max: Maks
   p50: P50
   p95: P95
+  distribution_of: "{column} dağılımı"
   rows: 1 satır | {count} satır
 updates:
   title: Güncellemeler

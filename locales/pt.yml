@@ -381,6 +381,7 @@ analytics:
   max: Máx
   p50: P50
   p95: P95
+  distribution_of: "Distribuição de {column}"
   rows: 1 linha | {count} linhas
 updates:
   title: Atualizações

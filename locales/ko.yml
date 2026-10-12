@@ -383,6 +383,7 @@ analytics:
   max: 최대
   p50: P50
   p95: P95
+  distribution_of: "{column} 분포"
   rows: 1개 행 | {count}개 행
 updates:
   title: 업데이트

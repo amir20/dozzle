@@ -382,6 +382,7 @@ analytics:
   max: Max
   p50: P50
   p95: P95
+  distribution_of: "Verdeling van {column}"
   rows: 1 rij | {count} rijen
 updates:
   title: Updates

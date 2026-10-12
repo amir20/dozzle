@@ -393,6 +393,7 @@ analytics:
   max: Maks
   p50: P50
   p95: P95
+  distribution_of: "Distribusi {column}"
   rows: 1 baris | {count} baris
 updates:
   title: Pembaruan

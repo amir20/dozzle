@@ -386,6 +386,7 @@ analytics:
   max: Maks
   p50: P50
   p95: P95
+  distribution_of: "Porazdelitev {column}"
   rows: 1 vrstica | {count} vrstic
 updates:
   title: Posodobitve

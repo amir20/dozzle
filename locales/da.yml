@@ -381,6 +381,7 @@ analytics:
   max: Maks
   p50: P50
   p95: P95
+  distribution_of: "Fordeling af {column}"
   rows: 1 række | {count} rækker
 updates:
   title: Opdateringer

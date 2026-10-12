@@ -7,12 +7,16 @@
       data-testid="sql-chart"
     >
       <div class="flex items-baseline gap-3">
-        <span class="truncate font-mono text-sm font-semibold" :title="s.name">{{ s.name }}</span>
+        <i18n-t keypath="analytics.distribution_of" tag="span" class="truncate text-sm" :title="s.name" scope="global">
+          <template #column>
+            <span class="font-mono font-semibold">{{ s.name }}</span>
+          </template>
+        </i18n-t>
         <span class="text-base-content/40 ml-auto shrink-0 font-mono text-xs tabular-nums">
           <template v-if="hovered[s.name]">
             {{ formatRange(hovered[s.name]!) }} · {{ $t("analytics.rows", hovered[s.name]!.count) }}
           </template>
-          <template v-else>n={{ s.count.toLocaleString() }}</template>
+          <template v-else>{{ $t("analytics.rows", s.count) }}</template>
         </span>
       </div>
 
@@ -29,6 +33,7 @@
         class="mt-3"
         :bins="s.bins"
         :format="formatNumber"
+        :label="s.name"
         @hover-bin="(bin: HistogramBin) => (hovered[s.name] = bin)"
         @hover-end="delete hovered[s.name]"
       />

@@ -381,6 +381,7 @@ analytics:
   max: Макс
   p50: P50
   p95: P95
+  distribution_of: "Распределение {column}"
   rows: 1 строка | {count} строк
 updates:
   title: Обновления
