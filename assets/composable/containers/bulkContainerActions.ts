@@ -19,16 +19,8 @@ export function bulkPlan(containers: Container[], action: BulkAction): BulkPlan 
     return { action, targets: containers.filter((c) => powerAction(c) === "start"), skippedSelf: false };
   }
   const running = containers.filter((c) => c.state === "running");
-  let targets = running.filter((c) => !servesThisPage(c));
+  const targets = running.filter((c) => !servesThisPage(c));
   const skippedSelf = targets.length < running.length;
-  // k8s restarts by deleting the pod, so one request per pod, not per container.
-  if (config.mode === "k8s") {
-    const pods = new Set<string>();
-    targets = targets.filter((c) => {
-      const pod = c.id.slice(0, c.id.lastIndexOf(":"));
-      return !pods.has(pod) && !!pods.add(pod);
-    });
-  }
   return { action, targets, skippedSelf };
 }
 
@@ -60,8 +52,9 @@ export function useBulkContainerActions(containers: MaybeRefOrGetter<Container[]
   const { showToast } = useToast();
   const { t } = useI18n();
 
-  // k8s has no stop or start for a pod, only restart.
-  const actions: BulkAction[] = config.mode === "k8s" ? ["restart"] : ["restart", "stop", "start"];
+  // k8s has no stop or start for a pod, and restarting every pod at once is what the
+  // workload's rollout restart already does without taking it down, so none here.
+  const actions: BulkAction[] = config.mode === "k8s" ? [] : ["restart", "stop", "start"];
 
   /** The actions that would touch at least one container right now. */
   const available = computed(() =>

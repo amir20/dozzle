@@ -79,18 +79,6 @@ describe("bulkPlan", () => {
     expect(names(plan.targets)).toEqual(["web"]);
     expect(plan.skippedSelf).toBe(true);
   });
-
-  test("k8s restarts each pod once, however many containers it has", () => {
-    holder.config.mode = "k8s";
-    try {
-      const app = container("app", "running", "ns:pod-a:app");
-      const sidecar = container("sidecar", "running", "ns:pod-a:sidecar");
-      const other = container("other", "running", "ns:pod-b:app");
-      expect(names(bulkPlan([app, sidecar, other], "restart").targets)).toEqual(["app", "other"]);
-    } finally {
-      holder.config.mode = "server";
-    }
-  });
 });
 
 describe("runBounded", () => {
@@ -133,9 +121,9 @@ describe("useBulkContainerActions", () => {
     expect(setup([self]).available.value).toEqual([]);
   });
 
-  test("k8s only restarts", () => {
+  test("k8s offers none, leaving it to the workload's rollout restart", () => {
     holder.config.mode = "k8s";
-    expect(setup([web, old]).available.value.map((p) => p.action)).toEqual(["restart"]);
+    expect(setup([web, old]).available.value).toEqual([]);
   });
 
   test("posts once per container, at most BULK_CONCURRENCY at a time", async () => {
