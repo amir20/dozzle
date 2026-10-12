@@ -1,7 +1,7 @@
 import { describe, expect, test, vi } from "vitest";
 import type { Container } from "@/models/Container";
 
-import { analyticsLogsUrl, createLogsTableSql } from "./analyticsTable";
+import { analyticsLogsParams, createLogsTableSql } from "./analyticsTable";
 
 vi.mock("@/stores/config", () => ({
   __esModule: true,
@@ -11,14 +11,13 @@ vi.mock("@/stores/config", () => ({
 
 const container = (id: string, host = "local") => ({ id, name: id, host }) as unknown as Container;
 
-describe("analyticsLogsUrl", () => {
+describe("analyticsLogsParams", () => {
   test("asks for every source's JSON lines in one request, in order", () => {
-    const url = new URL(analyticsLogsUrl([container("b"), container("a", "remote")]), "http://x");
-    expect(url.pathname).toBe("/base/api/containers/logs");
-    expect(url.searchParams.get("format")).toBe("jsonl");
-    expect(url.searchParams.get("stdout")).toBe("1");
-    expect(url.searchParams.get("stderr")).toBe("1");
-    expect(url.searchParams.getAll("container")).toEqual(["local/b", "remote/a"]);
+    const params = analyticsLogsParams([container("b"), container("a", "remote")]);
+    expect(params.get("format")).toBe("jsonl");
+    expect(params.get("stdout")).toBe("1");
+    expect(params.get("stderr")).toBe("1");
+    expect(params.getAll("container")).toEqual(["local/b", "remote/a"]);
   });
 });
 

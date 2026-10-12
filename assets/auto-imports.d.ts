@@ -40,7 +40,7 @@ declare global {
   const agentImage: typeof import('./composable/setup/setup').agentImage
   const alertTargetFor: typeof import('./composable/notifications/alertForm').alertTargetFor
   const allLevels: typeof import('./composable/logs/logContext').allLevels
-  const analyticsLogsUrl: typeof import('./composable/logs/analyticsTable').analyticsLogsUrl
+  const analyticsLogsParams: typeof import('./composable/logs/analyticsTable').analyticsLogsParams
   const appendBatch: typeof import('./composable/logs/logWindow').appendBatch
   const appendRangeParams: typeof import('./composable/logs/timeRange').appendRangeParams
   const arrayEquals: typeof import('./utils/index').arrayEquals
@@ -228,6 +228,7 @@ declare global {
   const payloadMode: typeof import('./composable/editor/templateEditor').payloadMode
   const persistentVisibleKeysForContainer: typeof import('./composable/app/storage').persistentVisibleKeysForContainer
   const pinnedContainers: typeof import('./composable/app/storage').pinnedContainers
+  const postContainerLogs: typeof import('./composable/logs/containerLogs').postContainerLogs
   const provide: typeof import('vue').provide
   const provideLocal: typeof import('@vueuse/core').provideLocal
   const provideLoggingContext: typeof import('./composable/logs/logContext').provideLoggingContext
@@ -758,7 +759,7 @@ declare module 'vue' {
     readonly agentImage: UnwrapRef<typeof import('./composable/setup/setup')['agentImage']>
     readonly alertTargetFor: UnwrapRef<typeof import('./composable/notifications/alertForm')['alertTargetFor']>
     readonly allLevels: UnwrapRef<typeof import('./composable/logs/logContext')['allLevels']>
-    readonly analyticsLogsUrl: UnwrapRef<typeof import('./composable/logs/analyticsTable')['analyticsLogsUrl']>
+    readonly analyticsLogsParams: UnwrapRef<typeof import('./composable/logs/analyticsTable')['analyticsLogsParams']>
     readonly appendBatch: UnwrapRef<typeof import('./composable/logs/logWindow')['appendBatch']>
     readonly appendRangeParams: UnwrapRef<typeof import('./composable/logs/timeRange')['appendRangeParams']>
     readonly arrayEquals: UnwrapRef<typeof import('./utils/index')['arrayEquals']>
@@ -939,6 +940,7 @@ declare module 'vue' {
     readonly payloadMode: UnwrapRef<typeof import('./composable/editor/templateEditor')['payloadMode']>
     readonly persistentVisibleKeysForContainer: UnwrapRef<typeof import('./composable/app/storage')['persistentVisibleKeysForContainer']>
     readonly pinnedContainers: UnwrapRef<typeof import('./composable/app/storage')['pinnedContainers']>
+    readonly postContainerLogs: UnwrapRef<typeof import('./composable/logs/containerLogs')['postContainerLogs']>
     readonly provide: UnwrapRef<typeof import('vue')['provide']>
     readonly provideLocal: UnwrapRef<typeof import('@vueuse/core')['provideLocal']>
     readonly provideLoggingContext: UnwrapRef<typeof import('./composable/logs/logContext')['provideLoggingContext']>

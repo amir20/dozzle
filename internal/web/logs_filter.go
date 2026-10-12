@@ -1,7 +1,7 @@
 package web
 
 import (
-	"net/http"
+	"net/url"
 	"regexp"
 
 	"github.com/amir20/dozzle/internal/container"
@@ -9,12 +9,12 @@ import (
 	"github.com/amir20/dozzle/internal/web/search"
 )
 
-func parseStdTypes(r *http.Request) container.StdType {
+func parseStdTypes(q url.Values) container.StdType {
 	var stdTypes container.StdType
-	if r.URL.Query().Has("stdout") {
+	if q.Has("stdout") {
 		stdTypes |= container.STDOUT
 	}
-	if r.URL.Query().Has("stderr") {
+	if q.Has("stderr") {
 		stdTypes |= container.STDERR
 	}
 	return stdTypes
@@ -27,8 +27,7 @@ type logFilter struct {
 	inverse bool
 }
 
-func parseLogFilter(r *http.Request) (logFilter, error) {
-	q := r.URL.Query()
+func parseLogFilter(q url.Values) (logFilter, error) {
 	f := logFilter{
 		levels:  make(map[string]struct{}),
 		inverse: q.Get("inverse") == "true",

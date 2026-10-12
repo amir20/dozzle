@@ -30,7 +30,13 @@ import (
 // A container that is gone (a view keeps showing one the store has dropped) is
 // left out; only a request where none is found is a 404.
 func (h *handler) containerLogs(w http.ResponseWriter, r *http.Request) {
-	q := r.URL.Query()
+	// POST with a form body, so a view of hundreds of containers never meets a
+	// proxy's URL length limit. ParseForm caps the body at 10MB.
+	if err := r.ParseForm(); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+	q := r.Form
 	format := q.Get("format")
 	zipped := format == "zip"
 
@@ -40,13 +46,13 @@ func (h *handler) containerLogs(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	stdTypes := parseStdTypes(r)
+	stdTypes := parseStdTypes(q)
 	if stdTypes == 0 {
 		http.Error(w, "stdout or stderr is required", http.StatusBadRequest)
 		return
 	}
 
-	filter, err := parseLogFilter(r)
+	filter, err := parseLogFilter(q)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
@@ -337,7 +343,7 @@ func writeLogsZip(w http.ResponseWriter, r *http.Request, services []*container.
 	nowFmt := now.Format("2006-01-02T15-04-05")
 
 	zipName := "container-logs"
-	if name := sanitizeFileName(r.URL.Query().Get("name")); name != "" {
+	if name := sanitizeFileName(r.Form.Get("name")); name != "" {
 		zipName = name
 	}
 	w.Header().Set("Content-Disposition", fmt.Sprintf("attachment; filename=%s-%s.zip", zipName, nowFmt))

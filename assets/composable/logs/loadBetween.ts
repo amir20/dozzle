@@ -39,7 +39,7 @@ export async function loadBetween(
   if (startId) query.set("startId", String(startId));
 
   const stopWatcher = watchOnce(params, () => abortController.abort("stream changed"));
-  const response = await fetch(withBase(`/api/containers/logs?${query}`), { signal });
+  const response = await postContainerLogs(query, { signal });
   stopWatcher();
   if (!response.ok) throw new Error(`loading logs failed: ${response.status} ${(await response.text()).trim()}`);
   const logs = await response.text();
