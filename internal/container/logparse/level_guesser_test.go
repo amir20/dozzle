@@ -337,8 +337,12 @@ func TestGuessLogLevel(t *testing.T) {
 		{"2026-10-08 19:37:00.681 UTC [61] PANIC:  could not write to file \"pg_wal/xlogtemp.1\": No space left on device", "fatal"},
 		{"2026-10-08 19:37:00.681 +03 [61] LOG:  checkpoint starting: time", "info"},
 		{"2026-10-08 19:37:00.681 UTC [61] STATEMENT:  select * from users", "unknown"},
-		// Go runtime panic.
-		{"panic: runtime error: index out of range [3] with length 3", "fatal"},
+		{"LOG:  database system is ready to accept connections", "info"},
+		{"PANIC:  could not locate a valid checkpoint record", "fatal"},
+		{"Login failed for user", "unknown"},
+		// Lower-case panic is not a level: the line's own error wins.
+		{"panic: runtime error: index out of range [3] with length 3", "error"},
+		{"http: recovered from panic: runtime error: invalid memory address", "error"},
 		// MariaDB notes.
 		{"2026-10-12 10:00:00 0 [Note] mariadbd: ready for connections.", "info"},
 		// Negative tests: ordinary prose containing level words or 'fail' prefix.

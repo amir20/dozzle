@@ -1,8 +1,10 @@
 package logparse
 
 import (
+	"maps"
 	"math"
 	"regexp"
+	"slices"
 	"sort"
 	"strconv"
 	"strings"
@@ -22,7 +24,7 @@ var logLevels = [][]string{
 	{"info", "inf", "information", "notice", "note"},
 	{"debug", "dbg", "dbug"},
 	{"trace", "trce", "verbose", "ver", "vbs", "tracedebug", "heavydebug"},
-	{"fatal", "sev", "severe", "crit", "critical", "panic"},
+	{"fatal", "sev", "severe", "crit", "critical"},
 }
 
 // aliasToCanonical maps every alias to its canonical level name.
@@ -30,7 +32,9 @@ var aliasToCanonical = map[string]string{}
 
 // upperOnlyLevels are level words that only mean a level in upper case. "LOG"
 // is the info level of Postgres and NestJS, but "log" in prose is just a word.
-var upperOnlyLevels = map[string]string{"LOG": "info"}
+// "PANIC" is Postgres's worst level, but a Go "recovered from panic: ... error:"
+// is an error, not two levels.
+var upperOnlyLevels = map[string]string{"LOG": "info", "PANIC": "fatal"}
 
 // levelMatcher extracts a canonical log level from a line. re must expose a
 // single capture group holding the level alias, or a single-letter code when
@@ -176,15 +180,13 @@ func init() {
 	// Longest aliases first so e.g. "warning" is preferred over "warn".
 	sort.SliceStable(aliases, func(i, j int) bool { return len(aliases[i]) > len(aliases[j]) })
 	joined := strings.Join(aliases, "|")
-	var upper strings.Builder
-	upper.WriteString(strings.ToUpper(joined))
-	for word := range upperOnlyLevels {
-		upper.WriteString("|" + word)
-	}
+	upperOnly := strings.Join(slices.Sorted(maps.Keys(upperOnlyLevels)), "|")
+	upper := strings.ToUpper(joined) + "|" + upperOnly
 
 	levelTiers = [][]levelMatcher{
 		{
 			{re: regexp.MustCompile(`(?i)^(` + joined + `)(?:[^a-z0-9]|\d+\s|$)`)},
+			{re: regexp.MustCompile(`^(` + upperOnly + `)(?::?\s|$)`)},
 			{re: klogPrefix, single: true},
 			{re: bracketedHeader(joined)},
 		},
@@ -199,10 +201,10 @@ func init() {
 		// "[1]: INFO" matches but prose like "msg: error handling" does not.
 		{
 			{re: regexp.MustCompile(`(?i):(` + joined + `)(?:[^a-z0-9]|$)`)},
-			{re: regexp.MustCompile(`:\s+(` + upper.String() + `)(?:\s|$)`)},
+			{re: regexp.MustCompile(`:\s+(` + upper + `)(?:\s|$)`)},
 		},
-		{{re: regexp.MustCompile(`"(` + upper.String() + `)"`)}},
-		{{re: regexp.MustCompile(`\s(` + upper.String() + `)(?::?\s)`)}},
+		{{re: regexp.MustCompile(`"(` + upper + `)"`)}},
+		{{re: regexp.MustCompile(`\s(` + upper + `)(?::?\s)`)}},
 		{{re: regexp.MustCompile(`(?i) (` + joined + `)[/|:-]`)}},
 	}
 }
