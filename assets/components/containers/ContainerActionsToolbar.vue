@@ -39,7 +39,7 @@
           <ph:map-pin-simple-fill v-if="pinned" class="text-secondary" />
           <ph:map-pin-simple v-else />
           {{ pinned ? $t("toolbar.unpin") : $t("toolbar.pin") }}
-          <KeyShortcut char="p" :modifiers="[]" />
+          <KeyShortcut v-if="isMainView" char="p" :modifiers="[]" />
         </a>
       </li>
       <li v-if="!historical">
@@ -51,7 +51,7 @@
       <li v-if="hasComplexLogs">
         <a @click="showDrawer(LogAnalytics, { container }, 'lg')">
           <ph:file-sql /> {{ $t("analytics.title") }}
-          <KeyShortcut char="s" :modifiers="[]" />
+          <KeyShortcut v-if="isMainView" char="s" :modifiers="[]" />
         </a>
       </li>
       <!-- A phone has no rail strip, so this one row is the way into all three
@@ -66,7 +66,7 @@
       <li v-else-if="cloudLinked">
         <a @click="openRail('chat')">
           <mdi:message-outline /> {{ $t("cloud-chat.title") }}
-          <KeyShortcut char="." :modifiers="[]" />
+          <KeyShortcut v-if="isMainView" char="." :modifiers="[]" />
         </a>
       </li>
       <!-- The filter chip in the title bar carries these where it fits; a phone and a
@@ -107,14 +107,14 @@
         <a :href="downloadUrl" download>
           <octicon:download-24 />
           {{ isFiltered ? $t("toolbar.download-filtered") : $t("toolbar.download") }}
-          <KeyShortcut char="d" :modifiers="[]" />
+          <KeyShortcut v-if="isMainView" char="d" :modifiers="[]" />
         </a>
       </li>
       <li>
         <a @click="copyLogs()">
           <mdi:content-copy />
           {{ isFiltered ? $t("toolbar.copy-filtered-logs") : $t("toolbar.copy-logs") }}
-          <KeyShortcut char="c" :modifiers="[]" />
+          <KeyShortcut v-if="isMainView" char="c" :modifiers="[]" />
         </a>
       </li>
       <li>
@@ -129,7 +129,7 @@
       <li v-if="!historical">
         <a @click="showDrawer(ContainerInspect, { container })">
           <mdi:information-outline /> {{ $t("toolbar.inspect") }}
-          <KeyShortcut char="i" :modifiers="[]" />
+          <KeyShortcut v-if="isMainView" char="i" :modifiers="[]" />
         </a>
       </li>
       <template v-if="enableActions && !historical">
@@ -175,14 +175,14 @@
           <a @click="showDrawer(Terminal, { container, action: 'attach' }, 'lg')">
             <ri:terminal-window-fill />
             {{ $t("toolbar.attach") }}
-            <KeyShortcut char="a" :modifiers="[]" />
+            <KeyShortcut v-if="isMainView" char="a" :modifiers="[]" />
           </a>
         </li>
         <li>
           <a @click="showDrawer(Terminal, { container, action: 'exec' }, 'lg')">
             <material-symbols:terminal />
             {{ $t("toolbar.shell") }}
-            <KeyShortcut char="e" :modifiers="[]" />
+            <KeyShortcut v-if="isMainView" char="e" :modifiers="[]" />
           </a>
         </li>
       </template>
