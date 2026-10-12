@@ -370,6 +370,9 @@ analytics:
   example_all: Todos os logs
   example_count: Número de linhas
   example_group: Contagem por {column}
+  example_by_container: Por contêiner
+  include_previous: "Incluir 1 contêiner anterior | Incluir {count} contêineres anteriores"
+  containers_count: "{count} contêineres"
   export: Exportar
   export_csv: Baixar CSV
   export_json: Baixar JSON

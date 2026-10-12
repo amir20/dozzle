@@ -372,6 +372,9 @@ analytics:
   example_all: 모든 로그
   example_count: 행 수
   example_group: "{column}별 개수"
+  example_by_container: 컨테이너별
+  include_previous: "이전 컨테이너 {count}개 포함"
+  containers_count: 컨테이너 {count}개
   export: 내보내기
   export_csv: CSV 다운로드
   export_json: JSON 다운로드

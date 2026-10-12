@@ -490,6 +490,7 @@ declare global {
   const useRouter: typeof import('vue-router/auto').useRouter
   const useSQLEditorField: typeof import('./composable/editor/useSQLEditorField').useSQLEditorField
   const useSSRWidth: typeof import('@vueuse/core').useSSRWidth
+  const useSameNameContainers: typeof import('./composable/containers/sameNameContainers').useSameNameContainers
   const useScreenOrientation: typeof import('@vueuse/core').useScreenOrientation
   const useScreenSafeArea: typeof import('@vueuse/core').useScreenSafeArea
   const useScriptTag: typeof import('@vueuse/core').useScriptTag
@@ -1176,6 +1177,7 @@ declare module 'vue' {
     readonly useRouter: UnwrapRef<typeof import('vue-router/auto')['useRouter']>
     readonly useSQLEditorField: UnwrapRef<typeof import('./composable/editor/useSQLEditorField')['useSQLEditorField']>
     readonly useSSRWidth: UnwrapRef<typeof import('@vueuse/core')['useSSRWidth']>
+    readonly useSameNameContainers: UnwrapRef<typeof import('./composable/containers/sameNameContainers')['useSameNameContainers']>
     readonly useScreenOrientation: UnwrapRef<typeof import('@vueuse/core')['useScreenOrientation']>
     readonly useScreenSafeArea: UnwrapRef<typeof import('@vueuse/core')['useScreenSafeArea']>
     readonly useScriptTag: UnwrapRef<typeof import('@vueuse/core')['useScriptTag']>

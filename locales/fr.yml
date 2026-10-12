@@ -370,6 +370,9 @@ analytics:
   example_all: Tous les journaux
   example_count: Nombre de lignes
   example_group: Nombre par {column}
+  example_by_container: Par conteneur
+  include_previous: "Inclure 1 conteneur précédent | Inclure {count} conteneurs précédents"
+  containers_count: "{count} conteneurs"
   export: Exporter
   export_csv: Télécharger le CSV
   export_json: Télécharger le JSON

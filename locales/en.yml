@@ -500,6 +500,9 @@ analytics:
   example_all: All logs
   example_count: Row count
   example_group: Count by {column}
+  example_by_container: By container
+  include_previous: "Include 1 older container | Include {count} older containers"
+  containers_count: "{count} containers"
   export: Export
   export_csv: Download CSV
   export_json: Download JSON
