@@ -1,8 +1,10 @@
 package logparse
 
 import (
+	"maps"
 	"math"
 	"regexp"
+	"slices"
 	"sort"
 	"strconv"
 	"strings"
@@ -19,7 +21,7 @@ var SupportedLogLevels map[string]struct{}
 var logLevels = [][]string{
 	{"error", "err", "fail"},
 	{"warn", "warning", "wrn"},
-	{"info", "inf", "information", "notice"},
+	{"info", "inf", "information", "notice", "note"},
 	{"debug", "dbg", "dbug"},
 	{"trace", "trce", "verbose", "ver", "vbs", "tracedebug", "heavydebug"},
 	{"fatal", "sev", "severe", "crit", "critical"},
@@ -27,6 +29,12 @@ var logLevels = [][]string{
 
 // aliasToCanonical maps every alias to its canonical level name.
 var aliasToCanonical = map[string]string{}
+
+// upperOnlyLevels are level words that only mean a level in upper case. "LOG"
+// is the info level of Postgres and NestJS, but "log" in prose is just a word.
+// "PANIC" is Postgres's worst level, but a Go "recovered from panic: ... error:"
+// is an error, not two levels.
+var upperOnlyLevels = map[string]string{"LOG": "info", "PANIC": "fatal"}
 
 // levelMatcher extracts a canonical log level from a line. re must expose a
 // single capture group holding the level alias, or a single-letter code when
@@ -45,15 +53,26 @@ type levelMatcher struct {
 //  3. > <level>    signale/consola marker: "› ℹ  info      started"
 //  4. <tag>:<level> structured prefix: "Zigbee2MQTT:info ", "::INFO::", "[1]: INFO " (a gap only before upper-case)
 //  5. "<LEVEL>"    quoted upper-case value: LL="ERROR"
-//  6. <sp><level>[/|:-] separator: " error:", " info|"
-//  7. <sp><LEVEL><sp> bare upper-case token mid-line: "123 ERROR foo"
 //
 // guessFromString walks the tiers in order and stops at the first that matches,
 // so a real level prefix at the front of the line always beats a level word
 // buried in the message body. Within a tier, two different levels mean the line
-// is ambiguous and we return "unknown" rather than guess. Match position and
-// level severity are deliberately not used as tie-breakers.
+// is ambiguous and we return "unknown" rather than guess. Level severity is
+// deliberately never a tie-breaker. If no tier matches, midLineMatchers get the
+// last word.
 var levelTiers [][]levelMatcher
+
+// midLineMatchers find a level word somewhere inside the line:
+//
+//   - <sp><LEVEL>[:<sp>] bare upper-case token: "123 ERROR foo", "UTC [61] LOG:  ..."
+//   - <sp><level>[/|:-] separator in any case: " error:", " info|"
+//
+// Each is read on its own, and two different levels from one of them are
+// still ambiguous. Between them, the one that comes first in the line wins: a
+// logger writes its level before its message. So "... WARN [StorageService]
+// Error: EROFS" is a warning and "[api] info: upstream returned ERROR 502" is
+// info.
+var midLineMatchers []levelMatcher
 
 // singleLetterBracket matches single-letter levels in brackets, e.g. [I], [E], [W]
 var singleLetterBracket = regexp.MustCompile(`\[([EWIDFTV])\]`)
@@ -168,11 +187,13 @@ func init() {
 	// Longest aliases first so e.g. "warning" is preferred over "warn".
 	sort.SliceStable(aliases, func(i, j int) bool { return len(aliases[i]) > len(aliases[j]) })
 	joined := strings.Join(aliases, "|")
-	upper := strings.ToUpper(joined)
+	upperOnly := strings.Join(slices.Sorted(maps.Keys(upperOnlyLevels)), "|")
+	upper := strings.ToUpper(joined) + "|" + upperOnly
 
 	levelTiers = [][]levelMatcher{
 		{
 			{re: regexp.MustCompile(`(?i)^(` + joined + `)(?:[^a-z0-9]|\d+\s|$)`)},
+			{re: regexp.MustCompile(`^(` + upperOnly + `)(?::?\s|$)`)},
 			{re: klogPrefix, single: true},
 			{re: bracketedHeader(joined)},
 		},
@@ -190,8 +211,10 @@ func init() {
 			{re: regexp.MustCompile(`:\s+(` + upper + `)(?:\s|$)`)},
 		},
 		{{re: regexp.MustCompile(`"(` + upper + `)"`)}},
-		{{re: regexp.MustCompile(`(?i) (` + joined + `)[/|:-]`)}},
-		{{re: regexp.MustCompile(`\s(` + upper + `)\s`)}},
+	}
+	midLineMatchers = []levelMatcher{
+		{re: regexp.MustCompile(`\s(` + upper + `)(?::?\s)`)},
+		{re: regexp.MustCompile(`(?i) (` + joined + `)[/|:-]`)},
 	}
 }
 
@@ -281,12 +304,7 @@ func guessFromString(value string) string {
 		level := ""
 		for _, m := range tier {
 			for _, match := range m.re.FindAllStringSubmatch(value, -1) {
-				var canonical string
-				if m.single {
-					canonical = singleLetterToLevel[match[1][0]]
-				} else {
-					canonical = aliasToCanonical[strings.ToLower(match[1])]
-				}
+				canonical := m.canonical(match[1])
 				if canonical == "" {
 					continue
 				}
@@ -302,13 +320,49 @@ func guessFromString(value string) string {
 			return level
 		}
 	}
-	return "unknown"
+
+	level, first := "unknown", -1
+	for _, m := range midLineMatchers {
+		found, at := "", -1
+		for _, match := range m.re.FindAllStringSubmatchIndex(value, -1) {
+			canonical := m.canonical(value[match[2]:match[3]])
+			if canonical == "" {
+				continue
+			}
+			if found == "" {
+				found, at = canonical, match[2]
+			} else if found != canonical {
+				found = "unknown"
+			}
+		}
+		if at >= 0 && (first < 0 || at < first) {
+			level, first = found, at
+		}
+	}
+	return level
+}
+
+// canonical maps a captured level word to its canonical level, or "" when the
+// word is not a level.
+func (m levelMatcher) canonical(word string) string {
+	if m.single {
+		return singleLetterToLevel[word[0]]
+	}
+	if level, ok := upperOnlyLevels[word]; ok {
+		return level
+	}
+	return aliasToCanonical[strings.ToLower(word)]
 }
 
 func normalizeLogLevel(level string) string {
 	level = container.StripANSI(level)
 	level = strings.ToLower(level)
 	if canonical, ok := aliasToCanonical[level]; ok {
+		return canonical
+	}
+	// A level field cannot be prose, so the upper-case-only words count in any
+	// case here: zerolog and logrus both have a "panic" level.
+	if canonical, ok := upperOnlyLevels[strings.ToUpper(level)]; ok {
 		return canonical
 	}
 	if _, ok := SupportedLogLevels[level]; ok {

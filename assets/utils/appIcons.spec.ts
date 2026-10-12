@@ -52,6 +52,9 @@ describe("iconSlugForImage", () => {
     expect(iconSlugForImage("eclipse-mosquitto")).toBe("mosquitto");
     expect(iconSlugForImage("pihole/pihole")).toBe("pi-hole");
     expect(iconSlugForImage("ghcr.io/immich-app/immich-server:v1.106.4")).toBe("immich");
+    expect(iconSlugForImage("ghcr.io/coollabsio/coolify-helper:1.0.12")).toBe("coolify");
+    expect(iconSlugForImage("henrygd/beszel-agent:latest")).toBe("beszel");
+    expect(iconSlugForImage("ghcr.io/nextcloud-releases/aio-nextcloud:latest")).toBe("nextcloud");
   });
 
   test("strips deployment suffixes", () => {
