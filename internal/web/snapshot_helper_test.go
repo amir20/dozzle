@@ -8,7 +8,9 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/amir20/dozzle/internal/auth"
 	"github.com/gkampitakis/go-snaps/snaps"
+	"golang.org/x/crypto/bcrypt"
 )
 
 // All snapshots in this package go to __snapshots__/web.snap. Without an explicit
@@ -16,6 +18,7 @@ import (
 var webSnaps = snaps.WithConfig(snaps.Filename("web"), snaps.Raw())
 
 func TestMain(m *testing.M) {
+	auth.BcryptCost = bcrypt.MinCost
 	v := m.Run()
 	// Fails the run when a snapshot no longer has a test asserting it.
 	if dirty, err := snaps.Clean(m); dirty || err != nil {

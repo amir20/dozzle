@@ -31,7 +31,7 @@ func Test_createRoutes_simple_redirect(t *testing.T) {
 				Users: map[string]*auth.User{
 					"amir": {
 						Username: "amir",
-						Password: "$2a$10$4Tvzu0ms9shlv4B8pIfqI.TM9CoqsamsAznP91A1NGuwg/68SGS1m",
+						Password: "$2a$04$gma4F9WIu3g1ILzyj5Xvv.3sBkbmX20wDHNE.1oNw0mJvB9G.Vb0C",
 					},
 				},
 			}, time.Second*100, testSecret),
@@ -55,7 +55,7 @@ func Test_createRoutes_simple_valid_token(t *testing.T) {
 				Users: map[string]*auth.User{
 					"amir": {
 						Username: "amir",
-						Password: "$2a$10$4Tvzu0ms9shlv4B8pIfqI.TM9CoqsamsAznP91A1NGuwg/68SGS1m",
+						Password: "$2a$04$gma4F9WIu3g1ILzyj5Xvv.3sBkbmX20wDHNE.1oNw0mJvB9G.Vb0C",
 					},
 				},
 			}, time.Second*100, testSecret),
@@ -99,7 +99,7 @@ func Test_createRoutes_simple_bad_password(t *testing.T) {
 				Users: map[string]*auth.User{
 					"amir": {
 						Username: "amir",
-						Password: "$2a$10$4Tvzu0ms9shlv4B8pIfqI.TM9CoqsamsAznP91A1NGuwg/68SGS1m",
+						Password: "$2a$04$gma4F9WIu3g1ILzyj5Xvv.3sBkbmX20wDHNE.1oNw0mJvB9G.Vb0C",
 					},
 				},
 			}, time.Second*100, testSecret),
@@ -141,7 +141,7 @@ func Test_createRoutes_simple_cloud_callback_requires_auth(t *testing.T) {
 				Users: map[string]*auth.User{
 					"amir": {
 						Username: "amir",
-						Password: "$2a$10$4Tvzu0ms9shlv4B8pIfqI.TM9CoqsamsAznP91A1NGuwg/68SGS1m",
+						Password: "$2a$04$gma4F9WIu3g1ILzyj5Xvv.3sBkbmX20wDHNE.1oNw0mJvB9G.Vb0C",
 					},
 				},
 			}, time.Second*100, testSecret),
@@ -172,7 +172,7 @@ func Test_createRoutes_simple_login_page_redirects_signed_in_user(t *testing.T) 
 				Users: map[string]*auth.User{
 					"amir": {
 						Username: "amir",
-						Password: "$2a$10$4Tvzu0ms9shlv4B8pIfqI.TM9CoqsamsAznP91A1NGuwg/68SGS1m",
+						Password: "$2a$04$gma4F9WIu3g1ILzyj5Xvv.3sBkbmX20wDHNE.1oNw0mJvB9G.Vb0C",
 					},
 				},
 			}, time.Second*100, testSecret),

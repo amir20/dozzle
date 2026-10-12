@@ -95,11 +95,15 @@ func ReadUsersFromFile(path string) (UserDatabase, error) {
 	return users, nil
 }
 
+// BcryptCost is the cost new passwords are hashed at. Tests lower it to
+// bcrypt.MinCost, since at this cost each hash takes about half a second under -race.
+var BcryptCost = 11
+
 func GenerateUsers(user User, hashPassword bool) *bytes.Buffer {
 	buffer := &bytes.Buffer{}
 
 	if hashPassword {
-		hash, err := bcrypt.GenerateFromPassword([]byte(user.Password), 11)
+		hash, err := bcrypt.GenerateFromPassword([]byte(user.Password), BcryptCost)
 		if err != nil {
 			log.Fatal().Err(err).Msg("Failed to hash password")
 		}
