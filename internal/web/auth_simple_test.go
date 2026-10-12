@@ -114,9 +114,9 @@ func Test_createRoutes_simple_bad_password(t *testing.T) {
 	_, err = io.Copy(fw, strings.NewReader("amir"))
 	require.NoError(t, err, "Copying field should not result in error.")
 
-	fw, err = writer.CreateFormField("badpassword")
+	fw, err = writer.CreateFormField("password")
 	require.NoError(t, err, "Creating field should not be error.")
-	_, err = io.Copy(fw, strings.NewReader("password"))
+	_, err = io.Copy(fw, strings.NewReader("wrong-password"))
 	require.NoError(t, err, "Copying field should not result in error.")
 
 	writer.Close()
