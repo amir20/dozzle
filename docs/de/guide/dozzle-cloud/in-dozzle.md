@@ -1,6 +1,6 @@
 ---
 title: In deinem Dozzle
-sourceHash: 8053f9b40bcd
+sourceHash: 49118bdfb7ff
 ---
 
 # In deinem Dozzle
@@ -31,7 +31,7 @@ Eine Frage zu der Ansicht, die gerade offen ist, beantwortet anhand der Logs dar
 
 Antworten enden in Dozzle statt in einem Link nach außen. Geht es um einen Zeitpunkt, führt die Aktion deinen eigenen Stream dorthin.
 
-Öffnen mit <kbd>Shift</kbd> + <kbd>⌘</kbd> + <kbd>K</kbd>, über das Container-Menü oder über eine Log-Zeile.
+Öffnen mit <kbd>.</kbd> in den Logs eines Containers, über das Container-Menü oder über eine Log-Zeile.
 
 ### <Icon icon="mdi:chart-line" inline /> Metriken
 

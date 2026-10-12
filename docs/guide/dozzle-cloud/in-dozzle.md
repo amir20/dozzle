@@ -30,7 +30,7 @@ A question about the view you are looking at, answered against the logs in it. A
 
 Answers end in Dozzle rather than in a link out. When the answer is about a moment, the action drives your own stream to it.
 
-Open it with <kbd>Shift</kbd> + <kbd>⌘</kbd> + <kbd>K</kbd>, from the container menu, or from a log row.
+Open it by pressing <kbd>.</kbd> in a container's logs, from the container menu, or from a log row.
 
 ### <Icon icon="mdi:chart-line" inline /> Metrics
 

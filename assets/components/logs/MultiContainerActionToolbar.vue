@@ -55,6 +55,7 @@
           <a :href="downloadUrl" download>
             <octicon:download-24 />
             {{ isFiltered ? $t("toolbar.download-filtered") : $t("toolbar.download") }}
+            <KeyShortcut char="d" :modifiers="[]" />
           </a>
         </li>
       </template>
@@ -86,4 +87,15 @@ const { restarting, rolloutRestart } = useRolloutRestart();
 const { streamConfig, showHostname, showContainerName, containers, levels } = useLoggingContext();
 
 const { downloadUrl, isFiltered } = useDownloadUrl(containers, streamConfig, levels, name);
+
+useLetterShortcut(
+  "d",
+  () => {
+    const link = document.createElement("a");
+    link.href = downloadUrl.value;
+    link.download = "";
+    link.click();
+  },
+  enableDownload,
+);
 </script>

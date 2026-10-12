@@ -1,6 +1,6 @@
 ---
 title: Motor SQL
-sourceHash: 0387115a7372
+sourceHash: cd2f6d803d15
 ---
 
 # Motor SQL
@@ -13,7 +13,7 @@ Esta función está en fase beta y está disponible para todos los usuarios. Si 
 
 Para empezar a usar el motor SQL necesitas un conjunto de datos que consultar. Solo se pueden consultar logs en JSON. Dozzle aprovecha WebAssembly para ejecutar las consultas SQL en el navegador, así que tus datos nunca salen de tu máquina.
 
-Para empezar, asegúrate de tener logs en JSON, abre el desplegable y elige `SQL Analytics`. También hay un atajo de teclado, `Ctrl+Shift+F` (o `Cmd+Shift+F` en macOS), para abrir el motor SQL rápidamente.
+Para empezar, asegúrate de tener logs en JSON, abre el desplegable y elige `SQL Analytics`. También hay un atajo de teclado: pulsa `S` en la vista de logs de un contenedor para abrir el motor SQL rápidamente.
 
 ## ¿Cómo funciona?
 

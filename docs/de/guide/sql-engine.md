@@ -1,6 +1,6 @@
 ---
 title: SQL-Engine
-sourceHash: 0387115a7372
+sourceHash: cd2f6d803d15
 ---
 
 # SQL-Engine
@@ -13,7 +13,7 @@ Diese Funktion ist derzeit in der Beta-Phase und steht allen Benutzern offen. We
 
 Um mit der SQL-Engine zu starten, brauchst du einen Datensatz, den du abfragen kannst. Per SQL lassen sich ausschließlich JSON-Logs abfragen. Dozzle nutzt WebAssembly, um die SQL-Abfragen im Browser auszuführen, deine Daten verlassen deinen Rechner also nie.
 
-Stelle sicher, dass du JSON-Logs hast, öffne dann das Dropdown-Menü und wähle `SQL Analytics`. Es gibt auch das Tastenkürzel `Ctrl+Shift+F` (bzw. `Cmd+Shift+F` unter macOS), um die SQL-Engine schnell zu öffnen.
+Stelle sicher, dass du JSON-Logs hast, öffne dann das Dropdown-Menü und wähle `SQL Analytics`. Es gibt auch ein Tastenkürzel: Drücke `S` in der Log-Ansicht eines Containers, um die SQL-Engine schnell zu öffnen.
 
 ## Wie funktioniert das?
 

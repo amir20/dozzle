@@ -1,6 +1,6 @@
 ---
 title: En tu Dozzle
-sourceHash: 8053f9b40bcd
+sourceHash: 49118bdfb7ff
 ---
 
 # En tu Dozzle
@@ -31,7 +31,7 @@ Una pregunta sobre la vista que estás mirando, respondida con los logs que cont
 
 Las respuestas terminan en Dozzle en lugar de en un enlace hacia fuera. Cuando la respuesta trata de un momento concreto, la acción lleva tu propio flujo hasta él.
 
-Ábrelo con <kbd>Mayús</kbd> + <kbd>⌘</kbd> + <kbd>K</kbd>, desde el menú del contenedor o desde una línea de log.
+Ábrelo pulsando <kbd>.</kbd> en los logs de un contenedor, desde el menú del contenedor o desde una línea de log.
 
 ### <Icon icon="mdi:chart-line" inline /> Métricas
 
