@@ -46,6 +46,12 @@ func parseLogFilter(r *http.Request) (logFilter, error) {
 	return f, nil
 }
 
+// empty reports whether the filter keeps every line, so the raw stream can be
+// copied as is instead of parsed line by line.
+func (f logFilter) empty() bool {
+	return f.regex == nil && len(f.levels) == 0
+}
+
 func (f logFilter) matchesText(event *container.LogEvent) bool {
 	return f.regex == nil || f.inverse != search.Search(f.regex, event)
 }

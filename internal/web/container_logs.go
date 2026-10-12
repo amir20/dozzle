@@ -2,6 +2,7 @@ package web
 
 import (
 	"archive/zip"
+	"bufio"
 	"fmt"
 	"io"
 	"net/http"
@@ -104,16 +105,78 @@ func writeLogsText(w io.Writer, r *http.Request, services []*container.Container
 			}
 			fmt.Fprintf(w, "── %s ──\n", headers[i])
 		}
-		events, err := service.LogsBetweenDates(r.Context(), from, to, stdTypes)
-		if err != nil {
+		if err := writeContainerText(w, r, service, from, to, stdTypes, filter); err != nil {
 			// The response has started, so the failure goes into the text itself
 			// rather than leaving a block silently empty.
 			log.Error().Err(err).Str("container", service.Container.ID).Msg("error fetching logs")
 			fmt.Fprintf(w, "error: %v\n", err)
-			continue
+		}
+	}
+}
+
+// writeContainerText writes one container's lines. With nothing to filter on, the
+// raw stream is copied a line at a time without parsing, which is several times
+// faster on a big log. A search or a level filter needs each line parsed.
+func writeContainerText(w io.Writer, r *http.Request, service *container.ContainerService, from, to time.Time, stdTypes container.StdType, filter logFilter) error {
+	if !filter.empty() {
+		events, err := service.LogsBetweenDates(r.Context(), from, to, stdTypes)
+		if err != nil {
+			return err
 		}
 		writeAllLogs(w, events, filter, false, true)
+		return nil
 	}
+	reader, err := service.RawLogs(r.Context(), from, to, stdTypes)
+	if err != nil {
+		return err
+	}
+	defer reader.Close()
+	return writeRawText(w, reader)
+}
+
+// writeRawText copies a raw log stream as copy text: the engine's timestamp in
+// front of each line is dropped and ANSI escapes are stripped. Unlike the parsed
+// path it keeps a logfmt or `prefix {json}` line as the app printed it, rather
+// than re-encoded as JSON.
+func writeRawText(w io.Writer, r io.Reader) error {
+	br := bufio.NewReaderSize(r, 64*1024)
+	var long []byte
+	for {
+		chunk, err := br.ReadSlice('\n')
+		if err == bufio.ErrBufferFull {
+			// A line longer than the buffer: gather it before writing it whole.
+			long = append(long, chunk...)
+			continue
+		}
+		line := chunk
+		if long != nil {
+			line = append(long, chunk...)
+			long = long[:0:0]
+		}
+		if len(line) > 0 {
+			if _, werr := io.WriteString(w, rawCopyLine(line)); werr != nil {
+				return werr
+			}
+		}
+		if err == io.EOF {
+			return nil
+		}
+		if err != nil {
+			return err
+		}
+	}
+}
+
+// rawCopyLine turns `2026-10-12T10:00:00.000000000Z message\n` into `message\n`.
+func rawCopyLine(line []byte) string {
+	text := string(line)
+	if i := strings.IndexByte(text, ' '); i >= 20 && text[4] == '-' && text[10] == 'T' {
+		text = text[i+1:]
+	}
+	if !strings.HasSuffix(text, "\n") {
+		text += "\n"
+	}
+	return container.StripANSI(text)
 }
 
 // copyHeaders names each container in a copy: its name, plus its host's name when
@@ -163,7 +226,7 @@ func writeLogsZip(w http.ResponseWriter, r *http.Request, services []*container.
 	zw := zip.NewWriter(w)
 	defer zw.Close()
 
-	filtered := filter.regex != nil || len(filter.levels) > 0
+	filtered := !filter.empty()
 
 	// Errors from here on are logged only, since the response has started.
 	for _, service := range services {

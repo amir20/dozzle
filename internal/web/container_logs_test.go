@@ -213,3 +213,31 @@ func Test_copyHeaders(t *testing.T) {
 		require.Equal(t, 1, asked)
 	})
 }
+
+func Test_writeRawText(t *testing.T) {
+	long := strings.Repeat("x", 200*1024)
+	in := "2026-10-12T10:00:00.000000001Z plain line\n" +
+		"2026-10-12T10:00:01.5Z level=info msg=\"kept as printed\"\n" +
+		"2026-10-12T10:00:02Z \x1b[31mred\x1b[0m\n" +
+		"2026-10-12T10:00:03Z \n" +
+		"2026-10-12T10:00:04Z " + long + "\n" +
+		"2026-10-12T10:00:05Z no newline at the end"
+	var out bytes.Buffer
+	require.NoError(t, writeRawText(&out, strings.NewReader(in)))
+	require.Equal(t, "plain line\n"+
+		"level=info msg=\"kept as printed\"\n"+
+		"red\n"+
+		"\n"+
+		long+"\n"+
+		"no newline at the end\n", out.String())
+}
+
+func Test_handler_container_logs_text_filtered_parses(t *testing.T) {
+	h := textHandler(t, map[string]string{"aaa111": "web"})
+	req, err := http.NewRequest("GET", "/api/containers/logs?stdout=1&container=localhost/aaa111&filter=nomatch", nil)
+	require.NoError(t, err)
+	rr := httptest.NewRecorder()
+	h.ServeHTTP(rr, req)
+	require.Equal(t, http.StatusOK, rr.Code)
+	require.Equal(t, "", rr.Body.String(), "a search that matches nothing copies nothing")
+}
