@@ -302,13 +302,10 @@ func (c *Client) StreamRawBytes(ctx context.Context, containerID string, since t
 			resp, err := out.Recv()
 			if err != nil {
 				err = rpcErrToErr(err)
-				e := errors.Unwrap(err)
-				if e == io.EOF || e == context.Canceled {
-					return
-				} else {
+				if !errors.Is(err, io.EOF) && !errors.Is(err, context.Canceled) {
 					log.Error().Err(err).Msg("agent client: failed to receive raw bytes")
-					return
 				}
+				return
 			}
 
 			w.Write(resp.Data)
