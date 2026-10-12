@@ -115,7 +115,7 @@ func Test_handler_download_logs_in_range(t *testing.T) {
 	q.Set("container", "localhost/"+id)
 	q.Set("from", from.Format(time.RFC3339))
 	q.Set("to", to.Format(time.RFC3339))
-	req, err := http.NewRequest("GET", "/api/containers/logs?"+q.Encode(), nil)
+	req, err := containerLogsRequest(q.Encode())
 	require.NoError(t, err)
 
 	rr := httptest.NewRecorder()

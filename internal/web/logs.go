@@ -199,13 +199,14 @@ func (h *handler) listStreamContainers(scope streamScope, labels container.Conta
 }
 
 func (h *handler) streamLogsForContainers(w http.ResponseWriter, r *http.Request, containerFilter container.ContainerFilter, scope streamScope) {
-	stdTypes := parseStdTypes(r)
+	q := r.URL.Query()
+	stdTypes := parseStdTypes(q)
 	if stdTypes == 0 {
 		http.Error(w, "stdout or stderr is required", http.StatusBadRequest)
 		return
 	}
 
-	filter, err := parseLogFilter(r)
+	filter, err := parseLogFilter(q)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
@@ -214,8 +215,8 @@ func (h *handler) streamLogsForContainers(w http.ResponseWriter, r *http.Request
 	// `since` is the start the person picked ("live, from 15 minutes ago"). The
 	// tail never replays older lines, and a search's backfill stops there too.
 	var floor time.Time
-	if r.URL.Query().Has("since") {
-		floor, err = time.Parse(time.RFC3339Nano, r.URL.Query().Get("since"))
+	if q.Has("since") {
+		floor, err = time.Parse(time.RFC3339Nano, q.Get("since"))
 		if err != nil {
 			http.Error(w, "since must be an RFC 3339 time", http.StatusBadRequest)
 			return

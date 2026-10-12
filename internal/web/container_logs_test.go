@@ -9,8 +9,10 @@ import (
 	"io"
 	"time"
 
+	"fmt"
 	"net/http"
 	"net/http/httptest"
+	"net/url"
 	"strconv"
 	"strings"
 	"testing"
@@ -23,7 +25,7 @@ import (
 
 func Test_handler_download_logs(t *testing.T) {
 	id := "123456"
-	req, err := http.NewRequest("GET", "/api/containers/logs?format=zip&container=localhost/"+id+"&stdout=1", nil)
+	req, err := containerLogsRequest("format=zip&container=localhost/" + id + "&stdout=1")
 	require.NoError(t, err, "NewRequest should not return an error.")
 
 	mockedClient := new(MockedClient)
@@ -83,7 +85,7 @@ func Test_handler_download_logs_inverse_filter(t *testing.T) {
 	}
 
 	t.Run("inverse excludes matching lines", func(t *testing.T) {
-		req, err := http.NewRequest("GET", "/api/containers/logs?format=zip&container=localhost/"+id+"&stdout=1&filter=ERROR&inverse=true", nil)
+		req, err := containerLogsRequest("format=zip&container=localhost/" + id + "&stdout=1&filter=ERROR&inverse=true")
 		require.NoError(t, err)
 		rr := httptest.NewRecorder()
 		newHandler().ServeHTTP(rr, req)
@@ -94,7 +96,7 @@ func Test_handler_download_logs_inverse_filter(t *testing.T) {
 	})
 
 	t.Run("non-inverse keeps only matching lines", func(t *testing.T) {
-		req, err := http.NewRequest("GET", "/api/containers/logs?format=zip&container=localhost/"+id+"&stdout=1&filter=ERROR", nil)
+		req, err := containerLogsRequest("format=zip&container=localhost/" + id + "&stdout=1&filter=ERROR")
 		require.NoError(t, err)
 		rr := httptest.NewRecorder()
 		newHandler().ServeHTTP(rr, req)
@@ -108,7 +110,7 @@ func Test_handler_download_logs_inverse_filter(t *testing.T) {
 func Test_handler_download_logs_sanitizes_entry_names(t *testing.T) {
 	id := "123456"
 	name := "../../etc/cron.d/evil"
-	req, err := http.NewRequest("GET", "/api/containers/logs?format=zip&container=localhost/"+id+"&stdout=1", nil)
+	req, err := containerLogsRequest("format=zip&container=localhost/" + id + "&stdout=1")
 	require.NoError(t, err)
 
 	mockedClient := new(MockedClient)
@@ -154,7 +156,7 @@ func Test_handler_download_logs_skips_failing_container(t *testing.T) {
 		{ID: "bbb222", Name: "bbb222", State: "running"},
 	}, nil)
 
-	req, err := http.NewRequest("GET", "/api/containers/logs?format=zip&stdout=1&container=localhost/aaa111&container=localhost/bbb222", nil)
+	req, err := containerLogsRequest("format=zip&stdout=1&container=localhost/aaa111&container=localhost/bbb222")
 	require.NoError(t, err)
 	rr := httptest.NewRecorder()
 	createDefaultHandler(mockedClient).ServeHTTP(rr, req)
@@ -189,9 +191,59 @@ func textHandler(t *testing.T, containers map[string]string) http.Handler {
 	return createDefaultHandler(mockedClient)
 }
 
+// containerLogsRequest is the POST the UI sends, its params as a form body.
+func containerLogsRequest(body string) (*http.Request, error) {
+	req, err := http.NewRequest("POST", "/api/containers/logs", strings.NewReader(body))
+	if err != nil {
+		return nil, err
+	}
+	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+	return req, nil
+}
+
+// A view of hundreds of containers is a body far past any proxy's URL limit.
+func Test_handler_container_logs_post_many_containers(t *testing.T) {
+	containers := map[string]string{}
+	form := url.Values{"stdout": {"1"}}
+	for i := range 300 {
+		id := fmt.Sprintf("%064d", i)
+		containers[id] = fmt.Sprintf("c%03d", i)
+		form.Add("container", "localhost/"+id)
+	}
+	body := form.Encode()
+	require.Greater(t, len(body), 16<<10)
+
+	req, err := containerLogsRequest(body)
+	require.NoError(t, err)
+	rr := httptest.NewRecorder()
+	textHandler(t, containers).ServeHTTP(rr, req)
+	require.Equal(t, http.StatusOK, rr.Code)
+	require.Equal(t, 300, strings.Count(rr.Body.String(), "── c"))
+	require.Contains(t, rr.Body.String(), "── c000 ──\nline from c000\n")
+	require.Contains(t, rr.Body.String(), "── c299 ──\nline from c299\n")
+}
+
+func Test_handler_container_logs_post_only(t *testing.T) {
+	req, err := http.NewRequest("GET", "/api/containers/logs?stdout=1&container=localhost/aaa111", nil)
+	require.NoError(t, err)
+	rr := httptest.NewRecorder()
+	textHandler(t, map[string]string{"aaa111": "web"}).ServeHTTP(rr, req)
+	require.Equal(t, http.StatusMethodNotAllowed, rr.Code)
+}
+
+// The download is a form submit, so the zip's name comes from the body too.
+func Test_handler_download_logs_name_from_form(t *testing.T) {
+	req, err := containerLogsRequest("format=zip&stdout=1&container=localhost/aaa111&name=my+stack")
+	require.NoError(t, err)
+	rr := httptest.NewRecorder()
+	textHandler(t, map[string]string{"aaa111": "web"}).ServeHTTP(rr, req)
+	require.Equal(t, http.StatusOK, rr.Code)
+	require.Contains(t, rr.Header().Get("Content-Disposition"), "filename=my-stack-")
+}
+
 func Test_handler_container_logs_text(t *testing.T) {
 	get := func(t *testing.T, h http.Handler, query string) *httptest.ResponseRecorder {
-		req, err := http.NewRequest("GET", "/api/containers/logs?stdout=1&"+query, nil)
+		req, err := containerLogsRequest("stdout=1&" + query)
 		require.NoError(t, err)
 		rr := httptest.NewRecorder()
 		h.ServeHTTP(rr, req)
@@ -285,7 +337,7 @@ func Test_writeRawText(t *testing.T) {
 
 func Test_handler_container_logs_text_filtered_parses(t *testing.T) {
 	h := textHandler(t, map[string]string{"aaa111": "web"})
-	req, err := http.NewRequest("GET", "/api/containers/logs?stdout=1&container=localhost/aaa111&filter=nomatch", nil)
+	req, err := containerLogsRequest("stdout=1&container=localhost/aaa111&filter=nomatch")
 	require.NoError(t, err)
 	rr := httptest.NewRecorder()
 	h.ServeHTTP(rr, req)
@@ -314,7 +366,7 @@ func jsonlHandler(t *testing.T, logs map[string][]byte) http.Handler {
 // getJSONL fetches format=jsonl for query and decodes the events it wrote.
 func getJSONL(t *testing.T, h http.Handler, query string) []*container.LogEvent {
 	t.Helper()
-	req, err := http.NewRequest("GET", "/api/containers/logs?format=jsonl&stdout=1&stderr=1&"+query, nil)
+	req, err := containerLogsRequest("format=jsonl&stdout=1&stderr=1&" + query)
 	require.NoError(t, err)
 	rr := httptest.NewRecorder()
 	h.ServeHTTP(rr, req)
@@ -452,7 +504,7 @@ func Test_handler_container_logs_windowed_unknown_container(t *testing.T) {
 	events := getJSONL(t, h, windowQuery+"&container=localhost/zzz999&container=localhost/aaa111")
 	require.Equal(t, []string{"aaa111:INFO a1"}, rawTexts(events))
 
-	req, err := http.NewRequest("GET", "/api/containers/logs?format=jsonl&stdout=1&stderr=1&"+windowQuery+"&container=localhost/zzz999", nil)
+	req, err := containerLogsRequest("format=jsonl&stdout=1&stderr=1&" + windowQuery + "&container=localhost/zzz999")
 	require.NoError(t, err)
 	rr := httptest.NewRecorder()
 	h.ServeHTTP(rr, req)

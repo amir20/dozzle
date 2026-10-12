@@ -2,6 +2,19 @@ import type { Container } from "@/models/Container";
 import { allLevels } from "./logContext";
 import { appendRangeParams } from "./timeRange";
 
+const containerLogsPath = "/api/containers/logs";
+
+// One frame for every download, kept so a download still starting is never cut off.
+let frame: HTMLIFrameElement | undefined;
+
+/**
+ * `/api/containers/logs` takes its params as a form body: a view of hundreds of
+ * containers would pass a proxy's URL length limit as a query string.
+ */
+export function postContainerLogs(params: URLSearchParams, init: RequestInit = {}) {
+  return fetch(withBase(containerLogsPath), { ...init, method: "POST", body: params });
+}
+
 /**
  * The whole log of the view's containers, as the view filters it: streams, levels,
  * search and time range. One request to `/api/containers/logs` serves both the copy
@@ -37,14 +50,6 @@ export function useContainerLogs(
     return params;
   });
 
-  const downloadUrl = computed(() => {
-    const zip = new URLSearchParams(params.value);
-    zip.append("format", "zip");
-    const nameValue = toValue(name);
-    if (nameValue) zip.append("name", nameValue);
-    return withBase(`/api/containers/logs?${zip}`);
-  });
-
   const isFiltered = computed(
     () =>
       !!appliedSearchFilter.value ||
@@ -52,22 +57,55 @@ export function useContainerLogs(
       timeRange.value.kind !== "live",
   );
 
-  function downloadLogs() {
-    const link = document.createElement("a");
-    link.href = downloadUrl.value;
-    link.download = "";
-    link.click();
+  // A form POST into a hidden frame: the zip's Content-Disposition makes it a
+  // download, and an error page lands in the frame rather than replacing the app.
+  // A frame only loads a page when the response is not a download, so its text is
+  // the server's reason.
+  function downloadFrame() {
+    if (!frame?.isConnected) {
+      frame = document.createElement("iframe");
+      frame.name = "dozzle-download";
+      frame.hidden = true;
+      frame.addEventListener("load", () => {
+        const reason = frame?.contentDocument?.body?.textContent?.trim();
+        if (reason) showToast({ title: "Error", message: escapeHtml(reason), type: "error" }, { expire: 5000 });
+      });
+      document.body.append(frame);
+    }
+    return frame;
   }
 
-  async function fetchText(url: string) {
-    const response = await fetch(url, { headers: { Accept: "text/plain" } });
+  function downloadLogs() {
+    const form = document.createElement("form");
+    form.method = "POST";
+    form.action = withBase(containerLogsPath);
+    form.target = downloadFrame().name;
+    form.hidden = true;
+    const fields = new URLSearchParams(params.value);
+    fields.append("format", "zip");
+    const nameValue = toValue(name);
+    if (nameValue) fields.append("name", nameValue);
+    for (const [key, value] of fields) {
+      const input = document.createElement("input");
+      input.type = "hidden";
+      input.name = key;
+      input.value = value;
+      form.append(input);
+    }
+    document.body.append(form);
+    form.submit();
+    form.remove();
+  }
+
+  async function fetchText(params: URLSearchParams) {
+    const response = await postContainerLogs(params, { headers: { Accept: "text/plain" } });
     if (!response.ok) throw new Error((await response.text()).trim() || response.statusText);
     return response.text();
   }
 
   async function copyLogs() {
     if (toValue(containers).length === 0) return;
-    const url = withBase(`/api/containers/logs?${params.value}`);
+    const body = params.value;
     const toastId = "copy-logs";
     showToast({ id: toastId, title: t("toolbar.copying-logs"), message: "", type: "info" }, { once: true });
 
@@ -77,7 +115,7 @@ export function useContainerLogs(
     // reported by then, so it is swallowed here.
     await copyLazy(
       () =>
-        fetchText(url)
+        fetchText(body)
           .then((text) => {
             removeToast(toastId);
             return text;
@@ -94,5 +132,5 @@ export function useContainerLogs(
     ).catch(() => {});
   }
 
-  return { downloadUrl, isFiltered, copyLogs, downloadLogs };
+  return { isFiltered, copyLogs, downloadLogs };
 }

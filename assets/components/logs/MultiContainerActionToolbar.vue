@@ -58,7 +58,7 @@
 
       <li class="section">{{ $t("toolbar.section-export") }}</li>
       <li v-if="enableDownload">
-        <a :href="downloadUrl" download>
+        <a @click="downloadLogs()">
           <octicon:download-24 />
           {{ isFiltered ? $t("toolbar.download-filtered") : $t("toolbar.download") }}
           <KeyShortcut char="d" :modifiers="[]" />
@@ -148,7 +148,7 @@ const { restarting, rolloutRestart } = useRolloutRestart();
 
 const { showHostname, showContainerName, containers, hasComplexLogs } = useLoggingContext();
 
-const { downloadUrl, isFiltered, copyLogs, downloadLogs } = useContainerLogs(containers, () => name);
+const { isFiltered, copyLogs, downloadLogs } = useContainerLogs(containers, () => name);
 
 const showDrawer = useDrawer();
 const openAnalytics = () => showDrawer(LogAnalytics, { containers: toValue(containers), name }, "lg");

@@ -239,7 +239,7 @@ let registered = false;
 const empty = new Table<Record<string, any>>();
 
 async function fetchLogs(list: Container[], signal: AbortSignal): Promise<Uint8Array> {
-  const response = await fetch(analyticsLogsUrl(list), { signal });
+  const response = await postContainerLogs(analyticsLogsParams(list), { signal });
   if (!response.ok) throw new Error(`Failed to fetch logs: ${response.statusText}`);
 
   const reader = response.body?.getReader();

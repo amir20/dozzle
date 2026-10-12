@@ -104,7 +104,7 @@
 
       <li class="section">{{ $t("toolbar.section-export") }}</li>
       <li v-if="enableDownload">
-        <a :href="downloadUrl" download>
+        <a @click="downloadLogs()">
           <octicon:download-24 />
           {{ isFiltered ? $t("toolbar.download-filtered") : $t("toolbar.download") }}
           <KeyShortcut v-if="isMainView" char="d" :modifiers="[]" />
@@ -319,7 +319,7 @@ async function copyImageReference() {
   await copy(container.image, { message: escapeHtml(container.image) });
 }
 
-const { downloadUrl, isFiltered, copyLogs, downloadLogs } = useContainerLogs(
+const { isFiltered, copyLogs, downloadLogs } = useContainerLogs(
   () => [container],
   () => container.name,
 );
