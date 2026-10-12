@@ -10,6 +10,7 @@
           </ContainerDropdown>
         </div>
         <MultiContainerStat class="ml-auto" :containers="namespace.containers" />
+        <LogFilterMenu v-if="!isMobile" />
         <MultiContainerActionToolbar class="max-md:hidden" :name="namespace.name" @clear="viewer?.clear()" />
       </div>
     </template>

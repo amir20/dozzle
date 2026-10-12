@@ -9,10 +9,11 @@
           v-if="container.state === 'running'"
         />
 
-        <!-- On a phone the toolbar's menu carries these rows instead. -->
-        <TimeRangeMenu v-if="!closable" class="max-md:hidden" :container="container" :range="timeRange" />
+        <!-- A phone or a pinned column has no room for the chip, so the toolbar's
+             menu carries its rows instead. -->
+        <LogFilterMenu v-if="!closable && !isMobile" :container="container" :range="timeRange" />
         <TimeRangeDialog v-if="!closable" />
-        <ContainerActionsToolbar @clear="viewer?.clear()" :container="container" />
+        <ContainerActionsToolbar @clear="viewer?.clear()" :container="container" :filters="closable || isMobile" />
         <button
           type="button"
           class="btn btn-circle btn-xs"

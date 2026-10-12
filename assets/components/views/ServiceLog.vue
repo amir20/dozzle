@@ -5,6 +5,7 @@
         <ph:stack-simple />
         <ContainerDropdown :containers="service.containers">{{ service.name }}</ContainerDropdown>
         <MultiContainerStat class="ml-auto" :containers="service.containers" />
+        <LogFilterMenu v-if="!isMobile" />
         <MultiContainerActionToolbar class="max-md:hidden" :name="service.name" @clear="viewer?.clear()" />
       </div>
     </template>
