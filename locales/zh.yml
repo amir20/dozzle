@@ -381,6 +381,7 @@ analytics:
   max: 最大
   p50: P50
   p95: P95
+  distribution_of: "{column} 的分布"
   rows: 1 行 | {count} 行
 updates:
   title: 更新

@@ -503,6 +503,7 @@ analytics:
   max: Máx
   p50: P50
   p95: P95
+  distribution_of: "Distribución de {column}"
   rows: 1 fila | {count} filas
 updates:
   title: Actualizaciones

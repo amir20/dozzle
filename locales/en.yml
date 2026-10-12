@@ -511,6 +511,7 @@ analytics:
   max: Max
   p50: P50
   p95: P95
+  distribution_of: "Distribution of {column}"
   rows: 1 row | {count} rows
 updates:
   title: Updates
