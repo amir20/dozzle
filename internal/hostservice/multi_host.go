@@ -15,7 +15,6 @@ import (
 	"github.com/amir20/dozzle/internal/notification/dispatcher"
 	"github.com/amir20/dozzle/types"
 	"github.com/rs/zerolog/log"
-	lop "github.com/samber/lo/parallel"
 )
 
 type HostUnavailableError struct {
@@ -95,20 +94,26 @@ func (m *MultiHostService) ListAllContainers(labels container.ContainerLabels) (
 		err        error
 	}
 
-	results := lop.Map(clients, func(client container.ClientService, _ int) result {
-		ctx, cancel := context.WithTimeout(context.Background(), m.timeout)
-		defer cancel()
+	results := make([]result, len(clients))
+	var wg sync.WaitGroup
+	for i, client := range clients {
+		wg.Go(func() {
+			ctx, cancel := context.WithTimeout(context.Background(), m.timeout)
+			defer cancel()
 
-		list, err := client.ListContainers(ctx, labels)
-		if err != nil {
-			host, _ := client.Host(ctx)
-			log.Debug().Err(err).Str("host", host.Name).Msg("error listing containers")
-			host.Available = false
-			return result{nil, &HostUnavailableError{Host: host, Err: err}}
-		}
+			list, err := client.ListContainers(ctx, labels)
+			if err != nil {
+				host, _ := client.Host(ctx)
+				log.Debug().Err(err).Str("host", host.Name).Msg("error listing containers")
+				host.Available = false
+				results[i] = result{nil, &HostUnavailableError{Host: host, Err: err}}
+				return
+			}
 
-		return result{list, nil}
-	})
+			results[i] = result{list, nil}
+		})
+	}
+	wg.Wait()
 
 	containers := make([]container.Container, 0)
 	for _, r := range results {
@@ -713,16 +718,21 @@ func (m *MultiHostService) FetchAgentNotificationStats() map[int]types.Subscript
 	}
 
 	// Fetch stats from all agents in parallel
-	allStats := lop.Map(providers, func(provider NotificationStatsProvider, _ int) []types.SubscriptionStats {
-		ctx, cancel := context.WithTimeout(context.Background(), m.timeout)
-		defer cancel()
-		stats, err := provider.GetNotificationStats(ctx)
-		if err != nil {
-			log.Debug().Err(err).Msg("Failed to fetch notification stats from agent")
-			return nil
-		}
-		return stats
-	})
+	allStats := make([][]types.SubscriptionStats, len(providers))
+	var wg sync.WaitGroup
+	for i, provider := range providers {
+		wg.Go(func() {
+			ctx, cancel := context.WithTimeout(context.Background(), m.timeout)
+			defer cancel()
+			stats, err := provider.GetNotificationStats(ctx)
+			if err != nil {
+				log.Debug().Err(err).Msg("Failed to fetch notification stats from agent")
+				return
+			}
+			allStats[i] = stats
+		})
+	}
+	wg.Wait()
 
 	// Aggregate sequentially
 	aggregated := make(map[int]types.SubscriptionStats)

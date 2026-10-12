@@ -2,11 +2,14 @@ package hostservice
 
 import (
 	"context"
+	"errors"
 	"testing"
 	"testing/synctest"
+	"time"
 
 	"github.com/amir20/dozzle/internal/container"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 type listManager struct {
@@ -18,6 +21,37 @@ func (m *listManager) List() []container.ClientService { return m.clients }
 
 // Subscribe is a no-op: no host joins later in these tests.
 func (m *listManager) Subscribe(context.Context, chan<- container.Host) {}
+
+type containersService struct {
+	stubService
+	containers []container.Container
+}
+
+func (s *containersService) ListContainers(context.Context, container.ContainerLabels) ([]container.Container, error) {
+	return s.containers, s.err
+}
+
+// Every host is listed, and one that fails shows up as an unavailable host
+// error rather than hiding the rest.
+func TestMultiHostService_ListAllContainersAsksEveryHost(t *testing.T) {
+	service := NewMultiHostService(managerWith(map[string]container.ClientService{
+		"a": &containersService{host: container.Host{ID: "a"}, containers: []container.Container{{ID: "a1"}, {ID: "a2"}}},
+		"b": &containersService{host: container.Host{ID: "b"}, containers: []container.Container{{ID: "b1"}}},
+		"c": &containersService{host: container.Host{ID: "c"}, err: errors.New("down")},
+	}), time.Second)
+
+	containers, errs := service.ListAllContainers(nil)
+
+	ids := make([]string, 0, len(containers))
+	for _, c := range containers {
+		ids = append(ids, c.ID)
+	}
+	assert.ElementsMatch(t, []string{"a1", "a2", "b1"}, ids)
+	require.Len(t, errs, 1)
+	var unavailable *HostUnavailableError
+	require.ErrorAs(t, errs[0], &unavailable)
+	assert.Equal(t, "c", unavailable.Host.ID)
+}
 
 // startedService hands the subscribed channel back to the test so it can play
 // the store's producer.

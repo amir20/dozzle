@@ -7,13 +7,13 @@ import (
 	"errors"
 	"net/http"
 	"testing"
+	"testing/fstest"
 	"time"
 
 	"github.com/amir20/dozzle/internal/config"
 	"github.com/amir20/dozzle/internal/container"
 	"github.com/amir20/dozzle/internal/hostservice"
 	"github.com/go-chi/chi/v5"
-	"github.com/spf13/afero"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"golang.org/x/time/rate"
@@ -54,11 +54,10 @@ func agentsHandler(hosts *fakeAgentHosts, setup SetupConfig) *chi.Mux {
 	}
 	manager := hostservice.NewRetriableClientManager(nil, nil, time.Second, tls.Certificate{})
 	hosts.MultiHostService = hostservice.NewMultiHostService(manager, time.Second)
-	fs := afero.NewMemMapFs()
-	afero.WriteFile(fs, "index.html", []byte("index page"), 0644)
+	fs := fstest.MapFS{"index.html": {Data: []byte("index page")}}
 	return createRouter(&handler{
 		hostService: hosts,
-		content:     afero.NewIOFS(fs),
+		content:     fs,
 		config:      &Config{Base: "/", Mode: "server", Authorization: Authorization{Provider: NONE}, Setup: setup},
 	})
 }

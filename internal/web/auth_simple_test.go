@@ -10,13 +10,12 @@ import (
 	"time"
 
 	"testing"
+	"testing/fstest"
 
 	"github.com/amir20/dozzle/internal/auth"
 	"github.com/beme/abide"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-
-	"github.com/spf13/afero"
 )
 
 // testSecret stands in for the persisted secret from auth.SessionSecret, fixed so
@@ -24,10 +23,9 @@ import (
 var testSecret = []byte("test-session-secret")
 
 func Test_createRoutes_simple_redirect(t *testing.T) {
-	fs := afero.NewMemMapFs()
-	require.NoError(t, afero.WriteFile(fs, "index.html", []byte("index page"), 0644), "WriteFile should have no error.")
+	fs := fstest.MapFS{"index.html": {Data: []byte("index page")}}
 
-	handler := createHandler(nil, afero.NewIOFS(fs), Config{Base: "/",
+	handler := createHandler(nil, fs, Config{Base: "/",
 		Authorization: Authorization{
 			Provider: SIMPLE,
 			Authorizer: auth.NewSimpleAuth(auth.UserDatabase{
@@ -49,10 +47,9 @@ func Test_createRoutes_simple_redirect(t *testing.T) {
 }
 
 func Test_createRoutes_simple_valid_token(t *testing.T) {
-	fs := afero.NewMemMapFs()
-	require.NoError(t, afero.WriteFile(fs, "index.html", []byte("index page"), 0644), "WriteFile should have no error.")
+	fs := fstest.MapFS{"index.html": {Data: []byte("index page")}}
 
-	handler := createHandler(nil, afero.NewIOFS(fs), Config{Base: "/",
+	handler := createHandler(nil, fs, Config{Base: "/",
 		Authorization: Authorization{
 			Provider: SIMPLE,
 			Authorizer: auth.NewSimpleAuth(auth.UserDatabase{
@@ -94,10 +91,9 @@ func Test_createRoutes_simple_valid_token(t *testing.T) {
 }
 
 func Test_createRoutes_simple_bad_password(t *testing.T) {
-	fs := afero.NewMemMapFs()
-	require.NoError(t, afero.WriteFile(fs, "index.html", []byte("index page"), 0644), "WriteFile should have no error.")
+	fs := fstest.MapFS{"index.html": {Data: []byte("index page")}}
 
-	handler := createHandler(nil, afero.NewIOFS(fs), Config{Base: "/",
+	handler := createHandler(nil, fs, Config{Base: "/",
 		Authorization: Authorization{
 			Provider: SIMPLE,
 			Authorizer: auth.NewSimpleAuth(auth.UserDatabase{
@@ -137,10 +133,9 @@ func Test_createRoutes_simple_bad_password(t *testing.T) {
 }
 
 func Test_createRoutes_simple_cloud_callback_requires_auth(t *testing.T) {
-	fs := afero.NewMemMapFs()
-	require.NoError(t, afero.WriteFile(fs, "index.html", []byte("index page"), 0644), "WriteFile should have no error.")
+	fs := fstest.MapFS{"index.html": {Data: []byte("index page")}}
 
-	handler := createHandler(nil, afero.NewIOFS(fs), Config{Base: "/",
+	handler := createHandler(nil, fs, Config{Base: "/",
 		Authorization: Authorization{
 			Provider: SIMPLE,
 			Authorizer: auth.NewSimpleAuth(auth.UserDatabase{
@@ -169,10 +164,9 @@ func Test_createRoutes_simple_cloud_callback_requires_auth(t *testing.T) {
 // A back swipe after signing in lands on /login with a live session. Rendering the
 // form again would ask for credentials the browser already holds.
 func Test_createRoutes_simple_login_page_redirects_signed_in_user(t *testing.T) {
-	fs := afero.NewMemMapFs()
-	require.NoError(t, afero.WriteFile(fs, "index.html", []byte("index page"), 0644))
+	fs := fstest.MapFS{"index.html": {Data: []byte("index page")}}
 
-	handler := createHandler(nil, afero.NewIOFS(fs), Config{Base: "/",
+	handler := createHandler(nil, fs, Config{Base: "/",
 		Authorization: Authorization{
 			Provider: SIMPLE,
 			Authorizer: auth.NewSimpleAuth(auth.UserDatabase{

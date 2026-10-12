@@ -208,3 +208,26 @@ func TestCompareHashAndPasswordRefusesSha256WithoutExiting(t *testing.T) {
 	require.False(t, CompareHashAndPassword("too-short", "password"))
 	require.True(t, CompareHashAndPassword("$2y$11$pTGu6dnTT7Uh3ob7uC6X7OkAamlhHpJ0/mEbsmiPyO85pumillZme", "password"))
 }
+
+// What `dozzle generate` writes has to load back as the same user.
+func TestGeneratedUsersRoundTrip(t *testing.T) {
+	buffer := GenerateUsers(User{
+		Username:        "amir",
+		Email:           "amir@example.com",
+		Name:            "Amir",
+		Password:        "password",
+		Filter:          "name=web",
+		RolesConfigured: "shell,actions",
+	}, true)
+
+	db, err := ReadUsersFromFile(writeUsers(t, buffer.String()))
+	require.NoError(t, err)
+
+	user := db.Find("amir")
+	require.NotNil(t, user)
+	require.Equal(t, "amir@example.com", user.Email)
+	require.Equal(t, "Amir", user.Name)
+	require.Equal(t, "name=web", user.Filter)
+	require.Equal(t, Shell|Actions, user.Roles)
+	require.True(t, CompareHashAndPassword(user.Password, "password"), "the password is stored as a bcrypt hash")
+}

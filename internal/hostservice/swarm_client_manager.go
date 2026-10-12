@@ -4,8 +4,10 @@ import (
 	"context"
 	"crypto/tls"
 	"fmt"
+	"maps"
 	"net"
 	"os"
+	"slices"
 	"sync"
 	"time"
 
@@ -14,8 +16,6 @@ import (
 	"github.com/amir20/dozzle/internal/container/docker"
 
 	"github.com/puzpuzpuz/xsync/v4"
-	"github.com/samber/lo"
-	lop "github.com/samber/lo/parallel"
 
 	"github.com/rs/zerolog/log"
 )
@@ -106,22 +106,24 @@ func (m *SwarmClientManager) RetryAndList() ([]container.ClientService, []error)
 		return m.List(), errors
 	}
 
-	clients := lo.Values(m.clients)
-	endpoints := lo.KeyBy(clients, func(client container.ClientService) string {
+	clients := slices.AppendSeq(make([]container.ClientService, 0, len(m.clients)), maps.Values(m.clients))
+	endpoints := make(map[string]container.ClientService, len(clients))
+	for _, client := range clients {
 		ctx, cancel := context.WithTimeout(context.Background(), m.timeout)
-		defer cancel()
 		host, _ := client.Host(ctx)
-		return host.Endpoint
-	})
+		cancel()
+		endpoints[host.Endpoint] = client
+	}
 
-	ipStrings := lo.Map(ips, func(ip net.IP, _ int) string {
-		return ip.String()
-	})
+	ipStrings := make([]string, 0, len(ips))
+	for _, ip := range ips {
+		ipStrings = append(ipStrings, ip.String())
+	}
 
-	log.Debug().Strs(fmt.Sprintf("tasks.%s", m.name), ipStrings).Strs("localIPs", m.localIPs).Strs("clients.endpoints", lo.Keys(endpoints)).Msg("found swarm service tasks")
+	log.Debug().Strs(fmt.Sprintf("tasks.%s", m.name), ipStrings).Strs("localIPs", m.localIPs).Strs("clients.endpoints", slices.Collect(maps.Keys(endpoints))).Msg("found swarm service tasks")
 
 	for _, ip := range ips {
-		if lo.Contains(m.localIPs, ip.String()) {
+		if slices.Contains(m.localIPs, ip.String()) {
 			log.Debug().Stringer("ip", ip).Msg("skipping local IP")
 			continue
 		}
@@ -190,7 +192,7 @@ func (m *SwarmClientManager) List() []container.ClientService {
 	defer m.mu.RUnlock()
 
 	agents := m.agentManager.List()
-	clients := lo.Values(m.clients)
+	clients := slices.AppendSeq(make([]container.ClientService, 0, len(m.clients)), maps.Values(m.clients))
 
 	return append(agents, clients...)
 }
@@ -210,21 +212,26 @@ func (m *SwarmClientManager) Find(id string) (container.ClientService, bool) {
 
 func (m *SwarmClientManager) Hosts(ctx context.Context) []container.Host {
 	m.mu.RLock()
-	clients := lo.Values(m.clients)
+	clients := slices.AppendSeq(make([]container.ClientService, 0, len(m.clients)), maps.Values(m.clients))
 	m.mu.RUnlock()
 
-	swarmNodes := lop.Map(clients, func(client container.ClientService, _ int) container.Host {
-		host, err := client.Host(ctx)
-		if err != nil {
-			log.Warn().Err(err).Str("id", host.ID).Msg("error getting host from client")
-			host.Available = false
-		} else {
-			host.Available = true
-		}
-		host.Type = "swarm"
+	swarmNodes := make([]container.Host, len(clients))
+	var wg sync.WaitGroup
+	for i, client := range clients {
+		wg.Go(func() {
+			host, err := client.Host(ctx)
+			if err != nil {
+				log.Warn().Err(err).Str("id", host.ID).Msg("error getting host from client")
+				host.Available = false
+			} else {
+				host.Available = true
+			}
+			host.Type = "swarm"
 
-		return host
-	})
+			swarmNodes[i] = host
+		})
+	}
+	wg.Wait()
 
 	return append(m.agentManager.Hosts(ctx), swarmNodes...)
 }

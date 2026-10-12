@@ -4,9 +4,9 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
+	"testing/fstest"
 
 	"github.com/amir20/dozzle/internal/auth"
-	"github.com/spf13/afero"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -16,8 +16,7 @@ func oidcHandler(t *testing.T) http.Handler {
 
 	// The fixture renders the injected config so the login page's inputs can be
 	// asserted on.
-	fs := afero.NewMemMapFs()
-	require.NoError(t, afero.WriteFile(fs, "index.html", []byte(`<script>window.__CONFIG__ = {{ marshal .Config }};</script>`), 0644))
+	fs := fstest.MapFS{"index.html": {Data: []byte(`<script>window.__CONFIG__ = {{ marshal .Config }};</script>`)}}
 
 	// The issuer is never contacted by these tests: discovery is lazy and only
 	// the login start would trigger it.
@@ -29,7 +28,7 @@ func oidcHandler(t *testing.T) http.Handler {
 		DataDir:      t.TempDir(),
 	}, "", 0, testSecret)
 
-	return createHandler(nil, afero.NewIOFS(fs), Config{Base: "/", Authorization: Authorization{
+	return createHandler(nil, fs, Config{Base: "/", Authorization: Authorization{
 		Provider:   OIDC,
 		Authorizer: authorizer,
 		LogoutUrl:  "https://id.example.com/logout",

@@ -5,6 +5,7 @@ import (
 	"crypto/tls"
 	"errors"
 	"io"
+	"sync"
 	"testing"
 	"time"
 
@@ -311,4 +312,88 @@ func TestHostSubscriber_PendingKeepsLatestPerHost(t *testing.T) {
 	require.Len(t, sub.pending, 2)
 	assert.Equal(t, "b", sub.pending[0].ID)
 	assert.True(t, sub.pending[1].Removed, "a's latest state is last")
+}
+
+// switchDialer refuses every endpoint until up is flipped, and is safe to dial
+// from several goroutines at once.
+type switchDialer struct {
+	mu sync.Mutex
+	up bool
+}
+
+func (d *switchDialer) dial(endpoint string, _ tls.Certificate) (container.ClientService, io.Closer, error) {
+	d.mu.Lock()
+	defer d.mu.Unlock()
+	if !d.up {
+		return nil, nil, errors.New("connection refused")
+	}
+	return &stubService{host: container.Host{ID: endpoint + "-id", Name: endpoint}}, &closeCounter{}, nil
+}
+
+func hostIDs(hosts []container.Host) []string {
+	ids := make([]string, 0, len(hosts))
+	for _, h := range hosts {
+		ids = append(ids, h.ID)
+	}
+	return ids
+}
+
+// Agents that were down at startup and come up later are all served by the
+// next RetryAndList, alongside the clients that were there all along.
+func TestRetriableClientManager_RetryAndListReturnsEveryClient(t *testing.T) {
+	dialer := &switchDialer{}
+	m := newRetriableClientManager([]string{"a:7007", "b:7007", "c:7007"}, nil, time.Second, tls.Certificate{}, dialer.dial,
+		&stubService{host: container.Host{ID: "local"}})
+	require.Len(t, m.List(), 1)
+
+	dialer.mu.Lock()
+	dialer.up = true
+	dialer.mu.Unlock()
+
+	clients, errs := m.RetryAndList()
+	require.Empty(t, errs)
+	require.Len(t, clients, 4)
+
+	assert.ElementsMatch(t, []string{"local", "a:7007-id", "b:7007-id", "c:7007-id"}, hostIDs(m.Hosts(t.Context())))
+	for _, h := range m.Hosts(t.Context()) {
+		assert.Truef(t, h.Available, "%s should be available", h.ID)
+	}
+}
+
+type statsService struct {
+	container.ClientService
+	delay time.Duration
+	stats []types.SubscriptionStats
+	err   error
+}
+
+func (s *statsService) GetNotificationStats(context.Context) ([]types.SubscriptionStats, error) {
+	time.Sleep(s.delay)
+	return s.stats, s.err
+}
+
+// Every agent is asked, a failing one is skipped, and merged container ids
+// keep the order the agents were listed in even when the first answers last.
+func TestMultiHostService_FetchAgentNotificationStatsAggregatesEveryAgent(t *testing.T) {
+	early := time.Date(2026, 1, 1, 0, 0, 0, 0, time.UTC)
+	late := early.Add(time.Hour)
+	service := NewMultiHostService(&listManager{clients: []container.ClientService{
+		&statsService{delay: 50 * time.Millisecond, stats: []types.SubscriptionStats{
+			{SubscriptionID: 1, TriggerCount: 2, LastTriggeredAt: &early, TriggeredContainerIDs: []string{"x", "x", "y"}},
+		}},
+		&statsService{err: errors.New("agent down")},
+		&statsService{stats: []types.SubscriptionStats{
+			{SubscriptionID: 1, TriggerCount: 3, LastTriggeredAt: &late, TriggeredContainerIDs: []string{"y", "z"}},
+			{SubscriptionID: 2, TriggerCount: 1},
+		}},
+		&stubService{}, // not a stats provider
+	}}, time.Second)
+
+	stats := service.FetchAgentNotificationStats()
+
+	require.Len(t, stats, 2)
+	assert.Equal(t, int64(5), stats[1].TriggerCount)
+	assert.Equal(t, late, *stats[1].LastTriggeredAt)
+	assert.Equal(t, []string{"x", "y", "z"}, stats[1].TriggeredContainerIDs)
+	assert.Equal(t, int64(1), stats[2].TriggerCount)
 }

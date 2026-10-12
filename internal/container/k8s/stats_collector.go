@@ -2,10 +2,10 @@ package k8s
 
 import (
 	"context"
+	"sync"
 	"time"
 
 	"github.com/amir20/dozzle/internal/container"
-	lop "github.com/samber/lo/parallel"
 
 	"github.com/puzpuzpuz/xsync/v4"
 	"github.com/rs/zerolog/log"
@@ -64,40 +64,44 @@ func (sc *StatsCollector) Start(parentCtx context.Context) bool {
 	for {
 		select {
 		case <-ticker.C:
-			lop.ForEach(sc.client.namespace, func(item string, index int) {
-				metricList, err := sc.metrics.MetricsV1beta1().PodMetricses(item).List(ctx, metav1.ListOptions{})
-				if err != nil {
-					// Most often metrics-server is not installed. Logs work without it, so
-					// warn once and keep polling in case it shows up.
-					if _, failing := sc.metricsFailing.LoadOrStore(item, true); ctx.Err() == nil && !failing {
-						log.Warn().Err(err).Str("namespace", item).Msg("could not read pod metrics, is metrics-server installed? CPU and memory will be empty")
-					}
-					return
-				}
-				if _, failing := sc.metricsFailing.LoadAndDelete(item); failing {
-					log.Info().Str("namespace", item).Msg("pod metrics are available again")
-				}
-				for _, pod := range metricList.Items {
-					for _, c := range pod.Containers {
-						stat := container.ContainerStat{
-							ID:             pod.Namespace + ":" + pod.Name + ":" + c.Name,
-							CPUPercent:     float64(c.Usage.Cpu().MilliValue()) / 1000 * 100,
-							MemoryUsage:    c.Usage.Memory().AsApproximateFloat64(),
-							NetworkRxTotal: 0, // K8s metrics API doesn't expose network stats by default
-							NetworkTxTotal: 0, // Would require custom metrics or cAdvisor integration
+			var wg sync.WaitGroup
+			for _, item := range sc.client.namespace {
+				wg.Go(func() {
+					metricList, err := sc.metrics.MetricsV1beta1().PodMetricses(item).List(ctx, metav1.ListOptions{})
+					if err != nil {
+						// Most often metrics-server is not installed. Logs work without it, so
+						// warn once and keep polling in case it shows up.
+						if _, failing := sc.metricsFailing.LoadOrStore(item, true); ctx.Err() == nil && !failing {
+							log.Warn().Err(err).Str("namespace", item).Msg("could not read pod metrics, is metrics-server installed? CPU and memory will be empty")
 						}
-						log.Trace().Interface("stat", stat).Msg("k8s stats")
-						sc.subscribers.Range(func(c context.Context, stats chan<- container.ContainerStat) bool {
-							select {
-							case stats <- stat:
-							case <-c.Done():
-								sc.subscribers.Delete(c)
-							}
-							return true
-						})
+						return
 					}
-				}
-			})
+					if _, failing := sc.metricsFailing.LoadAndDelete(item); failing {
+						log.Info().Str("namespace", item).Msg("pod metrics are available again")
+					}
+					for _, pod := range metricList.Items {
+						for _, c := range pod.Containers {
+							stat := container.ContainerStat{
+								ID:             pod.Namespace + ":" + pod.Name + ":" + c.Name,
+								CPUPercent:     float64(c.Usage.Cpu().MilliValue()) / 1000 * 100,
+								MemoryUsage:    c.Usage.Memory().AsApproximateFloat64(),
+								NetworkRxTotal: 0, // K8s metrics API doesn't expose network stats by default
+								NetworkTxTotal: 0, // Would require custom metrics or cAdvisor integration
+							}
+							log.Trace().Interface("stat", stat).Msg("k8s stats")
+							sc.subscribers.Range(func(c context.Context, stats chan<- container.ContainerStat) bool {
+								select {
+								case stats <- stat:
+								case <-c.Done():
+									sc.subscribers.Delete(c)
+								}
+								return true
+							})
+						}
+					}
+				})
+			}
+			wg.Wait()
 		case <-ctx.Done():
 			return true
 		}
