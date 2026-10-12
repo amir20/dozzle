@@ -1,9 +1,7 @@
 package web
 
 import (
-	"cmp"
 	"context"
-	"slices"
 	"time"
 
 	"github.com/amir20/dozzle/internal/container"
@@ -171,7 +169,7 @@ func scanMatches(
 		}
 	}
 
-	var matches []*container.LogEvent
+	var lists [][]*container.LogEvent
 	var done time.Duration
 	seen := 0
 	read := 0
@@ -215,7 +213,7 @@ func scanMatches(
 				progress(float64(done+at)/float64(total), seen)
 			}
 		}
-		matches = append(matches, kept...)
+		lists = append(lists, kept)
 		done += to.Sub(start)
 	}
 	// Nothing was read at all, so nothing was searched: an error, not an empty result.
@@ -223,11 +221,7 @@ func scanMatches(
 		return nil, 0, readErr
 	}
 
-	// Stable so that events sharing a timestamp keep the per-container order
-	// they were collected in.
-	slices.SortStableFunc(matches, func(a, b *container.LogEvent) int {
-		return cmp.Compare(a.Timestamp, b.Timestamp)
-	})
+	matches := mergeByTime(lists)
 	if len(matches) > limit {
 		matches = matches[len(matches)-limit:]
 	}

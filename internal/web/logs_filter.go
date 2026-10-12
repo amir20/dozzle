@@ -64,6 +64,12 @@ func (f logFilter) matches(event *container.LogEvent) bool {
 	return f.matchesText(event) && f.matchesLevel(event)
 }
 
+// keeps is matches for a whole-log read (a copy, a download, the SQL view), where
+// an empty level set means every level rather than none.
+func (f logFilter) keeps(event *container.LogEvent) bool {
+	return f.matchesText(event) && (len(f.levels) == 0 || f.matchesLevel(event))
+}
+
 // narrowing reports whether the filter hides anything, in which case the live
 // tail alone would leave the view near empty and the stream backfills matches.
 func (f logFilter) narrowing() bool {

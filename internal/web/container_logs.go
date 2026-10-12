@@ -208,6 +208,7 @@ func (h *handler) resolveContainers(refs []containerRef, labels container.Contai
 // which needs every `m` to be an object, so nothing else is sent. The response has started, so a container that fails is
 // logged and skipped rather than cutting the table short.
 func writeLogsJSON(w io.Writer, r *http.Request, services []*container.ContainerService, from, to time.Time, stdTypes container.StdType, filter logFilter) {
+	encoder := json.NewEncoder(w)
 	for _, service := range services {
 		// The client went away; the rest would only log one error each.
 		if r.Context().Err() != nil {
@@ -218,7 +219,16 @@ func writeLogsJSON(w io.Writer, r *http.Request, services []*container.Container
 			log.Error().Err(err).Str("container", service.Container.ID).Msg("error fetching logs")
 			continue
 		}
-		writeAllLogs(w, events, filter, false)
+		for event := range events {
+			// Grouped events carry a []string message, so filtering on "not a
+			// string" would let arrays through and break struct inference for
+			// the SQL view's unnest(m).
+			if event.Type == container.LogTypeComplex && filter.keeps(event) {
+				if err := encoder.Encode(event); err != nil {
+					log.Error().Err(err).Msg("error encoding log event")
+				}
+			}
+		}
 	}
 }
 
@@ -254,7 +264,13 @@ func writeContainerText(w io.Writer, r *http.Request, service *container.Contain
 		if err != nil {
 			return err
 		}
-		writeAllLogs(w, events, filter, true)
+		for event := range events {
+			if filter.keeps(event) {
+				// PlainText expands a grouped event into its fragment lines, which
+				// RawMessage (empty for a group) would drop.
+				fmt.Fprintf(w, "%s\n", event.PlainText())
+			}
+		}
 		return nil
 	}
 	reader, err := service.RawLogs(r.Context(), from, to, stdTypes)
@@ -410,7 +426,7 @@ func writeLogsZip(w http.ResponseWriter, r *http.Request, services []*container.
 			continue
 		}
 		for event := range events {
-			if !filter.matchesText(event) || (len(filter.levels) > 0 && !filter.matchesLevel(event)) {
+			if !filter.keeps(event) {
 				continue
 			}
 			timestamp := time.UnixMilli(event.Timestamp).UTC().Format(time.RFC3339Nano)
