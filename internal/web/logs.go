@@ -259,7 +259,12 @@ func (h *handler) streamLogsForContainers(w http.ResponseWriter, r *http.Request
 			}
 			resolved.Done()
 			if err != nil {
-				log.Error().Err(err).Msg("error while finding container")
+				// A merged view keeps a container it saw removed, so not-found is routine.
+				level := log.Error()
+				if errors.Is(err, container.ErrContainerNotFound) {
+					level = log.Debug()
+				}
+				level.Err(err).Msg("error while finding container")
 				return
 			}
 			tailContainerLogs(ctx, containerService, since, stdTypes, liveLogs, events)
