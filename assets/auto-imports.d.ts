@@ -42,6 +42,7 @@ declare global {
   const allLevels: typeof import('./composable/logs/logContext').allLevels
   const analyticsLogsParams: typeof import('./composable/logs/analyticsTable').analyticsLogsParams
   const appendBatch: typeof import('./composable/logs/logWindow').appendBatch
+  const appendContainerRefs: typeof import('./composable/logs/containerRefs').appendContainerRefs
   const appendRangeParams: typeof import('./composable/logs/timeRange').appendRangeParams
   const arrayEquals: typeof import('./utils/index').arrayEquals
   const asyncComputed: typeof import('@vueuse/core').asyncComputed
@@ -158,6 +159,7 @@ declare global {
   const isFinished: typeof import('./composable/containers/bulkUpdate').isFinished
   const isLogEvent: typeof import('@/composable/cloud/cloudAlerts').isLogEvent
   const isLogRoute: typeof import('./composable/app/mobileShell').isLogRoute
+  const isMac: typeof import('./composable/ui/media').isMac
   const isMobile: typeof import('./composable/ui/media').isMobile
   const isObject: typeof import('./utils/index').isObject
   const isPreferencePage: typeof import('./composable/app/settingsPages').isPreferencePage
@@ -458,6 +460,7 @@ declare global {
   const useLink: typeof import('vue-router/auto').useLink
   const useLiveAnnouncer: typeof import('@vueuse/core').useLiveAnnouncer
   const useLocalStorage: typeof import('@vueuse/core').useLocalStorage
+  const useLogFilterParams: typeof import('./composable/logs/logContext').useLogFilterParams
   const useLogFilterSummary: typeof import('./composable/logs/logFilterSummary').useLogFilterSummary
   const useLogHistogram: typeof import('./composable/logs/logHistogram').useLogHistogram
   const useLogJump: typeof import('./composable/logs/logJump').useLogJump
@@ -762,6 +765,7 @@ declare module 'vue' {
     readonly allLevels: UnwrapRef<typeof import('./composable/logs/logContext')['allLevels']>
     readonly analyticsLogsParams: UnwrapRef<typeof import('./composable/logs/analyticsTable')['analyticsLogsParams']>
     readonly appendBatch: UnwrapRef<typeof import('./composable/logs/logWindow')['appendBatch']>
+    readonly appendContainerRefs: UnwrapRef<typeof import('./composable/logs/containerRefs')['appendContainerRefs']>
     readonly appendRangeParams: UnwrapRef<typeof import('./composable/logs/timeRange')['appendRangeParams']>
     readonly arrayEquals: UnwrapRef<typeof import('./utils/index')['arrayEquals']>
     readonly asyncComputed: UnwrapRef<typeof import('@vueuse/core')['asyncComputed']>
@@ -873,6 +877,7 @@ declare module 'vue' {
     readonly isEmptyHistogram: UnwrapRef<typeof import('./composable/logs/logHistogram')['isEmptyHistogram']>
     readonly isFinished: UnwrapRef<typeof import('./composable/containers/bulkUpdate')['isFinished']>
     readonly isLogRoute: UnwrapRef<typeof import('./composable/app/mobileShell')['isLogRoute']>
+    readonly isMac: UnwrapRef<typeof import('./composable/ui/media')['isMac']>
     readonly isMobile: UnwrapRef<typeof import('./composable/ui/media')['isMobile']>
     readonly isObject: UnwrapRef<typeof import('./utils/index')['isObject']>
     readonly isPreferencePage: UnwrapRef<typeof import('./composable/app/settingsPages')['isPreferencePage']>
@@ -1165,6 +1170,7 @@ declare module 'vue' {
     readonly useLink: UnwrapRef<typeof import('vue-router/auto')['useLink']>
     readonly useLiveAnnouncer: UnwrapRef<typeof import('@vueuse/core')['useLiveAnnouncer']>
     readonly useLocalStorage: UnwrapRef<typeof import('@vueuse/core')['useLocalStorage']>
+    readonly useLogFilterParams: UnwrapRef<typeof import('./composable/logs/logContext')['useLogFilterParams']>
     readonly useLogFilterSummary: UnwrapRef<typeof import('./composable/logs/logFilterSummary')['useLogFilterSummary']>
     readonly useLogHistogram: UnwrapRef<typeof import('./composable/logs/logHistogram')['useLogHistogram']>
     readonly useLogJump: UnwrapRef<typeof import('./composable/logs/logJump')['useLogJump']>

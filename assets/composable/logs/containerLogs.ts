@@ -25,10 +25,11 @@ export function useContainerLogs(
   containers: MaybeRefOrGetter<Container[]>,
   name?: MaybeRefOrGetter<string | undefined>,
 ) {
-  const { streamConfig, levels, timeRange } = useLoggingContext();
+  const { levels, timeRange } = useLoggingContext();
+  const filterParams = useLogFilterParams();
   // The same test the filter chip uses (useLogFilterSummary), so the two agree.
   const levelsFiltered = computed(() => levels.value.size !== allLevels.length);
-  const { appliedSearchFilter, inverseFilter } = useSearchFilter();
+  const { appliedSearchFilter } = useSearchFilter();
   const { copyLazy } = useCopy();
   const { t } = useI18n();
   const { showToast, removeToast } = useToast();
@@ -36,16 +37,12 @@ export function useContainerLogs(
 
   const params = computed(() => {
     const params = new URLSearchParams();
-    for (const c of toValue(containers)) params.append("container", `${c.host}/${c.id}`);
-    if (streamConfig.value.stdout) params.append("stdout", "1");
-    if (streamConfig.value.stderr) params.append("stderr", "1");
+    appendContainerRefs(params, toValue(containers));
+    for (const [key, value] of filterParams.value) params.append(key, value);
+    // Every level is the same as none, and none keeps the request short.
+    if (!levelsFiltered.value) params.delete("levels");
     // What the view holds: a range, or the lines since its start.
     appendRangeParams(params, timeRange.value);
-    if (appliedSearchFilter.value) {
-      params.append("filter", appliedSearchFilter.value);
-      if (inverseFilter.value) params.append("inverse", "true");
-    }
-    if (levelsFiltered.value) levels.value.forEach((level) => params.append("levels", level));
     return params;
   });
 

@@ -1,11 +1,5 @@
 <template>
-  <Popover
-    v-bind="$attrs"
-    hover
-    sheet
-    placement="bottom-end"
-    panel-class="rounded-box bg-base-200 border-base-content/10 w-max min-w-60 border p-1.5 shadow-lg"
-  >
+  <Popover v-bind="$attrs" hover sheet placement="bottom-end" panel-class="log-menu-panel">
     <template #trigger>
       <button type="button" class="icon-btn btn btn-ghost btn-sm w-8 px-0" data-testid="log-actions">
         <mdi:dots-vertical class="size-4" />
@@ -56,21 +50,7 @@
         </a>
       </li>
 
-      <li class="section">{{ $t("toolbar.section-export") }}</li>
-      <li v-if="enableDownload">
-        <a @click="downloadLogs()">
-          <octicon:download-24 />
-          {{ isFiltered ? $t("toolbar.download-filtered") : $t("toolbar.download") }}
-          <KeyShortcut char="d" :modifiers="[]" />
-        </a>
-      </li>
-      <li>
-        <a @click="copyLogs()">
-          <mdi:content-copy />
-          {{ isFiltered ? $t("toolbar.copy-filtered-logs") : $t("toolbar.copy-logs") }}
-          <KeyShortcut char="c" :modifiers="[]" />
-        </a>
-      </li>
+      <LogExportRows :containers :name />
 
       <template v-if="workload || bulkRows.length">
         <li class="section">{{ workload ? $t("toolbar.section-workload") : $t("toolbar.section-containers") }}</li>
@@ -139,7 +119,6 @@ const LogAnalytics = defineAsyncComponent(() => import("@/components/logs/LogAna
 defineOptions({ inheritAttrs: false });
 
 const { showSearch } = useSearchFilter();
-const { enableDownload } = config;
 const clear = defineEmit();
 
 // A k8s workload adds a rollout restart; every other merged view leaves it unset.
@@ -148,15 +127,11 @@ const { restarting, rolloutRestart } = useRolloutRestart();
 
 const { showHostname, showContainerName, containers, hasComplexLogs } = useLoggingContext();
 
-const { isFiltered, copyLogs, downloadLogs } = useContainerLogs(containers, () => name);
-
 const showDrawer = useDrawer();
 const openAnalytics = () => showDrawer(LogAnalytics, { containers: toValue(containers), name }, "lg");
 // hasComplexLogs outlives the containers that set it, and the drawer needs at least one.
 const canAnalyze = computed(() => hasComplexLogs.value && toValue(containers).length > 0);
 
-useLetterShortcut("d", downloadLogs, enableDownload);
-useLetterShortcut("c", () => copyLogs());
 useLetterShortcut("s", openAnalytics, canAnalyze);
 
 // Restart, stop and start for every container in the view, behind a confirm.

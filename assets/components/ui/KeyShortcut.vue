@@ -12,9 +12,6 @@
   </div>
 </template>
 
-<script lang="ts">
-const isMac = /(Mac|iPhone|iPod|iPad)/i.test(navigator.userAgent);
-</script>
 <script lang="ts" setup>
 const { modifiers = ["meta"], char } = defineProps<{ char: string; modifiers?: ("^" | "meta" | "shift")[] }>();
 </script>

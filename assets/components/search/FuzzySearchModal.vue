@@ -590,9 +590,6 @@ function onPin() {
   if (selectedContainerItem.value) addColumn(selectedContainerItem.value);
 }
 
-// Both Cmd and Ctrl+Enter work everywhere; the footer names the one the platform uses.
-const isMac = /(Mac|iPhone|iPod|iPad)/i.test(navigator.userAgent);
-
 // Cmd/Ctrl+Enter adds the container to the stream on screen, or takes it out.
 function onMerge() {
   const item = selectedContainerItem.value;

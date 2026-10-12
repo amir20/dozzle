@@ -1,10 +1,5 @@
 <template>
-  <Popover
-    hover
-    sheet
-    placement="bottom-end"
-    panel-class="rounded-box bg-base-200 border-base-content/10 w-max min-w-60 border p-1.5 shadow-lg"
-  >
+  <Popover hover sheet placement="bottom-end" panel-class="log-menu-panel">
     <template #trigger>
       <button type="button" class="icon-btn btn btn-ghost btn-sm relative w-8 px-0" data-testid="log-actions">
         <mdi:dots-vertical class="size-4" />
@@ -75,48 +70,11 @@
            main view instead. -->
       <template v-if="filters">
         <li class="section">{{ $t("toolbar.section-filters") }}</li>
-        <li v-if="!historical && isMobile">
-          <details>
-            <summary>
-              <mdi:clock-outline />
-              {{ $t("time-range.title") }}
-              <span class="value">{{ timeLabel }}</span>
-            </summary>
-            <ul class="menu">
-              <li v-for="row in timeRows" :key="row.key">
-                <a @click="row.run()">
-                  <mdi:check class="w-4" v-if="row.active" />
-                  <div v-else class="w-4"></div>
-                  {{ row.label }}
-                </a>
-              </li>
-              <li>
-                <a @click="customRange()">
-                  <mdi:calendar-range class="w-4" />
-                  {{ $t("time-range.custom") }}…
-                </a>
-              </li>
-            </ul>
-          </details>
-        </li>
+        <LogTimeRows v-if="!historical && isMobile" nested :container :range="timeRange" />
         <LogFilterRows />
       </template>
 
-      <li class="section">{{ $t("toolbar.section-export") }}</li>
-      <li v-if="enableDownload">
-        <a @click="downloadLogs()">
-          <octicon:download-24 />
-          {{ isFiltered ? $t("toolbar.download-filtered") : $t("toolbar.download") }}
-          <KeyShortcut v-if="isMainView" char="d" :modifiers="[]" />
-        </a>
-      </li>
-      <li>
-        <a @click="copyLogs()">
-          <mdi:content-copy />
-          {{ isFiltered ? $t("toolbar.copy-filtered-logs") : $t("toolbar.copy-logs") }}
-          <KeyShortcut v-if="isMainView" char="c" :modifiers="[]" />
-        </a>
-      </li>
+      <LogExportRows :containers="[container]" :name="container.name" :shortcuts="isMainView" />
       <li>
         <a @click="copyPermalink()">
           <material-symbols:link />
@@ -248,16 +206,8 @@ const { showSearch } = useSearchFilter();
 const { linked: cloudLinked } = useCloudSurface();
 const { openRail, openCloud } = useCloudRail();
 const { unseen: unseenAlerts } = useViewAlerts();
-const { enableActions, enableShell, enableDownload } = config;
+const { enableActions, enableShell } = config;
 const { hasComplexLogs, timeRange } = useLoggingContext();
-const {
-  rows: timeRows,
-  label: timeLabel,
-  custom: customRange,
-} = useTimeRangeMenu(
-  () => container,
-  () => timeRange.value,
-);
 const showDrawer = useDrawer();
 
 const {
@@ -319,11 +269,6 @@ async function copyImageReference() {
   await copy(container.image, { message: escapeHtml(container.image) });
 }
 
-const { isFiltered, copyLogs, downloadLogs } = useContainerLogs(
-  () => [container],
-  () => container.name,
-);
-
 // A pinned column mounts its own toolbar; only the page's acts on a key, or one press
 // would open a drawer per column.
 const isMainView = isViewContextOwner();
@@ -333,8 +278,6 @@ const openTerminal = (action: "attach" | "exec") => showDrawer(Terminal, { conta
 
 useLetterShortcut("s", openAnalytics, () => isMainView && hasComplexLogs.value);
 useLetterShortcut("i", () => showDrawer(ContainerInspect, { container }), isMainView && !historical);
-useLetterShortcut("c", () => copyLogs(), isMainView);
-useLetterShortcut("d", downloadLogs, isMainView && enableDownload);
 useLetterShortcut("p", () => (pinned.value = !pinned.value), isMainView);
 useLetterShortcut("a", () => openTerminal("attach"), canShell);
 useLetterShortcut("e", () => openTerminal("exec"), canShell);
