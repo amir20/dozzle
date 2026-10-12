@@ -1,8 +1,10 @@
 package web
 
 import (
+	"cmp"
 	"context"
 	"errors"
+	"slices"
 	"sync"
 	"testing"
 	"time"
@@ -257,4 +259,25 @@ func Test_searchBackfill_every_container_failing_covers_nothing(t *testing.T) {
 
 	assert.Empty(t, r.matches())
 	assert.Equal(t, to.UnixMilli(), r.final.ScannedTo.UnixMilli())
+}
+
+// One container's lines can arrive out of timestamp order (stdout and stderr
+// interleaving); the matches still go out oldest first.
+func Test_searchBackfill_sorts_a_container_out_of_order(t *testing.T) {
+	to := time.Now()
+	created := to.Add(-time.Hour)
+	a := lines(to.Add(-8*time.Second), to.Add(-time.Second), 6, func(int) bool { return true })
+	a[1], a[2] = a[2], a[1]
+	fake := &fakeLogs{lines: map[string][]*container.LogEvent{
+		"a": a,
+		"b": lines(to.Add(-9*time.Second), to.Add(-2*time.Second), 4, func(int) bool { return true }),
+	}}
+
+	r := runBackfill(t, fake, []container.Container{{ID: "a", Created: created}, {ID: "b", Created: created}}, to)
+
+	matches := r.matches()
+	require.Len(t, matches, 10)
+	assert.True(t, slices.IsSortedFunc(matches, func(x, y *container.LogEvent) int {
+		return cmp.Compare(x.Timestamp, y.Timestamp)
+	}))
 }

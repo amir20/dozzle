@@ -1,7 +1,9 @@
 package web
 
 import (
+	"cmp"
 	"context"
+	"slices"
 	"time"
 
 	"github.com/amir20/dozzle/internal/container"
@@ -169,7 +171,7 @@ func scanMatches(
 		}
 	}
 
-	var lists [][]*container.LogEvent
+	var matches []*container.LogEvent
 	var done time.Duration
 	seen := 0
 	read := 0
@@ -213,7 +215,7 @@ func scanMatches(
 				progress(float64(done+at)/float64(total), seen)
 			}
 		}
-		lists = append(lists, kept)
+		matches = append(matches, kept...)
 		done += to.Sub(start)
 	}
 	// Nothing was read at all, so nothing was searched: an error, not an empty result.
@@ -221,7 +223,13 @@ func scanMatches(
 		return nil, 0, readErr
 	}
 
-	matches := mergeByTime(lists)
+	// A sort, not a merge: one container's lines are not always in timestamp order
+	// (an agent, k8s, stdout and stderr interleaving), and events[0] has to be the
+	// oldest kept for scannedTo. Stable so that events sharing a timestamp keep
+	// the per-container order they were collected in.
+	slices.SortStableFunc(matches, func(a, b *container.LogEvent) int {
+		return cmp.Compare(a.Timestamp, b.Timestamp)
+	})
 	if len(matches) > limit {
 		matches = matches[len(matches)-limit:]
 	}
