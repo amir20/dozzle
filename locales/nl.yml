@@ -15,6 +15,16 @@ toolbar:
   restart: Herstarten
   rollout-restart: "{kind} herstarten"
   rollout-restart-done: "{workload} rolt nieuwe pods uit."
+  section-containers: "Containers"
+  restart-all: "Alles herstarten"
+  stop-all: "Alles stoppen"
+  start-all: "Alles starten"
+  bulk-confirm-restart: "1 container herstarten? | {count} containers herstarten?"
+  bulk-confirm-stop: "1 container stoppen? | {count} containers stoppen?"
+  bulk-confirm-start: "1 container starten? | {count} containers starten?"
+  bulk-self-skipped: "De eigen container van Dozzle wordt overgeslagen."
+  bulk-more: "en nog {count}"
+  bulk-failed: "Geen antwoord van {names}"
   update: Bijwerken
   update-service: Service Bijwerken
   update-pulling: Laatste image ophalen...

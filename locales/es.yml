@@ -15,6 +15,16 @@ toolbar:
   restart: Reiniciar
   rollout-restart: "Reiniciar {kind}"
   rollout-restart-done: "{workload} está desplegando pods nuevos."
+  section-containers: "Contenedores"
+  restart-all: "Reiniciar todos"
+  stop-all: "Detener todos"
+  start-all: "Iniciar todos"
+  bulk-confirm-restart: "¿Reiniciar 1 contenedor? | ¿Reiniciar {count} contenedores?"
+  bulk-confirm-stop: "¿Detener 1 contenedor? | ¿Detener {count} contenedores?"
+  bulk-confirm-start: "¿Iniciar 1 contenedor? | ¿Iniciar {count} contenedores?"
+  bulk-self-skipped: "Se omite el contenedor de Dozzle."
+  bulk-more: "y {count} más"
+  bulk-failed: "Sin respuesta de {names}"
   update: Actualizar
   update-service: Actualizar Servicio
   update-pulling: Descargando última imagen...

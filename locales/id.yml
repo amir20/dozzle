@@ -15,6 +15,16 @@ toolbar:
   restart: Mulai ulang
   rollout-restart: "Mulai ulang {kind}"
   rollout-restart-done: "{workload} sedang meluncurkan pod baru."
+  section-containers: "Kontainer"
+  restart-all: "Mulai ulang semua"
+  stop-all: "Hentikan semua"
+  start-all: "Mulai semua"
+  bulk-confirm-restart: "Mulai ulang 1 kontainer? | Mulai ulang {count} kontainer?"
+  bulk-confirm-stop: "Hentikan 1 kontainer? | Hentikan {count} kontainer?"
+  bulk-confirm-start: "Mulai 1 kontainer? | Mulai {count} kontainer?"
+  bulk-self-skipped: "Kontainer Dozzle sendiri dilewati."
+  bulk-more: "dan {count} lainnya"
+  bulk-failed: "Tidak ada respons dari {names}"
   update: Perbarui
   update-service: Perbarui Layanan
   update-pulling: Mengunduh image terbaru...

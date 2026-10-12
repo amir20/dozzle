@@ -15,6 +15,16 @@ toolbar:
   restart: Перезапустить
   rollout-restart: "Перезапустить {kind}"
   rollout-restart-done: "{workload} разворачивает новые поды."
+  section-containers: "Контейнеры"
+  restart-all: "Перезапустить все"
+  stop-all: "Остановить все"
+  start-all: "Запустить все"
+  bulk-confirm-restart: "Перезапустить контейнеры: 1? | Перезапустить контейнеры: {count}?"
+  bulk-confirm-stop: "Остановить контейнеры: 1? | Остановить контейнеры: {count}?"
+  bulk-confirm-start: "Запустить контейнеры: 1? | Запустить контейнеры: {count}?"
+  bulk-self-skipped: "Собственный контейнер Dozzle пропускается."
+  bulk-more: "и ещё {count}"
+  bulk-failed: "Нет ответа от {names}"
   update: Обновить
   update-service: Обновить Сервис
   update-pulling: Загрузка последнего образа...

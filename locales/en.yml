@@ -15,6 +15,16 @@ toolbar:
   restart: Restart
   rollout-restart: "Restart {kind}"
   rollout-restart-done: "{workload} is rolling out new pods."
+  section-containers: "Containers"
+  restart-all: "Restart all"
+  stop-all: "Stop all"
+  start-all: "Start all"
+  bulk-confirm-restart: "Restart 1 container? | Restart {count} containers?"
+  bulk-confirm-stop: "Stop 1 container? | Stop {count} containers?"
+  bulk-confirm-start: "Start 1 container? | Start {count} containers?"
+  bulk-self-skipped: "Dozzle's own container is skipped."
+  bulk-more: "and {count} more"
+  bulk-failed: "No response from {names}"
   update: Update
   update-service: Update Service
   update-pulling: Pulling latest image...
