@@ -369,6 +369,7 @@ declare global {
   const useCompactOnScroll: typeof import('./composable/ui/compactOnScroll').useCompactOnScroll
   const useConfirmDialog: typeof import('@vueuse/core').useConfirmDialog
   const useContainerActions: typeof import('./composable/containers/containerActions').useContainerActions
+  const useContainerLogs: typeof import('./composable/logs/containerLogs').useContainerLogs
   const useContainerStore: typeof import('./stores/container').useContainerStore
   const useContainerStream: typeof import('./composable/logs/eventStreams').useContainerStream
   const useCopy: typeof import('./composable/app/clipboard').useCopy
@@ -658,9 +659,6 @@ declare global {
   export type { TemplateEditorOptions, TemplateVariable, PayloadMode } from './composable/editor/templateEditor'
   import('./composable/editor/templateEditor')
   // @ts-ignore
-  export type { CopyBlock } from './composable/logs/copyLogs'
-  import('./composable/logs/copyLogs')
-  // @ts-ignore
   export type { SearchStatus, LogStreamSource } from './composable/logs/eventStreams'
   import('./composable/logs/eventStreams')
   // @ts-ignore
@@ -719,7 +717,6 @@ declare module 'vue' {
   interface GlobalComponents {}
   interface ComponentCustomProperties {
     readonly COMPACT_OFFSET_PX: UnwrapRef<typeof import('./composable/ui/compactOnScroll')['COMPACT_OFFSET_PX']>
-    readonly COPY_CONCURRENCY: UnwrapRef<typeof import('./composable/logs/copyLogs')['COPY_CONCURRENCY']>
     readonly DEFAULT_SETTINGS: UnwrapRef<typeof import('./stores/settings')['DEFAULT_SETTINGS']>
     readonly DEFAULT_UPDATE_CONTAINERS_MODE: UnwrapRef<typeof import('./composable/containers/updatePolicy')['DEFAULT_UPDATE_CONTAINERS_MODE']>
     readonly EffectScope: UnwrapRef<typeof import('vue')['EffectScope']>
@@ -778,7 +775,6 @@ declare module 'vue' {
     readonly containerWorkload: UnwrapRef<typeof import('./composable/containers/rolloutRestart')['containerWorkload']>
     readonly controlledComputed: UnwrapRef<typeof import('@vueuse/core')['controlledComputed']>
     readonly controlledRef: UnwrapRef<typeof import('@vueuse/core')['controlledRef']>
-    readonly copyLabels: UnwrapRef<typeof import('./composable/logs/copyLogs')['copyLabels']>
     readonly createApp: UnwrapRef<typeof import('vue')['createApp']>
     readonly createContainerHints: UnwrapRef<typeof import('./composable/editor/exprEditor')['createContainerHints']>
     readonly createDisposableDirective: UnwrapRef<typeof import('@vueuse/core')['createDisposableDirective']>
@@ -812,7 +808,6 @@ declare module 'vue' {
     readonly defineStore: UnwrapRef<typeof import('pinia')['defineStore']>
     readonly dismissedImageUpdates: UnwrapRef<typeof import('./composable/app/storage')['dismissedImageUpdates']>
     readonly dismissedLinkHint: UnwrapRef<typeof import('./composable/app/storage')['dismissedLinkHint']>
-    readonly downloadFrom: UnwrapRef<typeof import('./composable/logs/copyLogs')['downloadFrom']>
     readonly drawerContext: UnwrapRef<typeof import('./composable/app/drawer')['drawerContext']>
     readonly drawerGuardContext: UnwrapRef<typeof import('./composable/app/drawer')['drawerGuardContext']>
     readonly eagerComputed: UnwrapRef<typeof import('@vueuse/core')['eagerComputed']>
@@ -825,7 +820,6 @@ declare module 'vue' {
     readonly flattenJSON: UnwrapRef<typeof import('./utils/index')['flattenJSON']>
     readonly flattenJSONToMap: UnwrapRef<typeof import('./utils/index')['flattenJSONToMap']>
     readonly formatBytes: UnwrapRef<typeof import('./utils/index')['formatBytes']>
-    readonly formatCopyBlocks: UnwrapRef<typeof import('./composable/logs/copyLogs')['formatCopyBlocks']>
     readonly formatDuration: UnwrapRef<typeof import('./utils/index')['formatDuration']>
     readonly formatRange: UnwrapRef<typeof import('./composable/logs/timeRange')['formatRange']>
     readonly formatSpan: UnwrapRef<typeof import('./composable/logs/timeRange')['formatSpan']>
@@ -881,7 +875,6 @@ declare module 'vue' {
     readonly makeDestructurable: UnwrapRef<typeof import('@vueuse/core')['makeDestructurable']>
     readonly mapActions: UnwrapRef<typeof import('pinia')['mapActions']>
     readonly mapGetters: UnwrapRef<typeof import('pinia')['mapGetters']>
-    readonly mapLimit: UnwrapRef<typeof import('./composable/logs/copyLogs')['mapLimit']>
     readonly mapState: UnwrapRef<typeof import('pinia')['mapState']>
     readonly mapStores: UnwrapRef<typeof import('pinia')['mapStores']>
     readonly mapWritableState: UnwrapRef<typeof import('pinia')['mapWritableState']>
@@ -1070,10 +1063,10 @@ declare module 'vue' {
     readonly useCompactOnScroll: UnwrapRef<typeof import('./composable/ui/compactOnScroll')['useCompactOnScroll']>
     readonly useConfirmDialog: UnwrapRef<typeof import('@vueuse/core')['useConfirmDialog']>
     readonly useContainerActions: UnwrapRef<typeof import('./composable/containers/containerActions')['useContainerActions']>
+    readonly useContainerLogs: UnwrapRef<typeof import('./composable/logs/containerLogs')['useContainerLogs']>
     readonly useContainerStore: UnwrapRef<typeof import('./stores/container')['useContainerStore']>
     readonly useContainerStream: UnwrapRef<typeof import('./composable/logs/eventStreams')['useContainerStream']>
     readonly useCopy: UnwrapRef<typeof import('./composable/app/clipboard')['useCopy']>
-    readonly useCopyLogs: UnwrapRef<typeof import('./composable/logs/copyLogs')['useCopyLogs']>
     readonly useCountdown: UnwrapRef<typeof import('@vueuse/core')['useCountdown']>
     readonly useCounter: UnwrapRef<typeof import('@vueuse/core')['useCounter']>
     readonly useCssModule: UnwrapRef<typeof import('vue')['useCssModule']>
@@ -1094,7 +1087,6 @@ declare module 'vue' {
     readonly useDevicesList: UnwrapRef<typeof import('@vueuse/core')['useDevicesList']>
     readonly useDisplayMedia: UnwrapRef<typeof import('@vueuse/core')['useDisplayMedia']>
     readonly useDocumentVisibility: UnwrapRef<typeof import('@vueuse/core')['useDocumentVisibility']>
-    readonly useDownloadUrl: UnwrapRef<typeof import('./composable/logs/downloadUrl')['useDownloadUrl']>
     readonly useDraggable: UnwrapRef<typeof import('@vueuse/core')['useDraggable']>
     readonly useDrawer: UnwrapRef<typeof import('./composable/app/drawer')['useDrawer']>
     readonly useDrawerCloseGuard: UnwrapRef<typeof import('./composable/app/drawer')['useDrawerCloseGuard']>

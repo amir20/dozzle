@@ -18,7 +18,7 @@ import (
 
 func Test_handler_download_logs(t *testing.T) {
 	id := "123456"
-	req, err := http.NewRequest("GET", "/api/containers/localhost~"+id+"/download?stdout=1", nil)
+	req, err := http.NewRequest("GET", "/api/containers/logs?format=zip&container=localhost/"+id+"&stdout=1", nil)
 	require.NoError(t, err, "NewRequest should not return an error.")
 
 	mockedClient := new(MockedClient)
@@ -78,7 +78,7 @@ func Test_handler_download_logs_inverse_filter(t *testing.T) {
 	}
 
 	t.Run("inverse excludes matching lines", func(t *testing.T) {
-		req, err := http.NewRequest("GET", "/api/containers/localhost~"+id+"/download?stdout=1&filter=ERROR&inverse=true", nil)
+		req, err := http.NewRequest("GET", "/api/containers/logs?format=zip&container=localhost/"+id+"&stdout=1&filter=ERROR&inverse=true", nil)
 		require.NoError(t, err)
 		rr := httptest.NewRecorder()
 		newHandler().ServeHTTP(rr, req)
@@ -89,7 +89,7 @@ func Test_handler_download_logs_inverse_filter(t *testing.T) {
 	})
 
 	t.Run("non-inverse keeps only matching lines", func(t *testing.T) {
-		req, err := http.NewRequest("GET", "/api/containers/localhost~"+id+"/download?stdout=1&filter=ERROR", nil)
+		req, err := http.NewRequest("GET", "/api/containers/logs?format=zip&container=localhost/"+id+"&stdout=1&filter=ERROR", nil)
 		require.NoError(t, err)
 		rr := httptest.NewRecorder()
 		newHandler().ServeHTTP(rr, req)
@@ -103,7 +103,7 @@ func Test_handler_download_logs_inverse_filter(t *testing.T) {
 func Test_handler_download_logs_sanitizes_entry_names(t *testing.T) {
 	id := "123456"
 	name := "../../etc/cron.d/evil"
-	req, err := http.NewRequest("GET", "/api/containers/localhost~"+id+"/download?stdout=1", nil)
+	req, err := http.NewRequest("GET", "/api/containers/logs?format=zip&container=localhost/"+id+"&stdout=1", nil)
 	require.NoError(t, err)
 
 	mockedClient := new(MockedClient)
@@ -130,4 +130,86 @@ func Test_handler_download_logs_sanitizes_entry_names(t *testing.T) {
 	require.NotContains(t, entry, "/")
 	require.NotContains(t, entry, "\\")
 	require.False(t, strings.HasPrefix(entry, "."), "entry %q should not start with a dot", entry)
+}
+
+// textHandler serves the given containers, all on localhost, each with one line of logs.
+func textHandler(t *testing.T, containers map[string]string) http.Handler {
+	mockedClient := new(MockedClient)
+	list := []container.Container{}
+	for id, name := range containers {
+		mockedClient.On("FindContainer", mock.Anything, id).Return(container.Container{ID: id, Name: name, Tty: false}, nil)
+		mockedClient.On("ContainerLogsBetweenDates", mock.Anything, id, mock.Anything, mock.Anything, container.STDOUT).
+			Return(io.NopCloser(bytes.NewReader(makeMessage("2020-05-13T18:55:37.772853839Z line from "+name+"\n", container.STDOUT))), nil)
+		list = append(list, container.Container{ID: id, Name: name, State: "running"})
+	}
+	mockedClient.On("Host").Return(container.Host{ID: "localhost"})
+	mockedClient.On("ContainerEvents", mock.Anything, mock.AnythingOfType("chan<- container.ContainerEvent")).Return(nil).Run(func(args mock.Arguments) {
+		time.Sleep(1 * time.Second)
+	})
+	mockedClient.On("ListContainers", mock.Anything, mock.Anything).Return(list, nil)
+	return createDefaultHandler(mockedClient)
+}
+
+func Test_handler_container_logs_text(t *testing.T) {
+	get := func(t *testing.T, h http.Handler, query string) *httptest.ResponseRecorder {
+		req, err := http.NewRequest("GET", "/api/containers/logs?stdout=1&"+query, nil)
+		require.NoError(t, err)
+		rr := httptest.NewRecorder()
+		h.ServeHTTP(rr, req)
+		return rr
+	}
+
+	t.Run("one container is its lines with no header", func(t *testing.T) {
+		rr := get(t, textHandler(t, map[string]string{"aaa111": "web"}), "container=localhost/aaa111")
+		require.Equal(t, http.StatusOK, rr.Code)
+		require.Equal(t, "text/plain; charset=UTF-8", rr.Header().Get("Content-Type"))
+		require.Equal(t, "line from web\n", rr.Body.String())
+	})
+
+	t.Run("several containers get a header each, in request order", func(t *testing.T) {
+		h := textHandler(t, map[string]string{"aaa111": "web", "bbb222": "db"})
+		rr := get(t, h, "container=localhost/bbb222&container=localhost/aaa111")
+		require.Equal(t, http.StatusOK, rr.Code)
+		require.Equal(t, "── db ──\nline from db\n\n── web ──\nline from web\n", rr.Body.String())
+	})
+
+	t.Run("no container is a bad request", func(t *testing.T) {
+		rr := get(t, textHandler(t, map[string]string{"aaa111": "web"}), "")
+		require.Equal(t, http.StatusBadRequest, rr.Code)
+	})
+
+	t.Run("a container without a host is a bad request", func(t *testing.T) {
+		rr := get(t, textHandler(t, map[string]string{"aaa111": "web"}), "container=aaa111")
+		require.Equal(t, http.StatusBadRequest, rr.Code)
+	})
+
+	t.Run("an unknown host is not found, before anything is written", func(t *testing.T) {
+		rr := get(t, textHandler(t, map[string]string{"aaa111": "web"}), "container=localhost/aaa111&container=elsewhere/aaa111")
+		require.Equal(t, http.StatusNotFound, rr.Code)
+		require.NotContains(t, rr.Body.String(), "line from")
+	})
+}
+
+func Test_copyHeaders(t *testing.T) {
+	service := func(name, host string) *container.ContainerService {
+		return container.NewContainerService(nil, container.Container{Name: name, Host: host})
+	}
+	asked := 0
+	hosts := func() []container.Host {
+		asked++
+		return []container.Host{{ID: "h1", Name: "prod-1"}, {ID: "h2", Name: "prod-2"}}
+	}
+
+	t.Run("names alone never ask for hosts", func(t *testing.T) {
+		asked = 0
+		require.Equal(t, []string{"web", "db"}, copyHeaders([]*container.ContainerService{service("web", "h1"), service("db", "h1")}, hosts))
+		require.Zero(t, asked)
+	})
+
+	t.Run("a shared name adds the host, asking once", func(t *testing.T) {
+		asked = 0
+		got := copyHeaders([]*container.ContainerService{service("web", "h1"), service("web", "h2"), service("db", "h1")}, hosts)
+		require.Equal(t, []string{"web (prod-1)", "web (prod-2)", "db"}, got)
+		require.Equal(t, 1, asked)
+	})
 }

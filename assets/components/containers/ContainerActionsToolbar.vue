@@ -249,7 +249,7 @@ const { linked: cloudLinked } = useCloudSurface();
 const { openRail, openCloud } = useCloudRail();
 const { unseen: unseenAlerts } = useViewAlerts();
 const { enableActions, enableShell, enableDownload } = config;
-const { streamConfig, hasComplexLogs, levels, timeRange } = useLoggingContext();
+const { hasComplexLogs, timeRange } = useLoggingContext();
 const {
   rows: timeRows,
   label: timeLabel,
@@ -319,8 +319,10 @@ async function copyImageReference() {
   await copy(container.image, { message: escapeHtml(container.image) });
 }
 
-const downloadLogs = () => downloadFrom(downloadUrl.value);
-const { copyLogs } = useCopyLogs(() => [container], enableDownload ? downloadLogs : undefined);
+const { downloadUrl, isFiltered, copyLogs, downloadLogs } = useContainerLogs(
+  () => [container],
+  () => container.name,
+);
 
 // A pinned column mounts its own toolbar; only the page's acts on a key, or one press
 // would open a drawer per column.
@@ -378,14 +380,6 @@ const pinned = computed({
     }
   },
 });
-
-const containerRef = computed(() => [container]);
-const { downloadUrl, isFiltered } = useDownloadUrl(
-  containerRef,
-  streamConfig,
-  levels,
-  toRef(() => container.name),
-);
 
 // Nothing to act on once the container is deleted, and Docker will not start a paused one.
 const power = computed(() => powerAction(container));

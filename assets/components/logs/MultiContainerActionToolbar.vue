@@ -89,14 +89,9 @@ const clear = defineEmit();
 const { name, workload } = defineProps<{ name?: string; workload?: K8sWorkload }>();
 const { restarting, rolloutRestart } = useRolloutRestart();
 
-const { streamConfig, showHostname, showContainerName, containers, levels } = useLoggingContext();
+const { showHostname, showContainerName, containers } = useLoggingContext();
 
-const { downloadUrl, isFiltered } = useDownloadUrl(containers, streamConfig, levels, name);
-
-const downloadLogs = () => downloadFrom(downloadUrl.value);
-// One block per container, in the order the view lists them; the zip is the fallback
-// when the clipboard is out of reach.
-const { copyLogs } = useCopyLogs(containers, enableDownload ? downloadLogs : undefined);
+const { downloadUrl, isFiltered, copyLogs, downloadLogs } = useContainerLogs(containers, () => name);
 
 useLetterShortcut("d", downloadLogs, enableDownload);
 useLetterShortcut("c", () => copyLogs());
