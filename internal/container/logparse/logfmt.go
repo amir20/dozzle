@@ -5,12 +5,12 @@ import (
 	"strconv"
 	"strings"
 
-	orderedmap "github.com/wk8/go-ordered-map/v2"
+	"github.com/amir20/dozzle/internal/container"
 )
 
 // ParseLogFmt parses a log entry in logfmt format and returns a map of key-value pairs.
-func ParseLogFmt(log string) (*orderedmap.OrderedMap[string, string], error) {
-	result := orderedmap.New[string, string]()
+func ParseLogFmt(log string) (container.Fields[string], error) {
+	var result container.Fields[string]
 	var key, value string
 	inQuotes, escaping, isKey := false, false, true
 	start := 0

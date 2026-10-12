@@ -2,29 +2,26 @@ package logparse
 
 import (
 	"encoding/json"
+	"github.com/amir20/dozzle/internal/container"
 	"reflect"
 	"testing"
-
-	orderedmap "github.com/wk8/go-ordered-map/v2"
 )
 
 func TestParseLog(t *testing.T) {
 	tests := []struct {
 		name    string
 		log     string
-		want    *orderedmap.OrderedMap[string, string]
+		want    container.Fields[string]
 		wantErr bool
 	}{
 		{
 			name: "Valid logfmt log",
 			log:  `time="2024-06-02T14:30:42Z" level=debug msg="container e23e04da2cb9 started"`,
-			want: orderedmap.New[string, string](
-				orderedmap.WithInitialData(
-					orderedmap.Pair[string, string]{Key: "time", Value: "2024-06-02T14:30:42Z"},
-					orderedmap.Pair[string, string]{Key: "level", Value: "debug"},
-					orderedmap.Pair[string, string]{Key: "msg", Value: "container e23e04da2cb9 started"},
-				),
-			),
+			want: container.Fields[string]{
+				{Key: "time", Value: "2024-06-02T14:30:42Z"},
+				{Key: "level", Value: "debug"},
+				{Key: "msg", Value: "container e23e04da2cb9 started"},
+			},
 			wantErr: false,
 		},
 		{
@@ -36,57 +33,47 @@ func TestParseLog(t *testing.T) {
 		{
 			name: "Valid log with key and trailing no value",
 			log:  "key1=value1 key2=",
-			want: orderedmap.New[string, string](
-				orderedmap.WithInitialData(
-					orderedmap.Pair[string, string]{Key: "key1", Value: "value1"},
-					orderedmap.Pair[string, string]{Key: "key2", Value: ""},
-				),
-			),
+			want: container.Fields[string]{
+				{Key: "key1", Value: "value1"},
+				{Key: "key2", Value: ""},
+			},
 			wantErr: false,
 		},
 		{
 			name: "Valid log with key and no values",
 			log:  "key1=value1 key2= key3=bar",
-			want: orderedmap.New[string, string](
-				orderedmap.WithInitialData(
-					orderedmap.Pair[string, string]{Key: "key1", Value: "value1"},
-					orderedmap.Pair[string, string]{Key: "key2", Value: ""},
-					orderedmap.Pair[string, string]{Key: "key3", Value: "bar"},
-				),
-			),
+			want: container.Fields[string]{
+				{Key: "key1", Value: "value1"},
+				{Key: "key2", Value: ""},
+				{Key: "key3", Value: "bar"},
+			},
 			wantErr: false,
 		},
 		{
 			name: "Valid log",
 			log:  "key1=value1 key2=value2",
-			want: orderedmap.New[string, string](
-				orderedmap.WithInitialData(
-					orderedmap.Pair[string, string]{Key: "key1", Value: "value1"},
-					orderedmap.Pair[string, string]{Key: "key2", Value: "value2"},
-				),
-			),
+			want: container.Fields[string]{
+				{Key: "key1", Value: "value1"},
+				{Key: "key2", Value: "value2"},
+			},
 			wantErr: false,
 		},
 		{
 			name: "Escaped quotes and backslashes in quoted values",
 			log:  `level=info msg="failed to open \"config.yml\"" path="C:\\temp"`,
-			want: orderedmap.New[string, string](
-				orderedmap.WithInitialData(
-					orderedmap.Pair[string, string]{Key: "level", Value: "info"},
-					orderedmap.Pair[string, string]{Key: "msg", Value: `failed to open "config.yml"`},
-					orderedmap.Pair[string, string]{Key: "path", Value: `C:\temp`},
-				),
-			),
+			want: container.Fields[string]{
+				{Key: "level", Value: "info"},
+				{Key: "msg", Value: `failed to open "config.yml"`},
+				{Key: "path", Value: `C:\temp`},
+			},
 			wantErr: false,
 		},
 		{
 			name: "Quoted value with undecodable escape is kept as-is",
 			log:  `msg="foo \q bar"`,
-			want: orderedmap.New[string, string](
-				orderedmap.WithInitialData(
-					orderedmap.Pair[string, string]{Key: "msg", Value: `foo \q bar`},
-				),
-			),
+			want: container.Fields[string]{
+				{Key: "msg", Value: `foo \q bar`},
+			},
 			wantErr: false,
 		},
 		{

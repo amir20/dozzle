@@ -13,7 +13,6 @@ import (
 	"github.com/expr-lang/expr/vm"
 	"github.com/puzpuzpuz/xsync/v4"
 	"github.com/rs/zerolog/log"
-	orderedmap "github.com/wk8/go-ordered-map/v2"
 )
 
 // isDozzleContainer returns true if the container is a Dozzle instance (to avoid feedback loops)
@@ -96,20 +95,10 @@ func extractMessage(l container.LogEvent) any {
 			sb.WriteString(container.StripANSI(fragment.Message))
 		}
 		return sb.String()
-	case *orderedmap.OrderedMap[string, any]:
-		// Convert OrderedMap to regular map for expr compatibility
-		result := make(map[string]any)
-		for pair := v.Oldest(); pair != nil; pair = pair.Next() {
-			result[pair.Key] = pair.Value
-		}
-		return result
-	case *orderedmap.OrderedMap[string, string]:
-		// Convert OrderedMap[string, string] to regular map for expr compatibility
-		result := make(map[string]any)
-		for pair := v.Oldest(); pair != nil; pair = pair.Next() {
-			result[pair.Key] = pair.Value
-		}
-		return result
+	case container.Fields[any]:
+		return v.Map()
+	case container.Fields[string]:
+		return v.Map()
 	default:
 		// For other complex objects, keep the original structure
 		return v
