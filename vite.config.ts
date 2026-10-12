@@ -31,8 +31,8 @@ export default defineConfig(() => ({
   resolve: {
     alias: {
       "@/": `${path.resolve(import.meta.dirname, "assets")}/`,
-      // ansi-to-html drags in the full `entities` HTML entity table (~135 KB raw). We build
-      // the converter with escapeXML: false, so only encodeXML is reachable. See the shim.
+      // markdown-it drags in the full `entities` HTML entity table (~135 KB raw) for one
+      // function, decodeHTMLStrict. See the shim.
       entities: path.resolve(import.meta.dirname, "assets/shims/entities.ts"),
     },
   },
