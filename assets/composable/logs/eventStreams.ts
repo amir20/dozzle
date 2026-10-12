@@ -88,6 +88,8 @@ export type SearchStatus = {
   done: boolean;
   matches: number;
   scannedTo?: string;
+  /** Share of the long read done so far, from 0 to 1. */
+  progress?: number;
   reason?: "capped" | "exhausted";
 };
 
@@ -353,6 +355,7 @@ function useLogStream(url: Ref<string>, container?: Ref<Container>) {
         done: data.done,
         matches: data.matches,
         scannedTo: data.scannedTo,
+        progress: data.progress,
         reason: data.reason,
       };
     });

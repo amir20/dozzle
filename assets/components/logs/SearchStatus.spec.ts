@@ -118,4 +118,27 @@ describe("<SearchStatus />", () => {
     await nextTick();
     expect(wrapper.find("[data-state]").exists()).toBe(false);
   });
+
+  test("shows how much of the older logs has been read while searching", async () => {
+    const wrapper = createStatus({ active: true, matches: 2, progress: 0.42 });
+    vi.advanceTimersByTime(400);
+    await nextTick();
+    expect(wrapper.find('[data-state="searching"]').text()).toContain("42%");
+    expect(wrapper.text()).toContain("2 matches");
+  });
+
+  test("shows the percentage on the full-page searching state too", async () => {
+    const wrapper = createStatus({ active: true, progress: 0.07 }, true);
+    vi.advanceTimersByTime(400);
+    await nextTick();
+    expect(wrapper.findComponent(EmptyState).text()).toContain("7%");
+  });
+
+  test("shows no percentage before the long read starts", async () => {
+    const wrapper = createStatus({ active: true, scannedTo: "2026-06-01T13:10:00Z" });
+    vi.advanceTimersByTime(400);
+    await nextTick();
+    expect(wrapper.text()).not.toContain("%");
+    expect(wrapper.text()).not.toContain("back to");
+  });
 });
