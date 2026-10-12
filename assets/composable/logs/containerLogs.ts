@@ -26,6 +26,8 @@ export function useContainerLogs(
   name?: MaybeRefOrGetter<string | undefined>,
 ) {
   const { streamConfig, levels, timeRange } = useLoggingContext();
+  // The same test the filter chip uses (useLogFilterSummary), so the two agree.
+  const levelsFiltered = computed(() => levels.value.size !== allLevels.length);
   const { appliedSearchFilter, inverseFilter } = useSearchFilter();
   const { copyLazy } = useCopy();
   const { t } = useI18n();
@@ -43,19 +45,17 @@ export function useContainerLogs(
       params.append("filter", appliedSearchFilter.value);
       if (inverseFilter.value) params.append("inverse", "true");
     }
-    const selected = Array.from(levels.value);
-    if (selected.length > 0 && selected.length < allLevels.length) {
-      selected.forEach((level) => params.append("levels", level));
-    }
+    if (levelsFiltered.value) levels.value.forEach((level) => params.append("levels", level));
     return params;
   });
 
   const isFiltered = computed(
-    () =>
-      !!appliedSearchFilter.value ||
-      (levels.value.size > 0 && levels.value.size < allLevels.length) ||
-      timeRange.value.kind !== "live",
+    () => !!appliedSearchFilter.value || levelsFiltered.value || timeRange.value.kind !== "live",
   );
+
+  // With every level cleared the view shows nothing, so there is nothing to copy.
+  // The server reads an empty level list as no filter at all, so no request is sent.
+  const nothingToFetch = () => toValue(containers).length === 0 || levels.value.size === 0;
 
   // A form POST into a hidden frame: the zip's Content-Disposition makes it a
   // download, and an error page lands in the frame rather than replacing the app.
@@ -76,6 +76,7 @@ export function useContainerLogs(
   }
 
   function downloadLogs() {
+    if (nothingToFetch()) return;
     const form = document.createElement("form");
     form.method = "POST";
     form.action = withBase(containerLogsPath);
@@ -104,7 +105,7 @@ export function useContainerLogs(
   }
 
   async function copyLogs() {
-    if (toValue(containers).length === 0) return;
+    if (nothingToFetch()) return;
     const body = params.value;
     const toastId = "copy-logs";
     showToast({ id: toastId, title: t("toolbar.copying-logs"), message: "", type: "info" }, { once: true });
