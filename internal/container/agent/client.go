@@ -283,7 +283,7 @@ func sendLogs(stream pb.AgentService_StreamLogsClient, events chan<- *container.
 }
 
 func (c *Client) StreamRawBytes(ctx context.Context, containerID string, since time.Time, until time.Time, std container.StdType) (io.ReadCloser, error) {
-	out, err := c.client.StreamRawBytes(context.Background(), &pb.StreamRawBytesRequest{
+	out, err := c.client.StreamRawBytes(ctx, &pb.StreamRawBytesRequest{
 		ContainerId: containerID,
 		Since:       timestamppb.New(since),
 		Until:       timestamppb.New(until),
@@ -297,18 +297,20 @@ func (c *Client) StreamRawBytes(ctx context.Context, containerID string, since t
 	r, w := io.Pipe()
 
 	go func() {
-		defer w.Close()
 		for {
 			resp, err := out.Recv()
 			if err != nil {
 				err = rpcErrToErr(err)
-				e := errors.Unwrap(err)
-				if e == io.EOF || e == context.Canceled {
-					return
-				} else {
-					log.Error().Err(err).Msg("agent client: failed to receive raw bytes")
+				if errors.Is(err, io.EOF) {
+					w.Close()
 					return
 				}
+				if !errors.Is(err, context.Canceled) {
+					log.Error().Err(err).Msg("agent client: failed to receive raw bytes")
+				}
+				// The reader sees the error, so a cut-off download does not pass for a complete one.
+				w.CloseWithError(err)
+				return
 			}
 
 			w.Write(resp.Data)
