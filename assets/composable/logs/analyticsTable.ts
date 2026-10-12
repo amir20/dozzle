@@ -2,7 +2,7 @@ import type { Container } from "@/models/Container";
 
 /** Every source's JSON lines in one response, one container after another. */
 export function analyticsLogsUrl(containers: Container[]): string {
-  const params = new URLSearchParams({ format: "jsonl", jsonOnly: "1", stdout: "1", stderr: "1" });
+  const params = new URLSearchParams({ format: "jsonl", stdout: "1", stderr: "1" });
   for (const c of containers) params.append("container", `${c.host}/${c.id}`);
   return withBase(`/api/containers/logs?${params}`);
 }

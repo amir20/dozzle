@@ -4,6 +4,7 @@ import (
 	"archive/zip"
 	"bytes"
 	"encoding/json"
+	"errors"
 	"io"
 	"time"
 
@@ -133,6 +134,40 @@ func Test_handler_download_logs_sanitizes_entry_names(t *testing.T) {
 	require.False(t, strings.HasPrefix(entry, "."), "entry %q should not start with a dot", entry)
 }
 
+// A container whose logs cannot be read is skipped, not the end of the download.
+func Test_handler_download_logs_skips_failing_container(t *testing.T) {
+	mockedClient := new(MockedClient)
+	for _, id := range []string{"aaa111", "bbb222"} {
+		mockedClient.On("FindContainer", mock.Anything, id).Return(container.Container{ID: id, Name: id}, nil)
+	}
+	mockedClient.On("ContainerLogsBetweenDates", mock.Anything, "aaa111", mock.Anything, mock.Anything, container.STDOUT).
+		Return(io.NopCloser(bytes.NewReader(nil)), errors.New("engine went away"))
+	mockedClient.On("ContainerLogsBetweenDates", mock.Anything, "bbb222", mock.Anything, mock.Anything, container.STDOUT).
+		Return(io.NopCloser(bytes.NewReader(makeMessage("2020-05-13T18:55:37.772853839Z from bbb\n", container.STDOUT))), nil)
+	mockedClient.On("Host").Return(container.Host{ID: "localhost"})
+	mockedClient.On("ContainerEvents", mock.Anything, mock.AnythingOfType("chan<- container.ContainerEvent")).Return(nil)
+	mockedClient.On("ListContainers", mock.Anything, mock.Anything).Return([]container.Container{
+		{ID: "aaa111", Name: "aaa111", State: "running"},
+		{ID: "bbb222", Name: "bbb222", State: "running"},
+	}, nil)
+
+	req, err := http.NewRequest("GET", "/api/containers/logs?format=zip&stdout=1&container=localhost/aaa111&container=localhost/bbb222", nil)
+	require.NoError(t, err)
+	rr := httptest.NewRecorder()
+	createDefaultHandler(mockedClient).ServeHTTP(rr, req)
+	require.Equal(t, http.StatusOK, rr.Code)
+
+	body := rr.Body.Bytes()
+	zr, err := zip.NewReader(bytes.NewReader(body), int64(len(body)))
+	require.NoError(t, err)
+	require.Len(t, zr.File, 2)
+	f, err := zr.File[1].Open()
+	require.NoError(t, err)
+	content, err := io.ReadAll(f)
+	require.NoError(t, err)
+	require.Contains(t, string(content), "from bbb")
+}
+
 // textHandler serves the given containers, all on localhost, each with one line of logs.
 func textHandler(t *testing.T, containers map[string]string) http.Handler {
 	mockedClient := new(MockedClient)
@@ -182,6 +217,18 @@ func Test_handler_container_logs_text(t *testing.T) {
 	t.Run("a container without a host is a bad request", func(t *testing.T) {
 		rr := get(t, textHandler(t, map[string]string{"aaa111": "web"}), "container=aaa111")
 		require.Equal(t, http.StatusBadRequest, rr.Code)
+	})
+
+	t.Run("a container that is gone is left out of the rest", func(t *testing.T) {
+		h := textHandler(t, map[string]string{"aaa111": "web", "bbb222": "db"})
+		rr := get(t, h, "container=localhost/gone99&container=localhost/aaa111&container=localhost/bbb222")
+		require.Equal(t, http.StatusOK, rr.Code)
+		require.Equal(t, "── web ──\nline from web\n\n── db ──\nline from db\n", rr.Body.String())
+	})
+
+	t.Run("no container found at all is not found", func(t *testing.T) {
+		rr := get(t, textHandler(t, map[string]string{"aaa111": "web"}), "container=localhost/gone99")
+		require.Equal(t, http.StatusNotFound, rr.Code)
 	})
 
 	t.Run("an unknown host is not found, before anything is written", func(t *testing.T) {
@@ -281,12 +328,12 @@ func getJSONL(t *testing.T, h http.Handler, query string) []*container.LogEvent 
 	return events
 }
 
-// jsonOnly feeds the SQL analytics view, which builds a DuckDB table with
+// jsonl feeds the SQL analytics view, which builds a DuckDB table with
 // `unnest(m)`. That only works when every `m` is an object, so anything that is
 // not a complex event has to be dropped here. Filtering on "the message is not a
 // string" is not enough: grouped events carry a []string, which makes DuckDB
 // infer the column as JSON and fails the whole table with a binder error.
-func Test_handler_container_logs_jsonl_jsonOnly(t *testing.T) {
+func Test_handler_container_logs_jsonl_complex_only(t *testing.T) {
 	// A single line, a two line group (an ERROR followed by an unlevelled
 	// continuation close in time), and a complex JSON line.
 	data := concatMessages(
@@ -296,43 +343,14 @@ func Test_handler_container_logs_jsonl_jsonOnly(t *testing.T) {
 		"2020-05-13T18:56:37.772853839Z {\"msg\":\"a complex log message\"}\n",
 	)
 
-	tests := []struct {
-		name      string
-		query     string
-		wantTypes []container.LogType
-	}{
-		{
-			name:      "jsonOnly keeps complex events only",
-			query:     "jsonOnly=1",
-			wantTypes: []container.LogType{container.LogTypeComplex},
-		},
-		{
-			name:      "without jsonOnly every event is sent",
-			wantTypes: []container.LogType{container.LogTypeSingle, container.LogTypeGroup, container.LogTypeComplex},
-		},
-	}
+	h := jsonlHandler(t, map[string][]byte{"123456": data})
+	events := getJSONL(t, h, "container=localhost/123456")
 
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			h := jsonlHandler(t, map[string][]byte{"123456": data})
-			events := getJSONL(t, h, "container=localhost/123456&"+tt.query)
-
-			types := make([]container.LogType, 0, len(events))
-			for _, event := range events {
-				types = append(types, event.Type)
-			}
-			require.Equal(t, tt.wantTypes, types)
-
-			if tt.query == "" {
-				return
-			}
-			for _, event := range events {
-				// unnest(m) rejects anything that is not a struct, so every
-				// message the analytics view sees must decode to an object.
-				require.IsType(t, map[string]any{}, event.Message)
-			}
-		})
-	}
+	require.Len(t, events, 1)
+	require.Equal(t, container.LogTypeComplex, events[0].Type)
+	// unnest(m) rejects anything that is not a struct, so every message the
+	// analytics view sees must decode to an object.
+	require.IsType(t, map[string]any{}, events[0].Message)
 }
 
 // The SQL view loads a merged view in one request and takes `_container` from `c`,
@@ -346,7 +364,7 @@ func Test_handler_container_logs_jsonl_several_containers(t *testing.T) {
 		"bbb222": concatMessages("2020-05-13T18:55:00.000000000Z {\"from\":\"b\"}\n"),
 	})
 
-	events := getJSONL(t, h, "jsonOnly=1&container=localhost/bbb222&container=localhost/aaa111")
+	events := getJSONL(t, h, "container=localhost/bbb222&container=localhost/aaa111")
 
 	got := make([]string, 0, len(events))
 	for _, event := range events {

@@ -3,6 +3,7 @@ package web
 import (
 	"archive/zip"
 	"bufio"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -18,10 +19,11 @@ import (
 // containerLogs is the whole log (or the view's time range) of any number of
 // containers in one response, each named as `container=<host>/<id>` and filtered
 // the way the log viewer filters. `format=zip` is the download: one file per container.
-// `format=jsonl` is the SQL view's table: LogEvents as JSON lines, each carrying its
-// container id in `c`, and only the JSON ones with `jsonOnly`. Otherwise it is plain
-// text for the copy button, each container under a `── name ──` header when there is
-// more than one.
+// `format=jsonl` is the SQL view's table: the JSON LogEvents only, as JSON lines,
+// each carrying its container id in `c`. Otherwise it is plain text for the copy
+// button, each container under a `── name ──` header when there is more than one.
+// A container that is gone (a view keeps showing one the store has dropped) is
+// left out; only a request where none is found is a 404.
 func (h *handler) containerLogs(w http.ResponseWriter, r *http.Request) {
 	q := r.URL.Query()
 	format := q.Get("format")
@@ -55,8 +57,8 @@ func (h *handler) containerLogs(w http.ResponseWriter, r *http.Request) {
 		to = time.Now()
 	}
 
-	// Every container is found before anything is written, so a bad id is a 4xx
-	// rather than a response that stops halfway.
+	// Every container is found before anything is written, so a bad request is a
+	// 4xx rather than a response that stops halfway.
 	services, status, err := h.findContainers(q["container"], h.resolveLabels(r))
 	if err != nil {
 		http.Error(w, err.Error(), status)
@@ -73,7 +75,7 @@ func (h *handler) containerLogs(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/x-jsonl; charset=UTF-8")
 		writer, done := compressedWriter(w, r)
 		defer done()
-		writeLogsJSON(writer, r, services, win.from, to, stdTypes, filter, q.Has("jsonOnly"))
+		writeLogsJSON(writer, r, services, win.from, to, stdTypes, filter)
 		return
 	}
 
@@ -86,7 +88,8 @@ func (h *handler) containerLogs(w http.ResponseWriter, r *http.Request) {
 
 // findContainers resolves `<host>/<id>` pairs straight from each host's container
 // store. Neither host ids nor container ids (k8s ids are `ns:pod:container`) can
-// hold a `/`, so the first one splits them.
+// hold a `/`, so the first one splits them. A container the store no longer has is
+// skipped, so one removed container does not fail the rest of a merged view.
 func (h *handler) findContainers(refs []string, labels container.ContainerLabels) ([]*container.ContainerService, int, error) {
 	if len(refs) == 0 {
 		return nil, http.StatusBadRequest, fmt.Errorf("at least one container is required")
@@ -98,18 +101,26 @@ func (h *handler) findContainers(refs []string, labels container.ContainerLabels
 			return nil, http.StatusBadRequest, fmt.Errorf("container must be <host>/<id>: %q", ref)
 		}
 		service, err := h.hostService.FindContainer(host, id, labels)
+		if errors.Is(err, container.ErrContainerNotFound) {
+			log.Debug().Str("host", host).Str("id", id).Msg("skipping a container that is gone")
+			continue
+		}
 		if err != nil {
 			return nil, http.StatusNotFound, err
 		}
 		services = append(services, service)
 	}
+	if len(services) == 0 {
+		return nil, http.StatusNotFound, container.ErrContainerNotFound
+	}
 	return services, 0, nil
 }
 
-// writeLogsJSON writes each container's events as JSON lines, one container after
-// another in request order. The response has started, so a container that fails is
+// writeLogsJSON writes each container's JSON events as JSON lines, one container
+// after another in request order. The SQL view builds its table with `unnest(m)`,
+// which needs every `m` to be an object, so nothing else is sent. The response has started, so a container that fails is
 // logged and skipped rather than cutting the table short.
-func writeLogsJSON(w io.Writer, r *http.Request, services []*container.ContainerService, from, to time.Time, stdTypes container.StdType, filter logFilter, onlyComplex bool) {
+func writeLogsJSON(w io.Writer, r *http.Request, services []*container.ContainerService, from, to time.Time, stdTypes container.StdType, filter logFilter) {
 	for _, service := range services {
 		// The client went away; the rest would only log one error each.
 		if r.Context().Err() != nil {
@@ -120,7 +131,7 @@ func writeLogsJSON(w io.Writer, r *http.Request, services []*container.Container
 			log.Error().Err(err).Str("container", service.Container.ID).Msg("error fetching logs")
 			continue
 		}
-		writeAllLogs(w, events, filter, onlyComplex, false)
+		writeAllLogs(w, events, filter, false)
 	}
 }
 
@@ -152,7 +163,7 @@ func writeContainerText(w io.Writer, r *http.Request, service *container.Contain
 		if err != nil {
 			return err
 		}
-		writeAllLogs(w, events, filter, false, true)
+		writeAllLogs(w, events, filter, true)
 		return nil
 	}
 	reader, err := service.RawLogs(r.Context(), from, to, stdTypes)
@@ -257,7 +268,8 @@ func writeLogsZip(w http.ResponseWriter, r *http.Request, services []*container.
 
 	filtered := !filter.empty()
 
-	// Errors from here on are logged only, since the response has started.
+	// Errors from here on are logged only, since the response has started. A
+	// container whose logs cannot be read is skipped; a failed write ends the zip.
 	for _, service := range services {
 		id := service.Container.ID
 		// Container names come from the engine or an agent, so they can carry path
@@ -280,9 +292,11 @@ func writeLogsZip(w http.ResponseWriter, r *http.Request, services []*container.
 			reader, err := service.RawLogs(r.Context(), from, to, stdTypes)
 			if err != nil {
 				log.Error().Err(err).Msgf("error getting logs for container %s", id)
-				return
+				continue
 			}
-			if _, err := io.Copy(f, reader); err != nil {
+			_, err = io.Copy(f, reader)
+			reader.Close()
+			if err != nil {
 				log.Error().Err(err).Msgf("error copying logs for container %s", id)
 				return
 			}
@@ -292,7 +306,7 @@ func writeLogsZip(w http.ResponseWriter, r *http.Request, services []*container.
 		events, err := service.LogsBetweenDates(r.Context(), from, to, stdTypes)
 		if err != nil {
 			log.Error().Err(err).Msgf("error getting logs for container %s", id)
-			return
+			continue
 		}
 		for event := range events {
 			if !filter.matchesText(event) || (len(filter.levels) > 0 && !filter.matchesLevel(event)) {

@@ -16,7 +16,6 @@ describe("analyticsLogsUrl", () => {
     const url = new URL(analyticsLogsUrl([container("b"), container("a", "remote")]), "http://x");
     expect(url.pathname).toBe("/base/api/containers/logs");
     expect(url.searchParams.get("format")).toBe("jsonl");
-    expect(url.searchParams.get("jsonOnly")).toBe("1");
     expect(url.searchParams.get("stdout")).toBe("1");
     expect(url.searchParams.get("stderr")).toBe("1");
     expect(url.searchParams.getAll("container")).toEqual(["local/b", "remote/a"]);

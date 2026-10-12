@@ -147,16 +147,16 @@ func compressedWriter(w http.ResponseWriter, r *http.Request) (io.Writer, func()
 	return gzWriter, func() { gzWriter.Close() }
 }
 
-// writeAllLogs streams a container's whole history, as JSON lines for the SQL view
-// or as plain text for a copy. Unlike the windowed fetch, an empty level set here
-// means every level.
-func writeAllLogs(writer io.Writer, events <-chan *container.LogEvent, filter logFilter, onlyComplex, plainText bool) {
+// writeAllLogs streams a container's whole history, as plain text for a copy or as
+// JSON lines for the SQL view, which only gets the complex events. Unlike the
+// windowed fetch, an empty level set here means every level.
+func writeAllLogs(writer io.Writer, events <-chan *container.LogEvent, filter logFilter, plainText bool) {
 	encoder := json.NewEncoder(writer)
 	for event := range events {
 		// Grouped events carry a []string message, so filtering on "not a
 		// string" still lets arrays through and breaks struct inference for
-		// consumers like the SQL analytics view.
-		if onlyComplex && event.Type != container.LogTypeComplex {
+		// the SQL view's unnest(m).
+		if !plainText && event.Type != container.LogTypeComplex {
 			continue
 		}
 		if !filter.matchesText(event) {
