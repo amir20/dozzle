@@ -1,30 +1,19 @@
-import AnsiConvertor from "ansi-to-html";
+import { AnsiUp } from "ansi_up";
 
-// Theme-aware ANSI palette. Values are CSS variables defined per DaisyUI theme in main.css,
-// so log colors stay legible on both light and dark backgrounds. The `colors` map merges over
-// the library's 256-color defaults, so indices 16-255 keep their standard values.
-const ansiConvertor = new AnsiConvertor({
-  escapeXML: false,
-  fg: "var(--color-base-content)",
-  bg: "var(--color-base-100)",
-  colors: {
-    0: "var(--ansi-black)",
-    1: "var(--ansi-red)",
-    2: "var(--ansi-green)",
-    3: "var(--ansi-yellow)",
-    4: "var(--ansi-blue)",
-    5: "var(--ansi-magenta)",
-    6: "var(--ansi-cyan)",
-    7: "var(--ansi-white)",
-    8: "var(--ansi-bright-black)",
-    9: "var(--ansi-bright-red)",
-    10: "var(--ansi-bright-green)",
-    11: "var(--ansi-bright-yellow)",
-    12: "var(--ansi-bright-blue)",
-    13: "var(--ansi-bright-magenta)",
-    14: "var(--ansi-bright-cyan)",
-    15: "var(--ansi-bright-white)",
-  },
-});
+// The backend has already HTML-escaped the text and spliced in <a> and <mark>, so escaping
+// is off. Classes (`ansi-red-fg`, `ansi-bright-blue-bg`, ...) map the 16 standard colors onto
+// the theme-aware CSS variables in main.css; 256-color indices 16-255 and truecolor stay inline.
+//
+// AnsiUp carries SGR state and any truncated escape over to the next call, but every log line
+// is converted on its own, so each call gets a fresh converter. Lines with no ESC at all, the
+// vast majority, never build one.
+const converter = (): AnsiUp => {
+  const ansiUp = new AnsiUp();
+  ansiUp.escape_html = false;
+  ansiUp.use_classes = true;
+  // Dim has never rendered here, so keep it invisible rather than fading the line.
+  ansiUp.faintStyle = "";
+  return ansiUp;
+};
 
-export const colorize = (value: string): string => ansiConvertor.toHtml(value);
+export const colorize = (value: string): string => (value.includes("\x1b") ? converter().ansi_to_html(value) : value);

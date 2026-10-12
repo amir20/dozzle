@@ -46,3 +46,40 @@ describe("<GroupedLogItem /> timestamp prefix", () => {
     expect(wrapper.findAll(".log-message").map((m) => m.text())).toEqual(["INF ready", "at main.go:1"]);
   });
 });
+
+// What the backend sends: HTML already escaped, with <mark> and <a> spliced in, plus raw ANSI.
+const rich =
+  '\x1b[31mred\x1b[0m &lt;b&gt;tag&lt;/b&gt; a &amp; b <mark>hit</mark> <a href="https://x.com/?a=1&amp;b=2" target="_blank">https://x.com</a>';
+
+// The red run may carry its color inline or as a class backed by main.css; either names the variable.
+const colorOf = (el: Element, text: string) => {
+  const span = [...el.querySelectorAll("span")].find((s) => s.textContent === text);
+  return span ? `${span.getAttribute("style") ?? ""} ${span.className}` : "";
+};
+
+const expectRich = (el: Element) => {
+  expect(el.textContent).toBe("red <b>tag</b> a & b hit https://x.com");
+  expect(el.querySelector("b")).toBeNull();
+  expect(el.querySelector("mark")?.textContent).toBe("hit");
+  expect(el.querySelector("a")?.getAttribute("href")).toBe("https://x.com/?a=1&b=2");
+  expect(colorOf(el, "red")).toMatch(/ansi-red/);
+};
+
+describe("<SimpleLogItem /> ANSI rendering", () => {
+  test("colors ANSI without escaping the backend's markup again", () => {
+    const entry = new SimpleLogEntry(rich, "c1", 1, new Date(), "info", "stdout", rich);
+    const wrapper = mount(SimpleLogItem, { props: { logEntry: entry }, global: { stubs } });
+    expectRich(wrapper.find(".log-message").element);
+  });
+});
+
+describe("<GroupedLogItem /> ANSI rendering", () => {
+  test("colors each line and keeps its markup, with no color leaking between lines", () => {
+    const entry = new GroupedLogEntry([rich, "\x1b[32mopen", "after"], "c1", 1, new Date(), "error", "stderr");
+    const wrapper = mount(GroupedLogItem, { props: { logEntry: entry }, global: { stubs } });
+    const lines = wrapper.findAll(".log-message");
+    expectRich(lines[0].element);
+    expect(colorOf(lines[1].element, "open")).toMatch(/ansi-green/);
+    expect(lines[2].element.innerHTML).toBe("after");
+  });
+});

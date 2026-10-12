@@ -173,6 +173,105 @@
   --noise: 0;
 }
 
+/* The classes ansi_up emits for the 16 standard colors (assets/utils/ansi.ts), bound to the
+ * per-theme palette above. 256-color and truecolor values arrive inline. */
+.ansi-black-fg {
+  color: var(--ansi-black);
+}
+.ansi-red-fg {
+  color: var(--ansi-red);
+}
+.ansi-green-fg {
+  color: var(--ansi-green);
+}
+.ansi-yellow-fg {
+  color: var(--ansi-yellow);
+}
+.ansi-blue-fg {
+  color: var(--ansi-blue);
+}
+.ansi-magenta-fg {
+  color: var(--ansi-magenta);
+}
+.ansi-cyan-fg {
+  color: var(--ansi-cyan);
+}
+.ansi-white-fg {
+  color: var(--ansi-white);
+}
+.ansi-bright-black-fg {
+  color: var(--ansi-bright-black);
+}
+.ansi-bright-red-fg {
+  color: var(--ansi-bright-red);
+}
+.ansi-bright-green-fg {
+  color: var(--ansi-bright-green);
+}
+.ansi-bright-yellow-fg {
+  color: var(--ansi-bright-yellow);
+}
+.ansi-bright-blue-fg {
+  color: var(--ansi-bright-blue);
+}
+.ansi-bright-magenta-fg {
+  color: var(--ansi-bright-magenta);
+}
+.ansi-bright-cyan-fg {
+  color: var(--ansi-bright-cyan);
+}
+.ansi-bright-white-fg {
+  color: var(--ansi-bright-white);
+}
+.ansi-black-bg {
+  background-color: var(--ansi-black);
+}
+.ansi-red-bg {
+  background-color: var(--ansi-red);
+}
+.ansi-green-bg {
+  background-color: var(--ansi-green);
+}
+.ansi-yellow-bg {
+  background-color: var(--ansi-yellow);
+}
+.ansi-blue-bg {
+  background-color: var(--ansi-blue);
+}
+.ansi-magenta-bg {
+  background-color: var(--ansi-magenta);
+}
+.ansi-cyan-bg {
+  background-color: var(--ansi-cyan);
+}
+.ansi-white-bg {
+  background-color: var(--ansi-white);
+}
+.ansi-bright-black-bg {
+  background-color: var(--ansi-bright-black);
+}
+.ansi-bright-red-bg {
+  background-color: var(--ansi-bright-red);
+}
+.ansi-bright-green-bg {
+  background-color: var(--ansi-bright-green);
+}
+.ansi-bright-yellow-bg {
+  background-color: var(--ansi-bright-yellow);
+}
+.ansi-bright-blue-bg {
+  background-color: var(--ansi-bright-blue);
+}
+.ansi-bright-magenta-bg {
+  background-color: var(--ansi-bright-magenta);
+}
+.ansi-bright-cyan-bg {
+  background-color: var(--ansi-bright-cyan);
+}
+.ansi-bright-white-bg {
+  background-color: var(--ansi-bright-white);
+}
+
 @utility input {
   @apply outline-hidden!;
   &.input-ghost {

@@ -1,20 +1,9 @@
-// `entities` ships the full HTML entity table (~135 KB), and two dependencies pull it in:
-// ansi-to-html (encodeXML) and markdown-it (decodeHTMLStrict). Neither needs the table, so
-// `entities` is aliased to this in vite.config.ts.
+// `entities` ships the full HTML entity table (~135 KB), and markdown-it pulls it in for
+// decodeHTMLStrict alone, so `entities` is aliased to this in vite.config.ts.
 //
-// ansi-to-html is called with escapeXML: false (see assets/utils/ansi.ts), so only encodeXML
-// is reachable. markdown-it decodes numeric references itself and calls decodeHTMLStrict only
+// markdown-it decodes numeric references itself and calls decodeHTMLStrict only
 // for named ones, treating "not a known entity" as "leave the text alone" — so a short table
 // costs nothing but the long tail of named entities, which renders literally instead.
-const XML_ESCAPES: Record<string, string> = {
-  '"': "&quot;",
-  "&": "&amp;",
-  "'": "&apos;",
-  "<": "&lt;",
-  ">": "&gt;",
-};
-
-export const encodeXML = (str: string): string => str.replace(/["&'<>]/g, (c) => XML_ESCAPES[c]);
 
 // The entities an assistant answer or a log line realistically contains.
 const NAMED: Record<string, string> = {
@@ -76,4 +65,4 @@ export const decodeHTMLStrict = (str: string): string => {
   return NAMED[name] ?? str;
 };
 
-export default { encodeXML, decodeHTMLStrict };
+export default { decodeHTMLStrict };
