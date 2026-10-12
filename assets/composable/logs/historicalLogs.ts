@@ -84,7 +84,7 @@ export function useHistoricalContainerLog(historicalContainer: Ref<HistoricalCon
   // read of the log from its beginning on Docker's side: pages are as large as
   // a fetch allows so a range takes as few of them as it can.
   async function loadRange(end: Date) {
-    const { logs } = await loadBetween(container, params, historicalContainer.value.date, end, {
+    const { logs } = await loadBetween([container.value], params, historicalContainer.value.date, end, {
       maxStart: FETCH_PAGE,
     });
     const bottom = logs.length < FETCH_PAGE ? endEdge() : new LoadMoreLogEntry(new Date(), loadNewerLogs, false);
@@ -114,7 +114,7 @@ export function useHistoricalContainerLog(historicalContainer: Ref<HistoricalCon
       const lastSeenId = route.query.logId ? +route.query.logId : undefined;
       const [{ logs: before }, { logs: after }] = await Promise.all([
         loadBetween(
-          container,
+          [container.value],
           params,
           new Date(historicalContainer.value.date.getTime() - 1000 * 60 * 5),
           new Date(historicalContainer.value.date.getTime() + 1000),
@@ -123,7 +123,7 @@ export function useHistoricalContainerLog(historicalContainer: Ref<HistoricalCon
             lastSeenId,
           },
         ),
-        loadBetween(container, params, historicalContainer.value.date, new Date(), {
+        loadBetween([container.value], params, historicalContainer.value.date, new Date(), {
           maxStart: 50,
         }),
       ]);
@@ -156,7 +156,7 @@ export function useHistoricalContainerLog(historicalContainer: Ref<HistoricalCon
       const item = messages.value.find(isStreamLog);
       if (!item) return;
       const { logs, signal } = await loadBetween(
-        container,
+        [container.value],
         params,
         new Date(item.date.getTime() - 1000 * 60 * 5),
         item.date,
@@ -193,7 +193,7 @@ export function useHistoricalContainerLog(historicalContainer: Ref<HistoricalCon
       // An empty range has no line to continue from, only its start.
       if (!item && !end) return;
       const { logs, signal } = await loadBetween(
-        container,
+        [container.value],
         params,
         item?.date ?? historicalContainer.value.date,
         end ?? new Date(),

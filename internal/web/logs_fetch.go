@@ -14,12 +14,11 @@ import (
 	"strings"
 	"time"
 
-	"github.com/amir20/dozzle/internal/analytics"
 	"github.com/amir20/dozzle/internal/container"
 	"github.com/amir20/dozzle/internal/utils"
 	"github.com/amir20/dozzle/internal/web/search"
-	"github.com/go-chi/chi/v5"
 	"github.com/rs/zerolog/log"
+	"golang.org/x/sync/errgroup"
 )
 
 // defaultFetchSize caps how many events a windowed fetch returns without `min`.
@@ -36,12 +35,21 @@ type fetchWindow struct {
 	maxStart   int
 	lastSeenId uint32
 	startId    uint32
+	// windowed is set when the request names any of the paging params above.
+	// Without them a fetch is the whole log.
+	windowed bool
 }
 
 func parseFetchWindow(q url.Values) (fetchWindow, error) {
 	from, _ := time.Parse(time.RFC3339Nano, q.Get("from"))
 	to, _ := time.Parse(time.RFC3339Nano, q.Get("to"))
 	win := fetchWindow{from: from, to: to, size: defaultFetchSize, maxStart: math.MaxInt}
+	for _, key := range [...]string{"from", "to", "min", "maxStart", "lastSeenId", "startId"} {
+		if q.Has(key) {
+			win.windowed = true
+			break
+		}
+	}
 
 	if q.Has("min") {
 		minimum, err := strconv.Atoi(q.Get("min"))
@@ -85,55 +93,6 @@ func parseFetchWindow(q url.Values) (fetchWindow, error) {
 	}
 
 	return win, nil
-}
-
-func (h *handler) fetchLogsBetweenDates(w http.ResponseWriter, r *http.Request) {
-	analytics.Count("logs.older")
-	w.Header().Set("Content-Type", "application/x-jsonl; charset=UTF-8")
-
-	stdTypes := parseStdTypes(r)
-	if stdTypes == 0 {
-		http.Error(w, "stdout or stderr is required", http.StatusBadRequest)
-		return
-	}
-
-	containerService, err := h.hostService.FindContainer(hostKey(r), chi.URLParam(r, "id"), h.resolveLabels(r))
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusNotFound)
-		return
-	}
-
-	filter, err := parseLogFilter(r)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
-	}
-
-	q := r.URL.Query()
-	win, err := parseFetchWindow(q)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
-	}
-
-	events, err := fetchWindowedLogs(r.Context(), containerService, win, filter, stdTypes)
-	if err != nil {
-		log.Error().Err(err).Msg("error fetching logs")
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-
-	log.Debug().Int("buffer_size", len(events)).Msg("sending logs to client")
-
-	writer, done := compressedWriter(w, r)
-	defer done()
-	encoder := json.NewEncoder(writer)
-	for _, event := range events {
-		if err := encoder.Encode(event); err != nil {
-			log.Error().Err(err).Msg("error encoding log event")
-			return
-		}
-	}
 }
 
 // compressedWriter gzips the body when the client accepts it. Call it only once
@@ -232,4 +191,53 @@ func fetchWindowedLogs(ctx context.Context, containerService *container.Containe
 	}
 
 	return buffer.Data(), nil
+}
+
+// windowedFetchConcurrency caps how many containers one windowed fetch reads at a
+// time. Each read is bounded by the window's size, so a few at once is cheap, and
+// a big stack still never opens a log stream per container all at once.
+const windowedFetchConcurrency = 4
+
+// fetchWindowedLogsMerged runs the windowed fetch for each container, `min`
+// applying to each one, and merges the results by time.
+func fetchWindowedLogsMerged(ctx context.Context, services []*container.ContainerService, win fetchWindow, filter logFilter, stdTypes container.StdType) ([]*container.LogEvent, error) {
+	results := make([][]*container.LogEvent, len(services))
+	g, ctx := errgroup.WithContext(ctx)
+	g.SetLimit(windowedFetchConcurrency)
+	for i, service := range services {
+		g.Go(func() error {
+			events, err := fetchWindowedLogs(ctx, service, win, filter, stdTypes)
+			results[i] = events
+			return err
+		})
+	}
+	if err := g.Wait(); err != nil {
+		return nil, err
+	}
+	return mergeByTime(results), nil
+}
+
+// mergeByTime merges lists that are each in their container's order into one,
+// oldest first. Each list keeps its own order, and ties go to the earlier list.
+func mergeByTime(lists [][]*container.LogEvent) []*container.LogEvent {
+	if len(lists) == 1 {
+		return lists[0]
+	}
+	total := 0
+	for _, list := range lists {
+		total += len(list)
+	}
+	merged := make([]*container.LogEvent, 0, total)
+	heads := make([]int, len(lists))
+	for len(merged) < total {
+		next := -1
+		for i, list := range lists {
+			if heads[i] < len(list) && (next < 0 || list[heads[i]].Timestamp < lists[next][heads[next]].Timestamp) {
+				next = i
+			}
+		}
+		merged = append(merged, lists[next][heads[next]])
+		heads[next]++
+	}
+	return merged
 }

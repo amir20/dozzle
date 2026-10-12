@@ -2,6 +2,7 @@ import { ShallowRef, type Ref } from "vue";
 import { type LogMessage, LogEntry, LoadMoreLogEntry, SkippedLogsEntry } from "@/models/LogEntry";
 import { Container } from "@/models/Container";
 import { loadBetween } from "./loadBetween";
+import { notOnScreen } from "./logWindow";
 import { useAlertMerger, isStreamLog } from "@/composable/cloud/alertMerger";
 
 // Matches the rolling window size used for stats history
@@ -11,6 +12,49 @@ const LOG_WINDOW_FOR_DELTA = 300;
 // (defaultFetchSize in internal/web/logs_fetch.go). Fewer means the window held
 // no more than that.
 export const FETCH_PAGE = 500;
+
+/**
+ * Where loading older lines continues from: the latest, across the containers that
+ * have not reached their start, of each one's oldest line on screen. Below it every
+ * container's lines are on screen. A container with no line on screen says nothing
+ * about where that is, so it does not count.
+ */
+export function olderCursor(
+  oldestByContainer: Map<string, LogEntry<LogMessage>>,
+  reachedStart: Set<string>,
+): LogEntry<LogMessage> | undefined {
+  let cursor: LogEntry<LogMessage> | undefined;
+  for (const [id, oldest] of oldestByContainer) {
+    if (reachedStart.has(id)) continue;
+    if (!cursor || oldest.date > cursor.date) cursor = oldest;
+  }
+  return cursor;
+}
+
+/**
+ * Merges older lines, sorted by time, into the window by time. A line older than
+ * the cursor can still belong between lines already on screen, from a container
+ * whose own oldest line is older still, so the lines cannot just be prepended.
+ */
+export function mergeByTime(messages: LogEntry<LogMessage>[], lines: LogEntry<LogMessage>[]): LogEntry<LogMessage>[] {
+  if (lines.length === 0) return messages;
+  const merged: LogEntry<LogMessage>[] = [];
+  let i = 0;
+  for (const m of messages) {
+    const at = m.date.getTime();
+    while (i < lines.length && lines[i].date.getTime() <= at) merged.push(lines[i++]);
+    merged.push(m);
+  }
+  while (i < lines.length) merged.push(lines[i++]);
+  return merged;
+}
+
+/** The containers that sent fewer lines than asked for, so the window widened back to their start. */
+export function reachedStartIn(containers: Container[], logs: LogEntry<LogMessage>[], asked: number): Set<string> {
+  const counts = new Map<string, number>();
+  for (const l of logs) counts.set(l.containerID, (counts.get(l.containerID) ?? 0) + 1);
+  return new Set(containers.filter((c) => (counts.get(c.id) ?? 0) < asked).map((c) => c.id));
+}
 
 export function useLogLoader(
   messages: ShallowRef<LogEntry<LogMessage>[]>,
@@ -32,6 +76,9 @@ export function useLogLoader(
   } = {},
 ) {
   const { withAlerts, decorateVisible } = useAlertMerger(messages, containers, params);
+  // The containers whose start is on screen, for each window. A fresh window
+  // (another view, filter or stream) opens under a new load-more row.
+  const reachedStartByLoader = new WeakMap<LoadMoreLogEntry, Set<string>>();
 
   async function loadOlderLogs(entry: LoadMoreLogEntry) {
     if (!(messages.value[0] instanceof LoadMoreLogEntry)) throw new Error("No loadMoreLogEntry on first item");
@@ -40,8 +87,14 @@ export function useLogLoader(
     const [loader, ...existingLogs] = messages.value;
     if (existingLogs.length === 0) return;
 
+    let reachedStart = reachedStartByLoader.get(entry);
+    if (!reachedStart) reachedStartByLoader.set(entry, (reachedStart = new Set()));
+    // Containers already at their start would only send back what is on screen.
+    const pending = containers.value.filter((c) => !reachedStart.has(c.id));
+    if (pending.length === 0) return;
+
     const containerIDs = new Set(containers.value.map((c) => c.id));
-    const earliestByContainer = new Map<string, LogEntry<LogMessage>>();
+    const oldestByContainer = new Map<string, LogEntry<LogMessage>>();
     const countByContainer = new Map<string, number>();
     const nthByContainer = new Map<string, LogEntry<LogMessage>>();
     for (const log of existingLogs) {
@@ -49,8 +102,8 @@ export function useLogLoader(
       // Rows that are not lines, like an update marker dated when its container
       // started, say nothing about how far back the lines on screen go.
       if (!id || !containerIDs.has(id) || !isStreamLog(log)) continue;
-      if (!earliestByContainer.has(id)) {
-        earliestByContainer.set(id, log);
+      if (!oldestByContainer.has(id)) {
+        oldestByContainer.set(id, log);
       }
       const count = (countByContainer.get(id) ?? 0) + 1;
       countByContainer.set(id, count);
@@ -59,71 +112,37 @@ export function useLogLoader(
       }
     }
 
-    // With a floor, every load asks for [floor, earliest on screen] at once. Docker
-    // scans its log from the start for any window, so a narrower one costs the same
-    // and could come back empty above lines that exist, while a `min` would widen
-    // the window past the floor.
+    const cursor = olderCursor(oldestByContainer, reachedStart);
+    const to = cursor?.date ?? (existingLogs.find(isStreamLog) ?? existingLogs[0]).date;
+
+    // With a floor, every load asks for [floor, cursor] at once. Docker scans its
+    // log from the start for any window, so a narrower one costs the same and could
+    // come back empty above lines that exist, while a `min` would widen the window
+    // past the floor.
     const start = floor?.value;
-    if (start) {
-      try {
-        loadingMore.value = true;
-        const to = existingLogs.find(isStreamLog)?.date ?? existingLogs[0].date;
-        const results = await Promise.all(
-          containers.value.map((c) =>
-            loadBetween(c, params, start, to, { lastSeenId: earliestByContainer.get(c.id)?.id }),
-          ),
-        );
-        if (results.some(({ signal }) => signal.aborted)) return;
-        const older = results.flatMap(({ logs }) => logs).sort((a, b) => a.date.getTime() - b.date.getTime());
-        const reachedFloor = results.every(({ logs }) => logs.length < FETCH_PAGE);
-        const head = reachedFloor && startEdge ? startEdge() : loader;
-        if (older.length > 0 || head !== loader) {
-          messages.value = [head, ...(await withAlerts(older)), ...existingLogs];
-        }
-        loadedOlder?.(new Set(containers.value.filter((_, i) => results[i].logs.length < FETCH_PAGE).map((c) => c.id)));
-      } catch (err) {
-        console.error(err);
-      } finally {
-        loadingMore.value = false;
-      }
-      return;
+    const min = start ? undefined : Math.ceil(100 / containers.value.length);
+    let from = start;
+    if (!from) {
+      const nth = cursor && nthByContainer.get(cursor.containerID);
+      const delta = to.getTime() - (nth?.date ?? to).getTime();
+      from = new Date(to.getTime() + (delta !== 0 ? delta : -60_000));
     }
 
     try {
       loadingMore.value = true;
-      const minPerContainer = Math.ceil(100 / containers.value.length);
-      const firstOnScreen = (existingLogs.find(isStreamLog) ?? existingLogs[0]).date;
+      // lastSeenId pins the cursor's own container to the line on screen, and
+      // widens `to` a little, which only brings back lines already on screen.
+      const { logs, signal } = await loadBetween(pending, params, from, to, { min, lastSeenId: cursor?.id });
+      if (signal.aborted) return;
 
-      const results = await Promise.all(
-        containers.value.map((c) => {
-          const earliest = earliestByContainer.get(c.id);
-          const to = earliest?.date ?? firstOnScreen;
-          const nth = nthByContainer.get(c.id);
-          const delta = to.getTime() - (nth?.date ?? to).getTime();
-          const from = new Date(to.getTime() + (delta !== 0 ? delta : -60_000));
-          return loadBetween(c, params, from, to, {
-            min: minPerContainer,
-            lastSeenId: earliest?.id,
-          });
-        }),
-      );
-
-      const allNewLogs = results
-        .filter(({ signal }) => !signal.aborted)
-        .flatMap(({ logs }) => logs)
-        .sort((a, b) => a.date.getTime() - b.date.getTime());
-
-      if (allNewLogs.length > 0) {
-        messages.value = [loader, ...(await withAlerts(allNewLogs)), ...existingLogs];
+      for (const id of reachedStartIn(pending, logs, min ?? FETCH_PAGE)) reachedStart.add(id);
+      const older = logs.filter(notOnScreen(existingLogs));
+      const reachedFloor = start !== undefined && containers.value.every((c) => reachedStart.has(c.id));
+      const head = reachedFloor && startEdge ? startEdge() : loader;
+      if (older.length > 0 || head !== loader) {
+        messages.value = [head, ...mergeByTime(existingLogs, await withAlerts(older))];
       }
-      // Fewer than asked for means the window widened back to the container's start.
-      loadedOlder?.(
-        new Set(
-          containers.value
-            .filter((_, i) => !results[i].signal.aborted && results[i].logs.length < minPerContainer)
-            .map((c) => c.id),
-        ),
-      );
+      loadedOlder?.(new Set(reachedStart));
     } catch (err) {
       console.error(err);
     } finally {
@@ -136,23 +155,18 @@ export function useLogLoader(
 
     const from = entry.firstSkipped.date;
     const to = entry.lastSkippedLog.date;
-    const ownerContainerID = entry.lastSkippedLog.containerID;
 
     try {
       loadingMore.value = true;
-      const results = await Promise.all(
-        containers.value.map((c) => {
-          const lastSeenId = c.id === ownerContainerID ? entry.lastSkippedLog.id : undefined;
-          return loadBetween(c, params, from, to, { lastSeenId });
-        }),
-      );
-      const allLogs = results
-        .filter(({ signal }) => !signal.aborted)
-        .flatMap(({ logs }) => logs)
-        .sort((a, b) => a.date.getTime() - b.date.getTime());
+      const { logs, signal } = await loadBetween(containers.value, params, from, to, {
+        lastSeenId: entry.lastSkippedLog.id,
+      });
+      if (signal.aborted) return;
+      // lastSeenId widens `to` for every container, past the skipped run.
+      const skipped = logs.filter((l) => l.date <= to).filter(notOnScreen(messages.value));
 
-      if (allLogs.length > 0) {
-        const withAlertsApplied = await withAlerts(allLogs);
+      if (skipped.length > 0) {
+        const withAlertsApplied = await withAlerts(skipped);
         const updated = messages.value.flatMap((log) => (log === entry ? withAlertsApplied : [log]));
         messages.value = updated.length > config.maxLogs ? updated.slice(-config.maxLogs) : updated;
       }

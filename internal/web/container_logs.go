@@ -3,6 +3,7 @@ package web
 import (
 	"archive/zip"
 	"bufio"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
@@ -21,8 +22,10 @@ import (
 // containerLogs is the whole log (or the view's time range) of any number of
 // containers in one response, each named as `container=<host>/<id>` and filtered
 // the way the log viewer filters. `format=zip` is the download: one file per container.
-// `format=jsonl` is the SQL view's table: the JSON LogEvents only, as JSON lines,
-// each carrying its container id in `c`. Otherwise it is plain text for the copy
+// `format=jsonl` is LogEvents as JSON lines, each carrying its container id in `c`.
+// With paging params (from, to, min, ...) it is the log viewer's page of older or
+// newer lines, every container's merged by time. Without them it is the SQL view's
+// table: the whole log, JSON lines only. Otherwise it is plain text for the copy
 // button, each container under a `── name ──` header when there is more than one.
 // A container that is gone (a view keeps showing one the store has dropped) is
 // left out; only a request where none is found is a 404.
@@ -70,6 +73,27 @@ func (h *handler) containerLogs(w http.ResponseWriter, r *http.Request) {
 	if zipped {
 		analytics.Count("logs.download")
 		writeLogsZip(w, r, services, win.from, to, stdTypes, filter)
+		return
+	}
+
+	if format == "jsonl" && win.windowed {
+		analytics.Count("logs.older")
+		events, err := fetchWindowedLogsMerged(r.Context(), services, win, filter, stdTypes)
+		if err != nil {
+			log.Error().Err(err).Msg("error fetching logs")
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		w.Header().Set("Content-Type", "application/x-jsonl; charset=UTF-8")
+		writer, done := compressedWriter(w, r)
+		defer done()
+		encoder := json.NewEncoder(writer)
+		for _, event := range events {
+			if err := encoder.Encode(event); err != nil {
+				log.Error().Err(err).Msg("error encoding log event")
+				return
+			}
+		}
 		return
 	}
 

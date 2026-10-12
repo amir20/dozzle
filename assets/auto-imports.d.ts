@@ -187,6 +187,7 @@ declare global {
   const markRaw: typeof import('vue').markRaw
   const menuWidth: typeof import('./stores/settings').menuWidth
   const mergeAlerts: typeof import('./composable/cloud/cloudAlerts').mergeAlerts
+  const mergeByTime: typeof import('./composable/logs/logLoader').mergeByTime
   const mergeCloudEvents: typeof import('./composable/cloud/cloudAlerts').mergeCloudEvents
   const mergeDeploys: typeof import('./composable/cloud/cloudAlerts').mergeDeploys
   const narrowedLevels: typeof import('./composable/logs/viewContext').narrowedLevels
@@ -195,6 +196,7 @@ declare global {
   const nextCompact: typeof import('./composable/ui/compactOnScroll').nextCompact
   const nextTick: typeof import('vue').nextTick
   const notOnScreen: typeof import('./composable/logs/logWindow').notOnScreen
+  const olderCursor: typeof import('./composable/logs/logLoader').olderCursor
   const onActivated: typeof import('vue').onActivated
   const onBeforeMount: typeof import('vue').onBeforeMount
   const onBeforeRouteLeave: typeof import('vue-router').onBeforeRouteLeave
@@ -234,6 +236,7 @@ declare global {
   const publishViewContext: typeof import('./composable/logs/viewContext').publishViewContext
   const publishVisibleLogs: typeof import('./composable/logs/viewContext').publishVisibleLogs
   const rangeAround: typeof import('./composable/logs/timeRange').rangeAround
+  const reachedStartIn: typeof import('./composable/logs/logLoader').reachedStartIn
   const reactify: typeof import('@vueuse/core').reactify
   const reactifyObject: typeof import('@vueuse/core').reactifyObject
   const reactive: typeof import('vue').reactive
@@ -896,6 +899,7 @@ declare module 'vue' {
     readonly markRaw: UnwrapRef<typeof import('vue')['markRaw']>
     readonly menuWidth: UnwrapRef<typeof import('./stores/settings')['menuWidth']>
     readonly mergeAlerts: UnwrapRef<typeof import('./composable/cloud/cloudAlerts')['mergeAlerts']>
+    readonly mergeByTime: UnwrapRef<typeof import('./composable/logs/logLoader')['mergeByTime']>
     readonly mergeCloudEvents: UnwrapRef<typeof import('./composable/cloud/cloudAlerts')['mergeCloudEvents']>
     readonly mergeDeploys: UnwrapRef<typeof import('./composable/cloud/cloudAlerts')['mergeDeploys']>
     readonly narrowedLevels: UnwrapRef<typeof import('./composable/logs/viewContext')['narrowedLevels']>
@@ -904,6 +908,7 @@ declare module 'vue' {
     readonly nextCompact: UnwrapRef<typeof import('./composable/ui/compactOnScroll')['nextCompact']>
     readonly nextTick: UnwrapRef<typeof import('vue')['nextTick']>
     readonly notOnScreen: UnwrapRef<typeof import('./composable/logs/logWindow')['notOnScreen']>
+    readonly olderCursor: UnwrapRef<typeof import('./composable/logs/logLoader')['olderCursor']>
     readonly onActivated: UnwrapRef<typeof import('vue')['onActivated']>
     readonly onBeforeMount: UnwrapRef<typeof import('vue')['onBeforeMount']>
     readonly onBeforeRouteLeave: UnwrapRef<typeof import('vue-router')['onBeforeRouteLeave']>
@@ -942,6 +947,7 @@ declare module 'vue' {
     readonly publishViewContext: UnwrapRef<typeof import('./composable/logs/viewContext')['publishViewContext']>
     readonly publishVisibleLogs: UnwrapRef<typeof import('./composable/logs/viewContext')['publishVisibleLogs']>
     readonly rangeAround: UnwrapRef<typeof import('./composable/logs/timeRange')['rangeAround']>
+    readonly reachedStartIn: UnwrapRef<typeof import('./composable/logs/logLoader')['reachedStartIn']>
     readonly reactify: UnwrapRef<typeof import('@vueuse/core')['reactify']>
     readonly reactifyObject: UnwrapRef<typeof import('@vueuse/core')['reactifyObject']>
     readonly reactive: UnwrapRef<typeof import('vue')['reactive']>

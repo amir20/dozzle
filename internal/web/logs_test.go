@@ -367,7 +367,7 @@ func Test_handler_streamLogs_error_std(t *testing.T) {
 
 func Test_handler_between_dates(t *testing.T) {
 	id := "123456"
-	req, err := http.NewRequest("GET", "/api/hosts/localhost/containers/"+id+"/logs", nil)
+	req, err := http.NewRequest("GET", "/api/containers/logs?format=jsonl&container=localhost/"+id, nil)
 	require.NoError(t, err, "NewRequest should not return an error.")
 
 	from, _ := time.Parse(time.RFC3339, "2018-01-01T00:00:00Z")
@@ -408,7 +408,7 @@ func Test_handler_between_dates(t *testing.T) {
 
 func Test_handler_between_dates_with_fill(t *testing.T) {
 	id := "123456"
-	req, err := http.NewRequest("GET", "/api/hosts/localhost/containers/"+id+"/logs", nil)
+	req, err := http.NewRequest("GET", "/api/containers/logs?format=jsonl&container=localhost/"+id, nil)
 	require.NoError(t, err, "NewRequest should not return an error.")
 
 	from, _ := time.Parse(time.RFC3339, "2018-01-01T00:00:00Z")

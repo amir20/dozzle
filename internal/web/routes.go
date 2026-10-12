@@ -290,11 +290,10 @@ func createRouter(h *handler) *chi.Mux {
 
 				// Log streams
 				r.Get("/hosts/{host}/logs/stream", h.streamHostLogs)
-				r.Get("/hosts/{host}/containers/{id}/logs", h.fetchLogsBetweenDates)
 				r.Get("/hosts/{host}/containers/{id}/logs/histogram", h.fetchLogHistogram)
 				r.Get("/hosts/{host}/containers/{id}/inspect", h.inspectContainer)
 				r.Get("/containers/logs/stream", h.streamContainerLogs) // ?container=<host>/<id>, repeated
-				r.Get("/containers/logs", h.containerLogs)              // ?container=<host>/<id>, repeated; text, or format=zip
+				r.Get("/containers/logs", h.containerLogs)              // ?container=<host>/<id>, repeated; text, format=jsonl, or format=zip
 				r.Get("/labels/{labels}/logs/stream", h.streamLogsWithLabels)
 				r.Get("/groups/{group}/logs/stream", h.streamGroupedLogs)
 				r.Get("/host-groups/{group}/logs/stream", h.streamHostGroupLogs)
