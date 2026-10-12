@@ -270,7 +270,8 @@ import { useCommands, type Command } from "@/composable/app/commands";
 
 trackUsage("palette.open");
 
-const close = defineEmit();
+const emit = defineEmits<{ close: [] }>();
+const close = () => emit("close");
 
 const { ask, openPane } = useCloudChat();
 const { linked: cloudLinked } = useCloudSurface();
