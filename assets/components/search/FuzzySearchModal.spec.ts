@@ -188,6 +188,32 @@ describe("<FuzzySearchModal />", () => {
     expect(useRouter().push).toHaveBeenCalledWith({ name: "/merged/[ids]", params: { ids: "123,345" } });
   });
 
+  test("merges a container from another host", async () => {
+    route.name = "/container/[id]";
+    route.params = { id: "123" };
+    const wrapper = createFuzzySearchModal([
+      new Container(
+        "999",
+        new Date("2026-01-04T00:00:00Z"),
+        new Date(),
+        new Date(),
+        "image",
+        "remote",
+        "command",
+        "other-host",
+        {},
+        "running",
+        0,
+        0,
+        [],
+      ),
+    ]);
+    await wrapper.find("input").setValue("remote");
+    expect(wrapper.find("button[aria-pressed=false]").exists()).toBe(true);
+    await wrapper.find("input").trigger("keydown", { key: "Enter", metaKey: true });
+    expect(useRouter().push).toHaveBeenCalledWith({ name: "/merged/[ids]", params: { ids: "123,999" } });
+  });
+
   test("cmd+enter on a merged container takes it back out", async () => {
     route.name = "/merged/[ids]";
     route.params = { ids: "123,345" };

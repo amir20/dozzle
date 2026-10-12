@@ -173,7 +173,6 @@ tooltip:
   unpin-column: 取消固定列
   merge-stream: 合并到日志流
   merge-stream-hint: 打开一个容器以进行合并
-  merge-stream-other-host: "只能合并同一主机上的容器"
   unmerge-stream: 从日志流移除
   merge-all: 将所有内容合并到一个流中
   network-io: "网络：↑ {tx}/s · ↓ {rx}/s"

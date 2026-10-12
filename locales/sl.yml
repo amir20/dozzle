@@ -173,7 +173,6 @@ tooltip:
   unpin-column: Odpni stolpec
   merge-stream: Združi s tokom
   merge-stream-hint: Odprite vsebnik za združevanje
-  merge-stream-other-host: "Združiti je mogoče le vsebnike na istem gostitelju"
   unmerge-stream: Odstrani iz toka
   merge-all: Združi vse v en tok
   network-io: "Omrežje: ↑ {tx}/s · ↓ {rx}/s"

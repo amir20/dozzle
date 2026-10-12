@@ -15,8 +15,12 @@ func TestUpdateMarkers(t *testing.T) {
 	records.Add(container.UpdateRecord{Host: "nas", Name: "web", OldID: "old000000000", NewID: "web000000000", At: at, Source: container.UpdateSourceSchedule})
 	records.Add(container.UpdateRecord{Host: "nas", Name: "db", NewID: "db0000000000", At: at})
 
-	m := newUpdateMarkers(records, []container.Container{{Host: "nas", ID: "web000000000"}, {Host: "other", ID: "db0000000000"}})
-	opening := m.opening()
+	m := newUpdateMarkers(records)
+	assert.False(t, m.shows(container.UpdateRecord{Host: "nas", NewID: "web000000000"}), "nothing is shown before it resolves")
+	opening := m.opened([]*container.ContainerService{
+		{Container: container.Container{Host: "nas", ID: "web000000000"}},
+		{Container: container.Container{Host: "other", ID: "db0000000000"}},
+	})
 	require.Len(t, opening, 1, "only the update that created a container on screen, on its own host")
 	assert.Equal(t, "web", opening[0].Name)
 

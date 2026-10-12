@@ -173,7 +173,6 @@ tooltip:
   unpin-column: Unpin column
   merge-stream: Merge into stream
   merge-stream-hint: Open a container to merge it with
-  merge-stream-other-host: "Only containers on the same host can be merged"
   unmerge-stream: Remove from stream
   merge-all: Merge all into one stream
   network-io: "Network: ↑ {tx}/s · ↓ {rx}/s"

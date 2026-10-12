@@ -173,7 +173,6 @@ tooltip:
   unpin-column: Desafixar coluna
   merge-stream: Mesclar no fluxo
   merge-stream-hint: Abra um contêiner para mesclar com ele
-  merge-stream-other-host: "Só é possível mesclar contêineres do mesmo host"
   unmerge-stream: Remover do fluxo
   merge-all: Unir tudo em um fluxo
   network-io: "Rede: ↑ {tx}/s · ↓ {rx}/s"

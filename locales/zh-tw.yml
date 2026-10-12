@@ -173,7 +173,6 @@ tooltip:
   unpin-column: 取消釘選欄位
   merge-stream: 合併到串流
   merge-stream-hint: 開啟一個容器以進行合併
-  merge-stream-other-host: "只能合併同一主機上的容器"
   unmerge-stream: 從串流移除
   merge-all: 將所有內容合併到一個流中
   network-io: "網路：↑ {tx}/s · ↓ {rx}/s"

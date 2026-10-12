@@ -163,8 +163,8 @@ const shortUrl = computed(() => container.url?.replace(/^https?:\/\//, "").repla
 const { isStreaming, canToggle, toggleTitle, toggle: toggleMerge } = useStreamedContainers();
 
 const isMerged = computed(() => isStreaming(container.id));
-const canMerge = computed(() => canToggle(container));
-const mergeTitle = computed(() => toggleTitle(container));
+const canMerge = computed(() => canToggle(container.id));
+const mergeTitle = computed(() => toggleTitle(container.id));
 
 const isPinnedColumn = computed(() => pinnedStore.isPinned(container));
 const togglePinnedColumn = () =>

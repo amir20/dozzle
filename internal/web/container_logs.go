@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"slices"
 	"strings"
 	"time"
 
@@ -14,6 +15,7 @@ import (
 	"github.com/amir20/dozzle/internal/auth"
 	"github.com/amir20/dozzle/internal/container"
 	"github.com/rs/zerolog/log"
+	"golang.org/x/sync/errgroup"
 )
 
 // containerLogs is the whole log (or the view's time range) of any number of
@@ -86,34 +88,88 @@ func (h *handler) containerLogs(w http.ResponseWriter, r *http.Request) {
 	writeLogsText(writer, r, services, win.from, to, stdTypes, filter, copyHeaders(services, h.hostService.Hosts))
 }
 
-// findContainers resolves `<host>/<id>` pairs straight from each host's container
-// store. Neither host ids nor container ids (k8s ids are `ns:pod:container`) can
-// hold a `/`, so the first one splits them. A container the store no longer has is
-// skipped, so one removed container does not fail the rest of a merged view.
-func (h *handler) findContainers(refs []string, labels container.ContainerLabels) ([]*container.ContainerService, int, error) {
-	if len(refs) == 0 {
-		return nil, http.StatusBadRequest, fmt.Errorf("at least one container is required")
+// containerRef is one `<host>/<id>` a request names.
+type containerRef struct{ host, id string }
+
+// parseContainerRefs splits `<host>/<id>` pairs, keeping their order. Neither host
+// ids nor container ids (k8s ids are `ns:pod:container`) can hold a `/`, so the
+// first one splits them.
+func parseContainerRefs(values []string) ([]containerRef, error) {
+	if len(values) == 0 {
+		return nil, fmt.Errorf("at least one container is required")
 	}
-	services := make([]*container.ContainerService, 0, len(refs))
-	for _, ref := range refs {
-		host, id, ok := strings.Cut(ref, "/")
+	refs := make([]containerRef, 0, len(values))
+	for _, value := range values {
+		host, id, ok := strings.Cut(value, "/")
 		if !ok || host == "" || id == "" {
-			return nil, http.StatusBadRequest, fmt.Errorf("container must be <host>/<id>: %q", ref)
+			return nil, fmt.Errorf("container must be <host>/<id>: %q", value)
 		}
-		service, err := h.hostService.FindContainer(host, id, labels)
-		if errors.Is(err, container.ErrContainerNotFound) {
-			log.Debug().Str("host", host).Str("id", id).Msg("skipping a container that is gone")
-			continue
-		}
-		if err != nil {
-			return nil, http.StatusNotFound, err
-		}
-		services = append(services, service)
+		refs = append(refs, containerRef{host, id})
+	}
+	return refs, nil
+}
+
+// findContainers resolves `<host>/<id>` pairs straight from each host's container
+// store. A container the store no longer has is skipped, so one removed container
+// does not fail the rest of a merged view.
+func (h *handler) findContainers(values []string, labels container.ContainerLabels) ([]*container.ContainerService, int, error) {
+	refs, err := parseContainerRefs(values)
+	if err != nil {
+		return nil, http.StatusBadRequest, err
+	}
+	services, err := h.resolveContainers(refs, labels, nil)
+	if err != nil {
+		return nil, http.StatusNotFound, err
 	}
 	if len(services) == 0 {
 		return nil, http.StatusNotFound, container.ErrContainerNotFound
 	}
 	return services, 0, nil
+}
+
+// resolveConcurrency bounds the lookups one request runs at once. For an agent
+// host each one is a gRPC round-trip.
+const resolveConcurrency = 8
+
+// resolveContainers finds each ref in its host's store, several at a time so one
+// slow host does not hold up the rest, and returns those found in request order.
+// The lookup is also the ACL check. A container that is gone, or outside the
+// user's labels, is skipped; the first other error is returned along with every
+// container that did resolve. found, when set, is called from the lookup's
+// goroutine as soon as its container resolves.
+func (h *handler) resolveContainers(refs []containerRef, labels container.ContainerLabels, found func(*container.ContainerService)) ([]*container.ContainerService, error) {
+	services := make([]*container.ContainerService, len(refs))
+	errs := make([]error, len(refs))
+	var group errgroup.Group
+	group.SetLimit(resolveConcurrency)
+	for i, ref := range refs {
+		group.Go(func() error {
+			service, err := h.hostService.FindContainer(ref.host, ref.id, labels)
+			if err != nil {
+				errs[i] = err
+				return nil
+			}
+			services[i] = service
+			if found != nil {
+				found(service)
+			}
+			return nil
+		})
+	}
+	group.Wait()
+
+	var firstErr error
+	for i, err := range errs {
+		if errors.Is(err, container.ErrContainerNotFound) {
+			log.Debug().Str("host", refs[i].host).Str("id", refs[i].id).Msg("skipping a container that is gone")
+		} else if err != nil {
+			log.Error().Err(err).Str("host", refs[i].host).Str("id", refs[i].id).Msg("error while finding container")
+			if firstErr == nil {
+				firstErr = err
+			}
+		}
+	}
+	return slices.DeleteFunc(services, func(s *container.ContainerService) bool { return s == nil }), firstErr
 }
 
 // writeLogsJSON writes each container's JSON events as JSON lines, one container

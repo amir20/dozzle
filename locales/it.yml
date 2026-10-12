@@ -173,7 +173,6 @@ tooltip:
   unpin-column: Sblocca colonna
   merge-stream: Unisci al flusso
   merge-stream-hint: Apri un container per unirlo
-  merge-stream-other-host: "Si possono unire solo container sullo stesso host"
   unmerge-stream: Rimuovi dal flusso
   merge-all: Unisci tutto in un flusso
   network-io: "Rete: ↑ {tx}/s · ↓ {rx}/s"

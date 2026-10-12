@@ -173,7 +173,6 @@ tooltip:
   unpin-column: Détacher la colonne
   merge-stream: Fusionner dans le flux
   merge-stream-hint: Ouvrez un conteneur pour fusionner avec lui
-  merge-stream-other-host: "Seuls les conteneurs d'un même hôte peuvent être fusionnés"
   unmerge-stream: Retirer du flux
   merge-all: Fusionner tout dans un flux
   network-io: "Réseau : ↑ {tx}/s · ↓ {rx}/s"
