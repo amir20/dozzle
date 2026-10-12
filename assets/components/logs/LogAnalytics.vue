@@ -288,7 +288,7 @@ async function load(list: Container[]) {
       await db.registerFileBuffer("logs.json", buffers[0]);
       await conn.query(`CREATE TABLE logs AS SELECT unnest(m) FROM read_json('logs.json', ${readOptions})`);
     } else {
-      // Ids are hex, safe to quote as is.
+      // Docker ids are hex and k8s ids are namespace:pod:container; neither can hold a quote.
       registered = withLogs.map((c) => `logs-${c.id}.json`);
       await Promise.all(withLogs.map((c) => db.registerFileBuffer(`logs-${c.id}.json`, buffers[list.indexOf(c)])));
       // Underscored so they rarely collide with a field the app logs itself (`ts` often does).
