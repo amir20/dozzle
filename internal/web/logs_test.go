@@ -811,3 +811,26 @@ func Test_handler_streamContainerLogs_bad_refs(t *testing.T) {
 		assert.Equal(t, http.StatusBadRequest, rr.Code, query)
 	}
 }
+
+// A whole-log read treats no levels as every level; the windowed fetch does not.
+func Test_logFilter_keeps(t *testing.T) {
+	regex, err := search.ParseRegex("timeout")
+	require.NoError(t, err)
+	hit := &container.LogEvent{Message: "a timeout", Level: "error"}
+	miss := &container.LogEvent{Message: "all good", Level: "error"}
+
+	none := logFilter{levels: map[string]struct{}{}}
+	assert.True(t, none.keeps(hit))
+	assert.False(t, none.matches(hit))
+
+	onlyErrors := logFilter{levels: map[string]struct{}{"error": {}}, regex: regex}
+	assert.True(t, onlyErrors.keeps(hit))
+	assert.False(t, onlyErrors.keeps(miss))
+
+	info := logFilter{levels: map[string]struct{}{"info": {}}}
+	assert.False(t, info.keeps(hit))
+
+	inverse := logFilter{levels: map[string]struct{}{}, regex: regex, inverse: true}
+	assert.False(t, inverse.keeps(hit))
+	assert.True(t, inverse.keeps(miss))
+}

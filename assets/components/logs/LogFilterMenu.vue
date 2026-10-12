@@ -1,10 +1,5 @@
 <template>
-  <Popover
-    hover
-    sheet
-    placement="bottom-end"
-    panel-class="rounded-box bg-base-200 border-base-content/10 w-max min-w-60 border p-1.5 shadow-lg"
-  >
+  <Popover hover sheet placement="bottom-end" panel-class="log-menu-panel">
     <template #trigger>
       <!-- Glyphs rather than words, so the chip stays short however much is filtered:
            the time label, a dot per stream shown, and a funnel once levels are narrowed.
@@ -43,19 +38,7 @@
     <ul class="menu log-menu w-full p-0">
       <template v-if="timed">
         <li class="section">{{ $t("time-range.title") }}</li>
-        <li v-for="row in rows" :key="row.key">
-          <a @click="row.run()">
-            <mdi:check class="w-4" v-if="row.active" />
-            <div v-else class="w-4"></div>
-            {{ row.label }}
-          </a>
-        </li>
-        <li>
-          <a @click="custom()">
-            <mdi:calendar-range class="w-4" />
-            {{ $t("time-range.custom") }}…
-          </a>
-        </li>
+        <LogTimeRows :container="container!" :range="range!" :anchor />
       </template>
       <li class="section">{{ $t("toolbar.section-filters") }}</li>
       <LogFilterRows />
@@ -79,7 +62,7 @@ const { container, range, anchor } = defineProps<{
 const timed = computed(() => !!container && !!range);
 
 // Only read while `timed`, so the assertions never see a missing container.
-const { rows, label, following, custom } = useTimeRangeMenu(
+const { label, following } = useTimeRangeMenu(
   () => container!,
   () => range!,
   () => anchor,

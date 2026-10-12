@@ -3,9 +3,7 @@ package web
 import (
 	"compress/gzip"
 	"context"
-	"encoding/json"
 	"errors"
-	"fmt"
 	"io"
 	"math"
 	"net/http"
@@ -104,35 +102,6 @@ func compressedWriter(w http.ResponseWriter, r *http.Request) (io.Writer, func()
 	w.Header().Set("Content-Encoding", "gzip")
 	gzWriter := gzip.NewWriter(w)
 	return gzWriter, func() { gzWriter.Close() }
-}
-
-// writeAllLogs streams a container's whole history, as plain text for a copy or as
-// JSON lines for the SQL view, which only gets the complex events. Unlike the
-// windowed fetch, an empty level set here means every level.
-func writeAllLogs(writer io.Writer, events <-chan *container.LogEvent, filter logFilter, plainText bool) {
-	encoder := json.NewEncoder(writer)
-	for event := range events {
-		// Grouped events carry a []string message, so filtering on "not a
-		// string" still lets arrays through and breaks struct inference for
-		// the SQL view's unnest(m).
-		if !plainText && event.Type != container.LogTypeComplex {
-			continue
-		}
-		if !filter.matchesText(event) {
-			continue
-		}
-		if len(filter.levels) > 0 && !filter.matchesLevel(event) {
-			continue
-		}
-		if plainText {
-			// Expand grouped events into their fragment lines; grouped
-			// events store their lines in Message and have an empty
-			// RawMessage, so writing RawMessage alone drops every group.
-			fmt.Fprintf(writer, "%s\n", event.PlainText())
-		} else if err := encoder.Encode(event); err != nil {
-			log.Error().Err(err).Msg("error encoding log event")
-		}
-	}
 }
 
 // fetchWindowedLogs returns the matching events in win, widening the window back

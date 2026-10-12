@@ -223,8 +223,10 @@ func scanMatches(
 		return nil, 0, readErr
 	}
 
-	// Stable so that events sharing a timestamp keep the per-container order
-	// they were collected in.
+	// A sort, not a merge: one container's lines are not always in timestamp order
+	// (an agent, k8s, stdout and stderr interleaving), and events[0] has to be the
+	// oldest kept for scannedTo. Stable so that events sharing a timestamp keep
+	// the per-container order they were collected in.
 	slices.SortStableFunc(matches, func(a, b *container.LogEvent) int {
 		return cmp.Compare(a.Timestamp, b.Timestamp)
 	})

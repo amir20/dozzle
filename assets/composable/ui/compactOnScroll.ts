@@ -38,7 +38,7 @@ export function nextCompact(
  */
 export function useCompactOnScroll() {
   const compact = ref(false);
-  let lastY = 0;
+  let lastY = window.scrollY;
 
   const onScroll = () => {
     const y = window.scrollY;
@@ -48,11 +48,7 @@ export function useCompactOnScroll() {
     compact.value = next;
   };
 
-  onMounted(() => {
-    lastY = window.scrollY;
-    window.addEventListener("scroll", onScroll, { passive: true });
-  });
-  onBeforeUnmount(() => window.removeEventListener("scroll", onScroll));
+  useEventListener(window, "scroll", onScroll, { passive: true });
 
   return compact;
 }

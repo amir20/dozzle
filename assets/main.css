@@ -243,6 +243,11 @@
   @apply rounded-box border-base-content/15 bg-base-200 w-56 border p-1.5 shadow-lg;
 }
 
+/* The panel behind the filter chip and the log actions menus. */
+@utility log-menu-panel {
+  @apply rounded-box border-base-content/10 bg-base-200 w-max min-w-60 border p-1.5 shadow-lg;
+}
+
 @utility animate-bounce-fast {
   animation: bounce 0.5s 2 both;
 }

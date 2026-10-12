@@ -11,6 +11,7 @@ import type { Level } from "@/models/LogEntry";
 import { useContainerLogs } from "./containerLogs";
 import { useToast } from "@/composable/app/toast";
 import { loggingContextKey } from "./logContext";
+import { useSearchFilter } from "./search";
 
 vi.mock("@/stores/config", () => ({
   __esModule: true,
@@ -145,6 +146,26 @@ describe("useContainerLogs", () => {
     expect(String(fetchMock.mock.calls[0][1].body)).toBe(
       "container=local%2Fa&stdout=1&stderr=1&levels=error&levels=warn",
     );
+  });
+
+  test("a search is sent with its inverse flag, after the stream params", async () => {
+    const { showSearch, appliedSearchFilter, inverseFilter } = useSearchFilter();
+    const { copyLogs, isFiltered } = mountLogs([container("a")]);
+    showSearch.value = true;
+    appliedSearchFilter.value = "timeout";
+    inverseFilter.value = true;
+    try {
+      expect(isFiltered.value).toBe(true);
+      const copied = copyLogs();
+      expect(String(fetchMock.mock.calls[0][1].body)).toBe(
+        "container=local%2Fa&stdout=1&stderr=1&filter=timeout&inverse=true",
+      );
+      await copied;
+    } finally {
+      inverseFilter.value = false;
+      showSearch.value = false;
+      appliedSearchFilter.value = "";
+    }
   });
 
   test("with every level cleared, copy and download ask for nothing", async () => {

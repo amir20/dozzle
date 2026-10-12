@@ -29,12 +29,12 @@ import {
 } from "./updateMarkers";
 import { showAllContainers } from "@/stores/settings";
 
-const { isSearching, appliedSearchFilter, inverseFilter } = useSearchFilter();
+const { isSearching } = useSearchFilter();
 
 // One container, or many on any hosts, each named as `container=<host>/<id>`.
 function containersStreamUrl(containers: Container[]) {
   const query = new URLSearchParams();
-  for (const c of containers) query.append("container", `${c.host}/${c.id}`);
+  appendContainerRefs(query, containers);
   return `/api/containers/logs/stream?${query}`;
 }
 
@@ -110,7 +110,7 @@ function useLogStream(url: Ref<string>, container?: Ref<Container>) {
   const error = ref(false);
   const searchStatus = ref<SearchStatus>({ active: false, done: false, matches: 0 });
   const { paused: scrollingPaused } = useScrollContext();
-  const { streamConfig, hasComplexLogs, levels, loadingMore, containers, timeRange } = useLoggingContext();
+  const { hasComplexLogs, loadingMore, containers, timeRange } = useLoggingContext();
   const router = useRouter();
   // "Live, from 15 minutes ago": the tail starts there and loading older stops there.
   // Only a single container's view carries one.
@@ -126,19 +126,7 @@ function useLogStream(url: Ref<string>, container?: Ref<Container>) {
   // its update are loaded.
   let pendingMarkers: DeployLogEntry[] = [];
 
-  const params = computed(() => {
-    const params = new URLSearchParams();
-    if (streamConfig.value.stdout) params.append("stdout", "1");
-    if (streamConfig.value.stderr) params.append("stderr", "1");
-    if (isSearching.value) {
-      params.append("filter", appliedSearchFilter.value);
-      if (inverseFilter.value) params.append("inverse", "true");
-    }
-    for (const level of levels.value) {
-      params.append("levels", level);
-    }
-    return params;
-  });
+  const params = useLogFilterParams();
 
   const allContainers = computed(() => (container ? [container.value] : containers.value));
   // The alert layer — dedupe state, the 15s poll, and the merge itself — lives

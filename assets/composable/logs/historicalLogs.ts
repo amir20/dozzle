@@ -16,22 +16,9 @@ export function useHistoricalContainerLog(historicalContainer: Ref<HistoricalCon
   const searchStatus = ref<SearchStatus>({ active: false, done: false, matches: 0 });
   const container = toRef(() => historicalContainer.value.container);
 
-  const { streamConfig, levels, loadingMore } = useLoggingContext();
-  const { isSearching, appliedSearchFilter, inverseFilter } = useSearchFilter();
+  const { loadingMore } = useLoggingContext();
 
-  const params = computed(() => {
-    const params = new URLSearchParams();
-    if (streamConfig.value.stdout) params.append("stdout", "1");
-    if (streamConfig.value.stderr) params.append("stderr", "1");
-    if (isSearching.value) {
-      params.append("filter", appliedSearchFilter.value);
-      if (inverseFilter.value) params.append("inverse", "true");
-    }
-    for (const level of levels.value) {
-      params.append("levels", level);
-    }
-    return params;
-  });
+  const params = useLogFilterParams();
 
   // Same alert layer the live stream uses: without it a deep link to an alert
   // landed on the one view that could not draw it.

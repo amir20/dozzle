@@ -72,3 +72,23 @@ export const useLoggingContext = () => {
 
   return toRefs(context);
 };
+
+/**
+ * The view's streams, search and levels as query params, what the server's logFilter
+ * reads. Every request for this view's lines starts from these.
+ */
+export function useLogFilterParams() {
+  const { streamConfig, levels } = useLoggingContext();
+  const { appliedSearchFilter, inverseFilter } = useSearchFilter();
+  return computed(() => {
+    const params = new URLSearchParams();
+    if (streamConfig.value.stdout) params.append("stdout", "1");
+    if (streamConfig.value.stderr) params.append("stderr", "1");
+    if (appliedSearchFilter.value) {
+      params.append("filter", appliedSearchFilter.value);
+      if (inverseFilter.value) params.append("inverse", "true");
+    }
+    for (const level of levels.value) params.append("levels", level);
+    return params;
+  });
+}

@@ -30,7 +30,7 @@ export async function loadBetween(
 
   const query = new URLSearchParams(params.value);
   query.set("format", "jsonl");
-  for (const c of containers) query.append("container", `${c.host}/${c.id}`);
+  appendContainerRefs(query, containers);
   query.set("from", from.toISOString());
   query.set("to", to.toISOString());
   if (min) query.set("min", String(min));
