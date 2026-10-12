@@ -185,6 +185,11 @@ func scanMatches(
 		}
 		var kept []*container.LogEvent
 		for event := range logs {
+			// k8s ignores the end of the range and reads to now, which would
+			// refill the newest `limit` with lines already shown.
+			if !time.UnixMilli(event.Timestamp).Before(to) {
+				continue
+			}
 			if filter.matches(event) {
 				seen++
 				kept = append(kept, event)

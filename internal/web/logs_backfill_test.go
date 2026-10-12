@@ -18,6 +18,8 @@ type fakeLogs struct {
 	mu    sync.Mutex
 	lines map[string][]*container.LogEvent
 	reads int
+	// ignoreEnd reads to the end of the log whatever `to` says, as k8s does.
+	ignoreEnd bool
 }
 
 func (f *fakeLogs) LogsBetweenDates(_ context.Context, c container.Container, from time.Time, to time.Time, _ container.StdType) (<-chan *container.LogEvent, error) {
@@ -27,7 +29,7 @@ func (f *fakeLogs) LogsBetweenDates(_ context.Context, c container.Container, fr
 	ch := make(chan *container.LogEvent, len(f.lines[c.ID]))
 	for _, e := range f.lines[c.ID] {
 		ts := time.UnixMilli(e.Timestamp)
-		if !ts.Before(from) && ts.Before(to) {
+		if !ts.Before(from) && (f.ignoreEnd || ts.Before(to)) {
 			ch <- e
 		}
 	}
@@ -189,4 +191,37 @@ func Test_searchBackfill_reports_progress(t *testing.T) {
 	assert.Greater(t, last, 0.9)
 	// the match count climbs while the read is still going
 	assert.Equal(t, 1, r.progress[len(r.progress)-1].Matches)
+}
+
+func Test_searchBackfill_ignores_lines_past_the_range(t *testing.T) {
+	to := time.Now()
+	created := to.Add(-24 * time.Hour)
+	// 20 matches in the newest window, 200 older ones, and more logged after
+	// the search started, all served by a backend that ignores `to`
+	older := lines(created, to.Add(-time.Hour), 200, func(int) bool { return true })
+	newest := lines(to.Add(-9*time.Second), to.Add(-time.Second), 20, func(int) bool { return true })
+	after := lines(to.Add(time.Millisecond), to.Add(time.Minute), 50, func(int) bool { return true })
+	for i, e := range newest {
+		e.Id = uint32(1000 + i)
+	}
+	for i, e := range after {
+		e.Id = uint32(2000 + i)
+	}
+	fake := &fakeLogs{ignoreEnd: true, lines: map[string][]*container.LogEvent{
+		"a": append(append(older, newest...), after...),
+	}}
+
+	r := runBackfill(t, fake, []container.Container{{ID: "a", Created: created}}, to)
+
+	got := r.matches()
+	require.Len(t, got, backfillMatches)
+	ids := map[uint32]int{}
+	for _, e := range got {
+		ids[e.Id]++
+		assert.Less(t, e.Timestamp, to.UnixMilli(), "nothing logged after the search started")
+	}
+	for id, n := range ids {
+		assert.Equal(t, 1, n, "match %d sent twice", id)
+	}
+	assert.Equal(t, "capped", r.final.Reason)
 }
