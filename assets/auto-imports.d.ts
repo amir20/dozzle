@@ -572,6 +572,7 @@ declare global {
   const useVirtualList: typeof import('@vueuse/core').useVirtualList
   const useVisibleFilter: typeof import('./composable/logs/visible').useVisibleFilter
   const useVisibleKeysByContainer: typeof import('./composable/logs/visible').useVisibleKeysByContainer
+  const useVisiblePinnedLogs: typeof import('./composable/containers/pinnedColumns').useVisiblePinnedLogs
   const useWakeLock: typeof import('@vueuse/core').useWakeLock
   const useWebMCP: typeof import('@vueuse/core').useWebMCP
   const useWebNotification: typeof import('@vueuse/core').useWebNotification
@@ -1271,6 +1272,7 @@ declare module 'vue' {
     readonly useVirtualList: UnwrapRef<typeof import('@vueuse/core')['useVirtualList']>
     readonly useVisibleFilter: UnwrapRef<typeof import('./composable/logs/visible')['useVisibleFilter']>
     readonly useVisibleKeysByContainer: UnwrapRef<typeof import('./composable/logs/visible')['useVisibleKeysByContainer']>
+    readonly useVisiblePinnedLogs: UnwrapRef<typeof import('./composable/containers/pinnedColumns')['useVisiblePinnedLogs']>
     readonly useWakeLock: UnwrapRef<typeof import('@vueuse/core')['useWakeLock']>
     readonly useWebMCP: UnwrapRef<typeof import('@vueuse/core')['useWebMCP']>
     readonly useWebNotification: UnwrapRef<typeof import('@vueuse/core')['useWebNotification']>

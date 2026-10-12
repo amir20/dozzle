@@ -66,3 +66,14 @@ export const usePinnedColumnsInUrl = () => {
 
   onScopeDispose(stopCarryingColumns);
 };
+
+/**
+ * The pinned columns to render. A column whose container the main view already streams (the
+ * container page, or merged into a merged view) is left out while it does, so no container shows
+ * twice. It stays pinned, and its column comes back once the main view drops it.
+ */
+export const useVisiblePinnedLogs = () => {
+  const { pinnedLogs } = storeToRefs(usePinnedLogsStore());
+  const { isStreaming } = useStreamedContainers();
+  return computed(() => pinnedLogs.value.filter(({ id }) => !isStreaming(id)));
+};

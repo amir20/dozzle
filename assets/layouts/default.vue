@@ -16,7 +16,7 @@
               <router-view></router-view>
             </Pane>
             <template v-if="!isMobile">
-              <Pane v-for="other in pinnedLogs" :key="other.id">
+              <Pane v-for="other in visiblePinnedLogs" :key="other.id">
                 <ContainerLog
                   :id="other.id"
                   show-title
@@ -66,7 +66,7 @@ import SideDrawer from "@/components/shell/SideDrawer.vue";
 
 usePinnedColumnsInUrl();
 const pinnedLogsStore = usePinnedLogsStore();
-const { pinnedLogs } = storeToRefs(pinnedLogsStore);
+const visiblePinnedLogs = useVisiblePinnedLogs();
 
 const drawer = useTemplateRef<InstanceType<typeof SideDrawer>>("drawer") as Ref<InstanceType<typeof SideDrawer>>;
 const {

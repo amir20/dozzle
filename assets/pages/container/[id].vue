@@ -17,8 +17,8 @@ const timeRange = computed(() => parseSince(route.query.since));
 const containerStore = useContainerStore();
 const currentContainer = containerStore.currentContainer(id);
 const { ready } = storeToRefs(containerStore);
-const pinnedLogsStore = usePinnedLogsStore();
-const { pinnedLogs } = storeToRefs(pinnedLogsStore);
+// Only the columns on screen: one hidden because this view already streams it leaves the pane full width.
+const pinnedLogs = useVisiblePinnedLogs();
 const { containers: allContainers } = storeToRefs(containerStore) as unknown as { containers: Ref<Container[]> };
 const { showToast } = useToast();
 const { t } = useI18n();
