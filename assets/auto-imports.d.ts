@@ -9,6 +9,7 @@
 export {}
 declare global {
   const COMPACT_OFFSET_PX: typeof import('./composable/ui/compactOnScroll').COMPACT_OFFSET_PX
+  const COPY_CONCURRENCY: typeof import('./composable/logs/copyLogs').COPY_CONCURRENCY
   const DEFAULT_MENU_WIDTH: typeof import('./stores/settings').DEFAULT_MENU_WIDTH
   const DEFAULT_SETTINGS: typeof import('./stores/settings').DEFAULT_SETTINGS
   const DEFAULT_UPDATE_CONTAINERS_MODE: typeof import('./composable/containers/updatePolicy').DEFAULT_UPDATE_CONTAINERS_MODE
@@ -102,6 +103,7 @@ declare global {
   const defineStore: typeof import('pinia').defineStore
   const dismissedImageUpdates: typeof import('./composable/app/storage').dismissedImageUpdates
   const dismissedLinkHint: typeof import('./composable/app/storage').dismissedLinkHint
+  const downloadFrom: typeof import('./composable/logs/copyLogs').downloadFrom
   const drawerContext: typeof import('./composable/app/drawer').drawerContext
   const drawerGuardContext: typeof import('./composable/app/drawer').drawerGuardContext
   const eagerComputed: typeof import('@vueuse/core').eagerComputed
@@ -114,6 +116,7 @@ declare global {
   const flattenJSON: typeof import('./utils/index').flattenJSON
   const flattenJSONToMap: typeof import('./utils/index').flattenJSONToMap
   const formatBytes: typeof import('./utils/index').formatBytes
+  const formatCopyBlocks: typeof import('./composable/logs/copyLogs').formatCopyBlocks
   const formatDuration: typeof import('./utils/index').formatDuration
   const formatRange: typeof import('./composable/logs/timeRange').formatRange
   const formatSpan: typeof import('./composable/logs/timeRange').formatSpan
@@ -171,6 +174,7 @@ declare global {
   const makeDestructurable: typeof import('@vueuse/core').makeDestructurable
   const mapActions: typeof import('pinia').mapActions
   const mapGetters: typeof import('pinia').mapGetters
+  const mapLimit: typeof import('./composable/logs/copyLogs').mapLimit
   const mapState: typeof import('pinia').mapState
   const mapStores: typeof import('pinia').mapStores
   const mapWritableState: typeof import('pinia').mapWritableState
@@ -367,6 +371,7 @@ declare global {
   const useContainerStore: typeof import('./stores/container').useContainerStore
   const useContainerStream: typeof import('./composable/logs/eventStreams').useContainerStream
   const useCopy: typeof import('./composable/app/clipboard').useCopy
+  const useCopyLogs: typeof import('./composable/logs/copyLogs').useCopyLogs
   const useCountdown: typeof import('@vueuse/core').useCountdown
   const useCounter: typeof import('@vueuse/core').useCounter
   const useCssModule: typeof import('vue').useCssModule
@@ -652,6 +657,9 @@ declare global {
   export type { TemplateEditorOptions, TemplateVariable, PayloadMode } from './composable/editor/templateEditor'
   import('./composable/editor/templateEditor')
   // @ts-ignore
+  export type { CopyBlock } from './composable/logs/copyLogs'
+  import('./composable/logs/copyLogs')
+  // @ts-ignore
   export type { SearchStatus, LogStreamSource } from './composable/logs/eventStreams'
   import('./composable/logs/eventStreams')
   // @ts-ignore
@@ -710,6 +718,7 @@ declare module 'vue' {
   interface GlobalComponents {}
   interface ComponentCustomProperties {
     readonly COMPACT_OFFSET_PX: UnwrapRef<typeof import('./composable/ui/compactOnScroll')['COMPACT_OFFSET_PX']>
+    readonly COPY_CONCURRENCY: UnwrapRef<typeof import('./composable/logs/copyLogs')['COPY_CONCURRENCY']>
     readonly DEFAULT_SETTINGS: UnwrapRef<typeof import('./stores/settings')['DEFAULT_SETTINGS']>
     readonly DEFAULT_UPDATE_CONTAINERS_MODE: UnwrapRef<typeof import('./composable/containers/updatePolicy')['DEFAULT_UPDATE_CONTAINERS_MODE']>
     readonly EffectScope: UnwrapRef<typeof import('vue')['EffectScope']>
@@ -801,6 +810,7 @@ declare module 'vue' {
     readonly defineStore: UnwrapRef<typeof import('pinia')['defineStore']>
     readonly dismissedImageUpdates: UnwrapRef<typeof import('./composable/app/storage')['dismissedImageUpdates']>
     readonly dismissedLinkHint: UnwrapRef<typeof import('./composable/app/storage')['dismissedLinkHint']>
+    readonly downloadFrom: UnwrapRef<typeof import('./composable/logs/copyLogs')['downloadFrom']>
     readonly drawerContext: UnwrapRef<typeof import('./composable/app/drawer')['drawerContext']>
     readonly drawerGuardContext: UnwrapRef<typeof import('./composable/app/drawer')['drawerGuardContext']>
     readonly eagerComputed: UnwrapRef<typeof import('@vueuse/core')['eagerComputed']>
@@ -813,6 +823,7 @@ declare module 'vue' {
     readonly flattenJSON: UnwrapRef<typeof import('./utils/index')['flattenJSON']>
     readonly flattenJSONToMap: UnwrapRef<typeof import('./utils/index')['flattenJSONToMap']>
     readonly formatBytes: UnwrapRef<typeof import('./utils/index')['formatBytes']>
+    readonly formatCopyBlocks: UnwrapRef<typeof import('./composable/logs/copyLogs')['formatCopyBlocks']>
     readonly formatDuration: UnwrapRef<typeof import('./utils/index')['formatDuration']>
     readonly formatRange: UnwrapRef<typeof import('./composable/logs/timeRange')['formatRange']>
     readonly formatSpan: UnwrapRef<typeof import('./composable/logs/timeRange')['formatSpan']>
@@ -868,6 +879,7 @@ declare module 'vue' {
     readonly makeDestructurable: UnwrapRef<typeof import('@vueuse/core')['makeDestructurable']>
     readonly mapActions: UnwrapRef<typeof import('pinia')['mapActions']>
     readonly mapGetters: UnwrapRef<typeof import('pinia')['mapGetters']>
+    readonly mapLimit: UnwrapRef<typeof import('./composable/logs/copyLogs')['mapLimit']>
     readonly mapState: UnwrapRef<typeof import('pinia')['mapState']>
     readonly mapStores: UnwrapRef<typeof import('pinia')['mapStores']>
     readonly mapWritableState: UnwrapRef<typeof import('pinia')['mapWritableState']>
@@ -1059,6 +1071,7 @@ declare module 'vue' {
     readonly useContainerStore: UnwrapRef<typeof import('./stores/container')['useContainerStore']>
     readonly useContainerStream: UnwrapRef<typeof import('./composable/logs/eventStreams')['useContainerStream']>
     readonly useCopy: UnwrapRef<typeof import('./composable/app/clipboard')['useCopy']>
+    readonly useCopyLogs: UnwrapRef<typeof import('./composable/logs/copyLogs')['useCopyLogs']>
     readonly useCountdown: UnwrapRef<typeof import('@vueuse/core')['useCountdown']>
     readonly useCounter: UnwrapRef<typeof import('@vueuse/core')['useCounter']>
     readonly useCssModule: UnwrapRef<typeof import('vue')['useCssModule']>

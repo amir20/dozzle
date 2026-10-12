@@ -49,16 +49,21 @@
         </a>
       </li>
 
-      <template v-if="enableDownload">
-        <li class="section">{{ $t("toolbar.section-export") }}</li>
-        <li>
-          <a :href="downloadUrl" download>
-            <octicon:download-24 />
-            {{ isFiltered ? $t("toolbar.download-filtered") : $t("toolbar.download") }}
-            <KeyShortcut char="d" :modifiers="[]" />
-          </a>
-        </li>
-      </template>
+      <li class="section">{{ $t("toolbar.section-export") }}</li>
+      <li v-if="enableDownload">
+        <a :href="downloadUrl" download>
+          <octicon:download-24 />
+          {{ isFiltered ? $t("toolbar.download-filtered") : $t("toolbar.download") }}
+          <KeyShortcut char="d" :modifiers="[]" />
+        </a>
+      </li>
+      <li>
+        <a @click="copyLogs()">
+          <mdi:content-copy />
+          {{ isFiltered ? $t("toolbar.copy-filtered-logs") : $t("toolbar.copy-logs") }}
+          <KeyShortcut char="c" :modifiers="[]" />
+        </a>
+      </li>
 
       <template v-if="workload">
         <li class="section">{{ $t("toolbar.section-workload") }}</li>
@@ -88,14 +93,11 @@ const { streamConfig, showHostname, showContainerName, containers, levels } = us
 
 const { downloadUrl, isFiltered } = useDownloadUrl(containers, streamConfig, levels, name);
 
-useLetterShortcut(
-  "d",
-  () => {
-    const link = document.createElement("a");
-    link.href = downloadUrl.value;
-    link.download = "";
-    link.click();
-  },
-  enableDownload,
-);
+const downloadLogs = () => downloadFrom(downloadUrl.value);
+// One block per container, in the order the view lists them; the zip is the fallback
+// when the clipboard is out of reach.
+const { copyLogs } = useCopyLogs(containers, enableDownload ? downloadLogs : undefined);
+
+useLetterShortcut("d", downloadLogs, enableDownload);
+useLetterShortcut("c", () => copyLogs());
 </script>
