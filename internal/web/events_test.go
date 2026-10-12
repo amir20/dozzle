@@ -13,7 +13,6 @@ import (
 	"github.com/amir20/dozzle/internal/container/docker"
 	"github.com/amir20/dozzle/internal/hostservice"
 	"github.com/amir20/dozzle/internal/utils"
-	"github.com/beme/abide"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 )
@@ -66,7 +65,7 @@ func Test_handler_streamEvents_happy(t *testing.T) {
 	rr := httptest.NewRecorder()
 
 	handler.ServeHTTP(rr, req)
-	abide.AssertHTTPResponse(t, t.Name(), rr.Result())
+	matchHTTPSnapshot(t, rr.Result())
 	mockedClient.AssertExpectations(t)
 }
 
@@ -125,6 +124,6 @@ func Test_handler_streamEvents_filtered(t *testing.T) {
 	rr := httptest.NewRecorder()
 
 	handler.ServeHTTP(rr, req)
-	abide.AssertHTTPResponse(t, t.Name(), rr.Result())
+	matchHTTPSnapshot(t, rr.Result())
 	mockedClient.AssertExpectations(t)
 }
