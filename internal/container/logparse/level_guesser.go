@@ -28,27 +28,33 @@ var logLevels = [][]string{
 // aliasToCanonical maps every alias to its canonical level name.
 var aliasToCanonical = map[string]string{}
 
+// upperOnlyLevels are level words that only mean a level in upper case. "LOG"
+// is the info level of Postgres and NestJS, but "log" in prose is just a word.
+var upperOnlyLevels = map[string]string{"LOG": "info"}
+
 // levelMatcher extracts a canonical log level from a line. re must expose a
 // single capture group holding the level alias, or a single-letter code when
-// single is true (mapped via singleLetterToLevel). aliases adds level words that
-// only mean a level in that matcher's format, such as Postgres's "LOG".
+// single is true (mapped via singleLetterToLevel).
 type levelMatcher struct {
-	re      *regexp.Regexp
-	single  bool
-	aliases map[string]string
+	re     *regexp.Regexp
+	single bool
 }
 
 // levelTiers groups matchers by how confidently their shape identifies the log
 // level, highest confidence first:
 //
 //  1. ^<level>     start-of-line prefix: "ERROR: ...", "INF ...", "E0806 14:55:55.980915 ...",
-//     "[09:58:00 ERR] ...", and the NestJS and Postgres headers
+//     "[09:58:00 ERR] ..."
 //  2. [<level>]    bracketed tag / single-letter: "[ERROR]", "[E]"
 //  3. > <level>    signale/consola marker: "› ℹ  info      started"
 //  4. <tag>:<level> structured prefix: "Zigbee2MQTT:info ", "::INFO::", "[1]: INFO " (a gap only before upper-case)
 //  5. "<LEVEL>"    quoted upper-case value: LL="ERROR"
-//  6. <sp><level>[/|:-] separator: " error:", " info|"
-//  7. <sp><LEVEL><sp> bare upper-case token mid-line: "123 ERROR foo"
+//  6. <sp><LEVEL>[:<sp>] bare upper-case token mid-line: "123 ERROR foo", "UTC [61] LOG:  ..."
+//  7. <sp><level>[/|:-] separator in any case: " error:", " info|"
+//
+// Loggers write their level in upper case; prose writes "error:" in lower or
+// title case. So an upper-case token (6) outranks a mixed-case word with a
+// separator (7): "... WARN [StorageService] Error: EROFS" is a warning.
 //
 // guessFromString walks the tiers in order and stops at the first that matches,
 // so a real level prefix at the front of the line always beats a level word
@@ -83,30 +89,6 @@ var klogPrefix = regexp.MustCompile(`^([EWIDFTV])\d{4} \d{2}:\d{2}:\d{2}\.\d{6}`
 // level keeps prose like "[Connection error]" from matching.
 func bracketedHeader(joined string) *regexp.Regexp {
 	return regexp.MustCompile(`(?i)^\[[^\]]*\d\s+(` + joined + `)\s*\]`)
-}
-
-// nestHeader matches the NestJS logger header, used by Immich and most Nest
-// apps. The level sits after the date, padded to a fixed width:
-//
-//	[Nest] 7  - 10/12/2026, 10:00:00 AM    WARN [StorageService] Error: EROFS ...
-//
-// It has to win over the message, which often says "error:" on a WARN or
-// DEBUG line. Nest calls its info level LOG.
-var nestHeader = levelMatcher{
-	re:      regexp.MustCompile(`^\[Nest\]\s+\d+\s+-\s+[^\[]*?\s(LOG|ERROR|WARN|DEBUG|VERBOSE|FATAL)\s+\[`),
-	aliases: map[string]string{"log": "info"},
-}
-
-// postgresHeader matches the default Postgres prefix once the timestamp is
-// gone, a time zone and the backend pid:
-//
-//	UTC [61] LOG:  database system is ready to accept connections
-//
-// Postgres calls its info level LOG. Continuation lines (DETAIL, HINT,
-// STATEMENT) are not levels, so they fall through to the other tiers.
-var postgresHeader = levelMatcher{
-	re:      regexp.MustCompile(`^(?:[A-Z]{2,5}|[+-]\d{2})\s+\[\d+\]\s+([A-Z]+):\s`),
-	aliases: map[string]string{"log": "info"},
 }
 
 var timestampRegex = regexp.MustCompile(`^(?:\d{4}[-/]\d{2}[-/]\d{2}(?:[T ](?:\d{2}:\d{2}:\d{2}(?:[.,]\d+)?Z?|\d{2}:\d{2}(?:AM|PM)))?\s+)`)
@@ -194,15 +176,17 @@ func init() {
 	// Longest aliases first so e.g. "warning" is preferred over "warn".
 	sort.SliceStable(aliases, func(i, j int) bool { return len(aliases[i]) > len(aliases[j]) })
 	joined := strings.Join(aliases, "|")
-	upper := strings.ToUpper(joined)
+	var upper strings.Builder
+	upper.WriteString(strings.ToUpper(joined))
+	for word := range upperOnlyLevels {
+		upper.WriteString("|" + word)
+	}
 
 	levelTiers = [][]levelMatcher{
 		{
 			{re: regexp.MustCompile(`(?i)^(` + joined + `)(?:[^a-z0-9]|\d+\s|$)`)},
 			{re: klogPrefix, single: true},
 			{re: bracketedHeader(joined)},
-			nestHeader,
-			postgresHeader,
 		},
 		{
 			{re: regexp.MustCompile(`(?i)\[ ?(` + joined + `) ?\]`)},
@@ -215,11 +199,11 @@ func init() {
 		// "[1]: INFO" matches but prose like "msg: error handling" does not.
 		{
 			{re: regexp.MustCompile(`(?i):(` + joined + `)(?:[^a-z0-9]|$)`)},
-			{re: regexp.MustCompile(`:\s+(` + upper + `)(?:\s|$)`)},
+			{re: regexp.MustCompile(`:\s+(` + upper.String() + `)(?:\s|$)`)},
 		},
-		{{re: regexp.MustCompile(`"(` + upper + `)"`)}},
+		{{re: regexp.MustCompile(`"(` + upper.String() + `)"`)}},
+		{{re: regexp.MustCompile(`\s(` + upper.String() + `)(?::?\s)`)}},
 		{{re: regexp.MustCompile(`(?i) (` + joined + `)[/|:-]`)}},
-		{{re: regexp.MustCompile(`\s(` + upper + `)\s`)}},
 	}
 }
 
@@ -312,8 +296,8 @@ func guessFromString(value string) string {
 				var canonical string
 				if m.single {
 					canonical = singleLetterToLevel[match[1][0]]
-				} else if alias, ok := m.aliases[strings.ToLower(match[1])]; ok {
-					canonical = alias
+				} else if level, ok := upperOnlyLevels[match[1]]; ok {
+					canonical = level
 				} else {
 					canonical = aliasToCanonical[strings.ToLower(match[1])]
 				}

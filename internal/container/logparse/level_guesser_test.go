@@ -321,14 +321,14 @@ func TestGuessLogLevel(t *testing.T) {
 		{"fail2ban.server         [1]: INFO    Starting Fail2ban v1.1.0", "info"},
 		{"fail2ban                [1]: INFO    Using socket file /var/run/fail2ban/fail2ban.sock", "info"},
 		{"fail2ban.actions        [1]: NOTICE  Ban 192.168.1.150", "info"},
-		// NestJS (Immich): the header level wins over "error:" in the message.
+		// NestJS (Immich): the upper-case level wins over "error:" in the message.
 		{"[Nest] 7  - 10/12/2026, 10:00:00 AM     LOG [Api:EventRepository] Websocket Connect: abc", "info"},
 		{"[Nest] 7  - 10/12/2026, 10:00:00 AM    WARN [Microservices:StorageService] Error: EROFS: read-only file system, unlink '/x'", "warn"},
 		{"[Nest] 25  - 10/11/2026, 10:30:32 PM   DEBUG [Api:Bootstrap] Socket error: read ECONNRESET", "debug"},
 		{"[Nest] 7  - 10/12/2026, 10:00:00 AM   ERROR [Microservices:JobService] Unable to run job handler", "error"},
 		{"[Nest] 7  - 10/12/2026, 10:00:00 AM VERBOSE [Api:LoggingInterceptor] GET /api/server/ping 200", "trace"},
 		{"[Nest] 7  - 10/12/2026, 10:00:00 AM     LOG [Microservices:MetadataService] Error reading exif, falling back", "info"},
-		// Postgres default prefix.
+		// Postgres default prefix. DETAIL/STATEMENT are not levels.
 		{"2026-10-08 19:37:00.681 UTC [61] LOG:  database system is ready to accept connections", "info"},
 		{"2026-10-08 19:37:00.681 UTC [61] LOG:  could not receive data from client: Connection reset by peer", "info"},
 		{"2026-10-08 19:37:00.681 UTC [61] WARNING:  there is no transaction in progress", "warn"},
@@ -346,6 +346,7 @@ func TestGuessLogLevel(t *testing.T) {
 		{"ordinary prose containing critical", "unknown"},
 		{"ordinary prose containing note", "unknown"},
 		{"ordinary prose containing panic", "unknown"},
+		{"failed to write log: disk full", "unknown"},
 		{"ordinary prose containing fail", "unknown"},
 		{"msg: error handling enabled", "unknown"},
 		{"config loaded: critical=false", "unknown"},
