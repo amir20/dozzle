@@ -15,6 +15,16 @@ toolbar:
   restart: Restart
   rollout-restart: "Uruchom ponownie {kind}"
   rollout-restart-done: "{workload} wdraża nowe pody."
+  section-containers: "Kontenery"
+  restart-all: "Uruchom ponownie wszystkie"
+  stop-all: "Zatrzymaj wszystkie"
+  start-all: "Uruchom wszystkie"
+  bulk-confirm-restart: "Uruchomić ponownie kontenery: 1? | Uruchomić ponownie kontenery: {count}?"
+  bulk-confirm-stop: "Zatrzymać kontenery: 1? | Zatrzymać kontenery: {count}?"
+  bulk-confirm-start: "Uruchomić kontenery: 1? | Uruchomić kontenery: {count}?"
+  bulk-self-skipped: "Własny kontener Dozzle zostanie pominięty."
+  bulk-more: "i jeszcze {count}"
+  bulk-failed: "Nie powiodło się dla {names}"
   update: Aktualizuj
   update-service: Aktualizuj Usługę
   update-pulling: Pobieranie najnowszego obrazu...

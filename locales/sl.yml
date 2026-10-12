@@ -38,6 +38,16 @@ toolbar:
   restart: Ponovni zagon
   rollout-restart: "Znova zaženi {kind}"
   rollout-restart-done: "{workload} uvaja nove pode."
+  section-containers: "Zabojniki"
+  restart-all: "Ponovno zaženi vse"
+  stop-all: "Ustavi vse"
+  start-all: "Zaženi vse"
+  bulk-confirm-restart: "Ponovno zaženem zabojnike: 1? | Ponovno zaženem zabojnike: {count}?"
+  bulk-confirm-stop: "Ustavim zabojnike: 1? | Ustavim zabojnike: {count}?"
+  bulk-confirm-start: "Zaženem zabojnike: 1? | Zaženem zabojnike: {count}?"
+  bulk-self-skipped: "Dozzlov lastni zabojnik je preskočen."
+  bulk-more: "in še {count}"
+  bulk-failed: "Ni uspelo za {names}"
   update: Posodobi
   update-service: Posodobi Storitev
   update-pulling: Prenašanje najnovejše slike...

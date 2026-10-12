@@ -8,6 +8,7 @@
 // biome-ignore lint: disable
 export {}
 declare global {
+  const BULK_CONCURRENCY: typeof import('./composable/containers/bulkContainerActions').BULK_CONCURRENCY
   const COMPACT_OFFSET_PX: typeof import('./composable/ui/compactOnScroll').COMPACT_OFFSET_PX
   const COPY_CONCURRENCY: typeof import('./composable/logs/copyLogs').COPY_CONCURRENCY
   const DEFAULT_MENU_WIDTH: typeof import('./stores/settings').DEFAULT_MENU_WIDTH
@@ -49,6 +50,7 @@ declare global {
   const autoUpdates: typeof import('./composable/containers/updatePolicy').autoUpdates
   const automaticRedirect: typeof import('./stores/settings').automaticRedirect
   const buildViewContext: typeof import('./composable/logs/viewContext').buildViewContext
+  const bulkPlan: typeof import('./composable/containers/bulkContainerActions').bulkPlan
   const canHover: typeof import('./composable/ui/media').canHover
   const canSelfUpdate: typeof import('./composable/setup/selfUpdate').canSelfUpdate
   const canUpdate: typeof import('./composable/containers/imageUpdate').canUpdate
@@ -254,6 +256,7 @@ declare global {
   const riskyContainers: typeof import('./composable/containers/updatePolicy').riskyContainers
   const rolloutWorkload: typeof import('./composable/containers/rolloutRestart').rolloutWorkload
   const routeKind: typeof import('./composable/logs/viewContext').routeKind
+  const runBounded: typeof import('./composable/containers/bulkContainerActions').runBounded
   const safeRedirect: typeof import('./composable/ui/safeRedirect').safeRedirect
   const scrollContextKey: typeof import('./composable/logs/scrollContext').scrollContextKey
   const search: typeof import('./stores/settings').search
@@ -352,6 +355,7 @@ declare global {
   const useBreakpoints: typeof import('@vueuse/core').useBreakpoints
   const useBroadcastChannel: typeof import('@vueuse/core').useBroadcastChannel
   const useBrowserLocation: typeof import('@vueuse/core').useBrowserLocation
+  const useBulkContainerActions: typeof import('./composable/containers/bulkContainerActions').useBulkContainerActions
   const useBulkUpdate: typeof import('./composable/containers/bulkUpdate').useBulkUpdate
   const useCached: typeof import('@vueuse/core').useCached
   const useClipboard: typeof import('@vueuse/core').useClipboard
@@ -635,6 +639,9 @@ declare global {
   export type { PatternContextHit } from './composable/cloud/patternMemory'
   import('./composable/cloud/patternMemory')
   // @ts-ignore
+  export type { BulkAction, BulkPlan } from './composable/containers/bulkContainerActions'
+  import('./composable/containers/bulkContainerActions')
+  // @ts-ignore
   export type { BulkUpdateStatus, BulkUpdateItem, BulkUpdateJob } from './composable/containers/bulkUpdate'
   import('./composable/containers/bulkUpdate')
   // @ts-ignore
@@ -716,6 +723,7 @@ import { UnwrapRef } from 'vue'
 declare module 'vue' {
   interface GlobalComponents {}
   interface ComponentCustomProperties {
+    readonly BULK_CONCURRENCY: UnwrapRef<typeof import('./composable/containers/bulkContainerActions')['BULK_CONCURRENCY']>
     readonly COMPACT_OFFSET_PX: UnwrapRef<typeof import('./composable/ui/compactOnScroll')['COMPACT_OFFSET_PX']>
     readonly DEFAULT_SETTINGS: UnwrapRef<typeof import('./stores/settings')['DEFAULT_SETTINGS']>
     readonly DEFAULT_UPDATE_CONTAINERS_MODE: UnwrapRef<typeof import('./composable/containers/updatePolicy')['DEFAULT_UPDATE_CONTAINERS_MODE']>
@@ -754,6 +762,7 @@ declare module 'vue' {
     readonly autoUpdates: UnwrapRef<typeof import('./composable/containers/updatePolicy')['autoUpdates']>
     readonly automaticRedirect: UnwrapRef<typeof import('./stores/settings')['automaticRedirect']>
     readonly buildViewContext: UnwrapRef<typeof import('./composable/logs/viewContext')['buildViewContext']>
+    readonly bulkPlan: UnwrapRef<typeof import('./composable/containers/bulkContainerActions')['bulkPlan']>
     readonly canHover: UnwrapRef<typeof import('./composable/ui/media')['canHover']>
     readonly canSelfUpdate: UnwrapRef<typeof import('./composable/setup/selfUpdate')['canSelfUpdate']>
     readonly canUpdate: UnwrapRef<typeof import('./composable/containers/imageUpdate')['canUpdate']>
@@ -951,6 +960,7 @@ declare module 'vue' {
     readonly riskyContainers: UnwrapRef<typeof import('./composable/containers/updatePolicy')['riskyContainers']>
     readonly rolloutWorkload: UnwrapRef<typeof import('./composable/containers/rolloutRestart')['rolloutWorkload']>
     readonly routeKind: UnwrapRef<typeof import('./composable/logs/viewContext')['routeKind']>
+    readonly runBounded: UnwrapRef<typeof import('./composable/containers/bulkContainerActions')['runBounded']>
     readonly safeRedirect: UnwrapRef<typeof import('./composable/ui/safeRedirect')['safeRedirect']>
     readonly scrollContextKey: UnwrapRef<typeof import('./composable/logs/scrollContext')['scrollContextKey']>
     readonly search: UnwrapRef<typeof import('./stores/settings')['search']>
@@ -1046,6 +1056,7 @@ declare module 'vue' {
     readonly useBreakpoints: UnwrapRef<typeof import('@vueuse/core')['useBreakpoints']>
     readonly useBroadcastChannel: UnwrapRef<typeof import('@vueuse/core')['useBroadcastChannel']>
     readonly useBrowserLocation: UnwrapRef<typeof import('@vueuse/core')['useBrowserLocation']>
+    readonly useBulkContainerActions: UnwrapRef<typeof import('./composable/containers/bulkContainerActions')['useBulkContainerActions']>
     readonly useBulkUpdate: UnwrapRef<typeof import('./composable/containers/bulkUpdate')['useBulkUpdate']>
     readonly useCached: UnwrapRef<typeof import('@vueuse/core')['useCached']>
     readonly useClipboard: UnwrapRef<typeof import('@vueuse/core')['useClipboard']>

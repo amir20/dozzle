@@ -15,6 +15,16 @@ toolbar:
   restart: Genstart
   rollout-restart: "Genstart {kind}"
   rollout-restart-done: "{workload} ruller nye pods ud."
+  section-containers: "Containere"
+  restart-all: "Genstart alle"
+  stop-all: "Stop alle"
+  start-all: "Start alle"
+  bulk-confirm-restart: "Genstart 1 container? | Genstart {count} containere?"
+  bulk-confirm-stop: "Stop 1 container? | Stop {count} containere?"
+  bulk-confirm-start: "Start 1 container? | Start {count} containere?"
+  bulk-self-skipped: "Dozzles egen container springes over."
+  bulk-more: "og {count} mere"
+  bulk-failed: "Blev ikke gennemført for {names}"
   update: Opdater
   update-service: Opdater Tjeneste
   update-pulling: Henter seneste image...

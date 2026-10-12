@@ -15,6 +15,16 @@ toolbar:
   restart: Yeniden Başlat
   rollout-restart: "{kind} yeniden başlat"
   rollout-restart-done: "{workload} yeni pod'ları dağıtıyor."
+  section-containers: "Konteynerler"
+  restart-all: "Tümünü yeniden başlat"
+  stop-all: "Tümünü durdur"
+  start-all: "Tümünü başlat"
+  bulk-confirm-restart: "1 konteyner yeniden başlatılsın mı? | {count} konteyner yeniden başlatılsın mı?"
+  bulk-confirm-stop: "1 konteyner durdurulsun mu? | {count} konteyner durdurulsun mu?"
+  bulk-confirm-start: "1 konteyner başlatılsın mı? | {count} konteyner başlatılsın mı?"
+  bulk-self-skipped: "Dozzle'ın kendi konteyneri atlanır."
+  bulk-more: "ve {count} tane daha"
+  bulk-failed: "Tamamlanamayanlar: {names}"
   update: Güncelle
   update-service: Servisi Güncelle
   update-pulling: En son imaj indiriliyor...
