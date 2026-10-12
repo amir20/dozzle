@@ -69,10 +69,12 @@
         </a>
       </li>
       <!-- The filter chip in the title bar carries these where it fits; a phone and a
-           pinned column have no room for it, so they land here instead. -->
+           pinned column have no room for it, so they land here instead. Time is phone
+           only: a range is a route, and a pinned column picking one would move the
+           main view instead. -->
       <template v-if="filters">
         <li class="section">{{ $t("toolbar.section-filters") }}</li>
-        <li v-if="!historical">
+        <li v-if="!historical && isMobile">
           <details>
             <summary>
               <mdi:clock-outline />
