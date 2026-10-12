@@ -31,9 +31,18 @@ import { showAllContainers } from "@/stores/settings";
 
 const { isSearching, appliedSearchFilter, inverseFilter } = useSearchFilter();
 
+// One container, or many on any hosts, each named as `container=<host>/<id>`.
+function containersStreamUrl(containers: Container[]) {
+  const query = new URLSearchParams();
+  for (const c of containers) query.append("container", `${c.host}/${c.id}`);
+  return `/api/containers/logs/stream?${query}`;
+}
+
 export function useContainerStream(container: Ref<Container>): LogStreamSource {
-  const url = computed(() => `/api/hosts/${container.value.host}/containers/${container.value.id}/logs/stream`);
-  return useLogStream(url, container);
+  return useLogStream(
+    computed(() => containersStreamUrl([container.value])),
+    container,
+  );
 }
 
 export function useHostStream(host: Ref<Host>): LogStreamSource {
@@ -57,12 +66,7 @@ export function useGroupedStream(group: Ref<GroupedContainers>): LogStreamSource
 }
 
 export function useMergedStream(containers: Ref<Container[]>): LogStreamSource {
-  const url = computed(() => {
-    const ids = containers.value.map((c) => c.id).join(",");
-    return `/api/hosts/${containers.value[0].host}/logs/mergedStream/${ids}`;
-  });
-
-  return useLogStream(url);
+  return useLogStream(computed(() => containersStreamUrl(containers.value)));
 }
 
 export function useServiceStream(service: Ref<Service>): LogStreamSource {

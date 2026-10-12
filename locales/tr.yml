@@ -173,7 +173,6 @@ tooltip:
   unpin-column: Sütun sabitlemesini kaldır
   merge-stream: Akışa birleştir
   merge-stream-hint: Birleştirmek için bir konteyner açın
-  merge-stream-other-host: "Yalnızca aynı ana makinedeki konteynerler birleştirilebilir"
   unmerge-stream: Akıştan çıkar
   merge-all: Tümünü tek bir akışta birleştir
   network-io: "Ağ: ↑ {tx}/sn · ↓ {rx}/sn"

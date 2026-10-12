@@ -304,7 +304,7 @@ The frontend uses file-based routing with these conventions:
 
 ### Communication Flow
 
-1. **Real-time Logs**: Frontend establishes SSE connections to `/api/hosts/{host}/containers/{id}/logs/stream`
+1. **Real-time Logs**: Frontend establishes SSE connections to `/api/containers/logs/stream?container={host}/{id}` (repeated for a merged view)
 2. **Container Events**: SSE stream at `/api/events/stream` pushes container lifecycle events
 3. **Stats**: Real-time CPU/memory stats streamed via SSE alongside events
 4. **Actions**: POST to `/api/hosts/{host}/containers/{id}/actions/{action}` (start/stop/restart)
@@ -615,7 +615,7 @@ Implementation (internal/container/{docker,k8s,agent})
 
 1. User navigates to `/container/{id}` route
 2. Page component calls `useContainerStream(container)` composable
-3. Composable creates EventSource connection to `/api/hosts/{host}/containers/{id}/logs/stream`
+3. Composable creates EventSource connection to `/api/containers/logs/stream?container={host}/{id}` (repeated for a merged view)
 4. Backend streams `LogEvent` objects via SSE
 5. Frontend buffers events (250ms debounce, max 1000ms)
 6. Batched buffer flushes update reactive `messages` array

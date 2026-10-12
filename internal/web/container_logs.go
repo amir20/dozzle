@@ -86,23 +86,40 @@ func (h *handler) containerLogs(w http.ResponseWriter, r *http.Request) {
 	writeLogsText(writer, r, services, win.from, to, stdTypes, filter, copyHeaders(services, h.hostService.Hosts))
 }
 
+// containerRef is one `<host>/<id>` a request names.
+type containerRef struct{ host, id string }
+
+// parseContainerRefs splits `<host>/<id>` pairs, keeping their order. Neither host
+// ids nor container ids (k8s ids are `ns:pod:container`) can hold a `/`, so the
+// first one splits them.
+func parseContainerRefs(values []string) ([]containerRef, error) {
+	if len(values) == 0 {
+		return nil, fmt.Errorf("at least one container is required")
+	}
+	refs := make([]containerRef, 0, len(values))
+	for _, value := range values {
+		host, id, ok := strings.Cut(value, "/")
+		if !ok || host == "" || id == "" {
+			return nil, fmt.Errorf("container must be <host>/<id>: %q", value)
+		}
+		refs = append(refs, containerRef{host, id})
+	}
+	return refs, nil
+}
+
 // findContainers resolves `<host>/<id>` pairs straight from each host's container
-// store. Neither host ids nor container ids (k8s ids are `ns:pod:container`) can
-// hold a `/`, so the first one splits them. A container the store no longer has is
-// skipped, so one removed container does not fail the rest of a merged view.
-func (h *handler) findContainers(refs []string, labels container.ContainerLabels) ([]*container.ContainerService, int, error) {
-	if len(refs) == 0 {
-		return nil, http.StatusBadRequest, fmt.Errorf("at least one container is required")
+// store. A container the store no longer has is skipped, so one removed container
+// does not fail the rest of a merged view.
+func (h *handler) findContainers(values []string, labels container.ContainerLabels) ([]*container.ContainerService, int, error) {
+	refs, err := parseContainerRefs(values)
+	if err != nil {
+		return nil, http.StatusBadRequest, err
 	}
 	services := make([]*container.ContainerService, 0, len(refs))
 	for _, ref := range refs {
-		host, id, ok := strings.Cut(ref, "/")
-		if !ok || host == "" || id == "" {
-			return nil, http.StatusBadRequest, fmt.Errorf("container must be <host>/<id>: %q", ref)
-		}
-		service, err := h.hostService.FindContainer(host, id, labels)
+		service, err := h.hostService.FindContainer(ref.host, ref.id, labels)
 		if errors.Is(err, container.ErrContainerNotFound) {
-			log.Debug().Str("host", host).Str("id", id).Msg("skipping a container that is gone")
+			log.Debug().Str("host", ref.host).Str("id", ref.id).Msg("skipping a container that is gone")
 			continue
 		}
 		if err != nil {

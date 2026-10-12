@@ -173,7 +173,7 @@ describe("<ContainerEventSource />", () => {
     });
   }
 
-  const sourceUrl = "/api/hosts/localhost/containers/abc/logs/stream?stdout=1&stderr=1&levels=info";
+  const sourceUrl = "/api/containers/logs/stream?container=localhost%2Fabc&stdout=1&stderr=1&levels=info";
 
   test("renders loading correctly", async () => {
     const wrapper = createLogEventSource();

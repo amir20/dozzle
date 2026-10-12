@@ -22,25 +22,30 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
+// streamContainerLogs streams any set of containers, on any hosts, each named as
+// `container=<host>/<id>` the way /api/containers/logs names them. One container
+// is the container page, several are a merged view.
 func (h *handler) streamContainerLogs(w http.ResponseWriter, r *http.Request) {
-	analytics.Count("view.container")
-	id := chi.URLParam(r, "id")
-
-	h.streamLogsForContainers(w, r, func(container *container.Container) bool {
-		return container.ID == id && container.Host == hostKey(r)
-	}, hostKey(r))
-}
-
-func (h *handler) streamLogsMerged(w http.ResponseWriter, r *http.Request) {
-	analytics.Count("view.merged")
-	ids := make(map[string]bool)
-	for id := range strings.SplitSeq(chi.URLParam(r, "ids"), ",") {
-		ids[id] = true
+	refs, err := parseContainerRefs(r.URL.Query()["container"])
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+	if len(refs) == 1 {
+		analytics.Count("view.container")
+	} else {
+		analytics.Count("view.merged")
 	}
 
-	h.streamLogsForContainers(w, r, func(container *container.Container) bool {
-		return ids[container.ID] && container.Host == hostKey(r)
-	}, hostKey(r))
+	wanted := make(map[containerRef]struct{}, len(refs))
+	for _, ref := range refs {
+		wanted[ref] = struct{}{}
+	}
+
+	h.streamLogsForContainers(w, r, func(c *container.Container) bool {
+		_, ok := wanted[containerRef{c.Host, c.ID}]
+		return ok
+	}, streamScope{containers: wanted})
 }
 
 func (h *handler) streamLogsWithLabels(w http.ResponseWriter, r *http.Request) {
@@ -78,7 +83,7 @@ func (h *handler) streamLogsWithLabels(w http.ResponseWriter, r *http.Request) {
 		}
 
 		return len(labelFilters) > 0
-	}, "")
+	}, streamScope{})
 }
 
 // labelView names the view a label stream serves, by the label the page filters
@@ -115,7 +120,7 @@ func (h *handler) streamGroupedLogs(w http.ResponseWriter, r *http.Request) {
 
 	h.streamLogsForContainers(w, r, func(container *container.Container) bool {
 		return container.State == "running" && container.Group == group
-	}, "")
+	}, streamScope{})
 }
 
 func (h *handler) streamHostGroupLogs(w http.ResponseWriter, r *http.Request) {
@@ -136,7 +141,7 @@ func (h *handler) streamHostGroupLogs(w http.ResponseWriter, r *http.Request) {
 	h.streamLogsForContainers(w, r, func(c *container.Container) bool {
 		_, ok := hostIDs[c.Host]
 		return c.State == "running" && ok
-	}, "")
+	}, streamScope{})
 }
 
 func (h *handler) streamHostLogs(w http.ResponseWriter, r *http.Request) {
@@ -144,16 +149,34 @@ func (h *handler) streamHostLogs(w http.ResponseWriter, r *http.Request) {
 	host := hostKey(r)
 	h.streamLogsForContainers(w, r, func(container *container.Container) bool {
 		return container.State == "running" && container.Host == host
-	}, host)
+	}, streamScope{host: host})
 }
 
-// listStreamContainers returns the running containers a new stream starts with.
-// hostScope, when non-empty, names the single host every container this stream
-// can match lives on. Listing just that host skips the fleet-wide fan-out, which
-// re-dials every unreachable agent at up to --timeout each before the first log
-// line can be read. Streams that legitimately span hosts pass "".
-func (h *handler) listStreamContainers(hostScope string, labels container.ContainerLabels, containerFilter container.ContainerFilter) []container.Container {
-	if hostScope == "" {
+// streamScope says where a stream looks for the containers it starts with. The
+// zero value lists every host, for streams that legitimately span hosts.
+type streamScope struct {
+	// host names the single host every container the stream can match lives on.
+	// Listing just that host skips the fleet-wide fan-out, which re-dials every
+	// unreachable agent at up to --timeout each before the first log line is read.
+	host string
+	// containers names exactly the containers the stream shows, so nothing is
+	// listed at all: each is found in its own host's store when its tail starts.
+	containers map[containerRef]struct{}
+}
+
+// listStreamContainers returns the containers a new stream starts with.
+func (h *handler) listStreamContainers(scope streamScope, labels container.ContainerLabels, containerFilter container.ContainerFilter) []container.Container {
+	if scope.containers != nil {
+		// Only Host and ID are read before each container is resolved, and the
+		// lookup that resolves it is also the ACL check.
+		containers := make([]container.Container, 0, len(scope.containers))
+		for ref := range scope.containers {
+			containers = append(containers, container.Container{Host: ref.host, ID: ref.id})
+		}
+		return containers
+	}
+
+	if scope.host == "" {
 		containers, errs := h.hostService.ListAllContainersFiltered(labels, containerFilter)
 		if len(errs) > 0 {
 			log.Warn().Err(errs[0]).Msg("error while listing containers")
@@ -161,9 +184,9 @@ func (h *handler) listStreamContainers(hostScope string, labels container.Contai
 		return containers
 	}
 
-	hostContainers, err := h.hostService.ListContainersForHost(hostScope, labels)
+	hostContainers, err := h.hostService.ListContainersForHost(scope.host, labels)
 	if err != nil {
-		log.Warn().Err(err).Str("host", hostScope).Msg("error while listing containers")
+		log.Warn().Err(err).Str("host", scope.host).Msg("error while listing containers")
 	}
 	var containers []container.Container
 	for _, c := range hostContainers {
@@ -174,7 +197,7 @@ func (h *handler) listStreamContainers(hostScope string, labels container.Contai
 	return containers
 }
 
-func (h *handler) streamLogsForContainers(w http.ResponseWriter, r *http.Request, containerFilter container.ContainerFilter, hostScope string) {
+func (h *handler) streamLogsForContainers(w http.ResponseWriter, r *http.Request, containerFilter container.ContainerFilter, scope streamScope) {
 	stdTypes := parseStdTypes(r)
 	if stdTypes == 0 {
 		http.Error(w, "stdout or stderr is required", http.StatusBadRequest)
@@ -208,7 +231,7 @@ func (h *handler) streamLogsForContainers(w http.ResponseWriter, r *http.Request
 
 	ctx := r.Context()
 	userLabels := h.resolveLabels(r)
-	existingContainers := h.listStreamContainers(hostScope, userLabels, containerFilter)
+	existingContainers := h.listStreamContainers(scope, userLabels, containerFilter)
 
 	liveLogs := make(chan *container.LogEvent)
 	events := make(chan *container.ContainerEvent, 1)

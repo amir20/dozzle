@@ -5,6 +5,7 @@ import (
 	"context"
 	"encoding/binary"
 	"errors"
+	"fmt"
 	"io"
 	"net/url"
 	"regexp"
@@ -17,6 +18,7 @@ import (
 	"testing"
 
 	"github.com/amir20/dozzle/internal/container"
+	"github.com/amir20/dozzle/internal/container/docker"
 	"github.com/amir20/dozzle/internal/web/search"
 	"github.com/beme/abide"
 	"github.com/go-chi/chi/v5"
@@ -39,7 +41,7 @@ func Test_handler_streamLogs_happy(t *testing.T) {
 	ctx, cancel := context.WithCancel(t.Context())
 
 	id := "123456"
-	req, err := http.NewRequestWithContext(ctx, "GET", "/api/hosts/localhost/containers/"+id+"/logs/stream", nil)
+	req, err := http.NewRequestWithContext(ctx, "GET", "/api/containers/logs/stream?container=localhost/"+id, nil)
 
 	q := req.URL.Query()
 	q.Add("stdout", "true")
@@ -84,7 +86,7 @@ func Test_handler_streamLogs_happy(t *testing.T) {
 func Test_handler_streamLogs_happy_with_id(t *testing.T) {
 	id := "123456"
 	ctx, cancel := context.WithCancel(context.Background())
-	req, err := http.NewRequestWithContext(ctx, "GET", "/api/hosts/localhost/containers/"+id+"/logs/stream", nil)
+	req, err := http.NewRequestWithContext(ctx, "GET", "/api/containers/logs/stream?container=localhost/"+id, nil)
 	q := req.URL.Query()
 	q.Add("stdout", "true")
 	q.Add("stderr", "true")
@@ -130,7 +132,7 @@ func Test_handler_streamLogs_happy_with_id(t *testing.T) {
 func Test_handler_streamLogs_happy_container_stopped(t *testing.T) {
 	id := "123456"
 	ctx, cancel := context.WithCancel(context.Background())
-	req, err := http.NewRequestWithContext(ctx, "GET", "/api/hosts/localhost/containers/"+id+"/logs/stream", nil)
+	req, err := http.NewRequestWithContext(ctx, "GET", "/api/containers/logs/stream?container=localhost/"+id, nil)
 	q := req.URL.Query()
 	q.Add("stdout", "true")
 	q.Add("stderr", "true")
@@ -168,7 +170,7 @@ func Test_handler_streamLogs_happy_container_stopped(t *testing.T) {
 func Test_handler_streamLogs_container_stopped_ignores_previous_run(t *testing.T) {
 	id := "123456"
 	ctx, cancel := context.WithCancel(context.Background())
-	req, err := http.NewRequestWithContext(ctx, "GET", "/api/hosts/localhost/containers/"+id+"/logs/stream", nil)
+	req, err := http.NewRequestWithContext(ctx, "GET", "/api/containers/logs/stream?container=localhost/"+id, nil)
 	q := req.URL.Query()
 	q.Add("stdout", "true")
 	q.Add("stderr", "true")
@@ -215,7 +217,7 @@ func Test_handler_streamLogs_search_status_exhausted(t *testing.T) {
 	ctx, cancel := context.WithCancel(context.Background())
 
 	id := "123456"
-	req, err := http.NewRequestWithContext(ctx, "GET", "/api/hosts/localhost/containers/"+id+"/logs/stream", nil)
+	req, err := http.NewRequestWithContext(ctx, "GET", "/api/containers/logs/stream?container=localhost/"+id, nil)
 	require.NoError(t, err, "NewRequest should not return an error.")
 
 	q := req.URL.Query()
@@ -258,7 +260,7 @@ func Test_handler_streamLogs_search_status_on_error(t *testing.T) {
 	ctx, cancel := context.WithCancel(context.Background())
 
 	id := "123456"
-	req, err := http.NewRequestWithContext(ctx, "GET", "/api/hosts/localhost/containers/"+id+"/logs/stream", nil)
+	req, err := http.NewRequestWithContext(ctx, "GET", "/api/containers/logs/stream?container=localhost/"+id, nil)
 	require.NoError(t, err, "NewRequest should not return an error.")
 
 	q := req.URL.Query()
@@ -303,7 +305,7 @@ func Test_handler_streamLogs_error_reading(t *testing.T) {
 	ctx, cancel := context.WithCancel(context.Background())
 
 	id := "123456"
-	req, err := http.NewRequestWithContext(ctx, "GET", "/api/hosts/localhost/containers/"+id+"/logs/stream", nil)
+	req, err := http.NewRequestWithContext(ctx, "GET", "/api/containers/logs/stream?container=localhost/"+id, nil)
 	q := req.URL.Query()
 	q.Add("stdout", "true")
 	q.Add("stderr", "true")
@@ -340,7 +342,7 @@ func Test_handler_streamLogs_error_reading(t *testing.T) {
 
 func Test_handler_streamLogs_error_std(t *testing.T) {
 	id := "123456"
-	req, err := http.NewRequest("GET", "/api/hosts/localhost/containers/"+id+"/logs/stream", nil)
+	req, err := http.NewRequest("GET", "/api/containers/logs/stream?container=localhost/"+id, nil)
 
 	require.NoError(t, err, "NewRequest should not return an error.")
 
@@ -720,5 +722,92 @@ func TestPathParamDecodesOnce(t *testing.T) {
 			require.NoError(t, gotErr)
 			assert.Equal(t, tt.want, got)
 		})
+	}
+}
+
+// storeHostService finds containers in one store per host and nothing else: its
+// embedded HostService is nil, so a stream that lists a host, or every host,
+// panics instead of passing.
+type storeHostService struct {
+	HostService
+	hosts map[string]container.ClientService
+}
+
+func (s *storeHostService) FindContainer(host, id string, labels container.ContainerLabels) (*container.ContainerService, error) {
+	client, ok := s.hosts[host]
+	if !ok {
+		return nil, fmt.Errorf("host %s not found", host)
+	}
+	c, err := client.FindContainer(context.Background(), id, labels)
+	if err != nil {
+		return nil, err
+	}
+	return container.NewContainerService(client, c), nil
+}
+
+func (s *storeHostService) SubscribeContainersStarted(context.Context, chan<- container.Container, container.ContainerFilter) {
+}
+
+func hostClient(host, id, message string) *MockedClient {
+	c := container.Container{ID: id, Name: id, Host: host, State: "running", StartedAt: time.Now()}
+	client := new(MockedClient)
+	client.On("Host").Return(container.Host{ID: host})
+	client.On("ListContainers", mock.Anything, mock.Anything).Return([]container.Container{c}, nil)
+	client.On("FindContainer", mock.Anything, id).Return(c, nil)
+	client.On("ContainerLogs", mock.Anything, id, mock.Anything, container.STDALL).
+		Return(io.NopCloser(bytes.NewReader(makeMessage(message, container.STDOUT))), nil)
+	client.On("ContainerEvents", mock.Anything, mock.AnythingOfType("chan<- container.ContainerEvent")).Return(nil)
+	return client
+}
+
+// A merged view can mix hosts: each container is found on the host its ref names,
+// and no host is listed to find it.
+func Test_handler_streamContainerLogs_across_hosts(t *testing.T) {
+	ctx, cancel := context.WithCancel(t.Context())
+	defer cancel()
+
+	req, err := http.NewRequestWithContext(ctx, "GET", "/api/containers/logs/stream", nil)
+	require.NoError(t, err)
+	q := req.URL.Query()
+	q.Add("stdout", "1")
+	q.Add("stderr", "1")
+	addAllLogLevels(q)
+	q.Add("container", "nas/web")
+	q.Add("container", "pi/db")
+	q.Add("container", "pi/db") // a repeated ref is tailed once
+	req.URL.RawQuery = q.Encode()
+
+	nas := hostClient("nas", "web", "from nas\n")
+	pi := hostClient("pi", "db", "from pi\n")
+	h := createRouter(&handler{
+		hostService: &storeHostService{hosts: map[string]container.ClientService{
+			"nas": docker.NewService(nas, container.ContainerLabels{}),
+			"pi":  docker.NewService(pi, container.ContainerLabels{}),
+		}},
+		config: &Config{Base: "/", Authorization: Authorization{Provider: NONE}},
+	})
+
+	rr := httptest.NewRecorder()
+	done := make(chan struct{})
+	go func() {
+		defer close(done)
+		h.ServeHTTP(rr, req)
+	}()
+	time.Sleep(300 * time.Millisecond)
+	cancel()
+	<-done
+
+	body := rr.Body.String()
+	assert.Contains(t, body, "from nas")
+	assert.Contains(t, body, "from pi")
+	pi.AssertNumberOfCalls(t, "ContainerLogs", 1)
+}
+
+func Test_handler_streamContainerLogs_bad_refs(t *testing.T) {
+	h := createDefaultHandler(nil)
+	for _, query := range []string{"", "&container=web", "&container=/web", "&container=nas/"} {
+		rr := httptest.NewRecorder()
+		h.ServeHTTP(rr, httptest.NewRequest("GET", "/api/containers/logs/stream?stdout=1"+query, nil))
+		assert.Equal(t, http.StatusBadRequest, rr.Code, query)
 	}
 }

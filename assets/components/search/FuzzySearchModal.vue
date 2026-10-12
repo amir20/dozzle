@@ -118,15 +118,15 @@
                     </span>
                   </div>
                   <RelativeTime :date="entry.item.created" class="text-base-content/40 shrink-0 text-xs" />
-                  <!-- Only offered where it would work: something is streaming, and the
-                       container is on the same host. The sidebar popup explains the rest. -->
+                  <!-- Only offered where it would work: something is streaming. The
+                       sidebar popup explains the rest. -->
                   <button
-                    v-if="entry.item.type === 'container' && canMergeItem(entry.item)"
+                    v-if="entry.item.type === 'container' && canToggle(entry.item.id)"
                     type="button"
                     class="text-base-content/40 hover:text-secondary shrink-0"
                     :class="{ 'text-secondary': isStreaming(entry.item.id) }"
-                    :title="mergeTitleFor(entry.item)"
-                    :aria-label="mergeTitleFor(entry.item)"
+                    :title="toggleTitle(entry.item.id)"
+                    :aria-label="toggleTitle(entry.item.id)"
                     :aria-pressed="isStreaming(entry.item.id)"
                     @click.stop.prevent="mergeItem(entry.item)"
                   >
@@ -215,7 +215,7 @@
         <span class="ml-0.5">{{ $t("cloud-search.pin-shortcut") }}</span>
       </span>
       <span
-        v-if="selectedContainerItem && canMergeItem(selectedContainerItem)"
+        v-if="selectedContainerItem && canToggle(selectedContainerItem.id)"
         class="hidden items-center gap-1 sm:flex"
       >
         <kbd class="kbd kbd-xs">{{ isMac ? "⌘" : "Ctrl" }}</kbd
@@ -596,24 +596,10 @@ const isMac = /(Mac|iPhone|iPod|iPad)/i.test(navigator.userAgent);
 // Cmd/Ctrl+Enter adds the container to the stream on screen, or takes it out.
 function onMerge() {
   const item = selectedContainerItem.value;
-  if (item && canMergeItem(item)) mergeItem(item);
+  if (item && canToggle(item.id)) mergeItem(item);
 }
 
 const { isStreaming, canToggle, toggleTitle, toggle: toggleMerge } = useStreamedContainers();
-const { allContainersById } = storeToRefs(useContainerStore());
-
-// A palette row carries the host's label for display, so the merge rules read the
-// container itself for its host id.
-function canMergeItem(item: Item) {
-  const container = allContainersById.value[item.id];
-  return !!container && canToggle(container);
-}
-
-function mergeTitleFor(item: Item) {
-  const container = allContainersById.value[item.id];
-  return container ? toggleTitle(container) : "";
-}
-
 function mergeItem(item: Item) {
   toggleMerge(item.id);
   close();

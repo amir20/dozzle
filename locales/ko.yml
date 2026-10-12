@@ -173,7 +173,6 @@ tooltip:
   unpin-column: 열 고정 해제
   merge-stream: 스트림에 병합
   merge-stream-hint: 병합하려면 먼저 컨테이너를 여세요
-  merge-stream-other-host: "같은 호스트의 컨테이너만 병합할 수 있습니다"
   unmerge-stream: 스트림에서 제거
   merge-all: 모두 하나의 스트림으로 병합
   network-io: "네트워크: ↑ {tx}/s · ↓ {rx}/s"

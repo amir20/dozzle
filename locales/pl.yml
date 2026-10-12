@@ -173,7 +173,6 @@ tooltip:
   unpin-column: Odepnij kolumnę
   merge-stream: Scal ze strumieniem
   merge-stream-hint: Otwórz kontener, aby go scalić
-  merge-stream-other-host: "Scalać można tylko kontenery z tego samego hosta"
   unmerge-stream: Usuń ze strumienia
   merge-all: Scal wszystko w jeden strumień
   network-io: "Sieć: ↑ {tx}/s · ↓ {rx}/s"
