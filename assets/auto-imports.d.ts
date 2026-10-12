@@ -438,6 +438,7 @@ declare global {
   const useLink: typeof import('vue-router/auto').useLink
   const useLiveAnnouncer: typeof import('@vueuse/core').useLiveAnnouncer
   const useLocalStorage: typeof import('@vueuse/core').useLocalStorage
+  const useLogFilterSummary: typeof import('./composable/logs/logFilterSummary').useLogFilterSummary
   const useLogHistogram: typeof import('./composable/logs/logHistogram').useLogHistogram
   const useLogJump: typeof import('./composable/logs/logJump').useLogJump
   const useLogLoader: typeof import('./composable/logs/logLoader').useLogLoader
@@ -1127,6 +1128,7 @@ declare module 'vue' {
     readonly useLink: UnwrapRef<typeof import('vue-router/auto')['useLink']>
     readonly useLiveAnnouncer: UnwrapRef<typeof import('@vueuse/core')['useLiveAnnouncer']>
     readonly useLocalStorage: UnwrapRef<typeof import('@vueuse/core')['useLocalStorage']>
+    readonly useLogFilterSummary: UnwrapRef<typeof import('./composable/logs/logFilterSummary')['useLogFilterSummary']>
     readonly useLogHistogram: UnwrapRef<typeof import('./composable/logs/logHistogram')['useLogHistogram']>
     readonly useLogJump: UnwrapRef<typeof import('./composable/logs/logJump')['useLogJump']>
     readonly useLogLoader: UnwrapRef<typeof import('./composable/logs/logLoader')['useLogLoader']>

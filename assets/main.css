@@ -457,6 +457,71 @@ html {
   @apply text-error border-error/30 bg-error/10;
 }
 
+/* --- Log toolbar menus ----------------------------------------------------
+ * The filter chip and the actions menu over a log view share one row
+ * vocabulary, and the filter rows render inside both, so it lives here rather
+ * than in either component's scoped block. Goes on the `ul.menu`. */
+
+/* Section headers replace hairline dividers: they separate and label at the
+ * same time. The first one has nothing above it to divide from. */
+.log-menu li.section {
+  @apply text-base-content/40 border-base-content/10 mt-1.5 border-t px-2 pt-2 pb-1 text-[10px] font-semibold tracking-wider uppercase;
+}
+
+.log-menu li.section.warn {
+  @apply text-warning/90;
+}
+
+/* daisyUI pads every direct child of a menu li as if it were a clickable row,
+ * which squeezes a status dot or spinner in a header down to nothing. */
+.log-menu li.section > * {
+  @apply p-0;
+}
+
+.log-menu li.section:first-child {
+  @apply mt-0 border-t-0 pt-1;
+}
+
+.log-menu :where(a, button, summary) {
+  @apply whitespace-nowrap;
+}
+
+/* One icon size for every row, so labels line up on a single text column. */
+.log-menu > li > :where(a, button, summary) > svg,
+.log-menu > li > details > summary > svg {
+  @apply size-4 shrink-0 opacity-70;
+}
+
+/* A collapsed submenu's current value, in the trailing grid column daisyUI
+ * reserves next to the disclosure chevron. */
+.log-menu .value {
+  @apply text-base-content/40 text-xs tabular-nums;
+}
+
+/* daisyUI's .menu is fit-content, so a nested submenu shrinks to its content
+ * and the hover highlight stops short of the dropdown's edge. */
+.log-menu li ul {
+  margin-inline-start: 0;
+  width: 100%;
+  &:before {
+    display: none;
+  }
+}
+
+/* Solid level colors keep white labels in the light theme. warn is a light
+ * orange, where dark text has better contrast, so it keeps the default. */
+[data-theme="light"]
+  .log-menu
+  .badge:is(
+    [data-level="info"],
+    [data-level="debug"],
+    [data-level="trace"],
+    [data-level="error"],
+    [data-level="fatal"]
+  ) {
+  color: oklch(100% 0 0) !important;
+}
+
 /* --- Icon button motion ---------------------------------------------------
  * Icon-only buttons get a small spring on hover and a press-in on click. The
  * transform sits on the glyph rather than the button so the circle and border

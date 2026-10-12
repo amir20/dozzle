@@ -6,13 +6,8 @@
     panel-class="rounded-box bg-base-200 border-base-content/10 w-max min-w-60 border p-1.5 shadow-lg"
   >
     <template #trigger>
-      <button
-        type="button"
-        class="icon-btn btn btn-ghost btn-sm relative w-8 gap-0 px-0 md:gap-0.5"
-        data-testid="log-actions"
-      >
-        <carbon:circle-solid class="text-red w-2 md:w-2.5" v-if="streamConfig.stderr" />
-        <carbon:circle-solid class="text-blue w-2 md:w-2.5" v-if="streamConfig.stdout" />
+      <button type="button" class="icon-btn btn btn-ghost btn-sm relative w-8 px-0" data-testid="log-actions">
+        <mdi:dots-vertical class="size-4" />
         <span
           v-if="showImageUpdateAlert"
           class="absolute end-0.5 top-0.5 flex size-1.5"
@@ -29,7 +24,7 @@
         ></span>
       </button>
     </template>
-    <ul class="menu w-full p-0">
+    <ul class="menu log-menu w-full p-0">
       <li class="section" v-if="!historical || hasComplexLogs">{{ $t("toolbar.section-logs") }}</li>
       <li v-if="!historical">
         <a @click="showSearch = true">
@@ -73,108 +68,36 @@
           <KeyShortcut char="k" :modifiers="['shift', 'meta']" />
         </a>
       </li>
-      <li class="section">{{ $t("toolbar.section-filters") }}</li>
-      <!-- A phone has no room for the time chip in the title bar, so it lives here. -->
-      <li v-if="isMobile && !historical">
-        <details>
-          <summary>
-            <mdi:clock-outline />
-            {{ $t("time-range.title") }}
-            <span class="value">{{ timeLabel }}</span>
-          </summary>
-          <ul class="menu">
-            <li v-for="row in timeRows" :key="row.key">
-              <a @click="row.run()">
-                <mdi:check class="w-4" v-if="row.active" />
-                <div v-else class="w-4"></div>
-                {{ row.label }}
-              </a>
-            </li>
-            <li>
-              <a @click="customRange()">
-                <mdi:calendar-range class="w-4" />
-                {{ $t("time-range.custom") }}…
-              </a>
-            </li>
-          </ul>
-        </details>
-      </li>
-      <li>
-        <details>
-          <summary>
-            <div class="flex w-4 items-center gap-0.5">
-              <carbon:circle-solid class="size-2" :class="streamConfig.stderr ? 'text-red' : 'opacity-20'" />
-              <carbon:circle-solid class="size-2" :class="streamConfig.stdout ? 'text-blue' : 'opacity-20'" />
-            </div>
-            {{ $t("toolbar.streams") }}
-            <span class="value">{{ streamSummary }}</span>
-          </summary>
-          <ul class="menu">
-            <li>
-              <a
-                @click="
-                  streamConfig.stdout = true;
-                  streamConfig.stderr = true;
-                "
-              >
-                <mdi:check class="w-4" v-if="streamConfig.stdout == true && streamConfig.stderr == true" />
-                <div v-else class="w-4"></div>
-                {{ $t("toolbar.show-all") }}
-              </a>
-            </li>
-            <li>
-              <a
-                @click="
-                  streamConfig.stdout = true;
-                  streamConfig.stderr = false;
-                "
-              >
-                <mdi:check class="w-4" v-if="streamConfig.stdout == true && streamConfig.stderr == false" />
-                <div v-else class="w-4"></div>
-                {{ $t("toolbar.show", { std: "STDOUT" }) }}
-              </a>
-            </li>
-            <li>
-              <a
-                @click="
-                  streamConfig.stdout = false;
-                  streamConfig.stderr = true;
-                "
-              >
-                <mdi:check class="w-4" v-if="streamConfig.stdout == false && streamConfig.stderr == true" />
-                <div v-else class="w-4"></div>
-                {{ $t("toolbar.show", { std: "STDERR" }) }}
-              </a>
-            </li>
-          </ul>
-        </details>
-      </li>
-      <li>
-        <details class="group/details">
-          <summary>
-            <mdi:gauge />
-            {{ $t("toolbar.levels") }}
-            <span class="value group-open/details:hidden">{{ levelSummary }}</span>
-            <Toggle
-              class="toggle-xs hidden group-open/details:inline-flex"
-              v-model="toggleAllLevels"
-              :title="$t('toolbar.toggle-all-levels')"
-            />
-          </summary>
-          <ul class="menu">
-            <li v-for="level in allLevels">
-              <a class="capitalize" @click="levels.has(level) ? levels.delete(level) : levels.add(level)">
-                <mdi:check class="w-4" v-if="levels.has(level)" />
-                <div v-else class="w-4"></div>
-
-                <div class="flex">
-                  <div class="badge" :data-level="level">{{ level }}</div>
-                </div>
-              </a>
-            </li>
-          </ul>
-        </details>
-      </li>
+      <!-- The filter chip in the title bar carries these where it fits; a phone and a
+           pinned column have no room for it, so they land here instead. -->
+      <template v-if="filters">
+        <li class="section">{{ $t("toolbar.section-filters") }}</li>
+        <li v-if="!historical">
+          <details>
+            <summary>
+              <mdi:clock-outline />
+              {{ $t("time-range.title") }}
+              <span class="value">{{ timeLabel }}</span>
+            </summary>
+            <ul class="menu">
+              <li v-for="row in timeRows" :key="row.key">
+                <a @click="row.run()">
+                  <mdi:check class="w-4" v-if="row.active" />
+                  <div v-else class="w-4"></div>
+                  {{ row.label }}
+                </a>
+              </li>
+              <li>
+                <a @click="customRange()">
+                  <mdi:calendar-range class="w-4" />
+                  {{ $t("time-range.custom") }}…
+                </a>
+              </li>
+            </ul>
+          </details>
+        </li>
+        <LogFilterRows />
+      </template>
 
       <li class="section">{{ $t("toolbar.section-export") }}</li>
       <li v-if="enableDownload">
@@ -333,7 +256,16 @@ const {
 );
 const showDrawer = useDrawer();
 
-const { container, historical = false } = defineProps<{ container: Container; historical?: boolean }>();
+const {
+  container,
+  historical = false,
+  filters = false,
+} = defineProps<{
+  container: Container;
+  historical?: boolean;
+  /** Carry the time, stream and level rows, for where the filter chip is not shown. */
+  filters?: boolean;
+}>();
 const clear = defineEmit();
 const { actionStates, start, stop, restart, update } = useContainerActions(toRef(() => container));
 const canStartStop = config.mode !== "k8s";
@@ -502,92 +434,4 @@ const { downloadUrl, isFiltered } = useDownloadUrl(
 // Nothing to act on once the container is deleted, and Docker will not start a paused one.
 const power = computed(() => powerAction(container));
 const disableRestart = computed(() => actionStates.stop || actionStates.start || actionStates.restart);
-
-// Collapsed submenus say what they are currently set to, so the menu answers
-// "what am I looking at?" without being opened.
-const streamSummary = computed(() => {
-  if (streamConfig.value.stdout && streamConfig.value.stderr) return t("toolbar.all");
-  if (streamConfig.value.stdout) return "STDOUT";
-  if (streamConfig.value.stderr) return "STDERR";
-  return t("toolbar.none");
-});
-
-const levelSummary = computed(() =>
-  levels.value.size === allLevels.length ? t("toolbar.all") : `${levels.value.size}/${allLevels.length}`,
-);
-
-const toggleAllLevels = computed({
-  get: () => levels.value.size === allLevels.length,
-  set: (value) => {
-    if (value) {
-      allLevels.forEach((level) => levels.value.add(level));
-    } else {
-      levels.value.clear();
-    }
-  },
-});
 </script>
-
-<style scoped>
-@reference "@/main.css";
-
-/* Section headers replace the old hairline dividers: they separate and label at
- * the same time. The first one has nothing above it to divide from. */
-li.section {
-  @apply text-base-content/40 border-base-content/10 mt-1.5 border-t px-2 pt-2 pb-1 text-[10px] font-semibold tracking-wider uppercase;
-}
-
-/* Same specificity as li.section, declared after it, so the accent wins. */
-li.section.warn {
-  @apply text-warning/90;
-}
-
-/* daisyUI pads every direct child of a menu li as if it were a clickable row,
- * which squeezes the status dot and spinner in these headers down to nothing. */
-li.section > * {
-  @apply p-0;
-}
-
-li.section:first-child {
-  @apply mt-0 border-t-0 pt-1;
-}
-
-a,
-button,
-summary {
-  @apply whitespace-nowrap;
-}
-
-/* One icon size for every row, so labels line up on a single text column. */
-.menu > li > :where(a, button, summary) > svg {
-  @apply size-4 shrink-0 opacity-70;
-}
-
-/* The collapsed-state value sits in the trailing grid column daisyUI reserves,
- * next to (not on top of) the disclosure chevron. */
-.value {
-  @apply text-base-content/40 text-xs tabular-nums;
-}
-
-/* daisyUI's .menu is width: fit-content, so nested submenus (Streams, Levels)
- * shrink to their content and the hover highlight stops short. Stretch them to
- * fill the dropdown so the row highlight spans the full width. */
-.menu li ul {
-  margin-inline-start: 0;
-  width: 100%;
-  &:before {
-    display: none;
-  }
-}
-
-/* Keep the solid level colors, but use white labels in the light theme so the
- * text reads against the saturated chip backgrounds. warn is a light orange,
- * where dark text has better contrast than white, so it keeps the default. */
-[data-theme="light"] .badge[data-level="info"],
-[data-theme="light"] .badge[data-level="debug"],
-[data-theme="light"] .badge[data-level="trace"],
-[data-theme="light"] .badge[data-level="error"],
-[data-theme="light"] .badge[data-level="fatal"] {
-  color: oklch(100% 0 0) !important;
-}
-</style>

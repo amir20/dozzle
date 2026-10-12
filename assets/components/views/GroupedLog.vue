@@ -6,6 +6,7 @@
           {{ $t("label.container", group.containers.length) }}
         </ContainerDropdown>
         <MultiContainerStat class="ml-auto" :containers="group.containers" />
+        <LogFilterMenu v-if="!isMobile" />
         <MultiContainerActionToolbar class="max-md:hidden" :name="group.name" @clear="viewer?.clear()" />
       </div>
     </template>

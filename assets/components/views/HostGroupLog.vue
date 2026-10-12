@@ -18,6 +18,7 @@
           </Tag>
         </div>
         <MultiContainerStat class="ml-auto" :containers="containers" />
+        <LogFilterMenu v-if="!isMobile" />
         <MultiContainerActionToolbar class="max-md:hidden" :name="name" @clear="viewer?.clear()" />
       </div>
     </template>

@@ -5,6 +5,7 @@
         <octicon:container-24 />
         <ContainerDropdown :containers="containers">{{ $t("label.container", containers.length) }}</ContainerDropdown>
         <MultiContainerStat class="ml-auto" :containers="containers" />
+        <LogFilterMenu v-if="!isMobile" />
         <MultiContainerActionToolbar @clear="viewer?.clear()" />
       </div>
     </template>
