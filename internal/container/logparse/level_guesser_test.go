@@ -35,6 +35,7 @@ func TestGuessPinoLogLevel(t *testing.T) {
 		{`{"@l":"error","level":30}`, "error"},
 		{`{"level":30,"severity":"error"}`, "info"},
 		{`{"level":35,"severity":"warn"}`, "warn"},
+		{`{"level":"panic","msg":"zerolog panic"}`, "fatal"},
 	}
 	for _, test := range tests {
 		t.Run(test.input, func(t *testing.T) {

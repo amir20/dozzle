@@ -360,6 +360,11 @@ func normalizeLogLevel(level string) string {
 	if canonical, ok := aliasToCanonical[level]; ok {
 		return canonical
 	}
+	// A level field cannot be prose, so the upper-case-only words count in any
+	// case here: zerolog and logrus both have a "panic" level.
+	if canonical, ok := upperOnlyLevels[strings.ToUpper(level)]; ok {
+		return canonical
+	}
 	if _, ok := SupportedLogLevels[level]; ok {
 		return level
 	}
