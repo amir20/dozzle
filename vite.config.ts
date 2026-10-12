@@ -15,6 +15,11 @@ import tailwindcss from "@tailwindcss/vite";
 
 export default defineConfig(() => ({
   base: "./",
+  server: {
+    // `make dev` opens the Go server's page; `make dev-auto` is mostly started by an
+    // agent in a background shell, where a browser tab popping up is just noise.
+    open: process.env.DEV_NO_OPEN ? false : `http://localhost:${process.env.DOZZLE_PORT ?? 3100}/`,
+  },
   define: {
     // No component uses the options API, so drop that half of the Vue runtime.
     __VUE_OPTIONS_API__: false,
