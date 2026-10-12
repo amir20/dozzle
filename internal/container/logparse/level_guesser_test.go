@@ -5,8 +5,6 @@ import (
 	"testing"
 
 	"github.com/amir20/dozzle/internal/container"
-
-	orderedmap "github.com/wk8/go-ordered-map/v2"
 )
 
 func TestGuessPinoLogLevel(t *testing.T) {
@@ -119,7 +117,7 @@ func TestGuessOtelLogLevel(t *testing.T) {
 }
 
 func TestGuessLogLevel(t *testing.T) {
-	var nilOrderedMap *orderedmap.OrderedMap[string, any]
+	var nilOrderedMap container.Fields[any]
 	tests := []struct {
 		input    any
 		expected string
@@ -176,74 +174,50 @@ func TestGuessLogLevel(t *testing.T) {
 		{"Warning0806 14:55:55.980915 not klog either", "warn"},
 		{"2026-01-05 12:13:24,566 - retry.api                        (7fd8ad34eb30) :  WARNING (api:40) - HTTPSConnectionPool(host='podnapisi.net', port=443): Max retries exceeded", "warn"},
 		{"2026-01-05 08:21:16,511 - root                             (7fd8bf822b30) :  INFO (get_providers:408) - Throttling podnapisi for 10 minutes", "info"},
-		{orderedmap.New[string, string](
-			orderedmap.WithInitialData(
-				orderedmap.Pair[string, string]{Key: "key", Value: "value"},
-				orderedmap.Pair[string, string]{Key: "level", Value: "info"},
-			),
-		), "info"},
-		{orderedmap.New[string, any](
-			orderedmap.WithInitialData(
-				orderedmap.Pair[string, any]{Key: "key", Value: "value"},
-				orderedmap.Pair[string, any]{Key: "level", Value: "info"},
-			),
-		), "info"},
-		{orderedmap.New[string, string](
-			orderedmap.WithInitialData(
-				orderedmap.Pair[string, string]{Key: "key", Value: "value"},
-				orderedmap.Pair[string, string]{Key: "severity", Value: "info"},
-			),
-		), "info"},
-		{orderedmap.New[string, any](
-			orderedmap.WithInitialData(
-				orderedmap.Pair[string, any]{Key: "key", Value: "value"},
-				orderedmap.Pair[string, any]{Key: "severity", Value: "info"},
-			),
-		), "info"},
-		{orderedmap.New[string, string](
-			orderedmap.WithInitialData(
-				orderedmap.Pair[string, string]{Key: "severityText", Value: "ERROR"},
-			),
-		), "error"},
-		{orderedmap.New[string, string](
-			orderedmap.WithInitialData(
-				orderedmap.Pair[string, string]{Key: "severityNumber", Value: "17"},
-			),
-		), "error"},
-		{orderedmap.New[string, string](
-			orderedmap.WithInitialData(
-				orderedmap.Pair[string, string]{Key: "severityNumber", Value: "not-a-number"},
-			),
-		), "unknown"},
-		{orderedmap.New[string, string](
-			orderedmap.WithInitialData(
-				orderedmap.Pair[string, string]{Key: "severityText", Value: "WARN2"},
-			),
-		), "warn"},
-		{orderedmap.New[string, string](
-			orderedmap.WithInitialData(
-				orderedmap.Pair[string, string]{Key: "severityText", Value: "Notice"},
-				orderedmap.Pair[string, string]{Key: "severityNumber", Value: "9"},
-			),
-		), "info"},
-		{orderedmap.New[string, string](
-			orderedmap.WithInitialData(
-				orderedmap.Pair[string, string]{Key: "key", Value: "value"},
-				orderedmap.Pair[string, string]{Key: "@l", Value: "info"},
-			),
-		), "info"},
-		{orderedmap.New[string, any](
-			orderedmap.WithInitialData(
-				orderedmap.Pair[string, any]{Key: "key", Value: "value"},
-				orderedmap.Pair[string, any]{Key: "@l", Value: "debug"},
-			),
-		), "debug"},
-		{orderedmap.New[string, string](
-			orderedmap.WithInitialData(
-				orderedmap.Pair[string, string]{Key: "@l", Value: "error"},
-				orderedmap.Pair[string, string]{Key: "@t", Value: "2024-01-01T00:00:00Z"},
-			),
-		), "error"},
+		{container.Fields[string]{
+			{Key: "key", Value: "value"},
+			{Key: "level", Value: "info"},
+		}, "info"},
+		{container.Fields[any]{
+			{Key: "key", Value: "value"},
+			{Key: "level", Value: "info"},
+		}, "info"},
+		{container.Fields[string]{
+			{Key: "key", Value: "value"},
+			{Key: "severity", Value: "info"},
+		}, "info"},
+		{container.Fields[any]{
+			{Key: "key", Value: "value"},
+			{Key: "severity", Value: "info"},
+		}, "info"},
+		{container.Fields[string]{
+			{Key: "severityText", Value: "ERROR"},
+		}, "error"},
+		{container.Fields[string]{
+			{Key: "severityNumber", Value: "17"},
+		}, "error"},
+		{container.Fields[string]{
+			{Key: "severityNumber", Value: "not-a-number"},
+		}, "unknown"},
+		{container.Fields[string]{
+			{Key: "severityText", Value: "WARN2"},
+		}, "warn"},
+		{container.Fields[string]{
+			{Key: "severityText", Value: "Notice"},
+			{Key: "severityNumber", Value: "9"},
+		}, "info"},
+		{container.Fields[string]{
+			{Key: "key", Value: "value"},
+			{Key: "@l", Value: "info"},
+		}, "info"},
+		{container.Fields[any]{
+			{Key: "key", Value: "value"},
+			{Key: "@l", Value: "debug"},
+		}, "debug"},
+		{container.Fields[string]{
+			{Key: "@l", Value: "error"},
+			{Key: "@t", Value: "2024-01-01T00:00:00Z"},
+		}, "error"},
 		// Zigbee2MQTT-style: bracketed timestamp + " <level>:" inside the line.
 		{"[2025-12-22 12:00:00] info: 	z2m: started", "info"},
 		{"[2025-12-22 12:00:00] warn: 	z2m: queue full", "warn"},
@@ -288,25 +262,19 @@ func TestGuessLogLevel(t *testing.T) {
 		{"Information: service started", "info"},
 		{"[Information] service started", "info"},
 		{"2024-12-30T17:43:16Z Information starting up", "info"},
-		{orderedmap.New[string, string](
-			orderedmap.WithInitialData(
-				orderedmap.Pair[string, string]{Key: "level", Value: "Information"},
-			),
-		), "info"},
-		{orderedmap.New[string, any](
-			orderedmap.WithInitialData(
-				orderedmap.Pair[string, any]{Key: "@l", Value: "Information"},
-			),
-		), "info"},
+		{container.Fields[string]{
+			{Key: "level", Value: "Information"},
+		}, "info"},
+		{container.Fields[any]{
+			{Key: "@l", Value: "Information"},
+		}, "info"},
 		// Equal confidence between two different levels -> unknown (don't guess).
 		{"saw info: here and error: there", "unknown"},
 		{"[INFO] [DEBUG] both bracketed", "unknown"},
-		{orderedmap.New[string, any](
-			orderedmap.WithInitialData(
-				orderedmap.Pair[string, any]{Key: "key", Value: "value"},
-				orderedmap.Pair[string, any]{Key: "level", Value: "warning"},
-			),
-		), "warn"},
+		{container.Fields[any]{
+			{Key: "key", Value: "value"},
+			{Key: "level", Value: "warning"},
+		}, "warn"},
 		// Fail2ban native format (issue #5334).
 		{"2026-10-04 08:30:00,124 fail2ban.server         [1]: INFO    Starting Fail2ban v1.1.0", "info"},
 		{"2026-10-04 08:31:02,111 fail2ban.filters        [1]: NOTICE  [sshd] Ready to monitor log file /var/log/auth.log", "info"},

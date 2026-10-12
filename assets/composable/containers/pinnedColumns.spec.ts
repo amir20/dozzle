@@ -13,8 +13,7 @@ import { usePinnedLogsStore } from "@/stores/pinned";
 import { useContainerStore } from "@/stores/container";
 import type { Container } from "@/models/Container";
 
-// @ts-ignore
-import EventSource from "eventsourcemock";
+import EventSource from "@/testing/eventSourceMock";
 
 vi.mock("@/stores/config", () => ({
   __esModule: true,

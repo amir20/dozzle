@@ -2,13 +2,12 @@ import { statSync } from "node:fs";
 import path from "node:path";
 import { defineConfig } from "vite";
 import Vue from "@vitejs/plugin-vue";
-import VueMacros from "unplugin-vue-macros/vite";
 import Icons from "unplugin-icons/vite";
 import Components from "unplugin-vue-components/vite";
 import AutoImport from "unplugin-auto-import/vite";
 import IconsResolver from "unplugin-icons/resolver";
 import VueRouter from "vue-router/vite";
-import Layouts from "vite-plugin-vue-layouts";
+import Layouts from "vite-plugin-vue-layouts-next";
 import VueI18nPlugin from "@intlify/unplugin-vue-i18n/vite";
 import svgLoader from "vite-svg-loader";
 import tailwindcss from "@tailwindcss/vite";
@@ -82,11 +81,7 @@ export default defineConfig(() => ({
       // against import.meta.url, so this works under a custom base too.
       importMode: "async",
     }),
-    VueMacros({
-      plugins: {
-        vue: Vue(),
-      },
-    }),
+    Vue(),
     Icons({
       autoInstall: true,
     }),
