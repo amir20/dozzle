@@ -218,7 +218,8 @@
         v-if="selectedContainerItem && canMergeItem(selectedContainerItem)"
         class="hidden items-center gap-1 sm:flex"
       >
-        <kbd class="kbd kbd-xs">⌘</kbd><kbd class="kbd kbd-xs">↵</kbd>
+        <kbd class="kbd kbd-xs">{{ isMac ? "⌘" : "Ctrl" }}</kbd
+        ><kbd class="kbd kbd-xs">↵</kbd>
         <span class="ml-0.5">{{
           isStreaming(selectedContainerItem.id)
             ? $t("cloud-search.unmerge-shortcut")
@@ -588,6 +589,9 @@ function onPin() {
   // Alt+Enter pins a container column.
   if (selectedContainerItem.value) addColumn(selectedContainerItem.value);
 }
+
+// Both Cmd and Ctrl+Enter work everywhere; the footer names the one the platform uses.
+const isMac = /(Mac|iPhone|iPod|iPad)/i.test(navigator.userAgent);
 
 // Cmd/Ctrl+Enter adds the container to the stream on screen, or takes it out.
 function onMerge() {
