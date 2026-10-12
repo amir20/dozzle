@@ -7,7 +7,7 @@ import { createI18n } from "vue-i18n";
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 import type { Container } from "@/models/Container";
 
-import { COPY_CONCURRENCY, formatCopyBlocks, mapLimit, useCopyLogs } from "./copyLogs";
+import { COPY_CONCURRENCY, copyLabels, formatCopyBlocks, mapLimit, useCopyLogs } from "./copyLogs";
 import { useToast } from "@/composable/app/toast";
 
 const { toasts } = useToast();
@@ -27,6 +27,26 @@ function mountCopy(containers: Container[]) {
   );
   return api!;
 }
+
+describe("copyLabels", () => {
+  test("names a container by its name alone when it is the only one with that name", () => {
+    const label = copyLabels([
+      { name: "web", hostLabel: "a" },
+      { name: "db", hostLabel: "a" },
+    ]);
+    expect(label({ name: "web", hostLabel: "a" })).toBe("web");
+  });
+
+  test("adds the host when two containers in the copy share a name", () => {
+    const list = [
+      { name: "web", hostLabel: "prod-1" },
+      { name: "web", hostLabel: "prod-2" },
+      { name: "db", hostLabel: "prod-1" },
+    ];
+    const label = copyLabels(list);
+    expect(list.map(label)).toEqual(["web (prod-1)", "web (prod-2)", "db"]);
+  });
+});
 
 describe("formatCopyBlocks", () => {
   test("a single container is returned untouched, with no header", () => {

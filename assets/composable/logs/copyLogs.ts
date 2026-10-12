@@ -23,6 +23,17 @@ export function formatCopyBlocks(blocks: CopyBlock[]): string {
     .join("\n");
 }
 
+/**
+ * What names each container in a copy. The name alone, unless another container in the
+ * same copy shares it (the same service on two hosts), when the host tells them apart.
+ */
+export function copyLabels(list: Pick<Container, "name" | "hostLabel">[]) {
+  const counts = new Map<string, number>();
+  for (const { name } of list) counts.set(name, (counts.get(name) ?? 0) + 1);
+  return (container: Pick<Container, "name" | "hostLabel">) =>
+    (counts.get(container.name) ?? 0) > 1 ? `${container.name} (${container.hostLabel})` : container.name;
+}
+
 /** Runs `fn` over `items` with at most `limit` in flight, keeping results in input order. */
 export async function mapLimit<T, R>(items: T[], limit: number, fn: (item: T) => Promise<R>): Promise<R[]> {
   const results: R[] = new Array(items.length);
@@ -82,12 +93,13 @@ export function useCopyLogs(containers: MaybeRefOrGetter<Container[]>, fallback?
   }
 
   async function fetchAll(list: Container[]) {
+    const label = copyLabels(list);
     const blocks = await mapLimit(list, COPY_CONCURRENCY, async (container) => {
       try {
-        return { name: container.name, text: await fetchText(container) };
+        return { name: label(container), text: await fetchText(container) };
       } catch (err) {
         // In a merged view, say which container it was.
-        if (list.length > 1 && err instanceof Error) err.message = `${container.name}: ${err.message}`;
+        if (list.length > 1 && err instanceof Error) err.message = `${label(container)}: ${err.message}`;
         throw err;
       }
     });
