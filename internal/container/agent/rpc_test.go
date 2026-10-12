@@ -62,15 +62,17 @@ func receive[T any](t *testing.T, ctx context.Context, ch <-chan T, n int) []T {
 type fakeService struct {
 	ClientService
 
-	stats     []container.ContainerStat
-	events    []container.ContainerEvent
-	started   []container.Container
-	logs      []*container.LogEvent
-	raw       []byte
-	rawErr    error
-	histogram container.LogHistogram
-	image     imagecheck.Result
-	actionErr error
+	stats   []container.ContainerStat
+	events  []container.ContainerEvent
+	started []container.Container
+	logs    []*container.LogEvent
+	raw     []byte
+	rawErr  error
+	// rawTogether returns raw and rawErr from the same Read, which io.Reader allows.
+	rawTogether bool
+	histogram   container.LogHistogram
+	image       imagecheck.Result
+	actionErr   error
 
 	mu      sync.Mutex
 	calls   []string
@@ -131,6 +133,9 @@ func (f *fakeService) LogsBetweenDates(_ context.Context, c container.Container,
 }
 
 func (f *fakeService) RawLogs(context.Context, container.Container, time.Time, time.Time, container.StdType) (io.ReadCloser, error) {
+	if f.rawTogether {
+		return io.NopCloser(&lastReadFails{data: f.raw, err: f.rawErr}), nil
+	}
 	if f.rawErr != nil {
 		return io.NopCloser(io.MultiReader(bytes.NewReader(f.raw), iotest.ErrReader(f.rawErr))), nil
 	}
@@ -357,6 +362,25 @@ func TestStreamRawBytesFailsMidStream(t *testing.T) {
 	got, err := io.ReadAll(r)
 	assert.Equal(t, "partial", string(got))
 	assert.ErrorContains(t, err, "daemon went away", "a cut-off download must not read as complete")
+}
+
+type lastReadFails struct {
+	data []byte
+	err  error
+}
+
+func (r *lastReadFails) Read(p []byte) (int, error) {
+	return copy(p, r.data), r.err
+}
+
+func TestStreamRawBytesKeepsDataReadWithError(t *testing.T) {
+	rpc := newTestAgent(t, &fakeService{raw: []byte("last chunk"), rawErr: errors.New("daemon went away"), rawTogether: true}, &recordingHandler{})
+
+	r, err := rpc.StreamRawBytes(context.Background(), "abc", time.Time{}, time.Now(), container.STDALL)
+	require.NoError(t, err)
+	got, err := io.ReadAll(r)
+	assert.Equal(t, "last chunk", string(got))
+	assert.ErrorContains(t, err, "daemon went away")
 }
 
 func TestStreamRawBytesStopsOnCancel(t *testing.T) {

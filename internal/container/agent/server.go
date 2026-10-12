@@ -170,21 +170,24 @@ func (s *server) StreamRawBytes(in *pb.StreamRawBytesRequest, out pb.AgentServic
 	buf := make([]byte, 1024)
 	for {
 		n, err := reader.Read(buf)
-		if err != nil {
-			if err == io.EOF {
-				return nil
+		// A Read may return data and an error together; send the data first.
+		if n > 0 {
+			if sendErr := out.Send(&pb.StreamRawBytesResponse{
+				Data: buf[:n],
+			}); sendErr != nil {
+				return sendErr
 			}
+		}
+
+		if err == io.EOF {
+			return nil
+		}
+		if err != nil {
 			return err
 		}
 
 		if n == 0 {
 			break
-		}
-
-		if err := out.Send(&pb.StreamRawBytesResponse{
-			Data: buf[:n],
-		}); err != nil {
-			return err
 		}
 	}
 
