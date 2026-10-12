@@ -23,11 +23,10 @@
     <template #actions>
       <div class="flex flex-col items-center gap-2">
         <IndeterminateBar color="primary" class="w-40 overflow-hidden rounded-full" />
-        <!-- The stamp walks backwards as the scan goes. It is the only readout
-             that proves the search is moving and not wedged, so it keeps its
-             seconds here even though the finished states drop them. -->
-        <span v-if="scanned" class="text-base-content/40 font-mono text-xs tabular-nums" :title="exactTime">
-          {{ scanned }}
+        <!-- The percentage climbs as the read goes. It is the only readout
+             that proves the search is moving and not wedged. -->
+        <span v-if="percent" class="text-base-content/40 font-mono text-xs tabular-nums">
+          {{ percent }}
         </span>
       </div>
     </template>
@@ -139,10 +138,9 @@ const label = computed(() => {
   }
 });
 
-// How far back the scan reached is a boundary, not staleness, so it is an
+// How far back the results reach is a boundary, not staleness, so it is an
 // absolute stamp trimmed to what tells the two ends of a log apart. The full one
-// is a hover away. Seconds survive the trim only while the search is running,
-// where this stamp walking backwards is the proof that it is still moving.
+// is a hover away.
 const scanned = computed(() => {
   if (!scannedTo.value) return "";
   const time = new Intl.DateTimeFormat(undefined, {
@@ -150,12 +148,19 @@ const scanned = computed(() => {
     day: "numeric",
     hour: "numeric",
     minute: "2-digit",
-    ...(state.value === "searching" ? { second: "2-digit" } : {}),
   }).format(scannedTo.value);
   return t("label.search-status.scanned-to", { time });
 });
 
-// The running total, which climbs while the search walks backwards. Nothing
+// How much of the older logs the search has read. Only the one long read
+// reports it, so a search that finishes in the newest window never shows one.
+const percent = computed(() =>
+  props.status.progress === undefined
+    ? ""
+    : new Intl.NumberFormat(undefined, { style: "percent" }).format(props.status.progress),
+);
+
+// The running total, which climbs while the search reads. Nothing
 // showed it before the search finished, which left the in-progress state saying
 // only that something was happening and not how well it was going.
 const matches = computed(() =>
@@ -171,7 +176,7 @@ const details = computed(() => {
     case "capped":
       return [scanned.value].filter(Boolean);
     default:
-      return [matches.value, scanned.value].filter(Boolean);
+      return [matches.value, percent.value].filter(Boolean);
   }
 });
 </script>
