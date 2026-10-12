@@ -81,11 +81,29 @@ describe("useContainerLogs", () => {
 
     expect(submitted?.method).toBe("post");
     expect(submitted?.getAttribute("action")).toBe("/api/containers/logs");
-    expect(submitted?.target).toBe("");
+    // Into a hidden frame, so an error response never replaces the app.
+    const frame = document.querySelector<HTMLIFrameElement>(`iframe[name="${submitted?.target}"]`);
+    expect(frame?.hidden).toBe(true);
     expect(String(new URLSearchParams(new FormData(submitted!) as unknown as Record<string, string>))).toBe(
       "container=local%2Fa&container=local%2Fb&stdout=1&stderr=1&format=zip&name=stack",
     );
     expect(submitted?.isConnected).toBe(false);
+  });
+
+  test("a failed download shows the server's reason from the frame and keeps the frame", () => {
+    vi.spyOn(HTMLFormElement.prototype, "submit").mockImplementation(() => {});
+    const { downloadLogs } = mountLogs([container("a")]);
+    downloadLogs();
+    const frame = document.querySelector<HTMLIFrameElement>('iframe[name="dozzle-download"]')!;
+    frame.contentDocument!.body.textContent = "no containers found\n";
+    frame.dispatchEvent(new Event("load"));
+
+    const errors = toasts.value.filter(({ toast }) => toast.type === "error");
+    expect(errors).toHaveLength(1);
+    expect(errors[0].toast.message).toBe("no containers found");
+
+    downloadLogs();
+    expect(document.querySelectorAll('iframe[name="dozzle-download"]')).toHaveLength(1);
   });
 
   test("a failed copy shows the server's reason and copies nothing", async () => {

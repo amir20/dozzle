@@ -4,6 +4,9 @@ import { appendRangeParams } from "./timeRange";
 
 const containerLogsPath = "/api/containers/logs";
 
+// One frame for every download, kept so a download still starting is never cut off.
+let frame: HTMLIFrameElement | undefined;
+
 /**
  * `/api/containers/logs` takes its params as a form body: a view of hundreds of
  * containers would pass a proxy's URL length limit as a query string.
@@ -54,12 +57,29 @@ export function useContainerLogs(
       timeRange.value.kind !== "live",
   );
 
-  // A form POST in this window: the zip's Content-Disposition makes it a download,
-  // and the page stays where it is.
+  // A form POST into a hidden frame: the zip's Content-Disposition makes it a
+  // download, and an error page lands in the frame rather than replacing the app.
+  // A frame only loads a page when the response is not a download, so its text is
+  // the server's reason.
+  function downloadFrame() {
+    if (!frame?.isConnected) {
+      frame = document.createElement("iframe");
+      frame.name = "dozzle-download";
+      frame.hidden = true;
+      frame.addEventListener("load", () => {
+        const reason = frame?.contentDocument?.body?.textContent?.trim();
+        if (reason) showToast({ title: "Error", message: escapeHtml(reason), type: "error" }, { expire: 5000 });
+      });
+      document.body.append(frame);
+    }
+    return frame;
+  }
+
   function downloadLogs() {
     const form = document.createElement("form");
     form.method = "POST";
     form.action = withBase(containerLogsPath);
+    form.target = downloadFrame().name;
     form.hidden = true;
     const fields = new URLSearchParams(params.value);
     fields.append("format", "zip");
