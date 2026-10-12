@@ -174,6 +174,8 @@ func scanMatches(
 	var matches []*container.LogEvent
 	var done time.Duration
 	seen := 0
+	read := 0
+	var readErr error
 	for i, s := range services {
 		start := starts[i]
 		if !start.Before(to) {
@@ -188,8 +190,10 @@ func scanMatches(
 			// away what the others matched.
 			log.Error().Err(err).Str("container", s.Container.ID).Msg("error fetching logs for search")
 			done += to.Sub(start)
+			readErr = err
 			continue
 		}
+		read++
 		var kept []*container.LogEvent
 		for event := range logs {
 			// k8s ignores the end of the range and reads to now, which would
@@ -213,6 +217,10 @@ func scanMatches(
 		}
 		matches = append(matches, kept...)
 		done += to.Sub(start)
+	}
+	// Nothing was read at all, so nothing was searched: an error, not an empty result.
+	if read == 0 && readErr != nil {
+		return nil, 0, readErr
 	}
 
 	// Stable so that events sharing a timestamp keep the per-container order

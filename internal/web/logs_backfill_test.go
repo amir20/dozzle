@@ -246,3 +246,15 @@ func Test_searchBackfill_skips_a_failing_container(t *testing.T) {
 	assert.Len(t, r.matches(), 10)
 	assert.Equal(t, 10, r.final.Matches)
 }
+
+// When no container can be read, nothing was searched, so the range is not reported as covered.
+func Test_searchBackfill_every_container_failing_covers_nothing(t *testing.T) {
+	to := time.Now()
+	created := to.Add(-time.Hour)
+	fake := &fakeLogs{failing: map[string]bool{"a": true}}
+
+	r := runBackfill(t, fake, []container.Container{{ID: "a", Created: created}}, to)
+
+	assert.Empty(t, r.matches())
+	assert.Equal(t, to.UnixMilli(), r.final.ScannedTo.UnixMilli())
+}

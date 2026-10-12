@@ -83,7 +83,14 @@ const FuzzySearchModal = defineAsyncComponent(() => import("@/components/search/
 // Only rendered for pinned columns; the route's own view imports it when it needs it.
 const ContainerLog = defineAsyncComponent(() => import("@/components/views/ContainerLog.vue"));
 
-const { railOffset, mounted: railMounted, collapsed: railCollapsed, toggleRail, openRail } = useCloudRail();
+const {
+  railOffset,
+  mounted: railMounted,
+  collapsed: railCollapsed,
+  available: railAvailable,
+  toggleRail,
+  openRail,
+} = useCloudRail();
 
 const modal = ref<HTMLDialogElement>();
 const { open, openSearch: showFuzzySearch, closeSearch } = useFuzzySearch();
@@ -130,9 +137,9 @@ onKeyStroke(["k", "K"], (e) => {
     e.preventDefault();
   }
 });
-// The bare letter the log toolbars hint at, here for the same reason.
-const { linked: cloudLinked } = useCloudSurface();
-useLetterShortcut(".", () => openRail("chat"), cloudLinked);
+// The bare letter the log toolbars hint at, here for the same reason. Only where
+// the rail can show, so a page without one never has it un-hidden behind its back.
+useLetterShortcut(".", () => openRail("chat"), railAvailable);
 
 // splitpanes also emits `resized` for its own relayouts (the collapse toggle
 // adding/removing the nav pane, a remount). Those carry neither `event` nor
