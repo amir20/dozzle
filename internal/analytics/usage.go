@@ -15,7 +15,7 @@ import (
 // caller or the browser names is dropped, so a key can never smuggle a name.
 var UsageKeys = []string{
 	"view.container", "view.merged", "view.group", "view.host", "view.stack", "view.service", "view.namespace",
-	"logs.search", "logs.older", "logs.download", "logs.sql", "palette.open", "pinned.open",
+	"logs.search", "logs.older", "logs.download", "logs.copy", "logs.sql", "palette.open", "pinned.open",
 	"action.start", "action.stop", "action.restart", "action.update", "action.remove",
 	"shell.exec", "shell.attach", "image.check", "image.update",
 	"notify.log", "notify.event", "notify.metric", "rules.create", "rules.edit",

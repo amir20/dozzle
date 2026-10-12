@@ -26,7 +26,8 @@ vi.mock("@/composable/app/toast", () => ({
   useToast: () => ({ showToast: (toast: any) => holder.toasts.push(toast) }),
 }));
 
-const { bulkPlan, runBounded, useBulkContainerActions, BULK_CONCURRENCY } = await import("./bulkContainerActions");
+const { bulkPlan, bulkReplan, runBounded, useBulkContainerActions, BULK_CONCURRENCY } =
+  await import("./bulkContainerActions");
 
 function container(name: string, state: string, id = `${name}000000000000`): Container {
   return { id, name, state, host: "local", isSwarm: false } as unknown as Container;
@@ -45,6 +46,15 @@ const names = (cs: Container[]) => cs.map((c) => c.name);
 beforeEach(() => {
   holder.toasts = [];
   holder.config.mode = "server";
+});
+
+describe("bulkReplan", () => {
+  test("drops a container that stopped and never adds one the dialog did not list", () => {
+    const confirmed = bulkPlan([web, db], "stop");
+    const stoppedDb = container("db", "exited");
+    const joined = container("joined", "running");
+    expect(names(bulkReplan(confirmed, [web, stoppedDb, joined]).targets)).toEqual(["web"]);
+  });
 });
 
 describe("bulkPlan", () => {

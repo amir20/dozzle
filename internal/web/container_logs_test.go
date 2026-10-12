@@ -335,6 +335,42 @@ func Test_writeRawText(t *testing.T) {
 		"no newline at the end\n", out.String())
 }
 
+// Once the client is gone a multi-container copy stops, rather than reading (and
+// logging an error for) every container left.
+func Test_writeLogsText_stopsWhenClientGone(t *testing.T) {
+	ctx, cancel := context.WithCancel(context.Background())
+	cancel()
+	req := httptest.NewRequest("POST", "/api/containers/logs", nil).WithContext(ctx)
+	services := []*container.ContainerService{
+		container.NewContainerService(nil, container.Container{ID: "a", Name: "a"}),
+		container.NewContainerService(nil, container.Container{ID: "b", Name: "b"}),
+	}
+	var out bytes.Buffer
+	writeLogsText(&out, req, services, time.Time{}, time.Now(), container.STDOUT, logFilter{}, []string{"a", "b"})
+	require.Empty(t, out.String())
+}
+
+// A TTY that redraws a progress bar with \r never writes a newline, so its
+// "line" is the whole log. It is clipped at MaxLogLineBytes like the parsed path,
+// and the rest is read and dropped rather than held in memory.
+func Test_writeRawText_clipsUnboundedLine(t *testing.T) {
+	bar := strings.Repeat("\r[=====>    ] 42%", 3*container.MaxLogLineBytes/16)
+
+	var out bytes.Buffer
+	require.NoError(t, writeRawText(&out, strings.NewReader("2026-10-12T10:00:00Z "+bar)))
+	got := out.String()
+	require.LessOrEqual(t, len(got), container.MaxLogLineBytes+len(container.LogTruncationSuffix)+1)
+	require.True(t, strings.HasSuffix(got, container.LogTruncationSuffix+"\n"), "a clipped line says so")
+	require.True(t, strings.HasPrefix(got, "\r[=====>"), "the timestamp is still dropped")
+
+	// Past the cap the rest of the line is drained, so the next line starts clean.
+	out.Reset()
+	require.NoError(t, writeRawText(&out, strings.NewReader("2026-10-12T10:00:00Z "+bar+"\n2026-10-12T10:00:01Z next\n")))
+	got = out.String()
+	require.True(t, strings.HasSuffix(got, container.LogTruncationSuffix+"\nnext\n"))
+	require.Equal(t, 2, strings.Count(got, "\n"))
+}
+
 func Test_handler_container_logs_text_filtered_parses(t *testing.T) {
 	h := textHandler(t, map[string]string{"aaa111": "web"})
 	req, err := containerLogsRequest("stdout=1&container=localhost/aaa111&filter=nomatch")

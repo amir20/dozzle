@@ -117,6 +117,7 @@
               container.volumes,
               statMode,
               isMobile,
+              multiHost,
               showAppIcons,
               dismissedLinkHint,
               showUpdates && hasUpdate(container),

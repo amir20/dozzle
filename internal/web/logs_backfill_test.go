@@ -2,6 +2,7 @@ package web
 
 import (
 	"context"
+	"errors"
 	"sync"
 	"testing"
 	"time"
@@ -20,12 +21,17 @@ type fakeLogs struct {
 	reads int
 	// ignoreEnd reads to the end of the log whatever `to` says, as k8s does.
 	ignoreEnd bool
+	// failing names containers whose read errors, as an unreachable agent's does.
+	failing map[string]bool
 }
 
 func (f *fakeLogs) LogsBetweenDates(_ context.Context, c container.Container, from time.Time, to time.Time, _ container.StdType) (<-chan *container.LogEvent, error) {
 	f.mu.Lock()
 	f.reads++
 	f.mu.Unlock()
+	if f.failing[c.ID] {
+		return nil, errors.New("agent unreachable")
+	}
 	ch := make(chan *container.LogEvent, len(f.lines[c.ID]))
 	for _, e := range f.lines[c.ID] {
 		ts := time.UnixMilli(e.Timestamp)
@@ -224,4 +230,31 @@ func Test_searchBackfill_ignores_lines_past_the_range(t *testing.T) {
 		assert.Equal(t, 1, n, "match %d sent twice", id)
 	}
 	assert.Equal(t, "capped", r.final.Reason)
+}
+
+// One container that cannot be read does not throw away what the others matched.
+func Test_searchBackfill_skips_a_failing_container(t *testing.T) {
+	to := time.Now()
+	created := to.Add(-time.Hour)
+	fake := &fakeLogs{
+		lines:   map[string][]*container.LogEvent{"b": lines(to.Add(-50*time.Minute), to.Add(-time.Minute), 10, func(int) bool { return true })},
+		failing: map[string]bool{"a": true},
+	}
+
+	r := runBackfill(t, fake, []container.Container{{ID: "a", Created: created}, {ID: "b", Created: created}}, to)
+
+	assert.Len(t, r.matches(), 10)
+	assert.Equal(t, 10, r.final.Matches)
+}
+
+// When no container can be read, nothing was searched, so the range is not reported as covered.
+func Test_searchBackfill_every_container_failing_covers_nothing(t *testing.T) {
+	to := time.Now()
+	created := to.Add(-time.Hour)
+	fake := &fakeLogs{failing: map[string]bool{"a": true}}
+
+	r := runBackfill(t, fake, []container.Container{{ID: "a", Created: created}}, to)
+
+	assert.Empty(t, r.matches())
+	assert.Equal(t, to.UnixMilli(), r.final.ScannedTo.UnixMilli())
 }

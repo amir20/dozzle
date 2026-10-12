@@ -338,11 +338,6 @@ useLetterShortcut("d", downloadLogs, isMainView && enableDownload);
 useLetterShortcut("p", () => (pinned.value = !pinned.value), isMainView);
 useLetterShortcut("a", () => openTerminal("attach"), canShell);
 useLetterShortcut("e", () => openTerminal("exec"), canShell);
-useLetterShortcut(
-  ".",
-  () => openRail("chat"),
-  () => isMainView && cloudLinked.value,
-);
 
 // The chords the letters replaced, kept working for one release.
 const legacyChord = (enabled: () => boolean, run: () => void) => (e: KeyboardEvent) => {

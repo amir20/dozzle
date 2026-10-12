@@ -24,6 +24,16 @@ export function bulkPlan(containers: Container[], action: BulkAction): BulkPlan 
   return { action, targets, skippedSelf };
 }
 
+/**
+ * The plan a confirm runs: re-planned against current states, since one may have
+ * changed while the dialog was open, but limited to the containers it listed.
+ */
+export function bulkReplan(confirmed: BulkPlan, containers: Container[]): BulkPlan {
+  const listed = new Set(confirmed.targets.map((c) => c.id));
+  const next = bulkPlan(containers, confirmed.action);
+  return { ...next, targets: next.targets.filter((c) => listed.has(c.id)) };
+}
+
 // Unlike isSelf, which leaves swarm to the orchestrator for updates, a swarm task
 // still takes the page down when it is stopped. Every swarm node reports as a
 // "swarm" host, so the local-host check only applies outside swarm.

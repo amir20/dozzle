@@ -1,14 +1,16 @@
 /**
  * @vitest-environment jsdom
  */
-import { defineComponent } from "vue";
+import { defineComponent, reactive } from "vue";
 import { mount } from "@vue/test-utils";
 import { createI18n } from "vue-i18n";
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 import type { Container } from "@/models/Container";
+import type { Level } from "@/models/LogEntry";
 
 import { useContainerLogs } from "./containerLogs";
 import { useToast } from "@/composable/app/toast";
+import { loggingContextKey } from "./logContext";
 
 vi.mock("@/stores/config", () => ({
   __esModule: true,
@@ -20,7 +22,7 @@ const { toasts } = useToast();
 
 const container = (id: string, host = "local") => ({ id, name: id, host }) as unknown as Container;
 
-function mountLogs(containers: Container[], name?: string) {
+function mountLogs(containers: Container[], name?: string, levels?: Level[]) {
   let api: ReturnType<typeof useContainerLogs>;
   mount(
     defineComponent({
@@ -29,7 +31,20 @@ function mountLogs(containers: Container[], name?: string) {
         return () => null;
       },
     }),
-    { global: { plugins: [createI18n({})] } },
+    {
+      global: {
+        plugins: [createI18n({})],
+        provide: levels
+          ? {
+              [loggingContextKey]: reactive({
+                streamConfig: { stdout: true, stderr: true },
+                levels: new Set(levels),
+                timeRange: { kind: "live" },
+              }),
+            }
+          : {},
+      },
+    },
   );
   return api!;
 }
@@ -121,5 +136,24 @@ describe("useContainerLogs", () => {
     const { copyLogs } = mountLogs([]);
     await copyLogs();
     expect(fetchMock).not.toHaveBeenCalled();
+  });
+
+  test("a level filter is sent with each level kept, and counts as filtered", async () => {
+    const { copyLogs, isFiltered } = mountLogs([container("a")], undefined, ["error", "warn"]);
+    expect(isFiltered.value).toBe(true);
+    await copyLogs();
+    expect(String(fetchMock.mock.calls[0][1].body)).toBe(
+      "container=local%2Fa&stdout=1&stderr=1&levels=error&levels=warn",
+    );
+  });
+
+  test("with every level cleared, copy and download ask for nothing", async () => {
+    const submit = vi.spyOn(HTMLFormElement.prototype, "submit").mockImplementation(() => {});
+    const { copyLogs, downloadLogs, isFiltered } = mountLogs([container("a")], undefined, []);
+    expect(isFiltered.value).toBe(true);
+    await copyLogs();
+    downloadLogs();
+    expect(fetchMock).not.toHaveBeenCalled();
+    expect(submit).not.toHaveBeenCalled();
   });
 });
