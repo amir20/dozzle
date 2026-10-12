@@ -172,7 +172,6 @@ watch(pending, (plan) => plan && nextTick(() => confirm.value?.showModal()));
 function runPending() {
   const plan = pending.value;
   confirm.value?.close();
-  // Re-plan against current states: one may have changed while the dialog was open.
-  if (plan) run(bulkPlan(toValue(containers), plan.action));
+  if (plan) run(bulkReplan(plan, toValue(containers)));
 }
 </script>

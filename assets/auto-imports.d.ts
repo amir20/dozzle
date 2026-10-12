@@ -52,6 +52,7 @@ declare global {
   const automaticRedirect: typeof import('./stores/settings').automaticRedirect
   const buildViewContext: typeof import('./composable/logs/viewContext').buildViewContext
   const bulkPlan: typeof import('./composable/containers/bulkContainerActions').bulkPlan
+  const bulkReplan: typeof import('./composable/containers/bulkContainerActions').bulkReplan
   const canHover: typeof import('./composable/ui/media').canHover
   const canSelfUpdate: typeof import('./composable/setup/selfUpdate').canSelfUpdate
   const canUpdate: typeof import('./composable/containers/imageUpdate').canUpdate
@@ -771,6 +772,7 @@ declare module 'vue' {
     readonly automaticRedirect: UnwrapRef<typeof import('./stores/settings')['automaticRedirect']>
     readonly buildViewContext: UnwrapRef<typeof import('./composable/logs/viewContext')['buildViewContext']>
     readonly bulkPlan: UnwrapRef<typeof import('./composable/containers/bulkContainerActions')['bulkPlan']>
+    readonly bulkReplan: UnwrapRef<typeof import('./composable/containers/bulkContainerActions')['bulkReplan']>
     readonly canHover: UnwrapRef<typeof import('./composable/ui/media')['canHover']>
     readonly canSelfUpdate: UnwrapRef<typeof import('./composable/setup/selfUpdate')['canSelfUpdate']>
     readonly canUpdate: UnwrapRef<typeof import('./composable/containers/imageUpdate')['canUpdate']>
