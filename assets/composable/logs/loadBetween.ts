@@ -9,8 +9,9 @@ export function parseMessage(data: string): LogEntry<LogMessage> {
 
 /**
  * One page of lines from any number of containers in one request, merged by time.
- * `min` applies to each container; `lastSeenId` and `startId` match only the
- * container that line belongs to.
+ * `min` applies to each container; `lastSeenId` matches only the container that
+ * line belongs to. `startId` applies to every container, and one that never sees
+ * that id sends nothing, so pass it with a single container only.
  */
 export async function loadBetween(
   containers: Container[],

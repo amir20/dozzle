@@ -96,29 +96,27 @@ describe("loadOlderLogs in a merged view", () => {
     const { loadOlderLogs } = useLogLoader(messages, containers, ref(new URLSearchParams()), ref(false), {
       loadedOlder,
     });
-    // a sends the 50 it was asked for. b sends its one line, already on screen,
-    // having widened back to its start.
+    // b's lines in a's window are all on screen already, so only a is asked, and
+    // it sends the 50 it was asked for.
     const fromA = Array.from({ length: 50 }, (_, i) => of("a", 2_000 + i));
-    vi.mocked(loadBetween).mockResolvedValueOnce({
-      logs: [of("b", 1_000), ...fromA],
-      signal: new AbortController().signal,
-    });
+    vi.mocked(loadBetween).mockResolvedValueOnce({ logs: fromA, signal: new AbortController().signal });
 
     await loadOlderLogs(loader);
 
     expect(loadBetween).toHaveBeenCalledTimes(1);
     const [asked, , , to, options] = vi.mocked(loadBetween).mock.lastCall!;
-    expect(asked.map((c) => c.id)).toEqual(["a", "b"]);
+    expect(asked.map((c) => c.id)).toEqual(["a"]);
     expect(to.getTime()).toBe(T0 + 5_000);
     expect(options).toMatchObject({ min: 50, lastSeenId: 5_000 });
     expect(names(messages.value)).toEqual(["loader", "b1000", ...fromA.map((l) => l.message), "a5000", "a6000"]);
-    expect(loadedOlder).toHaveBeenLastCalledWith(new Set(["b"]));
+    expect(loadedOlder).toHaveBeenLastCalledWith(new Set());
 
-    // b is at its start, so the next load asks for a alone, from a's new oldest line.
+    // a's window now reaches past b's oldest line, so both are asked, from a's new
+    // oldest line, and both come back short of the minimum: at their start.
     vi.mocked(loadBetween).mockResolvedValueOnce({ logs: [of("a", 100)], signal: new AbortController().signal });
     await loadOlderLogs(loader);
     const [again, , , nextTo] = vi.mocked(loadBetween).mock.lastCall!;
-    expect(again.map((c) => c.id)).toEqual(["a"]);
+    expect(again.map((c) => c.id)).toEqual(["a", "b"]);
     expect(nextTo.getTime()).toBe(T0 + 2_000);
     expect(names(messages.value).slice(0, 3)).toEqual(["loader", "a100", "b1000"]);
     expect(loadedOlder).toHaveBeenLastCalledWith(new Set(["a", "b"]));

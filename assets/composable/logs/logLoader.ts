@@ -128,14 +128,20 @@ export function useLogLoader(
       from = new Date(to.getTime() + (delta !== 0 ? delta : -60_000));
     }
 
+    // Without a floor, a container whose oldest line on screen is older than `from`
+    // already has every line in [from, to] on screen, and `min` would only widen its
+    // window to send back more of them. With a floor it stays, so it can reach it.
+    const since = from;
+    const fetching = start ? pending : pending.filter((c) => !((oldestByContainer.get(c.id)?.date ?? since) < since));
+
     try {
       loadingMore.value = true;
       // lastSeenId pins the cursor's own container to the line on screen, and
       // widens `to` a little, which only brings back lines already on screen.
-      const { logs, signal } = await loadBetween(pending, params, from, to, { min, lastSeenId: cursor?.id });
+      const { logs, signal } = await loadBetween(fetching, params, from, to, { min, lastSeenId: cursor?.id });
       if (signal.aborted) return;
 
-      for (const id of reachedStartIn(pending, logs, min ?? FETCH_PAGE)) reachedStart.add(id);
+      for (const id of reachedStartIn(fetching, logs, min ?? FETCH_PAGE)) reachedStart.add(id);
       const older = logs.filter(notOnScreen(existingLogs));
       const reachedFloor = start !== undefined && containers.value.every((c) => reachedStart.has(c.id));
       const head = reachedFloor && startEdge ? startEdge() : loader;
