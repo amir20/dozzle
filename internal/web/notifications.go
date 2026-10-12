@@ -20,7 +20,6 @@ import (
 	"github.com/expr-lang/expr"
 	"github.com/go-chi/chi/v5"
 	"github.com/rs/zerolog/log"
-	orderedmap "github.com/wk8/go-ordered-map/v2"
 )
 
 // Response types for JSON serialization
@@ -809,12 +808,12 @@ func (h *handler) previewExpression(w http.ResponseWriter, r *http.Request) {
 
 				// Collect message keys from structured logs
 				switch m := logEvent.Message.(type) {
-				case *orderedmap.OrderedMap[string, any]:
-					for pair := m.Oldest(); pair != nil; pair = pair.Next() {
+				case container.Fields[any]:
+					for _, pair := range m {
 						keySet[pair.Key] = struct{}{}
 					}
-				case *orderedmap.OrderedMap[string, string]:
-					for pair := m.Oldest(); pair != nil; pair = pair.Next() {
+				case container.Fields[string]:
+					for _, pair := range m {
 						keySet[pair.Key] = struct{}{}
 					}
 				}

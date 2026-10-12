@@ -5,7 +5,6 @@ import (
 	"testing"
 
 	"github.com/amir20/dozzle/internal/container"
-	orderedmap "github.com/wk8/go-ordered-map/v2"
 )
 
 // Plain maps used to hit panic("not implemented") in both the escaper and the matcher.
@@ -36,7 +35,7 @@ func TestPlainMapMessagesDoNotPanic(t *testing.T) {
 
 func TestEscapeHTMLValuesIgnoresForgedURLMarkers(t *testing.T) {
 	forged := URLMarkerStart + "javascript:alert(document.domain)" + URLMarkerEnd
-	json := orderedmap.New[string, any]()
+	json := container.Fields[any]{}
 	json.Set("msg", forged)
 	json.Set("nested", []any{forged})
 
@@ -61,8 +60,10 @@ func TestEscapeHTMLValuesIgnoresForgedURLMarkers(t *testing.T) {
 				out = append(out, m)
 			case []container.LogFragment:
 				out = append(out, m[0].Message)
-			case *orderedmap.OrderedMap[string, any]:
-				out = append(out, m.Value("msg").(string), m.Value("nested").([]any)[0].(string))
+			case container.Fields[any]:
+				msg, _ := m.Get("msg")
+				nested, _ := m.Get("nested")
+				out = append(out, msg.(string), nested.([]any)[0].(string))
 			}
 			for _, got := range out {
 				if strings.Contains(got, `href="javascript:`) {

@@ -12,7 +12,6 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	orderedmap "github.com/wk8/go-ordered-map/v2"
 )
 
 func TestEventGenerator_Pino(t *testing.T) {
@@ -27,7 +26,7 @@ func TestEventGenerator_Pino(t *testing.T) {
 			assert.Equal(t, container.LogTypeComplex, event.Type)
 			assert.Equal(t, stream.String(), event.Stream)
 			assert.Equal(t, message, event.RawMessage)
-			data, ok := event.Message.(*orderedmap.OrderedMap[string, any])
+			data, ok := event.Message.(container.Fields[any])
 			require.True(t, ok)
 			level, ok := data.Get("level")
 			require.True(t, ok)
@@ -155,7 +154,7 @@ func TestEventGenerator_doesNotStallOnSustainedLevellessStream(t *testing.T) {
 }
 
 func Test_createEvent(t *testing.T) {
-	data := orderedmap.New[string, any]()
+	data := container.Fields[any]{}
 	data.Set("xyz", "value")
 	data.Set("abc", "value2")
 	type args struct {
@@ -211,6 +210,39 @@ func Test_createEvent(t *testing.T) {
 			},
 		},
 		{
+			name: "json array stays a string",
+			args: args{
+				message: "2020-05-13T18:55:37.772853839Z [1, 2]",
+			},
+			want: &container.LogEvent{
+				Message: "[1, 2]",
+			},
+		},
+		{
+			name: "nested json keeps key order",
+			args: args{
+				message: "2020-05-13T18:55:37.772853839Z {\"z\": {\"b\": 1, \"a\": [{\"y\": true, \"x\": null}]}, \"m\": \"s\"}",
+			},
+			want: &container.LogEvent{
+				Message: container.Fields[any]{
+					{Key: "z", Value: container.Fields[any]{
+						{Key: "b", Value: 1.0},
+						{Key: "a", Value: []any{container.Fields[any]{{Key: "y", Value: true}, {Key: "x", Value: nil}}}},
+					}},
+					{Key: "m", Value: "s"},
+				},
+			},
+		},
+		{
+			name: "empty json object",
+			args: args{
+				message: "2020-05-13T18:55:37.772853839Z {}",
+			},
+			want: &container.LogEvent{
+				Message: container.Fields[any]{},
+			},
+		},
+		{
 			name: "null message",
 			args: args{
 				message: "2020-05-13T18:55:37.772853839Z null",
@@ -238,7 +270,7 @@ func TestEventGenerator_ComplexLog(t *testing.T) {
 
 	require.NotNil(t, event, "Expected event to not be nil")
 	assert.Equal(t, container.LogTypeComplex, event.Type)
-	_, isMap := event.Message.(*orderedmap.OrderedMap[string, any])
+	_, isMap := event.Message.(container.Fields[any])
 	assert.True(t, isMap, "Expected Message to be an ordered map")
 }
 
