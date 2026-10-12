@@ -821,6 +821,8 @@ cloud-search:
   no-matches: "Нет подходящих контейнеров или команд"
   nav-hint: "навигация"
   pin-shortcut: "закрепить столбец"
+  merge-shortcut: "объединить в поток"
+  unmerge-shortcut: "убрать из потока"
   search-logs-for: 'Поиск логов по "{query}"'
   across-containers: "проиндексированных по всем вашим контейнерам"
   connect-to-enable: "Подключите Dozzle Cloud, чтобы искать в логах"

@@ -833,6 +833,8 @@ cloud-search:
   no-matches: "Tidak ada kontainer atau perintah yang cocok"
   nav-hint: "navigasi"
   pin-shortcut: "sematkan kolom"
+  merge-shortcut: "gabungkan ke stream"
+  unmerge-shortcut: "hapus dari stream"
   search-logs-for: 'Cari log untuk "{query}"'
   across-containers: "diindeks di semua kontainer Anda"
   connect-to-enable: "Hubungkan Dozzle Cloud untuk mencari log"

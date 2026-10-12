@@ -824,6 +824,8 @@ cloud-search:
   no-matches: "Eşleşen konteyner veya komut yok"
   nav-hint: "gezin"
   pin-shortcut: "sütunu sabitle"
+  merge-shortcut: "akışa birleştir"
+  unmerge-shortcut: "akıştan çıkar"
   search-logs-for: '"{query}" için logları ara'
   across-containers: "tüm konteynerleriniz arasında indekslenmiş"
   connect-to-enable: "Logları aramak için Dozzle Cloud'a bağlanın"

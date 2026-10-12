@@ -823,6 +823,8 @@ cloud-search:
   no-matches: "일치하는 컨테이너나 명령이 없습니다"
   nav-hint: "이동"
   pin-shortcut: "열로 고정"
+  merge-shortcut: "스트림에 병합"
+  unmerge-shortcut: "스트림에서 제거"
   search-logs-for: '"{query}" 로그 검색'
   across-containers: "모든 컨테이너에서 색인됨"
   connect-to-enable: "로그를 검색하려면 Dozzle Cloud에 연결하세요"

@@ -7,7 +7,7 @@ import { Container } from "@/models/Container";
 import { lightTheme } from "@/stores/settings";
 import { beforeEach, describe, expect, test, vi } from "vitest";
 import { createI18n } from "vue-i18n";
-import { useRouter } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
 import { router } from "@/modules/router";
 
 // @ts-ignore
@@ -97,8 +97,14 @@ describe("<FuzzySearchModal />", () => {
     push: vi.fn(),
   });
 
+  // The page under the palette decides what merge can do; tests set it per case.
+  const route = { name: "/" as string, params: {} as Record<string, string> };
+  vi.mocked(useRoute).mockReturnValue(route as unknown as ReturnType<typeof useRoute>);
+
   beforeEach(() => {
     vi.mocked(useRouter().push).mockReset();
+    route.name = "/";
+    route.params = {};
   });
 
   test("suggests recent containers before typing", async () => {
@@ -162,6 +168,34 @@ describe("<FuzzySearchModal />", () => {
     await wrapper.find("input").setValue("baz");
     await wrapper.find("input").trigger("keydown.enter");
     expect(useRouter().push).toHaveBeenCalledWith({ name: "/container/[id]", params: { id: "567" } });
+  });
+
+  test("offers no merge when nothing is streaming", async () => {
+    const wrapper = createFuzzySearchModal();
+    await wrapper.find("input").setValue("foo");
+    expect(wrapper.find("button[aria-pressed]").exists()).toBe(false);
+    await wrapper.find("input").trigger("keydown", { key: "Enter", metaKey: true });
+    expect(useRouter().push).not.toHaveBeenCalled();
+  });
+
+  test("cmd+enter merges the selected container into the stream on screen", async () => {
+    route.name = "/container/[id]";
+    route.params = { id: "123" };
+    const wrapper = createFuzzySearchModal();
+    await wrapper.find("input").setValue("foo");
+    expect(wrapper.find("button[aria-pressed=false]").exists()).toBe(true);
+    await wrapper.find("input").trigger("keydown", { key: "Enter", metaKey: true });
+    expect(useRouter().push).toHaveBeenCalledWith({ name: "/merged/[ids]", params: { ids: "123,345" } });
+  });
+
+  test("cmd+enter on a merged container takes it back out", async () => {
+    route.name = "/merged/[ids]";
+    route.params = { ids: "123,345" };
+    const wrapper = createFuzzySearchModal();
+    await wrapper.find("input").setValue("foo");
+    expect(wrapper.find("button[aria-pressed=true]").exists()).toBe(true);
+    await wrapper.find("input").trigger("keydown", { key: "Enter", ctrlKey: true });
+    expect(useRouter().push).toHaveBeenCalledWith({ name: "/container/[id]", params: { id: "123" } });
   });
 
   test("matches commands by keyword", async () => {

@@ -823,6 +823,8 @@ cloud-search:
   no-matches: "沒有符合的容器或指令"
   nav-hint: "導覽"
   pin-shortcut: "釘選為欄位"
+  merge-shortcut: "合併到日誌串流"
+  unmerge-shortcut: "從日誌串流中移除"
   search-logs-for: '搜尋日誌 "{query}"'
   across-containers: "已在所有容器中建立索引"
   connect-to-enable: "連接 Dozzle Cloud 以搜尋日誌"

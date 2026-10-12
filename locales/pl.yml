@@ -823,6 +823,8 @@ cloud-search:
   no-matches: "Brak pasujących kontenerów ani poleceń"
   nav-hint: "nawigacja"
   pin-shortcut: "przypnij kolumnę"
+  merge-shortcut: "scal ze strumieniem"
+  unmerge-shortcut: "usuń ze strumienia"
   search-logs-for: 'Przeszukaj logi pod kątem "{query}"'
   across-containers: "zindeksowane we wszystkich Twoich kontenerach"
   connect-to-enable: "Połącz Dozzle Cloud, aby przeszukiwać logi"

@@ -822,6 +822,8 @@ cloud-search:
   no-matches: "Geen containers of commando's gevonden"
   nav-hint: "navigeren"
   pin-shortcut: "kolom vastzetten"
+  merge-shortcut: "samenvoegen in stream"
+  unmerge-shortcut: "uit stream verwijderen"
   search-logs-for: 'Logs zoeken op "{query}"'
   across-containers: "geïndexeerd over al je containers"
   connect-to-enable: "Dozzle Cloud verbinden om logs te zoeken"

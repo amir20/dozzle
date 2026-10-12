@@ -821,6 +821,8 @@ cloud-search:
   no-matches: "Ingen containere eller kommandoer matcher"
   nav-hint: "naviger"
   pin-shortcut: "fastgør kolonne"
+  merge-shortcut: "flet ind i strømmen"
+  unmerge-shortcut: "fjern fra strømmen"
   search-logs-for: 'Søg logs efter "{query}"'
   across-containers: "indekseret på tværs af alle dine containere"
   connect-to-enable: "Tilslut Dozzle Cloud for at søge i logs"
