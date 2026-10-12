@@ -111,6 +111,10 @@ func (h *handler) findContainers(refs []string, labels container.ContainerLabels
 // logged and skipped rather than cutting the table short.
 func writeLogsJSON(w io.Writer, r *http.Request, services []*container.ContainerService, from, to time.Time, stdTypes container.StdType, filter logFilter, onlyComplex bool) {
 	for _, service := range services {
+		// The client went away; the rest would only log one error each.
+		if r.Context().Err() != nil {
+			return
+		}
 		events, err := service.LogsBetweenDates(r.Context(), from, to, stdTypes)
 		if err != nil {
 			log.Error().Err(err).Str("container", service.Container.ID).Msg("error fetching logs")

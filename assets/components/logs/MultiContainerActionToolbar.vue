@@ -25,7 +25,7 @@
           <KeyShortcut char="l" :modifiers="['shift', 'meta']" />
         </a>
       </li>
-      <li v-if="hasComplexLogs">
+      <li v-if="canAnalyze">
         <a @click="openAnalytics()">
           <ph:file-sql /> {{ $t("analytics.title") }}
           <KeyShortcut char="s" :modifiers="[]" />
@@ -152,10 +152,12 @@ const { downloadUrl, isFiltered, copyLogs, downloadLogs } = useContainerLogs(con
 
 const showDrawer = useDrawer();
 const openAnalytics = () => showDrawer(LogAnalytics, { containers: toValue(containers), name }, "lg");
+// hasComplexLogs outlives the containers that set it, and the drawer needs at least one.
+const canAnalyze = computed(() => hasComplexLogs.value && toValue(containers).length > 0);
 
 useLetterShortcut("d", downloadLogs, enableDownload);
 useLetterShortcut("c", () => copyLogs());
-useLetterShortcut("s", openAnalytics, () => hasComplexLogs.value);
+useLetterShortcut("s", openAnalytics, canAnalyze);
 
 // Restart, stop and start for every container in the view, behind a confirm.
 const MAX_NAMES = 8;
