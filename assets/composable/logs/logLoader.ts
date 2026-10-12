@@ -120,7 +120,6 @@ export function useLogLoader(
     // come back empty above lines that exist, while a `min` would widen the window
     // past the floor.
     const start = floor?.value;
-    const min = start ? undefined : Math.ceil(100 / containers.value.length);
     let from = start;
     if (!from) {
       const nth = cursor && nthByContainer.get(cursor.containerID);
@@ -133,20 +132,27 @@ export function useLogLoader(
     // window to send back more of them. With a floor it stays, so it can reach it.
     const since = from;
     const fetching = start ? pending : pending.filter((c) => !((oldestByContainer.get(c.id)?.date ?? since) < since));
+    // Split across the containers asked, so a page stays about 100 lines as
+    // containers reach their start.
+    const min = start ? undefined : Math.min(FETCH_PAGE, Math.ceil(100 / fetching.length));
 
     try {
       loadingMore.value = true;
       // lastSeenId pins the cursor's own container to the line on screen, and
       // widens `to` a little, which only brings back lines already on screen.
       const { logs, signal } = await loadBetween(fetching, params, from, to, { min, lastSeenId: cursor?.id });
-      if (signal.aborted) return;
+      // The stream keeps flushing while the page loads, and a fresh window opens
+      // under a new loader, so merge into what is on screen now, not the snapshot.
+      if (signal.aborted || messages.value[0] !== loader) return;
 
       for (const id of reachedStartIn(fetching, logs, min ?? FETCH_PAGE)) reachedStart.add(id);
-      const older = logs.filter(notOnScreen(existingLogs));
       const reachedFloor = start !== undefined && containers.value.every((c) => reachedStart.has(c.id));
       const head = reachedFloor && startEdge ? startEdge() : loader;
+      const older = await withAlerts(logs.filter(notOnScreen(messages.value)));
+      const current = messages.value;
+      if (current[0] !== loader) return;
       if (older.length > 0 || head !== loader) {
-        messages.value = [head, ...mergeByTime(existingLogs, await withAlerts(older))];
+        messages.value = [head, ...mergeByTime(current.slice(1), older)];
       }
       loadedOlder?.(new Set(reachedStart));
     } catch (err) {
@@ -173,6 +179,8 @@ export function useLogLoader(
 
       if (skipped.length > 0) {
         const withAlertsApplied = await withAlerts(skipped);
+        // A fresh window or a trim may have dropped the entry while alerts loaded.
+        if (!messages.value.includes(entry)) return;
         const updated = messages.value.flatMap((log) => (log === entry ? withAlertsApplied : [log]));
         messages.value = updated.length > config.maxLogs ? updated.slice(-config.maxLogs) : updated;
       }

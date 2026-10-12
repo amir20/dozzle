@@ -151,8 +151,12 @@ func fetchWindowedLogs(ctx context.Context, containerService *container.Containe
 
 		buffer.Clear()
 
-		events, err := containerService.LogsBetweenDates(ctx, from, win.to, stdTypes)
+		// Each read gets its own context, cancelled once it is done: a break below
+		// would otherwise leave the engine's log stream open until the request ends.
+		readCtx, cancel := context.WithCancel(ctx)
+		events, err := containerService.LogsBetweenDates(readCtx, from, win.to, stdTypes)
 		if err != nil {
+			cancel()
 			return nil, err
 		}
 
@@ -181,6 +185,7 @@ func fetchWindowedLogs(ctx context.Context, containerService *container.Containe
 			search.EscapeHTMLValues(event)
 			buffer.Push(event)
 		}
+		cancel()
 
 		if from.Before(containerService.Container.Created) || win.minimum == 0 {
 			break

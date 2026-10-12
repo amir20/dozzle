@@ -3,6 +3,7 @@ package web
 import (
 	"archive/zip"
 	"bytes"
+	"context"
 	"encoding/json"
 	"errors"
 	"io"
@@ -15,6 +16,7 @@ import (
 	"testing"
 
 	"github.com/amir20/dozzle/internal/container"
+	"github.com/amir20/dozzle/internal/container/docker"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 )
@@ -473,4 +475,45 @@ func Test_mergeByTime(t *testing.T) {
 		got = append(got, e.ContainerID+strconv.FormatInt(e.Timestamp, 10))
 	}
 	require.Equal(t, []string{"a1", "b1", "b3", "a5", "a4"}, got)
+}
+
+// A read that stops early, at lastSeenId, closes its log stream right away rather
+// than leaving it open until the whole request ends.
+func Test_fetchWindowedLogs_cancels_each_read(t *testing.T) {
+	created := time.Date(2020, 5, 13, 0, 0, 0, 0, time.UTC)
+	data := concatMessages(
+		"2020-05-13T18:55:01.000000000Z INFO a1\n",
+		"2020-05-13T18:55:03.000000000Z INFO a2\n",
+		"2020-05-13T18:55:05.000000000Z INFO a3\n",
+	)
+	var reads []context.Context
+	mockedClient := new(MockedClient)
+	mockedClient.On("ContainerEvents", mock.Anything, mock.Anything).Return(nil)
+	mockedClient.On("ListContainers", mock.Anything, mock.Anything).Return([]container.Container{}, nil)
+	mockedClient.On("Host").Return(container.Host{ID: "localhost"})
+	for range 2 {
+		mockedClient.On("ContainerLogsBetweenDates", mock.Anything, "aaa111", mock.Anything, mock.Anything, container.STDALL).
+			Run(func(args mock.Arguments) { reads = append(reads, args.Get(0).(context.Context)) }).
+			Return(io.NopCloser(bytes.NewReader(data)), nil).
+			Once()
+	}
+
+	c := container.Container{ID: "aaa111", Name: "aaa111", Created: created}
+	service := container.NewContainerService(docker.NewService(mockedClient, nil), c)
+
+	// Find a2's id by reading everything once.
+	all, err := fetchWindowedLogs(t.Context(), service, fetchWindow{
+		from: created, to: created.Add(24 * time.Hour), size: 10, maxStart: 10,
+	}, logFilter{levels: map[string]struct{}{"info": {}}}, container.STDALL)
+	require.NoError(t, err)
+	require.Len(t, all, 3)
+
+	reads = nil
+	events, err := fetchWindowedLogs(t.Context(), service, fetchWindow{
+		from: created, to: created.Add(24 * time.Hour), size: 10, maxStart: 10, lastSeenId: all[1].Id,
+	}, logFilter{levels: map[string]struct{}{"info": {}}}, container.STDALL)
+	require.NoError(t, err)
+	require.Len(t, events, 1)
+	require.Len(t, reads, 1)
+	require.Error(t, reads[0].Err(), "the read's context is cancelled once it returns")
 }
