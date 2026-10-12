@@ -12,7 +12,6 @@ import (
 	"github.com/amir20/dozzle/internal/container"
 
 	"github.com/rs/zerolog/log"
-	orderedmap "github.com/wk8/go-ordered-map/v2"
 )
 
 var SupportedLogLevels map[string]struct{}
@@ -223,7 +222,7 @@ func guessLogLevel(logEvent *container.LogEvent) string {
 	case string:
 		return guessFromString(value)
 
-	case *orderedmap.OrderedMap[string, any]:
+	case container.Fields[any]:
 		if value == nil {
 			return "unknown"
 		}
@@ -257,7 +256,7 @@ func guessLogLevel(logEvent *container.LogEvent) string {
 			}
 		}
 
-	case *orderedmap.OrderedMap[string, string]:
+	case container.Fields[string]:
 		if value == nil {
 			return "unknown"
 		}

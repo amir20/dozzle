@@ -112,11 +112,12 @@ const {
 // The bucket's index and how many there are ride along with the value: a
 // history chart wants to say when, and only the parent knows what the bars were
 // downsampled from. Consumers that just want the number ignore them.
-const hoverValue = defineEmit<[value: number, index: number, bars: number]>();
-// The chart is the thing that knows the pointer left it, so it says so rather
-// than leaving every consumer to hang a @mouseleave on whichever ancestor it
-// happens to own.
-const hoverEnd = defineEmit<[]>();
+// The chart is the thing that knows the pointer left it, so it says hoverEnd
+// rather than leaving every consumer to hang a @mouseleave on whichever ancestor
+// it happens to own.
+const emit = defineEmits<{ hoverValue: [value: number, index: number, bars: number]; hoverEnd: [] }>();
+const hoverValue = (value: number, index: number, bars: number) => emit("hoverValue", value, index, bars);
+const hoverEnd = () => emit("hoverEnd");
 
 const chartContainer = ref<HTMLElement | null>(null);
 const { width, height } = useElementSize(chartContainer);

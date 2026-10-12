@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"strings"
 
-	orderedmap "github.com/wk8/go-ordered-map/v2"
+	"github.com/amir20/dozzle/internal/container"
 )
 
 // maxJSONPrefixLen caps the text allowed before a trailing JSON object. Console
@@ -22,7 +22,7 @@ const maxJSONPrefixLen = 256
 // level becomes "level" (otherwise the prefix is guessed like a plain line), a
 // timestamp matching dockerTs is dropped, and the rest is joined into "msg".
 // Keys the object already has always win.
-func parsePrefixedJSON(message string, dockerTs int64) (*orderedmap.OrderedMap[string, any], bool) {
+func parsePrefixedJSON(message string, dockerTs int64) (container.Fields[any], bool) {
 	if len(message) < 3 || message[len(message)-1] != '}' {
 		return nil, false
 	}
@@ -40,8 +40,8 @@ func parsePrefixedJSON(message string, dockerTs int64) (*orderedmap.OrderedMap[s
 	if !json.Valid(tail) {
 		return nil, false
 	}
-	fields := orderedmap.New[string, any]()
-	if err := json.Unmarshal(tail, &fields); err != nil {
+	fields, err := container.ParseFields(tail)
+	if err != nil || fields == nil {
 		return nil, false
 	}
 
@@ -66,15 +66,12 @@ func parsePrefixedJSON(message string, dockerTs int64) (*orderedmap.OrderedMap[s
 		}
 	}
 
-	data := orderedmap.New[string, any]()
+	data := make(container.Fields[any], 0, len(fields)+2)
 	if _, ok := fields.Get("level"); level != "" && !ok {
 		data.Set("level", level)
 	}
 	if _, ok := fields.Get("msg"); len(words) > 0 && !ok {
 		data.Set("msg", strings.Join(words, " "))
 	}
-	for pair := fields.Oldest(); pair != nil; pair = pair.Next() {
-		data.Set(pair.Key, pair.Value)
-	}
-	return data, true
+	return append(data, fields...), true
 }

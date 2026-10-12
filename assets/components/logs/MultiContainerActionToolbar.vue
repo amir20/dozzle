@@ -119,7 +119,8 @@ const LogAnalytics = defineAsyncComponent(() => import("@/components/logs/LogAna
 defineOptions({ inheritAttrs: false });
 
 const { showSearch } = useSearchFilter();
-const clear = defineEmit();
+const emit = defineEmits<{ clear: [] }>();
+const clear = () => emit("clear");
 
 // A k8s workload adds a rollout restart; every other merged view leaves it unset.
 const { name, workload } = defineProps<{ name?: string; workload?: K8sWorkload }>();

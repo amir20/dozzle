@@ -33,7 +33,7 @@ import { LoadMoreLogEntry } from "@/models/LogEntry";
 import { isStreamLog } from "@/composable/cloud/alertMerger";
 const route = useRoute();
 
-const { entity, streamSource } = $defineProps<{
+const { entity, streamSource } = defineProps<{
   streamSource: (t: Ref<T>) => LogStreamSource;
   entity: T;
 }>();

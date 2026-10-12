@@ -1,7 +1,6 @@
 package agent
 
 import (
-	"bytes"
 	"context"
 	"crypto/tls"
 	"crypto/x509"
@@ -11,7 +10,6 @@ import (
 	"sync"
 	"time"
 
-	"encoding/json"
 	"strings"
 
 	"github.com/amir20/dozzle/internal/container"
@@ -19,7 +17,6 @@ import (
 	"github.com/amir20/dozzle/internal/imagecheck"
 	"github.com/amir20/dozzle/types"
 	"github.com/rs/zerolog/log"
-	orderedmap "github.com/wk8/go-ordered-map/v2"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/credentials"
@@ -259,7 +256,7 @@ func sendLogs(stream pb.AgentService_StreamLogsClient, events chan<- *container.
 			logType = container.LogTypeGroup
 
 		case *pb.ComplexMessage:
-			message = jsonBytesToOrderedMap(m.Data)
+			message = jsonBytesToFields(m.Data)
 			logType = container.LogTypeComplex
 
 		default:
@@ -838,9 +835,7 @@ func (c *Client) GetNotificationStats(ctx context.Context) ([]types.Subscription
 	return stats, nil
 }
 
-func jsonBytesToOrderedMap(b []byte) *orderedmap.OrderedMap[string, any] {
-	var data *orderedmap.OrderedMap[string, any]
-	reader := bytes.NewReader(b)
-	json.NewDecoder(reader).Decode(&data)
+func jsonBytesToFields(b []byte) container.Fields[any] {
+	data, _ := container.ParseFields(b)
 	return data
 }

@@ -1,14 +1,11 @@
 package agent
 
 import (
-	"bytes"
 	"context"
 	"crypto/tls"
 	"crypto/x509"
 	"fmt"
 	"io"
-
-	"encoding/json"
 
 	"time"
 
@@ -18,7 +15,6 @@ import (
 	"github.com/amir20/dozzle/internal/notification/dispatcher"
 	"github.com/amir20/dozzle/types"
 	"github.com/rs/zerolog/log"
-	orderedmap "github.com/wk8/go-ordered-map/v2"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/credentials"
@@ -669,13 +665,13 @@ func logEventToPb(event *container.LogEvent) *pb.LogEvent {
 			Fragments: fragments,
 		})
 
-	case *orderedmap.OrderedMap[string, any]:
+	case container.Fields[any]:
 		message, _ = anypb.New(&pb.ComplexMessage{
-			Data: orderedMapToJSONBytes(data),
+			Data: fieldsToJSONBytes(data),
 		})
-	case *orderedmap.OrderedMap[string, string]:
+	case container.Fields[string]:
 		message, _ = anypb.New(&pb.ComplexMessage{
-			Data: orderedMapToJSONBytes(data),
+			Data: fieldsToJSONBytes(data),
 		})
 
 	default:
@@ -695,8 +691,7 @@ func logEventToPb(event *container.LogEvent) *pb.LogEvent {
 	}
 }
 
-func orderedMapToJSONBytes[T any](data *orderedmap.OrderedMap[string, T]) []byte {
-	bytes := bytes.Buffer{}
-	json.NewEncoder(&bytes).Encode(data)
-	return bytes.Bytes()
+func fieldsToJSONBytes[T any](data container.Fields[T]) []byte {
+	b, _ := data.MarshalJSON()
+	return b
 }
