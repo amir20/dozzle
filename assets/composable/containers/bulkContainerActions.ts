@@ -1,5 +1,4 @@
 import { powerAction, type Container } from "@/models/Container";
-import { isSelf } from "./imageUpdate";
 
 export type BulkAction = "start" | "stop" | "restart";
 
@@ -20,8 +19,26 @@ export function bulkPlan(containers: Container[], action: BulkAction): BulkPlan 
     return { action, targets: containers.filter((c) => powerAction(c) === "start"), skippedSelf: false };
   }
   const running = containers.filter((c) => c.state === "running");
-  const targets = running.filter((c) => !isSelf(c));
-  return { action, targets, skippedSelf: targets.length < running.length };
+  let targets = running.filter((c) => !servesThisPage(c));
+  const skippedSelf = targets.length < running.length;
+  // k8s restarts by deleting the pod, so one request per pod, not per container.
+  if (config.mode === "k8s") {
+    const pods = new Set<string>();
+    targets = targets.filter((c) => {
+      const pod = c.id.slice(0, c.id.lastIndexOf(":"));
+      return !pods.has(pod) && !!pods.add(pod);
+    });
+  }
+  return { action, targets, skippedSelf };
+}
+
+// Unlike isSelf, which leaves swarm to the orchestrator for updates, a swarm task
+// still takes the page down when it is stopped. Every swarm node reports as a
+// "swarm" host, so the local-host check only applies outside swarm.
+function servesThisPage(c: Container) {
+  const self = config.selfContainerId;
+  if (!self || c.id.length < 12 || !self.startsWith(c.id)) return false;
+  return c.isSwarm || config.hosts.find((host) => host.id === c.host)?.type === "local";
 }
 
 /** Runs `task` over every item, `limit` at a time. Resolves to the items whose task failed. */

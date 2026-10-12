@@ -24,7 +24,7 @@ toolbar:
   bulk-confirm-start: "Запустить контейнеры: 1? | Запустить контейнеры: {count}?"
   bulk-self-skipped: "Собственный контейнер Dozzle пропускается."
   bulk-more: "и ещё {count}"
-  bulk-failed: "Нет ответа от {names}"
+  bulk-failed: "Не выполнено для {names}"
   update: Обновить
   update-service: Обновить Сервис
   update-pulling: Загрузка последнего образа...

@@ -72,6 +72,25 @@ describe("bulkPlan", () => {
     const remote = { ...self, host: "remote" } as Container;
     expect(names(bulkPlan([remote], "restart").targets)).toEqual(["dozzle"]);
   });
+
+  test("a swarm task of Dozzle itself is still skipped", () => {
+    const task = { ...self, host: "node-2", isSwarm: true } as Container;
+    const plan = bulkPlan([web, task], "stop");
+    expect(names(plan.targets)).toEqual(["web"]);
+    expect(plan.skippedSelf).toBe(true);
+  });
+
+  test("k8s restarts each pod once, however many containers it has", () => {
+    holder.config.mode = "k8s";
+    try {
+      const app = container("app", "running", "ns:pod-a:app");
+      const sidecar = container("sidecar", "running", "ns:pod-a:sidecar");
+      const other = container("other", "running", "ns:pod-b:app");
+      expect(names(bulkPlan([app, sidecar, other], "restart").targets)).toEqual(["app", "other"]);
+    } finally {
+      holder.config.mode = "server";
+    }
+  });
 });
 
 describe("runBounded", () => {

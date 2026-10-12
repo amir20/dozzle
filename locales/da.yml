@@ -24,7 +24,7 @@ toolbar:
   bulk-confirm-start: "Start 1 container? | Start {count} containere?"
   bulk-self-skipped: "Dozzles egen container springes over."
   bulk-more: "og {count} mere"
-  bulk-failed: "Intet svar fra {names}"
+  bulk-failed: "Blev ikke gennemført for {names}"
   update: Opdater
   update-service: Opdater Tjeneste
   update-pulling: Henter seneste image...

@@ -24,7 +24,7 @@ toolbar:
   bulk-confirm-start: "Avviare 1 container? | Avviare {count} container?"
   bulk-self-skipped: "Il container di Dozzle viene saltato."
   bulk-more: "e altri {count}"
-  bulk-failed: "Nessuna risposta da {names}"
+  bulk-failed: "Non completato per {names}"
   update: Aggiorna
   update-service: Aggiorna Servizio
   update-pulling: Download dell'ultima immagine...

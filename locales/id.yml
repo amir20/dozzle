@@ -24,7 +24,7 @@ toolbar:
   bulk-confirm-start: "Mulai 1 kontainer? | Mulai {count} kontainer?"
   bulk-self-skipped: "Kontainer Dozzle sendiri dilewati."
   bulk-more: "dan {count} lainnya"
-  bulk-failed: "Tidak ada respons dari {names}"
+  bulk-failed: "Gagal untuk {names}"
   update: Perbarui
   update-service: Perbarui Layanan
   update-pulling: Mengunduh image terbaru...

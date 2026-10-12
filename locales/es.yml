@@ -24,7 +24,7 @@ toolbar:
   bulk-confirm-start: "¿Iniciar 1 contenedor? | ¿Iniciar {count} contenedores?"
   bulk-self-skipped: "Se omite el contenedor de Dozzle."
   bulk-more: "y {count} más"
-  bulk-failed: "Sin respuesta de {names}"
+  bulk-failed: "No se completó para {names}"
   update: Actualizar
   update-service: Actualizar Servicio
   update-pulling: Descargando última imagen...

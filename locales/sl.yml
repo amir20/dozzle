@@ -47,7 +47,7 @@ toolbar:
   bulk-confirm-start: "Zaženem zabojnike: 1? | Zaženem zabojnike: {count}?"
   bulk-self-skipped: "Dozzlov lastni zabojnik je preskočen."
   bulk-more: "in še {count}"
-  bulk-failed: "Ni odziva od {names}"
+  bulk-failed: "Ni uspelo za {names}"
   update: Posodobi
   update-service: Posodobi Storitev
   update-pulling: Prenašanje najnovejše slike...

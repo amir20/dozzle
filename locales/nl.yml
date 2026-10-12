@@ -24,7 +24,7 @@ toolbar:
   bulk-confirm-start: "1 container starten? | {count} containers starten?"
   bulk-self-skipped: "De eigen container van Dozzle wordt overgeslagen."
   bulk-more: "en nog {count}"
-  bulk-failed: "Geen antwoord van {names}"
+  bulk-failed: "Niet gelukt voor {names}"
   update: Bijwerken
   update-service: Service Bijwerken
   update-pulling: Laatste image ophalen...

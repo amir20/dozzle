@@ -24,7 +24,7 @@ toolbar:
   bulk-confirm-start: "要啟動 1 個容器嗎？ | 要啟動 {count} 個容器嗎？"
   bulk-self-skipped: "會略過 Dozzle 本身的容器。"
   bulk-more: "還有 {count} 個"
-  bulk-failed: "沒有回應：{names}"
+  bulk-failed: "未完成：{names}"
   update: 更新
   update-service: 更新服務
   update-pulling: 正在拉取最新映像檔...

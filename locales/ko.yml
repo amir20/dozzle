@@ -24,7 +24,7 @@ toolbar:
   bulk-confirm-start: "컨테이너 1개를 시작할까요? | 컨테이너 {count}개를 시작할까요?"
   bulk-self-skipped: "Dozzle 자체 컨테이너는 건너뜁니다."
   bulk-more: "외 {count}개"
-  bulk-failed: "응답 없음: {names}"
+  bulk-failed: "완료되지 않음: {names}"
   update: 업데이트
   update-service: 서비스 업데이트
   update-pulling: 최신 이미지 가져오는 중...
