@@ -88,10 +88,7 @@ func parseFetchWindow(q url.Values) (fetchWindow, error) {
 }
 
 func (h *handler) fetchLogsBetweenDates(w http.ResponseWriter, r *http.Request) {
-	// everything is the SQL view reading the whole log, not a scroll into older lines.
-	if !r.URL.Query().Has("everything") {
-		analytics.Count("logs.older")
-	}
+	analytics.Count("logs.older")
 	w.Header().Set("Content-Type", "application/x-jsonl; charset=UTF-8")
 
 	stdTypes := parseStdTypes(r)
@@ -116,24 +113,6 @@ func (h *handler) fetchLogsBetweenDates(w http.ResponseWriter, r *http.Request) 
 	win, err := parseFetchWindow(q)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
-	}
-
-	if q.Has("everything") {
-		// Bounded by from/to when the view is a time range; the whole log otherwise.
-		to := win.to
-		if to.IsZero() {
-			to = time.Now()
-		}
-		events, err := containerService.LogsBetweenDates(r.Context(), win.from, to, stdTypes)
-		if err != nil {
-			log.Error().Err(err).Msg("error fetching logs")
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
-		}
-		writer, done := compressedWriter(w, r)
-		defer done()
-		writeAllLogs(writer, events, filter, q.Has("jsonOnly"), false)
 		return
 	}
 
@@ -168,16 +147,16 @@ func compressedWriter(w http.ResponseWriter, r *http.Request) (io.Writer, func()
 	return gzWriter, func() { gzWriter.Close() }
 }
 
-// writeAllLogs streams a container's whole history, as JSON lines for the SQL view
-// or as plain text for a copy. Unlike the windowed fetch, an empty level set here
-// means every level.
-func writeAllLogs(writer io.Writer, events <-chan *container.LogEvent, filter logFilter, onlyComplex, plainText bool) {
+// writeAllLogs streams a container's whole history, as plain text for a copy or as
+// JSON lines for the SQL view, which only gets the complex events. Unlike the
+// windowed fetch, an empty level set here means every level.
+func writeAllLogs(writer io.Writer, events <-chan *container.LogEvent, filter logFilter, plainText bool) {
 	encoder := json.NewEncoder(writer)
 	for event := range events {
 		// Grouped events carry a []string message, so filtering on "not a
 		// string" still lets arrays through and breaks struct inference for
-		// consumers like the SQL analytics view.
-		if onlyComplex && event.Type != container.LogTypeComplex {
+		// the SQL view's unnest(m).
+		if !plainText && event.Type != container.LogTypeComplex {
 			continue
 		}
 		if !filter.matchesText(event) {

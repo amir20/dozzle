@@ -5,15 +5,17 @@
     <ph:file-sql class="text-primary size-6 shrink-0" />
     <h1 class="text-base font-semibold">{{ $t("analytics.title") }}</h1>
     <h2 class="text-base-content/55 flex min-w-0 items-center text-xs">
-      <span class="truncate">{{ container.name }}</span>
-      <span class="px-1">&middot;</span>
+      <template v-if="title">
+        <span class="truncate">{{ title }}</span>
+        <span class="px-1">&middot;</span>
+      </template>
       <template v-if="merged">
         {{ $t("analytics.containers_count", { count: sources.length }) }}
       </template>
       <RelativeTime v-else :date="container.created" />
     </h2>
     <label
-      v-if="previous.length || merged"
+      v-if="single && (previous.length || merged)"
       class="text-base-content/70 ml-auto flex items-center gap-2 text-xs"
       :class="{ 'opacity-50': !canToggleMerged }"
     >
@@ -170,11 +172,17 @@ import { Container } from "@/models/Container";
 import { Table } from "@apache-arrow/esnext-esm";
 import type { AsyncDuckDBConnection } from "@duckdb/duckdb-wasm";
 
-const { container, initialQuery } = defineProps<{
-  container: Container;
+const { containers, name, initialQuery } = defineProps<{
+  // One for a container's own view, every container in it for a merged view.
+  containers: Container[];
+  // What a merged view is called (a stack, group or host); unset for a plain merge.
+  name?: string;
   // Opens with this query instead of the default, e.g. charting one field from LogDetails.
   initialQuery?: string;
 }>();
+const container = containers[0];
+const single = containers.length === 1;
+const title = single ? container.name : name;
 const defaultQuery = "SELECT * FROM logs LIMIT 100";
 const query = ref(initialQuery ?? defaultQuery);
 const error = ref<string | null>(null);
@@ -214,9 +222,9 @@ watchDebounced(
 // Older containers under the same name, usually the same service before a restart or
 // redeploy. Only offered, never loaded, until the user asks for them.
 const sameName = useSameNameContainers(() => container);
-const previous = computed(() => sameName.value.filter((c) => c.id !== container.id));
+const previous = computed(() => (single ? sameName.value.filter((c) => c.id !== container.id) : []));
 // Snapshotted when loaded, so a container appearing mid-session does not reload the table.
-const sources = shallowRef<Container[]>([container]);
+const sources = shallowRef<Container[]>(containers);
 const merged = computed(() => sources.value.length > 1);
 
 // Nothing here is awaited in setup, so the drawer renders at once and shows progress
@@ -227,12 +235,11 @@ let abort = new AbortController();
 onUnmounted(() => abort.abort());
 
 let conn: AsyncDuckDBConnection | undefined;
-let registered: string[] = [];
+let registered = false;
 const empty = new Table<Record<string, any>>();
 
-async function fetchLogs(c: Container, signal: AbortSignal): Promise<Uint8Array> {
-  const url = withBase(`/api/hosts/${c.host}/containers/${c.id}/logs?stdout=1&stderr=1&everything&jsonOnly`);
-  const response = await fetch(url, { signal });
+async function fetchLogs(list: Container[], signal: AbortSignal): Promise<Uint8Array> {
+  const response = await fetch(analyticsLogsUrl(list), { signal });
   if (!response.ok) throw new Error(`Failed to fetch logs: ${response.statusText}`);
 
   const reader = response.body?.getReader();
@@ -257,8 +264,6 @@ async function fetchLogs(c: Container, signal: AbortSignal): Promise<Uint8Array>
   return buffer;
 }
 
-const readOptions = `ignore_errors = true, format = 'newline_delimited', map_inference_threshold = -1`;
-
 async function load(list: Container[]) {
   abort.abort();
   const controller = (abort = new AbortController());
@@ -269,35 +274,20 @@ async function load(list: Container[]) {
   logsDone.value = false;
 
   try {
-    const [duck, buffers] = await Promise.all([
+    const [duck, buffer] = await Promise.all([
       engine,
-      Promise.all(list.map((c) => fetchLogs(c, controller.signal))).finally(() => (logsDone.value = true)),
+      fetchLogs(list, controller.signal).finally(() => (logsDone.value = true)),
     ]);
     const { db } = duck;
     conn = duck.conn;
 
     await conn.query(`DROP TABLE IF EXISTS logs`);
-    await Promise.all(registered.map((name) => db.dropFile(name)));
+    if (registered) await db.dropFile("logs.json");
 
     state.value = "initializing";
-    // A container with no JSON lines has no `m` to unnest and fails the whole read, so
-    // only the files that have something go in.
-    const withLogs = list.filter((_, i) => buffers[i].length > 0);
-    if (list.length === 1 || withLogs.length === 0) {
-      registered = ["logs.json"];
-      await db.registerFileBuffer("logs.json", buffers[0]);
-      await conn.query(`CREATE TABLE logs AS SELECT unnest(m) FROM read_json('logs.json', ${readOptions})`);
-    } else {
-      // Docker ids are hex and k8s ids are namespace:pod:container; neither can hold a quote.
-      registered = withLogs.map((c) => `logs-${c.id}.json`);
-      await Promise.all(withLogs.map((c) => db.registerFileBuffer(`logs-${c.id}.json`, buffers[list.indexOf(c)])));
-      // Underscored so they rarely collide with a field the app logs itself (`ts` often does).
-      // union_by_name lets a schema that changed between runs still load.
-      const files = registered.map((name) => `'${name}'`).join(", ");
-      await conn.query(
-        `CREATE TABLE logs AS SELECT regexp_extract(filename, 'logs-(.*)\\.json', 1) AS _container, epoch_ms(ts) AS _ts, unnest(m) FROM read_json([${files}], ${readOptions}, union_by_name = true, filename = true)`,
-      );
-    }
+    registered = true;
+    await db.registerFileBuffer("logs.json", buffer);
+    await conn.query(createLogsTableSql("logs.json", list.length > 1));
     if (controller.signal.aborted) return;
 
     const described = await conn.query<{ column_name: any; column_type: any }>(`DESCRIBE logs`);
@@ -317,7 +307,7 @@ async function load(list: Container[]) {
   }
 }
 
-load([container]);
+load(containers);
 
 const canToggleMerged = computed(() => state.value === "ready" || error.value !== null);
 
@@ -438,12 +428,12 @@ function exportResults(format: "csv" | "json") {
   const columns = Object.keys(table.get(0) as Record<string, any>);
   const content = format === "csv" ? toCSV(table, columns) : toJSON(table, columns);
   const type = format === "csv" ? "text/csv;charset=utf-8" : "application/json";
-  const name = container.name.replace(/[^\w.-]+/g, "-");
+  const fileName = (title ?? "containers").replace(/[^\w.-]+/g, "-");
 
   const url = URL.createObjectURL(new Blob([content], { type }));
   const link = document.createElement("a");
   link.href = url;
-  link.download = `${name}-query.${format}`;
+  link.download = `${fileName}-query.${format}`;
   link.click();
   URL.revokeObjectURL(url);
   (document.activeElement as HTMLElement | null)?.blur();
