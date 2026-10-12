@@ -9,8 +9,8 @@ const { ready } = storeToRefs(containerStore);
 
 const route = useRoute("/merged/[ids]");
 
-const pinnedLogsStore = usePinnedLogsStore();
-const { pinnedLogs } = storeToRefs(pinnedLogsStore);
+// Only the columns on screen: one hidden because this view already streams it leaves the pane full width.
+const pinnedLogs = useVisiblePinnedLogs();
 
 const ids = toRef(() => route.params.ids.split(","));
 
