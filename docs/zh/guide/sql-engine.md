@@ -1,6 +1,6 @@
 ---
 title: SQL 引擎
-sourceHash: 0387115a7372
+sourceHash: cd2f6d803d15
 ---
 
 # SQL 引擎
@@ -13,7 +13,7 @@ SQL 引擎是一个强大的工具，让你可以对自己的数据运行 SQL �
 
 要开始使用 SQL 引擎，你需要有可供查询的数据集。只有 JSON 日志才能用 SQL 查询。Dozzle 借助 WebAssembly 在浏览器中运行 SQL 查询，也就是说你的数据永远不会离开你的机器。
 
-要开始使用 SQL 引擎，请确认你有 JSON 日志，然后打开下拉菜单并选择 `SQL Analytics`。也可以使用快捷键 `Ctrl+Shift+F`（macOS 上是 `Cmd+Shift+F`）快速打开 SQL 引擎。
+要开始使用 SQL 引擎，请确认你有 JSON 日志，然后打开下拉菜单并选择 `SQL Analytics`。也可以使用快捷键：在容器的日志视图中按 `S` 即可快速打开 SQL 引擎。
 
 ## 它是如何工作的？
 

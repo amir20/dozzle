@@ -142,6 +142,7 @@ declare global {
   const inject: typeof import('vue').inject
   const injectLocal: typeof import('@vueuse/core').injectLocal
   const insertMarker: typeof import('./composable/logs/updateMarkers').insertMarker
+  const isBareKeyFree: typeof import('./composable/ui/letterShortcut').isBareKeyFree
   const isDataIcon: typeof import('./utils/index').isDataIcon
   const isDefined: typeof import('@vueuse/core').isDefined
   const isEmptyHistogram: typeof import('./composable/logs/logHistogram').isEmptyHistogram
@@ -435,6 +436,7 @@ declare global {
   const useK8sStore: typeof import('./stores/k8s').useK8sStore
   const useKeyModifier: typeof import('@vueuse/core').useKeyModifier
   const useLastChanged: typeof import('@vueuse/core').useLastChanged
+  const useLetterShortcut: typeof import('./composable/ui/letterShortcut').useLetterShortcut
   const useLink: typeof import('vue-router/auto').useLink
   const useLiveAnnouncer: typeof import('@vueuse/core').useLiveAnnouncer
   const useLocalStorage: typeof import('@vueuse/core').useLocalStorage
@@ -838,6 +840,7 @@ declare module 'vue' {
     readonly inject: UnwrapRef<typeof import('vue')['inject']>
     readonly injectLocal: UnwrapRef<typeof import('@vueuse/core')['injectLocal']>
     readonly insertMarker: UnwrapRef<typeof import('./composable/logs/updateMarkers')['insertMarker']>
+    readonly isBareKeyFree: UnwrapRef<typeof import('./composable/ui/letterShortcut')['isBareKeyFree']>
     readonly isDataIcon: UnwrapRef<typeof import('./utils/index')['isDataIcon']>
     readonly isDefined: UnwrapRef<typeof import('@vueuse/core')['isDefined']>
     readonly isEmptyHistogram: UnwrapRef<typeof import('./composable/logs/logHistogram')['isEmptyHistogram']>
@@ -1125,6 +1128,7 @@ declare module 'vue' {
     readonly useK8sStore: UnwrapRef<typeof import('./stores/k8s')['useK8sStore']>
     readonly useKeyModifier: UnwrapRef<typeof import('@vueuse/core')['useKeyModifier']>
     readonly useLastChanged: UnwrapRef<typeof import('@vueuse/core')['useLastChanged']>
+    readonly useLetterShortcut: UnwrapRef<typeof import('./composable/ui/letterShortcut')['useLetterShortcut']>
     readonly useLink: UnwrapRef<typeof import('vue-router/auto')['useLink']>
     readonly useLiveAnnouncer: UnwrapRef<typeof import('@vueuse/core')['useLiveAnnouncer']>
     readonly useLocalStorage: UnwrapRef<typeof import('@vueuse/core')['useLocalStorage']>

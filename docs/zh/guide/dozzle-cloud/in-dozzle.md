@@ -1,6 +1,6 @@
 ---
 title: 在你的 Dozzle 里
-sourceHash: 8053f9b40bcd
+sourceHash: 49118bdfb7ff
 ---
 
 # 在你的 Dozzle 里
@@ -31,7 +31,7 @@ sourceHash: 8053f9b40bcd
 
 答案落回 Dozzle，而不是给你一个外部链接。当答案指向某个时间点时，操作会把你自己的日志流带到那里。
 
-用 <kbd>Shift</kbd> + <kbd>⌘</kbd> + <kbd>K</kbd>、容器菜单或某一行日志都可以打开它。
+在容器日志中按 <kbd>.</kbd>、使用容器菜单或某一行日志都可以打开它。
 
 ### <Icon icon="mdi:chart-line" inline /> 指标
 
