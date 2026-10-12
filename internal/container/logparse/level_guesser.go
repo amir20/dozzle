@@ -53,19 +53,26 @@ type levelMatcher struct {
 //  3. > <level>    signale/consola marker: "› ℹ  info      started"
 //  4. <tag>:<level> structured prefix: "Zigbee2MQTT:info ", "::INFO::", "[1]: INFO " (a gap only before upper-case)
 //  5. "<LEVEL>"    quoted upper-case value: LL="ERROR"
-//  6. <sp><LEVEL>[:<sp>] bare upper-case token mid-line: "123 ERROR foo", "UTC [61] LOG:  ..."
-//  7. <sp><level>[/|:-] separator in any case: " error:", " info|"
-//
-// Loggers write their level in upper case; prose writes "error:" in lower or
-// title case. So an upper-case token (6) outranks a mixed-case word with a
-// separator (7): "... WARN [StorageService] Error: EROFS" is a warning.
 //
 // guessFromString walks the tiers in order and stops at the first that matches,
 // so a real level prefix at the front of the line always beats a level word
 // buried in the message body. Within a tier, two different levels mean the line
-// is ambiguous and we return "unknown" rather than guess. Match position and
-// level severity are deliberately not used as tie-breakers.
+// is ambiguous and we return "unknown" rather than guess. Level severity is
+// deliberately never a tie-breaker. If no tier matches, midLineMatchers get the
+// last word.
 var levelTiers [][]levelMatcher
+
+// midLineMatchers find a level word somewhere inside the line:
+//
+//   - <sp><LEVEL>[:<sp>] bare upper-case token: "123 ERROR foo", "UTC [61] LOG:  ..."
+//   - <sp><level>[/|:-] separator in any case: " error:", " info|"
+//
+// Each is read on its own, and two different levels from one of them are
+// still ambiguous. Between them, the one that comes first in the line wins: a
+// logger writes its level before its message. So "... WARN [StorageService]
+// Error: EROFS" is a warning and "[api] info: upstream returned ERROR 502" is
+// info.
+var midLineMatchers []levelMatcher
 
 // singleLetterBracket matches single-letter levels in brackets, e.g. [I], [E], [W]
 var singleLetterBracket = regexp.MustCompile(`\[([EWIDFTV])\]`)
@@ -204,8 +211,10 @@ func init() {
 			{re: regexp.MustCompile(`:\s+(` + upper + `)(?:\s|$)`)},
 		},
 		{{re: regexp.MustCompile(`"(` + upper + `)"`)}},
-		{{re: regexp.MustCompile(`\s(` + upper + `)(?::?\s)`)}},
-		{{re: regexp.MustCompile(`(?i) (` + joined + `)[/|:-]`)}},
+	}
+	midLineMatchers = []levelMatcher{
+		{re: regexp.MustCompile(`\s(` + upper + `)(?::?\s)`)},
+		{re: regexp.MustCompile(`(?i) (` + joined + `)[/|:-]`)},
 	}
 }
 
@@ -295,14 +304,7 @@ func guessFromString(value string) string {
 		level := ""
 		for _, m := range tier {
 			for _, match := range m.re.FindAllStringSubmatch(value, -1) {
-				var canonical string
-				if m.single {
-					canonical = singleLetterToLevel[match[1][0]]
-				} else if level, ok := upperOnlyLevels[match[1]]; ok {
-					canonical = level
-				} else {
-					canonical = aliasToCanonical[strings.ToLower(match[1])]
-				}
+				canonical := m.canonical(match[1])
 				if canonical == "" {
 					continue
 				}
@@ -318,7 +320,38 @@ func guessFromString(value string) string {
 			return level
 		}
 	}
-	return "unknown"
+
+	level, first := "unknown", -1
+	for _, m := range midLineMatchers {
+		found, at := "", -1
+		for _, match := range m.re.FindAllStringSubmatchIndex(value, -1) {
+			canonical := m.canonical(value[match[2]:match[3]])
+			if canonical == "" {
+				continue
+			}
+			if found == "" {
+				found, at = canonical, match[2]
+			} else if found != canonical {
+				found = "unknown"
+			}
+		}
+		if at >= 0 && (first < 0 || at < first) {
+			level, first = found, at
+		}
+	}
+	return level
+}
+
+// canonical maps a captured level word to its canonical level, or "" when the
+// word is not a level.
+func (m levelMatcher) canonical(word string) string {
+	if m.single {
+		return singleLetterToLevel[word[0]]
+	}
+	if level, ok := upperOnlyLevels[word]; ok {
+		return level
+	}
+	return aliasToCanonical[strings.ToLower(word)]
 }
 
 func normalizeLogLevel(level string) string {

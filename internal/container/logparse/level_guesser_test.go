@@ -340,6 +340,10 @@ func TestGuessLogLevel(t *testing.T) {
 		{"LOG:  database system is ready to accept connections", "info"},
 		{"PANIC:  could not locate a valid checkpoint record", "fatal"},
 		{"Login failed for user", "unknown"},
+		// Winston with a label: the level comes before the message, so a later
+		// upper-case word does not override it.
+		{"[api] info: upstream returned ERROR 502", "info"},
+		{"[worker] warn: retrying, FAIL count=2", "warn"},
 		// Lower-case panic is not a level: the line's own error wins.
 		{"panic: runtime error: index out of range [3] with length 3", "error"},
 		{"http: recovered from panic: runtime error: invalid memory address", "error"},
