@@ -42,5 +42,5 @@ export const useStreamedContainers = () => {
     );
   };
 
-  return { ids, isStreaming, isMerged, canToggle, toggleTitle, toggle };
+  return { isStreaming, isMerged, canToggle, toggleTitle, toggle };
 };
