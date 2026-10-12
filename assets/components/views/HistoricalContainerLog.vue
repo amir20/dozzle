@@ -105,7 +105,8 @@ const {
   until?: Date;
 }>();
 
-const close = defineEmit();
+const emit = defineEmits<{ close: [] }>();
+const close = () => emit("close");
 
 const store = useContainerStore();
 const container = store.currentContainer(toRef(() => id));

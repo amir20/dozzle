@@ -62,7 +62,8 @@ const {
   heightClass?: string;
 }>();
 
-const select = defineEmit<[from: Date, to: Date]>();
+const emit = defineEmits<{ select: [from: Date, to: Date] }>();
+const select = (from: Date, to: Date) => emit("select", from, to);
 const { t } = useI18n();
 
 const strip = useTemplateRef<HTMLElement>("strip");

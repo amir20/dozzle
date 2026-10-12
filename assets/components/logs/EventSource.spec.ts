@@ -2,13 +2,12 @@ import { createTestingPinia } from "@pinia/testing";
 import { mount } from "@vue/test-utils";
 import { useSearchFilter } from "@/composable/logs/search";
 import { settings } from "@/stores/settings";
-// @ts-ignore
-import EventSource, { sources } from "eventsourcemock";
+import EventSource, { sources } from "@/testing/eventSourceMock";
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
-import { computed, nextTick } from "vue";
+import { computed, defineComponent, h, nextTick, shallowRef, type Ref } from "vue";
 import { createI18n } from "vue-i18n";
 import { createRouter, createWebHistory } from "vue-router";
-import { default as Component } from "./EventSource.vue";
+import { default as EventSourceComponent } from "./EventSource.vue";
 import SearchStatus from "./SearchStatus.vue";
 import IndeterminateBar from "@/components/ui/IndeterminateBar.vue";
 import ContainerEventLogItem from "./entries/ContainerEventLogItem.vue";
@@ -18,6 +17,9 @@ import LogViewer from "./LogViewer.vue";
 import { Container } from "@/models/Container";
 import type { ContainerState } from "@/types/Container";
 import { Level, type LogEntry } from "@/models/LogEntry";
+
+// The component is generic over its entity; mount cannot infer that, so pin it to a container.
+const Component = EventSourceComponent<Container>;
 
 vi.mock("@/stores/config", () => ({
   __esModule: true,
@@ -59,11 +61,14 @@ describe("<ContainerEventSource />", () => {
       hourStyle = "auto",
       state = "running",
       timeRange = { kind: "live" },
+      entity,
     }: {
       searchFilter?: string | undefined;
       hourStyle?: "auto" | "24" | "12";
       state?: ContainerState;
       timeRange?: TimeRange;
+      // Swapped by a parent re-render: setProps cannot carry a Container, whose fields are refs.
+      entity?: Ref<Container>;
     } = {
       hourStyle: "auto",
     },
@@ -93,60 +98,71 @@ describe("<ContainerEventSource />", () => {
       ],
     });
 
-    return mount(Component, {
-      global: {
-        plugins: [
-          router,
-          createTestingPinia({
-            createSpy: vi.fn,
-            stubActions: false,
-            initialState: {
-              container: {
-                containers: [
-                  {
-                    id: "abc",
-                    image: "test:v123",
-                    host: "localhost",
-                    created: new Date(0),
-                    finishedAt: new Date(0),
-                    state: "running",
-                  },
-                ],
-              },
+    const global = {
+      plugins: [
+        router,
+        createTestingPinia({
+          createSpy: vi.fn,
+          stubActions: false,
+          initialState: {
+            container: {
+              containers: [
+                {
+                  id: "abc",
+                  image: "test:v123",
+                  host: "localhost",
+                  created: new Date(0),
+                  finishedAt: new Date(0),
+                  state: "running",
+                },
+              ],
             },
-          }),
-          createI18n({}),
-        ],
-        components: {
-          LogViewer,
+          },
+        }),
+        createI18n({}),
+      ],
+      components: {
+        LogViewer,
+      },
+      provide: {
+        [scrollContextKey as symbol]: {
+          paused: computed(() => false),
+          loading: computed(() => false),
+          progress: ref(1),
+          available: ref(false),
+          currentDate: ref(new Date()),
         },
-        provide: {
-          [scrollContextKey as symbol]: {
-            paused: computed(() => false),
-            loading: computed(() => false),
-            progress: ref(1),
-            available: ref(false),
-            currentDate: ref(new Date()),
-          },
-          [loggingContextKey as symbol]: {
-            containers: computed(() => [
-              {
-                id: "abc",
-                image: "test:v123",
-                host: "localhost",
-                created: new Date(0),
-                finishedAt: new Date(0),
-                state,
-              },
-            ]),
-            streamConfig: reactive({ stdout: true, stderr: true }),
-            hasComplexLogs: ref(false),
-            levels: new Set<Level>(["info"]),
-            historical: ref(false),
-            timeRange: ref(timeRange),
-          },
+        [loggingContextKey as symbol]: {
+          containers: computed(() => [
+            {
+              id: "abc",
+              image: "test:v123",
+              host: "localhost",
+              created: new Date(0),
+              finishedAt: new Date(0),
+              state,
+            },
+          ]),
+          streamConfig: reactive({ stdout: true, stderr: true }),
+          hasComplexLogs: ref(false),
+          levels: new Set<Level>(["info"]),
+          historical: ref(false),
+          timeRange: ref(timeRange),
         },
       },
+    };
+
+    if (entity) {
+      return mount(
+        defineComponent(() => () => h(Component, { streamSource: useContainerStream, entity: entity.value })),
+        {
+          global,
+        },
+      );
+    }
+
+    return mount(Component, {
+      global,
       slots: {
         default: `
         <template #scoped="params"><LogViewer :messages="params.messages" :show-container-name="false" :visible-keys="[]" /></template>
@@ -184,6 +200,37 @@ describe("<ContainerEventSource />", () => {
     const wrapper = createLogEventSource();
     sources[sourceUrl].emitOpen();
     expect(sources[sourceUrl].readyState).toBe(1);
+    wrapper.unmount();
+  });
+
+  // The stream source is handed a getter over the `entity` prop, so swapping the
+  // prop has to reach it and reconnect for the new container.
+  test("reconnects when the entity prop changes", async () => {
+    const container = (id: string) =>
+      new Container(
+        id,
+        new Date(),
+        new Date(),
+        new Date(),
+        "image",
+        "name",
+        "command",
+        "localhost",
+        {},
+        "running",
+        0,
+        0,
+        [],
+      );
+    const entity = shallowRef(container("abc"));
+    const wrapper = createLogEventSource({ entity });
+    sources[sourceUrl].emitOpen();
+
+    entity.value = container("def");
+    await nextTick();
+    const otherUrl = sourceUrl.replace("abc", "def");
+    expect(sources[otherUrl]).toBeDefined();
+    expect(sources[sourceUrl].readyState).toBe(2);
     wrapper.unmount();
   });
 

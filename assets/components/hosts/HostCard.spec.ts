@@ -10,8 +10,7 @@ import { Container, Stat } from "@/models/Container";
 import type { Host } from "@/stores/hosts";
 import HostCard from "./HostCard.vue";
 
-// @ts-ignore
-import EventSource from "eventsourcemock";
+import EventSource from "@/testing/eventSourceMock";
 
 vi.mock("@/stores/config", () => ({
   __esModule: true,

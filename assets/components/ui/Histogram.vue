@@ -61,8 +61,9 @@ const {
   label?: string;
 }>();
 
-const hoverBin = defineEmit<[bin: HistogramBin]>();
-const hoverEnd = defineEmit<[]>();
+const emit = defineEmits<{ hoverBin: [bin: HistogramBin]; hoverEnd: [] }>();
+const hoverBin = (bin: HistogramBin) => emit("hoverBin", bin);
+const hoverEnd = () => emit("hoverEnd");
 
 const hovered = ref<number | null>(null);
 const peak = computed(() => Math.max(1, ...bins.map((b) => b.count)));
