@@ -277,6 +277,7 @@ declare global {
   const shallowReactive: typeof import('vue').shallowReactive
   const shallowReadonly: typeof import('vue').shallowReadonly
   const shallowRef: typeof import('vue').shallowRef
+  const shortImageRef: typeof import('./utils/index').shortImageRef
   const showAllContainers: typeof import('./stores/settings').showAllContainers
   const showAppIcons: typeof import('./stores/settings').showAppIcons
   const showImageUpdateAlert: typeof import('./stores/settings').showImageUpdateAlert
@@ -288,6 +289,7 @@ declare global {
   const startCloudLink: typeof import('./composable/cloud/cloudLink').startCloudLink
   const startUsageReporting: typeof import('./composable/app/usage').startUsageReporting
   const storeToRefs: typeof import('pinia').storeToRefs
+  const stripImageDigest: typeof import('./utils/index').stripImageDigest
   const stripVersion: typeof import('./utils/index').stripVersion
   const syncRef: typeof import('@vueuse/core').syncRef
   const syncRefs: typeof import('@vueuse/core').syncRefs
@@ -967,6 +969,7 @@ declare module 'vue' {
     readonly shallowReactive: UnwrapRef<typeof import('vue')['shallowReactive']>
     readonly shallowReadonly: UnwrapRef<typeof import('vue')['shallowReadonly']>
     readonly shallowRef: UnwrapRef<typeof import('vue')['shallowRef']>
+    readonly shortImageRef: UnwrapRef<typeof import('./utils/index')['shortImageRef']>
     readonly showAllContainers: UnwrapRef<typeof import('./stores/settings')['showAllContainers']>
     readonly showAppIcons: UnwrapRef<typeof import('./stores/settings')['showAppIcons']>
     readonly showImageUpdateAlert: UnwrapRef<typeof import('./stores/settings')['showImageUpdateAlert']>
@@ -978,6 +981,7 @@ declare module 'vue' {
     readonly startCloudLink: UnwrapRef<typeof import('./composable/cloud/cloudLink')['startCloudLink']>
     readonly startUsageReporting: UnwrapRef<typeof import('./composable/app/usage')['startUsageReporting']>
     readonly storeToRefs: UnwrapRef<typeof import('pinia')['storeToRefs']>
+    readonly stripImageDigest: UnwrapRef<typeof import('./utils/index')['stripImageDigest']>
     readonly stripVersion: UnwrapRef<typeof import('./utils/index')['stripVersion']>
     readonly syncRef: UnwrapRef<typeof import('@vueuse/core')['syncRef']>
     readonly syncRefs: UnwrapRef<typeof import('@vueuse/core')['syncRefs']>
