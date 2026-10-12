@@ -373,6 +373,9 @@ analytics:
   example_all: Tüm günlükler
   example_count: Satır sayısı
   example_group: "{column} bazında sayı"
+  example_by_container: Konteyner bazında
+  include_previous: "{count} eski konteyneri dahil et"
+  containers_count: "{count} konteyner"
   export: Dışa aktar
   export_csv: CSV indir
   export_json: JSON indir

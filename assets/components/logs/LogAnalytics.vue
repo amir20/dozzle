@@ -7,8 +7,25 @@
     <h2 class="text-base-content/55 flex min-w-0 items-center text-xs">
       <span class="truncate">{{ container.name }}</span>
       <span class="px-1">&middot;</span>
-      <RelativeTime :date="container.created" />
+      <template v-if="merged">
+        {{ $t("analytics.containers_count", { count: sources.length }) }}
+      </template>
+      <RelativeTime v-else :date="container.created" />
     </h2>
+    <label
+      v-if="previous.length || merged"
+      class="text-base-content/70 ml-auto flex items-center gap-2 text-xs"
+      :class="{ 'opacity-50': !canToggleMerged }"
+    >
+      <input
+        type="checkbox"
+        class="toggle toggle-xs toggle-primary"
+        :checked="merged"
+        :disabled="!canToggleMerged"
+        @change="toggleMerged"
+      />
+      {{ $t("analytics.include_previous", merged ? sources.length - 1 : previous.length) }}
+    </label>
   </header>
 
   <div class="mt-5 flex flex-col gap-6 pb-8">
@@ -194,37 +211,44 @@ watchDebounced(
   { debounce: 500 },
 );
 
-const url = withBase(
-  `/api/hosts/${container.host}/containers/${container.id}/logs?stdout=1&stderr=1&everything&jsonOnly`,
-);
+// Older containers under the same name, usually the same service before a restart or
+// redeploy. Only offered, never loaded, until the user asks for them.
+const sameName = useSameNameContainers(() => container);
+const previous = computed(() => sameName.value.filter((c) => c.id !== container.id));
+// Snapshotted when loaded, so a container appearing mid-session does not reload the table.
+const sources = shallowRef<Container[]>([container]);
+const merged = computed(() => sources.value.length > 1);
 
 // Nothing here is awaited in setup, so the drawer renders at once and shows progress
 // instead of sitting on the Suspense spinner. Both downloads start now and run side by
 // side: reading the logs only after the engine was up had left them mostly serial.
 const engine = useDuckDB((fraction) => (engineProgress.value = fraction));
-const abort = new AbortController();
+let abort = new AbortController();
 onUnmounted(() => abort.abort());
 
 let conn: AsyncDuckDBConnection | undefined;
+let registered: string[] = [];
 const empty = new Table<Record<string, any>>();
 
-async function fetchLogs(): Promise<Uint8Array> {
-  const response = await fetch(url, { signal: abort.signal });
+async function fetchLogs(c: Container, signal: AbortSignal): Promise<Uint8Array> {
+  const url = withBase(`/api/hosts/${c.host}/containers/${c.id}/logs?stdout=1&stderr=1&everything&jsonOnly`);
+  const response = await fetch(url, { signal });
   if (!response.ok) throw new Error(`Failed to fetch logs: ${response.statusText}`);
 
   const reader = response.body?.getReader();
   if (!reader) throw new Error("No reader available from stream");
 
   const chunks: Uint8Array[] = [];
+  let length = 0;
   while (true) {
     const { done, value } = await reader.read();
     if (done) break;
     chunks.push(value);
+    length += value.length;
     bytes.value += value.length;
   }
-  logsDone.value = true;
 
-  const buffer = new Uint8Array(bytes.value);
+  const buffer = new Uint8Array(length);
   let position = 0;
   for (const chunk of chunks) {
     buffer.set(chunk, position);
@@ -233,18 +257,48 @@ async function fetchLogs(): Promise<Uint8Array> {
   return buffer;
 }
 
-(async () => {
+const readOptions = `ignore_errors = true, format = 'newline_delimited', map_inference_threshold = -1`;
+
+async function load(list: Container[]) {
+  abort.abort();
+  const controller = (abort = new AbortController());
+  sources.value = list;
+  state.value = "loading";
+  error.value = null;
+  bytes.value = 0;
+  logsDone.value = false;
+
   try {
-    const [duck, buffer] = await Promise.all([engine, fetchLogs()]);
+    const [duck, buffers] = await Promise.all([
+      engine,
+      Promise.all(list.map((c) => fetchLogs(c, controller.signal))).finally(() => (logsDone.value = true)),
+    ]);
     const { db } = duck;
     conn = duck.conn;
 
-    await db.registerFileBuffer("logs.json", buffer);
+    await conn.query(`DROP TABLE IF EXISTS logs`);
+    await Promise.all(registered.map((name) => db.dropFile(name)));
 
     state.value = "initializing";
-    await conn.query(
-      `CREATE TABLE logs AS SELECT unnest(m) FROM read_json('logs.json', ignore_errors = true, format = 'newline_delimited', map_inference_threshold = -1)`,
-    );
+    // A container with no JSON lines has no `m` to unnest and fails the whole read, so
+    // only the files that have something go in.
+    const withLogs = list.filter((_, i) => buffers[i].length > 0);
+    if (list.length === 1 || withLogs.length === 0) {
+      registered = ["logs.json"];
+      await db.registerFileBuffer("logs.json", buffers[0]);
+      await conn.query(`CREATE TABLE logs AS SELECT unnest(m) FROM read_json('logs.json', ${readOptions})`);
+    } else {
+      // Docker ids are hex and k8s ids are namespace:pod:container; neither can hold a quote.
+      registered = withLogs.map((c) => `logs-${c.id}.json`);
+      await Promise.all(withLogs.map((c) => db.registerFileBuffer(`logs-${c.id}.json`, buffers[list.indexOf(c)])));
+      // Underscored so they rarely collide with a field the app logs itself (`ts` often does).
+      // union_by_name lets a schema that changed between runs still load.
+      const files = registered.map((name) => `'${name}'`).join(", ");
+      await conn.query(
+        `CREATE TABLE logs AS SELECT regexp_extract(filename, 'logs-(.*)\\.json', 1) AS _container, epoch_ms(ts) AS _ts, unnest(m) FROM read_json([${files}], ${readOptions}, union_by_name = true, filename = true)`,
+      );
+    }
+    if (controller.signal.aborted) return;
 
     const described = await conn.query<{ column_name: any; column_type: any }>(`DESCRIBE logs`);
     columns.value = described.toArray().map((row) => ({
@@ -255,21 +309,38 @@ async function fetchLogs(): Promise<Uint8Array> {
     state.value = "ready";
   } catch (e) {
     // Closing the drawer aborts the logs download; that is not an error to show.
-    if (abort.signal.aborted) return;
+    if (controller.signal.aborted) return;
     console.error(e);
     if (e instanceof Error) {
       error.value = e.message;
     }
   }
-})();
+}
+
+load([container]);
+
+const canToggleMerged = computed(() => state.value === "ready" || error.value !== null);
+
+function toggleMerged() {
+  if (!canToggleMerged.value) return;
+  load(merged.value ? [container] : [container, ...previous.value]);
+}
 
 const examples = computed(() => {
   const names = columns.value.map((c) => c.name);
-  const pick = ["level", "severity", "lvl", "status"].find((c) => names.includes(c)) ?? names[0];
+  const pick =
+    ["level", "severity", "lvl", "status"].find((c) => names.includes(c)) ??
+    names.find((c) => c !== "_container" && c !== "_ts");
   const list: { key: string; sql: string; params?: Record<string, string> }[] = [
     { key: "analytics.example_all", sql: "SELECT * FROM logs LIMIT 100" },
     { key: "analytics.example_count", sql: "SELECT count(*) AS total FROM logs" },
   ];
+  if (merged.value) {
+    list.push({
+      key: "analytics.example_by_container",
+      sql: "SELECT _container, count(*) AS count, min(_ts) AS first, max(_ts) AS last FROM logs GROUP BY _container ORDER BY first",
+    });
+  }
   if (pick) {
     list.push({
       key: "analytics.example_group",

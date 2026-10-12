@@ -492,6 +492,9 @@ analytics:
   example_all: Todos los registros
   example_count: Número de filas
   example_group: Conteo por {column}
+  example_by_container: Por contenedor
+  include_previous: "Incluir 1 contenedor anterior | Incluir {count} contenedores anteriores"
+  containers_count: "{count} contenedores"
   export: Exportar
   export_csv: Descargar CSV
   export_json: Descargar JSON

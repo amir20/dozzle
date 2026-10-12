@@ -370,6 +370,9 @@ analytics:
   example_all: Alle logfiler
   example_count: Antal rækker
   example_group: Antal efter {column}
+  example_by_container: Efter container
+  include_previous: "Medtag 1 ældre container | Medtag {count} ældre containere"
+  containers_count: "{count} containere"
   export: Eksporter
   export_csv: Download CSV
   export_json: Download JSON

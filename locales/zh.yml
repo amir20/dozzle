@@ -370,6 +370,9 @@ analytics:
   example_all: 所有日志
   example_count: 行数
   example_group: 按 {column} 计数
+  example_by_container: 按容器
+  include_previous: "包含 {count} 个较旧的容器"
+  containers_count: "{count} 个容器"
   export: 导出
   export_csv: 下载 CSV
   export_json: 下载 JSON

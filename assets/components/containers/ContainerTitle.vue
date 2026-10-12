@@ -135,14 +135,7 @@ const pinned = computed({
     }
   },
 });
-const store = useContainerStore();
-const { containers: allContainers } = storeToRefs(store);
-
-const sameNameContainers = computed(() =>
-  allContainers.value
-    .filter((c) => c.name === container.name && c.customGroup === container.customGroup)
-    .sort((a, b) => +b.created - +a.created),
-);
+const sameNameContainers = useSameNameContainers(() => container);
 
 const otherContainers = computed(() => sameNameContainers.value.filter((c) => c.id !== container.id));
 

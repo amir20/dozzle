@@ -372,6 +372,9 @@ analytics:
   example_all: 所有日誌
   example_count: 資料列數
   example_group: 依 {column} 計數
+  example_by_container: 依容器
+  include_previous: "包含 {count} 個較舊的容器"
+  containers_count: "{count} 個容器"
   export: 匯出
   export_csv: 下載 CSV
   export_json: 下載 JSON

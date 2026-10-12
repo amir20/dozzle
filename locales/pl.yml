@@ -372,6 +372,9 @@ analytics:
   example_all: Wszystkie logi
   example_count: Liczba wierszy
   example_group: Liczba według {column}
+  example_by_container: Według kontenera
+  include_previous: "Uwzględnij starsze kontenery ({count})"
+  containers_count: "Kontenery: {count}"
   export: Eksportuj
   export_csv: Pobierz CSV
   export_json: Pobierz JSON

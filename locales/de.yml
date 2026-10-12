@@ -370,6 +370,9 @@ analytics:
   example_all: Alle Logs
   example_count: Anzahl Zeilen
   example_group: Anzahl nach {column}
+  example_by_container: Nach Container
+  include_previous: "1 älteren Container einbeziehen | {count} ältere Container einbeziehen"
+  containers_count: "{count} Container"
   export: Exportieren
   export_csv: CSV herunterladen
   export_json: JSON herunterladen
