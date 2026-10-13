@@ -1168,3 +1168,4 @@ reclaim:
   freed: "{size} boşaltıldı"
   failed: "Temizleme başarısız"
   agent-too-old: "Bu agent henüz temizlik yapamıyor. En son sürüme güncelleyin."
+  enable-actions: "Buradan temizlemek için konteyner eylemlerini etkinleştirin."

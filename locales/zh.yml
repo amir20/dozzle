@@ -1165,3 +1165,4 @@ reclaim:
   freed: "已释放 {size}"
   failed: "清理失败"
   agent-too-old: "此 agent 还不能清理，请更新到最新版本。"
+  enable-actions: "启用容器操作即可在此清理。"

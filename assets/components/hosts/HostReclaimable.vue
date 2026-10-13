@@ -9,8 +9,7 @@
     @close="onClose"
   >
     <template #trigger>
-      <!-- empty title: the host chip's own "Host" tooltip would pop up over the panel -->
-      <button type="button" title="" class="hover:bg-base-content/10 -mx-1 rounded px-1 transition-colors">
+      <button type="button" class="hover:bg-base-content/10 -mx-1 rounded px-1 transition-colors">
         {{ $t("label.reclaimable") }}
         <span class="text-base-content/80 font-mono [word-spacing:-0.4ch]">{{ size(total) }}</span>
       </button>
@@ -47,17 +46,17 @@
         <div class="min-w-0">
           <p>{{ $t("reclaim.volumes-warning", { count: reclaimable.volumes }, reclaimable.volumes) }}</p>
           <label class="mt-2 flex items-center gap-2">
-            <input v-model="volumesConfirmed" type="checkbox" class="checkbox checkbox-xs" />
+            <input v-model="volumesConfirmed" type="checkbox" class="checkbox checkbox-error checkbox-sm" />
             {{ $t("reclaim.volumes-confirm") }}
           </label>
         </div>
       </div>
 
       <div class="mt-3 flex justify-end gap-2">
-        <button type="button" class="btn btn-ghost btn-xs" @click="step = 'view'">{{ $t("button.cancel") }}</button>
+        <button type="button" class="btn btn-sm" @click="step = 'view'">{{ $t("button.cancel") }}</button>
         <button
           type="button"
-          class="btn btn-xs text-error"
+          class="btn btn-error btn-sm"
           :disabled="picked.volumes && !volumesConfirmed"
           @click="prune"
         >
@@ -103,7 +102,7 @@
             <input
               v-if="canPrune"
               type="checkbox"
-              class="checkbox checkbox-xs"
+              class="checkbox checkbox-primary checkbox-sm"
               :checked="picked[row.key] && !row.empty"
               :disabled="row.empty"
               @change="pick(row.key, ($event.target as HTMLInputElement).checked)"
@@ -114,7 +113,7 @@
             <span class="w-16 text-right font-mono">{{ size(row.size) }}</span>
           </component>
           <!-- each kind's share of the total, neutral like the host card's disk bar -->
-          <div class="bg-base-content/10 mt-1 ml-6 h-1 overflow-hidden rounded-full">
+          <div class="bg-base-content/10 mt-1 h-1 overflow-hidden rounded-full" :class="canPrune ? 'ml-7' : 'ml-6'">
             <div
               class="bg-base-content/40 h-full rounded-full transition-[width] duration-500 motion-reduce:transition-none"
               :style="{ width: share(row.size) }"
@@ -124,23 +123,28 @@
       </ul>
 
       <div class="bg-base-content/10 my-3 h-px"></div>
-      <div class="flex items-center justify-between gap-2">
-        <i18n-t scope="global" keypath="tooltip.reclaimable-source" tag="p" class="text-base-content/40">
-          <template #command>
-            <code class="font-mono">docker system df</code>
-          </template>
-        </i18n-t>
-        <button
-          v-if="canPrune"
-          type="button"
-          class="btn btn-xs shrink-0"
-          :disabled="selectedRows.length === 0"
-          @click="confirm"
-        >
-          {{ $t("reclaim.clean-up") }}
-          <span v-if="selectedRows.length" class="font-mono">{{ size(selectedTotal) }}</span>
-        </button>
-      </div>
+      <i18n-t scope="global" keypath="tooltip.reclaimable-source" tag="p" class="text-base-content/40">
+        <template #command>
+          <code class="font-mono">docker system df</code>
+        </template>
+      </i18n-t>
+      <button
+        v-if="canPrune"
+        type="button"
+        class="btn btn-primary btn-sm mt-3 w-full"
+        :disabled="selectedRows.length === 0"
+        @click="confirm"
+      >
+        <mdi:broom class="size-4" />
+        {{ $t("reclaim.clean-up") }}
+        <span v-if="selectedRows.length" class="font-mono">{{ size(selectedTotal) }}</span>
+      </button>
+      <p v-if="actionsOff" class="text-base-content/40 mt-2">
+        {{ $t("reclaim.enable-actions") }}
+        <a href="https://dozzle.dev/guide/actions" target="_blank" rel="noopener" class="link">
+          {{ $t("hint.learn-more") }}
+        </a>
+      </p>
     </template>
   </Popover>
 </template>
@@ -176,6 +180,8 @@ const reclaimable = computed(() => host.reclaimable ?? EMPTY);
 
 // k8s never reports reclaimable space, but say so rather than lean on that.
 const canPrune = computed(() => enableActions && host.type !== "k8s");
+// k8s can't prune at all, so only a docker host points at the setting.
+const actionsOff = computed(() => !enableActions && host.type !== "k8s");
 
 const step = ref<Step>("view");
 // Volumes start unticked: an unused named volume can be a database between redeploys.

@@ -1170,3 +1170,4 @@ reclaim:
   freed: "Sproščeno {size}"
   failed: "Čiščenje ni uspelo"
   agent-too-old: "Ta agent še ne zna čistiti. Posodobite ga na najnovejšo različico."
+  enable-actions: "Omogočite dejanja vsebnikov, da lahko počistite od tukaj."

@@ -163,6 +163,7 @@ declare module 'vue' {
     'Mdi:bellOutline': typeof import('~icons/mdi/bell-outline')['default']
     'Mdi:bellRingOutline': typeof import('~icons/mdi/bell-ring-outline')['default']
     'Mdi:bookOpenVariant': typeof import('~icons/mdi/book-open-variant')['default']
+    'Mdi:broom': typeof import('~icons/mdi/broom')['default']
     'Mdi:calendarRange': typeof import('~icons/mdi/calendar-range')['default']
     'Mdi:chartLine': typeof import('~icons/mdi/chart-line')['default']
     'Mdi:check': typeof import('~icons/mdi/check')['default']

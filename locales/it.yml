@@ -1165,3 +1165,4 @@ reclaim:
   freed: "Liberati {size}"
   failed: "Pulizia non riuscita"
   agent-too-old: "Questo agent non può ancora pulire. Aggiornalo all'ultima versione."
+  enable-actions: "Abilita le azioni sui container per fare pulizia da qui."

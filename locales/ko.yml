@@ -1167,3 +1167,4 @@ reclaim:
   freed: "{size} 확보됨"
   failed: "정리 실패"
   agent-too-old: "이 에이전트는 아직 정리할 수 없습니다. 최신 버전으로 업데이트하세요."
+  enable-actions: "여기서 정리하려면 컨테이너 작업을 활성화하세요."

@@ -1165,3 +1165,4 @@ reclaim:
   freed: "{size} liberados"
   failed: "A limpeza falhou"
   agent-too-old: "Este agente ainda não consegue limpar. Atualize-o para a versão mais recente."
+  enable-actions: "Ative as ações de contêiner para limpar a partir daqui."

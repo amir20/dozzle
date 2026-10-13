@@ -1167,3 +1167,4 @@ reclaim:
   freed: "Zwolniono {size}"
   failed: "Czyszczenie nie powiodło się"
   agent-too-old: "Ten agent nie potrafi jeszcze czyścić. Zaktualizuj go do najnowszej wersji."
+  enable-actions: "Włącz akcje kontenerów, aby sprzątać stąd."

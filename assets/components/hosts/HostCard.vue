@@ -58,9 +58,10 @@
       <div
         v-if="host.available && hasHostMetrics && !isMobile"
         class="border-base-content/10 text-base-content/50 ml-auto flex flex-wrap items-center gap-x-3 gap-y-1 rounded-md border px-2 py-0.5 text-xs tabular-nums"
-        :title="$t('label.host')"
       >
-        <ph:pulse class="size-3.5 opacity-60" />
+        <!-- the title sits on the icon, not the strip: the reclaimable panel opens
+             inside the strip and would show "Host" over itself -->
+        <ph:pulse class="size-3.5 opacity-60" :title="$t('label.host')" />
         <!-- A mono space is a whole cell wide, so "3d 4h" read as two values; the
              negative word-spacing pulls it back to a normal gap. -->
         <span v-if="uptimeLabel">

@@ -38,7 +38,9 @@ const i18n = createI18n({
         freed: "Freed {size}",
         failed: "Clean up failed",
         "agent-too-old": "This agent can't clean up yet.",
+        "enable-actions": "Enable container actions to clean up from here.",
       },
+      hint: { "learn-more": "Learn more" },
     },
   },
 });
@@ -88,6 +90,17 @@ describe("<HostReclaimable />", () => {
     const wrapper = mountWith();
     expect(wrapper.find("input[type=checkbox]").exists()).toBe(false);
     expect(button(wrapper, "Clean up")).toBeUndefined();
+    expect(wrapper.text()).toContain("Enable container actions");
+    expect(wrapper.find("a[href='https://dozzle.dev/guide/actions']").exists()).toBe(true);
+  });
+
+  test("says nothing about actions on k8s, which can't clean up at all", () => {
+    config.enableActions = false;
+    expect(mountWith({ type: "k8s" }).text()).not.toContain("Enable container actions");
+  });
+
+  test("hides the actions hint once actions are on", () => {
+    expect(mountWith().text()).not.toContain("Enable container actions");
   });
 
   test("starts with everything but volumes picked", () => {

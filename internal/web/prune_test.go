@@ -9,6 +9,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/amir20/dozzle/internal/auth"
 	"github.com/amir20/dozzle/internal/container"
 	"github.com/amir20/dozzle/internal/hostservice"
 	"github.com/stretchr/testify/assert"
@@ -80,5 +81,21 @@ func Test_handler_pruneHost_errors(t *testing.T) {
 func Test_handler_pruneHost_notRegisteredInK8s(t *testing.T) {
 	pruner := &fakePruner{}
 	assert.NotEqual(t, http.StatusOK, postPrune(t, rolloutRouter(pruner, "k8s"), `{"images":true}`).Code)
+	assert.False(t, pruner.called)
+}
+
+// A user confined by labels could otherwise delete containers and volumes they can't see.
+func Test_handler_pruneHost_refusesRestrictedUser(t *testing.T) {
+	pruner := &fakePruner{}
+	h := &handler{
+		hostService: pruner,
+		config:      &Config{Base: "/", Mode: "server", EnableActions: true, Authorization: Authorization{Provider: SIMPLE}},
+	}
+	req := httptest.NewRequest(http.MethodPost, "/api/hosts/local/prune", strings.NewReader(`{"images":true}`))
+	req = req.WithContext(auth.WithUser(req.Context(), auth.User{Username: "amir", Roles: auth.All, ContainerLabels: devLabels}))
+	rr := httptest.NewRecorder()
+	h.pruneHost(rr, req)
+
+	assert.Equal(t, http.StatusForbidden, rr.Code)
 	assert.False(t, pruner.called)
 }

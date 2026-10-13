@@ -1165,3 +1165,4 @@ reclaim:
   freed: "Frigjort {size}"
   failed: "Oprydning mislykkedes"
   agent-too-old: "Denne agent kan ikke rydde op endnu. Opdater den til nyeste version."
+  enable-actions: "Slå containerhandlinger til for at rydde op herfra."

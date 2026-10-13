@@ -1177,3 +1177,4 @@ reclaim:
   freed: "{size} dikosongkan"
   failed: "Pembersihan gagal"
   agent-too-old: "Agent ini belum bisa membersihkan. Perbarui ke versi terbaru."
+  enable-actions: "Aktifkan aksi kontainer untuk membersihkan dari sini."

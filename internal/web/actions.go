@@ -169,6 +169,12 @@ func (h *handler) pruneHost(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, http.StatusText(http.StatusForbidden), http.StatusForbidden)
 		return
 	}
+	// A prune reaches stopped containers and volumes outside a label filter, so
+	// a user confined to some containers can't run one on the whole host.
+	if h.restrictedUser(r) {
+		http.Error(w, "your account only sees some containers, so it can't clean up the whole host", http.StatusForbidden)
+		return
+	}
 
 	pruner, ok := h.hostService.(hostPruner)
 	if !ok {
