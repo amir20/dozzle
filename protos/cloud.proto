@@ -566,6 +566,17 @@ message InspectContainerResult {
   int32 restart_count = 20;
   bool oom_killed = 21;
   int32 exit_code = 22;
+  // The same mounts as `mounts`, in order, with whether each is writable.
+  // `mounts` keeps its "source:destination (type)" strings for older readers.
+  // Empty from a Dozzle that predates this field.
+  repeated ContainerMount mount_details = 23;
+}
+
+message ContainerMount {
+  string source = 1;
+  string destination = 2;
+  string type = 3;
+  bool rw = 4;
 }
 
 // retro_scan: one pass over every visible container's logs since a point in

@@ -8,6 +8,7 @@ import (
 	"github.com/amir20/dozzle/internal/container"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
+	"github.com/stretchr/testify/require"
 )
 
 // The read path collapses the find-then-act round-trip: when a name matches
@@ -217,6 +218,29 @@ func TestExecuteTool_InspectContainer_AllStopped_ResolvesNewestCorpse(t *testing
 	assert.True(t, resp.Success)
 	assert.Equal(t, "newest", resp.GetInspectContainer().Id)
 	assert.Equal(t, "svc.1.bbb", resp.GetInspectContainer().Name)
+}
+
+func TestExecuteTool_InspectContainer_MountDetails(t *testing.T) {
+	c := container.Container{ID: "abc", Name: "app", Host: "local", State: "running", Mounts: []container.Mount{
+		{Type: "bind", Source: "/data/media", Destination: "/media", RW: false},
+		{Type: "volume", Source: "/var/lib/docker/volumes/cfg/_data", Destination: "/config", RW: true},
+	}}
+	mockHost := &MockHostService{}
+	withResolver(mockHost, c)
+	mockHost.On("FindContainer", "local", "abc", container.ContainerLabels(nil)).Return(container.NewContainerService(&MockClientService{}, c), nil)
+
+	resp := ExecuteTool(context.Background(), "inspect_container", `{"container_id":"abc"}`, ToolDeps{HostService: mockHost})
+	require.True(t, resp.Success, resp.Error)
+	r := resp.GetInspectContainer()
+	// The string form is unchanged; the structured form adds rw, in the same order.
+	assert.Equal(t, []string{"/data/media:/media (bind)", "/var/lib/docker/volumes/cfg/_data:/config (volume)"}, r.Mounts)
+	require.Len(t, r.MountDetails, 2)
+	assert.Equal(t, "/data/media", r.MountDetails[0].Source)
+	assert.Equal(t, "/media", r.MountDetails[0].Destination)
+	assert.Equal(t, "bind", r.MountDetails[0].Type)
+	assert.False(t, r.MountDetails[0].Rw)
+	assert.Equal(t, "/config", r.MountDetails[1].Destination)
+	assert.True(t, r.MountDetails[1].Rw)
 }
 
 func TestExecuteTool_RestartContainer_AllStopped_StillRefuses(t *testing.T) {
