@@ -6,12 +6,15 @@ package config
 
 import (
 	"errors"
+	"io"
 	"os"
 	"path/filepath"
 	"regexp"
 	"sync"
+	"syscall"
 	"time"
 
+	"github.com/amir20/dozzle/internal/utils"
 	"go.yaml.in/yaml/v3"
 )
 
@@ -112,6 +115,7 @@ func load(path string) (File, error) {
 
 // Update applies change to the current file and writes it back atomically, so
 // a crash mid-write can never leave a half-written file that fails startup.
+// A bind-mounted file is the exception, see below.
 func Update(path string, change func(*File)) error {
 	mu.Lock()
 	defer mu.Unlock()
@@ -138,5 +142,14 @@ func Update(path string, change func(*File)) error {
 	if err := tmp.Close(); err != nil {
 		return err
 	}
-	return os.Rename(tmp.Name(), path)
+	err = os.Rename(tmp.Name(), path)
+	// A single-file bind mount cannot be renamed over (EBUSY), so the file is
+	// written in place instead, which is what every other file under ./data does.
+	if errors.Is(err, syscall.EBUSY) {
+		return utils.WriteFile(path, func(w io.Writer) error {
+			_, err := w.Write(data)
+			return err
+		})
+	}
+	return err
 }
