@@ -4,6 +4,7 @@
   <Popover
     :hover="step === 'view' && !touched"
     :close-on-select="false"
+    sheet
     placement="bottom-end"
     panel-class="rounded-box border-base-content/10 bg-base-200 w-80 border p-3 text-sm shadow-lg"
     @close="onClose"
@@ -15,128 +16,131 @@
       </button>
     </template>
 
-    <template v-if="step === 'confirm' || step === 'running'">
-      <div class="flex items-start gap-3">
-        <div class="bg-error/10 text-error flex size-8 shrink-0 items-center justify-center rounded-full">
-          <mdi:trash-can-outline class="size-4" />
-        </div>
-        <div class="min-w-0">
-          <div class="font-semibold">
-            {{ $t("reclaim.confirm-title", { size: size(selectedTotal), host: host.name }) }}
+    <!-- A sheet pads for menu rows only; a panel this dense needs the desktop's p-3. -->
+    <div :class="{ 'p-2 text-sm': isMobile }">
+      <template v-if="step === 'confirm' || step === 'running'">
+        <div class="flex items-start gap-3">
+          <div class="bg-error/10 text-error flex size-8 shrink-0 items-center justify-center rounded-full">
+            <mdi:trash-can-outline class="size-4" />
           </div>
-          <div class="text-base-content/60 mt-0.5">{{ $t("reclaim.cannot-undo") }}</div>
+          <div class="min-w-0">
+            <div class="font-semibold">
+              {{ $t("reclaim.confirm-title", { size: size(selectedTotal), host: host.name }) }}
+            </div>
+            <div class="text-base-content/60 mt-0.5">{{ $t("reclaim.cannot-undo") }}</div>
+          </div>
         </div>
-      </div>
 
-      <ul class="border-base-content/15 bg-base-200/40 divide-base-content/10 mt-3 divide-y rounded-lg border">
-        <li v-for="row in selectedRows" :key="row.key" class="flex items-center gap-2 px-2 py-1.5">
-          <component :is="row.icon" class="size-4 shrink-0 opacity-60" />
-          <span class="min-w-0 flex-1 truncate">{{ row.label }}</span>
-          <span v-if="row.count !== undefined" class="text-base-content/40 font-mono">{{ row.count }}</span>
-          <span class="w-20 text-right font-mono">{{ size(row.size) }}</span>
-        </li>
-      </ul>
-
-      <p v-if="picked.images" class="text-base-content/40 mt-2 text-xs">{{ $t("reclaim.images-repull") }}</p>
-
-      <InlineNotice v-if="picked.volumes" type="warning" class="mt-3">
-        <p>{{ $t("reclaim.volumes-warning", { count: reclaimable.volumes }, reclaimable.volumes) }}</p>
-        <label class="mt-2 flex items-center gap-2">
-          <input
-            v-model="volumesConfirmed"
-            type="checkbox"
-            class="checkbox checkbox-error checkbox-sm"
-            :disabled="step === 'running'"
-          />
-          {{ $t("reclaim.volumes-confirm") }}
-        </label>
-      </InlineNotice>
-
-      <!-- A running delete stays on this step, so the panel keeps its shape and
-           the list shows what is going while it goes. -->
-      <div class="mt-3 flex items-center justify-end gap-2">
-        <span v-if="step === 'running'" class="text-base-content/60 mr-auto text-xs">
-          {{ $t("reclaim.deleting", { size: size(selectedTotal) }) }}
-        </span>
-        <button v-else type="button" class="btn btn-sm" @click="step = 'view'">{{ $t("button.cancel") }}</button>
-        <button
-          type="button"
-          class="btn btn-error btn-sm"
-          :disabled="step === 'running' || (picked.volumes && !volumesConfirmed)"
-          @click="prune"
-        >
-          <span v-if="step === 'running'" class="loading loading-spinner size-3.5"></span>
-          {{ $t("reclaim.delete") }}
-        </button>
-      </div>
-    </template>
-
-    <template v-else>
-      <InlineNotice v-if="step === 'done'" type="success" class="mb-3">
-        <span class="font-semibold">{{ $t("reclaim.freed", { size: size(freed) }) }}</span>
-      </InlineNotice>
-      <InlineNotice v-else-if="step === 'error'" type="error" class="mb-3">
-        <div class="font-semibold">{{ $t("reclaim.failed") }}</div>
-        <div class="text-base-content/60 break-words">{{ error }}</div>
-      </InlineNotice>
-
-      <div class="flex items-baseline justify-between gap-2">
-        <span class="text-base-content/60 text-xs font-semibold tracking-wide uppercase">
-          {{ $t("label.reclaimable") }}
-        </span>
-        <span class="font-mono font-semibold">{{ size(total) }}</span>
-      </div>
-
-      <ul class="mt-3 space-y-2.5">
-        <li v-for="row in rows" :key="row.key" :class="{ 'opacity-50': row.empty }">
-          <component :is="canPrune ? 'label' : 'div'" class="flex items-center gap-2">
-            <input
-              v-if="canPrune"
-              type="checkbox"
-              class="checkbox checkbox-primary checkbox-sm"
-              :checked="picked[row.key] && !row.empty"
-              :disabled="row.empty"
-              @change="pick(row.key, ($event.target as HTMLInputElement).checked)"
-            />
-            <component :is="row.icon" v-else class="size-4 shrink-0 opacity-60" />
+        <ul class="border-base-content/15 bg-base-200/40 divide-base-content/10 mt-3 divide-y rounded-lg border">
+          <li v-for="row in selectedRows" :key="row.key" class="flex items-center gap-2 px-2 py-1.5">
+            <component :is="row.icon" class="size-4 shrink-0 opacity-60" />
             <span class="min-w-0 flex-1 truncate">{{ row.label }}</span>
             <span v-if="row.count !== undefined" class="text-base-content/40 font-mono">{{ row.count }}</span>
             <span class="w-20 text-right font-mono">{{ size(row.size) }}</span>
-          </component>
-          <!-- each kind's share of the total, neutral like the host card's disk bar -->
-          <div class="bg-base-content/10 mt-1 h-1 overflow-hidden rounded-full" :class="canPrune ? 'ml-7' : 'ml-6'">
-            <div
-              class="bg-base-content/40 h-full rounded-full transition-[width] duration-500 motion-reduce:transition-none"
-              :style="{ width: share(row.size) }"
-            ></div>
-          </div>
-        </li>
-      </ul>
+          </li>
+        </ul>
 
-      <div class="bg-base-content/10 my-3 h-px"></div>
-      <i18n-t scope="global" keypath="tooltip.reclaimable-source" tag="p" class="text-base-content/40 text-xs">
-        <template #command>
-          <code class="font-mono">docker system df</code>
-        </template>
-      </i18n-t>
-      <button
-        v-if="canPrune"
-        type="button"
-        class="btn btn-primary btn-sm mt-3 w-full"
-        :disabled="selectedRows.length === 0"
-        @click="confirm"
-      >
-        <mdi:broom class="size-4" />
-        {{ $t("reclaim.clean-up") }}
-        <span v-if="selectedRows.length" class="font-mono">{{ size(selectedTotal) }}</span>
-      </button>
-      <InlineNotice v-if="actionsOff" type="info" class="mt-3">
-        {{ $t("reclaim.enable-actions") }}
-        <a href="https://dozzle.dev/guide/actions" target="_blank" rel="noopener" class="link">
-          {{ $t("hint.learn-more") }}
-        </a>
-      </InlineNotice>
-    </template>
+        <p v-if="picked.images" class="text-base-content/40 mt-2 text-xs">{{ $t("reclaim.images-repull") }}</p>
+
+        <InlineNotice v-if="picked.volumes" type="warning" class="mt-3">
+          <p>{{ $t("reclaim.volumes-warning", { count: reclaimable.volumes }, reclaimable.volumes) }}</p>
+          <label class="mt-2 flex items-center gap-2">
+            <input
+              v-model="volumesConfirmed"
+              type="checkbox"
+              class="checkbox checkbox-error checkbox-sm"
+              :disabled="step === 'running'"
+            />
+            {{ $t("reclaim.volumes-confirm") }}
+          </label>
+        </InlineNotice>
+
+        <!-- A running delete stays on this step, so the panel keeps its shape and
+           the list shows what is going while it goes. -->
+        <div class="mt-3 flex items-center justify-end gap-2">
+          <span v-if="step === 'running'" class="text-base-content/60 mr-auto text-xs">
+            {{ $t("reclaim.deleting", { size: size(selectedTotal) }) }}
+          </span>
+          <button v-else type="button" class="btn btn-sm" @click="step = 'view'">{{ $t("button.cancel") }}</button>
+          <button
+            type="button"
+            class="btn btn-error btn-sm"
+            :disabled="step === 'running' || (picked.volumes && !volumesConfirmed)"
+            @click="prune"
+          >
+            <span v-if="step === 'running'" class="loading loading-spinner size-3.5"></span>
+            {{ $t("reclaim.delete") }}
+          </button>
+        </div>
+      </template>
+
+      <template v-else>
+        <InlineNotice v-if="step === 'done'" type="success" class="mb-3">
+          <span class="font-semibold">{{ $t("reclaim.freed", { size: size(freed) }) }}</span>
+        </InlineNotice>
+        <InlineNotice v-else-if="step === 'error'" type="error" class="mb-3">
+          <div class="font-semibold">{{ $t("reclaim.failed") }}</div>
+          <div class="text-base-content/60 break-words">{{ error }}</div>
+        </InlineNotice>
+
+        <div class="flex items-baseline justify-between gap-2">
+          <span class="text-base-content/60 text-xs font-semibold tracking-wide uppercase">
+            {{ $t("label.reclaimable") }}
+          </span>
+          <span class="font-mono font-semibold">{{ size(total) }}</span>
+        </div>
+
+        <ul class="mt-3 space-y-2.5">
+          <li v-for="row in rows" :key="row.key" :class="{ 'opacity-50': row.empty }">
+            <component :is="canPrune ? 'label' : 'div'" class="flex items-center gap-2">
+              <input
+                v-if="canPrune"
+                type="checkbox"
+                class="checkbox checkbox-primary checkbox-sm"
+                :checked="picked[row.key] && !row.empty"
+                :disabled="row.empty"
+                @change="pick(row.key, ($event.target as HTMLInputElement).checked)"
+              />
+              <component :is="row.icon" v-else class="size-4 shrink-0 opacity-60" />
+              <span class="min-w-0 flex-1 truncate">{{ row.label }}</span>
+              <span v-if="row.count !== undefined" class="text-base-content/40 font-mono">{{ row.count }}</span>
+              <span class="w-20 text-right font-mono">{{ size(row.size) }}</span>
+            </component>
+            <!-- each kind's share of the total, neutral like the host card's disk bar -->
+            <div class="bg-base-content/10 mt-1 h-1 overflow-hidden rounded-full" :class="canPrune ? 'ml-7' : 'ml-6'">
+              <div
+                class="bg-base-content/40 h-full rounded-full transition-[width] duration-500 motion-reduce:transition-none"
+                :style="{ width: share(row.size) }"
+              ></div>
+            </div>
+          </li>
+        </ul>
+
+        <div class="bg-base-content/10 my-3 h-px"></div>
+        <i18n-t scope="global" keypath="tooltip.reclaimable-source" tag="p" class="text-base-content/40 text-xs">
+          <template #command>
+            <code class="font-mono">docker system df</code>
+          </template>
+        </i18n-t>
+        <button
+          v-if="canPrune"
+          type="button"
+          class="btn btn-primary btn-sm mt-3 w-full"
+          :disabled="selectedRows.length === 0"
+          @click="confirm"
+        >
+          <mdi:broom class="size-4" />
+          {{ $t("reclaim.clean-up") }}
+          <span v-if="selectedRows.length" class="font-mono">{{ size(selectedTotal) }}</span>
+        </button>
+        <InlineNotice v-if="actionsOff" type="info" class="mt-3">
+          {{ $t("reclaim.enable-actions") }}
+          <a href="https://dozzle.dev/guide/actions" target="_blank" rel="noopener" class="link">
+            {{ $t("hint.learn-more") }}
+          </a>
+        </InlineNotice>
+      </template>
+    </div>
   </Popover>
 </template>
 
