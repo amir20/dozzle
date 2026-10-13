@@ -150,6 +150,9 @@ func (sc *StatsCollector) Start(parentCtx context.Context) bool {
 		return false
 	}
 
+	// Entries left from a previous run hold cancels for a context that already
+	// ended. Kept, they would make streamRunning skip every container they name.
+	sc.cancelers.Clear()
 	sc.streamRunning(parentCtx, ctx)
 
 	events := make(chan container.ContainerEvent)
