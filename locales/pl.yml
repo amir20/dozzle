@@ -1157,6 +1157,7 @@ inspect:
   load-failed: "Nie udało się wczytać szczegółów kontenera."
 reclaim:
   clean-up: "Wyczyść"
+  free-up: "Zwolnij {size}"
   confirm-title: "Zwolnić {size} na {host}?"
   cannot-undo: "Tej operacji nie można cofnąć."
   images-repull: "Zatrzymany stack pobierze swoje obrazy ponownie przy następnym uruchomieniu."

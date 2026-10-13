@@ -1156,6 +1156,7 @@ inspect:
   load-failed: "Containerdetails konden niet worden geladen."
 reclaim:
   clean-up: "Opruimen"
+  free-up: "{size} vrijmaken"
   confirm-title: "{size} vrijmaken op {host}?"
   cannot-undo: "Dit kan niet ongedaan worden gemaakt."
   images-repull: "Een gestopte stack haalt zijn images opnieuw op bij de volgende start."

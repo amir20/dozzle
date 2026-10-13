@@ -1163,6 +1163,7 @@ inspect:
   load-failed: "Could not load container details."
 reclaim:
   clean-up: "Clean up"
+  free-up: "Free up {size}"
   confirm-title: "Free up {size} on {host}?"
   cannot-undo: "This can't be undone."
   images-repull: "A stopped stack pulls its images again on its next start."

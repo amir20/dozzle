@@ -1157,6 +1157,7 @@ inspect:
   load-failed: "컨테이너 정보를 불러오지 못했습니다."
 reclaim:
   clean-up: "정리"
+  free-up: "{size} 확보"
   confirm-title: "{host}에서 {size}를 확보할까요?"
   cannot-undo: "되돌릴 수 없습니다."
   images-repull: "중지된 스택은 다음에 시작할 때 이미지를 다시 받아옵니다."

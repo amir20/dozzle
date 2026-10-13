@@ -1155,6 +1155,7 @@ inspect:
   load-failed: "Não foi possível carregar os detalhes do contêiner."
 reclaim:
   clean-up: "Limpar"
+  free-up: "Liberar {size}"
   confirm-title: "Liberar {size} em {host}?"
   cannot-undo: "Isto não pode ser desfeito."
   images-repull: "Um stack parado baixa suas imagens de novo na próxima vez que iniciar."

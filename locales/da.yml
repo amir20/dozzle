@@ -1155,6 +1155,7 @@ inspect:
   load-failed: "Kunne ikke indlæse containerdetaljer."
 reclaim:
   clean-up: "Ryd op"
+  free-up: "Frigør {size}"
   confirm-title: "Frigør {size} på {host}?"
   cannot-undo: "Dette kan ikke fortrydes."
   images-repull: "En stoppet stack henter sine images igen ved næste start."

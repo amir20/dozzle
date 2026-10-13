@@ -10,9 +10,20 @@
     @close="onClose"
   >
     <template #trigger>
-      <button type="button" class="hover:bg-base-content/10 -mx-1 rounded px-1 transition-colors">
+      <!-- Once disk is tight the fact becomes the action, so the one moment it
+           matters is the one moment it can't be missed. -->
+      <button v-if="nudge" type="button" class="btn btn-xs border-base-content/20 gap-1 font-normal">
+        <mdi:broom class="text-warning size-3.5" />
+        {{ $t("reclaim.free-up", { size: size(total) }) }}
+      </button>
+      <button
+        v-else
+        type="button"
+        class="hover:bg-base-content/10 -mx-1 inline-flex items-center gap-1.5 rounded px-1 transition-colors"
+      >
         {{ $t("label.reclaimable") }}
         <span class="text-base-content/80 font-mono [word-spacing:-0.4ch]">{{ size(total) }}</span>
+        <mdi:chevron-down class="-ml-1 size-3 opacity-40" />
       </button>
     </template>
 
@@ -152,7 +163,8 @@ import PhDatabase from "~icons/ph/database";
 import PhStopCircle from "~icons/ph/stop-circle";
 import PhHammer from "~icons/ph/hammer";
 
-const { host } = defineProps<{ host: Host }>();
+// The fullest drive's percent, from HostCard, which already works it out for its meter.
+const { host, diskPercent } = defineProps<{ host: Host; diskPercent?: number }>();
 
 const { t } = useI18n();
 const { updateHostMetrics } = useHosts();
@@ -177,6 +189,8 @@ const reclaimable = computed(() => host.reclaimable ?? EMPTY);
 const prunable = computed(() => host.type !== "k8s");
 const canPrune = computed(() => enableActions && prunable.value);
 const actionsOff = computed(() => !enableActions && prunable.value);
+// Past UsageMeter's warning threshold, with something to free.
+const nudge = computed(() => canPrune.value && (diskPercent ?? 0) >= 70 && total.value > 0);
 
 const step = ref<Step>("view");
 // Volumes start unticked: an unused named volume can be a database between redeploys.

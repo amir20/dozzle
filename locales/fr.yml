@@ -1155,6 +1155,7 @@ inspect:
   load-failed: "Impossible de charger les détails du conteneur."
 reclaim:
   clean-up: "Nettoyer"
+  free-up: "Libérer {size}"
   confirm-title: "Libérer {size} sur {host} ?"
   cannot-undo: "Cette action est irréversible."
   images-repull: "Une stack arrêtée retélécharge ses images à son prochain démarrage."

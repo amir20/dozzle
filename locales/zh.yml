@@ -1155,6 +1155,7 @@ inspect:
   load-failed: "无法加载容器详情。"
 reclaim:
   clean-up: "清理"
+  free-up: "释放 {size}"
   confirm-title: "要在 {host} 上释放 {size} 吗？"
   cannot-undo: "此操作无法撤销。"
   images-repull: "已停止的 stack 下次启动时会重新拉取镜像。"

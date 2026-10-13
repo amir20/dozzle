@@ -1167,6 +1167,7 @@ inspect:
   load-failed: "Gagal memuat detail kontainer."
 reclaim:
   clean-up: "Bersihkan"
+  free-up: "Kosongkan {size}"
   confirm-title: "Kosongkan {size} di {host}?"
   cannot-undo: "Tindakan ini tidak dapat dibatalkan."
   images-repull: "Stack yang berhenti akan menarik ulang image-nya saat dijalankan lagi."

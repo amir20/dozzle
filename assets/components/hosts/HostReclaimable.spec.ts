@@ -28,6 +28,7 @@ const i18n = createI18n({
       button: { cancel: "Cancel" },
       reclaim: {
         "clean-up": "Clean up",
+        "free-up": "Free up {size}",
         "confirm-title": "Free up {size} on {host}?",
         "cannot-undo": "This can't be undone.",
         "images-repull": "A stopped stack pulls its images again on its next start.",
@@ -77,8 +78,8 @@ beforeEach(() => {
 });
 afterEach(() => vi.unstubAllGlobals());
 
-function mountWith(extra: Partial<Host> = {}) {
-  return mount(HostReclaimable, { props: { host: { ...host, ...extra } }, global: { plugins: [i18n] } });
+function mountWith(extra: Partial<Host> = {}, diskPercent?: number) {
+  return mount(HostReclaimable, { props: { host: { ...host, ...extra }, diskPercent }, global: { plugins: [i18n] } });
 }
 
 const button = (wrapper: ReturnType<typeof mountWith>, text: string) =>
@@ -97,6 +98,16 @@ describe("<HostReclaimable />", () => {
   test("says nothing about actions on k8s, which can't clean up at all", () => {
     config.enableActions = false;
     expect(mountWith({ type: "k8s" }).text()).not.toContain("Enable container actions");
+  });
+
+  test("turns into a free up button once disk is tight", () => {
+    expect(button(mountWith({}, 97), "Free up 6 GB")).toBeDefined();
+    expect(button(mountWith({}, 40), "Reclaimable")).toBeDefined();
+  });
+
+  test("stays plain text on a tight disk without actions", () => {
+    config.enableActions = false;
+    expect(button(mountWith({}, 97), "Reclaimable")).toBeDefined();
   });
 
   test("hides the actions hint once actions are on", () => {

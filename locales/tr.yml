@@ -1158,6 +1158,7 @@ inspect:
   load-failed: "Konteyner ayrıntıları yüklenemedi."
 reclaim:
   clean-up: "Temizle"
+  free-up: "{size} boşalt"
   confirm-title: "{host} üzerinde {size} boşaltılsın mı?"
   cannot-undo: "Bu işlem geri alınamaz."
   images-repull: "Durdurulmuş bir stack, bir sonraki başlatmada imajlarını yeniden çeker."

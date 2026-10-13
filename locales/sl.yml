@@ -1160,6 +1160,7 @@ inspect:
   load-failed: "Podrobnosti vsebnika ni bilo mogoče naložiti."
 reclaim:
   clean-up: "Počisti"
+  free-up: "Sprosti {size}"
   confirm-title: "Sprostim {size} na {host}?"
   cannot-undo: "Tega ni mogoče razveljaviti."
   images-repull: "Ustavljen sklad bo ob naslednjem zagonu znova prenesel svoje slike."
