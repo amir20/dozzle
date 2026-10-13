@@ -156,30 +156,26 @@
     </div>
 
     <!-- On a phone, disk is a cell in the strip above and uptime and load trail
-         it as a footer. Under the name they read as facts about Docker; led by
-         the same pulse as the desktop chip and sitting under the host's disk,
-         they read as the machine's. -->
+         it as a footer. Under the name they read as facts about Docker; sitting
+         under the host's disk, they read as the machine's. -->
     <div
       v-if="isMobile && host.available && (uptimeLabel || host.metricsAvailable || host.reclaimable)"
-      class="text-base-content/50 -mt-1 flex flex-wrap items-center justify-end gap-x-2 gap-y-1 px-1 text-xs tabular-nums"
+      class="text-base-content/50 -mt-1 flex flex-wrap items-center justify-end gap-x-2.5 gap-y-1 px-1 text-xs tabular-nums"
     >
-      <ph:pulse class="size-3.5 opacity-60" :title="$t('label.host')" />
-      <template v-if="uptimeLabel">
-        <span>
-          {{ $t("label.uptime") }}
-          <span class="text-base-content/80 font-mono [word-spacing:-0.4ch]">{{ uptimeLabel }}</span>
-        </span>
-      </template>
-      <template v-if="host.metricsAvailable">
-        <span v-if="uptimeLabel" class="text-base-content/25">·</span>
-        <span :title="loadTitle">
-          {{ $t("label.load") }} <span class="font-mono" :class="loadClass">{{ loadLabel }}</span>
-        </span>
-      </template>
-      <template v-if="host.reclaimable">
-        <span v-if="uptimeLabel || host.metricsAvailable" class="text-base-content/25">·</span>
+      <!-- No separators and no pulse: on a phone they cost the width that keeps
+           this on one line. -->
+      <span v-if="uptimeLabel">
+        {{ $t("label.uptime") }}
+        <span class="text-base-content/80 font-mono [word-spacing:-0.4ch]">{{ uptimeLabel }}</span>
+      </span>
+      <span v-if="host.metricsAvailable" :title="loadTitle">
+        {{ $t("label.load") }} <span class="font-mono" :class="loadClass">{{ loadLabel }}</span>
+      </span>
+      <!-- Wrapped: Popover renders its panel as a second root, which would
+           otherwise take a flex gap of its own. -->
+      <span v-if="host.reclaimable">
         <HostReclaimable :host="host" :disk-percent="diskPercent" />
-      </template>
+      </span>
     </div>
   </div>
 </template>
