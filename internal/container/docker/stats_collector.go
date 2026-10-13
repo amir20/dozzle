@@ -65,6 +65,42 @@ func (c *StatsCollector) Stop() {
 	c.lifecycle.Release(timeToStop)
 }
 
+// startStream starts a stats stream for id, replacing any stream still retrying
+// for it. Without the replace, a start that arrives without a matching die (a
+// restart, a duplicate event) would leave two loops feeding sc.stream for one
+// container, doubling its samples. The canceler is stored before the goroutine
+// starts so a resync right after cannot miss it and start a second one.
+func (sc *StatsCollector) startStream(parent context.Context, id string) {
+	if cancel, ok := sc.cancelers.LoadAndDelete(id); ok {
+		cancel()
+	}
+	ctx, cancel := context.WithCancel(parent)
+	sc.cancelers.Store(id, cancel)
+	go streamStats(ctx, sc, id)
+}
+
+// streamRunning lists the running containers and starts a stream for each one
+// that has none. It runs at start and again whenever the event stream
+// reconnects, since a container started while it was down sent its `start`
+// event to nobody.
+func (sc *StatsCollector) streamRunning(listCtx, streamCtx context.Context) {
+	timeoutCtx, cancel := context.WithTimeout(listCtx, 3*time.Second) // 3 seconds to list containers is hard limit
+	defer cancel()
+	containers, err := sc.client.ListContainers(timeoutCtx, sc.labels)
+	if err != nil {
+		log.Error().Str("host", sc.client.Host().Name).Err(err).Msg("failed to list containers")
+		return
+	}
+	for _, c := range containers {
+		if c.State != "running" {
+			continue
+		}
+		if _, ok := sc.cancelers.Load(c.ID); !ok {
+			sc.startStream(streamCtx, c.ID)
+		}
+	}
+}
+
 // streamStats keeps one container's stats flowing for as long as its context
 // lives. ContainerStats returning — with an error OR cleanly — means the stream
 // broke, not that the container is gone: a container that actually stops
@@ -72,9 +108,7 @@ func (c *StatsCollector) Stop() {
 // retried with backoff. Without that, one hiccup left a single container
 // silently absent from every subsequent stats window while its neighbours
 // carried on, which is indistinguishable from a container that is simply idle.
-func streamStats(parent context.Context, sc *StatsCollector, id string) {
-	ctx, cancel := context.WithCancel(parent)
-	sc.cancelers.Store(id, cancel)
+func streamStats(ctx context.Context, sc *StatsCollector, id string) {
 
 	backoff := sc.retryMin
 	for {
@@ -116,19 +150,15 @@ func (sc *StatsCollector) Start(parentCtx context.Context) bool {
 		return false
 	}
 
-	timeoutCtx, cancel := context.WithTimeout(parentCtx, 3*time.Second) // 3 seconds to list containers is hard limit
-	if containers, err := sc.client.ListContainers(timeoutCtx, sc.labels); err == nil {
-		for _, c := range containers {
-			if c.State == "running" {
-				go streamStats(ctx, sc, c.ID)
-			}
-		}
-	} else {
-		log.Error().Str("host", sc.client.Host().Name).Err(err).Msg("failed to list containers")
-	}
-	cancel()
+	// Entries left from a previous run hold cancels for a context that already
+	// ended. Kept, they would make streamRunning skip every container they name.
+	sc.cancelers.Clear()
+	sc.streamRunning(parentCtx, ctx)
 
 	events := make(chan container.ContainerEvent)
+	// resync is how the reconnect loop asks the event goroutine to re-list.
+	// Doing the list there keeps it serialized with start and die events.
+	resync := make(chan struct{}, 1)
 
 	// The event stream is how new containers get a stats stream and dead ones
 	// lose theirs, so losing it degrades the collector even while the existing
@@ -161,25 +191,30 @@ func (sc *StatsCollector) Start(parentCtx context.Context) bool {
 				return
 			}
 			backoff = container.NextBackoff(backoff, sc.retryMax)
+			select {
+			case resync <- struct{}{}:
+			default:
+			}
 		}
 	}()
 
 	go func() {
-		for event := range events {
-			switch event.Name {
-			case "start":
-				// Replace any stream still retrying for this id. Without this,
-				// a start that arrives without a matching die (a restart, a
-				// duplicate event) would leave two loops feeding sc.stream for
-				// one container, doubling its samples.
-				if cancel, ok := sc.cancelers.LoadAndDelete(event.ActorID); ok {
-					cancel()
+		for {
+			select {
+			case <-resync:
+				sc.streamRunning(ctx, ctx)
+			case event, ok := <-events:
+				if !ok {
+					return
 				}
-				go streamStats(ctx, sc, event.ActorID)
+				switch event.Name {
+				case "start":
+					sc.startStream(ctx, event.ActorID)
 
-			case "die":
-				if cancel, ok := sc.cancelers.LoadAndDelete(event.ActorID); ok {
-					cancel()
+				case "die":
+					if cancel, ok := sc.cancelers.LoadAndDelete(event.ActorID); ok {
+						cancel()
+					}
 				}
 			}
 		}

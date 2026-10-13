@@ -211,6 +211,46 @@ func TestEventStreamRetriesInsteadOfStoppingTheCollector(t *testing.T) {
 	assert.True(t, running(collector), "collector should still be running")
 }
 
+// A container started while the event stream was down sent its `start` event
+// to nobody. Without a re-list on reconnect it never got a stats stream.
+func TestEventStreamReconnectStreamsContainersStartedDuringGap(t *testing.T) {
+	ctx, cancel := context.WithCancel(context.Background())
+	t.Cleanup(cancel)
+
+	client := new(mockedClient)
+	client.On("Host").Return(container.Host{ID: "localhost"})
+	client.On("ListContainers", mock.Anything, mock.Anything).Return([]container.Container{}, nil).Once()
+	client.On("ListContainers", mock.Anything, mock.Anything).Return([]container.Container{
+		{ID: "5678", Name: "late", State: "running"},
+	}, nil)
+	client.On("ContainerEvents", mock.Anything, mock.Anything).
+		Return(errors.New("docker went away")).
+		Once()
+	client.On("ContainerEvents", mock.Anything, mock.Anything).
+		Return(nil).
+		Run(func(args mock.Arguments) { <-args.Get(0).(context.Context).Done() })
+	client.On("ContainerStats", mock.Anything, "5678", mock.Anything).
+		Return(nil).
+		Run(func(args mock.Arguments) {
+			select {
+			case args.Get(2).(chan<- container.ContainerStat) <- container.ContainerStat{ID: "5678"}:
+			case <-args.Get(0).(context.Context).Done():
+			}
+		})
+
+	collector := fastRetries(NewStatsCollector(client, container.ContainerLabels{}))
+	stats := make(chan container.ContainerStat)
+	collector.Subscribe(ctx, stats)
+	go collector.Start(ctx)
+
+	select {
+	case s := <-stats:
+		assert.Equal(t, "5678", s.ID)
+	case <-time.After(5 * time.Second):
+		t.Fatal("container started during the event gap never got stats")
+	}
+}
+
 // running reports whether a collector is live, read under the same lock Start
 // and forceStop use.
 func running(sc *StatsCollector) bool {
@@ -260,4 +300,52 @@ func TestStopTimerEndsStartedCollector(t *testing.T) {
 		t.Fatal("stop timer never ended the collector")
 	}
 	assert.False(t, running(collector))
+}
+
+// After an idle stop every stream has ended but its canceler was still stored,
+// so the next Start skipped every container that had been running.
+func TestRestartAfterIdleStopStreamsRunningContainers(t *testing.T) {
+	old := timeToStop
+	timeToStop = 10 * time.Millisecond
+	t.Cleanup(func() { timeToStop = old })
+
+	client := new(mockedClient)
+	client.On("Host").Return(container.Host{ID: "localhost"})
+	client.On("ListContainers", mock.Anything, mock.Anything).Return([]container.Container{
+		{ID: "1234", Name: "test", State: "running"},
+	}, nil)
+	client.On("ContainerEvents", mock.Anything, mock.Anything).
+		Return(nil).
+		Run(func(args mock.Arguments) { <-args.Get(0).(context.Context).Done() })
+	client.On("ContainerStats", mock.Anything, "1234", mock.Anything).
+		Return(nil).
+		Run(func(args mock.Arguments) {
+			select {
+			case args.Get(2).(chan<- container.ContainerStat) <- container.ContainerStat{ID: "1234"}:
+			case <-args.Get(0).(context.Context).Done():
+			}
+			<-args.Get(0).(context.Context).Done()
+		})
+
+	collector := NewStatsCollector(client, container.ContainerLabels{})
+	done := make(chan bool)
+	go func() { done <- collector.Start(t.Context()) }()
+	assert.Eventually(t, func() bool { return running(collector) }, 2*time.Second, time.Millisecond)
+	collector.Stop()
+	select {
+	case <-done:
+	case <-time.After(2 * time.Second):
+		t.Fatal("stop timer never ended the collector")
+	}
+
+	stats := make(chan container.ContainerStat)
+	collector.Subscribe(t.Context(), stats)
+	go collector.Start(t.Context())
+
+	select {
+	case s := <-stats:
+		assert.Equal(t, "1234", s.ID)
+	case <-time.After(5 * time.Second):
+		t.Fatal("container running before the idle stop got no stats after restart")
+	}
 }
