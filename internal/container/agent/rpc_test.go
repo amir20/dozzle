@@ -322,6 +322,37 @@ func TestContainerActionFailureOverAgent(t *testing.T) {
 	assert.ErrorContains(t, err, "permission denied")
 }
 
+// pruningService is a fakeService whose engine can prune.
+type pruningService struct {
+	*fakeService
+	opts container.PruneOptions
+}
+
+func (p *pruningService) PruneHost(_ context.Context, opts container.PruneOptions) (container.PruneResult, error) {
+	p.opts = opts
+	return container.PruneResult{SpaceReclaimed: 4096}, nil
+}
+
+func TestPruneHostOverAgent(t *testing.T) {
+	svc := &pruningService{fakeService: &fakeService{}}
+	rpc := newTestAgent(t, svc, &recordingHandler{})
+
+	opts := container.PruneOptions{Images: true, Volumes: true, Containers: false, BuildCache: true}
+	result, err := rpc.PruneHost(context.Background(), opts)
+
+	require.NoError(t, err)
+	assert.Equal(t, uint64(4096), result.SpaceReclaimed)
+	assert.Equal(t, opts, svc.opts)
+}
+
+// An agent whose engine cannot prune answers like one too old to know the call.
+func TestPruneHostUnsupportedOverAgent(t *testing.T) {
+	rpc := newTestAgent(t, &fakeService{}, &recordingHandler{})
+
+	_, err := rpc.PruneHost(context.Background(), container.PruneOptions{Images: true})
+	assert.ErrorIs(t, err, errors.ErrUnsupported)
+}
+
 func TestLogsBetweenDatesOverAgent(t *testing.T) {
 	logs := []*container.LogEvent{
 		{Id: 1, ContainerID: "abc", Type: container.LogTypeSingle, Message: "hello", RawMessage: "hello", Timestamp: 1789424936, Level: "info", Stream: "stdout"},

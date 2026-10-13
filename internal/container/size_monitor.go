@@ -102,7 +102,7 @@ func (m *sizeMonitor) measureAll(ctx context.Context) {
 	}
 	m.measureLayers(ctx)
 	if ctx.Err() == nil && m.claimVolumes() {
-		m.measureVolumes(ctx)
+		m.measureVolumes(ctx, false)
 	}
 }
 
@@ -169,9 +169,26 @@ func (m *sizeMonitor) claimVolumes() bool {
 	return true
 }
 
+// remeasure runs a volume walk now, whatever the interval says. A walk already
+// running started before the prune and would count what is gone, so it waits for
+// that one and walks again.
+func (m *sizeMonitor) remeasure(ctx context.Context, containersPruned bool) {
+	if m == nil {
+		return
+	}
+	for !m.volumesRunning.CompareAndSwap(false, true) {
+		if !SleepOrDone(ctx, 100*time.Millisecond) {
+			return
+		}
+	}
+	m.lastVolumesNanos.Store(time.Now().UnixNano())
+	m.measureVolumes(ctx, containersPruned)
+}
+
 // measureVolumes runs a walk claimed with claimVolumes, and with it works out what
-// the host could reclaim.
-func (m *sizeMonitor) measureVolumes(ctx context.Context) {
+// the host could reclaim. containersPruned counts no stopped containers: a prune just
+// removed them all, and their destroy events may not have reached the store yet.
+func (m *sizeMonitor) measureVolumes(ctx context.Context, containersPruned bool) {
 	defer m.volumesRunning.Store(false)
 	ctx, cancel := context.WithTimeout(ctx, sizeBatchTimeout)
 	defer cancel()
@@ -184,7 +201,7 @@ func (m *sizeMonitor) measureVolumes(ctx context.Context) {
 	m.store.containers.Range(func(id string, c *Container) bool {
 		m.store.applyVolumes(id, usage.Volumes[id])
 		// what `docker container prune` would remove
-		if c.SizeRw != nil && c.State != "running" && c.State != "paused" && c.State != "restarting" {
+		if !containersPruned && c.SizeRw != nil && c.State != "running" && c.State != "paused" && c.State != "restarting" {
 			reclaimable.Containers++
 			reclaimable.ContainersSize += *c.SizeRw
 		}
@@ -202,7 +219,7 @@ func (m *sizeMonitor) observe(c *Container, stat ContainerStat) {
 	// The first walk belongs to measureAll, which runs it after the layer batch. Until
 	// then a stat claiming it would put both walks on the daemon at once.
 	if m.lastVolumesNanos.Load() != 0 && m.claimVolumes() {
-		go m.measureVolumes(m.store.ctx)
+		go m.measureVolumes(m.store.ctx, false)
 	}
 	if m.layersOff.Load() {
 		return

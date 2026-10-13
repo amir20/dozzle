@@ -10,6 +10,13 @@ import (
 
 type ContainerFilter = func(*Container) bool
 
+// HostPruner is implemented by the ClientServices whose host can delete what
+// Reclaimable counts: docker, and an agent in front of one. PruneHost measures
+// again before it returns, so Host reports what is left.
+type HostPruner interface {
+	PruneHost(ctx context.Context, opts PruneOptions) (PruneResult, error)
+}
+
 type ClientService interface {
 	FindContainer(ctx context.Context, id string, labels ContainerLabels) (Container, error)
 	ListContainers(ctx context.Context, filter ContainerLabels) ([]Container, error)

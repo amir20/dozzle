@@ -81,6 +81,10 @@ func (a *service) ContainerAction(ctx context.Context, container container.Conta
 	return a.client.ContainerAction(ctx, container.ID, action)
 }
 
+func (a *service) PruneHost(ctx context.Context, opts container.PruneOptions) (container.PruneResult, error) {
+	return a.client.PruneHost(ctx, opts)
+}
+
 func (a *service) UpdateContainer(ctx context.Context, c container.Container, progressCh chan<- container.UpdateProgress) (bool, error) {
 	return a.client.UpdateContainer(ctx, c.ID, progressCh)
 }

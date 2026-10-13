@@ -1,6 +1,6 @@
 ---
 title: Uso de disco por contenedor
-sourceHash: 36536624d20d
+sourceHash: 0a70ff275831
 ---
 
 # Uso de disco por contenedor
@@ -34,6 +34,19 @@ Para vigilar el disco en el que están esas carpetas, móntalo en la tarjeta del
 ## Espacio recuperable
 
 La tarjeta del host muestra **Recuperable** junto a su indicador de disco: el espacio que ocupan las cosas que ningún contenedor usa, el mismo total que la columna `RECLAIMABLE` de `docker system df`. Pasa el ratón por encima para ver cuánto hay en imágenes sin usar, volúmenes sin usar, contenedores parados y caché de build. Se actualiza junto con los volúmenes, así que como mucho cada 20 minutos.
+
+### Limpiar
+
+Con las [acciones](/es/guide/actions) activadas, la misma ventana puede borrar lo que muestra. Marca los tipos que quieres eliminar y pulsa **Limpiar**. Dozzle muestra exactamente lo que se va a borrar y pide confirmación antes de eliminar nada, y luego vuelve a medir el host para que las cifras se actualicen al momento.
+
+Cada tipo ejecuta el prune correspondiente:
+
+- **Imágenes sin usar**: `docker image prune -a`. Un stack parado vuelve a descargar sus imágenes en su próximo inicio.
+- **Volúmenes sin usar**: `docker volume prune -a`, que también borra los volúmenes con nombre. Empiezan sin marcar y piden una segunda confirmación, porque un volumen que ningún contenedor usa ahora mismo puede guardar la base de datos de un contenedor que solo se eliminó para un redespliegue.
+- **Contenedores parados**: `docker container prune`
+- **Caché de build**: `docker builder prune -a`
+
+Un [agente](/es/guide/agent) más antiguo que el Dozzle al que informa no puede limpiar, y la ventana lo indica.
 
 ## Cuándo se actualiza
 

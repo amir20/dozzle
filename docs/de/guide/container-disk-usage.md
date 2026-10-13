@@ -1,6 +1,6 @@
 ---
 title: Speicherbelegung der Container
-sourceHash: 36536624d20d
+sourceHash: 0a70ff275831
 ---
 
 # Speicherbelegung der Container
@@ -34,6 +34,19 @@ Um den Datenträger im Blick zu behalten, auf dem diese Ordner liegen, binde ihn
 ## Freigebbarer Speicher
 
 Die Host-Karte zeigt **Freigebbar** neben ihrer Datenträger-Anzeige: Speicher, den Dinge belegen, die kein Container nutzt, dieselbe Summe wie in der Spalte `RECLAIMABLE` von `docker system df`. Fahre mit der Maus darüber, um zu sehen, wie viel davon auf ungenutzte Images, ungenutzte Volumes, gestoppte Container und den Build-Cache entfällt. Der Wert wird zusammen mit den Volumes aktualisiert, also höchstens alle 20 Minuten.
+
+### Aufräumen
+
+Sind [Aktionen](/de/guide/actions) aktiviert, kann dasselbe Popover löschen, was es auflistet. Haken Sie die Arten an, die weg sollen, und klicken Sie auf **Aufräumen**. Dozzle zeigt genau, was gelöscht wird, und fragt nach, bevor etwas verschwindet. Danach misst es den Host erneut, sodass die Zahlen sofort stimmen.
+
+Jede Art führt den passenden Prune-Befehl aus:
+
+- **Ungenutzte Images**: `docker image prune -a`. Ein gestoppter Stack lädt seine Images beim nächsten Start erneut herunter.
+- **Ungenutzte Volumes**: `docker volume prune -a`, das auch benannte Volumes entfernt. Sie sind anfangs nicht angehakt und brauchen eine zweite Bestätigung, denn ein Volume, das gerade kein Container nutzt, kann trotzdem die Datenbank eines Containers enthalten, der nur für ein Redeploy entfernt wurde.
+- **Gestoppte Container**: `docker container prune`
+- **Build-Cache**: `docker builder prune -a`
+
+Ein [Agent](/de/guide/agent), der älter ist als das Dozzle, an das er berichtet, kann nicht aufräumen, und das Popover sagt das auch.
 
 ## Wann der Wert aktualisiert wird
 

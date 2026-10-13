@@ -75,6 +75,34 @@ func (m *MultiHostService) FindContainer(host string, id string, labels containe
 	return container.NewContainerService(client, c), nil
 }
 
+// ErrHostNotFound is a host id no client answers to.
+var ErrHostNotFound = errors.New("host not found")
+
+// PruneHost deletes what opts picks on one host, and returns what that host can
+// still reclaim, measured after the prune. A host that cannot prune (k8s)
+// returns errors.ErrUnsupported, and so does an agent too old to know the call.
+func (m *MultiHostService) PruneHost(ctx context.Context, host string, opts container.PruneOptions) (container.PruneResult, *container.Reclaimable, error) {
+	client, ok := m.manager.Find(host)
+	if !ok {
+		return container.PruneResult{}, nil, fmt.Errorf("%w: %s", ErrHostNotFound, host)
+	}
+	pruner, ok := client.(container.HostPruner)
+	if !ok {
+		return container.PruneResult{}, nil, errors.ErrUnsupported
+	}
+	result, err := pruner.PruneHost(ctx, opts)
+	if err != nil {
+		return result, nil, err
+	}
+	h, err := client.Host(ctx)
+	if err != nil {
+		// the prune went through; only the new numbers are missing
+		log.Warn().Err(err).Str("host", host).Msg("could not read reclaimable space after pruning")
+		return result, nil, nil
+	}
+	return result, h.Reclaimable, nil
+}
+
 func (m *MultiHostService) ListContainersForHost(host string, labels container.ContainerLabels) ([]container.Container, error) {
 	client, ok := m.manager.Find(host)
 	if !ok {

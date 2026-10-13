@@ -1,6 +1,6 @@
 ---
 title: Utilisation du disque par conteneur
-sourceHash: 36536624d20d
+sourceHash: 0a70ff275831
 ---
 
 # Utilisation du disque par conteneur
@@ -34,6 +34,19 @@ Pour surveiller le disque sur lequel se trouvent ces dossiers, montez-le sur la 
 ## Espace récupérable
 
 La carte de l'hôte affiche **Récupérable** à côté de son indicateur de disque : l'espace occupé par ce qu'aucun conteneur n'utilise, le même total que la colonne `RECLAIMABLE` de `docker system df`. Survolez-le pour voir la part des images inutilisées, des volumes inutilisés, des conteneurs arrêtés et du cache de build. Il est actualisé en même temps que les volumes, donc au plus toutes les 20 minutes.
+
+### Faire le ménage
+
+Avec les [actions](/fr/guide/actions) activées, la même fenêtre peut supprimer ce qu'elle liste. Cochez les types à supprimer et cliquez sur **Nettoyer**. Dozzle indique exactement ce qui va partir et demande confirmation avant toute suppression, puis mesure de nouveau l'hôte pour que les chiffres se mettent à jour aussitôt.
+
+Chaque type lance le prune correspondant :
+
+- **Images inutilisées** : `docker image prune -a`. Une stack arrêtée retélécharge ses images à son prochain démarrage.
+- **Volumes inutilisés** : `docker volume prune -a`, qui supprime aussi les volumes nommés. Ils sont décochés au départ et demandent une seconde confirmation, car un volume qu'aucun conteneur n'utilise en ce moment peut tout de même contenir la base de données d'un conteneur supprimé le temps d'un redéploiement.
+- **Conteneurs arrêtés** : `docker container prune`
+- **Cache de build** : `docker builder prune -a`
+
+Un [agent](/fr/guide/agent) plus ancien que le Dozzle auquel il se rattache ne peut pas faire le ménage, et la fenêtre le signale.
 
 ## Quand la valeur est mise à jour
 

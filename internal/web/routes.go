@@ -317,6 +317,9 @@ func createRouter(h *handler) *chi.Mux {
 				if h.config.EnableActions {
 					r.Post("/hosts/{host}/containers/{id}/actions/update", h.containerUpdate)
 					r.Post("/hosts/{host}/containers/{id}/actions/{action}", h.containerActions)
+					if h.config.Mode != "k8s" {
+						r.Post("/hosts/{host}/prune", h.pruneHost)
+					}
 					r.Post("/updates", h.startBulkUpdate)
 					r.Get("/updates/stream", h.streamBulkUpdate)
 					if h.config.Mode == "server" {

@@ -261,7 +261,7 @@ func TestSizeMonitor_measureVolumes(t *testing.T) {
 	m := newSizeMonitor(store, client)
 
 	assert.True(t, m.claimVolumes())
-	m.measureVolumes(t.Context())
+	m.measureVolumes(t.Context(), false)
 
 	db, _ := store.containers.Load("db")
 	web, _ := store.containers.Load("web")
@@ -273,7 +273,7 @@ func TestSizeMonitor_measureVolumes(t *testing.T) {
 	client.volumes = nil
 	m.lastVolumesNanos.Store(0)
 	assert.True(t, m.claimVolumes())
-	m.measureVolumes(t.Context())
+	m.measureVolumes(t.Context(), false)
 	db, _ = store.containers.Load("db")
 	assert.Nil(t, db.Volumes)
 }
@@ -349,7 +349,7 @@ func TestSizeMonitor_reclaimable(t *testing.T) {
 	assert.Nil(t, store.Reclaimable(), "nothing is known before the first walk")
 
 	assert.True(t, m.claimVolumes())
-	m.measureVolumes(t.Context())
+	m.measureVolumes(t.Context(), false)
 
 	assert.Equal(t, &Reclaimable{Images: 3, ImagesSize: 300, Containers: 2, ContainersSize: 42, BuildCacheSize: 7}, store.Reclaimable())
 }
@@ -399,4 +399,82 @@ func TestStore_measuresAtBootAndOnDie(t *testing.T) {
 		c, _ := store.containers.Load("running")
 		return c != nil && c.SizeRw != nil && *c.SizeRw == 3
 	}, 5*time.Second, 5*time.Millisecond, "a container is measured again when it dies")
+}
+
+// prunedClient is a sizedClient that can also prune.
+type prunedClient struct {
+	*sizedClient
+	pruned PruneOptions
+	err    error
+}
+
+func (c *prunedClient) Prune(_ context.Context, opts PruneOptions) (PruneResult, error) {
+	c.pruned = opts
+	return PruneResult{SpaceReclaimed: 500}, c.err
+}
+
+// A prune walks again right away, whatever the interval says, and leaves out the
+// stopped containers it just removed even while their destroy events are in flight.
+func TestStore_Prune(t *testing.T) {
+	client := &prunedClient{sizedClient: &sizedClient{mockedClient: new(mockedClient), reclaimable: Reclaimable{Images: 1, ImagesSize: 10}}}
+	store := bareStore(t, client)
+	size := int64(40)
+	store.containers.Store("exited", &Container{ID: "exited", State: "exited", SizeRw: &size})
+	store.sizeMonitor = newSizeMonitor(store, client)
+	assert.True(t, store.sizeMonitor.claimVolumes())
+	store.sizeMonitor.measureVolumes(t.Context(), false)
+	assert.Equal(t, int64(1), store.Reclaimable().Containers)
+
+	client.mu.Lock()
+	client.reclaimable = Reclaimable{}
+	client.mu.Unlock()
+	result, err := store.Prune(t.Context(), PruneOptions{Images: true, Containers: true})
+
+	assert.NoError(t, err)
+	assert.Equal(t, uint64(500), result.SpaceReclaimed)
+	assert.Equal(t, PruneOptions{Images: true, Containers: true}, client.pruned)
+	assert.Equal(t, int32(2), client.volumesCalled.Load(), "walked again inside the interval")
+	assert.Equal(t, &Reclaimable{}, store.Reclaimable())
+}
+
+// A prune that fails halfway has still deleted something, so it measures anyway.
+func TestStore_PruneMeasuresAfterError(t *testing.T) {
+	client := &prunedClient{sizedClient: &sizedClient{mockedClient: new(mockedClient)}, err: errors.New("pruning volumes: boom")}
+	store := bareStore(t, client)
+	store.sizeMonitor = newSizeMonitor(store, client)
+
+	_, err := store.Prune(t.Context(), PruneOptions{Volumes: true})
+
+	assert.Error(t, err)
+	assert.Equal(t, int32(1), client.volumesCalled.Load())
+	assert.NotNil(t, store.Reclaimable())
+}
+
+// A walk already running started before the prune, so the prune waits for it and
+// walks again rather than reporting what is gone.
+func TestStore_PruneWaitsForRunningWalk(t *testing.T) {
+	client := &prunedClient{sizedClient: &sizedClient{mockedClient: new(mockedClient)}}
+	store := bareStore(t, client)
+	store.sizeMonitor = newSizeMonitor(store, client)
+	assert.True(t, store.sizeMonitor.claimVolumes())
+
+	done := make(chan struct{})
+	go func() {
+		_, _ = store.Prune(t.Context(), PruneOptions{Images: true})
+		close(done)
+	}()
+	select {
+	case <-done:
+		t.Fatal("prune returned while another walk held the claim")
+	case <-time.After(250 * time.Millisecond):
+	}
+	store.sizeMonitor.volumesRunning.Store(false)
+	<-done
+	assert.Equal(t, int32(1), client.volumesCalled.Load())
+}
+
+func TestStore_PruneUnsupported(t *testing.T) {
+	store := bareStore(t, &sizedClient{mockedClient: new(mockedClient)})
+	_, err := store.Prune(t.Context(), PruneOptions{Images: true})
+	assert.ErrorIs(t, err, errors.ErrUnsupported)
 }

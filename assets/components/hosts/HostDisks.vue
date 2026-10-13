@@ -23,6 +23,7 @@
           ></span>
         </span>
         <span class="text-base-content/80 font-mono">{{ fullest.percent }}%</span>
+        <mdi:chevron-down class="-ml-1 size-3 opacity-40" />
       </button>
     </template>
 

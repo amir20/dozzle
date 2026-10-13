@@ -165,6 +165,19 @@ func (s *Store) Reclaimable() *Reclaimable {
 	return s.reclaimable.Load()
 }
 
+// Prune deletes what opts picks and measures the host again right away, so
+// Reclaimable shows what is left without waiting out volumeRefreshInterval.
+func (s *Store) Prune(ctx context.Context, opts PruneOptions) (PruneResult, error) {
+	pruner, ok := s.client.(Pruner)
+	if !ok {
+		return PruneResult{}, errors.ErrUnsupported
+	}
+	result, err := pruner.Prune(ctx, opts)
+	// even after an error: a prune that failed halfway still deleted something
+	s.sizeMonitor.remeasure(ctx, opts.Containers)
+	return result, err
+}
+
 // applyVolumes records the volumes a container mounts and broadcasts an "update"
 // when they changed.
 func (s *Store) applyVolumes(id string, volumes []VolumeUsage) {
