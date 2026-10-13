@@ -14,7 +14,9 @@ import (
 
 	"net/netip"
 
+	"github.com/moby/moby/api/types/build"
 	docker "github.com/moby/moby/api/types/container"
+	"github.com/moby/moby/api/types/image"
 	"github.com/moby/moby/api/types/mount"
 	"github.com/moby/moby/api/types/network"
 	"github.com/moby/moby/api/types/system"
@@ -222,6 +224,73 @@ func Test_dockerClient_ContainerSizes(t *testing.T) {
 	sizes, err := client.ContainerSizes(context.Background())
 	require.NoError(t, err)
 	assert.Equal(t, map[string]int64{"abcdefghijkl": 2048, "1234567890_a": 0}, sizes, "keyed by the short ID the store uses")
+}
+
+func (m *mockedProxy) ContainerPrune(_ context.Context, opts client.ContainerPruneOptions) (client.ContainerPruneResult, error) {
+	args := m.Called(opts)
+	return client.ContainerPruneResult{Report: docker.PruneReport{SpaceReclaimed: args.Get(0).(uint64)}}, args.Error(1)
+}
+
+func (m *mockedProxy) ImagePrune(_ context.Context, opts client.ImagePruneOptions) (client.ImagePruneResult, error) {
+	args := m.Called(opts)
+	return client.ImagePruneResult{Report: image.PruneReport{SpaceReclaimed: args.Get(0).(uint64)}}, args.Error(1)
+}
+
+func (m *mockedProxy) VolumePrune(_ context.Context, opts client.VolumePruneOptions) (client.VolumePruneResult, error) {
+	args := m.Called(opts)
+	return client.VolumePruneResult{Report: volume.PruneReport{SpaceReclaimed: args.Get(0).(uint64)}}, args.Error(1)
+}
+
+func (m *mockedProxy) BuildCachePrune(_ context.Context, opts client.BuildCachePruneOptions) (client.BuildCachePruneResult, error) {
+	args := m.Called(opts)
+	return client.BuildCachePruneResult{Report: build.CachePruneReport{SpaceReclaimed: args.Get(0).(uint64)}}, args.Error(1)
+}
+
+// Every kind is widened to all that is unused, so the prune frees what Reclaimable
+// counts, and containers go first so the images and volumes they held go too.
+func Test_dockerClient_Prune(t *testing.T) {
+	proxy := new(mockedProxy)
+	var order []string
+	track := func(name string) func(mock.Arguments) { return func(mock.Arguments) { order = append(order, name) } }
+	proxy.On("ContainerPrune", client.ContainerPruneOptions{}).Return(uint64(1), nil).Run(track("containers"))
+	proxy.On("ImagePrune", client.ImagePruneOptions{Filters: make(client.Filters).Add("dangling", "false")}).Return(uint64(10), nil).Run(track("images"))
+	proxy.On("VolumePrune", client.VolumePruneOptions{All: true}).Return(uint64(100), nil).Run(track("volumes"))
+	proxy.On("BuildCachePrune", client.BuildCachePruneOptions{All: true}).Return(uint64(1000), nil).Run(track("build cache"))
+	client := &Client{cli: proxy, host: container.Host{ID: "localhost"}}
+
+	result, err := client.Prune(context.Background(), container.PruneOptions{Images: true, Volumes: true, Containers: true, BuildCache: true})
+
+	require.NoError(t, err)
+	assert.Equal(t, uint64(1111), result.SpaceReclaimed)
+	assert.Equal(t, []string{"containers", "images", "volumes", "build cache"}, order)
+}
+
+func Test_dockerClient_PruneOnlyPicked(t *testing.T) {
+	proxy := new(mockedProxy)
+	proxy.On("ImagePrune", mock.Anything).Return(uint64(10), nil)
+	client := &Client{cli: proxy, host: container.Host{ID: "localhost"}}
+
+	result, err := client.Prune(context.Background(), container.PruneOptions{Images: true})
+
+	require.NoError(t, err)
+	assert.Equal(t, uint64(10), result.SpaceReclaimed)
+	proxy.AssertNotCalled(t, "VolumePrune", mock.Anything)
+	proxy.AssertNotCalled(t, "ContainerPrune", mock.Anything)
+	proxy.AssertNotCalled(t, "BuildCachePrune", mock.Anything)
+}
+
+// A failure stops the run and keeps what was freed before it.
+func Test_dockerClient_PruneStopsAtError(t *testing.T) {
+	proxy := new(mockedProxy)
+	proxy.On("ContainerPrune", mock.Anything).Return(uint64(5), nil)
+	proxy.On("ImagePrune", mock.Anything).Return(uint64(0), errors.New("boom"))
+	client := &Client{cli: proxy, host: container.Host{ID: "localhost"}}
+
+	result, err := client.Prune(context.Background(), container.PruneOptions{Images: true, Containers: true, BuildCache: true})
+
+	assert.ErrorContains(t, err, "pruning images")
+	assert.Equal(t, uint64(5), result.SpaceReclaimed)
+	proxy.AssertNotCalled(t, "BuildCachePrune", mock.Anything)
 }
 
 func Test_dockerClient_DiskUsage(t *testing.T) {

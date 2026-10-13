@@ -71,7 +71,7 @@
           {{ $t("label.load") }} <span class="font-mono" :class="loadClass">{{ loadLabel }}</span>
         </span>
         <HostDisks v-if="drives.length" :drives="drives" />
-        <HostReclaimable v-if="host.reclaimable" :reclaimable="host.reclaimable" />
+        <HostReclaimable v-if="host.reclaimable" :host="host" />
       </div>
     </div>
 
@@ -177,7 +177,7 @@
       </template>
       <template v-if="host.reclaimable">
         <span v-if="uptimeLabel || host.metricsAvailable" class="text-base-content/25">·</span>
-        <HostReclaimable :reclaimable="host.reclaimable" />
+        <HostReclaimable :host="host" />
       </template>
     </div>
   </div>

@@ -27,6 +27,7 @@ service AgentService {
   rpc UpdateCloudConfig(UpdateCloudConfigRequest) returns (UpdateCloudConfigResponse) {}
   rpc GetNotificationStats(GetNotificationStatsRequest) returns (GetNotificationStatsResponse) {}
   rpc LogHistogram(LogHistogramRequest) returns (LogHistogramResponse) {}
+  rpc PruneHost(PruneHostRequest) returns (PruneHostResponse) {}
 }
 
 message ListContainersRequest {
@@ -104,6 +105,18 @@ message ContainerActionRequest {
 }
 
 message ContainerActionResponse {}
+
+// PruneHostRequest picks what to delete, as container.PruneOptions.
+message PruneHostRequest {
+  bool images = 1;
+  bool volumes = 2;
+  bool containers = 3;
+  bool buildCache = 4;
+}
+
+message PruneHostResponse {
+  uint64 spaceReclaimed = 1;
+}
 
 message UpdateContainerRequest {
   string containerId = 1;

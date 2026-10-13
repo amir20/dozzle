@@ -326,6 +326,23 @@ func (s *server) StreamContainerStarted(in *pb.StreamContainerStartedRequest, ou
 	}
 }
 
+func (s *server) PruneHost(ctx context.Context, in *pb.PruneHostRequest) (*pb.PruneHostResponse, error) {
+	pruner, ok := s.service.(container.HostPruner)
+	if !ok {
+		return nil, status.Error(codes.Unimplemented, "this host cannot prune")
+	}
+	result, err := pruner.PruneHost(ctx, container.PruneOptions{
+		Images:     in.Images,
+		Volumes:    in.Volumes,
+		Containers: in.Containers,
+		BuildCache: in.BuildCache,
+	})
+	if err != nil {
+		return nil, status.Error(codes.Internal, err.Error())
+	}
+	return &pb.PruneHostResponse{SpaceReclaimed: result.SpaceReclaimed}, nil
+}
+
 func (s *server) ContainerAction(ctx context.Context, in *pb.ContainerActionRequest) (*pb.ContainerActionResponse, error) {
 	var action container.ContainerAction
 	switch in.Action {

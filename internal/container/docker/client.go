@@ -52,6 +52,10 @@ type CLI interface {
 	ServiceList(ctx context.Context, options client.ServiceListOptions) (client.ServiceListResult, error)
 	ServiceUpdate(ctx context.Context, serviceID string, options client.ServiceUpdateOptions) (client.ServiceUpdateResult, error)
 	DiskUsage(ctx context.Context, options client.DiskUsageOptions) (client.DiskUsageResult, error)
+	ContainerPrune(ctx context.Context, opts client.ContainerPruneOptions) (client.ContainerPruneResult, error)
+	ImagePrune(ctx context.Context, opts client.ImagePruneOptions) (client.ImagePruneResult, error)
+	VolumePrune(ctx context.Context, options client.VolumePruneOptions) (client.VolumePruneResult, error)
+	BuildCachePrune(ctx context.Context, opts client.BuildCachePruneOptions) (client.BuildCachePruneResult, error)
 }
 
 type Client struct {
@@ -409,6 +413,46 @@ func (d *Client) DiskUsage(ctx context.Context) (container.DiskUsage, error) {
 		}
 	}
 	return container.DiskUsage{Volumes: volumes, Reclaimable: reclaimable}, nil
+}
+
+// Prune deletes the kinds opts picks. Containers go first, since a stopped
+// container holds on to its image and volumes, then images, volumes and build
+// cache. It stops at the first error and returns what was freed until then.
+func (d *Client) Prune(ctx context.Context, opts container.PruneOptions) (container.PruneResult, error) {
+	var result container.PruneResult
+	if opts.Containers {
+		r, err := d.cli.ContainerPrune(ctx, client.ContainerPruneOptions{})
+		if err != nil {
+			return result, fmt.Errorf("pruning containers: %w", err)
+		}
+		result.SpaceReclaimed += r.Report.SpaceReclaimed
+	}
+	if opts.Images {
+		// dangling=false is `-a`: every image no container uses, which is what
+		// Reclaimable counts, not only the untagged ones
+		r, err := d.cli.ImagePrune(ctx, client.ImagePruneOptions{Filters: make(client.Filters).Add("dangling", "false")})
+		if err != nil {
+			return result, fmt.Errorf("pruning images: %w", err)
+		}
+		result.SpaceReclaimed += r.Report.SpaceReclaimed
+	}
+	if opts.Volumes {
+		// All takes named volumes too. Without it only anonymous ones go, and the
+		// named volumes Reclaimable counts would stay.
+		r, err := d.cli.VolumePrune(ctx, client.VolumePruneOptions{All: true})
+		if err != nil {
+			return result, fmt.Errorf("pruning volumes: %w", err)
+		}
+		result.SpaceReclaimed += r.Report.SpaceReclaimed
+	}
+	if opts.BuildCache {
+		r, err := d.cli.BuildCachePrune(ctx, client.BuildCachePruneOptions{All: true})
+		if err != nil {
+			return result, fmt.Errorf("pruning build cache: %w", err)
+		}
+		result.SpaceReclaimed += r.Report.SpaceReclaimed
+	}
+	return result, nil
 }
 
 func (d *Client) ContainerRemove(ctx context.Context, containerID string) error {

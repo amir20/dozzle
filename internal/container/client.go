@@ -90,3 +90,29 @@ type DiskUsage struct {
 	// already in the store, and asking Docker again would walk them all a second time.
 	Reclaimable Reclaimable
 }
+
+// Pruner is implemented by clients that can delete what Reclaimable counts. k8s
+// has nothing to prune, and its client does not implement it.
+type Pruner interface {
+	Prune(ctx context.Context, opts PruneOptions) (PruneResult, error)
+}
+
+// PruneOptions picks the kinds a prune deletes. Each one is the matching
+// `docker <kind> prune`, widened to everything unused (`-a`, and named volumes
+// too) so that it frees what Reclaimable counts.
+type PruneOptions struct {
+	Images     bool `json:"images"`
+	Volumes    bool `json:"volumes"`
+	Containers bool `json:"containers"`
+	BuildCache bool `json:"buildCache"`
+}
+
+// Any reports whether at least one kind is picked.
+func (o PruneOptions) Any() bool {
+	return o.Images || o.Volumes || o.Containers || o.BuildCache
+}
+
+// PruneResult is what a prune freed, as Docker reports it.
+type PruneResult struct {
+	SpaceReclaimed uint64 `json:"spaceReclaimed"`
+}

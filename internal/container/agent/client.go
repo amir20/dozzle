@@ -503,6 +503,23 @@ func (c *Client) ContainerAction(ctx context.Context, containerId string, action
 	return err
 }
 
+// PruneHost returns errors.ErrUnsupported from an agent too old to know the call.
+func (c *Client) PruneHost(ctx context.Context, opts container.PruneOptions) (container.PruneResult, error) {
+	resp, err := c.client.PruneHost(ctx, &pb.PruneHostRequest{
+		Images:     opts.Images,
+		Volumes:    opts.Volumes,
+		Containers: opts.Containers,
+		BuildCache: opts.BuildCache,
+	})
+	if status.Code(err) == codes.Unimplemented {
+		return container.PruneResult{}, fmt.Errorf("agent cannot prune: %w", errors.ErrUnsupported)
+	}
+	if err != nil {
+		return container.PruneResult{}, err
+	}
+	return container.PruneResult{SpaceReclaimed: resp.SpaceReclaimed}, nil
+}
+
 func (c *Client) UpdateContainer(ctx context.Context, containerID string, progressCh chan<- container.UpdateProgress) (bool, error) {
 	defer close(progressCh)
 

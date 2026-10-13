@@ -38,6 +38,7 @@ const (
 	AgentService_UpdateCloudConfig_FullMethodName        = "/protobuf.AgentService/UpdateCloudConfig"
 	AgentService_GetNotificationStats_FullMethodName     = "/protobuf.AgentService/GetNotificationStats"
 	AgentService_LogHistogram_FullMethodName             = "/protobuf.AgentService/LogHistogram"
+	AgentService_PruneHost_FullMethodName                = "/protobuf.AgentService/PruneHost"
 )
 
 // AgentServiceClient is the client API for AgentService service.
@@ -63,6 +64,7 @@ type AgentServiceClient interface {
 	UpdateCloudConfig(ctx context.Context, in *UpdateCloudConfigRequest, opts ...grpc.CallOption) (*UpdateCloudConfigResponse, error)
 	GetNotificationStats(ctx context.Context, in *GetNotificationStatsRequest, opts ...grpc.CallOption) (*GetNotificationStatsResponse, error)
 	LogHistogram(ctx context.Context, in *LogHistogramRequest, opts ...grpc.CallOption) (*LogHistogramResponse, error)
+	PruneHost(ctx context.Context, in *PruneHostRequest, opts ...grpc.CallOption) (*PruneHostResponse, error)
 }
 
 type agentServiceClient struct {
@@ -341,6 +343,16 @@ func (c *agentServiceClient) LogHistogram(ctx context.Context, in *LogHistogramR
 	return out, nil
 }
 
+func (c *agentServiceClient) PruneHost(ctx context.Context, in *PruneHostRequest, opts ...grpc.CallOption) (*PruneHostResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(PruneHostResponse)
+	err := c.cc.Invoke(ctx, AgentService_PruneHost_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // AgentServiceServer is the server API for AgentService service.
 // All implementations must embed UnimplementedAgentServiceServer
 // for forward compatibility.
@@ -364,6 +376,7 @@ type AgentServiceServer interface {
 	UpdateCloudConfig(context.Context, *UpdateCloudConfigRequest) (*UpdateCloudConfigResponse, error)
 	GetNotificationStats(context.Context, *GetNotificationStatsRequest) (*GetNotificationStatsResponse, error)
 	LogHistogram(context.Context, *LogHistogramRequest) (*LogHistogramResponse, error)
+	PruneHost(context.Context, *PruneHostRequest) (*PruneHostResponse, error)
 	mustEmbedUnimplementedAgentServiceServer()
 }
 
@@ -430,6 +443,9 @@ func (UnimplementedAgentServiceServer) GetNotificationStats(context.Context, *Ge
 }
 func (UnimplementedAgentServiceServer) LogHistogram(context.Context, *LogHistogramRequest) (*LogHistogramResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method LogHistogram not implemented")
+}
+func (UnimplementedAgentServiceServer) PruneHost(context.Context, *PruneHostRequest) (*PruneHostResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method PruneHost not implemented")
 }
 func (UnimplementedAgentServiceServer) mustEmbedUnimplementedAgentServiceServer() {}
 func (UnimplementedAgentServiceServer) testEmbeddedByValue()                      {}
@@ -716,6 +732,24 @@ func _AgentService_LogHistogram_Handler(srv interface{}, ctx context.Context, de
 	return interceptor(ctx, in, info, handler)
 }
 
+func _AgentService_PruneHost_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(PruneHostRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AgentServiceServer).PruneHost(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AgentService_PruneHost_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AgentServiceServer).PruneHost(ctx, req.(*PruneHostRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // AgentService_ServiceDesc is the grpc.ServiceDesc for AgentService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -758,6 +792,10 @@ var AgentService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "LogHistogram",
 			Handler:    _AgentService_LogHistogram_Handler,
+		},
+		{
+			MethodName: "PruneHost",
+			Handler:    _AgentService_PruneHost_Handler,
 		},
 	},
 	Streams: []grpc.StreamDesc{

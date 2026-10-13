@@ -2,8 +2,10 @@ package web
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"net/http"
+	"time"
 
 	"github.com/amir20/dozzle/internal/analytics"
 	"github.com/amir20/dozzle/internal/auth"
@@ -145,4 +147,62 @@ func (h *handler) rolloutRestart(w http.ResponseWriter, r *http.Request) {
 
 	analytics.Count("action.rollout-restart")
 	http.Error(w, "", http.StatusNoContent)
+}
+
+// hostPruner is implemented by the docker host services (server and swarm), not k8s.
+type hostPruner interface {
+	PruneHost(ctx context.Context, host string, opts container.PruneOptions) (container.PruneResult, *container.Reclaimable, error)
+}
+
+// pruneTimeout bounds a prune detached from its request. Deleting hundreds of
+// images can take minutes, and a half-done prune because a tab closed is worse
+// than one that finishes unseen.
+const pruneTimeout = 10 * time.Minute
+
+type pruneResponse struct {
+	SpaceReclaimed uint64                 `json:"spaceReclaimed"`
+	Reclaimable    *container.Reclaimable `json:"reclaimable"`
+}
+
+func (h *handler) pruneHost(w http.ResponseWriter, r *http.Request) {
+	if !h.permitActions(r) {
+		http.Error(w, http.StatusText(http.StatusForbidden), http.StatusForbidden)
+		return
+	}
+
+	pruner, ok := h.hostService.(hostPruner)
+	if !ok {
+		http.Error(w, "this mode has nothing to prune", http.StatusNotFound)
+		return
+	}
+
+	var opts container.PruneOptions
+	if err := json.NewDecoder(r.Body).Decode(&opts); err != nil || !opts.Any() {
+		http.Error(w, "pick at least one of images, volumes, containers or buildCache", http.StatusBadRequest)
+		return
+	}
+
+	ctx, cancel := context.WithTimeout(context.WithoutCancel(r.Context()), pruneTimeout)
+	defer cancel()
+	host := hostKey(r)
+	result, reclaimable, err := pruner.PruneHost(ctx, host, opts)
+	switch {
+	case errors.Is(err, hostservice.ErrHostNotFound):
+		http.Error(w, err.Error(), http.StatusNotFound)
+		return
+	case errors.Is(err, errors.ErrUnsupported):
+		http.Error(w, err.Error(), http.StatusNotImplemented)
+		return
+	case err != nil:
+		log.Error().Err(err).Str("host", host).Msg("error while pruning host")
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	analytics.Count("action.prune")
+	log.Info().Str("host", host).Interface("prune", opts).Uint64("freed", result.SpaceReclaimed).Msg("host pruned")
+	w.Header().Set("Content-Type", "application/json")
+	if err := json.NewEncoder(w).Encode(pruneResponse{SpaceReclaimed: result.SpaceReclaimed, Reclaimable: reclaimable}); err != nil {
+		log.Error().Err(err).Msg("error writing prune response")
+	}
 }

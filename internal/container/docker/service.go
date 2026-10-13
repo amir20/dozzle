@@ -484,6 +484,10 @@ func (d *Service) Host(ctx context.Context) (container.Host, error) {
 	return host, nil
 }
 
+func (d *Service) PruneHost(ctx context.Context, opts container.PruneOptions) (container.PruneResult, error) {
+	return d.store.Prune(ctx, opts)
+}
+
 func (d *Service) SubscribeStats(ctx context.Context, stats chan<- container.ContainerStat) {
 	d.store.SubscribeStats(ctx, stats)
 }

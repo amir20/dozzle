@@ -34,6 +34,19 @@ To watch the disk those folders live on, mount it on the host card as described 
 
 The host card shows **Reclaimable** next to its disk meter: space held by things no container is using, the same total as the `RECLAIMABLE` column of `docker system df`. Hover it to see how much sits in unused images, unused volumes, stopped containers and build cache. It refreshes along with the volumes, so at most every 20 minutes.
 
+### Cleaning up
+
+With [actions](/guide/actions) enabled, the same popover can delete what it lists. Tick the kinds to remove and click **Clean up**. Dozzle lists exactly what will go and asks before anything is deleted, then measures the host again so the numbers update right away.
+
+Each kind runs the matching prune:
+
+- **Unused images**: `docker image prune -a`. A stopped stack pulls its images again on its next start.
+- **Unused volumes**: `docker volume prune -a`, which takes named volumes too. They start unticked and need a second confirmation, since a volume no container uses right now can still hold a database whose container was removed for a redeploy.
+- **Stopped containers**: `docker container prune`
+- **Build cache**: `docker builder prune -a`
+
+An [agent](/guide/agent) older than the Dozzle it reports to cannot clean up, and the popover says so.
+
 ## When it updates
 
 Docker does not keep these numbers anywhere. It works them out by walking the files each time it is asked, so Dozzle asks rarely.
