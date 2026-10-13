@@ -5,7 +5,7 @@
     :hover="step === 'view' && !touched"
     :close-on-select="false"
     placement="bottom-end"
-    panel-class="rounded-box border-base-content/10 bg-base-200 w-72 border p-3 text-xs shadow-lg"
+    panel-class="rounded-box border-base-content/10 bg-base-200 w-80 border p-3 text-sm shadow-lg"
     @close="onClose"
   >
     <template #trigger>
@@ -15,13 +15,13 @@
       </button>
     </template>
 
-    <template v-if="step === 'confirm'">
+    <template v-if="step === 'confirm' || step === 'running'">
       <div class="flex items-start gap-3">
         <div class="bg-error/10 text-error flex size-8 shrink-0 items-center justify-center rounded-full">
           <mdi:trash-can-outline class="size-4" />
         </div>
         <div class="min-w-0">
-          <div class="text-sm font-semibold">
+          <div class="font-semibold">
             {{ $t("reclaim.confirm-title", { size: size(selectedTotal), host: host.name }) }}
           </div>
           <div class="text-base-content/60 mt-0.5">{{ $t("reclaim.cannot-undo") }}</div>
@@ -33,67 +33,58 @@
           <component :is="row.icon" class="size-4 shrink-0 opacity-60" />
           <span class="min-w-0 flex-1 truncate">{{ row.label }}</span>
           <span v-if="row.count !== undefined" class="text-base-content/40 font-mono">{{ row.count }}</span>
-          <span class="w-16 text-right font-mono">{{ size(row.size) }}</span>
+          <span class="w-20 text-right font-mono">{{ size(row.size) }}</span>
         </li>
       </ul>
 
-      <p v-if="picked.images" class="text-base-content/40 mt-2">{{ $t("reclaim.images-repull") }}</p>
+      <p v-if="picked.images" class="text-base-content/40 mt-2 text-xs">{{ $t("reclaim.images-repull") }}</p>
 
-      <div v-if="picked.volumes" class="border-base-content/15 mt-3 flex items-start gap-2 rounded-lg border p-2">
-        <div class="bg-warning/10 text-warning flex size-6 shrink-0 items-center justify-center rounded-full">
-          <mdi:alert-outline class="size-3.5" />
-        </div>
-        <div class="min-w-0">
-          <p>{{ $t("reclaim.volumes-warning", { count: reclaimable.volumes }, reclaimable.volumes) }}</p>
-          <label class="mt-2 flex items-center gap-2">
-            <input v-model="volumesConfirmed" type="checkbox" class="checkbox checkbox-error checkbox-sm" />
-            {{ $t("reclaim.volumes-confirm") }}
-          </label>
-        </div>
-      </div>
+      <InlineNotice v-if="picked.volumes" type="warning" class="mt-3">
+        <p>{{ $t("reclaim.volumes-warning", { count: reclaimable.volumes }, reclaimable.volumes) }}</p>
+        <label class="mt-2 flex items-center gap-2">
+          <input
+            v-model="volumesConfirmed"
+            type="checkbox"
+            class="checkbox checkbox-error checkbox-sm"
+            :disabled="step === 'running'"
+          />
+          {{ $t("reclaim.volumes-confirm") }}
+        </label>
+      </InlineNotice>
 
-      <div class="mt-3 flex justify-end gap-2">
-        <button type="button" class="btn btn-sm" @click="step = 'view'">{{ $t("button.cancel") }}</button>
+      <!-- A running delete stays on this step, so the panel keeps its shape and
+           the list shows what is going while it goes. -->
+      <div class="mt-3 flex items-center justify-end gap-2">
+        <span v-if="step === 'running'" class="text-base-content/60 mr-auto text-xs">
+          {{ $t("reclaim.deleting", { size: size(selectedTotal) }) }}
+        </span>
+        <button v-else type="button" class="btn btn-sm" @click="step = 'view'">{{ $t("button.cancel") }}</button>
         <button
           type="button"
           class="btn btn-error btn-sm"
-          :disabled="picked.volumes && !volumesConfirmed"
+          :disabled="step === 'running' || (picked.volumes && !volumesConfirmed)"
           @click="prune"
         >
+          <span v-if="step === 'running'" class="loading loading-spinner size-3.5"></span>
           {{ $t("reclaim.delete") }}
         </button>
       </div>
     </template>
 
-    <template v-else-if="step === 'running'">
-      <div class="flex items-center gap-3 py-1">
-        <span class="loading loading-spinner loading-sm text-base-content/60"></span>
-        <span class="text-sm">{{ $t("reclaim.deleting", { size: size(selectedTotal) }) }}</span>
-      </div>
-    </template>
-
     <template v-else>
-      <div v-if="step === 'done'" class="mb-3 flex items-center gap-3">
-        <div class="bg-success/10 text-success flex size-8 shrink-0 items-center justify-center rounded-full">
-          <mdi:check class="size-4" />
-        </div>
-        <div class="text-sm font-semibold">
-          {{ $t("reclaim.freed", { size: size(freed) }) }}
-        </div>
-      </div>
-      <div v-else-if="step === 'error'" class="mb-3 flex items-start gap-3">
-        <div class="bg-error/10 text-error flex size-8 shrink-0 items-center justify-center rounded-full">
-          <mdi:alert-circle-outline class="size-4" />
-        </div>
-        <div class="min-w-0">
-          <div class="text-sm font-semibold">{{ $t("reclaim.failed") }}</div>
-          <div class="text-base-content/60 mt-0.5 break-words">{{ error }}</div>
-        </div>
-      </div>
+      <InlineNotice v-if="step === 'done'" type="success" class="mb-3">
+        <span class="font-semibold">{{ $t("reclaim.freed", { size: size(freed) }) }}</span>
+      </InlineNotice>
+      <InlineNotice v-else-if="step === 'error'" type="error" class="mb-3">
+        <div class="font-semibold">{{ $t("reclaim.failed") }}</div>
+        <div class="text-base-content/60 break-words">{{ error }}</div>
+      </InlineNotice>
 
       <div class="flex items-baseline justify-between gap-2">
-        <span class="text-base-content/60 font-semibold tracking-wide uppercase">{{ $t("label.reclaimable") }}</span>
-        <span class="font-mono text-sm font-semibold">{{ size(total) }}</span>
+        <span class="text-base-content/60 text-xs font-semibold tracking-wide uppercase">
+          {{ $t("label.reclaimable") }}
+        </span>
+        <span class="font-mono font-semibold">{{ size(total) }}</span>
       </div>
 
       <ul class="mt-3 space-y-2.5">
@@ -110,7 +101,7 @@
             <component :is="row.icon" v-else class="size-4 shrink-0 opacity-60" />
             <span class="min-w-0 flex-1 truncate">{{ row.label }}</span>
             <span v-if="row.count !== undefined" class="text-base-content/40 font-mono">{{ row.count }}</span>
-            <span class="w-16 text-right font-mono">{{ size(row.size) }}</span>
+            <span class="w-20 text-right font-mono">{{ size(row.size) }}</span>
           </component>
           <!-- each kind's share of the total, neutral like the host card's disk bar -->
           <div class="bg-base-content/10 mt-1 h-1 overflow-hidden rounded-full" :class="canPrune ? 'ml-7' : 'ml-6'">
@@ -123,7 +114,7 @@
       </ul>
 
       <div class="bg-base-content/10 my-3 h-px"></div>
-      <i18n-t scope="global" keypath="tooltip.reclaimable-source" tag="p" class="text-base-content/40">
+      <i18n-t scope="global" keypath="tooltip.reclaimable-source" tag="p" class="text-base-content/40 text-xs">
         <template #command>
           <code class="font-mono">docker system df</code>
         </template>
@@ -139,12 +130,12 @@
         {{ $t("reclaim.clean-up") }}
         <span v-if="selectedRows.length" class="font-mono">{{ size(selectedTotal) }}</span>
       </button>
-      <p v-if="actionsOff" class="text-base-content/40 mt-2">
+      <InlineNotice v-if="actionsOff" type="info" class="mt-3">
         {{ $t("reclaim.enable-actions") }}
         <a href="https://dozzle.dev/guide/actions" target="_blank" rel="noopener" class="link">
           {{ $t("hint.learn-more") }}
         </a>
-      </p>
+      </InlineNotice>
     </template>
   </Popover>
 </template>
@@ -178,10 +169,10 @@ const EMPTY: Reclaimable = {
 };
 const reclaimable = computed(() => host.reclaimable ?? EMPTY);
 
-// k8s never reports reclaimable space, but say so rather than lean on that.
-const canPrune = computed(() => enableActions && host.type !== "k8s");
-// k8s can't prune at all, so only a docker host points at the setting.
-const actionsOff = computed(() => !enableActions && host.type !== "k8s");
+// k8s has nothing to prune, so it neither offers a clean up nor asks for actions.
+const prunable = computed(() => host.type !== "k8s");
+const canPrune = computed(() => enableActions && prunable.value);
+const actionsOff = computed(() => !enableActions && prunable.value);
 
 const step = ref<Step>("view");
 // Volumes start unticked: an unused named volume can be a database between redeploys.
