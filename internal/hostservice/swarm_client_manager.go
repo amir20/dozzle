@@ -141,8 +141,8 @@ func (m *SwarmClientManager) RetryAndList() ([]container.ClientService, []error)
 		}
 
 		ctx, cancel := context.WithTimeout(context.Background(), m.timeout)
-		defer cancel()
 		host, err := agentClient.Host(ctx)
+		cancel()
 		if err != nil {
 			log.Warn().Err(err).Stringer("ip", ip).Msg("error getting host from agent client")
 			errors = append(errors, err)
