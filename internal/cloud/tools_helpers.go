@@ -63,6 +63,19 @@ func mountStrings(mounts []container.Mount) []string {
 	return out
 }
 
+func mountDetails(mounts []container.Mount) []*pb.ContainerMount {
+	out := make([]*pb.ContainerMount, 0, len(mounts))
+	for _, m := range mounts {
+		out = append(out, &pb.ContainerMount{
+			Source:      m.Source,
+			Destination: m.Destination,
+			Type:        m.Type,
+			Rw:          m.RW,
+		})
+	}
+	return out
+}
+
 func formatTimeOrEmpty(t time.Time) string {
 	if t.IsZero() {
 		return ""
