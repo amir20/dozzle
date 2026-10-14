@@ -8,7 +8,7 @@
     class="popover-panel ring-base-content/20 bg-base-100 rounded-sm p-3 shadow-sm ring"
     @beforetoggle="onBeforeToggle"
     @toggle="onToggle"
-    @pointerenter="cancelHide"
+    @pointerenter="onPanelEnter"
     @pointerleave="onLeave"
   >
     <!-- Mounted on first open, not with the row. The sidebar renders one of these per
@@ -52,8 +52,6 @@ const HIDE_DELAY = 200;
 
 let timer: ReturnType<typeof setTimeout> | undefined;
 
-const cancelHide = () => clearTimeout(timer);
-
 const hasOpened = ref(false);
 
 // The panel is measured and placed immediately after showPopover(), so its contents have
@@ -66,16 +64,41 @@ const open = async () => {
   show();
 };
 
+const close = () => {
+  if (panel.value) clearAim(panel.value);
+  hide();
+};
+
+// Stays open while the pointer is still travelling toward this panel, even if it is
+// crossing other rows on the way there.
+const scheduleHide = () => {
+  timer = setTimeout(() => (aimOwner() === panel.value ? scheduleHide() : close()), HIDE_DELAY);
+};
+
+const onPanelEnter = () => {
+  clearTimeout(timer);
+  if (panel.value) clearAim(panel.value);
+};
+
 const onEnter = () => {
   clearTimeout(timer);
+  // Passing through on the way to another row's open panel. Opening here would close it.
+  const owner = aimOwner();
+  if (owner && owner !== panel.value) {
+    timer = setTimeout(onEnter, AIM_IDLE);
+    return;
+  }
   if (performance.now() < warmUntil) open();
   else timer = setTimeout(open, OPEN_DELAY);
 };
 
-const onLeave = () => {
+const onLeave = (event: PointerEvent) => {
   clearTimeout(timer);
-  if (isOpen.value) warmUntil = performance.now() + OPEN_DELAY;
-  timer = setTimeout(hide, HIDE_DELAY);
+  if (isOpen.value) {
+    warmUntil = performance.now() + OPEN_DELAY;
+    if (event.currentTarget === anchor.value && panel.value) aimAt(panel.value, event, panel.value);
+  }
+  scheduleHide();
 };
 
 useEventListener(anchor, "pointerenter", onEnter);
