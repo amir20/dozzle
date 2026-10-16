@@ -7,7 +7,7 @@ require (
 	github.com/dustin/go-humanize v1.1.0
 	github.com/expr-lang/expr v1.17.8
 	github.com/gkampitakis/go-snaps v0.5.23
-	github.com/go-chi/chi/v5 v5.3.2
+	github.com/go-chi/chi/v5 v5.5.0
 	github.com/go-chi/jwtauth/v5 v5.4.0
 	github.com/go-faker/faker/v4 v4.12.0
 	github.com/google/uuid v1.6.0
@@ -135,7 +135,7 @@ require (
 	google.golang.org/grpc/cmd/protoc-gen-go-grpc v1.6.2 // indirect
 	gopkg.in/evanphx/json-patch.v4 v4.13.0 // indirect
 	gopkg.in/inf.v0 v0.9.1 // indirect
-	honnef.co/go/tools v0.8.1 // indirect
+	honnef.co/go/tools v0.8.2 // indirect
 	k8s.io/klog/v2 v2.140.0 // indirect
 	k8s.io/kube-openapi v0.0.0-20260721132016-d427ff9ee9ad // indirect
 	k8s.io/streaming v0.37.1 // indirect
