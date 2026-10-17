@@ -31,6 +31,7 @@ const (
 	toolStreamLogs               = "stream_logs"
 	toolListNotifications        = "list_notifications"
 	toolInspectContainer         = "inspect_container"
+	toolInspectContainers        = "inspect_containers"
 	toolStartContainer           = "start_container"
 	toolStopContainer            = "stop_container"
 	toolRestartContainer         = "restart_container"
@@ -308,6 +309,14 @@ func AvailableTools(deps ToolDeps) []*pb.ToolDefinition {
 			Internal:       true,
 		},
 		{
+			Name:           toolInspectContainers,
+			Description:    "inspect_container for every visible container in one call. For the cloud's daily scan; never offered to a model.",
+			ParametersJson: noParams,
+			Scope:          pb.ToolScope_TOOL_SCOPE_INSTANCE,
+			ReadOnly:       true,
+			Internal:       true,
+		},
+		{
 			Name:           toolInspectContainer,
 			Description:    "Get detailed configuration of a Docker container including environment variables, port mappings, mounts, restart policy, network mode, labels, and resource limits.",
 			ParametersJson: targetedParams,
@@ -466,6 +475,8 @@ func executeTool(ctx context.Context, name string, argsJSON string, deps ToolDep
 		return executeInspectContainer(argsJSON, deps)
 	case toolRetroScan:
 		return executeRetroScan(ctx, argsJSON, deps)
+	case toolInspectContainers:
+		return executeInspectContainers(ctx, deps)
 	case toolListNotifications:
 		return executeListNotifications(deps)
 	case toolCheckImageUpdates:

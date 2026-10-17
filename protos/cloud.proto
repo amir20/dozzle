@@ -446,6 +446,7 @@ message CallToolResponse {
     InspectContainerResult inspect_container = 8;
     NotificationResult notification = 12;
     RetroScanResult retro_scan = 13;
+    InspectContainersResult inspect_containers = 14;
   }
 
   // 11 was DeployResult deploy, removed with the native compose deploy feature.
@@ -570,6 +571,17 @@ message InspectContainerResult {
   // `mounts` keeps its "source:destination (type)" strings for older readers.
   // Empty from a Dozzle that predates this field.
   repeated ContainerMount mount_details = 23;
+}
+
+// inspect_containers: inspect_container for every visible container in one
+// call, for the cloud's own pipelines. One round trip instead of one per
+// container, which is what a slow link to the cloud makes expensive.
+message InspectContainersResult {
+  repeated InspectContainerResult containers = 1;
+  // The deadline ended the pass; containers it never reached are left out.
+  bool deadline_exceeded = 2;
+  // The byte cap was hit; the containers past it are left out.
+  bool truncated = 3;
 }
 
 message ContainerMount {
