@@ -224,3 +224,4 @@ The repo ships an `add-app-icon` skill in `.claude/skills/`. To add icons with a
 Use the add-app-icon skill in .claude/skills/add-app-icon/SKILL.md to add app icons
 for these container images: <image1>, <image2>
 ```
+
