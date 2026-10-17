@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"crypto/tls"
 	"embed"
 	"fmt"
 	"io/fs"
@@ -19,7 +18,6 @@ import (
 	// auto-update time silently means UTC.
 	_ "time/tzdata"
 
-	dozzlecerts "github.com/amir20/dozzle/internal/agentcerts"
 	"github.com/amir20/dozzle/internal/analytics"
 	"github.com/amir20/dozzle/internal/auth"
 	"github.com/amir20/dozzle/internal/cli"
@@ -267,16 +265,6 @@ func beaconBase(args cli.Args, simpleUsers int) types.BeaconEvent {
 	return b
 }
 
-// customCert mirrors cli.ReadCertificates: a pair from the env or on disk wins
-// over the one built into the image.
-func customCert(args cli.Args) bool {
-	if _, ok, err := dozzlecerts.FromEnv(os.LookupEnv); ok && err == nil {
-		return true
-	}
-	_, err := tls.LoadX509KeyPair(args.CertPath, args.KeyPath)
-	return err == nil
-}
-
 // lockedValue is value when a flag or env var set it, nil when dozzle.yml decides.
 func lockedValue(locked bool, value string) *string {
 	if !locked {
@@ -488,7 +476,7 @@ func createServer(args cli.Args, hostService web.HostService, cloudHooks web.Clo
 			UpdateContainers:    lockedValue(args.Locked.UpdateContainers, args.UpdateContainers),
 			StartedAt:           web.SetupWindowStart(time.Now(), freshInstall),
 			EnvAgents:           args.EnvAgents,
-			CustomCert:          customCert(args),
+			CustomCert:          cli.CustomCert(args.CertPath, args.KeyPath),
 		},
 	}
 

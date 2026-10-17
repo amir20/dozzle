@@ -42,3 +42,13 @@ func ReadCertificates(embedded embed.FS, certPath, keyPath string) (tls.Certific
 
 	return tls.X509KeyPair(cert, key)
 }
+
+// CustomCert mirrors ReadCertificates: a pair from the env or on disk wins over
+// the one built into the image.
+func CustomCert(certPath, keyPath string) bool {
+	if _, ok, err := agentcerts.FromEnv(os.LookupEnv); ok && err == nil {
+		return true
+	}
+	_, err := tls.LoadX509KeyPair(certPath, keyPath)
+	return err == nil
+}
