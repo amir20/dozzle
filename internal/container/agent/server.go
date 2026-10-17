@@ -501,7 +501,7 @@ func (w *terminalStreamWriter) Write(p []byte) (int, error) {
 
 func (s *server) ContainerExec(stream pb.AgentService_ContainerExecServer) (err error) {
 	var containerID string
-	defer func() { audit(stream.Context(), "exec", containerID, err) }()
+	defer func() { audit(stream.Context(), "exec end", containerID, err) }()
 
 	request, err := stream.Recv()
 	if err != nil {
@@ -518,6 +518,9 @@ func (s *server) ContainerExec(stream pb.AgentService_ContainerExecServer) (err 
 	reader := &protoEventReader{recv: func() (terminalMessage, error) { return stream.Recv() }}
 	writer := &terminalStreamWriter{send: func(p []byte) error { return stream.Send(&pb.ContainerExecResponse{Stdout: p}) }}
 
+	// A session can stay open for hours, or never return if the agent dies
+	// under it, so its start is logged on its own.
+	audit(stream.Context(), "exec start", containerID, nil)
 	if err := s.service.Exec(stream.Context(), c, request.Command, reader, writer); err != nil {
 		return status.Error(codes.Internal, err.Error())
 	}
@@ -527,7 +530,7 @@ func (s *server) ContainerExec(stream pb.AgentService_ContainerExecServer) (err 
 
 func (s *server) ContainerAttach(stream pb.AgentService_ContainerAttachServer) (err error) {
 	var containerID string
-	defer func() { audit(stream.Context(), "attach", containerID, err) }()
+	defer func() { audit(stream.Context(), "attach end", containerID, err) }()
 
 	request, err := stream.Recv()
 	if err != nil {
@@ -544,6 +547,9 @@ func (s *server) ContainerAttach(stream pb.AgentService_ContainerAttachServer) (
 	reader := &protoEventReader{recv: func() (terminalMessage, error) { return stream.Recv() }}
 	writer := &terminalStreamWriter{send: func(p []byte) error { return stream.Send(&pb.ContainerAttachResponse{Stdout: p}) }}
 
+	// A session can stay open for hours, or never return if the agent dies
+	// under it, so its start is logged on its own.
+	audit(stream.Context(), "attach start", containerID, nil)
 	if err := s.service.Attach(stream.Context(), c, reader, writer); err != nil {
 		return status.Error(codes.Internal, err.Error())
 	}
