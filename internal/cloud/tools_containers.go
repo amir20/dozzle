@@ -184,34 +184,39 @@ func executeInspectContainer(argsJSON string, deps ToolDeps) (*pb.CallToolRespon
 		return nil, fmt.Errorf("container not found: %w", err)
 	}
 
-	c := cs.Container
 	return &pb.CallToolResponse{
 		Success: true,
-		Result: &pb.CallToolResponse_InspectContainer{InspectContainer: &pb.InspectContainerResult{
-			Id:            c.ID,
-			Name:          c.Name,
-			Image:         c.Image,
-			Command:       c.Command,
-			Created:       c.Created.UTC().Format(time.RFC3339),
-			StartedAt:     c.StartedAt.UTC().Format(time.RFC3339),
-			FinishedAt:    formatTimeOrEmpty(c.FinishedAt),
-			State:         c.State,
-			Health:        c.Health,
-			HostName:      resolveHostName(c.Host, buildHostNameMap(deps.HostService)),
-			HostId:        c.Host,
-			Labels:        c.Labels,
-			MemoryLimit:   c.MemoryLimit,
-			CpuLimit:      c.CPULimit,
-			Ports:         c.Ports,
-			Mounts:        mountStrings(c.Mounts),
-			MountDetails:  mountDetails(c.Mounts),
-			RestartPolicy: c.RestartPolicy,
-			NetworkMode:   c.NetworkMode,
-			RestartCount:  int32(c.RestartCount),
-			OomKilled:     c.OOMKilled,
-			ExitCode:      int32(c.ExitCode),
-		}},
+		Result:  &pb.CallToolResponse_InspectContainer{InspectContainer: inspectResult(cs.Container, buildHostNameMap(deps.HostService))},
 	}, nil
+}
+
+// inspectResult is what inspect_container and inspect_containers return for
+// one container.
+func inspectResult(c container.Container, hostNames map[string]string) *pb.InspectContainerResult {
+	return &pb.InspectContainerResult{
+		Id:            c.ID,
+		Name:          c.Name,
+		Image:         c.Image,
+		Command:       c.Command,
+		Created:       c.Created.UTC().Format(time.RFC3339),
+		StartedAt:     c.StartedAt.UTC().Format(time.RFC3339),
+		FinishedAt:    formatTimeOrEmpty(c.FinishedAt),
+		State:         c.State,
+		Health:        c.Health,
+		HostName:      resolveHostName(c.Host, hostNames),
+		HostId:        c.Host,
+		Labels:        c.Labels,
+		MemoryLimit:   c.MemoryLimit,
+		CpuLimit:      c.CPULimit,
+		Ports:         c.Ports,
+		Mounts:        mountStrings(c.Mounts),
+		MountDetails:  mountDetails(c.Mounts),
+		RestartPolicy: c.RestartPolicy,
+		NetworkMode:   c.NetworkMode,
+		RestartCount:  int32(c.RestartCount),
+		OomKilled:     c.OOMKilled,
+		ExitCode:      int32(c.ExitCode),
+	}
 }
 
 type checkImageUpdatesArgs struct {
