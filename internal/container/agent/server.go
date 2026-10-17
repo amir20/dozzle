@@ -6,6 +6,7 @@ import (
 	"crypto/x509"
 	"fmt"
 	"io"
+	"strings"
 
 	"time"
 
@@ -326,7 +327,8 @@ func (s *server) StreamContainerStarted(in *pb.StreamContainerStartedRequest, ou
 	}
 }
 
-func (s *server) PruneHost(ctx context.Context, in *pb.PruneHostRequest) (*pb.PruneHostResponse, error) {
+func (s *server) PruneHost(ctx context.Context, in *pb.PruneHostRequest) (_ *pb.PruneHostResponse, err error) {
+	defer func() { audit(ctx, "prune", "", err) }()
 	pruner, ok := s.service.(container.HostPruner)
 	if !ok {
 		return nil, status.Error(codes.Unimplemented, "this host cannot prune")
@@ -343,7 +345,8 @@ func (s *server) PruneHost(ctx context.Context, in *pb.PruneHostRequest) (*pb.Pr
 	return &pb.PruneHostResponse{SpaceReclaimed: result.SpaceReclaimed}, nil
 }
 
-func (s *server) ContainerAction(ctx context.Context, in *pb.ContainerActionRequest) (*pb.ContainerActionResponse, error) {
+func (s *server) ContainerAction(ctx context.Context, in *pb.ContainerActionRequest) (_ *pb.ContainerActionResponse, err error) {
+	defer func() { audit(ctx, strings.ToLower(in.Action.String()), in.ContainerId, err) }()
 	var action container.ContainerAction
 	switch in.Action {
 	case pb.ContainerAction_Start:
@@ -375,7 +378,8 @@ func (s *server) ContainerAction(ctx context.Context, in *pb.ContainerActionRequ
 	return &pb.ContainerActionResponse{}, nil
 }
 
-func (s *server) UpdateContainer(req *pb.UpdateContainerRequest, out pb.AgentService_UpdateContainerServer) error {
+func (s *server) UpdateContainer(req *pb.UpdateContainerRequest, out pb.AgentService_UpdateContainerServer) (err error) {
+	defer func() { audit(out.Context(), "update", req.ContainerId, err) }()
 	c, err := s.service.FindContainer(out.Context(), req.ContainerId, container.ContainerLabels{})
 	if err != nil {
 		return status.Error(codes.NotFound, err.Error())
@@ -392,7 +396,8 @@ func (s *server) UpdateContainer(req *pb.UpdateContainerRequest, out pb.AgentSer
 	return sendUpdateProgress(progressCh, errCh, out.Send)
 }
 
-func (s *server) RollbackContainer(req *pb.RollbackContainerRequest, out pb.AgentService_RollbackContainerServer) error {
+func (s *server) RollbackContainer(req *pb.RollbackContainerRequest, out pb.AgentService_RollbackContainerServer) (err error) {
+	defer func() { audit(out.Context(), "rollback", req.ContainerId, err) }()
 	c, err := s.service.FindContainer(out.Context(), req.ContainerId, container.ContainerLabels{})
 	if err != nil {
 		return status.Error(codes.NotFound, err.Error())
@@ -494,11 +499,16 @@ func (w *terminalStreamWriter) Write(p []byte) (int, error) {
 	return len(p), nil
 }
 
-func (s *server) ContainerExec(stream pb.AgentService_ContainerExecServer) error {
+func (s *server) ContainerExec(stream pb.AgentService_ContainerExecServer) (err error) {
+	var containerID string
+	defer func() { audit(stream.Context(), "exec", containerID, err) }()
+
 	request, err := stream.Recv()
 	if err != nil {
 		return status.Error(codes.Internal, err.Error())
 	}
+
+	containerID = request.ContainerId
 
 	c, err := s.service.FindContainer(stream.Context(), request.ContainerId, container.ContainerLabels{})
 	if err != nil {
@@ -515,11 +525,16 @@ func (s *server) ContainerExec(stream pb.AgentService_ContainerExecServer) error
 	return nil
 }
 
-func (s *server) ContainerAttach(stream pb.AgentService_ContainerAttachServer) error {
+func (s *server) ContainerAttach(stream pb.AgentService_ContainerAttachServer) (err error) {
+	var containerID string
+	defer func() { audit(stream.Context(), "attach", containerID, err) }()
+
 	request, err := stream.Recv()
 	if err != nil {
 		return status.Error(codes.Internal, err.Error())
 	}
+
+	containerID = request.ContainerId
 
 	c, err := s.service.FindContainer(stream.Context(), request.ContainerId, container.ContainerLabels{})
 	if err != nil {

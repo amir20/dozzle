@@ -143,6 +143,9 @@ func (a *AgentCmd) Run(args Args, embeddedCerts embed.FS) error {
 	if err != nil {
 		return fmt.Errorf("failed to read certificates: %w", err)
 	}
+	if !CustomCert(args.CertPath, args.KeyPath) {
+		log.Warn().Str("addr", args.Agent.Addr).Msg("Agent is using the built-in certificate, which ships in every Dozzle image. Anyone who can reach this port can read logs, exec into containers, and start, stop, remove or update them. Keep the port on a private network, or run `dozzle generate-certs` and give the hub and agent their own pair.")
+	}
 
 	listener, err := net.Listen("tcp", args.Agent.Addr)
 	if err != nil {

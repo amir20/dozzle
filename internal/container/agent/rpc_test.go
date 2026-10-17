@@ -3,6 +3,9 @@ package agent
 import (
 	"bytes"
 	"context"
+	"crypto/sha256"
+	"encoding/hex"
+	"encoding/json"
 	"errors"
 	"io"
 	"net"
@@ -16,6 +19,8 @@ import (
 	"github.com/amir20/dozzle/internal/imagecheck"
 	"github.com/amir20/dozzle/internal/notification/dispatcher"
 	"github.com/amir20/dozzle/types"
+	"github.com/rs/zerolog"
+	"github.com/rs/zerolog/log"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
@@ -312,6 +317,25 @@ func TestContainerActionOverAgent(t *testing.T) {
 
 	err := rpc.ContainerAction(ctx, "missing", container.Start)
 	assert.Equal(t, codes.NotFound, status.Code(err))
+}
+
+func TestContainerActionAuditedOverAgent(t *testing.T) {
+	var buf bytes.Buffer
+	old := log.Logger
+	log.Logger = zerolog.New(&buf)
+	t.Cleanup(func() { log.Logger = old })
+
+	rpc := newTestAgent(t, &fakeService{}, &recordingHandler{})
+	require.NoError(t, rpc.ContainerAction(context.Background(), "abc", container.Stop))
+
+	var line map[string]any
+	require.NoError(t, json.Unmarshal(buf.Bytes(), &line))
+	sum := sha256.Sum256(certs.Certificate[0])
+	assert.Equal(t, "agent audit", line["message"])
+	assert.Equal(t, "stop", line["op"])
+	assert.Equal(t, "abc", line["container"])
+	assert.Equal(t, hex.EncodeToString(sum[:]), line["cert"], "the hub is named by its certificate")
+	assert.NotEmpty(t, line["peer"])
 }
 
 func TestContainerActionFailureOverAgent(t *testing.T) {
