@@ -972,11 +972,11 @@ setup:
     title: 连接 Dozzle Cloud
     subtitle: 无需一直开着标签页，也能在出问题时第一时间知道。
     alerts-title: 出问题时立即告警
-    alerts-body: 崩溃、OOM 终止和错误激增，发送到邮箱、Slack 或 Discord。
-    summary-title: 每日早间待修复摘要
-    summary-body: 每天一份按优先级排序的问题清单，只列值得你花时间的问题。
-    history-title: 重启后依然保留的历史
-    history-body: 告警和发现在刷新、重启乃至一周之后依然保留。
+    alerts-body: "崩溃、OOM 终止和错误激增，发送到 Telegram、Discord、Slack 或邮箱。"
+    chat-title: "用手机问哪里坏了"
+    chat-body: "给 Telegram 或 Discord 机器人发消息。它会读取你的日志，并在操作开启时，经你确认后重启容器。"
+    updates-title: "会被检查的更新"
+    updates-body: "每次换上新镜像后，Dozzle Cloud 会把错误与之前对比，如果变多就提供回滚。"
     connect: 连接 Dozzle Cloud
     learn-more: 了解更多
     skip: "暂不"

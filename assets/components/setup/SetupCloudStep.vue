@@ -29,8 +29,8 @@
 
 <script lang="ts" setup>
 import MdiBellRingOutline from "~icons/mdi/bell-ring-outline";
-import MdiWeatherSunsetUp from "~icons/mdi/weather-sunset-up";
-import MdiHistory from "~icons/mdi/history";
+import MdiChatProcessingOutline from "~icons/mdi/chat-processing-outline";
+import MdiUpdate from "~icons/mdi/update";
 import type { SetupNextResult, SetupStepId } from "@/composable/setup/setup";
 
 const { nextStep } = defineProps<{ nextStep?: SetupStepId }>();
@@ -41,13 +41,8 @@ const cloudUrl = config.cloudUrl;
 
 const values = computed(() => [
   { key: "alerts", icon: MdiBellRingOutline, title: t("setup.cloud.alerts-title"), body: t("setup.cloud.alerts-body") },
-  {
-    key: "summary",
-    icon: MdiWeatherSunsetUp,
-    title: t("setup.cloud.summary-title"),
-    body: t("setup.cloud.summary-body"),
-  },
-  { key: "history", icon: MdiHistory, title: t("setup.cloud.history-title"), body: t("setup.cloud.history-body") },
+  { key: "chat", icon: MdiChatProcessingOutline, title: t("setup.cloud.chat-title"), body: t("setup.cloud.chat-body") },
+  { key: "updates", icon: MdiUpdate, title: t("setup.cloud.updates-title"), body: t("setup.cloud.updates-body") },
 ]);
 
 // The link leaves the app. The marker makes the wizard, not the cloud welcome

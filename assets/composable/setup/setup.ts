@@ -154,10 +154,11 @@ export function setupSteps(status: SetupStatus, cloud: SetupCloudFacts): SetupSt
   if (!(status.locked.enableActions && status.locked.enableShell)) steps.push("actions");
   // Adding a host applies live, so the step never feeds the restart at the end.
   if (status.canAddAgents) steps.push("hosts");
-  if (!cloud.linked && cloud.canLink) steps.push("cloud");
   // Always listed so people see what actions would unlock. The wizard greys it out
   // while actions are off, since self-update is an action.
   if (status.mode === "server" && status.autoUpdate) steps.push("update");
+  // After auto-update, so Cloud is pitched as what checks those updates.
+  if (!cloud.linked && cloud.canLink) steps.push("cloud");
   steps.push("restart");
   return steps;
 }

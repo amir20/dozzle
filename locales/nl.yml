@@ -973,11 +973,11 @@ setup:
     title: Dozzle Cloud koppelen
     subtitle: Weet wanneer er iets stukgaat zonder een tabblad open te houden.
     alerts-title: Meldingen zodra er iets stukgaat
-    alerts-body: Crashes, OOM-kills en foutpieken, verstuurd naar e-mail, Slack of Discord.
-    summary-title: Een ochtendoverzicht van wat je moet oplossen
-    summary-body: Elke dag één gerangschikte lijst van de problemen die je tijd waard zijn.
-    history-title: Geschiedenis die herstarts overleeft
-    history-body: Meldingen en bevindingen blijven bewaard na een herlaadbeurt, een herstart of een week.
+    alerts-body: "Crashes, OOM-kills en foutpieken, verstuurd naar Telegram, Discord, Slack of e-mail."
+    chat-title: "Vraag vanaf je telefoon wat er stuk is"
+    chat-body: "Stuur de Telegram- of Discord-bot een bericht. Hij leest je logs en herstart, met acties aan, een container zodra je bevestigt."
+    updates-title: "Updates die gecontroleerd worden"
+    updates-body: "Na elk nieuw image vergelijkt Dozzle Cloud de fouten met daarvoor en biedt een rollback aan als ze erger werden."
     connect: Dozzle Cloud koppelen
     learn-more: Meer informatie
     skip: "Niet nu"
