@@ -1,7 +1,7 @@
 ---
 title: Dozzle 与 docker logs 对比
 description: 相比 docker logs 和终端工具，Dozzle 多了什么，以及什么时候终端就够用了。
-sourceHash: d312eefe8524
+sourceHash: 6b766c4db7ff
 ---
 
 # Dozzle 与 `docker logs` 对比
@@ -33,7 +33,7 @@ Dozzle 读取的日志和 `docker logs` 相同。它不复制也不存储任何�
 ## 试一试
 
 ```sh
-docker run -d -v /var/run/docker.sock:/var/run/docker.sock -p 8080:8080 amir20/dozzle:latest
+docker run -d -v /var/run/docker.sock:/var/run/docker.sock -v dozzle_data:/data -p 8080:8080 amir20/dozzle:latest
 ```
 
 然后打开 `http://localhost:8080`。更多选项见[快速开始](/zh/guide/getting-started)。

@@ -20,7 +20,7 @@ Portainer is built to manage containers: stacks, volumes, networks, images and u
 | Alerts             | On log lines, CPU or memory, and container events. See [Alerts](/guide/alerts-and-webhooks) | Not in the log viewer                                     |
 | Image updates      | Checks for new images and updates on a schedule. See [Updates](/guide/updates)              | Pull and redeploy by hand                                 |
 | Several hosts      | [Agents](/guide/agent), [Swarm](/guide/swarm-mode), [Kubernetes](/guide/k8s)                | Environments                                              |
-| Setup              | One container, nothing to configure                                                         | One container, plus an admin account on first start       |
+| Setup              | One container, plus an optional setup wizard on first start                                 | One container, plus an admin account on first start       |
 
 ## When to use Portainer instead
 
@@ -40,6 +40,7 @@ services:
     image: amir20/dozzle:latest
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
+      - dozzle_data:/data
     ports:
       - 8080:8080
   portainer:
@@ -50,6 +51,7 @@ services:
     ports:
       - 9443:9443
 volumes:
+  dozzle_data:
   portainer-data:
 ```
 

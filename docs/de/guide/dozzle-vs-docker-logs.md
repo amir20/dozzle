@@ -1,7 +1,7 @@
 ---
 title: Dozzle vs docker logs
 description: Was Dozzle gegenüber docker logs und Terminal-Tools bietet und wann das Terminal alles ist, was du brauchst.
-sourceHash: d312eefe8524
+sourceHash: 6b766c4db7ff
 ---
 
 # Dozzle vs `docker logs`
@@ -33,7 +33,7 @@ Nutze Dozzle, wenn mehr als eine Person die Logs liest, wenn du keinen SSH-Zugan
 ## Ausprobieren
 
 ```sh
-docker run -d -v /var/run/docker.sock:/var/run/docker.sock -p 8080:8080 amir20/dozzle:latest
+docker run -d -v /var/run/docker.sock:/var/run/docker.sock -v dozzle_data:/data -p 8080:8080 amir20/dozzle:latest
 ```
 
 Öffne dann `http://localhost:8080`. Weitere Optionen findest du unter [Erste Schritte](/de/guide/getting-started).

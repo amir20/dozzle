@@ -1,7 +1,7 @@
 ---
 title: Dozzle vs Grafana Loki
 description: Faut-il Grafana et Loki pour lire les logs Docker, ou Dozzle suffit-il, et comment utiliser les deux.
-sourceHash: b561d1507aca
+sourceHash: 95a7cee5f63a
 ---
 
 # Dozzle vs Grafana Loki
@@ -49,4 +49,4 @@ Les nouvelles limites s'appliquent aux conteneurs créés après le redémarrage
 
 ## Utiliser les deux
 
-Beaucoup d'installations font tourner Loki pour l'historique et Dozzle pour le débogage au quotidien. Ils ne se gênent pas : Dozzle lit depuis Docker, et Alloy lit depuis Docker. Si vous passez plutôt vos conteneurs au driver Docker de Loki, laissez activé le [dual logging](https://docs.docker.com/engine/logging/dual-logging/) de Docker (c'est le cas par défaut), pour que `docker logs`, et donc Dozzle, puissent toujours les lire.
+Beaucoup d'installations font tourner Loki pour l'historique et Dozzle pour le débogage au quotidien. Ils ne se gênent pas : Dozzle lit depuis Docker, et Alloy lit depuis Docker. Si vous passez plutôt vos conteneurs au driver Docker de Loki, laissez activé le [dual logging](https://docs.docker.com/engine/logging/dual-logging/) de Docker (c'est le cas par défaut), pour que `docker logs`, et donc Dozzle, puissent toujours les lire. Docker garde alors cette copie dans un cache dimensionné par `cache-max-size` et `cache-max-file` (5 fichiers de 20 Mo par défaut), et non par le `max-size` ci-dessus.

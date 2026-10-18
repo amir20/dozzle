@@ -1,7 +1,7 @@
 ---
 title: Dozzle 与 Portainer 对比
 description: 在查看 Docker 日志方面，Dozzle 和 Portainer 有何不同，以及如何同时运行两者。
-sourceHash: 676bc9bd86c4
+sourceHash: d147e79555a6
 ---
 
 # Dozzle 与 Portainer 对比
@@ -21,7 +21,7 @@ Portainer 是为管理容器而生的：stack、卷、网络、镜像和用户�
 | 警报       | 针对日志行、CPU 或内存，以及容器事件。参见[警报](/zh/guide/alerts-and-webhooks)      | 日志查看器中没有                       |
 | 镜像更新   | 检查新镜像并按计划更新。参见[更新](/zh/guide/updates)                                | 手动拉取并重新部署                     |
 | 多台主机   | [Agent](/zh/guide/agent)、[Swarm](/zh/guide/swarm-mode)、[Kubernetes](/zh/guide/k8s) | 环境（Environments）                   |
-| 部署       | 一个容器，无需任何配置                                                               | 一个容器，首次启动时还需创建管理员账户 |
+| 部署       | 一个容器，首次启动时有一个可选的设置向导                                             | 一个容器，首次启动时还需创建管理员账户 |
 
 ## 什么时候该用 Portainer
 
@@ -41,6 +41,7 @@ services:
     image: amir20/dozzle:latest
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
+      - dozzle_data:/data
     ports:
       - 8080:8080
   portainer:
@@ -51,6 +52,7 @@ services:
     ports:
       - 9443:9443
 volumes:
+  dozzle_data:
   portainer-data:
 ```
 

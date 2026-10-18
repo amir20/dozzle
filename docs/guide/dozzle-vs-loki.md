@@ -48,4 +48,4 @@ The new limits apply to containers created after Docker restarts.
 
 ## Use both
 
-Many setups run Loki for history and Dozzle for everyday debugging. They don't get in each other's way: Dozzle reads from Docker, and Alloy reads from Docker. If you switch containers to the Loki Docker driver instead, keep Docker's [dual logging](https://docs.docker.com/engine/logging/dual-logging/) on (the default), so `docker logs`, and therefore Dozzle, can still read them.
+Many setups run Loki for history and Dozzle for everyday debugging. They don't get in each other's way: Dozzle reads from Docker, and Alloy reads from Docker. If you switch containers to the Loki Docker driver instead, keep Docker's [dual logging](https://docs.docker.com/engine/logging/dual-logging/) on (the default), so `docker logs`, and therefore Dozzle, can still read them. Docker then keeps that copy in a cache sized by `cache-max-size` and `cache-max-file` (5 files of 20 MB by default), not by the `max-size` above.

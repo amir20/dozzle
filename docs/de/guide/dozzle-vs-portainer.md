@@ -1,7 +1,7 @@
 ---
 title: Dozzle vs Portainer
 description: Wie sich Dozzle und Portainer beim Lesen von Docker-Logs unterscheiden und wie du beide nebeneinander betreibst.
-sourceHash: 676bc9bd86c4
+sourceHash: d147e79555a6
 ---
 
 # Dozzle vs Portainer
@@ -21,7 +21,7 @@ Portainer ist dafür gebaut, Container zu verwalten: Stacks, Volumes, Netzwerke,
 | Alarme            | Bei Log-Zeilen, CPU oder Speicher und Container-Ereignissen. Siehe [Alarme](/de/guide/alerts-and-webhooks) | Nicht im Log-Viewer                                        |
 | Image-Updates     | Prüft auf neue Images und aktualisiert nach Zeitplan. Siehe [Updates](/de/guide/updates)                   | Pull und erneutes Deployment von Hand                      |
 | Mehrere Hosts     | [Agents](/de/guide/agent), [Swarm](/de/guide/swarm-mode), [Kubernetes](/de/guide/k8s)                      | Environments                                               |
-| Einrichtung       | Ein Container, nichts zu konfigurieren                                                                     | Ein Container, plus ein Admin-Konto beim ersten Start      |
+| Einrichtung       | Ein Container, plus ein optionaler Einrichtungsassistent beim ersten Start                                 | Ein Container, plus ein Admin-Konto beim ersten Start      |
 
 ## Wann Portainer die bessere Wahl ist
 
@@ -41,6 +41,7 @@ services:
     image: amir20/dozzle:latest
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
+      - dozzle_data:/data
     ports:
       - 8080:8080
   portainer:
@@ -51,6 +52,7 @@ services:
     ports:
       - 9443:9443
 volumes:
+  dozzle_data:
   portainer-data:
 ```
 

@@ -32,7 +32,7 @@ Use Dozzle when more than one person reads the logs, when you would rather not h
 ## Try it
 
 ```sh
-docker run -d -v /var/run/docker.sock:/var/run/docker.sock -p 8080:8080 amir20/dozzle:latest
+docker run -d -v /var/run/docker.sock:/var/run/docker.sock -v dozzle_data:/data -p 8080:8080 amir20/dozzle:latest
 ```
 
 Then open `http://localhost:8080`. More options are in [Getting Started](/guide/getting-started).

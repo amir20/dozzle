@@ -1,7 +1,7 @@
 ---
 title: Dozzle 与 Grafana Loki 对比
 description: 查看 Docker 日志时是否需要 Grafana 和 Loki，还是 Dozzle 就够了，以及如何同时使用两者。
-sourceHash: b561d1507aca
+sourceHash: 95a7cee5f63a
 ---
 
 # Dozzle 与 Grafana Loki 对比
@@ -49,4 +49,4 @@ Dozzle 能显示多少历史取决于 Docker 的日志轮转。要保留更多�
 
 ## 同时使用两者
 
-很多部署用 Loki 保存历史，用 Dozzle 做日常调试。它们互不干扰：Dozzle 从 Docker 读取，Alloy 也从 Docker 读取。如果你改为让容器使用 Loki Docker 驱动，请保持 Docker 的[双重日志](https://docs.docker.com/engine/logging/dual-logging/)开启（默认即开启），这样 `docker logs`，以及 Dozzle，仍然可以读取它们。
+很多部署用 Loki 保存历史，用 Dozzle 做日常调试。它们互不干扰：Dozzle 从 Docker 读取，Alloy 也从 Docker 读取。如果你改为让容器使用 Loki Docker 驱动，请保持 Docker 的[双重日志](https://docs.docker.com/engine/logging/dual-logging/)开启（默认即开启），这样 `docker logs`，以及 Dozzle，仍然可以读取它们。此时 Docker 把这份副本保存在一个缓存中，其大小由 `cache-max-size` 和 `cache-max-file` 决定（默认 5 个 20 MB 的文件），而不是上面的 `max-size`。
