@@ -166,6 +166,7 @@ declare module 'vue' {
     'Mdi:broom': typeof import('~icons/mdi/broom')['default']
     'Mdi:calendarRange': typeof import('~icons/mdi/calendar-range')['default']
     'Mdi:chartLine': typeof import('~icons/mdi/chart-line')['default']
+    'Mdi:chatProcessingOutline': typeof import('~icons/mdi/chat-processing-outline')['default']
     'Mdi:check': typeof import('~icons/mdi/check')['default']
     'Mdi:checkCircleOutline': typeof import('~icons/mdi/check-circle-outline')['default']
     'Mdi:chevronDoubleDown': typeof import('~icons/mdi/chevron-double-down')['default']

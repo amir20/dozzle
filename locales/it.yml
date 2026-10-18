@@ -711,6 +711,8 @@ cloud:
     alerts-go-to: "Gli avvisi vanno a"
     your-cloud-account: "il tuo account Cloud"
     change: "Cambia"
+    chat-also: "Ricevili anche sul telefono in Telegram o Discord."
+    chat-connect: "Collega"
     turn-on: "Attiva 1 avviso | Attiva {count} avvisi"
     turn-on-short: "Attiva"
     continue-without: "Continua senza avvisi"

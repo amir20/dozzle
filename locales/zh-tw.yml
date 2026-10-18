@@ -713,6 +713,8 @@ cloud:
     alerts-go-to: "提醒傳送至"
     your-cloud-account: "你的 Cloud 帳戶"
     change: "變更"
+    chat-also: "也在手機上透過 Telegram 或 Discord 接收。"
+    chat-connect: "連接"
     turn-on: "開啟 1 則提醒 | 開啟 {count} 則提醒"
     turn-on-short: "開啟"
     continue-without: "不啟用提醒，繼續"

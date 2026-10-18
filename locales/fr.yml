@@ -711,6 +711,8 @@ cloud:
     alerts-go-to: "Les alertes vont à"
     your-cloud-account: "votre compte Cloud"
     change: "Modifier"
+    chat-also: "Recevez-les aussi sur votre téléphone dans Telegram ou Discord."
+    chat-connect: "Connecter"
     turn-on: "Activer 1 alerte | Activer {count} alertes"
     turn-on-short: "Activer"
     continue-without: "Continuer sans alertes"

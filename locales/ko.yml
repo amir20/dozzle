@@ -713,6 +713,8 @@ cloud:
     alerts-go-to: "알림 수신처"
     your-cloud-account: "내 Cloud 계정"
     change: "변경"
+    chat-also: "Telegram 또는 Discord로 휴대폰에서도 받아 보세요."
+    chat-connect: "연결"
     turn-on: "알림 1개 켜기 | 알림 {count}개 켜기"
     turn-on-short: "켜기"
     continue-without: "알림 없이 계속하기"

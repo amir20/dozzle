@@ -713,6 +713,8 @@ cloud:
     alerts-go-to: "Alerty trafiają do"
     your-cloud-account: "twoje konto Cloud"
     change: "Zmień"
+    chat-also: "Otrzymuj je też na telefonie w Telegramie lub Discordzie."
+    chat-connect: "Połącz"
     turn-on: "Włącz 1 alert | Włącz {count} alertów"
     turn-on-short: "Włącz"
     continue-without: "Kontynuuj bez alertów"

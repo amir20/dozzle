@@ -711,6 +711,8 @@ cloud:
     alerts-go-to: "Benachrichtigungen gehen an"
     your-cloud-account: "Ihr Cloud-Konto"
     change: "Ändern"
+    chat-also: "Erhalten Sie sie auch auf dem Handy in Telegram oder Discord."
+    chat-connect: "Verbinden"
     turn-on: "1 Benachrichtigung aktivieren | {count} Benachrichtigungen aktivieren"
     turn-on-short: "Aktivieren"
     continue-without: "Ohne Benachrichtigungen fortfahren"

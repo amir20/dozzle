@@ -711,6 +711,8 @@ cloud:
     alerts-go-to: "Notifikationer går til"
     your-cloud-account: "din Cloud-konto"
     change: "Skift"
+    chat-also: "Få dem også på telefonen i Telegram eller Discord."
+    chat-connect: "Forbind"
     turn-on: "Slå 1 notifikation til | Slå {count} notifikationer til"
     turn-on-short: "Slå til"
     continue-without: "Fortsæt uden notifikationer"

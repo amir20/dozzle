@@ -716,6 +716,8 @@ cloud:
     alerts-go-to: "Opozorila gredo na"
     your-cloud-account: "vaš račun Cloud"
     change: "Spremeni"
+    chat-also: "Prejmite jih tudi na telefon v Telegramu ali Discordu."
+    chat-connect: "Poveži"
     turn-on: "Vklopi 1 opozorilo | Vklopi {count} opozoril"
     turn-on-short: "Vklopi"
     continue-without: "Nadaljuj brez opozoril"
