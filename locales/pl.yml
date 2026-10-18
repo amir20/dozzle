@@ -978,7 +978,7 @@ setup:
     chat-title: "Zapytaj z telefonu, co się zepsuło"
     chat-body: "Napisz do bota na Telegramie lub Discordzie. Czyta Twoje logi i, gdy akcje są włączone, restartuje kontener po Twoim potwierdzeniu."
     updates-title: "Aktualizacje, które są sprawdzane"
-    updates-body: "Po każdym nowym obrazie Dozzle Cloud porównuje błędy z tymi sprzed aktualizacji i proponuje wycofanie, jeśli jest ich więcej."
+    updates-body: "Po każdej automatycznej aktualizacji Dozzle Cloud porównuje błędy z tymi sprzed aktualizacji i proponuje wycofanie, jeśli jest ich więcej."
     connect: Połącz Dozzle Cloud
     learn-more: Dowiedz się więcej
     skip: "Nie teraz"

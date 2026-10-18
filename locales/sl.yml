@@ -981,7 +981,7 @@ setup:
     chat-title: "Vprašajte s telefona, kaj se je pokvarilo"
     chat-body: "Pišite botu v Telegramu ali Discordu. Prebere vaše dnevnike in, ko so dejanja vklopljena, po vaši potrditvi ponovno zažene vsebnik."
     updates-title: "Posodobitve, ki so preverjene"
-    updates-body: "Po vsaki novi sliki Dozzle Cloud primerja napake s tistimi od prej in ponudi povrnitev, če se je stanje poslabšalo."
+    updates-body: "Po vsaki samodejni posodobitvi Dozzle Cloud primerja napake s tistimi od prej in ponudi povrnitev, če se je stanje poslabšalo."
     connect: Poveži Dozzle Cloud
     learn-more: Več o tem
     skip: "Ne zdaj"

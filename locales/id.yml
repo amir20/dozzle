@@ -988,7 +988,7 @@ setup:
     chat-title: "Tanyakan apa yang rusak dari ponsel Anda"
     chat-body: "Kirim pesan ke bot Telegram atau Discord. Bot membaca log Anda dan, jika aksi aktif, memulai ulang container setelah Anda konfirmasi."
     updates-title: "Pembaruan yang diperiksa"
-    updates-body: "Setelah setiap image baru, Dozzle Cloud membandingkan error dengan sebelumnya dan menawarkan rollback jika error bertambah."
+    updates-body: "Setelah setiap pembaruan otomatis, Dozzle Cloud membandingkan error dengan sebelumnya dan menawarkan rollback jika error bertambah."
     connect: "Hubungkan Dozzle Cloud"
     learn-more: "Pelajari lebih lanjut"
     skip: "Jangan sekarang"

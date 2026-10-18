@@ -976,7 +976,7 @@ setup:
     chat-title: "Spørg, hvad der gik galt, fra din telefon"
     chat-body: "Skriv til Telegram- eller Discord-botten. Den læser dine logs og genstarter, med handlinger slået til, en container, når du bekræfter."
     updates-title: "Opdateringer, der bliver tjekket"
-    updates-body: "Efter hvert nyt image sammenligner Dozzle Cloud fejlene med før og tilbyder at rulle tilbage, hvis de blev værre."
+    updates-body: "Efter hver automatisk opdatering sammenligner Dozzle Cloud fejlene med før og tilbyder at rulle tilbage, hvis de blev værre."
     connect: "Forbind Dozzle Cloud"
     learn-more: "Læs mere"
     skip: "Ikke nu"

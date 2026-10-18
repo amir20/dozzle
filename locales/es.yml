@@ -976,7 +976,7 @@ setup:
     chat-title: "Pregunte qué falló desde su teléfono"
     chat-body: "Escriba al bot de Telegram o Discord. Lee sus logs y, con las acciones activadas, reinicia un contenedor cuando usted lo confirma."
     updates-title: "Actualizaciones que se comprueban"
-    updates-body: "Tras cada imagen nueva, Dozzle Cloud compara los errores con los de antes y ofrece revertirla si empeoraron."
+    updates-body: "Tras cada actualización automática, Dozzle Cloud compara los errores con los de antes y ofrece revertirla si empeoraron."
     connect: "Conectar Dozzle Cloud"
     learn-more: "Más información"
     skip: "Ahora no"

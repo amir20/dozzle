@@ -977,7 +977,7 @@ setup:
     chat-title: "Vraag vanaf je telefoon wat er stuk is"
     chat-body: "Stuur de Telegram- of Discord-bot een bericht. Hij leest je logs en herstart, met acties aan, een container zodra je bevestigt."
     updates-title: "Updates die gecontroleerd worden"
-    updates-body: "Na elk nieuw image vergelijkt Dozzle Cloud de fouten met daarvoor en biedt een rollback aan als ze erger werden."
+    updates-body: "Na elke automatische update vergelijkt Dozzle Cloud de fouten met daarvoor en biedt een rollback aan als ze erger werden."
     connect: Dozzle Cloud koppelen
     learn-more: Meer informatie
     skip: "Niet nu"

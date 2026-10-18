@@ -979,7 +979,7 @@ setup:
     chat-title: "Neyin bozulduğunu telefonunuzdan sorun"
     chat-body: "Telegram veya Discord botuna yazın. Loglarınızı okur ve eylemler açıksa siz onayladıktan sonra bir container'ı yeniden başlatır."
     updates-title: "Kontrol edilen güncellemeler"
-    updates-body: "Her yeni imajdan sonra Dozzle Cloud hataları öncekiyle karşılaştırır ve arttıysa geri almayı önerir."
+    updates-body: "Her otomatik güncellemeden sonra Dozzle Cloud hataları öncekiyle karşılaştırır ve arttıysa geri almayı önerir."
     connect: Dozzle Cloud'a bağlan
     learn-more: Daha fazla bilgi
     skip: "Şimdi değil"

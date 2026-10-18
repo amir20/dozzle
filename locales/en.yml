@@ -984,7 +984,7 @@ setup:
     chat-title: "Ask what broke, from your phone"
     chat-body: "Message the Telegram or Discord bot. It reads your logs and, with actions on, restarts a container once you confirm."
     updates-title: "Updates that get checked"
-    updates-body: "After each new image, Dozzle Cloud compares the errors with before and offers to roll it back if they got worse."
+    updates-body: "After each auto-update, Dozzle Cloud compares the errors with before and offers to roll it back if they got worse."
     connect: Connect Dozzle Cloud
     learn-more: Learn more
     skip: "Not now"

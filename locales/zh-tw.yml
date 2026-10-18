@@ -978,7 +978,7 @@ setup:
     chat-title: "用手機問哪裡壞了"
     chat-body: "傳訊息給 Telegram 或 Discord 機器人。它會讀取你的日誌，並在動作開啟時，經你確認後重新啟動容器。"
     updates-title: "會被檢查的更新"
-    updates-body: "每次換上新映像後，Dozzle Cloud 會將錯誤與之前比較，若變多則提供回滾。"
+    updates-body: "每次自動更新後，Dozzle Cloud 會將錯誤與之前比較，若變多則提供回滾。"
     connect: 連接 Dozzle Cloud
     learn-more: 了解更多
     skip: "暫不"
