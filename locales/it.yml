@@ -46,6 +46,7 @@ toolbar:
   inspect: "Ispeziona"
   copy-permalink: Copia link permanente
   copy-image: "Copia tag immagine"
+  image-version: "{image} è attualmente {version}"
   pin: "Fissa"
   unpin: "Rimuovi"
   copy-logs: Copia log

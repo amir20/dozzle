@@ -308,6 +308,36 @@ describe("Container.url", () => {
   });
 });
 
+describe("Container.imageVersion", () => {
+  const oci = { "org.opencontainers.image.version": "v3.7.14" };
+
+  test("reads the OCI version label for a latest image", () => {
+    expect(makeContainer({ image: "traefik:latest", labels: oci }).imageVersion).toBe("v3.7.14");
+  });
+
+  test("treats an untagged image as latest, even behind a registry port", () => {
+    expect(makeContainer({ image: "registry:5000/traefik", labels: oci }).imageVersion).toBe("v3.7.14");
+    expect(makeContainer({ image: "traefik@sha256:abc", labels: oci }).imageVersion).toBe("v3.7.14");
+  });
+
+  test("falls back to the label-schema version", () => {
+    const labels = { "org.label-schema.version": "1.2.3" };
+    expect(makeContainer({ image: "app:latest", labels }).imageVersion).toBe("1.2.3");
+  });
+
+  test("stays quiet for a pinned tag, a missing label, or a label that just says latest", () => {
+    expect(
+      makeContainer({ image: "amir20/dozzle:main", labels: { "org.opencontainers.image.version": "main" } })
+        .imageVersion,
+    ).toBeUndefined();
+    expect(makeContainer({ image: "traefik:v3.7", labels: oci }).imageVersion).toBeUndefined();
+    expect(makeContainer({ image: "traefik:latest" }).imageVersion).toBeUndefined();
+    expect(
+      makeContainer({ image: "app:latest", labels: { "org.opencontainers.image.version": "latest" } }).imageVersion,
+    ).toBeUndefined();
+  });
+});
+
 describe("Container.publishedPorts", () => {
   test("empty without ports", () => {
     expect(makeContainer().publishedPorts).toEqual([]);

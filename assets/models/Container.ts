@@ -237,6 +237,22 @@ export class Container {
   }
 
   /**
+   * The release behind a floating `latest` (or untagged) image, read from the version
+   * label the image carries. Docker copies image labels onto the container, so this
+   * needs no registry call; images without the label have nothing to say.
+   */
+  get imageVersion() {
+    const ref = stripImageDigest(this.image);
+    const lastSegment = ref.slice(ref.lastIndexOf("/") + 1);
+    const tag = lastSegment.includes(":") ? lastSegment.slice(lastSegment.indexOf(":") + 1) : "latest";
+    if (tag !== "latest") return undefined;
+    const version = (
+      this.labels["org.opencontainers.image.version"] || this.labels["org.label-schema.version"]
+    )?.trim();
+    return version && version !== tag ? version : undefined;
+  }
+
+  /**
    * Published tcp bindings, parsed out of Docker's `ip:host->container/proto` strings.
    * Ports that are only exposed, never published, have no host side and are dropped.
    */

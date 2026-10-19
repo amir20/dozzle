@@ -46,6 +46,7 @@ toolbar:
   inspect: "Inspizieren"
   copy-permalink: Permanentlink kopieren
   copy-image: "Image-Tag kopieren"
+  image-version: "{image} ist aktuell {version}"
   pin: "Anheften"
   unpin: "Loslösen"
   copy-logs: Logs kopieren
