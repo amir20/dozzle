@@ -79,7 +79,7 @@ func queued(m *sizeMonitor) bool {
 
 func TestSizeMonitor_nilWithoutSizeReader(t *testing.T) {
 	m := newSizeMonitor(bareStore(t, nil), new(mockedClient))
-	assert.Nil(t, m, "k8s has no sizes to read")
+	assert.Nil(t, m, "a client that cannot measure has no monitor")
 
 	c := loadedContainer("1", "running")
 	// every method is a no-op on nil, so the store calls them unconditionally
@@ -118,6 +118,30 @@ func TestSizeMonitor_observe(t *testing.T) {
 	c.SizeRw = nil
 	m.observe(&c, ContainerStat{ID: "1", DiskWriteTotal: 500})
 	assert.True(t, queued(m), "a failed measurement is retried on the interval")
+}
+
+// periodicClient has no write counter in its stats, as k8s does not.
+type periodicClient struct{ *sizedClient }
+
+func (periodicClient) MeasuresPeriodically() {}
+
+func TestSizeMonitor_observePeriodic(t *testing.T) {
+	m := newSizeMonitor(bareStore(t, nil), periodicClient{&sizedClient{mockedClient: new(mockedClient)}})
+	c := loadedContainer("1", "running")
+	size := int64(10)
+	c.SizeRw = &size
+
+	m.observe(&c, ContainerStat{ID: "1"})
+	queued(m)
+	tr, _ := m.trackers.Load("1")
+	tr.lastCheckNanos.Store(time.Now().UnixNano())
+
+	m.observe(&c, ContainerStat{ID: "1"})
+	assert.False(t, queued(m), "measured just now")
+
+	tr.lastCheckNanos.Store(time.Now().Add(-sizeRefreshInterval).UnixNano())
+	m.observe(&c, ContainerStat{ID: "1"})
+	assert.True(t, queued(m), "measured again on the interval with no write to go by")
 }
 
 func TestSizeMonitor_observeAfterRestart(t *testing.T) {

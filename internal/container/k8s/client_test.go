@@ -15,6 +15,7 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/api/meta"
+	"k8s.io/apimachinery/pkg/api/resource"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
@@ -337,6 +338,20 @@ func TestPodToContainersHonorsDozzleLabels(t *testing.T) {
 	require.Len(t, containers, 1)
 	assert.Equal(t, "api", containers[0].Name)
 	assert.Equal(t, "backend", containers[0].Group)
+}
+
+func TestPodToContainersReadsResourceLimits(t *testing.T) {
+	client := newTestK8sClient(t)
+	pod := podWithOwner()
+	pod.Spec.Containers[0].Resources.Limits = corev1.ResourceList{
+		corev1.ResourceMemory: resource.MustParse("512Mi"),
+		corev1.ResourceCPU:    resource.MustParse("250m"),
+	}
+
+	containers := client.podToContainers(t.Context(), pod)
+	require.Len(t, containers, 1)
+	assert.Equal(t, uint64(512<<20), containers[0].MemoryLimit)
+	assert.InDelta(t, 0.25, containers[0].CPULimit, 0.0001)
 }
 
 func TestPodToContainersPrefersDozzleAnnotations(t *testing.T) {

@@ -1,6 +1,6 @@
 ---
 title: Compatibilidad con Kubernetes
-sourceHash: d55c7e2a0ec6
+sourceHash: 68f0096ed3c7
 ---
 
 # Compatibilidad con Kubernetes
@@ -142,6 +142,22 @@ kubectl top pod
 ```
 
 Sin ella, los logs siguen funcionando y la CPU y la memoria quedan vacías.
+
+La barra de memoria mide el uso frente al límite de memoria del contenedor. Un contenedor sin límite se mide frente a la memoria de su nodo, como hace Docker.
+
+## <Icon icon="mdi:harddisk" inline /> Red y disco
+
+La Metrics API no tiene datos de red ni de disco. Dozzle puede leerlos del kubelet de cada nodo (`/stats/summary`), el mismo sitio del que lee metrics-server. Es opcional: añade esta regla al ClusterRole y aparecerán las columnas de red y disco.
+
+```yaml
+- apiGroups: [""]
+  resources: ["nodes/stats"]
+  verbs: ["get"]
+```
+
+La red se cuenta por pod, así que el tráfico del pod aparece en el contenedor cuyo nombre va primero en orden alfabético y los demás contenedores no muestran ninguno. El disco es la capa escribible del contenedor más los PVC y volúmenes `emptyDir` que monta.
+
+Dozzle llama a cada kubelet directamente en la IP interna del nodo (puerto 10250), nunca a través del proxy de nodos del API server. Eso necesitaría `nodes/proxy`, que permite hacer exec en cualquier contenedor. El certificado del kubelet tiene que estar firmado por la CA del clúster, como ocurre en k3s. Donde los kubelets usan certificados autofirmados (lo predeterminado en kubeadm, kind), las columnas siguen ocultas y Dozzle registra el motivo una vez.
 
 ## <Icon icon="mdi:restart" inline /> Acciones sobre contenedores
 
