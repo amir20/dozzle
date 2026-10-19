@@ -11,7 +11,16 @@ export type Item = string | { slug: string; items: string[] } | { group: string;
 export type Section = { key: string; items: Item[] };
 
 export const SECTIONS: Section[] = [
-  { key: "introduction", items: ["what-is-dozzle", "getting-started", "setup-wizard", "whats-new"] },
+  {
+    key: "introduction",
+    items: [
+      "what-is-dozzle",
+      { group: "compared", items: ["dozzle-vs-portainer", "dozzle-vs-loki", "dozzle-vs-docker-logs"] },
+      "getting-started",
+      "setup-wizard",
+      "whats-new",
+    ],
+  },
   { key: "platforms", items: ["swarm-mode", "k8s", "podman"] },
   {
     key: "cloud",
