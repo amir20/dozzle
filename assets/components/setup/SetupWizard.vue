@@ -18,6 +18,7 @@
         ref="step"
         :status="status"
         :anything-set="steps.some((id) => setupStepConfigured(id, status!) || completed.has(id))"
+        :cloud-later="steps.includes('cloud') && !linked"
         @seen="setupSeen = true"
       />
     </template>
@@ -136,7 +137,10 @@ async function goTo(i: number) {
   if (handle.value?.dirty) {
     const result = await handle.value.next();
     if (result === "stay") return;
-    if (id) {
+    if (id && result === "skip") {
+      skipped.value.add(id);
+      completed.value.delete(id);
+    } else if (id) {
       completed.value.add(id);
       skipped.value.delete(id);
     }
@@ -161,6 +165,7 @@ if (resumeAtLoad && window.location.hash === "#cloudLinked") {
 async function open(startAt: SetupStepId | undefined, auto: boolean) {
   skipped.value = new Set();
   completed.value = new Set();
+  reached = new Set();
   steps.value = [];
   index.value = 0;
   if (!auto) modal.value?.open();
@@ -184,7 +189,12 @@ async function open(startAt: SetupStepId | undefined, auto: boolean) {
     index.value = at >= 0 ? at : steps.value.length - 1;
     // Resuming after a restart or the cloud round trip: everything before was done
     // in the part of the session that just ended.
-    for (const id of steps.value.slice(0, index.value)) completed.value.add(id);
+    // The welcome marker is the #cloudLinked return, which can land before the
+    // cloud config has loaded.
+    const cloudLinked = linked.value || cloudWelcomePending();
+    for (const id of steps.value.slice(0, index.value)) {
+      if (setupResumeDone(id, s, cloudLinked)) completed.value.add(id);
+    }
     // A resume can name a step that has since greyed out.
     const current = steps.value[index.value];
     if (current && isDisabled(current)) index.value = Math.max(neighbor(index.value, 1), 0);
@@ -268,8 +278,24 @@ async function onNext() {
   }
 }
 
+const stepUsage: Record<SetupStepId, UsageKey> = {
+  login: "wizard.step.login",
+  actions: "wizard.step.actions",
+  cloud: "wizard.step.cloud",
+  hosts: "wizard.step.hosts",
+  update: "wizard.step.update",
+  restart: "wizard.step.restart",
+};
+// Once per step per opening, so going Back and forth does not count a step twice.
+// Against wizard.shown this says how far people get before they leave.
+let reached = new Set<SetupStepId>();
+
 // The last step lists what is pending, so it reads a fresh status on arrival.
 watch(currentId, (id) => {
+  if (id && !reached.has(id)) {
+    reached.add(id);
+    trackUsage(stepUsage[id]);
+  }
   if (id === "restart") fetchStatus();
 });
 

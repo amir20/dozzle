@@ -986,13 +986,14 @@ setup:
   cloud:
     title: "Hubungkan Dozzle Cloud"
     subtitle: "Ketahui saat ada yang rusak tanpa harus membiarkan tab terbuka."
+    report-title: "Yang perlu diperbaiki, ditemukan untuk Anda"
+    report-body: "Dozzle Cloud membaca error dan peringatan Anda, lalu memberi tahu mana yang layak diperbaiki dan bagaimana caranya."
     alerts-title: "Peringatan begitu ada yang rusak"
     alerts-body: "Crash, OOM kill, dan lonjakan error, dikirim ke Telegram, Discord, Slack, atau email."
     chat-title: "Tanyakan apa yang rusak dari ponsel Anda"
     chat-body: "Kirim pesan ke bot Telegram atau Discord. Bot membaca log Anda dan, jika aksi aktif, memulai ulang container setelah Anda konfirmasi."
-    updates-title: "Pembaruan yang diperiksa"
-    updates-body: "Setelah setiap pembaruan otomatis, Dozzle Cloud membandingkan error dengan sebelumnya dan menawarkan rollback jika error bertambah."
     connect: "Hubungkan Dozzle Cloud"
+    first-week: "Minggu pertama Anda sudah termasuk laporan setiap pagi tentang setiap masalah yang ditemukan, beserta cara memperbaikinya."
     learn-more: "Pelajari lebih lanjut"
     skip: "Jangan sekarang"
   update:
@@ -1018,6 +1019,7 @@ setup:
     reason-unsupported: "Dozzle tidak dapat menemukan kontainernya sendiri di sini, jadi tidak dapat mengganti dirinya sendiri."
     reason-swarm-worker: "Dozzle berjalan sebagai layanan Swarm di node worker. Hanya manager yang dapat memperbarui layanan, jadi jalankan Dozzle di manager atau perbarui dengan docker service update."
     pull-denied: "Tidak dapat menarik {image}. Image ini mungkin hanya ada di mesin ini, atau registry memerlukan docker login."
+    cloud-hint: "Dengan Dozzle Cloud, setiap pembaruan diperiksa terhadap error sebelumnya, dan Anda ditawari rollback jika error bertambah."
   restart:
     title: "Mulai ulang Dozzle"
     subtitle: "Perubahan ini sudah disimpan dan mulai berlaku setelah dimulai ulang."
@@ -1035,6 +1037,7 @@ setup:
     done-body: "Tidak ada yang perlu dimulai ulang. Anda dapat kembali ke sini dari Pengaturan kapan saja."
     nothing-title: "Tidak ada yang perlu dimulai ulang"
     nothing-body: "Belum ada langkah yang disiapkan kali ini. Buka penyiapan dari Pengaturan kapan pun Anda siap."
+    cloud-later: "Dozzle Cloud ada di Pengaturan kapan pun Anda membutuhkannya. Gratis untuk satu server."
     done: "Selesai"
   error:
     generic: "Terjadi kesalahan. Coba lagi."

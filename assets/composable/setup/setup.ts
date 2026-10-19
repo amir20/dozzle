@@ -211,6 +211,17 @@ export function setupStepConfigured(id: SetupStepId, status: SetupStatus): boole
   return false;
 }
 
+// Whether a step the user left before a restart or the cloud round trip counts as
+// done once the wizard resumes. Nothing remembers what was skipped across the
+// reload, so the answer comes from what the server and Cloud report: walking away
+// from the Cloud page, or skipping login, must not come back as a check mark.
+// Actions has no skip, so leaving it was an answer either way.
+export function setupResumeDone(id: SetupStepId, status: SetupStatus, cloudLinked: boolean): boolean {
+  if (id === "cloud") return cloudLinked;
+  if (id === "actions") return true;
+  return setupStepConfigured(id, status);
+}
+
 // What each toggle will be after the next restart.
 export function setupToggles(status: SetupStatus) {
   return {
