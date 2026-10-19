@@ -59,7 +59,15 @@
       </div>
       <div class="min-w-0">
         <div class="field-label">{{ $t("log-details.image") }}</div>
-        <div class="truncate font-medium" :title="container?.image">{{ container?.image }}</div>
+        <div class="truncate font-medium" :title="container?.image">
+          {{ container?.image }}
+          <span
+            v-if="container?.imageVersion"
+            class="text-base-content/50 font-normal"
+            :title="$t('toolbar.image-version', { image: container.image, version: container.imageVersion })"
+            >({{ container.imageVersion }})</span
+          >
+        </div>
       </div>
     </section>
 
