@@ -13,6 +13,9 @@ import (
 	"github.com/puzpuzpuz/xsync/v4"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	corev1 "k8s.io/api/core/v1"
+	"k8s.io/apimachinery/pkg/api/resource"
+	k8sfake "k8s.io/client-go/kubernetes/fake"
 	"k8s.io/client-go/rest"
 	metricsclient "k8s.io/metrics/pkg/client/clientset/versioned"
 )
@@ -21,7 +24,7 @@ import (
 // nothing and the metrics client is never touched.
 func newTestCollector() *StatsCollector {
 	return &StatsCollector{
-		client:         &Client{},
+		client:         &Client{Clientset: k8sfake.NewSimpleClientset()},
 		subscribers:    xsync.NewMap[context.Context, chan<- container.ContainerStat](),
 		metricsFailing: xsync.NewMap[string, bool](),
 	}
@@ -93,6 +96,15 @@ func TestStatsCollectorPollsEveryNamespace(t *testing.T) {
 	metrics, err := metricsclient.NewForConfig(&rest.Config{Host: srv.URL})
 	require.NoError(t, err)
 	collector := newTestCollector()
+	collector.client.Clientset = k8sfake.NewSimpleClientset(
+		&corev1.Pod{
+			Name: "pod-a", Namespace: "a",
+			Spec: corev1.PodSpec{Containers: []corev1.Container{{
+				Name:      "app",
+				Resources: corev1.ResourceRequirements{Limits: corev1.ResourceList{corev1.ResourceMemory: resource.MustParse("4Mi")}},
+			}}},
+		},
+	)
 	collector.client.namespace = []string{"a", "denied", "b", "c"}
 	collector.metrics = metrics
 
@@ -113,6 +125,9 @@ func TestStatsCollectorPollsEveryNamespace(t *testing.T) {
 		case stat := <-stats:
 			assert.Truef(t, want[stat.ID], "unexpected stat for %s", stat.ID)
 			assert.InDelta(t, 50.0, stat.CPUPercent, 0.001)
+			if stat.ID == "a:pod-a:app" {
+				assert.InDelta(t, 25.0, stat.MemoryPercent, 0.001, "1Mi used of a 4Mi limit")
+			}
 			seen[stat.ID] = true
 		case <-timeout:
 			t.Fatalf("only saw stats for %v", seen)
@@ -123,4 +138,33 @@ func TestStatsCollectorPollsEveryNamespace(t *testing.T) {
 
 	_, failing := collector.metricsFailing.Load("denied")
 	assert.True(t, failing, "the refused namespace is remembered as failing")
+}
+
+// A container's own limit wins; without one it is measured against its node, the
+// way Docker reports a container with no limit against the host.
+func TestMemoryLimitsFallBackToNodeCapacity(t *testing.T) {
+	limited := corev1.Container{
+		Name:      "limited",
+		Resources: corev1.ResourceRequirements{Limits: corev1.ResourceList{corev1.ResourceMemory: resource.MustParse("256Mi")}},
+	}
+	pods := []corev1.Pod{{
+		Name: "web", Namespace: "default",
+		Spec: corev1.PodSpec{
+			NodeName:       "node-1",
+			InitContainers: []corev1.Container{{Name: "migrate"}},
+			Containers:     []corev1.Container{limited, {Name: "sidecar"}},
+		},
+	}, {
+		Name: "pending", Namespace: "default",
+		Spec: corev1.PodSpec{Containers: []corev1.Container{{Name: "app"}}},
+	}}
+
+	limits := memoryLimits(pods, map[string]float64{"node-1": 8 << 30})
+
+	assert.Equal(t, map[string]float64{
+		"default:web:limited": 256 << 20,
+		"default:web:sidecar": 8 << 30,
+		"default:web:migrate": 8 << 30,
+		"default:pending:app": 0, // not scheduled yet, so no node to measure against
+	}, limits)
 }

@@ -252,6 +252,8 @@ func (k *Client) podToContainers(ctx context.Context, pod *corev1.Pod) []contain
 			Command:      strings.Join(c.Command, " "),
 			Host:         pod.Spec.NodeName,
 			Tty:          c.TTY,
+			MemoryLimit:  uint64(c.Resources.Limits.Memory().Value()),
+			CPULimit:     c.Resources.Limits.Cpu().AsApproximateFloat64(),
 			Labels:       labels,
 			Stats:        utils.NewRingBuffer[container.ContainerStat](300),
 			FullyLoaded:  true,
