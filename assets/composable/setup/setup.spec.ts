@@ -65,8 +65,8 @@ describe("setupSteps", () => {
     expect(setupSteps(status({ canAddAgents: true }), unlinked)).toEqual([
       "login",
       "actions",
-      "hosts",
       "cloud",
+      "hosts",
       "restart",
     ]);
     expect(setupSteps(status({ canAddAgents: false }), unlinked)).not.toContain("hosts");
@@ -89,12 +89,12 @@ describe("setupSteps", () => {
       currentVersion: "v9.0.0",
     };
 
-    test("shows before cloud when actions are on", () => {
+    test("shows after cloud when actions are on", () => {
       expect(setupSteps(status({ enableActions: true, autoUpdate }), unlinked)).toEqual([
         "login",
         "actions",
-        "update",
         "cloud",
+        "update",
         "restart",
       ]);
     });
