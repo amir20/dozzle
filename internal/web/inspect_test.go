@@ -66,12 +66,14 @@ func Test_handler_inspectContainer_hides_env_values_without_shell(t *testing.T) 
 
 // An empty host segment used to make hostKey call log.Fatal, taking the whole
 // server down. It must fail like any other unknown host.
-func Test_handler_inspectContainer_empty_host_is_not_found(t *testing.T) {
+func Test_handler_empty_host_is_not_found(t *testing.T) {
 	handler := createDefaultHandler(nil)
-	req, err := http.NewRequest("GET", "/api/hosts//containers/123/inspect", nil)
-	require.NoError(t, err)
+	for _, path := range []string{"/api/hosts//containers/123/inspect", "/api/hosts//logs/stream"} {
+		req, err := http.NewRequest("GET", path, nil)
+		require.NoError(t, err)
 
-	rr := httptest.NewRecorder()
-	handler.ServeHTTP(rr, req)
-	assert.Equal(t, http.StatusNotFound, rr.Code)
+		rr := httptest.NewRecorder()
+		handler.ServeHTTP(rr, req)
+		assert.Equal(t, http.StatusNotFound, rr.Code, path)
+	}
 }

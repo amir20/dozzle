@@ -490,7 +490,7 @@ func createRouter(h *handler) *chi.Mux {
 }
 
 // hostKey can be empty: chi matches /hosts//... with host "". Callers treat that
-// like any other unknown host.
+// like any other unknown host, except streamHostLogs, which has to check itself.
 func hostKey(r *http.Request) string {
 	return chi.URLParam(r, "host")
 }
