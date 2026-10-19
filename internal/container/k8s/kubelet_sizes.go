@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"slices"
+	"time"
 
 	"github.com/amir20/dozzle/internal/container"
 	corev1 "k8s.io/api/core/v1"
@@ -13,6 +14,14 @@ import (
 
 // The Client is a container.SizeReader, so the store's size monitor fills the disk
 // column for k8s the same way it does for Docker.
+
+const sizeCacheTTL = time.Minute
+
+// rootfsCache is the writable-layer sizes from the last summary read.
+type rootfsCache struct {
+	at    time.Time
+	sizes map[string]int64
+}
 
 // ContainerSizes reads every container's writable layer (rootfs) from the kubelets.
 // One that refuses turns sizes off for the host rather than being retried.
@@ -24,6 +33,10 @@ func (k *Client) ContainerSizes(ctx context.Context) (map[string]int64, error) {
 		}
 		return nil, err
 	}
+	return rootfsSizes(pods), nil
+}
+
+func rootfsSizes(pods []kubeletPodStats) map[string]int64 {
 	sizes := make(map[string]int64)
 	for _, pod := range pods {
 		for _, c := range pod.Containers {
@@ -32,13 +45,21 @@ func (k *Client) ContainerSizes(ctx context.Context) (map[string]int64, error) {
 			}
 		}
 	}
-	return sizes, nil
+	return sizes
 }
 
-// ContainerSize asks only the kubelet on the container's node.
+// ContainerSize answers from the last summary read when it is recent: the stats
+// collector reads every node's every networkRefresh while stats flow, which is also
+// the only time the size monitor asks. Otherwise it asks the kubelet on the
+// container's node.
 func (k *Client) ContainerSize(ctx context.Context, id string) (int64, error) {
 	if k.kubelet == nil {
 		return 0, errKubeletRefused
+	}
+	if cached := k.rootfs.Load(); cached != nil && time.Since(cached.at) < sizeCacheTTL {
+		if size, ok := cached.sizes[id]; ok {
+			return size, nil
+		}
 	}
 	namespace, podName, containerName := parsePodContainerID(id)
 	pod, err := k.Clientset.CoreV1().Pods(namespace).Get(ctx, podName, metav1.GetOptions{ResourceVersion: "0"})

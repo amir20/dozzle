@@ -103,7 +103,12 @@ func (sc *StatsCollector) Start(parentCtx context.Context) bool {
 					}
 					for _, pod := range metricList.Items {
 						rx, tx := sc.podNetworkTotals(pod.Namespace, pod.Name, now)
-						for _, c := range pod.Containers {
+						for i, c := range pod.Containers {
+							// The pod's traffic goes on its first container only: a merged view
+							// adds containers up, and a sidecar would count it twice.
+							if i > 0 {
+								rx, tx = 0, 0
+							}
 							id := pod.Namespace + ":" + pod.Name + ":" + c.Name
 							memory := c.Usage.Memory().AsApproximateFloat64()
 							var memoryPercent float64

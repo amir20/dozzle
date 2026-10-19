@@ -1,6 +1,6 @@
 ---
 title: Prise en charge de Kubernetes
-sourceHash: f1f5308e98ee
+sourceHash: d4c8c0cc8bcf
 ---
 
 # Prise en charge de Kubernetes
@@ -155,7 +155,7 @@ La Metrics API ne fournit aucune donnée réseau ni disque. Dozzle peut les lire
   verbs: ["get"]
 ```
 
-Le réseau est compté par pod, donc chaque conteneur d'un pod affiche le trafic du pod. Le disque correspond à la couche inscriptible du conteneur plus les PVC et volumes `emptyDir` qu'il monte.
+Le réseau est compté par pod, donc le trafic du pod s'affiche sur son premier conteneur et ses autres conteneurs n'en affichent aucun. Le disque correspond à la couche inscriptible du conteneur plus les PVC et volumes `emptyDir` qu'il monte.
 
 Dozzle appelle chaque kubelet directement sur l'IP interne du nœud (port 10250), jamais via le proxy de nœuds de l'API server. Cela demanderait `nodes/proxy`, qui permet un exec dans n'importe quel conteneur. Le certificat du kubelet doit être signé par la CA du cluster, comme sur k3s. Là où les kubelets utilisent des certificats auto-signés (par défaut avec kubeadm, kind), les colonnes restent masquées et Dozzle journalise la raison une fois.
 

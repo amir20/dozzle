@@ -13,6 +13,7 @@ import (
 	"slices"
 	"strings"
 	"sync"
+	"sync/atomic"
 	"time"
 
 	"os"
@@ -49,6 +50,7 @@ type Client struct {
 	labelSelector string // pod-label half of --filter, pushed down to the API server
 	config        *rest.Config
 	kubelet       *http.Client // reads /stats/summary; see kubelet.go
+	rootfs        atomic.Pointer[rootfsCache]
 	host          container.Host
 	ownerCacheMu  sync.Mutex
 	ownerCache    map[string]ownerLookupResult

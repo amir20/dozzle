@@ -61,7 +61,14 @@ type kubeletPodStats struct {
 // newKubeletHTTPClient authenticates to kubelets the way the client authenticates to
 // the API server, and trusts the same CA. The API server's ServerName is dropped, since
 // each kubelet presents its own certificate.
+//
+// A kubeconfig that skips TLS verification gets no client, so kubelet stats are off:
+// a node writes its own addresses, and one could point them at a host that collects
+// the credentials.
 func newKubeletHTTPClient(config *rest.Config) (*http.Client, error) {
+	if config.Insecure {
+		return nil, nil
+	}
 	kubelet := rest.CopyConfig(config)
 	kubelet.ServerName = ""
 	kubelet.Timeout = kubeletTimeout
@@ -153,5 +160,6 @@ func (k *Client) kubeletStats(ctx context.Context) (pods []kubeletPodStats, comp
 	if len(errs) == len(nodes.Items) && len(errs) > 0 {
 		return nil, false, errors.Join(errs...)
 	}
+	k.rootfs.Store(&rootfsCache{at: time.Now(), sizes: rootfsSizes(pods)})
 	return pods, len(errs) == 0, nil
 }

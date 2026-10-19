@@ -153,7 +153,7 @@ The Metrics API has no network or disk numbers. Dozzle can read them from each n
   verbs: ["get"]
 ```
 
-Network is counted per pod, so every container in a pod shows the pod's traffic. Disk is the container's writable layer plus the PVCs and `emptyDir` volumes it mounts.
+Network is counted per pod, so the pod's traffic shows on its first container and its other containers show none. Disk is the container's writable layer plus the PVCs and `emptyDir` volumes it mounts.
 
 Dozzle calls each kubelet directly on the node's internal IP (port 10250), never through the API server's node proxy. That would need `nodes/proxy`, which allows exec into any container. The kubelet's serving certificate has to be signed by the cluster CA, as it is on k3s. Where kubelets use self-signed certificates (kubeadm's default, kind), the columns stay hidden and Dozzle logs why once.
 

@@ -1,6 +1,6 @@
 ---
 title: Compatibilidad con Kubernetes
-sourceHash: f1f5308e98ee
+sourceHash: d4c8c0cc8bcf
 ---
 
 # Compatibilidad con Kubernetes
@@ -155,7 +155,7 @@ La Metrics API no tiene datos de red ni de disco. Dozzle puede leerlos del kubel
   verbs: ["get"]
 ```
 
-La red se cuenta por pod, así que cada contenedor de un pod muestra el tráfico del pod. El disco es la capa escribible del contenedor más los PVC y volúmenes `emptyDir` que monta.
+La red se cuenta por pod, así que el tráfico del pod aparece en su primer contenedor y los demás contenedores no muestran ninguno. El disco es la capa escribible del contenedor más los PVC y volúmenes `emptyDir` que monta.
 
 Dozzle llama a cada kubelet directamente en la IP interna del nodo (puerto 10250), nunca a través del proxy de nodos del API server. Eso necesitaría `nodes/proxy`, que permite hacer exec en cualquier contenedor. El certificado del kubelet tiene que estar firmado por la CA del clúster, como ocurre en k3s. Donde los kubelets usan certificados autofirmados (lo predeterminado en kubeadm, kind), las columnas siguen ocultas y Dozzle registra el motivo una vez.
 

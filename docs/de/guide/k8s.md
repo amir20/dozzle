@@ -1,6 +1,6 @@
 ---
 title: Kubernetes-Unterstützung
-sourceHash: f1f5308e98ee
+sourceHash: d4c8c0cc8bcf
 ---
 
 # Kubernetes-Unterstützung
@@ -154,7 +154,7 @@ Die Metrics API liefert keine Netzwerk- oder Festplattenwerte. Dozzle kann sie v
   verbs: ["get"]
 ```
 
-Netzwerk wird pro Pod gezählt, daher zeigt jeder Container eines Pods den Traffic des Pods. Festplatte ist die beschreibbare Schicht des Containers plus die PVCs und `emptyDir`-Volumes, die er einbindet.
+Netzwerk wird pro Pod gezählt, daher erscheint der Traffic des Pods beim ersten Container und die übrigen Container zeigen keinen. Festplatte ist die beschreibbare Schicht des Containers plus die PVCs und `emptyDir`-Volumes, die er einbindet.
 
 Dozzle ruft jedes Kubelet direkt über die interne IP des Nodes auf (Port 10250), nie über den Node-Proxy des API-Servers. Dafür wäre `nodes/proxy` nötig, und diese Berechtigung erlaubt exec in jeden Container. Das Serving-Zertifikat des Kubelets muss von der Cluster-CA signiert sein, wie bei k3s. Wo Kubelets selbstsignierte Zertifikate verwenden (Standard bei kubeadm, kind), bleiben die Spalten ausgeblendet und Dozzle protokolliert einmal den Grund.
 

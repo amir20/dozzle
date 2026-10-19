@@ -13,6 +13,7 @@ import (
 	"github.com/stretchr/testify/require"
 	corev1 "k8s.io/api/core/v1"
 	k8sfake "k8s.io/client-go/kubernetes/fake"
+	"k8s.io/client-go/rest"
 )
 
 const testSummary = `{"pods":[{
@@ -72,6 +73,26 @@ func TestContainerSizesUntrustedKubeletTurnsSizesOff(t *testing.T) {
 
 	_, err := client.ContainerSizes(t.Context())
 	assert.ErrorIs(t, err, container.ErrLayerSizeUnsupported)
+}
+
+// A kubeconfig that skips verification never sends its credentials to a kubelet.
+func TestInsecureKubeconfigHasNoKubeletClient(t *testing.T) {
+	kubelet, err := newKubeletHTTPClient(&rest.Config{Insecure: true})
+	require.NoError(t, err)
+	assert.Nil(t, kubelet)
+}
+
+// A size asked for right after a summary read comes from it, not from another read.
+func TestContainerSizeUsesRecentSummary(t *testing.T) {
+	node, kubelet := kubeletNode(t, http.StatusOK, testSummary)
+	client := &Client{Clientset: k8sfake.NewSimpleClientset(node), kubelet: kubelet}
+	_, err := client.ContainerSizes(t.Context())
+	require.NoError(t, err)
+
+	// no pod exists, so only the cache can answer
+	size, err := client.ContainerSize(t.Context(), "default:web:app")
+	require.NoError(t, err)
+	assert.Equal(t, int64(4096), size)
 }
 
 func TestVolumeUsageCountsClaimsAndEmptyDirs(t *testing.T) {

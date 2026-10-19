@@ -23,8 +23,7 @@ type netSample struct {
 }
 
 // podNetwork is one pod's network counters. Every container in a pod shares its
-// network namespace, so each reports the pod's numbers, as Docker does for a
-// container on another's network.
+// network namespace, so there is no per-container number to report.
 type podNetwork struct {
 	base, prev, last netSample
 }
