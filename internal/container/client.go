@@ -63,8 +63,8 @@ type Client interface {
 
 // SizeReader is implemented by clients that can report how much a container's
 // writable layer holds. Docker works it out by walking the layer on every call
-// and keeps nothing, so the store asks rarely (see size_monitor.go). k8s has no
-// equivalent, and its client does not implement it.
+// and keeps nothing, so the store asks rarely (see size_monitor.go). k8s reads
+// the kubelet's stats summary instead.
 type SizeReader interface {
 	// ContainerSizes measures every container in one call.
 	ContainerSizes(ctx context.Context) (map[string]int64, error)
@@ -74,6 +74,14 @@ type SizeReader interface {
 	// cache nothing uses. There is no way to measure one volume, so this is always
 	// a walk of all of them.
 	DiskUsage(ctx context.Context) (DiskUsage, error)
+}
+
+// PeriodicSizeReader is a SizeReader whose stats carry no DiskWriteTotal, so no write
+// can say a layer changed. A running container is measured again every
+// sizeRefreshInterval instead, which only suits a reader that measures cheaply.
+type PeriodicSizeReader interface {
+	SizeReader
+	MeasuresPeriodically()
 }
 
 // ErrLayerSizeUnsupported is what a SizeReader returns for a container's layer when

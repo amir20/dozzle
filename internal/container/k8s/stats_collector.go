@@ -4,6 +4,7 @@ import (
 	"context"
 	"slices"
 	"sync"
+	"sync/atomic"
 	"time"
 
 	"github.com/amir20/dozzle/internal/container"
@@ -31,6 +32,13 @@ type StatsCollector struct {
 	// carries usage only, so pods and nodes are listed again every limitsRefresh.
 	memoryLimits    map[string]float64
 	limitsRefreshed time.Time
+
+	// network is each pod's readings from the kubelets, keyed namespace:pod and
+	// replaced whole on every read; see stats_network.go.
+	network        atomic.Pointer[map[string]podNetwork]
+	networkNext    atomic.Int64 // UnixNano when the next read is due
+	networkBusy    atomic.Bool
+	kubeletRefused atomic.Bool
 }
 
 const limitsRefresh = 30 * time.Second
@@ -76,6 +84,8 @@ func (sc *StatsCollector) Start(parentCtx context.Context) bool {
 			if time.Since(sc.limitsRefreshed) > limitsRefresh {
 				sc.refreshMemoryLimits(ctx)
 			}
+			sc.maybeRefreshNetwork(ctx)
+			now := time.Now()
 			var wg sync.WaitGroup
 			for _, item := range sc.client.namespace {
 				wg.Go(func() {
@@ -92,6 +102,7 @@ func (sc *StatsCollector) Start(parentCtx context.Context) bool {
 						log.Info().Str("namespace", item).Msg("pod metrics are available again")
 					}
 					for _, pod := range metricList.Items {
+						rx, tx := sc.podNetworkTotals(pod.Namespace, pod.Name, now)
 						for _, c := range pod.Containers {
 							id := pod.Namespace + ":" + pod.Name + ":" + c.Name
 							memory := c.Usage.Memory().AsApproximateFloat64()
@@ -104,8 +115,8 @@ func (sc *StatsCollector) Start(parentCtx context.Context) bool {
 								CPUPercent:     float64(c.Usage.Cpu().MilliValue()) / 1000 * 100,
 								MemoryPercent:  memoryPercent,
 								MemoryUsage:    memory,
-								NetworkRxTotal: 0, // K8s metrics API doesn't expose network stats by default
-								NetworkTxTotal: 0, // Would require custom metrics or cAdvisor integration
+								NetworkRxTotal: rx,
+								NetworkTxTotal: tx,
 							}
 							log.Trace().Interface("stat", stat).Msg("k8s stats")
 							sc.subscribers.Range(func(c context.Context, stats chan<- container.ContainerStat) bool {

@@ -1,6 +1,6 @@
 ---
 title: Kubernetes 支持
-sourceHash: d55c7e2a0ec6
+sourceHash: f1f5308e98ee
 ---
 
 # Kubernetes 支持
@@ -140,6 +140,22 @@ kubectl top pod
 ```
 
 没有它，日志照常可用，只是 CPU 和内存会显示为空。
+
+内存条按容器的内存限制计算使用率。没有设置限制的容器，与 Docker 一样，按其所在节点的内存计算。
+
+## <Icon icon="mdi:harddisk" inline /> 网络和磁盘
+
+Metrics API 不提供网络和磁盘数据。Dozzle 可以从每个节点的 kubelet（`/stats/summary`）读取这些数据，也就是 metrics-server 读取数据的同一个地方。这是可选的：在 ClusterRole 中加入以下规则，网络和磁盘列就会出现。
+
+```yaml
+- apiGroups: [""]
+  resources: ["nodes/stats"]
+  verbs: ["get"]
+```
+
+网络按 pod 统计，因此同一个 pod 中的每个容器都显示该 pod 的流量。磁盘是容器的可写层，加上它挂载的 PVC 和 `emptyDir` 卷。
+
+Dozzle 直接通过节点的内部 IP（端口 10250）访问每个 kubelet，从不经过 API server 的节点代理。那样需要 `nodes/proxy` 权限，而该权限允许在任意容器中执行 exec。kubelet 的服务证书必须由集群 CA 签发，k3s 就是如此。如果 kubelet 使用自签名证书（kubeadm 默认、kind），这些列会保持隐藏，Dozzle 会记录一次原因。
 
 ## <Icon icon="mdi:restart" inline /> 容器操作
 

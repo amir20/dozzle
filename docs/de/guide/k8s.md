@@ -1,6 +1,6 @@
 ---
 title: Kubernetes-Unterstützung
-sourceHash: d55c7e2a0ec6
+sourceHash: f1f5308e98ee
 ---
 
 # Kubernetes-Unterstützung
@@ -141,6 +141,22 @@ kubectl top pod
 ```
 
 Ohne sie funktionieren die Logs trotzdem, CPU und Arbeitsspeicher bleiben dann leer.
+
+Der Speicherbalken misst die Nutzung am Speicherlimit des Containers. Ein Container ohne Limit wird, wie bei Docker, am Arbeitsspeicher seines Nodes gemessen.
+
+## <Icon icon="mdi:harddisk" inline /> Netzwerk und Festplatte
+
+Die Metrics API liefert keine Netzwerk- oder Festplattenwerte. Dozzle kann sie vom Kubelet jedes Nodes lesen (`/stats/summary`), also von derselben Stelle, die auch metrics-server nutzt. Das ist optional: Füge diese Regel zur ClusterRole hinzu, dann erscheinen die Spalten für Netzwerk und Festplatte.
+
+```yaml
+- apiGroups: [""]
+  resources: ["nodes/stats"]
+  verbs: ["get"]
+```
+
+Netzwerk wird pro Pod gezählt, daher zeigt jeder Container eines Pods den Traffic des Pods. Festplatte ist die beschreibbare Schicht des Containers plus die PVCs und `emptyDir`-Volumes, die er einbindet.
+
+Dozzle ruft jedes Kubelet direkt über die interne IP des Nodes auf (Port 10250), nie über den Node-Proxy des API-Servers. Dafür wäre `nodes/proxy` nötig, und diese Berechtigung erlaubt exec in jeden Container. Das Serving-Zertifikat des Kubelets muss von der Cluster-CA signiert sein, wie bei k3s. Wo Kubelets selbstsignierte Zertifikate verwenden (Standard bei kubeadm, kind), bleiben die Spalten ausgeblendet und Dozzle protokolliert einmal den Grund.
 
 ## <Icon icon="mdi:restart" inline /> Container-Aktionen
 

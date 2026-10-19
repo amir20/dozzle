@@ -257,6 +257,9 @@ import { toRefs } from "@vueuse/core";
 const { t } = useI18n();
 const { hosts } = useHosts();
 const multiHost = computed(() => Object.keys(hosts.value).length > 1);
+// k8s reads network and disk from the kubelets, which only answer once RBAC grants
+// nodes/stats. Both come from the same read, so a measured layer stands for both.
+const hasKubeletStats = computed(() => config.mode !== "k8s" || containers.some((c) => c.sizeRw !== undefined));
 const selectedHost = ref(null);
 // Same gate as the dashboard's updates button: without actions there is
 // nothing a mark on the row could lead to.
@@ -378,7 +381,7 @@ const paginated = computed(() => {
 const sortOptions = computed(() =>
   Object.entries(fields)
     .filter(([key]) => key !== "host" || multiHost.value)
-    .filter(([key]) => (key !== "disk" && key !== "net") || config.mode !== "k8s")
+    .filter(([key]) => (key !== "disk" && key !== "net") || hasKubeletStats.value)
     .map(([key, value]) => ({ label: t(value.mobileLabel ?? value.label), value: key })),
 );
 
@@ -416,8 +419,7 @@ function isVisible(field: keys) {
   if (fields[field].sortOnly) return false;
   // one host means every row would say the same thing
   if (field === "host" && !multiHost.value) return false;
-  // k8s has no writable-layer size to report, and its metrics API no network counters
-  if ((field === "disk" || field === "net") && config.mode === "k8s") return false;
+  if ((field === "disk" || field === "net") && !hasKubeletStats.value) return false;
   return fields[field].mobileVisible || !isMobile.value;
 }
 </script>

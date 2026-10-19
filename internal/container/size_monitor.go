@@ -68,6 +68,9 @@ type sizeMonitor struct {
 	// layersOff is set once the client says its storage driver cannot size a layer
 	// cheaply. Volumes are still measured.
 	layersOff atomic.Bool
+
+	// periodic is a reader with no write counter to go by; see PeriodicSizeReader.
+	periodic bool
 }
 
 func newSizeMonitor(store *Store, client Client) *sizeMonitor {
@@ -75,7 +78,9 @@ func newSizeMonitor(store *Store, client Client) *sizeMonitor {
 	if !ok {
 		return nil
 	}
+	_, periodic := client.(PeriodicSizeReader)
 	return &sizeMonitor{
+		periodic: periodic,
 		store:    store,
 		reader:   reader,
 		queue:    make(chan string, sizeQueueSize),
@@ -248,7 +253,7 @@ func (m *sizeMonitor) observe(c *Container, stat ContainerStat) {
 	}
 	elapsed := time.Since(time.Unix(0, lastCheck))
 	// a failed measurement leaves SizeRw nil and is retried on the interval
-	if delta >= sizeWriteThreshold || (elapsed >= sizeRefreshInterval && (delta > 0 || c.SizeRw == nil)) {
+	if delta >= sizeWriteThreshold || (elapsed >= sizeRefreshInterval && (delta > 0 || c.SizeRw == nil || m.periodic)) {
 		m.enqueue(c.ID)
 	}
 }

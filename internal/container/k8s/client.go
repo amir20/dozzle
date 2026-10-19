@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"io"
 	"maps"
+	"net/http"
 	"regexp"
 	"slices"
 	"strings"
@@ -47,6 +48,7 @@ type Client struct {
 	namespace     []string
 	labelSelector string // pod-label half of --filter, pushed down to the API server
 	config        *rest.Config
+	kubelet       *http.Client // reads /stats/summary; see kubelet.go
 	host          container.Host
 	ownerCacheMu  sync.Mutex
 	ownerCache    map[string]ownerLookupResult
@@ -107,7 +109,13 @@ func NewClient(namespace []string, filter container.ContainerLabels, hostIDs con
 	}
 	node := nodes.Items[0]
 
+	kubelet, err := newKubeletHTTPClient(config)
+	if err != nil {
+		return nil, err
+	}
+
 	return &Client{
+		kubelet:       kubelet,
 		Clientset:     clientset,
 		DynamicClient: dynamicClient,
 		restMapper:    restmapper.NewDeferredDiscoveryRESTMapper(memory.NewMemCacheClient(discoveryClient)),
