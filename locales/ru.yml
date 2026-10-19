@@ -46,6 +46,7 @@ toolbar:
   inspect: "Инспектировать"
   copy-permalink: Скопировать постоянную ссылку
   copy-image: "Копировать тег образа"
+  image-version: "{image} сейчас соответствует {version}"
   pin: "Закрепить"
   unpin: "Открепить"
   copy-logs: Скопировать логи

@@ -105,6 +105,12 @@
       @click="copyImage"
     >
       <span class="truncate">{{ imageTag }}</span>
+      <span
+        v-if="container.imageVersion"
+        class="text-base-content/35 min-w-0 truncate"
+        :title="$t('toolbar.image-version', { image: imageTag, version: container.imageVersion })"
+        >({{ container.imageVersion }})</span
+      >
       <mdi:content-copy class="size-3 shrink-0 opacity-0 transition-opacity group-hover:opacity-100" />
     </button>
   </div>

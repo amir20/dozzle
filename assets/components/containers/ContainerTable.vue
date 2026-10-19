@@ -162,9 +162,18 @@
                     <span>{{ container.customGroup }}</span
                     ><template v-if="!isMobile && container.image"
                       ><span v-if="container.customGroup" class="text-base-content/30 mx-1">·</span
-                      ><span class="font-mono" :title="container.image">{{
-                        shortImageRef(container.image)
-                      }}</span></template
+                      ><span class="font-mono" :title="container.image">{{ shortImageRef(container.image) }}</span
+                      ><span
+                        v-if="container.imageVersion"
+                        class="text-base-content/35 ml-1 font-mono"
+                        :title="
+                          $t('toolbar.image-version', {
+                            image: shortImageRef(container.image),
+                            version: container.imageVersion,
+                          })
+                        "
+                        >({{ container.imageVersion }})</span
+                      ></template
                     >
                   </div>
                   <!-- The host card's meter strip at row size: two halves spanning the

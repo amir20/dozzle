@@ -46,6 +46,7 @@ toolbar:
   inspect: "检查"
   copy-permalink: 复制永久链接
   copy-image: "复制镜像标签"
+  image-version: "{image} 当前为 {version}"
   pin: "置顶"
   unpin: "取消置顶"
   copy-logs: 复制日志

@@ -18,6 +18,7 @@ toolbar:
   inspect: "Preglej"
   copy-permalink: Kopiraj trajno povezavo
   copy-image: "Kopiraj oznako slike"
+  image-version: "{image} je trenutno {version}"
   pin: "Pripni"
   unpin: "Odpni"
   copy-logs: Kopiraj dnevnike

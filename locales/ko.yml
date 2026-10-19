@@ -46,6 +46,7 @@ toolbar:
   inspect: "검사"
   copy-permalink: 영구 링크 복사
   copy-image: "이미지 태그 복사"
+  image-version: "{image}의 현재 버전은 {version}입니다"
   pin: "고정"
   unpin: "고정 해제"
   copy-logs: 로그 복사

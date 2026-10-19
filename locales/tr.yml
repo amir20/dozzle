@@ -46,6 +46,7 @@ toolbar:
   inspect: "İncele"
   copy-permalink: Kalıcı bağlantıyı kopyala
   copy-image: "İmaj etiketini kopyala"
+  image-version: "{image} şu anda {version} sürümü"
   pin: "Sabitle"
   unpin: "Sabitlemeyi kaldır"
   copy-logs: Günlükleri kopyala
