@@ -843,6 +843,8 @@ cloud:
     alerts-go-to: Alerts go to
     your-cloud-account: your Cloud account
     change: Change
+    chat-also: "Get them on your phone in Telegram or Discord too."
+    chat-connect: "Connect"
     turn-on: "Turn on 1 alert | Turn on {count} alerts"
     turn-on-short: Turn on
     continue-without: Continue without alerts

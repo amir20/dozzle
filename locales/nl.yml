@@ -712,6 +712,8 @@ cloud:
     alerts-go-to: "Meldingen gaan naar"
     your-cloud-account: "je Cloud-account"
     change: "Wijzigen"
+    chat-also: "Krijg ze ook op je telefoon in Telegram of Discord."
+    chat-connect: "Verbinden"
     turn-on: "1 melding aanzetten | {count} meldingen aanzetten"
     turn-on-short: "Aanzetten"
     continue-without: "Doorgaan zonder meldingen"

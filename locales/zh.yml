@@ -711,6 +711,8 @@ cloud:
     alerts-go-to: "提醒发送至"
     your-cloud-account: "你的 Cloud 账户"
     change: "更改"
+    chat-also: "也在手机上通过 Telegram 或 Discord 接收。"
+    chat-connect: "连接"
     turn-on: "开启 1 条提醒 | 开启 {count} 条提醒"
     turn-on-short: "开启"
     continue-without: "不启用提醒，继续"

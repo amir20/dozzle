@@ -711,6 +711,8 @@ cloud:
     alerts-go-to: "Оповещения приходят на"
     your-cloud-account: "ваш аккаунт Cloud"
     change: "Изменить"
+    chat-also: "Получайте их и на телефон в Telegram или Discord."
+    chat-connect: "Подключить"
     turn-on: "Включить 1 оповещение | Включить {count} оповещений"
     turn-on-short: "Включить"
     continue-without: "Продолжить без оповещений"

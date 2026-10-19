@@ -723,6 +723,8 @@ cloud:
     alerts-go-to: "Peringatan dikirim ke"
     your-cloud-account: "akun Cloud Anda"
     change: "Ubah"
+    chat-also: "Terima juga di ponsel Anda lewat Telegram atau Discord."
+    chat-connect: "Hubungkan"
     turn-on: "Aktifkan 1 peringatan | Aktifkan {count} peringatan"
     turn-on-short: "Aktifkan"
     continue-without: "Lanjutkan tanpa peringatan"

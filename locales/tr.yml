@@ -714,6 +714,8 @@ cloud:
     alerts-go-to: "Uyarılar şuraya gider"
     your-cloud-account: "Cloud hesabınız"
     change: "Değiştir"
+    chat-also: "Telefonunuzda Telegram veya Discord üzerinden de alın."
+    chat-connect: "Bağla"
     turn-on: "1 uyarıyı aç | {count} uyarıyı aç"
     turn-on-short: "Aç"
     continue-without: "Uyarı olmadan devam et"

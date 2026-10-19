@@ -169,6 +169,18 @@
           <mdi:open-in-new class="inline size-3.5 align-[-0.1em] opacity-40" />
         </a>
       </div>
+
+      <!-- Paying users mostly have a chat channel; email-only trials rarely convert. -->
+      <div
+        class="border-base-content/15 bg-base-200/40 text-base-content/60 mt-2 flex flex-wrap items-center gap-2 rounded-lg border px-4 py-2.5 text-sm"
+      >
+        <mdi:chat-processing-outline class="size-4 shrink-0" />
+        <span>{{ $t("cloud.welcome.chat-also") }}</span>
+        <a :href="chatConnectHref" target="_blank" rel="noreferrer noopener" class="btn btn-sm ml-auto">
+          {{ $t("cloud.welcome.chat-connect") }}
+          <mdi:open-in-new class="size-3.5 opacity-40" />
+        </a>
+      </div>
     </template>
 
     <!-- ------------------------------------------------------------------
@@ -283,6 +295,8 @@ const { cloudConfig, cloudStatus } = useCloudConfig();
 
 const cloudUrl = config.cloudUrl;
 const notificationsHref = withBase("/notifications");
+// Tagged so Cloud's page views count the people who came from here.
+const chatConnectHref = `${cloudUrl}/integrations/chat?from=dozzle_welcome`;
 
 const modal = useTemplateRef<InstanceType<typeof StepModal>>("modal");
 const step = ref(1);
