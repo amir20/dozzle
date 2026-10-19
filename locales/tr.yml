@@ -977,13 +977,14 @@ setup:
   cloud:
     title: Dozzle Cloud'a bağlan
     subtitle: Bir sekmeyi açık tutmadan bir şeyler bozulduğunda haberdar olun.
+    report-title: "Düzeltilmesi gerekenler, sizin için bulundu"
+    report-body: "Dozzle Cloud hatalarınızı ve uyarılarınızı okur, hangilerinin düzeltilmeye değer olduğunu ve nasıl düzeltileceğini söyler."
     alerts-title: Bir şey bozulduğu anda uyarılar
     alerts-body: "Çökmeler, OOM sonlandırmaları ve hata artışları Telegram, Discord, Slack veya e-postaya gönderilir."
     chat-title: "Neyin bozulduğunu telefonunuzdan sorun"
     chat-body: "Telegram veya Discord botuna yazın. Loglarınızı okur ve eylemler açıksa siz onayladıktan sonra bir container'ı yeniden başlatır."
-    updates-title: "Kontrol edilen güncellemeler"
-    updates-body: "Her otomatik güncellemeden sonra Dozzle Cloud hataları öncekiyle karşılaştırır ve arttıysa geri almayı önerir."
     connect: Dozzle Cloud'a bağlan
+    first-week: "İlk haftanızda her sabah, bulunan her sorunu ve nasıl düzeltileceğini anlatan bir rapor alırsınız."
     learn-more: Daha fazla bilgi
     skip: "Şimdi değil"
   update:
@@ -1009,6 +1010,7 @@ setup:
     reason-unsupported: "Dozzle burada kendi konteynerini bulamıyor, bu yüzden kendini değiştiremez."
     reason-swarm-worker: "Dozzle bir worker düğümünde Swarm servisi olarak çalışıyor. Servisi yalnızca bir manager güncelleyebilir; Dozzle'ı bir manager üzerinde çalıştırın veya docker service update ile güncelleyin."
     pull-denied: "{image} çekilemedi. Yalnızca bu makinede bulunuyor olabilir ya da kayıt defteri docker login gerektiriyor."
+    cloud-hint: "Dozzle Cloud ile her güncelleme önceki hatalarla karşılaştırılır ve hatalar arttıysa geri alma önerilir."
   restart:
     title: Dozzle'ı yeniden başlat
     subtitle: Bu değişiklikler kaydedildi ve yeniden başlatmadan sonra çalışmaya başlar.
@@ -1026,6 +1028,7 @@ setup:
     done-body: Yeniden başlatma gerekmiyor. Buraya istediğiniz zaman Ayarlar'dan dönebilirsiniz.
     nothing-title: "Yeniden başlatılacak bir şey yok"
     nothing-body: "Bu sefer hiçbir adım ayarlanmadı. Hazır olduğunuzda kurulumu Ayarlar'dan açabilirsiniz."
+    cloud-later: "Dozzle Cloud, istediğiniz zaman Ayarlar'da. Tek sunucu için ücretsiz."
     done: Tamam
   error:
     generic: Bir şeyler ters gitti. Tekrar deneyin.

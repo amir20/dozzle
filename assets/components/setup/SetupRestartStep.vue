@@ -36,6 +36,12 @@
         <InlineNotice v-if="error" type="error" class="mt-4">{{ error }}</InlineNotice>
       </template>
     </template>
+
+    <!-- Passed Cloud by: where to find it later. A footnote, not a button, so the
+         cloud popover stays the one place that asks. -->
+    <p v-if="cloudLater && phase === 'idle'" class="text-base-content/40 mt-6 text-xs">
+      {{ $t("setup.restart.cloud-later") }}
+    </p>
   </div>
 </template>
 
@@ -43,7 +49,12 @@
 import type { SetupNextResult, SetupStatus } from "@/composable/setup/setup";
 
 // Whether anything is set up at all, so passing every step by does not end on "all set".
-const { status, anythingSet = true } = defineProps<{ status: SetupStatus; anythingSet?: boolean }>();
+// cloudLater: the wizard listed Cloud and the instance is still not linked.
+const {
+  status,
+  anythingSet = true,
+  cloudLater = false,
+} = defineProps<{ status: SetupStatus; anythingSet?: boolean; cloudLater?: boolean }>();
 const emit = defineEmits<{ seen: [] }>();
 
 const { t } = useI18n();

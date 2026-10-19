@@ -982,13 +982,14 @@ setup:
   cloud:
     title: Connect Dozzle Cloud
     subtitle: Know when something breaks without keeping a tab open.
+    report-title: "What needs fixing, found for you"
+    report-body: "Dozzle Cloud reads your errors and warnings and tells you which ones are worth fixing, and how."
     alerts-title: Alerts the moment something breaks
     alerts-body: "Crashes, OOM kills and error spikes, sent to Telegram, Discord, Slack or email."
     chat-title: "Ask what broke, from your phone"
     chat-body: "Message the Telegram or Discord bot. It reads your logs and, with actions on, restarts a container once you confirm."
-    updates-title: "Updates that get checked"
-    updates-body: "After each auto-update, Dozzle Cloud compares the errors with before and offers to roll it back if they got worse."
     connect: Connect Dozzle Cloud
+    first-week: "Your first week includes a report every morning on every problem found, with how to fix it."
     learn-more: Learn more
     skip: "Not now"
   update:
@@ -1014,6 +1015,7 @@ setup:
     reason-unsupported: "Dozzle can't find its own container here, so it can't replace itself."
     reason-swarm-worker: "Dozzle runs as a Swarm service on a worker node. Only a manager can update the service, so run Dozzle on a manager or update it with docker service update."
     pull-denied: "Couldn't pull {image}. It may only exist on this machine, or the registry needs docker login."
+    cloud-hint: "With Dozzle Cloud, each update is checked against the errors from before, and you're offered a rollback if they got worse."
   restart:
     title: Restart Dozzle
     subtitle: These changes are saved and start working after a restart.
@@ -1031,6 +1033,7 @@ setup:
     done-body: Nothing needs a restart. You can come back to this from Settings any time.
     nothing-title: "Nothing to restart"
     nothing-body: "No steps were set up this time. Open setup from Settings whenever you're ready."
+    cloud-later: "Dozzle Cloud is in Settings whenever you want it. Free for one server."
     done: Done
   error:
     generic: Something went wrong. Try again.

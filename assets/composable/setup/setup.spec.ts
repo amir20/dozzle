@@ -12,6 +12,7 @@ import {
   setupEnvSnippet,
   setupHasPending,
   setupLoginConfigured,
+  setupResumeDone,
   setupShouldAutoOpen,
   setupUpdateTimes,
   setupStepConfigured,
@@ -194,6 +195,23 @@ describe("setupStepConfigured", () => {
   test("cloud and restart are never pre-marked", () => {
     expect(setupStepConfigured("cloud", status({ enableActions: true }))).toBe(false);
     expect(setupStepConfigured("restart", status({ authProvider: "simple" }))).toBe(false);
+  });
+});
+
+describe("setupResumeDone", () => {
+  test("cloud is done only once it is linked, not for having opened the Cloud page", () => {
+    expect(setupResumeDone("cloud", status(), false)).toBe(false);
+    expect(setupResumeDone("cloud", status(), true)).toBe(true);
+  });
+  test("a skipped login stays undone across the resume", () => {
+    expect(setupResumeDone("login", status(), true)).toBe(false);
+    expect(setupResumeDone("login", status({ pending: { authProvider: "simple" } }), false)).toBe(true);
+  });
+  test("actions has no skip, so passing it was an answer", () => {
+    expect(setupResumeDone("actions", status(), false)).toBe(true);
+  });
+  test("hosts follows what is configured", () => {
+    expect(setupResumeDone("hosts", status({ agents: [] }), false)).toBe(false);
   });
 });
 

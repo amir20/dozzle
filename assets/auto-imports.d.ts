@@ -291,6 +291,7 @@ declare global {
   const setupLoginConfigured: typeof import('./composable/setup/setup').setupLoginConfigured
   const setupLoginErrorKey: typeof import('./composable/setup/setup').setupLoginErrorKey
   const setupPendingChanges: typeof import('./composable/setup/setup').setupPendingChanges
+  const setupResumeDone: typeof import('./composable/setup/setup').setupResumeDone
   const setupShouldAutoOpen: typeof import('./composable/setup/setup').setupShouldAutoOpen
   const setupStepConfigured: typeof import('./composable/setup/setup').setupStepConfigured
   const setupSteps: typeof import('./composable/setup/setup').setupSteps
@@ -1010,6 +1011,7 @@ declare module 'vue' {
     readonly setupLoginConfigured: UnwrapRef<typeof import('./composable/setup/setup')['setupLoginConfigured']>
     readonly setupLoginErrorKey: UnwrapRef<typeof import('./composable/setup/setup')['setupLoginErrorKey']>
     readonly setupPendingChanges: UnwrapRef<typeof import('./composable/setup/setup')['setupPendingChanges']>
+    readonly setupResumeDone: UnwrapRef<typeof import('./composable/setup/setup')['setupResumeDone']>
     readonly setupShouldAutoOpen: UnwrapRef<typeof import('./composable/setup/setup')['setupShouldAutoOpen']>
     readonly setupStepConfigured: UnwrapRef<typeof import('./composable/setup/setup')['setupStepConfigured']>
     readonly setupSteps: UnwrapRef<typeof import('./composable/setup/setup')['setupSteps']>

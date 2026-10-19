@@ -23,6 +23,10 @@
     <p v-if="!status.enableActions && !restarting" class="text-base-content/40 mt-3 text-xs">
       {{ $t("setup.update.needs-actions") }}
     </p>
+
+    <p v-if="cloudHint && !restarting" class="text-base-content/40 mt-3 text-xs">
+      {{ $t("setup.update.cloud-hint") }}
+    </p>
   </div>
 </template>
 
@@ -44,8 +48,15 @@ const autoUpdate = computed(() => setupAutoUpdate(status));
 const phase = computed(() => updater.value?.phase ?? "idle");
 const restarting = computed(() => phase.value === "restarting" || phase.value === "timeout");
 
+// Cloud's half of auto-update: each update checked against the errors from before.
+// Only where Cloud could be linked and is not yet.
+const { mounted: cloudMounted, linked: cloudLinked } = useCloudSurface();
+const cloudHint = computed(() => cloudMounted.value && !cloudLinked.value);
+
+// Left off is a decline, so the rail shows it skipped rather than checked.
 async function next(): Promise<SetupNextResult> {
-  return (await form.value?.save()) === false ? "stay" : "advance";
+  if ((await form.value?.save()) === false) return "stay";
+  return setupStepConfigured("update", status) ? "advance" : "skip";
 }
 
 const saving = computed(() => !!form.value?.saving);

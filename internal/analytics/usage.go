@@ -21,6 +21,7 @@ var UsageKeys = []string{
 	"notify.log", "notify.event", "notify.metric", "rules.create", "rules.edit",
 	"host.add.ok", "host.add.refused", "host.add.cert", "host.add.duplicate", "host.add.timeout", "host.add.other",
 	"wizard.shown", "wizard.finished", "wizard.skip.login", "wizard.skip.actions", "wizard.skip.hosts", "wizard.skip.cloud", "wizard.skip.update",
+	"wizard.step.login", "wizard.step.actions", "wizard.step.cloud", "wizard.step.hosts", "wizard.step.update", "wizard.step.restart",
 	"cloud.welcome", "cloud.connect", "cloud.chat", "stream.reconnect", "agent.disconnect",
 	"memory.chip.shown", "memory.chip.hover", "memory.chip.open",
 }
@@ -32,6 +33,8 @@ var BrowserUsageKeys = map[string]bool{
 	"logs.search": true, "logs.sql": true, "palette.open": true, "pinned.open": true,
 	"wizard.shown": true, "wizard.finished": true, "wizard.skip.login": true, "wizard.skip.actions": true,
 	"wizard.skip.hosts": true, "wizard.skip.cloud": true, "wizard.skip.update": true,
+	"wizard.step.login": true, "wizard.step.actions": true, "wizard.step.cloud": true, "wizard.step.hosts": true,
+	"wizard.step.update": true, "wizard.step.restart": true,
 	"cloud.welcome": true, "cloud.connect": true, "cloud.chat": true, "stream.reconnect": true,
 	"memory.chip.shown": true, "memory.chip.hover": true, "memory.chip.open": true,
 }
