@@ -68,6 +68,7 @@ action:
   copy-log: 로그 복사
   copy-link: 영구 링크 복사
   see-in-context: 컨텍스트에서 보기
+  search-similar: 비슷한 로그 검색
   show-details: 세부 정보 표시
   create-alert: 알림 생성
   ask-about-log: 이 로그에 대해 질문
@@ -847,10 +848,6 @@ cloud-search:
   hero-pill-indexed: "Cloud 인덱스"
   modal-placeholder-cloud: "컨테이너 및 로그 검색…"
   modal-placeholder-plain: "컨테이너 검색…"
-  col-time: "시간"
-  col-level: "레벨"
-  col-container: "컨테이너"
-  col-message: "메시지"
   container-removed: "컨테이너가 삭제되었습니다"
   cta-settings: "Cloud 설정"
   container-removed-pill: "삭제됨"

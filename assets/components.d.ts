@@ -140,6 +140,7 @@ declare module 'vue' {
     'MaterialSymbols:link': typeof import('~icons/material-symbols/link')['default']
     'MaterialSymbols:logout': typeof import('~icons/material-symbols/logout')['default']
     'MaterialSymbols:person': typeof import('~icons/material-symbols/person')['default']
+    'MaterialSymbols:search': typeof import('~icons/material-symbols/search')['default']
     'MaterialSymbols:terminal': typeof import('~icons/material-symbols/terminal')['default']
     'MaterialSymbolsLight:collapseAll': typeof import('~icons/material-symbols-light/collapse-all')['default']
     'MaterialSymbolsLight:expandAll': typeof import('~icons/material-symbols-light/expand-all')['default']

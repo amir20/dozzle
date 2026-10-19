@@ -68,6 +68,7 @@ action:
   copy-log: Copier le journal
   copy-link: Copier le permalien
   see-in-context: Voir dans le contexte
+  search-similar: Rechercher des journaux similaires
   show-details: Afficher les détails
   create-alert: Créer une alerte
   ask-about-log: Poser une question sur ce log
@@ -845,10 +846,6 @@ cloud-search:
   hero-pill-indexed: "Index Cloud"
   modal-placeholder-cloud: "Rechercher conteneurs et logs…"
   modal-placeholder-plain: "Rechercher des conteneurs…"
-  col-time: "Heure"
-  col-level: "Niveau"
-  col-container: "Conteneur"
-  col-message: "Message"
   container-removed: "Le conteneur a été supprimé"
   cta-settings: "Paramètres Cloud"
   container-removed-pill: "supprimé"

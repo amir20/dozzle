@@ -68,6 +68,7 @@ action:
   copy-log: Salin log
   copy-link: Salin permalink
   see-in-context: Lihat dalam konteks
+  search-similar: Cari yang serupa
   show-details: Tampilkan detail
   create-alert: Buat peringatan
   ask-about-log: Tanya tentang log ini
@@ -857,10 +858,6 @@ cloud-search:
   hero-pill-indexed: "Indeks Cloud"
   modal-placeholder-cloud: "Cari kontainer dan log…"
   modal-placeholder-plain: "Cari kontainer…"
-  col-time: "Waktu"
-  col-level: "Level"
-  col-container: "Kontainer"
-  col-message: "Pesan"
   container-removed: "Kontainer telah dihapus"
   cta-settings: "Pengaturan Cloud"
   container-removed-pill: "dihapus"

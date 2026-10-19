@@ -2,18 +2,22 @@
   <PageWithLinks>
     <!-- The top bar's search box is desktop-only, and it is the only place the query shows. -->
     <SearchInline class="md:hidden" />
-    <section>
-      <!-- Header -->
-      <div class="mb-5 flex items-center gap-3">
-        <h2 class="text-lg font-semibold">{{ $t("cloud-search.results-page-title") }}</h2>
-        <span v-if="committedQuery" class="text-base-content/70 font-mono text-sm">"{{ committedQuery }}"</span>
-        <span v-if="cloudSearch.available.value" class="status-pill status-pill-primary ml-auto">
+    <section class="flex flex-col gap-4">
+      <header class="flex items-start gap-3">
+        <div class="min-w-0">
+          <h2 class="text-2xl font-bold">{{ $t("cloud-search.results-page-title") }}</h2>
+          <p class="text-base-content/60 mt-1 truncate text-sm">
+            <span v-if="committedQuery" class="text-base-content font-mono">"{{ committedQuery }}"</span>
+            {{ $t("cloud-search.window-suffix") }}
+          </p>
+        </div>
+        <span v-if="cloudSearch.available.value" class="status-pill status-pill-primary ml-auto shrink-0">
           <mdi:flash class="size-3" /> {{ $t("cloud-search.hero-pill-indexed") }}
         </span>
-      </div>
+      </header>
 
-      <!-- Status line -->
-      <div class="text-base-content/70 mb-3 flex h-5 items-center gap-2 text-xs">
+      <!-- Status line. One row tall in every state so the results never jump under it. -->
+      <div class="text-base-content/60 flex h-5 items-center gap-2 text-xs">
         <template v-if="cloudSearch.loading.value">
           <span class="loading loading-spinner loading-xs"></span>
           <span>{{ $t("cloud-search.searching") }}</span>
@@ -32,75 +36,112 @@
           <span>{{ $t("cloud-search.search-empty-prompt") }}</span>
         </template>
         <template v-else>
-          <span class="font-mono">{{ $t("cloud-search.hits-count", { n: hits.length }) }}</span>
-          <span class="text-base-content/50">{{ $t("cloud-search.window-suffix") }}</span>
+          <!-- Cloud pages its results and never says how many there are in all, so a full
+               page reads as "20+" rather than claiming 20 is the whole answer. -->
+          <span class="text-base-content font-mono font-semibold">{{
+            $t("cloud-search.hits-count", { n: cloudSearch.hasMore.value ? `${hits.length}+` : hits.length })
+          }}</span>
+          <template v-if="cloudSearch.tookMs.value !== null">
+            <span class="text-base-content/40">·</span>
+            <span class="font-mono">{{ formatDuration(cloudSearch.tookMs.value) }}</span>
+          </template>
         </template>
       </div>
 
-      <!-- Results table — matches the visual style of ContainerTable -->
-      <div v-if="hits.length" class="rounded-box border-base-content/10 overflow-x-auto border">
-        <table class="table-md md:table-lg table-zebra table">
-          <thead>
-            <tr>
-              <th class="text-base-content/60 w-44 text-xs font-medium tracking-wider uppercase">
-                {{ $t("cloud-search.col-time") }}
-              </th>
-              <th class="text-base-content/60 w-20 text-xs font-medium tracking-wider uppercase">
-                {{ $t("cloud-search.col-level") }}
-              </th>
-              <th class="text-base-content/60 w-1 text-xs font-medium tracking-wider uppercase">
-                {{ $t("cloud-search.col-container") }}
-              </th>
-              <th class="text-base-content/60 text-xs font-medium tracking-wider uppercase">
-                {{ $t("cloud-search.col-message") }}
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr
-              v-for="(hit, i) in hits"
-              :key="`${hit.containerId}-${hit.ts}-${hit.logId ?? 0}-${i}`"
-              class="hover:bg-primary/5 transition-colors"
-              :class="{ 'cursor-pointer': isLive(hit) }"
-              @click="isLive(hit) && openContainer(hit)"
-            >
-              <td class="text-base-content/70 font-mono text-xs whitespace-nowrap tabular-nums">
-                {{ formatTs(hit.ts) }}
-              </td>
-              <td>
-                <span class="status-pill" :class="levelPillClass(hit.level)">{{ hit.level || "info" }}</span>
-              </td>
-              <td class="whitespace-nowrap">
-                <span class="inline-flex items-center gap-2">
-                  <span :class="isLive(hit) ? 'text-base-content' : 'text-base-content/60'">
-                    {{ hit.containerName }}
-                  </span>
-                  <span
-                    v-if="!isLive(hit)"
-                    :title="$t('cloud-search.container-removed')"
-                    class="status-pill status-pill-neutral"
-                  >
-                    {{ $t("cloud-search.container-removed-pill") }}
-                  </span>
-                </span>
-              </td>
-              <td>
-                <JsonFormatted
-                  v-if="isJson(hit.message)"
-                  :value="hit.message"
-                  :highlight="committedQuery"
-                  class="text-xs"
-                />
-                <span v-else class="font-mono text-xs" v-html="highlight(hit.message, committedQuery)"></span>
-              </td>
-            </tr>
-          </tbody>
-        </table>
+      <!-- Narrowing what is already loaded, so it is instant and costs Cloud nothing. -->
+      <div v-if="hits.length && (levelCounts.length > 1 || containerCounts.length > 1)" class="flex flex-wrap gap-1.5">
+        <button
+          v-for="[level, count] in levelCounts"
+          :key="`level-${level}`"
+          type="button"
+          class="btn btn-xs rounded-full font-normal"
+          :class="{ 'btn-active border-base-content/30': levels.has(level) }"
+          :aria-pressed="levels.has(level)"
+          @click="toggle(levels, level)"
+        >
+          <span class="status" :class="levelDotClass(level)"></span>
+          {{ level }}
+          <span class="text-base-content/40 font-mono">{{ count }}</span>
+        </button>
+        <span v-if="levelCounts.length > 1 && containerCounts.length > 1" class="bg-base-content/10 mx-1 w-px"></span>
+        <button
+          v-for="[name, count] in containerCounts"
+          :key="`container-${name}`"
+          type="button"
+          class="btn btn-xs rounded-full font-normal"
+          :class="{ 'btn-active border-base-content/30': containers.has(name) }"
+          :aria-pressed="containers.has(name)"
+          @click="toggle(containers, name)"
+        >
+          {{ name }}
+          <span class="text-base-content/40 font-mono">{{ count }}</span>
+        </button>
       </div>
+
+      <ul
+        v-if="visibleHits.length"
+        class="border-base-content/15 bg-base-200/40 divide-base-content/10 divide-y rounded-lg border"
+      >
+        <li v-for="(hit, i) in visibleHits" :key="`${keyOf(hit)}-${i}`">
+          <button
+            type="button"
+            class="hover:bg-base-300 grid w-full grid-cols-[auto_auto_1fr] items-center gap-x-3 gap-y-1 px-4 py-2 text-left transition-colors md:grid-cols-[8.5rem_4.5rem_minmax(0,12rem)_minmax(0,1fr)_auto]"
+            :aria-expanded="expanded === keyOf(hit)"
+            @click="expanded = expanded === keyOf(hit) ? null : keyOf(hit)"
+          >
+            <span class="text-base-content/60 font-mono text-xs whitespace-nowrap tabular-nums">
+              {{ formatTs(hit.ts) }}
+            </span>
+            <span class="status-pill justify-self-start" :class="levelPillClass(hit.level)">{{ levelOf(hit) }}</span>
+            <span class="truncate text-sm" :class="isLive(hit) ? 'text-base-content' : 'text-base-content/50'">
+              {{ hit.containerName }}
+            </span>
+            <!-- A structured line leads with what it says; the fields that qualify it trail, muted. -->
+            <span class="col-span-3 truncate font-mono text-xs md:col-span-1">
+              <template v-if="summaryOf(hit).rest">
+                <span v-html="highlight(summaryOf(hit).text, committedQuery)"></span>
+                <JsonFormatted
+                  class="ml-2 opacity-50"
+                  :value="summaryOf(hit).rest"
+                  :highlight="committedQuery"
+                  :block="false"
+                />
+              </template>
+              <JsonFormatted
+                v-else-if="isJson(hit.message)"
+                :value="hit.message"
+                :highlight="committedQuery"
+                :block="false"
+              />
+              <span v-else v-html="highlight(hit.message, committedQuery)"></span>
+            </span>
+            <mdi:chevron-down
+              class="hidden size-4 opacity-40 transition-transform md:block"
+              :class="{ 'rotate-180': expanded === keyOf(hit) }"
+            />
+          </button>
+          <div v-if="expanded === keyOf(hit)" class="bg-base-100/60 flex flex-col gap-3 px-4 py-3">
+            <div class="max-h-96 overflow-auto font-mono text-xs">
+              <JsonFormatted v-if="isJson(hit.message)" :value="hit.message" :highlight="committedQuery" />
+              <span v-else class="break-all whitespace-pre-wrap" v-html="highlight(hit.message, committedQuery)"></span>
+            </div>
+            <div class="flex items-center gap-3">
+              <button v-if="isLive(hit)" type="button" class="btn btn-primary btn-sm" @click="openContainer(hit)">
+                <material-symbols:eye-tracking class="size-4" />
+                {{ $t("action.see-in-context") }}
+              </button>
+              <span v-else :title="$t('cloud-search.container-removed')" class="status-pill status-pill-neutral">
+                {{ $t("cloud-search.container-removed-pill") }}
+              </span>
+              <span class="text-base-content/40 font-mono text-xs">{{ hit.containerId.slice(0, 12) }}</span>
+            </div>
+          </div>
+        </li>
+      </ul>
 
       <div
         v-if="hits.length && (cloudSearch.hasMore.value || cloudSearch.loadingMore.value)"
-        class="text-base-content/60 mt-4 flex h-10 items-center justify-center text-xs"
+        class="text-base-content/60 flex h-10 items-center justify-center text-xs"
       >
         <span v-if="cloudSearch.loadingMore.value" class="loading loading-spinner loading-xs"></span>
       </div>
@@ -108,7 +149,7 @@
       <!-- Cloud-not-available state -->
       <div
         v-if="!cloudSearch.available.value && committedQuery"
-        class="bg-base-200 border-base-content/10 rounded-box border p-8 text-center"
+        class="border-base-content/15 bg-base-200/40 rounded-lg border p-8 text-center"
       >
         <mdi:cloud-off-outline class="text-base-content/40 mx-auto mb-3 size-10" />
         <p class="text-base-content/80 text-sm">
@@ -127,6 +168,7 @@
 <script lang="ts" setup>
 import { useCloudConfig } from "@/composable/cloud/cloudConfig";
 import { useCloudLogSearch, type CloudLogHit } from "@/composable/cloud/cloudLogSearch";
+import { messageKeyOf } from "@/composable/logs/similarSearch";
 
 const route = useRoute();
 const { jumpTo } = useLogJump();
@@ -166,6 +208,64 @@ watch(
   },
 );
 
+// A new query is a new result set: filters and the open row belonged to the old one.
+const levels = ref(new Set<string>());
+const containers = ref(new Set<string>());
+const expanded = ref<string | null>(null);
+watch(committedQuery, () => {
+  levels.value = new Set();
+  containers.value = new Set();
+  expanded.value = null;
+});
+
+function toggle(set: Set<string>, value: string) {
+  if (set.has(value)) set.delete(value);
+  else set.add(value);
+}
+
+function countBy(key: (hit: CloudLogHit) => string): [string, number][] {
+  const counts = new Map<string, number>();
+  for (const hit of hits.value) counts.set(key(hit), (counts.get(key(hit)) ?? 0) + 1);
+  return [...counts].sort((a, b) => b[1] - a[1]);
+}
+const levelCounts = computed(() => countBy(levelOf));
+const containerCounts = computed(() => countBy((hit) => hit.containerName));
+
+const visibleHits = computed(() =>
+  hits.value.filter(
+    (hit) =>
+      (levels.value.size === 0 || levels.value.has(levelOf(hit))) &&
+      (containers.value.size === 0 || containers.value.has(hit.containerName)),
+  ),
+);
+
+function keyOf(hit: CloudLogHit): string {
+  return `${hit.containerId}-${hit.ts}-${hit.logId ?? 0}`;
+}
+
+function levelOf(hit: CloudLogHit): string {
+  return (hit.level || "info").toLowerCase();
+}
+
+function formatDuration(ms: number): string {
+  return ms < 1000 ? `${ms} ms` : `${(ms / 1000).toFixed(1)} s`;
+}
+
+function levelDotClass(level: string): string {
+  switch (level) {
+    case "error":
+    case "fatal":
+      return "status-error";
+    case "warn":
+    case "warning":
+      return "status-warning";
+    case "info":
+      return "status-info";
+    default:
+      return "status-neutral";
+  }
+}
+
 function formatTs(ns: number): string {
   const d = new Date(ns / 1e6);
   const date = d.toLocaleDateString([], { month: "short", day: "numeric" });
@@ -203,6 +303,25 @@ function escapeHtml(s: string): string {
     /[&<>"']/g,
     (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c] as string,
   );
+}
+
+// Parsed once per hit, not once per render of every row.
+const summaries = new WeakMap<CloudLogHit, { text: string; rest?: Record<string, unknown> }>();
+function summaryOf(hit: CloudLogHit) {
+  let summary = summaries.get(hit);
+  if (!summary) {
+    summary = { text: hit.message };
+    if (isJson(hit.message)) {
+      const fields = JSON.parse(hit.message.trim()) as Record<string, unknown>;
+      const key = Array.isArray(fields) ? undefined : messageKeyOf(fields);
+      if (key) {
+        const { [key]: text, ...rest } = fields;
+        summary = { text: text as string, rest };
+      }
+    }
+    summaries.set(hit, summary);
+  }
+  return summary;
 }
 
 function isJson(message: string): boolean {

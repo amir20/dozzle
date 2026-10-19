@@ -68,6 +68,7 @@ action:
   copy-log: Log kopiëren
   copy-link: Permalink kopiëren
   see-in-context: Bekijk in context
+  search-similar: Zoek vergelijkbare
   show-details: Toon details
   create-alert: Waarschuwing aanmaken
   ask-about-log: Vraag over deze log
@@ -846,10 +847,6 @@ cloud-search:
   hero-pill-indexed: "Cloud-index"
   modal-placeholder-cloud: "Containers en logs zoeken…"
   modal-placeholder-plain: "Containers zoeken…"
-  col-time: "Tijd"
-  col-level: "Niveau"
-  col-container: "Container"
-  col-message: "Bericht"
   container-removed: "Container is verwijderd"
   cta-settings: "Cloud-instellingen"
   container-removed-pill: "verwijderd"

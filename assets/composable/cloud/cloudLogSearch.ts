@@ -59,6 +59,10 @@ export function useCloudLogSearch(query: Ref<string>) {
   // message would describe infrastructure rather than the search.
   const errorDetail = ref<string | null>(null);
   const hasMore = ref(false);
+  // Round trip of the last fresh search in ms, as the reader felt it. Cloud does
+  // not report its own query time, and the wait the reader sat through is the
+  // number that means something to them anyway.
+  const tookMs = ref<number | null>(null);
   // Cursor (timestamp_ns) of the last hit on the current page; 0 = at the
   // newest page. Cleared on every new query.
   const nextBefore = ref<number>(0);
@@ -81,6 +85,7 @@ export function useCloudLogSearch(query: Ref<string>) {
     loadingMore.value = false;
     hasMore.value = false;
     nextBefore.value = 0;
+    tookMs.value = null;
   }
 
   async function fetchPage(q: string, before: number, signal: AbortSignal): Promise<CloudLogSearchResponse | null> {
@@ -109,10 +114,13 @@ export function useCloudLogSearch(query: Ref<string>) {
     error.value = null;
     errorDetail.value = null;
     nextBefore.value = 0;
+    tookMs.value = null;
 
     try {
+      const started = performance.now();
       const body = await fetchPage(q, 0, abortController.signal);
       if (!body) return;
+      tookMs.value = Math.round(performance.now() - started);
       results.value = body.hits ?? [];
       hasMore.value = !!body.hasMore;
       nextBefore.value = body.nextBefore ?? 0;
@@ -169,5 +177,5 @@ export function useCloudLogSearch(query: Ref<string>) {
     loadMoreAborter?.abort();
   });
 
-  return { results, loading, loadingMore, error, errorDetail, available, hasMore, loadMore };
+  return { results, loading, loadingMore, error, errorDetail, available, hasMore, tookMs, loadMore };
 }

@@ -197,6 +197,7 @@ declare global {
   const mergeByTime: typeof import('./composable/logs/logLoader').mergeByTime
   const mergeCloudEvents: typeof import('./composable/cloud/cloudAlerts').mergeCloudEvents
   const mergeDeploys: typeof import('./composable/cloud/cloudAlerts').mergeDeploys
+  const messageKeyOf: typeof import('./composable/logs/similarSearch').messageKeyOf
   const narrowedLevels: typeof import('./composable/logs/viewContext').narrowedLevels
   const newerThanOnScreen: typeof import('./composable/logs/logWindow').newerThanOnScreen
   const newestOnScreen: typeof import('./composable/logs/logWindow').newestOnScreen
@@ -306,6 +307,8 @@ declare global {
   const showImageUpdateAlert: typeof import('./stores/settings').showImageUpdateAlert
   const showStd: typeof import('./stores/settings').showStd
   const showTimestamp: typeof import('./stores/settings').showTimestamp
+  const similarSearch: typeof import('./composable/logs/similarSearch').similarSearch
+  const similarSource: typeof import('./composable/logs/similarSearch').similarSource
   const size: typeof import('./stores/settings').size
   const smallerScrollbars: typeof import('./stores/settings').smallerScrollbars
   const softWrap: typeof import('./stores/settings').softWrap
@@ -694,6 +697,9 @@ declare global {
   export type { AppendBatchOptions } from './composable/logs/logWindow'
   import('./composable/logs/logWindow')
   // @ts-ignore
+  export type { SimilarSearch } from './composable/logs/similarSearch'
+  import('./composable/logs/similarSearch')
+  // @ts-ignore
   export type { TimeRange, RelativeSpan } from './composable/logs/timeRange'
   import('./composable/logs/timeRange')
   // @ts-ignore
@@ -919,6 +925,7 @@ declare module 'vue' {
     readonly mergeByTime: UnwrapRef<typeof import('./composable/logs/logLoader')['mergeByTime']>
     readonly mergeCloudEvents: UnwrapRef<typeof import('./composable/cloud/cloudAlerts')['mergeCloudEvents']>
     readonly mergeDeploys: UnwrapRef<typeof import('./composable/cloud/cloudAlerts')['mergeDeploys']>
+    readonly messageKeyOf: UnwrapRef<typeof import('./composable/logs/similarSearch')['messageKeyOf']>
     readonly narrowedLevels: UnwrapRef<typeof import('./composable/logs/viewContext')['narrowedLevels']>
     readonly newerThanOnScreen: UnwrapRef<typeof import('./composable/logs/logWindow')['newerThanOnScreen']>
     readonly newestOnScreen: UnwrapRef<typeof import('./composable/logs/logWindow')['newestOnScreen']>
@@ -1026,6 +1033,8 @@ declare module 'vue' {
     readonly showImageUpdateAlert: UnwrapRef<typeof import('./stores/settings')['showImageUpdateAlert']>
     readonly showStd: UnwrapRef<typeof import('./stores/settings')['showStd']>
     readonly showTimestamp: UnwrapRef<typeof import('./stores/settings')['showTimestamp']>
+    readonly similarSearch: UnwrapRef<typeof import('./composable/logs/similarSearch')['similarSearch']>
+    readonly similarSource: UnwrapRef<typeof import('./composable/logs/similarSearch')['similarSource']>
     readonly size: UnwrapRef<typeof import('./stores/settings')['size']>
     readonly smallerScrollbars: UnwrapRef<typeof import('./stores/settings')['smallerScrollbars']>
     readonly softWrap: UnwrapRef<typeof import('./stores/settings')['softWrap']>
