@@ -68,6 +68,7 @@ action:
   copy-log: Kopiraj dnevnik
   copy-link: Kopiraj trajno povezavo
   see-in-context: Glej v kontekstu
+  search-similar: Poišči podobne
   show-details: Prikaži podrobnosti
   create-alert: Ustvari opozorilo
   ask-about-log: Vprašaj o tem dnevniku
@@ -850,10 +851,6 @@ cloud-search:
   hero-pill-indexed: "Cloud indeks"
   modal-placeholder-cloud: "Iskanje vsebnikov in dnevnikov…"
   modal-placeholder-plain: "Iskanje vsebnikov…"
-  col-time: "Čas"
-  col-level: "Raven"
-  col-container: "Vsebnik"
-  col-message: "Sporočilo"
   container-removed: "Vsebnik je bil izbrisan"
   cta-settings: "Nastavitve Cloud"
   container-removed-pill: "izbrisano"

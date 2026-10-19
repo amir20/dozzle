@@ -68,6 +68,7 @@ action:
   copy-log: 複製日誌
   copy-link: 複製永久連結
   see-in-context: 在內容中查看
+  search-similar: 搜尋相似日誌
   show-details: 顯示詳細資訊
   create-alert: 建立警報
   ask-about-log: 詢問這則日誌
@@ -847,10 +848,6 @@ cloud-search:
   hero-pill-indexed: "Cloud 索引"
   modal-placeholder-cloud: "搜尋容器和日誌…"
   modal-placeholder-plain: "搜尋容器…"
-  col-time: "時間"
-  col-level: "級別"
-  col-container: "容器"
-  col-message: "訊息"
   container-removed: "容器已被刪除"
   cta-settings: "Cloud 設定"
   container-removed-pill: "已刪除"

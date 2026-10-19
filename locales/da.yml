@@ -68,6 +68,7 @@ action:
   copy-log: Kopier log
   copy-link: Kopier permalink
   see-in-context: Se i kontekst
+  search-similar: Søg efter lignende
   show-details: Vis detaljer
   create-alert: Opret advarsel
   ask-about-log: Spørg om denne log
@@ -845,10 +846,6 @@ cloud-search:
   hero-pill-indexed: "Cloud-indeks"
   modal-placeholder-cloud: "Søg containere og logs…"
   modal-placeholder-plain: "Søg containere…"
-  col-time: "Tid"
-  col-level: "Niveau"
-  col-container: "Container"
-  col-message: "Besked"
   container-removed: "Containeren er slettet"
   cta-settings: "Cloud-indstillinger"
   container-removed-pill: "slettet"

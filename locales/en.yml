@@ -68,6 +68,7 @@ action:
   copy-log: Copy log
   copy-link: Copy permalink
   see-in-context: See in context
+  search-similar: Search similar
   show-details: Show details
   create-alert: Create alert
   ask-about-log: Ask about this log
@@ -374,10 +375,6 @@ cloud-search:
   hero-pill-indexed: Cloud index
   modal-placeholder-cloud: Search containers and logs…
   modal-placeholder-plain: Search containers…
-  col-time: Time
-  col-level: Level
-  col-container: Container
-  col-message: Message
   container-removed: Container has been deleted
   cta-settings: "Cloud settings"
   container-removed-pill: removed

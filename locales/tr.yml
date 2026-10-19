@@ -68,6 +68,7 @@ action:
   copy-log: Günlüğü kopyala
   copy-link: Kalıcı bağlantıyı kopyala
   see-in-context: Bağlamda gör
+  search-similar: Benzerlerini ara
   show-details: Detayları göster
   create-alert: Uyarı oluştur
   ask-about-log: Bu log hakkında sor
@@ -848,10 +849,6 @@ cloud-search:
   hero-pill-indexed: "Cloud indeksi"
   modal-placeholder-cloud: "Konteynerleri ve logları ara…"
   modal-placeholder-plain: "Konteynerleri ara…"
-  col-time: "Zaman"
-  col-level: "Seviye"
-  col-container: "Konteyner"
-  col-message: "Mesaj"
   container-removed: "Konteyner silindi"
   cta-settings: "Cloud ayarları"
   container-removed-pill: "silindi"

@@ -68,6 +68,7 @@ action:
   copy-log: Копировать лог
   copy-link: Копировать постоянную ссылку
   see-in-context: Посмотреть в контексте
+  search-similar: Найти похожие
   show-details: Показать детали
   create-alert: Создать оповещение
   ask-about-log: Спросить об этой строке
@@ -845,10 +846,6 @@ cloud-search:
   hero-pill-indexed: "Индекс Cloud"
   modal-placeholder-cloud: "Поиск по контейнерам и логам…"
   modal-placeholder-plain: "Поиск по контейнерам…"
-  col-time: "Время"
-  col-level: "Уровень"
-  col-container: "Контейнер"
-  col-message: "Сообщение"
   container-removed: "Контейнер был удалён"
   cta-settings: "Настройки Cloud"
   container-removed-pill: "удалён"
