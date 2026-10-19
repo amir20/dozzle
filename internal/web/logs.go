@@ -149,6 +149,11 @@ func (h *handler) streamHostGroupLogs(w http.ResponseWriter, r *http.Request) {
 func (h *handler) streamHostLogs(w http.ResponseWriter, r *http.Request) {
 	analytics.Count("view.host")
 	host := hostKey(r)
+	// An empty host is the zero streamScope, which lists every host.
+	if host == "" {
+		http.Error(w, "host not found", http.StatusNotFound)
+		return
+	}
 	h.streamLogsForContainers(w, r, func(container *container.Container) bool {
 		return container.State == "running" && container.Host == host
 	}, streamScope{host: host})

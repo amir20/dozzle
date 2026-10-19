@@ -489,12 +489,8 @@ func createRouter(h *handler) *chi.Mux {
 	return r
 }
 
+// hostKey can be empty: chi matches /hosts//... with host "". Callers treat that
+// like any other unknown host, except streamHostLogs, which has to check itself.
 func hostKey(r *http.Request) string {
-	host := chi.URLParam(r, "host")
-
-	if host == "" {
-		log.Fatal().Str("url", r.URL.String()).Msg("Host parameter not found in the URL path")
-	}
-
-	return host
+	return chi.URLParam(r, "host")
 }

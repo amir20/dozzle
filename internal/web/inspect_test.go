@@ -63,3 +63,17 @@ func Test_handler_inspectContainer_hides_env_values_without_shell(t *testing.T) 
 	assert.Contains(t, rr.Body.String(), `"envRevealed":false`)
 	assert.Contains(t, rr.Body.String(), `"key":"DB_PASS"`)
 }
+
+// An empty host segment used to make hostKey call log.Fatal, taking the whole
+// server down. It must fail like any other unknown host.
+func Test_handler_empty_host_is_not_found(t *testing.T) {
+	handler := createDefaultHandler(nil)
+	for _, path := range []string{"/api/hosts//containers/123/inspect", "/api/hosts//logs/stream"} {
+		req, err := http.NewRequest("GET", path, nil)
+		require.NoError(t, err)
+
+		rr := httptest.NewRecorder()
+		handler.ServeHTTP(rr, req)
+		assert.Equal(t, http.StatusNotFound, rr.Code, path)
+	}
+}
