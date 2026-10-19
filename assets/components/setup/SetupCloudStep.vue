@@ -57,6 +57,7 @@ async function next(): Promise<SetupNextResult> {
 const nextLabel = computed(() => t("setup.cloud.connect"));
 const skipLabel = computed(() => t("setup.cloud.skip"));
 
-// Connect stays a plain button: Cloud is optional, so neither answer is the highlighted one.
-defineExpose({ nextLabel, nextDisabled: false, nextPlain: true, skipLabel, busy: false, next });
+// Connect is the highlighted answer, as Login's is. "Not now" sits beside it at the
+// same size, so declining stays as easy to find.
+defineExpose({ nextLabel, nextDisabled: false, nextPlain: false, skipLabel, busy: false, next });
 </script>
