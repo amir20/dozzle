@@ -1,4 +1,3 @@
-import stripAnsi from "strip-ansi";
 import { ComplexLogEntry, GroupedLogEntry, LogEntry, SimpleLogEntry, type JSONObject } from "@/models/LogEntry";
 
 /**
@@ -46,15 +45,23 @@ export type SimilarSearch = {
  * prefix the search sees but the reader does not.
  */
 export function similarSearch(text: string, whole = false): SimilarSearch | null {
-  // A line already under a search carries the server's highlight markers.
-  const clean = stripAnsi(text)
-    .replace(/[\uE000\uE001]/g, "")
-    .trim();
-  if (!clean) return null;
-  const truncated = clean.length > MAX_LENGTH;
+  const { clean, colored } = splitColor(text);
+  if (!clean.trim()) return null;
+  const start = clean.length - clean.trimStart().length;
+  const trimmed = clean.trim();
+  const truncated = trimmed.length > MAX_LENGTH;
   // Cut on a space so the cut never lands inside a value and leaves half of it as fixed text.
-  const head = clean.slice(0, MAX_LENGTH);
-  const line = truncated ? head.slice(0, head.lastIndexOf(" ") > 0 ? head.lastIndexOf(" ") : MAX_LENGTH) : clean;
+  const head = trimmed.slice(0, MAX_LENGTH);
+  const line = truncated ? head.slice(0, head.lastIndexOf(" ") > 0 ? head.lastIndexOf(" ") : MAX_LENGTH) : trimmed;
+
+  // The server searches the line with its colour codes still in it, so the regex has to
+  // step over them wherever the source line had one. Plain lines get none of this.
+  const sgr = (at: number) => (colored.has(at + start) ? SGR : "");
+  const literal = (from: number, to: number) => {
+    let out = "";
+    for (let i = from; i < to; i++) out += sgr(i) + escapeRegex(line[i]);
+    return out;
+  };
 
   const fixed: string[] = [];
   let regex = "";
@@ -62,11 +69,12 @@ export function similarSearch(text: string, whole = false): SimilarSearch | null
   for (const match of line.matchAll(VARIABLE)) {
     fixed.push(line.slice(last, match.index));
     regex +=
-      escapeRegex(line.slice(last, match.index)) + (/^\d+(?:\.\d+)?$/.test(match[0]) ? "\\d+(?:\\.\\d+)?" : "\\S+");
+      literal(last, match.index) + sgr(match.index) + (/^\d+(?:\.\d+)?$/.test(match[0]) ? "\\d+(?:\\.\\d+)?" : "\\S+");
     last = match.index + match[0].length;
   }
   fixed.push(line.slice(last));
-  regex += escapeRegex(line.slice(last));
+  regex += literal(last, line.length);
+  if (!truncated) regex += sgr(line.length);
 
   const phrase = fixed
     .map((part) => part.trim())
@@ -76,6 +84,22 @@ export function similarSearch(text: string, whole = false): SimilarSearch | null
 
   if (whole) regex = `^${regex}${truncated ? "" : "$"}`;
   return { regex, phrase };
+}
+
+const SGR = "(?:\\x1b\\[[0-9;]*m)*";
+
+/**
+ * The line without its colour codes or the server's search-highlight markers, and the
+ * offsets in that clean text where a colour code used to sit.
+ */
+function splitColor(text: string): { clean: string; colored: Set<number> } {
+  const colored = new Set<number>();
+  let clean = "";
+  for (const part of text.replace(/[\uE000\uE001]/g, "").split(/(\x1b\[[0-9;]*m)/)) {
+    if (part.startsWith("\x1b[")) colored.add(clean.length);
+    else clean += part;
+  }
+  return { clean, colored };
 }
 
 /** The text of an entry worth matching on, and whether it is a whole field value. */

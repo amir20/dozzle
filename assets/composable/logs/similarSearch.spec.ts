@@ -43,8 +43,22 @@ describe("similarSearch", () => {
     expect(finds("Deleted 5 rows", "Deleted 5 rows and more", true)).toBe(false);
   });
 
-  test("ignores colour codes and search highlight markers", () => {
-    expect(similarSearch("\u001b[31mDeleted\u001b[0m 5 rows")?.regex).toBe("Deleted \\d+(?:\\.\\d+)? rows");
+  test("steps over colour codes, since the server searches the line with them in", () => {
+    const line = "\u001b[32mINFO\u001b[0m Deleted \u001b[1m5\u001b[0m rows";
+    expect(finds(line, line)).toBe(true);
+    expect(finds(line, "\u001b[32mINFO\u001b[0m Deleted \u001b[1m4096\u001b[0m rows")).toBe(true);
+    expect(finds(line, "\u001b[32mINFO\u001b[0m Deleted \u001b[1m5\u001b[0m alerts")).toBe(false);
+    expect(similarSearch(line, true)?.regex).toMatch(/\$$/);
+    expect(finds(line, line, true)).toBe(true);
+    expect(similarSearch(line)?.phrase).toBe("INFO Deleted");
+  });
+
+  test("keeps the regex plain for a line with no colour", () => {
+    expect(similarSearch("Deleted 5 rows")?.regex).not.toContain("x1b");
+  });
+
+  test("drops the server's search highlight markers", () => {
+    expect(similarSearch("Deleted \uE0005\uE001 rows")?.regex).toBe("Deleted \\d+(?:\\.\\d+)? rows");
   });
 
   test("cuts a long line on a space and does not anchor its end", () => {

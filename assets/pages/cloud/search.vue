@@ -196,7 +196,7 @@ function isLive(hit: CloudLogHit): boolean {
 // Infinite scroll: VueUse fires loadMore when the page is scrolled within
 // 200px of the bottom. canLoadMore short-circuits both during a fetch and
 // when the server reports no more pages, so we don't double-fire.
-useInfiniteScroll(document, () => cloudSearch.loadMore(), {
+const { reset: recheckScroll } = useInfiniteScroll(document, () => cloudSearch.loadMore(), {
   distance: 200,
   canLoadMore: () => cloudSearch.hasMore.value && !cloudSearch.loadingMore.value,
 });
@@ -238,6 +238,10 @@ const visibleHits = computed(() =>
       (containers.value.size === 0 || containers.value.has(hit.containerName)),
   ),
 );
+
+// The scroll watcher only looks again when the page scrolls. A chip that leaves too few
+// rows to scroll would otherwise strand the next page, so ask it to look after each change.
+watch(() => visibleHits.value.length, recheckScroll);
 
 function keyOf(hit: CloudLogHit): string {
   return `${hit.containerId}-${hit.ts}-${hit.logId ?? 0}`;
