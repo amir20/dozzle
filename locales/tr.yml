@@ -977,11 +977,11 @@ setup:
     title: Dozzle Cloud'a bağlan
     subtitle: Bir sekmeyi açık tutmadan bir şeyler bozulduğunda haberdar olun.
     alerts-title: Bir şey bozulduğu anda uyarılar
-    alerts-body: Çökmeler, OOM sonlandırmaları ve hata artışları e-posta, Slack veya Discord'a gönderilir.
-    summary-title: Neyin düzeltilmesi gerektiğine dair sabah özeti
-    summary-body: Her gün, zamanınıza değer sorunların sıralı tek bir listesi.
-    history-title: Yeniden başlatmalardan sonra da kalan geçmiş
-    history-body: Uyarılar ve bulgular sayfa yenilemesinden, yeniden başlatmadan ve bir haftadan sonra da kalır.
+    alerts-body: "Çökmeler, OOM sonlandırmaları ve hata artışları Telegram, Discord, Slack veya e-postaya gönderilir."
+    chat-title: "Neyin bozulduğunu telefonunuzdan sorun"
+    chat-body: "Telegram veya Discord botuna yazın. Loglarınızı okur ve eylemler açıksa siz onayladıktan sonra bir container'ı yeniden başlatır."
+    updates-title: "Kontrol edilen güncellemeler"
+    updates-body: "Her otomatik güncellemeden sonra Dozzle Cloud hataları öncekiyle karşılaştırır ve arttıysa geri almayı önerir."
     connect: Dozzle Cloud'a bağlan
     learn-more: Daha fazla bilgi
     skip: "Şimdi değil"

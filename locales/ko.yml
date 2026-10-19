@@ -976,11 +976,11 @@ setup:
     title: Dozzle Cloud 연결
     subtitle: 탭을 열어 두지 않아도 문제가 생기면 알 수 있습니다.
     alerts-title: 문제가 생기는 즉시 알림
-    alerts-body: 크래시, OOM 종료, 오류 급증을 이메일, Slack 또는 Discord로 보냅니다.
-    summary-title: 고칠 항목에 대한 아침 요약
-    summary-body: 시간을 들일 가치가 있는 문제를 순위별로 정리한 목록을 매일 받아보세요.
-    history-title: 재시작 후에도 남는 기록
-    history-body: 알림과 발견 항목이 새로고침, 재시작, 일주일이 지나도 유지됩니다.
+    alerts-body: "크래시, OOM 종료, 오류 급증을 Telegram, Discord, Slack 또는 이메일로 보냅니다."
+    chat-title: "휴대폰에서 무엇이 고장 났는지 물어보기"
+    chat-body: "Telegram 또는 Discord 봇에 메시지를 보내세요. 봇이 로그를 읽고, 작업이 켜져 있으면 확인 후 컨테이너를 재시작합니다."
+    updates-title: "확인되는 업데이트"
+    updates-body: "자동 업데이트가 끝날 때마다 Dozzle Cloud가 이전과 오류를 비교하고, 오류가 늘었다면 롤백을 제안합니다."
     connect: Dozzle Cloud 연결
     learn-more: 자세히 알아보기
     skip: "나중에"

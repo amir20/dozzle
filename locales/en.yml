@@ -982,11 +982,11 @@ setup:
     title: Connect Dozzle Cloud
     subtitle: Know when something breaks without keeping a tab open.
     alerts-title: Alerts the moment something breaks
-    alerts-body: Crashes, OOM kills and error spikes, sent to email, Slack or Discord.
-    summary-title: A morning summary of what to fix
-    summary-body: One ranked list of the problems worth your time, every day.
-    history-title: History that survives restarts
-    history-body: Alerts and findings stay around after a reload, a restart or a week.
+    alerts-body: "Crashes, OOM kills and error spikes, sent to Telegram, Discord, Slack or email."
+    chat-title: "Ask what broke, from your phone"
+    chat-body: "Message the Telegram or Discord bot. It reads your logs and, with actions on, restarts a container once you confirm."
+    updates-title: "Updates that get checked"
+    updates-body: "After each auto-update, Dozzle Cloud compares the errors with before and offers to roll it back if they got worse."
     connect: Connect Dozzle Cloud
     learn-more: Learn more
     skip: "Not now"

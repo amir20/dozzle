@@ -89,12 +89,12 @@ describe("setupSteps", () => {
       currentVersion: "v9.0.0",
     };
 
-    test("shows after cloud when actions are on", () => {
+    test("shows before cloud when actions are on", () => {
       expect(setupSteps(status({ enableActions: true, autoUpdate }), unlinked)).toEqual([
         "login",
         "actions",
-        "cloud",
         "update",
+        "cloud",
         "restart",
       ]);
     });

@@ -976,11 +976,11 @@ setup:
     title: 連接 Dozzle Cloud
     subtitle: 不必一直開著分頁，也能在出問題時馬上知道。
     alerts-title: 出問題時立即通知
-    alerts-body: 當機、OOM 終止與錯誤激增，傳送到電子郵件、Slack 或 Discord。
-    summary-title: 每日早晨待修復摘要
-    summary-body: 每天一份依優先順序排列的問題清單，只列出值得你花時間的問題。
-    history-title: 重新啟動後仍保留的歷史
-    history-body: 警示與發現在重新整理、重新啟動甚至一週之後仍會保留。
+    alerts-body: "當機、OOM 終止與錯誤激增，傳送到 Telegram、Discord、Slack 或電子郵件。"
+    chat-title: "用手機問哪裡壞了"
+    chat-body: "傳訊息給 Telegram 或 Discord 機器人。它會讀取你的日誌，並在動作開啟時，經你確認後重新啟動容器。"
+    updates-title: "會被檢查的更新"
+    updates-body: "每次自動更新後，Dozzle Cloud 會將錯誤與之前比較，若變多則提供回滾。"
     connect: 連接 Dozzle Cloud
     learn-more: 了解更多
     skip: "暫不"

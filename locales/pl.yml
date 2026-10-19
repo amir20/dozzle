@@ -976,11 +976,11 @@ setup:
     title: Połącz Dozzle Cloud
     subtitle: Wiedz, kiedy coś się psuje, bez trzymania otwartej karty.
     alerts-title: Alerty w chwili, gdy coś się psuje
-    alerts-body: Awarie, zabicia OOM i skoki błędów wysyłane na e-mail, Slack lub Discord.
-    summary-title: Poranne podsumowanie tego, co naprawić
-    summary-body: Jedna uporządkowana lista problemów wartych Twojego czasu, codziennie.
-    history-title: Historia, która przetrwa restarty
-    history-body: Alerty i spostrzeżenia zostają po przeładowaniu, restarcie lub tygodniu.
+    alerts-body: "Awarie, zabicia OOM i skoki błędów wysyłane na Telegram, Discord, Slack lub e-mail."
+    chat-title: "Zapytaj z telefonu, co się zepsuło"
+    chat-body: "Napisz do bota na Telegramie lub Discordzie. Czyta Twoje logi i, gdy akcje są włączone, restartuje kontener po Twoim potwierdzeniu."
+    updates-title: "Aktualizacje, które są sprawdzane"
+    updates-body: "Po każdej automatycznej aktualizacji Dozzle Cloud porównuje błędy z tymi sprzed aktualizacji i proponuje wycofanie, jeśli jest ich więcej."
     connect: Połącz Dozzle Cloud
     learn-more: Dowiedz się więcej
     skip: "Nie teraz"

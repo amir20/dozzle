@@ -974,11 +974,11 @@ setup:
     title: Conectar o Dozzle Cloud
     subtitle: Saiba quando algo quebrar sem precisar manter uma aba aberta.
     alerts-title: Alertas no momento em que algo quebra
-    alerts-body: Falhas, encerramentos por OOM e picos de erros, enviados por e-mail, Slack ou Discord.
-    summary-title: Um resumo matinal do que corrigir
-    summary-body: Uma lista ordenada dos problemas que merecem seu tempo, todos os dias.
-    history-title: Histórico que sobrevive a reinicializações
-    history-body: Alertas e descobertas continuam lá depois de recarregar, reiniciar ou passar uma semana.
+    alerts-body: "Falhas, encerramentos por OOM e picos de erros, enviados para Telegram, Discord, Slack ou e-mail."
+    chat-title: "Pergunte o que quebrou pelo celular"
+    chat-body: "Mande uma mensagem ao bot do Telegram ou Discord. Ele lê seus logs e, com as ações ativadas, reinicia um contêiner depois que você confirma."
+    updates-title: "Atualizações verificadas"
+    updates-body: "Depois de cada atualização automática, o Dozzle Cloud compara os erros com os de antes e oferece reverter se eles aumentaram."
     connect: Conectar o Dozzle Cloud
     learn-more: Saiba mais
     skip: "Agora não"

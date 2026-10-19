@@ -974,11 +974,11 @@ setup:
     title: Collega Dozzle Cloud
     subtitle: Sappi quando qualcosa si rompe senza tenere una scheda aperta.
     alerts-title: Avvisi nel momento in cui qualcosa si rompe
-    alerts-body: Crash, terminazioni OOM e picchi di errori, inviati via email, Slack o Discord.
-    summary-title: Un riepilogo mattutino di cosa sistemare
-    summary-body: Un unico elenco ordinato dei problemi che meritano il tuo tempo, ogni giorno.
-    history-title: Uno storico che sopravvive ai riavvii
-    history-body: Avvisi e rilevamenti restano disponibili dopo un ricaricamento, un riavvio o una settimana.
+    alerts-body: "Crash, terminazioni OOM e picchi di errori, inviati su Telegram, Discord, Slack o via email."
+    chat-title: "Chiedi cosa si è rotto dal telefono"
+    chat-body: "Scrivi al bot Telegram o Discord. Legge i tuoi log e, con le azioni attive, riavvia un container dopo la tua conferma."
+    updates-title: "Aggiornamenti verificati"
+    updates-body: "Dopo ogni aggiornamento automatico, Dozzle Cloud confronta gli errori con quelli di prima e propone il rollback se sono aumentati."
     connect: Collega Dozzle Cloud
     learn-more: Scopri di più
     skip: "Non ora"
