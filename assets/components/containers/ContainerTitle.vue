@@ -107,7 +107,7 @@
       <span class="truncate">{{ imageTag }}</span>
       <span
         v-if="container.imageVersion"
-        class="text-base-content/35 shrink-0"
+        class="text-base-content/35 min-w-0 truncate"
         :title="$t('toolbar.image-version', { image: imageTag, version: container.imageVersion })"
         >({{ container.imageVersion }})</span
       >
