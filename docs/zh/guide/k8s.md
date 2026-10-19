@@ -1,6 +1,6 @@
 ---
 title: Kubernetes 支持
-sourceHash: d4c8c0cc8bcf
+sourceHash: 68f0096ed3c7
 ---
 
 # Kubernetes 支持
@@ -153,7 +153,7 @@ Metrics API 不提供网络和磁盘数据。Dozzle 可以从每个节点的 kub
   verbs: ["get"]
 ```
 
-网络按 pod 统计，因此 pod 的流量显示在它的第一个容器上，其他容器不显示流量。磁盘是容器的可写层，加上它挂载的 PVC 和 `emptyDir` 卷。
+网络按 pod 统计，因此 pod 的流量显示在名称按字母顺序排在最前的容器上，其他容器不显示流量。磁盘是容器的可写层，加上它挂载的 PVC 和 `emptyDir` 卷。
 
 Dozzle 直接通过节点的内部 IP（端口 10250）访问每个 kubelet，从不经过 API server 的节点代理。那样需要 `nodes/proxy` 权限，而该权限允许在任意容器中执行 exec。kubelet 的服务证书必须由集群 CA 签发，k3s 就是如此。如果 kubelet 使用自签名证书（kubeadm 默认、kind），这些列会保持隐藏，Dozzle 会记录一次原因。
 

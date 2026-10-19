@@ -17,6 +17,7 @@ import (
 	"k8s.io/apimachinery/pkg/api/resource"
 	k8sfake "k8s.io/client-go/kubernetes/fake"
 	"k8s.io/client-go/rest"
+	metricsv1beta1 "k8s.io/metrics/pkg/apis/metrics/v1beta1"
 	metricsclient "k8s.io/metrics/pkg/client/clientset/versioned"
 )
 
@@ -167,4 +168,12 @@ func TestMemoryLimitsFallBackToNodeCapacity(t *testing.T) {
 		"default:web:migrate": 8 << 30,
 		"default:pending:app": 0, // not scheduled yet, so no node to measure against
 	}, limits)
+}
+
+func TestNetworkOwnerIgnoresOrder(t *testing.T) {
+	a := []metricsv1beta1.ContainerMetrics{{Name: "web"}, {Name: "envoy"}, {Name: "logger"}}
+	b := []metricsv1beta1.ContainerMetrics{{Name: "logger"}, {Name: "web"}, {Name: "envoy"}}
+	assert.Equal(t, "envoy", networkOwner(a))
+	assert.Equal(t, "envoy", networkOwner(b))
+	assert.Equal(t, "", networkOwner(nil))
 }

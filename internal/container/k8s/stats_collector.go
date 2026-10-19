@@ -13,6 +13,7 @@ import (
 	"github.com/rs/zerolog/log"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	metricsv1beta1 "k8s.io/metrics/pkg/apis/metrics/v1beta1"
 	metricsclient "k8s.io/metrics/pkg/client/clientset/versioned"
 )
 
@@ -102,12 +103,12 @@ func (sc *StatsCollector) Start(parentCtx context.Context) bool {
 						log.Info().Str("namespace", item).Msg("pod metrics are available again")
 					}
 					for _, pod := range metricList.Items {
-						rx, tx := sc.podNetworkTotals(pod.Namespace, pod.Name, now)
-						for i, c := range pod.Containers {
-							// The pod's traffic goes on its first container only: a merged view
-							// adds containers up, and a sidecar would count it twice.
-							if i > 0 {
-								rx, tx = 0, 0
+						podRx, podTx := sc.podNetworkTotals(pod.Namespace, pod.Name, now)
+						owner := networkOwner(pod.Containers)
+						for _, c := range pod.Containers {
+							var rx, tx uint64
+							if c.Name == owner {
+								rx, tx = podRx, podTx
 							}
 							id := pod.Namespace + ":" + pod.Name + ":" + c.Name
 							memory := c.Usage.Memory().AsApproximateFloat64()
@@ -185,4 +186,18 @@ func memoryLimits(pods []corev1.Pod, nodeMemory map[string]float64) map[string]f
 		}
 	}
 	return limits
+}
+
+// networkOwner picks the container that carries the pod's traffic. Only one does: a
+// merged view adds containers up, and a sidecar would count it twice. It is the lowest
+// name, since the Metrics API doesn't keep container order and a moving owner would show
+// the pod's whole total as a one-tick spike.
+func networkOwner(containers []metricsv1beta1.ContainerMetrics) string {
+	owner := ""
+	for _, c := range containers {
+		if owner == "" || c.Name < owner {
+			owner = c.Name
+		}
+	}
+	return owner
 }
