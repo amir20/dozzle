@@ -1,4 +1,6 @@
+import { existsSync } from "fs";
 import { createRequire } from "module";
+import { fileURLToPath } from "url";
 import { defineConfig } from "vitepress";
 import { buildThemeConfig, type Labels } from "./locales/structure";
 import { en } from "./locales/en";
@@ -71,6 +73,31 @@ const tokenize = (text: string): string[] => {
     : text.split(/[\n\r\p{Z}\p{P}]+/u).filter(Boolean);
 };
 
+const SITE = "https://dozzle.dev";
+const SRC_DIR = fileURLToPath(new URL("..", import.meta.url));
+
+// "de/guide/foo.md" -> "/de/guide/foo", "de/index.md" -> "/de/" (cleanUrls).
+const pageUrl = (relativePath: string) => "/" + relativePath.replace(/\.md$/, "").replace(/(^|\/)index$/, "$1");
+
+// Every link that reaches a page with a query string (?ref=…) or under another
+// locale should fold into one indexed URL, so each page names itself as
+// canonical and lists its translations with hreflang.
+const seoHead = (relativePath: string): Array<[string, Record<string, string>]> => {
+  const prefix = TRANSLATIONS.find(([key]) => key !== "root" && relativePath.startsWith(`${key}/`));
+  const page = prefix ? relativePath.slice(prefix[0].length + 1) : relativePath;
+
+  const head: Array<[string, Record<string, string>]> = [
+    ["link", { rel: "canonical", href: SITE + pageUrl(relativePath) }],
+  ];
+  for (const [key, , t] of TRANSLATIONS) {
+    const file = key === "root" ? page : `${key}/${page}`;
+    if (!existsSync(SRC_DIR + file)) continue;
+    head.push(["link", { rel: "alternate", hreflang: t.lang, href: SITE + pageUrl(file) }]);
+    if (key === "root") head.push(["link", { rel: "alternate", hreflang: "x-default", href: SITE + pageUrl(file) }]);
+  }
+  return head;
+};
+
 export default defineConfig({
   title: "Dozzle",
   description: "A lightweight, open-source, and secure log viewer for Docker.",
@@ -121,6 +148,8 @@ export default defineConfig({
       },
     ],
   },
+
+  transformHead: ({ pageData }) => (pageData.isNotFound ? [] : seoHead(pageData.relativePath)),
 
   sitemap: {
     hostname: "https://dozzle.dev/",
