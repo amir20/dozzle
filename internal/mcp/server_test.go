@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"io"
+	"net/http/httptest"
 	"strings"
 	"testing"
 	"time"
@@ -335,6 +336,27 @@ func TestNewServerRegistersTools(t *testing.T) {
 	assert.Contains(t, toolNames, "search_container_logs")
 	assert.Contains(t, toolNames, "list_hosts")
 	assert.Contains(t, toolNames, "get_container_stats")
+	assert.Len(t, tools.Tools, 5)
+}
+
+// Clients on the 2026-07-28 protocol (ChatGPT's tunnel among them) probe with
+// server/discover and send every request without a session. The SDK only
+// serves that version over a stateless handler.
+func TestHandlerServesLatestProtocol(t *testing.T) {
+	s := NewServer(&mockHostService{}, nil, "v1.0.0")
+	srv := httptest.NewServer(s.Handler())
+	defer srv.Close()
+
+	ctx := context.Background()
+	client := mcp.NewClient(&mcp.Implementation{Name: "test-client", Version: "v0.0.1"}, nil)
+	session, err := client.Connect(ctx, &mcp.StreamableClientTransport{Endpoint: srv.URL}, nil)
+	require.NoError(t, err)
+	defer session.Close()
+
+	assert.Equal(t, "2026-07-28", session.InitializeResult().ProtocolVersion)
+
+	tools, err := session.ListTools(ctx, nil)
+	require.NoError(t, err)
 	assert.Len(t, tools.Tools, 5)
 }
 
