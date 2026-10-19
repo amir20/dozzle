@@ -46,6 +46,7 @@ toolbar:
   inspect: "Inspeksi"
   copy-permalink: Salin tautan permanen
   copy-image: "Salin tag image"
+  image-version: "{image} saat ini adalah {version}"
   pin: "Sematkan"
   unpin: "Lepas sematan"
   copy-logs: Salin log

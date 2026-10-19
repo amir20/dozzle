@@ -46,6 +46,7 @@ toolbar:
   inspect: "Inspicér"
   copy-permalink: Kopiér permanent link
   copy-image: "Kopiér image-tag"
+  image-version: "{image} er i øjeblikket {version}"
   pin: "Fastgør"
   unpin: "Frigør"
   copy-logs: Kopiér logs

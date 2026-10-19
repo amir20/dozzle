@@ -4,7 +4,17 @@
       <ContainerIcon :state="container.state" :health="container.health" :slug="container.icon" class="mt-0.5 size-5" />
       <div class="min-w-0 flex-1">
         <div class="truncate font-semibold" :title="container.name">{{ container.name }}</div>
-        <div class="text-base-content/50 truncate font-mono text-[11px]" :title="imageTag">{{ imageTag }}</div>
+        <div
+          class="text-base-content/50 truncate font-mono text-[11px]"
+          :title="
+            container.imageVersion
+              ? $t('toolbar.image-version', { image: imageTag, version: container.imageVersion })
+              : imageTag
+          "
+        >
+          {{ imageTag }}
+          <span v-if="container.imageVersion" class="text-base-content/35">({{ container.imageVersion }})</span>
+        </div>
       </div>
       <ContainerHealth v-if="container.health" :health="container.health" />
     </div>
