@@ -260,10 +260,13 @@ function levelOf(hit: CloudLogHit): string {
   return (hit.level || "info").toLowerCase();
 }
 
-// Cloud counts every match in the window. When it could not, only the loaded pages are
+// Cloud counts every match in the window. A Cloud older than `total` still sends the
+// histogram, whose sum is the same number. Without either only the loaded pages are
 // known, and a page with more behind it reads as "20+" rather than claiming 20 is all.
 const hitCount = computed(() => {
   if (cloudSearch.total.value !== null) return cloudSearch.total.value.toLocaleString();
+  const counted = cloudSearch.volume.value.reduce((sum, b) => sum + b.count, 0);
+  if (counted >= hits.value.length && counted > 0) return counted.toLocaleString();
   return cloudSearch.hasMore.value ? `${hits.value.length}+` : String(hits.value.length);
 });
 
