@@ -152,6 +152,21 @@ func (h *handler) cloudCallback(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, redirectURL, http.StatusFound)
 }
 
+// cloudPlan is the part of Cloud's status this server acts on.
+type cloudPlan struct {
+	Name string `json:"name"`
+	// Decided by Cloud. Nil from a Cloud older than the field, which falls back
+	// to the names that were paid when it shipped.
+	Paid *bool `json:"paid"`
+}
+
+func (p cloudPlan) isPaid() bool {
+	if p.Paid != nil {
+		return *p.Paid
+	}
+	return p.Name == "pro" || p.Name == "team"
+}
+
 func (h *handler) cloudStatus(w http.ResponseWriter, r *http.Request) {
 	cc := h.hostService.CloudConfig()
 	if cc == nil || cc.APIKey == "" {
@@ -208,12 +223,10 @@ func (h *handler) cloudStatus(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var statusResp struct {
-		Plan struct {
-			Name string `json:"name"`
-		} `json:"plan"`
+		Plan cloudPlan `json:"plan"`
 	}
-	// Re-establish the connection after an upgrade to any paid plan, not just Pro.
-	if json.Unmarshal(body, &statusResp) == nil && (statusResp.Plan.Name == "pro" || statusResp.Plan.Name == "team") {
+	// Re-establish the connection after an upgrade to any paid plan.
+	if json.Unmarshal(body, &statusResp) == nil && statusResp.Plan.isPaid() {
 		if h.config.Cloud.OnSetup != nil {
 			h.config.Cloud.OnSetup()
 		}

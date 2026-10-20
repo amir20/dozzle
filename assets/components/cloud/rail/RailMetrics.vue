@@ -69,7 +69,7 @@ type MetricPoint = { ts: number; cpu: number; memory: number; memoryUsage: numbe
 const { t } = useI18n();
 const view = useViewContext();
 const store = useContainerStore();
-const { isPro, ensureCloudStatus } = useCloudConfig();
+const { metricsLookbackHours, ensureCloudStatus } = useCloudConfig();
 
 // The plan decides whether the week is on offer, so the panel needs the status
 // even on a page where nothing else has asked for it. Shared and cached.
@@ -94,11 +94,11 @@ const windows = computed(() => [
   { value: "6h", label: t("cloud-rail.window-6h") },
   { value: "24h", label: t("cloud-rail.window-24h") },
   // Go parses hours, not days, so the week travels as 168h.
-  ...(isPro.value ? [{ value: "168h", label: t("cloud-rail.window-7d") }] : []),
+  ...(metricsLookbackHours.value >= 168 ? [{ value: "168h", label: t("cloud-rail.window-7d") }] : []),
 ]);
 const window = ref("24h");
 
-// Losing pro (or the status arriving late) must not leave the tabs pointing at
+// A shorter lookback (or the status arriving late) must not leave the tabs pointing at
 // a window that is no longer on offer.
 watch(windows, (options) => {
   if (!options.some((o) => o.value === window.value)) window.value = "24h";
