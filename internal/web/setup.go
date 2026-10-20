@@ -72,6 +72,15 @@ type setupAutoUpdate struct {
 	Zone string `json:"zone"`
 }
 
+// setupAutoPrune is the clean up schedule, which the reclaimable popover shows
+// and changes. Unlike auto-update it has no flag, so it is never locked.
+type setupAutoPrune struct {
+	Mode    string        `json:"mode"`
+	Time    string        `json:"time"`
+	Zone    string        `json:"zone"`
+	LastRun *autoPruneRun `json:"lastRun,omitempty"`
+}
+
 type setupState struct {
 	Mode            string       `json:"mode"`
 	DataPersisted   bool         `json:"dataPersisted"`
@@ -88,6 +97,7 @@ type setupState struct {
 	// it updates, which stay writable after the no-login window closes.
 	CanWriteUpdates bool            `json:"canWriteUpdates"`
 	AutoUpdate      setupAutoUpdate `json:"autoUpdate"`
+	AutoPrune       setupAutoPrune  `json:"autoPrune"`
 	Agents          []setupAgent    `json:"agents"`
 	CanAddAgents    bool            `json:"canAddAgents"`
 	// CustomCert means agents need this hub's cert pair, not the default one.
@@ -195,6 +205,7 @@ func (h *handler) getSetup(w http.ResponseWriter, r *http.Request) {
 	}
 	_, canAddAgents := h.agentService()
 	settings := autoUpdateFrom(h.config.Setup, file)
+	prune := autoPruneFrom(file)
 	support := checkAutoUpdateSupport(r.Context(), h.config, h.hostService)
 
 	state := setupState{
@@ -229,6 +240,12 @@ func (h *handler) getSetup(w http.ResponseWriter, r *http.Request) {
 			CurrentVersion: h.config.Version,
 			Containers:     updateModeFrom(h.config.Setup, file),
 			Zone:           serverZone(time.Now()),
+		},
+		AutoPrune: setupAutoPrune{
+			Mode:    prune.Mode,
+			Time:    prune.Time,
+			Zone:    serverZone(time.Now()),
+			LastRun: lastAutoPrune(),
 		},
 		Agents:       h.setupAgents(file),
 		CanAddAgents: canAddAgents,
@@ -404,6 +421,8 @@ type setupConfigRequest struct {
 	EnableActions *bool                   `json:"enableActions"`
 	EnableShell   *bool                   `json:"enableShell"`
 	AutoUpdate    *setupAutoUpdateRequest `json:"autoUpdate"`
+	// AutoPrune takes the same mode and time as AutoUpdate.
+	AutoPrune *setupAutoUpdateRequest `json:"autoPrune"`
 	// UpdateContainers is off, labelled or all. Like the schedule it applies at
 	// the next run.
 	UpdateContainers *string `json:"updateContainers"`
@@ -444,12 +463,17 @@ func (h *handler) updateSetupConfig(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if req.AutoPrune != nil && (!config.ValidAutoUpdateMode(req.AutoPrune.Mode) || !config.ValidAutoUpdateTime(req.AutoPrune.Time)) {
+		http.Error(w, "invalid clean up schedule", http.StatusBadRequest)
+		return
+	}
+
 	if req.UpdateContainers != nil && !updatepolicy.ValidMode(*req.UpdateContainers) {
 		http.Error(w, "invalid container mode", http.StatusBadRequest)
 		return
 	}
 
-	if req.EnableActions != nil || req.EnableShell != nil || req.AutoUpdate != nil || req.UpdateContainers != nil {
+	if req.EnableActions != nil || req.EnableShell != nil || req.AutoUpdate != nil || req.AutoPrune != nil || req.UpdateContainers != nil {
 		err := config.Update(setupConfigPath, func(c *config.File) {
 			if req.UpdateContainers != nil {
 				c.UpdateContainers = req.UpdateContainers
@@ -458,6 +482,11 @@ func (h *handler) updateSetupConfig(w http.ResponseWriter, r *http.Request) {
 				mode, at := req.AutoUpdate.Mode, req.AutoUpdate.Time
 				c.AutoUpdate = &mode
 				c.AutoUpdateTime = &at
+			}
+			if req.AutoPrune != nil {
+				mode, at := req.AutoPrune.Mode, req.AutoPrune.Time
+				c.AutoPrune = &mode
+				c.AutoPruneTime = &at
 			}
 			if req.EnableActions != nil {
 				c.EnableActions = req.EnableActions
@@ -475,6 +504,9 @@ func (h *handler) updateSetupConfig(w http.ResponseWriter, r *http.Request) {
 
 	if req.UpdateContainers != nil {
 		log.Info().Str("containers", *req.UpdateContainers).Msg("setup changed which containers auto update")
+	}
+	if req.AutoPrune != nil {
+		log.Info().Str("mode", req.AutoPrune.Mode).Str("time", req.AutoPrune.Time).Msg("changed the clean up schedule")
 	}
 	if req.AutoUpdate != nil {
 		log.Info().Str("mode", req.AutoUpdate.Mode).Str("time", req.AutoUpdate.Time).Msg("setup changed the auto update schedule")

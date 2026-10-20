@@ -1167,3 +1167,7 @@ reclaim:
   failed: "Échec du nettoyage"
   agent-too-old: "Cet agent ne peut pas encore nettoyer. Mettez-le à jour vers la dernière version."
   enable-actions: "Activez les actions de conteneur pour nettoyer depuis ici."
+  schedule-label: "Nettoyer automatiquement"
+  schedule-desc: "Images inutilisées, conteneurs arrêtés et cache de build sur tous les hôtes. Les volumes ne sont jamais supprimés."
+  last-run: "Le dernier passage a libéré {size} {when}."
+  last-run-failed: "{count} hôte n'a pas pu être nettoyé, voir les logs. | {count} hôtes n'ont pas pu être nettoyés, voir les logs."

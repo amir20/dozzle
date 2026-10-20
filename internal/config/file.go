@@ -36,6 +36,12 @@ type File struct {
 	// Dozzle: off, labelled or all. Absent is labelled. There is no flag or
 	// env var for it. Read at every run.
 	UpdateContainers *string `yaml:"updateContainers,omitempty"`
+	// AutoPrune is off, daily or weekly, like AutoUpdate, and read at every
+	// tick the same way. It deletes unused images, stopped containers and build
+	// cache on every host, never volumes. There is no flag or env var for it.
+	AutoPrune *string `yaml:"autoPrune,omitempty"`
+	// AutoPruneTime is "HH:MM" in the server's local time.
+	AutoPruneTime *string `yaml:"autoPruneTime,omitempty"`
 	// RemoteAgents are agents added from the UI, in DOZZLE_REMOTE_AGENT's
 	// endpoint form. Unlike the settings above they add to the flag or env var
 	// instead of losing to it, and they connect live, so adding or removing one
@@ -55,6 +61,9 @@ const (
 	AutoUpdateWeekly = "weekly"
 	// DefaultAutoUpdateTime is quiet on most servers.
 	DefaultAutoUpdateTime = "03:00"
+	// DefaultAutoPruneTime is an hour after the update, so a clean up never
+	// races a pull and deletes the images the update just replaced.
+	DefaultAutoPruneTime = "04:00"
 )
 
 var autoUpdateTimePattern = regexp.MustCompile(`^([01]\d|2[0-3]):[0-5]\d$`)

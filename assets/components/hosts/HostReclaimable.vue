@@ -144,6 +144,12 @@
           {{ $t("reclaim.clean-up") }}
           <span v-if="selectedRows.length" class="font-mono">{{ size(selectedTotal) }}</span>
         </button>
+        <!-- Focusing it pins a hover-opened panel: a native select's list sits
+             outside the panel, and moving onto it must not close the popover. -->
+        <template v-if="canPrune && config.mode === 'server'">
+          <div class="bg-base-content/10 my-3 h-px"></div>
+          <HostPruneSchedule @focusin="touched = true" />
+        </template>
         <InlineNotice v-if="actionsOff" type="info" class="mt-3">
           {{ $t("reclaim.enable-actions") }}
           <a href="https://dozzle.dev/guide/actions" target="_blank" rel="noopener" class="link">
