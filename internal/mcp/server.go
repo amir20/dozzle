@@ -62,10 +62,14 @@ func (s *Server) resolveLabels(ctx context.Context) container.ContainerLabels {
 }
 
 // Handler returns an http.Handler for the MCP streamable HTTP transport.
+//
+// It is stateless because the SDK only serves the 2026-07-28 protocol (and its
+// server/discover probe) without sessions. Every tool here is a plain
+// request/response, so nothing needs a session or an SSE stream.
 func (s *Server) Handler() http.Handler {
 	return mcp.NewStreamableHTTPHandler(func(r *http.Request) *mcp.Server {
 		return s.mcpServer
-	}, nil)
+	}, &mcp.StreamableHTTPOptions{Stateless: true, JSONResponse: true})
 }
 
 // --- Tool Parameter Types ---
