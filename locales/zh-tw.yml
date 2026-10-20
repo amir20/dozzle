@@ -8,6 +8,7 @@ toolbar:
   invalid-regex: 無效的正規表示式
   close-search: 關閉搜尋
   move-search: 拖曳以移動
+  search-all-containers: 搜尋所有容器
   show: 僅顯示 {std}
   show-all: 顯示全部
   stop: 停止

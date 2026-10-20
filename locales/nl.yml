@@ -8,6 +8,7 @@ toolbar:
   invalid-regex: Ongeldige reguliere expressie
   close-search: Zoeken sluiten
   move-search: Sleep om te verplaatsen
+  search-all-containers: Zoeken in alle containers
   show: Toon {std}
   show-all: Toon alles
   stop: Stoppen

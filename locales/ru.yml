@@ -8,6 +8,7 @@ toolbar:
   invalid-regex: Некорректное регулярное выражение
   close-search: Закрыть поиск
   move-search: Перетащите, чтобы переместить
+  search-all-containers: Искать во всех контейнерах
   show: Показать только {std}
   show-all: Показать все потоки
   stop: Остановить

@@ -8,6 +8,7 @@ toolbar:
   invalid-regex: Neveljaven regularni izraz
   close-search: Zapri iskanje
   move-search: Povlecite za premik
+  search-all-containers: Išči po vseh vsebnikih
   show: Prikaži {std}
   show-all: Prikaži vse
   stop: Ustavi

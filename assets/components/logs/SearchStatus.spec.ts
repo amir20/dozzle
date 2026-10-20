@@ -5,6 +5,15 @@ import { createI18n } from "vue-i18n";
 import SearchStatus from "./SearchStatus.vue";
 import IndeterminateBar from "@/components/ui/IndeterminateBar.vue";
 import EmptyState from "@/components/ui/EmptyState.vue";
+import { useSearchFilter } from "@/composable/logs/search";
+
+const cloud = vi.hoisted(() => ({ available: { value: false }, open: vi.fn() }));
+vi.mock("@/composable/cloud/cloudLogSearch", async () => {
+  const { ref } = await import("vue");
+  const available = ref(false);
+  cloud.available = available;
+  return { useCloudSearchHandoff: () => ({ available, open: cloud.open }) };
+});
 
 /**
  * @vitest-environment jsdom
@@ -41,6 +50,9 @@ function createStatus(overrides: Record<string, unknown> = {}, empty = false) {
 describe("<SearchStatus />", () => {
   beforeEach(() => {
     vi.useFakeTimers();
+    cloud.available.value = false;
+    cloud.open.mockReset();
+    useSearchFilter().searchQueryFilter.value = "";
   });
   afterEach(() => {
     vi.useRealTimers();
@@ -140,5 +152,20 @@ describe("<SearchStatus />", () => {
     await nextTick();
     expect(wrapper.text()).not.toContain("%");
     expect(wrapper.text()).not.toContain("back to");
+  });
+
+  test("offers cloud search on an empty result only when cloud can search", async () => {
+    useSearchFilter().searchQueryFilter.value = "timeout";
+    const done = { active: false, done: true, matches: 0 };
+
+    let wrapper = createStatus(done);
+    await nextTick();
+    expect(wrapper.find('[data-testid="search-cloud"]').exists()).toBe(false);
+
+    cloud.available.value = true;
+    wrapper = createStatus(done);
+    await nextTick();
+    await wrapper.find('[data-testid="search-cloud"]').trigger("click");
+    expect(cloud.open).toHaveBeenCalledWith("timeout");
   });
 });

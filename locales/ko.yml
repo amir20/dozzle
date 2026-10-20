@@ -8,6 +8,7 @@ toolbar:
   invalid-regex: 잘못된 정규식
   close-search: 검색 닫기
   move-search: 드래그하여 이동
+  search-all-containers: 모든 컨테이너 검색
   show: "{std} 보기"
   show-all: 전체 보기
   stop: 중지

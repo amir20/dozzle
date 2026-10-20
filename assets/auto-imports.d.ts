@@ -383,6 +383,7 @@ declare global {
   const useCloudConfig: typeof import('./composable/cloud/cloudConfig').useCloudConfig
   const useCloudLogSearch: typeof import('./composable/cloud/cloudLogSearch').useCloudLogSearch
   const useCloudRail: typeof import('./composable/cloud/cloudRail').useCloudRail
+  const useCloudSearchHandoff: typeof import('./composable/cloud/cloudLogSearch').useCloudSearchHandoff
   const useCloudSurface: typeof import('./composable/cloud/cloudSurface').useCloudSurface
   const useCloudWelcome: typeof import('./composable/cloud/cloudWelcome').useCloudWelcome
   const useColorMode: typeof import('@vueuse/core').useColorMode
@@ -1110,6 +1111,7 @@ declare module 'vue' {
     readonly useCloudConfig: UnwrapRef<typeof import('./composable/cloud/cloudConfig')['useCloudConfig']>
     readonly useCloudLogSearch: UnwrapRef<typeof import('./composable/cloud/cloudLogSearch')['useCloudLogSearch']>
     readonly useCloudRail: UnwrapRef<typeof import('./composable/cloud/cloudRail')['useCloudRail']>
+    readonly useCloudSearchHandoff: UnwrapRef<typeof import('./composable/cloud/cloudLogSearch')['useCloudSearchHandoff']>
     readonly useCloudSurface: UnwrapRef<typeof import('./composable/cloud/cloudSurface')['useCloudSurface']>
     readonly useCloudWelcome: UnwrapRef<typeof import('./composable/cloud/cloudWelcome')['useCloudWelcome']>
     readonly useColorMode: UnwrapRef<typeof import('@vueuse/core')['useColorMode']>

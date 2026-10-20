@@ -8,6 +8,7 @@ toolbar:
   invalid-regex: Ugyldigt regulært udtryk
   close-search: Luk søgning
   move-search: Træk for at flytte
+  search-all-containers: Søg i alle containere
   show: Vis kun {std}
   show-all: Vis alle streams
   stop: Stop

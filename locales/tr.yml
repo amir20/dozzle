@@ -8,6 +8,7 @@ toolbar:
   invalid-regex: Geçersiz düzenli ifade
   close-search: Aramayı kapat
   move-search: Taşımak için sürükleyin
+  search-all-containers: Tüm konteynerlerde ara
   show: Sadece {std} göster
   show-all: Tüm akışları göster
   stop: Durdur

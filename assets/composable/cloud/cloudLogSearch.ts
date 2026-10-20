@@ -29,6 +29,25 @@ interface CloudLogSearchResponse {
 
 const debounceMs = 250;
 
+/**
+ * Hands a query to the Cloud results page. `available` is the one definition of
+ * "Cloud can search": linked AND streaming logs, since nothing is indexed otherwise.
+ */
+export function useCloudSearchHandoff() {
+  const { cloudConfig } = useCloudConfig();
+  // Optional: a few surfaces mount without a router (tests, the login page).
+  const router = useRouter();
+  const available = computed(() => !!cloudConfig.value?.linked && !!cloudConfig.value?.streamLogs);
+
+  function open(query: string) {
+    const q = query.trim();
+    if (!available.value || !q) return;
+    router?.push({ path: "/cloud/search", query: { q } });
+  }
+
+  return { available, open };
+}
+
 /** A search Cloud refused because of the query itself; message is user-facing. */
 class QueryError extends Error {}
 
@@ -53,8 +72,6 @@ class QueryError extends Error {}
  *   any other 4xx/5xx -> error set, results cleared
  */
 export function useCloudLogSearch(query: Ref<string>) {
-  const { cloudConfig } = useCloudConfig();
-
   const results = ref<CloudLogHit[]>([]);
   const loading = ref(false);
   const loadingMore = ref(false);
@@ -74,7 +91,7 @@ export function useCloudLogSearch(query: Ref<string>) {
   // newest page. Cleared on every new query.
   const nextBefore = ref<number>(0);
 
-  const available = computed(() => !!cloudConfig.value?.linked && !!cloudConfig.value?.streamLogs);
+  const { available } = useCloudSearchHandoff();
 
   // Two parallel fetch lifecycles — keystroke search (cancels on next
   // keystroke / unmount) and pagination loadMore (cancels on unmount or

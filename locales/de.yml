@@ -8,6 +8,7 @@ toolbar:
   invalid-regex: Ungültiger regulärer Ausdruck
   close-search: Suche schließen
   move-search: Zum Verschieben ziehen
+  search-all-containers: Alle Container durchsuchen
   show: Zeige nur {std}
   show-all: Zeige alle Streams
   stop: Stop
