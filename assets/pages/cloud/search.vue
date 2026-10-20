@@ -8,7 +8,9 @@
           <h2 class="text-2xl font-bold">{{ $t("cloud-search.results-page-title") }}</h2>
           <p class="text-base-content/60 mt-1 truncate text-sm">
             <span v-if="committedQuery" class="text-base-content font-mono">"{{ committedQuery }}"</span>
-            {{ $t("cloud-search.window-suffix") }}
+            <span v-if="windowSince" :title="windowSinceExact">{{
+              $t("cloud-search.window-since", { time: windowSince })
+            }}</span>
           </p>
         </div>
         <span v-if="cloudSearch.available.value" class="status-pill status-pill-primary ml-auto shrink-0">
@@ -258,14 +260,29 @@ function levelOf(hit: CloudLogHit): string {
   return (hit.level || "info").toLowerCase();
 }
 
-// The histogram counts every match in the window, so with it the total is exact. Without
-// it (an older Cloud, or a count that timed out) only the loaded pages are known, and a
-// page with more behind it reads as "20+" rather than claiming 20 is the whole answer.
+// Cloud counts every match in the window. A Cloud older than `total` still sends the
+// histogram, whose sum is the same number. Without either only the loaded pages are
+// known, and a page with more behind it reads as "20+" rather than claiming 20 is all.
 const hitCount = computed(() => {
+  if (cloudSearch.total.value !== null) return cloudSearch.total.value.toLocaleString();
   const counted = cloudSearch.volume.value.reduce((sum, b) => sum + b.count, 0);
   if (counted >= hits.value.length && counted > 0) return counted.toLocaleString();
   return cloudSearch.hasMore.value ? `${hits.value.length}+` : String(hits.value.length);
 });
+
+// How far back the search reaches is Cloud's call (its window, or the plan's retention
+// if shorter), so it is shown as the date Cloud sent rather than a fixed span.
+const windowStartDate = computed(() =>
+  cloudSearch.windowStart.value > 0 ? new Date(cloudSearch.windowStart.value / 1e6) : null,
+);
+const windowSince = computed(() =>
+  windowStartDate.value
+    ? new Intl.DateTimeFormat(undefined, { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" }).format(
+        windowStartDate.value,
+      )
+    : "",
+);
+const windowSinceExact = computed(() => windowStartDate.value?.toLocaleString());
 
 function formatDuration(ms: number): string {
   return ms < 1000 ? `${ms} ms` : `${(ms / 1000).toFixed(1)} s`;

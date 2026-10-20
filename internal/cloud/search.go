@@ -26,6 +26,11 @@ type SearchLogResult struct {
 	// for it and Cloud could answer. StepNs is the bucket width.
 	Volume []SearchVolumeBucket `json:"volume,omitempty"`
 	StepNs int64                `json:"stepNs,omitempty"`
+	// WindowStart is the oldest timestamp (ns) the search reaches, as Cloud
+	// decided it. 0 from a Cloud older than the field.
+	WindowStart int64 `json:"windowStart,omitempty"`
+	// Total counts every match in the window; nil when Cloud did not count.
+	Total *int64 `json:"total,omitempty"`
 }
 
 // SearchVolumeBucket is the match count at one level inside one time bucket.
@@ -136,10 +141,12 @@ func (c *Client) SearchLogs(ctx context.Context, query string, limit int32, host
 		}
 	}
 	return &SearchLogResult{
-		Hits:       hits,
-		HasMore:    resp.GetHasMore(),
-		NextBefore: resp.GetNextBeforeTsNs(),
-		Volume:     buckets,
-		StepNs:     resp.GetStepNs(),
+		Hits:        hits,
+		HasMore:     resp.GetHasMore(),
+		NextBefore:  resp.GetNextBeforeTsNs(),
+		Volume:      buckets,
+		StepNs:      resp.GetStepNs(),
+		WindowStart: resp.GetWindowStartNs(),
+		Total:       resp.Total,
 	}, nil
 }

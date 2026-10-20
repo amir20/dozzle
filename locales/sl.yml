@@ -846,7 +846,7 @@ cloud-search:
   search-empty-prompt: "Vpišite poizvedbo za iskanje po dnevnikih."
   searching: "Iskanje…"
   hits-count: "{n} zadetkov"
-  window-suffix: "v zadnjih 14 dneh"
+  window-since: "od {time}"
   hero-title-cloud: "Iskanje vsebnikov in dnevnikov"
   hero-title-plain: "Iskanje vsebnikov"
   hero-pill-indexed: "Cloud indeks"

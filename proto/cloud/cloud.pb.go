@@ -4165,7 +4165,12 @@ type SearchLogsResponse struct {
 	// the aggregation failed, which never fails the search itself.
 	Volume []*SearchVolumeBucket `protobuf:"bytes,4,rep,name=volume,proto3" json:"volume,omitempty"`
 	// Bucket width in nanoseconds; 0 when volume is absent.
-	StepNs        int64 `protobuf:"varint,5,opt,name=step_ns,json=stepNs,proto3" json:"step_ns,omitempty"`
+	StepNs int64 `protobuf:"varint,5,opt,name=step_ns,json=stepNs,proto3" json:"step_ns,omitempty"`
+	// The oldest moment this search can reach: the search window or the plan's
+	// retention, whichever is shorter. Cloud decides it; 0 from an older Cloud.
+	WindowStartNs int64 `protobuf:"varint,6,opt,name=window_start_ns,json=windowStartNs,proto3" json:"window_start_ns,omitempty"`
+	// Every match in the window. Unset when Cloud could not count it in time.
+	Total         *int64 `protobuf:"varint,7,opt,name=total,proto3,oneof" json:"total,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -4231,6 +4236,20 @@ func (x *SearchLogsResponse) GetVolume() []*SearchVolumeBucket {
 func (x *SearchLogsResponse) GetStepNs() int64 {
 	if x != nil {
 		return x.StepNs
+	}
+	return 0
+}
+
+func (x *SearchLogsResponse) GetWindowStartNs() int64 {
+	if x != nil {
+		return x.WindowStartNs
+	}
+	return 0
+}
+
+func (x *SearchLogsResponse) GetTotal() int64 {
+	if x != nil && x.Total != nil {
+		return *x.Total
 	}
 	return 0
 }
@@ -5671,13 +5690,16 @@ const file_cloud_proto_rawDesc = "" +
 	"\ahost_id\x18\x04 \x01(\tR\x06hostId\x12!\n" +
 	"\fcontainer_id\x18\x05 \x01(\tR\vcontainerId\x12%\n" +
 	"\x0einclude_volume\x18\x06 \x01(\bR\rincludeVolume\x12\x14\n" +
-	"\x05regex\x18\a \x01(\bR\x05regex\"\xcf\x01\n" +
+	"\x05regex\x18\a \x01(\bR\x05regex\"\x9c\x02\n" +
 	"\x12SearchLogsResponse\x12'\n" +
 	"\x04hits\x18\x01 \x03(\v2\x13.cloud.SearchLogHitR\x04hits\x12\x19\n" +
 	"\bhas_more\x18\x02 \x01(\bR\ahasMore\x12)\n" +
 	"\x11next_before_ts_ns\x18\x03 \x01(\x03R\x0enextBeforeTsNs\x121\n" +
 	"\x06volume\x18\x04 \x03(\v2\x19.cloud.SearchVolumeBucketR\x06volume\x12\x17\n" +
-	"\astep_ns\x18\x05 \x01(\x03R\x06stepNs\"c\n" +
+	"\astep_ns\x18\x05 \x01(\x03R\x06stepNs\x12&\n" +
+	"\x0fwindow_start_ns\x18\x06 \x01(\x03R\rwindowStartNs\x12\x19\n" +
+	"\x05total\x18\a \x01(\x03H\x00R\x05total\x88\x01\x01B\b\n" +
+	"\x06_total\"c\n" +
 	"\x12SearchVolumeBucket\x12!\n" +
 	"\ftimestamp_ns\x18\x01 \x01(\x03R\vtimestampNs\x12\x14\n" +
 	"\x05level\x18\x02 \x01(\tR\x05level\x12\x14\n" +
@@ -5994,6 +6016,7 @@ func file_cloud_proto_init() {
 		(*CallToolResponse_RetroScan)(nil),
 		(*CallToolResponse_InspectContainers)(nil),
 	}
+	file_cloud_proto_msgTypes[45].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{

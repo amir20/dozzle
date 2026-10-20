@@ -25,6 +25,10 @@ interface CloudLogSearchResponse {
   // Cloud is older than the field or could not count in time.
   volume?: VolumeBucket[];
   stepNs?: number;
+  // Oldest timestamp (ns) the search reaches and every match in it, as Cloud
+  // decided them. Absent from an older Cloud, or when it could not count.
+  windowStart?: number;
+  total?: number;
 }
 
 const debounceMs = 250;
@@ -89,6 +93,8 @@ export function useCloudLogSearch(query: Ref<string>, regex: Ref<boolean> = ref(
   const tookMs = ref<number | null>(null);
   const volume = ref<VolumeBucket[]>([]);
   const stepNs = ref(0);
+  const windowStart = ref(0);
+  const total = ref<number | null>(null);
   // Cursor (timestamp_ns) of the last hit on the current page; 0 = at the
   // newest page. Cleared on every new query.
   const nextBefore = ref<number>(0);
@@ -114,6 +120,8 @@ export function useCloudLogSearch(query: Ref<string>, regex: Ref<boolean> = ref(
     tookMs.value = null;
     volume.value = [];
     stepNs.value = 0;
+    windowStart.value = 0;
+    total.value = null;
   }
 
   async function fetchPage(q: string, before: number, signal: AbortSignal): Promise<CloudLogSearchResponse | null> {
@@ -154,6 +162,8 @@ export function useCloudLogSearch(query: Ref<string>, regex: Ref<boolean> = ref(
       results.value = body.hits ?? [];
       volume.value = body.volume ?? [];
       stepNs.value = body.stepNs ?? 0;
+      windowStart.value = body.windowStart ?? 0;
+      total.value = body.total ?? null;
       hasMore.value = !!body.hasMore;
       nextBefore.value = body.nextBefore ?? 0;
     } catch (e) {
@@ -164,6 +174,8 @@ export function useCloudLogSearch(query: Ref<string>, regex: Ref<boolean> = ref(
         hasMore.value = false;
         volume.value = [];
         stepNs.value = 0;
+        windowStart.value = 0;
+        total.value = null;
       }
     } finally {
       loading.value = false;
@@ -222,6 +234,8 @@ export function useCloudLogSearch(query: Ref<string>, regex: Ref<boolean> = ref(
     tookMs,
     volume,
     stepNs,
+    windowStart,
+    total,
     loadMore,
   };
 }

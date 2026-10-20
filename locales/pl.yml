@@ -843,7 +843,7 @@ cloud-search:
   search-empty-prompt: "Wpisz zapytanie, aby przeszukać logi."
   searching: "Wyszukiwanie…"
   hits-count: "{n} wyników"
-  window-suffix: "w ciągu ostatnich 14 dni"
+  window-since: "od {time}"
   hero-title-cloud: "Szukaj kontenerów i logów"
   hero-title-plain: "Szukaj kontenerów"
   hero-pill-indexed: "Indeks Cloud"

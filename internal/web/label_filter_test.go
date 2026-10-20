@@ -89,6 +89,7 @@ func Test_cloudSearchLogs_withholds_volume_from_restricted_users(t *testing.T) {
 		return &cloud.SearchLogResult{
 			Volume: []cloud.SearchVolumeBucket{{TimestampNs: 1, Level: "info", Count: 9}},
 			StepNs: 1,
+			Total:  new(int64(9)),
 		}, nil
 	}
 	h.hostService = &cloudLinkedService{HostService: h.hostService, cc: &notification.CloudConfig{APIKey: "key"}}
@@ -101,6 +102,7 @@ func Test_cloudSearchLogs_withholds_volume_from_restricted_users(t *testing.T) {
 	var result cloud.SearchLogResult
 	require.NoError(t, json.Unmarshal(rr.Body.Bytes(), &result))
 	assert.Empty(t, result.Volume)
+	assert.Nil(t, result.Total, "the total counts the whole instance too")
 }
 
 func Test_cloudSearchLogs_forwards_regex_intent(t *testing.T) {

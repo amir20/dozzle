@@ -844,7 +844,7 @@ cloud-search:
   search-empty-prompt: "Loglarda arama yapmak için bir sorgu yazın."
   searching: "Aranıyor…"
   hits-count: "{n} sonuç"
-  window-suffix: "son 14 gün içinde"
+  window-since: "{time} tarihinden beri"
   hero-title-cloud: "Konteynerleri ve logları ara"
   hero-title-plain: "Konteynerleri ara"
   hero-pill-indexed: "Cloud indeksi"

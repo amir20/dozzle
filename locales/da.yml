@@ -841,7 +841,7 @@ cloud-search:
   search-empty-prompt: "Skriv en forespørgsel for at søge i logs."
   searching: "Søger…"
   hits-count: "{n} resultater"
-  window-suffix: "i de seneste 14 dage"
+  window-since: "siden {time}"
   hero-title-cloud: "Søg containere og logs"
   hero-title-plain: "Søg containere"
   hero-pill-indexed: "Cloud-indeks"

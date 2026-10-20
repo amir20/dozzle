@@ -841,7 +841,7 @@ cloud-search:
   search-empty-prompt: "输入查询以搜索日志。"
   searching: "搜索中…"
   hits-count: "{n} 条结果"
-  window-suffix: "在过去 14 天内"
+  window-since: "自 {time} 起"
   hero-title-cloud: "搜索容器和日志"
   hero-title-plain: "搜索容器"
   hero-pill-indexed: "Cloud 索引"

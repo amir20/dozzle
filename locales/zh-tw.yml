@@ -843,7 +843,7 @@ cloud-search:
   search-empty-prompt: "輸入查詢以搜尋日誌。"
   searching: "搜尋中…"
   hits-count: "{n} 條結果"
-  window-suffix: "在過去 14 天內"
+  window-since: "自 {time} 起"
   hero-title-cloud: "搜尋容器和日誌"
   hero-title-plain: "搜尋容器"
   hero-pill-indexed: "Cloud 索引"
