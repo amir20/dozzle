@@ -106,7 +106,7 @@ type CloudHooks struct {
 	OnUpdate func()
 	// SearchLogs proxies a substring/word-filter query to Doligence Cloud
 	// over the authenticated gRPC connection. Nil when cloud is not wired.
-	SearchLogs func(ctx context.Context, query string, limit int32, hostID, containerID string, before int64) (*cloud.SearchLogResult, error)
+	SearchLogs func(ctx context.Context, query string, limit int32, hostID, containerID string, before int64, volume bool) (*cloud.SearchLogResult, error)
 	// GetAlerts fetches the alerts that fired on a set of containers inside a
 	// time window, so the log viewer can merge them into the stream on
 	// scrollback. Nil when cloud is not wired.

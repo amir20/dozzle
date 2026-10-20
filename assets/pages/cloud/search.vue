@@ -36,10 +36,8 @@
           <span>{{ $t("cloud-search.search-empty-prompt") }}</span>
         </template>
         <template v-else>
-          <!-- Cloud pages its results and never says how many there are in all, so a full
-               page reads as "20+" rather than claiming 20 is the whole answer. -->
           <span class="text-base-content font-mono font-semibold">{{
-            $t("cloud-search.hits-count", { n: cloudSearch.hasMore.value ? `${hits.length}+` : hits.length })
+            $t("cloud-search.hits-count", { n: hitCount })
           }}</span>
           <template v-if="cloudSearch.tookMs.value !== null">
             <span class="text-base-content/40">·</span>
@@ -47,6 +45,13 @@
           </template>
         </template>
       </div>
+
+      <SearchVolume
+        v-if="hits.length && cloudSearch.volume.value.length && cloudSearch.stepNs.value > 0"
+        :buckets="cloudSearch.volume.value"
+        :step-ns="cloudSearch.stepNs.value"
+        class="border-base-content/15 bg-base-200/40 rounded-lg border p-4"
+      />
 
       <!-- Narrowing what is already loaded, so it is instant and costs Cloud nothing. -->
       <div v-if="hits.length && (levelCounts.length > 1 || containerCounts.length > 1)" class="flex flex-wrap gap-1.5">
@@ -250,6 +255,15 @@ function keyOf(hit: CloudLogHit): string {
 function levelOf(hit: CloudLogHit): string {
   return (hit.level || "info").toLowerCase();
 }
+
+// The histogram counts every match in the window, so with it the total is exact. Without
+// it (an older Cloud, or a count that timed out) only the loaded pages are known, and a
+// page with more behind it reads as "20+" rather than claiming 20 is the whole answer.
+const hitCount = computed(() => {
+  const counted = cloudSearch.volume.value.reduce((sum, b) => sum + b.count, 0);
+  if (counted >= hits.value.length && counted > 0) return counted.toLocaleString();
+  return cloudSearch.hasMore.value ? `${hits.value.length}+` : String(hits.value.length);
+});
 
 function formatDuration(ms: number): string {
   return ms < 1000 ? `${ms} ms` : `${(ms / 1000).toFixed(1)} s`;

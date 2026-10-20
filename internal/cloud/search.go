@@ -22,6 +22,17 @@ type SearchLogResult struct {
 	// before_ts_ns (gRPC) to fetch the next older page. 0 when HasMore
 	// is false.
 	NextBefore int64 `json:"nextBefore,omitempty"`
+	// Volume is how the matches spread over the window, when the caller asked
+	// for it and Cloud could answer. StepNs is the bucket width.
+	Volume []SearchVolumeBucket `json:"volume,omitempty"`
+	StepNs int64                `json:"stepNs,omitempty"`
+}
+
+// SearchVolumeBucket is the match count at one level inside one time bucket.
+type SearchVolumeBucket struct {
+	TimestampNs int64  `json:"ts"`
+	Level       string `json:"level"`
+	Count       int64  `json:"count"`
 }
 
 // SearchLogHit is one matched log line, scoped server-side to the connecting
@@ -74,7 +85,7 @@ func (c *Client) unaryServiceClient() (pb.CloudToolServiceClient, error) {
 // 500ms search timeout isn't burned on a TLS handshake per keystroke.
 // Identity (user, instance) is enforced server-side from the authenticated
 // metadata; this client passes only the per-request fields below.
-func (c *Client) SearchLogs(ctx context.Context, query string, limit int32, hostID, containerID string, before int64) (*SearchLogResult, error) {
+func (c *Client) SearchLogs(ctx context.Context, query string, limit int32, hostID, containerID string, before int64, volume bool) (*SearchLogResult, error) {
 	apiKey := c.apiKeyFunc()
 	if apiKey == "" {
 		return nil, ErrNotConfigured
@@ -92,11 +103,12 @@ func (c *Client) SearchLogs(ctx context.Context, query string, limit int32, host
 	callCtx := metadata.NewOutgoingContext(ctx, metadata.Pairs(mdPairs...))
 
 	resp, err := client.SearchLogs(callCtx, &pb.SearchLogsRequest{
-		Query:       query,
-		Limit:       limit,
-		HostId:      hostID,
-		ContainerId: containerID,
-		BeforeTsNs:  before,
+		Query:         query,
+		Limit:         limit,
+		HostId:        hostID,
+		ContainerId:   containerID,
+		BeforeTsNs:    before,
+		IncludeVolume: volume,
 	})
 	if err != nil {
 		return nil, fmt.Errorf("cloud: search: %w", err)
@@ -115,9 +127,18 @@ func (c *Client) SearchLogs(ctx context.Context, query string, limit int32, host
 			LogID:         h.GetLogId(),
 		})
 	}
+	var buckets []SearchVolumeBucket
+	if len(resp.GetVolume()) > 0 {
+		buckets = make([]SearchVolumeBucket, 0, len(resp.GetVolume()))
+		for _, b := range resp.GetVolume() {
+			buckets = append(buckets, SearchVolumeBucket{TimestampNs: b.GetTimestampNs(), Level: b.GetLevel(), Count: b.GetCount()})
+		}
+	}
 	return &SearchLogResult{
 		Hits:       hits,
 		HasMore:    resp.GetHasMore(),
 		NextBefore: resp.GetNextBeforeTsNs(),
+		Volume:     buckets,
+		StepNs:     resp.GetStepNs(),
 	}, nil
 }
