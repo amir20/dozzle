@@ -107,6 +107,10 @@ export interface CloudStatus {
   user: { email: string; name: string };
   plan: {
     name: string;
+    // What the plan buys, decided by Cloud. Optional only because an older Cloud
+    // does not send them; see `isPro` for what stands in until it does.
+    paid?: boolean;
+    metrics_lookback_hours?: number;
     events_per_month: number;
     agent_messages_per_month?: number;
     log_bytes_per_month?: number;

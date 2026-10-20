@@ -64,7 +64,15 @@ async function ensureCloudStatus() {
   return fetchCloudStatus();
 }
 
-const isPro = computed(() => cloudStatus.value?.plan.name.toLowerCase() === "pro");
+// Cloud decides what a plan buys. The name checks only cover a Cloud older than
+// `paid` and `metrics_lookback_hours`; they used to be the whole answer, and
+// classed "team" as free.
+const isPro = computed(() => {
+  const plan = cloudStatus.value?.plan;
+  if (!plan) return false;
+  return plan.paid ?? ["pro", "team"].includes(plan.name.toLowerCase());
+});
+const metricsLookbackHours = computed(() => cloudStatus.value?.plan.metrics_lookback_hours ?? (isPro.value ? 720 : 24));
 
 function clearCloudState() {
   cloudConfig.value = null;
@@ -79,6 +87,7 @@ export function useCloudConfig() {
     cloudStatusError,
     isLoadingCloudStatus,
     isPro,
+    metricsLookbackHours,
     fetchCloudConfig,
     fetchCloudStatus,
     ensureCloudStatus,
