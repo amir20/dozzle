@@ -661,6 +661,9 @@ message SearchLogsRequest {
   // Set on the first page only: the shape of the window does not change as
   // the reader pages back through it.
   bool include_volume = 6;
+  // The query was typed into Dozzle's in-log find, which runs every query as a
+  // regex. Cloud decides how to run it, so changing that needs no Dozzle release.
+  bool regex = 7;
 }
 
 message SearchLogsResponse {

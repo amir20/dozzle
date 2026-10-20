@@ -4068,6 +4068,9 @@ type SearchLogsRequest struct {
 	// Set on the first page only: the shape of the window does not change as
 	// the reader pages back through it.
 	IncludeVolume bool `protobuf:"varint,6,opt,name=include_volume,json=includeVolume,proto3" json:"include_volume,omitempty"`
+	// The query was typed into Dozzle's in-log find, which runs every query as a
+	// regex. Cloud decides how to run it, so changing that needs no Dozzle release.
+	Regex         bool `protobuf:"varint,7,opt,name=regex,proto3" json:"regex,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -4140,6 +4143,13 @@ func (x *SearchLogsRequest) GetContainerId() string {
 func (x *SearchLogsRequest) GetIncludeVolume() bool {
 	if x != nil {
 		return x.IncludeVolume
+	}
+	return false
+}
+
+func (x *SearchLogsRequest) GetRegex() bool {
+	if x != nil {
+		return x.Regex
 	}
 	return false
 }
@@ -5652,7 +5662,7 @@ const file_cloud_proto_rawDesc = "" +
 	"\amessage\x18\x04 \x01(\tR\amessage\"H\n" +
 	"\x12NotificationResult\x12\x18\n" +
 	"\asuccess\x18\x01 \x01(\bR\asuccess\x12\x18\n" +
-	"\amessage\x18\x02 \x01(\tR\amessage\"\xc4\x01\n" +
+	"\amessage\x18\x02 \x01(\tR\amessage\"\xda\x01\n" +
 	"\x11SearchLogsRequest\x12\x14\n" +
 	"\x05query\x18\x01 \x01(\tR\x05query\x12\x14\n" +
 	"\x05limit\x18\x02 \x01(\x05R\x05limit\x12 \n" +
@@ -5660,7 +5670,8 @@ const file_cloud_proto_rawDesc = "" +
 	"beforeTsNs\x12\x17\n" +
 	"\ahost_id\x18\x04 \x01(\tR\x06hostId\x12!\n" +
 	"\fcontainer_id\x18\x05 \x01(\tR\vcontainerId\x12%\n" +
-	"\x0einclude_volume\x18\x06 \x01(\bR\rincludeVolume\"\xcf\x01\n" +
+	"\x0einclude_volume\x18\x06 \x01(\bR\rincludeVolume\x12\x14\n" +
+	"\x05regex\x18\a \x01(\bR\x05regex\"\xcf\x01\n" +
 	"\x12SearchLogsResponse\x12'\n" +
 	"\x04hits\x18\x01 \x03(\v2\x13.cloud.SearchLogHitR\x04hits\x12\x19\n" +
 	"\bhas_more\x18\x02 \x01(\bR\ahasMore\x12)\n" +

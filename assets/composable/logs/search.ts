@@ -63,6 +63,22 @@ const isValidQuery = computed(() => parses(searchQueryFilter.value));
  */
 const searchOverlayHeight = ref(0);
 
+/**
+ * Hands the find query to Cloud search. Only for a query Cloud would run the same way:
+ * an inverse filter means the opposite search there, and a broken pattern is not what
+ * the stream is actually filtering by.
+ */
+export function useFindInCloud() {
+  const cloudSearch = useCloudSearchHandoff();
+  const canOpen = computed(
+    () => cloudSearch.available.value && !!searchQueryFilter.value.trim() && isValidQuery.value && !inverseFilter.value,
+  );
+  function open() {
+    if (canOpen.value) cloudSearch.open(searchQueryFilter.value, { regex: true });
+  }
+  return { canOpen, open };
+}
+
 export function useSearchFilter() {
   return {
     searchQueryFilter,

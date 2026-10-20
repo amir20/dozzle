@@ -8,6 +8,7 @@ toolbar:
   invalid-regex: Expressão regular inválida
   close-search: Fechar pesquisa
   move-search: Arraste para mover
+  search-all-containers: Pesquisar em todos os contêineres
   show: Mostrar {std}
   show-all: Mostrar tudo
   stop: Parar

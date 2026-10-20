@@ -8,6 +8,13 @@
     :hint="$t('label.search-status.empty-hint')"
   >
     <template #icon><mdi:text-search class="size-6" /></template>
+    <!-- Nothing here is the moment another container might have it. -->
+    <template v-if="findInCloud.canOpen.value" #actions>
+      <button type="button" class="btn btn-sm" data-testid="search-cloud" @click="findInCloud.open()">
+        <mdi:cloud-search-outline class="size-4" />
+        {{ $t("toolbar.search-all-containers") }}
+      </button>
+    </template>
   </EmptyState>
   <!-- Same, while the search is still running with nothing yet to show: the page
        is otherwise blank, and a 12px line in the corner of an empty screen does
@@ -71,6 +78,7 @@ const props = defineProps<{
   empty?: boolean;
 }>();
 const { t } = useI18n();
+const findInCloud = useFindInCloud();
 
 // Reveal the in-progress bar only after a short delay so fast searches (the
 // common case, which return almost instantly) never flash it. Slow searches

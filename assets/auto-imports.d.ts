@@ -325,6 +325,7 @@ declare global {
   const throttledRef: typeof import('@vueuse/core').throttledRef
   const throttledWatch: typeof import('@vueuse/core').throttledWatch
   const timeRangeRoute: typeof import('./composable/logs/timeRange').timeRangeRoute
+  const toCloudQuery: typeof import('./composable/logs/search').toCloudQuery
   const toRaw: typeof import('vue').toRaw
   const toReactive: typeof import('@vueuse/core').toReactive
   const toRef: typeof import('vue').toRef
@@ -383,6 +384,7 @@ declare global {
   const useCloudConfig: typeof import('./composable/cloud/cloudConfig').useCloudConfig
   const useCloudLogSearch: typeof import('./composable/cloud/cloudLogSearch').useCloudLogSearch
   const useCloudRail: typeof import('./composable/cloud/cloudRail').useCloudRail
+  const useCloudSearchHandoff: typeof import('./composable/cloud/cloudLogSearch').useCloudSearchHandoff
   const useCloudSurface: typeof import('./composable/cloud/cloudSurface').useCloudSurface
   const useCloudWelcome: typeof import('./composable/cloud/cloudWelcome').useCloudWelcome
   const useColorMode: typeof import('@vueuse/core').useColorMode
@@ -438,6 +440,7 @@ declare global {
   const useFetch: typeof import('@vueuse/core').useFetch
   const useFileDialog: typeof import('@vueuse/core').useFileDialog
   const useFileSystemAccess: typeof import('@vueuse/core').useFileSystemAccess
+  const useFindInCloud: typeof import('./composable/logs/search').useFindInCloud
   const useFocus: typeof import('@vueuse/core').useFocus
   const useFocusWithin: typeof import('@vueuse/core').useFocusWithin
   const useFps: typeof import('@vueuse/core').useFps
@@ -1110,6 +1113,7 @@ declare module 'vue' {
     readonly useCloudConfig: UnwrapRef<typeof import('./composable/cloud/cloudConfig')['useCloudConfig']>
     readonly useCloudLogSearch: UnwrapRef<typeof import('./composable/cloud/cloudLogSearch')['useCloudLogSearch']>
     readonly useCloudRail: UnwrapRef<typeof import('./composable/cloud/cloudRail')['useCloudRail']>
+    readonly useCloudSearchHandoff: UnwrapRef<typeof import('./composable/cloud/cloudLogSearch')['useCloudSearchHandoff']>
     readonly useCloudSurface: UnwrapRef<typeof import('./composable/cloud/cloudSurface')['useCloudSurface']>
     readonly useCloudWelcome: UnwrapRef<typeof import('./composable/cloud/cloudWelcome')['useCloudWelcome']>
     readonly useColorMode: UnwrapRef<typeof import('@vueuse/core')['useColorMode']>
@@ -1163,6 +1167,7 @@ declare module 'vue' {
     readonly useFetch: UnwrapRef<typeof import('@vueuse/core')['useFetch']>
     readonly useFileDialog: UnwrapRef<typeof import('@vueuse/core')['useFileDialog']>
     readonly useFileSystemAccess: UnwrapRef<typeof import('@vueuse/core')['useFileSystemAccess']>
+    readonly useFindInCloud: UnwrapRef<typeof import('./composable/logs/search')['useFindInCloud']>
     readonly useFocus: UnwrapRef<typeof import('@vueuse/core')['useFocus']>
     readonly useFocusWithin: UnwrapRef<typeof import('@vueuse/core')['useFocusWithin']>
     readonly useFps: UnwrapRef<typeof import('@vueuse/core')['useFps']>

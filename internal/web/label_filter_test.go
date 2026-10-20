@@ -84,7 +84,7 @@ func Test_debugStore_respects_user_labels(t *testing.T) {
 func Test_cloudSearchLogs_withholds_volume_from_restricted_users(t *testing.T) {
 	h := restrictedHandler(t)
 	var asked bool
-	h.config.Cloud.SearchLogs = func(ctx context.Context, query string, limit int32, hostID, containerID string, before int64, volume bool) (*cloud.SearchLogResult, error) {
+	h.config.Cloud.SearchLogs = func(ctx context.Context, query string, limit int32, hostID, containerID string, before int64, volume, regex bool) (*cloud.SearchLogResult, error) {
 		asked = volume
 		return &cloud.SearchLogResult{
 			Volume: []cloud.SearchVolumeBucket{{TimestampNs: 1, Level: "info", Count: 9}},
@@ -103,9 +103,26 @@ func Test_cloudSearchLogs_withholds_volume_from_restricted_users(t *testing.T) {
 	assert.Empty(t, result.Volume)
 }
 
+func Test_cloudSearchLogs_forwards_regex_intent(t *testing.T) {
+	h := restrictedHandler(t)
+	var got []bool
+	h.config.Cloud.SearchLogs = func(ctx context.Context, query string, limit int32, hostID, containerID string, before int64, volume, regex bool) (*cloud.SearchLogResult, error) {
+		got = append(got, regex)
+		return &cloud.SearchLogResult{}, nil
+	}
+	h.hostService = &cloudLinkedService{HostService: h.hostService, cc: &notification.CloudConfig{APIKey: "key"}}
+
+	for _, url := range []string{"/api/cloud/search/logs?q=x", "/api/cloud/search/logs?q=x&regex=1"} {
+		rr := httptest.NewRecorder()
+		h.cloudSearchLogs(rr, asRestrictedUser(httptest.NewRequest(http.MethodGet, url, nil)))
+		require.Equal(t, http.StatusOK, rr.Code)
+	}
+	assert.Equal(t, []bool{false, true}, got)
+}
+
 func Test_cloudSearchLogs_drops_out_of_scope_hits(t *testing.T) {
 	h := restrictedHandler(t)
-	h.config.Cloud.SearchLogs = func(ctx context.Context, query string, limit int32, hostID, containerID string, before int64, volume bool) (*cloud.SearchLogResult, error) {
+	h.config.Cloud.SearchLogs = func(ctx context.Context, query string, limit int32, hostID, containerID string, before int64, volume, regex bool) (*cloud.SearchLogResult, error) {
 		return &cloud.SearchLogResult{Hits: []cloud.SearchLogHit{
 			{ContainerID: "dev123", ContainerName: "dev-allowed", Message: "hello"},
 			{ContainerID: "prod456", ContainerName: "prod-secret", Message: "password=hunter2"},
@@ -256,7 +273,7 @@ func Test_cloudSearchLogs_passes_query_errors_through(t *testing.T) {
 	} {
 		t.Run(name, func(t *testing.T) {
 			h := restrictedHandler(t)
-			h.config.Cloud.SearchLogs = func(context.Context, string, int32, string, string, int64, bool) (*cloud.SearchLogResult, error) {
+			h.config.Cloud.SearchLogs = func(context.Context, string, int32, string, string, int64, bool, bool) (*cloud.SearchLogResult, error) {
 				return nil, fmt.Errorf("cloud: search: %w", tc.err)
 			}
 			h.hostService = &cloudLinkedService{HostService: h.hostService, cc: &notification.CloudConfig{APIKey: "key"}}

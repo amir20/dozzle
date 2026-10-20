@@ -45,6 +45,7 @@
           ref="input"
           v-model="searchQueryFilter"
           @keyup.esc="resetSearch()"
+          @keydown.shift.enter.exact.prevent="openInCloud()"
         />
 
         <!-- An unparseable regex is a note on the query, not an alarm on the
@@ -56,6 +57,19 @@
         />
 
         <div class="bg-base-content/10 mx-0.5 h-5 w-px shrink-0"></div>
+
+        <!-- The same query across every container, in Cloud. Muted like the filter
+             toggle, never primary. -->
+        <button
+          v-if="canOpenInCloud"
+          type="button"
+          class="icon-btn text-base-content/50 hover:bg-base-content/10 hover:text-base-content inline-flex size-6 shrink-0 items-center justify-center rounded-md transition-colors"
+          data-testid="search-cloud"
+          @click="openInCloud()"
+          :title="`${$t('toolbar.search-all-containers')} (⇧↵)`"
+        >
+          <mdi:cloud-search-outline class="size-4" />
+        </button>
 
         <button
           type="button"
@@ -94,6 +108,7 @@ const handle = ref<HTMLDivElement>();
 const { searchQueryFilter, showSearch, resetSearch, isValidQuery, inverseFilter, toggleInverse, searchOverlayHeight } =
   useSearchFilter();
 const { railOffset } = useCloudRail();
+const { canOpen: canOpenInCloud, open: openInCloud } = useFindInCloud();
 
 // Opening on top of the container title bar covers the stats and the toolbar
 // the box is not about. It opens just under the header instead, measured rather

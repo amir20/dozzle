@@ -183,9 +183,11 @@ function readQ(q: unknown): string {
 }
 
 const committedQuery = ref(readQ(route.query.q));
+// Set by the in-log find handoff: the query is a find regex, and Cloud decides how to run it.
+const regex = computed(() => route.query.regex === "1");
 
 const { cloudConfig } = useCloudConfig();
-const cloudSearch = useCloudLogSearch(committedQuery);
+const cloudSearch = useCloudLogSearch(committedQuery, regex);
 const hits = computed<CloudLogHit[]>(() => cloudSearch.results.value);
 
 // Look up containers in the live store so we can mark hits whose containers

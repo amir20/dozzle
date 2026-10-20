@@ -88,10 +88,13 @@ func (h *handler) cloudSearchLogs(w http.ResponseWriter, r *http.Request) {
 	// container to filter on, so a label-restricted caller never gets one.
 	volume := r.URL.Query().Get("volume") == "1" && !h.restrictedUser(r)
 
+	// Set by the in-log find handoff. Cloud owns what a find query means.
+	regex := r.URL.Query().Get("regex") == "1"
+
 	ctx, cancel := context.WithTimeout(r.Context(), cloudSearchTimeout)
 	defer cancel()
 
-	result, err := h.config.Cloud.SearchLogs(ctx, q, limit, hostID, containerID, before, volume)
+	result, err := h.config.Cloud.SearchLogs(ctx, q, limit, hostID, containerID, before, volume, regex)
 	if err != nil {
 		if errors.Is(err, cloud.ErrNotConfigured) {
 			writeError(w, http.StatusServiceUnavailable, "cloud not configured")

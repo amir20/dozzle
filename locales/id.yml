@@ -8,6 +8,7 @@ toolbar:
   invalid-regex: Ekspresi reguler tidak valid
   close-search: Tutup pencarian
   move-search: Seret untuk memindahkan
+  search-all-containers: Cari di semua kontainer
   show: Tampilkan {std}
   show-all: Tampilkan semua
   stop: Hentikan
