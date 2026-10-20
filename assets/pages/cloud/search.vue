@@ -47,7 +47,7 @@
       </div>
 
       <SearchVolume
-        v-if="hits.length && cloudSearch.volume.value.length"
+        v-if="hits.length && cloudSearch.volume.value.length && cloudSearch.stepNs.value > 0"
         :buckets="cloudSearch.volume.value"
         :step-ns="cloudSearch.stepNs.value"
         class="border-base-content/15 bg-base-200/40 rounded-lg border p-4"
