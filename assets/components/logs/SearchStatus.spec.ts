@@ -166,7 +166,7 @@ describe("<SearchStatus />", () => {
     wrapper = createStatus(done);
     await nextTick();
     await wrapper.find('[data-testid="search-cloud"]').trigger("click");
-    expect(cloud.open).toHaveBeenCalledWith("timeout");
+    expect(cloud.open).toHaveBeenCalledWith("timeout", { regex: true });
   });
 
   test("hides the cloud action for an inverse or broken pattern", async () => {

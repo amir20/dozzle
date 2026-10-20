@@ -74,7 +74,7 @@ export function useFindInCloud() {
     () => cloudSearch.available.value && !!searchQueryFilter.value.trim() && isValidQuery.value && !inverseFilter.value,
   );
   function open() {
-    if (canOpen.value) cloudSearch.open(searchQueryFilter.value);
+    if (canOpen.value) cloudSearch.open(searchQueryFilter.value, { regex: true });
   }
   return { canOpen, open };
 }

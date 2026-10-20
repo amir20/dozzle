@@ -39,10 +39,12 @@ export function useCloudSearchHandoff() {
   const router = useRouter();
   const available = computed(() => !!cloudConfig.value?.linked && !!cloudConfig.value?.streamLogs);
 
-  function open(query: string) {
+  // `regex` says the query came from find, which runs it as a regex. Cloud decides
+  // what that means; Dozzle only carries the intent.
+  function open(query: string, { regex = false } = {}) {
     const q = query.trim();
     if (!available.value || !q) return;
-    router?.push({ path: "/cloud/search", query: { q } });
+    router?.push({ path: "/cloud/search", query: regex ? { q, regex: "1" } : { q } });
   }
 
   return { available, open };
@@ -71,7 +73,7 @@ class QueryError extends Error {}
  *               message, which is written for the person who typed it
  *   any other 4xx/5xx -> error set, results cleared
  */
-export function useCloudLogSearch(query: Ref<string>) {
+export function useCloudLogSearch(query: Ref<string>, regex: Ref<boolean> = ref(false)) {
   const results = ref<CloudLogHit[]>([]);
   const loading = ref(false);
   const loadingMore = ref(false);
@@ -116,6 +118,7 @@ export function useCloudLogSearch(query: Ref<string>) {
 
   async function fetchPage(q: string, before: number, signal: AbortSignal): Promise<CloudLogSearchResponse | null> {
     let url = withBase(`/api/cloud/search/logs?q=${encodeURIComponent(q)}&limit=20`);
+    if (regex.value) url += "&regex=1";
     // The window's shape does not change as the reader pages back, so only the first page counts it.
     url += before > 0 ? `&before=${before}` : "&volume=1";
     const res = await fetch(url, { signal });
@@ -191,7 +194,7 @@ export function useCloudLogSearch(query: Ref<string>) {
   }
 
   watchDebounced(
-    [query, available],
+    [query, available, regex],
     ([q, isAvailable]) => {
       const trimmed = q.trim();
       if (!isAvailable || trimmed === "") {

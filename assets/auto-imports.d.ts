@@ -325,6 +325,7 @@ declare global {
   const throttledRef: typeof import('@vueuse/core').throttledRef
   const throttledWatch: typeof import('@vueuse/core').throttledWatch
   const timeRangeRoute: typeof import('./composable/logs/timeRange').timeRangeRoute
+  const toCloudQuery: typeof import('./composable/logs/search').toCloudQuery
   const toRaw: typeof import('vue').toRaw
   const toReactive: typeof import('@vueuse/core').toReactive
   const toRef: typeof import('vue').toRef

@@ -85,7 +85,7 @@ func (c *Client) unaryServiceClient() (pb.CloudToolServiceClient, error) {
 // 500ms search timeout isn't burned on a TLS handshake per keystroke.
 // Identity (user, instance) is enforced server-side from the authenticated
 // metadata; this client passes only the per-request fields below.
-func (c *Client) SearchLogs(ctx context.Context, query string, limit int32, hostID, containerID string, before int64, volume bool) (*SearchLogResult, error) {
+func (c *Client) SearchLogs(ctx context.Context, query string, limit int32, hostID, containerID string, before int64, volume, regex bool) (*SearchLogResult, error) {
 	apiKey := c.apiKeyFunc()
 	if apiKey == "" {
 		return nil, ErrNotConfigured
@@ -109,6 +109,7 @@ func (c *Client) SearchLogs(ctx context.Context, query string, limit int32, host
 		ContainerId:   containerID,
 		BeforeTsNs:    before,
 		IncludeVolume: volume,
+		Regex:         regex,
 	})
 	if err != nil {
 		return nil, fmt.Errorf("cloud: search: %w", err)

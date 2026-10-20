@@ -78,7 +78,7 @@ describe("<Search />", () => {
     search.searchQueryFilter.value = "error";
     await nextTick();
     await wrapper.find('[data-testid="search-cloud"]').trigger("click");
-    expect(cloud.open).toHaveBeenCalledWith("error");
+    expect(cloud.open).toHaveBeenCalledWith("error", { regex: true });
 
     await wrapper.find("input").trigger("keydown", { key: "Enter", shiftKey: true });
     expect(cloud.open).toHaveBeenCalledTimes(2);
