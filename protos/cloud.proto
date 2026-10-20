@@ -657,6 +657,10 @@ message SearchLogsRequest {
   string host_id = 4;
   // Optional filter — narrow to a specific container.
   string container_id = 5;
+  // Also return how the matches spread over the window (volume, step_ns).
+  // Set on the first page only: the shape of the window does not change as
+  // the reader pages back through it.
+  bool include_volume = 6;
 }
 
 message SearchLogsResponse {
@@ -664,6 +668,18 @@ message SearchLogsResponse {
   bool has_more = 2;
   // For pagination: pass back as before_ts_ns to fetch the next page.
   int64 next_before_ts_ns = 3;
+  // Match counts per (bucket, level) over the whole search window, oldest
+  // first, empty pairs omitted. Only when include_volume was set; empty if
+  // the aggregation failed, which never fails the search itself.
+  repeated SearchVolumeBucket volume = 4;
+  // Bucket width in nanoseconds; 0 when volume is absent.
+  int64 step_ns = 5;
+}
+
+message SearchVolumeBucket {
+  int64 timestamp_ns = 1;
+  string level = 2;
+  int64 count = 3;
 }
 
 message SearchLogHit {

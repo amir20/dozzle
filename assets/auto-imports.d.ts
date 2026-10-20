@@ -601,6 +601,7 @@ declare global {
   const useWindowScroll: typeof import('@vueuse/core').useWindowScroll
   const useWindowSize: typeof import('@vueuse/core').useWindowSize
   const visibleKeysForContainer: typeof import('./composable/app/storage').visibleKeysForContainer
+  const volumeColumns: typeof import('./composable/cloud/searchVolume').volumeColumns
   const watch: typeof import('vue').watch
   const watchArray: typeof import('@vueuse/core').watchArray
   const watchAtMost: typeof import('@vueuse/core').watchAtMost
@@ -657,6 +658,9 @@ declare global {
   // @ts-ignore
   export type { PatternContextHit } from './composable/cloud/patternMemory'
   import('./composable/cloud/patternMemory')
+  // @ts-ignore
+  export type { VolumeBucket, VolumeColumn } from './composable/cloud/searchVolume'
+  import('./composable/cloud/searchVolume')
   // @ts-ignore
   export type { BulkAction, BulkPlan } from './composable/containers/bulkContainerActions'
   import('./composable/containers/bulkContainerActions')
@@ -1322,6 +1326,7 @@ declare module 'vue' {
     readonly useWindowScroll: UnwrapRef<typeof import('@vueuse/core')['useWindowScroll']>
     readonly useWindowSize: UnwrapRef<typeof import('@vueuse/core')['useWindowSize']>
     readonly visibleKeysForContainer: UnwrapRef<typeof import('./composable/app/storage')['visibleKeysForContainer']>
+    readonly volumeColumns: UnwrapRef<typeof import('./composable/cloud/searchVolume')['volumeColumns']>
     readonly watch: UnwrapRef<typeof import('vue')['watch']>
     readonly watchArray: UnwrapRef<typeof import('@vueuse/core')['watchArray']>
     readonly watchAtMost: UnwrapRef<typeof import('@vueuse/core')['watchAtMost']>
