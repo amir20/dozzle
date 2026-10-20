@@ -315,6 +315,7 @@ declare module 'vue' {
     Search: typeof import('./components/search/Search.vue')['default']
     SearchInline: typeof import('./components/search/SearchInline.vue')['default']
     SearchStatus: typeof import('./components/logs/SearchStatus.vue')['default']
+    SearchVolume: typeof import('./components/cloud/SearchVolume.vue')['default']
     ServiceLog: typeof import('./components/views/ServiceLog.vue')['default']
     SettingRow: typeof import('./components/ui/SettingRow.vue')['default']
     SettingsSection: typeof import('./components/ui/SettingsSection.vue')['default']

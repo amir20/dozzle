@@ -83,10 +83,15 @@ func (h *handler) cloudSearchLogs(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
+	// The histogram above the results; the page asks for it on its first page only.
+	// Cloud counts every container on the instance and the buckets carry no
+	// container to filter on, so a label-restricted caller never gets one.
+	volume := r.URL.Query().Get("volume") == "1" && !h.restrictedUser(r)
+
 	ctx, cancel := context.WithTimeout(r.Context(), cloudSearchTimeout)
 	defer cancel()
 
-	result, err := h.config.Cloud.SearchLogs(ctx, q, limit, hostID, containerID, before)
+	result, err := h.config.Cloud.SearchLogs(ctx, q, limit, hostID, containerID, before, volume)
 	if err != nil {
 		if errors.Is(err, cloud.ErrNotConfigured) {
 			writeError(w, http.StatusServiceUnavailable, "cloud not configured")
@@ -134,6 +139,7 @@ func (h *handler) cloudSearchLogs(w http.ResponseWriter, r *http.Request) {
 			}
 		}
 		result.Hits = hits
+		result.Volume, result.StepNs = nil, 0
 	}
 
 	w.Header().Set("Content-Type", "application/json")

@@ -1,4 +1,5 @@
 import { useCloudConfig } from "./cloudConfig";
+import type { VolumeBucket } from "./searchVolume";
 
 export interface CloudLogHit {
   ts: number;
@@ -20,6 +21,10 @@ interface CloudLogSearchResponse {
   // Cursor for the next older page. Pass back as `before=` in the URL.
   // Omitted when there's nothing more to load.
   nextBefore?: number;
+  // How every match spreads over the window; first page only, and absent when
+  // Cloud is older than the field or could not count in time.
+  volume?: VolumeBucket[];
+  stepNs?: number;
 }
 
 const debounceMs = 250;
@@ -63,6 +68,8 @@ export function useCloudLogSearch(query: Ref<string>) {
   // not report its own query time, and the wait the reader sat through is the
   // number that means something to them anyway.
   const tookMs = ref<number | null>(null);
+  const volume = ref<VolumeBucket[]>([]);
+  const stepNs = ref(0);
   // Cursor (timestamp_ns) of the last hit on the current page; 0 = at the
   // newest page. Cleared on every new query.
   const nextBefore = ref<number>(0);
@@ -86,11 +93,14 @@ export function useCloudLogSearch(query: Ref<string>) {
     hasMore.value = false;
     nextBefore.value = 0;
     tookMs.value = null;
+    volume.value = [];
+    stepNs.value = 0;
   }
 
   async function fetchPage(q: string, before: number, signal: AbortSignal): Promise<CloudLogSearchResponse | null> {
     let url = withBase(`/api/cloud/search/logs?q=${encodeURIComponent(q)}&limit=20`);
-    if (before > 0) url += `&before=${before}`;
+    // The window's shape does not change as the reader pages back, so only the first page counts it.
+    url += before > 0 ? `&before=${before}` : "&volume=1";
     const res = await fetch(url, { signal });
     if (res.status === 204) return { hits: [], hasMore: false };
     if (!res.ok) {
@@ -122,6 +132,8 @@ export function useCloudLogSearch(query: Ref<string>) {
       if (!body) return;
       tookMs.value = Math.round(performance.now() - started);
       results.value = body.hits ?? [];
+      volume.value = body.volume ?? [];
+      stepNs.value = body.stepNs ?? 0;
       hasMore.value = !!body.hasMore;
       nextBefore.value = body.nextBefore ?? 0;
     } catch (e) {
@@ -130,6 +142,8 @@ export function useCloudLogSearch(query: Ref<string>) {
         errorDetail.value = e instanceof QueryError ? e.message : null;
         results.value = [];
         hasMore.value = false;
+        volume.value = [];
+        stepNs.value = 0;
       }
     } finally {
       loading.value = false;
@@ -177,5 +191,17 @@ export function useCloudLogSearch(query: Ref<string>) {
     loadMoreAborter?.abort();
   });
 
-  return { results, loading, loadingMore, error, errorDetail, available, hasMore, tookMs, loadMore };
+  return {
+    results,
+    loading,
+    loadingMore,
+    error,
+    errorDetail,
+    available,
+    hasMore,
+    tookMs,
+    volume,
+    stepNs,
+    loadMore,
+  };
 }
