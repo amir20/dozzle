@@ -842,7 +842,7 @@ cloud-search:
   search-empty-prompt: "Typ een zoekopdracht om logs te doorzoeken."
   searching: "Zoeken…"
   hits-count: "{n} treffers"
-  window-suffix: "in de afgelopen 14 dagen"
+  window-since: "sinds {time}"
   hero-title-cloud: "Containers en logs zoeken"
   hero-title-plain: "Containers zoeken"
   hero-pill-indexed: "Cloud-index"

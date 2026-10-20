@@ -841,7 +841,7 @@ cloud-search:
   search-empty-prompt: "Tapez une requête pour rechercher dans les logs."
   searching: "Recherche…"
   hits-count: "{n} résultats"
-  window-suffix: "au cours des 14 derniers jours"
+  window-since: "depuis le {time}"
   hero-title-cloud: "Rechercher conteneurs et logs"
   hero-title-plain: "Rechercher des conteneurs"
   hero-pill-indexed: "Index Cloud"

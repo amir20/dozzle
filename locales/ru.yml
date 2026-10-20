@@ -841,7 +841,7 @@ cloud-search:
   search-empty-prompt: "Введите запрос для поиска по логам."
   searching: "Поиск…"
   hits-count: "{n} результатов"
-  window-suffix: "за последние 14 дней"
+  window-since: "с {time}"
   hero-title-cloud: "Поиск по контейнерам и логам"
   hero-title-plain: "Поиск по контейнерам"
   hero-pill-indexed: "Индекс Cloud"

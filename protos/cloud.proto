@@ -677,6 +677,11 @@ message SearchLogsResponse {
   repeated SearchVolumeBucket volume = 4;
   // Bucket width in nanoseconds; 0 when volume is absent.
   int64 step_ns = 5;
+  // The oldest moment this search can reach: the search window or the plan's
+  // retention, whichever is shorter. Cloud decides it; 0 from an older Cloud.
+  int64 window_start_ns = 6;
+  // Every match in the window. Unset when Cloud could not count it in time.
+  optional int64 total = 7;
 }
 
 message SearchVolumeBucket {

@@ -131,7 +131,7 @@ func (h *handler) cloudSearchLogs(w http.ResponseWriter, r *http.Request) {
 
 	// Cloud scopes hits to the instance, not to the user. A label-restricted
 	// caller must not see lines from containers outside their scope, so drop
-	// anything the store wouldn't hand them. Fails closed: a container Cloud
+	// anything the store wouldn't hand them, and the instance-wide counts too. Fails closed: a container Cloud
 	// still has logs for but the store no longer knows about is dropped too.
 	if h.restrictedUser(r) && result != nil {
 		visible := h.visibleContainerIDs(r)
@@ -142,7 +142,7 @@ func (h *handler) cloudSearchLogs(w http.ResponseWriter, r *http.Request) {
 			}
 		}
 		result.Hits = hits
-		result.Volume, result.StepNs = nil, 0
+		result.Volume, result.StepNs, result.Total = nil, 0, nil
 	}
 
 	w.Header().Set("Content-Type", "application/json")

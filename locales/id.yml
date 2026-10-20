@@ -853,7 +853,7 @@ cloud-search:
   search-empty-prompt: "Ketik kueri untuk mencari di log."
   searching: "Mencari…"
   hits-count: "{n} hasil"
-  window-suffix: "dalam 14 hari terakhir"
+  window-since: "sejak {time}"
   hero-title-cloud: "Cari kontainer dan log"
   hero-title-plain: "Cari kontainer"
   hero-pill-indexed: "Indeks Cloud"
