@@ -4,10 +4,7 @@
   <div class="bg-base-200 border-base-content/15 w-full overflow-hidden rounded-xl border shadow-2xl">
     <!-- Input row -->
     <div class="flex items-center gap-3 px-4 py-3.5">
-      <mdi:magnify
-        class="size-5 shrink-0"
-        :class="cloudSearch.available.value ? 'text-primary' : 'text-base-content/60'"
-      />
+      <mdi:magnify class="size-5 shrink-0" :class="cloudSearchAvailable ? 'text-primary' : 'text-base-content/60'" />
       <input
         tabindex="0"
         class="text-base-content placeholder:text-base-content/40 min-w-0 flex-1 bg-transparent text-base outline-none"
@@ -164,10 +161,10 @@
                 <template v-else>
                   <mdi:cloud-search-outline
                     class="size-5 shrink-0"
-                    :class="cloudSearch.available.value ? 'text-primary' : 'text-base-content/40'"
+                    :class="cloudSearchAvailable ? 'text-primary' : 'text-base-content/40'"
                   />
                   <div class="flex min-w-0 flex-1 flex-col">
-                    <span class="truncate text-sm" :class="cloudSearch.available.value ? 'text-primary' : ''">
+                    <span class="truncate text-sm" :class="cloudSearchAvailable ? 'text-primary' : ''">
                       <i18n-t scope="global" keypath="cloud-search.search-logs-for">
                         <template #query>
                           <span class="font-mono">{{ query }}</span>
@@ -175,7 +172,7 @@
                       </i18n-t>
                     </span>
                     <span class="text-base-content/50 mt-0.5 truncate text-xs">
-                      <template v-if="cloudSearch.available.value">
+                      <template v-if="cloudSearchAvailable">
                         {{ $t("cloud-search.across-containers") }}
                       </template>
                       <template v-else-if="cloudConfig?.linked">
@@ -186,7 +183,7 @@
                       </template>
                     </span>
                   </div>
-                  <template v-if="cloudSearch.available.value && canHover">
+                  <template v-if="cloudSearchAvailable && canHover">
                     <kbd class="kbd kbd-xs shrink-0">⇧</kbd>
                     <kbd class="kbd kbd-xs shrink-0">↵</kbd>
                   </template>
@@ -239,7 +236,7 @@
           {{ $t("cloud-search.cloud-error") }}
         </RouterLink>
       </span>
-      <span v-else-if="cloudSearch.available.value" class="ml-auto flex shrink-0 items-center gap-1.5">
+      <span v-else-if="cloudSearchAvailable" class="ml-auto flex shrink-0 items-center gap-1.5">
         <mdi:cloud-check-outline class="text-primary size-3.5" />
         {{ $t("cloud-search.cloud-connected") }}
       </span>
@@ -265,7 +262,6 @@ import { ContainerState } from "@/types/Container";
 import { useFuse } from "@vueuse/integrations/useFuse";
 import { type FuseResult } from "fuse.js";
 import { useCloudConfig } from "@/composable/cloud/cloudConfig";
-import { useCloudLogSearch } from "@/composable/cloud/cloudLogSearch";
 import { useCommands, type Command } from "@/composable/app/commands";
 
 trackUsage("palette.open");
@@ -308,17 +304,16 @@ const { stacks, services } = storeToRefs(swarmStore);
 const { cloudConfig, cloudStatusError, ensureCloudStatus } = useCloudConfig();
 // A log page on a phone has no cloud icon to have asked already.
 ensureCloudStatus();
-// Mounted only so the log search row can read `available`. We don't render
-// the hits inside the popup. The composable's debounced watch short-circuits
-// on an empty query, so opening the modal alone does not fire a request.
-const cloudSearch = useCloudLogSearch(query);
+// Whether the log search row can run. Read from config, not useCloudLogSearch:
+// mounting that here ran a Cloud search on every keystroke and threw the hits away.
+const cloudSearchAvailable = computed(() => !!cloudConfig.value?.linked && !!cloudConfig.value?.streamLogs);
 
 const trimmedQuery = computed(() => query.value.trim());
 const logSearchVisible = computed(() => trimmedQuery.value.length > 0);
 
 const { t } = useI18n();
 const placeholderCopy = computed(() =>
-  cloudSearch.available.value ? t("cloud-search.modal-placeholder-cloud") : t("cloud-search.modal-placeholder-plain"),
+  cloudSearchAvailable.value ? t("cloud-search.modal-placeholder-cloud") : t("cloud-search.modal-placeholder-plain"),
 );
 
 onMounted(async () => {
@@ -618,7 +613,7 @@ function runLogSearch() {
   if (!q) return;
   // Not linked (or not streaming) yet: send the user where they can turn it on
   // rather than silently doing nothing.
-  if (!cloudSearch.available.value) {
+  if (!cloudSearchAvailable.value) {
     router.push("/settings/cloud");
     close();
     return;
