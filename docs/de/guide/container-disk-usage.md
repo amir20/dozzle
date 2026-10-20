@@ -1,6 +1,6 @@
 ---
 title: Speicherbelegung der Container
-sourceHash: 0a70ff275831
+sourceHash: ae2d193dcfc1
 ---
 
 # Speicherbelegung der Container
@@ -47,6 +47,12 @@ Jede Art führt den passenden Prune-Befehl aus:
 - **Build-Cache**: `docker builder prune -a`
 
 Ein [Agent](/de/guide/agent), der älter ist als das Dozzle, an das er berichtet, kann nicht aufräumen, und das Popover sagt das auch.
+
+### Nach Zeitplan
+
+Unter **Automatisch aufräumen** unten im selben Popover wählst du täglich oder wöchentlich (Sonntag) und eine Uhrzeit in der Zeitzone des Servers. Standard ist aus. Zu dieser Zeit räumt Dozzle alle verbundenen Hosts nacheinander auf: ungenutzte Images, gestoppte Container und Build-Cache. Volumes werden nach Zeitplan nie gelöscht. Das Popover zeigt, wie viel der letzte Lauf freigegeben hat.
+
+Der Zeitplan wird in `dozzle.yml` neben den Einstellungen für [automatische Updates](/de/guide/updates#auto-updating-containers) gespeichert und gilt ohne Neustart. Er läuft nur im Server-Modus und wartet zuerst, bis ein laufendes Container-Update fertig ist.
 
 ## Wann der Wert aktualisiert wird
 

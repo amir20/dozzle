@@ -235,6 +235,7 @@ func main() {
 				UpdateContainers: lockedValue(args.Locked.UpdateContainers, args.UpdateContainers),
 			},
 		}, srv.FlushUsage)
+		go web.RunAutoPruneScheduler(ctx, hostService, web.Config{Mode: args.Mode, EnableActions: args.EnableActions})
 	}
 
 	go func() {

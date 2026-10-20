@@ -1172,3 +1172,7 @@ reclaim:
   failed: "Čiščenje ni uspelo"
   agent-too-old: "Ta agent še ne zna čistiti. Posodobite ga na najnovejšo različico."
   enable-actions: "Omogočite dejanja vsebnikov, da lahko počistite od tukaj."
+  schedule-label: "Samodejno počisti"
+  schedule-desc: "Neuporabljene slike, ustavljeni vsebniki in predpomnilnik gradnje na vseh gostiteljih. Nosilci se nikoli ne izbrišejo."
+  last-run: "Zadnji zagon je sprostil {size} {when}."
+  last-run-failed: "{count} gostitelja ni bilo mogoče počistiti, poglejte dnevnike. | {count} gostiteljev ni bilo mogoče počistiti, poglejte dnevnike."

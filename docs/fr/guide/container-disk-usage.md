@@ -1,6 +1,6 @@
 ---
 title: Utilisation du disque par conteneur
-sourceHash: 0a70ff275831
+sourceHash: ae2d193dcfc1
 ---
 
 # Utilisation du disque par conteneur
@@ -47,6 +47,12 @@ Chaque type lance le prune correspondant :
 - **Cache de build** : `docker builder prune -a`
 
 Un [agent](/fr/guide/agent) plus ancien que le Dozzle auquel il se rattache ne peut pas faire le ménage, et la fenêtre le signale.
+
+### Planifié
+
+Sous **Nettoyer automatiquement**, en bas de la même fenêtre, choisissez quotidien ou hebdomadaire (dimanche) et une heure dans le fuseau horaire du serveur. C'est désactivé par défaut. À cette heure, Dozzle nettoie chaque hôte connecté, l'un après l'autre : images inutilisées, conteneurs arrêtés et cache de build. Les volumes ne sont jamais supprimés par la planification. La fenêtre indique ce que le dernier passage a libéré.
+
+La planification est enregistrée dans `dozzle.yml` à côté des réglages de [mise à jour automatique](/fr/guide/updates#auto-updating-containers) et s'applique sans redémarrage. Elle ne tourne qu'en mode serveur, et attend d'abord la fin de toute mise à jour de conteneur en cours.
 
 ## Quand la valeur est mise à jour
 

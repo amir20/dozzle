@@ -1169,3 +1169,7 @@ reclaim:
   failed: "清理失敗"
   agent-too-old: "此 agent 尚無法清理，請更新至最新版本。"
   enable-actions: "啟用容器操作即可在此清理。"
+  schedule-label: "自動清理"
+  schedule-desc: "清理所有主機上未使用的映像、已停止的容器和建置快取。永遠不會刪除磁碟區。"
+  last-run: "上次執行於 {when} 釋放了 {size}。"
+  last-run-failed: "有 {count} 台主機無法清理，請查看日誌。 | 有 {count} 台主機無法清理，請查看日誌。"

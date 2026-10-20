@@ -1169,3 +1169,7 @@ reclaim:
   failed: "Czyszczenie nie powiodło się"
   agent-too-old: "Ten agent nie potrafi jeszcze czyścić. Zaktualizuj go do najnowszej wersji."
   enable-actions: "Włącz akcje kontenerów, aby sprzątać stąd."
+  schedule-label: "Sprzątaj automatycznie"
+  schedule-desc: "Nieużywane obrazy, zatrzymane kontenery i cache budowania na wszystkich hostach. Wolumeny nigdy nie są usuwane."
+  last-run: "Ostatnie uruchomienie zwolniło {size} {when}."
+  last-run-failed: "Nie udało się wyczyścić {count} hosta, sprawdź logi. | Nie udało się wyczyścić {count} hostów, sprawdź logi."

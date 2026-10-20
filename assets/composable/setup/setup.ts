@@ -25,6 +25,16 @@ export interface SetupAutoUpdate {
   zone?: string;
 }
 
+// The clean up schedule the reclaimable popover shows. It shares the update schedule's
+// modes and has no flag, so it is never locked. lastRun lives in memory on the server
+// and is gone after a restart.
+export interface SetupAutoPrune {
+  mode: AutoUpdateMode;
+  time: string;
+  zone: string;
+  lastRun?: { at: string; spaceReclaimed: number; failed?: number };
+}
+
 // An agent this hub connects to. A locked one came from DOZZLE_REMOTE_AGENT and can
 // only be removed where it was set; the rest live in dozzle.yml.
 export interface SetupAgent {
@@ -109,6 +119,8 @@ export interface SetupStatus {
   canWriteUpdates?: boolean;
   // Applies live, so it never shows up in pending. Absent on servers without self-update.
   autoUpdate?: SetupAutoUpdate;
+  // Absent from an older server.
+  autoPrune?: SetupAutoPrune;
   // Absent on servers that predate adding hosts from the UI.
   agents?: SetupAgent[];
   canAddAgents?: boolean;
@@ -429,6 +441,7 @@ export function useSetup() {
     enableActions?: boolean;
     enableShell?: boolean;
     autoUpdate?: { mode: AutoUpdateMode; time: string };
+    autoPrune?: { mode: AutoUpdateMode; time: string };
     updateContainers?: UpdateContainersMode;
   }) {
     if (Object.keys(patch).length === 0) return;

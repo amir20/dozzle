@@ -1168,3 +1168,7 @@ reclaim:
   failed: "Opruimen mislukt"
   agent-too-old: "Deze agent kan nog niet opruimen. Werk hem bij naar de nieuwste versie."
   enable-actions: "Schakel containeracties in om hier op te ruimen."
+  schedule-label: "Automatisch opruimen"
+  schedule-desc: "Ongebruikte images, gestopte containers en build-cache op alle hosts. Volumes worden nooit verwijderd."
+  last-run: "Laatste run maakte {size} vrij, {when}."
+  last-run-failed: "{count} host kon niet worden opgeruimd, zie de logs. | {count} hosts konden niet worden opgeruimd, zie de logs."

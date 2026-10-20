@@ -71,6 +71,12 @@
     </div>
   </SettingsSection>
 
+  <!-- The same schedule the host card's reclaimable popover sets. With actions off
+       nothing prunes, and the notice at the top already says why. -->
+  <SettingsSection v-if="status?.enableActions" :title="$t('reclaim.clean-up')">
+    <HostPruneSchedule panel />
+  </SettingsSection>
+
   <!-- Static reassurance, so it reads as footnotes rather than a panel of its own. -->
   <SettingsSection :title="$t('auto-update.safety-title')">
     <ul class="text-base-content/60 flex flex-col gap-1.5 text-xs">
