@@ -58,9 +58,8 @@
 
         <div class="bg-base-content/10 mx-0.5 h-5 w-px shrink-0"></div>
 
-        <!-- The same query across every container, in Cloud. Only once there is a
-             query Cloud would run the same way: an inverse or broken pattern means
-             something else there. Muted like the filter toggle, never primary. -->
+        <!-- The same query across every container, in Cloud. Muted like the filter
+             toggle, never primary. -->
         <button
           v-if="canOpenInCloud"
           type="button"
@@ -109,13 +108,7 @@ const handle = ref<HTMLDivElement>();
 const { searchQueryFilter, showSearch, resetSearch, isValidQuery, inverseFilter, toggleInverse, searchOverlayHeight } =
   useSearchFilter();
 const { railOffset } = useCloudRail();
-const cloudSearch = useCloudSearchHandoff();
-const canOpenInCloud = computed(
-  () => cloudSearch.available.value && !!searchQueryFilter.value.trim() && isValidQuery.value && !inverseFilter.value,
-);
-function openInCloud() {
-  if (canOpenInCloud.value) cloudSearch.open(searchQueryFilter.value);
-}
+const { canOpen: canOpenInCloud, open: openInCloud } = useFindInCloud();
 
 // Opening on top of the container title bar covers the stats and the toolbar
 // the box is not about. It opens just under the header instead, measured rather

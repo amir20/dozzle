@@ -9,8 +9,8 @@
   >
     <template #icon><mdi:text-search class="size-6" /></template>
     <!-- Nothing here is the moment another container might have it. -->
-    <template v-if="cloudSearch.available.value && searchQueryFilter.trim()" #actions>
-      <button type="button" class="btn btn-sm" data-testid="search-cloud" @click="cloudSearch.open(searchQueryFilter)">
+    <template v-if="findInCloud.canOpen.value" #actions>
+      <button type="button" class="btn btn-sm" data-testid="search-cloud" @click="findInCloud.open()">
         <mdi:cloud-search-outline class="size-4" />
         {{ $t("toolbar.search-all-containers") }}
       </button>
@@ -78,8 +78,7 @@ const props = defineProps<{
   empty?: boolean;
 }>();
 const { t } = useI18n();
-const cloudSearch = useCloudSearchHandoff();
-const { searchQueryFilter } = useSearchFilter();
+const findInCloud = useFindInCloud();
 
 // Reveal the in-progress bar only after a short delay so fast searches (the
 // common case, which return almost instantly) never flash it. Slow searches

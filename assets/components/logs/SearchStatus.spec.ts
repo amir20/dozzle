@@ -52,7 +52,7 @@ describe("<SearchStatus />", () => {
     vi.useFakeTimers();
     cloud.available.value = false;
     cloud.open.mockReset();
-    useSearchFilter().searchQueryFilter.value = "";
+    useSearchFilter().resetSearch();
   });
   afterEach(() => {
     vi.useRealTimers();
@@ -167,5 +167,22 @@ describe("<SearchStatus />", () => {
     await nextTick();
     await wrapper.find('[data-testid="search-cloud"]').trigger("click");
     expect(cloud.open).toHaveBeenCalledWith("timeout");
+  });
+
+  test("hides the cloud action for an inverse or broken pattern", async () => {
+    cloud.available.value = true;
+    const done = { active: false, done: true, matches: 0 };
+    const search = useSearchFilter();
+
+    search.searchQueryFilter.value = "error[";
+    let wrapper = createStatus(done);
+    await nextTick();
+    expect(wrapper.find('[data-testid="search-cloud"]').exists()).toBe(false);
+
+    search.searchQueryFilter.value = "error";
+    search.inverseFilter.value = true;
+    wrapper = createStatus(done);
+    await nextTick();
+    expect(wrapper.find('[data-testid="search-cloud"]').exists()).toBe(false);
   });
 });
