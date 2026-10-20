@@ -11,6 +11,7 @@ import { useRoute, useRouter } from "vue-router";
 import { router } from "@/modules/router";
 
 import EventSource from "@/testing/eventSourceMock";
+import { useCloudConfig } from "@/composable/cloud/cloudConfig";
 
 vi.mock("vue-router");
 
@@ -160,6 +161,25 @@ describe("<FuzzySearchModal />", () => {
     await wrapper.find("input").setValue("nothing-matches-this");
     await wrapper.find("input").trigger("keydown.enter");
     expect(useRouter().push).toHaveBeenCalledWith("/settings/cloud");
+  });
+
+  test("typing does not run a cloud search behind the palette", async () => {
+    const fetchMock = vi.fn().mockResolvedValue(new Response("{}"));
+    vi.stubGlobal("fetch", fetchMock);
+    useCloudConfig().cloudConfig.value = { linked: true, streamLogs: true } as never;
+    try {
+      const wrapper = createFuzzySearchModal();
+      await wrapper.find("input").setValue("timeout");
+      await new Promise((r) => setTimeout(r, 400));
+      const searched = fetchMock.mock.calls.some(([url]) => String(url).includes("/api/cloud/search"));
+      expect(searched).toBe(false);
+      // The row still offers the search, and Shift+Enter still runs it.
+      await wrapper.find("input").trigger("keydown", { key: "Enter", shiftKey: true });
+      expect(useRouter().push).toHaveBeenCalledWith({ path: "/cloud/search", query: { q: "timeout" } });
+    } finally {
+      useCloudConfig().cloudConfig.value = null;
+      vi.unstubAllGlobals();
+    }
   });
 
   test("choose baz", async () => {
