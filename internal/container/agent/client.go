@@ -517,7 +517,7 @@ func (c *Client) ListReclaimable(ctx context.Context) (container.ReclaimableItem
 		Volumes: make([]container.ReclaimableVolume, 0, len(resp.Volumes)),
 	}
 	for _, img := range resp.Images {
-		items.Images = append(items.Images, container.ReclaimableImage{ID: img.Id, Tags: img.Tags, Size: img.Size})
+		items.Images = append(items.Images, container.ReclaimableImage{ID: img.Id, Tags: append([]string{}, img.Tags...), Size: img.Size})
 	}
 	for _, v := range resp.Volumes {
 		items.Volumes = append(items.Volumes, container.ReclaimableVolume{Name: v.Name, Size: v.Size, Created: v.Created.AsTime()})

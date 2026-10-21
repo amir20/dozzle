@@ -379,7 +379,7 @@ func TestPruneHostUnsupportedOverAgent(t *testing.T) {
 
 func (p *pruningService) ListReclaimable(context.Context) (container.ReclaimableItems, error) {
 	return container.ReclaimableItems{
-		Images:  []container.ReclaimableImage{{ID: "sha256:abc", Tags: []string{"nginx:1"}, Size: 5}},
+		Images:  []container.ReclaimableImage{{ID: "sha256:abc", Tags: []string{"nginx:1"}, Size: 5}, {ID: "sha256:def", Tags: []string{}, Size: 1}},
 		Volumes: []container.ReclaimableVolume{{Name: "orphan", Size: -1, Created: time.Date(2026, 1, 2, 0, 0, 0, 0, time.UTC)}},
 	}, nil
 }
@@ -390,7 +390,8 @@ func TestListReclaimableOverAgent(t *testing.T) {
 	items, err := rpc.ListReclaimable(context.Background())
 
 	require.NoError(t, err)
-	assert.Equal(t, []container.ReclaimableImage{{ID: "sha256:abc", Tags: []string{"nginx:1"}, Size: 5}}, items.Images)
+	// proto decodes an empty repeated field as nil, which must not reach the frontend as null
+	assert.Equal(t, []container.ReclaimableImage{{ID: "sha256:abc", Tags: []string{"nginx:1"}, Size: 5}, {ID: "sha256:def", Tags: []string{}, Size: 1}}, items.Images)
 	assert.Equal(t, []container.ReclaimableVolume{{Name: "orphan", Size: -1, Created: time.Date(2026, 1, 2, 0, 0, 0, 0, time.UTC)}}, items.Volumes)
 }
 

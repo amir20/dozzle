@@ -437,7 +437,7 @@ func (d *Client) ListReclaimable(ctx context.Context) (container.ReclaimableItem
 		if img.SharedSize > 0 {
 			size -= img.SharedSize
 		}
-		tags := slices.DeleteFunc(slices.Clone(img.RepoTags), func(t string) bool { return t == "<none>:<none>" })
+		tags := slices.DeleteFunc(append([]string{}, img.RepoTags...), func(t string) bool { return t == "<none>:<none>" })
 		items.Images = append(items.Images, container.ReclaimableImage{ID: img.ID, Tags: tags, Size: size})
 	}
 	for _, v := range du.Volumes.Items {

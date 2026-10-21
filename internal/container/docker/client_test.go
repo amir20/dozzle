@@ -345,6 +345,7 @@ func Test_dockerClient_ListReclaimable(t *testing.T) {
 			{ID: "sha256:old", RepoTags: []string{"postgres:15"}, Size: 400, SharedSize: 100},
 			{ID: "sha256:dangling", RepoTags: []string{"<none>:<none>"}, Size: 50, SharedSize: -1},
 			{ID: "sha256:big", RepoTags: []string{"app:1", "app:latest"}, Size: 900},
+			{ID: "sha256:untagged", Size: 20},
 		}},
 		Volumes: client.VolumesDiskUsage{Items: []volume.Volume{
 			{Name: "mounted", UsageData: &volume.UsageData{Size: 10, RefCount: 1}},
@@ -362,6 +363,8 @@ func Test_dockerClient_ListReclaimable(t *testing.T) {
 		// shared layers stay when it goes
 		{ID: "sha256:old", Tags: []string{"postgres:15"}, Size: 300},
 		{ID: "sha256:dangling", Tags: []string{}, Size: 50},
+		// never null, the frontend reads tags[0]
+		{ID: "sha256:untagged", Tags: []string{}, Size: 20},
 	}, items.Images)
 	assert.Equal(t, []container.ReclaimableVolume{
 		{Name: "orphan", Size: 99, Created: time.Date(2026, 1, 2, 3, 4, 5, 0, time.UTC)},
