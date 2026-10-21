@@ -156,6 +156,7 @@ const ALIASES: Record<string, string> = {
   "3x-ui": "xray",
   larapaper: "trmnl",
   "proxmox-backup-server": "proxmox",
+  airflow: "apache-airflow",
 };
 
 const stripSuffix = (name: string) => {
