@@ -83,7 +83,8 @@ func (h *handler) streamEvents(w http.ResponseWriter, r *http.Request) {
 	// per-host set of container IDs the caller may see, so stat/event channels stay filtered like the list
 	visibleByHost := make(map[string]map[string]struct{})
 	// per-host container names the caller may see. An update replaces the container, so
-	// an older update is shown by the name it ran under once its container is gone.
+	// an older update is shown by the name it ran under once its container is gone. Only
+	// without a label filter: a name can be reused by a container under other labels.
 	namesByHost := make(map[string]map[string]struct{})
 	setVisible := func(host string, containers []container.Container) {
 		ids := make(map[string]struct{}, len(containers))
@@ -173,6 +174,9 @@ func (h *handler) streamEvents(w http.ResponseWriter, r *http.Request) {
 	updateVisible := func(u container.UpdateRecord) bool {
 		if isVisible(u.Host, u.NewID) {
 			return true
+		}
+		if userLabels.Exists() {
+			return false
 		}
 		_, ok := namesByHost[u.Host][u.Name]
 		return ok

@@ -34,7 +34,7 @@
               </span>
               <span class="min-w-0 flex-1">
                 <span class="block truncate text-sm font-semibold">
-                  {{ $t("releases.updates_summary", recentUpdates.length) }}
+                  {{ $t("releases.updates_summary", updatedContainers.length) }}
                 </span>
                 <span class="text-base-content/60 block truncate text-xs">{{ updatedNames }}</span>
               </span>
@@ -205,9 +205,11 @@ const showAllUpdates = ref(false);
 const showAllReleases = ref(false);
 
 const anyUndone = computed(() => recentUpdates.value.some((u) => updateKind(u) === "undone"));
+// A container updated twice is one name, so the summary counts names, not updates.
+const updatedContainers = computed(() => [...new Set(recentUpdates.value.map((u) => u.name))]);
 // The first few names, newest first, and how many more: "web, db, api +9".
 const updatedNames = computed(() => {
-  const names = [...new Set(recentUpdates.value.map((u) => u.name))];
+  const names = updatedContainers.value;
   const shown = names.slice(0, SUMMARIZE_PAST).join(", ");
   return names.length > SUMMARIZE_PAST ? `${shown} +${names.length - SUMMARIZE_PAST}` : shown;
 });
