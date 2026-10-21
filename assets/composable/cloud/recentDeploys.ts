@@ -17,13 +17,17 @@ const key = (u: ContainerUpdate) => `${u.host}/${u.oldId}/${u.newId}`;
  * The updates Dozzle holds in memory, plus the ones only Dozzle Cloud still
  * remembers (made before a restart), newest first. A record both have keeps
  * Dozzle's fields, which carry the repo in their digests, and Cloud's verdict.
+ * The key only matches Cloud against Dozzle: two swaps undone onto the same
+ * container share one, and Dozzle's own records are never deduped by it.
  */
 export function mergeRecentDeploys(local: ContainerUpdate[], cloud: RecentDeploy[]): RecentDeploy[] {
-  const verdicts = new Map(cloud.map((d) => [key(d), d]));
-  const merged = new Map<string, RecentDeploy>();
-  for (const d of cloud) merged.set(key(d), d);
-  for (const u of local) merged.set(key(u), { ...u, verdict: verdicts.get(key(u))?.verdict });
-  return [...merged.values()].sort((a, b) => Date.parse(b.at) - Date.parse(a.at)).slice(0, MAX_RECENT);
+  const verdicts = new Map(cloud.map((d) => [key(d), d.verdict]));
+  const known = new Set(local.map(key));
+  const merged: RecentDeploy[] = [
+    ...cloud.filter((d) => !known.has(key(d))),
+    ...local.map((u) => ({ ...u, verdict: verdicts.get(key(u)) })),
+  ];
+  return merged.sort((a, b) => Date.parse(b.at) - Date.parse(a.at)).slice(0, MAX_RECENT);
 }
 
 const cloudDeploys = ref<RecentDeploy[]>([]);

@@ -42,6 +42,15 @@ describe("mergeRecentDeploys", () => {
     expect(merged).toHaveLength(2);
   });
 
+  test("two swaps undone onto the same container both stay", () => {
+    const undone = { oldId: "x", rolledBack: true };
+    const merged = mergeRecentDeploys(
+      [update("x", "2026-10-21T10:00:00Z", undone), update("x", "2026-10-21T11:00:00Z", undone)],
+      [],
+    );
+    expect(merged).toHaveLength(2);
+  });
+
   test("Cloud's microsecond-rounded time still matches Dozzle's record", () => {
     const merged = mergeRecentDeploys(
       [update("a", "2026-10-21T10:00:00.999999999Z")],
