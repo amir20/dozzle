@@ -84,8 +84,8 @@ const defaultRetryAfter = 60 * time.Second
 const serverErrorRetryAfter = 30 * time.Second
 
 // unauthorizedRetryAfter is how long to back off after an auth failure (invalid/expired
-// API key). Retrying won't help until the user fixes their key, which recreates the
-// dispatcher and resets the breaker.
+// API key) when cloud sends no Retry-After. Retrying won't help until the user fixes
+// their key, which recreates the dispatcher and resets the breaker.
 const unauthorizedRetryAfter = 6 * time.Hour
 
 // maxQueued caps the retry queue so a long cloud outage cannot grow memory.
@@ -204,11 +204,14 @@ func (c *CloudDispatcher) post(ctx context.Context, notification types.Notificat
 	if resp.StatusCode == http.StatusUnauthorized || resp.StatusCode == http.StatusForbidden {
 		limitedReader := io.LimitReader(resp.Body, 1024*1024)
 		responseBody, _ := io.ReadAll(limitedReader)
-		c.trip(unauthorizedRetryAfter, fmt.Sprintf("API key rejected (%d)", resp.StatusCode), false)
+		// Cloud says how long to wait (a paused instance is retried far sooner
+		// than a bad key); without a Retry-After the long default holds.
+		retryAfter := parseRetryAfter(resp.Header.Get("Retry-After"), unauthorizedRetryAfter)
+		c.trip(retryAfter, fmt.Sprintf("API key rejected (%d)", resp.StatusCode), false)
 		log.Warn().
 			Str("cloud", c.Name).
 			Int("status_code", resp.StatusCode).
-			Dur("retry_after", unauthorizedRetryAfter).
+			Dur("retry_after", retryAfter).
 			Msg("cloud rejected API key, circuit breaker tripped")
 		return fmt.Errorf("cloud returned status code %d: %s", resp.StatusCode, string(responseBody))
 	}
