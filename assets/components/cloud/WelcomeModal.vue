@@ -409,6 +409,17 @@ function buildCategories(): Category[] {
           cooldown: 0,
           sampleWindow: 0,
         },
+        {
+          key: "updated",
+          kind: "event",
+          label: t("cloud.welcome.signals.updated"),
+          ruleName: "Container updated",
+          // Only updates Dozzle makes raise it, so it stays quiet unless updates are in use.
+          expression: 'name == "update"',
+          enabled: true,
+          cooldown: 0,
+          sampleWindow: 0,
+        },
       ],
     },
     {

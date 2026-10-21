@@ -1,7 +1,9 @@
 package notification
 
 import (
+	"context"
 	"testing"
+	"time"
 
 	"github.com/amir20/dozzle/internal/container"
 	"github.com/amir20/dozzle/types"
@@ -88,4 +90,104 @@ func TestNormalizedHealthEventMatchesSubscription(t *testing.T) {
 		Name:       healthy.Name,
 		Attributes: healthy.ActorAttributes,
 	}))
+}
+
+// updateHostClient is a host an update ran on, possibly an agent the
+// listener's own clients do not include.
+type updateHostClient struct {
+	container.ClientService
+	host string
+	c    container.Container
+}
+
+func (u *updateHostClient) Host(context.Context) (container.Host, error) {
+	return container.Host{ID: u.host}, nil
+}
+
+func (u *updateHostClient) FindContainer(_ context.Context, id string, _ container.ContainerLabels) (container.Container, error) {
+	if id != u.c.ID {
+		return container.Container{}, container.ErrContainerNotFound
+	}
+	return u.c, nil
+}
+
+func TestUpdateRecordRaisesUpdateEvent(t *testing.T) {
+	records := container.NewUpdateRecords()
+	other := &updateHostClient{host: "local", c: container.Container{ID: "aaaaaaaaaaaa"}}
+	agent := &updateHostClient{host: "agent-1", c: container.Container{ID: "bbbbbbbbbbbb", Name: "web"}}
+
+	l := NewContainerEventListener(t.Context(), nil)
+	l.ListenToUpdates(records, func() []container.ClientService { return []container.ClientService{other, agent} })
+	l.Start()
+	defer l.Stop()
+
+	records.Add(container.UpdateRecord{
+		Host:       "agent-1",
+		Name:       "web",
+		OldID:      "cccccccccccc",
+		NewID:      "bbbbbbbbbbbb",
+		ImageRef:   "nginx:latest",
+		FromDigest: "nginx@sha256:1111111111111111",
+		ToDigest:   "nginx@sha256:2222222222222222",
+		Source:     container.UpdateSourceSchedule,
+		At:         time.Now(),
+	})
+
+	select {
+	case entry := <-l.Channel():
+		assert.Equal(t, UpdateEventName, entry.Event.Name)
+		assert.Equal(t, "bbbbbbbbbbbb", entry.Event.ActorID)
+		assert.Equal(t, "web", entry.Container.Name)
+		assert.Equal(t, "agent-1", entry.Host.ID)
+		assert.Equal(t, map[string]string{
+			"source":     "schedule",
+			"rolledBack": "false",
+			"image":      "nginx:latest",
+			"fromDigest": "nginx@sha256:1111111111111111",
+			"toDigest":   "nginx@sha256:2222222222222222",
+		}, entry.Event.ActorAttributes)
+	case <-time.After(time.Second):
+		t.Fatal("no update event")
+	}
+}
+
+func TestUpdateRecordOnUnknownHostIsDropped(t *testing.T) {
+	records := container.NewUpdateRecords()
+	local := &updateHostClient{host: "local", c: container.Container{ID: "bbbbbbbbbbbb"}}
+
+	l := NewContainerEventListener(t.Context(), nil)
+	l.ListenToUpdates(records, func() []container.ClientService { return []container.ClientService{local} })
+	l.Start()
+	defer l.Stop()
+
+	records.Add(container.UpdateRecord{Host: "gone", NewID: "bbbbbbbbbbbb", At: time.Now()})
+
+	select {
+	case entry := <-l.Channel():
+		t.Fatalf("unexpected event %+v", entry.Event)
+	case <-time.After(100 * time.Millisecond):
+	}
+}
+
+func TestDescribeUpdate(t *testing.T) {
+	assert.Equal(t, "Container updated: nginx:latest (111111111111 → 222222222222)", describeUpdate(map[string]string{
+		"image":      "nginx:latest",
+		"fromDigest": "nginx@sha256:1111111111111111",
+		"toDigest":   "sha256:2222222222222222",
+		"rolledBack": "false",
+	}))
+	assert.Equal(t, "Container update rolled back: app:dev", describeUpdate(map[string]string{
+		"image":      "app:dev",
+		"rolledBack": "true",
+	}))
+}
+
+// The starter rule the Cloud welcome modal offers matches an update event.
+func TestUpdateEventMatchesStarterRule(t *testing.T) {
+	program, err := expr.Compile(`name == "update"`, expr.Env(types.NotificationEvent{}))
+	require.NoError(t, err)
+	sub := &Subscription{EventExpression: `name == "update"`, EventProgram: program}
+
+	event := updateEvent(container.UpdateRecord{Source: container.UpdateSourceDozzle})
+	assert.True(t, sub.MatchesEvent(types.NotificationEvent{Name: event.Name, Attributes: event.ActorAttributes}))
 }

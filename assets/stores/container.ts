@@ -1,6 +1,7 @@
 import { acceptHMRUpdate, defineStore } from "pinia";
 import { Ref, UnwrapNestedRefs } from "vue";
 import type { ContainerHealth, ContainerJson, ContainerStat } from "@/types/Container";
+import type { ContainerUpdate } from "@/models/ContainerUpdate";
 import { Container } from "@/models/Container";
 import i18n from "@/modules/i18n";
 import { parseEventData } from "@/utils/events";
@@ -13,8 +14,17 @@ const { markStale } = useStaleUI();
 // @ts-ignore
 const { t } = i18n.global;
 
+// Matches updateFeedLimit in internal/web/update_feed.go.
+const MAX_RECENT_UPDATES = 20;
+const updateKey = (u: ContainerUpdate) => `${u.host}/${u.newId}/${u.at}`;
+
 export const useContainerStore = defineStore("container", () => {
   const containers: Ref<Container[]> = ref([]);
+
+  // The updates Dozzle made lately, newest first, for the megaphone. The server keeps them
+  // in memory and replays the recent ones on every connect, so a reconnect sends ones
+  // already here; they are keyed on what an update is unique by.
+  const recentUpdates = ref<ContainerUpdate[]>([]);
 
   let es: EventSource | null = null;
   // True once the first list has arrived, and never false again: views gate their
@@ -154,6 +164,8 @@ export const useContainerStore = defineStore("container", () => {
       }
     });
 
+    es.addEventListener("container-update", (e) => addRecentUpdate(parseEventData<ContainerUpdate>(e)));
+
     es.addEventListener("update-host", (e) => {
       const host = parseEventData<Host>(e);
       if (host.removed) {
@@ -290,8 +302,17 @@ export const useContainerStore = defineStore("container", () => {
     ),
   );
 
+  function addRecentUpdate(update: ContainerUpdate) {
+    const key = updateKey(update);
+    if (recentUpdates.value.some((u) => updateKey(u) === key)) return;
+    recentUpdates.value = [update, ...recentUpdates.value]
+      .sort((a, b) => Date.parse(b.at) - Date.parse(a.at))
+      .slice(0, MAX_RECENT_UPDATES);
+  }
+
   return {
     containers,
+    recentUpdates,
     allContainersById,
     containersByHost,
     visibleContainers,

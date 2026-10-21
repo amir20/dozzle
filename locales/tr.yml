@@ -367,6 +367,7 @@ releases:
   no_releases: En son sürüme sahipsiniz
   newer: "1 yeni sürüm | {count} yeni sürüm"
   all: Tüm sürümler
+  updates_summary: "1 konteyner güncellendi | {count} konteyner güncellendi"
 toasts:
   copied:
     title: Kopyalandı
@@ -745,6 +746,7 @@ cloud:
       unhealthy: "Konteyner unhealthy oldu"
       oom: "Çekirdek tarafından sonlandırıldı (OOM)"
       restart: "Konteyner yeniden başlatıldı"
+      updated: "Konteyner Dozzle tarafından güncellendi"
       cpu: "5 dakika boyunca CPU %90 üzerinde"
       memory: "5 dakika boyunca bellek %90 üzerinde"
       disk: "Birim %85'ten fazla dolu"

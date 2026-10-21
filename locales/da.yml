@@ -364,6 +364,7 @@ releases:
   no_releases: Du har den nyeste version
   newer: "1 nyere version | {count} nyere versioner"
   all: Alle versioner
+  updates_summary: "1 container opdateret | {count} containere opdateret"
 toasts:
   copied:
     title: Kopieret
@@ -742,6 +743,7 @@ cloud:
       unhealthy: "Container blev unhealthy"
       oom: "Dræbt af kernen (OOM)"
       restart: "Container genstartet"
+      updated: "Container opdateret af Dozzle"
       cpu: "CPU over 90% i 5 minutter"
       memory: "Hukommelse over 90% i 5 minutter"
       disk: "Volume over 85% fyldt"

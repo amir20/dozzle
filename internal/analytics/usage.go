@@ -24,6 +24,7 @@ var UsageKeys = []string{
 	"wizard.step.login", "wizard.step.actions", "wizard.step.cloud", "wizard.step.hosts", "wizard.step.update", "wizard.step.restart",
 	"cloud.welcome", "cloud.connect", "cloud.chat", "stream.reconnect", "agent.disconnect",
 	"memory.chip.shown", "memory.chip.hover", "memory.chip.open",
+	"megaphone.open", "megaphone.update", "megaphone.release",
 }
 
 // BrowserUsageKeys are the counters only the browser can see, and so the only
@@ -37,6 +38,7 @@ var BrowserUsageKeys = map[string]bool{
 	"wizard.step.update": true, "wizard.step.restart": true,
 	"cloud.welcome": true, "cloud.connect": true, "cloud.chat": true, "stream.reconnect": true,
 	"memory.chip.shown": true, "memory.chip.hover": true, "memory.chip.open": true,
+	"megaphone.open": true, "megaphone.update": true, "megaphone.release": true,
 }
 
 // maxLocales bounds the locale map, which the browser fills: a client sending a

@@ -81,6 +81,19 @@ export function updateLabels(
   };
 }
 
+/**
+ * What an update did: a swap that now runs, one the swap undid because the new
+ * container failed, or a rollback to the image before. Named by the
+ * update-marker.* locale key that labels it.
+ */
+export function updateKind(
+  update: Pick<ContainerUpdate, "rolledBack" | "source">,
+): "updated" | "undone" | "rolled-back" {
+  if (update.rolledBack) return "undone";
+  if (update.source === "rollback") return "rolled-back";
+  return "updated";
+}
+
 /** A regression, or a maybe, that nobody has kept or rolled back yet. */
 export function undecidedRegression(verdict: DeployVerdict | undefined): boolean {
   return !!verdict && (verdict.verdict === "regressed" || verdict.verdict === "unsure") && !verdict.decision;

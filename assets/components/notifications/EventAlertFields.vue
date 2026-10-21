@@ -92,6 +92,7 @@ const examples = [
   'name == "die"',
   'name in ["stop", "die"]',
   'name == "health_status" && attributes["healthStatus"] == "unhealthy"',
+  'name == "update"',
 ];
 const getHints = () => createEventHints();
 

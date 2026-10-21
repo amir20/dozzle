@@ -34,6 +34,7 @@ const i18n = createI18n({
             unhealthy: "Container became unhealthy",
             oom: "Killed by the kernel (OOM)",
             restart: "Container restarted",
+            updated: "Container updated by Dozzle",
             cpu: "CPU over 90% for 5 minutes",
             memory: "Memory over 90% for 5 minutes",
             disk: "Volume over 85% full",
@@ -106,9 +107,9 @@ describe("<WelcomeModal /> starter alerts", () => {
     await flushPromises();
 
     const ruleCalls = fetchMock.mock.calls.filter((c) => String(c[0]).includes("/api/notifications/rules"));
-    // Lifecycle ships exited + unhealthy + oom (restart off), Metrics ships cpu +
-    // memory + disk (absolute free space off), Logs is off as a category.
-    expect(ruleCalls).toHaveLength(6);
+    // Lifecycle ships exited + unhealthy + oom + updated (restart off), Metrics ships
+    // cpu + memory + disk (absolute free space off), Logs is off as a category.
+    expect(ruleCalls).toHaveLength(7);
 
     const bodies = ruleCalls.map((c) => JSON.parse((c[1] as RequestInit).body as string));
 
@@ -116,6 +117,7 @@ describe("<WelcomeModal /> starter alerts", () => {
     expect(eventExpressions).toContain('name == "die" && !(attributes["exitCode"] in ["0", "130", "143", "137"])');
     expect(eventExpressions).toContain('name == "health_status" && attributes["healthStatus"] == "unhealthy"');
     expect(eventExpressions).toContain('name == "oom"');
+    expect(eventExpressions).toContain('name == "update"');
     expect(eventExpressions).not.toContain('name == "restart"');
 
     const metricExpressions = bodies.map((b) => b.metricExpression).filter(Boolean);
@@ -161,7 +163,7 @@ describe("<WelcomeModal /> starter alerts", () => {
     // Success keeps the user in the modal so step 3 can say where alerts land.
     const vm = wrapper.vm as unknown as ModalVm;
     expect(vm.step).toBe(3);
-    expect(vm.createdCount).toBe(6);
+    expect(vm.createdCount).toBe(7);
     expect(pushSpy).not.toHaveBeenCalled();
   });
 
@@ -174,7 +176,7 @@ describe("<WelcomeModal /> starter alerts", () => {
     // CPU and memory alerts entirely. They must be on screen as soon as the
     // step renders.
     const ruleBoxes = wrapper.findAll("input.checkbox");
-    expect(ruleBoxes).toHaveLength(10);
+    expect(ruleBoxes).toHaveLength(11);
 
     const text = wrapper.text();
     expect(text).toContain("CPU over 90% for 5 minutes");
@@ -183,7 +185,7 @@ describe("<WelcomeModal /> starter alerts", () => {
     expect(text).toContain("Any fatal line");
 
     // Rules inside a disabled category stay readable but are not editable.
-    const logRuleBoxes = ruleBoxes.slice(8);
+    const logRuleBoxes = ruleBoxes.slice(9);
     for (const box of logRuleBoxes) {
       expect(box.attributes("disabled")).toBeDefined();
     }
@@ -208,7 +210,7 @@ describe("<WelcomeModal /> starter alerts", () => {
 
     // Only the fatal rule is on inside the logs category; "any error line" is off.
     expect(bodies.map((b) => b.logExpression).filter(Boolean)).toEqual(['level == "fatal"']);
-    expect(bodies).toHaveLength(7);
+    expect(bodies).toHaveLength(8);
   });
 
   test("skipping creates nothing and reports the final step as alert-free", async () => {

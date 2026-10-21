@@ -364,6 +364,7 @@ releases:
   no_releases: 您拥有最新版本
   newer: "有 1 个更新版本 | 有 {count} 个更新版本"
   all: 所有版本
+  updates_summary: "已更新 1 个容器 | 已更新 {count} 个容器"
 toasts:
   copied:
     title: 已复制
@@ -742,6 +743,7 @@ cloud:
       unhealthy: "容器变为 unhealthy"
       oom: "被内核终止（OOM）"
       restart: "容器已重启"
+      updated: "容器已由 Dozzle 更新"
       cpu: "CPU 超过 90% 持续 5 分钟"
       memory: "内存超过 90% 持续 5 分钟"
       disk: "卷已用超过 85%"

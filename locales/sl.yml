@@ -369,6 +369,7 @@ releases:
   no_releases: Imate najnovejšo različico
   newer: "1 novejša izdaja | {count} novejših izdaj"
   all: Vse izdaje
+  updates_summary: "1 posodobljen vsebnik | {count} posodobljenih vsebnikov"
 toasts:
   copied:
     title: Kopirano
@@ -747,6 +748,7 @@ cloud:
       unhealthy: "Vsebnik je postal unhealthy"
       oom: "Ubit s strani jedra (OOM)"
       restart: "Vsebnik ponovno zagnan"
+      updated: "Dozzle je posodobil vsebnik"
       cpu: "CPU nad 90% pet minut"
       memory: "Pomnilnik nad 90% pet minut"
       disk: "Nosilec več kot 85% poln"

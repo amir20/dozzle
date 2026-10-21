@@ -364,6 +364,7 @@ releases:
   no_releases: Stai utilizzando l'ultima versione
   newer: "1 versione più recente | {count} versioni più recenti"
   all: Tutte le versioni
+  updates_summary: "1 container aggiornato | {count} container aggiornati"
 toasts:
   copied:
     title: Copiato
@@ -742,6 +743,7 @@ cloud:
       unhealthy: "Container diventato unhealthy"
       oom: "Terminato dal kernel (OOM)"
       restart: "Container riavviato"
+      updated: "Container aggiornato da Dozzle"
       cpu: "CPU oltre il 90% per 5 minuti"
       memory: "Memoria oltre il 90% per 5 minuti"
       disk: "Volume pieno oltre l'85%"

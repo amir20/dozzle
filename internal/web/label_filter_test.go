@@ -217,6 +217,61 @@ func Test_streamContainerLogs_no_update_marker_out_of_scope(t *testing.T) {
 	}
 }
 
+// The megaphone's update feed rides the events stream, so it is gated like the
+// containers: an update to a container outside the user's labels never reaches
+// them. An older update whose container is gone is shown by its name only when
+// there is no label filter, since a name can be reused under other labels.
+func Test_streamEvents_update_feed_out_of_scope(t *testing.T) {
+	prev := container.Updates
+	container.Updates = container.NewUpdateRecords()
+	t.Cleanup(func() { container.Updates = prev })
+	at := time.Now()
+	container.Updates.Add(container.UpdateRecord{Host: "localhost", Name: "dev-allowed", NewID: "olddev", ImageRef: "dev:first", At: at.Add(-time.Hour)})
+	container.Updates.Add(container.UpdateRecord{Host: "localhost", Name: "dev-allowed", NewID: "dev123", ImageRef: "dev:second", At: at})
+	container.Updates.Add(container.UpdateRecord{Host: "localhost", Name: "prod-secret", NewID: "prod456", At: at})
+	container.Updates.Add(container.UpdateRecord{Host: "localhost", Name: "dev-allowed", NewID: "ancient", ImageRef: "dev:ancient", At: at.Add(-8 * 24 * time.Hour)})
+
+	stream := func(user auth.User) string {
+		h := restrictedHandler(t)
+		ctx, cancel := context.WithCancel(context.Background())
+		req := httptest.NewRequest(http.MethodGet, "/api/events/stream", nil).WithContext(auth.WithUser(ctx, user))
+		rr := httptest.NewRecorder()
+		done := make(chan struct{})
+		go func() {
+			defer close(done)
+			h.streamEvents(rr, req)
+		}()
+		time.Sleep(300 * time.Millisecond)
+		cancel()
+		<-done
+		return rr.Body.String()
+	}
+
+	filtered := stream(auth.User{ContainerLabels: devLabels})
+	assert.Contains(t, filtered, "dev:second")
+	assert.NotContains(t, filtered, "dev:first", "a gone container's labels are unknown, so its name proves nothing")
+	assert.NotContains(t, filtered, "dev:ancient", "an update older than the feed window is not sent")
+	assert.NotContains(t, filtered, "prod-secret")
+	assert.NotContains(t, filtered, "prod456")
+
+	unfiltered := stream(auth.User{})
+	assert.Contains(t, unfiltered, "dev:first", "without a filter an older update is shown by its name")
+	assert.Contains(t, unfiltered, "prod-secret")
+	assert.NotContains(t, unfiltered, "dev:ancient")
+}
+
+func Test_recentUpdates_caps_newest(t *testing.T) {
+	now := time.Now()
+	var records []container.UpdateRecord
+	for i := range 30 {
+		records = append(records, container.UpdateRecord{Name: fmt.Sprint(i), At: now.Add(time.Duration(i-30) * time.Minute)})
+	}
+	got := recentUpdates(records, now, func(container.UpdateRecord) bool { return true })
+	require.Len(t, got, updateFeedLimit)
+	assert.Equal(t, "10", got[0].Name)
+	assert.Equal(t, "29", got[len(got)-1].Name)
+}
+
 func Test_requireNotificationsRole(t *testing.T) {
 	h := restrictedHandler(t)
 	next := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) { w.WriteHeader(http.StatusTeapot) })
