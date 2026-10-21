@@ -169,7 +169,11 @@ export const useContainerStore = defineStore("container", () => {
 
     es.addEventListener("container-update", (e) => addRecentUpdate(parseEventData<ContainerUpdate>(e)));
 
-    es.addEventListener("auto-prune", (e) => (lastAutoPrune.value = parseEventData<AutoPruneRun>(e)));
+    // null when there is nothing to show, which drops a row from before a reconnect.
+    es.addEventListener(
+      "auto-prune",
+      (e) => (lastAutoPrune.value = parseEventData<AutoPruneRun | null>(e) ?? undefined),
+    );
 
     es.addEventListener("update-host", (e) => {
       const host = parseEventData<Host>(e);

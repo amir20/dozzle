@@ -11,13 +11,41 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func Test_feedAutoPrune(t *testing.T) {
+func Test_autoPruneFeed(t *testing.T) {
 	now := time.Now()
-	assert.False(t, feedAutoPrune(nil, now))
-	assert.True(t, feedAutoPrune(&autoPruneRun{At: now.Add(-time.Hour), SpaceReclaimed: 1}, now))
-	assert.True(t, feedAutoPrune(&autoPruneRun{At: now.Add(-time.Hour), Failed: 1}, now), "a failed host is worth showing")
-	assert.False(t, feedAutoPrune(&autoPruneRun{At: now.Add(-time.Hour)}, now), "a run that freed nothing is not news")
-	assert.False(t, feedAutoPrune(&autoPruneRun{At: now.Add(-8 * 24 * time.Hour), SpaceReclaimed: 1}, now))
+	assert.Nil(t, autoPruneFeed(nil, now))
+	assert.NotNil(t, autoPruneFeed(&autoPruneRun{At: now.Add(-time.Hour), SpaceReclaimed: 1}, now))
+	assert.NotNil(t, autoPruneFeed(&autoPruneRun{At: now.Add(-time.Hour), Failed: 1}, now), "a failed host is worth showing")
+	assert.Nil(t, autoPruneFeed(&autoPruneRun{At: now.Add(-time.Hour)}, now), "a run that freed nothing is not news")
+	assert.Nil(t, autoPruneFeed(&autoPruneRun{At: now.Add(-8 * 24 * time.Hour), SpaceReclaimed: 1}, now))
+}
+
+// Nothing to show is still sent, so the browser drops a row from before a reconnect.
+func Test_streamEvents_sends_null_auto_prune(t *testing.T) {
+	autoPruneLast.Lock()
+	prev := autoPruneLast.run
+	autoPruneLast.run = &autoPruneRun{At: time.Now()}
+	autoPruneLast.Unlock()
+	t.Cleanup(func() {
+		autoPruneLast.Lock()
+		autoPruneLast.run = prev
+		autoPruneLast.Unlock()
+	})
+
+	h := restrictedHandler(t)
+	ctx, cancel := context.WithCancel(context.Background())
+	req := httptest.NewRequest(http.MethodGet, "/api/events/stream", nil).WithContext(auth.WithUser(ctx, auth.User{}))
+	rr := httptest.NewRecorder()
+	done := make(chan struct{})
+	go func() {
+		defer close(done)
+		h.streamEvents(rr, req)
+	}()
+	time.Sleep(300 * time.Millisecond)
+	cancel()
+	<-done
+
+	assert.Contains(t, rr.Body.String(), "event: auto-prune\ndata: null")
 }
 
 // The megaphone hears about the last clean up when the stream opens.

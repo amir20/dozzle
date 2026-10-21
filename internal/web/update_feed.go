@@ -15,10 +15,14 @@ const (
 	updateFeedLimit  = 20
 )
 
-// feedAutoPrune reports whether the megaphone shows run: one from the same
-// window as the updates that did something, freed space or failed somewhere.
-func feedAutoPrune(run *autoPruneRun, now time.Time) bool {
-	return run != nil && now.Sub(run.At) <= updateFeedWindow && (run.SpaceReclaimed > 0 || run.Failed > 0)
+// autoPruneFeed is run if the megaphone shows it, nil otherwise: it shows one
+// from the same window as the updates that did something, freed space or failed
+// somewhere.
+func autoPruneFeed(run *autoPruneRun, now time.Time) *autoPruneRun {
+	if run == nil || now.Sub(run.At) > updateFeedWindow || (run.SpaceReclaimed == 0 && run.Failed == 0) {
+		return nil
+	}
+	return run
 }
 
 // recentUpdates is the newest updateFeedLimit records from the last

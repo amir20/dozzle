@@ -214,11 +214,11 @@ func (h *handler) streamEvents(w http.ResponseWriter, r *http.Request) {
 
 	// The last scheduled clean up, for the megaphone. A run happens once a day, so the
 	// keep-alive tick below checks for a new one rather than anything subscribing to it.
+	// Sent as null when there is nothing to show, so a reconnect or a newer run that freed
+	// nothing clears a row the browser still holds.
 	sentPrune := lastAutoPrune()
-	if feedAutoPrune(sentPrune, time.Now()) {
-		if err := sseWriter.Event("auto-prune", sentPrune); err != nil {
-			logWriteError(err, "error writing auto prune to event stream")
-		}
+	if err := sseWriter.Event("auto-prune", autoPruneFeed(sentPrune, time.Now())); err != nil {
+		logWriteError(err, "error writing auto prune to event stream")
 	}
 
 	// The path is read here, not in the goroutine: it is a test seam tests swap.
@@ -244,11 +244,9 @@ func (h *handler) streamEvents(w http.ResponseWriter, r *http.Request) {
 			}
 			if run := lastAutoPrune(); run != sentPrune {
 				sentPrune = run
-				if feedAutoPrune(run, time.Now()) {
-					if err := sseWriter.Event("auto-prune", run); err != nil {
-						logWriteError(err, "error writing auto prune to event stream")
-						return
-					}
+				if err := sseWriter.Event("auto-prune", autoPruneFeed(run, time.Now())); err != nil {
+					logWriteError(err, "error writing auto prune to event stream")
+					return
 				}
 			}
 		case refresh := <-refreshes:

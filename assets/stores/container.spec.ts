@@ -326,5 +326,10 @@ describe("container store recent updates", () => {
     await nextTick();
 
     expect(store.lastAutoPrune).toEqual({ at: "2026-10-21T04:00:00Z", spaceReclaimed: 1024 });
+
+    es.emit("auto-prune", null);
+    await nextTick();
+
+    expect(store.lastAutoPrune).toBeUndefined();
   });
 });
