@@ -73,8 +73,10 @@ var levelTiers [][]levelMatcher
 // info.
 var midLineMatchers []levelMatcher
 
-// singleLetterBracket matches single-letter levels in brackets, e.g. [I], [E], [W]
-var singleLetterBracket = regexp.MustCompile(`\[([EWIDFTV])\]`)
+// singleLetterBracket matches single-letter levels in brackets, e.g. [I], [E], [W].
+// A bracket glued to an identifier is a generic or an index, not a tag: the C#
+// stack frame "at HttpClient.GetAsync[T](HttpRequest request)" is not trace.
+var singleLetterBracket = regexp.MustCompile(`(?:^|[^\w])\[([EWIDFTV])\]`)
 
 // klogPrefix matches the Kubernetes klog/glog header, where the single-letter
 // level is glued straight onto the timestamp with no separator, e.g.
