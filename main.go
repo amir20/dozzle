@@ -235,7 +235,14 @@ func main() {
 				UpdateContainers: lockedValue(args.Locked.UpdateContainers, args.UpdateContainers),
 			},
 		}, srv.FlushUsage)
-		go web.RunAutoPruneScheduler(ctx, hostService, web.Config{Mode: args.Mode, EnableActions: args.EnableActions})
+		go web.RunAutoPruneScheduler(ctx, hostService, web.Config{
+			Mode:          args.Mode,
+			EnableActions: args.EnableActions,
+			Setup: web.SetupConfig{
+				AutoPruneMode: lockedValue(args.Locked.AutoCleanup, args.AutoCleanup),
+				AutoPruneTime: lockedValue(args.Locked.AutoCleanupTime, args.AutoCleanupTime),
+			},
+		})
 	}
 
 	go func() {
@@ -475,6 +482,8 @@ func createServer(args cli.Args, hostService web.HostService, cloudHooks web.Clo
 			AutoUpdateMode:      lockedValue(args.Locked.AutoUpdate, args.AutoUpdate),
 			AutoUpdateTime:      lockedValue(args.Locked.AutoUpdateTime, args.AutoUpdateTime),
 			UpdateContainers:    lockedValue(args.Locked.UpdateContainers, args.UpdateContainers),
+			AutoPruneMode:       lockedValue(args.Locked.AutoCleanup, args.AutoCleanup),
+			AutoPruneTime:       lockedValue(args.Locked.AutoCleanupTime, args.AutoCleanupTime),
 			StartedAt:           web.SetupWindowStart(time.Now(), freshInstall),
 			EnvAgents:           args.EnvAgents,
 			CustomCert:          cli.CustomCert(args.CertPath, args.KeyPath),

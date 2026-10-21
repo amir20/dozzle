@@ -1,6 +1,6 @@
 ---
 title: Variables de entorno y subcomandos
-sourceHash: d85601289c22
+sourceHash: 4df73b5425e8
 ---
 
 # Variables de entorno
@@ -51,6 +51,8 @@ DOZZLE_REMOTE_AGENT=167.99.1.1:7007,167.99.1.2:7007
 | `DOZZLE_IMAGE_CHECK_MODE`<br>`--image-check-mode`         | Si Dozzle consulta los registros en busca de imágenes de contenedor más recientes. Consulta [comprobación de actualizaciones](/es/guide/updates#update-checking).                                                                                                 | `automatic`, `manual`, `off` | igual que `DOZZLE_RELEASE_CHECK_MODE` |
 | `DOZZLE_AUTO_UPDATE`<br>`--auto-update`                   | Actualiza Dozzle, y los contenedores configurados para actualizarse solos, de forma programada. `weekly` se ejecuta el domingo. Requiere `DOZZLE_ENABLE_ACTIONS`. Consulta [actualizar contenedores automáticamente](/es/guide/updates#auto-updating-containers). | `off`, `daily`, `weekly`     | `off`                                 |
 | `DOZZLE_AUTO_UPDATE_TIME`<br>`--auto-update-time`         | Hora del día a la que se ejecuta la actualización automática, en la hora local del servidor. Empieza entre 1 y 10 minutos después, al azar, nunca en punto.                                                                                                       | `HH:MM`, p. ej. `04:30`      | `03:00`                               |
+| `DOZZLE_AUTO_CLEANUP`<br>`--auto-cleanup`                 | Limpia cada host según una programación, nunca volúmenes. `weekly` se ejecuta el domingo. Requiere `DOZZLE_ENABLE_ACTIONS`. Consulta [uso de disco](/es/guide/container-disk-usage).                                                                              | `off`, `daily`, `weekly`     | `off`                                 |
+| `DOZZLE_AUTO_CLEANUP_TIME`<br>`--auto-cleanup-time`       | Hora del día a la que se ejecuta la limpieza programada, en la hora local del servidor.                                                                                                                                                                           | `HH:MM`, p. ej. `05:00`      | `04:00`                               |
 | `DOZZLE_UPDATE_CONTAINERS`<br>`--update-containers`       | Qué contenedores actualiza la actualización automática además de Dozzle: `off` solo Dozzle, `labelled` los etiquetados `dev.dozzle.update=auto`, `all` todos los que no estén etiquetados `dev.dozzle.update=off`.                                                | `off`, `labelled`, `all`     | `labelled`                            |
 
 ## Autenticación

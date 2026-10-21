@@ -85,7 +85,11 @@ type SetupConfig struct {
 	// UpdateContainers is the mode from --update-containers or its env var, nil
 	// when dozzle.yml decides.
 	UpdateContainers *string
-	StartedAt        time.Time
+	// AutoPruneMode and AutoPruneTime are the clean up schedule from
+	// --auto-cleanup and --auto-cleanup-time, each nil when dozzle.yml decides.
+	AutoPruneMode *string
+	AutoPruneTime *string
+	StartedAt     time.Time
 	// EnvAgents are the agents from DOZZLE_REMOTE_AGENT, which the UI lists but
 	// cannot remove.
 	EnvAgents []string

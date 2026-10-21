@@ -10,6 +10,7 @@
       <span class="min-w-0 flex-1">
         <span class="block font-medium">{{ $t("reclaim.schedule-label") }}</span>
         <span class="text-base-content/60 mt-0.5 block text-xs">{{ $t("reclaim.schedule-desc") }}</span>
+        <SetupLocked v-if="lockedBy.length" :env="lockedBy" class="mt-1" />
       </span>
       <input
         v-if="canEdit"
@@ -96,7 +97,12 @@ const { status, fetchStatus, saveConfig } = useSetup();
 if (!status.value) fetchStatus();
 
 const schedule = computed(() => status.value?.autoPrune);
-const canEdit = computed(() => !!status.value && setupCanEditUpdates(status.value));
+// The env vars that fixed the schedule, which then only shows what they say.
+const lockedBy = computed(() => [
+  ...(status.value?.locked.autoPruneMode ? ["DOZZLE_AUTO_CLEANUP"] : []),
+  ...(status.value?.locked.autoPruneTime ? ["DOZZLE_AUTO_CLEANUP_TIME"] : []),
+]);
+const canEdit = computed(() => !!status.value && setupCanEditUpdates(status.value) && !lockedBy.value.length);
 
 const enabled = ref(false);
 // Turning the toggle on picks weekly unless the file already had a schedule.

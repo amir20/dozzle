@@ -38,7 +38,7 @@ type File struct {
 	UpdateContainers *string `yaml:"updateContainers,omitempty"`
 	// AutoPrune is off, daily or weekly, like AutoUpdate, and read at every
 	// tick the same way. It deletes unused images, stopped containers and build
-	// cache on every host, never volumes. There is no flag or env var for it.
+	// cache on every host, never volumes. --auto-cleanup wins over it.
 	AutoPrune *string `yaml:"autoPrune,omitempty"`
 	// AutoPruneTime is "HH:MM" in the server's local time.
 	AutoPruneTime *string `yaml:"autoPruneTime,omitempty"`
