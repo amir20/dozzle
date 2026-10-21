@@ -98,10 +98,25 @@
           <span class="text-base-content/60 text-xs font-semibold tracking-wide uppercase">
             {{ $t("label.reclaimable") }}
           </span>
-          <span class="font-mono font-semibold">{{ size(total) }}</span>
+          <span
+            class="font-mono font-semibold"
+            :title="$t('tooltip.reclaimable-source', { command: 'docker system df' })"
+            >{{ size(total) }}</span
+          >
+        </div>
+        <!-- One bar for the whole total, a segment per kind. A ticked kind is solid,
+             so the bar also shows how much of the total a clean up frees. -->
+        <div class="bg-base-content/10 mt-2 flex h-1.5 gap-px overflow-hidden rounded-full">
+          <div
+            v-for="row in rows.filter((r) => r.size > 0)"
+            :key="row.key"
+            class="h-full transition-[width,background-color] duration-500 motion-reduce:transition-none"
+            :class="!canPrune || picked[row.key] ? 'bg-base-content/50' : 'bg-base-content/20'"
+            :style="{ width: share(row.size) }"
+          ></div>
         </div>
 
-        <ul class="mt-3 space-y-2.5">
+        <ul class="mt-4 space-y-2.5">
           <li v-for="row in rows" :key="row.key" :class="{ 'opacity-50': row.empty }">
             <component :is="canPrune ? 'label' : 'div'" class="flex items-center gap-2">
               <input
@@ -117,22 +132,9 @@
               <span v-if="row.count !== undefined" class="text-base-content/40 font-mono">{{ row.count }}</span>
               <span class="w-20 text-right font-mono">{{ size(row.size) }}</span>
             </component>
-            <!-- each kind's share of the total, neutral like the host card's disk bar -->
-            <div class="bg-base-content/10 mt-1 h-1 overflow-hidden rounded-full" :class="canPrune ? 'ml-7' : 'ml-6'">
-              <div
-                class="bg-base-content/40 h-full rounded-full transition-[width] duration-500 motion-reduce:transition-none"
-                :style="{ width: share(row.size) }"
-              ></div>
-            </div>
           </li>
         </ul>
 
-        <div class="bg-base-content/10 my-3 h-px"></div>
-        <i18n-t scope="global" keypath="tooltip.reclaimable-source" tag="p" class="text-base-content/40 text-xs">
-          <template #command>
-            <code class="font-mono">docker system df</code>
-          </template>
-        </i18n-t>
         <button
           v-if="canPrune"
           type="button"

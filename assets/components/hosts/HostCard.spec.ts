@@ -194,7 +194,7 @@ describe("<HostCard />", () => {
       ["Stopped containers", "4", "256 MB"],
       ["Build cache", "256 MB"],
     ]);
-    expect(wrapper.text()).toContain("Same total as docker system df reports.");
+    expect(wrapper.find("[title='Same total as docker system df reports.']").text()).toBe("5 GB");
   });
 
   test("hides reclaimable before the first measurement", () => {

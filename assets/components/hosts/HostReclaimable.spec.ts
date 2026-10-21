@@ -202,4 +202,16 @@ describe("<HostReclaimable />", () => {
     await flushPromises();
     expect(wrapper.text()).toContain("pruning volumes: device busy");
   });
+
+  test("draws one bar for the total, solid where a clean up would free it", async () => {
+    const wrapper = mountWith({ reclaimable: { ...host.reclaimable!, buildCacheSize: 0 } });
+    const segments = () => wrapper.findAll("[style*=width]");
+    // build cache is empty, so it has no segment
+    // 3 GB, 2 GB and 512 MB of 5.5 GB
+    expect(segments().map((s) => Math.round(parseFloat(s.attributes("style")!.slice(7))))).toEqual([55, 36, 9]);
+    expect(segments().map((s) => s.classes("bg-base-content/50"))).toEqual([true, false, true]);
+
+    await wrapper.findAll("input[type=checkbox]")[1].setValue(true);
+    expect(segments().map((s) => s.classes("bg-base-content/50"))).toEqual([true, true, true]);
+  });
 });
