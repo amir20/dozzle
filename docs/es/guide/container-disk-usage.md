@@ -1,6 +1,6 @@
 ---
 title: Uso de disco por contenedor
-sourceHash: ae2d193dcfc1
+sourceHash: d4ea2d0dd52e
 ---
 
 # Uso de disco por contenedor
@@ -52,7 +52,7 @@ Un [agente](/es/guide/agent) más antiguo que el Dozzle al que informa no puede 
 
 En **Limpiar automáticamente**, al final de la misma ventana, elige diario o semanal (domingo) y una hora en la zona horaria del servidor. Viene desactivado. A esa hora Dozzle limpia cada host conectado, uno tras otro: imágenes sin usar, contenedores detenidos y caché de build. Los volúmenes nunca se eliminan de forma programada. La ventana muestra cuánto liberó la última ejecución.
 
-La programación se guarda en `dozzle.yml` junto a los ajustes de [actualización automática](/es/guide/updates#auto-updating-containers) y se aplica sin reiniciar. Solo funciona en modo servidor, y primero espera a que termine cualquier actualización de contenedor en curso.
+La programación se guarda en `dozzle.yml` junto a los ajustes de [actualización automática](/es/guide/updates#auto-updating-containers) y se aplica sin reiniciar. Solo funciona en modo servidor, y primero espera a que termine cualquier actualización de contenedor en curso. Definir `DOZZLE_AUTO_CLEANUP` o `DOZZLE_AUTO_CLEANUP_TIME` fija la programación, y el popover entonces solo la muestra.
 
 ## Cuándo se actualiza
 

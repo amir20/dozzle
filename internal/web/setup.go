@@ -49,6 +49,10 @@ type setupLocked struct {
 	AutoUpdateTime bool `json:"autoUpdateTime"`
 	// UpdateContainers is which containers the schedule updates.
 	UpdateContainers bool `json:"updateContainers"`
+	// AutoPruneMode and AutoPruneTime say which of the clean up schedule's
+	// two settings a flag or env var fixed.
+	AutoPruneMode bool `json:"autoPruneMode"`
+	AutoPruneTime bool `json:"autoPruneTime"`
 }
 
 type setupPending struct {
@@ -73,7 +77,7 @@ type setupAutoUpdate struct {
 }
 
 // setupAutoPrune is the clean up schedule, which the reclaimable popover shows
-// and changes. Unlike auto-update it has no flag, so it is never locked.
+// and changes unless --auto-cleanup or --auto-cleanup-time fixes it.
 type setupAutoPrune struct {
 	Mode    string        `json:"mode"`
 	Time    string        `json:"time"`
@@ -205,7 +209,7 @@ func (h *handler) getSetup(w http.ResponseWriter, r *http.Request) {
 	}
 	_, canAddAgents := h.agentService()
 	settings := autoUpdateFrom(h.config.Setup, file)
-	prune := autoPruneFrom(file)
+	prune := autoPruneFrom(h.config.Setup, file)
 	support := checkAutoUpdateSupport(r.Context(), h.config, h.hostService)
 
 	state := setupState{
@@ -224,6 +228,8 @@ func (h *handler) getSetup(w http.ResponseWriter, r *http.Request) {
 			AutoUpdateTime: h.config.Setup.AutoUpdateTime != nil,
 
 			UpdateContainers: h.config.Setup.UpdateContainers != nil,
+			AutoPruneMode:    h.config.Setup.AutoPruneMode != nil,
+			AutoPruneTime:    h.config.Setup.AutoPruneTime != nil,
 		},
 		Pending:    pending,
 		CanRestart: h.setupCanRestart(),
@@ -453,7 +459,8 @@ func (h *handler) updateSetupConfig(w http.ResponseWriter, r *http.Request) {
 	if (req.EnableActions != nil && h.config.Setup.LockedEnableActions) ||
 		(req.EnableShell != nil && h.config.Setup.LockedEnableShell) ||
 		(req.AutoUpdate != nil && h.config.Setup.LockedAutoUpdate) ||
-		(req.UpdateContainers != nil && h.config.Setup.UpdateContainers != nil) {
+		(req.UpdateContainers != nil && h.config.Setup.UpdateContainers != nil) ||
+		(req.AutoPrune != nil && (h.config.Setup.AutoPruneMode != nil || h.config.Setup.AutoPruneTime != nil)) {
 		http.Error(w, "setting is set by flag or env", http.StatusConflict)
 		return
 	}

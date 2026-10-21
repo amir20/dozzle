@@ -26,7 +26,7 @@ export interface SetupAutoUpdate {
 }
 
 // The clean up schedule the reclaimable popover shows. It shares the update schedule's
-// modes and has no flag, so it is never locked. lastRun lives in memory on the server
+// modes, and DOZZLE_AUTO_CLEANUP or DOZZLE_AUTO_CLEANUP_TIME can lock it. lastRun lives in memory on the server
 // and is gone after a restart.
 export interface SetupAutoPrune {
   mode: AutoUpdateMode;
@@ -110,6 +110,9 @@ export interface SetupStatus {
     autoUpdateMode?: boolean;
     autoUpdateTime?: boolean;
     updateContainers?: boolean;
+    // Which of the clean up schedule's two settings is fixed. Absent from an older server.
+    autoPruneMode?: boolean;
+    autoPruneTime?: boolean;
   };
   pending: { authProvider?: string; enableActions?: boolean; enableShell?: boolean };
   canRestart: boolean;

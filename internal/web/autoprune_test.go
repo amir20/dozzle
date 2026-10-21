@@ -138,3 +138,31 @@ func TestSetup_AutoPrunePatch(t *testing.T) {
 	require.NotNil(t, state.AutoPrune.LastRun)
 	assert.Equal(t, uint64(42), state.AutoPrune.LastRun.SpaceReclaimed)
 }
+
+func TestAutoPrune_FlagWinsOverFile(t *testing.T) {
+	setupTestEnv(t, true)
+	resetAutoPruneLast(t)
+	writePruneSchedule(t, "off", "04:00")
+	hosts := &pruneHosts{hosts: []container.Host{{ID: "a", Available: true}}}
+	daily := "daily"
+	s := &autoPruneScheduler{hostService: hosts, setup: SetupConfig{AutoPruneMode: &daily}, now: time.Now, after: time.After}
+
+	s.tick(t.Context(), at(14, "04:00"))
+	assert.Equal(t, []string{"a"}, hosts.pruned, "the flag turns it on and the file keeps the time")
+}
+
+func TestSetup_AutoPruneLocked(t *testing.T) {
+	setupTestEnv(t, true)
+	resetAutoPruneLast(t)
+	writePruneSchedule(t, "weekly", "05:00")
+	lockedTime := "02:30"
+	h := setupNoneHandler(time.Now(), SetupConfig{AutoPruneTime: &lockedTime})
+
+	state := getSetupState(t, h)
+	assert.Equal(t, "weekly", state.AutoPrune.Mode)
+	assert.Equal(t, "02:30", state.AutoPrune.Time)
+	assert.False(t, state.Locked.AutoPruneMode)
+	assert.True(t, state.Locked.AutoPruneTime)
+
+	assert.Equal(t, http.StatusConflict, doSetup(h, "PATCH", "/api/setup/config", `{"autoPrune":{"mode":"daily","time":"04:00"}}`).Code)
+}

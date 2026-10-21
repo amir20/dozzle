@@ -23,6 +23,8 @@ type Locked struct {
 	AutoUpdate       bool
 	AutoUpdateTime   bool
 	UpdateContainers bool
+	AutoCleanup      bool
+	AutoCleanupTime  bool
 }
 
 // setByOperator reports whether flag appears in argv (as flag or flag=value,
@@ -59,6 +61,9 @@ func applyConfigFile(args *Args, file config.File, argv []string, lookupEnv func
 		AutoUpdateTime: setByOperator(argv, lookupEnv, "auto-update-time", "DOZZLE_AUTO_UPDATE_TIME"),
 
 		UpdateContainers: setByOperator(argv, lookupEnv, "update-containers", "DOZZLE_UPDATE_CONTAINERS"),
+
+		AutoCleanup:     setByOperator(argv, lookupEnv, "auto-cleanup", "DOZZLE_AUTO_CLEANUP"),
+		AutoCleanupTime: setByOperator(argv, lookupEnv, "auto-cleanup-time", "DOZZLE_AUTO_CLEANUP_TIME"),
 	}
 
 	if !args.Locked.AuthProvider && file.AuthProvider != nil {
@@ -80,6 +85,12 @@ func applyConfigFile(args *Args, file config.File, argv []string, lookupEnv func
 	}
 	if !args.Locked.UpdateContainers && file.UpdateContainers != nil {
 		args.UpdateContainers = *file.UpdateContainers
+	}
+	if !args.Locked.AutoCleanup && file.AutoPrune != nil {
+		args.AutoCleanup = *file.AutoPrune
+	}
+	if !args.Locked.AutoCleanupTime && file.AutoPruneTime != nil {
+		args.AutoCleanupTime = *file.AutoPruneTime
 	}
 
 	// Agents from the file join the ones from the flag or env var. One listed in
@@ -115,8 +126,8 @@ func applyConfigFile(args *Args, file config.File, argv []string, lookupEnv func
 	}
 }
 
-// validateAutoUpdate rejects a bad --auto-update, --auto-update-time or
-// --update-containers. A bad
+// validateAutoUpdate rejects a bad --auto-update, --auto-update-time,
+// --update-containers, --auto-cleanup or --auto-cleanup-time. A bad
 // value in dozzle.yml is not fatal: the scheduler treats it as the default.
 func validateAutoUpdate(args Args) error {
 	if args.Locked.AutoUpdate && args.AutoUpdate != "" && !config.ValidAutoUpdateMode(args.AutoUpdate) {
@@ -127,6 +138,12 @@ func validateAutoUpdate(args Args) error {
 	}
 	if args.Locked.UpdateContainers && args.UpdateContainers != "" && !updatepolicy.ValidMode(args.UpdateContainers) {
 		return fmt.Errorf("invalid update containers mode %q (expected off, labelled or all)", args.UpdateContainers)
+	}
+	if args.Locked.AutoCleanup && args.AutoCleanup != "" && !config.ValidAutoUpdateMode(args.AutoCleanup) {
+		return fmt.Errorf("invalid auto cleanup mode %q (expected off, daily or weekly)", args.AutoCleanup)
+	}
+	if args.Locked.AutoCleanupTime && args.AutoCleanupTime != "" && !config.ValidAutoUpdateTime(args.AutoCleanupTime) {
+		return fmt.Errorf("invalid auto cleanup time %q (expected HH:MM)", args.AutoCleanupTime)
 	}
 	return nil
 }

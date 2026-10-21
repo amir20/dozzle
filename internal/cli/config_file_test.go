@@ -154,6 +154,15 @@ func TestApplyConfigFileAutoUpdate(t *testing.T) {
 	assert.Equal(t, Locked{UpdateContainers: true}, args.Locked)
 }
 
+func TestApplyConfigFileAutoCleanup(t *testing.T) {
+	file := config.File{AutoPrune: new("weekly"), AutoPruneTime: new("04:30")}
+	args := Args{AutoCleanup: "daily"}
+	applyConfigFile(&args, file, nil, lookupFrom(map[string]string{"DOZZLE_AUTO_CLEANUP": "daily"}))
+	assert.Equal(t, "daily", args.AutoCleanup)
+	assert.Equal(t, "04:30", args.AutoCleanupTime)
+	assert.Equal(t, Locked{AutoCleanup: true}, args.Locked)
+}
+
 func TestValidateAutoUpdate(t *testing.T) {
 	assert.NoError(t, validateAutoUpdate(Args{}))
 	assert.NoError(t, validateAutoUpdate(Args{AutoUpdate: "bogus", AutoUpdateTime: "25:00"}), "file values are not fatal")
@@ -163,6 +172,9 @@ func TestValidateAutoUpdate(t *testing.T) {
 	assert.NoError(t, validateAutoUpdate(Args{UpdateContainers: "everything"}), "file values are not fatal")
 	assert.NoError(t, validateAutoUpdate(Args{UpdateContainers: "all", Locked: Locked{UpdateContainers: true}}))
 	assert.Error(t, validateAutoUpdate(Args{UpdateContainers: "everything", Locked: Locked{UpdateContainers: true}}))
+	assert.Error(t, validateAutoUpdate(Args{AutoCleanup: "hourly", Locked: Locked{AutoCleanup: true}}))
+	assert.Error(t, validateAutoUpdate(Args{AutoCleanupTime: "4:00", Locked: Locked{AutoCleanupTime: true}}))
+	assert.NoError(t, validateAutoUpdate(Args{AutoCleanup: "hourly"}), "file values are not fatal")
 }
 
 func TestApplyConfigFileRemoteAgents(t *testing.T) {

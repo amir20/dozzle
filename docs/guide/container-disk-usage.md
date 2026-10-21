@@ -51,7 +51,7 @@ An [agent](/guide/agent) older than the Dozzle it reports to cannot clean up, an
 
 Under **Clean up automatically** at the bottom of the same popover, pick daily or weekly (Sunday) and a time in the server's time zone. Off is the default. At that time Dozzle cleans up every connected host, one after another: unused images, stopped containers and build cache. Volumes are never deleted on a schedule. The popover shows what the last run freed.
 
-The schedule is saved in `dozzle.yml` next to the [auto-update](/guide/updates#auto-updating-containers) settings and applies without a restart. It runs in server mode only, and waits for any container update in progress to finish first.
+The schedule is saved in `dozzle.yml` next to the [auto-update](/guide/updates#auto-updating-containers) settings and applies without a restart. It runs in server mode only, and waits for any container update in progress to finish first. Setting `DOZZLE_AUTO_CLEANUP` or `DOZZLE_AUTO_CLEANUP_TIME` fixes the schedule, and the popover then only shows it.
 
 ## When it updates
 

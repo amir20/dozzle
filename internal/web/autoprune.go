@@ -38,15 +38,23 @@ func lastAutoPrune() *autoPruneRun {
 }
 
 // autoPruneFrom reads the clean up schedule out of a dozzle.yml the caller
-// already read. It shares autoUpdateSettings, and with it due. Anything
-// invalid falls back to the default rather than failing.
-func autoPruneFrom(file config.File) autoUpdateSettings {
+// already read, with a flag or env var winning over it. It shares
+// autoUpdateSettings, and with it due. Anything invalid falls back to the
+// default rather than failing.
+func autoPruneFrom(setup SetupConfig, file config.File) autoUpdateSettings {
 	s := autoUpdateSettings{Mode: config.AutoUpdateOff, Time: config.DefaultAutoPruneTime}
-	if file.AutoPrune != nil && config.ValidAutoUpdateMode(*file.AutoPrune) {
-		s.Mode = *file.AutoPrune
+	mode, at := file.AutoPrune, file.AutoPruneTime
+	if setup.AutoPruneMode != nil {
+		mode = setup.AutoPruneMode
 	}
-	if file.AutoPruneTime != nil && config.ValidAutoUpdateTime(*file.AutoPruneTime) {
-		s.Time = *file.AutoPruneTime
+	if setup.AutoPruneTime != nil {
+		at = setup.AutoPruneTime
+	}
+	if mode != nil && config.ValidAutoUpdateMode(*mode) {
+		s.Mode = *mode
+	}
+	if at != nil && config.ValidAutoUpdateTime(*at) {
+		s.Time = *at
 	}
 	return s
 }
@@ -56,6 +64,7 @@ func autoPruneFrom(file config.File) autoUpdateSettings {
 // applies without a restart.
 type autoPruneScheduler struct {
 	hostService HostService
+	setup       SetupConfig
 	now         func() time.Time
 	after       func(time.Duration) <-chan time.Time
 	lastRun     string
@@ -69,7 +78,7 @@ func RunAutoPruneScheduler(ctx context.Context, hostService HostService, cfg Con
 		log.Debug().Str("mode", cfg.Mode).Bool("actions", cfg.EnableActions).Msg("auto prune: scheduler not started")
 		return
 	}
-	s := &autoPruneScheduler{hostService: hostService, now: time.Now, after: time.After}
+	s := &autoPruneScheduler{hostService: hostService, setup: cfg.Setup, now: time.Now, after: time.After}
 	s.run(ctx)
 }
 
@@ -92,7 +101,7 @@ func (s *autoPruneScheduler) tick(ctx context.Context, now time.Time) {
 	if err != nil {
 		log.Warn().Err(err).Msg("auto prune: could not read dozzle.yml")
 	}
-	if !autoPruneFrom(file).due(now) {
+	if !autoPruneFrom(s.setup, file).due(now) {
 		return
 	}
 	day := now.Format("2006-01-02")

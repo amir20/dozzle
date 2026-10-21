@@ -32,6 +32,7 @@ const i18n = createI18n({
         "last-run-failed": "{count} host failed. | {count} hosts failed.",
       },
       setup: {
+        actions: { locked: "Set by {env}" },
         restart: { off: "Off" },
         update: { daily: "Daily", weekly: "Weekly on Sunday", "time-label": "Time", "when-label": "When" },
       },
@@ -46,6 +47,7 @@ function status(extra: Partial<SetupStatus> = {}): SetupStatus {
     dataPersisted: true,
     canWrite: true,
     canWriteUpdates: true,
+    locked: { authProvider: false, enableActions: false, enableShell: false },
     autoPrune: { mode: "off", time: "04:00", zone: "UTC" },
     ...extra,
   } as SetupStatus;
@@ -100,6 +102,19 @@ describe("<HostPruneSchedule />", () => {
     expect(wrapper.find("input").exists()).toBe(false);
     expect(wrapper.text()).toContain("Daily");
     expect(wrapper.text()).toContain("05:00 UTC");
+  });
+
+  test("is text naming the variable when an env var fixes it", () => {
+    setup.status = ref(
+      status({
+        locked: { authProvider: false, enableActions: false, enableShell: false, autoPruneMode: true },
+        autoPrune: { mode: "daily", time: "04:00", zone: "UTC" },
+      }),
+    );
+    const wrapper = mountIt();
+    expect(wrapper.find("input").exists()).toBe(false);
+    expect(wrapper.text()).toContain("Daily");
+    expect(wrapper.text()).toContain("Set by DOZZLE_AUTO_CLEANUP / --auto-cleanup");
   });
 
   test("says what the last run did", () => {
