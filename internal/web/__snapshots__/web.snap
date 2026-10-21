@@ -69,6 +69,10 @@ event: containers-changed
 data: [{"id":"1234","name":"test","image":"test","command":"","created":"0001-01-01T00:00:00Z","startedAt":"0001-01-01T00:00:00Z","finishedAt":"0001-01-01T00:00:00Z","state":"","memoryLimit":0,"cpuLimit":0,"stats":{"cpu":[],"memory":[],"memoryUsage":[],"networkRxTotal":[],"networkTxTotal":[],"diskReadTotal":[],"diskWriteTotal":[]}}]
 
 
+event: auto-prune
+data: null
+
+
 event: containers-changed
 data: [{"id":"1234","name":"test","image":"test","command":"","created":"0001-01-01T00:00:00Z","startedAt":"0001-01-01T00:00:00Z","finishedAt":"0001-01-01T00:00:00Z","state":"","memoryLimit":0,"cpuLimit":0,"stats":{"cpu":[],"memory":[],"memoryUsage":[],"networkRxTotal":[],"networkTxTotal":[],"diskReadTotal":[],"diskWriteTotal":[]}}]
 
@@ -95,6 +99,10 @@ data: {"version":""}
 
 event: containers-changed
 data: [{"id":"visible","name":"visible","image":"test","command":"","created":"0001-01-01T00:00:00Z","startedAt":"0001-01-01T00:00:00Z","finishedAt":"0001-01-01T00:00:00Z","state":"","memoryLimit":0,"cpuLimit":0,"stats":{"cpu":[],"memory":[],"memoryUsage":[],"networkRxTotal":[],"networkTxTotal":[],"diskReadTotal":[],"diskWriteTotal":[]}}]
+
+
+event: auto-prune
+data: null
 
 
 event: containers-changed

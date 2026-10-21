@@ -318,4 +318,18 @@ describe("container store recent updates", () => {
     expect(store.recentUpdates).toHaveLength(20);
     expect(store.recentUpdates[0].newId).toBe("c24");
   });
+
+  test("keeps the last scheduled clean up", async () => {
+    const { store, es } = setup();
+
+    es.emit("auto-prune", { at: "2026-10-21T04:00:00Z", spaceReclaimed: 1024 });
+    await nextTick();
+
+    expect(store.lastAutoPrune).toEqual({ at: "2026-10-21T04:00:00Z", spaceReclaimed: 1024 });
+
+    es.emit("auto-prune", null);
+    await nextTick();
+
+    expect(store.lastAutoPrune).toBeUndefined();
+  });
 });

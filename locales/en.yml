@@ -1182,6 +1182,7 @@ reclaim:
   agent-too-old: "This agent can't clean up yet. Update it to the latest version."
   enable-actions: "Enable container actions to clean up from here."
   schedule-label: "Clean up automatically"
+  scheduled-run: "Scheduled clean up"
   schedule-desc: "Unused images, stopped containers and build cache on every host. Volumes are never deleted."
   last-run: "Last run freed {size} {when}."
   last-run-failed: "{count} host could not be cleaned up, see the logs. | {count} hosts could not be cleaned up, see the logs."

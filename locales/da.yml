@@ -1171,6 +1171,7 @@ reclaim:
   agent-too-old: "Denne agent kan ikke rydde op endnu. Opdater den til nyeste version."
   enable-actions: "Slå containerhandlinger til for at rydde op herfra."
   schedule-label: "Ryd op automatisk"
+  scheduled-run: "Planlagt oprydning"
   schedule-desc: "Ubrugte images, stoppede containere og build-cache på alle værter. Volumes slettes aldrig."
   last-run: "Sidste kørsel frigjorde {size} {when}."
   last-run-failed: "{count} vært kunne ikke ryddes op, se loggene. | {count} værter kunne ikke ryddes op, se loggene."

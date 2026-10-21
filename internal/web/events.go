@@ -212,6 +212,15 @@ func (h *handler) streamEvents(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
+	// The last scheduled clean up, for the megaphone. A run happens once a day, so the
+	// keep-alive tick below checks for a new one rather than anything subscribing to it.
+	// Sent as null when there is nothing to show, so a reconnect or a newer run that freed
+	// nothing clears a row the browser still holds.
+	sentPrune := lastAutoPrune()
+	if err := sseWriter.Event("auto-prune", autoPruneFeed(sentPrune, time.Now())); err != nil {
+		logWriteError(err, "error writing auto prune to event stream")
+	}
+
 	// The path is read here, not in the goroutine: it is a test seam tests swap.
 	var beaconContainers []container.Container
 	if len(errors) == 0 && maps.EqualFunc(userLabels, h.config.Labels, slices.Equal[[]string]) {
@@ -232,6 +241,13 @@ func (h *handler) streamEvents(w http.ResponseWriter, r *http.Request) {
 			if err := sseWriter.Event("ping", struct{}{}); err != nil {
 				log.Debug().Err(err).Msg("error writing keep-alive to event stream")
 				return
+			}
+			if run := lastAutoPrune(); run != sentPrune {
+				sentPrune = run
+				if err := sseWriter.Event("auto-prune", autoPruneFeed(run, time.Now())); err != nil {
+					logWriteError(err, "error writing auto prune to event stream")
+					return
+				}
 			}
 		case refresh := <-refreshes:
 			delete(repairing, refresh.host)

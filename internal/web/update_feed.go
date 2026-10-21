@@ -15,6 +15,16 @@ const (
 	updateFeedLimit  = 20
 )
 
+// autoPruneFeed is run if the megaphone shows it, nil otherwise: it shows one
+// from the same window as the updates that did something, freed space or failed
+// somewhere.
+func autoPruneFeed(run *autoPruneRun, now time.Time) *autoPruneRun {
+	if run == nil || now.Sub(run.At) > updateFeedWindow || (run.SpaceReclaimed == 0 && run.Failed == 0) {
+		return nil
+	}
+	return run
+}
+
 // recentUpdates is the newest updateFeedLimit records from the last
 // updateFeedWindow that visible lets through, oldest first.
 func recentUpdates(records []container.UpdateRecord, now time.Time, visible func(container.UpdateRecord) bool) []container.UpdateRecord {

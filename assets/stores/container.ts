@@ -2,6 +2,7 @@ import { acceptHMRUpdate, defineStore } from "pinia";
 import { Ref, UnwrapNestedRefs } from "vue";
 import type { ContainerHealth, ContainerJson, ContainerStat } from "@/types/Container";
 import type { ContainerUpdate } from "@/models/ContainerUpdate";
+import type { AutoPruneRun } from "@/composable/setup/setup";
 import { Container } from "@/models/Container";
 import i18n from "@/modules/i18n";
 import { parseEventData } from "@/utils/events";
@@ -25,6 +26,8 @@ export const useContainerStore = defineStore("container", () => {
   // in memory and replays the recent ones on every connect, so a reconnect sends ones
   // already here; they are keyed on what an update is unique by.
   const recentUpdates = ref<ContainerUpdate[]>([]);
+  // The last scheduled clean up, sent only when it is recent and did something.
+  const lastAutoPrune = ref<AutoPruneRun>();
 
   let es: EventSource | null = null;
   // True once the first list has arrived, and never false again: views gate their
@@ -165,6 +168,12 @@ export const useContainerStore = defineStore("container", () => {
     });
 
     es.addEventListener("container-update", (e) => addRecentUpdate(parseEventData<ContainerUpdate>(e)));
+
+    // null when there is nothing to show, which drops a row from before a reconnect.
+    es.addEventListener(
+      "auto-prune",
+      (e) => (lastAutoPrune.value = parseEventData<AutoPruneRun | null>(e) ?? undefined),
+    );
 
     es.addEventListener("update-host", (e) => {
       const host = parseEventData<Host>(e);
@@ -313,6 +322,7 @@ export const useContainerStore = defineStore("container", () => {
   return {
     containers,
     recentUpdates,
+    lastAutoPrune,
     allContainersById,
     containersByHost,
     visibleContainers,
