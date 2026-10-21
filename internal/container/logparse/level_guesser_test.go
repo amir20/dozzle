@@ -250,6 +250,9 @@ func TestGuessLogLevel(t *testing.T) {
 		{"[T] trace message", "trace"},
 		{"[V] verbose message", "trace"},
 		{"12:00:00 [I] starting up", "info"},
+		// A generic type parameter or index is not a level tag.
+		{"   at NzbDrone.Common.Http.HttpClient.GetAsync[T](HttpRequest request) in ./HttpClient.cs:line 333", "unknown"},
+		{"value = items[I] + 1", "unknown"},
 		// Issue #4768: a real level prefix must win over a level word in the message body.
 		{"INFO: connection established, retrying after error: timeout", "info"},
 		{"INFO handling request failed with error: bad gateway", "info"},
