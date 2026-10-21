@@ -29,6 +29,11 @@ describe("iconSlugForImage", () => {
     ["cr.fluentbit.io/fluent/fluent-bit:3.2", "fluent-bit"],
     ["ghcr.io/browserless/chromium:latest", "browserless"],
     ["ghcr.io/jokob-sk/netalertx:latest", "netalertx"],
+    ["gcr.io/datadoghq/agent:7", "datadog"],
+    ["datadog/agent:latest", "datadog"],
+    ["ghcr.io/mhsanaei/3x-ui:latest", "xray"],
+    ["ghcr.io/usetrmnl/larapaper:latest", "trmnl"],
+    ["ayufan/proxmox-backup-server:v4", "proxmox"],
   ])("resolves %s", (image, slug) => {
     expect(iconSlugForImage(image)).toBe(slug);
   });
