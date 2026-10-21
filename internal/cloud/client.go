@@ -15,6 +15,7 @@ import (
 	pb "github.com/amir20/dozzle/proto/cloud"
 	"github.com/rs/zerolog/log"
 	"golang.org/x/sync/semaphore"
+	"google.golang.org/genproto/googleapis/rpc/errdetails"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/credentials"
@@ -195,6 +196,23 @@ func (c *Client) Run(ctx context.Context) {
 		}
 
 		if err != nil {
+			// Cloud decides how long to wait when it says so; the cases below are
+			// only the defaults for a cloud that doesn't.
+			if delay, ok := retryDelay(err); ok {
+				log.Warn().Err(err).Dur("retry_after", delay).Msg("cloud rejected connection, retrying when cloud asked")
+				backoffTimer.Reset(delay)
+				select {
+				case <-ctx.Done():
+					return
+				case <-backoffTimer.C:
+				case <-c.startCh:
+					if !backoffTimer.Stop() {
+						<-backoffTimer.C
+					}
+				}
+				backoff = initialBackoff
+				continue
+			}
 			if isPermissionDenied(err) {
 				log.Debug().Msg("cloud account does not have pro plan, waiting for upgrade")
 				select {
@@ -528,6 +546,26 @@ func (c *Client) tools() []*pb.ToolDefinition {
 		c.cachedTools = AvailableTools(c.deps)
 	})
 	return c.cachedTools
+}
+
+// retryDelay returns the wait cloud attached to a failed stream as a RetryInfo
+// detail, whatever the status code.
+func retryDelay(err error) (time.Duration, bool) {
+	for e := err; e != nil; e = errors.Unwrap(e) {
+		s, ok := status.FromError(e)
+		if !ok {
+			continue
+		}
+		for _, d := range s.Details() {
+			if ri, ok := d.(*errdetails.RetryInfo); ok && ri.GetRetryDelay() != nil {
+				if delay := ri.GetRetryDelay().AsDuration(); delay > 0 {
+					return delay, true
+				}
+			}
+		}
+		return 0, false
+	}
+	return 0, false
 }
 
 func isPermissionDenied(err error) bool {

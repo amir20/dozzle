@@ -51,6 +51,40 @@ func TestCloudDispatcher_AuthFailureTripsBreaker(t *testing.T) {
 	}
 }
 
+// Cloud sets how long an auth failure blocks sends; without a Retry-After the
+// long default holds.
+func TestCloudDispatcher_AuthFailureHonorsRetryAfter(t *testing.T) {
+	tests := []struct {
+		name       string
+		retryAfter string
+		want       time.Duration
+	}{
+		{"no Retry-After", "", unauthorizedRetryAfter},
+		{"honors Retry-After", "300", 5 * time.Minute},
+	}
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			srv := httptest.NewServer(http.HandlerFunc(func(rw http.ResponseWriter, r *http.Request) {
+				if tc.retryAfter != "" {
+					rw.Header().Set("Retry-After", tc.retryAfter)
+				}
+				rw.WriteHeader(http.StatusForbidden)
+			}))
+			defer srv.Close()
+
+			d := newTestCloudDispatcher(srv.URL)
+
+			start := time.Now()
+			require.Error(t, d.Send(context.Background(), newTestNotification("first")))
+
+			b := d.breaker.Load()
+			require.NotNil(t, b)
+			assert.WithinDuration(t, start.Add(tc.want), b.until, 2*time.Second)
+			assert.False(t, b.retryable, "a rejected key is never queued")
+		})
+	}
+}
+
 // ResetBreaker clears the circuit so the next send dials cloud again.
 func TestCloudDispatcher_ResetBreaker(t *testing.T) {
 	var hits atomic.Int32
