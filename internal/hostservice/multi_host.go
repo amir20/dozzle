@@ -103,6 +103,20 @@ func (m *MultiHostService) PruneHost(ctx context.Context, host string, opts cont
 	return result, h.Reclaimable, nil
 }
 
+// ListReclaimable names the images and volumes a prune would delete on one host.
+// A host that cannot prune returns errors.ErrUnsupported, as PruneHost does.
+func (m *MultiHostService) ListReclaimable(ctx context.Context, host string) (container.ReclaimableItems, error) {
+	client, ok := m.manager.Find(host)
+	if !ok {
+		return container.ReclaimableItems{}, fmt.Errorf("%w: %s", ErrHostNotFound, host)
+	}
+	lister, ok := client.(container.HostReclaimableLister)
+	if !ok {
+		return container.ReclaimableItems{}, errors.ErrUnsupported
+	}
+	return lister.ListReclaimable(ctx)
+}
+
 func (m *MultiHostService) ListContainersForHost(host string, labels container.ContainerLabels) ([]container.Container, error) {
 	client, ok := m.manager.Find(host)
 	if !ok {

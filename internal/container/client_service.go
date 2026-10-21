@@ -17,6 +17,12 @@ type HostPruner interface {
 	PruneHost(ctx context.Context, opts PruneOptions) (PruneResult, error)
 }
 
+// HostReclaimableLister is implemented by the ClientServices that can preview a
+// prune: docker, and an agent in front of one.
+type HostReclaimableLister interface {
+	ListReclaimable(ctx context.Context) (ReclaimableItems, error)
+}
+
 type ClientService interface {
 	FindContainer(ctx context.Context, id string, labels ContainerLabels) (Container, error)
 	ListContainers(ctx context.Context, filter ContainerLabels) ([]Container, error)

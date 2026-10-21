@@ -337,6 +337,42 @@ func Test_dockerClient_DiskUsage(t *testing.T) {
 	}, usage.Reclaimable, "stopped containers are left to the store")
 }
 
+func Test_dockerClient_ListReclaimable(t *testing.T) {
+	proxy := new(mockedProxy)
+	proxy.On("DiskUsage", mock.MatchedBy(func(o client.DiskUsageOptions) bool { return o.Images && o.Volumes && o.Verbose })).Return(client.DiskUsageResult{
+		Images: client.ImagesDiskUsage{Items: []image.Summary{
+			{ID: "sha256:used", RepoTags: []string{"nginx:latest"}, Size: 100, Containers: 1},
+			{ID: "sha256:old", RepoTags: []string{"postgres:15"}, Size: 400, SharedSize: 100},
+			{ID: "sha256:dangling", RepoTags: []string{"<none>:<none>"}, Size: 50, SharedSize: -1},
+			{ID: "sha256:big", RepoTags: []string{"app:1", "app:latest"}, Size: 900},
+			{ID: "sha256:untagged", Size: 20},
+		}},
+		Volumes: client.VolumesDiskUsage{Items: []volume.Volume{
+			{Name: "mounted", UsageData: &volume.UsageData{Size: 10, RefCount: 1}},
+			{Name: "orphan", CreatedAt: "2026-01-02T03:04:05Z", UsageData: &volume.UsageData{Size: 99}},
+			{Name: "orphan-plugin", UsageData: &volume.UsageData{Size: -1}},
+			{Name: "no-usage"},
+		}},
+	}, nil)
+	client := &Client{cli: proxy, host: container.Host{ID: "localhost"}}
+
+	items, err := client.ListReclaimable(context.Background())
+	require.NoError(t, err)
+	assert.Equal(t, []container.ReclaimableImage{
+		{ID: "sha256:big", Tags: []string{"app:1", "app:latest"}, Size: 900},
+		// shared layers stay when it goes
+		{ID: "sha256:old", Tags: []string{"postgres:15"}, Size: 300},
+		{ID: "sha256:dangling", Tags: []string{}, Size: 50},
+		// never null, the frontend reads tags[0]
+		{ID: "sha256:untagged", Tags: []string{}, Size: 20},
+	}, items.Images)
+	assert.Equal(t, []container.ReclaimableVolume{
+		{Name: "orphan", Size: 99, Created: time.Date(2026, 1, 2, 3, 4, 5, 0, time.UTC)},
+		// prune takes it even though the driver cannot size it
+		{Name: "orphan-plugin", Size: -1},
+	}, items.Volumes)
+}
+
 func Test_dockerClient_DiskUsageSkipsBuildCacheOnFullWalkDrivers(t *testing.T) {
 	proxy := new(mockedProxy)
 	proxy.On("DiskUsage", mock.MatchedBy(func(o client.DiskUsageOptions) bool {

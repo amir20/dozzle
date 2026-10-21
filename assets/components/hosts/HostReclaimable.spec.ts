@@ -40,6 +40,9 @@ const i18n = createI18n({
         failed: "Clean up failed",
         "agent-too-old": "This agent can't clean up yet.",
         "enable-actions": "Enable container actions to clean up from here.",
+        "preview-note": "Clean up checks again when it runs.",
+        "preview-failed": "Couldn't list them.",
+        "preview-agent-too-old": "Update this agent to see the list.",
       },
       hint: { "learn-more": "Learn more" },
     },
@@ -213,5 +216,49 @@ describe("<HostReclaimable />", () => {
 
     await wrapper.findAll("input[type=checkbox]")[1].setValue(true);
     expect(segments().map((s) => s.classes("bg-base-content/50"))).toEqual([true, true, true]);
+  });
+
+  test("opens a row into what it would delete, fetching once", async () => {
+    fetchMock.mockResolvedValue({
+      ok: true,
+      json: async () => ({
+        images: [
+          { id: "sha256:" + "a".repeat(64), tags: ["postgres:15", "postgres:latest"], size: 300 * MB },
+          { id: "sha256:" + "b".repeat(64), tags: [], size: 50 * MB },
+        ],
+        volumes: [
+          { name: "pg_data", size: 2 * GB, created: "2026-01-02T03:04:05Z" },
+          { name: "c".repeat(64), size: -1, created: "0001-01-01T00:00:00Z" },
+        ],
+      }),
+    });
+    const wrapper = mountWith();
+    await wrapper.findAll("input[type=checkbox]")[1].setValue(true);
+    await button(wrapper, "Clean up").trigger("click");
+    expect(fetchMock).not.toHaveBeenCalled();
+
+    await button(wrapper, "Unused images").trigger("click");
+    await flushPromises();
+    expect(fetchMock).toHaveBeenCalledWith("/api/hosts/host1/reclaimable");
+    expect(wrapper.text()).toContain("postgres:15+1300 MB");
+    expect(wrapper.text()).toContain("<none> bbbbbbbbbbbb50 MB");
+    expect(wrapper.text()).toContain("Clean up checks again when it runs.");
+
+    await button(wrapper, "Unused volumes").trigger("click");
+    await flushPromises();
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+    expect(wrapper.text()).not.toContain("postgres:15");
+    expect(wrapper.text()).toContain("pg_data");
+    // an anonymous volume shows a short hash, and a driver that cannot size it a dash
+    expect(wrapper.text()).toContain("cccccccccccc—");
+  });
+
+  test("tells an old agent it can't preview", async () => {
+    fetchMock.mockResolvedValue({ ok: false, status: 501, text: async () => "" });
+    const wrapper = mountWith({ type: "agent" });
+    await button(wrapper, "Clean up").trigger("click");
+    await button(wrapper, "Unused images").trigger("click");
+    await flushPromises();
+    expect(wrapper.text()).toContain("Update this agent to see the list.");
   });
 });

@@ -85,6 +85,10 @@ func (a *service) PruneHost(ctx context.Context, opts container.PruneOptions) (c
 	return a.client.PruneHost(ctx, opts)
 }
 
+func (a *service) ListReclaimable(ctx context.Context) (container.ReclaimableItems, error) {
+	return a.client.ListReclaimable(ctx)
+}
+
 func (a *service) UpdateContainer(ctx context.Context, c container.Container, progressCh chan<- container.UpdateProgress) (bool, error) {
 	return a.client.UpdateContainer(ctx, c.ID, progressCh)
 }

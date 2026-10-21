@@ -1,9 +1,11 @@
 package docker
 
 import (
+	"cmp"
 	"context"
 	"fmt"
 	"io"
+	"slices"
 	"sort"
 	"strconv"
 	"strings"
@@ -413,6 +415,41 @@ func (d *Client) DiskUsage(ctx context.Context) (container.DiskUsage, error) {
 		}
 	}
 	return container.DiskUsage{Volumes: volumes, Reclaimable: reclaimable}, nil
+}
+
+// ListReclaimable names what Prune would delete for images and volumes, from
+// the same `docker system df -v` read DiskUsage makes, largest first.
+func (d *Client) ListReclaimable(ctx context.Context) (container.ReclaimableItems, error) {
+	du, err := d.cli.DiskUsage(ctx, client.DiskUsageOptions{Volumes: true, Images: true, Verbose: true})
+	if err != nil {
+		return container.ReclaimableItems{}, err
+	}
+	items := container.ReclaimableItems{
+		Images:  []container.ReclaimableImage{},
+		Volumes: []container.ReclaimableVolume{},
+	}
+	for _, img := range du.Images.Items {
+		if img.Containers != 0 {
+			continue
+		}
+		size := img.Size
+		// SharedSize is -1 when the daemon did not work it out
+		if img.SharedSize > 0 {
+			size -= img.SharedSize
+		}
+		tags := slices.DeleteFunc(append([]string{}, img.RepoTags...), func(t string) bool { return t == "<none>:<none>" })
+		items.Images = append(items.Images, container.ReclaimableImage{ID: img.ID, Tags: tags, Size: size})
+	}
+	for _, v := range du.Volumes.Items {
+		if v.UsageData == nil || v.UsageData.RefCount != 0 {
+			continue
+		}
+		created, _ := time.Parse(time.RFC3339, v.CreatedAt)
+		items.Volumes = append(items.Volumes, container.ReclaimableVolume{Name: v.Name, Size: v.UsageData.Size, Created: created})
+	}
+	slices.SortFunc(items.Images, func(a, b container.ReclaimableImage) int { return cmp.Compare(b.Size, a.Size) })
+	slices.SortFunc(items.Volumes, func(a, b container.ReclaimableVolume) int { return cmp.Compare(b.Size, a.Size) })
+	return items, nil
 }
 
 // Prune deletes the kinds opts picks. Containers go first, since a stopped

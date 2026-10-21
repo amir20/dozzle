@@ -4,6 +4,7 @@ import (
 	"context"
 	"crypto/tls"
 	"crypto/x509"
+	"errors"
 	"fmt"
 	"io"
 	"strings"
@@ -343,6 +344,31 @@ func (s *server) PruneHost(ctx context.Context, in *pb.PruneHostRequest) (_ *pb.
 		return nil, status.Error(codes.Internal, err.Error())
 	}
 	return &pb.PruneHostResponse{SpaceReclaimed: result.SpaceReclaimed}, nil
+}
+
+func (s *server) ListReclaimable(ctx context.Context, _ *pb.ListReclaimableRequest) (*pb.ListReclaimableResponse, error) {
+	lister, ok := s.service.(container.HostReclaimableLister)
+	if !ok {
+		return nil, status.Error(codes.Unimplemented, "this host cannot prune")
+	}
+	items, err := lister.ListReclaimable(ctx)
+	if errors.Is(err, errors.ErrUnsupported) {
+		return nil, status.Error(codes.Unimplemented, err.Error())
+	}
+	if err != nil {
+		return nil, status.Error(codes.Internal, err.Error())
+	}
+	resp := &pb.ListReclaimableResponse{
+		Images:  make([]*pb.ReclaimableImage, 0, len(items.Images)),
+		Volumes: make([]*pb.ReclaimableVolume, 0, len(items.Volumes)),
+	}
+	for _, img := range items.Images {
+		resp.Images = append(resp.Images, &pb.ReclaimableImage{Id: img.ID, Tags: img.Tags, Size: img.Size})
+	}
+	for _, v := range items.Volumes {
+		resp.Volumes = append(resp.Volumes, &pb.ReclaimableVolume{Name: v.Name, Size: v.Size, Created: timestamppb.New(v.Created)})
+	}
+	return resp, nil
 }
 
 func (s *server) ContainerAction(ctx context.Context, in *pb.ContainerActionRequest) (_ *pb.ContainerActionResponse, err error) {

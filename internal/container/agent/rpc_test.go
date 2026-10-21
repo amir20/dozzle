@@ -377,6 +377,31 @@ func TestPruneHostUnsupportedOverAgent(t *testing.T) {
 	assert.ErrorIs(t, err, errors.ErrUnsupported)
 }
 
+func (p *pruningService) ListReclaimable(context.Context) (container.ReclaimableItems, error) {
+	return container.ReclaimableItems{
+		Images:  []container.ReclaimableImage{{ID: "sha256:abc", Tags: []string{"nginx:1"}, Size: 5}, {ID: "sha256:def", Tags: []string{}, Size: 1}},
+		Volumes: []container.ReclaimableVolume{{Name: "orphan", Size: -1, Created: time.Date(2026, 1, 2, 0, 0, 0, 0, time.UTC)}},
+	}, nil
+}
+
+func TestListReclaimableOverAgent(t *testing.T) {
+	rpc := newTestAgent(t, &pruningService{fakeService: &fakeService{}}, &recordingHandler{})
+
+	items, err := rpc.ListReclaimable(context.Background())
+
+	require.NoError(t, err)
+	// proto decodes an empty repeated field as nil, which must not reach the frontend as null
+	assert.Equal(t, []container.ReclaimableImage{{ID: "sha256:abc", Tags: []string{"nginx:1"}, Size: 5}, {ID: "sha256:def", Tags: []string{}, Size: 1}}, items.Images)
+	assert.Equal(t, []container.ReclaimableVolume{{Name: "orphan", Size: -1, Created: time.Date(2026, 1, 2, 0, 0, 0, 0, time.UTC)}}, items.Volumes)
+}
+
+func TestListReclaimableUnsupportedOverAgent(t *testing.T) {
+	rpc := newTestAgent(t, &fakeService{}, &recordingHandler{})
+
+	_, err := rpc.ListReclaimable(context.Background())
+	assert.ErrorIs(t, err, errors.ErrUnsupported)
+}
+
 func TestLogsBetweenDatesOverAgent(t *testing.T) {
 	logs := []*container.LogEvent{
 		{Id: 1, ContainerID: "abc", Type: container.LogTypeSingle, Message: "hello", RawMessage: "hello", Timestamp: 1789424936, Level: "info", Stream: "stdout"},

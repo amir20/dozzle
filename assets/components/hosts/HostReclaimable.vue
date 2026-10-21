@@ -42,12 +42,35 @@
           </div>
         </div>
 
-        <ul class="border-base-content/15 bg-base-200/40 divide-base-content/10 mt-3 divide-y rounded-lg border">
-          <li v-for="row in selectedRows" :key="row.key" class="flex items-center gap-2 px-2 py-1.5">
-            <component :is="row.icon" class="size-4 shrink-0 opacity-60" />
-            <span class="min-w-0 flex-1 truncate">{{ row.label }}</span>
-            <span v-if="row.count !== undefined" class="text-base-content/40 font-mono">{{ row.count }}</span>
-            <span class="w-20 text-right font-mono">{{ size(row.size) }}</span>
+        <ul
+          class="border-base-content/15 bg-base-200/40 divide-base-content/10 mt-3 divide-y overflow-hidden rounded-lg border"
+        >
+          <li v-for="row in selectedRows" :key="row.key">
+            <!-- Images and volumes open into the names a prune would take. -->
+            <button
+              v-if="listable(row.key)"
+              type="button"
+              class="hover:bg-base-300 flex w-full items-center gap-2 px-2 py-1.5 text-left transition-colors"
+              :aria-expanded="expanded === row.key"
+              @click="expand(row.key)"
+            >
+              <component :is="row.icon" class="size-4 shrink-0 opacity-60" />
+              <span class="min-w-0 flex-1 truncate">{{ row.label }}</span>
+              <span v-if="row.count !== undefined" class="text-base-content/40 font-mono">{{ row.count }}</span>
+              <span class="w-20 text-right font-mono">{{ size(row.size) }}</span>
+              <mdi:chevron-down
+                class="-ml-1 size-3.5 shrink-0 opacity-40 transition-transform"
+                :class="{ 'rotate-180': expanded === row.key }"
+              />
+            </button>
+            <div v-else class="flex items-center gap-2 px-2 py-1.5">
+              <component :is="row.icon" class="size-4 shrink-0 opacity-60" />
+              <span class="min-w-0 flex-1 truncate">{{ row.label }}</span>
+              <span v-if="row.count !== undefined" class="text-base-content/40 font-mono">{{ row.count }}</span>
+              <span class="w-20 text-right font-mono">{{ size(row.size) }}</span>
+              <span class="w-2.5 shrink-0"></span>
+            </div>
+            <HostReclaimableItems v-if="expanded === row.key" :kind="row.key as ListKind" :preview="preview" />
           </li>
         </ul>
 
@@ -165,7 +188,7 @@
 
 <script lang="ts" setup>
 import type { Component } from "vue";
-import type { Host, Reclaimable } from "@/stores/hosts";
+import type { Host, Reclaimable, ReclaimableItems, ReclaimablePreview } from "@/stores/hosts";
 import PhStack from "~icons/ph/stack";
 import PhDatabase from "~icons/ph/database";
 import PhStopCircle from "~icons/ph/stop-circle";
@@ -181,6 +204,7 @@ const { enableActions } = config;
 type Kind = "images" | "volumes" | "containers" | "buildCache";
 type Row = { key: Kind; icon: Component; label: string; count?: number; size: number; empty: boolean };
 type Step = "view" | "confirm" | "running" | "done" | "error";
+type ListKind = "images" | "volumes";
 
 const EMPTY: Reclaimable = {
   images: 0,
@@ -240,7 +264,35 @@ function pick(kind: Kind, value: boolean) {
 
 function confirm() {
   volumesConfirmed.value = false;
+  expanded.value = null;
+  preview.value = { status: "idle" };
   step.value = "confirm";
+}
+
+// The list is read when a row is first opened, not before: it is one more walk of
+// every volume, and most clean ups never look.
+const expanded = ref<ListKind | null>(null);
+const preview = ref<ReclaimablePreview>({ status: "idle" });
+const listable = (kind: Kind): kind is ListKind => kind === "images" || kind === "volumes";
+
+function expand(kind: ListKind) {
+  expanded.value = expanded.value === kind ? null : kind;
+  if (expanded.value && preview.value.status === "idle") loadPreview();
+}
+
+async function loadPreview() {
+  preview.value = { status: "loading" };
+  try {
+    const response = await fetch(withBase(`/api/hosts/${encodeURIComponent(host.id)}/reclaimable`));
+    if (!response.ok) {
+      const error = response.status === 501 ? t("reclaim.preview-agent-too-old") : t("reclaim.preview-failed");
+      preview.value = { status: "error", error };
+      return;
+    }
+    preview.value = { status: "ready", items: (await response.json()) as ReclaimableItems };
+  } catch {
+    preview.value = { status: "error", error: t("reclaim.preview-failed") };
+  }
 }
 
 async function prune() {

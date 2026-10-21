@@ -39,6 +39,7 @@ const (
 	AgentService_GetNotificationStats_FullMethodName     = "/protobuf.AgentService/GetNotificationStats"
 	AgentService_LogHistogram_FullMethodName             = "/protobuf.AgentService/LogHistogram"
 	AgentService_PruneHost_FullMethodName                = "/protobuf.AgentService/PruneHost"
+	AgentService_ListReclaimable_FullMethodName          = "/protobuf.AgentService/ListReclaimable"
 )
 
 // AgentServiceClient is the client API for AgentService service.
@@ -65,6 +66,7 @@ type AgentServiceClient interface {
 	GetNotificationStats(ctx context.Context, in *GetNotificationStatsRequest, opts ...grpc.CallOption) (*GetNotificationStatsResponse, error)
 	LogHistogram(ctx context.Context, in *LogHistogramRequest, opts ...grpc.CallOption) (*LogHistogramResponse, error)
 	PruneHost(ctx context.Context, in *PruneHostRequest, opts ...grpc.CallOption) (*PruneHostResponse, error)
+	ListReclaimable(ctx context.Context, in *ListReclaimableRequest, opts ...grpc.CallOption) (*ListReclaimableResponse, error)
 }
 
 type agentServiceClient struct {
@@ -353,6 +355,16 @@ func (c *agentServiceClient) PruneHost(ctx context.Context, in *PruneHostRequest
 	return out, nil
 }
 
+func (c *agentServiceClient) ListReclaimable(ctx context.Context, in *ListReclaimableRequest, opts ...grpc.CallOption) (*ListReclaimableResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ListReclaimableResponse)
+	err := c.cc.Invoke(ctx, AgentService_ListReclaimable_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // AgentServiceServer is the server API for AgentService service.
 // All implementations must embed UnimplementedAgentServiceServer
 // for forward compatibility.
@@ -377,6 +389,7 @@ type AgentServiceServer interface {
 	GetNotificationStats(context.Context, *GetNotificationStatsRequest) (*GetNotificationStatsResponse, error)
 	LogHistogram(context.Context, *LogHistogramRequest) (*LogHistogramResponse, error)
 	PruneHost(context.Context, *PruneHostRequest) (*PruneHostResponse, error)
+	ListReclaimable(context.Context, *ListReclaimableRequest) (*ListReclaimableResponse, error)
 	mustEmbedUnimplementedAgentServiceServer()
 }
 
@@ -446,6 +459,9 @@ func (UnimplementedAgentServiceServer) LogHistogram(context.Context, *LogHistogr
 }
 func (UnimplementedAgentServiceServer) PruneHost(context.Context, *PruneHostRequest) (*PruneHostResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method PruneHost not implemented")
+}
+func (UnimplementedAgentServiceServer) ListReclaimable(context.Context, *ListReclaimableRequest) (*ListReclaimableResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method ListReclaimable not implemented")
 }
 func (UnimplementedAgentServiceServer) mustEmbedUnimplementedAgentServiceServer() {}
 func (UnimplementedAgentServiceServer) testEmbeddedByValue()                      {}
@@ -750,6 +766,24 @@ func _AgentService_PruneHost_Handler(srv interface{}, ctx context.Context, dec f
 	return interceptor(ctx, in, info, handler)
 }
 
+func _AgentService_ListReclaimable_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListReclaimableRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AgentServiceServer).ListReclaimable(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AgentService_ListReclaimable_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AgentServiceServer).ListReclaimable(ctx, req.(*ListReclaimableRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // AgentService_ServiceDesc is the grpc.ServiceDesc for AgentService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -796,6 +830,10 @@ var AgentService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "PruneHost",
 			Handler:    _AgentService_PruneHost_Handler,
+		},
+		{
+			MethodName: "ListReclaimable",
+			Handler:    _AgentService_ListReclaimable_Handler,
 		},
 	},
 	Streams: []grpc.StreamDesc{

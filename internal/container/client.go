@@ -105,6 +105,12 @@ type Pruner interface {
 	Prune(ctx context.Context, opts PruneOptions) (PruneResult, error)
 }
 
+// ReclaimableLister is implemented by clients that can name what a prune of
+// images and volumes would delete.
+type ReclaimableLister interface {
+	ListReclaimable(ctx context.Context) (ReclaimableItems, error)
+}
+
 // PruneOptions picks the kinds a prune deletes. Each one is the matching
 // `docker <kind> prune`, widened to everything unused (`-a`, and named volumes
 // too) so that it frees what Reclaimable counts.

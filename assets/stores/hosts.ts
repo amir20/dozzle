@@ -40,6 +40,15 @@ export type Reclaimable = {
   buildCacheSize: number;
 };
 
+// What a clean up of images and volumes would delete, from /api/hosts/{id}/reclaimable.
+export type ReclaimableItems = {
+  images: { id: string; tags: string[]; size: number }[];
+  volumes: { name: string; size: number; created: string }[];
+};
+
+export type ReclaimablePreview =
+  { status: "idle" | "loading" } | { status: "ready"; items: ReclaimableItems } | { status: "error"; error: string };
+
 const hosts = ref(
   config.hosts
     .sort((a, b) => a.name.localeCompare(b.name))
