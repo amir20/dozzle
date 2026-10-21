@@ -492,6 +492,7 @@ releases:
   no_releases: You have the latest version
   newer: "1 newer release | {count} newer releases"
   all: All releases
+  updates_summary: "1 container updated | {count} containers updated"
 toasts:
   copied:
     title: Copied
@@ -870,6 +871,7 @@ cloud:
       unhealthy: Container became unhealthy
       oom: Killed by the kernel (OOM)
       restart: Container restarted
+      updated: Container updated by Dozzle
       cpu: CPU over 90% for 5 minutes
       memory: Memory over 90% for 5 minutes
       disk: Volume over 85% full

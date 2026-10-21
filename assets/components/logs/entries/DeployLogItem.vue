@@ -51,7 +51,7 @@
 <script lang="ts" setup>
 import type { Component } from "vue";
 import { DeployLogEntry } from "@/models/LogEntry";
-import { undecidedRegression, updateLabels, type DeployVerdictKind } from "@/models/ContainerUpdate";
+import { undecidedRegression, updateKind, updateLabels, type DeployVerdictKind } from "@/models/ContainerUpdate";
 import MdiUpdate from "~icons/mdi/update";
 import MdiRestore from "~icons/mdi/restore";
 import MdiCloudCheckOutline from "~icons/mdi/cloud-check-outline";
@@ -71,9 +71,8 @@ const labels = computed(() => updateLabels(update.value));
 // A rollback reads as one, and a swap Dozzle undid says so: neither is an
 // update that now runs.
 const kind = computed(() => {
-  if (update.value.rolledBack) return { label: "update-marker.undone", icon: MdiRestore };
-  if (update.value.source === "rollback") return { label: "update-marker.rolled-back", icon: MdiRestore };
-  return { label: "update-marker.updated", icon: MdiUpdate };
+  const kind = updateKind(update.value);
+  return { label: `update-marker.${kind}`, icon: kind === "updated" ? MdiUpdate : MdiRestore };
 });
 
 interface VerdictLook {

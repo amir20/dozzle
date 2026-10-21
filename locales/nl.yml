@@ -365,6 +365,7 @@ releases:
   no_releases: Je gebruikt de nieuwste versie
   newer: "1 nieuwere versie | {count} nieuwere versies"
   all: Alle versies
+  updates_summary: "1 container bijgewerkt | {count} containers bijgewerkt"
 toasts:
   copied:
     title: Gekopieerd
@@ -743,6 +744,7 @@ cloud:
       unhealthy: "Container werd unhealthy"
       oom: "Gedood door de kernel (OOM)"
       restart: "Container herstart"
+      updated: "Container bijgewerkt door Dozzle"
       cpu: "CPU boven 90% gedurende 5 minuten"
       memory: "Geheugen boven 90% gedurende 5 minuten"
       disk: "Volume voor meer dan 85% vol"

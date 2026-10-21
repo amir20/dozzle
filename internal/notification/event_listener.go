@@ -2,6 +2,7 @@ package notification
 
 import (
 	"context"
+	"strconv"
 	"strings"
 	"sync"
 	"time"
@@ -20,6 +21,11 @@ var allowedEventNames = map[string]bool{
 	"kill":          true,
 }
 
+// UpdateEventName is the event an update or rollback Dozzle made raises. Docker
+// has no such event: an update is a stop, a create and a start, so it is built
+// from the update record instead.
+const UpdateEventName = "update"
+
 type ContainerEventEntry struct {
 	Event     container.ContainerEvent
 	Container container.Container
@@ -33,6 +39,12 @@ type ContainerEventListener struct {
 	cache      *TTLCache[string, containerInfo]
 	mu         sync.Mutex
 	cancelFunc context.CancelFunc
+
+	// updates, when set, turns every record it gets into an update event.
+	// updateClients finds the container an update left running, on any host:
+	// an update on an agent host is recorded by the server, not the agent.
+	updates       *container.UpdateRecords
+	updateClients func() []container.ClientService
 }
 
 func NewContainerEventListener(ctx context.Context, clients []container.ClientService) *ContainerEventListener {
@@ -42,6 +54,16 @@ func NewContainerEventListener(ctx context.Context, clients []container.ClientSe
 		parentCtx: ctx,
 		cache:     NewTTLCache[string, containerInfo](ctx, 30*time.Second),
 	}
+}
+
+// ListenToUpdates raises an update event for every record added to records
+// from the next Start on. Only the process that records updates calls it, so
+// an update is never raised twice.
+func (l *ContainerEventListener) ListenToUpdates(records *container.UpdateRecords, clients func() []container.ClientService) {
+	l.mu.Lock()
+	defer l.mu.Unlock()
+	l.updates = records
+	l.updateClients = clients
 }
 
 func (l *ContainerEventListener) Start() {
@@ -61,6 +83,12 @@ func (l *ContainerEventListener) Start() {
 	}
 
 	go l.enrich(ctx, rawEvents)
+
+	if l.updates != nil {
+		records := make(chan container.UpdateRecord, 64)
+		l.updates.Subscribe(ctx, records)
+		go l.forwardUpdates(ctx, records)
+	}
 
 	log.Debug().Msg("Started container event listener for event alerts")
 }
@@ -130,6 +158,66 @@ func (l *ContainerEventListener) enrich(ctx context.Context, rawEvents <-chan co
 				log.Warn().Str("containerID", event.ActorID).Str("event", event.Name).Msg("Event channel full, dropping event")
 			}
 		}
+	}
+}
+
+func (l *ContainerEventListener) forwardUpdates(ctx context.Context, records <-chan container.UpdateRecord) {
+	for {
+		select {
+		case <-ctx.Done():
+			return
+		case r := <-records:
+			entry, ok := l.updateEntry(ctx, r)
+			if !ok {
+				continue
+			}
+			select {
+			case l.channel <- entry:
+			case <-ctx.Done():
+				return
+			default:
+				log.Warn().Str("containerID", r.NewID).Msg("Event channel full, dropping update event")
+			}
+		}
+	}
+}
+
+// updateEntry is the update event for r, on the container r left running.
+func (l *ContainerEventListener) updateEntry(ctx context.Context, r container.UpdateRecord) (*ContainerEventEntry, bool) {
+	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
+	defer cancel()
+
+	for _, client := range l.updateClients() {
+		host, err := client.Host(ctx)
+		if err != nil || host.ID != r.Host {
+			continue
+		}
+		c, err := client.FindContainer(ctx, r.NewID, nil)
+		if err != nil {
+			log.Debug().Err(err).Str("containerID", r.NewID).Msg("update event: container not found")
+			return nil, false
+		}
+		if isDozzleContainer(c) {
+			return nil, false
+		}
+		return &ContainerEventEntry{Event: updateEvent(r), Container: c, Host: host}, true
+	}
+	return nil, false
+}
+
+func updateEvent(r container.UpdateRecord) container.ContainerEvent {
+	return container.ContainerEvent{
+		Name:    UpdateEventName,
+		Host:    r.Host,
+		ActorID: r.NewID,
+		ActorAttributes: map[string]string{
+			"source":     r.Source,
+			"rolledBack": strconv.FormatBool(r.RolledBack),
+			"image":      r.ImageRef,
+			"fromDigest": r.FromDigest,
+			"toDigest":   r.ToDigest,
+		},
+		Time: r.At,
 	}
 }
 

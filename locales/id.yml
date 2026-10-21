@@ -374,6 +374,7 @@ releases:
 
   newer: "1 rilis lebih baru | {count} rilis lebih baru"
   all: Semua rilis
+  updates_summary: "1 kontainer diperbarui | {count} kontainer diperbarui"
 
 toasts:
   copied:
@@ -754,6 +755,7 @@ cloud:
       unhealthy: "Kontainer menjadi unhealthy"
       oom: "Dihentikan oleh kernel (OOM)"
       restart: "Kontainer dimulai ulang"
+      updated: "Kontainer diperbarui oleh Dozzle"
       cpu: "CPU di atas 90% selama 5 menit"
       memory: "Memori di atas 90% selama 5 menit"
       disk: "Volume terisi lebih dari 85%"

@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/amir20/dozzle/internal/analytics"
@@ -257,6 +258,9 @@ func (m *Manager) processDockerEvent(event *ContainerEventEntry) {
 		if exitCode, ok := event.Event.ActorAttributes["exitCode"]; ok && event.Event.Name == "die" {
 			detail = fmt.Sprintf("Container event: %s (exit code %s)", event.Event.Name, describeExitCode(exitCode))
 		}
+		if event.Event.Name == UpdateEventName {
+			detail = describeUpdate(event.Event.ActorAttributes)
+		}
 
 		notification := types.Notification{
 			ID:        fmt.Sprintf("%s-event-%d", event.Event.ActorID, time.Now().UnixNano()),
@@ -281,6 +285,30 @@ func (m *Manager) processDockerEvent(event *ContainerEventEntry) {
 		}
 		return true
 	})
+}
+
+// describeUpdate is the detail of an update event: which image, and whether
+// the swap kept the new container or put the old one back.
+func describeUpdate(attributes map[string]string) string {
+	verb := "updated"
+	if attributes["rolledBack"] == "true" {
+		verb = "update rolled back"
+	}
+	detail := fmt.Sprintf("Container %s: %s", verb, attributes["image"])
+	if from, to := shortDigest(attributes["fromDigest"]), shortDigest(attributes["toDigest"]); from != "" && to != "" {
+		detail += fmt.Sprintf(" (%s → %s)", from, to)
+	}
+	return detail
+}
+
+// shortDigest is the first 12 hex characters of a repo@sha256:... or
+// sha256:... digest, or "" for none.
+func shortDigest(digest string) string {
+	_, hex, found := strings.Cut(digest, "sha256:")
+	if !found {
+		return ""
+	}
+	return hex[:min(12, len(hex))]
 }
 
 // signalExitCodes maps the 128+N exit codes a container gets when a signal kills

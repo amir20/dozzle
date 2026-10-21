@@ -278,6 +278,7 @@ func (m *K8sClusterService) StartNotificationManager(ctx context.Context) error 
 	listener := notification.NewContainerLogListener(ctx, clients)
 	statsListener := notification.NewContainerStatsListener(ctx, clients)
 	eventListener := notification.NewContainerEventListener(ctx, clients)
+	eventListener.ListenToUpdates(container.Updates, func() []container.ClientService { return m.LocalClientServices() })
 	m.notificationManager = notification.NewManager(listener, statsListener, eventListener)
 	m.persister = &notification.Persister{
 		Manager:          m.notificationManager,

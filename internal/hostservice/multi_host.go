@@ -398,6 +398,7 @@ func (m *MultiHostService) StartNotificationManager(ctx context.Context) error {
 	listener := notification.NewContainerLogListener(ctx, clients)
 	statsListener := notification.NewContainerStatsListener(ctx, clients)
 	eventListener := notification.NewContainerEventListener(ctx, clients)
+	eventListener.ListenToUpdates(container.Updates, func() []container.ClientService { return m.ClientServices(false) })
 	m.notificationManager = notification.NewManager(listener, statsListener, eventListener)
 	m.persister = &notification.Persister{
 		Manager:          m.notificationManager,

@@ -113,6 +113,17 @@ export function createEventHints(): Completion[] {
     { label: 'attributes["healthStatus"]', detail: "healthy or unhealthy (health_status events)", type: "property" },
     { label: 'attributes["exitCode"]', detail: "exit code (die events)", type: "property" },
     { label: 'attributes["signal"]', detail: "signal name (kill events)", type: "property" },
+    {
+      label: 'attributes["source"]',
+      detail: "schedule, dozzle, cloud or rollback (update events)",
+      type: "property",
+    },
+    {
+      label: 'attributes["rolledBack"]',
+      detail: '"true" when the new container failed (update events)',
+      type: "property",
+    },
+    { label: 'attributes["image"]', detail: "image reference (update events)", type: "property" },
     ...exprOperators,
     { label: '"start"', detail: "container started", type: "string" },
     { label: '"stop"', detail: "container stopped", type: "string" },
@@ -121,6 +132,7 @@ export function createEventHints(): Completion[] {
     { label: '"kill"', detail: "container killed by signal", type: "string" },
     { label: '"oom"', detail: "container out of memory", type: "string" },
     { label: '"health_status"', detail: "health check changed", type: "string" },
+    { label: '"update"', detail: "Dozzle updated the container to a new image", type: "string" },
     { label: 'name == "die"', detail: "match container death", type: "text", boost: 10 },
     { label: 'name == "health_status"', detail: "match health changes", type: "text", boost: 10 },
     {
@@ -130,6 +142,7 @@ export function createEventHints(): Completion[] {
       boost: 10,
     },
     { label: 'name in ["stop", "die"]', detail: "match stop or death", type: "text", boost: 10 },
+    { label: 'name == "update"', detail: "match container updates", type: "text", boost: 10 },
   ];
 }
 

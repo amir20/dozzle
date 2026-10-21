@@ -366,6 +366,7 @@ releases:
   no_releases: 최신 버전을 사용하고 있습니다
   newer: "새 릴리스 1개 | 새 릴리스 {count}개"
   all: 모든 릴리스
+  updates_summary: "컨테이너 1개 업데이트됨 | 컨테이너 {count}개 업데이트됨"
 toasts:
   copied:
     title: 복사 완료
@@ -744,6 +745,7 @@ cloud:
       unhealthy: "컨테이너가 unhealthy 상태가 됨"
       oom: "커널에 의해 종료됨 (OOM)"
       restart: "컨테이너 재시작됨"
+      updated: "Dozzle이 컨테이너를 업데이트함"
       cpu: "CPU가 5분간 90% 초과"
       memory: "메모리가 5분간 90% 초과"
       disk: "볼륨 85% 이상 사용"

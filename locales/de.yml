@@ -364,6 +364,7 @@ releases:
   no_releases: Du hast die aktuellste Version
   newer: "1 neuere Version | {count} neuere Versionen"
   all: Alle Versionen
+  updates_summary: "1 Container aktualisiert | {count} Container aktualisiert"
 toasts:
   copied:
     title: Kopiert
@@ -742,6 +743,7 @@ cloud:
       unhealthy: "Container wurde unhealthy"
       oom: "Vom Kernel beendet (OOM)"
       restart: "Container neu gestartet"
+      updated: "Container von Dozzle aktualisiert"
       cpu: "CPU über 90% für 5 Minuten"
       memory: "Arbeitsspeicher über 90% für 5 Minuten"
       disk: "Volume zu über 85% belegt"

@@ -29,7 +29,10 @@ export type UsageKey =
   | "stream.reconnect"
   | "memory.chip.shown"
   | "memory.chip.hover"
-  | "memory.chip.open";
+  | "memory.chip.open"
+  | "megaphone.open"
+  | "megaphone.update"
+  | "megaphone.release";
 
 export const USAGE_FLUSH_INTERVAL = 5 * 60 * 1000;
 const MINUTE = 60 * 1000;
