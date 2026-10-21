@@ -36,7 +36,11 @@ export function useRecentDeploys() {
   const linked = computed(() => !!cloudConfig.value?.linked);
 
   async function refresh() {
-    if (!linked.value) return;
+    // Unlinked since the last ask: what Cloud said no longer applies.
+    if (!linked.value) {
+      cloudDeploys.value = [];
+      return;
+    }
     try {
       const res = await fetch(withBase("/api/cloud/deploys/recent"));
       if (res.ok) cloudDeploys.value = (await res.json()) ?? [];
