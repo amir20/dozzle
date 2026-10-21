@@ -210,6 +210,7 @@ func main() {
 		GetAlerts:  cloudClient.GetAlerts,
 
 		GetRecentAlerts:   cloudClient.GetRecentAlerts,
+		GetRecentDeploys:  cloudClient.GetRecentDeploys,
 		GetPatternContext: cloudClient.GetPatternContext,
 
 		GetContainerMetrics: cloudClient.GetContainerMetrics,

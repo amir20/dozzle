@@ -32,6 +32,14 @@ service CloudToolService {
   // (user_id, api_key_id) on the connection, like everything else here.
   rpc GetRecentAlerts(GetRecentAlertsRequest) returns (GetAlertsResponse);
 
+  // Dozzle-initiated unary call: the container updates Cloud recorded lately on
+  // this instance, with its verdict on each, for the megaphone. Dozzle keeps
+  // its own updates only until a restart; this is what survives one. Scoped
+  // server-side to the (user_id, api_key_id) on the connection. Cloud has never
+  // heard of a Dozzle user, so Dozzle narrows the answer to what the viewer may
+  // see.
+  rpc GetRecentDeploys(GetRecentDeploysRequest) returns (GetRecentDeploysResponse);
+
   // Dozzle-initiated unary call: what Cloud remembers about the error and
   // warn lines on screen. Dozzle names each line by (container_id, log_id);
   // Cloud finds the line in the logs it was streamed, groups it into its
@@ -206,6 +214,24 @@ message GetRecentAlertsRequest {
   // Include anchors where an already-open incident was still firing. Default
   // false keeps a long-running incident to a single row.
   bool include_follow_ups = 4;
+}
+
+message GetRecentDeploysRequest {
+  // Oldest update to return, by when it finished, unix nanoseconds.
+  int64 since_ts_ns = 1;
+  // Result cap, newest first. Default 20, server-capped at 50.
+  int32 limit = 2;
+}
+
+message GetRecentDeploysResponse {
+  repeated RecentDeploy deploys = 1;
+}
+
+// One update as Cloud recorded it. update is the record Dozzle pushed (source
+// as Dozzle sent it), verdict what Cloud made of it since.
+message RecentDeploy {
+  ContainerUpdate update = 1;
+  DeployHit verdict = 2;
 }
 
 message GetContainerMetricsRequest {

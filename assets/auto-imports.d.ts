@@ -197,6 +197,7 @@ declare global {
   const mergeByTime: typeof import('./composable/logs/logLoader').mergeByTime
   const mergeCloudEvents: typeof import('./composable/cloud/cloudAlerts').mergeCloudEvents
   const mergeDeploys: typeof import('./composable/cloud/cloudAlerts').mergeDeploys
+  const mergeRecentDeploys: typeof import('./composable/cloud/recentDeploys').mergeRecentDeploys
   const messageKeyOf: typeof import('./composable/logs/similarSearch').messageKeyOf
   const narrowedLevels: typeof import('./composable/logs/viewContext').narrowedLevels
   const newerThanOnScreen: typeof import('./composable/logs/logWindow').newerThanOnScreen
@@ -519,6 +520,7 @@ declare global {
   const useProfileStorage: typeof import('./composable/app/profileStorage').useProfileStorage
   const useRafFn: typeof import('@vueuse/core').useRafFn
   const useRecentAlerts: typeof import('./composable/cloud/recentAlerts').useRecentAlerts
+  const useRecentDeploys: typeof import('./composable/cloud/recentDeploys').useRecentDeploys
   const useRefHistory: typeof import('@vueuse/core').useRefHistory
   const useResizeObserver: typeof import('@vueuse/core').useResizeObserver
   const useResolvedTheme: typeof import('./composable/app/theme').useResolvedTheme
@@ -661,6 +663,9 @@ declare global {
   // @ts-ignore
   export type { PatternContextHit } from './composable/cloud/patternMemory'
   import('./composable/cloud/patternMemory')
+  // @ts-ignore
+  export type { RecentDeploy } from './composable/cloud/recentDeploys'
+  import('./composable/cloud/recentDeploys')
   // @ts-ignore
   export type { VolumeBucket, VolumeColumn } from './composable/cloud/searchVolume'
   import('./composable/cloud/searchVolume')
@@ -932,6 +937,7 @@ declare module 'vue' {
     readonly mergeByTime: UnwrapRef<typeof import('./composable/logs/logLoader')['mergeByTime']>
     readonly mergeCloudEvents: UnwrapRef<typeof import('./composable/cloud/cloudAlerts')['mergeCloudEvents']>
     readonly mergeDeploys: UnwrapRef<typeof import('./composable/cloud/cloudAlerts')['mergeDeploys']>
+    readonly mergeRecentDeploys: UnwrapRef<typeof import('./composable/cloud/recentDeploys')['mergeRecentDeploys']>
     readonly messageKeyOf: UnwrapRef<typeof import('./composable/logs/similarSearch')['messageKeyOf']>
     readonly narrowedLevels: UnwrapRef<typeof import('./composable/logs/viewContext')['narrowedLevels']>
     readonly newerThanOnScreen: UnwrapRef<typeof import('./composable/logs/logWindow')['newerThanOnScreen']>
@@ -1246,6 +1252,7 @@ declare module 'vue' {
     readonly useProfileStorage: UnwrapRef<typeof import('./composable/app/profileStorage')['useProfileStorage']>
     readonly useRafFn: UnwrapRef<typeof import('@vueuse/core')['useRafFn']>
     readonly useRecentAlerts: UnwrapRef<typeof import('./composable/cloud/recentAlerts')['useRecentAlerts']>
+    readonly useRecentDeploys: UnwrapRef<typeof import('./composable/cloud/recentDeploys')['useRecentDeploys']>
     readonly useRefHistory: UnwrapRef<typeof import('@vueuse/core')['useRefHistory']>
     readonly useResizeObserver: UnwrapRef<typeof import('@vueuse/core')['useResizeObserver']>
     readonly useResolvedTheme: UnwrapRef<typeof import('./composable/app/theme')['useResolvedTheme']>

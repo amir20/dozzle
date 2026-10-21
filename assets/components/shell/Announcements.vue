@@ -17,19 +17,16 @@
       <div class="flex max-h-[70vh] w-80 flex-col">
         <!-- One scroll area for both groups, so the footer stays put and nothing nests a scroll. -->
         <div class="min-h-0 flex-1 overflow-y-auto">
-          <!-- Updates Dozzle made lately. Kept in memory on the server, so a restart empties it.
-               Past a few, one row sums them up and opens on click. -->
-          <template v-if="recentUpdates.length > 0">
+          <!-- Updates Dozzle made lately, kept in memory on the server, plus what Dozzle Cloud
+               still remembers from before a restart. Past a few, one row sums them up. -->
+          <template v-if="updates.length > 0">
             <button
-              v-if="recentUpdates.length > SUMMARIZE_PAST"
+              v-if="updates.length > SUMMARIZE_PAST"
               class="hover:bg-base-300 flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left transition-colors"
               :aria-expanded="showAllUpdates"
               @click="showAllUpdates = !showAllUpdates"
             >
-              <span
-                class="flex size-6 shrink-0 items-center justify-center rounded-full"
-                :class="anyUndone ? 'bg-warning/10 text-warning' : 'bg-info/10 text-info'"
-              >
+              <span class="flex size-6 shrink-0 items-center justify-center rounded-full" :class="TONES[summaryTone]">
                 <mdi:update class="size-3.5" />
               </span>
               <span class="min-w-0 flex-1">
@@ -43,28 +40,33 @@
                 :class="{ 'rotate-180': showAllUpdates }"
               />
             </button>
-            <ul v-if="recentUpdates.length <= SUMMARIZE_PAST || showAllUpdates">
-              <li v-for="update in recentUpdates" :key="`${update.host}/${update.newId}/${update.at}`">
+            <ul v-if="updates.length <= SUMMARIZE_PAST || showAllUpdates">
+              <li v-for="update in updates" :key="`${update.host}/${update.newId}/${update.at}`">
+                <!-- A container still here opens its logs, where the marker has the verdict and
+                     Roll back. One that is gone opens the update in Dozzle Cloud, if it has it. -->
                 <component
-                  :is="allContainersById[update.newId] ? RouterLink : 'div'"
-                  :to="{ name: '/container/[id]', params: { id: update.newId } }"
+                  :is="allContainersById[update.newId] ? RouterLink : update.verdict?.url ? 'a' : 'div'"
+                  v-bind="rowLink(update)"
                   class="flex items-center gap-2 rounded-md px-2 py-1.5"
-                  :class="{ 'hover:bg-base-300 transition-colors': allContainersById[update.newId] }"
+                  :class="{
+                    'hover:bg-base-300 transition-colors': allContainersById[update.newId] || update.verdict?.url,
+                  }"
                   @click="trackUsage('megaphone.update')"
                 >
                   <span
                     class="flex size-6 shrink-0 items-center justify-center rounded-full"
-                    :class="updateKind(update) === 'undone' ? 'bg-warning/10 text-warning' : 'bg-info/10 text-info'"
+                    :class="TONES[tone(update)]"
                   >
                     <mdi:update v-if="updateKind(update) === 'updated'" class="size-3.5" />
                     <mdi:restore v-else class="size-3.5" />
                   </span>
                   <span class="min-w-0 flex-1">
-                    <!-- The icon already says "updated"; only an undone or rolled-back one is named. -->
+                    <!-- The icon already says "updated"; a verdict worth a look, or an undone or
+                         rolled-back update, is named. -->
                     <span class="flex items-baseline gap-2">
                       <span class="truncate text-sm font-semibold">{{ update.name }}</span>
-                      <span v-if="updateKind(update) !== 'updated'" class="text-base-content/60 shrink-0 text-xs">
-                        {{ $t(`update-marker.${updateKind(update)}`) }}
+                      <span v-if="rowLabel(update)" class="text-base-content/60 shrink-0 text-xs">
+                        {{ $t(rowLabel(update)!) }}
                       </span>
                     </span>
                     <!-- Only the image it moved to: both sides do not fit at this width, and the
@@ -74,6 +76,10 @@
                     </span>
                   </span>
                   <RelativeTime :date="new Date(update.at)" class="text-base-content/40 shrink-0 text-xs" />
+                  <mdi:open-in-new
+                    v-if="!allContainersById[update.newId] && update.verdict?.url"
+                    class="size-3.5 shrink-0 opacity-40"
+                  />
                 </component>
               </li>
             </ul>
@@ -199,10 +205,15 @@
 <script setup lang="ts">
 import { RouterLink } from "vue-router";
 import { useAnnouncements } from "@/stores/announcements";
-import { updateKind, updateLabels } from "@/models/ContainerUpdate";
+import { undecidedRegression, updateKind, updateLabels } from "@/models/ContainerUpdate";
+import { mergeRecentDeploys, useRecentDeploys, type RecentDeploy } from "@/composable/cloud/recentDeploys";
 
 const { announcements, mostRecent, fetchReleases } = useAnnouncements();
 const { recentUpdates, lastAutoPrune, allContainersById } = storeToRefs(useContainerStore());
+const { cloudDeploys, refresh: refreshCloudDeploys } = useRecentDeploys();
+// Asked once on load, so the badge counts updates only Cloud remembers, and again on open.
+onMounted(refreshCloudDeploys);
+const updates = computed(() => mergeRecentDeploys(recentUpdates.value, cloudDeploys.value));
 const { t } = useI18n();
 
 const releaseSeen = useProfileStorage("releaseSeen", config.version);
@@ -211,7 +222,7 @@ const releaseSeen = useProfileStorage("releaseSeen", config.version);
 const updatesSeen = useStorage("DOZZLE_UPDATES_SEEN", "");
 
 const newestUpdateAt = computed(() => {
-  const times = [recentUpdates.value[0]?.at, lastAutoPrune.value?.at].filter((at): at is string => !!at);
+  const times = [updates.value[0]?.at, lastAutoPrune.value?.at].filter((at): at is string => !!at);
   return times.sort((a, b) => Date.parse(b) - Date.parse(a))[0] ?? "";
 });
 
@@ -225,7 +236,7 @@ const unseenReleases = computed(() => {
 const unseenUpdates = computed(() => {
   const seen = updatesSeen.value ? Date.parse(updatesSeen.value) : 0;
   const prune = lastAutoPrune.value && Date.parse(lastAutoPrune.value.at) > seen ? 1 : 0;
-  return recentUpdates.value.filter((u) => Date.parse(u.at) > seen).length + prune;
+  return updates.value.filter((u) => Date.parse(u.at) > seen).length + prune;
 });
 const unseenCount = computed(() => unseenReleases.value + unseenUpdates.value);
 
@@ -234,9 +245,36 @@ const SUMMARIZE_PAST = 3;
 const showAllUpdates = ref(false);
 const showAllReleases = ref(false);
 
-const anyUndone = computed(() => recentUpdates.value.some((u) => updateKind(u) === "undone"));
+// Severity rides on the icon. A regression Dozzle Cloud found is an error; one it is unsure of,
+// or a swap Dozzle undid, is a warning.
+type Tone = "info" | "warning" | "error";
+const TONES: Record<Tone, string> = {
+  info: "bg-info/10 text-info",
+  warning: "bg-warning/10 text-warning",
+  error: "bg-error/10 text-error",
+};
+function tone(u: RecentDeploy): Tone {
+  if (undecidedRegression(u.verdict) && u.verdict?.verdict === "regressed") return "error";
+  if (undecidedRegression(u.verdict) || updateKind(u) === "undone") return "warning";
+  return "info";
+}
+const summaryTone = computed<Tone>(() => {
+  const tones = updates.value.map(tone);
+  return tones.includes("error") ? "error" : tones.includes("warning") ? "warning" : "info";
+});
+// What a row says next to the name: a verdict that wants a look first, then what the swap did.
+function rowLabel(u: RecentDeploy): string | undefined {
+  if (undecidedRegression(u.verdict)) return `update-marker.verdict.${u.verdict!.verdict}`;
+  const kind = updateKind(u);
+  return kind === "updated" ? undefined : `update-marker.${kind}`;
+}
+function rowLink(u: RecentDeploy) {
+  if (allContainersById.value[u.newId]) return { to: { name: "/container/[id]", params: { id: u.newId } } };
+  if (u.verdict?.url) return { href: u.verdict.url, target: "_blank", rel: "noreferrer noopener" };
+  return {};
+}
 // A container updated twice is one name, so the summary counts names, not updates.
-const updatedContainers = computed(() => [...new Set(recentUpdates.value.map((u) => u.name))]);
+const updatedContainers = computed(() => [...new Set(updates.value.map((u) => u.name))]);
 // The first few names, newest first, and how many more: "web, db, api +9".
 const updatedNames = computed(() => {
   const names = updatedContainers.value;
@@ -258,6 +296,7 @@ const releaseTotals = computed(() =>
 
 function opened() {
   trackUsage("megaphone.open");
+  refreshCloudDeploys();
   if (config.releaseCheckMode === "manual") fetchReleases();
 }
 

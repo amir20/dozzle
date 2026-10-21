@@ -23,6 +23,7 @@ const (
 	CloudToolService_SearchLogs_FullMethodName          = "/cloud.CloudToolService/SearchLogs"
 	CloudToolService_GetAlerts_FullMethodName           = "/cloud.CloudToolService/GetAlerts"
 	CloudToolService_GetRecentAlerts_FullMethodName     = "/cloud.CloudToolService/GetRecentAlerts"
+	CloudToolService_GetRecentDeploys_FullMethodName    = "/cloud.CloudToolService/GetRecentDeploys"
 	CloudToolService_GetPatternContext_FullMethodName   = "/cloud.CloudToolService/GetPatternContext"
 	CloudToolService_GetContainerMetrics_FullMethodName = "/cloud.CloudToolService/GetContainerMetrics"
 	CloudToolService_Chat_FullMethodName                = "/cloud.CloudToolService/Chat"
@@ -55,6 +56,13 @@ type CloudToolServiceClient interface {
 	// never know a container list up front. Scoped server-side to the
 	// (user_id, api_key_id) on the connection, like everything else here.
 	GetRecentAlerts(ctx context.Context, in *GetRecentAlertsRequest, opts ...grpc.CallOption) (*GetAlertsResponse, error)
+	// Dozzle-initiated unary call: the container updates Cloud recorded lately on
+	// this instance, with its verdict on each, for the megaphone. Dozzle keeps
+	// its own updates only until a restart; this is what survives one. Scoped
+	// server-side to the (user_id, api_key_id) on the connection. Cloud has never
+	// heard of a Dozzle user, so Dozzle narrows the answer to what the viewer may
+	// see.
+	GetRecentDeploys(ctx context.Context, in *GetRecentDeploysRequest, opts ...grpc.CallOption) (*GetRecentDeploysResponse, error)
 	// Dozzle-initiated unary call: what Cloud remembers about the error and
 	// warn lines on screen. Dozzle names each line by (container_id, log_id);
 	// Cloud finds the line in the logs it was streamed, groups it into its
@@ -132,6 +140,16 @@ func (c *cloudToolServiceClient) GetRecentAlerts(ctx context.Context, in *GetRec
 	return out, nil
 }
 
+func (c *cloudToolServiceClient) GetRecentDeploys(ctx context.Context, in *GetRecentDeploysRequest, opts ...grpc.CallOption) (*GetRecentDeploysResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetRecentDeploysResponse)
+	err := c.cc.Invoke(ctx, CloudToolService_GetRecentDeploys_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *cloudToolServiceClient) GetPatternContext(ctx context.Context, in *GetPatternContextRequest, opts ...grpc.CallOption) (*GetPatternContextResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(GetPatternContextResponse)
@@ -192,6 +210,13 @@ type CloudToolServiceServer interface {
 	// never know a container list up front. Scoped server-side to the
 	// (user_id, api_key_id) on the connection, like everything else here.
 	GetRecentAlerts(context.Context, *GetRecentAlertsRequest) (*GetAlertsResponse, error)
+	// Dozzle-initiated unary call: the container updates Cloud recorded lately on
+	// this instance, with its verdict on each, for the megaphone. Dozzle keeps
+	// its own updates only until a restart; this is what survives one. Scoped
+	// server-side to the (user_id, api_key_id) on the connection. Cloud has never
+	// heard of a Dozzle user, so Dozzle narrows the answer to what the viewer may
+	// see.
+	GetRecentDeploys(context.Context, *GetRecentDeploysRequest) (*GetRecentDeploysResponse, error)
 	// Dozzle-initiated unary call: what Cloud remembers about the error and
 	// warn lines on screen. Dozzle names each line by (container_id, log_id);
 	// Cloud finds the line in the logs it was streamed, groups it into its
@@ -237,6 +262,9 @@ func (UnimplementedCloudToolServiceServer) GetAlerts(context.Context, *GetAlerts
 }
 func (UnimplementedCloudToolServiceServer) GetRecentAlerts(context.Context, *GetRecentAlertsRequest) (*GetAlertsResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method GetRecentAlerts not implemented")
+}
+func (UnimplementedCloudToolServiceServer) GetRecentDeploys(context.Context, *GetRecentDeploysRequest) (*GetRecentDeploysResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method GetRecentDeploys not implemented")
 }
 func (UnimplementedCloudToolServiceServer) GetPatternContext(context.Context, *GetPatternContextRequest) (*GetPatternContextResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method GetPatternContext not implemented")
@@ -329,6 +357,24 @@ func _CloudToolService_GetRecentAlerts_Handler(srv interface{}, ctx context.Cont
 	return interceptor(ctx, in, info, handler)
 }
 
+func _CloudToolService_GetRecentDeploys_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetRecentDeploysRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CloudToolServiceServer).GetRecentDeploys(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: CloudToolService_GetRecentDeploys_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CloudToolServiceServer).GetRecentDeploys(ctx, req.(*GetRecentDeploysRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _CloudToolService_GetPatternContext_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(GetPatternContextRequest)
 	if err := dec(in); err != nil {
@@ -390,6 +436,10 @@ var CloudToolService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetRecentAlerts",
 			Handler:    _CloudToolService_GetRecentAlerts_Handler,
+		},
+		{
+			MethodName: "GetRecentDeploys",
+			Handler:    _CloudToolService_GetRecentDeploys_Handler,
 		},
 		{
 			MethodName: "GetPatternContext",
