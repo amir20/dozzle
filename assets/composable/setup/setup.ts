@@ -32,7 +32,15 @@ export interface SetupAutoPrune {
   mode: AutoUpdateMode;
   time: string;
   zone: string;
-  lastRun?: { at: string; spaceReclaimed: number; failed?: number };
+  lastRun?: AutoPruneRun;
+}
+
+// One scheduled clean up. Mirrors autoPruneRun in internal/web/autoprune.go, and is
+// also sent on the events stream as `auto-prune` for the megaphone.
+export interface AutoPruneRun {
+  at: string;
+  spaceReclaimed: number;
+  failed?: number;
 }
 
 // An agent this hub connects to. A locked one came from DOZZLE_REMOTE_AGENT and can

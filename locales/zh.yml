@@ -1171,6 +1171,7 @@ reclaim:
   agent-too-old: "此 agent 还不能清理，请更新到最新版本。"
   enable-actions: "启用容器操作即可在此清理。"
   schedule-label: "自动清理"
+  scheduled-run: "定时清理"
   schedule-desc: "清理所有主机上未使用的镜像、已停止的容器和构建缓存。永远不会删除卷。"
   last-run: "上次运行于 {when} 释放了 {size}。"
   last-run-failed: "有 {count} 台主机无法清理，请查看日志。 | 有 {count} 台主机无法清理，请查看日志。"

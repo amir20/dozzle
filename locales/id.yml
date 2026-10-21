@@ -1186,6 +1186,7 @@ reclaim:
   agent-too-old: "Agent ini belum bisa membersihkan. Perbarui ke versi terbaru."
   enable-actions: "Aktifkan aksi kontainer untuk membersihkan dari sini."
   schedule-label: "Bersihkan otomatis"
+  scheduled-run: "Pembersihan terjadwal"
   schedule-desc: "Image yang tidak dipakai, kontainer yang berhenti, dan build cache di semua host. Volume tidak pernah dihapus."
   last-run: "Proses terakhir mengosongkan {size} {when}."
   last-run-failed: "{count} host tidak bisa dibersihkan, lihat log. | {count} host tidak bisa dibersihkan, lihat log."

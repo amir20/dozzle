@@ -80,6 +80,32 @@
             <div class="bg-base-content/10 m-2 h-px"></div>
           </template>
 
+          <!-- The last scheduled clean up, when it freed something or failed somewhere. -->
+          <template v-if="lastAutoPrune">
+            <div class="flex items-center gap-2 px-2 py-1.5">
+              <span
+                class="flex size-6 shrink-0 items-center justify-center rounded-full"
+                :class="lastAutoPrune.failed ? 'bg-warning/10 text-warning' : 'bg-success/10 text-success'"
+              >
+                <mdi:broom class="size-3.5" />
+              </span>
+              <span class="min-w-0 flex-1">
+                <span class="block truncate text-sm font-semibold">
+                  {{ $t("reclaim.freed", { size: formatBytes(lastAutoPrune.spaceReclaimed, { decimals: 1 }) }) }}
+                </span>
+                <span class="text-base-content/60 block truncate text-xs">
+                  {{
+                    lastAutoPrune.failed
+                      ? $t("reclaim.last-run-failed", { count: lastAutoPrune.failed }, lastAutoPrune.failed)
+                      : $t("reclaim.scheduled-run")
+                  }}
+                </span>
+              </span>
+              <RelativeTime :date="new Date(lastAutoPrune.at)" class="text-base-content/40 shrink-0 text-xs" />
+            </div>
+            <div class="bg-base-content/10 m-2 h-px"></div>
+          </template>
+
           <!-- The API stops walking releases at the running version, so every one listed is a
                release you don't have yet. -->
           <div v-if="announcements.length === 0" class="flex items-center gap-2 px-2 py-1.5">
@@ -176,15 +202,18 @@ import { useAnnouncements } from "@/stores/announcements";
 import { updateKind, updateLabels } from "@/models/ContainerUpdate";
 
 const { announcements, mostRecent, fetchReleases } = useAnnouncements();
-const { recentUpdates, allContainersById } = storeToRefs(useContainerStore());
+const { recentUpdates, lastAutoPrune, allContainersById } = storeToRefs(useContainerStore());
 const { t } = useI18n();
 
 const releaseSeen = useProfileStorage("releaseSeen", config.version);
-// When the newest update the dropdown showed finished, so only updates after it light the dot.
-// Kept per browser rather than in the profile: the list itself only lives until a restart.
+// When the newest update or clean up the dropdown showed finished, so only ones after it
+// light the dot. Kept per browser rather than in the profile: both only live until a restart.
 const updatesSeen = useStorage("DOZZLE_UPDATES_SEEN", "");
 
-const newestUpdateAt = computed(() => recentUpdates.value[0]?.at ?? "");
+const newestUpdateAt = computed(() => {
+  const times = [recentUpdates.value[0]?.at, lastAutoPrune.value?.at].filter((at): at is string => !!at);
+  return times.sort((a, b) => Date.parse(b) - Date.parse(a))[0] ?? "";
+});
 
 // Announcements are newest first, so the unseen releases are the ones above the last one
 // seen. A seen tag no longer listed (the running version, or one since dropped) means
@@ -195,7 +224,8 @@ const unseenReleases = computed(() => {
 });
 const unseenUpdates = computed(() => {
   const seen = updatesSeen.value ? Date.parse(updatesSeen.value) : 0;
-  return recentUpdates.value.filter((u) => Date.parse(u.at) > seen).length;
+  const prune = lastAutoPrune.value && Date.parse(lastAutoPrune.value.at) > seen ? 1 : 0;
+  return recentUpdates.value.filter((u) => Date.parse(u.at) > seen).length + prune;
 });
 const unseenCount = computed(() => unseenReleases.value + unseenUpdates.value);
 

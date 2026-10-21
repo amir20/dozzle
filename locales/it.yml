@@ -1171,6 +1171,7 @@ reclaim:
   agent-too-old: "Questo agent non può ancora pulire. Aggiornalo all'ultima versione."
   enable-actions: "Abilita le azioni sui container per fare pulizia da qui."
   schedule-label: "Pulisci automaticamente"
+  scheduled-run: "Pulizia programmata"
   schedule-desc: "Immagini inutilizzate, container fermati e cache di build su tutti gli host. I volumi non vengono mai eliminati."
   last-run: "L'ultima esecuzione ha liberato {size} {when}."
   last-run-failed: "{count} host non è stato pulito, vedi i log. | {count} host non sono stati puliti, vedi i log."

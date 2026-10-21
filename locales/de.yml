@@ -1171,6 +1171,7 @@ reclaim:
   agent-too-old: "Dieser Agent kann noch nicht aufräumen. Aktualisieren Sie ihn auf die neueste Version."
   enable-actions: "Aktiviere Container-Aktionen, um hier aufzuräumen."
   schedule-label: "Automatisch aufräumen"
+  scheduled-run: "Geplantes Aufräumen"
   schedule-desc: "Ungenutzte Images, gestoppte Container und Build-Cache auf allen Hosts. Volumes werden nie gelöscht."
   last-run: "Letzter Lauf hat {size} freigegeben, {when}."
   last-run-failed: "{count} Host konnte nicht aufgeräumt werden, siehe Logs. | {count} Hosts konnten nicht aufgeräumt werden, siehe Logs."

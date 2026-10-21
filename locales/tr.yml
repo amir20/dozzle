@@ -1177,6 +1177,7 @@ reclaim:
   agent-too-old: "Bu agent henüz temizlik yapamıyor. En son sürüme güncelleyin."
   enable-actions: "Buradan temizlemek için konteyner eylemlerini etkinleştirin."
   schedule-label: "Otomatik temizle"
+  scheduled-run: "Zamanlanmış temizlik"
   schedule-desc: "Tüm sunuculardaki kullanılmayan imajlar, durdurulmuş konteynerler ve build önbelleği. Volume'lar asla silinmez."
   last-run: "Son çalışma {when} {size} boşalttı."
   last-run-failed: "{count} sunucu temizlenemedi, loglara bakın. | {count} sunucu temizlenemedi, loglara bakın."
