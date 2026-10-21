@@ -200,7 +200,10 @@ func (c *Client) Run(ctx context.Context) {
 			// only the defaults for a cloud that doesn't.
 			if delay, ok := retryDelay(err); ok {
 				log.Warn().Err(err).Dur("retry_after", delay).Msg("cloud rejected connection, retrying when cloud asked")
-				backoffTimer.Reset(delay)
+				// Jitter keeps instances refused together from retrying in lockstep;
+				// the floor keeps a bad hint from becoming a tight loop.
+				delay = max(delay, initialBackoff)
+				backoffTimer.Reset(delay + time.Duration(float64(delay)*jitterFraction*rand.Float64()))
 				select {
 				case <-ctx.Done():
 					return
