@@ -7,9 +7,11 @@ export type RecentDeploy = ContainerUpdate & { verdict?: DeployVerdict };
 // Matches updateFeedLimit in internal/web/update_feed.go.
 const MAX_RECENT = 20;
 
-// Dozzle pushes `at` to Cloud in nanoseconds and gets it back the same, so the
-// millisecond it parses to is a key both sides agree on.
-const key = (u: ContainerUpdate) => `${u.host}/${u.newId}/${Date.parse(u.at)}`;
+// The containers an update moved between name it on both sides. `at` would not:
+// Cloud stores it to the microsecond, rounded, so it can come back a millisecond
+// off. A swap Dozzle undid has the same old and new id, which still differs from
+// the update that created that container.
+const key = (u: ContainerUpdate) => `${u.host}/${u.oldId}/${u.newId}`;
 
 /**
  * The updates Dozzle holds in memory, plus the ones only Dozzle Cloud still

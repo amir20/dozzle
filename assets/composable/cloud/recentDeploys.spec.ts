@@ -36,10 +36,19 @@ describe("mergeRecentDeploys", () => {
 
   test("a swap undone onto the same container is its own row", () => {
     const merged = mergeRecentDeploys(
-      [update("a", "2026-10-21T10:00:00Z"), update("a", "2026-10-20T10:00:00Z", { rolledBack: true })],
+      [update("a", "2026-10-20T10:00:00Z"), update("a", "2026-10-21T10:00:00Z", { oldId: "a", rolledBack: true })],
       [],
     );
     expect(merged).toHaveLength(2);
+  });
+
+  test("Cloud's microsecond-rounded time still matches Dozzle's record", () => {
+    const merged = mergeRecentDeploys(
+      [update("a", "2026-10-21T10:00:00.999999999Z")],
+      [update("a", "2026-10-21T10:00:01.000000Z", { verdict: { deployId: "x", verdict: "clean" } })],
+    );
+    expect(merged).toHaveLength(1);
+    expect(merged[0].verdict?.verdict).toBe("clean");
   });
 
   test("keeps the newest 20", () => {
