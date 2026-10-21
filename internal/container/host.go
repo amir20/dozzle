@@ -6,6 +6,7 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"time"
 
 	"github.com/rs/zerolog/log"
 )
@@ -86,6 +87,30 @@ type Reclaimable struct {
 	Containers     int64 `json:"containers"`
 	ContainersSize int64 `json:"containersSize"`
 	BuildCacheSize int64 `json:"buildCacheSize"`
+}
+
+// ReclaimableItems names the images and volumes a prune would delete as of the
+// moment it was read. A prune picks again when it runs, so it is a preview, not
+// a promise.
+type ReclaimableItems struct {
+	Images  []ReclaimableImage  `json:"images"`
+	Volumes []ReclaimableVolume `json:"volumes"`
+}
+
+// ReclaimableImage is an image no container uses. Size is what deleting it
+// frees: layers another image shares stay.
+type ReclaimableImage struct {
+	ID   string   `json:"id"`
+	Tags []string `json:"tags"`
+	Size int64    `json:"size"`
+}
+
+// ReclaimableVolume is a volume no container mounts. Size is -1 when the
+// driver cannot say.
+type ReclaimableVolume struct {
+	Name    string    `json:"name"`
+	Size    int64     `json:"size"`
+	Created time.Time `json:"created"`
 }
 
 // Disk is one extra drive's usage, named after its folder under /host/disks.

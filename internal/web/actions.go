@@ -154,6 +154,11 @@ type hostPruner interface {
 	PruneHost(ctx context.Context, host string, opts container.PruneOptions) (container.PruneResult, *container.Reclaimable, error)
 }
 
+// hostReclaimableLister is implemented by the same host services as hostPruner.
+type hostReclaimableLister interface {
+	ListReclaimable(ctx context.Context, host string) (container.ReclaimableItems, error)
+}
+
 // pruneTimeout bounds a prune detached from its request. Deleting hundreds of
 // images can take minutes, and a half-done prune because a tab closed is worse
 // than one that finishes unseen.
@@ -210,5 +215,44 @@ func (h *handler) pruneHost(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	if err := json.NewEncoder(w).Encode(pruneResponse{SpaceReclaimed: result.SpaceReclaimed, Reclaimable: reclaimable}); err != nil {
 		log.Error().Err(err).Msg("error writing prune response")
+	}
+}
+
+// listReclaimable previews a prune: the images and volumes it would delete now.
+// It is gated like pruneHost, since the names describe the whole host.
+func (h *handler) listReclaimable(w http.ResponseWriter, r *http.Request) {
+	if !h.permitActions(r) {
+		http.Error(w, http.StatusText(http.StatusForbidden), http.StatusForbidden)
+		return
+	}
+	if h.restrictedUser(r) {
+		http.Error(w, "your account only sees some containers, so it can't clean up the whole host", http.StatusForbidden)
+		return
+	}
+
+	lister, ok := h.hostService.(hostReclaimableLister)
+	if !ok {
+		http.Error(w, "this mode has nothing to prune", http.StatusNotFound)
+		return
+	}
+
+	host := hostKey(r)
+	items, err := lister.ListReclaimable(r.Context(), host)
+	switch {
+	case errors.Is(err, hostservice.ErrHostNotFound):
+		http.Error(w, err.Error(), http.StatusNotFound)
+		return
+	case errors.Is(err, errors.ErrUnsupported):
+		http.Error(w, err.Error(), http.StatusNotImplemented)
+		return
+	case err != nil:
+		log.Error().Err(err).Str("host", host).Msg("error while listing reclaimable items")
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	if err := json.NewEncoder(w).Encode(items); err != nil {
+		log.Error().Err(err).Msg("error writing reclaimable items")
 	}
 }

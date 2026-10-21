@@ -33,6 +33,25 @@ func (f *fakePruner) PruneHost(_ context.Context, host string, opts container.Pr
 	return container.PruneResult{SpaceReclaimed: 2048}, &container.Reclaimable{Volumes: 1, VolumesSize: 10}, nil
 }
 
+func (f *fakePruner) ListReclaimable(_ context.Context, host string) (container.ReclaimableItems, error) {
+	f.called, f.host = true, host
+	if f.err != nil {
+		return container.ReclaimableItems{}, f.err
+	}
+	return container.ReclaimableItems{
+		Images:  []container.ReclaimableImage{{ID: "sha256:abc", Tags: []string{"nginx:1"}, Size: 5}},
+		Volumes: []container.ReclaimableVolume{},
+	}, nil
+}
+
+func getReclaimable(t *testing.T, router http.Handler) *httptest.ResponseRecorder {
+	req, err := http.NewRequest("GET", "/api/hosts/local/reclaimable", nil)
+	require.NoError(t, err)
+	rr := httptest.NewRecorder()
+	router.ServeHTTP(rr, req)
+	return rr
+}
+
 func postPrune(t *testing.T, router http.Handler, body string) *httptest.ResponseRecorder {
 	req, err := http.NewRequest("POST", "/api/hosts/local/prune", strings.NewReader(body))
 	require.NoError(t, err)
@@ -95,6 +114,52 @@ func Test_handler_pruneHost_refusesRestrictedUser(t *testing.T) {
 	req = req.WithContext(auth.WithUser(req.Context(), auth.User{Username: "amir", Roles: auth.All, ContainerLabels: devLabels}))
 	rr := httptest.NewRecorder()
 	h.pruneHost(rr, req)
+
+	assert.Equal(t, http.StatusForbidden, rr.Code)
+	assert.False(t, pruner.called)
+}
+
+func Test_handler_listReclaimable(t *testing.T) {
+	pruner := &fakePruner{}
+	rr := getReclaimable(t, rolloutRouter(pruner, "server"))
+
+	require.Equal(t, http.StatusOK, rr.Code)
+	assert.Equal(t, "local", pruner.host)
+	assert.JSONEq(t, `{"images":[{"id":"sha256:abc","tags":["nginx:1"],"size":5}],"volumes":[]}`, rr.Body.String())
+}
+
+func Test_handler_listReclaimable_errors(t *testing.T) {
+	cases := map[string]struct {
+		err  error
+		code int
+	}{
+		"unknown host":   {hostservice.ErrHostNotFound, http.StatusNotFound},
+		"old agent":      {errors.ErrUnsupported, http.StatusNotImplemented},
+		"engine failure": {errors.New("boom"), http.StatusInternalServerError},
+	}
+	for name, tc := range cases {
+		t.Run(name, func(t *testing.T) {
+			assert.Equal(t, tc.code, getReclaimable(t, rolloutRouter(&fakePruner{err: tc.err}, "server")).Code)
+		})
+	}
+}
+
+func Test_handler_listReclaimable_notRegisteredInK8s(t *testing.T) {
+	pruner := &fakePruner{}
+	assert.NotEqual(t, http.StatusOK, getReclaimable(t, rolloutRouter(pruner, "k8s")).Code)
+	assert.False(t, pruner.called)
+}
+
+func Test_handler_listReclaimable_refusesRestrictedUser(t *testing.T) {
+	pruner := &fakePruner{}
+	h := &handler{
+		hostService: pruner,
+		config:      &Config{Base: "/", Mode: "server", EnableActions: true, Authorization: Authorization{Provider: SIMPLE}},
+	}
+	req := httptest.NewRequest(http.MethodGet, "/api/hosts/local/reclaimable", nil)
+	req = req.WithContext(auth.WithUser(req.Context(), auth.User{Username: "amir", Roles: auth.All, ContainerLabels: devLabels}))
+	rr := httptest.NewRecorder()
+	h.listReclaimable(rr, req)
 
 	assert.Equal(t, http.StatusForbidden, rr.Code)
 	assert.False(t, pruner.called)

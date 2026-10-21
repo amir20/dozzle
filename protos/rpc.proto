@@ -28,6 +28,7 @@ service AgentService {
   rpc GetNotificationStats(GetNotificationStatsRequest) returns (GetNotificationStatsResponse) {}
   rpc LogHistogram(LogHistogramRequest) returns (LogHistogramResponse) {}
   rpc PruneHost(PruneHostRequest) returns (PruneHostResponse) {}
+  rpc ListReclaimable(ListReclaimableRequest) returns (ListReclaimableResponse) {}
 }
 
 message ListContainersRequest {
@@ -116,6 +117,26 @@ message PruneHostRequest {
 
 message PruneHostResponse {
   uint64 spaceReclaimed = 1;
+}
+
+message ListReclaimableRequest {}
+
+// ListReclaimableResponse names what a prune of images and volumes would delete.
+message ListReclaimableResponse {
+  repeated ReclaimableImage images = 1;
+  repeated ReclaimableVolume volumes = 2;
+}
+
+message ReclaimableImage {
+  string id = 1;
+  repeated string tags = 2;
+  int64 size = 3;
+}
+
+message ReclaimableVolume {
+  string name = 1;
+  int64 size = 2;
+  google.protobuf.Timestamp created = 3;
 }
 
 message UpdateContainerRequest {

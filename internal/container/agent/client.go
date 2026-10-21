@@ -503,6 +503,28 @@ func (c *Client) ContainerAction(ctx context.Context, containerId string, action
 	return err
 }
 
+// ListReclaimable returns errors.ErrUnsupported from an agent too old to know the call.
+func (c *Client) ListReclaimable(ctx context.Context) (container.ReclaimableItems, error) {
+	resp, err := c.client.ListReclaimable(ctx, &pb.ListReclaimableRequest{})
+	if status.Code(err) == codes.Unimplemented {
+		return container.ReclaimableItems{}, fmt.Errorf("agent cannot list what a clean up deletes: %w", errors.ErrUnsupported)
+	}
+	if err != nil {
+		return container.ReclaimableItems{}, err
+	}
+	items := container.ReclaimableItems{
+		Images:  make([]container.ReclaimableImage, 0, len(resp.Images)),
+		Volumes: make([]container.ReclaimableVolume, 0, len(resp.Volumes)),
+	}
+	for _, img := range resp.Images {
+		items.Images = append(items.Images, container.ReclaimableImage{ID: img.Id, Tags: img.Tags, Size: img.Size})
+	}
+	for _, v := range resp.Volumes {
+		items.Volumes = append(items.Volumes, container.ReclaimableVolume{Name: v.Name, Size: v.Size, Created: v.Created.AsTime()})
+	}
+	return items, nil
+}
+
 // PruneHost returns errors.ErrUnsupported from an agent too old to know the call.
 func (c *Client) PruneHost(ctx context.Context, opts container.PruneOptions) (container.PruneResult, error) {
 	resp, err := c.client.PruneHost(ctx, &pb.PruneHostRequest{

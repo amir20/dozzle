@@ -105,6 +105,7 @@ declare module 'vue' {
     HostNavItem: typeof import('./components/nav/HostNavItem.vue')['default']
     HostPruneSchedule: typeof import('./components/hosts/HostPruneSchedule.vue')['default']
     HostReclaimable: typeof import('./components/hosts/HostReclaimable.vue')['default']
+    HostReclaimableItems: typeof import('./components/hosts/HostReclaimableItems.vue')['default']
     IndeterminateBar: typeof import('./components/ui/IndeterminateBar.vue')['default']
     InlineNotice: typeof import('./components/ui/InlineNotice.vue')['default']
     IOCard: typeof import('./components/ui/IOCard.vue')['default']

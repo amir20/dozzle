@@ -488,6 +488,14 @@ func (d *Service) PruneHost(ctx context.Context, opts container.PruneOptions) (c
 	return d.store.Prune(ctx, opts)
 }
 
+func (d *Service) ListReclaimable(ctx context.Context) (container.ReclaimableItems, error) {
+	lister, ok := d.client.(container.ReclaimableLister)
+	if !ok {
+		return container.ReclaimableItems{}, errors.ErrUnsupported
+	}
+	return lister.ListReclaimable(ctx)
+}
+
 func (d *Service) SubscribeStats(ctx context.Context, stats chan<- container.ContainerStat) {
 	d.store.SubscribeStats(ctx, stats)
 }
