@@ -1,7 +1,7 @@
 ---
 title: Métriques de l'hôte
 description: Affichez la durée de fonctionnement, la charge et l'occupation disque de l'hôte Docker sur la carte de l'hôte Dozzle, avec les montages /proc et disques requis.
-sourceHash: 91058273c335
+sourceHash: 528ad84a2cd0
 ---
 
 # Métriques de l'hôte

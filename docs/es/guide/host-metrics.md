@@ -1,7 +1,7 @@
 ---
 title: Métricas del host
 description: Muestra el tiempo activo, la carga y el uso de disco del host de Docker en la tarjeta del host de Dozzle, con los montajes de /proc y discos que necesita cada instalación.
-sourceHash: 91058273c335
+sourceHash: 528ad84a2cd0
 ---
 
 # Métricas del host

@@ -1,7 +1,7 @@
 ---
 title: Mit GitHub & OIDC anmelden
 description: Lass die in der users.yml von Dozzle eingetragenen Benutzer sich mit GitHub, Google, Keycloak oder einem anderen OIDC-Anbieter anmelden und leg das Client Secret in Docker Secrets ab.
-sourceHash: cfb7126acb65
+sourceHash: 1c3e0c82356c
 ---
 
 # <Icon icon="mdi:shield-account" inline /> Mit GitHub & OIDC anmelden

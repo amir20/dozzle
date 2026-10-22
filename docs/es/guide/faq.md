@@ -1,7 +1,7 @@
 ---
 title: Preguntas frecuentes
 description: Soluciones a problemas comunes de Dozzle, como actualizar, hacer copia de /data, logs que nunca cargan detrás de nginx o Traefik e IDs de host duplicados.
-sourceHash: aeb309f338cb
+sourceHash: 887c4467f465
 ---
 
 # Preguntas frecuentes

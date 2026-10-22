@@ -1,7 +1,8 @@
 ---
 layout: page
 title: Equipo
-sourceHash: edd22f06d31b
+description: Las personas que crean y mantienen Dozzle, el visor de logs de Docker de código abierto, con enlaces a su creador Amir Raminfar en GitHub y LinkedIn.
+sourceHash: 18ad66e14505
 ---
 
 <script setup>

@@ -1,7 +1,7 @@
 ---
 title: Entfernte Hosts einrichten
 description: Verbinde Dozzle über TLS oder einen Docker Socket Proxy mit entfernten Docker-Hosts und gib jedem Host ein Label, auch wenn Agents inzwischen der empfohlene Weg sind.
-sourceHash: 6ae09165c838
+sourceHash: db7e4da08042
 ---
 
 # Entfernte Hosts einrichten

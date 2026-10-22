@@ -1,7 +1,7 @@
 ---
 title: Iniciar sesión con GitHub y OIDC
 description: Permite que los usuarios de users.yml de Dozzle inicien sesión con GitHub, Google, Keycloak u otro proveedor OIDC, y guarda el client secret en secretos de Docker.
-sourceHash: cfb7126acb65
+sourceHash: 1c3e0c82356c
 ---
 
 # <Icon icon="mdi:shield-account" inline /> Iniciar sesión con GitHub y OIDC

@@ -1,5 +1,6 @@
 ---
 title: Container Updates
+description: How Dozzle checks Docker containers for newer images and updates them by hand or on a schedule, with automatic rollback and old image cleanup.
 ---
 
 # Container Updates

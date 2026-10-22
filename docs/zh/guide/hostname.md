@@ -1,7 +1,7 @@
 ---
 title: 主机名
 description: 用 --hostname 或 DOZZLE_HOSTNAME 修改 Dozzle 为本地 Docker 主机显示的名称，以及如何在多主机菜单中为代理命名。
-sourceHash: 8769ba2c0e47
+sourceHash: 29d7e582b534
 ---
 
 # 修改 Dozzle 的主机名

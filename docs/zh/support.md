@@ -1,6 +1,7 @@
 ---
 title: 支持
-sourceHash: 249ff3ba863e
+description: "如何支持开源 Docker 日志查看器 Dozzle：在 GitHub 上贡献代码、点 star、通过 Buy Me a Coffee 捐助，或分享给更多人。"
+sourceHash: dbf212790b01
 ---
 
 # 支持

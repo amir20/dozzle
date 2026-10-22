@@ -1,7 +1,7 @@
 ---
 title: 在你的 Dozzle 里
 description: 把你自己的 Dozzle 连接到 Dozzle Cloud 之后会有哪些变化，包括 Ask Dozzle、指标历史，以及刷新后依然保留的告警。
-sourceHash: 49118bdfb7ff
+sourceHash: 6ba069544b57
 ---
 
 # 在你的 Dozzle 里

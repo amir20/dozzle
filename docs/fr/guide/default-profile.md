@@ -1,7 +1,7 @@
 ---
 title: Profil par défaut
 description: Fournissez un profile.json par défaut pour que les utilisateurs nouveaux et anonymes de Dozzle démarrent avec votre thème, vos horodatages, le regroupement de la barre latérale et d'autres réglages.
-sourceHash: 1ef0edd24fb4
+sourceHash: 3059321bba13
 ---
 
 # Profil par défaut

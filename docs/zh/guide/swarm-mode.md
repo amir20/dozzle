@@ -1,6 +1,7 @@
 ---
 title: Swarm 模式
-sourceHash: f73672e30c85
+description: 如何以全局服务方式在 Docker Swarm 模式下部署 Dozzle，查看每个节点的日志，按 stack 和服务分组，并添加身份验证和 agent。
+sourceHash: 973d9cfdd03d
 ---
 
 # Swarm 模式

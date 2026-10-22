@@ -1,7 +1,7 @@
 ---
 title: 你的数据
 description: Dozzle Cloud 会从你的 Docker 主机收到什么、如何阻止某个容器的日志被转发、Cloud 存了些什么，以及如何注销账号。
-sourceHash: c00d40084d58
+sourceHash: b50a7f6bb56b
 ---
 
 # 你的数据

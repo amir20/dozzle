@@ -1,6 +1,7 @@
 ---
 title: Mises à jour des conteneurs
-sourceHash: b9d784191b46
+description: Comment Dozzle détecte les images plus récentes de vos conteneurs Docker et les met à jour à la main ou selon un planning, avec restauration automatique et nettoyage des anciennes images.
+sourceHash: b47472c411ae
 ---
 
 # Mises à jour des conteneurs

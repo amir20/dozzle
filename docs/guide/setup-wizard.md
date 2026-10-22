@@ -1,5 +1,6 @@
 ---
 title: Setup Wizard
+description: How the Dozzle setup wizard turns on login, container actions, shell access, remote hosts, Dozzle Cloud, and auto-update on a fresh Docker install.
 ---
 
 # Setup Wizard

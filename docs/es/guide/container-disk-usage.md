@@ -1,7 +1,7 @@
 ---
 title: Uso de disco por contenedor
 description: Cómo mide Dozzle el disco que ocupa cada contenedor Docker y sus volúmenes, qué deja fuera y cómo limpiar imágenes, volúmenes y caché de compilación sin usar.
-sourceHash: d4ea2d0dd52e
+sourceHash: ca705e9363d0
 ---
 
 # Uso de disco por contenedor

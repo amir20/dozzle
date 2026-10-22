@@ -1,6 +1,7 @@
 ---
 title: Container-Updates
-sourceHash: b9d784191b46
+description: Wie Dozzle Docker-Container auf neuere Images prüft und sie von Hand oder nach Zeitplan aktualisiert, mit automatischem Zurückrollen und Aufräumen alter Images.
+sourceHash: b47472c411ae
 ---
 
 # Container-Updates

@@ -1,7 +1,7 @@
 ---
 title: Einfache Authentifizierung
 description: Richte die einfache Authentifizierung von Dozzle mit einer users.yml ein und lege mit Filtern und Rollen fest, welche Docker-Container jeder Benutzer sieht und was er tun darf.
-sourceHash: 50dffd6cac64
+sourceHash: cb83fd93f108
 ---
 
 # <Icon icon="mdi:account-cog-outline" inline /> Einfache Authentifizierung

@@ -1,7 +1,7 @@
 ---
 title: dtop CLI
 description: Installez dtop, un outil en terminal qui affiche en temps réel vos conteneurs Docker via SSH, TCP ou une socket locale et ouvre Dozzle pour les logs.
-sourceHash: 88753cae7439
+sourceHash: 7e2218a215a1
 ---
 
 # dtop

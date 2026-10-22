@@ -1,6 +1,7 @@
 ---
 title: 容器终端访问
-sourceHash: 267b2a6665a0
+description: 如何在 Dozzle 中开启终端访问，从浏览器附加到 Docker 和 Kubernetes 容器或在其中执行命令，以及如何保障其安全。
+sourceHash: 69ee7cf24f35
 ---
 
 # 附加到容器并执行命令

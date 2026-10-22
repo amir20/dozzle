@@ -1,7 +1,7 @@
 ---
 title: Benachrichtigungskanäle
 description: Schick Alarme von Dozzle Cloud per E-Mail, Telegram, Discord, Slack, ntfy, Webhook oder Browser-Push, schalte laute Alarme stumm und finde heraus, warum ein Alarm nie ankam.
-sourceHash: baae80ce439a
+sourceHash: c16b851b5ef6
 ---
 
 # Benachrichtigungskanäle

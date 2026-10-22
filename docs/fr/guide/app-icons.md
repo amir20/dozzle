@@ -1,7 +1,7 @@
 ---
 title: Icônes d'applications
 description: Comment Dozzle affiche le logo du projet à côté des conteneurs Docker, comment les noms d'images sont associés et comment remplacer l'icône ou fournir la vôtre avec un label.
-sourceHash: 10013a575b03
+sourceHash: d3beb5256ec1
 ---
 
 # Icônes d'applications

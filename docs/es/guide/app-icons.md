@@ -1,7 +1,7 @@
 ---
 title: Iconos de aplicaciones
 description: Cómo muestra Dozzle el logo del proyecto junto a los contenedores Docker, cómo se reconocen los nombres de imagen y cómo cambiar el icono o usar el tuyo con una etiqueta.
-sourceHash: 10013a575b03
+sourceHash: d3beb5256ec1
 ---
 
 # Iconos de aplicaciones

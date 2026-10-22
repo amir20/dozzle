@@ -1,7 +1,7 @@
 ---
 title: Healthcheck
 description: Activez le healthcheck Docker intégré à Dozzle dans Compose, et découvrez ce que vérifie l'endpoint /healthcheck et quels codes de sortie signifient sain ou non.
-sourceHash: 4ab4dd21a26a
+sourceHash: 4649dea27f89
 ---
 
 # Activer le healthcheck

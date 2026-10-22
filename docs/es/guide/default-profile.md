@@ -1,7 +1,7 @@
 ---
 title: Perfil por defecto
 description: Incluye un profile.json por defecto para que los usuarios nuevos y anónimos de Dozzle empiecen con tu tema, marcas de tiempo, agrupación de la barra lateral y otros ajustes de interfaz.
-sourceHash: 1ef0edd24fb4
+sourceHash: 3059321bba13
 ---
 
 # Perfil por defecto

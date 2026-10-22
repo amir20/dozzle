@@ -1,7 +1,7 @@
 ---
 title: 应用图标
 description: Dozzle 如何在 Docker 容器旁显示项目 logo、如何匹配镜像名称，以及如何用标签覆盖图标或提供自己的图标。
-sourceHash: 10013a575b03
+sourceHash: d3beb5256ec1
 ---
 
 # 应用图标

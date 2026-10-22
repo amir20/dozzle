@@ -1,7 +1,7 @@
 ---
 title: 简单模式身份验证
 description: 使用 users.yml 文件配置 Dozzle 的简单模式身份验证，并通过过滤器和角色限制每个用户能看到哪些 Docker 容器、能执行哪些操作。
-sourceHash: 50dffd6cac64
+sourceHash: cb83fd93f108
 ---
 
 # <Icon icon="mdi:account-cog-outline" inline /> 简单模式身份验证

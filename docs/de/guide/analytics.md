@@ -1,7 +1,7 @@
 ---
 title: Anonyme Analysedaten
 description: Welche anonymen Nutzungsdaten Dozzle sendet, was nie enthalten ist, wo sie gespeichert werden und wie du die Analysedaten mit --no-analytics abschaltest.
-sourceHash: 6581eaa120ce
+sourceHash: 012735e353cf
 ---
 
 # Erhebung von Analysedaten

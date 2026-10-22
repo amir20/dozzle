@@ -1,6 +1,7 @@
 ---
 title: 容器更新
-sourceHash: b9d784191b46
+description: Dozzle 如何检查 Docker 容器是否有更新的镜像，并手动或按计划更新它们，失败时自动回滚，并清理旧镜像。
+sourceHash: b47472c411ae
 ---
 
 # 容器更新

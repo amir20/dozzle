@@ -1,7 +1,7 @@
 ---
 title: Host-Metriken
 description: Zeige Laufzeit, Last und Speicherplatz des Docker-Hosts auf Dozzles Host-Karte an, mit den /proc- und Laufwerks-Mounts, die jedes Setup braucht.
-sourceHash: 91058273c335
+sourceHash: 528ad84a2cd0
 ---
 
 # Host-Metriken

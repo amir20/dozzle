@@ -1,6 +1,7 @@
 ---
 title: Asistente de configuración
-sourceHash: 3c82d0e2c2d2
+description: Cómo el asistente de configuración de Dozzle activa el inicio de sesión, las acciones sobre contenedores, la shell, otros hosts, Dozzle Cloud y la actualización automática.
+sourceHash: 14db8f2c1ce6
 ---
 
 # Asistente de configuración

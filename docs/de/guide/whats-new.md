@@ -1,6 +1,7 @@
 ---
 title: Neu in v11
-sourceHash: 4b0ece212354
+description: Was sich in Dozzle v11 geändert hat, darunter die neu gestaltete Oberfläche, Anmeldung mit GitHub und OIDC, neue Log-Level-Formate, gespeicherte Alerts und die Abmeldung beim Upgrade.
+sourceHash: 62007e62e5fa
 ---
 
 # <Icon icon="mdi:party-popper" inline /> Neu in v11

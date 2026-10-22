@@ -1,7 +1,7 @@
 ---
 title: Podman
 description: 以 rootful 或 rootless 方式用 Podman 运行 Dozzle，可作为独立服务、Quadlet 单元或代理，并解决内存统计缺失和健康检查失败的问题。
-sourceHash: bbfd1745527f
+sourceHash: 576acd7f7e7d
 ---
 
 # Podman

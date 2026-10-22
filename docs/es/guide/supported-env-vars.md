@@ -1,6 +1,7 @@
 ---
 title: Variables de entorno y subcomandos
-sourceHash: 4df73b5425e8
+description: Todas las variables de entorno y flags de Dozzle, incluida la autenticación, más los subcomandos generate, agent, generate-certs y healthcheck.
+sourceHash: 258ed3c33972
 ---
 
 # Variables de entorno

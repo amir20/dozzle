@@ -1,6 +1,7 @@
 ---
 title: 环境变量与子命令
-sourceHash: 4df73b5425e8
+description: Dozzle 全部环境变量和标志（包括身份验证），以及 generate、agent、generate-certs 和 healthcheck 子命令。
+sourceHash: 258ed3c33972
 ---
 
 # 环境变量

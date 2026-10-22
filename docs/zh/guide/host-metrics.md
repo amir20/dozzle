@@ -1,7 +1,7 @@
 ---
 title: 主机指标
 description: 在 Dozzle 的主机卡片上显示 Docker 主机的运行时间、平均负载和磁盘使用率，以及每种部署方式所需的 /proc 和磁盘挂载。
-sourceHash: 91058273c335
+sourceHash: 528ad84a2cd0
 ---
 
 # 主机指标

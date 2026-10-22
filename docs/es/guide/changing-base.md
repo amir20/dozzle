@@ -1,7 +1,7 @@
 ---
 title: Proxy inverso y ruta base
 description: Ejecuta Dozzle detrás de un proxy inverso o en una subruta con --base, con ajustes de Nginx, Traefik y Caddy para que el streaming de logs y las shells de contenedores funcionen.
-sourceHash: f344ea2a42cc
+sourceHash: 765ce4d53ea4
 ---
 
 # Proxy inverso y ruta base

@@ -1,6 +1,7 @@
 ---
 title: Shell-Zugriff auf Container
-sourceHash: 267b2a6665a0
+description: Wie du in Dozzle den Shell-Zugriff einschaltest, um dich aus dem Browser an Docker- und Kubernetes-Container anzuhängen oder Befehle darin auszuführen, und wie du ihn absicherst.
+sourceHash: 69ee7cf24f35
 ---
 
 # Anhängen und Shell-Befehle ausführen

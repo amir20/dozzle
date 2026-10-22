@@ -1,7 +1,7 @@
 ---
 title: 跟踪磁盘上的日志文件
 description: 如何在 Dozzle 中查看容器写入文件而不是 stdout 的日志，可以改为输出到流，或用 sidecar 容器跟踪该文件。
-sourceHash: e6e23f2438f9
+sourceHash: 44ef77e3276f
 ---
 
 # 跟踪磁盘上的日志文件

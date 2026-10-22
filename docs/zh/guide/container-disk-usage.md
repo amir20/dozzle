@@ -1,7 +1,7 @@
 ---
 title: 容器磁盘占用
 description: Dozzle 如何测量每个 Docker 容器及其卷占用的磁盘空间、哪些内容不计算在内，以及如何清理未使用的镜像、卷和构建缓存。
-sourceHash: d4ea2d0dd52e
+sourceHash: ca705e9363d0
 ---
 
 # 容器磁盘占用

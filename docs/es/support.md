@@ -1,6 +1,7 @@
 ---
 title: Soporte
-sourceHash: 249ff3ba863e
+description: Cómo apoyar a Dozzle, el visor de logs de Docker de código abierto, contribuyendo en GitHub, dándole una estrella, donando con Buy Me a Coffee o compartiéndolo.
+sourceHash: dbf212790b01
 ---
 
 # Soporte

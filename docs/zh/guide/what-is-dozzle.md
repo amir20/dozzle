@@ -1,6 +1,7 @@
 ---
 title: 什么是 Dozzle？
-sourceHash: a37de5cd15f3
+description: Dozzle 是一个开源的网页版日志查看器，可在浏览器中实时查看 Docker、Docker Swarm 和 Kubernetes 容器的日志与指标。
+sourceHash: 3c3eb877cbb9
 ---
 
 # 什么是 Dozzle？

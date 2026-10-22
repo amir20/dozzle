@@ -1,5 +1,6 @@
 ---
 title: Environment Variables and Subcommands
+description: Every Dozzle environment variable and flag, including authentication options, plus the generate, agent, generate-certs, and healthcheck subcommands.
 ---
 
 # Environment Variables

@@ -1,6 +1,7 @@
 ---
 title: Umgebungsvariablen und Unterbefehle
-sourceHash: 4df73b5425e8
+description: Alle Umgebungsvariablen und Optionen von Dozzle, einschließlich der Authentifizierung, dazu die Unterbefehle generate, agent, generate-certs und healthcheck.
+sourceHash: 258ed3c33972
 ---
 
 # Umgebungsvariablen

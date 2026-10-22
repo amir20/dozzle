@@ -1,7 +1,7 @@
 ---
 title: Deine Daten
 description: Was Dozzle Cloud von deinem Docker-Host erhält, wie du die Weiterleitung der Logs eines Containers stoppst, was Cloud speichert und wie du dein Konto schließt.
-sourceHash: c00d40084d58
+sourceHash: b50a7f6bb56b
 ---
 
 # Deine Daten

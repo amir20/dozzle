@@ -1,7 +1,7 @@
 ---
 title: Container-Namen
 description: Überschreibe mit dem Label dev.dozzle.name den Namen, den Dozzle für einen Docker-Container anzeigt, und erfahre, wie die Benennung bei Kubernetes-Pods und Coolify funktioniert.
-sourceHash: cafa1526d194
+sourceHash: c90729cfb0cb
 ---
 
 # Container-Namen

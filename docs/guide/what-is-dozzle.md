@@ -1,5 +1,6 @@
 ---
 title: What is Dozzle?
+description: Dozzle is an open-source, web-based log viewer that streams real-time container logs and metrics from Docker, Docker Swarm, and Kubernetes in your browser.
 ---
 
 # What is Dozzle?

@@ -1,7 +1,7 @@
 ---
 title: FAQ
 description: Solutions aux problèmes courants de Dozzle, comme la mise à jour, la sauvegarde de /data, les logs qui ne chargent jamais derrière nginx ou Traefik, et les ID d'hôte en double.
-sourceHash: aeb309f338cb
+sourceHash: 887c4467f465
 ---
 
 # Foire aux questions

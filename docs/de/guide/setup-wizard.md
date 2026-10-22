@@ -1,6 +1,7 @@
 ---
 title: Einrichtungsassistent
-sourceHash: 3c82d0e2c2d2
+description: Wie der Dozzle-Einrichtungsassistent auf einer frischen Docker-Installation Login, Container-Aktionen, Shell-Zugriff, weitere Hosts, Dozzle Cloud und Auto-Update einrichtet.
+sourceHash: 14db8f2c1ce6
 ---
 
 # Einrichtungsassistent
