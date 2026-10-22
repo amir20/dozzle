@@ -1,5 +1,6 @@
 <template>
-  <dialog ref="dialog" class="modal" @close="$emit('close')" @cancel="$emit('cancel', $event)">
+  <!-- autofocus keeps showModal() from landing focus (and a ring) on the first link in the body. -->
+  <dialog ref="dialog" class="modal outline-none" autofocus @close="$emit('close')" @cancel="$emit('cancel', $event)">
     <div class="modal-box flex max-h-[90vh] w-full max-w-215 overflow-hidden p-0 max-md:flex-col md:h-160">
       <!-- Rail: where you are and how much is left. On a phone it collapses to a bar. -->
       <aside class="bg-base-200/60 border-base-content/10 w-55 shrink-0 border-r p-5 max-md:hidden">
