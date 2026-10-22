@@ -2,6 +2,7 @@ import { existsSync } from "fs";
 import { createRequire } from "module";
 import { fileURLToPath } from "url";
 import { defineConfig, type HeadConfig } from "vitepress";
+import llmstxt from "vitepress-plugin-llms";
 import { buildThemeConfig, type Labels } from "./locales/structure";
 import { en } from "./locales/en";
 import { de } from "./locales/de";
@@ -94,6 +95,35 @@ const softwareJsonLd = (description: string) =>
     sameAs: ["https://github.com/amir20/dozzle", "https://hub.docker.com/r/amir20/dozzle"],
   });
 
+// The top of /llms.txt. Coding agents asked to "add a log viewer" read this before
+// anything else, so it carries a working install and the settings people ask about.
+const LLMS_DETAILS = `Dozzle runs as one container that reads logs straight from the Docker API. It stores no logs of its own.
+
+Minimal install (open http://localhost:8080 afterwards):
+
+\`\`\`yaml
+services:
+  dozzle:
+    image: amir20/dozzle:latest
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - dozzle_data:/data
+    ports:
+      - 8080:8080
+volumes:
+  dozzle_data:
+\`\`\`
+
+Everything below is off by default and turned on with an environment variable:
+
+- \`DOZZLE_AUTH_PROVIDER=simple\` (or \`oidc\`, \`forward-proxy\`): require login. Do this before exposing Dozzle beyond a private network, since docker.sock is root-equivalent.
+- \`DOZZLE_ENABLE_ACTIONS=true\`: start, stop, restart and update containers from the UI.
+- \`DOZZLE_ENABLE_SHELL=true\`: attach or exec into containers from the browser.
+- \`DOZZLE_REMOTE_AGENT=host:7007\`: add other Docker hosts that run \`dozzle agent\`.
+- \`DOZZLE_ENABLE_MCP=true\`: expose an MCP server at \`/api/mcp\` (Streamable HTTP) so AI assistants can read container logs and stats.
+
+Swarm, Kubernetes and Podman each have their own guide below. The full variable list is in Environment Variables.`;
+
 // "de/guide/foo.md" -> "/de/guide/foo", "de/index.md" -> "/de/" (cleanUrls).
 const pageUrl = (relativePath: string) => "/" + relativePath.replace(/\.md$/, "").replace(/(^|\/)index$/, "$1");
 
@@ -174,6 +204,21 @@ export default defineConfig({
 
   transformHead: ({ pageData, title, description }) =>
     pageData.isNotFound ? [] : seoHead(pageData.relativePath, title, description),
+
+  vite: {
+    plugins: [
+      // /llms.txt, /llms-full.txt and a .md copy of each English page. Translations are
+      // left out: agents read English fine, and five copies would bury the index.
+      llmstxt({
+        domain: SITE,
+        title: "Dozzle",
+        description: "Real-time log viewer for Docker, Docker Swarm, Kubernetes and Podman, in the browser.",
+        details: LLMS_DETAILS,
+        ignoreFiles: [...TRANSLATIONS.filter(([key]) => key !== "root").map(([key]) => `${key}/**`), "support.md"],
+        injectLLMHint: false,
+      }),
+    ],
+  },
 
   sitemap: {
     hostname: "https://dozzle.dev/",
