@@ -1,7 +1,7 @@
 ---
 title: FAQ
 description: Solutions aux problèmes courants de Dozzle, comme la mise à jour, la sauvegarde de /data, les logs qui ne chargent jamais derrière nginx ou Traefik, et les ID d'hôte en double.
-sourceHash: 887c4467f465
+sourceHash: d8d40468c66f
 ---
 
 # Foire aux questions
@@ -171,19 +171,17 @@ Par défaut, Dozzle n'affiche que les conteneurs en cours d'exécution. Pour voi
 
 En mode mono-utilisateur, Dozzle stocke les paramètres dans le stockage local du navigateur. Ils ne sont donc disponibles que sur le navigateur où ils ont été définis. Pour que Dozzle puisse synchroniser les paramètres entre plusieurs instances, il doit savoir qui est l'utilisateur. En mode multi-utilisateur, Dozzle utilise le nom d'utilisateur pour stocker les paramètres sur le disque et les synchroniser entre plusieurs instances. Ces informations sont enregistrées dans le dossier `/data`. Si vous voulez synchroniser vos paramètres entre plusieurs instances, vous devez [activer](/fr/guide/authentication) le mode multi-utilisateur et fournir un nom d'utilisateur.
 
-## Pourquoi Dozzle ne prend-il pas directement en charge les notifications Slack, Discord, Telegram, email, etc. ?
+## Comment envoyer les alertes Dozzle vers Slack, Discord, Telegram ou par email ?
 
-Par choix de conception, Dozzle n'impose rien sur la destination de vos alertes. Plutôt que d'embarquer des intégrations pour des plateformes de notification précises, Dozzle fournit des **webhooks** avec des modèles de payload personnalisables. Vous pouvez ainsi envoyer des alertes vers _n'importe quel_ service qui accepte des requêtes HTTP : Slack, Discord, Telegram, ntfy, PagerDuty, Opsgenie ou vos propres outils internes, sans attendre que Dozzle ajoute une prise en charge explicite.
+Dozzle envoie les alertes via des **webhooks** et fournit des modèles de payload prêts à l'emploi pour Slack, Discord et ntfy. Telegram, PagerDuty, Opsgenie ou tout autre service qui accepte une requête HTTP fonctionne de la même manière avec un modèle personnalisé. Dozzle n'a pas d'envoi d'email intégré ; l'envoi par email est fourni avec [Dozzle Cloud](/fr/guide/dozzle-cloud). La configuration est décrite dans [Alertes et webhooks](/fr/guide/alerts-and-webhooks).
 
-Il y a plusieurs raisons à cette approche :
+Dozzle utilise des webhooks plutôt qu'une intégration par fournisseur, et c'est voulu :
 
 - **Universalité.** Les webhooks fonctionnent avec pratiquement toutes les plateformes de notification. Ajouter des intégrations spécifiques ne couvrirait qu'une fraction des besoins, là où les webhooks les couvrent tous.
 - **Maintenance.** Chaque intégration apporte ses propres particularités d'API, ses flux d'authentification, ses limites de débit et ses changements cassants. Les prendre en charge rendrait les mainteneurs de Dozzle responsables du débogage de services tiers, ce qui dépasse le cadre d'un visualiseur de logs.
 - **Simplicité.** Dozzle est un outil léger et ciblé pour consulter les logs Docker. Garder la couche de notification générique maintient une base de code réduite et un projet viable.
 
 Si vous voulez une expérience plus intégrée avec des connexions plus riches aux fournisseurs (notifications web push, boutons d'action ntfy, etc.), [Dozzle Cloud](/fr/guide/dozzle-cloud) est fait pour ça.
-
-Pour configurer des webhooks avec le service de votre choix, consultez le guide [Alertes et webhooks](/fr/guide/alerts-and-webhooks) : il inclut des modèles de payload intégrés pour Slack, Discord et ntfy, utilisables tels quels ou personnalisables.
 
 ## Pourquoi Dozzle maintient-il dockerd et containerd à un CPU légèrement élevé alors qu'aucun navigateur n'est connecté ?
 

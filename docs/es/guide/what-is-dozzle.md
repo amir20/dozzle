@@ -1,7 +1,7 @@
 ---
 title: ¿Qué es Dozzle?
 description: Dozzle es un visor de logs web de código abierto que muestra en tiempo real los logs y las métricas de contenedores de Docker, Docker Swarm y Kubernetes en el navegador.
-sourceHash: 3c3eb877cbb9
+sourceHash: e46d96c50154
 ---
 
 # ¿Qué es Dozzle?
@@ -38,11 +38,11 @@ Arranca, detén, reinicia y actualiza contenedores directamente desde la interfa
 
 ### <Icon icon="mdi:bell-ring-outline" inline /> Alertas y webhooks
 
-Define patrones de log que disparen notificaciones a Slack, Discord, correo y más. Consulta [Alertas y webhooks](/es/guide/alerts-and-webhooks).
+Detecta patrones de log, umbrales de CPU y memoria o eventos de contenedores, y envíalos a Slack, Discord, ntfy o cualquier webhook. Consulta [Alertas y webhooks](/es/guide/alerts-and-webhooks).
 
 ### <Icon icon="mdi:shield-lock-outline" inline /> Autenticación
 
-Déjalo abierto o añade [autenticación simple o por proxy](/es/guide/authentication) con control de acceso por roles.
+Déjalo abierto o añade [autenticación](/es/guide/authentication): un archivo `users.yml`, inicio de sesión con GitHub o cualquier proveedor OpenID Connect, o un forward proxy como Authelia, todo con control de acceso por roles.
 
 ### <Icon icon="mdi:feather" inline /> Ligero y rápido
 

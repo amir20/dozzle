@@ -37,11 +37,11 @@ Start, stop, restart, and update containers directly from the UI. See [Actions](
 
 ### <Icon icon="mdi:bell-ring-outline" inline /> Alerts & Webhooks
 
-Define log patterns that trigger notifications to Slack, Discord, email, and more. See [Alerts and Webhooks](/guide/alerts-and-webhooks).
+Match log patterns, CPU and memory thresholds, or container events, and send them to Slack, Discord, ntfy, or any webhook. See [Alerts and Webhooks](/guide/alerts-and-webhooks).
 
 ### <Icon icon="mdi:shield-lock-outline" inline /> Authentication
 
-Run open, or layer in [simple or forward-proxy auth](/guide/authentication) with role-based access control.
+Run open, or add [authentication](/guide/authentication): a `users.yml` file, sign-in with GitHub or any OpenID Connect provider, or a forward proxy such as Authelia, all with role-based access control.
 
 ### <Icon icon="mdi:feather" inline /> Lightweight & Fast
 
