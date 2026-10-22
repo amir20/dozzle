@@ -1,7 +1,7 @@
 ---
 title: 常见问题
 description: Dozzle 常见问题的解决办法，例如升级、备份 /data、在 nginx 或 Traefik 后面日志一直加载不出来，以及重复的主机 ID。
-sourceHash: 887c4467f465
+sourceHash: d8d40468c66f
 ---
 
 # 常见问题
@@ -171,19 +171,17 @@ podman run -e DOZZLE_HOST_ID=web-01 ...
 
 在单用户模式下，Dozzle 把设置存在浏览器的 local storage 里，也就是说设置只在设置它的那个浏览器上有效。要让 Dozzle 在多个实例之间同步设置，它必须知道当前用户是谁。在多用户模式下，Dozzle 会用用户名把设置存到磁盘上，并在多个实例间同步。这些信息保存在 `/data` 目录中。如果你想在多个实例之间同步设置，需要[启用](/zh/guide/authentication)多用户模式并提供用户名。
 
-## 为什么 Dozzle 不直接支持 Slack、Discord、Telegram、邮件之类的通知？
+## 怎样把 Dozzle 的警报发到 Slack、Discord、Telegram 或邮件？
 
-在设计上，Dozzle 对警报发往何处不做预设。Dozzle 不打包特定通知平台的集成，而是提供带自定义载荷模板的 **webhook**。也就是说，你可以把警报发给_任何_接受 HTTP 请求的服务，Slack、Discord、Telegram、ntfy、PagerDuty、Opsgenie，或是你自己内部的工具，都不必等 Dozzle 专门去做适配。
+Dozzle 通过 **webhook** 发送警报，并为 Slack、Discord 和 ntfy 提供了现成的载荷模板。Telegram、PagerDuty、Opsgenie，或任何其他接受 HTTP 请求的服务，也都可以用同样的方式接入，只需一个自定义模板。Dozzle 没有内置邮件发送功能；邮件投递由 [Dozzle Cloud](/zh/guide/dozzle-cloud) 提供。配置方法见[警报与 Webhook](/zh/guide/alerts-and-webhooks)。
 
-这么做有几个原因：
+Dozzle 有意使用 webhook，而不是为每个服务商单独做一个集成：
 
 - **通用性。** webhook 几乎适用于所有通知平台。做特定服务商的集成只能覆盖用户需求的一小部分，而 webhook 全都能覆盖。
 - **维护成本。** 每个服务商的集成都有自己的 API 怪癖、认证流程、限流规则和破坏性变更。支持它们意味着 Dozzle 的维护者要去排查第三方服务的问题，这超出了一个日志查看器该管的范围。
 - **简单。** Dozzle 是一个轻量、专注的 Docker 日志查看工具。保持通知层的通用性，代码库才能小巧，项目才能长期维持下去。
 
 如果你需要更成体系、集成更丰富的体验（比如 Web 推送通知、ntfy 操作按钮），[Dozzle Cloud](/zh/guide/dozzle-cloud) 正是为此而生。
-
-关于如何为你偏好的服务配置 webhook，请看[警报与 Webhook](/zh/guide/alerts-and-webhooks)指南，里面内置了 Slack、Discord 和 ntfy 的载荷模板，可以直接用，也可以自行修改。
 
 ## 为什么没有浏览器连接时，Dozzle 还让 dockerd 和 containerd 的 CPU 略微偏高？
 

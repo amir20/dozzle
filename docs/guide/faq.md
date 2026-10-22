@@ -170,19 +170,17 @@ By default, Dozzle only shows running containers. To see stopped containers, you
 
 In single-user mode, Dozzle stores the settings in the browser's local storage. This means that the settings are only available on the browser where they were set. For Dozzle to enable syncing settings across multiple instances, it needs to know who the user is. In multi-user mode, Dozzle uses the user's username to store the settings on disk and sync them across multiple instances. This information is stored in `/data` directory. If you want to sync settings across multiple instances, you need to [enable](/guide/authentication) multi-user mode and provide a username.
 
-## Why doesn't Dozzle support notifications for Slack, Discord, Telegram, email, etc. directly?
+## How do I send Dozzle alerts to Slack, Discord, Telegram, or email?
 
-By design, Dozzle is unopinionated about where your alerts go. Instead of bundling integrations for specific notification platforms, Dozzle provides **webhooks** with customizable payload templates. This means you can send alerts to _any_ service that accepts HTTP requests — Slack, Discord, Telegram, ntfy, PagerDuty, Opsgenie, or your own internal tools — without waiting for Dozzle to add explicit support.
+Dozzle sends alerts through **webhooks**, and ships ready-made payload templates for Slack, Discord, and ntfy. Telegram, PagerDuty, Opsgenie, or any other service that accepts an HTTP request works the same way with a custom template. Dozzle has no built-in email sender; email delivery comes with [Dozzle Cloud](/guide/dozzle-cloud). Setup is in [Alerts & Webhooks](/guide/alerts-and-webhooks).
 
-There are a few reasons for this approach:
+Dozzle uses webhooks instead of one integration per provider on purpose:
 
 - **Universality.** Webhooks work with virtually every notification platform. Adding provider-specific integrations would cover only a fraction of what users need, while webhooks cover all of them.
 - **Maintenance.** Each provider integration brings its own API quirks, authentication flows, rate limits, and breaking changes. Supporting them means Dozzle maintainers become responsible for debugging issues with third-party services — which is outside the scope of a log viewer.
 - **Simplicity.** Dozzle is a lightweight, focused tool for viewing Docker logs. Keeping the notification layer generic keeps the codebase small and the project sustainable.
 
 If you need a more opinionated experience with richer provider integrations (e.g., web push notifications, ntfy action buttons), [Dozzle Cloud](/guide/dozzle-cloud) is designed for that.
-
-For setting up webhooks with your preferred service, see the [Alerts & Webhooks](/guide/alerts-and-webhooks) guide — it includes built-in payload templates for Slack, Discord, and ntfy that you can use as-is or customize.
 
 ## Why does Dozzle keep dockerd and containerd at slightly elevated CPU when no browser is connected?
 

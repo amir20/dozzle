@@ -1,7 +1,7 @@
 ---
 title: 什么是 Dozzle？
 description: Dozzle 是一个开源的网页版日志查看器，可在浏览器中实时查看 Docker、Docker Swarm 和 Kubernetes 容器的日志与指标。
-sourceHash: 3c3eb877cbb9
+sourceHash: e46d96c50154
 ---
 
 # 什么是 Dozzle？
@@ -38,11 +38,11 @@ Dozzle 是一个由 Docker OSS 赞助的开源项目。它是一个轻量的网�
 
 ### <Icon icon="mdi:bell-ring-outline" inline /> 警报与 Webhook
 
-定义日志匹配规则，触发通知到 Slack、Discord、电子邮件等。参见[警报与 Webhook](/zh/guide/alerts-and-webhooks)。
+匹配日志模式、CPU 和内存阈值或容器事件，并发送到 Slack、Discord、ntfy 或任意 webhook。参见[警报与 Webhook](/zh/guide/alerts-and-webhooks)。
 
 ### <Icon icon="mdi:shield-lock-outline" inline /> 认证
 
-可以完全开放运行，也可以加上[简单认证或前置代理认证](/zh/guide/authentication)，并配合基于角色的访问控制。
+可以完全开放运行，也可以加上[身份验证](/zh/guide/authentication)：`users.yml` 文件、通过 GitHub 或任意 OpenID Connect 提供方登录，或者 Authelia 这类前置代理，全都支持基于角色的访问控制。
 
 ### <Icon icon="mdi:feather" inline /> 轻量快速
 
