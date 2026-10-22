@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1254 1254">
+  <defs>
+    <linearGradient id="left-loop" x1="284" y1="369" x2="284" y2="875" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#5ae4e8"/>
+      <stop offset="1" stop-color="#3587fa"/>
+    </linearGradient>
+    <linearGradient id="left-back" x1="191" y1="625" x2="655" y2="625" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#2559b0" stop-opacity="0"/>
+      <stop offset="0.5" stop-color="#2559b0"/>
+      <stop offset="1" stop-color="#2c629d"/>
+    </linearGradient>
+    <linearGradient id="right-loop" x1="820" y1="370" x2="1130" y2="875" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#303471"/>
+      <stop offset="0.5" stop-color="#684ba8"/>
+      <stop offset="1" stop-color="#eb78e2"/>
+    </linearGradient>
+    <radialGradient id="right-highlight" cx="735" cy="732" r="320" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#a780ef"/>
+      <stop offset="1" stop-color="#a780ef" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="left-front" x1="191" y1="625" x2="665" y2="844" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#70b9f5" stop-opacity="0"/>
+      <stop offset="0.52" stop-color="#70b9f5"/>
+      <stop offset="1" stop-color="#9082f7"/>
+    </linearGradient>
+  </defs>
+  <path fill="url(#left-loop)" fill-rule="evenodd" d="M45 622C45 482 152 369 284 369 346 369 402 392 447 438L520 513 627 404 731 513 627 625 731 732 627 839 520 730 447 803C404 848 347 875 284 875 152 875 45 761 45 622ZM191 625C191 574 232 533 284 533 325 533 352 556 385 590L415 621 385 656C349 694 327 717 284 717 232 717 191 676 191 625Z"/>
+  <path fill="url(#left-back)" d="M415 621 520 730 447 803C404 848 347 875 284 875 152 875 45 761 45 622L191 625C191 676 232 717 284 717 327 717 349 694 385 656ZM520 513 627 404 731 513 627 625Z"/>
+  <path fill="url(#right-loop)" fill-rule="evenodd" d="M625 622 805 438C850 391 907 369 969 369 1101 369 1209 480 1209 622 1209 764 1101 875 969 875 907 875 850 850 805 803ZM838 626 867 591C901 559 925 533 969 533 1020 533 1062 574 1062 625 1062 675 1020 717 969 717 925 717 901 692 867 656Z"/>
+  <path fill="url(#right-highlight)" d="M627 621 731 513 867 656C901 692 925 717 969 717 1020 717 1062 675 1062 625L1209 622C1209 764 1101 875 969 875 907 875 850 850 805 803Z"/>
+  <path fill="url(#right-loop)" d="M625 622 805 438C850 391 907 369 969 369 1101 369 1209 480 1209 623L1062 626C1062 574 1020 533 969 533 925 533 901 559 867 591L731 734Z"/>
+  <path fill="url(#left-front)" d="M45 622C45 482 152 369 284 369 346 369 402 392 447 438L731 732 627 839 385 590C352 556 325 533 284 533 232 533 191 574 191 625Z"/>
+</svg>
