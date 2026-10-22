@@ -34,6 +34,7 @@ describe("iconSlugForImage", () => {
     ["ghcr.io/mhsanaei/3x-ui:latest", "xray"],
     ["ghcr.io/usetrmnl/larapaper:latest", "trmnl"],
     ["ayufan/proxmox-backup-server:v4", "proxmox"],
+    ["apache/airflow:latest", "apache-airflow"],
   ])("resolves %s", (image, slug) => {
     expect(iconSlugForImage(image)).toBe(slug);
   });
