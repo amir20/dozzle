@@ -1,5 +1,6 @@
 ---
 title: Compatibilidad con Kubernetes
+description: Ejecuta Dozzle en Kubernetes para ver los logs de tus pods, con la configuración de RBAC, Metrics API y kubelet para estadísticas, reinicios, namespaces y filtros.
 sourceHash: 68f0096ed3c7
 ---
 

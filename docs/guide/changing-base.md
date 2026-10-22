@@ -1,5 +1,6 @@
 ---
 title: Reverse Proxy & Base Path
+description: Run Dozzle behind a reverse proxy or under a sub-path with --base, with Nginx, Traefik and Caddy settings that keep log streaming and container shells working.
 ---
 
 # Reverse Proxy & Base Path

@@ -1,5 +1,6 @@
 ---
 title: MCP 集成
+description: 启用 Dozzle 的 MCP 服务器，让 Claude、Copilot 等 AI 助手读取 Docker 容器日志和统计数据，并配置客户端与认证。
 sourceHash: fe1cee485b1f
 ---
 

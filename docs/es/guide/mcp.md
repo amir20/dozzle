@@ -1,5 +1,6 @@
 ---
 title: Integración con MCP
+description: Activa el servidor MCP de Dozzle para que asistentes de IA como Claude y Copilot lean los logs y estadísticas de tus contenedores de Docker, y configura clientes y autenticación.
 sourceHash: fe1cee485b1f
 ---
 

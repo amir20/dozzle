@@ -1,5 +1,6 @@
 ---
 title: Intégration MCP
+description: Activez le serveur MCP de Dozzle pour que des assistants IA comme Claude et Copilot lisent les logs et statistiques de vos conteneurs Docker, et configurez clients et authentification.
 sourceHash: fe1cee485b1f
 ---
 

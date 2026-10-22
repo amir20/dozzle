@@ -1,5 +1,6 @@
 ---
 title: Container-Gruppen
+description: Wie Dozzle Docker-Container nach Stack oder Swarm-Service gruppiert und wie du mit dem Label dev.dozzle.group eigene Gruppen anlegst, auch unter Kubernetes.
 sourceHash: 83c35e4fb25c
 ---
 

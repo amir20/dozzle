@@ -1,5 +1,6 @@
 ---
 title: Tus datos
+description: Qué recibe Dozzle Cloud de tu host Docker, cómo evitar que se reenvíen los logs de un contenedor, qué almacena Cloud y cómo cerrar tu cuenta.
 sourceHash: c00d40084d58
 ---
 

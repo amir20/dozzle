@@ -1,5 +1,6 @@
 ---
 title: 反向代理与基础路径
+description: 在反向代理之后或通过 --base 在子路径下运行 Dozzle，并提供让日志流和容器 shell 正常工作的 Nginx、Traefik 和 Caddy 配置。
 sourceHash: f344ea2a42cc
 ---
 

@@ -1,5 +1,6 @@
 ---
 title: Container Disk Usage
+description: How Dozzle measures the disk used by each Docker container and its volumes, what it leaves out, and how to clean up unused images, volumes and build cache.
 ---
 
 # Container Disk Usage

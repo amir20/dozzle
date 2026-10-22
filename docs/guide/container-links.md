@@ -1,5 +1,6 @@
 ---
 title: Container Links
+description: Add a dev.dozzle.url label so Dozzle links each Docker container to its web UI, how Traefik labels prefill the URL, and how service labels work in Swarm.
 ---
 
 # Container Links

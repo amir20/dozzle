@@ -1,5 +1,6 @@
 ---
 title: En tu Dozzle
+description: Lo que cambia en tu propio Dozzle al enlazarlo con Dozzle Cloud, incluidos Ask Dozzle, el historial de métricas y las alertas que sobreviven a una recarga.
 sourceHash: 49118bdfb7ff
 ---
 

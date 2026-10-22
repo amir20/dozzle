@@ -1,5 +1,6 @@
 ---
 title: 套餐与限制
+description: 碰到 Dozzle Cloud 套餐限制时会是什么样子，从原始告警、搜索保留期到免费套餐的实例限制，以及如何查看用量或取消订阅。
 sourceHash: be1bd7a795e4
 ---
 

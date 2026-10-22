@@ -1,5 +1,6 @@
 ---
 title: 常见问题
+description: Dozzle 常见问题的解决办法，例如升级、备份 /data、在 nginx 或 Traefik 后面日志一直加载不出来，以及重复的主机 ID。
 sourceHash: aeb309f338cb
 ---
 

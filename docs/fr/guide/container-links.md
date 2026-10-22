@@ -1,5 +1,6 @@
 ---
 title: Liens vers les conteneurs
+description: Ajoutez un label dev.dozzle.url pour que Dozzle relie chaque conteneur Docker à son interface web, comment les labels Traefik préremplissent l'URL, et les labels de service dans Swarm.
 sourceHash: d39d7f2119c5
 ---
 

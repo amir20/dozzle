@@ -1,5 +1,6 @@
 ---
 title: Reverse proxy et chemin de base
+description: Faites tourner Dozzle derrière un reverse proxy ou sur un sous-chemin avec --base, avec les réglages Nginx, Traefik et Caddy qui gardent le streaming des logs et les shells fonctionnels.
 sourceHash: f344ea2a42cc
 ---
 

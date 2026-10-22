@@ -1,5 +1,6 @@
 ---
 title: Kubernetes Support
+description: Run Dozzle in Kubernetes to view pod logs, with the RBAC, Metrics API and kubelet setup for stats, plus pod restarts, namespaces and filters.
 ---
 
 # Kubernetes Support

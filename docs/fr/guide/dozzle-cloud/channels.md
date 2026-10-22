@@ -1,5 +1,6 @@
 ---
 title: Canaux de notification
+description: Envoyez les alertes Dozzle Cloud par e-mail, Telegram, Discord, Slack, ntfy, webhook ou notification push, coupez les alertes bruyantes et comprenez pourquoi une alerte n'est jamais arrivée.
 sourceHash: baae80ce439a
 ---
 

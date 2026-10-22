@@ -1,5 +1,6 @@
 ---
 title: Tarife & Limits
+description: Wie die Limits deines Dozzle-Cloud-Tarifs aussehen, wenn du sie erreichst, von rohen Alarmen über die Aufbewahrung bei der Suche bis zum Instanz-Limit im Gratis-Tarif, und wie du die Nutzung prüfst oder kündigst.
 sourceHash: be1bd7a795e4
 ---
 

@@ -1,5 +1,6 @@
 ---
 title: Notification Channels
+description: Send Dozzle Cloud alerts to email, Telegram, Discord, Slack, ntfy, webhooks or browser push, mute noisy alerts, and find out why an alert never arrived.
 ---
 
 # Notification Channels

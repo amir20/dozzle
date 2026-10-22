@@ -1,7 +1,7 @@
 import { existsSync } from "fs";
 import { createRequire } from "module";
 import { fileURLToPath } from "url";
-import { defineConfig } from "vitepress";
+import { defineConfig, type HeadConfig } from "vitepress";
 import { buildThemeConfig, type Labels } from "./locales/structure";
 import { en } from "./locales/en";
 import { de } from "./locales/de";
@@ -76,19 +76,43 @@ const tokenize = (text: string): string[] => {
 const SITE = "https://dozzle.dev";
 const SRC_DIR = fileURLToPath(new URL("..", import.meta.url));
 
+// Structured facts for search engines and AI answers, emitted on each locale's homepage.
+const softwareJsonLd = (description: string) =>
+  JSON.stringify({
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    name: "Dozzle",
+    description,
+    url: SITE,
+    applicationCategory: "DeveloperApplication",
+    operatingSystem: "Docker, Docker Swarm, Kubernetes, Podman",
+    softwareVersion: pkg.version,
+    license: "https://opensource.org/licenses/MIT",
+    offers: { "@type": "Offer", price: "0", priceCurrency: "USD" },
+    author: { "@type": "Person", name: "Amir Raminfar", url: "https://github.com/amir20" },
+    downloadUrl: "https://hub.docker.com/r/amir20/dozzle",
+    sameAs: ["https://github.com/amir20/dozzle", "https://hub.docker.com/r/amir20/dozzle"],
+  });
+
 // "de/guide/foo.md" -> "/de/guide/foo", "de/index.md" -> "/de/" (cleanUrls).
 const pageUrl = (relativePath: string) => "/" + relativePath.replace(/\.md$/, "").replace(/(^|\/)index$/, "$1");
 
 // Every link that reaches a page with a query string (?ref=…) or under another
 // locale should fold into one indexed URL, so each page names itself as
 // canonical and lists its translations with hreflang.
-const seoHead = (relativePath: string): Array<[string, Record<string, string>]> => {
+const seoHead = (relativePath: string, title: string, description: string): HeadConfig[] => {
   const prefix = TRANSLATIONS.find(([key]) => key !== "root" && relativePath.startsWith(`${key}/`));
   const page = prefix ? relativePath.slice(prefix[0].length + 1) : relativePath;
+  const url = SITE + pageUrl(relativePath);
 
-  const head: Array<[string, Record<string, string>]> = [
-    ["link", { rel: "canonical", href: SITE + pageUrl(relativePath) }],
+  // og:* is per page so a shared guide link previews that guide, not the homepage.
+  const head: HeadConfig[] = [
+    ["link", { rel: "canonical", href: url }],
+    ["meta", { property: "og:url", content: url }],
+    ["meta", { property: "og:title", content: title }],
+    ["meta", { property: "og:description", content: description }],
   ];
+  if (page === "index.md") head.push(["script", { type: "application/ld+json" }, softwareJsonLd(description)]);
   for (const [key, , t] of TRANSLATIONS) {
     const file = key === "root" ? page : `${key}/${page}`;
     if (!existsSync(SRC_DIR + file)) continue;
@@ -109,7 +133,6 @@ export default defineConfig({
   head: [
     ["meta", { property: "og:type", content: "website" }],
     ["meta", { property: "og:site_name", content: "Dozzle" }],
-    ["meta", { property: "og:url", content: "https://dozzle.dev/" }],
     ["meta", { property: "og:image", content: "https://dozzle.dev/og-image.png" }],
     ["meta", { property: "og:image:width", content: "1200" }],
     ["meta", { property: "og:image:height", content: "630" }],
@@ -149,7 +172,8 @@ export default defineConfig({
     ],
   },
 
-  transformHead: ({ pageData }) => (pageData.isNotFound ? [] : seoHead(pageData.relativePath)),
+  transformHead: ({ pageData, title, description }) =>
+    pageData.isNotFound ? [] : seoHead(pageData.relativePath, title, description),
 
   sitemap: {
     hostname: "https://dozzle.dev/",

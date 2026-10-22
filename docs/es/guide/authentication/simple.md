@@ -1,5 +1,6 @@
 ---
 title: Autenticación simple
+description: Configura la autenticación simple de Dozzle con un archivo users.yml y limita con filtros y roles qué contenedores Docker ve cada usuario y qué puede hacer con ellos.
 sourceHash: 50dffd6cac64
 ---
 

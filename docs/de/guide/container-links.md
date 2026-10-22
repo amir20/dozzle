@@ -1,5 +1,6 @@
 ---
 title: Container-Links
+description: Setze das Label dev.dozzle.url, damit Dozzle jeden Docker-Container mit seiner Weboberfläche verlinkt, wie Traefik-Labels die URL vorausfüllen und wie Service-Labels in Swarm wirken.
 sourceHash: d39d7f2119c5
 ---
 

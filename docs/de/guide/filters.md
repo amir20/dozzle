@@ -1,5 +1,6 @@
 ---
 title: Filter
+description: Schränke mit DOZZLE_FILTER oder --filter ein, welche Docker-Container Dozzle sieht, und erfahre, wie UI-, Agent- und Benutzerfilter zusammenwirken.
 sourceHash: b4449a225843
 ---
 

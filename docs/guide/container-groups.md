@@ -1,5 +1,6 @@
 ---
 title: Container Groups
+description: How Dozzle groups Docker containers by Compose stack or Swarm service, and how to make custom groups with the dev.dozzle.group label, including on Kubernetes.
 ---
 
 # Container Groups

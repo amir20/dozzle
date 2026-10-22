@@ -1,5 +1,6 @@
 ---
 title: Dozzle Cloud
+description: Qué añade Dozzle Cloud a Dozzle autoalojado, como el triaje de alertas, las notificaciones a Slack, Telegram o Discord y una revisión diaria de logs en los planes de pago.
 sourceHash: ddf1502ea23d
 ---
 

@@ -1,5 +1,6 @@
 ---
 title: Container Names
+description: Override the name Dozzle shows for a Docker container with the dev.dozzle.name label, and how naming works for Kubernetes pods and Coolify deployments.
 ---
 
 # Container Names

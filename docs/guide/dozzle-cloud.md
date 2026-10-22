@@ -1,5 +1,6 @@
 ---
 title: Dozzle Cloud
+description: What Dozzle Cloud adds to self-hosted Dozzle, including alert triage, notifications to Slack, Telegram or Discord, and daily log review on paid plans.
 ---
 
 # Dozzle Cloud

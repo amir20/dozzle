@@ -1,5 +1,6 @@
 ---
 title: Filter
+description: Limit which Docker containers Dozzle can see with DOZZLE_FILTER or --filter, and learn how UI, agent and user filters combine.
 ---
 
 # Filtering Containers

@@ -1,5 +1,6 @@
 ---
 title: Primeros pasos
+description: Ejecuta Dozzle como un único contenedor con docker run, Docker Compose, Docker Swarm o Kubernetes y empieza a leer logs de Docker en el puerto 8080.
 sourceHash: 6fa151a446d0
 ---
 

@@ -1,5 +1,6 @@
 ---
 title: Démarrage
+description: Lancez Dozzle dans un seul conteneur avec docker run, Docker Compose, Docker Swarm ou Kubernetes, et lisez vos logs Docker sur le port 8080.
 sourceHash: 6fa151a446d0
 ---
 

@@ -1,5 +1,6 @@
 ---
 title: 通知渠道
+description: 把 Dozzle Cloud 告警发送到邮件、Telegram、Discord、Slack、ntfy、webhook 或浏览器推送，静音吵闹的告警，并排查为什么没收到告警。
 sourceHash: baae80ce439a
 ---
 

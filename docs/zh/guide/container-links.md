@@ -1,5 +1,6 @@
 ---
 title: 容器链接
+description: 添加 dev.dozzle.url 标签，让 Dozzle 把每个 Docker 容器链接到它的网页界面，并了解 Traefik 标签如何预填 URL，以及 Swarm 中服务标签如何生效。
 sourceHash: d39d7f2119c5
 ---
 

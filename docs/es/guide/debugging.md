@@ -1,5 +1,6 @@
 ---
 title: Depuración
+description: Sube el nivel de log de Dozzle a debug o trace con --level o DOZZLE_LEVEL, lee la salida con docker logs y averigua qué incluir al informar de un fallo.
 sourceHash: 2cb9b9a633e2
 ---
 

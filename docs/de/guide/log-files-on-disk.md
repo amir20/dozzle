@@ -1,5 +1,6 @@
 ---
 title: Logdateien auf der Festplatte verfolgen
+description: So siehst du in Dozzle Logs, die ein Container in Dateien statt nach stdout schreibt, indem du in Streams loggst oder die Datei per Sidecar verfolgst.
 sourceHash: e6e23f2438f9
 ---
 

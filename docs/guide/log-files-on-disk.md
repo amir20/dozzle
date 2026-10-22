@@ -1,5 +1,6 @@
 ---
 title: Following Log Files on Disk
+description: How to see logs that a container writes to files instead of stdout in Dozzle, by logging to streams or tailing the file with a sidecar container.
 ---
 
 # Following Log Files on Disk

@@ -1,5 +1,6 @@
 ---
 title: Simple Authentication
+description: Set up Dozzle's simple authentication with a users.yml file, and limit which Docker containers each user sees and what they can do with filters and roles.
 ---
 
 # <Icon icon="mdi:account-cog-outline" inline /> Simple Authentication

@@ -1,5 +1,6 @@
 ---
 title: Débogage
+description: Passez le niveau de log de Dozzle à debug ou trace avec --level ou DOZZLE_LEVEL, lisez la sortie avec docker logs, et sachez quoi inclure dans un rapport de bug.
 sourceHash: 2cb9b9a633e2
 ---
 

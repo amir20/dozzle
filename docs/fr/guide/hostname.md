@@ -1,5 +1,6 @@
 ---
 title: Nom d'hôte
+description: Changez le nom que Dozzle affiche pour l'hôte Docker local avec --hostname ou DOZZLE_HOSTNAME, et nommez les agents dans le menu multi-hôtes.
 sourceHash: 8769ba2c0e47
 ---
 

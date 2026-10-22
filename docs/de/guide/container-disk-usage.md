@@ -1,5 +1,6 @@
 ---
 title: Speicherbelegung der Container
+description: Wie Dozzle den Speicherplatz jedes Docker-Containers und seiner Volumes misst, was nicht mitgezählt wird, und wie du ungenutzte Images, Volumes und Build-Cache aufräumst.
 sourceHash: d4ea2d0dd52e
 ---
 

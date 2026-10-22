@@ -1,5 +1,6 @@
 ---
 title: 过滤器
+description: 用 DOZZLE_FILTER 或 --filter 限制 Dozzle 能看到哪些 Docker 容器，并了解 UI、agent 和用户三级过滤器如何叠加。
 sourceHash: b4449a225843
 ---
 

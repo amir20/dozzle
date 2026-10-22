@@ -1,5 +1,6 @@
 ---
 title: Moving from Watchtower
+description: Replace Watchtower with Dozzle to update Docker containers on a schedule, with each Watchtower setting and label mapped to its Dozzle equivalent.
 ---
 
 # Moving from Watchtower

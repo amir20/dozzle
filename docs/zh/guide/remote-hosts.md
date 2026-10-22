@@ -1,5 +1,6 @@
 ---
 title: 远程主机配置
+description: 通过 TLS 或 Docker Socket Proxy 将 Dozzle 连接到远程 Docker 主机并为每台主机添加标签，不过现在更推荐使用代理。
 sourceHash: 6ae09165c838
 ---
 

@@ -1,5 +1,6 @@
 ---
 title: Your Data
+description: What Dozzle Cloud collects from your Docker host, how to stop a container's logs from being forwarded, what Cloud stores, and how to close your account.
 ---
 
 # Your Data

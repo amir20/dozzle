@@ -1,5 +1,6 @@
 ---
 title: Kubernetes-Unterstützung
+description: Betreibe Dozzle in Kubernetes, um Pod-Logs zu lesen, mit RBAC, Metrics API und Kubelet für Statistiken sowie Pod-Neustarts, Namespaces und Filtern.
 sourceHash: 68f0096ed3c7
 ---
 

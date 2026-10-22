@@ -1,5 +1,6 @@
 ---
 title: Utilisation du disque par conteneur
+description: Comment Dozzle mesure l'espace disque de chaque conteneur Docker et de ses volumes, ce qui n'est pas compté, et comment supprimer les images, volumes et caches de build inutilisés.
 sourceHash: d4ea2d0dd52e
 ---
 

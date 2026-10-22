@@ -1,5 +1,6 @@
 ---
 title: Remote Host Setup
+description: Connect Dozzle to remote Docker hosts over TLS or a Docker socket proxy and label each host, though agents are now the recommended way to do this.
 ---
 
 # Remote Host Setup

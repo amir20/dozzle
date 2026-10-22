@@ -1,5 +1,6 @@
 ---
 title: Podman
+description: Run Dozzle with Podman, rootful or rootless, as a standalone service, Quadlet unit or agent, and fix missing memory stats and failing healthchecks.
 ---
 
 # Podman

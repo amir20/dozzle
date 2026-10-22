@@ -1,5 +1,6 @@
 ---
 title: MCP Integration
+description: Enable Dozzle's MCP server so AI assistants like Claude and Copilot can read Docker container logs and stats, and set up clients and authentication.
 ---
 
 # MCP Integration

@@ -1,5 +1,6 @@
 ---
 title: Pasar de Watchtower a Dozzle
+description: Sustituye Watchtower por Dozzle para actualizar contenedores de Docker de forma programada, con cada ajuste y etiqueta de Watchtower y su equivalente en Dozzle.
 sourceHash: 84d50ab97364
 ---
 

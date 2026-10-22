@@ -1,5 +1,6 @@
 ---
 title: Connecting Your Instance
+description: Link a self-hosted Dozzle to Dozzle Cloud without a public IP or open port, check that it connected, and fix it when nothing shows up.
 ---
 
 # Connecting Your Instance
