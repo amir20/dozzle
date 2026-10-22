@@ -100,6 +100,24 @@ jobs:
           # above, which already exported them, and the alpine stage itself is
           # three COPYs. Exporting again would only overwrite that step's index.
           cache-from: type=gha
+  mcp-registry:
+    needs: [buildx]
+    name: Publish to MCP Registry
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write # GitHub OIDC proves ownership of io.github.amir20/*
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Install mcp-publisher
+        run: curl -fsSL https://github.com/modelcontextprotocol/registry/releases/download/v1.8.1/mcp-publisher_linux_amd64.tar.gz | tar xz mcp-publisher
+      - name: Set version from tag
+        run: jq --arg v "${GITHUB_REF_NAME#v}" '.version = $v' server.json > server.tmp && mv server.tmp server.json
+      - name: Publish
+        run: |
+          ./mcp-publisher login github-oidc
+          ./mcp-publisher publish
   git-release:
     needs: [buildx]
     name: Github Release

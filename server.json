@@ -1,0 +1,32 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+  "name": "io.github.amir20/dozzle",
+  "title": "Dozzle",
+  "description": "Read Docker container logs, search them, and check CPU and memory from a self-hosted Dozzle.",
+  "version": "0.0.0",
+  "websiteUrl": "https://dozzle.dev/guide/mcp",
+  "repository": {
+    "url": "https://github.com/amir20/dozzle",
+    "source": "github"
+  },
+  "remotes": [
+    {
+      "type": "streamable-http",
+      "url": "https://{host}/api/mcp",
+      "variables": {
+        "host": {
+          "description": "Your Dozzle address, with its base path if it has one (e.g. dozzle.example.com or example.com/dozzle). Start Dozzle with DOZZLE_ENABLE_MCP=true.",
+          "isRequired": true
+        }
+      },
+      "headers": [
+        {
+          "name": "Authorization",
+          "description": "Only for clients without MCP OAuth when Dozzle uses simple auth: Bearer <token from POST /api/token>.",
+          "isRequired": false,
+          "isSecret": true
+        }
+      ]
+    }
+  ]
+}
