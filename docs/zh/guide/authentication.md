@@ -1,5 +1,6 @@
 ---
 title: 身份验证
+description: 比较 Dozzle 的身份验证方式，从 users.yml 文件到 GitHub、OIDC 或前置代理，以及对外暴露前应采取的安全措施。
 sourceHash: 111fbadf1b7a
 ---
 

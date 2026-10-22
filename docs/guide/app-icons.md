@@ -1,5 +1,6 @@
 ---
 title: App Icons
+description: How Dozzle shows project logos next to Docker containers, how image names are matched, and how to override the icon or supply your own with a label.
 ---
 
 # App Icons

@@ -1,5 +1,6 @@
 ---
 title: 警报
+description: 为 Docker 容器日志、CPU 和内存指标以及生命周期事件设置 Dozzle 警报，并发送到 webhook、Slack、Discord 或 ntfy。
 sourceHash: 5e7e00f70c1f
 ---
 

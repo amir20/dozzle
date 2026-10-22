@@ -1,5 +1,6 @@
 ---
 title: Alerts
+description: Set up Dozzle alerts on Docker container logs, CPU and memory metrics, and lifecycle events, and send them to a webhook, Slack, Discord, or ntfy.
 ---
 
 # Alerts

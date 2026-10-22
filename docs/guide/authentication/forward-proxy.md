@@ -1,5 +1,6 @@
 ---
 title: Forward Proxy
+description: Put Dozzle behind a forward proxy such as Authelia, Cloudflare Zero Trust, or oauth2-proxy that passes the user, email, and roles in request headers.
 ---
 
 # <Icon icon="mdi:swap-horizontal" inline /> Forward Proxy

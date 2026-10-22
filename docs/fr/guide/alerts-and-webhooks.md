@@ -1,5 +1,6 @@
 ---
 title: Alertes
+description: Configurez des alertes Dozzle sur les logs des conteneurs Docker, les métriques CPU et mémoire et les évènements de cycle de vie, et envoyez-les vers un webhook, Slack, Discord ou ntfy.
 sourceHash: 5e7e00f70c1f
 ---
 

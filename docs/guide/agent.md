@@ -1,5 +1,6 @@
 ---
 title: Agent Mode
+description: Run Dozzle in agent mode to view logs from remote Docker hosts over TLS, organize hosts into groups, and lock agents down with your own certificate.
 ---
 
 # Agent Mode

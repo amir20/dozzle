@@ -1,5 +1,6 @@
 ---
 title: Container-Aktionen
+description: Aktiviere die Container-Aktionen in Dozzle, um Docker-Container über die UI zu starten, zu stoppen, neu zu starten, zu entfernen oder zu aktualisieren, und erfahre, was jede Aktion mit deinen Daten macht.
 sourceHash: 0b048a644851
 ---
 

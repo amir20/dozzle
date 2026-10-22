@@ -1,5 +1,6 @@
 ---
 title: 使用 GitHub 与 OIDC 登录
+description: 让 Dozzle 的 users.yml 中列出的用户使用 GitHub、Google、Keycloak 或其他 OIDC 提供方登录，并用 Docker secrets 保存 client secret。
 sourceHash: cfb7126acb65
 ---
 

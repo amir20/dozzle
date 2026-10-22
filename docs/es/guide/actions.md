@@ -1,5 +1,6 @@
 ---
 title: Acciones sobre contenedores
+description: Activa las acciones sobre contenedores en Dozzle para iniciar, detener, reiniciar, eliminar o actualizar contenedores Docker desde la interfaz, y descubre qué hace cada acción con tus datos.
 sourceHash: 0b048a644851
 ---
 

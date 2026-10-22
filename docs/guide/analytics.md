@@ -1,5 +1,6 @@
 ---
 title: Anonymous Analytics
+description: What anonymous usage data Dozzle sends, what it never includes, where it is stored, and how to turn analytics off with --no-analytics.
 ---
 
 # Data Collection of Analytics

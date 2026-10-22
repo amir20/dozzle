@@ -1,5 +1,6 @@
 ---
 title: Authentication
+description: Compare Dozzle's authentication options, from a users.yml file to GitHub, OIDC, or a forward proxy, and the security steps to take before exposing it.
 ---
 
 # Authentication

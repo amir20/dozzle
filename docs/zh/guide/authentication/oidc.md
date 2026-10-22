@@ -1,5 +1,6 @@
 ---
 title: OpenID Connect
+description: 将 Keycloak、Authentik、Authelia 或 Zitadel 通过 OpenID Connect 作为 Dozzle 的用户数据库，角色和容器过滤器都从令牌中读取。
 sourceHash: 304983067693
 ---
 

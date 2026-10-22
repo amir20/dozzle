@@ -1,5 +1,6 @@
 ---
 title: OpenID Connect
+description: Nutze OpenID Connect mit Keycloak, Authentik, Authelia oder Zitadel als Benutzerdatenbank für Dozzle, mit Rollen und Container-Filtern aus dem Token.
 sourceHash: 304983067693
 ---
 

@@ -1,5 +1,6 @@
 ---
 title: Container Actions
+description: Enable Dozzle container actions to start, stop, restart, remove, or update Docker containers from the UI, and see what each action does to your data.
 ---
 
 # Container Actions

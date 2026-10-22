@@ -1,5 +1,6 @@
 ---
 title: 容器操作
+description: 在 Dozzle 中启用容器操作，从界面启动、停止、重启、删除或更新 Docker 容器，并了解每种操作会对你的数据产生什么影响。
 sourceHash: 0b048a644851
 ---
 

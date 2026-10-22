@@ -1,5 +1,6 @@
 ---
 title: Authentifizierung
+description: Vergleiche die Authentifizierungsoptionen von Dozzle, von einer users.yml-Datei über GitHub und OIDC bis zum Forward Proxy, und die Sicherheitsschritte, bevor du es erreichbar machst.
 sourceHash: 111fbadf1b7a
 ---
 

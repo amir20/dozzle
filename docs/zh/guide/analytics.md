@@ -1,5 +1,6 @@
 ---
 title: 匿名统计
+description: Dozzle 会发送哪些匿名使用数据、哪些内容绝不包含、数据存储在哪里，以及如何用 --no-analytics 关闭统计。
 sourceHash: 6581eaa120ce
 ---
 
