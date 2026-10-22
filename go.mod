@@ -19,7 +19,7 @@ require (
 	github.com/puzpuzpuz/xsync/v4 v4.5.0
 	github.com/rs/zerolog v1.35.1
 	github.com/stretchr/testify v1.12.1
-	github.com/yuin/goldmark/v2 v2.1.6
+	github.com/yuin/goldmark/v2 v2.1.8
 	go.yaml.in/yaml/v3 v3.0.5
 	golang.org/x/crypto v0.58.0
 	golang.org/x/oauth2 v0.37.0
