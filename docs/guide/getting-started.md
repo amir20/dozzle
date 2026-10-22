@@ -1,5 +1,6 @@
 ---
 title: Getting Started
+description: Run Dozzle as a single container with docker run, Docker Compose, Docker Swarm or Kubernetes, and start reading Docker logs on port 8080.
 ---
 
 # Getting Started

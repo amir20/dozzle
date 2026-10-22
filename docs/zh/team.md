@@ -1,7 +1,8 @@
 ---
 layout: page
 title: 团队
-sourceHash: edd22f06d31b
+description: 创建和维护开源 Docker 日志查看器 Dozzle 的成员，并附有作者 Amir Raminfar 的 GitHub 和 LinkedIn 链接。
+sourceHash: 18ad66e14505
 ---
 
 <script setup>

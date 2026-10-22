@@ -1,6 +1,7 @@
 ---
 title: 健康检查
-sourceHash: 4ab4dd21a26a
+description: 在 Compose 中启用 Dozzle 内置的 Docker 健康检查，了解 /healthcheck 端点检查什么，以及哪些退出码表示健康或不健康。
+sourceHash: 4649dea27f89
 ---
 
 # 启用健康检查

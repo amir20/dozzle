@@ -1,5 +1,6 @@
 ---
 title: Swarm Mode
+description: How to deploy Dozzle in Docker Swarm mode as a global service to see logs from every node, group stacks and services, and add authentication and agents.
 ---
 
 # Swarm Mode

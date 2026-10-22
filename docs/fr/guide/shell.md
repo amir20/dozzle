@@ -1,6 +1,7 @@
 ---
 title: Accès shell aux conteneurs
-sourceHash: 267b2a6665a0
+description: Comment activer l'accès shell dans Dozzle pour s'attacher aux conteneurs Docker et Kubernetes ou y exécuter des commandes depuis le navigateur, et comment le sécuriser.
+sourceHash: 69ee7cf24f35
 ---
 
 # Attacher un terminal et exécuter des commandes

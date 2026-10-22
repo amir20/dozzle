@@ -1,5 +1,6 @@
 ---
 title: Container Shell Access
+description: How to enable shell access in Dozzle to attach to or exec into Docker and Kubernetes containers from the browser, and how to secure it.
 ---
 
 # Attaching and Executing Shell Commands

@@ -1,5 +1,6 @@
 ---
 title: Sign in with GitHub & OIDC
+description: Let users listed in Dozzle's users.yml sign in with GitHub, Google, Keycloak, or another OIDC provider, and keep the client secret in Docker secrets.
 ---
 
 # <Icon icon="mdi:shield-account" inline /> Sign in with GitHub & OIDC

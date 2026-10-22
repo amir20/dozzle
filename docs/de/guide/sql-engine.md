@@ -1,6 +1,7 @@
 ---
 title: SQL-Engine
-sourceHash: cd2f6d803d15
+description: Wie du in Dozzle JSON-Container-Logs mit SQL abfragst, über DuckDB, das per WebAssembly in deinem Browser läuft, mit Beispielabfragen und Grenzen.
+sourceHash: 224b549068f4
 ---
 
 # SQL-Engine

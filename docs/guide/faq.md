@@ -1,5 +1,6 @@
 ---
 title: FAQ
+description: Fixes for common Dozzle problems, such as upgrading, backing up /data, logs that never load behind nginx or Traefik, and duplicate host IDs.
 ---
 
 # Frequently Asked Questions

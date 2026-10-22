@@ -1,5 +1,6 @@
 ---
 title: What's New in v11
+description: What changed in Dozzle v11, including the redesigned UI, sign in with GitHub and OIDC, new log level formats, alert history, and the upgrade sign-out.
 ---
 
 # <Icon icon="mdi:party-popper" inline /> What's New in v11

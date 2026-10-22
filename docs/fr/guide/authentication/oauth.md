@@ -1,6 +1,7 @@
 ---
 title: Se connecter avec GitHub et OIDC
-sourceHash: cfb7126acb65
+description: Permettez aux utilisateurs listés dans le users.yml de Dozzle de se connecter avec GitHub, Google, Keycloak ou un autre fournisseur OIDC, et gardez le client secret dans les secrets Docker.
+sourceHash: 1c3e0c82356c
 ---
 
 # <Icon icon="mdi:shield-account" inline /> Se connecter avec GitHub et OIDC

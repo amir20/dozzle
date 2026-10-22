@@ -1,6 +1,7 @@
 ---
 title: Statistiques anonymes
-sourceHash: 6581eaa120ce
+description: Quelles données d'utilisation anonymes Dozzle envoie, ce qu'elles n'incluent jamais, où elles sont stockées et comment désactiver les statistiques avec --no-analytics.
+sourceHash: 012735e353cf
 ---
 
 # Collecte de données statistiques

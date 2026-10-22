@@ -1,6 +1,7 @@
 ---
 title: 调试
-sourceHash: 2cb9b9a633e2
+description: 用 --level 或 DOZZLE_LEVEL 把 Dozzle 自身的日志级别提高到 debug 或 trace，用 docker logs 查看输出，并了解报告 Bug 时应附上哪些信息。
+sourceHash: 52ffad35dc43
 ---
 
 # 通过日志调试

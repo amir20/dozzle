@@ -1,6 +1,7 @@
 ---
 title: Novedades de la v11
-sourceHash: 4b0ece212354
+description: Qué cambia en Dozzle v11, incluida la interfaz rediseñada, el inicio de sesión con GitHub y OIDC, nuevos formatos de nivel de log, el historial de alertas y el cierre de sesión al actualizar.
+sourceHash: 62007e62e5fa
 ---
 
 # <Icon icon="mdi:party-popper" inline /> Novedades de la v11

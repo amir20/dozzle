@@ -1,6 +1,7 @@
 ---
 title: Instanz verbinden
-sourceHash: ffd948b27c63
+description: Verbinde ein selbst gehostetes Dozzle ohne öffentliche IP oder offenen Port mit Dozzle Cloud, prüfe die Verbindung und behebe es, wenn nichts auftaucht.
+sourceHash: 8baed5268a15
 ---
 
 # Instanz verbinden

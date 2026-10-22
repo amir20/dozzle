@@ -1,6 +1,7 @@
 ---
 title: Umstieg von Watchtower
-sourceHash: 84d50ab97364
+description: Ersetze Watchtower durch Dozzle, um Docker-Container nach Zeitplan zu aktualisieren, mit jeder Watchtower-Einstellung und jedem Label und ihrer Entsprechung in Dozzle.
+sourceHash: b5f448099355
 ---
 
 # Umstieg von Watchtower

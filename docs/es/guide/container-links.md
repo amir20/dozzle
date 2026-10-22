@@ -1,6 +1,7 @@
 ---
 title: Enlaces de contenedores
-sourceHash: d39d7f2119c5
+description: Añade la etiqueta dev.dozzle.url para que Dozzle enlace cada contenedor Docker con su interfaz web, cómo las etiquetas de Traefik rellenan la URL y cómo funcionan las de servicio en Swarm.
+sourceHash: 0e83e161d063
 ---
 
 # Enlaces de contenedores

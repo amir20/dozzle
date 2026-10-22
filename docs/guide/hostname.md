@@ -1,5 +1,6 @@
 ---
 title: Hostname
+description: Change the name Dozzle shows for its local Docker host with --hostname or DOZZLE_HOSTNAME, and how to name agents in the multi-host menu.
 ---
 
 # Changing Dozzle's Hostname

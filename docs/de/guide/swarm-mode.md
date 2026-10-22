@@ -1,6 +1,7 @@
 ---
 title: Swarm-Modus
-sourceHash: f73672e30c85
+description: Wie du Dozzle im Docker-Swarm-Modus als globalen Service betreibst, um Logs aller Knoten zu sehen, Stacks und Services zu gruppieren und Authentifizierung und Agents hinzuzufügen.
+sourceHash: 973d9cfdd03d
 ---
 
 # Swarm-Modus

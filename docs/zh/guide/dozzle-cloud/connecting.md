@@ -1,6 +1,7 @@
 ---
 title: 连接你的实例
-sourceHash: ffd948b27c63
+description: 无需公网 IP 或开放端口，把自托管的 Dozzle 连接到 Dozzle Cloud，确认它已连上，并在什么都没显示时排查问题。
+sourceHash: 8baed5268a15
 ---
 
 # 连接你的实例

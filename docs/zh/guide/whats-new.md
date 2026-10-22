@@ -1,6 +1,7 @@
 ---
 title: v11 新变化
-sourceHash: 4b0ece212354
+description: Dozzle v11 的变化，包括重新设计的界面、使用 GitHub 和 OIDC 登录、新的日志级别格式、告警记录，以及升级后需重新登录。
+sourceHash: 62007e62e5fa
 ---
 
 # <Icon icon="mdi:party-popper" inline /> v11 新变化

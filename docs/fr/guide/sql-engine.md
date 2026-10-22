@@ -1,6 +1,7 @@
 ---
 title: Moteur SQL
-sourceHash: cd2f6d803d15
+description: Comment interroger en SQL les logs JSON de vos conteneurs dans Dozzle, avec DuckDB exécuté dans le navigateur via WebAssembly, exemples de requêtes et limites.
+sourceHash: 224b549068f4
 ---
 
 # Moteur SQL

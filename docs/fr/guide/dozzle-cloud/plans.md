@@ -1,6 +1,7 @@
 ---
 title: Offres et limites
-sourceHash: be1bd7a795e4
+description: À quoi ressemblent les limites des offres Dozzle Cloud quand vous les atteignez, des alertes brutes à la durée de conservation et la limite d'instances gratuite, et comment vérifier l'utilisation ou résilier.
+sourceHash: ac818aba3129
 ---
 
 # Offres et limites

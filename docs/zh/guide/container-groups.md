@@ -1,6 +1,7 @@
 ---
 title: 容器分组
-sourceHash: 83c35e4fb25c
+description: Dozzle 如何按 stack 或 Swarm 服务对 Docker 容器分组，以及如何用 dev.dozzle.group 标签创建自定义分组，包括在 Kubernetes 中。
+sourceHash: f19fc5b4a5b4
 ---
 
 # 容器分组

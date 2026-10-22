@@ -1,6 +1,7 @@
 ---
 title: Reverse Proxy & Basispfad
-sourceHash: f344ea2a42cc
+description: Betreibe Dozzle hinter einem Reverse Proxy oder mit --base unter einem Unterpfad, mit Einstellungen für Nginx, Traefik und Caddy, damit Log-Streaming und Container-Shells funktionieren.
+sourceHash: 765ce4d53ea4
 ---
 
 # Reverse Proxy & Basispfad

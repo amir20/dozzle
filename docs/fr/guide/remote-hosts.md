@@ -1,6 +1,7 @@
 ---
 title: Configuration des hôtes distants
-sourceHash: 6ae09165c838
+description: Connectez Dozzle à des hôtes Docker distants via TLS ou un Docker Socket Proxy et étiquetez chaque hôte, même si les agents sont désormais la méthode recommandée.
+sourceHash: db7e4da08042
 ---
 
 # Configuration des hôtes distants

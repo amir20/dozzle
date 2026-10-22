@@ -1,5 +1,6 @@
 ---
 title: Support
+description: How to support Dozzle, the open-source Docker log viewer, by contributing on GitHub, starring the repo, donating through Buy Me a Coffee, or sharing it.
 ---
 
 # Support

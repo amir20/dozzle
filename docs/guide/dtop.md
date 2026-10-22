@@ -1,5 +1,6 @@
 ---
 title: dtop CLI
+description: Install dtop, a terminal tool that shows your running Docker containers in real time over SSH, TCP or a local socket and opens Dozzle for logs.
 ---
 
 # dtop

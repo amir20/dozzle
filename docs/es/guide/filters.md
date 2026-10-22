@@ -1,6 +1,7 @@
 ---
 title: Filtros
-sourceHash: b4449a225843
+description: Limita qué contenedores de Docker puede ver Dozzle con DOZZLE_FILTER o --filter, y entiende cómo se combinan los filtros de la UI, del agente y de usuario.
+sourceHash: 506ae2cd8bd9
 ---
 
 # Filtrar contenedores

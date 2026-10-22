@@ -1,7 +1,8 @@
 ---
 layout: page
 title: Team
-sourceHash: edd22f06d31b
+description: Die Personen, die Dozzle, den Open-Source-Log-Viewer für Docker, entwickeln und pflegen, mit Links zu Entwickler Amir Raminfar auf GitHub und LinkedIn.
+sourceHash: 18ad66e14505
 ---
 
 <script setup>

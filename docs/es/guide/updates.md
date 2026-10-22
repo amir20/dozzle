@@ -1,6 +1,7 @@
 ---
 title: Actualizaciones de contenedores
-sourceHash: b9d784191b46
+description: Cómo Dozzle comprueba si tus contenedores de Docker tienen imágenes más nuevas y los actualiza a mano o según una programación, con reversión automática y limpieza de imágenes antiguas.
+sourceHash: b47472c411ae
 ---
 
 # Actualizaciones de contenedores

@@ -1,6 +1,7 @@
 ---
 title: Erste Schritte
-sourceHash: 6fa151a446d0
+description: Starte Dozzle als einzelnen Container mit docker run, Docker Compose, Docker Swarm oder Kubernetes und lies deine Docker-Logs auf Port 8080.
+sourceHash: c6183319823c
 ---
 
 # Erste Schritte

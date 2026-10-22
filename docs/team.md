@@ -1,6 +1,7 @@
 ---
 layout: page
 title: Team
+description: The people who create and maintain Dozzle, the open-source Docker log viewer, with links to creator Amir Raminfar on GitHub and LinkedIn.
 ---
 
 <script setup>

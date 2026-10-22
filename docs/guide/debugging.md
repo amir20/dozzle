@@ -1,5 +1,6 @@
 ---
 title: Debugging
+description: Raise Dozzle's own log level to debug or trace with --level or DOZZLE_LEVEL, read the output with docker logs, and know what to include in a bug report.
 ---
 
 # Debugging with Logs

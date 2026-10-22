@@ -1,5 +1,6 @@
 ---
 title: In Your Dozzle
+description: What changes in your own Dozzle after you link it to Dozzle Cloud, including Ask Dozzle, metrics history, and alerts that survive a reload.
 ---
 
 # In Your Dozzle

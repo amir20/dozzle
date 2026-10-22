@@ -1,6 +1,7 @@
 ---
 title: Grupos de contenedores
-sourceHash: 83c35e4fb25c
+description: Cómo agrupa Dozzle los contenedores Docker por stack o servicio de Swarm, y cómo crear grupos propios con la etiqueta dev.dozzle.group, también en Kubernetes.
+sourceHash: f19fc5b4a5b4
 ---
 
 # Grupos de contenedores

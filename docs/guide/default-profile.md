@@ -1,5 +1,6 @@
 ---
 title: Default Profile
+description: Ship a default profile.json so new and anonymous Dozzle users start with your chosen theme, timestamps, sidebar grouping and other UI settings.
 ---
 
 # Default Profile

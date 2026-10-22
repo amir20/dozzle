@@ -1,6 +1,7 @@
 ---
 title: Assistant de configuration
-sourceHash: 3c82d0e2c2d2
+description: Comment l'assistant de configuration de Dozzle active la connexion, les actions sur les conteneurs, l'accès shell, les hôtes distants, Dozzle Cloud et la mise à jour automatique.
+sourceHash: 14db8f2c1ce6
 ---
 
 # Assistant de configuration

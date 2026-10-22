@@ -1,6 +1,7 @@
 ---
 title: App-Icons
-sourceHash: 10013a575b03
+description: Wie Dozzle Projektlogos neben Docker-Containern anzeigt, wie Image-Namen zugeordnet werden und wie du das Icon per Label überschreibst oder ein eigenes mitgibst.
+sourceHash: d3beb5256ec1
 ---
 
 # App-Icons

@@ -1,6 +1,7 @@
 ---
 title: Hostname
-sourceHash: 8769ba2c0e47
+description: Ändere mit --hostname oder DOZZLE_HOSTNAME den Namen, den Dozzle für den lokalen Docker-Host anzeigt, und benenne Agents im Multi-Host-Menü.
+sourceHash: 29d7e582b534
 ---
 
 # Dozzles Hostnamen ändern

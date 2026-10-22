@@ -1,5 +1,6 @@
 ---
 title: Healthcheck
+description: Enable Dozzle's built-in Docker healthcheck in Compose, see what the /healthcheck endpoint checks, and which exit codes mean healthy or unhealthy.
 ---
 
 # Enabling Healthcheck

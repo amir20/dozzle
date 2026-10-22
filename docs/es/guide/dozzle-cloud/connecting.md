@@ -1,6 +1,7 @@
 ---
 title: Vincular tu instancia
-sourceHash: ffd948b27c63
+description: Vincula un Dozzle autoalojado a Dozzle Cloud sin IP pública ni puertos abiertos, comprueba que se conectó y arréglalo cuando no aparece nada.
+sourceHash: 8baed5268a15
 ---
 
 # Vincular tu instancia

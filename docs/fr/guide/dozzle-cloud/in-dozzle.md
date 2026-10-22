@@ -1,6 +1,7 @@
 ---
 title: Dans votre Dozzle
-sourceHash: 49118bdfb7ff
+description: Ce qui change dans votre propre Dozzle une fois relié à Dozzle Cloud, notamment Ask Dozzle, l'historique des métriques et les alertes qui survivent à un rechargement.
+sourceHash: 6ba069544b57
 ---
 
 # Dans votre Dozzle

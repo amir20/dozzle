@@ -1,6 +1,7 @@
 ---
 title: dtop CLI
-sourceHash: 88753cae7439
+description: 安装 dtop，一个通过 SSH、TCP 或本地 socket 在终端里实时查看运行中 Docker 容器的工具，需要看日志时可直接打开 Dozzle。
+sourceHash: 7e2218a215a1
 ---
 
 # dtop

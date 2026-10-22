@@ -1,6 +1,7 @@
 ---
 title: Dozzle Cloud
-sourceHash: ddf1502ea23d
+description: Was Dozzle Cloud zu selbst gehostetem Dozzle hinzufügt, darunter Alarm-Triage, Benachrichtigungen an Slack, Telegram oder Discord und in bezahlten Plänen eine tägliche Log-Prüfung.
+sourceHash: 29eedd4730d9
 ---
 
 # Dozzle Cloud

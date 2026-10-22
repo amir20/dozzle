@@ -1,6 +1,7 @@
 ---
 title: MCP-Integration
-sourceHash: fe1cee485b1f
+description: Aktiviere Dozzles MCP-Server, damit KI-Assistenten wie Claude und Copilot Logs und Statistiken deiner Docker-Container lesen können, und richte Clients und Authentifizierung ein.
+sourceHash: f41d126e6cea
 ---
 
 # MCP-Integration

@@ -1,6 +1,7 @@
 ---
 title: Alarme
-sourceHash: 5e7e00f70c1f
+description: Richte in Dozzle Alarme für Docker-Container-Logs, CPU- und Speichermetriken sowie Lebenszyklus-Ereignisse ein und sende sie an einen Webhook, Slack, Discord oder ntfy.
+sourceHash: 94f6de331492
 ---
 
 # Alarme

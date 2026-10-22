@@ -1,6 +1,7 @@
 ---
 title: Nombres de contenedores
-sourceHash: cafa1526d194
+description: Cambia el nombre que Dozzle muestra para un contenedor Docker con la etiqueta dev.dozzle.name, y cómo se nombran los pods de Kubernetes y los despliegues de Coolify.
+sourceHash: c90729cfb0cb
 ---
 
 # Nombres de contenedores

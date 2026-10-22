@@ -1,6 +1,7 @@
 ---
 title: Planes y límites
-sourceHash: be1bd7a795e4
+description: Cómo se ven los límites de los planes de Dozzle Cloud cuando te topas con ellos, desde alertas en crudo hasta la retención de búsqueda y el límite de instancias gratis, y cómo revisar el uso o cancelar.
+sourceHash: ac818aba3129
 ---
 
 # Planes y límites

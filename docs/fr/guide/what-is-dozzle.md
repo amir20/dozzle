@@ -1,6 +1,7 @@
 ---
 title: Qu'est-ce que Dozzle ?
-sourceHash: a37de5cd15f3
+description: Dozzle est un visualiseur de logs open source dans le navigateur qui affiche en temps réel les logs et métriques des conteneurs Docker, Docker Swarm et Kubernetes.
+sourceHash: 3c3eb877cbb9
 ---
 
 # Qu'est-ce que Dozzle ?

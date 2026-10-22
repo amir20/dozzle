@@ -1,6 +1,7 @@
 ---
 title: Seguir archivos de log en disco
-sourceHash: e6e23f2438f9
+description: Cómo ver en Dozzle los logs que un contenedor escribe en archivos en lugar de stdout, enviándolos a los flujos estándar o siguiendo el archivo con un sidecar.
+sourceHash: 44ef77e3276f
 ---
 
 # Seguir archivos de log en disco

@@ -1,6 +1,7 @@
 ---
 title: 默认配置文件
-sourceHash: 1ef0edd24fb4
+description: 提供一个默认的 profile.json，让新用户和匿名用户打开 Dozzle 时就使用你选定的主题、时间戳、侧边栏分组等界面设置。
+sourceHash: 3059321bba13
 ---
 
 # 默认配置文件

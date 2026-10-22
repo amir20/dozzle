@@ -1,6 +1,7 @@
 ---
 title: Analíticas anónimas
-sourceHash: 6581eaa120ce
+description: Qué datos de uso anónimos envía Dozzle, qué no incluyen nunca, dónde se guardan y cómo desactivar las analíticas con --no-analytics.
+sourceHash: 012735e353cf
 ---
 
 # Recopilación de datos analíticos

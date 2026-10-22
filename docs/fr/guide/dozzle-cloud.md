@@ -1,6 +1,7 @@
 ---
 title: Dozzle Cloud
-sourceHash: ddf1502ea23d
+description: Ce que Dozzle Cloud ajoute à Dozzle auto-hébergé, dont le tri des alertes, les notifications vers Slack, Telegram ou Discord, et une revue quotidienne des logs sur les offres payantes.
+sourceHash: 29eedd4730d9
 ---
 
 # Dozzle Cloud

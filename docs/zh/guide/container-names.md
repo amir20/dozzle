@@ -1,6 +1,7 @@
 ---
 title: 容器名称
-sourceHash: cafa1526d194
+description: 用 dev.dozzle.name 标签覆盖 Dozzle 为 Docker 容器显示的名称，并了解 Kubernetes pod 和 Coolify 部署中的命名方式。
+sourceHash: c90729cfb0cb
 ---
 
 # 容器名称

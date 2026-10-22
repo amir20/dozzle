@@ -1,6 +1,7 @@
 ---
 title: 从 Watchtower 迁移
-sourceHash: 84d50ab97364
+description: 用 Dozzle 替代 Watchtower，按计划更新 Docker 容器，并把 Watchtower 的每个设置和标签对应到 Dozzle 的等价项。
+sourceHash: b5f448099355
 ---
 
 # 从 Watchtower 迁移

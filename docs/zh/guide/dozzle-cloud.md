@@ -1,6 +1,7 @@
 ---
 title: Dozzle Cloud
-sourceHash: ddf1502ea23d
+description: Dozzle Cloud 为自托管 Dozzle 带来了什么，包括告警分诊、发送到 Slack、Telegram 或 Discord 的通知，以及付费计划中的每日日志检查。
+sourceHash: 29eedd4730d9
 ---
 
 # Dozzle Cloud

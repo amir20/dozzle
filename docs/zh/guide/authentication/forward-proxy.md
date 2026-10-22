@@ -1,6 +1,7 @@
 ---
 title: 前置代理
-sourceHash: 37a5c3119fb2
+description: 把 Dozzle 放在 Authelia、Cloudflare Zero Trust 或 oauth2-proxy 等前置代理之后，由代理通过请求头传递用户、邮箱和角色。
+sourceHash: 884193ade79b
 ---
 
 # <Icon icon="mdi:swap-horizontal" inline /> 前置代理

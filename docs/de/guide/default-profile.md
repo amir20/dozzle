@@ -1,6 +1,7 @@
 ---
 title: Standardprofil
-sourceHash: 1ef0edd24fb4
+description: Lege eine Standard-profile.json an, damit neue und anonyme Dozzle-Benutzer mit deinem Theme, Zeitstempeln, der Seitenleisten-Gruppierung und anderen UI-Einstellungen starten.
+sourceHash: 3059321bba13
 ---
 
 # Standardprofil

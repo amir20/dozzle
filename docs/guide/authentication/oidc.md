@@ -1,5 +1,6 @@
 ---
 title: OpenID Connect
+description: Use OpenID Connect with Keycloak, Authentik, Authelia, or Zitadel as Dozzle's user database, with roles and container filters read from the token.
 ---
 
 # <Icon icon="mdi:shield-account" inline /> OpenID Connect

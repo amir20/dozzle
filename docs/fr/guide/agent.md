@@ -1,6 +1,7 @@
 ---
 title: Mode agent
-sourceHash: 1612be6887f8
+description: Utilisez Dozzle en mode agent pour consulter les logs d'hôtes Docker distants via TLS, organiser les hôtes en groupes et verrouiller les agents avec votre propre certificat.
+sourceHash: 9f968598f5ac
 ---
 
 # Mode agent

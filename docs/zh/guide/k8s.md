@@ -1,6 +1,7 @@
 ---
 title: Kubernetes 支持
-sourceHash: 68f0096ed3c7
+description: 在 Kubernetes 中运行 Dozzle 查看 Pod 日志，包括 RBAC、Metrics API 和 kubelet 统计数据的配置，以及 Pod 重启、命名空间和过滤器。
+sourceHash: 7c7f2f001ac1
 ---
 
 # Kubernetes 支持

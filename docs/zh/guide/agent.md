@@ -1,6 +1,7 @@
 ---
 title: 代理模式
-sourceHash: 1612be6887f8
+description: 以代理模式运行 Dozzle，通过 TLS 查看远程 Docker 主机的日志，把主机分组管理，并用自己的证书锁定代理。
+sourceHash: 9f968598f5ac
 ---
 
 # 代理模式

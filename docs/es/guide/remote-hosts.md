@@ -1,6 +1,7 @@
 ---
 title: Configuración de hosts remotos
-sourceHash: 6ae09165c838
+description: Conecta Dozzle a hosts de Docker remotos por TLS o mediante un Docker Socket Proxy y etiqueta cada host, aunque ahora se recomienda usar agentes.
+sourceHash: db7e4da08042
 ---
 
 # Configuración de hosts remotos

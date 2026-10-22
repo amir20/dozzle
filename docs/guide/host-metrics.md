@@ -1,5 +1,6 @@
 ---
 title: Host Metrics
+description: Show the Docker host's uptime, load average and disk usage on Dozzle's host card, with the /proc and drive mounts each setup needs.
 ---
 
 # Host Metrics

@@ -1,6 +1,7 @@
 ---
 title: Suivre des fichiers de logs sur disque
-sourceHash: e6e23f2438f9
+description: Comment voir dans Dozzle les logs qu'un conteneur écrit dans des fichiers au lieu de stdout, en écrivant dans les flux ou en suivant le fichier avec un sidecar.
+sourceHash: 44ef77e3276f
 ---
 
 # Suivre des fichiers de logs sur disque

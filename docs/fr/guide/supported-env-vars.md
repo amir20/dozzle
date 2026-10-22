@@ -1,6 +1,7 @@
 ---
 title: Variables d'environnement et sous-commandes
-sourceHash: 4df73b5425e8
+description: Toutes les variables d'environnement et options de Dozzle, y compris l'authentification, et les sous-commandes generate, agent, generate-certs et healthcheck.
+sourceHash: 258ed3c33972
 ---
 
 # Variables d'environnement

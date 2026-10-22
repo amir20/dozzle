@@ -1,6 +1,7 @@
 ---
 title: 设置向导
-sourceHash: 3c82d0e2c2d2
+description: Dozzle 设置向导如何在全新的 Docker 安装中开启登录、容器操作、终端访问、远程主机、Dozzle Cloud 和自动更新。
+sourceHash: 14db8f2c1ce6
 ---
 
 # 设置向导

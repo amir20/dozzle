@@ -1,6 +1,7 @@
 ---
 title: Prise en charge de Kubernetes
-sourceHash: 68f0096ed3c7
+description: Exécutez Dozzle dans Kubernetes pour consulter les logs des pods, avec la configuration RBAC, Metrics API et kubelet pour les statistiques, les redémarrages, namespaces et filtres.
+sourceHash: 7c7f2f001ac1
 ---
 
 # Prise en charge de Kubernetes

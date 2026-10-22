@@ -1,6 +1,7 @@
 ---
 title: Podman
-sourceHash: bbfd1745527f
+description: Exécutez Dozzle avec Podman, en rootful ou rootless, comme service autonome, unité Quadlet ou agent, et corrigez les statistiques mémoire absentes et les healthchecks en échec.
+sourceHash: 576acd7f7e7d
 ---
 
 # Podman

@@ -1,6 +1,7 @@
 ---
 title: SQL 引擎
-sourceHash: cd2f6d803d15
+description: 如何在 Dozzle 中用 SQL 查询 JSON 格式的容器日志，借助 WebAssembly 在浏览器中运行 DuckDB，附查询示例与限制。
+sourceHash: 224b549068f4
 ---
 
 # SQL 引擎

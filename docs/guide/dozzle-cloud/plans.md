@@ -1,5 +1,6 @@
 ---
 title: Plans & Limits
+description: What Dozzle Cloud plan limits look like when you hit them, from raw alerts to search retention and the free instance limit, and how to check usage or cancel.
 ---
 
 # Plans & Limits

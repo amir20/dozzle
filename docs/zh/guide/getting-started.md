@@ -1,6 +1,7 @@
 ---
 title: 快速开始
-sourceHash: 6fa151a446d0
+description: 用 docker run、Docker Compose、Docker Swarm 或 Kubernetes 以单个容器运行 Dozzle，并在 8080 端口开始查看 Docker 日志。
+sourceHash: c6183319823c
 ---
 
 # 快速开始

@@ -1,6 +1,7 @@
 ---
 title: Fehlersuche
-sourceHash: 2cb9b9a633e2
+description: Erhöhe Dozzles eigene Log-Stufe mit --level oder DOZZLE_LEVEL auf debug oder trace, lies die Ausgabe mit docker logs und erfahre, was in einen Fehlerbericht gehört.
+sourceHash: 52ffad35dc43
 ---
 
 # Fehlersuche mit Logs

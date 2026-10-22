@@ -1,5 +1,6 @@
 ---
 title: SQL Engine
+description: How to query JSON container logs with SQL in Dozzle, using DuckDB running in your browser through WebAssembly, with example queries and limits.
 ---
 
 # SQL Engine

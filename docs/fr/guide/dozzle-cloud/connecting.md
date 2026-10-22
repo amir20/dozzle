@@ -1,6 +1,7 @@
 ---
 title: Relier votre instance
-sourceHash: ffd948b27c63
+description: Reliez un Dozzle auto-hébergé à Dozzle Cloud sans IP publique ni port ouvert, vérifiez qu'il est connecté, et corrigez le problème quand rien n'apparaît.
+sourceHash: 8baed5268a15
 ---
 
 # Relier votre instance
