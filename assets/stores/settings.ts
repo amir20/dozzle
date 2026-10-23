@@ -22,6 +22,9 @@ export type Settings = {
   showAppIcons: boolean;
   highlightErrors: boolean;
   terminalFontSize: number;
+  // dashboard table columns the user switched off; the name column cannot be
+  hiddenColumns: string[];
+  movingAverage: boolean;
 };
 export const DEFAULT_SETTINGS: Settings = {
   search: true,
@@ -45,6 +48,9 @@ export const DEFAULT_SETTINGS: Settings = {
   showAppIcons: true,
   highlightErrors: true,
   terminalFontSize: 13,
+  // Stored as what is hidden, so a column added later shows up unless it is listed here.
+  hiddenColumns: ["uptime", "diskio"],
+  movingAverage: true,
 };
 
 export const settings = useProfileStorage("settings", DEFAULT_SETTINGS);
@@ -79,4 +85,6 @@ export const {
   showAppIcons,
   highlightErrors,
   terminalFontSize,
+  hiddenColumns,
+  movingAverage,
 } = toRefs(settings.value);

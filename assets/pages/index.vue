@@ -11,6 +11,13 @@
     >
       <template #actions>
         <ContainerUpdatesButton v-if="showUpdates" />
+        <ContainerColumnPicker
+          v-if="table"
+          class="max-md:hidden"
+          :columns="table.pickableColumns"
+          v-model:hidden="hiddenColumns"
+          v-model:average="movingAverage"
+        />
         <div class="join max-md:hidden">
           <button
             class="icon-btn btn join-item btn-xs"
@@ -32,13 +39,20 @@
           </button>
         </div>
       </template>
-      <ContainerTable :containers="dashboardContainers" v-model:stat-mode="statMode" />
+      <ContainerTable
+        ref="table"
+        :containers="dashboardContainers"
+        v-model:stat-mode="statMode"
+        v-model:hidden-columns="hiddenColumns"
+        v-model:average="movingAverage"
+      />
     </CollapsibleSection>
   </PageWithLinks>
 </template>
 
 <script lang="ts" setup>
 import { Container } from "@/models/Container";
+import { hiddenColumns, movingAverage } from "@/stores/settings";
 
 const { t } = useI18n();
 const { hosts } = useHosts();
@@ -58,6 +72,7 @@ const dashboardContainers = computed(() =>
 const showUpdates = config.enableActions && config.imageCheckMode !== "off" && config.mode !== "k8s";
 
 const statMode = useStorage<"chart" | "progress">("DOZZLE_TABLE_STAT_MODE", "chart");
+const table = useTemplateRef("table");
 const hostsCollapsed = useStorage("DOZZLE_HOSTS_COLLAPSED", false);
 const containersCollapsed = useStorage("DOZZLE_CONTAINERS_COLLAPSED", false);
 

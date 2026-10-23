@@ -136,6 +136,7 @@ label:
   cpu: CPU
   core: Tidak ada inti | 1 inti | {count} inti
   disk: Disk
+  disk-io: I/O Disk
   network: Jaringan
   reclaimable: Dapat dibebaskan
   unused-images: "Image tidak terpakai"
@@ -147,6 +148,8 @@ label:
   mem: MEM
   pinned: Disematkan
   per-page: Baris per halaman
+  columns: Kolom
+  moving-average: Gunakan rata-rata bergerak
   sort-by: Urutkan menurut
   sort-direction: Ubah arah pengurutan
   host-menu: Host dan Kontainer
@@ -195,10 +198,13 @@ tooltip:
   agent-version: "Agen Dozzle {version}"
   agent-version-mismatch: "Agen {version} tidak cocok dengan Dozzle {current}. Perbarui agennya."
 popup:
-  started: Dimulai
-  finished: Berhenti
   group: Grup
   ports: Port
+container-status:
+  up: "Aktif {duration}"
+  paused: "Dijeda, aktif {duration}"
+  restarting: "Memulai ulang, berhenti {time}"
+  exited: "Keluar {time}"
 hint:
   learn-more: Pelajari lebih lanjut
   dismiss: Jangan tampilkan lagi

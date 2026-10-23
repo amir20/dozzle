@@ -135,6 +135,7 @@ label:
   cpu: CPU
   core: Sem núcleos | 1 núcleo | {count} núcleos
   disk: Disco
+  disk-io: "E/S de disco"
   network: Rede
   reclaimable: Recuperável
   unused-images: "Imagens não usadas"
@@ -146,6 +147,8 @@ label:
   mem: MEM
   pinned: Fixado
   per-page: Linhas por página
+  columns: "Colunas"
+  moving-average: "Usar média móvel"
   sort-by: Ordenar por
   sort-direction: Inverter a ordem
   host-menu: Hosts e Containers
@@ -192,10 +195,13 @@ tooltip:
   agent-version: "Agente Dozzle {version}"
   agent-version-mismatch: "O agente {version} não corresponde ao Dozzle {current}. Atualize o agente."
 popup:
-  started: Iniciado
-  finished: Finalizado
   group: Grupo
   ports: Portas
+container-status:
+  up: "Ativo há {duration}"
+  paused: "Em pausa, ativo há {duration}"
+  restarting: "A reiniciar, parado {time}"
+  exited: "Terminado {time}"
 hint:
   learn-more: Saiba mais
   dismiss: Não mostrar novamente

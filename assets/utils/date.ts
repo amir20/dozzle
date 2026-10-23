@@ -40,3 +40,18 @@ export function toRelativeTime(
 
   return rtf.format(0, "second");
 }
+
+/**
+ * How long ago `date` was as a bare duration in its largest whole unit, "8 minutes"
+ * rather than "8 minutes ago", for a sentence that supplies its own verb ("Up 8 minutes").
+ */
+export function toElapsed(date: Date, locale: string | undefined): string {
+  const elapsed = Math.max(0, (Date.now() - date.getTime()) / 1000);
+  for (const [unit, seconds] of units) {
+    const value = Math.floor(elapsed / seconds);
+    if (value >= 1) {
+      return new Intl.NumberFormat(locale, { style: "unit", unit, unitDisplay: "long" }).format(value);
+    }
+  }
+  return new Intl.NumberFormat(locale, { style: "unit", unit: "second", unitDisplay: "long" }).format(0);
+}

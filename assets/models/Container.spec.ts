@@ -1,6 +1,6 @@
 import { describe, expect, test, vi } from "vitest";
 import { computed, isReactive, reactive } from "vue";
-import { Container, decodeStats, emptyStat, networkRate, type Stat } from "./Container";
+import { Container, decodeStats, diskRate, emptyStat, networkRate, uptime, type Stat } from "./Container";
 import { useHosts, type Host } from "@/stores/hosts";
 
 vi.mock("@/stores/config", () => ({
@@ -542,5 +542,60 @@ describe("networkRate", () => {
     c.updateStat(makeStat({ networkRxTotal: 10 }));
     c.state = "exited";
     expect(networkRate(c)).toBeUndefined();
+  });
+});
+
+describe("moving average rates", () => {
+  test("average the per-sample difference rather than the running totals", () => {
+    const c = makeContainer({
+      stats: [
+        makeStat({ networkRxTotal: 0, diskWriteTotal: 0 }),
+        makeStat({ networkRxTotal: 100, diskWriteTotal: 50 }),
+      ],
+    });
+    expect(networkRate(c, true)).toEqual({ rx: 100, tx: 0 });
+    c.updateStat(makeStat({ networkRxTotal: 100, diskWriteTotal: 50 }));
+    // an idle second pulls the average a fifth of the way toward zero
+    expect(networkRate(c, true)).toEqual({ rx: 80, tx: 0 });
+    expect(diskRate(c, true)).toEqual({ read: 0, write: 40 });
+    // the raw rate is just the last second
+    expect(networkRate(c)).toEqual({ rx: 0, tx: 0 });
+  });
+
+  test("a counter that went backwards counts as idle, not negative", () => {
+    const c = makeContainer({ stats: [makeStat({ diskReadTotal: 500 }), makeStat({ diskReadTotal: 600 })] });
+    c.updateStat(makeStat({ diskReadTotal: 10 }));
+    expect(diskRate(c)).toEqual({ read: 0, write: 0 });
+    expect(diskRate(c, true)!.read).toBeCloseTo(80);
+  });
+});
+
+describe("uptime", () => {
+  const zero = new Date("0001-01-01T00:00:00Z");
+  const started = new Date("2026-01-01T10:00:00Z");
+  const finished = new Date("2026-01-01T12:00:00Z");
+
+  test("running and paused measure from the start", () => {
+    expect(uptime({ state: "running", startedAt: started, finishedAt: zero })).toEqual({ state: "up", since: started });
+    expect(uptime({ state: "paused", startedAt: started, finishedAt: zero })).toEqual({
+      state: "paused",
+      since: started,
+    });
+  });
+
+  test("restarting and exited measure from the last stop", () => {
+    expect(uptime({ state: "restarting", startedAt: started, finishedAt: finished })).toEqual({
+      state: "restarting",
+      since: finished,
+    });
+    expect(uptime({ state: "dead", startedAt: started, finishedAt: finished })).toEqual({
+      state: "exited",
+      since: finished,
+    });
+  });
+
+  test("a container that never ran has no uptime", () => {
+    expect(uptime({ state: "created", startedAt: zero, finishedAt: zero })).toBeUndefined();
+    expect(uptime({ state: "exited", startedAt: zero, finishedAt: zero })).toBeUndefined();
   });
 });

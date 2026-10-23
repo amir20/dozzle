@@ -51,12 +51,17 @@ const {
   type,
   host,
   mode = "chart",
+  average = true,
 } = defineProps<{
   container: Container;
   type: "cpu" | "mem";
   host: Host;
   mode?: "chart" | "progress";
+  // the moving average, or the latest sample as it came in
+  average?: boolean;
 }>();
+
+const current = computed(() => (average ? container.movingAverage : container.stat));
 
 const isRunning = computed(() => container.state === "running");
 
@@ -96,21 +101,21 @@ const chartData = computed(() => {
 const averageValue = computed(() => {
   if (type === "cpu") {
     const cores = totalCores();
-    return Math.min(container.movingAverage.cpu / cores, 100);
+    return Math.min(current.value.cpu / cores, 100);
   }
-  return container.movingAverage.memory;
+  return current.value.memory;
 });
 
 const displayValue = computed(() => {
   if (type === "cpu") {
     return `${(hovered.value ?? averageValue.value).toFixed(0)}%`;
   }
-  return formatBytes(hovered.value ?? container.movingAverage.memoryUsage);
+  return formatBytes(hovered.value ?? current.value.memoryUsage);
 });
 
 // Short units on a phone, where the cell is a fixed width: "420M", not "419.98 MB".
 const mobileValue = computed(() =>
-  type === "cpu" ? displayValue.value : formatBytes(container.movingAverage.memoryUsage, { short: true, decimals: 1 }),
+  type === "cpu" ? displayValue.value : formatBytes(current.value.memoryUsage, { short: true, decimals: 1 }),
 );
 
 // A text colour, not a background: BarChart strokes its bars in `currentColor`.

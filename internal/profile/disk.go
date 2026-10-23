@@ -47,6 +47,10 @@ type Settings struct {
 	ShowAppIcons         *bool `json:"showAppIcons,omitempty"`
 	ShowImageUpdateAlert *bool `json:"showImageUpdateAlert,omitempty"`
 	TerminalFontSize     int   `json:"terminalFontSize,omitempty"`
+	// Pointers again: a user who unhid every column saves an empty list, and that
+	// has to survive rather than fall back to the frontend's default hidden set.
+	HiddenColumns *[]string `json:"hiddenColumns,omitempty"`
+	MovingAverage *bool     `json:"movingAverage,omitempty"`
 }
 
 type Profile struct {

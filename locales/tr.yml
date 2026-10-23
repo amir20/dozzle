@@ -135,6 +135,7 @@ label:
   cpu: CPU
   core: Çekirdek yok | 1 çekirdek | {count} çekirdek
   disk: Disk
+  disk-io: Disk G/Ç
   network: Ağ
   reclaimable: Geri kazanılabilir
   unused-images: "Kullanılmayan imajlar"
@@ -146,6 +147,8 @@ label:
   mem: MEM
   pinned: Sabitlenmiş
   per-page: Sayfa başına satır
+  columns: Sütunlar
+  moving-average: Hareketli ortalama kullan
   sort-by: Sırala
   sort-direction: Sıralama yönünü değiştir
   host-menu: Sunucular ve Konteynerler
@@ -192,10 +195,13 @@ tooltip:
   agent-version: "Dozzle aracısı {version}"
   agent-version-mismatch: "Aracı {version}, Dozzle {current} ile eşleşmiyor. Aracıyı güncelleyin."
 popup:
-  started: Başlatıldı
-  finished: Durduruldu
   group: Grup
   ports: Portlar
+container-status:
+  up: "{duration} süredir çalışıyor"
+  paused: "Duraklatıldı, {duration} süredir çalışıyor"
+  restarting: "Yeniden başlatılıyor, {time} durdu"
+  exited: "{time} çıktı"
 hint:
   learn-more: Daha fazla bilgi
   dismiss: Bir daha gösterme

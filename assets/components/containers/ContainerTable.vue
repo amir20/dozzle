@@ -64,7 +64,7 @@
               v-show="isVisible(key)"
             >
               <a class="inline-flex cursor-pointer gap-1.5 text-xs font-medium tracking-wide uppercase">
-                <span>{{ $t(isMobile && value.mobileLabel ? value.mobileLabel : value.label) }}</span>
+                <span>{{ $t(headerLabel(value)) }}</span>
                 <span class="h-4" data-icon>
                   <mdi:arrow-up />
                 </span>
@@ -88,6 +88,9 @@
               <td v-if="isVisible('created')">
                 <div class="bg-base-content/50 h-3 w-24 rounded-full opacity-50"></div>
               </td>
+              <td v-if="isVisible('uptime')">
+                <div class="bg-base-content/50 h-3 w-24 rounded-full opacity-50"></div>
+              </td>
               <td v-if="isVisible('cpu')">
                 <div class="bg-base-content/50 h-3 w-full rounded-full opacity-50"></div>
               </td>
@@ -95,6 +98,9 @@
                 <div class="bg-base-content/50 h-3 w-full rounded-full opacity-50"></div>
               </td>
               <td v-if="isVisible('net')" class="max-xl:hidden">
+                <div class="bg-base-content/50 h-3 w-16 rounded-full opacity-50"></div>
+              </td>
+              <td v-if="isVisible('diskio')" class="max-xl:hidden">
                 <div class="bg-base-content/50 h-3 w-16 rounded-full opacity-50"></div>
               </td>
               <td v-if="isVisible('disk')" class="max-xl:hidden">
@@ -116,6 +122,8 @@
               container.sizeRw,
               container.volumes,
               statMode,
+              average,
+              hiddenColumns,
               isMobile,
               multiHost,
               showAppIcons,
@@ -202,14 +210,32 @@
             <td v-if="isVisible('created')" class="text-base-content/70">
               <RelativeTime :date="container.created" />
             </td>
+            <td v-if="isVisible('uptime')" class="text-base-content/70">
+              <ContainerUptime :container="container" />
+            </td>
             <td v-if="isVisible('cpu')">
-              <ContainerStatCell :container="container" type="cpu" :host="hosts[container.host]" :mode="statMode" />
+              <ContainerStatCell
+                :container="container"
+                type="cpu"
+                :host="hosts[container.host]"
+                :mode="statMode"
+                :average="average"
+              />
             </td>
             <td v-if="isVisible('mem')">
-              <ContainerStatCell :container="container" type="mem" :host="hosts[container.host]" :mode="statMode" />
+              <ContainerStatCell
+                :container="container"
+                type="mem"
+                :host="hosts[container.host]"
+                :mode="statMode"
+                :average="average"
+              />
             </td>
             <td v-if="isVisible('net')" class="max-xl:hidden">
-              <ContainerNetCell :container="container" />
+              <ContainerRateCell :container="container" type="net" :average="average" />
+            </td>
+            <td v-if="isVisible('diskio')" class="max-xl:hidden">
+              <ContainerRateCell :container="container" type="disk" :average="average" />
             </td>
             <td
               v-if="isVisible('disk')"
@@ -259,7 +285,7 @@
 </template>
 
 <script setup lang="ts">
-import { Container, networkRate } from "@/models/Container";
+import { Container, diskRate, networkRate, uptime } from "@/models/Container";
 import { showAppIcons } from "@/stores/settings";
 import { toRefs } from "@vueuse/core";
 
@@ -280,6 +306,8 @@ const fields: Record<
   {
     label: string;
     mobileLabel?: string;
+    // the header without "Avg.", for when the moving average is switched off
+    rawLabel?: string;
     sortFunc: (a: Container, b: Container) => number;
     mobileVisible: boolean;
     customClass?: string;
@@ -313,24 +341,37 @@ const fields: Record<
     mobileVisible: false,
     customClass: "w-1",
   },
+  uptime: {
+    label: "label.uptime",
+    sortFunc: (a: Container, b: Container) => (uptimeOrder(a) - uptimeOrder(b)) * direction.value,
+    mobileVisible: false,
+    customClass: "w-1",
+  },
   cpu: {
     label: "label.avg-cpu",
     mobileLabel: "label.cpu",
-    sortFunc: (a: Container, b: Container) => (a.movingAverage.cpu - b.movingAverage.cpu) * direction.value,
+    rawLabel: "label.cpu",
+    sortFunc: (a: Container, b: Container) => (cpuOf(a) - cpuOf(b)) * direction.value,
     mobileVisible: false,
     customClass: "min-w-48 max-md:min-w-0",
   },
   mem: {
     label: "label.avg-mem",
     mobileLabel: "label.mem",
-    sortFunc: (a: Container, b: Container) =>
-      (a.movingAverage.memoryUsage - b.movingAverage.memoryUsage) * direction.value,
+    rawLabel: "label.mem",
+    sortFunc: (a: Container, b: Container) => (memOf(a) - memOf(b)) * direction.value,
     mobileVisible: false,
     customClass: "min-w-48 max-md:min-w-0",
   },
   net: {
     label: "label.network",
     sortFunc: (a: Container, b: Container) => (netTotal(a) - netTotal(b)) * direction.value,
+    mobileVisible: false,
+    customClass: "w-1 max-xl:hidden",
+  },
+  diskio: {
+    label: "label.disk-io",
+    sortFunc: (a: Container, b: Container) => (diskIoTotal(a) - diskIoTotal(b)) * direction.value,
     mobileVisible: false,
     customClass: "w-1 max-xl:hidden",
   },
@@ -345,8 +386,19 @@ const fields: Record<
 
 // stopped or not yet measured sorts below an idle container
 const netTotal = (container: Container) => {
-  const rate = networkRate(container);
+  const rate = networkRate(container, average.value);
   return rate ? rate.rx + rate.tx : -1;
+};
+const diskIoTotal = (container: Container) => {
+  const rate = diskRate(container, average.value);
+  return rate ? rate.read + rate.write : -1;
+};
+const cpuOf = (container: Container) => (average.value ? container.movingAverage : container.stat).cpu;
+const memOf = (container: Container) => (average.value ? container.movingAverage : container.stat).memoryUsage;
+// Longest up first when descending; anything not up sorts below every running container.
+const uptimeOrder = (container: Container) => {
+  const status = uptime(container);
+  return status?.state === "up" || status?.state === "paused" ? Date.now() - status.since.getTime() : -1;
 };
 
 const { containers } = defineProps<{
@@ -354,6 +406,8 @@ const { containers } = defineProps<{
 }>();
 
 const statMode = defineModel<"chart" | "progress">("statMode", { default: "chart" });
+const hiddenColumns = defineModel<string[]>("hiddenColumns", { default: () => [] });
+const average = defineModel<boolean>("average", { default: true });
 
 const { ready } = storeToRefs(useContainerStore());
 type keys = keyof typeof fields;
@@ -371,7 +425,7 @@ const filteredContainers = computed(() =>
   containers.filter((c) => selectedHost.value === null || c.host === selectedHost.value),
 );
 const sortedContainers = computedWithControl(
-  () => [filteredContainers.value.length, sortField.value, direction.value, counter.value],
+  () => [filteredContainers.value.length, sortField.value, direction.value, average.value, counter.value],
   () => filteredContainers.value.sort((a, b) => fields[sortField.value].sortFunc(a, b)),
 );
 
@@ -390,7 +444,7 @@ const paginated = computed(() => {
 const sortOptions = computed(() =>
   Object.entries(fields)
     .filter(([key]) => key !== "host" || multiHost.value)
-    .filter(([key]) => (key !== "disk" && key !== "net") || hasKubeletStats.value)
+    .filter(([key]) => !isKubeletOnly(key) || hasKubeletStats.value)
     .map(([key, value]) => ({ label: t(value.mobileLabel ?? value.label), value: key })),
 );
 
@@ -424,13 +478,35 @@ function sort(field: keys) {
     direction.value = 1;
   }
 }
-function isVisible(field: keys) {
+const isKubeletOnly = (field: string) => field === "disk" || field === "diskio" || field === "net";
+
+// Whether the column exists here at all, before anyone has hidden it.
+function isAvailable(field: keys) {
   if (fields[field].sortOnly) return false;
   // one host means every row would say the same thing
   if (field === "host" && !multiHost.value) return false;
-  if ((field === "disk" || field === "net") && !hasKubeletStats.value) return false;
-  return fields[field].mobileVisible || !isMobile.value;
+  if (isKubeletOnly(field) && !hasKubeletStats.value) return false;
+  return true;
 }
+
+function isVisible(field: keys) {
+  if (!isAvailable(field)) return false;
+  if (isMobile.value) return fields[field].mobileVisible;
+  return field === "name" || !hiddenColumns.value.includes(field);
+}
+
+function headerLabel(field: (typeof fields)[keys]) {
+  if (isMobile.value && field.mobileLabel) return field.mobileLabel;
+  return !average.value && field.rawLabel ? field.rawLabel : field.label;
+}
+
+// What the column picker lists: everything that could show here, less the name.
+const pickableColumns = computed(() =>
+  (Object.keys(fields) as keys[])
+    .filter((key) => key !== "name" && isAvailable(key))
+    .map((key) => ({ key, label: headerLabel(fields[key]) })),
+);
+defineExpose({ pickableColumns });
 </script>
 
 <style scoped>
