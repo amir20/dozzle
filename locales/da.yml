@@ -402,6 +402,7 @@ analytics:
 updates:
   title: Opdateringer
   count: 1 opdatering | {count} opdateringer
+  available: 1 opdatering tilgængelig | {count} opdateringer tilgængelige
   running: Opdaterer…
   subtitle: Disse containere kører et ældre image end det, deres registry udleverer.
   subtitle-running: Hver vært opdaterer én container ad gangen.

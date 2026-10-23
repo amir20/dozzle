@@ -402,6 +402,7 @@ analytics:
 updates:
   title: Mises à jour
   count: 1 mise à jour | {count} mises à jour
+  available: 1 mise à jour disponible | {count} mises à jour disponibles
   running: Mise à jour…
   subtitle: Ces conteneurs utilisent une image plus ancienne que celle de leur registre.
   subtitle-running: Chaque hôte met à jour un conteneur à la fois.

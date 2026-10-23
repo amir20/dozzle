@@ -530,6 +530,7 @@ analytics:
 updates:
   title: Updates
   count: 1 update | {count} updates
+  available: 1 update available | {count} updates available
   running: Updating…
   subtitle: These containers run an older image than their registry serves.
   subtitle-running: Each host updates one container at a time.

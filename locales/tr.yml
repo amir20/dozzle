@@ -405,6 +405,7 @@ analytics:
 updates:
   title: Güncellemeler
   count: 1 güncelleme | {count} güncelleme
+  available: 1 güncelleme mevcut | {count} güncelleme mevcut
   running: Güncelleniyor…
   subtitle: Bu container'lar, registry'lerinin sunduğundan daha eski bir image çalıştırıyor.
   subtitle-running: Her host aynı anda bir container günceller.

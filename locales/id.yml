@@ -414,6 +414,7 @@ analytics:
 updates:
   title: Pembaruan
   count: 1 pembaruan | {count} pembaruan
+  available: 1 pembaruan tersedia | {count} pembaruan tersedia
   running: Memperbarui…
   subtitle: Container ini menjalankan image yang lebih lama dari yang disediakan registry-nya.
   subtitle-running: Setiap host memperbarui satu container sekaligus.

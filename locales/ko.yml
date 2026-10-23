@@ -404,6 +404,7 @@ analytics:
 updates:
   title: 업데이트
   count: 업데이트 1개 | 업데이트 {count}개
+  available: 사용 가능한 업데이트 1개 | 사용 가능한 업데이트 {count}개
   running: 업데이트 중…
   subtitle: 이 컨테이너들은 레지스트리보다 오래된 이미지를 실행 중입니다.
   subtitle-running: 각 호스트는 컨테이너를 한 번에 하나씩 업데이트합니다.
