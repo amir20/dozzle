@@ -39,6 +39,27 @@
             <div class="bg-base-content/10 m-2 h-px"></div>
           </template>
 
+          <!-- Agents on another version than this Dozzle. Opens the dashboard, where their host
+               cards carry the same pill. Also left out of the dot. -->
+          <template v-if="mismatchedAgents.length > 0">
+            <RouterLink
+              :to="{ name: '/' }"
+              class="hover:bg-base-300 flex w-full items-center gap-2 rounded-md px-2 py-1.5 transition-colors"
+            >
+              <span class="bg-warning/10 text-warning flex size-6 shrink-0 items-center justify-center rounded-full">
+                <HostIcon type="agent" class="size-3.5" />
+              </span>
+              <span class="min-w-0 flex-1">
+                <span class="block truncate text-sm font-semibold">
+                  {{ $t("releases.agents_mismatched", mismatchedAgents.length) }}
+                </span>
+                <span class="text-base-content/60 block truncate font-mono text-xs">{{ mismatchedNames }}</span>
+              </span>
+              <mdi:chevron-right class="size-4 shrink-0 opacity-40" />
+            </RouterLink>
+            <div class="bg-base-content/10 m-2 h-px"></div>
+          </template>
+
           <!-- Updates Dozzle made lately, kept in memory on the server, plus what Dozzle Cloud
                still remembers from before a restart. Past a few, one row sums them up. -->
           <template v-if="updates.length > 0">
@@ -239,6 +260,17 @@ const { cloudDeploys, refresh: refreshCloudDeploys } = useRecentDeploys();
 onMounted(refreshCloudDeploys);
 const updates = computed(() => mergeRecentDeploys(recentUpdates.value, cloudDeploys.value));
 const { t } = useI18n();
+
+// Same rule as the agent pill on HostCard, so the two agree on which hosts are off.
+const { hosts } = useHosts();
+const mismatchedAgents = computed(() =>
+  Object.values(hosts.value).filter((h) => h.type === "agent" && h.agentVersion && h.agentVersion !== config.version),
+);
+const mismatchedNames = computed(() => {
+  const names = mismatchedAgents.value.map((h) => `${h.name} ${h.agentVersion}`);
+  const shown = names.slice(0, SUMMARIZE_PAST).join(", ");
+  return names.length > SUMMARIZE_PAST ? `${shown} +${names.length - SUMMARIZE_PAST}` : shown;
+});
 
 // Same gate and list as the dashboard's updates button, so both agree on the count.
 const showAvailable = config.enableActions && config.imageCheckMode !== "off" && config.mode !== "k8s";

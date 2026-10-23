@@ -373,6 +373,7 @@ releases:
   newer: "有 1 個更新版本 | 有 {count} 個更新版本"
   all: 所有版本
   updates_summary: "已更新 1 個容器 | 已更新 {count} 個容器"
+  agents_mismatched: "1 個代理程式的版本不同 | {count} 個代理程式的版本不同"
 toasts:
   copied:
     title: 已複製

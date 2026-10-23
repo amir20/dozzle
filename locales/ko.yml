@@ -373,6 +373,7 @@ releases:
   newer: "새 릴리스 1개 | 새 릴리스 {count}개"
   all: 모든 릴리스
   updates_summary: "컨테이너 1개 업데이트됨 | 컨테이너 {count}개 업데이트됨"
+  agents_mismatched: "에이전트 1개의 버전이 다릅니다 | 에이전트 {count}개의 버전이 다릅니다"
 toasts:
   copied:
     title: 복사 완료

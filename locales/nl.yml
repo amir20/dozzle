@@ -372,6 +372,7 @@ releases:
   newer: "1 nieuwere versie | {count} nieuwere versies"
   all: Alle versies
   updates_summary: "1 container bijgewerkt | {count} containers bijgewerkt"
+  agents_mismatched: "1 agent met een andere versie | {count} agents met een andere versie"
 toasts:
   copied:
     title: Gekopieerd

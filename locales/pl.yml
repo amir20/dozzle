@@ -373,6 +373,7 @@ releases:
   newer: "1 nowsze wydanie | {count} nowszych wydań"
   all: Wszystkie wydania
   updates_summary: "1 kontener zaktualizowany | Zaktualizowane kontenery: {count}"
+  agents_mismatched: "1 agent w innej wersji | Agenci w innej wersji: {count}"
 toasts:
   copied:
     title: Skopiowany

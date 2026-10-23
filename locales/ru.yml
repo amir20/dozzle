@@ -371,6 +371,7 @@ releases:
   newer: "1 новая версия | Новых версий: {count}"
   all: Все версии
   updates_summary: "1 контейнер обновлён | Обновлено контейнеров: {count}"
+  agents_mismatched: "1 агент на другой версии | Агентов на другой версии: {count}"
 toasts:
   copied:
     title: Скопировано

@@ -374,6 +374,7 @@ releases:
   newer: "1 yeni sürüm | {count} yeni sürüm"
   all: Tüm sürümler
   updates_summary: "1 konteyner güncellendi | {count} konteyner güncellendi"
+  agents_mismatched: "1 aracı farklı bir sürümde | {count} aracı farklı bir sürümde"
 toasts:
   copied:
     title: Kopyalandı
