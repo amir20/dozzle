@@ -408,6 +408,7 @@ analytics:
 updates:
   title: Atualizações
   count: 1 atualização | {count} atualizações
+  available: 1 atualização disponível | {count} atualizações disponíveis
   running: Atualizando…
   subtitle: Estes contêineres usam uma imagem mais antiga do que a do seu registro.
   subtitle-running: Cada host atualiza um contêiner por vez.

@@ -408,6 +408,7 @@ analytics:
 updates:
   title: Aggiornamenti
   count: 1 aggiornamento | {count} aggiornamenti
+  available: 1 aggiornamento disponibile | {count} aggiornamenti disponibili
   running: Aggiornamento…
   subtitle: Questi container usano un'immagine più vecchia di quella offerta dal loro registry.
   subtitle-running: Ogni host aggiorna un container alla volta.

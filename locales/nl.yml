@@ -409,6 +409,7 @@ analytics:
 updates:
   title: Updates
   count: 1 update | {count} updates
+  available: 1 update beschikbaar | {count} updates beschikbaar
   running: Bijwerken…
   subtitle: Deze containers draaien een ouder image dan hun registry aanbiedt.
   subtitle-running: Elke host werkt één container tegelijk bij.

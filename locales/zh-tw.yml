@@ -410,6 +410,7 @@ analytics:
 updates:
   title: 更新
   count: 1 個更新 | {count} 個更新
+  available: 1 個可用更新 | {count} 個可用更新
   running: 正在更新…
   subtitle: 這些容器執行的映像檔比其映像檔倉庫提供的舊。
   subtitle-running: 每台主機一次更新一個容器。

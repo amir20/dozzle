@@ -408,6 +408,7 @@ analytics:
 updates:
   title: 更新
   count: 1 个更新 | {count} 个更新
+  available: 1 个可用更新 | {count} 个可用更新
   running: 正在更新…
   subtitle: 这些容器运行的镜像比其镜像仓库提供的旧。
   subtitle-running: 每台主机一次更新一个容器。

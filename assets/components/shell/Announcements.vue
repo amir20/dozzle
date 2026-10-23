@@ -17,6 +17,28 @@
       <div class="flex max-h-[70vh] w-80 flex-col">
         <!-- One scroll area for both groups, so the footer stays put and nothing nests a scroll. -->
         <div class="min-h-0 flex-1 overflow-y-auto">
+          <!-- Updates still waiting, unlike the ones below that already happened: an arrow rather
+               than the update glyph, "available" in the title, and a row that opens the drawer to
+               act on them. Left out of the dot, since it stays true until someone acts on it. -->
+          <template v-if="available.length > 0">
+            <button
+              class="hover:bg-base-300 flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left transition-colors"
+              @click="showDrawer(ContainerUpdatesDrawer, {}, 'lg')"
+            >
+              <span class="bg-info/10 text-info flex size-6 shrink-0 items-center justify-center rounded-full">
+                <mdi:arrow-up class="size-3.5" />
+              </span>
+              <span class="min-w-0 flex-1">
+                <span class="block truncate text-sm font-semibold">
+                  {{ $t("updates.available", available.length) }}
+                </span>
+                <span class="text-base-content/60 block truncate text-xs">{{ availableNames }}</span>
+              </span>
+              <mdi:chevron-right class="size-4 shrink-0 opacity-40" />
+            </button>
+            <div class="bg-base-content/10 m-2 h-px"></div>
+          </template>
+
           <!-- Updates Dozzle made lately, kept in memory on the server, plus what Dozzle Cloud
                still remembers from before a restart. Past a few, one row sums them up. -->
           <template v-if="updates.length > 0">
@@ -204,17 +226,31 @@
 
 <script setup lang="ts">
 import { RouterLink } from "vue-router";
+import { Container } from "@/models/Container";
+import ContainerUpdatesDrawer from "@/components/containers/ContainerUpdatesDrawer.vue";
 import { useAnnouncements } from "@/stores/announcements";
 import { undecidedRegression, updateKind, updateLabels } from "@/models/ContainerUpdate";
 import { mergeRecentDeploys, useRecentDeploys, type RecentDeploy } from "@/composable/cloud/recentDeploys";
 
 const { announcements, mostRecent, fetchReleases } = useAnnouncements();
-const { recentUpdates, lastAutoPrune, allContainersById } = storeToRefs(useContainerStore());
+const { recentUpdates, lastAutoPrune, allContainersById, containers } = storeToRefs(useContainerStore());
 const { cloudDeploys, refresh: refreshCloudDeploys } = useRecentDeploys();
 // Asked once on load, so the badge counts updates only Cloud remembers, and again on open.
 onMounted(refreshCloudDeploys);
 const updates = computed(() => mergeRecentDeploys(recentUpdates.value, cloudDeploys.value));
 const { t } = useI18n();
+
+// Same gate and list as the dashboard's updates button, so both agree on the count.
+const showAvailable = config.enableActions && config.imageCheckMode !== "off" && config.mode !== "k8s";
+const { checkAll, hasUpdate } = useImageUpdates();
+const showDrawer = useDrawer();
+const available = computed(() => (showAvailable ? (containers.value as unknown as Container[]).filter(hasUpdate) : []));
+const availableNames = computed(() => {
+  const names = available.value.map((c) => c.name);
+  const shown = names.slice(0, SUMMARIZE_PAST).join(", ");
+  return names.length > SUMMARIZE_PAST ? `${shown} +${names.length - SUMMARIZE_PAST}` : shown;
+});
+onMounted(() => showAvailable && checkAll());
 
 const releaseSeen = useProfileStorage("releaseSeen", config.version);
 // When the newest update or clean up the dropdown showed finished, so only ones after it

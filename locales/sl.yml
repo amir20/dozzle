@@ -413,6 +413,7 @@ analytics:
 updates:
   title: Posodobitve
   count: 1 posodobitev | {count} posodobitev
+  available: Na voljo je 1 posodobitev | Na voljo je {count} posodobitev
   running: Posodabljanje…
   subtitle: Ti vsebniki uporabljajo starejšo sliko, kot jo ponuja njihov register.
   subtitle-running: Vsak gostitelj posodablja po en vsebnik naenkrat.
