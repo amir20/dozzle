@@ -371,6 +371,7 @@ releases:
   newer: "1 nyere version | {count} nyere versioner"
   all: Alle versioner
   updates_summary: "1 container opdateret | {count} containere opdateret"
+  agents_mismatched: "1 agent på en anden version | {count} agenter på en anden version"
 toasts:
   copied:
     title: Kopieret

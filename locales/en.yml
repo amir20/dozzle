@@ -499,6 +499,7 @@ releases:
   newer: "1 newer release | {count} newer releases"
   all: All releases
   updates_summary: "1 container updated | {count} containers updated"
+  agents_mismatched: "1 agent on a different version | {count} agents on a different version"
 toasts:
   copied:
     title: Copied

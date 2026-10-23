@@ -371,6 +371,7 @@ releases:
   newer: "1 version plus récente | {count} versions plus récentes"
   all: Toutes les versions
   updates_summary: "1 conteneur mis à jour | {count} conteneurs mis à jour"
+  agents_mismatched: "1 agent sur une autre version | {count} agents sur une autre version"
 toasts:
   copied:
     title: Copié
