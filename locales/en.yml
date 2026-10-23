@@ -136,6 +136,7 @@ label:
   core: No cores | 1 core | {count} cores
   mem: MEM
   disk: Disk
+  disk-io: Disk I/O
   network: Network
   reclaimable: Reclaimable
   unused-images: "Unused images"
@@ -146,6 +147,8 @@ label:
   uptime: Uptime
   pinned: Pinned
   per-page: Rows per page
+  columns: Columns
+  moving-average: Use moving average
   sort-by: Sort by
   sort-direction: Toggle sort direction
   host-menu: Hosts and Containers
@@ -192,10 +195,13 @@ tooltip:
   agent-version: "Dozzle agent {version}"
   agent-version-mismatch: "Agent {version} does not match Dozzle {current}. Update the agent."
 popup:
-  started: Started
-  finished: Finished
   group: Group
   ports: Ports
+container-status:
+  up: "Up {duration}"
+  paused: "Paused, up {duration}"
+  restarting: "Restarting, stopped {time}"
+  exited: "Exited {time}"
 hint:
   learn-more: Learn more
   dismiss: Don't show again

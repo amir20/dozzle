@@ -135,6 +135,7 @@ label:
   cpu: CPU
   core: Нет ядер | 1 ядро | {count} ядер
   disk: Диск
+  disk-io: "Дисковый ввод-вывод"
   network: Сеть
   reclaimable: Можно освободить
   unused-images: "Неиспользуемые образы"
@@ -146,6 +147,8 @@ label:
   mem: MEM
   pinned: Закреплено
   per-page: Строк на странице
+  columns: "Столбцы"
+  moving-average: "Использовать скользящее среднее"
   sort-by: Сортировать по
   sort-direction: Изменить порядок сортировки
   host-menu: Хосты и Контейнеры
@@ -192,10 +195,13 @@ tooltip:
   agent-version: "Агент Dozzle {version}"
   agent-version-mismatch: "Агент {version} не совпадает с Dozzle {current}. Обновите агент."
 popup:
-  started: Запущен
-  finished: Остановлен
   group: Группа
   ports: Порты
+container-status:
+  up: "Работает {duration}"
+  paused: "Приостановлен, работает {duration}"
+  restarting: "Перезапускается, остановлен {time}"
+  exited: "Завершён {time}"
 hint:
   learn-more: Подробнее
   dismiss: Больше не показывать

@@ -118,6 +118,8 @@ label:
   avg-cpu: CPE povprečje
   pinned: Pripeto
   per-page: Vrstic na stran
+  columns: Stolpci
+  moving-average: Uporabi drseče povprečje
   sort-by: Razvrsti po
   sort-direction: Zamenjaj vrstni red
   host-menu: Gostitelji in zabojniki
@@ -149,6 +151,7 @@ label:
   cpu: CPU
   core: Ni jeder | 1 jedro | {count} jeder
   disk: Disk
+  disk-io: Diskovni V/I
   network: Omrežje
   reclaimable: Za sprostitev
   unused-images: "Neuporabljene slike"
@@ -192,10 +195,13 @@ tooltip:
   agent-version: "Agent Dozzle {version}"
   agent-version-mismatch: "Agent {version} se ne ujema z Dozzle {current}. Posodobite agenta."
 popup:
-  started: Zagnan
-  finished: Ustavljen
   group: Skupina
   ports: Vrata
+container-status:
+  up: "Deluje {duration}"
+  paused: "Zaustavljen, deluje {duration}"
+  restarting: "Ponovni zagon, ustavljen {time}"
+  exited: "Končan {time}"
 hint:
   learn-more: Več o tem
   dismiss: Ne prikaži več

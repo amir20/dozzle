@@ -31,13 +31,11 @@
         <span class="text-base-content/50 uppercase">{{ row.label }}</span>
         <span class="truncate text-right font-medium" :title="row.title ?? row.value">{{ row.value }}</span>
       </template>
-      <template v-if="isRunning">
-        <span class="text-base-content/50 uppercase">{{ $t("popup.started") }}</span>
-        <RelativeTime :date="container.startedAt" class="truncate text-right font-medium" />
-      </template>
-      <template v-else-if="container.finishedAt.getFullYear() > 0">
-        <span class="text-base-content/50 uppercase">{{ $t("popup.finished") }}</span>
-        <RelativeTime :date="container.finishedAt" class="truncate text-right font-medium" />
+      <span class="text-base-content/50 uppercase">{{ $t("label.created") }}</span>
+      <RelativeTime :date="container.created" class="truncate text-right font-medium" />
+      <template v-if="uptime(container)">
+        <span class="text-base-content/50 uppercase">{{ $t("label.uptime") }}</span>
+        <ContainerUptime :container="container" class="truncate text-right font-medium" />
       </template>
     </div>
 
@@ -148,7 +146,7 @@
 </template>
 
 <script lang="ts" setup>
-import { Container, powerAction } from "@/models/Container";
+import { Container, powerAction, uptime } from "@/models/Container";
 import Terminal from "@/components/containers/Terminal.vue";
 import { useStreamedContainers } from "@/composable/containers/streamedContainers";
 

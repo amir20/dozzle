@@ -135,6 +135,7 @@ label:
   cpu: CPU
   core: Ingen kerner | 1 kerne | {count} kerner
   disk: Disk
+  disk-io: Disk-I/O
   network: Netværk
   reclaimable: Kan frigøres
   unused-images: "Ubrugte images"
@@ -146,6 +147,8 @@ label:
   mem: MEM
   pinned: Fastgjort
   per-page: Rækker per side
+  columns: Kolonner
+  moving-average: Brug glidende gennemsnit
   sort-by: Sortér efter
   sort-direction: Skift sorteringsrækkefølge
   host-menu: Værter og Containere
@@ -192,10 +195,13 @@ tooltip:
   agent-version: "Dozzle-agent {version}"
   agent-version-mismatch: "Agent {version} stemmer ikke overens med Dozzle {current}. Opdater agenten."
 popup:
-  started: Startet
-  finished: Stoppet
   group: Gruppe
   ports: Porte
+container-status:
+  up: "Oppe i {duration}"
+  paused: "Sat på pause, oppe i {duration}"
+  restarting: "Genstarter, stoppet {time}"
+  exited: "Afsluttet {time}"
 hint:
   learn-more: Læs mere
   dismiss: Vis ikke igen

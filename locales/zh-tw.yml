@@ -150,6 +150,7 @@ label:
   cpu: CPU
   core: 無核心 | 1 個核心 | {count} 個核心
   disk: 磁碟
+  disk-io: 磁碟 I/O
   network: 網路
   reclaimable: 可回收
   unused-images: "未使用的映像"
@@ -161,6 +162,8 @@ label:
   mem: MEM
   pinned: 已釘選
   per-page: 每頁列數
+  columns: 欄位
+  moving-average: 使用移動平均
   sort-by: 排序方式
   sort-direction: 切換排序方向
   host-menu: 主機和容器
@@ -192,10 +195,13 @@ tooltip:
   agent-version: "Dozzle 代理程式 {version}"
   agent-version-mismatch: "代理程式 {version} 與 Dozzle {current} 不一致，請更新代理程式。"
 popup:
-  started: 啟動
-  finished: 停止
   group: 群組
   ports: 連接埠
+container-status:
+  up: "已運作 {duration}"
+  paused: "已暫停，運作 {duration}"
+  restarting: "重新啟動中，{time}停止"
+  exited: "{time}已結束"
 hint:
   learn-more: 瞭解更多
   dismiss: 不再顯示

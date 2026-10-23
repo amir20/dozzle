@@ -62,7 +62,7 @@
                       </div>
                       <div class="flex flex-col text-right font-sans leading-tight">
                         <span class="text-xs">{{ other.state }}</span>
-                        <RelativeTime :date="timestampOf(other)" class="text-base-content/50 text-[11px]" />
+                        <RelativeTime :date="lastTransition(other)" class="text-base-content/50 text-[11px]" />
                       </div>
                     </router-link>
                   </li>
@@ -117,7 +117,7 @@
 </template>
 
 <script lang="ts" setup>
-import { Container } from "@/models/Container";
+import { Container, lastTransition } from "@/models/Container";
 
 const { container } = defineProps<{ container: Container }>();
 
@@ -148,15 +148,6 @@ const otherContainers = computed(() => sameNameContainers.value.filter((c) => c.
 // Same-name containers are usually the same service restarted, so the host only tells them
 // apart when they actually differ.
 const showHost = computed(() => new Set(sameNameContainers.value.map((c) => c.hostLabel)).size > 1);
-
-// Docker leaves startedAt/finishedAt at the zero time when a container never ran or is still
-// running, which renders as "2027 years ago". Fall back to the one timestamp always set.
-const isSet = (date: Date) => date.getFullYear() > 1;
-
-function timestampOf(c: Container) {
-  const date = c.state === "running" || c.state === "paused" ? c.startedAt : c.finishedAt;
-  return isSet(date) ? date : c.created;
-}
 </script>
 
 <style scoped></style>

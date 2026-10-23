@@ -135,6 +135,7 @@ label:
   cpu: CPU
   core: Geen kernen | 1 kern | {count} kernen
   disk: Schijf
+  disk-io: Schijf-I/O
   network: Netwerk
   reclaimable: Vrij te maken
   unused-images: "Ongebruikte images"
@@ -146,6 +147,8 @@ label:
   mem: MEM
   pinned: Vastgezet
   per-page: Rijen per pagina
+  columns: Kolommen
+  moving-average: Voortschrijdend gemiddelde gebruiken
   sort-by: Sorteren op
   sort-direction: Sorteervolgorde omkeren
   host-menu: Hosts en Containers
@@ -192,10 +195,13 @@ tooltip:
   agent-version: "Dozzle-agent {version}"
   agent-version-mismatch: "Agent {version} komt niet overeen met Dozzle {current}. Werk de agent bij."
 popup:
-  started: Gestart
-  finished: Gestopt
   group: Groep
   ports: Poorten
+container-status:
+  up: "{duration} actief"
+  paused: "Gepauzeerd, {duration} actief"
+  restarting: "Herstarten, gestopt {time}"
+  exited: "Afgesloten {time}"
 hint:
   learn-more: Meer informatie
   dismiss: Niet meer tonen

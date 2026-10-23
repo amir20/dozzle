@@ -34,6 +34,18 @@ export function decodeStats(columns: StatColumns | undefined): Stat[] {
   });
 }
 
+type Rates = { networkRx: number; networkTx: number; diskRead: number; diskWrite: number };
+
+const emptyRates = (): Rates => ({ networkRx: 0, networkTx: 0, diskRead: 0, diskWrite: 0 });
+
+// A counter that went backwards was reset (the container restarted), not negative.
+const ratesBetween = (prev: Stat, last: Stat): Rates => ({
+  networkRx: Math.max(0, last.networkRxTotal - prev.networkRxTotal),
+  networkTx: Math.max(0, last.networkTxTotal - prev.networkTxTotal),
+  diskRead: Math.max(0, last.diskReadTotal - prev.diskReadTotal),
+  diskWrite: Math.max(0, last.diskWriteTotal - prev.diskWriteTotal),
+});
+
 // The live hosts map, not config.hosts: that is the list the page loaded with, and an
 // agent added since then would have no name to show.
 const { hosts } = useHosts();
@@ -55,13 +67,60 @@ export const isStopped = (container: { state: ContainerState }) =>
  * second cadence is bytes per second. Undefined until there are two to compare, or
  * once the container stops reporting.
  */
-export const networkRate = (container: Container): { rx: number; tx: number } | undefined => {
+export const networkRate = (container: Container, average = false): { rx: number; tx: number } | undefined => {
   if (isStopped(container) || container.sampledStats < 2) return undefined;
+  const rates = average ? container.movingAverageRate : latestRates(container);
+  return { rx: rates.networkRx, tx: rates.networkTx };
+};
+
+/** Same as `networkRate`, for the block device reads and writes. */
+export const diskRate = (container: Container, average = false): { read: number; write: number } | undefined => {
+  if (isStopped(container) || container.sampledStats < 2) return undefined;
+  const rates = average ? container.movingAverageRate : latestRates(container);
+  return { read: rates.diskRead, write: rates.diskWrite };
+};
+
+const latestRates = (container: Container) => {
   const [prev, last] = container.statsHistory.slice(-2);
-  return {
-    rx: Math.max(0, last.networkRxTotal - prev.networkRxTotal),
-    tx: Math.max(0, last.networkTxTotal - prev.networkTxTotal),
-  };
+  return ratesBetween(prev, last);
+};
+
+// Docker leaves startedAt/finishedAt at the zero time when a container never ran or is
+// still running, which renders as "2027 years ago".
+const isSet = (date: Date) => date.getFullYear() > 1;
+
+/**
+ * What `docker ps` puts in its STATUS column, as a state and the moment it is measured
+ * from: up since it started, or exited or restarting since it last stopped. Undefined
+ * for a container that never ran, where there is no such moment.
+ */
+export const uptime = (
+  container: Pick<Container, "state" | "startedAt" | "finishedAt">,
+): { state: "up" | "paused" | "restarting" | "exited"; since: Date } | undefined => {
+  switch (container.state) {
+    case "running":
+    case "paused":
+      return isSet(container.startedAt)
+        ? { state: container.state === "running" ? "up" : "paused", since: container.startedAt }
+        : undefined;
+    case "restarting":
+      return isSet(container.finishedAt) ? { state: "restarting", since: container.finishedAt } : undefined;
+    case "exited":
+    case "dead":
+      return isSet(container.finishedAt) ? { state: "exited", since: container.finishedAt } : undefined;
+    default:
+      return undefined;
+  }
+};
+
+/**
+ * The timestamp a container's last state change happened at, falling back to its
+ * creation when it never ran.
+ */
+export const lastTransition = (container: Pick<Container, "state" | "startedAt" | "finishedAt" | "created">) => {
+  const date =
+    container.state === "running" || container.state === "paused" ? container.startedAt : container.finishedAt;
+  return isSet(date) ? date : container.created;
 };
 
 /**
@@ -112,6 +171,9 @@ export class Container {
   // padding in front of them. Always counts from the end.
   private _sampledStats: Ref<number>;
   private readonly movingAverageStat: Ref<Stat>;
+  // The stats carry running totals for network and disk, so their average has to be
+  // taken over the per-sample difference rather than the totals themselves.
+  private readonly movingAverageRateRef: Ref<Rates>;
 
   public mounts: ContainerMount[];
   public mountStats: Record<string, MountStat>;
@@ -154,6 +216,9 @@ export class Container {
     this._statsHistory = shallowRef(markRaw([...padding, ...recentStats]));
     this._sampledStats = shallowRef(recentStats.length);
     this.movingAverageStat = shallowRef(stats.at(-1) || defaultStat);
+    this.movingAverageRateRef = shallowRef(
+      recentStats.length >= 2 ? ratesBetween(recentStats.at(-2)!, recentStats.at(-1)!) : emptyRates(),
+    );
 
     this._name = name;
   }
@@ -173,6 +238,10 @@ export class Container {
 
   get movingAverage() {
     return unref(this.movingAverageStat);
+  }
+
+  get movingAverageRate() {
+    return unref(this.movingAverageRateRef);
   }
 
   get stat() {
@@ -359,6 +428,7 @@ export class Container {
     // themselves, so take it once and write through them directly.
     const self = toRaw(this);
 
+    const previous = self._sampledStats.value > 0 ? self._stat.value : undefined;
     self._stat.value = stat;
 
     const history = self._statsHistory.value;
@@ -385,6 +455,17 @@ export class Container {
       diskReadTotal: stat.diskReadTotal,
       diskWriteTotal: stat.diskWriteTotal,
     };
+
+    if (previous) {
+      const rates = ratesBetween(previous, stat);
+      const prevRates = self.movingAverageRateRef.value;
+      self.movingAverageRateRef.value = {
+        networkRx: alpha * rates.networkRx + (1 - alpha) * prevRates.networkRx,
+        networkTx: alpha * rates.networkTx + (1 - alpha) * prevRates.networkTx,
+        diskRead: alpha * rates.diskRead + (1 - alpha) * prevRates.diskRead,
+        diskWrite: alpha * rates.diskWrite + (1 - alpha) * prevRates.diskWrite,
+      };
+    }
   }
 
   public updateMountStats(mountStats: Record<string, MountStat>) {

@@ -2,7 +2,7 @@
  * @vitest-environment jsdom
  */
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
-import { formatDuration, toRelativeTime } from "./date";
+import { formatDuration, toElapsed, toRelativeTime } from "./date";
 
 describe("formatDuration", () => {
   // Assertions stay tolerant so they pass whether Intl.DurationFormat is present
@@ -44,5 +44,25 @@ describe("toRelativeTime", () => {
 
   test("future", () => {
     expect(toRelativeTime(new Date("2026-01-17T00:00:00Z"), "en")).toBe("in 2 days");
+  });
+});
+
+describe("toElapsed", () => {
+  beforeEach(() => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date("2026-01-15T00:00:00Z"));
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
+  test("whole largest unit, no direction", () => {
+    expect(toElapsed(new Date("2026-01-14T23:51:30Z"), "en")).toBe("8 minutes");
+    expect(toElapsed(new Date("2026-01-13T00:00:00Z"), "en")).toBe("2 days");
+  });
+
+  test("just started", () => {
+    expect(toElapsed(new Date("2026-01-15T00:00:00Z"), "en")).toBe("0 seconds");
   });
 });
