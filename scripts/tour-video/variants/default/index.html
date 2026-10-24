@@ -11,12 +11,9 @@
       }
       :root {
         --bg: oklch(11% 0 0);
-        --panel: oklch(18% 0 0);
-        --text: oklch(92% 0 0);
+        --text: oklch(96% 0 0);
         --muted: oklch(62% 0 0);
         --primary: oklch(70.96% 0.143 176.65);
-        --secondary: oklch(81.38% 0.1448 90.1243);
-        --error: oklch(64% 0.218 28.85);
       }
       * {
         box-sizing: border-box;
@@ -34,58 +31,28 @@
         color: var(--text);
         position: relative;
       }
-      #glow {
+      /* The UI fills the frame. A camera (translate + scale) frames whatever is happening. */
+      .layer {
         position: absolute;
         inset: 0;
-        background:
-          radial-gradient(1200px 700px at 50% 110%, oklch(70.96% 0.143 176.65 / 0.1), transparent 70%),
-          radial-gradient(900px 500px at 50% -20%, oklch(81% 0.14 90 / 0.05), transparent 70%);
-      }
-      .cap {
-        position: absolute;
-        top: 62px;
-        left: 0;
-        right: 0;
-        text-align: center;
-        font-size: 66px;
-        font-weight: 700;
-        letter-spacing: -0.02em;
-        white-space: nowrap;
-      }
-      .cap span {
-        display: inline-block;
-        margin: 0 0.12em;
-      }
-      .cap .hl {
-        color: var(--primary);
-      }
-      .win {
-        position: absolute;
-        left: 220px;
-        top: 196px;
-        width: 1480px;
-        height: 832.5px;
-        border-radius: 18px;
         overflow: hidden;
-        border: 1px solid rgb(255 255 255 / 0.12);
-        background: var(--panel);
-        box-shadow:
-          0 40px 120px rgb(0 0 0 / 0.6),
-          0 0 0 1px rgb(0 0 0 / 0.4);
       }
-      .zoom {
+      .cam {
         position: absolute;
-        inset: 0;
-        transform-origin: 50% 50%;
+        left: 0;
+        top: 0;
+        width: 1920px;
+        height: 1080px;
+        transform-origin: 0 0;
       }
-      .zoom img {
+      .cam img {
         position: absolute;
         inset: 0;
         width: 100%;
         height: 100%;
         display: none;
       }
-      .zoom img.on {
+      .cam img.on {
         display: block;
       }
       #hl {
@@ -94,60 +61,30 @@
         border-radius: 8px;
         opacity: 0;
         box-shadow:
-          0 0 0 9999px rgb(0 0 0 / 0.35),
-          0 0 30px oklch(70.96% 0.143 176.65 / 0.5);
+          0 0 0 9999px rgb(0 0 0 / 0.45),
+          0 0 30px oklch(70.96% 0.143 176.65 / 0.6);
       }
       #term {
         background: #0b0b0b;
         font-family: "JBM", monospace;
       }
-      #term .bar {
-        height: 46px;
-        border-bottom: 1px solid rgb(255 255 255 / 0.08);
-        display: flex;
-        align-items: center;
-        padding: 0 18px;
-        gap: 9px;
-      }
-      #term .dot {
-        width: 13px;
-        height: 13px;
-        border-radius: 50%;
-        background: #3a3a3a;
-      }
-      #term .title {
-        flex: 1;
-        text-align: center;
-        color: #777;
-        font-size: 16px;
-        margin-right: 60px;
-      }
-      #tbody {
-        position: absolute;
-        top: 46px;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        overflow: hidden;
-        padding: 0 26px;
-      }
       #lines {
         position: absolute;
-        left: 26px;
-        right: 26px;
-        font-size: 19px;
-        line-height: 30px;
+        left: 48px;
+        right: 48px;
+        font-size: 26px;
+        line-height: 40px;
         color: #8d8d8d;
         white-space: pre;
       }
       #prompt {
         position: absolute;
-        left: 26px;
-        right: 26px;
-        top: 22px;
-        font-size: 22px;
-        line-height: 36px;
-        color: #d6d6d6;
+        left: 80px;
+        right: 80px;
+        top: 300px;
+        font-size: 40px;
+        line-height: 64px;
+        color: #e0e0e0;
         white-space: pre-wrap;
       }
       #prompt .g {
@@ -155,10 +92,60 @@
       }
       #prompt .cur {
         display: inline-block;
-        width: 12px;
-        height: 26px;
-        background: #d6d6d6;
-        vertical-align: -5px;
+        width: 22px;
+        height: 44px;
+        background: #e0e0e0;
+        vertical-align: -8px;
+      }
+      /* bottom scrim so captions read over any screen */
+      #scrim {
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        height: 360px;
+        background: linear-gradient(to top, rgb(0 0 0 / 0.92), rgb(0 0 0 / 0.7) 45%, transparent);
+      }
+      #topscrim {
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: 0;
+        height: 340px;
+        background: linear-gradient(to bottom, rgb(0 0 0 / 0.92), rgb(0 0 0 / 0.7) 45%, transparent);
+      }
+      .cap.top {
+        bottom: auto;
+        top: 70px;
+      }
+      #hookscrim {
+        position: absolute;
+        inset: 0;
+        background: radial-gradient(1100px 500px at 50% 50%, rgb(0 0 0 / 0.85), rgb(0 0 0 / 0.45));
+      }
+      .cap {
+        position: absolute;
+        bottom: 84px;
+        left: 0;
+        right: 0;
+        text-align: center;
+        font-size: 76px;
+        font-weight: 800;
+        letter-spacing: -0.025em;
+        white-space: nowrap;
+        text-shadow: 0 4px 30px rgb(0 0 0 / 0.6);
+      }
+      .cap.mid {
+        bottom: auto;
+        top: 470px;
+        font-size: 104px;
+      }
+      .cap span {
+        display: inline-block;
+        margin: 0 0.12em;
+      }
+      .cap .hl {
+        color: var(--primary);
       }
       #outro {
         position: absolute;
@@ -167,26 +154,27 @@
         flex-direction: column;
         align-items: center;
         justify-content: center;
-        gap: 0;
+        background:
+          radial-gradient(1200px 700px at 50% 110%, oklch(70.96% 0.143 176.65 / 0.16), transparent 70%), var(--bg);
       }
       #brand {
         display: flex;
         align-items: center;
-        gap: 28px;
+        gap: 34px;
       }
       #brand img {
-        width: 150px;
-        height: 150px;
+        width: 190px;
+        height: 190px;
       }
       #brand .word {
-        font-size: 132px;
-        font-weight: 600;
-        letter-spacing: -0.035em;
+        font-size: 170px;
+        font-weight: 650;
+        letter-spacing: -0.04em;
       }
       #tag {
         margin-top: 34px;
-        font-size: 58px;
-        font-weight: 700;
+        font-size: 68px;
+        font-weight: 800;
         letter-spacing: -0.02em;
       }
       #tag span {
@@ -194,14 +182,13 @@
         margin: 0 0.12em;
       }
       #cmd {
-        margin-top: 56px;
+        margin-top: 60px;
         font-family: "JBM", monospace;
-        font-size: 34px;
-        padding: 20px 34px;
-        border-radius: 14px;
-        border: 1px solid rgb(255 255 255 / 0.14);
+        font-size: 40px;
+        padding: 22px 40px;
+        border-radius: 16px;
+        border: 1px solid rgb(255 255 255 / 0.16);
         background: oklch(18% 0 0);
-        color: var(--text);
       }
       #cmd .g {
         color: var(--primary);
@@ -209,30 +196,29 @@
       #url {
         margin-top: 30px;
         font-family: "JBM", monospace;
-        font-size: 30px;
+        font-size: 34px;
         color: var(--muted);
+      }
+      #flash {
+        position: absolute;
+        inset: 0;
+        background: white;
+        opacity: 0;
+        pointer-events: none;
       }
     </style>
   </head>
   <body>
-    <div id="glow"></div>
-
-    <div class="win" id="term">
-      <div class="bar">
-        <div class="dot"></div>
-        <div class="dot"></div>
-        <div class="dot"></div>
-        <div class="title">ssh prod-1</div>
-      </div>
-      <div id="tbody">
-        <div id="lines"></div>
-        <div id="prompt"></div>
-      </div>
+    <div class="layer" id="term">
+      <div id="lines"></div>
+      <div id="prompt"></div>
     </div>
-
-    <div class="win" id="ui">
-      <div class="zoom" id="zoom"><div id="hl"></div></div>
+    <div class="layer" id="ui">
+      <div class="cam" id="cam"><div id="hl"></div></div>
     </div>
+    <div id="hookscrim"></div>
+    <div id="scrim"></div>
+    <div id="topscrim"></div>
 
     <div id="outro">
       <div id="brand">
@@ -244,49 +230,61 @@
       <div id="url">dozzle.dev · open source</div>
     </div>
 
-    <div class="cap" id="c1"></div>
+    <div class="cap mid" id="c1"></div>
     <div class="cap" id="c2"></div>
     <div class="cap" id="c3"></div>
     <div class="cap" id="c4"></div>
+    <div class="cap" id="c5"></div>
+    <div class="cap" id="c6"></div>
+    <div class="cap" id="c7"></div>
+    <div class="cap" id="c8"></div>
+    <div id="flash"></div>
 
+    <script src="../../work/shots/manifest.js"></script>
     <script>
       const $ = (s) => document.querySelector(s);
+      const OUT = 29.0; // outro starts
+      const REPLY_END = 19; // the chat answer is complete by this chat_reply frame
       const clamp = (x, a = 0, b = 1) => Math.min(b, Math.max(a, x));
       const seg = (t, a, b) => clamp((t - a) / (b - a));
       const eo = (x) => 1 - Math.pow(1 - x, 3);
       const eio = (x) => (x < 0.5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2);
       const pad = (i) => String(i).padStart(2, "0");
 
-      // captions: [el, words, in, out]
-      function mkCap(id, html) {
+      function mkCap(id, text, cls) {
         const el = $(id);
-        el.innerHTML = html
+        if (cls) el.classList.add(cls);
+        el.innerHTML = text
           .split(" ")
-          .map((w) => `<span>${w.replace(/\*(.+)\*/, '<b class="hl" style="font-weight:700">$1</b>')}</span>`)
+          .map((w) => `<span>${w.replace(/\*(.+)\*/, '<b class="hl">$1</b>')}</span>`)
           .join("");
         return el;
       }
+      // [el, in, out]: each line is fully on screen for well over 0.3s a word
       const caps = [
-        [mkCap("#c1", "Still reading Docker logs *like* *this?*"), 0.15, 4.3],
-        [mkCap("#c2", "*Dozzle.* Live Docker logs in your browser."), 4.65, 6.95],
-        [mkCap("#c3", "Find any container. Watch it *live.*"), 7.1, 11.45],
-        [mkCap("#c4", "*SQL* over your logs. In the browser."), 11.75, 15.8],
+        [mkCap("#c1", "Still reading Docker logs *like* *this?*"), -1, 2.9],
+        [mkCap("#c2", "*Dozzle.* Live Docker logs in your browser."), 4.75, 7.1],
+        [mkCap("#c3", "Find any container. Watch it *live.*"), 7.35, 11.65],
+        [mkCap("#c4", "Every container. *One* stream."), 11.95, 14.65],
+        [mkCap("#c5", "*SQL* over your logs. In the browser."), 14.95, 19.45],
+        [mkCap("#c6", "Chart any field in *one* click."), 19.75, 22.45],
+        [mkCap("#c7", "*Ask* what broke. Get an answer.", "top"), 22.75, 26.45],
+        [mkCap("#c8", "Safe updates, with *rollback.*"), 26.75, 28.85],
       ];
       $("#tag").innerHTML = "Lightweight. No database. Just logs."
         .split(" ")
         .map((w) => `<span>${w}</span>`)
         .join("");
-      function words(el, t, tin, tout, stagger = 0.06) {
+      function words(el, t, tin, tout, stagger = 0.05) {
         [...el.children].forEach((s, i) => {
-          const a = eo(seg(t, tin + i * stagger, tin + i * stagger + 0.4));
-          const o = seg(t, tout - 0.22, tout);
+          const a = eo(seg(t, tin + i * stagger, tin + i * stagger + 0.32));
+          const o = seg(t, tout - 0.18, tout);
           s.style.opacity = a * (1 - o);
-          s.style.transform = `translateY(${(1 - a) * 28 - o * 14}px)`;
-          s.style.filter = `blur(${(1 - a) * 8}px)`;
+          s.style.transform = `translateY(${(1 - a) * 40 - o * 20}px) scale(${0.92 + 0.08 * a})`;
+          s.style.filter = `blur(${(1 - a) * 10}px)`;
         });
       }
 
-      // terminal flood: raw docker logs -f output
       const paths = [
         "/api/cart",
         "/api/checkout",
@@ -301,7 +299,7 @@
         const ms = ((i * 37) % 180) + 4;
         if (i % 23 === 0)
           raw.push(
-            `{"level":"error","msg":"payment provider timeout","path":"/api/checkout","status":504,"duration_ms":3001,"order_id":"ord_${8000 + i}"}`,
+            `{"level":"error","msg":"payment provider timeout","path":"/api/checkout","status":504,"duration_ms":3001}`,
           );
         else if (i % 9 === 0) raw.push(`{"level":"warn","msg":"slow query","table":"orders","duration_ms":${ms * 6}}`);
         else
@@ -310,29 +308,22 @@
           );
       }
       $("#lines").textContent = raw.join("\n");
-      const CMD = "docker run -d -v /var/run/docker.sock:/var/run/docker.sock -p 8080:8080 amir20/dozzle";
+      const CMD = "docker run -v /var/run/docker.sock:/var/run/docker.sock -p 8080:8080 amir20/dozzle";
 
-      // screenshots
-      const zoom = $("#zoom");
+      const cam = $("#cam");
       const imgs = {};
-      const names = [
-        "home",
-        "api",
-        "search_00",
-        "search_01",
-        "search_02",
-        "search_03",
-        "search_04",
-        "search_05",
-        "search_06",
-        "search_07",
-      ];
-      for (let i = 0; i < 24; i++) names.push("worker_" + pad(i));
-      for (let i = 0; i <= 45; i++) names.push("sql_" + pad(i));
+      // frame counts per sequence, written by capture.mjs
+      const N = window.SHOTS;
+      const names = ["home", "sql_result", "details", "details_hover", "chart", "updates"];
+      for (const k of ["search", "worker", "group", "sql", "chat", "chat_reply"])
+        for (let i = 0; i < N[k]; i++) names.push(`${k}_${pad(i)}`);
+      // pick frame i of a sequence across [a, b)
+      const pick = (k, t, a, b, from = 0, to = N[k]) =>
+        `${k}_${pad(Math.min(to - 1, from + Math.floor(seg(t, a, b) * (to - from))))}`;
       for (const n of names) {
         const im = new Image();
         im.src = `../../work/shots/${n}.png`;
-        zoom.insertBefore(im, $("#hl"));
+        cam.insertBefore(im, $("#hl"));
         imgs[n] = im;
       }
       let cur = null;
@@ -350,89 +341,160 @@
 
       function frameName(t) {
         if (t < 7.2) return "home";
-        if (t < 7.45) return "search_00";
-        if (t < 8.45) return "search_" + pad(1 + Math.floor(seg(t, 7.45, 8.45) * 5.999));
-        if (t < 8.95) return "search_07";
-        if (t < 11.6) return "worker_" + pad(Math.min(23, Math.floor(seg(t, 8.95, 11.3) * 24)));
-        if (t < 12.15) return "api";
-        if (t < 12.45) return "sql_00";
-        if (t < 13.85) return "sql_" + pad(1 + Math.floor(seg(t, 12.45, 13.85) * 43.999));
-        return "sql_45";
+        if (t < 8.95) return pick("search", t, 7.2, 8.6);
+        if (t < 11.8) return pick("worker", t, 8.95, 11.8);
+        if (t < 14.8) return pick("group", t, 11.8, 14.6);
+        if (t < 16.5) return pick("sql", t, 14.8, 16.5);
+        if (t < 19.6) return "sql_result";
+        if (t < 20.4) return "details";
+        if (t < 20.9) return "details_hover";
+        if (t < 22.6) return "chart";
+        if (t < 23.9) return pick("chat", t, 22.6, 23.9);
+        if (t < 26.6) return pick("chat_reply", t, 23.9, 25.7, 0, REPLY_END + 1);
+        return "updates";
+      }
+
+      // Camera keyframes: [t, cx, cy, scale], cx/cy are the normalized point at frame center.
+      // Each shot is a hard cut, so the camera jumps at a shot boundary and eases within it.
+      const CAMERA = [
+        [
+          4.6,
+          [
+            [4.6, 0.5, 0.5, 1.0],
+            [7.2, 0.56, 0.6, 1.2],
+          ],
+        ], // dashboard push-in
+        [
+          7.2,
+          [
+            [7.2, 0.5, 0.3, 1.55],
+            [8.4, 0.5, 0.27, 1.85],
+            [8.95, 0.5, 0.27, 1.9],
+          ],
+        ], // command palette
+        [
+          8.95,
+          [
+            [8.95, 0.62, 0.5, 1.4],
+            [10.0, 0.55, 0.7, 1.7],
+            [10.85, 0.5, 0.565, 1.95],
+            [11.8, 0.5, 0.4, 1.95],
+          ],
+        ], // stream, then follow the error up as lines arrive
+        [
+          11.8,
+          [
+            [11.8, 0.42, 0.45, 1.3],
+            [14.8, 0.45, 0.6, 1.5],
+          ],
+        ], // merged stream
+        [
+          14.8,
+          [
+            [14.8, 0.62, 0.27, 1.5],
+            [16.5, 0.62, 0.25, 1.55],
+            [17.0, 0.62, 0.6, 1.45],
+            [17.6, 0.62, 0.56, 1.55],
+            [19.6, 0.62, 0.56, 1.6],
+          ],
+        ], // query, results, the slow row
+        [
+          19.6,
+          [
+            [19.6, 0.72, 0.62, 1.55],
+            [20.9, 0.74, 0.72, 1.85],
+            [21.1, 0.73, 0.55, 1.45],
+            [22.6, 0.73, 0.55, 1.5],
+          ],
+        ], // field, chart button, chart
+        [
+          22.6,
+          [
+            [22.6, 0.78, 0.82, 1.7],
+            [23.9, 0.78, 0.8, 1.75],
+            [24.6, 0.78, 0.45, 1.7],
+            [26.6, 0.78, 0.38, 1.8],
+          ],
+        ], // question, answer
+        [
+          26.6,
+          [
+            [26.6, 0.6, 0.35, 1.4],
+            [29, 0.6, 0.28, 1.5],
+          ],
+        ], // updates waiting
+      ];
+      function camera(t) {
+        let keys = CAMERA[0][1];
+        for (const [start, k] of CAMERA) if (t >= start) keys = k;
+        if (t <= keys[0][0]) return keys[0].slice(1);
+        for (let i = 0; i < keys.length - 1; i++) {
+          const [a, b] = [keys[i], keys[i + 1]];
+          if (t <= b[0]) {
+            const p = eio(seg(t, a[0], b[0]));
+            return [1, 2, 3].map((j) => a[j] + (b[j] - a[j]) * p);
+          }
+        }
+        return keys[keys.length - 1].slice(1);
       }
 
       window.setTime = (t) => {
         caps.forEach(([el, a, b]) => words(el, t, a, b));
 
-        // terminal: visible 0 -> 4.6
-        const term = $("#term");
-        const tOut = eio(seg(t, 4.35, 4.65));
-        term.style.opacity = 1 - tOut;
-        term.style.transform = `scale(${1 - tOut * 0.03})`;
-        const flood = t < 3.15;
+        // terminal: flood (hook), then the one-liner
+        const inTerm = t < 4.6;
+        $("#term").style.display = inTerm ? "block" : "none";
+        $("#hookscrim").style.opacity = 1 - seg(t, 2.75, 3.0);
+        const flood = t < 3.0;
         $("#lines").style.display = flood ? "block" : "none";
-        $("#lines").style.top = `${-Math.pow(t + 0.6, 1.35) * 520}px`;
-        const p = $("#prompt");
-        if (flood) p.innerHTML = "";
-        else {
-          const n = Math.floor(seg(t, 3.3, 4.1) * CMD.length);
-          let h = `<span class="g">$</span> docker logs -f checkout-api\n^C\n<span class="g">$</span> ${CMD.slice(0, n)}`;
-          if (t > 4.15) h += `\n3f9c1e8a72b4\n<span class="g">→</span> http://localhost:8080`;
-          p.innerHTML = h + (Math.floor(t * 3) % 2 || t < 4.15 ? '<span class="cur"></span>' : "");
-        }
+        $("#lines").style.top = `${-Math.pow(t + 0.6, 1.4) * 700}px`;
+        if (!flood) {
+          const n = Math.floor(seg(t, 3.1, 4.05) * CMD.length);
+          let h = `<span class="g">$</span> ${CMD.slice(0, n)}`;
+          if (t > 4.15) h += `\n<span class="g">→</span> http://localhost:8080`;
+          $("#prompt").innerHTML = h + '<span class="cur"></span>';
+        } else $("#prompt").innerHTML = "";
 
-        // ui window
+        // UI with camera
         const ui = $("#ui");
-        const uin = eo(seg(t, 4.6, 5.15));
-        const uout = eio(seg(t, 15.75, 16.1));
-        ui.style.opacity = uin * (1 - uout);
-        ui.style.transform = `translateY(${(1 - uin) * 60 + uout * 40}px) scale(${0.95 + uin * 0.05 - uout * 0.04})`;
+        ui.style.display = t >= 4.6 && t < OUT ? "block" : "none";
         show(frameName(t));
-        // dip between worker and sql scenes
-        const dip = 1 - (seg(t, 11.45, 11.6) - seg(t, 11.62, 11.8));
-        zoom.style.opacity = dip;
-        // zooms
-        let s = 1,
-          ox = 50,
-          oy = 50;
-        const z3 = eio(seg(t, 10.2, 11.3)),
-          z3o = seg(t, 11.45, 11.6);
-        if (t < 11.6) {
-          s = 1 + z3 * 0.3;
-          ox = 55;
-          oy = 100;
-        } else {
-          const z4 = eio(seg(t, 14.0, 14.7));
-          s = 1 + z4 * 0.3;
-          ox = 60;
-          oy = 42;
-        }
-        zoom.style.transformOrigin = `${ox}% ${oy}%`;
-        zoom.style.transform = `scale(${s})`;
+        const [cx, cy, s] = camera(t);
+        const x = clamp(cx, 0.5 / s, 1 - 0.5 / s),
+          y = clamp(cy, 0.5 / s, 1 - 0.5 / s);
+        cam.style.transform = `translate(${960 - x * 1920 * s}px, ${540 - y * 1080 * s}px) scale(${s})`;
+        // highlight the slow endpoint row in sql_45
         const hl = $("#hl");
-        const h4 = eo(seg(t, 14.55, 14.9));
-        hl.style.opacity = t > 13.85 ? h4 : 0;
-        // /api/checkout row in sql_45 (normalized from capture)
+        hl.style.opacity = t >= 16.5 && t < 19.6 ? eo(seg(t, 17.5, 17.8)) : 0;
         hl.style.left = "30.4%";
         hl.style.width = "68.2%";
-        hl.style.top = "45.5%";
-        hl.style.height = "4.8%";
+        hl.style.top = "52.6%";
+        hl.style.height = "4.2%";
+
+        const top = t >= 22.6 && t < 26.6;
+        $("#scrim").style.opacity = t >= 4.6 && t < OUT && !top ? 1 : 0;
+        $("#topscrim").style.opacity = top ? 1 : 0;
+
+        // quick white flash on each hard cut
+        const cuts = [4.6, 7.2, 11.8, 14.8, 19.6, 22.6, 26.6, OUT];
+        let f = 0;
+        for (const c of cuts) f = Math.max(f, t >= c ? 1 - seg(t, c, c + 0.12) : 0);
+        $("#flash").style.opacity = f * 0.18;
 
         // outro
         const o = $("#outro");
-        o.style.opacity = seg(t, 16.0, 16.3);
-        const b = eo(seg(t, 16.05, 16.7));
-        $("#brand").style.transform = `scale(${0.85 + b * 0.15})`;
+        o.style.display = t >= OUT ? "flex" : "none";
+        const b = eo(seg(t, OUT, OUT + 0.5));
+        $("#brand").style.transform = `scale(${0.8 + b * 0.2})`;
         $("#brand").style.opacity = b;
-        words($("#tag"), t, 16.55, 99, 0.12);
-        const c = eo(seg(t, 17.3, 17.8));
+        words($("#tag"), t, OUT + 0.4, 99, 0.1);
+        const c = eo(seg(t, OUT + 1.1, OUT + 1.5));
         $("#cmd").style.opacity = c;
-        $("#cmd").style.transform = `translateY(${(1 - c) * 20}px)`;
-        const u = eo(seg(t, 17.6, 18.1));
-        $("#url").style.opacity = u;
-        $("#glow").style.opacity = 0.6 + 0.4 * Math.sin(t * 0.6);
+        $("#cmd").style.transform = `translateY(${(1 - c) * 24}px)`;
+        $("#url").style.opacity = eo(seg(t, OUT + 1.4, OUT + 1.8));
       };
       // Read by render.mjs and build.sh: length in seconds and the settled frame used as the poster.
-      window.meta = { duration: 20, poster: 15 };
+      window.meta = { duration: 33, poster: 18.5 };
       window.setTime(0);
     </script>
   </body>

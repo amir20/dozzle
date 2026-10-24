@@ -24,7 +24,7 @@ echo "$W/tour.mp4"
 
 if [[ "${2:-}" == "--publish" ]]; then
   P=../../docs/public/video
-  ffmpeg -loglevel error -y -i "$W/tour.mp4" -c:v libx264 -preset slow -crf 26 -pix_fmt yuv420p \
+  ffmpeg -loglevel error -y -i "$W/tour.mp4" -vf scale=1600:-2 -c:v libx264 -preset slow -crf 28 -pix_fmt yuv420p \
     -movflags +faststart -c:a aac -b:a 96k "$P/dozzle-tour.mp4"
   ffmpeg -loglevel error -y -i "$W/tour.jpg" -vf scale=1280:-1 -q:v 4 "$P/dozzle-tour.jpg"
   echo "published to docs/public/video"

@@ -4,13 +4,13 @@ from scipy.signal import butter, sosfilt
 from scipy.io import wavfile
 
 SR = 44100
-DUR = 20.0
+DUR = 33.0
 N = int(SR * DUR)
 t = np.arange(N) / SR
 rng = np.random.default_rng(7)
 BEAT = 0.5  # 120 bpm
 DROP = 4.6
-OUT = 16.0
+OUT = 29.0
 
 
 def hz(m):
@@ -60,7 +60,7 @@ ROOTS = [45, 41, 48, 43]
 
 # --- pad: detuned saws, dark before the drop, opens after
 pad = np.zeros(N)
-for bar in range(10):
+for bar in range(int(DUR // 2) + 1):
     ch = CHORDS[bar % 4]
     s, e = bar * 2.0, bar * 2.0 + 2.0
     seg = (t >= s) & (t < e + 0.3)
@@ -169,8 +169,9 @@ def whoosh(len_s=0.45):
     return x * e
 
 
-add(whoosh(), DROP - 0.3, 0.06, -0.3)
-add(whoosh(), 11.35, 0.06, 0.3)
+# one per hard cut in index.html, landing just before it
+for i, at in enumerate([DROP, 7.2, 11.8, 14.8, 19.6, 22.6, 26.6]):
+    add(whoosh(), at - 0.3, 0.05, -0.3 if i % 2 else 0.3)
 add(whoosh(0.5), OUT - 0.35, 0.07, 0)
 
 # --- plucks on caption reveals, in key (A minor pentatonic)
@@ -182,7 +183,7 @@ def pluck(m, d=0.35):
     return lp(s * env(n, 0.002, d), 3500)
 
 
-for at, notes in [(4.65, [76, 81]), (7.1, [72, 76]), (11.75, [74, 79]), (14.55, [81, 84])]:
+for at, notes in [(4.75, [76, 81]), (7.35, [72, 76]), (11.95, [74, 79]), (14.95, [76, 81]), (17.6, [81, 84]), (19.75, [72, 76]), (22.75, [74, 79]), (26.75, [76, 81])]:
     for i, m in enumerate(notes):
         add(pluck(m), at + i * 0.125, 0.06, -0.25 + 0.5 * i)
 
@@ -195,12 +196,14 @@ def tick():
 typing = []
 typing += list(np.arange(3.3, 4.1, 0.055))
 typing += [7.45 + i / 6 for i in range(6)]
-typing += list(np.arange(12.45, 13.85, 0.07))
+typing += list(np.arange(15.1, 16.5, 0.07))
+typing += list(np.arange(22.9, 23.9, 0.06))
 for i, k in enumerate(typing):
     add(tick(), k + rng.uniform(-0.008, 0.008), 0.05 * rng.uniform(0.7, 1.0), rng.uniform(-0.3, 0.3))
 # enter key on the search, run on the SQL
 add(tick(), 8.95, 0.08)
-add(tick(), 13.85, 0.08)
+add(tick(), 16.5, 0.08)
+add(tick(), 23.9, 0.08)
 
 # --- master
 mix = np.stack([L, R], 1)

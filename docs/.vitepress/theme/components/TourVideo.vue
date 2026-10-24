@@ -40,7 +40,7 @@ function onClose() {
     </span>
     <span class="flex flex-col">
       <span class="text-sm font-medium text-(--vp-c-text-1) group-hover:text-(--vp-c-brand)">Watch the tour</span>
-      <span class="font-mono text-xs text-(--vp-c-text-3)">0:20 · logs, search, SQL</span>
+      <span class="font-mono text-xs text-(--vp-c-text-3)">0:33 · logs, SQL, chat, updates</span>
     </span>
   </button>
 
