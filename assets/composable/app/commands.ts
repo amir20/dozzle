@@ -1,8 +1,7 @@
-import type { Component } from "vue";
+import { defineAsyncComponent, type Component } from "vue";
 import { Container, powerAction } from "@/models/Container";
 import { canUpdate, isSelf, useImageUpdates } from "@/composable/containers/imageUpdate";
 import { useDrawer } from "@/composable/app/drawer";
-import ContainerUpdatesDrawer from "@/components/containers/ContainerUpdatesDrawer.vue";
 import { useContainerActions } from "@/composable/containers/containerActions";
 import config from "@/stores/config";
 import {
@@ -30,6 +29,8 @@ import mdiStop from "~icons/mdi/stop";
 import mdiPlay from "~icons/mdi/play";
 import mdiDownload from "~icons/mdi/download";
 import mdiUpdate from "~icons/mdi/update";
+
+const ContainerUpdatesDrawer = defineAsyncComponent(() => import("@/components/containers/ContainerUpdatesDrawer.vue"));
 
 export type CommandSection = "container" | "settings" | "navigation";
 
