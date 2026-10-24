@@ -55,7 +55,7 @@ await p.mouse.move(1300, 780);
 await shot("sql_00");
 const ed = p.locator(".cm-content").first();
 await ed.click();
-await p.keyboard.press("Meta+a");
+await p.keyboard.press("ControlOrMeta+a");
 await p.keyboard.press("Backspace");
 const sql =
   "SELECT path, count(*) AS hits, round(avg(duration_ms)) AS avg_ms FROM logs WHERE path IS NOT NULL GROUP BY path ORDER BY avg_ms DESC";
@@ -70,7 +70,7 @@ await p.waitForTimeout(300);
 await ed.click();
 await p.keyboard.press("End");
 await p.waitForTimeout(200);
-await p.keyboard.press("Meta+Enter");
+await p.keyboard.press("ControlOrMeta+Enter");
 await p.mouse.move(1300, 780);
 await p.waitForTimeout(2500);
 await shot("sql_" + pad(k++));
