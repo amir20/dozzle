@@ -20,3 +20,4 @@ tmp
 e2e/data/session_secret
 .user-ref-secret
 /public/duckdb-extensions/
+/brag-output/

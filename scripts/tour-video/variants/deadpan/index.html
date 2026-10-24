@@ -1,0 +1,224 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <style>
+      @font-face {
+        font-family: "JBM";
+        src: url(../../../../node_modules/@fontsource-variable/jetbrains-mono/files/jetbrains-mono-latin-wght-normal.woff2)
+          format("woff2");
+        font-weight: 100 800;
+      }
+      :root {
+        --bg: oklch(13% 0 0);
+        --panel: oklch(18% 0 0);
+        --text: oklch(93% 0 0);
+        --muted: oklch(58% 0 0);
+        --primary: oklch(70.96% 0.143 176.65);
+      }
+      * {
+        box-sizing: border-box;
+        margin: 0;
+      }
+      html,
+      body {
+        width: 1920px;
+        height: 1080px;
+        overflow: hidden;
+        background: var(--bg);
+      }
+      body {
+        font-family: -apple-system, "SF Pro Display", system-ui, sans-serif;
+        color: var(--text);
+        position: relative;
+      }
+      .line {
+        position: absolute;
+        left: 0;
+        right: 0;
+        text-align: center;
+        white-space: nowrap;
+        letter-spacing: -0.015em;
+        opacity: 0;
+      }
+      .big {
+        font-size: 84px;
+        font-weight: 600;
+      }
+      .small {
+        font-size: 40px;
+        font-weight: 500;
+        color: var(--muted);
+      }
+      .mono {
+        font-family: "JBM", monospace;
+      }
+      .win {
+        position: absolute;
+        left: 400px;
+        top: 300px;
+        width: 1120px;
+        height: 630px;
+        border-radius: 14px;
+        overflow: hidden;
+        border: 1px solid rgb(255 255 255 / 0.1);
+        background: var(--panel);
+        opacity: 0;
+        box-shadow: 0 30px 90px rgb(0 0 0 / 0.5);
+      }
+      .zoom {
+        position: absolute;
+        inset: 0;
+        transform-origin: 50% 50%;
+      }
+      .zoom img {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        display: none;
+      }
+      .zoom img.on {
+        display: block;
+      }
+      #hl {
+        position: absolute;
+        border: 2px solid var(--primary);
+        border-radius: 6px;
+        opacity: 0;
+      }
+      #brand {
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: 360px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 22px;
+        opacity: 0;
+      }
+      #brand img {
+        width: 96px;
+        height: 96px;
+      }
+      #brand .word {
+        font-size: 88px;
+        font-weight: 600;
+        letter-spacing: -0.035em;
+      }
+      #cmd {
+        color: var(--text);
+        font-size: 30px;
+      }
+      #cmd .g {
+        color: var(--primary);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="line big" id="l1" style="top: 440px">Dozzle shows you Docker logs.</div>
+    <div class="line small" id="l2" style="top: 570px">That's the pitch.</div>
+
+    <div class="line small" id="l3" style="top: 150px">Here are some logs.</div>
+    <div class="line small" id="l4" style="top: 150px">They are live.</div>
+    <div class="line small" id="l5" style="top: 150px">You can run SQL on them.</div>
+    <div class="line small" id="l6" style="top: 150px">/api/checkout is slow. Now you know.</div>
+
+    <div class="win" id="ui">
+      <div class="zoom" id="zoom"><div id="hl"></div></div>
+    </div>
+
+    <div id="brand">
+      <img src="../../../../assets/logo.svg" />
+      <div class="word">dozzle</div>
+    </div>
+    <div class="line small" id="l7" style="top: 530px">Lightweight. Open source. It shows logs.</div>
+    <div class="line mono" id="cmd" style="top: 680px"><span class="g">$</span> docker pull amir20/dozzle</div>
+    <div class="line small mono" id="url" style="top: 750px; font-size: 28px">dozzle.dev</div>
+
+    <script>
+      const $ = (s) => document.querySelector(s);
+      const clamp = (x, a = 0, b = 1) => Math.min(b, Math.max(a, x));
+      const seg = (t, a, b) => clamp((t - a) / (b - a));
+      const eio = (x) => (x < 0.5 ? 2 * x * x : 1 - Math.pow(-2 * x + 2, 2) / 2);
+      const pad = (i) => String(i).padStart(2, "0");
+      // Slow, plain fades: no slides, no blur. Nothing here is excited about anything.
+      const fade = (t, a, b, f = 0.6) => eio(seg(t, a, a + f)) * (1 - eio(seg(t, b - f, b)));
+
+      const zoom = $("#zoom");
+      const imgs = {};
+      const names = ["home"];
+      for (let i = 0; i < 24; i++) names.push("worker_" + pad(i));
+      for (let i = 0; i <= 45; i++) names.push("sql_" + pad(i));
+      for (const n of names) {
+        const im = new Image();
+        im.src = `../../work/shots/${n}.png`;
+        zoom.insertBefore(im, $("#hl"));
+        imgs[n] = im;
+      }
+      let cur = null;
+      function show(n) {
+        if (cur === n) return;
+        if (cur) imgs[cur].classList.remove("on");
+        imgs[n].classList.add("on");
+        cur = n;
+      }
+      window.ready = Promise.all([
+        document.fonts.ready,
+        ...Object.values(imgs).map((i) => i.decode()),
+        $("#brand img").decode(),
+      ]);
+
+      // Scenes: 0-4.4 the claim, 4.4-9.8 logs, 9.8-15.6 SQL, 15.6-20 sign-off.
+      function frameName(t) {
+        if (t < 9.8) return "worker_" + pad(Math.min(23, Math.floor(seg(t, 4.6, 9.4) * 24)));
+        if (t < 10.9) return "sql_00";
+        if (t < 12.7) return "sql_" + pad(1 + Math.floor(seg(t, 10.9, 12.7) * 43.999));
+        return "sql_45";
+      }
+
+      window.setTime = (t) => {
+        $("#l1").style.opacity = fade(t, -1, 4.2, 0.5); // on screen from the first frame: that is the hook
+        $("#l2").style.opacity = fade(t, 2.1, 4.2, 0.5);
+        $("#l3").style.opacity = fade(t, 4.9, 7.3);
+        $("#l4").style.opacity = fade(t, 7.3, 9.6);
+        $("#l5").style.opacity = fade(t, 10.2, 12.9);
+        $("#l6").style.opacity = fade(t, 12.9, 15.5);
+
+        const ui = $("#ui");
+        // the window dips out between the two scenes rather than crossfading
+        ui.style.opacity = fade(t, 4.4, 9.8, 0.7) + fade(t, 10.0, 15.6, 0.6);
+        show(frameName(t));
+        // a slow drift so the frame is never quite still
+        let s = 1,
+          ox = 50,
+          oy = 60;
+        if (t < 9.8) {
+          s = 1 + 0.06 * seg(t, 4.4, 9.8);
+          oy = 90;
+        } else {
+          s = 1 + 0.22 * eio(seg(t, 12.9, 14.2));
+          ox = 62;
+          oy = 44;
+        }
+        zoom.style.transformOrigin = `${ox}% ${oy}%`;
+        zoom.style.transform = `scale(${s})`;
+        const hl = $("#hl");
+        hl.style.opacity = t > 12.7 ? eio(seg(t, 13.2, 13.8)) : 0;
+        hl.style.left = "30.4%";
+        hl.style.width = "68.2%";
+        hl.style.top = "45.5%";
+        hl.style.height = "4.8%";
+
+        $("#brand").style.opacity = fade(t, 15.8, 99, 0.8);
+        $("#l7").style.opacity = fade(t, 16.5, 99, 0.7);
+        $("#cmd").style.opacity = fade(t, 17.4, 99, 0.7);
+        $("#url").style.opacity = fade(t, 17.8, 99, 0.7);
+      };
+      // Read by render.mjs and build.sh: length in seconds and the settled frame used as the poster.
+      window.meta = { duration: 20, poster: 14.6 };
+      window.setTime(0);
+    </script>
+  </body>
+</html>
