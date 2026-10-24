@@ -21,3 +21,8 @@ helm.sh/chart: {{ printf "%s-%s" .Chart.Name .Chart.Version | replace "+" "_" }}
 {{- define "dozzle.serviceAccountName" -}}
 {{- default (include "dozzle.fullname" .) .Values.serviceAccount.name -}}
 {{- end -}}
+
+{{- /* ClusterRole and ClusterRoleBinding are cluster-scoped, so the same release name in two namespaces would collide. */ -}}
+{{- define "dozzle.clusterName" -}}
+{{- printf "%s-%s" (include "dozzle.fullname" .) .Release.Namespace | trunc 63 | trimSuffix "-" -}}
+{{- end -}}

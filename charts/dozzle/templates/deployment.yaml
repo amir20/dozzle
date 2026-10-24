@@ -41,8 +41,8 @@ spec:
             {{- with .Values.env }}
             {{- toYaml . | nindent 12 }}
             {{- end }}
-          # The healthcheck subcommand reads DOZZLE_ADDR and DOZZLE_BASE, so it keeps
-          # working when either is changed through env.
+          # The healthcheck subcommand reads DOZZLE_BASE, so the probes follow a
+          # base path set through env. The port stays 8080.
           livenessProbe:
             exec:
               command: ["/dozzle", "healthcheck"]
