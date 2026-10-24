@@ -6,7 +6,7 @@
   "bugs": {
     "url": "https://github.com/amir20/dozzle/issues"
   },
-  "packageManager": "bun@1.4.3",
+  "packageManager": "bun@1.4.4",
   "type": "module",
   "repository": {
     "type": "git",
@@ -109,7 +109,7 @@
     "prettier": "^3.9.10",
     "prettier-plugin-tailwindcss": "^0.8.1",
     "simple-git-hooks": "^2.14.0",
-    "typescript": "npm:typescript-native-bridge@6.0.3-bridge.18.tsgo.7.0.2",
+    "typescript": "npm:typescript-native-bridge@6.0.3-bridge.19.tsgo.7.0.2",
     "vitepress-plugin-llms": "^1.14.0",
     "vitest": "^5.0.5",
     "vue-component-type-helpers": "3.3.13",
@@ -121,7 +121,7 @@
     "pre-commit": "bunx --bun lint-staged --allow-empty"
   },
   "overrides": {
-    "typescript": "npm:typescript-native-bridge@6.0.3-bridge.18.tsgo.7.0.2"
+    "typescript": "npm:typescript-native-bridge@6.0.3-bridge.19.tsgo.7.0.2"
   },
   "trustedDependencies": [
     "esbuild",
