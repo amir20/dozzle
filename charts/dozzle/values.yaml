@@ -1,0 +1,51 @@
+image:
+  repository: amir20/dozzle
+  # Defaults to the chart's appVersion.
+  tag: ""
+  pullPolicy: IfNotPresent
+
+# Extra environment variables, e.g. DOZZLE_NAMESPACE or DOZZLE_FILTER.
+# See https://dozzle.dev/guide/supported-env-vars
+env: []
+#  - name: DOZZLE_NAMESPACE
+#    value: default
+
+rbac:
+  # Allows restarting pods and rollout restarts. Also set DOZZLE_ENABLE_ACTIONS=true in env.
+  actions: false
+  # Reads network and disk stats from each node's kubelet.
+  nodeStats: false
+
+serviceAccount:
+  # Defaults to the release's full name.
+  name: ""
+
+persistence:
+  # Stores cloud config and notification rules under /data.
+  enabled: true
+  # Use an existing claim instead of creating one.
+  existingClaim: ""
+  storageClass: ""
+  accessMode: ReadWriteOnce
+  size: 1Gi
+
+service:
+  type: ClusterIP
+  port: 8080
+
+ingress:
+  enabled: false
+  className: ""
+  annotations: {}
+  hosts:
+    - host: dozzle.local
+      paths:
+        - path: /
+          pathType: Prefix
+  tls: []
+
+resources: {}
+nodeSelector: {}
+tolerations: []
+affinity: {}
+podAnnotations: {}

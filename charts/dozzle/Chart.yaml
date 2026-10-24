@@ -1,0 +1,11 @@
+apiVersion: v2
+name: dozzle
+description: Realtime log viewer for Kubernetes pods
+type: application
+# Both are overwritten by `helm package` in deploy.yml on every release tag.
+version: 11.3.4
+appVersion: v11.3.4
+home: https://dozzle.dev
+icon: https://dozzle.dev/logo.svg
+sources:
+  - https://github.com/amir20/dozzle

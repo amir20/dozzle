@@ -1,12 +1,41 @@
 ---
 title: Prise en charge de Kubernetes
 description: Exécutez Dozzle dans Kubernetes pour consulter les logs des pods, avec la configuration RBAC, Metrics API et kubelet pour les statistiques, les redémarrages, namespaces et filtres.
-sourceHash: 7c7f2f001ac1
+sourceHash: b428ac778da5
 ---
 
 # Prise en charge de Kubernetes
 
 Dozzle prend en charge Kubernetes, ce qui vous permet de consulter les logs de vos pods Kubernetes.
+
+## <Icon icon="mdi:package-variant" inline /> Installation avec Helm
+
+Le moyen le plus rapide de lancer Dozzle dans un cluster est le chart Helm. Il crée tout ce que crée l'installation manuelle ci-dessous, et lie le rôle au namespace dans lequel vous l'installez.
+
+```bash
+helm install dozzle oci://ghcr.io/amir20/charts/dozzle --namespace dozzle --create-namespace
+```
+
+La version du chart suit celle de Dozzle. Les réglages passent par `env`, et les permissions supplémentaires pour les actions sur les conteneurs et les statistiques réseau et disque s'activent avec `rbac.actions` et `rbac.nodeStats` :
+
+```yaml
+# values.yaml
+env:
+  - name: DOZZLE_ENABLE_ACTIONS
+    value: "true"
+rbac:
+  actions: true
+  nodeStats: true
+ingress:
+  enabled: true
+  hosts:
+    - host: dozzle.example.com
+      paths:
+        - path: /
+          pathType: Prefix
+```
+
+Toutes les options sont dans [`values.yaml`](https://github.com/amir20/dozzle/blob/main/charts/dozzle/values.yaml).
 
 ## <Icon icon="mdi:kubernetes" inline /> Installation dans Kubernetes
 

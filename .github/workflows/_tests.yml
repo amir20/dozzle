@@ -64,6 +64,17 @@ jobs:
       - name: Run ESLint
         run: bun run lint
 
+  helm-lint:
+    name: Helm Chart
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      # helm ships on the ubuntu runner image
+      - name: Lint chart
+        run: helm lint charts/dozzle --strict
+      - name: Render with every toggle on
+        run: helm template dozzle charts/dozzle --set rbac.actions=true,rbac.nodeStats=true,ingress.enabled=true,persistence.existingClaim=data > /dev/null
+
   docs-translations:
     name: Docs Translations
     runs-on: ubuntu-latest

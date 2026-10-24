@@ -1,12 +1,41 @@
 ---
 title: Kubernetes 支持
 description: 在 Kubernetes 中运行 Dozzle 查看 Pod 日志，包括 RBAC、Metrics API 和 kubelet 统计数据的配置，以及 Pod 重启、命名空间和过滤器。
-sourceHash: 7c7f2f001ac1
+sourceHash: b428ac778da5
 ---
 
 # Kubernetes 支持
 
 Dozzle 支持 Kubernetes，可以让你查看 Kubernetes Pod 的日志。
+
+## <Icon icon="mdi:package-variant" inline /> 使用 Helm 安装
+
+在集群中运行 Dozzle 最快的方式是使用 Helm chart。它会创建下面手动配置中的所有资源，并把角色绑定到你安装时所用的命名空间。
+
+```bash
+helm install dozzle oci://ghcr.io/amir20/charts/dozzle --namespace dozzle --create-namespace
+```
+
+chart 的版本与 Dozzle 的发布版本一致。配置通过 `env` 设置，容器操作以及网络和磁盘统计所需的额外权限可以用 `rbac.actions` 和 `rbac.nodeStats` 开启：
+
+```yaml
+# values.yaml
+env:
+  - name: DOZZLE_ENABLE_ACTIONS
+    value: "true"
+rbac:
+  actions: true
+  nodeStats: true
+ingress:
+  enabled: true
+  hosts:
+    - host: dozzle.example.com
+      paths:
+        - path: /
+          pathType: Prefix
+```
+
+全部选项见 [`values.yaml`](https://github.com/amir20/dozzle/blob/main/charts/dozzle/values.yaml)。
 
 ## <Icon icon="mdi:kubernetes" inline /> Kubernetes 配置
 

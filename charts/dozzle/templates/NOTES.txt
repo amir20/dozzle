@@ -1,0 +1,10 @@
+Dozzle is running in k8s mode.
+
+{{- if .Values.ingress.enabled }}
+Open {{ if .Values.ingress.tls }}https{{ else }}http{{ end }}://{{ (index .Values.ingress.hosts 0).host }}
+{{- else }}
+  kubectl -n {{ .Release.Namespace }} port-forward svc/{{ include "dozzle.fullname" . }} 8080:{{ .Values.service.port }}
+Then open http://localhost:8080
+{{- end }}
+
+CPU and memory need metrics-server: https://dozzle.dev/guide/k8s#metrics-api

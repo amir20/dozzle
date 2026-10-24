@@ -100,6 +100,25 @@ jobs:
           # above, which already exported them, and the alpine stage itself is
           # three COPYs. Exporting again would only overwrite that step's index.
           cache-from: type=gha
+  helm:
+    needs: [buildx]
+    name: Helm Chart
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      # The chart's version tracks the release, so Chart.yaml's numbers are never bumped by hand.
+      # The image tag defaults to appVersion, which keeps the v prefix the image tags use.
+      - name: Package and push
+        env:
+          TAG: ${{ github.ref_name }}
+        run: |
+          echo "${{ secrets.GITHUB_TOKEN }}" | helm registry login ghcr.io -u ${{ github.actor }} --password-stdin
+          helm package charts/dozzle --version "${TAG#v}" --app-version "$TAG"
+          helm push "dozzle-${TAG#v}.tgz" oci://ghcr.io/amir20/charts
   git-release:
     needs: [buildx]
     name: Github Release
