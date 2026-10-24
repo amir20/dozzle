@@ -1,8 +1,8 @@
 <template>
-  <!-- Quiet until there is something to do: in automatic mode it only appears
-       once a check found an update, so a dashboard that is current looks
-       exactly as it did before. Manual mode never reaches a registry on its
-       own, so it offers the check instead. -->
+  <!-- Quiet until there is something to do: in automatic mode a current
+       dashboard only gets an icon to check again now, rather than waiting for
+       the next automatic check. Manual mode never reaches a registry on its
+       own, so it spells the check out. -->
   <button
     v-if="count > 0 || running"
     type="button"
@@ -26,6 +26,18 @@
     <span v-if="checking" class="loading loading-spinner size-3"></span>
     <mdi:update v-else class="size-3.5 opacity-60" />
     {{ checking ? $t("toolbar.checking-for-updates") : $t("toolbar.check-for-updates") }}
+  </button>
+  <button
+    v-else
+    type="button"
+    class="icon-btn btn btn-xs btn-ghost"
+    :disabled="checking"
+    :title="checking ? $t('toolbar.checking-for-updates') : $t('toolbar.check-for-updates')"
+    :aria-label="checking ? $t('toolbar.checking-for-updates') : $t('toolbar.check-for-updates')"
+    @click="checkAll(true)"
+  >
+    <span v-if="checking" class="loading loading-spinner size-3"></span>
+    <mdi:update v-else class="size-3.5 opacity-60" />
   </button>
 </template>
 
