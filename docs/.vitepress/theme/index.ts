@@ -12,6 +12,7 @@ import Stats from "./components/Stats.vue";
 import HeroTrust from "./components/HeroTrust.vue";
 import Supported from "./components/Supported.vue";
 import InstallCommand from "./components/InstallCommand.vue";
+import TourVideo from "./components/TourVideo.vue";
 import WhyDozzle from "./components/WhyDozzle.vue";
 import Testimonials from "./components/Testimonials.vue";
 import FinalCta from "./components/FinalCta.vue";
@@ -24,7 +25,7 @@ export default {
       "home-hero-info-before": () => h(HeroAnnouncement),
       "home-hero-image": () => h(HeroDemo),
       "sidebar-nav-after": () => h(BuyMeCoffee),
-      "home-hero-actions-after": () => [h(Stats), h(HeroTrust)],
+      "home-hero-actions-after": () => [h(TourVideo), h(Stats), h(HeroTrust)],
       "home-hero-after": () => [h(InstallCommand), h(Supported)],
       "home-features-after": () => [h(WhyDozzle), h(Testimonials), h(FinalCta), h(SponsoredBy)],
     });

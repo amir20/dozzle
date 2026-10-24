@@ -25,6 +25,7 @@ declare module 'vue' {
     Stats: typeof import('./.vitepress/theme/components/Stats.vue')['default']
     Supported: typeof import('./.vitepress/theme/components/Supported.vue')['default']
     Testimonials: typeof import('./.vitepress/theme/components/Testimonials.vue')['default']
+    TourVideo: typeof import('./.vitepress/theme/components/TourVideo.vue')['default']
     WhyDozzle: typeof import('./.vitepress/theme/components/WhyDozzle.vue')['default']
   }
 }
