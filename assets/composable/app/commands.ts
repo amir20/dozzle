@@ -1,6 +1,8 @@
 import type { Component } from "vue";
 import { Container, powerAction } from "@/models/Container";
-import { canUpdate, isSelf } from "@/composable/containers/imageUpdate";
+import { canUpdate, isSelf, useImageUpdates } from "@/composable/containers/imageUpdate";
+import { useDrawer } from "@/composable/app/drawer";
+import ContainerUpdatesDrawer from "@/components/containers/ContainerUpdatesDrawer.vue";
 import { useContainerActions } from "@/composable/containers/containerActions";
 import config from "@/stores/config";
 import {
@@ -27,6 +29,7 @@ import carbonRestart from "~icons/carbon/restart";
 import mdiStop from "~icons/mdi/stop";
 import mdiPlay from "~icons/mdi/play";
 import mdiDownload from "~icons/mdi/download";
+import mdiUpdate from "~icons/mdi/update";
 
 export type CommandSection = "container" | "settings" | "navigation";
 
@@ -61,6 +64,8 @@ export function useCommands() {
   // only pushed into the list when currentContainer is truthy — so the handlers
   // never run against an undefined container.
   const { start, stop, restart, update } = useContainerActions(currentContainer as Ref<Container>);
+  const { checkAll } = useImageUpdates();
+  const showDrawer = useDrawer();
 
   const commands = computed<Command[]>(() => {
     const list: Command[] = [];
@@ -112,6 +117,22 @@ export function useCommands() {
           });
         }
       }
+    }
+
+    // Same gate as the dashboard's updates button. Opens the drawer so the
+    // check has somewhere to report, even when it finds nothing.
+    if (config.enableActions && config.imageCheckMode !== "off" && config.mode !== "k8s") {
+      list.push({
+        id: "updates.check",
+        section: "navigation",
+        icon: mdiUpdate,
+        title: t("toolbar.check-for-updates"),
+        keywords: "check updates images upgrade pull outdated",
+        perform: () => {
+          showDrawer(ContainerUpdatesDrawer, {}, "lg");
+          return checkAll(true);
+        },
+      });
     }
 
     list.push(
