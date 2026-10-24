@@ -6,7 +6,7 @@ require (
 	github.com/containerd/errdefs v1.0.0
 	github.com/dustin/go-humanize v1.1.0
 	github.com/expr-lang/expr v1.17.8
-	github.com/gkampitakis/go-snaps v0.5.23
+	github.com/gkampitakis/go-snaps v0.5.24
 	github.com/go-chi/chi/v5 v5.5.0
 	github.com/go-chi/jwtauth/v5 v5.4.0
 	github.com/go-faker/faker/v4 v4.12.0
