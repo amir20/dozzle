@@ -36,8 +36,12 @@ down() {
     [[ "$spec" == *=* ]] && from=${spec#*=}
     id=$(docker image inspect -f '{{.Id}}' "$img" 2>/dev/null || true)
     [[ -n "$id" && "$id" == "$(docker image inspect -f '{{.Id}}' "$from" 2>/dev/null)" ]] && docker rmi "$img" >/dev/null || true
-    [[ "$from" != "$BASE" ]] && { docker rmi "$from" >/dev/null 2>&1 || true; }
   done
+  # only the older images this script pulled itself, never one that was already here
+  if [[ -f work/pulled ]]; then
+    while read -r img; do docker rmi "$img" >/dev/null 2>&1 || true; done <work/pulled
+    rm work/pulled
+  fi
   return 0
 }
 
@@ -58,7 +62,10 @@ for c in "${CONTAINERS[@]}"; do
   from=$BASE
   if [[ "$spec" == *=* ]]; then
     from=${spec#*=}
-    docker pull -q "$from" >/dev/null
+    if ! docker image inspect "$from" >/dev/null 2>&1; then
+      docker pull -q "$from" >/dev/null
+      echo "$from" >>work/pulled
+    fi
   fi
   docker image inspect "$img" >/dev/null 2>&1 || docker tag "$from" "$img"
   docker run -d --name "$name" --label tour-video=1 --label dev.dozzle.group=shop \

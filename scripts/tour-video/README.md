@@ -26,7 +26,8 @@ function of time, then encoded with a synthesized soundtrack.
 
 ```bash
 DOZZLE_IMAGE=amir20/dozzle:pr-1234 ./demo.sh   # a build with the UI you want to show
-# link http://localhost:3190 to Dozzle Cloud for the chat scene (skipped if unlinked)
+# link http://localhost:3190 to Dozzle Cloud: the chat scene needs it, and the default
+# composition expects its frames, so an unlinked capture won't render
 # wait ~3 minutes so the SQL query and chart have rows
 node capture.mjs
 ./build.sh default --publish                   # also writes docs/public/video/
