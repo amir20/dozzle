@@ -41,14 +41,17 @@ spec:
             {{- with .Values.env }}
             {{- toYaml . | nindent 12 }}
             {{- end }}
-          # The healthcheck subcommand reads DOZZLE_BASE, so the probes follow a
-          # base path set through env. The port stays 8080.
+          # In k8s mode the healthcheck lists pods through the API server (3s timeout),
+          # so it only gates readiness. Restarting Dozzle would not fix an API server
+          # outage and would drop every open stream. It reads DOZZLE_BASE, so it follows
+          # a base path set through env. The port stays 8080.
           livenessProbe:
-            exec:
-              command: ["/dozzle", "healthcheck"]
+            tcpSocket:
+              port: http
           readinessProbe:
             exec:
               command: ["/dozzle", "healthcheck"]
+            timeoutSeconds: 5
           {{- with .Values.resources }}
           resources:
             {{- toYaml . | nindent 12 }}
