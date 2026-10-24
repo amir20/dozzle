@@ -24,13 +24,13 @@ const copy = computed(() => {
 
 <template>
   <a
-    class="mb-5 inline-flex items-center gap-2 rounded-full border border-(--vp-c-divider) bg-(--vp-c-bg-soft) py-1 pr-3 pl-1.5 text-sm font-medium text-(--vp-c-text-2) no-underline! transition-colors hover:border-(--vp-c-brand-1) hover:text-(--vp-c-text-1)"
+    class="mb-5 inline-flex max-w-full items-center gap-2 rounded-full border border-(--vp-c-divider) bg-(--vp-c-bg-soft) py-1 pr-3 pl-1.5 text-left text-xs font-medium text-(--vp-c-text-2) no-underline! transition-colors hover:border-(--vp-c-brand-1) hover:text-(--vp-c-text-1) sm:text-sm"
     :href="copy.href"
   >
     <span class="rounded-full bg-(--vp-c-brand-soft) px-2 py-0.5 text-xs font-semibold text-(--vp-c-brand-1)">
       {{ copy.badge }}
     </span>
-    {{ copy.label }}
-    <Icon icon="mdi:arrow-right" class="size-4 opacity-60" />
+    <span class="min-w-0">{{ copy.label }}</span>
+    <Icon icon="mdi:arrow-right" class="size-4 shrink-0 opacity-60" />
   </a>
 </template>

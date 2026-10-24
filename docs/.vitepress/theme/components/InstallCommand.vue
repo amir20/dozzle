@@ -14,13 +14,13 @@ const { copy, copied } = useClipboard({ source: command, copiedDuring: 2000 });
 </script>
 
 <template>
-  <div class="mx-auto flex max-w-6xl flex-col items-center gap-3 px-6" :class="dense ? 'mb-0' : 'mb-14'">
+  <div class="mx-auto flex max-w-6xl flex-col items-center gap-3" :class="dense ? 'mb-0' : 'mb-14 px-6'">
     <div
-      class="flex w-full max-w-4xl items-start gap-3 rounded-lg border border-solid border-(--vp-c-divider) bg-(--vp-c-bg-alt) py-3 pr-3 pl-4"
+      class="flex w-full max-w-4xl items-center gap-3 rounded-lg border border-solid border-(--vp-c-divider) bg-(--vp-c-bg-alt) py-3 pr-3 pl-4"
     >
       <span class="shrink-0 font-mono text-xs leading-6 text-(--vp-c-text-3) select-none md:text-sm">$</span>
       <code
-        class="min-w-0 flex-1 bg-transparent! p-0! font-mono text-xs leading-6 break-words whitespace-pre-wrap text-(--vp-c-text-1) md:text-sm"
+        class="min-w-0 flex-1 overflow-x-auto bg-transparent! p-0! font-mono text-xs leading-6 whitespace-nowrap text-(--vp-c-text-1) md:text-sm md:break-words md:whitespace-pre-wrap"
         >{{ command }}</code
       >
       <button
@@ -32,7 +32,7 @@ const { copy, copied } = useClipboard({ source: command, copiedDuring: 2000 });
         {{ copied ? "Copied" : "Copy" }}
       </button>
     </div>
-    <p v-if="hint" class="m-0! text-sm text-(--vp-c-text-2)">
+    <p v-if="hint" class="m-0! text-center text-sm text-(--vp-c-text-2)">
       Then open <span class="font-mono">http://localhost:8080</span>. Prefer Compose, Swarm, or Kubernetes? See the
       <a :href="withBase('/guide/getting-started')">install guide</a>.
     </p>

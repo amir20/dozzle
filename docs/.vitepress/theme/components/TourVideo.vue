@@ -22,7 +22,7 @@ function onClose() {
 <template>
   <button
     type="button"
-    class="group mt-8 flex w-fit cursor-pointer items-center gap-3 rounded-xl! border border-solid border-(--vp-c-divider) bg-(--vp-c-bg-soft)! p-1.5! pr-5! text-left transition-colors hover:border-(--vp-c-brand)"
+    class="group mx-auto mt-8 flex w-fit cursor-pointer items-center gap-3 rounded-xl! border border-solid border-(--vp-c-divider) bg-(--vp-c-bg-soft)! p-1.5! pr-5! text-left transition-colors hover:border-(--vp-c-brand) min-[960px]:mx-0"
     aria-haspopup="dialog"
     @click="open"
   >
