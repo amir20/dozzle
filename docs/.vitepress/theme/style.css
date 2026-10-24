@@ -181,6 +181,25 @@
   max-width: 1200px;
 }
 
+/* Below the desktop breakpoint VitePress stacks the image above the headline and
+   squeezes it into a fixed 320px square. Lead with the copy instead, and let the
+   demo take the full column width underneath. */
+@media (max-width: 959px) {
+  .VPHero.VPHero {
+    padding-top: calc(var(--vp-nav-height) + var(--vp-layout-top-height, 0px) + 16px);
+  }
+
+  .VPHero.VPHero .image {
+    order: 3;
+    margin: 48px 0 0;
+  }
+
+  .VPHero.VPHero .image-container {
+    width: 100%;
+    height: auto;
+  }
+}
+
 .VPNavBar.home .container {
   max-width: 100%;
 }

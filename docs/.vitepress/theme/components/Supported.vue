@@ -1,8 +1,10 @@
 <template>
   <ul
-    class="center -mt-8! mb-12! flex flex-col items-center justify-center gap-x-7 gap-y-3 text-base font-light text-(--vp-c-text-2) md:text-xl lg:flex-row"
+    class="center -mt-8! mb-12! flex flex-wrap items-center justify-center gap-x-6 gap-y-3 px-6 text-base font-light text-(--vp-c-text-2) md:text-xl"
   >
-    <li class="text-sm tracking-wide text-(--vp-c-text-3) uppercase md:text-sm">Supported Platforms</li>
+    <li class="basis-full text-center text-sm tracking-wide text-(--vp-c-text-3) uppercase lg:basis-auto">
+      Supported Platforms
+    </li>
     <li>
       <a :href="withBase('/guide/getting-started')" class="flex flex-row items-center gap-2">
         <svg width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" class="size-7">

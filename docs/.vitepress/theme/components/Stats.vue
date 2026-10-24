@@ -1,16 +1,18 @@
 <template>
-  <div class="mt-10 flex flex-wrap gap-x-14 gap-y-8">
+  <div class="mt-10 flex justify-center gap-x-6 min-[960px]:justify-start min-[960px]:gap-x-14">
     <a
       v-for="stat in stats"
       :key="stat.label"
-      class="flex flex-col no-underline! transition-colors hover:text-(--vp-c-brand)"
+      class="flex flex-col items-center no-underline! transition-colors hover:text-(--vp-c-brand) min-[960px]:items-start"
       :href="stat.href"
     >
-      <span class="flex items-center gap-2 text-sm text-(--vp-c-text-2)">
-        <Icon :icon="stat.icon" class="size-4 opacity-70" />
+      <span class="flex items-center gap-1.5 text-xs whitespace-nowrap text-(--vp-c-text-2) sm:gap-2 sm:text-sm">
+        <Icon :icon="stat.icon" class="size-4 shrink-0 opacity-70" />
         {{ stat.label }}
       </span>
-      <span class="mt-2.5 text-4xl leading-none font-semibold tracking-tight text-(--vp-c-text-1) tabular-nums">
+      <span
+        class="mt-2.5 text-3xl leading-none font-semibold tracking-tight text-(--vp-c-text-1) tabular-nums sm:text-4xl"
+      >
         <Counter :start="0" :end="stat.value" :duration="1000" :formatter="compact" />
       </span>
     </a>

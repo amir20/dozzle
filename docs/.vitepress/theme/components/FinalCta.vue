@@ -6,7 +6,7 @@ import InstallCommand from "./InstallCommand.vue";
 <template>
   <section class="mx-auto mt-20 max-w-6xl px-6">
     <div
-      class="flex flex-col items-center rounded-2xl border border-solid border-(--vp-c-divider) bg-(--vp-c-bg-alt) px-6 py-16"
+      class="flex flex-col items-center rounded-2xl border border-solid border-(--vp-c-divider) bg-(--vp-c-bg-alt) px-4 py-10 sm:px-6 sm:py-16"
     >
       <h2 class="m-0! text-center text-2xl font-semibold text-(--vp-c-text-1) md:text-3xl">
         Start watching your containers
@@ -19,7 +19,7 @@ import InstallCommand from "./InstallCommand.vue";
         <InstallCommand :hint="false" dense />
       </div>
 
-      <div class="mt-10 flex flex-wrap items-center justify-center gap-3">
+      <div class="mt-8 flex w-full flex-col items-stretch gap-3 sm:mt-10 sm:w-auto sm:flex-row sm:items-center">
         <a class="cta-button cta-brand" :href="withBase('/guide/getting-started')">Get Started</a>
         <a class="cta-button cta-alt" href="https://github.com/amir20/dozzle">
           <Icon icon="simple-icons:github" class="size-4" />
@@ -37,6 +37,7 @@ import InstallCommand from "./InstallCommand.vue";
 .cta-button {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 0.5rem;
   padding: 0.625rem 1.5rem;
   border: 1px solid transparent;
