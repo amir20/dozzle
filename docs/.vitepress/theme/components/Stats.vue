@@ -1,5 +1,5 @@
 <template>
-  <div class="mt-10 grid grid-cols-3 gap-4 min-[960px]:flex min-[960px]:gap-x-14">
+  <div class="mt-10 flex justify-center gap-x-6 min-[960px]:justify-start min-[960px]:gap-x-14">
     <a
       v-for="stat in stats"
       :key="stat.label"

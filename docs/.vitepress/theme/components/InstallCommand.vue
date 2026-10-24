@@ -16,7 +16,7 @@ const { copy, copied } = useClipboard({ source: command, copiedDuring: 2000 });
 <template>
   <div class="mx-auto flex max-w-6xl flex-col items-center gap-3" :class="dense ? 'mb-0' : 'mb-14 px-6'">
     <div
-      class="flex w-full max-w-4xl items-center gap-3 rounded-lg border border-solid border-(--vp-c-divider) bg-(--vp-c-bg-alt) py-3 pr-3 pl-4"
+      class="flex w-full max-w-4xl items-center gap-3 rounded-lg border border-solid border-(--vp-c-divider) bg-(--vp-c-bg-alt) py-3 pr-3 pl-4 md:items-start"
     >
       <span class="shrink-0 font-mono text-xs leading-6 text-(--vp-c-text-3) select-none md:text-sm">$</span>
       <code
