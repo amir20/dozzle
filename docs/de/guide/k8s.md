@@ -1,12 +1,41 @@
 ---
 title: Kubernetes-Unterstützung
 description: Betreibe Dozzle in Kubernetes, um Pod-Logs zu lesen, mit RBAC, Metrics API und Kubelet für Statistiken sowie Pod-Neustarts, Namespaces und Filtern.
-sourceHash: 7c7f2f001ac1
+sourceHash: b428ac778da5
 ---
 
 # Kubernetes-Unterstützung
 
 Dozzle unterstützt Kubernetes, sodass du die Logs deiner Kubernetes-Pods ansehen kannst.
+
+## <Icon icon="mdi:package-variant" inline /> Installation mit Helm
+
+Am schnellsten läuft Dozzle in einem Cluster mit dem Helm-Chart. Es legt alles an, was die manuelle Einrichtung unten anlegt, und bindet die Rolle an den Namespace, in den du installierst.
+
+```bash
+helm install dozzle oci://ghcr.io/amir20/charts/dozzle --namespace dozzle --create-namespace
+```
+
+Die Version des Charts entspricht dem Dozzle-Release. Einstellungen setzt du über `env`, und die zusätzlichen Berechtigungen für Container-Aktionen sowie Netzwerk- und Festplattenstatistiken schaltest du mit `rbac.actions` und `rbac.nodeStats` ein:
+
+```yaml
+# values.yaml
+env:
+  - name: DOZZLE_ENABLE_ACTIONS
+    value: "true"
+rbac:
+  actions: true
+  nodeStats: true
+ingress:
+  enabled: true
+  hosts:
+    - host: dozzle.example.com
+      paths:
+        - path: /
+          pathType: Prefix
+```
+
+Alle Optionen findest du in der [`values.yaml`](https://github.com/amir20/dozzle/blob/main/charts/dozzle/values.yaml).
 
 ## <Icon icon="mdi:kubernetes" inline /> Kubernetes einrichten
 

@@ -4,7 +4,7 @@ dist
 node_modules
 .cache
 static
-dozzle
+/dozzle
 coverage
 coverage.out
 .netlify

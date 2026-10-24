@@ -1,0 +1,81 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "dozzle.fullname" . }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "dozzle.labels" . | nindent 4 }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      {{- include "dozzle.selectorLabels" . | nindent 6 }}
+  {{- if and .Values.persistence.enabled (eq .Values.persistence.accessMode "ReadWriteOnce") }}
+  # A ReadWriteOnce volume can't be mounted by the new pod until the old one lets go.
+  strategy:
+    type: Recreate
+  {{- end }}
+  template:
+    metadata:
+      labels:
+        {{- include "dozzle.selectorLabels" . | nindent 8 }}
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+    spec:
+      serviceAccountName: {{ include "dozzle.serviceAccountName" . }}
+      # A Service named dozzle would inject DOZZLE_PORT_* variables, which Dozzle
+      # reads as its own config.
+      enableServiceLinks: false
+      containers:
+        - name: dozzle
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: 8080
+          env:
+            - name: DOZZLE_MODE
+              value: k8s
+            {{- with .Values.env }}
+            {{- toYaml . | nindent 12 }}
+            {{- end }}
+          # In k8s mode the healthcheck lists pods through the API server (3s timeout),
+          # so it only gates readiness. Restarting Dozzle would not fix an API server
+          # outage and would drop every open stream. It reads DOZZLE_BASE, so it follows
+          # a base path set through env. The port stays 8080.
+          livenessProbe:
+            tcpSocket:
+              port: http
+          readinessProbe:
+            exec:
+              command: ["/dozzle", "healthcheck"]
+            timeoutSeconds: 5
+          {{- with .Values.resources }}
+          resources:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- if .Values.persistence.enabled }}
+          volumeMounts:
+            - name: data
+              mountPath: /data
+          {{- end }}
+      {{- if .Values.persistence.enabled }}
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: {{ .Values.persistence.existingClaim | default (include "dozzle.fullname" .) }}
+      {{- end }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
