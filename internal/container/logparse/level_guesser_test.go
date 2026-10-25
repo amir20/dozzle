@@ -164,6 +164,14 @@ func TestGuessLogLevel(t *testing.T) {
 		{"[09:58:00 WRN] Retrying", "warn"},
 		{"[2026-09-28 09:58:00.046 +00:00 DBG] handler started", "debug"},
 		{"[Connection error] retrying", "unknown"},
+		// Asterisk: the level is glued to the thread id, plus the call id when there is one.
+		{"[2026-10-25 06:44:27] ERROR[1]: res_config_ldap.c:1769 load_module: Cannot load LDAP RealTime driver.", "error"},
+		{"[2026-10-25 06:44:27] WARNING[1]: res_odbc.c:577 load_odbc_config: Unable to load config file res_odbc.conf", "warn"},
+		{"[2026-10-25 06:44:27] NOTICE[1]: res_statsd.c:399 load_module: Could not load statsd config; using defaults", "info"},
+		{"[2026-10-25 06:44:27] DEBUG[871]: res_pjsip_session.c:4027 new_invite: Call is being authenticated", "debug"},
+		{"[2026-10-25 07:12:03] WARNING[2271][C-0000000a]: chan_pjsip.c:2567 request: Failed to authenticate, error 401", "warn"},
+		{"[Oct 25 06:44:27] ERROR[1]: config_options.c:710 aco_process_config: Unable to load config file 'statsd.conf'", "error"},
+		{"[2026-10-25 06:44:28]     -- Reloading module 'extconfig' (Configuration)", "unknown"},
 		// klog / glog format used across the Kubernetes toolchain
 		{"E0806 14:55:55.980915       1 fsHandler.go:121] failed to collect filesystem stats", "error"},
 		{"W0806 14:54:52.068675       1 info.go:52] Couldn't collect info from any of the files", "warn"},

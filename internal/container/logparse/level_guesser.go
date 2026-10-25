@@ -47,7 +47,7 @@ type levelMatcher struct {
 // level, highest confidence first:
 //
 //  1. ^<level>     start-of-line prefix: "ERROR: ...", "INF ...", "E0806 14:55:55.980915 ...",
-//     "[09:58:00 ERR] ..."
+//     "[09:58:00 ERR] ...", "[2026-10-25 06:44:27] WARNING[1]: ..."
 //  2. [<level>]    bracketed tag / single-letter: "[ERROR]", "[E]"
 //  3. > <level>    signale/consola marker: "› ℹ  info      started"
 //  4. <tag>:<level> structured prefix: "Zigbee2MQTT:info ", "::INFO::", "[1]: INFO " (a gap only before upper-case)
@@ -101,6 +101,19 @@ var klogPrefix = regexp.MustCompile(`^([EWIDFTV])\d{4} \d{2}:\d{2}:\d{2}\.\d{6}`
 // level keeps prose like "[Connection error]" from matching.
 func bracketedHeader(joined string) *regexp.Regexp {
 	return regexp.MustCompile(`(?i)^\[[^\]]*\d\s+(` + joined + `)\s*\]`)
+}
+
+// asteriskHeader matches the Asterisk PBX log line, where a bracketed timestamp
+// is followed by the level glued to the thread id, and to the call id when the
+// message belongs to a call:
+//
+//	[2026-10-25 06:44:27] WARNING[1]: res_odbc.c:577 load_odbc_config: ...
+//	[2026-10-25 07:12:03] WARNING[2271][C-0000000a]: chan_pjsip.c:2567 request: ...
+//
+// The timestamp is bracketed, so timestampRegex cannot strip it, and the "[1]"
+// after the level hides it from every separator the other matchers look for.
+func asteriskHeader(joined string) *regexp.Regexp {
+	return regexp.MustCompile(`(?i)^\[[^\]]*\d\]\s+(` + joined + `)\[\d+\](?:\[[^\]]+\])?:`)
 }
 
 var timestampRegex = regexp.MustCompile(`^(?:\d{4}[-/]\d{2}[-/]\d{2}(?:[T ](?:\d{2}:\d{2}:\d{2}(?:[.,]\d+)?Z?|\d{2}:\d{2}(?:AM|PM)))?\s+)`)
@@ -197,6 +210,7 @@ func init() {
 			{re: regexp.MustCompile(`^(` + upperOnly + `)(?::?\s|$)`)},
 			{re: klogPrefix, single: true},
 			{re: bracketedHeader(joined)},
+			{re: asteriskHeader(joined)},
 		},
 		{
 			{re: regexp.MustCompile(`(?i)\[ ?(` + joined + `) ?\]`)},
