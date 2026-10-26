@@ -1,7 +1,7 @@
 ---
 title: 警报
 description: 为 Docker 容器日志、CPU 和内存指标以及生命周期事件设置 Dozzle 警报，并发送到 webhook、Slack、Discord 或 ntfy。
-sourceHash: 9f9a3cdca229
+sourceHash: 477c4baff2bc
 ---
 
 # 警报
@@ -78,11 +78,7 @@ Webhook 会向你指定的 URL 发送一个 HTTP POST 请求。Dozzle 为常用�
 | `{{.Subscription.Name}}`  | 警报规则名称               |
 | `{{.Timestamp}}`          | 通知创建的时间             |
 
-</div>
-
 `{{.Timestamp}}` 以 Go 的默认时间格式输出，Discord 等服务会拒绝这种格式。请改为格式化成 ISO 8601：
-
-<div v-pre>
 
 ```json
 {

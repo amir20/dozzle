@@ -1,7 +1,7 @@
 ---
 title: Alertas
 description: Configura alertas de Dozzle sobre los logs de contenedores Docker, las métricas de CPU y memoria y los eventos del ciclo de vida, y envíalas a un webhook, Slack, Discord o ntfy.
-sourceHash: 9f9a3cdca229
+sourceHash: 477c4baff2bc
 ---
 
 # Alertas
@@ -78,11 +78,7 @@ También puedes escribir tu propia plantilla de payload con la sintaxis `text/te
 | `{{.Subscription.Name}}`  | Nombre de la regla de alerta                     |
 | `{{.Timestamp}}`          | Momento en que se creó la notificación           |
 
-</div>
-
 `{{.Timestamp}}` se imprime en el formato de hora por defecto de Go, que servicios como Discord rechazan. Formatéalo como ISO 8601:
-
-<div v-pre>
 
 ```json
 {
