@@ -75,6 +75,19 @@ You can also write your own payload template using Go's `text/template` syntax. 
 | `{{.Stat.MemoryPercent}}` | Memory usage percentage                |
 | `{{.Stat.MemoryUsage}}`   | Memory usage in bytes                  |
 | `{{.Subscription.Name}}`  | Alert rule name                        |
+| `{{.Timestamp}}`          | Time the notification was created      |
+
+</div>
+
+`{{.Timestamp}}` prints in Go's default time format, which services like Discord reject. Format it as ISO 8601 instead:
+
+<div v-pre>
+
+```json
+{
+  "embeds": [{ "timestamp": "{{ .Timestamp.UTC.Format \"2006-01-02T15:04:05Z07:00\" }}" }]
+}
+```
 
 </div>
 
