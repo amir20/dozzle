@@ -10,6 +10,7 @@ const holder = vi.hoisted(() => ({
   config: {
     imageCheckMode: "automatic",
     enableActions: true,
+    enableUpdates: true,
     selfContainerId: "5e1f00000000" + "0".repeat(52),
     hosts: [
       { id: "localhost", type: "local" },
@@ -110,6 +111,7 @@ describe("useImageUpdate", () => {
   beforeEach(() => {
     holder.config.imageCheckMode = "automatic";
     holder.config.enableActions = true;
+    holder.config.enableUpdates = true;
     holder.config.hosts = [
       { id: "localhost", type: "local" },
       { id: "remote", type: "agent" },
@@ -169,6 +171,17 @@ describe("useImageUpdate", () => {
   // The alert is informational, so it survives actions being disabled.
   test("alerts even when actions are disabled", async () => {
     holder.config.enableActions = false;
+    holder.config.enableUpdates = false;
+    mockCheck({ status: "update-available", remoteDigest: "sha256:new" });
+    const { result } = await run(container());
+
+    expect(result.showAlert.value).toBe(true);
+    expect(result.updatable.value).toBe(false);
+  });
+
+  // A user with actions but not the update role can restart, not update.
+  test("is not updatable without the update role", async () => {
+    holder.config.enableUpdates = false;
     mockCheck({ status: "update-available", remoteDigest: "sha256:new" });
     const { result } = await run(container());
 
@@ -352,6 +365,7 @@ describe("useImageUpdate", () => {
     // Actions are off by default, so the notice has to say what to do about it.
     test("explains how to enable actions when they are disabled", async () => {
       holder.config.enableActions = false;
+      holder.config.enableUpdates = false;
       holder.showAlertSetting!.value = true;
       mockCheck({ status: "update-available", remoteDigest: "sha256:new" });
       await run(container());
@@ -364,6 +378,7 @@ describe("useImageUpdate", () => {
     test("neither offers an update nor suggests actions in Kubernetes mode", async () => {
       holder.config.mode = "k8s";
       holder.config.enableActions = false;
+      holder.config.enableUpdates = false;
       holder.showAlertSetting!.value = true;
       try {
         mockCheck({ status: "update-available", remoteDigest: "sha256:new" });

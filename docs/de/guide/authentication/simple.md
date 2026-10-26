@@ -1,7 +1,7 @@
 ---
 title: Einfache Authentifizierung
 description: Richte die einfache Authentifizierung von Dozzle mit einer users.yml ein und lege mit Filtern und Rollen fest, welche Docker-Container jeder Benutzer sieht und was er tun darf.
-sourceHash: cb83fd93f108
+sourceHash: 42be19df819b
 ---
 
 # <Icon icon="mdi:account-cog-outline" inline /> Einfache Authentifizierung
@@ -163,15 +163,16 @@ In diesem Beispiel hat der Benutzer `admin` keine Rollen angegeben und damit vol
 
 Dozzle unterstützt die folgenden Rollen:
 
-| Rolle           | Ebenfalls akzeptiert   | Erlaubt                                                                                                    |
-| --------------- | ---------------------- | ---------------------------------------------------------------------------------------------------------- |
-| `shell`         | `dozzle_shell`         | An einen Container andocken und eine Exec-Sitzung öffnen. Die Instanz braucht zusätzlich `--enable-shell`. |
-| `actions`       | `dozzle_actions`       | Container starten, stoppen und neu starten. Die Instanz braucht zusätzlich `--enable-actions`.             |
-| `download`      | `dozzle_download`      | Container-Logs als Datei herunterladen.                                                                    |
-| `notifications` | `dozzle_notifications` | Benachrichtigungsregeln und Ziele erstellen und bearbeiten.                                                |
-| `cloud`         | `dozzle_cloud`         | Dozzle Cloud verknüpfen, trennen und konfigurieren.                                                        |
-| `all`           | `dozzle_all`           | Alle Rollen oben. Das ist die Voreinstellung, wenn `roles` leer ist.                                       |
-| `none`          | `dozzle_none`          | Keine Rollen. Logs bleiben sichtbar, im Rahmen des Benutzerfilters. Überschreibt alles andere.             |
+| Rolle           | Ebenfalls akzeptiert   | Erlaubt                                                                                                               |
+| --------------- | ---------------------- | --------------------------------------------------------------------------------------------------------------------- |
+| `shell`         | `dozzle_shell`         | An einen Container andocken und eine Exec-Sitzung öffnen. Die Instanz braucht zusätzlich `--enable-shell`.            |
+| `actions`       | `dozzle_actions`       | Container starten, stoppen und neu starten. Schließt `update` ein. Die Instanz braucht zusätzlich `--enable-actions`. |
+| `update`        | `dozzle_update`        | Einen Container auf ein neueres Image aktualisieren. Wirkt nur zusammen mit `actions`.                                |
+| `download`      | `dozzle_download`      | Container-Logs als Datei herunterladen.                                                                               |
+| `notifications` | `dozzle_notifications` | Benachrichtigungsregeln und Ziele erstellen und bearbeiten.                                                           |
+| `cloud`         | `dozzle_cloud`         | Dozzle Cloud verknüpfen, trennen und konfigurieren.                                                                   |
+| `all`           | `dozzle_all`           | Alle Rollen oben. Das ist die Voreinstellung, wenn `roles` leer ist.                                                  |
+| `none`          | `dozzle_none`          | Keine Rollen. Logs bleiben sichtbar, im Rahmen des Benutzerfilters. Überschreibt alles andere.                        |
 
 Rollen werden durch Kommas oder Pipes getrennt (`shell,actions` oder `shell|actions`), ein JSON-Array funktioniert ebenfalls (`["shell", "actions"]`). Groß- und Kleinschreibung spielt keine Rolle. Die Aliase mit dem Präfix `dozzle_` gibt es, damit Gruppennamen aus einem Identity Provider im Forward-Proxy-Modus unverändert durchgereicht werden können.
 
@@ -187,6 +188,7 @@ Jeder Rolle kann ein `^` vorangestellt werden, um sie auszuschließen. Ausschlü
 
 ```yaml
 roles: all,^shell # alles außer shell
+roles: actions,^update # starten, stoppen und neu starten, aber nie ein Image aktualisieren
 ```
 
 `none` ist die einzige Rolle, die nicht negiert werden kann. `^none` wird ignoriert, und ein einfaches `none` an beliebiger Stelle in der Liste entfernt alle anderen Rollen.

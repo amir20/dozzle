@@ -233,11 +233,12 @@ func TestExecuteTool_RollbackContainer(t *testing.T) {
 }
 
 func TestRollbackContainerNeedsActions(t *testing.T) {
-	assert.Equal(t, auth.Actions, mutatingTools[toolRollbackContainer])
+	assert.Equal(t, auth.Actions|auth.Update, mutatingTools[toolRollbackContainer])
 	assert.Error(t, APIKeyPrincipal(nil).mayCall(toolRollbackContainer, false), "gated behind --enable-actions")
 	assert.Error(t, InstancePrincipal(nil).mayCall(toolRollbackContainer, true), "never background work")
 	assert.Error(t, Principal{Kind: PrincipalUser}.mayCall(toolRollbackContainer, true), "a user without the actions role")
-	assert.NoError(t, Principal{Kind: PrincipalUser, Roles: auth.Actions}.mayCall(toolRollbackContainer, true))
+	assert.Error(t, Principal{Kind: PrincipalUser, Roles: auth.Actions}.mayCall(toolRollbackContainer, true), "actions without the update role")
+	assert.NoError(t, Principal{Kind: PrincipalUser, Roles: auth.Actions | auth.Update}.mayCall(toolRollbackContainer, true))
 
 	var names []string
 	for _, tool := range AvailableTools(ToolDeps{EnableActions: true}) {

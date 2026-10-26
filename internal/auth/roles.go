@@ -16,9 +16,10 @@ const (
 	Download
 	Notifications
 	Cloud
+	Update
 )
 
-const All = Shell | Actions | Download | Notifications | Cloud
+const All = Shell | Actions | Download | Notifications | Cloud | Update
 
 // ParseRole parses a comma-separated string of roles and returns the corresponding Role.
 // Roles prefixed with ^ are excluded after all other roles are applied, so "all,^shell"
@@ -57,7 +58,11 @@ func ParseRole(input string) Role {
 		case "shell", "dozzle_shell":
 			bits = Shell
 		case "actions", "dozzle_actions":
-			bits = Actions
+			// Actions has always included image updates, so it still grants
+			// update. "actions,^update" keeps start, stop and restart only.
+			bits = Actions | Update
+		case "update", "dozzle_update":
+			bits = Update
 		case "download", "dozzle_download":
 			bits = Download
 		case "notifications", "dozzle_notifications":
@@ -87,6 +92,7 @@ func ParseRole(input string) Role {
 	return roles &^ excluded
 }
 
+// Has reports whether roles holds every bit of role.
 func (roles Role) Has(role Role) bool {
-	return roles&role != 0
+	return role != None && roles&role == role
 }

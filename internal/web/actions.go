@@ -44,6 +44,16 @@ func (h *handler) permitActions(r *http.Request) bool {
 	return false
 }
 
+// permitUpdate reports whether the caller may replace a container's image,
+// which takes the update role on top of actions.
+func (h *handler) permitUpdate(r *http.Request) bool {
+	if h.config.Authorization.Provider == NONE || auth.UserFromContext(r.Context()).Roles.Has(auth.Actions|auth.Update) {
+		return true
+	}
+	log.Warn().Msg("user is not permitted to update containers")
+	return false
+}
+
 func (h *handler) containerActions(w http.ResponseWriter, r *http.Request) {
 	action := chi.URLParam(r, "action")
 
@@ -71,6 +81,10 @@ func (h *handler) containerActions(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *handler) containerUpdate(w http.ResponseWriter, r *http.Request) {
+	if !h.permitUpdate(r) {
+		http.Error(w, http.StatusText(http.StatusForbidden), http.StatusForbidden)
+		return
+	}
 	containerService, ok := h.findContainerWithActions(w, r)
 	if !ok {
 		return

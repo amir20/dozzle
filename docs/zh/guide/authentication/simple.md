@@ -1,7 +1,7 @@
 ---
 title: 简单模式身份验证
 description: 使用 users.yml 文件配置 Dozzle 的简单模式身份验证，并通过过滤器和角色限制每个用户能看到哪些 Docker 容器、能执行哪些操作。
-sourceHash: cb83fd93f108
+sourceHash: 42be19df819b
 ---
 
 # <Icon icon="mdi:account-cog-outline" inline /> 简单模式身份验证
@@ -163,15 +163,16 @@ users:
 
 Dozzle 支持以下角色：
 
-| 角色            | 同时接受               | 授予的权限                                                         |
-| --------------- | ---------------------- | ------------------------------------------------------------------ |
-| `shell`         | `dozzle_shell`         | 连接容器并打开 exec 会话。实例还需要开启 `--enable-shell`。        |
-| `actions`       | `dozzle_actions`       | 启动、停止和重启容器。实例还需要开启 `--enable-actions`。          |
-| `download`      | `dozzle_download`      | 把容器日志下载为文件。                                             |
-| `notifications` | `dozzle_notifications` | 创建和编辑通知规则与通知目标。                                     |
-| `cloud`         | `dozzle_cloud`         | 关联、解除关联并配置 Dozzle Cloud。                                |
-| `all`           | `dozzle_all`           | 以上所有角色。`roles` 为空时的默认值。                             |
-| `none`          | `dozzle_none`          | 没有任何角色。日志仍可查看，受用户过滤器约束。会覆盖其他所有设置。 |
+| 角色            | 同时接受               | 授予的权限                                                               |
+| --------------- | ---------------------- | ------------------------------------------------------------------------ |
+| `shell`         | `dozzle_shell`         | 连接容器并打开 exec 会话。实例还需要开启 `--enable-shell`。              |
+| `actions`       | `dozzle_actions`       | 启动、停止和重启容器。包含 `update`。实例还需要开启 `--enable-actions`。 |
+| `update`        | `dozzle_update`        | 把容器更新到较新的镜像。只有同时拥有 `actions` 时才生效。                |
+| `download`      | `dozzle_download`      | 把容器日志下载为文件。                                                   |
+| `notifications` | `dozzle_notifications` | 创建和编辑通知规则与通知目标。                                           |
+| `cloud`         | `dozzle_cloud`         | 关联、解除关联并配置 Dozzle Cloud。                                      |
+| `all`           | `dozzle_all`           | 以上所有角色。`roles` 为空时的默认值。                                   |
+| `none`          | `dozzle_none`          | 没有任何角色。日志仍可查看，受用户过滤器约束。会覆盖其他所有设置。       |
 
 多个角色之间用逗号或竖线分隔（`shell,actions` 或 `shell|actions`），也可以写成 JSON 数组（`["shell", "actions"]`）。名称不区分大小写。带 `dozzle_` 前缀的别名是为了让身份提供方的用户组名称在前置代理模式下可以原样传入。
 
@@ -187,6 +188,7 @@ Dozzle 支持以下角色：
 
 ```yaml
 roles: all,^shell # 除 shell 外的所有角色
+roles: actions,^update # 可以启动、停止和重启，但永远不能更新镜像
 ```
 
 `none` 是唯一不能被取反的角色。`^none` 会被忽略，而列表中任何位置出现 `none` 都会让其他所有角色失效。

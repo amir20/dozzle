@@ -298,7 +298,7 @@ const hasKubeletStats = computed(() => config.mode !== "k8s" || containers.some(
 const selectedHost = ref(null);
 // Same gate as the dashboard's updates button: without actions there is
 // nothing a mark on the row could lead to.
-const showUpdates = config.enableActions && config.imageCheckMode !== "off" && config.mode !== "k8s";
+const showUpdates = config.enableUpdates && config.imageCheckMode !== "off" && config.mode !== "k8s";
 const { hasUpdate } = useImageUpdates();
 
 const fields: Record<

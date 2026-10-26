@@ -57,6 +57,9 @@ func Test_UserPrincipal_needsTheRole(t *testing.T) {
 	require.NoError(t, operator.mayCall(toolStartContainer, true))
 	// The role is not a way around --enable-actions.
 	require.Error(t, operator.mayCall(toolStartContainer, false))
+	// Replacing an image takes the update role on top of actions.
+	require.Error(t, operator.mayCall(toolUpdateContainer, true))
+	require.NoError(t, UserPrincipal(nil, auth.Actions|auth.Update).mayCall(toolUpdateContainer, true))
 
 	require.Error(t, operator.mayCall(toolCreateLogNotification, true))
 	require.NoError(t, notifier.mayCall(toolCreateLogNotification, true))

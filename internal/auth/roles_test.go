@@ -12,59 +12,59 @@ func TestParseRole(t *testing.T) {
 	}{
 		// Single role tests
 		{"Single shell role", "shell", Shell},
-		{"Single actions role", "actions", Actions},
+		{"Single actions role", "actions", Actions | Update},
 		{"Single download role", "download", Download},
 		{"Single notifications role", "notifications", Notifications},
 		{"Single dozzle_notifications role", "dozzle_notifications", Notifications},
 		{"Single cloud role", "cloud", Cloud},
 		{"Single dozzle_cloud role", "dozzle_cloud", Cloud},
-		{"All includes notifications and cloud", "all", Shell | Actions | Download | Notifications | Cloud},
+		{"All includes notifications and cloud", "all", Shell | (Actions | Update) | Download | Notifications | Cloud},
 		{"None role", "none", None},
 		{"All role", "all", All},
 
 		// Single dozzle_ prefixed role tests
 		{"Single dozzle_shell role", "dozzle_shell", Shell},
-		{"Single dozzle_actions role", "dozzle_actions", Actions},
+		{"Single dozzle_actions role", "dozzle_actions", Actions | Update},
 		{"Single dozzle_download role", "dozzle_download", Download},
 		{"Dozzle_none role", "dozzle_none", None},
 		{"Dozzle_all role", "dozzle_all", All},
 
 		// Case insensitive tests
 		{"Shell uppercase", "SHELL", Shell},
-		{"Actions mixed case", "AcTiOnS", Actions},
+		{"Actions mixed case", "AcTiOnS", Actions | Update},
 		{"Download with spaces", " download ", Download},
 		{"Dozzle_shell uppercase", "DOZZLE_SHELL", Shell},
-		{"Dozzle_actions mixed case", "DoZzLe_AcTiOnS", Actions},
+		{"Dozzle_actions mixed case", "DoZzLe_AcTiOnS", Actions | Update},
 		{"Dozzle_download with spaces", " dozzle_download ", Download},
 
 		// Multiple roles with comma separator
-		{"Shell and actions", "shell,actions", Shell | Actions},
-		{"All three roles", "shell,actions,download", Shell | Actions | Download},
-		{"Roles with spaces", "shell , actions , download", Shell | Actions | Download},
-		{"Dozzle roles with comma", "dozzle_shell,dozzle_actions", Shell | Actions},
-		{"Mixed dozzle and regular", "shell,dozzle_actions,download", Shell | Actions | Download},
+		{"Shell and actions", "shell,actions", Shell | (Actions | Update)},
+		{"All three roles", "shell,actions,download", Shell | (Actions | Update) | Download},
+		{"Roles with spaces", "shell , actions , download", Shell | (Actions | Update) | Download},
+		{"Dozzle roles with comma", "dozzle_shell,dozzle_actions", Shell | (Actions | Update)},
+		{"Mixed dozzle and regular", "shell,dozzle_actions,download", Shell | (Actions | Update) | Download},
 		{"Cloud with other roles", "shell,cloud", Shell | Cloud},
 
 		// Multiple roles with pipe separator
-		{"Shell and actions with pipe", "shell|actions", Shell | Actions},
-		{"All three with pipe", "shell|actions|download", Shell | Actions | Download},
-		{"Mixed separators", "shell,actions|download", Shell | Actions | Download},
-		{"Dozzle roles with pipe", "dozzle_shell|dozzle_actions", Shell | Actions},
+		{"Shell and actions with pipe", "shell|actions", Shell | (Actions | Update)},
+		{"All three with pipe", "shell|actions|download", Shell | (Actions | Update) | Download},
+		{"Mixed separators", "shell,actions|download", Shell | (Actions | Update) | Download},
+		{"Dozzle roles with pipe", "dozzle_shell|dozzle_actions", Shell | (Actions | Update)},
 
 		// JSON format tests
 		{"JSON single role", `["shell"]`, Shell},
-		{"JSON multiple roles", `["shell", "actions"]`, Shell | Actions},
-		{"JSON all roles", `["shell", "actions", "download"]`, Shell | Actions | Download},
-		{"JSON with spaces", ` ["shell", "actions"] `, Shell | Actions},
+		{"JSON multiple roles", `["shell", "actions"]`, Shell | (Actions | Update)},
+		{"JSON all roles", `["shell", "actions", "download"]`, Shell | (Actions | Update) | Download},
+		{"JSON with spaces", ` ["shell", "actions"] `, Shell | (Actions | Update)},
 		{"JSON single dozzle role", `["dozzle_shell"]`, Shell},
-		{"JSON multiple dozzle roles", `["dozzle_shell", "dozzle_actions"]`, Shell | Actions},
-		{"JSON mixed dozzle and regular", `["shell", "dozzle_actions"]`, Shell | Actions},
+		{"JSON multiple dozzle roles", `["dozzle_shell", "dozzle_actions"]`, Shell | (Actions | Update)},
+		{"JSON mixed dozzle and regular", `["shell", "dozzle_actions"]`, Shell | (Actions | Update)},
 
 		// Edge cases
 		{"Empty string", "", None},
 		{"Whitespace only", "   ", None},
 		{"Invalid role", "invalid", None},
-		{"Mixed valid and invalid", "shell,invalid,actions", Shell | Actions},
+		{"Mixed valid and invalid", "shell,invalid,actions", Shell | (Actions | Update)},
 		{"None overrides others", "shell,none,actions", None},
 		{"All overrides others", "shell,all,actions", All},
 		{"Dozzle_none overrides others", "dozzle_shell,dozzle_none,dozzle_actions", None},
@@ -73,7 +73,7 @@ func TestParseRole(t *testing.T) {
 		// Negated roles
 		{"All except shell", "all,^shell", All &^ Shell},
 		{"All except shell with pipe", "all | ^shell", All &^ Shell},
-		{"All except two", "all,^shell,^actions", All &^ (Shell | Actions)},
+		{"All except two", "all,^shell,^actions", All &^ (Shell | (Actions | Update))},
 		{"Negate everything", "all,^all", None},
 		{"Negation order does not matter", "^shell,all", All &^ Shell},
 		{"Negate unset role", "shell,^actions", Shell},
@@ -84,6 +84,9 @@ func TestParseRole(t *testing.T) {
 		{"Negated none is ignored", "all,^none", All},
 		{"None still wins over negation", "all,^shell,none", None},
 		{"All except notifications", "all,^notifications", All &^ Notifications},
+		{"All except update", "all,^update", All &^ Update},
+		{"Actions without update", "actions,^update", Actions},
+		{"Dozzle prefixed update", "dozzle_update", Update},
 		{"JSON with negation", `["all", "^shell"]`, All &^ Shell},
 
 		// Invalid JSON
@@ -98,5 +101,18 @@ func TestParseRole(t *testing.T) {
 				t.Errorf("ParseRole(%q) = %d, expected %d", tc.input, int(result), int(tc.expected))
 			}
 		})
+	}
+}
+
+func TestRoleHasRequiresEveryBit(t *testing.T) {
+	roles := ParseRole("actions,^update")
+	if !roles.Has(Actions) {
+		t.Error("expected actions")
+	}
+	if roles.Has(Actions | Update) {
+		t.Error("expected actions without update to fail a combined check")
+	}
+	if None.Has(None) {
+		t.Error("expected no role to never be held")
 	}
 }

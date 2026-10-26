@@ -162,15 +162,16 @@ In this example, the `admin` user has no roles specified, so they have full acce
 
 Dozzle supports the following roles:
 
-| Role            | Also accepted          | Grants                                                                                    |
-| --------------- | ---------------------- | ----------------------------------------------------------------------------------------- |
-| `shell`         | `dozzle_shell`         | Attach to a container and open an exec session. The instance also needs `--enable-shell`. |
-| `actions`       | `dozzle_actions`       | Start, stop and restart containers. The instance also needs `--enable-actions`.           |
-| `download`      | `dozzle_download`      | Download container logs as a file.                                                        |
-| `notifications` | `dozzle_notifications` | Create and edit notification rules and destinations.                                      |
-| `cloud`         | `dozzle_cloud`         | Link, unlink and configure Dozzle Cloud.                                                  |
-| `all`           | `dozzle_all`           | Every role above. This is the default when `roles` is empty.                              |
-| `none`          | `dozzle_none`          | No roles. Logs are still viewable, subject to the user's filter. Overrides anything else. |
+| Role            | Also accepted          | Grants                                                                                             |
+| --------------- | ---------------------- | -------------------------------------------------------------------------------------------------- |
+| `shell`         | `dozzle_shell`         | Attach to a container and open an exec session. The instance also needs `--enable-shell`.          |
+| `actions`       | `dozzle_actions`       | Start, stop and restart containers. Includes `update`. The instance also needs `--enable-actions`. |
+| `update`        | `dozzle_update`        | Update a container to a newer image. Only takes effect alongside `actions`.                        |
+| `download`      | `dozzle_download`      | Download container logs as a file.                                                                 |
+| `notifications` | `dozzle_notifications` | Create and edit notification rules and destinations.                                               |
+| `cloud`         | `dozzle_cloud`         | Link, unlink and configure Dozzle Cloud.                                                           |
+| `all`           | `dozzle_all`           | Every role above. This is the default when `roles` is empty.                                       |
+| `none`          | `dozzle_none`          | No roles. Logs are still viewable, subject to the user's filter. Overrides anything else.          |
 
 Roles are separated by commas or pipes (`shell,actions` or `shell|actions`), and a JSON array works too (`["shell", "actions"]`). Names are case insensitive. The `dozzle_` prefixed aliases exist so group names from an identity provider can be passed through unchanged in forward proxy mode.
 
@@ -186,6 +187,7 @@ Any role can be prefixed with `^` to exclude it. Exclusions are applied last, so
 
 ```yaml
 roles: all,^shell # everything except shell
+roles: actions,^update # start, stop and restart, but never update an image
 ```
 
 `none` is the one role that cannot be negated. `^none` is ignored, and a plain `none` anywhere in the list drops every other role.

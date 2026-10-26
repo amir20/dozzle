@@ -1,7 +1,7 @@
 ---
 title: Autenticación simple
 description: Configura la autenticación simple de Dozzle con un archivo users.yml y limita con filtros y roles qué contenedores Docker ve cada usuario y qué puede hacer con ellos.
-sourceHash: cb83fd93f108
+sourceHash: 42be19df819b
 ---
 
 # <Icon icon="mdi:account-cog-outline" inline /> Autenticación simple
@@ -163,15 +163,16 @@ En este ejemplo, el usuario `admin` no tiene roles indicados, así que tiene acc
 
 Dozzle admite los siguientes roles:
 
-| Rol             | También aceptado       | Permite                                                                                             |
-| --------------- | ---------------------- | --------------------------------------------------------------------------------------------------- |
-| `shell`         | `dozzle_shell`         | Conectarse a un contenedor y abrir una sesión exec. La instancia también necesita `--enable-shell`. |
-| `actions`       | `dozzle_actions`       | Arrancar, parar y reiniciar contenedores. La instancia también necesita `--enable-actions`.         |
-| `download`      | `dozzle_download`      | Descargar los logs de un contenedor como archivo.                                                   |
-| `notifications` | `dozzle_notifications` | Crear y editar reglas y destinos de notificación.                                                   |
-| `cloud`         | `dozzle_cloud`         | Vincular, desvincular y configurar Dozzle Cloud.                                                    |
-| `all`           | `dozzle_all`           | Todos los roles anteriores. Es el valor por defecto cuando `roles` está vacío.                      |
-| `none`          | `dozzle_none`          | Ningún rol. Los logs siguen siendo visibles, según el filtro del usuario. Anula todo lo demás.      |
+| Rol             | También aceptado       | Permite                                                                                                       |
+| --------------- | ---------------------- | ------------------------------------------------------------------------------------------------------------- |
+| `shell`         | `dozzle_shell`         | Conectarse a un contenedor y abrir una sesión exec. La instancia también necesita `--enable-shell`.           |
+| `actions`       | `dozzle_actions`       | Arrancar, parar y reiniciar contenedores. Incluye `update`. La instancia también necesita `--enable-actions`. |
+| `update`        | `dozzle_update`        | Actualizar un contenedor a una imagen más reciente. Solo tiene efecto junto con `actions`.                    |
+| `download`      | `dozzle_download`      | Descargar los logs de un contenedor como archivo.                                                             |
+| `notifications` | `dozzle_notifications` | Crear y editar reglas y destinos de notificación.                                                             |
+| `cloud`         | `dozzle_cloud`         | Vincular, desvincular y configurar Dozzle Cloud.                                                              |
+| `all`           | `dozzle_all`           | Todos los roles anteriores. Es el valor por defecto cuando `roles` está vacío.                                |
+| `none`          | `dozzle_none`          | Ningún rol. Los logs siguen siendo visibles, según el filtro del usuario. Anula todo lo demás.                |
 
 Los roles se separan con comas o barras verticales (`shell,actions` o `shell|actions`), y también sirve un array JSON (`["shell", "actions"]`). Los nombres no distinguen mayúsculas de minúsculas. Los alias con prefijo `dozzle_` existen para que los nombres de grupo de un proveedor de identidad se puedan pasar tal cual en modo forward proxy.
 
@@ -187,6 +188,7 @@ Cualquier rol puede llevar el prefijo `^` para excluirlo. Las exclusiones se apl
 
 ```yaml
 roles: all,^shell # todo excepto shell
+roles: actions,^update # arrancar, parar y reiniciar, pero nunca actualizar una imagen
 ```
 
 `none` es el único rol que no se puede negar. `^none` se ignora, y un `none` a secas en cualquier punto de la lista descarta todos los demás roles.

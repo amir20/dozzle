@@ -49,7 +49,7 @@ func (h *handler) checkSelfUpdate(w http.ResponseWriter, r *http.Request) {
 func (h *handler) updateSelf(w http.ResponseWriter, r *http.Request) {
 	if h.config.Authorization.Provider != NONE {
 		user := auth.UserFromContext(r.Context())
-		if user == nil || !user.Roles.Has(auth.Actions) {
+		if user == nil || !user.Roles.Has(auth.Actions|auth.Update) {
 			log.Warn().Msg("user is not permitted to update dozzle")
 			http.Error(w, http.StatusText(http.StatusForbidden), http.StatusForbidden)
 			return
