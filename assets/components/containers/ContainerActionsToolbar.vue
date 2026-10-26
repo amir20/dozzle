@@ -179,6 +179,9 @@
           </span>
           {{ $t("toolbar.update-available") }}
         </li>
+        <li v-if="imageUpdateResult?.latestVersion" class="pointer-events-none">
+          <ImageUpdateVersions :result="imageUpdateResult" />
+        </li>
         <li v-if="isSelfContainer">
           <a :href="releaseNotesUrl" target="_blank" rel="noreferrer noopener">
             <mdi:script-text-outline /> {{ $t("toolbar.view-release-notes") }}

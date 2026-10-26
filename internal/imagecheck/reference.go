@@ -83,6 +83,11 @@ func (r Reference) manifestURL() string {
 	return fmt.Sprintf("%s://%s/v2/%s/manifests/%s", r.scheme(), r.host(), r.Repository, target)
 }
 
+// blobURL is the v2 blob endpoint for a digest in this repository.
+func (r Reference) blobURL(digest string) string {
+	return fmt.Sprintf("%s://%s/v2/%s/blobs/%s", r.scheme(), r.host(), r.Repository, digest)
+}
+
 // ParseReference splits an image reference into its registry, repository and
 // tag/digest parts, applying Docker's implicit defaults.
 func ParseReference(ref string) (Reference, error) {

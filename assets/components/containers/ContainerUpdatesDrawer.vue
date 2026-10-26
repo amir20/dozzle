@@ -75,6 +75,7 @@
                   <span class="text-base-content/40"> · {{ container.hostLabel }}</span>
                 </template>
               </div>
+              <ImageUpdateVersions :result="resultFor(container)" class="mt-0.5" />
               <div v-if="container.state !== 'running'" class="text-base-content/60 mt-1 text-xs">
                 {{ $t("error.start-container-first") }}
               </div>
@@ -154,7 +155,7 @@ const { focus } = defineProps<{ focus?: string }>();
 
 const { containers } = storeToRefs(useContainerStore()) as unknown as { containers: Ref<Container[]> };
 const { hosts } = useHosts();
-const { checkAll, checking, hasUpdate, isSelf } = useImageUpdates();
+const { checkAll, checking, hasUpdate, isSelf, resultFor } = useImageUpdates();
 const { job, running, start, hold } = useBulkUpdate();
 
 // Watching for as long as the drawer is open, so a job started elsewhere (the

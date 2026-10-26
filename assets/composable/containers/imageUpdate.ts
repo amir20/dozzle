@@ -10,6 +10,11 @@ export interface ImageUpdateResult {
   remoteDigest?: string;
   checkedAt: string;
   reason?: string;
+  // What the running and the newer image declare in
+  // org.opencontainers.image.version. Only set for an available update, and
+  // either may be missing.
+  currentVersion?: string;
+  latestVersion?: string;
 }
 
 // Results are shared across every consumer of a container so the toolbar and
@@ -90,6 +95,15 @@ export function canUpdate(container: Container) {
     offerable(container) &&
     container.state === "running"
   );
+}
+
+// "1.0 → 1.1" for the notification, which is HTML. Image versions are
+// arbitrary strings from a registry, so they are escaped.
+function versionsHtml(result?: ImageUpdateResult) {
+  if (!result?.latestVersion) return "";
+  const latest = escapeHtml(result.latestVersion);
+  const versions = result.currentVersion ? `${escapeHtml(result.currentVersion)} &rarr; ${latest}` : latest;
+  return `<span class="font-mono text-xs">${versions}</span>`;
 }
 
 const checkingAll = ref(false);
@@ -225,6 +239,8 @@ export const useImageUpdate = (container: Ref<Container>, historical: Ref<boolea
       // rendered as HTML so it can carry a docs link. Image names are
       // arbitrary strings, in k8s especially.
       let message = t("alert.image-update.message", { image: escapeHtml(container.value.image) });
+      const versions = versionsHtml(result.value);
+      if (versions) message += `<br>${versions}`;
       // Kubernetes rolls images out through the workload, so turning actions
       // on would not give this pod an update button.
       if (!config.enableActions && config.mode !== "k8s") {

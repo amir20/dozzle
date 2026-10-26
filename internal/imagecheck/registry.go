@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
+	"strconv"
 	"strings"
 	"sync"
 	"time"
@@ -33,7 +34,21 @@ var (
 	ErrNotFound = errors.New("image not found in registry")
 	// ErrRateLimited means the registry asked us to back off.
 	ErrRateLimited = errors.New("registry rate limited the request")
+	// ErrLowQuota means a version lookup was skipped because the registry's
+	// pull allowance is nearly spent. Those pulls are better left for the
+	// update itself.
+	ErrLowQuota = errors.New("registry pull allowance is low")
 )
+
+// minPullsLeft is how many pulls a registry must still allow before a version
+// lookup may spend one. Updating a container needs pulls too.
+const minPullsLeft = 20
+
+type pullQuota struct {
+	remaining int
+	window    time.Duration
+	seenAt    time.Time
+}
 
 type cachedToken struct {
 	token     string
@@ -47,12 +62,15 @@ type Registry struct {
 
 	mu     sync.Mutex
 	tokens map[string]cachedToken
+	// quotas is the pull allowance each registry last reported, by host.
+	quotas map[string]pullQuota
 }
 
 func NewRegistry(timeout time.Duration) *Registry {
 	return &Registry{
 		client: &http.Client{Timeout: timeout},
 		tokens: make(map[string]cachedToken),
+		quotas: make(map[string]pullQuota),
 	}
 }
 
@@ -62,34 +80,9 @@ func NewRegistry(timeout time.Duration) *Registry {
 func (r *Registry) Digest(ctx context.Context, ref Reference) (string, error) {
 	log.Debug().Str("url", ref.manifestURL()).Msg("image update check: HEAD manifest")
 
-	resp, err := r.head(ctx, ref, "")
+	resp, err := r.send(ctx, ref, http.MethodHead, ref.manifestURL(), acceptManifests)
 	if err != nil {
-		log.Debug().Err(err).Str("url", ref.manifestURL()).Msg("image update check: manifest request failed")
 		return "", err
-	}
-
-	// An anonymous HEAD is enough for registries that serve public images
-	// without a token (for example mcr.microsoft.com).
-	if resp.StatusCode == http.StatusUnauthorized {
-		challenge := resp.Header.Get("WWW-Authenticate")
-		resp.Body.Close()
-
-		log.Debug().
-			Str("repository", ref.Repository).
-			Str("challenge", challenge).
-			Msg("image update check: registry asked for a token")
-
-		token, err := r.token(ctx, ref, challenge)
-		if err != nil {
-			log.Debug().Err(err).Str("repository", ref.Repository).Msg("image update check: could not get a token")
-			return "", err
-		}
-
-		resp, err = r.head(ctx, ref, token)
-		if err != nil {
-			log.Debug().Err(err).Str("url", ref.manifestURL()).Msg("image update check: retry with token failed")
-			return "", err
-		}
 	}
 	defer resp.Body.Close()
 
@@ -99,16 +92,8 @@ func (r *Registry) Digest(ctx context.Context, ref Reference) (string, error) {
 		Str("contentType", resp.Header.Get("Content-Type")).
 		Msg("image update check: manifest response")
 
-	switch resp.StatusCode {
-	case http.StatusOK:
-	case http.StatusUnauthorized, http.StatusForbidden:
-		return "", ErrAuthRequired
-	case http.StatusNotFound:
-		return "", ErrNotFound
-	case http.StatusTooManyRequests:
-		return "", ErrRateLimited
-	default:
-		return "", fmt.Errorf("registry returned %s for %s", resp.Status, ref.Repository)
+	if err := statusError(resp, ref); err != nil {
+		return "", err
 	}
 
 	digest := resp.Header.Get("Docker-Content-Digest")
@@ -121,17 +106,114 @@ func (r *Registry) Digest(ctx context.Context, ref Reference) (string, error) {
 	return digest, nil
 }
 
-func (r *Registry) head(ctx context.Context, ref Reference, token string) (*http.Response, error) {
-	req, err := http.NewRequestWithContext(ctx, http.MethodHead, ref.manifestURL(), nil)
+// send makes one registry request, fetching a token and retrying once when the
+// registry asks for one. An anonymous request is enough for registries that
+// serve public images without a token (for example mcr.microsoft.com).
+func (r *Registry) send(ctx context.Context, ref Reference, method, target, accept string) (resp *http.Response, err error) {
+	defer func() {
+		if resp != nil {
+			r.noteQuota(ref, resp)
+		}
+	}()
+
+	resp, err = r.request(ctx, method, target, accept, "")
+	if err != nil {
+		log.Debug().Err(err).Str("url", target).Msg("image update check: registry request failed")
+		return nil, err
+	}
+
+	if resp.StatusCode != http.StatusUnauthorized {
+		return resp, nil
+	}
+
+	challenge := resp.Header.Get("WWW-Authenticate")
+	resp.Body.Close()
+
+	log.Debug().
+		Str("repository", ref.Repository).
+		Str("challenge", challenge).
+		Msg("image update check: registry asked for a token")
+
+	token, err := r.token(ctx, ref, challenge)
+	if err != nil {
+		log.Debug().Err(err).Str("repository", ref.Repository).Msg("image update check: could not get a token")
+		return nil, err
+	}
+
+	resp, err = r.request(ctx, method, target, accept, token)
+	if err != nil {
+		log.Debug().Err(err).Str("url", target).Msg("image update check: retry with token failed")
+		return nil, err
+	}
+	return resp, nil
+}
+
+func (r *Registry) request(ctx context.Context, method, target, accept, token string) (*http.Response, error) {
+	req, err := http.NewRequestWithContext(ctx, method, target, nil)
 	if err != nil {
 		return nil, err
 	}
-	req.Header.Set("Accept", acceptManifests)
+	if accept != "" {
+		req.Header.Set("Accept", accept)
+	}
 	if token != "" {
 		req.Header.Set("Authorization", "Bearer "+token)
 	}
 
 	return r.client.Do(req)
+}
+
+// noteQuota records the pull allowance a registry reports. Docker Hub sends it
+// on every manifest response, HEADs included, so it is known before a single
+// pull is spent. Registries that do not send it are never held back.
+func (r *Registry) noteQuota(ref Reference, resp *http.Response) {
+	header := resp.Header.Get("RateLimit-Remaining")
+	if header == "" {
+		return
+	}
+
+	// "100;w=3600": pulls left, then the window in seconds.
+	count, params, _ := strings.Cut(header, ";")
+	remaining, err := strconv.Atoi(strings.TrimSpace(count))
+	if err != nil {
+		return
+	}
+	window := 6 * time.Hour
+	if seconds, found := strings.CutPrefix(strings.TrimSpace(params), "w="); found {
+		if n, err := strconv.Atoi(seconds); err == nil && n > 0 {
+			window = time.Duration(n) * time.Second
+		}
+	}
+
+	r.mu.Lock()
+	r.quotas[ref.host()] = pullQuota{remaining: remaining, window: window, seenAt: time.Now()}
+	r.mu.Unlock()
+}
+
+// quotaLow reports whether ref's registry recently said it has few pulls left.
+// Once the window it reported has passed, the allowance has refilled.
+func (r *Registry) quotaLow(ref Reference) bool {
+	r.mu.Lock()
+	defer r.mu.Unlock()
+
+	q, ok := r.quotas[ref.host()]
+	return ok && time.Since(q.seenAt) < q.window && q.remaining < minPullsLeft
+}
+
+// statusError maps a registry response status to the errors callers act on.
+func statusError(resp *http.Response, ref Reference) error {
+	switch resp.StatusCode {
+	case http.StatusOK:
+		return nil
+	case http.StatusUnauthorized, http.StatusForbidden:
+		return ErrAuthRequired
+	case http.StatusNotFound:
+		return ErrNotFound
+	case http.StatusTooManyRequests:
+		return ErrRateLimited
+	default:
+		return fmt.Errorf("registry returned %s for %s", resp.Status, ref.Repository)
+	}
 }
 
 // token fetches (and caches) a bearer token for ref by following the realm

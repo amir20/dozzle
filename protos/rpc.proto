@@ -188,6 +188,8 @@ message CheckImageUpdateResponse {
   string remoteDigest = 4;
   int64 checkedAt = 5;
   string reason = 6;
+  string currentVersion = 7;
+  string latestVersion = 8;
 }
 
 message ContainerExecRequest {

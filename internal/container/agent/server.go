@@ -477,12 +477,14 @@ func (s *server) CheckImageUpdate(ctx context.Context, req *pb.CheckImageUpdateR
 	}
 
 	return &pb.CheckImageUpdateResponse{
-		Status:       string(result.Status),
-		Image:        result.Image,
-		LocalDigest:  result.LocalDigest,
-		RemoteDigest: result.RemoteDigest,
-		CheckedAt:    result.CheckedAt.UnixNano(),
-		Reason:       result.Reason,
+		Status:         string(result.Status),
+		Image:          result.Image,
+		LocalDigest:    result.LocalDigest,
+		RemoteDigest:   result.RemoteDigest,
+		CheckedAt:      result.CheckedAt.UnixNano(),
+		Reason:         result.Reason,
+		CurrentVersion: result.CurrentVersion,
+		LatestVersion:  result.LatestVersion,
 	}, nil
 }
 

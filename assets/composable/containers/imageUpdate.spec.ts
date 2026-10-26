@@ -280,6 +280,27 @@ describe("useImageUpdate", () => {
     expect(holder.toasts[0].message).toContain("&lt;img");
   });
 
+  test("names the versions in the notification, escaped", async () => {
+    holder.showAlertSetting!.value = true;
+    mockCheck({
+      status: "update-available",
+      remoteDigest: "sha256:new",
+      currentVersion: "1.0",
+      latestVersion: "<b>1.1</b>",
+    });
+    await run(container());
+
+    expect(holder.toasts[0].message).toContain("1.0 &rarr; &lt;b&gt;1.1&lt;/b&gt;");
+  });
+
+  test("leaves versions out of the notification when the image declares none", async () => {
+    holder.showAlertSetting!.value = true;
+    mockCheck({ status: "update-available", remoteDigest: "sha256:new" });
+    await run(container());
+
+    expect(holder.toasts[0].message).not.toContain("&rarr;");
+  });
+
   test("a failed check does not surface an alert", async () => {
     vi.stubGlobal("fetch", vi.fn().mockRejectedValue(new Error("network down")));
 
