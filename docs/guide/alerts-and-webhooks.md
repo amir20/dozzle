@@ -77,11 +77,7 @@ You can also write your own payload template using Go's `text/template` syntax. 
 | `{{.Subscription.Name}}`  | Alert rule name                        |
 | `{{.Timestamp}}`          | Time the notification was created      |
 
-</div>
-
 `{{.Timestamp}}` prints in Go's default time format, which services like Discord reject. Format it as ISO 8601 instead:
-
-<div v-pre>
 
 ```json
 {

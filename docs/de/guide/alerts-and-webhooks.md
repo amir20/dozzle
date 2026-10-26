@@ -1,7 +1,7 @@
 ---
 title: Alarme
 description: Richte in Dozzle Alarme für Docker-Container-Logs, CPU- und Speichermetriken sowie Lebenszyklus-Ereignisse ein und sende sie an einen Webhook, Slack, Discord oder ntfy.
-sourceHash: 9f9a3cdca229
+sourceHash: 477c4baff2bc
 ---
 
 # Alarme
@@ -78,11 +78,7 @@ Du kannst auch ein eigenes Payload-Template mit der `text/template`-Syntax von G
 | `{{.Subscription.Name}}`  | Name der Alarmregel                           |
 | `{{.Timestamp}}`          | Erstellungszeitpunkt der Benachrichtigung     |
 
-</div>
-
 `{{.Timestamp}}` wird im Standard-Zeitformat von Go ausgegeben, das Dienste wie Discord ablehnen. Formatiere ihn stattdessen als ISO 8601:
-
-<div v-pre>
 
 ```json
 {
