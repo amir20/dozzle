@@ -27,9 +27,11 @@ func RingBufferFrom[T any](size int, data []T) *RingBuffer[T] {
 	if len(data) > size {
 		data = data[len(data)-size:]
 	}
+	owned := make([]T, len(data), size)
+	copy(owned, data)
 	return &RingBuffer[T]{
 		Size:  size,
-		data:  data,
+		data:  owned,
 		start: 0,
 	}
 }

@@ -57,13 +57,11 @@ func TestRingBuffer_ConcurrentMarshalJSON(t *testing.T) {
 		rb.Push(i)
 	}
 	var wg sync.WaitGroup
-	wg.Add(1)
-	go func() {
-		defer wg.Done()
+	wg.Go(func() {
 		for i := range 1000 {
 			rb.Push(i)
 		}
-	}()
+	})
 	defer wg.Wait()
 	for range 1000 {
 		if _, err := rb.MarshalJSON(); err != nil {
@@ -120,5 +118,16 @@ func TestRingBuffer_Clear(t *testing.T) {
 	expectedData := []int{}
 	if !reflect.DeepEqual(data, expectedData) {
 		t.Errorf("Expected data to be %v, got %v", expectedData, data)
+	}
+}
+
+func TestRingBufferFrom_CopiesInput(t *testing.T) {
+	src := make([]int, 2, 10)
+	src[0], src[1] = 1, 2
+	rb := RingBufferFrom(3, src)
+	rb.Push(3)
+	src[0] = -1
+	if got := rb.Data(); !reflect.DeepEqual(got, []int{1, 2, 3}) {
+		t.Fatalf("buffer shares storage with input: got %v", got)
 	}
 }
