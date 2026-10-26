@@ -2,7 +2,7 @@ module github.com/amir20/dozzle
 
 require (
 	github.com/alexflint/go-arg v1.6.1
-	github.com/andybalholm/brotli v1.2.6
+	github.com/andybalholm/brotli v1.2.7
 	github.com/containerd/errdefs v1.0.0
 	github.com/dustin/go-humanize v1.1.0
 	github.com/expr-lang/expr v1.17.8
