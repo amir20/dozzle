@@ -157,6 +157,9 @@ const ALIASES: Record<string, string> = {
   larapaper: "trmnl",
   "proxmox-backup-server": "proxmox",
   airflow: "apache-airflow",
+  collabora: "collabora-office",
+  code: "collabora-office", // alias for collabora/code
+  "whats-up-docker": "wud"
 };
 
 const stripSuffix = (name: string) => {
