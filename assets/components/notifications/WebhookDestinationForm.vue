@@ -399,8 +399,11 @@ registerGuard(() => {
   return false;
 });
 
-function discard() {
+// The drawer reads the guard as a prop, which only updates on the next render. Closing in
+// the same tick would hit the old guard and reopen the confirm, so wait for it to clear.
+async function discard() {
   registerGuard(null);
+  await nextTick();
   props.close?.();
 }
 </script>
