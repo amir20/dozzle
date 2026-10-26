@@ -251,3 +251,14 @@ func TestWithVersionsReason(t *testing.T) {
 		})
 	}
 }
+
+// A plain "version" on the container may be the user's own compose label, so
+// the running version is read from the registry instead.
+func TestWithVersionsIgnoresPlainVersionOnContainer(t *testing.T) {
+	checker, _, host := newTestChecker(t, time.Minute, withVersionsRegistry(""))
+	result := checker.Check(context.Background(), host+"/app:latest", []string{host + "/app@sha256:old"}, false)
+
+	result = checker.WithVersions(context.Background(), result, map[string]string{"version": "compose-label"})
+
+	assert.Equal(t, "1.0", result.CurrentVersion)
+}

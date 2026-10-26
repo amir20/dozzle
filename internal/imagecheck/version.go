@@ -19,8 +19,9 @@ import (
 const VersionLabel = "org.opencontainers.image.version"
 
 // fallbackVersionLabel is the plain key some images (Collabora, for one) set
-// instead of the OCI one. Only labels are read for it: annotations are always
-// OCI keys.
+// instead of the OCI one. It is read only from an image config fetched from the
+// registry: annotations are always OCI keys, and a container's labels also
+// carry whatever its compose file sets, where "version" is a common key.
 const fallbackVersionLabel = "version"
 
 // Why a result with an update carries no latest version, so the UI can say so
@@ -214,7 +215,7 @@ func (c *Checker) WithVersions(ctx context.Context, result Result, labels map[st
 
 	// Without the latest there is nothing to compare against, so the running
 	// version is only worth a request once the latest is known.
-	result.CurrentVersion = labelVersion(labels)
+	result.CurrentVersion = labels[VersionLabel]
 	if result.CurrentVersion == "" && result.LocalDigest != "" {
 		result.CurrentVersion, err = c.version(ctx, result.Image, result.LocalDigest)
 		if err != nil {
