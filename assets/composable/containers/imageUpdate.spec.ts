@@ -293,6 +293,29 @@ describe("useImageUpdate", () => {
     expect(holder.toasts[0].message).toContain("1.0 &rarr; &lt;b&gt;1.1&lt;/b&gt;");
   });
 
+  // A tag rebuilt in place (new base image, same release) keeps its version.
+  test("marks a rebuild of the same version in the notification", async () => {
+    holder.showAlertSetting!.value = true;
+    mockCheck({
+      status: "update-available",
+      remoteDigest: "sha256:new",
+      currentVersion: "35.0.2-apache",
+      latestVersion: "35.0.2-apache",
+    });
+    await run(container());
+
+    expect(holder.toasts[0].message).toContain("35.0.2-apache (updates.version.rebuilt)");
+    expect(holder.toasts[0].message).not.toContain("&rarr;");
+  });
+
+  test("says why the version is unknown in the notification", async () => {
+    holder.showAlertSetting!.value = true;
+    mockCheck({ status: "update-available", remoteDigest: "sha256:new", versionReason: "rate-limited" });
+    await run(container());
+
+    expect(holder.toasts[0].message).toContain("updates.version.unknown");
+  });
+
   test("leaves versions out of the notification when the image declares none", async () => {
     holder.showAlertSetting!.value = true;
     mockCheck({ status: "update-available", remoteDigest: "sha256:new" });

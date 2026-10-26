@@ -1613,6 +1613,7 @@ type CheckImageUpdateResponse struct {
 	Reason         string                 `protobuf:"bytes,6,opt,name=reason,proto3" json:"reason,omitempty"`
 	CurrentVersion string                 `protobuf:"bytes,7,opt,name=currentVersion,proto3" json:"currentVersion,omitempty"`
 	LatestVersion  string                 `protobuf:"bytes,8,opt,name=latestVersion,proto3" json:"latestVersion,omitempty"`
+	VersionReason  string                 `protobuf:"bytes,9,opt,name=versionReason,proto3" json:"versionReason,omitempty"`
 	unknownFields  protoimpl.UnknownFields
 	sizeCache      protoimpl.SizeCache
 }
@@ -1699,6 +1700,13 @@ func (x *CheckImageUpdateResponse) GetCurrentVersion() string {
 func (x *CheckImageUpdateResponse) GetLatestVersion() string {
 	if x != nil {
 		return x.LatestVersion
+	}
+	return ""
+}
+
+func (x *CheckImageUpdateResponse) GetVersionReason() string {
+	if x != nil {
+		return x.VersionReason
 	}
 	return ""
 }
@@ -2532,7 +2540,7 @@ const file_rpc_proto_rawDesc = "" +
 	"rolledBack\"Q\n" +
 	"\x17CheckImageUpdateRequest\x12 \n" +
 	"\vcontainerId\x18\x01 \x01(\tR\vcontainerId\x12\x14\n" +
-	"\x05force\x18\x02 \x01(\bR\x05force\"\x92\x02\n" +
+	"\x05force\x18\x02 \x01(\bR\x05force\"\xb8\x02\n" +
 	"\x18CheckImageUpdateResponse\x12\x16\n" +
 	"\x06status\x18\x01 \x01(\tR\x06status\x12\x14\n" +
 	"\x05image\x18\x02 \x01(\tR\x05image\x12 \n" +
@@ -2541,7 +2549,8 @@ const file_rpc_proto_rawDesc = "" +
 	"\tcheckedAt\x18\x05 \x01(\x03R\tcheckedAt\x12\x16\n" +
 	"\x06reason\x18\x06 \x01(\tR\x06reason\x12&\n" +
 	"\x0ecurrentVersion\x18\a \x01(\tR\x0ecurrentVersion\x12$\n" +
-	"\rlatestVersion\x18\b \x01(\tR\rlatestVersion\"\xa8\x01\n" +
+	"\rlatestVersion\x18\b \x01(\tR\rlatestVersion\x12$\n" +
+	"\rversionReason\x18\t \x01(\tR\rversionReason\"\xa8\x01\n" +
 	"\x14ContainerExecRequest\x12 \n" +
 	"\vcontainerId\x18\x01 \x01(\tR\vcontainerId\x12\x18\n" +
 	"\acommand\x18\x02 \x03(\tR\acommand\x12\x16\n" +

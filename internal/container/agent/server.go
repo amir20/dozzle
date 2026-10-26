@@ -485,6 +485,7 @@ func (s *server) CheckImageUpdate(ctx context.Context, req *pb.CheckImageUpdateR
 		Reason:         result.Reason,
 		CurrentVersion: result.CurrentVersion,
 		LatestVersion:  result.LatestVersion,
+		VersionReason:  result.VersionReason,
 	}, nil
 }
 

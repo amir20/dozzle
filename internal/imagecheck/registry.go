@@ -107,8 +107,10 @@ func (r *Registry) Digest(ctx context.Context, ref Reference) (string, error) {
 }
 
 // send makes one registry request, fetching a token and retrying once when the
-// registry asks for one. An anonymous request is enough for registries that
-// serve public images without a token (for example mcr.microsoft.com).
+// registry asks for one. A token already held for the repository goes on the
+// first request, so only the first request per token pays for the 401. An
+// anonymous request is enough for registries that serve public images without
+// a token (for example mcr.microsoft.com).
 func (r *Registry) send(ctx context.Context, ref Reference, method, target, accept string) (resp *http.Response, err error) {
 	defer func() {
 		if resp != nil {
@@ -116,7 +118,8 @@ func (r *Registry) send(ctx context.Context, ref Reference, method, target, acce
 		}
 	}()
 
-	resp, err = r.request(ctx, method, target, accept, "")
+	cached := r.cachedToken(ref)
+	resp, err = r.request(ctx, method, target, accept, cached)
 	if err != nil {
 		log.Debug().Err(err).Str("url", target).Msg("image update check: registry request failed")
 		return nil, err
@@ -128,6 +131,12 @@ func (r *Registry) send(ctx context.Context, ref Reference, method, target, acce
 
 	challenge := resp.Header.Get("WWW-Authenticate")
 	resp.Body.Close()
+
+	// The registry refused the token it issued (revoked, or its clock runs
+	// ahead of ours), so it is not offered again.
+	if cached != "" {
+		r.dropToken(ref)
+	}
 
 	log.Debug().
 		Str("repository", ref.Repository).
@@ -220,16 +229,6 @@ func statusError(resp *http.Response, ref Reference) error {
 // advertised in the registry's 401 challenge. This keeps the client generic
 // across Docker Hub, ghcr.io, quay.io and self-hosted registries.
 func (r *Registry) token(ctx context.Context, ref Reference, challenge string) (string, error) {
-	key := ref.host() + "/" + ref.Repository
-
-	r.mu.Lock()
-	if cached, ok := r.tokens[key]; ok && time.Now().Before(cached.expiresAt) {
-		r.mu.Unlock()
-		log.Debug().Str("repository", ref.Repository).Msg("image update check: reusing cached token")
-		return cached.token, nil
-	}
-	r.mu.Unlock()
-
 	realm, service := parseChallenge(challenge)
 	if realm == "" {
 		return "", ErrAuthRequired
@@ -303,10 +302,31 @@ func (r *Registry) token(ctx context.Context, ref Reference, challenge string) (
 
 	r.mu.Lock()
 	// Expire the token a little early so a request never races the deadline.
-	r.tokens[key] = cachedToken{token: token, expiresAt: time.Now().Add(ttl - 10*time.Second)}
+	r.tokens[tokenKey(ref)] = cachedToken{token: token, expiresAt: time.Now().Add(ttl - 10*time.Second)}
 	r.mu.Unlock()
 
 	return token, nil
+}
+
+func tokenKey(ref Reference) string {
+	return ref.host() + "/" + ref.Repository
+}
+
+// cachedToken returns the unexpired token held for ref's repository, or "".
+func (r *Registry) cachedToken(ref Reference) string {
+	r.mu.Lock()
+	defer r.mu.Unlock()
+
+	if cached, ok := r.tokens[tokenKey(ref)]; ok && time.Now().Before(cached.expiresAt) {
+		return cached.token
+	}
+	return ""
+}
+
+func (r *Registry) dropToken(ref Reference) {
+	r.mu.Lock()
+	delete(r.tokens, tokenKey(ref))
+	r.mu.Unlock()
 }
 
 // validateRealm restricts where a registry can send us for a token.

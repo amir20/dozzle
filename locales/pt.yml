@@ -434,6 +434,13 @@ updates:
     rolled-back: Revertido
     up-to-date: Em dia
     error: Falhou
+  version:
+    rebuilt: reconstruída
+    unknown: Versão desconhecida ({reason})
+    undeclared: a imagem não declara nenhuma
+    rate-limited: limite de requisições do registro
+    auth: o registro exige login
+    failed: falha na consulta
 drawer:
   maximize: Maximizar
   restore: Restaurar

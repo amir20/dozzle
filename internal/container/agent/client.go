@@ -644,6 +644,7 @@ func (c *Client) CheckImageUpdate(ctx context.Context, containerID string, force
 		Reason:         resp.Reason,
 		CurrentVersion: resp.CurrentVersion,
 		LatestVersion:  resp.LatestVersion,
+		VersionReason:  resp.VersionReason,
 	}, nil
 }
 

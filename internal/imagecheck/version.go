@@ -18,6 +18,38 @@ import (
 // read from manifest annotations first and the image config's labels last.
 const VersionLabel = "org.opencontainers.image.version"
 
+// fallbackVersionLabel is the plain key some images (Collabora, for one) set
+// instead of the OCI one. Only labels are read for it: annotations are always
+// OCI keys.
+const fallbackVersionLabel = "version"
+
+// Why a result with an update carries no latest version, so the UI can say so
+// rather than look broken.
+const (
+	VersionUndeclared  = "undeclared"
+	VersionRateLimited = "rate-limited"
+	VersionAuth        = "auth"
+	VersionFailed      = "failed"
+)
+
+func labelVersion(labels map[string]string) string {
+	if v := labels[VersionLabel]; v != "" {
+		return v
+	}
+	return labels[fallbackVersionLabel]
+}
+
+func versionReason(err error) string {
+	switch {
+	case errors.Is(err, ErrRateLimited), errors.Is(err, ErrLowQuota):
+		return VersionRateLimited
+	case errors.Is(err, ErrAuthRequired):
+		return VersionAuth
+	default:
+		return VersionFailed
+	}
+}
+
 // maxDocumentSize caps how much of a manifest or image config is read. Real
 // ones are a few kilobytes.
 const maxDocumentSize = 4 << 20
@@ -148,7 +180,7 @@ func (r *Registry) configVersion(ctx context.Context, ref Reference, digest stri
 		return "", fmt.Errorf("invalid image config for %s: %w", ref.Repository, err)
 	}
 
-	return config.Config.Labels[VersionLabel], nil
+	return labelVersion(config.Config.Labels), nil
 }
 
 type versionEntry struct {
@@ -170,14 +202,20 @@ func (c *Checker) WithVersions(ctx context.Context, result Result, labels map[st
 	latest, err := c.version(ctx, result.Image, result.RemoteDigest)
 	if err != nil {
 		log.Debug().Err(err).Str("image", result.Image).Msg("image version: could not read latest")
+		result.VersionReason = versionReason(err)
+		return result
+	}
+	if latest == "" {
+		log.Debug().Str("image", result.Image).Msg("image version: image declares no version")
+		result.VersionReason = VersionUndeclared
 		return result
 	}
 	result.LatestVersion = latest
 
 	// Without the latest there is nothing to compare against, so the running
 	// version is only worth a request once the latest is known.
-	result.CurrentVersion = labels[VersionLabel]
-	if result.CurrentVersion == "" && latest != "" && result.LocalDigest != "" {
+	result.CurrentVersion = labelVersion(labels)
+	if result.CurrentVersion == "" && result.LocalDigest != "" {
 		result.CurrentVersion, err = c.version(ctx, result.Image, result.LocalDigest)
 		if err != nil {
 			log.Debug().Err(err).Str("image", result.Image).Msg("image version: could not read current")

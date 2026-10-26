@@ -436,6 +436,13 @@ updates:
     rolled-back: 롤백됨
     up-to-date: 최신
     error: 실패
+  version:
+    rebuilt: 재빌드됨
+    unknown: 버전 알 수 없음 ({reason})
+    undeclared: 이미지에 버전 정보 없음
+    rate-limited: 레지스트리 요청 한도 초과
+    auth: 레지스트리 로그인 필요
+    failed: 조회 실패
 drawer:
   maximize: 최대화
   restore: 복원

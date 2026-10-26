@@ -179,7 +179,7 @@
           </span>
           {{ $t("toolbar.update-available") }}
         </li>
-        <li v-if="imageUpdateResult?.latestVersion" class="pointer-events-none">
+        <li v-if="imageUpdateResult?.latestVersion || imageUpdateResult?.versionReason" class="pointer-events-none">
           <ImageUpdateVersions :result="imageUpdateResult" />
         </li>
         <li v-if="isSelfContainer">

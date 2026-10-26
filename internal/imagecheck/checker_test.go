@@ -193,6 +193,53 @@ func TestTokenAuthFlow(t *testing.T) {
 	assert.True(t, authorized.Load(), "expected the retry to carry a bearer token")
 }
 
+// A token already held goes on the first request, so the registry's 401 is
+// paid once per token rather than once per request.
+func TestTokenReusedWithoutChallenge(t *testing.T) {
+	var challenges atomic.Int32
+	checker, _, host := newTestChecker(t, time.Minute, func(w http.ResponseWriter, r *http.Request) {
+		switch {
+		case r.URL.Path == "/token":
+			w.Write([]byte(`{"token":"secret","expires_in":300}`))
+		case r.Header.Get("Authorization") == "Bearer secret":
+			w.Header().Set("Docker-Content-Digest", "sha256:aaa")
+		default:
+			challenges.Add(1)
+			w.Header().Set("WWW-Authenticate", `Bearer realm="https://`+r.Host+`/token",service="test"`)
+			w.WriteHeader(http.StatusUnauthorized)
+		}
+	})
+
+	for range 3 {
+		result := checker.Check(context.Background(), host+"/app:latest", []string{host + "/app@sha256:aaa"}, true)
+		assert.Equal(t, StatusUpToDate, result.Status)
+	}
+	assert.Equal(t, int32(1), challenges.Load())
+}
+
+// A token the registry stops accepting is dropped and a fresh one fetched.
+func TestRejectedTokenIsReplaced(t *testing.T) {
+	var issued atomic.Int32
+	checker, _, host := newTestChecker(t, time.Minute, func(w http.ResponseWriter, r *http.Request) {
+		switch {
+		case r.URL.Path == "/token":
+			fmt.Fprintf(w, `{"token":"secret-%d","expires_in":300}`, issued.Add(1))
+		case r.Header.Get("Authorization") == "Bearer secret-2":
+			w.Header().Set("Docker-Content-Digest", "sha256:aaa")
+		default:
+			w.Header().Set("WWW-Authenticate", `Bearer realm="https://`+r.Host+`/token",service="test"`)
+			w.WriteHeader(http.StatusUnauthorized)
+		}
+	})
+
+	first := checker.Check(context.Background(), host+"/app:latest", []string{host + "/app@sha256:aaa"}, true)
+	assert.Equal(t, StatusAuthRequired, first.Status)
+
+	second := checker.Check(context.Background(), host+"/app:latest", []string{host + "/app@sha256:aaa"}, true)
+	assert.Equal(t, StatusUpToDate, second.Status)
+	assert.Equal(t, int32(2), issued.Load())
+}
+
 // ghcr.io returns access_token where Docker Hub returns token.
 func TestTokenAuthAcceptsAccessToken(t *testing.T) {
 	checker, _, host := newTestChecker(t, time.Minute, func(w http.ResponseWriter, r *http.Request) {

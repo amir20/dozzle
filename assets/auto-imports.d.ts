@@ -682,7 +682,7 @@ declare global {
   export type { UpdateProgress } from './composable/containers/containerActions'
   import('./composable/containers/containerActions')
   // @ts-ignore
-  export type { ImageUpdateStatus, ImageUpdateResult } from './composable/containers/imageUpdate'
+  export type { ImageUpdateStatus, ImageUpdateResult, ImageVersionReason } from './composable/containers/imageUpdate'
   import('./composable/containers/imageUpdate')
   // @ts-ignore
   export type { K8sWorkload } from './composable/containers/rolloutRestart'

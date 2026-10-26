@@ -75,6 +75,9 @@ type Result struct {
 	// update is available, and either may be empty.
 	CurrentVersion string `json:"currentVersion,omitempty"`
 	LatestVersion  string `json:"latestVersion,omitempty"`
+	// VersionReason says why an available update has no LatestVersion: one
+	// of the Version* constants.
+	VersionReason string `json:"versionReason,omitempty"`
 }
 
 // UpdateAvailable is a convenience for callers that only care about the alert.

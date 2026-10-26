@@ -190,6 +190,7 @@ message CheckImageUpdateResponse {
   string reason = 6;
   string currentVersion = 7;
   string latestVersion = 8;
+  string versionReason = 9;
 }
 
 message ContainerExecRequest {

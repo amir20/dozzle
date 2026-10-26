@@ -201,3 +201,53 @@ func TestWithVersionsSkipsWhenQuotaIsLow(t *testing.T) {
 
 	assert.Equal(t, "1.1", result.LatestVersion)
 }
+
+// Some images (Collabora, for one) label their release with a plain
+// "version" instead of the OCI key.
+func TestVersionFromFallbackLabel(t *testing.T) {
+	checker, _, host := newTestChecker(t, time.Minute, fakeRegistry(map[string]any{
+		"sha256:image": map[string]any{
+			"mediaType": "application/vnd.oci.image.manifest.v1+json",
+			"config":    map[string]string{"digest": "sha256:config"},
+		},
+		"sha256:config": map[string]any{
+			"config": map[string]any{"Labels": map[string]string{"version": "26.04.5.2"}},
+		},
+	}))
+
+	version, err := checker.version(context.Background(), host+"/app:latest", "sha256:image")
+
+	require.NoError(t, err)
+	assert.Equal(t, "26.04.5.2", version)
+}
+
+// An update without a version says why, so the UI does not look broken.
+func TestWithVersionsReason(t *testing.T) {
+	tests := []struct {
+		name    string
+		handler http.HandlerFunc
+		reason  string
+	}{
+		{"undeclared", fakeRegistry(map[string]any{"sha256:new": map[string]any{}}), VersionUndeclared},
+		{"rate limited", func(w http.ResponseWriter, r *http.Request) { w.WriteHeader(http.StatusTooManyRequests) }, VersionRateLimited},
+		{"auth", func(w http.ResponseWriter, r *http.Request) { w.WriteHeader(http.StatusForbidden) }, VersionAuth},
+		{"failed", func(w http.ResponseWriter, r *http.Request) { w.WriteHeader(http.StatusBadGateway) }, VersionFailed},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			checker, _, host := newTestChecker(t, time.Minute, func(w http.ResponseWriter, r *http.Request) {
+				if r.Method == http.MethodHead {
+					w.Header().Set("Docker-Content-Digest", "sha256:new")
+					return
+				}
+				tt.handler(w, r)
+			})
+			result := checker.Check(context.Background(), host+"/app:latest", []string{host + "/app@sha256:old"}, false)
+
+			result = checker.WithVersions(context.Background(), result, nil)
+
+			assert.Empty(t, result.LatestVersion)
+			assert.Equal(t, tt.reason, result.VersionReason)
+		})
+	}
+}

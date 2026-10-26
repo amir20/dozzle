@@ -11,11 +11,15 @@ export interface ImageUpdateResult {
   checkedAt: string;
   reason?: string;
   // What the running and the newer image declare in
-  // org.opencontainers.image.version. Only set for an available update, and
-  // either may be missing.
+  // org.opencontainers.image.version (or a plain "version" label). Only set
+  // for an available update, and either may be missing.
   currentVersion?: string;
   latestVersion?: string;
+  // Why an available update has no latestVersion.
+  versionReason?: ImageVersionReason;
 }
+
+export type ImageVersionReason = "undeclared" | "rate-limited" | "auth" | "failed";
 
 // Results are shared across every consumer of a container so the toolbar and
 // the notification agree, and so a container is only fetched once no matter
@@ -98,11 +102,18 @@ export function canUpdate(container: Container) {
 }
 
 // "1.0 → 1.1" for the notification, which is HTML. Image versions are
-// arbitrary strings from a registry, so they are escaped.
-function versionsHtml(result?: ImageUpdateResult) {
-  if (!result?.latestVersion) return "";
+// arbitrary strings from a registry, so they are escaped. Reads the same as
+// ImageUpdateVersions.
+function versionsHtml(t: (key: string, values?: Record<string, unknown>) => string, result?: ImageUpdateResult) {
+  if (!result?.latestVersion) {
+    if (!result?.versionReason) return "";
+    const reason = t(`updates.version.${result.versionReason}`);
+    return `<span class="text-xs">${escapeHtml(t("updates.version.unknown", { reason }))}</span>`;
+  }
   const latest = escapeHtml(result.latestVersion);
-  const versions = result.currentVersion ? `${escapeHtml(result.currentVersion)} &rarr; ${latest}` : latest;
+  let versions = latest;
+  if (result.currentVersion === result.latestVersion) versions += ` (${escapeHtml(t("updates.version.rebuilt"))})`;
+  else if (result.currentVersion) versions = `${escapeHtml(result.currentVersion)} &rarr; ${latest}`;
   return `<span class="font-mono text-xs">${versions}</span>`;
 }
 
@@ -239,7 +250,7 @@ export const useImageUpdate = (container: Ref<Container>, historical: Ref<boolea
       // rendered as HTML so it can carry a docs link. Image names are
       // arbitrary strings, in k8s especially.
       let message = t("alert.image-update.message", { image: escapeHtml(container.value.image) });
-      const versions = versionsHtml(result.value);
+      const versions = versionsHtml(t, result.value);
       if (versions) message += `<br>${versions}`;
       // Kubernetes rolls images out through the workload, so turning actions
       // on would not give this pod an update button.
