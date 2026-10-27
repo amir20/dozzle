@@ -122,7 +122,7 @@ export function useCommands() {
 
     // Same gate as the dashboard's updates button. Opens the drawer so the
     // check has somewhere to report, even when it finds nothing.
-    if (config.enableActions && config.imageCheckMode !== "off" && config.mode !== "k8s") {
+    if (config.enableUpdates && config.imageCheckMode !== "off" && config.mode !== "k8s") {
       list.push({
         id: "updates.check",
         section: "navigation",

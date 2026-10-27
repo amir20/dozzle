@@ -347,7 +347,7 @@ type bulkUpdateRequest struct {
 // startBulkUpdate resolves each container the way a single update would, so a
 // user can never reach a container through here that their labels hide.
 func (h *handler) startBulkUpdate(w http.ResponseWriter, r *http.Request) {
-	if !h.permitActions(r) {
+	if !h.permitUpdate(r) {
 		http.Error(w, http.StatusText(http.StatusForbidden), http.StatusForbidden)
 		return
 	}

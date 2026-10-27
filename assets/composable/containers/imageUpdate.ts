@@ -93,7 +93,7 @@ function offerable(container: Container) {
  */
 export function canUpdate(container: Container) {
   return (
-    !!config.enableActions &&
+    !!config.enableUpdates &&
     config.mode !== "k8s" &&
     !mayBeSelf(container) &&
     offerable(container) &&

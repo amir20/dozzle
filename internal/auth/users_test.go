@@ -18,6 +18,7 @@ func TestAllCoversEveryRole(t *testing.T) {
 		"download":      Download,
 		"notifications": Notifications,
 		"cloud":         Cloud,
+		"update":        Update,
 	} {
 		require.Truef(t, All.Has(role), "All is missing %s; new roles must be added to All", name)
 	}
@@ -228,6 +229,6 @@ func TestGeneratedUsersRoundTrip(t *testing.T) {
 	require.Equal(t, "amir@example.com", user.Email)
 	require.Equal(t, "Amir", user.Name)
 	require.Equal(t, "name=web", user.Filter)
-	require.Equal(t, Shell|Actions, user.Roles)
+	require.Equal(t, Shell|Actions|Update, user.Roles)
 	require.True(t, CompareHashAndPassword(user.Password, "password"), "the password is stored as a bcrypt hash")
 }

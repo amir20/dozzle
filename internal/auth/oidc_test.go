@@ -234,7 +234,7 @@ func TestOIDCAuthExplicitClaimReplacesTheSearch(t *testing.T) {
 
 	user := userFor(t, a, signIn(t, a))
 	require.NotNil(t, user)
-	require.Equal(t, Actions, user.Roles, "the explicit path wins and the defaults are not consulted")
+	require.Equal(t, Actions|Update, user.Roles, "the explicit path wins and the defaults are not consulted")
 
 	// And when the explicit path is missing, the defaults do not rescue it.
 	b := oidcUserAuth(t, oidcUserServer{idToken: keycloakClaims("shell")}, OIDCConfig{RolesClaim: "custom.dozzle.perms"})

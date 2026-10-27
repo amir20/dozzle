@@ -1,7 +1,7 @@
 ---
 title: Authentification simple
 description: Configurez l'authentification simple de Dozzle avec un fichier users.yml, et limitez par des filtres et des rôles les conteneurs Docker que voit chaque utilisateur et ce qu'il peut faire.
-sourceHash: cb83fd93f108
+sourceHash: 42be19df819b
 ---
 
 # <Icon icon="mdi:account-cog-outline" inline /> Authentification simple
@@ -163,15 +163,16 @@ Dans cet exemple, l'utilisateur `admin` n'a aucun rôle indiqué, il a donc un a
 
 Dozzle prend en charge les rôles suivants :
 
-| Rôle            | Aussi accepté          | Accorde                                                                                               |
-| --------------- | ---------------------- | ----------------------------------------------------------------------------------------------------- |
-| `shell`         | `dozzle_shell`         | S'attacher à un conteneur et ouvrir une session exec. L'instance a aussi besoin de `--enable-shell`.  |
-| `actions`       | `dozzle_actions`       | Démarrer, arrêter et redémarrer les conteneurs. L'instance a aussi besoin de `--enable-actions`.      |
-| `download`      | `dozzle_download`      | Télécharger les logs d'un conteneur sous forme de fichier.                                            |
-| `notifications` | `dozzle_notifications` | Créer et modifier les règles de notification et les destinations.                                     |
-| `cloud`         | `dozzle_cloud`         | Lier, délier et configurer Dozzle Cloud.                                                              |
-| `all`           | `dozzle_all`           | Tous les rôles ci-dessus. C'est la valeur par défaut quand `roles` est vide.                          |
-| `none`          | `dozzle_none`          | Aucun rôle. Les logs restent consultables, selon le filtre de l'utilisateur. Prime sur tout le reste. |
+| Rôle            | Aussi accepté          | Accorde                                                                                                           |
+| --------------- | ---------------------- | ----------------------------------------------------------------------------------------------------------------- |
+| `shell`         | `dozzle_shell`         | S'attacher à un conteneur et ouvrir une session exec. L'instance a aussi besoin de `--enable-shell`.              |
+| `actions`       | `dozzle_actions`       | Démarrer, arrêter et redémarrer les conteneurs. Inclut `update`. L'instance a aussi besoin de `--enable-actions`. |
+| `update`        | `dozzle_update`        | Mettre à jour un conteneur vers une image plus récente. N'a d'effet qu'avec `actions`.                            |
+| `download`      | `dozzle_download`      | Télécharger les logs d'un conteneur sous forme de fichier.                                                        |
+| `notifications` | `dozzle_notifications` | Créer et modifier les règles de notification et les destinations.                                                 |
+| `cloud`         | `dozzle_cloud`         | Lier, délier et configurer Dozzle Cloud.                                                                          |
+| `all`           | `dozzle_all`           | Tous les rôles ci-dessus. C'est la valeur par défaut quand `roles` est vide.                                      |
+| `none`          | `dozzle_none`          | Aucun rôle. Les logs restent consultables, selon le filtre de l'utilisateur. Prime sur tout le reste.             |
 
 Les rôles se séparent par des virgules ou des barres verticales (`shell,actions` ou `shell|actions`), et un tableau JSON fonctionne aussi (`["shell", "actions"]`). Les noms sont insensibles à la casse. Les alias préfixés par `dozzle_` existent pour que les noms de groupes d'un fournisseur d'identité puissent être transmis tels quels en mode forward proxy.
 
@@ -187,6 +188,7 @@ Tout rôle peut être préfixé par `^` pour être exclu. Les exclusions sont ap
 
 ```yaml
 roles: all,^shell # tout sauf shell
+roles: actions,^update # démarrer, arrêter et redémarrer, mais jamais mettre à jour une image
 ```
 
 `none` est le seul rôle qui ne peut pas être nié. `^none` est ignoré, et un simple `none` n'importe où dans la liste supprime tous les autres rôles.

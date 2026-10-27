@@ -16,6 +16,7 @@ export interface Config {
   passwordLogin?: boolean;
   logoutUrl?: string;
   enableActions: boolean;
+  enableUpdates: boolean;
   enableShell: boolean;
   enableDownload: boolean;
   enableNotifications: boolean;
