@@ -1,7 +1,7 @@
 ---
 title: Container-Updates
 description: Wie Dozzle Docker-Container auf neuere Images prüft und sie von Hand oder nach Zeitplan aktualisiert, mit automatischem Zurückrollen und Aufräumen alter Images.
-sourceHash: b47472c411ae
+sourceHash: 21b3c71b7338
 ---
 
 # Container-Updates
@@ -21,6 +21,21 @@ Dozzle prüft, ob das Image, das ein Container ausführt, noch dasselbe ist, das
 Die Prüfung fragt bei der Registry den Digest des Tags ab, aus dem der Container erstellt wurde, und vergleicht ihn mit dem Digest, den der Container tatsächlich ausführt. Das passiert über eine `HEAD`-Anfrage auf das Image-Manifest, es werden also keine Layer heruntergeladen und es zählt nicht gegen die Pull-Limits von Docker Hub. Antworten werden sechs Stunden zwischengespeichert, und dasselbe Image wird immer nur einmal abgefragt, egal wie viele Container oder Hosts es ausführen.
 
 Da gegen das verglichen wird, was der Container _ausführt_, gilt ein Container so lange als veraltet, bis er neu erstellt wird, selbst wenn ein neueres Image bereits auf den Host geladen wurde.
+
+### Welchem Tag gefolgt wird {#which-tag-is-followed}
+
+Dozzle folgt immer nur genau dem Tag in der Image-Referenz des Containers, so wie Watchtower auch. Andere Tags schaut es sich nie an, und Versionsnummern vergleicht es nicht. Ein Update heißt also immer „dieses Tag zeigt jetzt auf ein anderes Image“, und beim Aktualisieren wird dasselbe Tag erneut gezogen. Wie weit ein Container springen kann, entscheidet das Tag, das du wählst:
+
+| Image-Referenz                               | Was ein Update bringt                                                                      |
+| -------------------------------------------- | ------------------------------------------------------------------------------------------ |
+| `nginx:latest`                               | Was der Herausgeber als latest bezeichnet, auch eine neue Hauptversion                     |
+| `postgres:18`                                | Neue 18.x-Releases, sofern der Herausgeber das Tag `18` mitwandern lässt                   |
+| `postgres:18.1`                              | Patch-Releases und Neu-Builds von 18.1, sofern der Herausgeber dieses Tag verschiebt       |
+| `linuxserver/speedtest-tracker:1.15.0`       | Nur Neu-Builds von 1.15.0 (zum Beispiel `1.15.0-ls175` auf `1.15.0-ls176`)                 |
+| `linuxserver/speedtest-tracker:1.15.0-ls176` | Nichts, außer der Herausgeber pusht genau dieses Tag erneut                                |
+| `postgres:18@sha256:…`                       | Nichts. Ein auf einen Digest gepinntes Image wird [nicht geprüft](#what-cannot-be-checked) |
+
+Um auf einer Minor-Version zu bleiben, muss der Herausgeber dafür ein Tag veröffentlichen. Veröffentlicht er nur vollständige Versionen, pinne eine davon und ändere sie selbst, wenn du weiterziehen willst. Ein Tag kann außerdem an Ort und Stelle neu gebaut werden, oft wegen eines gepatchten Basis-Images. Ein Update kann also dieselbe Versionsnummer tragen, die der Container schon hatte.
 
 Die Prüfung ist unabhängig von den Aktionen. Zu wissen, dass ein Container veraltet ist, ist nützlich, egal ob Dozzle etwas dagegen unternehmen darf oder nicht, der Hinweis erscheint also auch, wenn `DOZZLE_ENABLE_ACTIONS` aus ist. Nur die Schaltfläche `Update` setzt Aktionen voraus.
 

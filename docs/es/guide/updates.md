@@ -1,7 +1,7 @@
 ---
 title: Actualizaciones de contenedores
 description: Cómo Dozzle comprueba si tus contenedores de Docker tienen imágenes más nuevas y los actualiza a mano o según una programación, con reversión automática y limpieza de imágenes antiguas.
-sourceHash: b47472c411ae
+sourceHash: 21b3c71b7338
 ---
 
 # Actualizaciones de contenedores
@@ -21,6 +21,21 @@ Dozzle comprueba si la imagen que está ejecutando un contenedor sigue siendo la
 La comprobación pide al registro el digest de la etiqueta con la que se creó el contenedor y lo compara con el digest que el contenedor está ejecutando de verdad. Lo hace con una petición `HEAD` al manifiesto de la imagen, así que no se descarga ninguna capa ni cuenta para los límites de descargas de Docker Hub. Las respuestas se guardan en caché seis horas, y una misma imagen se consulta una sola vez por muchos contenedores o hosts que la usen.
 
 Como la comparación es contra lo que el contenedor está _ejecutando_, un contenedor sigue desactualizado hasta que se recrea, aunque ya se haya descargado una imagen más nueva en el host.
+
+### Qué tag se sigue {#which-tag-is-followed}
+
+Dozzle solo sigue el tag exacto de la referencia de imagen del contenedor, igual que Watchtower. Nunca mira otros tags ni compara números de versión, así que una actualización siempre significa «este tag apunta ahora a otra imagen», y actualizar vuelve a descargar ese mismo tag. Hasta dónde puede avanzar un contenedor lo decide el tag que elijas:
+
+| Referencia de imagen                         | Qué trae una actualización                                                        |
+| -------------------------------------------- | --------------------------------------------------------------------------------- |
+| `nginx:latest`                               | Lo que quien publica la imagen llame latest, incluida una nueva versión mayor     |
+| `postgres:18`                                | Nuevas versiones 18.x, si quien la publica sigue moviendo el tag `18`             |
+| `postgres:18.1`                              | Parches y reconstrucciones de 18.1, si quien la publica mueve ese tag             |
+| `linuxserver/speedtest-tracker:1.15.0`       | Solo reconstrucciones de 1.15.0 (por ejemplo, de `1.15.0-ls175` a `1.15.0-ls176`) |
+| `linuxserver/speedtest-tracker:1.15.0-ls176` | Nada, salvo que quien la publica vuelva a subir ese tag exacto                    |
+| `postgres:18@sha256:…`                       | Nada. Una imagen fijada a un digest [no se comprueba](#what-cannot-be-checked)    |
+
+Para quedarte en una versión menor, quien publica la imagen tiene que publicar un tag para ella. Si solo publica versiones completas, fija una y cámbiala tú cuando quieras avanzar. Un tag también puede reconstruirse en el sitio, a menudo por una imagen base con parches, así que una actualización puede traer el mismo número de versión que ya tenía.
 
 La comprobación es independiente de las acciones. Saber que un contenedor está desactualizado es útil tanto si Dozzle puede hacer algo al respecto como si no, así que el aviso aparece incluso con `DOZZLE_ENABLE_ACTIONS` desactivado. Solo el botón `Update` necesita las acciones.
 
