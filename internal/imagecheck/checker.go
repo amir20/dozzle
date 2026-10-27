@@ -70,6 +70,14 @@ type Result struct {
 	RemoteDigest string    `json:"remoteDigest,omitempty"`
 	CheckedAt    time.Time `json:"checkedAt"`
 	Reason       string    `json:"reason,omitempty"`
+	// CurrentVersion and LatestVersion are what the running and the newer
+	// image declare in org.opencontainers.image.version. Set only when an
+	// update is available, and either may be empty.
+	CurrentVersion string `json:"currentVersion,omitempty"`
+	LatestVersion  string `json:"latestVersion,omitempty"`
+	// VersionReason says why an available update has no LatestVersion: one
+	// of the Version* constants.
+	VersionReason string `json:"versionReason,omitempty"`
 }
 
 // UpdateAvailable is a convenience for callers that only care about the alert.
@@ -119,6 +127,8 @@ type Checker struct {
 
 	mu    sync.Mutex
 	cache map[string]digestEntry
+	// versions maps an image digest to the version it declares.
+	versions map[string]versionEntry
 }
 
 func NewChecker(registry *Registry, ttl time.Duration) *Checker {
@@ -126,6 +136,7 @@ func NewChecker(registry *Registry, ttl time.Duration) *Checker {
 		registry: registry,
 		ttl:      ttl,
 		cache:    make(map[string]digestEntry),
+		versions: make(map[string]versionEntry),
 	}
 }
 

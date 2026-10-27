@@ -636,12 +636,15 @@ func (c *Client) CheckImageUpdate(ctx context.Context, containerID string, force
 	}
 
 	return imagecheck.Result{
-		Status:       imagecheck.Status(resp.Status),
-		Image:        resp.Image,
-		LocalDigest:  resp.LocalDigest,
-		RemoteDigest: resp.RemoteDigest,
-		CheckedAt:    time.Unix(0, resp.CheckedAt),
-		Reason:       resp.Reason,
+		Status:         imagecheck.Status(resp.Status),
+		Image:          resp.Image,
+		LocalDigest:    resp.LocalDigest,
+		RemoteDigest:   resp.RemoteDigest,
+		CheckedAt:      time.Unix(0, resp.CheckedAt),
+		Reason:         resp.Reason,
+		CurrentVersion: resp.CurrentVersion,
+		LatestVersion:  resp.LatestVersion,
+		VersionReason:  resp.VersionReason,
 	}, nil
 }
 

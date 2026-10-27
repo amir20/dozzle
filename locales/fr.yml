@@ -434,6 +434,13 @@ updates:
     rolled-back: Restauré
     up-to-date: À jour
     error: Échec
+  version:
+    rebuilt: reconstruite
+    unknown: Version inconnue ({reason})
+    undeclared: l'image n'en déclare aucune
+    rate-limited: limite de requêtes du registre
+    auth: le registre exige une connexion
+    failed: échec de la recherche
 drawer:
   maximize: Agrandir
   restore: Restaurer

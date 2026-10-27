@@ -439,6 +439,13 @@ updates:
     rolled-back: Povrnjeno
     up-to-date: Ažurno
     error: Napaka
+  version:
+    rebuilt: ponovno zgrajena
+    unknown: Različica neznana ({reason})
+    undeclared: slika je ne navaja
+    rate-limited: omejitev zahtev registra
+    auth: register zahteva prijavo
+    failed: poizvedba ni uspela
 drawer:
   maximize: Maksimiraj
   restore: Obnovi

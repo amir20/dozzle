@@ -437,6 +437,13 @@ updates:
     rolled-back: Geri alındı
     up-to-date: Güncel
     error: Başarısız
+  version:
+    rebuilt: yeniden derlendi
+    unknown: Sürüm bilinmiyor ({reason})
+    undeclared: image sürüm belirtmiyor
+    rate-limited: registry istek sınırı
+    auth: registry giriş gerektiriyor
+    failed: sorgulama başarısız
 drawer:
   maximize: Büyüt
   restore: Geri yükle

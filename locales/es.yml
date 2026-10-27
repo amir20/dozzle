@@ -554,6 +554,13 @@ updates:
     rolled-back: Revertido
     up-to-date: Al día
     error: Error
+  version:
+    rebuilt: reconstruida
+    unknown: Versión desconocida ({reason})
+    undeclared: la imagen no declara ninguna
+    rate-limited: límite de peticiones del registro
+    auth: el registro requiere inicio de sesión
+    failed: falló la consulta
 drawer:
   maximize: Maximizar
   restore: Restaurar

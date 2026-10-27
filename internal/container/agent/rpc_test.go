@@ -506,12 +506,14 @@ func TestLogHistogramOverAgent(t *testing.T) {
 
 func TestCheckImageUpdateOverAgent(t *testing.T) {
 	result := imagecheck.Result{
-		Status:       imagecheck.Status("available"),
-		Image:        "nginx:latest",
-		LocalDigest:  "sha256:aaa",
-		RemoteDigest: "sha256:bbb",
-		CheckedAt:    time.Date(2026, 10, 12, 9, 0, 0, 0, time.Local),
-		Reason:       "newer digest",
+		Status:         imagecheck.Status("available"),
+		Image:          "nginx:latest",
+		LocalDigest:    "sha256:aaa",
+		RemoteDigest:   "sha256:bbb",
+		CheckedAt:      time.Date(2026, 10, 12, 9, 0, 0, 0, time.Local),
+		Reason:         "newer digest",
+		CurrentVersion: "1.27.0",
+		LatestVersion:  "1.27.5",
 	}
 	svc := &fakeService{image: result}
 	rpc := newTestAgent(t, svc, &recordingHandler{})

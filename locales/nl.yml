@@ -435,6 +435,13 @@ updates:
     rolled-back: Teruggedraaid
     up-to-date: Actueel
     error: Mislukt
+  version:
+    rebuilt: opnieuw gebouwd
+    unknown: Versie onbekend ({reason})
+    undeclared: image vermeldt geen versie
+    rate-limited: registry-limiet bereikt
+    auth: registry vereist inloggen
+    failed: opzoeken mislukt
 drawer:
   maximize: Maximaliseren
   restore: Herstellen

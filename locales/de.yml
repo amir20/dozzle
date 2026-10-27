@@ -434,6 +434,13 @@ updates:
     rolled-back: Zurückgerollt
     up-to-date: Aktuell
     error: Fehler
+  version:
+    rebuilt: neu gebaut
+    unknown: Version unbekannt ({reason})
+    undeclared: Image gibt keine an
+    rate-limited: Registry-Ratenlimit
+    auth: Registry verlangt Login
+    failed: Abfrage fehlgeschlagen
 drawer:
   maximize: Maximieren
   restore: Wiederherstellen

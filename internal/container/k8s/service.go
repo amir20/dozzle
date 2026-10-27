@@ -138,7 +138,8 @@ func (k *Service) CheckImageUpdate(ctx context.Context, c container.Container, f
 	if c.ImageDigest != "" {
 		digests = []string{c.ImageDigest}
 	}
-	return k.checker.Check(ctx, c.Image, digests, force), nil
+	// Pod labels are not the image's, so both versions come from the registry.
+	return k.checker.WithVersions(ctx, k.checker.Check(ctx, c.Image, digests, force), nil), nil
 }
 
 func (k *Service) UpdateContainer(ctx context.Context, c container.Container, progressCh chan<- container.UpdateProgress) (bool, error) {

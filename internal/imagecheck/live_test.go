@@ -4,6 +4,7 @@ package imagecheck
 
 import (
 	"context"
+	"strings"
 	"testing"
 	"time"
 )
@@ -53,6 +54,32 @@ func TestLiveRegistries(t *testing.T) {
 
 		if result.Status != tc.expect {
 			t.Errorf("%s: got %s (%s), want %s", tc.image, result.Status, result.Reason, tc.expect)
+		}
+	}
+}
+
+// TestLiveVersions reads versions for whatever each tag currently points at.
+//
+//	go test -tags live ./internal/imagecheck/ -run TestLiveVersions -v
+func TestLiveVersions(t *testing.T) {
+	checker := NewChecker(NewRegistry(15*time.Second), time.Hour)
+
+	for _, image := range []string{
+		"postgres:18-alpine",
+		"grafana/grafana:latest",
+		"ghcr.io/home-assistant/home-assistant:stable",
+		"amir20/dozzle:latest",
+	} {
+		result := checker.Check(context.Background(), image, []string{strings.Split(image, ":")[0] + "@sha256:stale"}, false)
+		if result.RemoteDigest == "" {
+			t.Errorf("%s: no remote digest (%s)", image, result.Reason)
+			continue
+		}
+
+		version, err := checker.version(context.Background(), image, result.RemoteDigest)
+		t.Logf("%-46s -> %q", image, version)
+		if err != nil {
+			t.Errorf("%s: %v", image, err)
 		}
 	}
 }

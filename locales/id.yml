@@ -446,6 +446,13 @@ updates:
     rolled-back: Dikembalikan
     up-to-date: Terkini
     error: Gagal
+  version:
+    rebuilt: dibangun ulang
+    unknown: Versi tidak diketahui ({reason})
+    undeclared: image tidak mendeklarasikan versi
+    rate-limited: batas permintaan registry
+    auth: registry memerlukan login
+    failed: pencarian gagal
 drawer:
   maximize: Maksimalkan
   restore: Pulihkan
