@@ -81,7 +81,7 @@ You can also write your own payload template using Go's `text/template` syntax. 
 
 ```json
 {
-  "embeds": [{ "timestamp": "{{ .Timestamp.UTC.Format \"2006-01-02T15:04:05Z07:00\" }}" }]
+  "embeds": [{ "timestamp": "{{ .Timestamp.UTC.Format `2006-01-02T15:04:05Z07:00` }}" }]
 }
 ```
 

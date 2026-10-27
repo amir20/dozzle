@@ -1,7 +1,7 @@
 ---
 title: 警报
 description: 为 Docker 容器日志、CPU 和内存指标以及生命周期事件设置 Dozzle 警报，并发送到 webhook、Slack、Discord 或 ntfy。
-sourceHash: 477c4baff2bc
+sourceHash: 10f1bc73df75
 ---
 
 # 警报
@@ -82,7 +82,7 @@ Webhook 会向你指定的 URL 发送一个 HTTP POST 请求。Dozzle 为常用�
 
 ```json
 {
-  "embeds": [{ "timestamp": "{{ .Timestamp.UTC.Format \"2006-01-02T15:04:05Z07:00\" }}" }]
+  "embeds": [{ "timestamp": "{{ .Timestamp.UTC.Format `2006-01-02T15:04:05Z07:00` }}" }]
 }
 ```
 

@@ -1,7 +1,7 @@
 ---
 title: Alarme
 description: Richte in Dozzle Alarme für Docker-Container-Logs, CPU- und Speichermetriken sowie Lebenszyklus-Ereignisse ein und sende sie an einen Webhook, Slack, Discord oder ntfy.
-sourceHash: 477c4baff2bc
+sourceHash: 10f1bc73df75
 ---
 
 # Alarme
@@ -82,7 +82,7 @@ Du kannst auch ein eigenes Payload-Template mit der `text/template`-Syntax von G
 
 ```json
 {
-  "embeds": [{ "timestamp": "{{ .Timestamp.UTC.Format \"2006-01-02T15:04:05Z07:00\" }}" }]
+  "embeds": [{ "timestamp": "{{ .Timestamp.UTC.Format `2006-01-02T15:04:05Z07:00` }}" }]
 }
 ```
 

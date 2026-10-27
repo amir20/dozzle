@@ -1,7 +1,7 @@
 ---
 title: Alertas
 description: Configura alertas de Dozzle sobre los logs de contenedores Docker, las métricas de CPU y memoria y los eventos del ciclo de vida, y envíalas a un webhook, Slack, Discord o ntfy.
-sourceHash: 477c4baff2bc
+sourceHash: 10f1bc73df75
 ---
 
 # Alertas
@@ -82,7 +82,7 @@ También puedes escribir tu propia plantilla de payload con la sintaxis `text/te
 
 ```json
 {
-  "embeds": [{ "timestamp": "{{ .Timestamp.UTC.Format \"2006-01-02T15:04:05Z07:00\" }}" }]
+  "embeds": [{ "timestamp": "{{ .Timestamp.UTC.Format `2006-01-02T15:04:05Z07:00` }}" }]
 }
 ```
 
