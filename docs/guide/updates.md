@@ -21,6 +21,21 @@ The check asks the registry for the digest of the tag the container was created 
 
 Because the comparison is against what the container is _running_, a container stays out of date until it is recreated, even if a newer image was already pulled onto the host.
 
+### Which tag is followed {#which-tag-is-followed}
+
+Dozzle only ever follows the exact tag in the container's image reference, the same way Watchtower does. It never looks at other tags and does not compare version numbers, so an update always means "this tag now points to a different image", and updating pulls that same tag again. How far a container can move is decided by the tag you pick:
+
+| Image reference                              | What an update brings                                                  |
+| -------------------------------------------- | ---------------------------------------------------------------------- |
+| `nginx:latest`                               | Whatever the publisher calls latest, including a new major version     |
+| `postgres:18`                                | New 18.x releases, if the publisher keeps the `18` tag moving          |
+| `postgres:18.1`                              | Patch releases and rebuilds of 18.1, if the publisher moves that tag   |
+| `linuxserver/speedtest-tracker:1.15.0`       | Rebuilds of 1.15.0 only (for example `1.15.0-ls175` to `1.15.0-ls176`) |
+| `linuxserver/speedtest-tracker:1.15.0-ls176` | Nothing, unless the publisher re-pushes that exact tag                 |
+| `postgres:18@sha256:…`                       | Nothing. A digest pin is [not checked](#what-cannot-be-checked)        |
+
+To stay on a minor version, the publisher has to publish a tag for it. If it only publishes full versions, pin one and change it yourself when you want to move on. A tag can also be rebuilt in place, often for a patched base image, so an update can carry the same version number it already had.
+
 Checking is separate from actions. Knowing a container is out of date is useful whether or not Dozzle is allowed to do anything about it, so the notice appears even when `DOZZLE_ENABLE_ACTIONS` is off. Only the `Update` button requires actions.
 
 ### Turning it off
