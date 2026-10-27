@@ -436,6 +436,13 @@ updates:
     rolled-back: Wycofano
     up-to-date: Aktualny
     error: Błąd
+  version:
+    rebuilt: przebudowany
+    unknown: Wersja nieznana ({reason})
+    undeclared: obraz jej nie deklaruje
+    rate-limited: limit zapytań rejestru
+    auth: rejestr wymaga logowania
+    failed: błąd sprawdzania
 drawer:
   maximize: Maksymalizuj
   restore: Przywróć

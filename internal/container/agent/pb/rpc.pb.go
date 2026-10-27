@@ -1604,15 +1604,18 @@ func (x *CheckImageUpdateRequest) GetForce() bool {
 }
 
 type CheckImageUpdateResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Status        string                 `protobuf:"bytes,1,opt,name=status,proto3" json:"status,omitempty"`
-	Image         string                 `protobuf:"bytes,2,opt,name=image,proto3" json:"image,omitempty"`
-	LocalDigest   string                 `protobuf:"bytes,3,opt,name=localDigest,proto3" json:"localDigest,omitempty"`
-	RemoteDigest  string                 `protobuf:"bytes,4,opt,name=remoteDigest,proto3" json:"remoteDigest,omitempty"`
-	CheckedAt     int64                  `protobuf:"varint,5,opt,name=checkedAt,proto3" json:"checkedAt,omitempty"`
-	Reason        string                 `protobuf:"bytes,6,opt,name=reason,proto3" json:"reason,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	state          protoimpl.MessageState `protogen:"open.v1"`
+	Status         string                 `protobuf:"bytes,1,opt,name=status,proto3" json:"status,omitempty"`
+	Image          string                 `protobuf:"bytes,2,opt,name=image,proto3" json:"image,omitempty"`
+	LocalDigest    string                 `protobuf:"bytes,3,opt,name=localDigest,proto3" json:"localDigest,omitempty"`
+	RemoteDigest   string                 `protobuf:"bytes,4,opt,name=remoteDigest,proto3" json:"remoteDigest,omitempty"`
+	CheckedAt      int64                  `protobuf:"varint,5,opt,name=checkedAt,proto3" json:"checkedAt,omitempty"`
+	Reason         string                 `protobuf:"bytes,6,opt,name=reason,proto3" json:"reason,omitempty"`
+	CurrentVersion string                 `protobuf:"bytes,7,opt,name=currentVersion,proto3" json:"currentVersion,omitempty"`
+	LatestVersion  string                 `protobuf:"bytes,8,opt,name=latestVersion,proto3" json:"latestVersion,omitempty"`
+	VersionReason  string                 `protobuf:"bytes,9,opt,name=versionReason,proto3" json:"versionReason,omitempty"`
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
 }
 
 func (x *CheckImageUpdateResponse) Reset() {
@@ -1683,6 +1686,27 @@ func (x *CheckImageUpdateResponse) GetCheckedAt() int64 {
 func (x *CheckImageUpdateResponse) GetReason() string {
 	if x != nil {
 		return x.Reason
+	}
+	return ""
+}
+
+func (x *CheckImageUpdateResponse) GetCurrentVersion() string {
+	if x != nil {
+		return x.CurrentVersion
+	}
+	return ""
+}
+
+func (x *CheckImageUpdateResponse) GetLatestVersion() string {
+	if x != nil {
+		return x.LatestVersion
+	}
+	return ""
+}
+
+func (x *CheckImageUpdateResponse) GetVersionReason() string {
+	if x != nil {
+		return x.VersionReason
 	}
 	return ""
 }
@@ -2516,14 +2540,17 @@ const file_rpc_proto_rawDesc = "" +
 	"rolledBack\"Q\n" +
 	"\x17CheckImageUpdateRequest\x12 \n" +
 	"\vcontainerId\x18\x01 \x01(\tR\vcontainerId\x12\x14\n" +
-	"\x05force\x18\x02 \x01(\bR\x05force\"\xc4\x01\n" +
+	"\x05force\x18\x02 \x01(\bR\x05force\"\xb8\x02\n" +
 	"\x18CheckImageUpdateResponse\x12\x16\n" +
 	"\x06status\x18\x01 \x01(\tR\x06status\x12\x14\n" +
 	"\x05image\x18\x02 \x01(\tR\x05image\x12 \n" +
 	"\vlocalDigest\x18\x03 \x01(\tR\vlocalDigest\x12\"\n" +
 	"\fremoteDigest\x18\x04 \x01(\tR\fremoteDigest\x12\x1c\n" +
 	"\tcheckedAt\x18\x05 \x01(\x03R\tcheckedAt\x12\x16\n" +
-	"\x06reason\x18\x06 \x01(\tR\x06reason\"\xa8\x01\n" +
+	"\x06reason\x18\x06 \x01(\tR\x06reason\x12&\n" +
+	"\x0ecurrentVersion\x18\a \x01(\tR\x0ecurrentVersion\x12$\n" +
+	"\rlatestVersion\x18\b \x01(\tR\rlatestVersion\x12$\n" +
+	"\rversionReason\x18\t \x01(\tR\rversionReason\"\xa8\x01\n" +
 	"\x14ContainerExecRequest\x12 \n" +
 	"\vcontainerId\x18\x01 \x01(\tR\vcontainerId\x12\x18\n" +
 	"\acommand\x18\x02 \x03(\tR\acommand\x12\x16\n" +

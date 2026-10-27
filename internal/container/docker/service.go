@@ -217,7 +217,8 @@ func (d *Service) CheckImageUpdate(ctx context.Context, c container.Container, f
 	// Config.Image is the reference the container was created from, which is
 	// what the registry must be queried for.
 	// A rolled-back Dozzle runs from a bare image id and keeps its tag in a label.
-	return d.checker.Check(ctx, swap.ImageRef(inspect.Config), digests, force), nil
+	result := d.checker.Check(ctx, swap.ImageRef(inspect.Config), digests, force)
+	return d.checker.WithVersions(ctx, result, inspect.Config.Labels), nil
 }
 
 func (d *Service) UpdateContainer(ctx context.Context, c container.Container, progressCh chan<- container.UpdateProgress) (bool, error) {

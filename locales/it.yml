@@ -434,6 +434,13 @@ updates:
     rolled-back: Ripristinato
     up-to-date: Attuale
     error: Fallito
+  version:
+    rebuilt: ricompilata
+    unknown: Versione sconosciuta ({reason})
+    undeclared: l'immagine non la dichiara
+    rate-limited: limite di richieste del registry
+    auth: il registry richiede il login
+    failed: verifica non riuscita
 drawer:
   maximize: Massimizza
   restore: Ripristina

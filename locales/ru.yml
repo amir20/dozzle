@@ -434,6 +434,13 @@ updates:
     rolled-back: Откачено
     up-to-date: Актуален
     error: Ошибка
+  version:
+    rebuilt: пересобран
+    unknown: Версия неизвестна ({reason})
+    undeclared: образ её не указывает
+    rate-limited: лимит запросов к реестру
+    auth: реестру нужен вход
+    failed: ошибка запроса
 drawer:
   maximize: Развернуть
   restore: Восстановить

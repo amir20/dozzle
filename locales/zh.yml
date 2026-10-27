@@ -434,6 +434,13 @@ updates:
     rolled-back: 已回滚
     up-to-date: 最新
     error: 失败
+  version:
+    rebuilt: 已重建
+    unknown: 版本未知（{reason}）
+    undeclared: 镜像未声明版本
+    rate-limited: 镜像仓库限流
+    auth: 镜像仓库需要登录
+    failed: 查询失败
 drawer:
   maximize: 最大化
   restore: 还原

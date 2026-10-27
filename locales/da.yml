@@ -434,6 +434,13 @@ updates:
     rolled-back: Rullet tilbage
     up-to-date: Aktuel
     error: Fejlet
+  version:
+    rebuilt: genopbygget
+    unknown: Version ukendt ({reason})
+    undeclared: image angiver ingen
+    rate-limited: registry-grænse nået
+    auth: registry kræver login
+    failed: opslag fejlede
 drawer:
   maximize: Maksimer
   restore: Gendan

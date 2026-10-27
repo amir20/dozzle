@@ -562,6 +562,13 @@ updates:
     rolled-back: Rolled back
     up-to-date: Current
     error: Failed
+  version:
+    rebuilt: rebuilt
+    unknown: Version unknown ({reason})
+    undeclared: image declares none
+    rate-limited: registry rate limit
+    auth: registry needs login
+    failed: lookup failed
 drawer:
   maximize: Maximize
   restore: Restore
