@@ -587,6 +587,7 @@ var previewEventCatalog = []types.NotificationEvent{
 	{Name: "health_status", Attributes: map[string]string{"healthStatus": "unhealthy"}},
 	{Name: notification.UpdateEventName, Attributes: map[string]string{"source": container.UpdateSourceSchedule, "rolledBack": "false"}},
 	{Name: notification.UpdateEventName, Attributes: map[string]string{"source": container.UpdateSourceSchedule, "rolledBack": "true"}},
+	{Name: notification.UpdateAvailableEventName, Attributes: map[string]string{"image": "nginx:latest", "currentVersion": "1.27.0", "latestVersion": "1.27.1"}},
 }
 
 // previewEventSamples evaluates the event expression against previewEventCatalog.

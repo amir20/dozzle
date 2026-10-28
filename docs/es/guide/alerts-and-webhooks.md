@@ -1,7 +1,7 @@
 ---
 title: Alertas
 description: Configura alertas de Dozzle sobre los logs de contenedores Docker, las métricas de CPU y memoria y los eventos del ciclo de vida, y envíalas a un webhook, Slack, Discord o ntfy.
-sourceHash: 10f1bc73df75
+sourceHash: bf1369bcb594
 ---
 
 # Alertas
@@ -75,6 +75,8 @@ También puedes escribir tu propia plantilla de payload con la sintaxis `text/te
 | `{{.Stat.CPUPercent}}`    | Porcentaje de uso de CPU                         |
 | `{{.Stat.MemoryPercent}}` | Porcentaje de uso de memoria                     |
 | `{{.Stat.MemoryUsage}}`   | Uso de memoria en bytes                          |
+| `{{.Event.Name}}`         | Nombre del evento (alertas de evento)            |
+| `{{.Event.Attributes}}`   | Mapa de atributos del evento (alertas de evento) |
 | `{{.Subscription.Name}}`  | Nombre de la regla de alerta                     |
 | `{{.Timestamp}}`          | Momento en que se creó la notificación           |
 
@@ -258,6 +260,20 @@ Entre los nombres de evento habituales de Docker están `start`, `stop`, `die`, 
 
 En los eventos `health_status`, Dozzle expone el estado actual como `attributes["healthStatus"]` (`healthy` o `unhealthy`).
 
+### Actualización disponible
+
+Dozzle también genera un evento `update_available` cuando se publica una imagen más reciente para un contenedor. Una vez al día, a una hora aleatoria, revisa todos los contenedores que no tengan la etiqueta `dev.dozzle.update: off`, y avisa una sola vez por cada imagen nueva. Un reinicio de Dozzle puede repetir una alerta de una actualización que ya envió. La comprobación solo se ejecuta mientras haya al menos una alerta de evento activada, y nunca cuando `--image-check-mode` es `manual` u `off`.
+
+| Atributo         | Descripción                                       |
+| ---------------- | ------------------------------------------------- |
+| `image`          | Referencia de la imagen que ejecuta el contenedor |
+| `currentVersion` | Versión de la imagen en ejecución                 |
+| `latestVersion`  | Versión de la imagen más reciente                 |
+| `currentDigest`  | Digest de la imagen en ejecución                  |
+| `latestDigest`   | Digest de la imagen más reciente                  |
+
+Las versiones salen de la etiqueta `org.opencontainers.image.version` de la imagen. Muchas imágenes no la definen, así que cualquiera de las dos versiones puede estar vacía. Dozzle tampoco lee la versión nueva cuando te queda poco del límite de descargas de Docker Hub.
+
 ### Ejemplos de evento
 
 **Alertar cuando muere cualquier contenedor de producción:**
@@ -280,6 +296,23 @@ Event:     name == "oom"
 Container: true
 Event:     name == "health_status" && attributes["healthStatus"] == "unhealthy"
 ```
+
+**Alertar cuando hay una imagen más reciente disponible:**
+
+```
+Container: true
+Event:     name == "update_available"
+```
+
+En una plantilla de webhook, las versiones están en `.Event.Attributes`:
+
+<div v-pre>
+
+```
+New version for {{ .Container.Name }}: {{ .Event.Attributes.currentVersion }} -> {{ .Event.Attributes.latestVersion }}
+```
+
+</div>
 
 **Alertar de salidas inesperadas (ignorando los apagados limpios y ordenados):**
 

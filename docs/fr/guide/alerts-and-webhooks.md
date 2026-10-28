@@ -1,7 +1,7 @@
 ---
 title: Alertes
 description: Configurez des alertes Dozzle sur les logs des conteneurs Docker, les métriques CPU et mémoire et les évènements de cycle de vie, et envoyez-les vers un webhook, Slack, Discord ou ntfy.
-sourceHash: 10f1bc73df75
+sourceHash: bf1369bcb594
 ---
 
 # Alertes
@@ -61,22 +61,24 @@ Vous pouvez aussi écrire votre propre modèle de payload avec la syntaxe `text/
 
 <div v-pre>
 
-| Variable                  | Description                                     |
-| ------------------------- | ----------------------------------------------- |
-| `{{.Detail}}`             | Résumé (message de log ou valeurs de métriques) |
-| `{{.Container.Name}}`     | Nom du conteneur                                |
-| `{{.Container.Image}}`    | Image du conteneur                              |
-| `{{.Container.HostName}}` | Nom de l'hôte Docker                            |
-| `{{.Container.State}}`    | État du conteneur                               |
-| `{{.Log.Message}}`        | Contenu du message de log                       |
-| `{{.Log.Level}}`          | Niveau de log                                   |
-| `{{.Log.Timestamp}}`      | Horodatage du log                               |
-| `{{.Log.Stream}}`         | Type de flux (stdout/stderr)                    |
-| `{{.Stat.CPUPercent}}`    | Pourcentage d'utilisation CPU                   |
-| `{{.Stat.MemoryPercent}}` | Pourcentage d'utilisation mémoire               |
-| `{{.Stat.MemoryUsage}}`   | Utilisation mémoire en octets                   |
-| `{{.Subscription.Name}}`  | Nom de la règle d'alerte                        |
-| `{{.Timestamp}}`          | Heure de création de la notification            |
+| Variable                  | Description                                             |
+| ------------------------- | ------------------------------------------------------- |
+| `{{.Detail}}`             | Résumé (message de log ou valeurs de métriques)         |
+| `{{.Container.Name}}`     | Nom du conteneur                                        |
+| `{{.Container.Image}}`    | Image du conteneur                                      |
+| `{{.Container.HostName}}` | Nom de l'hôte Docker                                    |
+| `{{.Container.State}}`    | État du conteneur                                       |
+| `{{.Log.Message}}`        | Contenu du message de log                               |
+| `{{.Log.Level}}`          | Niveau de log                                           |
+| `{{.Log.Timestamp}}`      | Horodatage du log                                       |
+| `{{.Log.Stream}}`         | Type de flux (stdout/stderr)                            |
+| `{{.Stat.CPUPercent}}`    | Pourcentage d'utilisation CPU                           |
+| `{{.Stat.MemoryPercent}}` | Pourcentage d'utilisation mémoire                       |
+| `{{.Stat.MemoryUsage}}`   | Utilisation mémoire en octets                           |
+| `{{.Event.Name}}`         | Nom de l'évènement (alertes d'évènements)               |
+| `{{.Event.Attributes}}`   | Map des attributs de l'évènement (alertes d'évènements) |
+| `{{.Subscription.Name}}`  | Nom de la règle d'alerte                                |
+| `{{.Timestamp}}`          | Heure de création de la notification                    |
 
 `{{.Timestamp}}` s'affiche au format horaire par défaut de Go, que des services comme Discord rejettent. Formatez-le plutôt en ISO 8601 :
 
@@ -258,6 +260,20 @@ Les noms d'évènements Docker courants sont `start`, `stop`, `die`, `kill`, `oo
 
 Pour les évènements `health_status`, Dozzle expose l'état courant dans `attributes["healthStatus"]` (`healthy` ou `unhealthy`).
 
+### Mise à jour disponible
+
+Dozzle émet aussi un évènement `update_available` quand une image plus récente est publiée pour un conteneur. Une fois par jour, à une heure aléatoire, il vérifie chaque conteneur qui ne porte pas le label `dev.dozzle.update: off`, et alerte une seule fois par nouvelle image. Un redémarrage de Dozzle peut répéter une alerte pour une mise à jour déjà signalée. La vérification ne tourne que si au moins une alerte d'évènement est activée, et jamais quand `--image-check-mode` vaut `manual` ou `off`.
+
+| Attribut         | Description                                    |
+| ---------------- | ---------------------------------------------- |
+| `image`          | Référence de l'image exécutée par le conteneur |
+| `currentVersion` | Version de l'image en cours d'exécution        |
+| `latestVersion`  | Version de l'image plus récente                |
+| `currentDigest`  | Digest de l'image en cours d'exécution         |
+| `latestDigest`   | Digest de l'image plus récente                 |
+
+Les versions proviennent du label `org.opencontainers.image.version` de l'image. Beaucoup d'images ne le définissent pas, donc l'une ou l'autre version peut être vide. Dozzle ne lit pas non plus la nouvelle version quand votre quota de pulls Docker Hub est presque épuisé.
+
 ### Exemples d'évènements
 
 **Alerter quand un conteneur de production s'arrête :**
@@ -280,6 +296,23 @@ Event:     name == "oom"
 Container: true
 Event:     name == "health_status" && attributes["healthStatus"] == "unhealthy"
 ```
+
+**Alerter quand une image plus récente est disponible :**
+
+```
+Container: true
+Event:     name == "update_available"
+```
+
+Dans un modèle de webhook, les versions se trouvent sous `.Event.Attributes` :
+
+<div v-pre>
+
+```
+New version for {{ .Container.Name }}: {{ .Event.Attributes.currentVersion }} -> {{ .Event.Attributes.latestVersion }}
+```
+
+</div>
 
 **Alerter sur les sorties inattendues (en ignorant les arrêts propres) :**
 

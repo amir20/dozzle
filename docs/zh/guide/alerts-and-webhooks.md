@@ -1,7 +1,7 @@
 ---
 title: 警报
 description: 为 Docker 容器日志、CPU 和内存指标以及生命周期事件设置 Dozzle 警报，并发送到 webhook、Slack、Discord 或 ntfy。
-sourceHash: 10f1bc73df75
+sourceHash: bf1369bcb594
 ---
 
 # 警报
@@ -75,6 +75,8 @@ Webhook 会向你指定的 URL 发送一个 HTTP POST 请求。Dozzle 为常用�
 | `{{.Stat.CPUPercent}}`    | CPU 使用百分比             |
 | `{{.Stat.MemoryPercent}}` | 内存使用百分比             |
 | `{{.Stat.MemoryUsage}}`   | 内存使用量（字节）         |
+| `{{.Event.Name}}`         | 事件名称（事件警报）       |
+| `{{.Event.Attributes}}`   | 事件属性映射（事件警报）   |
 | `{{.Subscription.Name}}`  | 警报规则名称               |
 | `{{.Timestamp}}`          | 通知创建的时间             |
 
@@ -258,6 +260,20 @@ Metric:    memoryUsage > 1073741824
 
 对于 `health_status` 事件，Dozzle 会把当前状态放在 `attributes["healthStatus"]` 中（`healthy` 或 `unhealthy`）。
 
+### 有可用更新
+
+当某个容器的镜像发布了新版本时，Dozzle 还会产生一个 `update_available` 事件。它每天在一个随机时间检查所有未标记 `dev.dozzle.update: off` 的容器，每个新镜像只发出一次警报。重启 Dozzle 后，已经发送过的更新可能会再次触发警报。只有在至少启用了一条事件警报时才会执行检查；当 `--image-check-mode` 为 `manual` 或 `off` 时则完全不会检查。
+
+| 属性             | 说明               |
+| ---------------- | ------------------ |
+| `image`          | 容器运行的镜像引用 |
+| `currentVersion` | 当前运行镜像的版本 |
+| `latestVersion`  | 新镜像的版本       |
+| `currentDigest`  | 当前运行镜像的摘要 |
+| `latestDigest`   | 新镜像的摘要       |
+
+版本号取自镜像的 `org.opencontainers.image.version` 标签。很多镜像没有设置这个标签，所以两个版本都可能为空。当你的 Docker Hub 拉取次数快用完时，Dozzle 也会跳过读取新版本。
+
 ### 事件示例
 
 **任何生产环境容器退出时发出警报：**
@@ -280,6 +296,23 @@ Event:     name == "oom"
 Container: true
 Event:     name == "health_status" && attributes["healthStatus"] == "unhealthy"
 ```
+
+**有更新的镜像可用时发出警报：**
+
+```
+Container: true
+Event:     name == "update_available"
+```
+
+在 webhook 模板中，版本信息位于 `.Event.Attributes` 下：
+
+<div v-pre>
+
+```
+New version for {{ .Container.Name }}: {{ .Event.Attributes.currentVersion }} -> {{ .Event.Attributes.latestVersion }}
+```
+
+</div>
 
 **对意外退出发出警报（忽略正常和优雅关闭）：**
 

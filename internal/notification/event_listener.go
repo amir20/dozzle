@@ -45,6 +45,13 @@ type ContainerEventListener struct {
 	// an update on an agent host is recorded by the server, not the agent.
 	updates       *container.UpdateRecords
 	updateClients func() []container.ClientService
+
+	// checkUpdates, when set, runs daily at checkAt past midnight. alerted
+	// maps host/name to the newest digest already raised as update_available.
+	checkUpdates   UpdateChecker
+	checkAt        time.Duration
+	alertedMu      sync.Mutex
+	alertedUpdates map[string]string
 }
 
 func NewContainerEventListener(ctx context.Context, clients []container.ClientService) *ContainerEventListener {
@@ -53,6 +60,8 @@ func NewContainerEventListener(ctx context.Context, clients []container.ClientSe
 		channel:   make(chan *ContainerEventEntry, 1000),
 		parentCtx: ctx,
 		cache:     NewTTLCache[string, containerInfo](ctx, 30*time.Second),
+
+		alertedUpdates: map[string]string{},
 	}
 }
 
@@ -88,6 +97,10 @@ func (l *ContainerEventListener) Start() {
 		records := make(chan container.UpdateRecord, 64)
 		l.updates.Subscribe(ctx, records)
 		go l.forwardUpdates(ctx, records)
+	}
+
+	if l.checkUpdates != nil && l.updateClients != nil {
+		go l.runUpdateChecks(ctx, l.checkUpdates, l.checkAt)
 	}
 
 	log.Debug().Msg("Started container event listener for event alerts")
