@@ -421,6 +421,7 @@ updates:
   auto: Auto
   auto-hint: Aktualizowany także zgodnie z harmonogramem automatycznych aktualizacji
   auto-footnote: Dodaj do kontenera etykietę {label}, aby aktualizować go zgodnie z harmonogramem automatycznych aktualizacji.
+  check-only: Ma etykietę {label}, więc jest aktualizowany poza Dozzle.
   scheduled-running: Harmonogram automatycznych aktualizacji właśnie działa.
   progress: Ukończono {done} z {total}
   back: Wstecz

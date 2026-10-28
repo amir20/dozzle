@@ -1,7 +1,7 @@
 ---
 title: Container-Updates
 description: Wie Dozzle Docker-Container auf neuere Images prüft und sie von Hand oder nach Zeitplan aktualisiert, mit automatischem Zurückrollen und Aufräumen alter Images.
-sourceHash: 21b3c71b7338
+sourceHash: 02f14dba265b
 ---
 
 # Container-Updates
@@ -106,11 +106,12 @@ Dozzle kann Container nach Zeitplan aktualisieren. Eingerichtet wird das unter *
 
 Ein Label am Container entscheidet den Rest:
 
-| `dev.dozzle.update` | Was passiert                                                                                                    |
-| ------------------- | --------------------------------------------------------------------------------------------------------------- |
-| `auto`              | Wird nach Zeitplan aktualisiert, außer **Welche Container** steht auf **Nur Dozzle**                            |
-| _(kein Label)_      | Wird bei **Alles** nach Zeitplan aktualisiert. Sonst geprüft und als Update angezeigt, das du selbst einspielst |
-| `off`               | Wird nie geprüft und nie aktualisiert                                                                           |
+| `dev.dozzle.update` | Was passiert                                                                                                                |
+| ------------------- | --------------------------------------------------------------------------------------------------------------------------- |
+| `auto`              | Wird nach Zeitplan aktualisiert, außer **Welche Container** steht auf **Nur Dozzle**                                        |
+| _(kein Label)_      | Wird bei **Alles** nach Zeitplan aktualisiert. Sonst geprüft und als Update angezeigt, das du selbst einspielst             |
+| `check`             | Wird geprüft und als Update angezeigt, aber nie von Dozzle aktualisiert. Aktualisiere ihn selbst, etwa mit `docker compose` |
+| `off`               | Wird nie geprüft und nie aktualisiert                                                                                       |
 
 ```yaml
 services:

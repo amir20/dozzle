@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/amir20/dozzle/internal/container"
+	"github.com/amir20/dozzle/internal/updatepolicy"
 	pb "github.com/amir20/dozzle/proto/cloud"
 )
 
@@ -71,6 +72,9 @@ func executeUpdateContainer(ctx context.Context, argsJSON string, deps ToolDeps)
 	// The host refuses too; this answers without a round trip to an agent.
 	if cs.Container.State != "running" {
 		return nil, notRunningError(cs.Container)
+	}
+	if updatepolicy.CheckOnly(cs.Container.Labels) {
+		return nil, fmt.Errorf("container %s is %w", cs.Container.Name, container.ErrCheckOnly)
 	}
 
 	var updated bool

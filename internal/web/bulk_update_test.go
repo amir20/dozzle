@@ -131,6 +131,27 @@ func TestBulkUpdate_StoppedContainerRefused(t *testing.T) {
 	assert.Equal(t, []string{"cccccccccccc"}, client.order)
 }
 
+// A container labelled check is refused without asking its host, and the rest
+// of the job still runs.
+func TestBulkUpdate_CheckOnlyRefused(t *testing.T) {
+	client := &recordingClientService{}
+	services := []*container.ContainerService{
+		container.NewContainerService(client, container.Container{ID: "bbbbbbbbbbbb", State: "running", Host: "local", Name: "web", Labels: map[string]string{"dev.dozzle.update": "check"}}),
+		container.NewContainerService(client, container.Container{ID: "cccccccccccc", State: "running", Host: "local", Name: "db"}),
+	}
+
+	u := newTestUpdater()
+	done, err := u.Start(services, "manual", "", "", nil)
+	require.NoError(t, err)
+	waitDone(t, done)
+
+	job, _ := u.snapshot(nil)
+	assert.Equal(t, "error", job.Items[0].Status)
+	assert.Equal(t, container.ErrCheckOnly.Error(), job.Items[0].Error)
+	assert.Equal(t, "done", job.Items[1].Status)
+	assert.Equal(t, []string{"cccccccccccc"}, client.order)
+}
+
 // A rolled back container ends the job as rolled back, not failed, with the
 // reason the new one was refused.
 func TestBulkUpdate_RolledBackStaysRolledBack(t *testing.T) {

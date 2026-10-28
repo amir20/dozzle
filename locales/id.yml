@@ -431,6 +431,7 @@ updates:
   auto: Otomatis
   auto-hint: Juga diperbarui sesuai jadwal pembaruan otomatis
   auto-footnote: Beri label {label} pada container agar diperbarui sesuai jadwal pembaruan otomatis.
+  check-only: Berlabel {label}, jadi diperbarui di luar Dozzle.
   scheduled-running: Jadwal pembaruan otomatis sedang berjalan.
   progress: "{done} dari {total} selesai"
   back: Kembali

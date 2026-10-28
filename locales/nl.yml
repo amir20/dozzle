@@ -420,6 +420,7 @@ updates:
   auto: Auto
   auto-hint: Wordt ook bijgewerkt volgens het schema voor automatische updates
   auto-footnote: Geef een container het label {label} om hem volgens het schema voor automatische updates bij te werken.
+  check-only: Heeft het label {label}, dus wordt buiten Dozzle bijgewerkt.
   scheduled-running: Het schema voor automatische updates draait nu.
   progress: "{done} van {total} klaar"
   back: Terug

@@ -422,6 +422,7 @@ updates:
   auto: Otomatik
   auto-hint: Otomatik güncelleme zamanlamasıyla da güncellenir
   auto-footnote: Bir container'ı otomatik güncelleme zamanlamasıyla güncellemek için ona {label} etiketini ekleyin.
+  check-only: "{label} etiketi var, bu yüzden Dozzle dışında güncellenir."
   scheduled-running: Otomatik güncelleme zamanlaması şu anda çalışıyor.
   progress: "{total} içinden {done} tamamlandı"
   back: Geri

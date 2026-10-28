@@ -508,6 +508,13 @@ describe("useImageUpdates", () => {
     expect(canUpdate(container({ state: "running" }))).toBe(true);
   });
 
+  test("lists a container labelled check, but never offers to update it", async () => {
+    const checked = container({ state: "running", labels: { "dev.dozzle.update": "check" } });
+    const { hasUpdate } = await checkAll(checked);
+    expect(hasUpdate(checked)).toBe(true);
+    expect(canUpdate(checked)).toBe(false);
+  });
+
   test("skips an exited swarm task but offers the running one", async () => {
     const old = container({ state: "exited", isSwarm: true });
     const current = container({ state: "running", isSwarm: true });

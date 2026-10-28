@@ -1,7 +1,7 @@
 ---
 title: Actualizaciones de contenedores
 description: Cómo Dozzle comprueba si tus contenedores de Docker tienen imágenes más nuevas y los actualiza a mano o según una programación, con reversión automática y limpieza de imágenes antiguas.
-sourceHash: 21b3c71b7338
+sourceHash: 02f14dba265b
 ---
 
 # Actualizaciones de contenedores
@@ -106,11 +106,12 @@ Dozzle puede actualizar contenedores de forma programada. Se configura en **Conf
 
 Una etiqueta en el contenedor decide el resto:
 
-| `dev.dozzle.update` | Qué pasa                                                                                                             |
-| ------------------- | -------------------------------------------------------------------------------------------------------------------- |
-| `auto`              | Se actualiza según la programación, salvo que **Qué contenedores** sea **Solo Dozzle**                               |
-| _(sin etiqueta)_    | Se actualiza según la programación con **Todo**. Si no, se comprueba y se muestra como actualización, que aplicas tú |
-| `off`               | Nunca se comprueba ni se actualiza                                                                                   |
+| `dev.dozzle.update` | Qué pasa                                                                                                                       |
+| ------------------- | ------------------------------------------------------------------------------------------------------------------------------ |
+| `auto`              | Se actualiza según la programación, salvo que **Qué contenedores** sea **Solo Dozzle**                                         |
+| _(sin etiqueta)_    | Se actualiza según la programación con **Todo**. Si no, se comprueba y se muestra como actualización, que aplicas tú           |
+| `check`             | Se comprueba y se muestra como actualización, pero Dozzle nunca lo actualiza. Actualízalo tú, por ejemplo con `docker compose` |
+| `off`               | Nunca se comprueba ni se actualiza                                                                                             |
 
 ```yaml
 services:
