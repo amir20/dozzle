@@ -608,7 +608,7 @@ func TestSearchContainerLogsTruncates(t *testing.T) {
 	require.NoError(t, err)
 	assert.False(t, result.IsError)
 	text := result.Content[0].(*mcp.TextContent).Text
-	assert.Contains(t, text, "results truncated")
+	assert.Contains(t, text, "showing the newest")
 }
 
 func connectTestClient(t *testing.T, s *Server) *mcp.ClientSession {
@@ -689,4 +689,73 @@ func TestListContainersOmitsLabelsByDefault(t *testing.T) {
 
 	text, _ = callText(t, session, "list_containers", map[string]any{"include_labels": true})
 	assert.Contains(t, text, "traefik")
+}
+
+func TestGetContainerLogsKeepsNewestWithLimitAndLevel(t *testing.T) {
+	svc := &mockHostService{
+		containers: []container.Container{{ID: "abc123", Name: "web", Host: "local"}},
+		logEvents: []*container.LogEvent{
+			{Type: container.LogTypeSingle, RawMessage: "first", Level: "error", Timestamp: 1},
+			{Type: container.LogTypeSingle, RawMessage: "second", Level: "info", Timestamp: 2},
+			{Type: container.LogTypeSingle, RawMessage: "third", Level: "warn", Timestamp: 3},
+			{Type: container.LogTypeSingle, RawMessage: "\x1b[31mfourth\x1b[0m", Level: "error", Timestamp: 4},
+		},
+	}
+	session := connectTestClient(t, NewServer(svc, nil, "test"))
+
+	text, isErr := callText(t, session, "get_container_logs", map[string]any{"container_id": "web", "limit": 2})
+	assert.False(t, isErr, text)
+	assert.NotContains(t, text, "first")
+	assert.Contains(t, text, "third")
+	assert.Contains(t, text, `"message":"fourth"`, "ANSI codes are stripped")
+	assert.Contains(t, text, "showing the newest 2 of 4 entries")
+
+	text, isErr = callText(t, session, "get_container_logs", map[string]any{"container_id": "web", "level": "warn"})
+	assert.False(t, isErr, text)
+	assert.NotContains(t, text, "second")
+	assert.Contains(t, text, "first")
+	assert.Contains(t, text, "third")
+	assert.NotContains(t, text, "showing the newest")
+
+	text, isErr = callText(t, session, "get_container_logs", map[string]any{"container_id": "web", "level": "loud"})
+	assert.True(t, isErr)
+	assert.Contains(t, text, "invalid level")
+}
+
+func TestSearchMatchesAcrossColourChange(t *testing.T) {
+	svc := &mockHostService{
+		containers: []container.Container{{ID: "abc123", Name: "web", Host: "local"}},
+		logEvents: []*container.LogEvent{
+			{Type: container.LogTypeSingle, RawMessage: "payment \x1b[31mfailed\x1b[0m", Timestamp: 1},
+		},
+	}
+	session := connectTestClient(t, NewServer(svc, nil, "test"))
+
+	text, isErr := callText(t, session, "search_container_logs", map[string]any{"container_id": "web", "query": "payment failed"})
+	assert.False(t, isErr, text)
+	assert.Contains(t, text, "Found 1 match")
+}
+
+func TestParseTimeRange(t *testing.T) {
+	str := func(s string) *string { return &s }
+	ten := 10
+
+	from, to, errResult := parseTimeRange(nil, str("2026-10-28T04:20:00Z"), str("2026-10-28T04:40:00Z"))
+	require.Nil(t, errResult)
+	assert.Equal(t, time.Date(2026, 10, 28, 4, 20, 0, 0, time.UTC), from.UTC())
+	assert.Equal(t, time.Date(2026, 10, 28, 4, 40, 0, 0, time.UTC), to.UTC())
+
+	from, to, errResult = parseTimeRange(&ten, nil, str("2026-10-28T04:40:00Z"))
+	require.Nil(t, errResult)
+	assert.Equal(t, 10*time.Minute, to.Sub(from))
+
+	from, to, errResult = parseTimeRange(nil, nil, nil)
+	require.Nil(t, errResult)
+	assert.Equal(t, 5*time.Minute, to.Sub(from))
+
+	_, _, errResult = parseTimeRange(nil, str("2026-10-28T04:40:00Z"), str("2026-10-28T04:20:00Z"))
+	assert.NotNil(t, errResult)
+
+	_, _, errResult = parseTimeRange(nil, str("yesterday"), nil)
+	assert.NotNil(t, errResult)
 }

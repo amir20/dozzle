@@ -84,7 +84,11 @@ type listContainersParams struct {
 type getContainerLogsParams struct {
 	Host         string  `json:"host,omitempty" jsonschema:"The host ID or name where the container is running. Optional: leave it out to search every host."`
 	ContainerID  string  `json:"container_id" jsonschema:"The container ID, short ID or name to get logs from. Use list_containers to find this."`
-	SinceMinutes *int    `json:"since_minutes,omitempty" jsonschema:"Fetch logs from the last N minutes. Defaults to 5."`
+	SinceMinutes *int    `json:"since_minutes,omitempty" jsonschema:"Read the N minutes before end (or now). Defaults to 5. Ignored when start is set."`
+	Start        *string `json:"start,omitempty" jsonschema:"Start of an absolute time range, RFC 3339 (e.g. 2026-10-28T04:20:00Z)."`
+	End          *string `json:"end,omitempty" jsonschema:"End of the time range, RFC 3339. Defaults to now."`
+	Level        *string `json:"level,omitempty" jsonschema:"Minimum level to return: trace, debug, info, warn, error or fatal. Entries below it, or with no detected level, are left out."`
+	Limit        *int    `json:"limit,omitempty" jsonschema:"Return at most the newest N entries."`
 	Stream       *string `json:"stream,omitempty" jsonschema:"Which output stream to read: stdout, stderr, or all. Defaults to all."`
 }
 
@@ -92,7 +96,11 @@ type searchContainerLogsParams struct {
 	Host          string  `json:"host,omitempty" jsonschema:"The host ID or name where the container is running. Optional: leave it out to search every host."`
 	ContainerID   string  `json:"container_id" jsonschema:"The container ID, short ID or name to search logs from. Use list_containers to find this."`
 	Query         string  `json:"query" jsonschema:"The search string to look for in log messages. Case-insensitive by default."`
-	SinceMinutes  *int    `json:"since_minutes,omitempty" jsonschema:"Search logs from the last N minutes. Defaults to 5."`
+	SinceMinutes  *int    `json:"since_minutes,omitempty" jsonschema:"Read the N minutes before end (or now). Defaults to 5. Ignored when start is set."`
+	Start         *string `json:"start,omitempty" jsonschema:"Start of an absolute time range, RFC 3339 (e.g. 2026-10-28T04:20:00Z)."`
+	End           *string `json:"end,omitempty" jsonschema:"End of the time range, RFC 3339. Defaults to now."`
+	Level         *string `json:"level,omitempty" jsonschema:"Minimum level to return: trace, debug, info, warn, error or fatal. Entries below it, or with no detected level, are left out."`
+	Limit         *int    `json:"limit,omitempty" jsonschema:"Return at most the newest N entries."`
 	Stream        *string `json:"stream,omitempty" jsonschema:"Which output stream to search: stdout, stderr, or all. Defaults to all."`
 	CaseSensitive *bool   `json:"case_sensitive,omitempty" jsonschema:"Whether to perform a case-sensitive search. Defaults to false."`
 }
@@ -237,6 +245,56 @@ func parseStream(stream *string) (container.StdType, *mcp.CallToolResult) {
 	}
 }
 
+// parseTimeRange turns since_minutes, start and end into the window to read.
+// since_minutes (default 5) counts back from end, so "the 10 minutes before
+// 04:40" needs only end; start overrides it.
+func parseTimeRange(sinceMinutes *int, start, end *string) (time.Time, time.Time, *mcp.CallToolResult) {
+	to := time.Now()
+	if end != nil && *end != "" {
+		t, err := time.Parse(time.RFC3339, *end)
+		if err != nil {
+			return time.Time{}, time.Time{}, errorResult(fmt.Sprintf("invalid end %q: must be RFC 3339, like 2026-10-28T04:40:00Z", *end))
+		}
+		to = t
+	}
+
+	if start != nil && *start != "" {
+		from, err := time.Parse(time.RFC3339, *start)
+		if err != nil {
+			return time.Time{}, time.Time{}, errorResult(fmt.Sprintf("invalid start %q: must be RFC 3339, like 2026-10-28T04:20:00Z", *start))
+		}
+		if !from.Before(to) {
+			return time.Time{}, time.Time{}, errorResult("start must be before end")
+		}
+		return from, to, nil
+	}
+
+	minutes := 5
+	if sinceMinutes != nil && *sinceMinutes > 0 {
+		minutes = *sinceMinutes
+	}
+	return to.Add(-time.Duration(minutes) * time.Minute), to, nil
+}
+
+// levelRank orders the levels logparse detects, lowest first.
+var levelRank = map[string]int{"trace": 0, "debug": 1, "info": 2, "warn": 3, "error": 4, "fatal": 5}
+
+// parseMinLevel resolves the optional level argument into a keep filter, or nil
+// when no level was given. Entries with no detected level never pass a filter.
+func parseMinLevel(level *string) (func(mcpLogEntry) bool, *mcp.CallToolResult) {
+	if level == nil || *level == "" {
+		return nil, nil
+	}
+	minRank, ok := levelRank[strings.ToLower(*level)]
+	if !ok {
+		return nil, errorResult(fmt.Sprintf("invalid level %q: must be trace, debug, info, warn, error or fatal", *level))
+	}
+	return func(entry mcpLogEntry) bool {
+		rank, ok := levelRank[entry.Level]
+		return ok && rank >= minRank
+	}, nil
+}
+
 // findContainer resolves a container reference (id, short id or name) and an
 // optional host (id or name) with the same resolver the cloud read tools use,
 // so a name keeps working after a redeploy hands the container a new id. note
@@ -258,11 +316,11 @@ func (s *Server) findContainer(ctx context.Context, host, ref string) (*containe
 	return containerSvc, note, nil
 }
 
-// fetchLogs finds the container and returns its log events for the last
-// sinceMinutes (defaulting to 5), plus the resolver's note. On a user-facing
+// fetchLogs finds the container and returns its log events between from and
+// to, plus the resolver's note. On a user-facing
 // failure it returns a non-nil error result; otherwise the caller must call
 // cancel when done.
-func (s *Server) fetchLogs(ctx context.Context, host, ref string, stream *string, sinceMinutes *int) (<-chan *container.LogEvent, string, context.CancelFunc, *mcp.CallToolResult) {
+func (s *Server) fetchLogs(ctx context.Context, host, ref string, stream *string, from, to time.Time) (<-chan *container.LogEvent, string, context.CancelFunc, *mcp.CallToolResult) {
 	stdType, errResult := parseStream(stream)
 	if errResult != nil {
 		return nil, "", nil, errResult
@@ -273,14 +331,8 @@ func (s *Server) fetchLogs(ctx context.Context, host, ref string, stream *string
 		return nil, "", nil, errResult
 	}
 
-	minutes := 5
-	if sinceMinutes != nil && *sinceMinutes > 0 {
-		minutes = *sinceMinutes
-	}
-
 	logCtx, cancel := context.WithCancel(ctx)
-	since := time.Now().Add(-time.Duration(minutes) * time.Minute)
-	events, err := containerSvc.LogsBetweenDates(logCtx, since, time.Now(), stdType)
+	events, err := containerSvc.LogsBetweenDates(logCtx, from, to, stdType)
 	if err != nil {
 		cancel()
 		return nil, "", nil, errorResult(fmt.Sprintf("failed to read logs: %v", err))
@@ -298,21 +350,23 @@ func withNote(note, text string) string {
 }
 
 // eventMessage extracts the JSON-encodable message payload for a log event.
+// ANSI colour codes are stripped: the UI renders them, but here they only cost
+// space and break substring search across a colour change.
 func eventMessage(event *container.LogEvent) any {
 	switch event.Type {
 	case container.LogTypeGroup:
 		if fragments, ok := event.Message.([]container.LogFragment); ok {
 			lines := make([]string, len(fragments))
 			for i, f := range fragments {
-				lines[i] = f.Message
+				lines[i] = container.StripANSI(f.Message)
 			}
 			return lines
 		}
-		return event.RawMessage
+		return container.StripANSI(event.RawMessage)
 	case container.LogTypeComplex:
 		return event.Message
 	default:
-		return event.RawMessage
+		return container.StripANSI(event.RawMessage)
 	}
 }
 
@@ -327,10 +381,13 @@ func newLogEntry(event *container.LogEvent) mcpLogEntry {
 }
 
 // collectLogEntries drains events into JSON-encodable entries. keep, when
-// non-nil, filters which entries are included. Collection stops once the encoded
-// size would exceed maxLogSize, in which case truncated is true. scanned counts
-// every event pulled from the channel, matched or not.
-func collectLogEntries(events <-chan *container.LogEvent, keep func(mcpLogEntry) bool) (entries []mcpLogEntry, scanned int, truncated bool) {
+// non-nil, filters which entries are included. It keeps the newest entries:
+// once the encoded size passes maxLogSize, or the count passes limit (when
+// limit > 0), the oldest are dropped. scanned counts every event pulled from
+// the channel and matched every entry keep accepted, so matched > len(entries)
+// means the answer was cut.
+func collectLogEntries(events <-chan *container.LogEvent, keep func(mcpLogEntry) bool, limit int) (entries []mcpLogEntry, scanned, matched int) {
+	var sizes []int
 	totalSize := 0
 	for event := range events {
 		scanned++
@@ -344,15 +401,24 @@ func collectLogEntries(events <-chan *container.LogEvent, keep func(mcpLogEntry)
 			continue
 		}
 
-		totalSize += len(line) + 1
-		if totalSize > maxLogSize {
-			truncated = true
-			break
-		}
-
+		matched++
 		entries = append(entries, entry)
+		sizes = append(sizes, len(line)+1)
+		totalSize += len(line) + 1
+		for totalSize > maxLogSize || (limit > 0 && len(entries) > limit) {
+			totalSize -= sizes[0]
+			entries, sizes = entries[1:], sizes[1:]
+		}
 	}
-	return entries, scanned, truncated
+	return entries, scanned, matched
+}
+
+// truncationNote says how much of the answer was cut, or "" when nothing was.
+func truncationNote(shown, matched int) string {
+	if shown >= matched {
+		return ""
+	}
+	return fmt.Sprintf("(showing the newest %d of %d entries; narrow the time range, or use limit or level)", shown, matched)
 }
 
 // encodeLogEntries renders entries as newline-delimited JSON.
@@ -372,13 +438,22 @@ func (s *Server) handleGetContainerLogs(ctx context.Context, _ *mcp.CallToolRequ
 		return errorResult("container_id is required"), nil, nil
 	}
 
-	events, note, cancel, errResult := s.fetchLogs(ctx, params.Host, params.ContainerID, params.Stream, params.SinceMinutes)
+	from, to, errResult := parseTimeRange(params.SinceMinutes, params.Start, params.End)
+	if errResult != nil {
+		return errResult, nil, nil
+	}
+	keep, errResult := parseMinLevel(params.Level)
+	if errResult != nil {
+		return errResult, nil, nil
+	}
+
+	events, note, cancel, errResult := s.fetchLogs(ctx, params.Host, params.ContainerID, params.Stream, from, to)
 	if errResult != nil {
 		return errResult, nil, nil
 	}
 	defer cancel()
 
-	entries, _, _ := collectLogEntries(events, nil)
+	entries, _, matched := collectLogEntries(events, keep, intValue(params.Limit))
 	if len(entries) == 0 {
 		return textResult(withNote(note, "(no logs in the specified time range)")), nil, nil
 	}
@@ -386,6 +461,9 @@ func (s *Server) handleGetContainerLogs(ctx context.Context, _ *mcp.CallToolRequ
 	text, err := encodeLogEntries(entries)
 	if err != nil {
 		return nil, nil, err
+	}
+	if cut := truncationNote(len(entries), matched); cut != "" {
+		text += "\n" + cut
 	}
 	return textResult(withNote(note, text)), nil, nil
 }
@@ -401,13 +479,25 @@ func (s *Server) handleSearchContainerLogs(ctx context.Context, _ *mcp.CallToolR
 		query = strings.ToLower(query)
 	}
 
-	events, note, cancel, errResult := s.fetchLogs(ctx, params.Host, params.ContainerID, params.Stream, params.SinceMinutes)
+	from, to, errResult := parseTimeRange(params.SinceMinutes, params.Start, params.End)
+	if errResult != nil {
+		return errResult, nil, nil
+	}
+	levelOK, errResult := parseMinLevel(params.Level)
+	if errResult != nil {
+		return errResult, nil, nil
+	}
+
+	events, note, cancel, errResult := s.fetchLogs(ctx, params.Host, params.ContainerID, params.Stream, from, to)
 	if errResult != nil {
 		return errResult, nil, nil
 	}
 	defer cancel()
 
 	keep := func(entry mcpLogEntry) bool {
+		if levelOK != nil && !levelOK(entry) {
+			return false
+		}
 		haystack := messageToSearchString(entry.Message)
 		if !caseSensitive {
 			haystack = strings.ToLower(haystack)
@@ -415,7 +505,7 @@ func (s *Server) handleSearchContainerLogs(ctx context.Context, _ *mcp.CallToolR
 		return strings.Contains(haystack, query)
 	}
 
-	entries, scanned, truncated := collectLogEntries(events, keep)
+	entries, scanned, matched := collectLogEntries(events, keep, intValue(params.Limit))
 	if len(entries) == 0 {
 		return textResult(withNote(note, fmt.Sprintf("(no matches for %q in %d log entries scanned)", params.Query, scanned))), nil, nil
 	}
@@ -429,13 +519,20 @@ func (s *Server) handleSearchContainerLogs(ctx context.Context, _ *mcp.CallToolR
 	if note != "" {
 		sb.WriteString(note + "\n")
 	}
-	fmt.Fprintf(&sb, "Found %d matches for %q (scanned %d entries):\n", len(entries), params.Query, scanned)
+	fmt.Fprintf(&sb, "Found %d matches for %q (scanned %d entries):\n", matched, params.Query, scanned)
 	sb.WriteString(body)
-	if truncated {
-		sb.WriteString("\n(results truncated at 1MB; narrow your query or time range to see more)")
+	if cut := truncationNote(len(entries), matched); cut != "" {
+		sb.WriteString("\n" + cut)
 	}
 
 	return textResult(sb.String()), nil, nil
+}
+
+func intValue(v *int) int {
+	if v == nil {
+		return 0
+	}
+	return *v
 }
 
 func messageToSearchString(msg any) string {

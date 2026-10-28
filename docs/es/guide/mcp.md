@@ -1,7 +1,7 @@
 ---
 title: Integración con MCP
 description: Activa el servidor MCP de Dozzle para que asistentes de IA como Claude y Copilot lean los logs y estadísticas de tus contenedores de Docker, y configura clientes y autenticación.
-sourceHash: 3d279a8a1ee7
+sourceHash: 4c7d62d3796c
 ---
 
 # Integración con MCP
@@ -46,6 +46,8 @@ Todas las herramientas son de **solo lectura** y no modifican los contenedores.
 | `get_container_stats`   | Obtiene el historial de uso de CPU y memoria de un contenedor.                                                                                   |
 
 Las herramientas de logs y estadísticas aceptan en `container_id` el ID del contenedor, su ID corto o su nombre, así que un nombre sigue funcionando después de que un redespliegue le asigne un ID nuevo al contenedor. `host` es opcional. Si se omite, el contenedor se busca en todos los hosts. Si un nombre coincide con varios contenedores, gana uno en ejecución y, después, el que tuvo actividad más reciente, y el resultado menciona los demás.
+
+Por defecto, ambas herramientas de logs leen los últimos 5 minutos. `since_minutes` cambia ese intervalo, o puedes pasar `start` y `end` (RFC 3339) para una ventana fija. `level` conserva las entradas de ese nivel o superior (por ejemplo `warn`), y `limit` devuelve solo las N entradas más recientes. Las respuestas tienen un límite de 1 MB. Cuando una respuesta se recorta, se conservan las entradas más recientes y una nota indica cuántas se omitieron. Los códigos de color ANSI se eliminan de los mensajes.
 
 ## Configurar clientes MCP
 

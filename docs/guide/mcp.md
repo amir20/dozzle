@@ -46,6 +46,8 @@ All tools are **read-only** and do not modify containers.
 
 The log and stats tools take a container ID, short ID or name in `container_id`, so a name keeps working after a redeploy gives the container a new ID. `host` is optional. Without it the container is looked up across every host. If a name matches several containers, a running one wins, then the most recently active, and the result names the others.
 
+Both log tools read the last 5 minutes by default. `since_minutes` changes that, or pass `start` and `end` (RFC 3339) for a fixed window. `level` keeps entries at or above a level (for example `warn`), and `limit` returns only the newest N entries. Answers are capped at 1 MB. When an answer is cut, the newest entries are kept and a note says how many were left out. ANSI colour codes are stripped from messages.
+
 ## Configuring MCP Clients
 
 ### VS Code (GitHub Copilot / Copilot Chat)
