@@ -1,7 +1,7 @@
 ---
 title: MCP-Integration
 description: Aktiviere Dozzles MCP-Server, damit KI-Assistenten wie Claude und Copilot Logs und Statistiken deiner Docker-Container lesen können, und richte Clients und Authentifizierung ein.
-sourceHash: f41d126e6cea
+sourceHash: 3d279a8a1ee7
 ---
 
 # MCP-Integration
@@ -37,13 +37,15 @@ services:
 
 Alle Tools sind **schreibgeschützt** und verändern keine Container.
 
-| Tool                    | Beschreibung                                                                                     |
-| ----------------------- | ------------------------------------------------------------------------------------------------ |
-| `list_containers`       | Listet alle Container über alle Hosts hinweg. Unterstützt einen optionalen `state`-Filter.       |
-| `get_container_logs`    | Holt strukturierte Logs mit erkannten Leveln, JSON-Parsing und mehrzeiliger Gruppierung.         |
-| `search_container_logs` | Durchsucht Container-Logs nach einem Stichwort oder einer Phrase. Liefert nur passende Einträge. |
-| `list_hosts`            | Listet alle verbundenen Docker-Hosts.                                                            |
-| `get_container_stats`   | Liefert den Verlauf von CPU- und Speichernutzung eines Containers.                               |
+| Tool                    | Beschreibung                                                                                                                                                           |
+| ----------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `list_containers`       | Listet alle Container über alle Hosts hinweg. Unterstützt einen optionalen `state`-Filter. Labels werden nur mitgeliefert, wenn `include_labels` auf true gesetzt ist. |
+| `get_container_logs`    | Holt strukturierte Logs mit erkannten Leveln, JSON-Parsing und mehrzeiliger Gruppierung.                                                                               |
+| `search_container_logs` | Durchsucht Container-Logs nach einem Stichwort oder einer Phrase. Liefert nur passende Einträge.                                                                       |
+| `list_hosts`            | Listet alle verbundenen Docker-Hosts.                                                                                                                                  |
+| `get_container_stats`   | Liefert den Verlauf von CPU- und Speichernutzung eines Containers.                                                                                                     |
+
+Die Log- und Stats-Tools akzeptieren in `container_id` eine Container-ID, eine kurze ID oder einen Namen. So funktioniert ein Name auch dann weiter, wenn der Container nach einem Redeploy eine neue ID bekommt. `host` ist optional. Ohne Angabe wird der Container auf allen Hosts gesucht. Passt ein Name auf mehrere Container, gewinnt ein laufender, danach der zuletzt aktive, und das Ergebnis nennt die übrigen.
 
 ## MCP-Clients konfigurieren
 

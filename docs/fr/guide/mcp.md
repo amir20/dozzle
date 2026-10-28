@@ -1,7 +1,7 @@
 ---
 title: Intégration MCP
 description: Activez le serveur MCP de Dozzle pour que des assistants IA comme Claude et Copilot lisent les logs et statistiques de vos conteneurs Docker, et configurez clients et authentification.
-sourceHash: f41d126e6cea
+sourceHash: 3d279a8a1ee7
 ---
 
 # Intégration MCP
@@ -37,13 +37,15 @@ services:
 
 Tous les outils sont en **lecture seule** et ne modifient pas les conteneurs.
 
-| Outil                   | Description                                                                                          |
-| ----------------------- | ---------------------------------------------------------------------------------------------------- |
-| `list_containers`       | Liste tous les conteneurs de tous les hôtes. Accepte un filtre `state` facultatif.                   |
-| `get_container_logs`    | Récupère des logs structurés avec détection des niveaux, analyse JSON et regroupement multiligne.    |
-| `search_container_logs` | Recherche un mot-clé ou une phrase dans les logs d'un conteneur. Ne renvoie que les correspondances. |
-| `list_hosts`            | Liste tous les hôtes Docker connectés.                                                               |
-| `get_container_stats`   | Récupère l'historique d'utilisation CPU et mémoire d'un conteneur.                                   |
+| Outil                   | Description                                                                                                                                 |
+| ----------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
+| `list_containers`       | Liste tous les conteneurs de tous les hôtes. Accepte un filtre `state` facultatif. Les labels sont omis sauf si `include_labels` vaut true. |
+| `get_container_logs`    | Récupère des logs structurés avec détection des niveaux, analyse JSON et regroupement multiligne.                                           |
+| `search_container_logs` | Recherche un mot-clé ou une phrase dans les logs d'un conteneur. Ne renvoie que les correspondances.                                        |
+| `list_hosts`            | Liste tous les hôtes Docker connectés.                                                                                                      |
+| `get_container_stats`   | Récupère l'historique d'utilisation CPU et mémoire d'un conteneur.                                                                          |
+
+Les outils de logs et de statistiques acceptent dans `container_id` un ID de conteneur, un ID court ou un nom, si bien qu'un nom continue de fonctionner après un redéploiement qui attribue un nouvel ID au conteneur. `host` est facultatif. Sans lui, le conteneur est recherché sur tous les hôtes. Si un nom correspond à plusieurs conteneurs, un conteneur en cours d'exécution l'emporte, puis le plus récemment actif, et le résultat cite les autres.
 
 ## Configurer les clients MCP
 

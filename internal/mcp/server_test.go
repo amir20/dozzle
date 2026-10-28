@@ -81,8 +81,21 @@ func (m *mockHostService) ListAllContainers(labels container.ContainerLabels) ([
 	return m.containers, m.listErrs
 }
 
+// Hosts returns m.hosts, or one host per distinct container host when the test
+// set none, since the name resolver checks a supplied host against this list.
 func (m *mockHostService) Hosts() []container.Host {
-	return m.hosts
+	if m.hosts != nil {
+		return m.hosts
+	}
+	hosts := []container.Host{}
+	seen := map[string]bool{}
+	for _, c := range m.containers {
+		if !seen[c.Host] {
+			seen[c.Host] = true
+			hosts = append(hosts, container.Host{ID: c.Host, Name: c.Host})
+		}
+	}
+	return hosts
 }
 
 func TestReadToolsUseRequestingUsersFilter(t *testing.T) {
@@ -596,4 +609,84 @@ func TestSearchContainerLogsTruncates(t *testing.T) {
 	assert.False(t, result.IsError)
 	text := result.Content[0].(*mcp.TextContent).Text
 	assert.Contains(t, text, "results truncated")
+}
+
+func connectTestClient(t *testing.T, s *Server) *mcp.ClientSession {
+	t.Helper()
+	ctx := context.Background()
+	ct, st := mcp.NewInMemoryTransports()
+	_, err := s.mcpServer.Connect(ctx, st, nil)
+	require.NoError(t, err)
+	client := mcp.NewClient(&mcp.Implementation{Name: "test-client", Version: "v0.0.1"}, nil)
+	session, err := client.Connect(ctx, ct, nil)
+	require.NoError(t, err)
+	t.Cleanup(func() { session.Close() })
+	return session
+}
+
+func callText(t *testing.T, session *mcp.ClientSession, name string, args map[string]any) (string, bool) {
+	t.Helper()
+	result, err := session.CallTool(context.Background(), &mcp.CallToolParams{Name: name, Arguments: args})
+	require.NoError(t, err)
+	return result.Content[0].(*mcp.TextContent).Text, result.IsError
+}
+
+func TestContainerToolsAcceptNameWithoutHost(t *testing.T) {
+	svc := &mockHostService{
+		containers: []container.Container{
+			{ID: "abc123", Name: "web", State: "running", Host: "local"},
+			{ID: "def456", Name: "db", State: "running", Host: "local"},
+		},
+		logEvents: []*container.LogEvent{
+			{Type: container.LogTypeSingle, RawMessage: "hello from web", Timestamp: 1},
+		},
+	}
+	session := connectTestClient(t, NewServer(svc, nil, "test"))
+
+	text, isErr := callText(t, session, "get_container_logs", map[string]any{"container_id": "web"})
+	assert.False(t, isErr, text)
+	assert.Contains(t, text, "hello from web")
+
+	text, isErr = callText(t, session, "search_container_logs", map[string]any{"container_id": "web", "query": "hello"})
+	assert.False(t, isErr, text)
+	assert.Contains(t, text, "Found 1 match")
+
+	text, isErr = callText(t, session, "get_container_stats", map[string]any{"container_id": "db", "host": "local"})
+	assert.False(t, isErr, text)
+	assert.Contains(t, text, `"containerId":"def456"`)
+
+	text, isErr = callText(t, session, "get_container_stats", map[string]any{"container_id": "nope"})
+	assert.True(t, isErr)
+	assert.Contains(t, text, "list_containers")
+	assert.NotContains(t, text, "find_containers")
+}
+
+func TestContainerToolsNoteAmbiguousName(t *testing.T) {
+	svc := &mockHostService{
+		containers: []container.Container{
+			{ID: "aaa111", Name: "api-1", State: "exited", Host: "local", FinishedAt: time.Unix(100, 0)},
+			{ID: "bbb222", Name: "api-2", State: "exited", Host: "local", FinishedAt: time.Unix(200, 0)},
+		},
+	}
+	session := connectTestClient(t, NewServer(svc, nil, "test"))
+
+	text, isErr := callText(t, session, "get_container_stats", map[string]any{"container_id": "api"})
+	assert.False(t, isErr, text)
+	assert.Contains(t, text, `"containerId":"bbb222"`)
+	assert.Contains(t, text, "api-1")
+}
+
+func TestListContainersOmitsLabelsByDefault(t *testing.T) {
+	svc := &mockHostService{
+		containers: []container.Container{
+			{ID: "abc123", Name: "web", Host: "local", Labels: map[string]string{"traefik.http.routers.web.rule": "Host(`x`)"}},
+		},
+	}
+	session := connectTestClient(t, NewServer(svc, nil, "test"))
+
+	text, _ := callText(t, session, "list_containers", map[string]any{})
+	assert.NotContains(t, text, "traefik")
+
+	text, _ = callText(t, session, "list_containers", map[string]any{"include_labels": true})
+	assert.Contains(t, text, "traefik")
 }

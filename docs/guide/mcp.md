@@ -36,13 +36,15 @@ services:
 
 All tools are **read-only** and do not modify containers.
 
-| Tool                    | Description                                                                        |
-| ----------------------- | ---------------------------------------------------------------------------------- |
-| `list_containers`       | List all containers across all hosts. Supports optional `state` filter.            |
-| `get_container_logs`    | Fetch structured logs with detected levels, JSON parsing, and multi-line grouping. |
-| `search_container_logs` | Search container logs for a keyword or phrase. Returns only matching entries.      |
-| `list_hosts`            | List all connected Docker hosts.                                                   |
-| `get_container_stats`   | Get CPU and memory usage history for a container.                                  |
+| Tool                    | Description                                                                                                                  |
+| ----------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
+| `list_containers`       | List all containers across all hosts. Supports optional `state` filter. Labels are left out unless `include_labels` is true. |
+| `get_container_logs`    | Fetch structured logs with detected levels, JSON parsing, and multi-line grouping.                                           |
+| `search_container_logs` | Search container logs for a keyword or phrase. Returns only matching entries.                                                |
+| `list_hosts`            | List all connected Docker hosts.                                                                                             |
+| `get_container_stats`   | Get CPU and memory usage history for a container.                                                                            |
+
+The log and stats tools take a container ID, short ID or name in `container_id`, so a name keeps working after a redeploy gives the container a new ID. `host` is optional. Without it the container is looked up across every host. If a name matches several containers, a running one wins, then the most recently active, and the result names the others.
 
 ## Configuring MCP Clients
 
