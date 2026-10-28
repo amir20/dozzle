@@ -3,12 +3,14 @@ package mcp
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net/http"
 	"strings"
 	"time"
 
 	"github.com/amir20/dozzle/internal/auth"
+	"github.com/amir20/dozzle/internal/cloud"
 	"github.com/amir20/dozzle/internal/container"
 	"github.com/modelcontextprotocol/go-sdk/mcp"
 	"github.com/rs/zerolog/log"
@@ -75,34 +77,43 @@ func (s *Server) Handler() http.Handler {
 // --- Tool Parameter Types ---
 
 type listContainersParams struct {
-	State *string `json:"state,omitempty" jsonschema:"Filter by container state (running, exited, created, paused, dead). Leave empty for all."`
+	State         *string `json:"state,omitempty" jsonschema:"Filter by container state (running, exited, created, paused, dead). Leave empty for all."`
+	IncludeLabels *bool   `json:"include_labels,omitempty" jsonschema:"Include each container's Docker labels. Labels can be large, so they are left out by default."`
 }
 
 type getContainerLogsParams struct {
-	Host         string  `json:"host" jsonschema:"The host ID where the container is running. Use list_containers to find this."`
-	ContainerID  string  `json:"container_id" jsonschema:"The container ID (or short ID) to get logs from. Use list_containers to find this."`
-	SinceMinutes *int    `json:"since_minutes,omitempty" jsonschema:"Fetch logs from the last N minutes. Defaults to 5."`
+	Host         string  `json:"host,omitempty" jsonschema:"The host ID or name where the container is running. Optional: leave it out to search every host."`
+	ContainerID  string  `json:"container_id" jsonschema:"The container ID, short ID or name to get logs from. Use list_containers to find this."`
+	SinceMinutes *int    `json:"since_minutes,omitempty" jsonschema:"Read the N minutes before end (or now). Defaults to 5. Ignored when start is set."`
+	Start        *string `json:"start,omitempty" jsonschema:"Start of an absolute time range, RFC 3339 (e.g. 2026-10-28T04:20:00Z)."`
+	End          *string `json:"end,omitempty" jsonschema:"End of the time range, RFC 3339. Defaults to now."`
+	Level        *string `json:"level,omitempty" jsonschema:"Minimum level to return: trace, debug, info, warn, error or fatal. Entries below it, or with no detected level, are left out."`
+	Limit        *int    `json:"limit,omitempty" jsonschema:"Return at most the newest N entries."`
 	Stream       *string `json:"stream,omitempty" jsonschema:"Which output stream to read: stdout, stderr, or all. Defaults to all."`
 }
 
 type searchContainerLogsParams struct {
-	Host          string  `json:"host" jsonschema:"The host ID where the container is running. Use list_containers to find this."`
-	ContainerID   string  `json:"container_id" jsonschema:"The container ID (or short ID) to search logs from. Use list_containers to find this."`
+	Host          string  `json:"host,omitempty" jsonschema:"The host ID or name where the container is running. Optional: leave it out to search every host."`
+	ContainerID   string  `json:"container_id" jsonschema:"The container ID, short ID or name to search logs from. Use list_containers to find this."`
 	Query         string  `json:"query" jsonschema:"The search string to look for in log messages. Case-insensitive by default."`
-	SinceMinutes  *int    `json:"since_minutes,omitempty" jsonschema:"Search logs from the last N minutes. Defaults to 5."`
+	SinceMinutes  *int    `json:"since_minutes,omitempty" jsonschema:"Read the N minutes before end (or now). Defaults to 5. Ignored when start is set."`
+	Start         *string `json:"start,omitempty" jsonschema:"Start of an absolute time range, RFC 3339 (e.g. 2026-10-28T04:20:00Z)."`
+	End           *string `json:"end,omitempty" jsonschema:"End of the time range, RFC 3339. Defaults to now."`
+	Level         *string `json:"level,omitempty" jsonschema:"Minimum level to return: trace, debug, info, warn, error or fatal. Entries below it, or with no detected level, are left out."`
+	Limit         *int    `json:"limit,omitempty" jsonschema:"Return at most the newest N entries."`
 	Stream        *string `json:"stream,omitempty" jsonschema:"Which output stream to search: stdout, stderr, or all. Defaults to all."`
 	CaseSensitive *bool   `json:"case_sensitive,omitempty" jsonschema:"Whether to perform a case-sensitive search. Defaults to false."`
 }
 
 type getContainerStatsParams struct {
-	Host        string `json:"host" jsonschema:"The host ID where the container is running. Use list_containers to find this."`
-	ContainerID string `json:"container_id" jsonschema:"The container ID to get stats for. Use list_containers to find this."`
+	Host        string `json:"host,omitempty" jsonschema:"The host ID or name where the container is running. Optional: leave it out to search every host."`
+	ContainerID string `json:"container_id" jsonschema:"The container ID, short ID or name to get stats for. Use list_containers to find this."`
 }
 
 func (s *Server) registerTools() {
 	mcp.AddTool(s.mcpServer, &mcp.Tool{
 		Name:        "list_containers",
-		Description: "List all Docker containers across all hosts. Returns container ID, name, image, state, host, and other metadata.",
+		Description: "List all Docker containers across all hosts. Returns container ID, name, image, state, host, and created time. Labels are only included with include_labels.",
 		Annotations: &mcp.ToolAnnotations{ReadOnlyHint: true},
 	}, s.handleListContainers)
 
@@ -153,6 +164,8 @@ func (s *Server) handleListContainers(ctx context.Context, _ *mcp.CallToolReques
 		Group   string            `json:"group,omitempty"`
 	}
 
+	includeLabels := params.IncludeLabels != nil && *params.IncludeLabels
+
 	stateFilter := ""
 	if params.State != nil {
 		stateFilter = *params.State
@@ -163,7 +176,7 @@ func (s *Server) handleListContainers(ctx context.Context, _ *mcp.CallToolReques
 		if stateFilter != "" && c.State != stateFilter {
 			continue
 		}
-		results = append(results, containerInfo{
+		info := containerInfo{
 			ID:      c.ID,
 			Name:    c.Name,
 			Image:   c.Image,
@@ -171,9 +184,12 @@ func (s *Server) handleListContainers(ctx context.Context, _ *mcp.CallToolReques
 			Health:  c.Health,
 			Host:    c.Host,
 			Created: c.Created,
-			Labels:  c.Labels,
 			Group:   c.Group,
-		})
+		}
+		if includeLabels {
+			info.Labels = c.Labels
+		}
+		results = append(results, info)
 	}
 
 	data, err := json.Marshal(results)
@@ -229,52 +245,128 @@ func parseStream(stream *string) (container.StdType, *mcp.CallToolResult) {
 	}
 }
 
-// fetchLogs finds the container and returns its log events for the last
-// sinceMinutes (defaulting to 5). On a user-facing failure it returns a non-nil
-// error result; otherwise the caller must call cancel when done.
-func (s *Server) fetchLogs(ctx context.Context, host, containerID string, stream *string, sinceMinutes *int) (<-chan *container.LogEvent, context.CancelFunc, *mcp.CallToolResult) {
-	containerSvc, err := s.hostService.FindContainer(host, containerID, s.resolveLabels(ctx))
-	if err != nil {
-		return nil, nil, errorResult(fmt.Sprintf("container not found: %v", err))
+// parseTimeRange turns since_minutes, start and end into the window to read.
+// since_minutes (default 5) counts back from end, so "the 10 minutes before
+// 04:40" needs only end; start overrides it.
+func parseTimeRange(sinceMinutes *int, start, end *string) (time.Time, time.Time, *mcp.CallToolResult) {
+	to := time.Now()
+	if end != nil && *end != "" {
+		t, err := time.Parse(time.RFC3339, *end)
+		if err != nil {
+			return time.Time{}, time.Time{}, errorResult(fmt.Sprintf("invalid end %q: must be RFC 3339, like 2026-10-28T04:40:00Z", *end))
+		}
+		to = t
 	}
 
-	stdType, errResult := parseStream(stream)
-	if errResult != nil {
-		return nil, nil, errResult
+	if start != nil && *start != "" {
+		from, err := time.Parse(time.RFC3339, *start)
+		if err != nil {
+			return time.Time{}, time.Time{}, errorResult(fmt.Sprintf("invalid start %q: must be RFC 3339, like 2026-10-28T04:20:00Z", *start))
+		}
+		if !from.Before(to) {
+			return time.Time{}, time.Time{}, errorResult("start must be before end")
+		}
+		return from, to, nil
 	}
 
 	minutes := 5
 	if sinceMinutes != nil && *sinceMinutes > 0 {
 		minutes = *sinceMinutes
 	}
+	return to.Add(-time.Duration(minutes) * time.Minute), to, nil
+}
 
-	logCtx, cancel := context.WithCancel(ctx)
-	since := time.Now().Add(-time.Duration(minutes) * time.Minute)
-	events, err := containerSvc.LogsBetweenDates(logCtx, since, time.Now(), stdType)
+// levelRank orders the levels logparse detects, lowest first.
+var levelRank = map[string]int{"trace": 0, "debug": 1, "info": 2, "warn": 3, "error": 4, "fatal": 5}
+
+// parseMinLevel resolves the optional level argument into a keep filter, or nil
+// when no level was given. Entries with no detected level never pass a filter.
+func parseMinLevel(level *string) (func(mcpLogEntry) bool, *mcp.CallToolResult) {
+	if level == nil || *level == "" {
+		return nil, nil
+	}
+	minRank, ok := levelRank[strings.ToLower(*level)]
+	if !ok {
+		return nil, errorResult(fmt.Sprintf("invalid level %q: must be trace, debug, info, warn, error or fatal", *level))
+	}
+	return func(entry mcpLogEntry) bool {
+		rank, ok := levelRank[entry.Level]
+		return ok && rank >= minRank
+	}, nil
+}
+
+// findContainer resolves a container reference (id, short id or name) and an
+// optional host (id or name) with the same resolver the cloud read tools use,
+// so a name keeps working after a redeploy hands the container a new id. note
+// is non-empty when a name matched several containers and one was picked.
+func (s *Server) findContainer(ctx context.Context, host, ref string) (*container.ContainerService, string, *mcp.CallToolResult) {
+	labels := s.resolveLabels(ctx)
+	hostID, containerID, note, err := cloud.ResolveContainerRead(s.hostService, labels, ref, host)
+	if errors.Is(err, cloud.ErrNoContainerMatch) {
+		return nil, "", errorResult(fmt.Sprintf("container not found: no container matching %q; call list_containers to see available containers", ref))
+	}
 	if err != nil {
-		cancel()
-		return nil, nil, errorResult(fmt.Sprintf("failed to read logs: %v", err))
+		return nil, "", errorResult(fmt.Sprintf("container not found: %v", err))
 	}
 
-	return events, cancel, nil
+	containerSvc, err := s.hostService.FindContainer(hostID, containerID, labels)
+	if err != nil {
+		return nil, "", errorResult(fmt.Sprintf("container not found: %v", err))
+	}
+	return containerSvc, note, nil
+}
+
+// fetchLogs finds the container and returns its log events between from and
+// to, plus the resolver's note. On a user-facing
+// failure it returns a non-nil error result; otherwise the caller must call
+// cancel when done.
+func (s *Server) fetchLogs(ctx context.Context, host, ref string, stream *string, from, to time.Time) (<-chan *container.LogEvent, string, context.CancelFunc, *mcp.CallToolResult) {
+	stdType, errResult := parseStream(stream)
+	if errResult != nil {
+		return nil, "", nil, errResult
+	}
+
+	containerSvc, note, errResult := s.findContainer(ctx, host, ref)
+	if errResult != nil {
+		return nil, "", nil, errResult
+	}
+
+	logCtx, cancel := context.WithCancel(ctx)
+	events, err := containerSvc.LogsBetweenDates(logCtx, from, to, stdType)
+	if err != nil {
+		cancel()
+		return nil, "", nil, errorResult(fmt.Sprintf("failed to read logs: %v", err))
+	}
+
+	return events, note, cancel, nil
+}
+
+// withNote puts the resolver's note on its own line ahead of text.
+func withNote(note, text string) string {
+	if note == "" {
+		return text
+	}
+	return note + "\n" + text
 }
 
 // eventMessage extracts the JSON-encodable message payload for a log event.
+// ANSI colour codes are stripped: the UI renders them, but here they only cost
+// space and break substring search across a colour change.
 func eventMessage(event *container.LogEvent) any {
 	switch event.Type {
 	case container.LogTypeGroup:
 		if fragments, ok := event.Message.([]container.LogFragment); ok {
 			lines := make([]string, len(fragments))
 			for i, f := range fragments {
-				lines[i] = f.Message
+				lines[i] = container.StripANSI(f.Message)
 			}
 			return lines
 		}
-		return event.RawMessage
+		return container.StripANSI(event.RawMessage)
 	case container.LogTypeComplex:
 		return event.Message
 	default:
-		return event.RawMessage
+		return container.StripANSI(event.RawMessage)
 	}
 }
 
@@ -289,10 +381,13 @@ func newLogEntry(event *container.LogEvent) mcpLogEntry {
 }
 
 // collectLogEntries drains events into JSON-encodable entries. keep, when
-// non-nil, filters which entries are included. Collection stops once the encoded
-// size would exceed maxLogSize, in which case truncated is true. scanned counts
-// every event pulled from the channel, matched or not.
-func collectLogEntries(events <-chan *container.LogEvent, keep func(mcpLogEntry) bool) (entries []mcpLogEntry, scanned int, truncated bool) {
+// non-nil, filters which entries are included. It keeps the newest entries:
+// once the encoded size passes maxLogSize, or the count passes limit (when
+// limit > 0), the oldest are dropped. scanned counts every event pulled from
+// the channel and matched every entry keep accepted, so matched > len(entries)
+// means the answer was cut.
+func collectLogEntries(events <-chan *container.LogEvent, keep func(mcpLogEntry) bool, limit int) (entries []mcpLogEntry, scanned, matched int) {
+	var sizes []int
 	totalSize := 0
 	for event := range events {
 		scanned++
@@ -306,15 +401,24 @@ func collectLogEntries(events <-chan *container.LogEvent, keep func(mcpLogEntry)
 			continue
 		}
 
-		totalSize += len(line) + 1
-		if totalSize > maxLogSize {
-			truncated = true
-			break
-		}
-
+		matched++
 		entries = append(entries, entry)
+		sizes = append(sizes, len(line)+1)
+		totalSize += len(line) + 1
+		for totalSize > maxLogSize || (limit > 0 && len(entries) > limit) {
+			totalSize -= sizes[0]
+			entries, sizes = entries[1:], sizes[1:]
+		}
 	}
-	return entries, scanned, truncated
+	return entries, scanned, matched
+}
+
+// truncationNote says how much of the answer was cut, or "" when nothing was.
+func truncationNote(shown, matched int) string {
+	if shown >= matched {
+		return ""
+	}
+	return fmt.Sprintf("(showing the newest %d of %d entries; narrow the time range, or use limit or level)", shown, matched)
 }
 
 // encodeLogEntries renders entries as newline-delimited JSON.
@@ -330,31 +434,43 @@ func encodeLogEntries(entries []mcpLogEntry) (string, error) {
 }
 
 func (s *Server) handleGetContainerLogs(ctx context.Context, _ *mcp.CallToolRequest, params *getContainerLogsParams) (*mcp.CallToolResult, any, error) {
-	if params.Host == "" || params.ContainerID == "" {
-		return errorResult("host and container_id are required"), nil, nil
+	if params.ContainerID == "" {
+		return errorResult("container_id is required"), nil, nil
 	}
 
-	events, cancel, errResult := s.fetchLogs(ctx, params.Host, params.ContainerID, params.Stream, params.SinceMinutes)
+	from, to, errResult := parseTimeRange(params.SinceMinutes, params.Start, params.End)
+	if errResult != nil {
+		return errResult, nil, nil
+	}
+	keep, errResult := parseMinLevel(params.Level)
+	if errResult != nil {
+		return errResult, nil, nil
+	}
+
+	events, note, cancel, errResult := s.fetchLogs(ctx, params.Host, params.ContainerID, params.Stream, from, to)
 	if errResult != nil {
 		return errResult, nil, nil
 	}
 	defer cancel()
 
-	entries, _, _ := collectLogEntries(events, nil)
+	entries, _, matched := collectLogEntries(events, keep, intValue(params.Limit))
 	if len(entries) == 0 {
-		return textResult("(no logs in the specified time range)"), nil, nil
+		return textResult(withNote(note, "(no logs in the specified time range)")), nil, nil
 	}
 
 	text, err := encodeLogEntries(entries)
 	if err != nil {
 		return nil, nil, err
 	}
-	return textResult(text), nil, nil
+	if cut := truncationNote(len(entries), matched); cut != "" {
+		text += "\n" + cut
+	}
+	return textResult(withNote(note, text)), nil, nil
 }
 
 func (s *Server) handleSearchContainerLogs(ctx context.Context, _ *mcp.CallToolRequest, params *searchContainerLogsParams) (*mcp.CallToolResult, any, error) {
-	if params.Host == "" || params.ContainerID == "" || params.Query == "" {
-		return errorResult("host, container_id, and query are required"), nil, nil
+	if params.ContainerID == "" || params.Query == "" {
+		return errorResult("container_id and query are required"), nil, nil
 	}
 
 	caseSensitive := params.CaseSensitive != nil && *params.CaseSensitive
@@ -363,13 +479,25 @@ func (s *Server) handleSearchContainerLogs(ctx context.Context, _ *mcp.CallToolR
 		query = strings.ToLower(query)
 	}
 
-	events, cancel, errResult := s.fetchLogs(ctx, params.Host, params.ContainerID, params.Stream, params.SinceMinutes)
+	from, to, errResult := parseTimeRange(params.SinceMinutes, params.Start, params.End)
+	if errResult != nil {
+		return errResult, nil, nil
+	}
+	levelOK, errResult := parseMinLevel(params.Level)
+	if errResult != nil {
+		return errResult, nil, nil
+	}
+
+	events, note, cancel, errResult := s.fetchLogs(ctx, params.Host, params.ContainerID, params.Stream, from, to)
 	if errResult != nil {
 		return errResult, nil, nil
 	}
 	defer cancel()
 
 	keep := func(entry mcpLogEntry) bool {
+		if levelOK != nil && !levelOK(entry) {
+			return false
+		}
 		haystack := messageToSearchString(entry.Message)
 		if !caseSensitive {
 			haystack = strings.ToLower(haystack)
@@ -377,9 +505,9 @@ func (s *Server) handleSearchContainerLogs(ctx context.Context, _ *mcp.CallToolR
 		return strings.Contains(haystack, query)
 	}
 
-	entries, scanned, truncated := collectLogEntries(events, keep)
+	entries, scanned, matched := collectLogEntries(events, keep, intValue(params.Limit))
 	if len(entries) == 0 {
-		return textResult(fmt.Sprintf("(no matches for %q in %d log entries scanned)", params.Query, scanned)), nil, nil
+		return textResult(withNote(note, fmt.Sprintf("(no matches for %q in %d log entries scanned)", params.Query, scanned))), nil, nil
 	}
 
 	body, err := encodeLogEntries(entries)
@@ -388,13 +516,23 @@ func (s *Server) handleSearchContainerLogs(ctx context.Context, _ *mcp.CallToolR
 	}
 
 	var sb strings.Builder
-	fmt.Fprintf(&sb, "Found %d matches for %q (scanned %d entries):\n", len(entries), params.Query, scanned)
+	if note != "" {
+		sb.WriteString(note + "\n")
+	}
+	fmt.Fprintf(&sb, "Found %d matches for %q (scanned %d entries):\n", matched, params.Query, scanned)
 	sb.WriteString(body)
-	if truncated {
-		sb.WriteString("\n(results truncated at 1MB; narrow your query or time range to see more)")
+	if cut := truncationNote(len(entries), matched); cut != "" {
+		sb.WriteString("\n" + cut)
 	}
 
 	return textResult(sb.String()), nil, nil
+}
+
+func intValue(v *int) int {
+	if v == nil {
+		return 0
+	}
+	return *v
 }
 
 func messageToSearchString(msg any) string {
@@ -445,19 +583,13 @@ func (s *Server) handleListHosts(ctx context.Context, _ *mcp.CallToolRequest, _ 
 }
 
 func (s *Server) handleGetContainerStats(ctx context.Context, _ *mcp.CallToolRequest, params *getContainerStatsParams) (*mcp.CallToolResult, any, error) {
-	if params.Host == "" || params.ContainerID == "" {
-		return &mcp.CallToolResult{
-			Content: []mcp.Content{&mcp.TextContent{Text: "host and container_id are required"}},
-			IsError: true,
-		}, nil, nil
+	if params.ContainerID == "" {
+		return errorResult("container_id is required"), nil, nil
 	}
 
-	containerSvc, err := s.hostService.FindContainer(params.Host, params.ContainerID, s.resolveLabels(ctx))
-	if err != nil {
-		return &mcp.CallToolResult{
-			Content: []mcp.Content{&mcp.TextContent{Text: fmt.Sprintf("container not found: %v", err)}},
-			IsError: true,
-		}, nil, nil
+	containerSvc, note, errResult := s.findContainer(ctx, params.Host, params.ContainerID)
+	if errResult != nil {
+		return errResult, nil, nil
 	}
 
 	c := containerSvc.Container
@@ -471,6 +603,8 @@ func (s *Server) handleGetContainerStats(ctx context.Context, _ *mcp.CallToolReq
 	type statsResponse struct {
 		ContainerID   string      `json:"containerId"`
 		ContainerName string      `json:"containerName"`
+		Host          string      `json:"host"`
+		Note          string      `json:"note,omitempty"`
 		MemoryLimit   uint64      `json:"memoryLimitBytes,omitempty"`
 		CPULimit      float64     `json:"cpuLimit,omitempty"`
 		DataPoints    int         `json:"dataPoints"`
@@ -491,6 +625,8 @@ func (s *Server) handleGetContainerStats(ctx context.Context, _ *mcp.CallToolReq
 	resp := statsResponse{
 		ContainerID:   c.ID,
 		ContainerName: c.Name,
+		Host:          c.Host,
+		Note:          note,
 		MemoryLimit:   c.MemoryLimit,
 		CPULimit:      c.CPULimit,
 		DataPoints:    len(entries),

@@ -1,11 +1,23 @@
 package cloud
 
 import (
+	"errors"
 	"fmt"
 	"strings"
 
 	"github.com/amir20/dozzle/internal/container"
 )
+
+// ErrNoContainerMatch is wrapped by both resolvers when no container matches,
+// so a caller with different tool names (the MCP server) can write its own hint.
+var ErrNoContainerMatch = errors.New("no container matching")
+
+// ResolveContainerRead is resolveContainerRefRead for callers outside this
+// package. The MCP server uses it so its tools take the same name-or-id
+// references, scoped to the requesting user's labels.
+func ResolveContainerRead(hostService ToolHostService, labels container.ContainerLabels, containerRef, hostRef string) (hostID, containerID, note string, err error) {
+	return resolveContainerRefRead(containerRef, hostRef, ToolDeps{HostService: hostService, Principal: Principal{Labels: labels}})
+}
 
 // resolveContainerRef turns an LLM-supplied container reference (a name OR an
 // id) plus an optional host reference (a name OR an id) into the concrete
@@ -60,7 +72,7 @@ func resolveContainerRef(containerRef, hostRef string, deps ToolDeps) (hostID, c
 		if scopedHostID != "" {
 			return scopedHostID, strings.TrimSpace(containerRef), nil
 		}
-		return "", "", fmt.Errorf("no container matching %q found across all connected hosts; call find_containers to list available containers", strings.TrimSpace(containerRef))
+		return "", "", fmt.Errorf("%w %q found across all connected hosts; call find_containers to list available containers", ErrNoContainerMatch, strings.TrimSpace(containerRef))
 	case 1:
 		return tier[0].Host, tier[0].ID, nil
 	default:
@@ -113,7 +125,7 @@ func resolveContainerRefRead(containerRef, hostRef string, deps ToolDeps) (hostI
 		if scopedHostID != "" {
 			return scopedHostID, strings.TrimSpace(containerRef), "", nil
 		}
-		return "", "", "", fmt.Errorf("no container matching %q found across all connected hosts; call find_containers to list available containers", strings.TrimSpace(containerRef))
+		return "", "", "", fmt.Errorf("%w %q found across all connected hosts; call find_containers to list available containers", ErrNoContainerMatch, strings.TrimSpace(containerRef))
 	case 1:
 		return tier[0].Host, tier[0].ID, "", nil
 	default:
