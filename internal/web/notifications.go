@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"sort"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/amir20/dozzle/internal/analytics"
@@ -874,30 +875,7 @@ func (h *handler) testWebhook(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	mockNotification := types.Notification{
-		ID:        "test-notification",
-		Type:      types.LogNotification,
-		Detail:    "This is a test log message from Dozzle",
-		Timestamp: time.Now(),
-		Container: types.NotificationContainer{
-			ID:       "abc123",
-			Name:     "test-container",
-			Image:    "nginx:latest",
-			State:    "running",
-			Health:   "healthy",
-			HostID:   "localhost",
-			HostName: "localhost",
-			Labels:   map[string]string{"env": "test"},
-		},
-		Log: &types.NotificationLog{
-			ID:        1,
-			Message:   "This is a test log message from Dozzle",
-			Timestamp: time.Now().UnixMilli(),
-			Level:     "info",
-			Stream:    "stdout",
-			Type:      "simple",
-		},
-	}
+	mockNotification := testNotification(templateStr)
 
 	result := webhook.SendTest(r.Context(), mockNotification)
 
@@ -916,6 +894,61 @@ func (h *handler) testWebhook(w http.ResponseWriter, r *http.Request) {
 		StatusCode: statusCode,
 		Error:      errStr,
 	})
+}
+
+// testNotification builds the sample a webhook test sends. A destination is not tied to one
+// kind of alert, so the sample follows the template: one that reads .Event or .Stat gets an
+// event or metric sample, since a log sample leaves those nil and the template fails to render.
+func testNotification(templateStr string) types.Notification {
+	now := time.Now()
+	n := types.Notification{
+		ID:        "test-notification",
+		Timestamp: now,
+		Container: types.NotificationContainer{
+			ID:       "abc123",
+			Name:     "test-container",
+			Image:    "nginx:latest",
+			State:    "running",
+			Health:   "healthy",
+			HostID:   "localhost",
+			HostName: "localhost",
+			Labels:   map[string]string{"env": "test"},
+		},
+	}
+
+	switch {
+	case strings.Contains(templateStr, ".Event"):
+		n.Type = types.EventNotification
+		n.Detail = "This is a test event from Dozzle"
+		n.Event = &types.NotificationEvent{
+			Name:    notification.UpdateAvailableEventName,
+			ActorID: "abc123",
+			Attributes: map[string]string{
+				"image":          "nginx:latest",
+				"currentVersion": "1.27.0",
+				"latestVersion":  "1.27.1",
+				"currentDigest":  "sha256:1111111111111111111111111111111111111111111111111111111111111111",
+				"latestDigest":   "sha256:2222222222222222222222222222222222222222222222222222222222222222",
+			},
+			Timestamp: now,
+		}
+	case strings.Contains(templateStr, ".Stat"):
+		n.Type = types.MetricNotification
+		n.Detail = "This is a test metric alert from Dozzle"
+		n.Stat = &types.NotificationStat{CPUPercent: 85, MemoryPercent: 60, MemoryUsage: 512 * 1024 * 1024}
+	default:
+		n.Type = types.LogNotification
+		n.Detail = "This is a test log message from Dozzle"
+		n.Log = &types.NotificationLog{
+			ID:        1,
+			Message:   "This is a test log message from Dozzle",
+			Timestamp: now.UnixMilli(),
+			Level:     "info",
+			Stream:    "stdout",
+			Type:      "simple",
+		}
+	}
+	return n
 }
 
 // Releases handler
