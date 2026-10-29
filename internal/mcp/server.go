@@ -206,7 +206,7 @@ const maxLogSize = 1024 * 1024 // 1MB limit
 
 // maxLogsScanned stops a read of a wide time range on a chatty container. The
 // answer only keeps the newest 1MB, so without it every line in the window is
-// streamed and encoded just to be dropped.
+// streamed and encoded just to be dropped. See readLogs.
 const maxLogsScanned = 100_000
 
 // mcpLogEntry is the JSON shape returned by the log tools.
@@ -391,13 +391,13 @@ func newLogEntry(event *container.LogEvent) mcpLogEntry {
 // limit > 0), the oldest are dropped. scanned counts every event pulled from
 // the channel and matched every entry keep accepted, so matched > len(entries)
 // means the answer was cut. Reading stops after maxLogsScanned events, and
-// stoppedAt is then the timestamp of the last one read.
-func collectLogEntries(events <-chan *container.LogEvent, keep func(mcpLogEntry) bool, limit int) (entries []mcpLogEntry, scanned, matched int, stoppedAt string) {
+// stoppedAt is then the time of the first event left unread.
+func collectLogEntries(events <-chan *container.LogEvent, keep func(mcpLogEntry) bool, limit int) (entries []mcpLogEntry, scanned, matched int, stoppedAt time.Time) {
 	var sizes []int
 	totalSize := 0
 	for event := range events {
 		if scanned == maxLogsScanned {
-			stoppedAt = time.UnixMilli(event.Timestamp).UTC().Format(time.RFC3339)
+			stoppedAt = time.UnixMilli(event.Timestamp)
 			break
 		}
 		scanned++
@@ -423,12 +423,64 @@ func collectLogEntries(events <-chan *container.LogEvent, keep func(mcpLogEntry)
 	return entries, scanned, matched, stoppedAt
 }
 
-// stoppedNote says the read ended before the range did, or "" when it did not.
-func stoppedNote(scanned int, stoppedAt string) string {
-	if stoppedAt == "" {
-		return ""
+// logRead is what readLogs got from a range.
+type logRead struct {
+	entries          []mcpLogEntry
+	scanned, matched int
+	// tailFrom is set when the range was too big to read whole, and only the
+	// part from tailFrom to its end was read.
+	tailFrom time.Time
+	// stoppedAt is set when even that part was cut short.
+	stoppedAt time.Time
+}
+
+// readLogs collects the entries in [from, to]. Logs stream oldest first, so a
+// range that holds more than maxLogsScanned entries is read again over its
+// tail, as long as the span the first read got through. The answer is then
+// still the newest entries, which is what a question about a container is
+// almost always after.
+func (s *Server) readLogs(ctx context.Context, host, ref string, stream *string, from, to time.Time, keep func(mcpLogEntry) bool, limit int) (logRead, string, *mcp.CallToolResult) {
+	read := func(from time.Time) (logRead, string, *mcp.CallToolResult) {
+		events, note, cancel, errResult := s.fetchLogs(ctx, host, ref, stream, from, to)
+		if errResult != nil {
+			return logRead{}, "", errResult
+		}
+		defer cancel()
+		var r logRead
+		r.entries, r.scanned, r.matched, r.stoppedAt = collectLogEntries(events, keep, limit)
+		return r, note, nil
 	}
-	return fmt.Sprintf("(stopped after %d entries; the range continues from %s, so narrow it or set start to read on)", scanned, stoppedAt)
+
+	r, note, errResult := read(from)
+	if errResult != nil || r.stoppedAt.IsZero() {
+		return r, note, errResult
+	}
+
+	span := max(r.stoppedAt.Sub(from), time.Second)
+	tailFrom := to.Add(-span)
+	r, _, errResult = read(tailFrom)
+	r.tailFrom = tailFrom
+	return r, note, errResult
+}
+
+// notes are the lines that follow the entries: how much was cut, and how much
+// of the range was read.
+func (r logRead) notes() []string {
+	var notes []string
+	if !r.stoppedAt.IsZero() {
+		// The entries are the oldest of the tail, not the newest.
+		notes = append(notes, fmt.Sprintf("(the range holds more than %d entries; read %d from %s, and it continues from %s, so narrow it)",
+			maxLogsScanned, r.scanned, r.tailFrom.UTC().Format(time.RFC3339), r.stoppedAt.UTC().Format(time.RFC3339)))
+		return notes
+	}
+	if cut := truncationNote(len(r.entries), r.matched); cut != "" {
+		notes = append(notes, cut)
+	}
+	if !r.tailFrom.IsZero() {
+		notes = append(notes, fmt.Sprintf("(the range holds more than %d entries, so only the newest part, from %s, was read; set start and end to read earlier)",
+			maxLogsScanned, r.tailFrom.UTC().Format(time.RFC3339)))
+	}
+	return notes
 }
 
 // truncationNote says how much of the answer was cut, or "" when nothing was.
@@ -465,30 +517,22 @@ func (s *Server) handleGetContainerLogs(ctx context.Context, _ *mcp.CallToolRequ
 		return errResult, nil, nil
 	}
 
-	events, note, cancel, errResult := s.fetchLogs(ctx, params.Host, params.ContainerID, params.Stream, from, to)
+	r, note, errResult := s.readLogs(ctx, params.Host, params.ContainerID, params.Stream, from, to, keep, intValue(params.Limit))
 	if errResult != nil {
 		return errResult, nil, nil
 	}
-	defer cancel()
 
-	entries, scanned, matched, stoppedAt := collectLogEntries(events, keep, intValue(params.Limit))
-	if len(entries) == 0 {
-		text := "(no logs in the specified time range)"
-		if stopped := stoppedNote(scanned, stoppedAt); stopped != "" {
-			text = "(no matching logs)\n" + stopped
-		}
-		return textResult(withNote(note, text)), nil, nil
+	if len(r.entries) == 0 {
+		lines := append([]string{"(no logs in the specified time range)"}, r.notes()...)
+		return textResult(withNote(note, strings.Join(lines, "\n"))), nil, nil
 	}
 
-	text, err := encodeLogEntries(entries)
+	text, err := encodeLogEntries(r.entries)
 	if err != nil {
 		return nil, nil, err
 	}
-	if cut := truncationNote(len(entries), matched); cut != "" {
-		text += "\n" + cut
-	}
-	if stopped := stoppedNote(scanned, stoppedAt); stopped != "" {
-		text += "\n" + stopped
+	for _, line := range r.notes() {
+		text += "\n" + line
 	}
 	return textResult(withNote(note, text)), nil, nil
 }
@@ -513,12 +557,6 @@ func (s *Server) handleSearchContainerLogs(ctx context.Context, _ *mcp.CallToolR
 		return errResult, nil, nil
 	}
 
-	events, note, cancel, errResult := s.fetchLogs(ctx, params.Host, params.ContainerID, params.Stream, from, to)
-	if errResult != nil {
-		return errResult, nil, nil
-	}
-	defer cancel()
-
 	keep := func(entry mcpLogEntry) bool {
 		if levelOK != nil && !levelOK(entry) {
 			return false
@@ -530,17 +568,17 @@ func (s *Server) handleSearchContainerLogs(ctx context.Context, _ *mcp.CallToolR
 		return strings.Contains(haystack, query)
 	}
 
-	entries, scanned, matched, stoppedAt := collectLogEntries(events, keep, intValue(params.Limit))
-	stopped := stoppedNote(scanned, stoppedAt)
-	if len(entries) == 0 {
-		text := fmt.Sprintf("(no matches for %q in %d log entries scanned)", params.Query, scanned)
-		if stopped != "" {
-			text += "\n" + stopped
-		}
-		return textResult(withNote(note, text)), nil, nil
+	r, note, errResult := s.readLogs(ctx, params.Host, params.ContainerID, params.Stream, from, to, keep, intValue(params.Limit))
+	if errResult != nil {
+		return errResult, nil, nil
 	}
 
-	body, err := encodeLogEntries(entries)
+	if len(r.entries) == 0 {
+		lines := append([]string{fmt.Sprintf("(no matches for %q in %d log entries scanned)", params.Query, r.scanned)}, r.notes()...)
+		return textResult(withNote(note, strings.Join(lines, "\n"))), nil, nil
+	}
+
+	body, err := encodeLogEntries(r.entries)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -549,13 +587,10 @@ func (s *Server) handleSearchContainerLogs(ctx context.Context, _ *mcp.CallToolR
 	if note != "" {
 		sb.WriteString(note + "\n")
 	}
-	fmt.Fprintf(&sb, "Found %d matches for %q (scanned %d entries):\n", matched, params.Query, scanned)
+	fmt.Fprintf(&sb, "Found %d matches for %q (scanned %d entries):\n", r.matched, params.Query, r.scanned)
 	sb.WriteString(body)
-	if cut := truncationNote(len(entries), matched); cut != "" {
-		sb.WriteString("\n" + cut)
-	}
-	if stopped != "" {
-		sb.WriteString("\n" + stopped)
+	for _, line := range r.notes() {
+		sb.WriteString("\n" + line)
 	}
 
 	return textResult(sb.String()), nil, nil
