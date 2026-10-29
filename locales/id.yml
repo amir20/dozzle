@@ -447,6 +447,7 @@ updates:
     rolled-back: Dikembalikan
     up-to-date: Terkini
     error: Gagal
+  release-notes: Catatan rilis
   version:
     rebuilt: dibangun ulang
     unknown: Versi tidak diketahui ({reason})

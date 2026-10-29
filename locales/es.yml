@@ -555,6 +555,7 @@ updates:
     rolled-back: Revertido
     up-to-date: Al día
     error: Error
+  release-notes: Notas de la versión
   version:
     rebuilt: reconstruida
     unknown: Versión desconocida ({reason})

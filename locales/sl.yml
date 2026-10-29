@@ -440,6 +440,7 @@ updates:
     rolled-back: Povrnjeno
     up-to-date: Ažurno
     error: Napaka
+  release-notes: Opombe ob izdaji
   version:
     rebuilt: ponovno zgrajena
     unknown: Različica neznana ({reason})

@@ -435,6 +435,7 @@ updates:
     rolled-back: Ripristinato
     up-to-date: Attuale
     error: Fallito
+  release-notes: Note di rilascio
   version:
     rebuilt: ricompilata
     unknown: Versione sconosciuta ({reason})

@@ -563,6 +563,7 @@ updates:
     rolled-back: Rolled back
     up-to-date: Current
     error: Failed
+  release-notes: Release notes
   version:
     rebuilt: rebuilt
     unknown: Version unknown ({reason})

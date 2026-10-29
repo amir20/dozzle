@@ -76,7 +76,25 @@
                   <span class="text-base-content/40"> · {{ container.hostLabel }}</span>
                 </template>
               </div>
-              <ImageUpdateVersions :result="resultFor(container)" class="mt-0.5" />
+              <div class="mt-0.5 flex flex-wrap items-center gap-1.5 text-xs">
+                <ImageUpdateVersions :result="resultFor(container)" />
+                <template v-if="container.releaseNotesUrl">
+                  <span
+                    v-if="resultFor(container)?.latestVersion || resultFor(container)?.versionReason"
+                    class="text-base-content/40"
+                    >·</span
+                  >
+                  <a
+                    :href="container.releaseNotesUrl"
+                    target="_blank"
+                    rel="noreferrer noopener"
+                    class="text-base-content/60 hover:text-base-content inline-flex items-center gap-1 transition-colors"
+                  >
+                    {{ $t("updates.release-notes") }}
+                    <mdi:open-in-new class="size-3 opacity-40" />
+                  </a>
+                </template>
+              </div>
               <div v-if="checkOnly(container)" class="text-base-content/60 mt-1 text-xs">
                 <i18n-t scope="global" keypath="updates.check-only">
                   <template #label>

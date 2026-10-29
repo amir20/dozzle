@@ -437,6 +437,7 @@ updates:
     rolled-back: Wycofano
     up-to-date: Aktualny
     error: Błąd
+  release-notes: Informacje o wydaniu
   version:
     rebuilt: przebudowany
     unknown: Wersja nieznana ({reason})

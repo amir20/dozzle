@@ -1,7 +1,7 @@
 ---
 title: 容器更新
 description: Dozzle 如何检查 Docker 容器是否有更新的镜像，并手动或按计划更新它们，失败时自动回滚，并清理旧镜像。
-sourceHash: 02f14dba265b
+sourceHash: 07392b3a10d8
 ---
 
 # 容器更新
@@ -38,6 +38,20 @@ Dozzle 只会跟随容器镜像引用中的那个确切标签，这一点和 Wat
 要停留在某个次版本上，发布者必须为它发布对应的标签。如果它只发布完整的版本号，就固定其中一个，等你想升级时再自己修改。标签也可能被就地重新构建，通常是为了修补基础镜像，所以一次更新带来的版本号可能和原来相同。
 
 检查和操作是相互独立的。无论 Dozzle 是否被允许做出改动，知道容器已过期本身就是有用的，所以即使 `DOZZLE_ENABLE_ACTIONS` 关闭，这个提示也会出现。只有 `Update` 按钮需要启用容器操作。
+
+### 发布说明 {#release-notes}
+
+有可用更新时，Dozzle 会链接到镜像的发布说明，方便你在更新前先确认是否有破坏性变更。链接来自镜像本身已带的标签：`org.opencontainers.image.source`（或较旧的 `org.label-schema.vcs-url`）中的 GitHub 仓库会链接到该仓库的 Releases 页面。很多公开发布的镜像都设置了这个标签，但大多数 Docker Hub 官方镜像（例如 `nginx` 和 `postgres`）没有，还有一些指向的是打包仓库而不是应用本身。
+
+要设置或修正这个链接，给容器加上一个标签，值可以是任意 `http` 或 `https` URL：
+
+```yaml [docker-compose.yml]
+services:
+  database:
+    image: postgres:18
+    labels:
+      dev.dozzle.releases: https://www.postgresql.org/docs/release/
+```
 
 ### 关闭它
 

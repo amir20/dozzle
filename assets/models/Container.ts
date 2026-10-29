@@ -89,6 +89,18 @@ const latestRates = (container: Container) => {
 // still running, which renders as "2027 years ago".
 const isSet = (date: Date) => date.getFullYear() > 1;
 
+// Only absolute http(s) URLs are honored so a label can't smuggle in `javascript:`.
+const httpUrl = (value: string | undefined) => {
+  const raw = value?.trim();
+  if (!raw) return undefined;
+  try {
+    const { protocol } = new URL(raw);
+    return protocol === "http:" || protocol === "https:" ? raw : undefined;
+  } catch {
+    return undefined;
+  }
+};
+
 /**
  * What `docker ps` puts in its STATUS column, as a state and the moment it is measured
  * from: up since it started, or exited or restarting since it last stopped. Undefined
@@ -292,17 +304,26 @@ export class Container {
 
   /**
    * Opt-in link to whatever web UI this container serves, from `dev.dozzle.url`.
-   * Only absolute http(s) URLs are honored so a label can't smuggle in `javascript:`.
    */
   get url() {
-    const raw = this.labels["dev.dozzle.url"]?.trim();
-    if (!raw) return undefined;
-    try {
-      const { protocol } = new URL(raw);
-      return protocol === "http:" || protocol === "https:" ? raw : undefined;
-    } catch {
-      return undefined;
-    }
+    return httpUrl(this.labels["dev.dozzle.url"]);
+  }
+
+  /**
+   * Where to read what an update changes. `dev.dozzle.releases` wins; otherwise a GitHub
+   * repository the image declares as its source gets its releases page. Docker copies image
+   * labels onto the container, so most published images need no label at all.
+   */
+  get releaseNotesUrl() {
+    const override = httpUrl(this.labels["dev.dozzle.releases"]);
+    if (override) return override;
+    const source = httpUrl(this.labels["org.opencontainers.image.source"] || this.labels["org.label-schema.vcs-url"]);
+    if (!source) return undefined;
+    const { hostname, pathname } = new URL(source);
+    if (hostname !== "github.com" && hostname !== "www.github.com") return undefined;
+    const [owner, repo] = pathname.split("/").filter(Boolean);
+    if (!owner || !repo) return undefined;
+    return `https://github.com/${owner}/${repo.replace(/\.git$/, "")}/releases`;
   }
 
   /**
