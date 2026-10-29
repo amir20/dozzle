@@ -74,6 +74,8 @@ You can also write your own payload template using Go's `text/template` syntax. 
 | `{{.Stat.CPUPercent}}`    | CPU usage percentage                   |
 | `{{.Stat.MemoryPercent}}` | Memory usage percentage                |
 | `{{.Stat.MemoryUsage}}`   | Memory usage in bytes                  |
+| `{{.Event.Name}}`         | Event name (event alerts)              |
+| `{{.Event.Attributes}}`   | Event attributes map (event alerts)    |
 | `{{.Subscription.Name}}`  | Alert rule name                        |
 | `{{.Timestamp}}`          | Time the notification was created      |
 
@@ -257,6 +259,20 @@ Common Docker event names include `start`, `stop`, `die`, `kill`, `oom`, `restar
 
 For `health_status` events, Dozzle exposes the current state as `attributes["healthStatus"]` (`healthy` or `unhealthy`).
 
+### Update Available
+
+Dozzle also raises an `update_available` event when a newer image is published for a container. Once a day, at a random time, it checks every container not labeled `dev.dozzle.update: off`, and alerts once per new image. A restart of Dozzle can repeat an alert for an update it already sent. The check only runs while at least one event alert is enabled, and not at all when `--image-check-mode` is `manual` or `off`.
+
+| Attribute        | Description                        |
+| ---------------- | ---------------------------------- |
+| `image`          | Image reference the container runs |
+| `currentVersion` | Version of the running image       |
+| `latestVersion`  | Version of the newer image         |
+| `currentDigest`  | Digest of the running image        |
+| `latestDigest`   | Digest of the newer image          |
+
+Versions come from the image's `org.opencontainers.image.version` label. Many images don't set it, so either version can be empty. Dozzle also skips reading the new version when your Docker Hub pull limit is running low.
+
 ### Event Examples
 
 **Alert when any production container dies:**
@@ -279,6 +295,23 @@ Event:     name == "oom"
 Container: true
 Event:     name == "health_status" && attributes["healthStatus"] == "unhealthy"
 ```
+
+**Alert when a newer image is available:**
+
+```
+Container: true
+Event:     name == "update_available"
+```
+
+In a webhook template, the versions are under `.Event.Attributes`:
+
+<div v-pre>
+
+```
+New version for {{ .Container.Name }}: {{ .Event.Attributes.currentVersion }} -> {{ .Event.Attributes.latestVersion }}
+```
+
+</div>
 
 **Alert on unexpected exits (ignoring clean and graceful shutdowns):**
 

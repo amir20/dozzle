@@ -261,6 +261,9 @@ func (m *Manager) processDockerEvent(event *ContainerEventEntry) {
 		if event.Event.Name == UpdateEventName {
 			detail = describeUpdate(event.Event.ActorAttributes)
 		}
+		if event.Event.Name == UpdateAvailableEventName {
+			detail = describeUpdateAvailable(event.Event.ActorAttributes)
+		}
 
 		notification := types.Notification{
 			ID:        fmt.Sprintf("%s-event-%d", event.Event.ActorID, time.Now().UnixNano()),
@@ -296,6 +299,18 @@ func describeUpdate(attributes map[string]string) string {
 	}
 	detail := fmt.Sprintf("Container %s: %s", verb, attributes["image"])
 	if from, to := shortDigest(attributes["fromDigest"]), shortDigest(attributes["toDigest"]); from != "" && to != "" {
+		detail += fmt.Sprintf(" (%s → %s)", from, to)
+	}
+	return detail
+}
+
+// describeUpdateAvailable is the detail of an update_available event: the
+// image, and the versions when both images declare one, the digests otherwise.
+func describeUpdateAvailable(attributes map[string]string) string {
+	detail := fmt.Sprintf("Update available: %s", attributes["image"])
+	if from, to := attributes["currentVersion"], attributes["latestVersion"]; from != "" && to != "" {
+		detail += fmt.Sprintf(" (%s → %s)", from, to)
+	} else if from, to := shortDigest(attributes["currentDigest"]), shortDigest(attributes["latestDigest"]); from != "" && to != "" {
 		detail += fmt.Sprintf(" (%s → %s)", from, to)
 	}
 	return detail
