@@ -419,6 +419,7 @@ updates:
   auto: Auto
   auto-hint: Também atualizado pelo agendamento de atualização automática
   auto-footnote: Adicione a label {label} a um contêiner para atualizá-lo pelo agendamento de atualização automática.
+  check-only: Tem a label {label}, então é atualizado fora do Dozzle.
   scheduled-running: A atualização automática agendada está em execução.
   progress: "{done} de {total} concluídos"
   back: Voltar

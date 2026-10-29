@@ -1,7 +1,7 @@
 ---
 title: Mises à jour des conteneurs
 description: Comment Dozzle détecte les images plus récentes de vos conteneurs Docker et les met à jour à la main ou selon un planning, avec restauration automatique et nettoyage des anciennes images.
-sourceHash: 21b3c71b7338
+sourceHash: 02f14dba265b
 ---
 
 # Mises à jour des conteneurs
@@ -106,11 +106,12 @@ Dozzle peut mettre à jour des conteneurs selon un planning. Cela se règle dans
 
 Un label sur le conteneur décide du reste :
 
-| `dev.dozzle.update` | Ce qui se passe                                                                                                      |
-| ------------------- | -------------------------------------------------------------------------------------------------------------------- |
-| `auto`              | Mis à jour selon le planning, sauf si **Quels conteneurs** vaut **Dozzle seulement**                                 |
-| _(aucun label)_     | Mis à jour selon le planning avec **Tout**. Sinon vérifié et affiché comme mise à jour, que vous appliquez vous-même |
-| `off`               | Jamais vérifié, jamais mis à jour                                                                                    |
+| `dev.dozzle.update` | Ce qui se passe                                                                                                                   |
+| ------------------- | --------------------------------------------------------------------------------------------------------------------------------- |
+| `auto`              | Mis à jour selon le planning, sauf si **Quels conteneurs** vaut **Dozzle seulement**                                              |
+| _(aucun label)_     | Mis à jour selon le planning avec **Tout**. Sinon vérifié et affiché comme mise à jour, que vous appliquez vous-même              |
+| `check`             | Vérifié et affiché comme mise à jour, jamais mis à jour par Dozzle. Mettez-le à jour vous-même, par exemple avec `docker compose` |
+| `off`               | Jamais vérifié, jamais mis à jour                                                                                                 |
 
 ```yaml
 services:

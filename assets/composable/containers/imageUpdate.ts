@@ -1,4 +1,5 @@
 import { Container } from "@/models/Container";
+import { checkOnly } from "@/composable/containers/updatePolicy";
 
 export type ImageUpdateStatus =
   "up-to-date" | "update-available" | "pinned" | "not-checkable" | "auth-required" | "skipped" | "unknown";
@@ -89,7 +90,8 @@ function offerable(container: Container) {
  * Whether Dozzle can update this container itself, whether or not an update is
  * waiting. Kubernetes rolls out images through the workload, so a single pod has
  * nothing to update, and a stopped container is never updated: it has to be
- * started first. Shared by the toolbar and the command palette.
+ * started first. One labelled dev.dozzle.update=check is updated outside Dozzle.
+ * Shared by the toolbar and the command palette.
  */
 export function canUpdate(container: Container) {
   return (
@@ -97,7 +99,8 @@ export function canUpdate(container: Container) {
     config.mode !== "k8s" &&
     !mayBeSelf(container) &&
     offerable(container) &&
-    container.state === "running"
+    container.state === "running" &&
+    !checkOnly(container)
   );
 }
 

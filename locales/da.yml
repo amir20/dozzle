@@ -419,6 +419,7 @@ updates:
   auto: Auto
   auto-hint: Opdateres også efter den automatiske opdateringsplan
   auto-footnote: Giv en container labelen {label} for at opdatere den efter den automatiske opdateringsplan.
+  check-only: Har labelen {label}, så den opdateres uden for Dozzle.
   scheduled-running: Den automatiske opdateringsplan kører nu.
   progress: "{done} af {total} færdige"
   back: Tilbage

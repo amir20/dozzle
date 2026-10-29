@@ -145,6 +145,28 @@ func Test_handler_containerUpdate_stopped(t *testing.T) {
 	m.AssertNotCalled(t, "ImagePull", mock.Anything, mock.Anything)
 }
 
+// A container labelled check is refused before the progress stream opens, and
+// the host is never asked.
+func Test_handler_containerUpdate_check_only(t *testing.T) {
+	m := new(MockedClient)
+	c := container.Container{ID: "123", State: "running", Labels: map[string]string{"dev.dozzle.update": "check"}}
+	m.On("FindContainer", mock.Anything, "123").Return(c, nil)
+	m.On("Host").Return(container.Host{ID: "localhost"})
+	m.On("ListContainers", mock.Anything, mock.Anything).Return([]container.Container{c}, nil)
+	m.On("ContainerEvents", mock.Anything, mock.Anything).Return(nil)
+
+	handler := createHandler(m, nil, Config{Base: "/", EnableActions: true, Authorization: Authorization{Provider: NONE}})
+	req, err := http.NewRequest("POST", "/api/hosts/localhost/containers/123/actions/update", nil)
+	require.NoError(t, err)
+
+	rr := httptest.NewRecorder()
+	handler.ServeHTTP(rr, req)
+	assert.Equal(t, http.StatusForbidden, rr.Code)
+	assert.Contains(t, rr.Body.String(), container.ErrCheckOnly.Error())
+	m.AssertNotCalled(t, "ContainerInspect", mock.Anything, mock.Anything)
+	m.AssertNotCalled(t, "ImagePull", mock.Anything, mock.Anything)
+}
+
 func Test_handler_containerUpdate_new_image(t *testing.T) {
 	m := new(MockedClient)
 	c := container.Container{ID: "123", State: "running"}

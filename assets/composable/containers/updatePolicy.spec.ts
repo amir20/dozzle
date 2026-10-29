@@ -30,6 +30,7 @@ describe("labelPolicy", () => {
   test("reads the label and the older ones", () => {
     expect(labelPolicy({ "dev.dozzle.update": " AUTO " })).toBe("auto");
     expect(labelPolicy({ "dev.dozzle.update": "off" })).toBe("off");
+    expect(labelPolicy({ "dev.dozzle.update": "check" })).toBe("check");
     expect(labelPolicy({ "dev.dozzle.auto-update": "true" })).toBe("auto");
     expect(labelPolicy({ "dev.dozzle.auto-update": "false" })).toBe("manual");
     expect(labelPolicy({ "dev.dozzle.update-check": "false" })).toBe("off");

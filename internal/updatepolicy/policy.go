@@ -3,9 +3,10 @@
 //
 //   - auto: updated on the schedule
 //   - manual: checked and shown as "update available", updated by hand
+//   - check: checked and shown, never updated by Dozzle at all
 //   - off: never checked, never updated
 //
-// The dev.dozzle.update label (auto or off) and the instance-wide mode decide
+// The dev.dozzle.update label (auto, check or off) and the instance-wide mode decide
 // it together. The mode is one setting in dozzle.yml: off updates no
 // container, labelled updates the containers labelled auto, and all updates
 // every container that is not labelled off. Dozzle itself follows the
@@ -22,7 +23,11 @@ type Policy string
 const (
 	Auto   Policy = "auto"
 	Manual Policy = "manual"
-	Off    Policy = "off"
+	// Check is for a container someone updates outside Dozzle, say a compose
+	// stack whose services move together. Dozzle reports its update and
+	// refuses to apply it, by hand or on the schedule.
+	Check Policy = "check"
+	Off   Policy = "off"
 )
 
 // Mode is which containers the schedule updates, besides Dozzle itself.
@@ -62,11 +67,20 @@ func Parse(value string) (Policy, bool) {
 		return Auto, true
 	case "manual":
 		return Manual, true
+	case "check":
+		return Check, true
 	case "off", "false", "no", "0", "never":
 		return Off, true
 	default:
 		return "", false
 	}
+}
+
+// CheckOnly reports whether labels keep Dozzle from updating the container
+// itself, while it is still checked.
+func CheckOnly(labels map[string]string) bool {
+	p, ok := FromLabels(labels)
+	return ok && p == Check
 }
 
 // ParseMode reads a mode. Empty or anything unknown is DefaultMode, so a typo

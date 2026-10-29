@@ -16,6 +16,7 @@ func TestFromLabels(t *testing.T) {
 		{"none", nil, "", false},
 		{"auto", map[string]string{Label: "auto"}, Auto, true},
 		{"off", map[string]string{Label: "off"}, Off, true},
+		{"check", map[string]string{Label: "check"}, Check, true},
 		{"case and space", map[string]string{Label: " AUTO "}, Auto, true},
 		{"unknown value is no label", map[string]string{Label: "sometimes"}, "", false},
 		{"legacy auto-update=true", map[string]string{LegacyAutoLabel: "true"}, Auto, true},
@@ -63,6 +64,17 @@ func TestResolve(t *testing.T) {
 	assert.Equal(t, Auto, Resolve(label("auto"), ModeAll))
 	assert.Equal(t, Off, Resolve(label("off"), ModeAll))
 	assert.Equal(t, Manual, Resolve(map[string]string{LegacyAutoLabel: "false"}, ModeAll))
+
+	// Check is never on the schedule, whatever the mode.
+	for _, mode := range []Mode{ModeOff, ModeLabelled, ModeAll} {
+		assert.Equal(t, Check, Resolve(label("check"), mode), mode)
+	}
+}
+
+func TestCheckOnly(t *testing.T) {
+	assert.True(t, CheckOnly(map[string]string{Label: " Check "}))
+	assert.False(t, CheckOnly(map[string]string{Label: "off"}))
+	assert.False(t, CheckOnly(nil))
 }
 
 // An install upgraded with nothing new configured behaves exactly as before:

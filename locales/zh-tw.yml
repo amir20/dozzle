@@ -421,6 +421,7 @@ updates:
   auto: 自動
   auto-hint: 也會依自動更新排程更新
   auto-footnote: 為容器加上標籤 {label}，即可依自動更新排程更新它。
+  check-only: 已加上標籤 {label}，因此會在 Dozzle 之外更新。
   scheduled-running: 自動更新排程正在執行。
   progress: 已完成 {done}/{total}
   back: 返回

@@ -421,6 +421,7 @@ updates:
   auto: 자동
   auto-hint: 자동 업데이트 일정에 따라서도 업데이트됨
   auto-footnote: 컨테이너에 {label} 레이블을 추가하면 자동 업데이트 일정에 따라 업데이트됩니다.
+  check-only: "{label} 레이블이 있어 Dozzle 외부에서 업데이트됩니다."
   scheduled-running: 자동 업데이트 일정이 지금 실행 중입니다.
   progress: "{total}개 중 {done}개 완료"
   back: 뒤로

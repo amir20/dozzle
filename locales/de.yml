@@ -419,6 +419,7 @@ updates:
   auto: Auto
   auto-hint: Wird auch nach dem Zeitplan für automatische Updates aktualisiert
   auto-footnote: Versieh einen Container mit dem Label {label}, damit er nach dem Zeitplan für automatische Updates aktualisiert wird.
+  check-only: Hat das Label {label} und wird daher außerhalb von Dozzle aktualisiert.
   scheduled-running: Der Zeitplan für automatische Updates läuft gerade.
   progress: "{done} von {total} fertig"
   back: Zurück

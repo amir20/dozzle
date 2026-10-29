@@ -424,6 +424,7 @@ updates:
   auto: Samodejno
   auto-hint: Posodablja se tudi po urniku samodejnih posodobitev
   auto-footnote: Vsebniku dodajte oznako {label}, da se posodablja po urniku samodejnih posodobitev.
+  check-only: Ima oznako {label}, zato se posodablja zunaj Dozzla.
   scheduled-running: Urnik samodejnih posodobitev se pravkar izvaja.
   progress: Končano {done} od {total}
   back: Nazaj

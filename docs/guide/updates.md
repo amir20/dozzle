@@ -109,6 +109,7 @@ One label on a container decides the rest:
 | ------------------- | ------------------------------------------------------------------------------------------------------- |
 | `auto`              | Updated on the schedule, unless **Which containers** is **Dozzle only**                                 |
 | _(no label)_        | Updated on the schedule under **Everything**. Otherwise checked and shown as an update, which you apply |
+| `check`             | Checked and shown as an update, never updated by Dozzle. Update it yourself, say with `docker compose`  |
 | `off`               | Never checked, never updated                                                                            |
 
 ```yaml

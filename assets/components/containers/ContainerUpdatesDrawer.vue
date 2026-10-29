@@ -58,13 +58,14 @@
             class="hover:bg-base-300/40 flex items-start gap-3 p-4 transition-colors"
           >
             <!-- A stopped container is listed, since its update is waiting, but
-                 never updated: it has to be started first. -->
+                 never updated: it has to be started first. One labelled check is
+                 updated outside Dozzle. -->
             <input
               v-model="selected"
               type="checkbox"
               class="checkbox checkbox-sm mt-0.5"
               :value="container.id"
-              :disabled="container.state !== 'running'"
+              :disabled="!selectable(container)"
             />
             <ContainerIcon :state="container.state" :health="container.health" :slug="container.icon" class="size-6" />
             <div class="min-w-0 flex-1">
@@ -76,7 +77,14 @@
                 </template>
               </div>
               <ImageUpdateVersions :result="resultFor(container)" class="mt-0.5" />
-              <div v-if="container.state !== 'running'" class="text-base-content/60 mt-1 text-xs">
+              <div v-if="checkOnly(container)" class="text-base-content/60 mt-1 text-xs">
+                <i18n-t scope="global" keypath="updates.check-only">
+                  <template #label>
+                    <code class="font-mono">{{ UPDATE_LABEL }}=check</code>
+                  </template>
+                </i18n-t>
+              </div>
+              <div v-else-if="container.state !== 'running'" class="text-base-content/60 mt-1 text-xs">
                 {{ $t("error.start-container-first") }}
               </div>
             </div>
@@ -149,7 +157,12 @@
 import { Container } from "@/models/Container";
 import { type BulkUpdateItem, type BulkUpdateStatus, isFinished } from "@/composable/containers/bulkUpdate";
 import { updateErrorText } from "@/composable/containers/containerActions";
-import { DEFAULT_UPDATE_CONTAINERS_MODE, UPDATE_LABEL, autoUpdates } from "@/composable/containers/updatePolicy";
+import {
+  DEFAULT_UPDATE_CONTAINERS_MODE,
+  UPDATE_LABEL,
+  autoUpdates,
+  checkOnly,
+} from "@/composable/containers/updatePolicy";
 
 const { focus } = defineProps<{ focus?: string }>();
 
@@ -175,7 +188,9 @@ const candidates = computed(() => containers.value.filter(hasUpdate).sort((a, b)
 
 // Running containers are selected to begin with, and so is one that appears
 // after the drawer opened (a check finishing). A stopped one is listed but cannot
-// be selected: it is never updated until someone starts it.
+// be selected: it is never updated until someone starts it. Nor can one labelled
+// check, which is updated outside Dozzle.
+const selectable = (c: Container) => c.state === "running" && !checkOnly(c);
 const selected = ref<string[]>([]);
 const seen = new Set<string>();
 watch(
@@ -183,7 +198,7 @@ watch(
   (list) => {
     const fresh = list.filter((c) => !seen.has(c.id));
     fresh.forEach((c) => seen.add(c.id));
-    const running = fresh.filter((c) => c.state === "running").map((c) => c.id);
+    const running = fresh.filter(selectable).map((c) => c.id);
     if (running.length) selected.value = [...selected.value, ...running];
   },
   { immediate: true },
@@ -191,7 +206,7 @@ watch(
 
 // A container stopped after it was selected drops out too.
 const selectedContainers = computed(() =>
-  candidates.value.filter((c) => c.state === "running" && selected.value.includes(c.id)),
+  candidates.value.filter((c) => selectable(c) && selected.value.includes(c.id)),
 );
 const selfSelected = computed(() => selectedContainers.value.some(isSelf));
 

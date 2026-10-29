@@ -547,6 +547,7 @@ updates:
   auto: Auto
   auto-hint: Also updated on the auto-update schedule
   auto-footnote: Label a container {label} to update it on the auto-update schedule.
+  check-only: Labelled {label}, so it is updated outside Dozzle.
   scheduled-running: The auto-update schedule is running now.
   progress: "{done} of {total} finished"
   back: Back

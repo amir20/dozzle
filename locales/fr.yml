@@ -419,6 +419,7 @@ updates:
   auto: Auto
   auto-hint: Aussi mis à jour selon la planification automatique
   auto-footnote: Ajoutez le label {label} à un conteneur pour le mettre à jour selon la planification automatique.
+  check-only: Marqué {label}, donc mis à jour en dehors de Dozzle.
   scheduled-running: La mise à jour automatique planifiée est en cours.
   progress: "{done} sur {total} terminés"
   back: Retour

@@ -11,6 +11,7 @@ import (
 	"github.com/amir20/dozzle/internal/auth"
 	"github.com/amir20/dozzle/internal/container"
 	"github.com/amir20/dozzle/internal/hostservice"
+	"github.com/amir20/dozzle/internal/updatepolicy"
 	"github.com/amir20/dozzle/internal/web/sse"
 	"github.com/go-chi/chi/v5"
 	"github.com/rs/zerolog/log"
@@ -93,6 +94,10 @@ func (h *handler) containerUpdate(w http.ResponseWriter, r *http.Request) {
 	// this answers before the progress stream opens.
 	if containerService.Container.State != "running" {
 		http.Error(w, container.ErrNotRunning.Error(), http.StatusConflict)
+		return
+	}
+	if updatepolicy.CheckOnly(containerService.Container.Labels) {
+		http.Error(w, container.ErrCheckOnly.Error(), http.StatusForbidden)
 		return
 	}
 	analytics.Count("action.update")
