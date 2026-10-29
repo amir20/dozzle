@@ -435,6 +435,7 @@ updates:
     rolled-back: Откачено
     up-to-date: Актуален
     error: Ошибка
+  release-notes: Примечания к выпуску
   version:
     rebuilt: пересобран
     unknown: Версия неизвестна ({reason})

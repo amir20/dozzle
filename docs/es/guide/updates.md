@@ -1,7 +1,7 @@
 ---
 title: Actualizaciones de contenedores
 description: Cómo Dozzle comprueba si tus contenedores de Docker tienen imágenes más nuevas y los actualiza a mano o según una programación, con reversión automática y limpieza de imágenes antiguas.
-sourceHash: 02f14dba265b
+sourceHash: 07392b3a10d8
 ---
 
 # Actualizaciones de contenedores
@@ -38,6 +38,20 @@ Dozzle solo sigue el tag exacto de la referencia de imagen del contenedor, igual
 Para quedarte en una versión menor, quien publica la imagen tiene que publicar un tag para ella. Si solo publica versiones completas, fija una y cámbiala tú cuando quieras avanzar. Un tag también puede reconstruirse en el sitio, a menudo por una imagen base con parches, así que una actualización puede traer el mismo número de versión que ya tenía.
 
 La comprobación es independiente de las acciones. Saber que un contenedor está desactualizado es útil tanto si Dozzle puede hacer algo al respecto como si no, así que el aviso aparece incluso con `DOZZLE_ENABLE_ACTIONS` desactivado. Solo el botón `Update` necesita las acciones.
+
+### Notas de la versión {#release-notes}
+
+Cuando hay una actualización disponible, Dozzle enlaza a las notas de la versión de la imagen para que puedas revisar si hay cambios incompatibles antes de actualizar. El enlace sale de las etiquetas que la imagen ya trae: un repositorio de GitHub en `org.opencontainers.image.source` (o en el antiguo `org.label-schema.vcs-url`) lleva a la página de releases de ese repositorio. Muchas imágenes publicadas la definen, pero la mayoría de las imágenes oficiales de Docker Hub como `nginx` y `postgres` no, y algunas apuntan a un repositorio de empaquetado en lugar de a la aplicación.
+
+Para definir o corregir el enlace, añade al contenedor una etiqueta con cualquier URL `http` o `https`:
+
+```yaml [docker-compose.yml]
+services:
+  database:
+    image: postgres:18
+    labels:
+      dev.dozzle.releases: https://www.postgresql.org/docs/release/
+```
 
 ### Cómo desactivarlo
 

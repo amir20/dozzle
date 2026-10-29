@@ -435,6 +435,7 @@ updates:
     rolled-back: Rullet tilbage
     up-to-date: Aktuel
     error: Fejlet
+  release-notes: Udgivelsesnoter
   version:
     rebuilt: genopbygget
     unknown: Version ukendt ({reason})

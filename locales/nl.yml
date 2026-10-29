@@ -436,6 +436,7 @@ updates:
     rolled-back: Teruggedraaid
     up-to-date: Actueel
     error: Mislukt
+  release-notes: Releasenotes
   version:
     rebuilt: opnieuw gebouwd
     unknown: Versie onbekend ({reason})

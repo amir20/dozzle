@@ -182,7 +182,7 @@
         <li v-if="imageUpdateResult?.latestVersion || imageUpdateResult?.versionReason" class="pointer-events-none">
           <ImageUpdateVersions :result="imageUpdateResult" />
         </li>
-        <li v-if="isSelfContainer">
+        <li v-if="releaseNotesUrl">
           <a :href="releaseNotesUrl" target="_blank" rel="noreferrer noopener">
             <mdi:script-text-outline /> {{ $t("toolbar.view-release-notes") }}
           </a>
@@ -252,10 +252,15 @@ const imageCheckState = computed(() => {
   return imageUpdateResult.value?.status === "up-to-date" ? "none" : "hidden";
 });
 
-// Dozzle's own standalone container cannot restart itself, so the alert sends
-// people to the release notes rather than to a button that cannot work.
+// Release notes are worth reading before an update. Dozzle's own come from the
+// release check, which can point at the exact release; anything else uses
+// whatever its image labels lead to.
 const { latestRelease } = useAnnouncements();
-const releaseNotesUrl = computed(() => latestRelease.value?.htmlUrl ?? "https://github.com/amir20/dozzle/releases");
+const releaseNotesUrl = computed(() =>
+  isSelfContainer.value
+    ? (latestRelease.value?.htmlUrl ?? "https://github.com/amir20/dozzle/releases")
+    : container.releaseNotesUrl,
+);
 
 const router = useRouter();
 const { copy } = useCopy();

@@ -438,6 +438,7 @@ updates:
     rolled-back: Geri alındı
     up-to-date: Güncel
     error: Başarısız
+  release-notes: Sürüm notları
   version:
     rebuilt: yeniden derlendi
     unknown: Sürüm bilinmiyor ({reason})

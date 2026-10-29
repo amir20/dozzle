@@ -435,6 +435,7 @@ updates:
     rolled-back: Restauré
     up-to-date: À jour
     error: Échec
+  release-notes: Notes de version
   version:
     rebuilt: reconstruite
     unknown: Version inconnue ({reason})

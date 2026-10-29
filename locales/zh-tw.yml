@@ -437,6 +437,7 @@ updates:
     rolled-back: 已復原
     up-to-date: 最新
     error: 失敗
+  release-notes: 版本說明
   version:
     rebuilt: 已重建
     unknown: 版本未知（{reason}）
