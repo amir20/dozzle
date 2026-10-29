@@ -4,9 +4,9 @@ import (
 	"context"
 	"encoding/json"
 	"net/http"
+	"regexp"
 	"sort"
 	"strconv"
-	"strings"
 	"time"
 
 	"github.com/amir20/dozzle/internal/analytics"
@@ -896,6 +896,12 @@ func (h *handler) testWebhook(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
+// readsEvent and readsStat match the field as a whole word, so .Container.State is not .Stat.
+var (
+	readsEvent = regexp.MustCompile(`\.Event\b`)
+	readsStat  = regexp.MustCompile(`\.Stat\b`)
+)
+
 // testNotification builds the sample a webhook test sends. A destination is not tied to one
 // kind of alert, so the sample follows the template: one that reads .Event or .Stat gets an
 // event or metric sample, since a log sample leaves those nil and the template fails to render.
@@ -917,7 +923,7 @@ func testNotification(templateStr string) types.Notification {
 	}
 
 	switch {
-	case strings.Contains(templateStr, ".Event"):
+	case readsEvent.MatchString(templateStr):
 		n.Type = types.EventNotification
 		n.Detail = "This is a test event from Dozzle"
 		n.Event = &types.NotificationEvent{
@@ -932,7 +938,7 @@ func testNotification(templateStr string) types.Notification {
 			},
 			Timestamp: now,
 		}
-	case strings.Contains(templateStr, ".Stat"):
+	case readsStat.MatchString(templateStr):
 		n.Type = types.MetricNotification
 		n.Detail = "This is a test metric alert from Dozzle"
 		n.Stat = &types.NotificationStat{CPUPercent: 85, MemoryPercent: 60, MemoryUsage: 512 * 1024 * 1024}

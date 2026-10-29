@@ -204,6 +204,11 @@ func (s *Server) handleListContainers(ctx context.Context, _ *mcp.CallToolReques
 
 const maxLogSize = 1024 * 1024 // 1MB limit
 
+// maxLogsScanned stops a read of a wide time range on a chatty container. The
+// answer only keeps the newest 1MB, so without it every line in the window is
+// streamed and encoded just to be dropped.
+const maxLogsScanned = 100_000
+
 // mcpLogEntry is the JSON shape returned by the log tools.
 type mcpLogEntry struct {
 	Timestamp string `json:"timestamp"`
@@ -385,11 +390,16 @@ func newLogEntry(event *container.LogEvent) mcpLogEntry {
 // once the encoded size passes maxLogSize, or the count passes limit (when
 // limit > 0), the oldest are dropped. scanned counts every event pulled from
 // the channel and matched every entry keep accepted, so matched > len(entries)
-// means the answer was cut.
-func collectLogEntries(events <-chan *container.LogEvent, keep func(mcpLogEntry) bool, limit int) (entries []mcpLogEntry, scanned, matched int) {
+// means the answer was cut. Reading stops after maxLogsScanned events, and
+// stoppedAt is then the timestamp of the last one read.
+func collectLogEntries(events <-chan *container.LogEvent, keep func(mcpLogEntry) bool, limit int) (entries []mcpLogEntry, scanned, matched int, stoppedAt string) {
 	var sizes []int
 	totalSize := 0
 	for event := range events {
+		if scanned == maxLogsScanned {
+			stoppedAt = time.UnixMilli(event.Timestamp).UTC().Format(time.RFC3339)
+			break
+		}
 		scanned++
 		entry := newLogEntry(event)
 		if keep != nil && !keep(entry) {
@@ -410,7 +420,15 @@ func collectLogEntries(events <-chan *container.LogEvent, keep func(mcpLogEntry)
 			entries, sizes = entries[1:], sizes[1:]
 		}
 	}
-	return entries, scanned, matched
+	return entries, scanned, matched, stoppedAt
+}
+
+// stoppedNote says the read ended before the range did, or "" when it did not.
+func stoppedNote(scanned int, stoppedAt string) string {
+	if stoppedAt == "" {
+		return ""
+	}
+	return fmt.Sprintf("(stopped after %d entries; the range continues from %s, so narrow it or set start to read on)", scanned, stoppedAt)
 }
 
 // truncationNote says how much of the answer was cut, or "" when nothing was.
@@ -453,9 +471,13 @@ func (s *Server) handleGetContainerLogs(ctx context.Context, _ *mcp.CallToolRequ
 	}
 	defer cancel()
 
-	entries, _, matched := collectLogEntries(events, keep, intValue(params.Limit))
+	entries, scanned, matched, stoppedAt := collectLogEntries(events, keep, intValue(params.Limit))
 	if len(entries) == 0 {
-		return textResult(withNote(note, "(no logs in the specified time range)")), nil, nil
+		text := "(no logs in the specified time range)"
+		if stopped := stoppedNote(scanned, stoppedAt); stopped != "" {
+			text = "(no matching logs)\n" + stopped
+		}
+		return textResult(withNote(note, text)), nil, nil
 	}
 
 	text, err := encodeLogEntries(entries)
@@ -464,6 +486,9 @@ func (s *Server) handleGetContainerLogs(ctx context.Context, _ *mcp.CallToolRequ
 	}
 	if cut := truncationNote(len(entries), matched); cut != "" {
 		text += "\n" + cut
+	}
+	if stopped := stoppedNote(scanned, stoppedAt); stopped != "" {
+		text += "\n" + stopped
 	}
 	return textResult(withNote(note, text)), nil, nil
 }
@@ -505,9 +530,14 @@ func (s *Server) handleSearchContainerLogs(ctx context.Context, _ *mcp.CallToolR
 		return strings.Contains(haystack, query)
 	}
 
-	entries, scanned, matched := collectLogEntries(events, keep, intValue(params.Limit))
+	entries, scanned, matched, stoppedAt := collectLogEntries(events, keep, intValue(params.Limit))
+	stopped := stoppedNote(scanned, stoppedAt)
 	if len(entries) == 0 {
-		return textResult(withNote(note, fmt.Sprintf("(no matches for %q in %d log entries scanned)", params.Query, scanned))), nil, nil
+		text := fmt.Sprintf("(no matches for %q in %d log entries scanned)", params.Query, scanned)
+		if stopped != "" {
+			text += "\n" + stopped
+		}
+		return textResult(withNote(note, text)), nil, nil
 	}
 
 	body, err := encodeLogEntries(entries)
@@ -523,6 +553,9 @@ func (s *Server) handleSearchContainerLogs(ctx context.Context, _ *mcp.CallToolR
 	sb.WriteString(body)
 	if cut := truncationNote(len(entries), matched); cut != "" {
 		sb.WriteString("\n" + cut)
+	}
+	if stopped != "" {
+		sb.WriteString("\n" + stopped)
 	}
 
 	return textResult(sb.String()), nil, nil

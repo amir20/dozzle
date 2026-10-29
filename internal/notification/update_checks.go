@@ -56,8 +56,10 @@ func (l *ContainerEventListener) runUpdateChecks(ctx context.Context, check Upda
 
 // raiseAvailableUpdates raises update_available for each update not raised
 // before. alerted outlives Stop, so turning alerts off and on again does not
-// repeat one; a restart does.
+// repeat one; a restart does. An event dropped on a full channel is not marked,
+// so the next check raises it again.
 func (l *ContainerEventListener) raiseAvailableUpdates(ctx context.Context, updates []container.ImageUpdate) {
+	var hosts map[string]container.Host
 	l.alertedMu.Lock()
 	defer l.alertedMu.Unlock()
 	for _, u := range updates {
@@ -69,15 +71,18 @@ func (l *ContainerEventListener) raiseAvailableUpdates(ctx context.Context, upda
 		if l.alertedUpdates[key] == u.Result.RemoteDigest {
 			continue
 		}
-		host, ok := l.updateHost(ctx, u.Container.Host)
+		if hosts == nil {
+			hosts = l.updateHosts(ctx)
+		}
+		host, ok := hosts[u.Container.Host]
 		if !ok {
 			continue
 		}
-		l.alertedUpdates[key] = u.Result.RemoteDigest
 
 		entry := &ContainerEventEntry{Event: updateAvailableEvent(u), Container: u.Container, Host: host}
 		select {
 		case l.channel <- entry:
+			l.alertedUpdates[key] = u.Result.RemoteDigest
 		case <-ctx.Done():
 			return
 		default:
@@ -86,17 +91,29 @@ func (l *ContainerEventListener) raiseAvailableUpdates(ctx context.Context, upda
 	}
 }
 
-// updateHost finds the host with id among updateClients.
-func (l *ContainerEventListener) updateHost(ctx context.Context, id string) (container.Host, bool) {
+// updateHosts maps the id of every host among updateClients to that host, once
+// per run rather than once per update.
+func (l *ContainerEventListener) updateHosts(ctx context.Context) map[string]container.Host {
 	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
 	defer cancel()
-	for _, client := range l.updateClients() {
-		host, err := client.Host(ctx)
-		if err == nil && host.ID == id {
-			return host, true
+	clients := l.updateClients()
+	found := make(chan container.Host, len(clients))
+	for _, client := range clients {
+		go func() {
+			if host, err := client.Host(ctx); err == nil {
+				found <- host
+			} else {
+				found <- container.Host{}
+			}
+		}()
+	}
+	hosts := make(map[string]container.Host, len(clients))
+	for range clients {
+		if host := <-found; host.ID != "" {
+			hosts[host.ID] = host
 		}
 	}
-	return container.Host{}, false
+	return hosts
 }
 
 func updateAvailableEvent(u container.ImageUpdate) container.ContainerEvent {

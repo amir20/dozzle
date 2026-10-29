@@ -50,7 +50,7 @@ func TestVersionFromIndexAnnotation(t *testing.T) {
 		},
 	}))
 
-	version, err := checker.version(context.Background(), host+"/postgres:18-alpine", "sha256:index")
+	version, _, err := checker.version(context.Background(), host+"/postgres:18-alpine", "sha256:index")
 
 	require.NoError(t, err)
 	assert.Equal(t, "18.6-alpine3.24", version)
@@ -74,7 +74,7 @@ func TestVersionFromConfigLabel(t *testing.T) {
 		},
 	}))
 
-	version, err := checker.version(context.Background(), host+"/app:latest", "sha256:index")
+	version, _, err := checker.version(context.Background(), host+"/app:latest", "sha256:index")
 
 	require.NoError(t, err)
 	assert.Equal(t, "12.3.8", version)
@@ -92,7 +92,7 @@ func TestVersionMissingIsCached(t *testing.T) {
 	}))
 
 	for range 2 {
-		version, err := checker.version(context.Background(), host+"/app:latest", "sha256:image")
+		version, _, err := checker.version(context.Background(), host+"/app:latest", "sha256:image")
 		require.NoError(t, err)
 		assert.Empty(t, version)
 	}
@@ -105,7 +105,7 @@ func TestVersionErrorIsCachedBriefly(t *testing.T) {
 	checker, calls, host := newTestChecker(t, time.Minute, fakeRegistry(map[string]any{}))
 
 	for range 2 {
-		_, err := checker.version(context.Background(), host+"/app:latest", "sha256:gone")
+		_, _, err := checker.version(context.Background(), host+"/app:latest", "sha256:gone")
 		assert.ErrorIs(t, err, ErrNotFound)
 	}
 	assert.Equal(t, int32(1), calls.Load())
@@ -119,7 +119,7 @@ func TestVersionUsesGet(t *testing.T) {
 		_ = json.NewEncoder(w).Encode(map[string]any{"annotations": map[string]string{VersionLabel: "1.0"}})
 	})
 
-	version, err := checker.version(context.Background(), host+"/app:latest", "sha256:image")
+	version, _, err := checker.version(context.Background(), host+"/app:latest", "sha256:image")
 
 	require.NoError(t, err)
 	assert.Equal(t, "1.0", version)
@@ -156,17 +156,51 @@ func TestWithVersionsFillsBothSides(t *testing.T) {
 	assert.Equal(t, "1.1", result.LatestVersion)
 }
 
-// The running version comes from the container's labels when they have it,
-// which saves a request.
+// The running version comes from the container's labels when the latest came
+// from labels too, which saves a request.
 func TestWithVersionsPrefersLabel(t *testing.T) {
-	checker, calls, host := newTestChecker(t, time.Minute, withVersionsRegistry(""))
+	versions := fakeRegistry(map[string]any{
+		"sha256:new":    map[string]any{"mediaType": "application/vnd.oci.image.manifest.v1+json", "config": map[string]string{"digest": "sha256:config"}},
+		"sha256:config": map[string]any{"config": map[string]any{"Labels": map[string]string{VersionLabel: "1.1"}}},
+	})
+	checker, calls, host := newTestChecker(t, time.Minute, func(w http.ResponseWriter, r *http.Request) {
+		if r.Method == http.MethodHead {
+			w.Header().Set("Docker-Content-Digest", "sha256:new")
+			return
+		}
+		versions(w, r)
+	})
 	result := checker.Check(context.Background(), host+"/app:latest", []string{host + "/app@sha256:old"}, false)
 
 	result = checker.WithVersions(context.Background(), result, map[string]string{VersionLabel: "1.0-label"})
 
 	assert.Equal(t, "1.0-label", result.CurrentVersion)
 	assert.Equal(t, "1.1", result.LatestVersion)
-	assert.Equal(t, int32(2), calls.Load(), "one HEAD for the check, one GET for the latest")
+	assert.Equal(t, int32(2), calls.Load(), "one HEAD for the check, one manifest GET for the latest, none for the current")
+}
+
+// An annotated latest is not compared with a label, which may be the base
+// image's.
+func TestWithVersionsIgnoresLabelForAnnotatedLatest(t *testing.T) {
+	checker, _, host := newTestChecker(t, time.Minute, withVersionsRegistry(""))
+	result := checker.Check(context.Background(), host+"/app:latest", []string{host + "/app@sha256:old"}, false)
+
+	result = checker.WithVersions(context.Background(), result, map[string]string{VersionLabel: "24.04"})
+
+	assert.Equal(t, "1.0", result.CurrentVersion)
+	assert.Equal(t, "1.1", result.LatestVersion)
+}
+
+// One caller giving up does not fail, or poison, the lookup for the others.
+func TestVersionIgnoresCallerCancel(t *testing.T) {
+	checker, _, host := newTestChecker(t, time.Minute, withVersionsRegistry(""))
+	ctx, cancel := context.WithCancel(context.Background())
+	cancel()
+
+	version, _, err := checker.version(ctx, host+"/app:latest", "sha256:new")
+
+	require.NoError(t, err)
+	assert.Equal(t, "1.1", version)
 }
 
 // Versions cost pulls, so nothing is fetched unless an update is waiting.
@@ -215,7 +249,7 @@ func TestVersionFromFallbackLabel(t *testing.T) {
 		},
 	}))
 
-	version, err := checker.version(context.Background(), host+"/app:latest", "sha256:image")
+	version, _, err := checker.version(context.Background(), host+"/app:latest", "sha256:image")
 
 	require.NoError(t, err)
 	assert.Equal(t, "26.04.5.2", version)

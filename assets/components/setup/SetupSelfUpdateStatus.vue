@@ -84,6 +84,7 @@
 
 <script lang="ts" setup>
 import type { SetupAutoUpdate, SetupStatus, SetupStepId } from "@/composable/setup/setup";
+import config from "@/stores/config";
 
 const {
   status,
@@ -106,7 +107,8 @@ const { phase, progress, error, errorDetail, busy, updateNow } = useSelfUpdate({
 const headline = variant === "schedule" ? useSelfUpdateCheck().headline : computed(() => "current" as const);
 
 const run = () => updateNow(autoUpdate.image);
-const canUpdate = computed(() => canSelfUpdate(status));
+// enableUpdates is per user: the server refuses a self update without the update role.
+const canUpdate = computed(() => config.enableUpdates && canSelfUpdate(status));
 
 const stale = computed(() => headline.value !== "current");
 const title = computed(() => {

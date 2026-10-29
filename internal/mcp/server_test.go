@@ -759,3 +759,15 @@ func TestParseTimeRange(t *testing.T) {
 	_, _, errResult = parseTimeRange(nil, str("yesterday"), nil)
 	assert.NotNil(t, errResult)
 }
+
+func TestCollectLogEntriesStopsAfterMaxScanned(t *testing.T) {
+	events := make(chan *container.LogEvent, maxLogsScanned+2)
+	for i := range maxLogsScanned + 2 {
+		events <- &container.LogEvent{Timestamp: int64(i) * 1000, RawMessage: "line", Type: container.LogTypeSingle}
+	}
+	close(events)
+
+	_, scanned, _, stoppedAt := collectLogEntries(events, nil, 0)
+	assert.Equal(t, maxLogsScanned, scanned)
+	assert.Equal(t, time.UnixMilli(int64(maxLogsScanned)*1000).UTC().Format(time.RFC3339), stoppedAt)
+}
