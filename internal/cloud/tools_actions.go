@@ -7,7 +7,6 @@ import (
 	"strings"
 
 	"github.com/amir20/dozzle/internal/container"
-	"github.com/amir20/dozzle/internal/updatepolicy"
 	pb "github.com/amir20/dozzle/proto/cloud"
 )
 
@@ -73,10 +72,6 @@ func executeUpdateContainer(ctx context.Context, argsJSON string, deps ToolDeps)
 	if cs.Container.State != "running" {
 		return nil, notRunningError(cs.Container)
 	}
-	if updatepolicy.CheckOnly(cs.Container.Labels) {
-		return nil, fmt.Errorf("container %s is %w", cs.Container.Name, container.ErrCheckOnly)
-	}
-
 	var updated bool
 	updateErr := runIgnoringProgress(func(progressCh chan<- container.UpdateProgress) (err error) {
 		updated, err = cs.Update(ctx, container.UpdateSourceCloud, progressCh)

@@ -77,18 +77,20 @@ type manifestDocument struct {
 }
 
 // Version returns the version the image at digest declares, or "" when it
-// declares none. Unlike Digest these are GETs, which Docker Hub counts as
-// pulls, so callers only ask when someone is looking at an update. Most images
-// answer from the first manifest; the rest take one or two more requests.
-func (r *Registry) Version(ctx context.Context, ref Reference, digest string) (string, error) {
+// declares none. fromConfig is true when it was read from the image config's
+// labels, the same place a container's labels come from. Unlike Digest these
+// are GETs, which Docker Hub counts as pulls, so they are only made for an
+// available update, and a digest is only ever asked once. Most images answer
+// from the first manifest; the rest take one or two more requests.
+func (r *Registry) Version(ctx context.Context, ref Reference, digest string) (version string, fromConfig bool, err error) {
 	ref.Tag, ref.Digest = "", digest
 
 	doc, err := r.manifest(ctx, ref)
 	if err != nil {
-		return "", err
+		return "", false, err
 	}
 	if v := doc.Annotations[VersionLabel]; v != "" {
-		return v, nil
+		return v, false, nil
 	}
 
 	if indexTypes[doc.MediaType] || len(doc.Manifests) > 0 {
@@ -104,28 +106,29 @@ func (r *Registry) Version(ctx context.Context, ref Reference, digest string) (s
 			}
 		}
 		if chosen == -1 {
-			return "", nil
+			return "", false, nil
 		}
 
 		entry := doc.Manifests[chosen]
 		if v := entry.Annotations[VersionLabel]; v != "" {
-			return v, nil
+			return v, false, nil
 		}
 
 		ref.Digest = entry.Digest
 		if doc, err = r.manifest(ctx, ref); err != nil {
-			return "", err
+			return "", false, err
 		}
 		if v := doc.Annotations[VersionLabel]; v != "" {
-			return v, nil
+			return v, false, nil
 		}
 	}
 
 	if doc.Config.Digest == "" {
-		return "", nil
+		return "", false, nil
 	}
 
-	return r.configVersion(ctx, ref, doc.Config.Digest)
+	version, err = r.configVersion(ctx, ref, doc.Config.Digest)
+	return version, true, err
 }
 
 func (r *Registry) manifest(ctx context.Context, ref Reference) (manifestDocument, error) {
@@ -185,22 +188,27 @@ func (r *Registry) configVersion(ctx context.Context, ref Reference, digest stri
 }
 
 type versionEntry struct {
-	version   string
-	err       error
-	fetchedAt time.Time
+	version    string
+	fromConfig bool
+	err        error
+	fetchedAt  time.Time
 }
+
+// versionTimeout bounds a version lookup, which runs apart from the caller's
+// context because singleflight hands its answer to every caller waiting on it.
+const versionTimeout = 15 * time.Second
 
 // WithVersions fills in the versions either side of an available update, and
 // returns result unchanged otherwise. A version is a nicety, so a lookup that
 // fails leaves that side empty rather than failing the check. labels are the
 // container's: Docker merges the image's labels into them, so the running
-// version is usually known without a request.
+// version is often known without a request.
 func (c *Checker) WithVersions(ctx context.Context, result Result, labels map[string]string) Result {
 	if !result.UpdateAvailable() {
 		return result
 	}
 
-	latest, err := c.version(ctx, result.Image, result.RemoteDigest)
+	latest, latestFromConfig, err := c.version(ctx, result.Image, result.RemoteDigest)
 	if err != nil {
 		log.Debug().Err(err).Str("image", result.Image).Msg("image version: could not read latest")
 		result.VersionReason = versionReason(err)
@@ -214,10 +222,14 @@ func (c *Checker) WithVersions(ctx context.Context, result Result, labels map[st
 	result.LatestVersion = latest
 
 	// Without the latest there is nothing to compare against, so the running
-	// version is only worth a request once the latest is known.
-	result.CurrentVersion = labels[VersionLabel]
+	// version is only worth a request once the latest is known. The labels are
+	// only comparable with a latest read from labels too: an image annotated
+	// 1.4.2 can still carry the 24.04 label of the base it was built on.
+	if latestFromConfig {
+		result.CurrentVersion = labels[VersionLabel]
+	}
 	if result.CurrentVersion == "" && result.LocalDigest != "" {
-		result.CurrentVersion, err = c.version(ctx, result.Image, result.LocalDigest)
+		result.CurrentVersion, _, err = c.version(ctx, result.Image, result.LocalDigest)
 		if err != nil {
 			log.Debug().Err(err).Str("image", result.Image).Msg("image version: could not read current")
 		}
@@ -229,11 +241,12 @@ func (c *Checker) WithVersions(ctx context.Context, result Result, labels map[st
 // version returns the version declared by image at digest. A digest never
 // changes what it points to, so answers, including "no version", are kept
 // until the cache fills. Failures are kept briefly, so a registry that refuses
-// is not asked again on every check, and a skipped lookup is not kept at all.
-func (c *Checker) version(ctx context.Context, image, digest string) (string, error) {
+// is not asked again on every check, and a skipped or timed out lookup is not
+// kept at all.
+func (c *Checker) version(ctx context.Context, image, digest string) (string, bool, error) {
 	ref, err := ParseReference(image)
 	if err != nil {
-		return "", err
+		return "", false, err
 	}
 
 	key := ref.Registry + "/" + ref.Repository + "@" + digest
@@ -242,22 +255,25 @@ func (c *Checker) version(ctx context.Context, image, digest string) (string, er
 	entry, ok := c.versions[key]
 	c.mu.Unlock()
 	if ok && (entry.err == nil || time.Since(entry.fetchedAt) < errorTTL) {
-		return entry.version, entry.err
+		return entry.version, entry.fromConfig, entry.err
 	}
 
 	fetched, err, _ := c.group.Do("version:"+key, func() (any, error) {
-		return c.registry.Version(ctx, ref, digest)
+		ctx, cancel := context.WithTimeout(context.WithoutCancel(ctx), versionTimeout)
+		defer cancel()
+		version, fromConfig, err := c.registry.Version(ctx, ref, digest)
+		return versionEntry{version: version, fromConfig: fromConfig}, err
 	})
-	version, _ := fetched.(string)
+	found, _ := fetched.(versionEntry)
 
-	if !errors.Is(err, ErrLowQuota) {
+	if !errors.Is(err, ErrLowQuota) && !errors.Is(err, context.DeadlineExceeded) {
 		c.mu.Lock()
 		if len(c.versions) >= maxCacheEntries {
 			clear(c.versions)
 		}
-		c.versions[key] = versionEntry{version: version, err: err, fetchedAt: time.Now()}
+		c.versions[key] = versionEntry{version: found.version, fromConfig: found.fromConfig, err: err, fetchedAt: time.Now()}
 		c.mu.Unlock()
 	}
 
-	return version, err
+	return found.version, found.fromConfig, err
 }

@@ -8,6 +8,7 @@ import (
 	"github.com/amir20/dozzle/internal/auth"
 	"github.com/amir20/dozzle/internal/container"
 	"github.com/amir20/dozzle/internal/imagecheck"
+	"github.com/amir20/dozzle/internal/updatepolicy"
 	"github.com/amir20/dozzle/internal/web/sse"
 	"github.com/rs/zerolog/log"
 )
@@ -52,6 +53,18 @@ func (h *handler) updateSelf(w http.ResponseWriter, r *http.Request) {
 		if user == nil || !user.Roles.Has(auth.Actions|auth.Update) {
 			log.Warn().Msg("user is not permitted to update dozzle")
 			http.Error(w, http.StatusText(http.StatusForbidden), http.StatusForbidden)
+			return
+		}
+	}
+
+	// ContainerService.Update refuses a container labelled
+	// dev.dozzle.update=check, and this path never goes through it.
+	if id := setupSelfID(); id != "" {
+		ctx, cancel := context.WithTimeout(r.Context(), 5*time.Second)
+		self, err := selfUpdateInspect(ctx, h.hostService, id)
+		cancel()
+		if err == nil && updatepolicy.CheckOnly(self.Labels) {
+			http.Error(w, container.ErrCheckOnly.Error(), http.StatusForbidden)
 			return
 		}
 	}

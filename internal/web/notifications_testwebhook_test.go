@@ -20,6 +20,7 @@ func Test_testNotification_follows_template(t *testing.T) {
 		{"event", `{{ .Event.Attributes.currentVersion }} -> {{ .Event.Attributes.latestVersion }}`, "1.27.0 -> 1.27.1"},
 		{"metric", `{{ .Stat.CPUPercent }}`, "85"},
 		{"log", `{{ .Log.Message }}`, "This is a test log message from Dozzle"},
+		{"log reading state", `{{ .Container.State }}: {{ .Log.Message }}`, "running: This is a test log message from Dozzle"},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

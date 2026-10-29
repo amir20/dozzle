@@ -96,6 +96,7 @@ func (h *handler) containerUpdate(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, container.ErrNotRunning.Error(), http.StatusConflict)
 		return
 	}
+	// ContainerService.Update refuses it too, but only once the stream is open.
 	if updatepolicy.CheckOnly(containerService.Container.Labels) {
 		http.Error(w, container.ErrCheckOnly.Error(), http.StatusForbidden)
 		return

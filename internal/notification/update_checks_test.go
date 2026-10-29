@@ -78,6 +78,22 @@ func TestAvailableUpdateRaisedOncePerDigest(t *testing.T) {
 	assert.Len(t, drain(l), 1)
 }
 
+// An event dropped on a full channel is raised again by the next check.
+func TestAvailableUpdateDroppedIsRaisedAgain(t *testing.T) {
+	agent := &updateHostClient{host: "agent-1"}
+	l := NewContainerEventListener(t.Context(), nil)
+	l.ListenToUpdates(container.NewUpdateRecords(), func() []container.ClientService { return []container.ClientService{agent} })
+
+	for range cap(l.channel) {
+		l.channel <- &ContainerEventEntry{}
+	}
+	l.raiseAvailableUpdates(t.Context(), []container.ImageUpdate{availableUpdate("web", "sha256:2222222222222222")})
+	drain(l)
+
+	l.raiseAvailableUpdates(t.Context(), []container.ImageUpdate{availableUpdate("web", "sha256:2222222222222222")})
+	assert.Len(t, drain(l), 1)
+}
+
 func TestAvailableUpdateOnUnknownHostIsDropped(t *testing.T) {
 	local := &updateHostClient{host: "local"}
 	l := NewContainerEventListener(t.Context(), nil)

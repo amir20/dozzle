@@ -13,6 +13,7 @@ import (
 	"github.com/amir20/dozzle/internal/auth"
 	"github.com/amir20/dozzle/internal/container"
 	"github.com/amir20/dozzle/internal/imagecheck"
+	"github.com/amir20/dozzle/internal/updatepolicy"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -83,6 +84,23 @@ func TestUpdateSelf_NoContainer(t *testing.T) {
 		return false, nil
 	})
 	assert.Equal(t, []string{"error"}, updateSelfEvents(doSetup(actionsHandler(), "POST", "/api/update/self", "").Body.String()))
+}
+
+// A Dozzle labelled dev.dozzle.update=check is refused like any other container.
+func TestUpdateSelf_CheckOnlyLabel(t *testing.T) {
+	setupTestEnv(t, true)
+	selfUpdateInspect = func(context.Context, HostService, string) (selfImage, error) {
+		return selfImage{Ref: "amir20/dozzle:latest", Labels: map[string]string{updatepolicy.Label: "check"}}, nil
+	}
+	started := false
+	stubSelfUpdateStart(t, func(context.Context, string, func(container.UpdateProgress)) (bool, error) {
+		started = true
+		return true, nil
+	})
+
+	rr := doSetup(actionsHandler(), "POST", "/api/update/self", "")
+	assert.Equal(t, http.StatusForbidden, rr.Code)
+	assert.False(t, started)
 }
 
 func TestUpdateSelf_Busy(t *testing.T) {

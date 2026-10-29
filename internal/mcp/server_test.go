@@ -24,6 +24,8 @@ type mockHostService struct {
 	listErrs   []error
 	logEvents  []*container.LogEvent
 	logErr     error
+	// logsByTime streams only the events inside the requested range.
+	logsByTime bool
 
 	// gotLabels records the last label filter passed to a lookup so tests can
 	// assert the requesting user's filter is applied instead of the global one.
@@ -34,9 +36,10 @@ type stubClientService struct {
 	container.ClientService
 	events []*container.LogEvent
 	err    error
+	byTime bool
 }
 
-func (s *stubClientService) LogsBetweenDates(ctx context.Context, _ container.Container, _ time.Time, _ time.Time, _ container.StdType) (<-chan *container.LogEvent, error) {
+func (s *stubClientService) LogsBetweenDates(ctx context.Context, _ container.Container, from time.Time, to time.Time, _ container.StdType) (<-chan *container.LogEvent, error) {
 	if s.err != nil {
 		return nil, s.err
 	}
@@ -44,6 +47,9 @@ func (s *stubClientService) LogsBetweenDates(ctx context.Context, _ container.Co
 	go func() {
 		defer close(ch)
 		for _, e := range s.events {
+			if s.byTime && (e.Timestamp < from.UnixMilli() || e.Timestamp > to.UnixMilli()) {
+				continue
+			}
 			select {
 			case ch <- e:
 			case <-ctx.Done():
@@ -69,7 +75,7 @@ func (m *mockHostService) FindContainer(host string, id string, labels container
 	}
 	for _, c := range m.containers {
 		if c.ID == id && c.Host == host {
-			stub := &stubClientService{events: m.logEvents, err: m.logErr}
+			stub := &stubClientService{events: m.logEvents, err: m.logErr, byTime: m.logsByTime}
 			return container.NewContainerService(stub, c), nil
 		}
 	}
@@ -758,4 +764,50 @@ func TestParseTimeRange(t *testing.T) {
 
 	_, _, errResult = parseTimeRange(nil, str("yesterday"), nil)
 	assert.NotNil(t, errResult)
+}
+
+func TestCollectLogEntriesStopsAfterMaxScanned(t *testing.T) {
+	events := make(chan *container.LogEvent, maxLogsScanned+2)
+	for i := range maxLogsScanned + 2 {
+		events <- &container.LogEvent{Timestamp: int64(i) * 1000, RawMessage: "line", Type: container.LogTypeSingle}
+	}
+	close(events)
+
+	_, scanned, _, stoppedAt := collectLogEntries(events, nil, 0)
+	assert.Equal(t, maxLogsScanned, scanned)
+	assert.Equal(t, time.UnixMilli(int64(maxLogsScanned)*1000), stoppedAt)
+}
+
+// Logs stream oldest first, so a range too big to read whole is read again
+// over its tail and the answer is still the newest lines.
+func TestGetContainerLogsTooBigRangeReadsTheTail(t *testing.T) {
+	start := time.Date(2026, 10, 28, 4, 0, 0, 0, time.UTC)
+	total := maxLogsScanned * 3 / 2
+	events := make([]*container.LogEvent, total)
+	for i := range events {
+		events[i] = &container.LogEvent{Timestamp: start.UnixMilli() + int64(i), Type: container.LogTypeSingle, RawMessage: fmt.Sprintf("line %d", i)}
+	}
+	svc := &mockHostService{containers: []container.Container{{ID: "abc123", Name: "web", Host: "local"}}, logEvents: events, logsByTime: true}
+	s := NewServer(svc, nil, "test")
+
+	ctx := context.Background()
+	ct, st := mcp.NewInMemoryTransports()
+	_, err := s.mcpServer.Connect(ctx, st, nil)
+	require.NoError(t, err)
+	session, err := mcp.NewClient(&mcp.Implementation{Name: "test-client", Version: "v0.0.1"}, nil).Connect(ctx, ct, nil)
+	require.NoError(t, err)
+	defer session.Close()
+
+	end := start.Add(time.Duration(total) * time.Millisecond)
+	result, err := session.CallTool(ctx, &mcp.CallToolParams{
+		Name: "get_container_logs",
+		Arguments: map[string]any{
+			"host": "local", "container_id": "abc123", "limit": 1,
+			"start": start.Format(time.RFC3339), "end": end.Format(time.RFC3339),
+		},
+	})
+	require.NoError(t, err)
+	text := result.Content[0].(*mcp.TextContent).Text
+	assert.Contains(t, text, fmt.Sprintf("line %d", total-1))
+	assert.Contains(t, text, "only the newest part")
 }
