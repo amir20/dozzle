@@ -193,7 +193,7 @@ tooltip:
   volume-full: "{destination}이(가) {pct} 사용 중"
   open-container-url: "{url} 열기"
   agent-version: "Dozzle 에이전트 {version}"
-  agent-version-mismatch: "에이전트 {version}이(가) Dozzle {current}과(와) 일치하지 않습니다. 에이전트를 업데이트하세요."
+  agent-version-mismatch: "에이전트 {version}와(과) Dozzle {current}의 버전이 다릅니다. 양쪽에서 같은 버전을 실행하세요."
 popup:
   group: 그룹
   ports: 포트

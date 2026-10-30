@@ -193,7 +193,7 @@ tooltip:
   volume-full: "{destination} {pct} dolu"
   open-container-url: "{url} adresini aç"
   agent-version: "Dozzle aracısı {version}"
-  agent-version-mismatch: "Aracı {version}, Dozzle {current} ile eşleşmiyor. Aracıyı güncelleyin."
+  agent-version-mismatch: "Aracı {version} ve Dozzle {current} farklı sürümlerde. Her ikisinde de aynı sürümü çalıştırın."
 popup:
   group: Grup
   ports: Portlar
