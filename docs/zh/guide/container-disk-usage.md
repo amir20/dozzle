@@ -1,7 +1,7 @@
 ---
 title: 容器磁盘占用
 description: Dozzle 如何测量每个 Docker 容器及其卷占用的磁盘空间、哪些内容不计算在内，以及如何清理未使用的镜像、卷和构建缓存。
-sourceHash: ca705e9363d0
+sourceHash: db3721c96694
 ---
 
 # 容器磁盘占用
@@ -44,7 +44,7 @@ du -sh /data/postgres
 
 - **未使用的镜像**：`docker image prune -a`。已停止的 stack 下次启动时会重新拉取镜像。
 - **未使用的卷**：`docker volume prune -a`，命名卷也会被删除。它们默认不勾选，并且需要再次确认，因为当前没有容器使用的卷，仍可能存放着某个只是为了重新部署而被移除的容器的数据库。
-- **已停止的容器**：`docker container prune`
+- **已停止的容器**：`docker container prune`，带有 `dev.dozzle.keep=true` 标签的容器除外
 - **构建缓存**：`docker builder prune -a`
 
 比它所连接的 Dozzle 更旧的 [agent](/zh/guide/agent) 无法清理，弹出框会说明这一点。
@@ -52,6 +52,16 @@ du -sh /data/postgres
 ### 定时清理
 
 在同一弹出框底部的 **自动清理** 中，选择每天或每周（周日）以及一个时间，时间使用服务器的时区。默认关闭。到点后，Dozzle 会依次清理每台已连接的主机：未使用的镜像、已停止的容器和构建缓存。定时清理永远不会删除卷。弹出框会显示上次运行释放了多少空间。
+
+有意保持停止状态的容器，比如只在固定时间才启动的容器，也会和其他容器一起被删除。给它加上 `dev.dozzle.keep=true` 标签后，无论是手动清理还是定时清理都不会删除它。它的镜像也会保留，因为容器仍在使用该镜像，而且两者都不计入可回收空间。
+
+```yaml
+services:
+  backup:
+    image: restic/restic
+    labels:
+      dev.dozzle.keep: "true"
+```
 
 该计划与 [自动更新](/zh/guide/updates#auto-updating-containers) 设置一起保存在 `dozzle.yml` 中，无需重启即可生效。它只在服务器模式下运行，并会先等待正在进行的容器更新完成。设置 `DOZZLE_AUTO_CLEANUP` 或 `DOZZLE_AUTO_CLEANUP_TIME` 会固定该计划，弹出框此时只显示它。
 

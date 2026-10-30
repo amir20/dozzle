@@ -43,7 +43,7 @@ Each kind runs the matching prune:
 
 - **Unused images**: `docker image prune -a`. A stopped stack pulls its images again on its next start.
 - **Unused volumes**: `docker volume prune -a`, which takes named volumes too. They start unticked and need a second confirmation, since a volume no container uses right now can still hold a database whose container was removed for a redeploy.
-- **Stopped containers**: `docker container prune`
+- **Stopped containers**: `docker container prune`, except containers labelled `dev.dozzle.keep=true`
 - **Build cache**: `docker builder prune -a`
 
 An [agent](/guide/agent) older than the Dozzle it reports to cannot clean up, and the popover says so.
@@ -51,6 +51,16 @@ An [agent](/guide/agent) older than the Dozzle it reports to cannot clean up, an
 ### On a schedule
 
 Under **Clean up automatically** at the bottom of the same popover, pick daily or weekly (Sunday) and a time in the server's time zone. Off is the default. At that time Dozzle cleans up every connected host, one after another: unused images, stopped containers and build cache. Volumes are never deleted on a schedule. The popover shows what the last run freed.
+
+A container you keep stopped on purpose, say one you only start at a set hour, would go with the rest. Label it `dev.dozzle.keep=true` and no clean up removes it, by hand or on a schedule. Its image stays too, since the container still uses it, and neither counts toward reclaimable space.
+
+```yaml
+services:
+  backup:
+    image: restic/restic
+    labels:
+      dev.dozzle.keep: "true"
+```
 
 The schedule is saved in `dozzle.yml` next to the [auto-update](/guide/updates#auto-updating-containers) settings and applies without a restart. It runs in server mode only, and waits for any container update in progress to finish first. Setting `DOZZLE_AUTO_CLEANUP` or `DOZZLE_AUTO_CLEANUP_TIME` fixes the schedule, and the popover then only shows it.
 

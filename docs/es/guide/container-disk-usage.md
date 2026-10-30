@@ -1,7 +1,7 @@
 ---
 title: Uso de disco por contenedor
 description: Cómo mide Dozzle el disco que ocupa cada contenedor Docker y sus volúmenes, qué deja fuera y cómo limpiar imágenes, volúmenes y caché de compilación sin usar.
-sourceHash: ca705e9363d0
+sourceHash: db3721c96694
 ---
 
 # Uso de disco por contenedor
@@ -44,7 +44,7 @@ Cada tipo ejecuta el prune correspondiente:
 
 - **Imágenes sin usar**: `docker image prune -a`. Un stack parado vuelve a descargar sus imágenes en su próximo inicio.
 - **Volúmenes sin usar**: `docker volume prune -a`, que también borra los volúmenes con nombre. Empiezan sin marcar y piden una segunda confirmación, porque un volumen que ningún contenedor usa ahora mismo puede guardar la base de datos de un contenedor que solo se eliminó para un redespliegue.
-- **Contenedores parados**: `docker container prune`
+- **Contenedores parados**: `docker container prune`, salvo los contenedores con la etiqueta `dev.dozzle.keep=true`
 - **Caché de build**: `docker builder prune -a`
 
 Un [agente](/es/guide/agent) más antiguo que el Dozzle al que informa no puede limpiar, y la ventana lo indica.
@@ -52,6 +52,16 @@ Un [agente](/es/guide/agent) más antiguo que el Dozzle al que informa no puede 
 ### Programado
 
 En **Limpiar automáticamente**, al final de la misma ventana, elige diario o semanal (domingo) y una hora en la zona horaria del servidor. Viene desactivado. A esa hora Dozzle limpia cada host conectado, uno tras otro: imágenes sin usar, contenedores detenidos y caché de build. Los volúmenes nunca se eliminan de forma programada. La ventana muestra cuánto liberó la última ejecución.
+
+Un contenedor que mantienes parado a propósito, por ejemplo uno que solo arrancas a una hora fija, se borraría con el resto. Ponle la etiqueta `dev.dozzle.keep=true` y ninguna limpieza lo eliminará, ni manual ni programada. Su imagen también se conserva, ya que el contenedor todavía la usa, y ninguno de los dos cuenta en el espacio recuperable.
+
+```yaml
+services:
+  backup:
+    image: restic/restic
+    labels:
+      dev.dozzle.keep: "true"
+```
 
 La programación se guarda en `dozzle.yml` junto a los ajustes de [actualización automática](/es/guide/updates#auto-updating-containers) y se aplica sin reiniciar. Solo funciona en modo servidor, y primero espera a que termine cualquier actualización de contenedor en curso. Definir `DOZZLE_AUTO_CLEANUP` o `DOZZLE_AUTO_CLEANUP_TIME` fija la programación, y el popover entonces solo la muestra.
 
