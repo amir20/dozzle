@@ -887,6 +887,30 @@ command-palette:
   toggle-std: Переключить метки stdout/stderr
   toggle-scrollbars: Переключить уменьшенные полосы прокрутки
   open-settings: Открыть настройки
+  section-updates: "Доступны обновления"
+  section-hosts: "Хосты"
+  open-analytics: "Открыть анализ логов"
+  clear-logs: "Очистить логи"
+  attach-shell: "Подключиться к {name}"
+  exec-shell: "Открыть оболочку в {name}"
+  open-assistant: "Спросить ассистента"
+  check-container-updates: "Проверить обновления для {name}"
+  skip-update: "Пропустить это обновление для {name}"
+  review-updates: "Просмотреть обновления: 1 | Просмотреть обновления: {count}"
+  confirm-stop: "Нажмите ↵ ещё раз, чтобы остановить {name}"
+  confirm-update: "Нажмите ↵ ещё раз, чтобы обновить {name}"
+  confirm-hint: "подтвердить"
+  open-settings-page: "Настройки: {page}"
+  open-notifications: "Открыть уведомления"
+  open-logs: "Открыть логи"
+  state-on: "Вкл"
+  state-off: "Выкл"
+  prefix-commands: "команды"
+  prefix-hosts: "хосты"
+  prefix-ask: "спросить"
+  actions-hint: "действия"
+  actions-placeholder: "Фильтр действий…"
+  back-hint: "назад"
 setup:
   title: Настройка Dozzle
   next: Далее

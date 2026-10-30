@@ -403,6 +403,30 @@ command-palette:
   toggle-std: Toggle stdout/stderr labels
   toggle-scrollbars: Toggle smaller scrollbars
   open-settings: Open settings
+  section-updates: "Updates available"
+  section-hosts: "Hosts"
+  open-analytics: "Open log analytics"
+  clear-logs: "Clear logs"
+  attach-shell: "Attach to {name}"
+  exec-shell: "Open a shell in {name}"
+  open-assistant: "Ask the assistant"
+  check-container-updates: "Check {name} for updates"
+  skip-update: "Skip this update for {name}"
+  review-updates: "Review 1 update | Review {count} updates"
+  confirm-stop: "Press ↵ again to stop {name}"
+  confirm-update: "Press ↵ again to update {name}"
+  confirm-hint: "confirm"
+  open-settings-page: "Settings: {page}"
+  open-notifications: "Open notifications"
+  open-logs: "Open logs"
+  state-on: "On"
+  state-off: "Off"
+  prefix-commands: "commands"
+  prefix-hosts: "hosts"
+  prefix-ask: "ask"
+  actions-hint: "actions"
+  actions-placeholder: "Filter actions…"
+  back-hint: "back"
 settings:
   subtitle: Preferences for this browser. Changes save automatically.
   subtitle-server: "Settings for this Dozzle, shared by everyone who uses it."

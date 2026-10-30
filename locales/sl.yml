@@ -892,6 +892,30 @@ command-palette:
   toggle-std: Preklopi oznake stdout/stderr
   toggle-scrollbars: Preklopi manjše drsnike
   open-settings: Odpri nastavitve
+  section-updates: "Na voljo so posodobitve"
+  section-hosts: "Gostitelji"
+  open-analytics: "Odpri analizo dnevnikov"
+  clear-logs: "Počisti dnevnike"
+  attach-shell: "Priključi se na {name}"
+  exec-shell: "Odpri lupino v {name}"
+  open-assistant: "Vprašaj pomočnika"
+  check-container-updates: "Preveri posodobitve za {name}"
+  skip-update: "Preskoči to posodobitev za {name}"
+  review-updates: "Preglej posodobitve: 1 | Preglej posodobitve: {count}"
+  confirm-stop: "Znova pritisnite ↵, da ustavite {name}"
+  confirm-update: "Znova pritisnite ↵, da posodobite {name}"
+  confirm-hint: "potrdi"
+  open-settings-page: "Nastavitve: {page}"
+  open-notifications: "Odpri obvestila"
+  open-logs: "Odpri dnevnike"
+  state-on: "Vklopljeno"
+  state-off: "Izklopljeno"
+  prefix-commands: "ukazi"
+  prefix-hosts: "gostitelji"
+  prefix-ask: "vprašaj"
+  actions-hint: "dejanja"
+  actions-placeholder: "Filtriraj dejanja…"
+  back-hint: "nazaj"
 setup:
   title: Nastavitev Dozzle
   next: Naprej

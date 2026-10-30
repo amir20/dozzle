@@ -395,6 +395,30 @@ command-palette:
   toggle-std: Alternar etiquetas stdout/stderr
   toggle-scrollbars: Alternar barras de desplazamiento más pequeñas
   open-settings: Abrir configuración
+  section-updates: "Actualizaciones disponibles"
+  section-hosts: "Hosts"
+  open-analytics: "Abrir análisis de logs"
+  clear-logs: "Borrar logs"
+  attach-shell: "Adjuntar a {name}"
+  exec-shell: "Abrir una shell en {name}"
+  open-assistant: "Preguntar al asistente"
+  check-container-updates: "Buscar actualizaciones de {name}"
+  skip-update: "Omitir esta actualización de {name}"
+  review-updates: "Revisar 1 actualización | Revisar {count} actualizaciones"
+  confirm-stop: "Pulsa ↵ de nuevo para detener {name}"
+  confirm-update: "Pulsa ↵ de nuevo para actualizar {name}"
+  confirm-hint: "confirmar"
+  open-settings-page: "Configuración: {page}"
+  open-notifications: "Abrir notificaciones"
+  open-logs: "Abrir logs"
+  state-on: "Activado"
+  state-off: "Desactivado"
+  prefix-commands: "comandos"
+  prefix-hosts: "hosts"
+  prefix-ask: "preguntar"
+  actions-hint: "acciones"
+  actions-placeholder: "Filtrar acciones…"
+  back-hint: "volver"
 settings:
   subtitle: Preferencias para este navegador. Los cambios se guardan automáticamente.
   subtitle-server: "Ajustes de este Dozzle, compartidos por todos los que lo usan."

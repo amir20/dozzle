@@ -887,6 +887,30 @@ command-palette:
   toggle-std: Attiva/disattiva etichette stdout/stderr
   toggle-scrollbars: Attiva/disattiva barre di scorrimento più piccole
   open-settings: Apri impostazioni
+  section-updates: "Aggiornamenti disponibili"
+  section-hosts: "Host"
+  open-analytics: "Apri l'analisi dei log"
+  clear-logs: "Cancella i log"
+  attach-shell: "Collegati a {name}"
+  exec-shell: "Apri una shell in {name}"
+  open-assistant: "Chiedi all'assistente"
+  check-container-updates: "Controlla aggiornamenti per {name}"
+  skip-update: "Salta questo aggiornamento per {name}"
+  review-updates: "Rivedi 1 aggiornamento | Rivedi {count} aggiornamenti"
+  confirm-stop: "Premi di nuovo ↵ per fermare {name}"
+  confirm-update: "Premi di nuovo ↵ per aggiornare {name}"
+  confirm-hint: "conferma"
+  open-settings-page: "Impostazioni: {page}"
+  open-notifications: "Apri notifiche"
+  open-logs: "Apri i log"
+  state-on: "Attivo"
+  state-off: "Disattivo"
+  prefix-commands: "comandi"
+  prefix-hosts: "host"
+  prefix-ask: "chiedi"
+  actions-hint: "azioni"
+  actions-placeholder: "Filtra azioni…"
+  back-hint: "indietro"
 setup:
   title: Configura Dozzle
   next: Avanti

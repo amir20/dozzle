@@ -113,6 +113,8 @@ import type { Component } from "vue";
 import CarbonRestart from "~icons/carbon/restart";
 import CarbonStopFilledAlt from "~icons/carbon/stop-filled-alt";
 import CarbonPlay from "~icons/carbon/play";
+import MdiChartBoxOutline from "~icons/mdi/chart-box-outline";
+import MdiNotificationClearAll from "~icons/mdi/notification-clear-all";
 // Drawer-only, and it drags in apache-arrow; loading it eagerly put both on every log view.
 const LogAnalytics = defineAsyncComponent(() => import("@/components/logs/LogAnalytics.vue"));
 
@@ -134,6 +136,36 @@ const openAnalytics = () => showDrawer(LogAnalytics, { containers: toValue(conta
 const canAnalyze = computed(() => hasComplexLogs.value && toValue(containers).length > 0);
 
 useLetterShortcut("s", openAnalytics, canAnalyze);
+
+const { t } = useI18n();
+
+// What this view offers the command palette, with the keys that do the same here.
+if (isViewContextOwner()) {
+  provideViewCommands(() => [
+    ...(canAnalyze.value
+      ? [
+          {
+            id: "view.analytics",
+            section: "view" as const,
+            icon: MdiChartBoxOutline,
+            title: t("command-palette.open-analytics"),
+            keywords: "analytics sql query table duckdb",
+            shortcut: ["S"],
+            perform: openAnalytics,
+          },
+        ]
+      : []),
+    {
+      id: "view.clear",
+      section: "view" as const,
+      icon: MdiNotificationClearAll,
+      title: t("command-palette.clear-logs"),
+      keywords: "clear empty reset logs",
+      shortcut: [modKey(), "⇧", "L"],
+      perform: clear,
+    },
+  ]);
+}
 
 // Restart, stop and start for every container in the view, behind a confirm.
 const MAX_NAMES = 8;

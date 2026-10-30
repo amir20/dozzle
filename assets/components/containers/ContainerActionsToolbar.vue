@@ -204,6 +204,8 @@ import { Container, powerAction } from "@/models/Container";
 const LogAnalytics = defineAsyncComponent(() => import("@/components/logs/LogAnalytics.vue"));
 import Terminal from "./Terminal.vue";
 import ContainerInspect from "./ContainerInspect.vue";
+import MdiChartBoxOutline from "~icons/mdi/chart-box-outline";
+import MdiNotificationClearAll from "~icons/mdi/notification-clear-all";
 
 const { showSearch } = useSearchFilter();
 const { linked: cloudLinked } = useCloudSurface();
@@ -284,6 +286,41 @@ const isMainView = isViewContextOwner();
 const canShell = isMainView && enableShell && !historical;
 const openAnalytics = () => showDrawer(LogAnalytics, { containers: [container] }, "lg");
 const openTerminal = (action: "attach" | "exec") => showDrawer(Terminal, { container, action }, "lg");
+
+const { t } = useI18n();
+
+// What this view offers the command palette, with the keys that do the same here.
+if (isMainView) {
+  provideViewCommands(() => [
+    ...(hasComplexLogs.value
+      ? [
+          {
+            id: "view.analytics",
+            section: "view" as const,
+            icon: MdiChartBoxOutline,
+            title: t("command-palette.open-analytics"),
+            keywords: "analytics sql query table duckdb",
+            shortcut: ["S"],
+            perform: openAnalytics,
+          },
+        ]
+      : []),
+    // Historical logs are not a stream, and their view has nothing to clear.
+    ...(historical
+      ? []
+      : [
+          {
+            id: "view.clear",
+            section: "view" as const,
+            icon: MdiNotificationClearAll,
+            title: t("command-palette.clear-logs"),
+            keywords: "clear empty reset logs",
+            shortcut: [modKey(), "⇧", "L"],
+            perform: clear,
+          },
+        ]),
+  ]);
+}
 
 useLetterShortcut("s", openAnalytics, () => isMainView && hasComplexLogs.value);
 useLetterShortcut("i", () => showDrawer(ContainerInspect, { container }), isMainView && !historical);

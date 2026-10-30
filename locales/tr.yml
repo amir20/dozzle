@@ -890,6 +890,30 @@ command-palette:
   toggle-std: stdout/stderr etiketlerini aç/kapat
   toggle-scrollbars: Daha küçük kaydırma çubuklarını aç/kapat
   open-settings: Ayarları aç
+  section-updates: "Güncellemeler mevcut"
+  section-hosts: "Sunucular"
+  open-analytics: "Log analizini aç"
+  clear-logs: "Logları temizle"
+  attach-shell: "{name} kapsayıcısına bağlan"
+  exec-shell: "{name} içinde kabuk aç"
+  open-assistant: "Asistana sor"
+  check-container-updates: "{name} için güncellemeleri denetle"
+  skip-update: "{name} için bu güncellemeyi atla"
+  review-updates: "1 güncellemeyi incele | {count} güncellemeyi incele"
+  confirm-stop: "{name} kapsayıcısını durdurmak için tekrar ↵ tuşuna basın"
+  confirm-update: "{name} kapsayıcısını güncellemek için tekrar ↵ tuşuna basın"
+  confirm-hint: "onayla"
+  open-settings-page: "Ayarlar: {page}"
+  open-notifications: "Bildirimleri aç"
+  open-logs: "Logları aç"
+  state-on: "Açık"
+  state-off: "Kapalı"
+  prefix-commands: "komutlar"
+  prefix-hosts: "sunucular"
+  prefix-ask: "sor"
+  actions-hint: "eylemler"
+  actions-placeholder: "Eylemleri filtrele…"
+  back-hint: "geri"
 setup:
   title: Dozzle kurulumu
   next: İleri
