@@ -338,7 +338,8 @@ describe("<FuzzySearchModal />", () => {
     await wrapper.find("input").trigger("keydown.tab");
     expect(wrapper.find("[data-testid=drill-crumb]").text()).toBe("baz");
     expect(texts(wrapper)[0]).toBe("command-palette.open-logs");
-    expect(texts(wrapper)).toContain("command-palette.restart-container");
+    // The crumb already names the container, so its actions leave the name out.
+    expect(texts(wrapper)).toContain("toolbar.restart");
 
     await wrapper.find("input").trigger("keydown.enter");
     expect(useRouter().push).toHaveBeenCalledWith({ name: "/container/[id]", params: { id: "567" } });
@@ -430,6 +431,9 @@ describe("<FuzzySearchModal />", () => {
       expect(wrapper.text()).toContain("command-palette.section-updates");
       expect(wrapper.find("[data-testid=update-dot]").exists()).toBe(true);
       expect(texts(wrapper)).toContain("command-palette.review-updates");
+      // One update: the review row is not counted as a second.
+      const header = wrapper.findAll("div").find((el) => el.text() === "command-palette.section-updates");
+      expect(header).toBeDefined();
       // Listed once, under updates, not again under recent.
       expect(wrapper.findAll("ul [data-name]").filter((el) => el.text() === "baz")).toHaveLength(1);
     } finally {

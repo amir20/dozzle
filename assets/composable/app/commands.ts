@@ -77,7 +77,8 @@ export function provideViewCommands(source: () => Command[]) {
 /**
  * Everything the palette can do to one container. Used for the container on
  * screen and for any container picked in the palette. `onPage` adds the
- * shortcut hints, which only work on that container's own page.
+ * shortcut hints, which only work on that container's own page. Off the page,
+ * the palette's crumb already names the container, so the rows leave it out.
  */
 export function useContainerCommands(containerRef: Ref<Container | undefined>, onPage = false) {
   const { t } = useI18n();
@@ -87,13 +88,17 @@ export function useContainerCommands(containerRef: Ref<Container | undefined>, o
   const { resultFor, hasUpdate, isDismissed, dismiss, check } = useImageUpdates();
   const { showToast } = useToast();
   const showDrawer = useDrawer();
+  const title = (full: string, short: string, name: string) => (onPage ? t(full, { name }) : t(short));
 
   async function checkNow(container: Container) {
     const before = resultFor(container)?.checkedAt;
     await check(container, true);
     // A failed check leaves the old result in place, which is no answer at all.
     const result = resultFor(container);
-    if (!result || result.checkedAt === before) return;
+    if (!result || result.checkedAt === before) {
+      showToast({ type: "error", title: t("error.action-failed"), message: t("error.something-went-wrong") });
+      return;
+    }
     const status = result.status;
     if (status === "update-available") {
       showToast({ message: t("toolbar.update-available"), type: "info" }, { expire: 5000 });
@@ -114,7 +119,7 @@ export function useContainerCommands(containerRef: Ref<Container | undefined>, o
         id: "container.restart",
         section: "container",
         icon: carbonRestart,
-        title: t("command-palette.restart-container", { name }),
+        title: title("command-palette.restart-container", "toolbar.restart", name),
         keywords: "restart reboot",
         perform: restart,
       });
@@ -126,7 +131,7 @@ export function useContainerCommands(containerRef: Ref<Container | undefined>, o
             id: "container.stop",
             section: "container",
             icon: mdiStop,
-            title: t("command-palette.stop-container", { name }),
+            title: title("command-palette.stop-container", "toolbar.stop", name),
             keywords: "stop kill halt",
             confirm: t("command-palette.confirm-stop", { name }),
             perform: stop,
@@ -136,7 +141,7 @@ export function useContainerCommands(containerRef: Ref<Container | undefined>, o
             id: "container.start",
             section: "container",
             icon: mdiPlay,
-            title: t("command-palette.start-container", { name }),
+            title: title("command-palette.start-container", "toolbar.start", name),
             keywords: "start run",
             perform: start,
           });
@@ -149,7 +154,7 @@ export function useContainerCommands(containerRef: Ref<Container | undefined>, o
             id: "container.update",
             section: "container",
             icon: mdiDownload,
-            title: t("command-palette.update-container", { name }),
+            title: title("command-palette.update-container", "toolbar.update", name),
             keywords: "update pull recreate upgrade",
             detail:
               result?.status === "update-available" && result.latestVersion
@@ -167,7 +172,7 @@ export function useContainerCommands(containerRef: Ref<Container | undefined>, o
         id: "container.check-update",
         section: "container",
         icon: mdiUpdate,
-        title: t("command-palette.check-container-updates", { name }),
+        title: title("command-palette.check-container-updates", "toolbar.check-for-updates", name),
         keywords: "check update image newer outdated",
         perform: () => checkNow(container),
       });
@@ -176,7 +181,7 @@ export function useContainerCommands(containerRef: Ref<Container | undefined>, o
           id: "container.skip-update",
           section: "container",
           icon: mdiBellOffOutline,
-          title: t("command-palette.skip-update", { name }),
+          title: title("command-palette.skip-update", "toolbar.dismiss-update", name),
           keywords: "skip dismiss ignore update",
           perform: () => dismiss(container),
         });
@@ -189,7 +194,7 @@ export function useContainerCommands(containerRef: Ref<Container | undefined>, o
           id: "container.attach",
           section: "container",
           icon: mdiLinkVariant,
-          title: t("command-palette.attach-shell", { name }),
+          title: title("command-palette.attach-shell", "toolbar.attach", name),
           keywords: "attach terminal tty console",
           shortcut: onPage ? ["A"] : undefined,
           perform: () => showDrawer(Terminal, { container, action: "attach" }, "lg"),
@@ -198,7 +203,7 @@ export function useContainerCommands(containerRef: Ref<Container | undefined>, o
           id: "container.exec",
           section: "container",
           icon: mdiConsole,
-          title: t("command-palette.exec-shell", { name }),
+          title: title("command-palette.exec-shell", "toolbar.shell", name),
           keywords: "exec shell terminal bash sh console",
           shortcut: onPage ? ["E"] : undefined,
           perform: () => showDrawer(Terminal, { container, action: "exec" }, "lg"),

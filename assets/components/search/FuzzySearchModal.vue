@@ -71,7 +71,9 @@
             class="bg-base-200 text-base-content/40 sticky top-0 z-10 flex items-center gap-1.5 px-4 pt-3 pb-1.5 text-[11px] font-semibold tracking-wider uppercase"
           >
             {{ group.label }}
-            <span v-if="group.entries.length > 1" class="text-base-content/25">{{ group.entries.length }}</span>
+            <span v-if="(group.count ?? group.entries.length) > 1" class="text-base-content/25">{{
+              group.count ?? group.entries.length
+            }}</span>
           </div>
           <ul class="px-1.5">
             <li v-for="entry in group.entries" :key="entry.key" :ref="(el) => setItemRef(el, entry.index)">
@@ -266,38 +268,42 @@
     <div
       class="bg-base-300/40 border-base-content/10 text-base-content/50 flex items-center gap-4 border-t px-4 py-2 text-[11px] whitespace-nowrap"
     >
-      <span v-if="flatEntries.length > 1" class="hidden items-center gap-1 sm:flex">
-        <kbd class="kbd kbd-xs">↑</kbd><kbd class="kbd kbd-xs">↓</kbd>
-        <span class="ml-0.5">{{ $t("cloud-search.nav-hint") }}</span>
-      </span>
-      <span v-if="enterHint" class="hidden items-center gap-1 sm:flex">
-        <kbd class="kbd kbd-xs">↵</kbd> <span class="ml-0.5">{{ enterHint }}</span>
-      </span>
-      <span v-if="selectedContainerItem && !drilled" class="hidden items-center gap-1 md:flex">
-        <kbd class="kbd kbd-xs">tab</kbd>
-        <span class="ml-0.5">{{ $t("command-palette.actions-hint") }}</span>
-      </span>
-      <span v-if="drilled" class="hidden items-center gap-1 sm:flex">
-        <kbd class="kbd kbd-xs">esc</kbd>
-        <span class="ml-0.5">{{ $t("command-palette.back-hint") }}</span>
-      </span>
-      <!-- Pin and merge only apply to a container, not to a service or stack row. -->
-      <span v-if="selectedContainerItem" class="hidden items-center gap-1 md:flex">
-        <kbd class="kbd kbd-xs">⌥</kbd><kbd class="kbd kbd-xs">↵</kbd>
-        <span class="ml-0.5">{{ $t("cloud-search.pin-shortcut") }}</span>
-      </span>
-      <span
-        v-if="selectedContainerItem && canToggle(selectedContainerItem.id)"
-        class="hidden items-center gap-1 md:flex"
-      >
-        <kbd class="kbd kbd-xs">{{ isMac ? "⌘" : "Ctrl" }}</kbd
-        ><kbd class="kbd kbd-xs">↵</kbd>
-        <span class="ml-0.5">{{
-          isStreaming(selectedContainerItem.id)
-            ? $t("cloud-search.unmerge-shortcut")
-            : $t("cloud-search.merge-shortcut")
-        }}</span>
-      </span>
+      <!-- One row tall: a hint that does not fit wraps out of sight whole, last
+           first, instead of pushing the cloud status off the edge. -->
+      <div class="flex h-5 min-w-0 flex-1 flex-wrap content-start gap-x-4 gap-y-5 overflow-hidden *:h-5">
+        <span v-if="flatEntries.length > 1" class="hidden items-center gap-1 sm:flex">
+          <kbd class="kbd kbd-xs">↑</kbd><kbd class="kbd kbd-xs">↓</kbd>
+          <span class="ml-0.5">{{ $t("cloud-search.nav-hint") }}</span>
+        </span>
+        <span v-if="enterHint" class="hidden items-center gap-1 sm:flex">
+          <kbd class="kbd kbd-xs">↵</kbd> <span class="ml-0.5">{{ enterHint }}</span>
+        </span>
+        <span v-if="selectedContainerItem && !drilled" class="hidden items-center gap-1 md:flex">
+          <kbd class="kbd kbd-xs">tab</kbd>
+          <span class="ml-0.5">{{ $t("command-palette.actions-hint") }}</span>
+        </span>
+        <span v-if="drilled" class="hidden items-center gap-1 sm:flex">
+          <kbd class="kbd kbd-xs">esc</kbd>
+          <span class="ml-0.5">{{ $t("command-palette.back-hint") }}</span>
+        </span>
+        <!-- Pin and merge only apply to a container, not to a service or stack row. -->
+        <span v-if="selectedContainerItem" class="hidden items-center gap-1 md:flex">
+          <kbd class="kbd kbd-xs">⌥</kbd><kbd class="kbd kbd-xs">↵</kbd>
+          <span class="ml-0.5">{{ $t("cloud-search.pin-shortcut") }}</span>
+        </span>
+        <span
+          v-if="selectedContainerItem && canToggle(selectedContainerItem.id)"
+          class="hidden items-center gap-1 md:flex"
+        >
+          <kbd class="kbd kbd-xs">{{ isMac ? "⌘" : "Ctrl" }}</kbd
+          ><kbd class="kbd kbd-xs">↵</kbd>
+          <span class="ml-0.5">{{
+            isStreaming(selectedContainerItem.id)
+              ? $t("cloud-search.unmerge-shortcut")
+              : $t("cloud-search.merge-shortcut")
+          }}</span>
+        </span>
+      </div>
 
       <!-- Cloud status. Skipped while the log search row is on screen, which
            already carries the same call to action. A failed status check wins over
@@ -618,6 +624,10 @@ const drilledContainer = computed<Container | undefined>(() =>
   drilled.value ? allContainersById.value?.[drilled.value.id] : undefined,
 );
 const drilledCommands = useContainerCommands(drilledContainer);
+// A container removed while its actions are open leaves nothing to act on.
+watch(drilledContainer, (container) => {
+  if (drilled.value && !container) drillOut();
+});
 
 const actionCommands = computed<Command[]>(() => {
   const item = drilled.value;
@@ -669,16 +679,18 @@ function drillInto(item: Item) {
   drilled.value = item;
   query.value = "";
   selectedIndex.value = 0;
-  input.value?.focus();
+  // After the render: the crumb and clear button swap in the same patch, and
+  // Vue moves the input to do it, which drops its focus.
+  nextTick(() => input.value?.focus());
 }
 
 function drillOut() {
   const item = drilled.value;
   drilled.value = undefined;
   query.value = queryBeforeDrill;
-  input.value?.focus();
   // Back on the row the user drilled into, so → then ← is a no-op.
   nextTick(() => {
+    input.value?.focus();
     const index = flatEntries.value.findIndex((e) => e.kind === "container" && e.item.id === item?.id);
     selectedIndex.value = Math.max(index, 0);
   });
@@ -691,7 +703,8 @@ type EntryKind =
   | { kind: "ask" };
 type PendingEntry = EntryKind & { key: string };
 type Entry = EntryKind & { key: string; index: number };
-type Group = { id: string; label: string; entries: Entry[] };
+// `count` stands in for the row count when the group holds more than it lists.
+type Group = { id: string; label: string; entries: Entry[]; count?: number };
 
 const commandEntry = (command: Command): PendingEntry => ({ kind: "command", command, key: `command:${command.id}` });
 const containerEntry = (result: FuseResult<Item>): PendingEntry => ({
@@ -708,15 +721,15 @@ const groups = computed<Group[]>(() => {
   const result: Group[] = [];
   let index = 0;
 
-  const push = (id: string, label: string, entries: PendingEntry[]) => {
+  const push = (id: string, label: string, entries: PendingEntry[], count?: number) => {
     if (!entries.length) return;
-    result.push({ id, label, entries: entries.map((entry) => ({ ...entry, index: index++ })) as Entry[] });
+    result.push({ id, label, count, entries: entries.map((entry) => ({ ...entry, index: index++ })) as Entry[] });
   };
 
   if (drilled.value) {
     push(
       "actions",
-      drilled.value.name,
+      t("command-palette.actions-hint"),
       actionFuseResults.value.map((r) => commandEntry(r.item)),
     );
     return result;
@@ -732,10 +745,14 @@ const groups = computed<Group[]>(() => {
     // container name than a command. Enter on the first row opens a container.
     if (!trimmedQuery.value) {
       const review = commands.value.find((c) => c.id === "updates.review");
-      push("updates", t("command-palette.section-updates"), [
-        ...updateResults.value.map(containerEntry),
-        ...(review ? [commandEntry(review)] : []),
-      ]);
+      // Counts containers, not rows: the review row is not an update, and the
+      // list stops at UPDATES_LIMIT.
+      push(
+        "updates",
+        t("command-palette.section-updates"),
+        [...updateResults.value.map(containerEntry), ...(review ? [commandEntry(review)] : [])],
+        updatable.value.length,
+      );
     }
     push(
       "containers",
