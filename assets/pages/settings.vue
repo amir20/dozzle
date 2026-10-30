@@ -68,18 +68,14 @@
 </template>
 
 <script lang="ts" setup>
-import type { Component } from "vue";
-import IconGeneral from "~icons/mdi/tune-variant";
-import IconLogs from "~icons/mdi/format-list-text";
-import IconSidebar from "~icons/mdi/dock-left";
-import IconUpdates from "~icons/mdi/package-down";
-import IconCloud from "~icons/mdi/cloud-outline";
-import IconSecurity from "~icons/mdi/shield-lock-outline";
-import IconHosts from "~icons/mdi/server-network";
-import IconAbout from "~icons/mdi/information-outline";
-
 import { settings, DEFAULT_SETTINGS, type Settings } from "@/stores/settings";
-import { isPreferencePage, settingsPages, SERVER_PAGES, type SettingsPageId } from "@/composable/app/settingsPages";
+import {
+  isPreferencePage,
+  settingsPages,
+  SERVER_PAGES,
+  SETTINGS_PAGE_ICONS,
+  SETTINGS_PAGE_LABELS,
+} from "@/composable/app/settingsPages";
 
 const { t } = useI18n();
 
@@ -90,28 +86,6 @@ const { hasRelease } = useAnnouncements();
 const { status: setupStatus, fetchStatus } = useSetup();
 if (config.mode === "server" && !setupStatus.value) fetchStatus();
 
-const icons: Record<SettingsPageId, Component> = {
-  general: IconGeneral,
-  logs: IconLogs,
-  sidebar: IconSidebar,
-  security: IconSecurity,
-  hosts: IconHosts,
-  updates: IconUpdates,
-  cloud: IconCloud,
-  about: IconAbout,
-};
-
-const labels = computed<Record<SettingsPageId, string>>(() => ({
-  general: t("settings.general"),
-  logs: t("settings.logs"),
-  sidebar: t("settings.sidebar"),
-  security: t("settings.security"),
-  hosts: t("settings.hosts"),
-  updates: t("settings.updates"),
-  cloud: t("cloud.title"),
-  about: t("settings.about"),
-}));
-
 const visible = settingsPages(config);
 const pages = computed(() => {
   // A hairline opening each group: the server pages, then About.
@@ -119,8 +93,8 @@ const pages = computed(() => {
   return visible.map((id) => ({
     id,
     to: `/settings/${id}` as const,
-    label: labels.value[id],
-    icon: icons[id],
+    label: t(SETTINGS_PAGE_LABELS[id]),
+    icon: SETTINGS_PAGE_ICONS[id],
     divider: id === server || id === "about",
   }));
 });

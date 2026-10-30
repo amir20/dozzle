@@ -889,6 +889,30 @@ command-palette:
   toggle-std: 切換 stdout/stderr 標籤
   toggle-scrollbars: 切換較小的捲軸
   open-settings: 開啟設定
+  section-updates: "有可用更新"
+  section-hosts: "主機"
+  open-analytics: "開啟日誌分析"
+  clear-logs: "清除日誌"
+  attach-shell: "附加到 {name}"
+  exec-shell: "在 {name} 中開啟 Shell"
+  open-assistant: "詢問助理"
+  check-container-updates: "檢查 {name} 的更新"
+  skip-update: "略過 {name} 的此更新"
+  review-updates: "檢視 1 個更新 | 檢視 {count} 個更新"
+  confirm-stop: "再按一次 ↵ 停止 {name}"
+  confirm-update: "再按一次 ↵ 更新 {name}"
+  confirm-hint: "確認"
+  open-settings-page: "設定：{page}"
+  open-notifications: "開啟通知"
+  open-logs: "開啟日誌"
+  state-on: "開"
+  state-off: "關"
+  prefix-commands: "命令"
+  prefix-hosts: "主機"
+  prefix-ask: "提問"
+  actions-hint: "操作"
+  actions-placeholder: "篩選操作…"
+  back-hint: "返回"
 setup:
   title: 設定 Dozzle
   next: 下一步

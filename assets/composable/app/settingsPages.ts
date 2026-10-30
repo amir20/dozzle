@@ -1,5 +1,14 @@
+import type { Component } from "vue";
 import type { Router } from "vue-router";
 import type { Config } from "@/stores/config";
+import IconGeneral from "~icons/mdi/tune-variant";
+import IconLogs from "~icons/mdi/format-list-text";
+import IconSidebar from "~icons/mdi/dock-left";
+import IconUpdates from "~icons/mdi/package-down";
+import IconCloud from "~icons/mdi/cloud-outline";
+import IconSecurity from "~icons/mdi/shield-lock-outline";
+import IconHosts from "~icons/mdi/server-network";
+import IconAbout from "~icons/mdi/information-outline";
 
 // Settings is one route per page under /settings. Which pages an install shows is a
 // pure function of the injected config, so the nav and the route guard agree and both
@@ -16,6 +25,30 @@ export const SETTINGS_PAGE_IDS: readonly SettingsPageId[] = [
   "cloud",
   "about",
 ];
+
+// Shared by the settings nav and the command palette, so a page looks the same in both.
+export const SETTINGS_PAGE_ICONS: Record<SettingsPageId, Component> = {
+  general: IconGeneral,
+  logs: IconLogs,
+  sidebar: IconSidebar,
+  security: IconSecurity,
+  hosts: IconHosts,
+  updates: IconUpdates,
+  cloud: IconCloud,
+  about: IconAbout,
+};
+
+// The i18n key of each page's name.
+export const SETTINGS_PAGE_LABELS: Record<SettingsPageId, string> = {
+  general: "settings.general",
+  logs: "settings.logs",
+  sidebar: "settings.sidebar",
+  security: "settings.security",
+  hosts: "settings.hosts",
+  updates: "settings.updates",
+  cloud: "cloud.title",
+  about: "settings.about",
+};
 
 // The pages that describe the server rather than this browser. The first one opens
 // the nav's second group.

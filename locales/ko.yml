@@ -889,6 +889,30 @@ command-palette:
   toggle-std: stdout/stderr 라벨 전환
   toggle-scrollbars: 작은 스크롤바 전환
   open-settings: 설정 열기
+  section-updates: "업데이트 있음"
+  section-hosts: "호스트"
+  open-analytics: "로그 분석 열기"
+  clear-logs: "로그 지우기"
+  attach-shell: "{name}에 연결"
+  exec-shell: "{name}에서 셸 열기"
+  open-assistant: "어시스턴트에게 묻기"
+  check-container-updates: "{name} 업데이트 확인"
+  skip-update: "{name}의 이 업데이트 건너뛰기"
+  review-updates: "업데이트 1개 검토 | 업데이트 {count}개 검토"
+  confirm-stop: "{name}을(를) 중지하려면 ↵를 한 번 더 누르세요"
+  confirm-update: "{name}을(를) 업데이트하려면 ↵를 한 번 더 누르세요"
+  confirm-hint: "확인"
+  open-settings-page: "설정: {page}"
+  open-notifications: "알림 열기"
+  open-logs: "로그 열기"
+  state-on: "켜짐"
+  state-off: "꺼짐"
+  prefix-commands: "명령"
+  prefix-hosts: "호스트"
+  prefix-ask: "질문"
+  actions-hint: "작업"
+  actions-placeholder: "작업 필터…"
+  back-hint: "뒤로"
 setup:
   title: Dozzle 설정
   next: 다음

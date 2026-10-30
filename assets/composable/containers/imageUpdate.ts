@@ -148,18 +148,78 @@ async function checkAll(force = false) {
   }
 }
 
+const keyOf = (container: Pick<Container, "host" | "id">) => `${container.host}/${container.id}`;
+
+// Identifies one specific update, so dismissing it stays dismissed until the
+// image actually moves again.
+const updateKeyOf = (result?: ImageUpdateResult) =>
+  result?.remoteDigest ? `${result.image}@${result.remoteDigest}` : undefined;
+
+/** Checks one container's image, sharing results with every other consumer. */
+export async function checkImage(container: Container, force = false) {
+  if (config.imageCheckMode === "off") return;
+  if (!force && config.imageCheckMode !== "automatic") return;
+
+  const currentKey = keyOf(container);
+  const known = results.get(currentKey);
+  const fresh = known && Date.now() - new Date(known.checkedAt).getTime() < STALE_AFTER;
+  if (!force && (fresh || inflight.has(currentKey))) return;
+
+  const request = (async () => {
+    checkingKeys.add(currentKey);
+    try {
+      const url = `/api/hosts/${container.host}/containers/${container.id}/image/check`;
+      const response = await fetch(withBase(force ? `${url}?force=true` : url));
+      if (!response.ok) return;
+
+      results.set(currentKey, (await response.json()) as ImageUpdateResult);
+      trim(results);
+    } catch {
+      // A failed check is not worth surfacing; the menu simply stays quiet.
+    } finally {
+      checkingKeys.delete(currentKey);
+      inflight.delete(currentKey);
+    }
+  })();
+
+  inflight.set(currentKey, request);
+  return request;
+}
+
 // What the dashboard lists as having an update: containers with a newer image
 // that Dozzle is able to update itself once they run.
 export const useImageUpdates = () => {
+  const { removeToast } = useToast();
+
   const hasUpdate = (container: Container) =>
-    offerable(container) &&
-    results.get(`${container.host}/${container.id}`)?.status === "update-available" &&
-    !mayBeSelf(container);
+    offerable(container) && results.get(keyOf(container))?.status === "update-available" && !mayBeSelf(container);
 
   // The last check of a container, for lists that show every container's status.
-  const resultFor = (container: Pick<Container, "host" | "id">) => results.get(`${container.host}/${container.id}`);
+  const resultFor = (container: Pick<Container, "host" | "id">) => results.get(keyOf(container));
 
-  return { checkAll, checking: readonly(checkingAll), hasUpdate, isSelf, resultFor };
+  // Whether the user already said no to the update waiting for this container.
+  const isDismissed = (container: Pick<Container, "host" | "id">) => {
+    const updateKey = updateKeyOf(results.get(keyOf(container)));
+    return !!updateKey && dismissedImageUpdates.value.has(updateKey);
+  };
+
+  function dismiss(container: Pick<Container, "host" | "id">) {
+    const updateKey = updateKeyOf(results.get(keyOf(container)));
+    if (updateKey) dismissedImageUpdates.value = new Set([...dismissedImageUpdates.value, updateKey]);
+    // A notice already on screen has to go too, or it lingers with nothing to act on.
+    removeToast(`image-update-${keyOf(container)}`);
+  }
+
+  return {
+    checkAll,
+    checking: readonly(checkingAll),
+    hasUpdate,
+    isSelf,
+    resultFor,
+    isDismissed,
+    dismiss,
+    check: checkImage,
+  };
 };
 
 export const useImageUpdate = (container: Ref<Container>, historical: Ref<boolean> | boolean = false) => {
@@ -169,49 +229,19 @@ export const useImageUpdate = (container: Ref<Container>, historical: Ref<boolea
 
   const isHistorical = computed(() => unref(historical));
 
-  const key = computed(() => `${container.value.host}/${container.value.id}`);
+  const key = computed(() => keyOf(container.value));
   const result = computed(() => results.get(key.value));
   const checking = computed(() => checkingKeys.has(key.value));
 
-  async function check(force = false) {
-    if (config.imageCheckMode === "off") return;
-    if (!force && config.imageCheckMode !== "automatic") return;
+  function check(force = false) {
     // Historical logs describe a container that is gone; there is nothing to
     // update and nothing worth telling anyone about.
     if (isHistorical.value) return;
-
-    const currentKey = key.value;
-    const known = results.get(currentKey);
-    const fresh = known && Date.now() - new Date(known.checkedAt).getTime() < STALE_AFTER;
-    if (!force && (fresh || inflight.has(currentKey))) return;
-
-    const request = (async () => {
-      checkingKeys.add(currentKey);
-      try {
-        const url = `/api/hosts/${container.value.host}/containers/${container.value.id}/image/check`;
-        const response = await fetch(withBase(force ? `${url}?force=true` : url));
-        if (!response.ok) return;
-
-        results.set(currentKey, (await response.json()) as ImageUpdateResult);
-        trim(results);
-      } catch {
-        // A failed check is not worth surfacing; the menu simply stays quiet.
-      } finally {
-        checkingKeys.delete(currentKey);
-        inflight.delete(currentKey);
-      }
-    })();
-
-    inflight.set(currentKey, request);
-    return request;
+    return checkImage(container.value, force);
   }
 
-  // Identifies this specific update so dismissing it stays dismissed until the
-  // image actually moves again. Without this, a :latest container would alert
-  // on every visit.
-  const updateKey = computed(() =>
-    result.value?.remoteDigest ? `${result.value.image}@${result.value.remoteDigest}` : undefined,
-  );
+  // Without this, a :latest container would alert on every visit.
+  const updateKey = computed(() => updateKeyOf(result.value));
 
   const updateAvailable = computed(() => result.value?.status === "update-available");
 

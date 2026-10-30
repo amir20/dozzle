@@ -28,7 +28,9 @@ declare global {
   const RELATIVE_SPANS: typeof import('./composable/logs/timeRange').RELATIVE_SPANS
   const SCROLL_JITTER_PX: typeof import('./composable/ui/compactOnScroll').SCROLL_JITTER_PX
   const SERVER_PAGES: typeof import('./composable/app/settingsPages').SERVER_PAGES
+  const SETTINGS_PAGE_ICONS: typeof import('./composable/app/settingsPages').SETTINGS_PAGE_ICONS
   const SETTINGS_PAGE_IDS: typeof import('./composable/app/settingsPages').SETTINGS_PAGE_IDS
+  const SETTINGS_PAGE_LABELS: typeof import('./composable/app/settingsPages').SETTINGS_PAGE_LABELS
   const SETUP_RESUME_KEY: typeof import('./composable/setup/setup').SETUP_RESUME_KEY
   const SHOWN_STATUSES: typeof import('./composable/cloud/patternMemory').SHOWN_STATUSES
   const SetupError: typeof import('./composable/setup/setup').SetupError
@@ -60,6 +62,7 @@ declare global {
   const canHover: typeof import('./composable/ui/media').canHover
   const canSelfUpdate: typeof import('./composable/setup/selfUpdate').canSelfUpdate
   const canUpdate: typeof import('./composable/containers/imageUpdate').canUpdate
+  const checkImage: typeof import('./composable/containers/imageUpdate').checkImage
   const checkOnly: typeof import('./composable/containers/updatePolicy').checkOnly
   const checkSession: typeof import('./composable/app/session').checkSession
   const chipMoment: typeof import('./composable/cloud/patternMemory').chipMoment
@@ -201,6 +204,7 @@ declare global {
   const mergeDeploys: typeof import('./composable/cloud/cloudAlerts').mergeDeploys
   const mergeRecentDeploys: typeof import('./composable/cloud/recentDeploys').mergeRecentDeploys
   const messageKeyOf: typeof import('./composable/logs/similarSearch').messageKeyOf
+  const modKey: typeof import('./composable/app/commands').modKey
   const movingAverage: typeof import('./stores/settings').movingAverage
   const narrowedLevels: typeof import('./composable/logs/viewContext').narrowedLevels
   const newerThanOnScreen: typeof import('./composable/logs/logWindow').newerThanOnScreen
@@ -245,6 +249,7 @@ declare global {
   const provideLocal: typeof import('@vueuse/core').provideLocal
   const provideLoggingContext: typeof import('./composable/logs/logContext').provideLoggingContext
   const provideScrollContext: typeof import('./composable/logs/scrollContext').provideScrollContext
+  const provideViewCommands: typeof import('./composable/app/commands').provideViewCommands
   const provideViewContextOwner: typeof import('./composable/logs/viewContext').provideViewContextOwner
   const publishViewContext: typeof import('./composable/logs/viewContext').publishViewContext
   const publishVisibleLogs: typeof import('./composable/logs/viewContext').publishVisibleLogs
@@ -397,6 +402,7 @@ declare global {
   const useCompactOnScroll: typeof import('./composable/ui/compactOnScroll').useCompactOnScroll
   const useConfirmDialog: typeof import('@vueuse/core').useConfirmDialog
   const useContainerActions: typeof import('./composable/containers/containerActions').useContainerActions
+  const useContainerCommands: typeof import('./composable/app/commands').useContainerCommands
   const useContainerLogs: typeof import('./composable/logs/containerLogs').useContainerLogs
   const useContainerStore: typeof import('./stores/container').useContainerStore
   const useContainerStream: typeof import('./composable/logs/eventStreams').useContainerStream
@@ -778,7 +784,9 @@ declare module 'vue' {
     readonly RELATIVE_SPANS: UnwrapRef<typeof import('./composable/logs/timeRange')['RELATIVE_SPANS']>
     readonly SCROLL_JITTER_PX: UnwrapRef<typeof import('./composable/ui/compactOnScroll')['SCROLL_JITTER_PX']>
     readonly SERVER_PAGES: UnwrapRef<typeof import('./composable/app/settingsPages')['SERVER_PAGES']>
+    readonly SETTINGS_PAGE_ICONS: UnwrapRef<typeof import('./composable/app/settingsPages')['SETTINGS_PAGE_ICONS']>
     readonly SETTINGS_PAGE_IDS: UnwrapRef<typeof import('./composable/app/settingsPages')['SETTINGS_PAGE_IDS']>
+    readonly SETTINGS_PAGE_LABELS: UnwrapRef<typeof import('./composable/app/settingsPages')['SETTINGS_PAGE_LABELS']>
     readonly SETUP_RESUME_KEY: UnwrapRef<typeof import('./composable/setup/setup')['SETUP_RESUME_KEY']>
     readonly SHOWN_STATUSES: UnwrapRef<typeof import('./composable/cloud/patternMemory')['SHOWN_STATUSES']>
     readonly SetupError: UnwrapRef<typeof import('./composable/setup/setup')['SetupError']>
@@ -810,6 +818,7 @@ declare module 'vue' {
     readonly canHover: UnwrapRef<typeof import('./composable/ui/media')['canHover']>
     readonly canSelfUpdate: UnwrapRef<typeof import('./composable/setup/selfUpdate')['canSelfUpdate']>
     readonly canUpdate: UnwrapRef<typeof import('./composable/containers/imageUpdate')['canUpdate']>
+    readonly checkImage: UnwrapRef<typeof import('./composable/containers/imageUpdate')['checkImage']>
     readonly checkOnly: UnwrapRef<typeof import('./composable/containers/updatePolicy')['checkOnly']>
     readonly checkSession: UnwrapRef<typeof import('./composable/app/session')['checkSession']>
     readonly chipMoment: UnwrapRef<typeof import('./composable/cloud/patternMemory')['chipMoment']>
@@ -945,6 +954,7 @@ declare module 'vue' {
     readonly mergeDeploys: UnwrapRef<typeof import('./composable/cloud/cloudAlerts')['mergeDeploys']>
     readonly mergeRecentDeploys: UnwrapRef<typeof import('./composable/cloud/recentDeploys')['mergeRecentDeploys']>
     readonly messageKeyOf: UnwrapRef<typeof import('./composable/logs/similarSearch')['messageKeyOf']>
+    readonly modKey: UnwrapRef<typeof import('./composable/app/commands')['modKey']>
     readonly movingAverage: UnwrapRef<typeof import('./stores/settings')['movingAverage']>
     readonly narrowedLevels: UnwrapRef<typeof import('./composable/logs/viewContext')['narrowedLevels']>
     readonly newerThanOnScreen: UnwrapRef<typeof import('./composable/logs/logWindow')['newerThanOnScreen']>
@@ -988,6 +998,7 @@ declare module 'vue' {
     readonly provideLocal: UnwrapRef<typeof import('@vueuse/core')['provideLocal']>
     readonly provideLoggingContext: UnwrapRef<typeof import('./composable/logs/logContext')['provideLoggingContext']>
     readonly provideScrollContext: UnwrapRef<typeof import('./composable/logs/scrollContext')['provideScrollContext']>
+    readonly provideViewCommands: UnwrapRef<typeof import('./composable/app/commands')['provideViewCommands']>
     readonly provideViewContextOwner: UnwrapRef<typeof import('./composable/logs/viewContext')['provideViewContextOwner']>
     readonly publishViewContext: UnwrapRef<typeof import('./composable/logs/viewContext')['publishViewContext']>
     readonly publishVisibleLogs: UnwrapRef<typeof import('./composable/logs/viewContext')['publishVisibleLogs']>
@@ -1135,6 +1146,7 @@ declare module 'vue' {
     readonly useCompactOnScroll: UnwrapRef<typeof import('./composable/ui/compactOnScroll')['useCompactOnScroll']>
     readonly useConfirmDialog: UnwrapRef<typeof import('@vueuse/core')['useConfirmDialog']>
     readonly useContainerActions: UnwrapRef<typeof import('./composable/containers/containerActions')['useContainerActions']>
+    readonly useContainerCommands: UnwrapRef<typeof import('./composable/app/commands')['useContainerCommands']>
     readonly useContainerLogs: UnwrapRef<typeof import('./composable/logs/containerLogs')['useContainerLogs']>
     readonly useContainerStore: UnwrapRef<typeof import('./stores/container')['useContainerStore']>
     readonly useContainerStream: UnwrapRef<typeof import('./composable/logs/eventStreams')['useContainerStream']>
