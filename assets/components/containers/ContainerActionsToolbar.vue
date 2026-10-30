@@ -305,15 +305,20 @@ if (isMainView) {
           },
         ]
       : []),
-    {
-      id: "view.clear",
-      section: "view" as const,
-      icon: MdiNotificationClearAll,
-      title: t("command-palette.clear-logs"),
-      keywords: "clear empty reset logs",
-      shortcut: [modKey(), "⇧", "L"],
-      perform: clear,
-    },
+    // Historical logs are not a stream, and their view has nothing to clear.
+    ...(historical
+      ? []
+      : [
+          {
+            id: "view.clear",
+            section: "view" as const,
+            icon: MdiNotificationClearAll,
+            title: t("command-palette.clear-logs"),
+            keywords: "clear empty reset logs",
+            shortcut: [modKey(), "⇧", "L"],
+            perform: clear,
+          },
+        ]),
   ]);
 }
 

@@ -299,6 +299,28 @@ describe("<FuzzySearchModal />", () => {
     }
   });
 
+  test("a held enter key never confirms", async () => {
+    route.name = "/container/[id]";
+    route.params = { id: "123" };
+    const wrapper = createFuzzySearchModal();
+    await wrapper.find("input").setValue(">stop");
+    await wrapper.find("input").trigger("keydown", { key: "Enter" });
+    await wrapper.find("input").trigger("keydown", { key: "Enter", repeat: true });
+    expect(wrapper.find("[data-testid=armed]").exists()).toBe(true);
+    expect(wrapper.emitted("close")).toBeUndefined();
+  });
+
+  test("a query reopened from cloud search is not read as a prefix", async () => {
+    Object.assign(route, { path: "/cloud/search", query: { q: "@user" } });
+    try {
+      const wrapper = createFuzzySearchModal();
+      expect(wrapper.find("[data-testid=no-matches]").exists()).toBe(true);
+      expect(wrapper.text()).toContain("cloud-search.section-logs");
+    } finally {
+      Object.assign(route, { path: undefined, query: undefined });
+    }
+  });
+
   test("moving away disarms a confirm", async () => {
     route.name = "/container/[id]";
     route.params = { id: "123" };

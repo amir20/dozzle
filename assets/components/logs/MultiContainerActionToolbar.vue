@@ -142,7 +142,7 @@ const { t } = useI18n();
 // What this view offers the command palette, with the keys that do the same here.
 if (isViewContextOwner()) {
   provideViewCommands(() => [
-    ...(hasComplexLogs.value
+    ...(canAnalyze.value
       ? [
           {
             id: "view.analytics",

@@ -79,7 +79,7 @@
                 class="flex cursor-pointer items-center gap-3 rounded-lg px-2.5 py-2"
                 :class="entry.index === selectedIndex ? 'bg-base-content/10' : 'hover:bg-base-content/5'"
                 @mousemove="selectedIndex = entry.index"
-                @click.prevent="activate(entry)"
+                @click.prevent="activate(entry, true)"
               >
                 <!-- Command -->
                 <template v-if="entry.kind === 'command'">
@@ -391,7 +391,12 @@ const cloudSearchAvailable = computed(() => !!cloudConfig.value?.linked && !!clo
 // Not inside a container's actions, where everything typed filters the actions.
 type Scope = "all" | "commands" | "hosts" | "ask";
 const PREFIXES: Record<string, Scope> = { ">": "commands", "@": "hosts", "?": "ask" };
-const scope = computed<Scope>(() => (drilled.value ? "all" : (PREFIXES[query.value.trimStart()[0] ?? ""] ?? "all")));
+// A query reopened from /cloud/search is a log query, so its first character is
+// never a prefix until the user edits it.
+const scope = computed<Scope>(() => {
+  if (drilled.value || (initialQuery && query.value === initialQuery)) return "all";
+  return PREFIXES[query.value.trimStart()[0] ?? ""] ?? "all";
+});
 // What is searched for, without the prefix.
 const trimmedQuery = computed(() =>
   scope.value === "all" ? query.value.trim() : query.value.trimStart().slice(1).trim(),
@@ -495,14 +500,16 @@ const USAGE_LIMIT = 20;
 type Usage = Record<string, { count: number; last: number }>;
 const usage = useLocalStorage<Usage>("DOZZLE_PALETTE_USAGE", {});
 
+// A clock set back would put `last` in the future; count that as just now.
 const score = (entry?: { count: number; last: number }) =>
-  entry ? entry.count / (1 + (Date.now() - entry.last) / 86_400_000) : 0;
+  entry ? entry.count / (1 + Math.max(0, Date.now() - entry.last) / 86_400_000) : 0;
 const frecency = (id: string) => score(usage.value?.[id]);
 
 function recordUse(id: string) {
   const next: Usage = { ...usage.value, [id]: { count: (usage.value?.[id]?.count ?? 0) + 1, last: Date.now() } };
   const ids = Object.keys(next).sort((a, b) => score(next[b]) - score(next[a]));
-  for (const stale of ids.slice(USAGE_LIMIT)) delete next[stale];
+  // The command just used always stays, or a new habit could never build up a count.
+  for (const stale of ids.filter((other) => other !== id).slice(USAGE_LIMIT - 1)) delete next[stale];
   usage.value = next;
 }
 
@@ -533,7 +540,8 @@ const RECENT_COMMANDS = 3;
 const suggestedCommands = computed(() => {
   const context = contextCommands.value;
   const recent = commands.value
-    .filter((c) => frecency(c.id) > 0 && !context.includes(c))
+    // Review updates has its own row in the updates section.
+    .filter((c) => frecency(c.id) > 0 && !context.includes(c) && c.id !== "updates.review")
     .sort(byUse)
     .slice(0, RECENT_COMMANDS);
   return [...context, ...recent];
@@ -771,9 +779,14 @@ const noLocalMatches = computed(() => {
 // A command that asks for Enter twice, armed by the first press. Moving away
 // or typing disarms it, so the second press always lands on what was read.
 const armed = ref<string>();
-watch([selectedIndex, query, drilled], () => {
+let armedAt = 0;
+// Keyed on the row, not its position: a live update can slide another row under
+// the same index, and the second Enter must never run that one.
+watch([() => selectedEntry.value?.key, query, drilled], () => {
   armed.value = undefined;
 });
+// A double click is one gesture, so it may arm but never confirm.
+const CONFIRM_DELAY = 400;
 const isArmed = (entry: Entry) => entry.kind === "command" && armed.value === entry.key;
 
 const enterHint = computed(() => {
@@ -843,8 +856,9 @@ function selected(item: Item) {
   close();
 }
 
-async function runCommand(command: Command, key: string) {
-  if (command.confirm && armed.value !== key) {
+async function runCommand(command: Command, key: string, clicked = false) {
+  if (command.confirm && (armed.value !== key || (clicked && Date.now() - armedAt < CONFIRM_DELAY))) {
+    if (armed.value !== key) armedAt = Date.now();
     armed.value = key;
     return;
   }
@@ -853,9 +867,9 @@ async function runCommand(command: Command, key: string) {
   await command.perform();
 }
 
-function activate(entry: Entry) {
+function activate(entry: Entry, clicked = false) {
   if (entry.kind === "command") {
-    runCommand(entry.command, entry.key);
+    runCommand(entry.command, entry.key, clicked);
   } else if (entry.kind === "container") {
     selected(entry.item);
   } else if (entry.kind === "ask") {
@@ -865,7 +879,10 @@ function activate(entry: Entry) {
   }
 }
 
-function onEnter() {
+function onEnter(e: KeyboardEvent) {
+  // A held key repeats, and an IME uses Enter to commit text: neither is a choice,
+  // and a repeat would answer a confirm the user never read.
+  if (e.repeat || e.isComposing) return;
   const entry = selectedEntry.value;
   if (entry) activate(entry);
 }
@@ -878,6 +895,7 @@ const selectedContainerItem = computed(() => {
 });
 
 function onTab(e: KeyboardEvent) {
+  if (e.isComposing) return;
   const item = selectedContainerItem.value;
   if (!item || drilled.value) return;
   e.preventDefault();
@@ -893,6 +911,8 @@ function onRight(e: KeyboardEvent) {
 
 // ← or Backspace at the start of the box goes back out, like a breadcrumb.
 function onBack(e: KeyboardEvent) {
+  // Vue's .delete matches forward Delete too, which should keep editing the text.
+  if (e.key === "Delete" || e.isComposing) return;
   const el = input.value;
   if (!drilled.value || (el && (el.selectionStart !== 0 || el.selectionEnd !== 0))) return;
   e.preventDefault();

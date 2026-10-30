@@ -89,8 +89,12 @@ export function useContainerCommands(containerRef: Ref<Container | undefined>, o
   const showDrawer = useDrawer();
 
   async function checkNow(container: Container) {
+    const before = resultFor(container)?.checkedAt;
     await check(container, true);
-    const status = resultFor(container)?.status;
+    // A failed check leaves the old result in place, which is no answer at all.
+    const result = resultFor(container);
+    if (!result || result.checkedAt === before) return;
+    const status = result.status;
     if (status === "update-available") {
       showToast({ message: t("toolbar.update-available"), type: "info" }, { expire: 5000 });
     } else if (status === "up-to-date") {
