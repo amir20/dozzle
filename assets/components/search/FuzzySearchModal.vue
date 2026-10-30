@@ -5,6 +5,18 @@
     <!-- Input row -->
     <div class="flex items-center gap-3 px-4 py-3.5">
       <mdi:magnify class="size-5 shrink-0" :class="cloudSearchAvailable ? 'text-primary' : 'text-base-content/60'" />
+      <!-- Inside a container's actions: the container, as a crumb that goes back. -->
+      <button
+        v-if="drilled"
+        type="button"
+        class="border-base-content/15 text-base-content/70 hover:bg-base-content/5 flex max-w-[40%] shrink-0 items-center gap-1 rounded-md border px-2 py-0.5 text-sm transition-colors"
+        :title="$t('command-palette.back-hint')"
+        data-testid="drill-crumb"
+        @click="drillOut"
+      >
+        <mdi:chevron-left class="size-4 shrink-0" />
+        <span class="truncate">{{ drilled.name }}</span>
+      </button>
       <input
         tabindex="0"
         class="text-base-content placeholder:text-base-content/40 min-w-0 flex-1 bg-transparent text-base outline-none"
@@ -16,8 +28,13 @@
         @keydown.alt.enter.exact.prevent="onPin"
         @keydown.meta.enter.exact.prevent="onMerge"
         @keydown.ctrl.enter.exact.prevent="onMerge"
+        @keydown.tab.exact="onTab"
+        @keydown.right.exact="onRight"
+        @keydown.left.exact="onBack"
+        @keydown.delete.exact="onBack"
+        @keydown.esc="onEscape"
         v-model="query"
-        :placeholder="placeholderCopy"
+        :placeholder="drilled ? $t('command-palette.actions-placeholder') : placeholderCopy"
       />
       <button
         v-if="query"
@@ -54,7 +71,9 @@
             class="bg-base-200 text-base-content/40 sticky top-0 z-10 flex items-center gap-1.5 px-4 pt-3 pb-1.5 text-[11px] font-semibold tracking-wider uppercase"
           >
             {{ group.label }}
-            <span v-if="group.entries.length > 1" class="text-base-content/25">{{ group.entries.length }}</span>
+            <span v-if="(group.count ?? group.entries.length) > 1" class="text-base-content/25">{{
+              group.count ?? group.entries.length
+            }}</span>
           </div>
           <ul class="px-1.5">
             <li v-for="entry in group.entries" :key="entry.key" :ref="(el) => setItemRef(el, entry.index)">
@@ -62,12 +81,32 @@
                 class="flex cursor-pointer items-center gap-3 rounded-lg px-2.5 py-2"
                 :class="entry.index === selectedIndex ? 'bg-base-content/10' : 'hover:bg-base-content/5'"
                 @mousemove="selectedIndex = entry.index"
-                @click.prevent="activate(entry)"
+                @click.prevent="activate(entry, true)"
               >
                 <!-- Command -->
                 <template v-if="entry.kind === 'command'">
                   <component :is="entry.command.icon" class="text-base-content/60 size-4 shrink-0" />
-                  <span class="min-w-0 flex-1 truncate text-sm">{{ entry.command.title }}</span>
+                  <span v-if="isArmed(entry)" class="text-warning min-w-0 flex-1 truncate text-sm" data-testid="armed">
+                    {{ entry.command.confirm }}
+                  </span>
+                  <template v-else>
+                    <span class="min-w-0 flex-1 truncate text-sm">{{ entry.command.title }}</span>
+                    <span v-if="entry.command.detail" class="text-base-content/40 shrink-0 font-mono text-xs">
+                      {{ entry.command.detail }}
+                    </span>
+                    <span
+                      v-if="entry.command.state !== undefined"
+                      class="status-pill shrink-0"
+                      :class="entry.command.state ? 'status-pill-primary' : 'status-pill-neutral'"
+                      data-testid="state"
+                    >
+                      {{ entry.command.state ? $t("command-palette.state-on") : $t("command-palette.state-off") }}
+                    </span>
+                    <mdi:check v-if="entry.command.active" class="text-primary size-4 shrink-0" data-testid="active" />
+                    <span v-if="entry.command.shortcut && canHover" class="hidden shrink-0 gap-0.5 sm:flex">
+                      <kbd v-for="key in entry.command.shortcut" :key="key" class="kbd kbd-xs">{{ key }}</kbd>
+                    </span>
+                  </template>
                 </template>
 
                 <!-- Container, service or stack -->
@@ -92,6 +131,9 @@
                     <template v-else-if="entry.item.type === 'stack'">
                       <ph:stack class="size-4" />
                     </template>
+                    <template v-else-if="entry.item.type === 'host'">
+                      <mdi:server class="size-4" />
+                    </template>
                   </div>
                   <div class="flex min-w-0 flex-1 items-center gap-2">
                     <div class="min-w-0 truncate text-sm">
@@ -101,6 +143,12 @@
                       </template>
                       <span class="text-base-content" data-name v-html="matchedName(entry.result)"></span>
                     </div>
+                    <span
+                      v-if="hasWaitingUpdate(entry.item)"
+                      class="text-info size-2 shrink-0 rounded-full border-[1.5px] border-current"
+                      :title="$t('toolbar.update-available')"
+                      data-testid="update-dot"
+                    ></span>
                     <span
                       v-if="entry.item.type !== 'container'"
                       class="border-base-content/15 text-base-content/50 shrink-0 rounded border px-1.5 py-px text-[10px] uppercase"
@@ -114,7 +162,11 @@
                       {{ entry.item.state }}
                     </span>
                   </div>
-                  <RelativeTime :date="entry.item.created" class="text-base-content/40 shrink-0 text-xs" />
+                  <RelativeTime
+                    v-if="entry.item.type !== 'host'"
+                    :date="entry.item.created"
+                    class="text-base-content/40 shrink-0 text-xs"
+                  />
                   <!-- Only offered where it would work: something is streaming. The
                        sidebar popup explains the rest. -->
                   <button
@@ -192,6 +244,23 @@
             </li>
           </ul>
         </template>
+
+        <!-- Before anything is typed: the prefixes that narrow the palette. -->
+        <div
+          v-if="!query && !drilled && canHover"
+          class="text-base-content/40 flex items-center gap-3 px-4 pt-3 pb-1.5 text-[11px]"
+          data-testid="prefix-hints"
+        >
+          <span class="flex items-center gap-1">
+            <kbd class="kbd kbd-xs">&gt;</kbd> {{ $t("command-palette.prefix-commands") }}
+          </span>
+          <span class="flex items-center gap-1">
+            <kbd class="kbd kbd-xs">@</kbd> {{ $t("command-palette.prefix-hosts") }}
+          </span>
+          <span v-if="askAvailable" class="flex items-center gap-1">
+            <kbd class="kbd kbd-xs">?</kbd> {{ $t("command-palette.prefix-ask") }}
+          </span>
+        </div>
       </div>
     </div>
 
@@ -199,30 +268,42 @@
     <div
       class="bg-base-300/40 border-base-content/10 text-base-content/50 flex items-center gap-4 border-t px-4 py-2 text-[11px] whitespace-nowrap"
     >
-      <span v-if="flatEntries.length > 1" class="hidden items-center gap-1 sm:flex">
-        <kbd class="kbd kbd-xs">↑</kbd><kbd class="kbd kbd-xs">↓</kbd>
-        <span class="ml-0.5">{{ $t("cloud-search.nav-hint") }}</span>
-      </span>
-      <span v-if="enterHint" class="hidden items-center gap-1 sm:flex">
-        <kbd class="kbd kbd-xs">↵</kbd> <span class="ml-0.5">{{ enterHint }}</span>
-      </span>
-      <!-- Pin and merge only apply to a container, not to a service or stack row. -->
-      <span v-if="selectedContainerItem" class="hidden items-center gap-1 md:flex">
-        <kbd class="kbd kbd-xs">⌥</kbd><kbd class="kbd kbd-xs">↵</kbd>
-        <span class="ml-0.5">{{ $t("cloud-search.pin-shortcut") }}</span>
-      </span>
-      <span
-        v-if="selectedContainerItem && canToggle(selectedContainerItem.id)"
-        class="hidden items-center gap-1 md:flex"
-      >
-        <kbd class="kbd kbd-xs">{{ isMac ? "⌘" : "Ctrl" }}</kbd
-        ><kbd class="kbd kbd-xs">↵</kbd>
-        <span class="ml-0.5">{{
-          isStreaming(selectedContainerItem.id)
-            ? $t("cloud-search.unmerge-shortcut")
-            : $t("cloud-search.merge-shortcut")
-        }}</span>
-      </span>
+      <!-- One row tall: a hint that does not fit wraps out of sight whole, last
+           first, instead of pushing the cloud status off the edge. -->
+      <div class="flex h-5 min-w-0 flex-1 flex-wrap content-start gap-x-4 gap-y-5 overflow-hidden *:h-5">
+        <span v-if="flatEntries.length > 1" class="hidden items-center gap-1 sm:flex">
+          <kbd class="kbd kbd-xs">↑</kbd><kbd class="kbd kbd-xs">↓</kbd>
+          <span class="ml-0.5">{{ $t("cloud-search.nav-hint") }}</span>
+        </span>
+        <span v-if="enterHint" class="hidden items-center gap-1 sm:flex">
+          <kbd class="kbd kbd-xs">↵</kbd> <span class="ml-0.5">{{ enterHint }}</span>
+        </span>
+        <span v-if="selectedContainerItem && !drilled" class="hidden items-center gap-1 md:flex">
+          <kbd class="kbd kbd-xs">tab</kbd>
+          <span class="ml-0.5">{{ $t("command-palette.actions-hint") }}</span>
+        </span>
+        <span v-if="drilled" class="hidden items-center gap-1 sm:flex">
+          <kbd class="kbd kbd-xs">esc</kbd>
+          <span class="ml-0.5">{{ $t("command-palette.back-hint") }}</span>
+        </span>
+        <!-- Pin and merge only apply to a container, not to a service or stack row. -->
+        <span v-if="selectedContainerItem" class="hidden items-center gap-1 md:flex">
+          <kbd class="kbd kbd-xs">⌥</kbd><kbd class="kbd kbd-xs">↵</kbd>
+          <span class="ml-0.5">{{ $t("cloud-search.pin-shortcut") }}</span>
+        </span>
+        <span
+          v-if="selectedContainerItem && canToggle(selectedContainerItem.id)"
+          class="hidden items-center gap-1 md:flex"
+        >
+          <kbd class="kbd kbd-xs">{{ isMac ? "⌘" : "Ctrl" }}</kbd
+          ><kbd class="kbd kbd-xs">↵</kbd>
+          <span class="ml-0.5">{{
+            isStreaming(selectedContainerItem.id)
+              ? $t("cloud-search.unmerge-shortcut")
+              : $t("cloud-search.merge-shortcut")
+          }}</span>
+        </span>
+      </div>
 
       <!-- Cloud status. Skipped while the log search row is on screen, which
            already carries the same call to action. A failed status check wins over
@@ -262,7 +343,11 @@ import { ContainerState } from "@/types/Container";
 import { useFuse } from "@vueuse/integrations/useFuse";
 import { type FuseResult } from "fuse.js";
 import { useCloudConfig } from "@/composable/cloud/cloudConfig";
-import { useCommands, type Command } from "@/composable/app/commands";
+import { useCommands, useContainerCommands, type Command } from "@/composable/app/commands";
+import { Container } from "@/models/Container";
+import MdiTextBoxOutline from "~icons/mdi/text-box-outline";
+import CilColumns from "~icons/cil/columns";
+import PhArrowsMerge from "~icons/ph/arrows-merge";
 
 trackUsage("palette.open");
 
@@ -296,7 +381,7 @@ function setItemRef(el: any, index: number) {
 
 const containerStore = useContainerStore();
 const pinnedStore = usePinnedLogsStore();
-const { visibleContainers } = storeToRefs(containerStore);
+const { visibleContainers, allContainersById } = storeToRefs(containerStore);
 
 const swarmStore = useSwarmStore();
 const { stacks, services } = storeToRefs(swarmStore);
@@ -308,8 +393,21 @@ ensureCloudStatus();
 // mounting that here ran a Cloud search on every keystroke and threw the hits away.
 const cloudSearchAvailable = computed(() => !!cloudConfig.value?.linked && !!cloudConfig.value?.streamLogs);
 
-const trimmedQuery = computed(() => query.value.trim());
-const logSearchVisible = computed(() => trimmedQuery.value.length > 0);
+// A leading character narrows the palette: > commands, @ hosts, ? the assistant.
+// Not inside a container's actions, where everything typed filters the actions.
+type Scope = "all" | "commands" | "hosts" | "ask";
+const PREFIXES: Record<string, Scope> = { ">": "commands", "@": "hosts", "?": "ask" };
+// A query reopened from /cloud/search is a log query, so its first character is
+// never a prefix until the user edits it.
+const scope = computed<Scope>(() => {
+  if (drilled.value || (initialQuery && query.value === initialQuery)) return "all";
+  return PREFIXES[query.value.trimStart()[0] ?? ""] ?? "all";
+});
+// What is searched for, without the prefix.
+const trimmedQuery = computed(() =>
+  scope.value === "all" ? query.value.trim() : query.value.trimStart().slice(1).trim(),
+);
+const logSearchVisible = computed(() => scope.value === "all" && !drilled.value && trimmedQuery.value.length > 0);
 
 const { t } = useI18n();
 const placeholderCopy = computed(() =>
@@ -333,8 +431,10 @@ type Item = {
   state?: ContainerState;
   host?: string;
   icon?: string;
-  type: "container" | "service" | "stack";
+  type: "container" | "service" | "stack" | "host";
 };
+
+const { hosts } = useHosts();
 
 const list = computed(() => {
   const items: Item[] = [];
@@ -374,7 +474,18 @@ const list = computed(() => {
   return items;
 });
 
-const { results: fuseResults } = useFuse(query, list, {
+// Hosts are only searched for by name: they never show up as a recent item.
+const hostItems = computed<Item[]>(() =>
+  Object.values(hosts.value).map((host) => ({
+    id: host.id,
+    created: new Date(0),
+    name: host.name,
+    state: host.available ? "running" : "exited",
+    type: "host",
+  })),
+);
+
+const { results: fuseResults } = useFuse(trimmedQuery, list, {
   fuseOptions: {
     keys: ["name", "host"],
     includeScore: true,
@@ -384,23 +495,74 @@ const { results: fuseResults } = useFuse(query, list, {
   },
 });
 
+const { results: hostFuseResults } = useFuse(trimmedQuery, hostItems, {
+  fuseOptions: { keys: ["name"], includeScore: true, threshold: 0.3, includeMatches: true },
+  matchAllWhenSearchEmpty: true,
+});
+
+// How often and how recently each command ran, so the ones a person reaches
+// for come first. Per browser: it is a convenience, not something to sync.
+const USAGE_LIMIT = 20;
+type Usage = Record<string, { count: number; last: number }>;
+const usage = useLocalStorage<Usage>("DOZZLE_PALETTE_USAGE", {});
+
+// A clock set back would put `last` in the future; count that as just now.
+const score = (entry?: { count: number; last: number }) =>
+  entry ? entry.count / (1 + Math.max(0, Date.now() - entry.last) / 86_400_000) : 0;
+const frecency = (id: string) => score(usage.value?.[id]);
+
+function recordUse(id: string) {
+  const next: Usage = { ...usage.value, [id]: { count: (usage.value?.[id]?.count ?? 0) + 1, last: Date.now() } };
+  const ids = Object.keys(next).sort((a, b) => score(next[b]) - score(next[a]));
+  // The command just used always stays, or a new habit could never build up a count.
+  for (const stale of ids.filter((other) => other !== id).slice(USAGE_LIMIT - 1)) delete next[stale];
+  usage.value = next;
+}
+
 // Commands palette. Fuzzy-matched against title/keywords while typing; the
 // context commands (container actions) show up front on an empty query.
-const { commands, contextCommands } = useCommands();
-const { results: commandFuseResults } = useFuse(query, commands, {
+const { commands, contextCommands, updatable } = useCommands();
+const { results: commandFuseResults } = useFuse(trimmedQuery, commands, {
   fuseOptions: {
     keys: ["title", "keywords"],
+    includeScore: true,
     useExtendedSearch: true,
     threshold: 0.3,
   },
 });
-const commandEntries = computed<Command[]>(() =>
-  trimmedQuery.value ? commandFuseResults.value.map((r) => r.item) : contextCommands.value,
+
+// Matches of about the same quality are ordered by use. A clearly better match
+// still wins, so a habit never hides what was typed.
+const byUse = (a: Command, b: Command) => frecency(b.id) - frecency(a.id);
+const rankedCommandMatches = computed(() =>
+  [...commandFuseResults.value]
+    .sort((a, b) => Math.round((a.score ?? 0) * 10) - Math.round((b.score ?? 0) * 10) || byUse(a.item, b.item))
+    .map((r) => r.item),
 );
+
+// With nothing typed: the container actions for this page, then the commands
+// this browser used most, so a habit is one keystroke away.
+const RECENT_COMMANDS = 3;
+const suggestedCommands = computed(() => {
+  const context = contextCommands.value;
+  const recent = commands.value
+    // Review updates has its own row in the updates section.
+    .filter((c) => frecency(c.id) > 0 && !context.includes(c) && c.id !== "updates.review")
+    .sort(byUse)
+    .slice(0, RECENT_COMMANDS);
+  return [...context, ...recent];
+});
+
+const commandEntries = computed<Command[]>(() => {
+  if (scope.value === "commands") {
+    return trimmedQuery.value ? rankedCommandMatches.value : [...commands.value].sort(byUse);
+  }
+  return trimmedQuery.value ? rankedCommandMatches.value : suggestedCommands.value;
+});
 
 const containerResults = computed<FuseResult<Item>[]>(() => {
   if (!trimmedQuery.value) return [];
-  return [...fuseResults.value].sort((a, b) => {
+  return [...fuseResults.value, ...hostFuseResults.value].sort((a, b) => {
     if (a.score === b.score) {
       if (a.item.state === b.item.state) {
         return b.item.created.getTime() - a.item.created.getTime();
@@ -415,11 +577,31 @@ const containerResults = computed<FuseResult<Item>[]>(() => {
   });
 });
 
+// Containers with an update waiting, offered before anything is typed.
+const UPDATES_LIMIT = 5;
+const updateResults = computed<FuseResult<Item>[]>(() =>
+  updatable.value.slice(0, UPDATES_LIMIT).map((container, refIndex) => ({
+    item: {
+      id: container.id,
+      created: container.created,
+      name: container.name,
+      state: container.state,
+      host: container.hostLabel,
+      icon: container.icon,
+      type: "container",
+    },
+    refIndex,
+  })),
+);
+
 // Empty-query suggestions: running containers first, newest first. Shaped like
-// a Fuse result so the rows render through the same branch.
+// a Fuse result so the rows render through the same branch. A container already
+// listed under updates is not repeated.
 const recentResults = computed<FuseResult<Item>[]>(() => {
   if (trimmedQuery.value) return [];
+  const listed = new Set(updateResults.value.map((r) => r.item.id));
   return [...list.value]
+    .filter((item) => !listed.has(item.id))
     .sort((a, b) => {
       if (a.state === b.state) return b.created.getTime() - a.created.getTime();
       return a.state === "running" ? -1 : 1;
@@ -428,6 +610,92 @@ const recentResults = computed<FuseResult<Item>[]>(() => {
     .map((item, refIndex) => ({ item, refIndex }));
 });
 
+const { hasUpdate, isDismissed } = useImageUpdates();
+const containerById = (id: string) => allContainersById.value?.[id];
+function hasWaitingUpdate(item: Item) {
+  const container = item.type === "container" ? containerById(item.id) : undefined;
+  return !!container && hasUpdate(container) && !isDismissed(container);
+}
+
+// Tab or → on a container lists what can be done to it, from any page.
+const drilled = shallowRef<Item>();
+let queryBeforeDrill = "";
+const drilledContainer = computed<Container | undefined>(() =>
+  drilled.value ? allContainersById.value?.[drilled.value.id] : undefined,
+);
+const drilledCommands = useContainerCommands(drilledContainer);
+// A container removed while its actions are open leaves nothing to act on.
+watch(drilledContainer, (container) => {
+  if (drilled.value && !container) drillOut();
+});
+
+const actionCommands = computed<Command[]>(() => {
+  const item = drilled.value;
+  if (!item || !drilledContainer.value) return [];
+  const actions: Command[] = [
+    {
+      id: "container.open",
+      section: "container",
+      icon: MdiTextBoxOutline,
+      title: t("command-palette.open-logs"),
+      keywords: "open logs view",
+      perform: () => navigate(item),
+    },
+    ...drilledCommands.value,
+  ];
+  if (!isMobile.value) {
+    actions.push({
+      id: "container.pin",
+      section: "container",
+      icon: CilColumns,
+      title: t("tooltip.pin-column"),
+      keywords: "pin column split side",
+      perform: () => pinnedStore.pinContainer(item),
+    });
+  }
+  if (canToggle(item.id)) {
+    actions.push({
+      id: "container.merge",
+      section: "container",
+      icon: PhArrowsMerge,
+      title: toggleTitle(item.id),
+      keywords: "merge stream combine add remove",
+      perform: () => toggleMerge(item.id),
+    });
+  }
+  // An update waiting is most likely why the container was picked.
+  const update = actions.findIndex((c) => c.id === "container.update" && c.detail);
+  if (update > 0) actions.splice(1, 0, ...actions.splice(update, 1));
+  return actions;
+});
+
+const { results: actionFuseResults } = useFuse(trimmedQuery, actionCommands, {
+  fuseOptions: { keys: ["title", "keywords"], threshold: 0.3 },
+  matchAllWhenSearchEmpty: true,
+});
+
+function drillInto(item: Item) {
+  queryBeforeDrill = query.value;
+  drilled.value = item;
+  query.value = "";
+  selectedIndex.value = 0;
+  // After the render: the crumb and clear button swap in the same patch, and
+  // Vue moves the input to do it, which drops its focus.
+  nextTick(() => input.value?.focus());
+}
+
+function drillOut() {
+  const item = drilled.value;
+  drilled.value = undefined;
+  query.value = queryBeforeDrill;
+  // Back on the row the user drilled into, so → then ← is a no-op.
+  nextTick(() => {
+    input.value?.focus();
+    const index = flatEntries.value.findIndex((e) => e.kind === "container" && e.item.id === item?.id);
+    selectedIndex.value = Math.max(index, 0);
+  });
+}
+
 type EntryKind =
   | { kind: "command"; command: Command }
   | { kind: "container"; result: FuseResult<Item>; item: Item }
@@ -435,7 +703,16 @@ type EntryKind =
   | { kind: "ask" };
 type PendingEntry = EntryKind & { key: string };
 type Entry = EntryKind & { key: string; index: number };
-type Group = { id: string; label: string; entries: Entry[] };
+// `count` stands in for the row count when the group holds more than it lists.
+type Group = { id: string; label: string; entries: Entry[]; count?: number };
+
+const commandEntry = (command: Command): PendingEntry => ({ kind: "command", command, key: `command:${command.id}` });
+const containerEntry = (result: FuseResult<Item>): PendingEntry => ({
+  kind: "container",
+  result,
+  item: result.item,
+  key: `${result.item.type}:${result.item.id}`,
+});
 
 // One flat, ordered list of everything selectable, sliced into labeled groups.
 // Each row carries its position in `flatEntries`, so arrow keys, Enter and
@@ -444,37 +721,57 @@ const groups = computed<Group[]>(() => {
   const result: Group[] = [];
   let index = 0;
 
-  const push = (id: string, label: string, entries: PendingEntry[]) => {
+  const push = (id: string, label: string, entries: PendingEntry[], count?: number) => {
     if (!entries.length) return;
-    result.push({ id, label, entries: entries.map((entry) => ({ ...entry, index: index++ })) as Entry[] });
+    result.push({ id, label, count, entries: entries.map((entry) => ({ ...entry, index: index++ })) as Entry[] });
   };
 
-  // Containers lead: this is a log viewer, so a typed query is far more often a
-  // container name than a command. Enter on the first row opens a container.
-  push(
-    "containers",
-    trimmedQuery.value ? t("cloud-search.containers-section") : t("command-palette.section-recent"),
-    (trimmedQuery.value ? containerResults.value : recentResults.value).map((result) => ({
-      kind: "container",
-      result,
-      item: result.item,
-      key: `${result.item.type}:${result.item.id}`,
-    })),
-  );
+  if (drilled.value) {
+    push(
+      "actions",
+      t("command-palette.actions-hint"),
+      actionFuseResults.value.map((r) => commandEntry(r.item)),
+    );
+    return result;
+  }
 
-  push(
-    "commands",
-    t("command-palette.section-commands"),
-    commandEntries.value.map((command) => ({ kind: "command", command, key: `command:${command.id}` })),
-  );
+  if (scope.value === "hosts") {
+    push("hosts", t("command-palette.section-hosts"), hostFuseResults.value.map(containerEntry));
+    return result;
+  }
 
-  if (logSearchVisible.value) {
+  if (scope.value === "all") {
+    // Containers lead: this is a log viewer, so a typed query is far more often a
+    // container name than a command. Enter on the first row opens a container.
+    if (!trimmedQuery.value) {
+      const review = commands.value.find((c) => c.id === "updates.review");
+      // Counts containers, not rows: the review row is not an update, and the
+      // list stops at UPDATES_LIMIT.
+      push(
+        "updates",
+        t("command-palette.section-updates"),
+        [...updateResults.value.map(containerEntry), ...(review ? [commandEntry(review)] : [])],
+        updatable.value.length,
+      );
+    }
+    push(
+      "containers",
+      trimmedQuery.value ? t("cloud-search.containers-section") : t("command-palette.section-recent"),
+      (trimmedQuery.value ? containerResults.value : recentResults.value).map(containerEntry),
+    );
+  }
+
+  if (scope.value !== "ask") {
+    push("commands", t("command-palette.section-commands"), commandEntries.value.map(commandEntry));
+  }
+
+  if (scope.value === "all" && logSearchVisible.value) {
     push("logs", t("cloud-search.section-logs"), [{ kind: "logs", key: "logs" }]);
   }
 
   // Last row, and only with something typed: the palette is for finding
   // things, and asking is what you do when finding did not answer it.
-  if (askVisible.value) {
+  if (scope.value !== "commands" && askVisible.value) {
     push("ask", t("cloud-chat.section-ask"), [{ kind: "ask", key: "ask" }]);
   }
 
@@ -487,15 +784,33 @@ const selectedEntry = computed<Entry | undefined>(() => flatEntries.value[select
 // where there are logs on screen. Elsewhere it would open a panel the layout
 // does not mount.
 const { available: railAvailable } = useCloudRail();
-const askVisible = computed(() => cloudLinked.value && railAvailable.value && !!trimmedQuery.value);
-const noLocalMatches = computed(
-  () => !!trimmedQuery.value && !commandEntries.value.length && !containerResults.value.length,
-);
+const askAvailable = computed(() => cloudLinked.value && railAvailable.value);
+const askVisible = computed(() => askAvailable.value && !!trimmedQuery.value);
+const noLocalMatches = computed(() => {
+  if (!trimmedQuery.value) return false;
+  if (drilled.value) return !actionFuseResults.value.length;
+  if (scope.value === "ask") return !askVisible.value;
+  return !flatEntries.value.some((e) => e.kind === "command" || e.kind === "container");
+});
+
+// A command that asks for Enter twice, armed by the first press. Moving away
+// or typing disarms it, so the second press always lands on what was read.
+const armed = ref<string>();
+let armedAt = 0;
+// Keyed on the row, not its position: a live update can slide another row under
+// the same index, and the second Enter must never run that one.
+watch([() => selectedEntry.value?.key, query, drilled], () => {
+  armed.value = undefined;
+});
+// A double click is one gesture, so it may arm but never confirm.
+const CONFIRM_DELAY = 400;
+const isArmed = (entry: Entry) => entry.kind === "command" && armed.value === entry.key;
 
 const enterHint = computed(() => {
-  switch (selectedEntry.value?.kind) {
+  const entry = selectedEntry.value;
+  switch (entry?.kind) {
     case "command":
-      return t("command-palette.run-hint");
+      return isArmed(entry) ? t("command-palette.confirm-hint") : t("command-palette.run-hint");
     case "container":
       return t("cloud-search.open-container");
     case "logs":
@@ -510,7 +825,7 @@ const enterHint = computed(() => {
 // Reset to the top only when the user types. Live SSE container add/remove
 // changes the list too, and resetting on that would snap the selection back
 // to 0 while the palette is open.
-watch(trimmedQuery, () => {
+watch(query, () => {
   selectedIndex.value = 0;
 });
 
@@ -541,25 +856,37 @@ function clearQuery() {
   input.value?.focus();
 }
 
-function selected(item: Item) {
+function navigate(item: Item) {
   if (item.type === "container") {
     router.push({ name: "/container/[id]", params: { id: item.id } });
   } else if (item.type === "service") {
     router.push({ name: "/service/[name]", params: { name: item.id } });
   } else if (item.type === "stack") {
     router.push({ name: "/stack/[name]", params: { name: item.id } });
+  } else if (item.type === "host") {
+    router.push({ name: "/host/[id]", params: { id: item.id } });
   }
+}
+
+function selected(item: Item) {
+  navigate(item);
   close();
 }
 
-async function runCommand(command: Command) {
+async function runCommand(command: Command, key: string, clicked = false) {
+  if (command.confirm && (armed.value !== key || (clicked && Date.now() - armedAt < CONFIRM_DELAY))) {
+    if (armed.value !== key) armedAt = Date.now();
+    armed.value = key;
+    return;
+  }
+  recordUse(command.id);
   close();
   await command.perform();
 }
 
-function activate(entry: Entry) {
+function activate(entry: Entry, clicked = false) {
   if (entry.kind === "command") {
-    runCommand(entry.command);
+    runCommand(entry.command, entry.key, clicked);
   } else if (entry.kind === "container") {
     selected(entry.item);
   } else if (entry.kind === "ask") {
@@ -569,17 +896,52 @@ function activate(entry: Entry) {
   }
 }
 
-function onEnter() {
+function onEnter(e: KeyboardEvent) {
+  // A held key repeats, and an IME uses Enter to commit text: neither is a choice,
+  // and a repeat would answer a confirm the user never read.
+  if (e.repeat || e.isComposing) return;
   const entry = selectedEntry.value;
   if (entry) activate(entry);
 }
 
 // Pin and merge are only meaningful on a container row, not a service, stack,
-// command or the log search row.
+// host, command or the log search row.
 const selectedContainerItem = computed(() => {
   const entry = selectedEntry.value;
   return entry?.kind === "container" && entry.item.type === "container" ? entry.item : undefined;
 });
+
+function onTab(e: KeyboardEvent) {
+  if (e.isComposing) return;
+  const item = selectedContainerItem.value;
+  if (!item || drilled.value) return;
+  e.preventDefault();
+  drillInto(item);
+}
+
+// → only drills in with the caret at the end, so it still moves through typed text.
+function onRight(e: KeyboardEvent) {
+  const el = input.value;
+  if (el && el.selectionStart !== el.value.length) return;
+  onTab(e);
+}
+
+// ← or Backspace at the start of the box goes back out, like a breadcrumb.
+function onBack(e: KeyboardEvent) {
+  // Vue's .delete matches forward Delete too, which should keep editing the text.
+  if (e.key === "Delete" || e.isComposing) return;
+  const el = input.value;
+  if (!drilled.value || (el && (el.selectionStart !== 0 || el.selectionEnd !== 0))) return;
+  e.preventDefault();
+  drillOut();
+}
+
+// Escape in the action list goes back to the results instead of closing.
+function onEscape(e: KeyboardEvent) {
+  if (!drilled.value) return;
+  e.preventDefault();
+  drillOut();
+}
 
 function onPin() {
   // Alt+Enter pins a container column.

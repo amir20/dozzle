@@ -38,6 +38,20 @@ To stay on a minor version, the publisher has to publish a tag for it. If it onl
 
 Checking is separate from actions. Knowing a container is out of date is useful whether or not Dozzle is allowed to do anything about it, so the notice appears even when `DOZZLE_ENABLE_ACTIONS` is off. Only the `Update` button requires actions.
 
+### Release notes {#release-notes}
+
+When an update is available, Dozzle links to the image's release notes so you can check for breaking changes first. The link is read from the labels the image already carries: a GitHub repository in `org.opencontainers.image.source` (or the older `org.label-schema.vcs-url`) links to that repository's releases page. Many published images set it, but most official Docker Hub images such as `nginx` and `postgres` do not, and some point at a packaging repository rather than the app.
+
+To set or correct the link, label the container with any `http` or `https` URL:
+
+```yaml [docker-compose.yml]
+services:
+  database:
+    image: postgres:18
+    labels:
+      dev.dozzle.releases: https://www.postgresql.org/docs/release/
+```
+
 ### Turning it off
 
 `DOZZLE_IMAGE_CHECK_MODE` controls whether Dozzle contacts registries at all.
@@ -109,6 +123,7 @@ One label on a container decides the rest:
 | ------------------- | ------------------------------------------------------------------------------------------------------- |
 | `auto`              | Updated on the schedule, unless **Which containers** is **Dozzle only**                                 |
 | _(no label)_        | Updated on the schedule under **Everything**. Otherwise checked and shown as an update, which you apply |
+| `check`             | Checked and shown as an update, never updated by Dozzle. Update it yourself, say with `docker compose`  |
 | `off`               | Never checked, never updated                                                                            |
 
 ```yaml

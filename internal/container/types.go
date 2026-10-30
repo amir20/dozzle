@@ -395,6 +395,10 @@ var (
 	// in the UI and in Dozzle Cloud; assets/composable/containers/
 	// containerActions.ts matches it to show it translated.
 	ErrNotRunning = errors.New("start the container first")
+	// ErrCheckOnly refuses an update of a container labelled
+	// dev.dozzle.update=check: it is updated outside Dozzle. The UI never
+	// offers one, so the text is not translated.
+	ErrCheckOnly = errors.New("labelled dev.dozzle.update=check, update it outside Dozzle")
 	// ErrRollbackUnsupported is returned where a rollback cannot run: a swarm
 	// service, Kubernetes, Dozzle's own container.
 	ErrRollbackUnsupported = errors.New("rollback is not supported")

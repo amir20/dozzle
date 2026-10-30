@@ -72,7 +72,6 @@ func executeUpdateContainer(ctx context.Context, argsJSON string, deps ToolDeps)
 	if cs.Container.State != "running" {
 		return nil, notRunningError(cs.Container)
 	}
-
 	var updated bool
 	updateErr := runIgnoringProgress(func(progressCh chan<- container.UpdateProgress) (err error) {
 		updated, err = cs.Update(ctx, container.UpdateSourceCloud, progressCh)

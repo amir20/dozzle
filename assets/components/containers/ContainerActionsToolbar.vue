@@ -182,7 +182,7 @@
         <li v-if="imageUpdateResult?.latestVersion || imageUpdateResult?.versionReason" class="pointer-events-none">
           <ImageUpdateVersions :result="imageUpdateResult" />
         </li>
-        <li v-if="isSelfContainer">
+        <li v-if="releaseNotesUrl">
           <a :href="releaseNotesUrl" target="_blank" rel="noreferrer noopener">
             <mdi:script-text-outline /> {{ $t("toolbar.view-release-notes") }}
           </a>
@@ -204,6 +204,8 @@ import { Container, powerAction } from "@/models/Container";
 const LogAnalytics = defineAsyncComponent(() => import("@/components/logs/LogAnalytics.vue"));
 import Terminal from "./Terminal.vue";
 import ContainerInspect from "./ContainerInspect.vue";
+import MdiChartBoxOutline from "~icons/mdi/chart-box-outline";
+import MdiNotificationClearAll from "~icons/mdi/notification-clear-all";
 
 const { showSearch } = useSearchFilter();
 const { linked: cloudLinked } = useCloudSurface();
@@ -252,10 +254,15 @@ const imageCheckState = computed(() => {
   return imageUpdateResult.value?.status === "up-to-date" ? "none" : "hidden";
 });
 
-// Dozzle's own standalone container cannot restart itself, so the alert sends
-// people to the release notes rather than to a button that cannot work.
+// Release notes are worth reading before an update. Dozzle's own come from the
+// release check, which can point at the exact release; anything else uses
+// whatever its image labels lead to.
 const { latestRelease } = useAnnouncements();
-const releaseNotesUrl = computed(() => latestRelease.value?.htmlUrl ?? "https://github.com/amir20/dozzle/releases");
+const releaseNotesUrl = computed(() =>
+  isSelfContainer.value
+    ? (latestRelease.value?.htmlUrl ?? "https://github.com/amir20/dozzle/releases")
+    : container.releaseNotesUrl,
+);
 
 const router = useRouter();
 const { copy } = useCopy();
@@ -279,6 +286,41 @@ const isMainView = isViewContextOwner();
 const canShell = isMainView && enableShell && !historical;
 const openAnalytics = () => showDrawer(LogAnalytics, { containers: [container] }, "lg");
 const openTerminal = (action: "attach" | "exec") => showDrawer(Terminal, { container, action }, "lg");
+
+const { t } = useI18n();
+
+// What this view offers the command palette, with the keys that do the same here.
+if (isMainView) {
+  provideViewCommands(() => [
+    ...(hasComplexLogs.value
+      ? [
+          {
+            id: "view.analytics",
+            section: "view" as const,
+            icon: MdiChartBoxOutline,
+            title: t("command-palette.open-analytics"),
+            keywords: "analytics sql query table duckdb",
+            shortcut: ["S"],
+            perform: openAnalytics,
+          },
+        ]
+      : []),
+    // Historical logs are not a stream, and their view has nothing to clear.
+    ...(historical
+      ? []
+      : [
+          {
+            id: "view.clear",
+            section: "view" as const,
+            icon: MdiNotificationClearAll,
+            title: t("command-palette.clear-logs"),
+            keywords: "clear empty reset logs",
+            shortcut: [modKey(), "⇧", "L"],
+            perform: clear,
+          },
+        ]),
+  ]);
+}
 
 useLetterShortcut("s", openAnalytics, () => isMainView && hasComplexLogs.value);
 useLetterShortcut("i", () => showDrawer(ContainerInspect, { container }), isMainView && !historical);

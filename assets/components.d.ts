@@ -246,6 +246,7 @@ declare module 'vue' {
     'Mdi:scriptTextOutline': typeof import('~icons/mdi/script-text-outline')['default']
     'Mdi:send': typeof import('~icons/mdi/send')['default']
     'Mdi:sendOutline': typeof import('~icons/mdi/send-outline')['default']
+    'Mdi:server': typeof import('~icons/mdi/server')['default']
     'Mdi:shieldAlertOutline': typeof import('~icons/mdi/shield-alert-outline')['default']
     'Mdi:shieldCheckOutline': typeof import('~icons/mdi/shield-check-outline')['default']
     'Mdi:skipNextOutline': typeof import('~icons/mdi/skip-next-outline')['default']

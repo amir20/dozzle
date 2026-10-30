@@ -419,6 +419,7 @@ updates:
   auto: 自动
   auto-hint: 也会按自动更新计划更新
   auto-footnote: 为容器添加标签 {label}，即可按自动更新计划更新它。
+  check-only: 已添加标签 {label}，因此在 Dozzle 之外更新。
   scheduled-running: 自动更新计划正在运行。
   progress: 已完成 {done}/{total}
   back: 返回
@@ -434,6 +435,7 @@ updates:
     rolled-back: 已回滚
     up-to-date: 最新
     error: 失败
+  release-notes: 发布说明
   version:
     rebuilt: 已重建
     unknown: 版本未知（{reason}）
@@ -885,6 +887,30 @@ command-palette:
   toggle-std: 切换 stdout/stderr 标签
   toggle-scrollbars: 切换更小的滚动条
   open-settings: 打开设置
+  section-updates: "有可用更新"
+  section-hosts: "主机"
+  open-analytics: "打开日志分析"
+  clear-logs: "清空日志"
+  attach-shell: "附加到 {name}"
+  exec-shell: "在 {name} 中打开 Shell"
+  open-assistant: "询问助手"
+  check-container-updates: "检查 {name} 的更新"
+  skip-update: "跳过 {name} 的此更新"
+  review-updates: "查看 1 个更新 | 查看 {count} 个更新"
+  confirm-stop: "再按一次 ↵ 停止 {name}"
+  confirm-update: "再按一次 ↵ 更新 {name}"
+  confirm-hint: "确认"
+  open-settings-page: "设置：{page}"
+  open-notifications: "打开通知"
+  open-logs: "打开日志"
+  state-on: "开"
+  state-off: "关"
+  prefix-commands: "命令"
+  prefix-hosts: "主机"
+  prefix-ask: "提问"
+  actions-hint: "操作"
+  actions-placeholder: "筛选操作…"
+  back-hint: "返回"
 setup:
   title: 设置 Dozzle
   next: 下一步

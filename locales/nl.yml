@@ -420,6 +420,7 @@ updates:
   auto: Auto
   auto-hint: Wordt ook bijgewerkt volgens het schema voor automatische updates
   auto-footnote: Geef een container het label {label} om hem volgens het schema voor automatische updates bij te werken.
+  check-only: Heeft het label {label}, dus wordt buiten Dozzle bijgewerkt.
   scheduled-running: Het schema voor automatische updates draait nu.
   progress: "{done} van {total} klaar"
   back: Terug
@@ -435,6 +436,7 @@ updates:
     rolled-back: Teruggedraaid
     up-to-date: Actueel
     error: Mislukt
+  release-notes: Releasenotes
   version:
     rebuilt: opnieuw gebouwd
     unknown: Versie onbekend ({reason})
@@ -886,6 +888,30 @@ command-palette:
   toggle-std: stdout/stderr-labels omschakelen
   toggle-scrollbars: Kleinere schuifbalken omschakelen
   open-settings: Instellingen openen
+  section-updates: "Updates beschikbaar"
+  section-hosts: "Hosts"
+  open-analytics: "Loganalyse openen"
+  clear-logs: "Logs wissen"
+  attach-shell: "Koppelen aan {name}"
+  exec-shell: "Shell openen in {name}"
+  open-assistant: "De assistent vragen"
+  check-container-updates: "{name} controleren op updates"
+  skip-update: "Deze update voor {name} overslaan"
+  review-updates: "1 update bekijken | {count} updates bekijken"
+  confirm-stop: "Druk nogmaals op ↵ om {name} te stoppen"
+  confirm-update: "Druk nogmaals op ↵ om {name} bij te werken"
+  confirm-hint: "bevestigen"
+  open-settings-page: "Instellingen: {page}"
+  open-notifications: "Meldingen openen"
+  open-logs: "Logs openen"
+  state-on: "Aan"
+  state-off: "Uit"
+  prefix-commands: "opdrachten"
+  prefix-hosts: "hosts"
+  prefix-ask: "vragen"
+  actions-hint: "acties"
+  actions-placeholder: "Acties filteren…"
+  back-hint: "terug"
 setup:
   title: Dozzle instellen
   next: Volgende

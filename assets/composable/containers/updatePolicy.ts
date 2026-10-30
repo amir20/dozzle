@@ -2,6 +2,7 @@
 //
 //   auto    updated on the schedule
 //   manual  checked and shown as "update available", updated by hand
+//   check   checked and shown, never updated by Dozzle (updated outside it)
 //   off     never checked, never updated
 //
 // Its dev.dozzle.update label and the instance-wide mode decide it together, the
@@ -14,7 +15,7 @@
 import type { Container } from "@/models/Container";
 import type { ImageUpdateResult } from "@/composable/containers/imageUpdate";
 
-export type UpdatePolicy = "auto" | "manual" | "off";
+export type UpdatePolicy = "auto" | "manual" | "check" | "off";
 export type UpdateContainersMode = "off" | "labelled" | "all";
 
 export const UPDATE_CONTAINERS_MODES: UpdateContainersMode[] = ["off", "labelled", "all"];
@@ -55,6 +56,8 @@ function parsePolicy(value: string | undefined): UpdatePolicy | undefined {
       return "auto";
     case "manual":
       return "manual";
+    case "check":
+      return "check";
     case "off":
     case "false":
     case "no":
@@ -79,6 +82,11 @@ export function labelPolicy(labels: Record<string, string> | undefined): UpdateP
       return "manual";
   }
   return undefined;
+}
+
+/** Whether a container's label keeps Dozzle from updating it, as updatepolicy.CheckOnly. */
+export function checkOnly(container: Pick<Container, "labels">) {
+  return labelPolicy(container.labels) === "check";
 }
 
 /** A container's policy under mode, as updatepolicy.Resolve decides it. */

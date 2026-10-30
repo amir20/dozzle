@@ -599,3 +599,44 @@ describe("uptime", () => {
     expect(uptime({ state: "exited", startedAt: zero, finishedAt: zero })).toBeUndefined();
   });
 });
+
+describe("Container.releaseNotesUrl", () => {
+  const notes = (labels: Record<string, string>) => makeContainer({ labels }).releaseNotesUrl;
+
+  test("undefined without a label", () => {
+    expect(makeContainer().releaseNotesUrl).toBeUndefined();
+  });
+
+  test("links a GitHub source to its releases page", () => {
+    expect(notes({ "org.opencontainers.image.source": "https://github.com/grafana/grafana" })).toBe(
+      "https://github.com/grafana/grafana/releases",
+    );
+  });
+
+  test("normalizes a .git suffix, a deeper path and the legacy label-schema label", () => {
+    expect(notes({ "org.label-schema.vcs-url": "https://github.com/jc21/nginx-proxy-manager.git" })).toBe(
+      "https://github.com/jc21/nginx-proxy-manager/releases",
+    );
+    expect(notes({ "org.opencontainers.image.source": "https://github.com/owner/repo/tree/main/docker" })).toBe(
+      "https://github.com/owner/repo/releases",
+    );
+  });
+
+  test("the override label wins over the source", () => {
+    const labels = {
+      "dev.dozzle.releases": "https://www.postgresql.org/docs/release/",
+      "org.opencontainers.image.source": "https://github.com/docker-library/postgres",
+    };
+    expect(notes(labels)).toBe("https://www.postgresql.org/docs/release/");
+  });
+
+  test("nothing for a non-GitHub source or a source without a repository", () => {
+    expect(notes({ "org.opencontainers.image.source": "https://gitlab.com/owner/repo" })).toBeUndefined();
+    expect(notes({ "org.opencontainers.image.source": "https://github.com/owner" })).toBeUndefined();
+  });
+
+  test("rejects other schemes in either label", () => {
+    expect(notes({ "dev.dozzle.releases": "javascript:alert(1)" })).toBeUndefined();
+    expect(notes({ "org.opencontainers.image.source": "git@github.com:owner/repo.git" })).toBeUndefined();
+  });
+});

@@ -419,6 +419,7 @@ updates:
   auto: Auto
   auto-hint: Opdateres også efter den automatiske opdateringsplan
   auto-footnote: Giv en container labelen {label} for at opdatere den efter den automatiske opdateringsplan.
+  check-only: Har labelen {label}, så den opdateres uden for Dozzle.
   scheduled-running: Den automatiske opdateringsplan kører nu.
   progress: "{done} af {total} færdige"
   back: Tilbage
@@ -434,6 +435,7 @@ updates:
     rolled-back: Rullet tilbage
     up-to-date: Aktuel
     error: Fejlet
+  release-notes: Udgivelsesnoter
   version:
     rebuilt: genopbygget
     unknown: Version ukendt ({reason})
@@ -885,6 +887,30 @@ command-palette:
   toggle-std: Skift stdout/stderr-etiketter
   toggle-scrollbars: Skift mindre rullepaneler
   open-settings: Åbn indstillinger
+  section-updates: "Opdateringer tilgængelige"
+  section-hosts: "Værter"
+  open-analytics: "Åbn loganalyse"
+  clear-logs: "Ryd logs"
+  attach-shell: "Tilknyt til {name}"
+  exec-shell: "Åbn en shell i {name}"
+  open-assistant: "Spørg assistenten"
+  check-container-updates: "Søg efter opdateringer til {name}"
+  skip-update: "Spring denne opdatering over for {name}"
+  review-updates: "Gennemgå 1 opdatering | Gennemgå {count} opdateringer"
+  confirm-stop: "Tryk ↵ igen for at stoppe {name}"
+  confirm-update: "Tryk ↵ igen for at opdatere {name}"
+  confirm-hint: "bekræft"
+  open-settings-page: "Indstillinger: {page}"
+  open-notifications: "Åbn notifikationer"
+  open-logs: "Åbn logs"
+  state-on: "Til"
+  state-off: "Fra"
+  prefix-commands: "kommandoer"
+  prefix-hosts: "værter"
+  prefix-ask: "spørg"
+  actions-hint: "handlinger"
+  actions-placeholder: "Filtrer handlinger…"
+  back-hint: "tilbage"
 setup:
   title: "Opsæt Dozzle"
   next: "Næste"

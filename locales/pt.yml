@@ -419,6 +419,7 @@ updates:
   auto: Auto
   auto-hint: Também atualizado pelo agendamento de atualização automática
   auto-footnote: Adicione a label {label} a um contêiner para atualizá-lo pelo agendamento de atualização automática.
+  check-only: Tem a label {label}, então é atualizado fora do Dozzle.
   scheduled-running: A atualização automática agendada está em execução.
   progress: "{done} de {total} concluídos"
   back: Voltar
@@ -434,6 +435,7 @@ updates:
     rolled-back: Revertido
     up-to-date: Em dia
     error: Falhou
+  release-notes: Notas de versão
   version:
     rebuilt: reconstruída
     unknown: Versão desconhecida ({reason})
@@ -885,6 +887,30 @@ command-palette:
   toggle-std: Alternar rótulos stdout/stderr
   toggle-scrollbars: Alternar barras de rolagem menores
   open-settings: Abrir configurações
+  section-updates: "Atualizações disponíveis"
+  section-hosts: "Hosts"
+  open-analytics: "Abrir análise de logs"
+  clear-logs: "Limpar logs"
+  attach-shell: "Anexar a {name}"
+  exec-shell: "Abrir um shell em {name}"
+  open-assistant: "Perguntar ao assistente"
+  check-container-updates: "Verificar atualizações de {name}"
+  skip-update: "Ignorar esta atualização de {name}"
+  review-updates: "Revisar 1 atualização | Revisar {count} atualizações"
+  confirm-stop: "Pressione ↵ novamente para parar {name}"
+  confirm-update: "Pressione ↵ novamente para atualizar {name}"
+  confirm-hint: "confirmar"
+  open-settings-page: "Configurações: {page}"
+  open-notifications: "Abrir notificações"
+  open-logs: "Abrir logs"
+  state-on: "Ligado"
+  state-off: "Desligado"
+  prefix-commands: "comandos"
+  prefix-hosts: "hosts"
+  prefix-ask: "perguntar"
+  actions-hint: "ações"
+  actions-placeholder: "Filtrar ações…"
+  back-hint: "voltar"
 setup:
   title: Configurar o Dozzle
   next: Próximo

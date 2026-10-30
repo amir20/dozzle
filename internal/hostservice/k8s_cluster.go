@@ -273,12 +273,18 @@ func (m *K8sClusterService) ClientServices(_ bool) []container.ClientService {
 }
 
 // StartNotificationManager initializes and starts the notification manager for k8s mode
-func (m *K8sClusterService) StartNotificationManager(ctx context.Context) error {
+func (m *K8sClusterService) StartNotificationManager(ctx context.Context, imageChecks bool, labels container.ContainerLabels) error {
 	clients := m.LocalClientServices()
 	listener := notification.NewContainerLogListener(ctx, clients)
 	statsListener := notification.NewContainerStatsListener(ctx, clients)
 	eventListener := notification.NewContainerEventListener(ctx, clients)
 	eventListener.ListenToUpdates(container.Updates, func() []container.ClientService { return m.LocalClientServices() })
+	if imageChecks {
+		eventListener.CheckForUpdates(func(ctx context.Context) []container.ImageUpdate {
+			containers, _ := m.ListAllContainers(labels)
+			return container.CheckImageUpdates(ctx, m, containers, true)
+		})
+	}
 	m.notificationManager = notification.NewManager(listener, statsListener, eventListener)
 	m.persister = &notification.Persister{
 		Manager:          m.notificationManager,

@@ -24,6 +24,8 @@ type mockHostService struct {
 	listErrs   []error
 	logEvents  []*container.LogEvent
 	logErr     error
+	// logsByTime streams only the events inside the requested range.
+	logsByTime bool
 
 	// gotLabels records the last label filter passed to a lookup so tests can
 	// assert the requesting user's filter is applied instead of the global one.
@@ -34,9 +36,10 @@ type stubClientService struct {
 	container.ClientService
 	events []*container.LogEvent
 	err    error
+	byTime bool
 }
 
-func (s *stubClientService) LogsBetweenDates(ctx context.Context, _ container.Container, _ time.Time, _ time.Time, _ container.StdType) (<-chan *container.LogEvent, error) {
+func (s *stubClientService) LogsBetweenDates(ctx context.Context, _ container.Container, from time.Time, to time.Time, _ container.StdType) (<-chan *container.LogEvent, error) {
 	if s.err != nil {
 		return nil, s.err
 	}
@@ -44,6 +47,9 @@ func (s *stubClientService) LogsBetweenDates(ctx context.Context, _ container.Co
 	go func() {
 		defer close(ch)
 		for _, e := range s.events {
+			if s.byTime && (e.Timestamp < from.UnixMilli() || e.Timestamp > to.UnixMilli()) {
+				continue
+			}
 			select {
 			case ch <- e:
 			case <-ctx.Done():
@@ -69,7 +75,7 @@ func (m *mockHostService) FindContainer(host string, id string, labels container
 	}
 	for _, c := range m.containers {
 		if c.ID == id && c.Host == host {
-			stub := &stubClientService{events: m.logEvents, err: m.logErr}
+			stub := &stubClientService{events: m.logEvents, err: m.logErr, byTime: m.logsByTime}
 			return container.NewContainerService(stub, c), nil
 		}
 	}
@@ -81,8 +87,21 @@ func (m *mockHostService) ListAllContainers(labels container.ContainerLabels) ([
 	return m.containers, m.listErrs
 }
 
+// Hosts returns m.hosts, or one host per distinct container host when the test
+// set none, since the name resolver checks a supplied host against this list.
 func (m *mockHostService) Hosts() []container.Host {
-	return m.hosts
+	if m.hosts != nil {
+		return m.hosts
+	}
+	hosts := []container.Host{}
+	seen := map[string]bool{}
+	for _, c := range m.containers {
+		if !seen[c.Host] {
+			seen[c.Host] = true
+			hosts = append(hosts, container.Host{ID: c.Host, Name: c.Host})
+		}
+	}
+	return hosts
 }
 
 func TestReadToolsUseRequestingUsersFilter(t *testing.T) {
@@ -595,5 +614,200 @@ func TestSearchContainerLogsTruncates(t *testing.T) {
 	require.NoError(t, err)
 	assert.False(t, result.IsError)
 	text := result.Content[0].(*mcp.TextContent).Text
-	assert.Contains(t, text, "results truncated")
+	assert.Contains(t, text, "showing the newest")
+}
+
+func connectTestClient(t *testing.T, s *Server) *mcp.ClientSession {
+	t.Helper()
+	ctx := context.Background()
+	ct, st := mcp.NewInMemoryTransports()
+	_, err := s.mcpServer.Connect(ctx, st, nil)
+	require.NoError(t, err)
+	client := mcp.NewClient(&mcp.Implementation{Name: "test-client", Version: "v0.0.1"}, nil)
+	session, err := client.Connect(ctx, ct, nil)
+	require.NoError(t, err)
+	t.Cleanup(func() { session.Close() })
+	return session
+}
+
+func callText(t *testing.T, session *mcp.ClientSession, name string, args map[string]any) (string, bool) {
+	t.Helper()
+	result, err := session.CallTool(context.Background(), &mcp.CallToolParams{Name: name, Arguments: args})
+	require.NoError(t, err)
+	return result.Content[0].(*mcp.TextContent).Text, result.IsError
+}
+
+func TestContainerToolsAcceptNameWithoutHost(t *testing.T) {
+	svc := &mockHostService{
+		containers: []container.Container{
+			{ID: "abc123", Name: "web", State: "running", Host: "local"},
+			{ID: "def456", Name: "db", State: "running", Host: "local"},
+		},
+		logEvents: []*container.LogEvent{
+			{Type: container.LogTypeSingle, RawMessage: "hello from web", Timestamp: 1},
+		},
+	}
+	session := connectTestClient(t, NewServer(svc, nil, "test"))
+
+	text, isErr := callText(t, session, "get_container_logs", map[string]any{"container_id": "web"})
+	assert.False(t, isErr, text)
+	assert.Contains(t, text, "hello from web")
+
+	text, isErr = callText(t, session, "search_container_logs", map[string]any{"container_id": "web", "query": "hello"})
+	assert.False(t, isErr, text)
+	assert.Contains(t, text, "Found 1 match")
+
+	text, isErr = callText(t, session, "get_container_stats", map[string]any{"container_id": "db", "host": "local"})
+	assert.False(t, isErr, text)
+	assert.Contains(t, text, `"containerId":"def456"`)
+
+	text, isErr = callText(t, session, "get_container_stats", map[string]any{"container_id": "nope"})
+	assert.True(t, isErr)
+	assert.Contains(t, text, "list_containers")
+	assert.NotContains(t, text, "find_containers")
+}
+
+func TestContainerToolsNoteAmbiguousName(t *testing.T) {
+	svc := &mockHostService{
+		containers: []container.Container{
+			{ID: "aaa111", Name: "api-1", State: "exited", Host: "local", FinishedAt: time.Unix(100, 0)},
+			{ID: "bbb222", Name: "api-2", State: "exited", Host: "local", FinishedAt: time.Unix(200, 0)},
+		},
+	}
+	session := connectTestClient(t, NewServer(svc, nil, "test"))
+
+	text, isErr := callText(t, session, "get_container_stats", map[string]any{"container_id": "api"})
+	assert.False(t, isErr, text)
+	assert.Contains(t, text, `"containerId":"bbb222"`)
+	assert.Contains(t, text, "api-1")
+}
+
+func TestListContainersOmitsLabelsByDefault(t *testing.T) {
+	svc := &mockHostService{
+		containers: []container.Container{
+			{ID: "abc123", Name: "web", Host: "local", Labels: map[string]string{"traefik.http.routers.web.rule": "Host(`x`)"}},
+		},
+	}
+	session := connectTestClient(t, NewServer(svc, nil, "test"))
+
+	text, _ := callText(t, session, "list_containers", map[string]any{})
+	assert.NotContains(t, text, "traefik")
+
+	text, _ = callText(t, session, "list_containers", map[string]any{"include_labels": true})
+	assert.Contains(t, text, "traefik")
+}
+
+func TestGetContainerLogsKeepsNewestWithLimitAndLevel(t *testing.T) {
+	svc := &mockHostService{
+		containers: []container.Container{{ID: "abc123", Name: "web", Host: "local"}},
+		logEvents: []*container.LogEvent{
+			{Type: container.LogTypeSingle, RawMessage: "first", Level: "error", Timestamp: 1},
+			{Type: container.LogTypeSingle, RawMessage: "second", Level: "info", Timestamp: 2},
+			{Type: container.LogTypeSingle, RawMessage: "third", Level: "warn", Timestamp: 3},
+			{Type: container.LogTypeSingle, RawMessage: "\x1b[31mfourth\x1b[0m", Level: "error", Timestamp: 4},
+		},
+	}
+	session := connectTestClient(t, NewServer(svc, nil, "test"))
+
+	text, isErr := callText(t, session, "get_container_logs", map[string]any{"container_id": "web", "limit": 2})
+	assert.False(t, isErr, text)
+	assert.NotContains(t, text, "first")
+	assert.Contains(t, text, "third")
+	assert.Contains(t, text, `"message":"fourth"`, "ANSI codes are stripped")
+	assert.Contains(t, text, "showing the newest 2 of 4 entries")
+
+	text, isErr = callText(t, session, "get_container_logs", map[string]any{"container_id": "web", "level": "warn"})
+	assert.False(t, isErr, text)
+	assert.NotContains(t, text, "second")
+	assert.Contains(t, text, "first")
+	assert.Contains(t, text, "third")
+	assert.NotContains(t, text, "showing the newest")
+
+	text, isErr = callText(t, session, "get_container_logs", map[string]any{"container_id": "web", "level": "loud"})
+	assert.True(t, isErr)
+	assert.Contains(t, text, "invalid level")
+}
+
+func TestSearchMatchesAcrossColourChange(t *testing.T) {
+	svc := &mockHostService{
+		containers: []container.Container{{ID: "abc123", Name: "web", Host: "local"}},
+		logEvents: []*container.LogEvent{
+			{Type: container.LogTypeSingle, RawMessage: "payment \x1b[31mfailed\x1b[0m", Timestamp: 1},
+		},
+	}
+	session := connectTestClient(t, NewServer(svc, nil, "test"))
+
+	text, isErr := callText(t, session, "search_container_logs", map[string]any{"container_id": "web", "query": "payment failed"})
+	assert.False(t, isErr, text)
+	assert.Contains(t, text, "Found 1 match")
+}
+
+func TestParseTimeRange(t *testing.T) {
+	str := func(s string) *string { return &s }
+	ten := 10
+
+	from, to, errResult := parseTimeRange(nil, str("2026-10-28T04:20:00Z"), str("2026-10-28T04:40:00Z"))
+	require.Nil(t, errResult)
+	assert.Equal(t, time.Date(2026, 10, 28, 4, 20, 0, 0, time.UTC), from.UTC())
+	assert.Equal(t, time.Date(2026, 10, 28, 4, 40, 0, 0, time.UTC), to.UTC())
+
+	from, to, errResult = parseTimeRange(&ten, nil, str("2026-10-28T04:40:00Z"))
+	require.Nil(t, errResult)
+	assert.Equal(t, 10*time.Minute, to.Sub(from))
+
+	from, to, errResult = parseTimeRange(nil, nil, nil)
+	require.Nil(t, errResult)
+	assert.Equal(t, 5*time.Minute, to.Sub(from))
+
+	_, _, errResult = parseTimeRange(nil, str("2026-10-28T04:40:00Z"), str("2026-10-28T04:20:00Z"))
+	assert.NotNil(t, errResult)
+
+	_, _, errResult = parseTimeRange(nil, str("yesterday"), nil)
+	assert.NotNil(t, errResult)
+}
+
+func TestCollectLogEntriesStopsAfterMaxScanned(t *testing.T) {
+	events := make(chan *container.LogEvent, maxLogsScanned+2)
+	for i := range maxLogsScanned + 2 {
+		events <- &container.LogEvent{Timestamp: int64(i) * 1000, RawMessage: "line", Type: container.LogTypeSingle}
+	}
+	close(events)
+
+	_, scanned, _, stoppedAt := collectLogEntries(events, nil, 0)
+	assert.Equal(t, maxLogsScanned, scanned)
+	assert.Equal(t, time.UnixMilli(int64(maxLogsScanned)*1000), stoppedAt)
+}
+
+// Logs stream oldest first, so a range too big to read whole is read again
+// over its tail and the answer is still the newest lines.
+func TestGetContainerLogsTooBigRangeReadsTheTail(t *testing.T) {
+	start := time.Date(2026, 10, 28, 4, 0, 0, 0, time.UTC)
+	total := maxLogsScanned * 3 / 2
+	events := make([]*container.LogEvent, total)
+	for i := range events {
+		events[i] = &container.LogEvent{Timestamp: start.UnixMilli() + int64(i), Type: container.LogTypeSingle, RawMessage: fmt.Sprintf("line %d", i)}
+	}
+	svc := &mockHostService{containers: []container.Container{{ID: "abc123", Name: "web", Host: "local"}}, logEvents: events, logsByTime: true}
+	s := NewServer(svc, nil, "test")
+
+	ctx := context.Background()
+	ct, st := mcp.NewInMemoryTransports()
+	_, err := s.mcpServer.Connect(ctx, st, nil)
+	require.NoError(t, err)
+	session, err := mcp.NewClient(&mcp.Implementation{Name: "test-client", Version: "v0.0.1"}, nil).Connect(ctx, ct, nil)
+	require.NoError(t, err)
+	defer session.Close()
+
+	end := start.Add(time.Duration(total) * time.Millisecond)
+	result, err := session.CallTool(ctx, &mcp.CallToolParams{
+		Name: "get_container_logs",
+		Arguments: map[string]any{
+			"host": "local", "container_id": "abc123", "limit": 1,
+			"start": start.Format(time.RFC3339), "end": end.Format(time.RFC3339),
+		},
+	})
+	require.NoError(t, err)
+	text := result.Content[0].(*mcp.TextContent).Text
+	assert.Contains(t, text, fmt.Sprintf("line %d", total-1))
+	assert.Contains(t, text, "only the newest part")
 }

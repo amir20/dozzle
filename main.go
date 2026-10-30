@@ -98,7 +98,7 @@ func main() {
 		} else {
 			log.Info().Int("clients", multiHostService.TotalClients()).Msg("Connected to Docker")
 		}
-		if err := multiHostService.StartNotificationManager(ctx); err != nil {
+		if err := multiHostService.StartNotificationManager(ctx, imagecheck.Mode(args.ImageCheckMode) == imagecheck.ModeAutomatic, args.Filter); err != nil {
 			log.Fatal().Err(err).Msg("Could not start notification manager")
 		}
 		hostService = multiHostService
@@ -119,7 +119,7 @@ func main() {
 		agentManager := hostservice.NewRetriableClientManager(args.EnvAgents, nil, args.Timeout, certs)
 		manager := hostservice.NewSwarmClientManager(localClient, certs, args.Timeout, agentManager, args.Filter)
 		multiHostService := hostservice.NewMultiHostService(manager, args.Timeout)
-		if err := multiHostService.StartNotificationManager(ctx); err != nil {
+		if err := multiHostService.StartNotificationManager(ctx, imagecheck.Mode(args.ImageCheckMode) == imagecheck.ModeAutomatic, args.Filter); err != nil {
 			log.Fatal().Err(err).Msg("Could not start notification manager")
 		}
 		hostService = multiHostService
@@ -153,7 +153,7 @@ func main() {
 			log.Fatal().Err(err).Msg("Could not create k8s cluster service")
 		}
 
-		if err := clusterService.StartNotificationManager(ctx); err != nil {
+		if err := clusterService.StartNotificationManager(ctx, imagecheck.Mode(args.ImageCheckMode) == imagecheck.ModeAutomatic, args.Filter); err != nil {
 			log.Fatal().Err(err).Msg("Could not start notification manager")
 		}
 

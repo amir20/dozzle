@@ -419,6 +419,7 @@ updates:
   auto: Auto
   auto-hint: Aussi mis à jour selon la planification automatique
   auto-footnote: Ajoutez le label {label} à un conteneur pour le mettre à jour selon la planification automatique.
+  check-only: Marqué {label}, donc mis à jour en dehors de Dozzle.
   scheduled-running: La mise à jour automatique planifiée est en cours.
   progress: "{done} sur {total} terminés"
   back: Retour
@@ -434,6 +435,7 @@ updates:
     rolled-back: Restauré
     up-to-date: À jour
     error: Échec
+  release-notes: Notes de version
   version:
     rebuilt: reconstruite
     unknown: Version inconnue ({reason})
@@ -885,6 +887,30 @@ command-palette:
   toggle-std: Basculer les étiquettes stdout/stderr
   toggle-scrollbars: Basculer les barres de défilement réduites
   open-settings: Ouvrir les paramètres
+  section-updates: "Mises à jour disponibles"
+  section-hosts: "Hôtes"
+  open-analytics: "Ouvrir l'analyse des logs"
+  clear-logs: "Effacer les logs"
+  attach-shell: "S'attacher à {name}"
+  exec-shell: "Ouvrir un shell dans {name}"
+  open-assistant: "Demander à l'assistant"
+  check-container-updates: "Rechercher des mises à jour pour {name}"
+  skip-update: "Ignorer cette mise à jour pour {name}"
+  review-updates: "Examiner 1 mise à jour | Examiner {count} mises à jour"
+  confirm-stop: "Appuyez à nouveau sur ↵ pour arrêter {name}"
+  confirm-update: "Appuyez à nouveau sur ↵ pour mettre à jour {name}"
+  confirm-hint: "confirmer"
+  open-settings-page: "Paramètres : {page}"
+  open-notifications: "Ouvrir les notifications"
+  open-logs: "Ouvrir les logs"
+  state-on: "Activé"
+  state-off: "Désactivé"
+  prefix-commands: "commandes"
+  prefix-hosts: "hôtes"
+  prefix-ask: "demander"
+  actions-hint: "actions"
+  actions-placeholder: "Filtrer les actions…"
+  back-hint: "retour"
 setup:
   title: "Configurer Dozzle"
   next: "Suivant"

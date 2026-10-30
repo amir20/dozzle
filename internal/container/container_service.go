@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/amir20/dozzle/internal/imagecheck"
+	"github.com/amir20/dozzle/internal/updatepolicy"
 )
 
 type ContainerService struct {
@@ -42,8 +43,13 @@ func (c *ContainerService) Action(ctx context.Context, action ContainerAction) e
 
 // Update pulls the container's image and, when it changed, swaps the
 // container for one on it. source is one of the UpdateSource* values. An
-// update that ran, committed or undone, is added to Updates.
+// update that ran, committed or undone, is added to Updates. A container
+// labelled dev.dozzle.update=check is refused, whoever asks.
 func (c *ContainerService) Update(ctx context.Context, source string, progressCh chan<- UpdateProgress) (bool, error) {
+	if updatepolicy.CheckOnly(c.Container.Labels) {
+		close(progressCh)
+		return false, ErrCheckOnly
+	}
 	var updated bool
 	var err error
 	c.recorded(ctx, source, progressCh, func(ch chan<- UpdateProgress) {

@@ -421,6 +421,7 @@ updates:
   auto: Auto
   auto-hint: Aktualizowany także zgodnie z harmonogramem automatycznych aktualizacji
   auto-footnote: Dodaj do kontenera etykietę {label}, aby aktualizować go zgodnie z harmonogramem automatycznych aktualizacji.
+  check-only: Ma etykietę {label}, więc jest aktualizowany poza Dozzle.
   scheduled-running: Harmonogram automatycznych aktualizacji właśnie działa.
   progress: Ukończono {done} z {total}
   back: Wstecz
@@ -436,6 +437,7 @@ updates:
     rolled-back: Wycofano
     up-to-date: Aktualny
     error: Błąd
+  release-notes: Informacje o wydaniu
   version:
     rebuilt: przebudowany
     unknown: Wersja nieznana ({reason})
@@ -887,6 +889,30 @@ command-palette:
   toggle-std: Przełącz etykiety stdout/stderr
   toggle-scrollbars: Przełącz mniejsze paski przewijania
   open-settings: Otwórz ustawienia
+  section-updates: "Dostępne aktualizacje"
+  section-hosts: "Hosty"
+  open-analytics: "Otwórz analizę logów"
+  clear-logs: "Wyczyść logi"
+  attach-shell: "Podłącz do {name}"
+  exec-shell: "Otwórz powłokę w {name}"
+  open-assistant: "Zapytaj asystenta"
+  check-container-updates: "Sprawdź aktualizacje dla {name}"
+  skip-update: "Pomiń tę aktualizację dla {name}"
+  review-updates: "Przejrzyj aktualizacje: 1 | Przejrzyj aktualizacje: {count}"
+  confirm-stop: "Naciśnij ponownie ↵, aby zatrzymać {name}"
+  confirm-update: "Naciśnij ponownie ↵, aby zaktualizować {name}"
+  confirm-hint: "potwierdź"
+  open-settings-page: "Ustawienia: {page}"
+  open-notifications: "Otwórz powiadomienia"
+  open-logs: "Otwórz logi"
+  state-on: "Wł."
+  state-off: "Wył."
+  prefix-commands: "polecenia"
+  prefix-hosts: "hosty"
+  prefix-ask: "zapytaj"
+  actions-hint: "akcje"
+  actions-placeholder: "Filtruj akcje…"
+  back-hint: "wstecz"
 setup:
   title: Skonfiguruj Dozzle
   next: Dalej
