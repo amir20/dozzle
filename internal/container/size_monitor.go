@@ -206,7 +206,7 @@ func (m *sizeMonitor) measureVolumes(ctx context.Context, containersPruned bool)
 	m.store.containers.Range(func(id string, c *Container) bool {
 		m.store.applyVolumes(id, usage.Volumes[id])
 		// what `docker container prune` would remove
-		if !containersPruned && c.SizeRw != nil && c.State != "running" && c.State != "paused" && c.State != "restarting" {
+		if !containersPruned && c.SizeRw != nil && c.State != "running" && c.State != "paused" && c.State != "restarting" && c.Labels[KeepLabel] != "true" {
 			reclaimable.Containers++
 			reclaimable.ContainersSize += *c.SizeRw
 		}

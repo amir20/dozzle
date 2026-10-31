@@ -1,7 +1,7 @@
 ---
 title: Utilisation du disque par conteneur
 description: Comment Dozzle mesure l'espace disque de chaque conteneur Docker et de ses volumes, ce qui n'est pas compté, et comment supprimer les images, volumes et caches de build inutilisés.
-sourceHash: ca705e9363d0
+sourceHash: db3721c96694
 ---
 
 # Utilisation du disque par conteneur
@@ -44,7 +44,7 @@ Chaque type lance le prune correspondant :
 
 - **Images inutilisées** : `docker image prune -a`. Une stack arrêtée retélécharge ses images à son prochain démarrage.
 - **Volumes inutilisés** : `docker volume prune -a`, qui supprime aussi les volumes nommés. Ils sont décochés au départ et demandent une seconde confirmation, car un volume qu'aucun conteneur n'utilise en ce moment peut tout de même contenir la base de données d'un conteneur supprimé le temps d'un redéploiement.
-- **Conteneurs arrêtés** : `docker container prune`
+- **Conteneurs arrêtés** : `docker container prune`, sauf les conteneurs portant le label `dev.dozzle.keep=true`
 - **Cache de build** : `docker builder prune -a`
 
 Un [agent](/fr/guide/agent) plus ancien que le Dozzle auquel il se rattache ne peut pas faire le ménage, et la fenêtre le signale.
@@ -52,6 +52,16 @@ Un [agent](/fr/guide/agent) plus ancien que le Dozzle auquel il se rattache ne p
 ### Planifié
 
 Sous **Nettoyer automatiquement**, en bas de la même fenêtre, choisissez quotidien ou hebdomadaire (dimanche) et une heure dans le fuseau horaire du serveur. C'est désactivé par défaut. À cette heure, Dozzle nettoie chaque hôte connecté, l'un après l'autre : images inutilisées, conteneurs arrêtés et cache de build. Les volumes ne sont jamais supprimés par la planification. La fenêtre indique ce que le dernier passage a libéré.
+
+Un conteneur que vous laissez arrêté exprès, par exemple un conteneur que vous ne démarrez qu'à une heure précise, partirait avec le reste. Ajoutez-lui le label `dev.dozzle.keep=true` et aucun nettoyage ne le supprime, qu'il soit manuel ou planifié. Son image est conservée elle aussi, puisque le conteneur l'utilise encore, et aucun des deux ne compte dans l'espace récupérable.
+
+```yaml
+services:
+  backup:
+    image: restic/restic
+    labels:
+      dev.dozzle.keep: "true"
+```
 
 La planification est enregistrée dans `dozzle.yml` à côté des réglages de [mise à jour automatique](/fr/guide/updates#auto-updating-containers) et s'applique sans redémarrage. Elle ne tourne qu'en mode serveur, et attend d'abord la fin de toute mise à jour de conteneur en cours. Définir `DOZZLE_AUTO_CLEANUP` ou `DOZZLE_AUTO_CLEANUP_TIME` fixe la planification, et la popover se contente alors de l'afficher.
 

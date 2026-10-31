@@ -252,7 +252,7 @@ func Test_dockerClient_Prune(t *testing.T) {
 	proxy := new(mockedProxy)
 	var order []string
 	track := func(name string) func(mock.Arguments) { return func(mock.Arguments) { order = append(order, name) } }
-	proxy.On("ContainerPrune", client.ContainerPruneOptions{}).Return(uint64(1), nil).Run(track("containers"))
+	proxy.On("ContainerPrune", client.ContainerPruneOptions{Filters: make(client.Filters).Add("label!", "dev.dozzle.keep=true")}).Return(uint64(1), nil).Run(track("containers"))
 	proxy.On("ImagePrune", client.ImagePruneOptions{Filters: make(client.Filters).Add("dangling", "false")}).Return(uint64(10), nil).Run(track("images"))
 	proxy.On("VolumePrune", client.VolumePruneOptions{All: true}).Return(uint64(100), nil).Run(track("volumes"))
 	proxy.On("BuildCachePrune", client.BuildCachePruneOptions{All: true}).Return(uint64(1000), nil).Run(track("build cache"))
