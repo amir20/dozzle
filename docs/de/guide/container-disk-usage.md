@@ -1,7 +1,7 @@
 ---
 title: Speicherbelegung der Container
 description: Wie Dozzle den Speicherplatz jedes Docker-Containers und seiner Volumes misst, was nicht mitgezählt wird, und wie du ungenutzte Images, Volumes und Build-Cache aufräumst.
-sourceHash: ca705e9363d0
+sourceHash: db3721c96694
 ---
 
 # Speicherbelegung der Container
@@ -44,7 +44,7 @@ Jede Art führt den passenden Prune-Befehl aus:
 
 - **Ungenutzte Images**: `docker image prune -a`. Ein gestoppter Stack lädt seine Images beim nächsten Start erneut herunter.
 - **Ungenutzte Volumes**: `docker volume prune -a`, das auch benannte Volumes entfernt. Sie sind anfangs nicht angehakt und brauchen eine zweite Bestätigung, denn ein Volume, das gerade kein Container nutzt, kann trotzdem die Datenbank eines Containers enthalten, der nur für ein Redeploy entfernt wurde.
-- **Gestoppte Container**: `docker container prune`
+- **Gestoppte Container**: `docker container prune`, außer Containern mit dem Label `dev.dozzle.keep=true`
 - **Build-Cache**: `docker builder prune -a`
 
 Ein [Agent](/de/guide/agent), der älter ist als das Dozzle, an das er berichtet, kann nicht aufräumen, und das Popover sagt das auch.
@@ -52,6 +52,16 @@ Ein [Agent](/de/guide/agent), der älter ist als das Dozzle, an das er berichtet
 ### Nach Zeitplan
 
 Unter **Automatisch aufräumen** unten im selben Popover wählst du täglich oder wöchentlich (Sonntag) und eine Uhrzeit in der Zeitzone des Servers. Standard ist aus. Zu dieser Zeit räumt Dozzle alle verbundenen Hosts nacheinander auf: ungenutzte Images, gestoppte Container und Build-Cache. Volumes werden nach Zeitplan nie gelöscht. Das Popover zeigt, wie viel der letzte Lauf freigegeben hat.
+
+Ein Container, den du absichtlich gestoppt lässt, etwa einer, den du nur zu einer festen Uhrzeit startest, würde mit dem Rest verschwinden. Gib ihm das Label `dev.dozzle.keep=true`, dann entfernt ihn kein Aufräumen, weder von Hand noch nach Zeitplan. Auch sein Image bleibt, da der Container es weiterhin nutzt, und keines von beiden zählt zum freigebbaren Speicher.
+
+```yaml
+services:
+  backup:
+    image: restic/restic
+    labels:
+      dev.dozzle.keep: "true"
+```
 
 Der Zeitplan wird in `dozzle.yml` neben den Einstellungen für [automatische Updates](/de/guide/updates#auto-updating-containers) gespeichert und gilt ohne Neustart. Er läuft nur im Server-Modus und wartet zuerst, bis ein laufendes Container-Update fertig ist. Wer `DOZZLE_AUTO_CLEANUP` oder `DOZZLE_AUTO_CLEANUP_TIME` setzt, legt den Zeitplan fest, und das Popover zeigt ihn dann nur noch an.
 

@@ -366,6 +366,7 @@ func TestSizeMonitor_reclaimable(t *testing.T) {
 		{ID: "exited", State: "exited", SizeRw: size(40)},
 		{ID: "created", State: "created", SizeRw: size(2)},
 		{ID: "unmeasured", State: "exited"},
+		{ID: "kept", State: "exited", SizeRw: size(500), Labels: map[string]string{KeepLabel: "true"}},
 	} {
 		store.containers.Store(c.ID, &c)
 	}

@@ -358,6 +358,10 @@ type UpdateResult struct {
 	RolledBack bool
 }
 
+// KeepLabel set to "true" keeps a stopped container out of every clean up, for
+// one that is stopped on purpose and started again later.
+const KeepLabel = "dev.dozzle.keep"
+
 // Labels an update leaves on the container it creates, and reads back on the
 // next one.
 const (

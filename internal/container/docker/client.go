@@ -458,7 +458,8 @@ func (d *Client) ListReclaimable(ctx context.Context) (container.ReclaimableItem
 func (d *Client) Prune(ctx context.Context, opts container.PruneOptions) (container.PruneResult, error) {
 	var result container.PruneResult
 	if opts.Containers {
-		r, err := d.cli.ContainerPrune(ctx, client.ContainerPruneOptions{})
+		// a container labelled dev.dozzle.keep=true is stopped on purpose
+		r, err := d.cli.ContainerPrune(ctx, client.ContainerPruneOptions{Filters: make(client.Filters).Add("label!", container.KeepLabel+"=true")})
 		if err != nil {
 			return result, fmt.Errorf("pruning containers: %w", err)
 		}
