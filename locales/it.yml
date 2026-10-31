@@ -193,7 +193,7 @@ tooltip:
   volume-full: "{destination} è pieno al {pct}"
   open-container-url: "Apri {url}"
   agent-version: "Agente Dozzle {version}"
-  agent-version-mismatch: "L'agente {version} non corrisponde a Dozzle {current}. Aggiorna l'agente."
+  agent-version-mismatch: "L'agente {version} e Dozzle {current} hanno versioni diverse. Usa la stessa versione su entrambi."
 popup:
   group: Gruppo
   ports: Porte

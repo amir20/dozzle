@@ -193,7 +193,7 @@ tooltip:
   volume-full: "{destination} 已使用 {pct}"
   open-container-url: "打开 {url}"
   agent-version: "Dozzle 代理 {version}"
-  agent-version-mismatch: "代理 {version} 与 Dozzle {current} 不一致，请更新代理。"
+  agent-version-mismatch: "代理 {version} 与 Dozzle {current} 版本不同，请在两边运行相同版本。"
 popup:
   group: 分组
   ports: 端口

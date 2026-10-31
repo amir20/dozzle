@@ -193,7 +193,7 @@ tooltip:
   volume-full: "{destination} je {pct} poln"
   open-container-url: "Odpri {url}"
   agent-version: "Agent Dozzle {version}"
-  agent-version-mismatch: "Agent {version} se ne ujema z Dozzle {current}. Posodobite agenta."
+  agent-version-mismatch: "Agent {version} in Dozzle {current} imata različni različici. Na obeh uporabite isto različico."
 popup:
   group: Skupina
   ports: Vrata
