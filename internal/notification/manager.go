@@ -65,9 +65,8 @@ func (m *Manager) Start() error {
 
 // ShouldListenToContainer implements ContainerMatcher interface
 // Only matches log-based subscriptions (metric-only subscriptions don't need log streaming)
-func (m *Manager) ShouldListenToContainer(c container.Container) bool {
-	// Pass empty host for matching - host fields aren't used in container expressions
-	notificationContainer := FromContainerModel(c, container.Host{})
+func (m *Manager) ShouldListenToContainer(c container.Container, host container.Host) bool {
+	notificationContainer := FromContainerModel(c, host)
 
 	shouldListen := false
 	m.subscriptions.Range(func(_ int, sub *Subscription) bool {

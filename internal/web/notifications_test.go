@@ -96,3 +96,34 @@ func Test_previewExpression_escapes_matched_logs(t *testing.T) {
 	require.Len(t, result.MatchedLogs, 1)
 	assert.Equal(t, `&lt;img src=x onerror=&#34;alert(1)&#34;&gt;`, result.MatchedLogs[0].Message)
 }
+
+// hostName and hostId are documented container-expression fields, so the preview has to
+// match on them. See #5556.
+func Test_previewExpression_matches_hostName(t *testing.T) {
+	c := container.Container{ID: "abc123", Name: "web", State: "running", Host: "localhost"}
+
+	client := new(MockedClient)
+	client.On("Host").Return(container.Host{ID: "localhost", Name: "cloudy"})
+	client.On("ContainerEvents", mock.Anything, mock.AnythingOfType("chan<- container.ContainerEvent")).Return(nil)
+	client.On("ListContainers", mock.Anything, mock.Anything).Return([]container.Container{c}, nil)
+	client.On("FindContainer", mock.Anything, "abc123").Return(c, nil)
+	client.On("ContainerLogsBetweenDates", mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).
+		Return(io.NopCloser(strings.NewReader("")), nil)
+
+	manager := hostservice.NewRetriableClientManager(nil, nil, 3*time.Second, tls.Certificate{}, docker.NewService(client, container.ContainerLabels{}))
+	h := &handler{
+		hostService: hostservice.NewMultiHostService(manager, 3*time.Second),
+		config:      &Config{Base: "/", Authorization: Authorization{Provider: NONE}},
+	}
+
+	for expr, want := range map[string]int{`hostName == \"cloudy\"`: 1, `hostId == \"localhost\"`: 1, `hostName == \"other\"`: 0} {
+		body := strings.NewReader(`{"containerExpression":"` + expr + `"}`)
+		rr := httptest.NewRecorder()
+		h.previewExpression(rr, httptest.NewRequest("POST", "/api/notifications/preview", body))
+
+		require.Equal(t, http.StatusOK, rr.Code)
+		var result PreviewResult
+		require.NoError(t, json.Unmarshal(rr.Body.Bytes(), &result))
+		assert.Len(t, result.MatchedContainers, want, expr)
+	}
+}
