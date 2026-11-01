@@ -235,6 +235,8 @@ func (a *AgentCmd) Run(args Args, embeddedCerts embed.FS) error {
 		ImageCheckMode: imagecheck.Mode(args.ImageCheckMode),
 		HostService:    agentHostService,
 		Principal:      cloud.APIKeyPrincipal(args.Filter),
+		// The server in front of this agent leaves its containers' configs to it.
+		ConfigHostService: agentHostService,
 	})
 	// An agent is always an agent, whatever the hub in front of it is running as.
 	cloudClient.SetDeployment("agent", swarmClusterID)

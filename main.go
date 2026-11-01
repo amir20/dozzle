@@ -185,6 +185,7 @@ func main() {
 		HostService:         cloudHostService,
 		Principal:           cloud.APIKeyPrincipal(args.Filter),
 		NotificationService: notificationService,
+		ConfigHostService:   newConfigHostService(args.Mode, hostService),
 	})
 	cloudClient.SetDeployment(args.Mode, swarmClusterID)
 	cloudClient.SetStreamLogsFunc(func() bool {
@@ -560,6 +561,23 @@ func newCloudHostService(mode string, hs web.HostService) cloud.LogStreamHostSer
 	}
 	return &cloudHostService{
 		services: services,
+		hs:       hs,
+		hostIDs:  make(map[container.ClientService]string),
+	}
+}
+
+// newConfigHostService is the hosts whose container configs this Dozzle sends
+// to the cloud: its own docker daemons (local and --remote-host), never its
+// --remote-agent agents, which each send their own. Two senders would hash the
+// same labels with two different keys, and every start would read as a
+// change. Nil on k8s, where a pod's name changes with every rollout, so "the
+// same container" needs another key.
+func newConfigHostService(mode string, hs web.HostService) cloud.ConfigStreamHostService {
+	if mode == "k8s" || len(hs.LocalClientServices()) == 0 {
+		return nil
+	}
+	return &cloudHostService{
+		services: func(bool) []container.ClientService { return hs.LocalClientServices() },
 		hs:       hs,
 		hostIDs:  make(map[container.ClientService]string),
 	}

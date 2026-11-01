@@ -373,11 +373,9 @@ func (c *Client) connect(ctx context.Context, apiKey string) (wasConnected bool,
 	}
 
 	// Container config is not log content either: what may be sent is decided
-	// in config_pusher.go, and secrets never are. Like logs and stats, each
-	// process sends the hosts its HostService covers, so an agent sends its
-	// own. Not on k8s yet: a pod's name changes with every rollout, so "the
-	// same container" needs another key.
-	if chs, ok := c.deps.HostService.(ConfigStreamHostService); ok && c.mode != "k8s" {
+	// in config_pusher.go, and secrets never are. Which hosts are sent is
+	// ConfigHostService: each agent sends its own, and the server the rest.
+	if chs := c.deps.ConfigHostService; chs != nil {
 		wg.Go(func() {
 			pushConfigs(streamLifetime, chs, c.deps.Principal.Labels, sendResp)
 		})
