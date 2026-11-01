@@ -372,6 +372,15 @@ func (c *Client) connect(ctx context.Context, apiKey string) (wasConnected bool,
 		})
 	}
 
+	// Container config is not log content either: what may be sent is decided
+	// in config_pusher.go, and secrets never are. An agent's containers reach
+	// Cloud through the server it reports to.
+	if chs, ok := c.deps.HostService.(ConfigStreamHostService); ok && c.mode != deploymentAgent {
+		wg.Go(func() {
+			pushConfigs(streamLifetime, chs, c.deps.Principal.Labels, sendResp)
+		})
+	}
+
 	defer func() {
 		// Cancel all active log streams before shutting down
 		c.activeStreams.Range(func(key, value any) bool {
