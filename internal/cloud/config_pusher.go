@@ -155,16 +155,17 @@ func loadConfigHashSecret() []byte {
 				configHashSecret = decoded
 				return
 			}
+			log.Warn().Msg("config pusher: hash secret is unreadable, generating a new one; every container will read as changed once")
 		}
 		secret := make([]byte, 32)
 		if _, err := rand.Read(secret); err != nil {
 			log.Error().Err(err).Msg("config pusher: could not generate a hash secret")
 			return
 		}
-		if err := os.MkdirAll(filepath.Dir(configHashSecretPath), 0o700); err == nil {
-			if err := os.WriteFile(configHashSecretPath, []byte(hex.EncodeToString(secret)), 0o600); err != nil {
-				log.Warn().Err(err).Msg("config pusher: could not persist the hash secret; labels will read as changed after a restart")
-			}
+		if err := os.MkdirAll(filepath.Dir(configHashSecretPath), 0o700); err != nil {
+			log.Warn().Err(err).Msg("config pusher: could not create the data directory for the hash secret")
+		} else if err := os.WriteFile(configHashSecretPath, []byte(hex.EncodeToString(secret)), 0o600); err != nil {
+			log.Warn().Err(err).Msg("config pusher: could not persist the hash secret; labels will read as changed after a restart")
 		}
 		configHashSecret = secret
 	})
