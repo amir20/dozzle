@@ -758,12 +758,19 @@ func (h *handler) previewExpression(w http.ResponseWriter, r *http.Request) {
 	// Find matching running containers
 	if sub.ContainerProgram != nil {
 		containers, _ := h.hostService.ListAllContainers(h.resolveLabels(r))
+		hosts := make(map[string]container.Host)
+		for _, host := range h.hostService.Hosts() {
+			hosts[host.ID] = host
+		}
 		for _, c := range containers {
 			if c.State != "running" {
 				continue
 			}
-			// Pass empty host for matching - host fields aren't used in container expressions
-			nc := notification.FromContainerModel(c, container.Host{})
+			host, ok := hosts[c.Host]
+			if !ok {
+				host = container.Host{ID: c.Host}
+			}
+			nc := notification.FromContainerModel(c, host)
 			if sub.MatchesContainer(nc) {
 				result.MatchedContainers = append(result.MatchedContainers, c)
 			}

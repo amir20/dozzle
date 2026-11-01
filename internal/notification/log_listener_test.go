@@ -6,6 +6,8 @@ import (
 	"time"
 
 	"github.com/amir20/dozzle/internal/container"
+	"github.com/puzpuzpuz/xsync/v4"
+	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
 
@@ -37,7 +39,7 @@ func (s *shortLivedClient) StreamLogs(_ context.Context, c container.Container, 
 
 type matchAll struct{}
 
-func (matchAll) ShouldListenToContainer(container.Container) bool { return true }
+func (matchAll) ShouldListenToContainer(container.Container, container.Host) bool { return true }
 
 func TestFindContainerAfterShortLivedStreamEnds(t *testing.T) {
 	ctx := t.Context()
@@ -56,4 +58,24 @@ func TestFindContainerAfterShortLivedStreamEnds(t *testing.T) {
 
 	_, _, err := l.FindContainerWithHost(ctx, event.ContainerID, nil)
 	require.NoError(t, err)
+}
+
+// A log alert scoped by hostName must actually start streaming. See #5556.
+func TestManager_ShouldListenToContainer_hostName(t *testing.T) {
+	m := &Manager{subscriptions: xsync.NewMap[int, *Subscription]()}
+	sub := &Subscription{Enabled: true, LogExpression: "true", ContainerExpression: `hostName == "cloudy"`}
+	require.NoError(t, sub.CompileExpressions())
+	m.subscriptions.Store(1, sub)
+
+	c := container.Container{ID: "abc", Host: "h1"}
+	assert.True(t, m.ShouldListenToContainer(c, container.Host{ID: "h1", Name: "cloudy"}))
+	assert.False(t, m.ShouldListenToContainer(c, container.Host{ID: "h2", Name: "other"}))
+}
+
+// A k8s pod's Host is its node name, not the cluster client's host ID.
+func TestContainerLogListener_hostOf_singleClientFallback(t *testing.T) {
+	l := NewContainerLogListener(t.Context(), []container.ClientService{&shortLivedClient{}})
+	l.hosts.Store("machine-id", container.Host{ID: "machine-id", Name: "node-a"})
+
+	assert.Equal(t, "node-a", l.hostOf(container.Container{Host: "node-a"}).Name)
 }

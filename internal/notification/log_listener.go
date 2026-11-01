@@ -14,7 +14,7 @@ import (
 
 // ContainerMatcher is an interface for checking if a container should be listened to
 type ContainerMatcher interface {
-	ShouldListenToContainer(c container.Container) bool
+	ShouldListenToContainer(c container.Container, host container.Host) bool
 }
 
 // streamEntry tracks an active log stream with its context for identity comparison
@@ -32,6 +32,7 @@ type ContainerLogListener struct {
 	logChannel       chan *container.LogEvent
 	ctx              context.Context
 	cache            *TTLCache[string, containerInfo]
+	hosts            *xsync.Map[string, container.Host] // hostID -> host, so container expressions can see hostName
 }
 
 // NewContainerLogListener creates a new listener for multiple clients
@@ -43,6 +44,7 @@ func NewContainerLogListener(ctx context.Context, clients []container.ClientServ
 		logChannel:       make(chan *container.LogEvent, 1000),
 		ctx:              ctx,
 		cache:            NewTTLCache[string, containerInfo](ctx, 30*time.Second),
+		hosts:            xsync.NewMap[string, container.Host](),
 	}
 }
 
@@ -60,10 +62,11 @@ func (l *ContainerLogListener) Start(matcher ContainerMatcher) error {
 			log.Warn().Err(err).Msg("Failed to list containers from client")
 			continue
 		}
+		host := l.refreshHost(client)
 
 		// Start listening to containers that match
 		for _, c := range containers {
-			if l.matcher.ShouldListenToContainer(c) {
+			if l.matcher.ShouldListenToContainer(c, host) {
 				l.startListening(c, client, time.Now())
 			}
 		}
@@ -81,7 +84,7 @@ func (l *ContainerLogListener) Start(matcher ContainerMatcher) error {
 				if !ok {
 					return
 				}
-				if l.matcher.ShouldListenToContainer(c) {
+				if l.matcher.ShouldListenToContainer(c, l.hostOf(c)) {
 					l.startListeningByID(c)
 				}
 			}
@@ -100,10 +103,11 @@ func (l *ContainerLogListener) UpdateStreams() {
 			log.Warn().Err(err).Msg("Failed to list containers from client")
 			continue
 		}
+		host := l.refreshHost(client)
 
 		// Check each container against matcher
 		for _, c := range containers {
-			shouldListen := l.matcher.ShouldListenToContainer(c)
+			shouldListen := l.matcher.ShouldListenToContainer(c, host)
 			isListening := l.isListening(c.ID)
 
 			if shouldListen && !isListening {
@@ -113,6 +117,31 @@ func (l *ContainerLogListener) UpdateStreams() {
 			}
 		}
 	}
+}
+
+// refreshHost fetches the client's host and remembers it by ID. An unreachable agent
+// still returns its last known host, which is good enough for matching on hostName.
+func (l *ContainerLogListener) refreshHost(client container.ClientService) container.Host {
+	host, _ := client.Host(l.ctx)
+	if host.ID != "" {
+		l.hosts.Store(host.ID, host)
+	}
+	return host
+}
+
+// hostOf returns the remembered host for a container. In k8s a pod's Host is its node
+// name, which never matches the cluster client's host ID, so with a single client fall
+// back to that client's host. That is what startup and processLogEvent use too.
+func (l *ContainerLogListener) hostOf(c container.Container) container.Host {
+	if host, ok := l.hosts.Load(c.Host); ok {
+		return host
+	}
+	if len(l.clients) == 1 && l.hosts.Size() == 1 {
+		var only container.Host
+		l.hosts.Range(func(_ string, h container.Host) bool { only = h; return false })
+		return only
+	}
+	return container.Host{ID: c.Host}
 }
 
 // startListening starts listening to a container's logs with a known client
