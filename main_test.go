@@ -124,6 +124,16 @@ func TestNewCloudHostService_SwarmModeStaysLocal(t *testing.T) {
 	assert.Equal(t, []string{"local-id"}, hostIDs(svc.Hosts()))
 }
 
+// Container configs are the exception the other way: each agent sends its
+// own, hashed with its own key, so the hub sends only its docker hosts. Two
+// senders would make every start read as a label change.
+func TestNewConfigHostService_LeavesAgentsToThemselves(t *testing.T) {
+	svc := newConfigHostService("server", newFakeHub())
+
+	assert.Equal(t, []string{"local-id"}, hostIDs(svc.Hosts()))
+	assert.Nil(t, newConfigHostService("k8s", newFakeHub()), "k8s sends no configs yet")
+}
+
 // An agent that is unreachable at boot joins later through RetryAndList. The
 // cloud view reads the fleet per call rather than snapshotting it at startup,
 // so such an agent appears without a restart.

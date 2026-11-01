@@ -291,10 +291,40 @@ message ToolResponse {
     // Unsolicited server-push: one container update Dozzle finished (or rolled
     // back), so Cloud can watch what the new image does. request_id is empty.
     ContainerUpdate container_update = 6;
+    // Unsolicited server-push: one container's configuration, when it starts
+    // and once per connection, so Cloud can keep a history of what changed.
+    // request_id is empty.
+    ContainerConfig container_config = 8;
   }
   // 7 was image_snapshot, never sent.
   reserved 7;
   reserved "image_snapshot";
+}
+
+// One container's configuration as Docker reports it, pushed when the
+// container starts and for every running container when the connection opens.
+// Dozzle sends it again only when it changed, and Cloud keeps a row only when
+// it differs from the last one, so the history is the list of changes.
+//
+// Nothing that can hold a secret is sent. Environment variables never leave
+// Dozzle; label values and the command go only as HMACs keyed by a secret that
+// never leaves the machine, enough to say "this label changed" without the
+// value or a way to guess it. Image, ports, mounts (paths), limits,
+// restart policy and network mode carry no credentials.
+message ContainerConfig {
+  string host = 1;                      // host id the container runs on
+  string name = 2;                      // container name
+  string container_id = 3;
+  string image = 4;                     // image reference (repo:tag)
+  string command_hash = 5;              // HMAC-SHA256 of the command, hex
+  map<string, string> label_hashes = 6; // label key -> HMAC-SHA256 of its value, hex
+  uint64 memory_limit = 7;              // bytes, 0 for none
+  double cpu_limit = 8;                 // cores, 0 for none
+  repeated string ports = 9;
+  repeated string mounts = 10;          // "source:destination[:ro]"
+  string restart_policy = 11;
+  string network_mode = 12;
+  int64 started_at = 13;                // unix nanoseconds
 }
 
 // One container update, pushed by Dozzle after the swap commits or rolls
