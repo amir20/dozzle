@@ -129,10 +129,17 @@ func (l *ContainerLogListener) refreshHost(client container.ClientService) conta
 	return host
 }
 
-// hostOf returns the remembered host for a container, or one carrying only its ID.
+// hostOf returns the remembered host for a container. In k8s a pod's Host is its node
+// name, which never matches the cluster client's host ID, so with a single client fall
+// back to that client's host. That is what startup and processLogEvent use too.
 func (l *ContainerLogListener) hostOf(c container.Container) container.Host {
 	if host, ok := l.hosts.Load(c.Host); ok {
 		return host
+	}
+	if len(l.clients) == 1 && l.hosts.Size() == 1 {
+		var only container.Host
+		l.hosts.Range(func(_ string, h container.Host) bool { only = h; return false })
+		return only
 	}
 	return container.Host{ID: c.Host}
 }

@@ -71,3 +71,11 @@ func TestManager_ShouldListenToContainer_hostName(t *testing.T) {
 	assert.True(t, m.ShouldListenToContainer(c, container.Host{ID: "h1", Name: "cloudy"}))
 	assert.False(t, m.ShouldListenToContainer(c, container.Host{ID: "h2", Name: "other"}))
 }
+
+// A k8s pod's Host is its node name, not the cluster client's host ID.
+func TestContainerLogListener_hostOf_singleClientFallback(t *testing.T) {
+	l := NewContainerLogListener(t.Context(), []container.ClientService{&shortLivedClient{}})
+	l.hosts.Store("machine-id", container.Host{ID: "machine-id", Name: "node-a"})
+
+	assert.Equal(t, "node-a", l.hostOf(container.Container{Host: "node-a"}).Name)
+}
