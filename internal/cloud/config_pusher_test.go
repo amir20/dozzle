@@ -1,6 +1,9 @@
 package cloud
 
 import (
+	"bytes"
+	"crypto/sha256"
+	"encoding/hex"
 	"strings"
 	"sync"
 	"testing"
@@ -23,6 +26,10 @@ func configContainer(id string, mem uint64) container.Container {
 }
 
 func TestPushConfigs(t *testing.T) {
+	// A fixed key instead of the file the first push would create in the
+	// package directory.
+	configHashOnce.Do(func() { configHashSecret = bytes.Repeat([]byte{7}, 32) })
+
 	hs := &fakeHostService{
 		containers: []container.Container{
 			configContainer("a1", 2<<30),
@@ -81,4 +88,6 @@ func TestPushConfigs(t *testing.T) {
 	assert.Len(t, hash, 64)
 	assert.Len(t, first.CommandHash, 64)
 	assert.False(t, strings.Contains(raw, "admin:"))
+	plain := sha256.Sum256([]byte("admin:$apr1$secret"))
+	assert.NotEqual(t, hex.EncodeToString(plain[:]), hash, "keyed, so a guess can't be checked by hashing it")
 }

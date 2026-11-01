@@ -307,16 +307,17 @@ message ToolResponse {
 // it differs from the last one, so the history is the list of changes.
 //
 // Nothing that can hold a secret is sent. Environment variables never leave
-// Dozzle; label values and the command go only as hashes, enough to say "this
-// label changed" without the value. Image, ports, mounts (paths), limits,
+// Dozzle; label values and the command go only as HMACs keyed by a secret that
+// never leaves the machine, enough to say "this label changed" without the
+// value or a way to guess it. Image, ports, mounts (paths), limits,
 // restart policy and network mode carry no credentials.
 message ContainerConfig {
   string host = 1;                      // host id the container runs on
   string name = 2;                      // container name
   string container_id = 3;
   string image = 4;                     // image reference (repo:tag)
-  string command_hash = 5;              // sha256 of the command, hex
-  map<string, string> label_hashes = 6; // label key -> sha256 of its value, hex
+  string command_hash = 5;              // HMAC-SHA256 of the command, hex
+  map<string, string> label_hashes = 6; // label key -> HMAC-SHA256 of its value, hex
   uint64 memory_limit = 7;              // bytes, 0 for none
   double cpu_limit = 8;                 // cores, 0 for none
   repeated string ports = 9;

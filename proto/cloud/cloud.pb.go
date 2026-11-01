@@ -1780,8 +1780,9 @@ func (*ToolResponse_ContainerConfig) isToolResponse_Type() {}
 // it differs from the last one, so the history is the list of changes.
 //
 // Nothing that can hold a secret is sent. Environment variables never leave
-// Dozzle; label values and the command go only as hashes, enough to say "this
-// label changed" without the value. Image, ports, mounts (paths), limits,
+// Dozzle; label values and the command go only as HMACs keyed by a secret that
+// never leaves the machine, enough to say "this label changed" without the
+// value or a way to guess it. Image, ports, mounts (paths), limits,
 // restart policy and network mode carry no credentials.
 type ContainerConfig struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
@@ -1789,8 +1790,8 @@ type ContainerConfig struct {
 	Name          string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"` // container name
 	ContainerId   string                 `protobuf:"bytes,3,opt,name=container_id,json=containerId,proto3" json:"container_id,omitempty"`
 	Image         string                 `protobuf:"bytes,4,opt,name=image,proto3" json:"image,omitempty"`                                                                                                          // image reference (repo:tag)
-	CommandHash   string                 `protobuf:"bytes,5,opt,name=command_hash,json=commandHash,proto3" json:"command_hash,omitempty"`                                                                           // sha256 of the command, hex
-	LabelHashes   map[string]string      `protobuf:"bytes,6,rep,name=label_hashes,json=labelHashes,proto3" json:"label_hashes,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"` // label key -> sha256 of its value, hex
+	CommandHash   string                 `protobuf:"bytes,5,opt,name=command_hash,json=commandHash,proto3" json:"command_hash,omitempty"`                                                                           // HMAC-SHA256 of the command, hex
+	LabelHashes   map[string]string      `protobuf:"bytes,6,rep,name=label_hashes,json=labelHashes,proto3" json:"label_hashes,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"` // label key -> HMAC-SHA256 of its value, hex
 	MemoryLimit   uint64                 `protobuf:"varint,7,opt,name=memory_limit,json=memoryLimit,proto3" json:"memory_limit,omitempty"`                                                                          // bytes, 0 for none
 	CpuLimit      float64                `protobuf:"fixed64,8,opt,name=cpu_limit,json=cpuLimit,proto3" json:"cpu_limit,omitempty"`                                                                                  // cores, 0 for none
 	Ports         []string               `protobuf:"bytes,9,rep,name=ports,proto3" json:"ports,omitempty"`

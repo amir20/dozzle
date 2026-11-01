@@ -2,9 +2,14 @@ package cloud
 
 import (
 	"context"
+	"crypto/hmac"
+	"crypto/rand"
 	"crypto/sha256"
 	"encoding/hex"
+	"os"
+	"path/filepath"
 	"slices"
+	"sync"
 
 	"github.com/amir20/dozzle/internal/container"
 	pb "github.com/amir20/dozzle/proto/cloud"
@@ -25,7 +30,9 @@ import (
 // name is not sent again.
 //
 // Nothing that can hold a secret leaves Dozzle: environment variables are
-// never read here, and label values and the command go only as hashes.
+// never read here, and label values and the command go only as HMACs keyed by
+// a secret that stays on this machine, so a short password can't be recovered
+// by hashing guesses.
 
 // configChanBuf absorbs a compose up starting many containers at once while
 // the pusher is busy sending one.
@@ -131,11 +138,47 @@ func configSignature(cfg *pb.ContainerConfig) []byte {
 	return b
 }
 
-// hashValue is a value's sha256 in hex, or "" for an empty one.
+// configHashSecretPath sits beside the other data files and never leaves this
+// machine. It has to be stored: a key that changed on restart would make every
+// label and command look changed.
+const configHashSecretPath = "./data/.config-hash-secret"
+
+var (
+	configHashOnce   sync.Once
+	configHashSecret []byte
+)
+
+func loadConfigHashSecret() []byte {
+	configHashOnce.Do(func() {
+		if existing, err := os.ReadFile(configHashSecretPath); err == nil {
+			if decoded, err := hex.DecodeString(string(existing)); err == nil && len(decoded) == 32 {
+				configHashSecret = decoded
+				return
+			}
+		}
+		secret := make([]byte, 32)
+		if _, err := rand.Read(secret); err != nil {
+			log.Error().Err(err).Msg("config pusher: could not generate a hash secret")
+			return
+		}
+		if err := os.MkdirAll(filepath.Dir(configHashSecretPath), 0o700); err == nil {
+			if err := os.WriteFile(configHashSecretPath, []byte(hex.EncodeToString(secret)), 0o600); err != nil {
+				log.Warn().Err(err).Msg("config pusher: could not persist the hash secret; labels will read as changed after a restart")
+			}
+		}
+		configHashSecret = secret
+	})
+	return configHashSecret
+}
+
+// hashValue is a value's HMAC-SHA256 under this machine's secret, in hex, or
+// "" for an empty value or when there is no secret.
 func hashValue(v string) string {
-	if v == "" {
+	secret := loadConfigHashSecret()
+	if v == "" || len(secret) == 0 {
 		return ""
 	}
-	sum := sha256.Sum256([]byte(v))
-	return hex.EncodeToString(sum[:])
+	mac := hmac.New(sha256.New, secret)
+	mac.Write([]byte(v))
+	return hex.EncodeToString(mac.Sum(nil))
 }
