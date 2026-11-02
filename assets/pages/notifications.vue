@@ -104,15 +104,17 @@
           </button>
         </div>
 
-        <div class="flex flex-wrap gap-4">
+        <div
+          v-if="dispatchers.length"
+          class="border-base-content/15 bg-base-200/40 divide-base-content/10 divide-y rounded-lg border"
+        >
           <DestinationCard
             v-for="dest in dispatchers"
             :key="dest.id"
             :destination="dest"
             :on-updated="fetchAll"
             :existing-dispatchers="dispatchers"
-            :used-by-count="alertsPerDispatcher.get(dest.id) ?? 0"
-            class="w-full md:w-72"
+            :used-by="alertsPerDispatcher.get(dest.id) ?? []"
           />
         </div>
       </template>
@@ -250,14 +252,16 @@ const filters = computed(() => [
   { id: "paused" as const, label: t("notifications.filter.paused", { count: pausedCount.value }) },
 ]);
 
-// Deleting a destination orphans the alerts pointing at it, so each card shows its usage.
+// Deleting a destination orphans the alerts pointing at it, so each row lists them.
 const alertsPerDispatcher = computed(() => {
-  const counts = new Map<number, number>();
+  const byId = new Map<number, NotificationRule[]>();
   for (const alert of alerts.value) {
     if (!alert.dispatcher) continue;
-    counts.set(alert.dispatcher.id, (counts.get(alert.dispatcher.id) ?? 0) + 1);
+    const list = byId.get(alert.dispatcher.id) ?? [];
+    list.push(alert);
+    byId.set(alert.dispatcher.id, list);
   }
-  return counts;
+  return byId;
 });
 
 const filteredAlerts = computed(() => {

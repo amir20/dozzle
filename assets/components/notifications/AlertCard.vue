@@ -1,171 +1,156 @@
 <template>
   <div
-    class="card bg-base-100 shadow-sm"
-    :class="{ 'opacity-60': !alert.enabled, 'highlight-new': isHighlighted }"
+    class="border-base-content/15 bg-base-200/40 divide-base-content/10 divide-y rounded-lg border"
+    :class="{ 'highlight-new': isHighlighted }"
     @animationend="isHighlighted = false"
   >
-    <div class="card-body gap-3 p-4">
-      <!-- Header -->
-      <div class="flex items-start justify-between gap-2">
-        <div class="flex min-w-0 flex-wrap items-center gap-2">
-          <h4 class="flex min-w-0 flex-wrap items-center gap-2 text-lg font-semibold">
-            <mdi:chart-line v-if="alert.metricExpression" class="text-info shrink-0" />
-            <mdi:bell-ring-outline v-else-if="alert.eventExpression" class="text-info shrink-0" />
-            <mdi:text-box-outline v-else class="text-info shrink-0" />
-            <span class="break-all">{{ alert.name }}</span> <span class="text-sm font-light">→</span>
-            <Popover class="group/dispatch" hover panel-class="bg-base-200 rounded-box w-48 p-2 shadow-lg">
-              <template #trigger>
-                <button
-                  type="button"
-                  class="border-base-content/0 hover:border-base-content/20 flex cursor-pointer items-center gap-1 rounded border px-1.5 py-0.5 text-xs font-light transition-colors"
-                  :class="{ 'text-warning': !alert.dispatcher }"
-                >
-                  <template v-if="alert.dispatcher">
-                    <mdi:webhook v-if="alert.dispatcher.type === 'webhook'" />
-                    <mdi:cloud v-else />
-                    {{ alert.dispatcher.name }}
-                  </template>
-                  <template v-else>
-                    <mdi:alert-outline />
-                    {{ $t("notifications.alert.dispatcher-deleted") }}
-                  </template>
-                  <mdi:chevron-down
-                    class="text-[0.6rem] opacity-0 transition-opacity group-hover/dispatch:opacity-100"
-                  />
-                </button>
-              </template>
-              <ul class="menu w-full p-0">
-                <li v-for="dest in dispatchers" :key="dest.id">
-                  <a
-                    class="flex items-center gap-2"
-                    :class="{ 'menu-active': dest.id === alert.dispatcher?.id }"
-                    @click="changeDispatcher(dest.id)"
-                  >
-                    <mdi:webhook v-if="dest.type === 'webhook'" />
-                    <mdi:cloud v-else />
-                    {{ dest.name }}
-                  </a>
-                </li>
-              </ul>
-            </Popover>
-          </h4>
-          <span v-if="!alert.enabled" class="badge badge-warning badge-sm">{{ $t("notifications.alert.paused") }}</span>
-        </div>
-        <input
-          type="checkbox"
-          class="toggle toggle-primary shrink-0"
-          :checked="alert.enabled"
-          @change="toggleEnabled"
-        />
-      </div>
-
-      <!-- Only the rule itself lives here: which containers, and what fires it. A fixed label
-           column keeps the chips on the same line across every card, which an `auto` column
-           could not do since each card sized it to its own longest label. The value column is
-           `1fr` so long expressions wrap, but each chip is w-fit so a short one doesn't stretch
-           a full-width bar across the card. -->
-      <div class="text-base-content/60 grid grid-cols-[minmax(0,7rem)_1fr] items-center gap-x-3 gap-y-2 text-sm">
-        <span>{{ $t("notifications.alert.containers") }}</span>
-        <code class="bg-base-200 text-base-content w-fit max-w-full rounded px-2 py-0.5 font-mono break-all">{{
-          alert.containerExpression
-        }}</code>
-        <template v-if="alert.metricExpression">
-          <span>{{ $t("notifications.alert.metric-filter") }}</span>
-          <code class="bg-base-200 text-base-content w-fit max-w-full rounded px-2 py-0.5 font-mono break-all">{{
-            alert.metricExpression
-          }}</code>
-        </template>
-        <template v-else-if="alert.eventExpression">
-          <span>{{ $t("notifications.alert.event-filter") }}</span>
-          <code class="bg-base-200 text-base-content w-fit max-w-full rounded px-2 py-0.5 font-mono break-all">{{
-            alert.eventExpression
-          }}</code>
-        </template>
-        <template v-else>
-          <span>{{ $t("notifications.alert.log-filter") }}</span>
-          <code class="bg-base-200 text-base-content w-fit max-w-full rounded px-2 py-0.5 font-mono break-all">{{
-            alert.logExpression
-          }}</code>
-        </template>
-      </div>
-
-      <!-- Footer -->
+    <!-- Paused fades the rule, not the panel, so the toggle that brings it back keeps full contrast. -->
+    <div class="flex items-start gap-3 p-4">
       <div
-        class="border-base-content/10 text-base-content/80 flex items-center justify-between gap-2 border-t pt-3 text-xs"
+        class="flex size-8 shrink-0 items-center justify-center rounded-full"
+        :class="alert.enabled ? 'bg-info/10 text-info' : 'bg-base-content/10 text-base-content/50'"
       >
-        <!-- These are firing counts, not match counts. "0 containers" next to a filter that
-             clearly matches something read as "this alert matches nothing". -->
-        <div class="flex min-w-0 flex-wrap items-center gap-x-4 gap-y-1">
-          <template v-if="confirmingDelete">
-            <span class="text-base-content">{{ $t("notifications.alert.delete-warning") }}</span>
-          </template>
-          <template v-else>
-            <span v-if="!alert.triggerCount">{{ $t("notifications.alert.never-triggered") }}</span>
-            <template v-else>
-              <span>{{ $t("notifications.alert.triggered-count", alert.triggerCount) }}</span>
-              <span>{{ $t("notifications.alert.containers-count", alert.triggeredContainers) }}</span>
-              <span v-if="alert.lastTriggeredAt">
-                {{ $t("notifications.alert.last-triggered", { time: formatTimeAgo(alert.lastTriggeredAt) }) }}
-              </span>
+        <mdi:chart-line v-if="alert.metricExpression" class="size-4" />
+        <mdi:bell-ring-outline v-else-if="alert.eventExpression" class="size-4" />
+        <mdi:text-box-outline v-else class="size-4" />
+      </div>
+
+      <div class="min-w-0 flex-1 space-y-3" :class="{ 'opacity-60': !alert.enabled }">
+        <div class="flex flex-wrap items-center gap-x-2 gap-y-1">
+          <h4 class="font-semibold break-all">{{ alert.name }}</h4>
+          <span v-if="!alert.enabled" class="status-pill status-pill-warning">
+            {{ $t("notifications.alert.paused") }}
+          </span>
+          <mdi:arrow-right class="text-base-content/40 size-3.5" />
+          <Popover class="group/dispatch" hover panel-class="bg-base-200 rounded-box w-48 p-2 shadow-lg">
+            <template #trigger>
+              <button
+                type="button"
+                class="hover:bg-base-300 flex items-center gap-1 rounded-md px-1.5 py-0.5 text-xs transition-colors"
+                :class="alert.dispatcher ? 'text-base-content/70' : 'text-warning'"
+              >
+                <template v-if="alert.dispatcher">
+                  <mdi:webhook v-if="alert.dispatcher.type === 'webhook'" class="size-3.5" />
+                  <mdi:cloud v-else class="size-3.5" />
+                  {{ alert.dispatcher.name }}
+                </template>
+                <template v-else>
+                  <mdi:alert-outline class="size-3.5" />
+                  {{ $t("notifications.alert.dispatcher-deleted") }}
+                </template>
+                <mdi:chevron-down class="size-3 opacity-0 transition-opacity group-hover/dispatch:opacity-100" />
+              </button>
             </template>
-            <!-- Timing is how the rule is tuned, not what it matches, so it sits with the other
-                 metadata instead of competing with the expressions above. -->
-            <span v-if="alert.metricExpression">
-              {{
-                $t("notifications.alert.window-meta", {
-                  duration: formatDuration(alert.sampleWindow || 15, locale || undefined),
-                })
-              }}
-            </span>
-            <span v-if="cooldownSeconds">
-              {{
-                $t("notifications.alert.cooldown-meta", {
-                  duration: formatDuration(cooldownSeconds, locale || undefined),
-                })
-              }}
-            </span>
-          </template>
+            <ul class="menu w-full p-0">
+              <li v-for="dest in dispatchers" :key="dest.id">
+                <a
+                  class="flex items-center gap-2"
+                  :class="{ 'menu-active': dest.id === alert.dispatcher?.id }"
+                  @click="changeDispatcher(dest.id)"
+                >
+                  <mdi:webhook v-if="dest.type === 'webhook'" />
+                  <mdi:cloud v-else />
+                  {{ dest.name }}
+                </a>
+              </li>
+            </ul>
+          </Popover>
         </div>
-        <!-- Deleting an alert is not undoable and there is no trash to restore it from. -->
-        <div v-if="confirmingDelete" class="flex shrink-0 items-center gap-2">
-          <button class="btn btn-xs" :disabled="isDeleting" @click="confirmingDelete = false">
-            {{ $t("notifications.alert.delete-cancel") }}
-          </button>
-          <button class="btn btn-xs btn-error" :disabled="isDeleting" @click="deleteAlert">
-            <span v-if="isDeleting" class="loading loading-spinner loading-xs"></span>
-            {{ $t("notifications.alert.delete-confirm") }}
-          </button>
-        </div>
-        <div v-else class="flex shrink-0 items-center gap-1">
-          <button
-            class="btn btn-ghost btn-square"
-            :aria-label="$t('notifications.destination.edit')"
-            @click="editAlert"
+
+        <!-- Only the rule itself lives here: which containers, and what fires it. A fixed label
+             column keeps the chips on the same line across every card, which an `auto` column
+             could not do since each card sized it to its own longest label. The value column is
+             `1fr` so long expressions wrap, but each chip is w-fit so a short one doesn't stretch
+             a full-width bar across the card. -->
+        <div class="text-base-content/60 grid grid-cols-[minmax(0,6rem)_1fr] items-baseline gap-x-3 gap-y-1.5 text-xs">
+          <span>{{ $t("notifications.alert.containers") }}</span>
+          <code
+            class="bg-base-content/5 text-base-content/90 w-fit max-w-full rounded px-1.5 py-0.5 font-mono break-all"
+            >{{ alert.containerExpression }}</code
           >
-            <mdi:pencil-outline />
-          </button>
-          <button
-            class="btn btn-ghost btn-square"
-            :aria-label="$t('notifications.alert.delete-confirm')"
-            @click="confirmingDelete = true"
+          <span>{{ ruleLabel }}</span>
+          <code
+            class="bg-base-content/5 text-base-content/90 w-fit max-w-full rounded px-1.5 py-0.5 font-mono break-all"
+            >{{ ruleExpression }}</code
           >
-            <mdi:trash-can-outline />
-          </button>
         </div>
       </div>
 
-      <!--
-        What this rule actually did. A rule editor with no record of its own
-        firings can only ever be configuration; this is the half a local webhook
-        cannot have, because nothing remembers a fire-and-forget POST.
-      -->
-      <div v-if="linked && firings.length" class="border-base-content/10 flex items-center gap-2 border-t pt-3">
-        <mdi:history class="text-base-content/40 size-3.5 shrink-0" />
-        <span class="text-base-content/60 text-xs">
-          <span class="font-mono font-semibold">{{ firings.length }}</span>
-          {{ $t("notifications.history.fired-recently") }}
-        </span>
-        <RelativeTime v-if="lastFired" :date="lastFired" class="text-base-content/40 ml-auto font-mono text-xs" />
+      <input
+        type="checkbox"
+        class="toggle toggle-primary toggle-sm shrink-0"
+        :checked="alert.enabled"
+        @change="toggleEnabled"
+      />
+    </div>
+
+    <!-- One line of what the rule did and how it is tuned. These are firing counts, not match
+         counts: "0 containers" next to a filter that clearly matches something read as "this
+         alert matches nothing". -->
+    <div class="text-base-content/60 flex items-center justify-between gap-2 px-4 py-2 text-xs">
+      <div class="flex min-w-0 flex-wrap items-center gap-x-4 gap-y-1">
+        <span v-if="confirmingDelete" class="text-base-content">{{ $t("notifications.alert.delete-warning") }}</span>
+        <template v-else>
+          <span v-if="!alert.triggerCount && !firings.length">{{ $t("notifications.alert.never-triggered") }}</span>
+          <template v-if="alert.triggerCount">
+            <span>{{ $t("notifications.alert.triggered-count", alert.triggerCount) }}</span>
+            <span>{{ $t("notifications.alert.containers-count", alert.triggeredContainers) }}</span>
+          </template>
+          <span v-if="lastTriggered">
+            {{ $t("notifications.alert.last-triggered", { time: lastTriggered }) }}
+          </span>
+          <!--
+            What Cloud remembers. The local counts above reset on restart; this is the half a
+            local webhook cannot have, because nothing remembers a fire-and-forget POST.
+          -->
+          <span v-if="linked && firings.length" class="flex items-center gap-1">
+            <mdi:history class="size-3.5 opacity-60" />
+            <span class="text-base-content font-mono font-semibold">{{ firings.length }}</span>
+            {{ $t("notifications.history.fired-recently") }}
+          </span>
+          <!-- Timing is how the rule is tuned, not what it matches, so it sits with the other
+               metadata instead of competing with the expressions above. -->
+          <span v-if="alert.metricExpression" class="text-base-content/40">
+            {{
+              $t("notifications.alert.window-meta", {
+                duration: formatDuration(alert.sampleWindow || 15, locale || undefined),
+              })
+            }}
+          </span>
+          <span v-if="cooldownSeconds" class="text-base-content/40">
+            {{
+              $t("notifications.alert.cooldown-meta", {
+                duration: formatDuration(cooldownSeconds, locale || undefined),
+              })
+            }}
+          </span>
+        </template>
+      </div>
+      <!-- Deleting an alert is not undoable and there is no trash to restore it from. -->
+      <div v-if="confirmingDelete" class="flex shrink-0 items-center gap-2">
+        <button class="btn btn-xs" :disabled="isDeleting" @click="confirmingDelete = false">
+          {{ $t("notifications.alert.delete-cancel") }}
+        </button>
+        <button class="btn btn-xs btn-error" :disabled="isDeleting" @click="deleteAlert">
+          <span v-if="isDeleting" class="loading loading-spinner loading-xs"></span>
+          {{ $t("notifications.alert.delete-confirm") }}
+        </button>
+      </div>
+      <div v-else class="flex shrink-0 items-center">
+        <button
+          class="btn btn-ghost btn-sm btn-square"
+          :aria-label="$t('notifications.destination.edit')"
+          @click="editAlert"
+        >
+          <mdi:pencil-outline class="size-4" />
+        </button>
+        <button
+          class="btn btn-ghost btn-sm btn-square"
+          :aria-label="$t('notifications.alert.delete-confirm')"
+          @click="confirmingDelete = true"
+        >
+          <mdi:trash-can-outline class="size-4" />
+        </button>
       </div>
     </div>
   </div>
@@ -188,7 +173,24 @@ const { alert, dispatchers, onUpdated, highlight } = defineProps<{
 // Shared fetch: every card on the page reads the same rows.
 onMounted(() => fetchRecentAlerts());
 const firings = forSubscription(alert.id);
-const lastFired = computed(() => (firings.value.length ? new Date(firings.value[0].ts / 1e6) : undefined));
+
+// The local timestamp resets on restart while Cloud's survives it, so the newer of the two.
+const lastTriggered = computed(() => {
+  const local = alert.lastTriggeredAt ? new Date(alert.lastTriggeredAt) : undefined;
+  const times = [
+    local && local.getFullYear() > 1 ? local.getTime() : 0,
+    linked.value && firings.value.length ? firings.value[0].ts / 1e6 : 0,
+  ];
+  const newest = Math.max(...times);
+  return newest ? toRelativeTime(new Date(newest), locale.value || undefined) : undefined;
+});
+
+const ruleLabel = computed(() => {
+  if (alert.metricExpression) return t("notifications.alert.metric-filter");
+  if (alert.eventExpression) return t("notifications.alert.event-filter");
+  return t("notifications.alert.log-filter");
+});
+const ruleExpression = computed(() => alert.metricExpression || alert.eventExpression || alert.logExpression);
 
 // Log alerts have no cooldown, metric alerts default to 5m, events only have one when set.
 const cooldownSeconds = computed(() => {
@@ -220,12 +222,6 @@ async function changeDispatcher(id: number) {
   onUpdated?.();
 }
 
-function formatTimeAgo(dateStr: string): string {
-  const date = new Date(dateStr);
-  if (date.getFullYear() === 0) return "-";
-  return toRelativeTime(date, undefined);
-}
-
 async function toggleEnabled() {
   await fetch(withBase(`/api/notifications/rules/${alert.id}`), {
     method: "PATCH",
@@ -255,10 +251,9 @@ async function deleteAlert() {
 </script>
 
 <style scoped>
-.card.highlight-new {
+.highlight-new {
   animation: highlight-fade 3s ease-out;
 }
-
 @keyframes highlight-fade {
   from {
     background-color: oklch(from var(--color-secondary) l c h / 0.25);

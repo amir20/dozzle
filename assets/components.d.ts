@@ -157,6 +157,7 @@ declare module 'vue' {
     'Mdi:arrowCollapse': typeof import('~icons/mdi/arrow-collapse')['default']
     'Mdi:arrowDown': typeof import('~icons/mdi/arrow-down')['default']
     'Mdi:arrowExpand': typeof import('~icons/mdi/arrow-expand')['default']
+    'Mdi:arrowRight': typeof import('~icons/mdi/arrow-right')['default']
     'Mdi:arrowTopRight': typeof import('~icons/mdi/arrow-top-right')['default']
     'Mdi:arrowUp': typeof import('~icons/mdi/arrow-up')['default']
     'Mdi:autorenew': typeof import('~icons/mdi/autorenew')['default']

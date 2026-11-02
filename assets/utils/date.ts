@@ -55,3 +55,53 @@ export function toElapsed(date: Date, locale: string | undefined): string {
   }
   return new Intl.NumberFormat(locale, { style: "unit", unit: "second", unitDisplay: "long" }).format(0);
 }
+
+function startOfDay(date: Date): number {
+  return new Date(date.getFullYear(), date.getMonth(), date.getDate()).getTime();
+}
+
+/**
+ * A day heading: "Today", "Yesterday", the weekday for the rest of the past week,
+ * then a short date, with the year only when it is not this one. Every word comes
+ * from Intl, so it is translated without a locale key.
+ */
+export function dayLabel(date: Date, locale: string | undefined, now: Date = new Date()): string {
+  // Rounded, because a day across a DST change is 23 or 25 hours long.
+  const diff = Math.round((startOfDay(date) - startOfDay(now)) / 86400000);
+  let label: string;
+  if (diff === 0 || diff === -1) {
+    label = new Intl.RelativeTimeFormat(locale, { numeric: "auto" }).format(diff, "day");
+  } else if (diff > -7 && diff < 0) {
+    label = new Intl.DateTimeFormat(locale, { weekday: "long" }).format(date);
+  } else {
+    label = new Intl.DateTimeFormat(locale, {
+      weekday: "short",
+      month: "short",
+      day: "numeric",
+      ...(date.getFullYear() === now.getFullYear() ? {} : { year: "numeric" }),
+    }).format(date);
+  }
+  // RelativeTimeFormat answers in lowercase ("today") and this starts a heading.
+  return label.charAt(0).toLocaleUpperCase(locale) + label.slice(1);
+}
+
+/** Splits items into local calendar days, keeping their order inside each day. */
+export function groupByDay<T>(
+  items: readonly T[],
+  dateOf: (item: T) => Date,
+  locale: string | undefined,
+  now: Date = new Date(),
+): { key: number; label: string; items: T[] }[] {
+  const groups = new Map<number, { key: number; label: string; items: T[] }>();
+  for (const item of items) {
+    const date = dateOf(item);
+    const key = startOfDay(date);
+    let group = groups.get(key);
+    if (!group) {
+      group = { key, label: dayLabel(date, locale, now), items: [] };
+      groups.set(key, group);
+    }
+    group.items.push(item);
+  }
+  return [...groups.values()];
+}
