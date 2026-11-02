@@ -665,6 +665,7 @@ notifications:
     remove-header: Hapus header
     test: Test
     test-success: Test berhasil
+    test-unsupported: "Template ini gagal untuk peringatan {kinds}, jadi peringatan tersebut tidak akan dikirim ke sini."
     cancel: Batal
     close: Tutup
     save: Simpan

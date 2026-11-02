@@ -655,6 +655,7 @@ notifications:
     remove-header: 헤더 제거
     test: 테스트
     test-success: 테스트 성공
+    test-unsupported: "이 템플릿은 {kinds} 알림에서 실패하므로 해당 알림은 여기로 전송되지 않습니다."
     cancel: 취소
     close: 닫기
     save: 저장

@@ -653,6 +653,7 @@ notifications:
     remove-header: 移除请求头
     test: 测试
     test-success: 测试成功
+    test-unsupported: "此模板在 {kinds} 告警时会失败，因此这些告警不会发送到这里。"
     cancel: 取消
     close: 关闭
     save: 保存

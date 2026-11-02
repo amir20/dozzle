@@ -1,7 +1,7 @@
 ---
 title: 警报
 description: 为 Docker 容器日志、CPU 和内存指标以及生命周期事件设置 Dozzle 警报，并发送到 webhook、Slack、Discord 或 ntfy。
-sourceHash: bf1369bcb594
+sourceHash: 5a3bc907b39a
 ---
 
 # 警报
@@ -61,24 +61,26 @@ Webhook 会向你指定的 URL 发送一个 HTTP POST 请求。Dozzle 为常用�
 
 <div v-pre>
 
-| 变量                      | 说明                       |
-| ------------------------- | -------------------------- |
-| `{{.Detail}}`             | 摘要（日志消息或指标数值） |
-| `{{.Container.Name}}`     | 容器名称                   |
-| `{{.Container.Image}}`    | 容器镜像                   |
-| `{{.Container.HostName}}` | Docker 主机名称            |
-| `{{.Container.State}}`    | 容器状态                   |
-| `{{.Log.Message}}`        | 日志消息内容               |
-| `{{.Log.Level}}`          | 日志级别                   |
-| `{{.Log.Timestamp}}`      | 日志时间戳                 |
-| `{{.Log.Stream}}`         | 流类型（stdout/stderr）    |
-| `{{.Stat.CPUPercent}}`    | CPU 使用百分比             |
-| `{{.Stat.MemoryPercent}}` | 内存使用百分比             |
-| `{{.Stat.MemoryUsage}}`   | 内存使用量（字节）         |
-| `{{.Event.Name}}`         | 事件名称（事件警报）       |
-| `{{.Event.Attributes}}`   | 事件属性映射（事件警报）   |
-| `{{.Subscription.Name}}`  | 警报规则名称               |
-| `{{.Timestamp}}`          | 通知创建的时间             |
+| 变量                      | 说明                       | 警报类型 |
+| ------------------------- | -------------------------- | -------- |
+| `{{.Detail}}`             | 摘要（日志消息或指标数值） | 全部     |
+| `{{.Container.Name}}`     | 容器名称                   | 全部     |
+| `{{.Container.Image}}`    | 容器镜像                   | 全部     |
+| `{{.Container.HostName}}` | Docker 主机名称            | 全部     |
+| `{{.Container.State}}`    | 容器状态                   | 全部     |
+| `{{.Log.Message}}`        | 日志消息内容               | 日志     |
+| `{{.Log.Level}}`          | 日志级别                   | 日志     |
+| `{{.Log.Timestamp}}`      | 日志时间戳                 | 日志     |
+| `{{.Log.Stream}}`         | 流类型（stdout/stderr）    | 日志     |
+| `{{.Stat.CPUPercent}}`    | CPU 使用百分比             | 指标     |
+| `{{.Stat.MemoryPercent}}` | 内存使用百分比             | 指标     |
+| `{{.Stat.MemoryUsage}}`   | 内存使用量（字节）         | 指标     |
+| `{{.Event.Name}}`         | 事件名称（事件警报）       | 事件     |
+| `{{.Event.Attributes}}`   | 事件属性映射（事件警报）   | 事件     |
+| `{{.Subscription.Name}}`  | 警报规则名称               | 全部     |
+| `{{.Timestamp}}`          | 通知创建的时间             | 全部     |
+
+`.Log`、`.Stat` 和 `.Event` 只在对应类型的警报中有值。一个目标会接收所有类型的警报，所以读取 `{{.Log.Level}}` 的模板在指标和事件警报（包括更新提醒）上会发送失败。请用 `{{ with .Log }}{{ .Level }}{{ end }}` 包住这些字段，或者使用所有警报都会设置的 `{{.Detail}}`。如果模板在测试未发送的警报类型上会失败，**测试**按钮会给出提示。
 
 `{{.Timestamp}}` 以 Go 的默认时间格式输出，Discord 等服务会拒绝这种格式。请改为格式化成 ISO 8601：
 

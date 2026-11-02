@@ -653,6 +653,7 @@ notifications:
     remove-header: Supprimer l'en-tête
     test: Tester
     test-success: Test réussi
+    test-unsupported: "Ce modèle échoue pour les alertes {kinds}, elles ne seront donc pas envoyées ici."
     cancel: Annuler
     close: Fermer
     save: Enregistrer
