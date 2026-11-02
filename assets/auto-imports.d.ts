@@ -868,7 +868,6 @@ declare module 'vue' {
     readonly createUsageBatcher: UnwrapRef<typeof import('./composable/app/usage')['createUsageBatcher']>
     readonly customRef: UnwrapRef<typeof import('vue')['customRef']>
     readonly dateLocale: UnwrapRef<typeof import('./stores/settings')['dateLocale']>
-    readonly dayLabel: UnwrapRef<typeof import('./utils/index')['dayLabel']>
     readonly debouncedRef: UnwrapRef<typeof import('@vueuse/core')['debouncedRef']>
     readonly debouncedWatch: UnwrapRef<typeof import('@vueuse/core')['debouncedWatch']>
     readonly defineAsyncComponent: UnwrapRef<typeof import('vue')['defineAsyncComponent']>
