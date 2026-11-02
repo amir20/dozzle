@@ -656,6 +656,7 @@ notifications:
     remove-header: Başlığı kaldır
     test: Test
     test-success: Test başarılı
+    test-unsupported: "Bu şablon {kinds} uyarılarında başarısız oluyor, bu yüzden bu uyarılar buraya gönderilmeyecek."
     cancel: İptal
     close: Kapat
     save: Kaydet

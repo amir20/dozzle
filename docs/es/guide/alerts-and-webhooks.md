@@ -1,7 +1,7 @@
 ---
 title: Alertas
 description: Configura alertas de Dozzle sobre los logs de contenedores Docker, las métricas de CPU y memoria y los eventos del ciclo de vida, y envíalas a un webhook, Slack, Discord o ntfy.
-sourceHash: bf1369bcb594
+sourceHash: 5a3bc907b39a
 ---
 
 # Alertas
@@ -61,24 +61,26 @@ También puedes escribir tu propia plantilla de payload con la sintaxis `text/te
 
 <div v-pre>
 
-| Variable                  | Descripción                                      |
-| ------------------------- | ------------------------------------------------ |
-| `{{.Detail}}`             | Resumen (mensaje de log o valores de la métrica) |
-| `{{.Container.Name}}`     | Nombre del contenedor                            |
-| `{{.Container.Image}}`    | Imagen del contenedor                            |
-| `{{.Container.HostName}}` | Nombre del host de Docker                        |
-| `{{.Container.State}}`    | Estado del contenedor                            |
-| `{{.Log.Message}}`        | Contenido del mensaje de log                     |
-| `{{.Log.Level}}`          | Nivel del log                                    |
-| `{{.Log.Timestamp}}`      | Marca de tiempo del log                          |
-| `{{.Log.Stream}}`         | Tipo de flujo (stdout/stderr)                    |
-| `{{.Stat.CPUPercent}}`    | Porcentaje de uso de CPU                         |
-| `{{.Stat.MemoryPercent}}` | Porcentaje de uso de memoria                     |
-| `{{.Stat.MemoryUsage}}`   | Uso de memoria en bytes                          |
-| `{{.Event.Name}}`         | Nombre del evento (alertas de evento)            |
-| `{{.Event.Attributes}}`   | Mapa de atributos del evento (alertas de evento) |
-| `{{.Subscription.Name}}`  | Nombre de la regla de alerta                     |
-| `{{.Timestamp}}`          | Momento en que se creó la notificación           |
+| Variable                  | Descripción                                      | Alertas |
+| ------------------------- | ------------------------------------------------ | ------- |
+| `{{.Detail}}`             | Resumen (mensaje de log o valores de la métrica) | todas   |
+| `{{.Container.Name}}`     | Nombre del contenedor                            | todas   |
+| `{{.Container.Image}}`    | Imagen del contenedor                            | todas   |
+| `{{.Container.HostName}}` | Nombre del host de Docker                        | todas   |
+| `{{.Container.State}}`    | Estado del contenedor                            | todas   |
+| `{{.Log.Message}}`        | Contenido del mensaje de log                     | log     |
+| `{{.Log.Level}}`          | Nivel del log                                    | log     |
+| `{{.Log.Timestamp}}`      | Marca de tiempo del log                          | log     |
+| `{{.Log.Stream}}`         | Tipo de flujo (stdout/stderr)                    | log     |
+| `{{.Stat.CPUPercent}}`    | Porcentaje de uso de CPU                         | métrica |
+| `{{.Stat.MemoryPercent}}` | Porcentaje de uso de memoria                     | métrica |
+| `{{.Stat.MemoryUsage}}`   | Uso de memoria en bytes                          | métrica |
+| `{{.Event.Name}}`         | Nombre del evento (alertas de evento)            | evento  |
+| `{{.Event.Attributes}}`   | Mapa de atributos del evento (alertas de evento) | evento  |
+| `{{.Subscription.Name}}`  | Nombre de la regla de alerta                     | todas   |
+| `{{.Timestamp}}`          | Momento en que se creó la notificación           | todas   |
+
+`.Log`, `.Stat` y `.Event` solo tienen valor en su propio tipo de alerta. Un destino recibe todos los tipos, así que una plantilla que lee `{{.Log.Level}}` falla al enviar alertas de métricas y de eventos, incluidos los avisos de actualización. Protege esos campos con `{{ with .Log }}{{ .Level }}{{ end }}`, o usa `{{.Detail}}`, que todas las alertas incluyen. El botón **Probar** avisa cuando la plantilla falla para un tipo de alerta que no envió.
 
 `{{.Timestamp}}` se imprime en el formato de hora por defecto de Go, que servicios como Discord rechazan. Formatéalo como ISO 8601:
 

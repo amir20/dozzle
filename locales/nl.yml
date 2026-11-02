@@ -654,6 +654,7 @@ notifications:
     remove-header: Header verwijderen
     test: Testen
     test-success: Test geslaagd
+    test-unsupported: "Deze sjabloon faalt voor {kinds}-meldingen, dus die worden hier niet verzonden."
     cancel: Annuleren
     close: Sluiten
     save: Opslaan

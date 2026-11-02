@@ -137,6 +137,10 @@
         </span>
         <span v-else>{{ testResult.error }}</span>
       </InlineNotice>
+      <!-- A test sends one kind of alert; this flags the kinds the same template cannot render -->
+      <InlineNotice v-if="testResult?.unsupported?.length" type="warning" class="mb-3">
+        {{ $t("notifications.destination-form.test-unsupported", { kinds: testResult.unsupported.join(", ") }) }}
+      </InlineNotice>
 
       <div v-if="confirmingDiscard" class="flex flex-wrap items-center justify-end gap-2">
         <span class="mr-auto text-sm">{{ $t("notifications.destination-form.discard-title") }}</span>

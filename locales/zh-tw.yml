@@ -655,6 +655,7 @@ notifications:
     remove-header: 移除標頭
     test: 測試
     test-success: 測試成功
+    test-unsupported: "此範本在 {kinds} 警示時會失敗，因此這些警示不會傳送到這裡。"
     cancel: 取消
     close: 關閉
     save: 儲存

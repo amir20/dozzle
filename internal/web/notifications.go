@@ -142,6 +142,8 @@ type TestWebhookResult struct {
 	Success    bool    `json:"success"`
 	StatusCode *int    `json:"statusCode,omitempty"`
 	Error      *string `json:"error,omitempty"`
+	// Unsupported lists the alert kinds (log, metric, event) the template fails to render.
+	Unsupported []string `json:"unsupported,omitempty"`
 }
 
 // Helper functions
@@ -884,6 +886,8 @@ func (h *handler) testWebhook(w http.ResponseWriter, r *http.Request) {
 
 	mockNotification := testNotification(templateStr)
 
+	unsupported := unsupportedKinds(webhook, mockNotification.Type)
+
 	result := webhook.SendTest(r.Context(), mockNotification)
 
 	var statusCode *int
@@ -897,10 +901,28 @@ func (h *handler) testWebhook(w http.ResponseWriter, r *http.Request) {
 	}
 
 	writeJSON(w, http.StatusOK, &TestWebhookResult{
-		Success:    result.Success,
-		StatusCode: statusCode,
-		Error:      errStr,
+		Success:     result.Success,
+		StatusCode:  statusCode,
+		Error:       errStr,
+		Unsupported: unsupported,
 	})
+}
+
+// unsupportedKinds renders the template for every alert kind but sent, the one the test sends,
+// and returns those that fail. One destination serves every kind of alert but a test only sends
+// one, so without this a template that only works for log alerts fails silently the first time
+// an update or metric alert fires. See #5561.
+func unsupportedKinds(webhook *dispatcher.WebhookDispatcher, sent types.NotificationType) []string {
+	var kinds []string
+	for _, kind := range alertKinds {
+		if kind == sent {
+			continue
+		}
+		if _, err := webhook.Render(sampleNotification(kind)); err != nil {
+			kinds = append(kinds, string(kind))
+		}
+	}
+	return kinds
 }
 
 // readsEvent and readsStat match the field as a whole word, so .Container.State is not .Stat.
@@ -909,10 +931,26 @@ var (
 	readsStat  = regexp.MustCompile(`\.Stat\b`)
 )
 
+// alertKinds is every kind of alert a destination can be sent, in the order they are reported.
+var alertKinds = []types.NotificationType{types.LogNotification, types.MetricNotification, types.EventNotification}
+
 // testNotification builds the sample a webhook test sends. A destination is not tied to one
 // kind of alert, so the sample follows the template: one that reads .Event or .Stat gets an
 // event or metric sample, since a log sample leaves those nil and the template fails to render.
 func testNotification(templateStr string) types.Notification {
+	switch {
+	case readsEvent.MatchString(templateStr):
+		return sampleNotification(types.EventNotification)
+	case readsStat.MatchString(templateStr):
+		return sampleNotification(types.MetricNotification)
+	default:
+		return sampleNotification(types.LogNotification)
+	}
+}
+
+// sampleNotification builds a test notification of one kind. Only the matching one of
+// .Log, .Stat and .Event is set, as on a real alert.
+func sampleNotification(kind types.NotificationType) types.Notification {
 	now := time.Now()
 	n := types.Notification{
 		ID:        "test-notification",
@@ -929,8 +967,8 @@ func testNotification(templateStr string) types.Notification {
 		},
 	}
 
-	switch {
-	case readsEvent.MatchString(templateStr):
+	switch kind {
+	case types.EventNotification:
 		n.Type = types.EventNotification
 		n.Detail = "This is a test event from Dozzle"
 		n.Event = &types.NotificationEvent{
@@ -945,7 +983,7 @@ func testNotification(templateStr string) types.Notification {
 			},
 			Timestamp: now,
 		}
-	case readsStat.MatchString(templateStr):
+	case types.MetricNotification:
 		n.Type = types.MetricNotification
 		n.Detail = "This is a test metric alert from Dozzle"
 		n.Stat = &types.NotificationStat{CPUPercent: 85, MemoryPercent: 60, MemoryUsage: 512 * 1024 * 1024}

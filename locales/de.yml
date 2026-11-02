@@ -653,6 +653,7 @@ notifications:
     remove-header: Header entfernen
     test: Testen
     test-success: Test erfolgreich
+    test-unsupported: "Diese Vorlage schlägt bei {kinds}-Alarmen fehl, daher werden sie nicht hierher gesendet."
     cancel: Abbrechen
     close: Schließen
     save: Speichern

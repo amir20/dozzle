@@ -1,7 +1,7 @@
 ---
 title: Alarme
 description: Richte in Dozzle Alarme für Docker-Container-Logs, CPU- und Speichermetriken sowie Lebenszyklus-Ereignisse ein und sende sie an einen Webhook, Slack, Discord oder ntfy.
-sourceHash: bf1369bcb594
+sourceHash: 5a3bc907b39a
 ---
 
 # Alarme
@@ -61,24 +61,26 @@ Du kannst auch ein eigenes Payload-Template mit der `text/template`-Syntax von G
 
 <div v-pre>
 
-| Variable                  | Beschreibung                                  |
-| ------------------------- | --------------------------------------------- |
-| `{{.Detail}}`             | Zusammenfassung (Logmeldung oder Metrikwerte) |
-| `{{.Container.Name}}`     | Name des Containers                           |
-| `{{.Container.Image}}`    | Image des Containers                          |
-| `{{.Container.HostName}}` | Name des Docker-Hosts                         |
-| `{{.Container.State}}`    | Status des Containers                         |
-| `{{.Log.Message}}`        | Inhalt der Logmeldung                         |
-| `{{.Log.Level}}`          | Loglevel                                      |
-| `{{.Log.Timestamp}}`      | Zeitstempel des Logs                          |
-| `{{.Log.Stream}}`         | Art des Streams (stdout/stderr)               |
-| `{{.Stat.CPUPercent}}`    | CPU-Auslastung in Prozent                     |
-| `{{.Stat.MemoryPercent}}` | Speicherauslastung in Prozent                 |
-| `{{.Stat.MemoryUsage}}`   | Speicherverbrauch in Bytes                    |
-| `{{.Event.Name}}`         | Name des Ereignisses (Ereignis-Alarme)        |
-| `{{.Event.Attributes}}`   | Map der Ereignisattribute (Ereignis-Alarme)   |
-| `{{.Subscription.Name}}`  | Name der Alarmregel                           |
-| `{{.Timestamp}}`          | Erstellungszeitpunkt der Benachrichtigung     |
+| Variable                  | Beschreibung                                  | Alarme   |
+| ------------------------- | --------------------------------------------- | -------- |
+| `{{.Detail}}`             | Zusammenfassung (Logmeldung oder Metrikwerte) | alle     |
+| `{{.Container.Name}}`     | Name des Containers                           | alle     |
+| `{{.Container.Image}}`    | Image des Containers                          | alle     |
+| `{{.Container.HostName}}` | Name des Docker-Hosts                         | alle     |
+| `{{.Container.State}}`    | Status des Containers                         | alle     |
+| `{{.Log.Message}}`        | Inhalt der Logmeldung                         | Log      |
+| `{{.Log.Level}}`          | Loglevel                                      | Log      |
+| `{{.Log.Timestamp}}`      | Zeitstempel des Logs                          | Log      |
+| `{{.Log.Stream}}`         | Art des Streams (stdout/stderr)               | Log      |
+| `{{.Stat.CPUPercent}}`    | CPU-Auslastung in Prozent                     | Metrik   |
+| `{{.Stat.MemoryPercent}}` | Speicherauslastung in Prozent                 | Metrik   |
+| `{{.Stat.MemoryUsage}}`   | Speicherverbrauch in Bytes                    | Metrik   |
+| `{{.Event.Name}}`         | Name des Ereignisses (Ereignis-Alarme)        | Ereignis |
+| `{{.Event.Attributes}}`   | Map der Ereignisattribute (Ereignis-Alarme)   | Ereignis |
+| `{{.Subscription.Name}}`  | Name der Alarmregel                           | alle     |
+| `{{.Timestamp}}`          | Erstellungszeitpunkt der Benachrichtigung     | alle     |
+
+`.Log`, `.Stat` und `.Event` sind nur bei der jeweils eigenen Alarmart gesetzt. Ein Ziel bekommt alle Arten, ein Template mit `{{.Log.Level}}` scheitert deshalb beim Senden von Metrik- und Ereignis-Alarmen, auch bei Update-Hinweisen. Schütze diese Felder mit `{{ with .Log }}{{ .Level }}{{ end }}` oder nutze `{{.Detail}}`, das jeder Alarm setzt. Der **Testen**-Button warnt, wenn das Template bei einer Alarmart scheitert, die er nicht gesendet hat.
 
 `{{.Timestamp}}` wird im Standard-Zeitformat von Go ausgegeben, das Dienste wie Discord ablehnen. Formatiere ihn stattdessen als ISO 8601:
 

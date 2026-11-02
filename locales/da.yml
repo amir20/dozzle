@@ -653,6 +653,7 @@ notifications:
     remove-header: Fjern header
     test: Test
     test-success: Test succesfuld
+    test-unsupported: "Denne skabelon fejler for {kinds}-alarmer, så de bliver ikke sendt hertil."
     cancel: Annuller
     close: Luk
     save: Gem
