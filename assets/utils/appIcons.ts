@@ -159,7 +159,8 @@ const ALIASES: Record<string, string> = {
   airflow: "apache-airflow",
   collabora: "collabora-office",
   code: "collabora-office", // alias for collabora/code
-  "whats-up-docker": "wud"
+  "whats-up-docker": "wud",
+  "bentopdf-simple": "bentopdf"
 };
 
 const stripSuffix = (name: string) => {
