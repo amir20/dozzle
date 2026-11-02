@@ -49,5 +49,9 @@ const { locale } = useI18n();
 // read it yet, re-read it if something has.
 onMounted(() => (loaded.value ? refreshRecentAlerts() : fetchRecentAlerts()));
 
-const days = computed(() => groupByDay(alerts.value, (a) => new Date(a.ts / 1e6), locale.value));
+// Reads the shared tick so "Today" rolls over at midnight on a page left open.
+const days = computed(() => {
+  void relativeTimeTick.value;
+  return groupByDay(alerts.value, (a) => new Date(a.ts / 1e6), locale.value);
+});
 </script>

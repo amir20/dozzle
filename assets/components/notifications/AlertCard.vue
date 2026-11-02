@@ -176,6 +176,7 @@ const firings = forSubscription(alert.id);
 
 // The local timestamp resets on restart while Cloud's survives it, so the newer of the two.
 const lastTriggered = computed(() => {
+  void relativeTimeTick.value;
   const local = alert.lastTriggeredAt ? new Date(alert.lastTriggeredAt) : undefined;
   const times = [
     local && local.getFullYear() > 1 ? local.getTime() : 0,
