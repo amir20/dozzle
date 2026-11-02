@@ -111,6 +111,7 @@ declare global {
   const createUsageBatcher: typeof import('./composable/app/usage').createUsageBatcher
   const customRef: typeof import('vue').customRef
   const dateLocale: typeof import('./stores/settings').dateLocale
+  const dayLabel: typeof import('./utils/index').dayLabel
   const debouncedRef: typeof import('@vueuse/core').debouncedRef
   const debouncedWatch: typeof import('@vueuse/core').debouncedWatch
   const defineAsyncComponent: typeof import('vue').defineAsyncComponent
@@ -143,6 +144,7 @@ declare global {
   const getDeep: typeof import('./utils/index').getDeep
   const getK8sOwnerRefs: typeof import('./stores/k8s').getK8sOwnerRefs
   const goBack: typeof import('./composable/app/mobileShell').goBack
+  const groupByDay: typeof import('./utils/index').groupByDay
   const groupContainers: typeof import('./stores/settings').groupContainers
   const groupK8sOwners: typeof import('./stores/k8s').groupK8sOwners
   const guardSettingsRoutes: typeof import('./composable/app/settingsPages').guardSettingsRoutes
@@ -896,6 +898,7 @@ declare module 'vue' {
     readonly getDeep: UnwrapRef<typeof import('./utils/index')['getDeep']>
     readonly getK8sOwnerRefs: UnwrapRef<typeof import('./stores/k8s')['getK8sOwnerRefs']>
     readonly goBack: UnwrapRef<typeof import('./composable/app/mobileShell')['goBack']>
+    readonly groupByDay: UnwrapRef<typeof import('./utils/index')['groupByDay']>
     readonly groupContainers: UnwrapRef<typeof import('./stores/settings')['groupContainers']>
     readonly groupK8sOwners: UnwrapRef<typeof import('./stores/k8s')['groupK8sOwners']>
     readonly guardSettingsRoutes: UnwrapRef<typeof import('./composable/app/settingsPages')['guardSettingsRoutes']>

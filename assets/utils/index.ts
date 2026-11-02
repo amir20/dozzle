@@ -1,4 +1,4 @@
-export { formatDuration, toElapsed, toRelativeTime } from "./date";
+export { formatDuration, groupByDay, toElapsed, toRelativeTime } from "./date";
 export { getDeep, isObject, flattenJSON, flattenJSONToMap, arrayEquals } from "./object";
 export { useExponentialMovingAverage, useSimpleRefHistory } from "./reactive";
 export { formatBytes, stripVersion, hashCode, escapeHtml } from "./format";
