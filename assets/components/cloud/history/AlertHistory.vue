@@ -7,7 +7,7 @@
       reader when the fetch lands.
     -->
     <div
-      v-if="(loading && !loaded) || failed || alerts.length === 0"
+      v-if="(loading && !loaded) || failed || days.length === 0"
       class="border-base-content/15 bg-base-200/40 rounded-lg border"
     >
       <p v-if="loading && !loaded" class="text-base-content/60 p-4 text-sm">
