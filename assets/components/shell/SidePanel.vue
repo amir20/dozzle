@@ -1,5 +1,5 @@
 <template>
-  <aside class="fixed flex h-screen w-[inherit] flex-col gap-3 p-3" data-testid="navigation">
+  <aside class="fixed flex h-dvh w-[inherit] flex-col gap-3 p-3" data-testid="navigation">
     <!-- The wordmark used to run at text-4xl and ate the top of the sidebar. It is
          a brand mark, not a heading you read twice, so it gives the space back to
          the tree underneath. -->

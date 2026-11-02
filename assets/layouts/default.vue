@@ -12,7 +12,7 @@
              it when a panel opens reads as the menu having done something. -->
         <div :style="{ paddingRight: `${railOffset}px` }">
           <Splitpanes>
-            <Pane class="router-view min-h-screen" :class="{ 'tabbar-clearance': showTabBar }">
+            <Pane class="router-view min-h-dvh" :class="{ 'tabbar-clearance': showTabBar }">
               <router-view></router-view>
             </Pane>
             <template v-if="!isMobile">

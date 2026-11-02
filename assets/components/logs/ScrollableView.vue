@@ -1,5 +1,5 @@
 <template>
-  <section :class="{ 'h-screen min-h-0': scrollable }" class="flex flex-col" data-scroll-view>
+  <section :class="{ 'h-dvh min-h-0': scrollable }" class="flex flex-col" data-scroll-view>
     <header
       v-if="$slots.header"
       ref="scrollableHeader"
