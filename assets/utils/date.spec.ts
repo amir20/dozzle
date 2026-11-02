@@ -2,7 +2,7 @@
  * @vitest-environment jsdom
  */
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
-import { dayLabel, formatDuration, groupByDay, toElapsed, toRelativeTime } from "./date";
+import { dayBucket, formatDuration, groupByDay, toElapsed, toRelativeTime } from "./date";
 
 describe("formatDuration", () => {
   // Assertions stay tolerant so they pass whether Intl.DurationFormat is present
@@ -67,26 +67,32 @@ describe("toElapsed", () => {
   });
 });
 
-describe("dayLabel", () => {
+describe("dayBucket", () => {
   // Local time on purpose: days are the reader's days. Tests run with TZ=UTC.
   const now = new Date(2026, 10, 2, 9, 0);
+  const label = (d: Date, locale = "en") => dayBucket(d, locale, now)?.label;
 
   test("today and yesterday", () => {
-    expect(dayLabel(new Date(2026, 10, 2, 0, 5), "en", now)).toBe("Today");
-    expect(dayLabel(new Date(2026, 10, 1, 23, 59), "en", now)).toBe("Yesterday");
+    expect(label(new Date(2026, 10, 2, 0, 5))).toBe("Today");
+    expect(label(new Date(2026, 10, 1, 23, 59))).toBe("Yesterday");
   });
 
   test("weekday within the past week", () => {
-    expect(dayLabel(new Date(2026, 9, 29, 12), "en", now)).toBe("Thursday");
+    expect(label(new Date(2026, 9, 29, 12))).toBe("Thursday");
   });
 
-  test("short date past a week, year only when it differs", () => {
-    expect(dayLabel(new Date(2026, 9, 20, 12), "en", now)).toBe("Tue, Oct 20");
-    expect(dayLabel(new Date(2025, 9, 20, 12), "en", now)).toBe("Mon, Oct 20, 2025");
+  test("one last-week bucket, then nothing", () => {
+    expect(dayBucket(new Date(2026, 9, 26, 12), "en", now)).toEqual({ key: -7, label: "Last week" });
+    expect(dayBucket(new Date(2026, 9, 20, 12), "en", now)).toEqual({ key: -7, label: "Last week" });
+    expect(dayBucket(new Date(2026, 9, 19, 12), "en", now)).toBeUndefined();
+  });
+
+  test("a future timestamp from clock skew files under today", () => {
+    expect(label(new Date(2026, 10, 3, 0, 1))).toBe("Today");
   });
 
   test("translated by Intl", () => {
-    expect(dayLabel(new Date(2026, 10, 1, 12), "de", now)).toBe("Gestern");
+    expect(label(new Date(2026, 10, 1, 12), "de")).toBe("Gestern");
   });
 });
 
@@ -96,6 +102,14 @@ describe("groupByDay", () => {
     const items = [new Date(2026, 10, 2, 8), new Date(2026, 10, 2, 1), new Date(2026, 10, 1, 22)];
     const groups = groupByDay(items, (d) => d, "en", now);
     expect(groups.map((g) => g.label)).toEqual(["Today", "Yesterday"]);
+    expect(groups[0].items).toEqual([items[0], items[1]]);
+  });
+
+  test("merges last week into one group and drops older", () => {
+    const now = new Date(2026, 10, 2, 9, 0);
+    const items = [new Date(2026, 9, 25), new Date(2026, 9, 21), new Date(2026, 9, 1)];
+    const groups = groupByDay(items, (d) => d, "en", now);
+    expect(groups.map((g) => g.label)).toEqual(["Last week"]);
     expect(groups[0].items).toEqual([items[0], items[1]]);
   });
 });

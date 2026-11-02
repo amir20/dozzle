@@ -61,31 +61,36 @@ function startOfDay(date: Date): number {
 }
 
 /**
- * A day heading: "Today", "Yesterday", the weekday for the rest of the past week,
- * then a short date, with the year only when it is not this one. Every word comes
- * from Intl, so it is translated without a locale key.
+ * The heading an item files under: "Today", "Yesterday", the weekday for the rest of
+ * the past week, then one "Last week" bucket. Anything older gets none and is hidden.
+ * Every word comes from Intl, so it is translated without a locale key.
  */
-export function dayLabel(date: Date, locale: string | undefined, now: Date = new Date()): string {
-  // Rounded, because a day across a DST change is 23 or 25 hours long.
-  const diff = Math.round((startOfDay(date) - startOfDay(now)) / 86400000);
+export function dayBucket(
+  date: Date,
+  locale: string | undefined,
+  now: Date = new Date(),
+): { key: number; label: string } | undefined {
+  // Rounded, because a day across a DST change is 23 or 25 hours long. Capped at 0 so
+  // a timestamp a clock ahead of ours files under today rather than vanishing.
+  const diff = Math.min(0, Math.round((startOfDay(date) - startOfDay(now)) / 86400000));
+  const relative = new Intl.RelativeTimeFormat(locale, { numeric: "auto" });
+  let key = diff;
   let label: string;
-  if (diff === 0 || diff === -1) {
-    label = new Intl.RelativeTimeFormat(locale, { numeric: "auto" }).format(diff, "day");
-  } else if (diff > -7 && diff < 0) {
+  if (diff >= -1) {
+    label = relative.format(diff, "day");
+  } else if (diff > -7) {
     label = new Intl.DateTimeFormat(locale, { weekday: "long" }).format(date);
+  } else if (diff > -14) {
+    key = -7;
+    label = relative.format(-1, "week");
   } else {
-    label = new Intl.DateTimeFormat(locale, {
-      weekday: "short",
-      month: "short",
-      day: "numeric",
-      ...(date.getFullYear() === now.getFullYear() ? {} : { year: "numeric" }),
-    }).format(date);
+    return undefined;
   }
   // RelativeTimeFormat answers in lowercase ("today") and this starts a heading.
-  return label.charAt(0).toLocaleUpperCase(locale) + label.slice(1);
+  return { key, label: label.charAt(0).toLocaleUpperCase(locale) + label.slice(1) };
 }
 
-/** Splits items into local calendar days, keeping their order inside each day. */
+/** Splits items into day buckets, keeping their order inside each and dropping older ones. */
 export function groupByDay<T>(
   items: readonly T[],
   dateOf: (item: T) => Date,
@@ -94,12 +99,12 @@ export function groupByDay<T>(
 ): { key: number; label: string; items: T[] }[] {
   const groups = new Map<number, { key: number; label: string; items: T[] }>();
   for (const item of items) {
-    const date = dateOf(item);
-    const key = startOfDay(date);
-    let group = groups.get(key);
+    const bucket = dayBucket(dateOf(item), locale, now);
+    if (!bucket) continue;
+    let group = groups.get(bucket.key);
     if (!group) {
-      group = { key, label: dayLabel(date, locale, now), items: [] };
-      groups.set(key, group);
+      group = { ...bucket, items: [] };
+      groups.set(bucket.key, group);
     }
     group.items.push(item);
   }
