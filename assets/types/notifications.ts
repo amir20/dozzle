@@ -94,6 +94,8 @@ export interface TestWebhookResult {
   success: boolean;
   statusCode?: number;
   error?: string;
+  /** Alert kinds (log, metric, event) the template fails to render. */
+  unsupported?: string[];
 }
 
 export interface CloudConfig {

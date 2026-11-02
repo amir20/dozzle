@@ -653,6 +653,7 @@ notifications:
     remove-header: Remover cabeçalho
     test: Testar
     test-success: Teste bem-sucedido
+    test-unsupported: "Este modelo falha para alertas {kinds}, então eles não serão enviados para cá."
     cancel: Cancelar
     close: Fechar
     save: Salvar

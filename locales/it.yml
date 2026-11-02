@@ -653,6 +653,7 @@ notifications:
     remove-header: Rimuovi intestazione
     test: Test
     test-success: Test riuscito
+    test-unsupported: "Questo modello non funziona per gli avvisi {kinds}, quindi non verranno inviati qui."
     cancel: Annulla
     close: Chiudi
     save: Salva

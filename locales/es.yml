@@ -797,6 +797,7 @@ notifications:
     remove-header: Quitar cabecera
     test: Probar
     test-success: Prueba exitosa
+    test-unsupported: "Esta plantilla falla con las alertas de tipo {kinds}, así que no se enviarán aquí."
     cancel: Cancelar
     close: Cerrar
     save: Guardar

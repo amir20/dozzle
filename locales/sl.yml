@@ -658,6 +658,7 @@ notifications:
     remove-header: Odstrani glavo
     test: Test
     test-success: Test uspešen
+    test-unsupported: "Ta predloga ne deluje za opozorila {kinds}, zato ne bodo poslana sem."
     cancel: Prekliči
     close: Zapri
     save: Shrani

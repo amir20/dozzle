@@ -1,7 +1,7 @@
 ---
 title: Alertes
 description: Configurez des alertes Dozzle sur les logs des conteneurs Docker, les métriques CPU et mémoire et les évènements de cycle de vie, et envoyez-les vers un webhook, Slack, Discord ou ntfy.
-sourceHash: bf1369bcb594
+sourceHash: 5a3bc907b39a
 ---
 
 # Alertes
@@ -61,24 +61,26 @@ Vous pouvez aussi écrire votre propre modèle de payload avec la syntaxe `text/
 
 <div v-pre>
 
-| Variable                  | Description                                             |
-| ------------------------- | ------------------------------------------------------- |
-| `{{.Detail}}`             | Résumé (message de log ou valeurs de métriques)         |
-| `{{.Container.Name}}`     | Nom du conteneur                                        |
-| `{{.Container.Image}}`    | Image du conteneur                                      |
-| `{{.Container.HostName}}` | Nom de l'hôte Docker                                    |
-| `{{.Container.State}}`    | État du conteneur                                       |
-| `{{.Log.Message}}`        | Contenu du message de log                               |
-| `{{.Log.Level}}`          | Niveau de log                                           |
-| `{{.Log.Timestamp}}`      | Horodatage du log                                       |
-| `{{.Log.Stream}}`         | Type de flux (stdout/stderr)                            |
-| `{{.Stat.CPUPercent}}`    | Pourcentage d'utilisation CPU                           |
-| `{{.Stat.MemoryPercent}}` | Pourcentage d'utilisation mémoire                       |
-| `{{.Stat.MemoryUsage}}`   | Utilisation mémoire en octets                           |
-| `{{.Event.Name}}`         | Nom de l'évènement (alertes d'évènements)               |
-| `{{.Event.Attributes}}`   | Map des attributs de l'évènement (alertes d'évènements) |
-| `{{.Subscription.Name}}`  | Nom de la règle d'alerte                                |
-| `{{.Timestamp}}`          | Heure de création de la notification                    |
+| Variable                  | Description                                             | Alertes   |
+| ------------------------- | ------------------------------------------------------- | --------- |
+| `{{.Detail}}`             | Résumé (message de log ou valeurs de métriques)         | toutes    |
+| `{{.Container.Name}}`     | Nom du conteneur                                        | toutes    |
+| `{{.Container.Image}}`    | Image du conteneur                                      | toutes    |
+| `{{.Container.HostName}}` | Nom de l'hôte Docker                                    | toutes    |
+| `{{.Container.State}}`    | État du conteneur                                       | toutes    |
+| `{{.Log.Message}}`        | Contenu du message de log                               | log       |
+| `{{.Log.Level}}`          | Niveau de log                                           | log       |
+| `{{.Log.Timestamp}}`      | Horodatage du log                                       | log       |
+| `{{.Log.Stream}}`         | Type de flux (stdout/stderr)                            | log       |
+| `{{.Stat.CPUPercent}}`    | Pourcentage d'utilisation CPU                           | métrique  |
+| `{{.Stat.MemoryPercent}}` | Pourcentage d'utilisation mémoire                       | métrique  |
+| `{{.Stat.MemoryUsage}}`   | Utilisation mémoire en octets                           | métrique  |
+| `{{.Event.Name}}`         | Nom de l'évènement (alertes d'évènements)               | évènement |
+| `{{.Event.Attributes}}`   | Map des attributs de l'évènement (alertes d'évènements) | évènement |
+| `{{.Subscription.Name}}`  | Nom de la règle d'alerte                                | toutes    |
+| `{{.Timestamp}}`          | Heure de création de la notification                    | toutes    |
+
+`.Log`, `.Stat` et `.Event` ne sont renseignés que pour leur propre type d'alerte. Une destination reçoit tous les types, donc un modèle qui lit `{{.Log.Level}}` échoue à l'envoi pour les alertes de métriques et d'évènements, y compris les avis de mise à jour. Protégez ces champs avec `{{ with .Log }}{{ .Level }}{{ end }}`, ou utilisez `{{.Detail}}`, que toutes les alertes renseignent. Le bouton **Tester** vous prévient quand le modèle échoue pour un type d'alerte qu'il n'a pas envoyé.
 
 `{{.Timestamp}}` s'affiche au format horaire par défaut de Go, que des services comme Discord rejettent. Formatez-le plutôt en ISO 8601 :
 

@@ -653,6 +653,7 @@ notifications:
     remove-header: Удалить заголовок
     test: Тест
     test-success: Тест успешен
+    test-unsupported: "Этот шаблон не работает для оповещений типа {kinds}, поэтому они не будут сюда отправлены."
     cancel: Отмена
     close: Закрыть
     save: Сохранить

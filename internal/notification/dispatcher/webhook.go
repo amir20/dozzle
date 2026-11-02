@@ -250,21 +250,27 @@ func (w *WebhookDispatcher) Send(ctx context.Context, notification types.Notific
 	return nil
 }
 
+// Render builds the body this dispatcher would POST for notification, without sending it.
+func (w *WebhookDispatcher) Render(notification types.Notification) ([]byte, error) {
+	if w.Template != nil {
+		payload, err := executeJSONTemplate(w.TemplateText, notification)
+		if err != nil {
+			return nil, fmt.Errorf("failed to execute template: %w", err)
+		}
+		return payload, nil
+	}
+	payload, err := json.Marshal(notification)
+	if err != nil {
+		return nil, fmt.Errorf("failed to marshal notification: %w", err)
+	}
+	return payload, nil
+}
+
 // SendTest sends a notification and returns detailed result for testing
 func (w *WebhookDispatcher) SendTest(ctx context.Context, notification types.Notification) TestResult {
-	var payload []byte
-	var err error
-
-	if w.Template != nil {
-		payload, err = executeJSONTemplate(w.TemplateText, notification)
-		if err != nil {
-			return TestResult{Success: false, Error: fmt.Sprintf("failed to execute template: %v", err)}
-		}
-	} else {
-		payload, err = json.Marshal(notification)
-		if err != nil {
-			return TestResult{Success: false, Error: fmt.Sprintf("failed to marshal notification: %v", err)}
-		}
+	payload, err := w.Render(notification)
+	if err != nil {
+		return TestResult{Success: false, Error: err.Error()}
 	}
 
 	target, err := expandEnv(w.URL)

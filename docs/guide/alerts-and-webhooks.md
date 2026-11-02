@@ -60,24 +60,26 @@ You can also write your own payload template using Go's `text/template` syntax. 
 
 <div v-pre>
 
-| Variable                  | Description                            |
-| ------------------------- | -------------------------------------- |
-| `{{.Detail}}`             | Summary (log message or metric values) |
-| `{{.Container.Name}}`     | Container name                         |
-| `{{.Container.Image}}`    | Container image                        |
-| `{{.Container.HostName}}` | Docker host name                       |
-| `{{.Container.State}}`    | Container state                        |
-| `{{.Log.Message}}`        | Log message content                    |
-| `{{.Log.Level}}`          | Log level                              |
-| `{{.Log.Timestamp}}`      | Log timestamp                          |
-| `{{.Log.Stream}}`         | Stream type (stdout/stderr)            |
-| `{{.Stat.CPUPercent}}`    | CPU usage percentage                   |
-| `{{.Stat.MemoryPercent}}` | Memory usage percentage                |
-| `{{.Stat.MemoryUsage}}`   | Memory usage in bytes                  |
-| `{{.Event.Name}}`         | Event name (event alerts)              |
-| `{{.Event.Attributes}}`   | Event attributes map (event alerts)    |
-| `{{.Subscription.Name}}`  | Alert rule name                        |
-| `{{.Timestamp}}`          | Time the notification was created      |
+| Variable                  | Description                            | Alerts |
+| ------------------------- | -------------------------------------- | ------ |
+| `{{.Detail}}`             | Summary (log message or metric values) | all    |
+| `{{.Container.Name}}`     | Container name                         | all    |
+| `{{.Container.Image}}`    | Container image                        | all    |
+| `{{.Container.HostName}}` | Docker host name                       | all    |
+| `{{.Container.State}}`    | Container state                        | all    |
+| `{{.Log.Message}}`        | Log message content                    | log    |
+| `{{.Log.Level}}`          | Log level                              | log    |
+| `{{.Log.Timestamp}}`      | Log timestamp                          | log    |
+| `{{.Log.Stream}}`         | Stream type (stdout/stderr)            | log    |
+| `{{.Stat.CPUPercent}}`    | CPU usage percentage                   | metric |
+| `{{.Stat.MemoryPercent}}` | Memory usage percentage                | metric |
+| `{{.Stat.MemoryUsage}}`   | Memory usage in bytes                  | metric |
+| `{{.Event.Name}}`         | Event name (event alerts)              | event  |
+| `{{.Event.Attributes}}`   | Event attributes map (event alerts)    | event  |
+| `{{.Subscription.Name}}`  | Alert rule name                        | all    |
+| `{{.Timestamp}}`          | Time the notification was created      | all    |
+
+`.Log`, `.Stat` and `.Event` are only set on their own kind of alert. A destination receives every kind, so a template that reads `{{.Log.Level}}` fails to send for metric and event alerts, including update notices. Guard those fields with `{{ with .Log }}{{ .Level }}{{ end }}`, or use `{{.Detail}}`, which every alert sets. The **Test** button warns when the template fails for a kind of alert it did not send.
 
 `{{.Timestamp}}` prints in Go's default time format, which services like Discord reject. Format it as ISO 8601 instead:
 

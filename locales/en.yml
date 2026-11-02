@@ -805,6 +805,7 @@ notifications:
     remove-header: Remove header
     test: Test
     test-success: Test successful
+    test-unsupported: "This template fails for {kinds} alerts, so they won't be sent here."
     cancel: Cancel
     close: Close
     save: Save
