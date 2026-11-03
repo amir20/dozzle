@@ -1,8 +1,12 @@
 /**
- * Parses the JSON payload of an SSE `MessageEvent`. EventSource listeners
- * receive a `MessageEvent` whose `data` is an untyped string, so the parsed
- * shape is provided via the type parameter at each call site.
+ * Listens for named SSE events with their payloads typed by a map from event name
+ * to the JSON it carries. Each stream declares its map once, beside the code that
+ * opens it, so a call site cannot pick its own payload type.
+ *
+ *   const on = typedEvents<EventsStream>(es);
+ *   on("container-stat", (stat) => ...);
  */
-export function parseEventData<T>(event: Event): T {
-  return JSON.parse((event as MessageEvent).data) as T;
+export function typedEvents<M>(es: EventSource) {
+  return <K extends keyof M & string>(name: K, listener: (data: M[K]) => void) =>
+    es.addEventListener(name, (e) => listener(JSON.parse((e as MessageEvent).data) as M[K]));
 }
