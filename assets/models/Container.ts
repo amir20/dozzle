@@ -502,7 +502,8 @@ export class Container {
       c.image,
       c.name,
       c.command,
-      c.host,
+      // omitempty in Go: absent on the wire when empty
+      c.host ?? "",
       c.labels,
       c.state,
       c.cpuLimit,

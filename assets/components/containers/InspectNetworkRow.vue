@@ -55,17 +55,12 @@
 
 <script lang="ts" setup>
 import { Container } from "@/models/Container";
+import type { ContainerNetwork, Network } from "@/types/Container";
 
-interface NetworkDetails {
-  driver: string;
-  subnets: { subnet: string; gateway?: string; inUse: number; available: number }[];
-  containers: { id: string; name: string; ip?: string }[];
-}
-
-const { container, network } = defineProps<{ container: Container; network: { name: string; ip?: string } }>();
+const { container, network } = defineProps<{ container: Container; network: ContainerNetwork }>();
 
 const open = ref(false);
-const details = ref<NetworkDetails>();
+const details = ref<Network>();
 const error = ref(false);
 
 // Loaded with the drawer rather than on expand: a container sits on one or two

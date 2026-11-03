@@ -144,22 +144,12 @@
 
 <script lang="ts" setup>
 import { Container } from "@/models/Container";
-
-interface InspectDetails {
-  restartPolicy?: string;
-  restartCount: number;
-  oomKilled: boolean;
-  exitCode: number;
-  networkMode?: string;
-  networks: { name: string; ip?: string }[];
-  env: { key: string; value?: string }[];
-  envRevealed: boolean;
-}
+import type { ContainerInspect } from "@/types/Container";
 
 const { container } = defineProps<{ container: Container }>();
 const { t } = useI18n();
 
-const details = ref<InspectDetails>();
+const details = ref<ContainerInspect>();
 const error = ref(false);
 const revealed = ref(new Set<number>());
 const labelsCollapsed = ref(true);

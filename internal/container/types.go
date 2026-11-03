@@ -22,12 +22,12 @@ type Container struct {
 	Created       time.Time                        `json:"created"`
 	StartedAt     time.Time                        `json:"startedAt"`
 	FinishedAt    time.Time                        `json:"finishedAt"`
-	State         string                           `json:"state"`
-	Health        string                           `json:"health,omitempty"`
+	State         string                           `json:"state" tstype:"ContainerState"`
+	Health        string                           `json:"health,omitempty" tstype:"ContainerHealth"`
 	Host          string                           `json:"host,omitempty"`
 	Tty           bool                             `json:"-"`
 	Labels        map[string]string                `json:"labels,omitempty"`
-	Stats         *utils.RingBuffer[ContainerStat] `json:"stats,omitempty"`
+	Stats         *utils.RingBuffer[ContainerStat] `json:"stats,omitempty" tstype:"StatColumns"`
 	MemoryLimit   uint64                           `json:"memoryLimit"`
 	CPULimit      float64                          `json:"cpuLimit"`
 	Group         string                           `json:"group,omitempty"`

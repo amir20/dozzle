@@ -126,6 +126,8 @@ jobs:
       # newer Go export data.
       - name: Static checker
         run: go tool staticcheck ./...
+      - name: Check generated TypeScript types
+        run: go tool tygo generate && git diff --exit-code assets/types/generated
 
   int-test:
     name: Integration Tests

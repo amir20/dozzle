@@ -90,22 +90,12 @@
 
 <script lang="ts" setup>
 import { Container } from "@/models/Container";
-import type { ContainerMount } from "@/types/Container";
-
-interface VolumeDetails {
-  driver: string;
-  scope: string;
-  mountpoint?: string;
-  created?: string;
-  options?: Record<string, string>;
-  labels?: Record<string, string>;
-  containers: { id: string; name: string }[];
-}
+import type { ContainerMount, Volume } from "@/types/Container";
 
 const { container, mount } = defineProps<{ container: Container; mount: ContainerMount & { name: string } }>();
 
 const open = ref(false);
-const details = ref<VolumeDetails>();
+const details = ref<Volume>();
 const error = ref(false);
 
 // Loaded on first expand: a container can mount many volumes, and each read lists
