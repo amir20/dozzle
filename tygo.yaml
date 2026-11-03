@@ -5,12 +5,14 @@ packages:
   - path: github.com/amir20/dozzle/internal/container
     output_path: assets/types/generated/container.ts
     include_files: [types.go, resources.go]
+    enum_style: union
     type_mappings:
       time.Time: string
     # Shapes Go cannot express: the columnar stats MarshalJSON writes, and the
     # string unions Go keeps as plain strings.
     frontmatter: |
       import type { StatColumns, ContainerState, ContainerHealth } from "../Container";
+      import type { JSONObject, Level } from "@/models/LogEntry";
   - path: github.com/amir20/dozzle/internal/web
     output_path: assets/types/generated/web.ts
     include_files: [inspect.go]

@@ -432,12 +432,12 @@ func SameImageID(a, b string) bool {
 
 type LogEvent struct {
 	Type        LogType `json:"t,omitempty"`
-	Message     any     `json:"m,omitempty"`
+	Message     any     `json:"m,omitempty" tstype:"string | LogFragment[] | JSONObject"`
 	RawMessage  string  `json:"rm,omitempty"`
 	Timestamp   int64   `json:"ts"`
 	Id          uint32  `json:"id,omitempty"`
-	Level       string  `json:"l,omitempty"`
-	Stream      string  `json:"s,omitempty"`
+	Level       string  `json:"l,omitempty" tstype:"Level"`
+	Stream      string  `json:"s,omitempty" tstype:"'stdout' | 'stderr' | 'unknown'"`
 	ContainerID string  `json:"c,omitempty"`
 	// TimestampPrefix is the byte length of a timestamp the app printed at the
 	// start of a single line when it agrees with Timestamp, so the UI can hide

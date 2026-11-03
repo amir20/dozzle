@@ -16,34 +16,14 @@ import type { ContainerUpdate, DeployVerdict } from "@/models/ContainerUpdate";
 export type JSONValue = string | number | boolean | JSONObject | Array<JSONValue>;
 export type JSONObject = { [x: string]: JSONValue };
 export type Std = "stdout" | "stderr";
-export type LogType = "single" | "group" | "complex";
 export type Position = "start" | "end" | "middle" | undefined;
 export type LogMessage = string | string[] | JSONObject;
 export type Level =
   "error" | "warn" | "warning" | "info" | "debug" | "trace" | "severe" | "critical" | "fatal" | "unknown";
 
-export interface LogFragment {
-  readonly m: string;
-  /** Length of a leading timestamp that repeats `ts`. See LogEvent.tp. */
-  readonly tp?: number;
-}
-
-export interface LogEvent {
-  readonly t: LogType;
-  readonly m: string | LogFragment[] | JSONObject;
-  readonly ts: number;
-  readonly id: number;
-  readonly l: Level;
-  readonly s: "stdout" | "stderr" | "unknown";
-  readonly c: string;
-  readonly rm: string;
-  /**
-   * Length of a timestamp the app printed at the start of the line that agrees
-   * with `ts`. The backend only sets it for plain lines, and the prefix is ASCII,
-   * so it is safe to use as a string index. `m` still holds the full line.
-   */
-  readonly tp?: number;
-}
+// Generated from internal/container/types.go by tygo; see tygo.yaml.
+import type { LogEvent, LogFragment, LogType } from "@/types/generated/container";
+export type { LogEvent, LogFragment, LogType };
 
 /**
  * The matched event behind a log line, when Cloud reports one. Attached to the
@@ -132,7 +112,7 @@ export class SimpleLogEntry extends LogEntry<string> {
     containerID: string,
     id: number,
     date: Date,
-    public readonly level: Level,
+    public readonly level: Level | undefined,
     public readonly std: Std,
     public readonly rawMessage: string,
     public readonly timestampPrefix: number = 0,
@@ -150,7 +130,7 @@ export class GroupedLogEntry extends LogEntry<string[]> {
     containerID: string,
     id: number,
     date: Date,
-    public readonly level: Level,
+    public readonly level: Level | undefined,
     public readonly std: Std,
     /** Per line, see SimpleLogEntry.timestampPrefix. */
     public readonly timestampPrefixes: number[] = [],
@@ -175,7 +155,7 @@ export class ComplexLogEntry extends LogEntry<JSONObject> {
     containerID: string,
     id: number,
     date: Date,
-    public readonly level: Level,
+    public readonly level: Level | undefined,
     public readonly std: Std,
     public readonly rawMessage: string,
     visibleKeys?: Ref<Map<string[], boolean>>,
@@ -471,15 +451,19 @@ function matchedEventRef(entry: LogEntry<any>): ShallowRef<MatchedEvent | undefi
 
 export function asLogEntry(event: LogEvent): LogEntry<LogMessage> {
   const std = event.s === "unknown" ? "stderr" : (event.s ?? "stderr");
+  // omitempty in Go, like every field but ts
+  const containerId = event.c ?? "";
+  const id = event.id ?? 0;
+  const raw = event.rm ?? "";
 
   switch (event.t) {
     case "complex":
-      return new ComplexLogEntry(event.m as JSONObject, event.c, event.id, new Date(event.ts), event.l, std, event.rm);
+      return new ComplexLogEntry(event.m as JSONObject, containerId, id, new Date(event.ts), event.l, std, raw);
     case "group":
       return new GroupedLogEntry(
         (event.m as LogFragment[]).map((f) => f.m),
-        event.c,
-        event.id,
+        containerId,
+        id,
         new Date(event.ts),
         event.l,
         std,
@@ -489,12 +473,12 @@ export function asLogEntry(event: LogEvent): LogEntry<LogMessage> {
     default:
       return new SimpleLogEntry(
         event.m as string,
-        event.c,
-        event.id,
+        containerId,
+        id,
         new Date(event.ts),
         event.l,
         std,
-        event.rm,
+        raw,
         event.tp ?? 0,
       );
   }
