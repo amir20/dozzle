@@ -477,7 +477,7 @@ func executeTool(ctx context.Context, name string, argsJSON string, deps ToolDep
 	case toolFetchContainerLogs:
 		return executeFetchContainerLogs(ctx, argsJSON, deps)
 	case toolInspectContainer:
-		return executeInspectContainer(argsJSON, deps)
+		return executeInspectContainer(ctx, argsJSON, deps)
 	case toolRetroScan:
 		return executeRetroScan(ctx, argsJSON, deps)
 	case toolInspectContainers:

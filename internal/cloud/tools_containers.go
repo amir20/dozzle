@@ -3,12 +3,14 @@ package cloud
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"strings"
 	"time"
 
 	"github.com/amir20/dozzle/internal/container"
 	pb "github.com/amir20/dozzle/proto/cloud"
+	"github.com/rs/zerolog/log"
 )
 
 type inspectContainerArgs struct {
@@ -165,7 +167,7 @@ func executeGetRunningContainerStats(deps ToolDeps) (*pb.CallToolResponse, error
 	}, nil
 }
 
-func executeInspectContainer(argsJSON string, deps ToolDeps) (*pb.CallToolResponse, error) {
+func executeInspectContainer(ctx context.Context, argsJSON string, deps ToolDeps) (*pb.CallToolResponse, error) {
 	var args inspectContainerArgs
 	if err := json.Unmarshal([]byte(argsJSON), &args); err != nil {
 		return nil, fmt.Errorf("failed to parse arguments: %w", err)
@@ -184,10 +186,57 @@ func executeInspectContainer(argsJSON string, deps ToolDeps) (*pb.CallToolRespon
 		return nil, fmt.Errorf("container not found: %w", err)
 	}
 
+	result := inspectResult(cs.Container, buildHostNameMap(deps.HostService))
+	result.HealthLog = recentHealthProbes(ctx, cs)
 	return &pb.CallToolResponse{
 		Success: true,
-		Result:  &pb.CallToolResponse_InspectContainer{InspectContainer: inspectResult(cs.Container, buildHostNameMap(deps.HostService))},
+		Result:  &pb.CallToolResponse_InspectContainer{InspectContainer: result},
 	}, nil
+}
+
+const (
+	// healthLogProbes is how many of Docker's last five healthcheck runs
+	// inspect_container returns, newest kept.
+	healthLogProbes = 3
+	// healthLogOutputBytes clips each run's output. Docker keeps up to 4 KiB.
+	healthLogOutputBytes = 500
+	// healthLogTimeout bounds the live read so a slow engine or agent cannot
+	// hold up the rest of the inspect.
+	healthLogTimeout = 5 * time.Second
+)
+
+// healthLogSource is the part of a ContainerService recentHealthProbes reads.
+type healthLogSource interface {
+	HealthLog(ctx context.Context) ([]container.HealthProbe, error)
+}
+
+// recentHealthProbes reads the last healthcheck runs live from the engine.
+// The store caches only the status, so this is the one place their exit codes
+// and output show up. A failed read leaves them out rather than failing the
+// inspect.
+func recentHealthProbes(ctx context.Context, src healthLogSource) []*pb.HealthProbe {
+	ctx, cancel := context.WithTimeout(ctx, healthLogTimeout)
+	defer cancel()
+	probes, err := src.HealthLog(ctx)
+	if err != nil {
+		if !errors.Is(err, errors.ErrUnsupported) {
+			log.Debug().Err(err).Msg("inspect_container: could not read healthcheck runs")
+		}
+		return nil
+	}
+	if len(probes) > healthLogProbes {
+		probes = probes[len(probes)-healthLogProbes:]
+	}
+	out := make([]*pb.HealthProbe, 0, len(probes))
+	for _, p := range probes {
+		out = append(out, &pb.HealthProbe{
+			Start:    formatTimeOrEmpty(p.Start),
+			End:      formatTimeOrEmpty(p.End),
+			ExitCode: int32(p.ExitCode),
+			Output:   clipUTF8(strings.TrimSpace(p.Output), healthLogOutputBytes),
+		})
+	}
+	return out
 }
 
 // inspectResult is what inspect_container and inspect_containers return for

@@ -85,6 +85,10 @@ func (a *service) PruneHost(ctx context.Context, opts container.PruneOptions) (c
 	return a.client.PruneHost(ctx, opts)
 }
 
+func (a *service) HealthLog(ctx context.Context, c container.Container) ([]container.HealthProbe, error) {
+	return a.client.HealthLog(ctx, c.ID)
+}
+
 func (a *service) ListReclaimable(ctx context.Context) (container.ReclaimableItems, error) {
 	return a.client.ListReclaimable(ctx)
 }

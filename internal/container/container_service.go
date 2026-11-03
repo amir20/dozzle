@@ -2,6 +2,7 @@ package container
 
 import (
 	"context"
+	"errors"
 	"io"
 	"time"
 
@@ -35,6 +36,16 @@ func (c *ContainerService) LogHistogram(ctx context.Context, from time.Time, to 
 
 func (c *ContainerService) StreamLogs(ctx context.Context, from time.Time, stdTypes StdType, events chan<- *LogEvent) error {
 	return c.clientService.StreamLogs(ctx, c.Container, from, stdTypes, events)
+}
+
+// HealthLog reads the container's recent healthcheck runs live from the
+// engine. A host that cannot read them returns errors.ErrUnsupported.
+func (c *ContainerService) HealthLog(ctx context.Context) ([]HealthProbe, error) {
+	reader, ok := c.clientService.(HealthLogReader)
+	if !ok {
+		return nil, errors.ErrUnsupported
+	}
+	return reader.HealthLog(ctx, c.Container)
 }
 
 func (c *ContainerService) Action(ctx context.Context, action ContainerAction) error {
