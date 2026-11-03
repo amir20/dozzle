@@ -17,6 +17,7 @@ import LogViewer from "./LogViewer.vue";
 import { Container } from "@/models/Container";
 import type { ContainerState } from "@/types/Container";
 import { Level, type LogEntry } from "@/models/LogEntry";
+import { containerFixture } from "@/testing/containerFixture";
 
 // The component is generic over its entity; mount cannot infer that, so pin it to a container.
 const Component = EventSourceComponent<Container>;
@@ -170,21 +171,7 @@ describe("<ContainerEventSource />", () => {
       },
       props: {
         streamSource: useContainerStream,
-        entity: new Container(
-          "abc",
-          new Date(), // created
-          new Date(), // started
-          new Date(), // finished
-          "image",
-          "name",
-          "command",
-          "localhost",
-          {},
-          state,
-          0,
-          0,
-          [],
-        ),
+        entity: containerFixture({ id: "abc", state }),
       },
     });
   }
@@ -206,22 +193,7 @@ describe("<ContainerEventSource />", () => {
   // The stream source is handed a getter over the `entity` prop, so swapping the
   // prop has to reach it and reconnect for the new container.
   test("reconnects when the entity prop changes", async () => {
-    const container = (id: string) =>
-      new Container(
-        id,
-        new Date(),
-        new Date(),
-        new Date(),
-        "image",
-        "name",
-        "command",
-        "localhost",
-        {},
-        "running",
-        0,
-        0,
-        [],
-      );
+    const container = (id: string) => containerFixture({ id });
     const entity = shallowRef(container("abc"));
     const wrapper = createLogEventSource({ entity });
     sources[sourceUrl].emitOpen();

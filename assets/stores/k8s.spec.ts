@@ -1,7 +1,7 @@
 import { describe, expect, test, vi } from "vitest";
 
-import { Container } from "@/models/Container";
 import { getK8sOwnerRefs, groupK8sOwners, ownerMembershipLabel } from "./k8s";
+import { containerFixture } from "@/testing/containerFixture";
 
 vi.mock("@/stores/config", () => ({
   __esModule: true,
@@ -10,21 +10,7 @@ vi.mock("@/stores/config", () => ({
 }));
 
 function makeContainer(id: string, labels: Record<string, string>) {
-  return new Container(
-    id,
-    new Date(),
-    new Date(),
-    new Date(),
-    "image",
-    id,
-    "command",
-    "localhost",
-    labels,
-    "running",
-    0,
-    0,
-    [],
-  );
+  return containerFixture({ id, name: id, labels });
 }
 
 describe("getK8sOwnerRefs", () => {

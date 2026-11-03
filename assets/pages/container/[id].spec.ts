@@ -10,6 +10,7 @@ import type { ContainerState } from "@/types/Container";
 import { useContainerStore } from "@/stores/container";
 import { settings } from "@/stores/settings";
 import ContainerPage from "./[id].vue";
+import { containerFixture } from "@/testing/containerFixture";
 
 vi.mock("@/stores/config", () => ({
   default: { base: "", hosts: [{ id: "host", name: "test host" }] },
@@ -32,7 +33,17 @@ vi.mock("@/stores/container", async () => {
 const minutesAgo = (m: number) => new Date(Date.now() - m * 60 * 1000);
 
 function container(id: string, state: ContainerState, startedAt: Date, finishedAt: Date) {
-  return new Container(id, startedAt, startedAt, finishedAt, "app:1", "app", "/app", "host", {}, state, 0, 0, []);
+  return containerFixture({
+    id,
+    created: startedAt,
+    startedAt,
+    finishedAt,
+    image: "app:1",
+    name: "app",
+    command: "/app",
+    host: "host",
+    state,
+  });
 }
 
 // "old" was recreated a minute ago and "new" replaced it.

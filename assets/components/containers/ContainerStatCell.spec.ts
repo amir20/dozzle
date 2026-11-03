@@ -6,6 +6,7 @@ import { describe, expect, test, vi } from "vitest";
 import ContainerStatCell from "./ContainerStatCell.vue";
 import { Container, emptyStat, type Stat } from "@/models/Container";
 import type { Host } from "@/stores/hosts";
+import { containerFixture } from "@/testing/containerFixture";
 
 vi.mock("@/stores/config", () => ({
   __esModule: true,
@@ -18,21 +19,7 @@ function makeStat(partial: Partial<Stat> = {}): Stat {
 }
 
 function makeContainer(lastStat: Partial<Stat>, cpuLimit = 0): Container {
-  return new Container(
-    "id-1",
-    new Date(),
-    new Date(),
-    new Date(),
-    "image",
-    "name",
-    "command",
-    "localhost",
-    {},
-    "running",
-    cpuLimit,
-    0,
-    [makeStat(lastStat)],
-  );
+  return containerFixture({ id: "id-1", cpuLimit, stats: [makeStat(lastStat)] });
 }
 
 function host(nCPU?: number): Host {

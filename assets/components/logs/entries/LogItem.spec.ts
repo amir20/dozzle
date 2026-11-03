@@ -8,6 +8,7 @@ import { SimpleLogEntry } from "@/models/LogEntry";
 import { allLevels, loggingContextKey } from "@/composable/logs/logContext";
 import { useContainerStore } from "@/stores/container";
 import LogItem from "./LogItem.vue";
+import { containerFixture } from "@/testing/containerFixture";
 
 vi.mock("@/stores/config", () => ({
   default: { base: "", hosts: [{ id: "host", name: "test host" }] },
@@ -29,9 +30,7 @@ vi.mock("@/stores/container", async () => {
 function mountItem(containerID: string) {
   setActivePinia(createPinia());
   const store = useContainerStore();
-  store.containers = [
-    new Container("known", new Date(), new Date(), new Date(), "nginx", "web", "", "host", {}, "running", 0, 0, []),
-  ];
+  store.containers = [containerFixture({ id: "known", image: "nginx", name: "web", command: "", host: "host" })];
   const entry = new SimpleLogEntry("hello", containerID, 1, new Date(), "info", "stdout", "hello");
   return mount(LogItem, {
     props: { logEntry: entry },

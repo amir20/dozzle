@@ -5,7 +5,7 @@ import { mount } from "@vue/test-utils";
 import { describe, expect, test, vi } from "vitest";
 import { createI18n } from "vue-i18n";
 import ContainerLink from "./ContainerLink.vue";
-import { Container } from "@/models/Container";
+import { containerFixture } from "@/testing/containerFixture";
 
 vi.mock("@/stores/config", () => ({
   __esModule: true,
@@ -23,21 +23,7 @@ const i18n = createI18n({
 });
 
 function makeContainer(labels: Record<string, string>) {
-  return new Container(
-    "id-1",
-    new Date(),
-    new Date(),
-    new Date(),
-    "image",
-    "name",
-    "command",
-    "localhost",
-    labels,
-    "running",
-    0,
-    0,
-    [],
-  );
+  return containerFixture({ id: "id-1", labels });
 }
 
 function mountLink(labels: Record<string, string>) {
