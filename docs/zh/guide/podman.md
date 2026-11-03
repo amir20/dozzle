@@ -1,7 +1,7 @@
 ---
 title: Podman
 description: 以 rootful 或 rootless 方式用 Podman 运行 Dozzle，可作为独立服务、Quadlet 单元或代理，并解决内存统计缺失和健康检查失败的问题。
-sourceHash: 576acd7f7e7d
+sourceHash: a91c7eb64f34
 ---
 
 # Podman
@@ -43,7 +43,7 @@ sudo systemctl enable podman.socket
 sudo systemctl start podman.socket
 
 # Dozzle 可以通过 Docker 套接字连接
-podman run -v /run/podman/podman.sock:/var/run/docker.sock:ro \
+podman run -v /run/podman/podman.sock:/var/run/docker.sock \
   -p 3000:8080 \
   ghcr.io/amir20/dozzle:latest
 ```
@@ -58,7 +58,7 @@ systemctl --user enable podman.socket
 systemctl --user start podman.socket
 
 # 对于名为 'appuser' 的用户，Dozzle 可以这样连接：
-podman run -v /run/user/$(id -u appuser)/podman/podman.sock:/var/run/docker.sock:ro \
+podman run -v /run/user/$(id -u appuser)/podman/podman.sock:/var/run/docker.sock \
   -p 3000:8080 \
   ghcr.io/amir20/dozzle:latest
 ```
@@ -78,7 +78,7 @@ Wants=network-online.target
 [Container]
 Image=ghcr.io/amir20/dozzle:latest
 PublishPort=3000:8080
-Volume=/run/user/%U/podman/podman.sock:/var/run/docker.sock:ro
+Volume=/run/user/%U/podman/podman.sock:/var/run/docker.sock
 
 HealthCmd=/dozzle healthcheck
 HealthInterval=5s
@@ -126,7 +126,7 @@ systemctl --user enable --now dozzle.service
 # Rootful 代理
 podman run -d \
   --name dozzle-agent \
-  -v /run/podman/podman.sock:/var/run/docker.sock:ro \
+  -v /run/podman/podman.sock:/var/run/docker.sock \
   -p 7007:7007 \
   ghcr.io/amir20/dozzle:latest agent
 ```
@@ -135,7 +135,7 @@ podman run -d \
 # Rootless 代理（用户为 'appuser'）
 sudo -u appuser podman run -d \
   --name dozzle-agent \
-  -v /run/user/$(id -u appuser)/podman/podman.sock:/var/run/docker.sock:ro \
+  -v /run/user/$(id -u appuser)/podman/podman.sock:/var/run/docker.sock \
   -p 7007:7007 \
   ghcr.io/amir20/dozzle:latest agent
 ```
@@ -154,7 +154,7 @@ Wants=network-online.target
 [Container]
 Image=ghcr.io/amir20/dozzle:latest
 PublishPort=7007:7007
-Volume=/run/user/%U/podman/podman.sock:/var/run/docker.sock:ro
+Volume=/run/user/%U/podman/podman.sock:/var/run/docker.sock
 Exec=agent
 
 HealthCmd=/dozzle healthcheck

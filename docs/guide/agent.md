@@ -33,7 +33,7 @@ services:
     image: amir20/dozzle:latest
     command: agent
     volumes:
-      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /var/run/docker.sock:/var/run/docker.sock
     ports:
       - 7007:7007
 ```
@@ -162,7 +162,7 @@ services:
       start_period: 5s
       start_interval: 5s
     volumes:
-      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /var/run/docker.sock:/var/run/docker.sock
     ports:
       - 7007:7007
 ```
@@ -185,7 +185,7 @@ services:
     environment:
       - DOZZLE_HOSTNAME=my-special-name
     volumes:
-      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /var/run/docker.sock:/var/run/docker.sock
     ports:
       - 7007:7007
 ```
@@ -206,7 +206,7 @@ services:
     environment:
       - DOZZLE_FILTER=label=color
     volumes:
-      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /var/run/docker.sock:/var/run/docker.sock
 ```
 
 This will restrict the agent to displaying only containers with the label `color`. Keep in mind that these filters are combined with the UI filters to narrow down the containers. To learn more about the different types of filters, read the [filters documentation](/guide/filters#ui-agents-and-user-filters).
@@ -326,7 +326,7 @@ services:
         ...
         -----END PRIVATE KEY-----
     volumes:
-      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /var/run/docker.sock:/var/run/docker.sock
     ports:
       - 7007:7007
 ```
