@@ -98,7 +98,7 @@ export function agentComposeSnippet(image: string, cert?: Pick<SetupAgentCert, "
     ];
     lines.push("    environment:", ...block("DOZZLE_CERT_PEM", cert.cert), ...block("DOZZLE_KEY_PEM", cert.key));
   }
-  lines.push("    volumes:", "      - /var/run/docker.sock:/var/run/docker.sock:ro", "    ports:", "      - 7007:7007");
+  lines.push("    volumes:", "      - /var/run/docker.sock:/var/run/docker.sock", "    ports:", "      - 7007:7007");
   return lines.join("\n");
 }
 
