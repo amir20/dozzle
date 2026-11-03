@@ -525,6 +525,30 @@ func (c *Client) ListReclaimable(ctx context.Context) (container.ReclaimableItem
 	return items, nil
 }
 
+// InspectNetwork returns errors.ErrUnsupported from an agent too old to know the call.
+func (c *Client) InspectNetwork(ctx context.Context, name string) (container.Network, error) {
+	resp, err := c.client.InspectNetwork(ctx, &pb.InspectNetworkRequest{Name: name})
+	if status.Code(err) == codes.Unimplemented {
+		return container.Network{}, fmt.Errorf("agent cannot inspect networks: %w", errors.ErrUnsupported)
+	}
+	if err != nil {
+		return container.Network{}, err
+	}
+	return networkFromProto(resp), nil
+}
+
+// InspectVolume returns errors.ErrUnsupported from an agent too old to know the call.
+func (c *Client) InspectVolume(ctx context.Context, name string) (container.Volume, error) {
+	resp, err := c.client.InspectVolume(ctx, &pb.InspectVolumeRequest{Name: name})
+	if status.Code(err) == codes.Unimplemented {
+		return container.Volume{}, fmt.Errorf("agent cannot inspect volumes: %w", errors.ErrUnsupported)
+	}
+	if err != nil {
+		return container.Volume{}, err
+	}
+	return volumeFromProto(resp), nil
+}
+
 // HealthLog returns errors.ErrUnsupported from an agent too old to know the call.
 func (c *Client) HealthLog(ctx context.Context, containerID string) ([]container.HealthProbe, error) {
 	resp, err := c.client.HealthLog(ctx, &pb.HealthLogRequest{ContainerId: containerID})

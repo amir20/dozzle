@@ -372,6 +372,36 @@ func (s *server) HealthLog(ctx context.Context, req *pb.HealthLogRequest) (*pb.H
 	return resp, nil
 }
 
+func (s *server) InspectNetwork(ctx context.Context, req *pb.InspectNetworkRequest) (*pb.InspectNetworkResponse, error) {
+	inspector, ok := s.service.(container.HostResourceInspector)
+	if !ok {
+		return nil, status.Error(codes.Unimplemented, "this host has no networks to inspect")
+	}
+	n, err := inspector.InspectNetwork(ctx, req.Name)
+	if errors.Is(err, errors.ErrUnsupported) {
+		return nil, status.Error(codes.Unimplemented, err.Error())
+	}
+	if err != nil {
+		return nil, status.Error(codes.Internal, err.Error())
+	}
+	return networkToProto(n), nil
+}
+
+func (s *server) InspectVolume(ctx context.Context, req *pb.InspectVolumeRequest) (*pb.InspectVolumeResponse, error) {
+	inspector, ok := s.service.(container.HostResourceInspector)
+	if !ok {
+		return nil, status.Error(codes.Unimplemented, "this host has no volumes to inspect")
+	}
+	v, err := inspector.InspectVolume(ctx, req.Name)
+	if errors.Is(err, errors.ErrUnsupported) {
+		return nil, status.Error(codes.Unimplemented, err.Error())
+	}
+	if err != nil {
+		return nil, status.Error(codes.Internal, err.Error())
+	}
+	return volumeToProto(v), nil
+}
+
 func (s *server) ListReclaimable(ctx context.Context, _ *pb.ListReclaimableRequest) (*pb.ListReclaimableResponse, error) {
 	lister, ok := s.service.(container.HostReclaimableLister)
 	if !ok {

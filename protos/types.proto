@@ -43,6 +43,12 @@ message Container {
   // unset until the agent has measured the writable layer
   optional int64 sizeRw = 30;
   repeated VolumeUsage volumes = 31;
+  repeated ContainerNetwork networks = 32;
+}
+
+message ContainerNetwork {
+  string name = 1;
+  string ip = 2;
 }
 
 message VolumeUsage {
@@ -68,6 +74,8 @@ message Mount {
   string source = 2;
   string destination = 3;
   bool rw = 4;
+  // the volume's name; empty for a bind mount
+  string name = 5;
 }
 
 message MountStat {

@@ -19,6 +19,8 @@ export interface ContainerMount {
   readonly source: string;
   readonly destination: string;
   readonly rw: boolean;
+  // the volume's name; absent for a bind mount
+  readonly name?: string;
 }
 
 export interface MountStat {

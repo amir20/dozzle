@@ -23,6 +23,13 @@ type HostReclaimableLister interface {
 	ListReclaimable(ctx context.Context) (ReclaimableItems, error)
 }
 
+// HostResourceInspector is implemented by the ClientServices that can inspect
+// a host's networks and volumes: docker, and an agent in front of one.
+type HostResourceInspector interface {
+	InspectNetwork(ctx context.Context, name string) (Network, error)
+	InspectVolume(ctx context.Context, name string) (Volume, error)
+}
+
 // HealthProbe is one healthcheck run, as Docker keeps it in State.Health.Log.
 type HealthProbe struct {
 	Start    time.Time

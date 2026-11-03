@@ -520,6 +520,22 @@ func (d *Service) ListReclaimable(ctx context.Context) (container.ReclaimableIte
 	return lister.ListReclaimable(ctx)
 }
 
+func (d *Service) InspectNetwork(ctx context.Context, name string) (container.Network, error) {
+	inspector, ok := d.client.(container.ResourceInspector)
+	if !ok {
+		return container.Network{}, errors.ErrUnsupported
+	}
+	return inspector.InspectNetwork(ctx, name)
+}
+
+func (d *Service) InspectVolume(ctx context.Context, name string) (container.Volume, error) {
+	inspector, ok := d.client.(container.ResourceInspector)
+	if !ok {
+		return container.Volume{}, errors.ErrUnsupported
+	}
+	return inspector.InspectVolume(ctx, name)
+}
+
 func (d *Service) SubscribeStats(ctx context.Context, stats chan<- container.ContainerStat) {
 	d.store.SubscribeStats(ctx, stats)
 }

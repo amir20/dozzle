@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"io"
+	"slices"
 	"time"
 
 	"github.com/amir20/dozzle/internal/imagecheck"
@@ -46,6 +47,37 @@ func (c *ContainerService) HealthLog(ctx context.Context) ([]HealthProbe, error)
 		return nil, errors.ErrUnsupported
 	}
 	return reader.HealthLog(ctx, c.Container)
+}
+
+// ErrNotAttached is returned for a network or volume the container does not use.
+// Inspect is reached through a container the user can see, so it only ever
+// reaches that container's own resources.
+var ErrNotAttached = errors.New("the container does not use this network or volume")
+
+// InspectNetwork reads one of the networks the container is attached to. A host
+// that cannot inspect networks returns errors.ErrUnsupported.
+func (c *ContainerService) InspectNetwork(ctx context.Context, name string) (Network, error) {
+	if !slices.ContainsFunc(c.Container.Networks, func(n ContainerNetwork) bool { return n.Name == name }) {
+		return Network{}, ErrNotAttached
+	}
+	inspector, ok := c.clientService.(HostResourceInspector)
+	if !ok {
+		return Network{}, errors.ErrUnsupported
+	}
+	return inspector.InspectNetwork(ctx, name)
+}
+
+// InspectVolume reads one of the volumes the container mounts. A host that
+// cannot inspect volumes returns errors.ErrUnsupported.
+func (c *ContainerService) InspectVolume(ctx context.Context, name string) (Volume, error) {
+	if name == "" || !slices.ContainsFunc(c.Container.Mounts, func(m Mount) bool { return m.Name == name }) {
+		return Volume{}, ErrNotAttached
+	}
+	inspector, ok := c.clientService.(HostResourceInspector)
+	if !ok {
+		return Volume{}, errors.ErrUnsupported
+	}
+	return inspector.InspectVolume(ctx, name)
 }
 
 func (c *ContainerService) Action(ctx context.Context, action ContainerAction) error {

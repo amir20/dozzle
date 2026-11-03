@@ -30,6 +30,8 @@ service AgentService {
   rpc PruneHost(PruneHostRequest) returns (PruneHostResponse) {}
   rpc ListReclaimable(ListReclaimableRequest) returns (ListReclaimableResponse) {}
   rpc HealthLog(HealthLogRequest) returns (HealthLogResponse) {}
+  rpc InspectNetwork(InspectNetworkRequest) returns (InspectNetworkResponse) {}
+  rpc InspectVolume(InspectVolumeRequest) returns (InspectVolumeResponse) {}
 }
 
 message ListContainersRequest {
@@ -136,6 +138,57 @@ message HealthProbe {
 // the container has no healthcheck.
 message HealthLogResponse {
   repeated HealthProbe probes = 1;
+}
+
+message InspectNetworkRequest {
+  string name = 1;
+}
+
+message InspectNetworkResponse {
+  string id = 1;
+  string name = 2;
+  string driver = 3;
+  string scope = 4;
+  bool internal = 5;
+  repeated NetworkSubnet subnets = 6;
+  repeated NetworkEndpoint containers = 7;
+}
+
+message NetworkSubnet {
+  string subnet = 1;
+  string gateway = 2;
+  // zero when the daemon is too old to report IPAM status
+  uint64 inUse = 3;
+  uint64 available = 4;
+}
+
+message NetworkEndpoint {
+  string id = 1;
+  string name = 2;
+  string ip = 3;
+}
+
+message InspectVolumeRequest {
+  string name = 1;
+}
+
+// InspectVolumeResponse is `docker volume inspect` plus every container that
+// mounts the volume, running or not.
+message InspectVolumeResponse {
+  string name = 1;
+  string driver = 2;
+  string scope = 3;
+  map<string, string> options = 4;
+  map<string, string> labels = 5;
+  repeated VolumeUser containers = 6;
+  string mountpoint = 7;
+  // unset when the driver does not report it
+  google.protobuf.Timestamp created = 8;
+}
+
+message VolumeUser {
+  string id = 1;
+  string name = 2;
 }
 
 message ListReclaimableRequest {}
