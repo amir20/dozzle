@@ -1210,6 +1210,8 @@ inspect:
   driver-options: "驱动选项"
   mounted-by: "挂载者"
   details-failed: "无法加载详情。"
+  size: "大小"
+  mountpoint: "挂载点"
 reclaim:
   clean-up: "清理"
   free-up: "释放 {size}"

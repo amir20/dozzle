@@ -39,6 +39,7 @@ func TestNetworkAndVolumeProtoRoundTrip(t *testing.T) {
 	var volume container.Volume
 	faker.FakeData(&network, options.WithRandomMapAndSliceMinSize(1))
 	faker.FakeData(&volume, options.WithRandomMapAndSliceMinSize(1))
+	volume.Created = volume.Created.UTC()
 
 	assert.Equal(t, network, networkFromProto(networkToProto(network)))
 	assert.Equal(t, volume, volumeFromProto(volumeToProto(volume)))

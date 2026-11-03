@@ -1225,6 +1225,8 @@ inspect:
   driver-options: "Opsi driver"
   mounted-by: "Dipasang oleh"
   details-failed: "Gagal memuat detail."
+  size: "Ukuran"
+  mountpoint: "Titik mount"
 reclaim:
   clean-up: "Bersihkan"
   free-up: "Kosongkan {size}"

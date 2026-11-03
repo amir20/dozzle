@@ -1215,6 +1215,8 @@ inspect:
   driver-options: "Možnosti gonilnika"
   mounted-by: "Priklopljeno v"
   details-failed: "Podrobnosti ni bilo mogoče naložiti."
+  size: "Velikost"
+  mountpoint: "Točka priklopa"
 reclaim:
   clean-up: "Počisti"
   free-up: "Sprosti {size}"

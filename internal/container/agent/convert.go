@@ -310,9 +310,13 @@ func volumeToProto(v container.Volume) *pb.InspectVolumeResponse {
 		Name:       v.Name,
 		Driver:     v.Driver,
 		Scope:      v.Scope,
+		Mountpoint: v.Mountpoint,
 		Options:    v.Options,
 		Labels:     v.Labels,
 		Containers: make([]*pb.VolumeUser, 0, len(v.Containers)),
+	}
+	if !v.Created.IsZero() {
+		resp.Created = timestamppb.New(v.Created)
 	}
 	for _, u := range v.Containers {
 		resp.Containers = append(resp.Containers, &pb.VolumeUser{Id: u.ID, Name: u.Name})
@@ -325,9 +329,13 @@ func volumeFromProto(resp *pb.InspectVolumeResponse) container.Volume {
 		Name:       resp.Name,
 		Driver:     resp.Driver,
 		Scope:      resp.Scope,
+		Mountpoint: resp.Mountpoint,
 		Options:    resp.Options,
 		Labels:     resp.Labels,
 		Containers: make([]container.VolumeUser, 0, len(resp.Containers)),
+	}
+	if resp.Created != nil {
+		v.Created = resp.Created.AsTime()
 	}
 	for _, u := range resp.Containers {
 		v.Containers = append(v.Containers, container.VolumeUser{ID: u.Id, Name: u.Name})

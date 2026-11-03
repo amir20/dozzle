@@ -5,6 +5,7 @@ import (
 	"context"
 	"slices"
 	"strings"
+	"time"
 
 	"github.com/amir20/dozzle/internal/container"
 	"github.com/moby/moby/client"
@@ -74,9 +75,13 @@ func (d *Client) InspectVolume(ctx context.Context, name string) (container.Volu
 		Name:       v.Name,
 		Driver:     v.Driver,
 		Scope:      v.Scope,
+		Mountpoint: v.Mountpoint,
 		Options:    v.Options,
 		Labels:     v.Labels,
 		Containers: make([]container.VolumeUser, 0, len(list.Items)),
+	}
+	if created, err := time.Parse(time.RFC3339, v.CreatedAt); err == nil {
+		volume.Created = created.UTC()
 	}
 	for _, c := range list.Items {
 		name := ""

@@ -1210,6 +1210,8 @@ inspect:
   driver-options: "Driverindstillinger"
   mounted-by: "Monteret af"
   details-failed: "Kunne ikke indlæse detaljer."
+  size: "Størrelse"
+  mountpoint: "Monteringspunkt"
 reclaim:
   clean-up: "Ryd op"
   free-up: "Frigør {size}"

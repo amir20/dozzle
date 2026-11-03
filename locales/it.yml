@@ -1210,6 +1210,8 @@ inspect:
   driver-options: "Opzioni del driver"
   mounted-by: "Montato da"
   details-failed: "Impossibile caricare i dettagli."
+  size: "Dimensione"
+  mountpoint: "Punto di montaggio"
 reclaim:
   clean-up: "Pulisci"
   free-up: "Libera {size}"

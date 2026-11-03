@@ -1212,6 +1212,8 @@ inspect:
   driver-options: "Opcje sterownika"
   mounted-by: "Zamontowany przez"
   details-failed: "Nie udało się wczytać szczegółów."
+  size: "Rozmiar"
+  mountpoint: "Punkt montowania"
 reclaim:
   clean-up: "Wyczyść"
   free-up: "Zwolnij {size}"

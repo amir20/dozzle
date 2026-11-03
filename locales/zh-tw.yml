@@ -1212,6 +1212,8 @@ inspect:
   driver-options: "驅動程式選項"
   mounted-by: "掛載者"
   details-failed: "無法載入詳細資料。"
+  size: "大小"
+  mountpoint: "掛載點"
 reclaim:
   clean-up: "清理"
   free-up: "釋放 {size}"

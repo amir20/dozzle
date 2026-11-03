@@ -1211,6 +1211,8 @@ inspect:
   driver-options: "Driveropties"
   mounted-by: "Gemount door"
   details-failed: "Details konden niet worden geladen."
+  size: "Grootte"
+  mountpoint: "Koppelpunt"
 reclaim:
   clean-up: "Opruimen"
   free-up: "{size} vrijmaken"

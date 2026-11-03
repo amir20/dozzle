@@ -1221,6 +1221,8 @@ inspect:
   driver-options: "Driver options"
   mounted-by: "Mounted by"
   details-failed: "Could not load details."
+  size: "Size"
+  mountpoint: "Mountpoint"
 reclaim:
   clean-up: "Clean up"
   free-up: "Free up {size}"

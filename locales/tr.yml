@@ -1216,6 +1216,8 @@ inspect:
   driver-options: "Sürücü seçenekleri"
   mounted-by: "Bağlayan konteynerler"
   details-failed: "Ayrıntılar yüklenemedi."
+  size: "Boyut"
+  mountpoint: "Bağlama noktası"
 reclaim:
   clean-up: "Temizle"
   free-up: "{size} boşalt"

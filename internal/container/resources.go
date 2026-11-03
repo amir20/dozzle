@@ -1,6 +1,9 @@
 package container
 
-import "context"
+import (
+	"context"
+	"time"
+)
 
 // ContainerNetwork is one network a container is attached to, as the
 // container's own inspect reports it. IP is empty under host networking.
@@ -39,9 +42,12 @@ type NetworkEndpoint struct {
 
 // Volume is `docker volume inspect` plus every container that mounts it.
 type Volume struct {
-	Name       string            `json:"name"`
-	Driver     string            `json:"driver"`
-	Scope      string            `json:"scope"`
+	Name       string `json:"name"`
+	Driver     string `json:"driver"`
+	Scope      string `json:"scope"`
+	Mountpoint string `json:"mountpoint,omitempty"`
+	// Created is zero when the driver does not report it.
+	Created    time.Time         `json:"created,omitzero"`
 	Options    map[string]string `json:"options,omitempty"`
 	Labels     map[string]string `json:"labels,omitempty"`
 	Containers []VolumeUser      `json:"containers"`

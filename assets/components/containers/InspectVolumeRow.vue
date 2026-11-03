@@ -32,6 +32,23 @@
             <dt class="text-base-content/60 text-xs">{{ $t("inspect.scope") }}</dt>
             <dd class="mt-1 truncate font-mono text-sm">{{ details.scope }}</dd>
           </div>
+          <!-- From the size monitor's last walk; absent until it has measured. -->
+          <div v-if="size !== undefined" class="mt-3 min-w-0">
+            <dt class="text-base-content/60 text-xs">{{ $t("inspect.size") }}</dt>
+            <dd class="mt-1 truncate font-mono text-sm">{{ formatBytes(size) }}</dd>
+          </div>
+          <div v-if="details.created" class="mt-3 min-w-0">
+            <dt class="text-base-content/60 text-xs">{{ $t("inspect.created") }}</dt>
+            <dd class="mt-1 truncate font-mono text-sm" :title="dateFormat.format(new Date(details.created))">
+              <RelativeTime :date="new Date(details.created)" />
+            </dd>
+          </div>
+        </dl>
+        <dl v-if="details.mountpoint" class="space-y-1">
+          <dt class="text-base-content/60 text-xs">{{ $t("inspect.mountpoint") }}</dt>
+          <dd class="bg-base-content/5 rounded-md px-3 py-2 font-mono text-xs wrap-anywhere">
+            {{ details.mountpoint }}
+          </dd>
         </dl>
         <!-- Driver options are where an NFS or CIFS volume says where its data really lives. -->
         <div v-if="options.length" class="space-y-1">
@@ -78,6 +95,8 @@ import type { ContainerMount } from "@/types/Container";
 interface VolumeDetails {
   driver: string;
   scope: string;
+  mountpoint?: string;
+  created?: string;
   options?: Record<string, string>;
   labels?: Record<string, string>;
   containers: { id: string; name: string }[];
@@ -117,6 +136,9 @@ function toggle() {
 const links = computed(
   () => details.value?.containers.length ?? container.volumes.find((v) => v.name === mount.name)?.links ?? 0,
 );
+
+const size = computed(() => container.volumes.find((v) => v.name === mount.name)?.size);
+const dateFormat = new Intl.DateTimeFormat(undefined, { dateStyle: "medium", timeStyle: "short" });
 
 const sortEntries = (record?: Record<string, string>) =>
   Object.entries(record ?? {}).sort(([a], [b]) => a.localeCompare(b));

@@ -1212,6 +1212,8 @@ inspect:
   driver-options: "드라이버 옵션"
   mounted-by: "마운트한 컨테이너"
   details-failed: "세부 정보를 불러오지 못했습니다."
+  size: "크기"
+  mountpoint: "마운트 지점"
 reclaim:
   clean-up: "정리"
   free-up: "{size} 확보"

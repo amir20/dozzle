@@ -4,6 +4,7 @@ import (
 	"context"
 	"net/netip"
 	"testing"
+	"time"
 
 	"github.com/amir20/dozzle/internal/container"
 	docker "github.com/moby/moby/api/types/container"
@@ -87,10 +88,12 @@ func TestInspectNetwork_withoutStatus(t *testing.T) {
 func TestInspectVolume(t *testing.T) {
 	proxy := new(mockedProxy)
 	proxy.On("VolumeInspect", mock.Anything, "data").Return(client.VolumeInspectResult{Volume: volume.Volume{
-		Name:    "data",
-		Driver:  "local",
-		Scope:   "local",
-		Options: map[string]string{"type": "nfs"},
+		Name:       "data",
+		Driver:     "local",
+		Scope:      "local",
+		Mountpoint: "/var/lib/docker/volumes/data/_data",
+		CreatedAt:  "2026-09-11T11:30:53-07:00",
+		Options:    map[string]string{"type": "nfs"},
 	}}, nil)
 	vp := &volumeProxy{mockedProxy: proxy, items: []docker.Summary{
 		{ID: "bbbbbbbbbbbbbbbbbbbb", Names: []string{"/web"}},
@@ -106,6 +109,8 @@ func TestInspectVolume(t *testing.T) {
 		Name:       "data",
 		Driver:     "local",
 		Scope:      "local",
+		Mountpoint: "/var/lib/docker/volumes/data/_data",
+		Created:    time.Date(2026, 9, 11, 18, 30, 53, 0, time.UTC),
 		Options:    map[string]string{"type": "nfs"},
 		Containers: []container.VolumeUser{{ID: "aaaaaaaaaaaa", Name: "db"}, {ID: "bbbbbbbbbbbb", Name: "web"}},
 	}, got)

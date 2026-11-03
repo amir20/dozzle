@@ -1526,13 +1526,16 @@ func (x *InspectVolumeRequest) GetName() string {
 // InspectVolumeResponse is `docker volume inspect` plus every container that
 // mounts the volume, running or not.
 type InspectVolumeResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Name          string                 `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
-	Driver        string                 `protobuf:"bytes,2,opt,name=driver,proto3" json:"driver,omitempty"`
-	Scope         string                 `protobuf:"bytes,3,opt,name=scope,proto3" json:"scope,omitempty"`
-	Options       map[string]string      `protobuf:"bytes,4,rep,name=options,proto3" json:"options,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
-	Labels        map[string]string      `protobuf:"bytes,5,rep,name=labels,proto3" json:"labels,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
-	Containers    []*VolumeUser          `protobuf:"bytes,6,rep,name=containers,proto3" json:"containers,omitempty"`
+	state      protoimpl.MessageState `protogen:"open.v1"`
+	Name       string                 `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
+	Driver     string                 `protobuf:"bytes,2,opt,name=driver,proto3" json:"driver,omitempty"`
+	Scope      string                 `protobuf:"bytes,3,opt,name=scope,proto3" json:"scope,omitempty"`
+	Options    map[string]string      `protobuf:"bytes,4,rep,name=options,proto3" json:"options,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	Labels     map[string]string      `protobuf:"bytes,5,rep,name=labels,proto3" json:"labels,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	Containers []*VolumeUser          `protobuf:"bytes,6,rep,name=containers,proto3" json:"containers,omitempty"`
+	Mountpoint string                 `protobuf:"bytes,7,opt,name=mountpoint,proto3" json:"mountpoint,omitempty"`
+	// unset when the driver does not report it
+	Created       *timestamppb.Timestamp `protobuf:"bytes,8,opt,name=created,proto3" json:"created,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1605,6 +1608,20 @@ func (x *InspectVolumeResponse) GetLabels() map[string]string {
 func (x *InspectVolumeResponse) GetContainers() []*VolumeUser {
 	if x != nil {
 		return x.Containers
+	}
+	return nil
+}
+
+func (x *InspectVolumeResponse) GetMountpoint() string {
+	if x != nil {
+		return x.Mountpoint
+	}
+	return ""
+}
+
+func (x *InspectVolumeResponse) GetCreated() *timestamppb.Timestamp {
+	if x != nil {
+		return x.Created
 	}
 	return nil
 }
@@ -3138,7 +3155,7 @@ const file_rpc_proto_rawDesc = "" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12\x0e\n" +
 	"\x02ip\x18\x03 \x01(\tR\x02ip\"*\n" +
 	"\x14InspectVolumeRequest\x12\x12\n" +
-	"\x04name\x18\x01 \x01(\tR\x04name\"\x93\x03\n" +
+	"\x04name\x18\x01 \x01(\tR\x04name\"\xe9\x03\n" +
 	"\x15InspectVolumeResponse\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12\x16\n" +
 	"\x06driver\x18\x02 \x01(\tR\x06driver\x12\x14\n" +
@@ -3147,7 +3164,11 @@ const file_rpc_proto_rawDesc = "" +
 	"\x06labels\x18\x05 \x03(\v2+.protobuf.InspectVolumeResponse.LabelsEntryR\x06labels\x124\n" +
 	"\n" +
 	"containers\x18\x06 \x03(\v2\x14.protobuf.VolumeUserR\n" +
-	"containers\x1a:\n" +
+	"containers\x12\x1e\n" +
+	"\n" +
+	"mountpoint\x18\a \x01(\tR\n" +
+	"mountpoint\x124\n" +
+	"\acreated\x18\b \x01(\v2\x1a.google.protobuf.TimestampR\acreated\x1a:\n" +
 	"\fOptionsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\x1a9\n" +
@@ -3383,77 +3404,78 @@ var file_rpc_proto_depIdxs = []int32{
 	57, // 20: protobuf.InspectVolumeResponse.options:type_name -> protobuf.InspectVolumeResponse.OptionsEntry
 	58, // 21: protobuf.InspectVolumeResponse.labels:type_name -> protobuf.InspectVolumeResponse.LabelsEntry
 	31, // 22: protobuf.InspectVolumeResponse.containers:type_name -> protobuf.VolumeUser
-	34, // 23: protobuf.ListReclaimableResponse.images:type_name -> protobuf.ReclaimableImage
-	35, // 24: protobuf.ListReclaimableResponse.volumes:type_name -> protobuf.ReclaimableVolume
-	60, // 25: protobuf.ReclaimableVolume.created:type_name -> google.protobuf.Timestamp
-	39, // 26: protobuf.UpdateContainerProgress.result:type_name -> protobuf.UpdateResult
-	60, // 27: protobuf.UpdateResult.oldStartedAt:type_name -> google.protobuf.Timestamp
-	43, // 28: protobuf.ContainerExecRequest.resize:type_name -> protobuf.ResizePayload
-	43, // 29: protobuf.ContainerAttachRequest.resize:type_name -> protobuf.ResizePayload
-	66, // 30: protobuf.UpdateNotificationConfigRequest.subscriptions:type_name -> protobuf.NotificationSubscription
-	67, // 31: protobuf.UpdateNotificationConfigRequest.dispatchers:type_name -> protobuf.NotificationDispatcher
-	68, // 32: protobuf.UpdateCloudConfigRequest.cloudConfig:type_name -> protobuf.NotificationCloudConfig
-	69, // 33: protobuf.GetNotificationStatsResponse.stats:type_name -> protobuf.NotificationSubscriptionStats
-	60, // 34: protobuf.LogHistogramRequest.from:type_name -> google.protobuf.Timestamp
-	60, // 35: protobuf.LogHistogramRequest.to:type_name -> google.protobuf.Timestamp
-	60, // 36: protobuf.LogHistogramResponse.scannedFrom:type_name -> google.protobuf.Timestamp
-	60, // 37: protobuf.LogHistogramResponse.before:type_name -> google.protobuf.Timestamp
-	60, // 38: protobuf.LogHistogramResponse.after:type_name -> google.protobuf.Timestamp
-	1,  // 39: protobuf.ListContainersRequest.FilterEntry.value:type_name -> protobuf.RepeatedString
-	1,  // 40: protobuf.FindContainerRequest.FilterEntry.value:type_name -> protobuf.RepeatedString
-	0,  // 41: protobuf.AgentService.ListContainers:input_type -> protobuf.ListContainersRequest
-	3,  // 42: protobuf.AgentService.FindContainer:input_type -> protobuf.FindContainerRequest
-	5,  // 43: protobuf.AgentService.StreamLogs:input_type -> protobuf.StreamLogsRequest
-	7,  // 44: protobuf.AgentService.LogsBetweenDates:input_type -> protobuf.LogsBetweenDatesRequest
-	8,  // 45: protobuf.AgentService.StreamRawBytes:input_type -> protobuf.StreamRawBytesRequest
-	10, // 46: protobuf.AgentService.StreamEvents:input_type -> protobuf.StreamEventsRequest
-	12, // 47: protobuf.AgentService.StreamStats:input_type -> protobuf.StreamStatsRequest
-	16, // 48: protobuf.AgentService.StreamContainerStarted:input_type -> protobuf.StreamContainerStartedRequest
-	14, // 49: protobuf.AgentService.HostInfo:input_type -> protobuf.HostInfoRequest
-	18, // 50: protobuf.AgentService.ContainerAction:input_type -> protobuf.ContainerActionRequest
-	36, // 51: protobuf.AgentService.UpdateContainer:input_type -> protobuf.UpdateContainerRequest
-	37, // 52: protobuf.AgentService.RollbackContainer:input_type -> protobuf.RollbackContainerRequest
-	40, // 53: protobuf.AgentService.CheckImageUpdate:input_type -> protobuf.CheckImageUpdateRequest
-	42, // 54: protobuf.AgentService.ContainerExec:input_type -> protobuf.ContainerExecRequest
-	45, // 55: protobuf.AgentService.ContainerAttach:input_type -> protobuf.ContainerAttachRequest
-	47, // 56: protobuf.AgentService.UpdateNotificationConfig:input_type -> protobuf.UpdateNotificationConfigRequest
-	49, // 57: protobuf.AgentService.UpdateCloudConfig:input_type -> protobuf.UpdateCloudConfigRequest
-	51, // 58: protobuf.AgentService.GetNotificationStats:input_type -> protobuf.GetNotificationStatsRequest
-	53, // 59: protobuf.AgentService.LogHistogram:input_type -> protobuf.LogHistogramRequest
-	20, // 60: protobuf.AgentService.PruneHost:input_type -> protobuf.PruneHostRequest
-	32, // 61: protobuf.AgentService.ListReclaimable:input_type -> protobuf.ListReclaimableRequest
-	22, // 62: protobuf.AgentService.HealthLog:input_type -> protobuf.HealthLogRequest
-	25, // 63: protobuf.AgentService.InspectNetwork:input_type -> protobuf.InspectNetworkRequest
-	29, // 64: protobuf.AgentService.InspectVolume:input_type -> protobuf.InspectVolumeRequest
-	2,  // 65: protobuf.AgentService.ListContainers:output_type -> protobuf.ListContainersResponse
-	4,  // 66: protobuf.AgentService.FindContainer:output_type -> protobuf.FindContainerResponse
-	6,  // 67: protobuf.AgentService.StreamLogs:output_type -> protobuf.StreamLogsResponse
-	6,  // 68: protobuf.AgentService.LogsBetweenDates:output_type -> protobuf.StreamLogsResponse
-	9,  // 69: protobuf.AgentService.StreamRawBytes:output_type -> protobuf.StreamRawBytesResponse
-	11, // 70: protobuf.AgentService.StreamEvents:output_type -> protobuf.StreamEventsResponse
-	13, // 71: protobuf.AgentService.StreamStats:output_type -> protobuf.StreamStatsResponse
-	17, // 72: protobuf.AgentService.StreamContainerStarted:output_type -> protobuf.StreamContainerStartedResponse
-	15, // 73: protobuf.AgentService.HostInfo:output_type -> protobuf.HostInfoResponse
-	19, // 74: protobuf.AgentService.ContainerAction:output_type -> protobuf.ContainerActionResponse
-	38, // 75: protobuf.AgentService.UpdateContainer:output_type -> protobuf.UpdateContainerProgress
-	38, // 76: protobuf.AgentService.RollbackContainer:output_type -> protobuf.UpdateContainerProgress
-	41, // 77: protobuf.AgentService.CheckImageUpdate:output_type -> protobuf.CheckImageUpdateResponse
-	44, // 78: protobuf.AgentService.ContainerExec:output_type -> protobuf.ContainerExecResponse
-	46, // 79: protobuf.AgentService.ContainerAttach:output_type -> protobuf.ContainerAttachResponse
-	48, // 80: protobuf.AgentService.UpdateNotificationConfig:output_type -> protobuf.UpdateNotificationConfigResponse
-	50, // 81: protobuf.AgentService.UpdateCloudConfig:output_type -> protobuf.UpdateCloudConfigResponse
-	52, // 82: protobuf.AgentService.GetNotificationStats:output_type -> protobuf.GetNotificationStatsResponse
-	54, // 83: protobuf.AgentService.LogHistogram:output_type -> protobuf.LogHistogramResponse
-	21, // 84: protobuf.AgentService.PruneHost:output_type -> protobuf.PruneHostResponse
-	33, // 85: protobuf.AgentService.ListReclaimable:output_type -> protobuf.ListReclaimableResponse
-	24, // 86: protobuf.AgentService.HealthLog:output_type -> protobuf.HealthLogResponse
-	26, // 87: protobuf.AgentService.InspectNetwork:output_type -> protobuf.InspectNetworkResponse
-	30, // 88: protobuf.AgentService.InspectVolume:output_type -> protobuf.InspectVolumeResponse
-	65, // [65:89] is the sub-list for method output_type
-	41, // [41:65] is the sub-list for method input_type
-	41, // [41:41] is the sub-list for extension type_name
-	41, // [41:41] is the sub-list for extension extendee
-	0,  // [0:41] is the sub-list for field type_name
+	60, // 23: protobuf.InspectVolumeResponse.created:type_name -> google.protobuf.Timestamp
+	34, // 24: protobuf.ListReclaimableResponse.images:type_name -> protobuf.ReclaimableImage
+	35, // 25: protobuf.ListReclaimableResponse.volumes:type_name -> protobuf.ReclaimableVolume
+	60, // 26: protobuf.ReclaimableVolume.created:type_name -> google.protobuf.Timestamp
+	39, // 27: protobuf.UpdateContainerProgress.result:type_name -> protobuf.UpdateResult
+	60, // 28: protobuf.UpdateResult.oldStartedAt:type_name -> google.protobuf.Timestamp
+	43, // 29: protobuf.ContainerExecRequest.resize:type_name -> protobuf.ResizePayload
+	43, // 30: protobuf.ContainerAttachRequest.resize:type_name -> protobuf.ResizePayload
+	66, // 31: protobuf.UpdateNotificationConfigRequest.subscriptions:type_name -> protobuf.NotificationSubscription
+	67, // 32: protobuf.UpdateNotificationConfigRequest.dispatchers:type_name -> protobuf.NotificationDispatcher
+	68, // 33: protobuf.UpdateCloudConfigRequest.cloudConfig:type_name -> protobuf.NotificationCloudConfig
+	69, // 34: protobuf.GetNotificationStatsResponse.stats:type_name -> protobuf.NotificationSubscriptionStats
+	60, // 35: protobuf.LogHistogramRequest.from:type_name -> google.protobuf.Timestamp
+	60, // 36: protobuf.LogHistogramRequest.to:type_name -> google.protobuf.Timestamp
+	60, // 37: protobuf.LogHistogramResponse.scannedFrom:type_name -> google.protobuf.Timestamp
+	60, // 38: protobuf.LogHistogramResponse.before:type_name -> google.protobuf.Timestamp
+	60, // 39: protobuf.LogHistogramResponse.after:type_name -> google.protobuf.Timestamp
+	1,  // 40: protobuf.ListContainersRequest.FilterEntry.value:type_name -> protobuf.RepeatedString
+	1,  // 41: protobuf.FindContainerRequest.FilterEntry.value:type_name -> protobuf.RepeatedString
+	0,  // 42: protobuf.AgentService.ListContainers:input_type -> protobuf.ListContainersRequest
+	3,  // 43: protobuf.AgentService.FindContainer:input_type -> protobuf.FindContainerRequest
+	5,  // 44: protobuf.AgentService.StreamLogs:input_type -> protobuf.StreamLogsRequest
+	7,  // 45: protobuf.AgentService.LogsBetweenDates:input_type -> protobuf.LogsBetweenDatesRequest
+	8,  // 46: protobuf.AgentService.StreamRawBytes:input_type -> protobuf.StreamRawBytesRequest
+	10, // 47: protobuf.AgentService.StreamEvents:input_type -> protobuf.StreamEventsRequest
+	12, // 48: protobuf.AgentService.StreamStats:input_type -> protobuf.StreamStatsRequest
+	16, // 49: protobuf.AgentService.StreamContainerStarted:input_type -> protobuf.StreamContainerStartedRequest
+	14, // 50: protobuf.AgentService.HostInfo:input_type -> protobuf.HostInfoRequest
+	18, // 51: protobuf.AgentService.ContainerAction:input_type -> protobuf.ContainerActionRequest
+	36, // 52: protobuf.AgentService.UpdateContainer:input_type -> protobuf.UpdateContainerRequest
+	37, // 53: protobuf.AgentService.RollbackContainer:input_type -> protobuf.RollbackContainerRequest
+	40, // 54: protobuf.AgentService.CheckImageUpdate:input_type -> protobuf.CheckImageUpdateRequest
+	42, // 55: protobuf.AgentService.ContainerExec:input_type -> protobuf.ContainerExecRequest
+	45, // 56: protobuf.AgentService.ContainerAttach:input_type -> protobuf.ContainerAttachRequest
+	47, // 57: protobuf.AgentService.UpdateNotificationConfig:input_type -> protobuf.UpdateNotificationConfigRequest
+	49, // 58: protobuf.AgentService.UpdateCloudConfig:input_type -> protobuf.UpdateCloudConfigRequest
+	51, // 59: protobuf.AgentService.GetNotificationStats:input_type -> protobuf.GetNotificationStatsRequest
+	53, // 60: protobuf.AgentService.LogHistogram:input_type -> protobuf.LogHistogramRequest
+	20, // 61: protobuf.AgentService.PruneHost:input_type -> protobuf.PruneHostRequest
+	32, // 62: protobuf.AgentService.ListReclaimable:input_type -> protobuf.ListReclaimableRequest
+	22, // 63: protobuf.AgentService.HealthLog:input_type -> protobuf.HealthLogRequest
+	25, // 64: protobuf.AgentService.InspectNetwork:input_type -> protobuf.InspectNetworkRequest
+	29, // 65: protobuf.AgentService.InspectVolume:input_type -> protobuf.InspectVolumeRequest
+	2,  // 66: protobuf.AgentService.ListContainers:output_type -> protobuf.ListContainersResponse
+	4,  // 67: protobuf.AgentService.FindContainer:output_type -> protobuf.FindContainerResponse
+	6,  // 68: protobuf.AgentService.StreamLogs:output_type -> protobuf.StreamLogsResponse
+	6,  // 69: protobuf.AgentService.LogsBetweenDates:output_type -> protobuf.StreamLogsResponse
+	9,  // 70: protobuf.AgentService.StreamRawBytes:output_type -> protobuf.StreamRawBytesResponse
+	11, // 71: protobuf.AgentService.StreamEvents:output_type -> protobuf.StreamEventsResponse
+	13, // 72: protobuf.AgentService.StreamStats:output_type -> protobuf.StreamStatsResponse
+	17, // 73: protobuf.AgentService.StreamContainerStarted:output_type -> protobuf.StreamContainerStartedResponse
+	15, // 74: protobuf.AgentService.HostInfo:output_type -> protobuf.HostInfoResponse
+	19, // 75: protobuf.AgentService.ContainerAction:output_type -> protobuf.ContainerActionResponse
+	38, // 76: protobuf.AgentService.UpdateContainer:output_type -> protobuf.UpdateContainerProgress
+	38, // 77: protobuf.AgentService.RollbackContainer:output_type -> protobuf.UpdateContainerProgress
+	41, // 78: protobuf.AgentService.CheckImageUpdate:output_type -> protobuf.CheckImageUpdateResponse
+	44, // 79: protobuf.AgentService.ContainerExec:output_type -> protobuf.ContainerExecResponse
+	46, // 80: protobuf.AgentService.ContainerAttach:output_type -> protobuf.ContainerAttachResponse
+	48, // 81: protobuf.AgentService.UpdateNotificationConfig:output_type -> protobuf.UpdateNotificationConfigResponse
+	50, // 82: protobuf.AgentService.UpdateCloudConfig:output_type -> protobuf.UpdateCloudConfigResponse
+	52, // 83: protobuf.AgentService.GetNotificationStats:output_type -> protobuf.GetNotificationStatsResponse
+	54, // 84: protobuf.AgentService.LogHistogram:output_type -> protobuf.LogHistogramResponse
+	21, // 85: protobuf.AgentService.PruneHost:output_type -> protobuf.PruneHostResponse
+	33, // 86: protobuf.AgentService.ListReclaimable:output_type -> protobuf.ListReclaimableResponse
+	24, // 87: protobuf.AgentService.HealthLog:output_type -> protobuf.HealthLogResponse
+	26, // 88: protobuf.AgentService.InspectNetwork:output_type -> protobuf.InspectNetworkResponse
+	30, // 89: protobuf.AgentService.InspectVolume:output_type -> protobuf.InspectVolumeResponse
+	66, // [66:90] is the sub-list for method output_type
+	42, // [42:66] is the sub-list for method input_type
+	42, // [42:42] is the sub-list for extension type_name
+	42, // [42:42] is the sub-list for extension extendee
+	0,  // [0:42] is the sub-list for field type_name
 }
 
 func init() { file_rpc_proto_init() }

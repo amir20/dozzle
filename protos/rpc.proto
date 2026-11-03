@@ -181,6 +181,9 @@ message InspectVolumeResponse {
   map<string, string> options = 4;
   map<string, string> labels = 5;
   repeated VolumeUser containers = 6;
+  string mountpoint = 7;
+  // unset when the driver does not report it
+  google.protobuf.Timestamp created = 8;
 }
 
 message VolumeUser {

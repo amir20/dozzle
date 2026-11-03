@@ -1210,6 +1210,8 @@ inspect:
   driver-options: "Treiberoptionen"
   mounted-by: "Eingebunden von"
   details-failed: "Details konnten nicht geladen werden."
+  size: "Größe"
+  mountpoint: "Einhängepunkt"
 reclaim:
   clean-up: "Aufräumen"
   free-up: "{size} freigeben"

@@ -1213,6 +1213,8 @@ inspect:
   driver-options: "Параметры драйвера"
   mounted-by: "Смонтирован в"
   details-failed: "Не удалось загрузить сведения."
+  size: "Размер"
+  mountpoint: "Точка монтирования"
 reclaim:
   clean-up: "Очистить"
   free-up: "Освободить {size}"
