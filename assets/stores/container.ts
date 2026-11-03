@@ -116,7 +116,8 @@ export const useContainerStore = defineStore("container", () => {
       removeToast("events-timeout");
     });
     es.addEventListener("container-stat", (e) => {
-      const stat = parseEventData<ContainerStat>(e);
+      // a live stat always names its container; only buffered points drop the id
+      const stat = parseEventData<ContainerStat & { id: string }>(e);
       const container = allContainersById.value[stat.id] as unknown as UnwrapNestedRefs<Container>;
       if (container) {
         const { id, ...rest } = stat;
