@@ -346,6 +346,32 @@ func (s *server) PruneHost(ctx context.Context, in *pb.PruneHostRequest) (_ *pb.
 	return &pb.PruneHostResponse{SpaceReclaimed: result.SpaceReclaimed}, nil
 }
 
+func (s *server) HealthLog(ctx context.Context, req *pb.HealthLogRequest) (*pb.HealthLogResponse, error) {
+	reader, ok := s.service.(container.HealthLogReader)
+	if !ok {
+		return nil, status.Error(codes.Unimplemented, "this host cannot read healthcheck runs")
+	}
+	c, err := s.service.FindContainer(ctx, req.ContainerId, container.ContainerLabels{})
+	if err != nil {
+		return nil, status.Error(codes.NotFound, err.Error())
+	}
+	probes, err := reader.HealthLog(ctx, c)
+	if err != nil {
+		return nil, status.Error(codes.Internal, err.Error())
+	}
+	resp := &pb.HealthLogResponse{Probes: make([]*pb.HealthProbe, 0, len(probes))}
+	for _, p := range probes {
+		resp.Probes = append(resp.Probes, &pb.HealthProbe{
+			Start:    timestamppb.New(p.Start),
+			End:      timestamppb.New(p.End),
+			ExitCode: int32(p.ExitCode),
+			// A proto3 string must be valid UTF-8 or the whole response fails.
+			Output: strings.ToValidUTF8(p.Output, "\uFFFD"),
+		})
+	}
+	return resp, nil
+}
+
 func (s *server) ListReclaimable(ctx context.Context, _ *pb.ListReclaimableRequest) (*pb.ListReclaimableResponse, error) {
 	lister, ok := s.service.(container.HostReclaimableLister)
 	if !ok {

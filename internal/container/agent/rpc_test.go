@@ -690,3 +690,37 @@ func TestRPCErrToErr(t *testing.T) {
 	unavailable := rpcErrToErr(status.Error(codes.Unavailable, "agent down"))
 	assert.Equal(t, codes.Unavailable, status.Code(errors.Unwrap(unavailable)), "other codes keep the status underneath")
 }
+
+// healthService is a fakeService whose engine keeps healthcheck runs.
+type healthService struct {
+	*fakeService
+	asked string
+}
+
+func (h *healthService) HealthLog(_ context.Context, c container.Container) ([]container.HealthProbe, error) {
+	h.asked = c.ID
+	start := time.Date(2026, 11, 2, 10, 0, 0, 0, time.UTC)
+	return []container.HealthProbe{
+		{Start: start, End: start.Add(time.Second), ExitCode: 1, Output: "bad \xff byte"},
+	}, nil
+}
+
+func TestHealthLogOverAgent(t *testing.T) {
+	svc := &healthService{fakeService: &fakeService{}}
+	rpc := newTestAgent(t, svc, &recordingHandler{})
+
+	probes, err := rpc.HealthLog(context.Background(), "abc")
+
+	require.NoError(t, err)
+	start := time.Date(2026, 11, 2, 10, 0, 0, 0, time.UTC)
+	// invalid UTF-8 would fail the proto marshal, so the agent replaces it
+	assert.Equal(t, []container.HealthProbe{{Start: start, End: start.Add(time.Second), ExitCode: 1, Output: "bad � byte"}}, probes)
+}
+
+// An agent whose engine keeps no healthcheck runs answers like one too old to know the call.
+func TestHealthLogUnsupportedOverAgent(t *testing.T) {
+	rpc := newTestAgent(t, &fakeService{}, &recordingHandler{})
+
+	_, err := rpc.HealthLog(context.Background(), "abc")
+	assert.ErrorIs(t, err, errors.ErrUnsupported)
+}

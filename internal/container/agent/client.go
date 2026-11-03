@@ -525,6 +525,27 @@ func (c *Client) ListReclaimable(ctx context.Context) (container.ReclaimableItem
 	return items, nil
 }
 
+// HealthLog returns errors.ErrUnsupported from an agent too old to know the call.
+func (c *Client) HealthLog(ctx context.Context, containerID string) ([]container.HealthProbe, error) {
+	resp, err := c.client.HealthLog(ctx, &pb.HealthLogRequest{ContainerId: containerID})
+	if status.Code(err) == codes.Unimplemented {
+		return nil, fmt.Errorf("agent cannot read healthcheck runs: %w", errors.ErrUnsupported)
+	}
+	if err != nil {
+		return nil, err
+	}
+	probes := make([]container.HealthProbe, 0, len(resp.Probes))
+	for _, p := range resp.Probes {
+		probes = append(probes, container.HealthProbe{
+			Start:    p.Start.AsTime(),
+			End:      p.End.AsTime(),
+			ExitCode: int(p.ExitCode),
+			Output:   p.Output,
+		})
+	}
+	return probes, nil
+}
+
 // PruneHost returns errors.ErrUnsupported from an agent too old to know the call.
 func (c *Client) PruneHost(ctx context.Context, opts container.PruneOptions) (container.PruneResult, error) {
 	resp, err := c.client.PruneHost(ctx, &pb.PruneHostRequest{

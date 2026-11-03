@@ -627,6 +627,18 @@ message InspectContainerResult {
   // `mounts` keeps its "source:destination (type)" strings for older readers.
   // Empty from a Dozzle that predates this field.
   repeated ContainerMount mount_details = 23;
+  // The most recent healthcheck runs, oldest first, read live from the
+  // engine. Empty when the container has no healthcheck, the host cannot read
+  // them (k8s, an older agent), or the read failed.
+  repeated HealthProbe health_log = 24;
+}
+
+// One healthcheck run from Docker's State.Health.Log. output is clipped.
+message HealthProbe {
+  string start = 1;
+  string end = 2;
+  int32 exit_code = 3;
+  string output = 4;
 }
 
 // inspect_containers: inspect_container for every visible container in one

@@ -29,6 +29,7 @@ service AgentService {
   rpc LogHistogram(LogHistogramRequest) returns (LogHistogramResponse) {}
   rpc PruneHost(PruneHostRequest) returns (PruneHostResponse) {}
   rpc ListReclaimable(ListReclaimableRequest) returns (ListReclaimableResponse) {}
+  rpc HealthLog(HealthLogRequest) returns (HealthLogResponse) {}
 }
 
 message ListContainersRequest {
@@ -117,6 +118,24 @@ message PruneHostRequest {
 
 message PruneHostResponse {
   uint64 spaceReclaimed = 1;
+}
+
+// HealthLogRequest reads a container's recent healthcheck runs from the engine.
+message HealthLogRequest {
+  string containerId = 1;
+}
+
+message HealthProbe {
+  google.protobuf.Timestamp start = 1;
+  google.protobuf.Timestamp end = 2;
+  int32 exitCode = 3;
+  string output = 4;
+}
+
+// HealthLogResponse holds Docker's State.Health.Log, oldest first. Empty when
+// the container has no healthcheck.
+message HealthLogResponse {
+  repeated HealthProbe probes = 1;
 }
 
 message ListReclaimableRequest {}
