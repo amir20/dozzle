@@ -7,6 +7,7 @@ import { createI18n } from "vue-i18n";
 import { defineComponent, h, nextTick, ref } from "vue";
 import { Container, Stat } from "@/models/Container";
 import MultiContainerStat from "./MultiContainerStat.vue";
+import { containerFixture } from "@/testing/containerFixture";
 
 vi.mock("@/stores/config", () => ({
   __esModule: true,
@@ -42,7 +43,18 @@ function stat(cpu: number): Stat {
 function makeContainer(id: string, cpu: number, cpuLimit = 0): Container {
   const stats = Array.from({ length: 10 }, () => stat(cpu));
   const now = new Date();
-  return new Container(id, now, now, now, "img", id, "cmd", "host1", {}, "running", cpuLimit, 0, stats);
+  return containerFixture({
+    id,
+    created: now,
+    startedAt: now,
+    finishedAt: now,
+    image: "img",
+    name: id,
+    command: "cmd",
+    host: "host1",
+    cpuLimit,
+    stats,
+  });
 }
 
 function lastCpu(containers: Container[]) {

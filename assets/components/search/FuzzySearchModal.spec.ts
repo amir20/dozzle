@@ -15,6 +15,7 @@ import { useCloudConfig } from "@/composable/cloud/cloudConfig";
 import { useImageUpdates } from "@/composable/containers/imageUpdate";
 import config from "@/stores/config";
 import { compact } from "@/stores/settings";
+import { containerFixture } from "@/testing/containerFixture";
 
 vi.mock("vue-router");
 
@@ -35,51 +36,14 @@ function createFuzzySearchModal(extra: Container[] = []) {
           initialState: {
             container: {
               containers: [
-                new Container(
-                  "123",
-                  new Date("2026-01-03T00:00:00Z"),
-                  new Date(),
-                  new Date(),
-                  "image",
-                  "test",
-                  "command",
-                  "host",
-                  {},
-                  "running",
-                  0,
-                  0,
-                  [],
-                ),
-                new Container(
-                  "345",
-                  new Date("2026-01-02T00:00:00Z"),
-                  new Date(),
-                  new Date(),
-                  "image",
-                  "foo bar",
-                  "command",
-                  "host",
-                  {},
-                  "running",
-                  0,
-                  0,
-                  [],
-                ),
-                new Container(
-                  "567",
-                  new Date("2026-01-01T00:00:00Z"),
-                  new Date(),
-                  new Date(),
-                  "image",
-                  "baz",
-                  "command",
-                  "host",
-                  {},
-                  "running",
-                  0,
-                  0,
-                  [],
-                ),
+                containerFixture({ id: "123", created: new Date("2026-01-03T00:00:00Z"), name: "test", host: "host" }),
+                containerFixture({
+                  id: "345",
+                  created: new Date("2026-01-02T00:00:00Z"),
+                  name: "foo bar",
+                  host: "host",
+                }),
+                containerFixture({ id: "567", created: new Date("2026-01-01T00:00:00Z"), name: "baz", host: "host" }),
                 ...extra,
               ],
             },
@@ -135,21 +99,7 @@ describe("<FuzzySearchModal />", () => {
   test("escapes html in names from container labels", async () => {
     const payload = 'pwn<iframe srcdoc="x"></iframe>';
     const wrapper = createFuzzySearchModal([
-      new Container(
-        "789",
-        new Date("2026-01-04T00:00:00Z"),
-        new Date(),
-        new Date(),
-        "image",
-        payload,
-        "command",
-        "host",
-        {},
-        "running",
-        0,
-        0,
-        [],
-      ),
+      containerFixture({ id: "789", created: new Date("2026-01-04T00:00:00Z"), name: payload, host: "host" }),
     ]);
     expect(wrapper.find("ul iframe").exists()).toBe(false);
 
@@ -223,21 +173,7 @@ describe("<FuzzySearchModal />", () => {
     route.name = "/container/[id]";
     route.params = { id: "123" };
     const wrapper = createFuzzySearchModal([
-      new Container(
-        "999",
-        new Date("2026-01-04T00:00:00Z"),
-        new Date(),
-        new Date(),
-        "image",
-        "remote",
-        "command",
-        "other-host",
-        {},
-        "running",
-        0,
-        0,
-        [],
-      ),
+      containerFixture({ id: "999", created: new Date("2026-01-04T00:00:00Z"), name: "remote", host: "other-host" }),
     ]);
     await wrapper.find("input").setValue("remote");
     expect(wrapper.find("button[aria-pressed=false]").exists()).toBe(true);
@@ -410,21 +346,7 @@ describe("<FuzzySearchModal />", () => {
       const baz = wrapper.findAll("ul [data-name]").length;
       expect(baz).toBe(3);
       const { check } = useImageUpdates();
-      const container = new Container(
-        "567",
-        new Date(),
-        new Date(),
-        new Date(),
-        "image",
-        "baz",
-        "command",
-        "host",
-        {},
-        "running",
-        0,
-        0,
-        [],
-      );
+      const container = containerFixture({ id: "567", name: "baz", host: "host" });
       await check(container, true);
       await wrapper.vm.$nextTick();
 

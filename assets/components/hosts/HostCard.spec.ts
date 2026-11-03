@@ -11,6 +11,7 @@ import type { Host } from "@/stores/hosts";
 import HostCard from "./HostCard.vue";
 
 import EventSource from "@/testing/eventSourceMock";
+import { containerFixture } from "@/testing/containerFixture";
 
 vi.mock("@/stores/config", () => ({
   __esModule: true,
@@ -78,7 +79,18 @@ function stat(cpu: number): Stat {
 
 function makeContainer(id: string, cpu: number, cpuLimit: number): Container {
   const now = new Date();
-  return new Container(id, now, now, now, "img", id, "cmd", "host1", {}, "running", cpuLimit, 0, [stat(cpu)]);
+  return containerFixture({
+    id,
+    created: now,
+    startedAt: now,
+    finishedAt: now,
+    image: "img",
+    name: id,
+    command: "cmd",
+    host: "host1",
+    cpuLimit,
+    stats: [stat(cpu)],
+  });
 }
 
 describe("<HostCard />", () => {

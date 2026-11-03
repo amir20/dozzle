@@ -3,6 +3,7 @@ import { describe, expect, test, vi } from "vitest";
 import { shallowRef } from "vue";
 import { Container } from "@/models/Container";
 import { persistentVisibleKeysForContainer, visibleKeysForContainer } from "./storage";
+import { containerFixture } from "@/testing/containerFixture";
 
 vi.mock("@/stores/config", () => ({
   __esModule: true,
@@ -11,21 +12,7 @@ vi.mock("@/stores/config", () => ({
 }));
 
 function makeContainer(image: string): Container {
-  return new Container(
-    "id-1",
-    new Date(),
-    new Date(),
-    new Date(),
-    image,
-    "name",
-    "command",
-    "localhost",
-    {},
-    "running",
-    0,
-    0,
-    [],
-  );
+  return containerFixture({ id: "id-1", image });
 }
 
 describe("persistentVisibleKeysForContainer", () => {

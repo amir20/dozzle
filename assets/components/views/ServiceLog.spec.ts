@@ -11,6 +11,7 @@ import { useContainerStore } from "@/stores/container";
 import ComplexLogItem from "@/components/logs/entries/ComplexLogItem.vue";
 import LogDetails from "@/components/logs/entries/LogDetails.vue";
 import ServiceLog from "./ServiceLog.vue";
+import { containerFixture } from "@/testing/containerFixture";
 
 vi.mock("@/stores/config", () => ({
   default: { base: "", mode: "swarm", hosts: [{ id: "host", name: "test host" }] },
@@ -31,21 +32,14 @@ vi.mock("@/stores/container", async () => {
 });
 
 function container(id: string, image: string, command: string) {
-  return new Container(
+  return containerFixture({
     id,
-    new Date(),
-    new Date(),
-    new Date(),
     image,
-    id,
+    name: id,
     command,
-    "host",
-    { "com.docker.swarm.service.name": "service" },
-    "running",
-    0,
-    0,
-    [],
-  );
+    host: "host",
+    labels: { "com.docker.swarm.service.name": "service" },
+  });
 }
 
 function entry(id: string, sequence: number) {

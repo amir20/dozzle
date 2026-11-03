@@ -1,7 +1,9 @@
 import { describe, expect, test, vi } from "vitest";
 import { computed, isReactive, reactive } from "vue";
+import type { ContainerJson } from "@/types/Container";
 import { Container, decodeStats, diskRate, emptyStat, networkRate, uptime, type Stat } from "./Container";
 import { useHosts, type Host } from "@/stores/hosts";
+import { containerFixture } from "@/testing/containerFixture";
 
 vi.mock("@/stores/config", () => ({
   __esModule: true,
@@ -19,27 +21,7 @@ function makeContainer(
     host?: string;
   } = {},
 ) {
-  return new Container(
-    "id-1",
-    new Date(),
-    new Date(),
-    new Date(),
-    overrides.image ?? "image",
-    "display-name",
-    overrides.command ?? "command",
-    overrides.host ?? "localhost",
-    overrides.labels ?? {},
-    "running",
-    0,
-    0,
-    overrides.stats ?? [],
-    undefined,
-    undefined,
-    false,
-    [],
-    {},
-    overrides.ports ?? [],
-  );
+  return containerFixture({ id: "id-1", name: "display-name", ...overrides });
 }
 
 function makeStat(partial: Partial<Stat> = {}): Stat {
@@ -638,5 +620,50 @@ describe("Container.releaseNotesUrl", () => {
   test("rejects other schemes in either label", () => {
     expect(notes({ "dev.dozzle.releases": "javascript:alert(1)" })).toBeUndefined();
     expect(notes({ "org.opencontainers.image.source": "git@github.com:owner/repo.git" })).toBeUndefined();
+  });
+});
+
+describe("applyJSON", () => {
+  const json = (extra: Partial<ContainerJson> = {}): ContainerJson => ({
+    id: "id-1",
+    created: "2026-01-01T00:00:00Z",
+    startedAt: "2026-01-02T00:00:00Z",
+    finishedAt: "0001-01-01T00:00:00Z",
+    image: "image",
+    name: "renamed",
+    command: "command",
+    state: "exited",
+    host: "localhost",
+    cpuLimit: 0,
+    memoryLimit: 0,
+    labels: {},
+    ...extra,
+  });
+  const volume = { name: "data", destination: "/data", size: 1, links: 1 };
+
+  test("copies what changes on a live container", () => {
+    const c = makeContainer();
+    c.applyJSON(json({ state: "running", health: "unhealthy", group: "g", sizeRw: 42 }));
+    expect(c.name).toBe("renamed");
+    expect(c.state).toBe("running");
+    expect(c.health).toBe("unhealthy");
+    expect(c.group).toBe("g");
+    expect(c.sizeRw).toBe(42);
+    expect(c.startedAt.toISOString()).toBe("2026-01-02T00:00:00.000Z");
+  });
+
+  test("a re-list keeps volumes and mount stats it does not carry", () => {
+    const c = containerFixture({ volumes: [volume], mountStats: {} });
+    c.applyJSON(json({ mountStats: { "/data": {} as never } }));
+    expect(c.volumes).toEqual([volume]);
+    expect(c.mountStats).toEqual({});
+  });
+
+  test("a whole update clears volumes it does not carry and takes mount stats", () => {
+    const c = containerFixture({ volumes: [volume] });
+    const mountStats = { "/data": {} as never };
+    c.applyJSON(json({ mountStats }), { whole: true });
+    expect(c.volumes).toEqual([]);
+    expect(c.mountStats).toEqual(mountStats);
   });
 });

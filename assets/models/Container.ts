@@ -160,6 +160,32 @@ export class HistoricalContainer {
   ) {}
 }
 
+// What a Container is built from: the wire's ContainerJson with its dates and stats
+// already decoded. Everything optional defaults to empty.
+export interface ContainerInit {
+  id: string;
+  created: Date;
+  startedAt: Date;
+  finishedAt: Date;
+  image: string;
+  name: string;
+  command: string;
+  host: string;
+  labels?: Record<string, string>;
+  state: ContainerState;
+  cpuLimit: number;
+  memoryLimit: number;
+  stats?: Stat[];
+  group?: string;
+  health?: ContainerHealth;
+  isNew?: boolean;
+  mounts?: ContainerMount[];
+  mountStats?: Record<string, MountStat>;
+  ports?: string[];
+  sizeRw?: number;
+  volumes?: VolumeUsage[];
+}
+
 export class Container {
   private _stat: Ref<Stat>;
   private _name: string;
@@ -190,33 +216,45 @@ export class Container {
   public mounts: ContainerMount[];
   public mountStats: Record<string, MountStat>;
 
-  constructor(
-    public readonly id: string,
-    public readonly created: Date,
-    public startedAt: Date,
-    public finishedAt: Date,
-    public readonly image: string,
-    name: string,
-    public readonly command: string,
-    public readonly host: string,
-    public readonly labels = {} as Record<string, string>,
-    public state: ContainerState,
-    public readonly cpuLimit: number,
-    public readonly memoryLimit: number,
-    stats: Stat[],
-    public group?: string,
-    health?: ContainerHealth,
-    public isNew: boolean = false,
-    mounts: ContainerMount[] = [],
-    mountStats: Record<string, MountStat> = {},
-    public readonly ports: string[] = [],
-    // bytes in the writable layer; undefined until the server has measured it
-    public sizeRw?: number,
-    public volumes: VolumeUsage[] = [],
-  ) {
-    this._health = health;
-    this.mounts = mounts;
-    this.mountStats = mountStats;
+  public readonly id: string;
+  public readonly created: Date;
+  public startedAt: Date;
+  public finishedAt: Date;
+  public readonly image: string;
+  public readonly command: string;
+  public readonly host: string;
+  public readonly labels: Record<string, string>;
+  public state: ContainerState;
+  public readonly cpuLimit: number;
+  public readonly memoryLimit: number;
+  public group?: string;
+  public isNew: boolean;
+  public readonly ports: string[];
+  // bytes in the writable layer; undefined until the server has measured it
+  public sizeRw?: number;
+  public volumes: VolumeUsage[];
+
+  constructor(init: ContainerInit) {
+    this.id = init.id;
+    this.created = init.created;
+    this.startedAt = init.startedAt;
+    this.finishedAt = init.finishedAt;
+    this.image = init.image;
+    this.command = init.command;
+    this.host = init.host;
+    this.labels = init.labels ?? {};
+    this.state = init.state;
+    this.cpuLimit = init.cpuLimit;
+    this.memoryLimit = init.memoryLimit;
+    this.group = init.group;
+    this.isNew = init.isNew ?? false;
+    this.ports = init.ports ?? [];
+    this.sizeRw = init.sizeRw;
+    this.volumes = init.volumes ?? [];
+    this._health = init.health;
+    this.mounts = init.mounts ?? [];
+    this.mountStats = init.mountStats ?? {};
+    const stats = init.stats ?? [];
     const defaultStat = emptyStat();
     this._stat = shallowRef(stats.at(-1) || defaultStat);
     const recentStats = stats.slice(-300);
@@ -232,7 +270,7 @@ export class Container {
       recentStats.length >= 2 ? ratesBetween(recentStats.at(-2)!, recentStats.at(-1)!) : emptyRates(),
     );
 
-    this._name = name;
+    this._name = init.name;
   }
 
   // Raw, and mutating it in place would tell nobody. Treat it as read-only and go
@@ -494,29 +532,33 @@ export class Container {
   }
 
   static fromJSON(c: ContainerJson): Container {
-    return new Container(
-      c.id,
-      new Date(c.created),
-      new Date(c.startedAt),
-      new Date(c.finishedAt),
-      c.image,
-      c.name,
-      c.command,
+    return new Container({
+      ...c,
       // omitempty in Go: absent on the wire when empty
-      c.host ?? "",
-      c.labels,
-      c.state,
-      c.cpuLimit,
-      c.memoryLimit,
-      decodeStats(c.stats),
-      c.group,
-      c.health,
-      false,
-      c.mounts ?? [],
-      c.mountStats ?? {},
-      c.ports ?? [],
-      c.sizeRw,
-      c.volumes ?? [],
-    );
+      host: c.host ?? "",
+      created: new Date(c.created),
+      startedAt: new Date(c.startedAt),
+      finishedAt: new Date(c.finishedAt),
+      stats: decodeStats(c.stats),
+    });
+  }
+
+  // Copies what can change on a live container from a fresh payload. `whole` is set
+  // for a container-updated event, which always carries the whole container, so a
+  // field missing there is gone; a re-list leaves a missing field as it was.
+  public applyJSON(c: ContainerJson, { whole = false } = {}) {
+    this.name = c.name;
+    this.group = c.group;
+    this.state = c.state;
+    this.health = c.health;
+    this.startedAt = new Date(c.startedAt);
+    this.finishedAt = new Date(c.finishedAt);
+    if (c.sizeRw !== undefined) this.sizeRw = c.sizeRw;
+    if (whole) {
+      if (c.mountStats) this.updateMountStats(c.mountStats);
+      this.volumes = c.volumes ?? [];
+    } else if (c.volumes !== undefined) {
+      this.volumes = c.volumes;
+    }
   }
 }

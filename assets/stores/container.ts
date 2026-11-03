@@ -150,22 +150,7 @@ export const useContainerStore = defineStore("container", () => {
     es.addEventListener("container-updated", (e) => {
       const container = parseEventData<ContainerJson>(e);
       const existing = allContainersById.value[container.id];
-      if (existing) {
-        existing.name = container.name;
-        existing.group = container.group;
-        existing.state = container.state;
-        existing.health = container.health;
-        existing.startedAt = new Date(container.startedAt);
-        existing.finishedAt = new Date(container.finishedAt);
-        if (container.mountStats) {
-          existing.updateMountStats(container.mountStats);
-        }
-        if (container.sizeRw !== undefined) {
-          existing.sizeRw = container.sizeRw;
-        }
-        // An update always carries the whole container, so no volumes means none now.
-        existing.volumes = container.volumes ?? [];
-      }
+      existing?.applyJSON(container, { whole: true });
     });
 
     es.addEventListener("container-update", (e) => addRecentUpdate(parseEventData<ContainerUpdate>(e)));
@@ -244,16 +229,9 @@ export const useContainerStore = defineStore("container", () => {
       if (flagNew && existing.state !== "running" && c.state === "running") {
         existing.isNew = true;
       }
-      existing.state = c.state;
-      existing.health = c.health;
-      existing.name = c.name;
-      existing.group = c.group;
       // A start reaches here as a re-list, with no event of its own, so this is the
       // only place a restarted container learns when its new run began.
-      existing.startedAt = new Date(c.startedAt);
-      existing.finishedAt = new Date(c.finishedAt);
-      if (c.sizeRw !== undefined) existing.sizeRw = c.sizeRw;
-      if (c.volumes !== undefined) existing.volumes = c.volumes;
+      existing.applyJSON(c);
     });
 
     const mapped = newContainers.map((c) => {

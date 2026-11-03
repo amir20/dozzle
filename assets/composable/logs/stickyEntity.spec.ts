@@ -6,6 +6,7 @@ import { beforeEach, describe, expect, test, vi } from "vitest";
 import { nextTick, ref, shallowRef } from "vue";
 import { Container } from "@/models/Container";
 import { useStickyEntity } from "./stickyEntity";
+import { containerFixture } from "@/testing/containerFixture";
 
 vi.mock("@/stores/container", async () => {
   const { defineStore } = await import("pinia");
@@ -22,7 +23,16 @@ vi.mock("@/stores/container", async () => {
 
 function container(id: string) {
   const now = new Date();
-  return new Container(id, now, now, now, "img", id, "cmd", "host", {}, "running", 0, 0, []);
+  return containerFixture({
+    id,
+    created: now,
+    startedAt: now,
+    finishedAt: now,
+    image: "img",
+    name: id,
+    command: "cmd",
+    host: "host",
+  });
 }
 
 describe("useStickyEntity", () => {
