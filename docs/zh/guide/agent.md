@@ -1,7 +1,7 @@
 ---
 title: 代理模式
 description: 以代理模式运行 Dozzle，通过 TLS 查看远程 Docker 主机的日志，把主机分组管理，并用自己的证书锁定代理。
-sourceHash: 9f968598f5ac
+sourceHash: 0f6c06c47666
 ---
 
 # 代理模式
@@ -34,7 +34,7 @@ services:
     image: amir20/dozzle:latest
     command: agent
     volumes:
-      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /var/run/docker.sock:/var/run/docker.sock
     ports:
       - 7007:7007
 ```
@@ -163,7 +163,7 @@ services:
       start_period: 5s
       start_interval: 5s
     volumes:
-      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /var/run/docker.sock:/var/run/docker.sock
     ports:
       - 7007:7007
 ```
@@ -186,7 +186,7 @@ services:
     environment:
       - DOZZLE_HOSTNAME=my-special-name
     volumes:
-      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /var/run/docker.sock:/var/run/docker.sock
     ports:
       - 7007:7007
 ```
@@ -207,7 +207,7 @@ services:
     environment:
       - DOZZLE_FILTER=label=color
     volumes:
-      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /var/run/docker.sock:/var/run/docker.sock
 ```
 
 这会让该代理只显示带有 `color` 标签的容器。注意，这些过滤器会和界面上的过滤器叠加，进一步缩小容器范围。想了解各类过滤器，请阅读[过滤器文档](/zh/guide/filters#ui-agents-and-user-filters)。
@@ -327,7 +327,7 @@ services:
         ...
         -----END PRIVATE KEY-----
     volumes:
-      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /var/run/docker.sock:/var/run/docker.sock
     ports:
       - 7007:7007
 ```

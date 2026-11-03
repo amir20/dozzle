@@ -1,7 +1,7 @@
 ---
 title: Mode agent
 description: Utilisez Dozzle en mode agent pour consulter les logs d'hôtes Docker distants via TLS, organiser les hôtes en groupes et verrouiller les agents avec votre propre certificat.
-sourceHash: 9f968598f5ac
+sourceHash: 0f6c06c47666
 ---
 
 # Mode agent
@@ -34,7 +34,7 @@ services:
     image: amir20/dozzle:latest
     command: agent
     volumes:
-      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /var/run/docker.sock:/var/run/docker.sock
     ports:
       - 7007:7007
 ```
@@ -163,7 +163,7 @@ services:
       start_period: 5s
       start_interval: 5s
     volumes:
-      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /var/run/docker.sock:/var/run/docker.sock
     ports:
       - 7007:7007
 ```
@@ -186,7 +186,7 @@ services:
     environment:
       - DOZZLE_HOSTNAME=my-special-name
     volumes:
-      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /var/run/docker.sock:/var/run/docker.sock
     ports:
       - 7007:7007
 ```
@@ -207,7 +207,7 @@ services:
     environment:
       - DOZZLE_FILTER=label=color
     volumes:
-      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /var/run/docker.sock:/var/run/docker.sock
 ```
 
 L'agent n'affichera que les conteneurs portant le label `color`. Gardez à l'esprit que ces filtres se combinent avec les filtres de l'interface pour restreindre encore la liste des conteneurs. Pour en savoir plus sur les différents types de filtres, lisez la [documentation des filtres](/fr/guide/filters#ui-agents-and-user-filters).
@@ -327,7 +327,7 @@ services:
         ...
         -----END PRIVATE KEY-----
     volumes:
-      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /var/run/docker.sock:/var/run/docker.sock
     ports:
       - 7007:7007
 ```

@@ -1,7 +1,7 @@
 ---
 title: Podman
 description: Ejecuta Dozzle con Podman, en modo rootful o rootless, como servicio independiente, unidad Quadlet o agente, y soluciona estadísticas de memoria ausentes y healthchecks fallidos.
-sourceHash: 576acd7f7e7d
+sourceHash: a91c7eb64f34
 ---
 
 # Podman
@@ -43,7 +43,7 @@ sudo systemctl enable podman.socket
 sudo systemctl start podman.socket
 
 # Dozzle puede conectarse a través del socket de Docker
-podman run -v /run/podman/podman.sock:/var/run/docker.sock:ro \
+podman run -v /run/podman/podman.sock:/var/run/docker.sock \
   -p 3000:8080 \
   ghcr.io/amir20/dozzle:latest
 ```
@@ -58,7 +58,7 @@ systemctl --user enable podman.socket
 systemctl --user start podman.socket
 
 # Para un usuario llamado 'appuser', Dozzle puede conectarse así:
-podman run -v /run/user/$(id -u appuser)/podman/podman.sock:/var/run/docker.sock:ro \
+podman run -v /run/user/$(id -u appuser)/podman/podman.sock:/var/run/docker.sock \
   -p 3000:8080 \
   ghcr.io/amir20/dozzle:latest
 ```
@@ -78,7 +78,7 @@ Wants=network-online.target
 [Container]
 Image=ghcr.io/amir20/dozzle:latest
 PublishPort=3000:8080
-Volume=/run/user/%U/podman/podman.sock:/var/run/docker.sock:ro
+Volume=/run/user/%U/podman/podman.sock:/var/run/docker.sock
 
 HealthCmd=/dozzle healthcheck
 HealthInterval=5s
@@ -126,7 +126,7 @@ Ejecuta Dozzle en modo agente en los hosts remotos de Podman:
 # Agente rootful
 podman run -d \
   --name dozzle-agent \
-  -v /run/podman/podman.sock:/var/run/docker.sock:ro \
+  -v /run/podman/podman.sock:/var/run/docker.sock \
   -p 7007:7007 \
   ghcr.io/amir20/dozzle:latest agent
 ```
@@ -135,7 +135,7 @@ podman run -d \
 # Agente rootless (para el usuario 'appuser')
 sudo -u appuser podman run -d \
   --name dozzle-agent \
-  -v /run/user/$(id -u appuser)/podman/podman.sock:/var/run/docker.sock:ro \
+  -v /run/user/$(id -u appuser)/podman/podman.sock:/var/run/docker.sock \
   -p 7007:7007 \
   ghcr.io/amir20/dozzle:latest agent
 ```
@@ -154,7 +154,7 @@ Wants=network-online.target
 [Container]
 Image=ghcr.io/amir20/dozzle:latest
 PublishPort=7007:7007
-Volume=/run/user/%U/podman/podman.sock:/var/run/docker.sock:ro
+Volume=/run/user/%U/podman/podman.sock:/var/run/docker.sock
 Exec=agent
 
 HealthCmd=/dozzle healthcheck
