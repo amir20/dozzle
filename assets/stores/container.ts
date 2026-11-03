@@ -5,7 +5,7 @@ import type { ContainerUpdate } from "@/models/ContainerUpdate";
 import type { AutoPruneRun } from "@/composable/setup/setup";
 import { Container } from "@/models/Container";
 import i18n from "@/modules/i18n";
-import { parseEventData } from "@/utils/events";
+import { typedEvents } from "@/utils/events";
 import { Host, HostMetrics } from "./hosts";
 import { sessionHost } from "@/composable/app/storage";
 
@@ -18,6 +18,22 @@ const { t } = i18n.global;
 // Matches updateFeedLimit in internal/web/update_feed.go.
 const MAX_RECENT_UPDATES = 20;
 const updateKey = (u: ContainerUpdate) => `${u.host}/${u.newId}/${u.at}`;
+
+// What /api/events/stream sends, by event name.
+type EventsStream = {
+  "server-version": { version: string };
+  "containers-changed": ContainerJson[];
+  // a live stat always names its container; only buffered points drop the id
+  "container-stat": ContainerStat & { id: string };
+  "container-event": { actorId: string; name: string; time: string };
+  "container-updated": ContainerJson;
+  "container-update": ContainerUpdate;
+  // null when there is nothing to show, which drops a row from before a reconnect.
+  "auto-prune": AutoPruneRun | null;
+  "update-host": Host;
+  "host-metrics": HostMetrics;
+  "container-health": { actorId: string; health: ContainerHealth };
+};
 
 export const useContainerStore = defineStore("container", () => {
   const containers: Ref<Container[]> = ref([]);
@@ -77,6 +93,7 @@ export const useContainerStore = defineStore("container", () => {
   function connect() {
     es?.close();
     es = new EventSource(withBase("/api/events/stream"));
+    const on = typedEvents<EventsStream>(es);
     es.addEventListener("error", (e) => {
       reconnect.onError();
       // the browser retries on its own while CONNECTING; give it a few goes before saying
@@ -100,32 +117,28 @@ export const useContainerStore = defineStore("container", () => {
 
     es.addEventListener("ping", () => reconnect.onActivity());
 
-    es.addEventListener("server-version", (e) => {
-      const { version } = parseEventData<{ version: string }>(e);
+    on("server-version", ({ version }) => {
       if (version !== config.version) {
         markStale();
       }
     });
 
-    es.addEventListener("containers-changed", (e) => {
-      updateContainers(parseEventData<ContainerJson[]>(e), replaying);
+    on("containers-changed", (payload) => {
+      updateContainers(payload, replaying);
       replaying = false;
       ready.value = true;
       // the load-time notice below may have fired against a slow first list; the
       // containers are here now, so it no longer describes anything
       removeToast("events-timeout");
     });
-    es.addEventListener("container-stat", (e) => {
-      // a live stat always names its container; only buffered points drop the id
-      const stat = parseEventData<ContainerStat & { id: string }>(e);
+    on("container-stat", (stat) => {
       const container = allContainersById.value[stat.id] as unknown as UnwrapNestedRefs<Container>;
       if (container) {
         const { id, ...rest } = stat;
         container.updateStat(rest);
       }
     });
-    es.addEventListener("container-event", (e) => {
-      const event = parseEventData<{ actorId: string; name: string; time: string }>(e);
+    on("container-event", (event) => {
       const container = allContainersById.value[event.actorId];
       if (container) {
         switch (event.name) {
@@ -147,22 +160,16 @@ export const useContainerStore = defineStore("container", () => {
       }
     });
 
-    es.addEventListener("container-updated", (e) => {
-      const container = parseEventData<ContainerJson>(e);
+    on("container-updated", (container) => {
       const existing = allContainersById.value[container.id];
       existing?.applyJSON(container, { whole: true });
     });
 
-    es.addEventListener("container-update", (e) => addRecentUpdate(parseEventData<ContainerUpdate>(e)));
+    on("container-update", addRecentUpdate);
 
-    // null when there is nothing to show, which drops a row from before a reconnect.
-    es.addEventListener(
-      "auto-prune",
-      (e) => (lastAutoPrune.value = parseEventData<AutoPruneRun | null>(e) ?? undefined),
-    );
+    on("auto-prune", (run) => (lastAutoPrune.value = run ?? undefined));
 
-    es.addEventListener("update-host", (e) => {
-      const host = parseEventData<Host>(e);
+    on("update-host", (host) => {
       if (host.removed) {
         removeHost(host.id, host.endpoint);
         // The sidebar would stay on a host that no longer exists, with no way back.
@@ -173,10 +180,9 @@ export const useContainerStore = defineStore("container", () => {
       updateHost(host);
     });
 
-    es.addEventListener("host-metrics", (e) => updateHostMetrics(parseEventData<HostMetrics>(e)));
+    on("host-metrics", updateHostMetrics);
 
-    es.addEventListener("container-health", (e) => {
-      const event = parseEventData<{ actorId: string; health: ContainerHealth }>(e);
+    on("container-health", (event) => {
       const container = allContainersById.value[event.actorId];
       if (container) {
         container.health = event.health;

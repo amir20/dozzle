@@ -18,7 +18,7 @@ import { Container, GroupedContainers } from "@/models/Container";
 import { parseMessage } from "./loadBetween";
 import { useLogLoader } from "./logLoader";
 import { appendBatch, newerThanOnScreen, newestOnScreen, notOnScreen } from "./logWindow";
-import { parseEventData } from "@/utils/events";
+import { typedEvents } from "@/utils/events";
 import type { ContainerUpdate } from "@/models/ContainerUpdate";
 import {
   MARKER_START_SLACK_MS,
@@ -98,6 +98,15 @@ export type SearchStatus = {
 };
 
 export type LogStreamSource = ReturnType<typeof useLogStream>;
+
+// What a log stream (/api/containers/logs/stream and its siblings) sends by name.
+// Log lines themselves arrive as unnamed messages and are not in here.
+type LogStream = {
+  "container-event": { actorId: string; name: "container-stopped" | "container-started"; time: string };
+  "container-update": ContainerUpdate;
+  "logs-backfill": LogEvent[];
+  "search-status": Omit<SearchStatus, "active">;
+};
 
 function useLogStream(url: Ref<string>, container?: Ref<Container>) {
   const messages: ShallowRef<LogEntry<LogMessage>[]> = shallowRef([]);
@@ -270,12 +279,8 @@ function useLogStream(url: Ref<string>, container?: Ref<Container>) {
     error.value = false;
     searchStatus.value = { active: isSearching.value, done: false, matches: 0 };
     es = new EventSource(urlWithParams.value);
-    es.addEventListener("container-event", (e) => {
-      const event = parseEventData<{
-        actorId: string;
-        name: "container-stopped" | "container-started";
-        time: string;
-      }>(e);
+    const on = typedEvents<LogStream>(es);
+    on("container-event", (event) => {
       const containerEvent = new ContainerEventLogEntry(
         event.name == "container-started" ? "Container started" : "Container stopped",
         event.actorId,
@@ -304,8 +309,7 @@ function useLogStream(url: Ref<string>, container?: Ref<Container>) {
     // before or after the container's lines, from a host that answers slower than
     // the tail. A reconnect sends it again; the copy on screen is kept, with any
     // verdict it has gained.
-    es.addEventListener("container-update", (e) => {
-      const update = parseEventData<ContainerUpdate>(e);
+    on("container-update", (update) => {
       const marker = new DeployLogEntry(update, new Date(update.at));
       if (Number.isNaN(marker.date.getTime())) return;
       if (floor.value && marker.date < floor.value) return;
@@ -316,8 +320,7 @@ function useLogStream(url: Ref<string>, container?: Ref<Container>) {
       flushBuffer();
     });
 
-    es.addEventListener("logs-backfill", (e) => {
-      const data = parseEventData<LogEvent[]>(e);
+    on("logs-backfill", (data) => {
       let logs = data.map((e) => asLogEntry(e)).filter(notOnScreen(messages.value));
       if (resuming) {
         // A search streams live from the moment it connects, so after a resume the
@@ -340,8 +343,7 @@ function useLogStream(url: Ref<string>, container?: Ref<Container>) {
       decorateWithAlerts();
     });
 
-    es.addEventListener("search-status", (e) => {
-      const data = parseEventData<Omit<SearchStatus, "active">>(e);
+    on("search-status", (data) => {
       searchStatus.value = {
         active: !data.done,
         done: data.done,
