@@ -89,6 +89,14 @@ func (a *service) HealthLog(ctx context.Context, c container.Container) ([]conta
 	return a.client.HealthLog(ctx, c.ID)
 }
 
+func (a *service) InspectNetwork(ctx context.Context, name string) (container.Network, error) {
+	return a.client.InspectNetwork(ctx, name)
+}
+
+func (a *service) InspectVolume(ctx context.Context, name string) (container.Volume, error) {
+	return a.client.InspectVolume(ctx, name)
+}
+
 func (a *service) ListReclaimable(ctx context.Context) (container.ReclaimableItems, error) {
 	return a.client.ListReclaimable(ctx)
 }

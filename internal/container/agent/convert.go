@@ -29,7 +29,13 @@ func containerToProto(c container.Container) pb.Container {
 			Source:      m.Source,
 			Destination: m.Destination,
 			Rw:          m.RW,
+			Name:        m.Name,
 		})
+	}
+
+	pbNetworks := make([]*pb.ContainerNetwork, 0, len(c.Networks))
+	for _, n := range c.Networks {
+		pbNetworks = append(pbNetworks, &pb.ContainerNetwork{Name: n.Name, Ip: n.IP})
 	}
 
 	pbMountStats := make([]*pb.MountStat, 0, len(c.MountStats))
@@ -78,6 +84,7 @@ func containerToProto(c container.Container) pb.Container {
 		ExitCode:      int32(c.ExitCode),
 		SizeRw:        c.SizeRw,
 		Volumes:       pbVolumes,
+		Networks:      pbNetworks,
 	}
 }
 
@@ -113,7 +120,13 @@ func containerFromProto(c *pb.Container) container.Container {
 			Source:      m.Source,
 			Destination: m.Destination,
 			RW:          m.Rw,
+			Name:        m.Name,
 		})
+	}
+
+	var networks []container.ContainerNetwork
+	for _, n := range c.Networks {
+		networks = append(networks, container.ContainerNetwork{Name: n.Name, IP: n.Ip})
 	}
 
 	var mountStats map[string]container.MountStat
@@ -165,6 +178,7 @@ func containerFromProto(c *pb.Container) container.Container {
 		ExitCode:      int(c.ExitCode),
 		SizeRw:        c.SizeRw,
 		Volumes:       volumes,
+		Networks:      networks,
 	}
 }
 
@@ -251,4 +265,72 @@ func updateResultFromProto(r *pb.UpdateResult) *container.UpdateResult {
 		out.OldStartedAt = t.AsTime()
 	}
 	return out
+}
+
+func networkToProto(n container.Network) *pb.InspectNetworkResponse {
+	resp := &pb.InspectNetworkResponse{
+		Id:         n.ID,
+		Name:       n.Name,
+		Driver:     n.Driver,
+		Scope:      n.Scope,
+		Internal:   n.Internal,
+		Subnets:    make([]*pb.NetworkSubnet, 0, len(n.Subnets)),
+		Containers: make([]*pb.NetworkEndpoint, 0, len(n.Containers)),
+	}
+	for _, s := range n.Subnets {
+		resp.Subnets = append(resp.Subnets, &pb.NetworkSubnet{Subnet: s.Subnet, Gateway: s.Gateway, InUse: s.InUse, Available: s.Available})
+	}
+	for _, e := range n.Containers {
+		resp.Containers = append(resp.Containers, &pb.NetworkEndpoint{Id: e.ID, Name: e.Name, Ip: e.IP})
+	}
+	return resp
+}
+
+func networkFromProto(resp *pb.InspectNetworkResponse) container.Network {
+	n := container.Network{
+		ID:         resp.Id,
+		Name:       resp.Name,
+		Driver:     resp.Driver,
+		Scope:      resp.Scope,
+		Internal:   resp.Internal,
+		Subnets:    make([]container.NetworkSubnet, 0, len(resp.Subnets)),
+		Containers: make([]container.NetworkEndpoint, 0, len(resp.Containers)),
+	}
+	for _, s := range resp.Subnets {
+		n.Subnets = append(n.Subnets, container.NetworkSubnet{Subnet: s.Subnet, Gateway: s.Gateway, InUse: s.InUse, Available: s.Available})
+	}
+	for _, e := range resp.Containers {
+		n.Containers = append(n.Containers, container.NetworkEndpoint{ID: e.Id, Name: e.Name, IP: e.Ip})
+	}
+	return n
+}
+
+func volumeToProto(v container.Volume) *pb.InspectVolumeResponse {
+	resp := &pb.InspectVolumeResponse{
+		Name:       v.Name,
+		Driver:     v.Driver,
+		Scope:      v.Scope,
+		Options:    v.Options,
+		Labels:     v.Labels,
+		Containers: make([]*pb.VolumeUser, 0, len(v.Containers)),
+	}
+	for _, u := range v.Containers {
+		resp.Containers = append(resp.Containers, &pb.VolumeUser{Id: u.ID, Name: u.Name})
+	}
+	return resp
+}
+
+func volumeFromProto(resp *pb.InspectVolumeResponse) container.Volume {
+	v := container.Volume{
+		Name:       resp.Name,
+		Driver:     resp.Driver,
+		Scope:      resp.Scope,
+		Options:    resp.Options,
+		Labels:     resp.Labels,
+		Containers: make([]container.VolumeUser, 0, len(resp.Containers)),
+	}
+	for _, u := range resp.Containers {
+		v.Containers = append(v.Containers, container.VolumeUser{ID: u.Id, Name: u.Name})
+	}
+	return v
 }

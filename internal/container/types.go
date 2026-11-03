@@ -57,6 +57,9 @@ type Container struct {
 	// Docker measures every volume on the host in one walk, so these refresh far less
 	// often than SizeRw. Bind mounts are never here: Docker cannot measure them.
 	Volumes []VolumeUsage `json:"volumes,omitempty"`
+	// Networks are the networks the container is attached to, from its inspect.
+	// A list entry has none.
+	Networks []ContainerNetwork `json:"-"`
 }
 
 // VolumeUsage is one volume a container mounts.
@@ -75,6 +78,8 @@ type Mount struct {
 	Source      string `json:"source"`
 	Destination string `json:"destination"`
 	RW          bool   `json:"rw"`
+	// Name is the volume's name, empty for a bind mount.
+	Name string `json:"name,omitempty"`
 }
 
 // String returns a display form for legacy consumers.

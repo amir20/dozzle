@@ -33,3 +33,13 @@ func TestContainerProtoRoundTrip(t *testing.T) {
 	pb = containerToProto(expected)
 	assert.Nil(t, containerFromProto(&pb).SizeRw, "a container not measured yet stays unknown, not 0")
 }
+
+func TestNetworkAndVolumeProtoRoundTrip(t *testing.T) {
+	var network container.Network
+	var volume container.Volume
+	faker.FakeData(&network, options.WithRandomMapAndSliceMinSize(1))
+	faker.FakeData(&volume, options.WithRandomMapAndSliceMinSize(1))
+
+	assert.Equal(t, network, networkFromProto(networkToProto(network)))
+	assert.Equal(t, volume, volumeFromProto(volumeToProto(volume)))
+}
