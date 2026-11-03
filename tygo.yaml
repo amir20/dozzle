@@ -14,7 +14,8 @@ packages:
   - path: github.com/amir20/dozzle/internal/web
     output_path: assets/types/generated/web.ts
     include_files: [inspect.go]
-    # tygo turns a type from another Go package into `any`; map each one by hand.
+    # tygo turns a type from another Go package into `any /* pkg.Type */`; map each
+    # one by hand. CI fails on any that slips through.
     type_mappings:
       container.ContainerNetwork: container.ContainerNetwork
     frontmatter: |

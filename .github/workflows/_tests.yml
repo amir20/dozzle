@@ -127,7 +127,15 @@ jobs:
       - name: Static checker
         run: go tool staticcheck ./...
       - name: Check generated TypeScript types
-        run: go tool tygo generate && git diff --exit-code assets/types/generated
+        run: |
+          go tool tygo generate
+          git diff --exit-code assets/types/generated
+          # tygo writes `any /* pkg.Type */` for a type from another package that
+          # tygo.yaml does not map, and typecheck cannot see through an any.
+          if grep -n 'any /\* ' assets/types/generated/*.ts; then
+            echo "::error::unmapped Go type became any; add it to type_mappings in tygo.yaml"
+            exit 1
+          fi
 
   int-test:
     name: Integration Tests
