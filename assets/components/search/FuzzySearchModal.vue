@@ -346,6 +346,7 @@ import { useCloudConfig } from "@/composable/cloud/cloudConfig";
 import { useCommands, useContainerCommands, type Command } from "@/composable/app/commands";
 import { Container } from "@/models/Container";
 import MdiTextBoxOutline from "~icons/mdi/text-box-outline";
+import MdiInformationOutline from "~icons/mdi/information-outline";
 import CilColumns from "~icons/cil/columns";
 import PhArrowsMerge from "~icons/ph/arrows-merge";
 
@@ -624,6 +625,8 @@ const drilledContainer = computed<Container | undefined>(() =>
   drilled.value ? allContainersById.value?.[drilled.value.id] : undefined,
 );
 const drilledCommands = useContainerCommands(drilledContainer);
+const showDrawer = useDrawer();
+const ContainerInspect = defineAsyncComponent(() => import("@/components/containers/ContainerInspect.vue"));
 // A container removed while its actions are open leaves nothing to act on.
 watch(drilledContainer, (container) => {
   if (drilled.value && !container) drillOut();
@@ -641,8 +644,19 @@ const actionCommands = computed<Command[]>(() => {
       keywords: "open logs view",
       perform: () => navigate(item),
     },
-    ...drilledCommands.value,
   ];
+  const container = drilledContainer.value;
+  if (container.state !== "deleted") {
+    actions.push({
+      id: "container.inspect",
+      section: "container",
+      icon: MdiInformationOutline,
+      title: t("toolbar.inspect"),
+      keywords: "inspect details env ports mounts labels",
+      perform: () => showDrawer(ContainerInspect, { container }),
+    });
+  }
+  actions.push(...drilledCommands.value);
   if (!isMobile.value) {
     actions.push({
       id: "container.pin",

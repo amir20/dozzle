@@ -340,6 +340,7 @@ describe("<FuzzySearchModal />", () => {
     expect(texts(wrapper)[0]).toBe("command-palette.open-logs");
     // The crumb already names the container, so its actions leave the name out.
     expect(texts(wrapper)).toContain("toolbar.restart");
+    expect(texts(wrapper)).toContain("toolbar.inspect");
 
     await wrapper.find("input").trigger("keydown.enter");
     expect(useRouter().push).toHaveBeenCalledWith({ name: "/container/[id]", params: { id: "567" } });
