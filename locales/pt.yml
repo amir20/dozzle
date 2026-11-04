@@ -416,6 +416,7 @@ updates:
   none: Todos os contêineres usam a imagem mais recente da sua tag.
   update-selected: Atualizar | Atualizar 1 | Atualizar {count}
   self-last: O Dozzle é atualizado por último e depois reinicia.
+  read-only: Atualizar a partir daqui requer as ações de contêiner e a função update.
   auto: Auto
   auto-hint: Também atualizado pelo agendamento de atualização automática
   auto-footnote: Adicione a label {label} a um contêiner para atualizá-lo pelo agendamento de atualização automática.

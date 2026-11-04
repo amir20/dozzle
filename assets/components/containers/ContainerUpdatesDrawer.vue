@@ -1,5 +1,5 @@
 <template>
-  <div class="flex min-h-full flex-col">
+  <div ref="root" class="flex min-h-full flex-col">
     <div class="space-y-6 p-4 pb-8">
       <div class="pr-20">
         <h2 class="text-2xl font-bold">{{ $t("updates.title") }}</h2>
@@ -61,6 +61,7 @@
                  never updated: it has to be started first. One labelled check is
                  updated outside Dozzle. -->
             <input
+              v-if="config.enableUpdates"
               v-model="selected"
               type="checkbox"
               class="checkbox checkbox-sm mt-0.5"
@@ -102,7 +103,10 @@
                   </template>
                 </i18n-t>
               </div>
-              <div v-else-if="container.state !== 'running'" class="text-base-content/60 mt-1 text-xs">
+              <div
+                v-else-if="config.enableUpdates && container.state !== 'running'"
+                class="text-base-content/60 mt-1 text-xs"
+              >
                 {{ $t("error.start-container-first") }}
               </div>
             </div>
@@ -137,7 +141,10 @@
     <div
       class="bg-base-100 border-base-content/10 sticky -bottom-6 z-10 -mx-6 mt-auto -mb-6 flex flex-wrap items-center gap-2 border-t px-10 pt-4 pb-[max(1rem,env(safe-area-inset-bottom))]"
     >
-      <span v-if="!showingJob && selfSelected" class="text-base-content/60 mr-auto text-xs">
+      <span v-if="!config.enableUpdates" class="text-base-content/60 mr-auto text-xs">
+        {{ $t("updates.read-only") }}
+      </span>
+      <span v-else-if="!showingJob && selfSelected" class="text-base-content/60 mr-auto text-xs">
         {{ $t("updates.self-last") }}
       </span>
       <span v-else-if="showingJob && job" class="text-base-content/60 mr-auto font-mono text-xs">
@@ -158,13 +165,14 @@
           {{ $t("updates.back") }}
         </button>
         <button
-          v-if="!showingJob"
+          v-if="!showingJob && config.enableUpdates"
           type="button"
           class="btn btn-primary btn-sm"
-          :disabled="selectedContainers.length === 0 || running"
+          :disabled="!canUpdate"
           @click="updateSelected"
         >
           {{ $t("updates.update-selected", selectedContainers.length) }}
+          <KeyShortcut char="&crarr;" class="opacity-60" />
         </button>
       </div>
     </div>
@@ -208,7 +216,9 @@ const candidates = computed(() => containers.value.filter(hasUpdate).sort((a, b)
 // after the drawer opened (a check finishing). A stopped one is listed but cannot
 // be selected: it is never updated until someone starts it. Nor can one labelled
 // check, which is updated outside Dozzle.
-const selectable = (c: Container) => c.state === "running" && !checkOnly(c);
+// Without actions, or without the update role, the list is read only: every
+// update is still shown, none can be selected.
+const selectable = (c: Container) => config.enableUpdates && c.state === "running" && !checkOnly(c);
 const selected = ref<string[]>([]);
 const seen = new Set<string>();
 watch(
@@ -236,7 +246,12 @@ const finishedCount = computed(() => job.value?.items.filter((i) => isFinished(i
 const focusEl = ref<HTMLElement>();
 onMounted(() => focusEl.value?.scrollIntoView({ block: "center" }));
 
+const root = useTemplateRef<HTMLElement>("root");
+const canUpdate = computed(() => !showingJob.value && selectedContainers.value.length > 0 && !running.value);
+useSubmitShortcut(root, updateSelected, canUpdate);
+
 function updateSelected() {
+  if (!canUpdate.value) return;
   showingJob.value = true;
   start(selectedContainers.value);
 }

@@ -1,6 +1,6 @@
 import { defineAsyncComponent, shallowReactive, type Component } from "vue";
 import { Container, powerAction } from "@/models/Container";
-import { canUpdate, isSelf, useImageUpdates } from "@/composable/containers/imageUpdate";
+import { canUpdate, isSelf, updatesVisible, useImageUpdates } from "@/composable/containers/imageUpdate";
 import { useDrawer } from "@/composable/app/drawer";
 import { useContainerActions } from "@/composable/containers/containerActions";
 import { settingsPages, SETTINGS_PAGE_ICONS, SETTINGS_PAGE_LABELS } from "@/composable/app/settingsPages";
@@ -239,9 +239,7 @@ export function useCommands() {
 
   // What the updates drawer would list, minus what the user already skipped.
   const updatable = computed(() =>
-    config.enableUpdates && config.imageCheckMode !== "off" && config.mode !== "k8s"
-      ? visibleContainers.value.filter((c) => hasUpdate(c) && !isDismissed(c))
-      : [],
+    updatesVisible() ? visibleContainers.value.filter((c) => hasUpdate(c) && !isDismissed(c)) : [],
   );
 
   const commands = computed<Command[]>(() => {
@@ -264,7 +262,7 @@ export function useCommands() {
 
     // Same gate as the dashboard's updates button. Opens the drawer so the
     // check has somewhere to report, even when it finds nothing.
-    if (config.enableUpdates && config.imageCheckMode !== "off" && config.mode !== "k8s") {
+    if (updatesVisible()) {
       if (updatable.value.length) {
         list.push({
           id: "updates.review",

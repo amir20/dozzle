@@ -421,6 +421,7 @@ updates:
   none: Vsi vsebniki uporabljajo najnovejšo sliko svoje oznake.
   update-selected: Posodobi | Posodobi 1 | Posodobi {count}
   self-last: Dozzle se posodobi zadnji in se nato znova zažene.
+  read-only: Posodabljanje od tu zahteva dejanja vsebnikov in vlogo update.
   auto: Samodejno
   auto-hint: Posodablja se tudi po urniku samodejnih posodobitev
   auto-footnote: Vsebniku dodajte oznako {label}, da se posodablja po urniku samodejnih posodobitev.

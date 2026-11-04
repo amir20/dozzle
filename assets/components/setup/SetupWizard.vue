@@ -41,6 +41,7 @@
       </button>
       <button
         v-if="handle"
+        ref="nextButton"
         type="button"
         class="btn btn-sm"
         :class="{ 'btn-primary': !handle.nextPlain }"
@@ -49,6 +50,7 @@
       >
         <span v-if="handle.busy" class="loading loading-spinner loading-xs"></span>
         {{ handle.nextLabel }}
+        <KeyShortcut char="&crarr;" class="opacity-60" />
       </button>
       <button v-else-if="!status && !loading" type="button" class="btn btn-sm" @click="close">
         {{ $t("setup.close") }}
@@ -266,6 +268,10 @@ function advance(skip = false, userSkipped = skip) {
   }
   index.value = i;
 }
+
+const nextButton = useTemplateRef<HTMLButtonElement>("nextButton");
+const canNext = computed(() => !!handle.value && !handle.value.nextDisabled && !busy.value);
+useSubmitShortcut(nextButton, () => onNext(), canNext);
 
 async function onNext() {
   if (!handle.value) return;

@@ -568,6 +568,7 @@ updates:
   none: Every container runs the latest image its tag points to.
   update-selected: Update | Update 1 | Update {count}
   self-last: Dozzle updates last, then restarts.
+  read-only: Updating from here needs container actions and the update role.
   auto: Auto
   auto-hint: Also updated on the auto-update schedule
   auto-footnote: Label a container {label} to update it on the auto-update schedule.

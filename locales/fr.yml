@@ -416,6 +416,7 @@ updates:
   none: Tous les conteneurs utilisent la dernière image de leur tag.
   update-selected: Mettre à jour | Mettre à jour 1 | Mettre à jour {count}
   self-last: Dozzle se met à jour en dernier, puis redémarre.
+  read-only: Pour mettre à jour depuis ici, il faut les actions sur les conteneurs et le rôle update.
   auto: Auto
   auto-hint: Aussi mis à jour selon la planification automatique
   auto-footnote: Ajoutez le label {label} à un conteneur pour le mettre à jour selon la planification automatique.

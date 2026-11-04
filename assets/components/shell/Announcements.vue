@@ -273,7 +273,7 @@ const mismatchedNames = computed(() => {
 });
 
 // Same gate and list as the dashboard's updates button, so both agree on the count.
-const showAvailable = config.enableUpdates && config.imageCheckMode !== "off" && config.mode !== "k8s";
+const showAvailable = updatesVisible();
 const { checkAll, hasUpdate } = useImageUpdates();
 const showDrawer = useDrawer();
 const available = computed(() => (showAvailable ? (containers.value as unknown as Container[]).filter(hasUpdate) : []));

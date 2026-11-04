@@ -417,6 +417,7 @@ updates:
   none: Alle containers draaien het nieuwste image van hun tag.
   update-selected: Bijwerken | 1 bijwerken | {count} bijwerken
   self-last: Dozzle wordt als laatste bijgewerkt en herstart daarna.
+  read-only: Om hier bij te werken zijn containeracties en de update-rol nodig.
   auto: Auto
   auto-hint: Wordt ook bijgewerkt volgens het schema voor automatische updates
   auto-footnote: Geef een container het label {label} om hem volgens het schema voor automatische updates bij te werken.

@@ -418,6 +418,7 @@ updates:
   none: 所有容器都在執行其標籤指向的最新映像檔。
   update-selected: 更新 | 更新 1 個 | 更新 {count} 個
   self-last: Dozzle 最後更新，然後重新啟動。
+  read-only: 在此更新需要啟用容器操作並擁有 update 角色。
   auto: 自動
   auto-hint: 也會依自動更新排程更新
   auto-footnote: 為容器加上標籤 {label}，即可依自動更新排程更新它。
