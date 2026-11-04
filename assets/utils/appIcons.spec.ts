@@ -11,6 +11,7 @@ describe("iconSlugForImage", () => {
     ["ghcr.io/hotio/qbittorrent:release-4.6.5", "qbittorrent"],
     ["lukevella/rallly:4", "rallly"],
     ["jc21/nginx-proxy-manager:2.11.3", "nginx-proxy-manager"],
+    ["zoeyvid/npmplus:latest", "nginx-proxy-manager"],
     ["ghcr.io/gethomepage/homepage", "homepage"],
     ["amir20/dozzle:v8", "dozzle"],
     ["homebridge/homebridge:latest", "homebridge"],
