@@ -18,9 +18,10 @@
         v-if="showContainerName"
         class="w-30 shrink-0 select-none group-[.compact]:flex-1 max-md:text-xs max-md:leading-4 md:w-40"
         :value="logEntry.containerID"
+        :title="containerLabel"
         truncateRight
       >
-        {{ container?.name ?? logEntry.containerID }}
+        {{ containerLabel }}
       </RandomColorTag>
       <LogDate v-if="showTimestamp" :date="logEntry.date" class="shrink-0 select-none" />
     </div>
@@ -43,4 +44,5 @@ const { hosts } = useHosts();
 // id while the lines it already wrote stay on screen.
 const container = currentContainer(toRef(() => logEntry.containerID));
 const host = computed(() => (container.value ? hosts.value[container.value.host] : undefined));
+const containerLabel = computed(() => container.value?.name ?? logEntry.containerID);
 </script>
