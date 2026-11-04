@@ -416,6 +416,7 @@ updates:
   none: Alle Container laufen mit dem neuesten Image ihres Tags.
   update-selected: Aktualisieren | 1 aktualisieren | {count} aktualisieren
   self-last: Dozzle wird zuletzt aktualisiert und startet dann neu.
+  read-only: Zum Aktualisieren von hier aus sind Container-Aktionen und die Rolle update nötig.
   auto: Auto
   auto-hint: Wird auch nach dem Zeitplan für automatische Updates aktualisiert
   auto-footnote: Versieh einen Container mit dem Label {label}, damit er nach dem Zeitplan für automatische Updates aktualisiert wird.

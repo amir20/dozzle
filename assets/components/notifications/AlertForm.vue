@@ -205,9 +205,10 @@
           {{ $t("notifications.alert-form.still-needed", { fields: blockerLabels }) }}
         </span>
         <button class="btn" @click="close?.()">{{ $t("notifications.alert-form.cancel") }}</button>
-        <button class="btn btn-primary" :disabled="!canSave" @click="save">
+        <button ref="saveButton" class="btn btn-primary" :disabled="!canSave" @click="save">
           <span v-if="isSaving" class="loading loading-spinner loading-sm"></span>
           {{ isEditing ? $t("notifications.alert-form.save") : $t("notifications.alert-form.create") }}
+          <KeyShortcut char="&crarr;" class="opacity-60" />
         </button>
       </div>
     </div>
@@ -322,6 +323,14 @@ async function save() {
   registerGuard(null);
   await saveAlert(fieldsRef.value.typeFields);
 }
+
+// Scoped to the button, so the shortcut is gone while the footer asks to confirm a discard.
+const saveButton = useTemplateRef<HTMLButtonElement>("saveButton");
+useSubmitShortcut(
+  saveButton,
+  () => save(),
+  () => !!canSave.value,
+);
 
 // Unsaved-changes guard. Esc and the backdrop are one keystroke away from throwing away a
 // half-built expression, so confirm in the footer instead of closing.

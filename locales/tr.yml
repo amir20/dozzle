@@ -419,6 +419,7 @@ updates:
   none: Tüm container'lar tag'lerinin en güncel image'ını çalıştırıyor.
   update-selected: Güncelle | 1 güncelle | {count} güncelle
   self-last: Dozzle en son güncellenir, ardından yeniden başlar.
+  read-only: Buradan güncellemek için konteyner eylemleri ve update rolü gerekir.
   auto: Otomatik
   auto-hint: Otomatik güncelleme zamanlamasıyla da güncellenir
   auto-footnote: Bir container'ı otomatik güncelleme zamanlamasıyla güncellemek için ona {label} etiketini ekleyin.

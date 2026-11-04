@@ -418,6 +418,7 @@ updates:
   none: Wszystkie kontenery używają najnowszego obrazu swojego tagu.
   update-selected: Aktualizuj | Aktualizuj 1 | Aktualizuj {count}
   self-last: Dozzle aktualizuje się na końcu, a potem uruchamia ponownie.
+  read-only: Aktualizacja stąd wymaga akcji kontenerów i roli update.
   auto: Auto
   auto-hint: Aktualizowany także zgodnie z harmonogramem automatycznych aktualizacji
   auto-footnote: Dodaj do kontenera etykietę {label}, aby aktualizować go zgodnie z harmonogramem automatycznych aktualizacji.

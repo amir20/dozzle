@@ -560,6 +560,7 @@ updates:
   none: Todos los contenedores usan la imagen más reciente de su etiqueta.
   update-selected: Actualizar | Actualizar 1 | Actualizar {count}
   self-last: Dozzle se actualiza al final y luego se reinicia.
+  read-only: Para actualizar desde aquí se necesitan las acciones de contenedor y el rol update.
   auto: Auto
   auto-hint: También se actualiza con la programación de actualización automática
   auto-footnote: Añade la etiqueta {label} a un contenedor para actualizarlo con la programación de actualización automática.

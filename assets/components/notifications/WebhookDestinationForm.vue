@@ -164,9 +164,10 @@
         <button class="btn" @click="close?.()">
           {{ $t("notifications.destination-form.cancel") }}
         </button>
-        <button class="btn btn-primary" :disabled="!canSave" @click="saveDestination">
+        <button ref="saveButton" class="btn btn-primary" :disabled="!canSave" @click="saveDestination">
           <span v-if="isSaving" class="loading loading-spinner loading-sm"></span>
           {{ isEditing ? $t("notifications.destination-form.save") : $t("notifications.destination-form.add") }}
+          <KeyShortcut char="&crarr;" class="opacity-60" />
         </button>
       </div>
     </div>
@@ -337,6 +338,9 @@ async function testDestination() {
     isTesting.value = false;
   }
 }
+
+const saveButton = useTemplateRef<HTMLButtonElement>("saveButton");
+useSubmitShortcut(saveButton, () => saveDestination(), canSave);
 
 async function saveDestination() {
   if (!canSave.value) return;

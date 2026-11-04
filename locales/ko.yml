@@ -418,6 +418,7 @@ updates:
   none: 모든 컨테이너가 태그의 최신 이미지를 실행 중입니다.
   update-selected: 업데이트 | 1개 업데이트 | {count}개 업데이트
   self-last: Dozzle은 마지막에 업데이트된 후 다시 시작됩니다.
+  read-only: 여기서 업데이트하려면 컨테이너 작업과 update 역할이 필요합니다.
   auto: 자동
   auto-hint: 자동 업데이트 일정에 따라서도 업데이트됨
   auto-footnote: 컨테이너에 {label} 레이블을 추가하면 자동 업데이트 일정에 따라 업데이트됩니다.

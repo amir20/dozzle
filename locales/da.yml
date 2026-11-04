@@ -416,6 +416,7 @@ updates:
   none: Alle containere kører det nyeste image, som deres tag peger på.
   update-selected: Opdater | Opdater 1 | Opdater {count}
   self-last: Dozzle opdateres sidst og genstarter derefter.
+  read-only: Opdatering herfra kræver containerhandlinger og rollen update.
   auto: Auto
   auto-hint: Opdateres også efter den automatiske opdateringsplan
   auto-footnote: Giv en container labelen {label} for at opdatere den efter den automatiske opdateringsplan.

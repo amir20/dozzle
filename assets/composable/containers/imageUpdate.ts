@@ -87,6 +87,14 @@ function offerable(container: Container) {
 }
 
 /**
+ * Whether update awareness shows at all: the dashboard count, the row dots, the
+ * announcements row, the palette and the drawer. Seeing an update needs only the
+ * check, so it does not wait on actions; acting on one is `canUpdate` and
+ * `config.enableUpdates`.
+ */
+export const updatesVisible = () => config.imageCheckMode !== "off" && config.mode !== "k8s";
+
+/**
  * Whether Dozzle can update this container itself, whether or not an update is
  * waiting. Kubernetes rolls out images through the workload, so a single pod has
  * nothing to update, and a stopped container is never updated: it has to be

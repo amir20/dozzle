@@ -359,6 +359,7 @@ declare global {
   const unrefElement: typeof import('@vueuse/core').unrefElement
   const until: typeof import('@vueuse/core').until
   const updateErrorText: typeof import('./composable/containers/containerActions').updateErrorText
+  const updatesVisible: typeof import('./composable/containers/imageUpdate').updatesVisible
   const useActiveElement: typeof import('@vueuse/core').useActiveElement
   const useAlertForm: typeof import('./composable/notifications/alertForm').useAlertForm
   const useAlertMerger: typeof import('./composable/cloud/alertMerger').useAlertMerger
@@ -572,6 +573,7 @@ declare global {
   const useStorageAsync: typeof import('@vueuse/core').useStorageAsync
   const useStreamedContainers: typeof import('./composable/containers/streamedContainers').useStreamedContainers
   const useStyleTag: typeof import('@vueuse/core').useStyleTag
+  const useSubmitShortcut: typeof import('./composable/ui/submitShortcut').useSubmitShortcut
   const useSupported: typeof import('@vueuse/core').useSupported
   const useSwarmStore: typeof import('./stores/swarm').useSwarmStore
   const useSwipe: typeof import('@vueuse/core').useSwipe
@@ -1105,6 +1107,7 @@ declare module 'vue' {
     readonly unrefElement: UnwrapRef<typeof import('@vueuse/core')['unrefElement']>
     readonly until: UnwrapRef<typeof import('@vueuse/core')['until']>
     readonly updateErrorText: UnwrapRef<typeof import('./composable/containers/containerActions')['updateErrorText']>
+    readonly updatesVisible: UnwrapRef<typeof import('./composable/containers/imageUpdate')['updatesVisible']>
     readonly useActiveElement: UnwrapRef<typeof import('@vueuse/core')['useActiveElement']>
     readonly useAlertForm: UnwrapRef<typeof import('./composable/notifications/alertForm')['useAlertForm']>
     readonly useAlertMerger: UnwrapRef<typeof import('./composable/cloud/alertMerger')['useAlertMerger']>
@@ -1316,6 +1319,7 @@ declare module 'vue' {
     readonly useStorageAsync: UnwrapRef<typeof import('@vueuse/core')['useStorageAsync']>
     readonly useStreamedContainers: UnwrapRef<typeof import('./composable/containers/streamedContainers')['useStreamedContainers']>
     readonly useStyleTag: UnwrapRef<typeof import('@vueuse/core')['useStyleTag']>
+    readonly useSubmitShortcut: UnwrapRef<typeof import('./composable/ui/submitShortcut')['useSubmitShortcut']>
     readonly useSupported: UnwrapRef<typeof import('@vueuse/core')['useSupported']>
     readonly useSwarmStore: UnwrapRef<typeof import('./stores/swarm')['useSwarmStore']>
     readonly useSwipe: UnwrapRef<typeof import('@vueuse/core')['useSwipe']>
