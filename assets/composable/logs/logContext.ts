@@ -10,6 +10,8 @@ type LogContext = {
   levels: Set<Level>;
   showContainerName: boolean;
   showHostname: boolean;
+  // Prefix every container in the view shares, dropped from the name tag.
+  namePrefix: string;
   historical: boolean;
   // The slice of the log the view was opened on. Only a route's own view has
   // one; a pinned column is always plain live.
@@ -48,11 +50,33 @@ export const provideLoggingContext = (
       levels: new Set<Level>(allLevels),
       showContainerName,
       showHostname,
+      namePrefix: computed(() => sharedNamePrefix(containers.value)),
       historical,
       timeRange,
     }),
   );
 };
+
+/**
+ * The `<project>-` or `<project>_` prefix to drop from container names in a merged
+ * view, so `myapp-web-1` and `myapp-worker-1` read as `web-1` and `worker-1`. Only
+ * when every container has the same compose/stack project and its name carries it.
+ * The project is a fixed property of each container, so the prefix only changes if
+ * a container from another project joins, never as lines stream in.
+ */
+export function sharedNamePrefix(containers: Container[]): string {
+  if (containers.length < 2) return "";
+  const namespace = containers[0].namespace;
+  if (!namespace) return "";
+  for (const separator of ["-", "_"]) {
+    const prefix = namespace + separator;
+    if (
+      containers.every((c) => c.namespace === namespace && c.name.length > prefix.length && c.name.startsWith(prefix))
+    )
+      return prefix;
+  }
+  return "";
+}
 
 export const useLoggingContext = () => {
   const context = inject(
@@ -65,6 +89,7 @@ export const useLoggingContext = () => {
       levels: new Set<Level>(allLevels),
       showContainerName: false,
       showHostname: false,
+      namePrefix: "",
       historical: false,
       timeRange: { kind: "live" } as TimeRange,
     }),

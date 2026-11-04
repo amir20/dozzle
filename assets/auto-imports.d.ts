@@ -312,6 +312,7 @@ declare global {
   const shallowReactive: typeof import('vue').shallowReactive
   const shallowReadonly: typeof import('vue').shallowReadonly
   const shallowRef: typeof import('vue').shallowRef
+  const sharedNamePrefix: typeof import('./composable/logs/logContext').sharedNamePrefix
   const shortImageRef: typeof import('./utils/index').shortImageRef
   const showAllContainers: typeof import('./stores/settings').showAllContainers
   const showAppIcons: typeof import('./stores/settings').showAppIcons
@@ -1061,6 +1062,7 @@ declare module 'vue' {
     readonly shallowReactive: UnwrapRef<typeof import('vue')['shallowReactive']>
     readonly shallowReadonly: UnwrapRef<typeof import('vue')['shallowReadonly']>
     readonly shallowRef: UnwrapRef<typeof import('vue')['shallowRef']>
+    readonly sharedNamePrefix: UnwrapRef<typeof import('./composable/logs/logContext')['sharedNamePrefix']>
     readonly shortImageRef: UnwrapRef<typeof import('./utils/index')['shortImageRef']>
     readonly showAllContainers: UnwrapRef<typeof import('./stores/settings')['showAllContainers']>
     readonly showAppIcons: UnwrapRef<typeof import('./stores/settings')['showAppIcons']>

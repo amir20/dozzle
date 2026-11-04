@@ -18,10 +18,10 @@
         v-if="showContainerName"
         class="w-30 shrink-0 select-none group-[.compact]:flex-1 max-md:text-xs max-md:leading-4 md:w-40"
         :value="logEntry.containerID"
-        :title="containerLabel"
+        :title="fullName"
         truncateRight
       >
-        {{ containerLabel }}
+        {{ shortName }}
       </RandomColorTag>
       <LogDate v-if="showTimestamp" :date="logEntry.date" class="shrink-0 select-none" />
     </div>
@@ -35,7 +35,7 @@ import { LogEntry } from "@/models/LogEntry";
 const { logEntry } = defineProps<{
   logEntry: LogEntry<any>;
 }>();
-const { showHostname, showContainerName } = useLoggingContext();
+const { showHostname, showContainerName, namePrefix } = useLoggingContext();
 
 const { currentContainer } = useContainerStore();
 const { hosts } = useHosts();
@@ -44,5 +44,10 @@ const { hosts } = useHosts();
 // id while the lines it already wrote stay on screen.
 const container = currentContainer(toRef(() => logEntry.containerID));
 const host = computed(() => (container.value ? hosts.value[container.value.host] : undefined));
-const containerLabel = computed(() => container.value?.name ?? logEntry.containerID);
+const fullName = computed(() => container.value?.name ?? logEntry.containerID);
+const shortName = computed(() =>
+  namePrefix.value && fullName.value.startsWith(namePrefix.value)
+    ? fullName.value.slice(namePrefix.value.length)
+    : fullName.value,
+);
 </script>
