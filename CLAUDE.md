@@ -5,7 +5,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Response Style
 
 Keep chat responses brief: bullet points, `file:line` references, no "Strengths" or
-"Summary" sections. What the PR review bot looks for is set in
+"Summary" sections. What the PR review bot looks for is set in `REVIEW.md` and
 `.github/workflows/claude-code-review.yml`, not here.
 
 ## Translations
@@ -72,6 +72,18 @@ Small first versions win. Building is cheap here; reviewing and maintaining is n
 - **Audit size before review, not after.** When a body of work is done, report its size
   per feature (code, tests, generated) next to its user impact, so cuts happen before
   review time is spent.
+
+## Before Opening a PR: `/verify`
+
+Run the **`verify` skill** (`.claude/skills/verify/`) before every `gh pr create`. It
+runs CI's checks for what the diff touches and proves the change works (a bug fix's test
+must fail on `main`). A fresh-context subagent then reviews the diff against
+**`REVIEW.md`**. The PR's `### Tests` section is filled from those real runs.
+
+`REVIEW.md` says what a review looks for in this repo: what failure looks like here
+(each item a bug that shipped once), the evidence rule, the Important/Nit/Pre-existing
+tags, and the summary format. The CI reviewer and local `/code-review` read it too.
+When the same review comment comes up twice, add it to `REVIEW.md`.
 
 ## Project Overview
 
