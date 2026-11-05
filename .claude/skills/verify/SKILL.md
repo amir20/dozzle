@@ -10,15 +10,17 @@ evidence: every claim in the PR's Tests section is a command that was run and it
 output. If a step can't run (no Docker, no Chrome), say so in the Tests section. Don't
 skip it quietly.
 
-Work on the feature branch with the change committed, so the review step sees one diff:
-`git diff main...HEAD`.
+Work on the feature branch with the change committed, so the review step sees one diff.
+Run `git fetch origin` first and compare against `origin/main`, which is what the CI
+reviewer diffs against. A worktree's local `main` is often behind, and then every step
+below pulls in commits that already merged: `git diff origin/main...HEAD`.
 
 ## 1. Checks for what the diff touches
 
-List the changed paths (`git diff --name-only main...HEAD`) and run the matching blocks.
+List the changed paths (`git diff --name-only origin/main...HEAD`) and run the matching blocks.
 These are the commands CI's `_tests.yml` runs, so a pass here predicts a pass there.
 
-**Go (`*.go`, `go.mod`, `proto/`)**
+**Go (`*.go`, `go.mod`, `protos/`, `proto/`)**
 
 ```bash
 make test                      # go test -race -count 1, after go generate
@@ -65,7 +67,7 @@ the PR claims, with the narrowest check that exercises it:
   the branch is never touched:
   ```bash
   wt=$(mktemp -d) && git worktree add --detach "$wt" HEAD
-  (cd "$wt" && git checkout main -- <the non-test files the fix changed> && go test -race ./internal/<pkg> -run <TestName>)
+  (cd "$wt" && git checkout origin/main -- <the non-test files the fix changed> && go test -race ./internal/<pkg> -run <TestName>)
   git worktree remove --force "$wt"
   ```
   The run must fail. If it passes, the test doesn't cover the bug: rewrite it.
@@ -88,7 +90,7 @@ Launch one `general-purpose` subagent. Give it only this brief, not your own rea
 or a summary of what you think the change does. A reviewer handed your conclusion
 tends to confirm it.
 
-> Review the diff `git diff main...HEAD` in <this worktree's path>. Read `REVIEW.md`
+> Review the diff `git diff origin/main...HEAD` in <this worktree's path>. Read `REVIEW.md`
 > first and follow it exactly: what failure looks like here, the file:line evidence
 > rule, the Important / Nit / Pre-existing tags, the skip list and the summary format.
 > Read the code around the diff: callers, and every other path to anything the diff
