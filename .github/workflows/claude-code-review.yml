@@ -22,6 +22,8 @@ jobs:
       contents: read
       pull-requests: write
       issues: write
+      # The action trades this for the Claude app token.
+      id-token: write
 
     steps:
       - name: Checkout repository
@@ -34,10 +36,13 @@ jobs:
         uses: anthropics/claude-code-action@d535f5172dec02b204866b393d6b20b9b2aaf98d # v1.0.266
         with:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
-          # The job's own token, not the Claude app's default one. The action
-          # writes the token into .git/config, which Read can see, and the app
-          # token can push. This one can read code and comment, nothing else.
-          github_token: ${{ github.token }}
+          # The Claude app token (so comments come from claude), narrowed to
+          # read-only contents. Its default is contents: write, and the action
+          # writes the token into .git/config, which Read can see. This value is
+          # merged over the defaults, so the token can read code and comment,
+          # never push.
+          additional_permissions: |
+            contents: read
           # Renovate is the one bot reviewed. Its PR body is upstream release notes,
           # text this repo doesn't control, so never '*'.
           allowed_bots: "renovate[bot]"
