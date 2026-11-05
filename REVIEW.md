@@ -14,8 +14,8 @@ Each of these shipped at least once and was fixed later. Treat any of them as **
 
 - **A remote user reaches the Docker API, or another user's data.** Check auth or role
   bypass, missing escaping (XSS in log lines, container names, labels), path traversal,
-  and SSRF through any user-supplied URL. Secrets in logs count too. Check all three
-  auth modes (none, simple, forward-proxy), not only the one the PR was tested in.
+  and SSRF through any user-supplied URL. Secrets in logs count too. Check all four
+  auth modes (none, simple, oidc, forward-proxy), not only the one the PR was tested in.
 - **A gate on one side only.** The server refuses but the UI still offers the action
   (the self-update button shown to users the server answers 403). Or one path checks
   a label or role that another path skips (`/update/self` ignored
@@ -84,7 +84,9 @@ this review skips. So the review is of the _changes upstream_:
 - Read the release notes in the PR body (`gh pr view`). Any 0.x minor counts as a
   major: `0.5 → 0.6` is allowed to break. When a note only links the change ("⚠️
   move to X (#546)"), open the linked PR or the project's migration guide with
-  WebFetch: that's where the breaking details are.
+  WebFetch: that's where the breaking details are. CI can fetch GitHub pages only;
+  when a guide lives elsewhere (a project docs site), say in the summary which
+  guide wasn't checked, so a person reads it.
 - For each breaking change, deprecation or behaviour change, grep this repo for the
   affected API, option, env var or type, and name each use as a finding with its
   `file:line`: what it does today and what the new version does instead.

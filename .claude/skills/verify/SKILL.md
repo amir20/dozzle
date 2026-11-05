@@ -24,6 +24,7 @@ These are the commands CI's `_tests.yml` runs, so a pass here predicts a pass th
 make test                      # go test -race -count 1, after go generate
 go tool staticcheck ./...
 go tool tygo generate && git diff --exit-code assets/types/generated
+! grep -n 'any /\* ' assets/types/generated/*.ts   # an unmapped type; CI fails on it
 ```
 
 If `make test` regenerated protobuf code, commit it: CI runs `make test-ci`, which
@@ -48,6 +49,7 @@ A new or renamed key in `locales/en.yml` must be in every other locale, translat
 
 ```bash
 helm lint charts/dozzle --strict
+helm template dozzle charts/dozzle --set rbac.actions=true,rbac.nodeStats=true,ingress.enabled=true,persistence.existingClaim=data >/dev/null
 ```
 
 Fix every failure before moving on. Don't call a failure "pre-existing" without
@@ -78,7 +80,7 @@ the PR claims, with the narrowest check that exercises it:
 - **Agent, swarm or k8s path:** say which mode was exercised. A change tested in
   server mode only is untested in the others; name them under "Not run".
 - **Auth or roles:** exercise the change in every auth mode it touches (none, simple,
-  forward-proxy), and as a user without the role.
+  oidc, forward-proxy), and as a user without the role.
 
 ## 3. Fresh-context review
 

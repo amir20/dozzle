@@ -5,7 +5,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Response Style
 
 Keep chat responses brief: bullet points, `file:line` references, no "Strengths" or
-"Summary" sections. What the PR review bot looks for is set in
+"Summary" sections. What the PR review bot looks for is set in `REVIEW.md` and
 `.github/workflows/claude-code-review.yml`, not here.
 
 ## Translations
