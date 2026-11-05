@@ -43,7 +43,7 @@ You can leave out the two `DOZZLE_AUTO_UPDATE` lines and set the schedule under 
 | `--rolling-restart`                                                | Always: each host updates one container at a time                                                                                                                                        |
 | `--notification-url`                                               | [Alerts and webhooks](/guide/alerts-and-webhooks) on container events, or [Dozzle Cloud](/guide/dozzle-cloud), which watches each update and tells you when a new version starts failing |
 | `--run-once`                                                       | **Update** in the Updates drawer                                                                                                                                                         |
-| Private registry credentials                                       | Not supported. Containers from a private registry are skipped                                                                                                                            |
+| Private registry credentials                                       | Mount the same `config.json`. See [private registries](/guide/updates#private-registries)                                                                                                |
 
 ## Labels
 

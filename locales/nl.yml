@@ -1168,7 +1168,7 @@ auto-update:
   safety-title: "Vangnet"
   safety-verify: "Elke update wordt gevolgd en teruggedraaid als de nieuwe container faalt."
   safety-cleanup: "Het oude image wordt daarna verwijderd. Eén vorig image blijft bewaard om terug te draaien."
-  safety-skip: "Images vastgezet op een digest, lokaal gebouwd of uit een privéregistry worden overgeslagen."
+  safety-skip: "Images vastgezet op een digest, lokaal gebouwd of uit een privéregistry zonder login worden overgeslagen."
   learn-more: "Zo werkt automatisch bijwerken"
   footnote: "{link} bepaalt welke containers zichzelf bijwerken."
   footnote-link: "Instellingen → Updates"

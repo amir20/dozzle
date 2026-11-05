@@ -1173,7 +1173,7 @@ auto-update:
   safety-title: "Güvenlik ağı"
   safety-verify: "Her güncelleme izlenir ve yeni konteyner başarısız olursa geri alınır."
   safety-cleanup: "Eski imaj sonra kaldırılır. Geri almak için bir önceki imaj saklanır."
-  safety-skip: "Bir digest'e sabitlenmiş, yerelde derlenmiş ya da özel kayıt defterinden gelen imajlar atlanır."
+  safety-skip: "Bir digest'e sabitlenmiş, yerelde derlenmiş ya da oturum bilgisi olmayan özel kayıt defterinden gelen imajlar atlanır."
   learn-more: "Otomatik güncelleme nasıl çalışır"
   footnote: "{link} hangi konteynerlerin kendiliğinden güncelleneceğini belirler."
   footnote-link: "Ayarlar → Güncellemeler"

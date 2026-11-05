@@ -1167,7 +1167,7 @@ auto-update:
   safety-title: "Filet de sécurité"
   safety-verify: "Chaque mise à jour est surveillée et annulée si le nouveau conteneur échoue."
   safety-cleanup: "L'ancienne image est supprimée ensuite. Une image précédente est conservée pour revenir en arrière."
-  safety-skip: "Les images épinglées sur un digest, construites localement ou issues d'un registre privé sont ignorées."
+  safety-skip: "Les images épinglées sur un digest, construites localement ou issues d'un registre privé sans identifiants sont ignorées."
   learn-more: "Fonctionnement de la mise à jour automatique"
   footnote: "{link} décide quels conteneurs se mettent à jour tout seuls."
   footnote-link: "Paramètres → Mises à jour"

@@ -1178,7 +1178,7 @@ auto-update:
   safety-title: "Safety net"
   safety-verify: "Each update is watched to stay up, and rolled back if the new container fails."
   safety-cleanup: "The old image is removed afterwards. One previous image is kept for rolling back."
-  safety-skip: "Images pinned to a digest, built locally or from a private registry are skipped."
+  safety-skip: "Images pinned to a digest, built locally or from a private registry without a login are skipped."
   learn-more: "How auto-update works"
   footnote: "{link} decides which containers update on their own."
   footnote-link: "Settings → Updates"

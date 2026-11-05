@@ -280,7 +280,10 @@ func (c *Checker) remoteDigest(ctx context.Context, image string, ref Reference,
 		c.mu.Lock()
 		entry, ok := c.cache[image]
 		c.mu.Unlock()
-		if ok && time.Since(entry.fetchedAt) < entry.ttl {
+		// A refusal is kept for the full TTL, so it has to end early once the
+		// login it was refused for has changed.
+		stale := ok && errors.Is(entry.err, ErrAuthRequired) && configChangedSince(entry.fetchedAt)
+		if ok && !stale && time.Since(entry.fetchedAt) < entry.ttl {
 			log.Debug().
 				Str("image", image).
 				Str("digest", entry.digest).

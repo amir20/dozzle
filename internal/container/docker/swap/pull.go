@@ -11,8 +11,23 @@ import (
 	"time"
 
 	"github.com/amir20/dozzle/internal/container"
+	"github.com/amir20/dozzle/internal/imagecheck"
+	"github.com/moby/moby/client"
 	"github.com/rs/zerolog/log"
 )
+
+// PullOptions carries the registry login for ref, if there is one. A refused
+// login is retried as anonymous, so an expired one cannot break public images.
+func PullOptions(ref string) client.ImagePullOptions {
+	auth := imagecheck.PullAuth(ref)
+	if auth == "" {
+		return client.ImagePullOptions{}
+	}
+	return client.ImagePullOptions{
+		RegistryAuth:  auth,
+		PrivilegeFunc: func(context.Context) (string, error) { return "", nil },
+	}
+}
 
 const (
 	// pullAttempts bounds a pull the registry keeps rate-limiting. With the

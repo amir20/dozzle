@@ -8,6 +8,7 @@ import (
 
 	"github.com/amir20/dozzle/internal/container"
 	"github.com/amir20/dozzle/internal/container/docker/swap"
+	"github.com/amir20/dozzle/internal/imagecheck"
 	dcontainer "github.com/moby/moby/api/types/container"
 	"github.com/moby/moby/api/types/swarm"
 	"github.com/moby/moby/client"
@@ -107,7 +108,8 @@ func updateService(ctx context.Context, cli dockerAPI, serviceID, ref string, pr
 	svc.Spec.TaskTemplate.ForceUpdate++
 	// The manager has to answer before this returns, so a client that
 	// disconnects must not cancel a rollout the daemon may already have begun.
-	if _, err := cli.ServiceUpdate(context.WithoutCancel(ctx), serviceID, client.ServiceUpdateOptions{Version: svc.Version, Spec: svc.Spec}); err != nil {
+	options := client.ServiceUpdateOptions{Version: svc.Version, Spec: svc.Spec, EncodedRegistryAuth: imagecheck.PullAuth(ref)}
+	if _, err := cli.ServiceUpdate(context.WithoutCancel(ctx), serviceID, options); err != nil {
 		return fail("service update failed: %w", err)
 	}
 	log.Info().Str("service", serviceID).Str("image", ref).Msg("self-update: asked the swarm manager to roll the service onto the new image")

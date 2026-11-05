@@ -1,7 +1,7 @@
 ---
 title: Umstieg von Watchtower
 description: Ersetze Watchtower durch Dozzle, um Docker-Container nach Zeitplan zu aktualisieren, mit jeder Watchtower-Einstellung und jedem Label und ihrer Entsprechung in Dozzle.
-sourceHash: b5f448099355
+sourceHash: 8129c1dac23c
 ---
 
 # Umstieg von Watchtower
@@ -44,7 +44,7 @@ Du kannst die beiden `DOZZLE_AUTO_UPDATE`-Zeilen weglassen und den Zeitplan stat
 | `--rolling-restart`                                               | Immer: Jeder Host aktualisiert einen Container nach dem anderen                                                                                                                                               |
 | `--notification-url`                                              | [Alarme und Webhooks](/de/guide/alerts-and-webhooks) für Container-Ereignisse oder [Dozzle Cloud](/de/guide/dozzle-cloud), das jedes Update beobachtet und Bescheid gibt, wenn eine neue Version Fehler zeigt |
 | `--run-once`                                                      | **Aktualisieren** in der Update-Leiste                                                                                                                                                                        |
-| Zugangsdaten für private Registries                               | Nicht unterstützt. Container aus einer privaten Registry werden übersprungen                                                                                                                                  |
+| Zugangsdaten für private Registries                               | Dieselbe `config.json` mounten. Siehe [private Registries](/de/guide/updates#private-registries)                                                                                                              |
 
 ## Labels
 

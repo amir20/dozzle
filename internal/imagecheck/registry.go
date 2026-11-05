@@ -26,9 +26,9 @@ var acceptManifests = strings.Join([]string{
 }, ",")
 
 var (
-	// ErrAuthRequired means the registry rejected an anonymous request. Dozzle
-	// has no credential store, so private images are reported rather than
-	// retried.
+	// ErrAuthRequired means the registry refused the request, and there is no
+	// login for it in the Docker config or the one there was rejected. The
+	// answer is reported rather than retried.
 	ErrAuthRequired = errors.New("registry requires authentication")
 	// ErrNotFound means the tag no longer exists upstream.
 	ErrNotFound = errors.New("image not found in registry")
@@ -68,7 +68,7 @@ type Registry struct {
 
 func NewRegistry(timeout time.Duration) *Registry {
 	return &Registry{
-		client: &http.Client{Timeout: timeout},
+		client: &http.Client{Timeout: timeout, CheckRedirect: refuseDowngrade},
 		tokens: make(map[string]cachedToken),
 		quotas: make(map[string]pullQuota),
 	}
@@ -106,6 +106,19 @@ func (r *Registry) Digest(ctx context.Context, ref Reference) (string, error) {
 	return digest, nil
 }
 
+// refuseDowngrade stops a redirect from https to http. Go keeps the
+// Authorization header on a redirect to the same host, so following one would
+// put a token or a password on the wire in the clear.
+func refuseDowngrade(req *http.Request, via []*http.Request) error {
+	if len(via) >= 10 {
+		return errors.New("stopped after 10 redirects")
+	}
+	if via[len(via)-1].URL.Scheme == "https" && req.URL.Scheme != "https" {
+		return fmt.Errorf("refusing redirect from https to %s", req.URL.Scheme)
+	}
+	return nil
+}
+
 // send makes one registry request, fetching a token and retrying once when the
 // registry asks for one. A token already held for the repository goes on the
 // first request, so only the first request per token pays for the 401. An
@@ -119,7 +132,11 @@ func (r *Registry) send(ctx context.Context, ref Reference, method, target, acce
 	}()
 
 	cached := r.cachedToken(ref)
-	resp, err = r.request(ctx, method, target, accept, cached)
+	authorization := ""
+	if cached != "" {
+		authorization = "Bearer " + cached
+	}
+	resp, err = r.request(ctx, method, target, accept, authorization)
 	if err != nil {
 		log.Debug().Err(err).Str("url", target).Msg("image update check: registry request failed")
 		return nil, err
@@ -143,13 +160,22 @@ func (r *Registry) send(ctx context.Context, ref Reference, method, target, acce
 		Str("challenge", challenge).
 		Msg("image update check: registry asked for a token")
 
-	token, err := r.token(ctx, ref, challenge)
-	if err != nil {
-		log.Debug().Err(err).Str("repository", ref.Repository).Msg("image update check: could not get a token")
-		return nil, err
+	credentials := lookupLogin(ref.Registry)
+	if credentials != nil && isBasicChallenge(challenge) {
+		// A registry with no token service takes the login on the request. It
+		// is safe here because target is the image's own registry, and over
+		// https unless that registry is on loopback.
+		authorization = credentials.basicHeader()
+	} else {
+		token, err := r.token(ctx, ref, challenge, credentials)
+		if err != nil {
+			log.Debug().Err(err).Str("repository", ref.Repository).Msg("image update check: could not get a token")
+			return nil, err
+		}
+		authorization = "Bearer " + token
 	}
 
-	resp, err = r.request(ctx, method, target, accept, token)
+	resp, err = r.request(ctx, method, target, accept, authorization)
 	if err != nil {
 		log.Debug().Err(err).Str("url", target).Msg("image update check: retry with token failed")
 		return nil, err
@@ -157,7 +183,7 @@ func (r *Registry) send(ctx context.Context, ref Reference, method, target, acce
 	return resp, nil
 }
 
-func (r *Registry) request(ctx context.Context, method, target, accept, token string) (*http.Response, error) {
+func (r *Registry) request(ctx context.Context, method, target, accept, authorization string) (*http.Response, error) {
 	req, err := http.NewRequestWithContext(ctx, method, target, nil)
 	if err != nil {
 		return nil, err
@@ -165,8 +191,8 @@ func (r *Registry) request(ctx context.Context, method, target, accept, token st
 	if accept != "" {
 		req.Header.Set("Accept", accept)
 	}
-	if token != "" {
-		req.Header.Set("Authorization", "Bearer "+token)
+	if authorization != "" {
+		req.Header.Set("Authorization", authorization)
 	}
 
 	return r.client.Do(req)
@@ -228,7 +254,11 @@ func statusError(resp *http.Response, ref Reference) error {
 // token fetches (and caches) a bearer token for ref by following the realm
 // advertised in the registry's 401 challenge. This keeps the client generic
 // across Docker Hub, ghcr.io, quay.io and self-hosted registries.
-func (r *Registry) token(ctx context.Context, ref Reference, challenge string) (string, error) {
+//
+// The realm's host cannot be required to match the registry's, since Docker Hub
+// and GitLab both issue tokens from another host. A login still only goes where
+// the registry it belongs to says, the same as with the Docker CLI.
+func (r *Registry) token(ctx context.Context, ref Reference, challenge string, credentials *login) (string, error) {
 	realm, service := parseChallenge(challenge)
 	if realm == "" {
 		return "", ErrAuthRequired
@@ -254,14 +284,18 @@ func (r *Registry) token(ctx context.Context, ref Reference, challenge string) (
 	query.Set("scope", "repository:"+ref.Repository+":pull")
 	endpoint.RawQuery = query.Encode()
 
-	req, err := http.NewRequestWithContext(ctx, http.MethodGet, endpoint.String(), nil)
+	resp, err := r.requestToken(ctx, endpoint, credentials)
 	if err != nil {
 		return "", err
 	}
-
-	resp, err := r.client.Do(req)
-	if err != nil {
-		return "", err
+	// An expired login must not take public images down with it, so a refused
+	// one is tried again as anonymous. Watchtower does the same for its pulls.
+	if credentials != nil && (resp.StatusCode == http.StatusUnauthorized || resp.StatusCode == http.StatusForbidden) {
+		resp.Body.Close()
+		log.Warn().Str("registry", ref.Registry).Msg("The registry refused the login in the Docker config. Trying without it")
+		if resp, err = r.requestToken(ctx, endpoint, nil); err != nil {
+			return "", err
+		}
 	}
 	defer resp.Body.Close()
 
@@ -308,6 +342,17 @@ func (r *Registry) token(ctx context.Context, ref Reference, challenge string) (
 	return token, nil
 }
 
+func (r *Registry) requestToken(ctx context.Context, endpoint *url.URL, credentials *login) (*http.Response, error) {
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, endpoint.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+	if credentials != nil {
+		req.SetBasicAuth(credentials.username, credentials.password)
+	}
+	return r.client.Do(req)
+}
+
 func tokenKey(ref Reference) string {
 	return ref.host() + "/" + ref.Repository
 }
@@ -350,6 +395,10 @@ func validateRealm(endpoint *url.URL, ref Reference) error {
 
 func sameHost(a, b string) bool {
 	return strings.EqualFold(a, b)
+}
+
+func isBasicChallenge(header string) bool {
+	return len(header) >= len("basic") && strings.EqualFold(header[:len("basic")], "basic")
 }
 
 // parseChallenge pulls realm and service out of a Bearer WWW-Authenticate
