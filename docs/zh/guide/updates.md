@@ -1,7 +1,7 @@
 ---
 title: 容器更新
 description: Dozzle 如何检查 Docker 容器是否有更新的镜像，并手动或按计划更新它们，失败时自动回滚，并清理旧镜像。
-sourceHash: 231d8c61dc21
+sourceHash: 052cffc37c98
 ---
 
 # 容器更新
@@ -129,16 +129,16 @@ services:
 ```
 
 ```sh
-echo -n 'username:password' | base64
+printf '%s' 'username:password' | base64 | tr -d '\n'
 ```
 
-登录信息只会发送给它所对应的仓库。如果仓库拒绝，Dozzle 会不带登录信息重试，因此过期的登录信息不会影响公开镜像。
+登录信息只会发送给它所对应的仓库。如果仓库拒绝，Dozzle 会不带登录信息重试，因此过期的登录信息不会影响公开镜像。Swarm 服务是例外，见下文。
 
 ### 文件放在哪里
 
 文件在执行检查和拉取的地方读取，所以使用 [Agent](/zh/guide/agent) 时，每个 Agent 都需要以同样方式挂载自己的副本。使用[远程主机](/zh/guide/remote-hosts)时，Dozzle 读取自己的副本，并在拉取时把登录信息发送给远程 daemon。
 
-在 [Swarm 模式](/zh/guide/swarm-mode)下，secret 会到达每个节点。使用 `docker secret create registry_login ~/.docker/config.json` 创建。服务更新会把登录信息传给 manager，效果与 `docker service update --with-registry-auth` 相同。
+在 [Swarm 模式](/zh/guide/swarm-mode)下，secret 会到达每个节点。使用 `docker secret create registry_login ~/.docker/config.json` 创建。服务更新会把登录信息传给 manager，效果与 `docker service update --with-registry-auth` 相同。之后各节点会带着它拉取镜像，被拒绝时不会去掉它重试，所以即使是公开镜像，被拒绝的登录信息也会让更新失败：请删除过期的条目，不要留着。secret 无法修改，因此新的登录信息需要新建 secret 并重新部署。
 
 ```yaml [docker-compose.yml]
 services:
@@ -153,7 +153,7 @@ secrets:
     external: true
 ```
 
-在 [Kubernetes](/zh/guide/k8s) 中，挂载 `imagePullSecrets` 已在使用的 secret。Dozzle 只在检查时读取它，不需要额外权限：
+在 [Kubernetes](/zh/guide/k8s) 中，挂载 `imagePullSecrets` 已在使用的 secret。它必须位于 Dozzle 所在的命名空间，如果你的应用在其他命名空间中运行，请把它复制过来。Dozzle 只在检查时读取它，不需要额外权限：
 
 ```yaml
 env:

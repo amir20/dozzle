@@ -1,7 +1,7 @@
 ---
 title: Mises à jour des conteneurs
 description: Comment Dozzle détecte les images plus récentes de vos conteneurs Docker et les met à jour à la main ou selon un planning, avec restauration automatique et nettoyage des anciennes images.
-sourceHash: 231d8c61dc21
+sourceHash: 052cffc37c98
 ---
 
 # Mises à jour des conteneurs
@@ -129,16 +129,16 @@ Pour séparer ces identifiants des vôtres, écrivez un fichier réservé à Doz
 ```
 
 ```sh
-echo -n 'username:password' | base64
+printf '%s' 'username:password' | base64 | tr -d '\n'
 ```
 
-Des identifiants ne sont envoyés qu'au registre sous lequel ils figurent. Si le registre les refuse, Dozzle réessaie sans eux, donc des identifiants expirés ne cassent pas les images publiques.
+Des identifiants ne sont envoyés qu'au registre sous lequel ils figurent. Si le registre les refuse, Dozzle réessaie sans eux, donc des identifiants expirés ne cassent pas les images publiques. Les services Swarm font exception, voir plus bas.
 
 ### Où placer le fichier
 
 Le fichier est lu là où ont lieu la vérification et le pull : avec des [agents](/fr/guide/agent), chaque agent a donc besoin de sa propre copie, montée de la même façon. Avec des [hôtes distants](/fr/guide/remote-hosts), Dozzle lit sa propre copie et envoie les identifiants au daemon distant lors du pull.
 
-En [mode Swarm](/fr/guide/swarm-mode), un secret atteint chaque nœud. Créez-le avec `docker secret create registry_login ~/.docker/config.json`. Les mises à jour de service transmettent les identifiants au manager, comme `docker service update --with-registry-auth`.
+En [mode Swarm](/fr/guide/swarm-mode), un secret atteint chaque nœud. Créez-le avec `docker secret create registry_login ~/.docker/config.json`. Les mises à jour de service transmettent les identifiants au manager, comme `docker service update --with-registry-auth`. Les nœuds tirent ensuite l'image avec eux et ne réessaient pas sans, donc des identifiants refusés font échouer la mise à jour même pour une image publique : supprimez une entrée expirée plutôt que de la laisser. Un secret ne peut pas être modifié, donc de nouveaux identifiants demandent un nouveau secret et un redéploiement.
 
 ```yaml [docker-compose.yml]
 services:
@@ -153,7 +153,7 @@ secrets:
     external: true
 ```
 
-Dans [Kubernetes](/fr/guide/k8s), montez le secret que vos `imagePullSecrets` utilisent déjà. Dozzle ne le lit que pour la vérification et n'a besoin d'aucune permission supplémentaire :
+Dans [Kubernetes](/fr/guide/k8s), montez le secret que vos `imagePullSecrets` utilisent déjà. Il doit se trouver dans le namespace de Dozzle, copiez-le donc si vos applications tournent dans un autre. Dozzle ne le lit que pour la vérification et n'a besoin d'aucune permission supplémentaire :
 
 ```yaml
 env:

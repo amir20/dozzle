@@ -128,16 +128,16 @@ To keep this login apart from your own, write a file just for Dozzle, ideally wi
 ```
 
 ```sh
-echo -n 'username:password' | base64
+printf '%s' 'username:password' | base64 | tr -d '\n'
 ```
 
-A login is only ever sent to the registry it is listed under. If the registry refuses it, Dozzle tries again without it, so an expired login does not break public images.
+A login is only ever sent to the registry it is listed under. If the registry refuses it, Dozzle tries again without it, so an expired login does not break public images. Swarm services are the exception, see below.
 
 ### Where the file goes
 
 The file is read where the check and the pull happen, so with [agents](/guide/agent) every agent needs its own copy, mounted the same way. With [remote hosts](/guide/remote-hosts), Dozzle reads its own copy and sends the login to the remote daemon when pulling.
 
-In [Swarm mode](/guide/swarm-mode), a secret reaches every node. Create it with `docker secret create registry_login ~/.docker/config.json`. Service updates pass the login on to the manager, like `docker service update --with-registry-auth`.
+In [Swarm mode](/guide/swarm-mode), a secret reaches every node. Create it with `docker secret create registry_login ~/.docker/config.json`. Service updates pass the login on to the manager, like `docker service update --with-registry-auth`. The nodes then pull with it and do not retry without it, so a refused login fails the update even for a public image: remove an expired entry rather than leave it. A secret cannot be changed in place, so a new login needs a new secret and a redeploy.
 
 ```yaml [docker-compose.yml]
 services:
@@ -152,7 +152,7 @@ secrets:
     external: true
 ```
 
-In [Kubernetes](/guide/k8s), mount the secret your `imagePullSecrets` already use. Dozzle only reads it for the check, and needs no extra permissions:
+In [Kubernetes](/guide/k8s), mount the secret your `imagePullSecrets` already use. It has to be in Dozzle's namespace, so copy it there if your apps run in another. Dozzle only reads it for the check, and needs no extra permissions:
 
 ```yaml
 env:

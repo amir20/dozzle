@@ -169,8 +169,14 @@ var warned sync.Map
 // warnOnce keeps a config problem to one line: challenges are routine, so
 // warning on each would repeat for every public image on every check.
 func warnOnce(msg, path string, err error) {
-	if _, seen := warned.LoadOrStore(msg, struct{}{}); seen {
+	if !firstTime(msg) {
 		return
 	}
 	log.Warn().Err(err).Str("path", path).Msg(msg)
+}
+
+// firstTime reports whether key has not been seen before.
+func firstTime(key string) bool {
+	_, seen := warned.LoadOrStore(key, struct{}{})
+	return !seen
 }

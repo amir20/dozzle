@@ -1,7 +1,7 @@
 ---
 title: Container-Updates
 description: Wie Dozzle Docker-Container auf neuere Images prüft und sie von Hand oder nach Zeitplan aktualisiert, mit automatischem Zurückrollen und Aufräumen alter Images.
-sourceHash: 231d8c61dc21
+sourceHash: 052cffc37c98
 ---
 
 # Container-Updates
@@ -129,16 +129,16 @@ Um diese Zugangsdaten von deinen eigenen zu trennen, schreib eine eigene Datei f
 ```
 
 ```sh
-echo -n 'username:password' | base64
+printf '%s' 'username:password' | base64 | tr -d '\n'
 ```
 
-Zugangsdaten gehen immer nur an die Registry, unter der sie eingetragen sind. Lehnt die Registry sie ab, versucht Dozzle es ohne sie, sodass abgelaufene Zugangsdaten öffentliche Images nicht stören.
+Zugangsdaten gehen immer nur an die Registry, unter der sie eingetragen sind. Lehnt die Registry sie ab, versucht Dozzle es ohne sie, sodass abgelaufene Zugangsdaten öffentliche Images nicht stören. Swarm-Services sind die Ausnahme, siehe unten.
 
 ### Wo die Datei hingehört
 
 Die Datei wird dort gelesen, wo Prüfung und Pull stattfinden. Mit [Agents](/de/guide/agent) braucht also jeder Agent eine eigene Kopie, auf dieselbe Weise gemountet. Bei [Remote-Hosts](/de/guide/remote-hosts) liest Dozzle seine eigene Kopie und schickt die Zugangsdaten beim Pull an den entfernten Daemon.
 
-Im [Swarm-Modus](/de/guide/swarm-mode) erreicht ein Secret jeden Node. Erstelle es mit `docker secret create registry_login ~/.docker/config.json`. Service-Updates geben die Zugangsdaten an den Manager weiter, wie `docker service update --with-registry-auth`.
+Im [Swarm-Modus](/de/guide/swarm-mode) erreicht ein Secret jeden Node. Erstelle es mit `docker secret create registry_login ~/.docker/config.json`. Service-Updates geben die Zugangsdaten an den Manager weiter, wie `docker service update --with-registry-auth`. Die Nodes pullen dann damit und versuchen es nicht ohne sie, sodass abgelehnte Zugangsdaten das Update auch bei einem öffentlichen Image scheitern lassen: Entferne einen abgelaufenen Eintrag, statt ihn stehen zu lassen. Ein Secret lässt sich nicht ändern, neue Zugangsdaten brauchen also ein neues Secret und ein erneutes Deployment.
 
 ```yaml [docker-compose.yml]
 services:
@@ -153,7 +153,7 @@ secrets:
     external: true
 ```
 
-In [Kubernetes](/de/guide/k8s) mountest du das Secret, das deine `imagePullSecrets` bereits verwenden. Dozzle liest es nur für die Prüfung und braucht keine zusätzlichen Berechtigungen:
+In [Kubernetes](/de/guide/k8s) mountest du das Secret, das deine `imagePullSecrets` bereits verwenden. Es muss im Namespace von Dozzle liegen, kopiere es also dorthin, wenn deine Apps in einem anderen laufen. Dozzle liest es nur für die Prüfung und braucht keine zusätzlichen Berechtigungen:
 
 ```yaml
 env:

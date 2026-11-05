@@ -292,7 +292,12 @@ func (r *Registry) token(ctx context.Context, ref Reference, challenge string, c
 	// one is tried again as anonymous. Watchtower does the same for its pulls.
 	if credentials != nil && (resp.StatusCode == http.StatusUnauthorized || resp.StatusCode == http.StatusForbidden) {
 		resp.Body.Close()
-		log.Warn().Str("registry", ref.Registry).Msg("The registry refused the login in the Docker config. Trying without it")
+		// Once per registry: every repository on it fetches its own token.
+		event := log.Debug()
+		if firstTime("refused login " + normalizeRegistry(ref.Registry)) {
+			event = log.Warn()
+		}
+		event.Str("registry", ref.Registry).Msg("The registry refused the login in the Docker config. Trying without it")
 		if resp, err = r.requestToken(ctx, endpoint, nil); err != nil {
 			return "", err
 		}

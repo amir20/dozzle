@@ -1,7 +1,7 @@
 ---
 title: Actualizaciones de contenedores
 description: Cómo Dozzle comprueba si tus contenedores de Docker tienen imágenes más nuevas y los actualiza a mano o según una programación, con reversión automática y limpieza de imágenes antiguas.
-sourceHash: 231d8c61dc21
+sourceHash: 052cffc37c98
 ---
 
 # Actualizaciones de contenedores
@@ -129,16 +129,16 @@ Para separar estas credenciales de las tuyas, escribe un archivo solo para Dozzl
 ```
 
 ```sh
-echo -n 'username:password' | base64
+printf '%s' 'username:password' | base64 | tr -d '\n'
 ```
 
-Las credenciales solo se envían al registro bajo el que figuran. Si el registro las rechaza, Dozzle vuelve a intentarlo sin ellas, de modo que unas credenciales caducadas no afectan a las imágenes públicas.
+Las credenciales solo se envían al registro bajo el que figuran. Si el registro las rechaza, Dozzle vuelve a intentarlo sin ellas, de modo que unas credenciales caducadas no afectan a las imágenes públicas. Los servicios de Swarm son la excepción, ver más abajo.
 
 ### Dónde va el archivo
 
 El archivo se lee donde ocurren la comprobación y el pull, así que con [agentes](/es/guide/agent) cada agente necesita su propia copia, montada de la misma forma. Con [hosts remotos](/es/guide/remote-hosts), Dozzle lee su propia copia y envía las credenciales al daemon remoto al hacer el pull.
 
-En [modo Swarm](/es/guide/swarm-mode), un secret llega a todos los nodos. Créalo con `docker secret create registry_login ~/.docker/config.json`. Las actualizaciones de servicio pasan las credenciales al manager, como `docker service update --with-registry-auth`.
+En [modo Swarm](/es/guide/swarm-mode), un secret llega a todos los nodos. Créalo con `docker secret create registry_login ~/.docker/config.json`. Las actualizaciones de servicio pasan las credenciales al manager, como `docker service update --with-registry-auth`. Los nodos descargan la imagen con ellas y no reintentan sin ellas, así que unas credenciales rechazadas hacen fallar la actualización incluso de una imagen pública: elimina una entrada caducada en vez de dejarla. Un secret no se puede modificar, así que unas credenciales nuevas requieren un secret nuevo y volver a desplegar.
 
 ```yaml [docker-compose.yml]
 services:
@@ -153,7 +153,7 @@ secrets:
     external: true
 ```
 
-En [Kubernetes](/es/guide/k8s), monta el secret que ya usan tus `imagePullSecrets`. Dozzle solo lo lee para la comprobación y no necesita permisos adicionales:
+En [Kubernetes](/es/guide/k8s), monta el secret que ya usan tus `imagePullSecrets`. Tiene que estar en el namespace de Dozzle, así que cópialo allí si tus aplicaciones corren en otro. Dozzle solo lo lee para la comprobación y no necesita permisos adicionales:
 
 ```yaml
 env:

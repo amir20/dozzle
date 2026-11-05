@@ -24,8 +24,13 @@ func PullOptions(ref string) client.ImagePullOptions {
 		return client.ImagePullOptions{}
 	}
 	return client.ImagePullOptions{
-		RegistryAuth:  auth,
-		PrivilegeFunc: func(context.Context) (string, error) { return "", nil },
+		RegistryAuth: auth,
+		// Only called on a 401. Logged so that a failure of the anonymous
+		// retry is not mistaken for a missing login.
+		PrivilegeFunc: func(context.Context) (string, error) {
+			log.Warn().Str("image", ref).Msg("The registry refused the login in the Docker config for this pull. Trying without it")
+			return "", nil
+		},
 	}
 }
 
