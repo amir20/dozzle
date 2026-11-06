@@ -16,7 +16,7 @@ import type { TimeRange } from "@/composable/logs/timeRange";
 import LogViewer from "./LogViewer.vue";
 import { Container } from "@/models/Container";
 import type { ContainerState } from "@/types/Container";
-import { Level, type LogEntry } from "@/models/LogEntry";
+import { Level, LoadMoreLogEntry, type LogEntry } from "@/models/LogEntry";
 import { containerFixture } from "@/testing/containerFixture";
 
 // The component is generic over its entity; mount cannot infer that, so pin it to a container.
@@ -240,7 +240,7 @@ describe("<ContainerEventSource />", () => {
     await vi.advanceTimersByTimeAsync(200);
     // @ts-ignore
     const opening = wrapper.vm.messages.length;
-    expect(opening).toBe(200);
+    expect(opening).toBe(201);
 
     emit(501);
     await vi.advanceTimersByTimeAsync(1100);
@@ -248,6 +248,51 @@ describe("<ContainerEventSource />", () => {
     const messages: LogEntry<string>[] = wrapper.vm.messages;
     expect(messages).toHaveLength(opening + 1);
     expect(messages.at(-1)?.message).toBe("line 501");
+  });
+
+  // Kubernetes opens with a 500 line tail, over maxLogs, so this is every busy pod.
+  test("an opening burst over maxLogs can still load older lines", async () => {
+    const wrapper = createLogEventSource();
+    sources[sourceUrl].emitOpen();
+    for (let id = 1; id <= 500; id++) {
+      sources[sourceUrl].emitMessage({
+        data: `{"ts":${1560336942459 + id}, "m":"line ${id}", "id":${id}, "rm": "line ${id}", "c": "abc"}`,
+      });
+    }
+    await vi.advanceTimersByTimeAsync(200);
+    // @ts-ignore
+    const messages: LogEntry<string>[] = wrapper.vm.messages;
+    expect(messages[0]).toBeInstanceOf(LoadMoreLogEntry);
+    expect(messages[1].message).toBe("line 301");
+  });
+
+  test("trimming the window to maxLogs keeps a way to load older lines", async () => {
+    const wrapper = createLogEventSource();
+    sources[sourceUrl].emitOpen();
+    let id = 0;
+    const emitBatch = async (count: number) => {
+      for (let i = 0; i < count; i++) {
+        id++;
+        sources[sourceUrl].emitMessage({
+          data: `{"ts":${1560336942459 + id}, "m":"line ${id}", "id":${id}, "rm": "line ${id}", "c": "abc"}`,
+        });
+      }
+      await vi.advanceTimersByTimeAsync(1100);
+    };
+
+    await emitBatch(5);
+    // @ts-ignore
+    const opener = wrapper.vm.messages[0];
+    expect(opener).toBeInstanceOf(LoadMoreLogEntry);
+
+    for (let i = 0; i < 4; i++) await emitBatch(150);
+
+    // @ts-ignore
+    const messages: LogEntry<string>[] = wrapper.vm.messages;
+    expect(messages[0]).toBeInstanceOf(LoadMoreLogEntry);
+    // A fresh row: the old one may remember a start that has since been trimmed away.
+    expect(messages[0]).not.toBe(opener);
+    expect(messages.at(-1)?.message).toBe(`line ${id}`);
   });
 
   test("keeps the view across a reconnect and drops the replayed tail", async () => {

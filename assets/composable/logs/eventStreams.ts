@@ -187,16 +187,23 @@ function useLogStream(url: Ref<string>, container?: Ref<Container>) {
     const wasInitial = initial;
     initial = false;
     const overflows = messages.value.length + batch.length > config.maxLogs;
+    const canLoadOlder = container || containers.value.length > 0;
+    const paused = scrollingPaused.value === true;
     if (wasInitial && !overflows) {
-      const head =
-        container || containers.value.length > 0 ? [new LoadMoreLogEntry(new Date(), loadOlderLogs)] : messages.value;
+      const head = canLoadOlder ? [new LoadMoreLogEntry(new Date(), loadOlderLogs)] : messages.value;
       messages.value = [...head, ...batch];
     } else {
-      messages.value = appendBatch(messages.value, batch, {
+      const appended = appendBatch(messages.value, batch, {
         maxLogs: config.maxLogs,
-        paused: scrollingPaused.value === true,
+        paused,
         loadSkipped: loadSkippedLogs,
       });
+      // Trimming takes the top of the window, and the load-more row with it, leaving
+      // no way back to the lines it just dropped. The row is a new one because the old
+      // one may remember a start that is no longer on screen.
+      const trimmed = overflows && !paused;
+      messages.value =
+        trimmed && canLoadOlder ? [new LoadMoreLogEntry(new Date(), loadOlderLogs), ...appended] : appended;
     }
     settleMarkers({ opening: wasInitial });
     if (wasInitial) decorateWithAlerts();
