@@ -1169,7 +1169,7 @@ auto-update:
   safety-title: "Siatka bezpieczeństwa"
   safety-verify: "Każda aktualizacja jest obserwowana i cofana, jeśli nowy kontener zawiedzie."
   safety-cleanup: "Stary obraz jest potem usuwany. Jeden poprzedni obraz zostaje do wycofania."
-  safety-skip: "Obrazy przypięte do digestu, zbudowane lokalnie lub z prywatnego rejestru są pomijane."
+  safety-skip: "Obrazy przypięte do digestu, zbudowane lokalnie lub z prywatnego rejestru bez danych logowania są pomijane."
   learn-more: "Jak działa automatyczna aktualizacja"
   footnote: "{link} decyduje, które kontenery aktualizują się same."
   footnote-link: "Ustawienia → Aktualizacje"

@@ -1182,7 +1182,7 @@ auto-update:
   safety-title: "Jaring pengaman"
   safety-verify: "Setiap pembaruan dipantau dan dibatalkan jika kontainer baru gagal."
   safety-cleanup: "Image lama dihapus setelahnya. Satu image sebelumnya disimpan untuk rollback."
-  safety-skip: "Image yang disematkan ke digest, dibangun lokal, atau dari registry privat dilewati."
+  safety-skip: "Image yang disematkan ke digest, dibangun lokal, atau dari registry privat tanpa login dilewati."
   learn-more: "Cara kerja pembaruan otomatis"
   footnote: "{link} menentukan kontainer mana yang memperbarui dirinya sendiri."
   footnote-link: "Pengaturan → Pembaruan"

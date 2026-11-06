@@ -11,8 +11,28 @@ import (
 	"time"
 
 	"github.com/amir20/dozzle/internal/container"
+	"github.com/amir20/dozzle/internal/imagecheck"
+	"github.com/moby/moby/client"
 	"github.com/rs/zerolog/log"
 )
+
+// PullOptions carries the registry login for ref, if there is one. A refused
+// login is retried as anonymous, so an expired one cannot break public images.
+func PullOptions(ref string) client.ImagePullOptions {
+	auth := imagecheck.PullAuth(ref)
+	if auth == "" {
+		return client.ImagePullOptions{}
+	}
+	return client.ImagePullOptions{
+		RegistryAuth: auth,
+		// Only called on a 401. Logged so that a failure of the anonymous
+		// retry is not mistaken for a missing login.
+		PrivilegeFunc: func(context.Context) (string, error) {
+			log.Warn().Str("image", ref).Msg("The registry refused the login in the Docker config for this pull. Trying without it")
+			return "", nil
+		},
+	}
+}
 
 const (
 	// pullAttempts bounds a pull the registry keeps rate-limiting. With the

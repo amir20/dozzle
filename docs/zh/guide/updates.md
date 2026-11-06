@@ -1,7 +1,7 @@
 ---
 title: 容器更新
 description: Dozzle 如何检查 Docker 容器是否有更新的镜像，并手动或按计划更新它们，失败时自动回滚，并清理旧镜像。
-sourceHash: 07392b3a10d8
+sourceHash: 052cffc37c98
 ---
 
 # 容器更新
@@ -91,7 +91,7 @@ services:
 
 - 本地构建的镜像，它们没有仓库摘要
 - 固定到某个摘要的引用，它们不会变化
-- 私有仓库，因为 Dozzle 自己没有凭据。在 Kubernetes 中，这也包括通过 `imagePullSecrets` 拉取的镜像。
+- Dozzle 没有[登录信息](#private-registries)的私有仓库。在 Kubernetes 中，这也包括通过 `imagePullSecrets` 拉取的镜像，除非挂载了同一个 secret。
 
 ### Kubernetes
 
@@ -100,6 +100,84 @@ services:
 ### 更新 Dozzle 自身
 
 Dozzle 自身容器上的 `Update` 操作会就地更新 Dozzle。它拉取新镜像，并把替换工作交给一个短暂存在的辅助容器，所以 Dozzle 会离开几秒钟，然后以新版本回来，配置和卷保持不变。它也可以按计划运行。关于哪些内容会保留以及哪些部署方式不受支持，请参阅 [自更新的工作原理](/zh/guide/setup-wizard#self-update)。以 Swarm 服务方式运行的 Dozzle 通过编排器更新。其他主机上的 Dozzle 代理是普通容器，和其他容器一样更新。
+
+## 私有仓库 {#private-registries}
+
+Dozzle 使用 Docker `config.json` 中的登录信息来检查和更新私有仓库中的镜像，也就是 `docker login` 写入、Watchtower 读取的那个文件。仅在主机上登录是不够的。Dozzle 运行在容器中，而 Docker daemon 不会读取这个文件，所以需要把它挂载进来：
+
+```yaml [docker-compose.yml]
+services:
+  dozzle:
+    image: amir20/dozzle:latest
+    environment:
+      DOCKER_CONFIG: /docker
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ~/.docker:/docker:ro
+```
+
+`DOCKER_CONFIG` 指定包含 `config.json` 的目录。如果未设置，Dozzle 会查找 `/config.json`，因此 Watchtower 的 `~/.docker/config.json:/config.json` 挂载方式同样可用。建议挂载目录：`docker login` 会替换该文件，而单文件挂载仍会显示旧文件。修改无需重启即可生效。
+
+如果想把这份登录信息和你自己的分开，可以单独为 Dozzle 写一个文件，最好使用只读的访问令牌。Docker Hub 的键是 `https://index.docker.io/v1/`。`auth` 的值可以这样生成：
+
+```json [config.json]
+{
+  "auths": {
+    "registry.example.com": { "auth": "dXNlcm5hbWU6cGFzc3dvcmQ=" }
+  }
+}
+```
+
+```sh
+printf '%s' 'username:password' | base64 | tr -d '\n'
+```
+
+登录信息只会发送给它所对应的仓库。如果仓库拒绝，Dozzle 会不带登录信息重试，因此过期的登录信息不会影响公开镜像。Swarm 服务是例外，见下文。
+
+### 文件放在哪里
+
+文件在执行检查和拉取的地方读取，所以使用 [Agent](/zh/guide/agent) 时，每个 Agent 都需要以同样方式挂载自己的副本。使用[远程主机](/zh/guide/remote-hosts)时，Dozzle 读取自己的副本，并在拉取时把登录信息发送给远程 daemon。
+
+在 [Swarm 模式](/zh/guide/swarm-mode)下，secret 会到达每个节点。使用 `docker secret create registry_login ~/.docker/config.json` 创建。服务更新会把登录信息传给 manager，效果与 `docker service update --with-registry-auth` 相同。之后各节点会带着它拉取镜像，被拒绝时不会去掉它重试，所以即使是公开镜像，被拒绝的登录信息也会让更新失败：请删除过期的条目，不要留着。secret 无法修改，因此新的登录信息需要新建 secret 并重新部署。
+
+```yaml [docker-compose.yml]
+services:
+  dozzle:
+    image: amir20/dozzle:latest
+    secrets:
+      - source: registry_login
+        target: /config.json
+
+secrets:
+  registry_login:
+    external: true
+```
+
+在 [Kubernetes](/zh/guide/k8s) 中，挂载 `imagePullSecrets` 已在使用的 secret。它必须位于 Dozzle 所在的命名空间，如果你的应用在其他命名空间中运行，请把它复制过来。Dozzle 只在检查时读取它，不需要额外权限：
+
+```yaml
+env:
+  - name: DOCKER_CONFIG
+    value: /docker
+volumeMounts:
+  - name: registry-login
+    mountPath: /docker
+    readOnly: true
+volumes:
+  - name: registry-login
+    secret:
+      secretName: regcred
+      items:
+        - key: .dockerconfigjson
+          path: config.json
+```
+
+### 不支持的内容
+
+- 凭据助手（`credsStore` 和 `credHelpers`），包括 Docker Desktop 的钥匙串。Dozzle 镜像不包含任何助手，配置依赖助手时会记录一条警告。请改为写一个带 `auth` 条目的文件。
+- 会自行过期的登录信息，例如 Amazon ECR 令牌，因为没有任何机制会续期。
+- 身份令牌（`config.json` 中的 `identitytoken`）。
+- Watchtower 的 `REPO_USER` 和 `REPO_PASS`，它们会把同一份登录信息发送给所有仓库。
 
 ## 一次更新多个容器
 

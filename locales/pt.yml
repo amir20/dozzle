@@ -1167,7 +1167,7 @@ auto-update:
   safety-title: "Rede de segurança"
   safety-verify: "Cada atualização é acompanhada e revertida se o novo contêiner falhar."
   safety-cleanup: "A imagem antiga é removida depois. Uma imagem anterior é mantida para reverter."
-  safety-skip: "Imagens fixadas em um digest, construídas localmente ou de um registro privado são ignoradas."
+  safety-skip: "Imagens fixadas em um digest, construídas localmente ou de um registro privado sem credenciais são ignoradas."
   learn-more: "Como funciona a atualização automática"
   footnote: "{link} decide quais contêineres se atualizam sozinhos."
   footnote-link: "Configurações → Atualizações"

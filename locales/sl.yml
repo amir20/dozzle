@@ -1172,7 +1172,7 @@ auto-update:
   safety-title: "Varnostna mreža"
   safety-verify: "Vsaka posodobitev se spremlja in razveljavi, če novi vsebnik odpove."
   safety-cleanup: "Stara slika se nato odstrani. Ena prejšnja slika ostane za povrnitev."
-  safety-skip: "Slike, pripete na digest, zgrajene lokalno ali iz zasebnega registra, se preskočijo."
+  safety-skip: "Slike, pripete na digest, zgrajene lokalno ali iz zasebnega registra brez prijave, se preskočijo."
   learn-more: "Kako deluje samodejno posodabljanje"
   footnote: "{link} določa, kateri vsebniki se posodabljajo sami."
   footnote-link: "Nastavitve → Posodobitve"

@@ -1,7 +1,7 @@
 ---
 title: Passer de Watchtower à Dozzle
 description: Remplacez Watchtower par Dozzle pour mettre à jour vos conteneurs Docker selon un planning, avec chaque réglage et label de Watchtower et son équivalent Dozzle.
-sourceHash: b5f448099355
+sourceHash: 8129c1dac23c
 ---
 
 # Passer de Watchtower à Dozzle
@@ -44,7 +44,7 @@ Vous pouvez omettre les deux lignes `DOZZLE_AUTO_UPDATE` et régler le planning 
 | `--rolling-restart`                                                | Toujours : chaque hôte met à jour un conteneur à la fois                                                                                                                                                                          |
 | `--notification-url`                                               | [Alertes et webhooks](/fr/guide/alerts-and-webhooks) sur les évènements de conteneurs, ou [Dozzle Cloud](/fr/guide/dozzle-cloud), qui surveille chaque mise à jour et vous prévient quand une nouvelle version commence à échouer |
 | `--run-once`                                                       | **Mettre à jour** dans le panneau des mises à jour                                                                                                                                                                                |
-| Identifiants de registre privé                                     | Non pris en charge. Les conteneurs d'un registre privé sont ignorés                                                                                                                                                               |
+| Identifiants de registre privé                                     | Montez le même `config.json`. Voir [registres privés](/fr/guide/updates#private-registries)                                                                                                                                       |
 
 ## Labels
 

@@ -16,6 +16,7 @@ import (
 
 	"github.com/amir20/dozzle/internal/container"
 	"github.com/amir20/dozzle/internal/container/docker/swap"
+	"github.com/amir20/dozzle/internal/imagecheck"
 	"github.com/amir20/dozzle/internal/selfupdate"
 	"github.com/amir20/dozzle/internal/utils"
 	docker "github.com/moby/moby/api/types/container"
@@ -290,7 +291,7 @@ func (d *Client) ContainerActions(ctx context.Context, action container.Containe
 }
 
 func (d *Client) ImagePull(ctx context.Context, imageName string) (io.ReadCloser, error) {
-	return d.cli.ImagePull(ctx, imageName, client.ImagePullOptions{})
+	return d.cli.ImagePull(ctx, imageName, swap.PullOptions(imageName))
 }
 
 // ImageRepoDigests returns the "repo@sha256:..." digests recorded for a
@@ -546,7 +547,11 @@ func (d *Client) ServiceUpdate(ctx context.Context, serviceID string, imageName 
 	svc := inspectResult.Service
 	svc.Spec.TaskTemplate.ContainerSpec.Image = imageName
 	svc.Spec.TaskTemplate.ForceUpdate++
-	_, err = d.cli.ServiceUpdate(ctx, serviceID, client.ServiceUpdateOptions{Version: svc.Version, Spec: svc.Spec})
+	_, err = d.cli.ServiceUpdate(ctx, serviceID, client.ServiceUpdateOptions{
+		Version:             svc.Version,
+		Spec:                svc.Spec,
+		EncodedRegistryAuth: imagecheck.PullAuth(imageName),
+	})
 	return err
 }
 
