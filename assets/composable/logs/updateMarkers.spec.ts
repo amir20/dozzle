@@ -4,6 +4,7 @@
 import { describe, expect, test } from "vitest";
 import { DeployLogEntry, LoadMoreLogEntry, SimpleLogEntry, type LogEntry, type LogMessage } from "@/models/LogEntry";
 import type { ContainerUpdate } from "@/models/ContainerUpdate";
+import { mergeByTime } from "./logLoader";
 import {
   MARKER_START_SLACK_MS,
   firstLineByContainer,
@@ -54,6 +55,20 @@ describe("insertMarker", () => {
   test("goes after another container's lines from before the update", () => {
     const list = insertMarker([loader(), line("b", -5_000), line("a", 2_000), line("b", 1_000)], marker("a"));
     expect(kinds(list)).toEqual(["L", "line -5000", "M:a", "line 2000", "line 1000"]);
+  });
+});
+
+describe("a marker put back after a trim", () => {
+  // The same steps the stream runs: put back on what the trim left, then older lines
+  // merge in and markers reposition.
+  test("lands in time among a merged view's reloaded lines", () => {
+    const m = marker("a", 1_000);
+    const after = insertMarker([loader(), line("b", 1_500), line("a", 2_000)], m);
+    expect(kinds(after)).toEqual(["L", "M:a", "line 1500", "line 2000"]);
+
+    const [head, ...rest] = after;
+    const reloaded = repositionMarkers([head, ...mergeByTime(rest, [line("b", 500), line("a", 1_200)])]);
+    expect(kinds(reloaded)).toEqual(["L", "line 500", "M:a", "line 1200", "line 1500", "line 2000"]);
   });
 });
 

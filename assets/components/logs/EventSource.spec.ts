@@ -647,6 +647,42 @@ describe("<ContainerEventSource />", () => {
       wrapper.unmount();
     });
 
+    // Inside the slack the marker is older than every line left, so the top is its
+    // place in time, and it stays there when older lines load in under it.
+    test("trimmed within the slack holds the top, then sits above the reloaded lines", async () => {
+      stubFetch([]);
+      const wrapper = createLogEventSource();
+      sources[sourceUrl].emitOpen();
+      sources[sourceUrl].emit("container-update", {
+        data: JSON.stringify({ host: "localhost", name: "test", oldId: "old", newId: "abc", at, source: "schedule" }),
+      });
+      sources[sourceUrl].emitMessage({ data: JSON.stringify(line(2, updatedAt + 2000)) });
+      await vi.advanceTimersByTimeAsync(300);
+
+      // @ts-ignore
+      const rows = () => wrapper.vm.messages as LogEntry<string>[];
+      let id = 2;
+      for (let batch = 0; batch < 4; batch++) {
+        for (let i = 0; i < 150; i++) {
+          id++;
+          sources[sourceUrl].emitMessage({ data: JSON.stringify(line(id, updatedAt + 3000 + id)) });
+        }
+        await vi.advanceTimersByTimeAsync(1100);
+      }
+      expect(rows().filter((m) => m instanceof DeployLogEntry)).toHaveLength(1);
+      expect(rows()[1]).toBeInstanceOf(DeployLogEntry);
+      expect(rows()[2].message).not.toBe("line 2");
+
+      const loading = (rows()[0] as LoadMoreLogEntry).loadMore();
+      await vi.advanceTimersByTimeAsync(100);
+      await loading;
+
+      expect(rows().filter((m) => m instanceof DeployLogEntry)).toHaveLength(1);
+      expect(rows()[1]).toBeInstanceOf(DeployLogEntry);
+      expect(rows()[2].message).toBe("line 1");
+      wrapper.unmount();
+    });
+
     test("is not drawn twice when Cloud knows the update and already judged it", async () => {
       stubFetch([deployEvent]);
       cloudConfig.value = { linked: true } as any;
