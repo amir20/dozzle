@@ -180,6 +180,68 @@ describe("useAlertMerger", () => {
     });
   });
 
+  describe("after a trim", () => {
+    const metric = (at: number) => ({
+      ts: ns(at),
+      containerId: "abc",
+      type: "metric",
+      detail: "cpu",
+      suppressed: true,
+    });
+    const respondWithAll = (hits: CloudAlert[], events: unknown[]) => {
+      global.fetch = vi.fn().mockResolvedValue({ ok: true, json: async () => ({ hits, events }) });
+    };
+    const eventRows = (rows: LogEntry<LogMessage>[]) => rows.filter((r) => r instanceof CloudEventLogEntry);
+    const alertRows = (rows: LogEntry<LogMessage>[]) => rows.filter((r) => r instanceof AlertLogEntry);
+
+    test("draws a trimmed alert and event again when their lines reload", async () => {
+      const old = log(1, 100);
+      const hits = [alert({ logId: 1, ts: ns(100) })];
+      const events = [metric(50)];
+      respondWithAll(hits, events);
+      const messages = shallowRef<LogEntry<LogMessage>[]>([old, log(2, 200)]);
+
+      await withMerger(messages, async ({ decorateVisible, withAlerts, forgetTrimmed }) => {
+        decorateVisible();
+        await vi.advanceTimersByTimeAsync(500);
+        expect(eventRows(messages.value)).toHaveLength(1);
+        expect(alertRows(messages.value)).toHaveLength(1);
+
+        const cut = messages.value.findIndex((m) => m.id === 2);
+        forgetTrimmed(messages.value.slice(0, cut));
+        messages.value = messages.value.slice(cut);
+
+        const reloaded = await withAlerts([old]);
+        expect(eventRows(reloaded)).toHaveLength(1);
+        expect(alertRows(reloaded)).toHaveLength(1);
+      });
+    });
+
+    // Cloud event rows have no on-screen guard: the seen set is all that stops the
+    // next poll drawing one again, so a trim must leave the keys of what stayed.
+    test("does not draw a row that stayed on screen a second time", async () => {
+      const hits = [alert({ alertId: "kept", logId: 2, ts: ns(200) })];
+      respondWithAll(hits, [metric(50), metric(150)]);
+      const messages = shallowRef<LogEntry<LogMessage>[]>([log(1, 100), log(2, 200)]);
+
+      await withMerger(messages, async ({ decorateVisible, forgetTrimmed }) => {
+        decorateVisible();
+        await vi.advanceTimersByTimeAsync(500);
+        expect(eventRows(messages.value)).toHaveLength(2);
+
+        const cut = messages.value.findIndex((m) => m.id === 1) + 1;
+        forgetTrimmed(messages.value.slice(0, cut));
+        messages.value = [...messages.value.slice(cut), log(3, 300)];
+
+        // Only the row still on screen is inside the window Cloud is asked about.
+        respondWithAll(hits, [metric(150)]);
+        await vi.advanceTimersByTimeAsync(15_000);
+        expect(eventRows(messages.value)).toHaveLength(1);
+        expect(alertRows(messages.value)).toHaveLength(1);
+      });
+    });
+  });
+
   test("polls the visible window so an alert can land while the view is open", async () => {
     respondWith([]);
     const messages = shallowRef<LogEntry<LogMessage>[]>([log(1, 100), log(2, 200)]);

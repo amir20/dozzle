@@ -75,7 +75,7 @@ export function useLogLoader(
     loadedOlder?: (reachedStart: Set<string>) => void;
   } = {},
 ) {
-  const { withAlerts, decorateVisible } = useAlertMerger(messages, containers, params);
+  const { withAlerts, decorateVisible, forgetTrimmed } = useAlertMerger(messages, containers, params);
   // The containers whose start is on screen, for each window. A fresh window
   // (another view, filter or stream) opens under a new load-more row.
   const reachedStartByLoader = new WeakMap<LoadMoreLogEntry, Set<string>>();
@@ -191,5 +191,5 @@ export function useLogLoader(
     }
   }
 
-  return { loadOlderLogs, loadSkippedLogs, decorateWithAlerts: decorateVisible };
+  return { loadOlderLogs, loadSkippedLogs, decorateWithAlerts: decorateVisible, forgetTrimmed };
 }

@@ -16,7 +16,8 @@ import type { TimeRange } from "@/composable/logs/timeRange";
 import LogViewer from "./LogViewer.vue";
 import { Container } from "@/models/Container";
 import type { ContainerState } from "@/types/Container";
-import { Level, LoadMoreLogEntry, type LogEntry } from "@/models/LogEntry";
+import { DeployLogEntry, Level, LoadMoreLogEntry, type LogEntry } from "@/models/LogEntry";
+import { useCloudConfig } from "@/composable/cloud/cloudConfig";
 import { containerFixture } from "@/testing/containerFixture";
 
 // The component is generic over its entity; mount cannot infer that, so pin it to a container.
@@ -146,6 +147,7 @@ describe("<ContainerEventSource />", () => {
           ]),
           streamConfig: reactive({ stdout: true, stderr: true }),
           hasComplexLogs: ref(false),
+          loadingMore: ref(false),
           levels: new Set<Level>(["info"]),
           historical: ref(false),
           timeRange: ref(timeRange),
@@ -493,6 +495,108 @@ describe("<ContainerEventSource />", () => {
       sources[sourceUrl].emit("container-update", update("2019-06-12T10:55:40.000Z"));
       await vi.advanceTimersByTimeAsync(300);
       expect(wrapper.findAllComponents(DeployLogItem)).toHaveLength(1);
+    });
+  });
+
+  describe("update marker after a trim", () => {
+    const at = "2019-06-12T10:55:40.000Z";
+    const updatedAt = Date.parse(at);
+    const line = (id: number, ts: number) => ({ ts, m: `line ${id}`, id, rm: `line ${id}`, c: "abc" });
+    const deployEvent = {
+      ts: updatedAt * 1_000_000,
+      containerId: "abc",
+      type: "deploy",
+      suppressed: false,
+      deploy: { deployId: "d1", verdict: "clean" },
+    };
+    const { cloudConfig } = useCloudConfig();
+
+    // Answers Cloud's alert poll and the load of older lines.
+    const stubFetch = (events: unknown[]) =>
+      vi.stubGlobal(
+        "fetch",
+        vi.fn(async (url: string) => ({
+          ok: true,
+          json: async () => ({ hits: [], events: url.includes("events=1") ? events : [] }),
+          text: async () => JSON.stringify(line(1, updatedAt + 1000)),
+        })),
+      );
+
+    // Opens on the update, then runs well past its slack until the trim takes it.
+    async function trimMarkerAway() {
+      const wrapper = createLogEventSource();
+      sources[sourceUrl].emitOpen();
+      sources[sourceUrl].emit("container-update", {
+        data: JSON.stringify({ host: "localhost", name: "test", oldId: "old", newId: "abc", at, source: "schedule" }),
+      });
+      sources[sourceUrl].emitMessage({ data: JSON.stringify(line(2, updatedAt + 2000)) });
+      await vi.advanceTimersByTimeAsync(300);
+      // @ts-ignore
+      const rows = () => wrapper.vm.messages as LogEntry<string>[];
+      const markers = () => rows().filter((m) => m instanceof DeployLogEntry);
+      expect(markers()).toHaveLength(1);
+
+      let id = 2;
+      for (let batch = 0; batch < 4; batch++) {
+        for (let i = 0; i < 150; i++) {
+          id++;
+          sources[sourceUrl].emitMessage({ data: JSON.stringify(line(id, updatedAt + 600_000 + id)) });
+        }
+        await vi.advanceTimersByTimeAsync(1100);
+      }
+      expect(markers()).toHaveLength(0);
+
+      const loadOlder = async () => {
+        const head = rows()[0] as LoadMoreLogEntry;
+        expect(head).toBeInstanceOf(LoadMoreLogEntry);
+        const loading = head.loadMore();
+        await vi.advanceTimersByTimeAsync(100);
+        await loading;
+      };
+      return { wrapper, markers, loadOlder, rows };
+    }
+
+    afterEach(() => {
+      cloudConfig.value = null;
+      vi.unstubAllGlobals();
+    });
+
+    test("comes back when the lines around it reload", async () => {
+      stubFetch([]);
+      const { wrapper, markers, loadOlder, rows } = await trimMarkerAway();
+
+      await loadOlder();
+
+      expect(markers()).toHaveLength(1);
+      expect(rows()[1]).toBe(markers()[0]);
+      wrapper.unmount();
+    });
+
+    test("is not drawn twice when Cloud knows the update and already judged it", async () => {
+      stubFetch([deployEvent]);
+      cloudConfig.value = { linked: true } as any;
+      const { wrapper, markers, loadOlder } = await trimMarkerAway();
+
+      await loadOlder();
+
+      expect(markers()).toHaveLength(1);
+      expect((markers()[0] as DeployLogEntry).verdict?.verdict).toBe("clean");
+      // A later poll, with the marker back on screen, must not add Cloud's copy either.
+      await vi.advanceTimersByTimeAsync(15_000);
+      expect(markers()).toHaveLength(1);
+      wrapper.unmount();
+    });
+
+    test("gives way to Cloud's copy when that reloads first", async () => {
+      stubFetch([deployEvent]);
+      const { wrapper, markers, loadOlder } = await trimMarkerAway();
+      // Linked only now, so no poll ever saw the marker while it was on screen.
+      cloudConfig.value = { linked: true } as any;
+
+      await loadOlder();
+
+      expect(markers()).toHaveLength(1);
+      wrapper.unmount();
     });
   });
 

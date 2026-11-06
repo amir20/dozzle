@@ -10,7 +10,7 @@ import {
   RangeEdgeLogEntry,
 } from "@/models/LogEntry";
 import { Container } from "@/models/Container";
-import { useCloudAlerts, mergeAlerts, attachEvents, mergeCloudEvents, mergeDeploys } from "./cloudAlerts";
+import { useCloudAlerts, mergeAlerts, attachEvents, mergeCloudEvents, mergeDeploys, forgetPlaced } from "./cloudAlerts";
 import { awaitingVerdict } from "@/models/ContainerUpdate";
 import { useCloudConfig } from "./cloudConfig";
 import { attachPatternMemory, fetchPatternContext, linesNeedingMemory } from "./patternMemory";
@@ -274,5 +274,11 @@ export function useAlertMerger(
     { immediate: true },
   );
 
-  return { withAlerts, decorateVisible, alertsAvailable };
+  return {
+    withAlerts,
+    decorateVisible,
+    alertsAvailable,
+    // For a view that trims its window, with the rows the trim removed.
+    forgetTrimmed: (rows: LogEntry<LogMessage>[]) => forgetPlaced(rows, placedAlerts),
+  };
 }

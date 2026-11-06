@@ -347,6 +347,18 @@ function eventKey(event: CloudEvent): string {
 }
 
 /**
+ * Drops the keys of alert and event rows that have left the window, so they are
+ * drawn again when the lines around them reload. Only these two: an update marker
+ * keeps its key, because it comes back itself rather than as a new row from Cloud.
+ */
+export function forgetPlaced(rows: LogEntry<LogMessage>[], seen: Set<string>) {
+  for (const row of rows) {
+    if (row instanceof AlertLogEntry) seen.delete(anchorKey(row.alert));
+    else if (row instanceof CloudEventLogEntry) seen.delete(eventKey(row.event));
+  }
+}
+
+/**
  * Puts Dozzle Cloud's verdicts on the update markers in a time-sorted run.
  *
  * A verdict is matched to its marker by container and finish time: a rollback
