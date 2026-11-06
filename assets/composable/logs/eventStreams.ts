@@ -16,7 +16,7 @@ import { timeRangeRoute } from "./timeRange";
 import { Service, Stack } from "@/models/Stack";
 import { Container, GroupedContainers } from "@/models/Container";
 import { parseMessage } from "./loadBetween";
-import { useLogLoader } from "./logLoader";
+import { mergeByTime, useLogLoader } from "./logLoader";
 import { appendBatch, newerThanOnScreen, newestOnScreen, notOnScreen } from "./logWindow";
 import { typedEvents } from "@/utils/events";
 import type { ContainerUpdate } from "@/models/ContainerUpdate";
@@ -141,7 +141,7 @@ function useLogStream(url: Ref<string>, container?: Ref<Container>) {
   // The alert layer — dedupe state, the 15s poll, and the merge itself — lives
   // in useAlertMerger, shared with the historical view. All the stream has to
   // do is say when it has assembled a new window.
-  const { loadOlderLogs, loadSkippedLogs, decorateWithAlerts } = useLogLoader(
+  const { loadOlderLogs, loadSkippedLogs, decorateWithAlerts, windowTrimmed } = useLogLoader(
     messages,
     allContainers,
     params,
@@ -152,6 +152,7 @@ function useLogStream(url: Ref<string>, container?: Ref<Container>) {
         messages.value = repositionMarkers(messages.value);
         settleMarkers({ reachedStart });
       },
+      markersTrimmed: (markers) => pendingMarkers.push(...markers),
       startEdge: () => {
         const start = floor.value!;
         const earlier = (ms: number) => () =>
@@ -190,8 +191,9 @@ function useLogStream(url: Ref<string>, container?: Ref<Container>) {
     const canLoadOlder = container || containers.value.length > 0;
     const paused = scrollingPaused.value === true;
     if (wasInitial && !overflows) {
-      const head = canLoadOlder ? [new LoadMoreLogEntry(new Date(), loadOlderLogs)] : messages.value;
-      messages.value = [...head, ...batch];
+      // A search's backfill can get here first, so what is on screen stays.
+      const head = canLoadOlder ? [new LoadMoreLogEntry(new Date(), loadOlderLogs)] : [];
+      messages.value = [...head, ...mergeByTime(messages.value, batch)];
     } else {
       const appended = appendBatch(messages.value, batch, {
         maxLogs: config.maxLogs,
@@ -202,6 +204,8 @@ function useLogStream(url: Ref<string>, container?: Ref<Container>) {
       // no way back to the lines it just dropped. The row is a new one because the old
       // one may remember a start that is no longer on screen.
       const trimmed = overflows && !paused;
+      // The trim cuts from the top, so what it took is this many rows off the front.
+      if (trimmed) windowTrimmed(messages.value.slice(0, messages.value.length + batch.length - appended.length));
       messages.value =
         trimmed && canLoadOlder ? [new LoadMoreLogEntry(new Date(), loadOlderLogs), ...appended] : appended;
     }
@@ -345,7 +349,14 @@ function useLogStream(url: Ref<string>, container?: Ref<Container>) {
         }
       }
       if (logs.length === 0) return;
-      messages.value = repositionMarkers([...logs, ...messages.value]);
+      // Below the load-more row, which has to stay first and is dated now, so it is
+      // held out of the merge.
+      const [first] = messages.value;
+      messages.value = repositionMarkers(
+        first instanceof LoadMoreLogEntry
+          ? [first, ...mergeByTime(messages.value.slice(1), logs)]
+          : mergeByTime(messages.value, logs),
+      );
       settleMarkers();
       decorateWithAlerts();
     });
