@@ -162,6 +162,10 @@ const ALIASES: Record<string, string> = {
   code: "collabora-office", // alias for collabora/code
   "whats-up-docker": "wud",
   "bentopdf-simple": "bentopdf",
+  ubuntu: "ubuntu-linux",
+  ttrss: "tinytinyrss",
+  "tt-rss": "tinytinyrss",
+  cthulhoo: "tinytinyrss",
 };
 
 const stripSuffix = (name: string) => {
