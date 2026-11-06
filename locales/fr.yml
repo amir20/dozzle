@@ -143,7 +143,7 @@ label:
   stopped-containers: "Conteneurs arrêtés"
   build-cache: "Cache de build"
   load: Charge
-  uptime: Durée de fonctionnement
+  uptime: En service
   mem: MEM
   pinned: Epinglé
   per-page: Colonnes par page
