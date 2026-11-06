@@ -3,6 +3,8 @@ package k8s
 import (
 	"errors"
 	"io"
+	"net/http"
+	"net/http/httptest"
 	"strings"
 	"testing"
 	"testing/iotest"
@@ -14,7 +16,9 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/client-go/kubernetes"
 	k8sfake "k8s.io/client-go/kubernetes/fake"
+	"k8s.io/client-go/rest"
 )
 
 func TestContainerStatusToState(t *testing.T) {
@@ -188,4 +192,71 @@ func TestContainerRunFactsReadsTheLastRun(t *testing.T) {
 	if f := containerRunFacts(done); f.oomKilled || f.exitCode != 1 {
 		t.Fatalf("terminated facts = %+v", f)
 	}
+}
+
+func TestLogsUntil(t *testing.T) {
+	end := time.Date(2026, 11, 6, 14, 0, 50, 0, time.UTC)
+	lines := "2026-11-06T14:00:49.5Z before\n" +
+		"2026-11-06T14:00:50Z at the end\n" +
+		"not a timestamp stays\n" +
+		"2026-11-06T14:00:50.000000001Z past\n" +
+		"2026-11-06T14:00:40Z never reached\n"
+	want := "2026-11-06T14:00:49.5Z before\n2026-11-06T14:00:50Z at the end\nnot a timestamp stays\n"
+
+	readers := map[string]func(io.Reader) io.Reader{
+		"whole":    func(r io.Reader) io.Reader { return r },
+		"one byte": iotest.OneByteReader,
+		"half":     iotest.HalfReader,
+	}
+	for name, wrap := range readers {
+		t.Run(name, func(t *testing.T) {
+			got, err := io.ReadAll(iotest.OneByteReader(newLogsUntil(io.NopCloser(wrap(strings.NewReader(lines))), end)))
+			require.NoError(t, err)
+			assert.Equal(t, want, string(got))
+		})
+	}
+
+	t.Run("a zero end is no end", func(t *testing.T) {
+		got, err := io.ReadAll(newLogsUntil(io.NopCloser(strings.NewReader(lines)), time.Time{}))
+		require.NoError(t, err)
+		assert.Equal(t, lines, string(got))
+	})
+
+	t.Run("a last line with no newline is kept", func(t *testing.T) {
+		got, err := io.ReadAll(newLogsUntil(io.NopCloser(strings.NewReader("2026-11-06T14:00:49Z partial")), end))
+		require.NoError(t, err)
+		assert.Equal(t, "2026-11-06T14:00:49Z partial", string(got))
+	})
+
+	t.Run("a line longer than the buffer passes through whole", func(t *testing.T) {
+		long := "2026-11-06T14:00:49Z " + strings.Repeat("x", 100_000) + "\n"
+		got, err := io.ReadAll(newLogsUntil(io.NopCloser(strings.NewReader(long+"2026-11-06T14:00:51Z past\n")), end))
+		require.NoError(t, err)
+		assert.Equal(t, long, string(got))
+	})
+}
+
+// A window that ends before now returns that window, not the newest lines. Real HTTP,
+// since the fake clientset answers every log request with one fixed untimestamped body.
+func TestContainerLogsBetweenDatesStopsAtEnd(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Query().Get("previous") == "true" {
+			http.Error(w, "no previous run", http.StatusBadRequest)
+			return
+		}
+		io.WriteString(w, "2026-11-06T14:00:49Z in window\n2026-11-06T14:00:51Z past the end\n")
+	}))
+	defer server.Close()
+	clientset, err := kubernetes.NewForConfig(&rest.Config{Host: server.URL})
+	require.NoError(t, err)
+
+	client := &Client{Clientset: clientset}
+	end := time.Date(2026, 11, 6, 14, 0, 50, 0, time.UTC)
+	stream, err := client.ContainerLogsBetweenDates(t.Context(), "ns:pod:c", end.Add(-time.Minute), end, container.STDALL)
+	require.NoError(t, err)
+	defer stream.Close()
+
+	got, err := io.ReadAll(stream)
+	require.NoError(t, err)
+	assert.Equal(t, "2026-11-06T14:00:49Z in window\n", string(got))
 }
