@@ -116,8 +116,15 @@ export function useAlertMerger(
    * fetchAlerts never rejects, but the guard is kept regardless: this runs on
    * the scroll path, where the log lines have already been fetched. A cloud
    * problem must degrade to "no alerts", never cost the user their logs.
+   *
+   * stillWanted says whether the caller will still use the result once the fetch
+   * returns. The merge records what it places, so merging for a result that gets
+   * thrown away would mark rows as drawn that never were.
    */
-  async function withAlerts(logs: LogEntry<LogMessage>[]): Promise<LogEntry<LogMessage>[]> {
+  async function withAlerts(
+    logs: LogEntry<LogMessage>[],
+    stillWanted: () => boolean = () => true,
+  ): Promise<LogEntry<LogMessage>[]> {
     if (!alertsAvailable.value || logs.length === 0) return logs;
     try {
       const ids = containers.value.map((c) => c.id);
@@ -136,6 +143,7 @@ export function useAlertMerger(
       const { alerts, events } = await fetchAlerts(ids, new Date(range.from), new Date(range.to), {
         events: true,
       });
+      if (!stillWanted()) return logs;
       attachEvents(logs, events);
       const { logs: withDeploys } = mergeDeploys(logs, events, placedAlerts);
       return mergeAlerts(mergeCloudEvents(withDeploys, events, placedAlerts), alerts, placedAlerts);

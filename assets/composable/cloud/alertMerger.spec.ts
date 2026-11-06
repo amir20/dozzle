@@ -252,6 +252,52 @@ describe("useAlertMerger", () => {
       scope.stop();
     });
 
+    // A flush trims the window while the alerts are out, which replaces the load-more
+    // row, so the page is thrown away. Its alert has to survive for the next load.
+    test.each(["older", "skipped"])(
+      "a %s load thrown away mid-fetch leaves its alert to the next load",
+      async (kind) => {
+        vi.mocked(loadBetween).mockReset();
+        const old = log(1, 100);
+        const hits = [alert({ logId: 1, ts: ns(100) })];
+        let release!: () => void;
+        const gate = new Promise<void>((resolve) => (release = resolve));
+        global.fetch = vi.fn(async () => {
+          await gate;
+          return { ok: true, json: async () => ({ hits, events: [metric(50)] }) };
+        }) as any;
+
+        const loader = new LoadMoreLogEntry(new Date(), async () => {});
+        const skipped = new SkippedLogsEntry(new Date(), 1, old as any, old as any, vi.fn());
+        const later = log(2, 200);
+        const messages = shallowRef<LogEntry<LogMessage>[]>(
+          kind === "older" ? [loader, later] : [loader, skipped, later],
+        );
+        const scope = effectScope();
+        const containers = computed(() => [{ id: "abc", host: "h" } as unknown as Container]);
+        const { loadOlderLogs, loadSkippedLogs } = scope.run(() =>
+          useLogLoader(messages as any, containers, ref(new URLSearchParams()), ref(false)),
+        )!;
+        const resolved = { logs: [old], signal: new AbortController().signal };
+
+        vi.mocked(loadBetween).mockResolvedValueOnce(resolved);
+        const load = kind === "older" ? loadOlderLogs(loader) : loadSkippedLogs(skipped);
+        await vi.advanceTimersByTimeAsync(0);
+
+        const fresh = new LoadMoreLogEntry(new Date(), async () => {});
+        messages.value = [fresh, later];
+        release();
+        await load;
+        expect(shapeOf(messages.value)).toEqual(["loader", "log:2"]);
+
+        vi.mocked(loadBetween).mockResolvedValueOnce(resolved);
+        await loadOlderLogs(fresh);
+        expect(alertRows(messages.value)).toHaveLength(1);
+        expect(eventRows(messages.value)).toHaveLength(1);
+        scope.stop();
+      },
+    );
+
     // Cloud event rows have no on-screen guard: the seen set is all that stops the
     // next poll drawing one again, so a trim must leave the keys of what stayed.
     test("does not draw a row that stayed on screen a second time", async () => {

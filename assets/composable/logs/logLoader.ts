@@ -159,7 +159,7 @@ export function useLogLoader(
       for (const id of reachedStartIn(fetching, logs, min ?? FETCH_PAGE)) reachedStart.add(id);
       const reachedFloor = start !== undefined && containers.value.every((c) => reachedStart.has(c.id));
       const head = reachedFloor && startEdge ? startEdge() : loader;
-      const older = await withAlerts(logs.filter(notOnScreen(messages.value)));
+      const older = await withAlerts(logs.filter(notOnScreen(messages.value)), () => messages.value[0] === loader);
       const current = messages.value;
       if (current[0] !== loader) return;
       if (older.length > 0 || head !== loader) {
@@ -189,7 +189,7 @@ export function useLogLoader(
       const skipped = logs.filter((l) => l.date <= to).filter(notOnScreen(messages.value));
 
       if (skipped.length > 0) {
-        const withAlertsApplied = await withAlerts(skipped);
+        const withAlertsApplied = await withAlerts(skipped, () => messages.value.includes(entry));
         // A fresh window or a trim may have dropped the entry while alerts loaded.
         if (!messages.value.includes(entry)) return;
         const updated = messages.value.flatMap((log) => (log === entry ? withAlertsApplied : [log]));
