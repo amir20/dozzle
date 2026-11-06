@@ -36,6 +36,12 @@ describe("iconSlugForImage", () => {
     ["ghcr.io/usetrmnl/larapaper:latest", "trmnl"],
     ["ayufan/proxmox-backup-server:v4", "proxmox"],
     ["apache/airflow:latest", "apache-airflow"],
+    ["ubuntu:24.04", "ubuntu-linux"],
+    ["cthulhoo/ttrss-fpm-pgsql-static:latest", "tinytinyrss"],
+    ["cthulhoo/ttrss-web-nginx", "tinytinyrss"],
+    ["wangqiru/ttrss", "tinytinyrss"],
+    ["ghcr.io/tt-rss/tt-rss:latest", "tinytinyrss"],
+    ["ghcr.io/tt-rss/tt-rss-web-nginx:latest", "tinytinyrss"],
   ])("resolves %s", (image, slug) => {
     expect(iconSlugForImage(image)).toBe(slug);
   });
