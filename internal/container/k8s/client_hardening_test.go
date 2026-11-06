@@ -194,6 +194,16 @@ func TestContainerRunFactsReadsTheLastRun(t *testing.T) {
 	}
 }
 
+type closeCounter struct {
+	io.Reader
+	closes *int
+}
+
+func (c closeCounter) Close() error {
+	*c.closes++
+	return nil
+}
+
 func TestLogsUntil(t *testing.T) {
 	end := time.Date(2026, 11, 6, 14, 0, 50, 0, time.UTC)
 	lines := "2026-11-06T14:00:49.5Z before\n" +
@@ -215,6 +225,21 @@ func TestLogsUntil(t *testing.T) {
 			assert.Equal(t, want, string(got))
 		})
 	}
+
+	t.Run("a numeric offset with a full fraction is cut too", func(t *testing.T) {
+		offset := "2026-11-06T09:00:49.123456789-05:00 in\n2026-11-06T09:00:51.123456789-05:00 past\n"
+		got, err := io.ReadAll(newLogsUntil(io.NopCloser(strings.NewReader(offset)), end))
+		require.NoError(t, err)
+		assert.Equal(t, "2026-11-06T09:00:49.123456789-05:00 in\n", string(got))
+	})
+
+	t.Run("the cut closes the stream", func(t *testing.T) {
+		closes := 0
+		stream := closeCounter{Reader: strings.NewReader(lines), closes: &closes}
+		_, err := io.ReadAll(newLogsUntil(stream, end))
+		require.NoError(t, err)
+		assert.Equal(t, 1, closes)
+	})
 
 	t.Run("a zero end is no end", func(t *testing.T) {
 		got, err := io.ReadAll(newLogsUntil(io.NopCloser(strings.NewReader(lines)), time.Time{}))

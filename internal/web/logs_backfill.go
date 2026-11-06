@@ -196,8 +196,8 @@ func scanMatches(
 		read++
 		var kept []*container.LogEvent
 		for event := range logs {
-			// k8s ignores the end of the range and reads to now, which would
-			// refill the newest `limit` with lines already shown.
+			// The engines keep a line exactly at the end of the range, and `to` is
+			// the oldest line already shown, so it would come back twice.
 			if !time.UnixMilli(event.Timestamp).Before(to) {
 				continue
 			}

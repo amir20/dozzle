@@ -795,11 +795,15 @@ func (l *logsUntil) Read(p []byte) (int, error) {
 		return 0, nil
 	}
 	if l.lineStart {
-		head, _ := l.reader.Peek(len(time.RFC3339Nano))
+		// The longest timestamp, with a numeric offset, plus the space after it.
+		head, _ := l.reader.Peek(len(time.RFC3339Nano) + 1)
 		if i := bytes.IndexByte(head, ' '); i > 0 {
 			// A line that does not parse is not one the window can judge, so it stays.
 			if ts, err := time.Parse(time.RFC3339Nano, string(head[:i])); err == nil && ts.After(l.end) {
+				// Nothing reads on from here, and a caller may not close until its
+				// context ends, so give the API stream back now.
 				l.done = true
+				l.closer.Close()
 				return 0, io.EOF
 			}
 		}
