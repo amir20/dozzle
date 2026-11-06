@@ -1,5 +1,5 @@
 import { ShallowRef, type Ref } from "vue";
-import { type LogMessage, LogEntry, LoadMoreLogEntry, SkippedLogsEntry } from "@/models/LogEntry";
+import { type LogMessage, DeployLogEntry, LogEntry, LoadMoreLogEntry, SkippedLogsEntry } from "@/models/LogEntry";
 import { Container } from "@/models/Container";
 import { loadBetween } from "./loadBetween";
 import { notOnScreen } from "./logWindow";
@@ -65,6 +65,7 @@ export function useLogLoader(
     floor,
     startEdge,
     loadedOlder,
+    markersTrimmed,
   }: {
     // The start the person picked; nothing older is loaded.
     floor?: Ref<Date | undefined>;
@@ -73,9 +74,19 @@ export function useLogLoader(
     // Called after each load of older lines, with the containers whose every line
     // back to their start (or the floor) is now on screen.
     loadedOlder?: (reachedStart: Set<string>) => void;
+    // Called with the update markers a trim took off the window.
+    markersTrimmed?: (markers: DeployLogEntry[]) => void;
   } = {},
 ) {
   const { withAlerts, decorateVisible, forgetTrimmed } = useAlertMerger(messages, containers, params);
+
+  // Every trim goes through here. Scrolling back reloads those lines, and their
+  // decorations have to come with them.
+  function windowTrimmed(removed: LogEntry<LogMessage>[]) {
+    forgetTrimmed(removed);
+    markersTrimmed?.(removed.filter((m) => m instanceof DeployLogEntry));
+  }
+
   // The containers whose start is on screen, for each window. A fresh window
   // (another view, filter or stream) opens under a new load-more row.
   const reachedStartByLoader = new WeakMap<LoadMoreLogEntry, Set<string>>();
@@ -184,10 +195,12 @@ export function useLogLoader(
         const updated = messages.value.flatMap((log) => (log === entry ? withAlertsApplied : [log]));
         // Trimming takes the load-more row off the top. A new one, as in flushNow: the
         // old one may remember a start that is no longer on screen.
-        messages.value =
-          updated.length > config.maxLogs
-            ? [new LoadMoreLogEntry(new Date(), loadOlderLogs), ...updated.slice(-config.maxLogs)]
-            : updated;
+        if (updated.length > config.maxLogs) {
+          windowTrimmed(updated.slice(0, -config.maxLogs));
+          messages.value = [new LoadMoreLogEntry(new Date(), loadOlderLogs), ...updated.slice(-config.maxLogs)];
+        } else {
+          messages.value = updated;
+        }
       }
     } catch (err) {
       console.error(err);
@@ -196,5 +209,5 @@ export function useLogLoader(
     }
   }
 
-  return { loadOlderLogs, loadSkippedLogs, decorateWithAlerts: decorateVisible, forgetTrimmed };
+  return { loadOlderLogs, loadSkippedLogs, decorateWithAlerts: decorateVisible, windowTrimmed };
 }

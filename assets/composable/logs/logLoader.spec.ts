@@ -22,7 +22,11 @@ vi.mock("./loadBetween", () => ({
 
 vi.mock("@/composable/cloud/alertMerger", async (importOriginal) => ({
   ...(await importOriginal<typeof import("@/composable/cloud/alertMerger")>()),
-  useAlertMerger: () => ({ withAlerts: async (logs: unknown[]) => logs, decorateVisible: () => {} }),
+  useAlertMerger: () => ({
+    withAlerts: async (logs: unknown[]) => logs,
+    decorateVisible: () => {},
+    forgetTrimmed: () => {},
+  }),
 }));
 
 const T0 = Date.UTC(2026, 9, 2, 3, 0, 0);
@@ -162,6 +166,39 @@ describe("loadSkippedLogs", () => {
     expect(messages.value[0]).not.toBe(opener);
     expect(messages.value).toHaveLength(config.maxLogs + 1);
     expect(messages.value.at(-1)?.message).toBe(logs.at(-1)!.message);
+  });
+});
+
+describe("loadSkippedLogs trimming a marker", () => {
+  test("hands the marker back to the stream", async () => {
+    const marker = new DeployLogEntry({ newId: "a" } as ContainerUpdate, new Date(T0));
+    const skipped = new SkippedLogsEntry(
+      new Date(T0 + 500_000),
+      500,
+      of("a", 400_000),
+      of("a", 400_499),
+      async () => {},
+    );
+    const messages = shallowRef<LogEntry<LogMessage>[]>([
+      new LoadMoreLogEntry(new Date(), async () => {}),
+      marker,
+      of("a", 1),
+      skipped,
+    ]);
+    const markersTrimmed = vi.fn();
+    const { loadSkippedLogs } = useLogLoader(
+      messages,
+      ref([{ id: "a", host: "h" } as Container]) as Ref<Container[]>,
+      ref(new URLSearchParams()),
+      ref(false),
+      { markersTrimmed },
+    );
+    const logs = Array.from({ length: config.maxLogs + 1 }, (_, i) => of("a", 400_000 + i));
+    vi.mocked(loadBetween).mockResolvedValueOnce({ logs, signal: new AbortController().signal });
+
+    await loadSkippedLogs(skipped);
+
+    expect(markersTrimmed).toHaveBeenCalledWith([marker]);
   });
 });
 

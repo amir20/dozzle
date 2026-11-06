@@ -141,7 +141,7 @@ function useLogStream(url: Ref<string>, container?: Ref<Container>) {
   // The alert layer — dedupe state, the 15s poll, and the merge itself — lives
   // in useAlertMerger, shared with the historical view. All the stream has to
   // do is say when it has assembled a new window.
-  const { loadOlderLogs, loadSkippedLogs, decorateWithAlerts, forgetTrimmed } = useLogLoader(
+  const { loadOlderLogs, loadSkippedLogs, decorateWithAlerts, windowTrimmed } = useLogLoader(
     messages,
     allContainers,
     params,
@@ -152,6 +152,7 @@ function useLogStream(url: Ref<string>, container?: Ref<Container>) {
         messages.value = repositionMarkers(messages.value);
         settleMarkers({ reachedStart });
       },
+      markersTrimmed: (markers) => pendingMarkers.push(...markers),
       startEdge: () => {
         const start = floor.value!;
         const earlier = (ms: number) => () =>
@@ -202,13 +203,8 @@ function useLogStream(url: Ref<string>, container?: Ref<Container>) {
       // no way back to the lines it just dropped. The row is a new one because the old
       // one may remember a start that is no longer on screen.
       const trimmed = overflows && !paused;
-      if (trimmed) {
-        // The trim cuts from the top, so what it took is this many rows off the front.
-        const removed = messages.value.slice(0, messages.value.length + batch.length - appended.length);
-        // Scrolling back reloads those lines, and their decorations have to come with them.
-        forgetTrimmed(removed);
-        pendingMarkers.push(...removed.filter((m) => m instanceof DeployLogEntry));
-      }
+      // The trim cuts from the top, so what it took is this many rows off the front.
+      if (trimmed) windowTrimmed(messages.value.slice(0, messages.value.length + batch.length - appended.length));
       messages.value =
         trimmed && canLoadOlder ? [new LoadMoreLogEntry(new Date(), loadOlderLogs), ...appended] : appended;
     }

@@ -16,6 +16,10 @@ import {
   type LogMessage,
 } from "@/models/LogEntry";
 import type { Container } from "@/models/Container";
+import { loadBetween } from "@/composable/logs/loadBetween";
+import { useLogLoader } from "@/composable/logs/logLoader";
+
+vi.mock("@/composable/logs/loadBetween", () => ({ loadBetween: vi.fn() }));
 
 // Reactive so tests can flip the instance between linked and unlinked, which is
 // what drives the poll and the boot-race decoration.
@@ -215,6 +219,37 @@ describe("useAlertMerger", () => {
         expect(eventRows(reloaded)).toHaveLength(1);
         expect(alertRows(reloaded)).toHaveLength(1);
       });
+    });
+
+    test("expanding skipped lines trims an alert that comes back with its line", async () => {
+      vi.mocked(loadBetween).mockReset();
+      const old = log(1, 100);
+      const hits = [alert({ logId: 1, ts: ns(100) })];
+      respondWithAll(hits, [metric(50)]);
+      const loader = new LoadMoreLogEntry(new Date(), async () => {});
+      const page = Array.from({ length: config.maxLogs }, (_, i) => log(1_000 + i, 1_000 + i));
+      const skipped = new SkippedLogsEntry(new Date(), page.length, page[0] as any, page.at(-1) as any, vi.fn());
+      const messages = shallowRef<LogEntry<LogMessage>[]>([loader, old, skipped]);
+      const scope = effectScope();
+      const containers = computed(() => [{ id: "abc", host: "h" } as unknown as Container]);
+      const { decorateWithAlerts, loadSkippedLogs, loadOlderLogs } = scope.run(() =>
+        useLogLoader(messages as any, containers, ref(new URLSearchParams()), ref(false)),
+      )!;
+
+      decorateWithAlerts();
+      await vi.advanceTimersByTimeAsync(500);
+      expect(alertRows(messages.value)).toHaveLength(1);
+
+      vi.mocked(loadBetween).mockResolvedValueOnce({ logs: page, signal: new AbortController().signal });
+      await loadSkippedLogs(skipped);
+      expect(alertRows(messages.value)).toHaveLength(0);
+      expect(eventRows(messages.value)).toHaveLength(0);
+
+      vi.mocked(loadBetween).mockResolvedValueOnce({ logs: [old], signal: new AbortController().signal });
+      await loadOlderLogs(messages.value[0] as LoadMoreLogEntry);
+      expect(alertRows(messages.value)).toHaveLength(1);
+      expect(eventRows(messages.value)).toHaveLength(1);
+      scope.stop();
     });
 
     // Cloud event rows have no on-screen guard: the seen set is all that stops the
