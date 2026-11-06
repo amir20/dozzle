@@ -12,6 +12,7 @@ import SearchStatus from "./SearchStatus.vue";
 import IndeterminateBar from "@/components/ui/IndeterminateBar.vue";
 import ContainerEventLogItem from "./entries/ContainerEventLogItem.vue";
 import DeployLogItem from "./entries/DeployLogItem.vue";
+import LoadMoreLogItem from "./entries/LoadMoreLogItem.vue";
 import type { TimeRange } from "@/composable/logs/timeRange";
 import LogViewer from "./LogViewer.vue";
 import { Container } from "@/models/Container";
@@ -390,6 +391,61 @@ describe("<ContainerEventSource />", () => {
     expect(messages.map((m) => m.message)).toEqual(["line 0", "line 1", "line 2", "line 3", "line 4"]);
     search.searchQueryFilter.value = "";
     search.showSearch.value = false;
+    wrapper.unmount();
+  });
+
+  test("puts a search's backfill below the load-more row, in time order", async () => {
+    const wrapper = createLogEventSource({ searchFilter: "line" });
+    await vi.advanceTimersByTimeAsync(1000);
+    const url = Object.keys(sources).find((k) => k.includes("filter=line"))!;
+    const event = (id: number) => ({ ts: 1560336942459 + id, m: `line ${id}`, id, rm: `line ${id}`, c: "abc" });
+    sources[url].emitOpen();
+    // The live tail flushes first, and opens the view under the row.
+    sources[url].emitMessage({ data: JSON.stringify(event(5)) });
+    await vi.advanceTimersByTimeAsync(300);
+
+    sources[url].emit("logs-backfill", { data: JSON.stringify([event(4), event(6)]) });
+    sources[url].emit("logs-backfill", { data: JSON.stringify([event(1), event(2)]) });
+
+    // @ts-ignore
+    const [head, ...rest]: LogEntry<string>[] = wrapper.vm.messages;
+    expect(head).toBeInstanceOf(LoadMoreLogEntry);
+    expect(rest.map((m) => m.message)).toEqual(["line 1", "line 2", "line 4", "line 5", "line 6"]);
+    search.searchQueryFilter.value = "";
+    search.showSearch.value = false;
+    wrapper.unmount();
+  });
+
+  test("the load-more spinner stops when a load throws", async () => {
+    vi.spyOn(console, "error").mockImplementation(() => {});
+    let fire!: (entries: { intersectionRatio: number }[]) => void;
+    global.IntersectionObserver = class {
+      constructor(callback: typeof fire) {
+        fire = callback;
+      }
+      observe = vi.fn();
+      disconnect = vi.fn();
+      unobserve = vi.fn();
+      takeRecords = vi.fn();
+    } as any;
+    const loader = vi.fn(async () => {
+      throw new Error("No loadMoreLogEntry on first item");
+    });
+    const wrapper = mount(LoadMoreLogItem, {
+      props: { logEntry: new LoadMoreLogEntry(new Date(), loader) },
+    });
+    await nextTick();
+
+    fire([{ intersectionRatio: 1 }]);
+    await vi.advanceTimersByTimeAsync(0);
+    await nextTick();
+
+    expect(loader).toHaveBeenCalledOnce();
+    expect((wrapper.find(".loading").element as HTMLElement).style.display).toBe("none");
+    // And the row is live again: the next time it scrolls into view, it loads.
+    fire([{ intersectionRatio: 1 }]);
+    await vi.advanceTimersByTimeAsync(0);
+    expect(loader).toHaveBeenCalledTimes(2);
     wrapper.unmount();
   });
 

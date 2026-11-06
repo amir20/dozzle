@@ -19,8 +19,13 @@ useIntersectionObserver(root, async (entries) => {
   const scrollingParent = root.value?.closest("[data-scrolling]") || document.documentElement;
   const previousHeight = scrollingParent.scrollHeight;
   isLoading.value = true;
-  await logEntry.loadMore();
-  isLoading.value = false;
+  try {
+    await logEntry.loadMore();
+  } catch (err) {
+    console.error(err);
+  } finally {
+    isLoading.value = false;
+  }
   await nextTick();
   if (logEntry.rememberScrollPosition) {
     scrollingParent.scrollTop += scrollingParent.scrollHeight - previousHeight;

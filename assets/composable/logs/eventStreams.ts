@@ -16,7 +16,7 @@ import { timeRangeRoute } from "./timeRange";
 import { Service, Stack } from "@/models/Stack";
 import { Container, GroupedContainers } from "@/models/Container";
 import { parseMessage } from "./loadBetween";
-import { useLogLoader } from "./logLoader";
+import { mergeByTime, useLogLoader } from "./logLoader";
 import { appendBatch, newerThanOnScreen, newestOnScreen, notOnScreen } from "./logWindow";
 import { typedEvents } from "@/utils/events";
 import type { ContainerUpdate } from "@/models/ContainerUpdate";
@@ -352,7 +352,14 @@ function useLogStream(url: Ref<string>, container?: Ref<Container>) {
         }
       }
       if (logs.length === 0) return;
-      messages.value = repositionMarkers([...logs, ...messages.value]);
+      // Below the load-more row, which has to stay first and is dated now, so it is
+      // held out of the merge.
+      const [first] = messages.value;
+      messages.value = repositionMarkers(
+        first instanceof LoadMoreLogEntry
+          ? [first, ...mergeByTime(messages.value.slice(1), logs)]
+          : mergeByTime(messages.value, logs),
+      );
       settleMarkers();
       decorateWithAlerts();
     });
