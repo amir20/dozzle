@@ -191,8 +191,9 @@ function useLogStream(url: Ref<string>, container?: Ref<Container>) {
     const canLoadOlder = container || containers.value.length > 0;
     const paused = scrollingPaused.value === true;
     if (wasInitial && !overflows) {
-      const head = canLoadOlder ? [new LoadMoreLogEntry(new Date(), loadOlderLogs)] : messages.value;
-      messages.value = [...head, ...batch];
+      // A search's backfill can get here first, so what is on screen stays.
+      const head = canLoadOlder ? [new LoadMoreLogEntry(new Date(), loadOlderLogs)] : [];
+      messages.value = [...head, ...mergeByTime(messages.value, batch)];
     } else {
       const appended = appendBatch(messages.value, batch, {
         maxLogs: config.maxLogs,

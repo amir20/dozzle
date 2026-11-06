@@ -416,6 +416,25 @@ describe("<ContainerEventSource />", () => {
     wrapper.unmount();
   });
 
+  test("keeps a search's backfill that arrives before the first flush", async () => {
+    const wrapper = createLogEventSource({ searchFilter: "line" });
+    await vi.advanceTimersByTimeAsync(1000);
+    const url = Object.keys(sources).find((k) => k.includes("filter=line"))!;
+    const event = (id: number) => ({ ts: 1560336942459 + id, m: `line ${id}`, id, rm: `line ${id}`, c: "abc" });
+    sources[url].emitOpen();
+    sources[url].emit("logs-backfill", { data: JSON.stringify([event(1), event(2)]) });
+    sources[url].emitMessage({ data: JSON.stringify(event(5)) });
+    await vi.advanceTimersByTimeAsync(300);
+
+    // @ts-ignore
+    const [head, ...rest]: LogEntry<string>[] = wrapper.vm.messages;
+    expect(head).toBeInstanceOf(LoadMoreLogEntry);
+    expect(rest.map((m) => m.message)).toEqual(["line 1", "line 2", "line 5"]);
+    search.searchQueryFilter.value = "";
+    search.showSearch.value = false;
+    wrapper.unmount();
+  });
+
   test("the load-more spinner stops when a load throws", async () => {
     vi.spyOn(console, "error").mockImplementation(() => {});
     let fire!: (entries: { intersectionRatio: number }[]) => void;
