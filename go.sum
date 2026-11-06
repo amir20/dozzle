@@ -22,6 +22,8 @@ github.com/andybalholm/brotli v1.2.6 h1:ftYnfj6usCp+UGV5kSJ3+chpMQgU+gJf/AxsUQ52
 github.com/andybalholm/brotli v1.2.6/go.mod h1:rzTDkvFWvIrjDXZHkuS16NPggd91W3kUSvPlQ1pLaKY=
 github.com/andybalholm/brotli v1.2.7 h1:UgafRPGMam5ySHfRkhthMqOFA6IFoeF3D7mWIDLjG5A=
 github.com/andybalholm/brotli v1.2.7/go.mod h1:rzTDkvFWvIrjDXZHkuS16NPggd91W3kUSvPlQ1pLaKY=
+github.com/andybalholm/brotli v1.2.8 h1:H9F6r7RNwzSRsx/lytpIYkbjNFMt2yNBwsJ2+0gpx78=
+github.com/andybalholm/brotli v1.2.8/go.mod h1:rzTDkvFWvIrjDXZHkuS16NPggd91W3kUSvPlQ1pLaKY=
 github.com/armon/go-socks5 v0.0.0-20160902184237-e75332964ef5 h1:0CwZNZbxp69SHPdPJAN/hZIm0C4OItdklCFmMRWYpio=
 github.com/armon/go-socks5 v0.0.0-20160902184237-e75332964ef5/go.mod h1:wHh0iHkYZB8zMSxRWpUBQtwG5a7fFgvEO+odwuTv2gs=
 github.com/aymerick/douceur v0.2.0 h1:Mv+mAeH1Q+n9Fr+oyamOlAkUNPWPlA8PPGR0QAaYuPk=
@@ -385,6 +387,8 @@ github.com/yuin/goldmark/v2 v2.1.13 h1:NCbQv+/Vv6UKjWFT9OORfOkMdUbayQz8lK3L18IsO
 github.com/yuin/goldmark/v2 v2.1.13/go.mod h1:G6M4/qOFtfn01/o14BU1UR2Lo5N3S9Qo7xCuz/sHjGQ=
 github.com/yuin/goldmark/v2 v2.1.14 h1:F3WGE/N7SagUbQU6DhFDS9edQEUDXJWQNMjB41ZNhSU=
 github.com/yuin/goldmark/v2 v2.1.14/go.mod h1:G6M4/qOFtfn01/o14BU1UR2Lo5N3S9Qo7xCuz/sHjGQ=
+github.com/yuin/goldmark/v2 v2.1.15 h1:pbpN8gBduyEjATzLcsZ5pEssSKRiWf//H2MtVl3sd2I=
+github.com/yuin/goldmark/v2 v2.1.15/go.mod h1:G6M4/qOFtfn01/o14BU1UR2Lo5N3S9Qo7xCuz/sHjGQ=
 go.opentelemetry.io/auto/sdk v1.2.1 h1:jXsnJ4Lmnqd11kwkBV2LgLoFMZKizbCi5fNZ/ipaZ64=
 go.opentelemetry.io/auto/sdk v1.2.1/go.mod h1:KRTj+aOaElaLi+wW1kO/DZRXwkF4C5xPbEe3ZiIhN7Y=
 go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp v0.69.0 h1:8tvICD4vSTOOsNrsI4Ljf6C+6UKvpTEH5XY3JMoyPoo=

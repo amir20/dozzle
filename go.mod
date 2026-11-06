@@ -2,7 +2,7 @@ module github.com/amir20/dozzle
 
 require (
 	github.com/alexflint/go-arg v1.6.1
-	github.com/andybalholm/brotli v1.2.7
+	github.com/andybalholm/brotli v1.2.8
 	github.com/containerd/errdefs v1.0.0
 	github.com/dustin/go-humanize v1.1.0
 	github.com/expr-lang/expr v1.17.8
@@ -19,7 +19,7 @@ require (
 	github.com/puzpuzpuz/xsync/v4 v4.5.0
 	github.com/rs/zerolog v1.35.1
 	github.com/stretchr/testify v1.12.1
-	github.com/yuin/goldmark/v2 v2.1.14
+	github.com/yuin/goldmark/v2 v2.1.15
 	go.yaml.in/yaml/v3 v3.0.6
 	golang.org/x/crypto v0.58.0
 	golang.org/x/oauth2 v0.37.0
