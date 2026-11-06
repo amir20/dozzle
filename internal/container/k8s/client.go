@@ -2,6 +2,7 @@ package k8s
 
 import (
 	"bufio"
+	"bytes"
 	"context"
 	"encoding/base64"
 	"errors"
@@ -707,6 +708,15 @@ func (k *Client) ContainerLogs(ctx context.Context, id string, since time.Time, 
 }
 
 func (k *Client) ContainerLogsBetweenDates(ctx context.Context, id string, start time.Time, end time.Time, stdType container.StdType) (io.ReadCloser, error) {
+	stream, err := k.containerLogsSince(ctx, id, start)
+	if err != nil {
+		return nil, err
+	}
+	// The logs API has sinceTime but no until, so the end of the window is cut here.
+	return newLogsUntil(stream, end), nil
+}
+
+func (k *Client) containerLogsSince(ctx context.Context, id string, start time.Time) (io.ReadCloser, error) {
 	namespace, podName, containerName := parsePodContainerID(id)
 
 	opts := &corev1.PodLogOptions{
@@ -757,6 +767,63 @@ func (k *Client) ContainerLogsTail(ctx context.Context, id string, lines int) (i
 		TailLines:  &tail,
 	}
 	return k.Clientset.CoreV1().Pods(namespace).GetLogs(podName, opts).Stream(ctx)
+}
+
+// logsUntil ends a timestamped log at its first line past end. It never holds a whole
+// line, so one with no newline (a TTY progress bar) costs no more than any other.
+type logsUntil struct {
+	reader    *bufio.Reader
+	closer    io.Closer
+	end       time.Time
+	lineStart bool
+	done      bool
+}
+
+// newLogsUntil returns stream as is for a zero end, which means no end.
+func newLogsUntil(stream io.ReadCloser, end time.Time) io.ReadCloser {
+	if end.IsZero() {
+		return stream
+	}
+	return &logsUntil{reader: bufio.NewReader(stream), closer: stream, end: end, lineStart: true}
+}
+
+func (l *logsUntil) Read(p []byte) (int, error) {
+	if l.done {
+		return 0, io.EOF
+	}
+	if len(p) == 0 {
+		return 0, nil
+	}
+	if l.lineStart {
+		// The longest timestamp, with a numeric offset, plus the space after it.
+		head, _ := l.reader.Peek(len(time.RFC3339Nano) + 1)
+		if i := bytes.IndexByte(head, ' '); i > 0 {
+			// A line that does not parse is not one the window can judge, so it stays.
+			if ts, err := time.Parse(time.RFC3339Nano, string(head[:i])); err == nil && ts.After(l.end) {
+				// Nothing reads on from here, and a caller may not close until its
+				// context ends, so give the API stream back now.
+				l.done = true
+				l.closer.Close()
+				return 0, io.EOF
+			}
+		}
+		l.lineStart = false
+	}
+	if _, err := l.reader.Peek(1); err != nil {
+		return 0, err
+	}
+	chunk, _ := l.reader.Peek(min(l.reader.Buffered(), len(p)))
+	if i := bytes.IndexByte(chunk, '\n'); i >= 0 {
+		chunk = chunk[:i+1]
+		l.lineStart = true
+	}
+	n := copy(p, chunk)
+	l.reader.Discard(n)
+	return n, nil
+}
+
+func (l *logsUntil) Close() error {
+	return l.closer.Close()
 }
 
 func startsWithTimestamp(b []byte) bool {

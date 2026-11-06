@@ -16,6 +16,10 @@ import {
   type LogMessage,
 } from "@/models/LogEntry";
 import type { Container } from "@/models/Container";
+import { loadBetween } from "@/composable/logs/loadBetween";
+import { useLogLoader } from "@/composable/logs/logLoader";
+
+vi.mock("@/composable/logs/loadBetween", () => ({ loadBetween: vi.fn() }));
 
 // Reactive so tests can flip the instance between linked and unlinked, which is
 // what drives the poll and the boot-race decoration.
@@ -177,6 +181,145 @@ describe("useAlertMerger", () => {
       // Settled: the next poll of an unchanged window leaves events out.
       await vi.advanceTimersByTimeAsync(15_000);
       expect(new URL((global.fetch as any).mock.lastCall[0], "http://localhost").searchParams.get("events")).toBeNull();
+    });
+  });
+
+  describe("after a trim", () => {
+    const metric = (at: number) => ({
+      ts: ns(at),
+      containerId: "abc",
+      type: "metric",
+      detail: "cpu",
+      suppressed: true,
+    });
+    const respondWithAll = (hits: CloudAlert[], events: unknown[]) => {
+      global.fetch = vi.fn().mockResolvedValue({ ok: true, json: async () => ({ hits, events }) });
+    };
+    const eventRows = (rows: LogEntry<LogMessage>[]) => rows.filter((r) => r instanceof CloudEventLogEntry);
+    const alertRows = (rows: LogEntry<LogMessage>[]) => rows.filter((r) => r instanceof AlertLogEntry);
+
+    test("draws a trimmed alert and event again when their lines reload", async () => {
+      const old = log(1, 100);
+      const hits = [alert({ logId: 1, ts: ns(100) })];
+      const events = [metric(50)];
+      respondWithAll(hits, events);
+      const messages = shallowRef<LogEntry<LogMessage>[]>([old, log(2, 200)]);
+
+      await withMerger(messages, async ({ decorateVisible, withAlerts, forgetTrimmed }) => {
+        decorateVisible();
+        await vi.advanceTimersByTimeAsync(500);
+        expect(eventRows(messages.value)).toHaveLength(1);
+        expect(alertRows(messages.value)).toHaveLength(1);
+
+        const cut = messages.value.findIndex((m) => m.id === 2);
+        forgetTrimmed(messages.value.slice(0, cut));
+        messages.value = messages.value.slice(cut);
+
+        const reloaded = await withAlerts([old]);
+        expect(eventRows(reloaded)).toHaveLength(1);
+        expect(alertRows(reloaded)).toHaveLength(1);
+      });
+    });
+
+    test("expanding skipped lines trims an alert that comes back with its line", async () => {
+      vi.mocked(loadBetween).mockReset();
+      const old = log(1, 100);
+      const hits = [alert({ logId: 1, ts: ns(100) })];
+      respondWithAll(hits, [metric(50)]);
+      const loader = new LoadMoreLogEntry(new Date(), async () => {});
+      const page = Array.from({ length: config.maxLogs }, (_, i) => log(1_000 + i, 1_000 + i));
+      const skipped = new SkippedLogsEntry(new Date(), page.length, page[0] as any, page.at(-1) as any, vi.fn());
+      const messages = shallowRef<LogEntry<LogMessage>[]>([loader, old, skipped]);
+      const scope = effectScope();
+      const containers = computed(() => [{ id: "abc", host: "h" } as unknown as Container]);
+      const { decorateWithAlerts, loadSkippedLogs, loadOlderLogs } = scope.run(() =>
+        useLogLoader(messages as any, containers, ref(new URLSearchParams()), ref(false)),
+      )!;
+
+      decorateWithAlerts();
+      await vi.advanceTimersByTimeAsync(500);
+      expect(alertRows(messages.value)).toHaveLength(1);
+
+      vi.mocked(loadBetween).mockResolvedValueOnce({ logs: page, signal: new AbortController().signal });
+      await loadSkippedLogs(skipped);
+      expect(alertRows(messages.value)).toHaveLength(0);
+      expect(eventRows(messages.value)).toHaveLength(0);
+
+      vi.mocked(loadBetween).mockResolvedValueOnce({ logs: [old], signal: new AbortController().signal });
+      await loadOlderLogs(messages.value[0] as LoadMoreLogEntry);
+      expect(alertRows(messages.value)).toHaveLength(1);
+      expect(eventRows(messages.value)).toHaveLength(1);
+      scope.stop();
+    });
+
+    // A flush trims the window while the alerts are out, which replaces the load-more
+    // row, so the page is thrown away. Its alert has to survive for the next load.
+    test.each(["older", "skipped"])(
+      "a %s load thrown away mid-fetch leaves its alert to the next load",
+      async (kind) => {
+        vi.mocked(loadBetween).mockReset();
+        const old = log(1, 100);
+        const hits = [alert({ logId: 1, ts: ns(100) })];
+        let release!: () => void;
+        const gate = new Promise<void>((resolve) => (release = resolve));
+        global.fetch = vi.fn(async () => {
+          await gate;
+          return { ok: true, json: async () => ({ hits, events: [metric(50)] }) };
+        }) as any;
+
+        const loader = new LoadMoreLogEntry(new Date(), async () => {});
+        const skipped = new SkippedLogsEntry(new Date(), 1, old as any, old as any, vi.fn());
+        const later = log(2, 200);
+        const messages = shallowRef<LogEntry<LogMessage>[]>(
+          kind === "older" ? [loader, later] : [loader, skipped, later],
+        );
+        const scope = effectScope();
+        const containers = computed(() => [{ id: "abc", host: "h" } as unknown as Container]);
+        const { loadOlderLogs, loadSkippedLogs } = scope.run(() =>
+          useLogLoader(messages as any, containers, ref(new URLSearchParams()), ref(false)),
+        )!;
+        const resolved = { logs: [old], signal: new AbortController().signal };
+
+        vi.mocked(loadBetween).mockResolvedValueOnce(resolved);
+        const load = kind === "older" ? loadOlderLogs(loader) : loadSkippedLogs(skipped);
+        await vi.advanceTimersByTimeAsync(0);
+
+        const fresh = new LoadMoreLogEntry(new Date(), async () => {});
+        messages.value = [fresh, later];
+        release();
+        await load;
+        expect(shapeOf(messages.value)).toEqual(["loader", "log:2"]);
+
+        vi.mocked(loadBetween).mockResolvedValueOnce(resolved);
+        await loadOlderLogs(fresh);
+        expect(alertRows(messages.value)).toHaveLength(1);
+        expect(eventRows(messages.value)).toHaveLength(1);
+        scope.stop();
+      },
+    );
+
+    // Cloud event rows have no on-screen guard: the seen set is all that stops the
+    // next poll drawing one again, so a trim must leave the keys of what stayed.
+    test("does not draw a row that stayed on screen a second time", async () => {
+      const hits = [alert({ alertId: "kept", logId: 2, ts: ns(200) })];
+      respondWithAll(hits, [metric(50), metric(150)]);
+      const messages = shallowRef<LogEntry<LogMessage>[]>([log(1, 100), log(2, 200)]);
+
+      await withMerger(messages, async ({ decorateVisible, forgetTrimmed }) => {
+        decorateVisible();
+        await vi.advanceTimersByTimeAsync(500);
+        expect(eventRows(messages.value)).toHaveLength(2);
+
+        const cut = messages.value.findIndex((m) => m.id === 1) + 1;
+        forgetTrimmed(messages.value.slice(0, cut));
+        messages.value = [...messages.value.slice(cut), log(3, 300)];
+
+        // Only the row still on screen is inside the window Cloud is asked about.
+        respondWithAll(hits, [metric(150)]);
+        await vi.advanceTimersByTimeAsync(15_000);
+        expect(eventRows(messages.value)).toHaveLength(1);
+        expect(alertRows(messages.value)).toHaveLength(1);
+      });
     });
   });
 

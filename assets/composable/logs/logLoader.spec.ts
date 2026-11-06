@@ -3,7 +3,14 @@
  */
 import { describe, expect, test, vi } from "vitest";
 import { ref, shallowRef, type Ref } from "vue";
-import { DeployLogEntry, LoadMoreLogEntry, SimpleLogEntry, type LogEntry, type LogMessage } from "@/models/LogEntry";
+import {
+  DeployLogEntry,
+  LoadMoreLogEntry,
+  SimpleLogEntry,
+  SkippedLogsEntry,
+  type LogEntry,
+  type LogMessage,
+} from "@/models/LogEntry";
 import type { ContainerUpdate } from "@/models/ContainerUpdate";
 import type { Container } from "@/models/Container";
 import { loadBetween } from "./loadBetween";
@@ -15,7 +22,11 @@ vi.mock("./loadBetween", () => ({
 
 vi.mock("@/composable/cloud/alertMerger", async (importOriginal) => ({
   ...(await importOriginal<typeof import("@/composable/cloud/alertMerger")>()),
-  useAlertMerger: () => ({ withAlerts: async (logs: unknown[]) => logs, decorateVisible: () => {} }),
+  useAlertMerger: () => ({
+    withAlerts: async (logs: unknown[]) => logs,
+    decorateVisible: () => {},
+    forgetTrimmed: () => {},
+  }),
 }));
 
 const T0 = Date.UTC(2026, 9, 2, 3, 0, 0);
@@ -125,6 +136,69 @@ describe("loadOlderLogs in a merged view", () => {
     // Every container is at its start: there is nothing older to load.
     await loadOlderLogs(loader);
     expect(loadBetween).toHaveBeenCalledTimes(2);
+  });
+});
+
+describe("loadSkippedLogs", () => {
+  test("keeps a way to load older lines when expanding the run trims the window", async () => {
+    const opener = new LoadMoreLogEntry(new Date(), async () => {});
+    const skipped = new SkippedLogsEntry(
+      new Date(T0 + 500_000),
+      500,
+      of("a", 400_000),
+      of("a", 400_499),
+      async () => {},
+    );
+    const messages = shallowRef<LogEntry<LogMessage>[]>([opener, of("a", 1), skipped]);
+    const { loadSkippedLogs } = useLogLoader(
+      messages,
+      ref([{ id: "a", host: "h" } as Container]) as Ref<Container[]>,
+      ref(new URLSearchParams()),
+      ref(false),
+    );
+    const logs = Array.from({ length: config.maxLogs + 1 }, (_, i) => of("a", 400_000 + i));
+    vi.mocked(loadBetween).mockResolvedValueOnce({ logs, signal: new AbortController().signal });
+
+    await loadSkippedLogs(skipped);
+
+    expect(messages.value[0]).toBeInstanceOf(LoadMoreLogEntry);
+    // A fresh row: the old one may remember a start that has since been trimmed away.
+    expect(messages.value[0]).not.toBe(opener);
+    expect(messages.value).toHaveLength(config.maxLogs + 1);
+    expect(messages.value.at(-1)?.message).toBe(logs.at(-1)!.message);
+  });
+});
+
+describe("loadSkippedLogs trimming a marker", () => {
+  test("hands the marker back to the stream", async () => {
+    const marker = new DeployLogEntry({ newId: "a" } as ContainerUpdate, new Date(T0));
+    const skipped = new SkippedLogsEntry(
+      new Date(T0 + 500_000),
+      500,
+      of("a", 400_000),
+      of("a", 400_499),
+      async () => {},
+    );
+    const messages = shallowRef<LogEntry<LogMessage>[]>([
+      new LoadMoreLogEntry(new Date(), async () => {}),
+      marker,
+      of("a", 1),
+      skipped,
+    ]);
+    const markersTrimmed = vi.fn();
+    const { loadSkippedLogs } = useLogLoader(
+      messages,
+      ref([{ id: "a", host: "h" } as Container]) as Ref<Container[]>,
+      ref(new URLSearchParams()),
+      ref(false),
+      { markersTrimmed },
+    );
+    const logs = Array.from({ length: config.maxLogs + 1 }, (_, i) => of("a", 400_000 + i));
+    vi.mocked(loadBetween).mockResolvedValueOnce({ logs, signal: new AbortController().signal });
+
+    await loadSkippedLogs(skipped);
+
+    expect(markersTrimmed).toHaveBeenCalledWith([marker]);
   });
 });
 

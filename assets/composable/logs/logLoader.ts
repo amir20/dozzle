@@ -1,5 +1,5 @@
 import { ShallowRef, type Ref } from "vue";
-import { type LogMessage, LogEntry, LoadMoreLogEntry, SkippedLogsEntry } from "@/models/LogEntry";
+import { type LogMessage, DeployLogEntry, LogEntry, LoadMoreLogEntry, SkippedLogsEntry } from "@/models/LogEntry";
 import { Container } from "@/models/Container";
 import { loadBetween } from "./loadBetween";
 import { notOnScreen } from "./logWindow";
@@ -65,6 +65,7 @@ export function useLogLoader(
     floor,
     startEdge,
     loadedOlder,
+    markersTrimmed,
   }: {
     // The start the person picked; nothing older is loaded.
     floor?: Ref<Date | undefined>;
@@ -73,9 +74,19 @@ export function useLogLoader(
     // Called after each load of older lines, with the containers whose every line
     // back to their start (or the floor) is now on screen.
     loadedOlder?: (reachedStart: Set<string>) => void;
+    // Called with the update markers a trim took off the window.
+    markersTrimmed?: (markers: DeployLogEntry[]) => void;
   } = {},
 ) {
-  const { withAlerts, decorateVisible } = useAlertMerger(messages, containers, params);
+  const { withAlerts, decorateVisible, forgetTrimmed } = useAlertMerger(messages, containers, params);
+
+  // Every trim goes through here. Scrolling back reloads those lines, and their
+  // decorations have to come with them.
+  function windowTrimmed(removed: LogEntry<LogMessage>[]) {
+    forgetTrimmed(removed);
+    markersTrimmed?.(removed.filter((m) => m instanceof DeployLogEntry));
+  }
+
   // The containers whose start is on screen, for each window. A fresh window
   // (another view, filter or stream) opens under a new load-more row.
   const reachedStartByLoader = new WeakMap<LoadMoreLogEntry, Set<string>>();
@@ -148,7 +159,7 @@ export function useLogLoader(
       for (const id of reachedStartIn(fetching, logs, min ?? FETCH_PAGE)) reachedStart.add(id);
       const reachedFloor = start !== undefined && containers.value.every((c) => reachedStart.has(c.id));
       const head = reachedFloor && startEdge ? startEdge() : loader;
-      const older = await withAlerts(logs.filter(notOnScreen(messages.value)));
+      const older = await withAlerts(logs.filter(notOnScreen(messages.value)), () => messages.value[0] === loader);
       const current = messages.value;
       if (current[0] !== loader) return;
       if (older.length > 0 || head !== loader) {
@@ -178,11 +189,18 @@ export function useLogLoader(
       const skipped = logs.filter((l) => l.date <= to).filter(notOnScreen(messages.value));
 
       if (skipped.length > 0) {
-        const withAlertsApplied = await withAlerts(skipped);
+        const withAlertsApplied = await withAlerts(skipped, () => messages.value.includes(entry));
         // A fresh window or a trim may have dropped the entry while alerts loaded.
         if (!messages.value.includes(entry)) return;
         const updated = messages.value.flatMap((log) => (log === entry ? withAlertsApplied : [log]));
-        messages.value = updated.length > config.maxLogs ? updated.slice(-config.maxLogs) : updated;
+        // Trimming takes the load-more row off the top. A new one, as in flushNow: the
+        // old one may remember a start that is no longer on screen.
+        if (updated.length > config.maxLogs) {
+          windowTrimmed(updated.slice(0, -config.maxLogs));
+          messages.value = [new LoadMoreLogEntry(new Date(), loadOlderLogs), ...updated.slice(-config.maxLogs)];
+        } else {
+          messages.value = updated;
+        }
       }
     } catch (err) {
       console.error(err);
@@ -191,5 +209,5 @@ export function useLogLoader(
     }
   }
 
-  return { loadOlderLogs, loadSkippedLogs, decorateWithAlerts: decorateVisible };
+  return { loadOlderLogs, loadSkippedLogs, decorateWithAlerts: decorateVisible, windowTrimmed };
 }
