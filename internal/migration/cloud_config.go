@@ -9,7 +9,7 @@ import (
 
 	"github.com/amir20/dozzle/internal/utils"
 	"github.com/rs/zerolog/log"
-	"go.yaml.in/yaml/v3"
+	"go.yaml.in/yaml/v4"
 )
 
 type notificationConfig struct {

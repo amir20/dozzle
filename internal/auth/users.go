@@ -12,7 +12,7 @@ import (
 
 	"github.com/amir20/dozzle/internal/container"
 	"github.com/rs/zerolog/log"
-	"go.yaml.in/yaml/v3"
+	"go.yaml.in/yaml/v4"
 	"golang.org/x/crypto/bcrypt"
 )
 

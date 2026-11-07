@@ -10,7 +10,7 @@ import (
 	"github.com/amir20/dozzle/types"
 	"github.com/puzpuzpuz/xsync/v4"
 	"github.com/rs/zerolog/log"
-	"go.yaml.in/yaml/v3"
+	"go.yaml.in/yaml/v4"
 )
 
 // WriteConfig writes the current configuration to a writer in YAML format.

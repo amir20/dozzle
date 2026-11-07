@@ -15,7 +15,7 @@ import (
 	"time"
 
 	"github.com/amir20/dozzle/internal/utils"
-	"go.yaml.in/yaml/v3"
+	"go.yaml.in/yaml/v4"
 )
 
 // Path is relative to the working directory, like every other file under
