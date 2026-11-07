@@ -466,3 +466,24 @@ func Test_mcpOAuth_noStaticTokenRejectsEmptyBearer(t *testing.T) {
 
 	assert.Equal(t, http.StatusUnauthorized, mcpInitialize(t, server.URL+"/api/mcp", ""))
 }
+
+// OIDC is the mode #5599 is about: no password, so before this token there was
+// no way for a headless client in.
+func Test_mcpOAuth_staticTokenUnderOIDC(t *testing.T) {
+	authorizer := auth.NewOIDCAuth(auth.OIDCConfig{
+		Issuer:       "http://127.0.0.1:1",
+		ClientID:     "dozzle",
+		ClientSecret: "secret",
+		DataDir:      t.TempDir(),
+	}, "", 0, testSecret)
+	server := httptest.NewServer(createHandler(nil, nil, Config{
+		Base:          "/",
+		EnableMCP:     true,
+		MCPToken:      staticMCPToken,
+		Authorization: Authorization{Provider: OIDC, Authorizer: authorizer},
+	}))
+	t.Cleanup(server.Close)
+
+	assert.Equal(t, http.StatusOK, mcpInitialize(t, server.URL+"/api/mcp", staticMCPToken))
+	assert.Equal(t, http.StatusUnauthorized, mcpInitialize(t, server.URL+"/api/mcp", "wrong"))
+}
