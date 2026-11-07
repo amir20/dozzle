@@ -18,6 +18,7 @@ func BeaconBase(args Args, mode string) types.BeaconEvent {
 		FileAgents:       len(args.FileAgents),
 		HasActions:       args.EnableActions,
 		HasShell:         args.EnableShell,
+		HasMCP:           args.EnableMCP,
 		HasCustomAddress: args.Addr != ":8080",
 		HasCustomBase:    args.Base != "/",
 		HasHostname:      args.Hostname != "",

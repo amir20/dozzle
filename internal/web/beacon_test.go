@@ -215,3 +215,12 @@ func TestBeaconFactsAgentsDownCountsOnlyAgents(t *testing.T) {
 	assert.Equal(t, 1, b.AgentsDown)
 	assert.Equal(t, map[string]int{"agent": 2, "local": 1, "remote": 1}, b.HostsByType)
 }
+
+func TestBeaconFactsHasMCP(t *testing.T) {
+	setupTestEnv(t, true)
+	cfg := Config{Base: "/", Addr: ":8080", Mode: "server", Authorization: Authorization{Provider: NONE}}
+	assert.False(t, beaconHandler(t, cfg).beaconFacts(nil, setupConfigPath).HasMCP)
+
+	cfg.EnableMCP = true
+	assert.True(t, beaconHandler(t, cfg).beaconFacts(nil, setupConfigPath).HasMCP)
+}

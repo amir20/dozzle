@@ -25,6 +25,7 @@ var UsageKeys = []string{
 	"cloud.welcome", "cloud.connect", "cloud.chat", "stream.reconnect", "agent.disconnect",
 	"memory.chip.shown", "memory.chip.hover", "memory.chip.open",
 	"megaphone.open", "megaphone.update", "megaphone.release",
+	"mcp.list_containers", "mcp.get_container_logs", "mcp.search_container_logs", "mcp.list_hosts", "mcp.get_container_stats",
 }
 
 // BrowserUsageKeys are the counters only the browser can see, and so the only

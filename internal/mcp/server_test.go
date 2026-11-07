@@ -9,6 +9,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/amir20/dozzle/internal/analytics"
 	"github.com/amir20/dozzle/internal/auth"
 	"github.com/amir20/dozzle/internal/container"
 	"github.com/amir20/dozzle/internal/utils"
@@ -810,4 +811,53 @@ func TestGetContainerLogsTooBigRangeReadsTheTail(t *testing.T) {
 	text := result.Content[0].(*mcp.TextContent).Text
 	assert.Contains(t, text, fmt.Sprintf("line %d", total-1))
 	assert.Contains(t, text, "only the newest part")
+}
+
+// Each tool call feeds the usage beacon a counter named after the tool, and
+// nothing about its arguments.
+func TestToolCallsAreCounted(t *testing.T) {
+	analytics.Default.Take()
+	t.Cleanup(func() { analytics.Default.Take() })
+
+	svc := &mockHostService{containers: []container.Container{{ID: "abc123", Name: "web", Host: "local"}}}
+	s := NewServer(svc, nil, "test")
+
+	ctx := context.Background()
+	ct, st := mcp.NewInMemoryTransports()
+	_, err := s.mcpServer.Connect(ctx, st, nil)
+	require.NoError(t, err)
+	session, err := mcp.NewClient(&mcp.Implementation{Name: "test-client", Version: "v0.0.1"}, nil).Connect(ctx, ct, nil)
+	require.NoError(t, err)
+	defer session.Close()
+
+	for range 2 {
+		_, err = session.CallTool(ctx, &mcp.CallToolParams{Name: "list_containers", Arguments: map[string]any{}})
+		require.NoError(t, err)
+	}
+	_, err = session.CallTool(ctx, &mcp.CallToolParams{Name: "list_hosts", Arguments: map[string]any{}})
+	require.NoError(t, err)
+	_, err = session.ListTools(ctx, nil)
+	require.NoError(t, err)
+
+	assert.Equal(t, map[string]int{"mcp.list_containers": 2, "mcp.list_hosts": 1}, analytics.Default.Take().Counts)
+}
+
+// Every registered tool has a usage key, so a new tool is never counted as nothing.
+func TestEveryToolHasAUsageKey(t *testing.T) {
+	s := NewServer(&mockHostService{}, nil, "test")
+
+	ctx := context.Background()
+	ct, st := mcp.NewInMemoryTransports()
+	_, err := s.mcpServer.Connect(ctx, st, nil)
+	require.NoError(t, err)
+	session, err := mcp.NewClient(&mcp.Implementation{Name: "test-client", Version: "v0.0.1"}, nil).Connect(ctx, ct, nil)
+	require.NoError(t, err)
+	defer session.Close()
+
+	tools, err := session.ListTools(ctx, nil)
+	require.NoError(t, err)
+	require.NotEmpty(t, tools.Tools)
+	for _, tool := range tools.Tools {
+		assert.Contains(t, analytics.UsageKeys, "mcp."+tool.Name)
+	}
 }
