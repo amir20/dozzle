@@ -46,6 +46,7 @@ func (h *handler) beaconFacts(containers []container.Container, configPath strin
 	b.AuthProvider = string(h.config.Authorization.Provider)
 	b.HasActions = h.config.EnableActions
 	b.HasShell = h.config.EnableShell
+	b.HasMCP = h.config.EnableMCP
 	b.HasCustomAddress = h.config.Addr != ":8080"
 	b.HasCustomBase = h.config.Base != "/"
 	b.HasHostname = h.config.Hostname != ""
