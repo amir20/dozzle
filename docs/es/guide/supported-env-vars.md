@@ -1,7 +1,7 @@
 ---
 title: Variables de entorno y subcomandos
 description: Todas las variables de entorno y flags de Dozzle, incluida la autenticación, más los subcomandos generate, agent, generate-certs y healthcheck.
-sourceHash: 014a0d8c2b98
+sourceHash: 0ca047caacaf
 ---
 
 # Variables de entorno
@@ -46,6 +46,7 @@ DOZZLE_REMOTE_AGENT=167.99.1.1:7007,167.99.1.2:7007
 | `DOZZLE_ENABLE_ACTIONS`<br>`--enable-actions`             | Permite iniciar, detener, reiniciar, eliminar y actualizar contenedores desde la interfaz. Consulta [acciones](/es/guide/actions).                                                                                                                                | `true`, `false`              | `false`                               |
 | `DOZZLE_ENABLE_SHELL`<br>`--enable-shell`                 | Permite conectarse a los contenedores y abrir una shell en ellos desde la interfaz. Consulta [shell](/es/guide/shell).                                                                                                                                            | `true`, `false`              | `false`                               |
 | `DOZZLE_ENABLE_MCP`<br>`--enable-mcp`                     | Expone el endpoint [MCP](/es/guide/mcp) para clientes LLM.                                                                                                                                                                                                        | `true`, `false`              | `false`                               |
+| `DOZZLE_MCP_TOKEN`<br>`--mcp-token`                       | Token Bearer estático que acepta [MCP](/es/guide/mcp#token-estatico-para-clientes-sin-navegador) para clientes sin navegador. Al menos 32 caracteres.                                                                                                             | string                       |                                       |
 | `DOZZLE_DISABLE_AVATARS`<br>`--disable-avatars`           | Oculta los avatares de usuario cuando la autenticación está activada.                                                                                                                                                                                             | `true`, `false`              | `false`                               |
 | `DOZZLE_DISABLE_SETUP_WIZARD`<br>`--disable-setup-wizard` | Evita que el [asistente de configuración](/es/guide/setup-wizard) se abra solo en una instalación nueva. Aún se puede ejecutar desde **Configuración → Acerca de**.                                                                                               | `true`, `false`              | `false`                               |
 | `DOZZLE_RELEASE_CHECK_MODE`<br>`--release-check-mode`     | Si Dozzle comprueba si hay nuevas versiones de sí mismo. `manual` solo comprueba cuando lo pides.                                                                                                                                                                 | `automatic`, `manual`        | `automatic`                           |

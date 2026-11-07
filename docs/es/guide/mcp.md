@@ -1,7 +1,7 @@
 ---
 title: Integración con MCP
 description: Activa el servidor MCP de Dozzle para que asistentes de IA como Claude y Copilot lean los logs y estadísticas de tus contenedores de Docker, y configura clientes y autenticación.
-sourceHash: 4c7d62d3796c
+sourceHash: 204b763f54a4
 ---
 
 # Integración con MCP
@@ -125,6 +125,34 @@ Por ejemplo, en la configuración MCP de VS Code:
 ```
 
 Con oidc esto no está disponible, porque no hay contraseña que cambiar por un token.
+
+#### Token estático para clientes sin navegador
+
+Un cliente que no puede abrir un navegador, como un gateway MCP tipo LiteLLM, puede usar un token estático. Define `--mcp-token` o `DOZZLE_MCP_TOKEN` con una cadena aleatoria de al menos 32 caracteres, por ejemplo de `openssl rand -hex 32`. Funciona tanto con autenticación simple como con oidc.
+
+```yaml [docker-compose.yml]
+services:
+  dozzle:
+    image: amir20/dozzle:latest
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+      DOZZLE_ENABLE_MCP: true
+      DOZZLE_MCP_TOKEN: <your-random-token>
+```
+
+El cliente lo envía como `Authorization: Bearer <your-random-token>`. En LiteLLM queda así:
+
+```yaml
+mcp_servers:
+  dozzle:
+    url: http://dozzle:8080/api/mcp
+    transport: http
+    auth_type: bearer_token
+    auth_value: os.environ/DOZZLE_MCP_TOKEN
+```
+
+El token solo funciona en `/api/mcp`. No está ligado a ningún usuario, así que ve todos los contenedores que permite el `--filter` global, sin filtro por usuario encima. Nunca caduca. Para revocarlo, cambia o elimina la variable y reinicia Dozzle.
 
 ### Autenticación por proxy
 

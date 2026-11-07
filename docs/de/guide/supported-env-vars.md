@@ -1,7 +1,7 @@
 ---
 title: Umgebungsvariablen und Unterbefehle
 description: Alle Umgebungsvariablen und Optionen von Dozzle, einschließlich der Authentifizierung, dazu die Unterbefehle generate, agent, generate-certs und healthcheck.
-sourceHash: 014a0d8c2b98
+sourceHash: 0ca047caacaf
 ---
 
 # Umgebungsvariablen
@@ -46,6 +46,7 @@ DOZZLE_REMOTE_AGENT=167.99.1.1:7007,167.99.1.2:7007
 | `DOZZLE_ENABLE_ACTIONS`<br>`--enable-actions`             | Erlaubt Starten, Stoppen, Neustarten, Entfernen und Aktualisieren von Containern aus der Oberfläche. Siehe [Aktionen](/de/guide/actions).                                                                                                                   | `true`, `false`              | `false`                         |
 | `DOZZLE_ENABLE_SHELL`<br>`--enable-shell`                 | Erlaubt, sich aus der Oberfläche an Container anzuhängen und darin eine Shell zu starten. Siehe [Shell](/de/guide/shell).                                                                                                                                   | `true`, `false`              | `false`                         |
 | `DOZZLE_ENABLE_MCP`<br>`--enable-mcp`                     | Stellt den [MCP](/de/guide/mcp)-Endpunkt für LLM-Clients bereit.                                                                                                                                                                                            | `true`, `false`              | `false`                         |
+| `DOZZLE_MCP_TOKEN`<br>`--mcp-token`                       | Statisches Bearer-Token, das [MCP](/de/guide/mcp#statisches-token-fur-clients-ohne-browser) für Clients ohne Browser akzeptiert. Mindestens 32 Zeichen.                                                                                                     | string                       |                                 |
 | `DOZZLE_DISABLE_AVATARS`<br>`--disable-avatars`           | Blendet Benutzeravatare aus, wenn die Authentifizierung aktiv ist.                                                                                                                                                                                          | `true`, `false`              | `false`                         |
 | `DOZZLE_DISABLE_SETUP_WIZARD`<br>`--disable-setup-wizard` | Verhindert, dass sich der [Einrichtungsassistent](/de/guide/setup-wizard) bei einer frischen Installation von selbst öffnet. Unter **Einstellungen → Über** lässt er sich weiterhin starten.                                                                | `true`, `false`              | `false`                         |
 | `DOZZLE_RELEASE_CHECK_MODE`<br>`--release-check-mode`     | Ob Dozzle nach neuen eigenen Releases sucht. `manual` prüft nur, wenn du danach fragst.                                                                                                                                                                     | `automatic`, `manual`        | `automatic`                     |

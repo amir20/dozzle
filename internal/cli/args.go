@@ -46,6 +46,7 @@ type Args struct {
 	AutoCleanupTime        string              `arg:"--auto-cleanup-time,env:DOZZLE_AUTO_CLEANUP_TIME" default:"" help:"sets the HH:MM, in server local time, that --auto-cleanup runs at. Defaults to 04:00."`
 	UpdateContainers       string              `arg:"--update-containers,env:DOZZLE_UPDATE_CONTAINERS" default:"" help:"sets which containers --auto-update updates besides Dozzle: off (Dozzle only), labelled (dev.dozzle.update=auto) or all (everything not labelled dev.dozzle.update=off). Defaults to labelled."`
 	EnableMCP              bool                `arg:"--enable-mcp,env:DOZZLE_ENABLE_MCP" default:"false" help:"enables the MCP (Model Context Protocol) endpoint for LLM integration."`
+	MCPToken               string              `arg:"--mcp-token,env:DOZZLE_MCP_TOKEN" help:"sets a static Bearer token /api/mcp accepts, for headless clients such as an MCP gateway. At least 32 characters. Works with --auth-provider simple or oidc; the token sees what --filter allows."`
 	DisableAvatars         bool                `arg:"--disable-avatars,env:DOZZLE_DISABLE_AVATARS" default:"false" help:"disables avatars for authenticated users."`
 	DisableSetupWizard     bool                `arg:"--disable-setup-wizard,env:DOZZLE_DISABLE_SETUP_WIZARD" default:"false" help:"stops the setup wizard from opening by itself on a fresh install."`
 	FilterStrings          []string            `arg:"env:DOZZLE_FILTER,--filter,separate" help:"filters docker containers using Docker syntax."`

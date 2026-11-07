@@ -11,9 +11,11 @@ import (
 	"os"
 	"os/signal"
 	"path/filepath"
+	"strings"
 	"sync"
 	"syscall"
 	"time"
+	"unicode"
 	// The image has no zoneinfo, so without this TZ is ignored and the
 	// auto-update time silently means UTC.
 	_ "time/tzdata"
@@ -471,6 +473,7 @@ func createServer(args cli.Args, hostService web.HostService, cloudHooks web.Clo
 		EnableActions:      args.EnableActions,
 		EnableShell:        args.EnableShell,
 		EnableMCP:          args.EnableMCP,
+		MCPToken:           mcpToken(args, provider),
 		DisableAvatars:     args.DisableAvatars,
 		DisableSetupWizard: args.DisableSetupWizard,
 		ReleaseCheckMode:   releaseCheckMode,
@@ -815,4 +818,33 @@ func (subs serviceSubscriptions) sync(ctx context.Context, services []container.
 			delete(subs, s)
 		}
 	}
+}
+
+// mcpToken validates --mcp-token. The token only means something where Dozzle
+// runs its own MCP authorization server: with MCP on, under simple or oidc
+// auth. Anywhere else it is ignored out loud rather than silently.
+func mcpToken(args cli.Args, provider web.AuthProvider) string {
+	token := args.MCPToken
+	if token == "" {
+		return ""
+	}
+	if len(token) < 32 {
+		log.Fatal().Msg("--mcp-token must be at least 32 characters")
+	}
+	// The Authorization header is split on whitespace, so a token with a space
+	// in it could never match.
+	if strings.ContainsFunc(token, unicode.IsSpace) {
+		log.Fatal().Msg("--mcp-token must not contain whitespace")
+	}
+	if !args.EnableMCP {
+		log.Warn().Msg("Ignoring --mcp-token: it needs --enable-mcp")
+		return ""
+	}
+	if provider != web.SIMPLE && provider != web.OIDC {
+		log.Warn().Str("provider", string(provider)).Msg("Ignoring --mcp-token: it only applies with --auth-provider simple or oidc")
+		return ""
+	}
+
+	log.Debug().Msg("Accepting --mcp-token on /api/mcp")
+	return token
 }

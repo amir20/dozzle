@@ -60,6 +60,7 @@ type Config struct {
 	EnableActions      bool
 	EnableShell        bool
 	EnableMCP          bool
+	MCPToken           string
 	DisableAvatars     bool
 	DisableSetupWizard bool
 	ReleaseCheckMode   ReleaseCheckMode
@@ -265,7 +266,7 @@ func createRouter(h *handler) *chi.Mux {
 	var mcpOAuth *mcpoauth.Server
 	if h.config.EnableMCP {
 		if tokens, ok := h.config.Authorization.Authorizer.(auth.TokenAuthorizer); ok && (h.config.Authorization.Provider == SIMPLE || h.config.Authorization.Provider == OIDC) {
-			mcpOAuth = mcpoauth.New(tokens, base)
+			mcpOAuth = mcpoauth.New(tokens, base).WithStaticToken(h.config.MCPToken)
 		}
 	}
 

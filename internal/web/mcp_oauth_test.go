@@ -25,9 +25,16 @@ import (
 func newMCPOAuthServer(t *testing.T, base string) *httptest.Server {
 	t.Helper()
 
+	return newMCPOAuthServerWithToken(t, base, "")
+}
+
+func newMCPOAuthServerWithToken(t *testing.T, base, mcpToken string) *httptest.Server {
+	t.Helper()
+
 	server := httptest.NewServer(createHandler(nil, nil, Config{
 		Base:      base,
 		EnableMCP: true,
+		MCPToken:  mcpToken,
 		Authorization: Authorization{
 			Provider: SIMPLE,
 			Authorizer: auth.NewSimpleAuth(auth.UserDatabase{
@@ -411,4 +418,87 @@ func Test_mcpOAuth_consentPageCannotBeFramed(t *testing.T) {
 	require.NoError(t, err)
 	resp.Body.Close()
 	assert.Equal(t, "DENY", resp.Header.Get("X-Frame-Options"), "every spelling vue-router renders")
+}
+
+const staticMCPToken = "0123456789abcdef0123456789abcdef"
+
+func Test_mcpOAuth_staticToken(t *testing.T) {
+	server := newMCPOAuthServerWithToken(t, "/", staticMCPToken)
+
+	assert.Equal(t, http.StatusOK, mcpInitialize(t, server.URL+"/api/mcp", staticMCPToken))
+	assert.Equal(t, http.StatusUnauthorized, mcpInitialize(t, server.URL+"/api/mcp", staticMCPToken+"x"))
+
+	// The OAuth flow and session tokens keep working next to it.
+	_, tokens := tokenPair(t, server.URL)
+	assert.Equal(t, http.StatusOK, mcpInitialize(t, server.URL+"/api/mcp", tokens["access_token"].(string)))
+	assert.Equal(t, http.StatusOK, mcpInitialize(t, server.URL+"/api/mcp", sessionToken(t, server.URL)))
+}
+
+func Test_mcpOAuth_staticTokenWrongTokenGetsChallenge(t *testing.T) {
+	server := newMCPOAuthServerWithToken(t, "/", staticMCPToken)
+
+	req, err := http.NewRequest(http.MethodPost, server.URL+"/api/mcp", strings.NewReader(initializeBody))
+	require.NoError(t, err)
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Authorization", "Bearer wrong")
+	resp, err := http.DefaultClient.Do(req)
+	require.NoError(t, err)
+	resp.Body.Close()
+
+	assert.Equal(t, http.StatusUnauthorized, resp.StatusCode)
+	assert.Contains(t, resp.Header.Get("WWW-Authenticate"), "resource_metadata=")
+}
+
+func Test_mcpOAuth_staticTokenSchemeIsCaseInsensitive(t *testing.T) {
+	server := newMCPOAuthServerWithToken(t, "/", staticMCPToken)
+
+	req, err := http.NewRequest(http.MethodPost, server.URL+"/api/mcp", strings.NewReader(initializeBody))
+	require.NoError(t, err)
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Accept", "application/json, text/event-stream")
+	req.Header.Set("Authorization", "bearer "+staticMCPToken)
+	resp, err := http.DefaultClient.Do(req)
+	require.NoError(t, err)
+	resp.Body.Close()
+
+	assert.Equal(t, http.StatusOK, resp.StatusCode)
+}
+
+func Test_mcpOAuth_staticTokenOnlyWorksForMCP(t *testing.T) {
+	server := newMCPOAuthServerWithToken(t, "/", staticMCPToken)
+
+	req, _ := http.NewRequest(http.MethodGet, server.URL+"/api/version", nil)
+	req.Header.Set("Authorization", "Bearer "+staticMCPToken)
+	resp, err := http.DefaultClient.Do(req)
+	require.NoError(t, err)
+	resp.Body.Close()
+	assert.Equal(t, http.StatusUnauthorized, resp.StatusCode, "the MCP token must not open the rest of the API")
+}
+
+// Without --mcp-token an empty Bearer must not match the empty token.
+func Test_mcpOAuth_noStaticTokenRejectsEmptyBearer(t *testing.T) {
+	server := newMCPOAuthServer(t, "/")
+
+	assert.Equal(t, http.StatusUnauthorized, mcpInitialize(t, server.URL+"/api/mcp", ""))
+}
+
+// OIDC is the mode #5599 is about: no password, so before this token there was
+// no way for a headless client in.
+func Test_mcpOAuth_staticTokenUnderOIDC(t *testing.T) {
+	authorizer := auth.NewOIDCAuth(auth.OIDCConfig{
+		Issuer:       "http://127.0.0.1:1",
+		ClientID:     "dozzle",
+		ClientSecret: "secret",
+		DataDir:      t.TempDir(),
+	}, "", 0, testSecret)
+	server := httptest.NewServer(createHandler(nil, nil, Config{
+		Base:          "/",
+		EnableMCP:     true,
+		MCPToken:      staticMCPToken,
+		Authorization: Authorization{Provider: OIDC, Authorizer: authorizer},
+	}))
+	t.Cleanup(server.Close)
+
+	assert.Equal(t, http.StatusOK, mcpInitialize(t, server.URL+"/api/mcp", staticMCPToken))
+	assert.Equal(t, http.StatusUnauthorized, mcpInitialize(t, server.URL+"/api/mcp", "wrong"))
 }

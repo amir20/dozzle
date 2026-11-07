@@ -48,6 +48,9 @@ type Server struct {
 	// is nothing to fill up. Its key depends only on the session secret, so a
 	// users.yml edit does not orphan every registered client.
 	clients *jwtauth.JWTAuth
+	// staticToken is --mcp-token, for headless clients such as an MCP gateway
+	// that cannot sign in through a browser. Empty when unset.
+	staticToken string
 
 	mu    sync.Mutex
 	codes map[string]pendingCode
@@ -76,6 +79,14 @@ func New(tokens auth.TokenAuthorizer, base string) *Server {
 		codes:   make(map[string]pendingCode),
 		now:     time.Now,
 	}
+}
+
+// WithStaticToken makes the MCP endpoint also accept token as a Bearer token.
+// A request carrying it runs with no user, so the tools see what the global
+// filter allows.
+func (s *Server) WithStaticToken(token string) *Server {
+	s.staticToken = token
+	return s
 }
 
 func (s *Server) saveCode(code pendingCode) (string, error) {
