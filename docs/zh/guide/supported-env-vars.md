@@ -1,7 +1,7 @@
 ---
 title: 环境变量与子命令
 description: Dozzle 全部环境变量和标志（包括身份验证），以及 generate、agent、generate-certs 和 healthcheck 子命令。
-sourceHash: 258ed3c33972
+sourceHash: 014a0d8c2b98
 ---
 
 # 环境变量
@@ -55,6 +55,8 @@ DOZZLE_REMOTE_AGENT=167.99.1.1:7007,167.99.1.2:7007
 | `DOZZLE_AUTO_CLEANUP`<br>`--auto-cleanup`                 | 按计划清理每台主机，从不删除卷。`weekly` 在周日运行。需要 `DOZZLE_ENABLE_ACTIONS`。参见 [磁盘占用](/zh/guide/container-disk-usage)。                                      | `off`, `daily`, `weekly`     | `off`                               |
 | `DOZZLE_AUTO_CLEANUP_TIME`<br>`--auto-cleanup-time`       | 每天运行计划清理的时间，按服务器本地时间计算。                                                                                                                            | `HH:MM`，例如 `05:00`        | `04:00`                             |
 | `DOZZLE_UPDATE_CONTAINERS`<br>`--update-containers`       | 自动更新除 Dozzle 之外还更新哪些容器：`off` 只更新 Dozzle，`labelled` 更新带有 `dev.dozzle.update=auto` 标签的容器，`all` 更新所有未标记 `dev.dozzle.update=off` 的容器。 | `off`、`labelled`、`all`     | `labelled`                          |
+
+`DOCKER_CONFIG` 是 Docker 自己的变量，不是 Dozzle 选项。它指定存放[私有仓库登录信息](/zh/guide/updates#private-registries)的 `config.json` 所在目录。如果未设置，Dozzle 会查找 `/config.json`。
 
 ## 身份验证
 

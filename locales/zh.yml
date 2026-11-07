@@ -1167,7 +1167,7 @@ auto-update:
   safety-title: "安全保障"
   safety-verify: "每次更新都会确认新容器能稳定运行，失败则回滚。"
   safety-cleanup: "旧镜像随后会被删除，并保留一个上一版本镜像用于回滚。"
-  safety-skip: "固定到摘要、本地构建或来自私有仓库的镜像会被跳过。"
+  safety-skip: "固定到摘要、本地构建或来自没有登录凭据的私有仓库的镜像会被跳过。"
   learn-more: "自动更新如何工作"
   footnote: "{link}决定哪些容器自动更新。"
   footnote-link: "设置 → 更新"

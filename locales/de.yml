@@ -1167,7 +1167,7 @@ auto-update:
   safety-title: "Sicherheitsnetz"
   safety-verify: "Jedes Update wird überwacht und zurückgesetzt, wenn der neue Container ausfällt."
   safety-cleanup: "Das alte Image wird danach entfernt. Ein vorheriges Image bleibt zum Zurücksetzen erhalten."
-  safety-skip: "Images mit festem Digest, lokal gebaute und solche aus privaten Registries werden übersprungen."
+  safety-skip: "Images mit festem Digest, lokal gebaute und solche aus privaten Registries ohne Login werden übersprungen."
   learn-more: "So funktionieren automatische Updates"
   footnote: "{link} legt fest, welche Container sich selbst aktualisieren."
   footnote-link: "Einstellungen → Updates"

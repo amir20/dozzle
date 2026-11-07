@@ -90,7 +90,7 @@ Some containers have nothing to compare, and Dozzle stays quiet rather than gues
 
 - Images built locally, which carry no registry digest
 - References pinned to a digest, which cannot drift
-- Private registries, since Dozzle has no credentials of its own. In Kubernetes that includes images pulled with `imagePullSecrets`.
+- Private registries Dozzle has no [login](#private-registries) for. In Kubernetes that includes images pulled with `imagePullSecrets`, until the same secret is mounted.
 
 ### Kubernetes
 
@@ -99,6 +99,84 @@ In Kubernetes mode the check compares the digest in the pod's status against the
 ### Updating Dozzle itself
 
 The `Update` action on Dozzle's own container updates Dozzle in place. It pulls the new image and hands the swap to a short-lived helper container, so Dozzle goes away for a few seconds and comes back on the new version with the same configuration and volumes. It can also run on a schedule. See [How self-update works](/guide/setup-wizard#self-update) for what is kept and the setups it does not cover. Running Dozzle as a Swarm service updates through the orchestrator. Dozzle agents on other hosts are ordinary containers and update like anything else.
+
+## Private registries {#private-registries}
+
+Dozzle checks and updates images from private registries using the logins in a Docker `config.json`, the file `docker login` writes and Watchtower reads. Being logged in on the host is not enough. Dozzle runs in a container and the Docker daemon does not read that file, so it has to be mounted:
+
+```yaml [docker-compose.yml]
+services:
+  dozzle:
+    image: amir20/dozzle:latest
+    environment:
+      DOCKER_CONFIG: /docker
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ~/.docker:/docker:ro
+```
+
+`DOCKER_CONFIG` names the directory holding `config.json`, and without it Dozzle looks for `/config.json`, so a Watchtower mount of `~/.docker/config.json:/config.json` works too. Prefer the directory: `docker login` replaces the file, and a single-file mount keeps showing the old one. Changes are picked up without a restart.
+
+To keep this login apart from your own, write a file just for Dozzle, ideally with a read-only access token. For Docker Hub, the key is `https://index.docker.io/v1/`. The `auth` value comes from:
+
+```json [config.json]
+{
+  "auths": {
+    "registry.example.com": { "auth": "dXNlcm5hbWU6cGFzc3dvcmQ=" }
+  }
+}
+```
+
+```sh
+printf '%s' 'username:password' | base64 | tr -d '\n'
+```
+
+A login is only ever sent to the registry it is listed under. If the registry refuses it, Dozzle tries again without it, so an expired login does not break public images. Swarm services are the exception, see below.
+
+### Where the file goes
+
+The file is read where the check and the pull happen, so with [agents](/guide/agent) every agent needs its own copy, mounted the same way. With [remote hosts](/guide/remote-hosts), Dozzle reads its own copy and sends the login to the remote daemon when pulling.
+
+In [Swarm mode](/guide/swarm-mode), a secret reaches every node. Create it with `docker secret create registry_login ~/.docker/config.json`. Service updates pass the login on to the manager, like `docker service update --with-registry-auth`. The nodes then pull with it and do not retry without it, so a refused login fails the update even for a public image: remove an expired entry rather than leave it. A secret cannot be changed in place, so a new login needs a new secret and a redeploy.
+
+```yaml [docker-compose.yml]
+services:
+  dozzle:
+    image: amir20/dozzle:latest
+    secrets:
+      - source: registry_login
+        target: /config.json
+
+secrets:
+  registry_login:
+    external: true
+```
+
+In [Kubernetes](/guide/k8s), mount the secret your `imagePullSecrets` already use. It has to be in Dozzle's namespace, so copy it there if your apps run in another. Dozzle only reads it for the check, and needs no extra permissions:
+
+```yaml
+env:
+  - name: DOCKER_CONFIG
+    value: /docker
+volumeMounts:
+  - name: registry-login
+    mountPath: /docker
+    readOnly: true
+volumes:
+  - name: registry-login
+    secret:
+      secretName: regcred
+      items:
+        - key: .dockerconfigjson
+          path: config.json
+```
+
+### What is not supported
+
+- Credential helpers (`credsStore` and `credHelpers`), which include Docker Desktop's keychain. The Dozzle image has no helpers to run, and logs a warning when a config relies on one. Write a file with an `auth` entry instead.
+- Logins that expire on their own, such as Amazon ECR tokens, since nothing renews them.
+- Identity tokens (`identitytoken` in `config.json`).
+- Watchtower's `REPO_USER` and `REPO_PASS`, which would send one login to every registry.
 
 ## Updating several containers at once
 

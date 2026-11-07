@@ -1,7 +1,7 @@
 ---
 title: Mises à jour des conteneurs
 description: Comment Dozzle détecte les images plus récentes de vos conteneurs Docker et les met à jour à la main ou selon un planning, avec restauration automatique et nettoyage des anciennes images.
-sourceHash: 07392b3a10d8
+sourceHash: 052cffc37c98
 ---
 
 # Mises à jour des conteneurs
@@ -91,7 +91,7 @@ Certains conteneurs n'ont rien à comparer, et Dozzle reste silencieux plutôt q
 
 - Les images construites localement, qui n'ont pas d'empreinte de registre
 - Les références figées sur une empreinte, qui ne peuvent pas changer
-- Les registres privés, puisque Dozzle n'a pas d'identifiants propres. Dans Kubernetes, cela inclut les images récupérées avec `imagePullSecrets`.
+- Les registres privés pour lesquels Dozzle n'a pas d'[identifiants](#private-registries). Dans Kubernetes, cela inclut les images récupérées avec `imagePullSecrets`, tant que le même secret n'est pas monté.
 
 ### Kubernetes
 
@@ -100,6 +100,84 @@ En mode Kubernetes, la vérification compare le digest enregistré dans le statu
 ### Mettre à jour Dozzle lui-même
 
 L'action `Update` sur le propre conteneur de Dozzle met Dozzle à jour sur place. Elle récupère la nouvelle image et confie le remplacement à un conteneur auxiliaire éphémère, donc Dozzle disparaît quelques secondes et revient dans la nouvelle version avec la même configuration et les mêmes volumes. Elle peut aussi être planifiée. Consultez [Comment Dozzle se met à jour lui-même](/fr/guide/setup-wizard#self-update) pour savoir ce qui est conservé et quelles installations ne sont pas prises en charge. Faire tourner Dozzle en service Swarm le met à jour via l'orchestrateur. Les agents Dozzle sur les autres hôtes sont des conteneurs ordinaires et se mettent à jour comme n'importe lequel.
+
+## Registres privés {#private-registries}
+
+Dozzle vérifie et met à jour les images de registres privés avec les identifiants d'un `config.json` Docker, le fichier écrit par `docker login` et lu par Watchtower. Être connecté sur l'hôte ne suffit pas. Dozzle tourne dans un conteneur et le daemon Docker ne lit pas ce fichier, il faut donc le monter :
+
+```yaml [docker-compose.yml]
+services:
+  dozzle:
+    image: amir20/dozzle:latest
+    environment:
+      DOCKER_CONFIG: /docker
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ~/.docker:/docker:ro
+```
+
+`DOCKER_CONFIG` indique le répertoire qui contient `config.json`. Sans cette variable, Dozzle cherche `/config.json`, donc un montage Watchtower `~/.docker/config.json:/config.json` fonctionne aussi. Préférez le répertoire : `docker login` remplace le fichier, et le montage d'un seul fichier continue d'afficher l'ancien. Les changements sont pris en compte sans redémarrage.
+
+Pour séparer ces identifiants des vôtres, écrivez un fichier réservé à Dozzle, idéalement avec un jeton d'accès en lecture seule. Pour Docker Hub, la clé est `https://index.docker.io/v1/`. La valeur de `auth` s'obtient ainsi :
+
+```json [config.json]
+{
+  "auths": {
+    "registry.example.com": { "auth": "dXNlcm5hbWU6cGFzc3dvcmQ=" }
+  }
+}
+```
+
+```sh
+printf '%s' 'username:password' | base64 | tr -d '\n'
+```
+
+Des identifiants ne sont envoyés qu'au registre sous lequel ils figurent. Si le registre les refuse, Dozzle réessaie sans eux, donc des identifiants expirés ne cassent pas les images publiques. Les services Swarm font exception, voir plus bas.
+
+### Où placer le fichier
+
+Le fichier est lu là où ont lieu la vérification et le pull : avec des [agents](/fr/guide/agent), chaque agent a donc besoin de sa propre copie, montée de la même façon. Avec des [hôtes distants](/fr/guide/remote-hosts), Dozzle lit sa propre copie et envoie les identifiants au daemon distant lors du pull.
+
+En [mode Swarm](/fr/guide/swarm-mode), un secret atteint chaque nœud. Créez-le avec `docker secret create registry_login ~/.docker/config.json`. Les mises à jour de service transmettent les identifiants au manager, comme `docker service update --with-registry-auth`. Les nœuds tirent ensuite l'image avec eux et ne réessaient pas sans, donc des identifiants refusés font échouer la mise à jour même pour une image publique : supprimez une entrée expirée plutôt que de la laisser. Un secret ne peut pas être modifié, donc de nouveaux identifiants demandent un nouveau secret et un redéploiement.
+
+```yaml [docker-compose.yml]
+services:
+  dozzle:
+    image: amir20/dozzle:latest
+    secrets:
+      - source: registry_login
+        target: /config.json
+
+secrets:
+  registry_login:
+    external: true
+```
+
+Dans [Kubernetes](/fr/guide/k8s), montez le secret que vos `imagePullSecrets` utilisent déjà. Il doit se trouver dans le namespace de Dozzle, copiez-le donc si vos applications tournent dans un autre. Dozzle ne le lit que pour la vérification et n'a besoin d'aucune permission supplémentaire :
+
+```yaml
+env:
+  - name: DOCKER_CONFIG
+    value: /docker
+volumeMounts:
+  - name: registry-login
+    mountPath: /docker
+    readOnly: true
+volumes:
+  - name: registry-login
+    secret:
+      secretName: regcred
+      items:
+        - key: .dockerconfigjson
+          path: config.json
+```
+
+### Ce qui n'est pas pris en charge
+
+- Les credential helpers (`credsStore` et `credHelpers`), y compris le trousseau de Docker Desktop. L'image Dozzle n'en contient aucun et journalise un avertissement quand une configuration en dépend. Écrivez plutôt un fichier avec une entrée `auth`.
+- Les identifiants qui expirent d'eux-mêmes, comme les jetons Amazon ECR, car rien ne les renouvelle.
+- Les identity tokens (`identitytoken` dans `config.json`).
+- `REPO_USER` et `REPO_PASS` de Watchtower, qui enverraient les mêmes identifiants à tous les registres.
 
 ## Mettre à jour plusieurs conteneurs à la fois
 

@@ -1,7 +1,7 @@
 ---
 title: Variables d'environnement et sous-commandes
 description: Toutes les variables d'environnement et options de Dozzle, y compris l'authentification, et les sous-commandes generate, agent, generate-certs et healthcheck.
-sourceHash: 258ed3c33972
+sourceHash: 014a0d8c2b98
 ---
 
 # Variables d'environnement
@@ -55,6 +55,8 @@ DOZZLE_REMOTE_AGENT=167.99.1.1:7007,167.99.1.2:7007
 | `DOZZLE_AUTO_CLEANUP`<br>`--auto-cleanup`                 | Nettoie chaque hôte selon une planification, jamais les volumes. `weekly` s'exécute le dimanche. Nécessite `DOZZLE_ENABLE_ACTIONS`. Voir [espace disque](/fr/guide/container-disk-usage).                                                                                | `off`, `daily`, `weekly`     | `off`                                   |
 | `DOZZLE_AUTO_CLEANUP_TIME`<br>`--auto-cleanup-time`       | Heure de la journée à laquelle le nettoyage planifié s'exécute, dans l'heure locale du serveur.                                                                                                                                                                          | `HH:MM`, par ex. `05:00`     | `04:00`                                 |
 | `DOZZLE_UPDATE_CONTAINERS`<br>`--update-containers`       | Les conteneurs que la mise à jour automatique met à jour en plus de Dozzle : `off` pour Dozzle seulement, `labelled` pour ceux étiquetés `dev.dozzle.update=auto`, `all` pour tout conteneur non étiqueté `dev.dozzle.update=off`.                                       | `off`, `labelled`, `all`     | `labelled`                              |
+
+`DOCKER_CONFIG` est la variable de Docker, pas une option de Dozzle. Elle indique le répertoire du `config.json` contenant vos [identifiants de registre privé](/fr/guide/updates#private-registries). Sans elle, Dozzle cherche `/config.json`.
 
 ## Authentification
 

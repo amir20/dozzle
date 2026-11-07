@@ -127,8 +127,9 @@ func (k *Service) SubscribeContainersStarted(ctx context.Context, containers cha
 // CheckImageUpdate compares the digest the pod status records against the
 // registry. Dozzle never rolls the image out itself; a rollout restart does that
 // for a tag like :latest, and anything else is the cluster's own deploy process.
-// Registries that need imagePullSecrets report auth-required, since reading
-// secrets is a permission Dozzle does not ask for.
+// Registries that need imagePullSecrets report auth-required unless the same
+// logins are mounted as a Docker config, since reading secrets is a permission
+// Dozzle does not ask for.
 func (k *Service) CheckImageUpdate(ctx context.Context, c container.Container, force bool) (imagecheck.Result, error) {
 	if imagecheck.Skipped(c.Labels) {
 		return imagecheck.Result{Image: c.Image, Status: imagecheck.StatusSkipped, CheckedAt: time.Now()}, nil

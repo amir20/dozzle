@@ -1,7 +1,7 @@
 ---
 title: 从 Watchtower 迁移
 description: 用 Dozzle 替代 Watchtower，按计划更新 Docker 容器，并把 Watchtower 的每个设置和标签对应到 Dozzle 的等价项。
-sourceHash: b5f448099355
+sourceHash: 8129c1dac23c
 ---
 
 # 从 Watchtower 迁移
@@ -44,7 +44,7 @@ volumes:
 | `--rolling-restart`                                                | 始终如此：每台主机一次只更新一个容器                                                                                                                    |
 | `--notification-url`                                               | 针对容器事件的 [告警和 Webhook](/zh/guide/alerts-and-webhooks)，或 [Dozzle Cloud](/zh/guide/dozzle-cloud)，它会观察每次更新，并在新版本开始出错时告诉你 |
 | `--run-once`                                                       | 更新抽屉中的 **更新**                                                                                                                                   |
-| 私有仓库凭据                                                       | 不支持。来自私有仓库的容器会被跳过                                                                                                                      |
+| 私有仓库凭据                                                       | 挂载同一个 `config.json`。参见[私有仓库](/zh/guide/updates#private-registries)                                                                          |
 
 ## 标签
 

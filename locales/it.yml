@@ -1167,7 +1167,7 @@ auto-update:
   safety-title: "Rete di sicurezza"
   safety-verify: "Ogni aggiornamento viene monitorato e annullato se il nuovo container non funziona."
   safety-cleanup: "La vecchia immagine viene rimossa dopo. Un'immagine precedente resta per tornare indietro."
-  safety-skip: "Le immagini fissate a un digest, create in locale o da un registry privato vengono saltate."
+  safety-skip: "Le immagini fissate a un digest, create in locale o da un registry privato senza credenziali vengono saltate."
   learn-more: "Come funziona l'aggiornamento automatico"
   footnote: "{link} decide quali container si aggiornano da soli."
   footnote-link: "Impostazioni → Aggiornamenti"

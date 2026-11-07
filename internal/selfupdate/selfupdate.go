@@ -140,7 +140,7 @@ func start(ctx context.Context, cli dockerAPI, selfID string, progress func(cont
 		return false, nil
 	}
 
-	pull := func() (io.ReadCloser, error) { return cli.ImagePull(ctx, ref, client.ImagePullOptions{}) }
+	pull := func() (io.ReadCloser, error) { return cli.ImagePull(ctx, ref, swap.PullOptions(ref)) }
 	if err := swap.Pull(ctx, pull, progress); err != nil {
 		return fail("%w", err)
 	}

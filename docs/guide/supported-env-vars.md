@@ -55,6 +55,8 @@ DOZZLE_REMOTE_AGENT=167.99.1.1:7007,167.99.1.2:7007
 | `DOZZLE_AUTO_CLEANUP_TIME`<br>`--auto-cleanup-time`       | Time of day the scheduled clean up runs, in the server's local time.                                                                                                                                               | `HH:MM`, e.g. `05:00`        | `04:00`                             |
 | `DOZZLE_UPDATE_CONTAINERS`<br>`--update-containers`       | Which containers the auto update updates besides Dozzle: `off` is Dozzle only, `labelled` is the ones labelled `dev.dozzle.update=auto`, `all` is every container not labelled `dev.dozzle.update=off`.            | `off`, `labelled`, `all`     | `labelled`                          |
 
+`DOCKER_CONFIG` is Docker's own variable, not a Dozzle option. It names the directory holding the `config.json` with your [private registry logins](/guide/updates#private-registries), and defaults to looking for `/config.json`.
+
 ## Authentication
 
 See [authentication](/guide/authentication) for how the providers work.
