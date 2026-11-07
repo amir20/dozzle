@@ -10,6 +10,7 @@ import (
 	"path/filepath"
 	"slices"
 	"sync"
+	"time"
 
 	"github.com/amir20/dozzle/internal/container"
 	pb "github.com/amir20/dozzle/proto/cloud"
@@ -27,12 +28,33 @@ import (
 // new container, which starts, so a start is where a change shows up. An
 // in-place `docker update` (limits, restart policy) is not seen until the next
 // start. A container whose config is the same as the last one sent for its
-// name is not sent again.
+// name is not sent again, and neither is one announced again for a start
+// already sent. The second matters when two running containers share a name on
+// one host (an old Swarm task next to its replacement): their configs
+// alternate, and against the name alone each one would be sent on every
+// announcement. A real start of the same container, such as a failed update
+// reverted to the old one, has a new start time and is compared with the name
+// as usual.
 //
 // Nothing that can hold a secret leaves Dozzle: environment variables are
 // never read here, and label values and the command go only as HMACs keyed by
 // a secret that stays on this machine, so a short password can't be recovered
 // by hashing guesses.
+
+// startsPerName bounds how many sent starts are remembered for one name, so a
+// container recreated under a fixed name over and over (a cron job, a CI
+// runner) can't grow the pusher's memory. It covers up to this many running
+// containers sharing a name (an old Swarm task and its replacement, replicas
+// with one dev.dozzle.name); a bigger group is resent on each announcement,
+// as before.
+const startsPerName = 16
+
+// sentStart is one container start whose config was sent.
+type sentStart struct {
+	id        string
+	startedAt time.Time
+	sig       []byte
+}
 
 // configChanBuf absorbs a compose up starting many containers at once while
 // the pusher is busy sending one.
@@ -51,7 +73,8 @@ func pushConfigs(ctx context.Context, hs ConfigStreamHostService, labels contain
 	started := make(chan container.Container, configChanBuf)
 	hs.SubscribeContainersStarted(ctx, started, func(_ *container.Container) bool { return true })
 
-	lastSent := map[string][]byte{} // host/name -> the last config sent, marshalled
+	lastSent := map[string][]byte{}        // host/name -> the last config sent, marshalled
+	sentStarts := map[string][]sentStart{} // host/name -> its latest starts sent, oldest first
 	pushOne := func(c container.Container) {
 		// A container the store hasn't inspected yet has no config to send;
 		// its start brings it inspected.
@@ -64,12 +87,22 @@ func pushConfigs(ctx context.Context, hs ConfigStreamHostService, labels contain
 		if prev, ok := lastSent[key]; ok && slices.Equal(prev, sig) {
 			return
 		}
+		if slices.ContainsFunc(sentStarts[key], func(s sentStart) bool {
+			return s.id == c.ID && s.startedAt.Equal(c.StartedAt) && slices.Equal(s.sig, sig)
+		}) {
+			return
+		}
 		if err := send(&pb.ToolResponse{Type: &pb.ToolResponse_ContainerConfig{ContainerConfig: cfg}}); err != nil {
 			// The connection is going; the next one sends every container again.
 			log.Debug().Err(err).Str("container", c.Name).Msg("config pusher: send failed")
 			return
 		}
 		lastSent[key] = sig
+		starts := append(sentStarts[key], sentStart{id: c.ID, startedAt: c.StartedAt, sig: sig})
+		if len(starts) > startsPerName {
+			starts = starts[len(starts)-startsPerName:]
+		}
+		sentStarts[key] = starts
 	}
 
 	running, _ := hs.ListAllContainers(labels)
