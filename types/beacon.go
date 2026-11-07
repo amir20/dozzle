@@ -19,6 +19,7 @@ type BeaconEvent struct {
 	RunningContainers int    `json:"runningContainers"` // containers listed when the UI opened
 	HasActions        bool   `json:"hasActions"`
 	HasShell          bool   `json:"hasShell"`
+	HasMCP            bool   `json:"hasMCP"` // --enable-mcp
 	IsSwarmMode       bool   `json:"isSwarmMode"`
 	ServerVersion     string `json:"serverVersion"` // Docker Engine version
 	ServerID          string `json:"serverID"`      // Docker Engine id, to count an install once

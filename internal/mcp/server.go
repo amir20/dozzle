@@ -9,6 +9,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/amir20/dozzle/internal/analytics"
 	"github.com/amir20/dozzle/internal/auth"
 	"github.com/amir20/dozzle/internal/cloud"
 	"github.com/amir20/dozzle/internal/container"
@@ -46,6 +47,7 @@ func NewServer(hostService HostService, labels container.ContainerLabels, versio
 
 	s.mcpServer = mcpServer
 	s.registerTools()
+	mcpServer.AddReceivingMiddleware(countToolCalls)
 
 	return s
 }
@@ -140,6 +142,17 @@ func (s *Server) registerTools() {
 		Description: "Get CPU and memory usage stats for a Docker container. Returns the last ~5 minutes of stats history with CPU percentage, memory percentage, and memory usage in bytes.",
 		Annotations: &mcp.ToolAnnotations{ReadOnlyHint: true},
 	}, s.handleGetContainerStats)
+}
+
+// countToolCalls feeds the usage beacon one counter per tool. The tool name is
+// the key, and analytics drops any name that is not in UsageKeys.
+func countToolCalls(next mcp.MethodHandler) mcp.MethodHandler {
+	return func(ctx context.Context, method string, req mcp.Request) (mcp.Result, error) {
+		if call, ok := req.(*mcp.CallToolRequest); ok && call.Params != nil {
+			analytics.Count("mcp." + call.Params.Name)
+		}
+		return next(ctx, method, req)
+	}
 }
 
 // --- Tool Handlers ---
