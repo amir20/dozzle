@@ -9,7 +9,7 @@ import (
 
 	"github.com/amir20/dozzle/internal/utils"
 	"github.com/rs/zerolog/log"
-	"go.yaml.in/yaml/v3"
+	"go.yaml.in/yaml/v4"
 )
 
 type notificationConfig struct {
@@ -111,11 +111,12 @@ func MigrateCloudConfig(notificationsPath, cloudPath string) {
 
 func writeYAML(path string, v any) error {
 	return utils.WriteFile(path, func(w io.Writer) error {
-		encoder := yaml.NewEncoder(w)
-		if err := encoder.Encode(v); err != nil {
+		data, err := yaml.Marshal(v)
+		if err != nil {
 			return err
 		}
-		return encoder.Close()
+		_, err = w.Write(data)
+		return err
 	})
 }
 

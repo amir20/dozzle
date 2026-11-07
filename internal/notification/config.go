@@ -10,7 +10,7 @@ import (
 	"github.com/amir20/dozzle/types"
 	"github.com/puzpuzpuz/xsync/v4"
 	"github.com/rs/zerolog/log"
-	"go.yaml.in/yaml/v3"
+	"go.yaml.in/yaml/v4"
 )
 
 // WriteConfig writes the current configuration to a writer in YAML format.
@@ -29,10 +29,12 @@ func (m *Manager) WriteConfig(w io.Writer) error {
 		Dispatchers:   dispatchers,
 	}
 
-	encoder := yaml.NewEncoder(w)
-	defer encoder.Close()
-
-	return encoder.Encode(config)
+	data, err := yaml.Marshal(config)
+	if err != nil {
+		return err
+	}
+	_, err = w.Write(data)
+	return err
 }
 
 // LoadConfig reads configuration from a reader in YAML format and loads it

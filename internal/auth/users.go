@@ -12,7 +12,7 @@ import (
 
 	"github.com/amir20/dozzle/internal/container"
 	"github.com/rs/zerolog/log"
-	"go.yaml.in/yaml/v3"
+	"go.yaml.in/yaml/v4"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -116,7 +116,8 @@ func GenerateUsers(user User, hashPassword bool) *bytes.Buffer {
 		},
 	}
 
-	yaml.NewEncoder(buffer).Encode(users)
+	data, _ := yaml.Marshal(users)
+	buffer.Write(data)
 
 	return buffer
 }

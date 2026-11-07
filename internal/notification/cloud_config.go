@@ -4,7 +4,7 @@ import (
 	"io"
 	"time"
 
-	"go.yaml.in/yaml/v3"
+	"go.yaml.in/yaml/v4"
 )
 
 // CloudConfig holds the cloud dispatcher credentials and metadata.
@@ -29,9 +29,12 @@ func (c *CloudConfig) StreamLogsEnabled() bool {
 
 // WriteCloudConfig encodes the given CloudConfig to the writer in YAML format.
 func WriteCloudConfig(w io.Writer, config CloudConfig) error {
-	encoder := yaml.NewEncoder(w)
-	defer encoder.Close()
-	return encoder.Encode(config)
+	data, err := yaml.Marshal(config)
+	if err != nil {
+		return err
+	}
+	_, err = w.Write(data)
+	return err
 }
 
 // LoadCloudConfig decodes a CloudConfig from the reader.
@@ -43,4 +46,3 @@ func LoadCloudConfig(r io.Reader) (CloudConfig, error) {
 	}
 	return config, nil
 }
-
