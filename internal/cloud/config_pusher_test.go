@@ -91,3 +91,51 @@ func TestPushConfigs(t *testing.T) {
 	plain := sha256.Sum256([]byte("admin:$apr1$secret"))
 	assert.NotEqual(t, hex.EncodeToString(plain[:]), hash, "keyed, so a guess can't be checked by hashing it")
 }
+
+func TestPushConfigsSameNameContainers(t *testing.T) {
+	configHashOnce.Do(func() { configHashSecret = bytes.Repeat([]byte{7}, 32) })
+
+	// Two running containers named sonarr on one host, an old Swarm task next
+	// to its replacement, with different configs.
+	old, replacement := configContainer("old", 2<<30), configContainer("new", 4<<30)
+	hs := &fakeHostService{
+		containers: []container.Container{old, replacement},
+		clients:    map[string]*fakeClientService{"host-1": newFakeClientService("host-1")},
+	}
+	var mu sync.Mutex
+	sent := 0
+	send := func(*pb.ToolResponse) error {
+		mu.Lock()
+		defer mu.Unlock()
+		sent++
+		return nil
+	}
+	count := func() int {
+		mu.Lock()
+		defer mu.Unlock()
+		return sent
+	}
+
+	go pushConfigs(t.Context(), hs, nil, send)
+	require.Eventually(t, func() bool { return count() == 2 }, time.Second, 5*time.Millisecond, "both on connect")
+	require.Eventually(t, func() bool {
+		hs.mu.Lock()
+		defer hs.mu.Unlock()
+		return hs.startedCh != nil
+	}, time.Second, 5*time.Millisecond)
+
+	// Both announced again and again: their configs alternate, but neither changed.
+	for range 3 {
+		hs.emitStart(old)
+		hs.emitStart(replacement)
+	}
+	time.Sleep(50 * time.Millisecond)
+	assert.Equal(t, 2, count(), "re-announcing two same-name containers sends nothing new")
+
+	// A failed update reverted: the old container is started again, a new
+	// start, so its config is sent as the one running.
+	reverted := old
+	reverted.StartedAt = old.StartedAt.Add(time.Minute)
+	hs.emitStart(reverted)
+	require.Eventually(t, func() bool { return count() == 3 }, time.Second, 5*time.Millisecond, "the revert is sent")
+}
