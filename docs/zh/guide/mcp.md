@@ -1,7 +1,7 @@
 ---
 title: MCP 集成
 description: 启用 Dozzle 的 MCP 服务器，让 Claude、Copilot 等 AI 助手读取 Docker 容器日志和统计数据，并配置客户端与认证。
-sourceHash: 4c7d62d3796c
+sourceHash: 204b763f54a4
 ---
 
 # MCP 集成
@@ -125,6 +125,34 @@ MCP 端点属于需要身份验证的 API 组。启用身份验证后，MCP 客�
 ```
 
 oidc 模式下无法使用此方式，因为没有可以换取令牌的密码。
+
+#### 无浏览器客户端的静态令牌
+
+无法打开浏览器的客户端（例如 LiteLLM 这类 MCP 网关）可以改用静态令牌。将 `--mcp-token` 或 `DOZZLE_MCP_TOKEN` 设置为至少 32 个字符的随机字符串，例如用 `openssl rand -hex 32` 生成。简单认证和 oidc 都支持。
+
+```yaml [docker-compose.yml]
+services:
+  dozzle:
+    image: amir20/dozzle:latest
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+      DOZZLE_ENABLE_MCP: true
+      DOZZLE_MCP_TOKEN: <your-random-token>
+```
+
+客户端以 `Authorization: Bearer <your-random-token>` 的形式发送它。在 LiteLLM 中配置如下：
+
+```yaml
+mcp_servers:
+  dozzle:
+    url: http://dozzle:8080/api/mcp
+    transport: http
+    auth_type: bearer_token
+    auth_value: os.environ/DOZZLE_MCP_TOKEN
+```
+
+该令牌只在 `/api/mcp` 上有效。它不绑定任何用户，因此能看到全局 `--filter` 允许的所有容器，没有额外的按用户过滤。它永不过期。要撤销它，请修改或删除该变量并重启 Dozzle。
 
 ### 前置代理身份验证
 

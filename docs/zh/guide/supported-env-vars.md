@@ -1,7 +1,7 @@
 ---
 title: 环境变量与子命令
 description: Dozzle 全部环境变量和标志（包括身份验证），以及 generate、agent、generate-certs 和 healthcheck 子命令。
-sourceHash: 014a0d8c2b98
+sourceHash: 0ca047caacaf
 ---
 
 # 环境变量
@@ -46,6 +46,7 @@ DOZZLE_REMOTE_AGENT=167.99.1.1:7007,167.99.1.2:7007
 | `DOZZLE_ENABLE_ACTIONS`<br>`--enable-actions`             | 允许在界面中启动、停止、重启、删除和更新容器。参见[容器操作](/zh/guide/actions)。                                                                                         | `true`、`false`              | `false`                             |
 | `DOZZLE_ENABLE_SHELL`<br>`--enable-shell`                 | 允许在界面中附加到容器或在容器内运行 shell。参见 [shell](/zh/guide/shell)。                                                                                               | `true`、`false`              | `false`                             |
 | `DOZZLE_ENABLE_MCP`<br>`--enable-mcp`                     | 为 LLM 客户端开放 [MCP](/zh/guide/mcp) 端点。                                                                                                                             | `true`、`false`              | `false`                             |
+| `DOZZLE_MCP_TOKEN`<br>`--mcp-token`                       | [MCP](/zh/guide/mcp#无浏览器客户端的静态令牌) 为无浏览器客户端接受的静态 Bearer 令牌。至少 32 个字符。                                                                    | string                       |                                     |
 | `DOZZLE_DISABLE_AVATARS`<br>`--disable-avatars`           | 启用身份验证时隐藏用户头像。                                                                                                                                              | `true`、`false`              | `false`                             |
 | `DOZZLE_DISABLE_SETUP_WIZARD`<br>`--disable-setup-wizard` | 阻止[设置向导](/zh/guide/setup-wizard)在全新安装时自动打开。仍然可以在 **设置 → 关于** 中运行它。                                                                         | `true`、`false`              | `false`                             |
 | `DOZZLE_RELEASE_CHECK_MODE`<br>`--release-check-mode`     | Dozzle 是否检查自身的新版本。`manual` 只在你主动要求时检查。                                                                                                              | `automatic`、`manual`        | `automatic`                         |

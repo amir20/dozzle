@@ -1,7 +1,7 @@
 ---
 title: Intégration MCP
 description: Activez le serveur MCP de Dozzle pour que des assistants IA comme Claude et Copilot lisent les logs et statistiques de vos conteneurs Docker, et configurez clients et authentification.
-sourceHash: 4c7d62d3796c
+sourceHash: 204b763f54a4
 ---
 
 # Intégration MCP
@@ -125,6 +125,34 @@ Par exemple, dans les paramètres MCP de VS Code :
 ```
 
 Ce n'est pas possible avec oidc, car il n'y a pas de mot de passe à échanger contre un jeton.
+
+#### Jeton statique pour les clients sans navigateur
+
+Un client qui ne peut pas ouvrir de navigateur, comme une passerelle MCP de type LiteLLM, peut utiliser un jeton statique. Définissez `--mcp-token` ou `DOZZLE_MCP_TOKEN` avec une chaîne aléatoire d'au moins 32 caractères, par exemple générée par `openssl rand -hex 32`. Cela fonctionne avec l'authentification simple comme avec oidc.
+
+```yaml [docker-compose.yml]
+services:
+  dozzle:
+    image: amir20/dozzle:latest
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+      DOZZLE_ENABLE_MCP: true
+      DOZZLE_MCP_TOKEN: <your-random-token>
+```
+
+Le client l'envoie sous la forme `Authorization: Bearer <your-random-token>`. Dans LiteLLM, cela donne :
+
+```yaml
+mcp_servers:
+  dozzle:
+    url: http://dozzle:8080/api/mcp
+    transport: http
+    auth_type: bearer_token
+    auth_value: os.environ/DOZZLE_MCP_TOKEN
+```
+
+Le jeton ne fonctionne que sur `/api/mcp`. Il n'est lié à aucun utilisateur, il voit donc tous les conteneurs que le `--filter` global autorise, sans filtre par utilisateur en plus. Il n'expire jamais. Pour le révoquer, modifiez ou supprimez la variable puis redémarrez Dozzle.
 
 ### Authentification par proxy
 

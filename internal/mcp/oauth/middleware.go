@@ -2,6 +2,7 @@ package oauth
 
 import (
 	"context"
+	"crypto/subtle"
 	"fmt"
 	"net/http"
 	"slices"
@@ -32,11 +33,28 @@ func (s *Server) Middleware(next http.Handler) http.Handler {
 			return
 		}
 
+		if s.isStaticToken(r) {
+			next.ServeHTTP(w, r)
+			return
+		}
+
 		mcpauth.RequireBearerToken(s.verifyAccessToken, &mcpauth.RequireBearerTokenOptions{
 			ResourceMetadataURL: s.ResourceMetadataURL(r),
 			Scopes:              []string{Scope},
 		})(withUser).ServeHTTP(w, r)
 	})
+}
+
+func (s *Server) isStaticToken(r *http.Request) bool {
+	if s.staticToken == "" {
+		return false
+	}
+	token, ok := strings.CutPrefix(r.Header.Get("Authorization"), "Bearer ")
+	if !ok {
+		return false
+	}
+
+	return subtle.ConstantTimeCompare([]byte(token), []byte(s.staticToken)) == 1
 }
 
 func (s *Server) verifyAccessToken(_ context.Context, token string, r *http.Request) (*mcpauth.TokenInfo, error) {

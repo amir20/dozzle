@@ -125,6 +125,34 @@ For example, in VS Code MCP settings:
 
 This is not available with oidc, because there is no password to exchange for a token.
 
+#### Static token for headless clients
+
+A client that can't open a browser, such as an MCP gateway like LiteLLM, can use a static token instead. Set `--mcp-token` or `DOZZLE_MCP_TOKEN` to a random string of at least 32 characters, for example from `openssl rand -hex 32`. It works with both simple auth and oidc.
+
+```yaml [docker-compose.yml]
+services:
+  dozzle:
+    image: amir20/dozzle:latest
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+      DOZZLE_ENABLE_MCP: true
+      DOZZLE_MCP_TOKEN: <your-random-token>
+```
+
+The client sends it as `Authorization: Bearer <your-random-token>`. In LiteLLM that is:
+
+```yaml
+mcp_servers:
+  dozzle:
+    url: http://dozzle:8080/api/mcp
+    transport: http
+    auth_type: bearer_token
+    auth_value: os.environ/DOZZLE_MCP_TOKEN
+```
+
+The token only works on `/api/mcp`. It isn't tied to a user, so it sees every container the global `--filter` allows, with no per-user filter on top. It never expires. To revoke it, change or remove the variable and restart Dozzle.
+
 ### Forward Proxy Auth
 
 With `--auth-provider forward-proxy`, the reverse proxy in front of Dozzle handles authentication and injects the appropriate headers. MCP clients should connect through the same proxy, and authentication will be handled transparently.

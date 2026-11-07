@@ -1,7 +1,7 @@
 ---
 title: MCP-Integration
 description: Aktiviere Dozzles MCP-Server, damit KI-Assistenten wie Claude und Copilot Logs und Statistiken deiner Docker-Container lesen können, und richte Clients und Authentifizierung ein.
-sourceHash: 4c7d62d3796c
+sourceHash: 204b763f54a4
 ---
 
 # MCP-Integration
@@ -125,6 +125,34 @@ Zum Beispiel in den MCP-Einstellungen von VS Code:
 ```
 
 Mit oidc geht das nicht, weil es kein Passwort gibt, das gegen ein Token getauscht werden könnte.
+
+#### Statisches Token für Clients ohne Browser
+
+Ein Client, der keinen Browser öffnen kann, etwa ein MCP-Gateway wie LiteLLM, kann stattdessen ein statisches Token verwenden. Setze `--mcp-token` oder `DOZZLE_MCP_TOKEN` auf eine zufällige Zeichenkette mit mindestens 32 Zeichen, zum Beispiel aus `openssl rand -hex 32`. Das funktioniert mit Simple Auth und mit oidc.
+
+```yaml [docker-compose.yml]
+services:
+  dozzle:
+    image: amir20/dozzle:latest
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+      DOZZLE_ENABLE_MCP: true
+      DOZZLE_MCP_TOKEN: <your-random-token>
+```
+
+Der Client sendet es als `Authorization: Bearer <your-random-token>`. In LiteLLM sieht das so aus:
+
+```yaml
+mcp_servers:
+  dozzle:
+    url: http://dozzle:8080/api/mcp
+    transport: http
+    auth_type: bearer_token
+    auth_value: os.environ/DOZZLE_MCP_TOKEN
+```
+
+Das Token funktioniert nur auf `/api/mcp`. Es ist an keinen Benutzer gebunden und sieht daher jeden Container, den der globale `--filter` zulässt, ohne zusätzlichen Filter pro Benutzer. Es läuft nie ab. Zum Widerrufen änderst oder entfernst du die Variable und startest Dozzle neu.
 
 ### Forward-Proxy-Authentifizierung
 
