@@ -111,11 +111,12 @@ func MigrateCloudConfig(notificationsPath, cloudPath string) {
 
 func writeYAML(path string, v any) error {
 	return utils.WriteFile(path, func(w io.Writer) error {
-		encoder := yaml.NewEncoder(w)
-		if err := encoder.Encode(v); err != nil {
+		data, err := yaml.Marshal(v)
+		if err != nil {
 			return err
 		}
-		return encoder.Close()
+		_, err = w.Write(data)
+		return err
 	})
 }
 

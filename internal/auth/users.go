@@ -116,7 +116,8 @@ func GenerateUsers(user User, hashPassword bool) *bytes.Buffer {
 		},
 	}
 
-	yaml.NewEncoder(buffer).Encode(users)
+	data, _ := yaml.Marshal(users)
+	buffer.Write(data)
 
 	return buffer
 }

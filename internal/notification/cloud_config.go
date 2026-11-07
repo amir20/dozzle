@@ -29,9 +29,12 @@ func (c *CloudConfig) StreamLogsEnabled() bool {
 
 // WriteCloudConfig encodes the given CloudConfig to the writer in YAML format.
 func WriteCloudConfig(w io.Writer, config CloudConfig) error {
-	encoder := yaml.NewEncoder(w)
-	defer encoder.Close()
-	return encoder.Encode(config)
+	data, err := yaml.Marshal(config)
+	if err != nil {
+		return err
+	}
+	_, err = w.Write(data)
+	return err
 }
 
 // LoadCloudConfig decodes a CloudConfig from the reader.

@@ -29,10 +29,12 @@ func (m *Manager) WriteConfig(w io.Writer) error {
 		Dispatchers:   dispatchers,
 	}
 
-	encoder := yaml.NewEncoder(w)
-	defer encoder.Close()
-
-	return encoder.Encode(config)
+	data, err := yaml.Marshal(config)
+	if err != nil {
+		return err
+	}
+	_, err = w.Write(data)
+	return err
 }
 
 // LoadConfig reads configuration from a reader in YAML format and loads it
