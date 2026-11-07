@@ -35,13 +35,17 @@ Dozzle has been tested with hundreds of containers. However, it doesn't support 
 
 Dozzle is a small container (7 MB compressed). Pull the latest release with:
 
-    $ docker pull amir20/dozzle:latest
+```bash
+docker pull amir20/dozzle:latest
+```
 
 ### Running Dozzle
 
 The simplest way to use Dozzle is to run the Docker container. Mount the Docker Unix socket with `--volume` to `/var/run/docker.sock`:
 
-    $ docker run --name dozzle -d --volume=/var/run/docker.sock:/var/run/docker.sock -v dozzle_data:/data -p 8080:8080 amir20/dozzle:latest
+```bash
+docker run --name dozzle -d --volume=/var/run/docker.sock:/var/run/docker.sock -v dozzle_data:/data -p 8080:8080 amir20/dozzle:latest
+```
 
 Dozzle will be available at [http://localhost:8080/](http://localhost:8080/).
 
@@ -84,7 +88,9 @@ Avoid `latest` and `main` in production. `latest` moves on every release and `ma
 
 Dozzle works with Docker Swarm. You can run Dozzle as a global service:
 
-    $ docker service create --name dozzle --env DOZZLE_MODE=swarm --mode global --mount type=bind,source=/var/run/docker.sock,target=/var/run/docker.sock -p 8080:8080 amir20/dozzle:latest
+```bash
+docker service create --name dozzle --env DOZZLE_MODE=swarm --mode global --mount type=bind,source=/var/run/docker.sock,target=/var/run/docker.sock -p 8080:8080 amir20/dozzle:latest
+```
 
 See the [Swarm Mode](https://dozzle.dev/guide/swarm-mode) documentation for more details.
 
@@ -92,7 +98,9 @@ See the [Swarm Mode](https://dozzle.dev/guide/swarm-mode) documentation for more
 
 Dozzle can monitor multiple Docker hosts. Run Dozzle in agent mode with:
 
-    $ docker run -v /var/run/docker.sock:/var/run/docker.sock -p 7007:7007 amir20/dozzle:latest agent
+```bash
+docker run -v /var/run/docker.sock:/var/run/docker.sock -p 7007:7007 amir20/dozzle:latest agent
+```
 
 See the [Agent Mode](https://dozzle.dev/guide/agent) documentation for more details.
 
@@ -108,7 +116,7 @@ By default, Podman doesn't have a background process, but you can enable the rem
 
 First, verify if your Podman installation has the remote socket enabled:
 
-```
+```bash
 podman info
 ```
 
@@ -124,7 +132,7 @@ If it's not enabled, follow [this tutorial](https://github.com/containers/podman
 
 Once the Podman remote socket is enabled, you can run Dozzle:
 
-```
+```bash
 podman run --volume=/run/user/1000/podman/podman.sock:/var/run/docker.sock -d -p 8080:8080 docker.io/amir20/dozzle:latest
 ```
 
