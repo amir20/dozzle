@@ -449,6 +449,21 @@ func Test_mcpOAuth_staticTokenWrongTokenGetsChallenge(t *testing.T) {
 	assert.Contains(t, resp.Header.Get("WWW-Authenticate"), "resource_metadata=")
 }
 
+func Test_mcpOAuth_staticTokenSchemeIsCaseInsensitive(t *testing.T) {
+	server := newMCPOAuthServerWithToken(t, "/", staticMCPToken)
+
+	req, err := http.NewRequest(http.MethodPost, server.URL+"/api/mcp", strings.NewReader(initializeBody))
+	require.NoError(t, err)
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Accept", "application/json, text/event-stream")
+	req.Header.Set("Authorization", "bearer "+staticMCPToken)
+	resp, err := http.DefaultClient.Do(req)
+	require.NoError(t, err)
+	resp.Body.Close()
+
+	assert.Equal(t, http.StatusOK, resp.StatusCode)
+}
+
 func Test_mcpOAuth_staticTokenOnlyWorksForMCP(t *testing.T) {
 	server := newMCPOAuthServerWithToken(t, "/", staticMCPToken)
 

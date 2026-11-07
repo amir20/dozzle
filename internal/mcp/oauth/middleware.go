@@ -49,12 +49,14 @@ func (s *Server) isStaticToken(r *http.Request) bool {
 	if s.staticToken == "" {
 		return false
 	}
-	token, ok := strings.CutPrefix(r.Header.Get("Authorization"), "Bearer ")
-	if !ok {
+	// Parsed the way the SDK parses it for OAuth tokens: the scheme is
+	// case-insensitive (RFC 7235).
+	fields := strings.Fields(r.Header.Get("Authorization"))
+	if len(fields) != 2 || !strings.EqualFold(fields[0], "bearer") {
 		return false
 	}
 
-	return subtle.ConstantTimeCompare([]byte(token), []byte(s.staticToken)) == 1
+	return subtle.ConstantTimeCompare([]byte(fields[1]), []byte(s.staticToken)) == 1
 }
 
 func (s *Server) verifyAccessToken(_ context.Context, token string, r *http.Request) (*mcpauth.TokenInfo, error) {
