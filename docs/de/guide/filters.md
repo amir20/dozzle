@@ -1,7 +1,7 @@
 ---
 title: Filter
 description: Schränke mit DOZZLE_FILTER oder --filter ein, welche Docker-Container Dozzle sieht, und erfahre, wie UI-, Agent- und Benutzerfilter zusammenwirken.
-sourceHash: 506ae2cd8bd9
+sourceHash: 873065d33b29
 ---
 
 # Container filtern
@@ -32,6 +32,8 @@ services:
 :::
 
 Gängige Filter sind `name` oder `label`, um Dozzles Zugriff auf Container einzugrenzen.
+
+Um einen von mehreren Werten zuzulassen, wiederhole dasselbe Label: `--filter label=team=a --filter label=team=b` zeigt Container beider Teams (unter Kubernetes `--filter team=a --filter team=b`). Filter auf unterschiedliche Labels müssen alle zutreffen.
 
 ## Filter für Oberfläche, Agents und Benutzer
 

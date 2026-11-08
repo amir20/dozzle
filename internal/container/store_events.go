@@ -11,9 +11,10 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-// matchesLabels is a cheap pre-check against the store's filter, so an update for a
-// container outside it does not cost a full list every time it changes.
-func matchesLabels(labels map[string]string, filter ContainerLabels) bool {
+// MatchesLabels reports whether labels hold an allowed value for every filter key.
+// The store uses it as a cheap pre-check, so an update for a container outside its
+// filter does not cost a full list every time it changes.
+func MatchesLabels(labels map[string]string, filter ContainerLabels) bool {
 	for key, values := range filter {
 		value, ok := labels[key]
 		if !ok || !slices.Contains(values, value) {
@@ -29,7 +30,7 @@ func matchesLabels(labels map[string]string, filter ContainerLabels) bool {
 //
 // With no filter configured the inspect alone is enough. With one, the list is the
 // authoritative membership check: filter keys can be docker filters that are not
-// labels at all, so matchesLabels cannot stand in for it. It runs first, so a
+// labels at all, so MatchesLabels cannot stand in for it. It runs first, so a
 // container outside the filter never costs an inspect.
 //
 // FindContainer can fail transiently (the daemon is busy right after a compose recreate,
@@ -275,7 +276,7 @@ func (s *Store) handleUpdate(event ContainerEvent) {
 		// The store never loaded this container: its create landed before the store's
 		// first list, or adding it failed. A k8s watch no longer ends and forces a
 		// fresh list, so pick it up here or it stays missing for the life of the process.
-		if !matchesLabels(update.Labels, s.labels) {
+		if !MatchesLabels(update.Labels, s.labels) {
 			return
 		}
 		if added, ok := s.addContainer(event.ActorID, 3*time.Second); ok {
