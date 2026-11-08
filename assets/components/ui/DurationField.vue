@@ -2,21 +2,36 @@
   <fieldset class="fieldset">
     <legend class="fieldset-legend text-lg">{{ label }}</legend>
     <div class="flex items-center gap-3">
-      <input v-model.number="slider" type="range" :min="min" :max="max" :step="step" class="range range-primary" />
-      <label class="input input-sm w-28 shrink-0">
+      <template v-if="stops">
         <input
-          v-model.number="typed"
-          type="number"
-          :min="min"
-          :max="max"
-          :step="step"
-          class="text-right"
+          v-model.number="stopIndex"
+          type="range"
+          min="0"
+          :max="stops.length - 1"
+          step="1"
+          class="range range-primary"
           :aria-label="label"
-          @blur="commitTyped"
-          @keydown.enter.prevent="commitTyped"
+          :aria-valuetext="formatDuration(model, locale || undefined)"
         />
-        <span class="label">{{ $t("notifications.alert-form.seconds-unit") }}</span>
-      </label>
+        <span class="input input-sm w-28 shrink-0 justify-end">{{ formatDuration(model, locale || undefined) }}</span>
+      </template>
+      <template v-else>
+        <input v-model.number="slider" type="range" :min="min" :max="max" :step="step" class="range range-primary" />
+        <label class="input input-sm w-32 shrink-0">
+          <input
+            v-model.number="typed"
+            type="number"
+            :min="min"
+            :max="max"
+            :step="step"
+            class="text-right"
+            :aria-label="label"
+            @blur="commitTyped"
+            @keydown.enter.prevent="commitTyped"
+          />
+          <span class="label">{{ $t("notifications.alert-form.seconds-unit") }}</span>
+        </label>
+      </template>
     </div>
     <p class="text-base-content/60 mt-1 text-xs">
       <template v-if="model === 0 && zeroHint">{{ zeroHint }}</template>
@@ -26,15 +41,22 @@
 </template>
 
 <script lang="ts" setup>
-const { min, max, step } = defineProps<{
+const {
+  min = 0,
+  max = 0,
+  step = 1,
+  stops,
+} = defineProps<{
   label: string;
   /** Renders the description for the current value, e.g. "5m between alerts". */
   hint: (duration: string) => string;
   /** Shown instead of `hint` when the value is 0, for fields where 0 means "off". */
   zeroHint?: string;
-  min: number;
-  max: number;
-  step: number;
+  min?: number;
+  max?: number;
+  step?: number;
+  /** Fixed values in seconds the slider snaps between, for ranges too wide for a linear slider. */
+  stops?: number[];
 }>();
 
 const model = defineModel<number>({ required: true });
@@ -44,6 +66,15 @@ const model = defineModel<number>({ required: true });
 const slider = computed({
   get: () => model.value,
   set: (v) => (model.value = clamp(v)),
+});
+
+// A saved value between two stops shows at the nearest one and stays as it is until moved.
+const stopIndex = computed({
+  get: () => {
+    const distances = stops!.map((stop) => Math.abs(stop - model.value));
+    return distances.indexOf(Math.min(...distances));
+  },
+  set: (index) => (model.value = stops![index]),
 });
 
 const typed = ref(model.value);

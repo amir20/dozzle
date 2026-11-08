@@ -90,7 +90,6 @@
             ref="fieldsRef"
             :alert="alert"
             :prefill="prefill"
-            :immediate="sendsImmediately"
             :container-expression="containerExpression"
             :has-containers="hasContainers"
             :is-loading="isLoading"
@@ -173,6 +172,17 @@
             <span class="text-base-content/60 block text-xs">{{ $t("notifications.alert-form.immediate-hint") }}</span>
           </span>
         </label>
+        <!-- Kept in the layout while unticked, so ticking the box moves nothing on the form. -->
+        <DurationField
+          v-if="canSendImmediately && alertType === 'log'"
+          v-model="immediateCooldown"
+          class="mt-1"
+          :class="{ invisible: !immediate }"
+          :label="$t('notifications.alert-form.cooldown-label')"
+          :hint="(duration: string) => $t('notifications.alert-form.cooldown-hint', { duration })"
+          :zero-hint="$t('notifications.alert-form.no-cooldown')"
+          :stops="IMMEDIATE_COOLDOWN_STOPS"
+        />
       </section>
 
       <!-- 5. Name -->
@@ -236,6 +246,7 @@ import EventAlertFields from "./EventAlertFields.vue";
 import DestinationForm from "./DestinationForm.vue";
 import FormStepHeading from "@/components/ui/FormStepHeading.vue";
 import ExpressionField from "./ExpressionField.vue";
+import DurationField from "@/components/ui/DurationField.vue";
 import type { Dispatcher, NotificationRule } from "@/types/notifications";
 import TextBoxIcon from "~icons/mdi/text-box-outline";
 import ChartLineIcon from "~icons/mdi/chart-line";
@@ -301,7 +312,16 @@ const immediate = ref(props.alert?.immediate ?? props.prefill?.immediate ?? fals
 const canSendImmediately = computed(() => !!selectedDestination.value && selectedDestination.value.type !== "webhook");
 // Not canSendImmediately: destinations load after mount, and an edit must not read as changed when they arrive.
 const sendsImmediately = computed(() => immediate.value && selectedDestination.value?.type !== "webhook");
-const savedFields = computed(() => ({ ...fieldsRef.value?.typeFields, immediate: sendsImmediately.value }));
+
+// Seconds. Only an immediate log rule has a cooldown here: Dozzle Cloud needs every line of any other log rule.
+const IMMEDIATE_COOLDOWN_STOPS = [0, 10, 30, 60, 300, 900, 1800, 3600, 7200, 10800, 21600];
+const savedRule = props.alert ?? props.prefill;
+const immediateCooldown = ref(savedRule?.immediate ? (savedRule.cooldown ?? 0) : 10);
+const savedFields = computed(() => ({
+  ...fieldsRef.value?.typeFields,
+  immediate: sendsImmediately.value,
+  ...(sendsImmediately.value && alertType.value === "log" ? { cooldown: immediateCooldown.value } : {}),
+}));
 
 const matchedContainers = computed(() => containerResult.value?.containers ?? []);
 const hasContainers = computed(() => matchedContainers.value.length > 0);
