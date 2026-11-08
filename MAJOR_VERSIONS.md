@@ -82,3 +82,21 @@ A summary of major features introduced with each major version bump since 2020.
 - Per-container network usage stats (with mobile view)
 - Coolify label fallbacks for container name/group
 - Alert creation shortcut, JSON syntax in templates
+
+## v11.0.0 — 2026-09-10
+
+- **Redesigned interface**: sidebar, log stream, dashboard, menus, drawers, and command palette (Cmd+K), with new live-log and scroll-position indicators
+- **GitHub and OIDC sign-in**, with `users.yml` as the allowlist; `^` prefix to exclude roles, new notifications role
+- **MCP server** over Streamable HTTP on the existing web server, including log search
+- Container updates: pull and recreate from the UI, with prompts when a newer image is available
+- Metric alerts (CPU/memory), Docker event notifications including OOM and kill, custom webhook headers, rebuilt alert and destination workflows
+- Dozzle Cloud: log and metric streaming, container actions, persistent alerts in the log stream, cloud rail beside the logs, tools scoped to the asking user
+- Disk I/O stats, volume free-space tracking and low-space warnings
+- Inverse/exclude log search, scroll up in merged views, "see in context" for level-filtered logs, theme-aware ANSI colors
+- More log formats: OpenTelemetry severity, Pino numeric levels, `log.level` key
+- Host grouping, k8s grouping by owner chain, health status and stopped containers on the dashboard
+- `dev.dozzle.url` label, app icons for well-known images, Podman detection
+- PWA support, native compose file deployment, optional Alpine image
+- Removed SHA-256 passwords: Dozzle exits on startup until `users.yml` uses bcrypt (breaking)
+- Cloud search, alerts, and debug now scoped to user labels (breaking)
+- Sessions signed with a persisted random secret, so everyone is signed out once after upgrading
