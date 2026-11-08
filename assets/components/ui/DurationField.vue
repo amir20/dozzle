@@ -13,7 +13,7 @@
           :aria-label="label"
           :aria-valuetext="formatDuration(model, locale || undefined)"
         />
-        <span class="input input-sm w-28 shrink-0 justify-end">{{ formatDuration(model, locale || undefined) }}</span>
+        <span class="w-16 shrink-0 text-right font-mono text-sm">{{ formatDuration(model, locale || undefined) }}</span>
       </template>
       <template v-else>
         <input v-model.number="slider" type="range" :min="min" :max="max" :step="step" class="range range-primary" />
