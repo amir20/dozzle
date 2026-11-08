@@ -155,9 +155,10 @@ func (h *handler) setupCanWrite(r *http.Request) bool {
 		return h.setupWindowOpen()
 	}
 	user := auth.UserFromContext(r.Context())
-	// Role.Has matches any bit, so compare the whole mask: setup is for
-	// someone who holds every role.
-	return user != nil && user.Roles&auth.All == auth.All
+	// Setup is for someone who holds every role and sees every container. An
+	// empty roles key means all, so the roles alone can't tell an admin from a
+	// user confined by a filter, and setup applies to the whole instance.
+	return user != nil && user.Roles&auth.All == auth.All && !h.restrictedUser(r)
 }
 
 // setupCanWriteUpdates is setupCanWrite for the auto-update settings. Without
