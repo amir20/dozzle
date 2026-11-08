@@ -1,7 +1,7 @@
 ---
 title: 过滤器
 description: 用 DOZZLE_FILTER 或 --filter 限制 Dozzle 能看到哪些 Docker 容器，并了解 UI、agent 和用户三级过滤器如何叠加。
-sourceHash: 506ae2cd8bd9
+sourceHash: 873065d33b29
 ---
 
 # 过滤容器
@@ -32,6 +32,8 @@ services:
 :::
 
 常用的过滤条件是 `name` 或 `label`，用来限制 Dozzle 可以访问的容器。
+
+要匹配多个值中的任意一个，请重复同一个标签：`--filter label=team=a --filter label=team=b` 会显示这两个团队的容器（在 Kubernetes 上为 `--filter team=a --filter team=b`）。针对不同标签的过滤条件必须全部匹配。
 
 ## 界面、Agent 与用户过滤器
 

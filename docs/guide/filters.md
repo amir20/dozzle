@@ -32,6 +32,8 @@ services:
 
 Common filters are `name` or `label` to limit Dozzle's access to containers.
 
+To match any of several values, repeat the same label: `--filter label=team=a --filter label=team=b` shows containers on either team (`--filter team=a --filter team=b` on Kubernetes). Filters on different labels must all match.
+
 ## UI, Agents, and User Filters
 
 Dozzle supports multiple filters to limit the containers it can see. Filters can be set at the UI, agent, or user level.

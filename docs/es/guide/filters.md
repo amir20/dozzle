@@ -1,7 +1,7 @@
 ---
 title: Filtros
 description: Limita qué contenedores de Docker puede ver Dozzle con DOZZLE_FILTER o --filter, y entiende cómo se combinan los filtros de la UI, del agente y de usuario.
-sourceHash: 506ae2cd8bd9
+sourceHash: 873065d33b29
 ---
 
 # Filtrar contenedores
@@ -32,6 +32,8 @@ services:
 :::
 
 Los filtros más habituales son `name` o `label`, para limitar a qué contenedores accede Dozzle.
+
+Para aceptar cualquiera de varios valores, repite la misma etiqueta: `--filter label=team=a --filter label=team=b` muestra los contenedores de ambos equipos (`--filter team=a --filter team=b` en Kubernetes). Los filtros sobre etiquetas distintas deben cumplirse todos.
 
 ## Filtros de interfaz, de agente y de usuario
 

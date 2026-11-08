@@ -6,6 +6,7 @@ import (
 	"encoding/binary"
 	"errors"
 	"io"
+	"slices"
 	"time"
 
 	"github.com/amir20/dozzle/internal/container"
@@ -133,6 +134,80 @@ func Test_dockerClient_ListContainers_happy(t *testing.T) {
 	}
 
 	proxy.AssertExpectations(t)
+}
+
+type listRecorder struct {
+	CLI
+	items   []docker.Summary
+	options client.ContainerListOptions
+}
+
+func (r *listRecorder) ContainerList(_ context.Context, options client.ContainerListOptions) (client.ContainerListResult, error) {
+	r.options = options
+	return client.ContainerListResult{Items: r.items}, nil
+}
+
+func Test_dockerClient_ListContainers_labelFilters(t *testing.T) {
+	summary := func(name string, labels map[string]string) docker.Summary {
+		return docker.Summary{ID: name + "-0123456789", Names: []string{"/" + name}, Labels: labels}
+	}
+	items := []docker.Summary{
+		summary("a", map[string]string{"team": "a", "color": "red"}),
+		summary("b", map[string]string{"team": "b", "color": "red"}),
+		summary("c", map[string]string{"team": "c", "color": "red"}),
+	}
+
+	tests := []struct {
+		name       string
+		filter     string
+		wantDaemon client.Filters
+		want       []string
+	}{
+		{
+			name:       "repeated key matches any value",
+			filter:     "label=team=a,label=team=b",
+			wantDaemon: make(client.Filters).Add("label", "team"),
+			want:       []string{"a", "b"},
+		},
+		{
+			name:       "other labels still go to the daemon",
+			filter:     "label=team=a,label=team=b,label=color=red",
+			wantDaemon: make(client.Filters).Add("label", "team", "color=red"),
+			want:       []string{"a", "b"},
+		},
+		{
+			name:       "different keys pass through untouched",
+			filter:     "label=team=a,label=color=red",
+			wantDaemon: make(client.Filters).Add("label", "team=a", "color=red"),
+			want:       []string{"a", "b", "c"},
+		},
+		{
+			name:       "other filter keys pass through untouched",
+			filter:     "name=a,name=b",
+			wantDaemon: make(client.Filters).Add("name", "a", "b"),
+			want:       []string{"a", "b", "c"},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			filter, err := container.ParseContainerFilter(tt.filter)
+			require.NoError(t, err)
+
+			recorder := &listRecorder{items: slices.Clone(items)}
+			dockerClient := &Client{cli: recorder, host: container.Host{ID: "localhost"}, info: system.Info{}}
+
+			list, err := dockerClient.ListContainers(t.Context(), filter)
+			require.NoError(t, err)
+
+			names := make([]string, 0, len(list))
+			for _, c := range list {
+				names = append(names, c.Name)
+			}
+			assert.Equal(t, tt.want, names)
+			assert.Equal(t, tt.wantDaemon, recorder.options.Filters)
+		})
+	}
 }
 
 func Test_dockerClient_ContainerLogs_happy(t *testing.T) {
