@@ -187,6 +187,7 @@ message NotificationSubscription {
   int32 cooldown = 8;
   int32 sampleWindow = 9;
   string eventExpression = 10;
+  bool immediate = 11;
 }
 
 message NotificationDispatcher {

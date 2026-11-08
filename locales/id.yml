@@ -599,6 +599,8 @@ notifications:
     cooldown-label: Jeda
     cooldown-hint: "{duration} antara peringatan per kontainer"
     no-cooldown: Tanpa jeda
+    immediate-label: "Kirim segera"
+    immediate-hint: "Mengirim setiap kecocokan seketika tanpa peninjauan Dozzle Cloud, hingga batas peringatan harian paket Anda."
     alert-type: Jenis Peringatan
     log-alert: Peringatan Log
     metric-alert: Peringatan Metrik

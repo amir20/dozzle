@@ -589,6 +589,8 @@ notifications:
     cooldown-label: 冷卻時間
     cooldown-hint: "每個容器警報間隔 {duration}"
     no-cooldown: 無冷卻時間
+    immediate-label: "立即傳送"
+    immediate-hint: "不經 Dozzle Cloud 審查，立即傳送每個符合項目，上限為方案的每日警示數量。"
     alert-type: 警報類型
     log-alert: 日誌警報
     metric-alert: 指標警報

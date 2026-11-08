@@ -587,6 +587,8 @@ notifications:
     cooldown-label: Период ожидания
     cooldown-hint: "{duration} между оповещениями на контейнер"
     no-cooldown: Без периода ожидания
+    immediate-label: "Отправлять сразу"
+    immediate-hint: "Доставляет каждое совпадение сразу, без проверки Dozzle Cloud, в пределах дневного лимита оповещений вашего тарифа."
     alert-type: Тип оповещения
     log-alert: Оповещение журнала
     metric-alert: Оповещение метрики

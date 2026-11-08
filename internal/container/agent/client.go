@@ -860,6 +860,7 @@ func (c *Client) UpdateNotificationConfig(ctx context.Context, subscriptions []t
 			MetricExpression:    sub.MetricExpression,
 			Cooldown:            int32(sub.Cooldown),
 			SampleWindow:        int32(sub.SampleWindow),
+			Immediate:           sub.Immediate,
 			EventExpression:     sub.EventExpression,
 		}
 	}

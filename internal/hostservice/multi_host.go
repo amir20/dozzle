@@ -534,6 +534,7 @@ func (m *MultiHostService) broadcastNotificationConfig() {
 			EventExpression:     sub.EventExpression,
 			Cooldown:            sub.Cooldown,
 			SampleWindow:        sub.SampleWindow,
+			Immediate:           sub.Immediate,
 		}
 	}
 

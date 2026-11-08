@@ -160,6 +160,7 @@ func (m *Manager) UpdateSubscription(id int, updates map[string]any) error {
 			EventCooldowns:        sub.EventCooldowns,
 			Cooldown:              sub.Cooldown,
 			SampleWindow:          sub.SampleWindow,
+			Immediate:             sub.Immediate,
 			MetricCooldowns:       sub.MetricCooldowns,
 			MetricSampleBuffers:   sub.MetricSampleBuffers,
 			TriggeredContainerIDs: sub.TriggeredContainerIDs,
@@ -247,6 +248,10 @@ func (m *Manager) UpdateSubscription(id int, updates map[string]any) error {
 				if sw, ok := value.(int); ok {
 					updated.SampleWindow = sw
 					updated.MetricSampleBuffers = xsync.NewMap[string, *utils.RingBuffer[bool]]()
+				}
+			case "immediate":
+				if immediate, ok := value.(bool); ok {
+					updated.Immediate = immediate
 				}
 			}
 		}

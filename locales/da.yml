@@ -587,6 +587,8 @@ notifications:
     cooldown-label: Afkøling
     cooldown-hint: "{duration} mellem alarmer pr. container"
     no-cooldown: Ingen afkøling
+    immediate-label: "Send med det samme"
+    immediate-hint: "Leverer hvert match med det samme uden Dozzle Clouds gennemgang, op til din plans daglige grænse for advarsler."
     alert-type: Alarmtype
     log-alert: Logalarm
     metric-alert: Metrikalarm
