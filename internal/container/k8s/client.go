@@ -593,6 +593,11 @@ func podLabelSelector(labels container.ContainerLabels) string {
 	podLabels, _ := splitK8sFilters(labels)
 	var parts []string
 	for key, values := range podLabels {
+		// A pod has one value per key, so comma-joined equalities could never all match.
+		if len(values) > 1 {
+			parts = append(parts, fmt.Sprintf("%s in (%s)", key, strings.Join(slices.Sorted(slices.Values(values)), ",")))
+			continue
+		}
 		for _, value := range values {
 			parts = append(parts, fmt.Sprintf("%s=%s", key, value))
 		}

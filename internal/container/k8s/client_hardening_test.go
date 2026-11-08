@@ -16,6 +16,7 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/labels"
 	"k8s.io/client-go/kubernetes"
 	k8sfake "k8s.io/client-go/kubernetes/fake"
 	"k8s.io/client-go/rest"
@@ -103,6 +104,21 @@ func TestPodLabelSelectorKeepsOnlyPodLabels(t *testing.T) {
 		"namespace": {"prod"},
 	})
 	assert.Equal(t, "app=web,dozzle=true", selector)
+}
+
+func TestPodLabelSelectorRepeatedKeyMatchesAnyValue(t *testing.T) {
+	filter, err := container.ParseContainerFilter("app.kubernetes.io/name=jokes,app.kubernetes.io/name=bills,tier=web")
+	require.NoError(t, err)
+
+	selector := podLabelSelector(filter)
+	assert.Equal(t, "app.kubernetes.io/name in (bills,jokes),tier=web", selector)
+
+	parsed, err := labels.Parse(selector)
+	require.NoError(t, err)
+	assert.True(t, parsed.Matches(labels.Set{"app.kubernetes.io/name": "jokes", "tier": "web"}))
+	assert.True(t, parsed.Matches(labels.Set{"app.kubernetes.io/name": "bills", "tier": "web"}))
+	assert.False(t, parsed.Matches(labels.Set{"app.kubernetes.io/name": "other", "tier": "web"}))
+	assert.False(t, parsed.Matches(labels.Set{"app.kubernetes.io/name": "jokes", "tier": "db"}), "different keys must still all match")
 }
 
 func TestContainerActionsRestartDeletesControlledPod(t *testing.T) {
