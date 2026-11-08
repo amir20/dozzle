@@ -592,6 +592,8 @@ notifications:
     cooldown-label: Čas mirovanja
     cooldown-hint: "{duration} med opozorili na zabojnik"
     no-cooldown: Brez časa mirovanja
+    immediate-label: "Pošlji takoj"
+    immediate-hint: "Vsako ujemanje dostavi takoj, brez pregleda Dozzle Cloud, do dnevne omejitve opozoril vašega paketa."
     alert-type: Vrsta opozorila
     log-alert: Opozorilo dnevnika
     metric-alert: Opozorilo metrike

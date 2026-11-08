@@ -587,6 +587,8 @@ notifications:
     cooldown-label: Abklingzeit
     cooldown-hint: "{duration} zwischen Alarmen pro Container"
     no-cooldown: Keine Abklingzeit
+    immediate-label: "Sofort senden"
+    immediate-hint: "Stellt jeden Treffer sofort ohne Prüfung durch Dozzle Cloud zu, bis zum täglichen Alarmlimit deines Tarifs."
     alert-type: Alarmtyp
     log-alert: Log-Alarm
     metric-alert: Metrik-Alarm

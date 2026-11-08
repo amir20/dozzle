@@ -589,6 +589,8 @@ notifications:
     cooldown-label: 대기 시간
     cooldown-hint: "컨테이너당 알림 간격 {duration}"
     no-cooldown: 대기 시간 없음
+    immediate-label: "즉시 보내기"
+    immediate-hint: "Dozzle Cloud의 검토 없이 일치하는 항목을 바로 전달합니다. 요금제의 일일 알림 한도까지 적용됩니다."
     alert-type: 알림 유형
     log-alert: 로그 알림
     metric-alert: 메트릭 알림

@@ -117,6 +117,7 @@ type Subscription struct {
 	EventExpression     string `json:"eventExpression,omitempty" yaml:"eventExpression,omitempty"`
 	Cooldown            int    `json:"cooldown,omitempty" yaml:"cooldown,omitempty"`         // seconds between metric notifications, default 300
 	SampleWindow        int    `json:"sampleWindow,omitempty" yaml:"sampleWindow,omitempty"` // seconds of samples to evaluate, default 15
+	Immediate           bool   `json:"immediate,omitempty" yaml:"immediate,omitempty"`       // delivered by Dozzle Cloud as it matches, skipping its review
 
 	// Compiled filter expressions
 	LogProgram       *vm.Program `json:"-" yaml:"-"` // Compiled log filter expression

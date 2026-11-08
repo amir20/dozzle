@@ -1496,6 +1496,7 @@ type NotificationSubscription struct {
 	Cooldown            int32                  `protobuf:"varint,8,opt,name=cooldown,proto3" json:"cooldown,omitempty"`
 	SampleWindow        int32                  `protobuf:"varint,9,opt,name=sampleWindow,proto3" json:"sampleWindow,omitempty"`
 	EventExpression     string                 `protobuf:"bytes,10,opt,name=eventExpression,proto3" json:"eventExpression,omitempty"`
+	Immediate           bool                   `protobuf:"varint,11,opt,name=immediate,proto3" json:"immediate,omitempty"`
 	unknownFields       protoimpl.UnknownFields
 	sizeCache           protoimpl.SizeCache
 }
@@ -1598,6 +1599,13 @@ func (x *NotificationSubscription) GetEventExpression() string {
 		return x.EventExpression
 	}
 	return ""
+}
+
+func (x *NotificationSubscription) GetImmediate() bool {
+	if x != nil {
+		return x.Immediate
+	}
+	return false
 }
 
 type NotificationDispatcher struct {
@@ -1973,7 +1981,7 @@ const file_types_proto_rawDesc = "" +
 	"\x04Disk\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12\x14\n" +
 	"\x05total\x18\x02 \x01(\x04R\x05total\x12\x12\n" +
-	"\x04free\x18\x03 \x01(\x04R\x04free\"\xea\x02\n" +
+	"\x04free\x18\x03 \x01(\x04R\x04free\"\x88\x03\n" +
 	"\x18NotificationSubscription\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\x05R\x02id\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12\x18\n" +
@@ -1985,7 +1993,8 @@ const file_types_proto_rawDesc = "" +
 	"\bcooldown\x18\b \x01(\x05R\bcooldown\x12\"\n" +
 	"\fsampleWindow\x18\t \x01(\x05R\fsampleWindow\x12(\n" +
 	"\x0feventExpression\x18\n" +
-	" \x01(\tR\x0feventExpression\"\x95\x02\n" +
+	" \x01(\tR\x0feventExpression\x12\x1c\n" +
+	"\timmediate\x18\v \x01(\bR\timmediate\"\x95\x02\n" +
 	"\x16NotificationDispatcher\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\x05R\x02id\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12\x12\n" +

@@ -88,6 +88,7 @@ type SubscriptionConfig struct {
 	EventExpression     string `json:"eventExpression,omitempty"`
 	Cooldown            int    `json:"cooldown,omitempty"`
 	SampleWindow        int    `json:"sampleWindow,omitempty"`
+	Immediate           bool   `json:"immediate,omitempty"`
 }
 
 // SubscriptionStats represents runtime stats for a notification subscription

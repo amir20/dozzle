@@ -587,6 +587,8 @@ notifications:
     cooldown-label: Tempo de espera
     cooldown-hint: "{duration} entre alertas por container"
     no-cooldown: Sem tempo de espera
+    immediate-label: "Enviar imediatamente"
+    immediate-hint: "Entrega cada correspondência de imediato, sem a análise do Dozzle Cloud, até ao limite diário de alertas do seu plano."
     alert-type: Tipo de alerta
     log-alert: Alerta de log
     metric-alert: Alerta de métrica

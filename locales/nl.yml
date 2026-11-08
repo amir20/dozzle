@@ -588,6 +588,8 @@ notifications:
     cooldown-label: Wachttijd
     cooldown-hint: "{duration} tussen waarschuwingen per container"
     no-cooldown: Geen wachttijd
+    immediate-label: "Direct versturen"
+    immediate-hint: "Levert elke match meteen af zonder beoordeling door Dozzle Cloud, tot aan de dagelijkse meldingslimiet van je abonnement."
     alert-type: Waarschuwingstype
     log-alert: Logwaarschuwing
     metric-alert: Metrikwaarschuwing

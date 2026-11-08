@@ -14,6 +14,7 @@ export interface AlertPrefill {
   eventExpression?: string;
   cooldown?: number;
   sampleWindow?: number;
+  immediate?: boolean;
   dispatcherId?: number;
 }
 

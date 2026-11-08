@@ -739,6 +739,8 @@ notifications:
     cooldown-label: Cooldown
     cooldown-hint: "{duration} between alerts per container"
     no-cooldown: No cooldown
+    immediate-label: "Send immediately"
+    immediate-hint: "Delivers each match right away without Dozzle Cloud's review, up to your plan's daily alert limit."
     alert-type: Alert Type
     log-alert: Log Alert
     metric-alert: Metric Alert

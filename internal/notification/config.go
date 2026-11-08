@@ -60,6 +60,7 @@ func (m *Manager) LoadConfig(r io.Reader) error {
 			EventExpression:     sub.EventExpression,
 			Cooldown:            sub.Cooldown,
 			SampleWindow:        sub.SampleWindow,
+			Immediate:           sub.Immediate,
 		}
 	}
 
@@ -130,6 +131,7 @@ func (m *Manager) HandleNotificationConfig(subscriptions []types.SubscriptionCon
 			EventExpression:     sub.EventExpression,
 			Cooldown:            sub.Cooldown,
 			SampleWindow:        sub.SampleWindow,
+			Immediate:           sub.Immediate,
 		}
 
 		if old, ok := existing[sub.ID]; ok {
