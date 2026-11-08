@@ -14,10 +14,10 @@
         "@codemirror/theme-one-dark": "^6.1.3",
         "@codemirror/view": "^6.43.15",
         "@duckdb/duckdb-wasm": "1.33.1-dev57.0",
-        "@iconify-json/carbon": "^1.2.29",
+        "@iconify-json/carbon": "^1.2.30",
         "@iconify-json/cil": "^1.2.3",
         "@iconify-json/ic": "^1.2.4",
-        "@iconify-json/material-symbols": "^1.2.97",
+        "@iconify-json/material-symbols": "^1.2.98",
         "@iconify-json/mdi": "^1.2.3",
         "@iconify-json/mdi-light": "^1.2.2",
         "@iconify-json/octicon": "^1.2.40",
@@ -61,7 +61,7 @@
         "@fontsource-variable/jetbrains-mono": "^5.3.0",
         "@fontsource-variable/playfair-display": "^5.3.0",
         "@iconify-json/ion": "^1.2.7",
-        "@iconify-json/material-symbols-light": "^1.2.98",
+        "@iconify-json/material-symbols-light": "^1.2.99",
         "@iconify-json/ri": "^1.2.10",
         "@iconify-json/simple-icons": "^1.2.101",
         "@iconify-json/svg-spinners": "^1.2.4",
@@ -75,7 +75,7 @@
         "@vue/compiler-sfc": "^3.5.45",
         "@vue/test-utils": "^2.5.1",
         "bumpp": "^12.3.0",
-        "concurrently": "^10.0.6",
+        "concurrently": "^10.0.7",
         "eslint": "^10.14.0",
         "eslint-plugin-tailwindcss": "^4.4.0",
         "jsdom": "^31.0.0",
@@ -265,7 +265,7 @@
 
     "@humanwhocodes/retry": ["@humanwhocodes/retry@0.4.3", "", {}, "sha512-bV0Tgo9K4hfPCek+aMAn81RppFKv2ySDQeMoSZuvTASywNTnVJCArCZE2FWqpvIatKu7VMRLWlR1EazvVhDyhQ=="],
 
-    "@iconify-json/carbon": ["@iconify-json/carbon@1.2.29", "", { "dependencies": { "@iconify/types": "*" } }, "sha512-whk3BOU2jXFtweigCrrrYXT7NzWXGUT1q268vEnySzhfdnwZhQhVlFjhkgZH86JRRx21/CziTmzpAJMe5V2yKQ=="],
+    "@iconify-json/carbon": ["@iconify-json/carbon@1.2.30", "", { "dependencies": { "@iconify/types": "*" } }, "sha512-54GoLfi17qzhbdwOAbYvzpRBz2QNYAekghLyEHv1GpQN/Jmd3c/la8T71109n8lfmyWknPcLi/+OTAIT1VL0IA=="],
 
     "@iconify-json/cil": ["@iconify-json/cil@1.2.3", "", { "dependencies": { "@iconify/types": "*" } }, "sha512-byZH2wJeow6DO/+mYGwjlG5Gm2ZARJ1Rpr7Ryh4EcAFU0rH+AWoKbAUrBZMh1EU7jsVI4bKM95SLSsrWQ44sEw=="],
 
@@ -273,9 +273,9 @@
 
     "@iconify-json/ion": ["@iconify-json/ion@1.2.7", "", { "dependencies": { "@iconify/types": "*" } }, "sha512-ZJNG5kLCbTPr68mdP0jx6Q3lB9AMEQKO2+VvIjuJ2llGFICBLD+cvESn/qGDRIqSfk2D3PrFMf/Qg8WKIUV7cg=="],
 
-    "@iconify-json/material-symbols": ["@iconify-json/material-symbols@1.2.97", "", { "dependencies": { "@iconify/types": "*" } }, "sha512-MbE4QHrH4Z4eoerBFrzFSPqHw2NwVGwwOwGZdJym5l5N5loqEUThimlQpK9VJA6mvgWvj5jl43b8bZnqzOxNRQ=="],
+    "@iconify-json/material-symbols": ["@iconify-json/material-symbols@1.2.98", "", { "dependencies": { "@iconify/types": "*" } }, "sha512-ycgn080/EGstyYcJFu+HN0TYI+ts/KFPb+An0dzpwZit4M/BoFO9U54BwBmrS2Qo/3g9NYV4Y/g1BT425tNgEw=="],
 
-    "@iconify-json/material-symbols-light": ["@iconify-json/material-symbols-light@1.2.98", "", { "dependencies": { "@iconify/types": "*" } }, "sha512-Y8kovab5QOrAt35pvchYKhB/ZgeLHB7hsReC5KR7D7QoF0Cvuhy93SKZGHcC1TEOgoUJSkpfEtzFH/o6ZOOaxA=="],
+    "@iconify-json/material-symbols-light": ["@iconify-json/material-symbols-light@1.2.99", "", { "dependencies": { "@iconify/types": "*" } }, "sha512-KbrD8EEvdAJ3u5WkOx/eiNNEEWz1mMFqUcwkqcXE6JplI4ZxjujRHPr/MbWN1l0D/B63pDBq9IAYqk7JXFXafw=="],
 
     "@iconify-json/mdi": ["@iconify-json/mdi@1.2.3", "", { "dependencies": { "@iconify/types": "*" } }, "sha512-O3cLwbDOK7NNDf2ihaQOH5F9JglnulNDFV7WprU2dSoZu3h3cWH//h74uQAB87brHmvFVxIOkuBX2sZSzYhScg=="],
 
@@ -705,7 +705,7 @@
 
     "commander": ["commander@7.2.0", "", {}, "sha512-QrWXB+ZQSVPmIWIhtEO9H+gwHaMGYiF5ChvoJ+K9ZGHG/sVsa6yiesAD1GC/x46sET00Xlwo1u49RVVVzvcSkw=="],
 
-    "concurrently": ["concurrently@10.0.6", "", { "dependencies": { "chalk": "5.6.2", "rxjs": "7.8.2", "shell-quote": "1.12.0", "supports-color": "10.2.2", "tree-kill": "1.2.2", "yargs": "18.0.0" }, "bin": { "conc": "dist/bin/index.js", "concurrently": "dist/bin/index.js" } }, "sha512-qgICXXFp2/3nAebRLmxcINKEXM1mLK3ij/y31P02VTs/KIkddIeC05n73DxOXsXMB9LFSqNU1/na3lDlOhcbIw=="],
+    "concurrently": ["concurrently@10.0.7", "", { "dependencies": { "chalk": "5.6.2", "rxjs": "7.8.2", "shell-quote": "1.12.0", "supports-color": "10.2.2", "tree-kill": "1.2.2", "yargs": "18.0.0" }, "bin": { "conc": "dist/bin/index.js", "concurrently": "dist/bin/index.js" } }, "sha512-zMCeLhawVIj3SLbpg0/BWCdJl1wcBSpcHKbNrhaM01P3xAlEWcH30Lea2q+F4uGZ7YM0scDK0dgpWyn1uCJj6w=="],
 
     "confbox": ["confbox@0.3.1", "", {}, "sha512-cKUSoKa8YxFZZSmraVi7onONx3amu77ngK3kGpsYHDH7drPwCRkQE1RYMPlLRrMtnciRj274XNRxcHxnKmDSnA=="],
 
