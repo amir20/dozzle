@@ -263,7 +263,7 @@ For `health_status` events, Dozzle exposes the current state as `attributes["hea
 
 ### Update Available
 
-Dozzle also raises an `update_available` event when a newer image is published for a container. Once a day, at a random time, it checks every container not labeled `dev.dozzle.update: off`, and alerts once per new image. A restart of Dozzle can repeat an alert for an update it already sent. The check only runs while at least one event alert is enabled, and not at all when `--image-check-mode` is `manual` or `off`.
+Dozzle also raises an `update_available` event when a newer image is published for a container. Once a day, at a random time, it checks every container not labeled `dev.dozzle.update: off`, and alerts once per new image. To check more or less often, set `DOZZLE_IMAGE_CHECK_INTERVAL` to a duration such as `6h`, with a minimum of `1h`. A restart of Dozzle can repeat an alert for an update it already sent. The check only runs while at least one event alert is enabled, and not at all when `--image-check-mode` is `manual` or `off`.
 
 | Attribute        | Description                        |
 | ---------------- | ---------------------------------- |

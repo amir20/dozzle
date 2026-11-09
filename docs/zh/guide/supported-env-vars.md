@@ -1,7 +1,7 @@
 ---
 title: 环境变量与子命令
 description: Dozzle 全部环境变量和标志（包括身份验证），以及 generate、agent、generate-certs 和 healthcheck 子命令。
-sourceHash: 0ca047caacaf
+sourceHash: ece6f498d9bf
 ---
 
 # 环境变量
@@ -51,6 +51,7 @@ DOZZLE_REMOTE_AGENT=167.99.1.1:7007,167.99.1.2:7007
 | `DOZZLE_DISABLE_SETUP_WIZARD`<br>`--disable-setup-wizard` | 阻止[设置向导](/zh/guide/setup-wizard)在全新安装时自动打开。仍然可以在 **设置 → 关于** 中运行它。                                                                         | `true`、`false`              | `false`                             |
 | `DOZZLE_RELEASE_CHECK_MODE`<br>`--release-check-mode`     | Dozzle 是否检查自身的新版本。`manual` 只在你主动要求时检查。                                                                                                              | `automatic`、`manual`        | `automatic`                         |
 | `DOZZLE_IMAGE_CHECK_MODE`<br>`--image-check-mode`         | Dozzle 是否到镜像仓库检查更新的容器镜像。参见[更新检查](/zh/guide/updates#update-checking)。                                                                              | `automatic`、`manual`、`off` | 与 `DOZZLE_RELEASE_CHECK_MODE` 相同 |
+| `DOZZLE_IMAGE_CHECK_INTERVAL`<br>`--image-check-interval` | [`update_available` 警报](/zh/guide/alerts-and-webhooks#有可用更新)到镜像仓库检查新镜像的频率。至少为 `1h`。                                                              | 时长，例如 `6h`              | `24h`                               |
 | `DOZZLE_AUTO_UPDATE`<br>`--auto-update`                   | 按计划更新 Dozzle，以及设为自动更新的容器。`weekly` 在周日运行。需要开启 `DOZZLE_ENABLE_ACTIONS`。请参阅[自动更新容器](/zh/guide/updates#auto-updating-containers)。      | `off`、`daily`、`weekly`     | `off`                               |
 | `DOZZLE_AUTO_UPDATE_TIME`<br>`--auto-update-time`         | 每天运行自动更新的时间，按服务器本地时间计算。实际会在该时间后随机延迟 1–10 分钟开始，避开整点。                                                                          | `HH:MM`，例如 `04:30`        | `03:00`                             |
 | `DOZZLE_AUTO_CLEANUP`<br>`--auto-cleanup`                 | 按计划清理每台主机，从不删除卷。`weekly` 在周日运行。需要 `DOZZLE_ENABLE_ACTIONS`。参见 [磁盘占用](/zh/guide/container-disk-usage)。                                      | `off`, `daily`, `weekly`     | `off`                               |

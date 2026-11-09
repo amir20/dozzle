@@ -10,7 +10,7 @@ import (
 )
 
 // UpdateAvailableEventName is the event a newer image upstream raises. Like
-// UpdateEventName it is not a Docker event: it comes from a daily check of
+// UpdateEventName it is not a Docker event: it comes from a periodic check of
 // every container that is not labelled dev.dozzle.update=off.
 const UpdateAvailableEventName = "update_available"
 
@@ -18,32 +18,34 @@ const UpdateAvailableEventName = "update_available"
 // forced past the digest cache.
 type UpdateChecker func(ctx context.Context) []container.ImageUpdate
 
-// CheckForUpdates runs check once a day while the listener runs, and raises
-// update_available for each new image it finds. Only the process that owns
-// the hosts calls it, after ListenToUpdates: an agent's containers are
+// CheckForUpdates runs check every interval while the listener runs, and
+// raises update_available for each new image it finds. Only the process that
+// owns the hosts calls it, after ListenToUpdates: an agent's containers are
 // checked by its server.
-func (l *ContainerEventListener) CheckForUpdates(check UpdateChecker) {
+func (l *ContainerEventListener) CheckForUpdates(interval time.Duration, check UpdateChecker) {
 	l.mu.Lock()
 	defer l.mu.Unlock()
 	l.checkUpdates = check
-	// A random time of day, so every install does not reach the registries in
-	// the same minute.
-	l.checkAt = rand.N(24 * time.Hour)
+	l.checkInterval = interval
+	// A random point in the interval, so every install does not reach the
+	// registries in the same minute.
+	l.checkAt = rand.N(interval)
 }
 
-// nextUpdateCheck is the first time after now that falls checkAt into a day.
-func nextUpdateCheck(now time.Time, checkAt time.Duration) time.Time {
-	day := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, now.Location())
-	next := day.Add(checkAt)
+// nextUpdateCheck is the first time after now that falls checkAt into an
+// interval. Intervals count from a fixed origin, so stopping and starting the
+// listener keeps the schedule rather than pushing the next check back.
+func nextUpdateCheck(now time.Time, interval, checkAt time.Duration) time.Time {
+	next := now.Truncate(interval).Add(checkAt)
 	if !next.After(now) {
-		next = day.AddDate(0, 0, 1).Add(checkAt)
+		next = next.Add(interval)
 	}
 	return next
 }
 
-func (l *ContainerEventListener) runUpdateChecks(ctx context.Context, check UpdateChecker, checkAt time.Duration) {
+func (l *ContainerEventListener) runUpdateChecks(ctx context.Context, check UpdateChecker, interval, checkAt time.Duration) {
 	for {
-		next := nextUpdateCheck(time.Now(), checkAt)
+		next := nextUpdateCheck(time.Now(), interval, checkAt)
 		log.Debug().Time("at", next).Msg("update alerts: next image check")
 		select {
 		case <-ctx.Done():

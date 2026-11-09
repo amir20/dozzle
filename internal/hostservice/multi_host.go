@@ -407,14 +407,14 @@ func (m *MultiHostService) TotalClients() int {
 }
 
 // StartNotificationManager initializes and starts the notification manager
-func (m *MultiHostService) StartNotificationManager(ctx context.Context, imageChecks bool, labels container.ContainerLabels) error {
+func (m *MultiHostService) StartNotificationManager(ctx context.Context, imageChecks bool, imageCheckInterval time.Duration, labels container.ContainerLabels) error {
 	clients := m.manager.LocalClientServices()
 	listener := notification.NewContainerLogListener(ctx, clients)
 	statsListener := notification.NewContainerStatsListener(ctx, clients)
 	eventListener := notification.NewContainerEventListener(ctx, clients)
 	eventListener.ListenToUpdates(container.Updates, func() []container.ClientService { return m.ClientServices(false) })
 	if imageChecks {
-		eventListener.CheckForUpdates(func(ctx context.Context) []container.ImageUpdate {
+		eventListener.CheckForUpdates(imageCheckInterval, func(ctx context.Context) []container.ImageUpdate {
 			containers, _ := m.ListAllContainers(labels)
 			return container.CheckImageUpdates(ctx, m, containers, true)
 		})

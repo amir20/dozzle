@@ -1,7 +1,7 @@
 ---
 title: Alarme
 description: Richte in Dozzle Alarme für Docker-Container-Logs, CPU- und Speichermetriken sowie Lebenszyklus-Ereignisse ein und sende sie an einen Webhook, Slack, Discord oder ntfy.
-sourceHash: 5a3bc907b39a
+sourceHash: 628000eb3e0a
 ---
 
 # Alarme
@@ -264,7 +264,7 @@ Bei `health_status`-Ereignissen stellt Dozzle den aktuellen Zustand als `attribu
 
 ### Update verfügbar
 
-Dozzle löst außerdem ein `update_available`-Ereignis aus, wenn für einen Container ein neueres Image veröffentlicht wird. Einmal am Tag, zu einer zufälligen Uhrzeit, prüft es jeden Container, der nicht mit `dev.dozzle.update: off` gelabelt ist, und alarmiert einmal pro neuem Image. Nach einem Neustart von Dozzle kann ein Alarm für ein bereits gemeldetes Update erneut kommen. Die Prüfung läuft nur, solange mindestens ein Ereignis-Alarm aktiviert ist, und gar nicht, wenn `--image-check-mode` auf `manual` oder `off` steht.
+Dozzle löst außerdem ein `update_available`-Ereignis aus, wenn für einen Container ein neueres Image veröffentlicht wird. Einmal am Tag, zu einer zufälligen Uhrzeit, prüft es jeden Container, der nicht mit `dev.dozzle.update: off` gelabelt ist, und alarmiert einmal pro neuem Image. Um häufiger oder seltener zu prüfen, setze `DOZZLE_IMAGE_CHECK_INTERVAL` auf eine Dauer, z. B. `6h`; das Minimum ist `1h`. Nach einem Neustart von Dozzle kann ein Alarm für ein bereits gemeldetes Update erneut kommen. Die Prüfung läuft nur, solange mindestens ein Ereignis-Alarm aktiviert ist, und gar nicht, wenn `--image-check-mode` auf `manual` oder `off` steht.
 
 | Attribut         | Beschreibung                               |
 | ---------------- | ------------------------------------------ |

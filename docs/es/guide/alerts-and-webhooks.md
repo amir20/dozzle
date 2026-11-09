@@ -1,7 +1,7 @@
 ---
 title: Alertas
 description: Configura alertas de Dozzle sobre los logs de contenedores Docker, las métricas de CPU y memoria y los eventos del ciclo de vida, y envíalas a un webhook, Slack, Discord o ntfy.
-sourceHash: 5a3bc907b39a
+sourceHash: 628000eb3e0a
 ---
 
 # Alertas
@@ -264,7 +264,7 @@ En los eventos `health_status`, Dozzle expone el estado actual como `attributes[
 
 ### Actualización disponible
 
-Dozzle también genera un evento `update_available` cuando se publica una imagen más reciente para un contenedor. Una vez al día, a una hora aleatoria, revisa todos los contenedores que no tengan la etiqueta `dev.dozzle.update: off`, y avisa una sola vez por cada imagen nueva. Un reinicio de Dozzle puede repetir una alerta de una actualización que ya envió. La comprobación solo se ejecuta mientras haya al menos una alerta de evento activada, y nunca cuando `--image-check-mode` es `manual` u `off`.
+Dozzle también genera un evento `update_available` cuando se publica una imagen más reciente para un contenedor. Una vez al día, a una hora aleatoria, revisa todos los contenedores que no tengan la etiqueta `dev.dozzle.update: off`, y avisa una sola vez por cada imagen nueva. Para comprobar con más o menos frecuencia, establece `DOZZLE_IMAGE_CHECK_INTERVAL` en una duración como `6h`, con un mínimo de `1h`. Un reinicio de Dozzle puede repetir una alerta de una actualización que ya envió. La comprobación solo se ejecuta mientras haya al menos una alerta de evento activada, y nunca cuando `--image-check-mode` es `manual` u `off`.
 
 | Atributo         | Descripción                                       |
 | ---------------- | ------------------------------------------------- |

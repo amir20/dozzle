@@ -53,6 +53,7 @@ type Args struct {
 	Filter                 map[string][]string `arg:"-"`
 	ReleaseCheckMode       string              `arg:"--release-check-mode,env:DOZZLE_RELEASE_CHECK_MODE" default:"automatic" help:"sets the release check mode. When manual, releases will not be automatically fetched."`
 	ImageCheckMode         string              `arg:"--image-check-mode,env:DOZZLE_IMAGE_CHECK_MODE" help:"controls checking container registries for newer images (automatic, manual, off). Defaults to --release-check-mode."`
+	ImageCheckInterval     time.Duration       `arg:"--image-check-interval,env:DOZZLE_IMAGE_CHECK_INTERVAL" default:"24h" help:"sets how often update_available alerts check registries for newer images, such as 6h. At least 1h."`
 	RemoteHost             []string            `arg:"env:DOZZLE_REMOTE_HOST,--remote-host,separate" help:"list of hosts to connect remotely"`
 	RemoteAgent            []string            `arg:"env:DOZZLE_REMOTE_AGENT,--remote-agent,separate" help:"list of agents to connect remotely"`
 	NoAnalytics            bool                `arg:"--no-analytics,env:DOZZLE_NO_ANALYTICS" help:"disables anonymous analytics"`
@@ -132,6 +133,11 @@ func ParseArgs() (Args, any) {
 
 	if _, err := imagecheck.ParseMode(args.ImageCheckMode); err != nil {
 		parser.Fail(err.Error())
+	}
+
+	// Every check goes to the registry for every container, past the digest cache.
+	if args.ImageCheckInterval < time.Hour {
+		parser.Fail("image-check-interval should be at least 1h")
 	}
 
 	if err := applyFileBackedSecrets(&args, os.Getenv); err != nil {
