@@ -24,7 +24,10 @@
     <!-- The rest of the history is a page, not a panel: this one is about the
          view, and everything else belongs where it can be filtered and read. -->
     <div v-if="visible.length" class="border-base-content/10 border-t p-3">
-      <RouterLink to="/notifications" class="hover:bg-base-300 flex items-center gap-2 rounded-md px-2 py-1.5 text-sm">
+      <RouterLink
+        :to="{ path: '/notifications', query: { tab: 'activity' } }"
+        class="hover:bg-base-300 flex items-center gap-2 rounded-md px-2 py-1.5 text-sm"
+      >
         <mdi:history class="size-4 opacity-60" />
         {{ $t("cloud-rail.all-activity") }}
       </RouterLink>

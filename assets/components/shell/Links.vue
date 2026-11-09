@@ -5,7 +5,7 @@
 
     <router-link
       v-if="config.enableNotifications"
-      :to="{ name: '/notifications' }"
+      :to="{ name: '/notifications', query: unseenAlerts ? { tab: 'activity' } : undefined }"
       :aria-label="unseenAlerts ? $t('notifications.new-alerts') : $t('title.notifications')"
       :title="unseenAlerts ? $t('notifications.new-alerts') : undefined"
       data-testid="notifications"

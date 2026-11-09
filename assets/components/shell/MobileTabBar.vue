@@ -49,7 +49,7 @@
       </button>
       <router-link
         v-if="config.enableNotifications"
-        :to="{ name: '/notifications' }"
+        :to="{ name: '/notifications', query: unseenAlerts ? { tab: 'activity' } : undefined }"
         class="tab-item relative"
         :class="{ active: active === 'notifications' }"
         @click="browsing = false"
