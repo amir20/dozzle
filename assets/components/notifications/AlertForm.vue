@@ -172,12 +172,10 @@
             <span class="text-base-content/60 block text-xs">{{ $t("notifications.alert-form.immediate-hint") }}</span>
           </span>
         </label>
-        <!-- Kept in the layout while unticked, so ticking the box moves nothing on the form. -->
         <DurationField
-          v-if="canSendImmediately && alertType === 'log'"
+          v-if="canSendImmediately && immediate && alertType === 'log'"
           v-model="immediateCooldown"
           class="mt-1 ml-8"
-          :class="{ invisible: !immediate }"
           :label="$t('notifications.alert-form.cooldown-label')"
           :hint="(duration: string) => $t('notifications.alert-form.cooldown-hint', { duration })"
           :zero-hint="$t('notifications.alert-form.no-cooldown')"
