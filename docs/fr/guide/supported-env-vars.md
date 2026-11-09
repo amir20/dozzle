@@ -1,7 +1,7 @@
 ---
 title: Variables d'environnement et sous-commandes
 description: Toutes les variables d'environnement et options de Dozzle, y compris l'authentification, et les sous-commandes generate, agent, generate-certs et healthcheck.
-sourceHash: 0ca047caacaf
+sourceHash: ece6f498d9bf
 ---
 
 # Variables d'environnement
@@ -51,6 +51,7 @@ DOZZLE_REMOTE_AGENT=167.99.1.1:7007,167.99.1.2:7007
 | `DOZZLE_DISABLE_SETUP_WIZARD`<br>`--disable-setup-wizard` | Empêche l'[assistant de configuration](/fr/guide/setup-wizard) de s'ouvrir tout seul sur une nouvelle installation. Il reste possible de le lancer depuis **Paramètres → À propos**.                                                                                     | `true`, `false`              | `false`                                 |
 | `DOZZLE_RELEASE_CHECK_MODE`<br>`--release-check-mode`     | Indique si Dozzle vérifie ses propres nouvelles versions. `manual` ne vérifie que lorsque vous le demandez.                                                                                                                                                              | `automatic`, `manual`        | `automatic`                             |
 | `DOZZLE_IMAGE_CHECK_MODE`<br>`--image-check-mode`         | Indique si Dozzle interroge les registres pour trouver des images de conteneurs plus récentes. Voir [vérification des mises à jour](/fr/guide/updates#update-checking).                                                                                                  | `automatic`, `manual`, `off` | identique à `DOZZLE_RELEASE_CHECK_MODE` |
+| `DOZZLE_IMAGE_CHECK_INTERVAL`<br>`--image-check-interval` | Fréquence à laquelle les [alertes `update_available`](/fr/guide/alerts-and-webhooks#mise-a-jour-disponible) interrogent les registres pour trouver des images plus récentes. Au moins `1h`.                                                                              | une durée, par ex. `6h`      | `24h`                                   |
 | `DOZZLE_AUTO_UPDATE`<br>`--auto-update`                   | Met à jour Dozzle, et les conteneurs réglés pour se mettre à jour automatiquement, selon un planning. `weekly` s'exécute le dimanche. Nécessite `DOZZLE_ENABLE_ACTIONS`. Consultez [mise à jour automatique des conteneurs](/fr/guide/updates#auto-updating-containers). | `off`, `daily`, `weekly`     | `off`                                   |
 | `DOZZLE_AUTO_UPDATE_TIME`<br>`--auto-update-time`         | Heure de la journée à laquelle la mise à jour automatique s'exécute, dans l'heure locale du serveur. Elle démarre 1 à 10 minutes plus tard, au hasard, jamais à l'heure pile.                                                                                            | `HH:MM`, par ex. `04:30`     | `03:00`                                 |
 | `DOZZLE_AUTO_CLEANUP`<br>`--auto-cleanup`                 | Nettoie chaque hôte selon une planification, jamais les volumes. `weekly` s'exécute le dimanche. Nécessite `DOZZLE_ENABLE_ACTIONS`. Voir [espace disque](/fr/guide/container-disk-usage).                                                                                | `off`, `daily`, `weekly`     | `off`                                   |

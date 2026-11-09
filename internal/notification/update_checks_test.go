@@ -1,6 +1,7 @@
 package notification
 
 import (
+	"context"
 	"testing"
 	"time"
 
@@ -14,10 +15,50 @@ import (
 
 func TestNextUpdateCheck(t *testing.T) {
 	now := time.Date(2026, 10, 28, 12, 0, 0, 0, time.UTC)
-	assert.Equal(t, time.Date(2026, 10, 28, 15, 30, 0, 0, time.UTC), nextUpdateCheck(now, 15*time.Hour+30*time.Minute))
-	assert.Equal(t, time.Date(2026, 10, 29, 3, 0, 0, 0, time.UTC), nextUpdateCheck(now, 3*time.Hour))
+	day := 24 * time.Hour
+	assert.Equal(t, time.Date(2026, 10, 28, 15, 30, 0, 0, time.UTC), nextUpdateCheck(now, day, 15*time.Hour+30*time.Minute))
+	assert.Equal(t, time.Date(2026, 10, 29, 3, 0, 0, 0, time.UTC), nextUpdateCheck(now, day, 3*time.Hour))
 	// Exactly now has already run.
-	assert.Equal(t, time.Date(2026, 10, 29, 12, 0, 0, 0, time.UTC), nextUpdateCheck(now, 12*time.Hour))
+	assert.Equal(t, time.Date(2026, 10, 29, 12, 0, 0, 0, time.UTC), nextUpdateCheck(now, day, 12*time.Hour))
+}
+
+func TestNextUpdateCheckShorterInterval(t *testing.T) {
+	now := time.Date(2026, 10, 28, 12, 0, 0, 0, time.UTC)
+	assert.Equal(t, time.Date(2026, 10, 28, 13, 0, 0, 0, time.UTC), nextUpdateCheck(now, 6*time.Hour, time.Hour))
+	// Exactly now has already run, so the next one is a whole interval away.
+	assert.Equal(t, time.Date(2026, 10, 28, 18, 0, 0, 0, time.UTC), nextUpdateCheck(now, 6*time.Hour, 0))
+	// Later in the interval than checkAt rolls into the next one.
+	later := now.Add(2 * time.Hour)
+	assert.Equal(t, time.Date(2026, 10, 28, 19, 0, 0, 0, time.UTC), nextUpdateCheck(later, 6*time.Hour, time.Hour))
+}
+
+func TestCheckForUpdatesPicksOffsetInsideInterval(t *testing.T) {
+	l := NewContainerEventListener(t.Context(), nil)
+	for range 100 {
+		l.CheckForUpdates(time.Hour, func(context.Context) []container.ImageUpdate { return nil })
+		assert.Less(t, l.checkAt, time.Hour)
+		assert.Equal(t, time.Hour, l.checkInterval)
+	}
+}
+
+func TestRunUpdateChecksRepeatsEveryInterval(t *testing.T) {
+	l := NewContainerEventListener(t.Context(), nil)
+	ran := make(chan struct{}, 2)
+	go l.runUpdateChecks(t.Context(), func(context.Context) []container.ImageUpdate {
+		select {
+		case ran <- struct{}{}:
+		default:
+		}
+		return nil
+	}, 10*time.Millisecond, 0)
+
+	for range 2 {
+		select {
+		case <-ran:
+		case <-time.After(5 * time.Second):
+			t.Fatal("check did not run again within the interval")
+		}
+	}
 }
 
 func availableUpdate(name, remote string) container.ImageUpdate {

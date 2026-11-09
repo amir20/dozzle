@@ -46,9 +46,11 @@ type ContainerEventListener struct {
 	updates       *container.UpdateRecords
 	updateClients func() []container.ClientService
 
-	// checkUpdates, when set, runs daily at checkAt past midnight. alerted
-	// maps host/name to the newest digest already raised as update_available.
+	// checkUpdates, when set, runs every checkInterval, checkAt into each
+	// interval. alerted maps host/name to the newest digest already raised as
+	// update_available.
 	checkUpdates   UpdateChecker
+	checkInterval  time.Duration
 	checkAt        time.Duration
 	alertedMu      sync.Mutex
 	alertedUpdates map[string]string
@@ -100,7 +102,7 @@ func (l *ContainerEventListener) Start() {
 	}
 
 	if l.checkUpdates != nil && l.updateClients != nil {
-		go l.runUpdateChecks(ctx, l.checkUpdates, l.checkAt)
+		go l.runUpdateChecks(ctx, l.checkUpdates, l.checkInterval, l.checkAt)
 	}
 
 	log.Debug().Msg("Started container event listener for event alerts")
