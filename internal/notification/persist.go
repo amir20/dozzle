@@ -5,6 +5,7 @@ import (
 	"os"
 	"path/filepath"
 	"sync"
+	"time"
 
 	"github.com/amir20/dozzle/internal/notification/dispatcher"
 	"github.com/amir20/dozzle/internal/utils"
@@ -56,6 +57,9 @@ func (p *Persister) Load() {
 
 // SaveNotifications writes the manager's current notification config to disk.
 func (p *Persister) SaveNotifications() {
+	start := time.Now()
+	defer func() { log.Debug().Dur("took", time.Since(start)).Msg("Wrote notification config") }()
+
 	if err := ensureDir(p.NotificationPath); err != nil {
 		log.Error().Err(err).Msg("Could not create data directory")
 		return

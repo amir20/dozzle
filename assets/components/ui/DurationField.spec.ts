@@ -41,4 +41,9 @@ describe("DurationField with stops", () => {
   it("has no seconds box", () => {
     expect(mountField(60).wrapper.find("input[type=number]").exists()).toBe(false);
   });
+
+  it("states the value once, in the hint", () => {
+    const { wrapper } = mountField(3600);
+    expect(wrapper.text().replace("Cooldown", "")).toBe("1h");
+  });
 });

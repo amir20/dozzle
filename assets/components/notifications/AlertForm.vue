@@ -176,7 +176,7 @@
         <DurationField
           v-if="canSendImmediately && alertType === 'log'"
           v-model="immediateCooldown"
-          class="mt-1"
+          class="mt-1 ml-8"
           :class="{ invisible: !immediate }"
           :label="$t('notifications.alert-form.cooldown-label')"
           :hint="(duration: string) => $t('notifications.alert-form.cooldown-hint', { duration })"

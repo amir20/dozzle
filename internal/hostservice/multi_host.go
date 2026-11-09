@@ -515,6 +515,7 @@ type NotificationConfigUpdater interface {
 
 // broadcastNotificationConfig sends current notification config to all agent clients
 func (m *MultiHostService) broadcastNotificationConfig() {
+	start := time.Now()
 	// Held across read and send, so an older snapshot can never go out last.
 	m.configMu.Lock()
 	defer m.configMu.Unlock()
@@ -567,6 +568,7 @@ func (m *MultiHostService) broadcastNotificationConfig() {
 		}
 	}
 	wg.Wait()
+	log.Debug().Dur("took", time.Since(start)).Msg("Broadcast notification config to agents")
 }
 
 // broadcastCloudConfig sends current cloud config to all agent clients

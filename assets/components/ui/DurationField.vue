@@ -1,20 +1,19 @@
 <template>
   <fieldset class="fieldset">
-    <legend class="fieldset-legend text-lg">{{ label }}</legend>
+    <legend class="fieldset-legend" :class="stops ? 'text-sm' : 'text-lg'">{{ label }}</legend>
     <div class="flex items-center gap-3">
-      <template v-if="stops">
-        <input
-          v-model.number="stopIndex"
-          type="range"
-          min="0"
-          :max="stops.length - 1"
-          step="1"
-          class="range range-primary"
-          :aria-label="label"
-          :aria-valuetext="formatDuration(model, locale || undefined)"
-        />
-        <span class="w-16 shrink-0 text-right font-mono text-sm">{{ formatDuration(model, locale || undefined) }}</span>
-      </template>
+      <!-- The hint below already states the value, so a snapped slider has no readout of its own. -->
+      <input
+        v-if="stops"
+        v-model.number="stopIndex"
+        type="range"
+        min="0"
+        :max="stops.length - 1"
+        step="1"
+        class="range range-primary range-xs"
+        :aria-label="label"
+        :aria-valuetext="formatDuration(model, locale || undefined)"
+      />
       <template v-else>
         <input v-model.number="slider" type="range" :min="min" :max="max" :step="step" class="range range-primary" />
         <label class="input input-sm w-32 shrink-0">
