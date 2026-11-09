@@ -559,6 +559,14 @@ means **two components may never share a basename**, at any depth.
 - Three modes: none, simple (file-based users.yml), forward-proxy (e.g., Authelia)
 - JWT tokens for simple auth with configurable TTL
 - User file location: `./data/users.yml` or `./data/users.yaml`
+- **Roles and filters are separate checks, and a new route needs both.** Roles say what a
+  user may do; a per-user `filter` says which containers. An empty `roles:` means `all`, so
+  holding every role never means admin. Per-container routes resolve through
+  `h.resolveLabels(r)`. Anything reaching past the containers a user can see (host-wide or
+  instance-wide actions, setup, settings, anything that hands out a credential) must also
+  refuse `h.restrictedUser(r)`, as `pruneHost` and `setupCanWrite` do. The `notifications`
+  and `cloud` roles are the documented, tested exceptions; don't add another without
+  documenting it in `docs/guide/authentication/simple.md`.
 
 ### Testing
 
