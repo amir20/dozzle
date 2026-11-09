@@ -1,7 +1,7 @@
 ---
 title: Authentification simple
 description: Configurez l'authentification simple de Dozzle avec un fichier users.yml, et limitez par des filtres et des rôles les conteneurs Docker que voit chaque utilisateur et ce qu'il peut faire.
-sourceHash: 42be19df819b
+sourceHash: 6669a5ecbae2
 ---
 
 # <Icon icon="mdi:account-cog-outline" inline /> Authentification simple
@@ -136,6 +136,8 @@ users:
 ```
 
 Dans cet exemple, l'utilisateur `admin` n'a aucun filtre, il voit donc tous les conteneurs. L'utilisateur `guest` ne voit que les conteneurs portant le label `com.example.app`. C'est pratique pour restreindre l'accès à certains conteneurs.
+
+Un utilisateur ayant un filtre ne peut pas modifier la configuration, quels que soient ses rôles, car cela affecte toute l'instance.
 
 > [!NOTE]
 > Les filtres peuvent aussi être définis [globalement](/fr/guide/filters) avec le flag `--filter`. Ce flag s'applique à tous les utilisateurs. Si un utilisateur a un filtre défini, celui-ci remplace le filtre global.

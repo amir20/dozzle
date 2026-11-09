@@ -136,6 +136,8 @@ users:
 
 In this example, the `admin` user has no filter, so they can see all containers. The `guest` user can only see containers with the label `com.example.app`. This is useful for restricting access to specific containers.
 
+A user with a filter can't change setup, whatever their roles, because it affects the whole instance.
+
 > [!NOTE]
 > Filters can also be set [globally](/guide/filters) with the `--filter` flag. This flag is applied to all users. If a user has a filter set, it will override the global filter.
 

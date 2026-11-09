@@ -1,7 +1,7 @@
 ---
 title: Einfache Authentifizierung
 description: Richte die einfache Authentifizierung von Dozzle mit einer users.yml ein und lege mit Filtern und Rollen fest, welche Docker-Container jeder Benutzer sieht und was er tun darf.
-sourceHash: 42be19df819b
+sourceHash: 6669a5ecbae2
 ---
 
 # <Icon icon="mdi:account-cog-outline" inline /> Einfache Authentifizierung
@@ -136,6 +136,8 @@ users:
 ```
 
 In diesem Beispiel hat der Benutzer `admin` keinen Filter und sieht damit alle Container. Der Benutzer `guest` sieht nur Container mit dem Label `com.example.app`. Das ist nützlich, um den Zugriff auf bestimmte Container einzuschränken.
+
+Ein Benutzer mit Filter kann unabhängig von seinen Rollen das Setup nicht ändern, weil es die gesamte Instanz betrifft.
 
 > [!NOTE]
 > Filter können auch [global](/de/guide/filters) mit dem Flag `--filter` gesetzt werden. Dieses Flag gilt für alle Benutzer. Hat ein Benutzer einen eigenen Filter, überschreibt dieser den globalen Filter.

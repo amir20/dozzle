@@ -1,7 +1,7 @@
 ---
 title: 简单模式身份验证
 description: 使用 users.yml 文件配置 Dozzle 的简单模式身份验证，并通过过滤器和角色限制每个用户能看到哪些 Docker 容器、能执行哪些操作。
-sourceHash: 42be19df819b
+sourceHash: 6669a5ecbae2
 ---
 
 # <Icon icon="mdi:account-cog-outline" inline /> 简单模式身份验证
@@ -136,6 +136,8 @@ users:
 ```
 
 在这个例子中，`admin` 用户没有过滤器，因此能看到所有容器。`guest` 用户只能看到带有 `com.example.app` 标签的容器。这样就能把访问限制在特定容器上。
+
+设置了过滤器的用户无论拥有什么角色，都无法更改设置，因为这会影响整个实例。
 
 > [!NOTE]
 > 过滤器也可以用 `--filter` 参数[全局设置](/zh/guide/filters)。该参数对所有用户生效。如果某个用户设置了自己的过滤器，则会覆盖全局过滤器。
