@@ -553,7 +553,6 @@ notifications:
     checking: Kontrol ediliyor…
     examples: "Örnekler:"
     use-example: Bu örneği kullan
-    seconds-unit: sn
     log-filter: Log koşulu
     log-filter-hint: Hangi log satırlarının uyarıyı tetiklediği.
     logs-match: "Son {window} içinde 1 eşleşen satır | Son {window} içinde {count} eşleşen satır"

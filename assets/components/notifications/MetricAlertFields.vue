@@ -13,9 +13,7 @@
     class="mt-4"
     :label="$t('notifications.alert-form.sample-window-label')"
     :hint="(duration: string) => $t('notifications.alert-form.sample-window-hint', { duration })"
-    :min="15"
-    :max="300"
-    :step="15"
+    :stops="SAMPLE_WINDOW_STOPS"
   />
 
   <DurationField
@@ -23,9 +21,7 @@
     :label="$t('notifications.alert-form.cooldown-label')"
     :hint="(duration: string) => $t('notifications.alert-form.cooldown-hint', { duration })"
     :zero-hint="$t('notifications.alert-form.no-cooldown')"
-    :min="0"
-    :max="3600"
-    :step="10"
+    :stops="COOLDOWN_STOPS"
   />
 
   <!-- Preview: the expression replayed over the stats Dozzle already has buffered -->
@@ -100,6 +96,7 @@
 
 <script lang="ts" setup>
 import { createMetricHints } from "@/composable/editor/exprEditor";
+import { COOLDOWN_STOPS, SAMPLE_WINDOW_STOPS } from "@/composable/notifications/alertForm";
 import ExpressionField from "./ExpressionField.vue";
 import DurationField from "@/components/ui/DurationField.vue";
 import type { MetricSample, NotificationRule, PreviewResult } from "@/types/notifications";

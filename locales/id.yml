@@ -562,7 +562,6 @@ notifications:
     checking: Memeriksa…
     examples: "Contoh:"
     use-example: Gunakan contoh ini
-    seconds-unit: dtk
     log-filter: Kondisi log
     log-filter-hint: Baris log mana yang memicu peringatan.
     logs-match: "1 baris cocok dalam {window} terakhir | {count} baris cocok dalam {window} terakhir"

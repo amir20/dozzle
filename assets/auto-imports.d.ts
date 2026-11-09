@@ -11,12 +11,14 @@ declare global {
   const AIM_IDLE: typeof import('./composable/ui/pointerAim').AIM_IDLE
   const BULK_CONCURRENCY: typeof import('./composable/containers/bulkContainerActions').BULK_CONCURRENCY
   const COMPACT_OFFSET_PX: typeof import('./composable/ui/compactOnScroll').COMPACT_OFFSET_PX
+  const COOLDOWN_STOPS: typeof import('./composable/notifications/alertForm').COOLDOWN_STOPS
   const COPY_CONCURRENCY: typeof import('./composable/logs/copyLogs').COPY_CONCURRENCY
   const DEFAULT_MENU_WIDTH: typeof import('./stores/settings').DEFAULT_MENU_WIDTH
   const DEFAULT_SETTINGS: typeof import('./stores/settings').DEFAULT_SETTINGS
   const DEFAULT_UPDATE_CONTAINERS_MODE: typeof import('./composable/containers/updatePolicy').DEFAULT_UPDATE_CONTAINERS_MODE
   const EffectScope: typeof import('vue').EffectScope
   const FETCH_PAGE: typeof import('./composable/logs/logLoader').FETCH_PAGE
+  const IMMEDIATE_COOLDOWN_STOPS: typeof import('./composable/notifications/alertForm').IMMEDIATE_COOLDOWN_STOPS
   const K8sNamespace: typeof import('./stores/k8s').K8sNamespace
   const K8sOwner: typeof import('./stores/k8s').K8sOwner
   const MARKER_START_SLACK_MS: typeof import('./composable/logs/updateMarkers').MARKER_START_SLACK_MS
@@ -26,6 +28,7 @@ declare global {
   const PREFERENCE_PAGES: typeof import('./composable/app/settingsPages').PREFERENCE_PAGES
   const RAIL_WIDTH: typeof import('./composable/cloud/cloudRail').RAIL_WIDTH
   const RELATIVE_SPANS: typeof import('./composable/logs/timeRange').RELATIVE_SPANS
+  const SAMPLE_WINDOW_STOPS: typeof import('./composable/notifications/alertForm').SAMPLE_WINDOW_STOPS
   const SCROLL_JITTER_PX: typeof import('./composable/ui/compactOnScroll').SCROLL_JITTER_PX
   const SERVER_PAGES: typeof import('./composable/app/settingsPages').SERVER_PAGES
   const SETTINGS_PAGE_ICONS: typeof import('./composable/app/settingsPages').SETTINGS_PAGE_ICONS
@@ -776,10 +779,12 @@ declare module 'vue' {
     readonly AIM_IDLE: UnwrapRef<typeof import('./composable/ui/pointerAim')['AIM_IDLE']>
     readonly BULK_CONCURRENCY: UnwrapRef<typeof import('./composable/containers/bulkContainerActions')['BULK_CONCURRENCY']>
     readonly COMPACT_OFFSET_PX: UnwrapRef<typeof import('./composable/ui/compactOnScroll')['COMPACT_OFFSET_PX']>
+    readonly COOLDOWN_STOPS: UnwrapRef<typeof import('./composable/notifications/alertForm')['COOLDOWN_STOPS']>
     readonly DEFAULT_SETTINGS: UnwrapRef<typeof import('./stores/settings')['DEFAULT_SETTINGS']>
     readonly DEFAULT_UPDATE_CONTAINERS_MODE: UnwrapRef<typeof import('./composable/containers/updatePolicy')['DEFAULT_UPDATE_CONTAINERS_MODE']>
     readonly EffectScope: UnwrapRef<typeof import('vue')['EffectScope']>
     readonly FETCH_PAGE: UnwrapRef<typeof import('./composable/logs/logLoader')['FETCH_PAGE']>
+    readonly IMMEDIATE_COOLDOWN_STOPS: UnwrapRef<typeof import('./composable/notifications/alertForm')['IMMEDIATE_COOLDOWN_STOPS']>
     readonly K8sNamespace: UnwrapRef<typeof import('./stores/k8s')['K8sNamespace']>
     readonly K8sOwner: UnwrapRef<typeof import('./stores/k8s')['K8sOwner']>
     readonly MARKER_START_SLACK_MS: UnwrapRef<typeof import('./composable/logs/updateMarkers')['MARKER_START_SLACK_MS']>
@@ -788,6 +793,7 @@ declare module 'vue' {
     readonly PREFERENCE_PAGES: UnwrapRef<typeof import('./composable/app/settingsPages')['PREFERENCE_PAGES']>
     readonly RAIL_WIDTH: UnwrapRef<typeof import('./composable/cloud/cloudRail')['RAIL_WIDTH']>
     readonly RELATIVE_SPANS: UnwrapRef<typeof import('./composable/logs/timeRange')['RELATIVE_SPANS']>
+    readonly SAMPLE_WINDOW_STOPS: UnwrapRef<typeof import('./composable/notifications/alertForm')['SAMPLE_WINDOW_STOPS']>
     readonly SCROLL_JITTER_PX: UnwrapRef<typeof import('./composable/ui/compactOnScroll')['SCROLL_JITTER_PX']>
     readonly SERVER_PAGES: UnwrapRef<typeof import('./composable/app/settingsPages')['SERVER_PAGES']>
     readonly SETTINGS_PAGE_ICONS: UnwrapRef<typeof import('./composable/app/settingsPages')['SETTINGS_PAGE_ICONS']>

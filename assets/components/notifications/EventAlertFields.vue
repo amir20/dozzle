@@ -14,9 +14,7 @@
     :label="$t('notifications.alert-form.cooldown-label')"
     :hint="(duration: string) => $t('notifications.alert-form.cooldown-hint', { duration })"
     :zero-hint="$t('notifications.alert-form.no-cooldown')"
-    :min="0"
-    :max="3600"
-    :step="10"
+    :stops="COOLDOWN_STOPS"
   />
 
   <!-- Preview: Docker events aren't retained, so show which representative events match -->
@@ -68,6 +66,7 @@
 
 <script lang="ts" setup>
 import { createEventHints } from "@/composable/editor/exprEditor";
+import { COOLDOWN_STOPS } from "@/composable/notifications/alertForm";
 import ExpressionField from "./ExpressionField.vue";
 import DurationField from "@/components/ui/DurationField.vue";
 import type { EventSample, NotificationRule, PreviewResult } from "@/types/notifications";

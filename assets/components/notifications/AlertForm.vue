@@ -90,7 +90,6 @@
             ref="fieldsRef"
             :alert="alert"
             :prefill="prefill"
-            :immediate="sendsImmediately"
             :container-expression="containerExpression"
             :has-containers="hasContainers"
             :is-loading="isLoading"
@@ -149,12 +148,8 @@
               />
               <div class="min-w-0">
                 <div class="truncate font-semibold">{{ dest.name }}</div>
-                <div class="text-base-content/60 text-xs">
-                  {{
-                    dest.type === "webhook"
-                      ? $t("notifications.destination.http-webhook")
-                      : $t("notifications.destination.dozzle-cloud")
-                  }}
+                <div v-if="destinationType(dest) !== dest.name" class="text-base-content/60 text-xs">
+                  {{ destinationType(dest) }}
                 </div>
               </div>
               <mdi:check v-if="dispatcherId === dest.id" class="text-primary ml-auto shrink-0" />
@@ -173,6 +168,15 @@
             <span class="text-base-content/60 block text-xs">{{ $t("notifications.alert-form.immediate-hint") }}</span>
           </span>
         </label>
+        <DurationField
+          v-if="canSendImmediately && immediate && alertType === 'log'"
+          v-model="immediateCooldown"
+          class="mt-1 ml-8"
+          :label="$t('notifications.alert-form.cooldown-label')"
+          :hint="(duration: string) => $t('notifications.alert-form.cooldown-hint', { duration })"
+          :zero-hint="$t('notifications.alert-form.no-cooldown')"
+          :stops="IMMEDIATE_COOLDOWN_STOPS"
+        />
       </section>
 
       <!-- 5. Name -->
@@ -229,6 +233,7 @@ import {
   type AlertType,
   type AlertPrefill,
   type SaveBlocker,
+  IMMEDIATE_COOLDOWN_STOPS,
 } from "@/composable/notifications/alertForm";
 import LogAlertFields from "./LogAlertFields.vue";
 import MetricAlertFields from "./MetricAlertFields.vue";
@@ -236,6 +241,7 @@ import EventAlertFields from "./EventAlertFields.vue";
 import DestinationForm from "./DestinationForm.vue";
 import FormStepHeading from "@/components/ui/FormStepHeading.vue";
 import ExpressionField from "./ExpressionField.vue";
+import DurationField from "@/components/ui/DurationField.vue";
 import type { Dispatcher, NotificationRule } from "@/types/notifications";
 import TextBoxIcon from "~icons/mdi/text-box-outline";
 import ChartLineIcon from "~icons/mdi/chart-line";
@@ -301,7 +307,15 @@ const immediate = ref(props.alert?.immediate ?? props.prefill?.immediate ?? fals
 const canSendImmediately = computed(() => !!selectedDestination.value && selectedDestination.value.type !== "webhook");
 // Not canSendImmediately: destinations load after mount, and an edit must not read as changed when they arrive.
 const sendsImmediately = computed(() => immediate.value && selectedDestination.value?.type !== "webhook");
-const savedFields = computed(() => ({ ...fieldsRef.value?.typeFields, immediate: sendsImmediately.value }));
+
+// Only an immediate log rule has a cooldown here: Dozzle Cloud needs every line of any other log rule.
+const savedRule = props.alert ?? props.prefill;
+const immediateCooldown = ref(savedRule?.immediate ? (savedRule.cooldown ?? 0) : 10);
+const savedFields = computed(() => ({
+  ...fieldsRef.value?.typeFields,
+  immediate: sendsImmediately.value,
+  ...(sendsImmediately.value && alertType.value === "log" ? { cooldown: immediateCooldown.value } : {}),
+}));
 
 const matchedContainers = computed(() => containerResult.value?.containers ?? []);
 const hasContainers = computed(() => matchedContainers.value.length > 0);
@@ -331,6 +345,9 @@ const blockers = computed<SaveBlocker[]>(() => {
   return missing;
 });
 const blockerLabels = computed(() => blockers.value.map((b) => t(`notifications.alert-form.missing.${b}`)).join(", "));
+
+const destinationType = (dest: Dispatcher) =>
+  dest.type === "webhook" ? t("notifications.destination.http-webhook") : t("notifications.destination.dozzle-cloud");
 
 const canSave = computed(() => baseCanSave.value && (fieldsRef.value?.canSave ?? false));
 

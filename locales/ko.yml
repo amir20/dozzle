@@ -552,7 +552,6 @@ notifications:
     checking: 확인 중…
     examples: "예시:"
     use-example: 이 예시 사용
-    seconds-unit: 초
     log-filter: 로그 조건
     log-filter-hint: 어떤 로그 줄이 알림을 발생시킬지 정합니다.
     logs-match: "최근 {window} 동안 일치하는 줄 1개 | 최근 {window} 동안 일치하는 줄 {count}개"

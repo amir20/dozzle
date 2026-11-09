@@ -550,7 +550,6 @@ notifications:
     checking: Verifica in corso…
     examples: "Esempi:"
     use-example: Usa questo esempio
-    seconds-unit: sec
     log-filter: Condizione sui log
     log-filter-hint: Quali righe di log attivano l'avviso.
     logs-match: "1 riga corrispondente nelle ultime {window} | {count} righe corrispondenti nelle ultime {window}"

@@ -550,7 +550,6 @@ notifications:
     checking: Kontrollerer…
     examples: "Eksempler:"
     use-example: Brug dette eksempel
-    seconds-unit: sek
     log-filter: Log-betingelse
     log-filter-hint: Hvilke loglinjer der udløser alarmen.
     logs-match: "1 matchende linje i de sidste {window} | {count} matchende linjer i de sidste {window}"

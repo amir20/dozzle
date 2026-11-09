@@ -552,7 +552,6 @@ notifications:
     checking: 檢查中…
     examples: "範例："
     use-example: 使用此範例
-    seconds-unit: 秒
     log-filter: 日誌條件
     log-filter-hint: 哪些日誌行會觸發警示。
     logs-match: "最近 {window} 內有 1 行符合 | 最近 {window} 內有 {count} 行符合"

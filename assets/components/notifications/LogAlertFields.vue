@@ -8,18 +8,6 @@
     :get-hints="getHints"
   />
 
-  <DurationField
-    v-if="immediate"
-    v-model="cooldown"
-    class="mt-4"
-    :label="$t('notifications.alert-form.cooldown-label')"
-    :hint="(duration: string) => $t('notifications.alert-form.cooldown-hint', { duration })"
-    :zero-hint="$t('notifications.alert-form.no-cooldown')"
-    :min="0"
-    :max="3600"
-    :step="10"
-  />
-
   <!-- Preview -->
   <div class="mt-4">
     <div class="mb-2 flex items-center justify-between gap-2">
@@ -61,13 +49,11 @@
 import { type LogEvent, type LogEntry, type LogMessage, asLogEntry } from "@/models/LogEntry";
 import { createLogHints } from "@/composable/editor/exprEditor";
 import ExpressionField from "./ExpressionField.vue";
-import DurationField from "@/components/ui/DurationField.vue";
 import type { NotificationRule, PreviewResult } from "@/types/notifications";
 
 const props = defineProps<{
   alert?: NotificationRule;
-  prefill?: { logExpression?: string; cooldown?: number; immediate?: boolean };
-  immediate: boolean;
+  prefill?: { logExpression?: string };
   containerExpression: string;
   hasContainers: boolean;
   isLoading: boolean;
@@ -78,8 +64,6 @@ const { t } = useI18n();
 
 const logExpression = ref(props.alert?.logExpression ?? props.prefill?.logExpression ?? "");
 const logError = ref<string | null>(null);
-const saved = props.alert ?? props.prefill;
-const cooldown = ref(saved?.immediate ? (saved.cooldown ?? 0) : 10);
 const logTotalCount = ref(0);
 const logMessages = shallowRef<LogEntry<LogMessage>[]>([]);
 const messageKeys = ref<string[]>([]);
@@ -93,12 +77,7 @@ const getHints = () => createLogHints(messageKeys.value);
 // An empty expression is not "match everything" — the backend treats a rule without a log
 // expression as inert — so it is a required field, not an optional filter.
 const canSave = computed(() => !!logExpression.value.trim() && !logError.value);
-// Only an immediate rule has a cooldown: Dozzle Cloud needs every line of any other log rule.
-const typeFields = computed(() => ({
-  logExpression: logExpression.value,
-  metricExpression: "",
-  cooldown: props.immediate ? cooldown.value : 0,
-}));
+const typeFields = computed(() => ({ logExpression: logExpression.value, metricExpression: "", cooldown: 0 }));
 
 defineExpose({ canSave, typeFields });
 

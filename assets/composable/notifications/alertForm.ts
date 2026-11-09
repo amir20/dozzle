@@ -5,6 +5,11 @@ import { createContainerHints } from "@/composable/editor/exprEditor";
 
 export type AlertType = "log" | "metric" | "event";
 
+// Seconds. Metric cooldowns are clamped to an hour by the backend; immediate log rules are not.
+export const COOLDOWN_STOPS = [0, 10, 30, 60, 300, 900, 1800, 3600];
+export const IMMEDIATE_COOLDOWN_STOPS = [...COOLDOWN_STOPS, 7200, 10800, 21600];
+export const SAMPLE_WINDOW_STOPS = [15, 30, 45, 60, 120, 180, 240, 300];
+
 export interface AlertPrefill {
   name?: string;
   alertType?: AlertType;
