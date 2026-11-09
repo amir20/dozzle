@@ -144,21 +144,25 @@ const { unseen: unseenAlerts, markAlertsSeen } = useRecentAlerts();
 // Cloud remembers an alert past the refresh that dropped it out of the log
 // stream, so an unlinked instance has no history at all and the tab is gone
 // rather than empty — a webhook or an email destination never fills it.
-const defaultTab = computed<Tab>(() => (cloudLinked.value ? "activity" : "alerts"));
+//
+// The rules open first, whatever the history holds: a default that depended on
+// the fetch would flip the tab under the reader. Links about something that
+// fired ask for ?tab=activity themselves.
+const DEFAULT_TAB: Tab = "alerts";
 
 // The tab lives in the URL so a bookmark and the back button land where the
-// reader left off. Only when it differs from the default, so the plain
-// /notifications link the bell uses stays plain.
+// reader left off. Only when it differs from the default, so a plain
+// /notifications link stays plain.
 const tab = computed<Tab>(() => {
   const value = route.query.tab;
   // ?tab=activity is a link someone kept from when this instance was linked, or
   // a bell that fired before it was unlinked. There is no tab to land on now.
-  if (value === "activity") return cloudLinked.value ? "activity" : defaultTab.value;
-  return value === "alerts" || value === "destinations" ? value : defaultTab.value;
+  if (value === "activity") return cloudLinked.value ? "activity" : DEFAULT_TAB;
+  return value === "alerts" || value === "destinations" ? value : DEFAULT_TAB;
 });
 
 function queryForTab(next: Tab) {
-  return next === defaultTab.value ? undefined : next;
+  return next === DEFAULT_TAB ? undefined : next;
 }
 
 function selectTab(next: Tab) {
