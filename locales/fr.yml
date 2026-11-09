@@ -550,7 +550,6 @@ notifications:
     checking: Vérification…
     examples: "Exemples :"
     use-example: Utiliser cet exemple
-    seconds-unit: s
     log-filter: Condition de log
     log-filter-hint: Quelles lignes de log déclenchent l'alerte.
     logs-match: "1 ligne correspondante sur les {window} dernières | {count} lignes correspondantes sur les {window} dernières"

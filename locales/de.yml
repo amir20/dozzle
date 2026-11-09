@@ -550,7 +550,6 @@ notifications:
     checking: Wird geprüft…
     examples: "Beispiele:"
     use-example: Dieses Beispiel übernehmen
-    seconds-unit: Sek.
     log-filter: Log-Bedingung
     log-filter-hint: Welche Log-Zeilen den Alarm auslösen.
     logs-match: "1 passende Zeile in den letzten {window} | {count} passende Zeilen in den letzten {window}"

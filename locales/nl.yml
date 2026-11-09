@@ -551,7 +551,6 @@ notifications:
     checking: Bezig met controleren…
     examples: "Voorbeelden:"
     use-example: Dit voorbeeld gebruiken
-    seconds-unit: sec
     log-filter: Logvoorwaarde
     log-filter-hint: Welke logregels de melding activeren.
     logs-match: "1 overeenkomende regel in de laatste {window} | {count} overeenkomende regels in de laatste {window}"

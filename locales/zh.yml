@@ -550,7 +550,6 @@ notifications:
     checking: 检查中…
     examples: "示例："
     use-example: 使用此示例
-    seconds-unit: 秒
     log-filter: 日志条件
     log-filter-hint: 哪些日志行会触发告警。
     logs-match: "最近 {window} 内有 1 行匹配 | 最近 {window} 内有 {count} 行匹配"

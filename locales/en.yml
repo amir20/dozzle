@@ -702,7 +702,6 @@ notifications:
     checking: Checking…
     examples: "Examples:"
     use-example: Use this example
-    seconds-unit: sec
     log-filter: Log Condition
     log-filter-hint: Which log lines trigger the alert.
     logs-match: "1 matching line in the last {window} | {count} matching lines in the last {window}"

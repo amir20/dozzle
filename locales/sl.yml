@@ -555,7 +555,6 @@ notifications:
     checking: Preverjanje…
     examples: "Primeri:"
     use-example: Uporabi ta primer
-    seconds-unit: s
     log-filter: Pogoj dnevnika
     log-filter-hint: Katere vrstice dnevnika sprožijo opozorilo.
     logs-match: "1 ustrezna vrstica v zadnjih {window} | {count} ustreznih vrstic v zadnjih {window}"

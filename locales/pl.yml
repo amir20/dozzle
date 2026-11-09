@@ -552,7 +552,6 @@ notifications:
     checking: Sprawdzanie…
     examples: "Przykłady:"
     use-example: Użyj tego przykładu
-    seconds-unit: sek
     log-filter: Warunek logów
     log-filter-hint: Które linie logów wyzwalają alert.
     logs-match: "1 pasująca linia w ciągu ostatnich {window} | {count} pasujących linii w ciągu ostatnich {window}"

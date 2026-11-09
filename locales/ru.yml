@@ -550,7 +550,6 @@ notifications:
     checking: Проверка…
     examples: "Примеры:"
     use-example: Использовать этот пример
-    seconds-unit: сек
     log-filter: Условие по логам
     log-filter-hint: Какие строки логов вызывают оповещение.
     logs-match: "1 подходящая строка за последние {window} | {count} подходящих строк за последние {window}"

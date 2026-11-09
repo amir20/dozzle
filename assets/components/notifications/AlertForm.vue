@@ -233,6 +233,7 @@ import {
   type AlertType,
   type AlertPrefill,
   type SaveBlocker,
+  IMMEDIATE_COOLDOWN_STOPS,
 } from "@/composable/notifications/alertForm";
 import LogAlertFields from "./LogAlertFields.vue";
 import MetricAlertFields from "./MetricAlertFields.vue";
@@ -307,8 +308,7 @@ const canSendImmediately = computed(() => !!selectedDestination.value && selecte
 // Not canSendImmediately: destinations load after mount, and an edit must not read as changed when they arrive.
 const sendsImmediately = computed(() => immediate.value && selectedDestination.value?.type !== "webhook");
 
-// Seconds. Only an immediate log rule has a cooldown here: Dozzle Cloud needs every line of any other log rule.
-const IMMEDIATE_COOLDOWN_STOPS = [0, 10, 30, 60, 300, 900, 1800, 3600, 7200, 10800, 21600];
+// Only an immediate log rule has a cooldown here: Dozzle Cloud needs every line of any other log rule.
 const savedRule = props.alert ?? props.prefill;
 const immediateCooldown = ref(savedRule?.immediate ? (savedRule.cooldown ?? 0) : 10);
 const savedFields = computed(() => ({
