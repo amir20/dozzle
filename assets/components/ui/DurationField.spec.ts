@@ -32,9 +32,24 @@ describe("DurationField with stops", () => {
     expect(model.value).toBe(21600);
   });
 
-  it("shows a saved value between stops at the nearest one, without changing it", () => {
+  it("gives a saved value between stops its own stop, without changing it", () => {
     const { wrapper, model } = mountField(3000);
-    expect((wrapper.find("input[type=range]").element as HTMLInputElement).value).toBe("2");
+    const range = wrapper.find("input[type=range]").element as HTMLInputElement;
+    expect(range.max).toBe("4");
+    expect(range.value).toBe("2");
+    expect(wrapper.text()).toContain("50m");
+    expect(model.value).toBe(3000);
+  });
+
+  it("keeps the saved value's stop after moving off it", async () => {
+    const { wrapper, model } = mountField(3000);
+    const range = wrapper.find("input[type=range]");
+    await range.setValue(3);
+    await nextTick();
+    expect(model.value).toBe(3600);
+    expect((range.element as HTMLInputElement).max).toBe("4");
+    await range.setValue(2);
+    await nextTick();
     expect(model.value).toBe(3000);
   });
 

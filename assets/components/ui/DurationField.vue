@@ -1,21 +1,28 @@
 <template>
   <fieldset class="fieldset">
-    <legend class="fieldset-legend" :class="stops ? 'text-sm' : 'text-lg'">{{ label }}</legend>
+    <legend class="fieldset-legend text-sm">{{ label }}</legend>
     <div class="flex items-center gap-3">
       <!-- The hint below already states the value, so a snapped slider has no readout of its own. -->
       <input
-        v-if="stops"
+        v-if="allStops"
         v-model.number="stopIndex"
         type="range"
         min="0"
-        :max="stops.length - 1"
+        :max="allStops.length - 1"
         step="1"
         class="range range-primary range-xs"
         :aria-label="label"
         :aria-valuetext="formatDuration(model, locale || undefined)"
       />
       <template v-else>
-        <input v-model.number="slider" type="range" :min="min" :max="max" :step="step" class="range range-primary" />
+        <input
+          v-model.number="slider"
+          type="range"
+          :min="min"
+          :max="max"
+          :step="step"
+          class="range range-primary range-xs"
+        />
         <label class="input input-sm w-32 shrink-0">
           <input
             v-model.number="typed"
@@ -67,13 +74,13 @@ const slider = computed({
   set: (v) => (model.value = clamp(v)),
 });
 
-// A saved value between two stops shows at the nearest one and stays as it is until moved.
+// A saved value between two stops gets a stop of its own, so the slider and the hint agree.
+// Fixed at mount: if it left the list when moved off, the stops would shift under the drag.
+const allStops = stops && !stops.includes(model.value) ? [...stops, model.value].sort((a, b) => a - b) : stops;
+
 const stopIndex = computed({
-  get: () => {
-    const distances = stops!.map((stop) => Math.abs(stop - model.value));
-    return distances.indexOf(Math.min(...distances));
-  },
-  set: (index) => (model.value = stops![index]),
+  get: () => allStops!.indexOf(model.value),
+  set: (index) => (model.value = allStops![index]),
 });
 
 const typed = ref(model.value);

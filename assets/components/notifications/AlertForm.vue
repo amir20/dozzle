@@ -148,12 +148,8 @@
               />
               <div class="min-w-0">
                 <div class="truncate font-semibold">{{ dest.name }}</div>
-                <div class="text-base-content/60 text-xs">
-                  {{
-                    dest.type === "webhook"
-                      ? $t("notifications.destination.http-webhook")
-                      : $t("notifications.destination.dozzle-cloud")
-                  }}
+                <div v-if="destinationType(dest) !== dest.name" class="text-base-content/60 text-xs">
+                  {{ destinationType(dest) }}
                 </div>
               </div>
               <mdi:check v-if="dispatcherId === dest.id" class="text-primary ml-auto shrink-0" />
@@ -349,6 +345,9 @@ const blockers = computed<SaveBlocker[]>(() => {
   return missing;
 });
 const blockerLabels = computed(() => blockers.value.map((b) => t(`notifications.alert-form.missing.${b}`)).join(", "));
+
+const destinationType = (dest: Dispatcher) =>
+  dest.type === "webhook" ? t("notifications.destination.http-webhook") : t("notifications.destination.dozzle-cloud");
 
 const canSave = computed(() => baseCanSave.value && (fieldsRef.value?.canSave ?? false));
 
