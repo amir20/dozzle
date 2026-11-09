@@ -117,6 +117,10 @@
               })
             }}
           </span>
+          <span v-if="sendsImmediately" class="flex items-center gap-1" data-testid="alert-immediate">
+            <mdi:lightning-bolt class="size-3.5 opacity-60" />
+            {{ $t("notifications.alert-form.immediate-label") }}
+          </span>
           <span v-if="cooldownSeconds" class="text-base-content/40">
             {{
               $t("notifications.alert.cooldown-meta", {
@@ -199,6 +203,10 @@ const cooldownSeconds = computed(() => {
   if (alert.eventExpression || alert.immediate) return alert.cooldown || 0;
   return 0;
 });
+
+// A webhook has no Cloud review to skip, and moving a rule onto one leaves the flag saved.
+// Deleting the destination leaves it too, on a rule that now sends nothing.
+const sendsImmediately = computed(() => alert.immediate && !!alert.dispatcher && alert.dispatcher.type !== "webhook");
 
 const isHighlighted = ref(highlight ?? false);
 watch(
