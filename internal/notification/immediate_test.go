@@ -33,9 +33,7 @@ func (d *recordingDispatcher) snapshot() []types.Notification {
 	return append([]types.Notification(nil), d.sent...)
 }
 
-// Log rules only get a cooldown when they are immediate: Dozzle Cloud has to see
-// every line of any other rule to judge it.
-func TestProcessLogEvent_cooldownAppliesOnlyToImmediateRules(t *testing.T) {
+func TestProcessLogEvent_cooldown(t *testing.T) {
 	for _, tc := range []struct {
 		name      string
 		immediate bool
@@ -44,7 +42,8 @@ func TestProcessLogEvent_cooldownAppliesOnlyToImmediateRules(t *testing.T) {
 	}{
 		{"immediate with a cooldown sends once", true, 60, 1},
 		{"immediate with no cooldown sends every match", true, 0, 3},
-		{"normal rule ignores a cooldown", false, 60, 3},
+		{"normal rule with a cooldown sends once", false, 60, 1},
+		{"normal rule with no cooldown sends every match", false, 0, 3},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
 			ctx := t.Context()
@@ -78,6 +77,8 @@ func TestProcessLogEvent_cooldownAppliesOnlyToImmediateRules(t *testing.T) {
 			sent := d.snapshot()
 			require.Len(t, sent, tc.want)
 			assert.Equal(t, tc.immediate, sent[0].Subscription.Immediate, "Cloud reads this off the event")
+			assert.Equal(t, tc.cooldown, sent[0].Subscription.Cooldown)
+			assert.EqualValues(t, tc.want, sub.TriggerCount.Load())
 		})
 	}
 }

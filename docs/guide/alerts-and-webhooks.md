@@ -160,6 +160,12 @@ message.status >= 500 && message.path contains "/api"
 
 Supported string operators include `contains`, `startsWith`, `endsWith`, and `matches` (regex).
 
+### Cooldown
+
+Cooldown limits each log rule to one alert per container during the chosen period. It skips further matches, even if the message or severity changes. Other containers and rules are unaffected.
+
+It defaults to off, or 10 seconds for Dozzle Cloud's **Send immediately** rules. Leave it off if your destination needs every match.
+
 ### Log Examples
 
 **Alert on all errors from production containers:**
