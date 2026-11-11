@@ -8,6 +8,15 @@
     :get-hints="getHints"
   />
 
+  <DurationField
+    v-model="cooldown"
+    class="mt-4"
+    :label="$t('notifications.alert-form.cooldown-label')"
+    :hint="(duration: string) => $t('notifications.alert-form.cooldown-hint', { duration })"
+    :zero-hint="$t('notifications.alert-form.no-cooldown')"
+    :stops="LOG_COOLDOWN_STOPS"
+  />
+
   <!-- Preview -->
   <div class="mt-4">
     <div class="mb-2 flex items-center justify-between gap-2">
@@ -48,12 +57,15 @@
 <script lang="ts" setup>
 import { type LogEvent, type LogEntry, type LogMessage, asLogEntry } from "@/models/LogEntry";
 import { createLogHints } from "@/composable/editor/exprEditor";
+import { LOG_COOLDOWN_STOPS } from "@/composable/notifications/alertForm";
 import ExpressionField from "./ExpressionField.vue";
+import DurationField from "@/components/ui/DurationField.vue";
 import type { NotificationRule, PreviewResult } from "@/types/notifications";
 
 const props = defineProps<{
   alert?: NotificationRule;
-  prefill?: { logExpression?: string };
+  prefill?: { logExpression?: string; cooldown?: number; immediate?: boolean };
+  immediate: boolean;
   containerExpression: string;
   hasContainers: boolean;
   isLoading: boolean;
@@ -63,6 +75,17 @@ const props = defineProps<{
 const { t } = useI18n();
 
 const logExpression = ref(props.alert?.logExpression ?? props.prefill?.logExpression ?? "");
+const savedRule = props.alert ?? props.prefill;
+const standardCooldown = ref(savedRule?.immediate ? 0 : (savedRule?.cooldown ?? 0));
+// Keep Cloud's existing default, including an explicitly disabled saved cooldown.
+const immediateCooldown = ref(savedRule?.immediate ? (savedRule.cooldown ?? 0) : 10);
+const cooldown = computed({
+  get: () => (props.immediate ? immediateCooldown.value : standardCooldown.value),
+  set: (value: number) => {
+    if (props.immediate) immediateCooldown.value = value;
+    else standardCooldown.value = value;
+  },
+});
 const logError = ref<string | null>(null);
 const logTotalCount = ref(0);
 const logMessages = shallowRef<LogEntry<LogMessage>[]>([]);
@@ -77,7 +100,11 @@ const getHints = () => createLogHints(messageKeys.value);
 // An empty expression is not "match everything" — the backend treats a rule without a log
 // expression as inert — so it is a required field, not an optional filter.
 const canSave = computed(() => !!logExpression.value.trim() && !logError.value);
-const typeFields = computed(() => ({ logExpression: logExpression.value, metricExpression: "", cooldown: 0 }));
+const typeFields = computed(() => ({
+  logExpression: logExpression.value,
+  metricExpression: "",
+  cooldown: cooldown.value,
+}));
 
 defineExpose({ canSave, typeFields });
 

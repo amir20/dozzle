@@ -115,7 +115,7 @@ type Subscription struct {
 	ContainerExpression string `json:"containerExpression" yaml:"containerExpression"`
 	MetricExpression    string `json:"metricExpression,omitempty" yaml:"metricExpression,omitempty"`
 	EventExpression     string `json:"eventExpression,omitempty" yaml:"eventExpression,omitempty"`
-	Cooldown            int    `json:"cooldown,omitempty" yaml:"cooldown,omitempty"`         // seconds between metric notifications, default 300
+	Cooldown            int    `json:"cooldown,omitempty" yaml:"cooldown,omitempty"`         // minimum seconds between notifications for the same container; 0 disables cooldown
 	SampleWindow        int    `json:"sampleWindow,omitempty" yaml:"sampleWindow,omitempty"` // seconds of samples to evaluate, default 15
 	Immediate           bool   `json:"immediate,omitempty" yaml:"immediate,omitempty"`       // delivered by Dozzle Cloud as it matches, skipping its review
 
@@ -133,7 +133,7 @@ type Subscription struct {
 	// Per-container cooldown tracking for metric alerts (containerID -> last triggered time)
 	MetricCooldowns *xsync.Map[string, time.Time] `json:"-" yaml:"-"`
 
-	// Per-container cooldown tracking for event alerts (containerID -> last triggered time)
+	// Per-container cooldown tracking for log and event alerts (containerID -> last triggered time)
 	EventCooldowns *xsync.Map[string, time.Time] `json:"-" yaml:"-"`
 
 	// Per-container sample buffers for windowed metric evaluation (containerID -> ring buffer of match results)
