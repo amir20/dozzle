@@ -51,6 +51,12 @@ func CreateMultiHostService(ctx context.Context, embeddedCerts embed.FS, args Ar
 			log.Fatal().Err(err).Interface("host", remoteHost).Msg("Could not parse remote host")
 		}
 
+		if host.URL.Scheme != "tcp" {
+			// A mistake in the configuration, which no amount of retrying fixes.
+			log.Warn().Interface("host", host).Msg("Remote host must use tcp://, skipping it")
+			continue
+		}
+
 		log.Info().Interface("host", host).Msg("Adding remote host")
 		ctx, cancel := context.WithTimeout(ctx, args.Timeout)
 		service, err := connectRemote(ctx, host)
