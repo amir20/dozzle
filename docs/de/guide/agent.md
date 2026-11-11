@@ -1,7 +1,7 @@
 ---
 title: Agent-Modus
 description: Betreibe Dozzle im Agent-Modus, um Logs entfernter Docker-Hosts über TLS anzuzeigen, Hosts in Gruppen zu ordnen und Agents mit einem eigenen Zertifikat abzusichern.
-sourceHash: 0f6c06c47666
+sourceHash: 2079ef9aa433
 ---
 
 # Agent-Modus
@@ -344,7 +344,6 @@ Agents ähneln entfernten Verbindungen, haben aber einige Vorteile. Aus Gründen
 | Sicherheit     | Verschlüsselt, eigenes Zertifikat möglich | Unsicher oder Docker TLS              |
 | Bedienung      | Ohne Aufwand einsatzbereit                | Erfordert Freigabe des Docker-Sockets |
 | Berechtigungen | Voller Zugriff auf Docker                 | Über einen Proxy steuerbar            |
-| Reconnect      | Verbindet sich automatisch neu            | Erfordert Neustart der Oberfläche     |
 | Healthcheck    | Eingebauter Healthcheck                   | Kein Healthcheck                      |
 | Filter         | Unterstützt Filter                        | Keine Unterstützung für Filter        |
 

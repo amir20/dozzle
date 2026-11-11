@@ -343,7 +343,6 @@ Agents are similar to remote connections, but they have some advantages. General
 | Security    | Encrypted, bring your own cert | Insecure or Docker TLS          |
 | Ease of use | Easy out of the box            | Requires exposing Docker socket |
 | Permissions | Full access to Docker          | Can be controlled with a proxy  |
-| Reconnect   | Automatically reconnects       | Requires UI restart             |
 | Healthcheck | Built-in healthcheck           | No healthcheck                  |
 | Filters     | Supports filters               | No support for filters          |
 

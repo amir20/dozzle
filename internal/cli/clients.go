@@ -15,7 +15,7 @@ import (
 )
 
 // CreateMultiHostService connects to every configured host. ctx bounds the
-// background retry of agents that did not answer.
+// background retry of agents and remote hosts that did not answer.
 func CreateMultiHostService(ctx context.Context, embeddedCerts embed.FS, args Args) *hostservice.MultiHostService {
 	var clients []container.ClientService
 	if len(args.RemoteHost) > 0 {
@@ -28,24 +28,46 @@ func CreateMultiHostService(ctx context.Context, embeddedCerts embed.FS, args Ar
 	localHostIDs := container.NewHostIDResolver(args.HostID)
 	remoteHostIDs := container.DerivedHostID{}
 
+	// connectRemote builds a remote host's service, or nothing at all: the store
+	// behind a service runs for the life of the process, so it is only started
+	// once the engine has answered.
+	connectRemote := func(ctx context.Context, host container.Host) (container.ClientService, error) {
+		client, err := docker.NewRemoteClient(ctx, host, remoteHostIDs)
+		if err != nil {
+			return nil, err
+		}
+		if _, err := client.ListContainers(ctx, args.Filter); err != nil {
+			_ = client.Close()
+			return nil, err
+		}
+		return docker.NewService(client, args.Filter), nil
+	}
+
+	// Remote hosts that did not answer, retried once the manager exists.
+	var downRemotes []container.Host
 	for _, remoteHost := range args.RemoteHost {
 		host, err := container.ParseConnection(remoteHost)
 		if err != nil {
 			log.Fatal().Err(err).Interface("host", remoteHost).Msg("Could not parse remote host")
 		}
 
-		log.Info().Interface("host", host).Msg("Adding remote host")
-		if client, err := docker.NewRemoteClient(host, remoteHostIDs); err == nil {
-			ctx, cancel := context.WithTimeout(context.Background(), args.Timeout)
-			defer cancel()
-			if _, err := client.ListContainers(ctx, args.Filter); err == nil {
-				clients = append(clients, docker.NewService(client, args.Filter))
-			} else {
-				log.Warn().Err(err).Interface("host", host).Msg("Could not connect to remote host")
-			}
-		} else {
-			log.Warn().Err(err).Interface("host", host).Msg("Could not create remote client")
+		if host.URL.Scheme != "tcp" {
+			// A mistake in the configuration, which no amount of retrying fixes.
+			log.Warn().Interface("host", host).Msg("Remote host must use tcp://, skipping it")
+			continue
 		}
+
+		log.Info().Interface("host", host).Msg("Adding remote host")
+		ctx, cancel := context.WithTimeout(ctx, args.Timeout)
+		service, err := connectRemote(ctx, host)
+		cancel()
+		if err != nil {
+			log.Warn().Err(err).Interface("host", host).Msg("Could not connect to remote host, will keep retrying")
+			host.Type = "remote"
+			downRemotes = append(downRemotes, host)
+			continue
+		}
+		clients = append(clients, service)
 	}
 
 	localClient, err := docker.NewLocalClient(args.Hostname, localHostIDs)
@@ -86,6 +108,11 @@ func CreateMultiHostService(ctx context.Context, embeddedCerts embed.FS, args Ar
 	}
 
 	clientManager := hostservice.NewRetriableClientManager(args.RemoteAgent, agentCerts, args.Timeout, certs, clients...)
-	go clientManager.RetryFailedAgents(ctx)
+	for _, host := range downRemotes {
+		clientManager.RetryLater(host, func(ctx context.Context) (container.ClientService, error) {
+			return connectRemote(ctx, host)
+		})
+	}
+	go clientManager.RetryFailedHosts(ctx)
 	return hostservice.NewMultiHostService(clientManager, args.Timeout)
 }

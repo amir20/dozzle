@@ -208,7 +208,9 @@ func isLocalDaemon(daemonHost string) bool {
 	return strings.HasPrefix(daemonHost, "unix://") || strings.HasPrefix(daemonHost, "npipe://")
 }
 
-func NewRemoteClient(host container.Host, hostIDs container.HostIDResolver) (*Client, error) {
+// ctx bounds the ping, so a host that swallows packets fails after the caller's
+// timeout rather than the dialer's.
+func NewRemoteClient(ctx context.Context, host container.Host, hostIDs container.HostIDResolver) (*Client, error) {
 	if host.URL.Scheme != "tcp" {
 		return nil, fmt.Errorf("invalid scheme: %s", host.URL.Scheme)
 	}
@@ -232,13 +234,24 @@ func NewRemoteClient(host container.Host, hostIDs container.HostIDResolver) (*Cl
 		return nil, err
 	}
 
-	if _, err := cli.Ping(context.Background(), client.PingOptions{NegotiateAPIVersion: true}); err != nil {
+	if _, err := cli.Ping(ctx, client.PingOptions{NegotiateAPIVersion: true}); err != nil {
+		// Closed because a host that stays down is tried again and again.
+		_ = cli.Close()
 		return nil, fmt.Errorf("docker daemon unreachable or unsupported (minimum API version %s required): %w", client.MinAPIVersion, err)
 	}
 
 	host.Type = "remote"
 
 	return NewClient(cli, host, hostIDs), nil
+}
+
+// Close releases the connections held for the engine. For a client that is
+// being thrown away, never one a Service or store still uses.
+func (d *Client) Close() error {
+	if c, ok := d.cli.(io.Closer); ok {
+		return c.Close()
+	}
+	return nil
 }
 
 func detectRuntime(cli CLI, info system.Info) string {

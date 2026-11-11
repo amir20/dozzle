@@ -1,7 +1,7 @@
 ---
 title: Modo agente
 description: Ejecuta Dozzle en modo agente para ver los logs de hosts Docker remotos por TLS, organizar los hosts en grupos y proteger los agentes con tu propio certificado.
-sourceHash: 0f6c06c47666
+sourceHash: 2079ef9aa433
 ---
 
 # Modo agente
@@ -344,7 +344,6 @@ Los agentes son parecidos a las conexiones remotas, pero tienen algunas ventajas
 | Seguridad   | Cifrado, certificado propio opcional | Insegura o TLS de Docker             |
 | Facilidad   | Fácil desde el primer momento        | Requiere exponer el socket de Docker |
 | Permisos    | Acceso completo a Docker             | Se pueden controlar con un proxy     |
-| Reconexión  | Se reconecta automáticamente         | Requiere reiniciar la interfaz       |
 | Healthcheck | Healthcheck integrado                | Sin healthcheck                      |
 | Filtros     | Admite filtros                       | No admite filtros                    |
 
