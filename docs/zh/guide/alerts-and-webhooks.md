@@ -1,7 +1,7 @@
 ---
 title: 警报
 description: 为 Docker 容器日志、CPU 和内存指标以及生命周期事件设置 Dozzle 警报，并发送到 webhook、Slack、Discord 或 ntfy。
-sourceHash: 628000eb3e0a
+sourceHash: 435658ff19fc
 ---
 
 # 警报
@@ -160,6 +160,12 @@ message.status >= 500 && message.path contains "/api"
 ```
 
 支持的字符串运算符包括 `contains`、`startsWith`、`endsWith` 和 `matches`（正则）。
+
+### 冷却时间
+
+冷却时间将每条日志规则限制为在设定时段内对每个容器最多发送一次警报。后续匹配会被跳过，即使消息内容或严重程度发生变化。其他容器和规则不受影响。
+
+冷却默认关闭，启用**立即发送**的 Dozzle Cloud 规则则默认为 10 秒。如果目标需要接收每次匹配，请保持冷却关闭。
 
 ### 日志示例
 

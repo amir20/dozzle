@@ -1,7 +1,7 @@
 ---
 title: Alertas
 description: Configura alertas de Dozzle sobre los logs de contenedores Docker, las métricas de CPU y memoria y los eventos del ciclo de vida, y envíalas a un webhook, Slack, Discord o ntfy.
-sourceHash: 628000eb3e0a
+sourceHash: 435658ff19fc
 ---
 
 # Alertas
@@ -160,6 +160,12 @@ message.status >= 500 && message.path contains "/api"
 ```
 
 Entre los operadores de cadena admitidos están `contains`, `startsWith`, `endsWith` y `matches` (expresión regular).
+
+### Tiempo de espera
+
+El tiempo de espera limita cada regla de logs a una alerta por contenedor durante el periodo elegido. Se omiten las siguientes coincidencias, aunque cambie el mensaje o su gravedad. Los demás contenedores y reglas no se ven afectados.
+
+Está desactivado por defecto, o fijado en 10 segundos para las reglas de Dozzle Cloud con **Enviar inmediatamente**. Déjalo desactivado si tu destino necesita recibir todas las coincidencias.
 
 ### Ejemplos de log
 

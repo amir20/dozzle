@@ -1,7 +1,7 @@
 ---
 title: Alarme
 description: Richte in Dozzle Alarme für Docker-Container-Logs, CPU- und Speichermetriken sowie Lebenszyklus-Ereignisse ein und sende sie an einen Webhook, Slack, Discord oder ntfy.
-sourceHash: 628000eb3e0a
+sourceHash: 435658ff19fc
 ---
 
 # Alarme
@@ -160,6 +160,12 @@ message.status >= 500 && message.path contains "/api"
 ```
 
 Zu den unterstützten String-Operatoren gehören `contains`, `startsWith`, `endsWith` und `matches` (Regex).
+
+### Abklingzeit
+
+Die Abklingzeit begrenzt jede Log-Regel im gewählten Zeitraum auf einen Alarm pro Container. Weitere Treffer werden übersprungen, auch wenn sich die Meldung oder der Schweregrad ändert. Andere Container und Regeln sind davon nicht betroffen.
+
+Standardmäßig ist sie deaktiviert. Für Dozzle-Cloud-Regeln mit **Sofort senden** beträgt sie 10 Sekunden. Lass sie deaktiviert, wenn dein Ziel jeden Treffer benötigt.
 
 ### Log-Beispiele
 

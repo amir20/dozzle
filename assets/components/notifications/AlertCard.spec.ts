@@ -52,3 +52,16 @@ describe("AlertCard send immediately", () => {
     expect(mountCard({ immediate: true, dispatcher: null }).find(immediateBadge).exists()).toBe(false);
   });
 });
+
+describe("AlertCard log cooldown", () => {
+  it.each(["cloud", "webhook"])("shows a cooldown for an ordinary %s log rule", (type) => {
+    const dispatcher = { id: 1, name: "destination", type } as NotificationRule["dispatcher"];
+    expect(mountCard({ immediate: false, cooldown: 60, dispatcher }).text()).toContain(
+      "notifications.alert.cooldown-meta",
+    );
+  });
+
+  it("hides the cooldown when it is off", () => {
+    expect(mountCard({ cooldown: 0 }).text()).not.toContain("notifications.alert.cooldown-meta");
+  });
+});
