@@ -1,7 +1,7 @@
 ---
 title: 代理模式
 description: 以代理模式运行 Dozzle，通过 TLS 查看远程 Docker 主机的日志，把主机分组管理，并用自己的证书锁定代理。
-sourceHash: 0f6c06c47666
+sourceHash: 2079ef9aa433
 ---
 
 # 代理模式
@@ -344,7 +344,6 @@ services:
 | 安全性   | 加密传输，可自带证书 | 不加密或使用 Docker TLS    |
 | 易用性   | 开箱即用             | 需要暴露 Docker socket     |
 | 权限     | 对 Docker 的完全访问 | 可以通过 socket proxy 控制 |
-| 重连     | 自动重连             | 需要重启界面               |
 | 健康检查 | 内置健康检查         | 没有健康检查               |
 | 过滤器   | 支持过滤器           | 不支持过滤器               |
 

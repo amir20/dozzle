@@ -1,7 +1,7 @@
 ---
 title: Mode agent
 description: Utilisez Dozzle en mode agent pour consulter les logs d'hôtes Docker distants via TLS, organiser les hôtes en groupes et verrouiller les agents avec votre propre certificat.
-sourceHash: 0f6c06c47666
+sourceHash: 2079ef9aa433
 ---
 
 # Mode agent
@@ -338,14 +338,13 @@ L'extrait contient la clé privée, traitez-le donc comme un mot de passe. L'opt
 
 Les agents ressemblent aux connexions distantes, mais ils ont quelques avantages. En général, les agents sont préférables aux connexions distantes pour des raisons de performance et de sécurité. Voici une comparaison :
 
-| Fonctionnalité | Agent                         | Connexion distante                      |
-| -------------- | ----------------------------- | --------------------------------------- |
-| Performance    | Meilleure, charge répartie    | Moins bonne côté interface              |
-| Sécurité       | Chiffré, certificat au choix  | Non sécurisée ou TLS Docker             |
-| Simplicité     | Fonctionne d'emblée           | Nécessite d'exposer le socket Docker    |
-| Permissions    | Accès complet à Docker        | Contrôlables avec un proxy              |
-| Reconnexion    | Se reconnecte automatiquement | Nécessite un redémarrage de l'interface |
-| Healthcheck    | Healthcheck intégré           | Pas de healthcheck                      |
-| Filtres        | Prend en charge les filtres   | Pas de prise en charge des filtres      |
+| Fonctionnalité | Agent                        | Connexion distante                   |
+| -------------- | ---------------------------- | ------------------------------------ |
+| Performance    | Meilleure, charge répartie   | Moins bonne côté interface           |
+| Sécurité       | Chiffré, certificat au choix | Non sécurisée ou TLS Docker          |
+| Simplicité     | Fonctionne d'emblée          | Nécessite d'exposer le socket Docker |
+| Permissions    | Accès complet à Docker       | Contrôlables avec un proxy           |
+| Healthcheck    | Healthcheck intégré          | Pas de healthcheck                   |
+| Filtres        | Prend en charge les filtres  | Pas de prise en charge des filtres   |
 
 Si vous prévoyez d'utiliser des connexions distantes, sécurisez la connexion avec TLS Docker ou un reverse proxy.

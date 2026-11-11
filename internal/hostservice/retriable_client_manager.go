@@ -77,6 +77,9 @@ func (s *hostSubscriber) drain() {
 type RetriableClientManager struct {
 	clients      map[string]container.ClientService
 	failedAgents []string
+	// pending holds the hosts that are not agents and did not answer at startup.
+	// Each is built from scratch on every retry, see RetryLater.
+	pending []pendingHost
 	// agents maps each connected agent's endpoint to the host id it is filed
 	// under in clients, so one can be removed by the endpoint it was added with.
 	agents map[string]connectedAgent
@@ -93,6 +96,13 @@ type RetriableClientManager struct {
 	// wasAvailable remembers each agent's last answer, so a disconnect is counted
 	// once when it happens rather than on every look while it stays down.
 	wasAvailable *xsync.Map[string, bool]
+}
+
+// pendingHost is a host waiting for its first successful connect. host is what
+// is shown, as unavailable, until then.
+type pendingHost struct {
+	host    container.Host
+	connect func(ctx context.Context) (container.ClientService, error)
 }
 
 type connectedAgent struct {
@@ -112,9 +122,9 @@ func dialAgent(endpoint string, certs tls.Certificate) (container.ClientService,
 	return agent.NewService(a), a, nil
 }
 
-// agentRetryInterval is how often agents that have never connected are dialed
-// again by RetryFailedAgents.
-const agentRetryInterval = 30 * time.Second
+// hostRetryInterval is how often hosts that have never connected are tried
+// again by RetryFailedHosts.
+const hostRetryInterval = 30 * time.Second
 
 var (
 	ErrAgentExists   = errors.New("agent is already added")
@@ -314,12 +324,26 @@ func (m *RetriableClientManager) RetryAndList() ([]container.ClientService, []er
 	return clients, errs
 }
 
-// RetryFailedAgents dials the agents that have never connected, every
-// agentRetryInterval until ctx ends, so one that was down when the hub started
+// RetryLater keeps a host that did not answer at startup. It is listed as
+// unavailable under host, and connect is called on every retry until it returns
+// a service, which then takes the host's place.
+//
+// connect builds the client from nothing each time, because a docker client
+// reads the engine's id and specs once, when it is made. One made while the
+// engine was down would keep an id and specs that were never the engine's.
+func (m *RetriableClientManager) RetryLater(host container.Host, connect func(ctx context.Context) (container.ClientService, error)) {
+	host.Available = false
+	m.mu.Lock()
+	m.pending = append(m.pending, pendingHost{host: host, connect: connect})
+	m.mu.Unlock()
+}
+
+// RetryFailedHosts tries the hosts that have never connected, every
+// hostRetryInterval until ctx ends, so one that was down when the hub started
 // joins without waiting for someone to open the UI. A tick with nothing failed
-// dials nothing: connected agents reconnect on their own.
-func (m *RetriableClientManager) RetryFailedAgents(ctx context.Context) {
-	ticker := time.NewTicker(agentRetryInterval)
+// dials nothing: connected hosts reconnect on their own.
+func (m *RetriableClientManager) RetryFailedHosts(ctx context.Context) {
+	ticker := time.NewTicker(hostRetryInterval)
 	defer ticker.Stop()
 	for {
 		select {
@@ -327,7 +351,71 @@ func (m *RetriableClientManager) RetryFailedAgents(ctx context.Context) {
 			return
 		case <-ticker.C:
 			m.RetryAndList()
+			m.retryPending()
 		}
+	}
+}
+
+// retryPending tries every pending host once. Only RetryFailedHosts calls it,
+// never RetryAndList: that one runs on the way to every container listing, and
+// a host that swallows packets would hold each page load for the whole timeout.
+func (m *RetriableClientManager) retryPending() {
+	m.mu.RLock()
+	pending := slices.Clone(m.pending)
+	m.mu.RUnlock()
+
+	type result struct {
+		host    container.Host
+		service container.ClientService
+		err     error
+	}
+	results := make([]result, len(pending))
+	var wg sync.WaitGroup
+	for i, p := range pending {
+		wg.Go(func() {
+			ctx, cancel := context.WithTimeout(context.Background(), m.timeout)
+			defer cancel()
+			service, err := p.connect(ctx)
+			var host container.Host
+			if err == nil {
+				host, err = service.Host(ctx)
+			}
+			if err != nil {
+				log.Debug().Err(err).Str("host", p.host.Name).Msg("error connecting to host")
+			}
+			results[i] = result{host: host, service: service, err: err}
+		})
+	}
+	wg.Wait()
+
+	var published []container.Host
+	m.mu.Lock()
+	for i, r := range results {
+		if r.err != nil {
+			continue
+		}
+		placeholder := pending[i].host.ID
+		// Connected or a duplicate, it is no longer retried.
+		m.pending = slices.DeleteFunc(m.pending, func(p pendingHost) bool { return p.host.ID == placeholder })
+		if _, ok := m.clients[r.host.ID]; ok {
+			log.Warn().Str("name", r.host.Name).Str("id", r.host.ID).Msg("A host with an existing ID was found. Removing the duplicate host. For more details, see https://dozzle.dev/guide/faq#i-am-seeing-duplicate-hosts-error-in-the-logs-how-do-i-fix-it")
+			continue
+		}
+		m.clients[r.host.ID] = r.service
+		log.Info().Str("name", r.host.Name).Str("id", r.host.ID).Msg("connected to host that was unreachable")
+		host := r.host
+		host.Available = true
+		if host.ID != placeholder {
+			// It was listed under the id its URL gave it. An open tab drops that
+			// entry instead of showing the machine twice.
+			host.ReplacesID = placeholder
+		}
+		published = append(published, host)
+	}
+	m.mu.Unlock()
+
+	for _, host := range published {
+		m.publish(host)
 	}
 }
 
@@ -460,7 +548,7 @@ func (m *RetriableClientManager) Find(id string) (container.ClientService, bool)
 }
 
 func (m *RetriableClientManager) String() string {
-	return fmt.Sprintf("RetriableClientManager{clients: %d, failedAgents: %d}", len(m.clients), len(m.failedAgents))
+	return fmt.Sprintf("RetriableClientManager{clients: %d, failedAgents: %d, pending: %d}", len(m.clients), len(m.failedAgents), len(m.pending))
 }
 
 // rekey moves a client to the id its host now reports, so Find keeps resolving
@@ -521,6 +609,7 @@ func (m *RetriableClientManager) Hosts(ctx context.Context) []container.Host {
 		entries = append(entries, entry{id: id, service: service})
 	}
 	failedAgents := slices.Clone(m.failedAgents)
+	pending := slices.Clone(m.pending)
 	m.mu.RUnlock()
 
 	type result struct {
@@ -545,7 +634,7 @@ func (m *RetriableClientManager) Hosts(ctx context.Context) []container.Host {
 	}
 	wg.Wait()
 
-	hosts := make([]container.Host, 0, len(results)+len(failedAgents))
+	hosts := make([]container.Host, 0, len(results)+len(failedAgents)+len(pending))
 	for _, r := range results {
 		// Removed while Host() was in flight: reporting it would bring a removed
 		// host back, and its availability record with it. A concurrent Hosts may
@@ -598,6 +687,10 @@ func (m *RetriableClientManager) Hosts(ctx context.Context) []container.Host {
 			Type:      "agent",
 			Group:     group,
 		})
+	}
+
+	for _, p := range pending {
+		hosts = append(hosts, p.host)
 	}
 
 	return hosts

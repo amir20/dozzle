@@ -364,7 +364,7 @@ func TestRetriableClientManager_RetryAndListReturnsEveryClient(t *testing.T) {
 // An agent that was down when the hub started is picked up by the background
 // retry once it answers, and announced to subscribers, with nobody calling
 // RetryAndList on its behalf.
-func TestRetriableClientManager_RetryFailedAgentsConnectsLateAgent(t *testing.T) {
+func TestRetriableClientManager_RetryFailedHostsConnectsLateAgent(t *testing.T) {
 	synctest.Test(t, func(t *testing.T) {
 		dialer := &switchDialer{}
 		m := newRetriableClientManager([]string{"late:7007"}, nil, time.Second, tls.Certificate{}, dialer.dial)
@@ -374,10 +374,10 @@ func TestRetriableClientManager_RetryFailedAgentsConnectsLateAgent(t *testing.T)
 		defer cancel()
 		updates := make(chan container.Host, 1)
 		m.Subscribe(ctx, updates)
-		go m.RetryFailedAgents(ctx)
+		go m.RetryFailedHosts(ctx)
 
 		// Still down: a tick passes and it stays failed.
-		time.Sleep(agentRetryInterval)
+		time.Sleep(hostRetryInterval)
 		synctest.Wait()
 		require.Empty(t, m.List())
 
@@ -385,7 +385,7 @@ func TestRetriableClientManager_RetryFailedAgentsConnectsLateAgent(t *testing.T)
 		dialer.up = true
 		dialer.mu.Unlock()
 
-		time.Sleep(agentRetryInterval)
+		time.Sleep(hostRetryInterval)
 		synctest.Wait()
 		_, ok := m.Find("late:7007-id")
 		require.True(t, ok, "the late agent is served")
@@ -393,6 +393,105 @@ func TestRetriableClientManager_RetryFailedAgentsConnectsLateAgent(t *testing.T)
 		assert.Equal(t, "late:7007-id", host.ID)
 		assert.True(t, host.Available)
 	})
+}
+
+// A remote host that was down at startup is listed as unavailable, built again
+// on each retry, and once it answers it is served under the id the engine
+// reports, with the placeholder it was listed under handed over as replaced.
+func TestRetriableClientManager_RetryLaterConnectsPendingHost(t *testing.T) {
+	synctest.Test(t, func(t *testing.T) {
+		m := newRetriableClientManager(nil, nil, time.Second, tls.Certificate{}, nil,
+			&stubService{host: container.Host{ID: "local"}})
+
+		var mu sync.Mutex
+		up, calls := false, 0
+		m.RetryLater(container.Host{ID: "tcp:nas:2375", Name: "nas", Type: "remote", Available: true},
+			func(context.Context) (container.ClientService, error) {
+				mu.Lock()
+				defer mu.Unlock()
+				calls++
+				if !up {
+					return nil, errors.New("connection refused")
+				}
+				return &stubService{host: container.Host{ID: "engine-id", Name: "nas", Type: "remote"}}, nil
+			})
+
+		listed := m.Hosts(t.Context())
+		require.ElementsMatch(t, []string{"local", "tcp:nas:2375"}, hostIDs(listed))
+		for _, h := range listed {
+			if h.ID == "tcp:nas:2375" {
+				assert.False(t, h.Available, "a pending host is listed as down")
+			}
+		}
+
+		ctx, cancel := context.WithCancel(t.Context())
+		defer cancel()
+		updates := make(chan container.Host, 1)
+		m.Subscribe(ctx, updates)
+		go m.RetryFailedHosts(ctx)
+
+		time.Sleep(hostRetryInterval)
+		synctest.Wait()
+		_, ok := m.Find("engine-id")
+		require.False(t, ok, "still down after one retry")
+
+		mu.Lock()
+		up = true
+		mu.Unlock()
+
+		time.Sleep(hostRetryInterval)
+		synctest.Wait()
+		_, ok = m.Find("engine-id")
+		require.True(t, ok, "the late host is served")
+		host := <-updates
+		assert.Equal(t, "engine-id", host.ID)
+		assert.Equal(t, "tcp:nas:2375", host.ReplacesID)
+		assert.True(t, host.Available)
+		assert.ElementsMatch(t, []string{"local", "engine-id"}, hostIDs(m.Hosts(t.Context())))
+
+		// Connected, so it is not built again.
+		mu.Lock()
+		before := calls
+		mu.Unlock()
+		time.Sleep(hostRetryInterval)
+		synctest.Wait()
+		mu.Lock()
+		assert.Equal(t, before, calls)
+		mu.Unlock()
+	})
+}
+
+// A pending host that turns out to be an engine already served is dropped
+// rather than retried forever or listed twice.
+func TestRetriableClientManager_RetryLaterDropsDuplicate(t *testing.T) {
+	m := newRetriableClientManager(nil, nil, time.Second, tls.Certificate{}, nil,
+		&stubService{host: container.Host{ID: "engine-id"}})
+	m.RetryLater(container.Host{ID: "tcp:same:2375", Name: "same", Type: "remote"},
+		func(context.Context) (container.ClientService, error) {
+			return &stubService{host: container.Host{ID: "engine-id"}}, nil
+		})
+
+	m.retryPending()
+	require.Len(t, m.List(), 1)
+	assert.Equal(t, []string{"engine-id"}, hostIDs(m.Hosts(t.Context())))
+}
+
+// A container listing never builds a pending host: that path runs on every
+// page load, and a host that swallows packets would hold it for the timeout.
+func TestRetriableClientManager_RetryAndListLeavesPendingAlone(t *testing.T) {
+	m := newRetriableClientManager(nil, nil, time.Second, tls.Certificate{}, nil,
+		&stubService{host: container.Host{ID: "local"}})
+	calls := 0
+	m.RetryLater(container.Host{ID: "tcp:nas:2375", Name: "nas", Type: "remote"},
+		func(context.Context) (container.ClientService, error) {
+			calls++
+			return nil, errors.New("connection refused")
+		})
+
+	clients, errs := m.RetryAndList()
+	require.Empty(t, errs)
+	require.Len(t, clients, 1)
+	assert.Zero(t, calls)
 }
 
 type statsService struct {
