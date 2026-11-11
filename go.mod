@@ -2,7 +2,7 @@ module github.com/amir20/dozzle
 
 require (
 	github.com/alexflint/go-arg v1.6.1
-	github.com/andybalholm/brotli v1.2.8
+	github.com/andybalholm/brotli v1.3.0
 	github.com/containerd/errdefs v1.0.0
 	github.com/dustin/go-humanize v1.1.0
 	github.com/expr-lang/expr v1.17.8
@@ -22,9 +22,9 @@ require (
 	github.com/yuin/goldmark/v2 v2.1.15
 	go.yaml.in/yaml/v4 v4.0.0
 	golang.org/x/crypto v0.58.0
-	golang.org/x/oauth2 v0.37.0
-	golang.org/x/sync v0.24.0
-	golang.org/x/term v0.47.0
+	golang.org/x/oauth2 v0.38.0
+	golang.org/x/sync v0.25.0
+	golang.org/x/term v0.48.0
 	golang.org/x/time v0.16.0
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20260817212433-ac3dfec99bb1
 	google.golang.org/grpc v1.85.0
@@ -134,7 +134,7 @@ require (
 	golang.org/x/exp/typeparams v0.0.0-20231108232855-2478ac86f678 // indirect
 	golang.org/x/mod v0.41.0 // indirect
 	golang.org/x/net v0.60.0 // indirect
-	golang.org/x/sys v0.49.0 // indirect
+	golang.org/x/sys v0.50.0 // indirect
 	golang.org/x/text v0.43.0 // indirect
 	golang.org/x/tools v0.51.0 // indirect
 	google.golang.org/grpc/cmd/protoc-gen-go-grpc v1.6.2 // indirect
@@ -152,7 +152,7 @@ require (
 	sigs.k8s.io/yaml v1.6.0 // indirect
 )
 
-go 1.27.3
+go 1.27.4
 
 tool (
 	github.com/air-verse/air
