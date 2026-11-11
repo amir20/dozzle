@@ -197,11 +197,10 @@ const ruleLabel = computed(() => {
 });
 const ruleExpression = computed(() => alert.metricExpression || alert.eventExpression || alert.logExpression);
 
-// Metric alerts default to 5m. Events and immediate log alerts only have one when set; other log alerts never do.
+// Metric alerts default to 5m. Log and event alerts only have a cooldown when set.
 const cooldownSeconds = computed(() => {
   if (alert.metricExpression) return alert.cooldown || 300;
-  if (alert.eventExpression || alert.immediate) return alert.cooldown || 0;
-  return 0;
+  return alert.cooldown || 0;
 });
 
 // A webhook has no Cloud review to skip, and moving a rule onto one leaves the flag saved.

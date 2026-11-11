@@ -65,13 +65,11 @@ func (m *Manager) processLogEvent(logEvent *container.LogEvent) {
 			return true
 		}
 
-		// An immediate rule is sent line by line with nothing downstream to batch
-		// it, so its cooldown is what stands between a noisy log and the user.
-		// Other log rules stay uncooled: Dozzle Cloud needs every line to judge them.
-		if sub.Immediate {
-			if sub.IsEventCooldownActive(notificationContainer.ID) {
-				return true
-			}
+		// Cooldown is per rule and container, regardless of log content.
+		if sub.IsEventCooldownActive(notificationContainer.ID) {
+			return true
+		}
+		if sub.Cooldown > 0 {
 			sub.SetEventCooldown(notificationContainer.ID)
 		}
 
@@ -98,6 +96,7 @@ func (m *Manager) processLogEvent(logEvent *container.LogEvent) {
 				LogExpression:       sub.LogExpression,
 				ContainerExpression: sub.ContainerExpression,
 				Immediate:           sub.Immediate,
+				Cooldown:            sub.Cooldown,
 			},
 			Timestamp: time.Now(),
 		}
