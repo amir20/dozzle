@@ -18,9 +18,9 @@ declare global {
   const DEFAULT_UPDATE_CONTAINERS_MODE: typeof import('./composable/containers/updatePolicy').DEFAULT_UPDATE_CONTAINERS_MODE
   const EffectScope: typeof import('vue').EffectScope
   const FETCH_PAGE: typeof import('./composable/logs/logLoader').FETCH_PAGE
-  const IMMEDIATE_COOLDOWN_STOPS: typeof import('./composable/notifications/alertForm').IMMEDIATE_COOLDOWN_STOPS
   const K8sNamespace: typeof import('./stores/k8s').K8sNamespace
   const K8sOwner: typeof import('./stores/k8s').K8sOwner
+  const LOG_COOLDOWN_STOPS: typeof import('./composable/notifications/alertForm').LOG_COOLDOWN_STOPS
   const MARKER_START_SLACK_MS: typeof import('./composable/logs/updateMarkers').MARKER_START_SLACK_MS
   const MAX_PATTERN_LINES: typeof import('./composable/cloud/patternMemory').MAX_PATTERN_LINES
   const MIN_MENU_WIDTH: typeof import('./stores/settings').MIN_MENU_WIDTH
@@ -784,9 +784,9 @@ declare module 'vue' {
     readonly DEFAULT_UPDATE_CONTAINERS_MODE: UnwrapRef<typeof import('./composable/containers/updatePolicy')['DEFAULT_UPDATE_CONTAINERS_MODE']>
     readonly EffectScope: UnwrapRef<typeof import('vue')['EffectScope']>
     readonly FETCH_PAGE: UnwrapRef<typeof import('./composable/logs/logLoader')['FETCH_PAGE']>
-    readonly IMMEDIATE_COOLDOWN_STOPS: UnwrapRef<typeof import('./composable/notifications/alertForm')['IMMEDIATE_COOLDOWN_STOPS']>
     readonly K8sNamespace: UnwrapRef<typeof import('./stores/k8s')['K8sNamespace']>
     readonly K8sOwner: UnwrapRef<typeof import('./stores/k8s')['K8sOwner']>
+    readonly LOG_COOLDOWN_STOPS: UnwrapRef<typeof import('./composable/notifications/alertForm')['LOG_COOLDOWN_STOPS']>
     readonly MARKER_START_SLACK_MS: UnwrapRef<typeof import('./composable/logs/updateMarkers')['MARKER_START_SLACK_MS']>
     readonly MAX_PATTERN_LINES: UnwrapRef<typeof import('./composable/cloud/patternMemory')['MAX_PATTERN_LINES']>
     readonly NOT_RUNNING_ERROR: UnwrapRef<typeof import('./composable/containers/containerActions')['NOT_RUNNING_ERROR']>
