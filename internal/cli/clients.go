@@ -14,7 +14,9 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-func CreateMultiHostService(embeddedCerts embed.FS, args Args) *hostservice.MultiHostService {
+// CreateMultiHostService connects to every configured host. ctx bounds the
+// background retry of agents that did not answer.
+func CreateMultiHostService(ctx context.Context, embeddedCerts embed.FS, args Args) *hostservice.MultiHostService {
 	var clients []container.ClientService
 	if len(args.RemoteHost) > 0 {
 		log.Info().Msg(`Consider using Dozzle's remote agent to manage remote hosts. See https://dozzle.dev/guide/agent for more information`)
@@ -84,5 +86,6 @@ func CreateMultiHostService(embeddedCerts embed.FS, args Args) *hostservice.Mult
 	}
 
 	clientManager := hostservice.NewRetriableClientManager(args.RemoteAgent, agentCerts, args.Timeout, certs, clients...)
+	go clientManager.RetryFailedAgents(ctx)
 	return hostservice.NewMultiHostService(clientManager, args.Timeout)
 }
