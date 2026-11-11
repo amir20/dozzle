@@ -120,6 +120,9 @@ func main() {
 		// Only the operator's agents: dozzle.yml agents come from the server-mode UI,
 		// and the private ones among them need a pair swarm mode never loads.
 		agentManager := hostservice.NewRetriableClientManager(args.EnvAgents, nil, args.Timeout, certs)
+		// Only these agents. Swarm nodes are found by a DNS lookup on each
+		// container listing, which is not something to run on a timer.
+		go agentManager.RetryFailedHosts(ctx)
 		manager := hostservice.NewSwarmClientManager(localClient, certs, args.Timeout, agentManager, args.Filter)
 		multiHostService := hostservice.NewMultiHostService(manager, args.Timeout)
 		if err := multiHostService.StartNotificationManager(ctx, imagecheck.Mode(args.ImageCheckMode) == imagecheck.ModeAutomatic, args.ImageCheckInterval, args.Filter); err != nil {
