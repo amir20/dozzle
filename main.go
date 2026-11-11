@@ -95,7 +95,7 @@ func main() {
 	var hostService web.HostService
 	var notificationService cloud.NotificationService
 	if args.Mode == "server" {
-		multiHostService := cli.CreateMultiHostService(certs, args)
+		multiHostService := cli.CreateMultiHostService(ctx, certs, args)
 		if multiHostService.TotalClients() == 0 {
 			log.Fatal().Msg("Could not connect to any Docker Engine")
 		} else {

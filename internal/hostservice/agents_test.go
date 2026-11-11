@@ -7,6 +7,7 @@ import (
 	"io"
 	"sync"
 	"testing"
+	"testing/synctest"
 	"time"
 
 	"github.com/amir20/dozzle/internal/analytics"
@@ -358,6 +359,40 @@ func TestRetriableClientManager_RetryAndListReturnsEveryClient(t *testing.T) {
 	for _, h := range m.Hosts(t.Context()) {
 		assert.Truef(t, h.Available, "%s should be available", h.ID)
 	}
+}
+
+// An agent that was down when the hub started is picked up by the background
+// retry once it answers, and announced to subscribers, with nobody calling
+// RetryAndList on its behalf.
+func TestRetriableClientManager_RetryFailedAgentsConnectsLateAgent(t *testing.T) {
+	synctest.Test(t, func(t *testing.T) {
+		dialer := &switchDialer{}
+		m := newRetriableClientManager([]string{"late:7007"}, nil, time.Second, tls.Certificate{}, dialer.dial)
+		require.Empty(t, m.List())
+
+		ctx, cancel := context.WithCancel(t.Context())
+		defer cancel()
+		updates := make(chan container.Host, 1)
+		m.Subscribe(ctx, updates)
+		go m.RetryFailedAgents(ctx)
+
+		// Still down: a tick passes and it stays failed.
+		time.Sleep(agentRetryInterval)
+		synctest.Wait()
+		require.Empty(t, m.List())
+
+		dialer.mu.Lock()
+		dialer.up = true
+		dialer.mu.Unlock()
+
+		time.Sleep(agentRetryInterval)
+		synctest.Wait()
+		_, ok := m.Find("late:7007-id")
+		require.True(t, ok, "the late agent is served")
+		host := <-updates
+		assert.Equal(t, "late:7007-id", host.ID)
+		assert.True(t, host.Available)
+	})
 }
 
 type statsService struct {

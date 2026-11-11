@@ -112,6 +112,10 @@ func dialAgent(endpoint string, certs tls.Certificate) (container.ClientService,
 	return agent.NewService(a), a, nil
 }
 
+// agentRetryInterval is how often agents that have never connected are dialed
+// again by RetryFailedAgents.
+const agentRetryInterval = 30 * time.Second
+
 var (
 	ErrAgentExists   = errors.New("agent is already added")
 	ErrAgentNotFound = errors.New("agent not found")
@@ -264,7 +268,9 @@ func (m *RetriableClientManager) RetryAndList() ([]container.ClientService, []er
 		wg.Go(func() {
 			h, service, closer, err := m.connect(context.Background(), a.endpoint, a.cert)
 			if err != nil {
-				log.Warn().Err(err).Str("endpoint", a.endpoint).Msg("error connecting to agent")
+				// Debug, not warn: the first failure was already reported, and this
+				// repeats on every retry for as long as the agent stays down.
+				log.Debug().Err(err).Str("endpoint", a.endpoint).Msg("error connecting to agent")
 			}
 			results[i] = retryResult{endpoint: a.endpoint, host: h, service: service, closer: closer, err: err}
 		})
@@ -294,6 +300,7 @@ func (m *RetriableClientManager) RetryAndList() ([]container.ClientService, []er
 		}
 		m.clients[r.host.ID] = r.service
 		m.agents[r.endpoint] = connectedAgent{id: r.host.ID, closer: r.closer}
+		log.Info().Str("endpoint", r.endpoint).Str("name", r.host.Name).Str("id", r.host.ID).Msg("connected to agent that was unreachable")
 		host := r.host
 		host.Available = true
 		published = append(published, host)
@@ -305,6 +312,23 @@ func (m *RetriableClientManager) RetryAndList() ([]container.ClientService, []er
 		m.publish(host)
 	}
 	return clients, errs
+}
+
+// RetryFailedAgents dials the agents that have never connected, every
+// agentRetryInterval until ctx ends, so one that was down when the hub started
+// joins without waiting for someone to open the UI. A tick with nothing failed
+// dials nothing: connected agents reconnect on their own.
+func (m *RetriableClientManager) RetryFailedAgents(ctx context.Context) {
+	ticker := time.NewTicker(agentRetryInterval)
+	defer ticker.Stop()
+	for {
+		select {
+		case <-ctx.Done():
+			return
+		case <-ticker.C:
+			m.RetryAndList()
+		}
+	}
 }
 
 // AddAgent connects to an agent and, only once it answers, starts serving it
