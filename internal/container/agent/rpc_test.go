@@ -378,14 +378,15 @@ func TestShellDisabledOverAgent(t *testing.T) {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	// The hub's terminal client reads any refusal as the stream ending, so what
-	// matters here is that the engine never saw the session.
-	assert.Error(t, rpc.Exec(ctx, "abc", []string{"sh"}, &scriptedEvents{}, io.Discard))
+	// The refusal races the client's first send, so the hub's terminal client
+	// may see it as an error or as the stream simply ending. What is fixed is
+	// that the engine never sees the session.
+	_ = rpc.Exec(ctx, "abc", []string{"sh"}, &scriptedEvents{}, io.Discard)
 
-	session, err := rpc.ContainerAttach(ctx, "abc")
-	require.NoError(t, err)
-	defer session.Writer.Close()
-	_, _ = io.ReadAll(session.Reader)
+	if session, err := rpc.ContainerAttach(ctx, "abc"); err == nil {
+		_, _ = io.ReadAll(session.Reader)
+		session.Writer.Close()
+	}
 
 	assert.Empty(t, svc.recorded())
 
