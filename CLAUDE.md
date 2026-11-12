@@ -258,7 +258,9 @@ The Go backend is organized into these key packages:
   - `log_listener.go`: Log pattern matching for alerts
   - `dispatcher/`: Notification channel implementations (email, webhook, etc.)
 
-- **`main.go`** - Application entry point with mode switching (server/swarm/k8s/agent)
+- **`main.go`** - Embeds `dist/` and the shared certs, holds the `go:generate` directives, and calls `cli.Main`.
+  Subcommand dispatch and the server, swarm and k8s wiring live in `internal/cli/server.go`;
+  the cloud view of the hosts is `internal/cli/cloud_hosts.go`.
 
 ### Frontend (Vue 3)
 
