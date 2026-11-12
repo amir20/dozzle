@@ -98,9 +98,14 @@ export function resolvePolicy(label: UpdatePolicy | undefined, mode: UpdateConta
 
 /**
  * Whether the schedule would update this container under mode. Like the scheduler,
- * it never updates a stopped container, whatever its label says.
+ * it never updates a stopped container, whatever its label says, nor one on an
+ * agent started with --disable-actions.
  */
-export function willAutoUpdate(entry: Pick<ContainerUpdatePolicy, "label" | "state">, mode: UpdateContainersMode) {
+export function willAutoUpdate(
+  entry: Pick<ContainerUpdatePolicy, "label" | "state" | "host">,
+  mode: UpdateContainersMode,
+) {
+  if (useHosts().hosts.value[entry.host]?.actionsDisabled) return false;
   return entry.state === "running" && resolvePolicy(entry.label, mode) === "auto";
 }
 
@@ -110,8 +115,8 @@ export function riskyContainers(list: ContainerUpdatePolicy[]): ContainerUpdateP
 }
 
 /** Whether a container is on the schedule, for lists that only have the container. */
-export function autoUpdates(container: Pick<Container, "labels" | "state">, mode: UpdateContainersMode) {
-  return willAutoUpdate({ label: labelPolicy(container.labels), state: container.state }, mode);
+export function autoUpdates(container: Pick<Container, "labels" | "state" | "host">, mode: UpdateContainersMode) {
+  return willAutoUpdate({ label: labelPolicy(container.labels), state: container.state, host: container.host }, mode);
 }
 
 export type ImageStatusKind = "current" | "available" | "off" | "pinned" | "local" | "private" | "unknown" | "pending";
