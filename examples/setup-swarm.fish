@@ -58,7 +58,7 @@ end
 echo "✅ Swarm is ready. Deploying Dozzle..."
 
 echo "🔨 Building local image..."
-env CLOUD_URL=http://localhost:3000 make -C (git rev-parse --show-toplevel) docker
+env CLOUD_URL=http://localhost:3000 just -f (git rev-parse --show-toplevel)/justfile docker
 
 echo "📦 Loading image into swarm nodes..."
 for node in manager worker-1 worker-2
@@ -114,7 +114,7 @@ end
 
 function swarm-deploy
     echo "🔨 Building local image..."
-    env CLOUD_URL=http://localhost:3000 make -C (git rev-parse --show-toplevel) docker
+    env CLOUD_URL=http://localhost:3000 just -f (git rev-parse --show-toplevel)/justfile docker
     echo "📦 Loading image into swarm nodes..."
     for node in manager worker-1 worker-2
         docker save amir20/dozzle:local | docker exec -i $node docker load
