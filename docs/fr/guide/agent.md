@@ -1,7 +1,7 @@
 ---
 title: Mode agent
 description: Utilisez Dozzle en mode agent pour consulter les logs d'hôtes Docker distants via TLS, organiser les hôtes en groupes et verrouiller les agents avec votre propre certificat.
-sourceHash: bd8b2b8eefa8
+sourceHash: 56e447ea6471
 ---
 
 # Mode agent
@@ -11,7 +11,7 @@ sourceHash: bd8b2b8eefa8
 Dozzle peut fonctionner en mode agent, ce qui permet d'exposer des hôtes Docker à d'autres instances de Dozzle. Toute la communication passe par une connexion sécurisée en TLS. Vous pouvez donc déployer Dozzle sur un hôte distant et vous y connecter depuis votre machine locale.
 
 > [!WARNING] Un agent n'est privé que dans la mesure où son réseau l'est
-> Le certificat livré avec Dozzle est le même dans toutes les copies de l'image. Il chiffre la connexion mais ne prouve pas qui se trouve à l'autre bout. Quiconque peut joindre le port `7007` peut brancher son propre Dozzle sur votre agent, lire tous les logs de cet hôte et exécuter des commandes dans ses conteneurs. Activer ou désactiver les actions ou le shell sur votre propre hub ne l'empêche pas. Seul `DOZZLE_ENABLE_ACTIONS` ou `DOZZLE_ENABLE_SHELL` à `false` sur l'agent lui-même le fait, voir [désactiver les actions et le shell](#disabling-actions-and-shell).
+> Le certificat livré avec Dozzle est le même dans toutes les copies de l'image. Il chiffre la connexion mais ne prouve pas qui se trouve à l'autre bout. Quiconque peut joindre le port `7007` peut brancher son propre Dozzle sur votre agent, lire tous les logs de cet hôte et exécuter des commandes dans ses conteneurs. Désactiver les actions ou le shell sur votre propre hub ne l'empêche pas d'exécuter des commandes ou des actions. Seul `DOZZLE_ENABLE_ACTIONS` ou `DOZZLE_ENABLE_SHELL` à `false` sur l'agent lui-même le fait, et les logs restent lisibles dans tous les cas, voir [désactiver les actions et le shell](#disabling-actions-and-shell).
 >
 > Gardez le port `7007` sur un réseau privé, et si l'agent est joignable depuis ailleurs, [générez votre propre certificat](#certificats-personnalises) pour que les agents n'acceptent que votre hub.
 

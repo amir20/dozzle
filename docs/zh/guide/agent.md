@@ -1,7 +1,7 @@
 ---
 title: 代理模式
 description: 以代理模式运行 Dozzle，通过 TLS 查看远程 Docker 主机的日志，把主机分组管理，并用自己的证书锁定代理。
-sourceHash: bd8b2b8eefa8
+sourceHash: 56e447ea6471
 ---
 
 # 代理模式
@@ -11,7 +11,7 @@ sourceHash: bd8b2b8eefa8
 Dozzle 可以运行在代理模式下，把 Docker 主机暴露给其他 Dozzle 实例。所有通信都通过 TLS 加密连接完成。也就是说，你可以把 Dozzle 部署在远程主机上，然后从本地机器连接过去。
 
 > [!WARNING] 代理的安全性取决于它所监听的网络
-> Dozzle 自带的证书在每一份镜像副本里都是同一个，它只能加密连接，并不能证明对端是谁。任何能访问 `7007` 端口的人都可以用自己的 Dozzle 连上你的代理，读取该主机上的全部日志，并在其容器里执行命令。在你自己的主控端上开关操作或终端并不能阻止这一点。只有在代理本身把 `DOZZLE_ENABLE_ACTIONS` 或 `DOZZLE_ENABLE_SHELL` 设为 `false` 才行，参见[禁用操作和终端](#disabling-actions-and-shell)。
+> Dozzle 自带的证书在每一份镜像副本里都是同一个，它只能加密连接，并不能证明对端是谁。任何能访问 `7007` 端口的人都可以用自己的 Dozzle 连上你的代理，读取该主机上的全部日志，并在其容器里执行命令。在你自己的主控端上关闭操作或终端，并不能阻止对方执行命令或操作。只有在代理本身把 `DOZZLE_ENABLE_ACTIONS` 或 `DOZZLE_ENABLE_SHELL` 设为 `false` 才行，而且无论如何日志仍然可读，参见[禁用操作和终端](#disabling-actions-and-shell)。
 >
 > 请把 `7007` 端口留在私有网络里；如果代理能从别处访问到，就[生成你自己的证书](#自定义证书)，让代理只接受你自己的主实例。
 

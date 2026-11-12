@@ -1,7 +1,7 @@
 ---
 title: Agent-Modus
 description: Betreibe Dozzle im Agent-Modus, um Logs entfernter Docker-Hosts über TLS anzuzeigen, Hosts in Gruppen zu ordnen und Agents mit einem eigenen Zertifikat abzusichern.
-sourceHash: bd8b2b8eefa8
+sourceHash: 56e447ea6471
 ---
 
 # Agent-Modus
@@ -11,7 +11,7 @@ sourceHash: bd8b2b8eefa8
 Dozzle kann im Agent-Modus laufen und damit Docker-Hosts für andere Dozzle-Instanzen zugänglich machen. Die gesamte Kommunikation läuft über eine mit TLS gesicherte Verbindung. Du kannst Dozzle also auf einem entfernten Host betreiben und dich von deinem lokalen Rechner aus damit verbinden.
 
 > [!WARNING] Ein Agent ist nur so privat wie das Netzwerk, in dem er lauscht
-> Das Zertifikat, das Dozzle mitbringt, ist in jeder Kopie des Images dasselbe. Es verschlüsselt die Verbindung, belegt aber nicht, wer am anderen Ende sitzt. Wer Port `7007` erreichen kann, verbindet sein eigenes Dozzle mit deinem Agent, liest jedes Log auf diesem Host und führt Befehle in dessen Containern aus. Aktionen oder Shell auf deinem eigenen Hub ein- oder auszuschalten hält das nicht auf. Das tut nur `DOZZLE_ENABLE_ACTIONS` oder `DOZZLE_ENABLE_SHELL` auf `false` am Agent selbst, siehe [Aktionen und Shell deaktivieren](#disabling-actions-and-shell).
+> Das Zertifikat, das Dozzle mitbringt, ist in jeder Kopie des Images dasselbe. Es verschlüsselt die Verbindung, belegt aber nicht, wer am anderen Ende sitzt. Wer Port `7007` erreichen kann, verbindet sein eigenes Dozzle mit deinem Agent, liest jedes Log auf diesem Host und führt Befehle in dessen Containern aus. Aktionen oder Shell auf deinem eigenen Hub auszuschalten hindert sie nicht daran, Befehle oder Aktionen auszuführen. Das tut nur `DOZZLE_ENABLE_ACTIONS` oder `DOZZLE_ENABLE_SHELL` auf `false` am Agent selbst, und die Logs bleiben in jedem Fall lesbar, siehe [Aktionen und Shell deaktivieren](#disabling-actions-and-shell).
 >
 > Halte Port `7007` in einem privaten Netzwerk, und wenn der Agent von außerhalb erreichbar ist, [erzeuge dein eigenes Zertifikat](#eigene-zertifikate), damit Agents nur deinen Hub akzeptieren.
 
