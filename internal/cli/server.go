@@ -29,27 +29,16 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-// Main is the dozzle binary: a subcommand when one is given, the server
-// otherwise. content holds the built frontend under dist/, certs the shared
-// agent certificate pair.
-func Main(content fs.FS, certs embed.FS) {
-	ValidateEnvVars(Args{}, AgentCmd{})
-	args, subcommand := ParseArgs()
-	if subcommand != nil {
-		runnable, ok := subcommand.(Runnable)
-		if !ok {
-			log.Fatal().Msg("Invalid command")
-		}
-		if err := runnable.Run(args, certs); err != nil {
-			log.Fatal().Err(err).Msg("Failed to run command")
-		}
-		return
-	}
-	runServer(args, content, certs)
+// ServerCmd is what dozzle runs when no subcommand is given: the server, in
+// server, swarm or k8s mode. Its flags stay on Args, so `dozzle --addr ...`
+// keeps working. Content holds the built frontend under dist/.
+type ServerCmd struct {
+	Content fs.FS
 }
 
-// runServer runs Dozzle in server, swarm or k8s mode until SIGINT or SIGTERM.
-func runServer(args Args, content fs.FS, certs embed.FS) {
+// Run serves until SIGINT or SIGTERM.
+func (c ServerCmd) Run(args Args, certs embed.FS) error {
+	content := c.Content
 	// freshInstall is whether ./data held nothing from an earlier run when this
 	// process started. Only a fresh install gets the no-login setup window.
 	// Read before anything below writes to ./data (profiles, notification rules,
@@ -244,6 +233,7 @@ func runServer(args Args, content fs.FS, certs embed.FS) {
 	// Usage is only sent once a day, so a restart would otherwise lose it.
 	srv.FlushUsage()
 	log.Debug().Msg("shut down complete")
+	return nil
 }
 
 // beaconBase is what every beacon from the web server repeats about how this
