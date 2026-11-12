@@ -10,7 +10,8 @@ dev: generate fake-assets
 
 # Several worktrees can each run an instance at once. Prints the URL it picked.
 # Override any port by hand with DOZZLE_PORT / VITE_PORT / AGENT_PORT.
-[doc("Same as dev, on free ports derived from this checkout's path")]
+
+# Same as dev, on free ports derived from this checkout's path
 dev-auto: generate fake-assets
     bun run dev:auto
 
@@ -20,7 +21,8 @@ test: fake-assets generate
 
 # All generated code is committed, so CI does not need protoc installed just to
 # reproduce identical output.
-[doc("Same as test, but skips go generate")]
+
+# Same as test, but skips go generate
 test-ci: fake-assets certs
     {{ go_test }}
 
@@ -36,7 +38,10 @@ generate: certs
 certs:
     #!/usr/bin/env bash
     set -euo pipefail
-    [ -f shared_key.pem ] || openssl genpkey -algorithm Ed25519 -out shared_key.pem
+    if [ ! -f shared_key.pem ]; then
+        openssl genpkey -algorithm Ed25519 -out shared_key.pem
+        rm -f shared_cert.pem # a new key needs a new cert
+    fi
     if [ ! -f shared_cert.pem ]; then
         openssl req -new -key shared_key.pem -out shared_request.csr -subj "/C=US/ST=California/L=San Francisco/O=Dozzle"
         openssl x509 -req -in shared_request.csr -signkey shared_key.pem -out shared_cert.pem -days 1825

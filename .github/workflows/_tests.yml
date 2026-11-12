@@ -184,9 +184,12 @@ jobs:
               "go-mod-cache": "/go/pkg/mod"
             }
           skip-extraction: ${{ steps.go-cache.outputs.cache-hit == 'true' }}
+      - name: Install just
+        if: ${{ !inputs.release-certs }}
+        uses: extractions/setup-just@53165ef7e734c5c07cb06b3c8e7b647c5aa16db3 # v4
       - name: Generate certs
         if: ${{ !inputs.release-certs }}
-        run: make shared_key.pem shared_cert.pem
+        run: just certs
       - name: Writing certs to file
         if: ${{ inputs.release-certs }}
         run: |
