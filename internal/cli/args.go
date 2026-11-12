@@ -2,13 +2,18 @@ package cli
 
 import (
 	"embed"
+	"errors"
+	"fmt"
 	"os"
 	"regexp"
 	"strings"
 	"time"
+	"unicode"
 
 	"github.com/alexflint/go-arg"
 	"github.com/amir20/dozzle/internal/imagecheck"
+	"github.com/rs/zerolog"
+	"github.com/rs/zerolog/log"
 )
 
 var Version = "head"
@@ -22,7 +27,7 @@ type Args struct {
 	HostID                 string              `arg:"--host-id,env:DOZZLE_HOST_ID" help:"overrides the id Dozzle derives for this host. Only needed when the derived id collides with another host."`
 	Level                  string              `arg:"env:DOZZLE_LEVEL" default:"info" help:"set Dozzle log level. Use debug for more logging."`
 	AuthProvider           string              `arg:"--auth-provider,env:DOZZLE_AUTH_PROVIDER" default:"none" help:"sets the auth provider to use: none, simple, oidc or forward-proxy. github and google are aliases for simple."`
-	AuthTTL                string              `arg:"--auth-ttl,env:DOZZLE_AUTH_TTL" default:"session" help:"sets the TTL for the auth token. Accepts duration values like 12h. Valid time units are s, m, h"`
+	AuthTTL                SessionTTL          `arg:"--auth-ttl,env:DOZZLE_AUTH_TTL" default:"session" help:"sets the TTL for the auth token. Accepts duration values like 12h. Valid time units are s, m, h"`
 	AuthHeaderUser         string              `arg:"--auth-header-user,env:DOZZLE_AUTH_HEADER_USER" default:"Remote-User" help:"sets the HTTP Header to use for username in Forward Proxy configuration."`
 	AuthHeaderEmail        string              `arg:"--auth-header-email,env:DOZZLE_AUTH_HEADER_EMAIL" default:"Remote-Email" help:"sets the HTTP Header to use for email in Forward Proxy configuration."`
 	AuthHeaderName         string              `arg:"--auth-header-name,env:DOZZLE_AUTH_HEADER_NAME" default:"Remote-Name" help:"sets the HTTP Header to use for name in Forward Proxy configuration."`
@@ -57,9 +62,8 @@ type Args struct {
 	RemoteHost             []string            `arg:"env:DOZZLE_REMOTE_HOST,--remote-host,separate" help:"list of hosts to connect remotely"`
 	RemoteAgent            []string            `arg:"env:DOZZLE_REMOTE_AGENT,--remote-agent,separate" help:"list of agents to connect remotely"`
 	NoAnalytics            bool                `arg:"--no-analytics,env:DOZZLE_NO_ANALYTICS" help:"disables anonymous analytics"`
-	Mode                   string              `arg:"env:DOZZLE_MODE" default:"server" help:"sets the mode to run in (server, swarm)"`
-	TimeoutString          string              `arg:"--timeout,env:DOZZLE_TIMEOUT" default:"10s" help:"sets the timeout for docker client"`
-	Timeout                time.Duration       `arg:"-"`
+	Mode                   string              `arg:"env:DOZZLE_MODE" default:"server" help:"sets the mode to run in (server, swarm or k8s)"`
+	Timeout                time.Duration       `arg:"--timeout,env:DOZZLE_TIMEOUT" default:"10s" help:"sets the timeout for docker client"`
 	Namespace              []string            `arg:"env:DOZZLE_NAMESPACE" help:"sets the namespace to use in k8s"`
 	CertPath               string              `arg:"--cert,env:DOZZLE_CERT" default:"dozzle_cert.pem" help:"path to custom TLS certificate"`
 	KeyPath                string              `arg:"--key,env:DOZZLE_KEY" default:"dozzle_key.pem" help:"path to custom TLS key"`
@@ -92,6 +96,9 @@ func ParseArgs() (Args, any) {
 	var args Args
 	parser := arg.MustParse(&args)
 
+	if _, err := zerolog.ParseLevel(args.Level); err != nil {
+		parser.Fail("level should be one of trace, debug, info, warn, error, fatal or panic")
+	}
 	ConfigureLogger(args.Level)
 
 	// Before dozzle.yml, whose agents are matched against these and appended.
@@ -144,19 +151,95 @@ func ParseArgs() (Args, any) {
 		parser.Fail(err.Error())
 	}
 
-	if args.TimeoutString != "" {
-		timeout, err := time.ParseDuration(args.TimeoutString)
-		if err != nil {
-			parser.Fail("timeout should be a valid duration")
-		}
-		args.Timeout = timeout
-	}
-
 	// The host id is a path segment in every /api/hosts/{host}/... route, so a
 	// slash or a space here would not fail loudly, it would just route nowhere.
 	if args.HostID != "" && !validHostID.MatchString(args.HostID) {
 		parser.Fail("host-id should only contain letters, numbers, dashes, underscores and dots")
 	}
 
+	// Subcommands share these flags but never run the server, so an agent is
+	// not refused over a server setting it ignores.
+	if parser.Subcommand() == nil {
+		if err := args.validateServer(); err != nil {
+			parser.Fail(err.Error())
+		}
+	}
+
 	return args, parser.Subcommand()
+}
+
+// SessionTTL is --auth-ttl: a duration, or "session" for a login that lasts as
+// long as the browser session, which is the zero value.
+type SessionTTL time.Duration
+
+func (t *SessionTTL) UnmarshalText(text []byte) error {
+	if string(text) == "session" {
+		*t = 0
+		return nil
+	}
+	d, err := time.ParseDuration(string(text))
+	if err != nil {
+		return fmt.Errorf("should be session or a duration like 12h")
+	}
+	*t = SessionTTL(d)
+	return nil
+}
+
+func (t SessionTTL) Duration() time.Duration {
+	return time.Duration(t)
+}
+
+// validateServer checks the settings only the server reads, so a bad one stops
+// Dozzle before it connects to anything. It also resolves the auth provider
+// aliases.
+func (args *Args) validateServer() error {
+	// "github" and "google" are aliases for simple auth. OAuth is a second way to
+	// prove you are one of the users in users.yml, not a provider of its own, but
+	// they are the first thing someone reaches for, and hitting a fatal there is a
+	// bad first five minutes.
+	switch args.AuthProvider {
+	case "github", "google":
+		log.Debug().Str("alias", args.AuthProvider).Msg("Auth provider is an alias for simple")
+		args.AuthProvider = "simple"
+	case "none", "forward-proxy", "simple", "oidc":
+	default:
+		return fmt.Errorf("invalid auth provider %q (expected none, simple, oidc or forward-proxy)", args.AuthProvider)
+	}
+
+	switch args.Mode {
+	case "server", "swarm", "k8s":
+	default:
+		return fmt.Errorf("invalid mode %q (expected server, swarm or k8s)", args.Mode)
+	}
+
+	switch args.ReleaseCheckMode {
+	case "automatic", "manual":
+	default:
+		return fmt.Errorf("invalid release check mode %q (expected automatic or manual)", args.ReleaseCheckMode)
+	}
+
+	if args.AuthProvider == "oidc" {
+		if args.AuthOidcIssuer == "" || args.AuthOidcClientID == "" || args.AuthOidcClientSecret == "" {
+			return errors.New("--auth-oidc-issuer, --auth-oidc-client-id and --auth-oidc-client-secret are required with --auth-provider oidc")
+		}
+		// GitHub is not an OpenID Connect issuer and publishes no claims to read
+		// roles from, so it cannot be a user database. Failing here beats a button
+		// that signs nobody in.
+		if args.AuthGithubClientID != "" || args.AuthGithubClientSecret != "" {
+			return errors.New("--auth-github-client-id and --auth-github-client-secret cannot be used with --auth-provider oidc; use --auth-provider simple to sign users.yml users in with GitHub")
+		}
+	}
+
+	if args.MCPToken != "" {
+		if len(args.MCPToken) < 32 {
+			return errors.New("--mcp-token must be at least 32 characters")
+		}
+		// The Authorization header is split on whitespace, so a token with a space
+		// in it could never match.
+		if strings.ContainsFunc(args.MCPToken, unicode.IsSpace) {
+			return errors.New("--mcp-token must not contain whitespace")
+		}
+	}
+
+	return nil
 }
