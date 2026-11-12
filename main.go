@@ -11,11 +11,9 @@ import (
 	"os"
 	"os/signal"
 	"path/filepath"
-	"strings"
 	"sync"
 	"syscall"
 	"time"
-	"unicode"
 	// The image has no zoneinfo, so without this TZ is ignored and the
 	// auto-update time silently means UTC.
 	_ "time/tzdata"
@@ -69,19 +67,6 @@ func main() {
 	// Read before anything below writes to ./data (profiles, notification rules,
 	// session secrets), so it reflects earlier runs only.
 	freshInstall = dozzleconfig.FreshDataDir(filepath.Dir(dozzleconfig.Path))
-
-	// "github" and "google" are aliases for simple auth. OAuth is a second way to
-	// prove you are one of the users in users.yml, not a provider of its own, but
-	// they are the first thing someone reaches for, and hitting a fatal there is a
-	// bad first five minutes.
-	switch args.AuthProvider {
-	case "github", "google":
-		log.Debug().Str("alias", args.AuthProvider).Msg("Auth provider is an alias for simple")
-		args.AuthProvider = "simple"
-	case "none", "forward-proxy", "simple", "oidc":
-	default:
-		log.Fatal().Str("provider", args.AuthProvider).Msg("Invalid auth provider")
-	}
 
 	log.Info().Msgf("Dozzle version %s", args.Version())
 	if args.NoAnalytics {
@@ -324,30 +309,10 @@ func oauthProviders(args cli.Args) []auth.IdentityProvider {
 // two has to show up in behavior: this mode never opens users.yml, refuses the
 // GitHub flags, and says at startup which claims it will read roles from.
 func oidcAuth(args cli.Args) web.OAuthAuthorizer {
-	if args.AuthOidcIssuer == "" || args.AuthOidcClientID == "" || args.AuthOidcClientSecret == "" {
-		log.Fatal().Msg("--auth-oidc-issuer, --auth-oidc-client-id and --auth-oidc-client-secret are required with --auth-provider oidc")
-	}
-
-	// GitHub is not an OpenID Connect issuer and publishes no claims to read
-	// roles from, so it cannot be a user database. Failing here beats a button
-	// that signs nobody in.
-	if args.AuthGithubClientID != "" || args.AuthGithubClientSecret != "" {
-		log.Fatal().Msg("--auth-github-client-id and --auth-github-client-secret cannot be used with --auth-provider oidc; use --auth-provider simple to sign users.yml users in with GitHub")
-	}
-
 	dataDir := "./data"
 	for _, name := range []string{"users.yml", "users.yaml"} {
 		if fileExists(filepath.Join(dataDir, name)) {
 			log.Warn().Str("file", name).Msg("Ignoring the user database: with --auth-provider oidc every user comes from the token")
-		}
-	}
-
-	ttl := time.Duration(0)
-	if args.AuthTTL != "session" {
-		var err error
-		ttl, err = time.ParseDuration(args.AuthTTL)
-		if err != nil {
-			log.Fatal().Err(err).Msg("Could not parse auth ttl")
 		}
 	}
 
@@ -361,7 +326,7 @@ func oidcAuth(args cli.Args) web.OAuthAuthorizer {
 		Scopes:       args.AuthOidcScopes,
 		LogoutURL:    args.AuthLogoutUrl,
 		DataDir:      dataDir,
-	}, args.Base, ttl, auth.SessionSecret(dataDir))
+	}, args.Base, args.SessionTTL, auth.SessionSecret(dataDir))
 
 	log.Info().
 		Str("issuer", args.AuthOidcIssuer).
@@ -381,17 +346,6 @@ func fileExists(filename string) bool {
 
 func createServer(args cli.Args, hostService web.HostService, cloudHooks web.CloudHooks) *web.Server {
 	_, dev := os.LookupEnv("DEV")
-
-	var releaseCheckMode web.ReleaseCheckMode = web.Automatic
-
-	switch args.ReleaseCheckMode {
-	case "automatic":
-		releaseCheckMode = web.Automatic
-	case "manual":
-		releaseCheckMode = web.Manual
-	default:
-		log.Fatal().Str("releaseCheckMode", args.ReleaseCheckMode).Msg("Invalid release check mode")
-	}
 
 	var provider web.AuthProvider = web.NONE
 	var authorizer web.Authorizer
@@ -421,17 +375,10 @@ func createServer(args cli.Args, hostService web.HostService, cloudHooks web.Clo
 
 		log.Debug().Int("users", len(db.Users)).Msg("Loaded users")
 		simpleUsers = len(db.Users)
-		ttl := time.Duration(0)
-		if args.AuthTTL != "session" {
-			ttl, err = time.ParseDuration(args.AuthTTL)
-			if err != nil {
-				log.Fatal().Err(err).Msg("Could not parse auth ttl")
-			}
-		}
 		// Sits next to users.yml so it lands on the same volume operators already
 		// persist, and so a multi-replica setup sharing that volume signs with the
 		// same key.
-		simpleAuth := auth.NewSimpleAuth(db, ttl, auth.SessionSecret(filepath.Dir(userFilePath)))
+		simpleAuth := auth.NewSimpleAuth(db, args.SessionTTL, auth.SessionSecret(filepath.Dir(userFilePath)))
 		authorizer = simpleAuth
 
 		if providers := oauthProviders(args); len(providers) > 0 {
@@ -440,16 +387,6 @@ func createServer(args cli.Args, hostService web.HostService, cloudHooks web.Clo
 	} else if args.AuthProvider == "oidc" {
 		provider = web.OIDC
 		authorizer = oidcAuth(args)
-	}
-
-	authTTL := time.Duration(0)
-
-	if args.AuthTTL != "session" {
-		ttl, err := time.ParseDuration(args.AuthTTL)
-		if err != nil {
-			log.Fatal().Err(err).Msg("Could not parse auth ttl")
-		}
-		authTTL = ttl
 	}
 
 	// Already validated in ParseArgs, so an error here is not reachable.
@@ -470,7 +407,7 @@ func createServer(args cli.Args, hostService web.HostService, cloudHooks web.Clo
 		Authorization: web.Authorization{
 			Provider:   provider,
 			Authorizer: authorizer,
-			TTL:        authTTL,
+			TTL:        args.SessionTTL,
 			LogoutUrl:  args.AuthLogoutUrl,
 		},
 		EnableActions:      args.EnableActions,
@@ -479,7 +416,7 @@ func createServer(args cli.Args, hostService web.HostService, cloudHooks web.Clo
 		MCPToken:           mcpToken(args, provider),
 		DisableAvatars:     args.DisableAvatars,
 		DisableSetupWizard: args.DisableSetupWizard,
-		ReleaseCheckMode:   releaseCheckMode,
+		ReleaseCheckMode:   web.ReleaseCheckMode(args.ReleaseCheckMode),
 		ImageCheckMode:     imageCheckMode,
 		Labels:             args.Filter,
 		Cloud:              cloudHooks,
@@ -823,21 +760,14 @@ func (subs serviceSubscriptions) sync(ctx context.Context, services []container.
 	}
 }
 
-// mcpToken validates --mcp-token. The token only means something where Dozzle
-// runs its own MCP authorization server: with MCP on, under simple or oidc
-// auth. Anywhere else it is ignored out loud rather than silently.
+// mcpToken decides whether --mcp-token applies (ParseArgs already checked its
+// shape). The token only means something where Dozzle runs its own MCP
+// authorization server: with MCP on, under simple or oidc auth. Anywhere else
+// it is ignored out loud rather than silently.
 func mcpToken(args cli.Args, provider web.AuthProvider) string {
 	token := args.MCPToken
 	if token == "" {
 		return ""
-	}
-	if len(token) < 32 {
-		log.Fatal().Msg("--mcp-token must be at least 32 characters")
-	}
-	// The Authorization header is split on whitespace, so a token with a space
-	// in it could never match.
-	if strings.ContainsFunc(token, unicode.IsSpace) {
-		log.Fatal().Msg("--mcp-token must not contain whitespace")
 	}
 	if !args.EnableMCP {
 		log.Warn().Msg("Ignoring --mcp-token: it needs --enable-mcp")
