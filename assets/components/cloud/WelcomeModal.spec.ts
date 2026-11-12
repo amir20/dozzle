@@ -228,6 +228,10 @@ describe("<WelcomeModal /> starter alerts", () => {
     const vm = wrapper.vm as unknown as ModalVm;
     expect(vm.step).toBe(3);
     expect(vm.createdCount).toBe(0);
+
+    // Tagged, so Cloud can count who opens their first findings from here.
+    const findings = wrapper.findAll("a").find((a) => a.attributes("href")?.includes("/findings"));
+    expect(findings?.attributes("href")).toMatch(/\/findings\?from=dozzle_welcome$/);
   });
 
   test("falls back to ?action=create-alert when a rule POST fails", async () => {

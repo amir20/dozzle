@@ -871,9 +871,9 @@ cloud:
     privacy: Logs and container metrics leave your instance. Environment variables never do, and you can exclude any container.
     privacy-link: What gets sent
     beat-now: Now
-    beat-now-detail: Cloud starts collecting errors and warnings from your containers.
+    beat-now-detail: "Cloud starts collecting errors and warnings. On your first instance it also reads the last 24 hours, so the first findings are ready within minutes."
     beat-tomorrow: "{day} morning"
-    beat-tomorrow-detail: Your first findings appear in Cloud, and in your inbox.
+    beat-tomorrow-detail: "The daily scan runs and emails what is worth fixing."
     beat-after: Every day after
     beat-after-detail: Findings stay open until the errors behind them stop.
     next-alerts: "Next: real-time alerts"
@@ -897,7 +897,7 @@ cloud:
     done-title: You are set
     done-body: Here is where each kind of notification shows up.
     where-findings: Daily findings
-    where-findings-detail: "Ranked on the Findings page and emailed to you. First scan {day} morning."
+    where-findings-detail: "Ranked on the Findings page and emailed to you. On your first instance the first ones are ready within minutes; the daily scan follows {day} morning."
     open-findings: Findings
     where-alerts: Real-time alerts
     where-alerts-detail: "{rules}, sent to {destination}."
