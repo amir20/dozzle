@@ -208,7 +208,7 @@
               {{ $t("cloud.welcome.where-findings-detail", { day: firstScanDay }) }}
             </p>
           </div>
-          <a :href="`${cloudUrl}/findings`" target="_blank" rel="noreferrer noopener" class="btn btn-sm">
+          <a :href="findingsHref" target="_blank" rel="noreferrer noopener" class="btn btn-sm">
             {{ $t("cloud.welcome.open-findings") }}
             <mdi:open-in-new class="size-3.5 opacity-40" />
           </a>
@@ -297,6 +297,7 @@ const cloudUrl = config.cloudUrl;
 const notificationsHref = withBase("/notifications");
 // Tagged so Cloud's page views count the people who came from here.
 const chatConnectHref = `${cloudUrl}/integrations/chat?from=dozzle_welcome`;
+const findingsHref = `${cloudUrl}/findings?from=dozzle_welcome`;
 
 const modal = useTemplateRef<InstanceType<typeof StepModal>>("modal");
 const step = ref(1);
