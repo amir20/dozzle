@@ -468,7 +468,6 @@ declare global {
   const useGamepad: typeof import('@vueuse/core').useGamepad
   const useGeolocation: typeof import('@vueuse/core').useGeolocation
   const useGroupedStream: typeof import('./composable/logs/eventStreams').useGroupedStream
-  const useHead: typeof import('@vueuse/head').useHead
   const useHistoricalContainerLog: typeof import('./composable/logs/historicalLogs').useHistoricalContainerLog
   const useHostGroupStream: typeof import('./composable/logs/eventStreams').useHostGroupStream
   const useHostStream: typeof import('./composable/logs/eventStreams').useHostStream
@@ -557,7 +556,6 @@ declare global {
   const useSearchFilter: typeof import('./composable/logs/search').useSearchFilter
   const useSelfUpdate: typeof import('./composable/setup/selfUpdate').useSelfUpdate
   const useSelfUpdateCheck: typeof import('./composable/setup/selfUpdate').useSelfUpdateCheck
-  const useSeoMeta: typeof import('@vueuse/head').useSeoMeta
   const useServiceStream: typeof import('./composable/logs/eventStreams').useServiceStream
   const useSessionStorage: typeof import('@vueuse/core').useSessionStorage
   const useSetup: typeof import('./composable/setup/setup').useSetup
