@@ -24,8 +24,9 @@ func upgrade(w http.ResponseWriter, r *http.Request) (*websocket.Conn, error) {
 	if err != nil {
 		return nil, err
 	}
-	// The default 32 KB limit would drop the shell on a large paste.
-	conn.SetReadLimit(-1)
+	// The default 32 KB limit would drop the shell on a large paste; 1 MB still
+	// bounds what one client can make the server buffer.
+	conn.SetReadLimit(1 << 20)
 	return conn, nil
 }
 
