@@ -1218,7 +1218,6 @@ declare module 'vue' {
     readonly useGamepad: UnwrapRef<typeof import('@vueuse/core')['useGamepad']>
     readonly useGeolocation: UnwrapRef<typeof import('@vueuse/core')['useGeolocation']>
     readonly useGroupedStream: UnwrapRef<typeof import('./composable/logs/eventStreams')['useGroupedStream']>
-    readonly useHead: UnwrapRef<typeof import('@vueuse/head')['useHead']>
     readonly useHistoricalContainerLog: UnwrapRef<typeof import('./composable/logs/historicalLogs')['useHistoricalContainerLog']>
     readonly useHostGroupStream: UnwrapRef<typeof import('./composable/logs/eventStreams')['useHostGroupStream']>
     readonly useHostStream: UnwrapRef<typeof import('./composable/logs/eventStreams')['useHostStream']>
@@ -1307,7 +1306,6 @@ declare module 'vue' {
     readonly useSearchFilter: UnwrapRef<typeof import('./composable/logs/search')['useSearchFilter']>
     readonly useSelfUpdate: UnwrapRef<typeof import('./composable/setup/selfUpdate')['useSelfUpdate']>
     readonly useSelfUpdateCheck: UnwrapRef<typeof import('./composable/setup/selfUpdate')['useSelfUpdateCheck']>
-    readonly useSeoMeta: UnwrapRef<typeof import('@vueuse/head')['useSeoMeta']>
     readonly useServiceStream: UnwrapRef<typeof import('./composable/logs/eventStreams')['useServiceStream']>
     readonly useSessionStorage: UnwrapRef<typeof import('@vueuse/core')['useSessionStorage']>
     readonly useSetup: UnwrapRef<typeof import('./composable/setup/setup')['useSetup']>

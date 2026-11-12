@@ -109,7 +109,6 @@ export default defineConfig(() => ({
         },
         "vue-i18n",
         "pinia",
-        "@vueuse/head",
         "@vueuse/core",
       ],
       dts: "assets/auto-imports.d.ts",
