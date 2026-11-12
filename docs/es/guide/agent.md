@@ -1,7 +1,7 @@
 ---
 title: Modo agente
 description: Ejecuta Dozzle en modo agente para ver los logs de hosts Docker remotos por TLS, organizar los hosts en grupos y proteger los agentes con tu propio certificado.
-sourceHash: 5ec9b49620ee
+sourceHash: 5b5b19652b5b
 ---
 
 # Modo agente
@@ -11,7 +11,7 @@ sourceHash: 5ec9b49620ee
 Dozzle puede ejecutarse en modo agente para exponer hosts de Docker a otras instancias de Dozzle. Toda la comunicación va por una conexión segura con TLS. Así puedes desplegar Dozzle en un host remoto y conectarte a él desde tu máquina local.
 
 > [!WARNING] Un agente es tan privado como la red en la que escucha
-> El certificado que trae Dozzle es el mismo en todas las copias de la imagen. Cifra la conexión, pero no demuestra quién está al otro lado. Cualquiera que alcance el puerto `7007` puede conectar su propio Dozzle a tu agente, leer todos los logs de ese host y ejecutar comandos dentro de sus contenedores. El agente no mira `DOZZLE_ENABLE_SHELL` ni `DOZZLE_ENABLE_ACTIONS`, esas opciones solo controlan lo que ofrece la interfaz.
+> El certificado que trae Dozzle es el mismo en todas las copias de la imagen. Cifra la conexión, pero no demuestra quién está al otro lado. Cualquiera que alcance el puerto `7007` puede conectar su propio Dozzle a tu agente, leer todos los logs de ese host y ejecutar comandos dentro de sus contenedores. Activar o desactivar las acciones o la shell en tu propio hub no lo impide. Solo lo hace poner `DOZZLE_ENABLE_ACTIONS` o `DOZZLE_ENABLE_SHELL` en `false` en el propio agente, consulta [desactivar acciones y shell](#disabling-actions-and-shell).
 >
 > Mantén el puerto `7007` en una red privada y, si el agente es accesible desde fuera, [genera tu propio certificado](#certificados-propios) para que los agentes solo acepten tu hub.
 

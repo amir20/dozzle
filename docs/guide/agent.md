@@ -10,7 +10,7 @@ description: Run Dozzle in agent mode to view logs from remote Docker hosts over
 Dozzle can run in agent mode which can expose Docker hosts to other Dozzle instances. All communication is done over a secured connection using TLS. This means that you can deploy Dozzle on a remote host and connect to it from your local machine.
 
 > [!WARNING] An agent is only as private as the network it listens on
-> The certificate Dozzle ships with is the same in every copy of the image, so it encrypts the connection but it does not prove who is on the other end. Anyone who can reach port `7007` can connect their own Dozzle to your agent, read every log on that host and run commands inside its containers. The agent does not look at `DOZZLE_ENABLE_SHELL` or `DOZZLE_ENABLE_ACTIONS`, those flags only control what the UI offers.
+> The certificate Dozzle ships with is the same in every copy of the image, so it encrypts the connection but it does not prove who is on the other end. Anyone who can reach port `7007` can connect their own Dozzle to your agent, read every log on that host and run commands inside its containers. Turning actions or shell on or off on your own hub doesn't stop that. Only setting `DOZZLE_ENABLE_ACTIONS` or `DOZZLE_ENABLE_SHELL` to `false` on the agent itself does, see [disabling actions and shell](#disabling-actions-and-shell).
 >
 > Keep port `7007` on a private network, and if the agent is reachable from anywhere else, [generate your own certificate](#custom-certificates) so agents only accept your hub.
 
