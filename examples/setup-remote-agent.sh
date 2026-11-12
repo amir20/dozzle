@@ -105,13 +105,13 @@ echo "   Dozzle Cloud API:  $CLOUD_API_URL"
 # Verify shared certificates exist
 if [ ! -f "$SHARED_CERT" ]; then
     echo "❌ Shared certificate not found at $SHARED_CERT"
-    echo "   Run 'make generate' to create certificates"
+    echo "   Run 'just generate' to create certificates"
     exit 1
 fi
 
 if [ ! -f "$SHARED_KEY" ]; then
     echo "❌ Shared key not found at $SHARED_KEY"
-    echo "   Run 'make generate' to create certificates"
+    echo "   Run 'just generate' to create certificates"
     exit 1
 fi
 
@@ -157,7 +157,7 @@ if [ "$USE_LOCAL" = true ]; then
     SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
     PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 
-    if ! (cd "$PROJECT_ROOT" && make docker); then
+    if ! (cd "$PROJECT_ROOT" && just docker); then
         echo "❌ Failed to build Docker image"
         exit 1
     fi

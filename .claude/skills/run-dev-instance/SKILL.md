@@ -12,7 +12,7 @@ worktree, and killing it kills someone else's session.
 ## Start one
 
 ```bash
-make dev-auto   # backgrounded; see below
+just dev-auto   # backgrounded; see below
 ```
 
 It prints the URL before anything else:
@@ -33,11 +33,11 @@ Run it in the background and wait for the port rather than a fixed sleep:
 
 ```bash
 PORT=$(bun scripts/dev-ports.mjs --json | grep -o '"DOZZLE_PORT": [0-9]*' | grep -o '[0-9]*')
-# start make dev-auto with run_in_background, then:
+# start just dev-auto with run_in_background, then:
 until curl -sf -o /dev/null http://localhost:$PORT/; do sleep 1; done
 ```
 
-`make dev-auto` is `air` + `vite` with hot reload, which is what you want while iterating
+`just dev-auto` is `air` + `vite` with hot reload, which is what you want while iterating
 on a change. For a one-shot check of already-written code, a production build is steadier
 and has no vite half:
 
@@ -47,8 +47,8 @@ bun run build && LIVE_FS=true go run . --level info --addr localhost:$PORT
 
 ## Overriding
 
-`DOZZLE_PORT`, `VITE_PORT` and `AGENT_PORT` override any of the three, for `make dev`,
-`make dev-auto`, `bun run preview` and `bun run agent:dev` alike. Plain `make dev` still uses
+`DOZZLE_PORT`, `VITE_PORT` and `AGENT_PORT` override any of the three, for `just dev`,
+`just dev-auto`, `bun run preview` and `bun run agent:dev` alike. Plain `just dev` still uses
 3100/5173/7007, which is what a human starting one by hand expects, and is deliberately
 outside the auto-assigned ranges.
 

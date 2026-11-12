@@ -103,18 +103,18 @@ The application supports multiple deployment modes: standalone server, Docker Sw
 bun install
 
 # Generate certificates and protobuf files
-make generate
+just generate
 ```
 
 ### Development
 
 ```bash
 # Run full development environment (backend + frontend with hot reload)
-make dev
+just dev
 
 # Same, on a free port trio derived from this checkout's path, so several worktrees
 # can each run an instance at once. Prints the URL it picked.
-make dev-auto
+just dev-auto
 
 # Alternative: Run backend and frontend separately
 bun run watch:backend  # Go backend with air (port 3100)
@@ -130,20 +130,20 @@ bun run agent:dev
 # Build frontend assets
 bun run build
 # or
-make dist
+just dist
 
 # Build entire application (includes frontend build)
-make build
+just build
 
 # Build Docker image
-make docker
+just docker
 ```
 
 ### Testing
 
 ```bash
 # Run Go tests
-make test
+just test
 
 # Run frontend tests (Vitest)
 bun run test
@@ -196,10 +196,10 @@ Two blind spots worth knowing, because a green run does not mean a clean tree:
 # Preview production build locally
 bun run preview
 # or
-make preview
+just preview
 
 # Run integration tests (Playwright)
-make int
+just int
 ```
 
 ## Architecture
@@ -327,7 +327,7 @@ The frontend uses file-based routing with these conventions:
 - **Frontend**: Vite builds to `dist/` with manifest
 - **Backend**: Embeds `dist/` using Go embed directive
 - **Hot Reload**: In development, `DEV=true` disables embedded assets, `LIVE_FS=true` serves from filesystem
-- **Makefile**: Orchestrates builds and dependency generation
+- **justfile**: Orchestrates builds and dependency generation
 
 ## Dozzle and Dozzle Cloud
 
@@ -542,7 +542,7 @@ means **two components may never share a basename**, at any depth.
 ### Backend
 
 - The application uses Go 1.25+ with module support
-- Certificate generation is required (`make generate` creates shared_key.pem and shared_cert.pem)
+- Certificate generation is required (`just generate` creates shared_key.pem and shared_cert.pem)
 - Protocol buffer generation happens via `go generate` directive in `main.go`
 - Docker client uses API version negotiation for compatibility
 - **Service Layer Architecture**:
@@ -740,7 +740,7 @@ Implementation (internal/container/{docker,k8s,agent})
 
 1. Define the tool in `AvailableTools()` in `internal/cloud/tools.go` with name, description, and parameter schema
 2. Add a response message type in `protos/cloud.proto` and add it to the `CallToolResponse.result` oneof
-3. Run `make generate` to regenerate protobuf code
+3. Run `just generate` to regenerate protobuf code
 4. Add a case in the `executeTool()` switch in `internal/cloud/tools.go`
 5. Implement the execution function in the appropriate `tools_*.go` file
 6. Use `ToolHostService` interface methods to access container/host data
@@ -752,12 +752,12 @@ Implementation (internal/container/{docker,k8s,agent})
 
 - Always run Go tests with race detector: `go test -race`
 - Frontend tests require `TZ=UTC` for timestamp consistency
-- Integration tests use Playwright with `make int` (runs docker-compose setup)
+- Integration tests use Playwright with `just int` (runs docker-compose setup)
 - Use `testify/assert` for Go test assertions
 
 ### Hot Reload Development
 
-- `make dev` runs both backend (air) and frontend (vite) with hot reload
+- `just dev` runs both backend (air) and frontend (vite) with hot reload
 - `DEV=true` disables embedded asset serving
 - `LIVE_FS=true` serves assets from filesystem instead of embedded
 - Backend changes trigger air restart automatically

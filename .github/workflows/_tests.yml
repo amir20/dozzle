@@ -100,8 +100,10 @@ jobs:
         uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
         with:
           go-version-file: go.mod
+      - name: Install just
+        uses: extractions/setup-just@53165ef7e734c5c07cb06b3c8e7b647c5aa16db3 # v4
       - name: Run Go Tests with Coverage
-        run: make test-ci
+        run: just test-ci
 
   staticcheck:
     name: Go Staticcheck
@@ -119,8 +121,10 @@ jobs:
           # won the race to populate, and its build cache has no -race artifacts in
           # it, which made the restore worthless for go-test. Let go-test own the key.
           cache: false
+      - name: Install just
+        uses: extractions/setup-just@53165ef7e734c5c07cb06b3c8e7b647c5aa16db3 # v4
       - name: Generate dependencies
-        run: make fake_assets shared_key.pem shared_cert.pem
+        run: just fake-assets certs
       # staticcheck is a go.mod tool so it builds against the module's
       # golang.org/x/tools; the release binary's older x/tools can't read
       # newer Go export data.

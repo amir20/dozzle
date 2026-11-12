@@ -8,7 +8,7 @@
 //   bun scripts/dev-ports.mjs --json       prints the same as JSON
 //   bun scripts/dev-ports.mjs bun run dev    runs the command with those ports exported
 //
-// The plain `make dev` defaults (3100/5173/7007) are deliberately outside these ranges,
+// The plain `just dev` defaults (3100/5173/7007) are deliberately outside these ranges,
 // so an auto-assigned instance never collides with someone's hand-started one.
 
 import { createHash } from "node:crypto";
