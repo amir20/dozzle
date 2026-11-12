@@ -23,13 +23,13 @@ These are the commands CI's `_tests.yml` runs, so a pass here predicts a pass th
 **Go (`*.go`, `go.mod`, `protos/`, `proto/`)**
 
 ```bash
-make test                      # go test -race -count 1, after go generate
+just test                      # go test -race -count 1, after go generate
 go tool staticcheck ./...
 go tool tygo generate && git diff --exit-code assets/types/generated
 ! grep -n 'any /\* ' assets/types/generated/*.ts   # an unmapped type; CI fails on it
 ```
 
-If `make test` regenerated protobuf code, commit it: CI runs `make test-ci`, which
+If `just test` regenerated protobuf code, commit it: CI runs `just test-ci`, which
 doesn't regenerate.
 
 **Frontend (`assets/`, `*.vue`, `*.ts`)**
@@ -109,7 +109,7 @@ Put this in the PR description, filled from the real runs above:
 ```markdown
 ### Tests
 
-- Go: make test (-race), staticcheck, tygo diff: pass
+- Go: just test (-race), staticcheck, tygo diff: pass
 - Frontend: typecheck, vitest, lint: pass
 - Behaviour: <the test or screenshot, and what it showed: "TestX fails on main
   (got [4 5 6], want [1 2 3]), passes here">

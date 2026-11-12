@@ -6,7 +6,7 @@
       "Bash(gh issue view:*)",
       "Bash(gh pr list:*)",
       "WebFetch(domain:github.com)",
-      "Bash(make test:*)",
+      "Bash(just test:*)",
       "Bash(go test:*)",
       "Bash(go build:*)",
       "Bash(bun run test:*)",

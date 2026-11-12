@@ -177,18 +177,18 @@ Want to contribute? Great! Dozzle has two parts: a **Go backend** that talks to 
 
 ### 1. Install the prerequisites
 
-You'll need [Go](https://go.dev/doc/install) (1.25+), [Node.js](https://nodejs.org/en/download/), [Bun](https://bun.com/docs/installation), and [protoc](https://grpc.io/docs/protoc-installation/).
+You'll need [Go](https://go.dev/doc/install) (1.25+), [Node.js](https://nodejs.org/en/download/), [Bun](https://bun.com/docs/installation), [just](https://just.systems/man/en/packages.html), and [protoc](https://grpc.io/docs/protoc-installation/).
 
 On macOS, you can install everything in one go:
 
 ```bash
-brew install go node oven-sh/bun/bun protobuf
+brew install go node oven-sh/bun/bun just protobuf
 ```
 
 On Linux (Debian/Ubuntu):
 
 ```bash
-sudo apt install golang nodejs protobuf-compiler
+sudo apt install golang nodejs just protobuf-compiler
 curl -fsSL https://bun.com/install | bash
 ```
 
@@ -201,13 +201,13 @@ git clone https://github.com/amir20/dozzle.git
 cd dozzle
 bun install                 # installs frontend dependencies
 go install tool             # installs Go build tools listed in go.mod (air, protoc-gen-go, etc.)
-make generate               # generates TLS certificates and protobuf code (only needed once)
+just generate               # generates TLS certificates and protobuf code (only needed once)
 ```
 
 ### 3. Start the dev server
 
 ```bash
-make dev
+just dev
 ```
 
 Open [http://localhost:3100](http://localhost:3100) — you should see the Dozzle UI connected to your local Docker. Both the frontend and backend reload automatically when you save a file.
@@ -219,7 +219,7 @@ Try editing `assets/pages/index.vue` and saving — the browser updates instantl
 ### Troubleshooting
 
 - **Nothing shows up at localhost:3100** — make sure Docker is running and the socket is accessible at `/var/run/docker.sock`.
-- **`make generate` fails** — confirm `protoc` is on your PATH (`protoc --version`).
+- **`just generate` fails** — confirm `protoc` is on your PATH (`protoc --version`).
 - **Still stuck?** Open a question in [GitHub Discussions](https://github.com/amir20/dozzle/discussions) — we're happy to help.
 
 ## Adding App Icons

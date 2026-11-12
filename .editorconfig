@@ -13,8 +13,5 @@ max_line_length = 120
 indent_style = tab
 indent_size = 4
 
-[Makefile]
-indent_style = tab
-
 [package.json]
 indent_size = 1

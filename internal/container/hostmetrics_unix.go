@@ -18,7 +18,7 @@ import (
 // folder per drive. DOZZLE_DEV_HOST_ROOT moves it for local development only: a
 // native binary on macOS has no /proc, Docker's data directory is inside Docker
 // Desktop's VM, and /host cannot be created on a read-only system volume, so
-// without it no host read-out ever appears under `make dev`. Not documented on
+// without it no host read-out ever appears under `just dev`. Not documented on
 // purpose.
 var hostRoot = func() string {
 	if dir := os.Getenv("DOZZLE_DEV_HOST_ROOT"); dir != "" {
