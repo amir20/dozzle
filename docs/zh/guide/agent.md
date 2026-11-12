@@ -1,7 +1,7 @@
 ---
 title: 代理模式
 description: 以代理模式运行 Dozzle，通过 TLS 查看远程 Docker 主机的日志，把主机分组管理，并用自己的证书锁定代理。
-sourceHash: 5b5b19652b5b
+sourceHash: bd8b2b8eefa8
 ---
 
 # 代理模式
@@ -215,6 +215,8 @@ services:
 ### 禁用操作和终端 {#disabling-actions-and-shell}
 
 只有主控端和代理都允许时，代理上的操作和终端才能使用。主控端通过 `DOZZLE_ENABLE_ACTIONS` 和 `DOZZLE_ENABLE_SHELL` 开启它们。代理读取同样的两个变量：未设置时，主控端允许什么就执行什么；设为 `false` 时则拒绝。当主控端对大多数主机开启了操作，但某台主机需要保持只读时，这会很有用。
+
+代理默认允许一切，这是有意为之。用户、[角色](/zh/guide/authentication/simple)和过滤器都在主控端，因此由主控端统一决定谁能做什么，代理只执行主控端的请求。在代理上把这些变量设为 `false`，是在此之上为某台主机额外加的限制，而不是第二个管理权限的地方。
 
 ```yaml
 services:

@@ -215,6 +215,8 @@ This will restrict the agent to displaying only containers with the label `color
 
 Actions and shell only work on an agent when both the hub and the agent allow them. The hub turns them on with `DOZZLE_ENABLE_ACTIONS` and `DOZZLE_ENABLE_SHELL`. An agent reads the same two variables: left unset, it does whatever the hub allows, and set to `false`, it refuses. This is useful when the hub has actions turned on for most hosts, but one host should stay read only.
 
+Agents allow everything by default on purpose. Users, [roles](/guide/authentication/simple) and filters all live on the hub, so the hub is the one place that decides who may do what, and an agent just carries out what its hub asks. Setting these to `false` on an agent is an extra limit for one host on top of that, not a second place to manage permissions.
+
 ```yaml
 services:
   dozzle-agent:

@@ -1,7 +1,7 @@
 ---
 title: Mode agent
 description: Utilisez Dozzle en mode agent pour consulter les logs d'hôtes Docker distants via TLS, organiser les hôtes en groupes et verrouiller les agents avec votre propre certificat.
-sourceHash: 5b5b19652b5b
+sourceHash: bd8b2b8eefa8
 ---
 
 # Mode agent
@@ -215,6 +215,8 @@ L'agent n'affichera que les conteneurs portant le label `color`. Gardez à l'esp
 ### Désactiver les actions et le shell {#disabling-actions-and-shell}
 
 Les actions et le shell ne fonctionnent sur un agent que si le hub et l'agent les autorisent tous les deux. Le hub les active avec `DOZZLE_ENABLE_ACTIONS` et `DOZZLE_ENABLE_SHELL`. Un agent lit les deux mêmes variables : non définies, il suit ce que le hub autorise, et à `false`, il refuse. C'est utile quand le hub autorise les actions sur la plupart des hôtes, mais qu'un hôte doit rester en lecture seule.
+
+Les agents autorisent tout par défaut, et c'est voulu. Les utilisateurs, les [rôles](/fr/guide/authentication/simple) et les filtres sont tous sur le hub, donc le hub est le seul endroit qui décide qui peut faire quoi, et un agent exécute simplement ce que son hub demande. Mettre ces variables à `false` sur un agent ajoute une limite pour un hôte, ce n'est pas un second endroit où gérer les permissions.
 
 ```yaml
 services:
