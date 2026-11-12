@@ -27,6 +27,9 @@ export type Host = {
   replacesId?: string;
   // set on the one update sent when an agent is removed, so every tab drops it
   removed?: boolean;
+  // reported by an agent started with --disable-actions or --disable-shell
+  actionsDisabled?: boolean;
+  shellDisabled?: boolean;
 };
 
 // space held by things no container is using, counts and bytes per kind

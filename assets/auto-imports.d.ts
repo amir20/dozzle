@@ -42,6 +42,7 @@ declare global {
   const UPDATE_LABEL: typeof import('./composable/containers/updatePolicy').UPDATE_LABEL
   const USAGE_FLUSH_INTERVAL: typeof import('./composable/app/usage').USAGE_FLUSH_INTERVAL
   const acceptHMRUpdate: typeof import('pinia').acceptHMRUpdate
+  const actionsAllowedOn: typeof import('./composable/containers/hostRestrictions').actionsAllowedOn
   const agentComposeSnippet: typeof import('./composable/setup/setup').agentComposeSnippet
   const agentImage: typeof import('./composable/setup/setup').agentImage
   const aimAt: typeof import('./composable/ui/pointerAim').aimAt
@@ -317,6 +318,7 @@ declare global {
   const shallowReadonly: typeof import('vue').shallowReadonly
   const shallowRef: typeof import('vue').shallowRef
   const sharedNamePrefix: typeof import('./composable/logs/logContext').sharedNamePrefix
+  const shellAllowedOn: typeof import('./composable/containers/hostRestrictions').shellAllowedOn
   const shortImageRef: typeof import('./utils/index').shortImageRef
   const showAllContainers: typeof import('./stores/settings').showAllContainers
   const showAppIcons: typeof import('./stores/settings').showAppIcons
@@ -363,6 +365,7 @@ declare global {
   const unrefElement: typeof import('@vueuse/core').unrefElement
   const until: typeof import('@vueuse/core').until
   const updateErrorText: typeof import('./composable/containers/containerActions').updateErrorText
+  const updatesAllowedOn: typeof import('./composable/containers/hostRestrictions').updatesAllowedOn
   const updatesVisible: typeof import('./composable/containers/imageUpdate').updatesVisible
   const useActiveElement: typeof import('@vueuse/core').useActiveElement
   const useAlertForm: typeof import('./composable/notifications/alertForm').useAlertForm
@@ -805,6 +808,7 @@ declare module 'vue' {
     readonly UPDATE_LABEL: UnwrapRef<typeof import('./composable/containers/updatePolicy')['UPDATE_LABEL']>
     readonly USAGE_FLUSH_INTERVAL: UnwrapRef<typeof import('./composable/app/usage')['USAGE_FLUSH_INTERVAL']>
     readonly acceptHMRUpdate: UnwrapRef<typeof import('pinia')['acceptHMRUpdate']>
+    readonly actionsAllowedOn: UnwrapRef<typeof import('./composable/containers/hostRestrictions')['actionsAllowedOn']>
     readonly agentComposeSnippet: UnwrapRef<typeof import('./composable/setup/setup')['agentComposeSnippet']>
     readonly agentImage: UnwrapRef<typeof import('./composable/setup/setup')['agentImage']>
     readonly aimAt: UnwrapRef<typeof import('./composable/ui/pointerAim')['aimAt']>
@@ -1071,6 +1075,7 @@ declare module 'vue' {
     readonly shallowReadonly: UnwrapRef<typeof import('vue')['shallowReadonly']>
     readonly shallowRef: UnwrapRef<typeof import('vue')['shallowRef']>
     readonly sharedNamePrefix: UnwrapRef<typeof import('./composable/logs/logContext')['sharedNamePrefix']>
+    readonly shellAllowedOn: UnwrapRef<typeof import('./composable/containers/hostRestrictions')['shellAllowedOn']>
     readonly shortImageRef: UnwrapRef<typeof import('./utils/index')['shortImageRef']>
     readonly showAllContainers: UnwrapRef<typeof import('./stores/settings')['showAllContainers']>
     readonly showAppIcons: UnwrapRef<typeof import('./stores/settings')['showAppIcons']>
@@ -1113,6 +1118,7 @@ declare module 'vue' {
     readonly unrefElement: UnwrapRef<typeof import('@vueuse/core')['unrefElement']>
     readonly until: UnwrapRef<typeof import('@vueuse/core')['until']>
     readonly updateErrorText: UnwrapRef<typeof import('./composable/containers/containerActions')['updateErrorText']>
+    readonly updatesAllowedOn: UnwrapRef<typeof import('./composable/containers/hostRestrictions')['updatesAllowedOn']>
     readonly updatesVisible: UnwrapRef<typeof import('./composable/containers/imageUpdate')['updatesVisible']>
     readonly useActiveElement: UnwrapRef<typeof import('@vueuse/core')['useActiveElement']>
     readonly useAlertForm: UnwrapRef<typeof import('./composable/notifications/alertForm')['useAlertForm']>

@@ -25,7 +25,9 @@ import (
 )
 
 type AgentCmd struct {
-	Addr string `arg:"--agent-addr,env:DOZZLE_AGENT_ADDR" default:":7007" help:"sets the host:port to bind for the agent"`
+	Addr           string `arg:"--agent-addr,env:DOZZLE_AGENT_ADDR" default:":7007" help:"sets the host:port to bind for the agent"`
+	DisableActions bool   `arg:"--disable-actions,env:DOZZLE_DISABLE_ACTIONS" help:"refuse start, stop, restart, remove, update and prune from any hub"`
+	DisableShell   bool   `arg:"--disable-shell,env:DOZZLE_DISABLE_SHELL" help:"refuse shell and attach from any hub"`
 }
 
 // persistingNotificationHandler wraps a notification manager and saves config to disk after updates
@@ -251,7 +253,11 @@ func (a *AgentCmd) Run(args Args, embeddedCerts embed.FS) error {
 	}
 
 	// Create agent server using the same shared client service
-	server, err := agent.NewServer(clientService, certs, args.Version(), notificationHandler)
+	restrictions := agent.Restrictions{DisableActions: args.Agent.DisableActions, DisableShell: args.Agent.DisableShell}
+	if restrictions.DisableActions || restrictions.DisableShell {
+		log.Info().Bool("actions", !restrictions.DisableActions).Bool("shell", !restrictions.DisableShell).Msg("Agent restrictions in effect")
+	}
+	server, err := agent.NewServer(clientService, certs, args.Version(), notificationHandler, restrictions)
 	if err != nil {
 		return fmt.Errorf("failed to create agent server: %w", err)
 	}

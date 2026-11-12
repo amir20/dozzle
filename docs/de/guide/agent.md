@@ -1,7 +1,7 @@
 ---
 title: Agent-Modus
 description: Betreibe Dozzle im Agent-Modus, um Logs entfernter Docker-Hosts über TLS anzuzeigen, Hosts in Gruppen zu ordnen und Agents mit einem eigenen Zertifikat abzusichern.
-sourceHash: 2079ef9aa433
+sourceHash: e0ee075cd24b
 ---
 
 # Agent-Modus
@@ -211,6 +211,26 @@ services:
 ```
 
 Damit zeigt der Agent nur Container mit dem Label `color`. Beachte, dass diese Filter mit den Filtern der Oberfläche kombiniert werden, um die Container weiter einzugrenzen. Mehr zu den verschiedenen Filtertypen steht in der [Dokumentation zu Filtern](/de/guide/filters#ui-agents-and-user-filters).
+
+### Aktionen und Shell deaktivieren {#disabling-actions-and-shell}
+
+Ein Agent kann Aktionen oder Shell-Zugriff verweigern, ganz gleich, wie der Hub konfiguriert ist, der sich mit ihm verbindet. Das ist nützlich, wenn der Hub Aktionen für die meisten Hosts erlaubt, ein Host aber nur lesbar bleiben soll.
+
+```yaml
+services:
+  dozzle-agent:
+    image: amir20/dozzle:latest
+    command: agent
+    environment:
+      - DOZZLE_DISABLE_ACTIONS=true
+      - DOZZLE_DISABLE_SHELL=true
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+```
+
+`DOZZLE_DISABLE_ACTIONS` verweigert Starten, Stoppen, Neustarten, Entfernen, Aktualisieren, Zurücksetzen und Aufräumen. `DOZZLE_DISABLE_SHELL` verweigert Attach und Shell. Der Agent prüft das selbst, ein Fehler auf dem Hub kommt also nicht daran vorbei.
+
+Der Agent teilt dem Hub diese Einstellungen beim Verbinden mit, und der Hub blendet die Schaltflächen für diesen Host aus. Verfügbare Updates werden weiterhin angezeigt, lassen sich aber nicht anwenden, und geplante Updates und Aufräumläufe überspringen den Host.
 
 ### Eigene Zertifikate
 

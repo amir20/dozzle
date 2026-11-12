@@ -66,6 +66,7 @@ func TestAutoPrune_CleansEveryAvailableHostOnce(t *testing.T) {
 			{ID: "old", Name: "old", Available: true},
 			{ID: "broken", Name: "broken", Available: true},
 			{ID: "b", Name: "b", Available: true},
+			{ID: "locked", Name: "locked", Available: true, ActionsDisabled: true},
 		},
 		errs: map[string]error{
 			"old":    errors.ErrUnsupported,
@@ -78,7 +79,7 @@ func TestAutoPrune_CleansEveryAvailableHostOnce(t *testing.T) {
 	assert.Empty(t, hosts.pruned, "not due yet")
 
 	s.tick(t.Context(), at(14, "04:00"))
-	assert.Equal(t, []string{"a", "old", "broken", "b"}, hosts.pruned, "an unavailable host is skipped, a failing one does not stop the rest")
+	assert.Equal(t, []string{"a", "old", "broken", "b"}, hosts.pruned, "an unavailable or locked host is skipped, a failing one does not stop the rest")
 	for _, opts := range hosts.opts {
 		assert.Equal(t, container.PruneOptions{Images: true, Containers: true, BuildCache: true}, opts, "never volumes")
 	}

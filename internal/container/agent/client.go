@@ -458,16 +458,18 @@ func (c *Client) Host(ctx context.Context) (container.Host, error) {
 	}
 
 	host := container.Host{
-		ID:            info.Host.Id,
-		Name:          info.Host.Name,
-		NCPU:          int(info.Host.CpuCores),
-		MemTotal:      int64(info.Host.Memory),
-		Endpoint:      c.endpoint,
-		Type:          "agent",
-		DockerVersion: info.Host.DockerVersion,
-		Runtime:       info.Host.Runtime,
-		AgentVersion:  info.Host.AgentVersion,
-		Group:         c.group,
+		ID:              info.Host.Id,
+		Name:            info.Host.Name,
+		NCPU:            int(info.Host.CpuCores),
+		MemTotal:        int64(info.Host.Memory),
+		Endpoint:        c.endpoint,
+		Type:            "agent",
+		DockerVersion:   info.Host.DockerVersion,
+		Runtime:         info.Host.Runtime,
+		AgentVersion:    info.Host.AgentVersion,
+		Group:           c.group,
+		ActionsDisabled: info.Host.ActionsDisabled,
+		ShellDisabled:   info.Host.ShellDisabled,
 	}
 	if c.nameOverride != "" {
 		host.Name = c.nameOverride

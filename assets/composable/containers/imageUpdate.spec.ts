@@ -13,8 +13,9 @@ const holder = vi.hoisted(() => ({
     enableUpdates: true,
     selfContainerId: "5e1f00000000" + "0".repeat(52),
     hosts: [
-      { id: "localhost", type: "local" },
-      { id: "remote", type: "agent" },
+      { id: "localhost", name: "localhost", type: "local" },
+      { id: "remote", name: "remote", type: "agent" },
+      { id: "locked", name: "locked", type: "agent", actionsDisabled: true },
     ],
   } as Record<string, unknown>,
   dismissed: null as ReturnType<typeof import("vue").ref<Set<string>>> | null,
@@ -113,8 +114,8 @@ describe("useImageUpdate", () => {
     holder.config.enableActions = true;
     holder.config.enableUpdates = true;
     holder.config.hosts = [
-      { id: "localhost", type: "local" },
-      { id: "remote", type: "agent" },
+      { id: "localhost", name: "localhost", type: "local" },
+      { id: "remote", name: "remote", type: "agent" },
     ];
     holder.dismissed!.value = new Set();
     holder.showAlertSetting!.value = false;
@@ -506,6 +507,13 @@ describe("useImageUpdates", () => {
     expect(hasUpdate(stopped)).toBe(true);
     expect(canUpdate(stopped)).toBe(false);
     expect(canUpdate(container({ state: "running" }))).toBe(true);
+  });
+
+  test("lists a container on an agent with actions disabled, but never offers to update it", async () => {
+    const locked = container({ state: "running", host: "locked" });
+    const { hasUpdate } = await checkAll(locked);
+    expect(hasUpdate(locked)).toBe(true);
+    expect(canUpdate(locked)).toBe(false);
   });
 
   test("lists a container labelled check, but never offers to update it", async () => {

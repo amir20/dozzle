@@ -55,7 +55,10 @@ type fleetHosts struct {
 	HostService
 	containers []container.Container
 	client     container.ClientService
+	hosts      []container.Host
 }
+
+func (h *fleetHosts) Hosts() []container.Host { return h.hosts }
 
 func (h *fleetHosts) ListAllContainers(container.ContainerLabels) ([]container.Container, []error) {
 	return h.containers, nil
@@ -189,6 +192,29 @@ func TestAutoUpdate_SkipsImageRolledBackFrom(t *testing.T) {
 
 	client.results["aaa"] = imagecheck.Result{Status: imagecheck.StatusUpdateAvailable, RemoteDigest: "sha256:fixed"}
 	assert.ElementsMatch(t, []string{"immich", "redis"}, outdatedNames(), "a newer image is applied")
+}
+
+// An agent started with --disable-actions refuses updates, so the schedule never
+// checks or queues its containers. Other hosts are unaffected.
+func TestAutoUpdate_SkipsAgentWithActionsDisabled(t *testing.T) {
+	setupTestEnv(t, true)
+	writeUpdateMode(t, "all")
+	edge := container.Container{ID: "eee", Name: "edge-web", Host: "edge", State: "running"}
+	nas := container.Container{ID: "nnn", Name: "nas-web", Host: "nas", State: "running"}
+	client := &countingCheckService{results: map[string]imagecheck.Result{
+		"eee": {Status: imagecheck.StatusUpdateAvailable, RemoteDigest: "sha256:e"},
+		"nnn": {Status: imagecheck.StatusUpdateAvailable, RemoteDigest: "sha256:n"},
+	}}
+	s := &autoUpdateScheduler{config: &serverActions, hostService: &fleetHosts{
+		containers: []container.Container{edge, nas},
+		client:     client,
+		hosts:      []container.Host{{ID: "edge", ActionsDisabled: true}, {ID: "nas"}},
+	}}
+
+	outdated, _ := s.outdatedScheduledContainers(context.Background())
+	require.Len(t, outdated, 1)
+	assert.Equal(t, "nas-web", outdated[0].Container.Name)
+	assert.Equal(t, []string{"nnn"}, client.ids(), "the locked host is not even checked")
 }
 
 func TestAutoUpdate_SelfLabelOffSkipsDozzle(t *testing.T) {

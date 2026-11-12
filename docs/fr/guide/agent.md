@@ -1,7 +1,7 @@
 ---
 title: Mode agent
 description: Utilisez Dozzle en mode agent pour consulter les logs d'hôtes Docker distants via TLS, organiser les hôtes en groupes et verrouiller les agents avec votre propre certificat.
-sourceHash: 2079ef9aa433
+sourceHash: e0ee075cd24b
 ---
 
 # Mode agent
@@ -211,6 +211,26 @@ services:
 ```
 
 L'agent n'affichera que les conteneurs portant le label `color`. Gardez à l'esprit que ces filtres se combinent avec les filtres de l'interface pour restreindre encore la liste des conteneurs. Pour en savoir plus sur les différents types de filtres, lisez la [documentation des filtres](/fr/guide/filters#ui-agents-and-user-filters).
+
+### Désactiver les actions et le shell {#disabling-actions-and-shell}
+
+Un agent peut refuser les actions ou l'accès au shell, quelle que soit la configuration du hub qui s'y connecte. C'est utile quand le hub autorise les actions sur la plupart des hôtes, mais qu'un hôte doit rester en lecture seule.
+
+```yaml
+services:
+  dozzle-agent:
+    image: amir20/dozzle:latest
+    command: agent
+    environment:
+      - DOZZLE_DISABLE_ACTIONS=true
+      - DOZZLE_DISABLE_SHELL=true
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+```
+
+`DOZZLE_DISABLE_ACTIONS` refuse le démarrage, l'arrêt, le redémarrage, la suppression, la mise à jour, le retour arrière et le nettoyage. `DOZZLE_DISABLE_SHELL` refuse l'attach et le shell. L'agent vérifie cela lui-même, donc une erreur sur le hub ne peut pas les contourner.
+
+L'agent communique ces réglages au hub lors de la connexion, et le hub masque les boutons pour cet hôte. Les mises à jour disponibles restent affichées mais ne peuvent pas être appliquées, et les mises à jour et nettoyages planifiés ignorent cet hôte.
 
 ### Certificats personnalisés
 

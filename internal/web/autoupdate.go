@@ -417,6 +417,30 @@ func scheduledContainers(containers []container.Container, mode updatepolicy.Mod
 	return picked
 }
 
+// onActionHosts drops the containers on agents started with --disable-actions.
+// The agent would refuse the update anyway; skipping them keeps a nightly run
+// from logging the same refusal for every one.
+func onActionHosts(containers []container.Container, hosts []container.Host) []container.Container {
+	locked := map[string]bool{}
+	for _, h := range hosts {
+		if h.ActionsDisabled {
+			locked[h.ID] = true
+		}
+	}
+	if len(locked) == 0 {
+		return containers
+	}
+	kept := make([]container.Container, 0, len(containers))
+	for _, c := range containers {
+		if locked[c.Host] {
+			log.Debug().Str("container", c.Name).Str("host", c.Host).Msg("auto update: container not updated, actions are disabled on its agent")
+			continue
+		}
+		kept = append(kept, c)
+	}
+	return kept
+}
+
 // rolledBackFrom reports whether someone rolled c back from the image remote
 // names. Its tag usually still names that image, and applying it again would
 // undo the rollback every night. A newer image is updated to as usual.
@@ -437,6 +461,7 @@ func (s *autoUpdateScheduler) outdatedScheduledContainers(ctx context.Context) (
 	}
 
 	selfService := selfSwarmService(containers)
+	containers = onActionHosts(containers, s.hostService.Hosts())
 	scheduled := scheduledContainers(containers, loadUpdateMode(s.config.Setup), selfService)
 
 	var outdated []*container.ContainerService

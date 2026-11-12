@@ -77,7 +77,7 @@
         <button
           type="button"
           class="nav-btn icon-btn"
-          v-if="enableShell && isRunning"
+          v-if="shellAllowed && isRunning"
           :title="$t('toolbar.shell')"
           :aria-label="$t('toolbar.shell')"
           @click="showDrawer(Terminal, { container, action: 'exec' }, 'lg')"
@@ -102,7 +102,7 @@
 
         <!-- Start/stop/restart sit apart from the view controls above: one group
              changes what you are looking at, the other changes the container. -->
-        <template v-if="enableActions">
+        <template v-if="actionsAllowed">
           <!-- Kubernetes has no stop or start for one container, only restart. -->
           <button
             type="button"
@@ -156,7 +156,6 @@ const { container } = defineProps<{
 
 const { t } = useI18n();
 const { hosts } = useHosts();
-const { enableActions, enableShell } = config;
 const showDrawer = useDrawer();
 const pinnedStore = usePinnedLogsStore();
 const { actionStates, start, stop, restart } = useContainerActions(toRef(() => container));
@@ -165,6 +164,8 @@ const host = computed(() => hosts.value[container.host]);
 const isRunning = computed(() => container.state === "running");
 const power = computed(() => powerAction(container));
 const canStartStop = config.mode !== "k8s";
+const actionsAllowed = computed(() => actionsAllowedOn(container.host));
+const shellAllowed = computed(() => shellAllowedOn(container.host));
 const imageTag = computed(() => stripImageDigest(container.image));
 const shortUrl = computed(() => container.url?.replace(/^https?:\/\//, "").replace(/\/$/, ""));
 

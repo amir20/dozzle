@@ -1,7 +1,7 @@
 ---
 title: 代理模式
 description: 以代理模式运行 Dozzle，通过 TLS 查看远程 Docker 主机的日志，把主机分组管理，并用自己的证书锁定代理。
-sourceHash: 2079ef9aa433
+sourceHash: e0ee075cd24b
 ---
 
 # 代理模式
@@ -211,6 +211,26 @@ services:
 ```
 
 这会让该代理只显示带有 `color` 标签的容器。注意，这些过滤器会和界面上的过滤器叠加，进一步缩小容器范围。想了解各类过滤器，请阅读[过滤器文档](/zh/guide/filters#ui-agents-and-user-filters)。
+
+### 禁用操作和终端 {#disabling-actions-and-shell}
+
+无论连接它的主控端如何配置，代理都可以拒绝操作或终端访问。当主控端对大多数主机开启了操作，但某台主机需要保持只读时，这会很有用。
+
+```yaml
+services:
+  dozzle-agent:
+    image: amir20/dozzle:latest
+    command: agent
+    environment:
+      - DOZZLE_DISABLE_ACTIONS=true
+      - DOZZLE_DISABLE_SHELL=true
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+```
+
+`DOZZLE_DISABLE_ACTIONS` 拒绝启动、停止、重启、删除、更新、回滚和清理。`DOZZLE_DISABLE_SHELL` 拒绝附加（attach）和终端。代理会自行检查这些设置，因此主控端的配置错误也无法绕过。
+
+代理在连接时会把这些设置告知主控端，主控端随即隐藏该主机的相关按钮。可用的更新仍会显示，但无法应用，定时更新和定时清理也会跳过该主机。
 
 ### 自定义证书
 

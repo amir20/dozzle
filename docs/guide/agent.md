@@ -211,6 +211,26 @@ services:
 
 This will restrict the agent to displaying only containers with the label `color`. Keep in mind that these filters are combined with the UI filters to narrow down the containers. To learn more about the different types of filters, read the [filters documentation](/guide/filters#ui-agents-and-user-filters).
 
+### Disabling Actions and Shell {#disabling-actions-and-shell}
+
+An agent can refuse actions or shell access no matter how the hub connecting to it is configured. This is useful when the hub has actions turned on for most hosts, but one host should stay read only.
+
+```yaml
+services:
+  dozzle-agent:
+    image: amir20/dozzle:latest
+    command: agent
+    environment:
+      - DOZZLE_DISABLE_ACTIONS=true
+      - DOZZLE_DISABLE_SHELL=true
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+```
+
+`DOZZLE_DISABLE_ACTIONS` refuses start, stop, restart, remove, update, rollback and clean up. `DOZZLE_DISABLE_SHELL` refuses attach and shell. The agent checks these itself, so a mistake on the hub can't get past them.
+
+The agent tells the hub about these settings when it connects, and the hub hides the buttons for that host. Available updates are still shown, but they can't be applied, and scheduled updates and clean ups skip the host.
+
 ### Custom Certificates
 
 Dozzle ships with a self-signed certificate that both ends present to each other, and each end trusts that one certificate and nothing else. It is compiled into the binary, so it is identical in every Dozzle install and anyone can read it out of the public image.

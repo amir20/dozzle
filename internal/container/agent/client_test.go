@@ -212,7 +212,7 @@ func init() {
 		}
 	})
 
-	server, _ := NewServer(mockService, certs, "test", &mockNotificationHandler{})
+	server, _ := NewServer(mockService, certs, "test", &mockNotificationHandler{}, Restrictions{})
 	go server.Serve(lis)
 }
 

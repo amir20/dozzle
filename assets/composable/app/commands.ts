@@ -114,7 +114,7 @@ export function useContainerCommands(containerRef: Ref<Container | undefined>, o
     const list: Command[] = [];
     const name = container.name;
 
-    if (config.enableActions && powerAction(container)) {
+    if (actionsAllowedOn(container.host) && powerAction(container)) {
       list.push({
         id: "container.restart",
         section: "container",
@@ -188,7 +188,7 @@ export function useContainerCommands(containerRef: Ref<Container | undefined>, o
       }
     }
 
-    if (config.enableShell && container.state === "running") {
+    if (shellAllowedOn(container.host) && container.state === "running") {
       list.push(
         {
           id: "container.attach",

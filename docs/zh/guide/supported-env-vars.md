@@ -1,7 +1,7 @@
 ---
 title: 环境变量与子命令
 description: Dozzle 全部环境变量和标志（包括身份验证），以及 generate、agent、generate-certs 和 healthcheck 子命令。
-sourceHash: ece6f498d9bf
+sourceHash: f3f265253ae4
 ---
 
 # 环境变量
@@ -134,9 +134,11 @@ docker run -it --rm amir20/dozzle generate admin --password password --email tes
 docker run -v /var/run/docker.sock:/var/run/docker.sock -p 7007:7007 amir20/dozzle agent
 ```
 
-| 变量                                  | 说明                   | 取值        | 默认值  |
-| ------------------------------------- | ---------------------- | ----------- | ------- |
-| `DOZZLE_AGENT_ADDR`<br>`--agent-addr` | 代理监听的地址和端口。 | `host:port` | `:7007` |
+| 变量                                            | 说明                                                                                                                  | 取值            | 默认值  |
+| ----------------------------------------------- | --------------------------------------------------------------------------------------------------------------------- | --------------- | ------- |
+| `DOZZLE_AGENT_ADDR`<br>`--agent-addr`           | 代理监听的地址和端口。                                                                                                | `host:port`     | `:7007` |
+| `DOZZLE_DISABLE_ACTIONS`<br>`--disable-actions` | 拒绝来自任何主控端的启动、停止、重启、删除、更新和清理。参见[禁用操作](/zh/guide/agent#disabling-actions-and-shell)。 | `true`, `false` | `false` |
+| `DOZZLE_DISABLE_SHELL`<br>`--disable-shell`     | 拒绝来自任何主控端的附加和终端。参见[禁用操作](/zh/guide/agent#disabling-actions-and-shell)。                         | `true`, `false` | `false` |
 
 ### generate-certs
 
