@@ -50,6 +50,8 @@ func Main(content fs.FS, certs embed.FS) {
 
 // runServer runs Dozzle in server, swarm or k8s mode until SIGINT or SIGTERM.
 func runServer(args Args, content fs.FS, certs embed.FS) {
+	// freshInstall is whether ./data held nothing from an earlier run when this
+	// process started. Only a fresh install gets the no-login setup window.
 	// Read before anything below writes to ./data (profiles, notification rules,
 	// session secrets), so it reflects earlier runs only.
 	freshInstall := dozzleconfig.FreshDataDir(filepath.Dir(dozzleconfig.Path))
@@ -244,6 +246,8 @@ func runServer(args Args, content fs.FS, certs embed.FS) {
 	log.Debug().Msg("shut down complete")
 }
 
+// beaconBase is what every beacon from the web server repeats about how this
+// process was started.
 func beaconBase(args Args, simpleUsers int) types.BeaconEvent {
 	b := BeaconBase(args, args.Mode)
 	b.Users = analytics.BucketUsers(simpleUsers)
@@ -447,23 +451,10 @@ func createServer(args Args, content fs.FS, freshInstall bool, hostService web.H
 	return web.CreateServer(hostService, assets, config)
 }
 
-// cloudHostService is the view of the fleet the cloud client is given.
-//
-// In swarm mode every replica discovers every peer, so a replica reporting the
-// whole fleet would multiply hosts — and duplicate log and stat ingestion — by
-// replica count on the cloud side. There the view is scoped to this process's
-// own docker daemon.
-//
-// Everywhere else there is exactly one Dozzle holding the fleet: --remote-host
-// and --remote-agent endpoints are configured on it and on nothing else, so
-// scoping them away simply hid them from the cloud. --remote-host survived only
-// because it happens to be a *docker.Service; agents did not appear at all.
-//
-// services is a func, not a slice, because an agent that is unreachable at boot
-// joins later. Reading it per call means such an agent shows up as soon as it
-// connects rather than at the next restart. Its retry argument asks for
-// unreachable agents to be re-dialed, which costs a connection attempt each —
-
+// mcpToken decides whether --mcp-token applies (ParseArgs already checked its
+// shape). The token only means something where Dozzle runs its own MCP
+// authorization server: with MCP on, under simple or oidc auth. Anywhere else
+// it is ignored out loud rather than silently.
 func mcpToken(args Args, provider web.AuthProvider) string {
 	token := args.MCPToken
 	if token == "" {

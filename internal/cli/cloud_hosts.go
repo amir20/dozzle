@@ -13,6 +13,23 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
+// cloudHostService is the view of the fleet the cloud client is given.
+//
+// In swarm mode every replica discovers every peer, so a replica reporting the
+// whole fleet would multiply hosts — and duplicate log and stat ingestion — by
+// replica count on the cloud side. There the view is scoped to this process's
+// own docker daemon.
+//
+// Everywhere else there is exactly one Dozzle holding the fleet: --remote-host
+// and --remote-agent endpoints are configured on it and on nothing else, so
+// scoping them away simply hid them from the cloud. --remote-host survived only
+// because it happens to be a *docker.Service; agents did not appear at all.
+//
+// services is a func, not a slice, because an agent that is unreachable at boot
+// joins later. Reading it per call means such an agent shows up as soon as it
+// connects rather than at the next restart. Its retry argument asks for
+// unreachable agents to be re-dialed, which costs a connection attempt each —
+// only the periodic fan-out calls pay it.
 type cloudHostService struct {
 	services func(retry bool) []container.ClientService
 	// hs is the underlying host service, used only to learn when a previously
@@ -292,7 +309,3 @@ func (subs serviceSubscriptions) sync(ctx context.Context, services []container.
 		}
 	}
 }
-
-// mcpToken decides whether --mcp-token applies (ParseArgs already checked its
-// shape). The token only means something where Dozzle runs its own MCP
-// authorization server: with MCP on, under simple or oidc auth. Anywhere else
