@@ -1,12 +1,13 @@
 package web
 
 import (
+	"context"
 	"net/http"
 	"net/http/httptest"
 	"strings"
 	"testing"
 
-	"github.com/gorilla/websocket"
+	"github.com/coder/websocket"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -14,11 +15,11 @@ import (
 func newUpgradeServer(t *testing.T) *httptest.Server {
 	t.Helper()
 	return httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		conn, err := upgrader.Upgrade(w, r, nil)
+		conn, err := upgrade(w, r)
 		if err != nil {
 			return
 		}
-		conn.Close()
+		conn.CloseNow()
 	}))
 }
 
@@ -29,9 +30,9 @@ func dialUpgrade(t *testing.T, srv *httptest.Server, origin string) (*http.Respo
 	if origin != "" {
 		header.Set("Origin", origin)
 	}
-	conn, resp, err := websocket.DefaultDialer.Dial(wsURL, header)
+	conn, resp, err := websocket.Dial(context.Background(), wsURL, &websocket.DialOptions{HTTPHeader: header})
 	if conn != nil {
-		conn.Close()
+		conn.CloseNow()
 	}
 	return resp, err
 }
