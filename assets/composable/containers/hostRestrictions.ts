@@ -1,4 +1,4 @@
-// An agent started with --disable-actions or --disable-shell refuses those
+// An agent started with DOZZLE_ENABLE_ACTIONS or DOZZLE_ENABLE_SHELL set to false refuses those
 // requests whatever the hub allows, and reports it when it connects. These
 // combine the hub's settings with that report, per host.
 

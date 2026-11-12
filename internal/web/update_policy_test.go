@@ -194,7 +194,7 @@ func TestAutoUpdate_SkipsImageRolledBackFrom(t *testing.T) {
 	assert.ElementsMatch(t, []string{"immich", "redis"}, outdatedNames(), "a newer image is applied")
 }
 
-// An agent started with --disable-actions refuses updates, so the schedule never
+// An agent started with DOZZLE_ENABLE_ACTIONS=false refuses updates, so the schedule never
 // checks or queues its containers. Other hosts are unaffected.
 func TestAutoUpdate_SkipsAgentWithActionsDisabled(t *testing.T) {
 	setupTestEnv(t, true)

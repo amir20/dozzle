@@ -59,8 +59,9 @@ type ClientService interface {
 }
 
 // Restrictions are what an agent refuses whatever the hub asks, set with
-// `dozzle agent --disable-actions` and `--disable-shell`. They are reported to
-// the hub in HostInfo so it can hide the controls instead of failing on them.
+// DOZZLE_ENABLE_ACTIONS=false and DOZZLE_ENABLE_SHELL=false on `dozzle agent`.
+// They are reported to the hub in HostInfo so it can hide the controls instead
+// of failing on them.
 type Restrictions struct {
 	DisableActions bool
 	DisableShell   bool

@@ -1144,8 +1144,9 @@ type Host struct {
 	Disks            []*Disk `protobuf:"bytes,21,rep,name=disks,proto3" json:"disks,omitempty"`
 	// unset until the agent has measured it, or when its engine cannot
 	Reclaimable *Reclaimable `protobuf:"bytes,22,opt,name=reclaimable,proto3" json:"reclaimable,omitempty"`
-	// Set by an agent started with --disable-actions or --disable-shell. Negative
-	// so an older agent, which leaves them unset, keeps allowing both.
+	// Set by an agent started with DOZZLE_ENABLE_ACTIONS or DOZZLE_ENABLE_SHELL
+	// set to false. Negative so an older agent, which leaves them unset, keeps
+	// allowing both.
 	ActionsDisabled bool `protobuf:"varint,23,opt,name=actionsDisabled,proto3" json:"actionsDisabled,omitempty"`
 	ShellDisabled   bool `protobuf:"varint,24,opt,name=shellDisabled,proto3" json:"shellDisabled,omitempty"`
 	unknownFields   protoimpl.UnknownFields

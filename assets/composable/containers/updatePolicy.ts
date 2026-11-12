@@ -99,7 +99,7 @@ export function resolvePolicy(label: UpdatePolicy | undefined, mode: UpdateConta
 /**
  * Whether the schedule would update this container under mode. Like the scheduler,
  * it never updates a stopped container, whatever its label says, nor one on an
- * agent started with --disable-actions.
+ * agent started with DOZZLE_ENABLE_ACTIONS=false.
  */
 export function willAutoUpdate(
   entry: Pick<ContainerUpdatePolicy, "label" | "state" | "host">,

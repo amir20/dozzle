@@ -1,7 +1,7 @@
 ---
 title: Modo agente
 description: Ejecuta Dozzle en modo agente para ver los logs de hosts Docker remotos por TLS, organizar los hosts en grupos y proteger los agentes con tu propio certificado.
-sourceHash: e0ee075cd24b
+sourceHash: 5ec9b49620ee
 ---
 
 # Modo agente
@@ -214,7 +214,7 @@ Esto hará que el agente muestre solo los contenedores con la etiqueta `color`. 
 
 ### Desactivar acciones y shell {#disabling-actions-and-shell}
 
-Un agente puede rechazar acciones o el acceso a la shell, sin importar cómo esté configurado el hub que se conecta a él. Es útil cuando el hub tiene las acciones activadas para la mayoría de los hosts, pero un host debe quedarse en solo lectura.
+Las acciones y la shell solo funcionan en un agente cuando tanto el hub como el agente las permiten. El hub las activa con `DOZZLE_ENABLE_ACTIONS` y `DOZZLE_ENABLE_SHELL`. Un agente lee las mismas dos variables: sin definir, hace lo que el hub permita, y con `false`, las rechaza. Es útil cuando el hub tiene las acciones activadas para la mayoría de los hosts, pero un host debe quedarse en solo lectura.
 
 ```yaml
 services:
@@ -222,13 +222,13 @@ services:
     image: amir20/dozzle:latest
     command: agent
     environment:
-      - DOZZLE_DISABLE_ACTIONS=true
-      - DOZZLE_DISABLE_SHELL=true
+      - DOZZLE_ENABLE_ACTIONS=false
+      - DOZZLE_ENABLE_SHELL=false
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
 ```
 
-`DOZZLE_DISABLE_ACTIONS` rechaza iniciar, detener, reiniciar, eliminar, actualizar, revertir y limpiar. `DOZZLE_DISABLE_SHELL` rechaza attach y shell. El agente lo comprueba por sí mismo, así que un error en el hub no puede saltárselo.
+`DOZZLE_ENABLE_ACTIONS=false` rechaza iniciar, detener, reiniciar, eliminar, actualizar, revertir y limpiar. `DOZZLE_ENABLE_SHELL=false` rechaza attach y shell. El agente lo comprueba por sí mismo, así que un error en el hub no puede saltárselo. Ponerlas en `true` en un agente no hace nada por sí solo, porque el hub sigue teniendo que activarlas.
 
 El agente informa al hub de estos ajustes al conectarse, y el hub oculta los botones para ese host. Las actualizaciones disponibles se siguen mostrando, pero no se pueden aplicar, y las actualizaciones y limpiezas programadas omiten el host.
 

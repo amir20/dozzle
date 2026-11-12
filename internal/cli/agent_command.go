@@ -25,9 +25,18 @@ import (
 )
 
 type AgentCmd struct {
-	Addr           string `arg:"--agent-addr,env:DOZZLE_AGENT_ADDR" default:":7007" help:"sets the host:port to bind for the agent"`
-	DisableActions bool   `arg:"--disable-actions,env:DOZZLE_DISABLE_ACTIONS" help:"refuse start, stop, restart, remove, update and prune from any hub"`
-	DisableShell   bool   `arg:"--disable-shell,env:DOZZLE_DISABLE_SHELL" help:"refuse shell and attach from any hub"`
+	Addr string `arg:"--agent-addr,env:DOZZLE_AGENT_ADDR" default:":7007" help:"sets the host:port to bind for the agent"`
+}
+
+// agentRestrictions reads --enable-actions and --enable-shell the way an agent
+// means them. Left unset, the hub decides, as it always has. Set to false, the
+// agent refuses those requests from any hub. True is the same as unset: the hub
+// still has to turn them on.
+func agentRestrictions(args Args, argv []string, lookupEnv func(string) (string, bool)) agent.Restrictions {
+	return agent.Restrictions{
+		DisableActions: setByOperator(argv, lookupEnv, "enable-actions", "DOZZLE_ENABLE_ACTIONS") && !args.EnableActions,
+		DisableShell:   setByOperator(argv, lookupEnv, "enable-shell", "DOZZLE_ENABLE_SHELL") && !args.EnableShell,
+	}
 }
 
 // persistingNotificationHandler wraps a notification manager and saves config to disk after updates
@@ -253,7 +262,7 @@ func (a *AgentCmd) Run(args Args, embeddedCerts embed.FS) error {
 	}
 
 	// Create agent server using the same shared client service
-	restrictions := agent.Restrictions{DisableActions: args.Agent.DisableActions, DisableShell: args.Agent.DisableShell}
+	restrictions := agentRestrictions(args, os.Args[1:], os.LookupEnv)
 	if restrictions.DisableActions || restrictions.DisableShell {
 		log.Info().Bool("actions", !restrictions.DisableActions).Bool("shell", !restrictions.DisableShell).Msg("Agent restrictions in effect")
 	}

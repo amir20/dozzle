@@ -417,7 +417,7 @@ func scheduledContainers(containers []container.Container, mode updatepolicy.Mod
 	return picked
 }
 
-// onActionHosts drops the containers on agents started with --disable-actions.
+// onActionHosts drops the containers on agents started with DOZZLE_ENABLE_ACTIONS=false.
 // The agent would refuse the update anyway; skipping them keeps a nightly run
 // from logging the same refusal for every one.
 func onActionHosts(containers []container.Container, hosts []container.Host) []container.Container {

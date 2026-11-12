@@ -213,7 +213,7 @@ This will restrict the agent to displaying only containers with the label `color
 
 ### Disabling Actions and Shell {#disabling-actions-and-shell}
 
-An agent can refuse actions or shell access no matter how the hub connecting to it is configured. This is useful when the hub has actions turned on for most hosts, but one host should stay read only.
+Actions and shell only work on an agent when both the hub and the agent allow them. The hub turns them on with `DOZZLE_ENABLE_ACTIONS` and `DOZZLE_ENABLE_SHELL`. An agent reads the same two variables: left unset, it does whatever the hub allows, and set to `false`, it refuses. This is useful when the hub has actions turned on for most hosts, but one host should stay read only.
 
 ```yaml
 services:
@@ -221,13 +221,13 @@ services:
     image: amir20/dozzle:latest
     command: agent
     environment:
-      - DOZZLE_DISABLE_ACTIONS=true
-      - DOZZLE_DISABLE_SHELL=true
+      - DOZZLE_ENABLE_ACTIONS=false
+      - DOZZLE_ENABLE_SHELL=false
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
 ```
 
-`DOZZLE_DISABLE_ACTIONS` refuses start, stop, restart, remove, update, rollback and clean up. `DOZZLE_DISABLE_SHELL` refuses attach and shell. The agent checks these itself, so a mistake on the hub can't get past them.
+`DOZZLE_ENABLE_ACTIONS=false` refuses start, stop, restart, remove, update, rollback and clean up. `DOZZLE_ENABLE_SHELL=false` refuses attach and shell. The agent checks these itself, so a mistake on the hub can't get past them. Setting them to `true` on an agent does nothing on its own, since the hub still has to turn them on.
 
 The agent tells the hub about these settings when it connects, and the hub hides the buttons for that host. Available updates are still shown, but they can't be applied, and scheduled updates and clean ups skip the host.
 

@@ -1,7 +1,7 @@
 ---
 title: Mode agent
 description: Utilisez Dozzle en mode agent pour consulter les logs d'hôtes Docker distants via TLS, organiser les hôtes en groupes et verrouiller les agents avec votre propre certificat.
-sourceHash: e0ee075cd24b
+sourceHash: 5ec9b49620ee
 ---
 
 # Mode agent
@@ -214,7 +214,7 @@ L'agent n'affichera que les conteneurs portant le label `color`. Gardez à l'esp
 
 ### Désactiver les actions et le shell {#disabling-actions-and-shell}
 
-Un agent peut refuser les actions ou l'accès au shell, quelle que soit la configuration du hub qui s'y connecte. C'est utile quand le hub autorise les actions sur la plupart des hôtes, mais qu'un hôte doit rester en lecture seule.
+Les actions et le shell ne fonctionnent sur un agent que si le hub et l'agent les autorisent tous les deux. Le hub les active avec `DOZZLE_ENABLE_ACTIONS` et `DOZZLE_ENABLE_SHELL`. Un agent lit les deux mêmes variables : non définies, il suit ce que le hub autorise, et à `false`, il refuse. C'est utile quand le hub autorise les actions sur la plupart des hôtes, mais qu'un hôte doit rester en lecture seule.
 
 ```yaml
 services:
@@ -222,13 +222,13 @@ services:
     image: amir20/dozzle:latest
     command: agent
     environment:
-      - DOZZLE_DISABLE_ACTIONS=true
-      - DOZZLE_DISABLE_SHELL=true
+      - DOZZLE_ENABLE_ACTIONS=false
+      - DOZZLE_ENABLE_SHELL=false
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
 ```
 
-`DOZZLE_DISABLE_ACTIONS` refuse le démarrage, l'arrêt, le redémarrage, la suppression, la mise à jour, le retour arrière et le nettoyage. `DOZZLE_DISABLE_SHELL` refuse l'attach et le shell. L'agent vérifie cela lui-même, donc une erreur sur le hub ne peut pas les contourner.
+`DOZZLE_ENABLE_ACTIONS=false` refuse le démarrage, l'arrêt, le redémarrage, la suppression, la mise à jour, le retour arrière et le nettoyage. `DOZZLE_ENABLE_SHELL=false` refuse l'attach et le shell. L'agent vérifie cela lui-même, donc une erreur sur le hub ne peut pas les contourner. Les mettre à `true` sur un agent ne fait rien à lui seul, car le hub doit toujours les activer.
 
 L'agent communique ces réglages au hub lors de la connexion, et le hub masque les boutons pour cet hôte. Les mises à jour disponibles restent affichées mais ne peuvent pas être appliquées, et les mises à jour et nettoyages planifiés ignorent cet hôte.
 

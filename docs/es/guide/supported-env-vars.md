@@ -1,7 +1,7 @@
 ---
 title: Variables de entorno y subcomandos
 description: Todas las variables de entorno y flags de Dozzle, incluida la autenticación, más los subcomandos generate, agent, generate-certs y healthcheck.
-sourceHash: f3f265253ae4
+sourceHash: 20f0b8f77f21
 ---
 
 # Variables de entorno
@@ -134,11 +134,11 @@ Ejecuta Dozzle como un [agente](/es/guide/agent) al que se conecta otra instanci
 docker run -v /var/run/docker.sock:/var/run/docker.sock -p 7007:7007 amir20/dozzle agent
 ```
 
-| Variable                                        | Descripción                                                                                                                                                           | Valores         | Por defecto |
-| ----------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------- | ----------- |
-| `DOZZLE_AGENT_ADDR`<br>`--agent-addr`           | Dirección y puerto en los que escucha el agente.                                                                                                                      | `host:port`     | `:7007`     |
-| `DOZZLE_DISABLE_ACTIONS`<br>`--disable-actions` | Rechaza iniciar, detener, reiniciar, eliminar, actualizar y limpiar desde cualquier hub. Consulta [desactivar acciones](/es/guide/agent#disabling-actions-and-shell). | `true`, `false` | `false`     |
-| `DOZZLE_DISABLE_SHELL`<br>`--disable-shell`     | Rechaza attach y shell desde cualquier hub. Consulta [desactivar acciones](/es/guide/agent#disabling-actions-and-shell).                                              | `true`, `false` | `false`     |
+| Variable                                      | Descripción                                                                                                                                                                                                             | Valores         | Por defecto |
+| --------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------- | ----------- |
+| `DOZZLE_AGENT_ADDR`<br>`--agent-addr`         | Dirección y puerto en los que escucha el agente.                                                                                                                                                                        | `host:port`     | `:7007`     |
+| `DOZZLE_ENABLE_ACTIONS`<br>`--enable-actions` | En un agente, `false` rechaza iniciar, detener, reiniciar, eliminar, actualizar y limpiar desde cualquier hub. Sin definir, decide el hub. Consulta [desactivar acciones](/es/guide/agent#disabling-actions-and-shell). | `true`, `false` | sin definir |
+| `DOZZLE_ENABLE_SHELL`<br>`--enable-shell`     | En un agente, `false` rechaza attach y shell desde cualquier hub. Sin definir, decide el hub. Consulta [desactivar acciones](/es/guide/agent#disabling-actions-and-shell).                                              | `true`, `false` | sin definir |
 
 ### generate-certs
 

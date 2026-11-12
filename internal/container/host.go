@@ -54,8 +54,9 @@ type Host struct {
 	// so every open tab drops the host, not only the one that removed it.
 	Removed bool `json:"removed,omitempty"`
 	// ActionsDisabled and ShellDisabled come from an agent started with
-	// --disable-actions or --disable-shell. The agent refuses those requests
-	// itself; the hub reads them to hide the controls and skip the host.
+	// DOZZLE_ENABLE_ACTIONS or DOZZLE_ENABLE_SHELL set to false. The agent
+	// refuses those requests itself; the hub reads them to hide the controls
+	// and skip the host.
 	ActionsDisabled bool `json:"actionsDisabled,omitempty"`
 	ShellDisabled   bool `json:"shellDisabled,omitempty"`
 }

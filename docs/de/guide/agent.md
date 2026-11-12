@@ -1,7 +1,7 @@
 ---
 title: Agent-Modus
 description: Betreibe Dozzle im Agent-Modus, um Logs entfernter Docker-Hosts über TLS anzuzeigen, Hosts in Gruppen zu ordnen und Agents mit einem eigenen Zertifikat abzusichern.
-sourceHash: e0ee075cd24b
+sourceHash: 5ec9b49620ee
 ---
 
 # Agent-Modus
@@ -214,7 +214,7 @@ Damit zeigt der Agent nur Container mit dem Label `color`. Beachte, dass diese F
 
 ### Aktionen und Shell deaktivieren {#disabling-actions-and-shell}
 
-Ein Agent kann Aktionen oder Shell-Zugriff verweigern, ganz gleich, wie der Hub konfiguriert ist, der sich mit ihm verbindet. Das ist nützlich, wenn der Hub Aktionen für die meisten Hosts erlaubt, ein Host aber nur lesbar bleiben soll.
+Aktionen und Shell funktionieren auf einem Agent nur, wenn sowohl der Hub als auch der Agent sie erlauben. Der Hub schaltet sie mit `DOZZLE_ENABLE_ACTIONS` und `DOZZLE_ENABLE_SHELL` ein. Ein Agent liest dieselben zwei Variablen: Nicht gesetzt, tut er, was der Hub erlaubt, auf `false` gesetzt, verweigert er. Das ist nützlich, wenn der Hub Aktionen für die meisten Hosts erlaubt, ein Host aber nur lesbar bleiben soll.
 
 ```yaml
 services:
@@ -222,13 +222,13 @@ services:
     image: amir20/dozzle:latest
     command: agent
     environment:
-      - DOZZLE_DISABLE_ACTIONS=true
-      - DOZZLE_DISABLE_SHELL=true
+      - DOZZLE_ENABLE_ACTIONS=false
+      - DOZZLE_ENABLE_SHELL=false
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
 ```
 
-`DOZZLE_DISABLE_ACTIONS` verweigert Starten, Stoppen, Neustarten, Entfernen, Aktualisieren, Zurücksetzen und Aufräumen. `DOZZLE_DISABLE_SHELL` verweigert Attach und Shell. Der Agent prüft das selbst, ein Fehler auf dem Hub kommt also nicht daran vorbei.
+`DOZZLE_ENABLE_ACTIONS=false` verweigert Starten, Stoppen, Neustarten, Entfernen, Aktualisieren, Zurücksetzen und Aufräumen. `DOZZLE_ENABLE_SHELL=false` verweigert Attach und Shell. Der Agent prüft das selbst, ein Fehler auf dem Hub kommt also nicht daran vorbei. Auf `true` gesetzt bewirken sie auf einem Agent allein nichts, denn der Hub muss sie trotzdem einschalten.
 
 Der Agent teilt dem Hub diese Einstellungen beim Verbinden mit, und der Hub blendet die Schaltflächen für diesen Host aus. Verfügbare Updates werden weiterhin angezeigt, lassen sich aber nicht anwenden, und geplante Updates und Aufräumläufe überspringen den Host.
 
