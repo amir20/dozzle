@@ -27,7 +27,7 @@ type Args struct {
 	HostID                 string              `arg:"--host-id,env:DOZZLE_HOST_ID" help:"overrides the id Dozzle derives for this host. Only needed when the derived id collides with another host."`
 	Level                  string              `arg:"env:DOZZLE_LEVEL" default:"info" help:"set Dozzle log level. Use debug for more logging."`
 	AuthProvider           string              `arg:"--auth-provider,env:DOZZLE_AUTH_PROVIDER" default:"none" help:"sets the auth provider to use: none, simple, oidc or forward-proxy. github and google are aliases for simple."`
-	AuthTTL                SessionTTL          `arg:"--auth-ttl,env:DOZZLE_AUTH_TTL" default:"session" help:"sets the TTL for the auth token. Accepts duration values like 12h. Valid time units are s, m, h"`
+	AuthTTL                string              `arg:"--auth-ttl,env:DOZZLE_AUTH_TTL" default:"session" help:"sets the TTL for the auth token. Accepts duration values like 12h. Valid time units are s, m, h"`
 	AuthHeaderUser         string              `arg:"--auth-header-user,env:DOZZLE_AUTH_HEADER_USER" default:"Remote-User" help:"sets the HTTP Header to use for username in Forward Proxy configuration."`
 	AuthHeaderEmail        string              `arg:"--auth-header-email,env:DOZZLE_AUTH_HEADER_EMAIL" default:"Remote-Email" help:"sets the HTTP Header to use for email in Forward Proxy configuration."`
 	AuthHeaderName         string              `arg:"--auth-header-name,env:DOZZLE_AUTH_HEADER_NAME" default:"Remote-Name" help:"sets the HTTP Header to use for name in Forward Proxy configuration."`
@@ -73,7 +73,10 @@ type Args struct {
 	Agent                  *AgentCmd           `arg:"subcommand:agent" help:"starts the agent"`
 	AgentTest              *AgentTestCmd       `arg:"subcommand:agent-test" help:"tests an agent"`
 	SelfUpdate             *SelfUpdateCmd      `arg:"subcommand:self-update" help:"replaces a Dozzle container with one on its newer image (used internally by self-update)"`
-	Locked                 Locked              `arg:"-"`
+	// SessionTTL is --auth-ttl parsed, zero for "session". Set by validateServer,
+	// so only the server ever reads --auth-ttl.
+	SessionTTL time.Duration `arg:"-"`
+	Locked     Locked        `arg:"-"`
 	// EnvAgents are the RemoteAgent entries from the flag or env var, before
 	// dozzle.yml's were appended.
 	EnvAgents []string `arg:"-"`
@@ -168,30 +171,9 @@ func ParseArgs() (Args, any) {
 	return args, parser.Subcommand()
 }
 
-// SessionTTL is --auth-ttl: a duration, or "session" for a login that lasts as
-// long as the browser session, which is the zero value.
-type SessionTTL time.Duration
-
-func (t *SessionTTL) UnmarshalText(text []byte) error {
-	if string(text) == "session" {
-		*t = 0
-		return nil
-	}
-	d, err := time.ParseDuration(string(text))
-	if err != nil {
-		return fmt.Errorf("should be session or a duration like 12h")
-	}
-	*t = SessionTTL(d)
-	return nil
-}
-
-func (t SessionTTL) Duration() time.Duration {
-	return time.Duration(t)
-}
-
 // validateServer checks the settings only the server reads, so a bad one stops
 // Dozzle before it connects to anything. It also resolves the auth provider
-// aliases.
+// aliases and parses --auth-ttl into SessionTTL.
 func (args *Args) validateServer() error {
 	// "github" and "google" are aliases for simple auth. OAuth is a second way to
 	// prove you are one of the users in users.yml, not a provider of its own, but
@@ -204,6 +186,15 @@ func (args *Args) validateServer() error {
 	case "none", "forward-proxy", "simple", "oidc":
 	default:
 		return fmt.Errorf("invalid auth provider %q (expected none, simple, oidc or forward-proxy)", args.AuthProvider)
+	}
+
+	args.SessionTTL = 0
+	if args.AuthTTL != "session" {
+		ttl, err := time.ParseDuration(args.AuthTTL)
+		if err != nil {
+			return fmt.Errorf("invalid auth ttl %q (expected session or a duration like 12h)", args.AuthTTL)
+		}
+		args.SessionTTL = ttl
 	}
 
 	switch args.Mode {

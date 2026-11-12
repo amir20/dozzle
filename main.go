@@ -326,7 +326,7 @@ func oidcAuth(args cli.Args) web.OAuthAuthorizer {
 		Scopes:       args.AuthOidcScopes,
 		LogoutURL:    args.AuthLogoutUrl,
 		DataDir:      dataDir,
-	}, args.Base, args.AuthTTL.Duration(), auth.SessionSecret(dataDir))
+	}, args.Base, args.SessionTTL, auth.SessionSecret(dataDir))
 
 	log.Info().
 		Str("issuer", args.AuthOidcIssuer).
@@ -378,7 +378,7 @@ func createServer(args cli.Args, hostService web.HostService, cloudHooks web.Clo
 		// Sits next to users.yml so it lands on the same volume operators already
 		// persist, and so a multi-replica setup sharing that volume signs with the
 		// same key.
-		simpleAuth := auth.NewSimpleAuth(db, args.AuthTTL.Duration(), auth.SessionSecret(filepath.Dir(userFilePath)))
+		simpleAuth := auth.NewSimpleAuth(db, args.SessionTTL, auth.SessionSecret(filepath.Dir(userFilePath)))
 		authorizer = simpleAuth
 
 		if providers := oauthProviders(args); len(providers) > 0 {
@@ -407,7 +407,7 @@ func createServer(args cli.Args, hostService web.HostService, cloudHooks web.Clo
 		Authorization: web.Authorization{
 			Provider:   provider,
 			Authorizer: authorizer,
-			TTL:        args.AuthTTL.Duration(),
+			TTL:        args.SessionTTL,
 			LogoutUrl:  args.AuthLogoutUrl,
 		},
 		EnableActions:      args.EnableActions,

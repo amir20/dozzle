@@ -22,15 +22,14 @@ func TestTypedFlags(t *testing.T) {
 	args, err := parseFlags(t)
 	require.NoError(t, err)
 	assert.Equal(t, 10*time.Second, args.Timeout)
-	assert.Equal(t, time.Duration(0), args.AuthTTL.Duration(), "default session TTL")
 
-	args, err = parseFlags(t, "--timeout", "3s", "--auth-ttl", "12h")
+	args, err = parseFlags(t, "--timeout", "3s")
 	require.NoError(t, err)
 	assert.Equal(t, 3*time.Second, args.Timeout)
-	assert.Equal(t, 12*time.Hour, args.AuthTTL.Duration())
 
+	// Parsed by validateServer, not go-arg, so subcommands never refuse it.
 	_, err = parseFlags(t, "--auth-ttl", "forever")
-	assert.ErrorContains(t, err, "should be session or a duration like 12h")
+	assert.NoError(t, err)
 
 	_, err = parseFlags(t, "--timeout", "soon")
 	assert.Error(t, err)
@@ -38,7 +37,7 @@ func TestTypedFlags(t *testing.T) {
 
 func TestValidateServer(t *testing.T) {
 	valid := func() Args {
-		return Args{AuthProvider: "none", Mode: "server", ReleaseCheckMode: "automatic"}
+		return Args{AuthProvider: "none", AuthTTL: "session", Mode: "server", ReleaseCheckMode: "automatic"}
 	}
 
 	tests := []struct {
@@ -48,6 +47,7 @@ func TestValidateServer(t *testing.T) {
 	}{
 		{name: "defaults", modify: func(a *Args) {}},
 		{name: "k8s mode", modify: func(a *Args) { a.Mode = "k8s" }},
+		{name: "bad auth ttl", modify: func(a *Args) { a.AuthTTL = "forever" }, wantErr: `invalid auth ttl "forever"`},
 		{name: "bad mode", modify: func(a *Args) { a.Mode = "cluster" }, wantErr: `invalid mode "cluster"`},
 		{name: "bad provider", modify: func(a *Args) { a.AuthProvider = "ldap" }, wantErr: `invalid auth provider "ldap"`},
 		{name: "bad release check", modify: func(a *Args) { a.ReleaseCheckMode = "never" }, wantErr: `invalid release check mode "never"`},
@@ -84,9 +84,19 @@ func TestValidateServer(t *testing.T) {
 	}
 }
 
+func TestValidateServerParsesSessionTTL(t *testing.T) {
+	args := Args{AuthProvider: "none", AuthTTL: "12h", Mode: "server", ReleaseCheckMode: "automatic"}
+	require.NoError(t, args.validateServer())
+	assert.Equal(t, 12*time.Hour, args.SessionTTL)
+
+	args.AuthTTL = "session"
+	require.NoError(t, args.validateServer())
+	assert.Equal(t, time.Duration(0), args.SessionTTL)
+}
+
 func TestValidateServerResolvesAliases(t *testing.T) {
 	for _, alias := range []string{"github", "google"} {
-		args := Args{AuthProvider: alias, Mode: "server", ReleaseCheckMode: "manual"}
+		args := Args{AuthProvider: alias, AuthTTL: "session", Mode: "server", ReleaseCheckMode: "manual"}
 		require.NoError(t, args.validateServer())
 		assert.Equal(t, "simple", args.AuthProvider)
 	}
