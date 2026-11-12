@@ -101,7 +101,7 @@ func (c ServerCmd) Run(args Args, certs embed.FS) error {
 		}
 		// Create client service for agent server in swarm mode
 		clientService := docker.NewService(localClient, args.Filter)
-		server, err := agent.NewServer(clientService, certs, args.Version(), multiHostService.SwarmNotificationHandler())
+		server, err := agent.NewServer(clientService, certs, args.Version(), multiHostService.SwarmNotificationHandler(), agent.Restrictions{})
 		if err != nil {
 			log.Fatal().Err(err).Msg("failed to create agent")
 		}

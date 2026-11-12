@@ -137,6 +137,10 @@ func (s *autoPruneScheduler) pruneAll(ctx context.Context) autoPruneRun {
 		if !host.Available {
 			continue
 		}
+		if host.ActionsDisabled {
+			log.Debug().Str("host", host.Name).Msg("auto prune: host skipped, actions are disabled on its agent")
+			continue
+		}
 		pruneCtx, cancel := context.WithTimeout(ctx, pruneTimeout)
 		result, _, err := pruner.PruneHost(pruneCtx, host.ID, autoPruneOptions)
 		cancel()

@@ -1,7 +1,14 @@
 import { describe, expect, test, vi } from "vitest";
 
 vi.mock("@/stores/config", () => ({
-  default: { base: "", mode: "server" },
+  default: {
+    base: "",
+    mode: "server",
+    hosts: [
+      { id: "nas", name: "nas", type: "local" },
+      { id: "edge", name: "edge", type: "agent", actionsDisabled: true },
+    ],
+  },
   withBase: (path: string) => path,
 }));
 
@@ -60,9 +67,16 @@ describe("willAutoUpdate", () => {
     expect(willAutoUpdate(entry({}), "all")).toBe(true);
   });
 
+  test("never updates a container on an agent with actions disabled, like the scheduler", () => {
+    expect(willAutoUpdate(entry({ host: "edge", label: "auto" }), "all")).toBe(false);
+    expect(autoUpdates({ labels: { "dev.dozzle.update": "auto" }, state: "running", host: "edge" }, "all")).toBe(false);
+  });
+
   test("works from a container's labels too", () => {
-    expect(autoUpdates({ labels: { "dev.dozzle.update": "auto" }, state: "running" }, "labelled")).toBe(true);
-    expect(autoUpdates({ labels: {}, state: "running" }, "labelled")).toBe(false);
+    expect(autoUpdates({ labels: { "dev.dozzle.update": "auto" }, state: "running", host: "nas" }, "labelled")).toBe(
+      true,
+    );
+    expect(autoUpdates({ labels: {}, state: "running", host: "nas" }, "labelled")).toBe(false);
   });
 });
 

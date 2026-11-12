@@ -1,7 +1,7 @@
 ---
 title: Variables d'environnement et sous-commandes
 description: Toutes les variables d'environnement et options de Dozzle, y compris l'authentification, et les sous-commandes generate, agent, generate-certs et healthcheck.
-sourceHash: ece6f498d9bf
+sourceHash: 20f0b8f77f21
 ---
 
 # Variables d'environnement
@@ -134,9 +134,11 @@ Exécute Dozzle en tant qu'[agent](/fr/guide/agent) auquel une autre instance de
 docker run -v /var/run/docker.sock:/var/run/docker.sock -p 7007:7007 amir20/dozzle agent
 ```
 
-| Variable                              | Description                                  | Valeurs     | Défaut  |
-| ------------------------------------- | -------------------------------------------- | ----------- | ------- |
-| `DOZZLE_AGENT_ADDR`<br>`--agent-addr` | Adresse et port sur lesquels l'agent écoute. | `host:port` | `:7007` |
+| Variable                                      | Description                                                                                                                                                                                                                                          | Valeurs         | Défaut     |
+| --------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------- | ---------- |
+| `DOZZLE_AGENT_ADDR`<br>`--agent-addr`         | Adresse et port sur lesquels l'agent écoute.                                                                                                                                                                                                         | `host:port`     | `:7007`    |
+| `DOZZLE_ENABLE_ACTIONS`<br>`--enable-actions` | Sur un agent, `false` refuse le démarrage, l'arrêt, le redémarrage, la suppression, la mise à jour et le nettoyage depuis n'importe quel hub. Non défini, le hub décide. Voir [désactiver les actions](/fr/guide/agent#disabling-actions-and-shell). | `true`, `false` | non défini |
+| `DOZZLE_ENABLE_SHELL`<br>`--enable-shell`     | Sur un agent, `false` refuse l'attach et le shell depuis n'importe quel hub. Non défini, le hub décide. Voir [désactiver les actions](/fr/guide/agent#disabling-actions-and-shell).                                                                  | `true`, `false` | non défini |
 
 ### generate-certs
 

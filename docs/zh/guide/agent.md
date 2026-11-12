@@ -1,7 +1,7 @@
 ---
 title: 代理模式
 description: 以代理模式运行 Dozzle，通过 TLS 查看远程 Docker 主机的日志，把主机分组管理，并用自己的证书锁定代理。
-sourceHash: 2079ef9aa433
+sourceHash: 56e447ea6471
 ---
 
 # 代理模式
@@ -11,7 +11,7 @@ sourceHash: 2079ef9aa433
 Dozzle 可以运行在代理模式下，把 Docker 主机暴露给其他 Dozzle 实例。所有通信都通过 TLS 加密连接完成。也就是说，你可以把 Dozzle 部署在远程主机上，然后从本地机器连接过去。
 
 > [!WARNING] 代理的安全性取决于它所监听的网络
-> Dozzle 自带的证书在每一份镜像副本里都是同一个，它只能加密连接，并不能证明对端是谁。任何能访问 `7007` 端口的人都可以用自己的 Dozzle 连上你的代理，读取该主机上的全部日志，并在其容器里执行命令。代理并不检查 `DOZZLE_ENABLE_SHELL` 或 `DOZZLE_ENABLE_ACTIONS`，这两个开关只决定界面上显示什么。
+> Dozzle 自带的证书在每一份镜像副本里都是同一个，它只能加密连接，并不能证明对端是谁。任何能访问 `7007` 端口的人都可以用自己的 Dozzle 连上你的代理，读取该主机上的全部日志，并在其容器里执行命令。在你自己的主控端上关闭操作或终端，并不能阻止对方执行命令或操作。只有在代理本身把 `DOZZLE_ENABLE_ACTIONS` 或 `DOZZLE_ENABLE_SHELL` 设为 `false` 才行，而且无论如何日志仍然可读，参见[禁用操作和终端](#disabling-actions-and-shell)。
 >
 > 请把 `7007` 端口留在私有网络里；如果代理能从别处访问到，就[生成你自己的证书](#自定义证书)，让代理只接受你自己的主实例。
 
@@ -211,6 +211,28 @@ services:
 ```
 
 这会让该代理只显示带有 `color` 标签的容器。注意，这些过滤器会和界面上的过滤器叠加，进一步缩小容器范围。想了解各类过滤器，请阅读[过滤器文档](/zh/guide/filters#ui-agents-and-user-filters)。
+
+### 禁用操作和终端 {#disabling-actions-and-shell}
+
+只有主控端和代理都允许时，代理上的操作和终端才能使用。主控端通过 `DOZZLE_ENABLE_ACTIONS` 和 `DOZZLE_ENABLE_SHELL` 开启它们。代理读取同样的两个变量：未设置时，主控端允许什么就执行什么；设为 `false` 时则拒绝。当主控端对大多数主机开启了操作，但某台主机需要保持只读时，这会很有用。
+
+代理默认允许一切，这是有意为之。用户、[角色](/zh/guide/authentication/simple)和过滤器都在主控端，因此由主控端统一决定谁能做什么，代理只执行主控端的请求。在代理上把这些变量设为 `false`，是在此之上为某台主机额外加的限制，而不是第二个管理权限的地方。
+
+```yaml
+services:
+  dozzle-agent:
+    image: amir20/dozzle:latest
+    command: agent
+    environment:
+      - DOZZLE_ENABLE_ACTIONS=false
+      - DOZZLE_ENABLE_SHELL=false
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+```
+
+`DOZZLE_ENABLE_ACTIONS=false` 拒绝启动、停止、重启、删除、更新、回滚和清理。`DOZZLE_ENABLE_SHELL=false` 拒绝附加（attach）和终端。代理会自行检查这些设置，因此主控端的配置错误也无法绕过。在代理上设为 `true` 本身不起作用，主控端仍需开启它们。
+
+代理在连接时会把这些设置告知主控端，主控端随即隐藏该主机的相关按钮。可用的更新仍会显示，但无法应用，定时更新和定时清理也会跳过该主机。
 
 ### 自定义证书
 

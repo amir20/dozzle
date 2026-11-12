@@ -58,15 +58,30 @@ type ClientService interface {
 	Exec(context.Context, container.Container, []string, container.ExecEventReader, io.Writer) error
 }
 
+// Restrictions are what an agent refuses whatever the hub asks, set with
+// DOZZLE_ENABLE_ACTIONS=false and DOZZLE_ENABLE_SHELL=false on `dozzle agent`.
+// They are reported to the hub in HostInfo so it can hide the controls instead
+// of failing on them.
+type Restrictions struct {
+	DisableActions bool
+	DisableShell   bool
+}
+
+var (
+	errActionsDisabled = status.Error(codes.PermissionDenied, "actions are disabled on this agent")
+	errShellDisabled   = status.Error(codes.PermissionDenied, "shell is disabled on this agent")
+)
+
 type server struct {
 	service                   ClientService
 	version                   string
 	notificationConfigHandler NotificationConfigHandler
+	restrictions              Restrictions
 
 	pb.UnimplementedAgentServiceServer
 }
 
-func newServer(service ClientService, dozzleVersion string, notificationHandler NotificationConfigHandler) pb.AgentServiceServer {
+func newServer(service ClientService, dozzleVersion string, notificationHandler NotificationConfigHandler, restrictions Restrictions) pb.AgentServiceServer {
 	if notificationHandler == nil {
 		log.Fatal().Msg("No notification config handler registered")
 	}
@@ -75,6 +90,7 @@ func newServer(service ClientService, dozzleVersion string, notificationHandler 
 		service:                   service,
 		version:                   dozzleVersion,
 		notificationConfigHandler: notificationHandler,
+		restrictions:              restrictions,
 	}
 }
 
@@ -298,13 +314,15 @@ func (s *server) HostInfo(ctx context.Context, in *pb.HostInfoRequest) (*pb.Host
 		return nil, status.Error(codes.Internal, err.Error())
 	}
 	out := &pb.Host{
-		Id:            host.ID,
-		Name:          host.Name,
-		CpuCores:      uint32(host.NCPU),
-		Memory:        uint64(host.MemTotal),
-		DockerVersion: host.DockerVersion,
-		Runtime:       host.Runtime,
-		AgentVersion:  s.version,
+		Id:              host.ID,
+		Name:            host.Name,
+		CpuCores:        uint32(host.NCPU),
+		Memory:          uint64(host.MemTotal),
+		DockerVersion:   host.DockerVersion,
+		Runtime:         host.Runtime,
+		AgentVersion:    s.version,
+		ActionsDisabled: s.restrictions.DisableActions,
+		ShellDisabled:   s.restrictions.DisableShell,
 	}
 	setHostMetricsProto(out, host)
 	return &pb.HostInfoResponse{Host: out}, nil
@@ -330,6 +348,9 @@ func (s *server) StreamContainerStarted(in *pb.StreamContainerStartedRequest, ou
 
 func (s *server) PruneHost(ctx context.Context, in *pb.PruneHostRequest) (_ *pb.PruneHostResponse, err error) {
 	defer func() { audit(ctx, "prune", "", err) }()
+	if s.restrictions.DisableActions {
+		return nil, errActionsDisabled
+	}
 	pruner, ok := s.service.(container.HostPruner)
 	if !ok {
 		return nil, status.Error(codes.Unimplemented, "this host cannot prune")
@@ -429,6 +450,9 @@ func (s *server) ListReclaimable(ctx context.Context, _ *pb.ListReclaimableReque
 
 func (s *server) ContainerAction(ctx context.Context, in *pb.ContainerActionRequest) (_ *pb.ContainerActionResponse, err error) {
 	defer func() { audit(ctx, strings.ToLower(in.Action.String()), in.ContainerId, err) }()
+	if s.restrictions.DisableActions {
+		return nil, errActionsDisabled
+	}
 	var action container.ContainerAction
 	switch in.Action {
 	case pb.ContainerAction_Start:
@@ -462,6 +486,9 @@ func (s *server) ContainerAction(ctx context.Context, in *pb.ContainerActionRequ
 
 func (s *server) UpdateContainer(req *pb.UpdateContainerRequest, out pb.AgentService_UpdateContainerServer) (err error) {
 	defer func() { audit(out.Context(), "update", req.ContainerId, err) }()
+	if s.restrictions.DisableActions {
+		return errActionsDisabled
+	}
 	c, err := s.service.FindContainer(out.Context(), req.ContainerId, container.ContainerLabels{})
 	if err != nil {
 		return status.Error(codes.NotFound, err.Error())
@@ -480,6 +507,9 @@ func (s *server) UpdateContainer(req *pb.UpdateContainerRequest, out pb.AgentSer
 
 func (s *server) RollbackContainer(req *pb.RollbackContainerRequest, out pb.AgentService_RollbackContainerServer) (err error) {
 	defer func() { audit(out.Context(), "rollback", req.ContainerId, err) }()
+	if s.restrictions.DisableActions {
+		return errActionsDisabled
+	}
 	c, err := s.service.FindContainer(out.Context(), req.ContainerId, container.ContainerLabels{})
 	if err != nil {
 		return status.Error(codes.NotFound, err.Error())
@@ -587,6 +617,9 @@ func (w *terminalStreamWriter) Write(p []byte) (int, error) {
 func (s *server) ContainerExec(stream pb.AgentService_ContainerExecServer) (err error) {
 	var containerID string
 	defer func() { audit(stream.Context(), "exec end", containerID, err) }()
+	if s.restrictions.DisableShell {
+		return errShellDisabled
+	}
 
 	request, err := stream.Recv()
 	if err != nil {
@@ -616,6 +649,9 @@ func (s *server) ContainerExec(stream pb.AgentService_ContainerExecServer) (err 
 func (s *server) ContainerAttach(stream pb.AgentService_ContainerAttachServer) (err error) {
 	var containerID string
 	defer func() { audit(stream.Context(), "attach end", containerID, err) }()
+	if s.restrictions.DisableShell {
+		return errShellDisabled
+	}
 
 	request, err := stream.Recv()
 	if err != nil {
@@ -737,7 +773,7 @@ func (s *server) GetNotificationStats(ctx context.Context, req *pb.GetNotificati
 	return &pb.GetNotificationStatsResponse{Stats: pbStats}, nil
 }
 
-func NewServer(service ClientService, certificates tls.Certificate, dozzleVersion string, notificationHandler NotificationConfigHandler) (*grpc.Server, error) {
+func NewServer(service ClientService, certificates tls.Certificate, dozzleVersion string, notificationHandler NotificationConfigHandler, restrictions Restrictions) (*grpc.Server, error) {
 	caCertPool := x509.NewCertPool()
 	c, err := x509.ParseCertificate(certificates.Certificate[0])
 	if err != nil {
@@ -762,7 +798,7 @@ func NewServer(service ClientService, certificates tls.Certificate, dozzleVersio
 			PermitWithoutStream: true,
 		}),
 	)
-	pb.RegisterAgentServiceServer(grpcServer, newServer(service, dozzleVersion, notificationHandler))
+	pb.RegisterAgentServiceServer(grpcServer, newServer(service, dozzleVersion, notificationHandler, restrictions))
 
 	return grpcServer, nil
 }

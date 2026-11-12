@@ -151,6 +151,11 @@ message Host {
   repeated Disk disks = 21;
   // unset until the agent has measured it, or when its engine cannot
   Reclaimable reclaimable = 22;
+  // Set by an agent started with DOZZLE_ENABLE_ACTIONS or DOZZLE_ENABLE_SHELL
+  // set to false. Negative so an older agent, which leaves them unset, keeps
+  // allowing both.
+  bool actionsDisabled = 23;
+  bool shellDisabled = 24;
 }
 
 message Reclaimable {

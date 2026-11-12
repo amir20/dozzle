@@ -6,7 +6,7 @@ import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 import { createI18n } from "vue-i18n";
 
 vi.mock("@/stores/config", () => ({
-  default: { base: "", mode: "server" },
+  default: { base: "", mode: "server", hosts: [] },
   withBase: (path: string) => path,
 }));
 

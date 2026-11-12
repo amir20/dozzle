@@ -10,7 +10,7 @@ description: Run Dozzle in agent mode to view logs from remote Docker hosts over
 Dozzle can run in agent mode which can expose Docker hosts to other Dozzle instances. All communication is done over a secured connection using TLS. This means that you can deploy Dozzle on a remote host and connect to it from your local machine.
 
 > [!WARNING] An agent is only as private as the network it listens on
-> The certificate Dozzle ships with is the same in every copy of the image, so it encrypts the connection but it does not prove who is on the other end. Anyone who can reach port `7007` can connect their own Dozzle to your agent, read every log on that host and run commands inside its containers. The agent does not look at `DOZZLE_ENABLE_SHELL` or `DOZZLE_ENABLE_ACTIONS`, those flags only control what the UI offers.
+> The certificate Dozzle ships with is the same in every copy of the image, so it encrypts the connection but it does not prove who is on the other end. Anyone who can reach port `7007` can connect their own Dozzle to your agent, read every log on that host and run commands inside its containers. Turning actions or shell off on your own hub doesn't stop them running commands or actions. Only setting `DOZZLE_ENABLE_ACTIONS` or `DOZZLE_ENABLE_SHELL` to `false` on the agent itself does, and logs stay readable either way, see [disabling actions and shell](#disabling-actions-and-shell).
 >
 > Keep port `7007` on a private network, and if the agent is reachable from anywhere else, [generate your own certificate](#custom-certificates) so agents only accept your hub.
 
@@ -210,6 +210,28 @@ services:
 ```
 
 This will restrict the agent to displaying only containers with the label `color`. Keep in mind that these filters are combined with the UI filters to narrow down the containers. To learn more about the different types of filters, read the [filters documentation](/guide/filters#ui-agents-and-user-filters).
+
+### Disabling Actions and Shell {#disabling-actions-and-shell}
+
+Actions and shell only work on an agent when both the hub and the agent allow them. The hub turns them on with `DOZZLE_ENABLE_ACTIONS` and `DOZZLE_ENABLE_SHELL`. An agent reads the same two variables: left unset, it does whatever the hub allows, and set to `false`, it refuses. This is useful when the hub has actions turned on for most hosts, but one host should stay read only.
+
+Agents allow everything by default on purpose. Users, [roles](/guide/authentication/simple) and filters all live on the hub, so the hub is the one place that decides who may do what, and an agent just carries out what its hub asks. Setting these to `false` on an agent is an extra limit for one host on top of that, not a second place to manage permissions.
+
+```yaml
+services:
+  dozzle-agent:
+    image: amir20/dozzle:latest
+    command: agent
+    environment:
+      - DOZZLE_ENABLE_ACTIONS=false
+      - DOZZLE_ENABLE_SHELL=false
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+```
+
+`DOZZLE_ENABLE_ACTIONS=false` refuses start, stop, restart, remove, update, rollback and clean up. `DOZZLE_ENABLE_SHELL=false` refuses attach and shell. The agent checks these itself, so a mistake on the hub can't get past them. Setting them to `true` on an agent does nothing on its own, since the hub still has to turn them on.
+
+The agent tells the hub about these settings when it connects, and the hub hides the buttons for that host. Available updates are still shown, but they can't be applied, and scheduled updates and clean ups skip the host.
 
 ### Custom Certificates
 

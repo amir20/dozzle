@@ -90,7 +90,7 @@
           <KeyShortcut v-if="isMainView" char="i" :modifiers="[]" />
         </a>
       </li>
-      <template v-if="enableActions && !historical">
+      <template v-if="actionsAllowed && !historical">
         <!-- Kubernetes has no stop or start for one container, only restart. -->
         <li v-if="canStartStop && power">
           <button @click="stop()" :disabled="actionStates.stop || actionStates.restart" v-if="power === 'stop'">
@@ -128,7 +128,7 @@
         </li>
       </template>
 
-      <template v-if="enableShell && !historical">
+      <template v-if="shellAllowed && !historical">
         <li>
           <a @click="showDrawer(Terminal, { container, action: 'attach' }, 'lg')">
             <ri:terminal-window-fill />
@@ -211,7 +211,6 @@ const { showSearch } = useSearchFilter();
 const { linked: cloudLinked } = useCloudSurface();
 const { openRail, openCloud } = useCloudRail();
 const { unseen: unseenAlerts } = useViewAlerts();
-const { enableActions, enableShell } = config;
 const { hasComplexLogs, timeRange } = useLoggingContext();
 const showDrawer = useDrawer();
 
@@ -229,6 +228,8 @@ const emit = defineEmits<{ clear: [] }>();
 const clear = () => emit("clear");
 const { actionStates, start, stop, restart, update } = useContainerActions(toRef(() => container));
 const canStartStop = config.mode !== "k8s";
+const actionsAllowed = computed(() => actionsAllowedOn(container.host));
+const shellAllowed = computed(() => shellAllowedOn(container.host));
 const workload = computed(() => containerWorkload(container));
 const { restarting: rollingOut, rolloutRestart } = useRolloutRestart();
 const {
@@ -283,7 +284,7 @@ async function copyImageReference() {
 // A pinned column mounts its own toolbar; only the page's acts on a key, or one press
 // would open a drawer per column.
 const isMainView = isViewContextOwner();
-const canShell = isMainView && enableShell && !historical;
+const canShell = computed(() => isMainView && shellAllowed.value && !historical);
 const openAnalytics = () => showDrawer(LogAnalytics, { containers: [container] }, "lg");
 const openTerminal = (action: "attach" | "exec") => showDrawer(Terminal, { container, action }, "lg");
 
@@ -342,14 +343,14 @@ onKeyStroke(
 onKeyStroke(
   ["a", "A"],
   legacyChord(
-    () => canShell,
+    () => canShell.value,
     () => openTerminal("attach"),
   ),
 );
 onKeyStroke(
   ["e", "E"],
   legacyChord(
-    () => canShell,
+    () => canShell.value,
     () => openTerminal("exec"),
   ),
 );

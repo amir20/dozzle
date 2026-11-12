@@ -1,7 +1,7 @@
 ---
 title: Agent-Modus
 description: Betreibe Dozzle im Agent-Modus, um Logs entfernter Docker-Hosts über TLS anzuzeigen, Hosts in Gruppen zu ordnen und Agents mit einem eigenen Zertifikat abzusichern.
-sourceHash: 2079ef9aa433
+sourceHash: 56e447ea6471
 ---
 
 # Agent-Modus
@@ -11,7 +11,7 @@ sourceHash: 2079ef9aa433
 Dozzle kann im Agent-Modus laufen und damit Docker-Hosts für andere Dozzle-Instanzen zugänglich machen. Die gesamte Kommunikation läuft über eine mit TLS gesicherte Verbindung. Du kannst Dozzle also auf einem entfernten Host betreiben und dich von deinem lokalen Rechner aus damit verbinden.
 
 > [!WARNING] Ein Agent ist nur so privat wie das Netzwerk, in dem er lauscht
-> Das Zertifikat, das Dozzle mitbringt, ist in jeder Kopie des Images dasselbe. Es verschlüsselt die Verbindung, belegt aber nicht, wer am anderen Ende sitzt. Wer Port `7007` erreichen kann, verbindet sein eigenes Dozzle mit deinem Agent, liest jedes Log auf diesem Host und führt Befehle in dessen Containern aus. Der Agent schaut dabei nicht auf `DOZZLE_ENABLE_SHELL` oder `DOZZLE_ENABLE_ACTIONS`, diese Flags steuern nur, was die UI anbietet.
+> Das Zertifikat, das Dozzle mitbringt, ist in jeder Kopie des Images dasselbe. Es verschlüsselt die Verbindung, belegt aber nicht, wer am anderen Ende sitzt. Wer Port `7007` erreichen kann, verbindet sein eigenes Dozzle mit deinem Agent, liest jedes Log auf diesem Host und führt Befehle in dessen Containern aus. Aktionen oder Shell auf deinem eigenen Hub auszuschalten hindert sie nicht daran, Befehle oder Aktionen auszuführen. Das tut nur `DOZZLE_ENABLE_ACTIONS` oder `DOZZLE_ENABLE_SHELL` auf `false` am Agent selbst, und die Logs bleiben in jedem Fall lesbar, siehe [Aktionen und Shell deaktivieren](#disabling-actions-and-shell).
 >
 > Halte Port `7007` in einem privaten Netzwerk, und wenn der Agent von außerhalb erreichbar ist, [erzeuge dein eigenes Zertifikat](#eigene-zertifikate), damit Agents nur deinen Hub akzeptieren.
 
@@ -211,6 +211,28 @@ services:
 ```
 
 Damit zeigt der Agent nur Container mit dem Label `color`. Beachte, dass diese Filter mit den Filtern der Oberfläche kombiniert werden, um die Container weiter einzugrenzen. Mehr zu den verschiedenen Filtertypen steht in der [Dokumentation zu Filtern](/de/guide/filters#ui-agents-and-user-filters).
+
+### Aktionen und Shell deaktivieren {#disabling-actions-and-shell}
+
+Aktionen und Shell funktionieren auf einem Agent nur, wenn sowohl der Hub als auch der Agent sie erlauben. Der Hub schaltet sie mit `DOZZLE_ENABLE_ACTIONS` und `DOZZLE_ENABLE_SHELL` ein. Ein Agent liest dieselben zwei Variablen: Nicht gesetzt, tut er, was der Hub erlaubt, auf `false` gesetzt, verweigert er. Das ist nützlich, wenn der Hub Aktionen für die meisten Hosts erlaubt, ein Host aber nur lesbar bleiben soll.
+
+Agents erlauben standardmäßig absichtlich alles. Benutzer, [Rollen](/de/guide/authentication/simple) und Filter liegen alle auf dem Hub, also entscheidet der Hub an einer Stelle, wer was darf, und ein Agent führt nur aus, was sein Hub verlangt. Diese Variablen auf einem Agent auf `false` zu setzen ist eine zusätzliche Grenze für einen Host, keine zweite Stelle zur Rechteverwaltung.
+
+```yaml
+services:
+  dozzle-agent:
+    image: amir20/dozzle:latest
+    command: agent
+    environment:
+      - DOZZLE_ENABLE_ACTIONS=false
+      - DOZZLE_ENABLE_SHELL=false
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+```
+
+`DOZZLE_ENABLE_ACTIONS=false` verweigert Starten, Stoppen, Neustarten, Entfernen, Aktualisieren, Zurücksetzen und Aufräumen. `DOZZLE_ENABLE_SHELL=false` verweigert Attach und Shell. Der Agent prüft das selbst, ein Fehler auf dem Hub kommt also nicht daran vorbei. Auf `true` gesetzt bewirken sie auf einem Agent allein nichts, denn der Hub muss sie trotzdem einschalten.
+
+Der Agent teilt dem Hub diese Einstellungen beim Verbinden mit, und der Hub blendet die Schaltflächen für diesen Host aus. Verfügbare Updates werden weiterhin angezeigt, lassen sich aber nicht anwenden, und geplante Updates und Aufräumläufe überspringen den Host.
 
 ### Eigene Zertifikate
 

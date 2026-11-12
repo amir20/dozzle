@@ -1143,9 +1143,14 @@ type Host struct {
 	DiskFree         uint64  `protobuf:"varint,20,opt,name=diskFree,proto3" json:"diskFree,omitempty"`
 	Disks            []*Disk `protobuf:"bytes,21,rep,name=disks,proto3" json:"disks,omitempty"`
 	// unset until the agent has measured it, or when its engine cannot
-	Reclaimable   *Reclaimable `protobuf:"bytes,22,opt,name=reclaimable,proto3" json:"reclaimable,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	Reclaimable *Reclaimable `protobuf:"bytes,22,opt,name=reclaimable,proto3" json:"reclaimable,omitempty"`
+	// Set by an agent started with DOZZLE_ENABLE_ACTIONS or DOZZLE_ENABLE_SHELL
+	// set to false. Negative so an older agent, which leaves them unset, keeps
+	// allowing both.
+	ActionsDisabled bool `protobuf:"varint,23,opt,name=actionsDisabled,proto3" json:"actionsDisabled,omitempty"`
+	ShellDisabled   bool `protobuf:"varint,24,opt,name=shellDisabled,proto3" json:"shellDisabled,omitempty"`
+	unknownFields   protoimpl.UnknownFields
+	sizeCache       protoimpl.SizeCache
 }
 
 func (x *Host) Reset() {
@@ -1330,6 +1335,20 @@ func (x *Host) GetReclaimable() *Reclaimable {
 		return x.Reclaimable
 	}
 	return nil
+}
+
+func (x *Host) GetActionsDisabled() bool {
+	if x != nil {
+		return x.ActionsDisabled
+	}
+	return false
+}
+
+func (x *Host) GetShellDisabled() bool {
+	if x != nil {
+		return x.ShellDisabled
+	}
+	return false
 }
 
 type Reclaimable struct {
@@ -1938,7 +1957,7 @@ const file_types_proto_rawDesc = "" +
 	"\tcontainer\x18\x06 \x01(\v2\x13.protobuf.ContainerR\tcontainer\x1aB\n" +
 	"\x14ActorAttributesEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xea\x05\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xba\x06\n" +
 	"\x04Host\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12 \n" +
@@ -1962,7 +1981,9 @@ const file_types_proto_rawDesc = "" +
 	"\tdiskTotal\x18\x13 \x01(\x04R\tdiskTotal\x12\x1a\n" +
 	"\bdiskFree\x18\x14 \x01(\x04R\bdiskFree\x12$\n" +
 	"\x05disks\x18\x15 \x03(\v2\x0e.protobuf.DiskR\x05disks\x127\n" +
-	"\vreclaimable\x18\x16 \x01(\v2\x15.protobuf.ReclaimableR\vreclaimable\x1a9\n" +
+	"\vreclaimable\x18\x16 \x01(\v2\x15.protobuf.ReclaimableR\vreclaimable\x12(\n" +
+	"\x0factionsDisabled\x18\x17 \x01(\bR\x0factionsDisabled\x12$\n" +
+	"\rshellDisabled\x18\x18 \x01(\bR\rshellDisabled\x1a9\n" +
 	"\vLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xf1\x01\n" +

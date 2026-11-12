@@ -104,7 +104,7 @@
                 </i18n-t>
               </div>
               <div
-                v-else-if="config.enableUpdates && container.state !== 'running'"
+                v-else-if="updatesAllowedOn(container.host) && container.state !== 'running'"
                 class="text-base-content/60 mt-1 text-xs"
               >
                 {{ $t("error.start-container-first") }}
@@ -217,8 +217,9 @@ const candidates = computed(() => containers.value.filter(hasUpdate).sort((a, b)
 // be selected: it is never updated until someone starts it. Nor can one labelled
 // check, which is updated outside Dozzle.
 // Without actions, or without the update role, the list is read only: every
-// update is still shown, none can be selected.
-const selectable = (c: Container) => config.enableUpdates && c.state === "running" && !checkOnly(c);
+// update is still shown, none can be selected. The same goes for one host whose
+// agent has actions disabled.
+const selectable = (c: Container) => updatesAllowedOn(c.host) && c.state === "running" && !checkOnly(c);
 const selected = ref<string[]>([]);
 const seen = new Set<string>();
 watch(

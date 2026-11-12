@@ -90,7 +90,7 @@ function offerable(container: Container) {
  * Whether update awareness shows at all: the dashboard count, the row dots, the
  * announcements row, the palette and the drawer. Seeing an update needs only the
  * check, so it does not wait on actions; acting on one is `canUpdate` and
- * `config.enableUpdates`.
+ * `updatesAllowedOn`, which also honours an agent with actions disabled.
  */
 export const updatesVisible = () => config.imageCheckMode !== "off" && config.mode !== "k8s";
 
@@ -103,7 +103,7 @@ export const updatesVisible = () => config.imageCheckMode !== "off" && config.mo
  */
 export function canUpdate(container: Container) {
   return (
-    !!config.enableUpdates &&
+    updatesAllowedOn(container.host) &&
     config.mode !== "k8s" &&
     !mayBeSelf(container) &&
     offerable(container) &&

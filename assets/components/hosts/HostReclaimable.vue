@@ -219,7 +219,8 @@ const reclaimable = computed(() => host.reclaimable ?? EMPTY);
 
 // k8s has nothing to prune, so it neither offers a clean up nor asks for actions.
 const prunable = computed(() => host.type !== "k8s");
-const canPrune = computed(() => enableActions && prunable.value);
+// An agent with actions disabled refuses a prune, so its host shows the sizes only.
+const canPrune = computed(() => actionsAllowedOn(host.id) && prunable.value);
 const actionsOff = computed(() => !enableActions && prunable.value);
 // Past UsageMeter's warning threshold, with something to free.
 const nudge = computed(() => canPrune.value && (diskPercent ?? 0) >= 70 && total.value > 0);

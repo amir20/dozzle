@@ -66,10 +66,12 @@ export function useBulkContainerActions(containers: MaybeRefOrGetter<Container[]
   // workload's rollout restart already does without taking it down, so none here.
   const actions: BulkAction[] = config.mode === "k8s" ? [] : ["restart", "stop", "start"];
 
-  /** The actions that would touch at least one container right now. */
-  const available = computed(() =>
-    actions.map((action) => bulkPlan(toValue(containers), action)).filter((plan) => plan.targets.length > 0),
-  );
+  /** The actions that would touch at least one container right now. A host whose
+   * agent has actions disabled is left out, so its containers are never listed. */
+  const available = computed(() => {
+    const allowed = toValue(containers).filter((c) => actionsAllowedOn(c.host));
+    return actions.map((action) => bulkPlan(allowed, action)).filter((plan) => plan.targets.length > 0);
+  });
 
   const running = ref<BulkAction>();
 

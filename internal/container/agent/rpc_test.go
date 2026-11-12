@@ -34,8 +34,13 @@ import (
 // the real TLS setup, and returns the hub's client for it.
 func newTestAgent(t *testing.T, svc ClientService, handler NotificationConfigHandler) *Client {
 	t.Helper()
+	return newRestrictedTestAgent(t, svc, handler, Restrictions{})
+}
+
+func newRestrictedTestAgent(t *testing.T, svc ClientService, handler NotificationConfigHandler, restrictions Restrictions) *Client {
+	t.Helper()
 	l := bufconn.Listen(bufSize)
-	srv, err := NewServer(svc, certs, "test", handler)
+	srv, err := NewServer(svc, certs, "test", handler, restrictions)
 	require.NoError(t, err)
 	go srv.Serve(l)
 	t.Cleanup(srv.Stop)
@@ -317,6 +322,76 @@ func TestContainerActionOverAgent(t *testing.T) {
 
 	err := rpc.ContainerAction(ctx, "missing", container.Start)
 	assert.Equal(t, codes.NotFound, status.Code(err))
+}
+
+// hostService is a fakeService that answers HostInfo.
+type hostService struct{ *fakeService }
+
+func (hostService) Host(context.Context) (container.Host, error) {
+	return container.Host{ID: "h1", Name: "edge"}, nil
+}
+
+func TestHostInfoReportsRestrictions(t *testing.T) {
+	svc := hostService{&fakeService{}}
+
+	host, err := newTestAgent(t, svc, &recordingHandler{}).Host(context.Background())
+	require.NoError(t, err)
+	assert.False(t, host.ActionsDisabled)
+	assert.False(t, host.ShellDisabled)
+
+	host, err = newRestrictedTestAgent(t, svc, &recordingHandler{}, Restrictions{DisableActions: true, DisableShell: true}).Host(context.Background())
+	require.NoError(t, err)
+	assert.True(t, host.ActionsDisabled)
+	assert.True(t, host.ShellDisabled)
+}
+
+func TestActionsDisabledOverAgent(t *testing.T) {
+	svc := &pruningService{fakeService: &fakeService{}}
+	rpc := newRestrictedTestAgent(t, svc, &recordingHandler{}, Restrictions{DisableActions: true})
+	ctx := context.Background()
+
+	err := rpc.ContainerAction(ctx, "abc", container.Stop)
+	assert.ErrorContains(t, err, "actions are disabled on this agent")
+
+	_, err = rpc.PruneHost(ctx, container.PruneOptions{Images: true})
+	assert.ErrorContains(t, err, "actions are disabled on this agent")
+
+	_, err = rpc.UpdateContainer(ctx, "abc", make(chan container.UpdateProgress, 10))
+	assert.ErrorContains(t, err, "actions are disabled on this agent")
+
+	err = rpc.RollbackContainer(ctx, "abc", container.RollbackOptions{}, make(chan container.UpdateProgress, 10))
+	assert.ErrorContains(t, err, "actions are disabled on this agent")
+
+	assert.Empty(t, svc.recorded())
+	assert.Equal(t, container.PruneOptions{}, svc.opts, "prune never reached the engine")
+
+	// Shell is a separate switch.
+	var stdout bytes.Buffer
+	events := &scriptedEvents{events: []*container.ExecEvent{{Type: "userinput", Data: "ls\n"}, {Type: "resize", Width: 1, Height: 1}}}
+	require.NoError(t, rpc.Exec(ctx, "abc", []string{"sh"}, events, &stdout))
+	assert.Equal(t, []string{"exec abc sh"}, svc.recorded())
+}
+
+func TestShellDisabledOverAgent(t *testing.T) {
+	svc := &fakeService{}
+	rpc := newRestrictedTestAgent(t, svc, &recordingHandler{}, Restrictions{DisableShell: true})
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	// The refusal races the client's first send, so the hub's terminal client
+	// may see it as an error or as the stream simply ending. What is fixed is
+	// that the engine never sees the session.
+	_ = rpc.Exec(ctx, "abc", []string{"sh"}, &scriptedEvents{}, io.Discard)
+
+	if session, err := rpc.ContainerAttach(ctx, "abc"); err == nil {
+		_, _ = io.ReadAll(session.Reader)
+		session.Writer.Close()
+	}
+
+	assert.Empty(t, svc.recorded())
+
+	// Actions are a separate switch.
+	require.NoError(t, rpc.ContainerAction(ctx, "abc", container.Stop))
 }
 
 func TestContainerActionAuditedOverAgent(t *testing.T) {

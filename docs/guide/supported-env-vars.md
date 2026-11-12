@@ -133,9 +133,11 @@ Runs Dozzle as an [agent](/guide/agent) that another Dozzle instance connects to
 docker run -v /var/run/docker.sock:/var/run/docker.sock -p 7007:7007 amir20/dozzle agent
 ```
 
-| Variable                              | Description                            | Values      | Default |
-| ------------------------------------- | -------------------------------------- | ----------- | ------- |
-| `DOZZLE_AGENT_ADDR`<br>`--agent-addr` | Address and port the agent listens on. | `host:port` | `:7007` |
+| Variable                                      | Description                                                                                                                                                                                 | Values          | Default |
+| --------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------- | ------- |
+| `DOZZLE_AGENT_ADDR`<br>`--agent-addr`         | Address and port the agent listens on.                                                                                                                                                      | `host:port`     | `:7007` |
+| `DOZZLE_ENABLE_ACTIONS`<br>`--enable-actions` | On an agent, `false` refuses start, stop, restart, remove, update and clean up from any hub. Unset leaves it to the hub. See [disabling actions](/guide/agent#disabling-actions-and-shell). | `true`, `false` | unset   |
+| `DOZZLE_ENABLE_SHELL`<br>`--enable-shell`     | On an agent, `false` refuses attach and shell from any hub. Unset leaves it to the hub. See [disabling actions](/guide/agent#disabling-actions-and-shell).                                  | `true`, `false` | unset   |
 
 ### generate-certs
 

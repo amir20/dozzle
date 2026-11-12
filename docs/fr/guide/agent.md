@@ -1,7 +1,7 @@
 ---
 title: Mode agent
 description: Utilisez Dozzle en mode agent pour consulter les logs d'hôtes Docker distants via TLS, organiser les hôtes en groupes et verrouiller les agents avec votre propre certificat.
-sourceHash: 2079ef9aa433
+sourceHash: 56e447ea6471
 ---
 
 # Mode agent
@@ -11,7 +11,7 @@ sourceHash: 2079ef9aa433
 Dozzle peut fonctionner en mode agent, ce qui permet d'exposer des hôtes Docker à d'autres instances de Dozzle. Toute la communication passe par une connexion sécurisée en TLS. Vous pouvez donc déployer Dozzle sur un hôte distant et vous y connecter depuis votre machine locale.
 
 > [!WARNING] Un agent n'est privé que dans la mesure où son réseau l'est
-> Le certificat livré avec Dozzle est le même dans toutes les copies de l'image. Il chiffre la connexion mais ne prouve pas qui se trouve à l'autre bout. Quiconque peut joindre le port `7007` peut brancher son propre Dozzle sur votre agent, lire tous les logs de cet hôte et exécuter des commandes dans ses conteneurs. L'agent ne regarde ni `DOZZLE_ENABLE_SHELL` ni `DOZZLE_ENABLE_ACTIONS`, ces options ne contrôlent que ce que propose l'interface.
+> Le certificat livré avec Dozzle est le même dans toutes les copies de l'image. Il chiffre la connexion mais ne prouve pas qui se trouve à l'autre bout. Quiconque peut joindre le port `7007` peut brancher son propre Dozzle sur votre agent, lire tous les logs de cet hôte et exécuter des commandes dans ses conteneurs. Désactiver les actions ou le shell sur votre propre hub ne l'empêche pas d'exécuter des commandes ou des actions. Seul `DOZZLE_ENABLE_ACTIONS` ou `DOZZLE_ENABLE_SHELL` à `false` sur l'agent lui-même le fait, et les logs restent lisibles dans tous les cas, voir [désactiver les actions et le shell](#disabling-actions-and-shell).
 >
 > Gardez le port `7007` sur un réseau privé, et si l'agent est joignable depuis ailleurs, [générez votre propre certificat](#certificats-personnalises) pour que les agents n'acceptent que votre hub.
 
@@ -211,6 +211,28 @@ services:
 ```
 
 L'agent n'affichera que les conteneurs portant le label `color`. Gardez à l'esprit que ces filtres se combinent avec les filtres de l'interface pour restreindre encore la liste des conteneurs. Pour en savoir plus sur les différents types de filtres, lisez la [documentation des filtres](/fr/guide/filters#ui-agents-and-user-filters).
+
+### Désactiver les actions et le shell {#disabling-actions-and-shell}
+
+Les actions et le shell ne fonctionnent sur un agent que si le hub et l'agent les autorisent tous les deux. Le hub les active avec `DOZZLE_ENABLE_ACTIONS` et `DOZZLE_ENABLE_SHELL`. Un agent lit les deux mêmes variables : non définies, il suit ce que le hub autorise, et à `false`, il refuse. C'est utile quand le hub autorise les actions sur la plupart des hôtes, mais qu'un hôte doit rester en lecture seule.
+
+Les agents autorisent tout par défaut, et c'est voulu. Les utilisateurs, les [rôles](/fr/guide/authentication/simple) et les filtres sont tous sur le hub, donc le hub est le seul endroit qui décide qui peut faire quoi, et un agent exécute simplement ce que son hub demande. Mettre ces variables à `false` sur un agent ajoute une limite pour un hôte, ce n'est pas un second endroit où gérer les permissions.
+
+```yaml
+services:
+  dozzle-agent:
+    image: amir20/dozzle:latest
+    command: agent
+    environment:
+      - DOZZLE_ENABLE_ACTIONS=false
+      - DOZZLE_ENABLE_SHELL=false
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+```
+
+`DOZZLE_ENABLE_ACTIONS=false` refuse le démarrage, l'arrêt, le redémarrage, la suppression, la mise à jour, le retour arrière et le nettoyage. `DOZZLE_ENABLE_SHELL=false` refuse l'attach et le shell. L'agent vérifie cela lui-même, donc une erreur sur le hub ne peut pas les contourner. Les mettre à `true` sur un agent ne fait rien à lui seul, car le hub doit toujours les activer.
+
+L'agent communique ces réglages au hub lors de la connexion, et le hub masque les boutons pour cet hôte. Les mises à jour disponibles restent affichées mais ne peuvent pas être appliquées, et les mises à jour et nettoyages planifiés ignorent cet hôte.
 
 ### Certificats personnalisés
 

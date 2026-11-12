@@ -11,7 +11,10 @@ const holder = vi.hoisted(() => ({
     enableActions: true,
     mode: "server",
     selfContainerId: "selfself1234abcd",
-    hosts: [{ id: "local", type: "local" }],
+    hosts: [
+      { id: "local", name: "local", type: "local" },
+      { id: "locked", name: "locked", type: "agent", actionsDisabled: true },
+    ],
   } as Record<string, any>,
 }));
 
@@ -129,6 +132,12 @@ describe("useBulkContainerActions", () => {
     expect(setup([web, paused]).available.value.map((p) => p.action)).toEqual(["restart", "stop"]);
     expect(setup([old]).available.value.map((p) => p.action)).toEqual(["start"]);
     expect(setup([self]).available.value).toEqual([]);
+  });
+
+  test("leaves out containers on an agent with actions disabled", () => {
+    const edge = { ...web, id: "edge000000000000", name: "edge", host: "locked" } as Container;
+    expect(setup([edge]).available.value).toEqual([]);
+    expect(setup([web, edge]).available.value.map((p) => p.targets.map((c) => c.name))).toEqual([["web"], ["web"]]);
   });
 
   test("k8s offers none, leaving it to the workload's rollout restart", () => {
