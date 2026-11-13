@@ -22,7 +22,18 @@ const updates = vi.hoisted(() => ({ list: [] as object[], created: 0 }));
 const jump = vi.hoisted(() => ({ jumpTo: vi.fn() }));
 vi.mock("@/composable/logs/logJump", () => ({ useLogJump: () => jump }));
 // The rail is a full-screen sheet on a phone. Tests flip it per case.
-const rail = vi.hoisted(() => ({ sheet: false }));
+const rail = vi.hoisted(() => ({ sheet: false, hover: true }));
+// A getter rather than a computed: this module is evaluated once, and a computed
+// over a plain object would cache its first answer for every test.
+vi.mock("@/composable/ui/media", () => ({
+  canHover: {
+    get value() {
+      return rail.hover;
+    },
+  },
+  isMobile: { value: false },
+  isMac: true,
+}));
 vi.mock("@/composable/cloud/cloudRail", async () => {
   const { computed } = await import("vue");
   return { useCloudRail: () => ({ sheet: computed(() => rail.sheet) }) };
@@ -107,6 +118,7 @@ afterEach(() => {
   updates.created = 0;
   jump.jumpTo.mockReset();
   rail.sheet = false;
+  rail.hover = true;
 });
 
 describe("<RailMetrics />", () => {
@@ -372,6 +384,22 @@ describe("<RailMetrics />", () => {
   // there would also land out of sight under the full-screen sheet.
   test("on a phone a tap reads the bar and does not jump", async () => {
     rail.sheet = true;
+    respond([
+      { ts: 0, cpu: 1, memory: 1, memoryUsage: 1 },
+      { ts: HOUR, cpu: 1, memory: 1, memoryUsage: 1 },
+    ]);
+    const wrapper = await render();
+    wrapper.findAllComponents(BarChartStub)[0].vm.$emit("hoverValue", 1, 1, 2);
+    await flushPromises();
+    await wrapper.findAll("section button")[0].trigger("click");
+
+    expect(jump.jumpTo).not.toHaveBeenCalled();
+  });
+
+  // An iPad in landscape is wider than a phone but has no hover either: a tap
+  // there is still how a bar is read.
+  test("on any touch screen a tap reads the bar and does not jump", async () => {
+    rail.hover = false;
     respond([
       { ts: 0, cpu: 1, memory: 1, memoryUsage: 1 },
       { ts: HOUR, cpu: 1, memory: 1, memoryUsage: 1 },

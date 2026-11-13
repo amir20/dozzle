@@ -149,9 +149,13 @@ const pill = computed(() => {
   }
 });
 
+// On a phone the cloud rail is a sheet over the logs; it closes too, or the
+// jump would happen out of sight beneath it. Elsewhere `sheet` is false.
+const { sheet, closeRail } = useCloudRail();
 function showLines(close: () => void) {
   if (!alert.value) return;
   close();
+  if (sheet.value) closeRail();
   jumpTo({
     containerId: alert.value.containerId,
     date: new Date(alert.value.ts / 1e6),

@@ -426,12 +426,12 @@ function momentOf(hover: Hover) {
 
 // Logs belong to the container that wrote them. Before this one was created the
 // bars are a container a deploy replaced, whose logs went with it.
-// On a phone the rail is a full-screen sheet and a tap is how a bar is read
-// (BarChart keeps the touched bar reported), so there a tap reads and never
-// navigates: a jump would land out of sight under the sheet.
+// Without hover a tap is how a bar is read (BarChart keeps the touched bar
+// reported), so on a touch screen of any width a tap reads and never navigates.
+// On a phone the jump would also land out of sight under the full-screen sheet.
 const { sheet } = useCloudRail();
 const jumpable = computed(() => {
-  if (sheet.value) return false;
+  if (sheet.value || !canHover.value) return false;
   const ts = hovered.value ? momentOf(hovered.value) : undefined;
   const c = container.value;
   return ts !== undefined && !!c && ts >= c.created.getTime();
