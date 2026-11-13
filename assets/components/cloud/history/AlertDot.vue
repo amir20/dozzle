@@ -77,16 +77,21 @@
 </template>
 
 <script lang="ts" setup>
-const { containerId } = defineProps<{ containerId: string }>();
+import type { CloudAlert } from "@/composable/cloud/cloudAlerts";
+
+// A row passes its container and the dot shows that container's latest alert. A
+// timeline passes each alert itself, since it marks every one in its window.
+const { containerId = "", alert: given } = defineProps<{ containerId?: string; alert?: CloudAlert }>();
 
 const { byContainer, fetchRecentAlerts } = useRecentAlerts();
 const { jumpTo } = useLogJump();
 const { t } = useI18n();
 
-// Shared across every row: one request for the whole table.
-onMounted(() => fetchRecentAlerts());
+// Shared across every row: one request for the whole table. A dot handed its
+// alert has nothing to look up.
+onMounted(() => given || fetchRecentAlerts());
 
-const alert = computed(() => byContainer.value.get(containerId));
+const alert = computed(() => given ?? byContainer.value.get(containerId));
 const firedAt = computed(() => new Date((alert.value?.ts ?? 0) / 1e6));
 
 // A CPU spike or a container event has no line to show — logId is absent for

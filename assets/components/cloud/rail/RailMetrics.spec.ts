@@ -13,16 +13,32 @@ vi.mock("@vueuse/core", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@vueuse/core")>();
   return { ...actual, useElementSize: () => ({ width: ref(552), height: ref(800) }) };
 });
-vi.mock("@/stores/config", () => ({ __esModule: true, default: { base: "" }, withBase: (p: string) => p }));
+vi.mock("@/stores/config", () => ({ __esModule: true, default: { base: "", hosts: [] }, withBase: (p: string) => p }));
 vi.mock("@/composable/logs/viewContext", () => ({
   useViewContext: () => computed(() => ({ containers: [{ id: "abc" }] })),
 }));
-vi.mock("@/stores/container", () => ({
-  useContainerStore: () => ({ allContainersById: { abc: { id: "abc", name: "api", host: "local" } } }),
-}));
+// The deploys Dozzle itself remembers. Tests set them per case.
+const updates = vi.hoisted(() => ({ list: [] as object[] }));
+vi.mock("@/stores/container", async () => {
+  const { reactive } = await import("vue");
+  return {
+    useContainerStore: () =>
+      reactive({ allContainersById: { abc: { id: "abc", name: "api", host: "local" } }, recentUpdates: updates.list }),
+  };
+});
 vi.mock("@/composable/cloud/cloudConfig", () => ({
-  useCloudConfig: () => ({ metricsLookbackHours: ref(168), ensureCloudStatus: vi.fn() }),
+  useCloudConfig: () => ({
+    metricsLookbackHours: ref(168),
+    ensureCloudStatus: vi.fn(),
+    cloudConfig: ref({ linked: true }),
+  }),
 }));
+
+const TimelineStub = defineComponent({
+  name: "MetricsTimeline",
+  props: ["from", "to", "alerts", "deploys", "format"],
+  template: "<div data-timeline-stub></div>",
+});
 
 // The chart is covered by its own spec. Here it only needs to say what it was
 // handed and to let a test move the shared pointer.
@@ -35,9 +51,17 @@ const BarChartStub = defineComponent({
 
 const HOUR = 3_600_000;
 
-function respond(points: object[]) {
-  globalThis.fetch = vi.fn(async () => new Response(JSON.stringify({ points, bucket: HOUR }))) as typeof fetch;
+// Metrics, alerts and cloud deploys each answer from their own route.
+function respond(points: object[], { hits = [] as object[], cloudDeploys = [] as object[] } = {}) {
+  globalThis.fetch = vi.fn(async (input: RequestInfo | URL) => {
+    const url = String(input);
+    if (url.includes("/api/cloud/alerts")) return new Response(JSON.stringify({ hits }));
+    if (url.includes("/api/cloud/deploys/recent")) return new Response(JSON.stringify(cloudDeploys));
+    return new Response(JSON.stringify({ points, bucket: HOUR }));
+  }) as typeof fetch;
 }
+
+const metricsCalls = () => vi.mocked(globalThis.fetch).mock.calls.filter(([u]) => String(u).includes("/metrics"));
 
 async function render() {
   const wrapper = mount(RailMetrics, {
@@ -56,7 +80,7 @@ async function render() {
           },
         }),
       ],
-      stubs: { BarChart: BarChartStub },
+      stubs: { BarChart: BarChartStub, MetricsTimeline: TimelineStub },
     },
   });
   await flushPromises();
@@ -66,7 +90,10 @@ async function render() {
 const sections = (wrapper: Awaited<ReturnType<typeof render>>) =>
   wrapper.findAll("section").map((s) => s.text().replace(/\s+/g, " "));
 
-afterEach(() => vi.restoreAllMocks());
+afterEach(() => {
+  vi.restoreAllMocks();
+  updates.list.length = 0;
+});
 
 describe("<RailMetrics />", () => {
   // A fixed 120 buckets in a ~100-column chart folded pairs into 60 bars with a
@@ -75,7 +102,7 @@ describe("<RailMetrics />", () => {
     respond([]);
     await render();
 
-    expect(vi.mocked(globalThis.fetch).mock.calls[0][0]).toContain("buckets=110");
+    expect(metricsCalls()[0][0]).toContain("buckets=110");
   });
 
   // The bug this guards: the peak was the highest bucket average, so a week of
@@ -84,14 +111,18 @@ describe("<RailMetrics />", () => {
   // they switched to.
   test("only the newest request's answer is shown", async () => {
     let releaseOld!: () => void;
-    const old = new Response(JSON.stringify({ points: [{ ts: 0, cpu: 99, memory: 1, memoryUsage: 1 }], bucket: HOUR }));
-    globalThis.fetch = vi
-      .fn()
-      .mockImplementationOnce(() => new Promise<Response>((resolve) => (releaseOld = () => resolve(old))))
-      .mockImplementationOnce(
-        async () =>
-          new Response(JSON.stringify({ points: [{ ts: 0, cpu: 3, memory: 1, memoryUsage: 1 }], bucket: HOUR })),
-      ) as typeof fetch;
+    const body = (cpu: number) =>
+      new Response(JSON.stringify({ points: [{ ts: 0, cpu, memory: 1, memoryUsage: 1 }], bucket: HOUR }));
+    let metrics = 0;
+    globalThis.fetch = vi.fn((input: RequestInfo | URL) => {
+      const url = String(input);
+      if (url.includes("/deploys/recent")) return Promise.resolve(new Response("[]"));
+      if (!url.includes("/metrics")) return Promise.resolve(new Response(JSON.stringify({ hits: [] })));
+      // The first window's answer is held back until after the second's.
+      return ++metrics === 1
+        ? new Promise<Response>((resolve) => (releaseOld = () => resolve(body(99))))
+        : Promise.resolve(body(3));
+    }) as typeof fetch;
     const wrapper = await render();
     await wrapper.findAll("[role=tab]")[0].trigger("click");
     await flushPromises();
@@ -200,5 +231,53 @@ describe("<RailMetrics />", () => {
 
     expect(sections(wrapper)[0]).toContain("12.0% / peak");
     expect(cpu.props("hoverIndex")).toBeNull();
+  });
+
+  // A deploy replaces the container id, so it is matched by host and name.
+  test("the timeline gets this container's deploys and the alerts in its window", async () => {
+    updates.list.push(
+      { host: "local", name: "api", oldId: "o1", newId: "n1", at: new Date(HOUR / 2).toISOString() },
+      { host: "local", name: "web", oldId: "o2", newId: "n2", at: new Date(HOUR / 2).toISOString() },
+      { host: "other", name: "api", oldId: "o3", newId: "n3", at: new Date(HOUR / 2).toISOString() },
+    );
+    const hit = { alertId: "x", containerId: "abc", ts: (HOUR / 2) * 1e6, headline: "OOM", level: "error" };
+    respond(
+      [
+        { ts: 0, cpu: 1, memory: 1, memoryUsage: 1 },
+        { ts: HOUR, cpu: 1, memory: 1, memoryUsage: 1 },
+      ],
+      { hits: [hit] },
+    );
+    const wrapper = await render();
+    const timeline = wrapper.findComponent(TimelineStub);
+
+    expect(timeline.props("deploys").map((d: { newId: string }) => d.newId)).toEqual(["n1"]);
+    expect(timeline.props("alerts")).toEqual([hit]);
+    // The window the bars cover, first bucket's start to last bucket's end.
+    expect([timeline.props("from"), timeline.props("to")]).toEqual([0, 2 * HOUR]);
+    const alertsUrl = String(vi.mocked(globalThis.fetch).mock.calls.find(([u]) => String(u).includes("/alerts"))![0]);
+    expect(alertsUrl).toContain("containerIds=abc");
+    expect(alertsUrl).toContain(`to=${2 * HOUR * 1e6}`);
+  });
+
+  test("hovering a bar names what happened in it", async () => {
+    const hit = { alertId: "x", containerId: "abc", ts: (HOUR + 60_000) * 1e6, headline: "OOM killed", level: "error" };
+    respond(
+      [
+        { ts: 0, cpu: 1, memory: 1, memoryUsage: 1 },
+        { ts: HOUR, cpu: 1, memory: 1, memoryUsage: 1 },
+      ],
+      { hits: [hit] },
+    );
+    const wrapper = await render();
+    const chart = wrapper.findAllComponents(BarChartStub)[0];
+
+    chart.vm.$emit("hoverValue", 1, 0, 2);
+    await flushPromises();
+    expect(wrapper.text()).not.toContain("OOM killed");
+
+    chart.vm.$emit("hoverValue", 1, 1, 2);
+    await flushPromises();
+    expect(wrapper.text()).toContain("OOM killed");
   });
 });
