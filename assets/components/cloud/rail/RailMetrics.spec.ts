@@ -8,7 +8,7 @@ import { createI18n } from "vue-i18n";
 import RailMetrics from "./RailMetrics.vue";
 
 // jsdom lays nothing out, so the panel would never learn its width and never
-// load. 552px is the rail's width: (552 - 32) / 5 = 104 columns.
+// load. 552px is the chart's content width: 552 / 5 = 110 columns.
 vi.mock("@vueuse/core", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@vueuse/core")>();
   return { ...actual, useElementSize: () => ({ width: ref(552), height: ref(800) }) };
@@ -75,11 +75,32 @@ describe("<RailMetrics />", () => {
     respond([]);
     await render();
 
-    expect(vi.mocked(globalThis.fetch).mock.calls[0][0]).toContain("buckets=104");
+    expect(vi.mocked(globalThis.fetch).mock.calls[0][0]).toContain("buckets=110");
   });
 
   // The bug this guards: the peak was the highest bucket average, so a week of
   // hourly averages read lower than the day of 12-minute ones inside it.
+  // A slow answer for the window the reader just left must not overwrite the one
+  // they switched to.
+  test("only the newest request's answer is shown", async () => {
+    let releaseOld!: () => void;
+    const old = new Response(JSON.stringify({ points: [{ ts: 0, cpu: 99, memory: 1, memoryUsage: 1 }], bucket: HOUR }));
+    globalThis.fetch = vi
+      .fn()
+      .mockImplementationOnce(() => new Promise<Response>((resolve) => (releaseOld = () => resolve(old))))
+      .mockImplementationOnce(
+        async () =>
+          new Response(JSON.stringify({ points: [{ ts: 0, cpu: 3, memory: 1, memoryUsage: 1 }], bucket: HOUR })),
+      ) as typeof fetch;
+    const wrapper = await render();
+    await wrapper.findAll("[role=tab]")[0].trigger("click");
+    await flushPromises();
+    releaseOld();
+    await flushPromises();
+
+    expect(sections(wrapper)[0]).toContain("3.0% / peak");
+  });
+
   test("the peak is the highest sample, not the highest average", async () => {
     respond([
       {

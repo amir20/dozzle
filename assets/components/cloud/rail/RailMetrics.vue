@@ -128,22 +128,31 @@ const failed = ref(false);
 // As many buckets as the chart has columns. Asking for a fixed 120 left a
 // ~100-column chart folding pairs into 60 bars spread across the width, with a
 // gap twice the bar between each; one bucket per column draws at the same
-// density as every other stat chart. 5px is BarChart's bar plus gap, 32 the p-4.
+// density as every other stat chart. 5px is BarChart's bar plus gap; the width is
+// the content box, so the p-4 is already out of it.
 const root = ref<HTMLElement | null>(null);
 const { width: rootWidth } = useElementSize(root);
 const columns = ref(0);
-const measure = () => (columns.value = Math.min(1000, Math.max(1, Math.floor((rootWidth.value - 32) / 5))));
+const measure = () => (columns.value = Math.min(1000, Math.max(1, Math.floor(rootWidth.value / 5))));
 // Settled before refetching, so dragging the rail wider does not fire a request
 // per five pixels.
 watchDebounced(rootWidth, (w) => w > 0 && measure(), { debounce: 300 });
 
+// Only the newest request may write. Switching windows, or resizing the rail
+// mid-load, leaves an older request in flight, and whichever answered last used
+// to win: a 7d tab could end up showing the hour it was switched away from.
+let latest = 0;
+
 async function load() {
   // Not measured yet: the first width to arrive sets `columns`, which loads.
   if (!source.value || columns.value === 0) return;
+  const request = ++latest;
+  const current = () => request === latest;
   loading.value = true;
   failed.value = false;
   try {
     const res = await fetch(withBase(`${source.value}?window=${window.value}&buckets=${columns.value}`));
+    if (!current()) return;
     if (!res.ok) {
       // 503 is an unlinked instance, which the rail is not shown on anyway.
       failed.value = res.status !== 503;
@@ -151,13 +160,15 @@ async function load() {
       return;
     }
     const body = await res.json();
+    if (!current()) return;
     points.value = body.points ?? [];
     bucket.value = body.bucket ?? 0;
   } catch {
+    if (!current()) return;
     failed.value = true;
     points.value = [];
   } finally {
-    loading.value = false;
+    if (current()) loading.value = false;
   }
 }
 
