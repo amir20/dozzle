@@ -50,10 +50,8 @@
           <!-- The window in one line, so the shape below has numbers to go with
                it without hovering. Meaningful half emphasised, the rest muted. -->
           <p class="text-base-content/40 mb-1 truncate font-mono text-xs tabular-nums" data-summary>
-            {{ chart.summary
-            }}<template v-if="chart.limit">
-              / <span class="text-base-content/60">{{ chart.limit }}</span></template
-            >
+            <span class="text-base-content/60">{{ chart.summary }}</span
+            >{{ chart.limit ? ` / ${chart.limit}` : "" }}
           </p>
           <!-- The chart is a button: a bar is a moment, and the logs at that
                moment are the one thing Dozzle can show that Cloud cannot. A bar
@@ -295,28 +293,34 @@ function levelChart(
   format: (v: number) => string,
   avgOf: (p: MetricPoint) => number,
   maxOf: (p: MetricPoint) => number | undefined,
-  // Draws the bars as a share of a limit instead of against their own peak.
-  limit?: number,
+  // Draws the bars as a share of a limit instead of against their own peak:
+  // each point's height (0-100) and, when it has a max, the max's height.
+  share?: { of: (p: MetricPoint) => { percent: number; peakPercent?: number }; label: string },
 ): Chart {
   const values = points.value.map(avgOf);
   const max = points.value.map(maxOf);
   const peaks = values.map((v, i) => max[i] ?? v);
   const hasMax = max.some((m) => m !== undefined);
   const peakWord = t("cloud-rail.metrics-peak");
-  const height = (v: number) => (limit ? (v / limit) * 100 : v);
+  const heights = share ? points.value.map(share.of) : undefined;
   return {
     key,
     label,
     colorClass,
-    data: values.map((v, i) =>
-      hasMax
-        ? { percent: height(v), value: v, peakPercent: height(peaks[i]), peak: peaks[i] }
-        : { percent: height(v), value: v },
-    ),
-    ceiling: limit ? 100 : undefined,
+    data: values.map((v, i) => {
+      const percent = heights ? heights[i].percent : v;
+      if (!hasMax) return { percent, value: v };
+      return {
+        percent,
+        value: v,
+        peakPercent: heights ? (heights[i].peakPercent ?? percent) : peaks[i],
+        peak: peaks[i],
+      };
+    }),
+    ceiling: share ? 100 : undefined,
     // The header already carries the peak, so the summary adds the average.
     summary: `${t("analytics.avg")} ${format(mean(values, [0, values.length]))}`,
-    limit: limit ? format(limit) : undefined,
+    limit: share?.label,
     rest: { main: format(Math.max(0, ...peaks)), aside: ` / ${peakWord}` },
     at: (span) => ({
       main: format(mean(values, span)),
@@ -370,7 +374,7 @@ const charts = computed(() =>
       bytes,
       (p) => p.memoryUsage,
       (p) => p.memoryUsageMax,
-      memoryLimit.value,
+      memoryShare.value,
     ),
     ioChart(
       "network",
@@ -435,14 +439,27 @@ const deploys = computed(() => {
   );
 });
 
-// The memory limit the newest point was measured against, worked back out of
-// the bytes and the percent cloud already sends. Scaled to its own peak, a
-// steady container drew as a solid block; against its limit, 400M of 2G is a
-// fifth of the height and headroom is visible. Without a reading (no percent)
-// there is no limit and the chart keeps its own scale.
-const memoryLimit = computed(() => {
-  const p = points.value.findLast((p) => p.memory > 0 && p.memoryUsage > 0);
-  return p ? p.memoryUsage / (p.memory / 100) : undefined;
+// Memory against the container's limit. Scaled to its own peak, a steady
+// container drew as a solid block; against its limit, 400M of 2G is a fifth of
+// the height and the headroom shows.
+//
+// Only when a limit is actually set: without one Docker measures the percent
+// against the host's RAM, and 300M of a 32G host would draw as a flat line.
+// Each bar uses its own point's percent, which was measured against the limit
+// in force then, so a deploy that changed the limit does not redraw the bars
+// before it against the new one.
+const memoryShare = computed(() => {
+  const limit = container.value?.memoryLimit ?? 0;
+  if (limit <= 0) return undefined;
+  return {
+    label: bytes(limit),
+    of: (p: MetricPoint) => {
+      const percent = p.memory > 0 ? p.memory : (p.memoryUsage / limit) * 100;
+      const peakPercent =
+        p.memoryUsageMax !== undefined && p.memoryUsage > 0 ? percent * (p.memoryUsageMax / p.memoryUsage) : undefined;
+      return { percent, peakPercent };
+    },
+  };
 });
 
 // What happened inside a hovered bar, for the footer. The newest one when

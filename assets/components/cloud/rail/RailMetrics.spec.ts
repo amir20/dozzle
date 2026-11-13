@@ -18,7 +18,7 @@ vi.mock("@/composable/logs/viewContext", () => ({
   useViewContext: () => computed(() => ({ containers: [{ id: "abc" }] })),
 }));
 // The deploys Dozzle itself remembers. Tests set them per case.
-const updates = vi.hoisted(() => ({ list: [] as object[], created: 0 }));
+const updates = vi.hoisted(() => ({ list: [] as object[], created: 0, memoryLimit: 0 }));
 const jump = vi.hoisted(() => ({ jumpTo: vi.fn() }));
 vi.mock("@/composable/logs/logJump", () => ({ useLogJump: () => jump }));
 // The rail is a full-screen sheet on a phone. Tests flip it per case.
@@ -43,7 +43,15 @@ vi.mock("@/stores/container", async () => {
   return {
     useContainerStore: () =>
       reactive({
-        allContainersById: { abc: { id: "abc", name: "api", host: "local", created: new Date(updates.created) } },
+        allContainersById: {
+          abc: {
+            id: "abc",
+            name: "api",
+            host: "local",
+            created: new Date(updates.created),
+            memoryLimit: updates.memoryLimit,
+          },
+        },
         recentUpdates: updates.list,
       }),
   };
@@ -117,6 +125,7 @@ afterEach(() => {
   vi.restoreAllMocks();
   updates.list.length = 0;
   updates.created = 0;
+  updates.memoryLimit = 0;
   jump.jumpTo.mockReset();
   rail.sheet = false;
   rail.hover = true;
@@ -413,10 +422,10 @@ describe("<RailMetrics />", () => {
     expect(jump.jumpTo).not.toHaveBeenCalled();
   });
 
-  // Scaled to its own peak a steady container drew as a solid block. The limit
-  // comes back out of the bytes and percent cloud already sends.
-  test("memory is drawn against its limit", async () => {
+  // Scaled to its own peak a steady container drew as a solid block.
+  test("memory is drawn against the container's limit", async () => {
     const M = 1024 ** 2;
+    updates.memoryLimit = 2048 * M;
     respond([
       { ts: 0, cpu: 1, memory: 20, memoryUsage: 400 * M, memoryUsageMax: 500 * M },
       { ts: HOUR, cpu: 1, memory: 20, memoryUsage: 400 * M, memoryUsageMax: 500 * M },
@@ -429,12 +438,30 @@ describe("<RailMetrics />", () => {
     expect(wrapper.findAll("[data-summary]")[1].text().replace(/\s+/g, " ")).toBe("Avg 400M / 2G");
   });
 
-  test("without a percent there is no limit, and memory keeps its own scale", async () => {
-    respond([{ ts: 0, cpu: 1, memory: 0, memoryUsage: 400 }]);
-    const mem = (await render()).findAllComponents(BarChartStub)[1];
+  // Docker measures an unlimited container's percent against the host's RAM;
+  // drawn against that, 300M of a 32G host is a flat line.
+  test("without a limit, memory keeps its own scale even when cloud sent a percent", async () => {
+    respond([{ ts: 0, cpu: 1, memory: 0.9, memoryUsage: 300 }]);
+    const wrapper = await render();
+    const mem = wrapper.findAllComponents(BarChartStub)[1];
 
     expect(mem.props("max")).toBeUndefined();
-    expect(mem.props("chartData")[0]).toEqual({ percent: 400, value: 400 });
+    expect(mem.props("chartData")[0]).toEqual({ percent: 300, value: 300 });
+    expect(wrapper.findAll("[data-summary]")[1].text()).not.toContain("/");
+  });
+
+  // Each point's percent was measured against the limit in force then, so a
+  // deploy that lowered the limit does not push the bars before it to the top.
+  test("bars before a limit change keep the limit they were measured against", async () => {
+    const M = 1024 ** 2;
+    updates.memoryLimit = 512 * M;
+    respond([
+      { ts: 0, cpu: 1, memory: 25, memoryUsage: 400 * M },
+      { ts: HOUR, cpu: 1, memory: 50, memoryUsage: 256 * M },
+    ]);
+    const mem = (await render()).findAllComponents(BarChartStub)[1];
+
+    expect(mem.props("chartData").map((d: { percent: number }) => d.percent)).toEqual([25, 50]);
   });
 
   test("each chart sums up its window, and the window's ends are labelled", async () => {
