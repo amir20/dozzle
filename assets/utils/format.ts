@@ -16,6 +16,18 @@ export function formatBytes(
   }
 }
 
+// Bytes per second, at three significant figures at most so a fixed-width column
+// can reserve the worst case ("1023K/s" is 7 characters).
+export function formatRate(bytes: number) {
+  // Below one byte the log would go negative and formatBytes would index past the
+  // start of its unit table. A cloud bucket's rate is an average, so it can be.
+  if (bytes < 1) return "0B/s";
+  // Drop the decimal once the scaled value reaches three digits: "105K/s" reads
+  // the same as "105.3K/s" at this size and costs two fewer characters.
+  const scaled = bytes / 1024 ** Math.floor(Math.log(bytes) / Math.log(1024));
+  return formatBytes(bytes, { short: true, decimals: scaled >= 100 ? 0 : 1 }) + "/s";
+}
+
 export function stripVersion(label: string) {
   const [name, _] = label.split(":");
   return name;

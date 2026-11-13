@@ -257,6 +257,20 @@ message ContainerMetricPoint {
   double memory = 3;
   // Absolute bytes, because a percentage of an unknown limit is not readable.
   int64 memory_usage = 4;
+  // The highest sample in the bucket, next to the averages above. A peak taken
+  // from averages shrinks as the buckets widen, so a week read lower than the
+  // day inside it. Optional so an older cloud reads as "no max", not as 0.
+  optional double cpu_max = 5;
+  optional int64 memory_usage_max = 7;
+  reserved 6;
+  // Bytes per second over the bucket, from the deltas of the cumulative
+  // counters Dozzle pushes. A counter that went backwards (a restart) is a
+  // reset, not negative traffic. Optional so an older cloud hides the charts
+  // rather than drawing a flat line that reads as "no traffic".
+  optional double network_rx_rate = 8;
+  optional double network_tx_rate = 9;
+  optional double disk_read_rate = 10;
+  optional double disk_write_rate = 11;
 }
 
 message GetContainerMetricsResponse {

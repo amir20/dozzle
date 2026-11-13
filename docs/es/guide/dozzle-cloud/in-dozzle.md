@@ -1,7 +1,7 @@
 ---
 title: En tu Dozzle
 description: Lo que cambia en tu propio Dozzle al enlazarlo con Dozzle Cloud, incluidos Ask Dozzle, el historial de métricas y las alertas que sobreviven a una recarga.
-sourceHash: 6ba069544b57
+sourceHash: 921d6ccbad4e
 ---
 
 # En tu Dozzle
@@ -36,7 +36,7 @@ Las respuestas terminan en Dozzle en lugar de en un enlace hacia fuera. Cuando l
 
 ### <Icon icon="mdi:chart-line" inline /> Métricas
 
-Dozzle guarda 300 muestras en el navegador y nada por detrás, así que «¿estaba así hace una hora?» no tiene respuesta local. Este panel relee las muestras que tu instancia lleva enviando todo el tiempo: CPU y memoria en la última 1 h, 6 h o 24 h, con el pico destacado y el gráfico narrándose al pasar el ratón. Pro añade una ventana de 7 días.
+Dozzle guarda 300 muestras en el navegador y nada por detrás, así que «¿estaba así hace una hora?» no tiene respuesta local. Este panel relee las muestras que tu instancia lleva enviando todo el tiempo: CPU, memoria, red y disco en la última 1 h, 6 h o 24 h. Cada barra es una media con la muestra más alta dibujada tenuemente detrás, así que un pico breve sigue visible por larga que sea la ventana, y al pasar el cursor sobre cualquier gráfico se leen todos en el mismo instante. Red y disco suman lo que salió y lo que entró a lo largo de la ventana. Pro añade una ventana de 7 días.
 
 ### <Icon icon="mdi:bell-outline" inline /> Alertas
 

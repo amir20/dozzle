@@ -133,6 +133,33 @@ describe("<BarChart />", () => {
 
     holder.height!.value = 100;
   });
+
+  // Six points across a 300px chart gave each column ~50px, and the stroke filled
+  // it: six domes instead of six bars.
+  test("a short series keeps bars narrow and spreads them out", async () => {
+    const wrapper = await mountAndRender(constant(50, 6));
+
+    expect(wrapper.find('[data-bars="sampled"]').attributes("stroke-width")).toBe("6");
+    const xs = bars(wrapper).map((b) => b.x);
+    expect(xs).toHaveLength(6);
+    expect(xs.at(-1)! - xs[0]).toBeGreaterThan(200);
+  });
+
+  // The cap is for short series only. A live chart folds 300 samples into ~100
+  // bars of ~5px, and must draw exactly as it did before the cap existed.
+  test("a full live series keeps its usual bar width", async () => {
+    holder.width!.value = 0;
+    const wrapper = mount(BarChart, { props: { chartData: constant(50, 300) } });
+    await nextTick();
+    holder.width!.value = 700;
+    await nextTick();
+    await flushPromises();
+
+    const width = parseFloat(wrapper.find('[data-bars="sampled"]').attributes("stroke-width")!);
+    expect(width).toBeGreaterThan(4.5);
+    expect(width).toBeLessThan(5.5);
+    holder.width!.value = 300;
+  });
 });
 
 describe("BarChart stability", () => {
@@ -377,5 +404,74 @@ describe("BarChart pointer readout", () => {
     await wrapper.trigger("touchstart", { touches: [] });
 
     expect(wrapper.emitted("hoverValue")).toBeUndefined();
+  });
+});
+
+describe("BarChart peaks", () => {
+  function peakHeights(wrapper: ReturnType<typeof mount>): number[] {
+    const layer = wrapper.find('[data-bars="peak"]');
+    if (!layer.exists()) return [];
+    return [...(layer.attributes("d") ?? "").matchAll(/M([\d.]+) ([\d.]+)V([\d.]+)/g)].map(
+      (m) => parseFloat(m[2]) - parseFloat(m[3]),
+    );
+  }
+
+  // 120 points into 60 columns: every bar folds two points, one calm and one with
+  // a spike behind it.
+  function spiky(): BarDataPoint[] {
+    return Array.from({ length: 120 }, (_, i) => ({
+      percent: 10,
+      value: 10,
+      peakPercent: i % 2 === 0 ? 10 : 80,
+      peak: i % 2 === 0 ? 10 : 80,
+    }));
+  }
+
+  test("a series without a max draws no peak layer", async () => {
+    const wrapper = await mountAndRender(constant(10, 120));
+    expect(wrapper.find('[data-bars="peak"]').exists()).toBe(false);
+  });
+
+  // Averaging the max would put each peak at 45 and repeat the bug a wider bucket
+  // causes upstream: the spike would shrink just because the chart is narrower.
+  test("downsampling folds the max by max, not by average", async () => {
+    const wrapper = await mountAndRender(spiky());
+    const peaks = peakHeights(wrapper);
+    const averages = bars(wrapper).map((b) => b.height);
+
+    expect(peaks).toHaveLength(60);
+    for (const h of peaks) expect(h).toBeCloseTo(peaks[0]);
+    // The scale follows the peaks, so the averages sit at an eighth of them.
+    expect(averages[0]).toBeCloseTo(peaks[0] / 8, 0);
+  });
+
+  test("the hover readout carries the bar's peak", async () => {
+    const wrapper = await mountAndRender(spiky());
+    vi.spyOn(wrapper.element, "getBoundingClientRect").mockReturnValue({
+      left: 0,
+      right: CHART_WIDTH,
+      width: CHART_WIDTH,
+    } as DOMRect);
+    await wrapper.trigger("mousemove", { clientX: 1 });
+
+    const [value, , , peak] = wrapper.emitted("hoverValue")![0];
+    expect(value).toBe(10);
+    expect(peak).toBe(80);
+  });
+});
+
+describe("BarChart shared pointer", () => {
+  // A stack of charts over one window marks the bar the pointer is on in any of
+  // them, so the column reads straight down.
+  test("an outside hoverIndex draws the guide and lifts that bar", async () => {
+    const wrapper = await mountAndRender(constant(10, 60));
+    expect(wrapper.find("[data-guide]").exists()).toBe(false);
+
+    await wrapper.setProps({ hoverIndex: 3 });
+    expect(wrapper.find("[data-guide]").exists()).toBe(true);
+    expect(wrapper.find('[data-bars="hovered"]').attributes("d")).toMatch(/^M[\d.]+ /);
+
+    await wrapper.setProps({ hoverIndex: null });
+    expect(wrapper.find("[data-guide]").exists()).toBe(false);
   });
 });

@@ -51,6 +51,17 @@
         :class="barClass"
         class="opacity-15"
       />
+      <!-- The highest sample behind each average, drawn faint underneath. A long
+           window averages a spike flat, so without this a week hid every burst a
+           day of the same data showed. Only drawn for series that carry a max. -->
+      <path
+        v-if="peakPath"
+        data-bars="peak"
+        :d="peakPath"
+        :stroke-width="barWidth"
+        :class="barClass"
+        class="opacity-25"
+      />
       <path
         v-if="sampledPath"
         data-bars="sampled"
@@ -81,6 +92,11 @@
 export interface BarDataPoint {
   percent: number;
   value: number;
+  // The highest sample behind an averaged point, when the series knows it (the
+  // cloud history buckets do; a live sample is its own max). Folded by max, never
+  // by average, when bars are downsampled.
+  peakPercent?: number;
+  peak?: number;
 }
 
 // A drawn bar. `sampled` is false for the padding in front of a series that has
@@ -93,6 +109,7 @@ const {
   barClass = "",
   max,
   sampledFrom = 0,
+  hoverIndex,
 } = defineProps<{
   chartData: BarDataPoint[];
   // Applied to each bar's `<path>`, which strokes in `currentColor` -- so this is a
@@ -107,6 +124,10 @@ const {
   // which suits a spiky series like CPU but draws a steady one (memory) as a solid
   // block at 80% height no matter how little of the capacity it uses.
   max?: number;
+  // A bar to mark from outside, so a stack of charts over the same window can
+  // share one pointer. `null` marks nothing; left undefined, the chart tracks its
+  // own pointer as it always has.
+  hoverIndex?: number | null;
 }>();
 
 // The bucket's index and how many there are ride along with the value: a
@@ -115,8 +136,12 @@ const {
 // The chart is the thing that knows the pointer left it, so it says hoverEnd
 // rather than leaving every consumer to hang a @mouseleave on whichever ancestor
 // it happens to own.
-const emit = defineEmits<{ hoverValue: [value: number, index: number, bars: number]; hoverEnd: [] }>();
-const hoverValue = (value: number, index: number, bars: number) => emit("hoverValue", value, index, bars);
+// `peak` is the hovered bar's max when the series carries one.
+const emit = defineEmits<{
+  hoverValue: [value: number, index: number, bars: number, peak?: number];
+  hoverEnd: [];
+}>();
+const hoverValue = (bar: Bar, index: number, bars: number) => emit("hoverValue", bar.value, index, bars, bar.peak);
 const hoverEnd = () => emit("hoverEnd");
 
 const chartContainer = ref<HTMLElement | null>(null);
@@ -129,10 +154,11 @@ const availableBars = computed(() => Math.floor(width.value / (BAR_WIDTH + GAP))
 const bucketSize = computed(() => Math.ceil(chartData.length / availableBars.value));
 
 const downsampledBars = ref<Bar[]>([]);
-const hoverIndex = ref<number | null>(null);
+const ownHover = ref<number | null>(null);
+const hover = computed(() => (hoverIndex === undefined ? ownHover.value : hoverIndex));
 const maxValue = computed(() => {
   if (max !== undefined) return max;
-  const dataMax = Math.max(0, ...downsampledBars.value.map((b) => b.percent));
+  const dataMax = Math.max(0, ...downsampledBars.value.map((b) => b.peakPercent ?? b.percent));
   return Math.max(dataMax * 1.25, 1);
 });
 
@@ -142,9 +168,15 @@ function pitchOf(count: number) {
   return (width.value + GAP) / count;
 }
 
+// Capped at twice the full-density width. A short series (a history window
+// with a handful of points, a container minutes old) spreads its columns out
+// instead, so a bar keeps its shape rather than ballooning into a dome that fills
+// the column. Twice, not once, so the live charts (300 points folded to ~100
+// bars, ~5px each) draw exactly as they did.
+const MAX_BAR_WIDTH = BAR_WIDTH * 2;
 const barWidth = computed(() => {
   const count = downsampledBars.value.length;
-  return count === 0 ? BAR_WIDTH : Math.max(1, pitchOf(count) - GAP);
+  return count === 0 ? BAR_WIDTH : Math.min(MAX_BAR_WIDTH, Math.max(1, pitchOf(count) - GAP));
 });
 
 // The round cap reaches half a stroke past the line's end, so the drawable height
@@ -159,7 +191,7 @@ const barWidth = computed(() => {
 const capRadius = computed(() => Math.min(barWidth.value / 2, height.value / 2));
 const usableHeight = computed(() => Math.max(0, height.value - capRadius.value));
 
-function pathFor(include: (bar: Bar) => boolean) {
+function pathFor(include: (bar: Bar) => boolean, level: (bar: Bar) => number = (bar) => bar.percent) {
   const bars = downsampledBars.value;
   const count = bars.length;
   if (count === 0 || height.value === 0) return "";
@@ -176,16 +208,22 @@ function pathFor(include: (bar: Bar) => boolean) {
     // middle sits half a gap left of the column's midpoint. Same formula the guide
     // and the hit test use, so the three can never disagree.
     const x = (i + 0.5) * pitch - GAP / 2;
-    const drawn = ceiling > 0 ? Math.min(bar.percent / ceiling, 1) * usableHeight.value : 0;
+    const drawn = ceiling > 0 ? Math.min(level(bar) / ceiling, 1) * usableHeight.value : 0;
     d += `M${x.toFixed(2)} ${bottom.toFixed(2)}V${(bottom - drawn).toFixed(2)}`;
   }
   return d;
 }
 
 const sampledPath = computed(() => pathFor((b) => b.sampled));
+const peakPath = computed(() =>
+  pathFor(
+    (b) => b.sampled && b.peakPercent !== undefined,
+    (b) => b.peakPercent!,
+  ),
+);
 const paddingPath = computed(() => pathFor((b) => !b.sampled));
 const hoveredPath = computed(() => {
-  const index = hoverIndex.value;
+  const index = hover.value;
   if (index === null) return "";
   return pathFor((b) => b === downsampledBars.value[index] && b.sampled);
 });
@@ -232,7 +270,14 @@ defineExpose({ recalculate });
 function averageBucket(bucket: BarDataPoint[], sampled: boolean): Bar {
   const percent = bucket.reduce((sum, d) => sum + d.percent, 0) / bucket.length;
   const value = bucket.reduce((sum, d) => sum + d.value, 0) / bucket.length;
-  return { percent, value, sampled };
+  const bar: Bar = { percent, value, sampled };
+  // A max of averages is the bug this field exists to fix, so the peak is folded
+  // by max. A point without one stands in with its own average.
+  if (bucket.some((d) => d.peakPercent !== undefined)) {
+    bar.peakPercent = Math.max(...bucket.map((d) => d.peakPercent ?? d.percent));
+    bar.peak = Math.max(...bucket.map((d) => d.peak ?? d.value));
+  }
+  return bar;
 }
 
 function recalculate() {
@@ -290,7 +335,7 @@ function onContainerTouch(event: TouchEvent) {
 }
 
 function onLeave() {
-  hoverIndex.value = null;
+  ownHover.value = null;
   hoverEnd();
 }
 
@@ -303,7 +348,7 @@ function onLeave() {
 // moving, and went quietly wrong at the next recalculation. It reports what is
 // drawn, so the readout and the bar can never disagree.
 function reportHovered() {
-  const index = hoverIndex.value;
+  const index = hover.value;
   if (index === null) return;
 
   const bar = downsampledBars.value[index];
@@ -313,23 +358,23 @@ function reportHovered() {
     onLeave();
     return;
   }
-  hoverValue(bar.value, index, downsampledBars.value.length);
+  hoverValue(bar, index, downsampledBars.value.length);
 }
 
 // Unmounting is a silent way to leave the chart: a consumer that swaps the chart
 // for something else (ContainerStatCell's progress mode) gets no mouseleave, and
 // its readout would sit on the last hovered number for good.
 onBeforeUnmount(() => {
-  if (hoverIndex.value !== null) hoverEnd();
+  if (hover.value !== null) hoverEnd();
 });
 
 // Where to draw the guide, in px from the chart's left edge. A resize changes the
-// bar count without touching hoverIndex, so the index is clamped here too rather
+// bar count without touching the hover index, so the index is clamped here too rather
 // than trusting the one emitAt last wrote.
 const guideLeft = computed(() => {
   const count = downsampledBars.value.length;
-  if (hoverIndex.value === null || count === 0 || width.value === 0) return null;
-  const index = Math.min(hoverIndex.value, count - 1);
+  if (hover.value === null || count === 0 || width.value === 0) return null;
+  const index = Math.min(hover.value, count - 1);
   // A bar spans [i*pitch, i*pitch + pitch - GAP], so its centre sits half a gap to
   // the left of the column's midpoint.
   return (index + 0.5) * pitchOf(count) - GAP / 2;
@@ -357,7 +402,7 @@ function emitAt(clientX: number) {
     return;
   }
 
-  hoverIndex.value = index;
-  hoverValue(downsampledBars.value[index].value, index, count);
+  ownHover.value = index;
+  hoverValue(downsampledBars.value[index], index, count);
 }
 </script>

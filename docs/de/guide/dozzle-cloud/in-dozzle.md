@@ -1,7 +1,7 @@
 ---
 title: In deinem Dozzle
 description: Was sich in deinem eigenen Dozzle ändert, wenn du es mit Dozzle Cloud verbindest, darunter Ask Dozzle, Metrik-Verlauf und Alarme, die ein Neuladen überstehen.
-sourceHash: 6ba069544b57
+sourceHash: 921d6ccbad4e
 ---
 
 # In deinem Dozzle
@@ -36,7 +36,7 @@ Antworten enden in Dozzle statt in einem Link nach außen. Geht es um einen Zeit
 
 ### <Icon icon="mdi:chart-line" inline /> Metriken
 
-Dozzle hält 300 Messpunkte im Browser und nichts dahinter, „war das vor einer Stunde auch schon so?“ hat lokal also keine Antwort. Dieses Panel liest die Messpunkte zurück, die deine Instanz die ganze Zeit übermittelt hat: CPU und Speicher über die letzten 1 h, 6 h oder 24 h, mit hervorgehobenem Höchstwert; beim Überfahren liest das Diagramm sich selbst vor. Pro ergänzt ein Fenster von 7 Tagen.
+Dozzle hält 300 Messpunkte im Browser und nichts dahinter, „war das vor einer Stunde auch schon so?“ hat lokal also keine Antwort. Dieses Panel liest die Messpunkte zurück, die deine Instanz die ganze Zeit übermittelt hat: CPU, Speicher, Netzwerk und Datenträger über die letzten 1 h, 6 h oder 24 h. Jeder Balken ist ein Durchschnitt, hinter dem der höchste Messpunkt blass gezeichnet ist, sodass eine kurze Spitze sichtbar bleibt, egal wie lang das Fenster ist, und wer über ein beliebiges Diagramm fährt, liest alle zum selben Zeitpunkt aus. Netzwerk und Datenträger summieren über das Fenster, was hinausging und was hereinkam. Pro ergänzt ein Fenster von 7 Tagen.
 
 ### <Icon icon="mdi:bell-outline" inline /> Alarme
 
