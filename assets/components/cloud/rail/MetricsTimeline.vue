@@ -71,7 +71,7 @@ const marks = computed<Mark[]>(() => {
   for (const deploy of deploys) {
     const ts = Date.parse(deploy.at);
     if (inWindow(ts))
-      result.push({ kind: "deploy", key: `d${deploy.oldId}/${deploy.newId}`, ts, left: left(ts), deploy });
+      result.push({ kind: "deploy", key: `d${deploy.oldId}/${deploy.newId}@${deploy.at}`, ts, left: left(ts), deploy });
   }
   // Alerts carry nanoseconds.
   for (const alert of alerts) {

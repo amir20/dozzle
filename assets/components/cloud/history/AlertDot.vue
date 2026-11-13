@@ -61,17 +61,22 @@
            action here. A solid block at panel width shouted over the alert it
            was about, so it is a row instead: hairline above, quiet until
            hovered. -->
-      <div class="bg-base-content/10 h-px"></div>
-      <div class="p-1.5">
-        <button
-          type="button"
-          class="hover:bg-base-300 flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-sm font-medium transition-colors"
-          @click="showLines(close)"
-        >
-          <mdi:text-search class="size-4 shrink-0 opacity-60" />
-          {{ label }}
-        </button>
-      </div>
+      <!-- Only while the container is still here: a deploy removes the one it
+           replaced, and the timeline shows alerts from those too. Jumping to a
+           container that is gone lands on Not Found. -->
+      <template v-if="readable">
+        <div class="bg-base-content/10 h-px"></div>
+        <div class="p-1.5">
+          <button
+            type="button"
+            class="hover:bg-base-300 flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-sm font-medium transition-colors"
+            @click="showLines(close)"
+          >
+            <mdi:text-search class="size-4 shrink-0 opacity-60" />
+            {{ label }}
+          </button>
+        </div>
+      </template>
     </template>
   </Popover>
 </template>
@@ -92,6 +97,8 @@ const { t } = useI18n();
 onMounted(() => given || fetchRecentAlerts());
 
 const alert = computed(() => given ?? byContainer.value.get(containerId));
+const store = useContainerStore();
+const readable = computed(() => !!alert.value && !!store.allContainersById[alert.value.containerId]);
 const firedAt = computed(() => new Date((alert.value?.ts ?? 0) / 1e6));
 
 // A CPU spike or a container event has no line to show — logId is absent for

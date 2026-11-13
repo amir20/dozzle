@@ -282,4 +282,43 @@ describe("<RailMetrics />", () => {
     await flushPromises();
     expect(wrapper.text()).toContain("OOM killed");
   });
+
+  // After a restart only Cloud remembers the deploy, and its answer can land
+  // after the metrics. The container it replaced must still be asked for.
+  test("waits for Cloud's deploys before asking for alerts", async () => {
+    let releaseDeploys!: () => void;
+    const cloudDeploy = {
+      host: "local",
+      name: "api",
+      oldId: "old1",
+      newId: "abc",
+      at: new Date(HOUR / 2).toISOString(),
+    };
+    globalThis.fetch = vi.fn((input: RequestInfo | URL) => {
+      const url = String(input);
+      if (url.includes("/deploys/recent"))
+        return new Promise<Response>(
+          (resolve) => (releaseDeploys = () => resolve(new Response(JSON.stringify([cloudDeploy])))),
+        );
+      if (url.includes("/alerts")) return Promise.resolve(new Response(JSON.stringify({ hits: [] })));
+      return Promise.resolve(
+        new Response(
+          JSON.stringify({
+            points: [
+              { ts: 0, cpu: 1, memory: 1, memoryUsage: 1 },
+              { ts: HOUR, cpu: 1, memory: 1, memoryUsage: 1 },
+            ],
+            bucket: HOUR,
+          }),
+        ),
+      );
+    }) as typeof fetch;
+    await render();
+    const alertCalls = () => vi.mocked(globalThis.fetch).mock.calls.filter(([u]) => String(u).includes("/alerts"));
+    expect(alertCalls()).toHaveLength(0);
+
+    releaseDeploys();
+    await flushPromises();
+    expect(String(alertCalls()[0][0])).toContain("containerIds=abc%2Cold1");
+  });
 });

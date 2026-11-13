@@ -113,7 +113,10 @@ const { metricsLookbackHours, ensureCloudStatus } = useCloudConfig();
 // even on a page where nothing else has asked for it. Shared and cached.
 onMounted(ensureCloudStatus);
 // What Cloud remembers past a restart; Dozzle's own updates are already in the store.
-onMounted(refreshCloudDeploys);
+// Kept so the alert lookup can wait for it: the containers a Cloud-only deploy
+// replaced are only known once this answers.
+let deploysReady: Promise<void> = Promise.resolve();
+onMounted(() => (deploysReady = refreshCloudDeploys()));
 
 // One container at a time: a merged view is many histories, and stacking them
 // in a 550px column reads as noise. The first in view is the one on screen.
@@ -172,6 +175,8 @@ let latest = 0;
 // the window is the one cloud answered for, and not awaited, so the charts never
 // wait on it. Best effort: a failure is an empty timeline, never a failed panel.
 async function loadAlerts(current: () => boolean) {
+  await deploysReady;
+  if (!current()) return;
   const { from, to } = range.value;
   const id = container.value?.id;
   // The bars follow the name across deploys, but an alert belongs to the id it
@@ -393,7 +398,9 @@ function eventIn(hover: Hover) {
   if (start === undefined || end === undefined) return "";
   const inside = (ts: number) => ts >= start && ts < end + bucket.value;
   const deploy = deploys.value.filter((d) => inside(Date.parse(d.at))).at(0);
-  const alert = alerts.value.filter((a) => inside(a.ts / 1e6)).at(-1);
+  const alert = alerts.value
+    .filter((a) => inside(a.ts / 1e6))
+    .reduce<CloudAlert | undefined>((newest, a) => (!newest || a.ts > newest.ts ? a : newest), undefined);
   if (alert && (!deploy || alert.ts / 1e6 > Date.parse(deploy.at))) return alert.headline;
   return deploy ? `${t(`update-marker.${updateKind(deploy)}`)} ${updateLabels(deploy).to}` : "";
 }
