@@ -18,12 +18,17 @@ vi.mock("@/composable/logs/viewContext", () => ({
   useViewContext: () => computed(() => ({ containers: [{ id: "abc" }] })),
 }));
 // The deploys Dozzle itself remembers. Tests set them per case.
-const updates = vi.hoisted(() => ({ list: [] as object[] }));
+const updates = vi.hoisted(() => ({ list: [] as object[], created: 0 }));
+const jump = vi.hoisted(() => ({ jumpTo: vi.fn() }));
+vi.mock("@/composable/logs/logJump", () => ({ useLogJump: () => jump }));
 vi.mock("@/stores/container", async () => {
   const { reactive } = await import("vue");
   return {
     useContainerStore: () =>
-      reactive({ allContainersById: { abc: { id: "abc", name: "api", host: "local" } }, recentUpdates: updates.list }),
+      reactive({
+        allContainersById: { abc: { id: "abc", name: "api", host: "local", created: new Date(updates.created) } },
+        recentUpdates: updates.list,
+      }),
   };
 });
 vi.mock("@/composable/cloud/cloudConfig", () => ({
@@ -93,6 +98,8 @@ const sections = (wrapper: Awaited<ReturnType<typeof render>>) =>
 afterEach(() => {
   vi.restoreAllMocks();
   updates.list.length = 0;
+  updates.created = 0;
+  jump.jumpTo.mockReset();
 });
 
 describe("<RailMetrics />", () => {
@@ -320,5 +327,37 @@ describe("<RailMetrics />", () => {
     releaseDeploys();
     await flushPromises();
     expect(String(alertCalls()[0][0])).toContain("containerIds=abc%2Cold1");
+  });
+
+  // A bar is a moment; clicking it opens this container's logs there.
+  test("clicking a bar jumps to the logs at its moment", async () => {
+    respond([
+      { ts: 0, cpu: 1, memory: 1, memoryUsage: 1 },
+      { ts: HOUR, cpu: 1, memory: 1, memoryUsage: 1 },
+    ]);
+    const wrapper = await render();
+    wrapper.findAllComponents(BarChartStub)[0].vm.$emit("hoverValue", 1, 1, 2);
+    await flushPromises();
+    await wrapper.findAll("section button")[0].trigger("click");
+
+    expect(jump.jumpTo).toHaveBeenCalledWith({ containerId: "abc", date: new Date(HOUR) });
+  });
+
+  // Before this container was created the bars are one a deploy replaced, and
+  // its logs went with it.
+  test("a bar from before the container existed does not jump", async () => {
+    updates.created = HOUR;
+    respond([
+      { ts: 0, cpu: 1, memory: 1, memoryUsage: 1 },
+      { ts: HOUR, cpu: 1, memory: 1, memoryUsage: 1 },
+    ]);
+    const wrapper = await render();
+    wrapper.findAllComponents(BarChartStub)[0].vm.$emit("hoverValue", 1, 0, 2);
+    await flushPromises();
+    const button = wrapper.findAll("section button")[0];
+    await button.trigger("click");
+
+    expect(jump.jumpTo).not.toHaveBeenCalled();
+    expect(button.attributes("aria-disabled")).toBe("true");
   });
 });
