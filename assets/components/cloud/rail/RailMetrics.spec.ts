@@ -66,7 +66,7 @@ const TimelineStub = defineComponent({
 // handed and to let a test move the shared pointer.
 const BarChartStub = defineComponent({
   name: "BarChart",
-  props: ["chartData", "barClass", "hoverIndex"],
+  props: ["chartData", "barClass", "hoverIndex", "max"],
   emits: ["hoverValue", "hoverEnd"],
   template: "<div data-chart></div>",
 });
@@ -97,6 +97,7 @@ async function render() {
           messages: {
             en: {
               label: { cpu: "CPU", mem: "MEM", network: "Network", "disk-io": "Disk I/O" },
+              analytics: { avg: "Avg", max: "Max" },
               "cloud-rail": { "metrics-peak": "peak", "window-7d": "7d", "window-24h": "24h" },
             },
           },
@@ -410,5 +411,44 @@ describe("<RailMetrics />", () => {
     await wrapper.findAll("section button")[0].trigger("click");
 
     expect(jump.jumpTo).not.toHaveBeenCalled();
+  });
+
+  // Scaled to its own peak a steady container drew as a solid block. The limit
+  // comes back out of the bytes and percent cloud already sends.
+  test("memory is drawn against its limit", async () => {
+    const M = 1024 ** 2;
+    respond([
+      { ts: 0, cpu: 1, memory: 20, memoryUsage: 400 * M, memoryUsageMax: 500 * M },
+      { ts: HOUR, cpu: 1, memory: 20, memoryUsage: 400 * M, memoryUsageMax: 500 * M },
+    ]);
+    const wrapper = await render();
+    const mem = wrapper.findAllComponents(BarChartStub)[1];
+
+    expect(mem.props("max")).toBe(100);
+    expect(mem.props("chartData")[0]).toEqual({ percent: 20, value: 400 * M, peakPercent: 25, peak: 500 * M });
+    expect(wrapper.findAll("[data-summary]")[1].text().replace(/\s+/g, " ")).toBe("Avg 400M / 2G");
+  });
+
+  test("without a percent there is no limit, and memory keeps its own scale", async () => {
+    respond([{ ts: 0, cpu: 1, memory: 0, memoryUsage: 400 }]);
+    const mem = (await render()).findAllComponents(BarChartStub)[1];
+
+    expect(mem.props("max")).toBeUndefined();
+    expect(mem.props("chartData")[0]).toEqual({ percent: 400, value: 400 });
+  });
+
+  test("each chart sums up its window, and the window's ends are labelled", async () => {
+    respond([
+      { ts: 0, cpu: 4, cpuMax: 9, memory: 1, memoryUsage: 1, networkRx: 1024, networkTx: 2048 },
+      { ts: HOUR, cpu: 8, cpuMax: 20, memory: 1, memoryUsage: 1, networkRx: 3072, networkTx: 2048 },
+    ]);
+    const wrapper = await render();
+    const summaries = wrapper.findAll("[data-summary]").map((p) => p.text());
+
+    expect(summaries[0]).toBe("Avg 6.0%");
+    expect(summaries[2]).toBe("Avg ↑2K/s ↓2K/s");
+    const ends = wrapper.findAll("[data-range] span").map((s) => s.text());
+    expect(ends).toHaveLength(2);
+    expect(ends[0]).not.toBe(ends[1]);
   });
 });
