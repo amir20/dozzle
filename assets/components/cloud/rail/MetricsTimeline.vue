@@ -89,7 +89,8 @@ const deployLabel = (deploy: RecentDeploy) => `${t(`update-marker.${updateKind(d
 @reference "@/main.css";
 
 /* A ring rather than a dot, as on ContainerUpdateDot, so a deploy never reads
-   as an alert. Same 6px mark and invisible hit area as AlertDot. */
+   as an alert. The same 8px ring as ContainerUpdateDot, with the invisible hit
+   area AlertDot uses. */
 .deploy-mark {
   @apply bg-base-100 relative size-2 shrink-0 rounded-full border-[1.5px] border-current transition-[box-shadow,transform];
 }

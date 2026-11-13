@@ -256,7 +256,9 @@ describe("<RailMetrics />", () => {
     // The window the bars cover, first bucket's start to last bucket's end.
     expect([timeline.props("from"), timeline.props("to")]).toEqual([0, 2 * HOUR]);
     const alertsUrl = String(vi.mocked(globalThis.fetch).mock.calls.find(([u]) => String(u).includes("/alerts"))![0]);
-    expect(alertsUrl).toContain("containerIds=abc");
+    // The container the deploy replaced is asked for too: its alerts are the
+    // ones that explain the step.
+    expect(alertsUrl).toContain("containerIds=abc%2Co1");
     expect(alertsUrl).toContain(`to=${2 * HOUR * 1e6}`);
   });
 

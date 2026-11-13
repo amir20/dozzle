@@ -174,7 +174,14 @@ let latest = 0;
 async function loadAlerts(current: () => boolean) {
   const { from, to } = range.value;
   const id = container.value?.id;
-  const found = id && to > from ? (await fetchAlerts([id], new Date(from), new Date(to))).alerts : [];
+  // The bars follow the name across deploys, but an alert belongs to the id it
+  // fired on, and a deploy hands out a new one. The containers each deploy in
+  // the window replaced are asked for too, so what fired before a deploy is not
+  // missing from the very step it explains. (A user with a container filter
+  // still only gets ids they can currently see.)
+  const replaced = deploys.value.filter((d) => inWindow(Date.parse(d.at), from, to)).map((d) => d.oldId);
+  const ids = id ? [...new Set([id, ...replaced])] : [];
+  const found = ids.length && to > from ? (await fetchAlerts(ids, new Date(from), new Date(to))).alerts : [];
   if (current()) alerts.value = found;
 }
 
@@ -357,6 +364,8 @@ const clock = computed(
       hourCycle: hourCycle.value,
     }),
 );
+
+const inWindow = (ts: number, from: number, to: number) => ts >= from && ts <= to;
 
 // The time the bars cover: from the first bucket's start to the last one's end.
 const range = computed(() => {
