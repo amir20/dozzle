@@ -168,13 +168,15 @@ function pitchOf(count: number) {
   return (width.value + GAP) / count;
 }
 
-// Never wider than a bar is drawn at full density. A short series (a history
-// window with a handful of points, a container minutes old) spreads its columns
-// out instead, so each bar keeps its shape rather than ballooning into a dome
-// that fills the column.
+// Capped at twice the full-density width. A short series (a history window
+// with a handful of points, a container minutes old) spreads its columns out
+// instead, so a bar keeps its shape rather than ballooning into a dome that fills
+// the column. Twice, not once, so the live charts (300 points folded to ~100
+// bars, ~5px each) draw exactly as they did.
+const MAX_BAR_WIDTH = BAR_WIDTH * 2;
 const barWidth = computed(() => {
   const count = downsampledBars.value.length;
-  return count === 0 ? BAR_WIDTH : Math.min(BAR_WIDTH, Math.max(1, pitchOf(count) - GAP));
+  return count === 0 ? BAR_WIDTH : Math.min(MAX_BAR_WIDTH, Math.max(1, pitchOf(count) - GAP));
 });
 
 // The round cap reaches half a stroke past the line's end, so the drawable height

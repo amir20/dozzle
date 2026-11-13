@@ -6,7 +6,11 @@
     like this an hour ago" has no local answer to gate. This reads back the
     samples this instance has been pushing all along.
   -->
-  <div ref="root" class="h-full overflow-y-auto p-4">
+  <!-- The gutter is reserved so a scrollbar coming and going (a loading line is
+       shorter than the charts) never changes the width `columns` is read from:
+       with classic scrollbars that refetched, which showed the loading line,
+       which hid the scrollbar, and so on. -->
+  <div ref="root" class="h-full [scrollbar-gutter:stable] overflow-y-auto p-4">
     <p v-if="!container" class="text-base-content/60 text-sm">{{ $t("cloud-rail.metrics-no-container") }}</p>
 
     <template v-else>

@@ -136,13 +136,29 @@ describe("<BarChart />", () => {
 
   // Six points across a 300px chart gave each column ~50px, and the stroke filled
   // it: six domes instead of six bars.
-  test("a short series keeps bars at their normal width and spreads them out", async () => {
+  test("a short series keeps bars narrow and spreads them out", async () => {
     const wrapper = await mountAndRender(constant(50, 6));
 
-    expect(wrapper.find('[data-bars="sampled"]').attributes("stroke-width")).toBe("3");
+    expect(wrapper.find('[data-bars="sampled"]').attributes("stroke-width")).toBe("6");
     const xs = bars(wrapper).map((b) => b.x);
     expect(xs).toHaveLength(6);
     expect(xs.at(-1)! - xs[0]).toBeGreaterThan(200);
+  });
+
+  // The cap is for short series only. A live chart folds 300 samples into ~100
+  // bars of ~5px, and must draw exactly as it did before the cap existed.
+  test("a full live series keeps its usual bar width", async () => {
+    holder.width!.value = 0;
+    const wrapper = mount(BarChart, { props: { chartData: constant(50, 300) } });
+    await nextTick();
+    holder.width!.value = 700;
+    await nextTick();
+    await flushPromises();
+
+    const width = parseFloat(wrapper.find('[data-bars="sampled"]').attributes("stroke-width")!);
+    expect(width).toBeGreaterThan(4.5);
+    expect(width).toBeLessThan(5.5);
+    holder.width!.value = 300;
   });
 });
 
