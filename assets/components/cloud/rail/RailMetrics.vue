@@ -47,14 +47,27 @@
               <span class="text-base-content/40">{{ readout(chart).aside }}</span>
             </span>
           </div>
-          <BarChart
-            :chart-data="chart.data"
-            :bar-class="chart.colorClass"
-            :hover-index="hovered?.index ?? null"
-            class="h-16"
-            @hover-value="(_: number, index: number, bars: number) => (hovered = { index, bars })"
-            @hover-end="hovered = null"
-          />
+          <!-- The chart is a button: a bar is a moment, and the logs at that
+               moment are the one thing Dozzle can show that Cloud cannot. A bar
+               from before this container existed (an earlier deploy) has no
+               logs to show, so it says so instead of jumping to nothing. -->
+          <button
+            type="button"
+            class="block w-full"
+            :class="{ 'cursor-default': !jumpable }"
+            :aria-disabled="!jumpable"
+            :aria-label="$t('notifications.history.show-moment')"
+            @click="jumpToHovered"
+          >
+            <BarChart
+              :chart-data="chart.data"
+              :bar-class="chart.colorClass"
+              :hover-index="hovered?.index ?? null"
+              class="h-16"
+              @hover-value="(_: number, index: number, bars: number) => (hovered = { index, bars })"
+              @hover-end="hovered = null"
+            />
+          </button>
         </section>
 
         <MetricsTimeline
@@ -405,11 +418,36 @@ function eventIn(hover: Hover) {
   return deploy ? `${t(`update-marker.${updateKind(deploy)}`)} ${updateLabels(deploy).to}` : "";
 }
 
+// The middle of the hovered bar, in ms: the moment it names and jumps to.
+function momentOf(hover: Hover) {
+  const [from, to] = spanOf(hover);
+  return points.value[Math.min(points.value.length - 1, Math.floor((from + to - 1) / 2))]?.ts;
+}
+
+// Logs belong to the container that wrote them. Before this one was created the
+// bars are a container a deploy replaced, whose logs went with it.
+// Without hover a tap is how a bar is read (BarChart keeps the touched bar
+// reported), so on a touch screen of any width a tap reads and never navigates.
+// On a phone the jump would also land out of sight under the full-screen sheet.
+const { sheet } = useCloudRail();
+const jumpable = computed(() => {
+  if (sheet.value || !canHover.value) return false;
+  const ts = hovered.value ? momentOf(hovered.value) : undefined;
+  const c = container.value;
+  return ts !== undefined && !!c && ts >= c.created.getTime();
+});
+
+const { jumpTo } = useLogJump();
+function jumpToHovered() {
+  const ts = hovered.value ? momentOf(hovered.value) : undefined;
+  if (!jumpable.value || ts === undefined || !container.value) return;
+  jumpTo({ containerId: container.value.id, date: new Date(ts) });
+}
+
 // A bar covers a run of points; its middle is the honest moment to name.
 function timeOf(hover: Hover) {
-  const [from, to] = spanOf(hover);
-  const point = points.value[Math.min(points.value.length - 1, Math.floor((from + to - 1) / 2))];
-  return point ? clock.value.format(new Date(point.ts)) : "";
+  const ts = momentOf(hover);
+  return ts === undefined ? "" : clock.value.format(new Date(ts));
 }
 
 // Said out loud so a flat line reads as an average rather than a missing sample.

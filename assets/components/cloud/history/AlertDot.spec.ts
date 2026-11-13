@@ -10,7 +10,13 @@ import type { CloudAlert } from "@/composable/cloud/cloudAlerts";
 
 vi.mock("@/stores/config", () => ({ __esModule: true, default: { base: "", hosts: [] }, withBase: (p: string) => p }));
 vi.mock("@/stores/container", () => ({ useContainerStore: () => ({ allContainersById: { here: {} } }) }));
-vi.mock("@/composable/logs/logJump", () => ({ useLogJump: () => ({ jumpTo: vi.fn() }) }));
+const jump = vi.hoisted(() => ({ jumpTo: vi.fn() }));
+vi.mock("@/composable/logs/logJump", () => ({ useLogJump: () => jump }));
+const rail = vi.hoisted(() => ({ sheet: true, closeRail: vi.fn() }));
+vi.mock("@/composable/cloud/cloudRail", async () => {
+  const { computed } = await import("vue");
+  return { useCloudRail: () => ({ sheet: computed(() => rail.sheet), closeRail: rail.closeRail }) };
+});
 vi.mock("@/composable/cloud/recentAlerts", () => ({
   useRecentAlerts: () => ({ byContainer: { value: new Map() }, fetchRecentAlerts: vi.fn() }),
 }));
@@ -40,5 +46,13 @@ describe("<AlertDot />", () => {
   // alerts from those too. Jumping to one lands on Not Found.
   test("offers no jump once the alert's container is gone", () => {
     expect(render("gone").findAll("button").length).toBe(1);
+  });
+
+  // On a phone the rail is a sheet over the logs, so a jump closes it first.
+  test("on a phone the jump closes the rail sheet", async () => {
+    await render("here").findAll("button")[1].trigger("click");
+
+    expect(rail.closeRail).toHaveBeenCalled();
+    expect(jump.jumpTo).toHaveBeenCalled();
   });
 });

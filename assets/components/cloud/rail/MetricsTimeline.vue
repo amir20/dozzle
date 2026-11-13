@@ -27,15 +27,33 @@
         <template #trigger>
           <button type="button" class="deploy-mark text-info" :aria-label="deployLabel(mark.deploy)"></button>
         </template>
-        <div class="flex flex-col gap-1 p-3 text-sm">
-          <span class="font-semibold">{{ $t(`update-marker.${updateKind(mark.deploy)}`) }}</span>
-          <span class="font-mono text-xs wrap-anywhere">
-            <span class="opacity-60">{{ updateLabels(mark.deploy).from }}</span>
-            <span class="mx-1 opacity-40">&rarr;</span>
-            <span>{{ updateLabels(mark.deploy).to }}</span>
-          </span>
-          <span class="text-base-content/60 text-xs">{{ format(mark.ts) }}</span>
-        </div>
+        <template #default="{ close }">
+          <div class="flex flex-col gap-1 p-3 text-sm">
+            <span class="font-semibold">{{ $t(`update-marker.${updateKind(mark.deploy)}`) }}</span>
+            <span class="font-mono text-xs wrap-anywhere">
+              <span class="opacity-60">{{ updateLabels(mark.deploy).from }}</span>
+              <span class="mx-1 opacity-40">&rarr;</span>
+              <span>{{ updateLabels(mark.deploy).to }}</span>
+            </span>
+            <span class="text-base-content/60 text-xs">{{ format(mark.ts) }}</span>
+          </div>
+          <!-- The same action row AlertDot ends with. Only offered while the
+               container the deploy started is still here to read from. -->
+          <template v-if="store.allContainersById[mark.deploy.newId]">
+            <div class="bg-base-content/10 h-px"></div>
+            <div class="p-1.5">
+              <button
+                type="button"
+                class="hover:bg-base-300 flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-sm font-medium transition-colors"
+                data-show-moment
+                @click="showMoment(mark, close)"
+              >
+                <mdi:text-search class="size-4 shrink-0 opacity-60" />
+                {{ $t("notifications.history.show-moment") }}
+              </button>
+            </div>
+          </template>
+        </template>
       </Popover>
     </div>
   </div>
@@ -56,6 +74,17 @@ const { from, to, alerts, deploys, format } = defineProps<{
 }>();
 
 const { t } = useI18n();
+const store = useContainerStore();
+const { jumpTo } = useLogJump();
+
+// On a phone the rail is a sheet over the logs, so it closes too, or the jump
+// would happen out of sight beneath it.
+const { sheet, closeRail } = useCloudRail();
+function showMoment(mark: Extract<Mark, { kind: "deploy" }>, close: () => void) {
+  close();
+  if (sheet.value) closeRail();
+  jumpTo({ containerId: mark.deploy.newId, date: new Date(mark.ts) });
+}
 
 type Mark =
   | { kind: "alert"; key: string; ts: number; left: number; alert: CloudAlert }

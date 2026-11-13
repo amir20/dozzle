@@ -2,12 +2,24 @@
  * @vitest-environment jsdom
  */
 import { mount } from "@vue/test-utils";
-import { describe, expect, test } from "vitest";
+import { beforeEach, describe, expect, test, vi } from "vitest";
 import { defineComponent } from "vue";
 import { createI18n } from "vue-i18n";
 import MetricsTimeline from "./MetricsTimeline.vue";
 import type { CloudAlert } from "@/composable/cloud/cloudAlerts";
 import type { RecentDeploy } from "@/composable/cloud/recentDeploys";
+
+const jump = vi.hoisted(() => ({ jumpTo: vi.fn() }));
+vi.mock("@/composable/logs/logJump", () => ({ useLogJump: () => jump }));
+const rail = vi.hoisted(() => ({ sheet: false, closeRail: vi.fn() }));
+vi.mock("@/composable/cloud/cloudRail", async () => {
+  const { computed } = await import("vue");
+  return { useCloudRail: () => ({ sheet: computed(() => rail.sheet), closeRail: rail.closeRail }) };
+});
+// The deploy's new container is "n"; tests decide whether it is still here.
+const present = vi.hoisted(() => ({ ids: {} as Record<string, object> }));
+vi.mock("@/stores/container", () => ({ useContainerStore: () => ({ allContainersById: present.ids }) }));
+vi.mock("@/stores/config", () => ({ __esModule: true, default: { base: "", hosts: [] }, withBase: (p: string) => p }));
 
 const HOUR = 3_600_000;
 
@@ -38,7 +50,7 @@ function render(props: { alerts?: CloudAlert[]; deploys?: RecentDeploy[] }) {
       plugins: [createI18n({ legacy: false, locale: "en", missingWarn: false, fallbackWarn: false })],
       stubs: {
         AlertDot: defineComponent({ props: ["alert"], template: "<i data-alert-dot />" }),
-        Popover: defineComponent({ template: "<div><slot name='trigger' /><slot /></div>" }),
+        Popover: defineComponent({ template: "<div><slot name='trigger' /><slot :close='() => {}' /></div>" }),
       },
     },
   });
@@ -48,6 +60,13 @@ const lefts = (wrapper: ReturnType<typeof render>, kind: string) =>
   wrapper.findAll(`[data-mark="${kind}"]`).map((m) => m.attributes("style"));
 
 describe("<MetricsTimeline />", () => {
+  beforeEach(() => {
+    jump.jumpTo.mockReset();
+    rail.sheet = false;
+    rail.closeRail.mockReset();
+    present.ids = {};
+  });
+
   test("draws nothing when nothing happened in the window", () => {
     expect(render({}).find("[data-timeline]").exists()).toBe(false);
   });
@@ -71,5 +90,29 @@ describe("<MetricsTimeline />", () => {
 
     expect(wrapper.find('[data-mark="alert"] [data-alert-dot]').exists()).toBe(true);
     expect(wrapper.find('[data-mark="deploy"] .deploy-mark').exists()).toBe(true);
+  });
+
+  test("a deploy's panel opens the logs around it while its container is here", async () => {
+    present.ids = { n: {} };
+    const wrapper = render({ deploys: [deploy(2 * HOUR)] });
+    await wrapper.find("[data-show-moment]").trigger("click");
+
+    expect(jump.jumpTo).toHaveBeenCalledWith({ containerId: "n", date: new Date(2 * HOUR) });
+  });
+
+  test("no jump is offered once the deploy's container is gone", () => {
+    const wrapper = render({ deploys: [deploy(2 * HOUR)] });
+    expect(wrapper.find("[data-show-moment]").exists()).toBe(false);
+  });
+
+  // On a phone the rail covers the logs, so it closes or the jump is unseen.
+  test("on a phone the deploy jump closes the rail sheet first", async () => {
+    present.ids = { n: {} };
+    rail.sheet = true;
+    const wrapper = render({ deploys: [deploy(2 * HOUR)] });
+    await wrapper.find("[data-show-moment]").trigger("click");
+
+    expect(rail.closeRail).toHaveBeenCalled();
+    expect(jump.jumpTo).toHaveBeenCalled();
   });
 });
