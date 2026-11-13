@@ -35,7 +35,7 @@ Open it by pressing <kbd>.</kbd> in a container's logs, from the container menu,
 
 ### <Icon icon="mdi:chart-line" inline /> Metrics
 
-Dozzle keeps 300 stat samples in the browser and nothing behind them, so "was it like this an hour ago?" has no local answer. This panel reads back the samples your instance has been pushing all along: CPU and memory over the last 1h, 6h or 24h, with the peak called out and hover reading the chart back to you. Pro adds a 7 day window.
+Dozzle keeps 300 stat samples in the browser and nothing behind them, so "was it like this an hour ago?" has no local answer. This panel reads back the samples your instance has been pushing all along: CPU, memory, network and disk over the last 1h, 6h or 24h. Each bar is an average with the highest sample drawn faintly behind it, so a short spike stays visible however long the window is, and hovering any chart reads all of them back at the same moment. Network and disk add up what went out and what came in over the window. Pro adds a 7 day window.
 
 ### <Icon icon="mdi:bell-outline" inline /> Alerts
 

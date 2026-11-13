@@ -1386,7 +1386,20 @@ type ContainerMetricPoint struct {
 	// Percent of the container's memory limit.
 	Memory float64 `protobuf:"fixed64,3,opt,name=memory,proto3" json:"memory,omitempty"`
 	// Absolute bytes, because a percentage of an unknown limit is not readable.
-	MemoryUsage   int64 `protobuf:"varint,4,opt,name=memory_usage,json=memoryUsage,proto3" json:"memory_usage,omitempty"`
+	MemoryUsage int64 `protobuf:"varint,4,opt,name=memory_usage,json=memoryUsage,proto3" json:"memory_usage,omitempty"`
+	// The highest sample in the bucket, next to the averages above. A peak taken
+	// from averages shrinks as the buckets widen, so a week read lower than the
+	// day inside it. Optional so an older cloud reads as "no max", not as 0.
+	CpuMax         *float64 `protobuf:"fixed64,5,opt,name=cpu_max,json=cpuMax,proto3,oneof" json:"cpu_max,omitempty"`
+	MemoryUsageMax *int64   `protobuf:"varint,7,opt,name=memory_usage_max,json=memoryUsageMax,proto3,oneof" json:"memory_usage_max,omitempty"`
+	// Bytes per second over the bucket, from the deltas of the cumulative
+	// counters Dozzle pushes. A counter that went backwards (a restart) is a
+	// reset, not negative traffic. Optional so an older cloud hides the charts
+	// rather than drawing a flat line that reads as "no traffic".
+	NetworkRxRate *float64 `protobuf:"fixed64,8,opt,name=network_rx_rate,json=networkRxRate,proto3,oneof" json:"network_rx_rate,omitempty"`
+	NetworkTxRate *float64 `protobuf:"fixed64,9,opt,name=network_tx_rate,json=networkTxRate,proto3,oneof" json:"network_tx_rate,omitempty"`
+	DiskReadRate  *float64 `protobuf:"fixed64,10,opt,name=disk_read_rate,json=diskReadRate,proto3,oneof" json:"disk_read_rate,omitempty"`
+	DiskWriteRate *float64 `protobuf:"fixed64,11,opt,name=disk_write_rate,json=diskWriteRate,proto3,oneof" json:"disk_write_rate,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1445,6 +1458,48 @@ func (x *ContainerMetricPoint) GetMemory() float64 {
 func (x *ContainerMetricPoint) GetMemoryUsage() int64 {
 	if x != nil {
 		return x.MemoryUsage
+	}
+	return 0
+}
+
+func (x *ContainerMetricPoint) GetCpuMax() float64 {
+	if x != nil && x.CpuMax != nil {
+		return *x.CpuMax
+	}
+	return 0
+}
+
+func (x *ContainerMetricPoint) GetMemoryUsageMax() int64 {
+	if x != nil && x.MemoryUsageMax != nil {
+		return *x.MemoryUsageMax
+	}
+	return 0
+}
+
+func (x *ContainerMetricPoint) GetNetworkRxRate() float64 {
+	if x != nil && x.NetworkRxRate != nil {
+		return *x.NetworkRxRate
+	}
+	return 0
+}
+
+func (x *ContainerMetricPoint) GetNetworkTxRate() float64 {
+	if x != nil && x.NetworkTxRate != nil {
+		return *x.NetworkTxRate
+	}
+	return 0
+}
+
+func (x *ContainerMetricPoint) GetDiskReadRate() float64 {
+	if x != nil && x.DiskReadRate != nil {
+		return *x.DiskReadRate
+	}
+	return 0
+}
+
+func (x *ContainerMetricPoint) GetDiskWriteRate() float64 {
+	if x != nil && x.DiskWriteRate != nil {
+		return *x.DiskWriteRate
 	}
 	return 0
 }
@@ -5838,12 +5893,26 @@ const file_cloud_proto_rawDesc = "" +
 	"\ahost_id\x18\x05 \x01(\tR\x06hostId\x12\x1e\n" +
 	"\vsince_ts_ns\x18\x02 \x01(\x03R\tsinceTsNs\x12\x1e\n" +
 	"\vuntil_ts_ns\x18\x03 \x01(\x03R\tuntilTsNs\x12\x18\n" +
-	"\abuckets\x18\x04 \x01(\x05R\abuckets\"x\n" +
+	"\abuckets\x18\x04 \x01(\x05R\abuckets\"\xed\x03\n" +
 	"\x14ContainerMetricPoint\x12\x13\n" +
 	"\x05ts_ns\x18\x01 \x01(\x03R\x04tsNs\x12\x10\n" +
 	"\x03cpu\x18\x02 \x01(\x01R\x03cpu\x12\x16\n" +
 	"\x06memory\x18\x03 \x01(\x01R\x06memory\x12!\n" +
-	"\fmemory_usage\x18\x04 \x01(\x03R\vmemoryUsage\"o\n" +
+	"\fmemory_usage\x18\x04 \x01(\x03R\vmemoryUsage\x12\x1c\n" +
+	"\acpu_max\x18\x05 \x01(\x01H\x00R\x06cpuMax\x88\x01\x01\x12-\n" +
+	"\x10memory_usage_max\x18\a \x01(\x03H\x01R\x0ememoryUsageMax\x88\x01\x01\x12+\n" +
+	"\x0fnetwork_rx_rate\x18\b \x01(\x01H\x02R\rnetworkRxRate\x88\x01\x01\x12+\n" +
+	"\x0fnetwork_tx_rate\x18\t \x01(\x01H\x03R\rnetworkTxRate\x88\x01\x01\x12)\n" +
+	"\x0edisk_read_rate\x18\n" +
+	" \x01(\x01H\x04R\fdiskReadRate\x88\x01\x01\x12+\n" +
+	"\x0fdisk_write_rate\x18\v \x01(\x01H\x05R\rdiskWriteRate\x88\x01\x01B\n" +
+	"\n" +
+	"\b_cpu_maxB\x13\n" +
+	"\x11_memory_usage_maxB\x12\n" +
+	"\x10_network_rx_rateB\x12\n" +
+	"\x10_network_tx_rateB\x11\n" +
+	"\x0f_disk_read_rateB\x12\n" +
+	"\x10_disk_write_rateJ\x04\b\x06\x10\a\"o\n" +
 	"\x1bGetContainerMetricsResponse\x123\n" +
 	"\x06points\x18\x01 \x03(\v2\x1b.cloud.ContainerMetricPointR\x06points\x12\x1b\n" +
 	"\tbucket_ns\x18\x02 \x01(\x03R\bbucketNs\"\xe8\x01\n" +
@@ -6444,6 +6513,7 @@ func file_cloud_proto_init() {
 		(*ChatServerEvent_ToolCall)(nil),
 		(*ChatServerEvent_Step)(nil),
 	}
+	file_cloud_proto_msgTypes[16].OneofWrappers = []any{}
 	file_cloud_proto_msgTypes[18].OneofWrappers = []any{
 		(*ToolRequest_ListTools)(nil),
 		(*ToolRequest_CallTool)(nil),

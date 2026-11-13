@@ -16,6 +16,16 @@ type MetricPoint struct {
 	CPU         float64 `json:"cpu"`
 	Memory      float64 `json:"memory"`
 	MemoryUsage int64   `json:"memoryUsage"`
+
+	// Pointers because each one is absent from an older cloud, and the panel
+	// tells "not sent" apart from a real zero: a missing max falls back to the
+	// average, a missing rate hides its chart.
+	CPUMax         *float64 `json:"cpuMax,omitempty"`
+	MemoryUsageMax *int64   `json:"memoryUsageMax,omitempty"`
+	NetworkRx      *float64 `json:"networkRx,omitempty"`
+	NetworkTx      *float64 `json:"networkTx,omitempty"`
+	DiskRead       *float64 `json:"diskRead,omitempty"`
+	DiskWrite      *float64 `json:"diskWrite,omitempty"`
 }
 
 // MetricResult is what Cloud remembers about one container's resource use.
@@ -71,6 +81,13 @@ func metricResultFromProto(resp *pb.GetContainerMetricsResponse) *MetricResult {
 			CPU:         p.GetCpu(),
 			Memory:      p.GetMemory(),
 			MemoryUsage: p.GetMemoryUsage(),
+
+			CPUMax:         p.CpuMax,
+			MemoryUsageMax: p.MemoryUsageMax,
+			NetworkRx:      p.NetworkRxRate,
+			NetworkTx:      p.NetworkTxRate,
+			DiskRead:       p.DiskReadRate,
+			DiskWrite:      p.DiskWriteRate,
 		})
 	}
 	return result

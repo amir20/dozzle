@@ -140,6 +140,7 @@ declare global {
   const formatCopyBlocks: typeof import('./composable/logs/copyLogs').formatCopyBlocks
   const formatDuration: typeof import('./utils/index').formatDuration
   const formatRange: typeof import('./composable/logs/timeRange').formatRange
+  const formatRate: typeof import('./utils/index').formatRate
   const formatSpan: typeof import('./composable/logs/timeRange').formatSpan
   const formatTime: typeof import('./composable/logs/timeRange').formatTime
   const getActivePinia: typeof import('pinia').getActivePinia
@@ -902,6 +903,7 @@ declare module 'vue' {
     readonly formatBytes: UnwrapRef<typeof import('./utils/index')['formatBytes']>
     readonly formatDuration: UnwrapRef<typeof import('./utils/index')['formatDuration']>
     readonly formatRange: UnwrapRef<typeof import('./composable/logs/timeRange')['formatRange']>
+    readonly formatRate: UnwrapRef<typeof import('./utils/index')['formatRate']>
     readonly formatSpan: UnwrapRef<typeof import('./composable/logs/timeRange')['formatSpan']>
     readonly formatTime: UnwrapRef<typeof import('./composable/logs/timeRange')['formatTime']>
     readonly getActivePinia: UnwrapRef<typeof import('pinia')['getActivePinia']>

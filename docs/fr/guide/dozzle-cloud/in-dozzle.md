@@ -1,7 +1,7 @@
 ---
 title: Dans votre Dozzle
 description: Ce qui change dans votre propre Dozzle une fois relié à Dozzle Cloud, notamment Ask Dozzle, l'historique des métriques et les alertes qui survivent à un rechargement.
-sourceHash: 6ba069544b57
+sourceHash: 921d6ccbad4e
 ---
 
 # Dans votre Dozzle
@@ -36,7 +36,7 @@ Ouvrez-le en appuyant sur <kbd>.</kbd> dans les logs d'un conteneur, depuis le m
 
 ### <Icon icon="mdi:chart-line" inline /> Métriques
 
-Dozzle garde 300 échantillons dans le navigateur et rien derrière : « est-ce que c'était comme ça il y a une heure ? » n'a donc pas de réponse locale. Ce panneau relit les échantillons que votre instance envoie depuis le début : CPU et mémoire sur les dernières 1 h, 6 h ou 24 h, avec le pic mis en avant, et le survol qui vous lit le graphique. Pro ajoute une fenêtre de 7 jours.
+Dozzle garde 300 échantillons dans le navigateur et rien derrière : « est-ce que c'était comme ça il y a une heure ? » n'a donc pas de réponse locale. Ce panneau relit les échantillons que votre instance envoie depuis le début : CPU, mémoire, réseau et disque sur les dernières 1 h, 6 h ou 24 h. Chaque barre est une moyenne, avec l'échantillon le plus haut tracé en transparence derrière elle, pour qu'un pic bref reste visible quelle que soit la longueur de la fenêtre, et survoler n'importe quel graphique les relit tous au même instant. Réseau et disque additionnent ce qui est sorti et ce qui est entré sur la fenêtre. Pro ajoute une fenêtre de 7 jours.
 
 ### <Icon icon="mdi:bell-outline" inline /> Alertes
 

@@ -1,0 +1,183 @@
+/**
+ * @vitest-environment jsdom
+ */
+import { flushPromises, mount } from "@vue/test-utils";
+import { afterEach, describe, expect, test, vi } from "vitest";
+import { computed, defineComponent, ref } from "vue";
+import { createI18n } from "vue-i18n";
+import RailMetrics from "./RailMetrics.vue";
+
+// jsdom lays nothing out, so the panel would never learn its width and never
+// load. 552px is the rail's width: (552 - 32) / 5 = 104 columns.
+vi.mock("@vueuse/core", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@vueuse/core")>();
+  return { ...actual, useElementSize: () => ({ width: ref(552), height: ref(800) }) };
+});
+vi.mock("@/stores/config", () => ({ __esModule: true, default: { base: "" }, withBase: (p: string) => p }));
+vi.mock("@/composable/logs/viewContext", () => ({
+  useViewContext: () => computed(() => ({ containers: [{ id: "abc" }] })),
+}));
+vi.mock("@/stores/container", () => ({
+  useContainerStore: () => ({ allContainersById: { abc: { id: "abc", name: "api", host: "local" } } }),
+}));
+vi.mock("@/composable/cloud/cloudConfig", () => ({
+  useCloudConfig: () => ({ metricsLookbackHours: ref(168), ensureCloudStatus: vi.fn() }),
+}));
+
+// The chart is covered by its own spec. Here it only needs to say what it was
+// handed and to let a test move the shared pointer.
+const BarChartStub = defineComponent({
+  name: "BarChart",
+  props: ["chartData", "barClass", "hoverIndex"],
+  emits: ["hoverValue", "hoverEnd"],
+  template: "<div data-chart></div>",
+});
+
+const HOUR = 3_600_000;
+
+function respond(points: object[]) {
+  globalThis.fetch = vi.fn(async () => new Response(JSON.stringify({ points, bucket: HOUR }))) as typeof fetch;
+}
+
+async function render() {
+  const wrapper = mount(RailMetrics, {
+    global: {
+      plugins: [
+        createI18n({
+          legacy: false,
+          locale: "en",
+          missingWarn: false,
+          fallbackWarn: false,
+          messages: {
+            en: {
+              label: { cpu: "CPU", mem: "MEM", network: "Network", "disk-io": "Disk I/O" },
+              "cloud-rail": { "metrics-peak": "peak", "window-7d": "7d", "window-24h": "24h" },
+            },
+          },
+        }),
+      ],
+      stubs: { BarChart: BarChartStub },
+    },
+  });
+  await flushPromises();
+  return wrapper;
+}
+
+const sections = (wrapper: Awaited<ReturnType<typeof render>>) =>
+  wrapper.findAll("section").map((s) => s.text().replace(/\s+/g, " "));
+
+afterEach(() => vi.restoreAllMocks());
+
+describe("<RailMetrics />", () => {
+  // A fixed 120 buckets in a ~100-column chart folded pairs into 60 bars with a
+  // wide gap between each.
+  test("asks cloud for one bucket per chart column", async () => {
+    respond([]);
+    await render();
+
+    expect(vi.mocked(globalThis.fetch).mock.calls[0][0]).toContain("buckets=104");
+  });
+
+  // The bug this guards: the peak was the highest bucket average, so a week of
+  // hourly averages read lower than the day of 12-minute ones inside it.
+  test("the peak is the highest sample, not the highest average", async () => {
+    respond([
+      {
+        ts: 0,
+        cpu: 5,
+        memory: 40,
+        memoryUsage: 400 * 1024 ** 2,
+        cpuMax: 9,
+        memoryMax: 45,
+        memoryUsageMax: 450 * 1024 ** 2,
+      },
+      {
+        ts: HOUR,
+        cpu: 8,
+        memory: 41,
+        memoryUsage: 410 * 1024 ** 2,
+        cpuMax: 16,
+        memoryMax: 50,
+        memoryUsageMax: 500 * 1024 ** 2,
+      },
+    ]);
+    const [cpu, mem] = sections(await render());
+
+    expect(cpu).toContain("16.0% / peak");
+    expect(mem).toContain("500M / peak");
+  });
+
+  test("an older cloud without max fields falls back to the averages", async () => {
+    respond([
+      { ts: 0, cpu: 5, memory: 40, memoryUsage: 400 * 1024 ** 2 },
+      { ts: HOUR, cpu: 8, memory: 41, memoryUsage: 410 * 1024 ** 2 },
+    ]);
+    const wrapper = await render();
+    const [cpu] = sections(wrapper);
+
+    expect(cpu).toContain("8.0% / peak");
+    // No rates sent: the I/O charts are hidden rather than drawn flat at zero.
+    expect(wrapper.findAll("section")).toHaveLength(2);
+  });
+
+  test("network and disk show the window's totals, split in and out", async () => {
+    // 1 KiB/s in and 2 KiB/s out over two one-hour buckets.
+    const io = { networkRx: 1024, networkTx: 2048, diskRead: 0, diskWrite: 0 };
+    respond([
+      { ts: 0, cpu: 1, memory: 1, memoryUsage: 1, ...io },
+      { ts: HOUR, cpu: 1, memory: 1, memoryUsage: 1, ...io },
+    ]);
+    const wrapper = await render();
+    const [, , network, disk] = sections(wrapper);
+
+    expect(network).toContain("Network");
+    expect(network).toContain("↑14.1M ↓7M / 24h");
+    // A real zero is drawn: the field was sent, so the chart stays.
+    expect(disk).toContain("↑0B ↓0B");
+  });
+
+  test("hovering one chart moves the readout on every chart", async () => {
+    respond([
+      { ts: 0, cpu: 5, memory: 1, memoryUsage: 100 * 1024 ** 2, cpuMax: 12, networkRx: 1024, networkTx: 0 },
+      { ts: HOUR, cpu: 7, memory: 1, memoryUsage: 200 * 1024 ** 2, cpuMax: 30, networkRx: 3072, networkTx: 2048 },
+    ]);
+    const wrapper = await render();
+    wrapper.findAllComponents(BarChartStub)[2].vm.$emit("hoverValue", 0, 1, 2);
+    await flushPromises();
+
+    const [cpu, mem, network] = sections(wrapper);
+    expect(cpu).toContain("7.0% · peak 30.0%");
+    expect(mem).toContain("200M");
+    expect(network).toContain("↑2K/s ↓3K/s");
+    // Every chart is handed the same point to mark.
+    for (const chart of wrapper.findAllComponents(BarChartStub)) expect(chart.props("hoverIndex")).toBe(1);
+  });
+
+  test("an I/O bar is both directions together", async () => {
+    respond([{ ts: 0, cpu: 1, memory: 1, memoryUsage: 1, networkRx: 10, networkTx: 20 }]);
+    const network = (await render()).findAllComponents(BarChartStub)[2];
+
+    expect(network.props("chartData")).toEqual([{ percent: 30, value: 30 }]);
+  });
+
+  test("a level chart hands the chart its max only when cloud sent one", async () => {
+    respond([{ ts: 0, cpu: 5, memory: 1, memoryUsage: 1, cpuMax: 12 }]);
+    const [cpu, mem] = (await render()).findAllComponents(BarChartStub);
+
+    expect(cpu.props("chartData")).toEqual([{ percent: 5, value: 5, peakPercent: 12, peak: 12 }]);
+    expect(mem.props("chartData")).toEqual([{ percent: 1, value: 1 }]);
+  });
+
+  test("leaving the chart clears the readout everywhere", async () => {
+    respond([{ ts: 0, cpu: 5, memory: 1, memoryUsage: 1, cpuMax: 12 }]);
+    const wrapper = await render();
+    const cpu = wrapper.findAllComponents(BarChartStub)[0];
+    cpu.vm.$emit("hoverValue", 5, 0, 1);
+    await flushPromises();
+    cpu.vm.$emit("hoverEnd");
+    await flushPromises();
+
+    expect(sections(wrapper)[0]).toContain("12.0% / peak");
+    expect(cpu.props("hoverIndex")).toBeNull();
+  });
+});

@@ -6,7 +6,7 @@
     like this an hour ago" has no local answer to gate. This reads back the
     samples this instance has been pushing all along.
   -->
-  <div class="h-full overflow-y-auto p-4">
+  <div ref="root" class="h-full overflow-y-auto p-4">
     <p v-if="!container" class="text-base-content/60 text-sm">{{ $t("cloud-rail.metrics-no-container") }}</p>
 
     <template v-else>
@@ -31,31 +31,31 @@
       <p v-else-if="!points.length" class="text-base-content/60 text-sm">{{ $t("cloud-rail.metrics-empty") }}</p>
 
       <template v-else>
-        <!-- Hovering reads the chart out: a bar is a shape until it says what
-             it was and when. Leaving falls back to the peak, which is the one
-             number worth carrying while the pointer is elsewhere. -->
+        <!-- One pointer for the whole stack: hovering any chart marks the same
+             moment on all of them, so "CPU rose when the network did" is read
+             straight down the column. Leaving falls back to each chart's
+             summary for the window. -->
         <section v-for="chart in charts" :key="chart.key" class="mb-5 last:mb-0">
           <div class="mb-1 flex items-baseline justify-between gap-2">
             <span class="text-base-content/60 text-xs font-semibold tracking-wide uppercase">{{ chart.label }}</span>
-            <span v-if="hovered[chart.key]" class="truncate font-mono text-xs tabular-nums">
-              <span class="font-semibold">{{ chart.format(hovered[chart.key]!.value) }}</span>
-              <span class="text-base-content/40"> · {{ timeOf(hovered[chart.key]!) }}</span>
-            </span>
-            <span v-else class="font-mono text-xs tabular-nums">
-              <span class="font-semibold">{{ chart.format(chart.peak) }}</span>
-              <span class="text-base-content/40"> / {{ $t("cloud-rail.metrics-peak") }}</span>
+            <span class="truncate font-mono text-xs tabular-nums">
+              <span class="font-semibold">{{ readout(chart).main }}</span>
+              <span class="text-base-content/40">{{ readout(chart).aside }}</span>
             </span>
           </div>
           <BarChart
             :chart-data="chart.data"
-            :bar-class="chart.barClass"
+            :bar-class="chart.colorClass"
+            :hover-index="hovered?.index ?? null"
             class="h-16"
-            @hover-value="(value: number, index: number, bars: number) => (hovered[chart.key] = { value, index, bars })"
-            @hover-end="hovered[chart.key] = undefined"
+            @hover-value="(_: number, index: number, bars: number) => (hovered = { index, bars })"
+            @hover-end="hovered = null"
           />
         </section>
 
-        <p class="text-base-content/40 mt-4 text-xs">
+        <!-- The hovered moment is named once, here, rather than in every header. -->
+        <p class="text-base-content/40 mt-4 font-mono text-xs tabular-nums">
+          <template v-if="hovered">{{ timeOf(hovered) }} · </template>
           {{ $t("cloud-rail.metrics-bucket", { duration: bucketLabel }) }}
         </p>
       </template>
@@ -64,7 +64,23 @@
 </template>
 
 <script lang="ts" setup>
-type MetricPoint = { ts: number; cpu: number; memory: number; memoryUsage: number };
+import type { BarDataPoint } from "@/components/ui/BarChart.vue";
+
+// The max and rate fields are absent from an older cloud. A missing max falls back
+// to the average; a missing rate hides its chart rather than drawing zeros that
+// read as "no traffic".
+type MetricPoint = {
+  ts: number;
+  cpu: number;
+  memory: number;
+  memoryUsage: number;
+  cpuMax?: number;
+  memoryUsageMax?: number;
+  networkRx?: number;
+  networkTx?: number;
+  diskRead?: number;
+  diskWrite?: number;
+};
 
 const { t } = useI18n();
 const view = useViewContext();
@@ -109,12 +125,25 @@ const bucket = ref(0);
 const loading = ref(false);
 const failed = ref(false);
 
+// As many buckets as the chart has columns. Asking for a fixed 120 left a
+// ~100-column chart folding pairs into 60 bars spread across the width, with a
+// gap twice the bar between each; one bucket per column draws at the same
+// density as every other stat chart. 5px is BarChart's bar plus gap, 32 the p-4.
+const root = ref<HTMLElement | null>(null);
+const { width: rootWidth } = useElementSize(root);
+const columns = ref(0);
+const measure = () => (columns.value = Math.min(1000, Math.max(1, Math.floor((rootWidth.value - 32) / 5))));
+// Settled before refetching, so dragging the rail wider does not fire a request
+// per five pixels.
+watchDebounced(rootWidth, (w) => w > 0 && measure(), { debounce: 300 });
+
 async function load() {
-  if (!source.value) return;
+  // Not measured yet: the first width to arrive sets `columns`, which loads.
+  if (!source.value || columns.value === 0) return;
   loading.value = true;
   failed.value = false;
   try {
-    const res = await fetch(withBase(`${source.value}?window=${window.value}`));
+    const res = await fetch(withBase(`${source.value}?window=${window.value}&buckets=${columns.value}`));
     if (!res.ok) {
       // 503 is an unlinked instance, which the rail is not shown on anyway.
       failed.value = res.status !== 503;
@@ -132,35 +161,139 @@ async function load() {
   }
 }
 
-watch([source, window], load, { immediate: true });
+watch([source, window, columns], load, { immediate: true });
+// The panel mounts before it has a width. The first one is taken at once rather
+// than after the debounce, so opening the panel does not wait on it.
+watch(rootWidth, (w) => w > 0 && columns.value === 0 && measure(), { immediate: true });
 
-// What the pointer is on, per chart. Keyed rather than one shared value so two
-// charts never claim the same bar.
-type Hover = { value: number; index: number; bars: number };
-const hovered = ref<Record<string, Hover | undefined>>({});
+// The bar under the pointer, shared by every chart: they draw the same window at
+// the same width, so bar `index` is the same moment on all of them, and one
+// pointer reads the whole column.
+type Hover = { index: number; bars: number };
+const hovered = ref<Hover | null>(null);
 
-watch([source, window], () => (hovered.value = {}));
+watch([source, window], () => (hovered.value = null));
 
-const charts = computed(() => [
-  {
-    key: "cpu",
-    label: t("label.cpu"),
-    barClass: "text-primary",
-    peak: Math.max(0, ...points.value.map((p) => p.cpu)),
-    format: (v: number) => `${v.toFixed(1)}%`,
-    data: points.value.map((p) => ({ percent: p.cpu, value: p.cpu })),
-  },
-  {
-    key: "memory",
-    label: t("label.mem"),
-    barClass: "text-secondary",
-    // Bytes rather than percent: it is what the hover reads out, and a peak in
-    // a different unit than the value it qualifies reads as a bug.
-    peak: Math.max(0, ...points.value.map((p) => p.memoryUsage)),
-    format: (v: number) => formatBytes(v, { short: true, decimals: 1 }),
-    data: points.value.map((p) => ({ percent: p.memory, value: p.memoryUsage })),
-  },
-]);
+type Readout = { main: string; aside: string };
+type Chart = {
+  key: string;
+  label: string;
+  colorClass: string;
+  data: BarDataPoint[];
+  // What the header says with the pointer elsewhere, and on a hovered bar.
+  rest: Readout;
+  at: (span: [number, number]) => Readout;
+};
+
+const pct = (v: number) => `${v.toFixed(1)}%`;
+const bytes = (v: number) => formatBytes(v, { short: true, decimals: 1 });
+const mean = (xs: number[], [from, to]: [number, number]) =>
+  xs.slice(from, to).reduce((a, b) => a + b, 0) / Math.max(1, to - from);
+
+// A level (CPU, memory) rests on its peak: the highest sample cloud saw, not the
+// highest average, which shrank as the buckets widened and read a week lower than
+// the day inside it. An older cloud sends no max, and the average stands in.
+function levelChart(
+  key: string,
+  label: string,
+  colorClass: string,
+  format: (v: number) => string,
+  avgOf: (p: MetricPoint) => number,
+  maxOf: (p: MetricPoint) => number | undefined,
+): Chart {
+  const values = points.value.map(avgOf);
+  const max = points.value.map(maxOf);
+  const peaks = values.map((v, i) => max[i] ?? v);
+  const hasMax = max.some((m) => m !== undefined);
+  const peakWord = t("cloud-rail.metrics-peak");
+  return {
+    key,
+    label,
+    colorClass,
+    data: values.map((v, i) =>
+      hasMax ? { percent: v, value: v, peakPercent: peaks[i], peak: peaks[i] } : { percent: v, value: v },
+    ),
+    rest: { main: format(Math.max(0, ...peaks)), aside: ` / ${peakWord}` },
+    at: (span) => ({
+      main: format(mean(values, span)),
+      aside: hasMax ? ` · ${peakWord} ${format(Math.max(...peaks.slice(...span)))}` : "",
+    }),
+  };
+}
+
+// I/O rests on what moved over the whole window: a peak rate says little about
+// a counter, and the total is the number people ask for. A bar is both
+// directions together; the readout splits them.
+function ioChart(
+  key: string,
+  label: string,
+  colorClass: string,
+  inOf: (p: MetricPoint) => number | undefined,
+  outOf: (p: MetricPoint) => number | undefined,
+): Chart | undefined {
+  // Absent on an older cloud: hidden, rather than a flat line that reads as idle.
+  if (!points.value.some((p) => inOf(p) !== undefined || outOf(p) !== undefined)) return undefined;
+  const ins = points.value.map((p) => inOf(p) ?? 0);
+  const outs = points.value.map((p) => outOf(p) ?? 0);
+  const total = (xs: number[]) => xs.reduce((a, b) => a + b, 0) * (bucket.value / 1000);
+  return {
+    key,
+    label,
+    colorClass,
+    data: ins.map((v, i) => ({ percent: v + outs[i], value: v + outs[i] })),
+    rest: { main: `↑${bytes(total(outs))} ↓${bytes(total(ins))}`, aside: ` / ${windowLabel.value}` },
+    at: (span) => ({ main: `↑${formatRate(mean(outs, span))} ↓${formatRate(mean(ins, span))}`, aside: "" }),
+  };
+}
+
+const charts = computed(() =>
+  [
+    levelChart(
+      "cpu",
+      t("label.cpu"),
+      "text-primary",
+      pct,
+      (p) => p.cpu,
+      (p) => p.cpuMax,
+    ),
+    // Bytes rather than percent: it is what people ask about, and a limit-less
+    // container has no percent worth reading.
+    levelChart(
+      "memory",
+      t("label.mem"),
+      "text-secondary",
+      bytes,
+      (p) => p.memoryUsage,
+      (p) => p.memoryUsageMax,
+    ),
+    ioChart(
+      "network",
+      t("label.network"),
+      "text-info",
+      (p) => p.networkRx,
+      (p) => p.networkTx,
+    ),
+    ioChart(
+      "disk",
+      t("label.disk-io"),
+      "text-base-content/60",
+      (p) => p.diskRead,
+      (p) => p.diskWrite,
+    ),
+  ].filter((c): c is Chart => c !== undefined),
+);
+
+const readout = (chart: Chart) => (hovered.value ? chart.at(spanOf(hovered.value)) : chart.rest);
+
+// The points behind a hovered bar. BarChart folds the series into equal runs of
+// ceil(points / bars), so this is the same run it averaged to draw the bar.
+function spanOf(hover: Hover): [number, number] {
+  const size = Math.ceil(points.value.length / Math.max(1, hover.bars));
+  const from = hover.index * size;
+  return [from, Math.min(points.value.length, from + size)];
+}
+
+const windowLabel = computed(() => windows.value.find((o) => o.value === window.value)?.label ?? window.value);
 
 // Follows the reader's own clock preference, like every other time in the app.
 const hourCycle = computed(() => (hourStyle.value === "12" ? "h12" : hourStyle.value === "24" ? "h23" : undefined));
@@ -177,13 +310,11 @@ const clock = computed(
     }),
 );
 
-// The bars are buckets of the series, so the hovered one covers a span of
-// points. Its middle is the honest moment to name.
+// A bar covers a run of points; its middle is the honest moment to name.
 function timeOf(hover: Hover) {
-  if (!points.value.length || hover.bars === 0) return "";
-  const per = points.value.length / hover.bars;
-  const index = Math.min(points.value.length - 1, Math.floor((hover.index + 0.5) * per));
-  return clock.value.format(new Date(points.value[index].ts));
+  const [from, to] = spanOf(hover);
+  const point = points.value[Math.min(points.value.length - 1, Math.floor((from + to - 1) / 2))];
+  return point ? clock.value.format(new Date(point.ts)) : "";
 }
 
 // Said out loud so a flat line reads as an average rather than a missing sample.
