@@ -266,6 +266,7 @@ declare module 'vue' {
     MemoryNewChip: typeof import('./components/logs/entries/MemoryNewChip.vue')['default']
     MetricAlertFields: typeof import('./components/notifications/MetricAlertFields.vue')['default']
     MetricCard: typeof import('./components/ui/MetricCard.vue')['default']
+    MetricsTimeline: typeof import('./components/cloud/rail/MetricsTimeline.vue')['default']
     MobileBackButton: typeof import('./components/shell/MobileBackButton.vue')['default']
     MobileTabBar: typeof import('./components/shell/MobileTabBar.vue')['default']
     MultiContainerActionToolbar: typeof import('./components/logs/MultiContainerActionToolbar.vue')['default']

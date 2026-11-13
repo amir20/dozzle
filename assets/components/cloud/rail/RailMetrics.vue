@@ -57,9 +57,22 @@
           />
         </section>
 
-        <!-- The hovered moment is named once, here, rather than in every header. -->
-        <p class="text-base-content/40 mt-4 font-mono text-xs tabular-nums">
+        <MetricsTimeline
+          class="mt-3"
+          :from="range.from"
+          :to="range.to"
+          :alerts="alerts"
+          :deploys="deploys"
+          :format="(ms: number) => clock.format(new Date(ms))"
+        />
+
+        <!-- The hovered moment is named once, here, rather than in every header,
+             with whatever happened inside that bar. -->
+        <p class="text-base-content/40 mt-4 truncate font-mono text-xs tabular-nums">
           <template v-if="hovered">{{ timeOf(hovered) }} · </template>
+          <template v-if="hovered && eventIn(hovered)"
+            ><span class="text-base-content/70">{{ eventIn(hovered) }}</span> ·
+          </template>
           {{ $t("cloud-rail.metrics-bucket", { duration: bucketLabel }) }}
         </p>
       </template>
@@ -69,6 +82,9 @@
 
 <script lang="ts" setup>
 import type { BarDataPoint } from "@/components/ui/BarChart.vue";
+import type { CloudAlert } from "@/composable/cloud/cloudAlerts";
+import { mergeRecentDeploys, useRecentDeploys } from "@/composable/cloud/recentDeploys";
+import { updateKind, updateLabels } from "@/models/ContainerUpdate";
 
 // The max and rate fields are absent from an older cloud. A missing max falls back
 // to the average; a missing rate hides its chart rather than drawing zeros that
@@ -89,11 +105,18 @@ type MetricPoint = {
 const { t } = useI18n();
 const view = useViewContext();
 const store = useContainerStore();
+const { fetchAlerts } = useCloudAlerts();
+const { cloudDeploys, refresh: refreshCloudDeploys } = useRecentDeploys();
 const { metricsLookbackHours, ensureCloudStatus } = useCloudConfig();
 
 // The plan decides whether the week is on offer, so the panel needs the status
 // even on a page where nothing else has asked for it. Shared and cached.
 onMounted(ensureCloudStatus);
+// What Cloud remembers past a restart; Dozzle's own updates are already in the store.
+// Kept so the alert lookup can wait for it: the containers a Cloud-only deploy
+// replaced are only known once this answers.
+let deploysReady: Promise<void> = Promise.resolve();
+onMounted(() => (deploysReady = refreshCloudDeploys()));
 
 // One container at a time: a merged view is many histories, and stacking them
 // in a 550px column reads as noise. The first in view is the one on screen.
@@ -125,6 +148,7 @@ watch(windows, (options) => {
 });
 
 const points = ref<MetricPoint[]>([]);
+const alerts = ref<CloudAlert[]>([]);
 const bucket = ref(0);
 const loading = ref(false);
 const failed = ref(false);
@@ -147,6 +171,25 @@ watchDebounced(rootWidth, (w) => w > 0 && measure(), { debounce: 300 });
 // to win: a 7d tab could end up showing the hour it was switched away from.
 let latest = 0;
 
+// The alerts for exactly the span the bars cover. Asked after the points, so
+// the window is the one cloud answered for, and not awaited, so the charts never
+// wait on it. Best effort: a failure is an empty timeline, never a failed panel.
+async function loadAlerts(current: () => boolean) {
+  await deploysReady;
+  if (!current()) return;
+  const { from, to } = range.value;
+  const id = container.value?.id;
+  // The bars follow the name across deploys, but an alert belongs to the id it
+  // fired on, and a deploy hands out a new one. The containers each deploy in
+  // the window replaced are asked for too, so what fired before a deploy is not
+  // missing from the very step it explains. (A user with a container filter
+  // still only gets ids they can currently see.)
+  const replaced = deploys.value.filter((d) => inWindow(Date.parse(d.at), from, to)).map((d) => d.oldId);
+  const ids = id ? [...new Set([id, ...replaced])] : [];
+  const found = ids.length && to > from ? (await fetchAlerts(ids, new Date(from), new Date(to))).alerts : [];
+  if (current()) alerts.value = found;
+}
+
 async function load() {
   // Not measured yet: the first width to arrive sets `columns`, which loads.
   if (!source.value || columns.value === 0) return;
@@ -154,6 +197,7 @@ async function load() {
   const current = () => request === latest;
   loading.value = true;
   failed.value = false;
+  alerts.value = [];
   try {
     const res = await fetch(withBase(`${source.value}?window=${window.value}&buckets=${columns.value}`));
     if (!current()) return;
@@ -167,6 +211,7 @@ async function load() {
     if (!current()) return;
     points.value = body.points ?? [];
     bucket.value = body.bucket ?? 0;
+    void loadAlerts(current);
   } catch {
     if (!current()) return;
     failed.value = true;
@@ -324,6 +369,41 @@ const clock = computed(
       hourCycle: hourCycle.value,
     }),
 );
+
+const inWindow = (ts: number, from: number, to: number) => ts >= from && ts <= to;
+
+// The time the bars cover: from the first bucket's start to the last one's end.
+const range = computed(() => {
+  const first = points.value[0];
+  const last = points.value.at(-1);
+  return first && last ? { from: first.ts, to: last.ts + bucket.value } : { from: 0, to: 0 };
+});
+
+// This container's deploys: Dozzle's own and the ones only Cloud remembers.
+// Matched by host and name, because a deploy replaces the id.
+const deploys = computed(() => {
+  const c = container.value;
+  if (!c) return [];
+  return mergeRecentDeploys(store.recentUpdates, cloudDeploys.value).filter(
+    (d) => d.host === c.host && d.name === c.name,
+  );
+});
+
+// What happened inside a hovered bar, for the footer. The newest one when
+// several share a bar: it is the one the bar's level most likely reflects.
+function eventIn(hover: Hover) {
+  const [i, j] = spanOf(hover);
+  const start = points.value[i]?.ts;
+  const end = points.value[j - 1]?.ts;
+  if (start === undefined || end === undefined) return "";
+  const inside = (ts: number) => ts >= start && ts < end + bucket.value;
+  const deploy = deploys.value.filter((d) => inside(Date.parse(d.at))).at(0);
+  const alert = alerts.value
+    .filter((a) => inside(a.ts / 1e6))
+    .reduce<CloudAlert | undefined>((newest, a) => (!newest || a.ts > newest.ts ? a : newest), undefined);
+  if (alert && (!deploy || alert.ts / 1e6 > Date.parse(deploy.at))) return alert.headline;
+  return deploy ? `${t(`update-marker.${updateKind(deploy)}`)} ${updateLabels(deploy).to}` : "";
+}
 
 // A bar covers a run of points; its middle is the honest moment to name.
 function timeOf(hover: Hover) {
