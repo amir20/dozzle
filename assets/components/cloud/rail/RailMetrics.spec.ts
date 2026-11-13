@@ -13,7 +13,11 @@ vi.mock("@vueuse/core", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@vueuse/core")>();
   return { ...actual, useElementSize: () => ({ width: ref(552), height: ref(800) }) };
 });
-vi.mock("@/stores/config", () => ({ __esModule: true, default: { base: "", hosts: [] }, withBase: (p: string) => p }));
+vi.mock("@/stores/config", () => ({
+  __esModule: true,
+  default: { base: "", hosts: [{ id: "local", name: "local", memTotal: 32 * 1024 ** 3 }] },
+  withBase: (p: string) => p,
+}));
 vi.mock("@/composable/logs/viewContext", () => ({
   useViewContext: () => computed(() => ({ containers: [{ id: "abc" }] })),
 }));
@@ -462,6 +466,23 @@ describe("<RailMetrics />", () => {
     const mem = (await render()).findAllComponents(BarChartStub)[1];
 
     expect(mem.props("chartData").map((d: { percent: number }) => d.percent)).toEqual([25, 50]);
+  });
+
+  // Before the limit existed the percent was measured against the host's RAM,
+  // which under a "/ 2G" header is the flat line the limit was meant to fix.
+  test("bars from before a limit was added are drawn against the limit", async () => {
+    const M = 1024 ** 2;
+    updates.memoryLimit = 2048 * M;
+    respond([
+      { ts: 0, cpu: 1, memory: (300 / (32 * 1024)) * 100, memoryUsage: 300 * M, memoryUsageMax: 600 * M },
+      { ts: HOUR, cpu: 1, memory: 20, memoryUsage: 400 * M },
+    ]);
+    const mem = (await render()).findAllComponents(BarChartStub)[1];
+    const [before, after] = mem.props("chartData");
+
+    expect(before.percent).toBeCloseTo((300 / 2048) * 100);
+    expect(before.peakPercent).toBeCloseTo((600 / 2048) * 100);
+    expect(after.percent).toBe(20);
   });
 
   test("each chart sums up its window, and the window's ends are labelled", async () => {

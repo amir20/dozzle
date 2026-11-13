@@ -131,6 +131,7 @@ type MetricPoint = {
 const { t } = useI18n();
 const view = useViewContext();
 const store = useContainerStore();
+const { hosts } = useHosts();
 const { fetchAlerts } = useCloudAlerts();
 const { cloudDeploys, refresh: refreshCloudDeploys } = useRecentDeploys();
 const { metricsLookbackHours, ensureCloudStatus } = useCloudConfig();
@@ -448,13 +449,21 @@ const deploys = computed(() => {
 // Each bar uses its own point's percent, which was measured against the limit
 // in force then, so a deploy that changed the limit does not redraw the bars
 // before it against the new one.
+//
+// Unless there was no limit then: a deploy that added one leaves the bars
+// before it with that host-relative percent, the same flat line. Those are the
+// points whose percent implies a limit the size of the host, and they are
+// drawn against today's limit instead.
 const memoryShare = computed(() => {
   const limit = container.value?.memoryLimit ?? 0;
   if (limit <= 0) return undefined;
+  const hostMemory = hosts.value[container.value?.host ?? ""]?.memTotal ?? 0;
   return {
     label: bytes(limit),
     of: (p: MetricPoint) => {
-      const percent = p.memory > 0 ? p.memory : (p.memoryUsage / limit) * 100;
+      const measuredAgainst = p.memory > 0 ? p.memoryUsage / (p.memory / 100) : 0;
+      const unlimitedThen = hostMemory > limit && measuredAgainst >= hostMemory * 0.95;
+      const percent = p.memory > 0 && !unlimitedThen ? p.memory : (p.memoryUsage / limit) * 100;
       const peakPercent =
         p.memoryUsageMax !== undefined && p.memoryUsage > 0 ? percent * (p.memoryUsageMax / p.memoryUsage) : undefined;
       return { percent, peakPercent };
