@@ -21,6 +21,12 @@ vi.mock("@/composable/logs/viewContext", () => ({
 const updates = vi.hoisted(() => ({ list: [] as object[], created: 0 }));
 const jump = vi.hoisted(() => ({ jumpTo: vi.fn() }));
 vi.mock("@/composable/logs/logJump", () => ({ useLogJump: () => jump }));
+// The rail is a full-screen sheet on a phone. Tests flip it per case.
+const rail = vi.hoisted(() => ({ sheet: false }));
+vi.mock("@/composable/cloud/cloudRail", async () => {
+  const { computed } = await import("vue");
+  return { useCloudRail: () => ({ sheet: computed(() => rail.sheet) }) };
+});
 vi.mock("@/stores/container", async () => {
   const { reactive } = await import("vue");
   return {
@@ -100,6 +106,7 @@ afterEach(() => {
   updates.list.length = 0;
   updates.created = 0;
   jump.jumpTo.mockReset();
+  rail.sheet = false;
 });
 
 describe("<RailMetrics />", () => {
@@ -359,5 +366,21 @@ describe("<RailMetrics />", () => {
 
     expect(jump.jumpTo).not.toHaveBeenCalled();
     expect(button.attributes("aria-disabled")).toBe("true");
+  });
+
+  // BarChart keeps a tapped bar reported so it can be read on a phone. A jump
+  // there would also land out of sight under the full-screen sheet.
+  test("on a phone a tap reads the bar and does not jump", async () => {
+    rail.sheet = true;
+    respond([
+      { ts: 0, cpu: 1, memory: 1, memoryUsage: 1 },
+      { ts: HOUR, cpu: 1, memory: 1, memoryUsage: 1 },
+    ]);
+    const wrapper = await render();
+    wrapper.findAllComponents(BarChartStub)[0].vm.$emit("hoverValue", 1, 1, 2);
+    await flushPromises();
+    await wrapper.findAll("section button")[0].trigger("click");
+
+    expect(jump.jumpTo).not.toHaveBeenCalled();
   });
 });

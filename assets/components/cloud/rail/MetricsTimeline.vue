@@ -77,8 +77,12 @@ const { t } = useI18n();
 const store = useContainerStore();
 const { jumpTo } = useLogJump();
 
+// On a phone the rail is a sheet over the logs, so it closes too, or the jump
+// would happen out of sight beneath it.
+const { sheet, closeRail } = useCloudRail();
 function showMoment(mark: Extract<Mark, { kind: "deploy" }>, close: () => void) {
   close();
+  if (sheet.value) closeRail();
   jumpTo({ containerId: mark.deploy.newId, date: new Date(mark.ts) });
 }
 
