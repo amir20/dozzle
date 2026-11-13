@@ -2,10 +2,10 @@ on:
   push:
     branches:
       - main
+  # No branches filter: a stacked PR targets the PR below it, not main, and
+  # would never get its pr-N image. Forks are kept out by the job's `if`.
   pull_request:
     types: [opened, reopened, synchronize, ready_for_review]
-    branches:
-      - main
 name: Push container
 
 permissions:
