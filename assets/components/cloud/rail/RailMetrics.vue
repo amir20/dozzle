@@ -50,7 +50,7 @@
           <!-- The window in one line, so the shape below has numbers to go with
                it without hovering. Meaningful half emphasised, the rest muted. -->
           <p class="text-base-content/40 mb-1 truncate font-mono text-xs tabular-nums" data-summary>
-            <span class="text-base-content/60">{{ chart.summary }}</span
+            <span class="text-base-content/60 font-semibold">{{ chart.summary }}</span
             >{{ chart.limit ? ` / ${chart.limit}` : "" }}
           </p>
           <!-- The chart is a button: a bar is a moment, and the logs at that
