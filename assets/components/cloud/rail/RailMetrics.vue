@@ -47,6 +47,12 @@
               <span class="text-base-content/40">{{ readout(chart).aside }}</span>
             </span>
           </div>
+          <!-- The window in one line, so the shape below has numbers to go with
+               it without hovering. Meaningful half emphasised, the rest muted. -->
+          <p class="text-base-content/40 mb-1 truncate font-mono text-xs tabular-nums" data-summary>
+            <span class="text-base-content/60 font-semibold">{{ chart.summary }}</span
+            >{{ chart.limit ? ` / ${chart.limit}` : "" }}
+          </p>
           <!-- The chart is a button: a bar is a moment, and the logs at that
                moment are the one thing Dozzle can show that Cloud cannot. A bar
                from before this container existed (an earlier deploy) has no
@@ -63,6 +69,7 @@
               :chart-data="chart.data"
               :bar-class="chart.colorClass"
               :hover-index="hovered?.index ?? null"
+              :max="chart.ceiling"
               class="h-16"
               @hover-value="(_: number, index: number, bars: number) => (hovered = { index, bars })"
               @hover-end="hovered = null"
@@ -78,6 +85,12 @@
           :deploys="deploys"
           :format="(ms: number) => clock.format(new Date(ms))"
         />
+
+        <!-- Where the window starts and ends, so its span reads without a hover. -->
+        <div class="text-base-content/40 mt-2 flex justify-between font-mono text-xs tabular-nums" data-range>
+          <span>{{ clock.format(new Date(range.from)) }}</span>
+          <span>{{ clock.format(new Date(range.to)) }}</span>
+        </div>
 
         <!-- The hovered moment is named once, here, rather than in every header,
              with whatever happened inside that bar. -->
@@ -118,6 +131,7 @@ type MetricPoint = {
 const { t } = useI18n();
 const view = useViewContext();
 const store = useContainerStore();
+const { hosts } = useHosts();
 const { fetchAlerts } = useCloudAlerts();
 const { cloudDeploys, refresh: refreshCloudDeploys } = useRecentDeploys();
 const { metricsLookbackHours, ensureCloudStatus } = useCloudConfig();
@@ -253,6 +267,13 @@ type Chart = {
   label: string;
   colorClass: string;
   data: BarDataPoint[];
+  // A fixed top for the bars (100 when they are percent of a limit); left
+  // unset, the chart scales to its own peak.
+  ceiling?: number;
+  // The window's average, and the limit the bars are drawn against when there
+  // is one.
+  summary: string;
+  limit?: string;
   // What the header says with the pointer elsewhere, and on a hovered bar.
   rest: Readout;
   at: (span: [number, number]) => Readout;
@@ -273,19 +294,34 @@ function levelChart(
   format: (v: number) => string,
   avgOf: (p: MetricPoint) => number,
   maxOf: (p: MetricPoint) => number | undefined,
+  // Draws the bars as a share of a limit instead of against their own peak:
+  // each point's height (0-100) and, when it has a max, the max's height.
+  share?: { of: (p: MetricPoint) => { percent: number; peakPercent?: number }; label: string },
 ): Chart {
   const values = points.value.map(avgOf);
   const max = points.value.map(maxOf);
   const peaks = values.map((v, i) => max[i] ?? v);
   const hasMax = max.some((m) => m !== undefined);
   const peakWord = t("cloud-rail.metrics-peak");
+  const heights = share ? points.value.map(share.of) : undefined;
   return {
     key,
     label,
     colorClass,
-    data: values.map((v, i) =>
-      hasMax ? { percent: v, value: v, peakPercent: peaks[i], peak: peaks[i] } : { percent: v, value: v },
-    ),
+    data: values.map((v, i) => {
+      const percent = heights ? heights[i].percent : v;
+      if (!hasMax) return { percent, value: v };
+      return {
+        percent,
+        value: v,
+        peakPercent: heights ? (heights[i].peakPercent ?? percent) : peaks[i],
+        peak: peaks[i],
+      };
+    }),
+    ceiling: share ? 100 : undefined,
+    // The header already carries the peak, so the summary adds the average.
+    summary: `${t("analytics.avg")} ${format(mean(values, [0, values.length]))}`,
+    limit: share?.label,
     rest: { main: format(Math.max(0, ...peaks)), aside: ` / ${peakWord}` },
     at: (span) => ({
       main: format(mean(values, span)),
@@ -314,6 +350,7 @@ function ioChart(
     label,
     colorClass,
     data: ins.map((v, i) => ({ percent: v + outs[i], value: v + outs[i] })),
+    summary: `${t("analytics.avg")} ↑${formatRate(mean(outs, [0, outs.length]))} ↓${formatRate(mean(ins, [0, ins.length]))}`,
     rest: { main: `↑${bytes(total(outs))} ↓${bytes(total(ins))}`, aside: ` / ${windowLabel.value}` },
     at: (span) => ({ main: `↑${formatRate(mean(outs, span))} ↓${formatRate(mean(ins, span))}`, aside: "" }),
   };
@@ -338,6 +375,7 @@ const charts = computed(() =>
       bytes,
       (p) => p.memoryUsage,
       (p) => p.memoryUsageMax,
+      memoryShare.value,
     ),
     ioChart(
       "network",
@@ -400,6 +438,37 @@ const deploys = computed(() => {
   return mergeRecentDeploys(store.recentUpdates, cloudDeploys.value).filter(
     (d) => d.host === c.host && d.name === c.name,
   );
+});
+
+// Memory against the container's limit. Scaled to its own peak, a steady
+// container drew as a solid block; against its limit, 400M of 2G is a fifth of
+// the height and the headroom shows.
+//
+// Only when a limit is actually set: without one Docker measures the percent
+// against the host's RAM, and 300M of a 32G host would draw as a flat line.
+// Each bar uses its own point's percent, which was measured against the limit
+// in force then, so a deploy that changed the limit does not redraw the bars
+// before it against the new one.
+//
+// Unless there was no limit then: a deploy that added one leaves the bars
+// before it with that host-relative percent, the same flat line. Those are the
+// points whose percent implies a limit the size of the host, and they are
+// drawn against today's limit instead.
+const memoryShare = computed(() => {
+  const limit = container.value?.memoryLimit ?? 0;
+  if (limit <= 0) return undefined;
+  const hostMemory = hosts.value[container.value?.host ?? ""]?.memTotal ?? 0;
+  return {
+    label: bytes(limit),
+    of: (p: MetricPoint) => {
+      const measuredAgainst = p.memory > 0 ? p.memoryUsage / (p.memory / 100) : 0;
+      const unlimitedThen = hostMemory > limit && measuredAgainst >= hostMemory * 0.95;
+      const percent = p.memory > 0 && !unlimitedThen ? p.memory : (p.memoryUsage / limit) * 100;
+      const peakPercent =
+        p.memoryUsageMax !== undefined && p.memoryUsage > 0 ? percent * (p.memoryUsageMax / p.memoryUsage) : undefined;
+      return { percent, peakPercent };
+    },
+  };
 });
 
 // What happened inside a hovered bar, for the footer. The newest one when

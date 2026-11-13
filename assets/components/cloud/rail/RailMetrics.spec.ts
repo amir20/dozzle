@@ -13,12 +13,16 @@ vi.mock("@vueuse/core", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@vueuse/core")>();
   return { ...actual, useElementSize: () => ({ width: ref(552), height: ref(800) }) };
 });
-vi.mock("@/stores/config", () => ({ __esModule: true, default: { base: "", hosts: [] }, withBase: (p: string) => p }));
+vi.mock("@/stores/config", () => ({
+  __esModule: true,
+  default: { base: "", hosts: [{ id: "local", name: "local", memTotal: 32 * 1024 ** 3 }] },
+  withBase: (p: string) => p,
+}));
 vi.mock("@/composable/logs/viewContext", () => ({
   useViewContext: () => computed(() => ({ containers: [{ id: "abc" }] })),
 }));
 // The deploys Dozzle itself remembers. Tests set them per case.
-const updates = vi.hoisted(() => ({ list: [] as object[], created: 0 }));
+const updates = vi.hoisted(() => ({ list: [] as object[], created: 0, memoryLimit: 0 }));
 const jump = vi.hoisted(() => ({ jumpTo: vi.fn() }));
 vi.mock("@/composable/logs/logJump", () => ({ useLogJump: () => jump }));
 // The rail is a full-screen sheet on a phone. Tests flip it per case.
@@ -43,7 +47,15 @@ vi.mock("@/stores/container", async () => {
   return {
     useContainerStore: () =>
       reactive({
-        allContainersById: { abc: { id: "abc", name: "api", host: "local", created: new Date(updates.created) } },
+        allContainersById: {
+          abc: {
+            id: "abc",
+            name: "api",
+            host: "local",
+            created: new Date(updates.created),
+            memoryLimit: updates.memoryLimit,
+          },
+        },
         recentUpdates: updates.list,
       }),
   };
@@ -66,7 +78,7 @@ const TimelineStub = defineComponent({
 // handed and to let a test move the shared pointer.
 const BarChartStub = defineComponent({
   name: "BarChart",
-  props: ["chartData", "barClass", "hoverIndex"],
+  props: ["chartData", "barClass", "hoverIndex", "max"],
   emits: ["hoverValue", "hoverEnd"],
   template: "<div data-chart></div>",
 });
@@ -97,6 +109,7 @@ async function render() {
           messages: {
             en: {
               label: { cpu: "CPU", mem: "MEM", network: "Network", "disk-io": "Disk I/O" },
+              analytics: { avg: "Avg", max: "Max" },
               "cloud-rail": { "metrics-peak": "peak", "window-7d": "7d", "window-24h": "24h" },
             },
           },
@@ -116,6 +129,7 @@ afterEach(() => {
   vi.restoreAllMocks();
   updates.list.length = 0;
   updates.created = 0;
+  updates.memoryLimit = 0;
   jump.jumpTo.mockReset();
   rail.sheet = false;
   rail.hover = true;
@@ -410,5 +424,79 @@ describe("<RailMetrics />", () => {
     await wrapper.findAll("section button")[0].trigger("click");
 
     expect(jump.jumpTo).not.toHaveBeenCalled();
+  });
+
+  // Scaled to its own peak a steady container drew as a solid block.
+  test("memory is drawn against the container's limit", async () => {
+    const M = 1024 ** 2;
+    updates.memoryLimit = 2048 * M;
+    respond([
+      { ts: 0, cpu: 1, memory: 20, memoryUsage: 400 * M, memoryUsageMax: 500 * M },
+      { ts: HOUR, cpu: 1, memory: 20, memoryUsage: 400 * M, memoryUsageMax: 500 * M },
+    ]);
+    const wrapper = await render();
+    const mem = wrapper.findAllComponents(BarChartStub)[1];
+
+    expect(mem.props("max")).toBe(100);
+    expect(mem.props("chartData")[0]).toEqual({ percent: 20, value: 400 * M, peakPercent: 25, peak: 500 * M });
+    expect(wrapper.findAll("[data-summary]")[1].text().replace(/\s+/g, " ")).toBe("Avg 400M / 2G");
+  });
+
+  // Docker measures an unlimited container's percent against the host's RAM;
+  // drawn against that, 300M of a 32G host is a flat line.
+  test("without a limit, memory keeps its own scale even when cloud sent a percent", async () => {
+    respond([{ ts: 0, cpu: 1, memory: 0.9, memoryUsage: 300 }]);
+    const wrapper = await render();
+    const mem = wrapper.findAllComponents(BarChartStub)[1];
+
+    expect(mem.props("max")).toBeUndefined();
+    expect(mem.props("chartData")[0]).toEqual({ percent: 300, value: 300 });
+    expect(wrapper.findAll("[data-summary]")[1].text()).not.toContain("/");
+  });
+
+  // Each point's percent was measured against the limit in force then, so a
+  // deploy that lowered the limit does not push the bars before it to the top.
+  test("bars before a limit change keep the limit they were measured against", async () => {
+    const M = 1024 ** 2;
+    updates.memoryLimit = 512 * M;
+    respond([
+      { ts: 0, cpu: 1, memory: 25, memoryUsage: 400 * M },
+      { ts: HOUR, cpu: 1, memory: 50, memoryUsage: 256 * M },
+    ]);
+    const mem = (await render()).findAllComponents(BarChartStub)[1];
+
+    expect(mem.props("chartData").map((d: { percent: number }) => d.percent)).toEqual([25, 50]);
+  });
+
+  // Before the limit existed the percent was measured against the host's RAM,
+  // which under a "/ 2G" header is the flat line the limit was meant to fix.
+  test("bars from before a limit was added are drawn against the limit", async () => {
+    const M = 1024 ** 2;
+    updates.memoryLimit = 2048 * M;
+    respond([
+      { ts: 0, cpu: 1, memory: (300 / (32 * 1024)) * 100, memoryUsage: 300 * M, memoryUsageMax: 600 * M },
+      { ts: HOUR, cpu: 1, memory: 20, memoryUsage: 400 * M },
+    ]);
+    const mem = (await render()).findAllComponents(BarChartStub)[1];
+    const [before, after] = mem.props("chartData");
+
+    expect(before.percent).toBeCloseTo((300 / 2048) * 100);
+    expect(before.peakPercent).toBeCloseTo((600 / 2048) * 100);
+    expect(after.percent).toBe(20);
+  });
+
+  test("each chart sums up its window, and the window's ends are labelled", async () => {
+    respond([
+      { ts: 0, cpu: 4, cpuMax: 9, memory: 1, memoryUsage: 1, networkRx: 1024, networkTx: 2048 },
+      { ts: HOUR, cpu: 8, cpuMax: 20, memory: 1, memoryUsage: 1, networkRx: 3072, networkTx: 2048 },
+    ]);
+    const wrapper = await render();
+    const summaries = wrapper.findAll("[data-summary]").map((p) => p.text());
+
+    expect(summaries[0]).toBe("Avg 6.0%");
+    expect(summaries[2]).toBe("Avg ↑2K/s ↓2K/s");
+    const ends = wrapper.findAll("[data-range] span").map((s) => s.text());
+    expect(ends).toHaveLength(2);
+    expect(ends[0]).not.toBe(ends[1]);
   });
 });
