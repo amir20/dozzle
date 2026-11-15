@@ -105,7 +105,7 @@ const VERDICTS: Record<DeployVerdictKind, VerdictLook> = {
     text: "text-warning",
   },
   // Recorded, not judged: nothing to wait for and nothing to flag.
-  unchecked: { label: "update-marker.verdict.unchecked", icon: MdiCloudOutline, text: "opacity-60" },
+  unchecked: { label: "update-marker.verdict.unchecked", icon: MdiCloudOutline, text: "text-base-content/60" },
 };
 // A newer Dozzle Cloud can send a kind this build does not know: no label rather
 // than its key.

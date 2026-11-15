@@ -75,11 +75,13 @@ describe("<DeployLogItem />", () => {
   // Dozzle Cloud records the update without judging it: a plain label, not the
   // waiting clock an unknown verdict falls back to.
   test("an unchecked update reads as recorded, not as waiting", () => {
-    const wrapper = mountMarker({ verdict: "unchecked" });
+    // Dozzle Cloud always sends the update's link.
+    const wrapper = mountMarker({ verdict: "unchecked", url: "https://cloud.dozzle.dev/updates/d1" });
     expect(wrapper.text()).toContain("update-marker.verdict.unchecked");
     // The verdict line, not the chip, which is always text-info.
     expect(wrapper.find(".text-xs .text-info").exists()).toBe(false);
-    expect(cloudLink(wrapper).exists()).toBe(false);
+    expect(cloudLink(wrapper).text()).toContain("label.alert-view-in-cloud");
+    expect(cloudLink(wrapper).text()).not.toContain("update-marker.roll-back");
   });
 
   // Only Dozzle Cloud knows an update with no source; it shows none.
