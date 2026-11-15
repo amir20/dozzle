@@ -65,8 +65,9 @@ func shortID(id string) string {
 //     engine would hand the new container a fresh empty one;
 //   - settings the old image supplied (env, labels, cmd, healthcheck, ...) are
 //     dropped so the new image's own defaults apply;
-//   - runtime state (hostname from the old id, IPs, the short-id alias) is not
-//     carried over.
+//   - runtime state (hostname from the old id, dynamic IPs and MACs, the
+//     short-id alias) is not carried over. A static IP is, and so is the MAC
+//     beside it.
 func ReplacementSpec(old dcontainer.InspectResponse, oldImage *image.InspectResponse, name string) client.ContainerCreateOptions {
 	cfg := dcontainer.Config{}
 	if old.Config != nil {
@@ -132,7 +133,7 @@ func ReplacementSpec(old dcontainer.InspectResponse, oldImage *image.InspectResp
 				endpoints[netName] = &network.EndpointSettings{}
 				continue
 			}
-			endpoints[netName] = &network.EndpointSettings{
+			settings := &network.EndpointSettings{
 				// Older engines list the container's short id as an alias; the
 				// new container gets its own.
 				Aliases:    slices.DeleteFunc(slices.Clone(ep.Aliases), func(a string) bool { return strings.HasPrefix(old.ID, a) && len(a) >= 12 }),
@@ -141,6 +142,15 @@ func ReplacementSpec(old dcontainer.InspectResponse, oldImage *image.InspectResp
 				DriverOpts: ep.DriverOpts,
 				GwPriority: ep.GwPriority,
 			}
+			// Inspect shows the MAC in use, not whether it was asked for, so it
+			// is kept only beside a static IP: the same IP behind a new MAC
+			// reads as an address conflict to routers and IDSes (#5652). The
+			// old container is stopped before the replacement starts, so the
+			// engine never sees the MAC twice.
+			if hasStaticIP(ep.IPAMConfig) {
+				settings.MacAddress = ep.MacAddress
+			}
+			endpoints[netName] = settings
 		}
 		networking = &network.NetworkingConfig{EndpointsConfig: endpoints}
 	}
@@ -220,4 +230,9 @@ func sanitizeNetworkMode(cfg *dcontainer.Config, hc *dcontainer.HostConfig) bool
 		cfg.Hostname = ""
 	}
 	return isContainerMode || isHostMode
+}
+
+// hasStaticIP reports whether an endpoint was given a fixed IPv4 or IPv6 address.
+func hasStaticIP(cfg *network.EndpointIPAMConfig) bool {
+	return cfg != nil && (cfg.IPv4Address.IsValid() || cfg.IPv6Address.IsValid())
 }
