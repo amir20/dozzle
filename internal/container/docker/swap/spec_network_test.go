@@ -1,6 +1,7 @@
 package swap
 
 import (
+	"net"
 	"net/netip"
 	"testing"
 
@@ -94,4 +95,25 @@ func TestReplacementSpecToleratesMissingConfig(t *testing.T) {
 	assert.NotPanics(t, func() {
 		ReplacementSpec(dcontainer.InspectResponse{}, nil, "web")
 	})
+}
+
+// A MAC is pinned only beside a static IP (#5652). Without one, the
+// replacement gets a fresh MAC, as a compose recreate would give it.
+func TestReplacementSpecKeepsMACWithStaticIP(t *testing.T) {
+	mac, err := net.ParseMAC("2e:3a:f4:21:c4:f3")
+	require.NoError(t, err)
+
+	pinned := networkInspect("vlan3")
+	pinned.NetworkSettings.Networks = map[string]*network.EndpointSettings{"vlan3": {
+		IPAMConfig: &network.EndpointIPAMConfig{IPv4Address: netip.MustParseAddr("192.168.3.252")},
+		MacAddress: network.HardwareAddr(mac),
+	}}
+	ep := ReplacementSpec(pinned, nil, "web").NetworkingConfig.EndpointsConfig["vlan3"]
+	assert.Equal(t, "2e:3a:f4:21:c4:f3", ep.MacAddress.String())
+	assert.Equal(t, "192.168.3.252", ep.IPAMConfig.IPv4Address.String())
+
+	dynamic := networkInspect("bridge")
+	dynamic.NetworkSettings.Networks = map[string]*network.EndpointSettings{"bridge": {MacAddress: network.HardwareAddr(mac)}}
+	ep = ReplacementSpec(dynamic, nil, "web").NetworkingConfig.EndpointsConfig["bridge"]
+	assert.Empty(t, ep.MacAddress)
 }
