@@ -1145,6 +1145,7 @@ update-marker:
     regressed: "Parece quebrada"
     unsure: "Pode ter um problema"
     rolled_back_by_dozzle: "O Dozzle restaurou o contêiner anterior"
+    unchecked: "Registrado no Dozzle Cloud"
   decision:
     rolled_back: "Revertida"
     kept: "Mantida"

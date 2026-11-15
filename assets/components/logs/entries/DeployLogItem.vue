@@ -58,6 +58,7 @@ import MdiCloudCheckOutline from "~icons/mdi/cloud-check-outline";
 import MdiCloudAlertOutline from "~icons/mdi/cloud-alert-outline";
 import MdiCloudQuestionOutline from "~icons/mdi/cloud-question-outline";
 import MdiCloudClockOutline from "~icons/mdi/cloud-clock-outline";
+import MdiCloudOutline from "~icons/mdi/cloud-outline";
 
 const { logEntry } = defineProps<{
   logEntry: DeployLogEntry;
@@ -103,6 +104,8 @@ const VERDICTS: Record<DeployVerdictKind, VerdictLook> = {
     icon: MdiCloudAlertOutline,
     text: "text-warning",
   },
+  // Recorded, not judged: nothing to wait for and nothing to flag.
+  unchecked: { label: "update-marker.verdict.unchecked", icon: MdiCloudOutline, text: "opacity-60" },
 };
 // A newer Dozzle Cloud can send a kind this build does not know: no label rather
 // than its key.

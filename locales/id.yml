@@ -1160,6 +1160,7 @@ update-marker:
     regressed: "Tampak rusak"
     unsure: "Mungkin bermasalah"
     rolled_back_by_dozzle: "Dozzle memulihkan kontainer sebelumnya"
+    unchecked: "Tercatat di Dozzle Cloud"
   decision:
     rolled_back: "Dikembalikan"
     kept: "Dipertahankan"

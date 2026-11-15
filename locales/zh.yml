@@ -1145,6 +1145,7 @@ update-marker:
     regressed: "看起来有问题"
     unsure: "可能有问题"
     rolled_back_by_dozzle: "Dozzle 已恢复之前的容器"
+    unchecked: "已记录到 Dozzle Cloud"
   decision:
     rolled_back: "已回滚"
     kept: "已保留"

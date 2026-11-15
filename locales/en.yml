@@ -1156,6 +1156,7 @@ update-marker:
     regressed: "Looks broken"
     unsure: "May have a problem"
     rolled_back_by_dozzle: "Dozzle put the previous container back"
+    unchecked: "Recorded in Dozzle Cloud"
   decision:
     rolled_back: "Rolled back"
     kept: "Kept"

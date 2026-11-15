@@ -1151,6 +1151,7 @@ update-marker:
     regressed: "Bozuk görünüyor"
     unsure: "Bir sorun olabilir"
     rolled_back_by_dozzle: "Dozzle önceki konteyneri geri getirdi"
+    unchecked: "Dozzle Cloud'a kaydedildi"
   decision:
     rolled_back: "Geri alındı"
     kept: "Tutuldu"

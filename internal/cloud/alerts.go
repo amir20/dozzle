@@ -98,7 +98,7 @@ type DeployHit struct {
 	ToRef      string `json:"toRef,omitempty"`
 	FromDigest string `json:"fromDigest,omitempty"`
 	ToDigest   string `json:"toDigest,omitempty"`
-	// Verdict is pending, clean, regressed, unsure or rolled_back_by_dozzle.
+	// Verdict is pending, clean, regressed, unsure, rolled_back_by_dozzle or unchecked.
 	Verdict string `json:"verdict"`
 	Reason  string `json:"reason,omitempty"`
 	// Decision is rolled_back or kept once someone decided a regression.

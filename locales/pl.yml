@@ -1147,6 +1147,7 @@ update-marker:
     regressed: "Wygląda na zepsutą"
     unsure: "Może mieć problem"
     rolled_back_by_dozzle: "Dozzle przywrócił poprzedni kontener"
+    unchecked: "Zapisano w Dozzle Cloud"
   decision:
     rolled_back: "Przywrócono"
     kept: "Zachowano"

@@ -1145,6 +1145,7 @@ update-marker:
     regressed: "Ser ødelagt ud"
     unsure: "Kan have et problem"
     rolled_back_by_dozzle: "Dozzle satte den forrige container tilbage"
+    unchecked: "Registreret i Dozzle Cloud"
   decision:
     rolled_back: "Rullet tilbage"
     kept: "Beholdt"

@@ -1145,6 +1145,7 @@ update-marker:
     regressed: "Sembra non funzionare"
     unsure: "Potrebbe avere un problema"
     rolled_back_by_dozzle: "Dozzle ha rimesso il container precedente"
+    unchecked: "Registrato in Dozzle Cloud"
   decision:
     rolled_back: "Ripristinato"
     kept: "Mantenuto"
