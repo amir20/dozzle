@@ -13,8 +13,8 @@ require (
 	github.com/go-faker/faker/v4 v4.12.0
 	github.com/google/uuid v1.6.0
 	github.com/moby/docker-image-spec v1.3.1
-	github.com/moby/moby/api v1.56.1
-	github.com/moby/moby/client v0.6.2
+	github.com/moby/moby/api v1.57.0
+	github.com/moby/moby/client v0.6.3
 	github.com/modelcontextprotocol/go-sdk v1.8.0
 	github.com/puzpuzpuz/xsync/v4 v4.5.0
 	github.com/rs/zerolog v1.35.1
