@@ -1150,6 +1150,7 @@ update-marker:
     regressed: "Videti je pokvarjeno"
     unsure: "Morda ima težavo"
     rolled_back_by_dozzle: "Dozzle je obnovil prejšnji vsebnik"
+    unchecked: "Zabeleženo v Dozzle Cloud"
   decision:
     rolled_back: "Povrnjeno"
     kept: "Obdržano"

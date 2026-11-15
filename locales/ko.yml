@@ -1147,6 +1147,7 @@ update-marker:
     regressed: "문제가 있어 보임"
     unsure: "문제가 있을 수 있음"
     rolled_back_by_dozzle: "Dozzle이 이전 컨테이너를 복원함"
+    unchecked: "Dozzle Cloud에 기록됨"
   decision:
     rolled_back: "롤백됨"
     kept: "유지됨"

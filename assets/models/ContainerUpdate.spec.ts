@@ -59,6 +59,7 @@ describe("awaitingVerdict", () => {
     expect(awaitingVerdict(at, { deployId: "d", verdict: "clean" }, now)).toBe(false);
     expect(awaitingVerdict(at, { deployId: "d", verdict: "regressed", decision: "kept" }, now)).toBe(false);
     expect(awaitingVerdict(at, { deployId: "d", verdict: "rolled_back_by_dozzle" }, now)).toBe(false);
+    expect(awaitingVerdict(at, { deployId: "d", verdict: "unchecked" }, now)).toBe(false);
   });
 
   test("stops asking about an old update", () => {

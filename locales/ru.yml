@@ -1148,6 +1148,7 @@ update-marker:
     regressed: "Похоже, сломано"
     unsure: "Возможна проблема"
     rolled_back_by_dozzle: "Dozzle вернул предыдущий контейнер"
+    unchecked: "Записано в Dozzle Cloud"
   decision:
     rolled_back: "Откачено"
     kept: "Оставлено"

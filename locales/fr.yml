@@ -1145,6 +1145,7 @@ update-marker:
     regressed: "Semble cassée"
     unsure: "Pourrait poser problème"
     rolled_back_by_dozzle: "Dozzle a remis le conteneur précédent"
+    unchecked: "Enregistré dans Dozzle Cloud"
   decision:
     rolled_back: "Annulée"
     kept: "Conservée"

@@ -26,7 +26,8 @@ export interface ContainerUpdate {
   rolledBack?: boolean;
 }
 
-export type DeployVerdictKind = "pending" | "clean" | "regressed" | "unsure" | "rolled_back_by_dozzle";
+// unchecked: Dozzle Cloud recorded the update without judging it.
+export type DeployVerdictKind = "pending" | "clean" | "regressed" | "unsure" | "rolled_back_by_dozzle" | "unchecked";
 
 /** What Dozzle Cloud made of an update. Mirrors cloud.DeployHit. */
 export interface DeployVerdict {
