@@ -844,6 +844,21 @@ cloud-chat:
   ask-for: "{query} hakkında Dozzle'a sor"
   ask-hint: Görünen konteynerlere bakarak yanıtlar
   ask-shortcut: sormak için
+  visual:
+    memory: "Bellek"
+    peak-of-limit: "zirve {peak} / {limit}"
+    peak: "zirve {peak}"
+    exits: "çıkışlar: {n}"
+    exit-codes: "kodlar {codes}"
+    ooms: "bellek yetersizliğinden durdurma: {n}"
+    no-oom: "bellek yetersizliğinden durdurma kaydedilmedi"
+    restarts: "yeniden başlatmalar: {n}"
+    no-events: "Kaydedilmiş çıkış veya yeniden başlatma yok"
+    floor: "Eski olaylar kesildi, bu yüzden bu sayılar en az değerdir"
+    matches: "eşleşen satırlar: {n}"
+    top-cpu: "En çok CPU kullanan konteynerler"
+    top-memory: "En çok bellek kullanan konteynerler"
+    top-restarts: "En çok yeniden başlatılan konteynerler"
 cloud-search:
   containers-section: "Konteynerler"
   section-logs: "Loglar"

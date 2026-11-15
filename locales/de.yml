@@ -841,6 +841,21 @@ cloud-chat:
   ask-for: Dozzle nach {query} fragen
   ask-hint: Antwortet aus den sichtbaren Containern
   ask-shortcut: zum Fragen
+  visual:
+    memory: "Speicher"
+    peak-of-limit: "Spitze {peak} von {limit}"
+    peak: "Spitze {peak}"
+    exits: "Beendigungen: {n}"
+    exit-codes: "Codes {codes}"
+    ooms: "Abbrüche wegen Speichermangel: {n}"
+    no-oom: "kein Abbruch wegen Speichermangel erfasst"
+    restarts: "Neustarts: {n}"
+    no-events: "Keine Beendigungen oder Neustarts erfasst"
+    floor: "Ältere Ereignisse wurden abgeschnitten, die Zahlen sind ein Mindestwert"
+    matches: "passende Zeilen: {n}"
+    top-cpu: "Container mit der meisten CPU"
+    top-memory: "Container mit dem meisten Speicher"
+    top-restarts: "Container mit den meisten Neustarts"
 cloud-search:
   containers-section: "Container"
   section-logs: "Logs"

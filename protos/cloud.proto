@@ -120,6 +120,11 @@ message ChatTurn {
   // people's threads apart without learning who any of them are. Never a
   // username: this is an HMAC under a secret that stays on this machine.
   string user_ref = 3;
+  // The ChatVisual types this pane can draw. Cloud offers the assistant its
+  // picture tools only when this is set, and sends only these types, so a
+  // build that predates visuals keeps getting text answers that never say
+  // "drawn below" over nothing.
+  repeated string visual_types = 4;
 }
 
 message ChatClientEvent {
@@ -193,6 +198,72 @@ message ChatDelta {
 message ChatDone {
   // Cloud's id for the thread, so a reopened pane returns to it.
   string session_id = 1;
+  // The pictures the assistant drew under its answer, in the order it drew
+  // them. Only types the turn listed in ChatTurn.visual_types.
+  repeated ChatVisual visuals = 2;
+}
+
+// ChatVisual is one picture under an answer. Cloud measured every number in it
+// and the assistant only chose which picture to show, so the pane draws it as
+// it came and never recomputes it. Which fields are set depends on type.
+message ChatVisual {
+  // memory_vs_limit | pattern_count | container_ranking | logs | container_events
+  string type = 1;
+  string container = 2;
+  string host_id = 3;
+  string host_name = 4;
+  // pattern_count: the text whose lines were counted. logs: the search.
+  string query = 5;
+  // container_ranking: cpu | memory | restarts
+  string metric = 6;
+  // The window the picture covers, unix nanoseconds.
+  int64 from_ns = 7;
+  int64 to_ns = 8;
+  // memory_vs_limit, container_events: what happened to the container.
+  ChatVisualFacts facts = 9;
+  // pattern_count: every matching line in the window.
+  optional int64 total = 10;
+  // container_ranking, highest first.
+  repeated ChatVisualRankRow rows = 11;
+  // logs, newest first.
+  repeated ViewLogLine lines = 12;
+  // pattern_count: matches per bucket, oldest first, as SearchLogs returns them.
+  repeated SearchVolumeBucket volume = 13;
+  int64 step_ns = 14;
+  // memory_vs_limit: the container's memory over the window, as
+  // GetContainerMetrics returns it.
+  repeated ContainerMetricPoint points = 15;
+  // memory_vs_limit: the configured limit in bytes; 0 when none is set or it
+  // could not be read.
+  int64 memory_limit = 16;
+}
+
+message ChatVisualFacts {
+  int32 exits = 1;
+  // Each exit code with how often it was seen, most frequent first.
+  repeated ChatVisualExitCode exit_codes = 2;
+  int32 ooms = 3;
+  int32 restarts = 4;
+  // False when no lifecycle events are stored for the container (it has no
+  // event alert), so "no out-of-memory kill" would be a claim nothing backs.
+  bool events_recorded = 5;
+  // The stored events hit cloud's row cap, so the counts are a floor.
+  bool capped = 6;
+  // Highest memory in the window, bytes.
+  int64 memory_peak = 7;
+}
+
+message ChatVisualExitCode {
+  string code = 1;
+  int32 count = 2;
+}
+
+message ChatVisualRankRow {
+  string container = 1;
+  string host_id = 2;
+  string host_name = 3;
+  // cpu: percent. memory: bytes. restarts: count.
+  double value = 4;
 }
 
 message ChatError {

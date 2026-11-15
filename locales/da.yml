@@ -841,6 +841,21 @@ cloud-chat:
   ask-for: Spørg Dozzle om {query}
   ask-hint: Svarer ud fra containerne i visningen
   ask-shortcut: for at spørge
+  visual:
+    memory: "Hukommelse"
+    peak-of-limit: "top {peak} af {limit}"
+    peak: "top {peak}"
+    exits: "afslutninger: {n}"
+    exit-codes: "koder {codes}"
+    ooms: "stop pga. manglende hukommelse: {n}"
+    no-oom: "intet stop pga. manglende hukommelse registreret"
+    restarts: "genstarter: {n}"
+    no-events: "Ingen afslutninger eller genstarter registreret"
+    floor: "Ældre hændelser blev skåret fra, så tallene er et minimum"
+    matches: "matchende linjer: {n}"
+    top-cpu: "Containere med mest CPU"
+    top-memory: "Containere med mest hukommelse"
+    top-restarts: "Containere med flest genstarter"
 cloud-search:
   containers-section: "Containere"
   section-logs: "Logs"

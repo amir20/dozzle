@@ -841,6 +841,21 @@ cloud-chat:
   ask-for: 就 {query} 问 Dozzle
   ask-hint: 基于视图里的容器作答
   ask-shortcut: 提问
+  visual:
+    memory: "内存"
+    peak-of-limit: "峰值 {peak} / {limit}"
+    peak: "峰值 {peak}"
+    exits: "退出次数：{n}"
+    exit-codes: "代码 {codes}"
+    ooms: "内存不足终止：{n}"
+    no-oom: "未记录到内存不足终止"
+    restarts: "重启：{n}"
+    no-events: "未记录到退出或重启"
+    floor: "较早的事件已被截断，因此这些数字是最小值"
+    matches: "匹配的行数：{n}"
+    top-cpu: "CPU 占用最高的容器"
+    top-memory: "内存占用最高的容器"
+    top-restarts: "重启最多的容器"
 cloud-search:
   containers-section: "容器"
   section-logs: "日志"

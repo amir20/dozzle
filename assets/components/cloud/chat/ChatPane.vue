@@ -52,6 +52,7 @@
                     class="mb-1.5"
                   />
                   <ChatMarkdown :text="message.text" class="text-sm leading-relaxed" />
+                  <ChatVisual v-for="(visual, j) in message.visuals ?? []" :key="j" :visual="visual" class="mt-2" />
                 </template>
                 <ChatSteps
                   v-else

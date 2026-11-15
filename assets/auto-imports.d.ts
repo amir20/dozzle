@@ -130,6 +130,7 @@ declare global {
   const effectScope: typeof import('vue').effectScope
   const escapeHtml: typeof import('./utils/index').escapeHtml
   const extendRef: typeof import('@vueuse/core').extendRef
+  const factsLine: typeof import('./composable/cloud/chatVisuals').factsLine
   const fetchAlerts: typeof import('./composable/cloud/cloudAlerts').fetchAlerts
   const fetchPatternContext: typeof import('./composable/cloud/patternMemory').fetchPatternContext
   const firstLineByContainer: typeof import('./composable/logs/updateMarkers').firstLineByContainer
@@ -205,6 +206,7 @@ declare global {
   const mapWritableState: typeof import('pinia').mapWritableState
   const markCloudWelcomePending: typeof import('./composable/cloud/cloudWelcome').markCloudWelcomePending
   const markRaw: typeof import('vue').markRaw
+  const memoryBars: typeof import('./composable/cloud/chatVisuals').memoryBars
   const menuWidth: typeof import('./stores/settings').menuWidth
   const mergeAlerts: typeof import('./composable/cloud/cloudAlerts').mergeAlerts
   const mergeByTime: typeof import('./composable/logs/logLoader').mergeByTime
@@ -667,6 +669,9 @@ declare global {
   export type { UsageKey } from './composable/app/usage'
   import('./composable/app/usage')
   // @ts-ignore
+  export type { ChatVisualPoint, ChatVisualFacts, ChatVisual } from './composable/cloud/chatVisuals'
+  import('./composable/cloud/chatVisuals')
+  // @ts-ignore
   export type { CloudAlert, CloudEvent } from './composable/cloud/cloudAlerts'
   import('./composable/cloud/cloudAlerts')
   // @ts-ignore
@@ -894,6 +899,7 @@ declare module 'vue' {
     readonly effectScope: UnwrapRef<typeof import('vue')['effectScope']>
     readonly escapeHtml: UnwrapRef<typeof import('./utils/index')['escapeHtml']>
     readonly extendRef: UnwrapRef<typeof import('@vueuse/core')['extendRef']>
+    readonly factsLine: UnwrapRef<typeof import('./composable/cloud/chatVisuals')['factsLine']>
     readonly fetchAlerts: UnwrapRef<typeof import('./composable/cloud/cloudAlerts')['fetchAlerts']>
     readonly fetchPatternContext: UnwrapRef<typeof import('./composable/cloud/patternMemory')['fetchPatternContext']>
     readonly firstLineByContainer: UnwrapRef<typeof import('./composable/logs/updateMarkers')['firstLineByContainer']>
@@ -965,6 +971,7 @@ declare module 'vue' {
     readonly mapWritableState: UnwrapRef<typeof import('pinia')['mapWritableState']>
     readonly markCloudWelcomePending: UnwrapRef<typeof import('./composable/cloud/cloudWelcome')['markCloudWelcomePending']>
     readonly markRaw: UnwrapRef<typeof import('vue')['markRaw']>
+    readonly memoryBars: UnwrapRef<typeof import('./composable/cloud/chatVisuals')['memoryBars']>
     readonly menuWidth: UnwrapRef<typeof import('./stores/settings')['menuWidth']>
     readonly mergeAlerts: UnwrapRef<typeof import('./composable/cloud/cloudAlerts')['mergeAlerts']>
     readonly mergeByTime: UnwrapRef<typeof import('./composable/logs/logLoader')['mergeByTime']>

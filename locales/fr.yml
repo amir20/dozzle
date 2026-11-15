@@ -841,6 +841,21 @@ cloud-chat:
   ask-for: Demander à Dozzle à propos de {query}
   ask-hint: Répond à partir des conteneurs affichés
   ask-shortcut: pour demander
+  visual:
+    memory: "Mémoire"
+    peak-of-limit: "pic {peak} sur {limit}"
+    peak: "pic {peak}"
+    exits: "arrêts : {n}"
+    exit-codes: "codes {codes}"
+    ooms: "arrêts pour mémoire insuffisante : {n}"
+    no-oom: "aucun arrêt pour mémoire insuffisante enregistré"
+    restarts: "redémarrages : {n}"
+    no-events: "Aucun arrêt ni redémarrage enregistré"
+    floor: "Des événements plus anciens ont été coupés, ces chiffres sont un minimum"
+    matches: "lignes correspondantes : {n}"
+    top-cpu: "Conteneurs les plus gourmands en CPU"
+    top-memory: "Conteneurs les plus gourmands en mémoire"
+    top-restarts: "Conteneurs qui redémarrent le plus"
 cloud-search:
   containers-section: "Conteneurs"
   section-logs: "Logs"

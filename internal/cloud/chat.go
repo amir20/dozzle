@@ -64,6 +64,8 @@ type ChatEvent struct {
 	Code      string `json:"code,omitempty"`
 	// Step is set on a "step" event: one entry in the turn's progress trail.
 	Step *ChatStep `json:"step,omitempty"`
+	// Visuals is set on a "done" event: the pictures drawn under the answer.
+	Visuals []ChatVisual `json:"visuals,omitempty"`
 }
 
 // ChatStep is pb.ChatStep for the browser. See cloud.proto for the fields.
@@ -147,9 +149,10 @@ func (c *Client) Chat(
 
 	if err := stream.Send(&pb.ChatClientEvent{
 		Type: &pb.ChatClientEvent_Turn{Turn: &pb.ChatTurn{
-			Message: message,
-			View:    viewToProto(view),
-			UserRef: userRef,
+			Message:     message,
+			View:        viewToProto(view),
+			UserRef:     userRef,
+			VisualTypes: VisualTypes,
 		}},
 	}); err != nil {
 		return fmt.Errorf("cloud: chat send: %w", err)
@@ -186,7 +189,7 @@ func (c *Client) Chat(
 				emit(ChatEvent{Kind: "delta", Text: text})
 			}
 		case *pb.ChatServerEvent_Done:
-			emit(ChatEvent{Kind: "done", SessionID: t.Done.GetSessionId()})
+			emit(ChatEvent{Kind: "done", SessionID: t.Done.GetSessionId(), Visuals: visualsFromProto(t.Done.GetVisuals())})
 			return nil
 		case *pb.ChatServerEvent_Error:
 			emit(ChatEvent{Kind: "error", Text: t.Error.GetMessage(), Code: t.Error.GetCode()})

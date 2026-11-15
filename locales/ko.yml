@@ -843,6 +843,21 @@ cloud-chat:
   ask-for: "{query}에 대해 Dozzle에 질문"
   ask-hint: 화면에 있는 컨테이너를 근거로 답합니다
   ask-shortcut: 질문하기
+  visual:
+    memory: "메모리"
+    peak-of-limit: "최고 {peak} / {limit}"
+    peak: "최고 {peak}"
+    exits: "종료: {n}"
+    exit-codes: "코드 {codes}"
+    ooms: "메모리 부족 종료: {n}"
+    no-oom: "기록된 메모리 부족 종료 없음"
+    restarts: "재시작: {n}"
+    no-events: "기록된 종료나 재시작 없음"
+    floor: "오래된 이벤트가 잘려서 이 수치는 최솟값입니다"
+    matches: "일치하는 줄: {n}"
+    top-cpu: "CPU 사용량 상위 컨테이너"
+    top-memory: "메모리 사용량 상위 컨테이너"
+    top-restarts: "재시작 횟수 상위 컨테이너"
 cloud-search:
   containers-section: "컨테이너"
   section-logs: "로그"

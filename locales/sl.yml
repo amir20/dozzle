@@ -846,6 +846,21 @@ cloud-chat:
   ask-for: Vprašaj Dozzle o {query}
   ask-hint: Odgovarja iz vsebnikov v pogledu
   ask-shortcut: za vprašanje
+  visual:
+    memory: "Pomnilnik"
+    peak-of-limit: "vrh {peak} od {limit}"
+    peak: "vrh {peak}"
+    exits: "izhodi: {n}"
+    exit-codes: "kode {codes}"
+    ooms: "ustavitve zaradi pomanjkanja pomnilnika: {n}"
+    no-oom: "ni zabeležene ustavitve zaradi pomanjkanja pomnilnika"
+    restarts: "ponovni zagoni: {n}"
+    no-events: "Ni zabeleženih izhodov ali ponovnih zagonov"
+    floor: "Starejši dogodki so bili odrezani, zato so te številke najmanjše"
+    matches: "ujemajoče se vrstice: {n}"
+    top-cpu: "Vsebniki z največ CPU"
+    top-memory: "Vsebniki z največ pomnilnika"
+    top-restarts: "Vsebniki z največ ponovnimi zagoni"
 cloud-search:
   containers-section: "Vsebniki"
   section-logs: "Dnevniki"

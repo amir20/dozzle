@@ -1,4 +1,5 @@
 import type { ViewContext, ViewLogLine } from "@/composable/logs/viewContext";
+import type { ChatVisual } from "@/composable/cloud/chatVisuals";
 import { i18n } from "@/modules/i18n";
 
 const { t } = i18n.global;
@@ -40,6 +41,8 @@ export type ChatMessage = {
    *  thread records what the assistant was looking at when it answered. */
   view?: ViewContext;
   error?: boolean;
+  /** Pictures cloud drew under the answer, measured server-side. */
+  visuals?: ChatVisual[];
 };
 
 /**
@@ -158,6 +161,8 @@ export function useCloudChat() {
             // what is happening now.
             status.value = event.text ?? "";
             activity.value = event.activity ?? "";
+          } else if (event.kind === "done") {
+            reply.visuals = event.visuals ?? [];
           } else if (event.kind === "error") {
             reply.text = errorText(event.code, event.text);
             reply.error = true;
