@@ -44,6 +44,7 @@ declare module 'vue' {
     ChatStepRow: typeof import('./components/cloud/chat/ChatStepRow.vue')['default']
     ChatSteps: typeof import('./components/cloud/chat/ChatSteps.vue')['default']
     ChatViewContext: typeof import('./components/cloud/chat/ChatViewContext.vue')['default']
+    ChatVisual: typeof import('./components/cloud/chat/ChatVisual.vue')['default']
     'Cil:checkCircle': typeof import('~icons/cil/check-circle')['default']
     'Cil:circle': typeof import('~icons/cil/circle')['default']
     'Cil:columns': typeof import('~icons/cil/columns')['default']

@@ -853,6 +853,22 @@ cloud-chat:
   ask-for: Tanya Dozzle tentang {query}
   ask-hint: Menjawab dari kontainer yang terlihat
   ask-shortcut: untuk bertanya
+  visual:
+    memory: "Memori"
+    peak-of-limit: "puncak {peak} dari {limit}"
+    peak: "puncak {peak}"
+    exits: "keluar: {n}"
+    exit-codes: "kode {codes}"
+    ooms: "dihentikan karena kehabisan memori: {n}"
+    no-oom: "tidak ada penghentian karena kehabisan memori yang tercatat"
+    restarts: "restart: {n}"
+    no-events: "Tidak ada keluar atau restart yang tercatat"
+    no-events-stored: "Tidak ada peristiwa yang disimpan untuk kontainer ini, jadi keluar dan restart-nya tidak diketahui"
+    floor: "Peristiwa lama terpotong, jadi angka ini adalah minimum"
+    matches: "baris yang cocok: {n}"
+    top-cpu: "Kontainer dengan CPU tertinggi"
+    top-memory: "Kontainer dengan memori tertinggi"
+    top-restarts: "Kontainer dengan restart terbanyak"
 cloud-search:
   containers-section: "Kontainer"
   section-logs: "Log"

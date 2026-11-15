@@ -354,6 +354,22 @@ cloud-chat:
   ask-for: Ask Dozzle about {query}
   ask-hint: Answers from the containers in view
   ask-shortcut: to ask
+  visual:
+    memory: "Memory"
+    peak-of-limit: "peak {peak} of {limit}"
+    peak: "peak {peak}"
+    exits: "exits: {n}"
+    exit-codes: "codes {codes}"
+    ooms: "out-of-memory kills: {n}"
+    no-oom: "no out-of-memory kill recorded"
+    restarts: "restarts: {n}"
+    no-events: "No exits or restarts recorded"
+    no-events-stored: "No events are stored for this container, so its exits and restarts are unknown"
+    floor: "Older events were cut off, so these counts are a minimum"
+    matches: "matching lines: {n}"
+    top-cpu: "Top containers by CPU"
+    top-memory: "Top containers by memory"
+    top-restarts: "Top containers by restarts"
 cloud-search:
   containers-section: Containers
   section-logs: Logs

@@ -842,6 +842,22 @@ cloud-chat:
   ask-for: Dozzle vragen over {query}
   ask-hint: Antwoordt vanuit de zichtbare containers
   ask-shortcut: om te vragen
+  visual:
+    memory: "Geheugen"
+    peak-of-limit: "piek {peak} van {limit}"
+    peak: "piek {peak}"
+    exits: "beëindigingen: {n}"
+    exit-codes: "codes {codes}"
+    ooms: "gestopt door geheugentekort: {n}"
+    no-oom: "geen stop door geheugentekort geregistreerd"
+    restarts: "herstarts: {n}"
+    no-events: "Geen beëindigingen of herstarts geregistreerd"
+    no-events-stored: "Voor deze container worden geen gebeurtenissen opgeslagen, dus beëindigingen en herstarts zijn onbekend"
+    floor: "Oudere gebeurtenissen zijn afgekapt, dus deze aantallen zijn een minimum"
+    matches: "overeenkomende regels: {n}"
+    top-cpu: "Containers met de meeste CPU"
+    top-memory: "Containers met het meeste geheugen"
+    top-restarts: "Containers met de meeste herstarts"
 cloud-search:
   containers-section: "Containers"
   section-logs: "Logs"

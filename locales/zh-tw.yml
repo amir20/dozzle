@@ -843,6 +843,22 @@ cloud-chat:
   ask-for: 就 {query} 問 Dozzle
   ask-hint: 根據檢視裡的容器作答
   ask-shortcut: 提問
+  visual:
+    memory: "記憶體"
+    peak-of-limit: "峰值 {peak} / {limit}"
+    peak: "峰值 {peak}"
+    exits: "結束次數：{n}"
+    exit-codes: "代碼 {codes}"
+    ooms: "記憶體不足終止：{n}"
+    no-oom: "未記錄到記憶體不足終止"
+    restarts: "重新啟動：{n}"
+    no-events: "未記錄到結束或重新啟動"
+    no-events-stored: "此容器沒有儲存事件，因此無法得知其結束與重新啟動次數"
+    floor: "較舊的事件已被截斷，因此這些數字是最小值"
+    matches: "符合的行數：{n}"
+    top-cpu: "CPU 使用最多的容器"
+    top-memory: "記憶體使用最多的容器"
+    top-restarts: "重新啟動最多的容器"
 cloud-search:
   containers-section: "容器"
   section-logs: "日誌"

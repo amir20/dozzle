@@ -45,9 +45,16 @@
 <script lang="ts" setup>
 import { volumeColumns, type VolumeBucket, type VolumeColumn } from "@/composable/cloud/searchVolume";
 
-const { buckets, stepNs } = defineProps<{ buckets: VolumeBucket[]; stepNs: number }>();
+const { buckets, stepNs, end } = defineProps<{
+  buckets: VolumeBucket[];
+  stepNs: number;
+  // Where the axis ends, unix ms. A search runs up to now, so that is the
+  // default; a chat picture covers a fixed window that may have ended days ago,
+  // and padding it out to now would push its bars off the strip.
+  end?: number;
+}>();
 
-const columns = computed(() => volumeColumns(buckets, stepNs, Date.now()));
+const columns = computed(() => volumeColumns(buckets, stepNs, end ?? Date.now()));
 const hovered = ref<number | null>(null);
 watch(columns, () => (hovered.value = null));
 

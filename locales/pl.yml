@@ -843,6 +843,22 @@ cloud-chat:
   ask-for: Zapytaj Dozzle o {query}
   ask-hint: Odpowiada na podstawie widocznych kontenerów
   ask-shortcut: aby zapytać
+  visual:
+    memory: "Pamięć"
+    peak-of-limit: "szczyt {peak} z {limit}"
+    peak: "szczyt {peak}"
+    exits: "zakończenia: {n}"
+    exit-codes: "kody {codes}"
+    ooms: "zatrzymania z braku pamięci: {n}"
+    no-oom: "nie zarejestrowano zatrzymania z braku pamięci"
+    restarts: "restarty: {n}"
+    no-events: "Nie zarejestrowano zakończeń ani restartów"
+    no-events-stored: "Dla tego kontenera nie są zapisywane zdarzenia, więc jego zakończenia i restarty są nieznane"
+    floor: "Starsze zdarzenia zostały ucięte, więc te liczby to minimum"
+    matches: "pasujące wiersze: {n}"
+    top-cpu: "Kontenery z największym użyciem CPU"
+    top-memory: "Kontenery z największym użyciem pamięci"
+    top-restarts: "Kontenery z największą liczbą restartów"
 cloud-search:
   containers-section: "Kontenery"
   section-logs: "Logi"
