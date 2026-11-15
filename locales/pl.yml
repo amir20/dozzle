@@ -853,6 +853,7 @@ cloud-chat:
     no-oom: "nie zarejestrowano zatrzymania z braku pamięci"
     restarts: "restarty: {n}"
     no-events: "Nie zarejestrowano zakończeń ani restartów"
+    no-events-stored: "Dla tego kontenera nie są zapisywane zdarzenia, więc jego zakończenia i restarty są nieznane"
     floor: "Starsze zdarzenia zostały ucięte, więc te liczby to minimum"
     matches: "pasujące wiersze: {n}"
     top-cpu: "Kontenery z największym użyciem CPU"

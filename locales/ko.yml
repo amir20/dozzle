@@ -853,6 +853,7 @@ cloud-chat:
     no-oom: "기록된 메모리 부족 종료 없음"
     restarts: "재시작: {n}"
     no-events: "기록된 종료나 재시작 없음"
+    no-events-stored: "이 컨테이너의 이벤트는 저장되지 않아 종료와 재시작 횟수를 알 수 없습니다"
     floor: "오래된 이벤트가 잘려서 이 수치는 최솟값입니다"
     matches: "일치하는 줄: {n}"
     top-cpu: "CPU 사용량 상위 컨테이너"

@@ -854,6 +854,7 @@ cloud-chat:
     no-oom: "bellek yetersizliğinden durdurma kaydedilmedi"
     restarts: "yeniden başlatmalar: {n}"
     no-events: "Kaydedilmiş çıkış veya yeniden başlatma yok"
+    no-events-stored: "Bu konteyner için olay kaydedilmiyor, bu yüzden çıkışları ve yeniden başlatmaları bilinmiyor"
     floor: "Eski olaylar kesildi, bu yüzden bu sayılar en az değerdir"
     matches: "eşleşen satırlar: {n}"
     top-cpu: "En çok CPU kullanan konteynerler"

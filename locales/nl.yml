@@ -852,6 +852,7 @@ cloud-chat:
     no-oom: "geen stop door geheugentekort geregistreerd"
     restarts: "herstarts: {n}"
     no-events: "Geen beëindigingen of herstarts geregistreerd"
+    no-events-stored: "Voor deze container worden geen gebeurtenissen opgeslagen, dus beëindigingen en herstarts zijn onbekend"
     floor: "Oudere gebeurtenissen zijn afgekapt, dus deze aantallen zijn een minimum"
     matches: "overeenkomende regels: {n}"
     top-cpu: "Containers met de meeste CPU"

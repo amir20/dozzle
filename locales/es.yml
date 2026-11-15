@@ -356,6 +356,7 @@ cloud-chat:
     no-oom: "ningún cierre por falta de memoria registrado"
     restarts: "reinicios: {n}"
     no-events: "No hay salidas ni reinicios registrados"
+    no-events-stored: "No se guardan eventos de este contenedor, así que sus salidas y reinicios son desconocidos"
     floor: "Se cortaron eventos antiguos, así que estas cifras son un mínimo"
     matches: "líneas coincidentes: {n}"
     top-cpu: "Contenedores con más CPU"

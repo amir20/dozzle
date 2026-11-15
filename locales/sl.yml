@@ -856,6 +856,7 @@ cloud-chat:
     no-oom: "ni zabeležene ustavitve zaradi pomanjkanja pomnilnika"
     restarts: "ponovni zagoni: {n}"
     no-events: "Ni zabeleženih izhodov ali ponovnih zagonov"
+    no-events-stored: "Za ta vsebnik se dogodki ne shranjujejo, zato so njegovi izhodi in ponovni zagoni neznani"
     floor: "Starejši dogodki so bili odrezani, zato so te številke najmanjše"
     matches: "ujemajoče se vrstice: {n}"
     top-cpu: "Vsebniki z največ CPU"

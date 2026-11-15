@@ -853,6 +853,7 @@ cloud-chat:
     no-oom: "未記錄到記憶體不足終止"
     restarts: "重新啟動：{n}"
     no-events: "未記錄到結束或重新啟動"
+    no-events-stored: "此容器沒有儲存事件，因此無法得知其結束與重新啟動次數"
     floor: "較舊的事件已被截斷，因此這些數字是最小值"
     matches: "符合的行數：{n}"
     top-cpu: "CPU 使用最多的容器"

@@ -28,6 +28,7 @@
       v-else-if="visual.type === 'pattern_count' && visual.volume?.length"
       :buckets="visual.volume"
       :step-ns="visual.stepNs ?? 0"
+      :end="visual.to"
     />
 
     <ul v-else-if="visual.type === 'container_ranking'" class="space-y-1.5">
@@ -51,7 +52,10 @@
       </li>
     </ul>
 
-    <p v-else-if="visual.type === 'container_events'">{{ facts || $t("cloud-chat.visual.no-events") }}</p>
+    <template v-else-if="visual.type === 'container_events'">
+      <p>{{ eventsLine }}</p>
+      <p v-if="visual.facts?.capped" class="text-base-content/50 mt-2">{{ $t("cloud-chat.visual.floor") }}</p>
+    </template>
   </div>
 </template>
 
@@ -69,6 +73,14 @@ const title = computed(() => {
 });
 
 const facts = computed(() => (visual.facts ? factsLine(visual.facts) : ""));
+// "Nothing recorded" is only true where cloud stores events for the container
+// at all; without an event alert there is nothing to count, which is a
+// different sentence.
+const eventsLine = computed(() => {
+  if (facts.value) return facts.value;
+  if (visual.facts && !visual.facts.eventsRecorded) return t("cloud-chat.visual.no-events-stored");
+  return t("cloud-chat.visual.no-events");
+});
 const limit = computed(() => visual.memoryLimit ?? 0);
 const bars = computed(() => memoryBars(visual.points ?? [], limit.value));
 

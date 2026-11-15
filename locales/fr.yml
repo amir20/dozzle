@@ -851,6 +851,7 @@ cloud-chat:
     no-oom: "aucun arrêt pour mémoire insuffisante enregistré"
     restarts: "redémarrages : {n}"
     no-events: "Aucun arrêt ni redémarrage enregistré"
+    no-events-stored: "Aucun événement n'est enregistré pour ce conteneur, ses arrêts et redémarrages sont donc inconnus"
     floor: "Des événements plus anciens ont été coupés, ces chiffres sont un minimum"
     matches: "lignes correspondantes : {n}"
     top-cpu: "Conteneurs les plus gourmands en CPU"

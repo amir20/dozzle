@@ -851,6 +851,7 @@ cloud-chat:
     no-oom: "kein Abbruch wegen Speichermangel erfasst"
     restarts: "Neustarts: {n}"
     no-events: "Keine Beendigungen oder Neustarts erfasst"
+    no-events-stored: "Für diesen Container werden keine Ereignisse gespeichert, daher sind Beendigungen und Neustarts unbekannt"
     floor: "Ältere Ereignisse wurden abgeschnitten, die Zahlen sind ein Mindestwert"
     matches: "passende Zeilen: {n}"
     top-cpu: "Container mit der meisten CPU"

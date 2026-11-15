@@ -364,6 +364,7 @@ cloud-chat:
     no-oom: "no out-of-memory kill recorded"
     restarts: "restarts: {n}"
     no-events: "No exits or restarts recorded"
+    no-events-stored: "No events are stored for this container, so its exits and restarts are unknown"
     floor: "Older events were cut off, so these counts are a minimum"
     matches: "matching lines: {n}"
     top-cpu: "Top containers by CPU"

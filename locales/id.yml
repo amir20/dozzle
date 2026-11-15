@@ -863,6 +863,7 @@ cloud-chat:
     no-oom: "tidak ada penghentian karena kehabisan memori yang tercatat"
     restarts: "restart: {n}"
     no-events: "Tidak ada keluar atau restart yang tercatat"
+    no-events-stored: "Tidak ada peristiwa yang disimpan untuk kontainer ini, jadi keluar dan restart-nya tidak diketahui"
     floor: "Peristiwa lama terpotong, jadi angka ini adalah minimum"
     matches: "baris yang cocok: {n}"
     top-cpu: "Kontainer dengan CPU tertinggi"

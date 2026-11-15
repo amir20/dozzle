@@ -851,6 +851,7 @@ cloud-chat:
     no-oom: "intet stop pga. manglende hukommelse registreret"
     restarts: "genstarter: {n}"
     no-events: "Ingen afslutninger eller genstarter registreret"
+    no-events-stored: "Der gemmes ingen hændelser for denne container, så dens afslutninger og genstarter er ukendte"
     floor: "Ældre hændelser blev skåret fra, så tallene er et minimum"
     matches: "matchende linjer: {n}"
     top-cpu: "Containere med mest CPU"

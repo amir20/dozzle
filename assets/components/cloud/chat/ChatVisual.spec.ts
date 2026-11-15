@@ -17,7 +17,7 @@ vi.mock("@/modules/i18n", () => ({
 // The charts are their own components with their own specs; here they only have
 // to receive what the picture carried.
 const BarChartStub = defineComponent({ props: ["chartData", "max"], template: "<div data-bars />" });
-const VolumeStub = defineComponent({ props: ["buckets", "stepNs"], template: "<div data-volume />" });
+const VolumeStub = defineComponent({ props: ["buckets", "stepNs", "end"], template: "<div data-volume />" });
 
 const GiB = 1024 ** 3;
 
@@ -38,6 +38,8 @@ function render(visual: Visual) {
                   memory: "Memory",
                   "peak-of-limit": "peak {peak} of {limit}",
                   "no-events": "No exits or restarts recorded",
+                  "no-events-stored": "No events are stored for this container",
+                  floor: "Older events were cut off",
                   matches: "matching lines: {n}",
                   "top-restarts": "Top containers by restarts",
                 },
@@ -137,5 +139,45 @@ describe("ChatVisual", () => {
     });
     expect(wrapper.findAll("li")).toHaveLength(2);
     expect(wrapper.text()).toContain("WARNING: Invalid HTTP request received.");
+  });
+
+  // A window that ended in the past ends its axis there, not at now: padded to
+  // now, a week-old count drops off the strip while its total still says 147.
+  test("pattern count: the volume axis ends at the window's end", () => {
+    const wrapper = render({
+      type: "pattern_count",
+      container: "rook",
+      query: "x",
+      from: 1_000,
+      to: 9_000,
+      total: 3,
+      volume: [{ ts: 1e9, level: "warn", count: 3 }],
+      stepNs: 1e9,
+    });
+    expect(wrapper.findComponent(VolumeStub).props("end")).toBe(9_000);
+  });
+
+  // Without stored events "nothing recorded" is not known; say why instead.
+  test("container events without stored events says none are stored, not none happened", () => {
+    const wrapper = render({
+      type: "container_events",
+      container: "rook",
+      from: 0,
+      to: 1,
+      facts: { exits: 0, ooms: 0, restarts: 0, eventsRecorded: false, capped: false },
+    });
+    expect(wrapper.text()).toContain("No events are stored for this container");
+    expect(wrapper.text()).not.toContain("No exits or restarts recorded");
+  });
+
+  test("container events at the row cap says the counts are a floor", () => {
+    const wrapper = render({
+      type: "container_events",
+      container: "rook",
+      from: 0,
+      to: 1,
+      facts: { exits: 500, ooms: 0, restarts: 0, eventsRecorded: true, capped: true },
+    });
+    expect(wrapper.text()).toContain("Older events were cut off");
   });
 });
