@@ -1,0 +1,1259 @@
+toolbar:
+  clear: クリア
+  download: ダウンロード
+  download-filtered: フィルタ済みログをダウンロード
+  search: 検索
+  inverse-on: 一致を除外 (反転)
+  inverse-off: 一致を含める (通常)
+  invalid-regex: 正規表現が正しくありません
+  close-search: 検索を閉じる
+  move-search: ドラッグして移動
+  search-all-containers: すべてのコンテナを検索
+  show: "{std} を表示"
+  show-all: すべて表示
+  stop: 停止
+  start: 開始
+  restart: 再起動
+  rollout-restart: "{kind} を再起動"
+  rollout-restart-done: "{workload} で新しい Pod をロールアウトしています。"
+  section-containers: "コンテナ"
+  restart-all: "すべて再起動"
+  stop-all: "すべて停止"
+  start-all: "すべて開始"
+  bulk-confirm-restart: "コンテナ 1 件を再起動しますか？ | コンテナ {count} 件を再起動しますか？"
+  bulk-confirm-stop: "コンテナ 1 件を停止しますか？ | コンテナ {count} 件を停止しますか？"
+  bulk-confirm-start: "コンテナ 1 件を開始しますか？ | コンテナ {count} 件を開始しますか？"
+  bulk-self-skipped: "Dozzle 自身のコンテナはスキップされます。"
+  bulk-more: "ほか {count} 件"
+  bulk-failed: "{names} は完了しませんでした"
+  update: 更新
+  update-service: サービスを更新
+  update-pulling: 最新のイメージを取得しています...
+  update-recreating: コンテナを再作成しています...
+  update-verifying: 新しいコンテナが動き続けるか確認しています...
+  update-rolled-back: 新しいコンテナが動き続けなかったため、以前のコンテナに戻しました。
+  update-done: コンテナを更新しました
+  update-up-to-date: すでに最新です
+  update-available: 更新があります
+  check-for-updates: 更新を確認
+  checking-for-updates: 更新を確認しています...
+  no-updates: 更新はありません
+  dismiss-update: この更新を非表示にする
+  view-release-notes: リリースノートを見る
+  show-hostname: ホスト名を表示
+  show-container-name: コンテナ名を表示
+  shell: シェル
+  attach: アタッチ
+  inspect: "詳細"
+  copy-permalink: 固定リンクをコピー
+  copy-image: イメージタグをコピー
+  image-version: "{image} の現在のバージョンは {version} です"
+  pin: 固定
+  unpin: 固定を解除
+  copy-logs: ログをコピー
+  copy-filtered-logs: フィルタ済みログをコピー
+  copying-logs: ログをコピーしています...
+  streams: ストリーム
+  levels: レベル
+  toggle-all-levels: すべてのレベルを切り替え
+  all: すべて
+  none: なし
+  section-logs: ログ
+  section-filters: フィルタ
+  section-display: 表示
+  section-export: エクスポート
+  section-container: コンテナ
+  section-image: イメージ
+  section-workload: "ワークロード"
+action:
+  copy-log: ログをコピー
+  copy-link: 固定リンクをコピー
+  see-in-context: 前後のログを見る
+  search-similar: 似たログを検索
+  show-details: 詳細を表示
+  create-alert: アラートを作成
+  ask-about-log: このログについて質問
+log-details:
+  on-std: "{std} 上"
+  image: イメージ
+  raw-json: 生の JSON
+  copy: コピー
+  download: JSON をダウンロード
+  fields: フィールド
+  field: フィールド
+  value: 値
+  fields-hint: ドラッグして並べ替えます。切り替えてログストリームでの表示と非表示を選べます。
+  chart-field: "SQL 分析で {field} をグラフ化"
+  toggle-all: すべてのフィールドを切り替え
+  toggle-field: ログストリームでの表示と非表示を切り替え
+  memory-title: "このコンテナでは初めて"
+  memory-explain: "Dozzle Cloud は、このコンテナでこのパターンをまだ見たことがありません。数字、ID、アドレスだけが異なる行は 1 つのパターンとして数えます。"
+  memory-pattern: "パターン"
+  memory-first-seen: "初回検出"
+  memory-first-seen-now: "この行で初検出"
+  memory-last-hour: "過去 1 時間"
+  memory-lines: "なし | 1 行 | {count} 行"
+label:
+  hide-sidebar: "サイドバーを隠す"
+  show-sidebar: "サイドバーを表示"
+  host-unreachable: "接続不可"
+  agent-unreachable: "{endpoint} のエージェントに接続できません"
+  agent-outdated: "エージェント {version}"
+  historical-at: "過去のログ · {time}"
+  containers: コンテナ
+  container: コンテナなし | コンテナ 1 件 | コンテナ {count} 件
+  alert-events: イベントなし | イベント 1 件 | イベント {count} 件
+  alert-containers: コンテナ 1 件 | コンテナ {count} 件
+  alert-held-back: "類似 {count} 件を保留"
+  alert-view-in-cloud: Dozzle Cloud で見る
+  alert: アラート
+  alert-details: 詳細
+  event-sent-hint: この行について Dozzle Cloud がアラートを送信しました
+  event-suppressed-hint: Dozzle Cloud はこの行に一致しましたが、アラートを保留しました
+  event-metric: メトリクス
+  event-container: コンテナ
+  memory-new: "新規"
+  host-count: ホストなし | ホスト 1 台 | ホスト {count} 台
+  service: サービスなし | サービス 1 件 | サービス {count} 件
+  services: サービス
+  running-containers: 実行中のコンテナ
+  all-containers: すべてのコンテナ
+  all-namespaces: すべて
+  namespaces: 名前空間
+  owners: オーナー
+  host: ホスト
+  hosts: ホスト
+  password: パスワード
+  username: ユーザー名
+  or: または
+  container-name: コンテナ名
+  status: ステータス
+  created: 作成日時
+  avg-cpu: 平均 CPU
+  avg-mem: 平均メモリ
+  name: 名前
+  cpu: CPU
+  core: コアなし | 1 コア | {count} コア
+  mem: MEM
+  disk: ディスク
+  disk-io: ディスク I/O
+  network: ネットワーク
+  reclaimable: 回収可能
+  unused-images: "未使用のイメージ"
+  unused-volumes: "未使用のボリューム"
+  stopped-containers: "停止中のコンテナ"
+  build-cache: "ビルドキャッシュ"
+  load: 負荷
+  uptime: 稼働時間
+  pinned: 固定済み
+  per-page: 1 ページあたりの行数
+  columns: 列
+  moving-average: 移動平均を使用
+  sort-by: 並べ替え
+  sort-direction: 並べ替えの向きを切り替え
+  host-menu: ホストとコンテナ
+  swarm-menu: サービスとスタック
+  k8s-menu: Kubernetes
+  group-menu: カスタムグループ
+  no-logs: このコンテナにはまだログがありません
+  no-logs-hint: "コンテナが出力した内容は、すぐにここに表示されます。"
+  search-status:
+    searching: 古いログを検索しています…
+    matches: "{count} 件一致"
+    searched-all: "すべてのログを検索しました"
+    scanned-to: "{time} までさかのぼりました"
+    empty: "一致するログはありません"
+    empty-hint: "すべてのログを検索しました。別の語句を試すか、検索をクリアしてください。"
+  show-all-containers: すべてのコンテナを表示
+  collapse-all: すべて折りたたむ
+  collapse-group: グループを折りたたむ
+  expand-all: すべて展開
+  more-options: その他のオプション
+  groups: グループ
+tooltip:
+  memory-new: "Dozzle Cloud は、このコンテナでこのエラーをまだ見たことがありません。クリックすると前後のログを表示します。"
+  memory-new-since: "このコンテナでの初回検出: {time}。クリックすると発生箇所を表示します。"
+  live-logs: このログはこの時点で固定されています。クリックするとライブストリームに戻ります。
+  search: コンテナを検索 (⌘ + k, ⌃k)
+  pin-column: 列として固定
+  unpin-column: 列の固定を解除
+  merge-stream: ストリームに統合
+  merge-stream-hint: 統合するコンテナを開いてください
+  unmerge-stream: ストリームから外す
+  merge-all: すべてを 1 つのストリームに統合
+  network-io: "ネットワーク: ↑ {tx}/s · ↓ {rx}/s"
+  disk-io: "ディスク: ↑ {write}/s · ↓ {read}/s"
+  cpu-usage: "CPU {cpu}% / {cores} コア"
+  memory-usage: "メモリ {used} / {total}"
+  disk-layer: "書き込み可能レイヤー: {size}"
+  disk-volume-shared: "{name}: {size} ({count} 個のコンテナで共有)"
+  reclaimable-source: "{command} の報告と同じ合計です。"
+  volumes: ボリューム
+  volume-unreachable: このホストからは接続できません
+  volume-full: "{destination} は {pct} 使用済みです"
+  open-container-url: "{url} を開く"
+  agent-version: "Dozzle エージェント {version}"
+  agent-version-mismatch: "エージェント {version} と Dozzle {current} のバージョンが異なります。両方で同じバージョンを実行してください。"
+popup:
+  group: グループ
+  ports: ポート
+container-status:
+  up: "{duration} 稼働中"
+  paused: "一時停止中、{duration} 稼働"
+  restarting: "再起動中、{time} に停止"
+  exited: "{time} に終了"
+hint:
+  learn-more: 詳しく見る
+  dismiss: 今後は表示しない
+link-hint:
+  title: このコンテナをリンクする
+  description: dev.dozzle.url ラベルを追加すると、Dozzle はコンテナを専用の Web UI にリンクします。compose ファイルに次を追加して、コンテナを再起動してください。
+  copy: コピー
+error:
+  page-not-found: このページは存在しません
+  host-group-not-found: 'グループ "{name}" にホストが見つかりません'
+  invalid-auth: ユーザー名またはパスワードが正しくありません
+  oauth-failed: サインインに失敗しました。もう一度お試しください。
+  copy-not-supported: お使いのブラウザはクリップボードへのコピーに対応していません
+  copy-insecure: http ではクリップボードがブロックされます
+  copy-insecure-hint: ブラウザは https でのみクリップボードへのアクセスを許可します。代わりにテキストを手動でコピーしてください。
+  logs-skipped: 非表示の {total} 件を表示
+  container-not-found: コンテナが見つかりません
+  container-not-found-hint: 削除されたか、ホストに接続できなくなった可能性があります。
+  nothing-running: "ここで実行中のものはありません"
+  nothing-running-hint: "この画面のコンテナはどれも実行されていません。コンテナが起動すると、ここにログが表示されます。"
+  action-failed: 操作に失敗しました
+  update-failed: 更新に失敗しました
+  unable-to-complete-action: 操作を完了できません
+  invalid-action: 無効な操作です
+  unable-to-update: コンテナを更新できません
+  start-container-first: 先にコンテナを開始してください
+  something-went-wrong: 問題が発生しました
+  unknown-error: 不明なエラー
+  events-stream:
+    title: 予期しないエラー
+    message: >-
+      Dozzle UI が API に接続できませんでした。ネットワーク設定を確認してください。リバースプロキシを使用している場合は、正しく設定されているか確認してください。
+  events-timeout:
+    title: 何かがおかしいようです
+    message: >-
+      Dozzle UI が API への接続中にタイムアウトしました。ネットワーク接続を確認して、もう一度お試しください。
+alert:
+  redirected:
+    title: 新しいコンテナにリダイレクトしました
+    message: Dozzle は新しいコンテナ {containerId} に自動的にリダイレクトしました。
+  similar-container-found:
+    title: 似たコンテナが見つかりました
+    message: >-
+      Dozzle は同じホストで実行中の似たコンテナ {containerId} を見つけました。「キャンセル」をクリックしない限り、自動的にそのコンテナに切り替わります。
+  image-update:
+    title: 更新があります
+    message: "{image} の新しいイメージが公開されました。"
+    enable-actions: >-
+      ここから取得して再作成するには、<a href="https://dozzle.dev/guide/actions" target="_blank" rel="noreferrer noopener">アクションを有効</a>にしてください。
+  stale-ui:
+    title: 更新を完了するには再読み込みしてください
+    message: >-
+      Dozzle が更新されました。このページはまだ以前のバージョンで動作しており、別のタブに切り替えると自動的に再読み込みされます。
+title:
+  page-not-found: ページが見つかりません
+  login: 認証が必要です
+  dashboard: コンテナ 1 件 | コンテナ {count} 件
+  settings: 設定
+  notifications: 通知
+button:
+  back-to-dashboard: ダッシュボードに戻る
+  live-logs: ライブログへ移動
+  logout: ログアウト
+  login: ログイン
+  login-with: "{provider} で続行"
+  settings: 設定
+  cancel: キャンセル
+  redirect: リダイレクト
+  retry: 再試行
+  refresh: 再読み込み
+placeholder:
+  search-containers: コンテナを検索 (⌘ + k, ⌃k)
+  find-logs: ログ内を検索または正規表現
+  search: 検索
+cloud-rail:
+  title: Dozzle Cloud
+  chat: Dozzle に質問
+  metrics: メトリクス
+  alerts: アラート
+  close: 閉じる
+  hide: クラウドレールを隠す
+  show: クラウドレールを表示
+  alerts-empty-here: 表示中の内容では何も発生していません。
+  all-activity: すべてのアクティビティ
+  metrics-no-container: コンテナを開くと履歴を表示します。
+  metrics-loading: 履歴を読み込んでいます…
+  metrics-failed: 履歴を読み込めませんでした。
+  metrics-empty: この期間の記録はまだありません。
+  metrics-peak: ピーク
+  metrics-bucket: "{duration} ごとの平均"
+  window-1h: 1 時間
+  window-6h: 6 時間
+  window-24h: 24 時間
+  window-7d: 7 日
+cloud-chat:
+  title: Dozzle に質問
+  close: 閉じる
+  clear: チャットをクリア
+  empty: 表示中の内容について質問できます。アシスタントはこの画面を見て、これらのログを読めます。
+  thinking: 考え中…
+  doing:
+    logs: ログを読んでいます…
+    containers: コンテナを確認しています…
+    stats: リソース使用状況を確認しています…
+    inspect: コンテナを調べています…
+    notifications: 通知を確認しています…
+    action: 操作を実行しています…
+    working: 処理中…
+  step:
+    logs: ログを検索
+    containers: コンテナを確認
+    stats: リソース使用状況を確認
+    inspect: コンテナを調査
+    alerts: アラートを確認
+    findings: 検出結果を確認
+    events: コンテナの履歴を確認
+    docs: ドキュメントを読む
+    notifications: 通知を確認
+    action: 操作を実行
+  phase:
+    reading: 質問を読んでいます
+    reviewing: 見つかった内容を確認しています
+    writing: 回答を作成しています
+    retrying: 通常より時間がかかっています。再試行しています
+  found: "{n} 件見つかりました"
+  nothing-found: 見つかりませんでした
+  worked-for: "{time} 作業しました"
+  earlier: "以前 {n} 件"
+  placeholder: これらのログについて質問
+  historical: 過去
+  n-containers: "コンテナ {n} 件"
+  evidence: 質問と一緒に送信した内容
+  lines-in-view: "表示中 {n} 行"
+  this-log: このログ行
+  remove-log: このログ行を削除
+  send: 送信
+  suggest-summarize: 何が起きているか要約して
+  suggest-errors: エラーと警告を探して
+  suggest-next: 次に何を見るべき？
+  error-unavailable: 現在アシスタントを利用できません。
+  error-not-configured: Dozzle Cloud がリンクされていないため、質問できるアシスタントがありません。
+  section-ask: アシスタント
+  ask-for: "{query} について Dozzle に質問"
+  ask-hint: 表示中のコンテナから回答します
+  ask-shortcut: 質問する
+  visual:
+    memory: "メモリ"
+    peak-of-limit: "ピーク {peak} / 上限 {limit}"
+    peak: "ピーク {peak}"
+    exits: "終了回数: {n}"
+    exit-codes: "終了コード {codes}"
+    ooms: "メモリ不足による強制終了: {n}"
+    no-oom: "メモリ不足による強制終了の記録はありません"
+    restarts: "再起動回数: {n}"
+    no-events: "終了や再起動の記録はありません"
+    no-events-stored: "このコンテナのイベントは保存されていないため、終了と再起動の回数はわかりません"
+    floor: "古いイベントは切り捨てられているため、この回数は最小値です"
+    matches: "一致した行: {n}"
+    top-cpu: "CPU 使用量の多いコンテナ"
+    top-memory: "メモリ使用量の多いコンテナ"
+    top-restarts: "再起動の多いコンテナ"
+cloud-search:
+  containers-section: コンテナ
+  section-logs: ログ
+  no-matches: 一致するコンテナやコマンドはありません
+  nav-hint: 移動
+  pin-shortcut: 列を固定
+  merge-shortcut: ストリームに統合
+  unmerge-shortcut: ストリームから外す
+  search-logs-for: '"{query}" のログを検索'
+  across-containers: すべてのコンテナを横断してインデックス済み
+  connect-to-enable: ログを検索するには Dozzle Cloud に接続してください
+  enable-streaming-to-search: 検索するには「ログを Cloud にストリーム」を有効にしてください
+  open-container: コンテナを開く
+  search-logs-shortcut: ログを検索
+  cloud-connected: Cloud に接続済み
+  cloud-error: Cloud 接続エラー
+  results-page-title: ログ検索
+  no-results: 一致するログ行はありません。
+  search-failed: Cloud 検索に失敗しました。
+  search-empty-prompt: 検索語を入力すると、すべてのコンテナのログを横断して検索します。
+  searching: 検索中…
+  hits-count: "{n} 件ヒット"
+  window-since: "{time} 以降"
+  hero-title-cloud: コンテナとログを検索
+  hero-title-plain: コンテナを検索
+  hero-pill-indexed: Cloud インデックス
+  modal-placeholder-cloud: コンテナとログを検索…
+  modal-placeholder-plain: コンテナを検索…
+  container-removed: コンテナは削除されました
+  cta-settings: "Cloud 設定"
+  container-removed-pill: 削除済み
+command-palette:
+  section-commands: コマンド
+  section-recent: 最近
+  run-hint: コマンドを実行
+  restart-container: "{name} を再起動"
+  stop-container: "{name} を停止"
+  start-container: "{name} を開始"
+  update-container: "{name} を更新"
+  theme-auto: システムのテーマを使用
+  theme-light: ライトテーマに切り替え
+  theme-dark: ダークテーマに切り替え
+  toggle-compact: コンパクトモードを切り替え
+  toggle-timestamps: タイムスタンプを切り替え
+  toggle-soft-wrap: ソフトラップを切り替え
+  toggle-stopped: 停止中のコンテナの表示を切り替え
+  toggle-std: stdout/stderr ラベルを切り替え
+  toggle-scrollbars: 細いスクロールバーを切り替え
+  open-settings: 設定を開く
+  section-updates: "利用可能な更新"
+  section-hosts: "ホスト"
+  open-analytics: "ログ分析を開く"
+  clear-logs: "ログをクリア"
+  attach-shell: "{name} にアタッチ"
+  exec-shell: "{name} でシェルを開く"
+  open-assistant: "アシスタントに質問"
+  check-container-updates: "{name} の更新を確認"
+  skip-update: "{name} のこの更新をスキップ"
+  review-updates: "更新 1 件を確認 | 更新 {count} 件を確認"
+  confirm-stop: "もう一度 ↵ を押すと {name} を停止します"
+  confirm-update: "もう一度 ↵ を押すと {name} を更新します"
+  confirm-hint: "確定"
+  open-settings-page: "設定: {page}"
+  open-notifications: "通知を開く"
+  open-logs: "ログを開く"
+  state-on: "オン"
+  state-off: "オフ"
+  prefix-commands: "コマンド"
+  prefix-hosts: "ホスト"
+  prefix-ask: "質問"
+  actions-hint: "操作"
+  actions-placeholder: "操作を絞り込み…"
+  back-hint: "戻る"
+settings:
+  subtitle: このブラウザの設定です。変更は自動的に保存されます。
+  subtitle-server: "この Dozzle の設定です。利用者全員で共有されます。"
+  appearance: 外観
+  logs: ログ
+  sidebar: サイドバー
+  behavior: 動作
+  advanced: 詳細設定
+  about: 情報
+  general: 一般
+  updates: 更新
+  security: "セキュリティ"
+  hosts: "ホスト"
+  login-desc: "Dozzle を開ける人を設定します。ログインなしでは、アクセスできる人なら誰でもログを読めます。"
+  login-off: "ログインなし"
+  login-docs: "認証ガイド"
+  set-by-flags: "このモードでは、フラグまたは環境変数で設定します。"
+  hosts-found: "このモードでは、Dozzle がこれらのホストを自動的に検出します。"
+  after-restart: "再起動後"
+  restart-pending: "1 件の変更は再起動後に適用されます | {count} 件の変更は再起動後に適用されます"
+  run-setup: "セットアップをもう一度実行"
+  run-setup-desc: "ログイン、アクション、ホスト、Dozzle Cloud、更新をガイド付きで確認します。すべて設定からも変更できます。"
+  reset: 初期設定に戻す
+  sponsor: スポンサー
+  new-version: "{version} が利用可能"
+  update-available: 新しいイメージが利用可能です
+  auto-update-on: Dozzle は自動的に最新の状態を保ちます
+  cloud-desc: ログを Dozzle Cloud にストリームして、AI による調査とインスタンス横断の検索を利用できます。
+  locale: 言語
+  small-scrollbars: 細いスクロールバー
+  small-scrollbars-desc: スクロールバーを細くします。小さい画面で便利です。
+  show-timestamps: タイムスタンプを表示
+  show-timestamps-desc: "各行が書き込まれた日時を表示します。"
+  soft-wrap: ソフトラップ
+  soft-wrap-desc: "長い行を横スクロールせず折り返して表示します。"
+  highlight-errors: エラー行を強調表示
+  highlight-errors-desc: 色付きのレベルマーカーは常に表示されます。
+  date-format: "日付形式"
+  time-format: "時刻形式"
+  font-size: フォントサイズ
+  color-scheme: テーマ
+  show-stopped-containers: 停止中のコンテナを表示
+  show-image-update-alert: イメージ更新アラート
+  show-image-update-alert-desc: 実行中のイメージに新しいタグがあるときに通知します。
+  show-app-icons: アプリアイコン
+  show-app-icons-desc: Dozzle に同梱されており、インターネットから取得することはありません。
+  group-containers: コンテナをグループ化
+  group-containers-desc: Compose プロジェクト、Swarm スタック、または dev.dozzle.group ごとにまとめます。
+  search: ログの検索方法
+  search-desc: コンテナの表示中は、ブラウザの検索の代わりに使用されます。
+  show-std: stdout と stderr のラベルを表示
+  show-std-desc: 各行が stdout と stderr のどちらから出力されたかを示します。
+  automatic-redirect: 再作成されたコンテナに追従
+  automatic-redirect-desc: コンテナが置き換えられたときに、新しいコンテナへ移動します。
+  compact: コンパクトモード
+  compact-desc: 間隔を詰めて、画面に表示できる行数を増やします。
+  size:
+    small: 小
+    medium: 中
+    large: 大
+  theme:
+    auto: 自動
+    dark: ダーク
+    light: ライト
+  redirect:
+    instant: 即時
+    delayed: 遅延
+    none: なし
+  grouping:
+    always: 常に
+    at-least-2: "2 件以上のグループ"
+    never: しない
+  hour:
+    auto: 自動
+    "12": "12 時間制"
+    "24": "24 時間制"
+  log:
+    preview: これはログのプレビューです
+    warning: 警告ログはこのように表示されます
+    complex: これは JSON 形式の複雑なログエントリです
+    simple: これは非常に長いメッセージで、デフォルトでは折り返されます。ソフトラップを無効にすると折り返されなくなります。Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+    multi-line-error:
+      start-line: これは複数行のエラーメッセージです
+      middle-line: 2 行目があり
+      end-line: 最後に 3 行目があります。
+releases:
+  features: 新機能 1 件 | {count} 件の機能
+  bugFixes: バグ修正 1 件 | {count} 件の修正
+  breaking: 破壊的変更 1 件 | {count} 件の破壊的変更
+  three_parts: "{first}、{second}、{third}"
+  two_parts: "{first}と{second}"
+  latest: 最新
+  no_releases: 最新バージョンを使用しています
+  newer: "新しいリリース 1 件 | 新しいリリース {count} 件"
+  all: すべてのリリース
+  updates_summary: "コンテナ 1 件を更新 | コンテナ {count} 件を更新"
+  agents_mismatched: "バージョンが異なるエージェント 1 件 | バージョンが異なるエージェント {count} 件"
+toasts:
+  copied:
+    title: コピーしました
+    message: クリップボードにコピーしました
+analytics:
+  title: SQL 分析
+  creating_table: 一時テーブルを作成しています...
+  fetching_logs: コンテナのログを取得しています
+  loading_engine: SQL エンジンを読み込んでいます
+  evaluating_query: クエリを評価しています...
+  total_records: 合計 {count} 件のレコード。
+  showing_first: 先頭の {count} 件を表示しています。
+  no_results: クエリに一致する行はありません。
+  columns: 列
+  examples: 例
+  example_all: すべてのログ
+  example_count: 行数
+  example_group: "{column} ごとの件数"
+  example_by_container: コンテナごと
+  include_previous: "古いコンテナ 1 件を含める | 古いコンテナ {count} 件を含める"
+  containers_count: "コンテナ {count} 件"
+  export: エクスポート
+  export_csv: CSV をダウンロード
+  export_json: JSON をダウンロード
+  query: クエリ
+  run: 実行
+  results: 結果
+  min: 最小
+  avg: 平均
+  max: 最大
+  p50: P50
+  p95: P95
+  distribution_of: "{column} の分布"
+  rows: 1 行 | {count} 行
+updates:
+  title: 更新
+  count: 更新 1 件 | 更新 {count} 件
+  available: 更新 1 件が利用可能 | 更新 {count} 件が利用可能
+  running: 更新中…
+  subtitle: これらのコンテナは、レジストリが提供するものより古いイメージで動作しています。
+  subtitle-running: 各ホストでは、コンテナを 1 つずつ更新します。
+  none: すべてのコンテナが、タグの指す最新のイメージで動作しています。
+  update-selected: 更新 | 1 件を更新 | {count} 件を更新
+  self-last: Dozzle は最後に更新され、その後再起動します。
+  read-only: ここから更新するには、コンテナアクションと更新ロールが必要です。
+  auto: 自動
+  auto-hint: 自動更新のスケジュールでも更新されます
+  auto-footnote: コンテナに {label} ラベルを付けると、自動更新のスケジュールで更新されます。
+  check-only: "{label} ラベルが付いているため、Dozzle の外で更新されます。"
+  scheduled-running: 自動更新のスケジュールを実行中です。
+  progress: "{total} 件中 {done} 件完了"
+  back: 戻る
+  busy: 別の更新がすでに実行中です。
+  summary: "{updated} 件を更新"
+  summary-failed: "{updated} 件を更新、{failed} 件が失敗"
+  status:
+    queued: 待機中
+    pulling: 取得中
+    recreating: 再作成中
+    verifying: 確認中
+    done: 更新済み
+    rolled-back: ロールバック済み
+    up-to-date: 最新
+    error: 失敗
+  release-notes: リリースノート
+  version:
+    rebuilt: 再ビルド済み
+    unknown: "バージョン不明 ({reason})"
+    undeclared: イメージに宣言なし
+    rate-limited: レジストリのレート制限
+    auth: レジストリにログインが必要
+    failed: 取得に失敗
+drawer:
+  maximize: 最大化
+  restore: 元に戻す
+terminal:
+  connecting: 接続中
+  connected: 接続済み
+  closed: 切断されました
+  connection-closed: 接続が閉じられました
+  not-running: コンテナは実行されていません
+  reconnect: 再接続
+  attaching: "{name} にアタッチしています"
+  decrease-font: フォントサイズを小さくする
+  increase-font: フォントサイズを大きくする
+  search: 検索
+  no-results: 結果なし
+  previous-match: 前の一致
+  next-match: 次の一致
+  close-search: 検索を閉じる
+notifications:
+  history:
+    title: アクティビティ
+    loading: アクティビティを読み込んでいます…
+    failed: アクティビティを読み込めませんでした。
+    empty: 最近発生したものはありません。
+    still-happening: 継続中
+    events: "{n} 件のイベント"
+    suppressed: "· {n} 件を抑制"
+    show-lines: 該当する行を表示
+    show-moment: 前後のログを表示
+    open-in-cloud: Dozzle Cloud で開く
+    fired-recently: 回（最近）
+  title: 通知
+  description: アラートを受け取る場所とタイミングを設定します
+  destinations: 送信先
+  add-destination: 送信先を追加
+  alerts: アラート
+  add: 追加
+  add-alert: アラートを追加
+  new-alerts: 新しいアラート
+  prefill-name: エラーアラート
+  prefill-expression: level == "error"
+  default-alert-created: "デフォルトのアラートを作成しました。コンテナがエラーで終了すると通知されます。編集や一時停止はいつでもできます。"
+  default-alert-failed: "アラートを自動作成できませんでした。代わりにフォームを表示します。"
+  filter:
+    all: すべて ({count})
+    enabled: 有効 ({count})
+    paused: 一時停止中 ({count})
+  no-alerts: アラートはまだ設定されていません。作成して始めましょう。
+  no-alerts-in-filter: このフィルタに一致するアラートはありません。
+  alert:
+    paused: 一時停止中
+    containers: コンテナ
+    log-filter: ログフィルタ
+    metric-filter: メトリクス
+    event-filter: イベント
+    cooldown: クールダウン
+    sample-window: サンプル期間
+    destination: 送信先
+    dispatcher-deleted: 送信先が削除されました
+    containers-count: "コンテナ 1 件で | コンテナ {count} 件で"
+    triggered-count: "1 回発生 | {count} 回発生"
+    never-triggered: 未発生
+    last-triggered: "最終: {time}"
+    delete-warning: このアラートを削除しますか？
+    delete-cancel: 残す
+    delete-confirm: 削除
+    window-meta: "期間 {duration}"
+    cooldown-meta: "クールダウン {duration}"
+  destination:
+    http-webhook: HTTP Webhook
+    dozzle-cloud: Dozzle Cloud
+    edit: 編集
+    duplicate: 複製
+    delete: 削除
+    used-by: "アラート 1 件で使用中 | アラート {count} 件で使用中"
+    unused: どのアラートでも使用されていません
+    copy-of: "{name} のコピー"
+    copy-failed: この送信先を複製できませんでした
+    delete-failed: この送信先を削除できませんでした
+    delete-warning: この送信先を削除しますか？
+    delete-warning-used: "1 件のアラートがここに送信しており、通知されなくなります。 | {count} 件のアラートがここに送信しており、通知されなくなります。"
+    delete-cancel: 残す
+    delete-confirm: 削除
+  alert-form:
+    create-title: アラートを作成
+    edit-title: アラートを編集
+    description-log: コンテナのログに一致する行が現れたときに通知します
+    description-metric: コンテナの CPU、メモリ、ディスク使用量がしきい値を超えたときに通知します
+    description-event: コンテナが開始、停止、終了、またはヘルス状態が変化したときに通知します
+    required: 必須
+    still-needed: "未入力: {fields}"
+    missing:
+      container-expression: コンテナ
+      condition: 条件
+      destination: 送信先
+      name: 名前
+    alert-name: アラート名
+    alert-name-placeholder: "例: API エラーのテスト"
+    alert-name-hint: アラートカードと、送信されるすべての通知に表示されます。
+    container-filter: コンテナ
+    container-filter-hint: このアラートが監視するコンテナです。実行中のコンテナのみが対象です。
+    containers-match: "実行中のコンテナ 1 件に一致: {names} | 実行中のコンテナ {count} 件に一致: {names}"
+    no-containers-match: このフィルタに一致する実行中のコンテナはありません
+    checking: 確認中…
+    examples: "例:"
+    use-example: この例を使う
+    log-filter: ログ条件
+    log-filter-hint: アラートを発生させるログ行です。
+    logs-match: "過去 {window} に 1 行一致 | 過去 {window} に {count} 行一致"
+    no-logs-match: 過去 {window} に一致する行はありません
+    log-preview-hint: 条件を入力すると、最近のログ行のうちアラートが発生していた行を確認できます。
+    log-scan-note: "プレビューでは最初に一致したコンテナをスキャンしました。 | プレビューでは最初に一致した {count} 件のコンテナをスキャンしました。"
+    preview-needs-containers: 実際のデータでプレビューするには、先にコンテナを選んでください。
+    preview-fix-expression: プレビューを表示するには式を修正してください。
+    destination: 送信先
+    no-destinations: 送信先はまだ設定されていません。
+    preview: プレビュー
+    cancel: キャンセル
+    save: 保存
+    create: アラートを作成
+    discard-title: このアラートを破棄しますか？
+    discard-keep: 編集を続ける
+    discard-confirm: 破棄
+    metric-filter: メトリクス条件
+    metric-filter-hint: "cpu (%)、memory (%)、memoryUsage (バイト)、または mounts の空き容量を比較します。"
+    metric-preview-hint: 条件を入力すると、コンテナの現在の状況と比較できます。
+    metric-preview-note: Dozzle が収集した直近 {duration} の統計に基づいています。
+    metric-container: コンテナ
+    metric-cpu: CPU
+    metric-memory: メモリ
+    metric-window-match: 期間
+    metric-firing: 発生する見込み
+    metric-matching-now: 現在超過
+    metric-no-samples: 統計なし
+    metric-no-samples-hint: 一致するコンテナの統計はまだ収集されていません。
+    metric-would-fire: "現在、コンテナ 1 件で発生します | 現在、コンテナ {count} 件で発生します"
+    metric-would-not-fire: 現在、しきい値を超えているコンテナはありません
+    sample-window-label: サンプル期間
+    sample-window-hint: "条件が {duration} 続くと発生します"
+    cooldown-label: クールダウン
+    cooldown-hint: "コンテナごとにアラートの間隔は {duration}"
+    no-cooldown: クールダウンなし
+    immediate-label: "すぐに送信"
+    immediate-hint: "Dozzle Cloud の確認を通さず、一致するたびにすぐ配信します（プランの 1 日あたりのアラート上限まで）。"
+    alert-type: アラートの種類
+    log-alert: ログアラート
+    metric-alert: メトリクスアラート
+    event-alert: イベントアラート
+    log-alert-description: コンテナログの行に一致
+    metric-alert-description: CPU、メモリ、ディスクの使用量を監視
+    event-alert-description: 開始、停止、ヘルス状態の変化に反応
+    type-switch-warning: 保存すると、このアラートの {type} 条件が置き換えられ、失われます。
+    event-filter: イベント条件
+    event-filter-hint: アラートを発生させるコンテナイベントです。
+    event-matches: "これらのイベントのうち 1 件に一致 | これらのイベントのうち {count} 件に一致"
+    event-matches-none: これらのイベントには一致しません
+    event-preview-hint: 条件を入力すると、対象となるコンテナイベントを確認できます。
+    event-preview-note: 履歴ではなくサンプルのイベントです。Docker イベントは発生した時点で照合されます。
+  destination-form:
+    create-title: 送信先を追加
+    edit-title: 送信先を編集
+    description: 通知の送信先を選んでください
+    name: 名前
+    name-placeholder: "例: 本番用 Slack"
+    name-hint: アラートの送信先を選ぶときに、この名前で一覧に表示されます。
+    name-taken: この名前は別の送信先ですでに使われています。
+    still-needed: "未入力: {fields}"
+    missing:
+      name: 名前
+      url: Webhook URL
+      template: テンプレート
+    discard-title: この送信先を破棄しますか？
+    discard-keep: 編集を続ける
+    discard-confirm: 破棄
+    type: 種類
+    webhook-title: HTTP Webhook
+    webhook-description: Slack、Discord、カスタムエンドポイント
+    cloud-title: Dozzle Cloud
+    cloud-description: プッシュ通知、メールアラート、AI による要約
+    webhook-url: Webhook URL
+    webhook-url-placeholder: https://hooks.foo.com/services/...
+    webhook-url-invalid: http:// または https:// から始まる完全な URL を入力してください。
+    api-key: API キー
+    payload-format: ペイロード
+    format-slack: Slack
+    format-discord: Discord
+    format-ntfy: ntfy
+    format-custom: カスタム
+    format-replace-warning: 入力済みのテンプレートが置き換えられます。
+    format-replace-confirm: 置き換える
+    template: テンプレート
+    template-hint: Go テンプレート構文
+    template-placeholder: Go テンプレートのプレースホルダーを含む JSON 本文
+    payload-mode-json: 有効な JSON です。各値は自動的にレンダリングされ、エスケープされます。
+    payload-mode-raw: JSON ではないため、本文全体がレンダリングされたテキストとして送信されます。
+    payload-mode-unbalanced: テンプレートのアクションが閉じられていません。
+    payload-mode-empty: テンプレートが空の場合、通知全体が JSON として送信されます。
+    variables: 使用できる変数
+    variables-all: すべてのアラート
+    variables-log: ログアラートのみ
+    variables-metric: メトリクスアラートのみ
+    variables-event: イベントアラートのみ
+    variables-scope-hint: 「すべてのアラート」以外のフィールドは、対応する種類のアラートでのみ設定されます。それ以外で使うと、送信時に失敗します。
+    headers: カスタムヘッダー
+    headers-hint: "任意の HTTP ヘッダー (例: Authorization)"
+    header-name: ヘッダー名
+    header-value: ヘッダーの値
+    add-header: ヘッダーを追加
+    remove-header: ヘッダーを削除
+    test: テスト
+    test-success: テストに成功しました
+    test-unsupported: "このテンプレートは {kinds} アラートで失敗するため、それらはここに送信されません。"
+    cancel: キャンセル
+    close: 閉じる
+    save: 保存
+    add: 送信先を追加
+    cloud-exists: Dozzle Cloud はすでにリンクされています
+    link-cloud: アカウントをリンク
+    link-cloud-button: Dozzle Cloud をリンク
+    cloud-settings-link: Dozzle Cloud 設定
+    cloud-checking: Cloud の状態を確認しています...
+    cloud-relink: API キーが無効または期限切れです。削除して、アカウントをもう一度リンクしてください。
+    cloud-unavailable: Dozzle Cloud は一時的に利用できません。しばらくしてからもう一度お試しください。
+  empty-state:
+    title: 通知を始めましょう
+    description: コンテナに対応が必要なときのアラートの受け取り方を選んでください。
+    cloud-subtitle: AI による要約、リモート操作など
+    webhook-subtitle: 任意のエンドポイントにアラートを送信
+  cloud-link-success:
+    title: Dozzle Cloud をリンクしました
+    message: インスタンスを接続しました。リンクは設定でいつでも解除でき、使用状況も確認できます。
+cloud:
+  title: Dozzle Cloud
+  description: コンテナをリモートで操作し、AI でクラスタ全体の問題を調査できます。
+  pitch:
+    findings: エラーと警告を毎日 AI がスキャン
+    alerts: クラッシュやしきい値超過をリアルタイムでアラート
+    control: どこからでもコンテナの開始、停止、調査が可能
+  learn-more: 詳しく見る
+  link-instance: インスタンスをリンク
+  relink-instance: インスタンスを再リンク
+  connected: 接続済み
+  pro-badge: Dozzle Cloud Pro
+  locked-on-this-plan: Dozzle Cloud Pro で利用できます
+  plan: プラン
+  usage: イベント
+  usage-agent-messages: エージェントとのチャット
+  usage-log-bytes: インデックス済みデータ
+  dashboard: ダッシュボード
+  settings: 設定
+  error: 接続エラーです。インスタンスを再リンクしてください。
+  error-unavailable: Dozzle Cloud は一時的に利用できません。しばらくしてからもう一度お試しください。
+  unlink: リンクを解除
+  unlink-confirm: Dozzle Cloud とのリンクを解除してもよろしいですか？ Cloud の通知の送信先がすべて削除されます。
+  privacy:
+    details-link: 送信される内容
+    toggle: ログとメトリクスを Dozzle Cloud にストリーム
+    sends-heading: "オンの間、コンテナから次の情報を継続的に送信します:"
+    sends-logs: ログ行 (書き込まれたそのまま)
+    sends-metrics: CPU、メモリ、ネットワーク、ディスクの使用量 (30 秒ごとの平均)
+    never-heading: "送信されないもの:"
+    never-env: 環境変数
+    off-note: オフにすると、ログとメトリクスはこのインスタンス内にとどまります。設定済みのアラートは引き続き配信され、コンテナへのリモートアクセスも使えます。
+    per-container: "特定のコンテナのログだけを止めるには、次のラベルを付けます: dev.dozzle.cloud.min_level=disabled"
+    required-for: AI による調査、ログ検索、リソース履歴に必要です。
+  welcome:
+    watching-title: Cloud がログを見守るので、自分で見る必要はありません
+    watching-body: 毎朝のスキャンで、コンテナが出力したエラーと警告を読み、直す価値のあるものを順位付けして検出結果として投稿します。設定は不要です。
+    scan-paused: スキャン一時停止中
+    paused-title: ストリームをオンにすると、Cloud がログを見守れます
+    paused-body: 毎日のスキャンでは、毎朝エラーと警告を読み、直す価値のあるものを投稿します。ログのストリームがオフの間は、読む対象がありません。
+    streaming-off: ログのストリームがオフのため、Cloud はこのインスタンスから何も受け取りません。
+    privacy: ログとコンテナのメトリクスはインスタンスの外に送信されます。環境変数は送信されず、任意のコンテナを除外することもできます。
+    privacy-link: 送信される内容
+    beat-now: 今
+    beat-now-detail: "Cloud がエラーと警告の収集を開始します。最初のインスタンスでは過去 24 時間分も読み込むため、最初の検出結果は数分で届きます。"
+    beat-tomorrow: "{day}の朝"
+    beat-tomorrow-detail: "毎日のスキャンが実行され、直す価値のあるものがメールで届きます。"
+    beat-after: 以降は毎日
+    beat-after-detail: 検出結果は、原因のエラーが止まるまで未解決のまま残ります。
+    next-alerts: "次へ: リアルタイムアラート"
+    push-title: 問題が起きた瞬間に知らせます
+    push-body: 毎日のスキャンは 1 日 1 回の要約です。午前 3 時でも知っておきたいことについては、プッシュ通知をオンにしてください。
+    recommended: おすすめ
+    lifecycle-desc: クラッシュ、ヘルスチェックの失敗、OOM キル、再起動。
+    metrics-desc: CPU、メモリ、ディスクがしきい値を超えて、そのまま推移した場合。
+    logs-desc: error や fatal の行を、流れてきた瞬間に検出します。
+    logs-caution: 最も通知が多いカテゴリで、クールダウンがない唯一のカテゴリです。クラッシュを繰り返すコンテナは、行ごとに通知します。まずライフサイクルから始め、どのコンテナが騒がしいか分かってから追加してください。
+    alerts-go-to: アラートの送信先
+    your-cloud-account: あなたの Cloud アカウント
+    change: 変更
+    chat-also: "Telegram や Discord でスマートフォンにも届けられます。"
+    chat-connect: "接続"
+    turn-on: "アラート 1 件をオンにする | アラート {count} 件をオンにする"
+    turn-on-short: オンにする
+    continue-without: アラートなしで続ける
+    skip-alerts: "今はしない"
+    ready: 準備完了
+    done-title: 設定が完了しました
+    done-body: 通知の種類ごとに、表示される場所を示します。
+    where-findings: 毎日の検出結果
+    where-findings-detail: "「検出結果」ページで順位付けされ、メールでも届きます。最初のインスタンスでは最初の結果が数分で届き、その後の毎日のスキャンは{day}の朝に実行されます。"
+    open-findings: 検出結果
+    where-alerts: リアルタイムアラート
+    where-alerts-detail: "{rules}を {destination} に送信します。"
+    rule-plural: "1 件のルール | {count} 件のルール"
+    where-alerts-off: "オフです。Cloud からの連絡は 1 日 1 回だけになります。"
+    where-tuning: コンテナごとの調整
+    where-tuning-detail: ルールの絞り込み、ミュート、削除は通知ページから行えます。
+    done: 完了
+    steps:
+      watching: "Cloud の機能"
+      alerts: "リアルタイムアラート"
+      done: "通知の表示場所"
+    signals:
+      exited: コンテナがエラーで終了
+      unhealthy: コンテナが異常になりました
+      oom: カーネルに強制終了されました (OOM)
+      restart: コンテナが再起動しました
+      updated: Dozzle がコンテナを更新しました
+      cpu: CPU が 5 分間 90% 超
+      memory: メモリが 5 分間 90% 超
+      disk: ボリュームが 85% 超使用済み
+      disk-free: ボリュームの空きが 1 GB 未満
+      fatal: すべての fatal 行
+      error: すべての error 行
+setup:
+  title: Dozzle をセットアップ
+  next: 次へ
+  back: 戻る
+  finish-later: 後で完了する
+  close: 閉じる
+  copy: コピー
+  steps:
+    login: ログイン
+    login-note: 最初に設定してください
+    actions: アクションとシェル
+    cloud: Dozzle Cloud
+    cloud-note: 任意
+    hosts: "ホスト"
+    hosts-note: "任意"
+    update: 自動更新
+    update-note: アクションが必要
+    restart: 再起動
+  login:
+    title: ログインをオンにする
+    subtitle: Dozzle にアクセスできる人は誰でもログを読めます。まず最初に保護してください。
+    no-data-title: /data がマウントされていません
+    no-data-body: ユーザーと設定は /data に保存されます。ボリュームがないと、次にコンテナが再作成されたときに失われます。ボリュームをマウントして、もう一度確認してください。
+    check-again: もう一度確認
+    tab-account: Dozzle アカウント
+    tab-proxy: 自分のプロキシ
+    tab-oidc: OIDC
+    username: ユーザー名
+    email: メールアドレス
+    optional: (任意)
+    password: パスワード
+    confirm: パスワードの確認
+    password-hint: 8 文字以上。ユーザー名には英字、数字、ドット、ハイフン、アンダースコアを使えます。
+    mismatch: パスワードが一致しません。
+    saved-volume: マウントされたボリュームに保存しました
+    after-restart: ログインは再起動後にオンになります
+    on: ログインはオンです
+    users-exist: users.yml がすでに存在します。使用するには、認証プロバイダーを simple に設定してください。
+    create-account: アカウントを作成
+    proxy-body: Authelia、Authentik、Cloudflare Access などがユーザーをサインインさせ、Remote-User ヘッダーでユーザー名を Dozzle に渡します。
+    proxy-warning-title: 公開するのはプロキシだけにしてください
+    proxy-warning-body: Dozzle はこのヘッダーを誰からのものでも信頼します。Dozzle 自身のポートに到達できると、誰でも任意のユーザーになりすませます。
+    proxy-docs: フォワードプロキシのガイド
+    use-proxy: 自分のプロキシを使う
+    oidc-body: OIDC にはクライアントシークレットが必要なため、ここには何も保存されません。次の内容を compose ファイルに追加して、コンテナを再作成してください。
+    oidc-docs: OpenID Connect のガイド
+    skip: "ログインなしで続ける"
+    manual-restart: ここでは Dozzle 自身を再起動できません。コンテナを再起動してログインをオンにするか、compose ファイルで設定してください。
+    restart-hint: ログインページに移動します。サインイン後、セットアップが続きます。
+  actions:
+    title: アクションとシェル
+    subtitle: Dozzle がコンテナに対して行える操作を決めます。
+    example-status: Exited (1) 2 分前
+    example-restart: 再起動
+    example: "例"
+    actions-label: 開始、停止、再起動
+    actions-desc: エラーを見つけたページから、クラッシュしたコンテナを直せます。
+    shell-label: シェル
+    shell-desc: コンテナにアタッチしたり、内部でコマンドを実行したりします。
+    shell-warning: コンテナへのシェルアクセスは、ホストへのアクセスとほぼ同じ意味を持つことがよくあります。必要な場合以外はオフのままにしてください。
+    locked: "{env} で設定済み"
+    window-closed: "ログインがない場合、セットアップで変更できるのは新規インストールから最初の 15 分間だけです。環境変数で設定するか、先にログインをオンにしてください。"
+    window-closed-env: "ログインがない場合、セットアップで変更できるのは新規インストールから最初の 15 分間だけです。compose ファイルで {envs} を設定するか、先にログインをオンにしてください。"
+    no-access: お使いのアカウントではこれらの設定を変更できません。
+    restart-note: これらは Dozzle の再起動後に有効になります。
+  hosts:
+    title: "ホストを追加"
+    subtitle: "他のマシンのコンテナを、この Dozzle から確認できます。各マシンでエージェントを実行し、そのアドレスをここに追加してください。"
+    run-title: "エージェントを実行"
+    run-body: "もう一方のマシンで、これを compose ファイルに追加して起動します。ポート 7007 はプライベートネットワークに保ってください。"
+    custom-cert: "この Dozzle は独自の証明書を使用しているため、エージェントにも同じペアが必要です。そうでないと接続が拒否されます。"
+    cert-docs: "証明書のガイド"
+    connect-title: "接続する"
+    address: "アドレス"
+    name: "名前"
+    optional: "(任意)"
+    add: "ホストを追加"
+    connect-note: "Dozzle は保存前に接続します。ホストは再起動なしですぐに表示されます。"
+    added: "{name} に接続しました。"
+    list-title: "エージェント"
+    connected: "接続済み"
+    offline: "未接続"
+    remove: "削除"
+    skip: "今はしない"
+    error-exists: "そのエージェントはすでに追加されています。"
+    error-duplicate: "そのマシンは別のホストとしてすでに接続されています。このエージェントが Docker エンジンを共有している場合は、エージェントに専用の DOZZLE_HOST_ID を設定してください。"
+    error-connect: "エージェントに接続できませんでした: {reason}"
+    error-cert: "エージェントの証明書がこの Dozzle と異なります。スニペットをもう一度コピーし、エージェントを更新して再作成してください。"
+    error-cert-custom: "エージェントにこの Dozzle の独自証明書がありません。エージェントに同じ証明書と鍵のファイルを渡して、再作成してください。"
+    error-unsupported-mode: "このモードでは、ここでホストを追加または削除できません。"
+    error-invalid: "アドレスまたは名前が正しくありません。"
+    error-rate-limited: "試行回数が多すぎます。1 分待ってからもう一度お試しください。"
+    error-env-agent: "このエージェントは DOZZLE_REMOTE_AGENT で設定されているため、そちらでのみ削除できます。"
+    error-not-found: "そのエージェントはもう一覧にありません。"
+    error-custom-cert: "この Dozzle はすでに独自の証明書を使用しているため、作成できるプライベート証明書はありません。"
+    private-label: "プライベート証明書"
+    private-desc: "この Dozzle だけがエージェントに接続できます。他のエージェントには影響しません。"
+    private-warning: "このスニペットには秘密鍵が含まれています。パスワードと同じように扱ってください。"
+    private-pill: "プライベート"
+    private-error: "プライベート証明書を作成できなかったため、共有の証明書を使用します。{reason}"
+    private-missing: "この Dozzle にはまだプライベート証明書がありません。「プライベート証明書」をもう一度オンにして、再試行してください。"
+  cloud:
+    title: Dozzle Cloud に接続
+    subtitle: タブを開きっぱなしにしなくても、問題の発生に気づけます。
+    report-title: "直すべきことを見つけてお知らせ"
+    report-body: "Dozzle Cloud はエラーと警告を読み、直す価値のあるものとその方法を教えます。"
+    alerts-title: 問題が起きた瞬間にアラート
+    alerts-body: "クラッシュ、OOM キル、エラーの急増を Telegram、Discord、Slack、メールに送信します。"
+    chat-title: "何が壊れたか、スマートフォンから質問"
+    chat-body: "Telegram または Discord のボットにメッセージを送ります。ログを読み、アクションがオンなら、確認後にコンテナを再起動します。"
+    connect: Dozzle Cloud に接続
+    first-week: "最初の 1 週間は、見つかったすべての問題と修正方法をまとめたレポートが毎朝届きます。"
+    learn-more: 詳しく見る
+    skip: "今はしない"
+  update:
+    pill-on: "アクションを使用 · オン"
+    pill-pending: アクションと一緒にオンになります
+    title: "コンテナを最新に保つ"
+    subtitle: "利用の少ない時間帯に、Dozzle が新しいイメージを探し、Dozzle 自身と選んだコンテナを更新します。設定、ユーザー、アラートはそのまま残ります。"
+    auto-label: 自動的に更新
+    auto-desc: "新しいイメージが公開されるたびに、Dozzle と下のコンテナを更新します。"
+    when-label: 実行タイミング
+    time-label: 時刻
+    server-time: サーバーのタイムゾーンを使用します。
+    daily: 毎日
+    weekly: 毎週日曜日
+    version-label: バージョン
+    update-now: 今すぐ更新
+    pulling: 新しいイメージを取得しています
+    up-to-date: Dozzle はすでに最新です。
+    restarting: Dozzle が新しいバージョンに入れ替わっています。
+    restarting-hint: 新しいバージョンが応答すると、ページが再読み込みされます。
+    needs-actions: 「今すぐ更新」は、再起動後にアクションがオンになると使えます。
+    reason-pinned-tag: バージョンを固定したタグを使用しているため、取得できる新しいものはありません。更新を受け取るには、latest などのタグを使ってください。
+    reason-unsupported: "ここでは Dozzle が自身のコンテナを見つけられないため、自身を入れ替えられません。"
+    reason-swarm-worker: "Dozzle はワーカーノード上の Swarm サービスとして実行されています。サービスを更新できるのはマネージャーだけなので、Dozzle をマネージャーで実行するか、docker service update で更新してください。"
+    pull-denied: "{image} を取得できませんでした。このマシンにしか存在しないか、レジストリで docker login が必要な可能性があります。"
+    cloud-hint: "Dozzle Cloud を使うと、更新のたびに以前のエラーと照らし合わせて確認し、悪化していればロールバックを提案します。"
+  restart:
+    title: Dozzle を再起動
+    subtitle: これらの変更は保存済みで、再起動後に有効になります。
+    change-auth: ログイン
+    "on": "オン"
+    "off": "オフ"
+    button: Dozzle を再起動
+    restarting: Dozzle を再起動しています
+    restarting-hint: Dozzle が戻ると、ページが再読み込みされます。
+    slow-title: 時間がかかっています
+    slow-body: Dozzle がまだ戻っていません。コンテナを確認してから、再読み込みしてください。
+    reload: 再読み込み
+    manual: ここでは Dozzle 自身を再起動できません。コンテナを再起動するか、compose ファイルで設定してください。
+    done-title: すべて完了しました
+    done-body: 再起動が必要なものはありません。設定からいつでもここに戻れます。
+    nothing-title: "再起動するものはありません"
+    nothing-body: "今回は設定したステップがありません。準備ができたら、設定からセットアップを開いてください。"
+    cloud-later: "Dozzle Cloud は、必要になったらいつでも設定から使えます。サーバー 1 台まで無料です。"
+    done: 完了
+  error:
+    generic: 問題が発生しました。もう一度お試しください。
+    load: セットアップを読み込めませんでした。しばらくしてからもう一度お試しください。
+    conflict: すでに設定済みか、環境変数で固定されています。
+    no-data: /data がマウントされていないため、保存できません。
+    window-closed: "ログインがない場合、セットアップで変更できるのは新規インストールから最初の 15 分間だけです。代わりに、環境変数でログインをオンにしてください。"
+mcp-authorize:
+  title: "MCP クライアントを承認"
+  subtitle: "{client} があなたの代わりに Dozzle を使用しようとしています。"
+  unnamed-client: "名前のないクライアント"
+  redirect-label: "戻り先"
+  access-label: "アクセス"
+  access-value: "コンテナ、ログ、統計の読み取り"
+  user-label: "サインイン中のユーザー"
+  hint: "自分で接続したばかりのクライアントだけを許可し、上のアドレスが想定したものか確認してください。"
+  allow: "許可"
+  deny: "拒否"
+  return: "クライアントに戻る"
+  redirecting: "クライアントに戻っています。完了したら、このタブを閉じて構いません。"
+  failed: "このリクエストを完了できませんでした。"
+mobile-nav:
+  label: "メイン"
+  home: "ホーム"
+  browse: "一覧"
+  back: "戻る"
+time-range:
+  title: "期間"
+  live: "ライブ"
+  last-15m: "過去 15 分"
+  last-1h: "過去 1 時間"
+  last-6h: "過去 6 時間"
+  last-24h: "過去 24 時間"
+  custom: "期間を指定"
+  from: "開始"
+  to: "終了"
+  keep-following: "追従を続ける"
+  volume: "ログ量"
+  errors: "エラー"
+  bucket: "{lines} 行 · エラー {errors} 件"
+  not-scanned: "未スキャン"
+  invalid: "終了は開始より後にしてください。"
+  show: "ログを表示"
+  edge-start: "開始"
+  edge-end: "終了"
+  show-earlier: "さらに前を表示"
+  show-later: "後を表示"
+  to-now: "現在まで"
+  shift-earlier: "前の期間"
+  shift-later: "次の期間"
+  last-short: "過去 {span}"
+  since-short: "{time} 以降"
+  custom-hint: "日付を選んでから、時刻を選びます。時刻は {zone} です。"
+  keep-following-hint: "終了を指定せず、新しい行を表示し続けます。"
+  previous-month: "前の月"
+  next-month: "次の月"
+  empty-range: "この期間にログはありません"
+  empty-range-hint: "{from} から {to} の間には何も書き込まれていません。"
+  empty-since: "{time} 以降のログはありません"
+  empty-since-hint: "新しい行は、書き込まれるとすぐにここに表示されます。"
+  jump-before: "それ以前の行 · {time}"
+  jump-after: "それ以降の行 · {time}"
+  empty-window: "この期間にログはありません"
+update-marker:
+  updated: "更新済み"
+  rolled-back: "ロールバック済み"
+  undone: "更新を取り消しました"
+  roll-back: "ロールバック"
+  by:
+    schedule: "自動更新のスケジュールによる"
+    dozzle: "Dozzle による"
+    cloud: "Dozzle Cloud による"
+  verdict:
+    pending: "Dozzle Cloud がこの更新を監視しています"
+    clean: "問題なさそうです"
+    regressed: "壊れているようです"
+    unsure: "問題がある可能性があります"
+    rolled_back_by_dozzle: "Dozzle が以前のコンテナに戻しました"
+    unchecked: "Dozzle Cloud に記録済み"
+  decision:
+    rolled_back: "ロールバック済み"
+    kept: "維持"
+auto-update:
+  which-label: "対象のコンテナ"
+  mode-off: "Dozzle のみ"
+  mode-off-desc: "他のコンテナは確認だけ行い、更新はあなたの操作を待ちます。"
+  mode-all: "すべて"
+  risky: "{count} 件のコンテナが名前付きボリュームにデータを保存しています。データベースが、自身のデータを読めないバージョンに移ってしまう可能性があります。 | {count} 件のコンテナが名前付きボリュームにデータを保存しています。データベースが、自身のデータを読めないバージョンに移ってしまう可能性があります。"
+  containers-still: "他のコンテナは、引き続きこのスケジュールで更新されます。"
+  needs-actions: "コンテナアクションがオフの間は、自動で更新されるものはありません。"
+  containers: "コンテナ"
+  status-current: "最新"
+  status-available: "更新あり"
+  status-pending: "未確認"
+  status-off: "確認しない"
+  status-pinned: "ダイジェストで固定"
+  status-local: "ローカルでビルド"
+  status-private: "プライベートレジストリ"
+  status-unknown: "確認できません"
+  safety-title: "安全策"
+  safety-verify: "更新のたびにコンテナが動き続けるかを監視し、新しいコンテナが失敗した場合はロールバックします。"
+  safety-cleanup: "古いイメージは更新後に削除されます。ロールバック用に、直前のイメージを 1 つ残します。"
+  safety-skip: "ダイジェストで固定されたイメージ、ローカルでビルドしたイメージ、ログインなしのプライベートレジストリのイメージはスキップされます。"
+  learn-more: "自動更新のしくみ"
+  footnote: "自動で更新するコンテナは {link} で決まります。"
+  footnote-link: "設定 → 更新"
+  mode-labelled: "ラベル付きのコンテナ"
+  mode-labelled-desc: "加えて、{label} ラベルが付いたコンテナ。"
+  mode-all-desc: "{label} ラベルが付いているものを除く、すべてのコンテナ。"
+  risky-hint: "対象から外すには、コンテナに {label} ラベルを付けてください。"
+  empty: "自動で更新されるコンテナはありません。追加するには、コンテナに {label} ラベルを付けてください。"
+inspect:
+  overview: "概要"
+  ports: "ポート"
+  mounts: "マウント"
+  env: "環境変数"
+  labels: "ラベル"
+  id: "ID"
+  command: "コマンド"
+  created: "作成日時"
+  started: "開始日時"
+  finished: "終了日時"
+  restart-policy: "再起動ポリシー"
+  network: "ネットワーク"
+  memory-limit: "メモリ上限"
+  cpu-limit: "CPU 上限"
+  unlimited: "無制限"
+  oom-killed: "OOM キル"
+  exit-code: "終了コード {code}"
+  restarts: "再起動回数: {count}"
+  show-value: "値を表示"
+  hide-value: "値を隠す"
+  env-hidden: "値は非表示です。読み取るにはシェルアクセスが必要です。"
+  load-failed: "コンテナの詳細を読み込めませんでした。"
+  networks: "ネットワーク"
+  container-count: "コンテナ 1 件 | コンテナ {count} 件"
+  subnet: "サブネット"
+  gateway: "ゲートウェイ"
+  ip-usage: "使用中の IP"
+  connected-containers: "接続中のコンテナ"
+  this-container: "このコンテナ"
+  driver: "ドライバー"
+  scope: "スコープ"
+  driver-options: "ドライバーオプション"
+  mounted-by: "マウント元"
+  details-failed: "詳細を読み込めませんでした。"
+  size: "サイズ"
+  mountpoint: "マウントポイント"
+reclaim:
+  clean-up: "クリーンアップ"
+  free-up: "{size} を解放"
+  confirm-title: "{host} で {size} を解放しますか？"
+  cannot-undo: "この操作は元に戻せません。"
+  images-repull: "停止中のスタックは、次の開始時にイメージを再取得します。"
+  volumes-warning: "1 個のボリュームに、いまどのコンテナも使っていないデータがあります。削除するとそのデータは消えます（コンテナを削除したデータベースのデータなど）。 | {count} 個のボリュームに、いまどのコンテナも使っていないデータがあります。削除するとそのデータは消えます（コンテナを削除したデータベースのデータなど）。"
+  volumes-confirm: "内容を理解したうえで、ボリュームを削除します"
+  delete: "削除"
+  deleting: "{size} を解放しています…"
+  freed: "{size} を解放しました"
+  failed: "クリーンアップに失敗しました"
+  agent-too-old: "このエージェントはまだクリーンアップに対応していません。最新バージョンに更新してください。"
+  preview-note: "クリーンアップは実行時に再度確認するため、それまでに使われなくなったものも対象になります。"
+  preview-failed: "一覧を取得できませんでした。"
+  preview-agent-too-old: "一覧を表示するには、このエージェントを更新してください。"
+  enable-actions: "ここからクリーンアップするには、コンテナアクションを有効にしてください。"
+  schedule-label: "自動でクリーンアップ"
+  scheduled-run: "スケジュールされたクリーンアップ"
+  schedule-desc: "すべてのホストで、未使用のイメージ、停止中のコンテナ、ビルドキャッシュを対象にします。ボリュームは削除されません。"
+  last-run: "前回の実行で {size} を解放しました ({when})。"
+  last-run-failed: "{count} 台のホストをクリーンアップできませんでした。ログを確認してください。 | {count} 台のホストをクリーンアップできませんでした。ログを確認してください。"
