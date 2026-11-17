@@ -26,6 +26,7 @@ const (
 	CloudToolService_GetRecentDeploys_FullMethodName    = "/cloud.CloudToolService/GetRecentDeploys"
 	CloudToolService_GetPatternContext_FullMethodName   = "/cloud.CloudToolService/GetPatternContext"
 	CloudToolService_GetContainerMetrics_FullMethodName = "/cloud.CloudToolService/GetContainerMetrics"
+	CloudToolService_GetHostMetrics_FullMethodName      = "/cloud.CloudToolService/GetHostMetrics"
 	CloudToolService_GetLogResume_FullMethodName        = "/cloud.CloudToolService/GetLogResume"
 	CloudToolService_Chat_FullMethodName                = "/cloud.CloudToolService/Chat"
 )
@@ -79,6 +80,12 @@ type CloudToolServiceClient interface {
 	// these samples over StatsBatch; this reads them back. Scoped server-side to
 	// the (user_id, api_key_id) on the connection, like everything else here.
 	GetContainerMetrics(ctx context.Context, in *GetContainerMetricsRequest, opts ...grpc.CallOption) (*GetContainerMetricsResponse, error)
+	// Dozzle-initiated unary call: the same stats summed per host, for a page
+	// that is about the whole instance rather than one container. Every host this
+	// instance has reported comes back, so Dozzle only calls it for a user who
+	// may see every container. A Cloud without this RPC answers Unimplemented.
+	// Scoped server-side to the (user_id, api_key_id) on the connection.
+	GetHostMetrics(ctx context.Context, in *GetHostMetricsRequest, opts ...grpc.CallOption) (*GetHostMetricsResponse, error)
 	// Dozzle-initiated unary call, made once per ToolStream connection before
 	// the log streamer starts: where each container's log stream should resume,
 	// so lines written while the link was down are sent instead of lost. Cloud
@@ -179,6 +186,16 @@ func (c *cloudToolServiceClient) GetContainerMetrics(ctx context.Context, in *Ge
 	return out, nil
 }
 
+func (c *cloudToolServiceClient) GetHostMetrics(ctx context.Context, in *GetHostMetricsRequest, opts ...grpc.CallOption) (*GetHostMetricsResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetHostMetricsResponse)
+	err := c.cc.Invoke(ctx, CloudToolService_GetHostMetrics_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *cloudToolServiceClient) GetLogResume(ctx context.Context, in *GetLogResumeRequest, opts ...grpc.CallOption) (*GetLogResumeResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(GetLogResumeResponse)
@@ -251,6 +268,12 @@ type CloudToolServiceServer interface {
 	// these samples over StatsBatch; this reads them back. Scoped server-side to
 	// the (user_id, api_key_id) on the connection, like everything else here.
 	GetContainerMetrics(context.Context, *GetContainerMetricsRequest) (*GetContainerMetricsResponse, error)
+	// Dozzle-initiated unary call: the same stats summed per host, for a page
+	// that is about the whole instance rather than one container. Every host this
+	// instance has reported comes back, so Dozzle only calls it for a user who
+	// may see every container. A Cloud without this RPC answers Unimplemented.
+	// Scoped server-side to the (user_id, api_key_id) on the connection.
+	GetHostMetrics(context.Context, *GetHostMetricsRequest) (*GetHostMetricsResponse, error)
 	// Dozzle-initiated unary call, made once per ToolStream connection before
 	// the log streamer starts: where each container's log stream should resume,
 	// so lines written while the link was down are sent instead of lost. Cloud
@@ -298,6 +321,9 @@ func (UnimplementedCloudToolServiceServer) GetPatternContext(context.Context, *G
 }
 func (UnimplementedCloudToolServiceServer) GetContainerMetrics(context.Context, *GetContainerMetricsRequest) (*GetContainerMetricsResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method GetContainerMetrics not implemented")
+}
+func (UnimplementedCloudToolServiceServer) GetHostMetrics(context.Context, *GetHostMetricsRequest) (*GetHostMetricsResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method GetHostMetrics not implemented")
 }
 func (UnimplementedCloudToolServiceServer) GetLogResume(context.Context, *GetLogResumeRequest) (*GetLogResumeResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method GetLogResume not implemented")
@@ -441,6 +467,24 @@ func _CloudToolService_GetContainerMetrics_Handler(srv interface{}, ctx context.
 	return interceptor(ctx, in, info, handler)
 }
 
+func _CloudToolService_GetHostMetrics_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetHostMetricsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CloudToolServiceServer).GetHostMetrics(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: CloudToolService_GetHostMetrics_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CloudToolServiceServer).GetHostMetrics(ctx, req.(*GetHostMetricsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _CloudToolService_GetLogResume_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(GetLogResumeRequest)
 	if err := dec(in); err != nil {
@@ -496,6 +540,10 @@ var CloudToolService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetContainerMetrics",
 			Handler:    _CloudToolService_GetContainerMetrics_Handler,
+		},
+		{
+			MethodName: "GetHostMetrics",
+			Handler:    _CloudToolService_GetHostMetrics_Handler,
 		},
 		{
 			MethodName: "GetLogResume",
