@@ -328,6 +328,18 @@ func (ls *logStreamer) runReader(ctx context.Context, cs *container.ContainerSer
 // Docker follow reaches back and k8s's whole-second sinceTime send nothing twice.
 func (ls *logStreamer) resumeLogs(ctx context.Context, cs *container.ContainerService, after, now time.Time, events chan<- *container.LogEvent) error {
 	afterMs, nowMs := after.UnixMilli(), now.UnixMilli()
+
+	// The live stream opens before the gap is read. Opened after, it would ask
+	// for "since now" only once the gap had drained, and the follow request's
+	// tail (100 lines on Docker) would drop whatever a busy container wrote
+	// meanwhile. Opened first, it waits on its channel until the gap is sent.
+	live := make(chan *container.LogEvent, logReaderChanBuffer)
+	liveErr := make(chan error, 1)
+	go func() {
+		defer close(live)
+		liveErr <- cs.StreamLogs(ctx, now, container.STDOUT|container.STDERR, live)
+	}()
+
 	gap, err := cs.LogsBetweenDates(ctx, after, now, container.STDOUT|container.STDERR)
 	if err != nil {
 		log.Debug().Err(err).Str("container", cs.Container.Name).Msg("log streamer: could not read the gap, starting from now")
@@ -344,12 +356,6 @@ func (ls *logStreamer) resumeLogs(ctx context.Context, cs *container.ContainerSe
 		}
 	}
 
-	live := make(chan *container.LogEvent, logReaderChanBuffer)
-	liveErr := make(chan error, 1)
-	go func() {
-		defer close(live)
-		liveErr <- cs.StreamLogs(ctx, now, container.STDOUT|container.STDERR, live)
-	}()
 	for ev := range live {
 		if ev.Timestamp != 0 && ev.Timestamp < nowMs {
 			continue

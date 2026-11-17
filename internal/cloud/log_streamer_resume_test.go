@@ -25,9 +25,22 @@ type resumeClientService struct {
 	mu                         sync.Mutex
 	gapCalls, streamCalls      int
 	gapFrom, gapTo, streamFrom time.Time
+
+	// waitForLive makes the gap read wait (up to a second) for the live stream
+	// to open, and liveOpenedFirst records whether it had.
+	waitForLive, liveOpenedFirst bool
 }
 
 func (r *resumeClientService) LogsBetweenDates(_ context.Context, _ container.Container, from, to time.Time, _ container.StdType) (<-chan *container.LogEvent, error) {
+	for deadline := time.Now().Add(time.Second); r.waitForLive && time.Now().Before(deadline); time.Sleep(5 * time.Millisecond) {
+		r.mu.Lock()
+		opened := r.streamCalls > 0
+		r.mu.Unlock()
+		if opened {
+			r.liveOpenedFirst = true
+			break
+		}
+	}
 	r.mu.Lock()
 	r.gapCalls++
 	r.gapFrom, r.gapTo = from, to
@@ -101,6 +114,26 @@ func TestLogStreamer_ResumeSendsGapThenLive(t *testing.T) {
 	assert.Equal(t, []string{"gap 1", "gap 2", "live 1"}, msgs)
 	assert.Equal(t, resume, client.gapFrom)
 	assert.Equal(t, client.gapTo, client.streamFrom, "the gap ends where the live stream starts")
+}
+
+// The live stream must be open while the gap is still being read: a follow
+// request opened only after the gap drained returns just its newest 100 lines,
+// so a busy container would lose what it wrote in between.
+func TestLogStreamer_ResumeOpensLiveBeforeReadingGap(t *testing.T) {
+	resume := time.Now().Add(-10 * time.Minute)
+	client := &resumeClientService{
+		fakeClientService: newFakeClientService("host-1"),
+		gap:               []*container.LogEvent{lineAt(resume.UnixMilli()+1, "gap 1")},
+		live: func(from time.Time) []*container.LogEvent {
+			return []*container.LogEvent{lineAt(from.UnixMilli(), "live 1")}
+		},
+		waitForLive: true,
+	}
+
+	msgs := runResumeReader(t, client, resume)
+
+	assert.True(t, client.liveOpenedFirst, "the live stream opened only after the gap was read")
+	assert.Equal(t, []string{"gap 1", "live 1"}, msgs)
 }
 
 func TestLogStreamer_ResumeCappedAtOneHour(t *testing.T) {
