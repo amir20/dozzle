@@ -88,6 +88,8 @@ declare global {
   const controlledComputed: typeof import('@vueuse/core').controlledComputed
   const controlledRef: typeof import('@vueuse/core').controlledRef
   const copyLabels: typeof import('./composable/logs/copyLogs').copyLabels
+  const cpuBars: typeof import('./composable/cloud/chatVisuals').cpuBars
+  const cpuPeak: typeof import('./composable/cloud/chatVisuals').cpuPeak
   const createApp: typeof import('vue').createApp
   const createContainerHints: typeof import('./composable/editor/exprEditor').createContainerHints
   const createDisposableDirective: typeof import('@vueuse/core').createDisposableDirective
@@ -859,6 +861,8 @@ declare module 'vue' {
     readonly containerWorkload: UnwrapRef<typeof import('./composable/containers/rolloutRestart')['containerWorkload']>
     readonly controlledComputed: UnwrapRef<typeof import('@vueuse/core')['controlledComputed']>
     readonly controlledRef: UnwrapRef<typeof import('@vueuse/core')['controlledRef']>
+    readonly cpuBars: UnwrapRef<typeof import('./composable/cloud/chatVisuals')['cpuBars']>
+    readonly cpuPeak: UnwrapRef<typeof import('./composable/cloud/chatVisuals')['cpuPeak']>
     readonly createApp: UnwrapRef<typeof import('vue')['createApp']>
     readonly createContainerHints: UnwrapRef<typeof import('./composable/editor/exprEditor')['createContainerHints']>
     readonly createDisposableDirective: UnwrapRef<typeof import('@vueuse/core')['createDisposableDirective']>

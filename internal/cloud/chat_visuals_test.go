@@ -26,11 +26,16 @@ func TestVisualsFromProto(t *testing.T) {
 		},
 		{Type: "container_ranking", Metric: "restarts", Rows: []*pb.ChatVisualRankRow{{Container: "rook", HostId: "h1", Value: 24}}},
 		{Type: "logs", Container: "rook", Lines: []*pb.ViewLogLine{{TimestampNs: from, Level: "warn", Message: "WARNING: Invalid HTTP request received."}}},
+		// CPU carries only its series: the pane reads the peak off it.
+		{
+			Type: "cpu_over_time", Container: "rook", HostId: "h1", FromNs: from, ToNs: to,
+			Points: []*pb.ContainerMetricPoint{{TsNs: from, Cpu: 12.5, CpuMax: new(87.5)}},
+		},
 		// A type this build cannot draw is dropped, never handed to the pane.
 		{Type: "disk_vs_quota", Container: "rook"},
 	})
 
-	assert.Len(t, got, 4)
+	assert.Len(t, got, 5)
 
 	memory := got[0]
 	assert.Equal(t, int64(1_700_000_000_000), memory.From, "windows reach the browser in milliseconds")
@@ -48,6 +53,11 @@ func TestVisualsFromProto(t *testing.T) {
 
 	assert.Equal(t, []ChatVisualRankRow{{Container: "rook", HostID: "h1", Value: 24}}, got[2].Rows)
 	assert.Equal(t, "2023-11-14T22:13:20Z", got[3].Lines[0].Timestamp)
+
+	cpu := got[4]
+	assert.Equal(t, "cpu_over_time", cpu.Type)
+	assert.Equal(t, 12.5, cpu.Points[0].CPU)
+	assert.Equal(t, 87.5, *cpu.Points[0].CPUMax)
 
 	assert.Nil(t, visualsFromProto(nil))
 }

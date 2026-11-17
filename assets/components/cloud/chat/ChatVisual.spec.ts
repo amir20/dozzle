@@ -33,9 +33,11 @@ function render(visual: Visual) {
           fallbackWarn: false,
           messages: {
             en: {
+              label: { cpu: "CPU" },
               "cloud-chat": {
                 visual: {
                   memory: "Memory",
+                  peak: "peak {peak}",
                   "peak-of-limit": "peak {peak} of {limit}",
                   "no-events": "No exits or restarts recorded",
                   "no-events-stored": "No events are stored for this container",
@@ -81,6 +83,29 @@ describe("ChatVisual", () => {
     const bars = wrapper.findComponent(BarChartStub);
     expect(bars.props("max")).toBe(100);
     expect(bars.props("chartData")[0].percent).toBe(50);
+  });
+
+  test("CPU over time: its peak, and bars scaled to their own peak", () => {
+    const wrapper = render({
+      type: "cpu_over_time",
+      container: "dozzle_dozzle.1",
+      from: 0,
+      to: 1,
+      points: [
+        { ts: 0, cpu: 0.1, cpuMax: 2.1, memory: 0, memoryUsage: 0 },
+        { ts: 1, cpu: 0.2, memory: 0, memoryUsage: 0 },
+      ],
+    });
+    expect(wrapper.text()).toContain("peak 2.1%");
+    expect(wrapper.text()).toContain("CPU");
+    const bars = wrapper.findComponent(BarChartStub);
+    expect(bars.props("max")).toBeUndefined();
+    expect(bars.props("chartData").map((b: { percent: number }) => b.percent)).toEqual([0.1, 0.2]);
+  });
+
+  test("CPU over time with no series draws no chart", () => {
+    const wrapper = render({ type: "cpu_over_time", container: "rook", from: 0, to: 1, points: [] });
+    expect(wrapper.findComponent(BarChartStub).exists()).toBe(false);
   });
 
   test("pattern count: the total and cloud's buckets as they came", () => {

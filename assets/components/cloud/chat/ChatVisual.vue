@@ -24,6 +24,11 @@
       </div>
     </template>
 
+    <div v-else-if="visual.type === 'cpu_over_time' && visual.points?.length">
+      <span class="text-base-content/60 font-semibold tracking-wide uppercase">{{ $t("label.cpu") }}</span>
+      <BarChart :chart-data="cpuBarData" bar-class="text-primary" class="mt-1 h-16" />
+    </div>
+
     <SearchVolume
       v-else-if="visual.type === 'pattern_count' && visual.volume?.length"
       :buckets="visual.volume"
@@ -61,7 +66,7 @@
 
 <script lang="ts" setup>
 import type { Level } from "@/models/LogEntry";
-import { factsLine, memoryBars, type ChatVisual } from "@/composable/cloud/chatVisuals";
+import { cpuBars, cpuPeak, factsLine, memoryBars, type ChatVisual } from "@/composable/cloud/chatVisuals";
 
 const { visual } = defineProps<{ visual: ChatVisual }>();
 const { t } = useI18n();
@@ -83,6 +88,7 @@ const eventsLine = computed(() => {
 });
 const limit = computed(() => visual.memoryLimit ?? 0);
 const bars = computed(() => memoryBars(visual.points ?? [], limit.value));
+const cpuBarData = computed(() => cpuBars(visual.points ?? []));
 
 // The one number the picture is about, at the end of its title line.
 const aside = computed(() => {
@@ -93,6 +99,10 @@ const aside = computed(() => {
     return limit.value
       ? t("cloud-chat.visual.peak-of-limit", { peak, limit: formatBytes(limit.value, { decimals: 1 }) })
       : t("cloud-chat.visual.peak", { peak });
+  }
+  if (visual.type === "cpu_over_time") {
+    const peak = cpuPeak(visual.points ?? []);
+    if (peak !== undefined) return t("cloud-chat.visual.peak", { peak: `${peak.toFixed(1)}%` });
   }
   return "";
 });
