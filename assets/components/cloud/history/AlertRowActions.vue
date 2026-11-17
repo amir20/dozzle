@@ -1,12 +1,7 @@
 <template>
   <!-- The button Cloud cannot have. Cloud links out to its own page; here the
        same alert opens the real stream at the moment it fired. -->
-  <button
-    type="button"
-    class="btn btn-ghost btn-xs"
-    :title="label"
-    @click="jumpTo({ containerId: alert.containerId, date: new Date(alert.ts / 1e6), logId: alert.logId })"
-  >
+  <button type="button" class="btn btn-ghost btn-xs" :title="label" @click="showLines">
     <material-symbols:eye-tracking class="size-4" />
     <span class="hidden sm:inline">{{ label }}</span>
   </button>
@@ -27,6 +22,14 @@ import type { CloudAlert } from "@/composable/cloud/cloudAlerts";
 
 const { alert } = defineProps<{ alert: CloudAlert }>();
 const { jumpTo } = useLogJump();
+const { closeRail } = useCloudRail();
+
+// From the cloud drawer the stream is under a modal, so the drawer goes first.
+// On the notifications page there is no panel and closing it does nothing.
+function showLines() {
+  closeRail();
+  jumpTo({ containerId: alert.containerId, date: new Date(alert.ts / 1e6), logId: alert.logId });
+}
 const { t } = useI18n();
 
 // A CPU spike or a container event has no line to show — logId is absent for

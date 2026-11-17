@@ -99,8 +99,13 @@ const {
 // drawer; moving between tabs only changes what it shows. Clearing the panel
 // closes the drawer, unless another occupant has already taken it over.
 watch(cloudPanel, (next, prev) => {
-  if (next && !prev) showDrawer(CloudDrawer, {}, "md");
-  else if (!next && prev && drawerComponent.value === CloudDrawer) drawer.value?.close();
+  if (next && !prev) {
+    // Taking over the drawer is a close for whatever is in it, so its guard
+    // gets a say: a half-built alert form asks before it is thrown away.
+    const guard = drawerCloseGuard.value;
+    if (guard && !guard()) return closeRail();
+    showDrawer(CloudDrawer, {}, "md");
+  } else if (!next && prev && drawerComponent.value === CloudDrawer) drawer.value?.close();
 });
 // Every panel is about the logs on screen; leaving them leaves nothing to show.
 watch(railAvailable, (ok) => ok || closeRail());
@@ -146,7 +151,7 @@ onKeyStroke("k", (e) => {
 // layout rather than the toolbar so it works on every view it can talk about.
 onKeyStroke(["k", "K"], (e) => {
   if ((e.ctrlKey || e.metaKey) && e.shiftKey) {
-    toggleRail("chat");
+    if (railAvailable.value) toggleRail("chat");
     e.preventDefault();
   }
 });
