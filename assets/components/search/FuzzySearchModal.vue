@@ -213,7 +213,7 @@
                   <!-- ⇧⌘, the same pair that opens the chat from anywhere (⇧⌘K). -->
                   <template v-if="canHover">
                     <kbd class="kbd kbd-xs shrink-0">⇧</kbd>
-                    <kbd class="kbd kbd-xs shrink-0">⌘</kbd>
+                    <kbd class="kbd kbd-xs shrink-0">{{ isMac ? "⌘" : "Ctrl" }}</kbd>
                     <kbd class="kbd kbd-xs shrink-0">↵</kbd>
                   </template>
                 </template>
@@ -991,8 +991,9 @@ function mergeItem(item: Item) {
 // goes straight through rather than opening an empty pane to retype it in.
 function askAssistant() {
   const q = trimmedQuery.value;
-  // The chord works from any row, so it checks what the Ask row's presence would.
-  if (!q || !askAvailable.value) return;
+  // The chord works from any row, so it checks what the Ask row's presence
+  // would: no Ask among a container's actions or in the > commands scope.
+  if (!q || !askAvailable.value || drilled.value || scope.value === "commands") return;
   openPane();
   ask(q, view.value);
   close();

@@ -172,6 +172,12 @@ describe("<FuzzySearchModal />", () => {
       await wrapper.find("input").trigger("keydown", { key: "Enter", shiftKey: true, metaKey: true });
       expect(panel.value).toBe("chat");
       expect(useRouter().push).not.toHaveBeenCalled();
+
+      // Where the palette offers no Ask row, the chord does not ask either.
+      closeRail();
+      await wrapper.find("input").setValue(">timestamps");
+      await wrapper.find("input").trigger("keydown", { key: "Enter", shiftKey: true, metaKey: true });
+      expect(panel.value).toBeUndefined();
     } finally {
       closeRail();
       useCloudConfig().cloudConfig.value = null;
