@@ -801,10 +801,9 @@ const groups = computed<Group[]>(() => {
 
 const flatEntries = computed(() => groups.value.flatMap((group) => group.entries));
 const selectedEntry = computed<Entry | undefined>(() => flatEntries.value[selectedIndex.value]);
-// The rail exists on every page once cloud is linked, and the question goes out
-// with whatever that page is about.
-const { available: railAvailable } = useCloudRail();
-const askAvailable = computed(() => cloudLinked.value && railAvailable.value);
+// Ask exists on every page once cloud is linked, and the question goes out with
+// whatever that page is about.
+const askAvailable = cloudLinked;
 const askVisible = computed(() => askAvailable.value && !!trimmedQuery.value);
 const noLocalMatches = computed(() => {
   if (!trimmedQuery.value) return false;

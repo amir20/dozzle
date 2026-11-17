@@ -110,7 +110,7 @@ watch(cloudPanel, (next, prev) => {
     showDrawer(CloudDrawer, {}, "md");
   } else if (!next && prev && drawerComponent.value === CloudDrawer) drawer.value?.close();
 });
-// Every panel is about the logs on screen; leaving them leaves nothing to show.
+// Unlinking cloud leaves the panels with nothing to show.
 watch(railAvailable, (ok) => ok || closeRail());
 
 const modal = ref<HTMLDialogElement>();
