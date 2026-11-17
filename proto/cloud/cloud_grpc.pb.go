@@ -26,6 +26,7 @@ const (
 	CloudToolService_GetRecentDeploys_FullMethodName    = "/cloud.CloudToolService/GetRecentDeploys"
 	CloudToolService_GetPatternContext_FullMethodName   = "/cloud.CloudToolService/GetPatternContext"
 	CloudToolService_GetContainerMetrics_FullMethodName = "/cloud.CloudToolService/GetContainerMetrics"
+	CloudToolService_GetLogResume_FullMethodName        = "/cloud.CloudToolService/GetLogResume"
 	CloudToolService_Chat_FullMethodName                = "/cloud.CloudToolService/Chat"
 )
 
@@ -78,6 +79,14 @@ type CloudToolServiceClient interface {
 	// these samples over StatsBatch; this reads them back. Scoped server-side to
 	// the (user_id, api_key_id) on the connection, like everything else here.
 	GetContainerMetrics(ctx context.Context, in *GetContainerMetricsRequest, opts ...grpc.CallOption) (*GetContainerMetricsResponse, error)
+	// Dozzle-initiated unary call, made once per ToolStream connection before
+	// the log streamer starts: where each container's log stream should resume,
+	// so lines written while the link was down are sent instead of lost. Cloud
+	// answers with the newest line it stored per container; a container it
+	// leaves out starts from now. A Cloud without this RPC answers Unimplemented
+	// and Dozzle starts every container from now, as before. Scoped server-side
+	// to the (user_id, api_key_id) on the connection.
+	GetLogResume(ctx context.Context, in *GetLogResumeRequest, opts ...grpc.CallOption) (*GetLogResumeResponse, error)
 	// One assistant turn, opened by the Dozzle request that started it.
 	//
 	// Deliberately not served over ToolStream. That stream is owned by the
@@ -170,6 +179,16 @@ func (c *cloudToolServiceClient) GetContainerMetrics(ctx context.Context, in *Ge
 	return out, nil
 }
 
+func (c *cloudToolServiceClient) GetLogResume(ctx context.Context, in *GetLogResumeRequest, opts ...grpc.CallOption) (*GetLogResumeResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetLogResumeResponse)
+	err := c.cc.Invoke(ctx, CloudToolService_GetLogResume_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *cloudToolServiceClient) Chat(ctx context.Context, opts ...grpc.CallOption) (grpc.BidiStreamingClient[ChatClientEvent, ChatServerEvent], error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	stream, err := c.cc.NewStream(ctx, &CloudToolService_ServiceDesc.Streams[1], CloudToolService_Chat_FullMethodName, cOpts...)
@@ -232,6 +251,14 @@ type CloudToolServiceServer interface {
 	// these samples over StatsBatch; this reads them back. Scoped server-side to
 	// the (user_id, api_key_id) on the connection, like everything else here.
 	GetContainerMetrics(context.Context, *GetContainerMetricsRequest) (*GetContainerMetricsResponse, error)
+	// Dozzle-initiated unary call, made once per ToolStream connection before
+	// the log streamer starts: where each container's log stream should resume,
+	// so lines written while the link was down are sent instead of lost. Cloud
+	// answers with the newest line it stored per container; a container it
+	// leaves out starts from now. A Cloud without this RPC answers Unimplemented
+	// and Dozzle starts every container from now, as before. Scoped server-side
+	// to the (user_id, api_key_id) on the connection.
+	GetLogResume(context.Context, *GetLogResumeRequest) (*GetLogResumeResponse, error)
 	// One assistant turn, opened by the Dozzle request that started it.
 	//
 	// Deliberately not served over ToolStream. That stream is owned by the
@@ -271,6 +298,9 @@ func (UnimplementedCloudToolServiceServer) GetPatternContext(context.Context, *G
 }
 func (UnimplementedCloudToolServiceServer) GetContainerMetrics(context.Context, *GetContainerMetricsRequest) (*GetContainerMetricsResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method GetContainerMetrics not implemented")
+}
+func (UnimplementedCloudToolServiceServer) GetLogResume(context.Context, *GetLogResumeRequest) (*GetLogResumeResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method GetLogResume not implemented")
 }
 func (UnimplementedCloudToolServiceServer) Chat(grpc.BidiStreamingServer[ChatClientEvent, ChatServerEvent]) error {
 	return status.Error(codes.Unimplemented, "method Chat not implemented")
@@ -411,6 +441,24 @@ func _CloudToolService_GetContainerMetrics_Handler(srv interface{}, ctx context.
 	return interceptor(ctx, in, info, handler)
 }
 
+func _CloudToolService_GetLogResume_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetLogResumeRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CloudToolServiceServer).GetLogResume(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: CloudToolService_GetLogResume_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CloudToolServiceServer).GetLogResume(ctx, req.(*GetLogResumeRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _CloudToolService_Chat_Handler(srv interface{}, stream grpc.ServerStream) error {
 	return srv.(CloudToolServiceServer).Chat(&grpc.GenericServerStream[ChatClientEvent, ChatServerEvent]{ServerStream: stream})
 }
@@ -448,6 +496,10 @@ var CloudToolService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetContainerMetrics",
 			Handler:    _CloudToolService_GetContainerMetrics_Handler,
+		},
+		{
+			MethodName: "GetLogResume",
+			Handler:    _CloudToolService_GetLogResume_Handler,
 		},
 	},
 	Streams: []grpc.StreamDesc{

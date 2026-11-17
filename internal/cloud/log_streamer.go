@@ -56,6 +56,11 @@ const (
 	logBatchMaxBytes    = 256 * 1024
 	logBatchFlushPeriod = 1 * time.Second
 	logReaderChanBuffer = 128
+
+	// logResumeMaxGap caps how far back a reader resumes, whatever Cloud asks.
+	logResumeMaxGap = time.Hour
+	// logResumeFetchTimeout bounds the GetLogResume call made on connect.
+	logResumeFetchTimeout = 5 * time.Second
 )
 
 // logStreamer streams raw container log lines to Dozzle Cloud as unsolicited
@@ -68,17 +73,42 @@ type logStreamer struct {
 
 	mu      sync.Mutex
 	readers map[string]context.CancelFunc
+	// resume holds Cloud's resume point per readerKey for this connection. An
+	// entry is taken by the first reader for that container and then dropped,
+	// so a later reader (the container restarted) starts from now.
+	resume map[string]time.Time
 
 	wg sync.WaitGroup
 }
 
-func newLogStreamer(hostService LogStreamHostService, labels container.ContainerLabels, send func(resp *pb.ToolResponse) error) *logStreamer {
+func newLogStreamer(hostService LogStreamHostService, labels container.ContainerLabels, send func(resp *pb.ToolResponse) error, resume map[string]time.Time) *logStreamer {
 	return &logStreamer{
 		hostService: hostService,
 		labels:      labels,
 		send:        send,
 		readers:     make(map[string]context.CancelFunc),
+		resume:      resume,
 	}
+}
+
+// fetchLogResume asks Cloud where each container's stream should resume, keyed
+// by readerKey. Any error, including Unimplemented from a Cloud that predates
+// the RPC, returns nil and every reader starts from now, as before.
+func fetchLogResume(ctx context.Context, client pb.CloudToolServiceClient) map[string]time.Time {
+	ctx, cancel := context.WithTimeout(ctx, logResumeFetchTimeout)
+	defer cancel()
+	resp, err := client.GetLogResume(ctx, &pb.GetLogResumeRequest{})
+	if err != nil {
+		log.Debug().Err(err).Msg("log streamer: no resume points from cloud")
+		return nil
+	}
+	resume := make(map[string]time.Time, len(resp.GetPoints()))
+	for _, p := range resp.GetPoints() {
+		if p.GetAfterTsNs() > 0 {
+			resume[readerKey(p.GetHostId(), p.GetContainerId())] = time.Unix(0, p.GetAfterTsNs())
+		}
+	}
+	return resume
 }
 
 // run blocks until ctx is cancelled. It launches readers for all currently
@@ -149,6 +179,8 @@ func (ls *logStreamer) startReader(parent context.Context, c container.Container
 	}
 	readerCtx, cancel := context.WithCancel(parent)
 	ls.readers[key] = cancel
+	resumeAfter := ls.resume[key]
+	delete(ls.resume, key)
 	ls.mu.Unlock()
 
 	cs, err := ls.hostService.FindContainer(c.Host, c.ID, ls.labels)
@@ -168,21 +200,32 @@ func (ls *logStreamer) startReader(parent context.Context, c container.Container
 			ls.mu.Unlock()
 			cancel()
 		}()
-		ls.runReader(readerCtx, cs, minRank)
+		ls.runReader(readerCtx, cs, minRank, resumeAfter)
 	})
 }
 
 // runReader follows logs from a single container and pushes batches directly
 // to the cloud via ls.send. send() is serialised by the caller, so a slow
 // cloud connection backpressures all readers — this is intentional.
-func (ls *logStreamer) runReader(ctx context.Context, cs *container.ContainerService, minRank int) {
+//
+// A zero resumeAfter starts from now. Otherwise lines after resumeAfter (and
+// no older than logResumeMaxGap) are sent first, then the live stream.
+func (ls *logStreamer) runReader(ctx context.Context, cs *container.ContainerService, minRank int, resumeAfter time.Time) {
 	events := make(chan *container.LogEvent, logReaderChanBuffer)
 
 	streamErr := make(chan error, 1)
 	go func() {
 		defer close(events)
-		// Start from "now" to avoid replaying historical logs on every reconnect.
-		streamErr <- cs.StreamLogs(ctx, time.Now(), container.STDOUT|container.STDERR, events)
+		now := time.Now()
+		if resumeAfter.IsZero() || !resumeAfter.Before(now) {
+			// Start from "now" to avoid replaying historical logs on every reconnect.
+			streamErr <- cs.StreamLogs(ctx, now, container.STDOUT|container.STDERR, events)
+			return
+		}
+		if floor := now.Add(-logResumeMaxGap); resumeAfter.Before(floor) {
+			resumeAfter = floor
+		}
+		streamErr <- ls.resumeLogs(ctx, cs, resumeAfter, now, events)
 	}()
 
 	hostID := cs.Container.Host
@@ -276,6 +319,53 @@ func (ls *logStreamer) runReader(ctx context.Context, cs *container.ContainerSer
 			batchBytes += len(msg)
 		}
 	}
+}
+
+// resumeLogs sends the lines in (after, now) and then follows from now. The gap
+// is read as a closed range because a follow stream is capped at its last N
+// lines (Docker 100, k8s 500), which would cut a long gap short. Lines are
+// split at now by millisecond, LogEvent.Timestamp's unit, so the 50ms the
+// Docker follow reaches back and k8s's whole-second sinceTime send nothing twice.
+func (ls *logStreamer) resumeLogs(ctx context.Context, cs *container.ContainerService, after, now time.Time, events chan<- *container.LogEvent) error {
+	afterMs, nowMs := after.UnixMilli(), now.UnixMilli()
+
+	// The live stream opens before the gap is read. Opened after, it would ask
+	// for "since now" only once the gap had drained, and the follow request's
+	// tail (100 lines on Docker) would drop whatever a busy container wrote
+	// meanwhile. Opened first, it waits on its channel until the gap is sent.
+	live := make(chan *container.LogEvent, logReaderChanBuffer)
+	liveErr := make(chan error, 1)
+	go func() {
+		defer close(live)
+		liveErr <- cs.StreamLogs(ctx, now, container.STDOUT|container.STDERR, live)
+	}()
+
+	gap, err := cs.LogsBetweenDates(ctx, after, now, container.STDOUT|container.STDERR)
+	if err != nil {
+		log.Debug().Err(err).Str("container", cs.Container.Name).Msg("log streamer: could not read the gap, starting from now")
+	} else {
+		for ev := range gap {
+			if ev.Timestamp != 0 && (ev.Timestamp <= afterMs || ev.Timestamp >= nowMs) {
+				continue
+			}
+			select {
+			case events <- ev:
+			case <-ctx.Done():
+				return ctx.Err()
+			}
+		}
+	}
+
+	for ev := range live {
+		if ev.Timestamp != 0 && ev.Timestamp < nowMs {
+			continue
+		}
+		select {
+		case events <- ev:
+		case <-ctx.Done():
+		}
+	}
+	return <-liveErr
 }
 
 // messageToString renders a LogEvent.Message of any concrete type into a

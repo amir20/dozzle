@@ -57,6 +57,15 @@ service CloudToolService {
   // the (user_id, api_key_id) on the connection, like everything else here.
   rpc GetContainerMetrics(GetContainerMetricsRequest) returns (GetContainerMetricsResponse);
 
+  // Dozzle-initiated unary call, made once per ToolStream connection before
+  // the log streamer starts: where each container's log stream should resume,
+  // so lines written while the link was down are sent instead of lost. Cloud
+  // answers with the newest line it stored per container; a container it
+  // leaves out starts from now. A Cloud without this RPC answers Unimplemented
+  // and Dozzle starts every container from now, as before. Scoped server-side
+  // to the (user_id, api_key_id) on the connection.
+  rpc GetLogResume(GetLogResumeRequest) returns (GetLogResumeResponse);
+
   // One assistant turn, opened by the Dozzle request that started it.
   //
   // Deliberately not served over ToolStream. That stream is owned by the
@@ -451,6 +460,23 @@ message ContainerUpdate {
   // 15 consent, which was always "schedule".
   reserved 6, 14, 15;
   reserved "from_ref", "to_ref", "run_id", "consent";
+}
+
+message GetLogResumeRequest {}
+
+message GetLogResumeResponse {
+  repeated LogResumePoint points = 1;
+}
+
+// One container's resume point, keyed like LogBatchEntry.
+message LogResumePoint {
+  string host_id = 1;
+  string container_id = 2;
+  // Timestamp (unix nanoseconds) of the newest line Cloud stored for this
+  // container. Dozzle sends only lines strictly after it, compared at
+  // millisecond precision (the precision of LogBatchEntry.timestamp_ns), and
+  // never reaches back more than one hour before the connection opened.
+  int64 after_ts_ns = 3;
 }
 
 // Batch of log lines from one or more containers. Dozzle pushes these
