@@ -319,7 +319,32 @@ cloud-chat:
     events: Revisando el historial del contenedor
     docs: Leyendo la documentación
     notifications: Revisando notificaciones
-    action: Ejecutando la acción
+    count-logs: Contando líneas de log
+    image-history: Revisando el historial de imágenes
+    hosts: Listando hosts
+    instances: Listando instancias de Dozzle
+    docs-index: Consultando el índice de la documentación
+    web: Buscando en la web
+    ignore-finding: Ignorando el hallazgo
+    mute: Silenciando el patrón
+    unmute: Reactivando el patrón
+    mute-rules: Revisando las reglas de silencio
+    remember: Guardando una nota
+    forget: Eliminando una nota
+    schedule: Programando una comprobación
+    start: Iniciando el contenedor
+    stop: Deteniendo el contenedor
+    restart: Reiniciando el contenedor
+    remove: Eliminando el contenedor
+    update: Actualizando el contenedor
+    rollback: Revirtiendo el contenedor
+    image-updates: Buscando actualizaciones de imagen
+    create-alert: Creando una alerta
+    draw-memory: Dibujando la memoria frente a su límite
+    draw-cpu: Dibujando la CPU en el tiempo
+    draw-count: Dibujando el recuento de logs
+    draw-ranking: Clasificando contenedores
+    draw-logs: Mostrando líneas de log
   phase:
     reading: Leyendo la pregunta
     reviewing: Repasando lo encontrado

@@ -814,7 +814,32 @@ cloud-chat:
     events: 检查容器历史
     docs: 阅读文档
     notifications: 检查通知
-    action: 执行操作
+    count-logs: 统计日志行数
+    image-history: 检查镜像历史
+    hosts: 列出主机
+    instances: 列出 Dozzle 实例
+    docs-index: 查看文档索引
+    web: 搜索网络
+    ignore-finding: 忽略发现
+    mute: 将模式设为静音
+    unmute: 取消模式静音
+    mute-rules: 检查静音规则
+    remember: 保存笔记
+    forget: 删除笔记
+    schedule: 安排检查
+    start: 启动容器
+    stop: 停止容器
+    restart: 重启容器
+    remove: 移除容器
+    update: 更新容器
+    rollback: 回滚容器
+    image-updates: 检查镜像更新
+    create-alert: 创建告警
+    draw-memory: 绘制内存与上限
+    draw-cpu: 绘制 CPU 趋势
+    draw-count: 绘制日志数量
+    draw-ranking: 为容器排名
+    draw-logs: 显示日志行
   phase:
     reading: 阅读问题
     reviewing: 梳理找到的内容

@@ -816,7 +816,32 @@ cloud-chat:
     events: Sprawdzanie historii kontenera
     docs: Czytanie dokumentacji
     notifications: Sprawdzanie powiadomień
-    action: Wykonywanie akcji
+    count-logs: Liczenie linii logów
+    image-history: Sprawdzanie historii obrazów
+    hosts: Pobieranie listy hostów
+    instances: Pobieranie listy instancji Dozzle
+    docs-index: Sprawdzanie spisu dokumentacji
+    web: Wyszukiwanie w sieci
+    ignore-finding: Ignorowanie ustalenia
+    mute: Wyciszanie wzorca
+    unmute: Wyłączanie wyciszenia wzorca
+    mute-rules: Sprawdzanie reguł wyciszania
+    remember: Zapisywanie notatki
+    forget: Usuwanie notatki
+    schedule: Planowanie sprawdzenia
+    start: Uruchamianie kontenera
+    stop: Zatrzymywanie kontenera
+    restart: Restartowanie kontenera
+    remove: Usuwanie kontenera
+    update: Aktualizowanie kontenera
+    rollback: Przywracanie poprzedniej wersji kontenera
+    image-updates: Sprawdzanie aktualizacji obrazów
+    create-alert: Tworzenie alertu
+    draw-memory: Rysowanie pamięci względem limitu
+    draw-cpu: Rysowanie CPU w czasie
+    draw-count: Rysowanie liczby logów
+    draw-ranking: Układanie rankingu kontenerów
+    draw-logs: Wyświetlanie linii logów
   phase:
     reading: Czytanie pytania
     reviewing: Analiza wyników

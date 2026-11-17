@@ -814,7 +814,32 @@ cloud-chat:
     events: Controllo della cronologia del container
     docs: Lettura della documentazione
     notifications: Controllo delle notifiche
-    action: Esecuzione dell'azione
+    count-logs: Conteggio delle righe di log
+    image-history: Controllo della cronologia delle immagini
+    hosts: Elenco degli host
+    instances: Elenco delle istanze Dozzle
+    docs-index: Controllo dell'indice della documentazione
+    web: Ricerca sul web
+    ignore-finding: Esclusione del rilevamento
+    mute: Silenziamento dello schema
+    unmute: Riattivazione dello schema
+    mute-rules: Controllo delle regole di silenziamento
+    remember: Salvataggio di una nota
+    forget: Rimozione di una nota
+    schedule: Pianificazione di un controllo
+    start: Avvio del container
+    stop: Arresto del container
+    restart: Riavvio del container
+    remove: Rimozione del container
+    update: Aggiornamento del container
+    rollback: Rollback del container
+    image-updates: Ricerca di aggiornamenti dell'immagine
+    create-alert: Creazione di un avviso
+    draw-memory: Grafico della memoria rispetto al limite
+    draw-cpu: Grafico della CPU nel tempo
+    draw-count: Grafico del conteggio dei log
+    draw-ranking: Classifica dei container
+    draw-logs: Visualizzazione delle righe di log
   phase:
     reading: Lettura della domanda
     reviewing: Analisi di quanto trovato

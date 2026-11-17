@@ -826,7 +826,32 @@ cloud-chat:
     events: Memeriksa riwayat container
     docs: Membaca dokumentasi
     notifications: Memeriksa notifikasi
-    action: Menjalankan aksi
+    count-logs: Menghitung baris log
+    image-history: Memeriksa riwayat image
+    hosts: Menampilkan daftar host
+    instances: Menampilkan daftar instance Dozzle
+    docs-index: Memeriksa indeks dokumentasi
+    web: Mencari di web
+    ignore-finding: Mengabaikan temuan
+    mute: Membisukan pola
+    unmute: Membatalkan pembisuan pola
+    mute-rules: Memeriksa aturan bisu
+    remember: Menyimpan catatan
+    forget: Menghapus catatan
+    schedule: Menjadwalkan pemeriksaan
+    start: Memulai container
+    stop: Menghentikan container
+    restart: Memulai ulang container
+    remove: Menghapus container
+    update: Memperbarui container
+    rollback: Mengembalikan container ke versi sebelumnya
+    image-updates: Memeriksa pembaruan image
+    create-alert: Membuat peringatan
+    draw-memory: Menggambar memori terhadap batasnya
+    draw-cpu: Menggambar CPU dari waktu ke waktu
+    draw-count: Menggambar jumlah log
+    draw-ranking: Mengurutkan container
+    draw-logs: Menampilkan baris log
   phase:
     reading: Membaca pertanyaan
     reviewing: Menelaah hasil yang ditemukan
